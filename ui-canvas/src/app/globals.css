@@ -877,3 +877,23 @@ small { font-size: 11px; }
   .gd-map-left, .gd-map-right { border: 0; border-bottom: 1px solid var(--line); }
   .gd-toc { position: static; }
 }
+
+/* ---------- </> 코드 내보내기 창 (2026-10-21 병합 D, v1.11) ---------- */
+.uc-modal.uc-code-modal { max-width: 960px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.uc-code-note { font-size: 12px; line-height: 1.6; color: #94a3b8; }
+.uc-code-note code { color: #67e8f9; }
+.uc-code-note a { color: #67e8f9; text-decoration: underline; }
+.uc-code {
+  margin: 0; max-height: 48vh; overflow: auto; padding: 14px; border-radius: 10px;
+  background: #0a0e17; border: 1px solid #222d42; color: #e2e8f0;
+  font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; tab-size: 2;
+}
+.uc-snippets { display: grid; grid-template-columns: 220px 1fr; gap: 12px; min-height: 0; }
+.uc-snippets ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; align-content: start; max-height: 52vh; overflow: auto; }
+.uc-snippets ul button { width: 100%; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.uc-snippets ul button[aria-pressed=true] { border-color: #06b6d4; background: rgba(6, 182, 212, .12); }
+.uc-snippets small { font-size: 11px; color: #64748b; }
+.uc-snippet-view { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+@media (max-width: 767px) {
+  .uc-snippets { grid-template-columns: 1fr; }
+}

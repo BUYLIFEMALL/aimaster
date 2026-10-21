@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { MAX_DOC_BYTES, cleanName, sanitizeDoc } from "@/lib/projects";
+import { MAX_DOC_BYTES, cleanName, sanitizeDoc, sanitizeSnippets } from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -41,7 +41,7 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   const admin = createAdminClient();
   const { data: current } = await admin
     .from("ui_canvas_projects")
-    .select("id, updated_at")
+    .select("id, updated_at, doc")
     .eq("id", g.id)
     .eq("user_id", g.user.id)
     .maybeSingle();
@@ -54,6 +54,11 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   if (body.doc !== undefined) {
     const doc = sanitizeDoc(body.doc);
     if (!doc) return NextResponse.json({ error: "프로젝트 데이터가 올바르지 않습니다." }, { status: 400, headers: NO_STORE });
+    // 편집기 자동 저장은 snippets(저장한 AI 컴포넌트)를 보내지 않는다 → 기존 값을 그대로 둔다(2026-10-21 병합 D)
+    if (doc.snippets === undefined) {
+      const kept = sanitizeSnippets((current.doc as { snippets?: unknown } | null)?.snippets);
+      if (kept.length) doc.snippets = kept;
+    }
     patch.doc = doc;
     patch.component_count = doc.components.length;
   }

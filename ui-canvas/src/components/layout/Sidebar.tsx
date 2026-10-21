@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, KeyRound, LayoutDashboard, LogOut, Menu, PencilRuler, X } from "lucide-react";
+import { BookOpen, Blocks, KeyRound, LayoutDashboard, LogOut, Menu, PencilRuler, X } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
@@ -45,7 +45,10 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
         </a>
         <a className="flow-item" href="/dashboard">
           <span className="step-number">3</span>
-          <div><strong>내보내기 & 공유</strong><small>PNG 이미지 · 명세 JSON</small></div>
+          <div><strong>내보내기 & 공유</strong><small>PNG · JSON · React 코드</small></div>
+        </a>
+        <a className="nav-item" aria-current={currentPath.startsWith("/gallery") ? "page" : undefined} href="/gallery">
+          <Blocks size={17} />🧩 컴포넌트 갤러리
         </a>
         <div className="utility-menu">
           <a className="nav-item guide-highlight" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide">

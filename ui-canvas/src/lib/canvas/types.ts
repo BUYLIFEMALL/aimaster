@@ -37,11 +37,22 @@ export interface DesignSpec {
 
 export interface CanvasSize { width: number; height: number }
 
+/** 「🧩 컴포넌트 갤러리」 AI 생성기에서 저장한 컴포넌트 코드(2026-10-21 병합 D) */
+export interface Snippet {
+  id: string;
+  title: string;
+  prompt: string;
+  code: string;
+  createdAt: string;
+}
+
 export interface ProjectDoc {
   components: CanvasComponent[];
   spec: DesignSpec;
   canvas: CanvasSize;
   dark: boolean;
+  /** 편집기 자동 저장은 이 칸을 보내지 않는다 — 서버가 기존 값을 보존한다 */
+  snippets?: Snippet[];
 }
 
 export const EMPTY_SPEC: DesignSpec = { appName: "", appDescription: "", screenDescription: "" };

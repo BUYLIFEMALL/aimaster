@@ -237,7 +237,19 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
           <div><span><Sparkles size={16} /></span><div><strong>AI로 내용 채우기</strong><p>현재 UI 배치에 맞는 자연스러운 한국어 텍스트와 레이블을 자동 채웁니다.</p></div></div>
           <div><span><Download size={16} /></span><div><strong>이미지로 저장</strong><p>캔버스 전체를 1:1 고해상도 PNG 파일로 캡처하여 다운로드합니다.</p></div></div>
           <div><span><FileJson size={16} /></span><div><strong>컴포넌트 / 명세 JSON</strong><p>프론트엔드 개발팀에 그대로 전달할 수 있는 표준 명세서 파일입니다.</p></div></div>
+          <div><span><FileJson size={16} /></span><div><strong>{"</>"} 코드</strong><p>캔버스 화면을 React + Tailwind CSS 코드 한 파일로 복사하거나 .tsx로 받습니다. 갤러리에서 저장한 AI 컴포넌트도 여기서 다시 봅니다.</p></div></div>
         </div>
+      </section>
+
+      {/* 2026-10-21 병합 D: 컴포넌트 갤러리(옛 AI 웹 UI 제작 자동화) */}
+      <section id="gallery" className="card">
+        <h2>🧩 컴포넌트 갤러리</h2>
+        <p className="gd-lead">좌측 메뉴 [🧩 컴포넌트 갤러리]에서 예전 「AI 웹 UI 제작 자동화」의 기능을 그대로 씁니다.</p>
+        <ul className="gd-list">
+          <li><b>컴포넌트 갤러리·코드 라이브러리</b>: 버튼·입력·탭 등 12종 React + Tailwind 컴포넌트를 보고 TSX 코드를 복사합니다.</li>
+          <li><b>인터랙티브 데모실</b>: 장바구니·업로드·미디어 재생 같은 실제 상황 10종으로 동작을 체험합니다.</li>
+          <li><b>AI 컴포넌트 생성기</b>: 만들고 싶은 컴포넌트를 한 줄로 적으면 회원 본인 Gemini 키로 코드를 만들어 줍니다. 결과 아래 [캔버스 프로젝트에 저장]으로 보관하고, 그 프로젝트 편집기의 [{"</>"} 코드] → 「저장한 AI 컴포넌트」에서 다시 봅니다.</li>
+        </ul>
       </section>
 
       {/* 섹션 6: AI 기능과 키 등록 */}

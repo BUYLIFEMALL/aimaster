@@ -1,8 +1,31 @@
-import { DEFAULT_CANVAS, EMPTY_SPEC, type ProjectDoc } from "@/lib/canvas/types";
+import { DEFAULT_CANVAS, EMPTY_SPEC, type ProjectDoc, type Snippet } from "@/lib/canvas/types";
 import { isValidComponentsArray, sanitizeComponents } from "@/lib/canvas/model";
 
 export const MAX_DOC_BYTES = 2_000_000;
 export const MAX_COMPONENTS = 1500;
+export const MAX_SNIPPETS = 50;
+export const MAX_SNIPPET_CODE = 60_000;
+
+/** 저장한 AI 컴포넌트 목록을 검증·정리한다(잘못된 항목은 버린다). */
+export function sanitizeSnippets(input: unknown): Snippet[] {
+  if (!Array.isArray(input)) return [];
+  const out: Snippet[] = [];
+  for (const raw of input) {
+    if (!raw || typeof raw !== "object") continue;
+    const r = raw as Record<string, unknown>;
+    const code = typeof r.code === "string" ? r.code.slice(0, MAX_SNIPPET_CODE) : "";
+    if (!code.trim()) continue;
+    out.push({
+      id: typeof r.id === "string" && /^[A-Za-z0-9-]{8,64}$/.test(r.id) ? r.id : crypto.randomUUID(),
+      title: String(r.title ?? "").replace(/\s+/g, " ").trim().slice(0, 80) || "AI 컴포넌트",
+      prompt: String(r.prompt ?? "").slice(0, 2000),
+      code,
+      createdAt: typeof r.createdAt === "string" && !Number.isNaN(Date.parse(r.createdAt)) ? r.createdAt : new Date().toISOString(),
+    });
+    if (out.length >= MAX_SNIPPETS) break;
+  }
+  return out;
+}
 
 /** 클라이언트가 보낸 문서를 저장 가능한 모양으로 검증·정리한다. 잘못되면 null. */
 export function sanitizeDoc(input: unknown): ProjectDoc | null {
@@ -26,6 +49,7 @@ export function sanitizeDoc(input: unknown): ProjectDoc | null {
       height: Number.isFinite(height) ? Math.min(4000, Math.max(200, Math.round(height))) : DEFAULT_CANVAS.height,
     },
     dark: !!d.dark,
+    ...(d.snippets !== undefined ? { snippets: sanitizeSnippets(d.snippets) } : {}),
   };
 }
 

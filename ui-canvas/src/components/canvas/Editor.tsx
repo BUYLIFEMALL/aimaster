@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, Component, Download, FileJson, FileText, FolderOpen, Group, HelpCircle, ImagePlus, Layers, Moon, Redo2, Sun, Ungroup, Undo2, X,
+  ArrowLeft, Code2, Component, Download, FileJson, FileText, FolderOpen, Group, HelpCircle, ImagePlus, Layers, Moon, Redo2, Sun, Ungroup, Undo2, X,
 } from "lucide-react";
 import type { CanvasComponent, CanvasSize, ComponentType, DesignSpec, ProjectDoc } from "@/lib/canvas/types";
 import { CANVAS_PRESETS } from "@/lib/canvas/types";
@@ -15,6 +15,7 @@ import {
 import { useHistory } from "@/lib/canvas/useHistory";
 import { ComponentView } from "./ComponentView";
 import { ContextMenu, LayersPanel, PropertiesPanel, Toolbox } from "./Panels";
+import { CodeExportModal } from "./CodeExportModal";
 
 interface Props { projectId: string; initialName: string; initialDoc: ProjectDoc; initialUpdatedAt: string }
 type SaveState = "saved" | "dirty" | "saving" | "error" | "conflict";
@@ -64,6 +65,8 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
   const [imageBusy, setImageBusy] = useState(false);
   const [needKey, setNeedKey] = useState(false);
   const [help, setHelp] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [snippets, setSnippets] = useState(initialDoc.snippets ?? []);
   const [pendingAi, setPendingAi] = useState<{ spec: DesignSpec; components: CanvasComponent[] } | null>(null);
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -476,6 +479,7 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
         <button type="button" onClick={() => jsonInput.current?.click()} title="저장한 JSON 불러오기"><FolderOpen size={15} />불러오기</button>
         <button type="button" onClick={exportComponents}><FileJson size={15} />컴포넌트 JSON</button>
         <button type="button" onClick={exportSpec}><FileText size={15} />명세 JSON</button>
+        <button type="button" onClick={() => setCodeOpen(true)} title="캔버스 화면을 React + Tailwind 코드로 내보내고, 갤러리에서 저장한 AI 컴포넌트를 봅니다"><Code2 size={15} />{"</>"} 코드</button>
         <button type="button" className="primary" onClick={exportPng}><Download size={15} />이미지로 저장</button>
         <button type="button" title="도움말" onClick={() => setHelp(true)}><HelpCircle size={15} /></button>
         <input ref={jsonInput} type="file" accept=".json,application/json" multiple hidden onChange={(e) => onJsonFiles(e.target.files)} />
@@ -653,10 +657,18 @@ export function Editor({ projectId, initialName, initialDoc, initialUpdatedAt }:
               <li><b>되돌리기:</b> Ctrl+Z / Ctrl+Shift+Z, 복제 Ctrl+D, 삭제 Delete.</li>
               <li><b>AI:</b> [이미지로 만들기]는 UI 스크린샷을 분석해 컴포넌트와 명세를 만듭니다. [명세] 탭의 [AI로 내용 채우기]는 현재 캔버스를 보고 명세를 작성합니다. 본인 Gemini 키가 필요합니다.</li>
               <li><b>저장:</b> 변경하면 자동으로 저장됩니다. JSON·PNG로 내보낼 수도 있습니다.</li>
+              <li><b>코드:</b> 위쪽 [{"</>"} 코드]로 이 화면을 React + Tailwind 코드로 복사하거나 .tsx로 받고, 갤러리에서 저장한 AI 컴포넌트도 다시 봅니다.</li>
             </ul>
             <div className="actions"><a className="button primary" href="/guide" target="_blank" rel="noopener">그림·단계별 상세 매뉴얼 열기</a></div>
           </div>
         </div>
+      )}
+
+      {codeOpen && (
+        <CodeExportModal
+          projectId={projectId} name={name} dark={dark} canvas={canvas} components={components}
+          snippets={snippets} onSnippets={setSnippets} onClose={() => setCodeOpen(false)} say={say}
+        />
       )}
 
       {toast && <div className={`uc-toast ${toast.kind}`} role="status">{toast.text}</div>}
