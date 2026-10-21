@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 음악(SUNO) v1.33 작은 개선 + Suno 뮤직비디오 재시도 성공
+
+v1.33: Suno 영어 실패 문구 한국어 안내, 30일 정리 때 곡·변주 폴더 통째 삭제(바뀐 예전 커버 포함), 구간 수정본 커버 파일 복사. 뮤직비디오 재시도(승인 1회): 약 5분 뒤 성공, MP4 8.3MB 우리 저장소 저장·비공개 확인(화면 재생은 시험 계정 로그인 때). 배포 Ready, DB v1.33. 비용: Vercel 빌드 1회, Suno 영상 1회. 다음: 보컬 추가·반주 추가·매시업 — 플랜 `music/docs/PLAN_20261021_ADD_VOCALS_MASHUP.md`, DB 칸 추가·실제 시험 3회 승인 대기.
+
+https://music-automation.buylife.xyz/plannings
+
 ## 2026-10-21 Claude Code(맥미니, 보조 계정) — 이커머스 병합 E0~E2 코드 완료 (5개 → 3개) · 윈도우 배포 대기
 
 주인님 승인 「E0부터 E2까지 순서대로」. 대상 ① 운영, DB ref `esgxyikcnnvmlhygjkth`(맥미니는 읽기만). **E0** `shop-detail-page` v1.15(`0eba4e0f`): 회원 이미지 버킷 비공개 + `/api/image` 서명 주소, 30일 자동 정리(9월 자료는 2026-11-21까지 유예 — 주인님 결정). **E1** v1.16 + `detail-page-12p` v1.10(`6961fc0a`): 쿠팡 12단·스마트스토어 9단 규격, 사양서 PDF 분석, 모바일 미리보기, 12단 JSON 가져오기 / 12단은 이동 안내 + 백업만. **E2** v1.17 + `auto-detail-page` v1.21: HTML 상세페이지 내보내기(지어낸 후기·수치·스크립트 제거) / 자동생성기는 이동 안내. 별도: `trending-product-finder` v1.22(`c6c7046e`, gemini-2.0-flash → 3.5-flash). 맥미니 검수: tsc 0·무료 로직 시험, AI 호출 0. **윈도우 CLI 다음 첫 단계**: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` E0 → E1 → E2 순서(마이그레이션·배포 순서 주의), SQL `docs/analysis-ecommerce-consolidation-20261021/E1_*.sql`·`E2_*.sql`. 보고서 §6: [`docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](analysis-ecommerce-consolidation-20261021/REPORT.md). 남은 결정: 통합 프로그램 이름, 실제 생성 시험 비용 승인.
