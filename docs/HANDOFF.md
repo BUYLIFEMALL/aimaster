@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ⏸ 배포판 `/cardnews` 처리도 다음 INSTA 배포 때 함께 · 「좁은 칸 버튼」 세션께 알림
+- 주인님 지시로 INSTA 포스팅 배포판 `/cardnews` 직접 입력 → 대시보드 이동은 다음 INSTA 배포 때 함께(방법: `insta_auto_poster/AGENTS.md` 2026-10-22 「⏸ 대기」).
+- **⚠️ 「좁은 칸 버튼 줄바꿈 수정」 세션께**: 그 세션이 배포할 `threads-affiliate-poster`·`threads-comment-reply`·`instagram-comment-reply`·`insta_auto_poster`·`ai-influencer-studio`·`ai-webtoon-studio`에는 제가 저장소에만 반영해 둔 공용 그래프 사본 변경(`components/weekChart`·`lib/weekChart` — 글자 크게, 문구 선택 항목, 썸네일 숨김 등, 동작·화면 거의 같음)이 함께 나갑니다. 배포 뒤 각 대시보드의 「📊 최근 7일」 그래프가 정상인지 한 번 봐 주시고, 각 `AGENTS.md`의 「⏸ 보류 — 7일 그래프 글자 크게」 항목을 「배포됨(버전)」으로 바꿔 주세요. 쇼핑제휴는 v1.79가 이미 이 글자 크기로 배포돼 있습니다.
+- 같은 이유로 주인님이 지금 진행을 원하신 「최근 7일 게시 완료만」 조회(웹툰·AI 인플루언서·INSTA)와 네컷 그래프(공용 그래프 사본 8곳 덮어씀)는 그 세션이 해당 폴더 작업을 끝낸 뒤 Claude Code(윈도우)가 이어서 진행합니다.
+
 ## 2026-10-22 Claude Code(윈도우) — 음악(SUNO) v1.43 기획 상세에서 곡마다 넣을 버전 고르기
 
 기획 상세에 「#1 · #2 · 빼기」 고르기(`music/components/plannings/PlanningExportPicker.tsx`) → 고른 결과로 플레이리스트 링크·목차·CSV. 크롬 시험 계정에서 확인. 배포 `music-q6h59rgx0` Ready, DB v1.43. 비용: Vercel 빌드 1회. ⚠️ 다른 세션(버튼 줄바꿈 수정 B안)이 `music/`를 작업 중이라 그 세션의 미커밋 `music/components/settings/ApiKeyRow.tsx`(CSS 3줄)가 v1.43 배포에 함께 들어감 — 되돌리지 않았고 커밋은 그 세션 몫. 이 세션은 음악 폴더 작업을 여기서 멈춤.
