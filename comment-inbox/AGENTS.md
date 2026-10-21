@@ -85,3 +85,6 @@ https://comment-inbox.buylife.xyz
 - 시험 42개(`npm test`): 그날 목록(본인·게시된 항목만, 원래 댓글·DM 이름, 최근 것부터)·공용 도움 함수 시험 추가. 가짜 DB에 `gte`·`lt`·`in`·`order`·`limit` 추가.
 - 검수: tsc·시험·build, 커밋 `472abe68`, 배포 `comment-inbox-3u3pu8b29` READY, DB v1.08, 크롬에서 v1.08·오늘 막대 누르면 「이날은 게시·발송한 답장이 없어요」 확인. 기록 0건이라 목록 항목 모양은 실제 데이터로 미확인. 비용: Vercel 빌드 1회.
 - 같은 날 `noun` 추가(커밋 `10835a02`)는 기준 파일만 바뀌고 동작 같음 — **받은편지함·세 댓글 프로그램은 다음 배포 때 함께 나감**.
+
+### 2026-10-22 미배포 공용 변경 안내
+- **미배포 공용 변경 안내(2026-10-22, Claude Code 윈도우) — 다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나감**: 공용 기준 코드 사본 `components/weekChart/WeekReplyChart.tsx`(흐름 문장 `noun`·막대 안내 `selectHint`·숨겨진 막대 설명 중립화)·`WeekReplyPanel.tsx`(문구 `labels`·작성자 선택·썸네일 `thumbUrl`과 안 열리면 숨김)·`lib/weekChart/bucket.ts`(`publicImageUrl`) — 이 프로그램은 기준 파일이라 다음 배포 때 v1.09로이 저장소에서 바뀌었지만 이 프로그램 화면·동작은 같다(기본값 그대로). 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 배포 뒤 이 줄을 「배포됨(버전)」으로 바꾼다. 목록: 루트 `docs/SHARED_MODULES.md`.

@@ -179,3 +179,8 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 회원 토큰 확인(`memberIdForToken`)에서 토큰은 맞지만 실행 방식이 「내 cron-job.org」가 아니면 지금처럼 401을 돌려주되 **cron-job.org 작업을 끄고 `active: false`로 정리**(재개·방식 변경이 겹쳐 작업이 켜진 채 남으면 5분마다 401 헛호출이 이어지던 문제). 직전 배포(c69b0407)의 `skipPausedMember` 방식 조건은 토큰 확인이 먼저 401로 걸러 닿지 않는 코드였으므로 일시정지만 보는 원래 조건으로 되돌림. 커밋 `be5c5107`, DB 버전 크롬 SQL Editor, 15개 순차 배포 Ready·가짜 토큰 401.
 - 재현 검수(상품소싱, 관리자): 작업을 켠 뒤 DB 방식만 Vercel로 → 11:00 회원 실행 401 + 작업 꺼짐(`active: false`) → 11:05~11:34 호출 없음. 시험 전 상태로 복귀.
 - 인스타 공용 기준 코드(`insta-member-scheduler`, 기준 cardnews-studio) 사본 — `node scripts/check-shared-modules.mjs --sync`로 반영.
+
+## 2026-10-22 v1.25~v1.26 — 「📊 최근 7일 게시」 그래프 (Claude Code 윈도우)
+- 기획 단계(`activeTab === "concept"`)의 예약 요약 아래(`src/components/StudioWorkspace.tsx`)에 접힌 한 줄 「📊 최근 7일 게시 n건 · 그래프 보기」 → 펼치면 날짜별 그래프 + 막대 누르면 그날 게시한 글(캡션 앞부분·인스타 바로가기).
+- 공용 기준 코드 사본(직접 고치지 말 것): `src/components/weekChart/InstaWeekPosts.tsx`(기준 insta_auto_poster)·`WeekReplyPanel.tsx`·`WeekReplyChart.tsx`·`src/lib/weekChart/bucket.ts`(기준 comment-inbox). 데이터는 기존 `/api/instagram/posts`(본인 최근 30건, 공용 `insta-posts-route` — 응답에 `caption` 추가). 게시 완료 뒤 이미지를 지우는 표라 썸네일은 없음.
+- 검수: tsc·build, 커밋 `4ae8a4b9`·`3e7ecf43`·`bf0b8479`, 배포 `ai-webtoon-studio-p3adgzpfw`(v1.25) → `ai-webtoon-studio-4dzj067l9`(v1.26) READY, DB 반영, 크롬(시험 회원)에서 버전·접힌 한 줄·펼치기·막대 누르기 「이날 게시한 글이 없어요」. 게시 기록 0건이라 높이 있는 막대는 미확인. 비용: Vercel 빌드 2회(썸네일 바로잡기 다시 배포 1회 포함).

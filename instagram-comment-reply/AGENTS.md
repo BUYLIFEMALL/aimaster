@@ -277,3 +277,6 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - 공용 기준 코드 `week-reply-panel` 사본 `components/weekChart/WeekReplyPanel.tsx`(직접 고치지 말 것, 기준 comment-inbox) + 이 프로그램 서버 동작 `lib/actions/weekReplies.ts` `loadWeekDayRepliesAction`: 이용 권한 확인 → 회원 세션(RLS)·user_id·status=posted·한국 시간 그날 범위(최근 7일 안만, `weekDayRange`)·최근 50건, 원래 댓글·답글 앞 80자(`previewText`). 댓글(`ig_comments`)과 DM(`dm_messages` + `dm_conversations.customer_username`)을 합쳐 최근 것부터, 항목을 누르면 `/history`·`/dm/history`.
 - 검수: tsc·build, 커밋 `472abe68`, 배포 `instagram-comment-reply-5u1lgetdy` READY, DB v1.35, 크롬 대시보드에서 v1.35·막대 7개·오늘 막대 누르면 「이날은 게시·발송한 답장이 없어요」(서버 왕복·오류 없음). 기록 0건이라 목록 항목 모양은 미확인. 비용: Vercel 빌드 1회.
 - 같은 날 그래프 사본에 `noun` 선택 항목 추가(커밋 `10835a02`, 동작 같음) — **다음 배포 때 함께 나감**.
+
+## 2026-10-22 미배포 공용 변경 안내
+- **미배포 공용 변경 안내(2026-10-22, Claude Code 윈도우) — 다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나감**: 공용 기준 코드 사본 `components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx`·`lib/weekChart/bucket.ts`(문구 선택 항목·썸네일·`publicImageUrl`)이 저장소에서 바뀌었지만 이 프로그램 화면·동작은 같다(기본값 그대로). 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 배포 뒤 이 줄을 「배포됨(버전)」으로 바꾼다. 목록: 루트 `docs/SHARED_MODULES.md`.

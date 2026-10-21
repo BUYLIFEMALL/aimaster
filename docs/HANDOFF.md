@@ -28,6 +28,13 @@ https://tistory-auto-blog.buylife.xyz
 - 비용: Vercel 빌드 4회(순차), 유료 AI 0회.
 - 못 한 것: 시험 계정 화면·실제 생성(비용). 상세: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 「배포 결과」, `trending-product-finder/AGENTS.md` 맨 아래.
 - 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz
+## 2026-10-22 Claude Code(윈도우) — 카드뉴스·AI 인플루언서·웹툰 「최근 7일 게시」 그래프 · 그날 목록 썸네일 · 미배포 공용 변경 안내 (INSTA 포스팅 v1.46 · AI 인플루언서 v1.23 · 웹툰 v1.26 · 쇼핑제휴 v1.78)
+- 새 공용 기준 코드 `insta-week-posts`(기준 INSTA 포스팅): 기존 본인 게시 기록 API로 그래프 + 그날 게시 글. 카드뉴스 홈(펼침)·AI 인플루언서·웹툰(접힌 한 줄). **네컷은 Tailwind가 없어 미적용**(`four-cut-comics/docs/IMPROVEMENTS.md`).
+- 썸네일: 공용 `publicImageUrl` + 그날 목록 48px 썸네일(안 열리면 숨김). 피드·쇼핑제휴만 표시 — 카드뉴스·AI 인플루언서·웹툰·네컷은 게시 직후 저장소 이미지를 지워 썸네일 없음(처음 배포 뒤 발견해 바로잡고 다시 배포).
+- 미배포 공용 변경 안내 한 줄: 받은편지함·세 댓글 프로그램·네컷 `AGENTS.md`, 쇼핑제휴 인수인계 문서.
+- 커밋 `4ae8a4b9`·`3e7ecf43`·`bf0b8479`. 배포 7회 모두 READY·DB 반영·크롬 확인. 비용: Vercel 빌드 7회(썸네일 바로잡기 3회 포함), 유료 AI 0회.
+- 프로그램: https://auto-instagram-posting.buylife.xyz/cardnews · https://ai-influencer.buylife.xyz · https://ai-webtoon-automation.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 자동 게시 2곳 게시 시각 칸(DB, 주인님 승인) · 막대 누르면 그날 게시한 글 · INSTA 포스팅 인스타 게시 전체 쌓기 (쇼핑제휴 v1.77 · INSTA 포스팅 v1.44)
 - **운영 DB `esgxyikcnnvmlhygjkth`**: `tap_posts`·`insta_posts`에 `published_at` 추가(주인님 승인, 크롬 SQL 편집기·한 트랜잭션). 기존 게시 10·3건은 그때의 `updated_at`으로 채우고 트리거를 잠깐 꺼 `updated_at`은 그대로(검증 일치). 마이그레이션 기록은 두 프로그램 `supabase/migrations/20261022100000_*`.
 - 게시 완료 때 `published_at` 기록, 그래프는 그 칸 기준. 막대 누르면 그날 게시한 글(공용 `week-reply-panel`에 문구 `labels` 추가). INSTA 포스팅은 피드·카드뉴스·AI 인플루언서·웹툰·네컷 게시 표(`insta_posts`·`cns_`·`aif_`·`wts_`·`fcc_insta_posts`)를 묶음별 색으로 쌓음(`src/lib/instaWeek.ts`, 배포판은 피드만).

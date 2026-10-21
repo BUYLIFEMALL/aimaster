@@ -16,3 +16,7 @@
 - 미배포(다음 배포 때 함께): 막대 숨겨진 설명 문구(커밋 `6c2d922d`).
 - `AGENTS.md` 버전 기록(4번)에 v1.76·v1.77 두 줄을 옮겨 줄 것(다른 작업자 미커밋 변경이 정리된 뒤).
 - 같은 날 보완(커밋 `21280e5f`, 미배포·동작 같음): 게시 완료 저장에서 `published_at` 칸이 없다는 오류면 칸을 빼고 다시 저장. 이 프로그램 `KIT/database`에는 `tap_posts` 표 자체가 없어(다른 구성) 키트 SQL은 고치지 않음 — 키트를 정비할 때 함께 확인.
+
+## v1.78 — 그날 목록 썸네일 (Claude Code 윈도우, 같은 날)
+- `src/lib/actions/weekPosts.ts`가 `image_url`(쉼표로 이어진 공개 주소)의 첫 장을 썸네일로(`publicImageUrl`, 실제 주소 200 확인). 커밋 `3e7ecf43`, 배포 `threads-affiliate-poster-lkwr1fvyn` READY, DB v1.78. 비용: Vercel 빌드 1회.
+- 미배포(다음 배포 때 함께): 공용 그날 목록의 「이미지가 안 열리면 썸네일 숨김」(커밋 `bf0b8479`).
