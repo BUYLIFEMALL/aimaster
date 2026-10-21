@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 음악(SUNO) v1.31~v1.32 Suno 커버 이미지·뮤직비디오
+
+곡 카드 「🖼️ Suno 커버 받기(2장)」(곡당 1번)→「이 커버로 바꾸기」, 변주마다 「🎬 Suno 뮤직비디오(MP4)」(표시 이름 선택). 새 표 `music_track_media`(승인, 운영 ref `esgxyikcnnvmlhygjkth`, 회원별 RLS, 30일 정리 포함), 결과 수신 `/api/webhooks/suno-media`(잠금+waitUntil, 우리 저장소로 복사), 「상태 확인」. 실제 호출(승인 2회): **커버 성공**(약 2분, 2장 저장, 화면 표시, 바꾸기 확인) / **영상은 Suno 서버 오류로 실패**(약 11분 뒤 `GENERATE_MP4_FAILED` 500 「Internal Error」, 실패 알림 정상 수신·저장, 크레딧 환불 대상) — 재시도는 주인님 승인 대기. v1.32: 「이 커버로 바꾸기」가 변주 표에 회원 수정 정책이 없어 0건 수정되던 결함 수정(본인 확인 뒤 관리자 클라이언트). 배포 Ready, DB v1.32. 비용: Vercel 빌드 2회, Suno 커버 1·영상 1(실패). 다음: 영상 재시도 여부 → 보컬/반주 추가·매시업. 상세 `music/AGENTS.md` v1.31·v1.32.
+
+https://music-automation.buylife.xyz/plannings
+
 ## 2026-10-21 Claude Code(윈도우) — 이미지 보안 보강: 공개 버킷 2개 비공개 + 30일 정리 cron (병합 A 전 선행)
 
 주인님 결정으로 이미지 병합보다 먼저. **AI 이미지 스튜디오 v1.23**: 결과 버킷 `ai-image-generations` 비공개, 기록에 `image_path`·화면은 서명 주소(24시간), 갤러리 열람 때 전체 회원분을 지우던 정리를 `/api/cron/cleanup`(매일 03:00 KST)으로. **이미지 스타일 분석기 v1.23**: 원본 버킷 `style-dna-images` 비공개, 서명 주소(6시간), 생성일 30일 정리 cron. 두 프로젝트에 `CRON_SECRET` 추가(Sensitive). 운영 DB(`esgxyikcnnvmlhygjkth`) 버킷 2개 `public=false`·버전 v1.23. 검수: 옛 공개 주소 400·서명 200, 크롬 일반 회원 화면 정상, 정리 주소 비밀값 없음 401. **cron 첫 실제 실행은 다음 03:00 KST — Vercel 로그 확인 필요.** 비용: Vercel 빌드 2회, Gemini 이미지 1장(시험 계정 본인 키, 약 $0.034). 다음: 병합 A(포토 리메이크 → 바나나 캔버스). 보고서 `docs/analysis-image-consolidation-20261021/REPORT.md` §6.

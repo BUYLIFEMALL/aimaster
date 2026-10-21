@@ -300,6 +300,79 @@ export async function requestSunoReplaceSection(input: RequestSunoReplaceSection
   return data.data.taskId;
 }
 
+// 2026-10-21 Suno V6 3차 ⑦⑧: Suno 커버 이미지·뮤직비디오(MP4). 두 기능 모두 결과를 /api/webhooks/suno-media로 받는다.
+export type SunoMediaKind = "suno_cover" | "video";
+
+/**
+ * Suno `/api/v1/suno/cover/generate` — 곡 작업(taskId)의 커버 이미지(보통 2장). 곡 작업당 1번만 가능하며,
+ * 이미 만든 곡이면 400과 기존 작업 번호를 돌려준다 → 그 번호를 그대로 받아 결과를 이어 받는다.
+ */
+export async function requestSunoCover(sourceTaskId: string, apiKey: string): Promise<string> {
+  if (!apiKey) throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  const response = await fetch(`${SUNO_BASE}/api/v1/suno/cover/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ taskId: sourceTaskId, callBackUrl: `${SUNO_CALLBACK_ORIGIN}/api/webhooks/suno-media` }),
+  });
+  const data = (await response.json().catch(() => null)) as { code?: number; msg?: string; data?: { taskId?: string } } | null;
+  if (data?.data?.taskId && (data.code === 200 || data.code === 400)) return data.data.taskId;
+  const code = data?.code ?? response.status;
+  throw new Error(`Suno 커버 요청이 실패했습니다. (${code})${sunoStatusHint(code)} ${data?.msg ?? ""}`.trim());
+}
+
+/** Suno `/api/v1/mp4/generate` — 특정 곡(taskId+audioId)의 뮤직비디오 MP4. author·domainName은 영상에 표시되는 이름(각 50자). */
+export async function requestSunoVideo(
+  input: { sourceTaskId: string; audioId: string; author?: string },
+  apiKey: string,
+): Promise<string> {
+  if (!apiKey) throw new Error("Suno API 키가 없습니다. 설정 > API 키 설정에서 본인의 Suno API 키를 등록해주세요.");
+  const author = input.author?.trim().slice(0, 50);
+  const response = await fetch(`${SUNO_BASE}/api/v1/mp4/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      taskId: input.sourceTaskId,
+      audioId: input.audioId,
+      ...(author ? { author } : {}),
+      callBackUrl: `${SUNO_CALLBACK_ORIGIN}/api/webhooks/suno-media`,
+    }),
+  });
+  const data = (await response.json().catch(() => null)) as { code?: number; msg?: string; data?: { taskId?: string } } | null;
+  if (data?.code === 200 && data.data?.taskId) return data.data.taskId;
+  const code = data?.code ?? response.status;
+  throw new Error(`Suno 뮤직비디오 요청이 실패했습니다. (${code})${sunoStatusHint(code)} ${data?.msg ?? ""}`.trim());
+}
+
+export type SunoMediaPollResult =
+  | { status: "pending" }
+  | { status: "completed"; urls: string[] }
+  | { status: "failed"; message: string };
+
+/** 결과가 콜백으로 오지 않았을 때 상태 조회(/suno/cover/record-info, /mp4/record-info). 응답 칸 이름이 문서마다 달라 여러 이름을 함께 읽는다. */
+export async function checkSunoMediaStatus(kind: SunoMediaKind, taskId: string, apiKey: string): Promise<SunoMediaPollResult> {
+  const path = kind === "suno_cover" ? "/api/v1/suno/cover/record-info" : "/api/v1/mp4/record-info";
+  const response = await fetch(`${SUNO_BASE}${path}?taskId=${encodeURIComponent(taskId)}`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+    cache: "no-store",
+  });
+  const body = (await response.json().catch(() => null)) as { code?: number; msg?: string; data?: Record<string, unknown> } | null;
+  const d = (body?.data ?? {}) as Record<string, unknown>;
+  const resp = (d.response ?? {}) as Record<string, unknown>;
+  const state = String(d.successFlag ?? d.status ?? "");
+  const pick = (...vals: unknown[]) => vals.find((v) => v != null);
+  const urls =
+    kind === "suno_cover"
+      ? ((pick(resp.images, d.images) as string[] | undefined) ?? [])
+      : [pick(resp.videoUrl, resp.video_url, d.videoUrl, d.video_url) as string | undefined].filter((u): u is string => !!u);
+  if (urls.length) return { status: "completed", urls };
+  // 커버: successFlag 0 대기·1 성공·2 생성 중·3 실패 / 영상: PENDING·SUCCESS·CREATE_TASK_FAILED·GENERATE_MP4_FAILED·CALLBACK_EXCEPTION
+  // (CALLBACK_EXCEPTION은 콜백만 실패한 경우라 위에서 영상 주소가 있으면 이미 완료로 처리된다)
+  if (state === "3" || /FAILED|EXCEPTION/.test(state) || (body?.code && body.code !== 200)) {
+    return { status: "failed", message: String(d.errorMessage ?? body?.msg ?? "Suno가 결과를 만들지 못했습니다.") };
+  }
+  return { status: "pending" };
+}
+
 export interface RequestSunoRemixInput {
   uploadUrl: string; // 리믹스할 원곡 오디오 URL(업로드본 또는 기존 variant의 audio_url)
   title: string; // Suno title(예: "{원곡 제목} Remix")

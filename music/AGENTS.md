@@ -337,3 +337,12 @@ POST 콜백을 보낸다. 이 라우트는:
 - 검수: tsc·lint·테스트 55·build, 배포 Ready, DB v1.30, 크롬 가이드 문구·버전 확인. **앱 버튼으로 하는 연장은 다시 시험하지 않음**(승인 1회를 API 직접 시험에 사용) — 다음에 회원·주인님이 「곡 연장하기」를 쓸 때 성공하는지 확인 필요.
 - 참고: 연장 결과는 이어 붙인 지점(151초) 앞부분을 다시 쓰므로, 원곡 마지막 30초(아웃트로)는 새 파트로 바뀐다.
 - 비용: Suno 연장 1회, Vercel 빌드 1회.
+
+## 2026-10-21 v1.31~v1.32 — Suno V6 3차 ⑦⑧: Suno 커버 이미지 · 뮤직비디오(MP4) (Claude Code 윈도우)
+- 플랜 [docs/PLAN_20261021_SUNO_COVER_VIDEO.md](docs/PLAN_20261021_SUNO_COVER_VIDEO.md). sunoapi.org `POST /api/v1/suno/cover/generate`(곡 작업당 1번, 다시 부르면 400+기존 작업 번호 → 그대로 이어 받음)·`POST /api/v1/mp4/generate`(`taskId`+`audioId`, 선택 `author`). 상태 조회 `/suno/cover/record-info`(successFlag 0 대기·1 성공·2 생성 중·3 실패)·`/mp4/record-info`(PENDING·SUCCESS·…FAILED·CALLBACK_EXCEPTION).
+- **DB(승인)** `supabase/migrations/0018_track_media.sql`: 새 표 `music_track_media`(kind `suno_cover`|`video`, task_id, status, urls jsonb, updated_at 트리거, 회원별 RLS). 곡 삭제 시 cascade, 30일 정리(`app/api/cron/cleanup`)에 파일 포함. 저장소 파일 한도 200MB 확인. SQL 편집기의 「삭제성 작업 포함」 경고는 `drop trigger if exists`·`revoke` 때문(기존 데이터 영향 없음).
+- 코드: `lib/ai/suno.ts`(`requestSunoCover`·`requestSunoVideo`·`checkSunoMediaStatus`), `lib/mediaSync.ts`(우리 저장소 `{user}/{track}/suno-cover-N.png`·`{user}/{variant}/suno-video.mp4` 복사), `app/api/webhooks/suno-media/route.ts`(잠금 `syncLock` 표 추가 → 즉시 200 → waitUntil), `lib/actions/media.ts`(요청·상태 확인·커버 바꾸기), 화면 `components/plannings/SunoMedia.tsx`(곡 단위 `SunoCoverPanel`, 변주 단위 `SunoVideoButton`), 기획 상세 조회에 `music_track_media(*)`·생성 중 자동 새로고침.
+- **v1.32 결함 수정**: 「이 커버로 바꾸기」 — `music_track_variants`에 회원 수정 정책이 없어 0건 수정 → 본인 확인 뒤 관리자 클라이언트 + 바뀐 건수 확인(`docs/ERROR_LESSONS.md` 2026-10-21).
+- 검수: tsc·lint·테스트 55·build, 배포 Ready(v1.31·v1.32), DB v1.32. **실제 호출(승인 2회)**, 크롬 시험 계정 「빗속의 다짐」 원곡: ① 커버 — 약 2분 뒤 2장 저장, 화면 표시, 두 번째 커버로 바꾸기 → 변주 2개 모두 `suno-cover-1.png`(원래 `cover.jpg`) ② 영상 — 약 11분 뒤 Suno가 `GENERATE_MP4_FAILED`(500 「Internal Error, Please try again later.」)로 실패 알림 → 우리 쪽 정상 수신·실패 저장(크레딧 환불 대상). **영상 성공 경로(파일 복사·재생)는 아직 미검수** — 재시도는 주인님 승인 대기.
+- 알려진 한계: 커버를 바꾸면 이전 커버 파일(`cover.jpg`)은 어디서도 가리키지 않게 되어 30일 정리에서 지워지지 않는다(용량 작음). 구간 수정본(v1.29)이 원곡 커버 파일을 같이 쓰므로, 원곡이 먼저 30일 정리되면 수정본 커버가 빈칸이 될 수 있다 → `docs/IMPROVEMENTS.md`.
+- 비용: Vercel 빌드 2회, Suno 커버 1회·영상 1회(실패).

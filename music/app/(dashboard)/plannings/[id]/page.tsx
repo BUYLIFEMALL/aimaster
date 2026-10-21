@@ -35,7 +35,7 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
   // 모호해서 에러 없이 조용히 빈 배열을 반환하는 문제가 있었다 — !track_id로 명시해서 해결.
   const { data: tracks } = await supabase
     .from("music_tracks")
-    .select("*, music_track_variants!track_id(*, music_track_mr(*), music_track_wav(*))")
+    .select("*, music_track_variants!track_id(*, music_track_mr(*), music_track_wav(*)), music_track_media(*)")
     .eq("planning_id", params.id)
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
@@ -55,6 +55,7 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
   const trackList = await withSignedStorageUrls((tracks ?? []) as unknown as TrackCardData[]);
   const hasGeneratingTrack =
     trackList.some((t) => t.status === "generating") ||
+    trackList.some((t) => (t.music_track_media ?? []).some((m) => m.status === "generating")) ||
     trackList.some((t) =>
       t.music_track_variants.some(
         (v) => v.music_track_mr.some((mr) => mr.status === "generating") || v.music_track_wav.some((w) => w.status === "generating"),

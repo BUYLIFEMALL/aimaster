@@ -275,6 +275,39 @@ export interface Database {
         };
         Relationships: [];
       };
+      music_track_media: {
+        Row: {
+          id: string;
+          user_id: string;
+          track_id: string;
+          variant_id: string | null;
+          kind: "suno_cover" | "video";
+          task_id: string | null;
+          status: "generating" | "completed" | "failed";
+          urls: string[];
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          track_id: string;
+          variant_id?: string | null;
+          kind: "suno_cover" | "video";
+          task_id?: string | null;
+          status?: "generating" | "completed" | "failed";
+          urls?: string[];
+          error_message?: string | null;
+        };
+        Update: {
+          task_id?: string | null;
+          status?: "generating" | "completed" | "failed";
+          urls?: string[];
+          error_message?: string | null;
+        };
+        Relationships: [];
+      };
       music_track_wav: {
         Row: {
           id: string;

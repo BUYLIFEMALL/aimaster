@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-21 — 회원 세션으로 `update`했는데 오류 없이 0건 — 그 표에 회원 수정(RLS update) 정책이 없었다 (music-automation v1.31→v1.32, Claude Code 윈도우)
+- 증상: 「이 커버로 바꾸기」를 눌러도 화면 오류 없이 커버가 그대로. DB 확인 결과 변경 0건.
+- 원인: `music_track_variants`는 처음부터 회원 정책이 조회·추가·삭제뿐(수정 없음, 저장은 웹훅이 관리자 키로 함). RLS는 막힌 수정을 오류가 아니라 「0건 수정」으로 돌려준다.
+- 해결: `music/lib/actions/media.ts` — 회원 세션으로 본인 행인지 먼저 확인한 뒤 관리자 클라이언트로 `user_id` 조건을 붙여 수정하고, `.select("id")`로 바뀐 건수를 확인해 0건이면 오류 표시.
+- 다음부터: 회원 화면에서 기존 표를 새로 수정하게 만들 때는 그 표의 RLS 정책(`supabase/migrations`의 `create policy … for update`)부터 확인하고, 수정 결과 건수를 반드시 확인한다.
+
 ## 2026-10-21 — 「이미 게시됨」 확인 후 게시하는 코드는 동시에 두 번 승인하면 둘 다 게시된다 → 게시 직전에 조건부 수정으로 선점 (댓글 프로그램 3개·통합 받은편지함, Claude Code 윈도우)
 - 증상(잠재): `select status` → `posted`가 아니면 게시 → `update status=posted` 순서라, 웹 화면·텔레그램·받은편지함이 같은 항목을 거의 동시에 승인하면 둘 다 확인을 통과해 같은 답글이 두 번 올라갈 수 있음.
 - 해결: 실제 게시 직전 `update … set replied_at=now() where id=… and user_id=… and status<>'posted' and (replied_at is null or replied_at < now()-2분) returning id` — 행이 돌아온 요청만 게시, 실패 시 `replied_at=null`. 새 상태값(구조 변경) 없이 기존 칸 재사용. 위치: 각 원래 프로그램 `lib/comments/post.ts`·INSTA `lib/dmApp/dm/post.ts`(공용 기준, 사본 `comment-inbox`).

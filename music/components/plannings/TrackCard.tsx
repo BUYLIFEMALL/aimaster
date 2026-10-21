@@ -28,6 +28,7 @@ import { RetentionBadge } from "@/components/RetentionBadge";
 import { TimedLyricsButton } from "./TimedLyricsButton";
 import { PersonaButton } from "./PersonaButton";
 import { ReplaceSectionButton } from "./ReplaceSectionButton";
+import { SunoCoverPanel, SunoVideoButton, type MediaItem } from "./SunoMedia";
 import { fmtTime } from "@/lib/replaceRange";
 
 // 악기별 분리 트랙 이름표(lib/ai/suno.ts SUNO_STEMS와 같은 순서 — 서버 전용 파일이라 여기 따로 둔다).
@@ -88,6 +89,7 @@ export interface TrackCardData {
   replace_start_s?: number | null;
   replace_end_s?: number | null;
   music_track_variants: TrackVariant[];
+  music_track_media?: MediaItem[];
 }
 
 const STATUS_LABEL: Record<TrackStatus, { label: string; className: string }> = {
@@ -423,6 +425,7 @@ export function TrackCard({
                         lyrics={track.prompt_text}
                         personas={personas}
                       />
+                      <SunoVideoButton variantId={variant.id} media={track.music_track_media ?? []} />
                       {track.mode === "vocal" && (
                         <PersonaButton
                           variantId={variant.id}
@@ -572,6 +575,10 @@ export function TrackCard({
               );
             })}
           </div>
+        )}
+
+        {track.status === "completed" && track.music_track_variants.length > 0 && (
+          <SunoCoverPanel trackId={track.id} media={track.music_track_media ?? []} />
         )}
         {extendError && (
           <p className="mb-3 text-xs text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">

@@ -10,7 +10,7 @@ import type { Database } from "@/types/database.types";
 export const SYNC_LOCK = "__syncing__";
 const STALE_MS = 5 * 60 * 1000;
 
-type Table = "music_tracks" | "music_track_remixes" | "music_track_mr";
+type Table = "music_tracks" | "music_track_remixes" | "music_track_mr" | "music_track_media";
 
 export async function claimSyncLock(supabase: SupabaseClient<Database>, table: Table, id: string): Promise<boolean> {
   const staleBefore = new Date(Date.now() - STALE_MS).toISOString();
