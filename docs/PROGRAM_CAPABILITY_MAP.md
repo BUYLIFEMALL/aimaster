@@ -64,7 +64,7 @@
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.71 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.04 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.21 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
-| 48 | YOUTUBE 플레이리스트 자동화 | `playlist-channel-studio` | 유튜브 | v1.25 | 운영 | 장르만 고르면 제목·Suno 프롬프트·가사·썸네일을 만들고, 음악에 반응하는 1080p 플레이리스트 영상까지 완성하는 도구(2026-10-20 yt-playlist-studio 병합) |
+| 48 | YOUTUBE 플레이리스트 자동화 | `playlist-channel-studio` | 유튜브 | v1.26 | 운영 | 장르만 고르면 제목·Suno 프롬프트·가사·썸네일을 만들고, 음악에 반응하는 1080p 플레이리스트 영상까지 완성하는 도구(2026-10-20 yt-playlist-studio 병합) |
 | 49 | AI 썸네일·SEO 자동화 | `thumbnail-master` | 유튜브 | v1.09 | 운영 | 대본으로 제목·설명·태그 SEO 전략 3가지를 만들고, 타겟별 A/B 문구가 들어간 유튜브 썸네일까지 완성하는 도구(2026-10-20 seo-thumbnail-pro 병합) |
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.10 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
@@ -101,7 +101,7 @@
 | 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.32 | **병합됨 → auto-instagram-posting(2026-10-20), 노출 중지** | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | 유튜브 | v1.20 | 공개(new) | 주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다. |
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.06 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
-| 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.08 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
+| 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.09 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
 | 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | 마케팅(홍보) | v1.01 | 운영(2026-10-21 신규) | 인스타 댓글·DM·쓰레드·유튜브 댓글의 검토 대기 항목을 한곳에 급한 순으로 모아 고쳐서 바로 승인·게시 |
 
 ## 0. 이 문서를 쓰는 방법

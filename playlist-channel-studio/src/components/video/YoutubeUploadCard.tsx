@@ -79,11 +79,25 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
   const fileInput = useRef<HTMLInputElement>(null);
   const video = blob ?? picked;
   const [thumb, setThumb] = useState<{ url: string; dataUrl: string; size: number } | null>(null), [useThumb, setUseThumb] = useState(true);
+  // v1.26 「AI 썸네일·SEO 자동화」에서 만든 내 썸네일을 골라 쓸 수 있다(고르면 배경 그림 대신 그 그림을 1280×720으로 맞춰 지정)
+  const [picks, setPicks] = useState<{ id: string; name: string; option: "A" | "B"; url: string }[] | null>(null), [picksMsg, setPicksMsg] = useState("");
+  const [chosen, setChosen] = useState<{ name: string; url: string } | null>(null);
+  const bgUrl = bgMedia?.type === "image" ? bgMedia.url : null;
+  const thumbSrc = chosen?.url ?? bgUrl;
   useEffect(() => { // v1.23 배경이 그림이면 썸네일을 미리 만들어 둔다(영상 배경은 대상 아님)
     let alive = true; setThumb(null);
-    if (bgMedia?.type === "image") void makeThumbnail(bgMedia.url).then((t) => { if (alive) setThumb(t); }).catch(() => {});
+    if (thumbSrc) void makeThumbnail(thumbSrc).then((t) => { if (alive) setThumb(t); }).catch(() => { if (alive) setPicksMsg("그림을 불러오지 못했습니다. 목록을 다시 열어 주세요(주소는 1시간 동안만 쓸 수 있습니다)."); });
     return () => { alive = false; };
-  }, [bgMedia?.type, bgMedia?.url]);
+  }, [thumbSrc]);
+  async function loadPicks() {
+    setPicksMsg(""); setPicks(null);
+    try {
+      const res = await fetch("/api/youtube/thumbnail-picks", { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) throw new Error(data.error ?? `목록을 불러오지 못했습니다(${res.status}).`);
+      setPicks(data.picks ?? []);
+    } catch (e) { setPicksMsg(e instanceof Error ? e.message : "목록을 불러오지 못했습니다."); setPicks([]); }
+  }
 
   async function check(account: string | null = status?.accountId ?? null) { // v1.24 채널이 여럿이면 고른 채널 상태
     setStatus(null); setStatusError("");
@@ -169,14 +183,34 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
             <label className="block text-[11px] text-[#ccc] space-y-1">공개 범위<select className={input} value={form.privacy} disabled={form.schedule} onChange={(e) => setForm({ ...form, privacy: e.target.value as Privacy })}>{PRIVACY.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
             <label className="block text-[11px] text-[#ccc] space-y-1">카테고리<select className={input} value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>{CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
           </div>
-          {bgMedia?.type === "image" && !portrait && (
-            <div className="flex flex-wrap items-center gap-3 bg-[#121212] rounded-xl p-2">
+          {!portrait && (
+            <div className="bg-[#121212] rounded-xl p-2 space-y-2">
+            {thumbSrc && <div className="flex flex-wrap items-center gap-3">
               {thumb ? <img src={thumb.url} alt="썸네일 미리보기" className="w-40 rounded-lg" /> : <span className="text-[11px] text-[#aaa]">썸네일을 만드는 중…</span>}
               <div className="space-y-1.5">
-                <label className="flex items-center gap-2 text-[11px] text-[#ddd]"><input type="checkbox" checked={useThumb} onChange={(e) => setUseThumb(e.target.checked)} />🖼 올릴 때 배경 그림을 썸네일로 지정</label>
+                <label className="flex items-center gap-2 text-[11px] text-[#ddd]"><input type="checkbox" checked={useThumb} onChange={(e) => setUseThumb(e.target.checked)} />🖼 올릴 때 {chosen ? `「${chosen.name}」 썸네일로` : "배경 그림을 썸네일로"} 지정</label>
                 <div className="text-[10px] text-[#888]">1280×720 JPG{thumb ? ` · ${(thumb.size / 1024).toFixed(0)}KB` : ""} · 채널이 맞춤 썸네일 사용 인증(전화 인증)이 돼 있어야 지정됩니다</div>
                 {thumb && <a href={thumb.url} download="playlist-thumbnail.jpg" className="inline-block text-[11px] px-2 py-1 rounded-lg border border-[#333] text-white hover:border-[#555]">⬇ 썸네일 내려받기</a>}
               </div>
+            </div>}
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={() => void loadPicks()} className="text-[11px] px-2 py-1 rounded-lg border border-[#333] text-white hover:border-[#555]">🎨 「AI 썸네일·SEO 자동화」에서 고르기</button>
+              {chosen && <button type="button" onClick={() => setChosen(null)} className="text-[11px] text-[#aaa] hover:text-white">{bgUrl ? "↩ 배경 그림으로 되돌리기" : "↩ 고른 썸네일 빼기"}</button>}
+              {!thumbSrc && <span className="text-[10px] text-[#888]">배경을 그림으로 넣거나 만들어 둔 썸네일을 고르면 올릴 때 썸네일로 지정합니다.</span>}
+            </div>
+            {picksMsg && <div className="text-[11px] text-amber-200">{picksMsg}</div>}
+            {picks && !picksMsg && (picks.length === 0 ? (
+              <div className="text-[11px] text-[#aaa]">아직 만든 썸네일이 없습니다. <a href="https://thumbnail-master.buylife.xyz" target="_blank" rel="noreferrer" className="underline">AI 썸네일·SEO 자동화</a>에서 만들면 여기서 고를 수 있습니다.</div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {picks.map((p) => (
+                  <button key={`${p.id}-${p.option}`} type="button" onClick={() => { setChosen({ name: `${p.name} ${p.option}`, url: p.url }); setPicks(null); }} className="text-left rounded-lg overflow-hidden border border-[#333] hover:border-[#ff0000]">
+                    <img src={p.url} alt={p.name} className="w-full aspect-video object-cover" />
+                    <div className="px-1.5 py-1 text-[10px] text-[#ddd] truncate">{p.name} · {p.option}</div>
+                  </button>
+                ))}
+              </div>
+            ))}
             </div>
           )}
           <label className="flex items-center gap-2 text-[11px] text-[#ddd]"><input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} />정한 시각에 자동 공개(예약 — 그때까지 비공개)</label>

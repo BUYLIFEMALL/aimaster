@@ -6,7 +6,7 @@
 | 항목 | 값 |
 |---|---|
 | 이름 / slug | 플레이리스트 채널 제작 자동화 / `playlist-channel-studio` |
-| 현재 버전 | **v1.25** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
+| 현재 버전 | **v1.26** (`src/lib/version.ts` = `package.json` = DB `programs.version`) |
 | 라이브 | https://playlist-maker.buylife.xyz (https://playlist-channel-studio.buylife.xyz 둘 다 지원) |
 | Vercel | 팀 `buylife`, 프로젝트 `playlist-channel-studio` (CLI 업로드 배포) |
 | 배지·카테고리 | FREE + new, 유튜브, 최소 등급 일반, 요금제 1·2·3개월 등록 |
@@ -204,3 +204,7 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 주인님 제안 2번(「위·아래 버튼으로도 순서 바꾸기」) 확인 결과: **▲▼ 버튼(`moveTrack`)은 이미 있었음**(지난 보고의 제안이 잘못됨). 크롬에서 ▼·▲ 동작과 390px 폭에서 28×28px 버튼 표시를 확인.
 - 대신 찾은 문제: 390px 폭에서 곡 이름이 「아주…」로 잘리고 「재생 시간: 00:01」이 세 줄로 갈라져 어떤 곡인지 알기 어려움 → `MediaCenter.tsx` 곡 줄: 휴대폰 폭에서 번호 칸 숨김, 이름 두 줄(`line-clamp-2`), 시간은 숫자만. 데스크톱은 그대로.
 - 검수: tsc·시험 23개, 배포 Ready, DB v1.25, 크롬 390px 화면에서 이름 두 줄·버튼 표시 확인. 비용: Vercel 빌드 1회.
+
+## 2026-10-21 v1.26 — 「AI 썸네일·SEO 자동화」 썸네일 고르기 (Claude Code 윈도우)
+- 유튜브 카드(가로 영상)에 「🎨 『AI 썸네일·SEO 자동화』에서 고르기」: `GET /api/youtube/thumbnail-picks` → `src/lib/youtube/thumbnailPicks.ts`가 공용 DB `thumbnail_master_projects`에서 **회원 본인 행만** 최근 12개(옵션 A/B 현재 버전), 비공개 버킷 `thumbnail-master-images` 서명 주소(1시간). 고르면 그 그림을 기존 `makeThumbnail`로 1280×720·2MB 이하 JPG로 만들어 미리보기·내려받기·업로드 후 지정. 「↩ 배경 그림으로 되돌리기」. 배경이 영상이어도 고른 썸네일은 지정 가능. AI 호출 없음.
+- 검수: tsc·시험 23개·build, 배포 Ready, DB v1.26. 크롬(시험 회원): API 200·빈 목록(시험 회원·관리자 모두 썸네일 프로젝트는 있으나 만든 그림 0개 — DB 확인). 시험 회원은 유튜브 미연결이라 업로드 양식 자체가 안 보임. **그림이 있는 계정의 화면 확인은 남음**(관리자 로그인 + 썸네일 1장 필요). 비용: Vercel 빌드 1회.

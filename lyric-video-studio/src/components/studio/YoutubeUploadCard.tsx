@@ -46,11 +46,20 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
   const video = blob ?? picked;
   const coverUrl = s.cover?.url ?? null;
   const [thumb, setThumb] = useState<Thumb | null>(null), [useThumb, setUseThumb] = useState(true);
+  // v1.09 「AI 썸네일·SEO 자동화」에서 만든 내 썸네일을 골라 쓸 수 있다(고르면 배경 그림 대신 그 그림을 1280×720으로 맞춰 지정)
+  const [picks, setPicks] = useState<{ id: string; name: string; option: "A" | "B"; url: string }[] | null>(null), [picksMsg, setPicksMsg] = useState("");
+  const [chosen, setChosen] = useState<{ name: string; url: string } | null>(null);
+  const thumbSrc = chosen?.url ?? coverUrl;
   useEffect(() => { // v1.07 배경 그림이 있으면 썸네일을 미리 만들어 둔다
     let alive = true; setThumb(null);
-    if (coverUrl) void makeThumbnail(coverUrl).then((t) => { if (alive) setThumb(t); }).catch(() => {});
+    if (thumbSrc) void makeThumbnail(thumbSrc).then((t) => { if (alive) setThumb(t); }).catch(() => { if (alive) setPicksMsg("그림을 불러오지 못했습니다. 목록을 다시 열어 주세요(주소는 1시간 동안만 쓸 수 있습니다)."); });
     return () => { alive = false; };
-  }, [coverUrl]);
+  }, [thumbSrc]);
+  async function loadPicks() {
+    setPicksMsg(""); setPicks(null);
+    try { setPicks((await api<{ picks: { id: string; name: string; option: "A" | "B"; url: string }[] }>("/api/youtube/thumbnail-picks")).picks ?? []); }
+    catch (e) { setPicksMsg(e instanceof Error ? e.message : "목록을 불러오지 못했습니다."); setPicks([]); }
+  }
 
   async function check(account: string | null = status?.accountId ?? null) { // v1.08 채널이 여럿이면 고른 채널 상태
     setStatus(null);
@@ -118,14 +127,34 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
           <label>공개 범위<select value={form.privacy} disabled={form.schedule} onChange={(e) => setForm({ ...form, privacy: e.target.value as Privacy })}>{PRIVACY.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
           <label>카테고리<select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>{CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
         </div>
-        {coverUrl && !portrait && (
-          <div className="row" style={{ alignItems: "center", gap: 12 }}>
-            {thumb ? <img src={thumb.url} alt="썸네일 미리보기" style={{ width: 160, borderRadius: 8 }} /> : <small className="muted">썸네일을 만드는 중…</small>}
-            <div className="stack" style={{ gap: 6 }}>
-              <label className="toggle"><input type="checkbox" checked={useThumb} onChange={(e) => setUseThumb(e.target.checked)} />🖼 올릴 때 배경 그림을 썸네일로 지정</label>
-              <small className="muted">1280×720 JPG{thumb ? ` · ${(thumb.size / 1024).toFixed(0)}KB` : ""} · 채널이 맞춤 썸네일 사용 인증(전화 인증)이 돼 있어야 지정됩니다</small>
-              {thumb && <a className="button" href={thumb.url} download="lyric-video-thumbnail.jpg">⬇ 썸네일 내려받기</a>}
+        {!portrait && (
+          <div className="stack" style={{ gap: 8 }}>
+            {thumbSrc && <div className="row" style={{ alignItems: "center", gap: 12 }}>
+              {thumb ? <img src={thumb.url} alt="썸네일 미리보기" style={{ width: 160, borderRadius: 8 }} /> : <small className="muted">썸네일을 만드는 중…</small>}
+              <div className="stack" style={{ gap: 6 }}>
+                <label className="toggle"><input type="checkbox" checked={useThumb} onChange={(e) => setUseThumb(e.target.checked)} />🖼 올릴 때 {chosen ? `「${chosen.name}」 썸네일로` : "배경 그림을 썸네일로"} 지정</label>
+                <small className="muted">1280×720 JPG{thumb ? ` · ${(thumb.size / 1024).toFixed(0)}KB` : ""} · 채널이 맞춤 썸네일 사용 인증(전화 인증)이 돼 있어야 지정됩니다</small>
+                {thumb && <a className="button" href={thumb.url} download="lyric-video-thumbnail.jpg">⬇ 썸네일 내려받기</a>}
+              </div>
+            </div>}
+            <div className="row" style={{ alignItems: "center", gap: 8 }}>
+              <button type="button" onClick={() => void loadPicks()}>🎨 「AI 썸네일·SEO 자동화」에서 고르기</button>
+              {chosen && <button type="button" onClick={() => setChosen(null)}>{coverUrl ? "↩ 배경 그림으로 되돌리기" : "↩ 고른 썸네일 빼기"}</button>}
+              {!thumbSrc && <small className="muted">커버 그림을 넣거나 만들어 둔 썸네일을 고르면 올릴 때 썸네일로 지정합니다.</small>}
             </div>
+            {picksMsg && <small>⚠️ {picksMsg}</small>}
+            {picks && !picksMsg && (picks.length === 0 ? (
+              <small className="muted">아직 만든 썸네일이 없습니다. <a href="https://thumbnail-master.buylife.xyz" target="_blank" rel="noreferrer">AI 썸네일·SEO 자동화</a>에서 만들면 여기서 고를 수 있습니다.</small>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 8 }}>
+                {picks.map((p) => (
+                  <button key={`${p.id}-${p.option}`} type="button" style={{ padding: 0, overflow: "hidden", textAlign: "left", display: "block" }} onClick={() => { setChosen({ name: `${p.name} ${p.option}`, url: p.url }); setPicks(null); }}>
+                    <img src={p.url} alt={p.name} style={{ width: "100%", aspectRatio: "16 / 9", objectFit: "cover", display: "block" }} />
+                    <small style={{ display: "block", padding: "4px 6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name} · {p.option}</small>
+                  </button>
+                ))}
+              </div>
+            ))}
           </div>
         )}
         <label className="toggle"><input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} />정한 시각에 자동 공개(예약 — 그때까지 비공개)</label>

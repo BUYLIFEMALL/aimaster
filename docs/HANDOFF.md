@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.26·가사영상 v1.09 「AI 썸네일·SEO 자동화」 썸네일 고르기
+
+- 두 프로그램 유튜브 카드에서 `thumbnail-master`가 만든 내 썸네일(회원 본인 행만, 비공개 버킷 서명 주소 1시간)을 골라 1280×720으로 맞춰 지정. 배포 Ready·DB 반영, 시험 회원 API 200·빈 목록 확인. 두 테스트 계정 모두 만든 썸네일 그림이 0개라 그림이 있는 화면 확인은 남음. 비용: Vercel 빌드 2회, AI 호출 없음.
+- 발견: `thumbnail-master`에 30일 자동 삭제가 없음(최상위 규칙) → `thumbnail-master/docs/IMPROVEMENTS.md`에 P1로 기록, 미처리.
+
+https://playlist-channel-studio.buylife.xyz
+
+https://lyric-video-studio.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 음악(SUNO) v1.31~v1.32 Suno 커버 이미지·뮤직비디오
 
 곡 카드 「🖼️ Suno 커버 받기(2장)」(곡당 1번)→「이 커버로 바꾸기」, 변주마다 「🎬 Suno 뮤직비디오(MP4)」(표시 이름 선택). 새 표 `music_track_media`(승인, 운영 ref `esgxyikcnnvmlhygjkth`, 회원별 RLS, 30일 정리 포함), 결과 수신 `/api/webhooks/suno-media`(잠금+waitUntil, 우리 저장소로 복사), 「상태 확인」. 실제 호출(승인 2회): **커버 성공**(약 2분, 2장 저장, 화면 표시, 바꾸기 확인) / **영상은 Suno 서버 오류로 실패**(약 11분 뒤 `GENERATE_MP4_FAILED` 500 「Internal Error」, 실패 알림 정상 수신·저장, 크레딧 환불 대상) — 재시도는 주인님 승인 대기. v1.32: 「이 커버로 바꾸기」가 변주 표에 회원 수정 정책이 없어 0건 수정되던 결함 수정(본인 확인 뒤 관리자 클라이언트). 배포 Ready, DB v1.32. 비용: Vercel 빌드 2회, Suno 커버 1·영상 1(실패). 다음: 영상 재시도 여부 → 보컬/반주 추가·매시업. 상세 `music/AGENTS.md` v1.31·v1.32.
