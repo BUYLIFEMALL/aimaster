@@ -58,5 +58,6 @@
 | A 웹 데이터 수집 | ✅ 2026-10-21 Website Scraper → 웹 크롤링 「🔎 한 페이지 분석」 | web-crawler-saas v1.09 · website-scraper v1.13(안내·숨김) | 권한 178명 모두 기존 보유(6명 기간 연장), 키 원문 브라우저 전달 제거, 30일 삭제 첫 배포. 상세 `web-crawler/AGENTS.md` v1.09 |
 | 카테고리 이동 | ✅ 2026-10-21 시네마틱 스토리보드 「데이터수집|기획」 → 「이미지」 | DB `programs.category_id`만(버전 그대로 v1.09) | 백업 `D:\Antigravity\AIMaster_backup\category-move-20261021` |
 | B 글쓰기 | ✅ 2026-10-21 페르소나 문체 → AI 글쓰기 에디터 「🎚️ 문체 바꾸기」 | ai-writing-editor v1.11 · persona-style-studio v1.09(안내·숨김) | 권한 175명 모두 기존 보유(24명 기간 연장), FREE 배지 없음 유지, 회원 데이터 0건. 상세 `ai-writing-editor/AGENTS.md` v1.11 |
-| C·D | 대기 | — | C(프롬프트 템플릿 → AI Prompt, 새 표 승인) → D(AI 웹 UI → UI Canvas) 순서 |
+| C 프롬프트 | ✅ 2026-10-21 프롬프트 템플릿 → AI Prompt 「📁 내 템플릿 보관함」 | ai-prompt-studio v1.07 · prompt-template-studio v1.06(안내·옮기기·숨김) | 새 표 `ai_prompt_templates`(회원별 RLS, 30일 삭제 대상 아님 — 회원이 만든 보관함). 권한 변경 없음. 상세 `ai-prompt-studio/AGENTS.md` v1.07 |
+| D | 대기 | — | D(AI 웹 UI → UI Canvas) |
 

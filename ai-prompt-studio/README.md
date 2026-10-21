@@ -1,6 +1,6 @@
 # AI Prompt 자동화 (AI Prompt Automation)
 
-> **버전**: `v1.06` (2026-10-17 로그인·회원가입 표준 2탭 레이아웃 리뉴얼 완료)  
+> **버전**: `v1.07` (2026-10-21 병합 C — 「📁 내 템플릿 보관함」 추가, 상세는 `AGENTS.md`)  
 > **공식 도메인**: `https://ai-prompt.buylife.xyz`  
 > **프로젝트 디렉토리**: `ai-prompt-studio`  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 엔지니어링 스튜디오)**  

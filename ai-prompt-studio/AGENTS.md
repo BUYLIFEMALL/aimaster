@@ -1,7 +1,15 @@
-# AI Prompt 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
+# AI
+## 2026-10-21 Claude Code(윈도우) — 병합 C: 「📁 내 템플릿 보관함」 추가 (v1.07)
+- **무엇**: 「AI 프롬프트 템플릿 자동화」(`prompt-template-studio`)의 보관·`{{변수}}`·AI 변수 채우기·바로 실행을 이 앱으로 옮겼습니다. 플랜: [docs/PLAN_20261021_MERGE_C_PROMPT_TEMPLATES.md](docs/PLAN_20261021_MERGE_C_PROMPT_TEMPLATES.md), 인수인계: [docs/IMPROVEMENT_HANDOFF_20261021_MERGE_C.md](docs/IMPROVEMENT_HANDOFF_20261021_MERGE_C.md).
+- **저장**: 새 표 `ai_prompt_templates`(운영 DB `esgxyikcnnvmlhygjkth`, 회원별 `user_id` + RLS 본인만, 회원당 300개, 본문 20,000자). 마이그레이션 `supabase/migrations/20261021230000_merge_c_prompt_templates.sql`. 템플릿은 회원이 직접 만드는 보관함이라 30일 자동 삭제 대상이 아닙니다(AI 실행 결과는 저장하지 않음).
+- **코드**: `src/lib/templates.ts`(서비스 롤 + 모든 쿼리 `user_id` 필터), API `/api/templates`(GET/POST/PUT/DELETE·백업 가져오기) · `/api/templates/execute` · `/api/templates/auto-fill` · `/api/templates/suggest-field`(모두 `checkProgramAccessApi` + 회원 본인 Gemini 키 + 캐시 방지 두 줄), `src/components/templates/*`, 좌측 메뉴 「📁 내 템플릿 보관함」, 결과 화면 「📁 내 템플릿으로 저장」. 보관함이 비면 예제 9개를 보여 줍니다.
+- **검수(2026-10-21, 메인 크롬·관리자)**: 빌드 통과 → 배포 Ready → 저장·변수 자동 추출·목록·수정·중복 건너뛰기·삭제 API 정상, 새로고침 뒤에도 유지, 실행 1회(Gemini, 관리자 본인 키) 결과 정상, 390px iframe에서 좌측 메뉴 숨김·☰ 표시·가로 넘침 없음. 시험 템플릿은 모두 삭제. **AI 변수 채우기(`auto-fill`)는 비용 절감으로 실제 호출하지 않음**(다음 사용 때 확인).
+- 커밋 `f0a3f529`, 배포 https://ai-prompt-studio-ljy8f1xf2-buylife.vercel.app → https://ai-prompt.buylife.xyz , DB `programs.version='v1.07'`(상세 소개·핵심 특징 갱신 완료).
+
+ Prompt 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI Prompt 자동화 (`ai-prompt-studio`)  
-> **현재 버전**: `v1.06` (2026-10-17 로그인·회원가입 표준 2탭 레이아웃 리뉴얼 완료)  
+> **현재 버전**: `v1.07` (2026-10-21 병합 C — 「📁 내 템플릿 보관함」 추가)  
 > **공식 도메인**: `https://ai-prompt.buylife.xyz` (또는 `ai-prompt-studio.buylife.xyz`)  
 > **카탈로그 슬러그**: `ai-prompt-studio`  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 엔지니어링 스튜디오)**  

@@ -1,10 +1,17 @@
-# AI 프롬프트 템플릿 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
+# AI
+## 2026-10-21 Claude Code(윈도우) — 병합 C: AI Prompt로 이전 안내·템플릿 옮기기 (v1.06)
+- 이 앱의 기능은 **AI Prompt 자동화「📁 내 템플릿 보관함」**(https://ai-prompt.buylife.xyz)으로 옮겼습니다. 상세: `ai-prompt-studio/AGENTS.md` v1.07.
+- 작업 화면 → `src/components/MovedNotice.tsx`(이전 안내 + 이 주소 브라우저의 템플릿 개수 + 「AI Prompt로 옮기기」). `/api/migrate-templates`가 로그인·`ai-prompt-studio` 권한을 확인하고 본인 `user_id`로 `ai_prompt_templates`에 넣습니다(같은 제목+본문은 건너뜀, 300개 한도).
+- 옛 AI API(`/api/execute-prompt`·`/api/auto-fill`·`/api/suggest-field`)는 410을 돌려줍니다. DB `programs`: `version='v1.06'`, `is_active=false`(카탈로그 숨김), 배지 `['new']`(FREE 해제). 주소는 지우지 않고 유지합니다.
+- 검수(2026-10-21 메인 크롬): 시험 템플릿 1개 → 「옮기기 완료 1개」 → AI Prompt 보관함에 들어온 것 확인 → 시험 데이터 삭제, 옛 API 3개 410 확인. 커밋 `f0a3f529`.
+
+ 프롬프트 템플릿 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI 프롬프트 템플릿 자동화 (`prompt-template-studio`)  
-> **현재 버전**: `v1.05` (2026-10-17 로그인·회원가입 표준 2탭 레이아웃 리뉴얼 완료)  
+> **현재 버전**: `v1.06` (2026-10-21 병합 C — AI Prompt 「📁 내 템플릿」으로 이전, 안내·옮기기 화면만 남음, 카탈로그 숨김)  
 > **공식 도메인**: `https://prompt-template.buylife.xyz`  
 > **카탈로그 슬러그**: `prompt-template-studio`  
-> **배지**: `['free', 'new']` (가입 회원 누구나 이용 가능)  
+> **배지**: `['new']` (2026-10-21 병합 C 뒤 FREE 해제·카탈로그 숨김)  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 템플릿 스튜디오)**  
 > **인수인계 문서**:  
 > - 로그인 리뉴얼 개발 플랜: [`docs/PLAN_20261017_LOGIN_RENEWAL.md`](docs/PLAN_20261017_LOGIN_RENEWAL.md)  

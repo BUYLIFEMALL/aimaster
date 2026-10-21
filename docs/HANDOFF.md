@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 병합 C 완료: 프롬프트 템플릿 → AI Prompt 「📁 내 템플릿 보관함」
+
+다른 Claude 세션이 멈춘 곳(코드 완료·tsc 통과)부터 이어받아 마쳤습니다. 운영 DB `esgxyikcnnvmlhygjkth`의 새 표 `ai_prompt_templates`는 이미 만들어져 있었고(RLS 본인만), DB `programs` 버전·숨김도 이미 반영돼 있어 이번에 DB 쓰기는 없었습니다. 빌드 2개 통과 → 커밋 `f0a3f529` 푸시 → AI Prompt v1.07·옛 템플릿 앱 v1.06 순차 배포 Ready → 메인 크롬 검수(저장·수정·삭제·중복·실행 1회·옛 앱 옮기기·옛 API 410·390px) 통과, 시험 데이터 삭제. 남은 일: AI 변수 채우기·AI 제안 실제 호출 미확인, 일반 회원 계정 확인. 상세: `ai-prompt-studio/docs/IMPROVEMENT_HANDOFF_20261021_MERGE_C.md`. 다음 병합은 D(AI 웹 UI → UI Canvas).
+
+https://ai-prompt.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — CLI별 브라우저 고정 규칙을 지침 맨 위에 명시
 
 주인님 지시로 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위에 같은 표를 넣었습니다: **Claude Code = 크롬 실제 창만**(엣지·헤드리스·Playwright 금지), **agy·Codex = 엣지 실제 창만**(크롬 금지). 기존 원칙 18·8-1-2 내용과 같고, 흩어져 있던 규칙을 맨 위에 모은 것입니다. 같은 날 점검: Claude Code 로그인 `buylifemall@gmail.com`, Git/GitHub `BUYLIFEMALL`, 메인 크롬(`3208dd7d…`) `inUse`·탐색·캡처 정상. 코드·배포 변경 없음. 남은 일: 연결된 윈도우 `Browser 2`·`Browser 3`의 정체(엣지 여부)를 8-1-2 deviceId 표에 보완.
