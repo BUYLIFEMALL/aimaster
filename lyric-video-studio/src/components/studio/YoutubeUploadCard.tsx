@@ -16,6 +16,24 @@ const PRIVACY: { id: Privacy; name: string }[] = [
 ];
 const CATEGORIES = [{ id: "10", name: "음악" }, { id: "24", name: "엔터테인먼트" }, { id: "22", name: "인물·블로그" }];
 const PRIVACY_LABEL: Record<Privacy, string> = { private: "비공개", unlisted: "일부 공개", public: "공개" };
+type Thumb = { url: string; dataUrl: string; size: number };
+
+/** v1.07 배경 그림 → 유튜브 썸네일(1280×720 JPG, 2MB 이하, 플레이리스트 v1.23에서 옮김). 비율이 다르면 가운데를 잘라 맞춘다 */
+async function makeThumbnail(bgUrl: string): Promise<Thumb> {
+  const img = await createImageBitmap(await (await fetch(bgUrl)).blob());
+  const c = document.createElement("canvas"); c.width = 1280; c.height = 720;
+  const g = c.getContext("2d")!;
+  const sc = Math.max(1280 / img.width, 720 / img.height), w = img.width * sc, h = img.height * sc;
+  g.drawImage(img, (1280 - w) / 2, (720 - h) / 2, w, h);
+  for (const q of [0.9, 0.8, 0.7]) {
+    const blob = await new Promise<Blob | null>((ok) => c.toBlob(ok, "image/jpeg", q));
+    if (blob && blob.size <= 2 * 1024 * 1024) {
+      const dataUrl = await new Promise<string>((ok) => { const r = new FileReader(); r.onload = () => ok(String(r.result)); r.readAsDataURL(blob); });
+      return { url: URL.createObjectURL(blob), dataUrl, size: blob.size };
+    }
+  }
+  throw new Error("썸네일이 2MB를 넘어 만들지 못했습니다.");
+}
 
 export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disabled: boolean }) {
   const s = useStudio();
@@ -26,6 +44,13 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
   const [pct, setPct] = useState<number | null>(null), [msg, setMsg] = useState<Msg>(null), [done, setDone] = useState<UploadRecord[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
   const video = blob ?? picked;
+  const coverUrl = s.cover?.url ?? null;
+  const [thumb, setThumb] = useState<Thumb | null>(null), [useThumb, setUseThumb] = useState(true);
+  useEffect(() => { // v1.07 배경 그림이 있으면 썸네일을 미리 만들어 둔다
+    let alive = true; setThumb(null);
+    if (coverUrl) void makeThumbnail(coverUrl).then((t) => { if (alive) setThumb(t); }).catch(() => {});
+    return () => { alive = false; };
+  }, [coverUrl]);
 
   async function check() {
     setStatus(null);
@@ -41,7 +66,15 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
       if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
       const rec = await uploadToYoutube({ blob: video, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, portrait, onPct: setPct });
       setDone((d) => [rec, ...d]);
-      setMsg({ text: publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`, ok: true });
+      let thumbNote = "";
+      if (useThumb && thumb && !portrait) { // 쇼츠(세로)는 유튜브가 앱에서만 썸네일을 바꾸게 해 지정하지 않는다
+        try {
+          const r = await fetch("/api/youtube/thumbnail", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId: rec.videoId, image: thumb.dataUrl }) });
+          const d = (await r.json().catch(() => ({}))) as { error?: string };
+          thumbNote = r.ok ? " 썸네일도 배경 그림으로 지정했습니다." : ` 썸네일은 지정하지 못했습니다: ${d.error ?? r.status}`;
+        } catch { thumbNote = " 썸네일은 지정하지 못했습니다(연결 오류). 썸네일을 내려받아 유튜브 스튜디오에서 넣어 주세요."; }
+      }
+      setMsg({ text: (publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`) + thumbNote, ok: true });
     } catch (e) {
       setMsg(e instanceof Error && !(e as { needKey?: boolean }).needKey ? { text: e.message } : toMsg(e));
       if (e instanceof Error && /연결|만료|권한|Client ID/.test(e.message)) void check();
@@ -80,6 +113,16 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
           <label>공개 범위<select value={form.privacy} disabled={form.schedule} onChange={(e) => setForm({ ...form, privacy: e.target.value as Privacy })}>{PRIVACY.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
           <label>카테고리<select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>{CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
         </div>
+        {coverUrl && !portrait && (
+          <div className="row" style={{ alignItems: "center", gap: 12 }}>
+            {thumb ? <img src={thumb.url} alt="썸네일 미리보기" style={{ width: 160, borderRadius: 8 }} /> : <small className="muted">썸네일을 만드는 중…</small>}
+            <div className="stack" style={{ gap: 6 }}>
+              <label className="toggle"><input type="checkbox" checked={useThumb} onChange={(e) => setUseThumb(e.target.checked)} />🖼 올릴 때 배경 그림을 썸네일로 지정</label>
+              <small className="muted">1280×720 JPG{thumb ? ` · ${(thumb.size / 1024).toFixed(0)}KB` : ""} · 채널이 맞춤 썸네일 사용 인증(전화 인증)이 돼 있어야 지정됩니다</small>
+              {thumb && <a className="button" href={thumb.url} download="lyric-video-thumbnail.jpg">⬇ 썸네일 내려받기</a>}
+            </div>
+          </div>
+        )}
         <label className="toggle"><input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} />정한 시각에 자동 공개(예약 — 그때까지 비공개)</label>
         {form.schedule && <label>공개 시각<input type="datetime-local" value={form.publishAt} onChange={(e) => setForm({ ...form, publishAt: e.target.value })} /></label>}
         {pct !== null && <div className="progress-box"><div className="progress-track"><div className="progress-fill" style={{ width: `${pct}%` }} /></div><small className="muted">{pct < 100 ? `유튜브로 보내는 중 ${pct}% — 이 탭을 닫지 마세요` : "유튜브가 받은 영상을 확인하는 중…"}</small></div>}

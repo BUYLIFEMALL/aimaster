@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.24(곡 끌어서 순서·올릴 채널 고르기) + AI 가사영상 v1.07(배경 그림 → 유튜브 썸네일)
+
+- **플레이리스트 v1.24**(커밋 `cf0a2962`): 곡 목록 끌어서 순서 바꾸기, 유튜브 채널이 2개 이상이면 「✅ 올릴 채널」 선택(IMP-PLS-013 완료, 회원 본인 채널 안에서만). 채널 목록을 `updated_at`으로 정렬하면 토큰 갱신 때마다 기본 채널이 뒤바뀌어 배포 직후 `created_at` 순서로 고침(재배포 1회). 크롬(관리자): 셋째곡 → 맨 위 이동, 2채널 선택·전환·다시 조회 뒤 순서 유지 확인.
+- **가사영상 v1.07**: 유튜브 카드에 배경 그림 1280×720 썸네일 미리보기·내려받기·「올릴 때 썸네일로 지정」(플레이리스트 v1.23 방식, `/api/youtube/thumbnail`). 크롬(관리자): API 400·400·502 안내, 2초 시험 MP4 만든 뒤 카드 표시 확인. 실제 업로드는 하지 않음(같은 지정 함수는 플레이리스트에서 200 확인).
+- 비용: Vercel 빌드 3회(플레이리스트 2·가사영상 1), AI 호출 없음. DB(ref `esgxyikcnnvmlhygjkth`) `programs.version` 플레이리스트 v1.24·가사영상 v1.07.
+- 남은 일: 가사영상에도 「올릴 채널」 선택 옮기기(`lyric-video-studio/docs/IMPROVEMENTS.md` C5 — 지금은 공용 기본값=최근 갱신 채널이라 바뀔 수 있음).
+
+https://playlist-channel-studio.buylife.xyz
+
+https://lyric-video-studio.buylife.xyz
+
 ## 2026-10-21 Claude Code(맥미니, 보조 계정) — 「이커머스」 카테고리 병합 분석 + 개발 플랜 (5개 → 3개, 분석만·주인님 결정 대기)
 
 비교 분석 매뉴얼대로 5개(+기획 폴더 `coupang/`·`sourcing/`) 코드·운영 DB(ref `esgxyikcnnvmlhygjkth`, 읽기만) 확인. 결론: **E0. 상세페이지 자동화(15p) 안전 보강 선행**(Storage `shop-detail-images` 공개 → 비공개·30일 삭제 없음), **E1. 12단 → 15p**(마켓 규격 12단·9단 프리셋·상품명 채우기·사양서 분석·모바일 미리보기 이관, 12단의 브라우저 전용 저장 단점 해소, 12단만 권한 있는 4명 부여), **E2. 자동생성기 v1 → 15p 「HTML 내보내기」**(저장 0건, 보류 가능). 독립: GIF 자동화·상품소싱 자동화. `sourcing/` 기획은 만든다면 상품소싱 안 메뉴로 추천. 코드·DB·배포 변경 없음. 보고서: [`docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](analysis-ecommerce-consolidation-20261021/REPORT.md) §5 결정 6건 대기. 다음 첫 단계: 결정 받으면 E0 플랜(맥미니 코드·tsc → 윈도우 빌드·배포·DB).
