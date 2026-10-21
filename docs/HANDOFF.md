@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우, 부계정 rainbowi77777) — 병합 A 완료: Website Scraper → 웹 크롤링 「🔎 한 페이지 분석」
+
+- web-crawler-saas v1.09(새 메뉴 `/inspect`: 7탭·영역 선택·AI 목록 표(서버 본인 키 4사)·CSV·ZIP + 미배포였던 30일 삭제, `CRON_SECRET` 새 등록 — 주인님 승인), website-scraper v1.13(안내 화면·API 410·카탈로그 숨김). 운영 DB 권한 6명 기간 연장(백업 저장소 밖 `AIMaster_backup/merge-a-20261021`).
+- 크롬 검수: 분석·AI 표(GPT-5.6 Luna 1회)·영역 선택·이미지 경로, 보안 401/403. 다음: 병합 B(글쓰기)·C(프롬프트)·D(웹 UI) — 주인님 결정 대기(보고서 §5). 커밋 `29f9a3a5` 외.
+
+https://web-crawler-saas.buylife.xyz/inspect
+
 ## 2026-10-21 Codex — 블로그 병합 BLC-04 v2.05 운영 완료·실제 네이버 prepared 8/8
 
 사진 후기→기존 편집/저장·최종 검수·대기열·실제 확장 준비 연결 완료. 코드 `4b3f84b6`/`342eef52` 푸시, 배포 `dpl_4tTvkJM3gJC1Uo78y7UCb7AKCGy3` Ready·DB/확장/설치/라이브 ZIP v2.05 일치. 회귀 185개·확장 모의 42개·타입/빌드 통과. 지정 회원 사진 2장/763바이트 후기 1회(2 API)·저장/편집/재열기·재조회 지문 불변·수정 후 STALE/다시 직접 검수·**실제 prepared 8/8**·516px 안내/사진 검수 완료, 최종 발행 0. 운영 DB ref `esgxyikcnnvmlhygjkth` 프로그램 버전 메타데이터 및 이번 새 본인 합성 시험 원고 대상만 변경, 계정/기존 원고/준비 탭 보존. 새 원고 1건·queued/publishing 0, 원래 30일 만료 유지.

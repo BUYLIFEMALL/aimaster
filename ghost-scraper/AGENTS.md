@@ -110,3 +110,8 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 4개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.13 — 병합 A: 웹 크롤링 자동화 「🔎 한 페이지 분석」으로 합쳐짐 (Claude Code 윈도우, 부계정)
+- 기능(7탭·영역 선택·AI 목록 표·CSV·ZIP)은 `web-crawler/webapp` `/inspect`로 옮김(AI는 서버에서 회원 본인 키, 4개 공급자). 이 앱은 주소 유지 + 안내 화면(`src/components/MovedNotice.tsx`, 첫 화면·/guide), API 4개(`/api/crawl`·`/api/proxy`·`/api/proxy-image`·`/api/user/key`) 410 — 특히 회원 키 원문을 내주던 `/api/user/key` 차단.
+- 운영 DB: `programs` website-scraper v1.13·`is_active=false`, 권한 회원은 모두 웹 크롤링 권한 보유(6명 기간 연장). 남은 코드(`ScraperWorkspace` 등)는 사용 안 함 — 정리는 백업 폴더 `D:\Antigravity\AIMaster_backupetired-programs\` + git 태그 뒤.
+

@@ -115,3 +115,12 @@ python scripts\preflight.py              # 검증: core / agent-browser 분리 P
 ## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
 
 F-017(P2)를 운영 설정/코드/조건부 위험과 구분해 기록했습니다. **수정·DB적용·배포는 미실행**입니다. [프로그램별 발견·다음 첫 단계](docs/IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md) · [전체 분석/병합 제안](../docs/analysis-20261019/REPORT.md). 주인님 지정 작업과 최신 구현을 대조한 뒤 플랜부터 제시합니다.
+
+## 2026-10-21 v1.09 — 병합 A: Website Scraper → 「🔎 한 페이지 분석」 + v1.08(30일 삭제) 첫 배포 (Claude Code 윈도우, 부계정)
+- 분석·결정: 루트 `docs/analysis-scraping-consolidation-20261021/REPORT.md`(묶음 A), 플랜 [`PLAN_20261021_MERGE_A_WEBSITE_SCRAPER.md`](PLAN_20261021_MERGE_A_WEBSITE_SCRAPER.md)(주인님 승인).
+- 웹앱 새 메뉴 3단계 `/inspect`: `POST /api/inspect`(서버 안전 수집 `src/lib/inspect/safeFetch.ts` — 사설망·DNS 재바인딩 차단 + cheerio로 메타·H1~H3·글목록·표·링크·이미지·정리 HTML), `GET /api/inspect/proxy`(격리 미리보기 `CSP: sandbox allow-scripts` + 영역 선택 스크립트, 받는 쪽은 iframe에서 온 메시지만), `GET /api/inspect/image`(이미지만, ZIP용), `POST /api/inspect/ai`(같은 출처·권한·**회원 본인 키를 서버에서만** — OpenAI·Claude·Gemini·Perplexity, 모델 목록은 `src/lib/ai/models.ts`, 요청 형식은 `service/llm.py`와 같음, 사용 기록 `inspect_ai`). 화면 `src/components/inspect/*`(옛 앱 화면을 경로만 바꿔 이식 + `InspectWorkspace`), 매뉴얼 FAQ 1개.
+- 옛 단점 제거: 회원 Gemini 키 원문을 브라우저로 보내던 `/api/user/key`·브라우저 저장·브라우저 직접 AI 호출·구형 모델·Gemini 하나.
+- 함께 첫 배포: v1.08 30일 자동 삭제(`/api/cron/purge-expired`, 이 배포 때 `CRON_SECRET` 새 등록 — 주인님 승인) + 메뉴 아이콘. 패키지 추가: cheerio·jszip·undici·lucide-react.
+- 운영 DB(ref `esgxyikcnnvmlhygjkth`): website-scraper 권한 회원 178명은 모두 이미 이 프로그램 권한이 있어 **기간만 6명 연장**(백업은 저장소 밖 `D:\Antigravity\AIMaster_backup\merge-a-20261021\`), 상세 소개 🔎 단락·특징 2번 갱신, 버전 v1.09. SQL 기록 `supabase/migrations/20261021_merge_a_v1_09.sql`.
+- 검수: tsc·build, 운영 Ready, 크롬 관리자 — books.toscrape.com 목록 분석(탭 7개·글목록 49·링크 73·이미지 20) → AI 목록 표(GPT-5.6 Luna 1회, 20권·썸네일, 20초) → 영역 선택(책 이미지 태그·HTML 잡힘) → 이미지 경로 200. 보안: 정리 경로 비밀값 없이 401, AI 경로 다른 출처 403, 분석 경로 비로그인 401. CSV·ZIP 실제 내려받기는 파일 저장이라 생략(같은 코드 이식).
+- 남은 일(별도): 도메인 구조 캐시 회원별(IMPROVEMENTS #8 — Python 서비스·DB 구조), 옛 ghost-scraper 코드 정리는 백업 폴더+태그 뒤.
