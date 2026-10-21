@@ -89,15 +89,19 @@ export async function sendTelegramMessageWithButtons(params: {
   chatId: string;
   text: string;
   buttons: TelegramInlineButton[];
+  /** (선택, 2026-10-21) 버튼 줄 아래 링크 버튼 한 줄 — 예: 「📥 통합 받은편지함에서 보기」. 없으면 예전과 같다. */
+  linkButton?: { text: string; url: string };
 }): Promise<{ messageId: number }> {
-  const { botToken, chatId, text, buttons } = params;
+  const { botToken, chatId, text, buttons, linkButton } = params;
+  const inlineKeyboard: Array<Array<Record<string, string>>> = [buttons.map((b) => ({ text: b.text, callback_data: b.callbackData }))];
+  if (linkButton) inlineKeyboard.push([{ text: linkButton.text, url: linkButton.url }]);
   const res = await fetch(`${TELEGRAM_API_BASE}/bot${botToken}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
       text,
-      reply_markup: { inline_keyboard: [buttons.map((b) => ({ text: b.text, callback_data: b.callbackData }))] },
+      reply_markup: { inline_keyboard: inlineKeyboard },
     }),
   });
   const data = await res.json().catch(() => null);

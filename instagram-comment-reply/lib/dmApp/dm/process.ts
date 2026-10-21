@@ -158,6 +158,8 @@ export async function processIncomingDmMessage(
           { text: "⏸ 답변보류", callbackData: `hold:${insertedMessage.id}` },
           { text: "❌ 답변제외", callbackData: `skip:${insertedMessage.id}` },
         ],
+        // 2026-10-21: 휴대폰 알림에서 바로 통합 받은편지함(comment-inbox)으로 — 다른 플랫폼 댓글·DM도 한곳에서
+        linkButton: { text: "📥 통합 받은편지함에서 보기", url: "https://comment-inbox.buylife.xyz/inbox?p=ig_dm" },
       });
       await supabase
         .from("dm_messages")
