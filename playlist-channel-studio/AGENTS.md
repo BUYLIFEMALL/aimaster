@@ -182,3 +182,9 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - ① Suno 패널 「커버 배경 모양」: 흐린 커버+가운데 원본 / **앨범 커버**(커버를 위로, 아래 가운데에 제목(비우면 곡 제목)·채널명, 긴 글자 자동 축소, `Noto Sans KR` 계열).
 - ③ 유튜브 바로 올리기: 공용 사본 `src/lib/youtube/client.ts`(youtube-upload-client, 기준 shots)·`src/lib/memberIntegrations.ts`(member-integrations, 기준 루트 lib) 등록 — 직접 고치지 말고 `--sync`. `youtube/account.ts`(가사영상 v1.04에서 복사), `/api/youtube/status`·`/api/youtube/upload-session`(같은 출처·`requireAccess`, 최대 8GB, 카테고리 음악·엔터·인물), 카드 `components/video/YoutubeUploadCard.tsx`(기본 비공개·예약 공개·카테고리, 제목 「[Playlist] 첫 곡 외 N곡」, 설명 = 곡별 시작 시각 챕터·해시태그, 세로는 #Shorts). 크롬은 MP4를 고른 위치에 바로 저장하므로 「저장한 MP4 고르기」, 결과 데이터가 있으면 바로 사용. 다른 유튜브 프로그램에서 연결한 공용 계정 + 회원 본인 Google 앱만.
 - 검수: 시험 23개·tsc·build, 배포 Ready, DB v1.22. 크롬 운영(일반 회원): 앨범 커버 + 채널명 「@buylife_music」으로 배경 생성 → 커버 아래 「빗속의 다짐」·채널명 표시 확인. 내보내기 화면에 유튜브 카드(시험 계정 유튜브 미연결 → 안내·연결 프로그램 2개), 업로드 주소 요청 409. **실제 업로드는 미검수**(유튜브 연결된 회원 계정으로 비공개 1회 확인 필요). 비용: Vercel 빌드 1회, AI 0회.
+
+## 2026-10-21 v1.22 유튜브 실제 업로드 확인 (코드 변경 없음, Claude Code 윈도우)
+- 주인님 승인: 관리자 계정(`buylifemall@gmail.com`, 주인님이 크롬에서 직접 로그인)의 기본 채널 「BUYLIFE ACADEMY 쇼핑몰 공동구매중개 AI자동화」에 시험 영상 **비공개 1편**.
+- 6초 시험음 + 「업로드 시험 (비공개)」 배경으로 1080p MP4(0.6MB, 저장 위치는 브라우저 내부 저장소, 끝난 뒤 삭제) → 「📁 저장한 MP4 고르기」 → 제목 「[시험] 플레이리스트 업로드 확인 (비공개)」·비공개·음악 → 「유튜브에 비공개로 올렸습니다」, 영상 https://youtu.be/mPwlsDllUgk . 설명란 챕터 `00:00 업로드 시험음` 확인.
+- 비용: 없음(회원 Google 앱 유튜브 무료 한도 1,600단위). 시험 영상 삭제는 주인님이 유튜브 스튜디오에서(에이전트는 삭제하지 않음).
+- 참고: 관리자 계정에 기본(is_default) 유튜브 채널이 2개라 가장 최근 갱신된 채널이 쓰인다(`getMemberAccount` 정렬). 채널을 고르는 화면은 아직 없음 — 개선 제안 IMP-PLS-013.

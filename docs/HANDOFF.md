@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 플레이리스트 v1.22 유튜브 실제 업로드 확인(코드 변경 없음)
+
+주인님 승인으로 관리자 계정 기본 채널 「BUYLIFE ACADEMY 쇼핑몰 공동구매중개 AI자동화」에 6초 시험 영상 **비공개 1편** 업로드 성공 → https://youtu.be/mPwlsDllUgk (삭제는 주인님이 유튜브 스튜디오에서). 저장한 MP4 고르기·비공개·챕터 설명 동작 확인. 발견: 기본 채널이 2개인 회원은 채널을 고를 수 없음(IMP-PLS-013). 비용 없음. 남은 일: 음악 기획 목록 여러 기획 곡 넘기기(다른 세션 v1.29 작업 중이라 대기), 썸네일 자동화 연계.
+
 ## 2026-10-21 Claude Code(윈도우) — 유튜브 댓글 v1.24: 공용 묶음 머리(영상 썸네일) · 휴대폰 목록 누르는 영역 확대 — 세 댓글 프로그램 공용 부품 3종 완료
 
 검토 화면 묶음 머리를 공용 `review-group-header` 사본으로(영상 썸네일·유튜브 원본 링크 추가), 대시보드 목록 휴대폰 항목 44px 이상. 이로써 INSTA v1.30·쓰레드 v1.19·유튜브 v1.24가 공용 부품 3종(`pending-review-list`·`hash-highlight`·`review-group-header`, 기준 `instagram-comment-reply/components/`)을 함께 씀. 커밋 `c59129f8`, 배포 READY, DB v1.24. 비용: 이번 묶음 Vercel 빌드 3회.
