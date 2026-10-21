@@ -1,4 +1,10 @@
 # AI
+## 2026-10-21 Claude Code(윈도우) — 내 템플릿 저장 때 {{변수}} 자동 제안 (v1.08)
+- **무엇**: 결과 화면 「📁 내 템플릿으로 저장」으로 저장 창이 열리고 본문에 변수가 0개이면, AI가 한 번 「쓸 때마다 바뀌는 부분」(최대 8개)을 찾아 `{{변수명}} ← "원래 문구"` 체크 목록으로 제안합니다. 고른 것만 바꾸고, 본문 옆 「🪄 변수 찾기」로 언제든 다시 받을 수 있습니다. 플랜: [docs/PLAN_20261021_TEMPLATE_VARIABLE_SUGGEST.md](docs/PLAN_20261021_TEMPLATE_VARIABLE_SUGGEST.md).
+- **방식**: `/api/templates/suggest-field`에 `field:"variables"` 추가 — AI는 본문을 다시 쓰지 않고 `[{name, original}]` JSON만 돌려주며(본문에 실제로 있는 문구·중복 없는 이름만 통과), 화면이 긴 문구부터 정확히 찾아 바꿉니다(`PromptFormModal.applyVariables`). 나머지 문장은 그대로 유지됩니다.
+- **검수(2026-10-21, 일반 회원 `buylifemall@naver.com`, 메인 크롬)**: 빠른 만들기 → 결과 → 저장 창 열림과 동시에 자동 제안 8개 → 2개 해제 후 바꾸기 → 6개만 변수로 바뀌고 해제한 「10월」은 그대로 → 저장 `variables` 6개 확인. Gemini Flash: 설계 1회 + 변수 찾기 1회(회원 본인 키).
+- 커밋 `b1687b6d`, 배포 https://ai-prompt-studio-d3wsympd4-buylife.vercel.app → https://ai-prompt.buylife.xyz , DB `programs.version=v1.08`(`supabase/migrations/20261021235000_version_v1_08.sql`).
+
 ## 2026-10-21 Claude Code(윈도우) — 병합 C: 「📁 내 템플릿 보관함」 추가 (v1.07)
 - **무엇**: 「AI 프롬프트 템플릿 자동화」(`prompt-template-studio`)의 보관·`{{변수}}`·AI 변수 채우기·바로 실행을 이 앱으로 옮겼습니다. 플랜: [docs/PLAN_20261021_MERGE_C_PROMPT_TEMPLATES.md](docs/PLAN_20261021_MERGE_C_PROMPT_TEMPLATES.md), 인수인계: [docs/IMPROVEMENT_HANDOFF_20261021_MERGE_C.md](docs/IMPROVEMENT_HANDOFF_20261021_MERGE_C.md).
 - **저장**: 새 표 `ai_prompt_templates`(운영 DB `esgxyikcnnvmlhygjkth`, 회원별 `user_id` + RLS 본인만, 회원당 300개, 본문 20,000자). 마이그레이션 `supabase/migrations/20261021230000_merge_c_prompt_templates.sql`. 템플릿은 회원이 직접 만드는 보관함이라 30일 자동 삭제 대상이 아닙니다(AI 실행 결과는 저장하지 않음).
@@ -9,7 +15,7 @@
  Prompt 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
 > **프로그램 공식 명칭**: AI Prompt 자동화 (`ai-prompt-studio`)  
-> **현재 버전**: `v1.07` (2026-10-21 병합 C — 「📁 내 템플릿 보관함」 추가)  
+> **현재 버전**: `v1.08` (2026-10-21 내 템플릿 저장 때 {{변수}} 자동 제안)  
 > **공식 도메인**: `https://ai-prompt.buylife.xyz` (또는 `ai-prompt-studio.buylife.xyz`)  
 > **카탈로그 슬러그**: `ai-prompt-studio`  
 > **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 프롬프트 엔지니어링 스튜디오)**  

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — AI Prompt v1.08: 내 템플릿 저장 때 {{변수}} 자동 제안
+
+병합 C 추가개선 제안 2. 결과 화면에서 저장하면 AI가 바뀌는 부분(최대 8개)을 체크 목록으로 제안하고 고른 것만 {{변수}}로 바꿈(본문 재작성 없음). 같은 날 병합 C 남은 확인(AI 자동 채우기·AI 제안·일반 회원 분리)도 일반 회원 계정으로 통과. 커밋 `b1687b6d`, 배포 Ready, DB v1.08. 다음: 제안 3(다른 프로그램에서 내 템플릿 불러오기) 진행 중. 상세 `ai-prompt-studio/AGENTS.md` v1.08.
+
+https://ai-prompt.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 병합 C 완료: 프롬프트 템플릿 → AI Prompt 「📁 내 템플릿 보관함」
 
 다른 Claude 세션이 멈춘 곳(코드 완료·tsc 통과)부터 이어받아 마쳤습니다. 운영 DB `esgxyikcnnvmlhygjkth`의 새 표 `ai_prompt_templates`는 이미 만들어져 있었고(RLS 본인만), DB `programs` 버전·숨김도 이미 반영돼 있어 이번에 DB 쓰기는 없었습니다. 빌드 2개 통과 → 커밋 `f0a3f529` 푸시 → AI Prompt v1.07·옛 템플릿 앱 v1.06 순차 배포 Ready → 메인 크롬 검수(저장·수정·삭제·중복·실행 1회·옛 앱 옮기기·옛 API 410·390px) 통과, 시험 데이터 삭제. 남은 일: AI 변수 채우기·AI 제안 실제 호출 미확인, 일반 회원 계정 확인. 상세: `ai-prompt-studio/docs/IMPROVEMENT_HANDOFF_20261021_MERGE_C.md`. 다음 병합은 D(AI 웹 UI → UI Canvas).
