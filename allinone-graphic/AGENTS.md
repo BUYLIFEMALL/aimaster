@@ -61,3 +61,11 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+
+## 2026-10-21 v1.09 — 바나나 캔버스로 병합(이동 안내만 남김) (Claude Code 윈도우)
+- 근거: [이미지 카테고리 병합 분석](../docs/analysis-image-consolidation-20261021/REPORT.md) 묶음 B(주인님 결정). 템플릿 123종·칸 자동 입력·화풍/언어/해상도·참고 이미지·브러시 부분 수정·비율 확장은 **바나나 캔버스 v1.13** 「📐 템플릿 그래픽」·「빠른 작업」으로 옮김(`banana-canvas/AGENTS.md` v1.13). 템플릿 데이터의 기준은 이제 `banana-canvas/src/lib/bnc/graphicTemplates.ts`.
+- 이 앱: 첫 화면(`src/app/page.tsx`) → 이동 안내(로그인·권한 확인 없음, 회원 자료 없음 — 원래 저장 기능이 없었음). `/api/generate`·`/api/edit`·`/api/ai-fill` → 410. `/guide`·`/api/user-key`는 그대로.
+- 옮기면서 고친 원래 앱 문제: `/api/ai-fill`에 프로그램 권한 검사가 없었음, PDF를 글자로 읽어 내용이 깨졌음, 결과가 새로고침하면 사라졌음.
+- 쓰지 않게 된 코드(`src/components/studio/AllInOneGraphicApp.tsx`·`src/lib/templates.ts`·`src/lib/gemini.ts` 등)는 사용 종료 코드 정리 규칙(백업 폴더 + git 태그 뒤)에 따라 아직 지우지 않음.
+- 운영 DB: `is_active=false`·`version='v1.09'`(기록 `supabase/migrations/20261021_v1_09_merged_into_banana.sql`).
