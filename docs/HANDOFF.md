@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — INSTA 댓글·DM v1.25: 다크 전환 뒤 화면 점검
+
+백로그 (높음) 항목 처리. `/comments`·`/dm/conversations`·`/dm/history`·`/login`을 크롬(일반 회원)에서 열고 실제 배경색으로 밝은 요소를 전수 검사 → 발송 이력 선택 탭만 밝아(`bg-ig-text`) 분홍(`bg-ig-primary`)으로 수정, 재검사 0개. 검토 카드는 대기 항목이 없어 코드 전수 검사로 확인. 커밋 `64cf37d8`, 배포 Ready, DB v1.25. 비용: Vercel 빌드 1회, AI 0회. 다음: AI 인물사진 남은 항목.
+
+https://instagram-comment-reply.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — YOUTUBE 플레이리스트 자동화 v1.17: 영상 만들기 곡별 가사 층 + 세로 9:16 (가사영상 추가개선 1~3 완료)
 
 추가개선 3-b. 곡 목록 행마다 「＋ 가사」(.srt/.lrc/.txt, 시간 있는 줄만)·같은 이름 자동 짝, 가사 그리기 `lib/render/lyrics-layer.ts`(지금 줄+다음 줄, 색/노래방 채움, 크기·위치·색 — 미리보기·MP4 같은 함수, 반복 재생도 곡 순서대로), 세로 9:16(1080×1920/720×1280, 배경 잘라 맞춤 — 가로는 기존 그대로). 가사 읽기는 **공용 기준 코드 `lyric-timing` 신규 등록**(기준 `lyric-video-studio/src/lib/lyrics.ts`, 사본 `playlist-channel-studio/src/lib/lyrics.ts`). 검수: tsc·시험 20개·build, 로컬 임시 화면(삭제·로그인 예외 원복)에서 곡 2개+가사 → 세로 MP4(저장 위치를 OPFS로 바꿔 끼움) 1080×1920·12.01초·영상+소리·곡별 가사 장면 확인, 운영 일반 회원 `/video`에서 자동 짝·세로 캔버스·2.5초 가사 표시 확인. DB v1.17. 커밋 `a8922030`. 발견(미처리): MP4 스펙트럼이 가짜 값(`dummyFreq`) → 플레이리스트 IMP-PLS-006.
