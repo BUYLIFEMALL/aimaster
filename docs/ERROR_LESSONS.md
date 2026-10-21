@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-21 — 경로를 지정해 `git add`해도, 다른 세션이 미리 스테이징해 둔 변경이 내 커밋에 함께 들어간다 → 커밋 직전 `git diff --cached --stat` 전체(끝 몇 줄만 보지 말 것)로 내 파일만인지 확인 (playlist-channel-studio v1.17, Claude Code 윈도우)
+- 증상: 플레이리스트 v1.17 커밋 `a8922030`에 손대지 않은 `suno-music-studio/` 35개 파일 삭제(약 1만 8천 줄)가 포함돼 푸시됨. 확인 명령을 `| tail -3`으로 줄여 봐서 놓침.
+- 원인: 같은 저장소·같은 스테이징 영역을 쓰는 음악 병합 세션이 은퇴 코드 삭제를 `git rm`으로 스테이징해 둔 상태였고, `git add <내 경로>`는 이미 스테이징된 다른 변경을 빼지 않는다.
+- 해결: 그 세션이 백업 태그를 만들고 바로 뒤 커밋으로 정리를 마쳐 의도와 같은 결과라 되돌리지 않고 기록만(HANDOFF). 
+- 다음부터: 커밋 직전 `git diff --cached --name-only | grep -v -E "^(내폴더|내문서)"`가 비어 있는지 확인. 다른 변경이 있으면 `git commit -- <내 경로들>`(경로 지정 커밋)으로 내 파일만 커밋한다.
+
 ## 2026-10-21 — 새 프로그램을 다른 프로그램 폴더에서 복사할 때 `.env.local`은 복사하지 말 것(그 프로젝트의 Vercel 토큰만 들어 있음), `next dev`는 `AGENTS.md`를 자동으로 만든다, Supabase SQL Editor 화면에서는 로컬 주소 `fetch`가 막힌다 (lyric-video-studio v1.01, Claude Code 윈도우)
 - 증상: ① `shorts-onestop-studio/.env.local`을 복사했더니 내용은 그 프로젝트의 `VERCEL_OIDC_TOKEN` 하나뿐(Supabase 값 없음) ② 커밋 목록에 직접 만들지 않은 `AGENTS.md`가 들어감 ③ SQL Editor 탭에서 `fetch("http://127.0.0.1:…")`로 SQL을 받아오려 하자 `Failed to fetch`.
 - 원인: ① 각 폴더 `.env.local`은 `vercel link`가 만든 그 프로젝트 전용 파일 ② Next 16 `next dev`가 Next.js 안내 블록이 든 `AGENTS.md`를 만든다 ③ Supabase 대시보드의 보안 정책(CSP)이 다른 주소 요청을 막음.

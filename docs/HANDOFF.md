@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — YOUTUBE 플레이리스트 자동화 v1.17: 영상 만들기 곡별 가사 층 + 세로 9:16 (가사영상 추가개선 1~3 완료)
+
+추가개선 3-b. 곡 목록 행마다 「＋ 가사」(.srt/.lrc/.txt, 시간 있는 줄만)·같은 이름 자동 짝, 가사 그리기 `lib/render/lyrics-layer.ts`(지금 줄+다음 줄, 색/노래방 채움, 크기·위치·색 — 미리보기·MP4 같은 함수, 반복 재생도 곡 순서대로), 세로 9:16(1080×1920/720×1280, 배경 잘라 맞춤 — 가로는 기존 그대로). 가사 읽기는 **공용 기준 코드 `lyric-timing` 신규 등록**(기준 `lyric-video-studio/src/lib/lyrics.ts`, 사본 `playlist-channel-studio/src/lib/lyrics.ts`). 검수: tsc·시험 20개·build, 로컬 임시 화면(삭제·로그인 예외 원복)에서 곡 2개+가사 → 세로 MP4(저장 위치를 OPFS로 바꿔 끼움) 1080×1920·12.01초·영상+소리·곡별 가사 장면 확인, 운영 일반 회원 `/video`에서 자동 짝·세로 캔버스·2.5초 가사 표시 확인. DB v1.17. 커밋 `a8922030`. 발견(미처리): MP4 스펙트럼이 가짜 값(`dummyFreq`) → 플레이리스트 IMP-PLS-006.
+- ⚠️ 커밋 `a8922030`에 **음악 병합 세션이 미리 스테이징해 둔 `suno-music-studio` 은퇴 코드 삭제(35개 파일)** 가 함께 들어갔습니다(공유 스테이징). 그 세션은 백업 폴더·태그 `backup/suno-music-studio-20261021`을 이미 만들었고 바로 뒤 자기 커밋 `1b96b39b`로 정리를 마쳐 결과는 의도와 같습니다(되돌리지 않음). 교훈은 `docs/ERROR_LESSONS.md`.
+- 가사영상 전체: v1.02(줄 끝 시각·파일로 바로 저장) → v1.03(파형 끌기·프리셋 미리보기·화면 안 확인 상자) → v1.04(유튜브 올리기, **실제 업로드 미검수 — 시험 계정 유튜브 미연결**). 남은 2차: 음악(SUNO) 곡 가져오기·시간 가사·`music/` 곡 카드 링크(음악 병합 세션 종료 확인 후).
+
+https://playlist-maker.buylife.xyz/video
+https://lyric-video-studio.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — AI 랜딩페이지 기획 v1.13: UI Canvas로 보낼 때 실제 사진
 
 이미지 소스가 Unsplash·Pexels·Pixabay이고 회원 본인 키가 있으면 키워드에 맞는 실제 사진(프로토타입과 같은 `resolveImages`), 없거나 실패하면 임시 사진으로 보내고 결과를 안내. 한도 확인 뒤에 사진 검색. 커밋 `ab8a84d7`, 배포 Ready, DB v1.13, 크롬 검수(Pixabay 2장) 통과·시험 데이터 삭제. 비용: Vercel 빌드 1회, Pixabay 검색 2회(회원 키·무료), AI 0회. 상세 `landing-architect/AGENTS.md` v1.13.
