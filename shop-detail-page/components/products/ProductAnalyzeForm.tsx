@@ -217,7 +217,7 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
           <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">필수</span>
         </div>
         <p className="text-xs text-slate-500">
-          이 이미지는 이후 상세페이지 15개 섹션 이미지를 생성할 때 합성 기준 이미지로 사용됩니다.
+          이 이미지는 이후 상세페이지 섹션 이미지를 생성할 때 합성 기준 이미지로 사용됩니다.
           <br />
           <span className="font-semibold text-amber-700">
             가급적 배경이 깔끔하게 제거된 누끼컷이나 단색 배경 이미지를 권장합니다.
@@ -521,7 +521,7 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-3">
         <h2 className="text-sm sm:text-base font-bold text-slate-900">5. 이미지 생성 시 추가 반영사항 (선택)</h2>
         <p className="text-xs text-slate-500">
-          여기에 적은 내용은 15개 섹션 이미지를 생성할 때마다 프롬프트에 공통으로 함께 반영됩니다.
+          여기에 적은 내용은 섹션 이미지를 생성할 때마다 프롬프트에 공통으로 함께 반영됩니다.
         </p>
         <textarea
           name="imageGenerationNotes"

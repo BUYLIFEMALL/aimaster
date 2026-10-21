@@ -203,3 +203,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 자동생성기 프롬프트에서 **버린 것**: 판매량·만족도·후기·재구매율을 「AI 추정값」으로 채우고 후기를 「자동 생성」하던 지시(허위 광고 위험) → 정보가 없으면 그 블록을 빼도록. 카운트다운·카운트업 JavaScript → 정적 HTML/CSS만(모델이 넣어도 `sanitizeGeneratedHtml`이 `<script>`·`on*` 속성 제거). Claude 키 필수 → 이 앱의 Gemini 키. Puppeteer 서버 PNG는 옮기지 않음(이 앱의 긴 PNG 내보내기가 있음).
 - 검수(맥미니): tsc 0. 정리 함수 무료 시험(스크립트·on 속성 제거, `[IMAGE_1]` 치환이 `[IMAGE_10]`을 건드리지 않음). AI 호출 0.
 - 카탈로그 설명 갱신안: `../docs/analysis-ecommerce-consolidation-20261021/E2_hide_auto_detail_and_catalog.sql`(표준 형식, 보이는 글자 478자).
+
+## 2026-10-22 v1.18 — 실제 생성 시험 후속: 개별 섹션 생성·규격 중립 문구·근거 없는 혜택 문구 차단 (Claude Code 맥미니 · 배포 대기)
+- **개별 생성 버튼(S-22-01)**: `SectionImageGrid.tsx` — 아직 만들지 않았거나 실패한 섹션 헤더에 「✨ 생성 · 약 $0.10」(선택 모델 단가) 버튼. 전에는 처음 만들 때 「N개 섹션 전체 자동 생성」뿐이라 한 장만 만들 수 없었다. 전체 생성 중에는 비활성.
+- **규격 중립 문구(S-22-02)**: 좌측 메뉴 「15단 섹션 생성」「15-Section Commerce Studio」「Gemini 15단 생성 엔진」·새 상품 화면 「15개 섹션 이미지」 → 12단·9단에도 맞는 문구.
+- **근거 없는 혜택 문구 차단(S-22-03)**: `lib/actions/images.ts` `NO_PRICE_PROMOTION_GUIDE` — 할인가가 비어 있으면 모든 템플릿(시스템·회원, 전 규격)에 「가격·할인·특가·한정·이벤트·사은품 문구 금지」를 붙임. 마이그레이션 `supabase/migrations/20261022_promo_templates_v1_18.sql` — 쿠팡 12단 `cp_promotion`·9단 `ss_hook_promo` 시스템 행의 「한정 혜택 강조」「런칭 특가 허용」 지시 제거 + `programs.version` v1.18.
+- 검수(맥미니): tsc 0. AI 호출 0.
+- **윈도우 CLI 다음 첫 단계**: ① `20261022_promo_templates_v1_18.sql` 적용(옛 코드 영향 없음) → ② `shop-detail-page` 배포 → ③ 크롬에서 상품 화면 대기 섹션의 「✨ 생성」 버튼·좌측 메뉴 문구 확인(생성 버튼은 누르지 않음).

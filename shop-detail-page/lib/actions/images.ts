@@ -28,6 +28,11 @@ function extFromMime(mimeType: string): string {
 const KOREAN_DEFAULT_PEOPLE_GUIDE =
   "\n\nIf this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly calls for a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
 
+// v1.18: 할인가가 비어 있는 상품은 어떤 템플릿(시스템·회원 커스텀, 모든 규격)이든 혜택 문구를 지어내지 않게 한다.
+// 2026-10-22 실제 시험에서 쿠팡 12단 배너에 상품 정보에 없는 「런칭 특가」「한정 수량 특별 혜택」이 그려졌다(S-22-03).
+const NO_PRICE_PROMOTION_GUIDE =
+  "\n\nNo price or promotion information was provided for this product. Do NOT render any price, discount, percentage off, 'sale', '특가', '런칭 특가', '한정', 'limited quantity/time', countdown, event, coupon, free gift or giveaway wording. Use the product name and its real features as the headline instead.";
+
 /** n8n #1(이미지생성) 대응: 템플릿 1개 분량의 섹션 이미지를 생성해 Storage에 올리고 DB에 반영한다. */
 export async function generateSectionImageAction(
   productId: string,
@@ -68,7 +73,8 @@ export async function generateSectionImageAction(
     let finalPrompt =
       applyProductVariables(template.prompt_template, product) +
       (template.korean_guide ?? "") +
-      KOREAN_DEFAULT_PEOPLE_GUIDE;
+      KOREAN_DEFAULT_PEOPLE_GUIDE +
+      (product.sale_price == null ? NO_PRICE_PROMOTION_GUIDE : "");
     if (product.image_generation_notes?.trim()) {
       finalPrompt += `\n\nAdditional instructions: ${product.image_generation_notes.trim()}`;
     }

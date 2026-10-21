@@ -32,7 +32,7 @@ const FLOW_STEPS = [
     icon: LayoutGrid,
     iconColor: "text-indigo-600",
     label: "상세페이지 생성·관리",
-    description: "15단 섹션 생성 및 롱 이미지 병합",
+    description: "섹션 이미지 생성 및 롱 이미지 병합",
   },
 ];
 
@@ -103,7 +103,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 {APP_VERSION}
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 mb-2 pl-9 font-medium">15-Section Commerce Studio</p>
+            <p className="text-[11px] text-slate-400 mb-2 pl-9 font-medium">15·12·9단 Commerce Studio</p>
             <a
               href="https://www.buylife.xyz/programs"
               className="inline-flex items-center gap-1 pl-1 text-[11px] font-semibold text-slate-500 hover:text-blue-600 transition-colors"
@@ -208,10 +208,10 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs">
             <div className="flex items-center gap-1.5 font-bold text-blue-700 mb-1">
               <Sparkles size={13} className="text-blue-600" />
-              <span>Gemini 15단 생성 엔진</span>
+              <span>Gemini 상세페이지 생성 엔진</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              상품 맞춤형 소구점 분석과 15개 섹션 고해상도 생성 및 세로 롱 이미지 병합 지원
+              상품 맞춤형 소구점 분석, 15섹션·쿠팡 12단·스마트스토어 9단 고해상도 생성 및 세로 롱 이미지 병합 지원
             </p>
           </div>
         </div>

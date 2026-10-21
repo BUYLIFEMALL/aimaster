@@ -331,6 +331,18 @@ export function SectionImageGrid({
                     <span>재생성</span>
                   </button>
                 )}
+                {/* v1.18: 아직 만들지 않았거나 실패한 섹션도 한 장씩 만들 수 있게 한다(전체 생성만 있던 문제, S-22-01). */}
+                {(state.status === "idle" || state.status === "error") && (
+                  <button
+                    onClick={() => generateOne(t)}
+                    disabled={isRunning}
+                    title={`이 섹션만 1장 생성 · 예상 비용 약 $${IMAGE_MODEL_COST_USD[model].toFixed(2)}`}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-2.5 py-1 rounded-lg transition-colors shadow-2xs shrink-0"
+                  >
+                    <span>✨</span>
+                    <span>생성 · 약 ${IMAGE_MODEL_COST_USD[model].toFixed(2)}</span>
+                  </button>
+                )}
               </div>
 
               {/* 섹션 이미지 뷰어 */}
