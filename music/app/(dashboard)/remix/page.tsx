@@ -5,6 +5,7 @@ import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { SunoUsageGuide } from "@/components/guide/SunoUsageGuide";
 import type { RemixStatus } from "@/types/database.types";
 import { withSignedStorageUrls } from "@/lib/storageSign";
+import { RetentionNotice } from "@/components/RetentionBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,7 @@ export default async function RemixSourcesPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
       <AutoRefresh enabled={hasGenerating} />
+      <RetentionNotice />
 
       {/* 상단 타이틀 & Suno Create 버튼 */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">

@@ -263,3 +263,10 @@ POST 콜백을 보낸다. 이 라우트는:
 - `lib/storageSign.ts`: DB에는 공개 주소 형식을 그대로 두고 「파일 위치」로만 씀. 서버 페이지(`plannings/[id]`·`remix`·`remix/[sourceId]`)가 회원 본인 행을 넘기기 직전 그 안의 저장소 주소를 **1시간짜리 서명 주소**로 바꿈(`withSignedStorageUrls`, 관리자 키로 일괄 서명). Suno 리믹스 원곡(`uploadUrl`)은 Suno 서버가 받아 가도록 **24시간짜리**(`remix.ts`).
 - 검수: 배포 Ready(비용 Vercel 빌드 1회), 크롬 일반 회원 트랙 화면 음원 2·커버 2가 `/object/sign/` 주소로 재생·표시, 전환 뒤에도 동일, 가장 오래된 곡의 옛 공개 주소 HEAD **400**.
 - 영향·주의: 회원이 밖에 붙여 둔 옛 공개 링크는 열리지 않음(승인된 영향). 생성 중 자동 새로고침 때 서명 주소가 바뀌어 재생 중인 곡이 다시 로드될 수 있음(생성 중일 때만). **다른 프로그램이 음악(SUNO) 곡을 쓰려면(예: lyric-video-studio 2차 연결) 공개 주소가 아니라 서버에서 서명 주소를 만들어야 함.** 리믹스 실제 호출은 미검수(크레딧).
+
+## 2026-10-21 v1.21 — 기존 곡 30일 자동 삭제(7일 유예) (Claude Code 윈도우, 주인님 결정)
+- 규칙 `lib/retention.ts`: 생성일 + 30일에 삭제, 단 **2026-10-28 23:59(KST)까지 유예**(이미 30일 지난 기존 곡 보호). 결정 당시 30일 지난 데이터: 곡 33/58(회원 5명)·음원 60/110·기획 18/43·WAV 7·리믹스 6(결과 16·원곡 3).
+- 정리 작업 `app/api/cron/cleanup`(Vercel cron `vercel.json` 매일 03:00 KST = `0 18 * * *`, `Authorization: Bearer CRON_SECRET` — 비밀값 비면 거부): 생성 중이 아닌 곡 → 음원·커버·MR·WAV 파일을 Storage API로 먼저 지우고 트랙 행 삭제(변형·MR·WAV cascade) → 곡 없는 기획 → 리믹스(결과 파일) → 리믹스 없는 원곡(직접 올린 파일만). 1회 최대 100건씩. 유예 중에는 `skipped: grace period`.
+- **환경변수 추가(승인)**: `CRON_SECRET`(music Production, Sensitive, 무작위 생성·출력 안 함).
+- 화면: 곡·리믹스 카드에 「🗓️ 자동 삭제 D-n」(3일 이하 빨강), 곡 목록·곡 상세·리믹스 목록 위 안내(`components/RetentionBadge.tsx`).
+- 검수: tsc·lint·build, 배포 Ready(비용 Vercel 빌드 1회), DB v1.21, 정리 주소 비밀값 없음·틀림 401, 크롬 일반 회원 D-30·안내 표시. **정상 비밀값 실행은 값을 출력하지 않아 직접 시험 못 함 — 첫 실제 삭제는 2026-10-29 03:00 KST 실행분부터. 그날 이후 Vercel cron 로그와 DB 건수로 확인 필요.**

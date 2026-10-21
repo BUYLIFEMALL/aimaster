@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { SunoUsageGuide } from "@/components/guide/SunoUsageGuide";
 import type { PlanningStatus } from "@/types/database.types";
+import { RetentionNotice } from "@/components/RetentionBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function PlanningsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
+      <RetentionNotice />
       {/* 상단 헤더 & Suno Create 버튼 */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>

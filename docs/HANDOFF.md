@@ -71,6 +71,10 @@ UI Canvas v1.11: 갤러리 이식(Tailwind는 갤러리 화면에만 격리), �
 
 https://ui-canvas.buylife.xyz
 
+## 2026-10-21 Claude Code(윈도우) — 음악(SUNO)자동화 v1.21: 기존 곡 30일 자동 삭제(7일 유예)
+
+생성 30일 지난 곡·음원·커버·MR·WAV·리믹스를 매일 03:00 KST 정리(`music/app/api/cron/cleanup`, Vercel cron, `CRON_SECRET` 추가 — 주인님 승인). 이미 30일 지난 곡(33/58, 회원 5명)은 **2026-10-28까지 유예**, 카드 「자동 삭제 D-n」·목록 안내. **확인 필요: 2026-10-29 03:00 첫 실제 삭제 뒤 Vercel cron 로그·DB 건수.** 다음: V6 추가 기능. 상세 `music/AGENTS.md` v1.21.
+
 ## 2026-10-21 Claude Code(윈도우) — 음악(SUNO)자동화 v1.20: music-audio 비공개 + 서명 주소 / 옛 Suno 음악기획 코드 삭제
 
 ① 옛 `suno-music-studio` 코드 삭제(백업 `D:\Antigravity\AIMaster_backupetired-programs\suno-music-studio\` 141개 + 태그 `backup/suno-music-studio-20261021`, 안내·로그인·410만 남김, 재배포 안 함). ② `music-audio` 저장소 `public=false`, 화면은 1시간 서명 주소·Suno 리믹스 원곡은 24시간(`music/lib/storageSign.ts`). 옛 공개 링크는 400. **다른 프로그램이 음악(SUNO) 곡을 쓰려면 서버에서 서명 주소를 만들어야 함**(lyric-video-studio 2차 연결 담당 세션 참고). 다음: 기존 곡 30일 삭제 → V6 추가 기능.

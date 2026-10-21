@@ -7,6 +7,7 @@ import { TrackCard, type TrackCardData } from "@/components/plannings/TrackCard"
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { PlanningHeaderCard, type PlanningHeaderData } from "@/components/plannings/PlanningHeaderCard";
 import { withSignedStorageUrls } from "@/lib/storageSign";
+import { RetentionNotice } from "@/components/RetentionBadge";
 
 export const dynamic = "force-dynamic";
 // 최대 10곡 대량생성 시 GPT 스타일/가사 호출이 순차로 여러 번 도는 generateTracksAction이
@@ -58,6 +59,8 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
       </Link>
 
       <PlanningHeaderCard planning={planningData} />
+
+      <RetentionNotice />
 
       <GenerateTracksPanel
         planningId={planningData.id}

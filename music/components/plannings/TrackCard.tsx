@@ -24,6 +24,7 @@ import {
   TEMPO_MAX_SELECT,
 } from "@/lib/constants";
 import type { TrackMode, TrackStatus, VocalGender, MrStatus, WavStatus } from "@/types/database.types";
+import { RetentionBadge } from "@/components/RetentionBadge";
 
 export interface MrResult {
   id: string;
@@ -287,7 +288,10 @@ export function TrackCard({ track, planningLang }: { track: TrackCardData; plann
             <span>🎵</span>
             <span>{trackTitleLabel(track)}</span>
           </p>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${badge.className}`}>{badge.label}</span>
+          <span className="flex items-center gap-1.5 shrink-0">
+            {track.status !== "generating" && <RetentionBadge createdAt={track.created_at} />}
+            <span className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${badge.className}`}>{badge.label}</span>
+          </span>
         </div>
 
         {track.status === "failed" && track.error_message && (

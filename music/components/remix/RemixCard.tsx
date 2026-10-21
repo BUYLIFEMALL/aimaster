@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { syncRemixStatusAction, deleteRemixAction } from "@/lib/actions/remix";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
 import type { RemixStatus } from "@/types/database.types";
+import { RetentionBadge } from "@/components/RetentionBadge";
 
 export interface RemixVariant {
   id: string;
@@ -103,8 +104,11 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
             <span>🎛️</span>
             <span className="truncate">{remix.source_title ? `"${remix.source_title}" 리믹스` : "리믹스"}</span>
           </p>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${badge.className}`}>
-            {badge.label}
+          <span className="flex items-center gap-1.5 shrink-0">
+            {remix.status !== "generating" && <RetentionBadge createdAt={remix.created_at} />}
+            <span className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${badge.className}`}>
+              {badge.label}
+            </span>
           </span>
         </div>
 
