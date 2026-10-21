@@ -231,3 +231,9 @@
 - `python scripts/make_lecture_kit.py --version v1.08 --out D:PDSAIMater_KIT` → 299개 파일, 비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build` 통과.
 - 포장 전 DB 대조가 카드뉴스 병합(`cns_*`·`cardnews-images`)·공지 띠(`notices`)를 잡음 → 카드뉴스는 독립 모드에서 이미 건너뜀(메뉴·게시글 관리 칸·예약 실행·남은 예약 세기·7일 그래프)이라 `KIT/kit.json` `schemaCheckIgnore`에 등록. **공지 띠는 독립 모드 처리가 없어** `src/app/(dashboard)/layout.tsx`에서 `!IS_STANDALONE`일 때만 그리게 함(운영 동작 같음 — **미배포, 다음 배포 때 함께**). `KIT/README.md` 업데이트 내역 v1.08 줄(포장 전에 넣음).
 - 카드뉴스 화면 주소(`/cardnews`)는 배포판에서 메뉴로 갈 수 없지만 주소를 직접 치면 열림(표가 없어 목록이 비거나 오류) — 검토 대기(`docs/IMPROVEMENTS.md`).
+
+## 2026-10-22 ⏸ 대기 — 카드뉴스 기록 API 「최근 7일 게시 완료만」 조회
+- **⏸ 다음 빌드 때 함께 — 「최근 7일 게시 완료만」 조회(2026-10-22 주인님 지시: 따로 빌드하지 않고 이 프로그램을 다음에 수정·배포할 때 같이)**
+  - 왜: 「📊 최근 7일 게시」 그래프(공용 `insta-week-posts`)가 게시 기록 API의 최근 30건(생성 순)만 받아서 세므로, 일주일에 30건 넘게 만들거나 예약이 많은 회원은 그래프·그날 목록이 덜 나온다.
+  - 할 일: `src/app/api/cardnews/instagram/posts/route.ts`의 GET에 `?week=1`을 받으면 `status=published`·`published_at` ≥ 한국 시간 6일 전 0시(`weekStartIso()`, `lib/weekChart/bucket.ts`)·`order(published_at desc)`·`limit(500)`로 돌려주게 추가(기존 응답은 그대로 — 예약 요약·기록 화면이 계속 씀). 그다음 공용 기준 `insta_auto_poster/src/components/weekChart/InstaWeekPosts.tsx`가 `postsUrl + "?week=1"`로 부르게 바꾸고 `node scripts/check-shared-modules.mjs --sync`. 카드뉴스 기록 API는 공용 코드가 아니라 이 프로그램에서 직접 고친다. `InstaWeekPosts.tsx`는 이 프로그램이 **기준**이라 여기서 고친 뒤 `--sync`(AI 인플루언서·웹툰 사본). 대시보드 그래프(`src/lib/instaWeek.ts`)는 이미 서버에서 7일·게시 완료 조건으로 세므로 해당 없음.
+  - 검수: 그래프 합계가 DB의 최근 7일 게시 완료 수와 같은지(30건 넘는 시험 데이터는 만들지 않고 쿼리 조건으로 확인), 막대 누르기·예약 요약 줄이 그대로인지. 배포 뒤 이 항목을 「배포됨(버전)」으로 바꾼다.

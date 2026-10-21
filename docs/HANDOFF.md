@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ⏸ 「최근 7일 게시 완료만」 조회는 다음 빌드 때 함께 (주인님 지시)
+- 「📊 최근 7일 게시」 그래프가 게시 기록 API 최근 30건만 세는 한계. 따로 빌드하지 않고, 아래 프로그램을 다음에 수정·배포할 때 같이 진행: 기록 API에 `?week=1`(게시 완료·`published_at` 최근 7일·최대 500건) 추가 → 공용 `InstaWeekPosts`가 그 주소로 부름.
+- 대상: `ai-webtoon-studio`(공용 `insta-posts-route` 기준) → `--sync`로 `ai-influencer-studio`·`four-cut-comics` 사본, `insta_auto_poster`(카드뉴스 기록 API, `InstaWeekPosts` 기준). 구현 방법·검수: 웹툰·AI 인플루언서·INSTA 포스팅 `AGENTS.md` 2026-10-22 「⏸ 대기」 항목. **네컷은 지금 다른 세션이 작업 중이라 그 폴더 문서에는 적지 않음** — 네컷을 맡는 작업자는 이 항목과 `docs/SHARED_MODULES.md` `insta-week-posts` 줄을 보면 됨.
+
 ## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.19 · 상품소싱 v1.23 (배포 대기)
 - 주인님 「진행해」(v1.18 보고의 추가 개선 제안 1~3). ① 같은 섹션 동시 생성 시 이력 덮어쓰기 → DB 함수 `shop_append_section_image`(security invoker, 함수 없으면 예전 방식) ② 사용 안내 15섹션 고정·옛 단가 → 3규격·현재 단가·HTML 내보내기 설명 ③ 상품소싱 소싱 결과·관심 상품 「📄 상세페이지」 → 새 상품 화면 미리 채움(도매가·사진 제외). tsc·lint 0, AI 호출·비용 0.
 - **윈도우 CLI 다음 첫 단계**(v1.18이 아직이면 함께 배포 1회): SQL `shop-detail-page/supabase/migrations/20261022_promo_templates_v1_18.sql` → `20261022_append_section_image_v1_19.sql`(운영 ref `esgxyikcnnvmlhygjkth`) → `shop-detail-page` 배포 → Ready 뒤 `trending-product-finder` 배포 + `programs.version` v1.23 → 크롬 무료 확인(절차: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 맨 아래 v1.19, `trending-product-finder/AGENTS.md` v1.23). 생성 버튼은 누르지 않음.

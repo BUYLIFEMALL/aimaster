@@ -194,3 +194,8 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 요약: 옛 `GET /api/user/key`가 키 원문을 내려주고 브라우저가 localStorage에 저장·Gemini를 직접 호출(글은 `?key=` 주소) → AI 호출을 서버 경로 `/api/ai/text`·`/api/ai/image`(권한 확인 + 서버에서 본인 키, 머리글 전송)로 옮기고, 키 경로는 `hasKey`만, 예전에 저장된 브라우저 키는 첫 접속 때 삭제. 설정 창 키 확인도 서버에서. 프롬프트·모델·무료 대체 렌더러는 그대로.
 - 검수: tsc 0, 시험 22개(새 정적 검사 4개 포함), build, 배포 `ai-webtoon-studio-pvxt536dl` Ready, DB v1.27, 로그인 없는 호출 401, 크롬(시험 회원) 옛 키 삭제·`hasKey:true`·헤더 연결 표시·v1.27. 실제 생성 1회는 비용 승인 범위 밖이라 미확인.
 
+## 2026-10-22 ⏸ 대기 — 게시 기록 API 「최근 7일 게시 완료만」 조회
+- **⏸ 다음 빌드 때 함께 — 「최근 7일 게시 완료만」 조회(2026-10-22 주인님 지시: 따로 빌드하지 않고 이 프로그램을 다음에 수정·배포할 때 같이)**
+  - 왜: 「📊 최근 7일 게시」 그래프(공용 `insta-week-posts`)가 게시 기록 API의 최근 30건(생성 순)만 받아서 세므로, 일주일에 30건 넘게 만들거나 예약이 많은 회원은 그래프·그날 목록이 덜 나온다.
+  - 할 일: `src/app/api/instagram/posts/route.ts`의 GET에 `?week=1`을 받으면 `status=published`·`published_at` ≥ 한국 시간 6일 전 0시(`weekStartIso()`, `lib/weekChart/bucket.ts`)·`order(published_at desc)`·`limit(500)`로 돌려주게 추가(기존 응답은 그대로 — 예약 요약·기록 화면이 계속 씀). 그다음 공용 기준 `insta_auto_poster/src/components/weekChart/InstaWeekPosts.tsx`가 `postsUrl + "?week=1"`로 부르게 바꾸고 `node scripts/check-shared-modules.mjs --sync`. 이 파일은 공용 기준 코드 `insta-posts-route`의 **기준**이라, 고친 뒤 `--sync`하면 AI 인플루언서·네컷 사본도 같이 바뀐다(세 프로그램을 같은 묶음으로 배포).
+  - 검수: 그래프 합계가 DB의 최근 7일 게시 완료 수와 같은지(30건 넘는 시험 데이터는 만들지 않고 쿼리 조건으로 확인), 막대 누르기·예약 요약 줄이 그대로인지. 배포 뒤 이 항목을 「배포됨(버전)」으로 바꾼다.
