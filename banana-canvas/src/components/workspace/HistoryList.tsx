@@ -65,7 +65,7 @@ export function HistoryList() {
       <div className="actions">
         <a className="button primary" href="/studio">새 작업</a>
         <button type="button" aria-pressed={onlyFav} onClick={() => setOnlyFav((v) => !v)}><Star size={14} />즐겨찾기만</button>
-        <small>최근 30건까지 보관합니다(즐겨찾기는 유지).</small>
+        <small>최근 30건까지 보관하며(즐겨찾기 제외), 모든 결과는 만든 날부터 30일 뒤 자동 삭제됩니다. 필요한 이미지는 내려받아 두세요.</small>
       </div>
       {error && <p role="alert" className="error" style={{ marginTop: 12 }}>{error}</p>}
       {rows === null ? <p className="empty">불러오는 중…</p> : shown.length === 0 ? (

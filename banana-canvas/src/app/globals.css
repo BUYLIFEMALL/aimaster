@@ -778,3 +778,7 @@ button[aria-pressed=true] {
 .bc-graphic-more{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:8px}
 .bc-graphic-more summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px}
 .bc-graphic-more[open] summary{margin-bottom:4px}
+
+/* v1.14 바로가기 칩 묶음(만들기·고치기·스페셜) */
+.bc-nav-group{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 8px 4px 6px;border:1px solid var(--line);border-radius:999px}
+.bc-nav-group>b{font-size:11px;font-weight:800;color:var(--muted);padding:0 4px}

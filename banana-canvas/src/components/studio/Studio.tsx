@@ -10,6 +10,9 @@ import { MaskEditor } from "./MaskEditor";
 import { GraphicCard } from "./GraphicCard";
 import { checkImageFile } from "@/lib/imageFileCheck";
 
+// 이미지 변환 스튜디오(브라우저 처리)로 결과를 넘겨 형식·크기를 바꾼다(v1.14)
+const CONVERT_URL = "https://image-convert-studio.buylife.xyz/convert";
+
 interface Img { path: string; url: string; name: string }
 interface Out { path: string; url: string | null; w: number; h: number; text?: string; mime?: string }
 interface Result { id: string; kind: Kind; title: string; outputs: Out[]; model: string; warning: string | null }
@@ -82,7 +85,7 @@ function Card({ icon, title, hint, needsImage, locked, children, id }: { icon: s
   );
 }
 
-export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: number }) {
+export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; fromIndex?: number; importUrl?: string }) {
   const [model, setModel] = useState<ModelLevel>("flash");
   const [base, setBase] = useState<Img | null>(null);
   const [sources, setSources] = useState<Img[]>([]);
@@ -147,6 +150,19 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
       if (o?.url) setBase({ path: o.path, url: o.url, name: "result" });
     })();
   }, [fromId, fromIndex]);
+
+  // 다른 프로그램(AI 이미지 스튜디오)에서 「바나나 캔버스로 보내 편집」으로 들어온 경우(v1.14)
+  useEffect(() => {
+    if (!importUrl) return;
+    (async () => {
+      setBusy("upload");
+      const r = await api<{ path: string; url: string | null }>("/api/import", "POST", { url: importUrl });
+      setBusy("");
+      if (!r.ok) { fail(r); return; }
+      if (r.data.url) setBase({ path: r.data.path, url: r.data.url, name: "imported" });
+      window.history.replaceState(null, "", "/studio");
+    })();
+  }, [importUrl]);
 
   const dropTemp = useCallback((path: string | null) => {
     if (path && path.includes("/in/")) void fetch(`/api/upload?path=${encodeURIComponent(path)}`, { method: "DELETE", keepalive: true }).catch(() => {});
@@ -259,16 +275,23 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
       )}
 
       <nav className="bc-nav-chips" aria-label="작업 바로가기">
-        <a href="#source">🖼️ 원본</a>
-        <a href="#card-generate">✨ 생성</a>
-        <a href="#card-graphic">📐 템플릿 그래픽</a>
-        <a href="#card-quick">⚡ 빠른 작업</a>
-        <a href="#card-story">🎞️ 스토리·레시피</a>
-        <a href="#card-restore">🕰️ 옛 사진 복원</a>
-        <a href="#card-edit">🛠️ 편집</a>
-        <a href="#card-composite">🧩 합성</a>
-        <a href="#card-album">📖 인생 앨범</a>
-        <a href="#card-comic">💬 만화 패널</a>
+        {/* v1.14: 카드가 많아져 「만들기 / 고치기 / 스페셜」로 묶음 */}
+        <span className="bc-nav-group"><b>만들기</b>
+          <a href="#card-generate">✨ 생성</a>
+          <a href="#card-graphic">📐 템플릿 그래픽</a>
+          <a href="#card-story">🎞️ 스토리·레시피</a>
+        </span>
+        <span className="bc-nav-group"><b>고치기</b>
+          <a href="#source">🖼️ 원본</a>
+          <a href="#card-restore">🕰️ 옛 사진 복원</a>
+          <a href="#card-edit">🛠️ 편집</a>
+          <a href="#card-composite">🧩 합성</a>
+          <a href="#card-quick">⚡ 빠른 작업</a>
+        </span>
+        <span className="bc-nav-group"><b>스페셜</b>
+          <a href="#card-album">📖 인생 앨범</a>
+          <a href="#card-comic">💬 만화 패널</a>
+        </span>
         <a href="#result" style={{ background: "rgba(255, 216, 77, 0.2)", borderColor: "var(--brand)", color: "var(--brand)" }}>🌟 결과 보기</a>
       </nav>
 
@@ -490,6 +513,7 @@ export function Studio({ fromId, fromIndex }: { fromId?: string; fromIndex?: num
                           <button type="button" onClick={() => void saveImage(o.url!, `banana_${result.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`)}><Download size={13} />다운로드</button>
                           <button type="button" onClick={() => setZoom(o.url)}><Maximize2 size={13} />크게 보기{o.w ? ` (${o.w}×${o.h})` : ""}</button>
                           <button type="button" onClick={() => useAsBase(o)}><RefreshCw size={13} />이 결과로 계속 편집</button>
+                          <a className="button" href={`${CONVERT_URL}?src=${encodeURIComponent(o.url)}`} target="_blank" rel="noopener noreferrer">🔁 형식 바꾸기(WebP·PNG·JPG)</a>
                         </div>
                       )}
                     </figure>
