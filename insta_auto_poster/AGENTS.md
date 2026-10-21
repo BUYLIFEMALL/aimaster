@@ -213,3 +213,4 @@
 - 화면: 공용 기준 코드 `week-reply-panel` 사본 `src/components/weekChart/WeekReplyPanel.tsx` + 서버 동작 `src/lib/actions/weekPosts.ts` `loadWeekDayPostsAction`(이용 권한 확인 → 7일 안 날짜만). 문구는 `labels`로 「게시한 글 목록」.
 - 검수: tsc·build(종료 코드 0)·`test:own-meta` 통과. 커밋 `622694bc`(칸)·`b0a779f0`(그날 목록)·`173db0d8`(쌓기·버전), 배포 `insta-auto-poster-e5n2o8g7g` READY, DB v1.44, 크롬(관리자)에서 v1.44·막대 7개·누르면 「이날 게시한 글이 없어요」 오류 없음·400px 넘침 없음. 다섯 표 모두 같은 칸으로 조회 200 확인(서비스 키 읽기). **관리자 계정 최근 7일 게시가 0건이라 쌓인 막대·목록 항목 모양은 실제 데이터로 미확인.** 비용: Vercel 빌드 1회.
 - 미배포(다음 배포 때 함께): 그래프 막대의 숨겨진 설명 문구를 「그날 목록 보기」로(커밋 `6c2d922d`).
+- 같은 날 보완(커밋 `21280e5f`, **미배포 — 운영은 칸이 있어 동작 같음, 다음 배포 때 함께**): 게시 완료 저장에서 `published_at` 칸이 없다는 오류면 칸을 빼고 다시 저장(키트 DB 대비), `KIT/schema.sql`에 칸 추가, 기존 설치자용 `KIT/upgrade-20261022-published-at.sql`·README 파일 표. **배포판 압축(`scripts/make_lecture_kit.py`)은 아직 다시 만들지 않음.**

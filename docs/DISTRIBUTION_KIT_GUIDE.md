@@ -152,6 +152,7 @@
 | 화면 | 밝은 테마가 `.text-white`를 검정으로 바꿔 버튼 글자가 안 보임 | 버튼 글자색 `text-[#ffffff]` |
 | 설치(2026-10-19 주인님 실사용) | 질문형 스크립트 대신 `.env.local`을 직접 찾아 값을 넣게 됨(AI 도구가 「손으로 하는 방법」을 고르거나, 실행 명령을 못 찾음) | **패키지 설치마법사**(더블클릭 실행 파일) 도입, 안내서 2장을 마법사로, 손 설치는 고급 참고로 내림(§2-2) |
 | 키 확인(PowerShell) | `Invoke-WebRequest` 기본 User-Agent(Mozilla 포함) 때문에 Supabase가 Secret key를 401로 거부 | 확인 요청에 `-UserAgent "aimaster-kit-setup"`(맥 `curl -A`) |
+| 운영 DB에 칸 추가(2026-10-22 INSTA 포스팅 v1.44 `insta_posts.published_at`) | 운영 DB에만 칸을 넣고 코드가 그 칸에 쓰면, **키트 DB(`KIT/schema.sql`)에는 칸이 없어 수강생 사이트의 저장이 오류** — 특히 오류를 확인하지 않는 게시 완료 저장은 실제 게시된 글이 「게시 중」으로 멈춤 | 운영 DB 구조를 바꾸면 같은 커밋에서 `KIT/schema.sql`(다시 실행 안전한 `add column if not exists`)과 기존 설치자용 `KIT/upgrade-YYYYMMDD-*.sql`·README 파일 표를 함께 고치고, 새 칸 쓰기는 「칸이 없으면 빼고 다시 저장」으로 감싼다 |
 
 ---
 
