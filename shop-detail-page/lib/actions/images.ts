@@ -3,7 +3,8 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { fetchImageAsBase64, generateSectionImageWithGemini, DEFAULT_IMAGE_MODEL } from "@/lib/ai/gemini";
+import { generateSectionImageWithGemini, DEFAULT_IMAGE_MODEL } from "@/lib/ai/gemini";
+import { downloadImageAsBase64 } from "@/lib/storageImage";
 import type { ImageModelKey } from "@/lib/ai/gemini";
 import { applyProductVariables } from "@/lib/ai/promptTemplates";
 import type { ProductStatus } from "@/types/database.types";
@@ -63,7 +64,7 @@ export async function generateSectionImageAction(
   }
 
   try {
-    const referenceImage = await fetchImageAsBase64(product.source_image_url);
+    const referenceImage = await downloadImageAsBase64(supabase, product.source_image_url);
     let finalPrompt =
       applyProductVariables(template.prompt_template, product) +
       (template.korean_guide ?? "") +
@@ -120,6 +121,8 @@ export async function generateSectionImageAction(
       { onConflict: "product_id,section_key,language" },
     );
     if (upsertError) {
+      // 업로드는 됐는데 DB 반영이 실패하면 파일만 남으므로 지운다(D-48-01 고아 파일).
+      await supabase.storage.from("shop-detail-images").remove([path]);
       return { error: `이미지 정보 저장 실패: ${upsertError.message}` };
     }
 

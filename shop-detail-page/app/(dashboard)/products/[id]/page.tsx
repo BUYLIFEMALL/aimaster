@@ -4,6 +4,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SectionImageGrid } from "@/components/products/SectionImageGrid";
 import type { ImageModelKey } from "@/lib/ai/imageModels";
+import { imageSrc } from "@/lib/imageSrc";
 
 export const dynamic = "force-dynamic";
 
@@ -76,7 +77,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-2xs bg-slate-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={product.source_image_url}
+              src={imageSrc(product.source_image_url)}
               alt={product.product_label ?? product.name ?? ""}
               className="w-full h-full object-cover"
             />

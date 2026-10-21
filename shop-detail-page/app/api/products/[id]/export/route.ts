@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { downloadImageAsBase64 } from "@/lib/storageImage";
 
 const TARGET_WIDTH = 860;
 
@@ -43,9 +44,12 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   try {
     const resizedBuffers: { buffer: Buffer; height: number }[] = [];
     for (const img of images) {
-      const res = await fetch(img.image_url as string);
-      if (!res.ok) continue;
-      const original = Buffer.from(await res.arrayBuffer());
+      let original: Buffer;
+      try {
+        original = Buffer.from((await downloadImageAsBase64(supabase, img.image_url as string)).base64, "base64");
+      } catch {
+        continue;
+      }
       const resized = sharp(original).resize({ width: TARGET_WIDTH });
       const buffer = await resized.png().toBuffer();
       const metadata = await sharp(buffer).metadata();

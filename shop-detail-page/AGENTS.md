@@ -64,7 +64,7 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - API 키는 공용 `user_api_keys` 테이블(`resolveApiKey()`: 본인 키만, 관리자 키로 폴백 없음)을
   그대로 쓴다. 이 프로그램은 `gemini` provider만 사용한다(상품분석 + 나노바나나 이미지 생성).
   본인 키가 없으면 `/settings`로 안내하고 생성을 막는다.
-- 상품 원본이미지/생성이미지/병합이미지는 전부 `shop-detail-images`(public) Storage 버킷의
+- 상품 원본이미지/생성이미지/병합이미지는 전부 `shop-detail-images`(**v1.15부터 비공개** — 화면은 `/api/image` 서명 주소, 서버는 `lib/storageImage.ts` download) Storage 버킷의
   `{user_id}/products/{productId}/...` 경로에 저장한다. 클라이언트에서 Storage로 직접 업로드하는
   패턴(`lib/uploadImageClient.ts`)을 쓰는데, 이는 Vercel 서버리스 함수 요청 본문 크기 제한을
   우회하기 위함이다(insta_auto_poster/threads에서 검증된 패턴, 2026-08-13).
@@ -176,3 +176,13 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 v1.15 — 이커머스 병합 E0: 비공개 저장소 + 30일 자동 정리 (Claude Code 맥미니, 보조 계정 · 배포 대기)
+- 근거: 이커머스 병합 분석 [`../docs/analysis-ecommerce-consolidation-20261021/REPORT.md`](../docs/analysis-ecommerce-consolidation-20261021/REPORT.md) E0(주인님 승인 「E0부터 E2까지 순서대로」). 이 앱이 E1(12단)·E2(자동생성기)를 받아들일 기준 앱이라 먼저 최상위 규칙 위반을 없앰.
+- **비공개 저장소**: 마이그레이션 `supabase/migrations/20261021_private_bucket_v1_15.sql`(버킷 `public=false`, 전체 읽기 정책 → 본인 폴더 읽기). DB에 저장된 기존 공개 주소 문자열은 그대로 두고 **경로 식별자**로만 씀(데이터 이전 없음, 저장 주소 117개 전부 본인 폴더 경로로 해석됨을 확인).
+  - 화면: `lib/imageSrc.ts` `imageSrc()` → `/api/image?p=<경로>`(`app/api/image/route.ts`: 로그인 + 본인 폴더 확인 후 1시간 서명 주소로 302, 브라우저 캐시 50분). `<img>` 6곳 교체.
+  - 서버: `lib/storageImage.ts` `downloadImageAsBase64()` — 세션 클라이언트 `download()`(RLS 본인 폴더). 상품 분석·섹션 생성·긴 PNG 합치기 3곳 교체. **우리 버킷 밖 주소는 거부**(화면에서 넘어온 임의 주소를 서버가 대신 받아오던 빈틈 제거). 옛 `fetchImageAsBase64()` 삭제.
+- **30일 자동 정리**: `app/api/cron/cleanup-generated/route.ts` + `vercel.json`(매일 UTC 19:10 = 한국 04:10, `CRON_SECRET`). 30일 지난 상품의 폴더 파일·대표/참고 이미지 → 상품 행 삭제(섹션 이미지·내보내기 행은 cascade), 상품 없이 30일 지난 업로드 파일 정리. 회원 프롬프트 템플릿은 대상 아님. **유예**: 2026-10-21 이전 자료(상품 4·파일 103, 9월 작성)는 바로 지우지 않고 `RETENTION_GRACE_END` 2026-11-21 KST까지 아무것도 지우지 않음(주인님 결정). 목록 화면에 30일·유예 안내.
+- 그 밖: `lib/ai/gemini.ts` 키를 주소(`?key=`) 대신 `x-goog-api-key` 머리글로. 섹션 이미지 DB 저장 실패 시 방금 올린 파일 삭제(D-48-01 고아 파일 일부 해결 — 동시 생성 이력 덮어쓰기는 남음).
+- 검수(맥미니): tsc 0. 저장 주소 해석 무료 시험(117/117). 정리 대상 읽기 전용 모의 집계(파일 106 중 30일 지난 103, 상품 4/4 — 유예로 지금은 0건 삭제). 빌드·배포·실제 화면은 윈도우. AI 호출 0.
+- **윈도우 CLI 다음 첫 단계**: [`docs/IMPROVEMENT_HANDOFF_20261021.md`](docs/IMPROVEMENT_HANDOFF_20261021.md).

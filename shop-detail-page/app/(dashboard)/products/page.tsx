@@ -3,6 +3,8 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { CommerceUsageGuide } from "@/components/guide/CommerceUsageGuide";
+import { imageSrc } from "@/lib/imageSrc";
+import { isInRetentionGrace, RETENTION_DAYS, RETENTION_GRACE_END_LABEL } from "@/lib/retention";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +59,10 @@ export default async function ProductsPage() {
           </div>
           <p className="text-xs sm:text-sm text-slate-500">
             상품 사진 1장으로 Gemini AI가 15단 고해상도 상세페이지를 제작하고 롱 이미지로 병합합니다.
+          </p>
+          <p className="mt-1 text-[11px] sm:text-xs text-slate-400">
+            🗓️ 상품·생성 이미지는 만든 날로부터 {RETENTION_DAYS}일 뒤 자동으로 삭제됩니다. 필요한 결과는 긴 이미지로 내려받아 보관해 주세요.
+            {isInRetentionGrace() && ` (2026년 10월 21일 이전에 만든 자료는 ${RETENTION_GRACE_END_LABEL}부터 삭제됩니다.)`}
           </p>
         </div>
 
@@ -131,7 +137,7 @@ export default async function ProductsPage() {
                 {p.source_image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={p.source_image_url}
+                    src={imageSrc(p.source_image_url)}
                     alt={p.product_label ?? p.name ?? ""}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

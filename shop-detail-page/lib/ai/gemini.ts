@@ -16,9 +16,9 @@ interface GeminiPart {
 }
 
 async function callGemini(model: string, body: Record<string, unknown>, apiKey: string) {
-  const res = await fetch(`${API_BASE}/${model}:generateContent?key=${apiKey}`, {
+  const res = await fetch(`${API_BASE}/${model}:generateContent`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify(body),
   });
 
@@ -28,19 +28,6 @@ async function callGemini(model: string, body: Record<string, unknown>, apiKey: 
     throw new Error(message);
   }
   return json;
-}
-
-/** 이미지 URL을 base64 데이터로 변환 (Gemini inlineData 파트에 넣기 위함). */
-export async function fetchImageAsBase64(
-  imageUrl: string,
-): Promise<{ base64: string; mimeType: string }> {
-  const res = await fetch(imageUrl);
-  if (!res.ok) {
-    throw new Error(`참조 이미지를 가져오지 못했습니다 (HTTP ${res.status}).`);
-  }
-  const mimeType = res.headers.get("content-type") ?? "image/png";
-  const buffer = Buffer.from(await res.arrayBuffer());
-  return { base64: buffer.toString("base64"), mimeType };
 }
 
 /** 상품분석: 텍스트 프롬프트 + 이미지 1장 이상(대표이미지+참고이미지)을 함께 보내고 모델의 텍스트 응답을 반환한다. */

@@ -10,6 +10,7 @@ import {
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
+import { imageSrc } from "@/lib/imageSrc";
 
 interface TemplateInfo {
   id: string;
@@ -174,7 +175,7 @@ export function SectionImageGrid({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={lightboxUrl}
+            src={imageSrc(lightboxUrl)}
             alt="원본 이미지"
             className="max-w-full max-h-full object-contain rounded-lg"
           />
@@ -306,7 +307,7 @@ export function SectionImageGrid({
                 {state.status === "done" && state.url && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={state.url}
+                    src={imageSrc(state.url)}
                     alt={t.section_name}
                     className="w-full h-full object-cover cursor-zoom-in group-hover:scale-[1.01] transition-transform"
                     onClick={() => setLightboxUrl(state.url!)}
@@ -357,7 +358,7 @@ export function SectionImageGrid({
                       title={`버전 ${i + 1}${state.url === url ? " (선택됨)" : ""}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt={`버전 ${i + 1}`} className="w-full h-full object-cover" />
+                      <img src={imageSrc(url)} alt={`버전 ${i + 1}`} className="w-full h-full object-cover" />
                       {state.url === url && (
                         <span className="absolute bottom-0 right-0 bg-blue-600 text-white text-[9px] px-1 font-bold rounded-tl">
                           ✓

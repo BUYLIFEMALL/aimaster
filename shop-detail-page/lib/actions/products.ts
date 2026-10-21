@@ -6,9 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import {
   analyzeProductWithGemini,
-  fetchImageAsBase64,
   parseJsonFromModelText,
 } from "@/lib/ai/gemini";
+import { downloadImageAsBase64 } from "@/lib/storageImage";
 import { buildProductAnalysisPrompt, type RawProductAnalysis } from "@/lib/ai/productAnalysisPrompt";
 import { flattenProductAnalysis, type FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
 import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
@@ -48,7 +48,7 @@ export async function analyzeProductAction(formData: FormData): Promise<AnalyzeP
 
   try {
     const allImageUrls = [sourceImageUrl, ...referenceImageUrls];
-    const images = await Promise.all(allImageUrls.map((url) => fetchImageAsBase64(url)));
+    const images = await Promise.all(allImageUrls.map((url) => downloadImageAsBase64(supabase, url)));
     const prompt = buildProductAnalysisPrompt(sourceText || null, images.length);
     const text = await analyzeProductWithGemini({ prompt, images, apiKey });
     const raw = parseJsonFromModelText<RawProductAnalysis>(text);

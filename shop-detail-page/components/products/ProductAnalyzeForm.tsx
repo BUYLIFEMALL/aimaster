@@ -6,6 +6,7 @@ import { analyzeProductAction, createProductAction } from "@/lib/actions/product
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
+import { imageSrc } from "@/lib/imageSrc";
 
 const MAX_REFERENCE_IMAGES = 10;
 
@@ -197,7 +198,7 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
         >
           {sourceImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={sourceImageUrl} alt="대표이미지" className="max-h-56 mx-auto rounded-xl shadow-xs" />
+            <img src={imageSrc(sourceImageUrl)} alt="대표이미지" className="max-h-56 mx-auto rounded-xl shadow-xs" />
           ) : (
             <>
               <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">📷</div>
@@ -229,7 +230,7 @@ export function ProductAnalyzeForm({ hasGeminiKey }: { hasGeminiKey: boolean }) 
           {referenceImageUrls.map((url) => (
             <div key={url} className="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 shadow-2xs">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="참고이미지" className="w-full h-full object-cover" />
+              <img src={imageSrc(url)} alt="참고이미지" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => removeReferenceImage(url)}
