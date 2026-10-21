@@ -138,7 +138,15 @@ export function WeekReplyPanel({
                   <div className="flex items-start gap-3">
                     {it.thumbUrl && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={it.thumbUrl} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-md object-cover" />
+                      <img
+                        src={it.thumbUrl}
+                        alt=""
+                        loading="lazy"
+                        className="h-12 w-12 shrink-0 rounded-md object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none"; // 지워진 이미지는 깨진 그림 대신 숨김
+                        }}
+                      />
                     )}
                     {text}
                   </div>

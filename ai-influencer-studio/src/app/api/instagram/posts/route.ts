@@ -25,7 +25,7 @@ async function checkScheduleReady(userId: string): Promise<{ error?: string; cro
   return { cronjobKey: null };
 }
 
-const COLUMNS = "id, title, caption, image_paths, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
+const COLUMNS = "id, title, caption, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
 
 /** GET — 내 인스타 게시 기록(최근 30일, 최신순 30건) */
 export async function GET() {
