@@ -25,7 +25,7 @@ export { sanitizeYear };
 // SSRF 방어
 // ---------------------------------------------------------------------------
 function isPrivateIPv4(ip: string): boolean {
-  const [a, b] = ip.split(".").map(Number);
+  const [a, b, c] = ip.split(".").map(Number);
   if ([a, b].some((n) => Number.isNaN(n))) return true;
   return (
     a === 0 || a === 10 || a === 127 || a >= 224 ||
@@ -33,7 +33,8 @@ function isPrivateIPv4(ip: string): boolean {
     (a === 169 && b === 254) ||
     (a === 172 && b >= 16 && b <= 31) ||
     (a === 192 && b === 168) ||
-    (a === 192 && b === 0) ||
+    // 192.0.66.x 같은 공개 호스트까지 192.0/16 전체로 막지 않는다.
+    (a === 192 && b === 0 && (c === 0 || c === 2)) ||
     (a === 198 && (b === 18 || b === 19))
   );
 }

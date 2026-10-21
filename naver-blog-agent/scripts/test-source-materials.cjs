@@ -1,10 +1,22 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),ts=require('typescript');
 const root=path.resolve(__dirname,'../src');
-function loader(stubs={}){const cache=new Map();function load(rel){if(cache.has(rel))return cache.get(rel);const module={exports:{}};cache.set(rel,module.exports);const js=ts.transpileModule(fs.readFileSync(path.join(root,rel),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+function loader(stubs={}){const cache=new Map();function load(rel){if(cache.has(rel))return cache.get(rel);const module={exports:{}};cache.set(rel,module.exports);const js=ts.transpileModule(fs.readFileSync(path.join(root,rel),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true}}).outputText;
   new Function('require','module','exports',js)(id=>{if(id in stubs)return stubs[id];if(id==='server-only')return {};if(id.startsWith('@/'))return load(id.slice(2)+'.ts');if(id.startsWith('.'))return load(path.relative(root,path.resolve(path.dirname(path.join(root,rel)),id))+'.ts');return require(id);},module,module.exports);cache.set(rel,module.exports);return module.exports;}return load;}
 const OWNER='owner',ID='00000000-0000-4000-8000-000000000011';
 const base={id:ID,method:'rss',source_input:'https://example.com/feed',source_text:'합성 시험 자료의 원문입니다. 실제 방문이나 서비스를 뜻하지 않습니다.',title:'시험 자료',content:'합성 요약',category:'생활',keywords:[],status:'ready',created_at:new Date().toISOString()};
+test('public 192.0.66.x is accepted while private, reserved and mixed DNS remain blocked',async()=>{
+  let addresses=[{address:'192.0.66.108'}];
+  const collector=loader({'node:dns/promises':{lookup:async()=>addresses}})('lib/collector.ts');
+  assert.equal((await collector.assertPublicHttpUrl('https://www.nasa.gov/feed/')).hostname,'www.nasa.gov');
+  for(const address of ['192.0.0.1','192.0.2.1','10.0.0.1','127.0.0.1','192.168.0.1','169.254.169.254','172.16.0.1','100.64.0.1','198.18.0.1','::1','fc00::1']){
+    addresses=[{address}];await assert.rejects(collector.assertPublicHttpUrl('https://example.com/feed'));
+  }
+  addresses=[{address:'192.0.66.108'},{address:'127.0.0.1'}];await assert.rejects(collector.assertPublicHttpUrl('https://example.com/feed'));
+  addresses=[{address:'192.0.66.108'}];
+  const previous=global.fetch;let calls=0;
+  try {global.fetch=async()=>{calls++;return {status:302,headers:{get:()=> 'http://127.0.0.1/private'}}};await assert.rejects(collector.fetchPublicHtml('https://www.nasa.gov/feed/'));assert.equal(calls,1);}finally{global.fetch=previous;}
+});
 test('RSS/Atom keep canonical source links and body, strip markup and reject title-only/HTML',()=>{
   const read=loader()('lib/rss.ts').readFeed;
   const rss='<rss><channel><item><title>시험</title><link>https://example.com/one</link><description><![CDATA[<p>'+base.source_text+'</p><script>bad()</script>]]></description></item></channel></rss>';
