@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-21 Claude Code(윈도우) — 받은편지함 v1.03: 이중 게시 방지 자동 시험 26개 · ? 도움말 · 밀어서 건너뛰기 / 새 응대 채널 조사
+
+`comment-inbox` `npm test`: 공용 게시 함수 4개를 가짜 DB·플랫폼으로 돌리는 시험 26개 통과(이전 버전에서는 2개 실패 — 시험이 문제를 잡음 확인). 화면: ? 단축키 도움말 창, 휴대폰 접힌 카드 왼쪽 밀기 → 건너뛰기. 배포 READY·DB v1.03. 새 채널: 검토 후 게시 흐름은 세 댓글 프로그램뿐, 카카오는 뉴스레터·대화 API 없음 → 붙이는 법만 `comment-inbox/AGENTS.md`에 정리. **사고**: 시험 커밋 `f3127568`에 다른 세션의 lyric-video-studio·playlist-channel-studio 파일 6개가 섞여 푸시(내용 그대로, 세 세션에 안내, ERROR_LESSONS 기록). 비용: Vercel 빌드 1회.
+
+https://comment-inbox.buylife.xyz
+
 ## 2026-10-21 Claude Code(윈도우) — 음악(SUNO) v1.33 작은 개선 + Suno 뮤직비디오 재시도 성공
 
 v1.33: Suno 영어 실패 문구 한국어 안내, 30일 정리 때 곡·변주 폴더 통째 삭제(바뀐 예전 커버 포함), 구간 수정본 커버 파일 복사. 뮤직비디오 재시도(승인 1회): 약 5분 뒤 성공, MP4 8.3MB 우리 저장소 저장·비공개 확인(화면 재생은 시험 계정 로그인 때). 배포 Ready, DB v1.33. 비용: Vercel 빌드 1회, Suno 영상 1회. 다음: 보컬 추가·반주 추가·매시업 — 플랜 `music/docs/PLAN_20261021_ADD_VOCALS_MASHUP.md`, DB 칸 추가·실제 시험 3회 승인 대기.

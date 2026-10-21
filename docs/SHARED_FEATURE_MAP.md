@@ -226,4 +226,4 @@ sunoapi `get-timestamped-lyrics`의 단어별 시각(`alignedWords`, 단어 안�
 | 쓰레드 댓글 | `threads-comment-reply/lib/comments/post.ts` + `lib/threads/{memberAccount,client,token}.ts` | `comment-inbox/lib/comments/threadsPost.ts` + 같은 경로 |
 | 유튜브 댓글 | `youtube-auto-reply/lib/comments/post.ts` + `lib/youtube/{memberAccount,client,token}.ts` + `lib/apiKeys.ts`·`lib/apiKeyLabels.ts` | `comment-inbox/lib/comments/youtubePost.ts` + 같은 경로 |
 
-토큰 갱신(`getValid…AccessToken`·`markNeedsReconnect`)은 `"use server"` 연결 파일에 있으면 화면에서 부를 수 있는 서버 동작으로 노출될 수 있고 연결·권한 코드와 섞여 재사용이 안 되므로 `token.ts`(server-only)로 둔다(2026-10-21). 새 응대형 프로그램을 받은편지함에 붙일 때도 같은 묶음 구조로 등록한다. 플랜: [`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md).
+토큰 갱신(`getValid…AccessToken`·`markNeedsReconnect`)은 `"use server"` 연결 파일에 있으면 화면에서 부를 수 있는 서버 동작으로 노출될 수 있고 연결·권한 코드와 섞여 재사용이 안 되므로 `token.ts`(server-only)로 둔다(2026-10-21). 새 응대형 프로그램을 받은편지함에 붙일 때도 같은 묶음 구조로 등록한다. **게시 묶음을 고친 뒤에는 `cd comment-inbox && npm test`(이중 게시 방지 시험 26개, 가짜 DB·플랫폼)로 확인한다(2026-10-21).** 플랜: [`PLAN_20261021_UNIFIED_COMMENT_INBOX.md`](PLAN_20261021_UNIFIED_COMMENT_INBOX.md).
