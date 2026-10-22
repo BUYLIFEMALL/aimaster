@@ -313,7 +313,8 @@ export function PostingSection({
         {!instagramAccount ? (
           <form action={connectInstagramFormAction}>
             <input type="hidden" name="returnTo" value={pathname} />
-            <p className="mb-3 text-sm text-neutral-600">인스타그램 계정을 먼저 연결해주세요.</p>
+            <p className="mb-1 text-sm text-neutral-600">인스타그램 계정을 먼저 연결해주세요.</p>
+            <p className="mb-3 text-xs text-neutral-500">연결하면 릴스 표지 이미지(JPG, 세로 9:16 권장)도 정할 수 있습니다.</p>
             <Button type="submit" variant="secondary" disabled={isConnectingInstagram}>
               {isConnectingInstagram ? "연결 중..." : "계정 연결하기"}
             </Button>
