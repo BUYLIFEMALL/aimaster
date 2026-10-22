@@ -186,3 +186,47 @@ test("저장 정리: 데이터형 카드 칸 보관, 모르는 레이아웃은 �
   assert.equal(r.data.pages[1].number.value, "3개월");
   assert.equal(r.data.pages[2].layout, undefined);
 });
+
+// ── v1.49 릴스 파일 → 장면·소리 ──
+import { pickFrameTimes, encodeWavMono16, bytesToBase64, REEL_AUDIO_RATE, REEL_MAX_AUDIO_SEC } from "../../src/lib/cardnews/reelsMedia.ts";
+
+test("릴스 장면 시점: 10%~90% 사이 4장, 길이를 모르면 0초 1장", () => {
+  assert.deepEqual(pickFrameTimes(30), [3, 11, 19, 27]);
+  assert.deepEqual(pickFrameTimes(0), [0]);
+  assert.deepEqual(pickFrameTimes(NaN), [0]);
+});
+
+test("릴스 소리 WAV: 모노 16비트 머리글·길이, 최대 90초면 base64 3MB 안", () => {
+  const wav = encodeWavMono16(new Float32Array([0, 1, -1, 2]), REEL_AUDIO_RATE);
+  const dv = new DataView(wav.buffer);
+  assert.equal(String.fromCharCode(...wav.subarray(0, 4)), "RIFF");
+  assert.equal(String.fromCharCode(...wav.subarray(8, 12)), "WAVE");
+  assert.equal(dv.getUint16(22, true), 1, "모노");
+  assert.equal(dv.getUint32(24, true), REEL_AUDIO_RATE);
+  assert.equal(dv.getUint16(34, true), 16);
+  assert.equal(dv.getUint32(40, true), 8);
+  assert.equal(dv.getInt16(46, true), 32767);
+  assert.equal(dv.getInt16(48, true), -32768);
+  assert.equal(dv.getInt16(50, true), 32767, "1 넘는 값은 잘라냄");
+  assert.equal(bytesToBase64(new Uint8Array([65, 66, 67])), "QUJD");
+  const maxB64 = Math.ceil((44 + REEL_MAX_AUDIO_SEC * REEL_AUDIO_RATE * 2) / 3) * 4;
+  assert.ok(maxB64 <= 3_000_000, `최대 소리 ${maxB64}자가 서버 한도 안`);
+});
+
+test("릴스 프롬프트: 장면·캡처 구분, 소리 받아쓰기 지시", () => {
+  const p = buildRemakeAnalysisPrompt({ category: "재테크", text: "", imageCount: 6, reelFrames: 4, hasAudio: true });
+  assert.match(p.user, /앞의 4장은 릴스 영상의 장면, 나머지 2장은 카드 화면 캡처/);
+  assert.match(p.user, /릴스 소리\] 말한 내용을 받아써서/);
+  const q = buildRemakeAnalysisPrompt({ category: "재테크", text: "x", imageCount: 2 });
+  assert.match(q.user, /카드 화면 캡처 2장/);
+  assert.doesNotMatch(q.user, /릴스/);
+});
+
+test("AI 호출: Gemini에 소리를 이미지 뒤·글 앞에 함께 보냄", async () => {
+  let body;
+  const fake = async (url, init) => { body = JSON.parse(init.body); return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: "ok" }] } }] }), { status: 200 }); };
+  await callLlm({ provider: "gemini", model: "m", apiKey: "k", system: "s", user: "u", images: [{ mimeType: "image/jpeg", data: "QUJD" }], audio: { mimeType: "audio/wav", data: "UklG" } }, fake);
+  const parts = body.contents[0].parts;
+  assert.deepEqual(parts[1], { inlineData: { mimeType: "audio/wav", data: "UklG" } });
+  assert.deepEqual(parts[2], { text: "u" });
+});

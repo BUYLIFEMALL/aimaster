@@ -16,6 +16,8 @@ export interface LlmRequest {
   json?: boolean;
   /** 함께 볼 이미지(base64, 떡상 레퍼런스 화면 캡처 등). 세 공급사 모두 지원 */
   images?: { mimeType: string; data: string }[];
+  /** Gemini만: 함께 들을 음성(base64, 릴스에서 브라우저가 뽑은 WAV — v1.49) */
+  audio?: { mimeType: string; data: string };
 }
 
 export class LlmError extends Error {
@@ -62,6 +64,7 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
     const parts: unknown[] = [];
     if (videoUrl) parts.push({ fileData: { fileUri: videoUrl } });
     for (const img of images) parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
+    if (req.audio) parts.push({ inlineData: { mimeType: req.audio.mimeType, data: req.audio.data } });
     parts.push({ text: user });
     body = {
       systemInstruction: { parts: [{ text: system }] },

@@ -2,14 +2,17 @@
 
 // 🔥 떡상 리메이크(v1.16): 레퍼런스(원문·주소·카드 화면 캡처) → AI 분석 → 7대 관점 TOP 3 선택 → 주제·장수 자동 입력
 import { useState } from "react";
-import { Flame, ImagePlus, Loader2, X } from "lucide-react";
+import { Film, Flame, ImagePlus, Loader2, X } from "lucide-react";
 import { useStudio } from "./ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT } from "./ui";
 import { VIRAL_ANGLES } from "@/lib/cardnews/ai/remakePrompts";
 import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/cardnews/imageFileCheck";
+import { extractReel, REEL_MAX_AUDIO_SEC, type ReelMaterial } from "@/lib/cardnews/reelsMedia";
 import type { AngleId, RemakeState } from "@/lib/cardnews/types";
 
 const MAX_IMAGES = 6;
+// Vercel 요청 한도 4.5MB보다 조금 작게 — 넘으면 보내기 전에 안내
+const MAX_BODY_CHARS = 4_300_000;
 
 interface RefImage {
   name: string;
@@ -39,40 +42,69 @@ export function RemakePanel() {
   const { project, update, keys } = useStudio();
   const remake: RemakeState = project.remake ?? { sourceText: "", sourceUrl: "" };
   const [images, setImages] = useState<RefImage[]>([]);
+  // v1.49 릴스 영상: 이 브라우저 안에서 장면 4장 + 소리(WAV)만 뽑아 분석에 씀(파일은 어디에도 올리지 않음)
+  const [reel, setReel] = useState<ReelMaterial | null>(null);
+  const [reelBusy, setReelBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const analysis = remake.analysis;
   const engineReady = keys ? keys[project.engine.provider] : true;
+  const isGemini = project.engine.provider === "gemini";
+  const captureRoom = MAX_IMAGES - (reel?.frames.length ?? 0);
 
   const patch = (p: Partial<RemakeState>) => update((d) => ({ ...d, remake: { ...(d.remake ?? { sourceText: "", sourceUrl: "" }), ...p } }));
 
   async function addImages(list: FileList | null) {
-    const picked = Array.from(list ?? []).filter((f) => f.type.startsWith("image/")).slice(0, MAX_IMAGES - images.length);
+    const picked = Array.from(list ?? []).filter((f) => f.type.startsWith("image/")).slice(0, Math.max(0, captureRoom - images.length));
     if (!picked.length) return;
     const { readable, failed } = await splitReadableImages(picked);
     setError(failed.length ? { message: `${IMAGE_READ_FAIL_MESSAGE} (${failed.map((f) => f.name).join(", ")})` } : null);
     try {
       const made = await Promise.all(readable.map(shrink));
-      setImages((cur) => [...cur, ...made].slice(0, MAX_IMAGES));
+      setImages((cur) => [...cur, ...made].slice(0, captureRoom));
     } catch (e) {
       setError({ message: e instanceof Error ? e.message : "이미지를 준비하지 못했습니다." });
     }
   }
 
-  async function analyze() {
-    setLoading(true);
+  async function addReel(file: File | undefined) {
+    if (!file) return;
+    setReelBusy(true);
     setError(null);
+    try {
+      const made = await extractReel(file);
+      setReel(made);
+      // 장면 4장이 자리를 차지하므로 캡처는 남은 자리만큼만 둔다
+      setImages((cur) => cur.slice(0, MAX_IMAGES - made.frames.length));
+    } catch (e) {
+      setError({ message: e instanceof Error ? e.message : "릴스 영상을 준비하지 못했습니다." });
+    } finally {
+      setReelBusy(false);
+    }
+  }
+
+  async function analyze() {
+    setError(null);
+    const all = [...(reel?.frames ?? []), ...images].slice(0, MAX_IMAGES);
+    const body = JSON.stringify({
+      category: project.plan.category,
+      text: remake.sourceText,
+      url: remake.sourceUrl,
+      images: all.map(({ mimeType, data }) => ({ mimeType, data })),
+      reelFrames: reel?.frames.length ?? 0,
+      ...(reel?.audio && isGemini ? { audio: { mimeType: reel.audio.mimeType, data: reel.audio.data } } : {}),
+      engine: project.engine,
+    });
+    if (body.length > MAX_BODY_CHARS) {
+      setError({ message: "보낼 자료가 너무 큽니다. 카드 화면 캡처를 줄이거나 더 짧은 릴스를 올려 주세요." });
+      return;
+    }
+    setLoading(true);
     try {
       const res = await fetch("/api/cardnews/remake/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          category: project.plan.category,
-          text: remake.sourceText,
-          url: remake.sourceUrl,
-          images: images.map(({ mimeType, data }) => ({ mimeType, data })),
-          engine: project.engine,
-        }),
+        body,
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -99,7 +131,7 @@ export function RemakePanel() {
     }));
   }
 
-  const hasInput = !!remake.sourceText.trim() || !!remake.sourceUrl.trim() || images.length > 0;
+  const hasInput = !!remake.sourceText.trim() || !!remake.sourceUrl.trim() || images.length > 0 || !!reel;
 
   return (
     <Card className="space-y-4">
@@ -111,12 +143,40 @@ export function RemakePanel() {
       <Field label="원문 붙여넣기 (캡션·대본·기사 본문)">
         <textarea className={`${INPUT} min-h-28`} value={remake.sourceText} maxLength={12000} placeholder="떡상 게시물의 캡션, 릴스 대본, 기사 본문 등을 붙여넣으세요." onChange={(e) => patch({ sourceText: e.target.value })} />
       </Field>
-      <Field label="주소 (기사 또는 유튜브)" hint="기사는 본문을 가져와 분석하고, 유튜브는 Gemini가 영상을 직접 봅니다. 인스타그램 주소는 로그인이 필요해 가져올 수 없으니 화면을 캡처해 올려 주세요.">
+      <Field label="주소 (기사 또는 유튜브)" hint="기사는 본문을 가져와 분석하고, 유튜브는 Gemini가 영상을 직접 봅니다. 인스타그램 주소는 로그인이 필요해 가져올 수 없으니 화면을 캡처하거나 릴스 파일을 아래에 올려 주세요.">
         <input className={INPUT} value={remake.sourceUrl} maxLength={1000} placeholder="https://" inputMode="url" onChange={(e) => patch({ sourceUrl: e.target.value })} />
       </Field>
 
       <div>
-        <span className="mb-1.5 block text-xs font-bold text-slate-300">카드 화면 캡처 (최대 {MAX_IMAGES}장, 이 브라우저 안에서 줄인 뒤 분석에만 사용·저장 안 함)</span>
+        <span className="mb-1.5 block text-xs font-bold text-slate-300">🎬 릴스 영상 올리기 (mp4·mov·webm — 저장해 둔 릴스 파일)</span>
+        <p className="mb-2 text-[11px] text-slate-400">이 브라우저 안에서 장면 4장과 소리(앞 {REEL_MAX_AUDIO_SEC}초)만 뽑아 분석에 씁니다. 영상 파일은 어디에도 올리거나 저장하지 않습니다. 소리(말한 내용)는 분석 AI가 Gemini일 때만 함께 분석합니다.</p>
+        {reel ? (
+          <div className="rounded-xl border border-[#262c3d] bg-[#0d0f17] p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="min-w-0 truncate text-xs text-slate-300"><Film className="mr-1 inline h-3.5 w-3.5" />{reel.name} · {reel.duration}초 · 장면 {reel.frames.length}장 · {reel.audio ? `소리 ${reel.audio.seconds}초` : "소리 없음(장면만 분석)"}</p>
+              <button type="button" onClick={() => setReel(null)} className="shrink-0 whitespace-nowrap text-[11px] text-slate-400 hover:text-slate-200">빼기</button>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {reel.frames.map((f) => (
+                <div key={f.name} className="h-20 w-12 overflow-hidden rounded-md border border-[#262c3d]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={f.preview} alt={f.name} className="h-full w-full object-cover" />
+                </div>
+              ))}
+            </div>
+            {reel.audio && !isGemini && <p className="mt-2 text-[11px] text-amber-300">지금 분석 AI가 Gemini가 아니라 소리는 빼고 장면만 분석합니다. 말한 내용까지 분석하려면 분석 AI를 Gemini로 바꿔 주세요.</p>}
+          </div>
+        ) : (
+          <label className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border-2 border-dashed border-[#262c3d] px-3 py-2 text-xs text-slate-300 hover:border-purple-500 ${reelBusy ? "pointer-events-none opacity-60" : ""}`}>
+            {reelBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Film className="h-4 w-4" />}
+            {reelBusy ? "장면·소리를 뽑는 중…" : "릴스 영상 파일 고르기"}
+            <input type="file" accept="video/mp4,video/quicktime,video/webm" hidden onChange={(e) => { void addReel(e.target.files?.[0]); e.target.value = ""; }} />
+          </label>
+        )}
+      </div>
+
+      <div>
+        <span className="mb-1.5 block text-xs font-bold text-slate-300">카드 화면 캡처 (최대 {captureRoom}장, 이 브라우저 안에서 줄인 뒤 분석에만 사용·저장 안 함)</span>
         <div className="flex flex-wrap gap-2">
           {images.map((img, i) => (
             <div key={`${img.name}-${i}`} className="relative h-20 w-16 overflow-hidden rounded-lg border border-[#262c3d]">
@@ -125,7 +185,7 @@ export function RemakePanel() {
               <button type="button" aria-label={`${img.name} 빼기`} onClick={() => setImages((cur) => cur.filter((_, k) => k !== i))} className="absolute right-0.5 top-0.5 rounded-full bg-black/70 p-0.5 text-white"><X className="h-3 w-3" /></button>
             </div>
           ))}
-          {images.length < MAX_IMAGES && (
+          {images.length < captureRoom && (
             <label className="flex h-20 w-16 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#262c3d] text-slate-400 hover:border-purple-500">
               <ImagePlus className="h-5 w-5" />
               <span className="text-[10px]">추가</span>

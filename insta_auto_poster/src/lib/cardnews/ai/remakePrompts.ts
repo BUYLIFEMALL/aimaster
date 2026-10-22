@@ -51,6 +51,10 @@ export interface RemakeSource {
   /** 유튜브 주소(Gemini가 영상을 직접 볼 때) */
   videoUrl?: string;
   imageCount: number;
+  /** 함께 보낸 이미지 중 릴스 장면 수(v1.49) */
+  reelFrames?: number;
+  /** 릴스 소리를 함께 보냈는지(Gemini만, v1.49) */
+  hasAudio?: boolean;
 }
 
 export function buildRemakeAnalysisPrompt(src: RemakeSource, year = new Date().getFullYear()): { system: string; user: string } {
@@ -72,7 +76,13 @@ export function buildRemakeAnalysisPrompt(src: RemakeSource, year = new Date().g
   if (src.text.trim()) parts.push(`[붙여넣은 원문]\n${clean(src.text, 8000)}`);
   if (src.articleText?.trim()) parts.push(`[기사 주소에서 가져온 본문]${src.articleTitle ? ` 제목: ${clean(src.articleTitle, 200)}` : ""}\n${clean(src.articleText, 8000)}`);
   if (src.videoUrl) parts.push("[함께 보낸 영상] 영상의 말·화면 글자·전개를 분석 자료로 쓰세요.");
-  if (src.imageCount > 0) parts.push(`[함께 보낸 카드 화면 캡처 ${src.imageCount}장] 이미지 속 글자·표·수치를 빠짐없이 읽어 자료로 쓰세요.`);
+  if (src.imageCount > 0) {
+    const reel = Math.min(src.reelFrames ?? 0, src.imageCount);
+    parts.push(reel > 0
+      ? `[함께 보낸 이미지 ${src.imageCount}장 — 앞의 ${reel}장은 릴스 영상의 장면, ${src.imageCount - reel > 0 ? `나머지 ${src.imageCount - reel}장은 카드 화면 캡처` : "캡처 없음"}] 화면 속 글자·자막·표·수치를 빠짐없이 읽어 자료로 쓰세요.`
+      : `[함께 보낸 카드 화면 캡처 ${src.imageCount}장] 이미지 속 글자·표·수치를 빠짐없이 읽어 자료로 쓰세요.`);
+  }
+  if (src.hasAudio) parts.push("[함께 보낸 릴스 소리] 말한 내용을 받아써서 summary·keyFacts에 빠짐없이 반영하세요. 배경음악만 있으면 소리는 무시하세요.");
   const user = `<data>${parts.join("\n\n")}</data>\n위 레퍼런스를 분석해 JSON으로 답하세요.`;
   return { system, user };
 }

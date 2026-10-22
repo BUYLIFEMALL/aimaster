@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.46` (2026-10-22)
+- **현재 버전**: `v1.49` (2026-10-22)
+- **v1.49 (2026-10-22)**: 떡상 리메이크에 릴스 영상 파일 올리기(브라우저에서 장면 4장·소리만 뽑아 분석, Gemini는 말까지) — 아래 2026-10-22 v1.49 절.
 - **v1.46 (2026-10-22)**: 그날 목록 썸네일 바로잡기 — 카드뉴스·AI 인플루언서·웹툰·네컷 게시 기록 표는 게시가 끝나면 저장소 이미지를 지우므로 썸네일을 만들지 않음(피드만 `cover_image_url`), 이미지가 안 열리면 썸네일 칸 숨김.
 - **v1.45 (2026-10-22)**: 카드뉴스 홈(`/cardnews`)에 「📊 최근 7일 게시」(공용 `insta-week-posts`, 펼친 상태), 대시보드 그날 목록에 피드 썸네일.
 - **v1.44 (2026-10-22, Claude Code 윈도우)**: 「📊 최근 7일 게시」 그래프에 피드·카드뉴스·AI 인플루언서·웹툰·네컷의 인스타 게시를 묶음별 색으로 함께 쌓고, 막대를 누르면 그날 게시한 글 목록(캡션 앞부분·인스타 게시물 바로가기). 게시 시각 칸 `insta_posts.published_at` 추가(운영 DB 적용, 기존 게시 3건은 그때의 `updated_at`으로 채움).
@@ -262,3 +263,13 @@
 - 카드뉴스 기록 API `src/app/api/cardnews/instagram/posts/route.ts`에 `?week=1`·`image_paths`, `src/lib/cardnews/instagram/posts.ts`·즉시 게시 route에 첫 장 남기기, 카드뉴스 홈은 `imageBucket="cardnews-images"`. 대시보드 `src/lib/instaWeek.ts`는 카드뉴스·AI 인플루언서·웹툰·네컷 썸네일을 `image_paths[0]`로(배포 확인: 오늘 막대 누르면 「이날 게시한 글이 없어요」 — 조회 오류 없음).
 - 배포판(독립 모드)에서 `/cardnews` 주소를 직접 치면 `src/app/(dashboard)/cardnews/layout.tsx`가 `/dashboard`로 보냄. 운영은 카드뉴스 홈 그대로(크롬 확인). **독립 모드 실제 화면 이동은 다음 배포판 포장(v1.09) 시험 때 확인할 것.**
 - 「좁은 칸 버튼 줄바꿈」 세션 미배포 변경(`f0871e568`)·다른 세션의 v1.47 변경도 이 배포에 함께 나감. 배포 `auto-instagram-posting.buylife.xyz` READY, DB `auto-instagram-posting` v1.48.
+
+### 2026-10-22 v1.49 — 떡상 리메이크에 「🎬 릴스 영상 올리기」 (Claude Code 윈도우, 묶음 ② 인스타 레퍼런스 분석)
+- 플랜 `docs/PLAN_20261022_REELS_REMAKE.md`. 외부 `15_cardnews` 기능만 참고(코드·프롬프트 안 옮김). 주인님 승인 범위 ①③④ → **인스타그램 로그인 방식 토큰에는 `business_discovery`가 없음**(시험 회원 토큰 무료 요청 `Tried accessing nonexisting field`, 시험·관리자 계정 모두 이 방식) → 「릴스 파일 올리기」로 변경 승인. 자동 수집(공식 API·Apify)은 하지 않음.
+- `src/lib/cardnews/reelsMedia.ts`(새): 영상 파일을 **이 브라우저 안에서** 장면 4장(10~90% 시점, 긴 변 720px JPEG)과 소리(모노 12kHz 16비트 WAV, 앞 90초 ≈ base64 2.9MB)로만 바꿈 — 파일은 서버·저장소로 보내지 않음(Vercel 요청 한도 4.5MB). 소리를 못 풀면 장면만.
+- `RemakePanel`: 릴스 칸(파일 이름·길이·장면 미리보기·소리 길이·빼기), 장면 4장이 있으면 캡처는 2장까지, 보낼 자료가 4.3MB를 넘으면 보내기 전 안내, 분석 AI가 Gemini가 아니면 소리는 빼고 장면만(안내 문구).
+- 분석 API `remake/analyze`: `audio`(audio/wav·base64·3MB 이하, **Gemini만** — 다른 AI면 400 안내)·`reelFrames` 받음. `llm.ts` Gemini에 소리를 이미지 뒤 `inlineData`로. 프롬프트에 「앞 n장은 릴스 장면」·「릴스 소리 받아써서 summary·keyFacts에 반영, 배경음만이면 무시」.
+- 매뉴얼 `/cardnews/guide` 떡상 리메이크 FAQ에 릴스 사용법 한 단락.
+- 검수: tsc, `test:cardnews` 56개(새 4개: 장면 시점·WAV 머리글/최대 크기·프롬프트·Gemini 요청에 소리 포함), `test:own-meta`, build, 배포 `insta-auto-poster-m3wh1f8mm` Ready, DB v1.49. 크롬(시험 회원, Gemini 본인 키): Shots에서 만든 본인 46초 MP4(17.6MB, 내레이션 있음)를 넣어 약 1초 만에 「장면 4장 · 소리 46초」 → 떡상 분석 39초 성공 → 요약·핵심 사실에 내레이션에만 있는 말(「식은땀」·「주민등록번호 같은 ISBN」)이 들어가 소리 반영 확인 → 관점 TOP 3 → 1위 선택 시 주제·4장 자동 입력. 시험 회원 카드뉴스 작업 초안 1개가 남음(본인 데이터, 30일 정리).
+- 미확인: Gemini가 아닌 AI로 장면만 분석, 소리 없는 영상, mov·webm 파일, 휴대폰 브라우저에서의 추출 속도.
+- 비용: Vercel 빌드 1회, Gemini 분석 1회 약 $0.02~0.05(시험 회원 본인 키) — 주인님 승인 범위.

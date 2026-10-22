@@ -12,6 +12,8 @@ const MAX_IMAGES = 6;
 const MAX_IMAGE_B64 = 600_000; // 브라우저에서 긴 변 1024px JPEG로 줄여 보냄. 6장 합쳐도 Vercel 요청 한도 4.5MB 안
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_HTML_BYTES = 1_500_000;
+// v1.49 릴스 소리: 브라우저가 뽑은 모노 12kHz WAV 최대 90초(약 2.2MB → base64 약 2.9MB). 장면 이미지와 합쳐도 4.5MB 안이 되게 화면에서 막음
+const MAX_AUDIO_B64 = 3_000_000;
 
 async function fetchArticle(url: string): Promise<{ title: string; text: string }> {
   const { response } = await safeFetch(url, {
@@ -41,13 +43,22 @@ export async function POST(request: Request) {
       .filter((i) => typeof i.mimeType === "string" && IMAGE_TYPES.includes(i.mimeType) && typeof i.data === "string" && i.data.length > 0 && i.data.length <= MAX_IMAGE_B64 && /^[A-Za-z0-9+/=]+$/.test(i.data))
       .map((i) => ({ mimeType: i.mimeType as string, data: i.data as string }));
     if (rawImages.length !== images.length) return NextResponse.json({ error: "이미지 형식이나 크기가 올바르지 않습니다. 다시 올려 주세요." }, { status: 400 });
+    const reelFrames = Math.max(0, Math.min(images.length, Math.floor(Number(body.reelFrames) || 0)));
+    const rawAudio = body.audio && typeof body.audio === "object" ? (body.audio as Record<string, unknown>) : null;
+    const audio = rawAudio && rawAudio.mimeType === "audio/wav" && typeof rawAudio.data === "string" && rawAudio.data.length > 0 && rawAudio.data.length <= MAX_AUDIO_B64 && /^[A-Za-z0-9+/=]+$/.test(rawAudio.data)
+      ? { mimeType: "audio/wav", data: rawAudio.data }
+      : undefined;
+    if (rawAudio && !audio) return NextResponse.json({ error: "릴스 소리 형식이나 길이가 올바르지 않습니다. 영상을 다시 올려 주세요." }, { status: 400 });
     if (!category) return NextResponse.json({ error: "분야를 먼저 정해주세요." }, { status: 400 });
     if (!text.trim() && !url && images.length === 0) {
-      return NextResponse.json({ error: "레퍼런스를 하나 이상 넣어주세요(원문 붙여넣기·주소·화면 캡처)." }, { status: 400 });
+      return NextResponse.json({ error: "레퍼런스를 하나 이상 넣어주세요(원문 붙여넣기·주소·화면 캡처·릴스 영상)." }, { status: 400 });
     }
 
     const engine = parseEngine(body.engine);
     if (!engine.ok) return engine.response;
+    if (audio && engine.provider !== "gemini") {
+      return NextResponse.json({ error: "릴스 소리 분석은 Google Gemini에서만 됩니다. 분석 AI를 Gemini로 바꾸거나 장면만 분석해 주세요." }, { status: 400 });
+    }
 
     let videoUrl: string | undefined;
     let article: { title: string; text: string } | undefined;
@@ -74,8 +85,8 @@ export async function POST(request: Request) {
     const key = await requireOwnKey(gate.auth.user.id, engine.provider, engine.label);
     if (!key.ok) return key.response;
 
-    const prompt = buildRemakeAnalysisPrompt({ category, text, articleText: article?.text, articleTitle: article?.title, videoUrl, imageCount: images.length });
-    const raw = await callLlm({ provider: engine.provider, model: engine.model, apiKey: key.apiKey, system: prompt.system, user: prompt.user, json: true, videoUrl, images });
+    const prompt = buildRemakeAnalysisPrompt({ category, text, articleText: article?.text, articleTitle: article?.title, videoUrl, imageCount: images.length, reelFrames, hasAudio: !!audio });
+    const raw = await callLlm({ provider: engine.provider, model: engine.model, apiKey: key.apiKey, system: prompt.system, user: prompt.user, json: true, videoUrl, images, audio });
     const analysis = parseRemakeAnalysis(raw);
     if (!analysis) return NextResponse.json({ error: "AI 분석 결과 형식이 맞지 않습니다. 다시 시도하거나 다른 모델을 선택해보세요." }, { status: 502 });
     return NextResponse.json({ analysis, articleTitle: article?.title ?? "" });
