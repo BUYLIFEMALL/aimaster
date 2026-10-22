@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — SEO블로그 스튜디오 v1.87 문체 끝맺음 자동 판별 (빌드 1회 · AI 1회) — 부분 개선
+- 표본의 「~요」/「~니다」를 AI 없이 세어 해요체면 필수 끝맺음 규칙을 넣고 원고 `seo_report.style.ending`에 기록. 배포 Ready·DB/확장/ZIP v1.87, 시험 50 통과. 코드는 공유 인덱스 때문에 다른 세션 커밋 `e122c3b4c`에 함께 들어감(내용 동일, 원격 반영됨).
+- 실검수(같은 자료·문체·gpt-4o-mini): 평서문 「~요」 4→29로 늘었으나 「~니다」 29가 섞임. 다음 후보(승인 대기): 생성 후 끝맺음 비율 재검사·1회 재요청, 또는 상위 모델 비교. 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래.
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 이미지 스타일 분석기 v1.34 추세 그래프 배포 (DB check_trend 칸 추가, 빌드 1회, AI 0원)
 - 운영 DB `sda_analyses.check_trend` 추가(ref esgxyikcnnvmlhygjkth) → v1.34 배포. 크롬(가로채기): 추세 3회 기록, 처음 62.9% → 최근 34.8% ↓, 그래프 선 위로 상승 확인. 검수 데이터는 빈 목록으로 되돌림. SQL 편집기 Ctrl+Enter 미반영 사례 ERROR_LESSONS 보완.
 - 크롬에 SQL 편집기 탭(실행 끝난 칸 추가 SQL, 「저장 안 됨」)이 남아 있음 — 닫을 때 「나가기」 눌러도 됨. 남은 배포 보류: 변환 스튜디오 v1.18, 인물사진 v1.37, 감성 글귀 v1.24, 4컷 post-presets, 바나나 compare 사본 추가분.
