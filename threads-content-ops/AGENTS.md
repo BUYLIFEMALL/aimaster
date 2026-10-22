@@ -723,3 +723,8 @@
 - 경위: 2026-10-23 처음 구현 때 다른 세션 두 개가 차례로 이 폴더(v2.15·v2.16)를 작업 중이라 보류 패치로 빼 두었다가, 둘 다 끝난 뒤 적용(`web-actions.ts`는 상품 연동 리팩터링으로 가져오기 줄이 바뀌어 손으로 맞춤). 보류 폴더 `docs/pending-patches/…`는 같은 커밋에서 삭제.
 - 검수: tsc 0, `npm test` 36, 로컬 build, 공용 코드 검사 일치, 배포 `threads-content-mo1wxt689` Ready, DB v2.17. 크롬(관리자): 설정 칸·Pixabay 「등록됨」·연결 확인 「✅ 연결됨 — 사진 12장」. **미확인: 작성 탭 「📷 무료 사진」 화면·사진 추가(`addFreePhoto`)** — 결과 카드는 AI 글 생성 뒤에만 나와 회원 키 비용이 들므로 이번에 하지 않음. 다음에 글 생성을 할 때(또는 비용 승인 뒤) 사진 추가 → `ai-image-generations/<회원>/threads-content-ops/up/…jpg` 확인.
 - 비용: Vercel 빌드 1회(제안 범위), Pixabay 무료 1회, AI 0.
+
+## ⏸ 미배포 대기 (2026-10-23, Claude Code 윈도우) — 보관함 초안에 무료 사진 추가·빼기
+- `DraftComposer.tsx` `DraftCard`: 「수정」 중에만 첨부 사진마다 ✕(빼기)와 「📷 무료 사진」(`FreePhotoPicker`)을 보여 주고, 저장·지금 발행·예약 때 `media`를 본문과 함께 보냄. 「수정 취소」는 사진 목록도 되돌림.
+- `web-actions.ts` `saveDraft`/`runDraftAction`: `media` 선택값 추가 — 보낸 때만 바꾸고 `sanitizeMedia`로 본인 폴더 파일·JPEG/PNG/MP4/MOV·20개 이하만 받음. 빼낸 파일은 지우지 않음(30일 정리 대상).
+- 검수: tsc 0, `npm test` 36, 로컬 build. 버전은 다음 실제 배포 때 v2.18. 배포 뒤 확인: 보관함 초안 수정 → 무료 사진 추가 → 저장 → 썸네일 표시·저장 경로.

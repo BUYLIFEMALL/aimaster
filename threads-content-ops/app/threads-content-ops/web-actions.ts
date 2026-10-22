@@ -324,12 +324,14 @@ export async function generateAndSaveDraft(input: { accountId: string; topic: st
   }
 }
 
-export async function saveDraft(input: { draftId: string; body: string }) {
+export async function saveDraft(input: { draftId: string; body: string; media?: PostMedia[] }) {
   const body = input.body.trim();
   if (!input.draftId || !body || body.length > 5_000) throw new Error("초안은 1~5,000자로 입력해 주세요.");
   const { supabase, user } = await authorizedUser();
+  // v2.18: 보관함 초안 수정에서 사진을 넣고 뺄 수 있다. media를 보낸 때만 바꾸고, 본인 폴더 파일만 받는다.
+  const media = input.media === undefined ? undefined : sanitizeMedia(user.id, input.media);
   const { data, error } = await supabase.from("tco_posts")
-    .update({ body, updated_at: new Date().toISOString() })
+    .update({ body, ...(media ? { media } : {}), updated_at: new Date().toISOString() })
     .eq("id", input.draftId)
     .eq("user_id", user.id)
     .eq("status", "draft").select("id").maybeSingle();
@@ -384,7 +386,7 @@ export async function publishDraft(draftId: string) {
 }
 
 /** 보관함의 저장·즉시 발행·예약: 운영 환경에서도 오류 사유가 화면에 보이도록 결과 객체를 돌려준다. */
-export async function runDraftAction(input: { draftId: string; intent: "save" | "publish" | "schedule" | "cancel" | "retry"; body?: string; scheduledAt?: string }): Promise<{ ok: true; permalink?: string | null } | { ok: false; error: string }> {
+export async function runDraftAction(input: { draftId: string; intent: "save" | "publish" | "schedule" | "cancel" | "retry"; body?: string; scheduledAt?: string; media?: PostMedia[] }): Promise<{ ok: true; permalink?: string | null } | { ok: false; error: string }> {
   try {
     if (!UUID_RE.test(String(input.draftId))) throw new Error("작업할 콘텐츠를 확인해 주세요.");
     if (input.intent === "cancel") {
@@ -394,7 +396,7 @@ export async function runDraftAction(input: { draftId: string; intent: "save" | 
     } else if (input.intent === "save" || input.intent === "publish" || input.intent === "schedule") {
       if (typeof input.body !== "string") throw new Error("저장할 본문을 확인해 주세요.");
       if (input.intent !== "save" && (!input.body.trim() || input.body.trim().length > 500)) throw new Error("Threads에 올릴 본문은 1~500자로 수정해 주세요.");
-      await saveDraft({ draftId: input.draftId, body: input.body });
+      await saveDraft({ draftId: input.draftId, body: input.body, media: input.media });
       if (input.intent === "publish") return { ok: true, ...(await publishDraft(input.draftId)) };
       if (input.intent === "schedule") await scheduleDraft({ draftId: input.draftId, scheduledAt: input.scheduledAt ?? "" });
     } else {

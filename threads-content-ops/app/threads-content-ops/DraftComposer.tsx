@@ -9,13 +9,15 @@ import { POST_STATUS, POST_STATUSES, safePostLink, type PostCounts, type PostSta
 import ViralCategoryManager, { type ViralCategory } from "./ViralCategoryManager";
 import { CategoryChip } from "./ViralCollector";
 import { moveDrafts, runDraftAction } from "./web-actions";
+import { FreePhotoPicker } from "./FreePhotoPicker";
+import { MAX_MEDIA, type PostMedia } from "@/threads-content-ops/lib/media";
 
 type Account = { id: string; username: string | null };
 type Draft = {
   id: string; body: string; created_at: string; account_id: string; status: string;
   scheduled_at: string | null; error_message: string | null; category_id?: string | null;
   published_at?: string | null; permalink?: string | null;
-  media?: { url: string; type: "IMAGE" | "VIDEO" }[];
+  media?: PostMedia[];
 };
 type ActionResult = { ok: true } | { ok: false; error: string };
 type Run = (task: () => Promise<ActionResult>, success: string) => Promise<boolean>;
@@ -97,11 +99,14 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
   draft: Draft; categories: ViralCategory[]; categoryId: string | null; account?: Account; busy: boolean; onRun: Run;
 }) {
   const [body, setBody] = useState(draft.body);
+  // v2.18: 수정 중에만 바꾸는 첨부 미디어(무료 사진 추가·빼기). 저장·발행·예약 때 본문과 함께 보낸다.
+  const [media, setMedia] = useState<PostMedia[]>(() => (Array.isArray(draft.media) ? draft.media : []));
   const [editing, setEditing] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [scheduledAt, setScheduledAt] = useState(() => localDateTime(new Date(Date.now() + 30 * 60_000)));
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => { setBody(draft.body); }, [draft.body]);
+  useEffect(() => { if (!editing) setMedia(Array.isArray(draft.media) ? draft.media : []); }, [draft.media, editing]);
   useEffect(() => {
     const el = bodyRef.current;
     if (!el) return;
@@ -118,7 +123,7 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
     if (intent === "publish" && !window.confirm(`이 콘텐츠를 ${account?.username ? `@${account.username}` : "연결된 계정"}에 지금 포스팅하시겠습니까?`)) return;
     setPending(intent);
     try {
-      const ok = await onRun(() => runDraftAction({ draftId: draft.id, intent, body, scheduledAt: intent === "schedule" ? toIsoOrRaw(scheduledAt) : undefined }), success);
+      const ok = await onRun(() => runDraftAction({ draftId: draft.id, intent, body, scheduledAt: intent === "schedule" ? toIsoOrRaw(scheduledAt) : undefined, media: editing ? media : undefined }), success);
       if (ok) setEditing(false);
     } finally { setPending(null); }
   };
@@ -141,13 +146,14 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
       <textarea id={`draft-body-${draft.id}`} ref={bodyRef} disabled={busy} className="min-h-28 w-full resize-none overflow-hidden rounded-lg border border-neutral-300 bg-white p-3 text-sm leading-relaxed text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:bg-neutral-100" maxLength={5000} value={body} onChange={(event) => setBody(event.target.value)} />
     </div> : <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-neutral-900">{body}</p>}
     {isDraft && <p className={`mt-2 text-xs ${length > 500 ? "font-semibold text-rose-700" : "text-neutral-500"}`}>{length} / 500자{length > 500 ? " · 본문을 줄여야 발행·예약할 수 있습니다." : editing ? " · 지금 발행하거나 예약하면 수정한 본문도 함께 저장됩니다." : ""}</p>}
-    {Array.isArray(draft.media) && draft.media.length > 0 && <div className="mt-3">
-      <p className="text-xs text-neutral-500">첨부 미디어 {draft.media.length}개 (이미지 {draft.media.filter((item) => item.type === "IMAGE").length} · 영상 {draft.media.filter((item) => item.type === "VIDEO").length})</p>
-      <div className="mt-2 flex gap-2 overflow-x-auto">{draft.media.map((item, index) => item.type === "VIDEO"
+    {media.length > 0 && <div className="mt-3">
+      <p className="text-xs text-neutral-500">첨부 미디어 {media.length}개 (이미지 {media.filter((item) => item.type === "IMAGE").length} · 영상 {media.filter((item) => item.type === "VIDEO").length})</p>
+      <div className="mt-2 flex gap-2 overflow-x-auto">{media.map((item, index) => item.type === "VIDEO"
         ? <video key={item.url} src={item.url} preload="metadata" muted className="h-20 w-20 shrink-0 rounded-lg object-cover" aria-label={`첨부 영상 ${index + 1}`} />
         // eslint-disable-next-line @next/next/no-img-element
-        : <img key={item.url} src={item.url} alt={`첨부 이미지 ${index + 1}`} className="h-20 w-20 shrink-0 rounded-lg object-cover" />)}</div>
+        : <span key={item.url} className="relative shrink-0"><img src={item.url} alt={`첨부 이미지 ${index + 1}`} className="h-20 w-20 rounded-lg object-cover" />{editing && <button type="button" aria-label={`첨부 이미지 ${index + 1} 빼기`} disabled={busy} onClick={() => setMedia((current) => current.filter((m) => m.url !== item.url))} className="absolute right-1 top-1 rounded-full bg-black/70 px-1.5 text-xs font-bold text-white">✕</button>}</span>)}</div>
     </div>}
+    {isDraft && editing && <div className="mt-3"><FreePhotoPicker defaultQuery="" remaining={MAX_MEDIA - media.length} disabled={busy} onPicked={(item) => setMedia((current) => (current.length >= MAX_MEDIA || current.some((m) => m.url === item.url) ? current : [...current, item]))} /></div>}
     {(draft.status === "failed" || draft.status === "publishing") && draft.error_message && <p role="alert" className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">{draft.error_message}</p>}
     {draft.status === "scheduled" && draft.scheduled_at && <p className="mt-3 flex items-center gap-1 text-xs font-semibold text-amber-800"><CalendarClock size={13} />{new Date(draft.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 예약</p>}
     {draft.status === "published" && <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800"><span className="font-semibold">✓ 포스팅완료{draft.published_at ? ` · ${new Date(draft.published_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}` : ""}</span>{link ? <a className="inline-flex items-center gap-1 font-bold underline" href={link} target="_blank" rel="noopener noreferrer"><ExternalLink size={13} />게시글 보기</a> : <span>Threads 계정에서 게시글을 확인하세요.</span>}</div>}
@@ -157,9 +163,9 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
     </div>}
     <div className="mt-3 flex flex-wrap justify-end gap-2">
       {isDraft && <>
-        {editing && <button type="button" className={buttonClass} disabled={busy} onClick={() => { setBody(draft.body); setEditing(false); }}>수정 취소</button>}
+        {editing && <button type="button" className={buttonClass} disabled={busy} onClick={() => { setBody(draft.body); setMedia(Array.isArray(draft.media) ? draft.media : []); setEditing(false); }}>수정 취소</button>}
         <button type="button" className={`${buttonClass} inline-flex items-center gap-1`} disabled={busy || editing} onClick={() => setEditing(true)}><Pencil size={12} />{editing ? "수정 중" : "수정"}</button>
-        <button type="button" className={buttonClass} disabled={busy || !body.trim()} onClick={() => void submit("save", "수정한 본문을 저장했습니다.")}>{pending === "save" ? "저장 중…" : "저장"}</button>
+        <button type="button" className={buttonClass} disabled={busy || !body.trim()} onClick={() => void submit("save", "수정한 본문과 첨부 사진을 저장했습니다.")}>{pending === "save" ? "저장 중…" : "저장"}</button>
         <button type="button" className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-[#ffffff] hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-300" disabled={busy || !canPost} onClick={() => void submit("publish", "Threads에 포스팅완료했습니다. 아래 완료 상태와 게시글 링크를 확인하세요.")}>{pending === "publish" && <LoaderCircle size={13} className="animate-spin" />}{pending === "publish" ? "포스팅 중…" : "지금 발행"}</button>
       </>}
       {isDraft && !account && <p className="w-full text-right text-xs text-amber-800">이 콘텐츠의 Threads 계정을 다시 연결한 뒤 발행하세요.</p>}
