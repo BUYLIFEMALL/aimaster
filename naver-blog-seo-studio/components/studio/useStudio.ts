@@ -165,17 +165,27 @@ export function useStudio() {
 
   useEffect(() => {
     // BLC-11: 주소에 실린 것은 기록 번호뿐 — 내용은 서버가 두 프로그램 권한·본인 기록·30일 안인지 확인한 뒤 돌려준다.
+    // v2.03: 같은 탭에서 해시만 바뀌어도(새 기록 번호) 다시 불러온다. 늦게 도착한 앞 번호의 응답은 버린다.
+    let lastId = "";
     const loadKeywordHandoff = (id: string) => {
       setKeywordHandoff({ status: "loading" });
       fetch(`/api/keyword-handoff/${id}`, { cache: "no-store" })
         .then(async (response) => {
           const body = await response.json().catch(() => ({})) as { evidence?: KeywordEvidence; error?: string };
+          if (id !== lastId) return;
           setKeywordHandoff(response.ok && body.evidence ? { status: "ready", evidence: body.evidence } : { status: "error", error: body.error || "넘어온 키워드 자료를 불러오지 못했습니다." });
         })
-        .catch(() => setKeywordHandoff({ status: "error", error: "넘어온 키워드 자료를 불러오지 못했습니다. 네트워크를 확인해 주세요." }));
+        .catch(() => id === lastId && setKeywordHandoff({ status: "error", error: "넘어온 키워드 자료를 불러오지 못했습니다. 네트워크를 확인해 주세요." }));
     };
-    const id = handoffIdFromHash(window.location.hash);
-    if (id) loadKeywordHandoff(id);
+    const syncKeywordHandoff = () => {
+      const id = handoffIdFromHash(window.location.hash);
+      if (!id || id === lastId) return;
+      lastId = id;
+      loadKeywordHandoff(id);
+    };
+    syncKeywordHandoff();
+    window.addEventListener("hashchange", syncKeywordHandoff);
+    return () => window.removeEventListener("hashchange", syncKeywordHandoff);
   }, []);
 
   function applyHandoffToTitle(evidence: KeywordEvidence) {

@@ -62,3 +62,13 @@ test("주소 해시에서 기록 번호만 꺼내고, 제목 추천 칸 값을 �
   assert.equal(isReportId("1; drop table"), false);
   assert.deepEqual(titleSeed({ keyword: "캠핑 의자", candidates: ["a", "b", "c", "d", "e"] }), { topic: "캠핑 의자", keywords: "캠핑 의자, a, b, c, d" });
 });
+
+test("v2.03: 즐겨찾기 기록은 30일이 지나도 받고 만료일을 두지 않는다", () => {
+  const old = judgeHandoff(row({ created_at: "2026-01-01T00:00:00Z", favorite: true }), ME, NOW);
+  assert.equal(old.ok, true);
+  assert.equal(old.evidence.expiresAt, null);
+  assert.equal(old.evidence.daysLeft, null);
+  assert.equal(old.evidence.favorite, true);
+  assert.equal(judgeHandoff(row({ created_at: "2026-01-01T00:00:00Z", favorite: false }), ME, NOW).status, 410);
+  assert.equal(judgeHandoff(row({ favorite: true, user_id: "22222222-2222-2222-2222-222222222222" }), ME, NOW).status, 404);
+});

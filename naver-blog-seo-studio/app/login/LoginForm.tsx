@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { handoffIdFromHash } from "@/lib/keywordEvidence";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -23,7 +24,9 @@ export default function LoginForm() {
       setPending(false);
       return;
     }
-    router.push(searchParams.get("redirect") || "/dashboard");
+    // BLC-11 v2.03: 키워드 도구에서 넘어온 기록 번호(#…keyword-report=…)는 로그인 뒤 주소에 그대로 붙인다(번호 모양일 때만).
+    const handoffId = handoffIdFromHash(window.location.hash);
+    router.push((searchParams.get("redirect") || "/dashboard") + (handoffId ? `#title&keyword-report=${handoffId}` : ""));
     router.refresh();
   }
 

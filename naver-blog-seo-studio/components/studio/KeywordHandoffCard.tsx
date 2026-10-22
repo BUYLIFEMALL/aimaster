@@ -26,7 +26,7 @@ export function KeywordHandoffCard({ s, onResearch }: { s: Studio; onResearch?: 
       <div className="keyword-handoff-head">
         <div>
           <strong>키워드 도구에서 넘어온 자료 — 「{e.keyword || "키워드 없음"}」</strong>
-          <small>{e.featureLabel} · 만든 날 {date(e.createdAt)} · {date(e.expiresAt)}까지 열 수 있음(남은 {e.daysLeft}일)</small>
+          <small>{e.featureLabel} · 만든 날 {date(e.createdAt)} · {e.expiresAt ? `${date(e.expiresAt)}까지 열 수 있음(남은 ${e.daysLeft}일)` : "키워드 도구 즐겨찾기 — 계속 보관"}</small>
         </div>
         <button type="button" className="text-button" onClick={() => setKeywordHandoff(null)}>닫기</button>
       </div>

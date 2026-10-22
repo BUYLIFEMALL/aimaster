@@ -14,8 +14,9 @@ export type KeywordEvidence = {
   featureLabel: string;
   keyword: string;
   createdAt: string;
-  expiresAt: string;
-  daysLeft: number; // 만료까지 남은 날(올림)
+  expiresAt: string | null; // 즐겨찾기는 null(키워드 도구가 계속 보관)
+  daysLeft: number | null; // 만료까지 남은 날(올림), 즐겨찾기는 null
+  favorite: boolean;
   measured: Measured[];
   missing: string[]; // 실측 항목 중 값이 없는 것(0이 아니라 수집되지 않음)
   notes: string[]; // 키워드 도구가 남긴 실측 안내(예: 검색광고 키 없음)
@@ -23,7 +24,7 @@ export type KeywordEvidence = {
   candidates: string[]; // 키워드 도구 결과의 후보 키워드
   titles: string[]; // AI가 제안한 제목
 };
-export type HandoffRow = { id: string; user_id: string; feature: string; keyword: string | null; created_at: string; result: unknown };
+export type HandoffRow = { id: string; user_id: string; feature: string; keyword: string | null; created_at: string; favorite?: boolean | null; result: unknown };
 export type HandoffJudgement = { ok: true; evidence: KeywordEvidence } | { ok: false; status: number; error: string };
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -119,7 +120,8 @@ export function judgeHandoff(row: HandoffRow | null, userId: string, now: Date =
   const created = new Date(row.created_at);
   if (Number.isNaN(created.getTime())) return { ok: false, status: 422, error: "기록 생성일을 확인할 수 없어 넘겨받지 않았습니다." };
   const expires = new Date(created.getTime() + HANDOFF_DAYS * DAY_MS);
-  if (now >= expires) return { ok: false, status: 410, error: `만든 지 ${HANDOFF_DAYS}일이 지난 기록이라 넘겨받지 않았습니다. 키워드 도구에서 다시 분석해 주세요.` };
+  const favorite = row.favorite === true; // v2.03: 키워드 도구가 즐겨찾기는 30일 뒤에도 보관하므로(v1.07, 주인님 결정) 받는다
+  if (!favorite && now >= expires) return { ok: false, status: 410, error: `만든 지 ${HANDOFF_DAYS}일이 지난 기록이라 넘겨받지 않았습니다. 키워드 도구에서 다시 분석해 주세요.` };
 
   const result = obj(row.result);
   const { candidates, titles, estimated } = pick(row.feature, result);
@@ -133,8 +135,9 @@ export function judgeHandoff(row: HandoffRow | null, userId: string, now: Date =
       featureLabel: FEATURE_LABELS[row.feature],
       keyword,
       createdAt: created.toISOString(),
-      expiresAt: expires.toISOString(),
-      daysLeft: Math.ceil((expires.getTime() - now.getTime()) / DAY_MS),
+      expiresAt: favorite ? null : expires.toISOString(),
+      daysLeft: favorite ? null : Math.ceil((expires.getTime() - now.getTime()) / DAY_MS),
+      favorite,
       measured: real.measured,
       missing: real.missing,
       notes: real.notes,
