@@ -53,3 +53,27 @@
 | 네이버 검색 | 수집 1회 | 회원 키, 무료 한도 |
 
 https://naver-blog-seo-studio.buylife.xyz
+
+---
+
+## BLC-08b 상세 플랜 — 본인 문체 (v1.85, 2026-10-22 추가)
+
+08a 운영 완료 뒤 작성. v1.85에는 08a 개선(「승인 뒤 바뀜 · 다시 승인 필요」 표시, 커밋 `ed4edeec7`, 미배포)을 함께 싣는다(빌드 1회 절약).
+
+| 단위 | 내용 | 파일 |
+|---|---|---|
+| S1 | 문체 자료: ① 내 글 표본 붙여넣기(40자 이상, 최대 10개) 또는 ② 네이버 블로그 ID → 공개 RSS 최신 글 5/10개 본문(기존 `lib/safeFetch.ts` 재사용, AI·키 없음) | 새 `app/api/styles/route.ts`, `lib/naverRss.ts` |
+| S2 | 문체 분석: 회원 AI 키 1회 → 작업실과 같은 항목(성격·어조·문장·구성·독자·자주 쓰는 표현·피할 표현·강점·주의점) | 새 `app/api/styles/[id]/analyze/route.ts`, `lib/ai/stylePrompt.ts`(작업실 `stylePrompt`·`styleBrief` 기반) |
+| S3 | 승인(서버): 프로필 지문 저장, 승인 뒤 바뀌면 무효(08a와 같은 방식) | 새 `app/api/styles/[id]/approve/route.ts`, `lib/grounding.ts`의 지문 함수 재사용 |
+| S4 | 적용: 생성 요청에 선택 값 `styleId`. **없으면 기존 프롬프트 그대로(시험으로 고정)**. 있으면 승인 확인 후 페르소나 지시 뒤에 「내 블로그 문체」 지시를 덧붙이고 원고 `seo_report.style`에 기록 | `drafts/generate/route.ts`, `generator.ts`, `useStudio.ts`(선택한 문체 상태) |
+| S5 | 화면: 사이드바 「✍️ 내 문체」 메뉴(만들기·분석·승인·목록), 「새 글 만들기」·「자료부터 집필」에 「내 문체 적용」 선택칸(기본 = 적용 안 함) | 새 `StyleView.tsx`, `TitleView.tsx`, `ResearchView.tsx`, `StudioSidebar.tsx` |
+
+- **DB 변경(승인 필요):** 새 표 `naver_blog_seo_styles`(user_id, name, blog_id, samples jsonb, posts jsonb, profile jsonb, approved_at, approval_hash, created_at, updated_at) — RLS 본인 4개, 생성 데이터 30일 자동 정리 대상(회원 분석 결과).
+- **원칙:** 기본은 적용 안 함(기존 결과 불변), 회원 본인 키, 공개 RSS만 읽음(로그인 필요한 글 읽지 않음), "문체 흉내가 AI 탐지 회피를 약속하지 않음" 안내.
+- **시험:** 무료 — 지문·승인 판정, `styleId` 없을 때 프롬프트 불변, 표본 검증, RSS 파싱(가짜 응답). 실제 — 시험 계정 글 표본 붙여넣기 → 문체 분석 1회 → 승인 → 「새 글 만들기」에 적용해 생성 1회(gpt-4o-mini). RSS 경로는 공개 블로그 ID로 수집까지만(AI 없음).
+
+| 비용 | 예상 |
+|---|---|
+| Vercel 운영 빌드 | 1회(08a 개선 포함, 실패 시 +1) |
+| DB 스키마 | 새 표 1개 + RLS — **승인 필요** |
+| 유료 AI(시험) | 2회(분석 1 + 생성 1, 보강 시 최대 +2), 시험 계정 본인 키·gpt-4o-mini, 수 원 수준 |
