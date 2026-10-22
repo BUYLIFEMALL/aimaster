@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 v1.24 배포 (맥미니 「상품별 섹션 순서 ↑↓」 마무리, DB 칸 추가)
+- 운영 DB `shop_products.section_sequence text[]` 칸 추가(기존 데이터 영향 없음, 되돌리기 SQL은 마이그레이션 파일에) → 결과 1행·v1.24 → 배포 READY → 크롬에서 ↑↓ 버튼·긴 PNG/ZIP 내려받기 정상. 비용: 빌드 1회. **맥미니 세션께**: 배포 끝. 상세: `shop-detail-page/AGENTS.md` 맨 아래.
+- 프로그램: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — ⏸ 코드만 반영(배포·DB 변경 보류, 주인님 지시): 스타일 분석기 추세 그래프 · 변환 스튜디오 용량 표시 · 인물사진 색 집게 (빌드 0회)
 - **이미지 스타일 분석기**(다음 배포 v1.34): 새 결과마다 저장된 점검 지점의 평균 차이를 기록(최근 20회)·작은 꺾은선 그래프. **⚠ 배포 전에 `style-dna-analyzer/supabase/migrations/20261022_v1_34_check_trend.sql`(운영 `sda_analyses.check_trend` 칸) 먼저 실행.** 커밋 3c33e0b42.
 - **이미지 변환 스튜디오**(다음 배포 v1.18): 비교 창 아래 「원본 → 변환 용량(±%)」. 커밋 252ee363c.

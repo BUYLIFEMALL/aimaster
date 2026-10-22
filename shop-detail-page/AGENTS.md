@@ -282,3 +282,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 함께: S-22-14 — 상품명만으로 채웠을 때 기존 「AI가 사진·사양서로 추정」 안내 숨김(`ProductAnalyzeForm.tsx`).
 - 버전 v1.24. 검수: tsc 0, eslint(바꾼 8파일) 0, 순서 함수 무료 시험 6가지 통과(빈 값·전체·일부·없는 이름·원본 불변).
 - **윈도우 CLI 다음 첫 단계(순서 중요)**: ① **SQL 먼저** `20261022_section_sequence_v1_24.sql`(긴 PNG·ZIP 경로가 새 칸을 읽으므로 칸 없이 코드가 먼저 나가면 두 내려받기가 「상품을 찾을 수 없습니다」로 실패) → 결과 칸 1행·v1.24 확인 ② `shop-detail-page` 배포 1회 ③ 크롬 확인은 맥미니가 시험 계정으로(순서 바꾸기 → 새로고침 유지 → ZIP 번호가 바뀐 순서 → 기본 순서로).
+
+## 2026-10-22 ✅ v1.24 배포됨 — 상품별 섹션 순서 「↑」「↓」 (Claude Code 윈도우 — 맥미니 `d1ab6b107` 마무리)
+- 사전 확인: 새 서버 동작이 `requireProgramAccess()` + `.eq("user_id", user.id)`로 본인 상품만 고침. tsc·로컬 build 통과.
+- ① 운영 DB(`esgxyikcnnvmlhygjkth`, 주인님 크롬 SQL 편집기 **새 쿼리** — 처음 열린 탭은 다른 세션의 `sda_analyses` 쿼리라 덮어쓰지 않고 「+」로 새로 만듦, 저장 후 닫음): `alter table shop_products add column if not exists section_sequence text[]` + 버전 v1.24 → 결과 `section_sequence`(ARRAY) 1행·v1.24 확인. ② 그 뒤 배포 READY(칸 먼저 → 코드 순서 지킴).
+- 크롬(시험 계정): 상품 화면 v1.24, 섹션 12개에 「↑」「↓」 24개·안내 문구 표시(누르면 바로 저장되므로 누르지 않음). 긴 PNG·섹션 ZIP 내려받기 둘 다 200·서명 주소·한글 이름 정상(「상품을 찾을 수 없습니다」 없음).
+- 비용: Vercel 빌드 1회, AI 0회.
