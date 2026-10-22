@@ -196,5 +196,5 @@
 - `HistoryList.tsx` 서버 보관 사진에 AI 패션스타일(`/studio?src=`)·AI 바나나 캔버스(`/studio?import=`) 링크(서명 1시간). 받는 쪽이 버킷(바나나는 본인 폴더까지)을 검사.
 - 검수: 시험 35개, build, 배포 `portrait-photo-d91agj3kp` Ready, DB v1.33. 받는 두 흐름은 시험 그림으로 크롬 확인(시험 계정 보관함이 비어 버튼 자체는 화면에서 못 봄).
 
-## ⏸ 미배포(2026-10-22, Claude Code 윈도우)
-- 「🔁 형식 바꾸기」 링크에 저장 비율이 1:1·4:5·9:16·16:9면 `&preset=`(insta-feed/insta-portrait/story/youtube-thumb) 붙임 — 변환 스튜디오 v1.13이 규격을 자동 선택. 코드만 반영, 다음 배포 때 함께(버전도 그때 +0.01).
+## v1.34 (2026-10-22, Claude Code 윈도우) — 형식 바꾸기 규격 붙이기 배포
+- 「🔁 형식 바꾸기」 링크에 저장 비율이 1:1·4:5·9:16·16:9면 `&preset=`(insta-feed/insta-portrait/story/youtube-thumb) 붙임 — 변환 스튜디오 v1.13이 규격을 자동 선택. 배포 `portrait-photo-kffhyfkfw` Ready, DB v1.34, 시험 35개, 운영 스크립트 포함 확인(시험 회원 서버 보관 사진이 없어 링크 화면 확인은 못 함).
