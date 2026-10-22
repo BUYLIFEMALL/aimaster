@@ -188,3 +188,12 @@ F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 함께 나간 대기분: 좌측 메뉴 계정 위치(`22c6cda35`, 데스크톱 확인), 공용 `member-scheduler` 사본(가짜 토큰 401), 좁은 칸 버튼 줄바꿈(`f0871e568`).
 - 남은 일: 문자 캠페인 실발송 검수(시험 리드 1명만 담긴 계정 필요 — 시험 계정에 SOLAPI 연결 필요), 리드 수동 추가·수정 화면의 전화번호 입력, 수신거부 링크/080 자동 처리, 카카오 브랜드 메시지 채널, SOLAPI 클라이언트 공용 등록.
 - 링크: https://stepmail.buylife.xyz/campaigns/new
+
+## 2026-10-23 v1.28 — 💬 카카오 브랜드 메시지 선택지 (Claude Code 윈도우)
+- 주인님 지시: 「카카오 브랜드도 본인 계정 등록해서 사용할수 있게 선택지를 줘」「없으면 등록 안하면 동작 안하는 거고」. 승인: 빌드 1회, DB 칸 2개.
+- 캠페인의 휴대폰 발송 방식: 📱 문자(SMS·LMS) / 💬 카카오 브랜드 메시지(`stepmail_campaigns.mobile_type` 'sms'|'kakao', 기본 'sms'). 카카오는 **회원 본인 SOLAPI 계정 + 본인 카카오 채널 ID(pfId, 공용 `user_solapi_accounts.kakao_pf_id`, 설정 「📱 문자·카카오 (SOLAPI)」에 이미 있던 칸)**가 있을 때만 고를 수 있고, 없으면 선택지가 꺼져 등록 안내가 나온다. 저장(`createCampaignAction`)과 발송(`lib/dispatch.ts`) 양쪽에서 pfId가 없으면 막고 아무것도 보내지 않는다(문자로도 대신 보내지 않음).
+- 발송 `lib/kakaoBrand.ts`(Step Mail 전용, 공용 사본 `lib/solapi/client.ts`는 손대지 않음): SOLAPI `type: "CTA"`(2026-01부터 브랜드 메시지로 자동 대체), `adFlag: true`(광고), 「문자로 대신 보내기」(`kakao_fallback_sms`)를 켜면 `disableSms: false`로 채널 친구가 아닌 고객에게 같은 내용을 문자로. 본문은 문자와 같은 `buildSmsText`(「(광고)」·수신거부 줄). 기록 `stepmail_send_log.channel = 'kakao'`. 카드에 💬 표시, 매뉴얼 FAQ Q5(pfId 등록 방법) 추가·번호 Q6~Q8로.
+- DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor, 해시 일치 확인): `supabase/migrations/20261023180000_stepmail_v1_28_kakao_brand.sql` — 기존 캠페인 2건 모두 'sms'·false 그대로, `programs.version` v1.28.
+- 검사: tsc·build, `npm run test:sms` 12개(카카오 3개 추가: pfId 없으면 안 보냄·본인 채널로 대체 문자 설정 전달·문자 방식은 그대로). 커밋 `672643bda`, 배포 `stepmail-lza2dcw10` Ready, `/login` 200·회원 실행 주소 가짜 토큰 401. 크롬(관리자, pfId 등록됨): 화면 v1.28, 문자 채널 → 카카오 선택 가능 → 대체 문자 체크·「메시지 본문」 표시(저장 안 함).
+- 못 한 것: **실제 카카오 발송**(관리자 채널로 1통 약 10~20원 — 주인님 승인 후), pfId가 없는 계정에서 선택지 꺼짐 화면(코드·시험으로만 확인, 시험 계정은 SOLAPI 미연결).
+- 링크: https://stepmail.buylife.xyz/campaigns/new
