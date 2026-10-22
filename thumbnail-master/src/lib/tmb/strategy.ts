@@ -64,6 +64,20 @@ export function textChanged(ver: ImageVersion | undefined, now: { main: string; 
   return ver.main.trim() !== now.main.trim() || (ver.sub ?? "").trim() !== now.sub.trim();
 }
 
+/** v1.16 결과 칸에 보여 줄 「이미지 문구 → 지금」 한 줄(문구 기록이 없으면 빈 글) */
+export function changedTextLine(ver: ImageVersion | undefined, now: { main: string; sub: string }): string {
+  if (!textChanged(ver, now) || !ver) return "";
+  const pair = (m: string, s: string) => (s.trim() ? `${m.trim()} / ${s.trim()}` : m.trim());
+  return `이미지 문구: ${pair(ver.main ?? "", ver.sub ?? "")} → 지금: ${pair(now.main, now.sub)}`;
+}
+
+/** v1.16 「2종 생성」 전에 세로 길이 안내가 있으면 물어볼 문장(없으면 빈 글) */
+export function lengthConfirmText(opts: { main: string; sub: string }[], ratio: Ratio): string {
+  if (ratio !== "9:16") return "";
+  const long = opts.some((o) => mainWarning(o.main, ratio) || subWarning(o.sub, ratio));
+  return long ? "문구가 세로 표지 기준보다 깁니다(메인 2~4단어, 서브 10자 이내 권장). 그대로 만들까요?" : "";
+}
+
 function noSpaceLen(s: string): number { return s.replace(/\s+/g, "").length; }
 
 export const responseSchema = {

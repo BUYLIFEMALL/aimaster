@@ -174,3 +174,15 @@ test("v1.15 세로 문구 길이 안내 · 문구 바뀜 표시", async () => {
   assert.equal(textChanged({ path: "p", v: 1, at: "", model: "", main: "a", sub: "b" }, { main: " a ", sub: "b" }), false);
   assert.equal(textChanged({ path: "p", v: 1, at: "", model: "", main: "a", sub: "b" }, { main: "a", sub: "c" }), true);
 });
+
+test("v1.16 원래 문구 표시 · 세로 길이 확인 문장", async () => {
+  const { changedTextLine, lengthConfirmText } = await import("../src/lib/tmb/strategy.ts");
+  const ver = { path: "p", v: 1, at: "", model: "", main: "시골 할머니집 3일 잔치", sub: "단 72시간 만에 +4kg" };
+  assert.equal(changedTextLine(ver, { main: "3일 만에 +4kg?!", sub: "프랑스 사돈 먹방" }), "이미지 문구: 시골 할머니집 3일 잔치 / 단 72시간 만에 +4kg → 지금: 3일 만에 +4kg?! / 프랑스 사돈 먹방");
+  assert.equal(changedTextLine(ver, { main: ver.main, sub: ver.sub }), "");
+  assert.equal(changedTextLine({ path: "p", v: 1, at: "", model: "" }, { main: "a", sub: "" }), "");
+  const long = [{ main: "벨트 터진 진짜 이유", sub: "할머니 밥상에 기절한 사돈" }, { main: "3일 만에 +4kg?!", sub: "프랑스 사돈 먹방" }];
+  assert.ok(lengthConfirmText(long, "9:16").includes("그대로 만들까요?"));
+  assert.equal(lengthConfirmText(long, "16:9"), "");
+  assert.equal(lengthConfirmText([long[1]], "9:16"), "");
+});

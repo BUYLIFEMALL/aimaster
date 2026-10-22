@@ -4,7 +4,7 @@ import { Check, ClipboardCopy, Download, FileText, ImageIcon, Loader2, RefreshCw
 import type { Audience, BorderStyle, ImageSet, Inputs, Opt, ProjectDoc, RefDoc, Strategy, SubjectType } from "@/lib/tmb/types";
 import { AGES, EMPTY_SET, ETHNICITIES, OPTS } from "@/lib/tmb/types";
 import { AUDIENCES } from "@/lib/tmb/audience";
-import { mainWarning, subWarning, textChanged } from "@/lib/tmb/strategy";
+import { changedTextLine, lengthConfirmText, mainWarning, subWarning, textChanged } from "@/lib/tmb/strategy";
 import { DOC_MAX_CHARS, charsLabel, missingInputs } from "@/lib/tmb/validate";
 
 interface ApiErr { error?: string; needKey?: boolean }
@@ -137,6 +137,8 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
     if (!strategy) return;
     const warn = mainWarning(strategy.a.main) || mainWarning(strategy.b.main);
     if (!strategy.a.main.trim() || !strategy.b.main.trim()) { setError({ text: warn ?? "메인 문구를 입력해 주세요.", needKey: false }); return; }
+    const ask = lengthConfirmText([strategy.a, strategy.b], inputs.style.ratio);
+    if (ask && !window.confirm(ask)) return;
     setNotice("");
     setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     await Promise.all(OPTS.map((o) => makeImage(o)));
@@ -342,7 +344,9 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                     {url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt={`썸네일 ${LABEL[o]}`} /> : <div className="tm-empty">{b ? "" : "아직 생성되지 않았습니다."}</div>}
                     {b && <div className="tm-overlay"><Loader2 className="ls-spin" /><span>{b === "gen" ? "썸네일 생성 중…" : "수정 반영 중…"}</span></div>}
                   </div>
-                  {!b && textChanged(cur, strategy[o]) && <small className="tm-warn" role="status">문구가 바뀌었습니다 — [다시 생성]을 누르면 새 문구로 만듭니다.</small>}
+                  {!b && textChanged(cur, strategy[o]) && (
+                    <small className="tm-warn" role="status">문구가 바뀌었습니다 — [다시 생성]을 누르면 새 문구로 만듭니다.<br />{changedTextLine(cur, strategy[o])}</small>
+                  )}
                   {s.versions.length > 1 && (
                     <div className="tm-versions" aria-label="버전">
                       {s.versions.map((v, i) => (
