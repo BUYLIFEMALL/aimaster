@@ -33,3 +33,15 @@ test("v1.34 추세: 검사·20개 자르기·그래프 좌표", async () => {
   // 값이 높을수록 아래(차이가 크면 아래, 줄어들면 위로 올라가는 모양)
   assert.equal(sparklinePoints([60, 30, 0], 100, 20), "3,17 50,10 97,3");
 });
+
+test("v1.35 추세 점 프롬프트·점 좌표", async () => {
+  const { cleanTrend, appendTrend, sparklineXY, sparklinePoints, MAX_TREND_PROMPT } = await import("../src/lib/dna/checkSpots.ts");
+  const long = "a  very\nlong prompt ".repeat(20);
+  const [p] = cleanTrend([{ at: "2026-10-22T00:00:00Z", avg: 10, n: 2, prompt: long }]);
+  assert.equal(p.prompt.length, MAX_TREND_PROMPT);
+  assert.ok(!/\s{2,}/.test(p.prompt));
+  assert.equal(cleanTrend([{ at: "2026-10-22T00:00:00Z", avg: 10, n: 2, prompt: 5 }])[0].prompt, undefined);
+  assert.equal(appendTrend([], { at: "2026-10-22T00:00:00Z", avg: 3, n: 1, prompt: " cat " })[0].prompt, "cat");
+  assert.deepEqual(sparklineXY([60, 30, 0], 100, 20), [[3, 17], [50, 10], [97, 3]]);
+  assert.equal(sparklinePoints([60, 30, 0], 100, 20), "3,17 50,10 97,3");
+});

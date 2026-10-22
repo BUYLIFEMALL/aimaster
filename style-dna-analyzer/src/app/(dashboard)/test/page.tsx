@@ -18,7 +18,7 @@ export default function TestPage() {
   const [customRefImage, setCustomRefImage] = useState<string | null>(null);
   const [imageModel, setImageModel] = useState(DEFAULT_IMAGE_MODEL);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ image: string; match: number | null } | null>(null);
+  const [result, setResult] = useState<{ image: string; match: number | null; prompt?: string } | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [showSingles, setShowSingles] = useState(false);
@@ -68,7 +68,8 @@ export default function TestPage() {
       } catch {
         match = null; // 비교에 실패해도 생성된 이미지는 보여 준다
       }
-      setResult({ image: data.image as string, match });
+      // v1.35: 그때 쓴 프롬프트도 함께 — 추세 기록에 앞부분을 남긴다
+      setResult({ image: data.image as string, match, prompt: isEditingPrompt ? customPrompt : defaultPrompt });
     } catch (e) {
       setError({ message: e instanceof Error ? e.message : "이미지를 만들지 못했습니다.", needKey: (e as { needKey?: boolean }).needKey });
     } finally {
@@ -279,7 +280,7 @@ export default function TestPage() {
                 trend={record.checkTrend ?? []}
                 onTrend={(avg, n) => {
                   // v1.34: 기록 실패(예: 추세 칸이 아직 없는 DB)는 화면을 막지 않고 조용히 넘긴다
-                  void fetch(`/api/analyses/${record.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trendAdd: { avg, n } }) })
+                  void fetch(`/api/analyses/${record.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trendAdd: { avg, n, prompt: result.prompt } }) })
                     .then(async (res) => (res.ok ? ((await res.json()) as { checkTrend?: typeof record.checkTrend }) : null))
                     .then((data) => { if (data?.checkTrend) setRecord({ ...record, checkTrend: data.checkTrend }); })
                     .catch(() => undefined);
