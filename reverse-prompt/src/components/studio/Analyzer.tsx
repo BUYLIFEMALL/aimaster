@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ClipboardCopy, Download, FileAudio, FileImage, FileVideo, Loader2, RefreshCw, Save, UploadCloud, X, Sparkles, Cpu, Layers, SlidersHorizontal, BookOpen, KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Analysis, MediaType, Options } from "@/lib/rpa/types";
+import { bananaLink, MAX_BANANA_IDEA } from "@/lib/rpa/bananaLink";
 import { DEFAULT_OPTIONS, MEDIA_LABEL, TARGETS, defaultTarget } from "@/lib/rpa/types";
 import { ACCEPT_ATTR, BUCKET, FORMAT_HELP, SIZE_LIMIT, detectMedia, fileBase, sizeError } from "@/lib/rpa/media";
 import { mainPrompt, toMarkdown, withEditedPrompt } from "@/lib/rpa/schemas";
@@ -435,6 +436,15 @@ export function Analyzer({ historyId }: { historyId?: string }) {
                   <textarea aria-label="부정 프롬프트 편집" rows={2} value={negEdit} onChange={(e) => setNegEdit(e.target.value)} />
                 </label>
                 {isMj && <div className="rp-cmd"><small>Midjourney 전체 명령어</small><code>{main}</code></div>}
+                {/* v1.12: 바나나 캔버스 「이미지 생성」 아이디어 칸으로(지금 편집 칸 프롬프트, 600자 이하만, 자동 생성 없음) */}
+                <div className="rp-cmd" data-banana>
+                  <small>나노 바나나로 바로 그려 보고 싶다면</small>
+                  {bananaLink(promptEdit) ? (
+                    <a href={bananaLink(promptEdit)!} target="_blank" rel="noopener noreferrer" data-banana-link>🍌 바나나 캔버스로 보내기</a>
+                  ) : (
+                    <span data-banana-too-long>🍌 프롬프트가 {MAX_BANANA_IDEA}자를 넘어 바나나 캔버스로 보낼 수 없습니다 — 복사해서 줄여 쓰세요.</span>
+                  )}
+                </div>
                 {path && (
                   <div className="rp-cmd">
                     <small>색 팔레트·복제/변형 강도·시험 생성까지 더 깊게 보고 싶다면</small>
