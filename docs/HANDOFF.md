@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ 블로그 3개 모아 둔 수정 배포 + 블로그 에이전트 자동 연결 확인 (빌드 3회 · 주인님 승인)
+- 블로그 에이전트 v2.10 자동 연결: 웨일 설정 화면 「설치됨 · v2.10」 → 메인 블로그(buylifemall) 선택 → 「확장 연결 완료: 블로그 buylifemall」 확인.
+- 배포(차례로, 각 Ready 확인): ai-auto-blog v1.79(옛 자동 연결 코드 정리·소제목 반복 제거) `873da1202` · naver-blog-seo-studio v2.11(옛 자동 연결 코드 정리) `9740f7ca5` · naver-blog-agent v2.11(설치 상태 문구·기한 지난 번호 정리) `8f511d500`. DB/확장/ZIP 버전 일치, `check-extension-release` 3개 OK(블로그 에이전트는 배포 직후 1회 캐시 FAIL 뒤 OK). 세 확장 모두 코드 변경 없음(버전만).
+- 다음: ⑥ 자동 포스팅 「입력 중」 멈춤 원인 조사.
+
 ## 2026-10-23 Claude Code(윈도우) — ✅ 메인 사이트 할 일 3개 묶음 배포(메인 빌드 1회, 주인님 승인) · 할 일 표에 급함/보통 칸
 - `9a6a74d74`·`eb79c7843`: ① 관리자 전용 안내(`/dashboard?notice=admin_only`)에 「관리자 계정으로 다시 로그인」 버튼(`components/dashboard/RelogAdminButton.tsx` — 로그아웃 뒤 `/login?redirect=/admin`, 로그인 상태로 /login에 가면 홈으로 보내지므로 먼저 로그아웃) ② 휴대폰 폭 관리자 머리줄에 로그인 이메일(`AdminSidebar.tsx`) ③ 「30일 자동 정리」 카드에 「기록 붙음 n/전체 · 아직 기록을 안 남기는 곳 n곳: …」 ④ 이름표 `products` 상품.
 - 배포: 푸시 자동 빌드 `aimaster-fvef7otna` Ready·`www.buylife.xyz` 연결. 크롬(시험 회원 로그인 상태 — 다른 세션 검수 중이라 계정 안 바꿈)에서 ① 버튼 표시 확인(누르지 않음). **②③은 관리자 로그인 때 확인 필요**(관리자 화면).
