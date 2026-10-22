@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { pickCutRefUrls, parseCutRefs, withRefInstruction, MAX_CUT_REFS } from "../src/lib/cutRefs.ts";
+import { pickCutRefUrls, parseCutRefs, withRefInstruction, isAttachableRef, MAX_CUT_REFS } from "../src/lib/cutRefs.ts";
 
 const png = (n) => `data:image/png;base64,${"A".repeat(200 + n)}`;
 const chars = [
@@ -48,4 +48,12 @@ test("서버 경로가 첨부를 parts로 보내고 재시도 없음은 그대�
   assert.match(r, /checkProgramAccessApi\(\)/);
   const g = readFileSync(new URL("../src/lib/imageGen.ts", import.meta.url), "utf8");
   assert.match(g, /pickCutRefUrls\(cut, project\.characters/);
+});
+
+test("v1.30 화면 안내: 첨부 가능 여부", () => {
+  assert.equal(isAttachableRef(png(1)), true);
+  assert.equal(isAttachableRef("https://image.pollinations.ai/x.png"), false);
+  assert.equal(isAttachableRef(undefined), false);
+  const c = readFileSync(new URL("../src/components/CharacterSection.tsx", import.meta.url), "utf8");
+  assert.match(c, /컷 일관성이 좋아집니다/);
 });

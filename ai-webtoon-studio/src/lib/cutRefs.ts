@@ -18,11 +18,16 @@ export function pickCutRefUrls(cut: Pick<CutScene, "characterNames">, characters
   const out: string[] = [];
   for (const c of characters ?? []) {
     if (!names.has(norm(c.name ?? ""))) continue;
-    const url = [c.characterSheetUrl, c.referenceImageUrl].find((u) => typeof u === "string" && DATA_URL.test(u));
+    const url = [c.characterSheetUrl, c.referenceImageUrl].find(isAttachableRef);
     if (url && !out.includes(url)) out.push(url);
     if (out.length >= max) break;
   }
   return out;
+}
+
+/** 컷 그림에 첨부할 수 있는 그림인지(브라우저 안 그림만) — 화면 안내용(v1.30) */
+export function isAttachableRef(url: unknown): boolean {
+  return typeof url === "string" && DATA_URL.test(url);
 }
 
 export interface CutRef { data: string; mimeType: string }

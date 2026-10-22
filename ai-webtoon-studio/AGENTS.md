@@ -220,3 +220,8 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 문제: 캐릭터 시트·참고 사진을 만들어도 컷 그림 요청은 글 프롬프트만 보내 컷마다 인물이 달라질 수 있었음(S1 검토, `docs/analysis-image-consolidation-20261021/REPORT.md` §9-5).
 - 변경: `src/lib/cutRefs.ts`(컷 `characterNames` → 시트 우선·없으면 참고 사진, 브라우저 안 그림만·최대 3장, 서버 검사, 일관성 지시 문구), `lib/imageGen.ts` `generateCutImage`가 768px JPEG로 줄여 `refs` 전송, `api/ai/image`가 검사 후 공용 `generateGeminiImage({ parts })`로 첨부(공용 사본 수정 없음, 재시도 0·1K·120초 그대로). 무료 대체 렌더러는 첨부 없이 그대로.
 - 검수: 시험 27개(새 `tests/cutRefs.test.mjs` 5개)·build, 배포 `ai-webtoon-studio-30sodgrjz` Ready(첫 배포 명령은 배포를 만들지 못해 재실행), DB v1.29, 비로그인 401. **실제 생성 1장**(시험 회원 본인 키, 빠른 모델, 18초): 단순 캐릭터 그림(파란 머리·빨간 셔츠·숫자 7) 첨부 → 결과 컷에 같은 특징 반영 확인.
+
+## 2026-10-22 v1.30 — 컷 첨부 여부 안내 (Claude Code 윈도우, W8 후속)
+- 캐릭터 미리보기 아래: 브라우저 안 그림이면 「✓ 컷을 그릴 때 참고 그림으로 함께 보내짐」, 무료 대체 그림(외부 주소)이면 「⚠ 첨부되지 않음 — 시트를 다시 만들거나 사진 등록 시 컷 일관성↑」. 대체 그림 알림에도 같은 안내. 판단 함수 `isAttachableRef`(`lib/cutRefs.ts`).
+- 검수: 시험 28개·build, 배포 `ai-webtoon-studio-my8xyq79d` Ready, DB v1.30, 크롬에서 캐릭터 사진 칸에 시험 그림 → ✓ 안내 확인(시험 저장분 삭제). ⚠ 안내는 정적 시험으로만 확인.
+- 검수 메모: 페이지 첫 파일 입력칸은 사이드바 「프로젝트 불러오기(JSON)」 — 자동 시험에서 `input[type=file]` 첫 번째를 쓰면 JSON 오류 알림창이 떠 탭이 멈춤(앱 문제 아님).

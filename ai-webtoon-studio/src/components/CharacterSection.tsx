@@ -15,6 +15,7 @@ import {
 import { CharacterInfo, WebtoonProject } from "@/lib/types";
 import { expandCharacterAI } from "@/lib/gemini";
 import { generateCharacterSheetImage } from "@/lib/imageGen";
+import { isAttachableRef } from "@/lib/cutRefs";
 
 interface CharacterSectionProps {
   project: WebtoonProject;
@@ -109,7 +110,9 @@ export function CharacterSection({
         (reason) => { fallbackReason = reason; }
       );
       handleUpdateActiveChar({ characterSheetUrl: sheetUrl });
-      if (fallbackReason) alert(`AI(Gemini) 그림 생성에 실패해 무료 대체 그림을 넣었습니다. 원인: ${fallbackReason}`);
+      if (fallbackReason) alert(`AI(Gemini) 그림 생성에 실패해 무료 대체 그림을 넣었습니다. 원인: ${fallbackReason}
+
+무료 대체 그림은 컷 그림에 첨부되지 않습니다. AI 시트로 다시 만들면 컷 일관성이 좋아집니다.`);
     } catch (e: any) {
       alert(e.message || "캐릭터 시트 생성에 실패했습니다.");
     } finally {
@@ -307,6 +310,16 @@ export function CharacterSection({
                   </div>
                 )}
               </div>
+              {/* v1.30: 컷 그림 첨부 가능 여부 안내(W8 — 브라우저 안 그림만 컷에 첨부됨) */}
+              {(activeChar.characterSheetUrl || activeChar.referenceImageUrl) && (
+                isAttachableRef(activeChar.characterSheetUrl || activeChar.referenceImageUrl) ? (
+                  <p className="mt-2 text-[11px] font-semibold text-emerald-300">✓ 이 그림은 컷을 그릴 때 참고 그림으로 함께 보내져 얼굴·옷이 일정하게 유지됩니다.</p>
+                ) : (
+                  <p className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-[11px] font-semibold text-amber-200">
+                    ⚠ 무료 대체 그림이라 컷 그림에 첨부되지 않습니다. 본인 Gemini 키로 [캐릭터 시트 생성]을 다시 누르거나 [이미지 불러오기]로 사진을 등록하면 컷 일관성이 좋아집니다.
+                  </p>
+                )
+              )}
             </div>
           </div>
         )}
