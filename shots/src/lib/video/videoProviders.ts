@@ -74,17 +74,22 @@ async function geminiVideoBytes(json: unknown, key: string, maxBytes: number): P
 
 // ── 제출 ─────────────────────────────────────────────
 // prompt는 호출하는 쪽이 만든다(videoModels.ts motionPrompt 권장). endUrl은 모델이 끝 화면을 지원할 때만 쓴다.
-export async function submitVideoJob(o: { key: string; model: VideoModel; prompt: string; startUrl: string; endUrl?: string; seconds: number; maxBytes?: number }): Promise<SubmitResult> {
+// startUrl·endUrl은 https 주소 또는 data:image/...;base64 주소. startUrl 생략(글만으로 생성)은 Gemini만 된다.
+// aspectRatio는 기본 9:16(세로 쇼츠) — 2026-10-23 뮤직비디오(16:9 가로)용으로 추가, Gemini·fal Seedance에 적용.
+export async function submitVideoJob(o: { key: string; model: VideoModel; prompt: string; startUrl?: string; endUrl?: string; seconds: number; maxBytes?: number; aspectRatio?: "9:16" | "16:9" }): Promise<SubmitResult> {
   const maxBytes = o.maxBytes ?? 30 * 1024 * 1024;
-  const withEnd = !!o.endUrl && o.model.endFrame;
+  const withEnd = !!o.startUrl && !!o.endUrl && o.model.endFrame;
+  const aspect = o.aspectRatio ?? "9:16";
   const base = { provider: o.model.provider, model: o.model.id, withEnd, startedAt: new Date().toISOString(), seconds: o.seconds };
 
+  if (o.model.provider !== "gemini" && !o.startUrl) throw new VideoGenError(400, "frame", "이 영상 모델은 시작 장면 사진이 필요합니다. 장면 사진을 먼저 만들어 주세요.");
+
   if (o.model.provider === "gemini") {
-    const frames = [await fetchFrame(o.startUrl), ...(withEnd ? [await fetchFrame(o.endUrl!)] : [])];
+    const frames = [...(o.startUrl ? [await fetchFrame(o.startUrl)] : []), ...(withEnd ? [await fetchFrame(o.endUrl!)] : [])];
     const body = (background: boolean) => JSON.stringify({
       model: o.model.id,
       input: [...frames.map((f) => ({ type: "image", data: f.data, mime_type: f.mime })), { type: "text", text: `${o.prompt} About ${o.seconds} seconds long.` }],
-      response_format: { type: "video", aspect_ratio: "9:16", resolution: "720p" },
+      response_format: { type: "video", aspect_ratio: aspect, resolution: "720p" },
       ...(background ? { background: true, store: true } : {}),
     });
     const headers = { "x-goog-api-key": o.key, "Content-Type": "application/json" };
@@ -106,7 +111,7 @@ export async function submitVideoJob(o: { key: string; model: VideoModel; prompt
   if (o.model.provider === "fal") {
     const input: Record<string, unknown> = { prompt: o.prompt, image_url: o.startUrl, duration: String(o.seconds), generate_audio: false };
     if (withEnd) input.end_image_url = o.endUrl;
-    if (o.model.id.includes("seedance")) Object.assign(input, { resolution: "720p", aspect_ratio: "9:16" });
+    if (o.model.id.includes("seedance")) Object.assign(input, { resolution: "720p", aspect_ratio: aspect });
     const res = await fetch(`https://queue.fal.run/${o.model.id}`, { method: "POST", headers: { Authorization: `Key ${o.key}`, "Content-Type": "application/json" }, body: JSON.stringify(input), cache: "no-store", signal: AbortSignal.timeout(60_000) });
     if (!res.ok) await providerError("fal", res);
     const json = (await res.json()) as { request_id?: string; status_url?: string; response_url?: string };

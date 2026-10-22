@@ -28,12 +28,12 @@ interface FaqItem {
 
 const FAQS: FaqItem[] = [
   {
-    q: "음악 생성(Suno)과 비디오 생성(Veo)은 어떻게 연결되나요?",
-    a: "1단계에서 음악 기획 및 가사를 작성하고 Suno용 스타일 태그를 추출합니다. Suno(suno.com)에서 음악을 생성한 후, 2단계에서 가사를 타임라인 및 씬별로 나누어 3단계에서 Google Veo를 통해 장면별 비디오 클립을 완성하게 됩니다. 최종적으로 비디오 편집 툴(캡컷, 프리미어 등)에서 Suno 음원과 Veo 클립을 합쳐 완벽한 뮤직비디오를 완성할 수 있습니다.",
+    q: "음악 생성(Suno)과 비디오 생성(Gemini Omni Flash)은 어떻게 연결되나요?",
+    a: "1단계에서 음악 기획 및 가사를 작성하고 Suno용 스타일 태그를 추출합니다. Suno(suno.com)에서 음악을 생성한 후, 2단계에서 가사를 타임라인 및 씬별로 나누어 3단계에서 Google Gemini Omni Flash를 통해 장면별 비디오 클립을 완성하게 됩니다. 최종적으로 비디오 편집 툴(캡컷, 프리미어 등)에서 Suno 음원과 영상 클립을 합쳐 완벽한 뮤직비디오를 완성할 수 있습니다.",
   },
   {
-    q: "Google Veo 비디오 생성 비용은 어떻게 청구되나요?",
-    a: "이 프로그램은 회원님 본인의 Google Gemini API 키로 직접 실행됩니다. Veo 3.1 모델은 초당 약 $0.05(한화 약 70원)의 비용이 구글 클라우드 계정에 직접 청구됩니다. 씬 제작 전 예상 비용이 원화와 달러로 표시되므로 사전에 과금 규모를 안전하게 확인하고 진행하실 수 있습니다.",
+    q: "Google Gemini 영상 생성 비용은 어떻게 청구되나요?",
+    a: "이 프로그램은 회원님 본인의 Google Gemini API 키로 직접 실행됩니다. Gemini Omni Flash 모델(720p)은 초당 약 $0.10(한화 약 140원)의 비용이 구글 계정에 직접 청구됩니다(2026-10-22 Google이 Veo 3.1 Preview를 종료해 교체). 씬 제작 전 예상 비용이 원화와 달러로 표시되므로 사전에 과금 규모를 안전하게 확인하고 진행하실 수 있습니다.",
   },
   {
     q: "심리스 무한 루프(Seamless Loop) 영상은 무엇인가요?",
@@ -41,7 +41,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "장면 이미지만 먼저 생성해보고 비디오는 나중에 만들어도 되나요?",
-    a: "네, 전적으로 가능합니다! 이미지 생성은 Gemini 나노바나나 엔진을 통해 저비용/무료 할당량으로 빠르게 확인하실 수 있습니다. 이미지들의 연출과 비주얼 스타일이 마음에 들었을 때 원하는 장면에만 선택적으로 Veo 비디오 렌더링을 실행할 수 있습니다.",
+    a: "네, 전적으로 가능합니다! 이미지 생성은 Gemini 나노바나나 엔진을 통해 저비용/무료 할당량으로 빠르게 확인하실 수 있습니다. 이미지들의 연출과 비주얼 스타일이 마음에 들었을 때 원하는 장면에만 선택적으로 비디오 생성을 실행할 수 있습니다.",
   },
   {
     q: "전체 프로젝트 ZIP 파일에는 어떤 파일들이 포함되나요?",
@@ -72,7 +72,7 @@ export default function GuidePage() {
             </span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            가사 기획부터 Suno 음악 생성, 비주얼 스토리보드 자동 분할, 그리고 Google Veo 고화질 비디오 렌더링까지 이어지는 4단계 완벽 워크플로우를 안내합니다.
+            가사 기획부터 Suno 음악 생성, 비주얼 스토리보드 자동 분할, 그리고 Google Gemini 영상 생성까지 이어지는 4단계 완벽 워크플로우를 안내합니다.
           </p>
           <div className="flex flex-wrap gap-2.5 pt-2">
             <Link
@@ -161,9 +161,9 @@ export default function GuidePage() {
                 <Video className="h-4 w-4" />
               </div>
             </div>
-            <h3 className="text-sm font-bold text-slate-200">Veo 비디오 렌더링</h3>
+            <h3 className="text-sm font-bold text-slate-200">AI 비디오 생성</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              생성된 이미지를 기반으로 Google Veo 3.1 비디오 모션을 합성하고, 전체 에셋을 ZIP 패키지로 다운로드합니다.
+              생성된 이미지를 기반으로 Google Gemini Omni Flash로 비디오 모션을 만들고, 전체 에셋을 ZIP 패키지로 다운로드합니다.
             </p>
             <div className="rounded-lg bg-slate-950/60 p-2.5 text-[11px] text-slate-400 border border-slate-800/80">
               💡 심리스 루프 On 설정 시 쇼츠 배경용 무한 반복 클립 제작 가능!
@@ -172,7 +172,7 @@ export default function GuidePage() {
         </div>
       </div>
 
-      {/* Suno & Veo 노하우 섹션 */}
+      {/* Suno & 영상 노하우 섹션 */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Suno 음악 생성 치트시트 */}
         <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-6 space-y-4">
@@ -199,15 +199,15 @@ export default function GuidePage() {
           </div>
         </div>
 
-        {/* Google Veo 영상 렌더링 팁 */}
+        {/* Google 영상 생성 팁 */}
         <div className="rounded-2xl border border-pink-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-6 space-y-4">
           <div className="flex items-center gap-2 text-pink-300">
             <Zap className="h-5 w-5" />
-            <h3 className="text-sm font-bold">Google Veo 영상 생성 및 루프 노하우</h3>
+            <h3 className="text-sm font-bold">Google 영상 생성 및 루프 노하우</h3>
           </div>
           <div className="space-y-2.5 text-xs text-slate-300 leading-relaxed">
             <p>
-              Google Veo 엔진을 활용할 때 비용을 아끼고 영상 퀄리티를 극대화하는 핵심 팁입니다:
+              Gemini Omni Flash 영상 모델을 활용할 때 비용을 아끼고 영상 퀄리티를 극대화하는 핵심 팁입니다:
             </p>
             <ul className="space-y-2 text-slate-300">
               <li className="flex items-start gap-2">
@@ -219,7 +219,7 @@ export default function GuidePage() {
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>
-                  <strong>심리스 무한 루프 활용:</strong> 쇼츠나 릴스는 8초 심리스 루프를 On으로 설정하면 처음과 끝이 매끄럽게 이어져 시청 지속시간이 비약적으로 상승합니다.
+                  <strong>심리스 무한 루프 활용:</strong> 쇼츠나 릴스는 심리스 루프를 On으로 설정하면 처음과 끝이 매끄럽게 이어져 시청 지속시간이 비약적으로 상승합니다.
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -242,7 +242,7 @@ export default function GuidePage() {
         <p className="text-xs text-amber-200/90 leading-relaxed">
           AIMaster의 불변 원칙에 따라, 본 프로그램은 <strong>회원님 본인의 Gemini API 키로만 동작</strong>하며 관리자나 다른 회원의 키를 공용으로 사용하지 않습니다.
           <br />
-          Veo 비디오 모델은 구글 클라우드 결제(Pay-as-you-go)가 활성화되어 있어야 API 호출이 승인됩니다. 비용은 구글에서 직접 청구되며, 프로그램 내에서 예상 비용을 달러와 원화로 사전 고지해 드립니다.
+          Gemini 영상 모델은 구글 결제(Pay-as-you-go)가 활성화되어 있어야 API 호출이 승인됩니다. 비용은 구글에서 직접 청구되며, 프로그램 내에서 예상 비용을 달러와 원화로 사전 고지해 드립니다.
         </p>
       </div>
 

@@ -65,7 +65,13 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 
-- **v1.11 (2026-10-18, 현재 버전 - Antigravity 윈도우)**:
+- **v1.12 (2026-10-23, 현재 버전 - Claude Code 윈도우)**: **Veo 3.1 Preview 종료 대응.** Google이 Gemini API의 `veo-3.1-*-generate-preview` 3종을 2026-10-22 종료(공식 문서 확인) → 장면 영상 모델을 **Gemini Omni Flash**(`gemini-omni-1.1-flash`, 초당 약 $0.10, 같은 회원 Gemini 키)로 교체.
+  - 호출은 공용 기준 코드 `ai-video-models`·`ai-video-parse`·`ai-video-providers` 사본(`src/lib/video/*` — 직접 고치지 말 것, 기준 `ai-image-studio/lib/video/`)으로 통일. 기준에 선택값 `aspectRatio`(16:9 가로)·`startUrl` 생략(글만으로 생성) 추가.
+  - `api/music/video/start` → `submitVideoJob`(작업 정보 `job` 응답, 업체가 바로 주면 MP4), `status`(POST `{job}`) → 진행 중 JSON / 완료 시 MP4 바로 응답. `download` API 삭제. `src/lib/music/veo.ts`는 옵션 검사·비용만 남김.
+  - 루프: 끝 화면 = 시작 이미지(8초 고정 규칙 없음). 길이 4·6·8초는 프롬프트 안내(Omni는 길이 칸 없음). 저장된 옛 Veo 모델 값은 자동으로 Omni Flash로 바뀜.
+  - 화면·매뉴얼의 Veo 문구·단가 안내 갱신. 시험 18개 통과(가짜 응답으로 가로 비율·글만·루프 끝 화면 확인).
+  - 플랜: `docs/PLAN_20261023_VEO_TO_OMNI.md`.
+- **v1.11 (2026-10-18 - Antigravity 윈도우)**:
   - **사이버 네온 다크 콘솔 스타일 — 뮤직비디오 앰프 데크 에디션** 전면 UI/UX 리뉴얼.
   - 전 페이지(음악 기획, 스토리보드, 씬 렌더링, API 키 설정, 로그인) 퓨어 딥 블랙(`#060911`) 다크 테마 일체화.
   - 375px 모바일 전용 56px 슬림 네온 헤더 + 슬라이딩 드로어 메뉴 구축으로 모바일 편의성 극대화.

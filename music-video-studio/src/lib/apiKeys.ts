@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export type ApiKeyProvider = "gemini";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  gemini: "Google Gemini API 키 (가사·스토리보드·이미지·Veo 영상 모두에 필수)",
+  gemini: "Google Gemini API 키 (가사·스토리보드·이미지·영상(Gemini Omni Flash) 모두에 필수)",
 };
 
 export const ALL_PROVIDERS: ApiKeyProvider[] = ["gemini"];

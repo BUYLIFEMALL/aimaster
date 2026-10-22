@@ -38,12 +38,13 @@ export const ART_STYLES: (Option<ArtStyleId> & { prompt: string })[] = [
 export const SCENE_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 export type SceneCount = (typeof SCENE_COUNTS)[number];
 
-export type VeoModelId = "veo-3.1-lite-generate-preview" | "veo-3.1-fast-generate-preview" | "veo-3.1-generate-preview";
-/** 초당 요금(USD, 720p·오디오 포함, Gemini API 요금표 기준 — 바뀔 수 있어 화면에서는 "약"으로 안내) */
+// 2026-10-23 v1.12: Google이 Gemini API의 Veo 3.1 Preview 3종을 2026-10-22 종료(ai.google.dev/gemini-api/docs/video) →
+// 공식 대체 Gemini Omni Flash 하나로 교체. 호출은 공용 기준 코드 ai-video-providers(@/lib/video/videoProviders) 사용.
+// 이름(VeoModelId·VEO_MODELS)은 저장된 프로젝트·화면 코드와 맞추려고 그대로 둔다 — 옛 Veo 값은 project.ts가 기본값으로 바꾼다.
+export type VeoModelId = "gemini-omni-1.1-flash";
+/** 초당 요금(USD, 720p, 공용 videoModels.ts 단가와 같음 — 바뀔 수 있어 화면에서는 "약"으로 안내) */
 export const VEO_MODELS: (Option<VeoModelId> & { usdPerSecond: number; note: string })[] = [
-  { value: "veo-3.1-lite-generate-preview", label: "Veo 3.1 Lite", usdPerSecond: 0.05, note: "가장 저렴 · 초안·테스트용" },
-  { value: "veo-3.1-fast-generate-preview", label: "Veo 3.1 Fast", usdPerSecond: 0.1, note: "속도와 품질의 균형" },
-  { value: "veo-3.1-generate-preview", label: "Veo 3.1 Standard", usdPerSecond: 0.4, note: "최고 품질 · 비용 큼" },
+  { value: "gemini-omni-1.1-flash", label: "Gemini Omni Flash", usdPerSecond: 0.1, note: "Google 공식 영상 모델(Veo 3.1 Preview 대체) · 결제 연결된 Gemini 키 필요" },
 ];
 
 export const VIDEO_LENGTHS = [4, 6, 8] as const;

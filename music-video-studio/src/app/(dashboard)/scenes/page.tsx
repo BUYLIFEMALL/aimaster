@@ -91,39 +91,31 @@ export default function ScenesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: scene.prompt, model: video.model, length: video.length, loop: video.loop, ratio: video.ratio, artStyle, image }),
       });
+      // 영상(MP4)이 응답되면 완성 — 시작 때 바로 올 수도, 상태 확인 중에 올 수도 있다
+      const showVideo = async (res: Response) => {
+        const blob = await res.blob();
+        const old = mediaRef.current[scene.id]?.videoUrl;
+        if (old) URL.revokeObjectURL(old);
+        setMedia(scene.id, { videoBusy: false, videoNote: undefined, videoUrl: URL.createObjectURL(blob) });
+      };
+      const isVideo = (res: Response) => (res.headers.get("content-type") ?? "").startsWith("video/");
+      if (start.ok && isVideo(start)) return showVideo(start);
       const started = await start.json();
       if (!start.ok) {
         if (started.needApiKey) setError({ message: started.error, needKey: true });
         setMedia(scene.id, { videoBusy: false, videoNote: undefined, error: started.error || "영상 생성을 시작하지 못했습니다." });
         return;
       }
-      const name = started.operation as string;
+      const job = started.job;
       for (let i = 0; i < MAX_POLLS; i++) {
         await new Promise((r) => setTimeout(r, POLL_MS));
         if (!mounted.current) return;
         setMedia(scene.id, { videoNote: `영상 생성 중… (${Math.round(((i + 1) * POLL_MS) / 1000)}초 경과, 보통 1~3분)` });
-        const st = await fetch(`/api/music/video/status?name=${encodeURIComponent(name)}`);
-        const status = await st.json();
-        if (!st.ok) {
-          setMedia(scene.id, { videoBusy: false, videoNote: undefined, error: status.error || "영상 상태를 확인하지 못했습니다." });
-          return;
-        }
-        if (status.state === "failed") {
-          setMedia(scene.id, { videoBusy: false, videoNote: undefined, error: status.message || "영상 생성에 실패했습니다." });
-          return;
-        }
-        if (status.state === "done") {
-          setMedia(scene.id, { videoNote: "영상을 내려받는 중…" });
-          const file = await fetch(`/api/music/video/download?name=${encodeURIComponent(name)}`);
-          if (!file.ok) {
-            const data = await file.json().catch(() => ({}));
-            setMedia(scene.id, { videoBusy: false, videoNote: undefined, error: data.error || "영상을 내려받지 못했습니다." });
-            return;
-          }
-          const blob = await file.blob();
-          const old = mediaRef.current[scene.id]?.videoUrl;
-          if (old) URL.revokeObjectURL(old);
-          setMedia(scene.id, { videoBusy: false, videoNote: undefined, videoUrl: URL.createObjectURL(blob) });
+        const st = await fetch("/api/music/video/status", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job }) });
+        if (st.ok && isVideo(st)) return showVideo(st);
+        const status = await st.json().catch(() => ({}));
+        if (status.state === "failed" || !st.ok) {
+          setMedia(scene.id, { videoBusy: false, videoNote: undefined, error: status.message || status.error || "영상 생성에 실패했습니다." });
           return;
         }
       }
@@ -177,7 +169,7 @@ export default function ScenesPage() {
       <StepHeader
         step={3}
         title="장면 제작 (Scene Rendering Console)"
-        desc="장면마다 시네마틱 이미지를 생성하고, Veo 엔진을 통해 고화질 비디오 클립으로 렌더링합니다. (회원님 본인 Gemini API 키로 직접 실행)"
+        desc="장면마다 시네마틱 이미지를 생성하고, Gemini Omni Flash 영상 모델로 비디오 클립으로 렌더링합니다. (회원님 본인 Gemini API 키로 직접 실행)"
       />
 
       <Card className="space-y-5 border-cyan-500/30 bg-gradient-to-br from-[#0c1322] via-[#0a0f1d] to-[#070b14]">
@@ -192,7 +184,7 @@ export default function ScenesPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="영상 생성 모델 (Veo Engine)" hint={`${modelInfo.note} · 초당 약 $${modelInfo.usdPerSecond} (720p, 시네마틱 모션)`}>
+          <Field label="영상 생성 모델 (Gemini Omni Flash)" hint={`${modelInfo.note} · 초당 약 $${modelInfo.usdPerSecond} (720p, 시네마틱 모션)`}>
             <select className={SELECT} value={video.model} onChange={(e) => patchVideo({ model: e.target.value as VeoModelId })}>
               {VEO_MODELS.map((m) => (
                 <option key={m.value} value={m.value} className="bg-[#0b101e] text-slate-100">
@@ -201,7 +193,7 @@ export default function ScenesPage() {
               ))}
             </select>
           </Field>
-          <Field label="영상 클립 길이" hint={video.loop ? "심리스 루프 활성화 시 8초로 자동 고정됩니다." : "단일 클립 길이 선택"}>
+          <Field label="영상 클립 길이" hint={video.loop ? "심리스 루프: 끝 화면을 시작 이미지와 같게 맞춥니다. 실제 길이는 AI가 정해 조금 다를 수 있습니다." : "단일 클립 길이 선택(대략값 — 실제 길이는 AI가 정해 조금 다를 수 있습니다)"}>
             <select className={SELECT} value={video.length} onChange={(e) => patchVideo({ length: Number(e.target.value) as VideoLength })}>
               {VIDEO_LENGTHS.map((n) => (
                 <option key={n} value={n} className="bg-[#0b101e] text-slate-100">
@@ -272,7 +264,7 @@ export default function ScenesPage() {
             onClick={() => setConfirm("all")}
           >
             <Film className="h-4 w-4" />
-            <span>영상 일괄 렌더링 (Veo 렌더 랙)</span>
+            <span>영상 일괄 렌더링</span>
           </button>
           <button
             type="button"
@@ -288,7 +280,7 @@ export default function ScenesPage() {
         {confirm === "all" && (
           <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-4 text-xs text-rose-200">
             <p className="font-semibold text-rose-300">
-              전체 {scenes.length}개 장면의 Veo 비디오 생성을 시작합니다.
+              전체 {scenes.length}개 장면의 비디오 생성을 시작합니다.
             </p>
             <p className="mt-1 leading-relaxed text-rose-200/90">
               약 ${totalCost.usd} (약 {totalCost.krw.toLocaleString()}원)의 API 비용이 등록하신 회원님 Gemini 계정에 직접 청구됩니다. 계속 진행하시겠습니까?

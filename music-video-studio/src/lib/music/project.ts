@@ -18,7 +18,7 @@ export function defaultProject(): MusicProject {
     artStyle: "cinematic",
     mood: "",
     scenes: [],
-    video: { model: "veo-3.1-lite-generate-preview", length: 8, loop: false, ratio: "16:9" },
+    video: { model: "gemini-omni-1.1-flash", length: 8, loop: false, ratio: "16:9" },
   };
 }
 

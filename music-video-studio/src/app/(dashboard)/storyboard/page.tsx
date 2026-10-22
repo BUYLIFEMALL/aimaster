@@ -174,7 +174,7 @@ export default function StoryboardPage() {
                 <Field label="매칭 가사 구절">
                   <textarea className={`${INPUT} min-h-16 text-xs`} value={s.lyric} maxLength={300} onChange={(e) => setScene(s.id, { lyric: e.target.value })} />
                 </Field>
-                <Field label="시네마틱 촬영 묘사 (영문 — 이미지 및 Veo 비디오 생성 프롬프트)">
+                <Field label="시네마틱 촬영 묘사 (영문 — 이미지 및 영상 생성 프롬프트)">
                   <textarea className={`${INPUT} min-h-24 text-xs font-mono text-cyan-200 leading-relaxed`} value={s.prompt} maxLength={900} onChange={(e) => setScene(s.id, { prompt: e.target.value })} />
                 </Field>
               </Card>

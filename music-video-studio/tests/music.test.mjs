@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildLyricsPrompt, parseLyrics, buildStoryboardPrompt, parseStoryboard, buildImagePrompt, buildVideoPrompt, extractJson } from "../src/lib/music/prompts.ts";
-import {
-  buildVeoRequest, parseOperationStart, parseOperationStatus, isAllowedVideoUri, isAllowedOperationName, effectiveLength, estimateCost, isVeoModel, isVideoLength,
-} from "../src/lib/music/veo.ts";
+import { effectiveLength, estimateCost, isVeoModel, isVideoLength } from "../src/lib/music/veo.ts";
+import { findVideoModel } from "../src/lib/video/videoModels.ts";
+import { submitVideoJob, checkVideoJob, VideoGenError } from "../src/lib/video/videoProviders.ts";
 import { defaultProject, sanitizeProject } from "../src/lib/music/project.ts";
 import { VEO_MODELS, GENRES } from "../src/lib/music/presets.ts";
 
@@ -43,53 +43,68 @@ test("이미지·영상 프롬프트: 화풍·루프 문구", () => {
   assert.ok(!/loops seamlessly/.test(buildVideoPrompt({ prompt: "x" }, "anime", false)));
 });
 
-test("Veo 요청: 텍스트만 / 이미지 / 루프(첫·마지막 프레임, 8초 고정)", () => {
-  const a = buildVeoRequest({ model: "veo-3.1-lite-generate-preview", prompt: "p", ratio: "16:9", length: 6, loop: true });
-  assert.equal(a.url, "https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-lite-generate-preview:predictLongRunning");
-  assert.deepEqual(a.body, { instances: [{ prompt: "p" }], parameters: { aspectRatio: "16:9", durationSeconds: 6 } });
-  const img = { mimeType: "image/jpeg", data: "AAAA" };
-  const b = buildVeoRequest({ model: "veo-3.1-fast-generate-preview", prompt: "p", ratio: "9:16", length: 4, loop: false, image: img });
-  assert.deepEqual(b.body.instances[0].image, { inlineData: img });
-  assert.equal(b.body.instances[0].lastFrame, undefined);
-  assert.equal(b.body.parameters.durationSeconds, 4);
-  const c = buildVeoRequest({ model: "veo-3.1-fast-generate-preview", prompt: "p", ratio: "9:16", length: 4, loop: true, image: img });
-  assert.deepEqual(c.body.instances[0].lastFrame, { inlineData: img });
-  assert.equal(c.body.parameters.durationSeconds, 8);
-  assert.equal(effectiveLength(4, true, true), 8);
-  assert.equal(effectiveLength(4, true, false), 4);
+// 2026-10-23 v1.12: Veo 3.1 Preview 종료 → 공용 ai-video-providers(Gemini Omni Flash). 실제 호출 없이 fetch를 가짜로 바꿔 요청 모양을 본다.
+async function captureGemini(opts, reply = { id: "interactions/abc123", status: "in_progress" }) {
+  const calls = [];
+  const real = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    if (String(url).startsWith("data:")) return real(url);
+    calls.push({ url: String(url), body: init?.body ? JSON.parse(init.body) : null, headers: init?.headers });
+    return new Response(JSON.stringify(reply), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+  try { return { result: await submitVideoJob({ key: "k", model: findVideoModel("gemini-omni-1.1-flash"), prompt: "p", seconds: 6, ...opts }), calls }; }
+  finally { globalThis.fetch = real; }
+}
+const PNG = "data:image/png;base64," + Buffer.from("x".repeat(2000)).toString("base64");
+
+test("Omni Flash 요청: 글만 · 가로 비율 · 백그라운드 작업", async () => {
+  const { result, calls } = await captureGemini({ aspectRatio: "16:9" });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://generativelanguage.googleapis.com/v1beta/interactions");
+  assert.equal(calls[0].body.model, "gemini-omni-1.1-flash");
+  assert.equal(calls[0].body.response_format.aspect_ratio, "16:9");
+  assert.equal(calls[0].body.background, true);
+  assert.deepEqual(calls[0].body.input.map((i) => i.type), ["text"]);
+  assert.match(calls[0].body.input[0].text, /About 6 seconds long/);
+  assert.equal(calls[0].headers["x-goog-api-key"], "k");
+  assert.equal(result.job.id, "interactions/abc123");
+  assert.equal(result.job.withEnd, false);
 });
 
-test("Veo 응답: 시작·진행·완료·실패·안전필터", () => {
-  assert.equal(parseOperationStart({ name: "models/veo-3.1-lite-generate-preview/operations/abc123" }), "models/veo-3.1-lite-generate-preview/operations/abc123");
-  assert.equal(parseOperationStart({ name: "../../etc/passwd" }), null);
-  assert.deepEqual(parseOperationStatus({ done: false }), { state: "running" });
-  const uri = "https://generativelanguage.googleapis.com/v1beta/files/abc:download?alt=media";
-  assert.deepEqual(parseOperationStatus({ done: true, response: { generateVideoResponse: { generatedSamples: [{ video: { uri } }] } } }), { state: "done", videoUri: uri });
-  assert.equal(parseOperationStatus({ done: true, error: { message: "secret detail" } }).state, "failed");
-  assert.equal(parseOperationStatus({ done: true, error: { message: "secret detail" } }).message.includes("secret"), false);
-  assert.equal(parseOperationStatus({ done: true, response: { generateVideoResponse: { raiMediaFilteredReasons: ["x"] } } }).state, "failed");
-  // 다른 주소의 결과는 받아들이지 않는다
-  assert.equal(parseOperationStatus({ done: true, response: { generateVideoResponse: { generatedSamples: [{ video: { uri: "https://evil.example/x.mp4" } }] } } }).state, "failed");
+test("Omni Flash 요청: 이미지 → 영상, 루프면 끝 화면도 같은 이미지, 비율 기본 9:16", async () => {
+  const one = await captureGemini({ startUrl: PNG });
+  assert.deepEqual(one.calls[0].body.input.map((i) => i.type), ["image", "text"]);
+  assert.equal(one.calls[0].body.input[0].mime_type, "image/png");
+  assert.equal(one.calls[0].body.response_format.aspect_ratio, "9:16");
+  const loop = await captureGemini({ startUrl: PNG, endUrl: PNG, aspectRatio: "16:9" });
+  assert.deepEqual(loop.calls[0].body.input.map((i) => i.type), ["image", "image", "text"]);
+  assert.equal(loop.result.job.withEnd, true);
 });
 
-test("내려받기·작업 이름 허용 목록", () => {
-  assert.equal(isAllowedVideoUri("https://generativelanguage.googleapis.com/v1beta/files/a:download?alt=media"), true);
-  assert.equal(isAllowedVideoUri("http://generativelanguage.googleapis.com/x"), false);
-  assert.equal(isAllowedVideoUri("https://generativelanguage.googleapis.com.evil.com/x"), false);
-  assert.equal(isAllowedVideoUri("https://user:pw@generativelanguage.googleapis.com/x"), false);
-  assert.equal(isAllowedVideoUri("not a url"), false);
-  assert.equal(isAllowedOperationName("models/m/operations/o-1"), true);
-  assert.equal(isAllowedOperationName("models/m/operations/../x"), false);
-  assert.equal(isVeoModel("veo-3.1-generate-preview"), true);
-  assert.equal(isVeoModel("veo-9"), false);
+test("Omni Flash: 바로 끝난 응답은 영상 바이트, 사진 필요한 업체는 사진 없이 거절", async () => {
+  const mp4 = Buffer.alloc(4000, 1).toString("base64");
+  const done = await captureGemini({}, { id: "interactions/x1", status: "completed", steps: [{ content: [{ type: "video", mime_type: "video/mp4", data: mp4 }] }] });
+  assert.ok("bytes" in done.result, "완료 응답이면 영상 바이트를 바로 돌려준다");
+  await assert.rejects(() => submitVideoJob({ key: "k", model: findVideoModel("fal-ai/kling-video/o3/standard/image-to-video"), prompt: "p", seconds: 5 }), (e) => e instanceof VideoGenError && e.code === "frame");
+});
+
+test("옵션 검사·비용: Omni Flash 하나, 옛 Veo 값 거부", () => {
+  assert.equal(isVeoModel("gemini-omni-1.1-flash"), true);
+  assert.equal(isVeoModel("veo-3.1-lite-generate-preview"), false);
   assert.equal(isVideoLength(8), true);
   assert.equal(isVideoLength(5), false);
+  assert.equal(effectiveLength(4, true, true), 4);
+  assert.deepEqual(estimateCost("gemini-omni-1.1-flash", 8), { usd: 0.8, krw: 1120 });
+  assert.equal(estimateCost("gemini-omni-1.1-flash", 8, 4).usd, 3.2);
+  assert.equal(VEO_MODELS.length, 1);
+  assert.equal(typeof checkVideoJob, "function");
 });
 
-test("비용 추정: 모델·길이·장면 수", () => {
-  assert.deepEqual(estimateCost("veo-3.1-lite-generate-preview", 8), { usd: 0.4, krw: 560 });
-  assert.equal(estimateCost("veo-3.1-generate-preview", 8, 4).usd, 12.8);
-  assert.equal(VEO_MODELS.length, 3);
+test("저장된 옛 프로젝트: Veo 모델 값은 Omni Flash로 바뀐다", () => {
+  const s = sanitizeProject({ video: { model: "veo-3.1-generate-preview", length: 6, loop: true, ratio: "9:16" } });
+  assert.equal(s.video.model, "gemini-omni-1.1-flash");
+  assert.equal(s.video.length, 6);
+  assert.equal(s.video.ratio, "9:16");
 });
 
 test("프로젝트 정리: 범위·허용 목록·기본값", () => {

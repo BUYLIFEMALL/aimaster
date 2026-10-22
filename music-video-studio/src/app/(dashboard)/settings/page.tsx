@@ -192,7 +192,7 @@ export default function SettingsPage() {
         provider="gemini"
         title="Google Gemini API 키"
         required
-        description="가사·스토리보드 기획(Gemini 2.5), 장면 비주얼(나노바나나), 시네마틱 영상(Veo 3.1) 생성 엔진에 모두 사용됩니다."
+        description="가사·스토리보드 기획(Gemini 2.5), 장면 비주얼(나노바나나), 시네마틱 영상(Gemini Omni Flash) 생성 엔진에 모두 사용됩니다."
         placeholder="AIzaSy... 로 시작하는 본인 Gemini API 키 입력"
         {...common}
       />
@@ -201,7 +201,7 @@ export default function SettingsPage() {
         <p className="flex items-start gap-2.5">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
           <span className="leading-relaxed">
-            Google Veo 비디오 생성 기능은 결제가 연결된(Pay-as-you-go) Google Cloud 프로젝트 키에서만 실행 가능합니다.
+            Google Gemini 영상 생성 기능은 결제가 연결된(Pay-as-you-go) Google Cloud 프로젝트 키에서만 실행 가능합니다.
             영상 생성 길이에 따라 초당 약 $0.05가 회원님 계정에 직접 청구되며, 장면 제작 화면에서 예상 비용을 사전에 확인하실 수 있습니다.
           </span>
         </p>

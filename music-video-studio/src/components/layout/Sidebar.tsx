@@ -14,7 +14,7 @@ interface SidebarProps {
 const FLOW_STEPS = [
   { step: 1, href: "/music", label: "음악·가사 기획", description: "주제·장르 가사 & Suno 스타일", icon: FileText },
   { step: 2, href: "/storyboard", label: "스토리보드 분할", description: "가사 타임코드별 장면 기획", icon: Clapperboard },
-  { step: 3, href: "/scenes", label: "장면 영상 제작", description: "장면 이미지 & Veo 영상 렌더링", icon: Film },
+  { step: 3, href: "/scenes", label: "장면 영상 제작", description: "장면 이미지 & AI 영상 생성", icon: Film },
 ];
 
 const UTILITY_ITEMS = [
