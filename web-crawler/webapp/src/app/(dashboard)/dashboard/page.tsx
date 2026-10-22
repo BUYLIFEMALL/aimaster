@@ -127,7 +127,7 @@ export default async function DashboardPage() {
                     <td className="text-right tabular-nums">{job.row_count ?? "-"}</td>
                     <td className="text-right">
                       {job.status === "completed" && job.result_url ? (
-                        <a href={job.result_url} className="text-xs font-semibold text-mx-link hover:underline">
+                        <a href={`/api/jobs/${job.id}/download`} className="text-xs font-semibold text-mx-link hover:underline">
                           📥 엑셀
                         </a>
                       ) : null}

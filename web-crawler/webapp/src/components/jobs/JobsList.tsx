@@ -117,7 +117,7 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
               <StatusBadge status={job.status} />
               {job.status === "completed" && job.result_url && (
                 <a
-                  href={job.result_url}
+                  href={`/api/jobs/${job.id}/download`} // v1.10: 비공개 버킷 — 본인 확인 뒤 10분짜리 임시 주소
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-lg bg-mx-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-mx-raised"
