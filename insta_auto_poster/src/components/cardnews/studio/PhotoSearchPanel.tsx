@@ -6,6 +6,10 @@ import { PHOTO_PROVIDERS, type Photo, type PhotoProvider } from "@/lib/cardnews/
 import type { RatioId } from "@/lib/cardnews/presets";
 import { BTN_GHOST, ErrorNote, INPUT, SELECT } from "@/components/cardnews/studio/ui";
 
+// 공용 입력 클래스의 w-full이 좁은 칸 너비(w-28)를 덮어써서 한 줄 배치가 깨지므로 너비만 빼고 쓴다.
+const NARROW_SELECT = SELECT.replace("w-full ", "");
+const FLEX_INPUT = INPUT.replace("w-full ", "");
+
 /** 페이지 카드 안의 「📷 무료 사진 검색」(v1.63) — 회원 본인 Pixabay·Pexels 키, 고르면 그 장의 배경이 된다. */
 export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked }: { defaultQuery: string; ratio: RatioId; disabled?: boolean; onPicked: (url: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -61,14 +65,14 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked }: { 
   return (
     <div className="space-y-2 rounded-xl border border-[#262c3d] bg-[#0d0f17] p-2.5" data-photo-search>
       <div className="flex gap-1.5">
-        <select aria-label="사진 제공처" className={`${SELECT} w-28 shrink-0 px-2 py-1.5 text-xs`} value={provider} onChange={(e) => setProvider(e.target.value as PhotoProvider)}>
+        <select aria-label="사진 제공처" className={`${NARROW_SELECT} w-24 shrink-0 px-2 py-1.5 text-xs`} value={provider} onChange={(e) => setProvider(e.target.value as PhotoProvider)}>
           {PHOTO_PROVIDERS.map((p) => (
             <option key={p.value} value={p.value}>
               {p.label}
             </option>
           ))}
         </select>
-        <input aria-label="사진 검색어" className={`${INPUT} min-w-0 px-2.5 py-1.5 text-xs`} value={query} maxLength={100} placeholder="예: 커피, office, 바다" onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void search()} />
+        <input aria-label="사진 검색어" className={`${FLEX_INPUT} min-w-0 flex-1 px-2.5 py-1.5 text-xs`} value={query} maxLength={100} placeholder="예: 커피, office, 바다" onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void search()} />
         <button type="button" aria-label="사진 검색" disabled={!query.trim() || !!busy} onClick={() => void search()} className={`${BTN_GHOST} shrink-0 px-2.5 py-1.5 text-xs`}>
           {busy === "search" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
         </button>
