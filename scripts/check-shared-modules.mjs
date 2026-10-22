@@ -374,7 +374,7 @@ const MODULES = [
       "threads-content-ops/lib/memberScheduler.ts", "threads/src/lib/posts/memberScheduler.ts", "insta_auto_poster/src/lib/posts/memberScheduler.ts", "threads-affiliate-poster/src/lib/posts/memberScheduler.ts",
       "booking-reminder/lib/schedulerMember/memberScheduler.ts", "crm-google-form/lib/schedulerMember/memberScheduler.ts", "kakao_auto_poster/src/lib/schedulerMember/memberScheduler.ts",
       "naver-cafe-poster/src/lib/scheduledSource/memberScheduler.ts", "stepmail/lib/schedulerMember/memberScheduler.ts", "trending-product-finder/lib/schedulerMember/memberScheduler.ts",
-      "youtube-auto-reply/lib/schedulerMember/memberScheduler.ts",
+      "youtube-auto-reply/lib/schedulerMember/memberScheduler.ts", "threads-comment-reply/lib/schedulerMember/memberScheduler.ts",
     ],
   },
   {
