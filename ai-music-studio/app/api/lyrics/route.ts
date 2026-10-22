@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi, getUserApiKey, logProgramUsage } from "@/lib/access";
+import { fitLyrics, maxLyricLines } from "@/lib/lyricsLength";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -13,10 +14,11 @@ const OPENAI_MODEL = "gpt-4o-mini";
 const LANG_KO: Record<string, string> = { auto: "곡 설명과 같은 언어", Korean: "한국어", English: "영어", Japanese: "일본어", Chinese: "중국어", Spanish: "스페인어" };
 
 function systemPrompt(language: string, durationS: number) {
-  const lines = durationS <= 45 ? "8~12줄" : durationS <= 120 ? "16~24줄" : "24~36줄";
+  const max = maxLyricLines(durationS);
+  const shortSong = durationS <= 45;
   return [
     "당신은 대중음악 작사가입니다. 회원이 적은 곡 설명에 맞는 노래 가사와 제목을 씁니다.",
-    `가사 언어: ${LANG_KO[language] ?? LANG_KO.auto}. 분량: 구간 표시를 뺀 가사 ${lines}.`,
+    `가사 언어: ${LANG_KO[language] ?? LANG_KO.auto}. 곡 길이 약 ${durationS}초 — 구간 표시를 뺀 가사는 반드시 ${max}줄 이하로 씁니다.${shortSong ? " 짧은 곡이므로 [Verse] 하나와 [Chorus] 하나만 씁니다." : ""}`,
     "구간 표시는 대괄호 영어로 씁니다: [Verse 1], [Pre-Chorus], [Chorus], [Verse 2], [Bridge], [Outro] 등. 짧은 곡은 [Verse]·[Chorus]만 써도 됩니다.",
     "후렴은 부르기 쉽게 반복되는 한두 줄을 넣습니다. 실존 가수·곡 이름, 기존 곡 가사 인용, 브랜드 이름은 쓰지 않습니다.",
     '반드시 JSON 한 개만 출력합니다: {"title": "제목(40자 이내)", "lyrics": "가사 전체(줄바꿈은 \\n)"}',
@@ -83,7 +85,8 @@ export async function POST(request: Request) {
       text = json?.choices?.[0]?.message?.content ?? "";
     }
     const parsed = JSON.parse(text.replace(/^```(?:json)?|```$/g, "").trim()) as { title?: string; lyrics?: string };
-    const lyrics = String(parsed.lyrics ?? "").replace(/\r\n/g, "\n").trim().slice(0, 5000);
+    // AI가 줄 수 지시를 넘기는 경우가 있어(2026-10-23 실사례 30초에 27줄) 구간 단위로 잘라 분량을 보장한다
+    const lyrics = fitLyrics(String(parsed.lyrics ?? "").slice(0, 5000), maxLyricLines(durationS));
     if (!lyrics) throw new Error("빈 가사");
     await logProgramUsage(user.id, "generate_lyrics", 1, { provider: geminiKey ? "gemini" : "openai" });
     return NextResponse.json({ title: String(parsed.title ?? "").trim().slice(0, 80), lyrics });
