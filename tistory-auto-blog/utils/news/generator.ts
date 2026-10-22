@@ -6,6 +6,7 @@ import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, res
 import { removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
 import { sanitizeBodyYear, sanitizeYear } from '@/blog/utils/yearPolicy'
 import { sourceMaterialRule, type SourceMaterial } from '@/blog/utils/postSource'
+import { dropRepeatedHeading } from './headingDedupe'
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -118,6 +119,8 @@ async function generateWithContentModel(
   const toneRule = options.tone ? `- 글 분위기 (Tone): '${options.tone}' 어조와 문체로 작성하세요.` : ''
   const audienceRule = options.targetAudience ? `- 대상 독자 (Target Audience): '${options.targetAudience}' 독자층을 염두에 두고 맞춤형 용어와 어조로 작성하세요.` : ''
   const wordCountRule = options.wordCount ? `- 목표 단어 수 (Word Count): 약 ${options.wordCount}단어 (공백 제외 약 ${Math.round(options.wordCount * 3.5)}자 이상)로 풍부하게 작성하세요.` : ''
+  // 2026-10-23: 전체 목표 분량을 문단 4개에 나눈 최소 글자 수(gpt-4o-mini가 1,000단어 지시에도 1,200자 정도로 짧게 쓰던 문제, 글 18번)
+  const minPerParagraph = Math.max(500, Math.round((options.wordCount ? options.wordCount * 3.5 : 2000) / 4))
   const referenceRule = options.referenceUrls && options.referenceUrls.length > 0 ? `- 참고 URL: ${options.referenceUrls.join(', ')}` : ''
   const customRule = options.customInstructions ? `- 추가 필수 지시사항 (Custom Instructions): ${options.customInstructions} (★ 이 지침을 최우선으로 반영할 것)` : ''
 
@@ -151,10 +154,10 @@ ${koreaNowRule()}
 2. 소제목 및 문단 구성: { "제목", "요약글", "소제목 1", "소제목 2", "소제목 3", "소제목 4", "문단 1", "문단 2", "문단 3", "문단 4" } 4개의 독립적인 소제목과 문단으로 구성하세요. 4개 문단은 서로 다른 핵심 내용을 다루세요.
 3. 태그 사용 필수 룰:
    - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3", "소제목 4")은 마크다운 ## (<h2>) 태그로 표현됩니다.
-   - 글 전체 내용 중 구체적 세부 설명 부분에 마크다운 ### (<h3>) 태그를 정확히 3번 사용하세요.
+   - 글 전체 내용 중 구체적 세부 설명 부분에 마크다운 ### (<h3>) 태그를 정확히 3번 사용하세요. ### 작은 제목은 바로 위 ## 소제목과 다른 문구로 쓰고, 소제목 문구를 그대로 되풀이하지 마세요.
    - 글 전체 내용 중 리스트 또는 핵심 질문/답변 목록 부분에 마크다운 - (<li>) 태그를 2번 이상 사용하세요.
 4. 분량 및 딥다이브 설명:
-   - 각 문단("문단 1", "문단 2", "문단 3", "문단 4")은 구체적인 정보, 설명, 풍부한 예시를 포함하여 총 전체 글자 수가 공백 제외 2,000자 이상이 되도록 길고 풍부하게 작성하세요.
+   - 각 문단("문단 1", "문단 2", "문단 3", "문단 4")은 구체적인 정보, 설명, 풍부한 예시를 포함하여 문단마다 공백 제외 ${minPerParagraph}자 이상(전체 ${minPerParagraph * 4}자 이상)이 되도록 길고 풍부하게 작성하세요. 짧게 요약하지 마세요.
 5. 가독성 및 톤앤매너:
    - 정보성 글을 작성하되, 사람들이 끝까지 읽기 편하도록 대학생 수준에서 편하게 읽을 수 있는 명확하고 친절한 어조로 작성하세요.
    - 구글 검색 사용자의 검색 의도를 고려하여 질의-답변(Q&A) 구조와 명쾌한 해결책을 제시하세요.
@@ -232,7 +235,7 @@ ${koreaNowRule()}
   const imageBySection = new Map(paragraphGroups.map((group, groupIndex) => [group[0], images[groupIndex + 1]?.url || '']))
   const renderSection = (index: number) => {
     const line = imageBySection.has(index) ? imageLine(`${headings[index]} 비주얼`, imageBySection.get(index) || '') : ''
-    return [`## ${headings[index]}`, line, sectionBodies[index]].filter(Boolean).join('\n\n')
+    return [`## ${headings[index]}`, line, dropRepeatedHeading(sectionBodies[index], headings[index])].filter(Boolean).join('\n\n')
   }
 
   const contentMarkdown = removeDecorativeQuotes(`

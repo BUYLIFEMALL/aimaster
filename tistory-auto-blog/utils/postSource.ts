@@ -76,5 +76,5 @@ export function sourceMaterialRule(material: SourceMaterial | null | undefined):
   const title = clip(material.title, 200)
   const summary = clip(material.summary, 1200)
   if (!title && !summary) return ''
-  return `- 참고 자료(회원이 모은 글감, 출처: ${clip(material.label, 300)}): 제목 「${title}」 / 요약 「${summary}」 — 이 자료에 있는 사실을 근거로 쓰고, 자료에 없는 수치·날짜·고유명사·인용은 지어내지 마세요. 확인되지 않은 내용은 일반적인 설명으로만 쓰세요.`
+  return `- 참고 자료(회원이 모은 글감, 출처: ${clip(material.label, 300)}): 제목 「${title}」 / 요약 「${summary}」 — 이 자료에 있는 사실을 근거로 쓰고, 자료에 있는 인물·장소·연도·수치 같은 구체적 사실은 흐리거나 빼지 말고 본문에 그대로 살려 쓰세요. 자료에 없는 수치·날짜·고유명사·인용은 지어내지 마세요. 확인되지 않은 내용은 일반적인 설명으로만 쓰세요.`
 }
