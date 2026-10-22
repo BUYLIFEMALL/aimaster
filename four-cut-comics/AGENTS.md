@@ -172,7 +172,7 @@
 
 - 2026-10-22 (Claude Code 윈도우): 위 `.fcc-week` CSS 누락을 `node scripts/check-shared-modules.mjs`가 자동으로 찾음(`PLAIN_CSS_COPIES`, 빠진 클래스 이름을 `FAIL CSS`로 보고). 규칙 하나를 빼서 잡히는지 확인함.
 
-## 2026-10-22 ⏸ 미배포 — 막대를 누른 날의 게시 기록 강조 (Claude Code 윈도우, 주인님 지시: 저장소에만 반영)
+## 2026-10-22 ✅ 배포됨(v1.29, 다른 세션의 v1.29 배포 `83331157c`에 함께 포함) — 막대를 누른 날의 게시 기록 강조 (Claude Code 윈도우, 주인님 지시: 저장소에만 반영)
 - 「📊 최근 7일 게시」에서 막대를 고르면 바로 아래 `InstaPostHistory`에서 그날 게시 완료 항목을 브랜드 색 테두리·`--selected` 배경으로 강조하고 첫 항목이 보이게 스크롤. 막대를 다시 누르거나 그래프를 접으면 강조 해제. 공용 `InstaWeekPosts`가 보내는 브라우저 이벤트 `insta-week-day`(`INSTA_WEEK_DAY_EVENT`, 그날 범위 또는 null)를 들음 — 「내 작품」·「만화 만들기」 두 곳 모두.
 - tsc·테스트 56·로컬 build 통과. **다음 네컷 배포 때 함께(v1.29)**, 그때 크롬에서 강조 확인 뒤 「배포됨」으로.
 
@@ -180,3 +180,5 @@
 - 새 `src/lib/comic/imageSize.ts`: `jpegSize`(JPEG 머리 정보 SOF에서 가로·세로, 의존성 없음)·`convertPresetFor`(±3% 규격 매칭). `saved.ts` `saveComic`이 서버 보관 저장 때 `width`·`height`를 목록(index.json)에 기록(화면 값을 믿지 않고 저장 JPEG에서 읽음). `ServerWorks.tsx` 형식 바꾸기 링크에 `&preset=`(이미지 변환 스튜디오 v1.13이 받음). 크기 없는 옛 저장분은 규격 없이 그대로.
 - 검수: 시험 59개(새 `tests/imageSize.test.mjs` 3개)·build, 배포 `four-cut-comics-5tg6me2ll` Ready, DB v1.29. 크롬(시험 회원): 1080×1080 시험 JPEG 보관 저장 → 목록 width/height 1080 → 링크 `preset=insta-feed` 확인 → 시험 항목 삭제(AI 호출 없음).
 - ⏸ 미배포(2026-10-22): `convertPresetFor`가 공용 사본 `src/lib/comic/postPresets.ts`(`presetIdForSize`)를 씀(동작 같음, 시험 59개). 사본 직접 수정 금지 — 기준 `image-convert-studio/src/lib/imageTools/postPresets.ts`.
+
+- 2026-10-22 (Claude Code 윈도우): 위 강조 기능은 다른 세션의 v1.29 배포(저장 작품 실제 크기 기록, 커밋 `83331157c`)에 함께 나감 — 운영 DB·코드 v1.29 확인. 시험 계정에 최근 7일 게시가 없어 강조 모양은 실제 게시가 생기면 화면으로 확인.
