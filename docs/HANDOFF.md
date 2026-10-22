@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): INSTA 포스팅 v1.65~v1.66 무료 사진 — 장마다 서로 다른 사진·설정 연결 확인·피드 직접 첨부, Enter 제출 버그 즉시 수정
+- 한 일: 자동 채우기 「장마다 서로 다른 사진」, 설정 「Pixabay/Pexels 연결 확인」, 피드 새 글 「무료 사진으로 첨부」(JPEG로 `insta-post-images` 저장) + 지난 미배포분(자동 채우기·출처 배지·공용 기준 코드 `free-photo-search`) 함께 v1.65 배포. 검수 중 사진 검색어 Enter가 새 글 양식까지 제출하는 회원 피해 버그 발견 → v1.66 즉시 수정(`docs/ERROR_LESSONS.md` 맨 위). 웹툰·4컷 연계는 「맞지 않음(컷이 AI 그림)」으로 정정.
+- 검수: 시험 75·tsc·빌드, 배포 v1.65·v1.66 Ready, DB v1.66, 크롬(관리자 본인 Pixabay 키)에서 같은 제목 3장 → 서로 다른 사진 3장, 배지 12장, 연결 확인 ✅, 피드 첨부 JPEG 402KB, v1.66 Enter는 검색만. 시험 데이터 삭제. 미확인: Pexels·휴대폰 폭·실제 게시.
+- 비용: Vercel 빌드 2회(승인), Pixabay 무료 약 12회, AI 0회. 감성 글귀 사본은 계속 미배포 대기.
+- 링크: https://auto-instagram-posting.buylife.xyz/cardnews/background · https://auto-instagram-posting.buylife.xyz/posts/new
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ⏳ SEO 스튜디오 입력 속도 한 단계 낮춤 (미배포 대기 · 빌드 0회 · AI 0회)
 - 주인님 「속도가 너무 빠르다 조금만 천천히」 → 확장 묶음 입력 1~3글자. 작은 수정이라 배포 지침대로 커밋만(다음 배포 v2.08 때 함께). 주인님 웨일 확장은 저장소 폴더를 바로 써서 새로고침만으로 시험 가능. `docs/PENDING_DEPLOYS.md` 대기 표.
 - 프로그램: https://naver-blog-seo-studio.buylife.xyz

@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.64` (2026-10-23)
+- **현재 버전**: `v1.66` (2026-10-23)
+- **v1.65~v1.66 (2026-10-23)**: 자동 채우기 「장마다 서로 다른 사진」·설정 연결 확인·피드 직접 첨부 무료 사진, Enter 제출 버그 수정 — 아래 v1.65 절.
 - **v1.63~v1.64 (2026-10-23)**: 카드뉴스 4단계 배경에 📷 무료 사진 검색(회원 본인 Pixabay·Pexels 키) — 아래 v1.63 절.
 - **v1.60 (2026-10-22)**: 「⚠ 겹침 n」을 누르면 겹친 구절 펼치기 — 아래 v1.60 절.
 - **v1.59 (2026-10-22)**: 「⚠ 겹침」에 겹친 구절 표시 — 아래 v1.59 절.
@@ -398,3 +399,10 @@
 ### 2026-10-23 🟡 미배포 대기 (운영 v1.64 그대로) — 전체 무료 사진 자동 채우기 · 출처 배지 · 공용 기준 코드 `free-photo-search` (Claude Code 윈도우, 커밋 `428fcdfc3`)
 - 배경 화면 「전체 무료 사진 자동 채우기」·썸네일 출처 배지, `photoSearch.ts`를 공용 기준 코드로(사본 `emotion-writer/src/lib/studio/photoSearch.ts`, **사본은 직접 고치지 말고 이 파일만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`**). 상세 `docs/IMPROVEMENTS.md` 맨 위.
 - 검수: `test:cardnews` 73개, tsc 0, 로컬 build, `check-shared-modules` 일치. 크롬 화면 검수는 다음 배포 때. 비용 없음(빌드 0회).
+
+### 2026-10-23 v1.65~v1.66 — 무료 사진: 서로 다른 사진 · 연결 확인 · 피드 직접 첨부 (Claude Code 윈도우)
+- v1.65(커밋 `b0e3a6566`, 지난 미배포분 `428fcdfc3` 함께 나감 — 자동 채우기·출처 배지·공용 기준 코드 `free-photo-search`): 자동 채우기 「장마다 서로 다른 사진」(기본 켬, 이번 채우기에서 고른 제공처 주소를 고르는 순간 공용 목록에 넣어 동시 처리에도 겹치지 않음), 설정 「Pixabay/Pexels 연결 확인」(`src/components/settings/PhotoKeyCheckButton.tsx`, 키 등록된 제공처만, 기존 search 1회), 피드 새 글 「무료 사진으로 첨부」(`PostForm.tsx`, 사진 API `pick` + `target: "feed"` → `sharp` JPEG 긴 변 1440px → `insta-post-images/<회원>/`, 배포판 숨김).
+- v1.66(커밋 `92746d95f`, **회원 피해 버그 즉시 수정**): v1.65에서 사진 검색 칸이 새 글 `<form>` 안에 들어가 검색어 Enter가 「게시물 생성하기」까지 제출(주제가 있으면 회원 키 AI 생성·즉시 게시 위험) → `PhotoSearchPanel` Enter에 `preventDefault()`. 연결 확인 버튼에 제공처 이름.
+- 검수: `test:cardnews` 75개·`test:own-meta`·`test:import` 2개, tsc 0, 로컬 build, `check-shared-modules` 일치. 배포 `insta-auto-poster-ev8549dti`(v1.65)·`insta-auto-poster-5ijujbd8q`(v1.66) Ready, DB v1.66. 크롬(관리자 본인 Pixabay 키): 제목이 모두 「coffee」인 3장 자동 채우기 → 서로 다른 사진 3장 · 검색 결과 12장 모두 「Pixabay」 배지 · 설정 연결 확인 「✅ 연결됨 — 사진 12장」(Pexels는 키 없어 버튼 숨김) · 피드 새 글 cafe 검색 → 첫 사진 9초 안에 첨부(JPEG 402KB, 공개 주소 200), 1장 차면 칸 숨김 · v1.66에서 검색어 Enter → 검색만(빨간 안내 없음). 시험 작업·사진 모두 삭제.
+- 미확인: Pexels 실검색, 키 없을 때 자동 채우기 안내 1번(코드·시험으로만), 휴대폰 폭, 실제 인스타 게시.
+- 비용: Vercel 빌드 2회(1회 승인 + 긴급 수정 1회 추가 승인), Pixabay 검색·받기 약 12회(무료, 관리자 본인 키), AI 0회.
