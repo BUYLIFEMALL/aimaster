@@ -115,3 +115,9 @@
 - 화면 위 배지가 「v1.10」 고정 글자였던 것을 `APP_VERSION`으로.
 - 버전 v1.11(`lib/version.ts`·`package.json` 1.11.0, SQL `supabase/migrations/20261022_trim_zip_v1_11.sql` — 버전만). 검수: tsc 0, eslint 0, 구간 함수 무료 시험 7가지 통과(빈칸·시작만·끝만·둘 다·끝<시작·음수·길이 초과), 공용 코드 점검 사본 일치.
 - **윈도우 CLI 다음 첫 단계**: SQL `20261022_trim_zip_v1_11.sql` → `video-to-gif` 배포 1회. 크롬 확인은 맥미니(짧은 시험 영상 2개로 구간 변환·전체 ZIP).
+
+## 2026-10-22 ✅ v1.11 배포 (Claude Code 윈도우 — 맥미니 v1.11 마무리)
+- 맥미니 커밋 `4ebf21518`(파일마다 구간 자르기·완료된 GIF 전체 ZIP·변환 엔진 불러오기 실패 복구 D-47-01·히어로 배지 `APP_VERSION`) 마무리.
+- 공용 사본 `store-zip`(`lib/zip.ts`) 일치·tsc·로컬 build 통과 → 배포 READY(`video-to-ojei4n8wq-buylife.vercel.app`) → 운영 DB `programs.version` v1.11(`20261022_trim_zip_v1_11.sql`과 같은 버전 갱신만, DB 구조 변경 없음).
+- 크롬(메인 크롬): `/dashboard` 머리에 「이커머스 상세페이지 GIF 랩 v1.11」 표시 확인. 구간 자르기·전체 ZIP 칸은 영상을 올려야 나타나므로 **실제 변환·ZIP 확인은 맥미니 크롬에서 짧은 시험 영상 2개로 진행 예정**(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
