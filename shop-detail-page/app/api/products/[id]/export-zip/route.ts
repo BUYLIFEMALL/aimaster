@@ -3,7 +3,7 @@ import sharp from "sharp";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { downloadImageAsBase64 } from "@/lib/storageImage";
-import { buildStoredZip } from "@/lib/zipStore";
+import { createZip } from "@/lib/zip";
 import { redirectToDownload, safeFileName, storeExport } from "@/lib/exportDownload";
 
 const TARGET_WIDTH = 860;
@@ -14,7 +14,7 @@ export const fetchCache = "force-no-store";
 /**
  * v1.21: 선택한 섹션 이미지를 가로 860px JPG로 맞춰 「01_섹션이름.jpg」 순서로 ZIP 하나에 묶는다.
  * 쿠팡·스마트스토어에 긴 한 장 대신 여러 장으로 올릴 때 쓴다. AI 호출 없음.
- * 결과는 회원 본인 상품 폴더(merged/)에 저장하고 서명 주소로 내려받게 한다(30일 정리 대상 폴더).
+ * ZIP은 공용 기준 코드 store-zip 사본 `lib/zip.ts`(직접 고치지 말 것). 결과는 회원 본인 상품 폴더(merged/)에 저장하고 서명 주소로 내려받게 한다(30일 정리 대상 폴더).
  */
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const access = await checkProgramAccessApi();
@@ -78,7 +78,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: "이미지를 불러오지 못했습니다." }, { status: 400 });
     }
 
-    const zip = buildStoredZip(files);
+    const zip = Buffer.from(createZip(files)); // 공용 기준 코드 store-zip 사본(기준 portrait-photo)
     const fileName = `${safeFileName(product.product_label || product.name || "product")}_sections_860px.zip`;
     const path = `${user.id}/products/${productId}/merged/${Date.now()}.zip`;
 

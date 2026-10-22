@@ -216,7 +216,7 @@ const MODULES = [
     // 외부 라이브러리 없는 ZIP 만들기(저장 방식·UTF-8 파일 이름) — 여러 크기 한 번에 받기(2026-10-22)
     id: "store-zip",
     source: "portrait-photo/src/lib/portrait/zip.ts",
-    copies: ["emotion-writer/src/lib/studio/zip.ts"],
+    copies: ["emotion-writer/src/lib/studio/zip.ts", "shop-detail-page/lib/zip.ts"],
   },
   {
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
