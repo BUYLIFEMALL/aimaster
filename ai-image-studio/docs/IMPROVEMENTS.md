@@ -35,3 +35,7 @@
 
 ## 2026-10-23 발견 (Claude Code 윈도우, v1.28 검수 중)
 - [x] (2026-10-23 처리, 미배포 대기) 다시 저장한 그림(`image_import`) 카드의 플랫폼 배지가 `getProviderLabel("image-convert-studio")` 기본값으로 「IMAGE-CONVERT-STUDIO」 영문 그대로 나옴 → 「이미지 변환 스튜디오」로 라벨 추가(작은 수정 — 미배포 대기로 모을 것).
+
+## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `8ad8ea2e5` · `f53021369`
+- 생성 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=이미지가 있던 기록 수) 기록 — 공용 `cleanup-usage-log` 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 메인 관리자 「운영 상태」 정리 기록 진행률에 들어감. 기록 실패해도 정리는 계속.
+- 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
