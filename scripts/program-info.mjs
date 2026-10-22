@@ -102,3 +102,30 @@ export function cleanupPrograms() {
   }
   return out;
 }
+
+/**
+ * 운영 DB 표의 실제 칸 목록 — 행이 0건이어도 정확(REST 설명서 OpenAPI). 2026-10-23: 첫 마이그레이션만 보고
+ * 「user_id 없음」으로 잘못 판단한 일(real_estate_district_sentiment, 실제로는 v1.12에서 추가됨) 뒤 추가.
+ * 반환: [{ name, type, required }] — 표가 없으면 null
+ */
+export async function tableColumns(table) {
+  const key = serviceKey();
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/`, { headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/openapi+json" } });
+  if (!res.ok) throw new Error(`DB 설명서 ${res.status}`);
+  const defs = (await res.json()).definitions ?? {};
+  const d = defs[table];
+  if (!d) return { columns: null, similar: Object.keys(defs).filter((t) => t.includes(table) || table.includes(t)).slice(0, 10) };
+  const req = new Set(d.required ?? []);
+  return { columns: Object.entries(d.properties ?? {}).map(([name, v]) => ({ name, type: v.format || v.type, required: req.has(name) })) };
+}
+
+// 명령으로 쓰기: node scripts/program-info.mjs columns <표 이름>   (운영 DB 읽기만, 키 출력 없음)
+if (process.argv[1] && fileURLToPath(import.meta.url) === join(process.argv[1]) && process.argv[2] === "columns") {
+  const table = process.argv[3];
+  if (!table) { console.log("사용: node scripts/program-info.mjs columns <표 이름>"); process.exit(1); }
+  const { columns, similar } = await tableColumns(table);
+  if (!columns) { console.log(`✖ 운영 DB에 「${table}」 표가 없습니다.${similar?.length ? ` 비슷한 표: ${similar.join(", ")}` : ""}`); process.exit(1); }
+  console.log(`[${table}] 칸 ${columns.length}개 (운영 DB ${SUPABASE_URL.split("//")[1].split(".")[0]})`);
+  for (const c of columns) console.log(`  ${c.name.padEnd(28)} ${String(c.type).padEnd(26)} ${c.required ? "필수" : "비워도 됨"}`);
+  console.log(`  user_id 칸: ${columns.some((c) => c.name === "user_id") ? "있음(회원별 표)" : "없음"}`);
+}
