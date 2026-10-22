@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.14` (운영 배포·회원 보관 검수 완료) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.22` (2026-10-22 대본 분석 영상 직접·대사 → 원스톱, 아래 v1.22 절. v1.15~v1.21은 각 날짜 절) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -167,3 +167,12 @@
 
 ## 2026-10-20 병합 C 3단계 완료 — 카탈로그 「YOUTUBE 트렌드 분석」 (Claude Code 윈도우)
 - DB 이름·소개 갱신, CONSULTANT 노출 중지·옛 주소 이동, **공용 기준 코드 `youtube-data-client`·`youtube-golden-engine`(+테스트)의 기준이 이 폴더**(`src/lib/youtube/{youtubeData,goldenEngine}.ts`, `tests/`) — 고치면 `node scripts/check-shared-modules.mjs --sync`. 상세 플랜 §8.
+
+## 2026-10-22 v1.22 — 대본 분석: Gemini가 유튜브 영상을 직접 보고 실제 대사까지 · 대사 → AI 쇼츠 원스톱 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_VIDEO_TRANSCRIPT_HANDOFF.md`(주인님 승인).
+- **발견(기존 기능 고장)**: `src/lib/youtube/transcript.ts` `fetchVideoTranscript`가 자막 주소는 찾지만 자막 응답이 200·0바이트 → 「✨ AI 떡상 대본 분석」이 사실상 모든 영상을 「자막 없음(제목·설명 기반 분석 모드)」으로 처리하고 있었음(유명 영상 2개 로컬 시험, `docs/ERROR_LESSONS.md` 2026-10-22). 코드는 지우지 않고 자막이 있을 때만 쓰게 둠.
+- `src/lib/ai/scriptAnalyzer.ts`: Gemini 키가 있으면 먼저 `fileData.fileUri = https://www.youtube.com/watch?v=<id>`를 붙여 영상을 직접 보고 분석 + JSON `transcript`(실제 대사) 요청(`VIDEO_RULE`) → 실패(비공개·지역 제한 등)하면 기존 글 기반 Gemini → OpenAI 순서. 결과에 `transcript`(받아쓰기 또는 가져온 자막, 12000자), `hasOriginalScript`는 대사 20자 초과, 엔진 표시 「Google Gemini 2.5 Flash (영상 직접 분석)」.
+- `ScriptAnalysisModal`: 대사가 있으면 「🎙 영상 대사(받아쓰기)」 접는 칸 + 「🎬 이 대사로 쇼츠 만들기」 → `https://shorts-onestop-studio.buylife.xyz/topic#ref-transcript=…` 새 탭. 넘기기 함수는 공용 `reference-copy-guard` 사본 `src/lib/reference.ts`(직접 고치지 말 것 — 기준 원스톱).
+- 검수: tsc, build, 배포 `youtube-viral-studio-o7i5tuca2` Ready, DB v1.22. `test:runtime`·`test:fixtures`는 로컬 개발 서버(127.0.0.1:3028)를 띄워야 하는 화면 시험이라 이번에는 돌지 않았음(시험이 덮어쓴 `docs/evidence/v114/*.json` 2개는 되돌림). 크롬(시험 회원): 「#주식」 쇼츠 21개 → 첫 쇼츠 대본 분석 28초 「영상 직접 분석」 → 대사 528자 → 버튼 주소로 원스톱 v1.33 참고 자료에 레퍼런스 블록·안내 확인. 이 버튼의 오류 처리는 `alert()`라 시험 탭에서만 콘솔 기록으로 바꿔 두고 눌렀음.
+- 회원 부담: Gemini 대본 분석이 영상을 직접 보게 되어 1회 비용이 조금 늘어남(1분 쇼츠 약 +$0.01~0.03, 회원 본인 키).
+- 비용(이번 작업): 빌드 1회, Gemini 대본 분석 1회 약 $0.02~0.05(시험 회원 본인 키, 승인 범위).

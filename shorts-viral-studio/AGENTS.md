@@ -100,3 +100,6 @@ F-005(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - `AnalyzeStep`: 대사가 있으면 「🎙 영상 대사(받아쓰기)」 접는 칸 + 「🎬 이 대사로 쇼츠 만들기」 → `https://shorts-onestop-studio.buylife.xyz/topic#ref-transcript=…` 새 탭(대사는 주소 `#` 뒤라 서버로 가지 않음). 넘기기 함수는 공용 `reference-copy-guard` 사본 `src/lib/reference.ts`(직접 고치지 말 것 — 기준 원스톱).
 - 검수: tsc, `npm test` 17개, build, 배포 `shorts-viral-studio-j7xrm1adz` Ready, DB v1.13. 크롬(시험 회원): 「재테크」 검색 → 「의사가 말하는 무쓸모 영양제 1위」(1분) 1개 → Gemini 3.7 Flash 영상 직접 분석 20초 → 대사 487자(실제 말한 내용) → 버튼 주소로 원스톱 v1.33 참고 자료에 레퍼런스 블록·안내 확인. 시험 회원 분석 결과는 본인 데이터로 남음.
 - 비용: 빌드 1회, Gemini 영상 분석 1회 약 $0.02~0.05(시험 회원 본인 키, 승인 범위).
+
+## 2026-10-22 (미배포 — 다음 배포 때 함께) — 내보내기 문서에 영상 대사 (Claude Code 윈도우)
+- `src/lib/export.ts`: 분석에 `transcript`(v1.13 Gemini 영상 직접 분석 대사)가 있으면 「### 🎙 영상 대사(받아쓰기 · 참고용)」 절 추가. 급하지 않은 변경이라 커밋만(빌드 없음) — **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 이 항목을 「배포됨(버전)」으로 바꿀 것.** 검수: tsc, `npm test` 17개, build.

@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 유튜브 바이럴 v1.22 대본 분석 Gemini 영상 직접·대사 → 원스톱 · INSTA v1.60 겹침 펼치기 · 쇼츠 바이럴 내보내기 대사(미배포) (빌드 2회, Gemini 1회)
+- 유튜브 자막 긁어오기가 빈 값을 돌려줘 대본 분석이 모두 자막 없이 돌던 것을 발견 → Gemini가 영상을 직접 보고 대사까지 받게 바꾸고 「🎬 이 대사로 쇼츠 만들기」로 원스톱에. INSTA 「⚠ 겹침 n」 누르면 구절 펼침. 쇼츠 바이럴 내보내기 대사는 커밋만(다음 배포 때). 상세 각 폴더 `AGENTS.md`, `docs/ERROR_LESSONS.md` 2026-10-22.
+- 프로그램: https://youtube-viral-studio.buylife.xyz · https://auto-instagram-posting.buylife.xyz · https://shorts-viral-studio.buylife.xyz(미배포분 있음)
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.11 배포 (맥미니 v1.11 마무리)
 - 맥미니 커밋 `4ebf21518`(구간 자르기·완료 GIF 전체 ZIP·엔진 불러오기 실패 복구): 사본 일치·tsc·build → 배포 READY → DB v1.11 → 크롬 `/dashboard`에 v1.11 표시 확인.
 - 못 한 것: 실제 영상 변환·구간·ZIP 확인(영상 파일 필요) — **맥미니 세션께**: 배포 끝, 짧은 시험 영상 2개로 구간 변환·전체 ZIP 확인 부탁드립니다.

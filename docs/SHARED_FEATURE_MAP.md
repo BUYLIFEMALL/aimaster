@@ -273,3 +273,4 @@ AI가 참고 자료(레퍼런스 쇼츠 받아쓰기·떡상 게시물 캡션·�
 
 - 2026-10-22 추가(원스톱 v1.32·INSTA v1.58): 같은 기준 파일에 프로그램 간 레퍼런스 대사 넘기기 약속(`REF_HASH` = `ref-transcript`, `refHandoffHash`로 주소 `#` 뒤에 싣고 `readRefHandoff`로 받음, 12000자). INSTA 떡상 리메이크 「🎬 이 대사로 쇼츠 만들기」 → 원스톱 `/topic`. 다른 프로그램이 원스톱에 레퍼런스를 넘길 때도 이 함수를 쓴다.
 - 2026-10-22 추가(쇼츠 바이럴 v1.13·원스톱 v1.33): 사본 3곳째 `shorts-viral-studio/src/lib/reference.ts` — Gemini 영상 직접 분석 대사를 같은 함수로 원스톱에 넘김. 원스톱은 로그인 화면을 거쳐도 대사를 `sessionStorage`로 유지(`shorts-onestop-studio/src/lib/refHandoff.ts`, 공용 아님).
+- 2026-10-22 추가(유튜브 바이럴 v1.22): 사본 4곳째 `youtube-viral-studio/src/lib/reference.ts` — 대본 분석에서 Gemini가 유튜브 영상을 직접 보고 받아쓴 대사를 원스톱에 넘김.
