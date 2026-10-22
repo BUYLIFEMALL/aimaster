@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): 바나나 캔버스 v1.25 — 공용 사본으로 한도 맞춤·「↩ 보낸 곳으로 돌아가기」·보낸 곳 기록
+- 한 일: 바나나에 `banana-idea-link` 사본(`src/lib/bnc/bananaIdeaLink.ts`) 추가 → 아이디어 칸 한도 600을 보내는 쪽과 같은 값으로, 보낸 곳 이름·주소 표 `BANANA_SOURCES`를 공용 코드로 옮김(기준 스타일 분석기, 보내는 3곳 사본은 동작 같아 저장소만·다음 배포 때). 안내 옆 「↩ ○○ 화면으로 돌아가기」 링크. 받은 아이디어로 생성하면 `banana_canvas_results.options.ideaSource` 저장(DB 칸 추가 없음), 「내 결과 기록」 카드에 「🔗 ○○」 표시.
+- 집계 SQL(관리자): `select options->>'ideaSource' src, count(*) from banana_canvas_results where options ? 'ideaSource' group by 1 order by 2 desc;`
+- 검수: 시험 바나나 38·스타일 39·감성 34·리버스 17, tsc·빌드. 크롬: 안내·돌아가기 링크(밑줄·대비 7.7:1)·칸 한도 600, `/api/run` 가로채기로 `ideaSource` 전송 확인(실제 생성 없음), `/api/history` 200. 못 한 것: 실제 생성 후 기록 카드 표시(AI 비용).
+- 배포: v1.25 빌드 2회(링크 밑줄 보정 재배포, 승인 범위 최대 2회 안), DB 버전 갱신(esgxyikcnnvmlhygjkth). 커밋 85f3da623 + 이 커밋.
+- 링크: https://banana-canvas.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ SEO블로그 스튜디오 v1.95 자료부터 집필 사용성 (빌드 1회 · AI 1회)
 - 메뉴를 옮겼다 돌아와도 마지막으로 연 자료 유지, 「새 구성으로 다시 시작」은 화면 안 확인 뒤에만 AI 1회(취소 시 호출 없음을 DB 구성 개수로 확인). 시험 57 통과, DB/확장/ZIP v1.95 OK, 웨일 실검수 완료.
 - 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래. 다음: BLC-10(문단별 이미지 노드) — 플랜·비용 먼저 보고.

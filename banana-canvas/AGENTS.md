@@ -202,3 +202,12 @@
 ## ✅ v1.24 배포 (2026-10-22, Claude Code 윈도우)
 - 위 「⏸ 미배포」 항목(`?idea=` 받기·카드 강조·compare-slider·post-presets 사본·버튼 대비·기록 오류 문장)이 이 버전으로 나감. **새로 추가**: 보낸 프로그램 표시 — `?src=`를 `ideaSourceName`(`src/lib/bnc/ideaParam.ts`)이 정해 둔 3개 이름(이미지 스타일 분석기·감성 글귀·리버스 프롬프트)만 받아 「「리버스 프롬프트」에서 보낸 아이디어를 채웠습니다」로 표시, 모르는 값은 「다른 프로그램에서」. `from`은 저장 작업 불러오기(uuid)라 `src`를 씀. 시험 37개. 크롬 검수: `?idea=…&src=reverse-prompt` → 칸 채움·안내 문구·카드로 204px 이동·강조 0.3초~2.8초, `src=evil-site` → 기본 문구. 새 보내는 프로그램을 늘리면 `SOURCE_NAMES`에 이름 추가.
 - 배포 묶음(2026-10-22, Claude Code 윈도우): 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30 순차 배포(빌드 7회, 실패 0), DB `programs.version` 갱신, 크롬에서 화면 버전 확인.
+
+## ✅ v1.25 배포 (2026-10-22, Claude Code 윈도우) — 공용 사본·돌아가기 링크·보낸 곳 기록
+- **공용 사본 사용**: `src/lib/bnc/bananaIdeaLink.ts`(공용 기준 코드 `banana-idea-link`, 기준 `style-dna-analyzer/src/lib/dna/bananaIdeaLink.ts` — 직접 고치지 않음). `ideaParam.ts`의 `MAX_IDEA`와 아이디어 칸 `maxLength`가 이 사본의 `MAX_BANANA_IDEA`(600)를 씀 → 보내는 쪽과 한도가 항상 같음. 보낸 곳 이름·주소 표 `BANANA_SOURCES`도 이 사본에 있음(새 보내는 프로그램은 기준 파일에만 추가 후 사본 반영).
+- **↩ 보낸 곳으로 돌아가기**: 안내 문구 끝에 「↩ ○○ 화면으로 돌아가기」(`data-idea-back`, 공용 표의 주소만, 모르는 `src`는 링크 없음). 밑줄·굵게(`globals.css` `.bc-hint a[data-idea-back]`, 대비 7.7:1).
+- **보낸 곳 기록**: 받은 아이디어로 「이미지 생성」을 누르면 요청에 `ideaSource`가 실리고, `cleanParams`가 `generate` + 공용 표에 있는 이름일 때만 받아 `banana_canvas_results.options.ideaSource`에 저장(DB 칸 추가 없음). 기록 API가 `options->>ideaSource`를 읽어 「내 결과 기록」 카드에 「· 🔗 감성 글귀」 표시.
+- 집계(관리자 SQL): `select options->>'ideaSource' src, count(*) from banana_canvas_results where options ? 'ideaSource' group by 1 order by 2 desc;` (결과 행은 30일 뒤 자동 삭제되므로 최근 30일 기준)
+- 검수: 시험 38개, tsc·빌드. 크롬: `?idea=…&src=emotion-writer` → 안내·돌아가기 링크(감성 글귀 주소)·칸 한도 600, `/api/run`을 가로채(생성 안 함) 요청 본문에 `ideaSource: "emotion-writer"` 확인, `/api/history` 200·`ideaSource` 키. 실제 생성 후 기록 카드 표시는 AI 비용이 들어 미확인(다음에 실제 생성할 때 확인).
+- 빌드 2회: 첫 배포 후 돌아가기 링크가 밑줄 없이 글자와 같은 색이라 CSS 보정 후 같은 버전으로 재배포.
+

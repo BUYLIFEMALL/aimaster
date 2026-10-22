@@ -152,6 +152,7 @@ small{font-size:11px}
 .bc-card>header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .bc-card h2{display:flex;align-items:center;gap:8px;font-size:15px;margin:0}
 .bc-hint{margin:4px 0 12px!important;font-size:12px;color:var(--muted)}
+.bc-hint a[data-idea-back]{color:var(--text,inherit);font-weight:700;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
 .bc-card>*:not(header):not(.bc-hint)+*:not(.bc-privacy){margin-top:10px}
 .bc-card textarea,.bc-card input:not([type=file]){font-size:13px}
 .bc-card textarea{resize:vertical}
