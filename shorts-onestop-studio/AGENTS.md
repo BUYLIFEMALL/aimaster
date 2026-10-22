@@ -207,3 +207,11 @@
 - 보내는 쪽: INSTA v1.61(`APP_NAME`), 쇼츠 바이럴 v1.14(「쇼츠 떡상 분석·대본 자동화」), 유튜브 바이럴 v1.24(대본 분석·영상 요약 2곳, `APP_NAME`).
 - 검수: tsc, `npm test` 21개(시험 1개 추가), 배포 `shorts-onestop-studio-qd6h9vsgu` Ready, DB v1.34. 크롬: 이름 실은 주소 → 안내 「「INSTA 포스팅 자동화」에서 넘긴…」·머리말 확인, 이름 없는 옛 주소 → 예전 문구 그대로, 주소 `#` 지워짐. 보내는 버튼 주소에 이름이 붙는 것은 코드·tsc로 확인(실제 버튼 클릭은 AI 결과가 필요해 이번엔 안 함).
 - 비용: 빌드 4회(원스톱·INSTA·쇼츠 바이럴·유튜브 바이럴 순차, 승인 범위), AI 호출 없음.
+
+## 2026-10-22 v1.35 — 레퍼런스 머리말 「출처: ○○」 · 참고 자료 출처 띠 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_REF_SOURCE_CHIPS.md`(주인님 승인).
+- `src/lib/refBlocks.ts`(새, 다른 파일을 가져오지 않는 순수 함수): `refBlockHeader(출처)`, `refBlocks(참고 자료)`(블록별 출처·대사 글자 수, 예전 머리말도 읽음), `removeRefBlock(참고 자료, n)`. `REF_MARK`를 같은 값으로 두고 시험이 `reference.ts`와 같은지 확인(node --test가 확장자 없는 상대 가져오기를 못 찾아서).
+- `TopicView.tsx`: 넘겨받은 대사·영상 파일 대본 블록 머리말을 `refBlockHeader`로(「출처: INSTA 포스팅 자동화」, 이름 없으면 「출처: 다른 프로그램」). 참고 자료 라벨 아래 블록마다 띠 「🎬 출처 ○○ · 대사 n자 ✕ 빼기」.
+- 검수: tsc, `npm test` 25개(`tests/refBlocks.test.ts` 4개 추가), 배포 `shorts-onestop-studio-cno750dn9` Ready, DB v1.35. 크롬(메인 크롬): 이름 실은 주소 → 띠 「🎬 출처 INSTA 포스팅 자동화 · 대사 15자 ✕ 빼기」(넘침 없음)·머리말 「출처:」, 칸 맨 앞에 메모 입력 후 「빼기」 → 블록·띠만 사라지고 메모 「내 메모입니다」 유지.
+- 못 한 것: 휴대폰 폭 화면 확인(띠가 `nowrap`이라 아주 긴 파일 이름이면 좁은 화면에서 넘칠 수 있음 — `docs/IMPROVEMENTS.md`).
+- 비용: 빌드 1회(승인 범위), AI 호출 없음.
