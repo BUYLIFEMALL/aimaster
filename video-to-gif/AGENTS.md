@@ -228,3 +228,9 @@
 - `lib/gifLadder.ts` `progressRatio`(출력 시간 ÷ 변환할 길이, 이상하면 엔진 `progress`) + `ConverterWorkspace.tsx` 시도 안에서 줄지 않음·두 번 방식 앞뒤 절반.
 - 버전 v1.16(`lib/version.ts`, `package.json` 1.16.0, SQL `supabase/migrations/20261023_progress_v1_16.sql` — 버전만). 검수: 순수 함수 시험 8가지, tsc 0, eslint 0.
 - **윈도우 CLI 다음 첫 단계**: SQL → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬 진행률 기록 실검수.
+
+## 2026-10-23 ✅ v1.16 배포 (Claude Code 윈도우 — 맥미니 v1.16 마무리)
+- 맥미니 커밋 `d088609b9`(변환 진행률 바로잡기: 출력 시간 기준·한 시도 안에서 줄지 않음·두 번 방식 앞뒤 절반) 마무리.
+- 공용 사본 `store-zip`·`gif-handoff` 일치·tsc·로컬 build 통과 → 운영 DB `programs.version` v1.16(`20261023_progress_v1_16.sql`과 같은 버전 갱신만) → 배포 READY(`video-to-j0ye81kzr-buylife.vercel.app`) → 크롬 `/dashboard` 머리 배지·사이드바 v1.16 확인.
+- 진행률이 줄지 않는지·변환 시간/결과가 v1.15와 같은지는 영상이 필요해 맥미니 크롬에서 확인 예정(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.

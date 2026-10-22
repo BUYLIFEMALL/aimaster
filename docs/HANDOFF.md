@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.16 배포 (맥미니 v1.16 마무리)
+- 맥미니 커밋 `d088609b9`(변환 진행률 바로잡기): 사본 일치·tsc·build → DB v1.16 → 배포 READY → 크롬 `/dashboard`에 v1.16 표시 확인.
+- **맥미니 세션께**: 배포 끝 — 시험 영상 3개(10초·큰 영상·구간 3초)로 진행률 0.2초 기록·시간/결과 비교 부탁드립니다.
+- 비용: Vercel 빌드 1회, AI 0회. 상세: `video-to-gif/AGENTS.md` 맨 아래.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ 마케팅 병합 A: 롱테일 키워드분석 → 키워드·경쟁사 분석 자동화 (v1.08) + v1.08 회원별·30일 삭제 운영 적용 (빌드 2회 · AI 0회)
 - 분석·결정: `docs/analysis-marketing-consolidation-20261023/REPORT.md`(5개 → 4개, 주인님 결정: 병합 A 진행·FREE 유지·이름 「키워드·경쟁사 분석 자동화」·독립 확장 2건 진행·남은 v1.08 마무리).
 - 결과: `competitor-analysis` v1.08에 「🌱 키워드 확장」(씨드 → 연관·관련도 → 롱테일 → 작업 지시문·CSV·텔레그램, 롱테일 때 연결한 봇 이어 씀), 메뉴 1 확장 → 2 경쟁사 분석 → 3 결과. `longtail-keyword-expander` v1.11은 이동 안내·실행 함수 차단·카탈로그 숨김(같은 DB 표를 새 앱이 사용).
