@@ -307,3 +307,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 공용 사본(`store-zip`·`gemini-image-client`·`gemini-image-models`) 일치·tsc 통과 → 배포 READY(`shop-detail-page-eulp5kld0-buylife.vercel.app`) → 운영 DB `programs.version` v1.25(`20261022_text_edit_v1_25.sql`과 같은 버전 갱신만, DB 구조 변경 없음).
 - 크롬(메인 크롬): `/products` 화면에 v1.25 표시 확인. **문구 고치기 실제 시험은 맥미니 세션에서 진행 예정**(미확인).
 - 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
+
+## 2026-10-22 ✅ v1.25 문구 고치기 실검수 (Claude Code 맥미니, 크롬, 시험 계정 buylifemall@naver.com)
+- 상품 `82deeddc-…` #01 프로모션 배너: 「✏️ 문구」 → 편집 창에 원본 이미지 표시 → 「런칭 특가」 영역을 끌어 지정 → 주변 색으로 덮임 → 「오늘만 특가」 입력·「이 부분 적용」(적용한 수정 1곳) → 「↶ 마지막 수정 되돌리기」로 원본 복귀·저장 버튼 꺼짐 확인 → 다시 적용 → 「💾 새 버전으로 저장」.
+- 결과: VERSIONS (2) — 원본 `generated/cp_promotion-….jpg` + 새 버전 `custom/cp_promotion-….jpeg`, 새로 불러와도 유지. 확인 뒤 시험 상품은 원본(버전 1)을 다시 선택해 둠.
+- 관찰: 녹색 둥근 배지처럼 글자 뒤에 도형이 있으면 도형까지 바깥 색으로 덮여 배지가 사라짐(설계상 한계, 단색 배경용). 개선 후보: 「덮는 색」 기본값을 사각형 안쪽 가장자리 색으로 고르는 선택지.
+- 비용: 없음(AI 호출 0회, 저장소 업로드 1건).

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(맥미니): 상세페이지 v1.25 이미지 문구 고치기 실검수 — 이커머스 2차 재비교 ①~⑥ 모두 완료
+- 한 일: 크롬(시험 계정)에서 #01 프로모션 배너 「✏️ 문구」 → 영역 지정·주변 색 덮기·「오늘만 특가」 적용 → 되돌리기 확인 → 「새 버전으로 저장」. VERSIONS (2)(원본 generated + 새 custom), 새로 불러와도 유지. 확인 뒤 원본 버전을 다시 선택해 둠.
+- 관찰: 글자 뒤 도형(둥근 배지)은 같이 덮여 사라짐 — 단색 배경용 한계, 개선 후보로 `shop-detail-page/AGENTS.md`에 기록.
+- 비용: 없음(AI 호출 0회). 남은 일: 없음(분석 보고서 `docs/analysis-ecommerce-consolidation-20261021/REPORT.md` §8 진행 줄 갱신).
+- 링크: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 — Claude Code(윈도우): 바나나 보내기 공용화(`banana-idea-link`)·보낸 곳 표시 + 보류분 7건 순차 배포
 - 한 일: ① 공용 기준 코드 `banana-idea-link` 등록(기준 `style-dna-analyzer/src/lib/dna/bananaIdeaLink.ts`, 사본 감성 글귀·리버스 프롬프트) ② 보내는 주소에 `&src=<프로그램>`, 바나나가 정해 둔 3개 이름만 「○○에서 보낸 아이디어」로 표시(`from`은 저장 작업 불러오기라 `src` 사용) ③ 배포: 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30(빌드 7회·실패 0, DB 버전 7줄, 운영 DB esgxyikcnnvmlhygjkth).
 - 검수: 시험 바나나 37·스타일 39·감성 34·리버스 17·변환 41·인물 43·4컷 59, tsc·로컬 빌드 통과. 크롬: 바나나 `?idea=&src=reverse-prompt` 칸 채움·안내·카드 이동·강조, 모르는 src → 기본 문구, 보내는 3곳 운영 묶음 파일에 `&src=` 포함, 7곳 화면 버전 확인. AI 호출 0.
