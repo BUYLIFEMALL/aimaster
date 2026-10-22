@@ -128,3 +128,9 @@
 - 「📦 완료된 GIF 전체 ZIP (2개)」 → 내려받기 클릭만 화면 안에서 가로채 내용 확인(컴퓨터 저장 없음): `gif-all.zip` 1.08MB, `시험A.gif`·`시험B.gif` 둘 다 `GIF89a`.
 - 미확인: 잘못된 구간 입력의 화면 표시(함수 시험 7가지로만 확인), 변환 엔진 불러오기 실패 복구(인터넷을 끊어야 재현 — 코드 확인만).
 - 비용 없음(AI 0회, 서버 전송 없음).
+
+## 2026-10-22 v1.12 — 대기 목록 영상 첫 장면 썸네일 (Claude Code 맥미니 · 배포 대기, 주인님 승인)
+- 플랜: [`docs/PLAN_20261022_THUMBNAIL.md`](docs/PLAN_20261022_THUMBNAIL.md).
+- `components/ConverterWorkspace.tsx`: `readDuration` → `readVideoInfo`(길이 + 0.1초 지점 장면을 가로 160px JPEG `data:` 주소로, 8초 안에 못 그리면 길이만). `Job.thumbnail` 추가. 목록 왼쪽 번호 칸을 썸네일(가로 64px, 세로 최대 64px)로 바꾸고 번호는 왼쪽 위에 겹침. 썸네일이 없으면(브라우저가 못 읽는 코덱) 예전 번호 칸. 서버·DB·AI·ffmpeg 변경 없음, 썸네일은 서버에 올라가지 않음.
+- 버전 v1.12(`lib/version.ts`, `package.json` 1.12.0, SQL `supabase/migrations/20261022_thumbnail_v1_12.sql` — 버전만). 검수: tsc 0, eslint 0.
+- **윈도우 CLI 다음 첫 단계**: SQL `20261022_thumbnail_v1_12.sql` → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬 실검수.

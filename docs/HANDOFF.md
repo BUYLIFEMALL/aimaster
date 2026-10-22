@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(맥미니): 상세페이지 GIF 자동화 v1.12 대기 목록 첫 장면 썸네일 (배포 대기)
+- 영상을 넣으면 길이와 함께 0.1초 지점 장면을 작은 그림으로 만들어 목록 번호 칸 자리에 보여 줌(번호는 겹쳐 표시, 못 읽는 영상은 예전 번호 칸). 서버·DB·AI 변경 없음. tsc 0, eslint 0.
+- **윈도우 CLI 다음 첫 단계**: SQL `video-to-gif/supabase/migrations/20261022_thumbnail_v1_12.sql`(버전만) → `video-to-gif` 배포 1회 → `video-to-gif/AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.
+- 비용(예정): Vercel 빌드 1회, AI 0회. 링크: https://video-to-gif.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.12: 참고 문서 프로젝트 저장 · SEO 전략 출처 표시 (빌드 1회, AI 0회)
 - 참고 문서(올린 파일·SEO 대본)를 `inputs.doc`에 저장해 다시 열어도 그대로, 「🔗 SEO 전략 B · 가치 제안형에서 시작한 프로젝트」 표시. DB 칸 추가 없음. 원스톱 업로드 썸네일 지정은 16:9 vs 9:16이라 보류(`IDEA-THUMB-ONESTOP-01`). 상세 `thumbnail-master/AGENTS.md` v1.12.
 - 프로그램: https://thumbnail-master.buylife.xyz

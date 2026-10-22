@@ -40,20 +40,51 @@ type Job = {
   duration?: number;
   trimStart: string;
   trimEnd: string;
+  // v1.12: 대기 목록에 보여 줄 첫 장면(작은 JPEG data: 주소). 브라우저가 못 읽는 영상은 비어 있고 번호 칸을 보여 준다.
+  thumbnail?: string;
 };
 
-/** 파일의 영상 길이(초)를 브라우저 video 요소로 읽는다. 못 읽으면 undefined. */
-function readDuration(file: File): Promise<number | undefined> {
+const THUMB_WIDTH = 160;
+
+/**
+ * 파일의 영상 길이(초)와 첫 장면 썸네일을 브라우저 video 요소로 읽는다. 못 읽은 값은 undefined.
+ * 맨 첫 장면은 검은 화면인 경우가 많아 0.1초(짧은 영상은 길이의 절반) 지점을 그린다.
+ */
+function readVideoInfo(file: File): Promise<{ duration?: number; thumbnail?: string }> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const video = document.createElement("video");
-    video.preload = "metadata";
-    const done = (value?: number) => {
+    video.preload = "auto";
+    video.muted = true;
+    video.playsInline = true;
+    let duration: number | undefined;
+    let finished = false;
+    const done = (thumbnail?: string) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
       URL.revokeObjectURL(url);
-      resolve(value);
+      resolve({ duration, thumbnail });
     };
-    video.onloadedmetadata = () => done(Number.isFinite(video.duration) ? video.duration : undefined);
-    video.onerror = () => done(undefined);
+    // 장면을 못 그리는 영상(코덱 미지원 등)에서 멈추지 않게 길이만이라도 돌려준다
+    const timer = setTimeout(() => done(), 8000);
+    video.onloadedmetadata = () => {
+      duration = Number.isFinite(video.duration) ? video.duration : undefined;
+      video.currentTime = duration ? Math.min(0.1, duration / 2) : 0;
+    };
+    video.onseeked = () => {
+      try {
+        if (!video.videoWidth || !video.videoHeight) return done();
+        const canvas = document.createElement("canvas");
+        canvas.width = THUMB_WIDTH;
+        canvas.height = Math.max(1, Math.round((video.videoHeight / video.videoWidth) * THUMB_WIDTH));
+        canvas.getContext("2d")!.drawImage(video, 0, 0, canvas.width, canvas.height);
+        done(canvas.toDataURL("image/jpeg", 0.7));
+      } catch {
+        done();
+      }
+    };
+    video.onerror = () => done();
     video.src = url;
   });
 }
@@ -134,12 +165,12 @@ export default function ConverterWorkspace() {
         trimEnd: ""
       })),
     ].slice(0, MAX_FILES));
-    // v1.11: 영상 길이를 읽어 구간 입력 옆에 보여 준다(파일 이름·크기로 같은 줄을 찾음).
+    // v1.11: 영상 길이를 읽어 구간 입력 옆에 보여 준다(같은 File 객체로 같은 줄을 찾음). v1.12: 첫 장면 썸네일도 함께.
     for (const file of incoming) {
-      void readDuration(file).then((duration) => {
-        if (duration === undefined) return;
+      void readVideoInfo(file).then(({ duration, thumbnail }) => {
+        if (duration === undefined && thumbnail === undefined) return;
         setJobs((current) =>
-          current.map((j) => (j.file === file ? { ...j, duration } : j))
+          current.map((j) => (j.file === file ? { ...j, duration, thumbnail } : j))
         );
       });
     }
@@ -435,9 +466,19 @@ export default function ConverterWorkspace() {
                     className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-4 transition-colors hover:border-[#484f58]"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#161b22] text-xs font-black text-gray-400 border border-[#30363d]">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
+                      {job.thumbnail ? (
+                        <span className="relative w-16 shrink-0 overflow-hidden rounded-lg border border-[#30363d] bg-black">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저에서 만든 data: 썸네일 */}
+                          <img src={job.thumbnail} alt={`${job.name} 첫 장면`} className="block h-auto max-h-16 w-full object-cover" />
+                          <span className="absolute left-0.5 top-0.5 rounded bg-black/70 px-1 text-[10px] font-black leading-4 text-gray-200">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#161b22] text-xs font-black text-gray-400 border border-[#30363d]">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                      )}
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-bold text-gray-200">{job.name}</p>
                         <div className="mt-1 flex items-center gap-2 text-xs">
