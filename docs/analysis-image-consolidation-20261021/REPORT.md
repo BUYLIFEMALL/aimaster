@@ -224,7 +224,7 @@
 |---|---|---|---|---|
 | W2(확정 내용) | W | ai-webtoon-studio | localStorage 키 저장 제거 + 저장된 키 지우기, 생성 API가 서버에서 본인 키를 읽게. 담당 확인(인스타 분야) 후 진행 | 빌드 1회, AI 0 |
 | L6 | L | emotion-writer → insta_auto_poster | 감성 글귀 결과를 INSTA 포스팅 새 글로 보내기(이미지 + 글귀 캡션). INSTA가 받는 쪽 검사(우리 버킷 서명 주소만) 필요 — 감성 글귀는 서버 저장이 없어 **임시 업로드 경로를 새로 만들어야 함**(작업량 중간) | 빌드 2회 |
-| F6 | F | insta_auto_poster 카드뉴스 | 배경 선택지에 Pixabay·Pexels 무료 사진 검색 추가(감성 글귀 `src/lib/studio/services.ts` 방식, 회원 본인 Pixabay·Pexels 키 — 공용 `user_api_keys` 재사용) | 빌드 1회, AI 0 |
+| F6 | F | insta_auto_poster 카드뉴스 | 배경 선택지에 Pixabay·Pexels 무료 사진 검색 추가(감성 글귀 `src/lib/studio/services.ts` 방식, 회원 본인 Pixabay·Pexels 키 — 공용 `user_api_keys` 재사용) — **✅ 2026-10-23 v1.63~v1.64 배포·크롬 검수(Pixabay), Pexels 실검색은 키 없어 미확인** | 빌드 1회, AI 0 (실제 2회 — 배치 수정 추가 승인) |
 | S1 | 공용 코드 검토 | 4컷·웹툰 | 캐릭터 시트·일관성 프롬프트 연결 부분을 공용 기준 코드로 묶을지 판단만(프롬프트 자체는 프로그램마다 고유 — 이미지 규칙) | 없음 |
 
 ### 9-4. 결정해 주실 것 (§8-6에 더해)

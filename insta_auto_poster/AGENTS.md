@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.61` (2026-10-22)
+- **현재 버전**: `v1.64` (2026-10-23)
+- **v1.63~v1.64 (2026-10-23)**: 카드뉴스 4단계 배경에 📷 무료 사진 검색(회원 본인 Pixabay·Pexels 키) — 아래 v1.63 절.
 - **v1.60 (2026-10-22)**: 「⚠ 겹침 n」을 누르면 겹친 구절 펼치기 — 아래 v1.60 절.
 - **v1.59 (2026-10-22)**: 「⚠ 겹침」에 겹친 구절 표시 — 아래 v1.59 절.
 - **v1.58 (2026-10-22)**: 리메이크 문구 장별 겹침 테두리 · 받아쓰기 → AI 쇼츠 원스톱 — 아래 v1.58 절.
@@ -383,3 +384,13 @@
 - 수정: 두 폼의 밝은 색을 어두운 테마 색으로 일괄 치환(제목 `text-slate-200`, 안내 `text-slate-400`, 박스 `bg-[#131725]`·테두리 `#262c3d`, 선택 버튼 분홍 강조 `border-pink-500 bg-pink-500/20 text-pink-100`, `select` 어두운 배경, 오류 `text-rose-400`). `Textarea`는 `Input`과 같은 어두운 입력칸으로. 수정 화면(`/posts/[id]/edit`)도 같은 폼이라 함께 바뀜.
 - 검수: tsc·로컬 build 통과 → 배포 READY(`insta-auto-poster-gipr7cs00-buylife.vercel.app`) → DB `programs.version` v1.62 → 메인 크롬(관리자)에서 `/posts/new` 위아래 전체와 캡션 입력 글자 표시 확인(시험 문구는 저장하지 않음, 생성·게시 버튼 누르지 않음).
 - 비용: Vercel 빌드 1회(주인님 승인), AI 호출 0회.
+
+### 2026-10-23 v1.63~v1.64 — 카드뉴스 배경 📷 무료 사진 검색(Pixabay·Pexels) (Claude Code 윈도우, 이미지 재비교 F6)
+- 계기: `docs/analysis-image-consolidation-20261021/REPORT.md` §9-3 F6(주인님 승인, 빌드 1회 → 배치 수정으로 1회 추가 승인).
+- `src/lib/cardnews/photoSearch.ts`(새, 순수 함수 — `server-only` 없음): `allowedPhotoUrl`(cdn.pixabay.com/photo·pixabay.com/get·images.pexels.com/photos만, https·포트·#·계정 없음·jpg/png/webp), `photoSearchRequest`(Pixabay 주소에 key / Pexels `Authorization` 머리글, 12장, 4:5면 세로·1:1이면 정사각), `parsePhotos`(허용 주소 행만, 작가·출처), `searchPhotos`(401/403 키 안내·429 한도 안내), `downloadPhoto`(8MB까지). 감성 글귀 `emotion-writer/src/lib/studio/services.ts`·`validation.ts` 방식을 옮김 — **공용화 후보**(`docs/IMPROVEMENTS.md`).
+- API `POST /api/cardnews/photos`: `search`(로그인·이용 권한 → 회원 본인 키 `getUserApiKey(…, "pixabay"|"pexels")`, 없으면 `needApiKey` 안내), `pick`(고른 사진을 서버가 받아 `optimizeBackground` WebP → `cardnews-images/<회원>/`, 공개 주소 — AI 배경과 같은 저장 방식이라 게시·30일 정리·작업 삭제 정리 그대로).
+- 화면: `src/components/cardnews/studio/PhotoSearchPanel.tsx` — 배경 화면 페이지 카드마다 「무료 사진 검색」(제공처·검색어 기본값 그 장 제목·썸네일 12장·작가 표시), 고르면 그 장 배경 + 「만든 이미지」 목록. 설정 `/settings`에 「📷 카드뉴스 배경 무료 사진 (선택)」 Pixabay·Pexels 칸(공용 `user_api_keys`, 감성 글귀에서 넣은 키는 「등록됨」, 배포판은 숨김). 형식 정의·`VALID_PROVIDERS`·라벨에 `pixabay`·`pexels` 추가. DB 구조 변경 없음(허용 목록은 2026-10-12 감성 글귀가 추가).
+- v1.64: 공용 입력 클래스(`ui.tsx` `SELECT`·`INPUT`)의 `w-full`이 좁은 칸 너비(`w-28`)를 덮어써 제공처 선택칸이 한 줄을 다 차지하고 검색어 칸·버튼이 밀려남 → 이 컴포넌트에서만 `w-full`을 빼고 씀(`NARROW_SELECT`·`FLEX_INPUT`).
+- 검수: `test:cardnews` 72개(새 4개 `tests/cardnews/photoSearch.test.mjs`), `test:own-meta`, tsc 0, 로컬 build 2회, 배포 `insta-auto-poster-cowg2267p`(v1.63)·`insta-auto-poster-hh6ybkjhx`(v1.64) Ready, DB v1.64, 비로그인 401. 크롬(관리자 계정 본인 Pixabay 키): 시험 작업(문구 2장) → 「coffee」 12장 → 사진 누르면 약 7초 뒤 그 장 배경(WebP 103KB, 공개 주소 200) → 새로고침 뒤 유지 → v1.64에서 한 줄 배치(선택 96·검색어 153·버튼 48px)·한글 검색어 「아침 루틴」 결과 → 다른 서버 주소 거절·Pexels 키 없음 안내 → 설정 화면 칸. 시험 작업·사진 모두 삭제(관리자 폴더 0개).
+- 미확인: Pexels 실제 검색(관리자·시험 계정 모두 Pexels 키 없음), 휴대폰 폭 화면, 고른 사진으로 실제 인스타 게시.
+- 비용: Vercel 빌드 2회(1회 승인 + 배치 수정 1회 추가 승인), Pixabay 검색 4회(무료·관리자 본인 키), AI 0회.

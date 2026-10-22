@@ -75,3 +75,10 @@
 - 근거: 크롬 확인 — 원문 「S&P500보다」가 구절 목록에 「S P500보다」로 나옴. 공용 `reference-copy-guard` `copiedPhrases`가 `words()`(문장 부호 → 공백)로 나눈 어절을 이어 붙여 구절을 만들기 때문. 겹침 판정 자체는 정확함.
 - 영향: 보기에만 어색함(낮음). 고치려면 기준(`shorts-onestop-studio/src/lib/reference.ts`)에서 원문 위치를 기억해 원래 글자로 돌려주게 바꾸고 사본 3곳 동기화 — 원스톱·INSTA·쇼츠 바이럴·유튜브 바이럴 함께 확인.
 - 2026-10-22 처리(코드만, 미배포): 공용 기준 `copiedPhrases`가 원문 글자를 돌려주도록 수정·사본 동기화 — INSTA 다음 배포 때 화면에 반영.
+
+## 2026-10-23 v1.63~v1.64 무료 사진 검색 (Claude Code 윈도우)
+- [ ] **공용화 후보**: 사진 검색(`src/lib/cardnews/photoSearch.ts`)이 감성 글귀(`emotion-writer/src/lib/studio/services.ts` `searchPhotos`·`photoDataUrl`, `validation.ts` `allowedPhotoUrl`)와 같은 로직의 사본입니다. 감성 글귀 쪽은 다른 기능과 한 파일에 섞여 있어 이번에는 묶지 않음 — 다음에 감성 글귀를 고칠 때 INSTA 파일을 기준으로 공용 기준 코드(`free-photo-search`) 등록 검토. landing-architect도 Pixabay 키를 씀(확인 필요).
+- [ ] Pexels 실제 검색 미검수(관리자·시험 계정 모두 Pexels 키 없음) — 키가 생기면 「무료 사진 검색」에서 제공처 Pexels로 한 번 확인.
+- [ ] 같은 장에서 사진을 7번 넘게 바꾸면 「만든 이미지」 목록(최대 6개)에서 밀려난 파일이 작업 삭제 때 정리되지 않을 수 있음(AI 배경과 같은 동작, 30일 정리에는 포함되는지 확인 필요).
+- [ ] 휴대폰 폭(375px)에서 사진 검색 칸 화면 확인 미실시(카드가 한 열이라 패널 폭은 넓어짐).
+- 발견(공통): 카드뉴스 `ui.tsx`의 `SELECT`·`INPUT`이 `w-full`을 갖고 있어 다른 너비 클래스를 덧붙이면 무시될 수 있음 — 새 칸을 만들 때 `replace("w-full ", "")`로 빼고 쓰기.
