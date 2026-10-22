@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — `deploy.mjs --version-only --all` 점검 확대: 건너뛴 폴더 목록 · 역량 지도 버전 칸 비교 (비용 없음)
+- 결과: 화면↔DB 어긋남 1(`competitor-analysis`), 건너뜀 7 — 버전 파일 없음 5(`cardnews-studio`·`instagram-dm-reply`·`seo-thumbnail-pro`·`youtube-channel-consultant`·`yt-playlist-studio`, 대부분 병합·예전 프로그램으로 보임), DB 프로그램 없음 2(`detail-page-12p`·`prompt-template-studio`). **역량 지도 `docs/PROGRAM_CAPABILITY_MAP.md` 목록 표 75줄 중 47줄이 DB 운영 버전과 다름**(예: personality-suite 지도 v1.06·DB v1.27) — 보고만, 지도는 안 고침(다음 단계: 주인님 결정 후 버전 칸만 일괄 갱신).
+- 운영 규칙(2026-10-23): Claude Code는 세션을 시작할 때 `node scripts/deploy.mjs --version-only --all`을 한 번 실행해 어긋난 곳을 보고(PC 작업 스케줄러는 쓰지 않음).
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ 배포 대기 4곳 일괄 배포 (빌드 4회 · AI 0회)
 - 하나씩 순서대로: 올인원 v1.51(BC-05 30일 자동 삭제 + 공용 사본 2개) → 티스토리 v1.88(이미지 0장·글감 출처 본문 근거) → SEO 스튜디오 v2.05(지수 소수점) → 작업실 v1.13(옛 이미지 바로 삭제). 모두 배포 Ready·DB 버전·확장/ZIP(있는 곳) OK·웨일 화면 확인.
 - 올인원 대시보드 Cron 「Run」 200 확인. 남은 확인: 티스토리 글감 출처를 본문 근거로 쓰는 실제 생성 1회(약 5원, 승인 대기).
