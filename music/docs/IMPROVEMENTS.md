@@ -96,3 +96,7 @@
 ## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `4cafe5eb3`
 - 곡 30일 정리(`/api/cron/cleanup`, 2026-10-28까지 유예)가 회원별 `usage_logs` `cleanup_expired`(tracks=지운 곡 수) 기록. 메인 관리자 「🛠️ 운영 상태」의 「30일 정리 기록」 진행률(23곳 중)에 들어가고, 정리 결과가 「30일 자동 정리」 표에 회원 수·지운 개수로 나온다. 기록 실패해도 정리는 계속(오류 로그만).
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꿀 것(`docs/PENDING_DEPLOYS.md` 줄도 정리).
+
+## 2026-10-23 ⚠ 발견(미처리) — 휴대폰 폭에서 좌측 메뉴가 숨지 않고 본문 위에 쌓임 (Claude Code 윈도우, `scripts/check-mobile-account.mjs`)
+- `components/layout/Sidebar.tsx`의 `<aside className="flex w-full flex-col … md:w-72 …">`가 767px 이하에서 숨지 않고 화면 위쪽에 통째로 쌓인다(계정·로그아웃은 보임). 모바일 레이아웃 지침(루트 CLAUDE.md 원칙 19, `docs/SIDEBAR_LAYOUT_STANDARD.md` 「모바일 레이아웃」: 767px 이하는 좌측 메뉴를 숨기고 위쪽 ☰ 펼침 메뉴로)과 다르다.
+- 고칠 때: 기준 `markdown-studio`·`four-cut-comics`처럼 휴대폰 머리줄(☰) + 펼침 메뉴(계정 포함)로. 작은 화면 수정이라 미배포 대기로 모았다가 다음 배포 때 함께. 확인: 크롬 390px 폭.

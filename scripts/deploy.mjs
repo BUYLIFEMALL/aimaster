@@ -111,6 +111,13 @@ if (versionOnly && args.includes("--all")) {
     for (const t of todos) console.log(`  • ${t}`);
   } catch (e) { console.log(`[메인 사이트 할 일] 확인 실패 — ${e.message}`); }
 
+  // 휴대폰 폭 계정 표시 점검(scripts/check-mobile-account.mjs, 코드 읽기) — 요약 한 줄과 후보만(2026-10-23)
+  {
+    const mc = spawnSync(process.execPath, [join(ROOT, "scripts", "check-mobile-account.mjs")], { encoding: "utf8" });
+    const lines = (mc.stdout || "").split(/\r?\n/).filter((l) => l.startsWith("[") || l.startsWith("  ⚠"));
+    for (const l of lines) console.log(l);
+  }
+
   // 안전 커밋 도우미 기준 사본 중 12시간 넘게 남은 것(--begin 뒤 커밋 없이 끝났거나 인계가 필요한 작업, 2026-10-23)
   try {
     const { readdirSync, statSync } = await import("node:fs");
