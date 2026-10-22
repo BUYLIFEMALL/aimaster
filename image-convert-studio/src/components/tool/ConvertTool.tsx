@@ -6,6 +6,7 @@ import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/en
 import { CENTER, MAX_ZOOM, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
 import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
 import { BeforeAfter } from "./BeforeAfter";
+import { sizeChangeLabel } from "@/lib/imageTools/sizeChange";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -616,6 +617,14 @@ export function ConvertTool() {
               after={comparing.result.url}
               labels={{ before: t.convert.compareBefore, after: t.convert.compareAfter, diff: t.convert.compareDiff, hint: t.convert.compareHint, position: t.convert.comparePosition }}
             />
+            {/* v1.18: 화질과 용량을 한 화면에서 */}
+            <p className="mt-3 text-center font-mono text-xs font-bold text-slate-200" data-compare-size>
+              {fmt(t.convert.compareSize, {
+                a: formatBytes(comparing.file.size),
+                b: formatBytes(comparing.result.blob.size),
+                pct: sizeChangeLabel(comparing.file.size, comparing.result.blob.size) ?? "—",
+              })}
+            </p>
           </div>
         </div>
       )}

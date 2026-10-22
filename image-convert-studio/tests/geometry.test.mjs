@@ -94,3 +94,14 @@ test("v1.17 비교 창 이전/다음", async () => {
   const { DICTS } = await import("../src/lib/i18n.ts");
   for (const d of Object.values(DICTS)) assert.ok(d.convert.comparePrev && d.convert.compareNext);
 });
+
+test("v1.18 비교 창 용량 변화", async () => {
+  const { sizeChangeLabel } = await import("../src/lib/imageTools/sizeChange.ts");
+  assert.equal(sizeChangeLabel(1000, 280), "\u221272%");
+  assert.equal(sizeChangeLabel(1000, 1150), "+15%");
+  assert.equal(sizeChangeLabel(1000, 1002), "±0%");
+  assert.equal(sizeChangeLabel(0, 10), null);
+  const { DICTS, fmt } = await import("../src/lib/i18n.ts");
+  assert.equal(fmt(DICTS.ko.convert.compareSize, { a: "1 MB", b: "280 KB", pct: "\u221272%" }), "원본 1 MB → 변환 280 KB (\u221272%)");
+  assert.ok(DICTS.en.convert.compareSize.includes("{pct}"));
+});

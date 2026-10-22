@@ -153,3 +153,6 @@
 ## v1.17 (2026-10-22, Claude Code 윈도우) — 비교 창 「‹ 이전 그림 / 다음 그림 ›」
 - 전후 비교 창에서 변환이 끝난 그림만 차례로 넘김(「2 / 5」 표시, 처음·끝에서 버튼 꺼짐, 키보드 PageUp/PageDown·Esc 닫기). 그림이 바뀌면 비교 위치·색 집게를 새로 시작(`key={comparing.id}`). 문구 ko/en `comparePrev`·`compareNext`.
 - 시험 36개·tsc·build 통과, 배포 Ready, DB v1.17. 크롬: 빨강·초록·파랑 시험 그림 3장 변환 → 1/3 → 2/3(버튼) → 3/3(PageDown) → 2/3(PageUp), 그림마다 색 값 바뀜(#E02020·#20C040·#2050E0), 끝에서 버튼 꺼짐 확인.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 비교 창 용량 표시 (다음 배포 때 v1.18)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 전후 비교 창 아래에 「원본 1.2 MB → 변환 340 KB (−72%)」(늘면 +, 같으면 ±0%). `src/lib/imageTools/sizeChange.ts`(`sizeChangeLabel`), 문구 ko/en `compareSize`. 시험 1개 추가(전체 37개)·tsc·build 통과. 화면 확인은 배포 후.
