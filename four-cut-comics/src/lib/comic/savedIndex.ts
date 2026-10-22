@@ -23,22 +23,14 @@ export interface SavedMeta {
   ext?: ImageExt;
 }
 
+// 형식 판별·MIME은 공용 기준 코드 `resave-receiver`(src/lib/resaveReceiver.ts)에 있다(미배포 정리 2026-10-22)
 export type ImageExt = "jpg" | "png" | "webp";
-export const IMAGE_MIME: Record<ImageExt, string> = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" };
 
-/** 파일 첫 바이트(서명)로 형식을 판별한다 — 보낸 쪽이 적은 형식은 믿지 않는다(v1.34) */
-export function detectImageExt(b: Uint8Array): ImageExt | null {
-  if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpg";
-  if (b.length >= 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 && b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a) return "png";
-  if (b.length >= 12 && String.fromCharCode(...b.subarray(0, 4)) === "RIFF" && String.fromCharCode(...b.subarray(8, 12)) === "WEBP") return "webp";
-  return null;
-}
-
-/** 다시 저장한 그림만 있는 작품의 목록 항목(빈 대본으로 기존 목록 검사 통과) */
-export function importedMeta(o: { id: string; ext: ImageExt; bytes: number; now?: Date }): SavedMeta {
+/** 다시 저장한 그림만 있는 작품의 목록 항목(빈 대본으로 기존 목록 검사 통과). label이 있으면 「○○ 3화 · WEBP」 */
+export function importedMeta(o: { id: string; ext: ImageExt; bytes: number; label?: string; now?: Date }): SavedMeta {
   const now = o.now ?? new Date();
   return {
-    id: o.id, title: "변환 스튜디오에서 다시 저장", episode: 0, panelCount: 0, aspect: "", styleId: "",
+    id: o.id, title: o.label ? `${o.label} · ${o.ext.toUpperCase()}` : "변환 스튜디오에서 다시 저장", episode: 0, panelCount: 0, aspect: "", styleId: "",
     script: { characters: [], panels: [] }, bytes: o.bytes, createdAt: now.toISOString(), expiresAt: expiresAtFor(MAX_RETENTION_DAYS, now),
     imported: "image-convert-studio", ext: o.ext,
   };

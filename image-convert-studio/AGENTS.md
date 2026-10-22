@@ -193,3 +193,6 @@
 ## ✅ v1.24 배포 (2026-10-22, Claude Code 윈도우) — 4컷에도 다시 저장 · 너무 큰 그림 미리 알림
 - `RESAVE_TARGETS`에 4컷(`https://four-cut-comics.buylife.xyz/api/import-result`, 열기 `/works`). `resaveTooBig(via, bytes)`: base64 길이가 받는 곳 한도(3,000,000자 ≈ 2.2MB)를 넘으면 버튼 대신 「너무 큽니다 — 품질이나 크기를 낮춰 다시 변환」(`data-resave-too-big`). 기존 시험의 「4컷은 대상 아님」 기대값을 바뀐 동작으로 고침(시험 유지).
 - 배포: 예외 ②(4컷 새 API와 함께). 검수: 시험 47개, tsc·빌드, 크롬에서 4컷 다시 저장·열기 링크 확인.
+
+## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.24) — 이름표 전달 · 품질 70%로 다시 변환
+- `?label=` → 다시 저장 본문 `label`, 「너무 큼」 옆 「품질 70%로 다시 변환」(`RESAVE_RETRY_QUALITY` 0.7). 시험 48개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위, 루트 `docs/PENDING_DEPLOYS.md`.

@@ -24,7 +24,7 @@ import { importSourceOf } from "@/lib/importSource";
 import { useLang } from "./LangProvider";
 import { viaSource } from "@/lib/linkMark";
 import { markLinkDone } from "@/lib/linkDone";
-import { resaveTarget, resaveTooBig, resaveToSender } from "@/lib/resave";
+import { RESAVE_RETRY_QUALITY, resaveTarget, resaveTooBig, resaveToSender } from "@/lib/resave";
 
 type Status = "idle" | "working" | "done" | "error";
 interface Item {
@@ -121,12 +121,15 @@ export function ConvertTool() {
   const importedFile = useRef<File | null>(null);
   // v1.22: 보낸 프로그램 보관함에 다시 저장 상태(항목별)
   const [resave, setResave] = useState<Record<string, { state: "saving" | "saved" | "error"; msg?: string }>>({});
+  // 보낸 쪽이 붙여 준 원래 이름(?label=, 예: 4컷 「○○ 3화」) — 다시 저장할 때 받는 쪽 제목용(미배포 정리 2026-10-22)
+  const [importLabel, setImportLabel] = useState("");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const src = params.get("src");
     // v1.13: 보낸 프로그램이 게시처 규격도 함께 넘기면(?preset=insta-portrait) 미리 골라 둔다
     const pre = presetFromParam(params.get("preset"));
     const via = viaSource(params.get("via"));
+    const label = (params.get("label") ?? "").slice(0, 60);
     if (pre) setPresetId(pre.id);
     if (!src) return;
     window.history.replaceState(null, "", window.location.pathname);
@@ -143,6 +146,7 @@ export function ConvertTool() {
         addFiles([imported]);
         setImportNote(`${from} 결과를 목록에 넣었습니다. 형식과 크기를 고른 뒤 변환하세요.`);
         setImportVia(via);
+        setImportLabel(label);
       } catch {
         setImportNote(`이미지를 불러오지 못했습니다(주소가 1시간 뒤 만료됩니다). ${from}에서 다시 「형식 바꾸기」를 눌러 주세요.`);
       }
@@ -204,6 +208,25 @@ export function ConvertTool() {
     } catch (error) {
       patch(item.id, { status: "error", error: error instanceof Error ? error.message : t.convert.error });
       return "error";
+    }
+  };
+
+  // 다시 저장하기엔 너무 큰 결과를 같은 형식·품질 70%로 다시 변환한다(이전 결과보다 작을 때만 바꿈 — 미배포 정리 2026-10-22)
+  const retryForResave = async (item: Item) => {
+    if (!item.result) return;
+    const previous = item.result;
+    patch(item.id, { status: "working", error: undefined, note: undefined });
+    try {
+      const blob = await convertImage(item.file, { ...options, quality: Math.min(quality, RESAVE_RETRY_QUALITY), focus: item.focus ?? null });
+      if (blob.size >= previous.blob.size) {
+        patch(item.id, { status: "done", note: t.convert.retryNoGain });
+        return;
+      }
+      URL.revokeObjectURL(previous.url);
+      patch(item.id, { status: "done", result: { blob, name: previous.name, url: URL.createObjectURL(blob) }, note: `품질 ${Math.round(RESAVE_RETRY_QUALITY * 100)}%로 다시 변환했습니다.` });
+      setResave((m) => { const n = { ...m }; delete n[item.id]; return n; });
+    } catch (error) {
+      patch(item.id, { status: "error", error: error instanceof Error ? error.message : t.convert.error });
     }
   };
 
@@ -665,6 +688,10 @@ export function ConvertTool() {
                       {resaveTooBig(importVia.key, item.result.blob.size) ? (
                         <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-2 py-1.5 text-[11px] text-amber-200" data-resave-too-big>
                           📥 {resaveTarget(importVia.key, item.result.blob.type)!.name}에 다시 저장하기엔 너무 큽니다(약 2.2MB까지) — 품질이나 크기를 낮춰 다시 변환해 주세요.
+                          {/* 같은 형식·품질 70%로 한 번에 다시 변환(작아질 때만 바꿈) */}
+                          <button type="button" data-resave-retry disabled={item.status === "working"} onClick={() => void retryForResave(item)} className="ml-1 mt-1 inline-block rounded border border-amber-300/50 px-1.5 py-0.5 font-bold text-amber-100 hover:bg-amber-400/20 disabled:opacity-60">
+                            품질 {Math.round(RESAVE_RETRY_QUALITY * 100)}%로 다시 변환
+                          </button>
                         </p>
                       ) : (
                       <button
@@ -672,7 +699,7 @@ export function ConvertTool() {
                         disabled={resave[item.id]?.state === "saving" || resave[item.id]?.state === "saved"}
                         onClick={async () => {
                           setResave((m) => ({ ...m, [item.id]: { state: "saving" } }));
-                          const err = await resaveToSender(importVia.key, item.result!.blob);
+                          const err = await resaveToSender(importVia.key, item.result!.blob, importLabel);
                           setResave((m) => ({ ...m, [item.id]: err ? { state: "error", msg: err } : { state: "saved" } }));
                         }}
                         className="w-full rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2 py-1.5 text-[11px] font-bold text-emerald-200 transition hover:bg-emerald-500/20 disabled:opacity-60"

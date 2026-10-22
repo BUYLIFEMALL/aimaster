@@ -252,3 +252,6 @@
 
 ## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.31)
 - 다운로드 파일 이름 확장자를 결과 형식대로(`.webp` 추가) — 기록 상세·작업 화면 결과 두 곳. 「외부에서 가져옴」 상세 창은 이미 프리셋 칸이 숨겨지고(`PRESET_KINDS`에 없음) 「이어서 편집」도 그림만 불러와 정상이라 추가 수정 없음. 다음 배포 때 함께 — `docs/IMPROVEMENTS.md` 맨 위 대기 목록.
+
+## 🟡 미배포 대기 추가 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.31) — `resave-receiver` 사본 사용
+- `/api/import-result`가 공용 `resave-receiver` 사본(`src/lib/bnc/resaveReceiver.ts`)으로 CORS·본문·형식 판별, 이름표 있으면 제목에. 시험 45개·tsc·로컬 빌드. 대기 목록: `docs/IMPROVEMENTS.md` 맨 위.

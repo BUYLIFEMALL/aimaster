@@ -120,9 +120,9 @@ test("v1.30 첫 넘김은 본인 usage_logs에도 linked_handoff 1줄(받는 프
 
 test("v1.31 변환 스튜디오에서 다시 저장(/api/import-result): 그 주소만 CORS·실제 형식 확인·실행 목록에는 없음", () => {
   const api = readFileSync(new URL("../src/app/api/import-result/route.ts", import.meta.url), "utf8");
-  assert.match(api, /const IMPORT_ORIGIN = "https:\/\/image-convert-studio\.buylife\.xyz";/);
-  assert.match(api, /request\.headers\.get\("origin"\) === IMPORT_ORIGIN/);
-  assert.match(api, /sharp\(bytes\)\.metadata\(\)/);
+  assert.match(api, /resaveCors\(request\.headers\.get\("origin"\)\)/); // 2026-10-22 공용 기준 코드 resave-receiver 사본
+  assert.match(api, /readResaveBody\(await request\.text\(\), MAX_IMPORT_B64\)/);
+  assert.match(api, /sharp\(r\.bytes\)\.metadata\(\)/);
   assert.match(api, /kind: "import"/);
   assert.match(api, /\.range\(MAX_HISTORY, MAX_HISTORY \+ 100\)/);
   assert.doesNotMatch(api, /Access-Control-Allow-Origin": "\*"/);

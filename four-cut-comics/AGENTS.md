@@ -203,3 +203,6 @@
 - 화면: 작품 카드에 「🔁 변환됨 · WEBP」·「그림만」, 대본 버튼 숨김, 다운로드 이름 `만화-변환-<id8>.<ext>`. 인스타 예약 후보(`WorksInstaSchedule`)에서는 제외(대본·회차 캡션 없음, WebP·PNG는 인스타 게시 형식 아님).
 - **버킷 허용 형식 확대**: `four-cut-comics-files`가 `image/jpeg`·`application/json`만 허용해 첫 시험에서 WebP 업로드가 거절됨 → 주인님 승인(A안)으로 `image/png`·`image/webp` 추가(비공개·5MB 그대로), `supabase/migrations/0011_bucket_png_webp_v1_34.sql`, Storage API `updateBucket`으로 운영 적용.
 - 배포: 예외 ②(변환 스튜디오가 이 새 API를 부름). 검수: 시험 64개, tsc·빌드. 크롬(시험 계정): 바나나 그림 + `via=four-cut-comics` → WebP 변환 → 다시 저장 → 「내 작품」 카드 「변환됨 · WEBP · 그림만」·대본 버튼 없음·인스타 후보 제외 확인 후 삭제.
+
+## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.34) — `resave-receiver` 기준 · 작품 이름표
+- 공용 기준 코드 `resave-receiver` 기준 `src/lib/resaveReceiver.ts`(사본: 인물사진 `src/lib/resaveReceiver.ts`, 바나나 `src/lib/bnc/resaveReceiver.ts`) — 이 파일만 고치고 사본에 손으로 복사(`--sync` 안 씀). `/api/import-result`가 사용. 「형식 바꾸기」 링크 `&label=`, 다시 저장 작품 제목 「○○ 3화 · WEBP」. 시험 65개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위, 루트 `docs/PENDING_DEPLOYS.md`.

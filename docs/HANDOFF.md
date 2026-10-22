@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): **미배포 대기 묶음** — 공용 기준 코드 `resave-receiver` · 4컷 작품 이름표 · 변환 스튜디오 「품질 70%로 다시 변환」
+- 한 일(모두 미배포, 버전 그대로): ③ 받는 쪽 공통(CORS 그 주소만·base64·첫 바이트 형식 판별·이름표)을 공용 기준 코드 `resave-receiver`로(기준 `four-cut-comics/src/lib/resaveReceiver.ts`, 사본 인물사진·바나나 — 손 복사, 등록 `scripts/check-shared-modules.mjs`), 세 API가 사용 — 인물사진은 형식을 보낸 쪽 `mimeType` 대신 첫 바이트로 판별 ① 4컷 「형식 바꾸기」 `&label=○○ 3화` → 변환 스튜디오가 다시 저장 때 `label` 전달 → 4컷·바나나 제목 「○○ 3화 · WEBP」 ② 변환 스튜디오 「너무 큼」 옆 「품질 70%로 다시 변환」. 기존 시험 기대값 3곳은 바뀐 코드 모양에 맞게 고침(시험 유지).
+- 검수: 시험 4컷 65·변환 48·인물사진 47·바나나 45, tsc(종료 코드 0), 로컬 빌드 4곳 통과, 사본 2곳 일치. 크롬 확인은 배포 때.
+- 배포: **미배포 대기(작은 수정·내부 정리)** — `docs/PENDING_DEPLOYS.md`(바나나·4컷·변환 3줄, 바나나 지난 다운로드 확장자 건 포함)·`docs/SHARED_MODULES.md` 「미배포 사본」(resave-receiver 3곳)에 기록. 빌드 0회.
+
 ## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.19: 프로젝트 30일 자동 삭제 크론 + 쇼츠 표지 안내 배포 (빌드 1회, 환경변수 `CRON_SECRET` 추가)
 - 최상위 규칙 미처리 P1 해소: 매일 03:50 KST 만든 지 30일 지난 프로젝트·이미지 삭제, 회원별 `usage_logs` `cleanup_expired`. 미배포 대기 항목 함께 배포(`docs/PENDING_DEPLOYS.md` 내보낸 기록). 첫 실삭제 2026-11-12 무렵. 상세 `thumbnail-master/AGENTS.md` v1.19.
 - 프로그램: https://thumbnail-master.buylife.xyz

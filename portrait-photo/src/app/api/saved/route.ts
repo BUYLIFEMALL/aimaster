@@ -1,21 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { MAX_SAVED_B64, deleteAllSaved, deleteSaved, listSaved, normalizeRetention, saveImage } from "@/lib/saved";
+import { readResaveBody, resaveCors } from "@/lib/resaveReceiver";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 const NO_STORE = { "Cache-Control": "private, no-store" };
-const B64 = /^[A-Za-z0-9+/]+={0,2}$/;
-// v1.40: 이미지 변환 스튜디오 「인물사진 보관함에 다시 저장」 — 그 주소만, 회원 본인 로그인 쿠키(.buylife.xyz)로 POST 허용
-const RESAVE_ORIGIN = "https://image-convert-studio.buylife.xyz";
-function cors(request: NextRequest): Record<string, string> {
-  return request.headers.get("origin") === RESAVE_ORIGIN
-    ? { "Access-Control-Allow-Origin": RESAVE_ORIGIN, "Access-Control-Allow-Credentials": "true", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", Vary: "Origin" }
-    : {};
-}
-
+// v1.40: 이미지 변환 스튜디오 「인물사진 보관함에 다시 저장」 — CORS·본문 읽기·형식 판별은 공용 기준 코드 `resave-receiver` 사본
+// (src/lib/resaveReceiver.ts, 기준 4컷 — 직접 고치지 않음). 2026-10-22부터 보낸 쪽이 적은 mimeType 대신 파일 첫 바이트로 형식 판별.
 export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, { status: 204, headers: cors(request) });
+  return new NextResponse(null, { status: 204, headers: resaveCors(request.headers.get("origin")) });
 }
 
 /** 서버 보관함 목록(서명된 임시 주소, 1시간) */
@@ -28,24 +22,19 @@ export async function GET() {
 /** 회원이 보관함 저장을 켠 경우에만 호출된다. 생성 결과 1장을 비공개 버킷에 저장한다(원본 사진은 받지 않는다). */
 export async function POST(request: NextRequest) {
   const res = await savePost(request);
-  for (const [k, v] of Object.entries(cors(request))) res.headers.set(k, v);
+  for (const [k, v] of Object.entries(resaveCors(request.headers.get("origin")))) res.headers.set(k, v);
   return res;
 }
 
 async function savePost(request: NextRequest) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status, headers: NO_STORE });
-  const raw = await request.text();
-  if (raw.length > MAX_SAVED_B64 + 2_000) return NextResponse.json({ error: "이미지가 너무 큽니다." }, { status: 413, headers: NO_STORE });
-  let body: { image?: { data?: unknown; mimeType?: unknown }; purposeLabel?: unknown; aspect?: unknown; model?: unknown; retentionDays?: unknown } = {};
-  try { body = JSON.parse(raw); } catch { /* 아래에서 처리 */ }
-  const img = body.image;
-  if (!img || typeof img.data !== "string" || typeof img.mimeType !== "string") return NextResponse.json({ error: "이미지가 없습니다." }, { status: 400, headers: NO_STORE });
-  if (!["image/jpeg", "image/png", "image/webp"].includes(img.mimeType)) return NextResponse.json({ error: "지원하지 않는 이미지 형식입니다." }, { status: 400, headers: NO_STORE });
-  if (img.data.length < 100 || img.data.length > MAX_SAVED_B64 || !B64.test(img.data)) return NextResponse.json({ error: "이미지 데이터가 올바르지 않습니다." }, { status: 400, headers: NO_STORE });
+  const r = readResaveBody(await request.text(), MAX_SAVED_B64);
+  if (!r.ok) return NextResponse.json({ error: r.error }, { status: r.status, headers: NO_STORE });
+  const body = r.body as { image: { data: string }; purposeLabel?: unknown; aspect?: unknown; model?: unknown; retentionDays?: unknown };
   const str = (v: unknown) => (typeof v === "string" ? v : "");
   const saved = await saveImage(access.user.id, {
-    base64: img.data, mimeType: img.mimeType, purposeLabel: str(body.purposeLabel), aspect: str(body.aspect), model: str(body.model), retentionDays: normalizeRetention(body.retentionDays),
+    base64: body.image.data, mimeType: r.mime, purposeLabel: str(body.purposeLabel), aspect: str(body.aspect), model: str(body.model), retentionDays: normalizeRetention(body.retentionDays),
   });
   if (!saved) return NextResponse.json({ error: "보관함에 저장하지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 500, headers: NO_STORE });
   return NextResponse.json({ id: saved.id }, { headers: NO_STORE });

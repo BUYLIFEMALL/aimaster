@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { IMAGE_MIME, addToIndex, effectiveExpiry, expiresAtFor, importedMeta, isSavedId, normalizeRetention, parseIndex, splitExpired } from "@/lib/comic/savedIndex";
+import { addToIndex, effectiveExpiry, expiresAtFor, importedMeta, isSavedId, normalizeRetention, parseIndex, splitExpired } from "@/lib/comic/savedIndex";
+import { RESAVE_MIME } from "@/lib/resaveReceiver";
 import type { ImageExt } from "@/lib/comic/savedIndex";
 import type { SavedMeta } from "@/lib/comic/savedIndex";
 import type { Script } from "@/lib/comic/script";
@@ -80,11 +81,11 @@ export async function saveComic(userId: string, o: {
 }
 
 /** v1.34: 이미지 변환 스튜디오에서 다시 저장한 그림 1장을 「그림만 있는 작품」으로 보관(30일, 회원당 30개 한도 동일) */
-export async function saveImported(userId: string, buf: Buffer, ext: ImageExt): Promise<{ id: string; dropped: number } | null> {
+export async function saveImported(userId: string, buf: Buffer, ext: ImageExt, label = ""): Promise<{ id: string; dropped: number } | null> {
   const id = crypto.randomUUID();
-  const up = await createAdminClient().storage.from(BUCKET).upload(imagePath(userId, id, ext), buf, { contentType: IMAGE_MIME[ext], upsert: false, cacheControl: "3600" });
+  const up = await createAdminClient().storage.from(BUCKET).upload(imagePath(userId, id, ext), buf, { contentType: RESAVE_MIME[ext], upsert: false, cacheControl: "3600" });
   if (up.error) return null;
-  const { keep, drop } = addToIndex(await liveIndex(userId), importedMeta({ id, ext, bytes: buf.length }));
+  const { keep, drop } = addToIndex(await liveIndex(userId), importedMeta({ id, ext, bytes: buf.length, label }));
   if (!(await writeIndex(userId, keep))) { await removeImages(userId, [{ id, ext }]); return null; }
   await removeImages(userId, drop);
   return { id, dropped: drop.length };

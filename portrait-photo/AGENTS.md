@@ -238,3 +238,6 @@
 - `listSaved`가 저장 경로 확장자로 `format`(JPEG·PNG·WEBP, `formatOf`)을 돌려주고, 서버 보관함 카드에서 `model === "image-convert-studio"`면 「🔁 변환됨 · WEBP」(`data-converted-badge`). DB 변경 없음.
 - 배포: 작은 화면 수정이지만 변환 스튜디오·바나나 묶음과 같은 실화면 검수를 위해 함께 배포(예외 ②로 기록, 23:17 새 지침 확인 전 배포 — 이후 작은 수정은 미배포 대기로 모음).
 - 검수: 시험 47개, tsc·빌드. 크롬(시험 계정): 다시 저장한 사진에 「🔁 변환됨 · WEBP」 확인 후 삭제.
+
+## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.41) — `resave-receiver` 사본 사용
+- `/api/saved` POST가 공용 `resave-receiver` 사본으로 CORS·본문·형식(첫 바이트) 처리. 시험 47개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위.

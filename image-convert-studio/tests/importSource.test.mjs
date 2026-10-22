@@ -92,3 +92,17 @@ test("v1.24 4컷 보관함도 다시 저장 대상·너무 큰 그림은 미리 
   assert.match(tool, /resaveTooBig\(importVia\.key, item\.result\.blob\.size\) \?/);
   assert.match(tool, /data-resave-too-big/);
 });
+
+test("미배포 대기(2026-10-22): 보낸 쪽 이름표 전달·너무 큰 결과 품질 70%로 다시 변환", async () => {
+  const { RESAVE_RETRY_QUALITY } = await import("../src/lib/resave.ts");
+  assert.equal(RESAVE_RETRY_QUALITY, 0.7);
+  const { readFileSync } = await import("node:fs");
+  const lib = readFileSync(new URL("../src/lib/resave.ts", import.meta.url), "utf8");
+  assert.match(lib, /label: label\.slice\(0, 60\)/);
+  const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(tool, /const label = \(params\.get\("label"\) \?\? ""\)\.slice\(0, 60\);/);
+  assert.match(tool, /resaveToSender\(importVia\.key, item\.result!\.blob, importLabel\)/);
+  assert.match(tool, /data-resave-retry/);
+  assert.match(tool, /quality: Math\.min\(quality, RESAVE_RETRY_QUALITY\)/);
+  assert.match(tool, /if \(blob\.size >= previous\.blob\.size\)/);
+});

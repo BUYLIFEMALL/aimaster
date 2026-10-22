@@ -8,6 +8,9 @@ export const RESAVE_TARGETS: Partial<Record<ViaSource, { name: string; api: stri
   "four-cut-comics": { name: "4컷 보관함", api: "https://four-cut-comics.buylife.xyz/api/import-result", open: "https://four-cut-comics.buylife.xyz/works", maxB64: 3_000_000 },
 };
 
+/** 「너무 큼」일 때 한 번에 다시 시도하는 품질(미배포 정리 2026-10-22) */
+export const RESAVE_RETRY_QUALITY = 0.7;
+
 /** v1.24: base64로 바꾼 길이가 받는 곳 한도를 넘는지 미리 계산(저장 버튼을 누르기 전에 알림) */
 export function resaveTooBig(via: ViaSource | undefined, bytes: number): boolean {
   const target = via ? RESAVE_TARGETS[via] : undefined;
@@ -29,7 +32,8 @@ async function toBase64(blob: Blob): Promise<string> {
 }
 
 /** 성공하면 null, 실패하면 화면에 보여 줄 문구 */
-export async function resaveToSender(via: ViaSource, blob: Blob): Promise<string | null> {
+/** label: 보낸 쪽이 붙여 준 원래 이름(예: 4컷 「○○ 3화」) — 받는 쪽이 제목에 쓴다(미배포 정리 2026-10-22) */
+export async function resaveToSender(via: ViaSource, blob: Blob, label = ""): Promise<string | null> {
   const target = resaveTarget(via, blob.type);
   if (!target) return "이 형식은 다시 저장할 수 없습니다(JPEG·PNG·WebP만).";
   const data = await toBase64(blob);
@@ -39,7 +43,7 @@ export async function resaveToSender(via: ViaSource, blob: Blob): Promise<string
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: { data, mimeType: blob.type }, purposeLabel: "변환 스튜디오에서 다시 저장", aspect: "", model: "image-convert-studio" }),
+      body: JSON.stringify({ image: { data, mimeType: blob.type }, purposeLabel: "변환 스튜디오에서 다시 저장", aspect: "", model: "image-convert-studio", label: label.slice(0, 60) }),
     });
     if (r.ok) return null;
     const d = await r.json().catch(() => ({}));
