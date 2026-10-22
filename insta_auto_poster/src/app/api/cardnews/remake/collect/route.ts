@@ -20,7 +20,9 @@ export const maxDuration = 300;
 // - 그 밖(Instagram 로그인 방식 회원의 계정 수집, 해시태그) → 회원 본인 Apify 토큰(apify/instagram-scraper)
 // 수집 결과는 저장하지 않고 화면에만 돌려준다. action=images 는 고른 게시물 이미지를 1024px JPEG(base64)로 줄여 분석 재료로 돌려준다.
 const GRAPH = "https://graph.facebook.com/v21.0";
-const APIFY_ACTOR = "apify~instagram-scraper";
+// 계정은 범용 수집기(프로필 주소), 해시태그는 전용 수집기 — 범용 수집기에 해시태그 주소를 넣으면 no_items(2026-10-22 실측)
+const APIFY_ACCOUNT_ACTOR = "apify~instagram-scraper";
+const APIFY_HASHTAG_ACTOR = "apify~instagram-hashtag-scraper";
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 
 const json = (status: number, body: Record<string, unknown>) => NextResponse.json(body, { status, headers: { "Cache-Control": "private, no-store" } });
@@ -42,13 +44,16 @@ async function viaOfficial(token: string, igUserId: string, username: string): P
 }
 
 async function viaApify(token: string, kind: CollectKind, q: string): Promise<CollectedPost[]> {
-  const directUrl = kind === "account" ? `https://www.instagram.com/${q}/` : `https://www.instagram.com/explore/tags/${encodeURIComponent(q)}/`;
+  const actor = kind === "account" ? APIFY_ACCOUNT_ACTOR : APIFY_HASHTAG_ACTOR;
+  const input = kind === "account"
+    ? { directUrls: [`https://www.instagram.com/${q}/`], resultsType: "posts", resultsLimit: COLLECT_FETCH, addParentData: false }
+    : { hashtags: [q], resultsType: "posts", resultsLimit: COLLECT_FETCH };
   let res: Response;
   try {
-    res = await fetch(`https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?timeout=180`, {
+    res = await fetch(`https://api.apify.com/v2/acts/${actor}/run-sync-get-dataset-items?timeout=180`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ directUrls: [directUrl], resultsType: "posts", resultsLimit: COLLECT_FETCH, addParentData: false }),
+      body: JSON.stringify(input),
       cache: "no-store",
       signal: AbortSignal.timeout(240_000),
     });
@@ -58,8 +63,17 @@ async function viaApify(token: string, kind: CollectKind, q: string): Promise<Co
   if (res.status === 401 || res.status === 403) throw new BlockedUrlError("Apify 토큰이 올바르지 않습니다. [API키등록·플랫폼연동]에서 본인 토큰을 확인해 주세요.");
   if (res.status === 402) throw new BlockedUrlError("Apify 크레딧이 부족합니다. Apify 계정의 사용량·결제를 확인해 주세요.");
   if (!res.ok) throw new BlockedUrlError(`Apify 수집에 실패했습니다(${res.status}). 잠시 뒤 다시 시도해 주세요.`);
-  const items = (await res.json().catch(() => [])) as unknown[];
-  return rankPosts(Array.isArray(items) ? items.map(fromApifyItem) : []);
+  const raw = (await res.json().catch(() => [])) as unknown;
+  const items = Array.isArray(raw) ? raw : [];
+  const posts = rankPosts(items.map(fromApifyItem));
+  // 결과 없이 오류 항목만 오면(비공개·없는 계정 등) 빈 목록 대신 이유를 알려 준다
+  const errItem = items.find((x) => x && typeof x === "object" && "error" in (x as object)) as { error?: string; errorDescription?: string } | undefined;
+  if (!posts.length && errItem) {
+    throw new BlockedUrlError(errItem.error === "no_items" || /private|empty/i.test(String(errItem.errorDescription ?? ""))
+      ? (kind === "account" ? `@${q} 계정의 공개 게시물을 찾지 못했습니다. 계정 이름과 공개 여부를 확인해 주세요.` : `#${q} 해시태그의 공개 게시물을 찾지 못했습니다. 철자를 확인하거나 다른 해시태그로 시도해 주세요.`)
+      : `Apify 수집에 실패했습니다: ${String(errItem.errorDescription ?? errItem.error).slice(0, 120)}`);
+  }
+  return posts;
 }
 
 async function toJpegBase64(url: string): Promise<{ mimeType: string; data: string } | null> {
