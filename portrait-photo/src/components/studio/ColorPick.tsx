@@ -56,6 +56,20 @@ export function pickColor(px: Pixels | null, frameW: number, frameH: number, xPc
   return n ? [r / n, g / n, b / n] : null;
 }
 
+/**
+ * v1.37: 밝기 보정 추천 — 화면 밝기 필터는 brightness((100+밝기+노출)/100)로 색 값에 배율을 곱한다.
+ * 원본·결과 색의 밝기(휘도) 비율로 「결과가 원본과 같은 밝기가 되는 밝기 값」을 계산한다(노출 값은 그대로 둔 채). 범위 −50~50.
+ * 결과 색이 너무 어두워(휘도 8 미만) 비율을 믿을 수 없으면 null
+ */
+export function recommendBrightness(orig: RGB | null, res: RGB | null, exposure = 0): number | null {
+  if (!orig || !res) return null;
+  const y = ([r, g, b]: RGB) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const yr = y(res);
+  if (yr < 8) return null;
+  const target = Math.round((y(orig) / yr) * 100 - 100 - exposure);
+  return Math.max(-50, Math.min(50, target));
+}
+
 function Swatch({ label, rgb }: { label: string; rgb: RGB | null }) {
   const hex = rgb ? toHex(...rgb) : null;
   return (
@@ -67,12 +81,21 @@ function Swatch({ label, rgb }: { label: string; rgb: RGB | null }) {
 }
 
 /** 원본·결과 색과 차이 한 줄. note가 있으면 아래에 안내 */
-export function ColorPickRow({ a, b, note }: { a: RGB | null; b: RGB | null; note?: string }) {
+export function ColorPickRow({ a, b, note, brightness, exposure = 0, onApplyBrightness }: { a: RGB | null; b: RGB | null; note?: string; brightness?: number; exposure?: number; onApplyBrightness?: (v: number) => void }) {
+  // v1.37: 결과 밝기가 원본과 3 이상 다르면 밝기 값 추천
+  const rec = onApplyBrightness && brightness !== undefined ? recommendBrightness(a, b, exposure) : null;
+  const showRec = rec !== null && brightness !== undefined && Math.abs(rec - brightness) >= 3;
   return (
     <div className="cpk" aria-label="색 집게">
       <Swatch label="원본 색" rgb={a} />
       <div className="cpk-diff"><small>색 차이</small><b data-cpk-diff>{a && b ? `${colorDiffPercent(a, b)}%` : "—"}</b></div>
       <Swatch label="결과 색" rgb={b} />
+      {showRec && (
+        <p className="cpk-rec" data-cpk-rec={rec}>
+          이 자리 밝기를 원본에 맞추려면 <b>밝기 {rec > 0 ? `+${rec}` : rec}</b>{rec === 50 || rec === -50 ? "(조절 범위 끝값)" : ""}을 추천합니다.
+          <button type="button" onClick={() => onApplyBrightness?.(rec)}>적용</button>
+        </p>
+      )}
       {note && <p className="cpk-note">{note}</p>}
     </div>
   );

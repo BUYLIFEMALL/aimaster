@@ -62,3 +62,13 @@ test("v1.37 색 집게: 틀 위치 → 색, 좌우 반전·여백", async () => 
   assert.equal(pickColor(p2, 200, 200, 50, 5), null); // 위쪽 여백
   assert.equal(pickColor(null, 200, 200, 50, 50), null);
 });
+
+test("v1.37 밝기 보정 추천", async () => {
+  const { recommendBrightness } = await import("../src/components/studio/ColorPick.tsx");
+  assert.equal(recommendBrightness([200, 160, 140], [160, 128, 112]), 25); // 결과가 원본의 80% → +25
+  assert.equal(recommendBrightness([120, 100, 90], [150, 125, 112.5]), -20); // 결과가 더 밝음 → −20
+  assert.equal(recommendBrightness([200, 160, 140], [160, 128, 112], 10), 15); // 노출 +10은 빼고 계산
+  assert.equal(recommendBrightness([250, 250, 250], [100, 100, 100]), 50); // 범위 끝
+  assert.equal(recommendBrightness([100, 100, 100], [3, 3, 3]), null); // 너무 어두움
+  assert.equal(recommendBrightness(null, [100, 100, 100]), null);
+});

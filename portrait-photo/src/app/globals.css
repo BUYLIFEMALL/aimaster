@@ -200,6 +200,8 @@ a.project-card{color:inherit}
 .cpk-chip{width:26px;height:26px;border-radius:8px;border:1px solid var(--line)}
 .cpk-chip.empty{background:repeating-linear-gradient(45deg,var(--line) 0 4px,transparent 4px 8px)}
 .cpk-note{flex-basis:100%;margin:0;font-size:11px;opacity:.8}
+.cpk-rec{flex-basis:100%;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px}
+.cpk-rec button{padding:2px 10px;font-size:12px}
 .cpk-hint{margin-top:8px;font-size:12px;opacity:.8}
 .size-select{width:auto;max-width:100%;font-size:12px}
 

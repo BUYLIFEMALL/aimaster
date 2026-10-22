@@ -940,6 +940,9 @@ export function Studio({ userId }: { userId: string }) {
                     a={pickColor(cmpOrigPx, stageSize.w, stageSize.h, cmpPos, cmpY, selfie)}
                     b={pickColor(cmpResultPx, stageSize.w, stageSize.h, cmpPos, cmpY, mirrored)}
                     note={toneActive || (whiten && cleaned) ? "결과 색은 밝기 보정·배경 정리 전 원래 픽셀 기준입니다." : undefined}
+                    brightness={brightness}
+                    exposure={exposure}
+                    onApplyBrightness={(v) => setBrightness(v)}
                   />
                 : <p className="cpk-hint">사진 위를 누르면 그 자리의 원본·결과 색(피부 톤 등)을 비교해 드립니다.</p>
             )}

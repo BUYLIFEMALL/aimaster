@@ -215,3 +215,4 @@
 ## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 「원본과 비교」 색 집게 (다음 배포 때 v1.37)
 - 주인님 지시로 코드만 반영하고 배포는 보류. 「원본과 비교」 중 사진 위를 누르거나 끈 자리에 작은 점을 찍고, 아래에 그 자리의 원본·결과 색(HEX, 주변 5×5 평균)과 색 차이(%)를 표시(피부 톤 확인용). 셀카 원본 반전(`selfie`)·결과 좌우 반전(`mirrored`)을 맞춰 읽고, 밝기 보정·배경 정리 중이면 「원래 픽셀 기준」 안내. `src/components/studio/ColorPick.tsx`(`useImagePixels`·`pickColor`·`ColorPickRow`), 좌표는 공용 compare-slider 사본의 `containPoint`·`colorDiffPercent`. CSS `.cmp-dot`·`.cpk*`.
 - 시험 1개 추가(전체 42개)·tsc·build 통과. 화면 확인은 배포 후, 결과 사진이 있어야 함(사진 사용 동의 체크는 회원 절차).
+- (같은 미배포 v1.37에 추가) **밝기 보정 추천**: 색 집게로 집은 자리의 원본·결과 휘도 비율로 「결과가 원본과 같은 밝기가 되는 밝기 값」(−50~50, 지금 노출 값 제외)을 계산해, 현재 밝기와 3 이상 다르면 「밝기 +N 추천 [적용]」 표시 → 누르면 세부 조정의 밝기 슬라이더 값이 바뀜. 결과가 너무 어두우면(휘도 8 미만) 추천하지 않음. `recommendBrightness`(`ColorPick.tsx`), CSS `.cpk-rec`. 시험 1개 추가(전체 43개)·tsc·build 통과.
