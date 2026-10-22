@@ -6,6 +6,10 @@
 
 ## 현재 위치와 읽는 순서
 
+<!-- TISTORY_AUTO_PUBLISH_PROGRESS_20261022 -->
+**최신 2026-10-22 티스토리 v1.85 운영 완료(Claude Code 윈도우 — Codex 크레딧 제한으로 주인님 지시 이어받음):** 저장 응답 보존·커스텀 도메인 /entry/ 결과를 관리 목록 본인 글 번호로 연결. 157개 통과·배포 Ready·DB/확장/ZIP v1.85. **실제 비공개 자동 발행 1건(16번 → 232번)에서 게시 주소·시각이 자동 기록됨**(웹 「실제 발행 완료」, 티스토리 목록 1건·비공개). 15번(231번)은 읽기 확인 후 결과만 수동 복구. AI 0, 공개/예약/이미지 포함 발행 미시험. [상세](../tistory-auto-blog/docs/IMPROVEMENTS.md) 맨 아래. **다음: 에이전트 실제 발행 검수.**
+<!-- /TISTORY_AUTO_PUBLISH_PROGRESS_20261022 -->
+
 <!-- SEO_AUTO_PUBLISH_PROGRESS_20261021 -->
 **최신 우선 작업 SEO v1.83 운영 완료:** 주인님 요청에 따라 SEO 실제 자동 포스팅을 BLC-07보다 먼저 구현·검수. 비공개 실제 발행 1건·URL/시각 DB 기록·중복 없는 결과 재확인·웹 기록/재열기와 별도 웹 전송/확장 미리보기, 안내/복사/516px 완료. 코드 a2fe43f9·Ready·DB/확장/ZIP v1.83. AI 0, 이미지 포함 실제 발행/공개/예약 미시험. [인수인계](../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md). **다음: 티스토리 자동 포스팅, 그 뒤 에이전트 실제 발행 검수.** 아래 BLC-07~15는 일반 기능 이관 잔여이며 완료로 변경하지 않는다.
 <!-- /SEO_AUTO_PUBLISH_PROGRESS_20261021 -->

@@ -1,6 +1,6 @@
 ﻿# tistory-auto-blog — 티스토리 포스팅 자동화
 
-> **2026-10-22 v1.85 운영 배포(Claude Code 윈도우, Codex 이어받음):** 저장 응답 보존(`Network.configureDurableMessages`)·커스텀 도메인 `/entry/` 결과를 관리 목록의 같은 주소·제목 본인 글 번호로 연결. 157개 통과·DB/확장/ZIP v1.85 OK. 15번 결과는 읽기 확인 후 수동 복구(자동 성공 아님). **남은 일: 새 합성 원고 1건 실제 비공개 자동 발행·주소 자동 기록 확인.** 상세 [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래 · [플랜](docs/PLAN_20261022_AUTO_PUBLISH_V185.md).
+> **2026-10-22 v1.85 운영 배포(Claude Code 윈도우, Codex 이어받음):** 저장 응답 보존(`Network.configureDurableMessages`)·커스텀 도메인 `/entry/` 결과를 관리 목록의 같은 주소·제목 본인 글 번호로 연결. 157개 통과·DB/확장/ZIP v1.85 OK. 15번 결과는 읽기 확인 후 수동 복구(자동 성공 아님). **실제 검수 완료: 16번 비공개 자동 발행 → 232번 주소·시각 자동 기록(웨일, 관리자 계정).** 미시험: 공개·예약·이미지 포함. 상세 [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래 · [플랜](docs/PLAN_20261022_AUTO_PUBLISH_V185.md).
 > **운영 이름 변경 완료:** v1.83 Ready·Edge 새 이름 확인, 소스 release/tistory-name-v183-20261022 (`8589073f`). [배포 완료/차기 v1.84 구분](docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md). master 자동 발행 후보는 v1.84 미배포입니다.
 > **2026-10-22 운영 이름 우선 반영:** 운영 v1.83은 기존 입력 준비 기능+새 명칭 **티스토리 포스팅 자동화** 릴리스입니다. 이 master의 자동 최종 발행 구현은 **후속 v1.84 미배포/실검수 대기**입니다. [명칭 반영 플랜](docs/PLAN_20261022_NAME_RELEASE.md). 이전 v1.83 자동 발행 후보 기록은 개발 이력으로 읽습니다.
 > **2026-10-22 최신 재개 위치:** 실제 입력은 completed, 댓글 메뉴/비공개 현재 처리 수정·155개 검사 통과, 실설정 재검수/배포/최종 발행 대기. [이어가기 인수인계](docs/IMPROVEMENT_HANDOFF_20261022_AUTO_PUBLISH_CONTINUE.md).

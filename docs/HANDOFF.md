@@ -13,7 +13,7 @@
 ## 2026-10-22 Claude Code(윈도우, 웨일) — 티스토리 포스팅 자동화 v1.85 배포: Codex 작업 이어받음 (빌드 1회)
 - Codex가 크레딧 제한으로 멈춘 v1.85(커스텀 도메인 `/entry/` 저장 결과 → 관리 목록 본인 글 번호 연결)를 이어받아 마무리. 남은 실패 테스트 원인(저장 직후 이동으로 응답 본문 유실) → `Network.configureDurableMessages` 추가. 157개 통과, 진단 파일 삭제.
 - 배포 Ready·DB/확장/ZIP v1.85·`check-extension-release` OK·운영 화면 v1.85. 15번 글은 관리 목록 읽기(231·비공개·1건)로 결과만 수동 복구(자동 성공 아님).
-- 남은 일: 새 합성 원고 1건 실제 비공개 자동 발행으로 주소 자동 기록 확인(회원 PC에 v1.85 확장 설치·연결 필요). 상세 `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래.
+- 실제 검수 완료: 웨일 v1.85 확장(관리자 계정)으로 16번 비공개 자동 발행 → `https://buylifemall.tistory.com/232` 주소·시각 자동 기록, 티스토리 목록 1건·비공개, 웹 「실제 발행 완료」. 미시험: 공개·예약·이미지 포함. 시험 글 230~232(비공개) 정리는 주인님 판단. 상세 `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래.
 - 프로그램: https://tistory-auto-blog.buylife.xyz
 
 ## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.28 공용 영상 코드 사본 배포 (빌드 1회)
