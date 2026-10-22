@@ -2706,3 +2706,5 @@
 
 - **2026-10-22 image-convert-studio v1.12 — 캔버스 회전+반전 순서**: 증상 = 오른쪽 90° 회전 + 좌우 반전이 결과에서 상하 반전처럼 보임. 원인 = `ctx.rotate()` 다음 `ctx.scale(-1,1)` → 반전이 회전 전 원본 좌표계에 적용. 해결 = `translate → scale → rotate` 순서(`lib/imageTools/engine.ts`). 다음부터: 회전·반전 기능은 한쪽 귀퉁이에 색 표시를 넣은 시험 그림으로 결과 네 귀퉁이 색을 확인할 것.
 - **2026-10-22 자동 화면 시험 — 첫 번째 파일 입력칸 주의**: 웹툰처럼 「프로젝트 불러오기(JSON)」 입력칸이 먼저 있는 화면에서 `document.querySelector('input[type=file]')`로 그림을 넣으면 JSON 오류 알림창(alert)이 떠 탭이 멈춤(스크립트·캡처 모두 응답 없음). 다음부터: `accept`에 `image`가 있는 입력칸을 골라 넣고, 시험 전 `window.alert`를 기록 함수로 바꿔 둘 것.
+
+- (2026-10-22, style-dna-analyzer v1.27→v1.28, Claude Code) **증상**: 이미지 비교 상자에 `w-full` + `aspect-ratio` + `max-h`를 함께 주자 넓은 화면에서 틀이 폭 전체로 펴져(810×480) 정사각 원본이 가운데에만 작게 보이고 생성 이미지와 같은 자리 비교가 안 됨. **원인**: `max-height`가 높이만 자르고 폭은 `w-full` 그대로라 비율이 깨짐. **해결**: 틀 폭을 `maxWidth: min(100%, 최대높이×가로/세로 px)` + `mx-auto`로 제한(`style-dna-analyzer/src/components/dna/CompareSlider.tsx`). **다음부터**: 비율 고정 틀에 최대 높이를 줄 때는 폭 상한을 비율로 계산해 함께 준다. 또 크롬 확장 `left_click_drag` 좌표는 캡처 좌표(배율 다름)라 JS의 `getBoundingClientRect` 값을 그대로 쓰면 빗나간다 — 캡처에서 위치를 읽어 쓴다.

@@ -6,6 +6,7 @@ import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL } from "@/lib/ai/imageModels";
 import { colorMatch, fileToResizedDataUrl } from "@/lib/dna/imageFile";
 import { SUBJECT_PLACEHOLDER_EN } from "@/lib/dna/types";
 import { useDna } from "@/components/dna/AnalysisProvider";
+import { CompareSlider } from "@/components/dna/CompareSlider";
 import { BTN_PRIMARY, Card, ErrorNote, Field, INPUT, NeedAnalysis, SELECT, StepHeader } from "@/components/dna/ui";
 
 export default function TestPage() {
@@ -258,6 +259,14 @@ export default function TestPage() {
               )}
             </Card>
           </div>
+
+          {/* F5(v1.27): 원본 ↔ 생성 겹쳐 비교 */}
+          {result && (
+            <Card className="space-y-2">
+              <h2 className="text-sm font-bold text-slate-900">원본 ↔ 생성 비교</h2>
+              <CompareSlider before={record.imageUrl} after={result.image} />
+            </Card>
+          )}
 
           {result && (
             <Card className="flex flex-wrap items-center justify-between gap-3 border-violet-100 bg-violet-50/40">
