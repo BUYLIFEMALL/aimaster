@@ -19,7 +19,6 @@
 |---|---|---|---|---|---|
 | `threads-content-ops` (운영 v2.17) | 보관함 초안 「수정」 중 무료 사진 추가·빼기(저장·발행·예약 때 함께 저장, 본인 폴더만) | `922cedd37` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/AGENTS.md` 맨 아래 「⏸ 미배포 대기」 | v2.18, 초안 수정 → 무료 사진 추가 → 저장 → 썸네일·저장 경로 확인(작성 탭 `addFreePhoto` 미확인 항목도 함께) |
 | `music` (운영 v1.43) | 공용 Suno 코드 `callbackOrigin` 선택값(이 앱 동작 변화 없음 — AI 음악 스튜디오 v1.03용) | `acccf06eb` | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, 곡 생성 1회 콜백 정상 확인 |
-| `threads` (운영 v1.31) | 「🔤 영어로」 사전 194개로 보강(회원 글감에서 자주 나온 말·업종별 말), 붙여 쓴 말은 두 글자 이상으로만 나눔(「비용」→rain 같은 오변환 방지), 「정리」→organize · 공용 기준 코드 `photo-keywords` 기준이 됨 · 영어 결과 0장이면 「한국어로 다시 찾기」(한글 있을 때만) | `93b2aac56` `d4dcd0384` `4bebfb016` | 2026-10-23 · Claude Code(윈도우) | `threads/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 새 글 「🔤 영어로」로 「미용실 창업」→hair salon startup 확인 |
 | `naver-blog-agent` (운영 v2.10) | 기한 지난 미사용 연결 번호 정리(번호 발급 때) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-agent/AGENTS.md` 맨 위 「미배포 대기」 | v2.11(설치 상태 문구와 함께) |
 | `ai-auto-blog` (운영 v1.78) | 옛 자동 연결 코드 정리(연결 성공 뒤, 안 쓰이거나 30일 미사용만) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `ai-auto-blog/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
 | `ai-auto-blog` (운영 v1.78) | 소제목 반복 제거(지시문 1줄 + `dropRepeatedHeading`) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `ai-auto-blog/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
@@ -70,6 +69,7 @@
 | `insta_auto_poster` | v1.67 · 2026-10-23 (한국어로 다시 찾기) | JPEG 저장 `8b44df90d` · 설명 한 줄 `8022fbf0a` · 공용 사전 `93b2aac56` |
 | `tistory-auto-blog` | v1.90 · 2026-10-23 | 옛 자동 연결 코드 정리 `da9805c6b` · 글 품질 보완(이번 커밋) |
 | `threads-affiliate-poster` | v1.83 · 2026-10-23 (상품 연동 공용 기준 코드 `affiliate-clients`, 승인 빌드) | 없음 |
+| `threads` | v1.32 · 2026-10-23 (미배포 모아 내보냄, Claude Code 윈도우, 승인 빌드 1회) | 사전 보강 `93b2aac56` · 한국어로 다시 찾기 `d4dcd0384`·`4bebfb016` |
 | `threads-content-ops` | v2.17 · 2026-10-23 (작성 탭 무료 사진 — 보류 패치 적용, Claude Code 윈도우, 승인 빌드 1회) | 없음 |
 | `threads-content-ops` | v2.16 · 2026-10-23 (상품 연동 공용 기준 코드 `affiliate-clients` 사본, 승인 빌드) | 없음 |
 | `playlist-channel-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(`22c6cda35`) | v1.27 · 2026-10-23 · Claude Code(윈도우) — AI 음악 스튜디오 곡 가져오기와 함께 |
