@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 서브프로그램 배포 도우미 — 2026-10-23 (Claude Code 윈도우)
 // 사용: node scripts/deploy.mjs <폴더>          미배포 대기·작업 중 표만 보여 주고 끝(빌드 없음)
-//       node scripts/deploy.mjs <폴더> --go     위 확인 뒤 그 폴더에서 `vercel deploy --prod --yes --scope buylife` 실행(빌드 1회 = 비용) → DB 버전 비교
+//       node scripts/deploy.mjs <폴더> --go [--owner "<작업 중 표 내 줄 일부>"]     위 확인 뒤 그 폴더에서 `vercel deploy --prod --yes --scope buylife` 실행(빌드 1회 = 비용) → DB 버전 비교
 //       node scripts/deploy.mjs <폴더> --version-only   배포 없이 화면 버전(APP_VERSION)과 DB programs.version 비교만
 //       … --set-version   위 비교에서 다르면 운영 DB programs.version을 화면 버전으로 고침(이 옵션이 있을 때만 DB 쓰기)
 //       node scripts/deploy.mjs --version-only --all   연결된 모든 프로그램 비교, 어긋난 곳만 보고(DB 안 고침) — 세션 시작 때 1회
@@ -197,8 +197,11 @@ if (!go) {
   console.log(`      실행할 명령: (cd ${folder} && npx ${cmd.join(" ")})`);
   process.exit(0);
 }
-if (active.some((l) => !/Claude Code\(윈도우\)/.test(l))) {
+// 작업 중 표에 이 폴더 줄이 있으면 배포하지 않는다. 내 줄이면 --owner "<내 줄의 작업 설명 일부>"로 표시(같은 장비의 다른 세션과 구별, 2026-10-23)
+const ownerArg = args.includes("--owner") ? args[args.indexOf("--owner") + 1] : null;
+if (active.some((l) => !(ownerArg && l.includes(ownerArg)))) {
   console.log("\n✖ 다른 세션이 작업 중인 폴더라 배포하지 않습니다. 그 세션이 끝난 뒤 다시 실행하세요(공동작업 규칙).");
+  console.log("  내 줄이라면: --owner \"<작업 중 표의 내 줄 작업 설명 일부>\"를 붙여 다시 실행");
   process.exit(1);
 }
 // 배포 뒤 대기 줄 정리·인수인계를 안전 커밋 도우미로 하도록, 고치기 전 기준 사본을 지금 떠 둠(2026-10-23 — 배포 기록 커밋의 되돌림 방지)

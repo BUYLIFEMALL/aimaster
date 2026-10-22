@@ -45,7 +45,7 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav className="flex-1 overflow-y-auto p-3">
+    <nav className="min-h-0 shrink overflow-y-auto p-3">
       {/* 핵심 작업 흐름: 원형 번호 배지와 세로 연결선 */}
       <div className="relative">
         {FLOW_STEPS.map(({ step, href, label, description, icon: Icon }, index) => {
