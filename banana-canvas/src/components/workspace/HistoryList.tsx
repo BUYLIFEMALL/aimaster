@@ -28,6 +28,8 @@ export function HistoryList() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState("");
   const [onlyFav, setOnlyFav] = useState(false);
+  // v1.26: 다른 프로그램에서 온 결과만 보기(보낸 곳이 있는 결과가 있을 때만 버튼 표시)
+  const [onlySrc, setOnlySrc] = useState(false);
   const [open, setOpen] = useState<Detail | null>(null);
   // v1.18: 기록 상세에서 「이 컷만 다시」·「레시피로 저장」
   const [recutting, setRecutting] = useState<number | null>(null);
@@ -90,17 +92,19 @@ export function HistoryList() {
     setPresetName(""); setPresetMsg(`저장했습니다. 새 작업의 「${PRESET_KIND_LABEL[open.kind]}」 카드에서 불러올 수 있습니다.`);
   }
 
-  const shown = (rows ?? []).filter((r) => !onlyFav || r.favorite);
+  const hasSrc = (rows ?? []).some((r) => r.ideaSource);
+  const shown = (rows ?? []).filter((r) => (!onlyFav || r.favorite) && (!onlySrc || !hasSrc || !!r.ideaSource));
   return (
     <div className="card">
       <div className="actions">
         <a className="button primary" href="/studio">새 작업</a>
         <button type="button" aria-pressed={onlyFav} onClick={() => setOnlyFav((v) => !v)}><Star size={14} />즐겨찾기만</button>
+        {hasSrc && <button type="button" aria-pressed={onlySrc} data-only-src onClick={() => setOnlySrc((v) => !v)}>🔗 다른 프로그램에서 온 결과만</button>}
         <small>최근 30건까지 보관하며(즐겨찾기 제외), 모든 결과는 만든 날부터 30일 뒤 자동 삭제됩니다. 필요한 이미지는 내려받아 두세요.</small>
       </div>
       {error && <p role="alert" className="error" style={{ marginTop: 12 }}>{error}</p>}
       {rows === null ? <p className="empty">불러오는 중…</p> : shown.length === 0 ? (
-        <p className="empty">{onlyFav ? "즐겨찾기한 결과가 없습니다." : "아직 결과가 없습니다. [새 작업]으로 첫 이미지를 만들어 보세요."}</p>
+        <p className="empty">{onlyFav && onlySrc ? "다른 프로그램에서 온 결과 중 즐겨찾기한 것이 없습니다." : onlyFav ? "즐겨찾기한 결과가 없습니다." : "아직 결과가 없습니다. [새 작업]으로 첫 이미지를 만들어 보세요."}</p>
       ) : (
         <div className="project-grid">
           {shown.map((r) => (

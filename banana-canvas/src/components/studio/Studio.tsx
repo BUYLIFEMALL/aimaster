@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ideaSourceName, ideaSourceUrl, MAX_IDEA } from "@/lib/bnc/ideaParam";
+import { ideaSourceKey, ideaSourceName, ideaSourceUrl, MAX_IDEA } from "@/lib/bnc/ideaParam";
 import type { BananaSource } from "@/lib/bnc/bananaIdeaLink";
 import { Download, ImagePlus, Loader2, Maximize2, Plus, RefreshCw, Sparkles, Star, Trash2, Wand2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -121,6 +121,8 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
 
   // 이미지 생성
   const [idea, setIdea] = useState(initialIdea ?? "");
+  // v1.26: 이 화면에서 하는 모든 작업에 붙일 보낸 곳(주소 `?src=` 또는 「이어서 편집」한 기록에서 이어받음)
+  const [carrySource, setCarrySource] = useState<BananaSource | undefined>(ideaSource);
   // v1.24: 다른 프로그램이 보낸 아이디어로 열리면 「이미지 생성」 카드로 내려가 테두리를 잠깐 강조(한 번만)
   useEffect(() => {
     if (!initialIdea) return;
@@ -183,8 +185,11 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
   useEffect(() => {
     if (!fromId) return;
     (async () => {
-      const r = await api<{ item: { outputs: Out[] } }>(`/api/history/${fromId}`, "GET");
+      const r = await api<{ item: { outputs: Out[]; options?: { ideaSource?: unknown } } }>(`/api/history/${fromId}`, "GET");
       if (!r.ok) { fail(r); return; }
+      // v1.26: 다른 프로그램에서 온 결과를 이어서 편집하면 보낸 곳도 이어받아 이후 작업 기록에 남긴다
+      const carried = ideaSourceKey(r.data.item.options?.ideaSource);
+      if (carried) setCarrySource(carried);
       const o = r.data.item.outputs.filter((x) => x.path && x.url)[fromIndex ?? 0];
       if (o?.url) setBase({ path: o.path, url: o.url, name: "result" });
     })();
@@ -257,7 +262,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
     setError(null); setBusy(kind); setResult(null);
     const usedBase = base?.url ?? null;
     const r = await api<Result>("/api/run", "POST", {
-      params: { kind, model, base: base?.path, sources: sources.map((s) => s.path), ...extra },
+      params: { kind, model, base: base?.path, sources: sources.map((s) => s.path), ideaSource: carrySource, ...extra },
     });
     setBusy("");
     if (!r.ok) {
@@ -406,7 +411,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
             <AspectPick value={genAspect} onChange={(a) => setGenAspect(a as Aspect)} />
             <div className="bc-btns">
               <button type="button" className="bc-suggest" disabled={disabled || !idea.trim()} onClick={() => void suggest("generate", setIdea)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
-              <button type="button" className="primary" disabled={disabled || !idea.trim()} onClick={() => void run("generate", { prompt: idea, category, aspect: genAspect, ideaSource })}><Wand2 size={14} />이미지 생성</button>
+              <button type="button" className="primary" disabled={disabled || !idea.trim()} onClick={() => void run("generate", { prompt: idea, category, aspect: genAspect })}><Wand2 size={14} />이미지 생성</button>
             </div>
           </Card>
 

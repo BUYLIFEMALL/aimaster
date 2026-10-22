@@ -59,7 +59,8 @@ export function cleanParams(raw: unknown): RunParams | null {
     colorize: r.colorize !== false,
     sourceNotes: (Array.isArray(r.sourceNotes) ? r.sourceNotes : []).slice(0, sources.length).map((n) => text(n, 300)),
     background: r.background === "keep" || r.background === "change" ? r.background : "auto",
-    ideaSource: r.kind === "generate" && isBananaSource(r.ideaSource) ? r.ideaSource : undefined,
+    // v1.26: 이어서 편집한 작업도 같은 출처로 남기도록 모든 작업 종류에서 받는다(공용 이름표에 있는 이름만)
+    ideaSource: isBananaSource(r.ideaSource) ? r.ideaSource : undefined,
     ...graphicParams(r),
   };
 }

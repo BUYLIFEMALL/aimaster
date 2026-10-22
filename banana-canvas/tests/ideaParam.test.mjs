@@ -49,10 +49,20 @@ test("v1.25 받는 쪽 한도·이름표 = 공용 사본, 돌아가기 주소, �
   const { cleanParams } = await import("../src/lib/bnc/tasks.ts");
   assert.equal(cleanParams({ kind: "generate", prompt: "고양이", ideaSource: "reverse-prompt" }).ideaSource, "reverse-prompt");
   assert.equal(cleanParams({ kind: "generate", prompt: "고양이", ideaSource: "evil" }).ideaSource, undefined);
-  assert.equal(cleanParams({ kind: "edit", prompt: "x", ideaSource: "reverse-prompt" }).ideaSource, undefined);
+  // v1.26: 이어서 편집한 작업도 같은 출처로 — 모든 작업 종류에서 받음(이름표에 있는 이름만)
+  assert.equal(cleanParams({ kind: "edit", prompt: "x", ideaSource: "reverse-prompt" }).ideaSource, "reverse-prompt");
+  assert.equal(cleanParams({ kind: "edit", prompt: "x", ideaSource: "x" }).ideaSource, undefined);
   const route = readFileSync(new URL("../src/app/api/run/route.ts", import.meta.url), "utf8");
   assert.match(route, /ideaSource: p\.ideaSource/);
   const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
   assert.match(studio, /maxLength=\{MAX_IDEA\}/);
   assert.match(studio, /data-idea-back/);
+});
+
+test("v1.26 이어서 편집 출처 이어받기·연계 결과 필터", () => {
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /ideaSource: carrySource, \.\.\.extra/);
+  assert.match(studio, /ideaSourceKey\(r\.data\.item\.options\?\.ideaSource\)/);
+  const list = readFileSync(new URL("../src/components/workspace/HistoryList.tsx", import.meta.url), "utf8");
+  assert.match(list, /data-only-src/);
 });
