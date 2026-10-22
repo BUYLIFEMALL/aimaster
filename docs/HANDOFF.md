@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 배포 전 미배포 점검 스크립트 `scripts/pending-check.mjs` (비용 없음)
+- `node scripts/pending-check.mjs <폴더…>`: `docs/PENDING_DEPLOYS.md` 「대기 중」 + `docs/SHARED_MODULES.md` 「미배포 사본」에서 그 프로그램 줄 표시(읽기만), `--all` 프로그램별 개수. 사용법은 `docs/PENDING_DEPLOYS.md` 쓰는 법 5번·`docs/VERCEL_COST_REDUCTION_PLAN.md` 맨 위 안내. **모든 CLI: 프로그램 배포 전에 한 번 실행.**
+- 미배포 목록에 메모 1줄: `cinematic-storyboard-studio`·`image-convert-studio`·`video-to-gif` 좌측 메뉴 계정 위치(다른 세션 작업 중이라 코드 미수정 — 그 세션이 끝나면 처리).
+
 ## 2026-10-23 — Claude Code(윈도우): **이미지 연계 대기분 정리 배포(6곳)** · 이미지 스튜디오 갤러리 「변환됨」 배지·큰 보기 창 「형식 바꾸기」
 - 배포(주인님 승인, 빌드 6회, 받는 쪽부터 → 부르는 쪽 마지막): 4컷 v1.35 → 인물사진 v1.42 → 바나나 v1.32 → 이미지 스튜디오 v1.28 → 스토리보드 v1.16 → 변환 스튜디오 v1.25, DB 버전 6줄. 함께 나간 대기: 바나나 다운로드 `.webp`·이름표 제목, 4컷 작품 이름표, 변환 이름표 전달·품질 70%/PNG→WebP·이미지 스튜디오 연계, 이미지 스튜디오 갤러리 형식 바꾸기·`/api/import-result`(`image_import`), 공용 `resave-receiver`(기준 4컷·사본 3)·`link-mark`(기준 바나나·사본 5). 새로 넣은 것: 갤러리 `image_import` 카드 「🔁 변환됨 · WEBP」, 큰 보기 창 「🔁 형식 바꾸기」.
 - 검수(크롬, 배포 전 로그인 확인 — 이번엔 관리자 계정으로 로그인돼 있었음): 갤러리 카드·큰 보기 창 링크 → 변환 스튜디오 「AI 이미지 스튜디오 결과 … ↩ 돌아가기」 → 변환 → 갤러리·4컷(`label=검수 3화` → 「검수 3화 · WEBP」)·인물사진(첫 바이트 판별) 다시 저장 성공·열기 링크 — 시험 그림·기록 3건 모두 삭제. 못 한 것: 「너무 큼」 화면(2.2MB 넘는 결과 필요 — 시험 코드), 바나나 다운로드 이름(실제 다운로드 클릭 안 함 — 시험 코드). 발견: 다시 저장 카드 플랫폼 배지 영문 「IMAGE-CONVERT-STUDIO」(이미지 스튜디오 IMPROVEMENTS).
