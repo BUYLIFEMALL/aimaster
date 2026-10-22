@@ -124,3 +124,11 @@ F-017(P2)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 운영 DB(ref `esgxyikcnnvmlhygjkth`): website-scraper 권한 회원 178명은 모두 이미 이 프로그램 권한이 있어 **기간만 6명 연장**(백업은 저장소 밖 `D:\Antigravity\AIMaster_backup\merge-a-20261021\`), 상세 소개 🔎 단락·특징 2번 갱신, 버전 v1.09. SQL 기록 `supabase/migrations/20261021_merge_a_v1_09.sql`.
 - 검수: tsc·build, 운영 Ready, 크롬 관리자 — books.toscrape.com 목록 분석(탭 7개·글목록 49·링크 73·이미지 20) → AI 목록 표(GPT-5.6 Luna 1회, 20권·썸네일, 20초) → 영역 선택(책 이미지 태그·HTML 잡힘) → 이미지 경로 200. 보안: 정리 경로 비밀값 없이 401, AI 경로 다른 출처 403, 분석 경로 비로그인 401. CSV·ZIP 실제 내려받기는 파일 저장이라 생략(같은 코드 이식).
 - 남은 일(별도): 도메인 구조 캐시 회원별(IMPROVEMENTS #8 — Python 서비스·DB 구조), 옛 ghost-scraper 코드 정리는 백업 폴더+태그 뒤.
+
+## 2026-10-23 v1.10 — 결과 엑셀 비공개 버킷 + 10분 임시 주소 (#9, Claude Code 윈도우)
+- 주인님 승인(「비공개 버킷 — 은행 금고」 방식). 결과 버킷 `web-crawler-results`를 **비공개**로 바꾸고, 「엑셀 다운로드」(작업 목록·대시보드)는 새 `webapp/src/app/api/jobs/[id]/download/route.ts`가 로그인·이용 권한·본인 작업·완료·30일 이내를 확인한 뒤 **10분짜리 임시 주소**로 넘긴다. 크롤링 서버(Render `service/pipeline.py`)는 그대로 — `_upload_result`의 공개 주소(`result_url`)는 「파일 있음」 표시로만 쓰이고 링크에는 안 쓰인다.
+- 운영(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor): `storage.buckets.public=false`·DB v1.10(`webapp/supabase/migrations/20261023170000_*`). 운영 완료 작업 0건이라 밖으로 나간 결과 파일은 없었다.
+- 검수: tsc·build·배포 `web-crawler-saas-9a3jiweql` Ready. 비로그인 다운로드 401, 로그인(관리자) 남의/없는 작업 404, 시험 파일로 전환 전 공개 200 → 전환 후 새 파일 공개 **400**·임시 주소 200(처음 파일은 잠시 CDN 캐시 200 뒤 400), 시험 파일 2개 삭제. 실제 크롤링 결과 내려받기는 완료 작업이 없어 미확인(첫 실사용 때 확인).
+- 참고: `IMPROVEMENTS.md`에 Windows 숨김 속성이 붙어 있어 Node `writeFileSync`가 EPERM — `r+`로 열어 고쳐 씀(속성은 그대로 둠).
+- 남은 일: #8 도메인 구조 캐시 회원별 전환(크롤링 서버 수정·Render 재배포 필요).
+- 링크: https://web-crawler-saas.buylife.xyz/dashboard
