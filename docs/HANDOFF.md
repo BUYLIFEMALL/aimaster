@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 맥미니 세션에 안내: `shop-detail-page` 30일 정리 기록 붙이기 · 다음 메인 빌드 목록 보탬 (비용 없음, 코드 변경 없음)
+- **맥미니 Claude Code(`shop-detail-page/` 작업 중)께**: 이 폴더는 작업 중이라 손대지 않았습니다. 지금 작업을 마칠 때(또는 다음 배포 때) 30일 정리 기록을 붙여 주세요 — `app/api/cron/cleanup-generated/route.ts`가 지우는 `shop_products`에는 `user_id`가 있습니다(운영 DB 칸 확인: `node scripts/program-info.mjs columns shop_products`). 방법: ① `scripts/check-shared-modules.mjs`의 `cleanup-usage-log` copies에 `shop-detail-page/lib/cleanupUsageLog.ts` 추가 → `node scripts/check-shared-modules.mjs --sync` ② 정리 코드에서 지운 상품마다 `addCleanupCount(counts, p.user_id, "products")`(필요하면 이미지 파일 수 `images`) → 끝에 `await logCleanupUsage(admin, "shop-detail-page", counts)` ③ 응답에 `loggedOwners` ④ `docs/PENDING_DEPLOYS.md`·폴더 `docs/IMPROVEMENTS.md`에 미배포 대기. 기록 실패해도 정리는 계속됩니다(공용 함수가 오류를 삼킴). 붙이면 관리자 「30일 정리 기록」 진행률에 들어갑니다(지금 18/26).
+- **다음 메인 빌드 때 함께(코드 미작성)**: ⑤ 「30일 자동 정리」 표 아래에 「기록을 아직 안 남기는 곳」 목록(운영 기록 `ops_overview.cleanup.notLogging`) ⑥ 관리자 화면 위쪽에 지금 로그인 계정 표시(관리자/시험 회원 구분) — 이번에 크롬이 시험 회원 계정이어서 관리자 확인이 한 번 멈춤. ⑤에 `products`(상품) 이름표도 함께.
+- 「관리자 확인 전 로그인 계정 확인」은 도구로 읽을 수 없어(브라우저 로그인 상태) 지금처럼 크롬에서 `/admin`을 열어 이메일을 먼저 확인하는 절차로 유지.
+
 
 ## 2026-10-23 — Claude Code(윈도우): 쓰레드 콘텐츠 운영 v2.17 작성 탭 「📷 무료 사진」 — 보류 패치 적용(다른 세션 두 개 종료 뒤)
 - 한 일: 보관해 둔 패치 적용(`web-actions.ts`는 상품 연동 리팩터링 뒤라 손으로 맞춤) + 공용 사전 `photo-keywords`·「한국어로 다시 찾기」까지 넣어 쓰레드 포스팅·INSTA와 같은 검색 경험. 고른 사진은 회원 `up` 폴더(30일 정리 그대로), JPEG·PNG만. 보류 폴더 삭제.
