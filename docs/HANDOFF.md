@@ -201,6 +201,11 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 바나나 캔버스 v1.21 그라데이션 글로우 버튼 · 어두운 로고 · 공식 로그인 탭 레이아웃
+- 한 일(주인님 지시): 버튼을 그라데이션+하이라이트+빛 번짐으로 다시 디자인(가독성·대비 4.5:1 이상), 로고 바탕을 어두운 먹 그라데이션으로, 로그인 화면을 DESIGN.md 원칙 14 공식 탭 레이아웃으로(회원가입 링크 `/register`로 수정). 템플릿 11번 갱신.
+- 검수: 시험 33개·build, 배포 2회(적용 + 로그인 아이콘 겹침 수정, 추가 1회는 주인님 승인) Ready, DB v1.21, 크롬(시험 회원) 스튜디오 버튼·로고, 로그인은 쿠키 없이 받은 화면을 틀 안에 그려 확인(로그아웃·비밀번호 입력 없이).
+- 프로그램: https://banana-canvas.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 웹툰 v1.29 W8: 캐릭터 시트를 컷 그림에 첨부(인물 일관성)
 - 한 일: 컷 인물의 시트(없으면 참고 사진) 최대 3장을 줄여 `api/ai/image`에 함께 보내고 공용 `generateGeminiImage({ parts })`로 첨부. 공용 사본 수정 없음.
 - 검수: 시험 27개·build, 배포 Ready, DB v1.29, 실제 생성 1장(시험 회원 키)에서 참고 그림 특징 반영 확인.

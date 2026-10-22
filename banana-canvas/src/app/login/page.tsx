@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { APP_NAME, MAIN_SITE } from "@/lib/version";
+import { APP_NAME } from "@/lib/version";
 import { getUser } from "@/lib/auth";
 import { platformConfigured } from "@/lib/config";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -8,5 +8,17 @@ export const fetchCache = "force-no-store";
 export default async function LoginPage() {
   if (!platformConfigured()) redirect("/setup");
   if (await getUser()) redirect("/open");
-  return <main className="welcome"><div className="card max-w-md"><p className="eyebrow">AIMaster 통합 계정</p><h1>{APP_NAME}</h1><p>기존 AIMaster 계정으로 로그인하세요.</p><LoginForm/><a href={`${MAIN_SITE}/signup`} className="subtle-link">회원가입은 AIMaster에서 진행합니다.</a></div></main>;
+  // v1.21 공식 로그인 탭 레이아웃(격자 바탕·중앙 440px·로고·안내 문구 → 탭 카드)
+  return (
+    <main className="auth-page">
+      <div className="auth-wrap">
+        <div className="auth-head">
+          <span className="brand-icon auth-logo" aria-hidden>🍌</span>
+          <h1>{APP_NAME}</h1>
+          <p>AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
+        </div>
+        <LoginForm />
+      </div>
+    </main>
+  );
 }

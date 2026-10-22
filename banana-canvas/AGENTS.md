@@ -183,3 +183,7 @@
 - 가독성: 본문 15px, 보조 글자 대비 7.4:1, 노란 바탕 노란 글씨 금지(`--brand-text`), 잠긴 카드 흐림 완화, 560px 이하 버튼 한 열.
 - 배포 2회(`banana-canvas-kq3fva2jm` → 실화면 보정 `banana-canvas-birbfc0sb`) Ready, DB v1.20. 크롬 검수: 스튜디오·매뉴얼·API 설정, 휴대폰 폭은 390px 틀(iframe)로 규칙 확인(창 최대화로 실제 축소 불가).
 - ⏸ 미배포: 초록 「스토리 8컷 생성」 버튼 흰 글자 대비 4.4 → `#256f2f`로 보정(다음 배포 때 함께).
+
+## 2026-10-22 v1.21 — 그라데이션 글로우 버튼 · 어두운 로고 · 공식 로그인 탭 레이아웃 (Claude Code 윈도우)
+- 주인님 지시(「버튼 가독성 높게, 촌스럽지 않게, 그라데이션 넣고 화려하게」, 「로고 배경 어둡게·노란 바나나 가독성」, 로그인 공식 레이아웃 제안 승인). `globals.css` 맨 끝 v1.21 블록, `components/auth/LoginForm.tsx`(탭·아이콘 입력칸, 로그인 처리 동일), `app/login/page.tsx`(격자 바탕·중앙 440px·로고). 회원가입 링크 `/signup` → `/register`.
+- 배포 `banana-canvas-cbrkvf54l` → 로그인 입력칸 아이콘 겹침(CSS 우선순위) 수정 `banana-canvas-mj8dparu8` Ready, DB v1.21. 토큰·대비 수치: `docs/DESIGN_HANDOFF.md` 맨 위.
