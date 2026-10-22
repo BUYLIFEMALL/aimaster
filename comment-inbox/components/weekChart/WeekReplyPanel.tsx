@@ -54,6 +54,7 @@ export function WeekReplyPanel({
   classes,
   perPlatformLimit = 50,
   labels,
+  onDayChange,
 }: {
   days: DayCount[];
   series?: ChartSeries[];
@@ -61,6 +62,8 @@ export function WeekReplyPanel({
   classes: PanelClasses;
   perPlatformLimit?: number;
   labels?: PanelLabels;
+  /** 고른 날이 바뀌면(닫으면 null) 알려 준다 — 게시 프로그램이 아래 게시 기록에서 그날 항목을 강조할 때 씀 */
+  onDayChange?: (dayKey: string | null) => void;
 }) {
   const L = { ...DEFAULT_LABELS, ...labels };
   const [selected, setSelected] = useState<string | null>(null);
@@ -74,9 +77,11 @@ export function WeekReplyPanel({
     if (key === selected) {
       setSelected(null);
       latest.current = null;
+      onDayChange?.(null);
       return;
     }
     setSelected(key);
+    onDayChange?.(key);
     latest.current = key;
     setItems(null);
     setError(null);

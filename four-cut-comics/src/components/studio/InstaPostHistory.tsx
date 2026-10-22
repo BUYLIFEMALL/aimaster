@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { formatKst } from "@/lib/instagram/schedule";
 import { markCanceled, postTimeLabel, useScheduledPostCancel } from "@/lib/instagram/postsClient";
+import { INSTA_WEEK_DAY_EVENT } from "@/components/weekChart/InstaWeekPosts";
 
 // v1.19 최근 인스타 게시 기록(30일) — 게시 칸(InstaDirectPublish)과 내 작품 「📤 인스타그램 예약」이 같이 쓴다.
 // v1.18에서 InstaDirectPublish 안에 있던 목록을 그대로 옮기고, 예약 대기 요약(n건·다음 게시)을 위에 붙였다. refreshKey가 바뀌면 다시 불러온다.
@@ -31,6 +32,18 @@ const STATUS_LABEL: Record<PostRow["status"], { text: string; color: string }> =
 export function InstaPostHistory({ refreshKey = 0, onPendingChange, emptyText }: { refreshKey?: number; onPendingChange?: (n: number) => void; emptyText?: string }) {
   const [posts, setPosts] = useState<PostRow[] | null>(null);
   const [error, setError] = useState("");
+  // 위 「📊 최근 7일 게시」에서 막대를 고르면 그날 게시한 항목을 강조(v1.29)
+  const [day, setDay] = useState<{ from: string; to: string } | null>(null);
+  const firstHit = useRef<HTMLLIElement | null>(null);
+  useEffect(() => {
+    const on = (e: Event) => setDay((e as CustomEvent<{ from: string; to: string } | null>).detail ?? null);
+    window.addEventListener(INSTA_WEEK_DAY_EVENT, on);
+    return () => window.removeEventListener(INSTA_WEEK_DAY_EVENT, on);
+  }, []);
+  const inDay = (p: PostRow) => !!day && p.status === "published" && !!p.published_at && Date.parse(p.published_at) >= Date.parse(day.from) && Date.parse(p.published_at) < Date.parse(day.to);
+  useEffect(() => {
+    firstHit.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [day]);
 
   const load = useCallback(async () => {
     try {
@@ -57,8 +70,11 @@ export function InstaPostHistory({ refreshKey = 0, onPendingChange, emptyText }:
       {pending.length > 0 && <small style={{ color: "#0284c7" }} role="status">· ⏰ 예약 {pending.length}건 대기 · 다음 게시 {formatKst(pending[0].scheduled_at)}</small>}
       {error && <small style={{ display: "block", color: "#dc2626" }} role="alert">{error}</small>}
       <ul style={{ listStyle: "none", margin: "6px 0 0", padding: 0, display: "grid", gap: 4, maxHeight: 240, overflowY: "auto" }} aria-label="인스타 게시 기록">
-        {posts.map((p) => (
-          <li key={p.id} style={{ fontSize: 12, background: "#fff", border: "1px solid var(--line)", borderRadius: 8, padding: "6px 8px" }}>
+        {posts.map((p, i) => {
+          const hit = inDay(p);
+          const first = hit && posts.findIndex(inDay) === i;
+          return (
+          <li key={p.id} ref={first ? firstHit : undefined} aria-current={hit ? "true" : undefined} style={{ fontSize: 12, background: hit ? "var(--selected)" : "#fff", border: hit ? "2px solid var(--brand)" : "1px solid var(--line)", borderRadius: 8, padding: hit ? "5px 7px" : "6px 8px" }}>
             <div className="actions" style={{ gap: 6 }}>
               <b style={{ color: STATUS_LABEL[p.status].color }}>{STATUS_LABEL[p.status].text}</b>
               <span>{postTimeLabel(p)}</span>
@@ -69,7 +85,8 @@ export function InstaPostHistory({ refreshKey = 0, onPendingChange, emptyText }:
             {p.title && <small className="muted" style={{ display: "block" }}>{p.title}</small>}
             {p.error_message && <small style={{ display: "block", color: p.status === "failed" ? "#dc2626" : p.status === "scheduled" ? "#d97706" : "#64748b" }}>{p.status === "published" ? "ℹ️ " : ""}{p.error_message}</small>}
           </li>
-        ))}
+          );
+        })}
       </ul>
     </div>
   );

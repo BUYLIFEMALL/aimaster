@@ -18,6 +18,13 @@ type PostRow = {
   image_paths?: string[] | null;
 };
 
+/** 막대를 고르면 그날 범위 { from, to }(UTC ISO), 닫거나 접으면 null — 게시 기록 화면이 들으면 그날 항목을 강조할 수 있다 */
+export const INSTA_WEEK_DAY_EVENT = "insta-week-day";
+const announceDay = (dayKey: string | null) => {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(INSTA_WEEK_DAY_EVENT, { detail: dayKey ? weekDayRange(dayKey) : null }));
+};
+
 const LABELS = {
   title: "📊 최근 7일 게시",
   noun: "게시",
@@ -95,7 +102,10 @@ export function InstaWeekPosts({
     <div className={cardClassName}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (open) announceDay(null);
+          setOpen((v) => !v);
+        }}
         aria-expanded={open}
         className={`flex w-full items-center justify-between gap-2 text-left text-sm font-bold ${open ? "mb-4" : ""}`}
       >
@@ -104,7 +114,7 @@ export function InstaWeekPosts({
         </span>
         <span className={`text-xs font-normal ${classes.muted}`}>{open ? "접기 ▲" : "그래프 보기 ▼"}</span>
       </button>
-      {open && <WeekReplyPanel days={days} loadDay={loadDay} classes={classes} labels={{ ...LABELS, title: "날짜별 게시" }} perPlatformLimit={500} />}
+      {open && <WeekReplyPanel days={days} loadDay={loadDay} classes={classes} labels={{ ...LABELS, title: "날짜별 게시" }} perPlatformLimit={500} onDayChange={announceDay} />}
     </div>
   );
 }
