@@ -203,3 +203,10 @@
 - 생성 요청(`components/Step2PlatformGenerator.tsx`)에 `ideaSource`를 싣고, `/api/generate`가 정해 둔 이름만 받아 `usage_logs.metadata.ideaSource`에 저장(DB 칸 추가 없음). 메인 관리자 통계 카드의 「AI 이미지 스튜디오 · 보낸 프롬프트로 만든 생성」이 이 값을 센다.
 - 지금 보내는 곳: 이미지 스타일 분석기(v1.36부터 `&src=style-dna-analyzer`).
 - 검수: 새 시험 `npm run test:prompt-source` 2개, 기존 `test:custom-prompts` 18개, tsc·빌드. 크롬: 안내·밑줄 돌아가기 링크·2단계 칸 채움, `/api/generate`를 가로채(생성 안 함) 요청에 `ideaSource: "style-dna-analyzer"` 확인.
+
+## ✅ v1.27 배포 (2026-10-22, Claude Code 윈도우) — 첫 다운로드·바나나로 보낸 시각 기록
+- `/api/generate`가 그림마다 생성 기록 번호(`usage_logs.id`)를 `logId`(첫 장)·`images[].logId`로 돌려준다(`insert(...).select("id").single()`).
+- 결과 보기(`components/ImageResultViewer.tsx`)·갤러리(`components/GalleryClient.tsx`)의 「다운로드」·「바나나로 보내 편집」을 처음 누르면 `markLog(id, "download" | "banana")`(`lib/logMark.ts`, 같은 화면에서 한 번만, `keepalive`) → 새 API `POST /api/gallery/mark` `{id, kind}`가 **본인·이미지 스튜디오·image_generation 기록만** 찾아 `metadata.downloadedAt`·`metadata.handoffs.banana`가 비어 있을 때만 시각 저장(UUID·종류 검사, 없는 기록 404). DB 칸 추가 없음.
+- 공용 사본 `lib/bananaIdeaLink.ts`에 `imageStudioLink(prompt, src)`가 생김(기준 스타일 분석기, 직접 고치지 않음).
+- 메인 관리자 카드 「AI 이미지 스튜디오」 표에 「다운로드까지」·「바나나로 넘김」 칸.
+- 검수: `test:prompt-source` 3개, tsc·빌드. 크롬: `/api/gallery/mark` 없는 번호 404·잘못된 종류/형식 400(회원 데이터 변경 없음). 실제 다운로드·바나나 클릭 뒤 기록은 미확인(파일 내려받기·실제 생성 필요).

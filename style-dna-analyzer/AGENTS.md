@@ -184,3 +184,6 @@
 ## ✅ v1.36 배포 (2026-10-22, Claude Code 윈도우) — 이미지 스튜디오 링크에 보낸 곳
 - `src/lib/dna/studioLink.ts`의 `imageStudioLink`가 `&src=style-dna-analyzer`를 붙인다 → 이미지 스튜디오(v1.26)가 「이미지 스타일 분석기에서 보낸 프롬프트」 안내·돌아가기 링크를 보여 주고 생성 기록에 보낸 곳을 남김. 시험 기대값만 고침(39개 통과).
 - 같은 배포로 공용 기준 코드 `banana-idea-link`의 `BANANA_SOURCES`·`isBananaSource` 추가분(저장소만 반영돼 있던 것)도 나감.
+
+## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 기준 코드에 `imageStudioLink` 옮김
+- 공용 기준 코드 `banana-idea-link`(`src/lib/dna/bananaIdeaLink.ts`, 이 프로그램이 기준)에 `IMAGE_STUDIO_URL`·`MAX_IMAGE_STUDIO_PROMPT`(6000)·`imageStudioLink(prompt, src)` 추가. `studioLink.ts`의 `imageStudioLink`는 이를 불러 `src=style-dna-analyzer`로 보냄(주소·동작 같음, `MAX_LINK_PROMPT`는 다시 내보냄). 시험 39개 통과. 동작이 같아 배포하지 않음 — 다음 배포 때 함께.

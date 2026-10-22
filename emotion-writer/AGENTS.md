@@ -162,3 +162,7 @@
 ## ✅ v1.24 배포 (2026-10-22, Claude Code 윈도우)
 - 위 「⏸ 미배포」 v1.24 항목들(전체 크기 ZIP·배경 어둡기 추천·크기별 대비·ZIP 전 확인·자리 바꿔/어둡기 받기·바나나 배경 만들기)이 이 버전으로 나감. **새로 추가**: 바나나 주소는 공용 사본 `src/lib/studio/bananaIdeaLink.ts`(기준 스타일 분석기, 직접 고치지 않음)로 만들고 `src=emotion-writer`를 붙임 — 「글자 없이…」 문구는 이 프로그램 `bananaLink.ts`. 시험 34개. 크롬: 운영 화면 v1.24, 묶음 파일에 `&src=`·`emotion-writer` 포함 확인(🍌 링크 클릭은 글귀 생성 AI 비용이 들어 생략).
 - 배포 묶음(2026-10-22, Claude Code 윈도우): 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30 순차 배포(빌드 7회, 실패 0), DB `programs.version` 갱신, 크롬에서 화면 버전 확인.
+
+## ✅ v1.25 배포 (2026-10-22, Claude Code 윈도우) — 이미지 스튜디오에서 만들기
+- 미리보기 아래 「🍌 이 글귀 분위기의 배경을 바나나 캔버스에서 만들기」 옆에 「🎨 이미지 스튜디오에서 만들기」(`data-image-studio-bg`). 같은 「글자 없이…」 문구(`quoteBackgroundIdea`)를 `imageStudioBackgroundLink`(`src/lib/studio/bananaLink.ts`)가 공용 사본의 `imageStudioLink(…, "emotion-writer")`로 만든다(6000자 이하, 자동 생성 없음). 이미지 스튜디오가 「감성 글귀에서 보낸 프롬프트」·돌아가기·생성 기록에 씀.
+- 같은 배포로 공용 사본 `bananaIdeaLink.ts`의 `BANANA_SOURCES`·`imageStudioLink` 추가분도 나감. 시험 35개, tsc·빌드. 크롬: 운영 화면 v1.25, 묶음 파일에 주소·`emotion-writer`·문구 포함(링크 클릭은 글귀 생성 AI 비용이 들어 생략).

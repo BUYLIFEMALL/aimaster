@@ -95,3 +95,7 @@
 ## ✅ v1.12 배포 (2026-10-22, Claude Code 윈도우)
 - 위 「⏸ 미배포 — 바나나 캔버스로 보내기」가 이 버전으로 나감. **새로 추가**: 주소는 공용 사본 `src/lib/rpa/bananaIdeaLink.ts`(기준 스타일 분석기, 직접 고치지 않음)로 만들고 `src=reverse-prompt`를 붙임. 시험 17개. 크롬: 운영 화면 v1.12, 묶음 파일에 `&src=reverse-prompt` 포함 확인(분석 실행은 AI 비용이 들어 생략).
 - 배포 묶음(2026-10-22, Claude Code 윈도우): 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30 순차 배포(빌드 7회, 실패 0), DB `programs.version` 갱신, 크롬에서 화면 버전 확인.
+
+## ✅ v1.13 배포 (2026-10-22, Claude Code 윈도우) — 이미지 스튜디오에서 생성
+- 이미지 결과의 「🍌 바나나 캔버스로 보내기」 아래에 「🎨 이미지 스튜디오에서 생성」(`data-image-studio-link`, 편집 칸 프롬프트, 6000자 이하). `studioLink`(`src/lib/rpa/bananaLink.ts`)가 공용 사본의 `imageStudioLink(…, "reverse-prompt")`를 씀. 이미지 스튜디오가 보낸 곳 안내·돌아가기·생성 기록에 씀.
+- 같은 배포로 공용 사본 `BANANA_SOURCES`·`imageStudioLink` 추가분도 나감. 시험 18개, tsc·빌드. 크롬: 운영 화면 v1.13, 묶음 파일에 주소·`reverse-prompt`·문구 포함(분석 실행은 AI 비용이 들어 생략).
