@@ -38,3 +38,11 @@ test("미리보기: 취업 묶음은 3장, 크기·형식이 붙는다", async (
   assert.deepEqual(bundlePreview(["profile:circle"]).map((f) => f.ext), ["png"]);
   assert.deepEqual(bundlePreview(["size:없음", 3]), []);
 });
+
+test("v1.36 원본과 비교: 사진 위 끌기(공용 compare-slider 사본)", async () => {
+  const { percentAt } = await import("../src/lib/portrait/compare.ts");
+  assert.equal(percentAt(150, 100, 200), 25);
+  const src = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(src, /setCmpPos\(percentAt\(e\.clientX, r\.left, r\.width\)\)/);
+  assert.match(src, /" cmp-on"/);
+});

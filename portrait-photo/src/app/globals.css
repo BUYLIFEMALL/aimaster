@@ -190,6 +190,7 @@ a.project-card{color:inherit}
 .cmp-tag{position:absolute;left:8px;top:8px;background:#000a;color:#fff;padding:1px 8px;border-radius:6px;font-size:11px}
 .cmp-handle{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 0 1px #0004;z-index:4}
 .cmp-slider{margin-top:8px}
+.st-stage.cmp-on{cursor:ew-resize;touch-action:none;user-select:none}
 .size-select{width:auto;max-width:100%;font-size:12px}
 
 /* ---- v1.03 ---- */

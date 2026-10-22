@@ -21,6 +21,7 @@ import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, rend
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
 import { BUNDLES, bundleFileName, bundleItemLabel, bundlePreview, cleanBundle, type BundleKey } from "@/lib/portrait/bundles";
+import { percentAt } from "@/lib/portrait/compare";
 import { GuideOverlay } from "./GuideOverlay";
 import { ZoomCompare } from "./ZoomCompare";
 import { CropAdjuster } from "./CropAdjuster";
@@ -125,6 +126,8 @@ export function Studio({ userId }: { userId: string }) {
   const [headMsg, setHeadMsg] = useState<{ tone: "ok" | "warn" | "info"; text: string } | null>(null);
   const [names, setNames] = useState<Record<number, string>>({});
   const [cmpPos, setCmpPos] = useState(50);
+  // v1.36: 「원본과 비교」 중 사진 위를 직접 끌어 선 옮기기(공용 기준 코드 compare-slider 사본)
+  const [cmpDrag, setCmpDrag] = useState(false);
   // v1.30: 결과 무대 배경(이 브라우저에만 기억 — 저장소를 못 쓰면 기본값)
   const [stageBg, setStageBg] = useState<StageBg>("grid");
   useEffect(() => {
@@ -881,7 +884,14 @@ export function Studio({ userId }: { userId: string }) {
                 ))}
               </div>
             )}
-            <div className={stageBg === "grid" ? "st-stage" : `st-stage bg-${stageBg}`} style={{ aspectRatio: aspect.replace(":", " / "), display: ((grid || zoomOn) && results.length > 1) || cropOpen ? "none" : undefined }}>
+            <div
+              className={`${stageBg === "grid" ? "st-stage" : `st-stage bg-${stageBg}`}${shown && compare && comparePreview ? " cmp-on" : ""}`}
+              style={{ aspectRatio: aspect.replace(":", " / "), display: ((grid || zoomOn) && results.length > 1) || cropOpen ? "none" : undefined }}
+              onPointerDown={(e) => { if (!(shown && compare && comparePreview)) return; e.currentTarget.setPointerCapture(e.pointerId); setCmpDrag(true); const r = e.currentTarget.getBoundingClientRect(); setCmpPos(percentAt(e.clientX, r.left, r.width)); }}
+              onPointerMove={(e) => { if (!cmpDrag) return; const r = e.currentTarget.getBoundingClientRect(); setCmpPos(percentAt(e.clientX, r.left, r.width)); }}
+              onPointerUp={() => setCmpDrag(false)}
+              onPointerCancel={() => setCmpDrag(false)}
+            >
               {busy && <div className="st-loading"><Loader2 size={30} className="ls-spin" /><p>이미지를 만드는 중입니다…</p><small>{progress || "보통 10~40초가 걸립니다."}</small>
                 <button type="button" onClick={() => abortRef.current?.abort()}>취소</button></div>}
               {shown ? (
