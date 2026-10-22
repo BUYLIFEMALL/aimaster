@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 쓰레드 포스팅 v1.31 게시 완료 30일 지난 글 사진 비우기 · 무료 사진 「🔤 영어로」 · 콘텐츠 운영 패치는 계속 보류
+- 한 일: 30일 지난 글 9개(모두 게시 완료) 확인 → 주인님 결정 「사진만 지우고 글 기록 남김」 → 정리 1단계로 사진 칸 비우기 추가. 「🔤 영어로」(AI 없이 단어 사전).
+- 검수: tsc·빌드, 배포 `threads-8pizmzzap` Ready, DB v1.31, 정리 실행 → 7개 글 사진 칸 비움·파일 7개 삭제(예상과 일치), 52개·235MB, 오래된 글 9개 본문·링크 유지. 크롬 「🔤 영어로」 동작.
+- 쓰레드 콘텐츠 운영 무료 사진 보류 패치(`docs/pending-patches/threads-content-ops-free-photo-20261023/`): 기획 앱 세션은 끝났지만 다른 세션이 같은 폴더에서 「상품 연동 공용 코드 v2.16」 작업 시작 → 계속 보류(적용 때 버전은 그 뒤 번호).
+- 커밋 `5a91504cb`. 비용: 빌드 1회(승인), AI·외부 호출 0.
+- 링크: https://auto-threads-posting.buylife.xyz/posts/new
+
 ## 2026-10-23 Claude Code(윈도우) — 운영 DB 칸 목록 명령 · 협업 지침 9번에 「배포는 deploy.mjs --go」 · 다음 메인 빌드 목록 갱신 (비용 없음)
 - `node scripts/program-info.mjs columns <표>`: 운영 DB REST 설명서(OpenAPI)로 실제 칸·타입·필수 여부, user_id 유무를 보여 줌 — 행이 0건이어도 정확(첫 마이그레이션만 보고 잘못 판단한 부동산 사례 재발 방지). 표가 없으면 비슷한 이름 안내. 함수 `tableColumns(table)`도 내보냄.
 - `docs/CLI_COLLABORATION_RULES.md` 9번: 배포는 `deploy.mjs <폴더> --go [--owner]`로(지도 버전 칸·대기 표·관리자 숫자 자동 정리), 표 구조는 `columns` 명령으로 확인.
