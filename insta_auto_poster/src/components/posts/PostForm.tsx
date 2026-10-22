@@ -454,7 +454,7 @@ export function PostForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       {isCreate && (
         <div>
-          <label className="mb-2 block text-sm font-medium text-neutral-700">게시물 형식</label>
+          <label className="mb-2 block text-sm font-medium text-slate-200">게시물 형식</label>
           <div className="flex gap-2">
             {(
               [
@@ -466,8 +466,8 @@ export function PostForm({
                 key={option.value}
                 className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
                   postType === option.value
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-300 text-neutral-600"
+                    ? "border-pink-500 bg-pink-500/20 font-semibold text-pink-100"
+                    : "border-[#2f3650] text-slate-300 hover:border-slate-500"
                 }`}
               >
                 <input
@@ -496,15 +496,15 @@ export function PostForm({
       )}
       {isCreate && (
         <div>
-          <label className="mb-2 block text-sm font-medium text-neutral-700">화면비율</label>
+          <label className="mb-2 block text-sm font-medium text-slate-200">화면비율</label>
           <div className="flex gap-2">
             {ASPECT_RATIO_OPTIONS.map((option) => (
               <label
                 key={option.value}
                 className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
                   aspectRatio === option.value
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-300 text-neutral-600"
+                    ? "border-pink-500 bg-pink-500/20 font-semibold text-pink-100"
+                    : "border-[#2f3650] text-slate-300 hover:border-slate-500"
                 }`}
               >
                 <input
@@ -519,24 +519,24 @@ export function PostForm({
               </label>
             ))}
           </div>
-          <p className="mt-1 text-xs text-neutral-400">
+          <p className="mt-1 text-xs text-slate-400">
             4장 모두 이 비율로 생성됩니다. 인스타그램은 세로(9:16)가 기본으로 유리합니다.
           </p>
         </div>
       )}
       {isCreate && (
-        <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+        <div className="space-y-3 rounded-lg border border-[#262c3d] bg-[#131725] p-3">
           <div>
-            <label className="block text-sm font-medium text-neutral-700">
+            <label className="block text-sm font-medium text-slate-200">
               AI로 {postType === "card_news" ? "카드뉴스 원고+이미지 4장" : "캡션+이미지"} 자동 생성
             </label>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-slate-400">
               {`주제나 키워드를 입력하고 아래 "${submitLabel}"를 누르면 인스타그램 톤(반말)의 캡션과 나노바나나 이미지가 함께 생성된 뒤 바로 저장됩니다.`}
             </p>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-500">주제 (필수)</label>
+            <label className="mb-1 block text-xs font-medium text-slate-400">주제 (필수)</label>
             <div className="flex flex-wrap gap-2">
               <Input
                 className="min-w-[200px] flex-1"
@@ -549,7 +549,7 @@ export function PostForm({
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value as Tone)}
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
+                className="rounded-lg border bg-[#0d0f17] border-[#2f3650] px-3 py-2 text-sm text-slate-200"
               >
                 {TONE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -566,7 +566,7 @@ export function PostForm({
                 key={item}
                 type="button"
                 onClick={() => setTopic(item)}
-                className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:text-neutral-900"
+                className="rounded-full border border-[#262c3d] bg-[#0d0f17] px-2.5 py-1 text-xs text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
               >
                 {item}
               </button>
@@ -574,7 +574,7 @@ export function PostForm({
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-neutral-500">키워드 (선택)</label>
+            <label className="block text-xs font-medium text-slate-400">키워드 (선택)</label>
             <Input
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.target.value)}
@@ -589,13 +589,13 @@ export function PostForm({
                 {keywords.map((kw) => (
                   <span
                     key={kw}
-                    className="inline-flex items-center gap-1 rounded-md bg-neutral-200 px-2 py-0.5 text-xs font-medium text-neutral-700"
+                    className="inline-flex items-center gap-1 rounded-md bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-200"
                   >
                     #{kw}
                     <button
                       type="button"
                       onClick={() => handleRemoveKeyword(kw)}
-                      className="text-neutral-500 hover:text-neutral-900"
+                      className="text-slate-400 hover:text-white"
                     >
                       ✕
                     </button>
@@ -607,8 +607,8 @@ export function PostForm({
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-medium text-neutral-500">참고 웹페이지 링크 (선택)</label>
-              <span className="text-[11px] text-neutral-400">최대 3개</span>
+              <label className="block text-xs font-medium text-slate-400">참고 웹페이지 링크 (선택)</label>
+              <span className="text-[11px] text-slate-400">최대 3개</span>
             </div>
             <div className="space-y-1.5">
               {referenceUrls.map((url, idx) => (
@@ -626,8 +626,8 @@ export function PostForm({
             </div>
           </div>
 
-          <div className="space-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-            <label className="block text-xs font-medium text-neutral-500">
+          <div className="space-y-1.5 rounded-lg border border-[#262c3d] bg-[#131725] p-3">
+            <label className="block text-xs font-medium text-slate-400">
               🔗 홍보 링크 (선택) — 캡션 하단에 자연스럽게 삽입됩니다
             </label>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -653,7 +653,7 @@ export function PostForm({
           </div>
 
           {statusMsg && (
-            <p className="animate-pulse rounded-md bg-neutral-900/5 px-3 py-2 text-xs font-medium text-neutral-700">
+            <p className="animate-pulse rounded-md bg-[#0d0f17]/5 px-3 py-2 text-xs font-medium text-slate-200">
               🚀 {statusMsg}
             </p>
           )}
@@ -662,7 +662,7 @@ export function PostForm({
             <select
               value={imageModel}
               onChange={(e) => setImageModel(e.target.value as typeof imageModel)}
-              className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700"
+              className="rounded-lg border bg-[#0d0f17] border-[#2f3650] px-3 py-2 text-sm text-slate-200"
             >
               {IMAGE_MODEL_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -691,14 +691,14 @@ export function PostForm({
             className="text-xs"
             style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
           />
-          {aiError && <p className="text-xs text-red-600">{aiError}</p>}
+          {aiError && <p className="text-xs text-rose-400">{aiError}</p>}
         </div>
       )}
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">캡션</label>
+        <label className="mb-1 block text-sm font-medium text-slate-200">캡션</label>
         {isCreate && (
-          <p className="mb-1 text-xs text-neutral-400">
+          <p className="mb-1 text-xs text-slate-400">
             {`"${submitLabel}" 클릭 시 위 AI 설정으로 자동 생성되어 채워집니다.`}
           </p>
         )}
@@ -710,40 +710,40 @@ export function PostForm({
           onChange={(e) => setCaption(e.target.value)}
           placeholder="인스타그램에 게시할 캡션을 입력하세요."
         />
-        <p className="mt-1 text-right text-xs text-neutral-400">
+        <p className="mt-1 text-right text-xs text-slate-400">
           {caption.length} / {postType === "card_news" ? "1400자 권장 (최대 2200)" : "450자 권장 (최대 2200)"}
         </p>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-neutral-700">해시태그 (선택)</label>
+        <label className="mb-1 block text-sm font-medium text-slate-200">해시태그 (선택)</label>
         <Input
           name="hashtags"
           value={hashtags}
           onChange={(e) => setHashtags(e.target.value)}
           placeholder="공백으로 구분 (예: 다이어트팁 여름세일)"
         />
-        <p className="mt-1 text-xs text-neutral-400">캡션 아래에 자동으로 #과 함께 붙어서 게시됩니다.</p>
+        <p className="mt-1 text-xs text-slate-400">캡션 아래에 자동으로 #과 함께 붙어서 게시됩니다.</p>
       </div>
 
       {isCreate && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label className="mb-1 block text-sm font-medium text-slate-200">
             {postType === "card_news" ? `이미지 (필수, ${CARD_NEWS_SLIDE_COUNT}장)` : "이미지 (필수, 1장)"}
           </label>
-          <p className="mb-2 text-xs text-neutral-400">
+          <p className="mb-2 text-xs text-slate-400">
             인스타그램 게시물은 이미지가 반드시 있어야 합니다. 위 &quot;{submitLabel}&quot;를 누르면 자동으로
             채워지고, 생성 후에는 이미지를 클릭해 확대해서 확인하거나, 프롬프트를 고쳐 개별 재생성하거나,
             직접 가진 이미지 파일을 올려서 쓰거나, 이전에 생성했던 후보 중에서 골라 쓸 수 있습니다.
           </p>
           {slides.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-neutral-300 p-4 text-center text-sm text-neutral-400">
+            <p className="rounded-lg border border-dashed border-[#2f3650] p-4 text-center text-sm text-slate-400">
               아직 생성된 이미지가 없습니다.
             </p>
           ) : (
             <div className="flex flex-col gap-3">
               {slides.map((slide, index) => (
-                <div key={index} className="space-y-2 rounded-lg border border-neutral-200 bg-white p-3">
+                <div key={index} className="space-y-2 rounded-lg border border-[#262c3d] bg-[#0d0f17] p-3">
                   <button
                     type="button"
                     onClick={() => setZoomTarget({ index, url: slide.imageUrl })}
@@ -773,7 +773,7 @@ export function PostForm({
                     {regeneratingIndex === index ? "생성/업로드 중..." : `슬라이드 ${index + 1} 다시 생성`}
                   </Button>
 
-                  <label className="block cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2 py-1.5 text-center text-xs text-neutral-500 hover:border-neutral-400">
+                  <label className="block cursor-pointer rounded-lg border border-dashed border-[#2f3650] px-2 py-1.5 text-center text-xs text-slate-400 hover:border-slate-500">
                     이미지 파일 직접 첨부 (JPG/PNG/WEBP, 10MB 이하)
                     <input
                       type="file"
@@ -790,7 +790,7 @@ export function PostForm({
 
                   {slide.imageUrls.length > 1 && (
                     <div>
-                      <p className="mb-1 text-[11px] text-neutral-400">
+                      <p className="mb-1 text-[11px] text-slate-400">
                         생성/업로드 이력 (클릭해서 선택, 돋보기로 확대, ✕로 삭제)
                       </p>
                       <div className="flex flex-wrap gap-1.5">
@@ -841,7 +841,7 @@ export function PostForm({
             </div>
           )}
           {slides.length < requiredSlides && (
-            <label className="mt-2 block cursor-pointer rounded-lg border border-dashed border-neutral-300 px-2 py-2 text-center text-xs text-neutral-500 hover:border-neutral-400">
+            <label className="mt-2 block cursor-pointer rounded-lg border border-dashed border-[#2f3650] px-2 py-2 text-center text-xs text-slate-400 hover:border-slate-500">
               {addingUpload
                 ? "올리는 중..."
                 : `이미지 파일 직접 첨부 (${slides.length}/${requiredSlides}장, JPG/PNG/WEBP, 10MB 이하${requiredSlides > 1 ? " · 여러 장 한 번에 선택 가능, 파일 이름순" : ""})`}
@@ -860,7 +860,7 @@ export function PostForm({
             </label>
           )}
           {readyWithoutAi && (
-            <p className="mt-2 text-xs text-emerald-600">
+            <p className="mt-2 text-xs text-emerald-400">
               캡션과 이미지가 준비되어 있어 &quot;{submitLabel}&quot;를 누르면 AI 생성 없이 그대로 저장됩니다.
             </p>
           )}
@@ -868,7 +868,7 @@ export function PostForm({
       )}
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-neutral-700">게시방식 결정</label>
+        <label className="mb-2 block text-sm font-medium text-slate-200">게시방식 결정</label>
         <div className="flex flex-wrap gap-2">
           {(
             [
@@ -881,8 +881,8 @@ export function PostForm({
               key={option.value}
               className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
                 publishMode === option.value
-                  ? "border-neutral-900 bg-neutral-900 text-white"
-                  : "border-neutral-300 text-neutral-600"
+                  ? "border-pink-500 bg-pink-500/20 font-semibold text-pink-100"
+                  : "border-[#2f3650] text-slate-300 hover:border-slate-500"
               }`}
             >
               <input
@@ -898,7 +898,7 @@ export function PostForm({
           ))}
         </div>
         {publishMode === "now" && !hasInstagramAccount && (
-          <p className="mt-2 text-xs text-red-600">
+          <p className="mt-2 text-xs text-rose-400">
             인스타그램 계정이 연결되어 있지 않아 즉시 게시할 수 없습니다. 계정 연결 후 이용해주세요.
           </p>
         )}
@@ -906,19 +906,19 @@ export function PostForm({
 
       {publishMode === "schedule" && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-neutral-700">예약 시각</label>
+          <label className="mb-1 block text-sm font-medium text-slate-200">예약 시각</label>
           <Input
             type="datetime-local"
             value={scheduledAtLocal}
             onChange={(e) => setScheduledAtLocal(e.target.value)}
           />
-          <p className="mt-1 text-xs text-neutral-500">예약 시각 후 자동으로 발행됩니다(Vercel 방식은 5분 안, 「내 cron-job.org」는 1분 안). 실행 방식은 설정 → ⏰ 예약 발행에서 고릅니다.</p>
+          <p className="mt-1 text-xs text-slate-400">예약 시각 후 자동으로 발행됩니다(Vercel 방식은 5분 안, 「내 cron-job.org」는 1분 안). 실행 방식은 설정 → ⏰ 예약 발행에서 고릅니다.</p>
         </div>
       )}
       <input type="hidden" name="scheduledAt" value={scheduledAtIso} />
 
       {state.error && (
-        <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+        <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">
           {state.error}
         </p>
       )}

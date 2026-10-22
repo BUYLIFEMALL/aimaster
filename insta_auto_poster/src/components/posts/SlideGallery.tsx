@@ -78,9 +78,9 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
   const history = slide.image_urls ?? [];
 
   return (
-    <div className="space-y-2 rounded-lg border border-neutral-200 bg-white p-3">
+    <div className="space-y-2 rounded-lg border border-[#262c3d] bg-[#0d0f17] p-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-neutral-500">슬라이드 {slide.slide_order}</span>
+        <span className="text-xs font-medium text-slate-400">슬라이드 {slide.slide_order}</span>
       </div>
 
       {slide.image_url ? (
@@ -94,7 +94,7 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
           <img src={slide.image_url} alt={`슬라이드 ${slide.slide_order}`} className="aspect-square w-full rounded-md object-cover" />
         </button>
       ) : (
-        <div className="mx-auto flex aspect-square w-full max-w-sm items-center justify-center rounded-md border border-dashed border-neutral-300 text-xs text-neutral-400">
+        <div className="mx-auto flex aspect-square w-full max-w-sm items-center justify-center rounded-md border border-dashed border-[#2f3650] text-xs text-slate-400">
           이미지 없음
         </div>
       )}
@@ -114,7 +114,7 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
             name="model"
             value={model}
             onChange={(e) => setModel(e.target.value as typeof model)}
-            className="rounded-lg border border-neutral-300 px-2 py-1 text-xs text-neutral-700"
+            className="rounded-lg border bg-[#0d0f17] border-[#2f3650] px-2 py-1 text-xs text-slate-200"
           >
             {IMAGE_MODEL_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -129,18 +129,18 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="내 Gemini 키 (선택)"
-            className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-2 py-1 text-xs"
+            className="min-w-0 flex-1 rounded-lg border border-[#2f3650] bg-[#0d0f17] px-2 py-1 text-xs text-slate-100"
             style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
           />
         </div>
         <Button type="submit" variant="secondary" className="w-full text-xs" disabled={isRegenerating}>
           {isRegenerating ? "생성 중..." : "다시 생성"}
         </Button>
-        {regenState.error && <p className="text-xs text-red-600">{regenState.error}</p>}
+        {regenState.error && <p className="text-xs text-rose-400">{regenState.error}</p>}
       </form>
 
-      <div className="space-y-1.5 border-t border-dashed border-neutral-200 pt-2">
-        <p className="text-[11px] text-neutral-400">
+      <div className="space-y-1.5 border-t border-dashed border-[#262c3d] pt-2">
+        <p className="text-[11px] text-slate-400">
           AI 이미지가 마음에 안 들면 직접 가진 이미지 파일을 올려서 쓸 수도 있습니다.
         </p>
         <input
@@ -149,17 +149,17 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
           accept="image/jpeg,image/png,image/webp"
           disabled={isUploading}
           onChange={handleFileChange}
-          className="block w-full text-xs text-neutral-500 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-100 file:px-2 file:py-1 file:text-xs file:font-medium file:text-neutral-700"
+          className="block w-full text-xs text-slate-400 file:mr-2 file:rounded-md file:border-0 file:bg-slate-700 file:px-2 file:py-1 file:text-xs file:font-medium file:text-slate-200"
         />
-        {isUploading && <p className="text-xs text-neutral-500">업로드 중...</p>}
+        {isUploading && <p className="text-xs text-slate-400">업로드 중...</p>}
         {(uploadError || attachState.error) && (
-          <p className="text-xs text-red-600">{uploadError || attachState.error}</p>
+          <p className="text-xs text-rose-400">{uploadError || attachState.error}</p>
         )}
       </div>
 
       {history.length > 1 && (
         <div>
-          <p className="mb-1 text-[11px] text-neutral-400">
+          <p className="mb-1 text-[11px] text-slate-400">
             생성/업로드 이력 (클릭해서 선택, 돋보기로 확대, ✕로 삭제)
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -211,8 +211,8 @@ function SlideCard({ postId, slide }: { postId: string; slide: Slide }) {
               );
             })}
           </div>
-          {selectState.error && <p className="mt-1 text-xs text-red-600">{selectState.error}</p>}
-          {deleteState.error && <p className="mt-1 text-xs text-red-600">{deleteState.error}</p>}
+          {selectState.error && <p className="mt-1 text-xs text-rose-400">{selectState.error}</p>}
+          {deleteState.error && <p className="mt-1 text-xs text-rose-400">{deleteState.error}</p>}
         </div>
       )}
 

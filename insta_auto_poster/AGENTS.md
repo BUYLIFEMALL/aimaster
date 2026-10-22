@@ -376,3 +376,10 @@
 - `RemakePanel.tsx` 「🎬 이 대사로 쇼츠 만들기」가 `refHandoffHash(대사, APP_NAME)` — 원스톱 v1.34 주제 화면에 「INSTA 포스팅 자동화에서 넘겨받은…」 표시. 공용 사본 `referenceCopy.ts` 동기화.
 - 이번 배포에 함께 나간 예전 미배포분: 위 2026-10-18 예약 안내 문구, 2026-10-19 `instagram-publish` 분리, 2026-10-20 배포판 가입 확인 메일 보강, 2026-10-22 겹친 구절 원문 글자.
 - 검수: tsc, `test:cardnews` 68개, 배포 `insta-auto-poster-hoetgn6p4` Ready, DB v1.61. 플랜 `../shorts-onestop-studio/docs/PLAN_20261022_HANDOFF_SOURCE_NAME.md`.
+
+## 2026-10-22 ✅ v1.62 새 게시글 화면 글씨 가독성 (Claude Code 윈도우)
+- 증상(주인님 스크린샷): `/posts/new`(상세페이지에서 넘어온 화면 포함)의 제목·안내 글씨, 선택하지 않은 버튼, 캡션 내용이 어두운 배경에서 거의 안 보임.
+- 원인: 앱 전체는 어두운 테마(`--background: #0d0f17`)인데 `PostForm.tsx`·`SlideGallery.tsx`가 밝은 화면용 색(`text-neutral-700`·`bg-neutral-50`·`bg-white`·선택 버튼 `bg-neutral-900`)으로 짜여 있었고, 공용 `ui/Textarea.tsx`는 배경 없이 글자색 `text-neutral-900`이라 캡션 글자가 검정 위 검정이었음.
+- 수정: 두 폼의 밝은 색을 어두운 테마 색으로 일괄 치환(제목 `text-slate-200`, 안내 `text-slate-400`, 박스 `bg-[#131725]`·테두리 `#262c3d`, 선택 버튼 분홍 강조 `border-pink-500 bg-pink-500/20 text-pink-100`, `select` 어두운 배경, 오류 `text-rose-400`). `Textarea`는 `Input`과 같은 어두운 입력칸으로. 수정 화면(`/posts/[id]/edit`)도 같은 폼이라 함께 바뀜.
+- 검수: tsc·로컬 build 통과 → 배포 READY(`insta-auto-poster-gipr7cs00-buylife.vercel.app`) → DB `programs.version` v1.62 → 메인 크롬(관리자)에서 `/posts/new` 위아래 전체와 캡션 입력 글자 표시 확인(시험 문구는 저장하지 않음, 생성·게시 버튼 누르지 않음).
+- 비용: Vercel 빌드 1회(주인님 승인), AI 호출 0회.
