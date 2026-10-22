@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 메인 관리자: YOUTUBE Shots 30일 정리 합계 한 줄 (메인 사이트 자동 빌드 1회)
+- 관리자 첫 화면 시스템 사용량 「DB·저장소」 탭에 Shots v1.37 정리 기록(`usage_logs` `cleanup_expired`) 최근 30일 합계. 다른 세션의 `app/admin/statistics` 작업과 다른 파일. 상세 `shots/AGENTS.md`(메인 관리자 항목).
+- 프로그램: https://www.buylife.xyz/admin
+
 ## 2026-10-22 Claude Code(윈도우) — YOUTUBE Shots v1.37: 정리 기록 · 정리된 장면 표시 (빌드 1회, AI 0회)
 - 30일 정리 작업이 회원별 `usage_logs`(`cleanup_expired`)를 남기고, 스크립트 화면이 정리된 장면에 「30일이 지나 정리됐습니다」 표시. 첫 정리(2026-10-23 03:30 KST) 전에 배포. **다음 세션: 기록 행·로그 확인**. 상세 `shots/AGENTS.md` v1.37.
 - 프로그램: https://shots.buylife.xyz

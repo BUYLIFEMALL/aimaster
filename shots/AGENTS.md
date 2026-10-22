@@ -168,3 +168,7 @@
 - `src/lib/sceneImageCleanup.ts` `CLEANUP_ACTION="cleanup_expired"`·`countByOwner`·`cleanupByOwner`(순수), `/api/cron/cleanup-videos`가 회원별 `logProgramUsage`(metadata 영상·음성·표지·이미지 개수 + 비워진 장면 id, 응답 `loggedOwners`). `src/lib/cleanupLog.ts` `findExpiredSegments`(관리자 키, 느슨한 타입 — shots DB 타입에 `usage_logs` 없음), 스크립트 화면 → `ScriptEditor` → `SegmentCard` `imageExpired` 안내(호박색 상자).
 - 검수: tsc·build·시험 3개, 커밋 `4b35bf994`, 배포 `shots-isvjf6tev` Ready(18:30 UTC 정리 전), DB v1.37, 크롬(시험 회원) 스크립트 화면 오류 없이 장면 6개·30일 안내. 「정리됐습니다」 표시는 기록이 생긴 뒤에만 보임 — **다음 세션: `usage_logs` action `cleanup_expired` 행과 Vercel 로그 확인, 기록 있는 회원 화면에서 표시 확인**.
 - 비용: 빌드 1회, AI 0회.
+
+## 2026-10-22 메인 관리자 — Shots 30일 정리 합계 한 줄 (Claude Code 윈도우, 메인 사이트 변경·shots 버전 변경 없음)
+- `app/api/admin/system-usage/route.ts` `shotsCleanupLast30d` — 최근 30일 `usage_logs`(program `auto-shorts-posting`, action `cleanup_expired`)의 영상·음성·표지·이미지·장면 합계와 마지막 시각 → 응답 `shotsCleanup`. `components/admin/SystemUsageMonitor.tsx` 「DB·저장소」 탭 테이블 카드 위에 「YOUTUBE Shots 30일 정리(최근 30일) — 영상 n · 음성 n · 표지 n · 이미지 n개 삭제」(기록 없으면 「아직 정리 기록이 없습니다」).
+- 커밋 `945f1c2c8`, 메인 사이트 푸시 자동 빌드 `aimaster-vldq0j21b Ready`. 크롬(관리자): 시험 회원 로그인 상태라 /admin → /dashboard, API 403(관리자 보호 정상). 관리자 화면 표시는 미확인 — 정리 기록이 생긴 뒤(2026-10-23 03:30 KST 이후) 관리자 로그인으로 「DB·저장소」 탭 숫자 확인 필요.
