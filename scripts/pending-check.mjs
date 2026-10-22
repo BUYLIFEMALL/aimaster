@@ -25,10 +25,11 @@ function tableRows(md, heading) {
 const cells = (row) => row.split("|").slice(1, -1).map((c) => c.trim());
 const short = (s, n = 140) => (s.length > n ? `${s.slice(0, n)}…` : s);
 
-const pending = tableRows(read("docs/PENDING_DEPLOYS.md"), "대기 중").map((row) => {
+// 첫 칸에 `이름`이 여러 개면(메모 줄 등) 이름마다 한 줄로 본다
+const pending = tableRows(read("docs/PENDING_DEPLOYS.md"), "대기 중").flatMap((row) => {
   const c = cells(row);
-  const name = (c[0].match(/`([^`]+)`/) || [])[1] ?? c[0];
-  return { name, what: c[1] ?? "", commit: c[2] ?? "", where: c[4] ?? "", next: c[5] ?? "" };
+  const names = [...c[0].matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+  return (names.length ? names : [c[0]]).map((name) => ({ name, what: c[1] ?? "", commit: c[2] ?? "", where: c[4] ?? "", next: c[5] ?? "" }));
 });
 
 // 「아직 배포 안 된 프로그램」 칸에서 취소선(~~…~~)이 아닌 `폴더` 이름들
