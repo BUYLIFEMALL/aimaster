@@ -16,13 +16,20 @@ async function bananaLinkStats(userId: string | undefined) {
   if (!me?.is_admin) return null;
   const admin = createServiceClient();
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const [{ data: rows }, { count: total }] = await Promise.all([
-    admin.from("banana_canvas_results").select("src:options->>ideaSource").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
+  // 다운로드 비율: 바나나가 결과를 처음 다운로드할 때 `options.downloadedAt`을 남긴다(v1.27부터 기록)
+  const [{ data: rows }, { count: total }, { count: totalDownloaded }] = await Promise.all([
+    admin.from("banana_canvas_results").select("src:options->>ideaSource, dl:options->>downloadedAt").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since),
+    admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->>downloadedAt", "is", null),
   ]);
   const counts: Record<string, number> = {};
-  for (const r of (rows ?? []) as { src: string | null }[]) if (r.src) counts[r.src] = (counts[r.src] ?? 0) + 1;
-  return { counts, total: total ?? 0 };
+  const downloaded: Record<string, number> = {};
+  for (const r of (rows ?? []) as { src: string | null; dl: string | null }[]) {
+    if (!r.src) continue;
+    counts[r.src] = (counts[r.src] ?? 0) + 1;
+    if (r.dl) downloaded[r.src] = (downloaded[r.src] ?? 0) + 1;
+  }
+  return { counts, downloaded, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0 };
 }
 
 export default async function AdminStatisticsPage() {
@@ -147,9 +154,10 @@ export default async function AdminStatisticsPage() {
     .slice(0, 10);
 
   const bananaRows = Object.entries(bananaStats?.counts ?? {})
-    .map(([slug, count]) => ({ slug, name: programs?.find((p) => p.slug === slug)?.name ?? slug, count }))
+    .map(([slug, count]) => ({ slug, name: programs?.find((p) => p.slug === slug)?.name ?? slug, count, downloaded: bananaStats?.downloaded[slug] ?? 0 }))
     .sort((a, b) => b.count - a.count);
   const bananaLinked = bananaRows.reduce((sum, r) => sum + r.count, 0);
+  const pct = (n: number, d: number) => (d ? `${Math.round((n / d) * 100)}%` : "—");
 
   const SUMMARY_STATS = [
     {
@@ -222,7 +230,7 @@ export default async function AdminStatisticsPage() {
             <h2 className="text-lg font-bold text-white">바나나 캔버스로 이어진 작업</h2>
           </div>
           <p className="text-subtext text-sm mb-4">
-            최근 30일 · 다른 프로그램이 보낸 아이디어로 시작한 바나나 작업 {bananaLinked}건 / 전체 {bananaStats.total}건 (결과는 30일 뒤 자동 삭제되어 30일 기준)
+            최근 30일 · 다른 프로그램이 보낸 아이디어로 시작한 바나나 작업 {bananaLinked}건 / 전체 {bananaStats.total}건 · 바나나 전체 다운로드 비율 {pct(bananaStats.totalDownloaded, bananaStats.total)} (결과는 30일 뒤 자동 삭제되어 30일 기준, 다운로드는 2026-10-22부터 기록)
           </p>
           {bananaRows.length === 0 ? (
             <p className="text-subtext text-sm">아직 이어진 작업이 없습니다.</p>
@@ -233,6 +241,7 @@ export default async function AdminStatisticsPage() {
                   <th className="py-2 font-medium">보낸 프로그램</th>
                   <th className="py-2 font-medium text-right">작업 수</th>
                   <th className="py-2 font-medium text-right">비율</th>
+                  <th className="py-2 font-medium text-right">다운로드까지</th>
                 </tr>
               </thead>
               <tbody>
@@ -241,6 +250,7 @@ export default async function AdminStatisticsPage() {
                     <td className="py-2">{r.name}</td>
                     <td className="py-2 text-right">{r.count}건</td>
                     <td className="py-2 text-right">{bananaLinked ? Math.round((r.count / bananaLinked) * 100) : 0}%</td>
+                    <td className="py-2 text-right">{r.downloaded}건 ({pct(r.downloaded, r.count)})</td>
                   </tr>
                 ))}
               </tbody>
