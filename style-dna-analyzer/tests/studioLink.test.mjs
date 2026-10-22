@@ -15,3 +15,11 @@ test("비었거나 너무 길면 링크를 만들지 않는다", () => {
   assert.equal(imageStudioLink("a".repeat(MAX_LINK_PROMPT + 1)), null);
   assert.ok(imageStudioLink("a".repeat(MAX_LINK_PROMPT)));
 });
+
+test("v1.35 바나나 캔버스로 보내기 링크(600자 이하만)", async () => {
+  const { bananaLink, MAX_BANANA_IDEA } = await import("../src/lib/dna/studioLink.ts");
+  assert.equal(bananaLink("  cat in space "), "https://banana-canvas.buylife.xyz/studio?idea=cat%20in%20space");
+  assert.equal(bananaLink("x".repeat(MAX_BANANA_IDEA)).length > 0, true);
+  assert.equal(bananaLink("x".repeat(MAX_BANANA_IDEA + 1)), null);
+  assert.equal(bananaLink(""), null);
+});

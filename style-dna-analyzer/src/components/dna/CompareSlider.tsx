@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { averageDiff, colorDiffPercent, containPoint, defaultSplit, percentAt, percentForKey, splitClip, toHex, type SplitMode } from "@/lib/dna/compare";
-import { imageStudioLink } from "@/lib/dna/studioLink";
+import { bananaLink, imageStudioLink, MAX_BANANA_IDEA } from "@/lib/dna/studioLink";
 import { bestTrendIndex, promptPreview, sparklinePoints, sparklineXY, spotChange, type CheckSpot, type TrendPoint } from "@/lib/dna/checkSpots";
 
 type Pixels = { data: Uint8ClampedArray; w: number; h: number; natW: number; natH: number };
@@ -356,6 +356,22 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
                     <span>이미지 스튜디오에서 생성</span>
                   </a>
                 )}
+                {/* v1.35: 바나나 캔버스 「이미지 생성」 아이디어 칸으로(600자 이하만) */}
+                {picked.prompt && (bananaLink(picked.prompt) ? (
+                  <a
+                    href={bananaLink(picked.prompt)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-banana-link
+                    title="이 회차 프롬프트를 바나나 캔버스 「이미지 생성」 아이디어 칸에 채워 엽니다 — 확인한 뒤 직접 [이미지 생성]을 누르세요"
+                    className="inline-flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-bold text-amber-300 hover:bg-amber-500/20"
+                  >
+                    <span aria-hidden>🍌</span>
+                    <span>바나나 캔버스로 보내기</span>
+                  </a>
+                ) : (
+                  <span className="text-[10px] text-slate-900 opacity-80" data-banana-too-long>🍌 {MAX_BANANA_IDEA}자를 넘어 바나나 캔버스로 보낼 수 없습니다 — 복사해서 줄여 쓰세요.</span>
+                ))}
               </div>
             </div>
           )}
