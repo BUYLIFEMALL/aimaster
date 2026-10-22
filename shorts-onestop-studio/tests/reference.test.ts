@@ -37,3 +37,14 @@ test("장면 겹침 판정: 고치면 사라짐, 검사 대상이 없으면 항�
   assert.equal(hasCopy("서가 사이를 오래 돌아다닌 적 있으신가요?", REF), false);
   assert.equal(hasCopy("아무 문장", ""), false);
 });
+
+// ── v1.32 INSTA → 원스톱 레퍼런스 대사 넘기기(주소 # 뒤) ──
+import { REF_HANDOFF_MAX, readRefHandoff, refHandoffHash } from "../src/lib/reference.ts";
+test("넘기기 주소: 한글·줄바꿈·기호가 그대로 돌아오고, 다른 # 이나 깨진 값은 무시", () => {
+  const text = "아직도 S&P500만 사는 거 아니죠?\n#재테크 100% 정리";
+  assert.equal(readRefHandoff(refHandoffHash(text)), text);
+  assert.equal(readRefHandoff("#other=abc"), "");
+  assert.equal(readRefHandoff(""), "");
+  assert.equal(readRefHandoff("#ref-transcript=%E0%A4%A"), "");
+  assert.equal(readRefHandoff(refHandoffHash("가".repeat(REF_HANDOFF_MAX + 50))).length, REF_HANDOFF_MAX);
+});

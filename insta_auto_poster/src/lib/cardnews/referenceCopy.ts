@@ -51,3 +51,21 @@ export function guardText(reference: string, all = false): string {
 export function hasCopy(text: string, ref: string): boolean {
   return !!ref && copiedPhrases([text], ref).length > 0;
 }
+
+/** v1.32 다른 프로그램(INSTA 떡상 리메이크)이 원스톱 주제 화면에 넘기는 레퍼런스 대사 — 주소 # 뒤에 실어 서버로 보내지 않는다 */
+export const REF_HASH = "ref-transcript";
+export const REF_HANDOFF_MAX = 12000;
+
+export function refHandoffHash(transcript: string): string {
+  return `#${REF_HASH}=${encodeURIComponent(transcript.trim().slice(0, REF_HANDOFF_MAX))}`;
+}
+
+export function readRefHandoff(hash: string): string {
+  const prefix = `#${REF_HASH}=`;
+  if (!hash.startsWith(prefix)) return "";
+  try {
+    return decodeURIComponent(hash.slice(prefix.length)).trim().slice(0, REF_HANDOFF_MAX);
+  } catch {
+    return "";
+  }
+}

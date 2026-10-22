@@ -9,6 +9,8 @@ import { useStudio } from "@/components/cardnews/studio/ProjectProvider";
 import { VIRAL_ANGLES } from "@/lib/cardnews/ai/remakePrompts";
 import { LayoutEditor } from "@/components/cardnews/studio/LayoutEditor";
 import type { CardPage } from "@/lib/cardnews/types";
+import { copiedPhrases } from "@/lib/cardnews/referenceCopy";
+import { pageTexts, remakeGuardText } from "@/lib/cardnews/collect";
 import { BTN_GHOST, BTN_PRIMARY, Card, EnginePicker, ErrorNote, INPUT, NeedPlan, StepHeader } from "@/components/cardnews/studio/ui";
 
 export default function CopyPage() {
@@ -27,6 +29,10 @@ export default function CopyPage() {
   const remakeOn = project.startMode === "remake" && !!project.remake?.angleId;
   const headMax = remakeOn ? 22 : 18;
   const subMax = remakeOn ? 120 : 70;
+  // v1.58 장마다 원문과 그대로 겹치는지 브라우저에서 다시 검사(고치면 바로 사라짐) — 문구 API와 같은 검사 대상
+  const guardRef = remakeOn ? remakeGuardText(project.remake?.sourceText ?? "") : "";
+  const pageCopied = (p: CardPage) =>
+    guardRef ? copiedPhrases(pageTexts([{ headline: p.headline, sub: p.sub, points: p.points, number: p.number }]), guardRef).length > 0 : false;
 
   const generate = async () => {
     setConfirm(false);
@@ -117,19 +123,26 @@ export default function CopyPage() {
         )}
         {error && <ErrorNote message={error.message} needKey={error.needKey} />}
         {copyNote.length > 0 && (
-          <p className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">⚠ 원본 게시물 문장과 그대로 겹치는 구절이 {copyNote.length}개 남았습니다. 아래 장에서 다른 표현으로 고쳐 주세요: 「{copyNote.slice(0, 3).join("」, 「")}」</p>
+          <p className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">⚠ 원본 게시물 문장과 그대로 겹치는 구절이 {copyNote.length}개 남았습니다. 아래 노란 테두리 장을 다른 표현으로 고쳐 주세요: 「{copyNote.slice(0, 3).join("」, 「")}」</p>
         )}
       </Card>
 
       {pages.length > 0 && (
         <div className="space-y-3">
-          {pages.map((p, i) => (
-            <Card key={p.id}>
-              <div className="mb-2 flex items-center justify-between">
+          {pages.map((p, i) => {
+            const copied = pageCopied(p);
+            return (
+            <Card key={p.id} className={copied ? "outline outline-2 outline-offset-2 outline-amber-400" : undefined}>
+              <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-bold text-violet-700">
                   {i + 1} / {pages.length}
                   {i === 0 ? " · 표지" : i === pages.length - 1 ? " · 마무리" : ""}
                 </span>
+                {copied && (
+                  <span className="whitespace-nowrap rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300" title="원본 게시물 문장과 6어절 이상 그대로 겹칩니다. 다른 표현으로 고쳐 주세요.">
+                    ⚠ 겹침
+                  </span>
+                )}
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
@@ -160,7 +173,8 @@ export default function CopyPage() {
                 </select>
               </div>
             </Card>
-          ))}
+            );
+          })}
           <div className="flex justify-end">
             <Link href="/cardnews/design" className={BTN_PRIMARY}>
               다음: 디자인 →

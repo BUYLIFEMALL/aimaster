@@ -4,7 +4,8 @@ import { callLlm, LlmError } from "@/lib/cardnews/ai/llm";
 import { buildCopyPrompt, parseCopy } from "@/lib/cardnews/ai/copyPrompts";
 import { buildRemakeCopyPrompt, parseRemakeAnalysis, parseRemakeCopy, VIRAL_ANGLES } from "@/lib/cardnews/ai/remakePrompts";
 import type { AngleId } from "@/lib/cardnews/types";
-import { COPY_WORDS, copiedPhrases, guardText } from "@/lib/cardnews/referenceCopy";
+import { COPY_WORDS, copiedPhrases } from "@/lib/cardnews/referenceCopy";
+import { pageTexts, remakeGuardText } from "@/lib/cardnews/collect";
 import { PAGE_COUNTS, TONES, type ToneId } from "@/lib/cardnews/presets";
 
 export const dynamic = "force-dynamic";
@@ -39,14 +40,14 @@ export async function POST(request: Request) {
       : buildCopyPrompt({ category, topic, tone, pageCount });
     // v1.57 리메이크 원문(수집 캡션·받아쓰기·붙여 넣은 글) 베끼기 방지 — 공용 reference-copy-guard(연속 6어절 겹침)
     const sourceText = isRemake && typeof remake?.sourceText === "string" ? remake.sourceText.slice(0, 12000) : "";
-    const ref = guardText(sourceText.split("\n").filter((l) => !/^\s*(\[|https?:\/\/)/.test(l)).join("\n"), true);
+    const ref = remakeGuardText(sourceText);
     const rule = ref ? `\n\n[원본 문장 사용 규칙] 원본 게시물의 사실·항목은 빠짐없이 쓰되, 문장은 완전히 새로 쓰세요. 원본과 연속 ${COPY_WORDS}어절 이상 같은 표현을 쓰지 마세요(숫자·고유명사는 그대로 써도 됩니다).` : "";
     const ask = async (extra = "") => {
       const text = await callLlm({ provider: engine.provider, model: engine.model, apiKey: key.apiKey, system: prompt.system, user: prompt.user + rule + extra, json: true });
       return isRemake ? parseRemakeCopy(text, pageCount) : parseCopy(text, pageCount);
     };
     // 장 안의 모든 글자 칸(제목·부제·항목·숫자 설명 등)을 모아 검사
-    const textsOf = (pages: unknown[]) => pages.flatMap((p) => JSON.stringify(p).match(/"(?:[^"\\]|\\.)*"/g) ?? []).map((s) => s.slice(1, -1));
+    const textsOf = pageTexts;
     let pages = await ask();
     if (!pages) {
       return NextResponse.json({ error: `AI 응답 형식이 맞지 않습니다(${pageCount}장 필요). 다시 시도하거나 다른 모델을 선택해보세요.` }, { status: 502 });

@@ -1,6 +1,8 @@
 // 🔍 인기 게시물 수집(v1.50) — 공식 API(business_discovery, Facebook 페이지 방식 회원)와 회원 본인 Apify 토큰 결과를
 // 같은 모양으로 바꾸고 반응도순으로 고른다. 서버·화면·시험에서 함께 쓰는 순수 함수만 둔다.
 
+import { guardText } from "./referenceCopy";
+
 export type CollectKind = "account" | "hashtag";
 export type CollectSource = "official" | "apify";
 
@@ -168,4 +170,29 @@ export function splitTranscript(transcript: string): { hook: string; body: strin
   if (sentences.length === 1) return { hook: sentences[0], body: "", ending: "" };
   if (sentences.length === 2) return { hook: sentences[0], body: "", ending: sentences[1] };
   return { hook: sentences[0], body: sentences.slice(1, -1).join(" "), ending: sentences[sentences.length - 1] };
+}
+
+/** v1.58 원문 칸의 받아쓰기 블록 표시(withTranscript가 붙임) */
+export const TRANSCRIPT_MARK = "[릴스 말소리 받아쓰기";
+
+/** v1.57 리메이크 베끼기 검사 대상 — 표시 줄([…])·주소 줄을 뺀 원문 전체(문구 API와 문구 화면이 같은 기준으로) */
+export function remakeGuardText(sourceText: string): string {
+  return guardText(sourceText.split("\n").filter((l) => !/^\s*(\[|https?:\/\/)/.test(l)).join("\n"), true);
+}
+
+/** v1.57 장 안의 모든 글자 칸(제목·부제·항목·숫자 설명 등)을 모은다 */
+export function pageTexts(pages: unknown[]): string[] {
+  return pages.flatMap((p) => JSON.stringify(p).match(/"(?:[^"\\]|\\.)*"/g) ?? []).map((s) => s.slice(1, -1));
+}
+
+/** v1.58 원문 칸에서 릴스 받아쓰기(▶ 머리말을 뺀 실제로 말한 내용)만 — 원스톱 「레퍼런스 쇼츠」로 넘길 때 */
+export function transcriptOf(sourceText: string): string {
+  const i = sourceText.indexOf(TRANSCRIPT_MARK);
+  if (i < 0) return "";
+  const out: string[] = [];
+  for (const line of sourceText.slice(i).split("\n").slice(1)) {
+    if (!line.trim()) break;
+    out.push(line.replace(/^▶ [^:]+:\s*/, "").trim());
+  }
+  return out.filter(Boolean).join(" ");
 }

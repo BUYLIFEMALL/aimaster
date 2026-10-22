@@ -351,3 +351,22 @@ test("리메이크 원문 겹침: 캡션 문장을 6어절 이상 그대로 쓰�
   assert.equal(copiedPhrasesRef(["미국 고배당 우량주 100개를 모아놔서 안정적인 데에 좋아요"], ref).length, 1);
   assert.deepEqual(copiedPhrasesRef(["우량주 100개를 담은 배당 ETF"], ref), []);
 });
+
+// ── v1.58 장별 겹침 표시용 검사 대상 · 받아쓰기 → 원스톱 넘기기 ──
+import { remakeGuardText, pageTexts, transcriptOf, withTranscript as withTranscript158 } from "../../src/lib/cardnews/collect.ts";
+import { copiedPhrases as copied158, readRefHandoff, refHandoffHash } from "../../src/lib/cardnews/referenceCopy.ts";
+test("v1.58 받아쓰기만 뽑아 넘기고, 원스톱이 같은 글로 받는다", () => {
+  const src = withTranscript158("[수집한 인기 게시물] @a\nhttps://www.instagram.com/p/x/\n\n캡션 한 줄", "아직도 S&P500만 사는 거 아니죠? 미국 ETF 추천 3가지! 언제 사야 좋은지 싹 정리했어요.");
+  const t = transcriptOf(src);
+  assert.equal(t, "아직도 S&P500만 사는 거 아니죠? 미국 ETF 추천 3가지! 언제 사야 좋은지 싹 정리했어요.");
+  assert.equal(readRefHandoff(refHandoffHash(t)), t);
+  assert.equal(transcriptOf("받아쓰기 없는 원문"), "");
+});
+test("v1.58 장 하나의 글자 칸(제목·부제·항목) 중 원문과 6어절 겹침을 찾는다, 표시·주소 줄은 검사 대상 아님", () => {
+  const src = "[수집한 인기 게시물] @a 좋아요 1 댓글 2 조회 3 이것은 표시 줄\nhttps://www.instagram.com/p/x/\n미국 고배당 우량주 100개를 모아놔서 안정적인 데에 돈까지 받을 수 있어요.";
+  const ref = remakeGuardText(src);
+  assert.ok(!ref.includes("instagram.com") && !ref.includes("표시 줄"));
+  const page = { headline: "배당 ETF", sub: "새로 쓴 문장입니다", points: [{ title: "SCHD", desc: "고배당 우량주 100개를 모아놔서 안정적인 데에 돈까지" }] };
+  assert.equal(copied158(pageTexts([page]), ref).length, 1);
+  assert.equal(copied158(pageTexts([{ ...page, points: [{ title: "SCHD", desc: "우량 배당주 100종목으로 든든한 배당금" }] }]), ref).length, 0);
+});

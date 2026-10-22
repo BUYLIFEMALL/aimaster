@@ -10,6 +10,11 @@ import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/cardnews/ima
 import { extractReel, REEL_MAX_AUDIO_SEC, type ReelMaterial } from "@/lib/cardnews/reelsMedia";
 import { CollectPanel, type GeminiFileRef } from "./CollectPanel";
 import type { AngleId, RemakeState } from "@/lib/cardnews/types";
+import { transcriptOf } from "@/lib/cardnews/collect";
+import { refHandoffHash } from "@/lib/cardnews/referenceCopy";
+
+// v1.58 받아쓴 릴스 대사를 넘길 AI 쇼츠 원스톱 주제 화면(원스톱 v1.32가 주소 # 뒤 대사를 레퍼런스로 받음)
+const ONESTOP_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic";
 
 const MAX_IMAGES = 6;
 // Vercel 요청 한도 4.5MB보다 조금 작게 — 넘으면 보내기 전에 안내
@@ -239,6 +244,21 @@ export function RemakePanel() {
             <span key={b} className="whitespace-nowrap rounded-full border border-[#262c3d] bg-[#0d0f17] px-2 py-0.5 text-[11px] text-slate-200">{b}</span>
           ))}
         </div>
+      )}
+
+      {/* v1.58 받아쓴 릴스 대사를 AI 쇼츠 원스톱의 「레퍼런스 쇼츠」로 — 대사는 주소 # 뒤에 실어 서버로 보내지 않음 */}
+      {transcriptOf(remake.sourceText) && (
+        <p className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+          <a
+            href={`${ONESTOP_TOPIC_URL}${refHandoffHash(transcriptOf(remake.sourceText))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-nowrap rounded-lg border border-[#262c3d] bg-[#0d0f17] px-3 py-1.5 font-bold text-slate-100 hover:border-pink-400/60"
+          >
+            🎬 이 대사로 쇼츠 만들기
+          </a>
+          <span>AI 쇼츠 원스톱이 새 탭으로 열리고, 받아쓴 대사가 레퍼런스로 들어갑니다(흐름만 참고하고 문장은 새로 씁니다).</span>
+        </p>
       )}
 
       <div className="flex flex-wrap items-center gap-3">
