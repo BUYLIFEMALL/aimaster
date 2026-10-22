@@ -1,5 +1,6 @@
 // AI 분석 프롬프트. 화면에서 이미 조회한 데이터만 근거로 쓰게 하고, 없는 정보는 "확인 불가"로 말하게 한다
 // (docs/PLATFORM_PATTERNS.md §30 "가짜 분석 금지"). 연도는 매번 현재 연도를 넣는다(루트 CLAUDE.md 핵심 원칙 8).
+import { SUMMARY_SCRIPT_HEADING, SUMMARY_SCRIPT_MAX_SEC } from "./summaryScript";
 
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
@@ -142,8 +143,10 @@ export function buildPrompt(
     ]
       .filter(Boolean)
       .join("\n");
+    // v1.23 3분 이하(쇼츠)를 직접 볼 때만 실제 대사를 받는다 — AI 쇼츠 원스톱 레퍼런스로 넘김(긴 영상은 대사가 길어 비용이 커져 제외)
+    const withScript = direct && v.durationSeconds <= SUMMARY_SCRIPT_MAX_SEC;
     const headings = direct
-      ? "## 한 줄 요약\n## 핵심 내용 (시간 순서로 5~8개)\n## 도입 3초 훅\n## 이 영상이 잘 된 이유\n## 내 채널에 활용할 아이디어"
+      ? `## 한 줄 요약\n## 핵심 내용 (시간 순서로 5~8개)\n## 도입 3초 훅\n## 이 영상이 잘 된 이유\n## 내 채널에 활용할 아이디어${withScript ? `\n${SUMMARY_SCRIPT_HEADING}\n(영상에서 사람이 실제로 말한 대사를 들은 그대로 받아쓰기, 말소리가 없으면 「없음」)` : ""}`
       : "## 한 줄 요약(추정)\n## 제목·설명으로 짐작되는 내용\n## 이 영상이 잘 된 이유(추정)\n## 내 채널에 활용할 아이디어";
     return {
       mode: direct ? "direct-video" : "data-only",

@@ -48,3 +48,9 @@ test("넘기기 주소: 한글·줄바꿈·기호가 그대로 돌아오고, 다
   assert.equal(readRefHandoff("#ref-transcript=%E0%A4%A"), "");
   assert.equal(readRefHandoff(refHandoffHash("가".repeat(REF_HANDOFF_MAX + 50))).length, REF_HANDOFF_MAX);
 });
+
+// ── 겹친 구절은 원문 글자 그대로(문장 부호 포함) ──
+test("겹친 구절을 원문 글자 그대로 돌려준다(S&P500·쉼표 유지)", () => {
+  const ref = "최근 수익률 높은 기업들만 모아놔서 S&P500보다 수익률이 높아요, 정말로.";
+  assert.deepEqual(copiedPhrases(["요즘 최근 수익률 높은 기업들만 모아놔서 S&P500보다 수익률이 높아요, 정말로!"], ref), ["최근 수익률 높은 기업들만 모아놔서 S&P500보다 수익률이 높아요, 정말로"]);
+});

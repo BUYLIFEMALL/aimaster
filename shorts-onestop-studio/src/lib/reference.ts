@@ -19,7 +19,13 @@ export function words(text: string): string[] {
   return text.replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
 }
 
-/** 대본 문장들 중 레퍼런스와 연속 n어절 이상 같은 구절(겹치는 구간을 이어 붙여 하나로, 최대 10개) */
+/** words()와 같은 어절 나누기 + 각 어절의 원문 위치(구절을 원래 글자 그대로 돌려주기 위해) */
+function wordSpans(text: string): { w: string; start: number; end: number }[] {
+  return [...text.matchAll(/[\p{L}\p{N}]+/gu)].map((m) => ({ w: m[0], start: m.index ?? 0, end: (m.index ?? 0) + m[0].length }));
+}
+
+/** 대본 문장들 중 레퍼런스와 연속 n어절 이상 같은 구절(겹치는 구간을 이어 붙여 하나로, 최대 10개).
+ *  판정은 문장 부호를 뺀 어절로, 돌려주는 구절은 원문 글자 그대로(예: 「S&P500」) */
 export function copiedPhrases(texts: string[], ref: string, n = COPY_WORDS): string[] {
   const rw = words(ref);
   if (rw.length < n) return [];
@@ -27,13 +33,14 @@ export function copiedPhrases(texts: string[], ref: string, n = COPY_WORDS): str
   for (let i = 0; i + n <= rw.length; i++) grams.add(rw.slice(i, i + n).join(" "));
   const out: string[] = [];
   for (const t of texts) {
-    const w = words(t);
+    const spans = wordSpans(t);
+    const w = spans.map((s) => s.w);
     let i = 0;
     while (i + n <= w.length) {
       if (!grams.has(w.slice(i, i + n).join(" "))) { i++; continue; }
       let end = i + n; // 겹치는 구간을 끝까지 늘린다
       while (end < w.length && grams.has(w.slice(end - n + 1, end + 1).join(" "))) end++;
-      const phrase = w.slice(i, end).join(" ");
+      const phrase = t.slice(spans[i].start, spans[end - 1].end);
       if (!out.includes(phrase)) out.push(phrase);
       i = end;
     }

@@ -20,7 +20,6 @@ import {
   Link2,
 } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ScriptAnalysisModal } from "@/components/analysis/ScriptAnalysisModal";
 import type { ScriptAnalysisResult } from "@/lib/ai/scriptAnalyzer";
 import { errorMessage } from "@/lib/errors";
@@ -33,16 +32,18 @@ interface VideoCardProps {
 
 export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked = false }: VideoCardProps) {
   const favorites = useFavorites();
-  const router = useRouter();
   const [localBookmarked, setBookmarked] = useState(initialBookmarked);
   const bookmarked = favorites ? favorites.has("video", video.id) : localBookmarked;
   const bookmarkBusy = !!favorites && (favorites.loading || !!favorites.error || favorites.pending.has("video:" + video.id));
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<ScriptAnalysisResult | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  // v1.23 대본 분석 오류는 브라우저 경고창 대신 카드 안 안내로(흐름이 끊기지 않게)
+  const [analyzeError, setAnalyzeError] = useState<{ message: string; needKey?: boolean } | null>(null);
 
   const handleAnalyzeScript = async () => {
     setAnalyzing(true);
+    setAnalyzeError(null);
     try {
       const res = await fetch("/api/youtube/analyze-script", {
         method: "POST",
@@ -56,20 +57,14 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
 
       const data = await res.json();
       if (!res.ok) {
-        if (data.needAiKey) {
-          if (confirm(`${data.error}\n\n지금 설정 페이지로 이동하여 API 키를 등록하시겠습니까?`)) {
-            router.push("/settings"); // v1.15: Next 방식 이동(도착 화면 동일)
-          }
-        } else {
-          alert(data.error || "대본 분석 중 오류가 발생했습니다.");
-        }
+        setAnalyzeError({ message: data.error || "대본 분석 중 오류가 발생했습니다.", needKey: !!data.needAiKey });
         return;
       }
 
       setAnalysisResult(data.analysis);
       setModalOpen(true);
     } catch (err: unknown) {
-      alert(errorMessage(err) || "네트워크 오류가 발생했습니다.");
+      setAnalyzeError({ message: errorMessage(err) || "네트워크 오류가 발생했습니다." });
     } finally {
       setAnalyzing(false);
     }
@@ -239,6 +234,19 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
               </>
             )}
           </button>
+          {analyzeError && (
+            <p role="alert" className="rounded-md border border-yt-red/40 bg-yt-red/10 px-2 py-1.5 text-[11px] leading-relaxed text-red-200">
+              {analyzeError.message}
+              {analyzeError.needKey && (
+                <>
+                  {" "}
+                  <Link href="/settings" className="font-bold text-yt-link underline">
+                    API키등록·플랫폼연동으로 가기 →
+                  </Link>
+                </>
+              )}
+            </p>
+          )}
 
           <div className="flex items-center gap-1.5">
             <a

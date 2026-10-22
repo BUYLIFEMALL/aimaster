@@ -6,6 +6,11 @@ import { Copy, Loader2, Sparkles, X } from "lucide-react";
 import { AI_ENGINES, type AiProvider } from "@/lib/ai/models";
 import { Markdown } from "./Markdown";
 import type { AiRunState, useAiEngine } from "./useAi";
+import { summaryScriptOf } from "@/lib/ai/summaryScript";
+import { refHandoffHash } from "@/lib/reference";
+
+// v1.23 대사를 넘길 AI 쇼츠 원스톱 주제 화면(원스톱 v1.32~가 주소 # 뒤 대사를 레퍼런스로 받음)
+const ONESTOP_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic";
 
 type EngineState = ReturnType<typeof useAiEngine>;
 
@@ -127,6 +132,20 @@ export function AiDrawer({ state, onClose }: { state: AiRunState; onClose: () =>
             </div>
           )}
           {state.result && <Markdown text={state.result.text} />}
+          {/* v1.23 쇼츠를 직접 본 「영상 요약」의 실제 대사 → AI 쇼츠 원스톱 레퍼런스(대사는 주소 # 뒤라 서버로 가지 않음) */}
+          {state.result?.type === "video-summary" && summaryScriptOf(state.result.text) && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-yt-border bg-yt-raised p-3 text-xs text-yt-muted">
+              <a
+                href={`${ONESTOP_TOPIC_URL}${refHandoffHash(summaryScriptOf(state.result.text))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="whitespace-nowrap rounded-lg border border-yt-border bg-yt-surface px-3 py-1.5 font-bold text-yt-text hover:bg-yt-hover"
+              >
+                🎬 이 대사로 쇼츠 만들기
+              </a>
+              <span>AI 쇼츠 원스톱이 새 탭으로 열리고, 위 「영상 대사」가 레퍼런스로 들어갑니다(흐름만 참고하고 문장은 새로 씁니다).</span>
+            </div>
+          )}
         </div>
         {state.result && (
           <footer className="flex items-center justify-between gap-2 border-t border-yt-border p-3">
