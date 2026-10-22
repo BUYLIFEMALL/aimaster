@@ -55,10 +55,12 @@ test('visible body with a missing or altered save source cannot reach final clic
 });
 
 test('read-only own-manager receipt handles a custom domain without extra host permission',async()=>{
- const page=await pageWith(`<input id="post-title-inp" value="${title}">`,'https://myblog.tistory.com/manage/post/123');
+ for (const path of ['post/123','newpost/123']) {
+ const page=await pageWith(`<input id="post-title-inp" value="${title}">`,`https://myblog.tistory.com/manage/${path}`);
  assert.equal((await step(page,'published',{title,postId:'123'})).url,'https://myblog.tistory.com/123');
  assert.equal((await step(page,'published',{title,postId:'124'})).ok,false);
  assert.equal((await step(page,'final')).ok,false);await page.close();
+ }
 });
 
 test('live private save dialog without date buttons supports now only and keeps public guarded',async()=>{
@@ -71,4 +73,20 @@ test('live private save dialog without date buttons supports now only and keeps 
  await publicPage.evaluate(()=>{document.querySelector('#private').checked=false;document.querySelector('#public').checked=true;});
  const next=await step(publicPage,'snapshot');
  assert.equal((await step(publicPage,'final',{snapshot:next.snapshot,publish:{...settings,visibility:'public'}})).ok,false);await publicPage.close();
+});
+
+test('observed custom-domain entry slug resolves only its exact own management row',async()=>{
+ const page=await pageWith(`<ul><li><a href="https://myblog.tistory.com/entry/saved">${title}</a><a href="/manage/post/230?returnURL=x">수정</a></li></ul>`,'https://myblog.tistory.com/manage/posts/');
+ assert.equal((await step(page,'resolve',{title,observedUrl:'https://myblog.tistory.com/entry/saved'})).postId,'230');
+ for(const observedUrl of [undefined,'https://myblog.tistory.com/entry/old','https://other.tistory.com/entry/saved'])assert.equal((await step(page,'resolve',{title,observedUrl})).ok,false);
+ await page.close();
+});
+test('actual save response custom-domain slug maps through its exact management row to stable numeric receipt',async()=>{
+ const listeners=[];let current='https://myblog.tistory.com/manage/posts/';const persisted=[];let durable=false;
+ const chrome={debugger:{onEvent:{addListener:fn=>listeners.push(fn),removeListener:()=>{}},detach:async()=>{},sendCommand:async(_target,command)=>{if(command==='Network.configureDurableMessages'){durable=true;return {};}if(command==='Network.getResponseBody'&&!durable)throw new Error('No resource with given identifier found');return {body:JSON.stringify({entryUrl:'https://custom.example/entry/saved'})};}},tabs:{get:async()=>({url:current}),update:async(_id,p)=>{current=p.url;}},scripting:{executeScript:async d=>[{result:d.args[0]==='resolve'?{ok:true,postId:'230'}:d.args[0]==='published'?{ok:true,url:'https://myblog.tistory.com/230'}:{ok:true}}]}};
+ const adapter=createAdapter({chrome,state:{tabId:7,blogName:'myblog'},TaskError:Error,sleep:async()=>{},attachDebugger:async()=>{}});
+ await adapter.watchPublication(id=>persisted.push(id));await adapter.finalPublication({},settings,'run',true);
+ listeners[0]({tabId:7},'Network.requestWillBeSent',{requestId:'save',request:{url:'https://myblog.tistory.com/manage/post.json',method:'POST'}});
+ listeners[0]({tabId:7},'Network.responseReceived',{requestId:'save',response:{status:200}});listeners[0]({tabId:7},'Network.loadingFinished',{requestId:'save'});await new Promise(r=>setImmediate(r));
+ assert.equal(await adapter.publicationResult(title),'https://myblog.tistory.com/230');assert.deepEqual(persisted,['230']);assert.equal(current,'https://myblog.tistory.com/manage/post/230');await adapter.stopPublicationWatch();
 });

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — 티스토리 포스팅 자동화 v1.85 배포: Codex 작업 이어받음 (빌드 1회)
+- Codex가 크레딧 제한으로 멈춘 v1.85(커스텀 도메인 `/entry/` 저장 결과 → 관리 목록 본인 글 번호 연결)를 이어받아 마무리. 남은 실패 테스트 원인(저장 직후 이동으로 응답 본문 유실) → `Network.configureDurableMessages` 추가. 157개 통과, 진단 파일 삭제.
+- 배포 Ready·DB/확장/ZIP v1.85·`check-extension-release` OK·운영 화면 v1.85. 15번 글은 관리 목록 읽기(231·비공개·1건)로 결과만 수동 복구(자동 성공 아님).
+- 남은 일: 새 합성 원고 1건 실제 비공개 자동 발행으로 주소 자동 기록 확인(회원 PC에 v1.85 확장 설치·연결 필요). 상세 `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래.
+- 프로그램: https://tistory-auto-blog.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.28 공용 영상 코드 사본 배포 (빌드 1회)
 - 공용 `ai-video-*` 사본 전환 + Seedance 1 Lite 이어 붙이기 끔을 배포, DB v1.28, 크롬에서 버전·모델 목록 확인. ai-image-studio 기준 파일은 화면 미사용이라 다음 배포 때.
 - 프로그램: https://shorts-onestop-studio.buylife.xyz

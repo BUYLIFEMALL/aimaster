@@ -11,8 +11,24 @@
     const norm = v => String(v || "").replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/\s+/g, " ").trim();
     const visible = e => Boolean(e?.getClientRects().length) && getComputedStyle(e).visibility !== "hidden";
     if (location.hostname !== `${args.blogName}.tistory.com`) return { ok: false };
+    if (command === "resolve") {
+      if (!/^\/manage\/posts\/?$/.test(location.pathname)) return { ok: false };
+      let observed;
+      try { observed = new URL(args.observedUrl); } catch { return { ok: false }; }
+      if (observed.hostname !== location.hostname || !/^\/entry\/[^/]+\/?$/.test(observed.pathname)) return { ok: false };
+      const links = [...document.querySelectorAll("a")].filter(e => {
+        try { const url = new URL(e.href); return visible(e) && norm(e.textContent) === norm(args.title)
+          && url.hostname === observed.hostname && url.pathname.replace(/\/$/, "") === observed.pathname.replace(/\/$/, ""); } catch { return false; }
+      });
+      if (links.length !== 1) return { ok: false };
+      const row = links[0].closest("li");
+      const ids = [...new Set([...(row?.querySelectorAll("a[href]") || [])].map(e => {
+        try { const url = new URL(e.href); return url.hostname === location.hostname ? url.pathname.match(/^\/manage\/post\/([1-9]\d*)\/?$/)?.[1] : null; } catch { return null; }
+      }).filter(Boolean))];
+      return ids.length === 1 ? { ok: true, postId: ids[0] } : { ok: false };
+    }
     if (command === "published") {
-      const managed = location.pathname.match(/^\/manage\/post\/([1-9]\d*)\/?$/);
+      const managed = location.pathname.match(/^\/manage\/(?:post|newpost)\/([1-9]\d*)\/?$/);
       if (managed && managed[1] === String(args.postId || "") && norm(document.querySelector("#post-title-inp")?.value) === norm(args.title)) {
         // Read-only verification works even when the public viewer redirects to a custom domain.
         return { ok: true, url: `https://${args.blogName}.tistory.com/${managed[1]}` };
@@ -74,7 +90,7 @@
       async watchPublication(onPostId) {
         await attachDebugger(state.tabId);
         const pending = new Set(), successful = new Set();
-        watch = { url: null, armed: false, listener: null };
+        watch = { url: null, armed: false, listener: null, onPostId };
         const ownWatch = watch;
         ownWatch.listener = (source, method, params) => {
           if (source.tabId !== state.tabId || !ownWatch.armed) return;
@@ -96,8 +112,8 @@
                 const value = new URL(item[key], `https://${state.blogName}.tistory.com`);
                 const url = postUrl(value.href, state.blogName);
                 if (url) ownWatch.url = url;
-                // A numeric entry path from this own-blog save response maps to its Tistory alias.
-                else if (["entryUrl", "postUrl"].includes(key) && /^\/[1-9]\d*\/?$/.test(value.pathname)) ownWatch.url = `https://${state.blogName}.tistory.com${value.pathname.replace(/\/$/, "")}`;
+                // The observed own-blog save result can use the blog's custom public domain.
+                else if (["entryUrl", "postUrl"].includes(key)) ownWatch.url = postUrl(`https://${state.blogName}.tistory.com${value.pathname}`, state.blogName);
               }
               for (const key of ["postId", "entryId"]) if (/^[1-9]\d*$/.test(String(item[key] || ""))) ownWatch.url = `https://${state.blogName}.tistory.com/${item[key]}`;
             }
@@ -107,6 +123,10 @@
         };
         chrome.debugger.onEvent.addListener(ownWatch.listener);
         await chrome.debugger.sendCommand({ tabId: state.tabId }, "Network.enable");
+        // Keep the save response readable after the editor navigates away (custom-domain entry URLs arrive in the body).
+        try {
+          await chrome.debugger.sendCommand({ tabId: state.tabId }, "Network.configureDurableMessages", { maxTotalBufferSize: 1048576, maxResourceBufferSize: 262144 });
+        } catch { /* older browsers keep the previous best-effort read */ }
       },
       async finalPublication(snapshot, publish, runId, final = false) {
         if (final && watch) watch.armed = true;
@@ -115,12 +135,27 @@
         return result[0]?.result || { ok: false };
       },
       async publicationResult(title, savedPostId) {
-        let navigated = false;
+        let navigated = false, lookupNavigated = false;
         for (let n = 0; n < 40; n++) {
           await sleep(1000);
           const tab = await chrome.tabs.get(state.tabId);
-          const candidate = watch?.url || (/^[1-9]\d*$/.test(String(savedPostId || "")) ? `https://${state.blogName}.tistory.com/${savedPostId}` : null);
-          const postId = candidate?.match(/\/([1-9]\d*)$/)?.[1];
+          let candidate = watch?.url || (/^[1-9]\d*$/.test(String(savedPostId || "")) ? `https://${state.blogName}.tistory.com/${savedPostId}` : null);
+          let postId = candidate?.match(/\/([1-9]\d*)$/)?.[1];
+          if (candidate && !postId) {
+            if (!lookupNavigated) {
+              const current = new URL(tab.url);
+              if (current.hostname !== `${state.blogName}.tistory.com` || !/^\/manage\/posts\/?$/.test(current.pathname)) {
+                await chrome.tabs.update(state.tabId, { url: `https://${state.blogName}.tistory.com/manage/posts/`, active: true });
+              }
+              lookupNavigated = true;
+            }
+            const resolved = await chrome.scripting.executeScript({ target: { tabId: state.tabId, frameIds: [0] }, world: "MAIN", func: pageStep,
+              args: ["resolve", { blogName: state.blogName, title, observedUrl: candidate }] }).catch(() => []);
+            postId = resolved[0]?.result?.ok && resolved[0].result.postId;
+            if (!/^[1-9]\d*$/.test(String(postId || ""))) continue;
+            candidate = `https://${state.blogName}.tistory.com/${postId}`;
+            if (watch) { watch.url = candidate; await watch.onPostId?.(postId); }
+          }
           if (candidate && !navigated && !postUrl(tab.url, state.blogName)) {
             // Only follow the result of this editor's observed save request.
             await chrome.tabs.update(state.tabId, { url: postId ? `https://${state.blogName}.tistory.com/manage/post/${postId}` : candidate, active: true }); navigated = true;

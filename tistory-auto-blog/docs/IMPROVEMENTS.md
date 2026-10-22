@@ -76,3 +76,13 @@
 
 ### 2026-10-22 명칭 운영 반영 완료 / 후속 버전 구분
 - 사용자 화면의 옛 이름은 소스 수정만 하고 미배포한 것이 원인이었습니다. 별도 유지보수 브랜치 v1.83/8589073f로 운영 배포·DB 메타데이터·Edge 탭/헤더/메뉴 새 이름을 확인했습니다. 자동 발행 구현은 master v1.84로 보존했습니다. 로컬 검수용 확장의 run30c55e1c는 실제 publish_ready까지 도달했으며 최종 발행은 아직0입니다. [상세 운영 인수인계](IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md).
+
+### 2026-10-22 v1.84 실제 비공개 저장 후 URL 결과 불확실 — 보완 중
+- 합성14번은 실제 비공개 저장됐고 관리 화면에서 본인 글/230번/제목·비공개를 확인했습니다. 서버는 uncertain으로 보호됐으며 최종 재클릭0입니다. 게시 주소가 /entry/slug 형태일 때 커스텀 도메인 응답을 숫자 경로만 정규화한 결과 추적이 불완전했습니다. 공식 편집기 번들의 저장 요청 경로·entryUrl 사용을 읽기 확인하고 실패 테스트2개를 추가했습니다. v1.85는 관찰한 own save entryUrl과 정확히 같은 URL/제목의 본인 관리 행만 대조해 번호를 얻고 읽기 전용 관리 글 제목으로 영수증을 확인합니다. 저장 응답이 없으면 과거 목록에서 URL을 추론하지 않습니다. 첫 글은 본인 결과 번호 확인 후 결과만 복구하고, 수정 뒤 별도 합성1건으로 자동 연결을 검수합니다.
+
+### 2026-10-22 v1.85 배포 — 저장 응답 보존 추가·15번 결과 복구 (Claude Code 윈도우, Codex 작업 이어받음)
+- Codex가 크레딧 제한으로 멈춘 v1.85를 이어받음(주인님 지시). 남아 있던 실패 테스트 1개의 원인 = 저장 직후 화면 이동으로 응답 본문을 잃음 → `watchPublication`이 `Network.enable` 뒤 `Network.configureDurableMessages`(1MB/256KB, 미지원 브라우저는 기존 동작)를 켜도록 추가(`extension/tistory-publication.js`). 전체 157개 통과, tsc·빌드 통과, 진단 파일 `extension/result-observer.*` 삭제.
+- 15번(v1.85 검수 글): 관리 목록 읽기 확인 — 제목 일치 1건·번호 231·비공개·중복 없음 → 서버 `published` 처리와 같은 조건(본인·같은 실행 번호·state=uncertain)으로 DB 결과만 복구(`url …/231`, `manualRecovery` 표시). **자동 성공 근거로 세지 않음.** 재발행 0.
+- 배포 `dpl_Gt2BLBWf1k7Mo9jvvcCqVqQ5wZgr` Ready, DB/확장/ZIP v1.85, `check-extension-release` OK, 운영 ZIP 파일 15개 내용이 로컬과 동일, 운영 화면 v1.85 확인(웨일).
+- **남은 일: 새 합성 원고 1건으로 실제 비공개 자동 발행 → 주소 자동 기록 확인**(회원 PC에 v1.85 확장 설치·연결 필요). 확인 전에는 「자동 결과 기록 완료」로 표시하지 않는다.
+- 발견: `scripts/sync-program-version.mjs`가 다운로드 주소를 옛 `tistory-auto-blog-pearl.vercel.app`로 고정해 DB에 옛 주소가 들어감(지금은 옛 주소도 정상). 옛 주소 정리 때 새 주소 `tistory-auto-blog.buylife.xyz`로 바꿀 것 — 미처리.
