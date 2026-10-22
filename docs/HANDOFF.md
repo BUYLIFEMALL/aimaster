@@ -5,6 +5,7 @@
 - 새 프로그램 `ai-music-studio/`(주인님 지시 「ai-image-studio처럼 음악 전용 자동화」, 이름 「AI 음악 스튜디오」 확정). 공급자 5곳·모델 11개: Google Lyria 3.5/3 Clip(Gemini), ElevenLabs Music v2.5, fal(MiniMax 2.6·ACE-Step·Stable Audio 2.5), Replicate(MiniMax 2.5·Lyria 2·Stable Audio 2.5, 주인님 추가 결정), Suno V6/V6 Mini(**`music/lib/ai/suno.ts` 그대로 — 공용 모듈 `suno-api-client` 등록**). 화면: 음악 만들기·모델 비교(최대 3개)·내 보관함(30일)·API키등록·매뉴얼. 음악(SUNO)자동화는 Suno 전용 독립 프로그램으로 유지(주인님 결정).
 - DB(운영 esgxyikcnnvmlhygjkth, 크롬 SQL 편집기): `programs` 등록(v1.01·요금제 3·VIP 자동 부여 144명·시험 계정 사용기간), 표 `ams_generations`(RLS), 비공개 버킷 `ai-music-studio`(50MB). Vercel 프로젝트 `ai-music-studio` 생성·환경변수 5개(CRON_SECRET 포함)·도메인 연결, 배포 `ai-music-studio-1trveqkpn` Ready.
 - 검수: 단위 시험 13·tsc·lint·build, 크롬 시험 계정 실호출 — AI 가사 1, 비교 ①(Lyria Clip·ElevenLabs·ACE-Step) ②(Replicate Lyria 2·Suno V6 Mini) 모두 완성·보관함 재생 6개(서명 주소, readyState 4), 390px 미리보기 틀 확인. 남은 일: 썸네일(비용 승인 필요)·AI 가사 분량·다른 프로그램 보내기 → `ai-music-studio/docs/IMPROVEMENT_BACKLOG.md`.
+- 썸네일(같은 날, 주인님 승인): 실사·글자/로고 없음, 관리자 본인 Gemini 상위 모델 1회(약 $0.24), `ai-music-studio/supabase/migrations/0003_thumbnail.sql`, 공개 주소 200.
 - 프로그램: https://ai-music-studio.buylife.xyz
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ 콘텐츠 제작 v1.11 확장 자동 연결·실제 설치 상태 표시 · 블로그 프로그램 일괄 적용 완료 (빌드 1회 · AI 0회)
 - 웹-확장 연결 통로를 새로 만들고 SEO 스튜디오 방식 적용(5/5). 로그인 뒤 원래 화면으로 돌아가도록 로그인 폼도 수정. 배포 Ready·DB/확장/ZIP v1.11. 일괄 적용 결과: SEO v2.10·티스토리 v1.89·ai-auto-blog v1.78·블로그 에이전트 v2.10·콘텐츠 제작 v1.11(올인원은 해당 없음, 자동화(Web)는 비공개라 보류). 현황 `docs/SHARED_FEATURE_MAP.md` §16.
