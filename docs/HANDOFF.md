@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 메인 관리자 연계 표 「AI 이미지 스튜디오 → 변환 스튜디오」 행(배포) · 이미지 스튜디오 배지·넘김 기록·변환 스튜디오 검수용 큰 그림(**미배포 대기**)
+- 한 일: ③ⓑ 메인 `app/admin/statistics` 연계 표에 이미지 스튜디오 행(넘김 = 생성 기록 `metadata.handoffs.convert`, 완료 = 변환 스튜디오 `linked_convert` via `ai-image-studio`) — 주인님 선택 B(메인은 푸시 자동 빌드라 모아 둘 수 없음, 빌드 1회). ③ⓐ 이미지 스튜디오 갤러리 「형식 바꾸기」 첫 클릭 → `/api/gallery/mark` 종류 `convert` ① 플랫폼 배지 「이미지 변환 스튜디오」 ② 변환 스튜디오 `?qa=big&via=…` 검수용 「큰 시험 그림 넣기」.
+- 검수: 시험 이미지 스튜디오 6·변환 50, tsc(종료 코드 0) 2곳 + 메인 통계 파일 오류 0, 로컬 빌드 2곳, 새 관리자 쿼리 운영 DB 읽기 시험(0건). 크롬: 메인 자동 빌드 뒤 관리자 표 화면.
+- 배포: 메인 자동 빌드 1회. **미배포: 이미지 스튜디오(v1.28 그대로)·변환 스튜디오(v1.25 그대로)** — `docs/PENDING_DEPLOYS.md` 2줄. 이미지 스튜디오가 배포되기 전까지 새 행의 넘김은 0.
+- 링크: https://www.buylife.xyz/admin/statistics
+
 ## 2026-10-23 Claude Code(윈도우) — 배포 도우미 `scripts/deploy.mjs` · 공용 사본 표 내 줄 정리 (비용 없음)
 - `node scripts/deploy.mjs <폴더>`: 미배포 대기(`pending-check.mjs`)·작업 중 표 줄을 보여 주고 끝(빌드 없음). `--go`를 붙이면 그 뒤 `vercel deploy --prod` 실행(빌드 1회 — 주인님 승인 범위에서만), 다른 세션이 작업 중인 폴더면 배포 거부, 끝나면 배포 상태·이어서 할 일 안내. 시험은 확인 모드만(threads·video-to-gif 경고·없는 폴더).
 - `docs/SHARED_MODULES.md` 「미배포 사본」에서 내가 쓴 3줄 정리: `browser-mp4-encoder`(원스톱 v1.37·Shots 배포됨), `ai-video-*` 2줄(`ai-image-studio` v1.28 `28431cd0a`로 배포됨) 취소선.

@@ -15,6 +15,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-image-studio` (운영 v1.28) | 플랫폼 배지 「이미지 변환 스튜디오」 · 갤러리 형식 바꾸기 첫 클릭 기록(`handoffs.convert`) | 이번 묶음 커밋 | 2026-10-23 · Claude Code(윈도우, 이미지 연계 세션) | `ai-image-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.29, 형식 바꾸기 누른 뒤 관리자 연계 표 「AI 이미지 스튜디오 → 변환」 넘김 1 확인 |
+| `image-convert-studio` (운영 v1.25) | 검수용 `?qa=big&via=` 「큰 시험 그림 넣기」 | 이번 묶음 커밋 | 2026-10-23 · Claude Code(윈도우, 이미지 연계 세션) | `image-convert-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.26, 이 주소로 「너무 큼」·「WebP로 바꿔 다시 변환」 크롬 확인 |
 | `naver-blog-allinone` (운영 v1.50) | BC-05 보관함 30일 자동 삭제(`GET /api/cron/cleanup`, Vercel Cron) | `naver-blog-allinone/AGENTS.md` 맨 위 참고 | 2026-10-22 · Claude Code(윈도우·웨일 세션) | `naver-blog-allinone/AGENTS.md` 맨 위 「⏳ 미배포 대기」 | 그 항목의 확인 방법대로(이 줄은 색인만 — 원문은 해당 세션 기록) |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-mastering-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |

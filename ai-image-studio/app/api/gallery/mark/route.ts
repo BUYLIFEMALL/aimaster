@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   let body: { id?: unknown; kind?: unknown } = {};
   try { body = await req.json(); } catch { return Response.json({ error: "요청 형식이 올바르지 않습니다." }, { status: 400 }); }
   const id = typeof body.id === "string" && UUID.test(body.id) ? body.id : null;
-  const kind = pickAllowed(body.kind, ["download", "banana"] as const);
+  const kind = pickAllowed(body.kind, ["download", "banana", "convert"] as const);
   if (!id || !kind) return Response.json({ error: "바꿀 내용이 없습니다." }, { status: 400 });
 
   const admin = createAdminClient();
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     .eq("id", id).eq("user_id", user.id).eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID).eq("action", "image_generation").maybeSingle();
   if (!data) return Response.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });
   // 첫 1회만 저장(공용 기준 코드 `link-mark`)
-  const next = onceMarkNext(data.metadata, kind === "download" ? { kind: "download" } : { kind: "handoff", to: "banana" }, new Date().toISOString());
+  const next = onceMarkNext(data.metadata, kind === "download" ? { kind: "download" } : { kind: "handoff", to: kind }, new Date().toISOString());
   if (next) {
     const { error } = await admin.from("usage_logs").update({ metadata: next }).eq("id", id).eq("user_id", user.id);
     if (error) return Response.json({ error: "저장하지 못했습니다." }, { status: 500 });

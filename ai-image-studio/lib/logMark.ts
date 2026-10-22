@@ -3,7 +3,7 @@
 // 한 번만 보내기는 공용 `link-mark`(사본 `lib/linkMark.ts`, 직접 고치지 않음)
 import { createOnceSender } from "./linkMark";
 
-export type LogMark = "download" | "banana";
+export type LogMark = "download" | "banana" | "convert";
 const once = createOnceSender();
 
 export function markLog(id: string | null | undefined, kind: LogMark) {

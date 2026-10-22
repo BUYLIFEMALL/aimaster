@@ -11,7 +11,7 @@ export const metadata = { title: "통계" };
 // 관리자임을 다시 확인한 뒤 서버 키로 숫자만 센다(회원 내용은 읽지 않음). 보낸 곳 값은 프로그램 slug와 같다
 // 바나나: `banana_canvas_results.options.ideaSource`·`downloadedAt`·`handoffs`(v1.25~v1.28) / 이미지 스튜디오: `usage_logs.metadata.ideaSource`(v1.26)
 // 다음 단계로 넘기는 보낸 프로그램(연계 표의 행) — 받는 곳은 변환 스튜디오·스토리보드
-const LINK_FLOW_SENDERS = ["banana-canvas", "portrait-photo", "four-cut-comics"] as const;
+const LINK_FLOW_SENDERS = ["banana-canvas", "portrait-photo", "four-cut-comics", "ai-image-studio"] as const;
 
 async function linkStats(userId: string | undefined, days: 7 | 30) {
   if (!userId) return null;
@@ -25,7 +25,7 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
   // 넘김 기록: 바나나 v1.30·인물사진 v1.39·4컷 v1.33 `linked_handoff`(metadata.to·itemId) 한 쿼리 + 바나나 옛 기록 `options.handoffs`
   const { data: senderPrograms } = await admin.from("programs").select("id, slug").in("slug", ["banana-canvas", "portrait-photo", "four-cut-comics"]);
   const senderIds = (senderPrograms ?? []).map((p: { id: string }) => p.id);
-  const [{ data: rows }, { count: total }, { count: totalDownloaded }, imgRows, imgTotal, { data: bananaHo }, { data: sbRows }, cvRows, hoRows] = await Promise.all([
+  const [{ data: rows }, { count: total }, { count: totalDownloaded }, imgRows, imgTotal, { data: bananaHo }, { data: sbRows }, cvRows, hoRows, studioHo] = await Promise.all([
     admin.from("banana_canvas_results").select("src:options->>ideaSource, dl:options->>downloadedAt, ho:options->handoffs").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->>downloadedAt", "is", null),
@@ -45,6 +45,10 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
     senderIds.length
       ? admin.from("usage_logs").select("user_id, program_id, to:metadata->>to, item:metadata->>itemId").in("program_id", senderIds).eq("action", "linked_handoff").gte("created_at", since).limit(10000)
       : Promise.resolve({ data: [] as { user_id: string; program_id: string; to: string | null; item: string | null }[] }),
+    // 이미지 스튜디오 → 변환 스튜디오 넘김: 생성 기록 metadata.handoffs.convert(이미지 스튜디오 갤러리 「형식 바꾸기」 첫 클릭)
+    studio
+      ? admin.from("usage_logs").select("id, user_id").eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since).not("metadata->handoffs->>convert", "is", null).limit(10000)
+      : Promise.resolve({ data: [] as { id: string; user_id: string }[] }),
   ]);
   const slugOf = (id: string) => (senderPrograms ?? []).find((p: { id: string; slug: string }) => p.id === id)?.slug;
   // 같은 결과를 여러 번 넘겨도 1건(회원·결과 번호·받는 곳 기준)
@@ -58,6 +62,7 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
   for (const r of (bananaHo ?? []) as { id: string; user_id: string; ho: Record<string, string> | null }[]) {
     for (const k of Object.keys(r.ho ?? {})) if (OLD_TO[k]) addHanded("banana-canvas", OLD_TO[k], `${r.user_id}|${r.id}`);
   }
+  for (const r of ((studioHo as { data: { id: string; user_id: string }[] | null }).data ?? [])) addHanded("ai-image-studio", "image-convert-studio", `${r.user_id}|${r.id}`);
   const convertDone: Record<string, number> = {};
   for (const r of ((cvRows as { data: { via: string | null }[] | null }).data ?? [])) if (r.via) convertDone[r.via] = (convertDone[r.via] ?? 0) + 1;
   const sbProjects = (sbRows ?? []) as { status: string; source: string }[];

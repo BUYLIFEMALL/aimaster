@@ -31,7 +31,7 @@ test("v1.27 첫 다운로드·바나나로 보낸 시각 기록", () => {
   assert.match(mark, /\.eq\("user_id", user\.id\)\.eq\("program_id", AI_IMAGE_STUDIO_PROGRAM_ID\)/);
   // 2026-10-22: 첫 1회만 저장·정해진 값은 공용 `link-mark`(동작 같음)
   assert.match(mark, /onceMarkNext\(data\.metadata/);
-  assert.match(mark, /pickAllowed\(body\.kind, \["download", "banana"\]/);
+  assert.match(mark, /pickAllowed\(body\.kind, \["download", "banana"/);
   const viewer = read("components/ImageResultViewer.tsx");
   assert.match(viewer, /markLog\(logId, "download"\)/);
   assert.match(viewer, /markLog\(logId, "banana"\)/);
@@ -60,4 +60,13 @@ test("v1.28: 갤러리 「변환됨」 표시·큰 보기 창 형식 바꾸기",
   assert.match(ui, /item\.action === "image_import" && \(/);
   assert.match(ui, /data-converted-badge/);
   assert.match(ui, /data-convert-link-modal/);
+});
+
+test("미배포 대기(2026-10-23): 다시 저장 배지 이름·형식 바꾸기 첫 클릭 기록(handoffs.convert)", () => {
+  const ui = readFileSync(new URL("../components/GalleryClient.tsx", import.meta.url), "utf8");
+  assert.match(ui, /"image-convert-studio": "이미지 변환 스튜디오"/);
+  assert.equal((ui.match(/markLog\((item|activeModalItem)\.id, "convert"\)/g) || []).length, 2);
+  const api = readFileSync(new URL("../app/api/gallery/mark/route.ts", import.meta.url), "utf8");
+  assert.match(api, /\["download", "banana", "convert"\]/);
+  assert.match(api, /\{ kind: "handoff", to: kind \}/);
 });

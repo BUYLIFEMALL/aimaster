@@ -222,3 +222,6 @@
 
 ## ✅ v1.28 배포 — 2026-10-23 대기분 정리 배포(Claude Code 윈도우, 이미지 연계 세션)
 - 함께 나간 대기: 갤러리 카드·큰 보기 창 「🔁 형식 바꾸기」(`lib/convertLink.ts`), 새 API `/api/import-result`(`usage_logs` `image_import`), 갤러리 「🔁 변환됨 · WEBP」 배지(`action` 전달), `resave-receiver`·`link-mark` 사본. 크롬(관리자 계정): 카드·큰 보기 창 링크, 변환 스튜디오 받기, 다시 저장 → 갤러리 「변환됨 · WEBP」·이름(프롬프트 앞부분) 확인 후 삭제. 발견: 다시 저장 카드의 플랫폼 배지가 영문 「IMAGE-CONVERT-STUDIO」(IMPROVEMENTS에 기록).
+
+## 🟡 미배포 대기 (2026-10-23, Claude Code 윈도우, 버전 그대로 v1.28) — 배지 이름 · 형식 바꾸기 넘김 기록
+- `PROVIDER_NAMES["image-convert-studio"]`, 갤러리 형식 바꾸기 → `markLog(id,"convert")` → `/api/gallery/mark` `convert` → `metadata.handoffs.convert`. 시험 `test:prompt-source` 6개(기존 v1.27 기대값 1곳은 허용 목록 확장에 맞게 고침)·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위.

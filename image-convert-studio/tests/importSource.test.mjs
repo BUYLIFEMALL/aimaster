@@ -120,3 +120,11 @@ test("미배포 대기(2026-10-22): 이미지 스튜디오에서 받기·다시 
   assert.match(tool, /item\.result\.blob\.type === "image\/png" \? "WebP로 바꿔 다시 변환"/);
   assert.match(tool, /const toWebp = previous\.blob\.type === "image\/png";/);
 });
+
+test("미배포 대기(2026-10-23): 검수용 ?qa=big&via= 일 때만 큰 시험 그림 버튼", async () => {
+  const { readFileSync } = await import("node:fs");
+  const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(tool, /if \(params\.get\("qa"\) === "big" && via\) setQaVia\(via\);/);
+  assert.match(tool, /\{qaVia && \(/);
+  assert.match(tool, /data-qa-big/);
+});

@@ -47,6 +47,7 @@ const PROVIDER_NAMES: Record<string, string> = {
   gemini: "Google Gemini",
   replicate: "Replicate (FLUX / Recraft)",
   stability: "Stability AI",
+  "image-convert-studio": "이미지 변환 스튜디오", // 변환 스튜디오에서 다시 저장한 그림(image_import)
 };
 
 const MODEL_NAMES: Record<string, string> = {
@@ -534,6 +535,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     {convertLinkOf(item.image_url, item.prompt) && (
                       <a
                         href={convertLinkOf(item.image_url, item.prompt)!}
+                        onClick={() => markLog(item.id, "convert")}
                         target="_blank"
                         rel="noopener noreferrer"
                         data-convert-link
@@ -720,6 +722,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                   {convertLinkOf(activeModalItem.image_url, activeModalItem.prompt) && (
                     <a
                       href={convertLinkOf(activeModalItem.image_url, activeModalItem.prompt)!}
+                      onClick={() => markLog(activeModalItem.id, "convert")}
                       target="_blank"
                       rel="noopener noreferrer"
                       data-convert-link-modal

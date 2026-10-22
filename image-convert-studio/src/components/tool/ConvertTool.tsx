@@ -123,6 +123,8 @@ export function ConvertTool() {
   const [resave, setResave] = useState<Record<string, { state: "saving" | "saved" | "error"; msg?: string }>>({});
   // 보낸 쪽이 붙여 준 원래 이름(?label=, 예: 4컷 「○○ 3화」) — 다시 저장할 때 받는 쪽 제목용(미배포 정리 2026-10-22)
   const [importLabel, setImportLabel] = useState("");
+  // 검수용(?qa=big&via=…): 「큰 시험 그림 넣기」 버튼 — 주소에 이 옵션이 있을 때만 보임, 서버로 보내는 것 없음(미배포 정리 2026-10-23)
+  const [qaVia, setQaVia] = useState<ReturnType<typeof viaSource>>(undefined);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const src = params.get("src");
@@ -130,6 +132,7 @@ export function ConvertTool() {
     const pre = presetFromParam(params.get("preset"));
     const via = viaSource(params.get("via"));
     const label = (params.get("label") ?? "").slice(0, 60);
+    if (params.get("qa") === "big" && via) setQaVia(via);
     if (pre) setPresetId(pre.id);
     if (!src) return;
     window.history.replaceState(null, "", window.location.pathname);
@@ -231,6 +234,25 @@ export function ConvertTool() {
     }
   };
 
+  // 검수용: 압축이 거의 안 되는 노이즈 PNG(1800×1800)를 그 보낸 곳에서 받은 그림처럼 넣는다 → 「너무 큼」 화면 확인
+  const addQaBigImage = async () => {
+    if (!qaVia) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1800; canvas.height = 1800;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const img = ctx.createImageData(1800, 1800);
+    for (let i = 0; i < img.data.length; i += 4) { img.data[i] = Math.random() * 256; img.data[i + 1] = Math.random() * 256; img.data[i + 2] = Math.random() * 256; img.data[i + 3] = 255; }
+    ctx.putImageData(img, 0, 0);
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
+    if (!blob) return;
+    const file = new File([blob], "qa-big-test.png", { type: "image/png" });
+    importedFile.current = file;
+    addFiles([file]);
+    setImportVia(qaVia);
+    setImportNote(`검수용 큰 시험 그림을 넣었습니다(${qaVia.name}에서 받은 것처럼). PNG로 변환하면 「너무 큼」이 나옵니다.`);
+  };
+
   const retryAllGrown = async () => {
     setBusy(true);
     setRetryCounts(null);
@@ -308,6 +330,11 @@ export function ConvertTool() {
     <div className="space-y-6">
       {/* 1. 드롭존 섹션 */}
       <section className="rounded-2xl border border-[#1e293b] bg-[#111726] p-4 sm:p-5 shadow-sm">
+        {qaVia && (
+          <button type="button" data-qa-big onClick={() => void addQaBigImage()} className="mb-2 rounded-lg border border-dashed border-amber-300/60 px-3 py-1.5 text-xs font-bold text-amber-200">
+            🧪 큰 시험 그림 넣기(검수용)
+          </button>
+        )}
         {importNote && (
           <p role="status" className="mb-3 rounded-lg border border-amber-300/40 bg-amber-50/10 px-3 py-2 text-sm" data-import-via={importVia?.key ?? ""}>
             {importNote}

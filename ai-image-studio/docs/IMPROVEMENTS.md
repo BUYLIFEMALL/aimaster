@@ -1,5 +1,9 @@
 # AI 이미지 스튜디오 (ai-image-studio) 개선사항 관리 대장 (IMPROVEMENTS.md)
 
+> **🟡 미배포 대기 (2026-10-23, Claude Code 윈도우 — 「작은 수정은 모았다가 배포」 지침)** 다음 이미지 스튜디오 배포 때 함께(운영 v1.28, 버전은 그때 한 번).
+> - 플랫폼 배지 `image-convert-studio` → 「이미지 변환 스튜디오」(`PROVIDER_NAMES`).
+> - 갤러리 「형식 바꾸기」(카드·큰 보기 창) 첫 클릭 → `markLog(id, "convert")` → `/api/gallery/mark` 종류 `convert` → 생성 기록 `metadata.handoffs.convert`(한 번만). 메인 관리자 연계 표 「AI 이미지 스튜디오 → 변환 스튜디오」 행이 이 값을 셈(메인은 이미 배포됨 — 이 배포 전까지 그 행은 0).
+
 > **기준일자**: 2026-10-17  
 > **프로그램**: AI 이미지 스튜디오 (`ai-image-studio`)  
 > **현재 버전**: `v1.11` → `v1.12`  
@@ -34,4 +38,4 @@
 - ⚪ 업로드 실패 시 공급사 주소(만료됨) 또는 data URL을 기록에 그대로 남김 — 큰 data URL이 `usage_logs.metadata`에 들어갈 수 있음. 실패 시 재시도 또는 기록 생략 검토.
 
 ## 2026-10-23 발견 (Claude Code 윈도우, v1.28 검수 중)
-- [ ] 다시 저장한 그림(`image_import`) 카드의 플랫폼 배지가 `getProviderLabel("image-convert-studio")` 기본값으로 「IMAGE-CONVERT-STUDIO」 영문 그대로 나옴 → 「이미지 변환 스튜디오」로 라벨 추가(작은 수정 — 미배포 대기로 모을 것).
+- [x] (2026-10-23 처리, 미배포 대기) 다시 저장한 그림(`image_import`) 카드의 플랫폼 배지가 `getProviderLabel("image-convert-studio")` 기본값으로 「IMAGE-CONVERT-STUDIO」 영문 그대로 나옴 → 「이미지 변환 스튜디오」로 라벨 추가(작은 수정 — 미배포 대기로 모을 것).
