@@ -94,7 +94,7 @@
 | 2026-10-21 `youtube-upload-client`·`member-integrations` 사본에 `playlist-channel-studio` 추가(새 사본, 기준 변경 없음) | (없음) | ✅ 플레이리스트 v1.22로 배포됨 |
 | 2026-10-21 `suno-timed-lyrics` 등록(기준 `lyric-video-studio/src/lib/sunoAlign.ts`, 사본 `playlist-channel-studio/src/lib/sunoAlign.ts`) | (없음) | ✅ 플레이리스트 v1.19로 배포됨 |
 | 2026-10-21 `youtube-upload-client`·`member-integrations` 사본에 `lyric-video-studio` 추가(새 사본, 기준 변경 없음) | (없음) | ✅ 가사영상 v1.04로 배포됨 |
-| 2026-10-21 `browser-mp4-encoder`에 `encodeMp4ToFile`(고른 파일에 조금씩 바로 쓰기, `FileSystemWritableFileStreamTarget`) 추가 — 공통 부분을 내부 `encodeInto`로 묶었고 기존 `encodeMp4`는 모양·동작 같음(급하지 않은 변경) | `shorts-onestop-studio`·`shots` 사본은 저장소에만 반영, 다음 배포 때 함께 | ✅ `lyric-video-studio` v1.02로 배포됨(사용처). Shots는 v1.33(2026-10-22)부터 배포에 포함. 원스톱은 tsc 통과, 미배포 |
+| 2026-10-21 `browser-mp4-encoder`에 `encodeMp4ToFile`(고른 파일에 조금씩 바로 쓰기, `FileSystemWritableFileStreamTarget`) 추가 — 공통 부분을 내부 `encodeInto`로 묶었고 기존 `encodeMp4`는 모양·동작 같음(급하지 않은 변경) | ~~`shorts-onestop-studio`~~·~~`shots`~~ 사본은 저장소에만 반영, 다음 배포 때 함께 — 모두 배포됨 | ✅ `lyric-video-studio` v1.02로 배포됨(사용처). Shots는 v1.33(2026-10-22)부터 배포에 포함. 원스톱은 v1.37(2026-10-23, `9bdcef674`)로 배포에 포함 |
 | 2026-10-21 `browser-mp4-encoder`에 선택값 `videoBitrate` 추가(기본 8Mbps 그대로 — 원스톱 동작 같음) | (없음) | ✅ 원스톱 v1.21(2026-10-21)로 배포됨. Shots v1.25도 배포됨(4Mbps 사용) |
 | 2026-10-21 `youtube-upload-client` 등록 + `createYoutubeResumableSession` 추가(Shots는 미사용 — 동작 같음) | (없음) | ✅ Shots v1.24(2026-10-21)로 배포됨 |
 | 2026-10-20 카드뉴스 스튜디오 INSTA 병합 3단계: `insta-schedule-time`·`member-scheduler`·`insta-cronjob-org`·`insta-posts-client` 기준을 `cardnews-studio` → `insta_auto_poster/src/lib/cardnews/` 로 이동(내용 같음, 옛 카드뉴스 파일은 사본) | (없음) | 옛 cardnews-studio 앱은 화면 이동·API 전달만 하므로 사본은 다음 배포 때 그대로 |
@@ -105,8 +105,8 @@
 | 2026-10-20 인스타 게시 처리·예약 API 5개 공용 기준 코드화(`insta-posting` 외 4개, 값은 `schedulerConfig.ts` — 동작 같음) | (없음 — 모두 배포됨) | tsc·테스트·build 통과. 다음 배포 때 함께, 버전 +0.01도 그때 · ✅ `four-cut-comics`는 v1.22(2026-10-20)로 배포됨 · ✅ `ai-webtoon-studio`는 v1.21(2026-10-20)로 배포됨 · ✅ `ai-influencer-studio`는 v1.19(2026-10-20)로 배포됨 |
 | 2026-10-20 `openai-request-params` 사본 새로 적용(「GPT-4 계열만 온도」 분기 → `openAIGenerationParams`, 동작 같음) | `style-dna-analyzer` · `cardnews-studio` · `naver-blog-allinone` · `ai-auto-blog` · `tistory-auto-blog` · `threads-content-ops` | naver-blog-agent는 v2.01에 사본/모델 안내 배포 완료. **ai-auto-blog는 2026-10-21 v1.76(이름 변경) 배포에 포함됨.** 나머지 각 tsc 0·기존 테스트 통과(naver-blog-agent `test:models` 모의 불러오기에 사본 추가). 다음 배포자는 버전 +0.01(코드·DB)하고 버전 기록에 적을 것 |
 | 2026-10-19 `instagram-publish` 기준 분리(게시 함수를 `publish.ts`로 옮기고 `client.ts`가 다시 내보냄 — 동작 같음) | `insta_auto_poster` | tsc·`test:own-meta` 통과. 다음 배포 때 버전 +0.01과 함께 나감 |
-| 2026-10-22 `ai-video-*` 등록(Claude Code 윈도우) — 원스톱 `videoGen.ts`를 공용 `videoProviders` 사용으로 전환(동작 같음), 기준 파일은 ai-image-studio에 추가(화면에서 아직 안 씀) | ~~`shorts-onestop-studio`~~ ✅ 2026-10-22 v1.28 배포 · `ai-image-studio`(다음 배포 때, 버전 변화 없음 가능) | ✅ 원스톱 tsc·시험 13개·build, ai-image-studio tsc, 공용 점검 일치. Shots v1.32는 배포됨 |
-| 2026-10-22 `ai-video-models` Seedance 1 Lite 이어 붙이기 끔(Claude Code 윈도우, Shots v1.33) — 끝 화면 E006 재현 | ~~`shorts-onestop-studio`~~ ✅ 2026-10-22 v1.28 배포 · `ai-image-studio`(다음 배포 때 — 화면 미사용) | ✅ 원스톱 tsc·시험 13개, 공용 점검 일치, Shots 배포 |
+| 2026-10-22 `ai-video-*` 등록(Claude Code 윈도우) — 원스톱 `videoGen.ts`를 공용 `videoProviders` 사용으로 전환(동작 같음), 기준 파일은 ai-image-studio에 추가(화면에서 아직 안 씀) | ~~`shorts-onestop-studio`~~ ✅ 2026-10-22 v1.28 배포 · ~~`ai-image-studio`~~ ✅ 2026-10-23 v1.28 배포(이미지 연계 묶음 `28431cd0a`에 포함) | ✅ 원스톱 tsc·시험 13개·build, ai-image-studio tsc, 공용 점검 일치. Shots v1.32는 배포됨 |
+| 2026-10-22 `ai-video-models` Seedance 1 Lite 이어 붙이기 끔(Claude Code 윈도우, Shots v1.33) — 끝 화면 E006 재현 | ~~`shorts-onestop-studio`~~ ✅ 2026-10-22 v1.28 배포 · ~~`ai-image-studio`~~ ✅ 2026-10-23 v1.28 배포(이미지 연계 묶음 `28431cd0a`에 포함, 화면 미사용) | ✅ 원스톱 tsc·시험 13개, 공용 점검 일치, Shots 배포 |
 
 ## 2026-10-19 기능 안정화·점진 레퍼런스 모듈화와 아이디어 검토
 

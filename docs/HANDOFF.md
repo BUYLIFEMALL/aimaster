@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 배포 도우미 `scripts/deploy.mjs` · 공용 사본 표 내 줄 정리 (비용 없음)
+- `node scripts/deploy.mjs <폴더>`: 미배포 대기(`pending-check.mjs`)·작업 중 표 줄을 보여 주고 끝(빌드 없음). `--go`를 붙이면 그 뒤 `vercel deploy --prod` 실행(빌드 1회 — 주인님 승인 범위에서만), 다른 세션이 작업 중인 폴더면 배포 거부, 끝나면 배포 상태·이어서 할 일 안내. 시험은 확인 모드만(threads·video-to-gif 경고·없는 폴더).
+- `docs/SHARED_MODULES.md` 「미배포 사본」에서 내가 쓴 3줄 정리: `browser-mp4-encoder`(원스톱 v1.37·Shots 배포됨), `ai-video-*` 2줄(`ai-image-studio` v1.28 `28431cd0a`로 배포됨) 취소선.
+
 ## 2026-10-23 Claude Code(윈도우) — 배포 전 미배포 점검 스크립트 `scripts/pending-check.mjs` (비용 없음)
 - `node scripts/pending-check.mjs <폴더…>`: `docs/PENDING_DEPLOYS.md` 「대기 중」 + `docs/SHARED_MODULES.md` 「미배포 사본」에서 그 프로그램 줄 표시(읽기만), `--all` 프로그램별 개수. 사용법은 `docs/PENDING_DEPLOYS.md` 쓰는 법 5번·`docs/VERCEL_COST_REDUCTION_PLAN.md` 맨 위 안내. **모든 CLI: 프로그램 배포 전에 한 번 실행.**
 - 미배포 목록에 메모 1줄: `cinematic-storyboard-studio`·`image-convert-studio`·`video-to-gif` 좌측 메뉴 계정 위치(다른 세션 작업 중이라 코드 미수정 — 그 세션이 끝나면 처리).
