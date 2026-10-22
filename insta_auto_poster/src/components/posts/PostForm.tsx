@@ -773,6 +773,19 @@ export function PostForm({
                   >
                     {regeneratingIndex === index ? "생성/업로드 중..." : `슬라이드 ${index + 1} 다시 생성`}
                   </Button>
+                  {/* v1.68: 이 장을 목록에서 뺀다(파일은 지우지 않음). 장 수가 모자라면 아래 파일 첨부·무료 사진 칸이 다시 나와 채울 수 있다. */}
+                  <button
+                    type="button"
+                    data-slide-remove
+                    onClick={() => {
+                      setZoomTarget(null);
+                      setSlides((prev) => prev.filter((_, i) => i !== index));
+                    }}
+                    disabled={regeneratingIndex !== null || isGeneratingAll}
+                    className="w-full rounded-lg border border-red-900/60 px-2 py-1.5 text-xs text-red-300 hover:bg-red-950/40 disabled:opacity-50"
+                  >
+                    ✕ 슬라이드 {index + 1} 빼기
+                  </button>
 
                   <label className="block cursor-pointer rounded-lg border border-dashed border-[#2f3650] px-2 py-1.5 text-center text-xs text-slate-400 hover:border-slate-500">
                     이미지 파일 직접 첨부 (JPG/PNG/WEBP, 10MB 이하)
