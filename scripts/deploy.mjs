@@ -101,6 +101,22 @@ if (versionOnly && args.includes("--all")) {
   console.log(`[역량 지도 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개`);
   for (const l of stale) console.log(l);
 
+  // 안전 커밋 도우미 기준 사본 중 12시간 넘게 남은 것(--begin 뒤 커밋 없이 끝났거나 인계가 필요한 작업, 2026-10-23)
+  try {
+    const { readdirSync, statSync } = await import("node:fs");
+    const base = join(ROOT, ".git", "safe-commit");
+    const old = [];
+    for (const as of existsSync(base) ? readdirSync(base) : []) {
+      if (as.startsWith(".")) continue;
+      for (const f of readdirSync(join(base, as))) {
+        const h = (Date.now() - statSync(join(base, as, f)).mtimeMs) / 3_600_000;
+        if (h > 12) old.push(`${as}: ${f.replace(/__/g, "/").replace(/\.base$/, "")} (${Math.round(h)}시간)`);
+      }
+    }
+    console.log(`[안전 커밋 기준 사본] 12시간 넘게 남은 것 ${old.length}개`);
+    for (const l of old) console.log(`  ⚠ ${l} — 그 세션(이름)이 끝났다면 작업 파일을 확인해 커밋하거나 .git/safe-commit/<이름>/ 사본을 지우기`);
+  } catch (e) { console.log(`[안전 커밋 기준 사본] 확인 실패 — ${e.message}`); }
+
   // 30일 정리 기록 확인(2026-10-23): 코드로 기록을 남기는 프로그램 → 최근 7일 기록 있음 / 배포 대기(PENDING_DEPLOYS에 정리 기록 줄) / 배포됐는데 기록 없음
   try {
     const { cleanupPrograms, slugFromPrograms } = await import("./program-info.mjs");
@@ -208,11 +224,20 @@ if (active.some((l) => !(ownerArg && l.includes(ownerArg)))) {
 const docAs = `deploy-${folder.replace(/[^\w.-]/g, "_")}`;
 spawnSync(process.execPath, [join(ROOT, "scripts", "safe-commit.mjs"), "--begin", "docs/PENDING_DEPLOYS.md", "docs/HANDOFF.md", "docs/PROGRAM_CAPABILITY_MAP.md", "--as", docAs], { stdio: "inherit" });
 console.log(`\n[3/3] 배포 실행: npx ${cmd.join(" ")}  (빌드 1회)`);
-const r = spawnSync("npx", cmd, { cwd: dir, stdio: "inherit", shell: process.platform === "win32" });
+// 배포 출력에서 이번 배포 주소를 받아 vercel inspect로 상태·운영 주소 연결을 직접 확인(2026-10-23 — 예전엔 vercel ls 표를 읽다 「?」가 자주 나옴)
+const r = spawnSync("npx", cmd, { cwd: dir, encoding: "utf8", shell: process.platform === "win32", maxBuffer: 64 * 1024 * 1024 });
+const deployOut = `${r.stdout ?? ""}\n${r.stderr ?? ""}`;
+process.stdout.write(deployOut.split("\n").filter((l) => /https:\/\/|Error|error|Ready|Production/.test(l)).slice(0, 12).join("\n") + "\n");
 if (r.status !== 0) { console.log(`✖ 배포 명령 실패(코드 ${r.status}). vercel inspect로 원인을 확인하세요.`); process.exit(r.status ?? 1); }
-const ls = spawnSync("npx", ["vercel", "ls", project, "--scope", "buylife"], { cwd: dir, encoding: "utf8", shell: process.platform === "win32" });
-const line = (ls.stdout || "").split("\n").find((l) => l.includes(`https://${project}-`)) ?? "";
-console.log(`\n최근 배포: ${(line.match(/https:\/\/\S+/) || ["?"])[0]}  ${(line.match(/Ready|Error|Building|Queued|Canceled/) || ["?"])[0]}`);
+const deployUrl = (deployOut.match(new RegExp(`https://${project}-[a-z0-9]+-buylife\\.vercel\\.app`)) || [])[0];
+if (!deployUrl) console.log("\n⚠ 배포 출력에서 배포 주소를 찾지 못했습니다 — `vercel ls`로 직접 확인하세요.");
+else {
+  const ins = spawnSync("npx", ["vercel", "inspect", deployUrl, "--scope", "buylife"], { cwd: dir, encoding: "utf8", shell: process.platform === "win32" });
+  const io = `${ins.stdout ?? ""}\n${ins.stderr ?? ""}`;
+  const status = (io.match(/status\s+●?\s*(\w+)/) || [])[1] ?? "?";
+  const aliases = [...io.matchAll(/https:\/\/[a-z0-9.-]+\.buylife\.xyz/g)].map((m) => m[0]);
+  console.log(`\n${status === "Ready" ? "✔" : "⚠"} 이번 배포: ${deployUrl}  상태 ${status}` + (aliases.length ? ` · 운영 주소 연결 ${[...new Set(aliases)].join(", ")}` : " · ⚠ buylife.xyz 운영 주소 연결이 안 보입니다"));
+}
 console.log("\n[버전]");
 const vr = await syncVersion();
 // 역량 지도 이 프로그램 한 줄(목록 표·카드 버전) — DB가 화면 버전과 같을 때만(다른 세션이 배포 뒤 지도를 안 고쳐 어긋나던 문제, 2026-10-23)
