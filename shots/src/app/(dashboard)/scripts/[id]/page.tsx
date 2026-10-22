@@ -63,8 +63,8 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">영상스크립트 생성 결과</h1>
-      <p className="mb-6 text-sm text-neutral-600">
+      <h1 className="mb-2 text-2xl font-semibold text-[#f1f1f1]">영상스크립트 생성 결과</h1>
+      <p className="mb-6 text-sm text-[#aaaaaa]">
         생성된 스크립트와 장면별 대사·이미지 프롬프트를 확인하고 필요하면 수정하세요. 수정 후
         저장하면 그 내용으로 이미지가 생성됩니다.
       </p>

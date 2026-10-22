@@ -23,8 +23,8 @@ export default async function ScriptsPage() {
     <div className="mx-auto max-w-3xl">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900">영상스크립트 생성</h1>
-          <p className="mt-1 text-sm text-neutral-600">
+          <h1 className="text-2xl font-semibold text-[#f1f1f1]">영상스크립트 생성</h1>
+          <p className="mt-1 text-sm text-[#aaaaaa]">
             최신 쇼츠 주제 수집에서 만든 주제로 생성한 영상 스크립트 목록입니다.
           </p>
         </div>

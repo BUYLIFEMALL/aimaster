@@ -76,8 +76,8 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">API 키 설정</h1>
-      <p className="mb-6 text-sm text-neutral-600">
+      <h1 className="mb-2 text-2xl font-semibold text-[#f1f1f1]">API 키 설정</h1>
+      <p className="mb-6 text-sm text-[#aaaaaa]">
         본인의 API 키를 등록하면 최신 쇼츠 주제 수집(콘텐츠 생성) 시 등록한 키를 우선 사용.
         등록하지 않으면 앱 기본 키로 동작 (추가 등록시).
       </p>

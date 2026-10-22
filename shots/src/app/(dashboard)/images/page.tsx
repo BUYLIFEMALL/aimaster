@@ -36,8 +36,8 @@ export default async function ImagesPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-neutral-900">이미지 생성</h1>
-        <p className="mt-1 text-sm text-neutral-600">
+        <h1 className="text-2xl font-semibold text-[#f1f1f1]">이미지 생성</h1>
+        <p className="mt-1 text-sm text-[#aaaaaa]">
           지금까지 생성한 대사 스크립트와 장면별 이미지를 한눈에 볼 수 있는 목록입니다.
         </p>
       </div>

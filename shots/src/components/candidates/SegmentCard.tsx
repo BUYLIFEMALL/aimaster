@@ -36,9 +36,9 @@ export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextIma
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   return (
-    <div className="rounded-lg border border-neutral-200 p-3">
+    <div className="rounded-lg border border-[#2b2b2b] p-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-bold text-neutral-900">
+        <span className="text-sm font-bold text-[#f1f1f1]">
           장면 {segment.segment_index} · {segment.duration_seconds}초
         </span>
       </div>
@@ -47,22 +47,24 @@ export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextIma
         <input type="hidden" name="segmentId" value={segment.id} />
         <input type="hidden" name="videoId" value={videoId} />
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">대사(내레이션)</label>
+          <label className="mb-1 block text-xs text-[#aaaaaa]">대사(내레이션)</label>
           <Textarea
             name="narration"
             value={narration}
             onChange={(e) => setNarration(e.target.value)}
             rows={2}
+            className="border-[#3f3f3f]! bg-[#121212]! text-[#f1f1f1]! focus:border-[#ff0000]!"
             required
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-neutral-500">이미지 프롬프트</label>
+          <label className="mb-1 block text-xs text-[#aaaaaa]">이미지 프롬프트</label>
           <Textarea
             name="imagePrompt"
             value={imagePrompt}
             onChange={(e) => setImagePrompt(e.target.value)}
             rows={2}
+            className="border-[#3f3f3f]! bg-[#121212]! text-[#f1f1f1]! focus:border-[#ff0000]!"
             required
           />
         </div>
@@ -79,7 +81,7 @@ export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextIma
         </div>
       </form>
 
-      <form action={regenAction} className="mt-3 flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-3">
+      <form action={regenAction} className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#2b2b2b] pt-3">
         <input type="hidden" name="segmentId" value={segment.id} />
         <input type="hidden" name="videoId" value={videoId} />
         <input type="hidden" name="narration" value={narration} />
@@ -103,7 +105,7 @@ export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextIma
 
       {segment.image_urls.length > 0 && (
         <div className="mt-3">
-          <p className="mb-1 text-xs text-neutral-500">
+          <p className="mb-1 text-xs text-[#aaaaaa]">
             생성된 이미지 {segment.image_urls.length}개 · 마음에 드는 걸 선택하세요
           </p>
           <div className="flex flex-wrap gap-2">

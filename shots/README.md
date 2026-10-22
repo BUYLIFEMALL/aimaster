@@ -1,7 +1,7 @@
 # 🎬 YOUTUBE Shorts 자동화 스튜디오 (shots)
 
 > **AIMaster 58번 프로그램** | **공식 도메인**: [https://shots.buylife.xyz](https://shots.buylife.xyz)  
-> **현재 버전**: `v1.33` | **디자인 템플릿**: 유튜브 다크 콘솔 스타일 (Shorts Studio Edition)
+> **현재 버전**: `v1.34` | **디자인 템플릿**: 유튜브 다크 콘솔 스타일 (Shorts Studio Edition)
 
 ---
 

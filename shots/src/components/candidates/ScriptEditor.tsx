@@ -71,7 +71,7 @@ export function ScriptEditor({ video, segments, sceneVideos = {}, keyProviders =
       </div>
 
       <div className="space-y-4">
-        <p className="text-base font-bold text-neutral-900">
+        <p className="text-base font-bold text-[#f1f1f1]">
           장면별 대사 · 이미지 프롬프트 · 이미지 (5초 × {segments.length}장면)
         </p>
         {segments.map((seg) => (
@@ -91,7 +91,7 @@ export function ScriptEditor({ video, segments, sceneVideos = {}, keyProviders =
             <select
               name="imageModel"
               defaultValue="nanobanana-2-2k"
-              className="w-full rounded-lg border border-[#2e2e2e] bg-[#121212] px-3 py-2 text-sm text-[#f1f1f1] outline-none focus:border-[#ff0000] [&_option]:bg-[#181818]"
+              className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
             >
               {NANO_BANANA_MODEL_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>

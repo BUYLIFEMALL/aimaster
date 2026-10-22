@@ -99,7 +99,7 @@ function HttpForm() {
           type="url" 
           required 
           placeholder="https://example.com/article/123" 
-          className="bg-[#121212] border-[#2e2e2e] text-[#f1f1f1] placeholder:text-[#666666] focus:border-[#ff0000]"
+          className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]! placeholder:text-[#666666] focus:border-[#ff0000]!"
         />
         <p className="mt-1.5 text-xs text-[#888888]">
           특정 뉴스/블로그 본문 URL이면 해당 글로 1건, 카테고리/목록 URL이면 주요 글을 선별해 최대 5건의 쇼츠 주제를 동시 생성합니다.
@@ -141,11 +141,11 @@ function NewsblurForm({
         <form action={saveAction} className="space-y-3">
           <div>
             <label className="mb-1 block text-xs font-semibold text-[#f1f1f1]">NewsBlur 아이디</label>
-            <Input name="username" required autoComplete="off" className="bg-[#121212] border-[#2e2e2e] text-[#f1f1f1]" />
+            <Input name="username" required autoComplete="off" className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]!" />
           </div>
           <div>
             <label className="mb-1 block text-xs font-semibold text-[#f1f1f1]">NewsBlur 비밀번호</label>
-            <Input name="password" type="password" required autoComplete="off" className="bg-[#121212] border-[#2e2e2e] text-[#f1f1f1]" />
+            <Input name="password" type="password" required autoComplete="off" className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]!" />
           </div>
           <Button type="submit" disabled={isSaving} className="bg-[#ff0000] hover:bg-[#cc0000] text-white text-xs">
             {isSaving ? "계정 연결 확인 중..." : "NewsBlur 계정 연동하기"}
@@ -212,7 +212,7 @@ function PerplexityForm() {
           name="topic" 
           required 
           placeholder="예: 2026 AI 자동화 트렌드, 직장인 부업 숏폼 팁" 
-          className="bg-[#121212] border-[#2e2e2e] text-[#f1f1f1] placeholder:text-[#666666] focus:border-[#ff0000]"
+          className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]! placeholder:text-[#666666] focus:border-[#ff0000]!"
         />
         <p className="mt-1.5 text-xs text-[#888888]">
           Perplexity Sonar 온라인 AI가 실시간 소셜 미디어 및 뉴스에서 가장 떡상 중인 앵글을 찾아 쇼츠 기획으로 가공합니다.
