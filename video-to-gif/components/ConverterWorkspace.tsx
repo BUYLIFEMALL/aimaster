@@ -24,6 +24,7 @@ import {
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
+import TrimBar from "@/components/TrimBar";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 type Job = {
@@ -142,6 +143,8 @@ export default function ConverterWorkspace() {
   const [fps, setFps] = useState<40 | 50>(40);
   const [width, setWidth] = useState(560);
   const [previewJob, setPreviewJob] = useState<Job | null>(null);
+  // v1.13: 구간 막대의 장면 미리보기를 연 줄(한 번에 하나만 — 영상 여러 개를 동시에 열지 않음)
+  const [scenePreviewId, setScenePreviewId] = useState<string | null>(null);
 
   const totalBytes = useMemo(() => jobs.reduce((sum, job) => sum + job.size, 0), [jobs]);
   const ffmpegRef = useRef<FFmpeg | null>(null);
@@ -180,6 +183,11 @@ export default function ConverterWorkspace() {
     setJobs((current) => current.map((j) => (j.id === id ? { ...j, [field]: value } : j)));
   }
 
+  // v1.13: 구간 막대는 시작·끝을 함께 바꾼다.
+  function setTrimRange(id: string, trimStart: string, trimEnd: string) {
+    setJobs((current) => current.map((j) => (j.id === id ? { ...j, trimStart, trimEnd } : j)));
+  }
+
   // v1.11: 완료된 GIF를 ZIP 하나로(공용 기준 코드 store-zip 사본 lib/zip.ts — 직접 고치지 말 것).
   async function downloadAllZip() {
     const done = jobs.filter((j) => j.status === "done" && j.downloadUrl);
@@ -207,6 +215,7 @@ export default function ConverterWorkspace() {
       return current.filter((j) => j.id !== id);
     });
     if (previewJob?.id === id) setPreviewJob(null);
+    if (scenePreviewId === id) setScenePreviewId(null);
   }
 
   function retry(id: string) {
@@ -578,6 +587,18 @@ export default function ConverterWorkspace() {
                           초
                         </label>
                         <span>필요한 부분만 남기면 GIF가 가볍고 선명해집니다.</span>
+                        {/* v1.13: 끌어서 고르는 구간 막대(길이를 읽은 영상만, 못 읽으면 숫자 칸만) */}
+                        {job.duration !== undefined && job.duration > 0 && (
+                          <TrimBar
+                            file={job.file}
+                            duration={job.duration}
+                            trimStart={job.trimStart}
+                            trimEnd={job.trimEnd}
+                            onChange={(s, e) => setTrimRange(job.id, s, e)}
+                            previewOpen={scenePreviewId === job.id}
+                            onTogglePreview={() => setScenePreviewId((cur) => (cur === job.id ? null : job.id))}
+                          />
+                        )}
                       </div>
                     )}
 

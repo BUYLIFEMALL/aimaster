@@ -148,3 +148,9 @@
 - 기존 기능 회귀 없음: A 구간 시작 1·끝 2.5 → 변환 시작 → 둘 다 완료(A 585KB, B 1.42MB — 구간만큼 작아짐), 완료 뒤에도 썸네일 유지. 「📦 완료된 GIF 전체 ZIP (2개)」 → 내려받기만 화면 안에서 가로채 확인(컴퓨터 저장 없음): `gif-all.zip` 2.09MB, `시험A.gif`·`시험B.gif` 둘 다 `GIF89a`.
 - 미확인: 휴대폰 폭(390px) 실제 화면 — 크롬 창이 최대화돼 줄어들지 않았고, 390px 틀 안에서는 로그인 화면이 떠 쓸 수 없었음. 코드 구조(썸네일 칸 `w-16 shrink-0`, 이름 칸 `min-w-0 flex-1`)로만 확인. 못 읽는 영상의 예전 번호 칸 표시도 코드 확인만.
 - 비용: 이번 검수 없음(AI 0회, 서버 전송 없음).
+
+## 2026-10-22 v1.13 — 끌어서 고르는 구간 막대·장면 미리보기 (Claude Code 맥미니 · 배포 대기, 주인님 승인)
+- 플랜: [`docs/PLAN_20261022_TRIM_BAR.md`](docs/PLAN_20261022_TRIM_BAR.md).
+- `lib/trimBar.ts`(새, 순수 계산) + `components/TrimBar.tsx`(새): 구간 숫자 칸 아래 막대·손잡이 2개(끌기·키보드), 「장면 보기」로 끄는 시점 장면·「구간 재생」 반복. 숫자 칸과 같은 `trimStart`/`trimEnd`를 함께 써서 서로 따라감. 미리보기는 한 번에 한 줄(`scenePreviewId`), 닫히면 object URL 정리. 변환(`trimArgs`·ffmpeg)·ZIP·썸네일 그대로.
+- 버전 v1.13(`lib/version.ts`, `package.json` 1.13.0, SQL `supabase/migrations/20261022_trim_bar_v1_13.sql` — 버전만). 검수: 계산 시험 12가지 통과, tsc 0, eslint 0.
+- **윈도우 CLI 다음 첫 단계**: SQL `20261022_trim_bar_v1_13.sql` → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬 실검수.
