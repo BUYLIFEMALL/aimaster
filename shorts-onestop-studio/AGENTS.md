@@ -188,3 +188,11 @@
 - 검수: tsc, `npm test` 19개(1개 추가), build, 배포 `shorts-onestop-studio-hzu3893ld` Ready, DB v1.32, 크롬(시험 회원)에서 INSTA 버튼 주소로 열어 블록·안내 확인(대본 생성은 안 함).
 - 미확인: 로그인하지 않은 상태로 넘기기 주소를 열면 로그인 화면을 거치며 `#` 부분이 사라질 수 있음(`docs/IMPROVEMENTS.md`).
 - 비용: 빌드 1회, AI 호출 없음.
+
+## 2026-10-22 v1.33 — 로그인 화면을 거쳐도 넘겨받은 대사 유지 (Claude Code 윈도우)
+- 플랜 `../shorts-viral-studio/docs/PLAN_20261022_TRANSCRIPT_HANDOFF.md`(주인님 승인). 확인: 로그인하지 않고 `/topic#ref-transcript=…`을 열면 `/login?redirect=%2Ftopic`(307), 로그인 양식은 항상 `/dashboard`로 가서 대사가 사라졌음.
+- 새 `src/lib/refHandoff.ts`: `stashRefHandoff`(로그인 화면이 주소 `#` 대사를 `sessionStorage` `onestop-ref-handoff`에 보관하고 `#` 지움), `hasStashedRefHandoff`(로그인 뒤 보관분이 있으면 `/topic`, 없으면 그대로 `/dashboard`), `takeRefHandoff`(주제 화면: 주소 `#` 먼저, 없으면 보관분 — 꺼내면 바로 지움). `LoginForm`·`TopicView` 연결.
+- 받은 블록 이름 「넘겨받은 레퍼런스 쇼츠」, 안내 「다른 프로그램에서 넘긴 쇼츠 대사…」(INSTA·쇼츠 바이럴 공용).
+- 검수: tsc, `npm test` 19개, build, 배포 `shorts-onestop-studio-nhc5nvw5i` Ready, DB v1.33. 크롬(시험 회원): 같은 탭 저장소에 대사를 넣고 `/topic` → 참고 자료 블록·안내, 저장소 비워짐. 쇼츠 바이럴 v1.13 버튼 주소로도 확인.
+- 미확인: 실제 로그아웃 상태에서 로그인까지 이어지는 전체 흐름(주인님 크롬 로그인을 풀어야 해서 하지 않음) — `docs/IMPROVEMENTS.md` 2026-10-22 항목 갱신.
+- 비용: 빌드 1회, AI 호출 없음.

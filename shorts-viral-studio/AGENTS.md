@@ -6,7 +6,7 @@
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
 | 라이브 URL | https://shorts-viral-studio.buylife.xyz (자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 현재 버전 | **v1.11** (2026-10-18 디자인 리뉴얼 & 비주얼 가이드북 구축) |
+| 현재 버전 | **v1.13** (2026-10-22 영상 대사 → AI 쇼츠 원스톱 넘기기, 아래 v1.13 절) |
 | 적용 디자인 템플릿 | **플로우 위저드 스타일 (다크 차콜 변형)** (`#0d1117` 차콜 배경 + `#161b22` 서피스 + `#30363d` 보더 + `#ef4444` 쇼츠 레드 포인트) |
 | 스택 | Next.js 16.2.11 (Turbopack) · React 19 · Tailwind CSS v4 · Supabase(공용 DB) · Playwright (Edge 검수) |
 | 출처 | 유튜버 튜토리얼 소스("남다른AI Shorts 분석기")를 바탕으로 회원별 보안 격리 및 6단계 올인원 파이프라인으로 전면 재설계 |
@@ -93,3 +93,10 @@ F-005(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-22 v1.13 — Gemini 영상 직접 분석 때 대사 받아쓰기 → AI 쇼츠 원스톱 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_TRANSCRIPT_HANDOFF.md`(주인님 승인). (v1.12는 2026-10-22 좌측 메뉴 로그아웃 아이콘 묶음 배포 — 커밋 `342c3e232`.)
+- `pipeline.ts` `analyzeVideosAI`: 영상 직접 분석(evidence=video)일 때만 응답 JSON에 `transcript`(영상에서 실제로 말한 대사, 여러 영상이면 [영상 1]…) 칸을 받아 `AnalysisResult.transcript`(12000자)로. 지표 추정(GPT·Claude 또는 Gemini 실패)에는 없음. 별도 AI 호출 없음(같은 호출의 응답이 조금 길어짐).
+- `AnalyzeStep`: 대사가 있으면 「🎙 영상 대사(받아쓰기)」 접는 칸 + 「🎬 이 대사로 쇼츠 만들기」 → `https://shorts-onestop-studio.buylife.xyz/topic#ref-transcript=…` 새 탭(대사는 주소 `#` 뒤라 서버로 가지 않음). 넘기기 함수는 공용 `reference-copy-guard` 사본 `src/lib/reference.ts`(직접 고치지 말 것 — 기준 원스톱).
+- 검수: tsc, `npm test` 17개, build, 배포 `shorts-viral-studio-j7xrm1adz` Ready, DB v1.13. 크롬(시험 회원): 「재테크」 검색 → 「의사가 말하는 무쓸모 영양제 1위」(1분) 1개 → Gemini 3.7 Flash 영상 직접 분석 20초 → 대사 487자(실제 말한 내용) → 버튼 주소로 원스톱 v1.33 참고 자료에 레퍼런스 블록·안내 확인. 시험 회원 분석 결과는 본인 데이터로 남음.
+- 비용: 빌드 1회, Gemini 영상 분석 1회 약 $0.02~0.05(시험 회원 본인 키, 승인 범위).
