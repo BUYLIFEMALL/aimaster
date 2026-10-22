@@ -5,7 +5,7 @@ import { uploadImageDirect, uploadSpecDocument } from "@/lib/uploadImageClient";
 import { analyzeByNameAction, analyzeProductAction, createProductAction } from "@/lib/actions/products";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
-import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
+import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
 import { DEFAULT_LAYOUT_PRESET, LAYOUT_PRESETS, type LayoutPreset } from "@/lib/layoutPresets";
 
@@ -391,6 +391,8 @@ export function ProductAnalyzeForm({
             </>
           )}
         </button>
+        {/* v1.29(S-23-07) */}
+        <p className="text-[11px] text-slate-400 -mt-1">회원 본인 Gemini 키로 분석 1회(텍스트·사진 분석, 소액)가 청구됩니다.</p>
         <button
           type="button"
           onClick={handleAnalyzeByName}
@@ -639,6 +641,17 @@ export function ProductAnalyzeForm({
               {opt.label}
             </button>
           ))}
+        </div>
+        {/* v1.29(S-23-07): 상품 화면과 같은 비용 안내(고른 규격의 장수 기준) */}
+        <div className="rounded-xl border border-blue-100 bg-blue-50/40 px-3.5 py-2.5 text-[11px] text-slate-600 space-y-0.5">
+          {IMAGE_MODEL_OPTIONS.map((opt) => (
+            <p key={opt.value} className={defaultImageModel === opt.value ? "font-bold text-blue-900" : ""}>
+              {defaultImageModel === opt.value ? "▶ " : "· "}
+              {opt.label}: 장당 ${IMAGE_MODEL_COST_USD[opt.value].toFixed(3)} · {LAYOUT_PRESETS[layoutPreset].sections}장 전체 생성 시 약 $
+              {(IMAGE_MODEL_COST_USD[opt.value] * LAYOUT_PRESETS[layoutPreset].sections).toFixed(2)}
+            </p>
+          ))}
+          <p className="text-slate-400">회원 본인 Gemini 키로 청구되는 참고용 추정치(2K, Google 공식 요금 기준)이며, 저장만으로는 비용이 들지 않습니다.</p>
         </div>
       </div>
 

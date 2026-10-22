@@ -427,16 +427,16 @@ export function CommerceUsageGuide() {
                 02
               </span>
               <span className="text-xs font-black text-indigo-600 uppercase tracking-wider">STEP 02</span>
-              <h3 className="text-base font-bold text-slate-900">Gemini Vision AI 상품 정밀 분석 & 11개 필드 검토</h3>
+              <h3 className="text-base font-bold text-slate-900">Gemini Vision AI 상품 정밀 분석 & 12개 항목 검토</h3>
             </div>
 
             <div className="space-y-3 text-xs text-slate-600">
               <p className="leading-relaxed">
-                사진 등록 후 <span className="font-bold text-blue-600">[AI 상품분석 시작]</span> 버튼을 누르면, 최신 Gemini 멀티모달 비전 모델이 사진과 입력 텍스트를 정밀 분석하여 상세페이지 기획에 필요한 **11대 핵심 필드**를 자동 완성합니다.
+                사진 등록 후 <span className="font-bold text-blue-600">[Gemini AI로 상품 소구점 분석하기]</span> 버튼을 누르면, 최신 Gemini 멀티모달 비전 모델이 사진과 입력 텍스트를 정밀 분석하여 상세페이지 기획에 필요한 <strong>12개 핵심 항목</strong>을 자동 완성합니다.
               </p>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                <p className="font-bold text-slate-800 mb-2">🔍 자동 분석되어 추출되는 11개 항목:</p>
+                <p className="font-bold text-slate-800 mb-2">🔍 자동 분석되어 추출되는 12개 항목:</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-[11px]">
                   <span className="bg-white p-2 rounded-lg border border-slate-200 font-medium">1. 공식 상품명 (국문)</span>
                   <span className="bg-white p-2 rounded-lg border border-slate-200 font-medium">2. 적합 카테고리</span>
@@ -454,7 +454,7 @@ export function CommerceUsageGuide() {
               </div>
 
               <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 text-[11px] leading-relaxed">
-                <strong>💡 셀러 검토 팁:</strong> AI가 채워준 11개 필드는 모두 자유롭게 수정할 수 있습니다. 특히 판매할 **정상가와 할인가(이벤트가)**를 입력하고, 강조하고 싶은 특장점이 있다면 소구점 입력칸에 단어를 추가해 주세요.
+                <strong>💡 셀러 검토 팁:</strong> AI가 채워준 12개 항목은 모두 자유롭게 수정할 수 있습니다. 특히 판매할 <strong>정상가와 할인가(이벤트가)</strong>를 입력하고, 강조하고 싶은 특장점이 있다면 소구점 입력칸에 단어를 추가해 주세요.
               </div>
             </div>
           </div>

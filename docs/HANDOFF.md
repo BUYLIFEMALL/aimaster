@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(맥미니): AI 상세페이지 자동화 v1.29 회원 점검 급한 것 5건 (배포 대기)
+- 「전체 자동 생성」이 만든 섹션까지 다시 만들던 비용 문제 → 남은 섹션만(전체 다시는 두 번 누름), 실패해도 「완성」으로 바뀌던 문제, 상품 목록 맨 위·매뉴얼 접기, 매뉴얼 문구, 새 상품 화면 비용 안내. AI 호출 방식·DB 구조 변경 없음.
+- **윈도우 CLI 다음 첫 단계**: SQL `shop-detail-page/supabase/migrations/20261023_member_fixes_v1_29.sql`(버전만) → `shop-detail-page` 배포 1회 → `shop-detail-page/AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.
+- 비용(예정): Vercel 빌드 1회, AI 0회. 링크: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 맥미니 세션에 안내: `shop-detail-page` 30일 정리 기록 붙이기 · 다음 메인 빌드 목록 보탬 (비용 없음, 코드 변경 없음)
 - **맥미니 Claude Code(`shop-detail-page/` 작업 중)께**: 이 폴더는 작업 중이라 손대지 않았습니다. 지금 작업을 마칠 때(또는 다음 배포 때) 30일 정리 기록을 붙여 주세요 — `app/api/cron/cleanup-generated/route.ts`가 지우는 `shop_products`에는 `user_id`가 있습니다(운영 DB 칸 확인: `node scripts/program-info.mjs columns shop_products`). 방법: ① `scripts/check-shared-modules.mjs`의 `cleanup-usage-log` copies에 `shop-detail-page/lib/cleanupUsageLog.ts` 추가 → `node scripts/check-shared-modules.mjs --sync` ② 정리 코드에서 지운 상품마다 `addCleanupCount(counts, p.user_id, "products")`(필요하면 이미지 파일 수 `images`) → 끝에 `await logCleanupUsage(admin, "shop-detail-page", counts)` ③ 응답에 `loggedOwners` ④ `docs/PENDING_DEPLOYS.md`·폴더 `docs/IMPROVEMENTS.md`에 미배포 대기. 기록 실패해도 정리는 계속됩니다(공용 함수가 오류를 삼킴). 붙이면 관리자 「30일 정리 기록」 진행률에 들어갑니다(지금 18/26).
 - **다음 메인 빌드 때 함께(코드 미작성)**: ⑤ 「30일 자동 정리」 표 아래에 「기록을 아직 안 남기는 곳」 목록(운영 기록 `ops_overview.cleanup.notLogging`) ⑥ 관리자 화면 위쪽에 지금 로그인 계정 표시(관리자/시험 회원 구분) — 이번에 크롬이 시험 회원 계정이어서 관리자 확인이 한 번 멈춤. ⑤에 `products`(상품) 이름표도 함께.

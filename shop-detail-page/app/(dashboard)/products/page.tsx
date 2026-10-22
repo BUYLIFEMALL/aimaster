@@ -85,24 +85,6 @@ export default async function ProductsPage() {
         </div>
       </div>
 
-      {/* 프로그램 공식 소개 박스 */}
-      {(program?.description || program?.short_desc) && (
-        <div className="mb-6 rounded-2xl border border-blue-100 bg-white p-5 shadow-2xs">
-          <div className="flex items-center gap-2 mb-2 font-bold text-xs text-blue-700">
-            <span>ℹ️</span>
-            <span>프로그램 소개 및 이용 안내</span>
-          </div>
-          {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
-            <p key={i} className="mb-1.5 text-xs sm:text-sm leading-relaxed text-slate-600 last:mb-0">
-              {sentence}
-            </p>
-          ))}
-        </div>
-      )}
-
-      {/* 비주얼 가이드북 (4단계 파이프라인 & 15단 블록 맵) */}
-      <CommerceUsageGuide />
-
       {/* 등록 상품 목록 섹션 */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
@@ -194,6 +176,33 @@ export default async function ProductsPage() {
           ))}
         </div>
       </div>
+
+      {/* v1.29(S-23-03): 소개·실전 매뉴얼은 상품 목록 아래로 — 상품이 있으면 접어 두고, 처음 쓰는 회원(상품 0개)에게만 펼친다 */}
+      <details className="group mt-10" open={!products || products.length === 0}>
+        <summary className="cursor-pointer select-none list-none rounded-2xl border border-blue-100 bg-white px-5 py-3 text-sm font-bold text-blue-700 shadow-2xs hover:bg-blue-50/50">
+          <span className="group-open:hidden">▸ 프로그램 소개 · 실전 매뉴얼 펼치기</span>
+          <span className="hidden group-open:inline">▾ 프로그램 소개 · 실전 매뉴얼 접기</span>
+        </summary>
+        <div className="mt-4">
+          {/* 프로그램 공식 소개 박스 */}
+          {(program?.description || program?.short_desc) && (
+            <div className="mb-6 rounded-2xl border border-blue-100 bg-white p-5 shadow-2xs">
+              <div className="flex items-center gap-2 mb-2 font-bold text-xs text-blue-700">
+                <span>ℹ️</span>
+                <span>프로그램 소개 및 이용 안내</span>
+              </div>
+              {splitIntoSentenceParagraphs(program.description || program.short_desc || "").map((sentence, i) => (
+                <p key={i} className="mb-1.5 text-xs sm:text-sm leading-relaxed text-slate-600 last:mb-0">
+                  {sentence}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* 비주얼 가이드북 (4단계 파이프라인 & 15단 블록 맵) */}
+          <CommerceUsageGuide />
+        </div>
+      </details>
     </div>
   );
 }

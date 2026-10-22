@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   generateSectionImageAction,
   addCustomSectionImageAction,
@@ -13,6 +13,7 @@ import { ImageTextEditor } from "@/components/products/ImageTextEditor";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
+import { sectionsToGenerate, statusAfterGenerate } from "@/lib/generatePlan";
 import { instaPostUrl, threadsPostUrl } from "@/lib/threadsLink";
 
 interface TemplateInfo {
@@ -61,6 +62,13 @@ export function SectionImageGrid({
   });
   const [model, setModel] = useState<ImageModelKey>(initialModel ?? DEFAULT_IMAGE_MODEL);
   const [isRunning, setIsRunning] = useState(false);
+  // v1.29(S-23-01): 「전체 다시 생성」은 두 번 눌러야 시작(첫 누름은 확인 문구, 5초 뒤 원래대로)
+  const [confirmAll, setConfirmAll] = useState(false);
+  useEffect(() => {
+    if (!confirmAll) return;
+    const timer = setTimeout(() => setConfirmAll(false), 5000);
+    return () => clearTimeout(timer);
+  }, [confirmAll]);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   // v1.24: 섹션 순서(「↑」「↓」). 바꾸면 바로 저장하고, 긴 이미지·섹션 ZIP·HTML 내보내기도 이 순서를 따른다.
@@ -132,18 +140,38 @@ export function SectionImageGrid({
     return true;
   }
 
-  async function handleGenerateAll() {
+  // v1.29(S-23-01·02): 기본은 아직 이미지가 없는 섹션만 만든다(만든 섹션·직접 올린 사진·GIF는 건너뜀).
+  // 모든 섹션이 끝났을 때만 「상세페이지 완성」, 중간에 실패하면 생성 전 상태로 둔다(lib/generatePlan.ts).
+  async function handleGenerate(mode: "remaining" | "all") {
+    const targets = sectionsToGenerate(ordered, states, mode);
+    if (targets.length === 0) return;
+    setConfirmAll(false);
     setIsRunning(true);
     await setProductStatusAction(productId, "generating");
+    let allOk = true;
     try {
-      for (const template of ordered) {
+      for (const template of targets) {
         const ok = await generateOne(template);
-        if (!ok) break;
+        if (!ok) {
+          allOk = false;
+          break;
+        }
       }
+    } catch (e) {
+      allOk = false;
+      throw e;
     } finally {
-      await setProductStatusAction(productId, "completed");
+      await setProductStatusAction(productId, statusAfterGenerate(allOk));
       setIsRunning(false);
     }
+  }
+
+  function handleRegenerateAll() {
+    if (!confirmAll) {
+      setConfirmAll(true);
+      return;
+    }
+    void handleGenerate("all");
   }
 
   async function handleSelect(sectionKey: string, url: string) {
@@ -207,6 +235,8 @@ export function SectionImageGrid({
   const [textEditing, setTextEditing] = useState<TemplateInfo | null>(null);
 
   const doneCount = Object.values(states).filter((s) => s.status === "done").length;
+  // v1.29(S-23-01): 아직 이미지가 없는 섹션 수(한꺼번에 만들기의 기본 대상)
+  const remainingCount = sectionsToGenerate(ordered, states, "remaining").length;
   const hasAnyImage = doneCount > 0;
   // v1.28: 움직이는 GIF 섹션이 있으면 내보내기 방식별 차이를 알려 준다.
   const hasGif = Object.values(states).some((s) => s.status === "done" && /\.gif(\?|$)/i.test(s.url ?? ""));
@@ -293,22 +323,47 @@ export function SectionImageGrid({
           </div>
 
           <button
-            onClick={handleGenerateAll}
-            disabled={isRunning}
+            onClick={() => void handleGenerate("remaining")}
+            disabled={isRunning || remainingCount === 0}
             className="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold py-2 px-5 rounded-xl shadow-md shadow-blue-500/25 transition-all text-xs sm:text-sm whitespace-nowrap"
           >
             {isRunning ? (
               <>
                 <span className="inline-block animate-spin">⏳</span>
-                <span>전체 섹션 생성 중...</span>
+                <span>섹션 생성 중...</span>
+              </>
+            ) : remainingCount === 0 ? (
+              <>
+                <span>✅</span>
+                <span>모든 섹션 완료</span>
               </>
             ) : (
               <>
                 <span>🎨</span>
-                <span>{templates.length}개 섹션 전체 자동 생성</span>
+                <span>
+                  {remainingCount === templates.length ? `${templates.length}개 섹션 전체 자동 생성` : `남은 섹션 ${remainingCount}개 생성`} (약 $
+                  {(IMAGE_MODEL_COST_USD[model] * remainingCount).toFixed(2)})
+                </span>
               </>
             )}
           </button>
+          {/* v1.29(S-23-01): 만든 섹션까지 전부 다시 — 두 번 눌러야 시작 */}
+          {remainingCount < templates.length && (
+            <button
+              type="button"
+              onClick={handleRegenerateAll}
+              disabled={isRunning}
+              className={`text-[11px] font-bold rounded-lg px-2.5 py-1.5 border transition-colors disabled:opacity-50 ${
+                confirmAll
+                  ? "border-rose-300 bg-rose-50 text-rose-700"
+                  : "border-slate-200 bg-white text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              {confirmAll
+                ? `정말 ${templates.length}장 모두 다시 만들까요? 약 $${(IMAGE_MODEL_COST_USD[model] * templates.length).toFixed(2)} — 한 번 더 누르면 시작`
+                : "전체 다시 생성"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -322,6 +377,8 @@ export function SectionImageGrid({
               <p key={opt.value} className={isSelected ? "font-bold text-blue-900" : "text-slate-600"}>
                 {isSelected ? "▶ " : "· "}
                 {opt.label}: 장당 ${IMAGE_MODEL_COST_USD[opt.value].toFixed(3)} · {templates.length}장 전체 생성 시 약 ${total}
+                {remainingCount > 0 && remainingCount < templates.length &&
+                  ` · 남은 ${remainingCount}장만 약 $${(IMAGE_MODEL_COST_USD[opt.value] * remainingCount).toFixed(2)}`}
               </p>
             );
           })}
