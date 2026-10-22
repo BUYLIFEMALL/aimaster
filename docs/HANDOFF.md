@@ -185,6 +185,13 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 바나나 캔버스 v1.20 디자인 리뉴얼: 「나노바나나 크림 팝 스타일」(새 템플릿 11번) + 가독성
+- 한 일: 연한 바나나 크림 바탕·먹선 갈색·바나나 옐로·잎 초록 토큰, 카드 위 바나나 껍질 띠, 스티커 팝 버튼. 본문 15px·보조 글자 대비 7.4:1·노란 글씨 금지. 기능 코드 변경 없음. DESIGN.md 카탈로그 11번·현황판 ✅, `docs/DESIGN_TEMPLATE_CATALOG.md` 그룹 C에 등록.
+- 검수: 시험 33개·build, 배포 2회(보정 포함) Ready, DB v1.20, 크롬(시험 회원) 스튜디오·매뉴얼·설정, 휴대폰 폭은 390px 틀로 확인(가로 넘침 0·잘림 0, 꺾인 버튼 1개 보정).
+- ⏸ 미배포: 초록 버튼 대비 보정(`#256f2f`). 남은 것: 로그인 화면 공식 탭 레이아웃, 실제 축소 창 검수.
+- 문서: `banana-canvas/docs/PLAN_20261022_DESIGN_RENEWAL.md`, `DESIGN_HANDOFF.md`, IMPROVEMENTS, AGENTS.
+- 프로그램: https://banana-canvas.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 이미지 S1 검토: 4컷·웹툰 캐릭터 일관성·컷별 다시 만들기 (코드 변경 없음)
 - 결과: 두 프로그램 모두 컷 1장씩 생성·컷별 다시 만들기가 이미 있음, 화면 잠금으로 이중 클릭 충분(서버 선점 불필요), 새 공용 코드 불필요. **웹툰은 캐릭터 시트·참고 사진을 컷 그림에 보내지 않음** → 제안 W8(시트 최대 3장 첨부, 공용 `generateGeminiImage({ parts })` 사용).
 - 문서: `docs/analysis-image-consolidation-20261021/REPORT.md` §9-5, `ai-webtoon-studio/docs/IMPROVEMENTS.md`.

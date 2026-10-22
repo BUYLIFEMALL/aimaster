@@ -177,3 +177,9 @@
 - DB(`esgxyikcnnvmlhygjkth`): kind 제약에 'graphic' 추가, 본인 수정 RLS — `supabase/migrations/20261022_v1_19_presets_graphic_rename.sql`(크롬 SQL Editor 실행 성공).
 - v1.18에서 미뤘던 기록 상세 오류 문장 초기화·글자색도 이번 배포에 포함.
 - 검수: 시험 33개·build, 배포 `banana-canvas-j33vtzgdy` Ready, DB v1.19, 비로그인 PATCH 401, 크롬(시험 회원) 채널 아트/배너·칸 값·9:16 저장 → 새로 고침 → 불러오기 정확히 복원 → 이름 바꾸기(DB 반영) → 삭제(DB 0개).
+
+## 2026-10-22 v1.20 — 디자인 리뉴얼 「나노바나나 크림 팝 스타일」(새 템플릿 11번) + 가독성 (Claude Code 윈도우)
+- 주인님 지시로 다크 차콜(v1.08) → 연한 바나나 크림 바탕의 새 템플릿. `globals.css` 토큰·덮어쓰기 블록 교체, 화면 파일 직접 색 4곳을 토큰으로. 기능 코드 변경 없음. 토큰·규칙: `docs/DESIGN_HANDOFF.md` 맨 위, 플랜 `docs/PLAN_20261022_DESIGN_RENEWAL.md`, DESIGN.md 카탈로그 11번.
+- 가독성: 본문 15px, 보조 글자 대비 7.4:1, 노란 바탕 노란 글씨 금지(`--brand-text`), 잠긴 카드 흐림 완화, 560px 이하 버튼 한 열.
+- 배포 2회(`banana-canvas-kq3fva2jm` → 실화면 보정 `banana-canvas-birbfc0sb`) Ready, DB v1.20. 크롬 검수: 스튜디오·매뉴얼·API 설정, 휴대폰 폭은 390px 틀(iframe)로 규칙 확인(창 최대화로 실제 축소 불가).
+- ⏸ 미배포: 초록 「스토리 8컷 생성」 버튼 흰 글자 대비 4.4 → `#256f2f`로 보정(다음 배포 때 함께).

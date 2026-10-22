@@ -136,7 +136,7 @@ export default function GuidePage() {
                 alignItems: "center",
                 gap: "5px"
               }}>
-                <span style={{ color: "var(--brand)" }}>●</span> {style}
+                <span style={{ color: "var(--brand-text)" }}>●</span> {style}
               </span>
             ))}
           </div>

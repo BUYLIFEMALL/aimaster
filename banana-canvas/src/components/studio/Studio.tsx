@@ -313,7 +313,7 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
           <a href="#card-album">📖 인생 앨범</a>
           <a href="#card-comic">💬 만화 패널</a>
         </span>
-        <a href="#result" style={{ background: "rgba(255, 216, 77, 0.2)", borderColor: "var(--brand)", color: "var(--brand)" }}>🌟 결과 보기</a>
+        <a href="#result" style={{ background: "var(--brand)", borderColor: "var(--foreground)", color: "var(--brand-ink)", fontWeight: 800 }}>🌟 결과 보기</a>
       </nav>
 
       <div className="bc-board">

@@ -121,7 +121,7 @@ export function HistoryList() {
       {open && (
         <div className="bc-zoom multi" role="dialog" aria-modal="true" onClick={() => { if (recutting === null) setOpen(null); }}>
           <div className="bc-zoom-body" onClick={(e) => e.stopPropagation()}>
-            {error && <p role="alert" className="error" style={{ marginBottom: 10, color: "#fca5a5" }}>{error}</p>}
+            {error && <p role="alert" className="error" style={{ marginBottom: 10, color: "var(--danger)" }}>{error}</p>}
             {isPresetKind(open.kind) && (
               <div className="bc-preset">
                 <span className="bc-label">📌 이 설정을 레시피로 저장</span>

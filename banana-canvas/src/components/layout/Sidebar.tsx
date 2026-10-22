@@ -58,7 +58,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
       <div className="mobile-sidebar">
         <div className="mobile-header">
           <span style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700 }}>
-            <span style={{ fontSize: "18px" }}>🍌</span> {APP_NAME} <small style={{ color: "var(--brand)", fontSize: "11px", fontWeight: 800 }}>{APP_VERSION}</small>
+            <span style={{ fontSize: "18px" }}>🍌</span> {APP_NAME} <small style={{ color: "var(--brand-text)", fontSize: "11px", fontWeight: 800 }}>{APP_VERSION}</small>
           </span>
           <button type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} onClick={() => setOpen((v) => !v)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
         </div>
