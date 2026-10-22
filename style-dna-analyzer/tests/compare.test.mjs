@@ -62,3 +62,9 @@ test("v1.35 불러온 프롬프트 되돌리기 연결", () => {
   const cs = readFileSync(new URL("../src/components/dna/CompareSlider.tsx", import.meta.url), "utf8");
   assert.match(cs, /onLoadPrompt\(picked\.prompt!, \(pickedTrend \?\? 0\) \+ 1\)/);
 });
+
+test("v1.35 추세 회차 → 이미지 스튜디오 링크(기존 imageStudioLink 재사용)", () => {
+  const cs = readFileSync(new URL("../src/components/dna/CompareSlider.tsx", import.meta.url), "utf8");
+  assert.match(cs, /imageStudioLink\(picked\.prompt\)!/);
+  assert.match(cs, /rel="noopener noreferrer"/);
+});

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { averageDiff, colorDiffPercent, containPoint, defaultSplit, percentAt, percentForKey, splitClip, toHex, type SplitMode } from "@/lib/dna/compare";
+import { imageStudioLink } from "@/lib/dna/studioLink";
 import { bestTrendIndex, promptPreview, sparklinePoints, sparklineXY, spotChange, type CheckSpot, type TrendPoint } from "@/lib/dna/checkSpots";
 
 type Pixels = { data: Uint8ClampedArray; w: number; h: number; natW: number; natH: number };
@@ -335,11 +336,27 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
             <div className="mb-2 rounded-lg border border-amber-400/60 px-2 py-1.5 text-[11px] text-slate-900" data-trend-picked>
               <b>{(pickedTrend ?? 0) + 1}회차{pickedTrend === bestIdx ? " 🏆" : ""}</b> · {new Date(picked.at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} · 평균 차이 <b>{picked.avg}%</b> ({picked.n}곳)
               <p className="mt-0.5 break-words font-mono text-[10px] opacity-90">{picked.prompt ? `「${promptPreview(picked.prompt)}」` : "이 회차는 프롬프트가 기록되지 않았습니다(v1.35 이전 기록)."}</p>
-              {picked.prompt && onLoadPrompt && (
-                <button type="button" data-load-prompt onClick={() => onLoadPrompt(picked.prompt!, (pickedTrend ?? 0) + 1)} className="mt-1 font-bold text-sky-400 hover:underline">
-                  ✏ 이 프롬프트를 편집 칸으로 불러오기
-                </button>
-              )}
+              <div className="mt-1 flex flex-wrap items-center gap-3">
+                {picked.prompt && onLoadPrompt && (
+                  <button type="button" data-load-prompt onClick={() => onLoadPrompt(picked.prompt!, (pickedTrend ?? 0) + 1)} className="font-bold text-sky-400 hover:underline">
+                    ✏ 이 프롬프트를 편집 칸으로 불러오기
+                  </button>
+                )}
+                {/* v1.35: 검증된 회차의 프롬프트로 AI 이미지 자동화에서 본 작업 이미지 — 글자만 넘기고 자동 생성 없음 */}
+                {picked.prompt && imageStudioLink(picked.prompt) && (
+                  <a
+                    href={imageStudioLink(picked.prompt)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-studio-link
+                    title="이 회차 프롬프트를 AI 이미지 스튜디오 프롬프트 칸에 채워 엽니다 — 엔진·모델을 고른 뒤 직접 [생성]을 누르세요"
+                    className="inline-flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-bold text-amber-300 hover:bg-amber-500/20"
+                  >
+                    <span aria-hidden>🎨</span>
+                    <span>이미지 스튜디오에서 생성</span>
+                  </a>
+                )}
+              </div>
             </div>
           )}
           <ul className="space-y-1">
