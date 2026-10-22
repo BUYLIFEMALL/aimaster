@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.10 확장 카드 실제 설치 상태 표시 · 자동 연결 공용 기준 등록 (빌드 1회 · AI 0회)
+- v2.09 자동 연결 주인님 실사용 확인. 설정 화면 확장 카드가 실제 확장 버전을 물어 표시(설치됨·업데이트 필요·설치 전·다시 확인). `docs/SHARED_FEATURE_MAP.md` §16에 기준 구현 등록, 다음은 티스토리 → ai-auto-blog → 블로그 에이전트 → 콘텐츠 제작 순서로 같은 방식 적용(주인님 승인, 빌드 약 5회).
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-23 — Claude Code(윈도우): Step Mail v1.28 💬 카카오 브랜드 메시지 선택지 (본인 카카오 채널 등록 시에만)
 - 한 일: `stepmail/` 캠페인 휴대폰 발송 방식에 「💬 카카오 브랜드 메시지」 추가(`stepmail_campaigns.mobile_type`·`kakao_fallback_sms`). 회원 본인 SOLAPI + 본인 카카오 채널 ID(pfId, 공용 `user_solapi_accounts.kakao_pf_id`)가 있을 때만 고를 수 있고, 없으면 선택지가 꺼지며 저장·발송 모두 막힘(주인님: 「없으면 등록 안하면 동작 안하는 거고」). 광고 표시(adFlag)·「문자로 대신 보내기」 선택, 기록 channel kakao. 새 `stepmail/lib/kakaoBrand.ts`(공용 SOLAPI 사본은 손대지 않음), 매뉴얼 FAQ Q5.
 - 검수: tsc·build, 시험 12개(카카오 3개 추가), DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor·해시 일치, 기존 캠페인 2건 sms 그대로) v1.28, 배포 `stepmail-lza2dcw10` Ready, `/login` 200·가짜 토큰 401, 크롬(관리자, pfId 등록됨) 카카오 선택·대체 문자 칸 표시(저장 안 함).

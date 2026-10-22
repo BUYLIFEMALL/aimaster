@@ -274,3 +274,9 @@ AI가 참고 자료(레퍼런스 쇼츠 받아쓰기·떡상 게시물 캡션·�
 - 2026-10-22 추가(원스톱 v1.32·INSTA v1.58): 같은 기준 파일에 프로그램 간 레퍼런스 대사 넘기기 약속(`REF_HASH` = `ref-transcript`, `refHandoffHash`로 주소 `#` 뒤에 싣고 `readRefHandoff`로 받음, 12000자). INSTA 떡상 리메이크 「🎬 이 대사로 쇼츠 만들기」 → 원스톱 `/topic`. 다른 프로그램이 원스톱에 레퍼런스를 넘길 때도 이 함수를 쓴다.
 - 2026-10-22 추가(쇼츠 바이럴 v1.13·원스톱 v1.33): 사본 3곳째 `shorts-viral-studio/src/lib/reference.ts` — Gemini 영상 직접 분석 대사를 같은 함수로 원스톱에 넘김. 원스톱은 로그인 화면을 거쳐도 대사를 `sessionStorage`로 유지(`shorts-onestop-studio/src/lib/refHandoff.ts`, 공용 아님).
 - 2026-10-22 추가(유튜브 바이럴 v1.22): 사본 4곳째 `youtube-viral-studio/src/lib/reference.ts` — 대본 분석에서 Gemini가 유튜브 영상을 직접 보고 받아쓴 대사를 원스톱에 넘김.
+
+## 16. 크롬 확장 자동 연결 · 실제 설치 상태 표시 — 기준 구현 `naver-blog-seo-studio` v2.09~v2.10 (2026-10-23 등록)
+- **무엇:** 확장 사이드패널 「자동 연결」 또는 웹 설정 「확장 프로그램 바로 연결」 한 번으로 연결 코드를 자동 발급해 확장에 저장(복사·붙여넣기 없음), 설정 화면 확장 카드는 확장에 실제 버전을 물어 설치·업데이트 상태 표시. 주인님 지시(2026-10-23): 블로그 자동화 프로그램 전체를 이 방식으로 변경.
+- **기준 파일(SEO 스튜디오):** 웹 `lib/extensionBridge.ts`(`askExtension`), `app/extension-connect/page.tsx`, `app/settings/ExtensionConnectButton.tsx`, `app/settings/ExtensionDownloadCard.tsx` · 확장 `extension/web-bridge.js`(`connect` 메시지), `extension/background.js`(`connectWithToken` — 우리 사이트 출처·코드 형식·`whoami` 통과 때만 저장, 요청 시 탭 닫기), `extension/sidepanel.*`(「자동 연결」 버튼·직접 입력 접힘·`storage.onChanged`) · 시험 `tests/extension-connect.test.mjs`.
+- **적용 방식:** 프로그램마다 저장 키·서버 주소·코드 형식이 달라 사본 동기화(`check-shared-modules`) 대신 같은 구조로 각자 구현(기준 구현 참고형). 연결 통로는 웹→확장 방향으로 코드를 받기만 하고 확장이 코드를 내주지 않는다.
+- **적용 현황:** ✅ `naver-blog-seo-studio` v2.10 · 진행 순서 `tistory-auto-blog` → `ai-auto-blog` → `naver-blog-agent`(8자리 연결 번호 방식) → `blog-content-maker`(연결 통로 새로 만듦) · 해당 없음 `naver-blog-allinone`(확장이 서버 계정 미사용) · 보류 `naver-blog-auto-poster-web`(비공개).
