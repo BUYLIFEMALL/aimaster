@@ -1,10 +1,12 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { Download, ImageIcon, Star, Trash2 } from "lucide-react";
+import { BookmarkPlus, Download, ImageIcon, Loader2, RefreshCw, Star, Trash2 } from "lucide-react";
 import { KIND_LABEL, type Kind } from "@/lib/bnc/types";
+import { PRESET_KIND_LABEL, isPresetKind, presetFromRecord } from "@/lib/bnc/presets";
 
 interface Row { id: string; kind: Kind; title: string; prompt: string; model: string; favorite: boolean; created_at: string; count: number; cover: string | null }
-interface Detail { id: string; outputs: { path: string; url: string | null; text?: string; mime?: string }[]; kind: Kind }
+interface Out { path: string; url: string | null; text?: string; mime?: string }
+interface Detail { id: string; outputs: Out[]; kind: Kind; options: unknown; prompt: string }
 
 function when(iso: string) {
   const d = new Date(iso);
@@ -27,6 +29,10 @@ export function HistoryList() {
   const [error, setError] = useState("");
   const [onlyFav, setOnlyFav] = useState(false);
   const [open, setOpen] = useState<Detail | null>(null);
+  // v1.18: 기록 상세에서 「이 컷만 다시」·「레시피로 저장」
+  const [recutting, setRecutting] = useState<number | null>(null);
+  const [presetName, setPresetName] = useState("");
+  const [presetMsg, setPresetMsg] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -53,10 +59,35 @@ export function HistoryList() {
   }
 
   async function show(r: Row) {
+    setError(""); // 앞 기록에서 난 오류 문장이 새 창에 남지 않게
     const res = await fetch(`/api/history/${r.id}`, { cache: "no-store" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) { setError(data.error ?? "결과를 열지 못했습니다."); return; }
-    setOpen({ id: r.id, kind: r.kind, outputs: data.item.outputs });
+    setOpen({ id: r.id, kind: r.kind, outputs: data.item.outputs, options: data.item.options, prompt: data.item.prompt ?? "" });
+    setPresetName(""); setPresetMsg("");
+  }
+
+  async function recut(i: number) {
+    if (!open || recutting !== null) return;
+    setError(""); setRecutting(i);
+    try {
+      const res = await fetch("/api/run/recut", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: open.id, index: i }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(data.error ?? "다시 만들지 못했습니다."); return; }
+      setOpen((cur) => (cur && cur.id === open.id ? { ...cur, outputs: cur.outputs.map((o, k) => (k === data.index ? data.output : o)) } : cur));
+      if (i === 0) void load(); // 표지 그림이 바뀜
+    } catch { setError("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."); }
+    finally { setRecutting(null); }
+  }
+
+  async function savePreset() {
+    if (!open || !isPresetKind(open.kind) || !presetName.trim()) return;
+    const settings = presetFromRecord(open.kind, open.options, open.prompt);
+    if (!settings) { setPresetMsg("이 기록에는 저장할 설정이 없습니다."); return; }
+    const res = await fetch("/api/presets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: open.kind, name: presetName, settings }) }).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res?.ok) { setPresetMsg(data.error ?? "레시피를 저장하지 못했습니다."); return; }
+    setPresetName(""); setPresetMsg(`저장했습니다. 새 작업의 「${PRESET_KIND_LABEL[open.kind]}」 카드에서 불러올 수 있습니다.`);
   }
 
   const shown = (rows ?? []).filter((r) => !onlyFav || r.favorite);
@@ -88,13 +119,30 @@ export function HistoryList() {
         </div>
       )}
       {open && (
-        <div className="bc-zoom multi" role="dialog" aria-modal="true" onClick={() => setOpen(null)}>
+        <div className="bc-zoom multi" role="dialog" aria-modal="true" onClick={() => { if (recutting === null) setOpen(null); }}>
           <div className="bc-zoom-body" onClick={(e) => e.stopPropagation()}>
+            {error && <p role="alert" className="error" style={{ marginBottom: 10, color: "#fca5a5" }}>{error}</p>}
+            {isPresetKind(open.kind) && (
+              <div className="bc-preset">
+                <span className="bc-label">📌 이 설정을 레시피로 저장</span>
+                <input value={presetName} maxLength={30} placeholder="레시피 이름" aria-label="레시피 이름" onChange={(e) => setPresetName(e.target.value)} />
+                <button type="button" className="primary" disabled={!presetName.trim()} onClick={() => void savePreset()}><BookmarkPlus size={13} />저장</button>
+                {presetMsg && <small style={{ flexBasis: "100%" }}>{presetMsg}</small>}
+              </div>
+            )}
             <div className="bc-outs multi">
               {open.outputs.map((o, i) => (
                 <figure key={`${o.path}-${i}`} className="bc-out">
                   {o.url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={o.url} alt={`결과 ${i + 1}`} /> : <div className="bc-noimg">이미지 없음</div>}
                   {o.text && <figcaption>{o.text}</figcaption>}
+                  {(open.kind === "story" || open.kind === "recipe") && o.text && (
+                    <div className="actions">
+                      <button type="button" disabled={recutting !== null} title="이 장면만 본인 키로 이미지 1장을 다시 만듭니다" onClick={() => void recut(i)}>
+                        {recutting === i ? <Loader2 className="ls-spin" size={13} /> : <RefreshCw size={13} />}
+                        {recutting === i ? "다시 만드는 중…" : open.kind === "story" ? "이 컷만 다시" : "이 단계만 다시"}
+                      </button>
+                    </div>
+                  )}
                   {o.url && <div className="actions"><button type="button" onClick={() => void saveImage(o.url!, `banana_${open.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`)}><Download size={13} />다운로드</button></div>}
                 </figure>
               ))}

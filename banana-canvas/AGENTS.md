@@ -163,3 +163,10 @@
 ## 2026-10-22 v1.17 — 결과 「🎬 스토리보드로」 (Claude Code 윈도우, 이미지 재비교 L5)
 - 결과 카드의 「🔁 형식 바꾸기」 옆에 `https://cinematic-storyboard-studio.buylife.xyz/studio?src=<결과 서명 주소>` 링크(`STORYBOARD_URL`). 받는 쪽 스토리보드 v1.11.
 - 검수: 시험 20개, build, 배포 `banana-canvas-birc6egaz` Ready, DB v1.17. 받는 흐름은 시험 그림으로 크롬 확인.
+
+## 2026-10-22 v1.18 — 「📌 내 작업 레시피」 + 「이 컷만 다시」 (Claude Code 윈도우, 이미지 재비교 F2)
+- 레시피: 편집·옛 사진 복원·만화 패널 카드 설정을 이름 붙여 저장(DB `banana_canvas_presets`, 회원당 20개, 설정값이라 30일 삭제 대상 아님) → 다른 사진에서 불러오면 카드 값만 채움(실행은 회원이). 기록 상세에서 「이 설정을 레시피로 저장」도 가능.
+- 컷 다시: 연속 스토리 컷·이미지 레시피 단계마다 「이 컷만 다시/이 단계만 다시」 → `api/run/recut`이 본인 키로 이미지 1장만 다시 그려 그 칸만 바꿈. 같은 기록의 동시 요청은 `busy_until` 선점으로 유료 생성 전에 409(이중 과금 방지). 새 스토리는 등장인물 설명(`options.storyCharacter`), 새 레시피는 단계 그림 지시(`options.stepPrompts`)를 남긴다.
+- 파일: `lib/bnc/presets.ts`·`recut.ts`, `api/presets`, `api/run/recut`, `components/studio/PresetRow.tsx`, Studio·HistoryList, 시험 `tests/f2RecipeRecut.test.mjs`. 플랜 `docs/PLAN_20261022_F2_RECIPE_RECUT.md`.
+- 검수: 시험 30개·build, 배포 `banana-canvas-bix8dl937` Ready, DB v1.18, 크롬 확인(409 안내·레시피 저장/불러오기/삭제). **실제 컷 다시 만들기 1장은 미확인**(시험 회원에 스토리 기록 없음).
+- ⏸ 미배포 코드 수정: 기록 상세를 열 때 앞 기록의 오류 문장 지우기 + 상세 창 오류 글자색을 밝게(`HistoryList.tsx`) — 다음 배포 때 함께.

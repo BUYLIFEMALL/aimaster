@@ -8,6 +8,8 @@ import { CATEGORIES, PROCESSES, STYLES } from "@/lib/bnc/styles";
 import { ACCEPT_ATTR, FORMAT_HELP, detectImage, sizeError } from "@/lib/bnc/paths";
 import { MaskEditor } from "./MaskEditor";
 import { GraphicCard } from "./GraphicCard";
+import { PresetRow } from "./PresetRow";
+import type { ComicPreset, EditPreset, Preset, RestorePreset } from "@/lib/bnc/presets";
 import { checkImageFile } from "@/lib/imageFileCheck";
 
 // 이미지 변환 스튜디오(브라우저 처리)로 결과를 넘겨 형식·크기를 바꾼다(v1.14)
@@ -133,6 +135,9 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
   const [comicAspect, setComicAspect] = useState<Aspect>("4:3");
   const [storyIdea, setStoryIdea] = useState("");
   const [dish, setDish] = useState("");
+  // 내 작업 레시피(v1.18) · 이 컷만 다시(v1.18)
+  const [presets, setPresets] = useState<Preset[]>([]);
+  const [recutting, setRecutting] = useState<number | null>(null);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const srcRef = useRef<HTMLInputElement>(null);
@@ -165,6 +170,10 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
       window.history.replaceState(null, "", "/studio");
     })();
   }, [importUrl]);
+
+  useEffect(() => {
+    void api<{ items: Preset[] }>("/api/presets", "GET").then((r) => { if (r.ok) setPresets(r.data.items); });
+  }, []);
 
   const dropTemp = useCallback((path: string | null) => {
     if (path && path.includes("/in/")) void fetch(`/api/upload?path=${encodeURIComponent(path)}`, { method: "DELETE", keepalive: true }).catch(() => {});
@@ -252,6 +261,16 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
     dropTemp(m.path);
   }
 
+  // 스토리 컷·레시피 단계 한 장만 다시 만든다(본인 키로 이미지 1장)
+  async function recut(i: number) {
+    if (!result || recutting !== null) return;
+    setError(null); setRecutting(i);
+    const r = await api<{ index: number; model: string; output: Out }>("/api/run/recut", "POST", { id: result.id, index: i });
+    setRecutting(null);
+    if (!r.ok) { fail(r); return; }
+    setResult((cur) => (cur && cur.id === result.id ? { ...cur, model: r.data.model, outputs: cur.outputs.map((o, k) => (k === r.data.index ? r.data.output : o)) } : cur));
+  }
+
   function useAsBase(o: Out) {
     if (!o.url || !o.path) return;
     dropTemp(basePathRef.current);
@@ -261,7 +280,7 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
   }
 
   const working = busy !== "" && busy !== "suggest" && busy !== "upload";
-  const disabled = busy !== "";
+  const disabled = busy !== "" || recutting !== null;
   const noBase = !base;
   const editReady = processes.length > 0 || !!style || !!custom.trim();
   const toggleProcess = (id: string) => setProcesses((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
@@ -400,6 +419,9 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
             <AspectPick value={restoreAspect} onChange={setRestoreAspect} withOriginal />
             <textarea rows={2} value={restoreNote} maxLength={600} onChange={(e) => setRestoreNote(e.target.value)} placeholder="추가 요청 (선택, 예: 얼굴과 옷 형태는 그대로 두고 빛바랜 부분만 다듬어 주세요)" disabled={disabled || noBase} aria-label="복원 추가 요청" />
             <p className="bc-hint">확대는 AI 결과를 서버에서 실제 픽셀로 키웁니다(긴 변 최대 8,192px).</p>
+            <PresetRow kind="restore" presets={presets} onChange={setPresets} disabled={disabled} onError={(text) => setError({ text, needKey: false })}
+              current={(): RestorePreset => ({ repair: repairOn, colorize: colorizeOn, upscale: restoreUp, aspect: restoreAspect, prompt: restoreNote })}
+              onApply={(x) => { const r = x as RestorePreset; setRepairOn(r.repair); setColorizeOn(r.colorize); setRestoreUp(r.upscale); setRestoreAspect(r.aspect); setRestoreNote(r.prompt); }} />
             <button type="button" className="primary" disabled={disabled || noBase}
               onClick={() => void run("restore", { repair: repairOn, colorize: colorizeOn, upscale: restoreUp, aspect: restoreAspect, prompt: restoreNote })}>사진 복원하기</button>
           </Card>
@@ -417,6 +439,9 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
                 )}
               </div>
             </div>
+            <PresetRow kind="edit" presets={presets} onChange={setPresets} disabled={disabled} onError={(text) => setError({ text, needKey: false })}
+              current={(): EditPreset => ({ processes, style, prompt: custom, upscale: upscaleF })}
+              onApply={(x) => { const e = x as EditPreset; setProcesses(e.processes); setStyle(e.style); setCustom(e.prompt); setUpscaleF(e.upscale); }} />
             <label className="bc-field">스타일 변환
               <select value={style} onChange={(e) => setStyle(e.target.value)} disabled={disabled || noBase}>
                 <option value="">스타일을 선택하세요…</option>
@@ -483,6 +508,9 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
               <button type="button" aria-pressed={comicLang === "en"} onClick={() => setComicLang("en")}>영어</button>
             </div>
             <AspectPick value={comicAspect} onChange={(a) => setComicAspect(a as Aspect)} options={["4:3", "1:1", "16:9"]} />
+            <PresetRow kind="comic" presets={presets} onChange={setPresets} disabled={disabled} onError={(text) => setError({ text, needKey: false })}
+              current={(): ComicPreset => ({ comicStyle, comicLang, aspect: comicAspect })}
+              onApply={(x) => { const c = x as ComicPreset; setComicStyle(c.comicStyle); setComicLang(c.comicLang); setComicAspect(c.aspect); }} />
             <textarea rows={2} value={comicText} maxLength={300} onChange={(e) => setComicText(e.target.value)} placeholder="대사나 캡션 (비워 두면 글자 없이)" disabled={disabled || noBase} aria-label="만화 대사" />
             <button type="button" className="primary" disabled={disabled || noBase} onClick={() => void run("comic", { comicStyle, comicLang, comicText, aspect: comicAspect })}>만화 패널 생성</button>
           </Card>
@@ -513,6 +541,15 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
                         ? <Compare before={resultBase} after={o.url} w={o.w} h={o.h} />
                         : o.url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={o.url} alt={`결과 ${i + 1}`} onClick={() => setZoom(o.url)} /> : <div className="bc-noimg">이미지를 만들지 못했습니다</div>}
                       {o.text && result.kind !== "comic" && <figcaption>{o.text}</figcaption>}
+                      {(result.kind === "story" || result.kind === "recipe") && o.text && (
+                        <div className="actions">
+                          <button type="button" disabled={busy !== "" || recutting !== null} title="이 장면만 본인 키로 이미지 1장을 다시 만듭니다"
+                            onClick={() => void recut(i)}>
+                            {recutting === i ? <Loader2 className="ls-spin" size={13} /> : <RefreshCw size={13} />}
+                            {recutting === i ? "다시 만드는 중…" : result.kind === "story" ? "이 컷만 다시" : "이 단계만 다시"}
+                          </button>
+                        </div>
+                      )}
                       {o.url && (
                         <div className="actions">
                           <button type="button" onClick={() => void saveImage(o.url!, `banana_${result.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`)}><Download size={13} />다운로드</button>

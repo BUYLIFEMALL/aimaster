@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { OutputItem, RunParams } from "@/lib/bnc/types";
 import { buildTask, missingInput } from "@/lib/bnc/tasks";
 import { isOwnPath, outPath } from "@/lib/bnc/paths";
+import type { RecutPlan } from "@/lib/bnc/recut";
 import { recipeImagePrompt, recipePlanPrompt, storyCutPrompt, storyPlanPrompt } from "@/lib/bnc/prompts";
 import { AiError, imageModel, textModel, type Part } from "@/lib/gemini";
 import { chromaKey, download, isBackgroundEmpty, normalizeOutput, remove, upload, upscale } from "@/lib/files";
@@ -10,7 +11,7 @@ import { chromaKey, download, isBackgroundEmpty, normalizeOutput, remove, upload
 /** 사용자에게 그대로 보여줄 수 있는 입력 오류 */
 export class InputError extends Error {}
 
-export interface RunResult { title: string; outputs: OutputItem[]; texts: string[]; model: string; warning?: string; inputs: string[]; estimate: number }
+export interface RunResult { title: string; outputs: OutputItem[]; texts: string[]; model: string; warning?: string; inputs: string[]; estimate: number; meta?: Record<string, unknown> }
 
 const STORY_BUDGET_MS = 230_000;
 const mimeOf = (path: string) => (path.endsWith(".png") ? "image/png" : path.endsWith(".webp") ? "image/webp" : "image/jpeg");
@@ -84,7 +85,8 @@ export async function runTask(apiKey: string, userId: string, p: RunParams): Pro
         break;
       }
     }
-    return { ...common, title: task.title, outputs, texts: [], model, warning };
+    // v1.18: 등장인물 설명을 기록에 남겨 「이 컷만 다시」에서 같은 인물로 다시 그린다
+    return { ...common, title: task.title, outputs, texts: [], model, warning, meta: { storyCharacter: character } };
   }
 
   if (task.mode === "recipe") {
@@ -112,7 +114,7 @@ export async function runTask(apiKey: string, userId: string, p: RunParams): Pro
     };
     await Promise.all([worker(), worker(), worker()]);
     if (failed === steps.length) throw new AiError("noimage");
-    return { ...common, title: String(plan?.title ?? task.title).slice(0, 60), outputs, texts: [], model, warning: failed ? `${failed}단계는 이미지를 만들지 못해 설명만 표시합니다.` : undefined };
+    return { ...common, title: String(plan?.title ?? task.title).slice(0, 60), outputs, texts: [], model, warning: failed ? `${failed}단계는 이미지를 만들지 못해 설명만 표시합니다.` : undefined, meta: { stepPrompts: steps.map((s) => String(s.imagePrompt ?? s.text).slice(0, 600)) } };
   }
 
   // 단일 이미지 작업
@@ -136,6 +138,22 @@ export async function runTask(apiKey: string, userId: string, p: RunParams): Pro
   const text = r.texts.join(" ").slice(0, 400) || undefined;
   const item = await save(userId, bytes, mime, text);
   return { ...common, title: task.title, outputs: [item], texts: r.texts, model: r.model, warning };
+}
+
+/** 「이 컷만 다시」(v1.18): 계획대로 이미지 1장만 만들어 저장한다(재시도 없음 — 이중 과금 방지는 호출하는 쪽의 선점으로) */
+export async function recutImage(apiKey: string, userId: string, plan: RecutPlan): Promise<{ item: OutputItem; model: string }> {
+  const deadline = Date.now() + 240_000;
+  const parts: Part[] = [];
+  if (plan.mode === "story") {
+    const prev = plan.prevPath && isOwnPath(userId, plan.prevPath) ? await download(plan.prevPath) : null;
+    if (prev) parts.push({ image: { mime: mimeOf(plan.prevPath!), data: prev } });
+    parts.push({ text: storyCutPrompt(plan.character, plan.text, plan.index + 1, plan.total) });
+  } else {
+    parts.push({ text: recipeImagePrompt(plan.dish, plan.stepPrompt) });
+  }
+  const r = await imageModel(apiKey, parts, { model: plan.model, aspect: plan.aspect, modalities: "image", deadline });
+  const item = await save(userId, r.images[0].bytes, r.images[0].mime, plan.text);
+  return { item, model: r.model };
 }
 
 /** 기록 정리: 즐겨찾기가 아닌 오래된 항목을 MAX를 넘기면 삭제(파일 포함) */
