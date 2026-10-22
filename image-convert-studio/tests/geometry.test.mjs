@@ -141,6 +141,11 @@ test("v1.18 모두 다시 변환 요약", async () => {
   const { countRetry } = await import("../src/lib/imageTools/sizeChange.ts");
   assert.deepEqual(countRetry(["smaller", "smaller", "stillBigger", "error"]), { total: 4, smaller: 2, stillBigger: 1, noGain: 0, failed: 1 });
   const { DICTS, fmt } = await import("../src/lib/i18n.ts");
-  assert.equal(fmt(DICTS.ko.convert.retrySummary, { total: 3, smaller: 2, stillBigger: 1, noGain: 0 }), "다시 변환 3장 중 2장 줄어듦 · 1장 원본 권장 · 0장 변화 없음");
-  assert.ok(DICTS.en.convert.retryFailed.includes("{n}"));
+  // v1.18 정정: 요약을 세 조각으로 나눠 「N장 원본 권장」만 버튼으로
+  assert.equal(fmt(DICTS.ko.convert.retrySummary, { total: 3, smaller: 2 }), "다시 변환 3장 중 2장 줄어듦");
+  assert.equal(fmt(DICTS.ko.convert.retryKeep, { n: 1 }), "1장 원본 권장");
+  for (const d of Object.values(DICTS)) assert.ok(d.convert.retryFailed.includes("{n}") && d.convert.retrySame.includes("{n}") && d.convert.onlyKeep);
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(src, /items\.filter\(\(item\) => item\.keepOriginal\)/);
 });

@@ -36,6 +36,8 @@ interface Item {
   focus?: Focus;
   /** v1.18: 「다시 변환」 결과 안내 */
   note?: string;
+  /** v1.18: 다시 변환해도 원본보다 커서 원본 사용을 권하는 그림 */
+  keepOriginal?: boolean;
 }
 
 const SCALE_KEYS = { 0.5: "scaleHalf", 1: "scaleOne", 1.5: "scaleOneHalf", 2: "scaleTwo", 3: "scaleThree", 4: "scaleFour" } as const;
@@ -154,7 +156,7 @@ export function ConvertTool() {
   };
 
   const convertOne = async (item: Item) => {
-    patch(item.id, { status: "working", error: undefined, note: undefined });
+    patch(item.id, { status: "working", error: undefined, note: undefined, keepOriginal: undefined });
     try {
       const blob = await convertImage(item.file, { ...options, focus: item.focus ?? null });
       if (item.result) URL.revokeObjectURL(item.result.url);
@@ -165,11 +167,11 @@ export function ConvertTool() {
   };
 
   // v1.18: 용량이 늘어난 그림을 WebP·품질 80% 이하로 다시 변환(화면 설정은 그대로). 이전 결과보다 작을 때만 바꾼다
-  const [retrySummary, setRetrySummary] = useState("");
+  const [retryCounts, setRetryCounts] = useState<ReturnType<typeof countRetry> | null>(null);
   const retrySmaller = async (item: Item): Promise<RetryOutcome | "error"> => {
     if (!item.result) return "noGain";
     const previous = item.result;
-    patch(item.id, { status: "working", error: undefined, note: undefined });
+    patch(item.id, { status: "working", error: undefined, note: undefined, keepOriginal: undefined });
     try {
       const blob = await convertImage(item.file, { ...options, ...shrinkRetryOptions(quality), focus: item.focus ?? null });
       const outcome = retryOutcome(item.file.size, previous.blob.size, blob.size);
@@ -182,6 +184,7 @@ export function ConvertTool() {
         status: "done",
         result: { blob, name: outputFileName(item.file.name, "webp"), url: URL.createObjectURL(blob) },
         note: outcome === "stillBigger" ? t.convert.retryStillBigger : fmt(t.convert.retryDone, { pct: sizeChangeLabel(item.file.size, blob.size) ?? "" }),
+        keepOriginal: outcome === "stillBigger",
       });
       return outcome;
     } catch (error) {
@@ -192,17 +195,14 @@ export function ConvertTool() {
 
   const retryAllGrown = async () => {
     setBusy(true);
-    setRetrySummary("");
+    setRetryCounts(null);
     const outcomes: (RetryOutcome | "error")[] = [];
     try {
       for (const item of items.filter((i) => i.result && isGrownFile(i.file.size, i.result.blob.size))) outcomes.push(await retrySmaller(item));
     } finally {
       setBusy(false);
       // v1.18: 카드를 하나씩 보지 않아도 결과를 알 수 있게 한 줄 요약
-      if (outcomes.length) {
-        const c = countRetry(outcomes);
-        setRetrySummary(fmt(t.convert.retrySummary, c) + (c.failed ? fmt(t.convert.retryFailed, { n: c.failed }) : ""));
-      }
+      if (outcomes.length) setRetryCounts(countRetry(outcomes));
     }
   };
 
@@ -240,7 +240,15 @@ export function ConvertTool() {
   const [onlyGrown, setOnlyGrown] = useState(false);
   const grownCount = items.filter((item) => item.result && isGrownFile(item.file.size, item.result.blob.size)).length;
   const showOnlyGrown = onlyGrown && grownCount > 0;
-  const visibleItems = showOnlyGrown ? items.filter((item) => item.result && isGrownFile(item.file.size, item.result.blob.size)) : items;
+  // v1.18: 요약 줄의 「N장 원본 권장」을 누르면 그 그림만
+  const [onlyKeep, setOnlyKeep] = useState(false);
+  const keepCount = items.filter((item) => item.keepOriginal).length;
+  const showOnlyKeep = onlyKeep && keepCount > 0;
+  const visibleItems = showOnlyKeep
+    ? items.filter((item) => item.keepOriginal)
+    : showOnlyGrown
+      ? items.filter((item) => item.result && isGrownFile(item.file.size, item.result.blob.size))
+      : items;
   const showFilter = scale !== 1 || limitSize || !!presetId;
   // v1.13: 변환 전 미리보기(썸네일·자를 위치 창)
   const previewT: PreviewTransform = { rotate, flipH, flipV, cropRatio: CROP_RATIOS.find((c) => c.id === cropId)?.ratio ?? null, preset: presetById(presetId) };
@@ -438,7 +446,7 @@ export function ConvertTool() {
                 type="button"
                 aria-pressed={showOnlyGrown}
                 data-only-grown
-                onClick={() => setOnlyGrown((v) => !v)}
+                onClick={() => { setOnlyGrown((v) => !v); setOnlyKeep(false); }}
                 className={`rounded-xl border px-3 py-1 font-medium transition ${showOnlyGrown ? "border-amber-400 bg-amber-500/20 text-amber-200" : "border-amber-500/40 bg-amber-950/40 text-amber-300 hover:bg-amber-900/40"}`}
               >
                 {showOnlyGrown ? t.convert.showAll : fmt(t.convert.onlyGrown, { n: grownCount })}
@@ -455,10 +463,26 @@ export function ConvertTool() {
                 {fmt(t.convert.retryAll, { n: grownCount })}
               </button>
             )}
-            {retrySummary && (
+            {retryCounts && (
               <span className="rounded-xl border border-[#334155] bg-[#162032] px-3 py-1 font-medium text-slate-200" role="status" data-retry-summary>
-                {retrySummary}
-                <button type="button" aria-label={t.convert.close} className="ml-2 text-slate-400 hover:text-white" onClick={() => setRetrySummary("")}>✕</button>
+                {fmt(t.convert.retrySummary, retryCounts)}
+                {retryCounts.stillBigger > 0 && (
+                  <>
+                    {" · "}
+                    <button
+                      type="button"
+                      data-retry-keep
+                      aria-pressed={showOnlyKeep}
+                      className="font-bold text-amber-300 underline decoration-dotted underline-offset-2 hover:text-amber-200"
+                      onClick={() => { setOnlyKeep((v) => !v); setOnlyGrown(false); }}
+                    >
+                      {showOnlyKeep ? t.convert.showAll : fmt(t.convert.retryKeep, { n: retryCounts.stillBigger })}
+                    </button>
+                  </>
+                )}
+                {retryCounts.noGain > 0 && <>{" · "}{fmt(t.convert.retrySame, { n: retryCounts.noGain })}</>}
+                {retryCounts.failed > 0 && <>{" · "}{fmt(t.convert.retryFailed, { n: retryCounts.failed })}</>}
+                <button type="button" aria-label={t.convert.close} className="ml-2 text-slate-400 hover:text-white" onClick={() => { setRetryCounts(null); setOnlyKeep(false); }}>✕</button>
               </span>
             )}
           </div>
