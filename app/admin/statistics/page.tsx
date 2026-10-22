@@ -23,8 +23,8 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->>downloadedAt", "is", null),
     studio
-      ? admin.from("usage_logs").select("src:metadata->>ideaSource").eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since).not("metadata->>ideaSource", "is", null).limit(10000)
-      : Promise.resolve({ data: [] as { src: string | null }[] }),
+      ? admin.from("usage_logs").select("src:metadata->>ideaSource, dl:metadata->>downloadedAt, ho:metadata->handoffs").eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since).not("metadata->>ideaSource", "is", null).limit(10000)
+      : Promise.resolve({ data: [] as { src: string | null; dl: string | null; ho: Record<string, string> | null }[] }),
     studio
       ? admin.from("usage_logs").select("*", { count: "exact", head: true }).eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since)
       : Promise.resolve({ count: 0 }),
@@ -37,8 +37,14 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
     if (r.dl) b.downloaded += 1;
     if (r.ho && Object.keys(r.ho).length) b.handedOff += 1;
   }
-  const image: Record<string, number> = {};
-  for (const r of ((imgRows as { data: { src: string | null }[] | null }).data ?? [])) if (r.src) image[r.src] = (image[r.src] ?? 0) + 1;
+  const image: Record<string, { count: number; downloaded: number; handedOff: number }> = {};
+  for (const r of ((imgRows as { data: { src: string | null; dl: string | null; ho: Record<string, string> | null }[] | null }).data ?? [])) {
+    if (!r.src) continue;
+    const m = (image[r.src] ??= { count: 0, downloaded: 0, handedOff: 0 });
+    m.count += 1;
+    if (r.dl) m.downloaded += 1;
+    if (r.ho && Object.keys(r.ho).length) m.handedOff += 1;
+  }
   return { days, banana, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0, image, imageTotal: (imgTotal as { count: number | null }).count ?? 0 };
 }
 
@@ -165,13 +171,15 @@ export default async function AdminStatisticsPage({ searchParams }: { searchPara
     .slice(0, 10);
 
   const nameOf = (slug: string) => programs?.find((p) => p.slug === slug)?.name ?? slug;
-  const bananaRows = Object.entries(bananaStats?.banana ?? {})
-    .map(([slug, v]) => ({ slug, name: nameOf(slug), ...v }))
-    .sort((a, b) => b.count - a.count);
+  // 연계 링크가 있는 보내는 프로그램(공용 기준 코드 `banana-idea-link`의 BANANA_SOURCES와 같게 유지) — 0건이어도 늘 표시
+  const LINK_SENDERS = ["style-dna-analyzer", "emotion-writer", "reverse-prompt"];
+  const toRows = (m: Record<string, { count: number; downloaded: number; handedOff: number }> | undefined) =>
+    [...new Set([...LINK_SENDERS, ...Object.keys(m ?? {})])]
+      .map((slug) => ({ slug, name: nameOf(slug), ...(m?.[slug] ?? { count: 0, downloaded: 0, handedOff: 0 }) }))
+      .sort((a, b) => b.count - a.count);
+  const bananaRows = toRows(bananaStats?.banana);
   const bananaLinked = bananaRows.reduce((sum, r) => sum + r.count, 0);
-  const imageRows = Object.entries(bananaStats?.image ?? {})
-    .map(([slug, count]) => ({ slug, name: nameOf(slug), count }))
-    .sort((a, b) => b.count - a.count);
+  const imageRows = toRows(bananaStats?.image);
   const imageLinked = imageRows.reduce((sum, r) => sum + r.count, 0);
   const pct = (n: number, d: number) => (d ? `${Math.round((n / d) * 100)}%` : "—");
 
@@ -253,56 +261,47 @@ export default async function AdminStatisticsPage({ searchParams }: { searchPara
               ))}
             </div>
           </div>
-          <p className="text-subtext text-sm mb-4">
-            바나나 캔버스 · 보낸 아이디어로 시작한 작업 {bananaLinked}건 / 전체 {bananaStats.total}건 · 바나나 전체 다운로드 비율 {pct(bananaStats.totalDownloaded, bananaStats.total)}
-          </p>
-          {bananaRows.length === 0 ? (
-            <p className="text-subtext text-sm">아직 이어진 작업이 없습니다.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-subtext text-left border-b border-white/10">
-                    <th className="py-2 font-medium">보낸 프로그램</th>
-                    <th className="py-2 font-medium text-right">작업 수</th>
-                    <th className="py-2 font-medium text-right">비율</th>
-                    <th className="py-2 font-medium text-right">다운로드까지</th>
-                    <th className="py-2 font-medium text-right">다음 단계로 넘김</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bananaRows.map((r) => (
-                    <tr key={r.slug} className="border-b border-white/5 text-white">
-                      <td className="py-2">{r.name}</td>
-                      <td className="py-2 text-right">{r.count}건</td>
-                      <td className="py-2 text-right">{pct(r.count, bananaLinked)}</td>
-                      <td className="py-2 text-right">{r.downloaded}건 ({pct(r.downloaded, r.count)})</td>
-                      <td className="py-2 text-right">{r.handedOff}건 ({pct(r.handedOff, r.count)})</td>
+          {[
+            { key: "banana", title: "바나나 캔버스", unit: "작업", handoffLabel: "다음 단계로 넘김", rows: bananaRows, linked: bananaLinked, total: bananaStats.total, extra: ` · 바나나 전체 다운로드 비율 ${pct(bananaStats.totalDownloaded, bananaStats.total)}` },
+            { key: "image", title: "AI 이미지 스튜디오", unit: "생성", handoffLabel: "바나나로 넘김", rows: imageRows, linked: imageLinked, total: bananaStats.imageTotal, extra: "" },
+          ].map((t) => (
+            <div key={t.key} className="mb-6" data-link-table={t.key}>
+              <p className="text-subtext text-sm mb-2">
+                {t.title} · 다른 프로그램에서 보낸 것으로 시작한 {t.unit} {t.linked}건 / 전체 {t.total}건{t.extra}
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-subtext text-left border-b border-white/10">
+                      <th className="py-2 font-medium">보낸 프로그램</th>
+                      <th className="py-2 font-medium text-right">{t.unit} 수</th>
+                      <th className="py-2 font-medium text-right">비율</th>
+                      <th className="py-2 font-medium text-right">다운로드까지</th>
+                      <th className="py-2 font-medium text-right">{t.handoffLabel}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {t.rows.map((r) => (
+                      <tr key={r.slug} className={`border-b border-white/5 ${r.count ? "text-white" : "text-subtext"}`} data-link-row={r.count ? "used" : "unused"}>
+                        <td className="py-2">{r.name}</td>
+                        {r.count ? (
+                          <>
+                            <td className="py-2 text-right">{r.count}건</td>
+                            <td className="py-2 text-right">{pct(r.count, t.linked)}</td>
+                            <td className="py-2 text-right">{r.downloaded}건 ({pct(r.downloaded, r.count)})</td>
+                            <td className="py-2 text-right">{r.handedOff}건 ({pct(r.handedOff, r.count)})</td>
+                          </>
+                        ) : (
+                          <td className="py-2 text-right" colSpan={4}>아직 없음</td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
-          <p className="text-subtext text-sm mt-6 mb-2">
-            AI 이미지 스튜디오 · 보낸 프롬프트로 만든 생성 {imageLinked}건 / 전체 {bananaStats.imageTotal}건
-          </p>
-          {imageRows.length === 0 ? (
-            <p className="text-subtext text-sm">아직 이어진 생성이 없습니다.</p>
-          ) : (
-            <table className="w-full text-sm">
-              <tbody>
-                {imageRows.map((r) => (
-                  <tr key={r.slug} className="border-b border-white/5 text-white">
-                    <td className="py-2">{r.name}</td>
-                    <td className="py-2 text-right">{r.count}건</td>
-                    <td className="py-2 text-right">{pct(r.count, imageLinked)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          <p className="text-subtext text-xs mt-4">다운로드는 2026-10-22부터, 다음 단계로 넘김(형식 바꾸기·스토리보드)은 바나나 v1.28부터, 이미지 스튜디오 연계는 v1.26부터 쌓입니다. 바나나 결과는 30일 뒤 자동 삭제됩니다.</p>
+          ))}
+          <p className="text-subtext text-xs mt-2">연계 링크: 스타일 분석기·감성 글귀·리버스 프롬프트 → 바나나 캔버스·AI 이미지 스튜디오. 바나나 다운로드는 2026-10-22부터, 다음 단계로 넘김(형식 바꾸기·스토리보드)은 바나나 v1.28부터, 이미지 스튜디오 연계는 v1.26·다운로드/바나나로 넘김은 v1.27부터 쌓입니다. 바나나 결과는 30일 뒤 자동 삭제됩니다.</p>
         </GlassCard>
       )}
     </div>
