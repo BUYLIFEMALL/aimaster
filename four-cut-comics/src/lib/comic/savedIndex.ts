@@ -14,6 +14,9 @@ export interface SavedMeta {
   bytes: number;
   createdAt: string; // ISO
   expiresAt: string | null; // ISO. v1.24부터 최대 만든 날 + 30일(옛 null·90일 항목도 30일로 계산 — splitExpired)
+  /** v1.29: 완성작 실제 크기(옛 항목은 없음) — 형식 바꾸기 규격 고르기용 */
+  width?: number;
+  height?: number;
 }
 
 export const MAX_SAVED = 30;

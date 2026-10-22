@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { addToIndex, effectiveExpiry, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "@/lib/comic/savedIndex";
 import type { SavedMeta } from "@/lib/comic/savedIndex";
 import type { Script } from "@/lib/comic/script";
+import { jpegSize } from "@/lib/comic/imageSize";
 
 // 서버 보관함(선택 기능, v1.05): 회원이 [서버 보관함에 저장]을 누른 완성작만 비공개 버킷에 저장한다.
 // DB 테이블 없이 `<userId>/index.json`(목록)과 `<userId>/<id>.jpg`(이미지)를 쓴다. 버킷은 비공개라
@@ -68,6 +69,7 @@ export async function saveComic(userId: string, o: {
   const meta: SavedMeta = {
     id, title: o.title.slice(0, 80), episode: o.episode, panelCount: o.panelCount, aspect: o.aspect.slice(0, 8), styleId: o.styleId.slice(0, 40),
     script: o.script, bytes: buf.length, createdAt: new Date().toISOString(), expiresAt: expiresAtFor(normalizeRetention(o.retentionDays)),
+    ...(jpegSize(buf) ?? {}),
   };
   const { keep, drop } = addToIndex(await liveIndex(userId), meta);
   if (!(await writeIndex(userId, keep))) { await removeImages(userId, [id]); return null; }
