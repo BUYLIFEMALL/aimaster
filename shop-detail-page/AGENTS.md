@@ -324,3 +324,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - `components/guide/CommerceUsageGuide.tsx`: FAQ 「이미지 속 글자(가격·행사 문구)만 고칠 수 있나요?」(사용법·배지 살리는 법·복잡한 배경 한계).
 - 버전 v1.26(SQL `supabase/migrations/20261022_cover_color_v1_26.sql` — 버전만). 검수: tsc 0, eslint 0, `dominantColor` 시험 5/5. 서버·DB·AI 변경 없음.
 - **윈도우 CLI 다음 첫 단계**: SQL `20261022_cover_color_v1_26.sql` → `shop-detail-page` 배포 1회. 그 뒤 맥미니 크롬 실검수.
+
+## 2026-10-22 ✅ v1.26 배포 (Claude Code 윈도우 — 맥미니 v1.26 덮는 색 선택지·FAQ 마무리)
+- 맥미니 커밋 `7667dc6f1`(문구 고치기 덮는 색 선택지 — 바깥 색·안쪽 색 버튼·💧 이미지에서 색 찍기, 자동 색은 평균 대신 가장 많은 색 + 사용 안내 FAQ) 마무리.
+- 공용 사본(`store-zip`·`gemini-image-client`·`gemini-image-models`) 일치·tsc 통과 → 배포 READY(`shop-detail-page-46vyfunhr-buylife.vercel.app`) → 운영 DB `programs.version` v1.26(`20261022_cover_color_v1_26.sql`과 같은 버전 갱신만, DB 구조 변경 없음).
+- 크롬(메인 크롬): `/products` 화면에 v1.26 표시, 「셀러 성공 꿀팁 & FAQ」 탭에 「Q. 이미지 속 글자(가격·행사 문구)만 고칠 수 있나요?」 확인. **덮는 색 버튼·💧 실제 시험은 맥미니 크롬에서 진행 예정**(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
