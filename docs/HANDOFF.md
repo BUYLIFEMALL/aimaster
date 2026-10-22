@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ 예약 리마인드 v1.28 엑셀 일괄 등록 + 예약 시각 9시간 버그 수정 (빌드 1회 · 유료 호출 0)
+- 마케팅 독립 확장 ②. 예약 엑셀 미리보기→등록·양식, 그리고 **손 입력 예약이 서버(UTC)에서 9시간 늦게 저장돼 리마인드가 9시간 늦게 나가던 버그**를 한국 시간으로 고침(운영 예약·규칙 0건이라 피해 없음). 시험 6개·build·배포 `booking-reminder-4unwdpsta` Ready·DB v1.28. 크롬 미리보기 확인(등록 안 함). 대기분 3건 함께 나감.
+- 마케팅(홍보) 카테고리 작업(병합 A·독립 확장 2건) 모두 끝. 상세 `booking-reminder/AGENTS.md` 2026-10-23 v1.28. 링크: https://booking-reminder.buylife.xyz/reservations
+
 ## 2026-10-23 Claude Code(윈도우) — 역량 지도 뒤처진 카드 1차 5개 갱신 · `deploy --go`가 지도 한 줄 자동 수정 (비용 없음)
 - 카드 갱신(`44a497d44`): 차이 큰 순서로 `tarot-reading`(v1.06→v1.27)·`personality-suite`(v1.06→v1.27)·`naver-cafe-poster`(v1.07→v1.27)·`ai-image-studio`(v1.09→v1.29)·`threads-content-ops`(v1.95→v2.14) — 카드 버전, 각 `AGENTS.md` 근거의 「최근 추가」, `threads-content-ops` 단점 보완. 남은 뒤처진 카드 27개(`deploy.mjs --version-only --all` 「카드 내용」). 블로그 병합 대상(`naver-blog-seo-studio`·`tistory-auto-blog`, Codex)과 작업 중 폴더(`booking-reminder`)는 뺌.
 - `deploy.mjs <폴더> --go`: 빌드 전 기준 사본에 역량 지도 추가, 배포 뒤 DB 버전 = 화면 버전이면 그 프로그램의 목록 표 버전 칸·카드 버전만 고침(`fixMapRow`), 끝 안내의 도우미 커밋 명령에 지도 파일 포함. 실제 지도 파일로 함수 시험 후 원래대로 되돌림(고칠 것 없으면 건너뜀·없는 slug 건너뜀 확인).
