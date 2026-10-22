@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 관리자 「미배포 대기 n건 · 정리 기록 n/23」 + 배포 도우미 DB 버전 맞춤 (메인 사이트 자동 빌드 1회)
+- `scripts/program-info.mjs`(slug·`APP_VERSION`·Vercel 프로젝트·운영 DB REST·30일 정리 크론 목록과 `cleanup_expired` 붙음 여부), `pending-check.mjs --publish`(운영 DB `site_settings` 키 `ops_overview`에 대기 건수·정리 진행률 저장), `deploy.mjs --version-only [--set-version]`·`--go` 뒤 버전 비교. 관리자 `app/api/admin/system-usage` `opsOverview`·`SystemUsageMonitor` 정리 카드에 두 줄(커밋 `097652493`, 배포 `aimaster-nmqm9suwx` Ready, 크롬 관리자 확인: 정리 기록 3/23·미배포 24건).
+- 전체 버전 비교(76개): 화면과 DB가 다른 곳은 `competitor-analysis`(화면 v1.08·DB v1.07) 1곳 — 다른 세션 미커밋 변경이 있어 손대지 않음(배포 대기인지 그 세션 확인 필요).
+- 다음 세션: 03:30 Shots·원스톱 첫 정리 기록 → 관리자 표 줄 확인 → 「회원별 상세」 필요 여부 판단(빌드 추가 없음 예정).
+
 ## 2026-10-23 — Claude Code(맥미니): ✅ 상세페이지 GIF 자동화 v1.15 변환 속도 맥미니 크롬 실측
 - 같은 시험 영상: 3초 2.6초 → 1.2초, 10초(사다리) 185.6초 → 41.8초(약 4.4배), 결과 크기·단계·프레임 같음. 큰 영상은 예전 두 번 방식으로 정상 전환. 구간·ZIP·썸네일·상세페이지로 회귀 없음. 상세 `video-to-gif/AGENTS.md` 맨 아래. 2-4 작업 완료(WebCodecs는 보류).
 - 비용: 이번 검수 없음(배포 빌드 1회는 승인 범위). 링크: https://video-to-gif.buylife.xyz
