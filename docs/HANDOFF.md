@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 정정: 부동산 지역 분위기 캐시는 v1.12부터 회원별(최상위 규칙 위반 없음) · 정리 기록 붙임(미배포 대기) (비용 없음)
+- 바로 앞 항목들의 「`real_estate_sales` 지역 분위기 표에 user_id 없음 → 회원 데이터 아님·공용 캐시 의심」은 **잘못된 판단**. 첫 SQL만 봤고, `20261017_district_sentiment_per_user_v1_12.sql`에서 user_id·회원별 unique·본인 RLS로 이미 바뀌었으며 코드도 회원 본인 키·본인 행만 사용.
+- 조치: 표시 주석 삭제, 정리 작업이 회원별 `cleanup_expired`(sentiments) 기록(공용 사본 `real_estate_sales/src/lib/cleanupUsageLog.ts`). tsc 통과. **미배포 대기**(PENDING 1줄·`real_estate_sales/docs/IMPROVEMENTS.md` 정정). 진행률(코드 기준) 17/25.
+- 교훈: 표 구조는 첫 마이그레이션이 아니라 **마지막 마이그레이션까지** 보거나 운영 DB 칸 목록(행이 없으면 information_schema)으로 확인한다.
+
 
 
 ## 2026-10-23 — Claude Code(윈도우): Threads 콘텐츠 운영 v2.15 — 기획 앱 기능 합치기(기획 앱은 독립 유지)
