@@ -197,5 +197,13 @@
 - 미확인: 실제 로그아웃 상태에서 로그인까지 이어지는 전체 흐름(주인님 크롬 로그인을 풀어야 해서 하지 않음) — `docs/IMPROVEMENTS.md` 2026-10-22 항목 갱신.
 - 비용: 빌드 1회, AI 호출 없음.
 
-## 2026-10-22 (미배포 — 다음 배포 때 함께) — 공용 기준 `reference.ts`: 겹친 구절을 원문 글자 그대로 (Claude Code 윈도우)
+## 2026-10-22 (배포됨 v1.34) — 공용 기준 `reference.ts`: 겹친 구절을 원문 글자 그대로 (Claude Code 윈도우)
 - `copiedPhrases`가 어절의 원래 위치(`wordSpans`)로 원문을 잘라 돌려줌(「S P500」 → 「S&P500」, 쉼표 등 유지). 판정 규칙은 그대로. 시험 1개 추가(20개 통과). 사본 3곳 `--sync`(INSTA·쇼츠 바이럴·유튜브 바이럴 — 유튜브 바이럴만 v1.23에 배포). **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01하고 이 항목을 「배포됨(버전)」으로 바꿀 것.** 플랜 `../youtube-viral-studio/docs/PLAN_20261022_SUMMARY_TRANSCRIPT.md`.
+
+## 2026-10-22 v1.34 — 넘겨받은 대사에 보낸 프로그램 이름 표시 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_HANDOFF_SOURCE_NAME.md`(주인님 승인).
+- 공용 기준 `src/lib/reference.ts`: `refHandoffHash(대사, from?)`가 `&ref-from=이름`(40자, 대괄호·낫표·줄바꿈 정리)을 덧붙이고 `readRefHandoffFrom`으로 읽음. 대사는 `encodeURIComponent`라 `&`가 섞이지 않음. 이름 없는 옛 주소도 대사는 그대로. 사본 3곳 `--sync`.
+- `src/lib/refHandoff.ts`: 로그인 보관을 `{text, from}` JSON으로(예전 글자 그대로 보관분도 읽음), `takeRefHandoff`가 `{text, from}`을 돌려줌. `TopicView.tsx`: 블록 머리말 「○○에서 넘겨받은 레퍼런스 쇼츠」, 안내 「「○○」에서 넘긴 쇼츠 대사를…」(이름이 없으면 예전 문구).
+- 보내는 쪽: INSTA v1.61(`APP_NAME`), 쇼츠 바이럴 v1.14(「쇼츠 떡상 분석·대본 자동화」), 유튜브 바이럴 v1.24(대본 분석·영상 요약 2곳, `APP_NAME`).
+- 검수: tsc, `npm test` 21개(시험 1개 추가), 배포 `shorts-onestop-studio-qd6h9vsgu` Ready, DB v1.34. 크롬: 이름 실은 주소 → 안내 「「INSTA 포스팅 자동화」에서 넘긴…」·머리말 확인, 이름 없는 옛 주소 → 예전 문구 그대로, 주소 `#` 지워짐. 보내는 버튼 주소에 이름이 붙는 것은 코드·tsc로 확인(실제 버튼 클릭은 AI 결과가 필요해 이번엔 안 함).
+- 비용: 빌드 4회(원스톱·INSTA·쇼츠 바이럴·유튜브 바이럴 순차, 승인 범위), AI 호출 없음.

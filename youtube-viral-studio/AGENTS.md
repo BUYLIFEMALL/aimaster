@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.23` (2026-10-22 대본 분석 오류 안내·영상 요약 대사 → 원스톱, 아래 v1.23 절. v1.15~v1.22는 각 날짜 절) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.24` (2026-10-22 영상 요약 대사 기호 정리·넘기는 대사에 프로그램 이름, 아래 v1.24 절. v1.15~v1.23은 각 날짜 절) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -185,3 +185,8 @@
 - 검수: tsc, build, 대사 뽑기 함수 4경우(대사·「없음」·절 없음·다음 절 앞에서 끊기), 배포 `youtube-viral-studio-hyfue116w` Ready, DB v1.23. 크롬(시험 회원): 키워드 분석 「재테크」(영상 50개, YouTube 약 102유닛) → 42초 쇼츠 「AI로 영상 요약하기」 → 「영상을 직접 보고 분석」(Gemini 3.7 Flash)·대사 393자·버튼 → 원스톱 v1.33 참고 자료 블록 확인. 오류 안내(②)는 비용 없이 오류를 내기 어려워 코드 확인(`alert`·`confirm` 0곳)만.
 - 발견: 대사가 「- **진행자**: "…"」처럼 마크다운 표시를 단 채 넘어감 — `docs/IMPROVEMENTS.md`.
 - 비용: 빌드 1회, Gemini 영상 요약 1회 약 $0.02~0.05(시험 회원 본인 키, 승인 범위).
+
+## 2026-10-22 v1.24 — 영상 요약 대사의 꾸밈 기호 정리 · 원스톱으로 넘기는 대사에 프로그램 이름 (Claude Code 윈도우)
+- `src/lib/ai/summaryScript.ts` `plainScript`: 줄 앞 `- `·`* `·`• `와 `**`·`__`만 걷음(「진행자: "…"」 화자 이름 유지). 요약 창 표시는 그대로 마크다운.
+- `ScriptAnalysisModal.tsx`·`AiPanels.tsx` 버튼이 `refHandoffHash(대사, APP_NAME)` — 원스톱 v1.34에 「YOUTUBE 트렌드 분석에서 넘겨받은…」. 공용 사본 동기화.
+- 검수: tsc, 대사 뽑기(기호 섞인 대사 → 「진행자: "S&P500 아직도 사요?"\n게스트: 네, 정말로.」, 「없음」 → 빈 값), 배포 `youtube-viral-studio-cgf9bzuc8` Ready, DB v1.24. 플랜 `../shorts-onestop-studio/docs/PLAN_20261022_HANDOFF_SOURCE_NAME.md`.

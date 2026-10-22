@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 원스톱 v1.34·INSTA v1.61·쇼츠 바이럴 v1.14·유튜브 바이럴 v1.24: 넘긴 대사에 보낸 프로그램 이름 · 영상 요약 대사 기호 정리 · 쌓인 미배포분 배포 (빌드 4회, AI 호출 없음)
+- 공용 `refHandoffHash(대사, 이름)` → 원스톱 주제 화면에 「○○에서 넘겨받은 레퍼런스 쇼츠」. 옛 주소도 그대로. 유튜브 바이럴 영상 요약 대사의 `- `·`**` 제거. 원스톱·INSTA·쇼츠 바이럴의 미배포분(겹친 구절 원문 글자, 내보내기 대사, INSTA 10-18~10-20 항목) 모두 배포. 상세 각 폴더 `AGENTS.md`, 플랜 `shorts-onestop-studio/docs/PLAN_20261022_HANDOFF_SOURCE_NAME.md`.
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ SEO블로그 스튜디오 v1.94 구간별로 쓰기 다듬기 (빌드 1회 · AI 6회)
 - 구간 분량 지시 상향으로 gpt-4o-mini 합친 원고 1,658자 → 2,636자(공백 제외), 「권장 분량보다 짧습니다」 안내 사라짐. 합친 원고를 열 때 전용 안내(새로 합침 / 재사용) 표시. 시험 57 통과, DB/확장/ZIP v1.94 OK, 웨일 실검수 완료.
 - 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래. 다음: BLC-10(문단별 이미지 노드) — 플랜·비용 먼저 보고.

@@ -6,7 +6,7 @@
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
 | 라이브 URL | https://shorts-viral-studio.buylife.xyz (자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 현재 버전 | **v1.13** (2026-10-22 영상 대사 → AI 쇼츠 원스톱 넘기기, 아래 v1.13 절) |
+| 현재 버전 | **v1.14** (2026-10-22 넘기는 대사에 프로그램 이름·내보내기 대사, 아래 v1.14 절) |
 | 적용 디자인 템플릿 | **플로우 위저드 스타일 (다크 차콜 변형)** (`#0d1117` 차콜 배경 + `#161b22` 서피스 + `#30363d` 보더 + `#ef4444` 쇼츠 레드 포인트) |
 | 스택 | Next.js 16.2.11 (Turbopack) · React 19 · Tailwind CSS v4 · Supabase(공용 DB) · Playwright (Edge 검수) |
 | 출처 | 유튜버 튜토리얼 소스("남다른AI Shorts 분석기")를 바탕으로 회원별 보안 격리 및 6단계 올인원 파이프라인으로 전면 재설계 |
@@ -101,6 +101,10 @@ F-005(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 검수: tsc, `npm test` 17개, build, 배포 `shorts-viral-studio-j7xrm1adz` Ready, DB v1.13. 크롬(시험 회원): 「재테크」 검색 → 「의사가 말하는 무쓸모 영양제 1위」(1분) 1개 → Gemini 3.7 Flash 영상 직접 분석 20초 → 대사 487자(실제 말한 내용) → 버튼 주소로 원스톱 v1.33 참고 자료에 레퍼런스 블록·안내 확인. 시험 회원 분석 결과는 본인 데이터로 남음.
 - 비용: 빌드 1회, Gemini 영상 분석 1회 약 $0.02~0.05(시험 회원 본인 키, 승인 범위).
 
-## 2026-10-22 (미배포 — 다음 배포 때 함께) — 내보내기 문서에 영상 대사 (Claude Code 윈도우)
+## 2026-10-22 (배포됨 v1.14) — 내보내기 문서에 영상 대사 (Claude Code 윈도우)
 - `src/lib/export.ts`: 분석에 `transcript`(v1.13 Gemini 영상 직접 분석 대사)가 있으면 「### 🎙 영상 대사(받아쓰기 · 참고용)」 절 추가. 급하지 않은 변경이라 커밋만(빌드 없음) — **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01(코드·DB)하고 이 항목을 「배포됨(버전)」으로 바꿀 것.** 검수: tsc, `npm test` 17개, build.
 - 2026-10-22 추가(미배포): 공용 `reference-copy-guard` 사본 `src/lib/reference.ts` 동기화(겹친 구절 원문 글자 — 이 프로그램은 구절을 화면에 보여 주지 않아 동작 같음). 위 내보내기 대사 항목과 함께 다음 배포 때.
+
+## 2026-10-22 v1.14 — 원스톱으로 넘기는 대사에 프로그램 이름 (Claude Code 윈도우)
+- `AnalyzeStep.tsx` 버튼이 `refHandoffHash(대사, "쇼츠 떡상 분석·대본 자동화")`. 위 내보내기 대사·공용 사본 미배포분도 함께 배포.
+- 검수: tsc, 배포 `shorts-viral-studio-nc7kyofw7` Ready, DB v1.14. 플랜 `../shorts-onestop-studio/docs/PLAN_20261022_HANDOFF_SOURCE_NAME.md`.
