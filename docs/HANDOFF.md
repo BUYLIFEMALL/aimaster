@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): 바나나 보내기 공용화(`banana-idea-link`)·보낸 곳 표시 + 보류분 7건 순차 배포
+- 한 일: ① 공용 기준 코드 `banana-idea-link` 등록(기준 `style-dna-analyzer/src/lib/dna/bananaIdeaLink.ts`, 사본 감성 글귀·리버스 프롬프트) ② 보내는 주소에 `&src=<프로그램>`, 바나나가 정해 둔 3개 이름만 「○○에서 보낸 아이디어」로 표시(`from`은 저장 작업 불러오기라 `src` 사용) ③ 배포: 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30(빌드 7회·실패 0, DB 버전 7줄, 운영 DB esgxyikcnnvmlhygjkth).
+- 검수: 시험 바나나 37·스타일 39·감성 34·리버스 17·변환 41·인물 43·4컷 59, tsc·로컬 빌드 통과. 크롬: 바나나 `?idea=&src=reverse-prompt` 칸 채움·안내·카드 이동·강조, 모르는 src → 기본 문구, 보내는 3곳 운영 묶음 파일에 `&src=` 포함, 7곳 화면 버전 확인. AI 호출 0.
+- 못 한 것: 보내는 쪽 🍌 링크 실제 클릭(글귀 생성·분석 AI 비용, 스타일 분석은 기록 필요), 인물사진 결과 화면 조작(사진 동의 체크는 회원 몫).
+- 주의: `check-shared-modules.mjs --sync`가 다른 세션의 미커밋 `reference-copy-guard` 기준을 사본 3개에 퍼뜨려 그 3개만 HEAD로 되돌림(ERROR_LESSONS 2026-10-22).
+- 커밋: fb38d8c88(코드), 5095c359a(버전), 이 문서 커밋. 다음 첫 단계: 남은 플랜 F6 INSTA 카드뉴스 무료 사진 검색.
+- 링크: https://banana-canvas.buylife.xyz · https://style-dna-analyzer.buylife.xyz · https://emotion-writer.buylife.xyz · https://reverse-prompt.buylife.xyz · https://image-convert-studio.buylife.xyz · https://portrait-photo.buylife.xyz · https://four-cut-comics.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 원스톱 v1.34·INSTA v1.61·쇼츠 바이럴 v1.14·유튜브 바이럴 v1.24: 넘긴 대사에 보낸 프로그램 이름 · 영상 요약 대사 기호 정리 · 쌓인 미배포분 배포 (빌드 4회, AI 호출 없음)
 - 공용 `refHandoffHash(대사, 이름)` → 원스톱 주제 화면에 「○○에서 넘겨받은 레퍼런스 쇼츠」. 옛 주소도 그대로. 유튜브 바이럴 영상 요약 대사의 `- `·`**` 제거. 원스톱·INSTA·쇼츠 바이럴의 미배포분(겹친 구절 원문 글자, 내보내기 대사, INSTA 10-18~10-20 항목) 모두 배포. 상세 각 폴더 `AGENTS.md`, 플랜 `shorts-onestop-studio/docs/PLAN_20261022_HANDOFF_SOURCE_NAME.md`.
 - 프로그램: https://shorts-onestop-studio.buylife.xyz

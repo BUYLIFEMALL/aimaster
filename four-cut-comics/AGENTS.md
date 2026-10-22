@@ -182,3 +182,7 @@
 - ⏸ 미배포(2026-10-22): `convertPresetFor`가 공용 사본 `src/lib/comic/postPresets.ts`(`presetIdForSize`)를 씀(동작 같음, 시험 59개). 사본 직접 수정 금지 — 기준 `image-convert-studio/src/lib/imageTools/postPresets.ts`.
 
 - 2026-10-22 (Claude Code 윈도우): 위 강조 기능은 다른 세션의 v1.29 배포(저장 작품 실제 크기 기록, 커밋 `83331157c`)에 함께 나감 — 운영 DB·코드 v1.29 확인. 시험 계정에 최근 7일 게시가 없어 강조 모양은 실제 게시가 생기면 화면으로 확인.
+
+## ✅ v1.30 배포 (2026-10-22, Claude Code 윈도우)
+- 그동안 쌓인 미배포 공용 사본 변경(post-presets 사본, `week-reply-panel`의 `onDayChange`·`insta-week-day` 이벤트 등 「다음 배포 때 함께」 항목)이 이 버전으로 나감. 시험 59개·로컬 빌드 통과 후 배포. 크롬: 운영 화면 v1.30 확인.
+- 배포 묶음(2026-10-22, Claude Code 윈도우): 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30 순차 배포(빌드 7회, 실패 0), DB `programs.version` 갱신, 크롬에서 화면 버전 확인.
