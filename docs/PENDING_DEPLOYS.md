@@ -14,7 +14,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `thumbnail-master` (운영 v1.18) | 세로 결과 안내에 「유튜브 쇼츠 표지는 컴퓨터의 YouTube 스튜디오에서 이 JPG를 올리세요」 + 「YouTube 스튜디오 열기 ↗」 | `de99b1ca9` | 2026-10-22 · Claude Code(윈도우) | `thumbnail-master/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 v1.19, 세로 프로젝트 결과 칸에서 문구·링크 확인 |
 | `shorts-onestop-studio` (운영 v1.36) | 출처 띠 모서리 10px·`inline-flex`·「✕ 빼기」 오른쪽 끝 | `f055d6b70` | 2026-10-22 · Claude Code(윈도우) | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 「처리(코드만, 미배포)」 | 버전 v1.37, 휴대폰 폭(375px)에서 긴 이름 띠 모양 확인 |
 | `naver-blog-allinone` (운영 v1.50) | BC-05 보관함 30일 자동 삭제(`GET /api/cron/cleanup`, Vercel Cron) | `naver-blog-allinone/AGENTS.md` 맨 위 참고 | 2026-10-22 · Claude Code(윈도우·웨일 세션) | `naver-blog-allinone/AGENTS.md` 맨 위 「⏳ 미배포 대기」 | 그 항목의 확인 방법대로(이 줄은 색인만 — 원문은 해당 세션 기록) |
 
@@ -22,4 +21,4 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
-| (아직 없음) | | |
+| `thumbnail-master` | v1.19 · 2026-10-22 (`85aff6a76`) | 쇼츠 표지 안내 `de99b1ca9` |

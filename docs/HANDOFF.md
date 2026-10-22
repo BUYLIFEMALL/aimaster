@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.19: 프로젝트 30일 자동 삭제 크론 + 쇼츠 표지 안내 배포 (빌드 1회, 환경변수 `CRON_SECRET` 추가)
+- 최상위 규칙 미처리 P1 해소: 매일 03:50 KST 만든 지 30일 지난 프로젝트·이미지 삭제, 회원별 `usage_logs` `cleanup_expired`. 미배포 대기 항목 함께 배포(`docs/PENDING_DEPLOYS.md` 내보낸 기록). 첫 실삭제 2026-11-12 무렵. 상세 `thumbnail-master/AGENTS.md` v1.19.
+- 프로그램: https://thumbnail-master.buylife.xyz
+
 ## 2026-10-22 — Claude Code(맥미니): ✅ GIF 자동화 → 상세페이지 섹션 보내기 맥미니 크롬 실검수 (상세 v1.28 · GIF v1.14)
 - 실제 마우스 「🛍 상세페이지로」 → 새 탭 「GIF 받기」에 GIF 도착 → 시험 상품 07 섹션에 넣기 성공. 섹션 그림 GIF 원본(움직임), GIF 카드 문구 버튼 숨김, 섹션 ZIP에 `.gif` 원본(바이트 같음), 세로 롱 이미지 정상, FAQ·배지 안내 확인, 500px 완료 줄 끊김 해결. 상세 각 `AGENTS.md` 맨 아래. 2-3 작업 완료.
 - 시험 데이터: 시험 상품 섹션 GIF 버전 1개·합친 PNG 1개(30일 정리). 비용: 이번 검수 없음(배포 빌드 2회는 승인 범위). 링크: https://shop-detail-page.buylife.xyz · https://video-to-gif.buylife.xyz
