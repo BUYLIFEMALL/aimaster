@@ -226,7 +226,7 @@ export default function ScenesPage() {
                       : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  {on ? "On (8s)" : "Off"}
+                  {on ? "On" : "Off"}
                 </button>
               ))}
             </div>

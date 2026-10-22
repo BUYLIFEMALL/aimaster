@@ -8,11 +8,12 @@
 
 ---
 
-## 🚨 긴급 (2026-10-23, Claude Code 윈도우 발견 — 미처리)
+## ✅ 긴급 처리 완료 (2026-10-23, Claude Code 윈도우 — v1.12 배포)
 - **Gemini API Veo 3.1 Preview 종료로 장면 영상 생성 실패 가능**: Google 공식 문서(https://ai.google.dev/gemini-api/docs/video)에 「The Veo 3.1 Preview in the Gemini API has been shut down」, 종료일 **2026-10-22**. 종료 모델 ID `veo-3.1-generate-preview`·`veo-3.1-fast-generate-preview`·`veo-3.1-lite-generate-preview` — 이 프로그램이 그대로 사용 중(`src/lib/music/presets.ts:41-46`, 기본값 `src/lib/music/project.ts:21`).
 - **권장 대체**: `gemini-omni-1.1-flash`(같은 회원 Gemini 키, Interactions API) — 이미 공용 기준 코드 `ai-video-providers`(`ai-image-studio/lib/video/videoProviders.ts`, 사본 shots·shorts-onestop-studio)에 구현돼 있음. 연동 부분만 교체(이미지 프롬프트 규칙과 같이 프롬프트는 유지). 4·6·8초·16:9 등 옵션 차이 확인 필요.
-- **상태**: 기록만 함. 운영 화면 실패 여부 실측 전. 회원 피해 버그라 별도 작업으로 즉시 처리 대상(배포 예외 — 회원 피해).
-- **다음 첫 단계**: 운영 화면에서 장면 영상 1회 생성 시 오류 확인(시험 계정 키, 비용 발생 → 사전 승인) → 공용 `ai-video-providers` 사본 도입 → 모델 선택지 교체.
+- **상태**: ✅ v1.12로 처리·배포(커밋 `cea11442a`). 공용 `ai-video-providers` 사본으로 Gemini Omni Flash 사용. 크롬 시험 계정 실제 생성 1회 성공 — 글만 프롬프트 4초 → 4.01초·1280×720(16:9)·MP4 1.45MB, 장면 묘사와 일치.
+- **미배포 대기(2026-10-23)**: 장면 화면 루프 버튼 문구 「On (8s)」→「On」(8초 고정 규칙 없어짐). 다음 배포 때 함께 — `docs/PENDING_DEPLOYS.md`.
+- **남은 확인**: 루프(시작 이미지 = 끝 화면)와 이미지→영상 생성은 실제 호출로 아직 시험하지 않음(가짜 응답 시험만 통과). 회원이 처음 쓸 때 오류가 나면 이 항목부터 확인.
 
 ## 1. 프로그램 로직 및 기능 개선
 
@@ -68,4 +69,4 @@
 - **공식 서비스 URL**:  
   https://shorts-maker.buylife.xyz
 - **분석 및 개선점**: 기존 쇼츠 생성기에는 텍스트 기반 TTS 영상 위주로 구성되어 있으나, `music-video-studio`의 8초 심리스 루프(Seamless Loop) 영상 생성 로직을 사본 모듈로 탑재하여 감성 쇼츠/명언 쇼츠의 배경 영상 퀄리티를 한 단계 업그레이드할 필요가 있음.
-- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+- **✅ 배포됨(v1.12, 2026-10-23 — 데스크톱 화면에서 계정 위치 확인, 휴대폰 폭은 미확인)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
