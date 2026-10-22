@@ -81,8 +81,12 @@ export function TopicView() {
   async function makeScript() {
     setBusy("대본을 쓰는 중… (보통 10~40초)"); setMsg(null);
     try {
-      const r = await api<{ script: ShortsScript }>("/api/ai/script", { body: { topic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined } });
-      setScript(r.script); setItemId(null); setMsg({ text: "대본이 완성됐습니다. 아래에서 고친 뒤 보관함에 저장하세요.", ok: true });
+      const r = await api<{ script: ShortsScript; copied?: string[] }>("/api/ai/script", { body: { topic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined } });
+      setScript(r.script); setItemId(null);
+      // v1.30 레퍼런스 쇼츠와 그대로 겹치는 구절이 남았으면 다듬기에서 고치도록 알린다
+      setMsg(r.copied?.length
+        ? { text: `대본이 완성됐지만 레퍼런스 쇼츠와 그대로 겹치는 구절이 ${r.copied.length}개 남았습니다. 아래 「③ 대본 다듬기」에서 다른 표현으로 고쳐 주세요: 「${r.copied.slice(0, 3).join("」, 「")}」` }
+        : { text: "대본이 완성됐습니다. 아래에서 고친 뒤 보관함에 저장하세요.", ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
 

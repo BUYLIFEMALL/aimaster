@@ -6,6 +6,7 @@ import { narrationBudget, scriptPrompt } from "@/lib/prompts";
 import { clampCards, isFormat, isTone, normalizeScript, type ShortsScript } from "@/lib/script";
 import { UserError } from "@/lib/errors";
 import { recordUsage } from "@/lib/usage";
+import { copiedPhrases, referenceBlocks } from "@/lib/reference";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -38,7 +39,24 @@ export async function POST(request: NextRequest) {
       if (!best || Math.abs(chars(script) - budget) < Math.abs(chars(best) - budget)) best = script;
       if (!budget || chars(best) <= budget * 1.2) break;
     }
-    if (best) { await recordUsage(g.userId, "script_created", { cards: best.cards.length }); return json({ script: best }); }
+    // v1.30 레퍼런스 쇼츠(v1.29 받아쓰기)와 연속 6어절 이상 같은 구절이 있으면 「이 구절은 쓰지 말 것」으로 1회만 다시 요청하고 덜 겹치는 쪽을 쓴다
+    const refText = referenceBlocks(reference);
+    let copied: string[] = [];
+    if (best && refText) {
+      const narrations = (s: ShortsScript) => [s.intro.title, s.intro.narration, ...s.cards.flatMap((c) => [c.title, c.narration]), s.outro.narration];
+      copied = copiedPhrases(narrations(best), refText);
+      if (copied.length) {
+        const base = scriptPrompt({ topic, category, tone, format, cards, reference, guideline, seconds });
+        const note = `\n\n[다시 쓰기] 직전 대본에 레퍼런스 쇼츠 문장을 그대로 옮긴 구절이 있습니다. 아래 구절은 쓰지 말고 같은 뜻을 완전히 다른 표현·다른 상황으로 다시 쓰세요:\n${copied.map((p) => `- ${p}`).join("\n")}`;
+        const raw = await generateJson(cfg, { ...base, prompt: base.prompt + note, maxTokens: 5000 });
+        const again = normalizeScript(raw, { topic, category, tone, format, cards, model: cfg.model });
+        if (again) {
+          const left = copiedPhrases(narrations(again), refText);
+          if (left.length < copied.length) { best = again; copied = left; }
+        }
+      }
+    }
+    if (best) { await recordUsage(g.userId, "script_created", { cards: best.cards.length }); return json({ script: best, copied }); }
     throw new UserError(502, "AI가 대본을 완성하지 못했습니다. 카드 수를 줄이거나 다른 모델로 다시 시도해 주세요.");
   } catch (e) { return fail(e); }
 }

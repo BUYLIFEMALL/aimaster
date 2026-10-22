@@ -1,5 +1,6 @@
 import "server-only";
 import { FORMATS, TONES, type Format, type Tone } from "@/lib/script";
+import { COPY_WORDS, REF_MARK } from "@/lib/reference";
 
 // 프롬프트는 이 프로그램용으로 새로 썼다(참고 원본 문구 사용 안 함). 당해 연도는 항상 동적으로 주입한다(원칙 8).
 function yearRule() {
@@ -45,6 +46,8 @@ export function scriptPrompt(o: { topic: string; category: string; tone: Tone; f
     `주제: ${o.topic}`,
     o.category ? `분야: ${o.category}` : "",
     o.reference ? `참고 자료(이 내용을 근거로 쓰고, 자료에 없는 사실을 지어내지 마세요):\n${o.reference}` : "",
+    // v1.30 레퍼런스 쇼츠 받아쓰기(v1.29)가 있으면 베끼기 금지 — 구성·후킹·심리만 참고
+    o.reference?.includes(REF_MARK) ? `[레퍼런스 쇼츠 사용 규칙] 「${REF_MARK}…」 블록은 다른 사람이 만든 쇼츠의 실제 대사입니다. 구성·후킹 방식·심리만 참고하고 문장은 완전히 새로 쓰세요. 그 블록과 연속 ${COPY_WORDS}어절 이상 같은 표현을 쓰지 마세요(숫자·고유명사 같은 사실은 써도 됩니다). 첫 문장(후킹)은 특히 다른 상황·다른 말로 시작하세요.` : "",
     `규칙:
 - 인트로 1장 + 카드 정확히 ${o.cards}장 + 아웃트로 1장.
 - 인트로 title은 첫 1초에 멈추게 하는 18자 이내 질문·숫자·반전형 문장, eyebrow는 8자 이내 꼬리표.
