@@ -8,6 +8,7 @@
 //   3) 커밋:      node scripts/safe-commit.mjs "<커밋 메시지>" <파일>... [--as <이름>] [--push]
 //      → 「기준 사본 → 지금 파일」 차이(=내 변경)만 최신 HEAD 위에 3방향 병합으로 얹어 커밋. 공용 스테이징도 최신으로 맞춤.
 //   기준 사본 없이: … --mine   지금 파일 전체가 내 것일 때(다른 세션 미커밋 없음). 최근 2시간 다른 커밋 줄을 지우게 되면 중단.
+//   HANDOFF 맨 위 항목 하나: node scripts/safe-commit.mjs --handoff <항목.md> "<메시지>" [--as <이름>] [--push]   (사본·넣기·커밋 한 번에)
 //   상태 보기:    node scripts/safe-commit.mjs --status
 // --as: 같은 장비에서 여러 세션이 같은 파일을 고칠 때 사본이 섞이지 않게 붙이는 이름(예: claude-win-thumbnail). 기본은 장비 이름.
 // 커밋은 `git commit-tree` + `git update-ref <새> <옛>`(HEAD가 그사이 바뀌면 실패 → 최신 HEAD로 다시 병합, 최대 5번)이라
@@ -49,6 +50,24 @@ if (flag("--begin")) {
     console.log(`✔ 기준 사본: ${f}${existsSync(p) ? "" : " (새 파일)"}  [${as}]`);
   }
   process.exit(0);
+}
+
+// --handoff <항목 파일> "<메시지>": HANDOFF 맨 위(제목 다음)에 항목 하나 넣기 — 사본 뜨기·넣기·커밋을 한 번에(2026-10-23)
+if (flag("--handoff")) {
+  const [entryFile, msg] = positional;
+  if (!entryFile || !msg || !existsSync(entryFile)) { console.log('사용: node scripts/safe-commit.mjs --handoff <항목.md> "<메시지>" [--as <이름>] [--push]   (항목은 「## 날짜 에이전트(장비) — 제목」으로 시작)'); process.exit(1); }
+  const H = "docs/HANDOFF.md", HP = join(ROOT, H);
+  const cur = readFileSync(HP, "utf8");
+  const eol = cur.includes("\r\n") ? "\r\n" : "\n";
+  const mark = `# 작업 인수인계 현황판 (HANDOFF.md)${eol}${eol}`;
+  if (!cur.startsWith(mark)) { console.log(`✖ ${H} 맨 앞이 「# 작업 인수인계 현황판 (HANDOFF.md)」+빈 줄이 아닙니다 — 손으로 넣고 --begin 방식으로 커밋하세요.`); process.exit(1); }
+  const entry = toLF(readFileSync(entryFile, "utf8")).trim();
+  if (!entry.startsWith("## ")) { console.log("✖ 항목은 「## 」 제목 줄로 시작해야 합니다."); process.exit(1); }
+  if (cur.includes(entry.split("\n")[0])) { console.log("✖ 같은 제목의 항목이 이미 있습니다(중복 방지) — 그대로 둡니다."); process.exit(1); }
+  mkdirSync(SNAP, { recursive: true });
+  writeFileSync(snapPath(H), cur);
+  writeFileSync(HP, mark + entry.replace(/\n/g, eol) + eol + eol + cur.slice(mark.length));
+  positional.splice(0, positional.length, msg, H);
 }
 
 const [message, ...files] = positional;
