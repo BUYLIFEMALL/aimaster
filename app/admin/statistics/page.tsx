@@ -181,6 +181,12 @@ export default async function AdminStatisticsPage({ searchParams }: { searchPara
   const bananaLinked = bananaRows.reduce((sum, r) => sum + r.count, 0);
   const imageRows = toRows(bananaStats?.image);
   const imageLinked = imageRows.reduce((sum, r) => sum + r.count, 0);
+  // 같은 보낸 프로그램이 바나나와 이미지 스튜디오 중 어디로 더 많이 보냈는지(막대 한 줄)
+  const versusRows = LINK_SENDERS.map((slug) => {
+    const banana = bananaStats?.banana[slug]?.count ?? 0;
+    const image = bananaStats?.image[slug]?.count ?? 0;
+    return { slug, name: nameOf(slug), banana, image, total: banana + image };
+  });
   const pct = (n: number, d: number) => (d ? `${Math.round((n / d) * 100)}%` : "—");
 
   const SUMMARY_STATS = [
@@ -258,6 +264,30 @@ export default async function AdminStatisticsPage({ searchParams }: { searchPara
                   className={`px-3 py-1 rounded-lg text-sm border ${linkDays === d ? "border-gold text-gold bg-gold/10 font-bold" : "border-white/10 text-subtext"}`}>
                   최근 {d}일
                 </a>
+              ))}
+            </div>
+          </div>
+          {/* 바나나 vs 이미지 스튜디오 — 보낸 프로그램마다 두 곳으로 보낸 건수 비교 */}
+          <div className="mb-6" data-link-versus>
+            <p className="text-subtext text-sm mb-2">
+              어디로 더 많이 보냈나 · <span className="text-amber-300">■ 바나나 캔버스</span> <span className="text-sky-300">■ AI 이미지 스튜디오</span>
+            </p>
+            <div className="space-y-2">
+              {versusRows.map((r) => (
+                <div key={r.slug} className="flex items-center gap-3 text-sm" data-versus-row={r.slug}>
+                  <span className={`w-36 shrink-0 truncate ${r.total ? "text-white" : "text-subtext"}`}>{r.name}</span>
+                  {r.total ? (
+                    <>
+                      <div className="flex h-3 flex-1 overflow-hidden rounded-full bg-white/5" role="img" aria-label={`바나나 ${r.banana}건, 이미지 스튜디오 ${r.image}건`}>
+                        <div className="bg-amber-400" style={{ width: `${(r.banana / r.total) * 100}%` }} />
+                        <div className="bg-sky-400" style={{ width: `${(r.image / r.total) * 100}%` }} />
+                      </div>
+                      <span className="w-28 shrink-0 text-right text-subtext">{r.banana} : {r.image}건</span>
+                    </>
+                  ) : (
+                    <span className="flex-1 text-subtext">아직 없음</span>
+                  )}
+                </div>
               ))}
             </div>
           </div>
