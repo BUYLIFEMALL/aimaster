@@ -104,6 +104,7 @@
 - 원인: CLI로 만든 프로젝트는 프레임워크 프리셋이 「Other」라 Next.js 결과물 위치를 모름. 새 도메인 인증서는 엣지 서버마다 퍼지는 데 몇 분 걸림.
 - 해결: 프로그램 폴더 `vercel.json`에 `"framework": "nextjs"` 추가 후 재배포(`comment-inbox/vercel.json`). 인증서는 기다리면 해결(기존 주소와 같은 횟수 반복 호출로 안정 확인).
 - 다음부터: 새 프로그램은 `vercel project add` 직후 `vercel.json`에 framework를 먼저 넣고 배포(실패 빌드 1회 비용 절약). 도메인 추가 직후 접속 실패는 몇 분 기다린 뒤 판단.
+- 2026-10-22 보완(주인님 지시, Claude Code 윈도우): 대시보드에서 아이콘이 「N」이 아니라 점선 삼각형인 프로젝트 = 프로젝트 설정이 Other. `vercel.json` 덕분에 배포는 정상이지만 그 파일이 빠지면 깨지므로 프로젝트 설정도 맞췄다. 팀 90개 중 14개가 Other → Next.js 코드·`vercel.json` nextjs·마지막 배포 READY를 확인한 13개를 `vercel api "/v9/projects/<id>?teamId=team_orq6xPe9P3c1uMQdKlJsQ6k9" -X PATCH -F framework=nextjs`로 변경(빌드 없음·비용 없음, 빌드 명령·루트 폴더는 기본값 유지): emotion-writer, style-dna-analyzer, comment-inbox, ai-auto-blog, suno-music-studio, youtube-channel-consultant, cardnews-studio, shorts-viral-studio, threads-content-ops, blog-content-maker, markdown-studio, naver-blog-auto-poster, naver-blog-auto-poster-web. 남은 1개 `dream`(2026-10-18 생성, GitHub `dream` 저장소 연결, 배포·도메인 없음, 이 저장소 폴더 없음)은 코드 종류를 알 수 없어 그대로 둠. 점검: `vercel api "/v10/projects?teamId=…&limit=100"`에서 `framework`가 null인 프로젝트를 찾는다. 새 프로젝트를 만든 뒤에도 같은 PATCH를 한 번 한다.
 
 ## 2026-10-21 — sunoapi.org V6 곡 연장이 "extending lyrics are empty, too short, or malformed"로 계속 실패(크레딧 환불) — 가사가 아니라 이어 붙일 지점 문제였다 (music-automation v1.25→v1.30, Claude Code 윈도우)
 - 증상: 가사 200자 안팎·구간 표시 정상인데 4회 연속 같은 오류. 가사 칸(lyrics) 추가·줄 끝 공백 정리·defaultParamFlag 제외 모두 효과 없음.
