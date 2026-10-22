@@ -188,7 +188,7 @@ test("저장 정리: 데이터형 카드 칸 보관, 모르는 레이아웃은 �
 });
 
 // ── v1.49 릴스 파일 → 장면·소리 ──
-import { pickFrameTimes, encodeWavMono16, bytesToBase64, REEL_AUDIO_RATE, REEL_MAX_AUDIO_SEC } from "../../src/lib/cardnews/reelsMedia.ts";
+import { pickFrameTimes, encodeWavMono16, encodeWavMono, pickAudioFormat, bytesToBase64, REEL_AUDIO_RATE, REEL_MAX_AUDIO_SEC } from "../../src/lib/cardnews/reelsMedia.ts";
 
 test("릴스 장면 시점: 10%~90% 사이 4장, 길이를 모르면 0초 1장", () => {
   assert.deepEqual(pickFrameTimes(30), [3, 11, 19, 27]);
@@ -196,7 +196,7 @@ test("릴스 장면 시점: 10%~90% 사이 4장, 길이를 모르면 0초 1장",
   assert.deepEqual(pickFrameTimes(NaN), [0]);
 });
 
-test("릴스 소리 WAV: 모노 16비트 머리글·길이, 최대 90초면 base64 3MB 안", () => {
+test("릴스 소리 WAV: 모노 16비트 머리글·길이, 길이별 형식으로 최대 3분도 base64 3MB 안", () => {
   const wav = encodeWavMono16(new Float32Array([0, 1, -1, 2]), REEL_AUDIO_RATE);
   const dv = new DataView(wav.buffer);
   assert.equal(String.fromCharCode(...wav.subarray(0, 4)), "RIFF");
@@ -209,8 +209,17 @@ test("릴스 소리 WAV: 모노 16비트 머리글·길이, 최대 90초면 base
   assert.equal(dv.getInt16(48, true), -32768);
   assert.equal(dv.getInt16(50, true), 32767, "1 넘는 값은 잘라냄");
   assert.equal(bytesToBase64(new Uint8Array([65, 66, 67])), "QUJD");
-  const maxB64 = Math.ceil((44 + REEL_MAX_AUDIO_SEC * REEL_AUDIO_RATE * 2) / 3) * 4;
-  assert.ok(maxB64 <= 3_000_000, `최대 소리 ${maxB64}자가 서버 한도 안`);
+  for (const sec of [10, 90, 120, 135, 150, REEL_MAX_AUDIO_SEC]) {
+    const f = pickAudioFormat(sec);
+    const b64 = Math.ceil((44 + sec * f.rate * (f.bits / 8)) / 3) * 4;
+    assert.ok(b64 <= 3_000_000, `${sec}초 소리 ${b64}자가 서버 한도 안`);
+    assert.ok(f.rate >= 8000);
+  }
+  assert.deepEqual(pickAudioFormat(60), { rate: REEL_AUDIO_RATE, bits: 16 });
+  assert.deepEqual(pickAudioFormat(180), { rate: 8000, bits: 8 });
+  const w8 = encodeWavMono(new Float32Array([0, 1, -1]), 8000, 8);
+  assert.equal(new DataView(w8.buffer).getUint16(34, true), 8);
+  assert.deepEqual([...w8.subarray(44)], [128, 255, 0], "8비트는 부호 없는 값");
 });
 
 test("릴스 프롬프트: 장면·캡처 구분, 소리 받아쓰기 지시", () => {
@@ -229,4 +238,41 @@ test("AI 호출: Gemini에 소리를 이미지 뒤·글 앞에 함께 보냄", a
   const parts = body.contents[0].parts;
   assert.deepEqual(parts[1], { inlineData: { mimeType: "audio/wav", data: "UklG" } });
   assert.deepEqual(parts[2], { text: "u" });
+});
+
+// ── v1.50 인기 게시물 수집 ──
+import { normalizeUsername, normalizeHashtag, fromApifyItem, fromGraphMedia, rankPosts, isInstagramCdn, remakeSourceText, engagementScore } from "../../src/lib/cardnews/collect.ts";
+
+test("수집 입력 다듬기: 계정 이름·해시태그", () => {
+  assert.equal(normalizeUsername("@NASA "), "nasa");
+  assert.equal(normalizeUsername("https://www.instagram.com/buylife.co.kr/?hl=ko"), "buylife.co.kr");
+  assert.equal(normalizeUsername("나사"), null);
+  assert.equal(normalizeUsername("a".repeat(31)), null);
+  assert.equal(normalizeHashtag("#재테크 꿀팁"), "재테크꿀팁");
+  assert.equal(normalizeHashtag("#a-b"), null);
+});
+
+test("수집 결과: Apify·공식 API 모양 통일, 반응도순 상위 5개", () => {
+  const apify = (i, likes, extra = {}) => ({ id: String(i), url: `https://www.instagram.com/p/${i}/`, type: "Image", caption: `c${i}`, ownerUsername: "acc", likesCount: likes, commentsCount: 1, displayUrl: `https://scontent.cdninstagram.com/${i}.jpg`, ...extra });
+  const side = fromApifyItem(apify(9, 10, { type: "Sidecar", childPosts: [{ displayUrl: "https://a.cdninstagram.com/1.jpg" }, { displayUrl: "https://a.cdninstagram.com/2.jpg" }] }));
+  assert.equal(side.type, "carousel");
+  assert.equal(side.images.length, 2);
+  const vid = fromApifyItem(apify(8, -1, { type: "Video", videoViewCount: 10000 }));
+  assert.equal(vid.likes, 0, "숨긴 좋아요(-1)는 0");
+  assert.equal(vid.score, engagementScore({ likes: 0, comments: 1, views: 10000 }));
+  assert.equal(fromApifyItem({ id: "x", url: "https://evil.example/p" }), null);
+  const g = fromGraphMedia({ id: "g1", permalink: "https://www.instagram.com/p/g1/", media_type: "VIDEO", thumbnail_url: "https://x.fbcdn.net/t.jpg", like_count: 5, comments_count: 2 }, "acc");
+  assert.deepEqual([g.type, g.images[0], g.score], ["video", "https://x.fbcdn.net/t.jpg", 11]);
+  const list = [1, 2, 3, 4, 5, 6, 7].map((i) => fromApifyItem(apify(i, i * 100)));
+  const top = rankPosts([...list, list[0], null]);
+  assert.deepEqual(top.map((p) => p.id), ["7", "6", "5", "4", "3"]);
+});
+
+test("수집: 인스타 이미지 서버만, 원문 칸 글에 출처·반응 수", () => {
+  assert.ok(isInstagramCdn("https://scontent-icn2-1.cdninstagram.com/v/a.jpg"));
+  assert.ok(isInstagramCdn("https://x.fbcdn.net/a.jpg"));
+  assert.ok(!isInstagramCdn("http://x.cdninstagram.com/a.jpg"));
+  assert.ok(!isInstagramCdn("https://cdninstagram.com.evil.com/a.jpg"));
+  const t = remakeSourceText({ id: "1", permalink: "https://www.instagram.com/p/1/", caption: "본문", owner: "acc", type: "image", likes: 1200, comments: 3, views: 0, images: ["x"], timestamp: "", score: 0 });
+  assert.equal(t, ["[수집한 인기 게시물] @acc · 좋아요 1,200 · 댓글 3", "https://www.instagram.com/p/1/", "", "본문"].join("\n"));
 });

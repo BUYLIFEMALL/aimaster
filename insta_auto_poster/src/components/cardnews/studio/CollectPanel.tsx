@@ -1,0 +1,96 @@
+"use client";
+
+// 🔍 인기 게시물 수집(v1.50): 계정 이름·해시태그 → 반응도 상위 5개 → 하나를 고르면 이미지·캡션을 떡상 리메이크 재료로 넘긴다.
+// 수집 결과는 이 화면에만 두고 저장하지 않는다. 인스타 이미지 주소는 브라우저에서 못 받으므로(CORS) 서버가 줄여서 돌려준다.
+import { useState } from "react";
+import { Heart, Loader2, MessageCircle, Play, Search } from "lucide-react";
+import { BTN_GHOST, ErrorNote, INPUT } from "./ui";
+import { remakeSourceText, type CollectedPost, type CollectKind, type CollectSource } from "@/lib/cardnews/collect";
+
+export interface CollectPick { text: string; images: { name: string; mimeType: string; data: string; preview: string }[] }
+
+const fmt = (n: number) => n.toLocaleString("ko-KR");
+
+export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick: (p: CollectPick) => void }) {
+  const [kind, setKind] = useState<CollectKind>("account");
+  const [query, setQuery] = useState("");
+  const [posts, setPosts] = useState<CollectedPost[] | null>(null);
+  const [source, setSource] = useState<CollectSource | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [picking, setPicking] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
+
+  async function search() {
+    setBusy(true); setError(null); setPosts(null);
+    try {
+      const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search", kind, query }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { setError({ message: d.error || "가져오지 못했습니다.", needKey: d.needApiKey }); return; }
+      setPosts(d.posts ?? []); setSource(d.source ?? null);
+    } catch {
+      setError({ message: "네트워크 오류로 가져오지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
+    } finally { setBusy(false); }
+  }
+
+  async function pick(p: CollectedPost) {
+    setPicking(p.id); setError(null);
+    try {
+      const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "images", urls: p.images.slice(0, Math.max(1, maxImages)) }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { setError({ message: d.error || "게시물 이미지를 받지 못했습니다." }); return; }
+      const images = (d.images as { mimeType: string; data: string }[]).map((img, i) => ({ ...img, name: `@${p.owner} ${i + 1}`, preview: `data:${img.mimeType};base64,${img.data}` }));
+      onPick({ text: remakeSourceText(p), images });
+    } catch {
+      setError({ message: "네트워크 오류로 이미지를 받지 못했습니다." });
+    } finally { setPicking(null); }
+  }
+
+  return (
+    <div className="space-y-2 rounded-xl border border-[#262c3d] bg-[#0d0f17] p-3">
+      <p className="text-xs font-bold text-slate-300">🔍 인기 게시물 수집 <span className="font-normal text-slate-400">— 다른 계정·해시태그에서 반응 좋은 게시물을 가져와 바로 분석</span></p>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex shrink-0 overflow-hidden rounded-lg border border-[#262c3d] text-xs">
+          {(["account", "hashtag"] as const).map((k) => (
+            <button key={k} type="button" onClick={() => setKind(k)} aria-pressed={kind === k} className={`whitespace-nowrap px-3 py-1.5 ${kind === k ? "bg-purple-600 text-white" : "text-slate-300 hover:bg-[#161922]"}`}>
+              {k === "account" ? "@ 계정" : "# 해시태그"}
+            </button>
+          ))}
+        </div>
+        <input className={`${INPUT} min-w-0 flex-1`} value={query} maxLength={80} placeholder={kind === "account" ? "계정 이름 (예: nasa)" : "해시태그 (예: 재테크)"} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && query.trim() && !busy) void search(); }} />
+        <button type="button" onClick={() => void search()} disabled={busy || !query.trim()} className={`${BTN_GHOST} shrink-0 whitespace-nowrap`}>
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} 가져오기
+        </button>
+      </div>
+      <p className="text-[11px] text-slate-400">파란 버튼(Facebook 페이지 방식)으로 연결했다면 계정 수집은 인스타 공식 API(무료), 그 밖에는 본인 Apify 토큰을 씁니다(최근 20개 중 좋아요+댓글×3+조회수×0.05 상위 5개). 공개 게시물만, 결과는 저장하지 않습니다.</p>
+      {busy && <p className="text-[11px] text-slate-400">가져오는 중입니다(Apify는 30초~2분 걸릴 수 있어요)…</p>}
+      {error && <ErrorNote message={error.message} needKey={error.needKey} />}
+      {posts && posts.length === 0 && <p className="text-xs text-slate-400">가져올 게시물이 없습니다. 공개 프로페셔널 계정인지, 해시태그 철자를 확인해 주세요.</p>}
+      {posts && posts.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[11px] text-slate-400">{source === "official" ? "인스타 공식 API" : "Apify"}로 가져온 반응도 상위 {posts.length}개</p>
+          {posts.map((p, i) => (
+            <div key={p.id} className="flex gap-3 rounded-lg border border-[#262c3d] p-2">
+              <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-md bg-black">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.images[0]} alt={`@${p.owner} 게시물`} referrerPolicy="no-referrer" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                {p.type === "video" && <Play className="absolute right-1 top-1 h-3.5 w-3.5 text-white drop-shadow" />}
+                {p.type === "carousel" && <span className="absolute right-1 top-1 rounded bg-black/70 px-1 text-[9px] text-white">{p.images.length}장</span>}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] text-slate-400">{i + 1}위 · @{p.owner} · <Heart className="inline h-3 w-3" /> {fmt(p.likes)} · <MessageCircle className="inline h-3 w-3" /> {fmt(p.comments)}{p.views ? ` · ▶ ${fmt(p.views)}` : ""}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-slate-200">{p.caption || "(캡션 없음)"}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-3">
+                  <button type="button" onClick={() => void pick(p)} disabled={!!picking} className="whitespace-nowrap text-xs font-bold text-orange-300 hover:text-orange-200 disabled:opacity-50">
+                    {picking === p.id ? "이미지 받는 중…" : "🔥 이 게시물로 분석"}
+                  </button>
+                  <a href={p.permalink} target="_blank" rel="noopener noreferrer" className="whitespace-nowrap text-[11px] text-slate-400 underline">인스타에서 보기</a>
+                </div>
+              </div>
+            </div>
+          ))}
+          <p className="text-[11px] text-slate-400">릴스(▶)는 표지와 캡션만 가져옵니다. 말한 내용까지 분석하려면 영상을 저장해 아래 「릴스 영상 올리기」에 넣어 주세요.</p>
+        </div>
+      )}
+    </div>
+  );
+}

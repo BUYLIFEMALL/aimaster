@@ -12,7 +12,7 @@ const MAX_IMAGES = 6;
 const MAX_IMAGE_B64 = 600_000; // 브라우저에서 긴 변 1024px JPEG로 줄여 보냄. 6장 합쳐도 Vercel 요청 한도 4.5MB 안
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_HTML_BYTES = 1_500_000;
-// v1.49 릴스 소리: 브라우저가 뽑은 모노 12kHz WAV 최대 90초(약 2.2MB → base64 약 2.9MB). 장면 이미지와 합쳐도 4.5MB 안이 되게 화면에서 막음
+// v1.49 릴스 소리: 브라우저가 뽑은 모노 WAV 약 2.2MB 이하(→ base64 약 2.9MB, v1.50부터 길이에 맞춰 12k~8kHz·16/8비트로 최대 3분). 장면 이미지와 합쳐도 4.5MB 안이 되게 화면에서 막음
 const MAX_AUDIO_B64 = 3_000_000;
 
 async function fetchArticle(url: string): Promise<{ title: string; text: string }> {

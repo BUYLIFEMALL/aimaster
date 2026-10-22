@@ -8,6 +8,7 @@ import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT } from "./ui";
 import { VIRAL_ANGLES } from "@/lib/cardnews/ai/remakePrompts";
 import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/cardnews/imageFileCheck";
 import { extractReel, REEL_MAX_AUDIO_SEC, type ReelMaterial } from "@/lib/cardnews/reelsMedia";
+import { CollectPanel } from "./CollectPanel";
 import type { AngleId, RemakeState } from "@/lib/cardnews/types";
 
 const MAX_IMAGES = 6;
@@ -140,6 +141,15 @@ export function RemakePanel() {
         <p className="mt-1 text-[11px] text-slate-400">반응이 좋았던 카드뉴스·릴스·기사를 넣으면 AI가 왜 터졌는지 분석하고, 더 나은 카드뉴스로 다시 만들 관점을 추천합니다. 원본 문장·이미지는 그대로 쓰지 않고 새로 재구성합니다.</p>
       </div>
 
+      <CollectPanel
+        maxImages={captureRoom}
+        onPick={(p) => {
+          patch({ sourceText: p.text });
+          setImages(p.images.slice(0, captureRoom));
+          setError(null);
+        }}
+      />
+
       <Field label="원문 붙여넣기 (캡션·대본·기사 본문)">
         <textarea className={`${INPUT} min-h-28`} value={remake.sourceText} maxLength={12000} placeholder="떡상 게시물의 캡션, 릴스 대본, 기사 본문 등을 붙여넣으세요." onChange={(e) => patch({ sourceText: e.target.value })} />
       </Field>
@@ -158,10 +168,13 @@ export function RemakePanel() {
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
               {reel.frames.map((f) => (
-                <div key={f.name} className="h-20 w-12 overflow-hidden rounded-md border border-[#262c3d]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={f.preview} alt={f.name} className="h-full w-full object-cover" />
-                </div>
+                <figure key={f.name} className="w-12">
+                  <div className="h-20 w-12 overflow-hidden rounded-md border border-[#262c3d]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={f.preview} alt={f.name} className="h-full w-full object-cover" />
+                  </div>
+                  {typeof f.at === "number" && <figcaption className="mt-0.5 text-center text-[10px] text-slate-400">{f.at}초</figcaption>}
+                </figure>
               ))}
             </div>
             {reel.audio && !isGemini && <p className="mt-2 text-[11px] text-amber-300">지금 분석 AI가 Gemini가 아니라 소리는 빼고 장면만 분석합니다. 말한 내용까지 분석하려면 분석 AI를 Gemini로 바꿔 주세요.</p>}

@@ -3,11 +3,13 @@
 
 export const REEL_FRAME_COUNT = 4;
 export const REEL_FRAME_SIZE = 720; // 긴 변(px)
-export const REEL_AUDIO_RATE = 12_000; // Hz, 말소리에 충분하고 파일이 작다
-export const REEL_MAX_AUDIO_SEC = 90;
+export const REEL_AUDIO_RATE = 12_000; // Hz, 90초 이하 기본 — 말소리에 충분하고 파일이 작다
+export const REEL_MAX_AUDIO_SEC = 180; // v1.50: 릴스 최대 길이(3분)까지 — 길면 형식을 낮춰 같은 크기 안에 담는다
+/** 소리 WAV 바이트 상한(base64로 약 2.9MB — 서버 한도 3MB, 장면 4장과 합쳐 요청 4.5MB 안) */
+export const REEL_AUDIO_MAX_BYTES = 2_160_000;
 export const REEL_MAX_FILE_BYTES = 200 * 1024 * 1024;
 
-export interface ReelImage { name: string; mimeType: string; data: string; preview: string }
+export interface ReelImage { name: string; mimeType: string; data: string; preview: string; /** v1.50 영상 속 시점(초) */ at?: number }
 export interface ReelAudio { mimeType: "audio/wav"; data: string; seconds: number }
 export interface ReelMaterial { name: string; duration: number; frames: ReelImage[]; audio: ReelAudio | null }
 
@@ -17,21 +19,33 @@ export function pickFrameTimes(duration: number, count = REEL_FRAME_COUNT): numb
   return Array.from({ length: count }, (_, i) => Math.round(duration * (0.1 + (0.8 * i) / Math.max(1, count - 1)) * 100) / 100);
 }
 
-/** 모노 16비트 PCM WAV 파일 바이트 */
-export function encodeWavMono16(samples: Float32Array, sampleRate: number): Uint8Array {
-  const buf = new ArrayBuffer(44 + samples.length * 2);
+/** 소리 길이에 맞춘 WAV 형식 — 90초까지 12kHz 16비트, 더 길면 16비트로 담을 수 있는 만큼 낮추고(8kHz까지), 그래도 넘으면 8kHz 8비트 */
+export function pickAudioFormat(seconds: number): { rate: number; bits: 8 | 16 } {
+  const sec = Math.max(1, Math.min(REEL_MAX_AUDIO_SEC, seconds));
+  const rate16 = Math.min(REEL_AUDIO_RATE, Math.floor(REEL_AUDIO_MAX_BYTES / (2 * sec) / 1000) * 1000);
+  return rate16 >= 8000 ? { rate: rate16, bits: 16 } : { rate: 8000, bits: 8 };
+}
+
+/** 모노 PCM WAV 파일 바이트(16비트 부호 있음 / 8비트 부호 없음) */
+export function encodeWavMono(samples: Float32Array, sampleRate: number, bits: 8 | 16 = 16): Uint8Array {
+  const bps = bits / 8;
+  const buf = new ArrayBuffer(44 + samples.length * bps);
   const v = new DataView(buf);
   const w = (o: number, s: string) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-  w(0, "RIFF"); v.setUint32(4, 36 + samples.length * 2, true); w(8, "WAVE");
+  w(0, "RIFF"); v.setUint32(4, 36 + samples.length * bps, true); w(8, "WAVE");
   w(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-  v.setUint32(24, sampleRate, true); v.setUint32(28, sampleRate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
-  w(36, "data"); v.setUint32(40, samples.length * 2, true);
+  v.setUint32(24, sampleRate, true); v.setUint32(28, sampleRate * bps, true); v.setUint16(32, bps, true); v.setUint16(34, bits, true);
+  w(36, "data"); v.setUint32(40, samples.length * bps, true);
   for (let i = 0; i < samples.length; i++) {
     const s = Math.max(-1, Math.min(1, samples[i]));
-    v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    if (bits === 16) v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    else v.setUint8(44 + i, Math.round((s + 1) * 127.5));
   }
   return new Uint8Array(buf);
 }
+
+/** 모노 16비트 PCM WAV(v1.49 이름 유지) */
+export const encodeWavMono16 = (samples: Float32Array, sampleRate: number) => encodeWavMono(samples, sampleRate, 16);
 
 export function bytesToBase64(bytes: Uint8Array): string {
   let bin = "";
@@ -67,7 +81,7 @@ async function extractFrames(file: File): Promise<{ frames: ReelImage[]; duratio
       await seek(video, Math.min(t, Math.max(0, duration - 0.05)));
       ctx.drawImage(video, 0, 0, c.width, c.height);
       const dataUrl = c.toDataURL("image/jpeg", 0.72);
-      frames.push({ name: `${file.name} 장면 ${i + 1}`, mimeType: "image/jpeg", data: dataUrl.split(",")[1], preview: dataUrl });
+      frames.push({ name: `${file.name} 장면 ${i + 1}`, mimeType: "image/jpeg", data: dataUrl.split(",")[1], preview: dataUrl, at: Math.round(t) });
     }
     return { frames, duration };
   } finally {
@@ -83,12 +97,13 @@ async function extractAudio(file: File): Promise<ReelAudio | null> {
   try {
     const decoded = await ac.decodeAudioData(await file.arrayBuffer());
     const seconds = Math.min(decoded.duration, REEL_MAX_AUDIO_SEC);
-    const length = Math.max(1, Math.floor(seconds * REEL_AUDIO_RATE));
-    const off = new OfflineAudioContext(1, length, REEL_AUDIO_RATE);
+    const fmt = pickAudioFormat(seconds);
+    const length = Math.max(1, Math.floor(seconds * fmt.rate));
+    const off = new OfflineAudioContext(1, length, fmt.rate);
     const src = off.createBufferSource();
     src.buffer = decoded; src.connect(off.destination); src.start(0);
     const rendered = await off.startRendering();
-    return { mimeType: "audio/wav", data: bytesToBase64(encodeWavMono16(rendered.getChannelData(0), REEL_AUDIO_RATE)), seconds: Math.round(seconds) };
+    return { mimeType: "audio/wav", data: bytesToBase64(encodeWavMono(rendered.getChannelData(0), fmt.rate, fmt.bits)), seconds: Math.round(seconds) };
   } catch {
     return null; // 소리가 없거나 이 브라우저가 못 푸는 형식 — 장면만 분석
   } finally {

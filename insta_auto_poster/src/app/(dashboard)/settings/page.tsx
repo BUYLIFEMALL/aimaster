@@ -56,6 +56,11 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
     description: "실시간 트렌드 기반 게시글 주제 수집 전용입니다.",
     providers: ["perplexity"],
   },
+  {
+    title: "🔥 인기 게시물 수집 (선택)",
+    description: "카드뉴스 「떡상 리메이크」에서 해시태그·다른 계정의 인기 게시물을 가져올 때 씁니다(apify.com 가입 → Settings → API & Integrations의 Personal API token, 매달 무료 크레딧 $5). 파란 버튼(Facebook 페이지 방식)으로 연결했다면 계정 이름 수집은 토큰 없이 인스타 공식 API로 됩니다. 공식 API가 아닌 수집이라 공개 게시물만, 본인 책임으로 사용해 주세요.",
+    providers: ["apify"],
+  },
 ];
 
 export default async function SettingsPage({
@@ -156,7 +161,7 @@ export default async function SettingsPage({
           </ol>
         </div>
 
-        {SECTIONS.map((section) => (
+        {SECTIONS.filter((s) => !(IS_STANDALONE && s.providers.includes("apify"))).map((section) => (
           <div
             key={section.title}
             className="rounded-2xl border border-[#262c3d] bg-[#161922] p-5 shadow-xs"
