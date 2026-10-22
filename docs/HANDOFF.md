@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 메인 관리자 연계 표 개선 2건은 메모만(주인님 선택 A) · 관리자 요약 갱신
+- 「시험 계정 제외」 선택·「넘김 기록 이전 사용 포함」 안내 → 메인은 푸시 자동 빌드라 모아 둘 수 없어 코드 없이 `docs/PROGRAM_IDEA_BACKLOG.md` IDEA-LINKADMIN-01/02로 기록(다음 메인 수정 때 함께). 이미지 스튜디오·변환 스튜디오 대기분은 `docs/PENDING_DEPLOYS.md` 그대로(다음 배포 때 `?qa=big`으로 「너무 큼」 확인).
+- `node scripts/pending-check.mjs --publish` 실행 — 운영 DB `site_settings.ops_overview`(미배포 대기 24줄·프로그램 23곳). 빌드 0회.
+
 ## 2026-10-23 Claude Code(윈도우) — 다음 세션 할 일(메인 관리자 묶음, 빌드 1회 예정)
 - ① 03:30 Shots·원스톱 첫 30일 정리 기록 확인(`usage_logs` action `cleanup_expired`, Vercel 로그) → 관리자 「30일 자동 정리」 표 줄 확인 ② 「회원별 상세 펼쳐 보기」 필요 여부 판단 ③ (주인님 결정 2026-10-23) 정리 카드의 「아직 기록을 안 남기는 20곳」을 클릭하면 펼쳐지는 목록으로(지금은 마우스를 올려야 보임 — 휴대폰에서 못 봄) — ②③을 메인 사이트 빌드 1회로 묶기. ④ `competitor-analysis` 화면 v1.08·DB v1.07 — 그 폴더 세션에 배포 대기인지 확인.
 
