@@ -185,3 +185,9 @@
 - 한계: 웨일 제어 도구가 blog.naver.com 이동을 안전 제한으로 막아 네이버 관리 목록에서의 중복 0 확인은 못 함(앱 기록상 실행 1회·발행 1건). 카테고리는 「네이버에서 현재 선택된 카테고리 유지」라 categoryNo=1(◆전자책/온라인강의)로 들어감 — 회원이 카테고리를 지정하지 않으면 블로그 기본 카테고리로 간다는 점을 안내할지 검토. 미시험: 전체공개·예약·이미지 포함 발행. 시험 글 삭제는 주인님이 직접.
 - 확장: 웨일에 로컬 `extension/`(v2.08) 불러오기·연결 코드로 연결 후 카테고리 13개 읽기 확인. 처음 불러오기 실패는 폴더·ZIP 점검상 파일 문제 없음(폴더 선택 위치 문제로 추정).
 <!-- /REAL_PUBLISH_CHECK_20261022 -->
+
+
+<!-- BLC07_INPUT_VERIFY_20261022 -->
+### 2026-10-22 BLC-07 v2.09 운영 완료(2026-10-22 Claude Code 윈도우, 웨일 — Codex 크레딧 제한으로 주인님 지시 이어받음): ① 빈 본문 차단 — 서버(`src/app/api/extension/task/route.ts` + `src/lib/bodyText.ts`)가 본문 문단 없는 대기 원고를 가져가지 않고 `failed`「본문이 비어 있어 입력하지 않았습니다」(다음 원고는 막지 않음), 확장 `writeArticle`도 `EMPTY_BODY` ② 발행 직전 정확 대조 — 이미지 AI 표시 뒤·발행 설정 뒤(최종 버튼 직전)에 `matchingWriterPrefix`로 문서 전체를 다시 대조, 다르면 `FINAL_MISMATCH`로 발행 0(기존 `verify`는 순서 포함만 봐서 중복·추가 문단 통과). 시험: 새 시험(빈 본문 판정·서버 실패 처리 후 다음 원고 정상·중복/추가 문단 거절·정상 통과) 추가, 기존 시험은 가짜 함수/기대값만 보완. 배포 `dpl_B6ng8tG17guwDz7qzN4WKCRWB1Fj` Ready·DB/확장/ZIP v2.09·`check-extension-release` OK. 실제 검수: 웨일 v2.09 확장(주인님 새로고침)으로 비공개 합성 원고 → 약 50초 `published`, `post_url`(logNo=224450052863)·`published_at` 자동 기록, 외부 「비공개 글 입니다.」·RSS 미노출. AI 0. 이미 있던 장치(빈 편집기·선점·runId·임대·복구·옛 확장 호환)는 다시 만들지 않음. 원래부터 실패하던 시험 3개(`test:writing-styles`·`test:categories`·`test:post-status`, server-only 모듈 실행 환경 문제)는 이번 변경과 무관 — 미처리. 미시험: 실제 화면에서 FINAL_MISMATCH가 나는 경우(시험으로만 확인).
+- 플랜: [PLAN_20261022_BLC07_INPUT_VERIFY.md](PLAN_20261022_BLC07_INPUT_VERIFY.md). 회원 안내: 확장 ZIP 다시 받기 → 덮어쓰기 → 확장 관리 화면 새로고침.
+<!-- /BLC07_INPUT_VERIFY_20261022 -->
