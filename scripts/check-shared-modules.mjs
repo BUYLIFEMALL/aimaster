@@ -193,7 +193,7 @@ const MODULES = [
     // AI 동영상(장면 사진 → 5~10초 영상, 회원 본인 키): 모델·단가·길이 목록. 2026-10-22 원스톱 v1.23~v1.25에서 만들어 ai-image-studio를 기준으로 등록, Shots에 사본
     id: "ai-video-models",
     source: "ai-image-studio/lib/video/videoModels.ts",
-    copies: ["shorts-onestop-studio/src/lib/videoModels.ts", "shots/src/lib/video/videoModels.ts"],
+    copies: ["shorts-onestop-studio/src/lib/videoModels.ts", "shots/src/lib/video/videoModels.ts", "music-video-studio/src/lib/video/videoModels.ts"],
   },
   {
     // 참고 자료 베끼기 방지(연속 6어절 겹침 찾기·검사 대상 고르기, 순수 함수 — 원스톱 v1.30~v1.31, INSTA v1.57 리메이크 문구, 쇼츠 바이럴 v1.13·유튜브 바이럴 v1.22 대사 넘기기)
@@ -217,13 +217,13 @@ const MODULES = [
     // AI 동영상: 업체 응답 해석·키를 보낼 주소 검사·장면 사진 주소 검사(순수 함수)
     id: "ai-video-parse",
     source: "ai-image-studio/lib/video/videoParse.ts",
-    copies: ["shorts-onestop-studio/src/lib/videoParse.ts", "shots/src/lib/video/videoParse.ts"],
+    copies: ["shorts-onestop-studio/src/lib/videoParse.ts", "shots/src/lib/video/videoParse.ts", "music-video-studio/src/lib/video/videoParse.ts"],
   },
   {
     // AI 동영상: Gemini Omni Flash·fal·Replicate 제출·상태 확인·영상 받기(VideoGenError — 각 프로그램이 자기 오류·저장소로 바꿈)
     id: "ai-video-providers",
     source: "ai-image-studio/lib/video/videoProviders.ts",
-    copies: ["shorts-onestop-studio/src/lib/videoProviders.ts", "shots/src/lib/video/videoProviders.ts"],
+    copies: ["shorts-onestop-studio/src/lib/videoProviders.ts", "shots/src/lib/video/videoProviders.ts", "music-video-studio/src/lib/video/videoProviders.ts"],
   },
   {
     // 게시처 규격(인스타 피드·세로·스토리·유튜브 썸네일·블로그 공유·스마트스토어) 이름·크기, 크기로 규격 고르기 — 변환 스튜디오 ?preset= 값(2026-10-22)
@@ -350,6 +350,7 @@ const MODULES = [
       "threads-affiliate-poster/src/lib/cleanupUsageLog.ts",
       "trending-product-finder/lib/cleanupUsageLog.ts",
       "youtube-auto-reply/lib/cleanupUsageLog.ts",
+      "threads/src/lib/cleanupUsageLog.ts",
     ],
   },
   {

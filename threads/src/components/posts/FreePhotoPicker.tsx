@@ -85,7 +85,7 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
           {busy === "search" ? "검색 중…" : "검색"}
         </button>
       </div>
-      <p className="text-xs text-neutral-500">본인 {provider === "pixabay" ? "Pixabay" : "Pexels"} 키로 검색합니다(무료). 누르면 이미지 목록에 추가됩니다(남은 {remaining}장).</p>
+      <p className="text-xs text-neutral-500">본인 {provider === "pixabay" ? "Pixabay" : "Pexels"} 키로 검색합니다(무료). 영어로 찾으면 결과가 더 많아요(예: 「커피」 → coffee). 누르면 이미지 목록에 추가됩니다(남은 {remaining}장).</p>
       {error && (
         <p className="text-xs text-red-600">
           {error.message}

@@ -3,6 +3,7 @@ import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
 import { createClient } from "@/lib/supabase/server";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { PhotoKeyCheckButton } from "@/components/settings/PhotoKeyCheckButton";
 import { Button } from "@/components/ui/Button";
 import { connectThreadsAccountAction, connectThreadsAccountNewCallbackAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
 import { THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
@@ -118,6 +119,11 @@ export default async function SettingsPage({
               maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
             />
           ))}
+          {(["pixabay", "pexels"] as const)
+            .filter((provider) => keyMap.has(provider))
+            .map((provider) => (
+              <PhotoKeyCheckButton key={`check-${provider}`} provider={provider} />
+            ))}
         </div>
       </section>
 
