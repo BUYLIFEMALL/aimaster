@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): Step Mail v1.28 💬 카카오 브랜드 메시지 선택지 (본인 카카오 채널 등록 시에만)
+- 한 일: `stepmail/` 캠페인 휴대폰 발송 방식에 「💬 카카오 브랜드 메시지」 추가(`stepmail_campaigns.mobile_type`·`kakao_fallback_sms`). 회원 본인 SOLAPI + 본인 카카오 채널 ID(pfId, 공용 `user_solapi_accounts.kakao_pf_id`)가 있을 때만 고를 수 있고, 없으면 선택지가 꺼지며 저장·발송 모두 막힘(주인님: 「없으면 등록 안하면 동작 안하는 거고」). 광고 표시(adFlag)·「문자로 대신 보내기」 선택, 기록 channel kakao. 새 `stepmail/lib/kakaoBrand.ts`(공용 SOLAPI 사본은 손대지 않음), 매뉴얼 FAQ Q5.
+- 검수: tsc·build, 시험 12개(카카오 3개 추가), DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor·해시 일치, 기존 캠페인 2건 sms 그대로) v1.28, 배포 `stepmail-lza2dcw10` Ready, `/login` 200·가짜 토큰 401, 크롬(관리자, pfId 등록됨) 카카오 선택·대체 문자 칸 표시(저장 안 함).
+- 못 한 것: 실제 카카오 발송 1통(약 10~20원, 주인님 승인 필요), pfId 없는 계정의 꺼짐 화면 실검수(시험 계정 SOLAPI 미연결). 상세 `stepmail/AGENTS.md` v1.28.
+- 커밋 `672643bda`. 비용: 빌드 1회(승인), 유료 발송 0회.
+- 링크: https://stepmail.buylife.xyz/campaigns/new
+
 ## 2026-10-23 — Claude Code(윈도우): 쓰레드 포스팅 v1.29 글 첨부 이미지 무료 사진 · INSTA 자동 채우기 설명 한 줄(**미배포 대기**)
 - 한 일: `threads/` 새 글 이미지 칸 「📷 무료 사진으로 추가」(공용 `free-photo-search` 사본, 회원 본인 Pixabay·Pexels 키, JPEG·PNG만 `post-images/<회원>/` 저장, 검색어 Enter 제출 방지), 설정 키 칸. 함께 나감: 좌측 메뉴 계정 위치(`22c6cda35`). INSTA 자동 채우기 설명 「AI 비용 없이 · 본인 무료 키」(커밋 `8022fbf0a`, 미배포 대기).
 - 검수: tsc·빌드, 배포 `threads-crhee97ol` Ready, DB v1.29, 비로그인 401, 크롬(관리자 본인 Pixabay 키) Enter는 검색만 → 사진 추가 JPEG 420KB 200·캐러셀 1/20 → 설정 「등록됨」. 글 저장·게시 없음, 시험 사진 삭제. 미확인: Pexels·휴대폰 폭·실제 Threads 게시.
