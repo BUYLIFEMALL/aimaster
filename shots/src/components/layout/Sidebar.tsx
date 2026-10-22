@@ -118,7 +118,8 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
-        <div className="flex flex-1 flex-col overflow-y-auto p-4">
+        {/* 메뉴는 필요한 만큼만(낮은 화면에서만 줄어들며 내부 스크롤) — 계정·로그아웃을 마지막 메뉴 바로 아래에 붙인다(docs/SIDEBAR_LAYOUT_STANDARD.md, flex-1 금지) */}
+        <div className="flex min-h-0 shrink flex-col overflow-y-auto p-4">
           {/* 유튜브 브랜드 헤더 */}
           <div className="mb-6 px-1 pt-1">
             <div className="flex items-center justify-between">
