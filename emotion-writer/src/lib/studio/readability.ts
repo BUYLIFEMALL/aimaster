@@ -84,3 +84,22 @@ export function bestPosition(bands: Partial<Record<Design["position"], RGB | nul
   if (best === current || score(best) <= now) return null;
   return { position: best, contrast: Math.round(score(best) * 10) / 10 };
 }
+
+/**
+ * v1.24 「자리 옮기고 어둡기도 올리기」: 한 크기에 대해 먼저 가장 좋은 자리로 옮기고(지금 자리보다 나을 때만),
+ * 그 자리에서도 4.5:1에 못 미치면 필요한 어둡기(5% 단위, 최대 max)를 찾는다. 바꿀 것이 없으면 null
+ */
+export function fixPlan(bands: Partial<Record<Design["position"], RGB | null>>, textHex: string, overlay: number, current: Design["position"], max = 75): { position: Design["position"]; overlay: number; contrast: number } | null {
+  const moved = bestPosition(bands, textHex, overlay, current);
+  const position = moved?.position ?? current;
+  const bg = bands[position];
+  if (!bg) return null;
+  const adv = adviseOverlay(bg, textHex, overlay, max);
+  if (!adv) return null;
+  if (adv.ok) return moved ? { position, overlay, contrast: moved.contrast } : null;
+  if (adv.recommended !== null) {
+    const text = hexToRgb(textHex)!;
+    return { position, overlay: adv.recommended, contrast: Math.round(contrastRatio(text, darken(bg, adv.recommended)) * 10) / 10 };
+  }
+  return moved ? { position, overlay, contrast: moved.contrast } : null;
+}

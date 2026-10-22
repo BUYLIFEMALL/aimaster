@@ -5,11 +5,12 @@ import { renderQuote, renderQuoteAt, canvasBlob } from "@/lib/studio/render";
 import { CHANNEL_SIZES, channelFileName, channelZipNames, type ChannelSize } from "@/lib/studio/channels";
 import { createZip } from "@/lib/studio/zip";
 import { useBandGrid } from "./useBandColor";
-import { adviseOverlay, bestPosition, POSITIONS, zipOverlayPlan } from "@/lib/studio/readability";
+import { adviseOverlay, bestPosition, fixPlan, POSITIONS, zipOverlayPlan } from "@/lib/studio/readability";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
 import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { instaPostLink, instaRatioOk } from "@/lib/instaHandoff";
+import { bananaBackgroundLink } from "@/lib/studio/bananaLink";
 
 export function QuoteCanvas({
   image,
@@ -49,6 +50,18 @@ export function QuoteCanvas({
     if (best) moves[c.id] = best.position;
   }
   const moveCount = Object.keys(moves).length;
+  // v1.24: 「자리 옮기고 어둡기도 올리기」 — 대비가 부족한 크기마다 자리 이동 + 그래도 모자라면 그 크기만 어둡기 올림
+  type SizeFix = { position?: Design["position"]; overlay?: number };
+  const fixes: Record<string, SizeFix> = {};
+  for (const c of CHANNEL_SIZES) {
+    const adv = channelAdvice(c.id);
+    if (!adv || adv.ok || !bandGrid) continue;
+    const bands = Object.fromEntries(POSITIONS.map((p) => [p, bandGrid[`${c.id}|${p}`] ?? null]));
+    const plan = fixPlan(bands, design.color, design.overlay, design.position);
+    if (plan) fixes[c.id] = { position: plan.position !== design.position ? plan.position : undefined, overlay: plan.overlay !== design.overlay ? plan.overlay : undefined };
+  }
+  const fixCount = Object.keys(fixes).length;
+  const fixAddsOverlay = Object.values(fixes).some((f) => f.overlay !== undefined);
 
   useEffect(() => {
     if (!image || !quote) return;
@@ -135,7 +148,7 @@ export function QuoteCanvas({
   }
 
   // v1.24: 「다른 크기로 받기」 전체를 ZIP 하나로 — 공용 기준 코드 store-zip 사본(AI 재호출 없음)
-  async function downloadAllChannels(overlayOverride?: number, positionMoves?: Record<string, Design["position"]>) {
+  async function downloadAllChannels(overlayOverride?: number, perSize?: Record<string, { position?: Design["position"]; overlay?: number }>) {
     if (!ready || busy || saving) return;
     setZipAsk(false);
     // 「어둡기 올리고 받기」·「글자 자리 바꿔 받기」는 ZIP만 바꿔 그린다(화면 설정은 그대로)
@@ -147,7 +160,7 @@ export function QuoteCanvas({
       const entries = [];
       for (const [i, c] of CHANNEL_SIZES.entries()) {
         const draft = document.createElement("canvas");
-        await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, positionMoves?.[c.id] ? { ...zipDesign, position: positionMoves[c.id] } : zipDesign);
+        await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, perSize?.[c.id] ? { ...zipDesign, ...Object.fromEntries(Object.entries(perSize[c.id]).filter(([, v]) => v !== undefined)) } : zipDesign);
         const blob = await canvasBlob(draft, "jpeg");
         entries.push({ name: names.files[i], data: new Uint8Array(await blob.arrayBuffer()) });
       }
@@ -158,10 +171,15 @@ export function QuoteCanvas({
       anchor.download = names.zip;
       anchor.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      const moved = positionMoves ? CHANNEL_SIZES.filter((c) => positionMoves[c.id]).map((c) => `${c.label}→${POS_LABEL[positionMoves[c.id]]}`) : [];
+      const moved = perSize
+        ? CHANNEL_SIZES.filter((c) => perSize[c.id]).map((c) => {
+            const f = perSize[c.id];
+            return `${c.label}(${[f.position ? `${POS_LABEL[f.position]}로` : "", f.overlay !== undefined ? `어둡기 ${f.overlay}%` : ""].filter(Boolean).join(" · ")})`;
+          })
+        : [];
       setNotice(
         moved.length
-          ? `${entries.length}가지 크기를 ZIP 하나로 저장했습니다. 글자 자리를 옮긴 크기: ${moved.join(", ")}(화면 설정은 그대로).`
+          ? `${entries.length}가지 크기를 ZIP 하나로 저장했습니다. 바꿔 그린 크기: ${moved.join(", ")}(화면 설정은 그대로).`
           : overlayOverride !== undefined
             ? `배경 어둡기 ${overlayOverride}%로 ${entries.length}가지 크기를 ZIP 하나로 저장했습니다(화면 설정은 그대로).`
             : `${entries.length}가지 크기를 ZIP 하나로 저장했습니다.`,
@@ -276,6 +294,14 @@ export function QuoteCanvas({
           <span>인스타에 올리기</span>
         </button>
       </div>
+      {/* v1.24: 이 글귀 분위기의 배경을 바나나 캔버스에서(아이디어 칸만 채움, 자동 생성 없음) */}
+      {quote && bananaBackgroundLink(quote) && (
+        <p className="text-center text-xs">
+          <a href={bananaBackgroundLink(quote)!} target="_blank" rel="noopener noreferrer" data-banana-bg className="font-semibold text-rose-700 underline underline-offset-2">
+            🍌 이 글귀 분위기의 배경을 바나나 캔버스에서 만들기
+          </a>
+        </p>
+      )}
       {!instaRatioOk(ratio) && ready && (
         <p className="status-note centered">인스타에 올리려면 비율을 1:1로 바꿔 주세요(인스타 피드는 9:16·3:4 세로 비율을 받지 않습니다).</p>
       )}
@@ -330,7 +356,10 @@ export function QuoteCanvas({
                   <button type="button" disabled={busy || saving} onClick={() => void downloadAllChannels(zipPlan.raiseTo!)}>어둡기 {zipPlan.raiseTo}%로 올리고 받기</button>
                 )}
                 {moveCount > 0 && (
-                  <button type="button" disabled={busy || saving} data-zip-move={moveCount} onClick={() => void downloadAllChannels(undefined, moves)}>글자 자리 바꿔 받기({moveCount}가지)</button>
+                  <button type="button" disabled={busy || saving} data-zip-move={moveCount} onClick={() => void downloadAllChannels(undefined, Object.fromEntries(Object.entries(moves).map(([id, position]) => [id, { position }])))}>글자 자리 바꿔 받기({moveCount}가지)</button>
+                )}
+                {fixCount > 0 && fixAddsOverlay && (
+                  <button type="button" disabled={busy || saving} data-zip-fix={fixCount} onClick={() => void downloadAllChannels(undefined, fixes)}>자리 옮기고 어둡기도 올리고 받기({fixCount}가지)</button>
                 )}
                 <button type="button" onClick={() => setZipAsk(false)}>취소</button>
               </span>

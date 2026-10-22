@@ -48,3 +48,17 @@ test("v1.24 글자 자리 바꿔 받기", async () => {
   assert.equal(bestPosition(bands, "#ffffff", 35, "bottom"), null); // 이미 가장 좋음
   assert.equal(bestPosition({ top: [100, 100, 100] }, "#ffffff", 35, "top"), null); // 다른 자리 정보 없음
 });
+
+test("v1.24 자리 옮기고 어둡기도 올리기", async () => {
+  const { fixPlan, contrastRatio, darken } = await import("../src/lib/studio/readability.ts");
+  // 아래로 옮기면 바로 충분
+  const r1 = fixPlan({ top: [235, 235, 240], center: [210, 210, 210], bottom: [40, 40, 50] }, "#ffffff", 35, "top");
+  assert.deepEqual([r1.position, r1.overlay], ["bottom", 35]);
+  // 모든 자리가 밝음 → 가장 나은 자리로 옮기고 어둡기도 올림
+  const r2 = fixPlan({ top: [240, 240, 240], center: [200, 200, 205], bottom: [230, 230, 230] }, "#ffffff", 35, "top");
+  assert.equal(r2.position, "center");
+  assert.ok(r2.overlay > 35 && r2.overlay % 5 === 0);
+  assert.ok(contrastRatio([255, 255, 255], darken([200, 200, 205], r2.overlay)) >= 4.5);
+  // 이미 충분하고 옮길 곳도 없으면 null
+  assert.equal(fixPlan({ top: [20, 20, 20], center: [30, 30, 30], bottom: [40, 40, 40] }, "#ffffff", 35, "top"), null);
+});
