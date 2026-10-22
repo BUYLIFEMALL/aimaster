@@ -154,3 +154,11 @@
 - 못 한 것: 시험 회원 shots에 **인스타그램이 연결돼 있지 않아** 표지 칸(연동중 영역 안)을 화면으로 보지 못함. 실제 릴스 게시(외부 공개)도 안 함 — 회원이 표지를 넣고 게시할 때 인스타에서 표지 반영 확인 필요.
 - 비용: 빌드 1회, AI 0회.
 - `browser-mp4-encoder` 사본(2026-10-21 반영)은 v1.33부터 배포에 포함됨(`docs/SHARED_MODULES.md` 갱신).
+
+## 2026-10-22 v1.36 — 장면 이미지 30일 정리 · 인스타 미연결 표지 안내 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_SCENE_IMAGE_CLEANUP.md`(주인님 승인, 삭제 포함).
+- `/api/cron/cleanup-videos`: 장면 이미지(`shorts-images/<회원>/<영상>-<장면>-<uuid>.*`) 만든 지 30일 지나면 삭제 + `src/lib/sceneImageCleanup.ts` `pruneSegmentImages`로 `image_urls`에서 빼고 `image_url`이면 비움. 응답에 `expiredImages`·`removedImages`·`clearedSegments`. `SegmentCard` 30일 안내, `PostingSection` 인스타 미연결 때 표지 안내.
+- 시험 `tests/sceneImageCleanup.test.mjs`(전체 `node --test tests/*.test.mjs` 2개 통과).
+- 검수: tsc·build, 커밋 `44e2522ff`, 배포 `shots-1xxupqapb` Ready, DB v1.36. 배포 전 읽기 전용 미리보기: 30일 지난 19개(59.7MB) → 장면 기록 18개·선택 이미지 18개 비워질 예정. 크롬(시험 회원) 스크립트 화면: 장면 카드 6개에 30일 안내(#aaa), 인스타 칸 표지 안내 확인.
+- **첫 실제 삭제는 다음 정리 시각(2026-10-22 18:30 UTC = 10-23 03:30 KST)** — 다음 세션에서 Vercel 로그 `[cleanup-videos] scene images expired … removed … segments …` 확인 필요.
+- 비용: 빌드 1회, AI 0회.

@@ -68,7 +68,7 @@
 | 49 | AI 썸네일·SEO 자동화 | `thumbnail-master` | 유튜브 | v1.16 | 운영 | 대본으로 제목·설명·태그 SEO 전략 3가지를 만들고, 타겟별 A/B 문구가 들어간 유튜브 썸네일까지 완성하는 도구(2026-10-20 seo-thumbnail-pro 병합) |
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.15 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
-| 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.35 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
+| 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.36 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
 | 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.20 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 54 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 유튜브 | v1.12 | **병합됨 → thumbnail-master(2026-10-20), 노출 중지** | 대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구 |
 | 55 | Suno 음악기획 자동화 | `suno-music-studio` | 음악 | v1.12 | **병합됨 → music-automation(2026-10-21), 노출 중지** | 음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구 |
