@@ -111,6 +111,7 @@ export default function SystemUsageMonitor() {
     programs: ProgramMetric[];
     dbTableStats: DbTableStat[];
     storageStats: StorageStat[];
+    shotsCleanup?: { runs: number; videos: number; voices: number; covers: number; images: number; segments: number; lastAt: string | null };
     timestamp: string;
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -588,6 +589,22 @@ export default function SystemUsageMonitor() {
                   </table>
                 </div>
               </GlassCard>
+
+              {/* YOUTUBE Shots 30일 정리 합계(2026-10-22, shots v1.37 usage_logs cleanup_expired) */}
+              {data.shotsCleanup && (
+                <GlassCard className="p-4">
+                  <p className="text-sm text-white">
+                    <span className="font-bold text-gold">YOUTUBE Shots 30일 정리(최근 30일)</span>
+                    {" "}— 영상 {data.shotsCleanup.videos.toLocaleString()} · 음성 {data.shotsCleanup.voices.toLocaleString()} · 표지 {data.shotsCleanup.covers.toLocaleString()} · 이미지 {data.shotsCleanup.images.toLocaleString()}개 삭제
+                    {data.shotsCleanup.segments > 0 && <> (장면 {data.shotsCleanup.segments.toLocaleString()}개 기록 비움)</>}
+                  </p>
+                  <p className="mt-1 text-xs text-white/50">
+                    {data.shotsCleanup.lastAt
+                      ? `마지막 정리 ${new Date(data.shotsCleanup.lastAt).toLocaleString("ko-KR")} · 회원별 기록 ${data.shotsCleanup.runs.toLocaleString()}건`
+                      : "아직 정리 기록이 없습니다(매일 03:30 KST 실행, 지울 것이 있을 때만 기록)."}
+                  </p>
+                </GlassCard>
+              )}
 
               {/* DB Tables Row Counts */}
               <GlassCard className="p-5 space-y-4">

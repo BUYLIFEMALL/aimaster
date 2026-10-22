@@ -22,6 +22,39 @@ const BUCKET_PROGRAM_MAP: Record<string, { programSlug: string; programName: str
   "kakao-report-images": { programSlug: "kakao-auto-posting", programName: "카카오톡 뉴스레터" },
 };
 
+// 2026-10-22: YOUTUBE Shots(v1.37) 30일 정리 작업이 회원별로 남기는 usage_logs(action cleanup_expired) — 최근 30일 합계
+async function shotsCleanupLast30d(serviceClient: any, programs: { id: string; slug: string }[]) {
+  const empty = { runs: 0, videos: 0, voices: 0, covers: 0, images: 0, segments: 0, lastAt: null as string | null };
+  const shots = programs.find((p) => p.slug === "auto-shorts-posting");
+  if (!shots) return empty;
+  try {
+    const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
+    const { data } = await serviceClient
+      .from("usage_logs")
+      .select("metadata, created_at")
+      .eq("program_id", shots.id)
+      .eq("action", "cleanup_expired")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(5000);
+    const out = { ...empty };
+    for (const row of (data ?? []) as { metadata: any; created_at: string }[]) {
+      const m = row.metadata ?? {};
+      out.runs += 1;
+      out.videos += Number(m.videos) || 0;
+      out.voices += Number(m.voices) || 0;
+      out.covers += Number(m.covers) || 0;
+      out.images += Number(m.images) || 0;
+      out.segments += Array.isArray(m.segments) ? m.segments.length : 0;
+      out.lastAt ??= row.created_at;
+    }
+    return out;
+  } catch (e) {
+    console.error("shots cleanup summary error:", e);
+    return empty;
+  }
+}
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -405,6 +438,7 @@ async function getAllBucketFiles(
       programs: programMetrics,
       dbTableStats,
       storageStats,
+      shotsCleanup: await shotsCleanupLast30d(serviceClient, programs ?? []),
     });
   } catch (error: any) {
     console.error("System Usage Monitor API Error:", error);
