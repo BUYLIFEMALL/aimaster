@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { CONTENT_PROVIDER_LABELS, CONTENT_PROVIDERS, getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
 import type { GroundPoint, ResearchSource } from "@/lib/grounding";
+import { KeywordHandoffCard } from "./KeywordHandoffCard";
 import { SectionWriter } from "./SectionWriter";
 import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
@@ -23,7 +24,7 @@ const OPEN_KEY = "seo-research-open";
 
 export function ResearchView({ s }: { s: Studio }) {
   const { contentProvider, setContentProvider, contentModel, setContentModel, prepareDraft, openMenu, setTopic, setKeywords, pending } = s;
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(() => s.researchSeed); // BLC-11: 「자료 검색어로 쓰기」로 넘어오면 미리 채운다
   const [urlText, setUrlText] = useState("");
   const [memo, setMemo] = useState("");
   const [research, setResearch] = useState<Research | null>(null);
@@ -86,6 +87,7 @@ export function ResearchView({ s }: { s: Studio }) {
       <p className="section-description">검색어로 네이버 블로그 상위 글·뉴스를 모으고(본인 네이버 검색 키), 직접 넣은 공개 URL·메모도 자료로 씁니다. AI가 정리한 근거 중 <strong>남길 것만 승인</strong>하면, 그 근거만 사실로 사용해 새 글을 만듭니다.</p>
       <p className="freshness-note">근거 확인은 「인용한 구절이 그 자료에 실제로 있는지」만 봅니다. 전체 사실 확인이나 표절 판정이 아니니, 발행 전에 직접 확인해주세요.</p>
 
+      <KeywordHandoffCard s={s} onResearch={(evidence) => setKeyword(evidence.keyword)} />
       <div className="field"><label htmlFor="research-keyword">① 검색어</label><input id="research-keyword" value={keyword} maxLength={60} onChange={(e) => setKeyword(e.target.value)} placeholder="예: 가을 캠핑 준비물" /></div>
       <div className="field"><label htmlFor="research-urls">직접 넣을 공개 URL (선택, 최대 3개 · 띄어쓰기나 줄바꿈으로 구분)</label><textarea id="research-urls" rows={2} value={urlText} onChange={(e) => setUrlText(e.target.value)} placeholder="https://..." /></div>
       <div className="field"><label htmlFor="research-memo">내 메모 (선택, 2,000자 이내)</label><textarea id="research-memo" rows={3} maxLength={2000} value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="내가 직접 확인한 사실·경험" /></div>

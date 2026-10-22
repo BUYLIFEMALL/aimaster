@@ -39,6 +39,12 @@
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
 
 
+## 2026-10-22 v1.06 — BLC-11 「SEO 스튜디오로 보내기」 (Claude Code 윈도우)
+
+- 결과 줄(`Workbench.tsx`)에 「SEO 스튜디오로 보내기」 — `src/lib/kw/links.ts` `seoHandoffUrl(reportId)`가 `https://naver-blog-seo-studio.buylife.xyz/dashboard#title&keyword-report=<기록 번호>`를 새 탭으로 엽니다. 주소에는 기록 번호만(UUID가 아니면 버튼 숨김), AI 호출 없음. 기록 화면에서 연 결과(`?report=`)에도 나옵니다.
+- SEO 쪽(v2.02)이 같은 회원의 `blog_keyword_reports`를 다시 읽어 실측·AI 추정·값 없음을 나눠 보여 줍니다(만든 지 30일 안의 기록만). 이 프로그램의 DB·API 변경 없음.
+- 시험 14 통과(새 1), 타입·빌드 통과, 배포 Ready, DB `v1.06`(package 1.0.6), 웨일 실검수(키워드 경쟁력 「캠핑 의자」 → 보내기 → SEO 카드) 완료. 남은 일: 30일 자동 삭제(BC-05) 결정 대기 — [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+
 ## 2026-10-16 v1.05 — 스마트 매트릭스 디자인 리뉴얼 (Claude Code 맥미니)
 
 - 일반 CSS에 `--mx-*` 토큰(롱테일과 같은 다크 차콜 + 블루·앰버)을 넣고 기존 `--brand/--line/--muted`를 연결, `globals.css`·`kw.css`의 밝은 색 전부 교체(클래스 이름 유지 — 브라우저 테스트 선택자 보존).

@@ -109,3 +109,11 @@ test("내보내기: Markdown·CSV(수식 주입 방어)", () => {
   assert.match(csv, /"따옴표 ""x"""/);
   assert.equal(toCsv({ kind: "prompt", keyword: "k", promptId: "r01", promptTitle: "t", markdown: "m", sources: [] }), null);
 });
+
+test("SEO 스튜디오로 보내기 주소에는 기록 번호만 싣는다", async () => {
+  const { seoHandoffUrl } = await import("../src/lib/kw/links.ts");
+  assert.equal(seoHandoffUrl("AAAAAAAA-1111-2222-3333-444444444444"), "https://naver-blog-seo-studio.buylife.xyz/dashboard#title&keyword-report=aaaaaaaa-1111-2222-3333-444444444444");
+  assert.equal(seoHandoffUrl(null), null);
+  assert.equal(seoHandoffUrl("캠핑 의자"), null);
+  assert.equal(seoHandoffUrl("1; drop"), null);
+});

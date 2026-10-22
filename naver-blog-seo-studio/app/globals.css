@@ -508,3 +508,21 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .model-tier summary::-webkit-details-marker { display: none; }
 .model-tier span { display: block; margin-top: 2px; font-weight: 400; }
 .model-notice { display: block; margin-top: 4px; color: #a16207; font-size: 12px; }
+/* BLC-11 (2026-10-22): 키워드 도구에서 넘어온 자료 카드 */
+.keyword-handoff { margin-bottom: 18px; border-color: #cfe1f5; background: #f7fbff; }
+.keyword-handoff.error { border-color: #f2dfb9; background: #fff8eb; }
+.keyword-handoff-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.keyword-handoff-head strong { display: block; font-size: 14px; }
+.keyword-handoff-head small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+.keyword-handoff-group { margin-top: 14px; }
+.keyword-handoff-group h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 13px; }
+.keyword-handoff-group h4 small { color: var(--muted); font-weight: 500; font-size: 11px; }
+.keyword-handoff-group ul { margin: 0; padding-left: 18px; color: #344054; font-size: 12px; line-height: 1.7; }
+.keyword-handoff-group li small { color: var(--muted); font-size: 11px; }
+.handoff-badge { border-radius: 999px; background: #f1ecfb; color: #5b3fa0; padding: 2px 8px; font-size: 10px; font-weight: 800; }
+.handoff-badge.real { background: #e6f5ec; color: #23784a; }
+.handoff-missing { margin: 6px 0 0; color: #8a6420; font-size: 11px; line-height: 1.5; }
+.handoff-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.handoff-chips span { border-radius: 999px; background: #fff; border: 1px solid #dbe4ef; padding: 4px 9px; font-size: 11px; color: #3b4659; }
+.keyword-handoff-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+@media (max-width: 767px) { .keyword-handoff-head { flex-direction: column; } .keyword-handoff-actions > button { flex: 1 1 100%; } }

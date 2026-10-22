@@ -9,6 +9,7 @@ import { DEFAULT_OPENAI_CONTENT_MODEL } from "@/lib/ai/openaiModels";
 import { CONTENT_MODEL_OPTIONS, getContentModels, type ContentProvider } from "@/lib/ai/contentModels";
 import { parseSavedModel, SAVED_MODEL_KEY } from "@/lib/savedModel";
 import { placeNodeBlock, reflowBlocks, removeNodeBlock, splitParagraphBlocks, upsertNode } from "@/lib/imageNodes";
+import { handoffIdFromHash, titleSeed, type KeywordEvidence } from "@/lib/keywordEvidence";
 
 // v2.00: 편집기 글 블록은 문단 하나씩(예전에 여러 문단을 묶어 저장한 원고도 열 때 나눔)
 function blocksOfDraft(draft: DraftRecord) {
@@ -22,6 +23,9 @@ export function useStudio() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [topic, setTopic] = useState("");
   const [keywords, setKeywords] = useState("");
+  // BLC-11: 키워드 도구에서 넘어온 자료(서버가 같은 회원 기록을 다시 읽은 결과). SEO DB에는 저장하지 않는다.
+  const [keywordHandoff, setKeywordHandoff] = useState<{ status: "loading" } | { status: "ready"; evidence: KeywordEvidence } | { status: "error"; error: string } | null>(null);
+  const [researchSeed, setResearchSeed] = useState("");
   const [message, setMessage] = useState(""); // v1.76 처음엔 안내 없음(기록이 있어도 「없습니다」가 보이던 문제, 원장 #18)
   const [pending, setPending] = useState(false);
   const [titlePending, setTitlePending] = useState(false);
@@ -149,7 +153,7 @@ export function useStudio() {
   useEffect(() => {
     const syncMenuFromHash = () => {
       // 이전에 공유된 #new-draft#new-draft 같은 중복 해시도 지원한다.
-      const hashParts = window.location.hash.slice(1).split("#");
+      const hashParts = window.location.hash.slice(1).split("#").map((part) => part.split("&")[0]); // BLC-11: #title&keyword-report=… 도 메뉴로 읽는다
       const menu = hashParts.find((part) => ["dashboard", "title", "new-draft", "research", "my-style", "draft", "history"].includes(part));
       setActiveMenu(menu ?? "dashboard");
     };
@@ -158,6 +162,36 @@ export function useStudio() {
     window.addEventListener("hashchange", syncMenuFromHash);
     return () => window.removeEventListener("hashchange", syncMenuFromHash);
   }, []);
+
+  useEffect(() => {
+    // BLC-11: 주소에 실린 것은 기록 번호뿐 — 내용은 서버가 두 프로그램 권한·본인 기록·30일 안인지 확인한 뒤 돌려준다.
+    const loadKeywordHandoff = (id: string) => {
+      setKeywordHandoff({ status: "loading" });
+      fetch(`/api/keyword-handoff/${id}`, { cache: "no-store" })
+        .then(async (response) => {
+          const body = await response.json().catch(() => ({})) as { evidence?: KeywordEvidence; error?: string };
+          setKeywordHandoff(response.ok && body.evidence ? { status: "ready", evidence: body.evidence } : { status: "error", error: body.error || "넘어온 키워드 자료를 불러오지 못했습니다." });
+        })
+        .catch(() => setKeywordHandoff({ status: "error", error: "넘어온 키워드 자료를 불러오지 못했습니다. 네트워크를 확인해 주세요." }));
+    };
+    const id = handoffIdFromHash(window.location.hash);
+    if (id) loadKeywordHandoff(id);
+  }, []);
+
+  function applyHandoffToTitle(evidence: KeywordEvidence) {
+    const seed = titleSeed(evidence);
+    setTopic(seed.topic);
+    setKeywords(seed.keywords);
+    setSelectedTitle("");
+    setRecommendedTitles([]);
+    setTitleRecommendationId(null);
+    openMenu("title");
+  }
+
+  function applyHandoffToResearch(evidence: KeywordEvidence) {
+    setResearchSeed(evidence.keyword);
+    openMenu("research");
+  }
 
   function openMenu(id: string) {
     setActiveMenu(id);
@@ -757,6 +791,12 @@ export function useStudio() {
   const completedInputCount = history.filter((draft) => draft.naver_input_status === "completed" || draft.naver_input_status === "publish_ready").length;
 
   return {
+    keywordHandoff,
+    setKeywordHandoff,
+    researchSeed,
+    setResearchSeed,
+    applyHandoffToTitle,
+    applyHandoffToResearch,
     strategy,
     setStrategy,
     activeMenu,

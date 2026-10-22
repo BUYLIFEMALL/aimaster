@@ -149,3 +149,8 @@
 - **4MB 초과:** 4.2MB 파일 → 화면이 서버에 보내기 전에 「사진은 4MB 이하로 올려주세요.」, 화면을 건너뛴 직접 요청도 서버 400 같은 안내.
 - **6장 꽉 참:** 6번째를 「내 사진 넣기」로 채움 → 「본문 이미지 6/6장」, 「여기에 이미지」·「내 사진 넣기」 버튼 사라짐, 빈 칸 만들기 버튼 「모든 칸에 이미지가 있습니다」로 잠김. 7번째 `add-content` 직접 요청 → AI 호출 전에 400 「최대 6장」.
 - **남은 미검수:** 확장이 네이버 편집기에 실제로 입력하는 모습(문단 나눔·5장 이상) — 웨일에 확장·확장 토큰·네이버 로그인이 필요해 주인님 준비 후 확인.
+
+## v2.02 (2026-10-22, Claude Code 윈도우·웨일) — BLC-11 키워드 도구 결과 넘겨받기
+- **처리:** `lib/keywordEvidence.ts`(순수 함수: `judgeHandoff`·`handoffIdFromHash`·`titleSeed`), `app/api/keyword-handoff/[reportId]/route.ts`(GET, 두 프로그램 권한·본인 기록·30일·404/410/422/400), `lib/access.ts` `checkProgramAccessApi(slug = PROGRAM_SLUG)`, `components/studio/KeywordHandoffCard.tsx`(제목 추천·자료부터 집필), `useStudio.ts`(`keywordHandoff`·`researchSeed`·`applyHandoffToTitle/Research`, 메뉴 해시 `&` 뒤 무시), `ResearchView` 검색어 초기값, `globals.css` `.keyword-handoff*`. 시험 `tests/keyword-handoff.test.mjs`(6, `npm run test:keyword-handoff`).
+- **검수(웨일, 시험 계정):** 키워드 경쟁력 「캠핑 의자」 1회(Gemini) → 기록 `897fa49c` → SEO 카드: 실측 블로그 문서 수 1,482,009건·최근 검색 지수 87.474(출처 표기), 값 없음 「월간 검색수(PC+모바일)」(검색광고 키 미등록, 0으로 표시하지 않음), AI 추정 32·85·94·높음, 후보 키워드 5·제안 제목 5, 만료 11.21(남은 30일). 「제목 추천에 쓰기」 → 주제 「캠핑 의자」·핵심 키워드 5개, 「자료 검색어로 쓰기」 → 자료부터 집필 검색어 채움. 없는 번호 404(오류 카드)·잘못된 번호 400. 시험 72 통과, 타입·린트·빌드 통과, DB/확장/ZIP v2.02 OK(확장 코드 변경 없음).
+- **남은 후보:** ① SEO에 로그인 안 된 채 넘어오면 로그인 뒤 `/dashboard`로만 돌아가 `#keyword-report=`가 사라짐(로그인 redirect에 해시 보존) ② 같은 탭에서 해시만 바꾸면 다시 불러오지 않음(키워드 쪽은 새 탭으로 열어 영향 작음, `hashchange`에서 다시 읽기) ③ 데이터랩 지수 소수점(87.47439) 표시 자리 정리 ④ 남의 기록 번호 실검수는 다른 회원 기록이 DB에 없어 단위 시험으로만 확인.

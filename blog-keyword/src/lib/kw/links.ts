@@ -18,3 +18,10 @@ export const TREND_CATEGORIES = [
   "맛집", "여행", "IT·컴퓨터", "패션·미용", "육아·결혼", "교육·학습", "건강·의학", "게임", "자동차", "스포츠",
   "취미·DIY", "인테리어", "요리·레시피", "반려동물", "문화·공연", "정치·사회", "경제·재테크", "연예·방송", "영화·도서", "생활·꿀팁",
 ];
+
+// v1.06 (BLC-11): 결과를 SEO블로그 스튜디오로 보낸다 — 기록 번호만 주소에 싣고, SEO 서버가 같은 회원의 기록을 다시 읽는다(내용·키워드는 주소에 넣지 않음).
+export const SEO_STUDIO_URL = "https://naver-blog-seo-studio.buylife.xyz";
+const REPORT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export function seoHandoffUrl(reportId: string | null | undefined): string | null {
+  return reportId && REPORT_ID.test(reportId) ? `${SEO_STUDIO_URL}/dashboard#title&keyword-report=${reportId.toLowerCase()}` : null;
+}

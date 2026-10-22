@@ -23,7 +23,8 @@ export async function getSessionUser() {
   return data.user;
 }
 
-export async function checkProgramAccessApi(): Promise<AccessResult> {
+// BLC-11 (2026-10-22): slug를 넘기면 다른 프로그램(예: blog-keyword) 권한도 같은 순서로 확인한다. 기본은 이 프로그램.
+export async function checkProgramAccessApi(slug: string = PROGRAM_SLUG): Promise<AccessResult> {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
@@ -48,7 +49,7 @@ export async function checkProgramAccessApi(): Promise<AccessResult> {
   const { data: program } = await supabase
     .from("programs")
     .select("id, required_grade_id, badges, required_grade:member_grades!required_grade_id(sort_order)")
-    .eq("slug", PROGRAM_SLUG)
+    .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();
   if (!program) return { allowed: false, error: "이용 가능한 프로그램이 아닙니다.", status: 403 };

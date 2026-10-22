@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ BLC-11 키워드 결과를 SEO 스튜디오로 넘기기 (blog-keyword v1.06 · SEO블로그 스튜디오 v2.02, 빌드 2회 · Gemini 1회)
+- 키워드 결과 줄에 「SEO 스튜디오로 보내기」(기록 번호만 전달). SEO 서버가 두 프로그램 권한·본인 기록·생성 30일 안을 확인해 실측(출처)·AI 추정·값 없음을 나눈 카드로 보여 주고, 「제목 추천에 쓰기」·「자료 검색어로 쓰기」로 칸을 채웁니다. SEO DB 저장·스키마 변경 없음.
+- 시험 키워드 14·SEO 72 통과, 두 배포 Ready, DB v1.06/v2.02, 확장/ZIP v2.02 OK, 웨일 실검수 완료. 남은 일: 키워드 30일 자동 삭제(BC-05) 결정, 로그인 뒤 해시 보존. 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md`·`blog-keyword/docs/IMPROVEMENTS.md` 맨 아래.
+- 프로그램: https://blog-keyword.buylife.xyz · https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ INSTA 포스팅 자동화 v1.62 새 게시글 화면 글씨 가독성
 - 원인: 어두운 테마 앱에 밝은 화면용 색으로 짜인 `PostForm`·`SlideGallery`·`Textarea`(캡션 글자 검정 위 검정). 어두운 테마 색으로 일괄 치환 → 배포 READY·DB v1.62·크롬 확인.
 - 비용: Vercel 빌드 1회(승인), AI 0회. 상세: `insta_auto_poster/AGENTS.md` 맨 아래.

@@ -2,6 +2,7 @@
 
 // StudioPage에서 옮긴 「title」 화면 (2026-10-17 파일 나누기, 화면·동작 변경 없음)
 import { SEO_PERSONAS } from "@/lib/ai/personas";
+import { KeywordHandoffCard } from "./KeywordHandoffCard";
 import { GEMINI_IMAGE_MODELS, type GeminiImageModel } from "@/lib/ai/geminiModels";
 import { getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
 import { openAIModelBadge, openAIModelNotice, openAIModelTier, openAIModelTierHint } from "@/lib/ai/openaiRequestParams";
@@ -13,6 +14,7 @@ export function TitleView({ s }: { s: Studio }) {
   const { strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, openAIFeatureModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq } = s;
   return (
     <section className="title-recommendation" id="title">
+          <KeywordHandoffCard s={s} />
           <section className="card title-input-section">
           <div className="card-head"><h2 className="card-title">제목 추천</h2><span className="card-caption">1 / 2 단계 · 검색 의도 기반</span></div>
           <p className="section-description">글의 주제와 핵심 키워드를 입력하면 AI가 제목을 제안합니다. 제목은 수정하거나 삭제할 수 있고, 하나를 선택해야 다음 단계로 이동할 수 있습니다.</p>
