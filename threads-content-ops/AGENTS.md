@@ -703,3 +703,11 @@
 - 수정: `deployment.ts` `IS_STANDALONE`을 `(… ?? "").trim() === "true"`(BOM·공백 제거, 운영은 변수 없음 → 동작 같음), 가입 시 `emailRedirectTo`=내 사이트 확인 경로, 새 경로 `/api/threads-content-ops/auth/confirm`(`app/api/threads-content-ops/auth/confirm/route.ts`)(독립 모드 전용, `code`·`token_hash` 처리, 실패하면 `/login?confirmed=1` 「메일 인증이 끝났습니다」 안내), `KIT/kit.json` `authRedirectPath` → 마법사 마무리에서 Supabase URL Configuration(Site URL·Redirect URLs `내주소/**`) 안내.
 - 검수: tsc 0, 테스트 32/32. 운영에서는 `IS_STANDALONE` false라 새 경로·옵션이 동작하지 않음 → 급하지 않은 변경, **다음 배포자는 버전 +0.01하고 이 항목을 버전 기록에 넣을 것**. 배포판 `SNS_Auto_Posting_Kit_v1.07`부터 포함.
 
+
+## 2026-10-23 v2.15 — 기획 앱 기능 합치기 (Claude Code 윈도우)
+- 주인님 결정: 쓰레드 카테고리 분석(`../docs/analysis-threads-consolidation-20261023/REPORT.md`) 묶음 A를 「기획 > 합쳐놓고 기획만 하는 자동화 프로그램은 그냥 유지」로 확정 → `threads-easy-planner`의 장점을 이 앱에 넣고, 기획 앱은 독립 그대로(코드·카탈로그·권한 변경 없음).
+- 「콘텐츠 생성」 1단계에 추가: ① **📷 사진·영상 보고 글쓰기**(사진 최대 5장 1280px JPEG 압축 / 영상 5시점 캡처 — 브라우저에서 처리, `lib/mediaProcessor.ts`, 저장하지 않음) → `generateAttentionPost`의 `media`(서버에서 최대 5장·base64·크기 검사, 비공개 함수 `cleanAnalysisMedia`) → `lib/attention.ts` `callJson`이 OpenAI(image_url)·Claude(image base64)·Gemini(inlineData)로 함께 보냄, `mediaBlock()`이 「사진에 보이는 것만 사실로, 경험담 금지, '사진' 같은 매체 말 금지」 안내 추가. ② **💡 지금 시간대 추천 주제**(`lib/topicSuggestions.ts`, 한국 시간 요일·시간대 + 분위기 3종, 누르면 주제 칸 채움). 첫 댓글 질문·후속 주제는 원래 있음(`cta`·`followUpIdeas`).
+- `next.config.mjs` `experimental.serverActions.bodySizeLimit` 4MB(사진 여러 장).
+- 검사: tsc, `npm test` 36개(새 `tests/attention-media.test.cjs` 4개 — 3사 요청 모양·첨부 없을 때 예전과 같음), build. 커밋 `47b447340`, 배포 `threads-content-1ipmi41ke` Ready, DB v2.15(크롬 SQL Editor). 함께 나간 대기분: 30일 정리 기록 `4cafe5eb3`.
+- 크롬(시험 회원): v2.15, 추천 주제(「새벽 감성 심야」), 사진 1장 첨부 → GPT-4.1 실제 생성 1회 성공(사진의 「재료 3개·5분·파슬리·고추·프라이팬」 반영), 초안 저장 안 함. 남은 점: `docs/IMPROVEMENTS.md` 맨 아래.
+- 링크: https://threads-content-ops.buylife.xyz/threads-content-ops?tab=create
