@@ -210,6 +210,10 @@ for (const f of targets) rmSync(snapPath(f), { force: true });
 
 console.log(`✔ 커밋 ${done.commit.slice(0, 9)} — ${done.changed.map((r) => r.f).join(", ")}`);
 console.log(run(["show", "--stat", "--format=", done.commit]).trim());
+// 들어간 바뀐 줄 미리 보기 — 기준 사본을 뜬 뒤 다른 세션이 같은 파일을 고쳤다면 그 줄도 「내 변경」으로 들어가므로 눈으로 확인(2026-10-23)
+const changedLines = run(["show", "-U0", "--format=", done.commit]).split("\n").filter((l) => /^[-+]/.test(l) && !/^(\+\+\+|---) /.test(l));
+console.log(`  바뀐 줄 ${changedLines.length}개${changedLines.length > 16 ? " (앞 16개)" : ""} — 내가 고치지 않은 줄이 있으면 기준 사본 뒤 다른 세션이 고친 것:`);
+for (const l of changedLines.slice(0, 16)) console.log(`    ${l.slice(0, 110)}`);
 if (flag("--push")) {
   const p = tryRun(["push", "-q", "origin", branch], { stdio: ["ignore", "pipe", "pipe"] });
   console.log(p === null ? "✖ 푸시 실패 — `git push origin " + branch + "`로 다시 하세요." : `✔ 푸시 origin/${branch}`);
