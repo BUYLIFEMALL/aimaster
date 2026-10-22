@@ -758,3 +758,55 @@ section[id] {
     animation: none;
   }
 }
+
+/* ==========================================================================
+   v1.20 그라데이션 글로우 버튼(로즈) — 바나나 캔버스 v1.21 버튼 방식을 감성 캘리그라피 색으로 이식(2026-10-22 주인님 승인)
+   부드러운 그라데이션 + 안쪽 하이라이트 + 색 번짐 그림자, 호버 시 1px 뜸. 글자 대비 4.5:1 이상 유지
+   ========================================================================== */
+:root {
+  --ew-grad-cream: linear-gradient(180deg, #ffffff 0%, #fbf6ee 100%);
+  --ew-grad-rose: linear-gradient(135deg, #e11d48 0%, #c8164a 50%, #9f1239 100%);
+  --ew-grad-rose-hover: linear-gradient(135deg, #e8285a 0%, #be123c 50%, #881337 100%);
+  --ew-grad-blush: linear-gradient(135deg, #fff5f6 0%, #ffe1e7 100%);
+  --ew-hl: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+button {
+  background: var(--ew-grad-cream);
+  border: 1px solid #e3d8c6;
+  color: #292524;
+  font-weight: 650;
+  box-shadow: var(--ew-hl), 0 1px 2px rgba(120, 90, 60, 0.1);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffffff 0%, #fdeef1 100%);
+  border-color: #f4a3b5;
+  box-shadow: var(--ew-hl), 0 4px 12px rgba(225, 29, 72, 0.14);
+  transform: translateY(-1px);
+}
+button:active:not(:disabled) { transform: translateY(0); }
+.primary {
+  background: var(--ew-grad-rose);
+  border: 1px solid #9f1239;
+  color: #ffffff;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 1px rgba(80, 0, 20, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 6px 18px rgba(225, 29, 72, 0.32), 0 2px 4px rgba(136, 19, 55, 0.18);
+}
+.primary:hover:not(:disabled) {
+  background: var(--ew-grad-rose-hover);
+  border-color: #881337;
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 24px rgba(225, 29, 72, 0.42), 0 2px 6px rgba(136, 19, 55, 0.2);
+  transform: translateY(-1px);
+}
+.primary:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 2px 4px rgba(80, 0, 20, 0.3); }
+.primary:disabled { background: linear-gradient(180deg, #f6e9ec 0%, #efdde2 100%); border-color: #e7cfd6; color: #8a6b74; text-shadow: none; box-shadow: none; }
+.selected {
+  background: var(--ew-grad-blush) !important;
+  border-color: #f08fa5 !important;
+  color: #881337 !important;
+  font-weight: 750;
+  box-shadow: var(--ew-hl), 0 0 0 2px #fecdd3, 0 4px 12px rgba(225, 29, 72, 0.18) !important;
+}
