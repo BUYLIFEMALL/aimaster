@@ -135,3 +135,9 @@
 - `src/lib/tmb/strategy.ts` `mainWarning(main, ratio)`(세로: 4단어·띄어쓰기 뺀 12자), `subWarning(sub, ratio)`(세로만 10자), `textChanged(ver, now)`. `types.ts` `ImageVersion.main?/sub?`, `images.ts` `cleanSet` 유지, `/api/generate`가 문구 기록, `/api/edit`는 원본 문구 이어받음. `Studio.tsx` 서브 칸 아래 안내, 결과 칸 「문구가 바뀌었습니다」.
 - 검수: tsc, `npm test` 17개(길이 안내·문구 비교 시험 추가), 커밋 `519739bed`, 배포 `thumbnail-master-up7rqjvnl` Ready, DB v1.15. 크롬(시험 회원, AI 0회): 「프랑스 신사…」(9:16) B안 서브 「할머니 밥상에 기절한 사돈」(11자)에만 안내, A안 「프랑스 사돈의 폭풍 먹방」(10자)은 없음. 결과 칸 표시는 예전 이미지라 문구 기록이 없어 안 뜸(의도) — 다음 이미지 생성 때 화면 확인 필요.
 - 비용: 빌드 1회, AI 0회.
+
+## 2026-10-22 v1.16 — 원래 문구 표시 · 세로 길이 확인 창 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_COPY_COMPARE.md`(주인님 승인).
+- `src/lib/tmb/strategy.ts` `changedTextLine`·`lengthConfirmText`, `Studio.tsx` 결과 칸 비교 한 줄·「2종 생성」 전 확인 창.
+- 검수: tsc, `npm test` 18개, 커밋 `b9d6480de`, 배포 `thumbnail-master-217geow2b` Ready, DB v1.16. 크롬(시험 회원, AI 0회): 「프랑스 신사…」(9:16)에서 「썸네일 2종 다시 생성」 → 확인 창 문장 확인, 취소 시 `/api/generate` 0건. 결과 칸 비교 한 줄은 예전 이미지(문구 기록 없음)라 화면 미확인 — 다음 이미지 생성 때 확인.
+- 비용: 빌드 1회, AI 0회.

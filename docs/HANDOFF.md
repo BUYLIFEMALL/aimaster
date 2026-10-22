@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.16: 원래 문구 표시 · 세로 길이 확인 창 (빌드 1회, AI 0회)
+- 결과 칸에 「이미지 문구 → 지금」 한 줄, 세로 길이 안내가 있으면 「2종 생성」 전에 확인 창(크롬에서 취소 시 생성 요청 0건 확인). 이어서 `shots` 릴스 표지(`IDEA-THUMB-REELS-01`) 작업. 상세 `thumbnail-master/AGENTS.md` v1.16.
+- 프로그램: https://thumbnail-master.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.12 배포 (맥미니 v1.12 마무리)
 - 맥미니 커밋 `eda5c6963`(대기 목록 첫 장면 썸네일): 사본 일치·tsc·build → 배포 READY → DB v1.12 → 크롬 `/dashboard`에 v1.12 표시 확인.
 - **맥미니 세션께**: 배포 끝 — 시험 영상 2개로 썸네일 확인 부탁드립니다.
