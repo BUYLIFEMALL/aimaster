@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Download, FileText, Loader2, Trash2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Download, FileText, Loader2, StickyNote, Star, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { PROVIDERS } from "@/lib/providers/catalog";
 
 export const LYRIC_VIDEO_URL = "https://lyric-video-studio.buylife.xyz/source";
 export const PLAYLIST_URL = "https://playlist-channel-studio.buylife.xyz/video";
+export const MASTERING_URL = "https://ai-mastering-studio.buylife.xyz";
+export const SUNO_STUDIO_URL = "https://music-automation.buylife.xyz/plannings";
 
 function elapsed(from: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / 1000));
@@ -17,7 +19,12 @@ function daysLeft(iso: string) {
   return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
 }
 
-export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDeleted?: (id: string) => void }) {
+export function GenerationCard({ gen, onDeleted, onUpdated }: { gen: ClientGeneration; onDeleted?: (id: string) => void; onUpdated?: (gen: ClientGeneration) => void }) {
+  const star = gen.options?.star === true;
+  const savedMemo = typeof gen.options?.memo === "string" ? gen.options.memo : "";
+  const [editingMemo, setEditingMemo] = useState(false);
+  const [memo, setMemo] = useState(savedMemo);
+  const [saving, setSaving] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -32,6 +39,23 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
 
   const lyrics = (gen.lyrics || gen.lyrics_out || "").trim();
   const left = daysLeft(gen.expiresAt);
+
+  // v1.05 별 표시·메모 — 회원 본인 행의 options에만 합쳐 저장(비교 결과에서 고른 곡 표시)
+  async function patch(change: { star?: boolean; memo?: string }) {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/generations/${gen.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(change) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "저장하지 못했습니다.");
+      onUpdated?.({ ...gen, options: { ...(gen.options ?? {}), ...data.options } });
+      setEditingMemo(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "저장하지 못했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function remove() {
     setDeleting(true);
@@ -55,6 +79,13 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
           <p className="truncate text-sm font-bold text-white" title={gen.title || gen.prompt}>{gen.title || gen.prompt.slice(0, 40)}</p>
           <p className="mt-0.5 text-xs text-violet-300">{gen.modelName}</p>
         </div>
+        {gen.status === "completed" && (
+          <button type="button" onClick={() => patch({ star: !star })} disabled={saving} aria-pressed={star} title={star ? "별 표시 빼기" : "마음에 드는 곡으로 별 표시"}
+            className={`ml-auto shrink-0 rounded-lg p-1 ${star ? "text-amber-300" : "text-zinc-500 hover:text-amber-200"}`}>
+            <Star className="h-4 w-4" fill={star ? "currentColor" : "none"} aria-hidden="true" />
+            <span className="sr-only">{star ? "별 표시됨" : "별 표시"}</span>
+          </button>
+        )}
         {gen.status === "running" && (
           <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[11px] font-bold text-violet-200">
             <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> 만드는 중 {elapsed(gen.created_at)}
@@ -106,6 +137,36 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
           className="w-fit whitespace-nowrap rounded-full border border-zinc-700 px-3 py-1 text-[11px] font-medium text-zinc-300 hover:border-violet-500/40 hover:text-violet-200">
           🎞️ 플레이리스트 영상으로 보내기 →
         </a>
+      )}
+
+      {gen.outputs.length > 0 && (
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+          <a href={MASTERING_URL} target="_blank" rel="noreferrer" title="곡을 내려받은 뒤 마스터링 스튜디오에 넣어 소리를 다듬습니다"
+            className="whitespace-nowrap font-medium text-zinc-400 hover:text-violet-200">🎚️ 마스터링 스튜디오 → <span className="text-zinc-500">(내려받은 파일을 넣어 주세요)</span></a>
+          {gen.provider === "suno" && (
+            <a href={SUNO_STUDIO_URL} target="_blank" rel="noreferrer" className="whitespace-nowrap font-medium text-zinc-400 hover:text-violet-200">
+              🔁 곡 연장·구간 다시 만들기는 음악(SUNO)자동화에서 →
+            </a>
+          )}
+        </div>
+      )}
+
+      {gen.status === "completed" && (
+        editingMemo ? (
+          <div className="space-y-1.5">
+            <textarea value={memo} onChange={(e) => setMemo(e.target.value)} rows={2} maxLength={300} placeholder="이 곡에 대한 메모(예: 후렴이 좋음, 2번 곡 사용)"
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-xs text-zinc-100 focus:border-violet-500 focus:outline-none" />
+            <div className="flex gap-2">
+              <button type="button" disabled={saving} onClick={() => patch({ memo })} className="whitespace-nowrap rounded-lg bg-violet-500 px-2.5 py-1 text-xs font-bold text-white disabled:opacity-60">{saving ? "저장 중…" : "메모 저장"}</button>
+              <button type="button" onClick={() => { setMemo(savedMemo); setEditingMemo(false); }} className="whitespace-nowrap text-xs text-zinc-400">취소</button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" onClick={() => setEditingMemo(true)} className="flex w-fit items-start gap-1 text-left text-xs text-zinc-400 hover:text-zinc-200">
+            <StickyNote className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            {savedMemo ? <span className="text-zinc-200">{savedMemo}</span> : <span>메모 쓰기</span>}
+          </button>
+        )
       )}
 
       {lyrics && (

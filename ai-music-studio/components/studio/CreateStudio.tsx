@@ -20,6 +20,9 @@ const LANGUAGES = [
 
 type Mode = "single" | "compare";
 
+// v1.05 처음에는 추천 3개(+이미 고른 모델)만 보여 주고 「모델 모두 보기」로 펼친다
+const RECOMMENDED = ["gemini:lyria-3.5", "elevenlabs:music_v2_5", "suno:V6"];
+
 function ModelCard({ model, selected, disabledReason, hasKey, onToggle, multi }: {
   model: MusicModel;
   selected: boolean;
@@ -75,6 +78,7 @@ export function CreateStudio({ mode }: { mode: Mode }) {
   const [writingLyrics, setWritingLyrics] = useState(false);
   const [error, setError] = useState<{ text: string; keys?: boolean } | null>(null);
   const [results, setResults] = useState<ClientGeneration[]>([]);
+  const [showAll, setShowAll] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -188,11 +192,15 @@ export function CreateStudio({ mode }: { mode: Mode }) {
           {multi ? `비교할 모델 고르기 (${chosen.length}/${MAX_COMPARE})` : "모델 고르기"}
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {MODELS.map((m) => (
+          {MODELS.filter((m) => showAll || RECOMMENDED.includes(m.key) || selected.includes(m.key)).map((m) => (
             <ModelCard key={m.key} model={m} multi={multi} selected={selected.includes(m.key)} hasKey={hasKey(m)}
               disabledReason={validateForModel(m, { instrumental, lyrics })} onToggle={() => toggle(m.key)} />
           ))}
         </div>
+        <button type="button" onClick={() => setShowAll((v) => !v)} aria-expanded={showAll}
+          className="w-fit whitespace-nowrap rounded-full border border-zinc-700 px-4 py-1.5 text-xs font-bold text-zinc-300 hover:border-violet-500/40 hover:text-violet-200">
+          {showAll ? "추천 모델만 보기 ▲" : `모델 모두 보기 (${MODELS.length}개) ▼`}
+        </button>
       </section>
 
       {/* 2단계 곡 설명 */}
@@ -300,7 +308,7 @@ export function CreateStudio({ mode }: { mode: Mode }) {
           <h2 className="text-sm font-bold text-zinc-200">{multi ? "비교 결과 — 나란히 들어 보세요" : "결과"}</h2>
           <div className={`grid grid-cols-1 gap-4 ${results.length > 1 ? "md:grid-cols-2 xl:grid-cols-3" : ""}`}>
             {results.map((g) => (
-              <GenerationCard key={g.id} gen={g} onDeleted={(id) => setResults((prev) => prev.filter((r) => r.id !== id))} />
+              <GenerationCard key={g.id} gen={g} onDeleted={(id) => setResults((prev) => prev.filter((r) => r.id !== id))} onUpdated={(u) => setResults((prev) => prev.map((r) => (r.id === u.id ? u : r)))} />
             ))}
           </div>
           <p className="text-xs text-zinc-500">
