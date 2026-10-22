@@ -7,6 +7,7 @@ import { MAX_BATCH_EPISODES, MAX_INSTA_CAPTION, episodeTimes, sortForBatch, work
 import { toFeedJpeg, uploadBlobs } from "@/lib/instagram/feedRender";
 import { formatKst, kstLocalToIso, validateScheduleTime } from "@/lib/instagram/schedule";
 import { InstaPostHistory } from "./InstaPostHistory";
+import { InstaWeekPosts } from "@/components/weekChart/InstaWeekPosts";
 
 // v1.19 내 작품 맨 위 「📤 인스타그램 예약」 — 예약 대기·게시 기록(InstaPostHistory) + 📚 여러 회차 한 번에 예약.
 // 「이 브라우저」·「서버 보관함」 작품을 골라 화 순서대로, 첫 회차 시각부터 정한 간격으로 예약한다. 회차마다 바둑판 그림 1장 = 게시물 1개.
@@ -140,6 +141,13 @@ export function WorksInstaSchedule({ userId }: { userId: string }) {
   return (
     <section className="cc-save" style={{ marginBottom: 24 }} aria-label="인스타그램 예약">
       <b className="cc-label">📤 인스타그램 예약 {status && ready && <span className="muted">· 연결됨 @{status.username}</span>}</b>
+      {/* v1.27 최근 7일 게시 그래프(공용 기준 코드 insta-week-posts 사본, 접힌 한 줄). 예약·게시 뒤 historyKey가 바뀌면 다시 불러온다 */}
+      <InstaWeekPosts
+        key={historyKey}
+        postsUrl="/api/instagram/posts"
+        cardClassName="fcc-week"
+        classes={{ border: "fcc-wk-line", item: "fcc-wk-item", muted: "fcc-wk-muted", danger: "fcc-wk-danger" }}
+      />
       <InstaPostHistory refreshKey={historyKey} onPendingChange={setPendingCount} emptyText="아직 인스타 게시·예약 기록이 없습니다." />
 
       {!status ? null : !ready ? (

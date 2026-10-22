@@ -498,3 +498,97 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color])
 .cc-step-btn span{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:700}
 .cc-progress{display:flex;align-items:center;gap:10px;margin:0;font-size:13px;font-weight:700}
 .cc-progress progress{flex:1;max-width:260px;height:10px;accent-color:var(--brand)}
+/* v1.27 「📊 최근 7일 게시」(공용 그래프 사본 components/weekChart — Tailwind 클래스로 쓰여 있어 이 칸 안에서만 같은 이름을 정의) */
+.fcc-week{border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px 14px;color:var(--ink)}
+.fcc-week button{display:block;border:0;background:transparent;color:inherit;border-radius:0;padding:0;font-size:inherit;font-weight:inherit;gap:0;cursor:pointer}
+.fcc-week button:hover{background:transparent}
+.fcc-week a{width:auto;min-width:0;border:0;border-radius:0;background:transparent;color:inherit;padding:0}
+.fcc-week ul{list-style:none;margin:0;padding:0}
+.fcc-week img{display:block;max-width:100%}
+.fcc-week .block{display:block}
+.fcc-week .flex{display:flex}
+.fcc-week .inline-flex{display:inline-flex}
+.fcc-week .inline-block{display:inline-block}
+.fcc-week .flex-1{flex:1 1 0%}
+.fcc-week .flex-col{flex-direction:column}
+.fcc-week .flex-col-reverse{flex-direction:column-reverse}
+.fcc-week .flex-wrap{flex-wrap:wrap}
+.fcc-week .shrink-0{flex-shrink:0}
+.fcc-week .items-baseline{align-items:baseline}
+.fcc-week .items-center{align-items:center}
+.fcc-week .items-end{align-items:flex-end}
+.fcc-week .items-start{align-items:flex-start}
+.fcc-week .justify-between{justify-content:space-between}
+.fcc-week .justify-end{justify-content:flex-end}
+.fcc-week .gap-1{gap:.25rem}
+.fcc-week .gap-2{gap:.5rem}
+.fcc-week .gap-3{gap:.75rem}
+.fcc-week .gap-x-2{column-gap:.5rem}
+.fcc-week .gap-x-3{column-gap:.75rem}
+.fcc-week .gap-y-1{row-gap:.25rem}
+.fcc-week .gap-y-0\.5{row-gap:.125rem}
+.fcc-week .space-y-2>*+*{margin-top:.5rem}
+.fcc-week .h-32{height:8rem}
+.fcc-week .h-full{height:100%}
+.fcc-week .h-12{height:3rem}
+.fcc-week .w-12{width:3rem}
+.fcc-week .h-2{height:.5rem}
+.fcc-week .w-2{width:.5rem}
+.fcc-week .h-2\.5{height:.625rem}
+.fcc-week .w-2\.5{width:.625rem}
+.fcc-week .w-full{width:100%}
+.fcc-week .max-w-\[40px\]{max-width:40px}
+.fcc-week .min-w-0{min-width:0}
+.fcc-week .max-h-96{max-height:24rem}
+.fcc-week .overflow-hidden{overflow:hidden}
+.fcc-week .overflow-y-auto{overflow-y:auto}
+.fcc-week .mb-2{margin-bottom:.5rem}
+.fcc-week .mb-4{margin-bottom:1rem}
+.fcc-week .mt-1{margin-top:.25rem}
+.fcc-week .mt-2{margin-top:.5rem}
+.fcc-week .mt-3{margin-top:.75rem}
+.fcc-week .mt-4{margin-top:1rem}
+.fcc-week .pt-4{padding-top:1rem}
+.fcc-week .pr-1{padding-right:.25rem}
+.fcc-week .px-3{padding-left:.75rem;padding-right:.75rem}
+.fcc-week .py-2{padding-top:.5rem;padding-bottom:.5rem}
+.fcc-week .py-3{padding-top:.75rem;padding-bottom:.75rem}
+.fcc-week .text-xs{font-size:.75rem;line-height:1rem}
+.fcc-week .text-sm{font-size:.875rem;line-height:1.25rem}
+.fcc-week .text-base{font-size:1rem;line-height:1.5rem}
+.fcc-week .font-bold{font-weight:700}
+.fcc-week .font-semibold{font-weight:600}
+.fcc-week .font-normal{font-weight:400}
+.fcc-week .leading-relaxed{line-height:1.625}
+.fcc-week .leading-snug{line-height:1.375}
+.fcc-week .text-center{text-align:center}
+.fcc-week .text-left{text-align:left}
+.fcc-week .break-words{overflow-wrap:break-word}
+.fcc-week .opacity-20{opacity:.2}
+.fcc-week .opacity-30{opacity:.3}
+.fcc-week .opacity-75{opacity:.75}
+.fcc-week .opacity-80{opacity:.8}
+.fcc-week .opacity-90{opacity:.9}
+.fcc-week .opacity-100{opacity:1}
+.fcc-week .rounded-sm{border-radius:.125rem}
+.fcc-week .rounded-md{border-radius:.375rem}
+.fcc-week .rounded-t-md{border-top-left-radius:.375rem;border-top-right-radius:.375rem}
+.fcc-week .rounded-xl{border-radius:.75rem}
+.fcc-week .rounded-full{border-radius:9999px}
+.fcc-week .border{border:1px solid}
+.fcc-week .border-t{border-top:1px solid}
+.fcc-week .object-cover{object-fit:cover}
+.fcc-week .bg-current{background-color:currentColor}
+.fcc-week .bg-gradient-to-t{background-image:linear-gradient(to top,var(--brand-dark),var(--brand))}
+.fcc-week .text-pink-400{color:var(--brand-dark)}
+.fcc-week .ring-2{box-shadow:0 0 0 2px var(--brand)}
+.fcc-week .transition{transition:background-color .15s,border-color .15s}
+.fcc-week .hover\:bg-pink-500\/5:hover{background:rgba(255,107,87,.08)}
+.fcc-week .hover\:border-pink-500\/40:hover{border-color:rgba(255,107,87,.5)}
+.fcc-week .hover\:underline:hover{text-decoration:underline}
+.fcc-week .focus\:outline-none:focus{outline:none}
+.fcc-week .focus-visible\:ring-2:focus-visible{box-shadow:0 0 0 2px var(--brand)}
+.fcc-week .fcc-wk-line{border-color:var(--line)}
+.fcc-week .fcc-wk-item{background:#fffaf2}
+.fcc-week .fcc-wk-muted{color:var(--muted)}
+.fcc-week .fcc-wk-danger{color:#dc2626}
