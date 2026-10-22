@@ -89,11 +89,12 @@ https://music-automation.buylife.xyz/plannings
 - 「📊 최근 7일 게시」 그래프가 게시 기록 API 최근 30건만 세는 한계. 따로 빌드하지 않고, 아래 프로그램을 다음에 수정·배포할 때 같이 진행: 기록 API에 `?week=1`(게시 완료·`published_at` 최근 7일·최대 500건) 추가 → 공용 `InstaWeekPosts`가 그 주소로 부름.
 - 대상: `ai-webtoon-studio`(공용 `insta-posts-route` 기준) → `--sync`로 `ai-influencer-studio`·`four-cut-comics` 사본, `insta_auto_poster`(카드뉴스 기록 API, `InstaWeekPosts` 기준). 구현 방법·검수: 웹툰·AI 인플루언서·INSTA 포스팅 `AGENTS.md` 2026-10-22 「⏸ 대기」 항목. **네컷은 지금 다른 세션이 작업 중이라 그 폴더 문서에는 적지 않음** — 네컷을 맡는 작업자는 이 항목과 `docs/SHARED_MODULES.md` `insta-week-posts` 줄을 보면 됨.
 
-## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.19 · 상품소싱 v1.23 (배포 대기)
+## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.19 · 상품소싱 v1.23 · 쓰레드 쇼핑제휴 v1.81 (배포 대기)
 - 주인님 「진행해」(v1.18 보고의 추가 개선 제안 1~3). ① 같은 섹션 동시 생성 시 이력 덮어쓰기 → DB 함수 `shop_append_section_image`(security invoker, 함수 없으면 예전 방식) ② 사용 안내 15섹션 고정·옛 단가 → 3규격·현재 단가·HTML 내보내기 설명 ③ 상품소싱 소싱 결과·관심 상품 「📄 상세페이지」 → 새 상품 화면 미리 채움(도매가·사진 제외). tsc·lint 0, AI 호출·비용 0.
 - **윈도우 CLI 다음 첫 단계**(v1.18이 아직이면 함께 배포 1회): SQL `shop-detail-page/supabase/migrations/20261022_promo_templates_v1_18.sql` → `20261022_append_section_image_v1_19.sql`(운영 ref `esgxyikcnnvmlhygjkth`) → `shop-detail-page` 배포 → Ready 뒤 `trending-product-finder` 배포 + `programs.version` v1.23 → 크롬 무료 확인(절차: `shop-detail-page/docs/IMPROVEMENT_HANDOFF_20261021.md` 맨 아래 v1.19, `trending-product-finder/AGENTS.md` v1.23). 생성 버튼은 누르지 않음.
 - 추가(2차 제안 1·2, 같은 버전): 마진 계산기 추천판매가 → 상세페이지 「정상가」(선택, 할인가 아님) · 사용 안내에 쿠팡 12단·스마트스토어 9단 섹션별 전략 카드. **보류(설계 확인 대기)**: 완성 이미지 → 쓰레드 쇼핑제휴·인스타 포스팅 — 상세페이지 이미지가 비공개 저장소라 받는 쪽이 공개 주소로 복사하는 방식이 필요(주인님 결정 후 진행).
-- 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz/sourcing
+- 추가(S-22-10 1단계, 쓰레드): 상세페이지 섹션 카드 「🧵 쓰레드 홍보글」 → 쓰레드 쇼핑제휴 `/posts/new`에 이미지 1장·본문 초안(상품명·특징, 할인가 있을 때만 가격). 주소에는 비공개 저장소 위치만 넣고, 받는 쪽이 로그인 회원 본인 폴더인지 확인한 뒤 공개 저장소 `post-images`로 복사(관리자 키 없음). AI 호출 0회. **윈도우 순서**: 상세페이지 v1.19 배포 Ready → 상품소싱 v1.23 → 쓰레드 쇼핑제휴 SQL `20261022200000_bump_version_v1_81.sql` + 배포(절차 `threads-affiliate-poster/docs/IMPROVEMENT_HANDOFF_20261022.md` v1.81). 인스타(2단계)는 받는 화면이 없어 쓰레드 검수 뒤 진행.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz/sourcing · https://threads-affiliate-poster.buylife.xyz
 
 ## 2026-10-22 Claude Code(윈도우) — 결정: Supabase 업로드 한도 50MB 유지(지출 상한 때문)
 

@@ -63,3 +63,7 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 |---|---|---|---|---|
 | 🐞 오류 | 글 엔진 GPT-5.6·GPT-6 계열(6개)로 생성하면 OpenAI 400 `max_tokens` 거부 — 운영 v1.66에서 재현 | `src/lib/ai/generator.ts` | 높음 | **수정(v1.67)** — 추론 모델은 `max_completion_tokens: 4000`, 운영 재시험 성공 |
 | ① 로직 | 모델별 요청 규칙(온도·출력 한도)이 프로그램마다 흩어져 있음 — 새 모델이 나오면 여러 곳을 다시 고쳐야 함. SEO 스튜디오와 묶어 공용 기준 코드 후보 | 루트 `docs/SHARED_MODULES.md` | 중간 | **적용(v1.68)** — `openai-request-params` 사본 + 모델 선택 칸 응답 지연 안내 |
+
+## 2026-10-22 v1.81 (Claude Code 맥미니)
+- [낮음·로직] 상세페이지에서 가져온 이미지(`post-images/<회원id>/from-shop-detail/`)는 글을 저장하지 않으면 30일 정리(`api/cron/cleanup-media`, `tap_posts` 기준)에 잡히지 않는다. 원본 1장당 1개라 늘지는 않지만, 정리 작업에 「`from-shop-detail/` 폴더 30일 지난 파일」을 더하는 것을 검토.
+- [연계] 같은 방식으로 INSTA 포스팅 자동화(`auto-instagram-posting`)에도 받는 화면을 만들 수 있다 — 그쪽은 주소로 값을 받는 화면부터 필요(상세페이지 S-22-10 2단계).

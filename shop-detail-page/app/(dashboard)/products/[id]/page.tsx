@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { SectionImageGrid } from "@/components/products/SectionImageGrid";
+import { threadsDraftText } from "@/lib/threadsLink";
 import { HtmlExportPanel } from "@/components/products/HtmlExportPanel";
 import type { ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
@@ -136,6 +137,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           templates={templates ?? []}
           initialImages={initialImages}
           initialModel={product.default_image_model as ImageModelKey}
+          threadsDraft={threadsDraftText(product)}
         />
         <HtmlExportPanel productId={product.id} />
       </div>

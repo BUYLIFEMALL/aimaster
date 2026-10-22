@@ -526,7 +526,7 @@ vercel deploy --prod --yes
   - Threads API 심사 전에는 개발자 테스터 등록 계정 위주 연동
 
 ### 4) 현재 버전 및 변경 히스토리
-- **현재 버전**: `v1.80` (2026-10-22, DB 및 UI 일치) — v1.62 이후 기록은 이 문서 맨 아래 날짜별 항목
+- **현재 버전**: `v1.81` (2026-10-22, 코드만 — 배포·DB 대기) — v1.62 이후 기록은 이 문서 맨 아래 날짜별 항목
 - **히스토리**:
   - `v1.57 ~ v1.60`: 공용 이미지 기준 코드 동기화 및 타임아웃 이중 과금 방지
   - `v1.61`: 구글 AI 스튜디오 사용량 안내 정정 및 **스레드 바이럴 스튜디오 다크 콘솔 스타일 전면 리뉴얼 완결**
@@ -630,3 +630,11 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 
 ## 2026-10-22 v1.80 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우)
 - 설정 화면 API 키 한 줄의 「수정」·「삭제」 꺾임 수정(`src/components/settings/ApiKeyRow.tsx` 머리줄 `gap-3`, 라벨 `min-w-0`, 버튼 묶음 `shrink-0 whitespace-nowrap`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
+
+## 2026-10-22 v1.81 — AI 상세페이지 자동화의 섹션 이미지를 새 글 첨부로 가져오기 (Claude Code 맥미니 · 배포 대기)
+- 상세페이지(shop-detail-page v1.19) 섹션 카드의 「🧵 쓰레드 홍보글」이 `/posts/new?from=shop-detail&shopImage=<비공개 버킷 안 위치>&initialContent=<초안>`을 새 창으로 연다. 서명 주소(열람 열쇠)는 주소에 넣지 않는다.
+- 새 `src/lib/shopDetailImport.ts` `importShopDetailImage()`: 위치 형식(`<회원id>/products/…png|jpg|webp`, `..` 금지)·**로그인 회원 본인 폴더인지** 확인 → 회원 본인 세션으로 `shop-detail-images`에서 내려받기(버킷 RLS도 본인 폴더만) → 8MB 이하 → 공개 버킷 `post-images`의 `<회원id>/from-shop-detail/<원본 위치 해시>.<확장자>`로 복사(이미 있으면 그대로 사용 — 새로고침해도 파일이 늘지 않고 덮어쓰기 권한에 기대지 않음) → 공개 주소를 첫 이미지로 첨부. 관리자 키는 쓰지 않는다.
+- `src/app/(dashboard)/posts/new/page.tsx`: 가져올 때만 `requireProgramAccess()`(쓰기 작업) 후 복사, 성공 초록 안내·실패 빨간 안내. 다른 진입(떡상 탐지기의 `initialImageUrl`)은 그대로.
+- 본문 초안은 상세페이지가 만든다: 상품명 + 핵심 특징 최대 3줄 + **할인가가 있을 때만** 가격. 제휴 상품 선택·제휴 고지는 이 화면의 기존 흐름 그대로.
+- 한계: 가져온 뒤 글을 저장하지 않으면 복사본이 30일 정리 대상(`tap_posts` 기준)에 잡히지 않고 남는다(원본 1장당 파일 1개라 늘지는 않음) — `docs/IMPROVEMENTS.md`.
+- 검수: tsc 0, 경로 검사 정규식 5가지 경우 확인(본인 폴더·`..`·gif·남의 폴더). lint는 이 폴더 설정 인식 문제로 실행 안 됨(기존과 같음). AI 호출 0회. **배포·DB(`supabase/migrations/20261022200000_bump_version_v1_81.sql`)·크롬 확인은 윈도우 대기.**
