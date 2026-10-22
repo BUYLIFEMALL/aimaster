@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — 이커머스 2차 재비교 — 남은 장점 병합·독립 프로그램 개선 순서 (분석, 코드·DB 변경 없음)
+- 보고서 `docs/analysis-ecommerce-consolidation-20261021/REPORT.md` §8. 병합: 12단의 「상품명만으로 시작」·장면별 카피를 상세페이지로(F1), 자동생성기 OpenAI 이미지는 보류. 독립: GIF 자동화·상품소싱. 발견: 상세페이지 긴 PNG가 서버 응답으로 바로 나가 Vercel 4.5MB 한도를 넘을 가능성.
+- 작업 순서: ① 긴 PNG 서명 주소 + 섹션별 860px ZIP(상세페이지 v1.21) → ② 상품명만으로 시작 → ③ 섹션 순서 바꾸기(DB 칸, 승인 필요) → ④ GIF 구간 자르기·ZIP → ⑤ 이미지 문구 고치기 → ⑥ 상품소싱 상태 줄. 지금 ①부터 진행.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://video-to-gif.buylife.xyz · https://trending-product-finder.buylife.xyz/sourcing
+
 ## 2026-10-22 Claude Code(맥미니) — ✅ S-22-10 완료 — 상세페이지 → 쓰레드·인스타 이미지 넘기기
 - 상세페이지 v1.20 · INSTA v1.53 배포 뒤 맥미니 크롬, 시험 계정 `buylifemall@naver.com`으로 3가지 확인 통과(이미지 1장·캡션 초안·초록 안내 / 새로고침 1장 / 남의 회원 ID 차단). 윈도우 기록의 「시험 계정 확인」 남은 일 끝. 비용 없음.
 - 프로그램: https://shop-detail-page.buylife.xyz · https://auto-instagram-posting.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
