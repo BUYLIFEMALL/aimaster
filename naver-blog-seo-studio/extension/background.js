@@ -59,7 +59,26 @@ async function readNaverCategories(senderTab) {
 }
 
 // 카테고리 목록은 SEO 스튜디오 사이트 화면(web-bridge.js)에서 온 요청만 받는다.
+// 2026-10-23: 웹 「바로 연결」 — 우리 사이트 화면에서 온 새 연결 코드만, 서버 확인(whoami)을 통과하면 저장한다.
+const STUDIO_ORIGINS = ["https://naver-blog-seo-studio.vercel.app/", "https://naver-blog-seo-studio.buylife.xyz/"];
+async function connectWithToken(token) {
+  if (!/^pat_[0-9a-f]{64}$/.test(token)) return { ok: false, error: "연결 코드 형식이 올바르지 않습니다." };
+  const response = await fetch("https://naver-blog-seo-studio.buylife.xyz/api/extension/whoami", { headers: { Authorization: `Bearer ${token}` } });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) return { ok: false, error: body.error || `연결 확인 실패 (${response.status})` };
+  await chrome.storage.local.set({ seoStudioToken: token });
+  return { ok: true, email: body.email || "" };
+}
+
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  if (message?.type === "connect") {
+    if (!STUDIO_ORIGINS.some((o) => String(sender?.url || "").startsWith(o))) { reply({ ok: false, error: "허용되지 않은 요청입니다." }); return false; }
+    connectWithToken(String(message.token || "")).then((result) => {
+      reply(result);
+      if (result.ok && message.closeTab && sender.tab?.id) setTimeout(() => chrome.tabs.remove(sender.tab.id).catch(() => {}), 1500);
+    }, (error) => reply({ ok: false, error: error?.message || String(error) }));
+    return true;
+  }
   if (message?.type !== "categories") return false;
   if (!["https://naver-blog-seo-studio.vercel.app/", "https://naver-blog-seo-studio.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) { reply({ error: "허용되지 않은 요청입니다." }); return false; }
   readNaverCategories(sender.tab).then((result) => reply(result), (error) => reply({ error: error?.message || String(error) }));

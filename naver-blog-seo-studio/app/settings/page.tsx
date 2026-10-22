@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import ApiKeySettings from "./ApiKeySettings";
 import ExtensionTokenManager from "./ExtensionTokenManager";
+import ExtensionConnectButton from "./ExtensionConnectButton";
 import ExtensionDownloadCard from "./ExtensionDownloadCard";
 import AiModelSettings from "./AiModelSettings";
 import { CONTENT_MODEL_OPTIONS } from "@/lib/ai/contentModels";
@@ -33,7 +34,9 @@ export default async function SettingsPage() {
         <AiModelSettings initialContent={accountContentModel(user.user_metadata, CONTENT_MODEL_OPTIONS)} initialOpenAI={resolveOpenAIContentModel(user.user_metadata?.naver_blog_seo_openai_model)} />
         <div className="settings-divider" />
         <h2>Chrome 확장 연동 토큰</h2>
-        <p className="lede">이 프로그램 전용 토큰을 발급한 뒤 Chrome 확장에 입력하세요. 다른 자동화 프로그램의 토큰과 별도로 관리됩니다.</p>
+        <p className="lede">확장을 설치한 이 브라우저에서 아래 버튼을 누르면 연결 코드가 자동으로 만들어져 확장에 바로 연결됩니다(확장 사이드패널의 「자동 연결」 버튼도 같습니다). 다른 자동화 프로그램의 토큰과 별도로 관리됩니다.</p>
+        <ExtensionConnectButton />
+        <p className="token-manual-title">직접 입력용 코드 발급 · 연결된 코드 목록</p>
         <ExtensionTokenManager initialTokens={tokens ?? []} />
         <ExtensionDownloadCard />
         <div className="guide-box"><strong>📖 연동 매뉴얼</strong><p>키 발급 방법은 AIMaster의 플랫폼 매뉴얼에서 확인할 수 있습니다.</p><div className="guide-links"><a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">OpenAI 키 발급</a><a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">Gemini 키 발급</a></div></div>

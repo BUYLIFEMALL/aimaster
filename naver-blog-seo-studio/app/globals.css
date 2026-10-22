@@ -362,6 +362,12 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .token-issued button, .token-create button { border: 0; border-radius: 9px; background: var(--accent); color: #fff; padding: 10px 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .token-create input { min-width: 0; flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
 .token-error { color: #b33b27; font-size: 12px; margin: 0; }
+/* 2026-10-23: 확장 바로 연결 버튼 */
+.extension-connect { display: grid; gap: 8px; margin: 4px 0 14px; }
+.extension-connect button { justify-self: start; border: 0; border-radius: 10px; background: var(--accent); color: #fff; padding: 12px 16px; font-size: 13px; font-weight: 800; }
+.extension-connect button:disabled { opacity: .6; }
+.extension-connect-status { color: #00803f; font-size: 12px; margin: 0; }
+.token-manual-title { font-size: 13px; color: var(--muted, #667); margin: 16px 0 8px; }
 .token-list { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; }
 .token-list li { display: flex; justify-content: space-between; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
 .token-list strong, .token-list small { display: block; }
