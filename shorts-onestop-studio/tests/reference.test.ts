@@ -54,3 +54,15 @@ test("겹친 구절을 원문 글자 그대로 돌려준다(S&P500·쉼표 유�
   const ref = "최근 수익률 높은 기업들만 모아놔서 S&P500보다 수익률이 높아요, 정말로.";
   assert.deepEqual(copiedPhrases(["요즘 최근 수익률 높은 기업들만 모아놔서 S&P500보다 수익률이 높아요, 정말로!"], ref), ["최근 수익률 높은 기업들만 모아놔서 S&P500보다 수익률이 높아요, 정말로"]);
 });
+
+// ── v1.34 보낸 프로그램 이름 ──
+import { readRefHandoffFrom } from "../src/lib/reference.ts";
+test("넘기기 주소: 보낸 프로그램 이름을 함께 싣고, 이름 없는 옛 주소도 대사는 그대로", () => {
+  const text = "A&B 100% 정리\n둘째 줄";
+  const hash = refHandoffHash(text, "INSTA 포스팅 자동화");
+  assert.equal(readRefHandoff(hash), text);
+  assert.equal(readRefHandoffFrom(hash), "INSTA 포스팅 자동화");
+  assert.equal(readRefHandoffFrom(refHandoffHash(text)), "");
+  assert.equal(readRefHandoffFrom(refHandoffHash(text, "[가짜]\n「이름」")), "가짜 이름");
+  assert.equal(readRefHandoffFrom("#other=1&ref-from=X"), "");
+});

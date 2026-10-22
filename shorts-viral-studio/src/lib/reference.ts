@@ -63,16 +63,35 @@ export function hasCopy(text: string, ref: string): boolean {
 export const REF_HASH = "ref-transcript";
 export const REF_HANDOFF_MAX = 12000;
 
-export function refHandoffHash(transcript: string): string {
-  return `#${REF_HASH}=${encodeURIComponent(transcript.trim().slice(0, REF_HANDOFF_MAX))}`;
+/** v1.34 보낸 프로그램 이름(받는 쪽 화면 표시용) — 대사는 encodeURIComponent라 & 가 섞이지 않는다 */
+export const REF_FROM = "ref-from";
+const REF_FROM_MAX = 40;
+
+export function refHandoffHash(transcript: string, from?: string): string {
+  const name = cleanFrom(from ?? "");
+  return `#${REF_HASH}=${encodeURIComponent(transcript.trim().slice(0, REF_HANDOFF_MAX))}${name ? `&${REF_FROM}=${encodeURIComponent(name)}` : ""}`;
 }
 
-export function readRefHandoff(hash: string): string {
-  const prefix = `#${REF_HASH}=`;
-  if (!hash.startsWith(prefix)) return "";
+function cleanFrom(name: string): string {
+  return name.replace(/[\s\[\]「」]+/g, " ").trim().slice(0, REF_FROM_MAX);
+}
+
+function handoffPart(hash: string, key: string): string {
+  if (!hash.startsWith(`#${REF_HASH}=`)) return "";
+  const part = hash.slice(1).split("&").find((p) => p.startsWith(`${key}=`));
+  if (!part) return "";
   try {
-    return decodeURIComponent(hash.slice(prefix.length)).trim().slice(0, REF_HANDOFF_MAX);
+    return decodeURIComponent(part.slice(key.length + 1));
   } catch {
     return "";
   }
+}
+
+export function readRefHandoff(hash: string): string {
+  return handoffPart(hash, REF_HASH).trim().slice(0, REF_HANDOFF_MAX);
+}
+
+/** 보낸 프로그램 이름(없으면 빈 문자열 — 이름 없는 옛 주소도 대사는 그대로 받음) */
+export function readRefHandoffFrom(hash: string): string {
+  return cleanFrom(handoffPart(hash, REF_FROM));
 }

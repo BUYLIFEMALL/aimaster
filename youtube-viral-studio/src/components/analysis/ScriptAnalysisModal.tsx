@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ScriptAnalysisResult } from "@/lib/ai/scriptAnalyzer";
 import { refHandoffHash } from "@/lib/reference";
+import { APP_NAME } from "@/lib/version";
 
 // v1.22 대사를 넘길 AI 쇼츠 원스톱 주제 화면(원스톱 v1.32~가 주소 # 뒤 대사를 레퍼런스로 받음)
 const ONESTOP_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic";
@@ -280,7 +281,7 @@ ${analysis.copycatTemplate.exampleDraft}`;
               </details>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-yt-muted">
                 <a
-                  href={`${ONESTOP_TOPIC_URL}${refHandoffHash(analysis.transcript)}`}
+                  href={`${ONESTOP_TOPIC_URL}${refHandoffHash(analysis.transcript, APP_NAME)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whitespace-nowrap rounded-lg border border-yt-border bg-yt-surface px-3 py-1.5 font-bold text-yt-text hover:bg-yt-hover"

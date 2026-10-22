@@ -10,6 +10,15 @@ export function summaryScriptOf(markdown: string): string {
   if (at < 0) return "";
   const rest = markdown.slice(at + SUMMARY_SCRIPT_HEADING.length);
   const next = rest.search(/\n#{1,6} /);
-  const body = (next < 0 ? rest : rest.slice(0, next)).trim();
+  const body = plainScript((next < 0 ? rest : rest.slice(0, next)).trim());
   return /^[(（]?없음[)）]?\.?$/.test(body) ? "" : body.slice(0, 12000);
+}
+
+/** v1.24 줄 앞 목록 기호(- · * · •)와 굵게 표시(** · __)만 걷어 낸다 — 화자 이름(「진행자:」)과 대사는 그대로 */
+export function plainScript(text: string): string {
+  return text
+    .split("\n")
+    .map((line) => line.replace(/^\s*[-*•]\s+/, "").replace(/\*\*|__/g, "").trimEnd())
+    .join("\n")
+    .trim();
 }

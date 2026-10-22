@@ -8,6 +8,7 @@ import { Markdown } from "./Markdown";
 import type { AiRunState, useAiEngine } from "./useAi";
 import { summaryScriptOf } from "@/lib/ai/summaryScript";
 import { refHandoffHash } from "@/lib/reference";
+import { APP_NAME } from "@/lib/version";
 
 // v1.23 대사를 넘길 AI 쇼츠 원스톱 주제 화면(원스톱 v1.32~가 주소 # 뒤 대사를 레퍼런스로 받음)
 const ONESTOP_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic";
@@ -136,7 +137,7 @@ export function AiDrawer({ state, onClose }: { state: AiRunState; onClose: () =>
           {state.result?.type === "video-summary" && summaryScriptOf(state.result.text) && (
             <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-yt-border bg-yt-raised p-3 text-xs text-yt-muted">
               <a
-                href={`${ONESTOP_TOPIC_URL}${refHandoffHash(summaryScriptOf(state.result.text))}`}
+                href={`${ONESTOP_TOPIC_URL}${refHandoffHash(summaryScriptOf(state.result.text), APP_NAME)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="whitespace-nowrap rounded-lg border border-yt-border bg-yt-surface px-3 py-1.5 font-bold text-yt-text hover:bg-yt-hover"

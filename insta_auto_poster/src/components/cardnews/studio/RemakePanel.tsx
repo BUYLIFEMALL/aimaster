@@ -12,6 +12,7 @@ import { CollectPanel, type GeminiFileRef } from "./CollectPanel";
 import type { AngleId, RemakeState } from "@/lib/cardnews/types";
 import { transcriptOf } from "@/lib/cardnews/collect";
 import { refHandoffHash } from "@/lib/cardnews/referenceCopy";
+import { APP_NAME } from "@/lib/version";
 
 // v1.58 받아쓴 릴스 대사를 넘길 AI 쇼츠 원스톱 주제 화면(원스톱 v1.32가 주소 # 뒤 대사를 레퍼런스로 받음)
 const ONESTOP_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic";
@@ -250,7 +251,7 @@ export function RemakePanel() {
       {transcriptOf(remake.sourceText) && (
         <p className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
           <a
-            href={`${ONESTOP_TOPIC_URL}${refHandoffHash(transcriptOf(remake.sourceText))}`}
+            href={`${ONESTOP_TOPIC_URL}${refHandoffHash(transcriptOf(remake.sourceText), APP_NAME)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="whitespace-nowrap rounded-lg border border-[#262c3d] bg-[#0d0f17] px-3 py-1.5 font-bold text-slate-100 hover:border-pink-400/60"

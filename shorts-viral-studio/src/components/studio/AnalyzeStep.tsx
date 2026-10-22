@@ -156,7 +156,7 @@ export function AnalyzeStep() {
               </details>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#8b949e]">
                 <a
-                  href={`${ONESTOP_TOPIC_URL}${refHandoffHash(analysis.transcript)}`}
+                  href={`${ONESTOP_TOPIC_URL}${refHandoffHash(analysis.transcript, "쇼츠 떡상 분석·대본 자동화")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="whitespace-nowrap rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-1.5 font-bold text-[#f0f6fc] hover:border-rose-400/60"
