@@ -139,3 +139,10 @@ production dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY, 소스 c80a44af 푸시·DB v1
 - **배포**: `competitor-analysis-qu3arklzv` Ready(운영 주소 연결). 크롬(관리자 계정, 1697px): /expand·/expand/history·/keywords·/settings 정상(롱테일 씨드 2개·텔레그램 봇 이어서 보임), 콘솔 오류 0, 카탈로그에 새 이름만. 휴대폰 폭은 창이 최대화라 390px iframe으로 확인(좌측 메뉴 숨김·☰·가로 넘침 없음). **유료 확장 실행(SerpApi·OpenAI) 실시험은 하지 않음** — 서버 코드는 모의 시험으로만 확인.
 - **남은 일**: 시험 계정으로 실제 확장 1회(유료 SerpApi 1 + OpenAI 3, 승인 필요) · 「키워드 확장 결과에서 고른 키워드를 경쟁사 분석으로 바로 등록」 버튼(지금은 메뉴 이동 링크만) · 커밋 `609e84731`에 다른 세션이 스테이징한 `scripts/deploy.mjs`가 섞였으나 그 세션이 `dce8e6164`에서 같은 내용으로 다시 반영함(내용 영향 없음).
 - 링크: https://competitor-analysis.buylife.xyz/expand
+
+## 2026-10-23 v1.09 — 확장 결과 → 경쟁사 분석 바로 등록 + 실제 확장 1회 시험 (Claude Code 윈도우)
+- `components/expand/SendToAnalysis.tsx` + `registerKeywordsForAnalysisAction`(`lib/actions/expandSeeds.ts`): 결과 화면에서 씨드·연관·롱테일 키워드를 최대 10개 골라 `competitor_keywords`로 등록. 본인 씨드의 30일 안 결과에 있는 키워드만 허용, 같은 검색엔진에 이미 있는 키워드는 건너뜀, 검색엔진은 씨드 것·지역/언어 기본값(South Korea·ko). 유료 호출 없음(분석은 경쟁사 분석 화면에서 직접 실행).
+- 시험: `npm run test:expansion` 12개(새 5: 등록·다른 회원 씨드 차단·결과에 없는 키워드 거부·30일 지난 결과 거부·10개 제한). 빌드·배포 `competitor-analysis-5f6merwx4` Ready·DB v1.09.
+- 실제 확장 1회(주인님 승인, 관리자 계정·본인 SerpApi·OpenAI 키): 「가을 계절상품」 네이버 → 연관 6·롱테일 14·평균 관련도 73%·작업 지시문 정상, 등록 버튼으로 2개 등록 확인. 시험 계정에는 SerpApi 키가 없어 회원 계정 실시험은 못 함.
+- **미배포 대기**: 경쟁사 분석 화면 안내 문구 정정(`87b773ef2`) — 「다른 회원이 조사한 회사 정보 재사용」이 v1.08 이후 사실과 달라 「본인 30일 안 조사만」으로. 다음 배포 때 버전 +0.01.
+- 남은 확인: 텔레그램 알림 실제 수신, 등록 칩의 접근성 이름이 종류(`title`)로 읽히는 점(화면엔 키워드가 보임) — 급하지 않음.
