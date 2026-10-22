@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO: 세로 결과 쇼츠 표지 안내 (**미배포 대기**, 빌드 0회)
+- 「유튜브 쇼츠 표지는 컴퓨터의 YouTube 스튜디오에서 이 JPG를 올리세요」 + 스튜디오 링크(YouTube 도움말 72431 근거). 커밋 `de99b1ca9`, 버전 v1.18 그대로 — 2026-10-22 배포 지침(작은 수정 모았다가 배포)에 따라 다음 썸네일 배포 때 함께. 대기 목록 `thumbnail-master/docs/IMPROVEMENTS.md`.
+- 프로그램: https://thumbnail-master.buylife.xyz (현재 운영 v1.18, 이 안내는 아직 안 보임)
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ AI 블로그 작업실 자동화 v1.12 BC-05 30일 자동 삭제 (빌드 1회 · AI 0회 · 환경변수 CRON_SECRET 추가)
 - 설정·내 블로그를 뺀 작업은 만든 지 30일 뒤 삭제(Vercel Cron `/api/cron/cleanup` 매일, 앱도 바로 숨김), 이미지 작업을 지워도 파일이 남던 버그 수정. 대시보드 「Run」 200·지울 대상 0건 확인. BC-05 중 키워드(v1.07)·작업실 완료, **올인원은 다음 작업**.
 - 상세: `blog-workroom/AGENTS.md` v1.12 · `blog-workroom/docs/IMPROVEMENTS.md` 맨 아래.
