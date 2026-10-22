@@ -12,6 +12,7 @@ import { PresetRow } from "./PresetRow";
 import type { ComicPreset, EditPreset, Preset, RestorePreset } from "@/lib/bnc/presets";
 import { checkImageFile } from "@/lib/imageFileCheck";
 import { presetIdForSize } from "@/lib/bnc/postPresets";
+import { percentAt } from "@/lib/bnc/compare";
 
 // 이미지 변환 스튜디오(브라우저 처리)로 결과를 넘겨 형식·크기를 바꾼다(v1.14)
 const CONVERT_URL = "https://image-convert-studio.buylife.xyz/convert";
@@ -62,9 +63,19 @@ function AspectPick({ value, onChange, withOriginal, options }: { value: AspectO
 /** 원본과 결과를 겹쳐 슬라이더로 비교(포토 리메이크에서 옮김, v1.12). 비율이 달라도 두 이미지를 같은 틀 안에 맞춰 보여 준다. */
 function Compare({ before, after, w, h }: { before: string; after: string; w: number; h: number }) {
   const [pos, setPos] = useState(50);
+  const [dragging, setDragging] = useState(false);
+  // v1.23: 그림 위를 직접 끌어 선 옮기기 — 위치 계산은 공용 기준 코드 compare-slider 사본
+  const moveTo = (e: React.PointerEvent<HTMLDivElement>) => { const r = e.currentTarget.getBoundingClientRect(); setPos(percentAt(e.clientX, r.left, r.width)); };
   return (
     <div className="bc-compare-wrap">
-      <div className="bc-compare" style={{ aspectRatio: w && h ? `${w} / ${h}` : undefined }}>
+      <div
+        className="bc-compare"
+        style={{ aspectRatio: w && h ? `${w} / ${h}` : undefined }}
+        onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); setDragging(true); moveTo(e); }}
+        onPointerMove={(e) => { if (dragging) moveTo(e); }}
+        onPointerUp={() => setDragging(false)}
+        onPointerCancel={() => setDragging(false)}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={after} alt="완성 이미지" />
         <div className="bc-compare-before" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>

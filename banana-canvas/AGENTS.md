@@ -189,3 +189,8 @@
 - 배포 `banana-canvas-cbrkvf54l` → 로그인 입력칸 아이콘 겹침(CSS 우선순위) 수정 `banana-canvas-mj8dparu8` Ready, DB v1.21. 토큰·대비 수치: `docs/DESIGN_HANDOFF.md` 맨 위.
 - ✅ v1.22 배포(2026-10-22, `banana-canvas-a2vcyybds`): 「🔁 형식 바꾸기」 링크에 결과 비율이 1:1·4:5·9:16·16:9(±3%)면 `&preset=` 붙임(변환 스튜디오 v1.13이 받음). 시험 33개, 운영 스크립트에 규격 코드 포함 확인(링크는 새 결과에만 나와 화면 확인 생략).
 - ⏸ 미배포(2026-10-22): 형식 바꾸기 규격 고르기를 공용 사본 `src/lib/bnc/postPresets.ts`(`presetIdForSize`)로 교체(동작 같음). 다음 배포 때 함께.
+
+## v1.23 (2026-10-22, Claude Code 윈도우) — 전후 비교 그림 위 끌기 + 공용 사본 2종 배포
+- 원본↔완성 비교(`Compare`)에서 그림 위를 직접 누르거나 끌면 선이 그 자리로 옴(pointer capture, 손가락 가능, `.bc-compare` 커서 ew-resize·touch-action none). 기존 슬라이더 막대(키보드)는 그대로. 위치 계산은 새 공용 기준 코드 `compare-slider` 사본 `src/lib/bnc/compare.ts`(기준 `style-dna-analyzer/src/lib/dna/compare.ts`).
+- 함께 나감: 보류였던 post-presets 사본 교체(형식 바꾸기 규격 고르기, 동작 같음).
+- 시험 33개·tsc·build 통과, 배포 `banana-canvas-gkvishjrs` Ready, DB v1.23. 크롬: 운영 v1.23, 운영 CSS·스크립트에 끌기 코드 포함 확인. **비교 화면 자체는 실제 결과가 있어야 보여 화면 끌기 확인은 미완료** — 다음에 결과가 있을 때 확인.
