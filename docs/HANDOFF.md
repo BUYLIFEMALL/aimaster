@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 역량 지도 뒤처진 카드 2차 5개 · safe-commit 「바뀐 줄」 미리 보기 (비용 없음)
+- 카드(`3ac6eb007`): `stepmail`(v1.10→v1.27)·`personality-code`(`mbti/`, v1.04→v1.21, 「자체 로그인(vercel.app)」 단점 삭제 — `cookieDomain` 공용 로그인 확인)·`mbti-character`(v1.07→v1.24)·`document-translator`(v1.04→v1.21, 기능 변화 없음 명시)·`crm-google-form`(v1.09→v1.16, 「배포 대기」 문구 삭제). 남은 뒤처진 카드는 `deploy.mjs --version-only --all` 「카드 내용」.
+- ⚠ 이 커밋에 **인스타 세션의 미커밋 2줄**(77번 줄 `auto-instagram-posting` v1.64→v1.66, v1.63~v1.64 설명 줄)이 함께 들어감 — 내가 기준 사본을 뜬 뒤 그 세션이 고친 줄이라 구별 불가. 내용은 그 세션의 최신 값이라 그대로 둠(인스타 세션은 그 줄을 다시 커밋할 필요 없음).
+- 보완: `safe-commit` 커밋 뒤 「바뀐 줄」 미리 보기 출력, 한계를 `docs/CLI_COLLABORATION_RULES.md` 9번·ERROR_LESSONS에 기록.
+- 메인 관리자 「운영 상태」 카드의 「갱신 필요」 표시(기록 시각 24시간 초과)는 **코드 미작성** — 메인 코드는 푸시 즉시 빌드되므로 다음 메인 화면 작업 때 함께 구현(제안만 등록).
+
 ## 2026-10-23 — Claude Code(윈도우): INSTA 포스팅 v1.65~v1.66 무료 사진 — 장마다 서로 다른 사진·설정 연결 확인·피드 직접 첨부, Enter 제출 버그 즉시 수정
 - 한 일: 자동 채우기 「장마다 서로 다른 사진」, 설정 「Pixabay/Pexels 연결 확인」, 피드 새 글 「무료 사진으로 첨부」(JPEG로 `insta-post-images` 저장) + 지난 미배포분(자동 채우기·출처 배지·공용 기준 코드 `free-photo-search`) 함께 v1.65 배포. 검수 중 사진 검색어 Enter가 새 글 양식까지 제출하는 회원 피해 버그 발견 → v1.66 즉시 수정(`docs/ERROR_LESSONS.md` 맨 위). 웹툰·4컷 연계는 「맞지 않음(컷이 AI 그림)」으로 정정.
 - 검수: 시험 75·tsc·빌드, 배포 v1.65·v1.66 Ready, DB v1.66, 크롬(관리자 본인 Pixabay 키)에서 같은 제목 3장 → 서로 다른 사진 3장, 배지 12장, 연결 확인 ✅, 피드 첨부 JPEG 402KB, v1.66 Enter는 검색만. 시험 데이터 삭제. 미확인: Pexels·휴대폰 폭·실제 게시.
