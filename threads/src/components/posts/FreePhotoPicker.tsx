@@ -24,7 +24,7 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
     const source = (query || defaultQuery).trim();
     const english = toEnglishKeywords(source);
     if (english) {
-      setKoreanBefore(source);
+      setKoreanBefore(/[가-힣]/.test(source) ? source : ""); // 한글이 있을 때만 「한국어로 다시 찾기」 대상
       setQuery(english);
       setTranslateNote("");
     } else {

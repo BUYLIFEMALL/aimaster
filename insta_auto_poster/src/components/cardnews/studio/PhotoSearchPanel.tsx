@@ -27,7 +27,7 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
   const toEnglish = () => {
     const english = toEnglishKeywords(query);
     if (english) {
-      setKoreanBefore(query);
+      setKoreanBefore(/[가-힣]/.test(query) ? query : ""); // 한글이 있을 때만 「한국어로 다시 찾기」 대상
       setQuery(english);
       setTranslateNote("");
     } else setTranslateNote("사전에 없는 말이에요. 검색어를 직접 영어로 적어 주세요(예: coffee, office).");
