@@ -119,6 +119,19 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea }: { fromId?:
 
   // 이미지 생성
   const [idea, setIdea] = useState(initialIdea ?? "");
+  // v1.24: 다른 프로그램이 보낸 아이디어로 열리면 「이미지 생성」 카드로 내려가 테두리를 잠깐 강조(한 번만)
+  useEffect(() => {
+    if (!initialIdea) return;
+    const el = document.getElementById("card-generate");
+    if (!el) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const t0 = window.setTimeout(() => {
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+      el.classList.add("bc-flash");
+    }, 150);
+    const t1 = window.setTimeout(() => el.classList.remove("bc-flash"), 2600);
+    return () => { window.clearTimeout(t0); window.clearTimeout(t1); };
+  }, [initialIdea]);
   const [category, setCategory] = useState("default");
   const [genAspect, setGenAspect] = useState<Aspect>("1:1");
   // 편집
