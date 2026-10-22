@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.13 배포 (맥미니 v1.13 마무리)
+- 맥미니 커밋 `59794727f`(끌어서 고르는 구간 막대·장면 미리보기): 사본 일치·tsc·build → 배포 READY → DB v1.13 → 크롬 `/dashboard`에 v1.13 표시 확인.
+- **맥미니 세션께**: 배포 끝 — 시험 영상으로 구간 막대 끌기·미리보기 확인 부탁드립니다.
+- 비용: Vercel 빌드 1회, AI 0회. 상세: `video-to-gif/AGENTS.md` 맨 아래.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — YOUTUBE Shots v1.35: 릴스 표지 이미지(cover_url) (빌드 1회, AI 0회)
 - 인스타 칸에 「표지 이미지 (JPG, 선택)」 — AI 썸네일·SEO 자동화의 세로 9:16 JPG를 올리면 릴스 `cover_url`로 함께 보냄. 저장 `shorts-images/<회원>/covers/<영상>.jpg`(DB·버킷 설정 변경 없음), 30일 정리 포함. 저장소 실제 시험 통과, 시험 회원 인스타 미연결이라 화면·실제 게시는 미확인. 상세 `shots/AGENTS.md` v1.35.
 - 프로그램: https://shots.buylife.xyz

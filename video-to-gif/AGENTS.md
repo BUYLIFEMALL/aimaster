@@ -154,3 +154,9 @@
 - `lib/trimBar.ts`(새, 순수 계산) + `components/TrimBar.tsx`(새): 구간 숫자 칸 아래 막대·손잡이 2개(끌기·키보드), 「장면 보기」로 끄는 시점 장면·「구간 재생」 반복. 숫자 칸과 같은 `trimStart`/`trimEnd`를 함께 써서 서로 따라감. 미리보기는 한 번에 한 줄(`scenePreviewId`), 닫히면 object URL 정리. 변환(`trimArgs`·ffmpeg)·ZIP·썸네일 그대로.
 - 버전 v1.13(`lib/version.ts`, `package.json` 1.13.0, SQL `supabase/migrations/20261022_trim_bar_v1_13.sql` — 버전만). 검수: 계산 시험 12가지 통과, tsc 0, eslint 0.
 - **윈도우 CLI 다음 첫 단계**: SQL `20261022_trim_bar_v1_13.sql` → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬 실검수.
+
+## 2026-10-22 ✅ v1.13 배포 (Claude Code 윈도우 — 맥미니 v1.13 마무리)
+- 맥미니 커밋 `59794727f`(끌어서 고르는 구간 막대·장면 미리보기·반복 재생, 브라우저 안에서만 동작) 마무리.
+- 공용 사본 `store-zip` 일치·tsc·로컬 build 통과 → 배포 READY(`video-to-lfp2va3fl-buylife.vercel.app`) → 운영 DB `programs.version` v1.13(`20261022_thumbnail_v1_12.sql`과 같은 버전 갱신만).
+- 크롬(메인 크롬): `/dashboard` 머리 배지·사이드바에 v1.13 표시 확인. 구간 막대는 영상을 올려야 보이므로 **맥미니 크롬에서 시험 영상 2개로 확인 예정**(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
