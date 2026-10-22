@@ -27,11 +27,13 @@ export async function redirectToDownload(
   path: string,
   fileName: string,
 ): Promise<NextResponse | null> {
-  const { data, error } = await supabase.storage
-    .from(SHOP_IMAGE_BUCKET)
-    .createSignedUrl(path, DOWNLOAD_URL_SECONDS, { download: fileName });
+  // 내려받기 이름은 서명 주소 뒤에 직접 붙인다: storage-js의 { download: 이름 }은 이름을 두 번 인코딩해
+  // 한글 이름이 「%EC%8B%9C…」 글자 그대로 저장됐다(2026-10-22 v1.21 크롬 확인). 한 번만 인코딩하면 서버가
+  // filename*=UTF-8''… 로 보내 한글 이름으로 저장된다(서명은 그대로 유효).
+  const { data, error } = await supabase.storage.from(SHOP_IMAGE_BUCKET).createSignedUrl(path, DOWNLOAD_URL_SECONDS);
   if (error || !data?.signedUrl) return null;
-  return NextResponse.redirect(data.signedUrl, 303);
+  const sep = data.signedUrl.includes("?") ? "&" : "?";
+  return NextResponse.redirect(`${data.signedUrl}${sep}download=${encodeURIComponent(fileName)}`, 303);
 }
 
 export function safeFileName(name: string): string {
