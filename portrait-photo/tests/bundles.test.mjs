@@ -29,3 +29,12 @@ test("화면: 묶음 저장이 규격 추천 영역·프로필 계산을 쓰고 
   assert.match(fn, /profileCrop\(/);
   assert.doesNotMatch(fn, /fetch\(/);
 });
+
+test("미리보기: 취업 묶음은 3장, 크기·형식이 붙는다", async () => {
+  const { bundlePreview, BUNDLES } = await import("../src/lib/portrait/bundles.ts");
+  const list = bundlePreview(BUNDLES[0].items);
+  assert.equal(list.length, 3);
+  for (const f of list) assert.match(f.size, /^\d+×\d+$/);
+  assert.deepEqual(bundlePreview(["profile:circle"]).map((f) => f.ext), ["png"]);
+  assert.deepEqual(bundlePreview(["size:없음", 3]), []);
+});

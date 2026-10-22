@@ -20,7 +20,7 @@ import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileChe
 import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
-import { BUNDLES, bundleFileName, bundleItemLabel, cleanBundle, type BundleKey } from "@/lib/portrait/bundles";
+import { BUNDLES, bundleFileName, bundleItemLabel, bundlePreview, cleanBundle, type BundleKey } from "@/lib/portrait/bundles";
 import { GuideOverlay } from "./GuideOverlay";
 import { ZoomCompare } from "./ZoomCompare";
 import { CropAdjuster } from "./CropAdjuster";
@@ -1108,6 +1108,17 @@ export function Studio({ userId }: { userId: string }) {
                     ))}
                   </div>
                 </details>
+                {/* v1.36: 받기 전에 어떤 파일이 생기는지 미리 보기 */}
+                {bundleKeys.length > 0 && (
+                  <div className="bundle-preview" aria-label="묶음에 들어갈 파일">
+                    <p>들어갈 파일 {bundleKeys.length}장 · ZIP 1개</p>
+                    <ul>
+                      {bundlePreview(bundleKeys).map((f) => (
+                        <li key={f.key}><span>{f.label}</span><span className="bundle-size">{f.size} · {f.ext.toUpperCase()}</span></li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <button type="button" className="primary" onClick={() => void saveBundle()} disabled={!!saving || bundleKeys.length === 0}>{saving === "bundle" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}묶음 저장 ({bundleKeys.length}종, ZIP)</button>
               </div>
             )}

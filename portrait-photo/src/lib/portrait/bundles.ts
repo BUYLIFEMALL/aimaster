@@ -42,3 +42,16 @@ export function bundleFileName(base: string, k: BundleKey): string {
   const f = PROFILE_FORMATS.find((x) => x.id === id)!;
   return `${base}-프로필-${f.id}-${f.width}x${f.height}.${f.circle ? "png" : "jpg"}`;
 }
+
+/** v1.36: 저장 전 미리보기 — 묶음에 들어갈 파일마다 이름·픽셀 크기·형식 */
+export function bundlePreview(keys: unknown): { key: BundleKey; label: string; size: string; ext: "jpg" | "png" }[] {
+  return cleanBundle(keys).map((k) => {
+    const [kind, id] = k.split(":");
+    if (kind === "size") {
+      const p = SIZE_PRESETS.find((x) => x.id === id)!;
+      return { key: k, label: p.label, size: `${p.width}×${p.height}`, ext: "jpg" as const };
+    }
+    const f = PROFILE_FORMATS.find((x) => x.id === id)!;
+    return { key: k, label: bundleItemLabel(k), size: `${f.width}×${f.height}`, ext: f.circle ? "png" as const : "jpg" as const };
+  });
+}

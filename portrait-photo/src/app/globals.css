@@ -443,3 +443,8 @@ input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--bran
 .bundle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 12px;margin-top:8px;max-height:240px;overflow:auto}
 .bundle-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500}
 .bundle-item input{width:auto}
+.bundle-preview{font-size:12px}
+.bundle-preview p{margin:0 0 4px;font-weight:600}
+.bundle-preview ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
+.bundle-preview li{display:flex;justify-content:space-between;gap:12px}
+.bundle-size{font-variant-numeric:tabular-nums;opacity:.7;white-space:nowrap}
