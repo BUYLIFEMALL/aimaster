@@ -16,6 +16,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `music` (운영 v1.43) | 공용 Suno 코드 `callbackOrigin` 선택값(이 앱 동작 변화 없음 — AI 음악 스튜디오 v1.03용) | `acccf06eb` | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, 곡 생성 1회 콜백 정상 확인 |
 | `threads` (운영 v1.31) | 「🔤 영어로」 사전 194개로 보강(회원 글감에서 자주 나온 말·업종별 말), 붙여 쓴 말은 두 글자 이상으로만 나눔(「비용」→rain 같은 오변환 방지), 「정리」→organize · 공용 기준 코드 `photo-keywords` 기준이 됨 · 영어 결과 0장이면 「한국어로 다시 찾기」(한글 있을 때만) | `93b2aac56` `d4dcd0384` `4bebfb016` | 2026-10-23 · Claude Code(윈도우) | `threads/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 새 글 「🔤 영어로」로 「미용실 창업」→hair salon startup 확인 |
 | `naver-blog-agent` (운영 v2.10) | 기한 지난 미사용 연결 번호 정리(번호 발급 때) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-agent/AGENTS.md` 맨 위 「미배포 대기」 | v2.11(설치 상태 문구와 함께) |
 | `ai-auto-blog` (운영 v1.78) | 옛 자동 연결 코드 정리(연결 성공 뒤, 안 쓰이거나 30일 미사용만) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `ai-auto-blog/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |

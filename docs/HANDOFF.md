@@ -1,6 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 음악 스튜디오 v1.03 화면 닫아도 완성(웹훅)·ElevenLabs 작곡 계획·실측 기록·카드 글씨 (빌드 1회 · 시험 생성 4건 약 $0.21 · 시험 계정 본인 키)
+- fal·Replicate·Suno 완료 신호를 `/api/webhooks/[provider]`로 받아 회원 키 재조회 결과로만 저장(가짜 웹훅 무시 확인). Suno는 공용 기준 `music/lib/ai/suno.ts`에 `callbackOrigin` 선택값 추가 → **music 미배포 대기**(`docs/PENDING_DEPLOYS.md`). ElevenLabs는 가사 구간 → `composition_plan`. 곡마다 실측(정액·추론/실행 시간·Suno 크레딧 차이) + 사용량 바로가기. 모델 카드 글씨 키움(주인님 화면 지적).
+- 검수: 시험 23·build, 배포 Ready·DB v1.03, 시험 계정으로 4개 접수 후 탭 닫고 DB 조회 → 4개 모두 웹훅으로 완성. Suno V6 Mini 2곡 = 크레딧 약 12. Mureka는 백로그.
+- 프로그램: https://ai-music-studio.buylife.xyz
 ## 2026-10-23 — Claude Code(윈도우): INSTA v1.67 미배포분 묶음 배포(JPEG 저장·공용 사전·설명 한 줄) + 「한국어로 다시 찾기」(쓰레드는 미배포)
 - 한 일: 무료 사진 검색에서 「🔤」로 바꾼 영어 결과가 0장이면 「한국어로 다시 찾기」(INSTA·쓰레드). INSTA는 쌓인 미배포 3건과 함께 v1.67 배포. 후속 틈(원래 영어 검색어도 기억)은 한글 있을 때만으로 고쳐 미배포(`4bebfb016`).
 - 검수: 시험 78·tsc·빌드, 배포 `insta-auto-poster-ex0m69nqd` Ready, DB v1.67. 크롬(시험 회원 본인 Pixabay 키): 자동 채우기 검색어가 영어(morning coffee·hair salon startup)·맞는 사진 2장, 0장일 때 버튼 표시, PNG 첨부 → JPEG(`ff d8 ff`). 시험 데이터 삭제.
