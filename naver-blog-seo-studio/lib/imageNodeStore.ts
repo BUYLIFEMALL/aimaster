@@ -4,7 +4,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createContentBlocks, getContentBlocks, getContentImages, type DraftRecord } from "@/components/studio/shared";
 import { draftLocked, draftReport, nextDraftReport, writableDraft } from "@/lib/draftWriteGuard";
-import type { ImageNode, NodeBlock } from "@/lib/imageNodes";
+import { splitParagraphBlocks, type ImageNode, type NodeBlock } from "@/lib/imageNodes";
 
 export type NodeState = { images: ImageNode[]; blocks: NodeBlock[] };
 export class NodeStoreError extends Error {
@@ -19,7 +19,7 @@ export async function readNodes(supabase: SupabaseClient, userId: string, draftI
   if (draftLocked(report)) throw new NodeStoreError("자동 발행을 시작한 원고의 이미지는 바꿀 수 없습니다.", 409);
   const images = getContentImages(draft as unknown as DraftRecord) as ImageNode[];
   const stored = getContentBlocks(draft as unknown as DraftRecord) as NodeBlock[];
-  const blocks = stored.length ? stored : createContentBlocks(draft as unknown as DraftRecord, images) as NodeBlock[];
+  const blocks = splitParagraphBlocks(stored.length ? stored : createContentBlocks(draft as unknown as DraftRecord, images) as NodeBlock[]);
   return { draft, report, state: { images, blocks } as NodeState };
 }
 

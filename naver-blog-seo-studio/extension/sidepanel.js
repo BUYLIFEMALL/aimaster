@@ -240,7 +240,7 @@ async function loadSelectedWebDraft() {
   activeWebDraftBlocks = Array.isArray(draft.content_blocks) ? draft.content_blocks.filter((block) => {
     if (!block || typeof block !== "object") return false;
     return (block.type === "text" && typeof block.text === "string")
-      || (block.type === "image" && ["cover", "content-1", "content-2", "content-3"].includes(block.slot));
+      || (block.type === "image" && (block.slot === "cover" || /^content-[1-6]$/.test(block.slot)));
   }) : [];
   renderWebDraftPreview(draft);
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
@@ -333,6 +333,8 @@ async function typeBodyWithMatchedImages(tabId, body, images) {
 
 async function typeContentBlocks(tabId, blocks, coverDataUrl, contentImages) {
   const contentImageBySlot = new Map(contentImages.map((image) => [image.slot, image.dataUrl]));
+  // v2.00: 글 블록이 연달아 오면(문단마다 블록, 이미지를 옮긴 경우) 사이에 문단 나눔을 넣어 한 문단으로 붙지 않게 한다.
+  let afterText = false;
   for (const block of blocks) {
     if (block.type === "image") {
       const dataUrl = block.slot === "cover" ? coverDataUrl : contentImageBySlot.get(block.slot);
@@ -340,14 +342,16 @@ async function typeContentBlocks(tabId, blocks, coverDataUrl, contentImages) {
       await insertImageIntoNaverEditor(tabId, dataUrl);
       const focus = await focusNaverEditor(tabId, "body");
       if (!focus.ok) throw new Error("이미지 다음 본문 입력 위치를 찾지 못했습니다.");
+      afterText = false;
       continue;
     }
     if (!block.text) continue;
     await chrome.debugger.attach({ tabId }, "1.3");
     try {
       await debuggerCommand(tabId, "Input.setIgnoreInputEvents", { ignore: false });
-      await typeWithDebugger(tabId, block.text);
+      await typeWithDebugger(tabId, afterText ? `\n\n${block.text}` : block.text);
     } finally { await chrome.debugger.detach({ tabId }); }
+    afterText = true;
   }
 }
 

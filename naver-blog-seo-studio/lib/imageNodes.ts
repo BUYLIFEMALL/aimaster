@@ -56,6 +56,56 @@ export function placeNodeBlock(blocks: NodeBlock[], node: Pick<ImageNode, "slot"
   return [...blocks.slice(0, index), before, imageBlock, after, ...blocks.slice(index + 1)];
 }
 
+const paragraphsOf = (text: string) => text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
+
+// v2.00: 글 블록을 문단 하나씩으로 나눈다(「여기에 이미지」가 정확히 그 문단 앞에 들어가게). 첫 조각은 원래 id 유지.
+export function splitParagraphBlocks<B extends NodeBlock>(blocks: B[]): B[] {
+  const used = new Set(blocks.map((block) => block.id));
+  let n = 1;
+  const freshId = () => { while (used.has(`text-${n}`)) n += 1; used.add(`text-${n}`); return `text-${n}`; };
+  return blocks.flatMap((block) => {
+    if (block.type !== "text") return [block];
+    const parts = paragraphsOf(block.text);
+    if (parts.length <= 1) return [block];
+    return parts.map((text, index) => ({ ...block, id: index === 0 ? block.id : freshId(), text }));
+  });
+}
+
+// v2.00: 통짜 본문 입력칸으로 본문이 바뀐 뒤 저장할 때 — 문단마다 글 블록을 새로 만들고, 이미지는 예전 「바로 뒤 문단」을 새 본문에서 찾아 그 앞에 둔다.
+// 못 찾으면 그 노드의 기준 문장이 든 문단 앞, 그것도 없으면 예전 순서 자리(앞에 있던 문단 수). 이미지를 빼지 않는다.
+export function reflowBlocks(oldBlocks: NodeBlock[], newBody: string, nodes: Pick<ImageNode, "slot" | "sentence">[] = []): NodeBlock[] {
+  const paragraphs = paragraphsOf(newBody);
+  const keys = paragraphs.map(squash);
+  const old = splitParagraphBlocks(oldBlocks);
+  const findAt = (text: string) => {
+    const key = squash(text);
+    if (!key) return -1;
+    const exact = keys.indexOf(key);
+    if (exact >= 0) return exact;
+    const head = key.slice(0, 30);
+    return head.length >= 10 ? keys.findIndex((item) => item.startsWith(head)) : -1;
+  };
+  const placed: { at: number; block: NodeBlock }[] = [];
+  let textBefore = 0;
+  old.forEach((block, index) => {
+    if (block.type === "text") { textBefore += 1; return; }
+    const next = old.slice(index + 1).find((item) => item.type === "text") as Extract<NodeBlock, { type: "text" }> | undefined;
+    let at = next ? findAt(next.text) : paragraphs.length;
+    if (at < 0) {
+      const sentence = squash(nodes.find((node) => node.slot === block.slot)?.sentence ?? "");
+      at = sentence ? keys.findIndex((item) => item.includes(sentence)) : -1;
+    }
+    if (at < 0) at = Math.min(textBefore, paragraphs.length);
+    placed.push({ at, block });
+  });
+  const result: NodeBlock[] = [];
+  for (let i = 0; i <= paragraphs.length; i += 1) {
+    for (const item of placed) if (item.at === i) result.push(item.block);
+    if (i < paragraphs.length) result.push({ id: `text-${i + 1}`, type: "text", text: paragraphs[i] });
+  }
+  return result;
+}
+
 export function removeNodeBlock(blocks: NodeBlock[], slot: ImageSlot): NodeBlock[] {
   return blocks.filter((block) => !(block.type === "image" && block.slot === slot));
 }

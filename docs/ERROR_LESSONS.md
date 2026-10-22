@@ -1,5 +1,9 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — node 시험이 바로 불러오는 공용 파일(`components/studio/shared.ts`)에 `@/` 별칭 가져오기를 넣으면 다른 시험 묶음이 통째로 깨진다 (naver-blog-seo-studio v2.00, Claude Code 윈도우)
+- 증상: `shared.ts`에 `import { splitParagraphBlocks } from "@/lib/imageNodes"`를 넣자 `npm run test:auto-publish`가 `Cannot find module '@/lib/imageNodes'`로 실패(시험 파일이 `shared.ts`를 node로 직접 불러옴). 타입 검사·빌드는 통과해서 시험을 돌려야만 드러남.
+- 해결: `shared.ts`는 그대로 두고, 그 함수를 부르는 쪽(`useStudio.ts`·`lib/imageNodeStore.ts`)에서 감쌌다. v1.93 교훈(확장자 없는 실제 가져오기)과 같은 계열 — 시험이 직접 부르는 파일인지 먼저 `grep -rn "shared.ts\|<파일명>" tests/`로 확인하고, 그런 파일에는 실제 가져오기를 넣지 않는다.
+
 ## 2026-10-22 — API 경로를 지운 뒤 `next build`가 「Cannot find module …/route.js」로 실패하면 로컬 `.next/dev/types`(개발 서버가 만든 타입)가 옛 경로를 들고 있는 것 (naver-blog-seo-studio v1.99 BLC-10, Claude Code 윈도우)
 - 증상: `app/api/images/generate-content/route.ts`를 지우고 `npm run build` → `.next/dev/types/validator.ts`가 지운 경로를 찾다 `Failed to type check.` `npx tsc --noEmit`도 `.next/types`·`.next/dev/types`에서 같은 오류.
 - 해결: 코드 문제가 아니라 예전 생성물 — `.next/dev/types`만 지우고 다시 빌드하면 통과(Vercel은 깨끗한 상태에서 빌드하므로 운영 영향 없음). 경로를 지우는 작업은 로컬 빌드 전에 이 폴더를 먼저 지운다.

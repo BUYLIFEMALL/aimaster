@@ -8,7 +8,13 @@ import { DEFAULT_GEMINI_IMAGE_MODEL, type GeminiImageModel } from "@/lib/ai/gemi
 import { DEFAULT_OPENAI_CONTENT_MODEL } from "@/lib/ai/openaiModels";
 import { CONTENT_MODEL_OPTIONS, getContentModels, type ContentProvider } from "@/lib/ai/contentModels";
 import { parseSavedModel, SAVED_MODEL_KEY } from "@/lib/savedModel";
-import { placeNodeBlock, removeNodeBlock, upsertNode } from "@/lib/imageNodes";
+import { placeNodeBlock, reflowBlocks, removeNodeBlock, splitParagraphBlocks, upsertNode } from "@/lib/imageNodes";
+
+// v2.00: 편집기 글 블록은 문단 하나씩(예전에 여러 문단을 묶어 저장한 원고도 열 때 나눔)
+function blocksOfDraft(draft: DraftRecord) {
+  const stored = getContentBlocks(draft);
+  return splitParagraphBlocks(stored.length ? stored : createContentBlocks(draft));
+}
 import { strategies, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, missingBlockImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
 
 export function useStudio() {
@@ -194,7 +200,7 @@ export function useStudio() {
     const restoredContentImages = getContentImages(draft);
     setContentImages(restoredContentImages);
     setContentImageCount(restoredContentImages.length === 3 ? 3 : 2);
-    setContentBlocks(getContentBlocks(draft).length ? getContentBlocks(draft) : createContentBlocks(draft));
+    setContentBlocks(blocksOfDraft(draft));
     setCurrentDraft(withoutContentImages(draft));
     rememberBase(draft);
     setGeneratedImage(draft.image_path ? { dataUrl: `/api/drafts/${encodeURIComponent(draft.id)}/image`, model: draft.image_model || "나노바나나" } : null);
@@ -369,7 +375,7 @@ export function useStudio() {
       const result = await response.json() as { draft?: DraftRecord; error?: string };
       if (!response.ok || !result.draft) throw new Error(result.error || "최적화한 블로그(원문)을 저장하지 못했습니다.");
       setContentImages(getContentImages(result.draft));
-      setContentBlocks(getContentBlocks(result.draft).length ? getContentBlocks(result.draft) : createContentBlocks(result.draft));
+      setContentBlocks(blocksOfDraft(result.draft));
       setCurrentDraft(withoutContentImages(result.draft));
       rememberBase(result.draft);
       setExtensionDraftId(result.draft.id);
@@ -427,7 +433,7 @@ export function useStudio() {
       setSelectedTitle(draft.title);
       const preparedDraft: DraftRecord = { ...draft, topic: draftTopic, keywords: draftKeywords.split(",").map((keyword) => keyword.trim()).filter(Boolean), strategy };
       setContentImages(getContentImages(preparedDraft));
-      setContentBlocks(createContentBlocks(preparedDraft));
+      setContentBlocks(splitParagraphBlocks(createContentBlocks(preparedDraft)));
       setCurrentDraft(withoutContentImages(preparedDraft));
       rememberBase(preparedDraft);
       setGeneratedImage(null);
@@ -682,7 +688,7 @@ export function useStudio() {
     const squash = (text: string) => text.replace(/\s+/g, " ").trim();
     const blocksForSave = squash(syncBodyFromBlocks(contentBlocks)) === squash(currentDraft.body)
       ? contentBlocks
-      : createContentBlocks(currentDraft, contentImages);
+      : reflowBlocks(contentBlocks, currentDraft.body, contentImages); // v2.00: 통짜 입력칸 수정 — 이미지 위치를 「바로 뒤 문단」 기준으로 다시 맞춤(빼지 않음)
     setDraftSaving(true);
     if (!silent) setDraftSaveMessage("수정한 블로그(원문)을 저장하는 중...");
     try {
@@ -690,7 +696,7 @@ export function useStudio() {
       const result = await response.json() as { draft?: DraftRecord; error?: string };
       if (!response.ok || !result.draft) throw new Error(result.error || "블로그(원문) 저장에 실패했습니다.");
       setContentImages(getContentImages(result.draft));
-      setContentBlocks(getContentBlocks(result.draft).length ? getContentBlocks(result.draft) : createContentBlocks(result.draft));
+      setContentBlocks(blocksOfDraft(result.draft));
       setCurrentDraft(withoutContentImages(result.draft));
       rememberBase(result.draft);
       setSelectedTitle(result.draft.title);

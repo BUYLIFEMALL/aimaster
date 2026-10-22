@@ -18,7 +18,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   if (body.length < 120 || body.length > 30000) return NextResponse.json({ error: "본문을 120~30,000자로 입력해주세요." }, { status: 400 });
 
   const contentBlocks = Array.isArray(input?.contentBlocks) ? input.contentBlocks : null;
-  if (contentBlocks && (contentBlocks.length === 0 || contentBlocks.length > 40 || contentBlocks.some((block) => {
+  if (contentBlocks && (contentBlocks.length === 0 || contentBlocks.length > 150 || contentBlocks.some((block) => {
     if (typeof block !== "object" || block === null) return true;
     const item = block as { id?: unknown; type?: unknown; text?: unknown; slot?: unknown; alt?: unknown };
     if (typeof item.id !== "string" || item.id.length > 80) return true;
