@@ -116,3 +116,9 @@
 - `Studio.tsx`: 참고 문서를 `inputs.doc`에서 읽고 씀 → 자동 저장(PUT)으로 저장, 다시 열어도 그대로, ✕는 지움. 1단계 제목 아래 「🔗 ○○에서 시작한 프로젝트」. `SeoStudio.tsx`: 프로젝트를 만들 때 `inputs.doc`(대본)·`inputs.origin`(「SEO 전략 A · 호기심 유발형」)을 바로 실음. v1.11 탭 저장소 경유 함수 삭제(같은 동작을 저장으로 대체).
 - 검수: tsc, `npm test` 14개(`cleanInputs` doc·origin 시험 추가, v1.11 보관 시험 삭제), 배포 `thumbnail-master-f965hqdwx` Ready, DB v1.12. 크롬(시험 회원, AI 0회): SEO 화면과 같은 요청으로 프로젝트 생성 → 제작 화면 전략 표시·참고 문서 칩 → 새로 고침 뒤 유지 → ✕ → 「저장됨」 → 새로 고침 뒤 문서 없음·전략 표시 유지. 시험 프로젝트 `019916f5-…`가 회원 본인 데이터로 남음. 못 한 것: 파일 올리기로 붙인 문서 저장(같은 `setDoc` 경로라 코드로만 확인).
 - 발견: 참고 문서 칩 글자 수가 `(길이/1000).toFixed(1)K자`라 짧은 대본은 「0.0K자」 — `docs/IMPROVEMENTS.md`.
+
+## 2026-10-22 v1.13 — 세로 9:16(쇼츠·릴스 표지) · 목록 출처 표시 · 참고 문서 글자 수 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_VERTICAL_RATIO.md`(주인님 승인).
+- `types.ts` `Ratio`·`Style.ratio`(기본 「16:9」, `EMPTY_INPUTS`), `validate.ts` `cleanInputs`가 「9:16」만 허용·`charsLabel`. `gemini.ts` `makeImage(…, ratio)` → `imageConfig.aspectRatio`. `prompts.ts` `ratioLine`(세로: 쇼츠·릴스 표지, 위 15%·아래 20% 피해 가운데)·`editPrompt(instruction, ratio)`. `/api/generate`는 보낸 입력값, `/api/edit`는 저장된 입력값의 비율 사용. `Studio.tsx` 해상도 옆 「화면 비율」, 세로 결과 칸 높이 제한, 칩 글자 수. `GET /api/projects` 출처·비율만 읽어 `ProjectList` 카드에 「🔗 …」·「세로 9:16」.
+- 검수: tsc, `npm test` 15개(비율·프롬프트·글자 수 시험 추가), 배포 `thumbnail-master-3gw3s1d3h` Ready, DB v1.13. 크롬(시험 회원): 목록(`/dashboard`)에 「🔗 SEO 전략 B · 가치 제안형」, 「프랑스 신사…」 프로젝트 「전략 생성」(Flash 1회) → 「화면 비율」 세로 9:16·1K 선택·저장 확인 → A안만 `/api/generate` 1회 → **768×1376(≈9:16), gemini-3-pro-image, 22초**. 못 한 것: 새로 고친 뒤 로그인이 풀려(로그인 화면, 비밀번호는 입력하지 않음) 세로 결과 칸 모양을 화면으로 보지 못함 — 다음 확인 때 주인님 로그인 뒤 같은 프로젝트(`b725bfeb-…`) 3단계 결과 칸 확인.
+- 비용: 빌드 1회, Gemini 전략 1회(약 $0.01 이하)·이미지 1회(3 Pro Image 1K 약 $0.13), 시험 회원 본인 키.
