@@ -180,3 +180,7 @@
 ## ✅ v1.35 배포 (2026-10-22, Claude Code 윈도우)
 - 위 「⏸ 미배포 — 추세 점 프롬프트」 v1.35 항목들(추세 프롬프트·🏆 최고 기록·불러오기 되돌리기·이미지 스튜디오/바나나 보내기)과 OpenAI 요청 규칙 사본 정리가 이 버전으로 나감. **새로 추가**: 공용 기준 코드 `banana-idea-link`의 **기준**을 `src/lib/dna/bananaIdeaLink.ts`로 신설(`bananaIdeaLink(idea, src)`, 600자 한도, `&src=`), `studioLink.ts`의 `bananaLink`는 이를 불러 `src=style-dna-analyzer`로 보냄. 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync`(사본: 감성 글귀·리버스 프롬프트). 시험 39개. 크롬: 운영 결과 화면 묶음 파일 2개에 `&src=style-dna-analyzer` 포함 확인(결과 화면 실제 클릭은 분석 기록이 필요해 생략).
 - 배포 묶음(2026-10-22, Claude Code 윈도우): 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30 순차 배포(빌드 7회, 실패 0), DB `programs.version` 갱신, 크롬에서 화면 버전 확인.
+
+## ✅ v1.36 배포 (2026-10-22, Claude Code 윈도우) — 이미지 스튜디오 링크에 보낸 곳
+- `src/lib/dna/studioLink.ts`의 `imageStudioLink`가 `&src=style-dna-analyzer`를 붙인다 → 이미지 스튜디오(v1.26)가 「이미지 스타일 분석기에서 보낸 프롬프트」 안내·돌아가기 링크를 보여 주고 생성 기록에 보낸 곳을 남김. 시험 기대값만 고침(39개 통과).
+- 같은 배포로 공용 기준 코드 `banana-idea-link`의 `BANANA_SOURCES`·`isBananaSource` 추가분(저장소만 반영돼 있던 것)도 나감.

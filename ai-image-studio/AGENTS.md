@@ -197,3 +197,9 @@
 
 ## 2026-10-22 — AI 동영상 공용 기준 코드 `ai-video-*` 등록(코드만, 미배포) (Claude Code 윈도우)
 - `lib/video/videoModels.ts`·`videoParse.ts`·`videoProviders.ts`가 기준(사본: `shorts-onestop-studio/src/lib/`·`shots/src/lib/video/`). 이 프로그램 화면에서는 아직 쓰지 않아 동작 변화 없음 → 다음 배포 때 함께 나가며 버전도 그때. **영상 모델·업체 주소가 바뀌면 여기를 먼저 고치고 `node scripts/check-shared-modules.mjs --sync`**(이미지 모델과 같은 원칙). 상세 `docs/SHARED_MODULES.md`.
+
+## ✅ v1.26 배포 (2026-10-22, Claude Code 윈도우) — 보낸 곳 안내·돌아가기·생성 기록
+- 다른 프로그램이 `/dashboard?prompt=…&src=<프로그램>`으로 보내면 대시보드에 「「○○」에서 보낸 프롬프트를 2단계 칸에 채웠습니다 · ↩ ○○ 화면으로 돌아가기」(`data-prompt-source`). 이름·주소 표는 공용 사본 `lib/bananaIdeaLink.ts`(공용 기준 코드 `banana-idea-link`, 기준 `style-dna-analyzer/src/lib/dna/bananaIdeaLink.ts` — **직접 고치지 않음**)의 `BANANA_SOURCES`, 판정은 `lib/promptSource.ts`.
+- 생성 요청(`components/Step2PlatformGenerator.tsx`)에 `ideaSource`를 싣고, `/api/generate`가 정해 둔 이름만 받아 `usage_logs.metadata.ideaSource`에 저장(DB 칸 추가 없음). 메인 관리자 통계 카드의 「AI 이미지 스튜디오 · 보낸 프롬프트로 만든 생성」이 이 값을 센다.
+- 지금 보내는 곳: 이미지 스타일 분석기(v1.36부터 `&src=style-dna-analyzer`).
+- 검수: 새 시험 `npm run test:prompt-source` 2개, 기존 `test:custom-prompts` 18개, tsc·빌드. 크롬: 안내·밑줄 돌아가기 링크·2단계 칸 채움, `/api/generate`를 가로채(생성 안 함) 요청에 `ideaSource: "style-dna-analyzer"` 확인.

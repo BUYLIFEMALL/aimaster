@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): 연계 기록 확대 — 바나나 v1.28 「다음 단계로 넘김」·이미지 스튜디오 v1.26 보낸 곳·스타일 분석기 v1.36 + 관리자 카드 7일/30일
+- 한 일: ① 바나나 결과의 「🔁 형식 바꾸기」·「🎬 스토리보드로」 첫 클릭을 `options.handoffs`에 기록(바나나엔 인스타·블로그 보내기 기능 없음) ② 메인 `app/admin/statistics` 카드 「다른 프로그램에서 이어진 작업」에 최근 7일/30일 전환·「다음 단계로 넘김」 칸·「AI 이미지 스튜디오 · 보낸 프롬프트로 만든 생성」 ③ 이미지 스튜디오가 `?prompt=&src=`의 보낸 곳을 안내·돌아가기 링크로 보여 주고 `usage_logs.metadata.ideaSource`에 저장(공용 사본 `banana-idea-link` 추가), 스타일 분석기 링크가 `&src=style-dna-analyzer`를 보냄. DB 칸 추가 없음.
+- 검수: 시험 바나나 41·이미지 스튜디오 2+18·스타일 39, tsc·빌드, 메인 통계 파일 타입 오류 0, 운영 DB 집계 조회 읽기 시험(이미지 스튜디오 최근 7일 6건 중 연계 0). 크롬: 이미지 스튜디오 안내·돌아가기·칸 채움·생성 요청의 `ideaSource`(가로채기, 생성 안 함), 바나나 넘김 API 404/400. 못 한 것: 관리자 카드 화면(주인님 로그인 필요), 실제 넘김 클릭 후 기록.
+- 배포: 바나나 v1.28 → 이미지 스튜디오 v1.26 → 스타일 분석기 v1.36 → 메인 자동 빌드(모두 Ready, 빌드 4회), DB 버전 3줄. 커밋 20cf69a90·0de96ac07 + 이 커밋.
+- 링크: https://banana-canvas.buylife.xyz · https://ai-image-studio.buylife.xyz · https://style-dna-analyzer.buylife.xyz · https://www.buylife.xyz/admin/statistics
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 v1.27 배포 (맥미니 문구 고치기 💧 찍기 결함 수정 마무리)
 - 맥미니 커밋 `3ddd59df5`: 사본 일치·tsc → 배포 READY → DB v1.27 → 크롬 `/products`에 v1.27·FAQ 확인.
 - 못 한 것: 💧 찍기·새 버전 저장 실제 시험 — **맥미니 세션께**: 배포 끝, 맥미니 크롬 확인 부탁드립니다(끝나면 원본 버전 재선택).
