@@ -78,7 +78,14 @@
 ## 7. 주인님 결정이 필요한 것
 
 1. 단계 1~5(무료 브라우저 엔진 정리·뮤직비디오 합치기) 진행 여부와 순서
-2. Remotion 시범(6단계) 여부 — BUYLIFE 인원(프리랜서 포함)이 3명 이하인지
+2. ~~Remotion 시범(6단계) 여부 — BUYLIFE 인원(프리랜서 포함)이 3명 이하인지~~ → **확정(2026-10-23 주인님): 개인·3명 이하 회사로 Remotion 무료 라이선스 조건에 해당.**
+
+## 8. Remotion 무료 조건 확정에 따른 변경 (2026-10-23)
+
+- Remotion은 비용 걱정 없이 쓸 수 있다. 6단계(Lab 시범)를 「선택」에서 **정식 단계**로 올리고, 템플릿이 많은 프로그램(가사 영상·카드뉴스→영상·뮤직비디오 자막)의 **그리기 층 + 미리보기(Player)** 에 쓰는 것을 기본 후보로 둔다.
+- 그래도 **인코딩 엔진은 Remotion에 묶지 않는다**(WebCodecs+Mediabunny 공용 엔진 유지). 이유: ① 인원이 4명 이상이 되면(프리랜서·대행사 포함) 회원 렌더 서비스는 월 최소 $100 유료로 바뀜 ② 5.0에서 약관 변경 예정 ③ 브라우저 렌더 때 꺼지지 않는 사용량 기록(도메인별 렌더 수)이 Remotion으로 전송됨. Remotion을 빼도 프로그램이 돌아가게 경계를 나눈다.
+- 지킬 것: 회원이 Remotion 코드를 직접 올리거나 바꾸게 하는 기능은 만들지 않는다(무료 약관 금지 사항). Remotion을 고쳐 파는 형태도 안 된다.
+- 인원이 늘거나 Remotion 5.0으로 올릴 때는 라이선스를 다시 확인한다(이 문서와 `docs/PROGRAM_IDEA_BACKLOG.md`에 기록).
 
 ## 출처
 - Remotion 라이선스: https://github.com/remotion-dev/remotion/blob/main/LICENSE.md , FAQ https://www.remotion.dev/docs/license/faq
