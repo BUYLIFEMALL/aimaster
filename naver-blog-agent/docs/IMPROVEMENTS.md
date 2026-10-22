@@ -196,3 +196,7 @@
 - `test:writing-styles`·`test:post-status`: v2.04~v2.06에서 `collectedMaterials.ts`·`privatePhotoPost.ts`가 `import "server-only"`를 쓰기 시작했는데 시험의 가짜 불러오기가 처리하지 않아 실패 → `scripts/test-writing-styles.cjs`·`scripts/test-post-status.cjs`의 `mockRequire`가 `server-only`를 빈 값으로 돌려줌.
 - `test:categories`: v2.08부터 원고 저장이 브라우저 캐시 전에 `cacheablePosts()`(`src/lib/postCache.ts`)를 쓰는데 시험 환경에 없어 캐시가 조용히 실패 → `scripts/test-category-selection.cjs` 환경에 실제 `cacheablePosts` 추가.
 - 결과: 블로그 에이전트 `test:*` 전체 실패 0건. 프로그램 코드 변경 없음.
+
+## 2026-10-23 (Claude Code 윈도우, 쓰레드 콘텐츠 운영 작업 중 발견) — ⚠️ 확인 필요: 이미지 공개 주소가 깨졌을 가능성
+- `src/app/api/generate-image/route.ts`(약 71행)·`upload-image`가 버킷 `ai-image-generations`에 올리고 `getPublicUrl`로 공개 주소를 돌려준다. 그런데 이 버킷은 2026-10-21 AI 이미지 자동화 v1.23에서 **비공개**로 바뀌었다(공개 주소 → 400 「Bucket not found」). 쓰레드 콘텐츠 운영에서 실제로 확인한 증상과 같은 구조라, 블로그 글에 넣는 생성·업로드 이미지가 깨질 가능성이 크다.
+- 아직 이 프로그램에서 직접 확인하지 않았다(코드 확인만). 다음 첫 단계: 이미지 1장 생성/업로드 → 받은 주소를 열어 400인지 확인 → 맞으면 쓰레드 콘텐츠 운영 v2.19처럼 전용 공개 버킷으로 옮기거나 서명 주소로 바꾸는 방안을 주인님께 여쭙기(외부 블로그에 붙는 이미지라 서명 주소는 만료 문제가 있음).

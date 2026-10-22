@@ -145,3 +145,9 @@
 ## 2026-10-23 v2.17 후속 (Claude Code 윈도우)
 - [ ] 작성 탭 「📷 무료 사진」 실제 화면·사진 추가 검수(결과 카드가 AI 글 생성 뒤에만 나와 미검수). 다음 글 생성 때 함께 확인.
 - [x] 보관함 초안 「수정」 중 「📷 무료 사진」 추가·사진 빼기(✕) — 저장·발행·예약 때 본문과 함께 저장(`saveDraft` media 선택값, `sanitizeMedia`로 본인 폴더만). **미배포 대기**(2026-10-23, Claude Code 윈도우). 다음 배포 뒤 검수: 보관함 초안 수정 → 무료 사진 1장 추가 → 저장 → 썸네일·`ai-image-generations/<회원>/threads-content-ops/up/` 확인(이 화면은 AI 생성 없이 열려, 위 작성 탭 미확인 항목인 `addFreePhoto` 경로도 함께 확인됨).
+
+## 2026-10-23 v2.19 후속 (Claude Code 윈도우)
+- [x] 미디어 저장소를 전용 공개 버킷 `threads-content-ops-media`로(옛 `ai-image-generations` 비공개 전환으로 사진이 깨지던 문제) — v2.19 배포·크롬 확인.
+- [x] 작성 탭 무료 사진 저장 경로(`addFreePhoto`) 확인 — 보관함 초안 화면으로 대신 확인(같은 함수).
+- [ ] **미배포 대기**: 저장 직후 뺀 사진이 몇 초 다시 보이던 문제 수정(`DraftComposer.tsx` `editingRef`) — 다음 배포 v2.20.
+- [ ] 작성 탭 PC 업로드(브라우저 직접 업로드 → 새 버킷 정책 `tco_media_insert_own`) 실제 화면 확인.

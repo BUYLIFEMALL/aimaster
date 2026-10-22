@@ -263,7 +263,7 @@
 - **DB(승인받음):** `tco_posts.media jsonb not null default '[]'`(+ 배열 검사 제약) 추가 — 마이그레이션 `20261007100000_tco_posts_media.sql`, 운영 DB 적용·확인(기존 5행 모두 빈 배열). 새 RLS 정책 없음(기존 owner-only 정책 그대로). 값: `[{url, type: "IMAGE"|"VIDEO", size?}]`.
 - **미디어 카드(콘텐츠 생성 2번 구역 맨 아래, `AttentionComposer.tsx`의 `MediaManager`):** "📷 이미지 파일 추가"(JPEG·PNG 8MB 이하, 여러 장) / "🎬 영상 파일 추가 (최대 1GB, MP4·MOV)", 이미지+영상 합쳐 **최대 20개**, 번호·◀ ▶ 순서 변경·✕ 개별 삭제·전체 삭제, 영상 미리보기, 클릭하면 크게 보기(←/→/Esc), 30일 보관 안내. **AI로 만든 이미지(글의 "이미지 생성")도 이 카드에 모입니다**(v1.54의 글 카드별 이미지 영역은 이 공용 카드로 옮겼습니다).
 - **저장·발행:** "이 글로 초안 저장"이 미디어 목록을 함께 저장하고(`saveGeneratedDraft`가 서버에서 검증), 초안·발행 관리 화면의 초안에 첨부 썸네일이 보입니다. 발행(`publishDraft`)은 `lib/threadsPublish.ts`로 **글만 / 이미지 1장 / 영상 1개 / 혼합 캐러셀(2~20개)**을 올립니다(`threads-affiliate-poster`의 검증된 컨테이너→FINISHED 확인→캐러셀 부모→게시 순서, 영상은 최대 3분 대기). 8MB 넘는 이미지·1GB 넘는 영상은 발행 전에 막고 안내합니다.
-- **파일 저장 위치·보안:** 공개 버킷 `ai-image-generations`의 `<회원id>/threads-content-ops/{ai,up}/` (`lib/media.ts`). PC 파일은 브라우저가 바로 올리며(큰 영상이 서버 한도에 걸리지 않게) 버킷 정책이 "첫 폴더=내 id"만 허용합니다. 서버는 저장·발행·삭제 때 **주소가 내 폴더의 JPEG/PNG/MP4/MOV인지**(`ownedMediaPath`) 검증해 다른 회원·외부 주소를 거부합니다. AI 이미지 경로도 같은 폴더 구조로 바꿨습니다(이전 v1.51~1.58의 `threads-content-ops/<id>/` 경로 파일은 추적·정리되지 않음). Replicate(FLUX·Z-Image)는 PNG로 받도록 요청하고(거부되면 옵션 없이 재요청) webp 결과는 Threads가 못 쓰므로 거부합니다.
+- **파일 저장 위치·보안:** (v2.19부터 전용 공개 버킷 `threads-content-ops-media`, 아래 v2.19 항목) 옛 공개 버킷 `ai-image-generations`의 `<회원id>/threads-content-ops/{ai,up}/` (`lib/media.ts`). PC 파일은 브라우저가 바로 올리며(큰 영상이 서버 한도에 걸리지 않게) 버킷 정책이 "첫 폴더=내 id"만 허용합니다. 서버는 저장·발행·삭제 때 **주소가 내 폴더의 JPEG/PNG/MP4/MOV인지**(`ownedMediaPath`) 검증해 다른 회원·외부 주소를 거부합니다. AI 이미지 경로도 같은 폴더 구조로 바꿨습니다(이전 v1.51~1.58의 `threads-content-ops/<id>/` 경로 파일은 추적·정리되지 않음). Replicate(FLUX·Z-Image)는 PNG로 받도록 요청하고(거부되면 옵션 없이 재요청) webp 결과는 Threads가 못 쓰므로 거부합니다.
 - **30일 자동 삭제(`lib/mediaCleanup.ts`):** 올린 지 30일 지난 파일을 지우고 그 파일을 쓰던 글의 미디어 목록에서도 뺍니다. 두 곳에서 동작: ① 하루 1회 크론 `/api/threads-content-ops/cleanup-media`(`vercel.json`, 매일 03:00 KST) ② 회원이 콘텐츠 생성·초안 화면을 열 때 **본인 몫 정리**. ⚠️ ①은 루트 Vercel 프로젝트에 `CRON_SECRET` 환경변수가 **없어서 지금은 호출이 막힌 상태(503)**입니다 — 환경변수 변경은 승인 대상이라 만들지 않았습니다. 주인님이 `CRON_SECRET`(임의의 긴 문자열)을 Vercel에 추가하면 Vercel이 자동으로 `Authorization: Bearer`를 붙여 호출합니다. 그 전에도 ②로 회원별 정리는 됩니다(기존 `subscription-expiry` 크론의 `?secret=${CRON_SECRET}` 경로도 같은 이유로 확인이 필요합니다).
 - **한계·확인 필요:** 영상 최대 1GB 업로드는 Supabase 프로젝트의 파일 크기 한도 설정(Storage 설정)에 달려 있어 실제 큰 영상으로 확인하지 못했습니다(`threads-affiliate-poster`가 같은 방식이라 같은 한도). 예약 발행(`scheduleDraft`)은 기존대로 데스크톱 작업자가 소비하며, 그쪽이 `media`를 읽어 올리는 처리는 이번에 하지 않았습니다. 실제 Threads 계정으로 캐러셀을 올려 본 확인과 로그인 화면 클릭 확인은 아직 못 했습니다.
 - 검증: 모의 응답으로 경로 소유 검증 6가지(타 회원·타 버킷·외부·`..`·다른 폴더 거부), Threads 캐러셀·단일 영상·글만 발행 순서와 파라미터, 30일 정리(만료 파일 삭제+글 목록에서 제거, 신규 유지)를 확인했습니다.
@@ -724,7 +724,16 @@
 - 검수: tsc 0, `npm test` 36, 로컬 build, 공용 코드 검사 일치, 배포 `threads-content-mo1wxt689` Ready, DB v2.17. 크롬(관리자): 설정 칸·Pixabay 「등록됨」·연결 확인 「✅ 연결됨 — 사진 12장」. **미확인: 작성 탭 「📷 무료 사진」 화면·사진 추가(`addFreePhoto`)** — 결과 카드는 AI 글 생성 뒤에만 나와 회원 키 비용이 들므로 이번에 하지 않음. 다음에 글 생성을 할 때(또는 비용 승인 뒤) 사진 추가 → `ai-image-generations/<회원>/threads-content-ops/up/…jpg` 확인.
 - 비용: Vercel 빌드 1회(제안 범위), Pixabay 무료 1회, AI 0.
 
-## ⏸ 미배포 대기 (2026-10-23, Claude Code 윈도우) — 보관함 초안에 무료 사진 추가·빼기
+## ✅ v2.18 배포됨 (2026-10-23, Claude Code 윈도우) — 보관함 초안에 무료 사진 추가·빼기
 - `DraftComposer.tsx` `DraftCard`: 「수정」 중에만 첨부 사진마다 ✕(빼기)와 「📷 무료 사진」(`FreePhotoPicker`)을 보여 주고, 저장·지금 발행·예약 때 `media`를 본문과 함께 보냄. 「수정 취소」는 사진 목록도 되돌림.
 - `web-actions.ts` `saveDraft`/`runDraftAction`: `media` 선택값 추가 — 보낸 때만 바꾸고 `sanitizeMedia`로 본인 폴더 파일·JPEG/PNG/MP4/MOV·20개 이하만 받음. 빼낸 파일은 지우지 않음(30일 정리 대상).
 - 검수: tsc 0, `npm test` 36, 로컬 build. 버전은 다음 실제 배포 때 v2.18. 배포 뒤 확인: 보관함 초안 수정 → 무료 사진 추가 → 저장 → 썸네일 표시·저장 경로.
+
+## 2026-10-23 v2.18 → v2.19 — 보관함 초안 무료 사진 배포 + 미디어 전용 공개 버킷 (Claude Code 윈도우)
+- **v2.18**: 보관함 초안 수정 중 무료 사진 추가·빼기(커밋 `922cedd37`) 배포. 배포 뒤 확인하다가 아래 문제 발견.
+- **문제(회원 피해 버그)**: 이 프로그램이 함께 쓰던 `ai-image-generations` 버킷이 2026-10-21 AI 이미지 자동화 v1.23(주인님 결정, 개인정보 보강)에서 **비공개**로 바뀜 → 이 프로그램이 저장하는 공개 주소(`getPublicUrl`)가 모두 400 「Bucket not found」. 10-21 이후 붙인 사진·영상(무료 사진·PC 업로드·AI 이미지·쿠팡 사진)의 썸네일이 깨지고, 사진이 붙은 글은 Threads가 주소를 못 가져가 발행이 실패할 상태였음(10-21 이후 미디어 붙은 발행 시도 0건이라 실제 실패는 없었음).
+- **해결(v2.19, 주인님 결정 「전용 공개 버킷」)**: 운영 DB에 공개 버킷 `threads-content-ops-media` + 정책 `tco_media_insert_own`·`tco_media_delete_own`(첫 폴더 = 회원 id, 브라우저 직접 업로드용) 생성(크롬 SQL 편집기, 기록 `supabase/migrations/20261023230000_tco_v2_19_media_bucket.sql`). `lib/media.ts` `MEDIA_BUCKET` 교체, `LEGACY_MEDIA_BUCKET`(옛 버킷)은 `lib/mediaCleanup.ts`가 30일 정리만 계속. 폴더 구조(`<회원id>/threads-content-ops/{ai,up}`)는 그대로. 옮길 미발행 글 0건. 배포 키트 `KIT/schema.sql`도 새 버킷으로.
+- **검수**: tsc 0, `npm test` 36, 로컬 build, 배포 `threads-content-f44vrs046` Ready, DB v2.19. 크롬(시험 회원 buylifemall@naver.com): 시험 초안(서버 키로 생성) → 수정 → 📷 무료 사진 → coffee 검색 12장 → 1장 추가 → 저장 → 썸네일 실제 표시(가로 853px), 경로 `threads-content-ops-media/<회원>/threads-content-ops/up/…jpg` = 작성 탭에서 못 했던 `addFreePhoto` 저장 경로 확인. ✕ 빼고 저장 → DB media `[]`. 시험 초안·사진 파일 삭제 완료.
+- **⏸ 미배포 대기**: 저장 직후 뺀 사진이 몇 초 다시 보이던 화면 문제 — 수정이 끝날 때 옛 목록으로 되돌리지 않고 서버 목록이 새로 올 때만 맞춤(`DraftCard` `editingRef`). 다음 배포 때 v2.20.
+- **미확인**: 작성 탭 PC 업로드(브라우저 직접 업로드 → 새 정책) 실제 화면 확인 — 다음에 이 프로그램을 쓸 때 영상·사진 1개 올려 보기.
+- 비용: Vercel 빌드 2회(v2.18 제안 범위 1회 + v2.19 승인 추가 1회), Pixabay 무료 2회, AI 0.

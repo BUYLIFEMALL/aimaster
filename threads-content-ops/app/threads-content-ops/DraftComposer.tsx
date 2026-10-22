@@ -106,7 +106,10 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
   const [scheduledAt, setScheduledAt] = useState(() => localDateTime(new Date(Date.now() + 30 * 60_000)));
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => { setBody(draft.body); }, [draft.body]);
-  useEffect(() => { if (!editing) setMedia(Array.isArray(draft.media) ? draft.media : []); }, [draft.media, editing]);
+  // 서버 목록이 새로 오면 그때만 맞춘다(수정 중이면 그대로). 수정이 끝나는 순간 옛 목록으로 되돌리면 저장 직후 뺀 사진이 몇 초 다시 보였다.
+  const editingRef = useRef(editing);
+  editingRef.current = editing;
+  useEffect(() => { if (!editingRef.current) setMedia(Array.isArray(draft.media) ? draft.media : []); }, [draft.media]);
   useEffect(() => {
     const el = bodyRef.current;
     if (!el) return;

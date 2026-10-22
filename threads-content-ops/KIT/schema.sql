@@ -276,14 +276,12 @@ create policy tco_operation_profiles_update_own on public.tco_operation_profiles
 drop policy if exists tco_operation_profiles_delete_own on public.tco_operation_profiles;
 create policy tco_operation_profiles_delete_own on public.tco_operation_profiles for delete to authenticated using ((select auth.uid()) = user_id);
 
--- 생성·업로드 이미지 저장소(공개 버킷 — Threads가 이미지 주소를 직접 가져가야 하므로 공개, 회원별 폴더만 쓰기·삭제)
-insert into storage.buckets (id, name, public) values ('ai-image-generations', 'ai-image-generations', true) on conflict (id) do nothing;
-drop policy if exists ai_image_generations_select_public on storage.objects;
-create policy ai_image_generations_select_public on storage.objects for select to public using (bucket_id = 'ai-image-generations');
-drop policy if exists ai_image_generations_insert_own on storage.objects;
-create policy ai_image_generations_insert_own on storage.objects for insert to authenticated with check (bucket_id = 'ai-image-generations' and (storage.foldername(name))[1] = auth.uid()::text);
-drop policy if exists ai_image_generations_delete_own on storage.objects;
-create policy ai_image_generations_delete_own on storage.objects for delete to authenticated using (bucket_id = 'ai-image-generations' and (storage.foldername(name))[1] = auth.uid()::text);
+-- 생성·업로드 이미지 저장소(전용 공개 버킷 — Threads가 이미지 주소를 직접 가져가야 하므로 공개, 회원별 폴더만 올리기·삭제). v2.19부터 threads-content-ops-media.
+insert into storage.buckets (id, name, public) values ('threads-content-ops-media', 'threads-content-ops-media', true) on conflict (id) do update set public = true;
+drop policy if exists tco_media_insert_own on storage.objects;
+create policy tco_media_insert_own on storage.objects for insert to authenticated with check (bucket_id = 'threads-content-ops-media' and (storage.foldername(name))[1] = auth.uid()::text);
+drop policy if exists tco_media_delete_own on storage.objects;
+create policy tco_media_delete_own on storage.objects for delete to authenticated using (bucket_id = 'threads-content-ops-media' and (storage.foldername(name))[1] = auth.uid()::text);
 
 -- 끝. Table Editor 에 테이블이, Storage 에 버킷이 보이면 성공입니다.
 

@@ -3,7 +3,11 @@
 
 export type PostMedia = { url: string; type: "IMAGE" | "VIDEO"; size?: number };
 
-export const MEDIA_BUCKET = "ai-image-generations"; // 이미 있는 공개 버킷. 회원별 폴더(첫 폴더 = 회원 id)만 쓰기·삭제할 수 있는 정책이 걸려 있다.
+// v2.19(2026-10-23): 전용 공개 버킷. 함께 쓰던 ai-image-generations가 2026-10-21 비공개로 바뀌어(AI 이미지 자동화 v1.23)
+// 공개 주소가 깨지고 Threads가 사진을 못 가져가게 돼 옮겼다(주인님 결정). 회원별 폴더(첫 폴더 = 회원 id)만 올리기·삭제할 수 있다.
+export const MEDIA_BUCKET = "threads-content-ops-media";
+/** 옛 버킷 — 30일 정리만 계속 한다(이 프로그램 폴더 `<회원id>/threads-content-ops/` 안에서만). */
+export const LEGACY_MEDIA_BUCKET = "ai-image-generations";
 export const MEDIA_FOLDER = "threads-content-ops";
 export const MAX_MEDIA = 20; // Threads 캐러셀 상한
 export const MAX_VIDEO_BYTES = 1024 * 1024 * 1024; // Threads 공식 제한: 1GB, 최대 5분, MP4/MOV
