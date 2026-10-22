@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ✅ 메인 관리자 화면 4가지 묶음 배포(메인 빌드 1회, 주인님 승인) · 미기록 정리 작업의 표·user_id 점검
+- `b17e7e7b9`: 「30일 자동 정리」 표 이름표 한국어(tracks 곡·posts 글·ideas 글감·history 분석 기록·reports·snapshots·competition·comments·sentiments) · 최근 30일 첫 기록이 7일 안이면 「NEW」(API `cleanupByProgram`에 `firstAt`) · 「운영 상태」 기록 24시간 지나면 「⚠ 갱신 필요」 · 「프로그램 펼쳐 보기」 대기 줄 수 많은 순(`pending-check --publish`가 `pending.byProgram` 저장).
+- 배포: 푸시 자동 빌드 `aimaster-c7ixcrvq0` Ready. 크롬(관리자 — 주인님이 로그인, 직전엔 시험 회원 로그인 상태였음): 정리 표 3줄(Threads 포스팅 이미지 49·3명, YOUTUBE Shots 이미지 19·장면 기록 18·2명, Threads 쇼핑제휴 글 1·이미지 1·1명) 모두 NEW·한국어 이름, 펼쳐 보기 맨 앞 `naver-blog-agent 2줄`. 「갱신 필요」는 기록이 방금 갱신돼 표시 안 됨(정상 — 24시간 지난 상태는 화면 시험 못 함).
+- `e6922c90d`: `deploy.mjs --version-only --all`이 아직 기록 안 하는 정리 작업마다 지우는 표와 user_id 유무 표시(블로그 병합 세션 6곳 중 5곳 + shop-detail-page는 모두 user_id 있음 → 공용 사본만 붙이면 됨).
+- 블로그 병합 담당 세션 알림은 주인님 결정으로 HANDOFF·협업 지침(9번)으로 대신.
+
 
 
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 음악 스튜디오 v1.03 화면 닫아도 완성(웹훅)·ElevenLabs 작곡 계획·실측 기록·카드 글씨 (빌드 1회 · 시험 생성 4건 약 $0.21 · 시험 계정 본인 키)
