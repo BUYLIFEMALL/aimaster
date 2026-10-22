@@ -103,7 +103,7 @@
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.06 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
 | 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.10 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
 | 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | 마케팅(홍보) | v1.08 | 운영(2026-10-21 신규) | 인스타 댓글·DM·쓰레드·유튜브 댓글의 검토 대기 항목을 한곳에 급한 순으로 모아 고쳐서 바로 승인·게시 |
-| 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.04 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
+| 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.05 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
 | 88 | AI 영상 스튜디오 | `ai-video-studio` | 영상 | v1.01 | 공개(new, 2026-10-23 신규) | Gemini Omni Flash·Kling·Seedance 등 여러 영상 AI를 본인 키로 골라 영상을 만들고 갤러리에 30일 보관 · 영상 연동 레퍼런스 |
 
 ## 0. 이 문서를 쓰는 방법
@@ -924,7 +924,7 @@
 - **키·계정·주의**: Gemini·fal·Replicate 회원 본인 키. 비용은 본인 계정(초당 $0.036~0.14).
 
 #### AI 음악 스튜디오 (`ai-music-studio`)
-- 주소·폴더: https://ai-music-studio.buylife.xyz · `ai-music-studio/` · v1.04 (2026-10-23 신규 — v1.04 Suno V6 Wild 추가 — v1.02 가사영상·플레이리스트로 보내기(`?ams=`)·AI 가사 분량 맞춤, v1.03 웹훅으로 화면 닫아도 완성·ElevenLabs 작곡 계획·실측 기록, **음악 모델 연동의 레퍼런스 프로그램** — 이미지의 ai-image-studio와 같은 역할)
+- 주소·폴더: https://ai-music-studio.buylife.xyz · `ai-music-studio/` · v1.05 (2026-10-23 신규 — v1.05 별 표시·메모·정렬·모델 카드 접기·마스터링/Suno 고급 링크, v1.04 Suno V6 Wild 추가 — v1.02 가사영상·플레이리스트로 보내기(`?ams=`)·AI 가사 분량 맞춤, v1.03 웹훅으로 화면 닫아도 완성·ElevenLabs 작곡 계획·실측 기록, **음악 모델 연동의 레퍼런스 프로그램** — 이미지의 ai-image-studio와 같은 역할)
 - **차별점**: Suno 하나에 묶이지 않고 공식 API 음악 모델(Google Lyria·ElevenLabs·fal·Replicate)과 Suno를 한 화면에서 골라, 같은 설명으로 최대 3개 모델을 나란히 들어 비교합니다.
 - **기능**: 모델 카드 11개(보컬 여부·길이·대략 비용·상업 조건 표시)에서 골라 보컬곡·연주곡을 만듭니다. / AI 가사 쓰기(본인 Gemini 또는 OpenAI)로 [Verse]·[Chorus] 가사를 받아 고칩니다. / 모델 비교로 2~3개 모델 동시 생성, 결과는 비공개 보관함에 30일 보관·서명 주소 재생·영문 파일명 내려받기.
 - **장점**: 여러 음악 AI 한곳에 · 나란히 비교 · 만들기 전 예상 비용 · 웹훅 없이 상태 조회 방식(콜백 위조 걱정 없음)
