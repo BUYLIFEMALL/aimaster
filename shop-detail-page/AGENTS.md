@@ -265,3 +265,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 코드: `lib/ai/productAnalysisPrompt.ts` `buildNameAnalysisPrompt`(당해 연도 규칙, 확인할 수 없는 수치·인증 「확인 필요」, 가격·혜택 문구 금지, 원본 정보가 있으면 우선) · `lib/actions/products.ts` `analyzeByNameAction`(권한 확인 → 회원 본인 Gemini 키 → 기존 `analyzeProductWithGemini`에 이미지 0장으로 글만 분석) · `components/products/ProductAnalyzeForm.tsx` 분석 버튼 아래 「📝 사진 없이 상품명으로 먼저 채우기」(상품명 칸이 있어야 켜짐) + 결과 칸 위 「상품명만으로 AI가 추정한 값」 안내. 결과 형식에는 가격 칸이 없음.
 - 버전 v1.23(`lib/version.ts`, SQL `supabase/migrations/20261022_name_fill_v1_23.sql` — 버전만). 검수: tsc 0, eslint(바꾼 3파일) 0, 프롬프트 무료 점검 6항목 통과(연도·혜택 금지·확인 필요·원본 유무·예시).
 - **윈도우 CLI 다음 첫 단계**: SQL `20261022_name_fill_v1_23.sql` → `shop-detail-page` 배포 1회. 그 뒤 맥미니가 크롬(시험 계정 본인 Gemini 키)으로 상품명 채우기 1회 실검수(글만 분석, 수 원).
+
+## 2026-10-22 ✅ v1.23 배포됨 — 사진 없이 상품명으로 먼저 채우기 (Claude Code 윈도우 — 맥미니 `a88c0e186` 마무리)
+- 맥미니 커밋이 v1.22 수정(`0b5182080`) 위에서 작업됨·내려받기 이름 수정 보존 확인. 새 서버 동작 `analyzeByNameAction`: `requireProgramAccess()` + 회원 본인 Gemini 키(없으면 등록 안내, 대신 쓰는 키 없음) 확인.
+- tsc·로컬 build → 배포 READY → DB v1.23(`20261022_name_fill_v1_23.sql`과 같은 버전 갱신만).
+- 크롬(시험 계정): `/products/new` v1.23, 「📝 사진 없이 상품명으로 먼저 채우기」 버튼 — 상품명 비면 꺼짐, 입력하면 켜짐, 대표이미지는 계속 「필수」. **분석 버튼은 누르지 않음**(비용 — 맥미니 세션이 시험 계정 본인 키로 1회 시험 예정). 상품은 저장하지 않음.
+- 비용: Vercel 빌드 1회, AI 0회.
