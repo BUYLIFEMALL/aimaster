@@ -1,14 +1,33 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GlassCard from "@/components/ui/GlassCard";
 import StatisticsCharts from "@/components/admin/StatisticsCharts";
 import { formatKRW } from "@/lib/utils/format";
-import { TrendingUp, Users, CreditCard, ShoppingBag } from "lucide-react";
+import { TrendingUp, Users, CreditCard, ShoppingBag, Link2 } from "lucide-react";
 
 export const metadata = { title: "통계" };
 
+// 바나나 캔버스로 이어진 작업 수(최근 30일, 보낸 프로그램별) — 바나나 결과 표는 회원 본인만 읽을 수 있어(RLS)
+// 관리자임을 다시 확인한 뒤 서버 키로 숫자만 센다(회원 내용은 읽지 않음). 보낸 곳 값은 프로그램 slug와 같다
+async function bananaLinkStats(userId: string | undefined) {
+  if (!userId) return null;
+  const supabase = await createClient();
+  const { data: me } = await supabase.from("profiles").select("is_admin").eq("id", userId).maybeSingle();
+  if (!me?.is_admin) return null;
+  const admin = createServiceClient();
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const [{ data: rows }, { count: total }] = await Promise.all([
+    admin.from("banana_canvas_results").select("src:options->>ideaSource").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
+    admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since),
+  ]);
+  const counts: Record<string, number> = {};
+  for (const r of (rows ?? []) as { src: string | null }[]) if (r.src) counts[r.src] = (counts[r.src] ?? 0) + 1;
+  return { counts, total: total ?? 0 };
+}
+
 export default async function AdminStatisticsPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   // 병렬로 데이터 조회
   const [
@@ -19,6 +38,7 @@ export default async function AdminStatisticsPage() {
     { data: grades },
     { data: programs },
     { data: subscriptions },
+    bananaStats,
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase
@@ -32,11 +52,12 @@ export default async function AdminStatisticsPage() {
       .order("paid_at", { ascending: true }),
     supabase.from("profiles").select("created_at, grade_id"),
     supabase.from("member_grades").select("id, name, color").order("sort_order"),
-    supabase.from("programs").select("id, name"),
+    supabase.from("programs").select("id, name, slug"),
     supabase
       .from("subscriptions")
       .select("program_id, pricing_plan:pricing_plans(price)")
       .eq("status", "active"),
+    bananaLinkStats(user?.id),
   ]);
 
   // 총 매출
@@ -125,6 +146,11 @@ export default async function AdminStatisticsPage() {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 10);
 
+  const bananaRows = Object.entries(bananaStats?.counts ?? {})
+    .map(([slug, count]) => ({ slug, name: programs?.find((p) => p.slug === slug)?.name ?? slug, count }))
+    .sort((a, b) => b.count - a.count);
+  const bananaLinked = bananaRows.reduce((sum, r) => sum + r.count, 0);
+
   const SUMMARY_STATS = [
     {
       icon: TrendingUp,
@@ -187,6 +213,41 @@ export default async function AdminStatisticsPage() {
         topPrograms={topPrograms}
         monthlyMembers={monthlyMembers}
       />
+
+      {/* 바나나 캔버스로 이어진 작업(최근 30일) */}
+      {bananaStats && (
+        <GlassCard className="p-5 mt-8" data-banana-link-stats>
+          <div className="flex items-center gap-2 mb-1">
+            <Link2 size={16} className="text-gold" />
+            <h2 className="text-lg font-bold text-white">바나나 캔버스로 이어진 작업</h2>
+          </div>
+          <p className="text-subtext text-sm mb-4">
+            최근 30일 · 다른 프로그램이 보낸 아이디어로 시작한 바나나 작업 {bananaLinked}건 / 전체 {bananaStats.total}건 (결과는 30일 뒤 자동 삭제되어 30일 기준)
+          </p>
+          {bananaRows.length === 0 ? (
+            <p className="text-subtext text-sm">아직 이어진 작업이 없습니다.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-subtext text-left border-b border-white/10">
+                  <th className="py-2 font-medium">보낸 프로그램</th>
+                  <th className="py-2 font-medium text-right">작업 수</th>
+                  <th className="py-2 font-medium text-right">비율</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bananaRows.map((r) => (
+                  <tr key={r.slug} className="border-b border-white/5 text-white">
+                    <td className="py-2">{r.name}</td>
+                    <td className="py-2 text-right">{r.count}건</td>
+                    <td className="py-2 text-right">{bananaLinked ? Math.round((r.count / bananaLinked) * 100) : 0}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </GlassCard>
+      )}
     </div>
   );
 }
