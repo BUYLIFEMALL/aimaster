@@ -21,10 +21,13 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
   const [busy, setBusy] = useState<"search" | string | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [translateNote, setTranslateNote] = useState("");
+  // 「🔤」로 바꾸기 전 한국어 검색어 — 영어 결과가 0장이면 「한국어로 다시 찾기」로 되돌린다
+  const [koreanBefore, setKoreanBefore] = useState("");
   // 한국어 검색어 → 영어 키워드(공용 사전 photo-keywords, AI 없음)
   const toEnglish = () => {
     const english = toEnglishKeywords(query);
     if (english) {
+      setKoreanBefore(query);
       setQuery(english);
       setTranslateNote("");
     } else setTranslateNote("사전에 없는 말이에요. 검색어를 직접 영어로 적어 주세요(예: coffee, office).");
@@ -37,12 +40,13 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
     return data;
   };
 
-  const search = async () => {
-    if (!query.trim() || busy) return;
+  const search = async (override?: string) => {
+    const q = (override ?? query).trim();
+    if (!q || busy) return;
     setBusy("search");
     setError(null);
     try {
-      const data = await call({ action: "search", provider, query, ratio });
+      const data = await call({ action: "search", provider, query: q, ratio });
       setPhotos(data.photos as Photo[]);
     } catch (e) {
       setError({ message: (e as Error).message, needKey: (e as { needKey?: boolean }).needKey });
@@ -83,7 +87,7 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
             </option>
           ))}
         </select>
-        <input aria-label="사진 검색어" className={`${FLEX_INPUT} min-w-0 flex-1 px-2.5 py-1.5 text-xs`} value={query} maxLength={100} placeholder="예: 커피, office, 바다" onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
+        <input aria-label="사진 검색어" className={`${FLEX_INPUT} min-w-0 flex-1 px-2.5 py-1.5 text-xs`} value={query} maxLength={100} placeholder="예: 커피, office, 바다" onChange={(e) => { setQuery(e.target.value); setKoreanBefore(""); }} onKeyDown={(e) => {
           // v1.66: 피드 새 글 양식 안에 놓이면 Enter가 「게시물 생성하기」까지 제출하므로 막는다(회원 키 AI 생성·즉시 게시 방지)
           if (e.key !== "Enter") return;
           e.preventDefault();
@@ -100,6 +104,21 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
       {translateNote && <p className="text-[11px] text-amber-300">{translateNote}</p>}
       {error && <ErrorNote message={error.message} needKey={error.needKey} />}
       {photos && photos.length === 0 && <p className="text-xs text-slate-400">검색 결과가 없습니다. 다른 검색어로 찾아보세요.</p>}
+      {photos && photos.length === 0 && koreanBefore && (
+        <button
+          type="button"
+          data-photo-korean-retry
+          onClick={() => {
+            const k = koreanBefore;
+            setKoreanBefore("");
+            setQuery(k);
+            void search(k);
+          }}
+          className={`${BTN_GHOST} px-2.5 py-1 text-xs`}
+        >
+          한국어로 다시 찾기 (「{koreanBefore.slice(0, 20)}」)
+        </button>
+      )}
       {photos && photos.length > 0 && (
         <div className="grid grid-cols-3 gap-1.5">
           {photos.map((p) => (

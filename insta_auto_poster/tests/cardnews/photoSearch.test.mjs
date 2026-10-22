@@ -111,3 +111,13 @@ test("미배포 대기(2026-10-23): 공용 사전 photo-keywords — 한국어 �
   const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
   assert.match(panel, /data-photo-english/);
 });
+
+test("v1.67: 영어 결과 0장이면 「한국어로 다시 찾기」, 직접 고치면 기억한 한국어는 지움", async () => {
+  const { readFileSync } = await import("node:fs");
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /setKoreanBefore\(query\);\s*setQuery\(english\)/);
+  assert.match(panel, /photos\.length === 0 && koreanBefore &&/);
+  assert.match(panel, /data-photo-korean-retry/);
+  assert.match(panel, /setQuery\(e\.target\.value\); setKoreanBefore\(""\);/);
+  assert.match(panel, /const search = async \(override\?: string\)/);
+});

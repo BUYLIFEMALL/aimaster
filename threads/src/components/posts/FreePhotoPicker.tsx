@@ -16,12 +16,15 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [translateNote, setTranslateNote] = useState("");
+  // 「🔤 영어로」 바꾸기 전 한국어 검색어 — 영어 결과가 0장이면 「한국어로 다시 찾기」로 되돌린다
+  const [koreanBefore, setKoreanBefore] = useState("");
 
   // v1.31: 한국어 주제 → 사진 검색용 영어 키워드(AI 없이 사전으로)
   const toEnglish = () => {
     const source = (query || defaultQuery).trim();
     const english = toEnglishKeywords(source);
     if (english) {
+      setKoreanBefore(source);
       setQuery(english);
       setTranslateNote("");
     } else {
@@ -36,8 +39,8 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
     return data;
   };
 
-  const search = async () => {
-    const q = (query || defaultQuery).trim();
+  const search = async (override?: string) => {
+    const q = (override ?? (query || defaultQuery)).trim();
     if (!q || busy) return;
     if (!query) setQuery(q);
     setBusy("search");
@@ -87,7 +90,7 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
           value={query}
           maxLength={100}
           placeholder={defaultQuery ? `비워두면 「${defaultQuery.slice(0, 20)}」로 검색` : "예: 커피, office, 바다"}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setKoreanBefore(""); }}
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
             e.preventDefault();
@@ -116,6 +119,21 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
         </p>
       )}
       {photos && photos.length === 0 && <p className="text-xs text-neutral-500">검색 결과가 없습니다. 다른 검색어로 찾아보세요.</p>}
+      {photos && photos.length === 0 && koreanBefore && (
+        <button
+          type="button"
+          data-photo-korean-retry
+          onClick={() => {
+            const k = koreanBefore;
+            setKoreanBefore("");
+            setQuery(k);
+            void search(k);
+          }}
+          className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 hover:bg-neutral-100"
+        >
+          한국어로 다시 찾기 (「{koreanBefore.slice(0, 20)}」)
+        </button>
+      )}
       {photos && photos.length > 0 && (
         <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
           {photos.map((p) => (
