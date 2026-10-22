@@ -87,6 +87,20 @@
 - 지킬 것: 회원이 Remotion 코드를 직접 올리거나 바꾸게 하는 기능은 만들지 않는다(무료 약관 금지 사항). Remotion을 고쳐 파는 형태도 안 된다.
 - 인원이 늘거나 Remotion 5.0으로 올릴 때는 라이선스를 다시 확인한다(이 문서와 `docs/PROGRAM_IDEA_BACKLOG.md`에 기록).
 
+## 9. 최종 추천 플랜 (2026-10-23) — 「잘 돌아가는 건 두고, 없는 것만 Remotion으로」
+
+원칙: 이미 무료로 잘 돌아가는 브라우저 인코더(5개 프로그램)는 다시 짜지 않는다(고장 나지 않은 것을 고치지 않음). 새 가치가 큰 곳에만 Remotion을 처음 도입한다.
+
+| 순서 | 작업 | 이유 | 배포 |
+|---|---|---|---|
+| A-0 | **Remotion 사전 확인(로컬, 무료)** — `@remotion/web-renderer`의 `renderMediaOnWeb`로 영상 클립 3개 + 음악 + 가사 자막을 브라우저에서 합쳐 보기. 영상 클립·소리가 지원되는지, 속도·메모리 확인 | 브라우저 렌더는 지원 HTML 요소가 제한됨 → 먼저 확인해야 헛개발이 없음 | 없음 |
+| A | **`music-video-studio` 최종 뮤직비디오 합치기** — Remotion Player로 미리보기(타임라인·자막 위치 조정), `renderMediaOnWeb`로 MP4. A-0에서 막히면 기존 공용 엔진(캔버스+WebCodecs)으로 같은 기능 구현 | 지금 없는 기능, 회원이 캡컷으로 따로 편집하던 일을 없앰. Remotion의 강점(여러 클립·음악·자막 시간 맞추기)이 가장 잘 맞는 곳 | 1회(승인 후) |
+| B | 결과가 좋으면 Remotion 구성 코드를 **공용 기준 코드**(`remotion-mv-composer` 가칭)로 등록 → 다음 후보: `lyric-video-studio` 템플릿 확장, `shorts-onestop-studio` 미리보기 | 검증된 것만 다른 프로그램으로 | 다음 배포 때 함께 |
+| C | `infinite-loop-video` ffmpeg.wasm 코드를 공용 `browser-ffmpeg`로 **등록만**(코드 변경 없음) | 문서 정리, 다음 개발 때 재사용 | 없음 |
+| 보류 | `mp4-muxer`→Mediabunny 전환, `playlist`·`vinyl` 인코더 교체, `shots` JSON2Video 제거 | 지금 정상 동작. 오류가 나거나 그 프로그램을 고칠 때 함께 | — |
+
+비용: A-0·C 없음 / A 빌드 1회 / 시험은 이미 만든 Veo 클립 재사용(새 유료 생성 없음).
+
 ## 출처
 - Remotion 라이선스: https://github.com/remotion-dev/remotion/blob/main/LICENSE.md , FAQ https://www.remotion.dev/docs/license/faq
 - Remotion 브라우저 렌더: https://www.remotion.dev/docs/client-side-rendering/
