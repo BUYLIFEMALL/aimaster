@@ -55,13 +55,13 @@
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
-> 2026-10-23 신설(Claude Code 윈도우, 주인님 승인 제안). 메인 사이트(루트 `app`·`components`·`lib` 등)는 **푸시하면 바로 자동 빌드**되므로 작은 화면 수정은 코드를 미리 쓰지 않고 여기에 모았다가, 빌드 1회(사전 승인)로 묶어 구현·배포한다. 구현해 내보내면 줄을 지우고 위 「내보낸 기록」에 `.`(메인 사이트)로 적는다. 다른 CLI가 적은 줄은 지우지 않는다(내보낸 경우만).
+> 2026-10-23 신설(Claude Code 윈도우, 주인님 승인 제안). 메인 사이트(루트 `app`·`components`·`lib` 등)는 **푸시하면 바로 자동 빌드**되므로 작은 화면 수정은 코드를 미리 쓰지 않고 여기에 모았다가, 빌드 1회(사전 승인)로 묶어 구현·배포한다. 구현해 내보내면 줄을 지우고 위 「내보낸 기록」에 `.`(메인 사이트)로 적는다. **「급함」 칸**: 회원에게 바로 피해가 가는 화면 문제(오류·잘못된 안내·막힌 기능)는 `급함` — 이 표를 기다리지 않고 주인님 승인 뒤 바로 빌드한다(쌓인 `보통` 줄도 그때 함께 넣어 빌드 1회로). 관리자 화면 편의·문구는 `보통`. 다른 CLI가 적은 줄은 지우지 않는다(내보낸 경우만).
 
-| 할 일 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
-|---|---|---|---|
-| 관리자 화면 위쪽에 지금 로그인한 계정(관리자/시험 회원) 표시 | `components/admin/AdminSidebar.tsx` 또는 `app/admin/layout.tsx` | 크롬이 시험 회원 계정이라 관리자 확인이 한 번 멈춤(2026-10-23) | 2026-10-23 · Claude Code(윈도우) |
-| 「30일 자동 정리」 표 아래 「기록을 아직 안 남기는 곳」 목록 | `components/admin/SystemUsageMonitor.tsx` | 운영 기록 `ops_overview.cleanup.notLogging`(이미 저장됨) — NEW 표시는 7일만 보여서 남은 곳을 한 화면에 | 2026-10-23 · Claude Code(윈도우) |
-| 정리 표 이름표 `products` → 「상품」 | `components/admin/SystemUsageMonitor.tsx` `CLEANUP_LABEL` | `shop-detail-page`가 정리 기록을 붙이면 쓰일 이름(HANDOFF 2026-10-23 맥미니 안내) | 2026-10-23 · Claude Code(윈도우) |
+| 할 일 | 급함 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
+|---|---|---|---|---|
+| 관리자 화면 위쪽에 지금 로그인한 계정(관리자/시험 회원) 표시 | 보통 | `components/admin/AdminSidebar.tsx` 또는 `app/admin/layout.tsx` | 크롬이 시험 회원 계정이라 관리자 확인이 한 번 멈춤(2026-10-23) | 2026-10-23 · Claude Code(윈도우) |
+| 「30일 자동 정리」 표 아래 「기록을 아직 안 남기는 곳」 목록 | 보통 | `components/admin/SystemUsageMonitor.tsx` | 운영 기록 `ops_overview.cleanup.notLogging`(이미 저장됨) — NEW 표시는 7일만 보여서 남은 곳을 한 화면에 | 2026-10-23 · Claude Code(윈도우) |
+| 정리 표 이름표 `products` → 「상품」 | 보통 | `components/admin/SystemUsageMonitor.tsx` `CLEANUP_LABEL` | `shop-detail-page`가 정리 기록을 붙이면 쓰일 이름(HANDOFF 2026-10-23 맥미니 안내) | 2026-10-23 · Claude Code(윈도우) |
 
 ## 내보낸 기록
 

@@ -106,8 +106,8 @@ if (versionOnly && args.includes("--all")) {
     const pd = readFileSync(join(ROOT, "docs", "PENDING_DEPLOYS.md"), "utf8").replace(/\r\n/g, "\n");
     const a = pd.indexOf("## 메인 사이트 — 다음 메인 빌드 때 할 일");
     const sec = a < 0 ? "" : pd.slice(a, pd.indexOf("\n## ", a + 5) > 0 ? pd.indexOf("\n## ", a + 5) : undefined);
-    const todos = sec.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| 할 일") && !l.startsWith("|---")).map((l) => l.split("|")[1].trim());
-    console.log(`[메인 사이트 할 일] ${todos.length}개 — 메인 빌드 1회(사전 승인)로 묶어 내보내기`);
+    const todos = sec.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| 할 일") && !l.startsWith("|---")).map((l) => { const c = l.split("|").map((x) => x.trim()); return c[2] === "급함" ? `⚠ 급함 — ${c[1]}` : c[1]; });
+    console.log(`[메인 사이트 할 일] ${todos.length}개${todos.some((t) => t.startsWith("⚠ 급함")) ? " (급함 있음 — 승인 뒤 바로 빌드)" : ""} — 메인 빌드 1회(사전 승인)로 묶어 내보내기`);
     for (const t of todos) console.log(`  • ${t}`);
   } catch (e) { console.log(`[메인 사이트 할 일] 확인 실패 — ${e.message}`); }
 
