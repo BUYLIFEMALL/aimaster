@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-10-23 — 여러 프로그램이 함께 쓰던 Storage 버킷을 한 프로그램이 비공개로 바꾸자, 공개 주소(`getPublicUrl`)를 쓰던 다른 프로그램의 사진이 모두 400 「Bucket not found」 (threads-content-ops v2.19, Claude Code 윈도우)
+- 증상: 쓰레드 콘텐츠 운영 보관함에 붙인 사진 썸네일이 글자(대체 텍스트)로만 보임. 파일은 저장소에 있는데 공개 주소가 400 `NoSuchBucket`. Threads 발행도 사진 주소를 못 가져가 실패할 상태.
+- 원인: `ai-image-generations` 버킷을 AI 이미지 자동화 v1.23(10-21)이 비공개로 바꿈(`update storage.buckets set public=false`, 이 SQL은 `updated_at`을 안 바꿔 버킷 정보로는 시점이 안 보임). 같은 버킷을 쓰는 쓰레드 콘텐츠 운영·네이버 블로그 에이전트는 확인하지 않았음.
+- 해결: 쓰레드 콘텐츠 운영은 전용 공개 버킷 `threads-content-ops-media`로 옮김(커밋 `f92acc076`, 마이그레이션 `threads-content-ops/supabase/migrations/20261023230000_tco_v2_19_media_bucket.sql`). 네이버 블로그 에이전트는 확인 필요로 기록(`naver-blog-agent/docs/IMPROVEMENTS.md`).
+- 다음부터 확인: 버킷 공개/비공개·정책을 바꾸기 전에 `git grep -n "<버킷 이름>" -- "*.ts" "*.tsx"`로 그 버킷을 쓰는 **모든 프로그램**을 찾고, 공개 주소를 쓰는 곳이 있으면 같이 고치거나 주인님께 먼저 알린다. 외부 서비스(Threads·인스타·블로그)가 주소를 직접 가져가는 사진은 공개 버킷이나 발행 직전 서명 주소가 필요하다.
+
 ## 2026-10-23 — 임시 인덱스 커밋에서 `git add -A -- <경로> ':!**/supabase/.temp/**'`(제외 조건 섞기)가 새 파일을 오류 없이 빼먹음 (naver-blog-seo-studio v2.11, Claude Code 윈도우)
 - **증상:** 배포 커밋 `9740f7ca5`에 새 ZIP(`…-v2.11.zip`)과 버전 SQL이 빠짐(옛 ZIP 삭제만 들어감). 같은 방식의 재시도 커밋 `36a7e3288`은 아예 빈 커밋. `git add` 종료 코드는 0, 메시지 없음. 운영 배포는 PC 파일로 올라가 영향 없었음.
 - **원인:** 경로 지정 + 제외 조건(`:!…`)을 함께 준 `git add -A`가 새(추적 안 된) 파일을 추가하지 않는 경우가 있음(같은 명령이 다른 폴더에선 됐음 — 조건이 불안정).

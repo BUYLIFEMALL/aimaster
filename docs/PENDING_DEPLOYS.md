@@ -19,7 +19,7 @@
 |---|---|---|---|---|---|
 | `ai-video-studio` (운영 v1.02) | 업체가 실사 인물 사진을 거절하면 원문 JSON 대신 쉬운 안내(공용 `ai-video-providers`) · Seedance 2.0 설명 「실사 인물 사진은 업체가 거절」 | `96423f5ec` | 2026-10-23 · Claude Code(윈도우) | `ai-video-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, Seedance 2.0 거절 안내 문구 확인 |
 | `naver-blog-seo-studio` (운영 v2.11) | 끊긴 자동 포스팅 처리(입력 중 「사이드패널 닫지 마세요」 안내 · 다시 열 때 `writing` 실행 즉시 정리) — 확장 코드 변경 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
-| `threads-content-ops` (운영 v2.17) | 보관함 초안 「수정」 중 무료 사진 추가·빼기(저장·발행·예약 때 함께 저장, 본인 폴더만) | `922cedd37` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/AGENTS.md` 맨 아래 「⏸ 미배포 대기」 | v2.18, 초안 수정 → 무료 사진 추가 → 저장 → 썸네일·저장 경로 확인(작성 탭 `addFreePhoto` 미확인 항목도 함께) |
+| `threads-content-ops` (운영 v2.19) | 보관함 초안: 저장 직후 뺀 사진이 몇 초 다시 보이던 화면 문제(`editingRef`) | `f92acc076` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/docs/IMPROVEMENTS.md` 「v2.19 후속」 | v2.20, 초안 사진 ✕ → 저장 직후 바로 0장 |
 | `music` (운영 v1.43) | 공용 Suno 코드 `callbackOrigin` 선택값(이 앱 동작 변화 없음 — AI 음악 스튜디오 v1.03용) | `acccf06eb` | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, 곡 생성 1회 콜백 정상 확인 |
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `trending-product-finder` | 생성 데이터 30일 정리(`cleanup-generated`)가 지운 행의 user_id로 회원별 `cleanup_expired`(reports·snapshots·competition) 기록 — 공용 사본 | `af9b2719c` · `05902a01d` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
@@ -70,6 +70,8 @@
 | `tistory-auto-blog` | v1.90 · 2026-10-23 | 옛 자동 연결 코드 정리 `da9805c6b` · 글 품질 보완(이번 커밋) |
 | `threads-affiliate-poster` | v1.83 · 2026-10-23 (상품 연동 공용 기준 코드 `affiliate-clients`, 승인 빌드) | 없음 |
 | `threads` | v1.32 · 2026-10-23 (미배포 모아 내보냄, Claude Code 윈도우, 승인 빌드 1회) | 사전 보강 `93b2aac56` · 한국어로 다시 찾기 `d4dcd0384`·`4bebfb016` |
+| `threads-content-ops` | v2.19 · 2026-10-23 (미디어 전용 공개 버킷 `threads-content-ops-media` — 옛 버킷 비공개 전환 대응, 주인님 승인 빌드) | 없음 |
+| `threads-content-ops` | v2.18 · 2026-10-23 (보관함 초안 무료 사진, 제안 범위 빌드) | 초안 무료 사진 `922cedd37` |
 | `threads-content-ops` | v2.17 · 2026-10-23 (작성 탭 무료 사진 — 보류 패치 적용, Claude Code 윈도우, 승인 빌드 1회) | 없음 |
 | `threads-content-ops` | v2.16 · 2026-10-23 (상품 연동 공용 기준 코드 `affiliate-clients` 사본, 승인 빌드) | 없음 |
 | `playlist-channel-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(`22c6cda35`) | v1.27 · 2026-10-23 · Claude Code(윈도우) — AI 음악 스튜디오 곡 가져오기와 함께 |
