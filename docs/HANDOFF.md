@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ AI 블로그 작업실 자동화 v1.12 BC-05 30일 자동 삭제 (빌드 1회 · AI 0회 · 환경변수 CRON_SECRET 추가)
+- 설정·내 블로그를 뺀 작업은 만든 지 30일 뒤 삭제(Vercel Cron `/api/cron/cleanup` 매일, 앱도 바로 숨김), 이미지 작업을 지워도 파일이 남던 버그 수정. 대시보드 「Run」 200·지울 대상 0건 확인. BC-05 중 키워드(v1.07)·작업실 완료, **올인원은 다음 작업**.
+- 상세: `blog-workroom/AGENTS.md` v1.12 · `blog-workroom/docs/IMPROVEMENTS.md` 맨 아래.
+- 프로그램: https://blog-workroom.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 메인 관리자: YOUTUBE Shots 30일 정리 합계 한 줄 (메인 사이트 자동 빌드 1회)
 - 관리자 첫 화면 시스템 사용량 「DB·저장소」 탭에 Shots v1.37 정리 기록(`usage_logs` `cleanup_expired`) 최근 30일 합계. 다른 세션의 `app/admin/statistics` 작업과 다른 파일. 상세 `shots/AGENTS.md`(메인 관리자 항목).
 - 프로그램: https://www.buylife.xyz/admin

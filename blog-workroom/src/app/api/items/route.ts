@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { fail, guard, json } from "@/lib/route";
-import { deleteItem, getItem, isKind, listItems, updateItem } from "@/lib/store";
+import { deleteItem, getItem, isKind, listItems, removeJobImages, updateItem } from "@/lib/store";
 import { UserError } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +41,7 @@ export async function DELETE(request: NextRequest) {
     const item = await getItem(g.userId, id);
     if (!item || !EDITABLE.has(item.kind)) throw new UserError(404, "삭제할 작업을 찾지 못했습니다.");
     await deleteItem(g.userId, id);
+    if (item.kind === "image_job") await removeJobImages(g.userId, id).catch(() => 0); // v1.12: 이미지 파일도 함께 삭제
     return json({ ok: true });
   } catch (e) { return fail(e); }
 }
