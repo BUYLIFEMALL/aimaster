@@ -103,3 +103,9 @@
 - 공용 `reference-copy-guard` 4번째 사본 `src/lib/reference.ts`(기준 `shorts-onestop-studio/src/lib/reference.ts`, 직접 고치지 말고 `--sync`) — 넘기기 형식 `#ref-transcript=…&ref-from=이름`만 사용.
 - `src/lib/refHandoff.ts`(새, 탭 저장소 키 `thumbnail-ref-handoff`): 로그인 양식이 열릴 때 보관·주소 `#` 지움, 로그인 뒤 보관분 있으면 `/seo`(없으면 예전처럼 `/open`). `SeoStudio.tsx`: 대본 칸 채움(30,000자) + 「📥 「○○」에서 넘긴 대본을 넣었습니다…」, 주소 `#` 지움. AI 호출은 회원이 「SEO 전략 3가지 만들기」를 눌러야 함.
 - 검수: tsc, `npm test` 13개(`tests/refHandoff.test.mjs` 2개 추가), 배포 `thumbnail-master-gl0dxb9ah` Ready, DB v1.10. 크롬: 시험 주소·원스톱 실제 링크 클릭 둘 다 대본 칸·안내 확인. 못 한 것: 로그아웃 상태에서 로그인을 거쳐 오는 흐름(비밀번호 입력은 주인님 몫).
+
+## 2026-10-22 v1.11 — 「SEO 전략」 대본을 썸네일 제작 참고 문서로 자동 첨부 · 쇼츠 바이럴 대본 받기 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_SEO_DOC_AND_SOURCES.md`(주인님 승인).
+- `src/lib/refHandoff.ts`: `stashSeoDoc(프로젝트 id, {name, text})`·`takeSeoDoc(id)`(탭 저장소 키 `thumbnail-seo-doc:<id>`, 꺼내면 지움). `SeoStudio.tsx`: 「이 전략으로 썸네일 만들기」로 프로젝트를 만든 직후 대본 보관(넘겨받은 대본이면 이름 「○○ 대본」). `Studio.tsx`: 처음 열 때 꺼내 참고 문서 칩(「대본 문서 올리기」 옆, ✕)으로 붙이고 안내. 새로 고침하면 사라지는 점은 파일로 올린 참고 문서와 같음(저장하지 않음).
+- 받는 쪽 추가: 쇼츠 바이럴 v1.15 「📤 썸네일 만들기」(`ref-from=쇼츠 떡상 분석·대본 자동화`).
+- 검수: tsc, `npm test` 14개(1개 추가), 배포 `thumbnail-master-nk3x4o5aa` Ready, DB v1.11. 크롬(시험 회원): 쇼츠 바이럴 「여행」 프로젝트 12씬 대본 → 링크 클릭 → `/seo` 대본 915자·안내 → 「SEO 전략 3가지 만들기」(Gemini 1회, 시험 회원 키) → 전략 A 「이 전략으로 썸네일 만들기」 → 제작 화면 참고 문서 「쇼츠 떡상 분석·대본 자동화 대본 · 0.9K자」·안내 확인. 「전략 생성」(A/B 문구)은 누르지 않음. 시험 회원 썸네일 프로젝트 1개(`b725bfeb-…`)가 회원 본인 데이터로 남음.

@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.11·쇼츠 바이럴 v1.15: SEO 대본 → 썸네일 제작 참고 문서 · 쇼츠 바이럴 대본 → 썸네일 (빌드 2회, Gemini 1회) · 원스톱 띠 모양(코드만)
+- 「이 전략으로 썸네일 만들기」 때 SEO 대본이 제작 화면 참고 문서로 자동 첨부(A/B 문구에 반영). 쇼츠 바이럴 「🎬 생성된 대본」에 「📤 썸네일 만들기」. 유튜브 바이럴 대본 분석은 남의 영상이라 보내지 않음(제안 정정). 크롬 실제 흐름(쇼츠 바이럴 → SEO 전략 1회 → 제작 화면 참고 문서) 검수 끝. 원스톱 띠 모양은 미배포(다음 배포 v1.37). 상세 각 폴더 `AGENTS.md`.
+- 프로그램: https://thumbnail-master.buylife.xyz · https://shorts-viral-studio.buylife.xyz
+
 ## 2026-10-22 — Claude Code(맥미니): 상세페이지 v1.26 크롬 확인 · v1.27 💧 찍기 결함 수정 (배포 승인 대기)
 - v1.26 확인: 바깥/안쪽 색 버튼·가장 많은 색 정상. 💧 찍기는 손을 뗄 때 바깥 색으로 다시 덮여 실패 → v1.27에서 끌었을 때만 뗄 때 처리(`ImageTextEditor.tsx` `dragMoved`). tsc 0, eslint 0. ERROR_LESSONS 2026-10-22 추가.
 - **윈도우 CLI 다음 첫 단계(주인님 승인 후)**: SQL `shop-detail-page/supabase/migrations/20261022_eyedropper_fix_v1_27.sql`(버전만) → `shop-detail-page` 배포 1회 → `shop-detail-page/AGENTS.md` 맨 아래 기록.

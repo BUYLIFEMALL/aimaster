@@ -222,3 +222,6 @@
 - `RenderView.tsx` ⑤ 업로드 문구 아래 「📤 이 대본으로 썸네일 만들기」: 주제+장면 제목·내레이션(`scriptPlain`)을 공용 `refHandoffHash(대본, APP_NAME)`로 `https://thumbnail-master.buylife.xyz/seo`에(새 탭, 주소 `#` 뒤라 서버로 안 감, 12000자).
 - 검수: tsc, `npm test` 27개(2개 추가), 배포 `shorts-onestop-studio-mteeg9izb` Ready, DB v1.36. 크롬(메인 크롬): 25자 이름 → 「…」·title 전체, 칸 앞 메모+빈 줄 20개 뒤 이름 클릭 → 커서 24(머리말 첫 글자)·scrollTop 9→392·머리말 보임. 375px 틀: 띠 294px·넘침 0·페이지 가로 넘침 0(3줄로 꺾여 높이 92px). 저장된 대본 「물 마시는 습관…」 `/render` → 링크(대본 453자·이름) 클릭 → 새 탭 썸네일 v1.10 대본 칸 453자·안내 확인.
 - 비용: 빌드 2회(원스톱·썸네일, 승인 범위), AI 호출 없음.
+
+## 2026-10-22 (미배포 — 다음 배포 때 함께, v1.37) — 출처 띠 모양 (Claude Code 윈도우)
+- `TopicView.tsx` 띠: `display: inline-flex`·`border-radius: 10px`·「✕ 빼기」 `margin-left: auto`(좁은 화면에서 여러 줄일 때 알약 모양 대신 둥근 사각, 빼기는 오른쪽 끝). tsc 통과. **다음에 원스톱을 배포하는 CLI는 버전 +0.01, 휴대폰 폭에서 모양 확인 후 이 항목을 「배포됨(버전)」으로.**
