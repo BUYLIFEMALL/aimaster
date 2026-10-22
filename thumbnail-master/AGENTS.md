@@ -109,3 +109,10 @@
 - `src/lib/refHandoff.ts`: `stashSeoDoc(프로젝트 id, {name, text})`·`takeSeoDoc(id)`(탭 저장소 키 `thumbnail-seo-doc:<id>`, 꺼내면 지움). `SeoStudio.tsx`: 「이 전략으로 썸네일 만들기」로 프로젝트를 만든 직후 대본 보관(넘겨받은 대본이면 이름 「○○ 대본」). `Studio.tsx`: 처음 열 때 꺼내 참고 문서 칩(「대본 문서 올리기」 옆, ✕)으로 붙이고 안내. 새로 고침하면 사라지는 점은 파일로 올린 참고 문서와 같음(저장하지 않음).
 - 받는 쪽 추가: 쇼츠 바이럴 v1.15 「📤 썸네일 만들기」(`ref-from=쇼츠 떡상 분석·대본 자동화`).
 - 검수: tsc, `npm test` 14개(1개 추가), 배포 `thumbnail-master-nk3x4o5aa` Ready, DB v1.11. 크롬(시험 회원): 쇼츠 바이럴 「여행」 프로젝트 12씬 대본 → 링크 클릭 → `/seo` 대본 915자·안내 → 「SEO 전략 3가지 만들기」(Gemini 1회, 시험 회원 키) → 전략 A 「이 전략으로 썸네일 만들기」 → 제작 화면 참고 문서 「쇼츠 떡상 분석·대본 자동화 대본 · 0.9K자」·안내 확인. 「전략 생성」(A/B 문구)은 누르지 않음. 시험 회원 썸네일 프로젝트 1개(`b725bfeb-…`)가 회원 본인 데이터로 남음.
+
+## 2026-10-22 v1.12 — 참고 문서를 프로젝트와 함께 저장 · 「SEO 전략」 출처 표시 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_SAVE_DOC_ORIGIN.md`(주인님 승인). DB 칸 추가 없음(`inputs` jsonb 안).
+- `src/lib/tmb/types.ts` `RefDoc`·`Inputs.doc?`·`Inputs.origin?`. `src/lib/tmb/validate.ts` `cleanInputs`가 `doc`(글 있을 때만, `cleanDocText` 30,000자, 이름 80자)·`origin`(60자)을 지킴.
+- `Studio.tsx`: 참고 문서를 `inputs.doc`에서 읽고 씀 → 자동 저장(PUT)으로 저장, 다시 열어도 그대로, ✕는 지움. 1단계 제목 아래 「🔗 ○○에서 시작한 프로젝트」. `SeoStudio.tsx`: 프로젝트를 만들 때 `inputs.doc`(대본)·`inputs.origin`(「SEO 전략 A · 호기심 유발형」)을 바로 실음. v1.11 탭 저장소 경유 함수 삭제(같은 동작을 저장으로 대체).
+- 검수: tsc, `npm test` 14개(`cleanInputs` doc·origin 시험 추가, v1.11 보관 시험 삭제), 배포 `thumbnail-master-f965hqdwx` Ready, DB v1.12. 크롬(시험 회원, AI 0회): SEO 화면과 같은 요청으로 프로젝트 생성 → 제작 화면 전략 표시·참고 문서 칩 → 새로 고침 뒤 유지 → ✕ → 「저장됨」 → 새로 고침 뒤 문서 없음·전략 표시 유지. 시험 프로젝트 `019916f5-…`가 회원 본인 데이터로 남음. 못 한 것: 파일 올리기로 붙인 문서 저장(같은 `setDoc` 경로라 코드로만 확인).
+- 발견: 참고 문서 칩 글자 수가 `(길이/1000).toFixed(1)K자`라 짧은 대본은 「0.0K자」 — `docs/IMPROVEMENTS.md`.

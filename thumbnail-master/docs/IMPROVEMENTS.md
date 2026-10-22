@@ -36,3 +36,7 @@
 - **연계 완료(읽기 전용)**: 플레이리스트 v1.26·가사영상 v1.09 유튜브 카드가 이 프로그램의 `thumbnail_master_projects`(회원 본인 행만)·비공개 버킷 `thumbnail-master-images`(서명 주소 1시간)를 읽어 썸네일을 고른다. 저장 형식(`images_a/images_b = {versions:[{path}],cur}`)·버킷 이름을 바꾸면 두 프로그램의 `src/lib/youtube/thumbnailPicks.ts`도 함께 고쳐야 한다.
 - **[P1·미처리] 30일 자동 삭제 없음**: 최상위 규칙(생성 데이터 30일 후 자동 삭제)인데 크론·만료 처리 코드가 없다(조사: `src/lib/images.ts`, `supabase/migrations/0001_*`). 다음 작업 때 비공개 버킷·프로젝트 30일 정리 크론 추가 필요.
 - **[P3·미처리] 역량 지도 상세 카드 버전 v1.04**(표는 v1.09) — 다음 배포 때 맞추기.
+
+## 2026-10-22 (v1.12, Claude Code 윈도우) — 참고 문서 칩 글자 수 표시
+- 근거: 크롬 — 40자 대본이 「0.0K자」로 보임(`Studio.tsx` `(doc.text.length / 1000).toFixed(1)K자`).
+- 다음 첫 단계: 1,000자 미만이면 「n자」, 이상이면 「n.nK자」 — 다음 배포 때 함께.

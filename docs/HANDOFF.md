@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.12: 참고 문서 프로젝트 저장 · SEO 전략 출처 표시 (빌드 1회, AI 0회)
+- 참고 문서(올린 파일·SEO 대본)를 `inputs.doc`에 저장해 다시 열어도 그대로, 「🔗 SEO 전략 B · 가치 제안형에서 시작한 프로젝트」 표시. DB 칸 추가 없음. 원스톱 업로드 썸네일 지정은 16:9 vs 9:16이라 보류(`IDEA-THUMB-ONESTOP-01`). 상세 `thumbnail-master/AGENTS.md` v1.12.
+- 프로그램: https://thumbnail-master.buylife.xyz
+
 ## 2026-10-22 — Claude Code(맥미니): 공용 수집 스크립트 `scripts/analyze-category.mjs` 읽기 실패 건너뛰기
 - 정리·이동 중인 파일·잠긴 폴더를 만나면 수집 전체가 멈추던 문제(`EACCES`·`ENOENT`) → `readText()`·`walk()`에서 읽기 실패는 건너뜀. 출력 형식·DB 읽기 방식은 그대로(읽기 전용).
 - 시험: 실패 상황 흉내(전 중단 / 후 1개 읽고 2개 건너뜀), 실제 실행 `--slugs shop-detail-page,video-to-gif` 정상. 근거: `docs/analysis-ecommerce-consolidation-20261021/REPORT.md` §7. 비용 없음.
