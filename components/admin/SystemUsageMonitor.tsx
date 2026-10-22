@@ -115,7 +115,12 @@ export default function SystemUsageMonitor() {
     dbTableStats: DbTableStat[];
     storageStats: StorageStat[];
     cleanupByProgram?: { slug: string; name: string; runs: number; members: number; counts: Record<string, number>; lastAt: string | null }[];
-    opsOverview?: { updatedAt: string; pending?: { rows: number; programs: string[] }; cleanup?: { total: number; logging: string[]; notLogging: string[] } } | null;
+    opsOverview?: {
+      updatedAt: string;
+      pending?: { rows: number; programs: string[] };
+      cleanup?: { total: number; logging: string[]; notLogging: string[] };
+      reverts?: { hours: number; commits: number; suspect: number; lost: number; lostCommits: string[] } | null;
+    } | null;
     timestamp: string;
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -264,6 +269,69 @@ export default function SystemUsageMonitor() {
         </GlassCard>
       ) : data ? (
         <>
+          {/* 운영 상태(2026-10-23) — 저장소 쪽 요약: 미배포 대기·30일 정리 기록 진행률·공용 문서 되돌림. `node scripts/pending-check.mjs --publish`가 site_settings ops_overview에 저장 */}
+          {data.opsOverview && (
+            <GlassCard className="p-4 space-y-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <p className="text-sm font-bold text-gold">🛠️ 운영 상태</p>
+                <p className="text-[11px] text-white/40">
+                  기준 {new Date(data.opsOverview.updatedAt).toLocaleString("ko-KR")} · 저장소에서 <code>node scripts/pending-check.mjs --publish</code>로 갱신(배포 도우미가 자동 실행)
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-white/70">
+                {data.opsOverview.pending && (
+                  <div className="rounded-lg border border-white/10 p-3 space-y-1">
+                    <p className="text-white/50">미배포 대기</p>
+                    <p className="text-xl font-bold text-white">
+                      {data.opsOverview.pending.rows}<span className="text-xs font-normal text-white/50">건 · 프로그램 {data.opsOverview.pending.programs.length}개</span>
+                    </p>
+                    <p className="text-white/40">다음 배포 때 함께 나갈 작은 수정</p>
+                    {data.opsOverview.pending.programs.length > 0 && (
+                      <details>
+                        <summary className="cursor-pointer text-gold/80">프로그램 펼쳐 보기</summary>
+                        <p className="mt-1 leading-relaxed">{data.opsOverview.pending.programs.join(", ")}</p>
+                      </details>
+                    )}
+                  </div>
+                )}
+                {data.opsOverview.cleanup && (
+                  <div className="rounded-lg border border-white/10 p-3 space-y-1">
+                    <p className="text-white/50">30일 정리 기록</p>
+                    <p className="text-xl font-bold text-white">
+                      {data.opsOverview.cleanup.logging.length}<span className="text-xs font-normal text-white/50"> / {data.opsOverview.cleanup.total}개 프로그램</span>
+                    </p>
+                    <p className="text-white/40">기록을 남기는 곳: {data.opsOverview.cleanup.logging.join(", ") || "—"}</p>
+                    {data.opsOverview.cleanup.notLogging.length > 0 && (
+                      <details>
+                        <summary className="cursor-pointer text-gold/80">기록 안 남기는 {data.opsOverview.cleanup.notLogging.length}곳 펼쳐 보기</summary>
+                        <p className="mt-1 leading-relaxed">{data.opsOverview.cleanup.notLogging.join(", ")}</p>
+                      </details>
+                    )}
+                  </div>
+                )}
+                <div className="rounded-lg border border-white/10 p-3 space-y-1">
+                  <p className="text-white/50">공용 문서 되돌림 (최근 {data.opsOverview.reverts?.hours ?? 24}시간)</p>
+                  {data.opsOverview.reverts ? (
+                    <>
+                      <p className={`text-xl font-bold ${data.opsOverview.reverts.lost > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                        {data.opsOverview.reverts.lost}<span className="text-xs font-normal text-white/50">건 사라짐 · 의심 {data.opsOverview.reverts.suspect} · 커밋 {data.opsOverview.reverts.commits}개 확인</span>
+                      </p>
+                      <p className="text-white/40">다른 세션이 넣은 줄이 지워진 채 남은 커밋 수(0이면 정상)</p>
+                      {data.opsOverview.reverts.lostCommits.length > 0 && (
+                        <details open>
+                          <summary className="cursor-pointer text-red-300">사라진 줄이 있는 커밋</summary>
+                          <p className="mt-1 leading-relaxed font-mono">{data.opsOverview.reverts.lostCommits.join(" · ")}</p>
+                        </details>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-white/40">아직 감사 기록이 없습니다.</p>
+                  )}
+                </div>
+              </div>
+            </GlassCard>
+          )}
+
           {/* Summary Metric Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Metric 1: Supabase Logs Total */}
@@ -598,23 +666,8 @@ export default function SystemUsageMonitor() {
               {data.cleanupByProgram && (
                 <GlassCard className="p-4 space-y-2">
                   <p className="text-sm font-bold text-gold">30일 자동 정리 (최근 30일, 기록을 남기는 프로그램만)</p>
-                  {data.opsOverview && (
-                    <div className="space-y-0.5 text-xs text-white/70">
-                      {data.opsOverview.cleanup && (
-                        <p title={`아직 기록을 안 남기는 곳: ${data.opsOverview.cleanup.notLogging.join(", ")}`}>
-                          정리 기록 붙음 <b className="text-white">{data.opsOverview.cleanup.logging.length}</b> / 정리 작업 {data.opsOverview.cleanup.total}개 프로그램
-                          {" "}— {data.opsOverview.cleanup.logging.join(", ")}
-                        </p>
-                      )}
-                      {data.opsOverview.pending && (
-                        <p title={data.opsOverview.pending.programs.join(", ")}>
-                          미배포 대기 <b className="text-white">{data.opsOverview.pending.rows}</b>건 · 프로그램 {data.opsOverview.pending.programs.length}개 (다음 배포 때 함께 나갈 작은 수정)
-                        </p>
-                      )}
-                      <p className="text-white/40">
-                        기준 {new Date(data.opsOverview.updatedAt).toLocaleString("ko-KR")} — 저장소에서 <code>node scripts/pending-check.mjs --publish</code>로 갱신
-                      </p>
-                    </div>
+                  {data.opsOverview?.cleanup && (
+                    <p className="text-xs text-white/50">진행률·기록 안 남기는 곳 목록은 맨 위 「🛠️ 운영 상태」에 있습니다.</p>
                   )}
                   {data.cleanupByProgram.length === 0 ? (
                     <p className="text-xs text-white/50">아직 정리 기록이 없습니다(각 프로그램이 매일 새벽에 실행하고, 지울 것이 있을 때만 기록합니다).</p>
