@@ -24,7 +24,7 @@ const as = (optVal("--as") || hostname()).replace(/[^\w.-]/g, "_");
 const positional = argv.filter((a, i) => !a.startsWith("--") && argv[i - 1] !== "--as");
 
 const run = (args, opts = {}) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 512 * 1024 * 1024, ...opts });
-const tryRun = (args, opts) => { try { return run(args, opts); } catch { return null; } };
+const tryRun = (args, opts) => { try { return run(args, { stdio: ["pipe", "pipe", "pipe"], ...opts }); } catch { return null; } };
 const ROOT = run(["rev-parse", "--show-toplevel"]).trim();
 const GITDIR = run(["rev-parse", "--absolute-git-dir"]).trim();
 const SNAP = join(GITDIR, "safe-commit", as);
