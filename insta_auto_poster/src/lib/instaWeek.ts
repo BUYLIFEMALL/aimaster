@@ -7,13 +7,13 @@ import type { DayReplyItem } from "@/components/weekChart/WeekReplyPanel";
 // v1.44 대시보드 「📊 최근 7일 게시」 — 인스타에 자동 게시하는 프로그램들의 게시 건수를 묶음별 색으로 함께 쌓는다.
 // 표는 모두 같은 공용 DB에 있고 회원 본인 행만 읽기(RLS select_own) + user_id 필터. 게시 기록 표는 30일 뒤 자동 삭제라 7일 그래프에는 영향 없음.
 // 이 프로그램의 형식 정의(Database)에는 다른 프로그램 표가 없어 조회만 형식 검사 밖으로 뺀다.
-// 썸네일은 피드만 — 카드뉴스·AI 인플루언서·웹툰·네컷 게시 기록 표는 게시가 끝나면 저장소 이미지를 지운다.
+// 썸네일: 피드는 표지, 나머지 게시 기록 표는 게시 성공 때 남긴 첫 장(image_paths[0]). 안 열리는 그림은 패널이 숨긴다.
 const ALL_SOURCES = [
   { key: "feed", table: "insta_posts", label: "📸 피드", color: "#ec4899", text: "caption", link: "ig_permalink", image: "cover_image_url", bucket: "insta-post-images" },
-  { key: "cardnews", table: "cns_insta_posts", label: "🗂️ 카드뉴스", color: "#f59e0b", text: "caption", link: "permalink", image: null, bucket: "" },
-  { key: "influencer", table: "aif_insta_posts", label: "🧑‍🎤 AI 인플루언서", color: "#a855f7", text: "caption", link: "permalink", image: null, bucket: "" },
-  { key: "webtoon", table: "wts_insta_posts", label: "📚 웹툰", color: "#22c55e", text: "caption", link: "permalink", image: null, bucket: "" },
-  { key: "fourcut", table: "fcc_insta_posts", label: "🎞️ 네컷", color: "#3b82f6", text: "caption", link: "permalink", image: null, bucket: "" },
+  { key: "cardnews", table: "cns_insta_posts", label: "🗂️ 카드뉴스", color: "#f59e0b", text: "caption", link: "permalink", image: "image_paths", bucket: "cardnews-images" },
+  { key: "influencer", table: "aif_insta_posts", label: "🧑‍🎤 AI 인플루언서", color: "#a855f7", text: "caption", link: "permalink", image: "image_paths", bucket: "insta-post-images" },
+  { key: "webtoon", table: "wts_insta_posts", label: "📚 웹툰", color: "#22c55e", text: "caption", link: "permalink", image: "image_paths", bucket: "insta-post-images" },
+  { key: "fourcut", table: "fcc_insta_posts", label: "🎞️ 네컷", color: "#3b82f6", text: "caption", link: "permalink", image: "image_paths", bucket: "insta-post-images" },
 ] as const;
 
 // 배포판(독립 모드) DB에는 다른 프로그램 표가 없어 피드만 센다
@@ -78,7 +78,7 @@ export async function loadInstaDay(userId: string, range: { from: string; to: st
         at: r.published_at as string,
         reply: previewText(r[s.text] as string | null),
         href: (r[s.link] as string | null) ?? null,
-        thumbUrl: s.image ? publicImageUrl(r[s.image] as string | null, s.bucket) : null,
+        thumbUrl: s.image ? publicImageUrl(r[s.image] as string | string[] | null, s.bucket) : null,
       }));
     }),
   );

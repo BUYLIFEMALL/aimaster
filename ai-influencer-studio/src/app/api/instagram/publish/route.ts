@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getMemberInstagramAccount, INSTA_CONNECT_URL } from "@/lib/instagram/memberAccount";
 import { MAX_INSTA_CAPTION, validInstaPaths } from "@/lib/instagram/feedImage";
-import { ALREADY_POSTED_NOTE, fetchRecentMedia, insertPost, publishPaths, removeImages } from "@/lib/instagram/posting";
+import { ALREADY_POSTED_NOTE, fetchRecentMedia, insertPost, publishPaths, removeImages, removeImagesKeepThumb } from "@/lib/instagram/posting";
 import { FIRST_ATTEMPT_MARGIN_MS, findSameRecentPost, isTransientPublishError } from "@/lib/instagram/schedule";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
   if (!validInstaPaths(userId, paths)) {
     return NextResponse.json({ error: "게시할 사진 정보가 올바르지 않습니다. 다시 시도해주세요." }, { status: 400 });
   }
+  let keepThumb = false; // 게시 성공 + 기록 저장까지 됐을 때만 첫 장을 썸네일로 남긴다
   try {
     let out = await publishPaths(userId, paths, caption);
     if (!out.ok && out.needConnect) return NextResponse.json({ error: out.error, connectUrl: INSTA_CONNECT_URL, needConnect: true }, { status: 400 });
@@ -35,10 +36,12 @@ export async function POST(request: Request) {
     }
     await insertPost({ userId, paths, caption }, out.ok
       ? { status: "published", published_at: new Date().toISOString(), permalink: out.permalink || null, ig_username: out.username, error_message: alreadyPosted ? ALREADY_POSTED_NOTE : null }
-      : { status: "failed", error_message: out.error }).catch((e) => console.error("insta post record error:", String(e?.message ?? "").slice(0, 200)));
+      : { status: "failed", error_message: out.error })
+      .then(() => { keepThumb = out.ok; })
+      .catch((e) => console.error("insta post record error:", String(e?.message ?? "").slice(0, 200)));
     if (!out.ok) return NextResponse.json({ error: out.error }, { status: 502 });
     return NextResponse.json({ success: true, permalink: out.permalink, username: out.username, alreadyPosted });
   } finally {
-    await removeImages(paths);
+    await (keepThumb ? removeImagesKeepThumb : removeImages)(paths);
   }
 }

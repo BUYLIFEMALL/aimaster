@@ -97,9 +97,10 @@ export default function DashboardPage() {
         )}
       </Card>
 
-      {/* v1.45 카드뉴스 최근 7일 게시(공용 기준 코드 `insta-week-posts`, 본인 카드뉴스 게시 기록 최근 30건) */}
+      {/* v1.45 카드뉴스 최근 7일 게시(공용 기준 코드 `insta-week-posts`, 본인 카드뉴스 최근 7일 게시 완료) */}
       <InstaWeekPosts
         postsUrl="/api/cardnews/instagram/posts"
+        imageBucket="cardnews-images"
         defaultOpen
         cardClassName="rounded-2xl border border-[#262c3d] bg-[#161922] p-5 text-slate-100"
         classes={{ border: "border-[#262c3d]", item: "bg-[#11141c]", muted: "text-slate-400", danger: "text-red-400" }}

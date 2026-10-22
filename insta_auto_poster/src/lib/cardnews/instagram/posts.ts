@@ -23,6 +23,11 @@ export function removeImages(paths: string[]) {
   return createAdminClient().storage.from(BUCKET).remove(paths).then(() => undefined).catch(() => undefined);
 }
 
+/** 게시 성공 뒤: 첫 장은 그날 게시 목록 썸네일로 남기고 나머지만 지운다(남긴 장은 30일 정리 cleanupOldPosts가 행과 함께 지움). 실패·취소는 removeImages로 전부 지운다 */
+export function removeImagesKeepThumb(paths: string[]) {
+  return removeImages(paths.slice(1));
+}
+
 export type PublishOutcome = { ok: true; permalink: string; username: string } | { ok: false; error: string; needConnect?: boolean };
 
 /** 회원 본인 연결값(공용 insta_accounts)으로 이미지 경로들을 게시한다. 이미지 삭제는 호출부가 한다. */
@@ -136,7 +141,7 @@ export async function dispatchDuePosts(limit = 10, options: DispatchOptions = {}
       const same = findSameRecentPost((await fetchRecentMedia(post.user_id)) ?? [], post.caption ?? "", Date.now(), post.updated_at ? Date.parse(post.updated_at) : undefined);
       if (same) {
         await finish({ status: "published", published_at: same.timestamp ? new Date(same.timestamp).toISOString() : new Date().toISOString(), permalink: same.permalink ?? null, error_message: ALREADY_POSTED_NOTE });
-        await removeImages(post.image_paths ?? []);
+        await removeImagesKeepThumb(post.image_paths ?? []);
         results.push({ id: post.id, status: "already_published" });
         continue;
       }
@@ -149,7 +154,7 @@ export async function dispatchDuePosts(limit = 10, options: DispatchOptions = {}
       continue;
     }
     await finish(out.ok ? { status: "published", published_at: new Date().toISOString(), permalink: out.permalink, ig_username: out.username, error_message: null } : { status: "failed", error_message: out.error });
-    await removeImages(post.image_paths ?? []);
+    await (out.ok ? removeImagesKeepThumb : removeImages)(post.image_paths ?? []);
     results.push({ id: post.id, status: out.ok ? "published" : "failed" });
   }
   return results;

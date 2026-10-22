@@ -25,7 +25,7 @@ async function checkScheduleReady(userId: string): Promise<{ error?: string; cro
   return { cronjobKey: null };
 }
 
-const COLUMNS = "id, title, caption, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
+const COLUMNS = "id, title, caption, image_paths, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
 
 /** 한국 시간 6일 전 0시(UTC ISO) — 「최근 7일」 그래프의 시작(lib/weekChart/bucket.ts weekStartIso와 같은 계산, 이 사본을 쓰는 프로그램에 그 파일이 없을 수 있어 여기 둠) */
 function weekStartIso(now = Date.now()): string {
