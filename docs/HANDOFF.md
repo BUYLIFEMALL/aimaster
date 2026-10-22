@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 스타일 분석기 v1.33 점검 지점 보관(DB check_spots) · 변환 스튜디오 v1.17 이전/다음 · 인물사진 v1.36 비교 끌기 (빌드 4회, DB 칸 1개, AI 0원)
+- **이미지 스타일 분석기 v1.32~v1.33**: 운영 DB `sda_analyses.check_spots` 추가(ref esgxyikcnnvmlhygjkth), `PATCH /api/analyses/[id]`로 점검 지점 저장, 다시 생성하면 「이전 → 지금」 차이·평균 변화. v1.32 뒤 다크 테마 흐린 글자(1.7:1) 발견 → v1.33 수정(추가 빌드 승인). 크롬: 저장·새로고침 유지·평균 62.9%→34.8% ↓ 확인 후 검수 데이터 비움. 커밋 f277b7fcd.
+- **이미지 변환 스튜디오 v1.17**: 비교 창 「‹ 이전 / 다음 ›」·PageUp/PageDown, 크롬에서 3장 넘기기 확인. 커밋 3be6dd89e.
+- **AI 인물사진 v1.36**: 「원본과 비교」 사진 위 끌기(공용 compare-slider 사본) + 묶음 저장 미리보기. 운영 코드 포함 확인, 실제 화면 조작은 결과 사진 필요(동의 체크는 회원 절차).
+- 크롬 SQL 편집기 탭(ref esgxyikcnnvmlhygjkth)에 실행 끝난 칸 추가 SQL 초안이 「저장 안 됨」으로 남아 있음 — 닫을 때 「나가기」 눌러도 됨. 남은 일: F6 INSTA 카드뉴스 무료 사진 검색, 배포 보류분(감성 글귀 v1.24·4컷 post-presets·바나나 compare 사본 추가분).
+
 ## 2026-10-22 Claude Code(윈도우) — INSTA 포스팅 자동화 v1.57 떡상 리메이크 문구 베끼기 방지 (빌드 1회)
 - 공용 `reference-copy-guard`(기준 원스톱 `src/lib/reference.ts`) 사본을 INSTA에 등록, 리메이크 문구에 원본 문장 규칙·6어절 겹침 검사·1회 재요청·노란 안내. 크롬 확인(문구 4장 겹침 0). 상세 `insta_auto_poster/AGENTS.md` v1.57.
 - 프로그램: https://auto-instagram-posting.buylife.xyz
