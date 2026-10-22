@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 쓰레드 콘텐츠 운영 보관함 초안에 무료 사진 추가·빼기 (미배포)
+- 한 일: 보관함 초안 「수정」 중 첨부 사진 ✕(빼기)·「📷 무료 사진」 추가, 저장·발행·예약 때 본문과 함께 저장(`saveDraft` media 선택값, `sanitizeMedia`). 커밋 `922cedd37`. 검수: tsc·시험 36·로컬 빌드. **미배포 대기**(다음 배포 v2.18).
+- 작성 탭 결과 카드 사진 추가 확인은 AI 글 생성 뒤에만 가능해 이번에도 못 함 → v2.18 배포 뒤 초안 화면에서 같은 `addFreePhoto` 경로를 AI 없이 확인.
+- 링크: https://threads-content-ops.buylife.xyz/threads-content-ops
+
 ## 2026-10-23 Claude Code(윈도우) — ✅ 티스토리 v1.89 확장 자동 연결 실제 확인
 - 주인님이 확장 새로고침 뒤 직접 확인(「티스토리 자동 연결 잘됨」). 코드 변경 없음, 비용 없음. 남은 확인: SEO v2.10 입력(이미지 6장)·블로그 에이전트 v2.10 자동 연결.
 - 프로그램: https://tistory-auto-blog.buylife.xyz
