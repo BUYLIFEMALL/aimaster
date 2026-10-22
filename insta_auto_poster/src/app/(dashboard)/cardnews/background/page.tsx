@@ -8,6 +8,7 @@ import { CardCanvas } from "@/components/cardnews/studio/CardCanvas";
 import { useStudio } from "@/components/cardnews/studio/ProjectProvider";
 import { PhotoSearchPanel } from "@/components/cardnews/studio/PhotoSearchPanel";
 import { PHOTO_PROVIDERS, type PhotoProvider } from "@/lib/cardnews/photoSearch";
+import { toEnglishKeywords } from "@/lib/cardnews/photoKeywords";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT, NeedPlan, SELECT, StepHeader } from "@/components/cardnews/studio/ui";
 
 type PageState = { loading: boolean; error?: string };
@@ -106,7 +107,9 @@ export default function BackgroundPage() {
     if (!page) return "fail";
     setState((s) => ({ ...s, [pageId]: { loading: true } }));
     try {
-      const found = await photoCall({ action: "search", provider: fillProvider, query: (page.headline || plan.topic).slice(0, 100), ratio: plan.ratio });
+      // 장 제목을 사진 검색용 영어 키워드로 먼저 바꾼다(공용 사전 photo-keywords, 못 바꾸면 한국어 그대로) — 영어가 결과가 훨씬 많다
+      const korean = (page.headline || plan.topic).slice(0, 100);
+      const found = await photoCall({ action: "search", provider: fillProvider, query: toEnglishKeywords(korean) || korean, ratio: plan.ratio });
       const list = (found.photos as { url: string }[] | undefined) ?? [];
       const first = used ? list.find((ph) => !used.has(ph.url)) : list[0];
       if (!first) throw new Error(list.length ? "다른 장과 겹치지 않는 사진이 없습니다. 「무료 사진 검색」에서 다른 검색어로 골라주세요." : "이 장 제목으로 찾은 사진이 없습니다. 「무료 사진 검색」에서 다른 검색어로 골라주세요.");

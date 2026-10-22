@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Camera, Loader2, Search } from "lucide-react";
 import { PHOTO_PROVIDERS, type Photo, type PhotoProvider } from "@/lib/cardnews/photoSearch";
+import { toEnglishKeywords } from "@/lib/cardnews/photoKeywords";
 import type { RatioId } from "@/lib/cardnews/presets";
 import { BTN_GHOST, ErrorNote, INPUT, SELECT } from "@/components/cardnews/studio/ui";
 
@@ -19,6 +20,15 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [busy, setBusy] = useState<"search" | string | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
+  const [translateNote, setTranslateNote] = useState("");
+  // 한국어 검색어 → 영어 키워드(공용 사전 photo-keywords, AI 없음)
+  const toEnglish = () => {
+    const english = toEnglishKeywords(query);
+    if (english) {
+      setQuery(english);
+      setTranslateNote("");
+    } else setTranslateNote("사전에 없는 말이에요. 검색어를 직접 영어로 적어 주세요(예: coffee, office).");
+  };
 
   const call = async (body: Record<string, unknown>) => {
     const res = await fetch("/api/cardnews/photos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -79,11 +89,15 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
           e.preventDefault();
           void search();
         }} />
+        <button type="button" data-photo-english title="한국어 검색어를 영어로 바꾸기" disabled={!query.trim() || !!busy} onClick={toEnglish} className={`${BTN_GHOST} shrink-0 px-2.5 py-1.5 text-xs`}>
+          🔤
+        </button>
         <button type="button" aria-label="사진 검색" disabled={!query.trim() || !!busy} onClick={() => void search()} className={`${BTN_GHOST} shrink-0 px-2.5 py-1.5 text-xs`}>
           {busy === "search" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
         </button>
       </div>
       <p className="text-[11px] text-slate-500">본인 {provider === "pixabay" ? "Pixabay" : "Pexels"} 키로 검색합니다(무료). 영어 검색어가 결과가 더 많습니다.</p>
+      {translateNote && <p className="text-[11px] text-amber-300">{translateNote}</p>}
       {error && <ErrorNote message={error.message} needKey={error.needKey} />}
       {photos && photos.length === 0 && <p className="text-xs text-slate-400">검색 결과가 없습니다. 다른 검색어로 찾아보세요.</p>}
       {photos && photos.length > 0 && (

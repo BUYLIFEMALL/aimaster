@@ -96,3 +96,18 @@ test("미배포 대기(2026-10-23): 피드 이미지는 JPEG로 저장 — 서�
   const client = readFileSync(new URL("../../src/lib/uploadImageClient.ts", import.meta.url), "utf8");
   assert.match(client, /canvas\.toBlob\(resolve, "image\/jpeg", 0\.92\)/);
 });
+
+test("미배포 대기(2026-10-23): 공용 사전 photo-keywords — 한국어 → 영어, 한 글자 잘못 나누기 없음, 자동 채우기·검색 칸 연결", async () => {
+  const { toEnglishKeywords } = await import("../../src/lib/cardnews/photoKeywords.ts");
+  assert.equal(toEnglishKeywords("아침 커피 루틴"), "morning coffee");
+  assert.equal(toEnglishKeywords("주말아침에 고양이랑"), "weekend morning cat");
+  assert.equal(toEnglishKeywords("미용실 창업"), "hair salon startup");
+  assert.equal(toEnglishKeywords("비용 절감 방법"), ""); // 비(rain)로 잘못 바꾸지 않음
+  assert.equal(toEnglishKeywords("약속 시간"), "");
+  assert.equal(toEnglishKeywords("AI 마케팅"), "ai marketing");
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("../../src/app/(dashboard)/cardnews/background/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /query: toEnglishKeywords\(korean\) \|\| korean/);
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /data-photo-english/);
+});
