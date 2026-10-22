@@ -42,6 +42,8 @@ type Draft = {
   design: Design;
 };
 
+const DEFAULT_PHOTO_QUERY = "nature";
+
 const DEFAULT: Draft = {
   topic: THEMES[0].name,
   source: "",
@@ -119,7 +121,8 @@ export function Workspace({
   const [image, setImage] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [photo, setPhoto] = useState<Photo | null>(null);
-  const [query, setQuery] = useState("nature");
+  // v1.23: 기본값은 안내 문구로만 보여 줌(덧붙여 써서 「naturenature」처럼 0장이 되는 일 방지) — 비우고 검색하면 nature
+  const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState("");
@@ -295,7 +298,7 @@ export function Workspace({
     }
     run<{ photos: Photo[] }>(
       "/api/photos",
-      { provider: draft.source, query, ratio: draft.ratio },
+      { provider: draft.source, query: query.trim() || DEFAULT_PHOTO_QUERY, ratio: draft.ratio },
       "사진을 찾고 있습니다…",
       (d) => {
         setPhotos(d.photos);
@@ -623,9 +626,9 @@ export function Workspace({
                         maxLength={100}
                         disabled={disabled}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="예: sunrise, flowers, peaceful forest"
+                        placeholder="예: nature, sunrise, flowers (비워 두면 nature)"
                       />
-                      <button className="primary flex items-center gap-1.5" disabled={disabled || !query.trim()}>
+                      <button className="primary flex items-center gap-1.5" disabled={disabled}>
                         <Search size={14} />
                         <span>사진 검색</span>
                       </button>

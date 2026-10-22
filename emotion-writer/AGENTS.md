@@ -141,3 +141,7 @@
 - 「다른 크기로 받기」 버튼마다 실제 비율대로 그린 작은 상자(긴 변 16px, `aria-hidden`). 크기 목록은 공용 사본 `src/lib/studio/postPresets.ts`에서 만들고 세로 3:4만 더함(기준 `image-convert-studio/src/lib/imageTools/postPresets.ts` — 사본 직접 수정 금지, `--sync`).
 - 배포 `emotion-writer-bt1lbzk7v` Ready, DB v1.22, 시험 26개. 크롬(시험 회원, AI 비용 없음): 글귀 직접 입력 + Pixabay 「nature」 12장 → 완성 화면에서 아이콘 6개 크기(16×16·13×16·9×16·12×16·16×9·16×8) 확인.
 - 검수 메모: 검색칸에 기본값 「nature」가 이미 있어 자동 입력 시 「naturenature」→ 0건(앱 문제 아님, 칸을 비우고 입력할 것).
+
+## v1.23 (2026-10-22, Claude Code 윈도우) — 사진 검색칸 기본값을 안내 문구로
+- 검색칸에 들어 있던 기본값 「nature」를 빼고 안내 문구(`예: nature, sunrise, flowers (비워 두면 nature)`)로만 보여 줌. 회원이 기본값 뒤에 덧붙여 써서 「naturenature」처럼 결과 0장이 되던 일을 막음. 비운 채 검색하면 `DEFAULT_PHOTO_QUERY`("nature")로 검색(버튼도 빈칸에서 눌림). `src/components/Workspace.tsx`.
+- 시험 26개·tsc·build 통과, 배포 `emotion-writer-qoo9xbcto` Ready, DB v1.23. 크롬 검수: 운영 화면 v1.23 표시, 검색칸 값 빈칸·안내 문구 확인, 빈칸 검색 → 본인 Pixabay 무료 키로 사진 12장(비용 없음). 화면 캡처는 확장 오류로 실패해 JS 측정으로 대신함.
