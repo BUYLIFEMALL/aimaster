@@ -148,3 +148,10 @@ export function isGeminiFileRef(v: unknown): v is { name: string; uri: string; m
     && typeof d.uri === "string" && d.uri === `https://generativelanguage.googleapis.com/v1beta/${d.name}`
     && typeof d.mimeType === "string" && /^video\/(mp4|quicktime|webm)$/.test(d.mimeType);
 }
+
+/** v1.55 Gemini가 아닌 분석 AI용 — 원문 칸 글 뒤에 릴스 말소리 받아쓰기를 붙인다 */
+export function withTranscript(text: string, transcript: string): string {
+  const t = transcript.trim();
+  if (!t) return text;
+  return `${text}\n\n[릴스 말소리 받아쓰기 — 영상에서 실제로 말한 내용]\n${t}`.slice(0, 12000);
+}

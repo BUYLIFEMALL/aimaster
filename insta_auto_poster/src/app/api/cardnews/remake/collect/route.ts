@@ -27,6 +27,23 @@ const APIFY_ACCOUNT_ACTOR = "apify~instagram-scraper";
 const APIFY_HASHTAG_ACTOR = "apify~instagram-hashtag-scraper";
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // v1.54 릴스 영상(분석용으로 잠깐 받아 Gemini에 올림, 저장 안 함)
+const MAX_TRANSCRIBE_BYTES = 25 * 1024 * 1024; // v1.55 OpenAI 받아쓰기 파일 한도(mp4 그대로 받음)
+
+/** v1.55 회원 본인 OpenAI 키로 릴스 mp4를 그대로 받아쓰기(Whisper) — 소리만 뽑을 필요 없음 */
+async function transcribeVideo(apiKey: string, bytes: Uint8Array, mime: string): Promise<string> {
+  const form = new FormData();
+  const ext = mime === "video/webm" ? "webm" : mime === "video/quicktime" ? "mov" : "mp4";
+  form.append("file", new Blob([bytes as unknown as BlobPart], { type: mime }), `reel.${ext}`);
+  form.append("model", "whisper-1");
+  form.append("response_format", "text");
+  const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+    method: "POST", headers: { Authorization: `Bearer ${apiKey}` }, body: form, cache: "no-store", signal: AbortSignal.timeout(120_000),
+  });
+  if (res.status === 401 || res.status === 403) throw new BlockedUrlError("OpenAI API 키가 올바르지 않습니다. 본인 키를 확인해 주세요.");
+  if (res.status === 429) throw new BlockedUrlError("OpenAI 사용 한도나 잔액을 초과했습니다. OpenAI 계정을 확인해 주세요.");
+  if (!res.ok) throw new BlockedUrlError(`OpenAI 받아쓰기에 실패했습니다(${res.status}).`);
+  return (await res.text()).trim().slice(0, 6000);
+}
 
 async function readCapped(res: Response, max: number): Promise<Uint8Array | null> {
   const len = Number(res.headers.get("content-length") ?? 0);
@@ -144,18 +161,29 @@ export async function POST(request: Request) {
     if (body.action === "reel_video") {
       const videoUrl = typeof body.videoUrl === "string" ? body.videoUrl : "";
       if (!isInstagramCdn(videoUrl)) return json(400, { error: "영상 주소가 올바르지 않습니다. 다시 수집해 주세요." });
-      const key = await getCardnewsKey(userId, "gemini");
-      if (!key) return json(400, { error: "영상 분석은 본인 Gemini 키가 필요합니다. [API키등록·플랫폼연동]에서 등록해 주세요.", needApiKey: true, provider: "gemini" });
+      // v1.55 transcribe: Gemini가 아닌 분석 AI용 — 회원 본인 OpenAI 키로 말소리만 받아써 글로 돌려준다
+      const transcribe = body.mode === "transcribe";
+      const key = await getCardnewsKey(userId, transcribe ? "openai" : "gemini");
+      if (!key) {
+        return json(400, transcribe
+          ? { error: "말소리 받아쓰기는 본인 OpenAI 키가 필요합니다(Claude로 분석해도 받아쓰기는 OpenAI). [API키등록·플랫폼연동]에서 등록해 주세요.", needApiKey: true, provider: "openai" }
+          : { error: "영상 분석은 본인 Gemini 키가 필요합니다. [API키등록·플랫폼연동]에서 등록해 주세요.", needApiKey: true, provider: "gemini" });
+      }
       let bytes: Uint8Array | null = null; let mime = "video/mp4";
       try {
         const { response } = await safeFetch(videoUrl, { signal: AbortSignal.timeout(60_000) });
         if (response.ok) {
           const ct = (response.headers.get("content-type") ?? "").split(";")[0].trim();
           if (/^video\/(mp4|quicktime|webm)$/.test(ct)) mime = ct;
-          bytes = await readCapped(response, MAX_VIDEO_BYTES);
+          bytes = await readCapped(response, transcribe ? MAX_TRANSCRIBE_BYTES : MAX_VIDEO_BYTES);
         }
       } catch { bytes = null; }
-      if (!bytes) return json(502, { error: "릴스 영상을 받지 못했습니다(주소 만료·100MB 초과). 다시 수집하거나 영상을 저장해 「릴스 영상 올리기」를 이용해 주세요." });
+      if (!bytes) {
+        return json(502, { error: transcribe
+          ? "릴스 영상을 받지 못했거나 25MB가 넘어 받아쓰기를 할 수 없습니다. 분석 AI를 Gemini로 바꾸면 100MB까지 영상째 분석합니다."
+          : "릴스 영상을 받지 못했습니다(주소 만료·100MB 초과). 다시 수집하거나 영상을 저장해 「릴스 영상 올리기」를 이용해 주세요." });
+      }
+      if (transcribe) return json(200, { transcript: await transcribeVideo(key, bytes, mime) });
       try {
         const file = await uploadToGemini(key, bytes, mime, `remake-reel-${Date.now()}`);
         return json(200, { file, sizeMB: Math.round((bytes.byteLength / 1048576) * 10) / 10 });

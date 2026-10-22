@@ -322,3 +322,11 @@ test("AI 호출: Gemini 파일 영상은 형식과 함께 보냄", async () => {
   await callLlm({ provider: "gemini", model: "m", apiKey: "k", system: "s", user: "u", videoUrl: "https://www.youtube.com/watch?v=x" }, fake);
   assert.deepEqual(body.contents[0].parts[0], { fileData: { fileUri: "https://www.youtube.com/watch?v=x" } }, "유튜브는 예전처럼");
 });
+
+// ── v1.55 Gemini가 아닌 엔진: 말소리 받아쓰기 붙이기 ──
+import { withTranscript } from "../../src/lib/cardnews/collect.ts";
+test("받아쓰기: 원문 뒤에 표시와 함께 붙이고, 비어 있으면 그대로", () => {
+  assert.equal(withTranscript("본문", "  "), "본문");
+  assert.equal(withTranscript("본문", " 안녕하세요 "), ["본문", "", "[릴스 말소리 받아쓰기 — 영상에서 실제로 말한 내용]", "안녕하세요"].join("\n"));
+  assert.equal(withTranscript("a".repeat(11990), "b".repeat(100)).length, 12000, "원문 칸 한도 12000자");
+});
