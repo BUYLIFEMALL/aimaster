@@ -1,6 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-10-23 — Claude Code(맥미니): ✅ AI 상세페이지 자동화 v1.29 실검수 — 회원 점검 급한 것 5건
+- 상품 목록 맨 위·매뉴얼 접힘, 「남은 섹션 10개 생성(약 $1.01)」, 「전체 다시 생성」 첫 누름은 확인 문구만(5초 뒤 복구, 생성 없음), 매뉴얼 문구, 새 상품 비용 안내(규격 따라 바뀜), 500px 넘침 없음. AI 버튼은 누르지 않음. 상세 `shop-detail-page/AGENTS.md` 맨 아래. 남은 제안 S-23-04·05·08·09, GIF G-23-01~06.
+- 비용: 이번 검수 없음(배포 빌드 1회는 승인 범위). 링크: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-23 — Claude Code(윈도우): 쓰레드 댓글자동화 v1.26 — 자동 수집 회원 선택(Vercel / 본인 cron-job.org) + AI 지시문 Threads용
 - 주인님 결정 「고객이 본인이 선택하게 해줘」. 그전에는 설정에 「예약 모니터링 켜기」가 있어도 예약 호출(`vercel.json`)이 없어 켜도 아무 일도 안 일어났음. youtube-auto-reply v1.12 구조를 그대로 이식: 공용 `member-scheduler` 사본(`lib/schedulerMember/`, 표 `th_member_scheduler`, 토큰 `threply_…`, 끄기 스위치 `THREPLY_PLATFORM_SCHEDULER=off`), 회원 실행 주소 `/api/cron/dispatch-member`(Next 14라 `@vercel/functions` waitUntil), 운영자 주소는 Vercel 방식·비일시정지 회원만, 처리 전 이용 권한 재확인·`last_run_at` 조건부 선점, `vercel.json` 5분 예약, 설정 「⏰ 예약 실행 방식」·상태 줄·일시정지/재개, 매뉴얼 FAQ. AI 답글 지시문 「유튜브 채널 운영자·영상 제목」 → Threads용.
 - DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor, 해시 일치): `threads-comment-reply/supabase/migrations/20261023220000_th_member_scheduler_v1_26.sql` — 새 표 + 버전 v1.26.
