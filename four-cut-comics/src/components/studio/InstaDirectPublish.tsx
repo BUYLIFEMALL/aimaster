@@ -7,6 +7,7 @@ import { toFeedJpeg, uploadBlobs } from "@/lib/instagram/feedRender";
 import { formatKst, kstLocalToIso } from "@/lib/instagram/schedule";
 import { SchedulePublishingControl } from "./SchedulePublishingControl";
 import { InstaPostHistory } from "./InstaPostHistory";
+import { InstaWeekPosts } from "@/components/weekChart/InstaWeekPosts";
 
 // v1.17 📤 인스타그램에 바로 게시(자동 포스팅 4단계, 즉시 게시) — 기준: ai-webtoon-studio v1.15 InstagramPublishPanel.
 // 형식: ① 바둑판 합본 1장(피드) ② 컷별 캐러셀(컷 하나 = 한 장). 피드 비율(4:5~1.91:1) 밖이면 자르지 않고 흰 여백을 붙인다.
@@ -178,6 +179,13 @@ export function InstaDirectPublish({ cuts, makeGrid, caption }: { cuts: string[]
         </small>
       )}
 
+      {/* 최근 7일 게시 그래프(공용 insta-week-posts 사본, 접힌 한 줄 — 내 작품과 같음). 게시·예약 뒤 historyKey가 바뀌면 다시 불러온다 */}
+      <InstaWeekPosts
+        key={historyKey}
+        postsUrl="/api/instagram/posts"
+        cardClassName="fcc-week"
+        classes={{ border: "fcc-wk-line", item: "fcc-wk-item", muted: "fcc-wk-muted", danger: "fcc-wk-danger" }}
+      />
       <InstaPostHistory refreshKey={historyKey} onPendingChange={setPendingCount} />
     </div>
   );
