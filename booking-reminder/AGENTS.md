@@ -147,5 +147,14 @@ F-008(P1), F-009(P1), F-010(P1), F-011(P1)를 운영 설정/코드/조건부 위
 ## 2026-10-21 — 미배포 공용 코드 변경 안내: `telegram-bot-client` 사본에 `linkButton` (Claude Code 윈도우)
 - 사본 `lib/telegram/client.ts`의 `sendTelegramMessageWithButtons`에 선택 항목 `linkButton`(승인 버튼 줄 아래 링크 버튼 한 줄)이 추가됨(커밋 `802e89c8`). 이 프로그램은 넘기지 않으므로 **동작 같음**(tsc 오류 0 확인). 급하지 않은 변경이라 따로 배포하지 않았고, **다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나간다**. 사본은 직접 고치지 않는다 — 기준 `instagram-comment-reply/lib/telegram/client.ts`를 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 미배포 목록: 루트 `docs/SHARED_MODULES.md`.
 
-## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+## 2026-10-22 ✅ v1.28로 배포됨(2026-10-23) — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - components/settings/CronjobKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+## 2026-10-23 v1.28 — 📥 예약 엑셀 일괄 등록 + 예약 시각 한국 시간 버그 수정 (Claude Code 윈도우)
+- 마케팅 독립 프로그램 확장 ②(주인님 승인). 플랜 `docs/PLAN_20261023_EXCEL_IMPORT_KST.md`.
+- **버그 수정(회원 영향)**: 손 입력 `datetime-local` 값을 서버(UTC)가 UTC로 읽어 한국 시각보다 9시간 늦게 저장 → 리마인드가 9시간 늦게 발송, 목록 시각도 9시간 어긋남(문자 속 {time}은 서버 UTC로 찍혀 맞아 보여 알아채기 어려웠음). `lib/reservationImport.ts` `parseKstDateTime`으로 한국 시간 저장, 목록(`ReservationRow`)·문자 `{time}`(`reminderDispatch.ts`)은 `timeZone: "Asia/Seoul"`. 운영 예약 0건·규칙 0건이라 기존 데이터 수정 없음.
+- **엑셀 일괄 등록**: 예약 화면 「📥 엑셀로 한 번에 등록」(`components/reservations/ReservationImportForm.tsx`) + 양식 `/api/reservations/template`. 열 고객명(필수)·핸드폰·이메일·예약일시(필수, 한국 시간, 글자·엑셀 날짜 셀 모두)·메모. 미리보기(DB 안 씀) → 등록(`reservationImportAction`이 파일을 다시 검사). 500건, 건너뜀: 고객명 없음·연락처 없음·핸드폰 형식 아님·지난 예약·날짜 못 읽음·파일 안 중복·이미 등록된 같은 예약. 엑셀은 SheetJS 0.20.3(stepmail과 같음).
+- 검사: tsc·build, 새 `npm run test:import` 6개(한국 시간·엑셀 날짜 셀·번호 정리·건너뛰기 사유·미리보기 DB 안 씀·등록 본인 소유). 배포 `booking-reminder-4unwdpsta` Ready·DB v1.28·양식 비로그인 401·회원 실행 가짜 토큰 401. 크롬(관리자): 시험 엑셀 미리보기 「등록 가능 2건·건너뜀 1건(지난 예약)」·시각 한국 그대로(오후 2:30·오후 3:00) — **등록은 누르지 않음**(리마인드 발송 위험).
+- 함께 나간 대기분: 좌측 메뉴 계정 위치(`22c6cda35`), 공용 사본 telegram `linkButton`, 버튼 줄바꿈(`f0871e568`).
+- 남은 일: 실제 등록 1회 검수(리마인드 규칙 없는 계정에서), 등록한 예약 일괄 삭제(실수로 올렸을 때), 외부 예약 시스템(네이버 예약 등) 연동.
+- 링크: https://booking-reminder.buylife.xyz/reservations
