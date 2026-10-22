@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 운영 DB 칸 목록 명령 · 협업 지침 9번에 「배포는 deploy.mjs --go」 · 다음 메인 빌드 목록 갱신 (비용 없음)
+- `node scripts/program-info.mjs columns <표>`: 운영 DB REST 설명서(OpenAPI)로 실제 칸·타입·필수 여부, user_id 유무를 보여 줌 — 행이 0건이어도 정확(첫 마이그레이션만 보고 잘못 판단한 부동산 사례 재발 방지). 표가 없으면 비슷한 이름 안내. 함수 `tableColumns(table)`도 내보냄.
+- `docs/CLI_COLLABORATION_RULES.md` 9번: 배포는 `deploy.mjs <폴더> --go [--owner]`로(지도 버전 칸·대기 표·관리자 숫자 자동 정리), 표 구조는 `columns` 명령으로 확인.
+- **다음 메인 빌드 때 함께(코드 미작성, 모아 둔 목록)**: ① 「30일 자동 정리」 표 이름표 — `segments` 장면 기록(있음)·`tracks` 곡·`posts` 글·`ideas` 글감·`history` 분석 기록·`reports` 추천 보고서·`snapshots` 트렌드 기록·`competition` 경쟁 조사·`comments` 댓글·`sentiments` 지역 분위기 ② 기록이 처음 생긴 프로그램(최근 30일 첫 기록이 7일 안)에 「NEW」 표시 ③ 「운영 상태」 기록 시각 24시간 초과 시 「갱신 필요」 ④ 「프로그램 펼쳐 보기」 대기 줄 수 많은 순(`--publish`가 줄 수도 저장하도록 함께).
+
 ## 2026-10-23 Claude Code(윈도우) — 첫 30일 정리 기록 운영 확인 · 배포 도우미 Ready 직접 확인 · 오래 남은 기준 사본 점검 (비용 없음)
 - **운영 확인(usage_logs `cleanup_expired`)**: Shots(`auto-shorts-posting`) 03:30 회원 2명(장면 이미지 6·13), Threads 쇼핑제휴 v1.82 배포(02:56) 직후 03:00 정리에서 회원 1명(posts 1·images 1) — 공용 `cleanup-usage-log` 사본 경로가 운영에서 끝까지 동작함. 다른 세션의 `auto-threads-posting`도 회원 3명 기록.
 - `deploy.mjs <폴더> --go`(`fec9e0d1e`): 배포 출력에서 이번 배포 주소를 받아 `vercel inspect`로 상태·`*.buylife.xyz` 연결을 한 줄로(예전 `vercel ls` 읽기의 「?」 해결). 지난 스토리보드 배포로 상태 Ready·운영 주소 읽기 시험.
