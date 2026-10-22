@@ -1,6 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-10-23 — Claude Code(윈도우): 쇼핑제휴 v1.83 · 콘텐츠 운영 v2.16 — 상품 연동(쿠팡·알리·토스) 코드를 공용 기준 코드 `affiliate-clients`로
+- 쓰레드 분석 §5-3 주인님 결정 「공용코드로」. 두 앱이 손 복사로 따로 고쳐 쓰던 쿠팡 검색·링크 판정·배너 자르기·알리·토스 파일(두 벌 10개)을 공용 파일 5개로 합침 — 기준 `threads-affiliate-poster/src/lib/affiliate-clients/`, 사본 `threads-content-ops/lib/affiliate-clients/`(직접 수정 금지, `check-shared-modules.mjs --sync`). 운영 앱의 안전장치(붙여넣기 길이·스크립트 제거·쿠팡 이미지 주소만·배너 리디렉션 거부·2MB 한도·친절한 오류 안내)와 쇼핑제휴의 기능(위젯 주소 해석, 알리 상품 상세, 토스 다음 페이지·특가 종료 시각)을 모두 담음. 옛 파일 삭제, 화면·DB 변경 없음.
+- 함께 고침: 토스 목록에 없는 `tacaId`를 쇼핑제휴가 「NaN」으로 보내던 것 → 빈 값(쉐어링크는 tacaItemId 우선 하나만 보냄).
+- 검수: 두 앱 tsc·build, 새 시험 7개(`npm run test:affiliate-clients`), 운영 앱 기존 시험 36개(링크 판정·배너 포함), `check-shared-modules` 일치. 배포 `threads-affiliate-poster-hxign6r21`·`threads-content-5w7cio7b0` Ready, DB v1.83·v2.16(크롬 SQL Editor). 크롬(시험 회원): 두 앱 상품 등록 화면 4개 탭 정상, 쇼핑제휴에 일반 쿠팡 주소 입력 → 브라우저에서 「수수료가 잡히지 않습니다」 거절(저장 없음). 실제 쿠팡·알리·토스 호출은 하지 않음.
+- 참고: `scripts/check-shared-modules.mjs`의 등록 5줄은 다른 세션 커밋 `df333dfe5`에 함께 들어감(내용은 같음).
+- 커밋 `f35d3f91f`. 비용: 빌드 2회(승인), AI·외부 유료 호출 0회.
+- 다음 작업(주인님 결정 순서): 댓글자동화 자동 수집을 회원이 켜고 끄는 선택.
+- 링크: https://threads-affiliate-poster.buylife.xyz/products · https://threads-content-ops.buylife.xyz/threads-content-ops?tab=sources
+
 ## 2026-10-23 — Claude Code(맥미니): 상세페이지·GIF 자동화 회원 입장 점검 (코드 수정 없음, 비용 없음)
 - 상세페이지 9건(S-23-01~09): 전체 생성이 만든 섹션까지 다시 생성(비용), 중간 실패에도 「완성」 표시, 상품 목록이 페이지 맨 아래, 휴대폰 하단 고정 버튼이 화면 24% 가림, 매뉴얼 별표·개수·버튼 이름, 새 상품 화면 비용 안내 없음, GIF 자동화 연결 링크 등 → `shop-detail-page/docs/IMPROVEMENTS.md`.
 - GIF 자동화 6건(G-23-01~06): 사용 매뉴얼이 v1.10 상태(새 기능 설명 없음), 영상 아닌 파일 통과, 8MiB 실패 다음 행동 안내 없음 등 → `video-to-gif/docs/IMPROVEMENTS.md`. 구현은 주인님 선택 뒤.

@@ -184,6 +184,11 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | 곡 보내기 받는 쪽 | 가사영상 `src/lib/ams.ts`·플레이리스트 `src/lib/amsTracks.ts`(회원 본인 `ams_generations`·비공개 버킷 서명 주소) + 공용 모듈 `ams-timed-lyrics`(Lyria 시간 가사 → 줄 시간표) | 🟢 2026-10-23 |
 | 아직 각자 구현 | `music/`(Suno 전용 — 유지), `auto-shorts-posting`·`music-video-studio` 등의 배경음악 Suno 호출 | ⚪ 공용화 후보(어댑터 사본화는 다음 작업) |
 
+## 17. 상품 제휴 연동(쿠팡·알리·토스) — 공용 모듈 `affiliate-clients` (2026-10-23 등록)
+- 기준 `threads-affiliate-poster/src/lib/affiliate-clients/`(쇼핑제휴, 사용 기록 최다) · 사본 `threads-content-ops/lib/affiliate-clients/`.
+- 파일 5개: `coupangLinks.ts`(브라우저에서도 쓰는 순수 함수 — 제휴 링크 판정·HTML 해석·위젯 주소), `coupangApi.ts`(검색·딥링크·서명), `coupangBanner.ts`(배너 사진 자르기, 다른 주소로 넘어가지 않음·2MB 한도), `aliexpress.ts`(제휴 링크·상품 상세·사진 찾기), `toss.ts`(쉐어링크, FIXIE_URL 고정 IP).
+- 새 프로그램이 쿠팡·알리·토스 상품 등록을 하면 이 사본을 가져다 쓴다. 회원 본인 키만(호출부에서 `user_api_keys`).
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |
