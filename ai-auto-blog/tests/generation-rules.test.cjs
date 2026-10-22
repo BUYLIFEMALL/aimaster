@@ -55,6 +55,7 @@ function generator(modelJson) {
     '@/blog/utils/ai/contentModels': { DEFAULT_CONTENT_PROVIDER: 'openai', DEFAULT_IMAGE_COUNT: 3, resolveContentModel: () => 'm', resolveImageCount: (n) => n },
     '@/blog/utils/yearPolicy': policy,
     './promptRules': rules,
+    './headingDedupe': load('utils/news/headingDedupe.ts', none),
   };
   const exports = load('utils/news/generator.ts', (name) => { if (name in mocks) return mocks[name]; return none(name); });
   return { exports, captured };
@@ -84,4 +85,18 @@ test('legacy wordCount is read as characters and clamped', async () => {
   const { exports, captured } = generator(sections('x'));
   await exports.generateAutoPost(news, { topic: '주제', wordCount: 100000, contentApiKey: 'k', storageUserId: 'u', imageCount: 1 });
   assert.ok(captured.prompt.includes('3,500자'));
+});
+
+// 2026-10-23: 소제목(##)과 같은 문구의 작은 제목(###·<h3>)만 지우고 나머지 내용은 그대로 둔다(티스토리 글 18번과 같은 문제).
+test('dropRepeatedHeading removes only small headings that repeat the section heading', () => {
+  const { dropRepeatedHeading } = load('utils/news/headingDedupe.ts', none);
+  const body = ['캠핑을 즐기려면 장비가 필요합니다.', '', '### 캠핑 장비: 필수 아이템과 선택 가이드', '', '텐트는 수면 공간입니다.', '', '### 텐트 고르는 법', '', '크기를 봅니다.'].join('\n');
+  const out = dropRepeatedHeading(body, '캠핑 장비: 필수 아이템과 선택 가이드');
+  assert.ok(!out.includes('### 캠핑 장비'));
+  assert.ok(out.includes('### 텐트 고르는 법'));
+  assert.ok(out.includes('캠핑을 즐기려면 장비가 필요합니다.') && out.includes('텐트는 수면 공간입니다.'));
+  assert.ok(!/\n{3,}/.test(out));
+  assert.ok(!dropRepeatedHeading('<h3>캠핑 장비 필수 아이템과 선택 가이드</h3>\n본문', '캠핑 장비: 필수 아이템과 선택 가이드').includes('<h3>'));
+  assert.equal(dropRepeatedHeading('### 다른 제목\n본문', '소제목'), '### 다른 제목\n본문');
+  assert.equal(dropRepeatedHeading('본문', ''), '본문');
 });

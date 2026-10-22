@@ -4,6 +4,7 @@ import { generateSegmentImages } from './imageGenerator'
 import { generateContentJson } from '@/blog/utils/ai/contentJson'
 import { sanitizeYear, sanitizeBodyYear } from '@/blog/utils/yearPolicy'
 import { buildLengthRules, buildYearRule, countChars, resolveTargetChars } from './promptRules'
+import { dropRepeatedHeading } from './headingDedupe'
 import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, resolveImageCount, type ContentProvider } from '@/blog/utils/ai/contentModels'
 
 /** 이미지 생성에 실패한 칸은 빈 이미지 태그를 남기지 않는다. */
@@ -202,7 +203,7 @@ ${customRule}
 2. 소제목 및 문단 구성: { "제목", "요약글", "소제목 1", "소제목 2", "소제목 3", "소제목 4", "문단 1", "문단 2", "문단 3", "문단 4" } 4개의 독립적인 소제목과 문단으로 구성하세요. 4개 문단은 서로 다른 핵심 내용을 다루세요.
 3. 태그 사용 필수 룰:
    - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3", "소제목 4")은 마크다운 ## (<h2>) 태그로 표현됩니다.
-   - 글 전체 내용 중 구체적 세부 설명 부분에 마크다운 ### (<h3>) 태그를 정확히 3번 사용하세요.
+   - 글 전체 내용 중 구체적 세부 설명 부분에 마크다운 ### (<h3>) 태그를 정확히 3번 사용하세요. ### 작은 제목은 바로 위 ## 소제목과 다른 문구로 쓰고, 소제목 문구를 그대로 되풀이하지 마세요.
    - 글 전체 내용 중 리스트 또는 핵심 질문/답변 목록 부분에 마크다운 - (<li>) 태그를 2번 이상 사용하세요.
 4. 분량 및 딥다이브 설명:
    - ${lengthRules.deepDive}
@@ -288,7 +289,7 @@ ${customRule}
   const imageBySection = new Map(paragraphGroups.map((group, groupIndex) => [group[0], images[groupIndex + 1]?.url || '']))
   const renderSection = (index: number) => {
     const line = imageBySection.has(index) ? imageLine(`${headings[index]} 비주얼`, imageBySection.get(index) || '') : ''
-    return [`## ${headings[index]}`, line, sectionBodies[index]].filter(Boolean).join('\n\n')
+    return [`## ${headings[index]}`, line, dropRepeatedHeading(sectionBodies[index], headings[index])].filter(Boolean).join('\n\n')
   }
 
   const contentMarkdown = `

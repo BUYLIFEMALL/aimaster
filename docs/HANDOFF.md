@@ -1,6 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-10-23 Claude Code(윈도우) — ⏳ ai-auto-blog 소제목 반복 제거 (미배포 대기 · 비용 없음)
+- 티스토리 v1.90과 같은 방식: 지시문 1줄 + 본문 조립 때 `utils/news/headingDedupe.ts` `dropRepeatedHeading`. 시험 generation 8·security 39·extension-api 38·extension 85·tsc 통과. 옛 자동 연결 코드 정리와 함께 다음 배포 때 내보냄(`docs/PENDING_DEPLOYS.md`).
+- 프로그램: https://ai-auto-blog.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 음악 스튜디오 v1.04 Suno V6 Wild 카드 추가 (빌드 1회 · 생성 0회)
 - 모델 목록에 `suno:V6_WILD`(실험적) 추가, 배포 Ready·DB v1.04, 크롬 화면 확인. 실제 생성은 크롬이 관리자 계정이라 생략 — 다음 시험 계정 로그인 때 1회 확인.
 - 프로그램: https://ai-music-studio.buylife.xyz
