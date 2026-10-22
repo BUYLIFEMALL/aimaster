@@ -2,6 +2,13 @@
 
 
 
+## 2026-10-23 — Claude Code(윈도우): Threads 콘텐츠 운영 v2.15 — 기획 앱 기능 합치기(기획 앱은 독립 유지)
+- 쓰레드 분석 묶음 A를 주인님이 「기획 > 합쳐놓고 기획만 하는 자동화 프로그램은 그냥 유지」로 확정. `threads-content-ops` 「콘텐츠 생성」에 사진·영상 보고 글쓰기(최대 5장/5컷, 3사, 보이는 것만 쓰기 안내)·시간대 추천 주제 추가. `threads-easy-planner`는 변경 없음.
+- 검수: tsc·시험 36개·build, 배포 `threads-content-1ipmi41ke` Ready, DB v2.15, 크롬(시험 회원) 사진 1장 첨부 GPT-4.1 실제 생성 1회 성공(초안 저장 안 함). 함께 나간 대기분 `4cafe5eb3`(PENDING_DEPLOYS에서 배포 기록으로 옮김).
+- 다음 대기(주인님 결정 순서): ① 쇼핑제휴↔운영 앱 상품·제휴 연동 공용 기준 코드 ② 댓글자동화 자동 수집을 회원이 켜고 끄는 선택. 상세 `threads-content-ops/AGENTS.md` v2.15, 분석 보고서 §8.
+- 비용: 빌드 1회(승인), 시험 회원 본인 OpenAI 키 GPT-4.1 1회(수십 원 이하).
+- 링크: https://threads-content-ops.buylife.xyz/threads-content-ops?tab=create
+
 ## 2026-10-23 — Claude Code(윈도우): 쓰레드 콘텐츠 운영 「📷 무료 사진」 — **보류**(다른 세션이 같은 폴더 작업 중 발견)
 - 주인님 승인(빌드 1회) 후 구현(tsc 통과)하다가, 다른 Claude Code 세션(윈도우)이 같은 `threads-content-ops/`에서 「기획 앱 기능 합치기 v2.15」(커밋 `47b447340`, DB v2.15)를 진행 중인 것을 ACTIVE_WORK에서 발견 — 처음 확인 때는 없던 줄. 같은 폴더 동시 작업 금지라 **배포하지 않았고**, 그 세션 배포에 검수 안 된 제 코드가 섞이지 않도록 제 변경만 되돌려 폴더를 그 세션 커밋 상태로 복원(그 세션 파일·커밋은 건드리지 않음).
 - 보관: `docs/pending-patches/threads-content-ops-free-photo-20261023/`(패치·새 파일 2개·다시 적용하는 법 README). 그 세션이 끝나면 README 순서로 적용 → 다음 버전(v2.16 예상) 배포.

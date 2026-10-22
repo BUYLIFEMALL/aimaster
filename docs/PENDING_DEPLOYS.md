@@ -25,7 +25,6 @@
 | `reverse-prompt` | 분석 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(history) 기록 — 공용 `cleanup-usage-log` 사본(1시간 임시 파일은 세지 않음) | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `reverse-prompt/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `insta_auto_poster` (운영 v1.66) | 피드 이미지를 JPEG로 저장(직접 첨부 PNG·WEBP 브라우저 변환, AI 이미지 서버 변환) · 자동 채우기 설명 한 줄로 | `8b44df90d` `8022fbf0a` | 2026-10-23 · Claude Code(윈도우) | `insta_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, PNG 직접 첨부 → 저장 형식 JPEG 확인(게시 없이) |
 | `four-cut-comics` | 서버 보관함 30일 정리(`/api/cron/cleanup`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 작품 수) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `four-cut-comics/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
-| `threads-content-ops` | 30일 정리(`cleanup-media`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 이미지·영상, posts=보관함 글, ideas=글감) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `music` | 곡 30일 정리(`/api/cron/cleanup`, 2026-10-28까지 유예)가 회원별 `usage_logs` `cleanup_expired`(tracks=지운 곡 수) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `music/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `emotion-writer` (운영 v1.25) | 사진 검색·받기를 공용 `free-photo-search` 사본으로(내부 정리, 동작 같음) | `428fcdfc3` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 사진 검색 → 선택 → 이미지 만들기 확인 |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -49,6 +48,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `threads-content-ops` | v2.15 · 2026-10-23 (기획 앱 기능 합치기: 사진·영상 글쓰기·추천 주제, Claude Code 윈도우, 승인 빌드 1회) | 정리 기록(images·posts·ideas) `4cafe5eb3` |
 | `music-video-studio` | v1.12 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회) | Veo 3.1 Preview 종료 대응 → Gemini Omni Flash `cea11442a` · 좌측 메뉴 계정 위치 `22c6cda35` |
 | `threads-affiliate-poster` | v1.82 · 2026-10-23 (Claude Code 윈도우, 승인 빌드) | 정리 기록(posts·images) `af9b2719c`·`05902a01d` · 좌측 메뉴 계정 위치 `22c6cda35` · 공용 사본 `member-scheduler`(가짜 토큰 401) |
 | `style-dna-analyzer` | v1.37 · 2026-10-23 (Claude Code 윈도우, 승인 빌드) | 정리 기록(images) `8ad8ea2e5`·`f53021369` · 좌측 메뉴 계정 위치 `22c6cda35` · 공용 사본 `openai-request-params` |
