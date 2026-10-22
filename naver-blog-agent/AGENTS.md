@@ -1,5 +1,7 @@
 # 네이버 블로그 에이전트 (naver-blog-agent) — AI 에이전트 인수인계 문서
 
+> **2026-10-22 실제 비공개 자동 발행 검수 완료(Claude Code 윈도우, 웨일):** 비공개 합성 원고 1건 → 최종 발행·`post_url`/`published_at` 자동 기록, 외부에서 「비공개 글」 확인. 미시험: 전체공개·예약·이미지 포함. 상세 [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
+
 > **BLC-06 v2.08 운영 확인:** BLC-06 v2.08 편집 상태 보존·이미지 생성 선택 운영 확인. 코드 8c3b1f39 푸시·배포 Ready·DB/설치 확장/라이브 ZIP 일치. 회귀 202개·확장 모의 42개·타입/빌드, 실제 회원 원문 보존/H1·링크 왕복·저장/재열기·출처 불변·이미지 선택·4단계/복사·516px 확인. 추가 AI/이미지 호출 0·최종 발행 0. 다음은 주인님 요청 SEO 블로그 스튜디오 비교이며 BLC-07 즉시 착수 아님. [증거·한계·다음 단계](docs/IMPROVEMENT_HANDOFF_20261021_BLC06_EDITOR.md).
 
 > **BLC-05 v2.07 운영 확인:** [자료 수집·출처 연결 인수인계](docs/IMPROVEMENT_HANDOFF_20261021_BLC05_SOURCE_MATERIALS.md) · [플랜](docs/PLAN_20261021_BLC05_SOURCE_MATERIALS.md). 공개 피드/회원 서버 글감·원고 출처/수명 보존, 195개 회귀·실제 Edge 원고 저장/편집/재열기·516px/복사·설치 확장 일치. Replicate 이미지 인증/모델 권한 오류는 미해결로 기록, BLOG 인증 피드와 원래 서비스 유지. 다음 BLC-06 편집 조작 비교 플랜.
