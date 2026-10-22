@@ -385,3 +385,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 플랜: [`docs/PLAN_20261023_MEMBER_FIXES.md`](docs/PLAN_20261023_MEMBER_FIXES.md). S-23-01 남은 섹션만 생성·전체 다시 생성은 두 번 누름 / S-23-02 실패 시 「완성」 안 함 / S-23-03 상품 목록 맨 위·매뉴얼 접기 / S-23-06 매뉴얼 별표·개수·버튼 이름 / S-23-07 새 상품 화면 비용 안내.
 - 새 `lib/generatePlan.ts`(`sectionsToGenerate`·`statusAfterGenerate`). 버전 v1.29(`lib/version.ts`, SQL `supabase/migrations/20261023_member_fixes_v1_29.sql` — 버전만). 검수: 함수 시험 7가지, tsc 0, eslint 0.
 - **윈도우 CLI 다음 첫 단계**: SQL → `shop-detail-page` 배포 1회. 그 뒤 맥미니 크롬 실검수(AI 버튼은 누르지 않음).
+
+## 2026-10-23 ✅ v1.29 배포 (Claude Code 윈도우 — 맥미니 v1.29 마무리)
+- 맥미니 커밋 `2601629aa`(남은 섹션만 생성·실패 시 완성 표시 안 함·상품 목록 위로·매뉴얼 문구·새 상품 비용 안내) 마무리.
+- 공용 사본(`store-zip`·`gemini-image-client`·`gemini-image-models`) 일치·tsc·로컬 build 통과 → 운영 DB `programs.version` v1.29(`20261023_member_fixes_v1_29.sql`과 같은 버전 갱신만) → 배포 READY(`shop-detail-page-mfavhc7d6-buylife.vercel.app`).
+- 크롬(메인 크롬, 시험 계정): `/products` 사이드바 v1.29, 「제작된 상품 목록(총 2개)」이 매뉴얼보다 위, 「프로그램 소개 · 실전 매뉴얼 펼치기」 접힘 확인. 생성 버튼은 누르지 않음 — 남은 섹션 버튼 문구·전체 다시 생성 확인 문구·비용 안내·500px 폭은 **맥미니 크롬 실검수 예정**(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
