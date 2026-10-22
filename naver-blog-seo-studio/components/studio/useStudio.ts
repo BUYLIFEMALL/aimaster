@@ -31,6 +31,10 @@ export function useStudio() {
   const [contentModel, setContentModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
   // v1.96: 고른 AI 회사·모델을 이 브라우저에 기억. 불러오기가 끝나기 전에는 저장하지 않아 기본값이 덮어쓰지 않게 한다.
   const modelLoadedRef = useRef(false);
+  // v1.97: 계정 저장값이 우선(어느 PC에서나 같게). 브라우저 기억은 계정 값을 받기 전 잠깐 쓰고,
+  // 계정 값을 받은 뒤에만 계정에 저장한다(받기 전에 저장하면 이 PC 값이 다른 PC에서 고른 값을 덮어씀).
+  const accountModelRef = useRef<string | null>(null);
+  const [openAIFeatureModel, setOpenAIFeatureModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
   useEffect(() => {
     const restoreModel = () => {
       let saved = null;
@@ -39,10 +43,21 @@ export function useStudio() {
       modelLoadedRef.current = true;
     };
     restoreModel();
+    fetch("/api/settings/ai-model").then((r) => r.ok ? r.json() : null).then((d: { content?: { provider: ContentProvider; model: string } | null; openaiFeature?: string } | null) => {
+      if (!d) return;
+      if (d.openaiFeature) setOpenAIFeatureModel(d.openaiFeature);
+      if (d.content) { setContentProvider(d.content.provider); setContentModel(d.content.model); }
+      accountModelRef.current = d.content ? JSON.stringify(d.content) : "";
+    }).catch(() => {});
   }, []);
   useEffect(() => {
     if (!modelLoadedRef.current) return;
-    try { localStorage.setItem(SAVED_MODEL_KEY, JSON.stringify({ provider: contentProvider, model: contentModel })); } catch {}
+    const value = JSON.stringify({ provider: contentProvider, model: contentModel });
+    try { localStorage.setItem(SAVED_MODEL_KEY, value); } catch {}
+    if (accountModelRef.current === null || accountModelRef.current === value) return;
+    accountModelRef.current = value;
+    fetch("/api/settings/ai-model", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: { provider: contentProvider, model: contentModel } }) })
+      .then((r) => r.ok ? r.json() : null).then((d: { openaiFeature?: string } | null) => { if (d?.openaiFeature) setOpenAIFeatureModel(d.openaiFeature); }).catch(() => {});
   }, [contentProvider, contentModel]);
   const [contentImageCount, setContentImageCount] = useState<2 | 3>(2);
   // v1.74 글쓰기 선택 사항(저장하지 않고 생성 요청에만 사용)
@@ -667,6 +682,7 @@ export function useStudio() {
     setContentProvider,
     contentModel,
     setContentModel,
+    openAIFeatureModel,
     contentImageCount,
     setContentImageCount,
     editingTitleIndex,

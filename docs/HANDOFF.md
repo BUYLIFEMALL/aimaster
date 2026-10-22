@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ SEO블로그 스튜디오 v1.97 기본 AI 모델 계정 저장 (빌드 1회 · AI 1회)
+- 고른 AI 회사·모델을 계정에 저장해 어느 PC에서나 같게, 제목 추천 등 OpenAI 전용 기능도 기본 AI가 OpenAI면 같은 모델. 설정 화면 「AI 모델」 카드 복구(그동안 화면에 없어 바꿀 수 없었음). 시험 59 통과, DB/확장/ZIP v1.97 OK, 웨일 실검수 완료.
+- 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래. 다음: BLC-10(문단별 이미지 노드) — 플랜·비용 먼저 보고.
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 원스톱 v1.35: 레퍼런스 머리말 「출처: ○○」 · 참고 자료 출처 띠·빼기 (빌드 1회, AI 호출 없음)
 - 「에서」 겹침 없앤 머리말, 참고 자료 칸 위 「🎬 출처 ○○ · 대사 n자 ✕ 빼기」(그 블록만 빼고 메모 유지). 크롬 확인 끝, 휴대폰 폭은 미확인. 원스톱으로 보낼 새 후보는 없음 → 반대 방향(원스톱 대본 → 썸네일·SEO)을 아이디어 표 `IDEA-ONESTOP-SEO-01`에 기록. 상세 `shorts-onestop-studio/AGENTS.md` v1.35.
 - 프로그램: https://shorts-onestop-studio.buylife.xyz

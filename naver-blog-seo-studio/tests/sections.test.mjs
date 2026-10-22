@@ -85,3 +85,16 @@ test("v1.96: parseSavedModel keeps only a provider+model pair that is still in t
   assert.equal(parseSavedModel("{깨진", options), null);
   assert.equal(parseSavedModel(null, options), null);
 });
+
+test("v1.97: account model wins, legacy OpenAI setting is inherited, OpenAI-only features follow an OpenAI default", async () => {
+  const { accountContentModel } = await import("../lib/savedModel.ts");
+  const { getUserOpenAIContentModel } = await import("../lib/ai/openaiModels.ts");
+  const options = [{ value: "gpt-4o-mini", label: "a", provider: "openai" }, { value: "gpt-4.1", label: "b", provider: "openai" }, { value: "claude-haiku-4-5", label: "c", provider: "anthropic" }];
+  assert.deepEqual(accountContentModel({ naver_blog_seo_content_model: { provider: "anthropic", model: "claude-haiku-4-5" }, naver_blog_seo_openai_model: "gpt-4.1" }, options), { provider: "anthropic", model: "claude-haiku-4-5" });
+  assert.deepEqual(accountContentModel({ naver_blog_seo_openai_model: "gpt-4.1" }, options), { provider: "openai", model: "gpt-4.1" });
+  assert.equal(accountContentModel({ naver_blog_seo_content_model: { provider: "openai", model: "retired" } }, options), null);
+  assert.equal(accountContentModel(undefined, options), null);
+  assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "openai", model: "gpt-4o-mini" }, naver_blog_seo_openai_model: "gpt-4.1" }), "gpt-4o-mini");
+  assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "anthropic", model: "claude-haiku-4-5" }, naver_blog_seo_openai_model: "gpt-5" }), "gpt-5");
+  assert.equal(getUserOpenAIContentModel({}), "gpt-4.1");
+});

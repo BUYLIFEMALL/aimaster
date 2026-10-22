@@ -1,5 +1,6 @@
 # 네이버 블로그 SEO 스튜디오 개발 지침
 
+> **v1.97 (2026-10-22) 기본 AI 모델 계정 저장·하나로 맞추기:** 작업 화면에서 고른 AI 회사·모델을 계정(`user_metadata.naver_blog_seo_content_model`)에 저장해 PC 간 유지(계정 값 우선, 브라우저 기억은 받기 전 잠깐). OpenAI 전용 기능(제목 추천·기존 글 분석/최적화·본문 이미지 고르기)은 기본 AI가 OpenAI면 같은 모델, 아니면 「OpenAI 전용 기능 모델」(`naver_blog_seo_openai_model`). 설정 화면에 「AI 모델」 카드 복구(`AiModelSettings`, 그동안 어디에도 안 붙어 있었음). `GET/POST /api/settings/ai-model`. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 > **v1.96 (2026-10-22) 고른 AI 모델 기억:** 작업 화면의 AI 회사·모델(제목 추천·새 글·자료부터 집필·내 문체 공용)을 `localStorage` 키 `seo-content-model`에 기억해 새로고침해도 유지. 목록에 없는 모델·깨진 값은 기본값(`lib/savedModel.ts` `parseSavedModel`). 설정 화면의 「OpenAI 생성모델」(계정 저장, 이미지 고르기 전용)과는 별개. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 > **v1.95 (2026-10-22) 자료부터 집필 사용성:** 메뉴를 옮겼다 돌아와도 마지막으로 연 자료를 다시 엶(`sessionStorage` 키 `seo-research-open`, 실패하면 기억 없이 동작). 「새 구성으로 다시 시작」은 화면 안 2단계 확인(새 구성 만들기 / 취소) 뒤에만 목차 AI 1회. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 > **v1.94 (2026-10-22) 구간별로 쓰기 다듬기:** 구간 분량 지시 상향(도입 300~450자, 구간 450~650자·3문단 이상·문단마다 예시나 판단 기준) — gpt-4o-mini 실측 1,658자 → 2,636자(공백 제외), 분량 안내 사라짐. 합친 원고를 열 때 전용 안내(새로 합침 「구간 N개를 합친 원고를 열었습니다…」 / 재사용 「구간이 바뀌지 않아 이미 합친 원고를 다시 열었습니다.」), `reuseDraft(draft, notice?)`. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.

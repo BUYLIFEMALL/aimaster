@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import ApiKeySettings from "./ApiKeySettings";
 import ExtensionTokenManager from "./ExtensionTokenManager";
 import ExtensionDownloadCard from "./ExtensionDownloadCard";
+import AiModelSettings from "./AiModelSettings";
+import { CONTENT_MODEL_OPTIONS } from "@/lib/ai/contentModels";
+import { resolveOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { accountContentModel } from "@/lib/savedModel";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +28,9 @@ export default async function SettingsPage() {
         <h1>API키등록·플랫폼연동</h1>
         <p className="lede">기존 AIMaster 공용 API 키를 이 프로그램에서도 그대로 사용합니다.</p>
         <ApiKeySettings initialProviders={initialProviders} maskedKeys={maskedKeys} />
+        <div className="settings-divider" />
+        <h2>AI 모델</h2>
+        <AiModelSettings initialContent={accountContentModel(user.user_metadata, CONTENT_MODEL_OPTIONS)} initialOpenAI={resolveOpenAIContentModel(user.user_metadata?.naver_blog_seo_openai_model)} />
         <div className="settings-divider" />
         <h2>Chrome 확장 연동 토큰</h2>
         <p className="lede">이 프로그램 전용 토큰을 발급한 뒤 Chrome 확장에 입력하세요. 다른 자동화 프로그램의 토큰과 별도로 관리됩니다.</p>

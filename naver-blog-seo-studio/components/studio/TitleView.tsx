@@ -10,7 +10,7 @@ import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
 
 export function TitleView({ s }: { s: Studio }) {
-  const { strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq } = s;
+  const { strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, openAIFeatureModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq } = s;
   return (
     <section className="title-recommendation" id="title">
           <section className="card title-input-section">
@@ -61,7 +61,8 @@ export function TitleView({ s }: { s: Studio }) {
   <section className="content-model-selection" aria-label="본문 생성 모델 선택">
     <div className="content-generation-models-heading">
       <strong>본문 생성모델 · {selectedContentModelLabel}</strong>
-      <small>아래 생성 버튼을 누를 때 제목과 블로그(원문) 본문에 적용됩니다.</small>
+      <small>아래 생성 버튼을 누를 때 제목과 블로그(원문) 본문에 적용됩니다. 고른 모델은 계정에 저장돼 다른 PC에서도 이어집니다.</small>
+      {contentProvider !== "openai" && <small className="model-notice">「AI 제목 추천」은 OpenAI로만 동작해 OpenAI 전용 기능 모델({openAIFeatureModel})로 만듭니다. 설정 화면에서 바꿀 수 있습니다.</small>}
     </div>
     <div className="content-generation-models">
       <div className="field">

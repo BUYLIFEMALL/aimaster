@@ -5,7 +5,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
 import { resolveGeminiImageModel } from "@/lib/ai/geminiModels";
-import { resolveOpenAIContentModel } from "@/lib/ai/openaiModels";
+import { getUserOpenAIContentModel } from "@/lib/ai/openaiModels";
 import { selectContentVisuals, type ContentVisual } from "@/lib/ai/contentVisuals";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const publicationReport = draftReport(draft.seo_report);
   if (draftLocked(publicationReport)) return NextResponse.json({ error: "자동 발행을 시작한 원고의 이미지는 바꿀 수 없습니다." }, { status: 409 });
   try {
-    const visuals = await selectContentVisuals({ apiKey: openaiKey, topic: draft.topic, title: draft.title, body: draft.body, count, model: resolveOpenAIContentModel(access.user.user_metadata?.naver_blog_seo_openai_model as string | undefined) });
+    const visuals = await selectContentVisuals({ apiKey: openaiKey, topic: draft.topic, title: draft.title, body: draft.body, count, model: getUserOpenAIContentModel(access.user.user_metadata) });
     const imageModel = resolveGeminiImageModel(input?.model);
     const generated: ContentVisual[] = [];
     for (const visual of visuals) {
