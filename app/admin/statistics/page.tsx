@@ -7,32 +7,43 @@ import { TrendingUp, Users, CreditCard, ShoppingBag, Link2 } from "lucide-react"
 
 export const metadata = { title: "통계" };
 
-// 바나나 캔버스로 이어진 작업 수(최근 30일, 보낸 프로그램별) — 바나나 결과 표는 회원 본인만 읽을 수 있어(RLS)
+// 다른 프로그램에서 이어진 작업 수(최근 7일/30일, 보낸 프로그램별) — 바나나 결과 표·사용 기록은 회원 본인만 읽을 수 있어(RLS)
 // 관리자임을 다시 확인한 뒤 서버 키로 숫자만 센다(회원 내용은 읽지 않음). 보낸 곳 값은 프로그램 slug와 같다
-async function bananaLinkStats(userId: string | undefined) {
+// 바나나: `banana_canvas_results.options.ideaSource`·`downloadedAt`·`handoffs`(v1.25~v1.28) / 이미지 스튜디오: `usage_logs.metadata.ideaSource`(v1.26)
+async function linkStats(userId: string | undefined, days: 7 | 30) {
   if (!userId) return null;
   const supabase = await createClient();
   const { data: me } = await supabase.from("profiles").select("is_admin").eq("id", userId).maybeSingle();
   if (!me?.is_admin) return null;
   const admin = createServiceClient();
-  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  // 다운로드 비율: 바나나가 결과를 처음 다운로드할 때 `options.downloadedAt`을 남긴다(v1.27부터 기록)
-  const [{ data: rows }, { count: total }, { count: totalDownloaded }] = await Promise.all([
-    admin.from("banana_canvas_results").select("src:options->>ideaSource, dl:options->>downloadedAt").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const { data: studio } = await admin.from("programs").select("id").eq("slug", "ai-image-studio").maybeSingle();
+  const [{ data: rows }, { count: total }, { count: totalDownloaded }, imgRows, imgTotal] = await Promise.all([
+    admin.from("banana_canvas_results").select("src:options->>ideaSource, dl:options->>downloadedAt, ho:options->handoffs").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->>downloadedAt", "is", null),
+    studio
+      ? admin.from("usage_logs").select("src:metadata->>ideaSource").eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since).not("metadata->>ideaSource", "is", null).limit(10000)
+      : Promise.resolve({ data: [] as { src: string | null }[] }),
+    studio
+      ? admin.from("usage_logs").select("*", { count: "exact", head: true }).eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since)
+      : Promise.resolve({ count: 0 }),
   ]);
-  const counts: Record<string, number> = {};
-  const downloaded: Record<string, number> = {};
-  for (const r of (rows ?? []) as { src: string | null; dl: string | null }[]) {
+  const banana: Record<string, { count: number; downloaded: number; handedOff: number }> = {};
+  for (const r of (rows ?? []) as { src: string | null; dl: string | null; ho: Record<string, string> | null }[]) {
     if (!r.src) continue;
-    counts[r.src] = (counts[r.src] ?? 0) + 1;
-    if (r.dl) downloaded[r.src] = (downloaded[r.src] ?? 0) + 1;
+    const b = (banana[r.src] ??= { count: 0, downloaded: 0, handedOff: 0 });
+    b.count += 1;
+    if (r.dl) b.downloaded += 1;
+    if (r.ho && Object.keys(r.ho).length) b.handedOff += 1;
   }
-  return { counts, downloaded, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0 };
+  const image: Record<string, number> = {};
+  for (const r of ((imgRows as { data: { src: string | null }[] | null }).data ?? [])) if (r.src) image[r.src] = (image[r.src] ?? 0) + 1;
+  return { days, banana, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0, image, imageTotal: (imgTotal as { count: number | null }).count ?? 0 };
 }
 
-export default async function AdminStatisticsPage() {
+export default async function AdminStatisticsPage({ searchParams }: { searchParams?: { linkRange?: string } }) {
+  const linkDays: 7 | 30 = searchParams?.linkRange === "7" ? 7 : 30;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -64,7 +75,7 @@ export default async function AdminStatisticsPage() {
       .from("subscriptions")
       .select("program_id, pricing_plan:pricing_plans(price)")
       .eq("status", "active"),
-    bananaLinkStats(user?.id),
+    linkStats(user?.id, linkDays),
   ]);
 
   // 총 매출
@@ -153,10 +164,15 @@ export default async function AdminStatisticsPage() {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 10);
 
-  const bananaRows = Object.entries(bananaStats?.counts ?? {})
-    .map(([slug, count]) => ({ slug, name: programs?.find((p) => p.slug === slug)?.name ?? slug, count, downloaded: bananaStats?.downloaded[slug] ?? 0 }))
+  const nameOf = (slug: string) => programs?.find((p) => p.slug === slug)?.name ?? slug;
+  const bananaRows = Object.entries(bananaStats?.banana ?? {})
+    .map(([slug, v]) => ({ slug, name: nameOf(slug), ...v }))
     .sort((a, b) => b.count - a.count);
   const bananaLinked = bananaRows.reduce((sum, r) => sum + r.count, 0);
+  const imageRows = Object.entries(bananaStats?.image ?? {})
+    .map(([slug, count]) => ({ slug, name: nameOf(slug), count }))
+    .sort((a, b) => b.count - a.count);
+  const imageLinked = imageRows.reduce((sum, r) => sum + r.count, 0);
   const pct = (n: number, d: number) => (d ? `${Math.round((n / d) * 100)}%` : "—");
 
   const SUMMARY_STATS = [
@@ -222,40 +238,71 @@ export default async function AdminStatisticsPage() {
         monthlyMembers={monthlyMembers}
       />
 
-      {/* 바나나 캔버스로 이어진 작업(최근 30일) */}
+      {/* 다른 프로그램에서 이어진 작업(최근 7일/30일) */}
       {bananaStats && (
         <GlassCard className="p-5 mt-8" data-banana-link-stats>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
             <Link2 size={16} className="text-gold" />
-            <h2 className="text-lg font-bold text-white">바나나 캔버스로 이어진 작업</h2>
+            <h2 className="text-lg font-bold text-white">다른 프로그램에서 이어진 작업</h2>
+            <div className="ml-auto flex gap-1" role="tablist" aria-label="기간">
+              {([7, 30] as const).map((d) => (
+                <a key={d} href={`?linkRange=${d}`} role="tab" aria-selected={linkDays === d} data-link-range={d}
+                  className={`px-3 py-1 rounded-lg text-sm border ${linkDays === d ? "border-gold text-gold bg-gold/10 font-bold" : "border-white/10 text-subtext"}`}>
+                  최근 {d}일
+                </a>
+              ))}
+            </div>
           </div>
           <p className="text-subtext text-sm mb-4">
-            최근 30일 · 다른 프로그램이 보낸 아이디어로 시작한 바나나 작업 {bananaLinked}건 / 전체 {bananaStats.total}건 · 바나나 전체 다운로드 비율 {pct(bananaStats.totalDownloaded, bananaStats.total)} (결과는 30일 뒤 자동 삭제되어 30일 기준, 다운로드는 2026-10-22부터 기록)
+            바나나 캔버스 · 보낸 아이디어로 시작한 작업 {bananaLinked}건 / 전체 {bananaStats.total}건 · 바나나 전체 다운로드 비율 {pct(bananaStats.totalDownloaded, bananaStats.total)}
           </p>
           {bananaRows.length === 0 ? (
             <p className="text-subtext text-sm">아직 이어진 작업이 없습니다.</p>
           ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-subtext text-left border-b border-white/10">
+                    <th className="py-2 font-medium">보낸 프로그램</th>
+                    <th className="py-2 font-medium text-right">작업 수</th>
+                    <th className="py-2 font-medium text-right">비율</th>
+                    <th className="py-2 font-medium text-right">다운로드까지</th>
+                    <th className="py-2 font-medium text-right">다음 단계로 넘김</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bananaRows.map((r) => (
+                    <tr key={r.slug} className="border-b border-white/5 text-white">
+                      <td className="py-2">{r.name}</td>
+                      <td className="py-2 text-right">{r.count}건</td>
+                      <td className="py-2 text-right">{pct(r.count, bananaLinked)}</td>
+                      <td className="py-2 text-right">{r.downloaded}건 ({pct(r.downloaded, r.count)})</td>
+                      <td className="py-2 text-right">{r.handedOff}건 ({pct(r.handedOff, r.count)})</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="text-subtext text-sm mt-6 mb-2">
+            AI 이미지 스튜디오 · 보낸 프롬프트로 만든 생성 {imageLinked}건 / 전체 {bananaStats.imageTotal}건
+          </p>
+          {imageRows.length === 0 ? (
+            <p className="text-subtext text-sm">아직 이어진 생성이 없습니다.</p>
+          ) : (
             <table className="w-full text-sm">
-              <thead>
-                <tr className="text-subtext text-left border-b border-white/10">
-                  <th className="py-2 font-medium">보낸 프로그램</th>
-                  <th className="py-2 font-medium text-right">작업 수</th>
-                  <th className="py-2 font-medium text-right">비율</th>
-                  <th className="py-2 font-medium text-right">다운로드까지</th>
-                </tr>
-              </thead>
               <tbody>
-                {bananaRows.map((r) => (
+                {imageRows.map((r) => (
                   <tr key={r.slug} className="border-b border-white/5 text-white">
                     <td className="py-2">{r.name}</td>
                     <td className="py-2 text-right">{r.count}건</td>
-                    <td className="py-2 text-right">{bananaLinked ? Math.round((r.count / bananaLinked) * 100) : 0}%</td>
-                    <td className="py-2 text-right">{r.downloaded}건 ({pct(r.downloaded, r.count)})</td>
+                    <td className="py-2 text-right">{pct(r.count, imageLinked)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
+          <p className="text-subtext text-xs mt-4">다운로드는 2026-10-22부터, 다음 단계로 넘김(형식 바꾸기·스토리보드)은 바나나 v1.28부터, 이미지 스튜디오 연계는 v1.26부터 쌓입니다. 바나나 결과는 30일 뒤 자동 삭제됩니다.</p>
         </GlassCard>
       )}
     </div>
