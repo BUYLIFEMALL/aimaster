@@ -24,7 +24,7 @@ const setVersion = args.includes("--set-version");
 if (versionOnly && args.includes("--all")) {
   const { readdirSync } = await import("node:fs");
   const { appVersion, programSlug, rest, slugFromPrograms } = await import("./program-info.mjs");
-  const programs = await rest("programs?select=slug,version,app_url");
+  const programs = await rest("programs?select=slug,version,app_url,is_active");
   const off = [], skipped = [];
   let checked = 0;
   for (const d of readdirSync(ROOT).sort()) {
@@ -32,6 +32,8 @@ if (versionOnly && args.includes("--all")) {
     const ver = appVersion(d);
     const slug = programSlug(d) ?? slugFromPrograms(d, programs);
     const row = programs.find((p) => p.slug === slug);
+    // 비공개 + 버전 파일 없음 = 병합으로 은퇴하고 「옛 주소 전달」 앱만 남은 폴더(지우면 안 됨 — AIMaster_backup/retired-programs/README.md)
+    if (!ver && row && row.is_active === false) { skipped.push(`${d}(은퇴·옛 주소 전달)`); continue; }
     if (!ver || !row) { skipped.push(`${d}(${!ver ? "버전 파일 없음" : `DB 프로그램 없음${slug ? ` — slug ${slug}` : ""}`})`); continue; }
     checked += 1;
     if (row.version !== ver) off.push(`  ⚠ ${d} (${slug}): 화면 ${ver} · DB ${row.version}`);

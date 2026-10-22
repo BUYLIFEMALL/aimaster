@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 공용 문서 되돌림 경고 훅 설치(방안 B) · 은퇴 5곳 정정 · 역량 지도 카드 보완 후보 (비용 없음)
+- **훅(모든 CLI·윈도우·맥미니 공통 `.git/hooks/pre-commit`)**: `scripts/check-shared-doc-reverts.mjs --staged` — 이번 커밋이 공용 문서(HANDOFF·PENDING_DEPLOYS·CAPABILITY_MAP·SHARED_MODULES·IDEA·ERROR_LESSONS·ACTIVE_WORK·CLAUDE/AGENTS/GEMINI/DESIGN)에서 **최근 2시간 안 다른 커밋이 넣은 줄을 지우면 경고만**(커밋은 계속). 원본 `scripts/git-hooks/pre-commit`, 설치 `node scripts/git-hooks/install.mjs`. 시험: 별도 인덱스로 최근 줄 1개를 지우면 경고, 변경 없으면 조용함.
+- **정정**: 바로 아래 항목의 「은퇴 5곳 git 태그 없음·폴더 정리 필요」는 틀림 — 2026-10-21 이미 정리 완료(코드 삭제, 폴더엔 **「옛 주소 전달」 앱만 남아 운영 중 → 지우면 안 됨**), 태그 `backup/old-apps-20261021`(원격에도 있음)·백업 `D:/Antigravity/AIMaster_backup/retired-programs/README.md`. `deploy.mjs --all`이 이런 폴더를 「은퇴·옛 주소 전달」로 표시하게 고침.
+- **역량 지도 카드 보완 후보(조사만)**: 우선 1~7 = music-automation(Suno V6 기능·30일 삭제), banana-canvas(30일 삭제·레시피·연계), style-dna-analyzer(비교·점검 지점·추세), image-convert-studio(규격 프리셋·회전/자르기·다시 저장), portrait-photo(서버 보관함·묶음 저장), four-cut-comics(서버 보관함·7일 그래프), ai-webtoon-studio(키를 브라우저에 두지 않음) — **이 중 4곳은 카드 단점 칸이 이미 해결된 내용**(바나나·음악 30일 삭제, 4컷·인물사진 서버 보관, 웹툰 키 보관). 8~12(booking-reminder·personality-suite·tarot·personality-code·document-translator)는 디자인 변경으로 버전만 뛰어 변화 적음. booking-reminder·tarot 카드 주소가 아직 vercel.app.
+
 ## 2026-10-23 Claude Code(윈도우) — 역량 지도 버전 칸 47곳 맞춤 · 공용 문서 덮어쓰기 방안 · 비공개 프로그램 7곳 조사 (비용 없음)
 - ① `node scripts/deploy.mjs --version-only --all --fix-map`으로 `docs/PROGRAM_CAPABILITY_MAP.md` 목록 표 **버전 칸만** 47곳을 DB 운영 버전으로(주인님 결정, `dce8e6164`). 같은 커밋에 `8028a6495`가 되돌린 `scripts/deploy.mjs` 다시 반영.
 - ② 방안 문서 `docs/PROPOSAL_20261023_SHARED_DOC_OVERWRITE.md`(A 항목별 새 파일 · B 되돌림 경고 훅 · C 안전 커밋 도우미, 추천 B+C 뒤 A) — **주인님 결정 대기**, 지침·구조 변경 없음.
