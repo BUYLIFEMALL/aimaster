@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 영상 스튜디오 v1.02 1차-나 fal 최신 모델 5종 (빌드 1회 · 실생성 3회 약 $0.97 · 시험 계정 본인 fal 키)
+- 공용 `ai-video-*` 기준(ai-video-studio)에 **모델별 fal 입력 칸 규칙 `FalInputSpec`**(사진 칸·길이 형식·소리 칸·비율·해상도)과 `STUDIO_VIDEO_MODELS`(스튜디오 전용, 다른 프로그램 목록 불변)·해상도별 단가 추가 → Kling 3.0 Standard·Seedance 2.0·Veo 3.1·MiniMax H3(구 Hailuo)·Wan 3.0. 커밋 `a48b36725`, 배포 Ready, DB v1.02.
+- 검수: 스튜디오 시험 8(모델별 요청 본문)·원스톱 27·뮤직비디오 18·5개 프로그램 tsc·사본 12 일치. 실생성: Kling 3.0 5.04초 8.4MB · MiniMax H3 768P 5.18초 6.5MB · Wan 3.0 480p 5초 2.9MB 성공 / **Seedance 2.0은 실사 인물 사진 거절**(업체 안전 정책) → 쉬운 안내로 바꿈 `96423f5ec`(미배포 대기) / Veo 3.1 미시험.
+- 남은 일: Seedance 2.0(인물 없는 사진)·Veo 3.1 실생성(약 $1.34, 승인 범위 초과 → 주인님 확인), 다음 배포 때 거절 안내 반영. 2차 편집·합치기.
+- 프로그램: https://ai-video-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — ⏳ SEO 스튜디오 끊긴 자동 포스팅 처리 (미배포 대기 · 비용 없음)
 - 입력 중 「사이드패널 닫지 마세요」 안내 + 다시 열 때 갱신이 1분 넘게 멈춘 `writing` 실행을 즉시 failed로 정리(서버 변경 없음). 시험 auto-publish 22·browser 26 통과. 다음 배포 때 v2.12로(`docs/PENDING_DEPLOYS.md`).
 - 덧붙임: v2.11 배포 커밋에서 빠졌던 ZIP·버전 SQL을 `08abc577a`로 보충(원인 `docs/ERROR_LESSONS.md` 맨 위).
