@@ -13,6 +13,8 @@ const IDLE: Busy = { strategy: "", a: "", b: "" };
 // v1.13 세로 결과 칸 — 너무 길어지지 않게 높이를 제한하고 가운데
 /** v1.17 세로 결과 → YOUTUBE Shots 자동화 영상 포스팅(릴스 표지 올리기, v1.35). 안내 링크만 — 프로그램끼리 직접 호출하지 않음 */
 const SHOTS_POSTING_URL = "https://shots.buylife.xyz/videos";
+/** 쇼츠 맞춤 썸네일은 컴퓨터의 YouTube 스튜디오에서만 추가(YouTube 도움말 72431, 2026-10-22 확인 — API 지정은 공식 미확인이라 안내만) */
+const YT_STUDIO_URL = "https://studio.youtube.com";
 const VERTICAL_CANVAS ={ aspectRatio: "9 / 16", height: "min(70vh, 640px)", width: "auto", maxWidth: "100%", marginInline: "auto" } as const;
 const LABEL: Record<Opt, string> = { a: "A안", b: "B안" };
 
@@ -364,6 +366,9 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                     <small className="muted">
                       릴스 표지로 쓰려면 JPG를 받은 뒤 YOUTUBE Shots 자동화 [영상 포스팅] → 인스타 칸 「표지 이미지」에 올리세요.{" "}
                       <a href={SHOTS_POSTING_URL} target="_blank" rel="noreferrer" style={{ color: "var(--brand)", textDecoration: "underline", fontWeight: 600 }}>릴스 표지로 쓰기 ↗</a>
+                      <br />
+                      유튜브 쇼츠 표지는 컴퓨터의 YouTube 스튜디오 → 콘텐츠 → Shorts → 영상 세부정보 → 썸네일에서 이 JPG를 올리세요(인증된 계정만, 앱에서는 영상 속 장면만 고를 수 있음).{" "}
+                      <a href={YT_STUDIO_URL} target="_blank" rel="noreferrer" style={{ color: "var(--brand)", textDecoration: "underline", fontWeight: 600 }}>YouTube 스튜디오 열기 ↗</a>
                     </small>
                   )}
                   {cur && (
