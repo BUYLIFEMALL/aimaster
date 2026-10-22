@@ -170,7 +170,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | 서버(프로그램별) | `insta_auto_poster/src/app/api/cardnews/remake/collect/route.ts` — search(공식 API → Apify)·images(sharp 1024px)·watch_* | 프로그램마다 각자(권한·오류 형식) |
 | 적용 후보 | `threads-content-ops`·`threads`(쓰레드 경쟁 계정 — Apify 쓰레드 수집기 필요), `shorts-viral-studio`(유튜브는 이미 Data API), `competitor-analysis` | ⚪ 필요할 때 |
 
-주의: 한글 해시태그는 Apify가 빈 결과를 돌려준 사례(2026-10-22 `#재테크`) — 계정 수집을 우선 안내. Apify는 공식 API가 아니므로 화면에 「공개 게시물만·본인 책임」 안내를 함께 둔다.
+주의: 해시태그 수집기는 `keywordSearch: true`를 켜야 한글 해시태그가 나오고 반응 좋은 글이 온다(끄면 `#재테크` 빈 결과·영문도 최신 글 — 2026-10-22 실측, INSTA v1.53). Apify는 공식 API가 아니므로 화면에 「공개 게시물만·본인 책임」 안내를 함께 둔다.
 
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 

@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — INSTA v1.53 배포: 해시태그 키워드 검색(한글 해시태그 해결) + 맥미니 v1.53 함께 (빌드 1회)
+- `keywordSearch: true`로 `#재테크` 인기 릴스 5개 수집 확인. 맥미니 Claude Code가 커밋만 해 둔 v1.53(상세페이지 섹션 이미지 받기)도 이 배포에 포함돼 하나의 v1.53으로 정리(작업 중 표에 그 세션 줄이 없었음 — 다음부터 맥미니도 표 등록 필요). 상세페이지 v1.20은 미배포.
+- 프로그램: https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-22 Claude Code(맥미니) — INSTA 포스팅 v1.53 · AI 상세페이지 자동화 v1.20 (배포 대기, S-22-10 2단계 인스타)
 - 상세페이지 완료 섹션 「📸 인스타 홍보글」 → INSTA `/posts/new?from=shop-detail&shopImage=&caption=`: 저장 위치만 넘기고 INSTA가 본인 폴더 확인 후 `insta-post-images/<본인>/sd-<해시>`로 복사, 캡션 초안·초록/빨간 안내. 쓰레드 v1.81과 같은 방식. AI 0회, tsc 0.
 - 1단계(쓰레드) 맥미니 크롬 재확인 통과(이미지·초안, 새로고침 1장, 남의 ID 차단).
