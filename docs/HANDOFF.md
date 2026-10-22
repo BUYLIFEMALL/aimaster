@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 이미지 스튜디오 v1.29 · 변환 스튜디오 v1.26 대기분 배포 — 넘김 기록·「너무 큼」 화면 첫 실제 확인
+- 배포(주인님 승인, 빌드 2회): 이미지 스튜디오 v1.29(배지 「이미지 변환 스튜디오」·형식 바꾸기 넘김 기록) → 변환 스튜디오 v1.26(검수용 `?qa=big`). DB 버전 2줄. 미배포 표 2줄 → 「내보낸 기록」.
+- 검수(크롬, 배포 전 로그인 확인·관리자 계정): 갤러리 큰 보기 창 「형식 바꾸기」 → `handoffs.convert` 기록 → 관리자 연계 표 이미지 스튜디오 「1 → 1건 (100%)」. 변환 스튜디오 `?qa=big&via=portrait-photo` → PNG 10.63MB 「너무 큼」 → 「WebP로 바꿔 다시 변환」 2.13MB → 다시 저장 버튼. 시험 데이터 없음(넘김 기록 1줄만 남음).
+- 세션 시작 규칙(2026-10-23 새로 생김) 따라 `deploy.mjs --version-only --all` 실행: 화면↔DB 어긋남 2(`competitor-analysis`·`video-to-gif` — 각각 다른 세션 작업 중), 역량 지도 버전 칸 47곳 차이(다른 세션이 이미 보고, 주인님 결정 대기).
+- 링크: https://ai-image-studio.buylife.xyz/gallery · https://image-convert-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — `deploy.mjs --version-only --all` 점검 확대: 건너뛴 폴더 목록 · 역량 지도 버전 칸 비교 (비용 없음)
 - 결과: 화면↔DB 어긋남 1(`competitor-analysis`), 건너뜀 7 — 버전 파일 없음 5(`cardnews-studio`·`instagram-dm-reply`·`seo-thumbnail-pro`·`youtube-channel-consultant`·`yt-playlist-studio`, 대부분 병합·예전 프로그램으로 보임), DB 프로그램 없음 2(`detail-page-12p`·`prompt-template-studio`). **역량 지도 `docs/PROGRAM_CAPABILITY_MAP.md` 목록 표 75줄 중 47줄이 DB 운영 버전과 다름**(예: personality-suite 지도 v1.06·DB v1.27) — 보고만, 지도는 안 고침(다음 단계: 주인님 결정 후 버전 칸만 일괄 갱신).
 - 운영 규칙(2026-10-23): Claude Code는 세션을 시작할 때 `node scripts/deploy.mjs --version-only --all`을 한 번 실행해 어긋난 곳을 보고(PC 작업 스케줄러는 쓰지 않음).
