@@ -54,3 +54,11 @@ test("v1.31 분할·평균", async () => {
   assert.equal(averageDiff([10, 20, null, 31]), 20.3);
   assert.equal(averageDiff([null]), null);
 });
+
+test("v1.35 불러온 프롬프트 되돌리기 연결", () => {
+  const src = readFileSync(new URL("../src/app/(dashboard)/test/page.tsx", import.meta.url), "utf8");
+  assert.match(src, /onLoadPrompt=\{\(p, round\) =>/);
+  assert.match(src, /setCustomPrompt\(loadedFrom\.prevPrompt\); setIsEditingPrompt\(loadedFrom\.prevEditing\); setLoadedFrom\(null\);/);
+  const cs = readFileSync(new URL("../src/components/dna/CompareSlider.tsx", import.meta.url), "utf8");
+  assert.match(cs, /onLoadPrompt\(picked\.prompt!, \(pickedTrend \?\? 0\) \+ 1\)/);
+});

@@ -81,7 +81,7 @@ const MAX_SPOTS = 8;
  * v1.34: 새 결과마다 저장된 지점의 평균 차이를 한 번 기록(onTrend)하고 작은 추세 그래프로 보여 준다.
  * v1.35: 그래프의 점을 누르면 그 회차의 평균 차이와 그때 쓴 프롬프트를 보여 주고, 「🏆 최고 기록」(가장 낮은 차이) 표시·편집 칸으로 불러오기.
  */
-export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [], onSaveSpots, trend = [], onTrend, onLoadPrompt }: { before: string; after: string; maxHeight?: number; savedSpots?: CheckSpot[]; onSaveSpots?: (spots: CheckSpot[]) => Promise<void>; trend?: TrendPoint[]; onTrend?: (avg: number, n: number) => void; onLoadPrompt?: (prompt: string) => void }) {
+export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [], onSaveSpots, trend = [], onTrend, onLoadPrompt }: { before: string; after: string; maxHeight?: number; savedSpots?: CheckSpot[]; onSaveSpots?: (spots: CheckSpot[]) => Promise<void>; trend?: TrendPoint[]; onTrend?: (avg: number, n: number) => void; onLoadPrompt?: (prompt: string, round: number) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState(50);
   const [posY, setPosY] = useState(50);
@@ -336,7 +336,7 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
               <b>{(pickedTrend ?? 0) + 1}회차{pickedTrend === bestIdx ? " 🏆" : ""}</b> · {new Date(picked.at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} · 평균 차이 <b>{picked.avg}%</b> ({picked.n}곳)
               <p className="mt-0.5 break-words font-mono text-[10px] opacity-90">{picked.prompt ? `「${promptPreview(picked.prompt)}」` : "이 회차는 프롬프트가 기록되지 않았습니다(v1.35 이전 기록)."}</p>
               {picked.prompt && onLoadPrompt && (
-                <button type="button" data-load-prompt onClick={() => onLoadPrompt(picked.prompt!)} className="mt-1 font-bold text-sky-400 hover:underline">
+                <button type="button" data-load-prompt onClick={() => onLoadPrompt(picked.prompt!, (pickedTrend ?? 0) + 1)} className="mt-1 font-bold text-sky-400 hover:underline">
                   ✏ 이 프롬프트를 편집 칸으로 불러오기
                 </button>
               )}

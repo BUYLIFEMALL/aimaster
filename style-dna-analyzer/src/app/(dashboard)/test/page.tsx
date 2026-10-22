@@ -14,6 +14,8 @@ export default function TestPage() {
   const [subject, setSubject] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+  // v1.35: 추세에서 프롬프트를 불러오기 전 상태 — 「되돌리기」용
+  const [loadedFrom, setLoadedFrom] = useState<{ round: number; prevPrompt: string; prevEditing: boolean } | null>(null);
   const [attach, setAttach] = useState(true);
   const [customRefImage, setCustomRefImage] = useState<string | null>(null);
   const [imageModel, setImageModel] = useState(DEFAULT_IMAGE_MODEL);
@@ -100,6 +102,7 @@ export default function TestPage() {
                   setIsEditingPrompt(true);
                 } else {
                   setIsEditingPrompt(false);
+                  setLoadedFrom(null);
                 }
               }}
               className="text-[11px] font-bold text-violet-600 hover:text-violet-800 transition"
@@ -127,6 +130,15 @@ export default function TestPage() {
             </Field>
           ) : (
             <Field label="대상 프롬프트 직접 편집 (Target Prompt)" hint="[주제 입력] 부분을 원하는 피사체로 바꾸거나 자유롭게 편집하세요.">
+              {loadedFrom && (
+                <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-amber-400/60 px-2 py-1.5 text-[11px] text-slate-900" data-loaded-from={loadedFrom.round}>
+                  <span>추세 {loadedFrom.round}회차 프롬프트를 불러왔습니다.</span>
+                  <span className="flex shrink-0 gap-2">
+                    <button type="button" className="font-bold text-sky-400 hover:underline" onClick={() => { setCustomPrompt(loadedFrom.prevPrompt); setIsEditingPrompt(loadedFrom.prevEditing); setLoadedFrom(null); }}>되돌리기</button>
+                    <button type="button" className="text-slate-900 opacity-70 hover:underline" aria-label="안내 닫기" onClick={() => setLoadedFrom(null)}>✕</button>
+                  </span>
+                </div>
+              )}
               <textarea
                 className={`${INPUT} h-36 resize-y text-xs font-mono`}
                 value={customPrompt}
@@ -278,8 +290,9 @@ export default function TestPage() {
                 maxHeight={640}
                 savedSpots={record.checkSpots ?? []}
                 trend={record.checkTrend ?? []}
-                onLoadPrompt={(p) => {
-                  // v1.35: 좋았던 회차의 프롬프트로 돌아가기 — 직접 편집 모드로 바꾸고 맨 위로
+                onLoadPrompt={(p, round) => {
+                  // v1.35: 좋았던 회차의 프롬프트로 돌아가기 — 직접 편집 모드로 바꾸고 맨 위로(불러오기 전 상태는 되돌리기용으로 보관)
+                  setLoadedFrom((prev) => prev ? { ...prev, round } : { round, prevPrompt: customPrompt, prevEditing: isEditingPrompt });
                   setCustomPrompt(p);
                   setIsEditingPrompt(true);
                   window.scrollTo({ top: 0, behavior: "smooth" });
