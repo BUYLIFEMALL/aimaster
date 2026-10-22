@@ -64,7 +64,7 @@
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.82 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.15 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.24 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
-| 48 | YOUTUBE 플레이리스트 자동화 | `playlist-channel-studio` | 유튜브 | v1.26 | 운영 | 장르만 고르면 제목·Suno 프롬프트·가사·썸네일을 만들고, 음악에 반응하는 1080p 플레이리스트 영상까지 완성하는 도구(2026-10-20 yt-playlist-studio 병합) |
+| 48 | YOUTUBE 플레이리스트 자동화 | `playlist-channel-studio` | 유튜브 | v1.27 | 운영 | 장르만 고르면 제목·Suno 프롬프트·가사·썸네일을 만들고, 음악에 반응하는 1080p 플레이리스트 영상까지 완성하는 도구(2026-10-20 yt-playlist-studio 병합) |
 | 49 | AI 썸네일·SEO 자동화 | `thumbnail-master` | 유튜브 | v1.19 | 운영 | 대본으로 제목·설명·태그 SEO 전략 3가지를 만들고, 타겟별 A/B 문구가 들어간 유튜브 썸네일까지 완성하는 도구(2026-10-20 seo-thumbnail-pro 병합) |
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.15 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
@@ -101,9 +101,9 @@
 | 82 | INSTA Cardnews 자동화 | `cardnews-studio` | 인스타 | v1.32 | **병합됨 → auto-instagram-posting(2026-10-20), 노출 중지** | 주제만 넣으면 인스타 카드뉴스를 기획·디자인해 PNG와 피드 캡션까지 완성하는 스튜디오 |
 | 83 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | 유튜브 | v1.37 | 공개(new) | 주제 한 줄로 쇼츠 대본·배경·목소리·자막을 입혀 세로 MP4까지 완성하는 원스톱 제작 도구입니다. |
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.06 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
-| 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.09 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
+| 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.10 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
 | 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | 마케팅(홍보) | v1.08 | 운영(2026-10-21 신규) | 인스타 댓글·DM·쓰레드·유튜브 댓글의 검토 대기 항목을 한곳에 급한 순으로 모아 고쳐서 바로 승인·게시 |
-| 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.01 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
+| 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.02 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
 
 ## 0. 이 문서를 쓰는 방법
 1. **새 프로그램 기획 전**: §3 분야 묶음에서 비슷한 프로그램을 찾고, §4 카드의 장점·단점을 읽는다. 「기존 A의 장점 + B의 장점 − A·B의 단점」으로 기획안을 쓰고, 보고할 때 어떤 프로그램에서 무엇을 가져왔는지 밝힌다.
@@ -912,13 +912,13 @@
 - **키·계정·주의**: AI 배경 생성에만 회원 본인의 Gemini API 키를 씁니다. 음악 파일의 저작권은 직접 확인하세요.
 
 #### AI 음악 스튜디오 (`ai-music-studio`)
-- 주소·폴더: https://ai-music-studio.buylife.xyz · `ai-music-studio/` · v1.01 (2026-10-23 신규, **음악 모델 연동의 레퍼런스 프로그램** — 이미지의 ai-image-studio와 같은 역할)
+- 주소·폴더: https://ai-music-studio.buylife.xyz · `ai-music-studio/` · v1.02 (2026-10-23 신규 — v1.02 가사영상·플레이리스트로 보내기(`?ams=`)·AI 가사 분량 맞춤, **음악 모델 연동의 레퍼런스 프로그램** — 이미지의 ai-image-studio와 같은 역할)
 - **차별점**: Suno 하나에 묶이지 않고 공식 API 음악 모델(Google Lyria·ElevenLabs·fal·Replicate)과 Suno를 한 화면에서 골라, 같은 설명으로 최대 3개 모델을 나란히 들어 비교합니다.
 - **기능**: 모델 카드 11개(보컬 여부·길이·대략 비용·상업 조건 표시)에서 골라 보컬곡·연주곡을 만듭니다. / AI 가사 쓰기(본인 Gemini 또는 OpenAI)로 [Verse]·[Chorus] 가사를 받아 고칩니다. / 모델 비교로 2~3개 모델 동시 생성, 결과는 비공개 보관함에 30일 보관·서명 주소 재생·영문 파일명 내려받기.
 - **장점**: 여러 음악 AI 한곳에 · 나란히 비교 · 만들기 전 예상 비용 · 웹훅 없이 상태 조회 방식(콜백 위조 걱정 없음)
 - **사용 순서**: 1 키 연결 → 2 곡 설명·가사 → 3 모델 고르고 만들기(또는 비교) → 4 보관함
 - **활용 용도**: 영상 배경음악이 필요한 크리에이터(연주곡 길이 지정·모델별 비용 비교) · AI로 노래를 만드는 분(같은 가사로 여러 모델) · 음악 AI를 비교해 고르려는 분(모델 카드 한눈에)
-- **단점·한계**: 비용은 공개 가격 기반 대략값 · ElevenLabs 작곡 계획·Lyria 실시간·Mureka·Suno 연장 등 고급 기능 없음(Suno 고급은 음악(SUNO)자동화) · 화면을 닫으면 대기열형 곡은 다음 방문 때 완료 처리 · 다른 프로그램 보내기 미구현
+- **단점·한계**: 비용은 공개 가격 기반 대략값 · ElevenLabs 작곡 계획·Lyria 실시간·Mureka·Suno 연장 등 고급 기능 없음(Suno 고급은 음악(SUNO)자동화) · 화면을 닫으면 대기열형 곡은 다음 방문 때 완료 처리 · 보내기는 가사영상·플레이리스트 2곳만
 - **재사용 부품**: 공급자 어댑터 `lib/providers/adapters/{gemini,elevenlabs,fal,replicate,suno}.ts`(다른 프로그램 배경음악 생성 공용화 후보), Suno는 `music/lib/ai/suno.ts` 공용 사본(`suno-api-client`)
 - **키·계정·주의**: 회원 본인 Gemini·ElevenLabs·sunoapi.org·fal·Replicate 키(가사 쓰기 선택 OpenAI). 비용은 본인 계정 청구.
 

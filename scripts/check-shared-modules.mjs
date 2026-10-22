@@ -214,6 +214,42 @@ const MODULES = [
     copies: ["emotion-writer/src/lib/studio/photoSearch.ts", "threads/src/lib/photoSearch.ts"],
   },
   {
+    // 한국어 주제 → 사진 검색용 영어 키워드(AI 없이 단어 사전, 2026-10-23 쓰레드 포스팅 v1.31) — 무료 사진 검색과 함께 씀
+    id: "photo-keywords",
+    source: "threads/src/lib/photoKeywords.ts",
+    copies: ["insta_auto_poster/src/lib/cardnews/photoKeywords.ts"],
+  },
+  {
+    // 상품 제휴 연동(affiliate-clients): 쿠팡 제휴 링크 판정·붙여넣은 HTML 해석(순수 함수, 브라우저 공용). 2026-10-23 등록 — 쇼핑제휴·콘텐츠 운영이 손 복사로 따로 고쳐 쓰던 것을 합침
+    id: "affiliate-clients-coupanglinks",
+    source: "threads-affiliate-poster/src/lib/affiliate-clients/coupangLinks.ts",
+    copies: ["threads-content-ops/lib/affiliate-clients/coupangLinks.ts"],
+  },
+  {
+    // 상품 제휴 연동(affiliate-clients): 쿠팡 파트너스 상품 검색·딥링크·서명. 2026-10-23 등록 — 쇼핑제휴·콘텐츠 운영이 손 복사로 따로 고쳐 쓰던 것을 합침
+    id: "affiliate-clients-coupangapi",
+    source: "threads-affiliate-poster/src/lib/affiliate-clients/coupangApi.ts",
+    copies: ["threads-content-ops/lib/affiliate-clients/coupangApi.ts"],
+  },
+  {
+    // 상품 제휴 연동(affiliate-clients): 쿠팡 블로그용 태그 배너에서 상품 사진 잘라내기. 2026-10-23 등록 — 쇼핑제휴·콘텐츠 운영이 손 복사로 따로 고쳐 쓰던 것을 합침
+    id: "affiliate-clients-coupangbanner",
+    source: "threads-affiliate-poster/src/lib/affiliate-clients/coupangBanner.ts",
+    copies: ["threads-content-ops/lib/affiliate-clients/coupangBanner.ts"],
+  },
+  {
+    // 상품 제휴 연동(affiliate-clients): 알리익스프레스 제휴 링크·상품 상세·사진 찾기. 2026-10-23 등록 — 쇼핑제휴·콘텐츠 운영이 손 복사로 따로 고쳐 쓰던 것을 합침
+    id: "affiliate-clients-aliexpress",
+    source: "threads-affiliate-poster/src/lib/affiliate-clients/aliexpress.ts",
+    copies: ["threads-content-ops/lib/affiliate-clients/aliexpress.ts"],
+  },
+  {
+    // 상품 제휴 연동(affiliate-clients): 토스쇼핑 쉐어링크(고정 IP 프록시) 상품 목록·링크 발급. 2026-10-23 등록 — 쇼핑제휴·콘텐츠 운영이 손 복사로 따로 고쳐 쓰던 것을 합침
+    id: "affiliate-clients-toss",
+    source: "threads-affiliate-poster/src/lib/affiliate-clients/toss.ts",
+    copies: ["threads-content-ops/lib/affiliate-clients/toss.ts"],
+  },
+  {
     // AI 동영상: 업체 응답 해석·키를 보낼 주소 검사·장면 사진 주소 검사(순수 함수)
     id: "ai-video-parse",
     source: "ai-video-studio/lib/video/videoParse.ts",

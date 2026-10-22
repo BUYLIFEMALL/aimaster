@@ -181,6 +181,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 |---|---|---|
 | 기준 | ai-music-studio `lib/providers/catalog.ts`(모델 목록) · `adapters/{gemini,elevenlabs,fal,replicate,suno}.ts` · `lib/generations.ts`(접수→상태 조회→저장, 잠금·이중 과금 방지) | 🟢 v1.01 — 5곳 실제 생성 검수(2026-10-23) |
 | Suno 사본 | `ai-music-studio/lib/ai/suno.ts` ← 기준 `music/lib/ai/suno.ts`(공용 모듈 `suno-api-client`) | 🟢 일치 |
+| 곡 보내기 받는 쪽 | 가사영상 `src/lib/ams.ts`·플레이리스트 `src/lib/amsTracks.ts`(회원 본인 `ams_generations`·비공개 버킷 서명 주소) + 공용 모듈 `ams-timed-lyrics`(Lyria 시간 가사 → 줄 시간표) | 🟢 2026-10-23 |
 | 아직 각자 구현 | `music/`(Suno 전용 — 유지), `auto-shorts-posting`·`music-video-studio` 등의 배경음악 Suno 호출 | ⚪ 공용화 후보(어댑터 사본화는 다음 작업) |
 
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
