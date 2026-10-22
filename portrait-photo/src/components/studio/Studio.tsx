@@ -22,6 +22,7 @@ import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
 import { BUNDLES, bundleFileName, bundleItemLabel, bundlePreview, cleanBundle, type BundleKey } from "@/lib/portrait/bundles";
 import { percentAt } from "@/lib/portrait/compare";
+import { ColorPickRow, pickColor, useImagePixels } from "./ColorPick";
 import { GuideOverlay } from "./GuideOverlay";
 import { ZoomCompare } from "./ZoomCompare";
 import { CropAdjuster } from "./CropAdjuster";
@@ -128,6 +129,9 @@ export function Studio({ userId }: { userId: string }) {
   const [cmpPos, setCmpPos] = useState(50);
   // v1.36: 「원본과 비교」 중 사진 위를 직접 끌어 선 옮기기(공용 기준 코드 compare-slider 사본)
   const [cmpDrag, setCmpDrag] = useState(false);
+  // v1.37: 색 집게 — 누른 자리의 높이(%)와 무대 크기
+  const [cmpY, setCmpY] = useState(40);
+  const [stageSize, setStageSize] = useState<{ w: number; h: number } | null>(null);
   // v1.30: 결과 무대 배경(이 브라우저에만 기억 — 저장소를 못 쓰면 기본값)
   const [stageBg, setStageBg] = useState<StageBg>("grid");
   useEffect(() => {
@@ -244,6 +248,8 @@ export function Studio({ userId }: { userId: string }) {
   useEffect(() => { closeProfilePreview(); }, [shown]); // eslint-disable-line react-hooks/exhaustive-deps
   const filter = useMemo(() => toneFilter(brightness, exposure, contrast), [brightness, exposure, contrast]);
   const toneActive = brightness !== 0 || exposure !== 0 || contrast !== 0;
+  const cmpOrigPx = useImagePixels(compare ? comparePreview : null);
+  const cmpResultPx = useImagePixels(compare ? result : null);
 
   async function onPick(list: FileList | File[] | null) {
     const typed = Array.from(list ?? []).filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type));
@@ -887,8 +893,8 @@ export function Studio({ userId }: { userId: string }) {
             <div
               className={`${stageBg === "grid" ? "st-stage" : `st-stage bg-${stageBg}`}${shown && compare && comparePreview ? " cmp-on" : ""}`}
               style={{ aspectRatio: aspect.replace(":", " / "), display: ((grid || zoomOn) && results.length > 1) || cropOpen ? "none" : undefined }}
-              onPointerDown={(e) => { if (!(shown && compare && comparePreview)) return; e.currentTarget.setPointerCapture(e.pointerId); setCmpDrag(true); const r = e.currentTarget.getBoundingClientRect(); setCmpPos(percentAt(e.clientX, r.left, r.width)); }}
-              onPointerMove={(e) => { if (!cmpDrag) return; const r = e.currentTarget.getBoundingClientRect(); setCmpPos(percentAt(e.clientX, r.left, r.width)); }}
+              onPointerDown={(e) => { if (!(shown && compare && comparePreview)) return; e.currentTarget.setPointerCapture(e.pointerId); setCmpDrag(true); const r = e.currentTarget.getBoundingClientRect(); setStageSize({ w: r.width, h: r.height }); setCmpPos(percentAt(e.clientX, r.left, r.width)); setCmpY(percentAt(e.clientY, r.top, r.height)); }}
+              onPointerMove={(e) => { if (!cmpDrag) return; const r = e.currentTarget.getBoundingClientRect(); setStageSize({ w: r.width, h: r.height }); setCmpPos(percentAt(e.clientX, r.left, r.width)); setCmpY(percentAt(e.clientY, r.top, r.height)); }}
               onPointerUp={() => setCmpDrag(false)}
               onPointerCancel={() => setCmpDrag(false)}
             >
@@ -908,6 +914,7 @@ export function Studio({ userId }: { userId: string }) {
                 </div>
               )}
               {shown && compare && comparePreview && <div className="cmp-handle" style={{ left: `${cmpPos}%` }} aria-hidden="true" />}
+              {shown && compare && comparePreview && stageSize && <div className="cmp-dot" style={{ left: `${cmpPos}%`, top: `${cmpY}%` }} aria-hidden="true" />}
               {shown && guide && !compare && <GuideOverlay />}
               {shown && showHeadLines && !compare && (() => {
                 // v1.27 머리 위치 선(정수리·턱) — 사진이 무대 안에 contain으로 그려지는 영역에 맞춘다
@@ -926,6 +933,15 @@ export function Studio({ userId }: { userId: string }) {
             </div>
             {shown && compare && comparePreview && (
               <label className="slider cmp-slider"><span>원본</span><input type="range" min={0} max={100} value={cmpPos} onChange={(e) => setCmpPos(Number(e.target.value))} aria-label="원본과 결과 비교 슬라이더" /><b>결과</b></label>
+            )}
+            {shown && compare && comparePreview && (
+              stageSize
+                ? <ColorPickRow
+                    a={pickColor(cmpOrigPx, stageSize.w, stageSize.h, cmpPos, cmpY, selfie)}
+                    b={pickColor(cmpResultPx, stageSize.w, stageSize.h, cmpPos, cmpY, mirrored)}
+                    note={toneActive || (whiten && cleaned) ? "결과 색은 밝기 보정·배경 정리 전 원래 픽셀 기준입니다." : undefined}
+                  />
+                : <p className="cpk-hint">사진 위를 누르면 그 자리의 원본·결과 색(피부 톤 등)을 비교해 드립니다.</p>
             )}
             {batchMode && results.length > 0 && (
               <div className="names" aria-label="저장 이름">

@@ -46,3 +46,19 @@ test("v1.36 원본과 비교: 사진 위 끌기(공용 compare-slider 사본)", 
   assert.match(src, /setCmpPos\(percentAt\(e\.clientX, r\.left, r\.width\)\)/);
   assert.match(src, /" cmp-on"/);
 });
+
+test("v1.37 색 집게: 틀 위치 → 색, 좌우 반전·여백", async () => {
+  const { pickColor } = await import("../src/components/studio/ColorPick.tsx");
+  // 2×1 그림: 왼쪽 빨강, 오른쪽 파랑
+  const data = new Uint8ClampedArray([255, 0, 0, 255, 0, 0, 255, 255]);
+  const px = { data, w: 2, h: 1, natW: 2, natH: 1 };
+  // 200×100 틀에 꽉 참
+  assert.deepEqual(pickColor(px, 200, 100, 10, 50).map(Math.round), [128, 0, 128]); // 5×5 평균이 두 칸을 함께 봄
+  const big = new Uint8ClampedArray(20 * 1 * 4);
+  for (let x = 0; x < 20; x++) big.set(x < 10 ? [255, 0, 0, 255] : [0, 0, 255, 255], x * 4);
+  const p2 = { data: big, w: 20, h: 1, natW: 20, natH: 1 };
+  assert.deepEqual(pickColor(p2, 200, 10, 5, 50).map(Math.round), [255, 0, 0]);
+  assert.deepEqual(pickColor(p2, 200, 10, 5, 50, true).map(Math.round), [0, 0, 255]);
+  assert.equal(pickColor(p2, 200, 200, 50, 5), null); // 위쪽 여백
+  assert.equal(pickColor(null, 200, 200, 50, 50), null);
+});

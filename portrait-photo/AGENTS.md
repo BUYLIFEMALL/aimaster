@@ -211,3 +211,7 @@
 - 「원본과 비교」를 켜면 결과 사진 위를 직접 누르거나 끌어 선을 옮김(pointer capture, 손가락 가능, `.st-stage.cmp-on` 커서·touch-action). 기존 슬라이더 막대는 그대로. 위치 계산은 공용 기준 코드 `compare-slider` 사본 `src/lib/portrait/compare.ts`.
 - 함께 나감: 보류였던 묶음 저장 미리보기(`bundlePreview`).
 - 시험 41개·tsc·build 통과, 배포 Ready, DB v1.36. 크롬: 운영 v1.36, 운영 CSS·스크립트에 끌기·미리보기 코드 포함 확인. **결과 사진이 있어야 비교·묶음 상자가 보여 실제 화면 조작은 미확인** — 사진 사용 동의 체크는 회원 절차라 에이전트가 하지 않음.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 「원본과 비교」 색 집게 (다음 배포 때 v1.37)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 「원본과 비교」 중 사진 위를 누르거나 끈 자리에 작은 점을 찍고, 아래에 그 자리의 원본·결과 색(HEX, 주변 5×5 평균)과 색 차이(%)를 표시(피부 톤 확인용). 셀카 원본 반전(`selfie`)·결과 좌우 반전(`mirrored`)을 맞춰 읽고, 밝기 보정·배경 정리 중이면 「원래 픽셀 기준」 안내. `src/components/studio/ColorPick.tsx`(`useImagePixels`·`pickColor`·`ColorPickRow`), 좌표는 공용 compare-slider 사본의 `containPoint`·`colorDiffPercent`. CSS `.cmp-dot`·`.cpk*`.
+- 시험 1개 추가(전체 42개)·tsc·build 통과. 화면 확인은 배포 후, 결과 사진이 있어야 함(사진 사용 동의 체크는 회원 절차).

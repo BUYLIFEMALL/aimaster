@@ -191,6 +191,16 @@ a.project-card{color:inherit}
 .cmp-handle{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 0 1px #0004;z-index:4}
 .cmp-slider{margin-top:8px}
 .st-stage.cmp-on{cursor:ew-resize;touch-action:none;user-select:none}
+.cmp-dot{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #0008;pointer-events:none;z-index:5}
+.cpk{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:8px 12px;border:1px solid var(--line);border-radius:12px}
+.cpk-sw{display:flex;align-items:center;gap:8px}
+.cpk-sw small,.cpk-diff small{display:block;font-size:10px;opacity:.75}
+.cpk-sw b,.cpk-diff b{font-family:ui-monospace,monospace;font-size:12px}
+.cpk-diff{text-align:center}
+.cpk-chip{width:26px;height:26px;border-radius:8px;border:1px solid var(--line)}
+.cpk-chip.empty{background:repeating-linear-gradient(45deg,var(--line) 0 4px,transparent 4px 8px)}
+.cpk-note{flex-basis:100%;margin:0;font-size:11px;opacity:.8}
+.cpk-hint{margin-top:8px;font-size:12px;opacity:.8}
 .size-select{width:auto;max-width:100%;font-size:12px}
 
 /* ---- v1.03 ---- */
