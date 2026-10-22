@@ -101,6 +101,16 @@ if (versionOnly && args.includes("--all")) {
   console.log(`[역량 지도 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개`);
   for (const l of stale) console.log(l);
 
+  // 메인 사이트 — 다음 메인 빌드 때 할 일(docs/PENDING_DEPLOYS.md, 코드 미작성) — 메인 빌드 때 한곳에서 보고 묶기(2026-10-23)
+  try {
+    const pd = readFileSync(join(ROOT, "docs", "PENDING_DEPLOYS.md"), "utf8").replace(/\r\n/g, "\n");
+    const a = pd.indexOf("## 메인 사이트 — 다음 메인 빌드 때 할 일");
+    const sec = a < 0 ? "" : pd.slice(a, pd.indexOf("\n## ", a + 5) > 0 ? pd.indexOf("\n## ", a + 5) : undefined);
+    const todos = sec.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| 할 일") && !l.startsWith("|---")).map((l) => l.split("|")[1].trim());
+    console.log(`[메인 사이트 할 일] ${todos.length}개 — 메인 빌드 1회(사전 승인)로 묶어 내보내기`);
+    for (const t of todos) console.log(`  • ${t}`);
+  } catch (e) { console.log(`[메인 사이트 할 일] 확인 실패 — ${e.message}`); }
+
   // 안전 커밋 도우미 기준 사본 중 12시간 넘게 남은 것(--begin 뒤 커밋 없이 끝났거나 인계가 필요한 작업, 2026-10-23)
   try {
     const { readdirSync, statSync } = await import("node:fs");

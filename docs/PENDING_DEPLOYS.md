@@ -11,6 +11,7 @@
 4. 다른 CLI가 적은 줄은 지우거나 고치지 않습니다(배포해서 내보낸 경우만 지움 — 공동작업 규칙).
 5. **배포 전 빠른 확인**: `node scripts/pending-check.mjs <폴더> [<폴더> ...]`(이 표와 `docs/SHARED_MODULES.md` 「미배포 사본」에서 그 프로그램 줄을 보여 줌, 읽기만), `--all`은 프로그램별 개수.
 6. **배포 도우미**: `node scripts/deploy.mjs <폴더>`(확인만) · `--go`(확인 뒤 배포, 빌드 1회) · `--version-only [--set-version]`(화면 `APP_VERSION` ↔ DB `programs.version` 비교·맞춤). `--version-only --all`(화면↔DB 버전 어긋남·건너뛴 폴더·역량 지도 버전 칸↔DB 차이 보고, DB·지도는 안 고침 — **Claude Code는 세션을 시작할 때 한 번 실행**, 2026-10-23 결정: PC 작업 스케줄러는 쓰지 않음). `--go`는 끝에 `--publish`도 자동 실행. **관리자 화면 갱신**: 이 표를 고친 뒤 `node scripts/pending-check.mjs --publish` → 운영 DB `site_settings.ops_overview` → 관리자 첫 화면 「DB & 미디어」 탭 「30일 자동 정리」 카드에 미배포 대기 건수·정리 기록 진행률 표시.
+7. **메인 사이트 할 일**: 메인 화면 작은 수정은 푸시 즉시 빌드되므로 코드를 미리 쓰지 않고 아래 「메인 사이트 — 다음 메인 빌드 때 할 일」 표에 모았다가 빌드 1회(사전 승인)로 묶는다. 세션 시작 점검(`deploy.mjs --version-only --all`)이 개수를 보여 준다.
 
 ## 대기 중
 
@@ -49,6 +50,16 @@
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `auto-detail-page` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `auto-detail-page/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `competitor-analysis` | 경쟁사 분석 화면 안내 문구 정정(「다른 회원이 조사한 회사 정보 재사용」 → 본인 30일 안 조사만) | `87b773ef2` | 2026-10-23 · Claude Code(윈도우) | `competitor-analysis/AGENTS.md` 2026-10-23 v1.09 절 | 버전 +0.01 |
+
+## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
+
+> 2026-10-23 신설(Claude Code 윈도우, 주인님 승인 제안). 메인 사이트(루트 `app`·`components`·`lib` 등)는 **푸시하면 바로 자동 빌드**되므로 작은 화면 수정은 코드를 미리 쓰지 않고 여기에 모았다가, 빌드 1회(사전 승인)로 묶어 구현·배포한다. 구현해 내보내면 줄을 지우고 위 「내보낸 기록」에 `.`(메인 사이트)로 적는다. 다른 CLI가 적은 줄은 지우지 않는다(내보낸 경우만).
+
+| 할 일 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
+|---|---|---|---|
+| 관리자 화면 위쪽에 지금 로그인한 계정(관리자/시험 회원) 표시 | `components/admin/AdminSidebar.tsx` 또는 `app/admin/layout.tsx` | 크롬이 시험 회원 계정이라 관리자 확인이 한 번 멈춤(2026-10-23) | 2026-10-23 · Claude Code(윈도우) |
+| 「30일 자동 정리」 표 아래 「기록을 아직 안 남기는 곳」 목록 | `components/admin/SystemUsageMonitor.tsx` | 운영 기록 `ops_overview.cleanup.notLogging`(이미 저장됨) — NEW 표시는 7일만 보여서 남은 곳을 한 화면에 | 2026-10-23 · Claude Code(윈도우) |
+| 정리 표 이름표 `products` → 「상품」 | `components/admin/SystemUsageMonitor.tsx` `CLEANUP_LABEL` | `shop-detail-page`가 정리 기록을 붙이면 쓰일 이름(HANDOFF 2026-10-23 맥미니 안내) | 2026-10-23 · Claude Code(윈도우) |
 
 ## 내보낸 기록
 
