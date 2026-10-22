@@ -145,3 +145,6 @@
 ## v1.23 (2026-10-22, Claude Code 윈도우) — 사진 검색칸 기본값을 안내 문구로
 - 검색칸에 들어 있던 기본값 「nature」를 빼고 안내 문구(`예: nature, sunrise, flowers (비워 두면 nature)`)로만 보여 줌. 회원이 기본값 뒤에 덧붙여 써서 「naturenature」처럼 결과 0장이 되던 일을 막음. 비운 채 검색하면 `DEFAULT_PHOTO_QUERY`("nature")로 검색(버튼도 빈칸에서 눌림). `src/components/Workspace.tsx`.
 - 시험 26개·tsc·build 통과, 배포 `emotion-writer-qoo9xbcto` Ready, DB v1.23. 크롬 검수: 운영 화면 v1.23 표시, 검색칸 값 빈칸·안내 문구 확인, 빈칸 검색 → 본인 Pixabay 무료 키로 사진 12장(비용 없음). 화면 캡처는 확장 오류로 실패해 JS 측정으로 대신함.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 「다른 크기로 받기」 전체 ZIP (다음 배포 때 v1.24)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 「다른 크기로 받기」 줄 끝에 「📦 전체 6가지 ZIP 1개로」 버튼: 6가지 크기를 차례로 다시 그려 JPG로 만든 뒤 ZIP 하나로 저장(AI 호출 없음). ZIP은 공용 기준 코드 `store-zip` 사본 `src/lib/studio/zip.ts`(기준 `portrait-photo/src/lib/portrait/zip.ts`). 이름은 `channelZipNames()`. 시험 1개 추가(전체 27개)·tsc·build 통과. 배포 후 크롬에서 다운로드를 가로채 ZIP 파일 수 확인할 것.

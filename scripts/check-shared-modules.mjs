@@ -213,6 +213,12 @@ const MODULES = [
     copies: ["emotion-writer/src/lib/studio/postPresets.ts", "four-cut-comics/src/lib/comic/postPresets.ts", "portrait-photo/src/lib/portrait/postPresets.ts", "banana-canvas/src/lib/bnc/postPresets.ts"],
   },
   {
+    // 외부 라이브러리 없는 ZIP 만들기(저장 방식·UTF-8 파일 이름) — 여러 크기 한 번에 받기(2026-10-22)
+    id: "store-zip",
+    source: "portrait-photo/src/lib/portrait/zip.ts",
+    copies: ["emotion-writer/src/lib/studio/zip.ts"],
+  },
+  {
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
     id: "browser-mp4-encoder",
     source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",

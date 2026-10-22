@@ -19,3 +19,8 @@ export const CHANNEL_SIZES: readonly ChannelSize[] = [
 export function channelFileName(c: ChannelSize, now = Date.now()): string {
   return `감성글귀-${c.id}-${c.width}x${c.height}-${now}.jpg`;
 }
+
+/** v1.24: 전체 크기 ZIP 안 파일 이름(같은 시각 하나로 묶음) · ZIP 이름 */
+export function channelZipNames(now = Date.now()): { zip: string; files: string[] } {
+  return { zip: `감성글귀-전체크기-${now}.zip`, files: CHANNEL_SIZES.map((c) => channelFileName(c, now)) };
+}

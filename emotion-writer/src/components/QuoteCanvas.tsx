@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { renderQuote, renderQuoteAt, canvasBlob } from "@/lib/studio/render";
-import { CHANNEL_SIZES, channelFileName, type ChannelSize } from "@/lib/studio/channels";
+import { CHANNEL_SIZES, channelFileName, channelZipNames, type ChannelSize } from "@/lib/studio/channels";
+import { createZip } from "@/lib/studio/zip";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
 import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -106,6 +107,35 @@ export function QuoteCanvas({
       setNotice(`${c.label}(${c.width}×${c.height}) 크기로 다시 배치해 저장했습니다.`);
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "다른 크기로 만들지 못했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // v1.24: 「다른 크기로 받기」 전체를 ZIP 하나로 — 공용 기준 코드 store-zip 사본(AI 재호출 없음)
+  async function downloadAllChannels() {
+    if (!ready || busy || saving) return;
+    setSaving(true);
+    setNotice("");
+    try {
+      const names = channelZipNames();
+      const entries = [];
+      for (const [i, c] of CHANNEL_SIZES.entries()) {
+        const draft = document.createElement("canvas");
+        await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, design);
+        const blob = await canvasBlob(draft, "jpeg");
+        entries.push({ name: names.files[i], data: new Uint8Array(await blob.arrayBuffer()) });
+      }
+      const zip = createZip(entries);
+      const url = URL.createObjectURL(new Blob([zip as BlobPart], { type: "application/zip" }));
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = names.zip;
+      anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setNotice(`${entries.length}가지 크기를 ZIP 하나로 저장했습니다.`);
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "ZIP을 만들지 못했습니다.");
     } finally {
       setSaving(false);
     }
@@ -240,6 +270,15 @@ export function QuoteCanvas({
                 {c.label}
               </button>
             ))}
+            <button
+              type="button"
+              className="text-xs px-3 py-1.5 inline-flex items-center gap-1.5 whitespace-nowrap font-semibold"
+              disabled={busy || saving}
+              onClick={() => void downloadAllChannels()}
+              title={`${CHANNEL_SIZES.length}가지 크기를 JPG로 만들어 ZIP 하나로 저장`}
+            >
+              📦 전체 {CHANNEL_SIZES.length}가지 ZIP 1개로
+            </button>
           </div>
         </div>
       )}

@@ -35,3 +35,17 @@ test("v1.22 공용 기준 코드 사본에서 크기 목록을 만들고, 버튼
   const q = readFileSync(new URL("../src/components/QuoteCanvas.tsx", import.meta.url), "utf8");
   assert.match(q, /16 \* c\.width\) \/ Math\.max\(c\.width, c\.height\)/);
 });
+
+test("v1.24 전체 크기 ZIP: 파일 이름이 겹치지 않고 ZIP 머리·끝 표시가 맞다", async () => {
+  const { channelZipNames } = await import("../src/lib/studio/channels.ts");
+  const { createZip } = await import("../src/lib/studio/zip.ts");
+  const n = channelZipNames(123);
+  assert.equal(n.files.length, CHANNEL_SIZES.length);
+  assert.equal(new Set(n.files).size, n.files.length);
+  assert.match(n.zip, /\.zip$/);
+  const zip = createZip(n.files.map((name, i) => ({ name, data: new Uint8Array([i, 1, 2]) })));
+  assert.deepEqual([...zip.slice(0, 4)], [0x50, 0x4b, 0x03, 0x04]);
+  const end = zip.length - 22;
+  assert.deepEqual([...zip.slice(end, end + 4)], [0x50, 0x4b, 0x05, 0x06]);
+  assert.equal(zip[end + 10] | (zip[end + 11] << 8), n.files.length);
+});
