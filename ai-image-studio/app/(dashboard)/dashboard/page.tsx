@@ -7,6 +7,7 @@ import { Step2PlatformGenerator } from "@/components/Step2PlatformGenerator";
 import { GuideModal } from "@/components/GuideModal";
 import { PageHeaderLogo } from "@/components/PageHeaderLogo";
 import type { CustomStylePrompt } from "@/lib/prompts/customStylePrompts";
+import { promptSourceInfo } from "@/lib/promptSource";
 
 function DashboardContent() {
   const searchParams = useSearchParams();
@@ -15,6 +16,8 @@ function DashboardContent() {
   const [customPrompt, setCustomPrompt] = useState<CustomStylePrompt | null>(null);
   const [customError, setCustomError] = useState("");
   const customPromptId = searchParams.get("customPrompt");
+  // v1.26: 프롬프트를 보낸 프로그램(`&src=`) — 정해 둔 이름만, 프롬프트와 함께 왔을 때만
+  const promptSource = searchParams.get("prompt") ? promptSourceInfo(searchParams.get("src")) : undefined;
 
   useEffect(() => {
     setCustomPrompt(null); setCustomError("");
@@ -71,9 +74,16 @@ function DashboardContent() {
       <Step1PromptEnhancer key={customPromptId || "default"} onApplyPrompt={handleApplyPrompt} initialCustomPrompt={customPrompt} />
 
       {/* Step 2: Multi-Platform Generator */}
+      {promptSource && (
+        <p role="status" data-prompt-source className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-4 text-sm text-sky-200">
+          「{promptSource.name}」에서 보낸 프롬프트를 2단계 칸에 채웠습니다. 엔진·모델을 고르고 확인한 뒤 생성해 주세요.{" "}
+          <a href={promptSource.url} data-prompt-back className="font-bold underline underline-offset-2 whitespace-nowrap">↩ {promptSource.name} 화면으로 돌아가기</a>
+        </p>
+      )}
       <Step2PlatformGenerator
         initialPrompt={step2Prompt}
         initialNegativePrompt={step2NegativePrompt}
+        ideaSource={promptSource?.key}
       />
 
       {/* Manual & Guide Modal Box at Bottom */}

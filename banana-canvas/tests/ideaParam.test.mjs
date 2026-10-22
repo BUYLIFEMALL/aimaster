@@ -80,5 +80,15 @@ test("v1.27 인페인트·컷 다시도 출처 유지, 상세 창 보낸 곳, �
   assert.match(list, /markDownloaded\(open\.id\)/);
   const route = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
   assert.match(route, /downloadedAt/);
-  assert.match(route, /if \(!options\.downloadedAt\)/);
+  // v1.28: 다운로드·넘김 공통 처리로 모양만 바뀜 — 이미 있으면 다시 쓰지 않음
+  assert.match(route, /options\.downloadedAt \? null/);
+});
+
+test("v1.28 다음 단계로 넘김 기록(형식 바꾸기·스토리보드)", () => {
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /markHandoff\(result\.id, "convert"\)/);
+  assert.match(studio, /markHandoff\(result\.id, "storyboard"\)/);
+  const route = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
+  assert.match(route, /body\.handoff === "convert" \|\| body\.handoff === "storyboard"/);
+  assert.match(route, /handoffs\[handoff!\] \? null/);
 });

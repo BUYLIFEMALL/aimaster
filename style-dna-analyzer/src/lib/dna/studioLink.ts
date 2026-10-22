@@ -7,7 +7,8 @@ export const MAX_LINK_PROMPT = 6000;
 export function imageStudioLink(prompt: string | null | undefined): string | null {
   const p = (prompt ?? "").trim();
   if (!p || p.length > MAX_LINK_PROMPT) return null;
-  return `${IMAGE_STUDIO_URL}?prompt=${encodeURIComponent(p)}`;
+  // v1.36: 보낸 곳(`src`)을 붙여 이미지 스튜디오가 안내·돌아가기·생성 기록에 쓰게 함
+  return `${IMAGE_STUDIO_URL}?prompt=${encodeURIComponent(p)}&src=style-dna-analyzer`;
 }
 
 // v1.35: 「바나나 캔버스로 보내기」 — 주소·600자 한도는 공용 기준 코드 `banana-idea-link`(같은 폴더 bananaIdeaLink.ts)

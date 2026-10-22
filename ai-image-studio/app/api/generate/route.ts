@@ -1,4 +1,5 @@
 import { checkProgramAccessApi, getUserApiKey } from "@/lib/access";
+import { promptSourceKey } from "@/lib/promptSource";
 import { getProviderAdapter, PROVIDERS_REGISTRY } from "@/lib/providers";
 import { createAdminClient } from "@/lib/supabase/server";
 import { BUCKET, signPaths } from "@/lib/imageStorage";
@@ -58,7 +59,9 @@ export async function POST(req: Request) {
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { provider, model, prompt, negativePrompt, options } = await req.json();
+    const { provider, model, prompt, negativePrompt, options, ideaSource } = await req.json();
+    // v1.26: 다른 프로그램이 보낸 프롬프트의 보낸 곳(공용 이름표에 있는 이름만 기록)
+    const source = promptSourceKey(ideaSource);
 
     if (!provider || !model || !prompt) {
       return Response.json({ error: "필수 파라미터(provider, model, prompt)가 누락되었습니다." }, { status: 400 });
@@ -110,6 +113,7 @@ export async function POST(req: Request) {
           prompt,
           enhanced_prompt: result.revisedPrompt || prompt,
           options: options || {},
+          ...(source ? { ideaSource: source } : {}),
           ...(imagePath ? { image_path: imagePath } : { image_url: rawResult.imageUrl })
         }
       });

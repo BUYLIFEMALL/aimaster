@@ -9,10 +9,12 @@ import { Layers, Sliders, Image as ImageIcon, AlertCircle, RefreshCw, Key, Rotat
 
 interface Step2PlatformGeneratorProps {
   initialPrompt?: string;
+  /** v1.26: 프롬프트를 보낸 프로그램(생성 기록에 함께 남김) */
+  ideaSource?: string;
   initialNegativePrompt?: string;
 }
 
-export function Step2PlatformGenerator({ initialPrompt = "", initialNegativePrompt = "" }: Step2PlatformGeneratorProps) {
+export function Step2PlatformGenerator({ initialPrompt = "", initialNegativePrompt = "", ideaSource }: Step2PlatformGeneratorProps) {
   const [selectedProviderId, setSelectedProviderId] = useState<string>("openai");
   const [selectedModelId, setSelectedModelId] = useState<string>("gpt-image-2");
   const [prompt, setPrompt] = useState<string>(initialPrompt);
@@ -112,7 +114,8 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
           model: selectedModelId,
           prompt,
           negativePrompt,
-          options: optionValues
+          options: optionValues,
+          ideaSource
         })
       });
 

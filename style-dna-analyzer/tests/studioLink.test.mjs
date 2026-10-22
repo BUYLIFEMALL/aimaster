@@ -5,7 +5,7 @@ import { imageStudioLink, MAX_LINK_PROMPT } from "../src/lib/dna/studioLink.ts";
 
 test("프롬프트를 이미지 스튜디오 2단계 칸 주소로", () => {
   const u = imageStudioLink(" cinematic portrait, soft light & film grain ");
-  assert.equal(u, "https://ai-image-studio.buylife.xyz/dashboard?prompt=" + encodeURIComponent("cinematic portrait, soft light & film grain"));
+  assert.equal(u, "https://ai-image-studio.buylife.xyz/dashboard?prompt=" + encodeURIComponent("cinematic portrait, soft light & film grain") + "&src=style-dna-analyzer");
   assert.equal(new URL(u).searchParams.get("prompt"), "cinematic portrait, soft light & film grain");
 });
 

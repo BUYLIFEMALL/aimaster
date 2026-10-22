@@ -234,7 +234,7 @@ const MODULES = [
     // 바나나 캔버스 「이미지 생성」 아이디어 칸으로 보내는 주소(`/studio?idea=`·600자 한도·보낸 곳 `src`) — 문구는 각 프로그램(2026-10-22)
     id: "banana-idea-link",
     source: "style-dna-analyzer/src/lib/dna/bananaIdeaLink.ts",
-    copies: ["emotion-writer/src/lib/studio/bananaIdeaLink.ts", "reverse-prompt/src/lib/rpa/bananaIdeaLink.ts", "banana-canvas/src/lib/bnc/bananaIdeaLink.ts"],
+    copies: ["emotion-writer/src/lib/studio/bananaIdeaLink.ts", "reverse-prompt/src/lib/rpa/bananaIdeaLink.ts", "banana-canvas/src/lib/bnc/bananaIdeaLink.ts", "ai-image-studio/lib/bananaIdeaLink.ts"],
   },
   {
     // 외부 라이브러리 없는 ZIP 만들기(저장 방식·UTF-8 파일 이름) — 여러 크기 한 번에 받기(2026-10-22)
