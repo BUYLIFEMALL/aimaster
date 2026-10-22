@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 첫 30일 정리 기록 운영 확인 · 배포 도우미 Ready 직접 확인 · 오래 남은 기준 사본 점검 (비용 없음)
+- **운영 확인(usage_logs `cleanup_expired`)**: Shots(`auto-shorts-posting`) 03:30 회원 2명(장면 이미지 6·13), Threads 쇼핑제휴 v1.82 배포(02:56) 직후 03:00 정리에서 회원 1명(posts 1·images 1) — 공용 `cleanup-usage-log` 사본 경로가 운영에서 끝까지 동작함. 다른 세션의 `auto-threads-posting`도 회원 3명 기록.
+- `deploy.mjs <폴더> --go`(`fec9e0d1e`): 배포 출력에서 이번 배포 주소를 받아 `vercel inspect`로 상태·`*.buylife.xyz` 연결을 한 줄로(예전 `vercel ls` 읽기의 「?」 해결). 지난 스토리보드 배포로 상태 Ready·운영 주소 읽기 시험.
+- `deploy.mjs --version-only --all`: 「[안전 커밋 기준 사본] 12시간 넘게 남은 것」 목록 추가(지금 0개).
+- 부동산 정정은 바로 앞 항목(`61142a909`·`eed700d9b`) 참고.
+
 ## 2026-10-23 Claude Code(윈도우) — 정정: 부동산 지역 분위기 캐시는 v1.12부터 회원별(최상위 규칙 위반 없음) · 정리 기록 붙임(미배포 대기) (비용 없음)
 - 바로 앞 항목들의 「`real_estate_sales` 지역 분위기 표에 user_id 없음 → 회원 데이터 아님·공용 캐시 의심」은 **잘못된 판단**. 첫 SQL만 봤고, `20261017_district_sentiment_per_user_v1_12.sql`에서 user_id·회원별 unique·본인 RLS로 이미 바뀌었으며 코드도 회원 본인 키·본인 행만 사용.
 - 조치: 표시 주석 삭제, 정리 작업이 회원별 `cleanup_expired`(sentiments) 기록(공용 사본 `real_estate_sales/src/lib/cleanupUsageLog.ts`). tsc 통과. **미배포 대기**(PENDING 1줄·`real_estate_sales/docs/IMPROVEMENTS.md` 정정). 진행률(코드 기준) 17/25.
