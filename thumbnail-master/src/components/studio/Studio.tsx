@@ -11,7 +11,9 @@ interface ApiErr { error?: string; needKey?: boolean }
 type Busy = Record<"strategy" | Opt, "" | "gen" | "edit">;
 const IDLE: Busy = { strategy: "", a: "", b: "" };
 // v1.13 세로 결과 칸 — 너무 길어지지 않게 높이를 제한하고 가운데
-const VERTICAL_CANVAS = { aspectRatio: "9 / 16", height: "min(70vh, 640px)", width: "auto", maxWidth: "100%", marginInline: "auto" } as const;
+/** v1.17 세로 결과 → YOUTUBE Shots 자동화 영상 포스팅(릴스 표지 올리기, v1.35). 안내 링크만 — 프로그램끼리 직접 호출하지 않음 */
+const SHOTS_POSTING_URL = "https://shots.buylife.xyz/videos";
+const VERTICAL_CANVAS ={ aspectRatio: "9 / 16", height: "min(70vh, 640px)", width: "auto", maxWidth: "100%", marginInline: "auto" } as const;
 const LABEL: Record<Opt, string> = { a: "A안", b: "B안" };
 
 async function call<T>(url: string, method: string, body?: unknown, signal?: AbortSignal): Promise<{ ok: true; data: T } | { ok: false; error: string; needKey: boolean }> {
@@ -358,6 +360,12 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                     <button type="button" disabled={!url || b !== ""} onClick={() => url && void saveImage(url, `thumbnail_option_${o.toUpperCase()}.jpg`)}><Download size={14} />다운로드 (JPG)</button>
                     <button type="button" disabled={b !== ""} onClick={() => void makeImage(o)}><RefreshCw size={14} />다시 생성</button>
                   </div>
+                  {url && inputs.style.ratio === "9:16" && (
+                    <small className="muted">
+                      릴스 표지로 쓰려면 JPG를 받은 뒤 YOUTUBE Shots 자동화 [영상 포스팅] → 인스타 칸 「표지 이미지」에 올리세요.{" "}
+                      <a href={SHOTS_POSTING_URL} target="_blank" rel="noreferrer">릴스 표지로 쓰기 ↗</a>
+                    </small>
+                  )}
                   {cur && (
                     <div className="tm-edit">
                       <label>AI 수정 요청 <small>(지시문대로 전체를 다시 그리며, 이전 버전은 유지됩니다)</small></label>
