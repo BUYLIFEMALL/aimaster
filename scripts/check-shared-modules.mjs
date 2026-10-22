@@ -195,6 +195,12 @@ const MODULES = [
     copies: ["shorts-onestop-studio/src/lib/videoModels.ts", "shots/src/lib/video/videoModels.ts"],
   },
   {
+    // 브라우저 안 영상 → 장면 이미지·소리(모노 WAV) 추출(INSTA v1.49~v1.50 운영 검증, 원스톱 v1.29 레퍼런스 쇼츠 대본 따기)
+    id: "browser-video-extract",
+    source: "insta_auto_poster/src/lib/cardnews/reelsMedia.ts",
+    copies: ["shorts-onestop-studio/src/lib/reelsMedia.ts"],
+  },
+  {
     // AI 동영상: 업체 응답 해석·키를 보낼 주소 검사·장면 사진 주소 검사(순수 함수)
     id: "ai-video-parse",
     source: "ai-image-studio/lib/video/videoParse.ts",

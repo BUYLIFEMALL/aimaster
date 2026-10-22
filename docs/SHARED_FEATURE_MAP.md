@@ -156,7 +156,8 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 |---|---|---|
 | 기준 후보 | `insta_auto_poster/src/lib/cardnews/reelsMedia.ts` — `extractReel`(장면 4장 10~90% 시점·긴 변 720px JPEG + 소리), `pickFrameTimes`, `pickAudioFormat`(90초까지 12kHz 16비트 → 길면 8kHz까지 낮춤 → 8kHz 8비트, 최대 3분 ≈ base64 3MB), `encodeWavMono`, `bytesToBase64` + 시험 `tests/cardnews/remake.test.mjs` | 🟢 INSTA v1.49~v1.50 운영(크롬 46초 영상 → 1초 추출, Gemini가 내레이션 내용 반영) |
 | 받는 쪽(서버) | 같은 프로그램 `src/app/api/cardnews/remake/analyze/route.ts`(audio/wav·base64 3MB·Gemini만) + `src/lib/cardnews/ai/llm.ts`(Gemini `inlineData`) | 프로그램마다 각자(오류 형식·프롬프트가 다름) |
-| 적용 후보 | `shorts-viral-studio`(내 영상·저장한 쇼츠 파일 분석 — 지금은 유튜브 주소만), `shorts-onestop-studio`·`auto-shorts-posting`(레퍼런스 영상으로 대본·장면 기획), `competitor-analysis`(경쟁 릴스 분석) | ⚪ 필요할 때 사본으로(급하지 않음) |
+| 사본 | `shorts-onestop-studio/src/lib/reelsMedia.ts` — 공용 모듈 `browser-video-extract`로 등록(2026-10-22, 원스톱 v1.29 「레퍼런스 쇼츠에서 대본 따기」) | 🟢 |
+| 적용 후보 | `shorts-viral-studio`(내 영상·저장한 쇼츠 파일 분석 — 지금은 유튜브 주소만), `auto-shorts-posting`(레퍼런스 영상으로 장면 기획), `competitor-analysis`(경쟁 릴스 분석) | ⚪ 필요할 때 사본으로(급하지 않음) |
 
 주의: 화면용 코드라 `"use client"` 쪽에서만 부른다. 소리를 못 푸는 형식(일부 mov 코덱)이면 장면만 돌려준다. 사본을 만들 때 `scripts/check-shared-modules.mjs`에 등록하고 기준만 고친다.
 

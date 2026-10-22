@@ -161,3 +161,9 @@
 ## 2026-10-22 v1.28 — 공용 영상 코드 사본 배포 + Seedance 1 Lite 이어 붙이기 끔 (Claude Code 윈도우)
 - 저장소에만 있던 공용 기준 코드 `ai-video-*` 사본 전환(`videoGen.ts` → 공용 `videoProviders`, 동작 같음)과 Shots v1.33에서 E006이 재현된 Seedance 1 Lite `endFrame: false`를 배포. 화면 목록에 「가장 저렴 · 720p · 이어 붙이기 없음」, 「이어 붙이기」를 켜도 이 모델은 첫 화면만 보내고 단가도 기본 단가로 계산.
 - 검수: tsc·`npm test` 13개·build, 배포 Ready(`shorts-onestop-studio-1vmxo3g1j`, 빌드 1회 — 주인님 승인), DB v1.28, 크롬 시험 회원 대시보드 v1.28·디자인 화면 영상 모델 목록 확인(유료 생성 없음).
+
+## 2026-10-22 v1.29 — 🎬 레퍼런스 쇼츠에서 대본 따기 (Claude Code 윈도우)
+- 주인님 승인(빌드 1회·Whisper 1회·대본 1회). 주제 화면 「참고 자료」 옆 「🎬 레퍼런스 쇼츠에서 대본 따기」: 회원이 저장한 쇼츠(mp4·mov·webm)를 고르면 **브라우저 안에서** 소리만 뽑고(공용 기준 코드 `browser-video-extract` 사본 `src/lib/reelsMedia.ts`, 기준 `insta_auto_poster/src/lib/cardnews/reelsMedia.ts` — 직접 고치지 말 것, 최대 3분·WAV 3MB 이하) → 새 API `POST /api/ai/transcribe`(`guard` 3.2MB, audio/wav·base64 검사, 회원 본인 OpenAI 키 `whisper-1`·`language=ko`, 없으면 needKey 안내) → 「[레퍼런스 쇼츠 대본 — 「파일명」에서 실제로 말한 내용, 그대로 베끼지 말고 구성·후킹만 참고]」로 참고 자료 칸에 붙임(12000자). 기존 대본 생성(`reference`)이 그대로 씀. 영상·소리 저장 없음, DB 변경 없음. 매뉴얼 1단계 문장에 안내 추가.
+- 검수: tsc, `npm test` 13개, build, 공용 점검 일치, 배포 `shorts-onestop-studio-qnf1vk8a4` Ready, DB v1.29. 크롬(시험 회원, 새 탭): Shots 46초 내레이션 영상 → 받아쓰기 7초(「예전엔 도서관에서 책 하나 찾겠다고… ISBN 번호만 기억하면 돼요…」) → 자기계발·주제 「도서관에서 10초 만에 책 찾는 법」 대본 6초, 6장(후킹·ISBN 반영 + 청구기호·촬영 팁 새 내용). 대본은 저장하지 않음.
+- 관찰: 1장 문장이 레퍼런스 말투에 꽤 가까움 → `docs/IMPROVEMENTS.md`.
+- 비용: 빌드 1회, Whisper 46초 약 $0.005, 대본 생성 1회 약 $0.01~0.02(시험 회원 본인 키, 승인 범위).

@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.29 「🎬 레퍼런스 쇼츠에서 대본 따기」 + 공용 `browser-video-extract` 등록 (빌드 1회)
+- 저장한 쇼츠 영상 → 브라우저에서 소리만 → 회원 본인 OpenAI Whisper → 참고 자료 칸 → 기존 대본 생성. 크롬: 받아쓰기 7초·대본 6초 성공. INSTA `reelsMedia.ts`를 공용 기준 코드로 등록(사본 원스톱, 기준 변경 없음).
+- 다음 제안: 레퍼런스 문장 그대로 베끼기 방지(`shorts-onestop-studio/docs/IMPROVEMENTS.md`).
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — INSTA v1.56 받아쓰기 후킹·본문·마무리 · 분석 재료 배지 (빌드 1회, 유료 호출 없음)
 - 릴스 받아쓰기를 첫 문장(후킹)·본문·마지막 문장(마무리)으로 나눠 원문에 넣고, 떡상 분석 버튼 위에 들어간 재료 배지. 다음: 원스톱 「레퍼런스 쇼츠 대본 따기」 플랜(주인님이 원스톱 선택).
 - 프로그램: https://auto-instagram-posting.buylife.xyz
