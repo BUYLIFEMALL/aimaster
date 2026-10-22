@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ⏸ 30일 정리 기록 1차 4곳(미배포 대기) · 다음 메인 빌드 할 일 등록 (비용 없음)
+- `4cafe5eb3`: 정리 작업이 회원별 `usage_logs` action `cleanup_expired` 기록 — `four-cut-comics`(images)·`cinematic-storyboard-studio`(projects·images)·`threads-content-ops`(images·posts·ideas)·`music`(tracks, 유예 2026-10-28까지). 기록 실패해도 정리는 계속. 각 tsc 통과. **미배포 대기**(`docs/PENDING_DEPLOYS.md` 4줄·각 `docs/IMPROVEMENTS.md`) — 다음 배포 때 함께, 버전도 그때 +0.01. 진행률(코드 기준) 3/23 → **7/23**.
+- 남은 16곳: 블로그 병합 대상 6곳(`ai-auto-blog`·`blog-workroom`·`naver-blog-agent`·`naver-blog-allinone`·`naver-blog-seo-studio`·`tistory-auto-blog`, Codex 담당 — 손대지 않음), 회원 구분 없이 지우는 곳 9곳(`ai-image-studio`·`banana-canvas`·`portrait-photo`·`real_estate_sales`·`reverse-prompt`·`style-dna-analyzer`·`threads-affiliate-poster`·`trending-product-finder`·`youtube-auto-reply` — 회원별로 세도록 코드를 더 바꿔야 함), `shop-detail-page`(맥미니 작업 영역, 여러 단계).
+- **다음 메인 화면 작업 때 함께(코드 미작성)**: ① 「운영 상태」 기록 시각이 24시간 넘으면 「갱신 필요」 표시 ② 「30일 자동 정리」 표 이름표 `CLEANUP_LABEL`에 `tracks: "곡"`·`posts: "보관함 글"`·`ideas: "글감"` 추가(지금은 영어 이름 그대로 보임). 메인 코드는 푸시 즉시 빌드되므로 지금 넣지 않음.
+- 역량 지도 카드 2차는 위 항목(`3ac6eb007`) 참고.
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.08 불러오는 중 입력 막기·실패 실행 원고 불러오기 허용 (빌드 1회 · AI 0회)
 - v2.07 실검수: 문단 나눔 정상, 3,332자 65초. 원고를 다 불러오기 전 입력 시 이미지 누락·`claim` 404로 완료 기록 누락 → 수정. 모아 둔 입력 속도 1~3글자도 함께 배포. 배포 Ready·DB/확장/ZIP v2.08.
 - 남은 일: 이미지 6장 포함 실제 입력 재확인(`naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래).
