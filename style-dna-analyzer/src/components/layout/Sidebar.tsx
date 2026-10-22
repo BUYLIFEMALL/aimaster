@@ -68,7 +68,7 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav className="flex-1 flex flex-col justify-between overflow-y-auto p-3.5 bg-[#0c0f17]">
+    <nav className="min-h-0 shrink flex flex-col overflow-y-auto p-3.5 bg-[#0c0f17]">
       <div className="space-y-1.5">
         <Link
           href={OVERVIEW_ITEM.href}

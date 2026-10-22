@@ -46,7 +46,7 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
   const isActive = (href: string) => pathname === href || (href !== "/studio" && pathname.startsWith(`${href}/`));
 
   return (
-    <nav className="flex-1 overflow-y-auto p-3">
+    <nav className="min-h-0 shrink overflow-y-auto p-3">
       {/* 핵심 작업 흐름: 원형 번호 배지와 세로 연결선 */}
       <div className="relative">
         <p className="px-2 pb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">Mastering Flow</p>

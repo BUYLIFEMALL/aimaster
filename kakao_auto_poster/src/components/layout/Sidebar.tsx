@@ -60,7 +60,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const closeMobile = () => setMobileOpen(false);
 
   const navContent = (
-    <div className="flex h-full flex-col justify-between">
+    <div className="flex h-full flex-col">
       <div>
         {/* 헤더 & 로고 & 버전 */}
         <div className="mb-5 px-1">
@@ -201,7 +201,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       </div>
 
       {/* 사용자 계정 정보 & 로그아웃 */}
-      <div className="mt-6 border-t border-neutral-200 pt-4">
+      <div className="mt-3 border-t border-neutral-200 pt-4">
         <div className="px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-100 mb-2">
           <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">접속 계정</p>
           <p className="truncate text-xs font-bold text-neutral-700 mt-0.5">{userEmail || "회원 인증됨"}</p>
@@ -258,7 +258,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       )}
 
       {/* 데스크톱 고정 사이드바 */}
-      <aside className="hidden md:flex w-64 flex-col border-r border-neutral-200 bg-white p-5 shrink-0 justify-between self-stretch min-h-screen sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden md:flex w-64 flex-col border-r border-neutral-200 bg-white p-5 shrink-0 self-stretch min-h-screen sticky top-0 h-screen overflow-y-auto">
         {navContent}
       </aside>
     </>

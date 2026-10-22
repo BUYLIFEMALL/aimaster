@@ -138,7 +138,7 @@ export default function Sidebar({
       </div>
 
       {/* 3. 대분류 및 19개 직군 탐색 메뉴 */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+      <div className="min-h-0 shrink overflow-y-auto custom-scrollbar p-2 space-y-1">
         {/* 전체 보기 */}
         <button
           onClick={() => onSelectCategory("ALL")}

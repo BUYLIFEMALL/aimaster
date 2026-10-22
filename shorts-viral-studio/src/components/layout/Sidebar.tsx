@@ -131,7 +131,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         })}
       </nav>
 
-      <div className="mt-auto shrink-0 border-t border-[#30363d] pt-4">
+      <div className="mt-3 shrink-0 border-t border-[#30363d] pt-4">
         <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-3">
           <div className="text-[11px] font-semibold uppercase tracking-wider text-[#8b949e]">로그인 계정</div>
           <div className="mt-1 truncate text-xs font-semibold text-[#f0f6fc]" title={userEmail}>

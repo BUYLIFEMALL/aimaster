@@ -112,7 +112,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
-        <div className="flex flex-1 flex-col overflow-y-auto p-4">
+        <div className="flex min-h-0 shrink flex-col overflow-y-auto p-4">
           {/* 브랜드 헤더 */}
           <div className="mb-5 px-1 pt-1">
             <div className="flex items-center justify-between">

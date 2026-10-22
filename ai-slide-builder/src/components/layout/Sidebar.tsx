@@ -219,7 +219,7 @@ export default function Sidebar({
       </div>
 
       {/* 7. 마지막 메뉴 바로 아래 바짝 붙인 사용자 이메일과 로그아웃 (간격 8~16px) */}
-      <div className="border-t border-slate-200 pt-2.5 flex items-center justify-between px-1 mt-auto">
+      <div className="border-t border-slate-200 pt-2.5 flex items-center justify-between px-1 mt-3">
         <div className="truncate max-w-[155px]">
           <p className="text-[10px] text-slate-400 font-medium">로그인 계정</p>
           <p className="text-xs text-slate-800 font-bold truncate" title={userEmail || "회원"}>

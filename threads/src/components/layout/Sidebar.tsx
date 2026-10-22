@@ -104,7 +104,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               </button>
             </div>
 
-            <nav className="flex-1 space-y-1.5 overflow-y-auto">
+            <nav className="min-h-0 shrink space-y-1.5 overflow-y-auto">
               <Link
                 href={OVERVIEW_ITEM.href}
                 onClick={closeMobile}
@@ -198,7 +198,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
 
       {/* 💻 데스크톱 사이드바 (화면 폭 >= 768px) */}
       <aside className="hidden md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col md:border-r border-neutral-800 bg-[#171717] p-4 text-neutral-200">
-        <div className="flex flex-1 flex-col overflow-y-auto min-h-0">
+        <div className="flex min-h-0 shrink flex-col overflow-y-auto">
           {/* 브랜드 헤더 */}
           <div className="mb-5 px-2">
             <div className="flex items-center gap-2 mb-1">

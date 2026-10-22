@@ -124,7 +124,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       )}
 
       {/* 데스크톱 사이드바 */}
-      <aside className="hidden md:flex w-64 flex-col justify-between border-r border-slate-200/90 bg-white p-5 sticky top-0 h-screen shrink-0">
+      <aside className="hidden md:flex w-64 flex-col border-r border-slate-200/90 bg-white p-5 sticky top-0 h-screen shrink-0">
         <div className="min-h-0 overflow-y-auto space-y-6">
           {/* 로고 & 타이틀 영역 */}
           <div>
@@ -229,7 +229,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </div>
 
         {/* 하단 사용자 계정 정보 */}
-        <div className="shrink-0 border-t border-slate-100 pt-4">
+        <div className="mt-3 shrink-0 border-t border-slate-100 pt-4">
           <div className="rounded-xl bg-slate-50 p-2.5">
             <p className="truncate text-xs font-medium text-slate-700">{userEmail}</p>
             <p className="text-[10px] text-slate-400">회원 전용 계정 연동</p>

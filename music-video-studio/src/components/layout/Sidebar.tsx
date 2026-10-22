@@ -62,7 +62,7 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
   const isActive = (href: string) => pathname === href || (href !== "/music" && pathname.startsWith(`${href}/`));
 
   return (
-    <nav className="flex-1 overflow-y-auto p-3 flex flex-col justify-between">
+    <nav className="min-h-0 shrink overflow-y-auto p-3 flex flex-col">
       <div>
         {/* 네온 콘솔 헤더 라벨 */}
         <div className="px-2 pt-1 pb-2 flex items-center justify-between">

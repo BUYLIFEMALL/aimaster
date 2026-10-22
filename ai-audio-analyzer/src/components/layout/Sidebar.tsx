@@ -69,7 +69,7 @@ export default function Sidebar({
   const isGuidePage = pathname === "/guide";
 
   const sidebarContent = (
-    <div className="flex flex-col h-full select-none justify-between">
+    <div className="flex flex-col h-full select-none">
       <div className="min-h-0 shrink overflow-y-auto custom-scrollbar p-3.5 space-y-4">
         {/* 1. 브랜드 헤더 & 버전 */}
         <div className="pb-3 border-b border-[#1a2333]">

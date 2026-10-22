@@ -95,7 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ userEmail = "buylifemall@naver
       </div>
 
       {/* 2. 작업 흐름 네비게이션 */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 custom-scrollbar">
+      <div className="min-h-0 shrink overflow-y-auto px-3 py-4 space-y-6 custom-scrollbar">
         <div>
           <div className="px-3 mb-2">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">

@@ -63,7 +63,7 @@ export default function DetailSidebar() {
   const closeMobile = () => setMobileOpen(false);
 
   const navContent = (
-    <div className="flex h-full flex-col justify-between">
+    <div className="flex h-full flex-col">
       <div>
         {/* 헤더 & 로고 & 버전 */}
         <div className="mb-5 px-1">
@@ -163,7 +163,7 @@ export default function DetailSidebar() {
       </div>
 
       {/* 사용자 계정 정보 & 로그아웃 */}
-      <div className="mt-6 border-t border-slate-200/80 pt-4">
+      <div className="mt-3 border-t border-slate-200/80 pt-4">
         <div className="px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100 mb-2">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">셀러 계정</p>
           <p className="truncate text-xs font-bold text-slate-700 mt-0.5">{userEmail || "회원 인증됨"}</p>
@@ -220,7 +220,7 @@ export default function DetailSidebar() {
       )}
 
       {/* 데스크톱 고정 사이드바 */}
-      <aside className="hidden lg:flex w-64 flex-col border-r border-slate-200 bg-white p-5 shrink-0 justify-between self-stretch min-h-screen sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden lg:flex w-64 flex-col border-r border-slate-200 bg-white p-5 shrink-0 self-stretch min-h-screen sticky top-0 h-screen overflow-y-auto">
         {navContent}
       </aside>
     </>
