@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import type { PostActionState } from "@/lib/actions/posts";
 import { generateContentAction, generateImageAction } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
+import { FreePhotoPicker } from "@/components/posts/FreePhotoPicker";
 import type { ThreadsTone } from "@/lib/ai/generator";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -603,6 +604,15 @@ export function PostForm({
             style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
           />
           {imageGenError && <p className="text-xs text-red-600">{imageGenError}</p>}
+        </div>
+
+        <div className="mb-2">
+          <FreePhotoPicker
+            defaultQuery={topic}
+            disabled={isUploading || isGeneratingAll}
+            remaining={20 - imageUrls.length}
+            onPicked={(url) => setImageUrls((prev) => (prev.length >= 20 ? prev : [...prev, url]))}
+          />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

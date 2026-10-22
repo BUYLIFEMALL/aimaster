@@ -13,7 +13,7 @@ export interface SaveApiKeyState {
   success?: boolean;
 }
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "perplexity", "threads_app_id", "threads_app_secret", "cronjob_org_api_key"];
+const VALID_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "perplexity", "threads_app_id", "threads_app_secret", "cronjob_org_api_key", "pixabay", "pexels"];
 
 export async function saveApiKeyAction(
   _prevState: SaveApiKeyState,

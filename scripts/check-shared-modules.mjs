@@ -211,7 +211,7 @@ const MODULES = [
     // 무료 사진 검색(회원 본인 Pixabay·Pexels 키)·고른 사진 받기(INSTA v1.63~v1.64 크롬 검수, 감성 글귀 v1.18 방식에서 옮김)
     id: "free-photo-search",
     source: "insta_auto_poster/src/lib/cardnews/photoSearch.ts",
-    copies: ["emotion-writer/src/lib/studio/photoSearch.ts"],
+    copies: ["emotion-writer/src/lib/studio/photoSearch.ts", "threads/src/lib/photoSearch.ts"],
   },
   {
     // AI 동영상: 업체 응답 해석·키를 보낼 주소 검사·장면 사진 주소 검사(순수 함수)
@@ -347,6 +347,9 @@ const MODULES = [
       "style-dna-analyzer/src/lib/cleanupUsageLog.ts",
       "ai-image-studio/lib/cleanupUsageLog.ts",
       "reverse-prompt/src/lib/cleanupUsageLog.ts",
+      "threads-affiliate-poster/src/lib/cleanupUsageLog.ts",
+      "trending-product-finder/lib/cleanupUsageLog.ts",
+      "youtube-auto-reply/lib/cleanupUsageLog.ts",
     ],
   },
   {

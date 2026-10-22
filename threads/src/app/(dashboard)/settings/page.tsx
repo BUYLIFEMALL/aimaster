@@ -98,6 +98,29 @@ export default async function SettingsPage({
         </div>
       </section>
 
+      {/* v1.29: 글 첨부 이미지 무료 사진 키(공용 user_api_keys — 감성 글귀·INSTA에서 넣은 키 그대로 재사용) */}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm" data-photo-keys>
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-neutral-900">📷 글 첨부 무료 사진 (선택)</h2>
+          <p className="text-xs text-neutral-500">
+            새 글의 「무료 사진으로 추가」에서 씁니다. 둘 중 하나만 있어도 됩니다 — 둘 다 무료 발급:{" "}
+            <a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener noreferrer" className="underline">Pixabay 키 받기</a>
+            {" · "}
+            <a href="https://www.pexels.com/api/" target="_blank" rel="noopener noreferrer" className="underline">Pexels 키 받기</a>. 다른 프로그램(감성 글귀·INSTA)에서 이미 넣었다면 「등록됨」입니다.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {(["pixabay", "pexels"] as const).map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-4">
           <h2 className="text-sm font-bold text-neutral-900">🧵 Threads 계정 연결</h2>
