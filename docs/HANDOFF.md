@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — INSTA 포스팅 자동화 v1.57 떡상 리메이크 문구 베끼기 방지 (빌드 1회)
+- 공용 `reference-copy-guard`(기준 원스톱 `src/lib/reference.ts`) 사본을 INSTA에 등록, 리메이크 문구에 원본 문장 규칙·6어절 겹침 검사·1회 재요청·노란 안내. 크롬 확인(문구 4장 겹침 0). 상세 `insta_auto_poster/AGENTS.md` v1.57.
+- 프로그램: https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — SEO블로그 스튜디오 v1.85 BLC-08b 「내 문체」 운영 반영 (빌드 1회 · AI 2회)
 - 새 메뉴 「4 ✍️ 내 문체」: 공개 RSS·붙여 넣은 표본 → 문체 분석(본인 키) → 서버 승인(지문) → 새 글·자료부터 집필에서 선택 적용(기본 적용 안 함), 원고 `seo_report.style` 기록. 새 표 `naver_blog_seo_styles`(운영 ref `esgxyikcnnvmlhygjkth`, RLS 4개). 시험 75/75·tsc·빌드, 배포 Ready·DB/확장/ZIP v1.85.
 - 웨일 실검수(시험 계정, gpt-4o-mini 2회): 분석→승인→문체+근거로 원고 생성, DB에 문체·근거 함께 기록 확인. **남은 문제**: 본문 말투가 페르소나(「-습니다」)를 따라 문체 말투 반영이 약함 → v1.86 수정안(문체가 있으면 말투는 문체 우선) 승인 대기. 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래.

@@ -342,3 +342,12 @@ test("받아쓰기 나누기: 첫 문장 후킹·가운데 본문·마지막 문
   assert.ok(t.startsWith("캡션\n\n[릴스 말소리"), "캡션이 위");
   assert.ok(t.includes("▶ 후킹(첫 문장 — 표지 카피 참고): 후킹입니다.") && t.includes("▶ 본문: 가운데.") && t.includes("▶ 마무리(마지막 문장 — 행동 유도 참고): 끝입니다."));
 });
+
+// ── v1.57 리메이크 문구 베끼기 방지(공용 reference-copy-guard 사본) ──
+import { copiedPhrases as copiedPhrasesRef, guardText as guardTextRef } from "../../src/lib/cardnews/referenceCopy.ts";
+test("리메이크 원문 겹침: 캡션 문장을 6어절 이상 그대로 쓰면 찾고, 사실(숫자)만 같으면 통과", () => {
+  const src = "미국 고배당 우량주 100개를 모아놔서 안정적인 데에 돈까지 받을 수 있어요.";
+  const ref = guardTextRef(src, true);
+  assert.equal(copiedPhrasesRef(["미국 고배당 우량주 100개를 모아놔서 안정적인 데에 좋아요"], ref).length, 1);
+  assert.deepEqual(copiedPhrasesRef(["우량주 100개를 담은 배당 ETF"], ref), []);
+});

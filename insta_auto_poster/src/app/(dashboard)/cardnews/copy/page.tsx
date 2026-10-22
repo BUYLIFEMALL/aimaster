@@ -17,6 +17,8 @@ export default function CopyPage() {
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
+  // v1.57 리메이크 원문과 그대로 겹치는 구절이 남았을 때 안내
+  const [copyNote, setCopyNote] = useState<string[]>([]);
 
   if (!plan.topic.trim()) return <NeedPlan>먼저 1단계에서 분야와 핵심 주제를 입력해주세요.</NeedPlan>;
 
@@ -30,6 +32,7 @@ export default function CopyPage() {
     setConfirm(false);
     setLoading(true);
     setError(null);
+    setCopyNote([]);
     try {
       const res = await fetch("/api/cardnews/copy", {
         method: "POST",
@@ -39,7 +42,7 @@ export default function CopyPage() {
           engine: project.engine,
           // 🔥 떡상 리메이크(v1.16): 고른 관점·분석 결과를 함께 보내 원본 항목을 빠짐없이 담게 한다
           ...(project.startMode === "remake" && project.remake?.analysis && project.remake.angleId
-            ? { remake: { analysis: project.remake.analysis, angleId: project.remake.angleId } }
+            ? { remake: { analysis: project.remake.analysis, angleId: project.remake.angleId, sourceText: project.remake.sourceText ?? "" } }
             : {}),
         }),
       });
@@ -49,6 +52,7 @@ export default function CopyPage() {
         return;
       }
       const made = data.pages as Pick<CardPage, "headline" | "sub" | "icon" | "layout" | "points" | "number">[];
+      setCopyNote(Array.isArray(data.copied) ? (data.copied as string[]) : []);
       update((d) => ({
         ...d,
         // 장 수가 같으면 이미 만든 배경 이미지는 그대로 둔다(장 번호 기준).
@@ -112,6 +116,9 @@ export default function CopyPage() {
           </div>
         )}
         {error && <ErrorNote message={error.message} needKey={error.needKey} />}
+        {copyNote.length > 0 && (
+          <p className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">⚠ 원본 게시물 문장과 그대로 겹치는 구절이 {copyNote.length}개 남았습니다. 아래 장에서 다른 표현으로 고쳐 주세요: 「{copyNote.slice(0, 3).join("」, 「")}」</p>
+        )}
       </Card>
 
       {pages.length > 0 && (

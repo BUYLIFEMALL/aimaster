@@ -258,3 +258,15 @@ sunoapi `get-timestamped-lyrics`의 단어별 시각(`alignedWords`, 단어 안�
 <!-- TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->
 2026-10-22 티스토리 `openai-request-params` 사본/`contentJson.ts` 호출은 명칭 v1.83 유지보수 배포8589073f에 포함됐습니다(Ready·타입/로컬/운영 빌드, 유료AI0). 위 미배포 목록 중 **티스토리 사본 엔진만 운영 반영**으로 갱신합니다. 모델 성격/비용 안내 UI는 master v1.84 후보에 있고 아직 운영 미배포입니다. 다른 프로그램 상태는 유지합니다. [근거](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md).
 <!-- /TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->
+
+## 14. 참고 자료 베끼기 방지 — 공용 기준 코드 `reference-copy-guard` (2026-10-22 등록)
+
+AI가 참고 자료(레퍼런스 쇼츠 받아쓰기·떡상 게시물 캡션·기사)를 근거로 새 글을 쓸 때, 원문 문장을 그대로 옮기지 않았는지 연속 6어절 겹침으로 찾는 순수 함수.
+
+| 구분 | 위치 | 상태 |
+|---|---|---|
+| 기준 | `shorts-onestop-studio/src/lib/reference.ts` — `COPY_WORDS`(6)·`words`·`copiedPhrases`·`referenceBlocks`·`guardText(reference, all)`·`hasCopy` + 시험 `tests/reference.test.ts` | 🟢 원스톱 v1.30~v1.31 |
+| 사본 | `insta_auto_poster/src/lib/cardnews/referenceCopy.ts` — 떡상 리메이크 문구(v1.57) | 🟢 |
+| 적용 후보 | `shorts-viral-studio`(인기 쇼츠 대본 참고), 블로그 계열 「참고 글로 쓰기」(블로그 병합은 Codex 담당이라 요청 시) | ⚪ 필요할 때 사본으로 |
+
+주의: 프롬프트 규칙 문구·다시 요청 횟수·화면 안내는 프로그램마다 각자 둔다(공용은 검사 함수만). 숫자·고유명사만 같은 짧은 겹침(5어절 이하)은 통과한다.
