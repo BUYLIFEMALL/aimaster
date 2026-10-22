@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Download, Loader2, Trash2, X, Sliders, Layers, Sparkles, Image as ImageIcon } from "lucide-react";
 import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/engine";
-import { CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, type CropRatioId, type Rotation } from "@/lib/imageTools/geometry";
+import { CENTER, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
+import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -29,6 +30,8 @@ interface Item {
   status: Status;
   result?: { blob: Blob; name: string; url: string };
   error?: string;
+  /** v1.13: 이 그림만의 자를 위치(없으면 가운데) */
+  focus?: Focus;
 }
 
 const SCALE_KEYS = { 0.5: "scaleHalf", 1: "scaleOne", 1.5: "scaleOneHalf", 2: "scaleTwo", 3: "scaleThree", 4: "scaleFour" } as const;
@@ -56,6 +59,7 @@ export function ConvertTool() {
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
   const [cropId, setCropId] = useState<CropRatioId>("original");
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [maxW, setMaxW] = useState(1920);
   const [maxH, setMaxH] = useState(1920);
   const [busy, setBusy] = useState(false);
@@ -101,7 +105,11 @@ export function ConvertTool() {
   // 허용 버킷은 lib/importSource.ts. 처리는 지금처럼 브라우저 안에서만.
   const [importNote, setImportNote] = useState("");
   useEffect(() => {
-    const src = new URLSearchParams(window.location.search).get("src");
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get("src");
+    // v1.13: 보낸 프로그램이 게시처 규격도 함께 넘기면(?preset=insta-portrait) 미리 골라 둔다
+    const pre = presetFromParam(params.get("preset"));
+    if (pre) setPresetId(pre.id);
     if (!src) return;
     window.history.replaceState(null, "", window.location.pathname);
     const from = importSourceOf(src, process.env.NEXT_PUBLIC_SUPABASE_URL);
@@ -142,7 +150,7 @@ export function ConvertTool() {
   const convertOne = async (item: Item) => {
     patch(item.id, { status: "working", error: undefined });
     try {
-      const blob = await convertImage(item.file, options);
+      const blob = await convertImage(item.file, { ...options, focus: item.focus ?? null });
       if (item.result) URL.revokeObjectURL(item.result.url);
       patch(item.id, { status: "done", result: { blob, name: outputFileName(item.file.name, format), url: URL.createObjectURL(blob) } });
     } catch (error) {
@@ -181,6 +189,11 @@ export function ConvertTool() {
   const selectedCount = items.filter((item) => item.selected).length;
   const doneCount = items.filter((item) => item.result).length;
   const showFilter = scale !== 1 || limitSize || !!presetId;
+  // v1.13: 변환 전 미리보기(썸네일·자를 위치 창)
+  const previewT: PreviewTransform = { rotate, flipH, flipV, cropRatio: CROP_RATIOS.find((c) => c.id === cropId)?.ratio ?? null, preset: presetById(presetId) };
+  const cropActive = !!presetId || cropId !== "original";
+  const transformActive = cropActive || rotate !== 0 || flipH || flipV;
+  const editing = items.find((i) => i.id === editingId) ?? null;
   const fieldClass = "rounded-xl border border-[#1e293b] bg-[#0d121f] px-3 py-2 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50";
   const btn = "ics-btn inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
 
@@ -456,11 +469,15 @@ export function ConvertTool() {
                   {/* 미리보기 이미지 */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <div className="relative h-36 w-full bg-[#080b12] overflow-hidden flex items-center justify-center">
-                    <img
-                      src={item.result?.url ?? item.url}
-                      alt={item.file.name}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+                    {transformActive && !item.result ? (
+                      <TransformedPreview url={item.url} t={previewT} focus={item.focus} maxSide={360} className="h-full w-full object-contain" />
+                    ) : (
+                      <img
+                        src={item.result?.url ?? item.url}
+                        alt={item.file.name}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    )}
                     {item.status === "done" && (
                       <span className="absolute bottom-2 right-2 rounded-md bg-emerald-950/80 backdrop-blur-xs border border-emerald-500/30 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300">
                         완료
@@ -501,6 +518,13 @@ export function ConvertTool() {
                   </div>
 
                   {/* 하단 카드 액션 버튼들 */}
+                  {cropActive && (
+                    <div className="px-2 pt-2">
+                      <button type="button" className={`${btn} ics-ghost w-full whitespace-nowrap py-1.5 text-[11px]`} onClick={() => setEditingId(item.id)}>
+                        ✂ {t.convert.cropPos}{item.focus ? " ✓" : ""}
+                      </button>
+                    </div>
+                  )}
                   <div className="flex gap-1.5 p-2 pt-0 border-t border-[#1e293b]/50 mt-auto">
                     <button
                       type="button"
@@ -535,6 +559,23 @@ export function ConvertTool() {
           </div>
         )}
       </section>
+      {/* v1.13: 자를 위치 편집 창 */}
+      {editing && cropActive && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" onClick={() => setEditingId(null)}>
+          <div className="w-full max-w-2xl rounded-2xl border border-[#2a3852] bg-[#111726] p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-sm font-bold text-white">✂ {t.convert.cropPos} — <span className="text-slate-300">{editing.file.name}</span></h3>
+            <p className="mt-1 text-[12px] text-slate-300">{t.convert.cropPosHint}</p>
+            <div className="mt-3 flex justify-center rounded-xl bg-[#080b12] p-2">
+              <TransformedPreview url={editing.url} t={previewT} focus={editing.focus} maxSide={640} className="max-h-[60vh] max-w-full"
+                onFocusChange={(f) => patch(editing.id, { focus: f, status: editing.result ? "idle" : editing.status })} />
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <button type="button" className={`${btn} ics-ghost whitespace-nowrap`} onClick={() => patch(editing.id, { focus: { ...CENTER } })}>{t.convert.cropCenter}</button>
+              <button type="button" className={`${btn} ics-primary whitespace-nowrap`} onClick={() => setEditingId(null)}>{t.convert.cropDone}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

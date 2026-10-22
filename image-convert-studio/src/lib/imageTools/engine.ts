@@ -21,7 +21,7 @@ import {
   type OutputFormat,
   type ResampleFilter,
 } from "./formats";
-import { planTransform, type PostPreset, type Rotation } from "./geometry";
+import { planTransform, type Focus, type PostPreset, type Rotation } from "./geometry";
 
 export interface ConvertOptions {
   format: OutputFormat;
@@ -40,6 +40,8 @@ export interface ConvertOptions {
   flipV?: boolean;
   cropRatio?: number | null;
   preset?: PostPreset | null;
+  /** v1.13: 그림마다 고른 자를 위치(없으면 가운데) */
+  focus?: Focus | null;
 }
 
 export class ImageToolError extends Error {
@@ -89,7 +91,7 @@ export async function convertImage(file: Blob, options: ConvertOptions): Promise
   const bitmap = await decode(file);
   try {
     // F3: 회전·반전·자르기를 먼저 적용한 원본(source)을 만들고, 아래 크기 조정은 그 원본으로 한다
-    const plan = planTransform(bitmap.width, bitmap.height, { rotate: options.rotate, flipH: options.flipH, flipV: options.flipV, cropRatio: options.cropRatio, preset: options.preset });
+    const plan = planTransform(bitmap.width, bitmap.height, { rotate: options.rotate, flipH: options.flipH, flipV: options.flipV, cropRatio: options.cropRatio, preset: options.preset, focus: options.focus });
     if (exceedsCanvasLimit(plan.rotW, plan.rotH)) {
       throw new ImageToolError("too_large", `이미지가 너무 큽니다(${plan.rotW}×${plan.rotH}px).`);
     }

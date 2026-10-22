@@ -187,3 +187,4 @@
 ## 2026-10-22 v1.21 — 그라데이션 글로우 버튼 · 어두운 로고 · 공식 로그인 탭 레이아웃 (Claude Code 윈도우)
 - 주인님 지시(「버튼 가독성 높게, 촌스럽지 않게, 그라데이션 넣고 화려하게」, 「로고 배경 어둡게·노란 바나나 가독성」, 로그인 공식 레이아웃 제안 승인). `globals.css` 맨 끝 v1.21 블록, `components/auth/LoginForm.tsx`(탭·아이콘 입력칸, 로그인 처리 동일), `app/login/page.tsx`(격자 바탕·중앙 440px·로고). 회원가입 링크 `/signup` → `/register`.
 - 배포 `banana-canvas-cbrkvf54l` → 로그인 입력칸 아이콘 겹침(CSS 우선순위) 수정 `banana-canvas-mj8dparu8` Ready, DB v1.21. 토큰·대비 수치: `docs/DESIGN_HANDOFF.md` 맨 위.
+- ⏸ 미배포(2026-10-22): 「🔁 형식 바꾸기」 링크에 결과 비율이 1:1·4:5·9:16·16:9(±3%)면 `&preset=` 붙임(변환 스튜디오 v1.13이 받음). 다음 배포 때 함께.

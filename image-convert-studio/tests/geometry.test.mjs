@@ -43,3 +43,23 @@ test("반전은 회전보다 먼저(화면 기준 좌우) — 캔버스 변환 �
   const e = readFileSync(new URL("../src/lib/imageTools/engine.ts", import.meta.url), "utf8");
   assert.ok(e.indexOf("rc.scale(") < e.indexOf("rc.rotate("), "scale이 rotate보다 앞이어야 함");
 });
+
+// v1.13 자를 위치(초점) · ?preset 받기
+import { cropAt, clampFocus, presetFromParam } from "../src/lib/imageTools/geometry.ts";
+
+test("자를 위치: 0이면 왼쪽/위 끝, 1이면 오른쪽/아래 끝, 범위 밖은 보정", () => {
+  assert.deepEqual(cropAt(4000, 3000, 1, { x: 0, y: 0.5 }), { x: 0, y: 0, width: 3000, height: 3000 });
+  assert.deepEqual(cropAt(4000, 3000, 1, { x: 1, y: 0.5 }), { x: 1000, y: 0, width: 3000, height: 3000 });
+  assert.deepEqual(cropAt(1000, 2000, 1, { x: 0.5, y: 0.25 }), { x: 0, y: 250, width: 1000, height: 1000 });
+  assert.deepEqual(clampFocus({ x: -3, y: 9 }), { x: 0, y: 1 });
+  assert.deepEqual(clampFocus(null), { x: 0.5, y: 0.5 });
+  const p = planTransform(4000, 3000, { rotate: 90, cropRatio: 1, focus: { x: 0.5, y: 0 } });
+  assert.deepEqual(p.crop, { x: 0, y: 0, width: 3000, height: 3000 });
+});
+
+test("?preset= 은 목록에 있는 규격 이름만", () => {
+  assert.equal(presetFromParam("insta-portrait")?.width, 1080);
+  assert.equal(presetFromParam("<script>"), null);
+  assert.equal(presetFromParam("unknown-size"), null);
+  assert.equal(presetFromParam(null), null);
+});
