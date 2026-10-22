@@ -58,14 +58,12 @@
 
 | 할 일 | 급함 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
 |---|---|---|---|---|
-| 관리자 화면 위쪽에 지금 로그인한 계정(관리자/시험 회원) 표시 | 보통 | `components/admin/AdminSidebar.tsx` 또는 `app/admin/layout.tsx` | 크롬이 시험 회원 계정이라 관리자 확인이 한 번 멈춤(2026-10-23) | 2026-10-23 · Claude Code(윈도우) |
-| 「30일 자동 정리」 표 아래 「기록을 아직 안 남기는 곳」 목록 | 보통 | `components/admin/SystemUsageMonitor.tsx` | 운영 기록 `ops_overview.cleanup.notLogging`(이미 저장됨) — NEW 표시는 7일만 보여서 남은 곳을 한 화면에 | 2026-10-23 · Claude Code(윈도우) |
-| 정리 표 이름표 `products` → 「상품」 | 보통 | `components/admin/SystemUsageMonitor.tsx` `CLEANUP_LABEL` | `shop-detail-page`가 정리 기록을 붙이면 쓰일 이름(HANDOFF 2026-10-23 맥미니 안내) | 2026-10-23 · Claude Code(윈도우) |
 
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `.` (메인 사이트) | 빌드 `aimaster-fvef7otna` · 2026-10-23 (Claude Code 윈도우, 승인 빌드) | 메인 사이트 할 일 3개 `9a6a74d74`·`eb79c7843`: 관리자 전용 안내에 「관리자 계정으로 다시 로그인」 버튼 · 휴대폰 폭 관리자 머리줄에 로그인 이메일 · 정리 표 아래 「아직 기록 안 남기는 곳」 목록 · 이름표 `products` 상품 |
 | `insta_auto_poster` | v1.67 · 2026-10-23 (한국어로 다시 찾기) | JPEG 저장 `8b44df90d` · 설명 한 줄 `8022fbf0a` · 공용 사전 `93b2aac56` |
 | `tistory-auto-blog` | v1.90 · 2026-10-23 | 옛 자동 연결 코드 정리 `da9805c6b` · 글 품질 보완(이번 커밋) |
 | `threads-affiliate-poster` | v1.83 · 2026-10-23 (상품 연동 공용 기준 코드 `affiliate-clients`, 승인 빌드) | 없음 |
