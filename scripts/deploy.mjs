@@ -90,6 +90,25 @@ if (versionOnly && args.includes("--all")) {
     writeFileSync(file, out);
     console.log(`✔ 역량 지도 버전 칸 ${fixed}개를 DB 운영 버전으로 고침(docs/PROGRAM_CAPABILITY_MAP.md — 커밋은 따로)`);
   }
+
+  // 지도 카드 본문 버전(「주소·폴더: … · `폴더/` · vX.YY」) ↔ 그 폴더 화면 버전 — 5단계 이상 뒤처진 카드는 내용 갱신 필요(보고만, 글은 안 고침, 2026-10-23)
+  const num = (v) => { const m = /^v(\d+)\.(\d{2})$/.exec(v ?? ""); return m ? Number(m[1]) * 100 + Number(m[2]) : null; };
+  const stale = [];
+  for (const m of map.matchAll(/^#### [^\n]*\(`([^`]+)`\)\n- 주소·폴더: [^\n]*?`([^`]+?)\/?` · (v\d+\.\d{2})/gm)) {
+    const now = appVersion(m[2]);
+    if (num(now) !== null && num(m[3]) !== null && num(now) - num(m[3]) >= 5) stale.push(`  • ${m[1]}: 카드 ${m[3]} · 지금 ${now} (${m[2]}/AGENTS.md 버전 기록 보고 카드의 장점·단점·최근 추가 갱신)`);
+  }
+  console.log(`[역량 지도 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개`);
+  for (const l of stale) console.log(l);
+
+  // 최근 24시간 공용 문서 되돌림 감사(check-shared-doc-reverts --audit) — 지금 HEAD에서 사라진 줄이 있을 때만 자세히(2026-10-23)
+  const au = spawnSync(process.execPath, [join(ROOT, "scripts", "check-shared-doc-reverts.mjs"), "--audit", "24", "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  try {
+    const a = JSON.parse(au.stdout.trim().split("\n").pop());
+    console.log(`[공용 문서 되돌림] 최근 ${a.hours}시간 커밋 ${a.commits}개 · 의심 ${a.suspect}건 · 지금 사라진 줄 있는 것 ${a.lost.length}건`);
+    for (const l of a.lost) console.log(`  ⚠ ${l.sha} ${l.file} −${l.lines}줄 | ${l.msg}\n      예: ${l.sample}`);
+    if (a.lost.length) console.log("  원문: node scripts/check-shared-doc-reverts.mjs --audit 24 --lost  (의도한 정리인지 확인 후 필요하면 다음 커밋으로 되살림)");
+  } catch { console.log("[공용 문서 되돌림] 감사 실패 — node scripts/check-shared-doc-reverts.mjs --audit 24 로 직접 확인"); }
   process.exit(0);
 }
 
@@ -150,6 +169,9 @@ if (active.some((l) => !/Claude Code\(윈도우\)/.test(l))) {
   console.log("\n✖ 다른 세션이 작업 중인 폴더라 배포하지 않습니다. 그 세션이 끝난 뒤 다시 실행하세요(공동작업 규칙).");
   process.exit(1);
 }
+// 배포 뒤 대기 줄 정리·인수인계를 안전 커밋 도우미로 하도록, 고치기 전 기준 사본을 지금 떠 둠(2026-10-23 — 배포 기록 커밋의 되돌림 방지)
+const docAs = `deploy-${folder.replace(/[^\w.-]/g, "_")}`;
+spawnSync(process.execPath, [join(ROOT, "scripts", "safe-commit.mjs"), "--begin", "docs/PENDING_DEPLOYS.md", "docs/HANDOFF.md", "--as", docAs], { stdio: "inherit" });
 console.log(`\n[3/3] 배포 실행: npx ${cmd.join(" ")}  (빌드 1회)`);
 const r = spawnSync("npx", cmd, { cwd: dir, stdio: "inherit", shell: process.platform === "win32" });
 if (r.status !== 0) { console.log(`✖ 배포 명령 실패(코드 ${r.status}). vercel inspect로 원인을 확인하세요.`); process.exit(r.status ?? 1); }
@@ -162,3 +184,4 @@ await syncVersion();
 console.log("\n[관리자 화면 숫자 갱신]");
 spawnSync(process.execPath, [join(ROOT, "scripts", "pending-check.mjs"), "--publish"], { stdio: "inherit" });
 console.log("이어서 할 일: ① (버전이 다르면) --version-only --set-version ② 위 대기 줄을 docs/PENDING_DEPLOYS.md 「내보낸 기록」으로·폴더 대기 표시 정리 ③ 크롬 화면 확인 ④ 인수인계 문서·비용 리포트");
+console.log(`②·④ 문서 커밋은 일반 git commit 말고 (기준 사본은 이미 떠 둠):\n  node scripts/safe-commit.mjs "<메시지>" docs/PENDING_DEPLOYS.md docs/HANDOFF.md --as ${docAs} --push`);

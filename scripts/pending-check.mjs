@@ -53,8 +53,18 @@ if (args.includes("--publish")) {
   const programs = await rest("programs?select=slug,app_url,name");
   const cleanup = cleanupPrograms().map((c) => ({ ...c, slug: c.slug ?? slugFromPrograms(c.folder, programs) }));
   const pendingPrograms = [...new Set(pending.map((p) => p.name))].sort();
+  // 최근 24시간 공용 문서 되돌림 감사 숫자(관리자 화면 「운영 상태」 한 줄용 — 화면 표시는 다음 메인 빌드 때, 2026-10-23)
+  let reverts = null;
+  try {
+    const { spawnSync } = await import("node:child_process");
+    const { fileURLToPath } = await import("node:url");
+    const au = spawnSync(process.execPath, [fileURLToPath(new URL("./check-shared-doc-reverts.mjs", import.meta.url)), "--audit", "24", "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+    const a = JSON.parse(au.stdout.trim().split("\n").pop());
+    reverts = { hours: a.hours, commits: a.commits, suspect: a.suspect, lost: a.lost.length, lostCommits: a.lost.map((l) => `${l.sha} ${l.file}`) };
+  } catch {}
   const value = {
     updatedAt: new Date().toISOString(),
+    reverts,
     pending: { rows: pending.length, programs: pendingPrograms },
     cleanup: { total: cleanup.length, logging: cleanup.filter((c) => c.logs).map((c) => c.slug ?? c.folder), notLogging: cleanup.filter((c) => !c.logs).map((c) => c.slug ?? c.folder) },
   };
@@ -63,7 +73,7 @@ if (args.includes("--publish")) {
     headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
     body: JSON.stringify({ key: "ops_overview", value, updated_at: value.updatedAt }),
   });
-  console.log(`✔ site_settings.ops_overview 저장 — 미배포 대기 ${value.pending.rows}줄(프로그램 ${pendingPrograms.length}개), 30일 정리 기록 ${value.cleanup.logging.length}/${value.cleanup.total}`);
+  console.log(`✔ site_settings.ops_overview 저장 — 미배포 대기 ${value.pending.rows}줄(프로그램 ${pendingPrograms.length}개), 30일 정리 기록 ${value.cleanup.logging.length}/${value.cleanup.total}, 되돌림(24시간) ${reverts ? `의심 ${reverts.suspect}·사라짐 ${reverts.lost}` : "감사 실패"}`);
   process.exit(0);
 }
 
