@@ -132,6 +132,19 @@ if (versionOnly && args.includes("--all")) {
     const silent = logging.filter((c) => !seen.has(c.slug) && !pendingFolders.has(c.folder));
     console.log(`[30일 정리 기록] 코드로 기록 ${logging.length}곳 · 최근 7일 기록 있음 ${has.length} · 배포 대기 ${waiting.length} · 배포됐는데 7일간 기록 없음 ${silent.length}`);
     if (silent.length) console.log(`  ⚠ ${silent.map((c) => c.folder).join(", ")} — 지울 것이 없었을 수도 있음. 그 프로그램 정리 작업 응답의 loggedOwners·Vercel 로그 「[cleanup]」로 확인`);
+    // 아직 기록 안 하는 곳: 정리 코드가 지우는 표와 그 표의 user_id 유무(운영 DB 칸 목록) — 다음 묶음 대상 고르기용(2026-10-23)
+    const { tableColumns } = await import("./program-info.mjs");
+    const notYet = cleanupPrograms().filter((c) => !c.logs);
+    if (notYet.length) console.log(`  아직 기록 안 하는 ${notYet.length}곳 — 지우는 표와 user_id:`);
+    for (const c of notYet) {
+      const tables = [...new Set(c.routes.flatMap((f) => [...readFileSync(f, "utf8").matchAll(/\.from\(\s*["'`]([a-z0-9_]+)["'`]\s*\)/g)].map((m) => m[1])))].filter((t) => t !== "programs" && t !== "usage_logs");
+      const parts = [];
+      for (const t of tables) {
+        const { columns } = await tableColumns(t);
+        parts.push(`${t}(${columns ? (columns.some((x) => x.name === "user_id") ? "user_id 있음" : "user_id 없음") : "DB에 없음·저장소 버킷일 수 있음"})`);
+      }
+      console.log(`    • ${c.folder}: ${parts.join(", ") || "정리 코드 안에 표 이름 없음(다른 파일 함수에서 지움)"}`);
+    }
   } catch (e) { console.log(`[30일 정리 기록] 확인 실패 — ${e.message}`); }
 
   // 최근 24시간 공용 문서 되돌림 감사(check-shared-doc-reverts --audit) — 지금 HEAD에서 사라진 줄이 있을 때만 자세히(2026-10-23)

@@ -88,6 +88,7 @@ export function cleanupPrograms() {
     // 정리 코드에 「cleanup-usage-log: 회원 데이터 아님」 표시가 있으면 회원별 기록 대상이 아니므로 진행률에서 뺀다(2026-10-23)
     const exempt = paths.some((p) => ["src/app", "app"].some((base) => { const f = join(ROOT, folder, base, p.replace(/^\//, ""), "route.ts"); return existsSync(f) && /cleanup-usage-log: 회원 데이터 아님/.test(readFileSync(f, "utf8")); }));
     if (exempt) continue;
+    const routes = paths.flatMap((p) => ["src/app", "app"].flatMap((base) => ["route.ts", "route.js"].map((n) => join(ROOT, folder, base, p.replace(/^\//, ""), n)))).filter(existsSync);
     const logs = paths.some((p) => {
       const rel = p.replace(/^\//, "");
       for (const base of ["src/app", "app"]) {
@@ -98,7 +99,7 @@ export function cleanupPrograms() {
       }
       return false;
     });
-    out.push({ folder, slug: programSlug(folder), logs });
+    out.push({ folder, slug: programSlug(folder), logs, routes });
   }
   return out;
 }
@@ -108,11 +109,15 @@ export function cleanupPrograms() {
  * 「user_id 없음」으로 잘못 판단한 일(real_estate_district_sentiment, 실제로는 v1.12에서 추가됨) 뒤 추가.
  * 반환: [{ name, type, required }] — 표가 없으면 null
  */
+let defsCache = null;
 export async function tableColumns(table) {
-  const key = serviceKey();
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/`, { headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/openapi+json" } });
-  if (!res.ok) throw new Error(`DB 설명서 ${res.status}`);
-  const defs = (await res.json()).definitions ?? {};
+  if (!defsCache) {
+    const key = serviceKey();
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/`, { headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/openapi+json" } });
+    if (!res.ok) throw new Error(`DB 설명서 ${res.status}`);
+    defsCache = (await res.json()).definitions ?? {};
+  }
+  const defs = defsCache;
   const d = defs[table];
   if (!d) return { columns: null, similar: Object.keys(defs).filter((t) => t.includes(table) || table.includes(t)).slice(0, 10) };
   const req = new Set(d.required ?? []);
