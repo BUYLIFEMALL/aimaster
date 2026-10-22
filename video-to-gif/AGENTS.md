@@ -157,6 +157,6 @@
 
 ## 2026-10-22 ✅ v1.13 배포 (Claude Code 윈도우 — 맥미니 v1.13 마무리)
 - 맥미니 커밋 `59794727f`(끌어서 고르는 구간 막대·장면 미리보기·반복 재생, 브라우저 안에서만 동작) 마무리.
-- 공용 사본 `store-zip` 일치·tsc·로컬 build 통과 → 배포 READY(`video-to-lfp2va3fl-buylife.vercel.app`) → 운영 DB `programs.version` v1.13(`20261022_thumbnail_v1_12.sql`과 같은 버전 갱신만).
+- 공용 사본 `store-zip` 일치·tsc·로컬 build 통과 → 배포 READY(`video-to-lfp2va3fl-buylife.vercel.app`) → 운영 DB `programs.version` v1.13(`20261022_trim_bar_v1_13.sql`과 같은 버전 갱신만).
 - 크롬(메인 크롬): `/dashboard` 머리 배지·사이드바에 v1.13 표시 확인. 구간 막대는 영상을 올려야 보이므로 **맥미니 크롬에서 시험 영상 2개로 확인 예정**(미확인).
 - 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
