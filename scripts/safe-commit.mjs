@@ -193,18 +193,35 @@ for (let attempt = 1; attempt <= 5 && !done; attempt++) {
 if (!done) { console.log("✖ 5번 시도했지만 HEAD가 계속 바뀌어 커밋하지 못했습니다. 잠시 뒤 다시 실행하세요."); process.exit(1); }
 
 // 공용 스테이징(인덱스) 맞추기: 다른 세션이 올려 둔 게 없으면 새 HEAD로, 있으면 그 내용 위에 내 변경도 얹음
+// 다른 세션이 index.lock을 잡고 있으면 실패하므로 풀릴 때까지 다시 시도(최대 약 40초) — 2026-10-23 조용히 실패해 관리자 화면 파일 스테이징이 옛 내용으로 남았던 사고
+const sleepMs = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+const indexOp = (args) => {
+  for (let i = 0; i < 40; i++) {
+    if (tryRun(args) !== null) return true;
+    sleepMs(1000);
+  }
+  return false;
+};
+const indexFailed = [];
 for (const r of done.changed) {
   const staged = tryRun(["show", `:${r.f}`]);
   // 스테이징 내용이 최근 커밋 이력에 있던 내용 그대로면 「묵은 항목」(누군가 별도 인덱스로 커밋한 뒤 안 맞춘 것) → 새 HEAD로 맞춤
   const stagedSha = (tryRun(["ls-files", "-s", "--", r.f]) ?? "").split(/\s+/)[1];
   const history = new Set((tryRun(["log", "-200", "--no-abbrev", "--format=", "--raw", "--", r.f]) ?? "").split("\n").map((l) => l.split(/\s+/)[3]).filter(Boolean));
-  if (staged === null || staged === (r.head ?? null) || (stagedSha && history.has(stagedSha))) { tryRun(["reset", "-q", "HEAD", "--", r.f]); continue; }
+  if (staged === null || staged === (r.head ?? null) || (stagedSha && history.has(stagedSha))) {
+    if (!indexOp(["reset", "-q", "HEAD", "--", r.f])) indexFailed.push(r.f);
+    continue;
+  }
   if (staged === r.text) continue;
   const m = mergeOnto(staged, r.head ?? "", r.text);
   if (m.conflicts) { console.log(`⚠ ${r.f}: 다른 세션이 스테이징해 둔 내용과 겹쳐 공용 스테이징은 그대로 뒀습니다 — 그 세션 커밋 때 내 줄이 빠질 수 있으니 확인하세요.`); continue; }
   const sha = run(["hash-object", "-w", "--stdin"], { input: m.out }).trim();
-  run(["update-index", "--cacheinfo", `100644,${sha},${r.f}`]);
-  console.log(`  ${r.f}: 다른 세션 스테이징 내용 위에 내 변경도 반영`);
+  if (indexOp(["update-index", "--cacheinfo", `100644,${sha},${r.f}`])) console.log(`  ${r.f}: 다른 세션 스테이징 내용 위에 내 변경도 반영`);
+  else indexFailed.push(r.f);
+}
+if (indexFailed.length) {
+  console.log(`⚠ 공용 스테이징을 맞추지 못했습니다(다른 세션 잠금이 계속됨): ${indexFailed.join(", ")}`);
+  console.log(`  잠시 뒤 직접: git reset -q HEAD -- ${indexFailed.join(" ")}  — 그대로 두면 다른 세션 커밋이 이 파일을 옛 내용으로 되돌릴 수 있습니다.`);
 }
 for (const f of targets) rmSync(snapPath(f), { force: true });
 
