@@ -124,3 +124,15 @@ test("v1.18 용량 늘어남 판정·필터 문구", async () => {
   const { DICTS } = await import("../src/lib/i18n.ts");
   for (const d of Object.values(DICTS)) assert.ok(d.convert.onlyGrown.includes("{n}") && d.convert.showAll);
 });
+
+test("v1.18 늘어난 그림 다시 변환 설정·판정", async () => {
+  const { shrinkRetryOptions, retryOutcome } = await import("../src/lib/imageTools/sizeChange.ts");
+  assert.deepEqual(shrinkRetryOptions(0.9), { format: "webp", quality: 0.8 });
+  assert.deepEqual(shrinkRetryOptions(0.6), { format: "webp", quality: 0.6 });
+  assert.equal(retryOutcome(1000, 1200, 700), "smaller");
+  assert.equal(retryOutcome(1000, 1300, 1100), "stillBigger");
+  assert.equal(retryOutcome(1000, 1200, 1250), "noGain");
+  assert.equal(retryOutcome(1000, 1200, 1200), "noGain");
+  const { DICTS } = await import("../src/lib/i18n.ts");
+  for (const d of Object.values(DICTS)) assert.ok(d.convert.retrySmaller && d.convert.retryAll.includes("{n}") && d.convert.retryDone.includes("{pct}") && d.convert.retryStillBigger && d.convert.retryNoGain);
+});

@@ -20,3 +20,15 @@ export function isGrownFile(original: number, converted: number): boolean {
   if (!(original > 0)) return false;
   return savingGrade(Math.round((1 - converted / original) * 100)) === "bigger";
 }
+
+/** v1.18: 「WebP로 다시 변환」 설정 — 형식 WebP, 품질은 지금 값과 80% 중 낮은 쪽(화면 설정은 그대로) */
+export function shrinkRetryOptions(quality: number): { format: "webp"; quality: number } {
+  return { format: "webp", quality: Math.min(Number.isFinite(quality) ? quality : 0.8, 0.8) };
+}
+
+export type RetryOutcome = "smaller" | "stillBigger" | "noGain";
+/** v1.18: 다시 변환 결과 판정 — 이전 결과보다 작아야 바꾼다. 작아졌어도 원본보다 크면 stillBigger */
+export function retryOutcome(original: number, previous: number, retried: number): RetryOutcome {
+  if (!(retried < previous)) return "noGain";
+  return isGrownFile(original, retried) ? "stillBigger" : "smaller";
+}

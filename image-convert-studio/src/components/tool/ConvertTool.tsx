@@ -6,7 +6,7 @@ import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/en
 import { CENTER, MAX_ZOOM, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
 import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
 import { BeforeAfter } from "./BeforeAfter";
-import { isGrownFile, savingGrade, sizeChangeLabel } from "@/lib/imageTools/sizeChange";
+import { isGrownFile, retryOutcome, savingGrade, shrinkRetryOptions, sizeChangeLabel } from "@/lib/imageTools/sizeChange";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -34,6 +34,8 @@ interface Item {
   error?: string;
   /** v1.13: 이 그림만의 자를 위치(없으면 가운데) */
   focus?: Focus;
+  /** v1.18: 「다시 변환」 결과 안내 */
+  note?: string;
 }
 
 const SCALE_KEYS = { 0.5: "scaleHalf", 1: "scaleOne", 1.5: "scaleOneHalf", 2: "scaleTwo", 3: "scaleThree", 4: "scaleFour" } as const;
@@ -152,13 +154,45 @@ export function ConvertTool() {
   };
 
   const convertOne = async (item: Item) => {
-    patch(item.id, { status: "working", error: undefined });
+    patch(item.id, { status: "working", error: undefined, note: undefined });
     try {
       const blob = await convertImage(item.file, { ...options, focus: item.focus ?? null });
       if (item.result) URL.revokeObjectURL(item.result.url);
       patch(item.id, { status: "done", result: { blob, name: outputFileName(item.file.name, format), url: URL.createObjectURL(blob) } });
     } catch (error) {
       patch(item.id, { status: "error", error: error instanceof Error ? error.message : t.convert.error });
+    }
+  };
+
+  // v1.18: 용량이 늘어난 그림을 WebP·품질 80% 이하로 다시 변환(화면 설정은 그대로). 이전 결과보다 작을 때만 바꾼다
+  const retrySmaller = async (item: Item) => {
+    if (!item.result) return;
+    const previous = item.result;
+    patch(item.id, { status: "working", error: undefined, note: undefined });
+    try {
+      const blob = await convertImage(item.file, { ...options, ...shrinkRetryOptions(quality), focus: item.focus ?? null });
+      const outcome = retryOutcome(item.file.size, previous.blob.size, blob.size);
+      if (outcome === "noGain") {
+        patch(item.id, { status: "done", note: t.convert.retryNoGain });
+        return;
+      }
+      URL.revokeObjectURL(previous.url);
+      patch(item.id, {
+        status: "done",
+        result: { blob, name: outputFileName(item.file.name, "webp"), url: URL.createObjectURL(blob) },
+        note: outcome === "stillBigger" ? t.convert.retryStillBigger : fmt(t.convert.retryDone, { pct: sizeChangeLabel(item.file.size, blob.size) ?? "" }),
+      });
+    } catch (error) {
+      patch(item.id, { status: "error", error: error instanceof Error ? error.message : t.convert.error });
+    }
+  };
+
+  const retryAllGrown = async () => {
+    setBusy(true);
+    try {
+      for (const item of items.filter((i) => i.result && isGrownFile(i.file.size, i.result.blob.size))) await retrySmaller(item);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -400,6 +434,17 @@ export function ConvertTool() {
                 {showOnlyGrown ? t.convert.showAll : fmt(t.convert.onlyGrown, { n: grownCount })}
               </button>
             )}
+            {grownCount > 0 && (
+              <button
+                type="button"
+                data-retry-all
+                disabled={busy}
+                onClick={() => void retryAllGrown()}
+                className="rounded-xl border border-amber-500/40 bg-amber-950/40 px-3 py-1 font-medium text-amber-300 transition hover:bg-amber-900/40 disabled:opacity-50"
+              >
+                {fmt(t.convert.retryAll, { n: grownCount })}
+              </button>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -551,8 +596,17 @@ export function ConvertTool() {
                       </div>
                     )}
                     {item.status === "error" && <span className="text-[11px] text-rose-400">{item.error}</span>}
+                    {item.note && item.status === "done" && <span className="text-[11px] text-slate-300" data-retry-note>{item.note}</span>}
                   </div>
 
+                  {/* v1.18: 용량이 늘어난 그림만 — WebP·80%로 다시 */}
+                  {grade === "bigger" && (
+                    <div className="px-2 pt-2">
+                      <button type="button" data-retry-one className={`${btn} w-full whitespace-nowrap border border-amber-500/40 bg-amber-950/30 py-1.5 text-[11px] text-amber-300 hover:bg-amber-900/40`} onClick={() => void retrySmaller(item)} disabled={busy}>
+                        {t.convert.retrySmaller}
+                      </button>
+                    </div>
+                  )}
                   {/* 하단 카드 액션 버튼들 */}
                   {cropActive && (
                     <div className="px-2 pt-2">
