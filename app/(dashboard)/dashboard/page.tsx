@@ -15,7 +15,7 @@ import Badge from "@/components/ui/Badge";
 import { formatKRW, formatDate, daysRemaining } from "@/lib/utils/format";
 import { getContrastTextColor } from "@/lib/utils/color";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams?: { notice?: string } }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -101,6 +101,11 @@ export default async function DashboardPage() {
 
   return (
     <div>
+      {searchParams?.notice === "admin_only" && (
+        <div role="alert" data-notice="admin-only" className="mb-6 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+          관리자 화면은 관리자 계정으로만 볼 수 있어 내 구독으로 이동했습니다. 지금 로그인한 계정: <b>{user.email}</b>
+        </div>
+      )}
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">

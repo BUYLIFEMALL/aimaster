@@ -136,3 +136,7 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 ## ✅ v1.14 배포 (2026-10-22, Claude Code 윈도우) — AI 4컷 만화 완성작도 참고 이미지로
 - `src/lib/importSource.ts` 허용 목록에 `four-cut-comics-files`(AI 4컷 만화) 추가. 4컷 「🎬 스토리보드로」(`?via=four-cut-comics`)로 오면 안내·「↩ AI 4컷 만화로 돌아가기」, 프로젝트를 만들면 `source='four-cut-comics'`(v1.13 흐름 그대로). 관리자 카드 스토리보드 줄에 「4컷 만화 → 만든 프로젝트 → 완성 이미지까지」.
 - 검수: 시험 22개, tsc·빌드. 크롬 화면은 로그인 세션 종료로 미확인.
+
+## ✅ v1.15 배포 (2026-10-22, Claude Code 윈도우) — AI 인물사진 서버 보관 사진도 참고 이미지로
+- `src/lib/importSource.ts` 허용 목록에 `portrait-photo-files`(AI 인물사진). 기존 시험의 「인물사진 주소는 거절」 기대값을 「AI 인물사진」으로 바꿈(시험은 유지). 보낸 곳 `via=portrait-photo` → 「↩ AI 인물사진으로 돌아가기」·`source='portrait-photo'`(v1.13 흐름).
+- 검수: 시험 23개, tsc·빌드. 크롬 화면은 인물사진 보관 사진이 없어 미확인(코드 시험으로 고정).

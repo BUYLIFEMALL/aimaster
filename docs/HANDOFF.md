@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): 인물사진 v1.39·4컷 v1.33 넘김 기록 · 인물사진 → 스토리보드 v1.15 · 메인 「관리자 아님」 안내
+- 한 일: ① 인물사진·4컷에 `POST /api/link-handoff`(권한 확인·정해진 곳·UUID만, 회원 본인 `usage_logs` action `linked_handoff`) — 「형식 바꾸기」·「스토리보드로」 첫 클릭 때 한 번. 보관함 표에 jsonb가 없고(인물사진) 4컷은 저장소 `index.json`이라 제안(보관함 표에 첫 1회 저장) 대신 이 방식, DDL 없음. 관리자 연계 카드 「형식 바꾸기 → 변환 완료」가 인물사진·4컷도 넘김 → 변환, 스토리보드 줄도 넘김 → 프로젝트 ② 메인 `middleware.ts`: 일반 회원이 `/admin`을 열면 `/dashboard?notice=admin_only` → 대시보드 위 「관리자 화면은 관리자 계정으로만… 지금 로그인한 계정: ○○」(판정 로직은 그대로) ③ 인물사진 서버 보관 사진에 「🎬 스토리보드로」, 스토리보드 허용 목록에 `portrait-photo-files`. 공용 `link-mark` 사본 2곳 추가(등록 `scripts/check-shared-modules.mjs`).
+- 검수: 시험 인물사진 45·4컷 62·스토리보드 23, tsc·빌드, 사본 5곳 일치, 메인 3파일 타입 오류 0. 크롬(시험 계정 `buylifemall@naver.com`, 배포 전 로그인 확인): 인물사진 v1.39·4컷 v1.33 `/api/link-handoff` 잘못된 값 400, 변환 v1.21 로그인 상태 `/api/link-done` 없는 이름표 400(지난 미확인분). 못 한 것: 버튼 클릭 뒤 실제 기록·스토리보드 인물사진 안내(시험 계정 보관함이 비어 있음, 사진 생성은 AI 비용), 관리자 카드.
+- 배포: 스토리보드 v1.15 → 인물사진 v1.39 → 4컷 v1.33 → 메인 자동 빌드(빌드 4회), DB 버전 3줄.
+- 링크: https://portrait-photo.buylife.xyz · https://four-cut-comics.buylife.xyz · https://cinematic-storyboard-studio.buylife.xyz · https://www.buylife.xyz/admin/statistics
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.13 배포 (맥미니 v1.13 마무리)
 - 맥미니 커밋 `59794727f`(끌어서 고르는 구간 막대·장면 미리보기): 사본 일치·tsc·build → 배포 READY → DB v1.13 → 크롬 `/dashboard`에 v1.13 표시 확인.
 - **맥미니 세션께**: 배포 끝 — 시험 영상으로 구간 막대 끌기·미리보기 확인 부탁드립니다.

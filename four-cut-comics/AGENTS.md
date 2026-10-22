@@ -192,3 +192,7 @@
 
 ## ✅ v1.32 배포 (2026-10-22, Claude Code 윈도우) — 완성작을 스토리보드로
 - 「내 작품」(서버 보관함)에 「🎬 스토리보드로」(`data-storyboard-link`, `https://cinematic-storyboard-studio.buylife.xyz/studio?src=<서명 주소>&via=four-cut-comics`). 시험 `tests/convertVia.test.mjs`(전체 61개), tsc·빌드. 크롬 화면은 로그인 세션 종료로 미확인.
+
+## ✅ v1.33 배포 (2026-10-22, Claude Code 윈도우) — 넘김 기록
+- 「내 작품」의 「🔁 형식 바꾸기」·「🎬 스토리보드로」를 처음 누르면 `markHandoff(w.id, to)` → 새 API `POST /api/link-handoff`(인물사진 v1.39와 같은 모양, 회원 본인 `usage_logs` action `linked_handoff`). 보관함이 DB 표가 아닌 저장소 `index.json`이라 관리자 집계용으로 이 방식. 공용 `link-mark` 사본 `src/lib/linkMark.ts` 새로 둠.
+- 검수: 시험 62개, tsc·빌드. 크롬(시험 계정): 운영 v1.33, 잘못된 to·itemId → 400. 버튼은 저장 작품이 없어 미확인.

@@ -100,7 +100,8 @@ export async function middleware(request: NextRequest) {
       .single();
 
     if (!profile?.is_admin) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      // 일반 회원 계정으로 관리자 화면을 열면 대시보드에서 이유를 알려 준다(2026-10-22)
+      return NextResponse.redirect(new URL("/dashboard?notice=admin_only", request.url));
     }
   }
 

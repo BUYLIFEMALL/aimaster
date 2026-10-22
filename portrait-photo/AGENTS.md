@@ -223,3 +223,9 @@
 
 ## ✅ v1.38 배포 (2026-10-22, Claude Code 윈도우) — 형식 바꾸기에 보낸 곳 붙이기
 - 「내 기록」의 「🔁 형식 바꾸기」 주소 끝에 `&via=portrait-photo` — 변환 스튜디오 v1.20이 「↩ AI 인물사진으로 돌아가기」를 보여 줌. 시험 `tests/convertVia.test.mjs`(전체 44개), tsc·빌드. 크롬: 로그인 확인(이 브라우저에 기록이 없어 버튼 자체는 미표시), 받는 쪽 화면은 변환 스튜디오에서 확인.
+
+## ✅ v1.39 배포 (2026-10-22, Claude Code 윈도우) — 넘김 기록 · 스토리보드로
+- 서버 보관함 사진에 「🎬 스토리보드로」(`data-storyboard-link`, `https://cinematic-storyboard-studio.buylife.xyz/studio?src=<서명 주소>&via=portrait-photo`).
+- 넘김 기록: 「🔁 형식 바꾸기」·「🎬 스토리보드로」를 처음 누르면 `markHandoff(it.id, to)`(`src/lib/linkHandoff.ts`, 버튼마다 한 번) → 새 API `POST /api/link-handoff` `{to, itemId}`(권한 확인, `to`는 `image-convert-studio`·`cinematic-storyboard-studio`만, `itemId`는 UUID만) → 회원 본인 `usage_logs` action `linked_handoff`. DB 칸 추가 없음(보관함 표에 jsonb가 없어 이 방식).
+- 공용 기준 코드 `link-mark` 사본 `src/lib/linkMark.ts` 새로 둠(기준 바나나 — 직접 고치지 않음).
+- 검수: 시험 45개, tsc·빌드. 크롬(시험 계정): 운영 v1.39, `/api/link-handoff` 잘못된 to·itemId → 400. 버튼 자체는 시험 계정 서버 보관함이 비어 미확인(사진을 만들려면 AI 비용).
