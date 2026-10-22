@@ -40,6 +40,7 @@ import { TOSS_PROXY_MISSING_MESSAGE, getBestSelling, getCategories, getCategoryB
 import { withYearRule } from "@/threads-content-ops/lib/yearRule";
 import { ALIEXPRESS_IMAGE_WARNING, createAliexpressPromotionLink, findAliexpressImage, resolveAliexpressUrl } from "@/threads-content-ops/lib/affiliate-clients/aliexpress";
 import { cropPhotoFromCoupangBanner } from "@/threads-content-ops/lib/affiliate-clients/coupangBanner";
+import { downloadPhoto, isPhotoProvider, PhotoError, providerLabel, searchPhotos, type Photo } from "@/threads-content-ops/lib/photoSearch";
 
 const PROGRAM_SLUG = "threads-content-ops";
 const CREDENTIAL_PROVIDERS = new Set([
@@ -60,6 +61,8 @@ const CREDENTIAL_PROVIDERS = new Set([
   "threads_app_id",
   "threads_app_secret",
   "cronjob_org_api_key",
+  "pixabay",
+  "pexels",
 ]);
 
 async function authorizedUser() {
@@ -89,6 +92,8 @@ export async function saveMemberCredentials(input: {
   threadsAppId?: string;
   threadsAppSecret?: string;
   cronjobOrgKey?: string;
+  pixabayKey?: string;
+  pexelsKey?: string;
 }) {
   const { supabase, user } = await authorizedUser();
   const rows = [
@@ -109,6 +114,8 @@ export async function saveMemberCredentials(input: {
     ["threads_app_id", input.threadsAppId],
     ["threads_app_secret", input.threadsAppSecret],
     ["cronjob_org_api_key", input.cronjobOrgKey],
+    ["pixabay", input.pixabayKey],
+    ["pexels", input.pexelsKey],
   ].filter(([, value]) => typeof value === "string" && value.trim()) as Array<[string, string]>;
 
   if (!rows.length) throw new Error("저장할 값을 입력해 주세요.");
@@ -1538,6 +1545,41 @@ export async function generatePostImage(input: { prompt: string; imageModel: str
     return { ok: false, error: error instanceof Error ? error.message : "이미지를 생성하지 못했습니다." };
   }
 }
+
+// ── 무료 사진(v2.17, 2026-10-23) — 공용 기준 코드 `free-photo-search` 사본(lib/photoSearch.ts, 직접 수정 금지) ──
+// 회원 본인 Pixabay·Pexels 키(공용 user_api_keys)로만 검색하고, 고른 사진은 직접 올린 이미지와 같은 회원 폴더(up)에 저장 → 30일 정리 그대로.
+// Threads는 JPEG·PNG(8MB)만 받으므로 그 두 형식만 저장한다.
+export async function searchFreePhotos(input: { provider: string; query: string }): Promise<{ ok: true; photos: Photo[] } | { ok: false; error: string; needKey?: boolean }> {
+  try {
+    const { supabase, user } = await authorizedUser();
+    if (!isPhotoProvider(input.provider)) throw new Error("사진 제공처를 골라 주세요.");
+    const query = clean(input.query, 101);
+    if (!query || query.length > 100) throw new Error("검색어를 1~100자로 넣어 주세요.");
+    const key = await resolveApiKey(supabase, user.id, input.provider);
+    if (!key) return { ok: false, needKey: true, error: `${providerLabel(input.provider)} API 키가 없습니다. API키등록·플랫폼연동에서 본인 키를 먼저 등록해 주세요(무료 발급).` };
+    return { ok: true, photos: await searchPhotos(input.provider, key, query, "4:5") };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "사진을 검색하지 못했습니다." };
+  }
+}
+
+export async function addFreePhoto(url: string): Promise<{ ok: true; media: PostMedia } | { ok: false; error: string }> {
+  try {
+    const { user } = await authorizedUser();
+    const photo = await downloadPhoto(url, { maxBytes: MAX_IMAGE_BYTES });
+    const extension = photo.mime === "image/jpeg" ? "jpg" : photo.mime === "image/png" ? "png" : null;
+    if (!extension) throw new Error("Threads에 올릴 수 없는 형식의 사진입니다. 다른 사진을 골라 주세요.");
+    const path = `${memberMediaFolder(user.id, "up")}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+    const service = createServiceClient();
+    const { error } = await service.storage.from(MEDIA_BUCKET).upload(path, photo.bytes, { contentType: photo.mime, upsert: false });
+    if (error) throw new Error("사진을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+    return { ok: true, media: { url: service.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl, type: "IMAGE", size: photo.bytes.length } };
+  } catch (error) {
+    if (error instanceof PhotoError) return { ok: false, error: error.message };
+    return { ok: false, error: error instanceof Error ? error.message : "사진을 추가하지 못했습니다." };
+  }
+}
+
 
 /** 회원이 올리거나 만든 미디어 파일 한 개를 저장소에서 지운다(수동 삭제). 본인의 이 프로그램 전용 경로가 아니면 거부한다. */
 export async function deleteMediaFile(url: string): Promise<{ ok: true } | { ok: false; error: string }> {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { searchFreePhotos } from "./web-actions";
 
-/** v2.15: 등록한 Pixabay·Pexels 키가 실제로 되는지 검색 1회(무료)로 확인. 키 값은 서버에서만 읽는다. */
+/** v2.17: 등록한 Pixabay·Pexels 키가 실제로 되는지 검색 1회(무료)로 확인. 키 값은 서버에서만 읽는다. */
 export function PhotoKeyCheck({ provider }: { provider: "pixabay" | "pexels" }) {
   const [state, setState] = useState<{ busy: boolean; ok?: boolean; text?: string }>({ busy: false });
   const name = provider === "pixabay" ? "Pixabay" : "Pexels";

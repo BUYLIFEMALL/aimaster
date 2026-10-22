@@ -9,6 +9,7 @@ import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, MEDIA_RETENT
 import { assemblePostBody, disclosureFor, productPlatformLabel, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
 import { MAX_ANALYSIS_IMAGES, processAnalysisImages, processAnalysisVideo, type AnalysisMedia } from "@/threads-content-ops/lib/mediaProcessor";
 import { currentTimeContext, MOOD_TOPICS } from "@/threads-content-ops/lib/topicSuggestions";
+import { FreePhotoPicker } from "./FreePhotoPicker";
 import { deleteMediaFile, generateAttentionPost, generatePostImage, planPostImages, publishSavedDraft, rewriteGeneratedPost, saveGeneratedDraft, scheduleSavedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
@@ -539,6 +540,7 @@ function VariantCard({ userId, schedulerReady, option, accountId, viralId, engin
         <span className="text-xs font-bold text-neutral-800">📎 직접 추가</span>
         <button type="button" disabled={uploading !== null || imaging !== null || saving} onClick={() => ownImageInput.current?.click()} className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50">{uploading === "image" ? "이미지 올리는 중…" : "🖼️ 내 이미지 추가"}</button>
         <button type="button" disabled={uploading !== null || imaging !== null || saving} onClick={() => ownVideoInput.current?.click()} className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50">{uploading === "video" ? "영상 올리는 중…" : "🎬 내 영상 추가"}</button>
+        <FreePhotoPicker defaultQuery="" remaining={MAX_MEDIA - images.length} disabled={uploading !== null || imaging !== null || saving} productLinked={Boolean(product)} onPicked={(media) => setImages((current) => (current.length >= MAX_MEDIA ? current : [...current, media]))} />
         <span className="text-[11px] text-neutral-500">JPEG·PNG 8MB 이하 / MP4·MOV 1GB 이하 · 최대 {MAX_MEDIA}개 · 이 글에만 붙습니다</span>
       </div>
     </div>

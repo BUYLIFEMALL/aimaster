@@ -20,7 +20,9 @@ export type ApiKeyProvider =
   | "aliexpress_tracking_id"
   | "toss_access_key"
   | "toss_secret_key"
-  | "toss_publisher_id";
+  | "toss_publisher_id"
+  | "pixabay"
+  | "pexels";
 
 type SupabaseLike = {
   from: (table: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any

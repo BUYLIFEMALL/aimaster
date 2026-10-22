@@ -211,13 +211,13 @@ const MODULES = [
     // 무료 사진 검색(회원 본인 Pixabay·Pexels 키)·고른 사진 받기(INSTA v1.63~v1.64 크롬 검수, 감성 글귀 v1.18 방식에서 옮김)
     id: "free-photo-search",
     source: "insta_auto_poster/src/lib/cardnews/photoSearch.ts",
-    copies: ["emotion-writer/src/lib/studio/photoSearch.ts", "threads/src/lib/photoSearch.ts"],
+    copies: ["emotion-writer/src/lib/studio/photoSearch.ts", "threads/src/lib/photoSearch.ts", "threads-content-ops/lib/photoSearch.ts"],
   },
   {
     // 한국어 주제 → 사진 검색용 영어 키워드(AI 없이 단어 사전, 2026-10-23 쓰레드 포스팅 v1.31) — 무료 사진 검색과 함께 씀
     id: "photo-keywords",
     source: "threads/src/lib/photoKeywords.ts",
-    copies: ["insta_auto_poster/src/lib/cardnews/photoKeywords.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/photoKeywords.ts", "threads-content-ops/lib/photoKeywords.ts"],
   },
   {
     // 상품 제휴 연동(affiliate-clients): 쿠팡 제휴 링크 판정·붙여넣은 HTML 해석(순수 함수, 브라우저 공용). 2026-10-23 등록 — 쇼핑제휴·콘텐츠 운영이 손 복사로 따로 고쳐 쓰던 것을 합침

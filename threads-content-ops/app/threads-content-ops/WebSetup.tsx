@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, ExternalLink } from "lucide-react";
 import { IS_STANDALONE } from "@/lib/deployment";
 import SchedulerModePicker from "./SchedulerModePicker";
+import { PhotoKeyCheck } from "./PhotoKeyCheck";
 import {
   deleteMemberCredential,
   disconnectThreadsAccount,
@@ -11,7 +12,7 @@ import {
   startThreadsOAuth,
 } from "./web-actions";
 
-type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "aliexpress_app_key" | "aliexpress_app_secret" | "aliexpress_tracking_id" | "toss_access_key" | "toss_secret_key" | "toss_publisher_id" | "threads_app_id" | "threads_app_secret" | "cronjob_org_api_key";
+type Provider = "openai" | "perplexity" | "gemini" | "anthropic" | "replicate" | "youtube_api_key" | "coupang_access_key" | "coupang_secret_key" | "aliexpress_app_key" | "aliexpress_app_secret" | "aliexpress_tracking_id" | "toss_access_key" | "toss_secret_key" | "toss_publisher_id" | "threads_app_id" | "threads_app_secret" | "cronjob_org_api_key" | "pixabay" | "pexels";
 type SavePayload = {
   openaiKey?: string;
   youtubeApiKey?: string;
@@ -30,6 +31,8 @@ type SavePayload = {
   threadsAppId?: string;
   threadsAppSecret?: string;
   cronjobOrgKey?: string;
+  pixabayKey?: string;
+  pexelsKey?: string;
 };
 type ConnectedAccount = { id: string; username: string | null; tokenExpiresAt: string | null };
 
@@ -51,6 +54,8 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   threads_app_id: "threadsAppId",
   threads_app_secret: "threadsAppSecret",
   cronjob_org_api_key: "cronjobOrgKey",
+  pixabay: "pixabayKey",
+  pexels: "pexelsKey",
 };
 
 const GUIDES = [
@@ -187,6 +192,16 @@ export default function WebSetup({
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
       <SectionTitle title="이미지 생성 (Replicate · FLUX · Z-Image)" description="콘텐츠 생성의 이미지 생성에서 FLUX 2.0·Z-Image 모델을 쓸 때 사용할 본인의 Replicate API 키입니다(r8_...). 나노바나나는 Gemini 키, GPT Image는 OpenAI 키를 씁니다." />
       <CredentialRow provider="replicate" label="Replicate API 키 (r8_...)" maskedValue={credentials.replicate} editing={editing === "replicate"} saving={saving === "replicate"} removing={removing === "replicate"} onEdit={setEditing} onSave={save} onDelete={remove} />
+    </section>
+
+    {/* v2.17: 작성 탭 「📷 무료 사진」 키(공용 user_api_keys — 감성 글귀·INSTA·쓰레드 포스팅에서 넣은 키 그대로) */}
+    <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm" data-photo-keys>
+      <SectionTitle title="📷 글 첨부 무료 사진 (선택)" description="콘텐츠 생성 「📷 무료 사진」에서 씁니다. 둘 중 하나만 있어도 되고 둘 다 무료 발급입니다(pixabay.com/api/docs · pexels.com/api). 다른 프로그램에서 이미 넣었다면 「등록됨」입니다." />
+      <div className="space-y-3">
+        <CredentialRow provider="pixabay" label="Pixabay API 키" maskedValue={credentials.pixabay} editing={editing === "pixabay"} saving={saving === "pixabay"} removing={removing === "pixabay"} onEdit={setEditing} onSave={save} onDelete={remove} />
+        <CredentialRow provider="pexels" label="Pexels API 키" maskedValue={credentials.pexels} editing={editing === "pexels"} saving={saving === "pexels"} removing={removing === "pexels"} onEdit={setEditing} onSave={save} onDelete={remove} />
+        {(["pixabay", "pexels"] as const).filter((provider) => Boolean(credentials[provider])).map((provider) => <PhotoKeyCheck key={provider} provider={provider} />)}
+      </div>
     </section>
 
     <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">

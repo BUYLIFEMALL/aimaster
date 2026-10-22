@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { PHOTO_PROVIDERS, type Photo, type PhotoProvider } from "@/threads-content-ops/lib/photoSearch";
+import { toEnglishKeywords } from "@/threads-content-ops/lib/photoKeywords";
 import type { PostMedia } from "@/threads-content-ops/lib/media";
 import { addFreePhoto, searchFreePhotos } from "./web-actions";
 
-/** v2.15: 글 첨부 미디어에 무료 사진(회원 본인 Pixabay·Pexels 키). 고르면 서버가 회원 up 폴더에 저장한 미디어를 넘긴다(30일 정리 대상). */
+/** v2.17: 글 첨부 미디어에 무료 사진(회원 본인 Pixabay·Pexels 키). 고르면 서버가 회원 up 폴더에 저장한 미디어를 넘긴다(30일 정리 대상). */
 export function FreePhotoPicker({ defaultQuery, remaining, disabled, productLinked, onPicked }: { defaultQuery: string; remaining: number; disabled?: boolean; productLinked?: boolean; onPicked: (media: PostMedia) => void }) {
   const [open, setOpen] = useState(false);
   const [provider, setProvider] = useState<PhotoProvider>("pixabay");
@@ -13,9 +14,21 @@ export function FreePhotoPicker({ defaultQuery, remaining, disabled, productLink
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<{ text: string; needKey?: boolean } | null>(null);
+  const [translateNote, setTranslateNote] = useState("");
+  // 「🔤 영어로」 바꾸기 전 한국어 검색어 — 영어 결과가 0장이면 「한국어로 다시 찾기」(공용 사전 photo-keywords, AI 없음)
+  const [koreanBefore, setKoreanBefore] = useState("");
+  const toEnglish = () => {
+    const source = (query || defaultQuery).trim();
+    const english = toEnglishKeywords(source);
+    if (english) {
+      setKoreanBefore(/[가-힣]/.test(source) ? source : "");
+      setQuery(english);
+      setTranslateNote("");
+    } else setTranslateNote("사전에 없는 말이에요. 검색어를 직접 영어로 적어 주세요(예: coffee, office).");
+  };
 
-  const search = async () => {
-    const q = (query || defaultQuery).trim().slice(0, 100);
+  const search = async (override?: string) => {
+    const q = (override ?? (query || defaultQuery)).trim().slice(0, 100);
     if (!q || busy) return;
     if (!query) setQuery(q);
     setBusy("search");
@@ -60,7 +73,7 @@ export function FreePhotoPicker({ defaultQuery, remaining, disabled, productLink
           value={query}
           maxLength={100}
           placeholder={defaultQuery ? `비워두면 「${defaultQuery.slice(0, 20)}」로 검색` : "예: coffee, office, 바다"}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => { setQuery(event.target.value); setKoreanBefore(""); }}
           onKeyDown={(event) => {
             if (event.key !== "Enter") return;
             event.preventDefault();
@@ -68,11 +81,15 @@ export function FreePhotoPicker({ defaultQuery, remaining, disabled, productLink
           }}
           className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900"
         />
+        <button type="button" data-photo-english disabled={!!busy || !(query || defaultQuery).trim()} onClick={toEnglish} className="shrink-0 whitespace-nowrap rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100 disabled:opacity-50">
+          🔤 영어로
+        </button>
         <button type="button" aria-label="사진 검색" disabled={!!busy || !(query || defaultQuery).trim()} onClick={() => void search()} className="shrink-0 whitespace-nowrap rounded-lg bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50">
           {busy === "search" ? "검색 중…" : "검색"}
         </button>
       </div>
       <p className="text-xs text-neutral-500">본인 {provider === "pixabay" ? "Pixabay" : "Pexels"} 키로 검색합니다(무료). 영어로 찾으면 결과가 더 많아요. 누르면 이 글의 미디어에 추가됩니다(남은 {remaining}개, 30일 뒤 자동 삭제).</p>
+      {translateNote && <p className="text-xs text-amber-700">{translateNote}</p>}
       {error && (
         <p className="text-xs text-rose-700">
           {error.text}
@@ -85,6 +102,21 @@ export function FreePhotoPicker({ defaultQuery, remaining, disabled, productLink
         </p>
       )}
       {photos && photos.length === 0 && <p className="text-xs text-neutral-500">검색 결과가 없습니다. 다른 검색어로 찾아보세요.</p>}
+      {photos && photos.length === 0 && koreanBefore && (
+        <button
+          type="button"
+          data-photo-korean-retry
+          onClick={() => {
+            const k = koreanBefore;
+            setKoreanBefore("");
+            setQuery(k);
+            void search(k);
+          }}
+          className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-700 hover:bg-neutral-100"
+        >
+          한국어로 다시 찾기 (「{koreanBefore.slice(0, 20)}」)
+        </button>
+      )}
       {photos && photos.length > 0 && (
         <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
           {photos.map((p) => (
