@@ -28,6 +28,8 @@ export interface ScriptAnalysisResult {
     exampleDraft: string;
   };
   providerUsed: string;
+  /** v1.22 실제 대사 — Gemini가 영상을 직접 본 경우의 받아쓰기(또는 가져온 자막). 없으면 빈 문자열. AI 쇼츠 원스톱 레퍼런스로 넘김 */
+  transcript: string;
 }
 
 const SYSTEM_PROMPT = `당신은 대한민국 최고의 유튜브 쇼츠 바이럴 디렉터이자 알고리즘 분석가입니다.
@@ -61,7 +63,12 @@ ${koreaNowRule()}
 }`;
 
 /** v1.15: AI가 돌려준 JSON(모든 칸이 빠질 수 있음 — 아래에서 기본값으로 채움) */
-type ParsedAnalysis = Partial<Omit<ScriptAnalysisResult, "videoId" | "videoTitle" | "hasOriginalScript" | "providerUsed">>;
+type ParsedAnalysis = Partial<Omit<ScriptAnalysisResult, "videoId" | "videoTitle" | "hasOriginalScript" | "providerUsed" | "transcript">> & { transcript?: unknown };
+
+/** v1.22 영상을 직접 볼 때 덧붙이는 지시 — 유튜브 자막 긁어오기가 빈 값을 돌려줘(2026-10-22 확인) 영상에서 대사를 받는다 */
+const VIDEO_RULE = `
+
+[첨부 영상] 위 데이터의 영상을 직접 보고 들은 내용을 근거로 분석하세요. 그리고 JSON에 "transcript" 칸을 추가해, 영상에서 사람이 실제로 말한 대사를 들은 그대로 받아쓰세요(말소리가 없으면 빈 문자열).`;
 
 function safeParseJson(str: string): ParsedAnalysis {
   let cleaned = (str || "").trim();
@@ -91,7 +98,8 @@ function safeParseJson(str: string): ParsedAnalysis {
  */
 async function analyzeWithGemini(
   content: string,
-  apiKey: string
+  apiKey: string,
+  videoId?: string
 ): Promise<ParsedAnalysis> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
@@ -102,7 +110,11 @@ async function analyzeWithGemini(
       contents: [
         {
           role: "user",
-          parts: [{ text: `${SYSTEM_PROMPT}\n\n[분석할 쇼츠 데이터]:\n${content}` }],
+          // v1.22 videoId가 있으면 유튜브 영상을 직접 붙임(shorts-viral-studio callGeminiWithVideos와 같은 형식)
+          parts: [
+            { text: `${SYSTEM_PROMPT}\n\n[분석할 쇼츠 데이터]:\n${content}${videoId ? VIDEO_RULE : ""}` },
+            ...(videoId ? [{ fileData: { fileUri: `https://www.youtube.com/watch?v=${videoId}` } }] : []),
+          ],
         },
       ],
       generationConfig: {
@@ -182,8 +194,20 @@ ${transcript || "자막 없음 (제목 및 설명 기반 분석 모드)"}
 
   let parsed: ParsedAnalysis = {};
   let providerUsed = "";
+  let watched = false;
 
   if (geminiKey) {
+    try {
+      // v1.22 먼저 영상을 직접 보고 분석(실제 대사 포함) — 비공개·지역 제한 등으로 못 보면 아래 글 기반 분석으로
+      parsed = await analyzeWithGemini(inputContent, geminiKey, videoId);
+      providerUsed = "Google Gemini 2.5 Flash (영상 직접 분석)";
+      watched = true;
+    } catch (videoErr: unknown) {
+      console.warn("Gemini 영상 직접 분석 실패, 글 기반 분석으로:", errorMessage(videoErr));
+    }
+  }
+
+  if (geminiKey && !watched) {
     try {
       parsed = await analyzeWithGemini(inputContent, geminiKey);
       providerUsed = "Google Gemini 2.5 Flash";
@@ -196,15 +220,19 @@ ${transcript || "자막 없음 (제목 및 설명 기반 분석 모드)"}
         throw geminiErr;
       }
     }
-  } else if (openaiKey) {
+  } else if (!geminiKey && openaiKey) {
     parsed = await analyzeWithOpenAI(inputContent, openaiKey);
     providerUsed = "OpenAI GPT-4o-mini";
   }
 
+  const heard = watched && typeof parsed.transcript === "string" ? parsed.transcript.trim() : "";
+  const script = (heard || transcript || "").slice(0, 12000);
+
   return {
     videoId,
     videoTitle: title,
-    hasOriginalScript: Boolean(transcript && transcript.length > 20),
+    hasOriginalScript: script.length > 20,
+    transcript: script,
     hookScore: parsed.hookScore ?? 90,
     hookTitle: parsed.hookTitle ?? "도입부 훅킹",
     hookDetails: parsed.hookDetails ?? "",

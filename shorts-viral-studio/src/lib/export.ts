@@ -33,6 +33,10 @@ export function buildProjectMarkdown(data: ProjectData): string {
         md += `- [${c.category}] ${c.insight}\n`;
       });
     }
+    // v1.13 영상 직접 분석 때 받아쓴 실제 대사(참고용 — 그대로 옮겨 쓰지 않기)
+    if (analysis.transcript) {
+      md += `\n### 🎙 영상 대사(받아쓰기 · 참고용)\n\n${analysis.transcript}\n`;
+    }
     md += `\n---\n\n`;
   }
 

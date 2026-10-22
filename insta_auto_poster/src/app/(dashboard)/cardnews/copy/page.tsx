@@ -21,6 +21,8 @@ export default function CopyPage() {
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   // v1.57 리메이크 원문과 그대로 겹치는 구절이 남았을 때 안내
   const [copyNote, setCopyNote] = useState<string[]>([]);
+  // v1.60 「⚠ 겹침」을 눌러 겹친 구절을 펼친 장(휴대폰에서도 보이게)
+  const [openCopy, setOpenCopy] = useState<string[]>([]);
 
   if (!plan.topic.trim()) return <NeedPlan>먼저 1단계에서 분야와 핵심 주제를 입력해주세요.</NeedPlan>;
 
@@ -140,14 +142,25 @@ export default function CopyPage() {
                   {i === 0 ? " · 표지" : i === pages.length - 1 ? " · 마무리" : ""}
                 </span>
                 {copied && (
-                  <span
-                    className="cursor-help whitespace-nowrap rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300"
+                  <button
+                    type="button"
+                    aria-expanded={openCopy.includes(p.id)}
+                    onClick={() => setOpenCopy((cur) => (cur.includes(p.id) ? cur.filter((x) => x !== p.id) : [...cur, p.id]))}
+                    className="whitespace-nowrap rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300"
                     title={`원본 게시물 문장과 그대로 겹치는 구절(다른 표현으로 고쳐 주세요):\n${phrases.slice(0, 3).map((x) => `「${x}」`).join("\n")}`}
                   >
-                    ⚠ 겹침 {phrases.length}
-                  </span>
+                    ⚠ 겹침 {phrases.length} {openCopy.includes(p.id) ? "▲" : "▼"}
+                  </button>
                 )}
               </div>
+              {copied && openCopy.includes(p.id) && (
+                <ul className="mb-3 space-y-1 rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                  <li className="font-bold">원본 게시물 문장과 그대로 겹치는 구절 — 다른 표현으로 고쳐 주세요</li>
+                  {phrases.map((x) => (
+                    <li key={x}>「{x}」</li>
+                  ))}
+                </ul>
+              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 flex justify-between text-xs font-bold text-gray-700">

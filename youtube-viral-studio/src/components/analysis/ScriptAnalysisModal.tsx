@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import type { ScriptAnalysisResult } from "@/lib/ai/scriptAnalyzer";
+import { refHandoffHash } from "@/lib/reference";
+
+// v1.22 대사를 넘길 AI 쇼츠 원스톱 주제 화면(원스톱 v1.32~가 주소 # 뒤 대사를 레퍼런스로 받음)
+const ONESTOP_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic";
 import {
   X,
   Sparkles,
@@ -263,6 +267,27 @@ ${analysis.copycatTemplate.exampleDraft}`;
                 <div className="p-4 bg-yt-raised text-gray-100 rounded-xl font-mono whitespace-pre-line text-xs leading-relaxed border border-yt-border">
                   {analysis.copycatTemplate.exampleDraft}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* v1.22 실제 대사 → AI 쇼츠 원스톱 레퍼런스(대사는 주소 # 뒤라 서버로 가지 않음) */}
+          {analysis?.transcript && (
+            <div className="mt-6 rounded-xl border border-yt-border bg-yt-raised p-4">
+              <details>
+                <summary className="cursor-pointer text-xs font-bold text-yt-text">🎙 영상 대사(받아쓰기)</summary>
+                <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-gray-200">{analysis.transcript}</p>
+              </details>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-yt-muted">
+                <a
+                  href={`${ONESTOP_TOPIC_URL}${refHandoffHash(analysis.transcript)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="whitespace-nowrap rounded-lg border border-yt-border bg-yt-surface px-3 py-1.5 font-bold text-yt-text hover:bg-yt-hover"
+                >
+                  🎬 이 대사로 쇼츠 만들기
+                </a>
+                <span>AI 쇼츠 원스톱이 새 탭으로 열리고, 대사가 레퍼런스로 들어갑니다(흐름만 참고하고 문장은 새로 씁니다).</span>
               </div>
             </div>
           )}
