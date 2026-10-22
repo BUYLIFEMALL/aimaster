@@ -11,7 +11,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
   const { draftId } = await context.params;
-  const input = await request.json().catch(() => null) as { title?: string; body?: string; contentBlocks?: unknown } | null;
+  const input = await request.json().catch(() => null) as { title?: string; body?: string; contentBlocks?: unknown; baseTitle?: unknown; baseBody?: unknown } | null;
   const title = input?.title?.trim() ?? "";
   const body = input?.body?.trim() ?? "";
   if (!title || title.length > 150) return NextResponse.json({ error: "제목을 1~150자로 입력해주세요." }, { status: 400 });
@@ -28,11 +28,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
 
   const supabase = await createClient();
   const { data: original } = await supabase.from("naver_blog_seo_drafts")
-    .select("body, seo_report").eq("id", draftId).eq("user_id", access.user.id).maybeSingle();
+    .select("title, body, seo_report").eq("id", draftId).eq("user_id", access.user.id).maybeSingle();
   if (!original) return NextResponse.json({ error: "수정할 내 초안을 찾지 못했습니다." }, { status: 404 });
   const bodyChanged = original.body !== body;
   const report = draftReport(original.seo_report);
   if (draftLocked(report)) return NextResponse.json({ error: "자동 발행을 시작한 원고입니다. 결과 확인 후 새 원고로 복제해 주세요." }, { status: 409 });
+  // BLC-09 (2026-10-22): 화면이 불러온 시점의 제목·본문과 지금 DB가 다르면 다른 창·탭에서 먼저 저장한 것 — 덮어쓰지 않는다.
+  // 이미지·카테고리 변경은 제목·본문을 바꾸지 않으므로 막지 않는다. 값을 보내지 않는 옛 화면·확장은 기존 동작 그대로.
+  if (typeof input?.baseTitle === "string" && typeof input?.baseBody === "string" && (input.baseTitle !== original.title || input.baseBody !== original.body)) {
+    return NextResponse.json({ code: "REVISION_CONFLICT", error: "다른 창이나 탭에서 이 원고를 먼저 저장했습니다. 지금 내용을 따로 복사해 두고 새로고침한 뒤 다시 저장해 주세요." }, { status: 409 });
+  }
   // Block-aware edits preserve the user's explicit image placement. Legacy textarea
   // edits retain the established behavior of clearing sentence-matched images.
   const staleImages = bodyChanged && !contentBlocks && Array.isArray(report.contentImages) ? report.contentImages as Array<{ path?: string }> : [];

@@ -49,7 +49,7 @@ function experienceSection(options: SeoDraftOptions | undefined) {
   return options?.experienceNote ? `\n\n사용자가 직접 적은 실제 경험(이 내용만 경험으로 사용):\n${options.experienceNote}` : "";
 }
 
-function normalizeSeoReport(report: Partial<Record<string, unknown>> | undefined, body: string) {
+export function normalizeSeoReport(report: Partial<Record<string, unknown>> | undefined, body: string) {
   const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(report ?? {})) {
     if (typeof value === "string" && value.trim()) result[key] = normalizeBlogText(value).slice(0, 500);
@@ -126,31 +126,12 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
     }
   }
   // v1.91: 첫 생성에는 해요체 필수 규칙을 넣지 않는다(gpt-4o-mini 본문이 짧아져 생성 실패, 규칙 없음 2/2·있음 1/4 성공). 끝맺음은 여기서만 고친다.
-  // v1.88: 승인 문체의 끝맺음(해요체/합니다체)이 70% 미만이면 끝맺음만 고치는 요청 1회. 180초가 지났으면 300초 제한 때문에 건너뛴다.
-  let styleEnding: { target: StyleEnding; before: number; after: number; fixed: boolean; skipped?: string; candidate?: { length: number; share: number; originalLength: number } } | undefined;
-  const ending = params.style?.ending;
-  if (ending) {
-    const before = endingShare(body, ending);
-    styleEnding = { target: ending, before: Math.round(before * 100) / 100, after: Math.round(before * 100) / 100, fixed: false };
-    if (before < 0.7 && Date.now() - startedAt > 180_000) styleEnding.skipped = "시간 제한으로 끝맺음 수정을 건너뜀";
-    else if (before < 0.7) {
-      const label = ending === "haeyo" ? "해요체(「~요」로 끝맺음, 예: ~해요·~이에요·~거든요)" : "합니다체(「~습니다」「~입니다」로 끝맺음)";
-      const fixedDraft = await requestDraftJson(params.apiKey, params.provider, model, [
-        { role: "system", content: `당신은 한국어 블로그 교정자입니다. 받은 본문의 내용·사실·문단 순서·소제목·줄바꿈·[확인 필요] 표시는 그대로 두고, 소제목을 뺀 평서문의 끝맺음만 ${label}로 자연스럽게 고칩니다. 문장을 지우거나 줄이지 않습니다. JSON만 반환합니다: {"body":"고친 본문"}` },
-        { role: "user", content: body },
-      ]);
-      const fixedBody = fixedDraft.body ? normalizeBlogText(fixedDraft.body) : "";
-      const fixedLength = fixedBody.replace(/\s/g, "").length;
-      const after = fixedBody ? endingShare(fixedBody, ending) : before;
-      // v1.92: 해요체로 바꾸면 문장마다 1~2자 짧아지므로(필요합니다→필요해요) 원래 길이의 95%까지 허용. 최소 분량(1,500자)은 그대로라 후처리 때문에 생성이 실패하지 않는다.
-      // 버려진 수정본도 원인을 볼 수 있게 길이·비율을 남긴다.
-      styleEnding = { ...styleEnding, candidate: { length: fixedLength, share: Math.round(after * 100) / 100, originalLength: compactLength } };
-      if (fixedBody && fixedLength >= 1_500 && fixedLength >= compactLength * 0.95 && after > before) {
-        body = fixedBody;
-        compactLength = fixedLength;
-        styleEnding = { ...styleEnding, after: Math.round(after * 100) / 100, fixed: true };
-      }
-    }
+  let styleEnding: StyleEndingRecord | undefined;
+  if (params.style?.ending) {
+    const fixed = await fixStyleEnding({ apiKey: params.apiKey, provider: params.provider, model, body, ending: params.style.ending, startedAt });
+    body = fixed.body;
+    compactLength = body.replace(/\s/g, "").length;
+    styleEnding = fixed.record;
   }
   // v1.74: 1,500자 이상이면 회원 키 요금이 헛되지 않게 저장하고 분량 안내를 붙입니다(2,000자 미만은 발행 전 점검에서도 경고).
   if (compactLength < 1_500) throw new Error(`AI가 보강 후에도 본문 분량이 너무 짧습니다. (공백 제외 ${compactLength}자 / 최소 1,500자) 다른 모델로 다시 시도해주세요.`);
@@ -158,4 +139,31 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
   if (compactLength < 2_000) seoReport.lengthNotice = `본문이 공백 제외 ${compactLength.toLocaleString("ko-KR")}자로 권장 분량(2,000자)보다 짧습니다. 직접 내용을 보강하거나 더 큰 모델로 다시 만들어 보세요.`;
   if (styleEnding) Object.assign(seoReport, { styleEnding });
   return { title, body, seoReport };
+}
+
+export type StyleEndingRecord = { target: StyleEnding; before: number; after: number; fixed: boolean; skipped?: string; candidate?: { length: number; share: number; originalLength: number } };
+
+// v1.88~v1.92: 승인 문체의 끝맺음(해요체/합니다체)이 70% 미만이면 끝맺음만 고치는 요청 1회. 180초가 지났으면 300초 제한 때문에 건너뛴다.
+// v1.93(BLC-09): 생성 함수에서 꺼내 「구간별로 쓰기 → 원고로 합치기」에서도 같은 규칙으로 쓴다(동작 변경 없음).
+export async function fixStyleEnding(p: { apiKey: string; provider: ContentProvider; model: string; body: string; ending: StyleEnding; startedAt: number }): Promise<{ body: string; record: StyleEndingRecord }> {
+  const compactLength = p.body.replace(/\s/g, "").length;
+  const before = endingShare(p.body, p.ending);
+  let record: StyleEndingRecord = { target: p.ending, before: Math.round(before * 100) / 100, after: Math.round(before * 100) / 100, fixed: false };
+  if (before >= 0.7) return { body: p.body, record };
+  if (Date.now() - p.startedAt > 180_000) return { body: p.body, record: { ...record, skipped: "시간 제한으로 끝맺음 수정을 건너뜀" } };
+  const label = p.ending === "haeyo" ? "해요체(「~요」로 끝맺음, 예: ~해요·~이에요·~거든요)" : "합니다체(「~습니다」「~입니다」로 끝맺음)";
+  const fixedDraft = await requestDraftJson(p.apiKey, p.provider, p.model, [
+    { role: "system", content: `당신은 한국어 블로그 교정자입니다. 받은 본문의 내용·사실·문단 순서·소제목·줄바꿈·[확인 필요] 표시는 그대로 두고, 소제목을 뺀 평서문의 끝맺음만 ${label}로 자연스럽게 고칩니다. 문장을 지우거나 줄이지 않습니다. JSON만 반환합니다: {"body":"고친 본문"}` },
+    { role: "user", content: p.body },
+  ]);
+  const fixedBody = fixedDraft.body ? normalizeBlogText(fixedDraft.body) : "";
+  const fixedLength = fixedBody.replace(/\s/g, "").length;
+  const after = fixedBody ? endingShare(fixedBody, p.ending) : before;
+  // v1.92: 해요체로 바꾸면 문장마다 1~2자 짧아지므로(필요합니다→필요해요) 원래 길이의 95%까지 허용. 최소 분량(1,500자)은 그대로라 후처리 때문에 생성이 실패하지 않는다.
+  // 버려진 수정본도 원인을 볼 수 있게 길이·비율을 남긴다.
+  record = { ...record, candidate: { length: fixedLength, share: Math.round(after * 100) / 100, originalLength: compactLength } };
+  if (fixedBody && fixedLength >= 1_500 && fixedLength >= compactLength * 0.95 && after > before) {
+    return { body: fixedBody, record: { ...record, after: Math.round(after * 100) / 100, fixed: true } };
+  }
+  return { body: p.body, record };
 }

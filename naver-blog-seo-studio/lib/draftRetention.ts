@@ -74,20 +74,30 @@ export async function purgeExpiredStyles(supabase: SupabaseClient, userId?: stri
   return { deleted: error ? 0 : data?.length ?? 0, error };
 }
 
+// BLC-09 (2026-10-22): 「구간별로 쓰기」 목차·구간 본문도 30일 뒤 삭제.
+export async function purgeExpiredOutlines(supabase: SupabaseClient, userId?: string) {
+  let query = supabase.from("naver_blog_seo_outlines").delete().lt("created_at", getRetentionCutoff());
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query.select("id");
+  return { deleted: error ? 0 : data?.length ?? 0, error };
+}
+
 export async function purgeExpiredSeoStudioData(supabase: SupabaseClient, userId?: string) {
-  const [drafts, titleRecommendations, research, styles] = await Promise.all([
+  const [drafts, titleRecommendations, research, styles, outlines] = await Promise.all([
     purgeExpiredDrafts(supabase, userId),
     purgeExpiredTitleRecommendations(supabase, userId),
     purgeExpiredResearch(supabase, userId),
     purgeExpiredStyles(supabase, userId),
+    purgeExpiredOutlines(supabase, userId),
   ]);
   return {
-    deleted: drafts.deleted + titleRecommendations.deleted + research.deleted + styles.deleted,
+    deleted: drafts.deleted + titleRecommendations.deleted + research.deleted + styles.deleted + outlines.deleted,
     draftsDeleted: drafts.deleted,
     titleRecommendationsDeleted: titleRecommendations.deleted,
     researchDeleted: research.deleted,
     stylesDeleted: styles.deleted,
-    error: drafts.error ?? titleRecommendations.error ?? research.error ?? styles.error,
+    outlinesDeleted: outlines.deleted,
+    error: drafts.error ?? titleRecommendations.error ?? research.error ?? styles.error ?? outlines.error,
   };
 }
 

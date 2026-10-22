@@ -1,7 +1,7 @@
 "use client";
 
 // StudioPage의 상태·처리 함수를 그대로 옮긴 훅 (2026-10-17 파일 나누기, 로직 변경 없음)
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useCategories } from "@/components/categories/useCategories";
 import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
 import { DEFAULT_GEMINI_IMAGE_MODEL, type GeminiImageModel } from "@/lib/ai/geminiModels";
@@ -61,6 +61,9 @@ export function useStudio() {
   const [historyInputStatus, setHistoryInputStatus] = useState<"all" | "not_started" | "in_progress" | "completed" | "publish_ready" | "failed">("all");
   const [duplicatingDraftId, setDuplicatingDraftId] = useState<string | null>(null);
   const [currentDraft, setCurrentDraft] = useState<DraftRecord | null>(null);
+  // BLC-09: 서버에서 받은 시점의 제목·본문 — 저장할 때 보내서 다른 창·탭이 먼저 저장했는지 확인한다.
+  const baseTextRef = useRef<{ id: string; title: string; body: string } | null>(null);
+  const rememberBase = (draft: { id: string; title: string; body: string }) => { baseTextRef.current = { id: draft.id, title: draft.title, body: draft.body }; };
   const [draftSaving, setDraftSaving] = useState(false);
   const [draftSaveMessage, setDraftSaveMessage] = useState("");
   const [imagePending, setImagePending] = useState(false);
@@ -156,6 +159,7 @@ export function useStudio() {
     setContentImageCount(restoredContentImages.length === 3 ? 3 : 2);
     setContentBlocks(getContentBlocks(draft).length ? getContentBlocks(draft) : createContentBlocks(draft));
     setCurrentDraft(withoutContentImages(draft));
+    rememberBase(draft);
     setGeneratedImage(draft.image_path ? { dataUrl: `/api/drafts/${encodeURIComponent(draft.id)}/image`, model: draft.image_model || "나노바나나" } : null);
     setExtensionDraftId(draft.id);
     setHandoffMessage("");
@@ -330,6 +334,7 @@ export function useStudio() {
       setContentImages(getContentImages(result.draft));
       setContentBlocks(getContentBlocks(result.draft).length ? getContentBlocks(result.draft) : createContentBlocks(result.draft));
       setCurrentDraft(withoutContentImages(result.draft));
+      rememberBase(result.draft);
       setExtensionDraftId(result.draft.id);
       setSelectedTitle(result.draft.title);
       setTopic(result.draft.topic);
@@ -387,6 +392,7 @@ export function useStudio() {
       setContentImages(getContentImages(preparedDraft));
       setContentBlocks(createContentBlocks(preparedDraft));
       setCurrentDraft(withoutContentImages(preparedDraft));
+      rememberBase(preparedDraft);
       setGeneratedImage(null);
       setHandoffMessage("");
       refreshHistory().catch(() => {});
@@ -575,12 +581,13 @@ export function useStudio() {
     setDraftSaving(true);
     if (!silent) setDraftSaveMessage("수정한 블로그(원문)을 저장하는 중...");
     try {
-      const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: currentDraft.title, body: currentDraft.body, contentBlocks: blocksForSave }) });
+      const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: currentDraft.title, body: currentDraft.body, contentBlocks: blocksForSave, ...(baseTextRef.current?.id === currentDraft.id ? { baseTitle: baseTextRef.current.title, baseBody: baseTextRef.current.body } : {}) }) });
       const result = await response.json() as { draft?: DraftRecord; error?: string };
       if (!response.ok || !result.draft) throw new Error(result.error || "블로그(원문) 저장에 실패했습니다.");
       setContentImages(getContentImages(result.draft));
       setContentBlocks(getContentBlocks(result.draft).length ? getContentBlocks(result.draft) : createContentBlocks(result.draft));
       setCurrentDraft(withoutContentImages(result.draft));
+      rememberBase(result.draft);
       setSelectedTitle(result.draft.title);
       refreshHistory().catch(() => {});
       if (!silent) setDraftSaveMessage("수정한 블로그(원문)을 저장했습니다.");
