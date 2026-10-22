@@ -230,3 +230,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 섹션 카드 버전 줄의 「🧵 쓰레드 홍보글」 옆에 「📸 인스타 홍보글」(완료된 섹션만). 같은 초안(`threadsDraftText`)을 `caption`으로, 이미지는 비공개 버킷 안 **위치만** `shopImage`로 INSTA 포스팅 자동화 `/posts/new`에 새 창으로 넘긴다(`lib/threadsLink.ts` `instaPostUrl`). 받는 쪽 `insta_auto_poster` v1.53 `src/lib/shopDetailImport.ts`가 본인 폴더 확인 후 「직접 첨부」와 같은 공개 버킷 `insta-post-images/<본인>/sd-<해시>.<확장자>`로 복사. 버튼 줄은 좁은 카드에서 줄바꿈(`flex-wrap`). AI 호출 없음.
 - 버전 v1.20(`lib/version.ts`, SQL `supabase/migrations/20261022_insta_link_v1_20.sql` — 버전만). 검수: tsc 0.
 - **윈도우 CLI 다음 첫 단계**: ① INSTA SQL `insta_auto_poster/supabase/migrations/20261022220000_shop_detail_import_v1_53.sql` → `insta_auto_poster` 시험 `npm run test:import`(맥미니는 esbuild가 윈도우용이라 실행 불가) → 배포 1회 ② Ready 뒤 상세페이지 SQL `20261022_insta_link_v1_20.sql` → `shop-detail-page` 배포 1회 ③ 크롬 확인(생성·게시 버튼은 누르지 않음): 「📸 인스타 홍보글」 → INSTA 새 글에 이미지 1장·캡션 초안·초록 안내 / 새로고침해도 1장 / 회원 ID를 바꾸면 빨간 안내.
+
+## 2026-10-22 v1.20 배포 완료 (Claude Code 윈도우, 웨일 — 맥미니 커밋분)
+- INSTA v1.53(이미지 받기 포함)은 해시태그 세션이 먼저 배포(13:32 Ready) → INSTA는 다시 배포하지 않음. `npm run test:import` 2/2 통과.
+- 상세페이지: tsc → 운영 배포 `dpl_Gjdn2NwhHp7k8sL9fLDPJFseFhTN` Ready → DB `shop-detail-page` v1.20(SQL `20261022_insta_link_v1_20.sql`과 같은 버전 갱신만).
+- 화면 확인(웨일, **관리자 계정** `buylifemall@gmail.com`, 생성·게시 버튼 누르지 않음): ① 완료 섹션 15개 모두 「📸 인스타 홍보글」 → INSTA 새 글에 이미지 1장(`insta-post-images` 본인 폴더 복사)·캡션 초안 284자·초록 안내 ② 새로고침 뒤 이미지 1장 유지 ③ 주소 `shopImage`의 회원 ID를 다른 회원으로 바꾸면 이미지 0장·빨간 안내 「본인이 만든 상세페이지 이미지만 가져올 수 있습니다.」
+- 남은 일: **시험 계정(`buylifemall@naver.com`)으로 같은 3가지 확인**(주인님 로그인 필요), 맥미니 크롬 시험.
+- 비용: Vercel 빌드 1회(상세페이지), AI 0회.
