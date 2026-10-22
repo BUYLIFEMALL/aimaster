@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { averageDiff, colorDiffPercent, containPoint, defaultSplit, percentAt, percentForKey, splitClip, toHex, type SplitMode } from "@/lib/dna/compare";
+import { spotChange, type CheckSpot } from "@/lib/dna/checkSpots";
 
 type Pixels = { data: Uint8ClampedArray; w: number; h: number; natW: number; natH: number };
 type RGB = [number, number, number];
@@ -76,8 +77,9 @@ const MAX_SPOTS = 8;
  * 틀 비율은 원본을 따르고, 두 이미지 모두 잘리지 않게 틀 안에 맞춘다(object-contain).
  * v1.29: 동그라미 자리(선 위치·높이)의 원본·생성 색을 HEX와 차이(%)로 보여 주는 색 집게.
  * v1.31: 가로/세로 분할 전환(세로가 긴 원본은 처음부터 위아래), 점검 지점 최대 8곳 저장·평균 차이.
+ * v1.32: 점검 지점을 분석 보관함에 저장(savedSpots·onSaveSpots), 다시 생성하면 같은 자리의 「이전 → 지금」 차이 비교.
  */
-export function CompareSlider({ before, after, maxHeight = 480 }: { before: string; after: string; maxHeight?: number }) {
+export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [], onSaveSpots }: { before: string; after: string; maxHeight?: number; savedSpots?: CheckSpot[]; onSaveSpots?: (spots: CheckSpot[]) => Promise<void> }) {
   const box = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState(50);
   const [posY, setPosY] = useState(50);
@@ -87,6 +89,8 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
   const [mode, setMode] = useState<SplitMode | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const nextId = useRef(1);
+  const [saveMsg, setSaveMsg] = useState("");
+  const [savingSpots, setSavingSpots] = useState(false);
   const beforePx = usePixels(before);
   const afterPx = usePixels(after);
   const split: SplitMode = mode ?? (size ? defaultSplit(size.w, size.h) : "horizontal");
@@ -112,6 +116,36 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
   const avg = averageDiff(spots.map((s) => diffOf(s.a, s.b)));
   const nowDiff = diffOf(a, b);
 
+  // v1.32: 저장된 지점을 지금 결과에서 다시 재서 이전 차이와 비교
+  const compared = frame
+    ? savedSpots.map((sp) => {
+        const now = diffOf(pick(beforePx, frame.w, frame.h, sp.x, sp.y), pick(afterPx, frame.w, frame.h, sp.x, sp.y));
+        return { sp, now, change: spotChange(sp.diff, now) };
+      })
+    : [];
+  const prevAvg = averageDiff(savedSpots.map((s) => s.diff));
+  const nowAvg = averageDiff(compared.map((c) => c.now));
+  const avgChange = spotChange(prevAvg, nowAvg);
+
+  const persist = async () => {
+    if (!onSaveSpots || !spots.length) return;
+    setSavingSpots(true);
+    setSaveMsg("");
+    try {
+      const at = new Date().toISOString();
+      await onSaveSpots(spots.map((s) => ({ x: s.x, y: s.y, diff: diffOf(s.a, s.b), at })));
+      setSaveMsg(`보관함에 ${spots.length}곳을 저장했습니다. 프롬프트를 고쳐 다시 만들면 같은 자리를 비교해 드립니다.`);
+    } catch (e) {
+      setSaveMsg(e instanceof Error ? e.message : "저장하지 못했습니다.");
+    } finally {
+      setSavingSpots(false);
+    }
+  };
+
+  const loadSaved = () => {
+    setSpots(savedSpots.map((sp) => ({ id: nextId.current++, x: sp.x, y: sp.y, a: frame ? pick(beforePx, frame.w, frame.h, sp.x, sp.y) : null, b: frame ? pick(afterPx, frame.w, frame.h, sp.x, sp.y) : null })));
+  };
+
   const saveSpot = () => {
     if (spots.length >= MAX_SPOTS) return;
     setSpots((list) => [...list, { id: nextId.current++, x: pos, y: posY, a, b }]);
@@ -127,7 +161,7 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
             type="button"
             aria-pressed={split === m}
             onClick={() => setMode(m)}
-            className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${split === m ? "border-violet-500 bg-violet-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+            className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${split === m ? "border-violet-500 bg-violet-600 text-white" : "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"}`}
           >
             {m === "horizontal" ? "◧ 좌우" : "⬒ 위아래"}
           </button>
@@ -160,6 +194,9 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
         {split === "vertical"
           ? <span className="pointer-events-none absolute inset-x-0 h-0.5 -translate-y-1/2 bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.35)]" style={{ top: `${posY}%` }} />
           : <span className="pointer-events-none absolute inset-y-0 w-0.5 -translate-x-1/2 bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.35)]" style={{ left: `${pos}%` }} />}
+        {savedSpots.map((s, n) => (
+          <span key={`saved-${n}`} data-saved-spot={n + 1} className="pointer-events-none absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed border-sky-400" style={{ left: `${s.x}%`, top: `${s.y}%` }} />
+        ))}
         {spots.map((s, n) => (
           <span key={s.id} data-spot={n + 1} className="pointer-events-none absolute flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-amber-500 text-[10px] font-black text-white shadow" style={{ left: `${s.x}%`, top: `${s.y}%` }}>
             {n + 1}
@@ -197,7 +234,7 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
             type="button"
             onClick={saveSpot}
             disabled={spots.length >= MAX_SPOTS}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-900 hover:bg-slate-50 disabled:opacity-50"
           >
             📍 이 자리 저장 ({spots.length}/{MAX_SPOTS})
           </button>
@@ -207,13 +244,20 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
         <div className="mx-auto max-w-md rounded-xl border border-slate-200 bg-white px-3 py-2" aria-label="점검 지점">
           <div className="mb-1 flex items-center justify-between">
             <p className="text-[11px] font-bold text-slate-900">점검 지점 {spots.length}곳 · 평균 차이 <span data-avg>{avg === null ? "—" : `${avg}%`}</span></p>
-            <button type="button" onClick={() => setSpots([])} className="text-[11px] font-bold text-slate-500 hover:underline">모두 지우기</button>
+            <div className="flex items-center gap-3">
+              {onSaveSpots && (
+                <button type="button" onClick={() => void persist()} disabled={savingSpots} className="text-[11px] font-bold text-sky-400 hover:underline disabled:opacity-50">
+                  {savingSpots ? "저장 중…" : "💾 보관함에 저장"}
+                </button>
+              )}
+              <button type="button" onClick={() => setSpots([])} className="text-[11px] font-bold text-slate-500 hover:underline">모두 지우기</button>
+            </div>
           </div>
           <ul className="space-y-1">
             {spots.map((s, n) => {
               const d = diffOf(s.a, s.b);
               return (
-                <li key={s.id} className="flex items-center gap-2 text-[11px] text-slate-700">
+                <li key={s.id} className="flex items-center gap-2 text-[11px] text-slate-900">
                   <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[9px] font-black text-white">{n + 1}</span>
                   <span className="font-mono">{s.a ? toHex(...s.a) : "—"}</span>
                   <span aria-hidden>→</span>
@@ -226,7 +270,39 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
           </ul>
         </div>
       )}
+      {saveMsg && <p role="status" className="mx-auto max-w-md text-[11px] font-bold text-slate-900">{saveMsg}</p>}
+      {savedSpots.length > 0 && (
+        <div className="mx-auto max-w-md rounded-xl border border-sky-300 bg-white px-3 py-2" aria-label="이전 기록과 비교">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <p className="text-[11px] font-bold text-slate-900">
+              이전 기록과 비교 · 평균 <span data-prev-avg>{prevAvg === null ? "—" : `${prevAvg}%`}</span> → <span data-now-avg>{nowAvg === null ? "—" : `${nowAvg}%`}</span>
+              {avgChange && <TrendMark trend={avgChange.trend} delta={avgChange.delta} />}
+            </p>
+            <button type="button" onClick={loadSaved} className="shrink-0 text-[11px] font-bold text-sky-400 hover:underline">지점 불러오기</button>
+          </div>
+          <ul className="space-y-1">
+            {compared.map(({ sp, now, change }, n) => (
+              <li key={n} className="flex items-center gap-2 text-[11px] text-slate-900">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-sky-400 text-[9px] font-black text-slate-900">{n + 1}</span>
+                <span>{new Date(sp.at).toLocaleDateString("ko-KR")} 저장</span>
+                <span className="ml-auto font-mono">{sp.diff === null ? "—" : `${sp.diff}%`}</span>
+                <span aria-hidden>→</span>
+                <span className="font-mono font-bold text-slate-900">{now === null ? "—" : `${now}%`}</span>
+                {change ? <TrendMark trend={change.trend} delta={change.delta} /> : <span className="w-12" />}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-[10px] text-slate-900 opacity-80">점선 동그라미가 저장된 자리입니다. 차이가 줄면(↓) 원본 색에 더 가까워진 것입니다.</p>
+        </div>
+      )}
       <p className="text-[11px] text-slate-500">틀을 누르거나 끌면 선과 동그라미가 그 자리로 옵니다. 동그라미 자리의 원본·생성 색을 비교하고 「📍 이 자리 저장」(또는 동그라미에서 Enter)으로 여러 곳을 모아 평균 차이를 보세요. 키보드: ←/→ 좌우, ↑/↓ 위아래. 「—」는 그 자리에 그림이 없는 여백입니다.</p>
     </div>
   );
+}
+
+/** v1.32: 변화 표시 — 줄면 좋아짐(↓), 늘면 나빠짐(↑), 0.5%p 안쪽은 같음 */
+function TrendMark({ trend, delta }: { trend: "better" | "worse" | "same"; delta: number }) {
+  const cls = trend === "better" ? "text-emerald-400" : trend === "worse" ? "text-rose-400" : "text-slate-900";
+  const mark = trend === "better" ? "↓" : trend === "worse" ? "↑" : "=";
+  return <span data-trend={trend} className={`ml-1 w-12 shrink-0 text-right font-black ${cls}`}>{mark} {Math.abs(delta)}%p</span>;
 }

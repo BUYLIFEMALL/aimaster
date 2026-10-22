@@ -1,4 +1,5 @@
 import "server-only";
+import { cleanCheckSpots } from "./checkSpots";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { AiProvider } from "@/lib/ai/models";
 import type { AnalysisRecord, AnalysisSummary, DnaMode, DnaResult, PaletteColor, RefineEntry } from "./types";
@@ -36,6 +37,7 @@ export function toRecord(row: Record<string, unknown>, signed: Record<string, st
     palette: (row.palette as PaletteColor[]) ?? [],
     result: row.result as DnaResult,
     history: (row.history as RefineEntry[]) ?? [],
+    checkSpots: cleanCheckSpots(row.check_spots),
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };

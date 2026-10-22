@@ -22,7 +22,8 @@ test("키보드 이동", () => {
 });
 test("결과 테스트 화면이 비교 슬라이더를 쓴다", () => {
   const src = readFileSync(new URL("../src/app/(dashboard)/test/page.tsx", import.meta.url), "utf8");
-  assert.match(src, /<CompareSlider before=\{record\.imageUrl\} after=\{result\.image\} maxHeight=\{640\} \/>/);
+  assert.match(src, /<CompareSlider\s+before=\{record\.imageUrl\}\s+after=\{result\.image\}\s+maxHeight=\{640\}\s+savedSpots=\{record\.checkSpots \?\? \[\]\}/);
+  assert.match(src, /method: "PATCH"/);
   assert.match(src, /result && !showSingles \? "hidden"/);
 });
 

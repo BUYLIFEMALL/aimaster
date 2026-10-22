@@ -10,7 +10,7 @@ import { CompareSlider } from "@/components/dna/CompareSlider";
 import { BTN_PRIMARY, Card, ErrorNote, Field, INPUT, NeedAnalysis, SELECT, StepHeader } from "@/components/dna/ui";
 
 export default function TestPage() {
-  const { record, keys } = useDna();
+  const { record, keys, setRecord } = useDna();
   const [subject, setSubject] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
@@ -271,7 +271,18 @@ export default function TestPage() {
                   {showSingles ? "개별 이미지 접기 ▴" : "개별 이미지 보기 ▾"}
                 </button>
               </div>
-              <CompareSlider before={record.imageUrl} after={result.image} maxHeight={640} />
+              <CompareSlider
+                before={record.imageUrl}
+                after={result.image}
+                maxHeight={640}
+                savedSpots={record.checkSpots ?? []}
+                onSaveSpots={async (spots) => {
+                  const res = await fetch(`/api/analyses/${record.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ checkSpots: spots }) });
+                  const data = await res.json().catch(() => ({}));
+                  if (!res.ok) throw new Error(data.error || "점검 지점을 저장하지 못했습니다.");
+                  setRecord({ ...record, checkSpots: data.checkSpots });
+                }}
+              />
             </Card>
           )}
 
