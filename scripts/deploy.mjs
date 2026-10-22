@@ -4,7 +4,8 @@
 //       node scripts/deploy.mjs <폴더> --go     위 확인 뒤 그 폴더에서 `vercel deploy --prod --yes --scope buylife` 실행(빌드 1회 = 비용) → DB 버전 비교
 //       node scripts/deploy.mjs <폴더> --version-only   배포 없이 화면 버전(APP_VERSION)과 DB programs.version 비교만
 //       … --set-version   위 비교에서 다르면 운영 DB programs.version을 화면 버전으로 고침(이 옵션이 있을 때만 DB 쓰기)
-//       node scripts/deploy.mjs --version-only --all   연결된 모든 프로그램 비교, 어긋난 곳만 보고(DB 안 고침) — 주 1회 점검용
+//       node scripts/deploy.mjs --version-only --all   연결된 모든 프로그램 비교, 어긋난 곳만 보고(DB 안 고침) — 세션 시작 때 1회
+//       … --all --fix-map   역량 지도 목록 표의 버전 칸만 DB 운영 버전으로 고침(카드 내용은 안 건드림)
 // --go가 끝나면 pending-check --publish로 관리자 첫 화면 숫자(미배포 대기·정리 기록 진행률)도 갱신한다.
 // 배포는 비용이므로 --go는 주인님 승인 범위 안에서만 쓴다(CLAUDE.md 비용 사전 보고). 루트(메인 사이트)는 GitHub 푸시 자동 빌드라 대상이 아니다.
 import { existsSync, readFileSync } from "node:fs";
@@ -51,6 +52,25 @@ if (versionOnly && args.includes("--all")) {
   }
   console.log(`[역량 지도 버전 칸] 목록 ${mapRows}줄 · DB와 다름 ${mapOff.length}개`);
   for (const l of mapOff) console.log(l);
+  // --fix-map: 목록 표의 버전 칸만 DB 운영 버전으로(카드·다른 칸은 그대로). 읽기 → 바꾸기 → 줄 수·길이 확인 → 쓰기
+  if (args.includes("--fix-map") && mapOff.length) {
+    const { writeFileSync } = await import("node:fs");
+    const file = join(ROOT, "docs", "PROGRAM_CAPABILITY_MAP.md");
+    const raw = readFileSync(file, "utf8");
+    let fixed = 0;
+    const out = raw.replace(/^(\| \d+ \| [^|]+\| `([^`]+)` \|[^|]+\| )(v\d+\.\d{2})( \|)/gm, (all, pre, slug, v, post) => {
+      const row = programs.find((p) => p.slug === slug);
+      if (!row?.version || row.version === v) return all;
+      fixed += 1;
+      return `${pre}${row.version}${post}`;
+    });
+    if (out.split("\n").length !== raw.split("\n").length || Math.abs(out.length - raw.length) > 200) {
+      console.log("✖ 지도 고치기 중단 — 줄 수나 길이가 예상과 다릅니다(파일은 그대로).");
+      process.exit(1);
+    }
+    writeFileSync(file, out);
+    console.log(`✔ 역량 지도 버전 칸 ${fixed}개를 DB 운영 버전으로 고침(docs/PROGRAM_CAPABILITY_MAP.md — 커밋은 따로)`);
+  }
   process.exit(0);
 }
 
