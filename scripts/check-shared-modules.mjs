@@ -249,6 +249,12 @@ const MODULES = [
     copies: ["emotion-writer/src/lib/studio/zip.ts", "shop-detail-page/lib/zip.ts", "video-to-gif/lib/zip.ts"],
   },
   {
+    // GIF 자동화 창 → 상세페이지 「GIF 받기」 창으로 브라우저 안에서 GIF 넘기기 약속(postMessage, 허용 주소·메시지 검사). 2026-10-22 상세 v1.28·GIF v1.14
+    id: "gif-handoff",
+    source: "shop-detail-page/lib/gifHandoff.ts",
+    copies: ["video-to-gif/lib/gifHandoff.ts"],
+  },
+  {
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
     id: "browser-mp4-encoder",
     source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",

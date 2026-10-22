@@ -67,13 +67,19 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       } catch {
         continue;
       }
+      const label = safeFileName(names.get(img.section_key) ?? img.section_key).replace(/\s+/g, "_");
+      const num = String(files.length + 1).padStart(2, "0");
+      // v1.28: 움직이는 GIF는 다시 만들면 첫 장면만 남으므로 원본 그대로 .gif로 넣는다.
+      if (original.subarray(0, 4).toString("latin1") === "GIF8") {
+        files.push({ name: `${num}_${label}.gif`, data: original });
+        continue;
+      }
       const jpg = await sharp(original)
         .resize({ width: TARGET_WIDTH })
         .flatten({ background: "#ffffff" })
         .jpeg({ quality: 90, mozjpeg: true })
         .toBuffer();
-      const label = safeFileName(names.get(img.section_key) ?? img.section_key).replace(/\s+/g, "_");
-      files.push({ name: `${String(files.length + 1).padStart(2, "0")}_${label}.jpg`, data: jpg });
+      files.push({ name: `${num}_${label}.jpg`, data: jpg });
     }
 
     if (files.length === 0) {

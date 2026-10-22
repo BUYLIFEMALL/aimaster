@@ -19,12 +19,14 @@ import {
   Layers,
   CheckCircle2,
   X,
-  Play
+  Play,
+  ShoppingBag
 } from "lucide-react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
+import { GIF_INBOX_PATH, GIF_RECEIVER_ORIGIN, MSG_FILE, isReadyMessage } from "@/lib/gifHandoff";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 type Job = {
@@ -145,6 +147,9 @@ export default function ConverterWorkspace() {
   const [previewJob, setPreviewJob] = useState<Job | null>(null);
   // v1.13: 구간 막대의 장면 미리보기를 연 줄(한 번에 하나만 — 영상 여러 개를 동시에 열지 않음)
   const [scenePreviewId, setScenePreviewId] = useState<string | null>(null);
+  // v1.14: 상세페이지로 보내기 — 줄마다 안내 문구, 이전 보내기의 메시지 대기는 새로 보낼 때 정리
+  const [sendNotes, setSendNotes] = useState<Record<string, string>>({});
+  const sendCleanupRef = useRef<(() => void) | null>(null);
 
   const totalBytes = useMemo(() => jobs.reduce((sum, job) => sum + job.size, 0), [jobs]);
   const ffmpegRef = useRef<FFmpeg | null>(null);
@@ -206,6 +211,49 @@ export default function ConverterWorkspace() {
     a.download = "gif-all.zip";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  }
+
+  /**
+   * v1.14: 완료된 GIF를 상세페이지 「GIF 받기」 창으로 넘긴다(공용 gif-handoff, 서버를 거치지 않음).
+   * 받는 창이 「준비됨」을 보내면 그때 파일을 보낸다 — 로그인을 거쳐 늦게 준비돼도, 다시 열려도 그대로 받는다.
+   */
+  function sendToShop(job: Job) {
+    if (!job.downloadUrl) return;
+    const note = (text: string) => setSendNotes((cur) => ({ ...cur, [job.id]: text }));
+    sendCleanupRef.current?.();
+    const win = window.open(`${GIF_RECEIVER_ORIGIN}${GIF_INBOX_PATH}`, "aimaster-gif-inbox");
+    if (!win) {
+      note("새 창이 막혔습니다. 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요.");
+      return;
+    }
+    note("상세페이지 창을 여는 중입니다…");
+    // 「준비됨」 신호를 놓치지 않게 대기를 먼저 걸고, 파일은 신호를 받은 뒤 기다린다.
+    const filePromise = fetch(job.downloadUrl)
+      .then((r) => r.blob())
+      .then((b) => new Blob([b], { type: "image/gif" }));
+    const name = `${job.name.replace(/\.[^.]+$/, "")}.gif`;
+    let sent = false;
+    const onMessage = async (e: MessageEvent) => {
+      if (e.source !== win || !isReadyMessage(e.origin, e.data)) return;
+      const file = await filePromise;
+      win.postMessage({ type: MSG_FILE, name, file }, GIF_RECEIVER_ORIGIN);
+      sent = true;
+      note("보냈습니다. 상세페이지 창에서 상품과 섹션을 골라 「이 섹션에 넣기」를 눌러 주세요.");
+    };
+    const slow = window.setTimeout(() => {
+      if (!sent) note("상세페이지 창이 아직 준비되지 않았습니다. 로그인 화면이면 로그인해 주세요 — 열리면 자동으로 넘어갑니다.");
+    }, 10_000);
+    const watch = window.setInterval(() => {
+      if (win.closed) cleanup();
+    }, 1000);
+    function cleanup() {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(slow);
+      window.clearInterval(watch);
+      if (sendCleanupRef.current === cleanup) sendCleanupRef.current = null;
+    }
+    window.addEventListener("message", onMessage);
+    sendCleanupRef.current = cleanup;
   }
 
   function remove(id: string) {
@@ -474,7 +522,8 @@ export default function ConverterWorkspace() {
                     key={job.id}
                     className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-4 transition-colors hover:border-[#484f58]"
                   >
-                    <div className="flex items-center gap-3">
+                    {/* v1.14: 좁은 화면에서는 버튼 묶음이 아래 줄로 내려가고 크기 글자는 끊지 않는다 */}
+                    <div className="flex flex-wrap items-center gap-3">
                       {job.thumbnail ? (
                         <span className="relative w-16 shrink-0 overflow-hidden rounded-lg border border-[#30363d] bg-black">
                           {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저에서 만든 data: 썸네일 */}
@@ -488,16 +537,16 @@ export default function ConverterWorkspace() {
                           {String(index + 1).padStart(2, "0")}
                         </span>
                       )}
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-[10rem] flex-1">
                         <p className="truncate text-sm font-bold text-gray-200">{job.name}</p>
-                        <div className="mt-1 flex items-center gap-2 text-xs">
-                          <span className="text-gray-400">{formatBytes(job.size)}</span>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                          <span className="whitespace-nowrap text-gray-400">{formatBytes(job.size)}</span>
                           {job.duration !== undefined && (
-                            <span className="text-gray-400">· 길이 {job.duration.toFixed(1)}초</span>
+                            <span className="whitespace-nowrap text-gray-400">· 길이 {job.duration.toFixed(1)}초</span>
                           )}
                           <span className="text-gray-400">•</span>
                           {job.status === "done" ? (
-                            <span className="inline-flex items-center gap-1 font-bold text-emerald-400">
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap font-bold text-emerald-400">
                               <CheckCircle2 className="h-3 w-3" />
                               완료 ({formatBytes(job.outputSize ?? 0)})
                             </span>
@@ -514,9 +563,18 @@ export default function ConverterWorkspace() {
                       </div>
 
                       {/* 액션 버튼 그룹 */}
-                      <div className="flex items-center gap-1.5">
+                      <div className="ml-auto flex items-center gap-1.5">
                         {job.status === "done" && (
                           <>
+                            {/* v1.14: 상세페이지 섹션으로 바로 보내기(내려받았다 다시 올리지 않게) */}
+                            <button
+                              onClick={() => sendToShop(job)}
+                              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-sky-500/40 bg-sky-500/15 px-3 py-2 text-xs font-bold text-sky-300 hover:bg-sky-500/25 transition-colors"
+                              title="AI 상세페이지 자동화의 상품 섹션에 이 GIF를 바로 넣습니다"
+                            >
+                              <ShoppingBag className="h-3.5 w-3.5" />
+                              <span>상세페이지로</span>
+                            </button>
                             <button
                               onClick={() => setPreviewJob(job)}
                               className="rounded-lg border border-[#30363d] bg-[#161b22] p-2 text-gray-300 hover:border-amber-500/40 hover:text-amber-300 transition-colors"
@@ -527,7 +585,7 @@ export default function ConverterWorkspace() {
                             <a
                               href={job.downloadUrl ?? "#"}
                               download={`${job.name.replace(/\.[^.]+$/, "")}.gif`}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-500/40 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/30 transition-colors"
+                              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-amber-500/20 border border-amber-500/40 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/30 transition-colors"
                               title="다운로드"
                             >
                               <Download className="h-3.5 w-3.5" />
@@ -553,6 +611,10 @@ export default function ConverterWorkspace() {
                         </button>
                       </div>
                     </div>
+
+                    {job.status === "done" && sendNotes[job.id] && (
+                      <p className="mt-2 text-xs text-sky-300">🛍 {sendNotes[job.id]}</p>
+                    )}
 
                     {/* v1.11: 구간 자르기 — 변환 전·오류 때만 고칠 수 있다(빈칸이면 처음부터 끝까지) */}
                     {(job.status === "ready" || job.status === "error") && (

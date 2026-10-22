@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/client";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+// v1.28: 섹션 이미지는 움직이는 GIF도 받는다(GIF 자동화에서 보내기·직접 올리기). 상품 사진(AI 분석용)은 그대로.
+const SECTION_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 export interface UploadImageDirectResult {
   url?: string;
@@ -55,8 +57,8 @@ export async function uploadCustomSectionImage(
   sectionKey: string,
   file: File,
 ): Promise<UploadImageDirectResult> {
-  if (!ALLOWED_MIME_TYPES.has(file.type)) {
-    return { error: "JPG, PNG, WEBP 형식의 이미지만 업로드할 수 있습니다." };
+  if (!SECTION_MIME_TYPES.has(file.type)) {
+    return { error: "JPG, PNG, WEBP, GIF 형식의 이미지만 업로드할 수 있습니다." };
   }
   if (file.size > MAX_FILE_SIZE) {
     return { error: "파일 용량은 10MB 이하만 업로드할 수 있습니다." };

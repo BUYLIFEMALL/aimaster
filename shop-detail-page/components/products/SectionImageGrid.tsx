@@ -208,6 +208,8 @@ export function SectionImageGrid({
 
   const doneCount = Object.values(states).filter((s) => s.status === "done").length;
   const hasAnyImage = doneCount > 0;
+  // v1.28: 움직이는 GIF 섹션이 있으면 내보내기 방식별 차이를 알려 준다.
+  const hasGif = Object.values(states).some((s) => s.status === "done" && /\.gif(\?|$)/i.test(s.url ?? ""));
   const [showPhonePreview, setShowPhonePreview] = useState(false);
 
   return (
@@ -249,7 +251,7 @@ export function SectionImageGrid({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         className="hidden"
         onChange={handleCustomFileChange}
       />
@@ -426,7 +428,8 @@ export function SectionImageGrid({
                 </div>
                 {state.status === "done" && (
                   <span className="flex items-center gap-1 shrink-0">
-                    {/* v1.25: 이미지 속 가격·날짜 같은 문구를 AI 없이 고쳐 새 버전으로 저장 */}
+                    {/* v1.25: 이미지 속 가격·날짜 같은 문구를 AI 없이 고쳐 새 버전으로 저장. v1.28: GIF는 다시 그리면 움직임이 사라져 숨김 */}
+                    {!/\.gif(\?|$)/i.test(state.url ?? "") && (
                     <button
                       onClick={() => setTextEditing(t)}
                       disabled={isRunning}
@@ -436,6 +439,7 @@ export function SectionImageGrid({
                       <span>✏️</span>
                       <span>문구</span>
                     </button>
+                    )}
                     <button
                       onClick={() => generateOne(t)}
                       disabled={isRunning}
@@ -570,6 +574,11 @@ export function SectionImageGrid({
       </div>
 
       {/* 최종 병합 다운로드 버튼 (하단 고정형 시각화) */}
+      {hasAnyImage && hasGif && (
+        <p className="text-[11px] text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2">
+          🎞️ 움직이는 GIF는 「섹션별 ZIP」에 원본 그대로 들어갑니다. 세로 롱 이미지와 HTML에는 첫 장면으로 들어갑니다.
+        </p>
+      )}
       {hasAnyImage && (
         <div className="sticky bottom-4 z-20 pt-4 flex flex-col sm:flex-row gap-2">
           <a
@@ -582,7 +591,7 @@ export function SectionImageGrid({
           {/* v1.21: 섹션마다 가로 860px JPG로 맞춰 번호 순서대로 ZIP 하나에(긴 한 장 대신 여러 장으로 올릴 때) */}
           <a
             href={`/api/products/${productId}/export-zip`}
-            title="섹션마다 가로 860px JPG로 맞춰 01, 02… 순서로 ZIP 하나에 담아 받습니다"
+            title="섹션마다 가로 860px JPG로 맞춰 01, 02… 순서로 ZIP 하나에 담아 받습니다(GIF는 원본 그대로)"
             className="flex items-center justify-center gap-2 text-center text-sm font-bold text-indigo-700 bg-white hover:bg-indigo-50 border border-indigo-200 px-5 py-4 rounded-2xl shadow-xl shadow-blue-500/10 transition-all whitespace-nowrap shrink-0"
           >
             <span className="text-lg">📦</span>

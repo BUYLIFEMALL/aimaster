@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(맥미니): GIF 자동화 → 상세페이지 섹션 보내기 (상세 v1.28 · GIF v1.14, 배포 대기)
+- GIF 완료 줄 「🛍 상세페이지로」 → 상세페이지 「GIF 받기」(`/products/gif-inbox`) 창으로 브라우저 안에서 GIF 전달(서버 없음) → 상품·섹션 골라 넣기. 섹션 GIF 허용, 섹션 ZIP은 GIF 원본, GIF 섹션 문구 버튼 숨김, S-22-18 배지 안내, GIF 완료 줄 좁은 화면 배치. 새 공용 기준 코드 `gif-handoff`(`docs/SHARED_MODULES.md`). DB 구조·AI 변경 없음.
+- **윈도우 CLI 다음 첫 단계**: ① SQL `shop-detail-page/supabase/migrations/20261022_gif_inbox_v1_28.sql` → `shop-detail-page` 배포 → Ready ② SQL `video-to-gif/supabase/migrations/20261022_send_to_shop_v1_14.sql` → `video-to-gif` 배포 → Ready. 각 `AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.
+- 비용(예정): Vercel 빌드 2회, AI 0회. 링크: https://shop-detail-page.buylife.xyz · https://video-to-gif.buylife.xyz
+
 ## 2026-10-22 — Claude Code(윈도우): 인물사진 v1.41 「변환됨」 표시 · 변환 v1.23 「보관함 열기」·바나나에도 다시 저장 · 바나나 v1.31 `/api/import-result`
 - 한 일: ① 인물사진 보관함 카드에 다시 저장한 사진 「🔁 변환됨 · WEBP」(경로 확장자로 형식) ② 변환 스튜디오 다시 저장 뒤 「○○ 열기 ↗」 ③ 바나나 새 API `/api/import-result`(변환 스튜디오 주소만 CORS, `sharp`로 실제 형식 확인, 작업 종류 `import` 「외부에서 가져옴」, 30건 한도 정리, AI 없음) + 변환 스튜디오 「📥 바나나 기록에 다시 저장」. DB 칸 추가 없음.
 - 사고: 처음에 같은 경로의 기존 `/api/import`(원본 가져오기)를 덮어씀 → 커밋 전 HEAD로 복구, 새 API는 `/api/import-result` — ERROR_LESSONS 기록.

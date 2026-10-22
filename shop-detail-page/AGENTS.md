@@ -348,3 +348,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - `/guide` FAQ 「이미지 속 글자(가격·행사 문구)만 고칠 수 있나요?」 펼침·💧 찍기 설명 확인.
 - 관찰: 배지보다 넓게 지정하면 덮은 자리가 각진 녹색 사각형이 됨 → 안내 한 줄 S-22-18(다음 배포 때 함께).
 - 비용: Vercel 빌드 2회(v1.26 승인 범위 1회 + v1.27 추가 승인 1회), AI 0회, 시험 저장 1건.
+
+## 2026-10-22 v1.28 — GIF 받기(GIF 자동화 → 섹션) · 섹션 GIF · ZIP 원본 GIF · S-22-18 (Claude Code 맥미니 · 배포 대기, 주인님 승인)
+- 플랜: [`docs/PLAN_20261022_GIF_INBOX.md`](docs/PLAN_20261022_GIF_INBOX.md). 2-3 작업(GIF v1.14와 한 쌍).
+- 새 `/products/gif-inbox`(`GifInbox.tsx`): GIF 자동화 창이 보낸 GIF를 받아 상품·섹션을 골라 넣음(기존 직접 올리기 경로 그대로). 약속은 공용 기준 코드 `gif-handoff` = `lib/gifHandoff.ts`(사본 `video-to-gif/lib/gifHandoff.ts`, 기준만 고치기).
+- 섹션 이미지 GIF 허용(10MB), 섹션 ZIP은 GIF 원본 그대로 `.gif`, 긴 PNG·HTML은 첫 장면(안내 한 줄), GIF 섹션은 「✏️ 문구」 숨김. S-22-18 배지 안내 한 줄(편집 창·FAQ), FAQ에 GIF 항목.
+- 버전 v1.28(`lib/version.ts`, SQL `supabase/migrations/20261022_gif_inbox_v1_28.sql` — 버전만). 검수: 메시지 검사 시험 12가지, tsc 0, eslint 0.
+- **윈도우 CLI 다음 첫 단계**: SQL → `shop-detail-page` 배포 1회 → (Ready 뒤) `video-to-gif` v1.14 배포. 그 뒤 맥미니 크롬 실검수.
