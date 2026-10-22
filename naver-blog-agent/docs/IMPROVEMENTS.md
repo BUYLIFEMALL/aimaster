@@ -191,3 +191,8 @@
 ### 2026-10-22 BLC-07 v2.09 운영 완료(2026-10-22 Claude Code 윈도우, 웨일 — Codex 크레딧 제한으로 주인님 지시 이어받음): ① 빈 본문 차단 — 서버(`src/app/api/extension/task/route.ts` + `src/lib/bodyText.ts`)가 본문 문단 없는 대기 원고를 가져가지 않고 `failed`「본문이 비어 있어 입력하지 않았습니다」(다음 원고는 막지 않음), 확장 `writeArticle`도 `EMPTY_BODY` ② 발행 직전 정확 대조 — 이미지 AI 표시 뒤·발행 설정 뒤(최종 버튼 직전)에 `matchingWriterPrefix`로 문서 전체를 다시 대조, 다르면 `FINAL_MISMATCH`로 발행 0(기존 `verify`는 순서 포함만 봐서 중복·추가 문단 통과). 시험: 새 시험(빈 본문 판정·서버 실패 처리 후 다음 원고 정상·중복/추가 문단 거절·정상 통과) 추가, 기존 시험은 가짜 함수/기대값만 보완. 배포 `dpl_B6ng8tG17guwDz7qzN4WKCRWB1Fj` Ready·DB/확장/ZIP v2.09·`check-extension-release` OK. 실제 검수: 웨일 v2.09 확장(주인님 새로고침)으로 비공개 합성 원고 → 약 50초 `published`, `post_url`(logNo=224450052863)·`published_at` 자동 기록, 외부 「비공개 글 입니다.」·RSS 미노출. AI 0. 이미 있던 장치(빈 편집기·선점·runId·임대·복구·옛 확장 호환)는 다시 만들지 않음. 원래부터 실패하던 시험 3개(`test:writing-styles`·`test:categories`·`test:post-status`, server-only 모듈 실행 환경 문제)는 이번 변경과 무관 — 미처리. 미시험: 실제 화면에서 FINAL_MISMATCH가 나는 경우(시험으로만 확인).
 - 플랜: [PLAN_20261022_BLC07_INPUT_VERIFY.md](PLAN_20261022_BLC07_INPUT_VERIFY.md). 회원 안내: 확장 ZIP 다시 받기 → 덮어쓰기 → 확장 관리 화면 새로고침.
 <!-- /BLC07_INPUT_VERIFY_20261022 -->
+
+## 2026-10-23 (Claude Code 윈도우) — 원래 있던 시험 실패 3건 해결(시험 코드만, 배포 없음)
+- `test:writing-styles`·`test:post-status`: v2.04~v2.06에서 `collectedMaterials.ts`·`privatePhotoPost.ts`가 `import "server-only"`를 쓰기 시작했는데 시험의 가짜 불러오기가 처리하지 않아 실패 → `scripts/test-writing-styles.cjs`·`scripts/test-post-status.cjs`의 `mockRequire`가 `server-only`를 빈 값으로 돌려줌.
+- `test:categories`: v2.08부터 원고 저장이 브라우저 캐시 전에 `cacheablePosts()`(`src/lib/postCache.ts`)를 쓰는데 시험 환경에 없어 캐시가 조용히 실패 → `scripts/test-category-selection.cjs` 환경에 실제 `cacheablePosts` 추가.
+- 결과: 블로그 에이전트 `test:*` 전체 실패 0건. 프로그램 코드 변경 없음.

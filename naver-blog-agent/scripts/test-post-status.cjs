@@ -55,6 +55,7 @@ function loadTS(rel) {
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ status: (init && init.status) || 200, body }) } };
     if (id === '@/lib/access') return { checkProgramAccessApi: async () => ({ allowed: true, userId: currentUser }) };
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => admin };
+    if (id === 'server-only') return {}; // 2026-10-23: 서버 전용 표시는 시험에서 빈 값(v2.04~ privatePhotoPost가 쓰기 시작)
     if (id === '@/lib/executionRuns') return loadTS('lib/executionRuns.ts');
     if (id === '@/lib/postStatus') return loadTS('lib/postStatus.ts');
     if (id === '@/lib/postReview') return loadTS('lib/postReview.ts');

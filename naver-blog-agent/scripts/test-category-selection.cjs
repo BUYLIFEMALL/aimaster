@@ -178,7 +178,7 @@ const categories = [
   const saving=loadModule('lib/postSaveClient.ts',{'./postReviewSnapshot':snapshot},{fetch:saveTransport,crypto});
   Object.assign(context, { window: browser, localStorage: storage, setSavedPostCount() {}, setCurrentPostId() {},
     sourceEpoch:{current:0},postSaveRef:{current:null},postIdRef:{current:null},crypto,
-    PostSaveClient:saving.PostSaveClient,mergeSavedPosts:saving.mergeSavedPosts,setSaveRevision(){},setError(message){throw new Error(message);},
+    PostSaveClient:saving.PostSaveClient,mergeSavedPosts:saving.mergeSavedPosts,cacheablePosts:loadModule('lib/postCache.ts').cacheablePosts,/* 2026-10-23: v2.08부터 저장소 캐시 전에 쓰는 함수 */setSaveRevision(){},setError(message){throw new Error(message);},
   });
   await evaluate("savePostToStorage", context)("test-draft", { category: requested.overrideCategory, title: "test", content: "test content", tags: [] }, []);
   assert.equal(savedRequest.url, "/api/posts");

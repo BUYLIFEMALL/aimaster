@@ -27,6 +27,7 @@ function loadTS(filename) {
   cache.set(filename, module.exports);
   const js = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   function mockRequire(id) {
+    if (id === 'server-only') return {}; // 2026-10-23: 서버 전용 표시는 시험에서 빈 값(v2.06 collectedMaterials·privatePhotoPost가 쓰기 시작)
     if (id === './models') return { callAI, parseJsonSafe: (text, fallback) => { try { return JSON.parse(text); } catch { return fallback; } } };
     if (id === '@/lib/access') return { checkProgramAccessApi: async () => hasAccess ? { allowed: true, userId: 'test-user' } : { allowed: false, error: '로그인이 필요합니다.', status: 401 } };
     if (id === '@/lib/apiKeys') return { resolveAvailableAI: async (userId) => { assert.equal(userId, 'test-user'); keyLookups++; return keyAvailable ? { provider: 'openai', apiKey: 'mock-not-a-key' } : null; } };

@@ -328,14 +328,15 @@ test("extension keeps content creation in the web studio and exposes only the ha
   assert.doesNotMatch(panel, /id="regenerateImage"/);
 });
 
-test("supports a fourth image with a third sentence-matched content slot", () => {
+// 2026-10-23: BLC-10(v1.99)에서 「4장 한꺼번에 생성」을 문단별 이미지 노드로 바꿔 문구·확장 규칙에 맞춤(검사 의도: 본문 3번째 이상 이미지 칸 지원).
+test("supports content image slots beyond the third, one node at a time", () => {
   const studio = readStudioSource();
   const visuals = readFileSync(new URL("../../lib/ai/contentVisuals.ts", import.meta.url), "utf8");
   const extension = readFileSync(new URL("../../extension/sidepanel.js", import.meta.url), "utf8");
-  assert.match(studio, /4장 생성 · 대표 1장 \+ 본문 3장/);
-  assert.match(studio, /이 이미지만 다시 생성/);
+  assert.match(studio, /이 이미지만 다시 만들기/);
   assert.match(visuals, /"content-3"/);
-  assert.match(extension, /"content-3"/);
+  assert.match(visuals, /"content-6"/);
+  assert.match(extension, /content-\[1-6\]/);
 });
 
 test("places sentence-matched images before the containing paragraph without splitting it", () => {
@@ -348,14 +349,12 @@ test("places sentence-matched images before the containing paragraph without spl
 test("selects the image model beside representative image creation and sends it to every image action", () => {
   const studio = readStudioSource();
   const representativeRoute = readFileSync(new URL("../../app/api/images/generate/route.ts", import.meta.url), "utf8");
-  const contentRoute = readFileSync(new URL("../../app/api/images/generate-content/route.ts", import.meta.url), "utf8");
   const regenerateRoute = readFileSync(new URL("../../app/api/images/regenerate-content/route.ts", import.meta.url), "utf8");
   const settings = readFileSync(new URL("../../app/settings/ApiKeySettings.tsx", import.meta.url), "utf8");
   assert.match(studio, /대표 이미지 생성 \(나노바나나\)[\s\S]*image-model/);
   assert.match(studio, /id="image-model"/);
   assert.match(studio, /model: imageModel/);
   assert.match(representativeRoute, /resolveGeminiImageModel\(input\?\.model\)/);
-  assert.match(contentRoute, /resolveGeminiImageModel\(input\?\.model\)/);
   assert.match(regenerateRoute, /resolveGeminiImageModel\(input\?\.model\)/);
   assert.doesNotMatch(settings, /gemini-image-model/);
   assert.doesNotMatch(settings, /openai-content-model/);
