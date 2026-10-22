@@ -159,7 +159,7 @@ export function HistoryList() {
                       </button>
                     </div>
                   )}
-                  {o.url && <div className="actions"><button type="button" onClick={() => { void saveImage(o.url!, `banana_${open.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`); markDownloaded(open.id); }}><Download size={13} />다운로드</button></div>}
+                  {o.url && <div className="actions"><button type="button" onClick={() => { void saveImage(o.url!, `banana_${open.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : o.mime?.includes("webp") ? ".webp" : ".png"}`); markDownloaded(open.id); }}><Download size={13} />다운로드</button></div>}
                 </figure>
               ))}
             </div>

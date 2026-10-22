@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { addToIndex, effectiveExpiry, expiresAtFor, isSavedId, normalizeRetention, parseIndex, splitExpired } from "@/lib/comic/savedIndex";
+import { IMAGE_MIME, addToIndex, effectiveExpiry, expiresAtFor, importedMeta, isSavedId, normalizeRetention, parseIndex, splitExpired } from "@/lib/comic/savedIndex";
+import type { ImageExt } from "@/lib/comic/savedIndex";
 import type { SavedMeta } from "@/lib/comic/savedIndex";
 import type { Script } from "@/lib/comic/script";
 import { jpegSize } from "@/lib/comic/imageSize";
@@ -17,7 +18,8 @@ const SIGNED_URL_SECONDS = 3600;
 export interface SavedItem extends Omit<SavedMeta, "script"> { url: string | null; script: Script }
 
 const indexPath = (userId: string) => `${userId}/index.json`;
-const imagePath = (userId: string, id: string) => `${userId}/${id}.jpg`;
+// v1.34: 다시 저장한 작품은 형식(ext)대로, 옛 항목은 .jpg
+const imagePath = (userId: string, id: string, ext: string = "jpg") => `${userId}/${id}.${ext}`;
 
 async function readIndex(userId: string): Promise<SavedMeta[]> {
   const { data, error } = await createAdminClient().storage.from(BUCKET).download(indexPath(userId));
@@ -31,15 +33,15 @@ async function writeIndex(userId: string, list: SavedMeta[]): Promise<boolean> {
   return !error;
 }
 
-async function removeImages(userId: string, ids: string[]) {
-  if (ids.length) await createAdminClient().storage.from(BUCKET).remove(ids.map((id) => imagePath(userId, id)));
+async function removeImages(userId: string, metas: Pick<SavedMeta, "id" | "ext">[]) {
+  if (metas.length) await createAdminClient().storage.from(BUCKET).remove(metas.map((m) => imagePath(userId, m.id, m.ext)));
 }
 
 /** 만료된 항목을 지운 뒤의 목록 */
 async function liveIndex(userId: string): Promise<SavedMeta[]> {
   const list = await readIndex(userId);
   const { keep, expired } = splitExpired(list);
-  if (expired.length) { await removeImages(userId, expired.map((m) => m.id)); await writeIndex(userId, keep); }
+  if (expired.length) { await removeImages(userId, expired); await writeIndex(userId, keep); }
   return keep;
 }
 
@@ -53,10 +55,10 @@ export async function purgeExpiredSaved(userId: string): Promise<number> {
 export async function listSaved(userId: string): Promise<SavedItem[]> {
   const list = await liveIndex(userId);
   if (!list.length) return [];
-  const { data } = await createAdminClient().storage.from(BUCKET).createSignedUrls(list.map((m) => imagePath(userId, m.id)), SIGNED_URL_SECONDS);
+  const { data } = await createAdminClient().storage.from(BUCKET).createSignedUrls(list.map((m) => imagePath(userId, m.id, m.ext)), SIGNED_URL_SECONDS);
   const urlByPath = new Map<string, string | null>((data ?? []).map((s) => [s.path ?? "", s.signedUrl ?? null]));
   // 화면에는 실제 만료일(저장된 값과 만든 날 + 30일 중 빠른 쪽)을 보여 준다(v1.24 — 옛 90일·무기한 항목 포함)
-  return list.map((m) => ({ ...m, expiresAt: new Date(effectiveExpiry(m)).toISOString(), url: urlByPath.get(imagePath(userId, m.id)) ?? null }));
+  return list.map((m) => ({ ...m, expiresAt: new Date(effectiveExpiry(m)).toISOString(), url: urlByPath.get(imagePath(userId, m.id, m.ext)) ?? null }));
 }
 
 export async function saveComic(userId: string, o: {
@@ -72,8 +74,19 @@ export async function saveComic(userId: string, o: {
     ...(jpegSize(buf) ?? {}),
   };
   const { keep, drop } = addToIndex(await liveIndex(userId), meta);
-  if (!(await writeIndex(userId, keep))) { await removeImages(userId, [id]); return null; }
-  await removeImages(userId, drop.map((m) => m.id));
+  if (!(await writeIndex(userId, keep))) { await removeImages(userId, [{ id }]); return null; }
+  await removeImages(userId, drop);
+  return { id, dropped: drop.length };
+}
+
+/** v1.34: 이미지 변환 스튜디오에서 다시 저장한 그림 1장을 「그림만 있는 작품」으로 보관(30일, 회원당 30개 한도 동일) */
+export async function saveImported(userId: string, buf: Buffer, ext: ImageExt): Promise<{ id: string; dropped: number } | null> {
+  const id = crypto.randomUUID();
+  const up = await createAdminClient().storage.from(BUCKET).upload(imagePath(userId, id, ext), buf, { contentType: IMAGE_MIME[ext], upsert: false, cacheControl: "3600" });
+  if (up.error) return null;
+  const { keep, drop } = addToIndex(await liveIndex(userId), importedMeta({ id, ext, bytes: buf.length }));
+  if (!(await writeIndex(userId, keep))) { await removeImages(userId, [{ id, ext }]); return null; }
+  await removeImages(userId, drop);
   return { id, dropped: drop.length };
 }
 
@@ -94,7 +107,8 @@ export async function deleteAllSaved(userId: string): Promise<number> {
 export async function deleteSaved(userId: string, id: string): Promise<boolean> {
   if (!isSavedId(id)) return false;
   const list = await readIndex(userId);
-  if (!list.some((m) => m.id === id)) return false;
-  await removeImages(userId, [id]);
+  const meta = list.find((m) => m.id === id);
+  if (!meta) return false;
+  await removeImages(userId, [meta]);
   return writeIndex(userId, list.filter((m) => m.id !== id));
 }

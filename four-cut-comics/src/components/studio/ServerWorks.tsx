@@ -7,7 +7,7 @@ import type { Script } from "@/lib/comic/script";
 import { convertPresetFor } from "@/lib/comic/imageSize";
 import { markHandoff } from "@/lib/linkHandoff";
 
-interface Item { id: string; url: string | null; title: string; episode: number; panelCount: number; aspect: string; createdAt: string; expiresAt: string | null; script: Script; width?: number; height?: number }
+interface Item { id: string; url: string | null; title: string; episode: number; panelCount: number; aspect: string; createdAt: string; expiresAt: string | null; script: Script; width?: number; height?: number; imported?: string; ext?: string }
 
 const fmt = (iso: string) => new Date(iso).toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" });
 
@@ -36,7 +36,7 @@ export function ServerWorks() {
     try {
       const blob = await (await fetch(it.url)).blob();
       const url = URL.createObjectURL(blob);
-      downloadUrl(url, `만화-${it.episode}화.jpg`);
+      downloadUrl(url, it.imported ? `만화-변환-${it.id.slice(0, 8)}.${it.ext ?? "jpg"}` : `만화-${it.episode}화.jpg`);
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     } catch { setError("내려받지 못했습니다. [새로고침] 후 다시 시도해 주세요(주소는 1시간 동안 유효합니다)."); }
   }
@@ -78,14 +78,16 @@ export function ServerWorks() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {w.url ? <img src={w.url} alt={`${w.title} 만화`} /> : <div className="cc-placeholder">이미지 없음</div>}
               <b>{w.title}{w.episode > 1 ? ` (${w.episode}화)` : ""}</b>
-              <small className="muted">{w.panelCount}컷 · {w.aspect} · {fmt(w.createdAt)}{w.expiresAt ? ` · ${fmt(w.expiresAt)}까지 보관` : " · 직접 지울 때까지"}</small>
+              {/* v1.34: 이미지 변환 스튜디오에서 다시 저장한 그림만 있는 작품 */}
+              {w.imported && <small className="muted" data-converted-badge>🔁 변환됨 · {(w.ext ?? "jpg").toUpperCase()}</small>}
+              <small className="muted">{w.imported ? "그림만" : `${w.panelCount}컷 · ${w.aspect}`} · {fmt(w.createdAt)}{w.expiresAt ? ` · ${fmt(w.expiresAt)}까지 보관` : " · 직접 지울 때까지"}</small>
               <div className="actions">
                 <button type="button" onClick={() => download(w)} disabled={!w.url}><Download size={14} />다운로드</button>
                 {/* v1.26: 서버 보관 작품을 이미지 변환 스튜디오로(서명 주소 1시간, 변환은 브라우저 안에서) */}
                 {w.url && <a className="button" href={`https://image-convert-studio.buylife.xyz/convert?src=${encodeURIComponent(w.url)}${convertPresetFor(w.width, w.height) ? `&preset=${convertPresetFor(w.width, w.height)}` : ""}&via=four-cut-comics`} onClick={() => markHandoff(w.id, "image-convert-studio")} target="_blank" rel="noopener noreferrer" title="WebP·PNG·JPEG·AVIF 형식·크기 바꾸기(이미지 변환 스튜디오)">🔁 형식 바꾸기</a>}
                 {/* v1.32: 완성작을 시네마틱 스토리보드 참고 이미지로(서명 주소 1시간, 받는 쪽이 저장소를 확인) — 보낸 곳 ?via=로 돌아가기·프로젝트 기록 */}
                 {w.url && <a className="button" href={`https://cinematic-storyboard-studio.buylife.xyz/studio?src=${encodeURIComponent(w.url)}&via=four-cut-comics`} onClick={() => markHandoff(w.id, "cinematic-storyboard-studio")} target="_blank" rel="noopener noreferrer" title="이 만화를 참고 이미지로 시네마틱 스토리보드 만들기" data-storyboard-link>🎬 스토리보드로</a>}
-                <button type="button" onClick={() => setOpen(open === w.id ? null : w.id)} aria-expanded={open === w.id}><FileText size={14} />대본</button>
+                {!w.imported && <button type="button" onClick={() => setOpen(open === w.id ? null : w.id)} aria-expanded={open === w.id}><FileText size={14} />대본</button>}
                 {confirm === w.id
                   ? <button type="button" className="danger" onClick={() => remove(w.id)}><Trash2 size={14} />정말 삭제</button>
                   : <button type="button" onClick={() => setConfirm(w.id)}><Trash2 size={14} />삭제</button>}

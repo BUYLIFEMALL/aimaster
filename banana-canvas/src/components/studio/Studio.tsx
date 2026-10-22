@@ -599,7 +599,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
                       )}
                       {o.url && (
                         <div className="actions">
-                          <button type="button" onClick={() => { void saveImage(o.url!, `banana_${result.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`); markDownloaded(result.id); }}><Download size={13} />다운로드</button>
+                          <button type="button" onClick={() => { void saveImage(o.url!, `banana_${result.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : o.mime?.includes("webp") ? ".webp" : ".png"}`); markDownloaded(result.id); }}><Download size={13} />다운로드</button>
                           <button type="button" onClick={() => setZoom(o.url)}><Maximize2 size={13} />크게 보기{o.w ? ` (${o.w}×${o.h})` : ""}</button>
                           <button type="button" onClick={() => useAsBase(o)}><RefreshCw size={13} />이 결과로 계속 편집</button>
                           <a className="button" href={withVia(`${CONVERT_URL}?src=${encodeURIComponent(o.url)}${convertPreset(o.w, o.h)}`, "banana-canvas")} target="_blank" rel="noopener noreferrer" onClick={() => markHandoff(result.id, "convert")}>🔁 형식 바꾸기(WebP·PNG·JPG)</a>

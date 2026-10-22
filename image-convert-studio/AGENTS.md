@@ -189,3 +189,7 @@
 ## ✅ v1.23 배포 (2026-10-22, Claude Code 윈도우) — 바나나에도 다시 저장 · 보관함 열기
 - `src/lib/resave.ts` `RESAVE_TARGETS`에 바나나(`https://banana-canvas.buylife.xyz/api/import-result`, 「바나나 기록」) 추가, 받는 곳마다 `open`(보관함 주소). 저장 성공 뒤 「○○ 열기 ↗」(`data-resave-open`, 새 탭). 4컷은 아직 대상 아님(대본 포함 구조).
 - 배포: 예외 ② 적용(바나나 새 API와 함께 실화면 검수가 전제). 검수: 시험 46개, tsc·빌드. 크롬: 바나나·인물사진 두 곳 다시 저장 성공·열기 링크 확인.
+
+## ✅ v1.24 배포 (2026-10-22, Claude Code 윈도우) — 4컷에도 다시 저장 · 너무 큰 그림 미리 알림
+- `RESAVE_TARGETS`에 4컷(`https://four-cut-comics.buylife.xyz/api/import-result`, 열기 `/works`). `resaveTooBig(via, bytes)`: base64 길이가 받는 곳 한도(3,000,000자 ≈ 2.2MB)를 넘으면 버튼 대신 「너무 큽니다 — 품질이나 크기를 낮춰 다시 변환」(`data-resave-too-big`). 기존 시험의 「4컷은 대상 아님」 기대값을 바뀐 동작으로 고침(시험 유지).
+- 배포: 예외 ②(4컷 새 API와 함께). 검수: 시험 47개, tsc·빌드, 크롬에서 4컷 다시 저장·열기 링크 확인.

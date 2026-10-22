@@ -196,3 +196,10 @@
 ## ✅ v1.33 배포 (2026-10-22, Claude Code 윈도우) — 넘김 기록
 - 「내 작품」의 「🔁 형식 바꾸기」·「🎬 스토리보드로」를 처음 누르면 `markHandoff(w.id, to)` → 새 API `POST /api/link-handoff`(인물사진 v1.39와 같은 모양, 회원 본인 `usage_logs` action `linked_handoff`). 보관함이 DB 표가 아닌 저장소 `index.json`이라 관리자 집계용으로 이 방식. 공용 `link-mark` 사본 `src/lib/linkMark.ts` 새로 둠.
 - 검수: 시험 62개, tsc·빌드. 크롬(시험 계정): 운영 v1.33, 잘못된 to·itemId → 400. 버튼은 저장 작품이 없어 미확인.
+
+## ✅ v1.34 배포 (2026-10-22, Claude Code 윈도우) — 변환 스튜디오에서 「4컷 보관함에 다시 저장」(그림만 있는 작품)
+- 설계: 보관함 항목(`SavedMeta`)에 선택 칸 `imported: "image-convert-studio"`·`ext: jpg|png|webp`. 그림만 있는 작품은 빈 대본(`panels: []`)이라 기존 `parseIndex` 검사를 그대로 통과(`importedMeta`). 그림 경로는 `<회원>/<id>.<ext>`(옛 항목은 `.jpg`) — 목록 서명·만료 삭제·한 장 삭제·한도 초과 정리가 모두 `ext`를 따름.
+- 새 API `POST /api/import-result`: 변환 스튜디오 주소만 CORS(로그인 쿠키), base64 ≤ 3,000,000자, 파일 첫 바이트로 JPEG·PNG·WebP 판별(`detectImageExt` — 4컷엔 sharp 없음), 30일 보관·30개 한도 동일, AI 없음.
+- 화면: 작품 카드에 「🔁 변환됨 · WEBP」·「그림만」, 대본 버튼 숨김, 다운로드 이름 `만화-변환-<id8>.<ext>`. 인스타 예약 후보(`WorksInstaSchedule`)에서는 제외(대본·회차 캡션 없음, WebP·PNG는 인스타 게시 형식 아님).
+- **버킷 허용 형식 확대**: `four-cut-comics-files`가 `image/jpeg`·`application/json`만 허용해 첫 시험에서 WebP 업로드가 거절됨 → 주인님 승인(A안)으로 `image/png`·`image/webp` 추가(비공개·5MB 그대로), `supabase/migrations/0011_bucket_png_webp_v1_34.sql`, Storage API `updateBucket`으로 운영 적용.
+- 배포: 예외 ②(변환 스튜디오가 이 새 API를 부름). 검수: 시험 64개, tsc·빌드. 크롬(시험 계정): 바나나 그림 + `via=four-cut-comics` → WebP 변환 → 다시 저장 → 「내 작품」 카드 「변환됨 · WEBP · 그림만」·대본 버튼 없음·인스타 후보 제외 확인 후 삭제.

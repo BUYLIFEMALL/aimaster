@@ -6,6 +6,9 @@
 > **프로그램 공식 URL**:  
 > https://banana-canvas.buylife.xyz
 
+
+> **🟡 미배포 대기 (2026-10-22 23:17 「작은 수정은 모았다가 배포」 지침)** — 다음 바나나 배포 때 함께 내보내고 이 줄을 지운다. 버전은 그때 한 번만 올린다.
+> - 다운로드 파일 이름 확장자: WebP 결과가 `.png`로 저장되던 것을 `.webp`로(`src/components/workspace/HistoryList.tsx` 기록 상세, `src/components/studio/Studio.tsx` 결과 영역). 시험 `tests/ideaParam.test.mjs` 「미배포 대기(2026-10-22)」. 커밋: 이 묶음 커밋(HANDOFF 2026-10-22 「4컷 v1.34 …」 항목).
 ---
 
 ## 1. 프로그램 로직 및 기능 개선

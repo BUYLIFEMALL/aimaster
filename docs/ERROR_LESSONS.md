@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — 다른 형식(WebP·PNG)을 저장하게 바꿨는데 Storage 버킷 `allowed_mime_types`가 JPEG만 허용해 업로드가 500으로 실패 (four-cut-comics v1.34, Claude Code 윈도우)
+- 증상: 변환 스튜디오 → 4컷 「다시 저장」이 「보관함에 저장하지 못했습니다」. 인물사진·바나나 버킷은 형식 제한이 없어 같은 기능이 됐는데 4컷만 실패.
+- 원인: `four-cut-comics-files` 버킷을 만들 때 `allowed_mime_types = ['image/jpeg','application/json']`(마이그레이션 0006) — 코드가 아니라 저장소 설정이 거절.
+- 해결: 주인님 승인 후 `storage.updateBucket`으로 PNG·WebP 추가(비공개·5MB 유지), 마이그레이션 0011에 기록.
+- 다음부터 확인: 저장 형식·크기를 바꾸는 기능은 플랜 단계에서 대상 버킷의 `allowed_mime_types`·`file_size_limit`을 `storage.getBucket`(읽기 전용)으로 먼저 확인한다.
+
 ## 2026-10-22 — 공용 문서를 파이썬으로 고치다 `docs/HANDOFF.md` 작업 파일을 0바이트로 비움(다른 세션 미커밋 수정 유실 가능) (미배포 목록 작업, Claude Code 윈도우)
 - 증상: `io.open(p, "w").write(hf(io.open(p).read()))`처럼 **쓰기 열기를 먼저** 한 줄에 쓰자, 파이썬이 `open(..., "w")`를 먼저 실행해 파일을 비운 뒤 읽음 → 빈 내용으로 처리하다 실패, 작업 파일 0바이트(커밋 쪽 `.git/*_mine.md` 경로는 정상이라 커밋엔 문제 없음).
 - 영향: 작업 시작 때부터 ` M`이던 다른 세션의 미커밋 수정이 디스크에서 사라졌을 수 있음. git 오브젝트(최근 2.5시간 HANDOFF 사본 14개 모두 커밋된 것)·편집기 로컬 기록에서 미커밋 사본을 찾지 못함 → 커밋된 최신 내용(HEAD)으로 작업 파일 복원(`git show HEAD:docs/HANDOFF.md`, 비지 않았는지 확인 후 바꿔치기).

@@ -74,8 +74,21 @@ test("v1.23 다시 저장 뒤 보관함 열기 링크·4컷은 아직 대상 아
   const { resaveTarget } = await import("../src/lib/resave.ts");
   assert.equal(resaveTarget("banana-canvas", "image/webp")?.open, "https://banana-canvas.buylife.xyz/history");
   assert.equal(resaveTarget("portrait-photo", "image/jpeg")?.open, "https://portrait-photo.buylife.xyz/history");
-  assert.equal(resaveTarget("four-cut-comics", "image/png"), null);
+  assert.equal(resaveTarget("four-cut-comics", "image/png")?.name, "4컷 보관함"); // v1.24부터 대상
   const { readFileSync } = await import("node:fs");
   const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
   assert.match(tool, /data-resave-open/);
+});
+
+test("v1.24 4컷 보관함도 다시 저장 대상·너무 큰 그림은 미리 알림", async () => {
+  const { resaveTarget, resaveTooBig } = await import("../src/lib/resave.ts");
+  assert.equal(resaveTarget("four-cut-comics", "image/webp")?.api, "https://four-cut-comics.buylife.xyz/api/import-result");
+  assert.equal(resaveTarget("four-cut-comics", "image/webp")?.open, "https://four-cut-comics.buylife.xyz/works");
+  assert.equal(resaveTooBig("portrait-photo", 2_250_000), false);
+  assert.equal(resaveTooBig("portrait-photo", 2_250_001), true);
+  assert.equal(resaveTooBig(undefined, 9_999_999), false);
+  const { readFileSync } = await import("node:fs");
+  const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(tool, /resaveTooBig\(importVia\.key, item\.result\.blob\.size\) \?/);
+  assert.match(tool, /data-resave-too-big/);
 });

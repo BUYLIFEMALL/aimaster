@@ -133,3 +133,8 @@ test("v1.31 변환 스튜디오에서 다시 저장(/api/import-result): 그 주
   const old = readFileSync(new URL("../src/app/api/import/route.ts", import.meta.url), "utf8");
   assert.match(old, /const ALLOWED_BUCKETS = \["ai-image-generations", "portrait-photo-files"\];/);
 });
+
+test("미배포 대기(2026-10-22): 기록 다운로드 이름이 WebP면 .webp", () => {
+  const ui = readFileSync(new URL("../src/components/workspace/HistoryList.tsx", import.meta.url), "utf8");
+  assert.match(ui, /o\.mime\?\.includes\("webp"\) \? "\.webp" : "\.png"/);
+});

@@ -24,7 +24,7 @@ import { importSourceOf } from "@/lib/importSource";
 import { useLang } from "./LangProvider";
 import { viaSource } from "@/lib/linkMark";
 import { markLinkDone } from "@/lib/linkDone";
-import { resaveTarget, resaveToSender } from "@/lib/resave";
+import { resaveTarget, resaveTooBig, resaveToSender } from "@/lib/resave";
 
 type Status = "idle" | "working" | "done" | "error";
 interface Item {
@@ -661,6 +661,12 @@ export function ConvertTool() {
                   {/* v1.22: 받은 그림을 변환했으면 보낸 프로그램 보관함에 다시 저장(지금은 AI 인물사진만, JPEG·PNG·WebP) */}
                   {item.result && item.file === importedFile.current && importVia && resaveTarget(importVia.key, item.result.blob.type) && (
                     <div className="px-2 pt-2" data-resave>
+                      {/* v1.24: 받는 곳 한도(약 2.2MB)를 넘으면 누르기 전에 알림 */}
+                      {resaveTooBig(importVia.key, item.result.blob.size) ? (
+                        <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-2 py-1.5 text-[11px] text-amber-200" data-resave-too-big>
+                          📥 {resaveTarget(importVia.key, item.result.blob.type)!.name}에 다시 저장하기엔 너무 큽니다(약 2.2MB까지) — 품질이나 크기를 낮춰 다시 변환해 주세요.
+                        </p>
+                      ) : (
                       <button
                         type="button"
                         disabled={resave[item.id]?.state === "saving" || resave[item.id]?.state === "saved"}
@@ -673,6 +679,7 @@ export function ConvertTool() {
                       >
                         {resave[item.id]?.state === "saving" ? "저장하는 중…" : resave[item.id]?.state === "saved" ? `✅ ${resaveTarget(importVia.key, item.result.blob.type)!.name}에 저장했습니다` : `📥 ${resaveTarget(importVia.key, item.result.blob.type)!.name}에 다시 저장`}
                       </button>
+                      )}
                       {resave[item.id]?.state === "saved" && (
                         <a href={resaveTarget(importVia.key, item.result.blob.type)!.open} target="_blank" rel="noopener noreferrer" data-resave-open className="mt-1 block text-center text-[11px] font-bold text-emerald-200 underline underline-offset-2">
                           {resaveTarget(importVia.key, item.result.blob.type)!.name} 열기 ↗

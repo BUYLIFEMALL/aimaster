@@ -37,8 +37,9 @@ const label = (c: { title: string; episode: number }) => `${c.title || "4컷 만
 async function loadServerWorks(): Promise<Candidate[]> {
   const r = await fetch("/api/saved", { cache: "no-store" });
   const d = r.ok ? await r.json() : null;
-  const items = (Array.isArray(d) ? d : d?.items ?? []) as { id: string; url: string | null; title: string; episode: number; createdAt: string }[];
-  return items.filter((it) => it.url).map((it) => ({ key: `s-${it.id}`, source: "server" as const, title: it.title, episode: it.episode, createdAt: Date.parse(it.createdAt) || 0, src: it.url! }));
+  const items = (Array.isArray(d) ? d : d?.items ?? []) as { id: string; url: string | null; title: string; episode: number; createdAt: string; imported?: string }[];
+  // v1.34: 변환 스튜디오에서 다시 저장한 그림만 있는 작품은 제외(대본·회차 캡션이 없고 WebP·PNG는 인스타 게시 형식이 아님)
+  return items.filter((it) => it.url && !it.imported).map((it) => ({ key: `s-${it.id}`, source: "server" as const, title: it.title, episode: it.episode, createdAt: Date.parse(it.createdAt) || 0, src: it.url! }));
 }
 
 export function WorksInstaSchedule({ userId }: { userId: string }) {
