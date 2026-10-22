@@ -51,6 +51,8 @@
 
 - **v1.04 (2026-10-23)** Suno V6 Wild 모델 카드 추가(`suno:V6_WILD`, 공용 Suno 코드에 이미 있던 모델 — 모델 12개). 배포 `ai-music-studio-8530x18lm` Ready·DB v1.04, 크롬 화면 카드·설명 14px 확인. 같은 날 시험 계정으로 실제 생성 1회 확인 — 탭을 닫은 상태에서 웹훅으로 29초 만에 2곡 완성, 크레딧 약 12(V6 Mini와 같음).
 
+- **v1.05 (2026-10-23)** ① 곡 카드 「🎚️ 마스터링 스튜디오 →」(파일을 직접 넣는 방식이라 안내 문구 함께) ② Suno 곡 카드 「🔁 곡 연장·구간 다시 만들기는 음악(SUNO)자동화에서 →」(`/plannings`, 곡 자체는 넘어가지 않음) ③ 모델 카드 접기 — 추천 3개(Lyria 3.5·ElevenLabs·Suno V6)+고른 모델, 「모델 모두 보기 (12개)」 ④ 곡별 ☆/★ 별 표시·메모(`PATCH /api/generations/[id]`, 본인 행 `options.star`·`options.memo`만 합침) + 보관함 「★ 별 표시」 거르기·정렬(최신순/별 표시 먼저/모델별). 배포 `ai-music-studio-n9irw83j1` Ready·DB v1.05, 크롬 시험 계정 — 카드 3→12 펼침, V6 Wild 곡 별·메모 저장 후 새로고침해도 유지, 거르기·정렬 확인. 비용: 빌드 1회.
+
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
 ## 6. 연계·병합 아이디어 → `docs/IMPROVEMENTS.md` §3
 ## 7. UI/UX 개선안 → `docs/IMPROVEMENTS.md` §2, 디자인: `docs/DESIGN_HANDOFF.md`
