@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createCampaignAction } from "@/lib/actions/campaigns";
-import type { CampaignChannel, CampaignRecurrence } from "@/types/database.types";
+import type { CampaignChannel, CampaignRecurrence, MobileType } from "@/types/database.types";
 import { buildSmsText, smsBytes, SMS_MAX_BYTES, LMS_MAX_BYTES } from "@/lib/sms";
 
 const TARGET_SEND_COUNT_OPTIONS = Array.from({ length: 5 }, (_, n) => n); // 0~4차까지 받은 리드 대상
@@ -32,11 +32,14 @@ export function CampaignForm({
   smtpAccounts,
   defaultDraftId,
   hasSolapi,
+  hasKakaoPf,
 }: {
   drafts: DraftOption[];
   smtpAccounts: SmtpAccountOption[];
   defaultDraftId?: string;
   hasSolapi: boolean;
+  /** v1.28 본인 카카오 채널 ID(pfId)를 등록했는지 — 없으면 카카오 선택지를 막는다 */
+  hasKakaoPf: boolean;
 }) {
   const router = useRouter();
   const [recurrence, setRecurrence] = useState<CampaignRecurrence>("once");
@@ -44,6 +47,8 @@ export function CampaignForm({
   const [channel, setChannel] = useState<CampaignChannel>("email");
   const [smsText, setSmsText] = useState("");
   const [smsOptout, setSmsOptout] = useState("");
+  // v1.28 휴대폰 발송 방식: 문자 또는 카카오 브랜드 메시지(본인 카카오 채널 등록 시에만)
+  const [mobileType, setMobileType] = useState<MobileType>("sms");
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const wantsEmail = channel !== "sms";
@@ -102,7 +107,51 @@ export function CampaignForm({
             </p>
           )}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">문자 본문</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">휴대폰 발송 방식</label>
+            <div className="flex flex-wrap gap-2">
+              {([
+                ["sms", "📱 문자(SMS·LMS)"],
+                ["kakao", "💬 카카오 브랜드 메시지"],
+              ] as [MobileType, string][]).map(([value, label]) => {
+                const disabled = value === "kakao" && !hasKakaoPf;
+                return (
+                  <label
+                    key={value}
+                    className={`flex min-h-[40px] items-center gap-2 whitespace-nowrap rounded-lg border px-3 text-sm ${
+                      disabled ? "cursor-not-allowed border-gray-100 text-gray-300" : "cursor-pointer"
+                    } ${mobileType === value ? "border-blue-500 bg-blue-50 font-semibold text-blue-700" : disabled ? "" : "border-gray-200 text-gray-600"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="mobileType"
+                      value={value}
+                      checked={mobileType === value}
+                      disabled={disabled}
+                      onChange={() => setMobileType(value)}
+                    />
+                    {label}
+                  </label>
+                );
+              })}
+            </div>
+            {!hasKakaoPf ? (
+              <p className="mt-1 text-xs text-gray-400">
+                카카오 브랜드 메시지는 설정 → 「📱 문자·카카오 (SOLAPI)」에서 본인 카카오 채널 ID(pfId)를 등록해야 쓸 수 있습니다.
+              </p>
+            ) : mobileType === "kakao" ? (
+              <div className="mt-2 space-y-1">
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                  <input type="checkbox" name="kakaoFallbackSms" />
+                  카카오로 못 받는 고객에게는 같은 내용을 문자로 대신 보내기
+                </label>
+                <p className="text-xs text-gray-400">
+                  본인 카카오 채널을 친구로 추가한 고객에게만 카카오로 나갑니다. 대신 보내기를 켜면 나머지 고객은 문자 요금이 듭니다.
+                </p>
+              </div>
+            ) : null}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{mobileType === "kakao" ? "메시지 본문" : "문자 본문"}</label>
             <textarea
               name="smsText"
               required
@@ -246,7 +295,7 @@ export function CampaignForm({
         disabled={
           isPending ||
           (wantsEmail && (drafts.length === 0 || smtpAccounts.length === 0)) ||
-          (wantsSms && (!hasSolapi || previewBytes > LMS_MAX_BYTES))
+          (wantsSms && (!hasSolapi || previewBytes > LMS_MAX_BYTES || (mobileType === "kakao" && !hasKakaoPf)))
         }
         className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 text-white font-bold py-3 px-4 rounded-xl transition-all"
       >

@@ -25,6 +25,7 @@ export interface CampaignCardData {
   stepmail_email_drafts: { subject: string } | null;
   channel: "email" | "sms" | "both";
   sms_text: string | null;
+  mobile_type?: "sms" | "kakao" | null;
 }
 
 export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
@@ -92,7 +93,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
       {campaign.channel !== "sms" && (
         <p className="text-xs text-gray-500 truncate">📧 {campaign.stepmail_email_drafts?.subject ?? "(삭제된 초안)"}</p>
       )}
-      {campaign.channel !== "email" && <p className="text-xs text-gray-500 truncate">📱 {campaign.sms_text ?? "(문자 본문 없음)"}</p>}
+      {campaign.channel !== "email" && <p className="text-xs text-gray-500 truncate">{campaign.mobile_type === "kakao" ? "💬" : "📱"} {campaign.sms_text ?? "(문자 본문 없음)"}</p>}
       <p className="text-xs text-gray-500">🎯 {targetSendCountLabel(campaign.target_send_count)} · 최대 {campaign.quantity_per_run}건</p>
       <p className="text-xs text-gray-500">⏰ {scheduleText}</p>
       <p className="text-xs text-gray-400 mt-1">

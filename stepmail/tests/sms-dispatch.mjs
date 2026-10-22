@@ -7,6 +7,7 @@ const mocks = {
   "server-only": "export {};",
   "@/lib/email/transport": "export const sendViaSmtpAccount = async (acc, to) => { if (globalThis.fx.failEmail) throw new Error('smtp down'); globalThis.fx.emails.push(to); };",
   "@/lib/solapi/client": "export const sendSms = async (acc, to, text) => { if (globalThis.fx.failSms) throw new Error('sms down'); globalThis.fx.sms.push({ key: acc.api_key, to, text }); };",
+  "@/lib/kakaoBrand": "export const sendKakaoBrandMessage = async (acc, to, text, opt) => { globalThis.fx.kakao.push({ key: acc.api_key, pfId: acc.kakao_pf_id, to, text, fallbackSms: opt.fallbackSms }); };",
 };
 const bundle = async (entry) => {
   const out = await build({
@@ -36,14 +37,14 @@ assert.equal(sms.smsBytes("가a"), 3);
 ok("문자 전문: (광고) 머리말·닉네임 치환·수신거부 줄, 바이트 계산");
 
 // ── 발송 ──
-function fixture({ channel, solapi = true, smsText = "{닉네임}님 소식", smsOptout = "무료수신거부 080-000-0000", leads }) {
-  const fx = { emails: [], sms: [], logs: [], updates: [], failEmail: false, failSms: false };
+function fixture({ channel, solapi = true, pfId = null, mobileType = "sms", fallback = false, smsText = "{닉네임}님 소식", smsOptout = "무료수신거부 080-000-0000", leads }) {
+  const fx = { emails: [], sms: [], kakao: [], logs: [], updates: [], failEmail: false, failSms: false };
   const rows = {
-    stepmail_campaigns: [{ id: "c1", channel, sms_text: smsText, sms_optout: smsOptout }],
+    stepmail_campaigns: [{ id: "c1", channel, sms_text: smsText, sms_optout: smsOptout, mobile_type: mobileType, kakao_fallback_sms: fallback }],
     stepmail_email_drafts: [{ id: "d1", subject: "제목", body_html: "<p>본문</p>" }],
     stepmail_campaign_smtp_accounts: [{ campaign_id: "c1", smtp_account_id: "s1", sort_order: 0 }],
     user_smtp_accounts: [{ id: "s1", smtp_host: "h", smtp_port: 465, smtp_user: "u", smtp_password: "p", from_name: null, is_active: true }],
-    user_solapi_accounts: solapi ? [{ user_id: "member-a", api_key: "own-solapi", api_secret: "x", sender_phone: "01000000000", kakao_pf_id: null, rcs_brand_id: null }] : [],
+    user_solapi_accounts: solapi ? [{ user_id: "member-a", api_key: "own-solapi", api_secret: "x", sender_phone: "01000000000", kakao_pf_id: pfId, rcs_brand_id: null }] : [],
     stepmail_leads: leads,
   };
   fx.client = { from: (t) => {
@@ -104,6 +105,25 @@ const camp = (draft_id = null) => ({ id: "c1", user_id: "member-a", draft_id, ta
   assert.deepEqual(r, { sentCount: 1, failedCount: 0 });
   assert.equal(fx.sms.length, 0); assert.equal(fx.logs[0].channel, "email");
   ok("기존 이메일 캠페인은 예전처럼 메일만(문자 없음)"); }
+// ── v1.28 카카오 브랜드 메시지 ──
+{ const fx = fixture({ channel: "sms", mobileType: "kakao", pfId: null, leads: [lead("a", "010-1111-2222")] });
+  const r = await dispatchCampaign(fx.client, camp());
+  assert.match(r.notice, /카카오 채널/); assert.equal(fx.kakao.length + fx.sms.length + fx.logs.length, 0);
+  ok("카카오 방식인데 본인 채널(pfId)이 없으면 아무것도 보내지 않고 안내(문자로도 몰래 보내지 않음)"); }
+
+{ const fx = fixture({ channel: "sms", mobileType: "kakao", pfId: "KA01PF-own", fallback: true, leads: [lead("a", "010-1111-2222"), lead("b", null)] });
+  const r = await dispatchCampaign(fx.client, camp());
+  assert.deepEqual(r, { sentCount: 1, failedCount: 0 });
+  assert.deepEqual(fx.kakao, [{ key: "own-solapi", pfId: "KA01PF-own", to: "01011112222", text: "(광고) a님 소식\n무료수신거부 080-000-0000", fallbackSms: true }]);
+  assert.equal(fx.sms.length, 0);
+  assert.deepEqual(fx.logs.map((l) => [l.channel, l.status]), [["kakao", "sent"]]);
+  ok("카카오: 본인 SOLAPI·본인 채널로, 대체 문자 설정 전달, 기록 채널 kakao, 문자 발송 함수는 안 씀"); }
+
+{ const fx = fixture({ channel: "sms", mobileType: "sms", pfId: "KA01PF-own", leads: [lead("a", "010-1111-2222")] });
+  await dispatchCampaign(fx.client, camp());
+  assert.equal(fx.kakao.length, 0); assert.equal(fx.sms.length, 1);
+  ok("채널이 등록돼 있어도 문자 방식 캠페인은 예전처럼 문자로"); }
+
 // ── 엑셀 가져오기 전화번호 ──
 { const XLSX = await import("xlsx");
   const { parseLeadsWorkbook } = await bundle("lib/leads.ts");

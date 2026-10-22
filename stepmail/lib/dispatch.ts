@@ -4,6 +4,7 @@ import type { Database } from "@/types/database.types";
 import { sendViaSmtpAccount } from "@/lib/email/transport";
 import { sendSms } from "@/lib/solapi/client";
 import { buildSmsText } from "@/lib/sms";
+import { sendKakaoBrandMessage } from "@/lib/kakaoBrand";
 
 type SupabaseLike = SupabaseClient<Database>;
 
@@ -37,12 +38,14 @@ export async function dispatchCampaign(
 ): Promise<DispatchResult> {
   const { data: settings } = await supabase
     .from("stepmail_campaigns")
-    .select("channel, sms_text, sms_optout")
+    .select("channel, sms_text, sms_optout, mobile_type, kakao_fallback_sms")
     .eq("id", campaign.id)
     .maybeSingle();
   const channel = settings?.channel ?? "email";
   const wantsEmail = channel !== "sms";
   const wantsSms = channel !== "email";
+  // v1.28: 휴대폰 발송 방식 — 문자 또는 카카오 브랜드 메시지(회원 본인 카카오 채널 pfId 필요, 없으면 보내지 않음)
+  const useKakao = settings?.mobile_type === "kakao";
 
   let draft: { subject: string; body_html: string } | null = null;
   let accounts: { id: string; smtp_host: string; smtp_port: number; smtp_user: string; smtp_password: string; from_name: string | null; is_active: boolean }[] = [];
@@ -93,6 +96,9 @@ export async function dispatchCampaign(
       .maybeSingle();
     solapi = data;
     if (!solapi) return { sentCount: 0, failedCount: 0, notice: "설정에서 본인 SOLAPI 문자 계정을 먼저 연결해 주세요." };
+    if (useKakao && !solapi.kakao_pf_id) {
+      return { sentCount: 0, failedCount: 0, notice: "카카오 브랜드 메시지는 설정에서 본인 카카오 채널 ID(pfId)를 등록해야 보낼 수 있습니다." };
+    }
   }
 
   let leadQuery = supabase
@@ -143,12 +149,15 @@ export async function dispatchCampaign(
 
     if (wantsSms && solapi && lead.phone && settings?.sms_text && settings.sms_optout) {
       try {
-        await sendSms(solapi, lead.phone.replace(/\D/g, ""), buildSmsText(settings.sms_text, settings.sms_optout, lead.nickname));
+        const to = lead.phone.replace(/\D/g, "");
+        const text = buildSmsText(settings.sms_text, settings.sms_optout, lead.nickname);
+        if (useKakao) await sendKakaoBrandMessage(solapi, to, text, { fallbackSms: Boolean(settings.kakao_fallback_sms) });
+        else await sendSms(solapi, to, text);
         await supabase.from("stepmail_send_log").insert({
           user_id: campaign.user_id,
           campaign_id: campaign.id,
           lead_id: lead.id,
-          channel: "sms",
+          channel: useKakao ? "kakao" : "sms",
           to_phone: lead.phone,
           status: "sent",
         });
@@ -158,7 +167,7 @@ export async function dispatchCampaign(
           user_id: campaign.user_id,
           campaign_id: campaign.id,
           lead_id: lead.id,
-          channel: "sms",
+          channel: useKakao ? "kakao" : "sms",
           to_phone: lead.phone,
           status: "failed",
           error_message: err instanceof Error ? err.message : "알 수 없는 오류",

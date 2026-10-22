@@ -18,6 +18,7 @@ export type ApiKeyProvider =
 export type LeadStatus = "new" | "customer_completed" | "stopped";
 export type CampaignRecurrence = "once" | "daily" | "weekly";
 export type CampaignChannel = "email" | "sms" | "both";
+export type MobileType = "sms" | "kakao"; // v1.28 휴대폰 발송 방식: 문자 또는 카카오 브랜드 메시지
 export type SendLogStatus = "sent" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -204,6 +205,8 @@ export interface Database {
       stepmail_campaigns: {
         Row: {
           channel: CampaignChannel;
+          mobile_type: MobileType;
+          kakao_fallback_sms: boolean;
           sms_text: string | null;
           sms_optout: string | null;
           id: string;
@@ -223,6 +226,8 @@ export interface Database {
         };
         Insert: {
           channel?: CampaignChannel;
+          mobile_type?: MobileType;
+          kakao_fallback_sms?: boolean;
           sms_text?: string | null;
           sms_optout?: string | null;
           id?: string;
@@ -242,6 +247,8 @@ export interface Database {
         };
         Update: {
           channel?: CampaignChannel;
+          mobile_type?: MobileType;
+          kakao_fallback_sms?: boolean;
           sms_text?: string | null;
           sms_optout?: string | null;
           id?: string;

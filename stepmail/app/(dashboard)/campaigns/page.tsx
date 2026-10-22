@@ -16,7 +16,7 @@ export default async function CampaignsPage() {
   const { data: campaigns } = await supabase
     .from("stepmail_campaigns")
     .select(
-      "id, name, target_send_count, quantity_per_run, send_hour, recurrence, weekly_day, is_active, last_run_at, channel, sms_text, stepmail_email_drafts(subject)",
+      "id, name, target_send_count, quantity_per_run, send_hour, recurrence, weekly_day, is_active, last_run_at, channel, sms_text, mobile_type, stepmail_email_drafts(subject)",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });

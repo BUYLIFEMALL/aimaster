@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { dispatchCampaign } from "@/lib/dispatch";
-import type { CampaignChannel, CampaignRecurrence } from "@/types/database.types";
+import type { CampaignChannel, CampaignRecurrence, MobileType } from "@/types/database.types";
 import { buildSmsText, smsBytes, LMS_MAX_BYTES } from "@/lib/sms";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -66,6 +66,9 @@ export async function createCampaignAction(formData: FormData): Promise<CreateCa
   const wantsSms = channel !== "email";
   const smsText = String(formData.get("smsText") ?? "").trim();
   const smsOptout = String(formData.get("smsOptout") ?? "").trim();
+  // v1.28 휴대폰 발송 방식: 문자 또는 카카오 브랜드 메시지(본인 카카오 채널 pfId 필요)
+  const mobileType: MobileType = formData.get("mobileType") === "kakao" ? "kakao" : "sms";
+  const kakaoFallbackSms = formData.get("kakaoFallbackSms") === "on";
 
   if (!name) return { error: "캠페인 이름을 입력해주세요." };
   if (wantsEmail && !draftId) return { error: "발송할 이메일 초안을 선택해주세요." };
@@ -86,8 +89,11 @@ export async function createCampaignAction(formData: FormData): Promise<CreateCa
     if (!draft) return { error: "이메일 초안을 찾을 수 없습니다." };
   }
   if (wantsSms) {
-    const { data: solapi } = await supabase.from("user_solapi_accounts").select("user_id").eq("user_id", user.id).maybeSingle();
+    const { data: solapi } = await supabase.from("user_solapi_accounts").select("user_id, kakao_pf_id").eq("user_id", user.id).maybeSingle();
     if (!solapi) return { error: "설정에서 본인 SOLAPI 문자 계정을 먼저 연결해 주세요." };
+    if (mobileType === "kakao" && !solapi.kakao_pf_id) {
+      return { error: "카카오 브랜드 메시지는 설정에서 본인 카카오 채널 ID(pfId)를 먼저 등록해 주세요." };
+    }
   }
 
   const { data: campaign, error } = await supabase
@@ -98,6 +104,8 @@ export async function createCampaignAction(formData: FormData): Promise<CreateCa
       channel,
       sms_text: wantsSms ? smsText : null,
       sms_optout: wantsSms ? smsOptout : null,
+      mobile_type: mobileType,
+      kakao_fallback_sms: mobileType === "kakao" && kakaoFallbackSms,
       name,
       target_send_count: targetSendCount,
       quantity_per_run: quantityPerRun,

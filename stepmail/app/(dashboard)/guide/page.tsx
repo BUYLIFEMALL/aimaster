@@ -332,13 +332,23 @@ export default async function GuidePage() {
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-              네. 설정에서 본인 SOLAPI 문자 계정(API Key·발신번호)을 연결한 뒤, 캠페인을 만들 때 발송 채널을 「문자」 또는 「둘 다」로 고르면 됩니다. 문자는 엑셀에 전화번호가 있는 고객에게만 나가고, 광고 문자 규정(정보통신망법)에 따라 「(광고)」 표시와 입력하신 무료 수신거부 안내가 자동으로 붙습니다. 90바이트(한글 약 45자)를 넘으면 장문(LMS)으로 나가며 요금은 본인 SOLAPI 계정에 청구됩니다. 카카오 알림톡은 광고성 내용을 보낼 수 없어 넣지 않았습니다.
+              네. 설정에서 본인 SOLAPI 문자 계정(API Key·발신번호)을 연결한 뒤, 캠페인을 만들 때 발송 채널을 「문자」 또는 「둘 다」로 고르면 됩니다. 문자는 엑셀에 전화번호가 있는 고객에게만 나가고, 광고 문자 규정(정보통신망법)에 따라 「(광고)」 표시와 입력하신 무료 수신거부 안내가 자동으로 붙습니다. 90바이트(한글 약 45자)를 넘으면 장문(LMS)으로 나가며 요금은 본인 SOLAPI 계정에 청구됩니다. 카카오 알림톡은 광고성 내용을 보낼 수 없어 넣지 않았고, 대신 카카오 브랜드 메시지를 고를 수 있습니다(아래 Q5).
             </p>
           </details>
 
           <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
-              <span>Q5. 1차 발송 후 2차, 3차 팔로우업은 어떻게 진행되나요?</span>
+              <span>Q5. 문자 대신 카카오톡(브랜드 메시지)으로 보낼 수 있나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              네, 본인 카카오 채널을 등록한 경우에만 됩니다. ① 카카오 비즈니스(business.kakao.com)에서 본인 카카오톡 채널을 만들고 비즈니스 인증을 받습니다. ② SOLAPI 콘솔 → 카카오 채널 연동에서 그 채널을 연결하면 채널 ID(pfId, KA01PF…)가 나옵니다. ③ 이 프로그램 설정 → 「📱 문자·카카오 (SOLAPI)」에 pfId를 넣고 저장합니다. 그러면 캠페인을 만들 때 휴대폰 발송 방식에서 「💬 카카오 브랜드 메시지」를 고를 수 있습니다. 채널을 등록하지 않으면 이 선택지는 꺼져 있고 카카오로는 보내지 않습니다. 카카오 메시지는 본인 채널을 친구로 추가한 고객에게만 「(광고)」 표시와 함께 나가며, 「문자로 대신 보내기」를 켜면 나머지 고객에게는 같은 내용이 문자로 나갑니다. 요금은 본인 SOLAPI 계정에 청구됩니다.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q6. 1차 발송 후 2차, 3차 팔로우업은 어떻게 진행되나요?</span>
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
@@ -348,7 +358,7 @@ export default async function GuidePage() {
 
           <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
-              <span>Q6. 고객이 답장을 주거나 계약이 성사되면 어떻게 처리하나요?</span>
+              <span>Q7. 고객이 답장을 주거나 계약이 성사되면 어떻게 처리하나요?</span>
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
@@ -358,7 +368,7 @@ export default async function GuidePage() {
 
           <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
-              <span>Q7. 예약 발송은 무엇으로 돌아가나요? 내 cron-job.org로 돌릴 수 있나요?</span>
+              <span>Q8. 예약 발송은 무엇으로 돌아가나요? 내 cron-job.org로 돌릴 수 있나요?</span>
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
