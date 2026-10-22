@@ -53,6 +53,8 @@
 
 - **v1.05 (2026-10-23)** ① 곡 카드 「🎚️ 마스터링 스튜디오 →」(파일을 직접 넣는 방식이라 안내 문구 함께) ② Suno 곡 카드 「🔁 곡 연장·구간 다시 만들기는 음악(SUNO)자동화에서 →」(`/plannings`, 곡 자체는 넘어가지 않음) ③ 모델 카드 접기 — 추천 3개(Lyria 3.5·ElevenLabs·Suno V6)+고른 모델, 「모델 모두 보기 (12개)」 ④ 곡별 ☆/★ 별 표시·메모(`PATCH /api/generations/[id]`, 본인 행 `options.star`·`options.memo`만 합침) + 보관함 「★ 별 표시」 거르기·정렬(최신순/별 표시 먼저/모델별). 배포 `ai-music-studio-n9irw83j1` Ready·DB v1.05, 크롬 시험 계정 — 카드 3→12 펼침, V6 Wild 곡 별·메모 저장 후 새로고침해도 유지, 거르기·정렬 확인. 비용: 빌드 1회.
 
+- **v1.06 (2026-10-23)** Lyria 3.5 ① 분위기 이미지(최대 4장 — 공식 10장이지만 Vercel 본문 4.5MB 때문에 제한, 화면에서 긴 변 1024px JPEG로 줄임, **저장하지 않고** `runSynchronous`에 요청 처리 중에만 전달, 기록엔 장수만 `options.images`) ② WAV 받기(`response_format: { type: "audio", mime_type: "audio/wav" }` — API 참조 AudioResponseFormat, 기록 `options.format`). 다른 모델은 무시. 시험 25(이미지·WAV 요청 모양). 배포 `ai-music-studio-167zyigv8` Ready·DB v1.06, 크롬 시험 계정 — 화면 칸 표시, 그린 노을 이미지 1장 + WAV로 실제 생성 → 19초, audio/wav 11.8MB(약 30초 곡) 저장. 비용: 빌드 1회, Lyria 1회 $0.08.
+
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
 ## 6. 연계·병합 아이디어 → `docs/IMPROVEMENTS.md` §3
 ## 7. UI/UX 개선안 → `docs/IMPROVEMENTS.md` §2, 디자인: `docs/DESIGN_HANDOFF.md`
