@@ -244,3 +244,9 @@
 - `lib/gifLadder.ts` `progressRatio`가 쓸 수 없는 값(`time` > 길이×1.2, `progress` 범위 밖·숫자 아님)이면 `null` → `ConverterWorkspace.tsx`가 무시. 색상표 단계 동안 시도 시작 값(10%·35%…) 유지, GIF 내보내기 동안 고르게 오름.
 - 버전 v1.17(`lib/version.ts`, `package.json` 1.17.0, SQL `supabase/migrations/20261023_progress_fix_v1_17.sql` — 버전만). 검수: 진행 비율 시험 11가지(v1.16 실측 「값 없음」 2가지·정상 값 2가지 포함), tsc 0, eslint 0.
 - **윈도우 CLI 다음 첫 단계**: SQL → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬에서 진행률 0.2초 기록 실검수.
+
+## 2026-10-23 ✅ v1.17 배포 (Claude Code 윈도우 — 맥미니 v1.17 마무리)
+- 맥미니 커밋 `bebc30e47`(진행률 결함 수정: 색상표 단계의 값 없는 진행 이벤트 무시 — v1.16에서 시작 즉시 끝 값으로 뛰던 문제) 마무리.
+- 공용 사본 `store-zip`·`gif-handoff` OK·tsc·로컬 build 통과 → 운영 DB `programs.version` v1.17(`20261023_progress_fix_v1_17.sql`과 같은 버전 갱신만) → 배포 READY(`video-to-7gmugjkys-buylife.vercel.app`).
+- 크롬(메인 크롬): `/dashboard` 사이드바 「v1.17 LAB」·머리 「이커머스 상세페이지 GIF 랩 v1.17」 확인(화면 캡처가 시간 초과라 페이지 글자로 확인). 실제 진행률 확인은 맥미니 크롬에서 진행 예정(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.17 배포 (맥미니 v1.17 마무리)
+- 맥미니 커밋 `bebc30e47`(진행률이 시작 즉시 끝 값으로 뛰던 v1.16 결함 수정): 사본 OK·tsc·build → DB v1.17 → 배포 READY(`video-to-7gmugjkys`) → 크롬 `/dashboard`에 v1.17 표시 확인.
+- 못 한 것: 실제 영상 진행률 확인 — **맥미니 세션께**: 배포 끝, 10초·큰 영상으로 0.2초 기록(색상표 단계 머무름·GIF 단계 고른 증가·감소 없음)과 v1.15·v1.16 대비 결과·속도 확인 부탁드립니다.
+- 비용: Vercel 빌드 1회, AI 0회. 상세: `video-to-gif/AGENTS.md` 맨 아래.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 공용 기준 코드 `cleanup-usage-log` · 30일 정리 기록 2차 5곳(미배포 대기) · 점검에 「배포됐는데 기록 없음」 · safe-commit 잠금 재시도 (비용 없음)
 - 공용 `cleanup-usage-log`(`8ad8ea2e5`): 기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`(`logCleanupUsage`·`addCleanupCount`·`ownerFromPath`), 사본 8곳, `scripts/check-shared-modules.mjs`·`docs/SHARED_MODULES.md` 등록. 1차 4곳의 손 복사 함수를 사본으로 교체.
 - 2차 5곳(`f53021369`): `portrait-photo`·`banana-canvas`·`style-dna-analyzer`(경로 첫 폴더로 회원), `ai-image-studio`(지우는 기록 행의 user_id, 이미지 있던 행만), `reverse-prompt`(기록 행 user_id, 임시 파일 제외). 9곳 tsc 통과, 공용 함수 간이 시험(더하기·경로·기록 1줄·빈 묶음·실패 시 0) 통과. **미배포 대기**(PENDING 5줄·각 IMPROVEMENTS). 코드 기준 진행률 **12/23**.
