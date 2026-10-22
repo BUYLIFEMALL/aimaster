@@ -3,7 +3,9 @@
 이 문서는 **경쟁사 키워드 분석 자동화(competitor-analysis)** 프로젝트에서 AI Agent(Claude
 Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 
-> **최상위 정정(2026-10-16):** 생성 데이터는 회원 본인 소유이며 30일 후 자동삭제 대상입니다. 초기 전역 회사 캐시 설계는 폐기됐습니다. v1.08 수정안은 검수됐으나 운영 적용은 승인 대기입니다. 아래 최신 인수인계를 먼저 읽습니다.
+> **2026-10-23 최신(v1.08 운영):** 마케팅 병합 A로 롱테일 키워드분석이 「🌱 키워드 확장」으로 들어왔고 이름이 **키워드·경쟁사 분석 자동화**로 바뀌었습니다. v1.08 회원별 회사 조사·30일 자동 삭제는 주인님 승인(백업 후 적용)으로 운영 DB 적용·배포까지 끝났습니다. 맨 아래 「2026-10-23」 절을 먼저 읽습니다.
+>
+> **최상위 정정(2026-10-16):** 생성 데이터는 회원 본인 소유이며 30일 후 자동삭제 대상입니다. 초기 전역 회사 캐시 설계는 폐기됐습니다. v1.08 수정안은 검수됐으나 운영 적용은 승인 대기입니다(→ 2026-10-23 적용 완료). 아래 최신 인수인계를 먼저 읽습니다.
 
 ---
 
@@ -127,3 +129,13 @@ production dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY, 소스 c80a44af 푸시·DB v1
 ## 2026-10-17 v1.07 인수 완료 재확인
 
 맥미니 ac41f83c의 Windows 인수는 기존 배포/DB v1.07·현황판 50번 완료 상태이며, 실제 일반 회원 Edge 1440px/375px 운영 재검수 12개도 통과했습니다. 제품 변경·유료 분석·DB 쓰기 없이 확인했습니다. 현재 소스 후보 v1.08의 DB/30일 정리 승인 대기와 구분합니다. [최신 재확인 인수인계](docs/V107_RECHECK_HANDOFF_20261017.md)를 읽고 v1.08 승인 상태부터 확인합니다.
+
+## 2026-10-23 마케팅 병합 A + v1.08 운영 적용 — 키워드·경쟁사 분석 자동화 (Claude Code 윈도우)
+- **무엇**: 롱테일 키워드분석(`longtail-keyword-expander`)을 「🌱 키워드 확장」(`/expand`·`/expand/[id]`·`/expand/[id]/runs/[runId]`·`/expand/history`)으로 합침. 씨드 키워드 → SerpApi 검색 맥락(`lib/serp/context.ts`) → OpenAI 연관 키워드·관련도 → 롱테일 확장 → 작업 지시문(`lib/ai/expansion.ts`), CSV, 텔레그램 알림. 옛 롱테일 표 4개를 그대로 읽고 씀(데이터 이동 없음). 메뉴 1 키워드 확장 → 2 경쟁사 분석 → 3 분석 결과. 이름·대시보드·매뉴얼·설정 문구 갱신. FREE 배지 유지(주인님 결정).
+- **텔레그램**: 공용 사본 `lib/telegram/client.ts`(기준 instagram-comment-reply, `check-shared-modules.mjs`에 등록). `lib/telegramLink.ts`가 이 앱 연결(`program_slug=competitor-analysis`)을 먼저, 없으면 롱테일 때 연결(`longtail-keyword-expander`)을 읽음. 연결 해제는 둘 다 지움.
+- **30일 보관**: v1.08 마이그레이션(`20261016115339_*`) + 롱테일 정리(`20261023120000_merge_a_longtail_retention.sql`, 매시 09분 UTC, 실행 기록 `executed_at`·연관/확장 `created_at` 기준, 씨드 키워드는 지우지 않음). 롱테일 표에는 「30일 지난 행 읽기 차단」 정책을 넣지 않음 — upsert가 정리 전 지난 행과 겹치면 막히기 때문(화면은 코드 필터로 숨김). 다시 확장하면 연관·롱테일 행의 `created_at`을 오늘로 갱신.
+- **운영 DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor, 주인님 승인 「백업 후 적용」)**: 백업 `D:\Antigravity\AIMaster_backup\competitor-longtail-20261023\`(10개 표 198행 + 프로그램 행). 적용 직후 정리 1회 실행: 경쟁사 실행 2·검색 결과 38·분석 2·옛 공용 회사 정보 2, 롱테일 실행 4·연관 31·확장 73 삭제(모두 30일 경과, 관리자 1명·일반 회원 7명 자료). 남은 것: 경쟁사 키워드 7, 씨드 4, 30일 이내 롱테일 실행 1·연관 10·확장 22. 옛 `competitor_profiles` 회원 접근 정책 0개(차단). 예약 작업 2개 켜짐. 프로그램 행: 이름·v1.08·한 줄/상세 소개·detail_sections(`20261023130000_merge_a_programs_v1_08.sql`).
+- **검사**: tsc·`npm run build`, `npm run test:retention` 7개, 새 `npm run test:expansion` 7개(본인 키만·생성일 갱신·텔레그램 옛 연결/새 연결 우선·키 없음 안내·다른 회원 씨드 차단) 통과.
+- **배포**: `competitor-analysis-qu3arklzv` Ready(운영 주소 연결). 크롬(관리자 계정, 1697px): /expand·/expand/history·/keywords·/settings 정상(롱테일 씨드 2개·텔레그램 봇 이어서 보임), 콘솔 오류 0, 카탈로그에 새 이름만. 휴대폰 폭은 창이 최대화라 390px iframe으로 확인(좌측 메뉴 숨김·☰·가로 넘침 없음). **유료 확장 실행(SerpApi·OpenAI) 실시험은 하지 않음** — 서버 코드는 모의 시험으로만 확인.
+- **남은 일**: 시험 계정으로 실제 확장 1회(유료 SerpApi 1 + OpenAI 3, 승인 필요) · 「키워드 확장 결과에서 고른 키워드를 경쟁사 분석으로 바로 등록」 버튼(지금은 메뉴 이동 링크만) · 커밋 `609e84731`에 다른 세션이 스테이징한 `scripts/deploy.mjs`가 섞였으나 그 세션이 `dce8e6164`에서 같은 내용으로 다시 반영함(내용 영향 없음).
+- 링크: https://competitor-analysis.buylife.xyz/expand

@@ -1,5 +1,7 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+> **2026-10-23 병합됨(v1.11)**: 이 프로그램은 **키워드·경쟁사 분석 자동화**(`competitor-analysis`) 「🌱 키워드 확장」으로 합쳐졌습니다. 이 앱은 모든 화면에서 이동 안내(`components/MovedNotice.tsx`)만 보여 주고, 서버 실행 함수(`lib/actions/expansion.ts`·`seeds.ts`·`telegram.ts`)는 유료 호출 없이 안내만 돌려줍니다. 카탈로그 숨김(`is_active=false`), 주소·권한 행·DB 표는 그대로(새 앱이 같은 표 사용). 기능 수정은 `competitor-analysis/`에서 합니다. 폴더 코드 정리는 백업 폴더 + git 태그 뒤 별도 작업. 미배포였던 `telegram-bot-client` 사본 `linkButton` 변경도 이 배포(v1.11)로 함께 나갔습니다.
+
 > **2026-10-16 윈도우 인수 완료:** [v1.06 검수·오류 수정 인수인계](docs/IMPROVEMENT_HANDOFF_20261016.md)와 [개선 원장](docs/IMPROVEMENTS.md)을 먼저 확인합니다. 빌드·Edge 합성 12개·일반 회원 로컬 11개·운영 11개 통과. 소스 `54eaee73`, 운영/DB v1.06, 배포 `dpl_GqzpS51EDAxU6UYGCHHt8xkqEhr7` READY.
 
 이 문서는 **롱테일 키워드분석 자동화(longtail-keyword-expander)** 프로젝트에서 AI

@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ 마케팅 병합 A: 롱테일 키워드분석 → 키워드·경쟁사 분석 자동화 (v1.08) + v1.08 회원별·30일 삭제 운영 적용 (빌드 2회 · AI 0회)
+- 분석·결정: `docs/analysis-marketing-consolidation-20261023/REPORT.md`(5개 → 4개, 주인님 결정: 병합 A 진행·FREE 유지·이름 「키워드·경쟁사 분석 자동화」·독립 확장 2건 진행·남은 v1.08 마무리).
+- 결과: `competitor-analysis` v1.08에 「🌱 키워드 확장」(씨드 → 연관·관련도 → 롱테일 → 작업 지시문·CSV·텔레그램, 롱테일 때 연결한 봇 이어 씀), 메뉴 1 확장 → 2 경쟁사 분석 → 3 결과. `longtail-keyword-expander` v1.11은 이동 안내·실행 함수 차단·카탈로그 숨김(같은 DB 표를 새 앱이 사용).
+- 운영 DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor, 승인 「백업 후 적용」): v1.08 회원별 회사 조사 표·옛 공용 표 차단·30일 정리(경쟁사 매시 07분) + 롱테일 30일 정리(매시 09분). 즉시 정리로 30일 지난 자료 삭제(경쟁사 44행, 롱테일 108행). 백업 `D:\Antigravity\AIMaster_backup\competitor-longtail-20261023\`. 프로그램 행(이름·버전·소개) 갱신.
+- 검사: 두 앱 tsc·build, 보관 시험 7·새 확장 시험 7 통과. 배포 `competitor-analysis-qu3arklzv`·`longtail-keyword-expander-odhwdb9es` Ready. 크롬(관리자) 화면·콘솔 오류 0·카탈로그 확인, 휴대폰 폭은 390px iframe(창 최대화). 유료 실제 확장 실행은 안 함.
+- 주의: 커밋 `609e84731`에 다른 세션이 스테이징해 둔 `scripts/deploy.mjs`가 섞임(그 세션이 `dce8e6164`에서 같은 내용 재반영, 영향 없음) → `docs/ERROR_LESSONS.md` 2026-10-23.
+- 다음 첫 단계: ① Step Mail 문자·알림톡 차수 발송 플랜 ② 예약 리마인드 엑셀 일괄 등록 플랜(주인님 진행 지시). 상세 `competitor-analysis/AGENTS.md` 2026-10-23 절.
+- 링크: https://competitor-analysis.buylife.xyz/expand
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.06 확장 입력 속도 약 3배 (빌드 1회 · AI 0회)
 - 주인님 지시 「속도를 좀 빠르게」 → A안(2~4글자 묶음 입력, 쉬는 간격 유지). 배포 Ready·DB/확장/ZIP v2.06 확인. 회원은 확장 ZIP 다시 받아 덮어쓰기 필요.
 - 실검수 중 원고 `a4357bbf`가 자동 포스팅(비공개)으로 실행돼 `writing`에 14분 넘게 멈춤 — 원인 확인·입력 시간 재측정 남음(`naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래).
