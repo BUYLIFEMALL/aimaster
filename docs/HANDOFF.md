@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ✅ 미배포 대기분 3곳 배포: threads-affiliate-poster v1.82 · style-dna-analyzer v1.37 · cinematic-storyboard-studio v1.17 (주인님 승인 빌드 3회)
+- 함께 나간 것: 30일 정리 기록(공용 `cleanup-usage-log` 사본) · 좌측 메뉴 계정 위치(`22c6cda35`, 스토리보드는 메모만 있던 것을 이번에 `991a43a44`로 고침) · 공용 사본 대기분(`member-scheduler` → 쓰레드 제휴, `openai-request-params` → 스타일 분석기).
+- 검수: 로컬 build 3곳 통과 → 한 곳씩 `deploy.mjs <폴더> --go --owner` → `vercel inspect` Ready·운영 주소 연결(`8a491v5nx`·`c4gl4nkzu`·`i597de3cx`) → DB 버전 맞춤 → 정리 경로 비밀값 없이 401 3곳, 쓰레드 제휴 회원 예약 실행 가짜 토큰 401 → 크롬(관리자) 화면 버전 v1.82·v1.37·v1.17, 계정·로그아웃이 마지막 메뉴 바로 아래(스토리보드는 390px iframe에서 ☰ 펼침 메뉴도 확인).
+- 문서: PENDING 대기 줄 → 「내보낸 기록」, 공용 사본 표 ✅ 표시, 역량 지도 목록·카드 버전, 각 `AGENTS.md`·`IMPROVEMENTS.md`, 작업 중 표 줄 삭제.
+- 도구 보완: `deploy.mjs --go --owner "<내 줄 일부>"` — 작업 중 표의 내 줄을 같은 장비의 다른 세션 줄과 구별(예전엔 「Claude Code(윈도우)」로 정확히 끝나는 줄만 통과해 「(윈도우, 크롬)」인 내 줄도 막았음).
+- 남은 대기: 정리 기록 9곳(four-cut-comics·threads-content-ops·music·portrait-photo·banana-canvas·ai-image-studio·reverse-prompt·trending-product-finder·youtube-auto-reply)은 각 프로그램을 다음에 배포할 때 함께. 첫 정리 기록은 다음 정리 시각 이후 관리자 「30일 자동 정리」 표에서 확인(지울 것이 있을 때만 기록).
+- 링크: https://threads-affiliate-poster.buylife.xyz · https://style-dna-analyzer.buylife.xyz · https://cinematic-storyboard-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ 티스토리 v1.89 확장 자동 연결·실제 설치 상태 표시 (빌드 1회 · AI 0회)
 - SEO 스튜디오 v2.09~v2.10 방식을 티스토리에 적용(블로그 프로그램 일괄 적용 2/5). 사이드패널 「자동 연결」·웹 「확장 프로그램 바로 연결」·설치 상태 실제 확인. 배포 Ready·DB/확장/ZIP v1.89. 다음: ai-auto-blog.
 - 프로그램: https://tistory-auto-blog.buylife.xyz
