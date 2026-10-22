@@ -73,7 +73,7 @@ export function SectionWriter({ s, researchId }: { s: Studio; researchId: string
     if (r.outline) keep(r.outline);
     if (!r.ok || !r.draft) return setNotice(r.error || "원고로 합치지 못했습니다.");
     refreshHistory().catch(() => {});
-    reuseDraft(r.draft);
+    reuseDraft(r.draft, r.reused ? "구간이 바뀌지 않아 이미 합친 원고를 다시 열었습니다." : `구간 ${outline.sections.length}개를 합친 원고를 열었습니다. 발행 전 점검부터 확인해 주세요.`);
   }
 
   const sections = outline?.sections ?? [];

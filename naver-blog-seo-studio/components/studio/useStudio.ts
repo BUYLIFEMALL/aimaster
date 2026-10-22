@@ -149,7 +149,7 @@ export function useStudio() {
     setMessage("저장된 제목 추천을 삭제했습니다.");
   }
 
-  function reuseDraft(draft: (typeof history)[number]) {
+  function reuseDraft(draft: (typeof history)[number], notice = "기존 생성 기록을 작업 화면에 불러왔습니다.") {
     setTopic(draft.topic);
     setKeywords(Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "");
     setStrategy(draft.strategy || strategies[0][0]);
@@ -164,7 +164,7 @@ export function useStudio() {
     setExtensionDraftId(draft.id);
     setHandoffMessage("");
     setDraftSaveMessage("");
-    setMessage("기존 생성 기록을 작업 화면에 불러왔습니다.");
+    setMessage(notice);
     openMenu("new-draft");
   }
 

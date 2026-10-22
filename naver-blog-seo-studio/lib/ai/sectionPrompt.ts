@@ -29,7 +29,8 @@ export function sectionPrompt(p: { today: string; persona: Persona; rules: Secti
   const outline = p.sections.map((s, i) => `${i === p.index ? "▶ " : ""}${i + 1}. ${s.heading || "(도입)"} — ${s.goal}`).join("\n");
   const before = p.sections.slice(0, p.index).filter((s) => s.body).map((s) => `${s.heading ? `${s.heading}\n` : ""}${s.body}`).join("\n\n").slice(-2500);
   const target = p.sections[p.index];
-  const size = p.index === 0 ? "공백 제외 250~400자, 2~3개 문단" : "공백 제외 350~550자, 2개 이상 문단(문단마다 3~5문장)";
+  // v1.94: gpt-4o-mini 기준 합계가 1,700자대라 상향(5구간 목표 약 2,100~3,000자)
+  const size = p.index === 0 ? "공백 제외 300~450자, 2~3개 문단" : "공백 제외 450~650자, 3개 이상 문단(문단마다 3~5문장, 문단마다 구체적인 예시나 판단 기준 하나)";
   return {
     system: common(p.today, p.persona, p.rules),
     user: `글 제목: ${p.title}

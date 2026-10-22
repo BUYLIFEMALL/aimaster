@@ -65,3 +65,13 @@ test("BLC-09: prompts use approved grounding, mark the target section, and add n
   assert.match(p.user, /도입 본문/);
   assert.doesNotMatch(p.system, /문장 끝맺음\(필수\)/);
 });
+
+test("BLC-09 v1.94: section length targets were raised (intro 300~450, sections 450~650)", () => {
+  const persona = { name: "p", toneDescription: "t" };
+  const rules = { style: "", facts: "" };
+  const sections = normalizeOutline(raw).sections;
+  assert.match(sectionPrompt({ today: "2026-10-22", persona, rules, title: "제목", sections, index: 0 }).user, /공백 제외 300~450자/);
+  const body = sectionPrompt({ today: "2026-10-22", persona, rules, title: "제목", sections, index: 1 }).user;
+  assert.match(body, /공백 제외 450~650자, 3개 이상 문단/);
+  assert.match(body, /구체적인 예시나 판단 기준/);
+});
