@@ -1,6 +1,7 @@
 import "server-only";
 import { providerError, type ProviderAdapter } from "../types";
 import type { GenerationInput, MusicModel } from "../catalog";
+import { webhookUrl } from "@/lib/appUrl";
 
 // Replicate 공식 모델 예측 — 2026-10-23 공식 문서(replicate.com/docs/reference/http) 기준.
 // 제출 POST /v1/models/{owner}/{name}/predictions { input } → 조회 GET /v1/predictions/{id}.
@@ -29,7 +30,8 @@ export const replicateAdapter: ProviderAdapter = {
     const res = await fetch(`${API}/models/${model.model}/predictions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...AUTH(apiKey) },
-      body: JSON.stringify({ input: inputFor(model, input) }),
+      // 완료되면 Replicate가 이 프로그램 웹훅으로 신호(v1.03). 저장은 회원 키로 다시 조회한 결과로만.
+      body: JSON.stringify({ input: inputFor(model, input), webhook: webhookUrl("replicate"), webhook_events_filter: ["completed"] }),
       signal: AbortSignal.timeout(30_000),
       cache: "no-store",
     });
@@ -45,13 +47,14 @@ export const replicateAdapter: ProviderAdapter = {
       cache: "no-store",
     });
     if (!res.ok) throw providerError("Replicate 상태 확인", res.status, await res.text());
-    const p = (await res.json()) as { status?: string; output?: unknown; error?: unknown };
+    const p = (await res.json()) as { status?: string; output?: unknown; error?: unknown; metrics?: { predict_time?: number } };
     if (p.status === "failed" || p.status === "canceled") {
       return { state: "failed", error: `Replicate 생성 실패: ${String(p.error ?? p.status).slice(0, 300)}` };
     }
     if (p.status !== "succeeded") return { state: "processing" };
     const urls = (Array.isArray(p.output) ? p.output : [p.output]).filter((u): u is string => typeof u === "string" && u.startsWith("http"));
     if (!urls.length) return { state: "failed", error: "Replicate 결과에 음원 주소가 없습니다." };
-    return { state: "done", files: urls.map((url) => ({ url, fetchHeaders: AUTH(apiKey) })) };
+    const t = p.metrics?.predict_time;
+    return { state: "done", files: urls.map((url) => ({ url, fetchHeaders: AUTH(apiKey) })), ...(typeof t === "number" ? { actual: `Replicate 실행 ${t.toFixed(1)}초` } : {}) };
   },
 };

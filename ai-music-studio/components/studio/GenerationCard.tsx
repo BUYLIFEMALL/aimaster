@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Download, FileText, Loader2, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
+import { PROVIDERS } from "@/lib/providers/catalog";
 
 export const LYRIC_VIDEO_URL = "https://lyric-video-studio.buylife.xyz/source";
 export const PLAYLIST_URL = "https://playlist-channel-studio.buylife.xyz/video";
@@ -114,6 +115,13 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
           </button>
           {showLyrics && <pre className="mt-2 max-h-64 overflow-y-auto whitespace-pre-wrap rounded-xl bg-zinc-950/60 p-3 font-sans text-xs leading-relaxed text-zinc-300">{lyrics}</pre>}
         </div>
+      )}
+
+      {gen.status === "completed" && (
+        <p className="text-xs leading-relaxed text-zinc-400">
+          실측: {typeof gen.options?.actual === "string" ? gen.options.actual : "공급자가 사용량을 알려 주지 않음"}{" "}
+          <a href={PROVIDERS[gen.provider]?.usageLink} target="_blank" rel="noreferrer" className="whitespace-nowrap text-violet-300 hover:underline">사용량 확인 ↗</a>
+        </p>
       )}
 
       <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800/80 pt-3 text-[11px] text-zinc-500">

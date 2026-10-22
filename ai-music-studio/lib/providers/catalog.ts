@@ -13,11 +13,14 @@ export interface ProviderInfo {
   keyLink: string;
   placeholder: string;
   description: string;
+  /** v1.03 실제 청구 확인용 플랫폼 사용량 페이지 */
+  usageLink: string;
 }
 
 export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
   gemini: {
     id: "gemini",
+    usageLink: "https://aistudio.google.com/usage",
     name: "Google Gemini (Lyria)",
     keyProvider: "gemini",
     keyLabel: "Google Gemini API Key",
@@ -27,6 +30,7 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
   },
   elevenlabs: {
     id: "elevenlabs",
+    usageLink: "https://elevenlabs.io/app/usage",
     name: "ElevenLabs Music",
     keyProvider: "elevenlabs",
     keyLabel: "ElevenLabs API Key",
@@ -36,6 +40,7 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
   },
   suno: {
     id: "suno",
+    usageLink: "https://sunoapi.org/ko/billing",
     name: "Suno (sunoapi.org)",
     keyProvider: "suno",
     keyLabel: "Suno API Key (api.sunoapi.org)",
@@ -45,6 +50,7 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
   },
   fal: {
     id: "fal",
+    usageLink: "https://fal.ai/dashboard/usage-billing",
     name: "fal.ai",
     keyProvider: "fal",
     keyLabel: "fal.ai API Key",
@@ -54,6 +60,7 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
   },
   replicate: {
     id: "replicate",
+    usageLink: "https://replicate.com/account/billing",
     name: "Replicate",
     keyProvider: "replicate",
     keyLabel: "Replicate API Token",

@@ -36,27 +36,27 @@ function ModelCard({ model, selected, disabledReason, hasKey, onToggle, multi }:
       data-model={model.key}
       className={`flex h-full flex-col gap-2 rounded-2xl border p-3.5 text-left transition-all ${
         selected ? "border-violet-500/60 bg-violet-500/10 ring-1 ring-violet-500/30" : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
-      } ${disabledReason ? "opacity-60" : ""}`}
+      } ${disabledReason ? "opacity-85" : ""}`}
     >
       <span className="flex items-start justify-between gap-2">
         <span className="min-w-0">
           <span className="block text-sm font-bold text-white">{model.name}</span>
-          <span className="block text-[11px] text-zinc-500">{PROVIDERS[model.provider].name}</span>
+          <span className="block text-xs text-zinc-400">{PROVIDERS[model.provider].name}</span>
         </span>
         <span className={`flex h-5 w-5 shrink-0 items-center justify-center ${multi ? "rounded-md" : "rounded-full"} border ${selected ? "border-violet-400 bg-violet-500 text-white" : "border-zinc-600"}`}>
           {selected && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
         </span>
       </span>
-      {model.badge && <span className="w-fit rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] font-bold text-violet-200">{model.badge}</span>}
-      <span className="text-xs leading-relaxed text-zinc-400">{model.description}</span>
-      <span className="mt-auto flex flex-wrap gap-1.5 text-[10px] font-medium">
+      {model.badge && <span className="w-fit rounded-full bg-violet-500/15 px-2 py-0.5 text-[11px] font-bold text-violet-200">{model.badge}</span>}
+      <span className="text-sm leading-relaxed text-zinc-200">{model.description}</span>
+      <span className="mt-auto flex flex-wrap gap-1.5 text-xs font-medium">
         <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-zinc-300">{model.vocals ? "🎤 보컬·연주" : "🎹 연주곡 전용"}</span>
         <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-zinc-300">⏱ {model.durationControl ? `최대 ${Math.round(model.maxDurationS / 60 * 10) / 10}분` : model.maxDurationS <= 30 ? "30초" : "길이 자동"}</span>
         <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-zinc-300">💰 {model.costNote}</span>
         {model.outputs > 1 && <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-zinc-300">한 번에 {model.outputs}곡</span>}
         {hasKey === false && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-300">🔑 키 필요</span>}
       </span>
-      <span className="text-[10px] leading-snug text-zinc-500">상업 이용: {model.commercial}</span>
+      <span className="text-xs leading-snug text-zinc-400">상업 이용: {model.commercial}</span>
     </button>
   );
 }

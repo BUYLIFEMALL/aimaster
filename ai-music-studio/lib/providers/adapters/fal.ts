@@ -1,6 +1,7 @@
 import "server-only";
 import { providerError, type ProviderAdapter } from "../types";
 import type { GenerationInput, MusicModel } from "../catalog";
+import { webhookUrl } from "@/lib/appUrl";
 
 // fal.ai 대기열(queue) API — 2026-10-23 공식 문서(fal.ai/docs/model-endpoints/queue) 기준.
 // 제출 POST https://queue.fal.run/{모델} → status_url·response_url을 그대로 저장해 쓴다(하위 경로 모델은 주소를 직접 만들면 405).
@@ -40,7 +41,8 @@ function audioUrl(json: Record<string, unknown>): string | null {
 export const falAdapter: ProviderAdapter = {
   synchronous: false,
   async start(model, input, apiKey) {
-    const res = await fetch(`https://queue.fal.run/${model.model}`, {
+    // 완료되면 fal이 이 프로그램 웹훅으로 신호를 보낸다(v1.03 — 화면을 닫아도 완성 처리). 저장은 웹훅이 회원 키로 다시 조회한 결과로만.
+    const res = await fetch(`https://queue.fal.run/${model.model}?fal_webhook=${encodeURIComponent(webhookUrl("fal"))}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...AUTH(apiKey) },
       body: JSON.stringify(inputFor(model, input)),
@@ -58,13 +60,14 @@ export const falAdapter: ProviderAdapter = {
     if (!statusUrl || !responseUrl) return { state: "failed", error: "fal.ai 작업 주소가 저장되지 않았습니다." };
     const s = await fetch(statusUrl, { headers: AUTH(apiKey), signal: AbortSignal.timeout(20_000), cache: "no-store" });
     if (!s.ok) throw providerError("fal.ai 상태 확인", s.status, await s.text());
-    const status = (await s.json()) as { status?: string; error?: string };
+    const status = (await s.json()) as { status?: string; error?: string; metrics?: { inference_time?: number } };
     if (status.status !== "COMPLETED") return { state: "processing" };
     if (status.error) return { state: "failed", error: `fal.ai 생성 실패: ${String(status.error).slice(0, 300)}` };
     const r = await fetch(responseUrl, { headers: AUTH(apiKey), signal: AbortSignal.timeout(20_000), cache: "no-store" });
     if (!r.ok) return { state: "failed", error: providerError("fal.ai 결과", r.status, await r.text()).message };
     const url = audioUrl((await r.json()) as Record<string, unknown>);
     if (!url) return { state: "failed", error: "fal.ai 결과에 음원 주소가 없습니다." };
-    return { state: "done", files: [{ url }] };
+    const t = status.metrics?.inference_time;
+    return { state: "done", files: [{ url }], ...(typeof t === "number" ? { actual: `fal 추론 ${t.toFixed(1)}초` } : {}) };
   },
 };

@@ -57,6 +57,7 @@ export const geminiAdapter: ProviderAdapter = {
       kind: "done",
       files: [{ data: new Uint8Array(Buffer.from(audio.data, "base64")), contentType: mime }],
       lyricsOut: lyricsOut || undefined,
+      actual: `정액 ${model.model === "lyria-3-clip-preview" ? "$0.04(30초)" : "$0.08(1곡)"} — Gemini API 가격표`,
     };
   },
 };

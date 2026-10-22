@@ -110,7 +110,7 @@ async function persistFiles(admin: Admin, row: GenerationRow, files: AudioFile[]
   return out;
 }
 
-async function complete(admin: Admin, row: GenerationRow, files: AudioFile[], lyricsOut?: string) {
+async function complete(admin: Admin, row: GenerationRow, files: AudioFile[], lyricsOut?: string, actual?: string) {
   const outputs = await persistFiles(admin, row, files);
   await admin
     .from("ams_generations")
@@ -118,6 +118,7 @@ async function complete(admin: Admin, row: GenerationRow, files: AudioFile[], ly
       status: "completed",
       outputs,
       lyrics_out: lyricsOut ?? null,
+      ...(actual ? { options: { ...(row.options ?? {}), actual } } : {}),
       error_message: null,
       locked_until: null,
       updated_at: new Date().toISOString(),
@@ -134,7 +135,7 @@ export async function runSynchronous(admin: Admin, row: GenerationRow, apiKey: s
   try {
     const r = await adapterOf(row.provider).start(model, inputOf(row), apiKey);
     if (r.kind !== "done") throw new Error("예상하지 못한 응답입니다.");
-    await complete(admin, row, r.files, r.lyricsOut);
+    await complete(admin, row, r.files, r.lyricsOut, r.actual);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     const timeout = /aborted|timeout|TimeoutError/i.test(msg);
@@ -154,7 +155,7 @@ export async function startAsync(admin: Admin, row: GenerationRow, apiKey: strin
   if (!model) return markFailed(admin, row.id, "지원하지 않는 모델입니다.");
   try {
     const r = await adapterOf(row.provider).start(model, inputOf(row), apiKey);
-    if (r.kind === "done") return complete(admin, row, r.files, r.lyricsOut);
+    if (r.kind === "done") return complete(admin, row, r.files, r.lyricsOut, r.actual);
     await admin
       .from("ams_generations")
       .update({ provider_task_id: r.taskId, provider_meta: r.meta ?? {}, updated_at: new Date().toISOString() })
@@ -203,7 +204,7 @@ export async function advance(admin: Admin, row: GenerationRow, apiKey: string |
       await markFailed(admin, row.id, r.error);
       return true;
     }
-    await complete(admin, row, r.files, r.lyricsOut);
+    await complete(admin, row, r.files, r.lyricsOut, r.actual);
     return true;
   } catch (e) {
     // 상태 조회 자체의 일시 오류는 다음 확인 때 다시 시도한다(저장 실패는 실패로 표시)

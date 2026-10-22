@@ -16,16 +16,17 @@ export type StartResult =
   /** 작업만 접수됨 — 상태 확인(poll)으로 결과를 받는다 */
   | { kind: "queued"; taskId: string; meta?: Record<string, unknown> }
   /** 요청 안에서 바로 완성됨 */
-  | { kind: "done"; files: AudioFile[]; lyricsOut?: string };
+  | { kind: "done"; files: AudioFile[]; lyricsOut?: string; actual?: string };
 
 export type PollResult =
   | { state: "processing" }
-  | { state: "done"; files: AudioFile[]; lyricsOut?: string }
+  | { state: "done"; files: AudioFile[]; lyricsOut?: string; actual?: string }
   | { state: "failed"; error: string };
 
 export interface ProviderAdapter {
   /** 요청 안에서 끝나는 공급자(Gemini·ElevenLabs)는 true — 서버가 응답 뒤에서 기다려 저장한다 */
   synchronous: boolean;
+  /** actual: v1.03 실측 비용·사용량 문구(공급자가 알려 주는 값만 — 없으면 비움) */
   start(model: MusicModel, input: GenerationInput, apiKey: string): Promise<StartResult>;
   poll?(model: MusicModel, taskId: string, meta: Record<string, unknown>, apiKey: string): Promise<PollResult>;
 }

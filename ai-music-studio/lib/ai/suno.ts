@@ -102,6 +102,8 @@ export interface RequestSunoGenerationInput {
   weirdnessConstraint?: number;
   // 2026-10-21 V6 2차 ③: 내 페르소나(같은 목소리·스타일)로 만들기 — personaModel=style_persona(V5·V5_5·V6 계열).
   personaId?: string;
+  // 2026-10-23 공용 사본(AI 음악 스튜디오)이 자기 웹훅으로 결과 신호를 받도록 콜백 주소를 바꿀 수 있게 한다. 비우면 이 앱(음악(SUNO)자동화) 주소.
+  callbackOrigin?: string;
 }
 
 /**
@@ -117,7 +119,7 @@ export async function requestSunoGeneration(input: RequestSunoGenerationInput, a
   // 콜백은 이 앱(music) 자기 자신의 /api/webhooks/suno로 와야 한다 — NEXT_PUBLIC_MAIN_SITE_URL
   // (buylife.xyz, AIMaster 루트 사이트)이 아니라 NEXT_PUBLIC_SITE_URL(이 서브프로젝트의 배포
   // 주소)을 써야 한다. threads/insta_auto_poster의 OAuth 콜백과 동일한 구분 원칙.
-  const siteUrl = SUNO_CALLBACK_ORIGIN;
+  const siteUrl = input.callbackOrigin ?? SUNO_CALLBACK_ORIGIN;
 
   const model = input.model ?? DEFAULT_SUNO_MODEL;
   const limit = limitsFor(model);

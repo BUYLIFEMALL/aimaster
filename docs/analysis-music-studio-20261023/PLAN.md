@@ -100,6 +100,7 @@
 | 1차 | ElevenLabs | `music_v2_5` |
 | 1차 | fal | MiniMax Music 2.6, ACE-Step, Stable Audio 2.5, Lyria 2 |
 | 1차 | Suno(sunoapi.org 연계, 주인님 결정) | V6 / V6-wild / V6-mini — `music/` 어댑터 공용화 |
+| 1차(2026-10-23 주인님 추가 결정) | Replicate | `minimax/music-2.5`, `google/lyria-2`, `stability-ai/stable-audio-2.5` (공식 모델, 기존 회원 Replicate 키 재사용) |
 | 2차 | Mureka | V9 / O2 (+스템) |
 | 2차 | Stability 직접 | Stable Audio 2.5/3.0 |
 | 2차 | Lyria RealTime | 실시간 잼(브라우저 스트리밍) — 실험 기능 |

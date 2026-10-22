@@ -61,13 +61,14 @@ test("ElevenLabs: /v1/music 본문(길이 ms·모델·연주곡)과 음원 바�
 
 test("fal: 대기열 제출 → status_url·response_url 저장 → 완료 시 audio.url", async () => {
   const calls = mockFetch((url) => {
-    if (url === "https://queue.fal.run/fal-ai/minimax-music/v2.6") return json({ request_id: "r1", status_url: "https://queue.fal.run/fal-ai/minimax-music/requests/r1/status", response_url: "https://queue.fal.run/fal-ai/minimax-music/requests/r1" });
+    if (url.startsWith("https://queue.fal.run/fal-ai/minimax-music/v2.6?fal_webhook=")) return json({ request_id: "r1", status_url: "https://queue.fal.run/fal-ai/minimax-music/requests/r1/status", response_url: "https://queue.fal.run/fal-ai/minimax-music/requests/r1" });
     if (url.endsWith("/status")) return json({ status: "COMPLETED" });
     return json({ audio: { url: "https://v3.fal.media/x.mp3" } });
   });
   const m = findModel("fal:fal-ai/minimax-music/v2.6");
   const s = await falAdapter.start(m, input, "FK");
   assert.equal(calls[0].init.headers.Authorization, "Key FK");
+  assert.equal(new URL(calls[0].url).searchParams.get("fal_webhook"), "https://ai-music-studio.buylife.xyz/api/webhooks/fal");
   assert.equal(calls[0].body.lyrics, input.lyrics);
   assert.equal(s.kind, "queued");
   const p = await falAdapter.poll(m, s.taskId, s.meta, "FK");
@@ -101,7 +102,7 @@ test("Replicate: 공식 모델 예측 제출·조회, 결과 주소에 인증 �
   const s = await replicateAdapter.start(m, { ...input, instrumental: true }, "R8");
   assert.equal(calls[0].url, "https://api.replicate.com/v1/models/stability-ai/stable-audio-2.5/predictions");
   assert.equal(calls[0].init.headers.Authorization, "Bearer R8");
-  assert.deepEqual(calls[0].body, { input: { prompt: input.prompt, duration: 90 } });
+  assert.deepEqual(calls[0].body, { input: { prompt: input.prompt, duration: 90 }, webhook: "https://ai-music-studio.buylife.xyz/api/webhooks/replicate", webhook_events_filter: ["completed"] });
   const p = await replicateAdapter.poll(m, s.taskId, {}, "R8");
   assert.equal(p.state, "done");
   assert.equal(p.files[0].url, "https://replicate.delivery/a.mp3");
@@ -115,4 +116,14 @@ test("Replicate: MiniMax 2.5는 lyrics·prompt, 실패 상태는 failed", async 
   assert.deepEqual(Object.keys(calls[0].body.input).sort(), ["lyrics", "prompt"]);
   const p = await replicateAdapter.poll(m, "p", {}, "R");
   assert.equal(p.state, "failed");
+});
+
+test("ElevenLabs: 가사에 구간 표시가 있으면 작곡 계획(composition_plan)으로 보낸다 (v1.03)", async () => {
+  const calls = mockFetch(() => new Response(new Uint8Array(2048), { status: 200, headers: { "content-type": "audio/mpeg" } }));
+  const r = await elevenlabsAdapter.start(findModel("elevenlabs:music_v2_5"), { ...input, lyrics: "[Verse]\n창밖에 비\n두 번째 줄\n[Chorus]\n후렴", durationS: 30 }, "XI");
+  assert.equal(calls[0].body.prompt, undefined);
+  assert.equal(calls[0].body.music_length_ms, undefined);
+  assert.equal(calls[0].body.composition_plan.chunks.length, 2);
+  assert.equal(calls[0].body.composition_plan.chunks[0].text, "[Verse]\n창밖에 비\n두 번째 줄");
+  assert.match(r.actual, /작곡 계획 2구간/);
 });
