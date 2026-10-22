@@ -10,6 +10,9 @@ export const metadata = { title: "통계" };
 // 다른 프로그램에서 이어진 작업 수(최근 7일/30일, 보낸 프로그램별) — 바나나 결과 표·사용 기록은 회원 본인만 읽을 수 있어(RLS)
 // 관리자임을 다시 확인한 뒤 서버 키로 숫자만 센다(회원 내용은 읽지 않음). 보낸 곳 값은 프로그램 slug와 같다
 // 바나나: `banana_canvas_results.options.ideaSource`·`downloadedAt`·`handoffs`(v1.25~v1.28) / 이미지 스튜디오: `usage_logs.metadata.ideaSource`(v1.26)
+// 다음 단계로 넘기는 보낸 프로그램(연계 표의 행) — 받는 곳은 변환 스튜디오·스토리보드
+const LINK_FLOW_SENDERS = ["banana-canvas", "portrait-photo", "four-cut-comics"] as const;
+
 async function linkStats(userId: string | undefined, days: 7 | 30) {
   if (!userId) return null;
   const supabase = await createClient();
@@ -19,10 +22,10 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
   const { data: studio } = await admin.from("programs").select("id").eq("slug", "ai-image-studio").maybeSingle();
   const { data: convertProgram } = await admin.from("programs").select("id").eq("slug", "image-convert-studio").maybeSingle();
-  // 인물사진·4컷의 넘김 기록(각 프로그램 v1.39·v1.33 `linked_handoff`, metadata.to·itemId)
-  const { data: senderPrograms } = await admin.from("programs").select("id, slug").in("slug", ["portrait-photo", "four-cut-comics"]);
+  // 넘김 기록: 바나나 v1.30·인물사진 v1.39·4컷 v1.33 `linked_handoff`(metadata.to·itemId) 한 쿼리 + 바나나 옛 기록 `options.handoffs`
+  const { data: senderPrograms } = await admin.from("programs").select("id, slug").in("slug", ["banana-canvas", "portrait-photo", "four-cut-comics"]);
   const senderIds = (senderPrograms ?? []).map((p: { id: string }) => p.id);
-  const [{ data: rows }, { count: total }, { count: totalDownloaded }, imgRows, imgTotal, { count: sbHanded }, { data: sbRows }, { count: cvHanded }, cvRows, hoRows] = await Promise.all([
+  const [{ data: rows }, { count: total }, { count: totalDownloaded }, imgRows, imgTotal, { data: bananaHo }, { data: sbRows }, cvRows, hoRows] = await Promise.all([
     admin.from("banana_canvas_results").select("src:options->>ideaSource, dl:options->>downloadedAt, ho:options->handoffs").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->>downloadedAt", "is", null),
@@ -32,11 +35,10 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
     studio
       ? admin.from("usage_logs").select("*", { count: "exact", head: true }).eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since)
       : Promise.resolve({ count: 0 }),
-    // 바나나 → 스토리보드: 넘김(바나나 기록) → 실제 프로젝트(스토리보드 v1.13 `source` 칸) → 완성 이미지까지
-    admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->handoffs->>storyboard", "is", null),
+    // 바나나 옛 넘김 기록(v1.28~v1.29, usage_logs 이전) — 같은 결과 번호면 새 기록과 1건으로 합친다
+    admin.from("banana_canvas_results").select("id, user_id, ho:options->handoffs").gte("created_at", since).not("options->handoffs", "is", null).limit(10000),
     admin.from("storyboard_projects").select("status, source").in("source", ["banana-canvas", "four-cut-comics", "portrait-photo"]).gte("created_at", since).limit(10000),
-    // 형식 바꾸기 → 변환 완료: 넘김(바나나 기록만 있음) → 변환 스튜디오 v1.21 `linked_convert` 기록(보낸 곳별)
-    admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->handoffs->>convert", "is", null),
+    // 변환 완료: 변환 스튜디오 v1.21 `linked_convert`(보낸 곳별) · 스토리보드 완료는 위 프로젝트(`source`)
     convertProgram
       ? admin.from("usage_logs").select("via:metadata->>via").eq("program_id", convertProgram.id).eq("action", "linked_convert").gte("created_at", since).limit(10000)
       : Promise.resolve({ data: [] as { via: string | null }[] }),
@@ -44,28 +46,30 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
       ? admin.from("usage_logs").select("user_id, program_id, to:metadata->>to, item:metadata->>itemId").in("program_id", senderIds).eq("action", "linked_handoff").gte("created_at", since).limit(10000)
       : Promise.resolve({ data: [] as { user_id: string; program_id: string; to: string | null; item: string | null }[] }),
   ]);
-  const sbProjects = (sbRows ?? []) as { status: string; source: string }[];
-  const sbOf = (src: string) => {
-    const list = sbProjects.filter((r) => r.source === src);
-    return { projects: list.length, rendered: list.filter((r) => r.status === "rendered" || r.status === "prompts").length };
-  };
-  const storyboard = { handed: sbHanded ?? 0, banana: sbOf("banana-canvas"), fourCut: sbOf("four-cut-comics"), portrait: sbOf("portrait-photo"), handedFrom: {} as Record<string, number> };
-  // 같은 사진을 여러 번 넘겨도 1건(회원·보관함 번호·넘긴 곳 기준)
   const slugOf = (id: string) => (senderPrograms ?? []).find((p: { id: string; slug: string }) => p.id === id)?.slug;
+  // 같은 결과를 여러 번 넘겨도 1건(회원·결과 번호·받는 곳 기준)
   const handed: Record<string, Set<string>> = {};
+  const addHanded = (from: string, to: string, key: string) => (handed[`${from}>${to}`] ??= new Set()).add(key);
   for (const r of ((hoRows as { data: { user_id: string; program_id: string; to: string | null; item: string | null }[] | null }).data ?? [])) {
     const slug = slugOf(r.program_id);
-    if (!slug || !r.to || !r.item) continue;
-    (handed[`${slug}>${r.to}`] ??= new Set()).add(`${r.user_id}|${r.item}`);
+    if (slug && r.to && r.item) addHanded(slug, r.to, `${r.user_id}|${r.item}`);
   }
-  const handedCount = (slug: string, to: string) => handed[`${slug}>${to}`]?.size ?? 0;
+  const OLD_TO: Record<string, string> = { convert: "image-convert-studio", storyboard: "cinematic-storyboard-studio" };
+  for (const r of (bananaHo ?? []) as { id: string; user_id: string; ho: Record<string, string> | null }[]) {
+    for (const k of Object.keys(r.ho ?? {})) if (OLD_TO[k]) addHanded("banana-canvas", OLD_TO[k], `${r.user_id}|${r.id}`);
+  }
   const convertDone: Record<string, number> = {};
   for (const r of ((cvRows as { data: { via: string | null }[] | null }).data ?? [])) if (r.via) convertDone[r.via] = (convertDone[r.via] ?? 0) + 1;
-  const convert = {
-    handed: { "banana-canvas": cvHanded ?? 0, "portrait-photo": handedCount("portrait-photo", "image-convert-studio"), "four-cut-comics": handedCount("four-cut-comics", "image-convert-studio") } as Record<string, number>,
-    done: convertDone,
-  };
-  storyboard.handedFrom = { "portrait-photo": handedCount("portrait-photo", "cinematic-storyboard-studio"), "four-cut-comics": handedCount("four-cut-comics", "cinematic-storyboard-studio") };
+  const sbProjects = (sbRows ?? []) as { status: string; source: string }[];
+  // 보낸 곳 × 받는 곳: 넘김 → 완료(변환 완료 / 스토리보드 프로젝트), 스토리보드는 완성 이미지까지도
+  const matrix = LINK_FLOW_SENDERS.map((from) => ({
+    from,
+    convert: { handed: handed[`${from}>image-convert-studio`]?.size ?? 0, done: convertDone[from] ?? 0 },
+    storyboard: (() => {
+      const list = sbProjects.filter((r) => r.source === from);
+      return { handed: handed[`${from}>cinematic-storyboard-studio`]?.size ?? 0, done: list.length, rendered: list.filter((r) => r.status === "rendered" || r.status === "prompts").length };
+    })(),
+  }));
   const banana: Record<string, { count: number; downloaded: number; handedOff: number }> = {};
   for (const r of (rows ?? []) as { src: string | null; dl: string | null; ho: Record<string, string> | null }[]) {
     if (!r.src) continue;
@@ -82,7 +86,7 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
     if (r.dl) m.downloaded += 1;
     if (r.ho && Object.keys(r.ho).length) m.handedOff += 1;
   }
-  return { days, banana, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0, image, imageTotal: (imgTotal as { count: number | null }).count ?? 0, storyboard, convert };
+  return { days, banana, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0, image, imageTotal: (imgTotal as { count: number | null }).count ?? 0, matrix };
 }
 
 export default async function AdminStatisticsPage({ searchParams }: { searchParams?: { linkRange?: string } }) {
@@ -368,15 +372,33 @@ export default async function AdminStatisticsPage({ searchParams }: { searchPara
               </div>
             </div>
           ))}
-          <p className="text-sm text-white mb-2" data-link-storyboard>
-            바나나 → 스토리보드 · 넘김 {bananaStats.storyboard.handed}건 → 만든 프로젝트 {bananaStats.storyboard.banana.projects}건 → 완성 이미지까지 {bananaStats.storyboard.banana.rendered}건
-            <span className="text-subtext"> · 4컷 만화 → 스토리보드 · 넘김 {bananaStats.storyboard.handedFrom["four-cut-comics"] ?? 0}건 → 만든 프로젝트 {bananaStats.storyboard.fourCut.projects}건 → 완성 이미지까지 {bananaStats.storyboard.fourCut.rendered}건</span>
-            <span className="text-subtext"> · 인물사진 → 스토리보드 · 넘김 {bananaStats.storyboard.handedFrom["portrait-photo"] ?? 0}건 → 만든 프로젝트 {bananaStats.storyboard.portrait.projects}건 → 완성 이미지까지 {bananaStats.storyboard.portrait.rendered}건</span>
-          </p>
-          <p className="text-sm text-white mb-2" data-link-convert>
-            형식 바꾸기 → 변환 완료 · 바나나 넘김 {bananaStats.convert.handed["banana-canvas"]}건 → 변환 {bananaStats.convert.done["banana-canvas"] ?? 0}건
-            <span className="text-subtext"> · 인물사진 넘김 {bananaStats.convert.handed["portrait-photo"]}건 → 변환 {bananaStats.convert.done["portrait-photo"] ?? 0}건 · 4컷 만화 넘김 {bananaStats.convert.handed["four-cut-comics"]}건 → 변환 {bananaStats.convert.done["four-cut-comics"] ?? 0}건</span>
-          </p>
+          <div className="mb-4" data-link-flow>
+            <p className="text-subtext text-sm mb-2">다음 단계로 넘긴 뒤 · 보낸 곳 × 받는 곳 (넘김 → 완료)</p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-subtext text-left border-b border-white/10">
+                    <th className="py-2 font-medium">보낸 프로그램</th>
+                    <th className="py-2 font-medium text-right">이미지 변환 스튜디오 (변환 완료)</th>
+                    <th className="py-2 font-medium text-right">시네마틱 스토리보드 (프로젝트 · 완성 이미지)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bananaStats.matrix.map((m) => (
+                    <tr key={m.from} className="border-b border-white/5 text-white" data-flow-row={m.from}>
+                      <td className="py-2">{nameOf(m.from)}</td>
+                      <td className="py-2 text-right">
+                        {m.convert.handed || m.convert.done ? <>{m.convert.handed} → {m.convert.done}건 <span className="text-subtext">({pct(m.convert.done, m.convert.handed)})</span></> : <span className="text-subtext">아직 없음</span>}
+                      </td>
+                      <td className="py-2 text-right">
+                        {m.storyboard.handed || m.storyboard.done ? <>{m.storyboard.handed} → {m.storyboard.done}건 <span className="text-subtext">({pct(m.storyboard.done, m.storyboard.handed)}) · 완성 {m.storyboard.rendered}건</span></> : <span className="text-subtext">아직 없음</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
           <p className="text-subtext text-xs mt-2">연계 링크: 스타일 분석기·감성 글귀·리버스 프롬프트 → 바나나 캔버스·AI 이미지 스튜디오. 바나나 다운로드는 2026-10-22부터, 다음 단계로 넘김(형식 바꾸기·스토리보드)은 바나나 v1.28부터, 이미지 스튜디오 연계는 v1.26·다운로드/바나나로 넘김은 v1.27부터, 스토리보드 프로젝트의 보낸 곳은 스토리보드 v1.13(4컷은 v1.14)부터, 변환 완료는 변환 스튜디오 v1.21부터, 인물사진·4컷 넘김은 인물사진 v1.39·4컷 v1.33부터(인물사진 → 스토리보드는 스토리보드 v1.15부터) 쌓입니다. 바나나 결과는 30일 뒤 자동 삭제됩니다.</p>
         </GlassCard>
       )}

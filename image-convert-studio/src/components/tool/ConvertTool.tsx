@@ -24,6 +24,7 @@ import { importSourceOf } from "@/lib/importSource";
 import { useLang } from "./LangProvider";
 import { viaSource } from "@/lib/linkMark";
 import { markLinkDone } from "@/lib/linkDone";
+import { resaveTarget, resaveToSender } from "@/lib/resave";
 
 type Status = "idle" | "working" | "done" | "error";
 interface Item {
@@ -118,6 +119,8 @@ export function ConvertTool() {
   const [importVia, setImportVia] = useState<ReturnType<typeof viaSource>>(undefined);
   // v1.21: 다른 프로그램에서 받은 그림(File) — 이 그림의 변환을 처음 마치면 보낸 곳으로 「변환 완료」 신호
   const importedFile = useRef<File | null>(null);
+  // v1.22: 보낸 프로그램 보관함에 다시 저장 상태(항목별)
+  const [resave, setResave] = useState<Record<string, { state: "saving" | "saved" | "error"; msg?: string }>>({});
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const src = params.get("src");
@@ -654,6 +657,25 @@ export function ConvertTool() {
                     {item.status === "error" && <span className="text-[11px] text-rose-400">{item.error}</span>}
                     {item.note && item.status === "done" && <span className="text-[11px] text-slate-300" data-retry-note>{item.note}</span>}
                   </div>
+
+                  {/* v1.22: 받은 그림을 변환했으면 보낸 프로그램 보관함에 다시 저장(지금은 AI 인물사진만, JPEG·PNG·WebP) */}
+                  {item.result && item.file === importedFile.current && importVia && resaveTarget(importVia.key, item.result.blob.type) && (
+                    <div className="px-2 pt-2" data-resave>
+                      <button
+                        type="button"
+                        disabled={resave[item.id]?.state === "saving" || resave[item.id]?.state === "saved"}
+                        onClick={async () => {
+                          setResave((m) => ({ ...m, [item.id]: { state: "saving" } }));
+                          const err = await resaveToSender(importVia.key, item.result!.blob);
+                          setResave((m) => ({ ...m, [item.id]: err ? { state: "error", msg: err } : { state: "saved" } }));
+                        }}
+                        className="w-full rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2 py-1.5 text-[11px] font-bold text-emerald-200 transition hover:bg-emerald-500/20 disabled:opacity-60"
+                      >
+                        {resave[item.id]?.state === "saving" ? "저장하는 중…" : resave[item.id]?.state === "saved" ? `✅ ${resaveTarget(importVia.key, item.result.blob.type)!.name}에 저장했습니다` : `📥 ${resaveTarget(importVia.key, item.result.blob.type)!.name}에 다시 저장`}
+                      </button>
+                      {resave[item.id]?.state === "error" && <p className="mt-1 text-[11px] text-rose-300" role="alert">{resave[item.id]?.msg}</p>}
+                    </div>
+                  )}
 
                   {/* v1.18: 용량이 늘어난 그림만 — WebP·80%로 다시 */}
                   {grade === "bigger" && (

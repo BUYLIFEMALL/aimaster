@@ -238,3 +238,8 @@
 
 ## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 `link-mark` 기준에 이름표 2개·`back` 문구
 - `src/lib/bnc/linkMark.ts`의 `VIA_SOURCES`에 `portrait-photo`·`four-cut-comics` 추가, 항목마다 조사까지 맞춘 돌아가기 문구 `back`. 사본 3곳(이미지 스튜디오·변환 스튜디오·스토리보드)에 손으로 복사(`--sync` 안 씀), 검사 OK. 바나나 동작은 같아 배포하지 않음 — 다음 배포 때 함께. tsc 통과.
+
+## ✅ v1.30 배포 (2026-10-22, Claude Code 윈도우) — 넘김 기록을 usage_logs로도(인물사진·4컷과 통일)
+- `PATCH /api/history/[id]`가 넘김(`handoff: convert|storyboard`)을 **처음** 저장할 때 `options.handoffs`는 그대로 두고, 본인 `usage_logs`에도 1줄(action `linked_handoff`, `metadata.to`는 받는 프로그램 slug `image-convert-studio`·`cinematic-storyboard-studio`, `itemId`는 결과 번호). 관리자 연계 표가 세 프로그램을 한 쿼리로 세고 옛 `options.handoffs`와 같은 결과 번호로 중복 제거.
+- 같은 배포로 저장소에만 있던 공용 사본(`link-mark` 이름표 2개·`back` 문구, `banana-idea-link`의 `imageStudioLink`)도 나감.
+- 검수: 시험 43개, tsc·빌드. 넘김 클릭 뒤 기록은 이번에 화면 시험 안 함(코드 시험으로 고정).

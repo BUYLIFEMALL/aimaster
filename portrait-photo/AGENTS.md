@@ -229,3 +229,7 @@
 - 넘김 기록: 「🔁 형식 바꾸기」·「🎬 스토리보드로」를 처음 누르면 `markHandoff(it.id, to)`(`src/lib/linkHandoff.ts`, 버튼마다 한 번) → 새 API `POST /api/link-handoff` `{to, itemId}`(권한 확인, `to`는 `image-convert-studio`·`cinematic-storyboard-studio`만, `itemId`는 UUID만) → 회원 본인 `usage_logs` action `linked_handoff`. DB 칸 추가 없음(보관함 표에 jsonb가 없어 이 방식).
 - 공용 기준 코드 `link-mark` 사본 `src/lib/linkMark.ts` 새로 둠(기준 바나나 — 직접 고치지 않음).
 - 검수: 시험 45개, tsc·빌드. 크롬(시험 계정): 운영 v1.39, `/api/link-handoff` 잘못된 to·itemId → 400. 버튼 자체는 시험 계정 서버 보관함이 비어 미확인(사진을 만들려면 AI 비용).
+
+## ✅ v1.40 배포 (2026-10-22, Claude Code 윈도우) — 보관함 저장 API에 변환 스튜디오 CORS
+- `src/app/api/saved/route.ts`: `OPTIONS` + POST 응답에 `Origin`이 `https://image-convert-studio.buylife.xyz`일 때만 `Access-Control-Allow-Origin`(그 주소)·`Allow-Credentials: true`·`Vary: Origin`. 저장 로직(`savePost`, 권한·형식·한도·30장·보관 기간)은 그대로. GET·DELETE는 CORS 없음.
+- 검수: 시험 46개, tsc·빌드. 크롬(시험 계정): 변환 스튜디오에서 다시 저장 성공, 다른 주소(스토리보드)에서 같은 API POST → 브라우저 차단. v1.39 버튼 실제 확인: 보관 사진 카드에 「형식 바꾸기」(`via=portrait-photo`)·「🎬 스토리보드로」, 스토리보드로 클릭 → `linked_handoff`(to 스토리보드) 기록 1줄, 스토리보드 v1.15 「↩ AI 인물사진으로 돌아가기」. 시험 사진은 삭제(시험 기록 `usage_logs` 2줄은 남음).

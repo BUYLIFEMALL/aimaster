@@ -56,3 +56,16 @@ test("v1.21 받은 그림의 변환을 처음 마치면 보낸 곳으로 변환 
   assert.match(api, /export const dynamic = "force-dynamic";/);
   assert.match(api, /export const fetchCache = "force-no-store";/);
 });
+
+test("v1.22 보관함에 다시 저장: 인물사진에서 온 JPEG·PNG·WebP만", async () => {
+  const { resaveTarget } = await import("../src/lib/resave.ts");
+  assert.equal(resaveTarget("portrait-photo", "image/webp")?.api, "https://portrait-photo.buylife.xyz/api/saved");
+  assert.equal(resaveTarget("portrait-photo", "image/avif"), null);
+  assert.equal(resaveTarget("banana-canvas", "image/png"), null);
+  assert.equal(resaveTarget(undefined, "image/png"), null);
+  const { readFileSync } = await import("node:fs");
+  const lib = readFileSync(new URL("../src/lib/resave.ts", import.meta.url), "utf8");
+  assert.match(lib, /credentials: "include"/);
+  const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(tool, /item\.file === importedFile\.current && importVia && resaveTarget\(importVia\.key, item\.result\.blob\.type\)/);
+});

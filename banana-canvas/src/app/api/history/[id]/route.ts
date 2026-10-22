@@ -1,5 +1,6 @@
 import { type NextRequest } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkProgramAccessApi, THIS_PROGRAM_SLUG } from "@/lib/access";
+import { logProgramUsage } from "@/lib/programAccess";
 import { json } from "@/lib/aiRoute";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isUuid } from "@/lib/bnc/paths";
@@ -10,6 +11,8 @@ import { onceMarkNext, pickAllowed } from "@/lib/bnc/linkMark";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 type Ctx = { params: Promise<{ id: string }> };
+// 넘긴 곳 이름을 받는 프로그램 이름(slug)으로 — 인물사진·4컷 `linked_handoff`의 `to`와 같게
+const HANDOFF_TO = { convert: "image-convert-studio", storyboard: "cinematic-storyboard-studio" } as const;
 
 async function guard(ctx: Ctx) {
   const access = await checkProgramAccessApi();
@@ -49,6 +52,11 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     if (next) {
       const { error } = await admin.from("banana_canvas_results").update({ options: next }).eq("id", g.id).eq("user_id", g.user.id);
       if (error) return json({ error: "저장하지 못했습니다." }, 500);
+      // v1.30: 넘김은 인물사진·4컷과 같은 모양으로 본인 usage_logs에도 1줄(action `linked_handoff`) — 관리자 연계 표를 한 쿼리로
+      if (handoff) {
+        const { data: program } = await admin.from("programs").select("id").eq("slug", THIS_PROGRAM_SLUG).maybeSingle();
+        if (program) await logProgramUsage(admin, { userId: g.user.id, programId: program.id as string, action: "linked_handoff", metadata: { to: HANDOFF_TO[handoff], itemId: g.id } });
+      }
     }
     return json({ ok: true });
   }

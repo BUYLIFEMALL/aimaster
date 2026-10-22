@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): 바나나 v1.30 넘김 기록 통일 · 관리자 「보낸 곳 × 받는 곳」 표 · 변환 v1.22 → 인물사진 v1.40 「보관함에 다시 저장」
+- 한 일: ① 바나나 첫 넘김 때 `usage_logs` `linked_handoff`도 1줄(옛 `options.handoffs` 유지) ② 메인 `app/admin/statistics` 연계 카드의 긴 줄을 표 하나로(행 바나나·인물사진·4컷 × 열 변환 스튜디오·스토리보드, 칸 「넘김 → 완료 (비율)」·스토리보드는 완성 이미지 수) — 넘김은 세 프로그램 `linked_handoff` 한 쿼리 + 바나나 옛 기록, 회원·결과 번호·받는 곳으로 중복 제거 ③ 변환 스튜디오에서 인물사진에서 온 그림을 변환하면 「📥 인물사진 보관함에 다시 저장」 — 인물사진 저장 API에 변환 스튜디오 주소만 CORS(로그인 쿠키). DB 칸 추가 없음.
+- 검수: 시험 바나나 43·변환 45·인물사진 46, tsc·빌드, 메인 통계 타입 오류 0, 새 집계 쿼리 운영 DB 읽기 시험(오류 0). 크롬(시험 계정, 배포 전 로그인 확인): 변환 → 다시 저장 → 인물사진 보관함 1장 확인(시험 후 삭제), 다른 주소 POST 차단, 인물사진 보관 사진 버튼·스토리보드 v1.15 인물사진 안내, DB 기록 `linked_convert`(via portrait-photo)·`linked_handoff`(portrait → 스토리보드) 확인. 못 한 것: 바나나 넘김 클릭 뒤 새 기록(화면 시험 안 함), 관리자 표 화면(관리자 로그인 필요).
+- 배포: 인물사진 v1.40 → 변환 v1.22 → 바나나 v1.30 → 메인 자동 빌드(빌드 4회), DB 버전 3줄.
+- 링크: https://banana-canvas.buylife.xyz · https://image-convert-studio.buylife.xyz · https://portrait-photo.buylife.xyz · https://www.buylife.xyz/admin/statistics
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ BLC-12 티스토리 포스팅 자동화 v1.86 검증 부품 적용 (빌드 1회 · OpenAI 1회)
 - 글감 URL 수집을 공용 `safe-fetch` 사본으로(내부·사설 주소 차단·리디렉트 재검사·15초·3MB — 기존엔 보호 없음), 생성 결과 연도 보정을 새 공용 기준 `year-policy`(기준 naver-blog-agent)로. 확장·TinyMCE·태그·예약·자동 발행 변경 없음. AI 오류 안내·출처 객체·RSS·근거 인용·실행 선점·BLC-07은 비교 뒤 제외(이유는 플랜).
 - 시험 151 통과, 배포 Ready, DB/확장/ZIP v1.86 OK, 웨일 실검수(내부 주소 거절·공개 주소 수집) 완료. 공용 등록: `scripts/check-shared-modules.mjs`·`docs/SHARED_MODULES.md`. 상세: `tistory-auto-blog/docs/PLAN_20261022_BLC12_VERIFIED_PARTS.md`.

@@ -6,6 +6,17 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 const NO_STORE = { "Cache-Control": "private, no-store" };
 const B64 = /^[A-Za-z0-9+/]+={0,2}$/;
+// v1.40: 이미지 변환 스튜디오 「인물사진 보관함에 다시 저장」 — 그 주소만, 회원 본인 로그인 쿠키(.buylife.xyz)로 POST 허용
+const RESAVE_ORIGIN = "https://image-convert-studio.buylife.xyz";
+function cors(request: NextRequest): Record<string, string> {
+  return request.headers.get("origin") === RESAVE_ORIGIN
+    ? { "Access-Control-Allow-Origin": RESAVE_ORIGIN, "Access-Control-Allow-Credentials": "true", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", Vary: "Origin" }
+    : {};
+}
+
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, { status: 204, headers: cors(request) });
+}
 
 /** 서버 보관함 목록(서명된 임시 주소, 1시간) */
 export async function GET() {
@@ -16,6 +27,12 @@ export async function GET() {
 
 /** 회원이 보관함 저장을 켠 경우에만 호출된다. 생성 결과 1장을 비공개 버킷에 저장한다(원본 사진은 받지 않는다). */
 export async function POST(request: NextRequest) {
+  const res = await savePost(request);
+  for (const [k, v] of Object.entries(cors(request))) res.headers.set(k, v);
+  return res;
+}
+
+async function savePost(request: NextRequest) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status, headers: NO_STORE });
   const raw = await request.text();

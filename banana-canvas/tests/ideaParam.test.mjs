@@ -112,3 +112,8 @@ test("v1.29 공용 link-mark — 정해진 값·첫 1회·한 번만 보내기·
   assert.equal((studio.match(/, "banana-canvas"\)\}/g) ?? []).length, 2);
 });
 
+test("v1.30 첫 넘김은 본인 usage_logs에도 linked_handoff 1줄(받는 프로그램 이름으로)", () => {
+  const api = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
+  assert.match(api, /const HANDOFF_TO = \{ convert: "image-convert-studio", storyboard: "cinematic-storyboard-studio" \} as const;/);
+  assert.match(api, /if \(next\) \{[\s\S]*if \(handoff\) \{[\s\S]*action: "linked_handoff", metadata: \{ to: HANDOFF_TO\[handoff\], itemId: g\.id \}/);
+});

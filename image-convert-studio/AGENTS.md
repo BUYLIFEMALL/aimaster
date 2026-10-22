@@ -181,3 +181,7 @@
 - 화면: 다른 프로그램에서 받은 그림(File)을 `importedFile` ref로 기억하고, 그 그림의 변환이 성공하면 `markLinkDone(importVia.key)`(`src/lib/linkDone.ts`, `createOnceSender`로 화면당 한 번, `keepalive`, 실패 무시).
 - 메인 관리자 연계 카드 「형식 바꾸기 → 변환 완료」(바나나는 넘김 → 변환, 인물사진·4컷은 넘김 기록이 없어 완료 건수만).
 - 검수: 시험 44개, tsc·빌드. 크롬: 운영 v1.21 표시, 로그인 없이 `/api/link-done` → 401. 로그인 상태의 400(없는 이름표)·실제 변환 뒤 기록 1줄은 검수 중 `.buylife.xyz` 로그인 세션이 끝나 미확인 — 다음 첫 단계: 로그인 후 바나나 서명 주소 + `via=banana-canvas`로 열어 변환 → `usage_logs`(action `linked_convert`) 확인.
+
+## ✅ v1.22 배포 (2026-10-22, Claude Code 윈도우) — 인물사진 보관함에 다시 저장
+- 인물사진에서 받은 그림(`via=portrait-photo`)을 JPEG·PNG·WebP로 변환하면 결과 카드에 「📥 인물사진 보관함에 다시 저장」(`data-resave`). `src/lib/resave.ts`가 결과를 base64로 바꿔 인물사진 기존 저장 API `https://portrait-photo.buylife.xyz/api/saved`에 `credentials: "include"`로 POST(회원 본인 로그인 쿠키 `.buylife.xyz`, 한도 base64 3,000,000자 ≈ 2MB, 이름 「변환 스튜디오에서 다시 저장」·model `image-convert-studio`). 받는 곳 목록 `RESAVE_TARGETS`(지금은 인물사진만 — 4컷은 대본 포함 구조, 바나나는 결과 표 구조라 별도).
+- 검수: 시험 45개, tsc·빌드. 크롬(시험 계정): 바나나 시험 그림 + `via=portrait-photo` → WebP 변환 → 「다시 저장」 → 「✅ 인물사진 보관함에 저장했습니다」, 인물사진 보관함에 1장(188KB) 확인 후 삭제. 같은 흐름에서 `linked_convert`(via portrait-photo) 기록 1줄 확인(v1.21 미확인분).
