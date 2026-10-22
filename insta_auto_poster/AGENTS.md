@@ -406,3 +406,8 @@
 - 검수: `test:cardnews` 75개·`test:own-meta`·`test:import` 2개, tsc 0, 로컬 build, `check-shared-modules` 일치. 배포 `insta-auto-poster-ev8549dti`(v1.65)·`insta-auto-poster-5ijujbd8q`(v1.66) Ready, DB v1.66. 크롬(관리자 본인 Pixabay 키): 제목이 모두 「coffee」인 3장 자동 채우기 → 서로 다른 사진 3장 · 검색 결과 12장 모두 「Pixabay」 배지 · 설정 연결 확인 「✅ 연결됨 — 사진 12장」(Pexels는 키 없어 버튼 숨김) · 피드 새 글 cafe 검색 → 첫 사진 9초 안에 첨부(JPEG 402KB, 공개 주소 200), 1장 차면 칸 숨김 · v1.66에서 검색어 Enter → 검색만(빨간 안내 없음). 시험 작업·사진 모두 삭제.
 - 미확인: Pexels 실검색, 키 없을 때 자동 채우기 안내 1번(코드·시험으로만), 휴대폰 폭, 실제 인스타 게시.
 - 비용: Vercel 빌드 2회(1회 승인 + 긴급 수정 1회 추가 승인), Pixabay 검색·받기 약 12회(무료, 관리자 본인 키), AI 0회.
+
+### 2026-10-23 🟡 미배포 대기 (운영 v1.66 그대로) — 피드 이미지 JPEG 저장 · 휴대폰 폭 확인 (Claude Code 윈도우, 커밋 `8b44df90d`)
+- 직접 첨부 PNG·WEBP → 브라우저 JPEG 변환, AI 이미지 저장 → `src/lib/posts/instagramJpeg.ts`. 상세 `docs/IMPROVEMENTS.md` 맨 위. 검수: `test:cardnews` 76(실제 PNG → JPEG·투명 → 흰색·JPEG는 그대로), `test:import` 2, tsc 0, 로컬 build.
+- 휴대폰 폭(크롬 창이 최대화라 창 크기 대신 같은 페이지를 폭 390px iframe으로 열어 측정, v1.66 운영): 배경 화면 자동 채우기 줄은 가로 넘침 없이 4줄(제공처·버튼·체크·설명 2줄), 피드 새 글 무료 사진 칸은 한 줄(제공처 96 · 검색어 161 · 버튼 48px) — 코드 변경 없음.
+- 비용 없음(빌드 0회).

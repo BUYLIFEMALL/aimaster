@@ -132,3 +132,6 @@
 ## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `4cafe5eb3`
 - 30일 정리(`cleanup-media`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 이미지·영상, posts=보관함 글, ideas=글감) 기록. 메인 관리자 「🛠️ 운영 상태」의 「30일 정리 기록」 진행률(23곳 중)에 들어가고, 정리 결과가 「30일 자동 정리」 표에 회원 수·지운 개수로 나온다. 기록 실패해도 정리는 계속(오류 로그만).
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꿀 것(`docs/PENDING_DEPLOYS.md` 줄도 정리).
+
+## 2026-10-23 연계 제안 — 작성 탭 첨부 미디어에 무료 사진 (Claude Code 윈도우, 조사만·구현 아님)
+- [ ] 「작성」 탭 첨부 미디어(`AttentionComposer.tsx` 약 320행 업로드 옆)에 「📷 무료 사진」 — 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본 + 회원 본인 Pixabay·Pexels 키(공용 `user_api_keys`). 고르면 서버가 받아 `ai-image-generations`의 회원 폴더(`memberMediaFolder(userId, "up")`)에 **JPEG**로 저장(Threads는 webp·gif 불가) → 30일 정리 그대로. 키 형식 `lib/apiKeys.ts:9-23`에 추가, 설정 키 칸. 작성 화면에는 `<form>`이 없어 Enter 위험 낮음. 상품 글(쿠팡)은 상품 사진 우선이라 정보·감성 글 위주. 예상 빌드 1회, AI 0.

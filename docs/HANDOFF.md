@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): INSTA 피드 이미지 JPEG 저장(**미배포 대기**) · 휴대폰 폭 확인 · 무료 사진 다음 대상 조사(쓰레드 2곳 적합, 상세페이지 부적합)
+- 한 일: 피드 직접 첨부 PNG·WEBP는 브라우저에서, AI 이미지는 서버(`instagramJpeg.ts`)에서 JPEG로 저장(커밋 `8b44df90d`) — Meta 피드 API는 JPEG만, 기존 게시 3건 모두 JPEG·PNG 시도 0건이라 실제 게시 시험 없이 미배포 대기(`docs/PENDING_DEPLOYS.md`). 휴대폰 폭은 크롬 창이 최대화라 390px iframe으로 측정 — 자동 채우기 줄 4줄·피드 무료 사진 칸 한 줄, 가로 넘침 없음, 코드 변경 없음. 무료 사진 다음 대상 조사: `threads/`·`threads-content-ops/` 글 첨부 이미지 적합(IDEA-FREEPHOTO-02), `shop-detail-page` 부적합(제품 사진).
+- 검수: 시험 76·`test:import` 2·tsc·로컬 build. 시험 작업 삭제, 창 크기 원래대로. 비용 없음(빌드 0회).
+- 링크: https://auto-instagram-posting.buylife.xyz/posts/new
+
 ## 2026-10-23 — Claude Code(맥미니): 상세페이지 GIF 자동화 v1.17 진행률 결함 수정 (v1.16 실검수 ❌ → 배포 대기)
 - v1.16 실검수: 변환 정상이나 진행률이 시도마다 시작 즉시 끝 값으로 뛰고 멈춤. 원인: 엔진이 색상표 단계 동안 「값 없음」(time=INT64 최대)을 보내는데 1로 처리. v1.17은 이 값을 무시(주인님 승인, 빌드 1회 추가). 상세 `video-to-gif/AGENTS.md`, `docs/ERROR_LESSONS.md` 맨 위.
 - **윈도우 CLI 다음 첫 단계**: SQL `video-to-gif/supabase/migrations/20261023_progress_fix_v1_17.sql`(버전만) → `video-to-gif` 배포 1회 → `video-to-gif/AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.

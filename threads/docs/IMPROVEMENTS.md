@@ -46,3 +46,7 @@
 - **원칙**: 프로그램 간 호출·데이터 전달 없이 링크만. 인물사진은 회원 본인 Gemini 키·이용 권한이 따로 필요하므로 문구에 "별도 프로그램(이용 권한 필요)"을 밝힌다.
 - **상태**: 미구현 제안(매뉴얼 화면은 AGY 디자인 영역이라 Claude Code가 코드를 고치지 않음). 구현 시 이 프로그램 버전 +0.01.
 - **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+
+## 2026-10-23 연계 제안 — 글 첨부 이미지에 무료 사진 (Claude Code 윈도우, 조사만·구현 아님)
+- [ ] 글 작성 「이미지 & 캐러셀」(`src/components/posts/PostForm.tsx` 약 533행)에 「📷 무료 사진」 — 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본 + 회원 본인 Pixabay·Pexels 키(공용 `user_api_keys`). 고르면 서버가 받아 공개 버킷 `post-images/<회원>/`에 **JPEG**로 저장 → 이미지 목록에 추가(INSTA v1.65 피드 첨부와 같은 흐름). 키 형식 `src/types/database.types.ts:2`에 pixabay·pexels 추가, 설정에 키 칸·연결 확인.
+- 주의: 글 작성 전체가 `<form onSubmit>` 안(`PostForm.tsx:357`) — 검색어 Enter `preventDefault()` 필수(INSTA v1.65 사고, `docs/ERROR_LESSONS.md` 2026-10-23). 예상 빌드 1회, AI 0.
