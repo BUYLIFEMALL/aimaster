@@ -162,3 +162,9 @@
 - 검수: tsc·build, 커밋 `44e2522ff`, 배포 `shots-1xxupqapb` Ready, DB v1.36. 배포 전 읽기 전용 미리보기: 30일 지난 19개(59.7MB) → 장면 기록 18개·선택 이미지 18개 비워질 예정. 크롬(시험 회원) 스크립트 화면: 장면 카드 6개에 30일 안내(#aaa), 인스타 칸 표지 안내 확인.
 - **첫 실제 삭제는 다음 정리 시각(2026-10-22 18:30 UTC = 10-23 03:30 KST)** — 다음 세션에서 Vercel 로그 `[cleanup-videos] scene images expired … removed … segments …` 확인 필요.
 - 비용: 빌드 1회, AI 0회.
+
+## 2026-10-22 v1.37 — 정리 기록(usage_logs) · 정리된 장면 표시 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_CLEANUP_LOG.md`(주인님 승인). DB 칸 추가 없음.
+- `src/lib/sceneImageCleanup.ts` `CLEANUP_ACTION="cleanup_expired"`·`countByOwner`·`cleanupByOwner`(순수), `/api/cron/cleanup-videos`가 회원별 `logProgramUsage`(metadata 영상·음성·표지·이미지 개수 + 비워진 장면 id, 응답 `loggedOwners`). `src/lib/cleanupLog.ts` `findExpiredSegments`(관리자 키, 느슨한 타입 — shots DB 타입에 `usage_logs` 없음), 스크립트 화면 → `ScriptEditor` → `SegmentCard` `imageExpired` 안내(호박색 상자).
+- 검수: tsc·build·시험 3개, 커밋 `4b35bf994`, 배포 `shots-isvjf6tev` Ready(18:30 UTC 정리 전), DB v1.37, 크롬(시험 회원) 스크립트 화면 오류 없이 장면 6개·30일 안내. 「정리됐습니다」 표시는 기록이 생긴 뒤에만 보임 — **다음 세션: `usage_logs` action `cleanup_expired` 행과 Vercel 로그 확인, 기록 있는 회원 화면에서 표시 확인**.
+- 비용: 빌드 1회, AI 0회.
