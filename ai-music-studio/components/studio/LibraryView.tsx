@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Loader2, RefreshCw } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
-import { GenerationCard } from "./GenerationCard";
+import { GenerationCard, PLAYLIST_URL } from "./GenerationCard";
 
 type Filter = "all" | "completed" | "running" | "failed";
 
@@ -73,6 +73,17 @@ export function LibraryView() {
           </button>
         ))}
       </div>
+
+      {(() => {
+        // 완성곡 전부(최대 20곡, 최신 순)를 플레이리스트 영상으로 — 그쪽에서 회원이 「곡 추가」를 눌러 넣는다
+        const refs = (items ?? []).filter((g) => g.status === "completed").flatMap((g) => g.outputs.map((_, n) => `${g.id}:${n}`)).slice(0, 20);
+        return refs.length > 1 ? (
+          <a href={`${PLAYLIST_URL}?ams=${refs.join(",")}`} target="_blank" rel="noreferrer"
+            className="block w-fit whitespace-nowrap rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-xs font-bold text-violet-200 hover:bg-violet-500/20">
+            🎞️ 완성곡 {refs.length}개로 플레이리스트 영상 만들기 →
+          </a>
+        ) : null;
+      })()}
 
       {error && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</p>}
       {items === null && !error && <p className="text-sm text-zinc-500">불러오는 중…</p>}

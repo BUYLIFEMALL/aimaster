@@ -6,7 +6,7 @@
     "dev": "next dev -p 3077",
     "build": "next build",
     "start": "next start",
-    "test": "node --test tests/lyrics.test.ts tests/sunoAlign.test.ts"
+    "test": "node --test tests/lyrics.test.ts tests/sunoAlign.test.ts tests/amsLyrics.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",

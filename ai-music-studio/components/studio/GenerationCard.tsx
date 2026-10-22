@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Download, FileText, Loader2, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 
+export const LYRIC_VIDEO_URL = "https://lyric-video-studio.buylife.xyz/source";
+export const PLAYLIST_URL = "https://playlist-channel-studio.buylife.xyz/video";
+
 function elapsed(from: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / 1000));
   return s < 60 ? `${s}초` : `${Math.floor(s / 60)}분 ${s % 60}초`;
@@ -83,13 +86,26 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
         <div key={o.path} className="space-y-1.5">
           {gen.outputs.length > 1 && <p className="text-[11px] font-medium text-zinc-500">{o.title ? `${o.title} · ` : ""}{i + 1}번 곡</p>}
           {o.url ? <audio controls preload="none" src={o.url} className="w-full" /> : <p className="text-xs text-zinc-500">재생 주소를 만들지 못했습니다.</p>}
-          {o.downloadUrl && (
-            <a href={o.downloadUrl} className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-medium text-violet-300 hover:underline">
-              <Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기 ({(o.bytes / 1_048_576).toFixed(1)}MB)
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {o.downloadUrl && (
+              <a href={o.downloadUrl} className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-medium text-violet-300 hover:underline">
+                <Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기 ({(o.bytes / 1_048_576).toFixed(1)}MB)
+              </a>
+            )}
+            {/* 다른 프로그램으로 보내기 — 그쪽이 회원 본인 행만 읽어 음악·제목·가사(Lyria 시간 가사 포함)를 넣는다 */}
+            <a href={`${LYRIC_VIDEO_URL}?ams=${gen.id}&i=${i}`} target="_blank" rel="noreferrer" className="whitespace-nowrap text-xs font-medium text-zinc-400 hover:text-violet-200">
+              🎬 가사 영상 →
             </a>
-          )}
+          </div>
         </div>
       ))}
+
+      {gen.outputs.length > 0 && (
+        <a href={`${PLAYLIST_URL}?ams=${gen.outputs.map((_, n) => `${gen.id}:${n}`).join(",")}`} target="_blank" rel="noreferrer"
+          className="w-fit whitespace-nowrap rounded-full border border-zinc-700 px-3 py-1 text-[11px] font-medium text-zinc-300 hover:border-violet-500/40 hover:text-violet-200">
+          🎞️ 플레이리스트 영상으로 보내기 →
+        </a>
+      )}
 
       {lyrics && (
         <div>

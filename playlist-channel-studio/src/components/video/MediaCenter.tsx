@@ -2,6 +2,7 @@
 
 import { ReferenceNotePanel } from "./ReferenceNotePanel";
 import { SunoImportPanel } from "./SunoImportPanel";
+import { AmsImportPanel } from "./AmsImportPanel";
 import { useState, useRef } from "react";
 import {
   Upload,
@@ -280,6 +281,8 @@ export function MediaCenter({
           </div>
 
           {/* v1.19 음악(SUNO) 자동화 곡 여러 개 + 시간 가사 가져오기 */}
+          {/* v1.27 AI 음악 스튜디오에서 보낸 곡(?ams=) */}
+          <AmsImportPanel setTracks={setTracks} />
           <SunoImportPanel setTracks={setTracks} hasBg={!!bgMedia} setBgMedia={setBgMedia} />
 
           {/* 오디오 파일 드롭존 */}
