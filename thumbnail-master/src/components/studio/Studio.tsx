@@ -363,7 +363,7 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                   {url && inputs.style.ratio === "9:16" && (
                     <small className="muted">
                       릴스 표지로 쓰려면 JPG를 받은 뒤 YOUTUBE Shots 자동화 [영상 포스팅] → 인스타 칸 「표지 이미지」에 올리세요.{" "}
-                      <a href={SHOTS_POSTING_URL} target="_blank" rel="noreferrer">릴스 표지로 쓰기 ↗</a>
+                      <a href={SHOTS_POSTING_URL} target="_blank" rel="noreferrer" style={{ color: "var(--brand)", textDecoration: "underline", fontWeight: 600 }}>릴스 표지로 쓰기 ↗</a>
                     </small>
                   )}
                   {cur && (
