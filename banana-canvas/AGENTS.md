@@ -235,3 +235,6 @@
 - `PATCH /api/history/[id]`·`downloadMark.ts`가 이를 쓰도록 바꿈(동작 같음).
 - 「🔁 형식 바꾸기」·「🎬 스토리보드로」 주소에 `&via=banana-canvas`(`withVia`). 두 프로그램은 `?src=`를 그림 주소로 이미 쓰므로 보낸 곳은 `via`.
 - 검수: 시험 42개, tsc·빌드. 크롬 화면 검수는 이번에 바나나 로그인 세션이 끝나 있어 못 함(비밀번호 입력 불가) — 다음 로그인 때 확인.
+
+## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 `link-mark` 기준에 이름표 2개·`back` 문구
+- `src/lib/bnc/linkMark.ts`의 `VIA_SOURCES`에 `portrait-photo`·`four-cut-comics` 추가, 항목마다 조사까지 맞춘 돌아가기 문구 `back`. 사본 3곳(이미지 스튜디오·변환 스튜디오·스토리보드)에 손으로 복사(`--sync` 안 씀), 검사 OK. 바나나 동작은 같아 배포하지 않음 — 다음 배포 때 함께. tsc 통과.

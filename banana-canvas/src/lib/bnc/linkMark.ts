@@ -27,13 +27,15 @@ export function createOnceSender() {
   };
 }
 
-// 받는 쪽 「보낸 곳」 이름표(`?via=`) — 정해 둔 이름만 안내·돌아가기 링크에 쓴다
+// 받는 쪽 「보낸 곳」 이름표(`?via=`) — 정해 둔 이름만 안내·돌아가기 링크에 쓴다(`back`은 조사까지 맞춘 링크 문구)
 export const VIA_SOURCES = {
-  "banana-canvas": { name: "바나나 캔버스", url: "https://banana-canvas.buylife.xyz/history" },
+  "banana-canvas": { name: "바나나 캔버스", url: "https://banana-canvas.buylife.xyz/history", back: "바나나 캔버스로 돌아가기" },
+  "portrait-photo": { name: "AI 인물사진", url: "https://portrait-photo.buylife.xyz/history", back: "AI 인물사진으로 돌아가기" },
+  "four-cut-comics": { name: "AI 4컷 만화", url: "https://four-cut-comics.buylife.xyz/works", back: "AI 4컷 만화로 돌아가기" },
 } as const;
 export type ViaSource = keyof typeof VIA_SOURCES;
 
-export function viaSource(v: unknown): { key: ViaSource; name: string; url: string } | undefined {
+export function viaSource(v: unknown): { key: ViaSource; name: string; url: string; back: string } | undefined {
   return typeof v === "string" && Object.prototype.hasOwnProperty.call(VIA_SOURCES, v) ? { key: v as ViaSource, ...VIA_SOURCES[v as ViaSource] } : undefined;
 }
 

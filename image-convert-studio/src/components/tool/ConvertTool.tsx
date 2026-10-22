@@ -278,7 +278,7 @@ export function ConvertTool() {
         {importNote && (
           <p role="status" className="mb-3 rounded-lg border border-amber-300/40 bg-amber-50/10 px-3 py-2 text-sm" data-import-via={importVia?.key ?? ""}>
             {importNote}
-            {importVia && <> <a href={importVia.url} data-via-back className="font-bold underline underline-offset-2 whitespace-nowrap">↩ {importVia.name}로 돌아가기</a></>}
+            {importVia && <> <a href={importVia.url} data-via-back className="font-bold underline underline-offset-2 whitespace-nowrap">↩ {importVia.back}</a></>}
           </p>
         )}
         <Dropzone currentCount={items.length} label={t.dropzone.convert} onFiles={addFiles} />

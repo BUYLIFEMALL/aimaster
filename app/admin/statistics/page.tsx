@@ -18,7 +18,7 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
   const admin = createServiceClient();
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
   const { data: studio } = await admin.from("programs").select("id").eq("slug", "ai-image-studio").maybeSingle();
-  const [{ data: rows }, { count: total }, { count: totalDownloaded }, imgRows, imgTotal] = await Promise.all([
+  const [{ data: rows }, { count: total }, { count: totalDownloaded }, imgRows, imgTotal, { count: sbHanded }, { data: sbRows }] = await Promise.all([
     admin.from("banana_canvas_results").select("src:options->>ideaSource, dl:options->>downloadedAt, ho:options->handoffs").gte("created_at", since).not("options->>ideaSource", "is", null).limit(10000),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since),
     admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->>downloadedAt", "is", null),
@@ -28,7 +28,12 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
     studio
       ? admin.from("usage_logs").select("*", { count: "exact", head: true }).eq("program_id", studio.id).eq("action", "image_generation").gte("created_at", since)
       : Promise.resolve({ count: 0 }),
+    // 바나나 → 스토리보드: 넘김(바나나 기록) → 실제 프로젝트(스토리보드 v1.13 `source` 칸) → 완성 이미지까지
+    admin.from("banana_canvas_results").select("*", { count: "exact", head: true }).gte("created_at", since).not("options->handoffs->>storyboard", "is", null),
+    admin.from("storyboard_projects").select("status").eq("source", "banana-canvas").gte("created_at", since).limit(10000),
   ]);
+  const sbProjects = (sbRows ?? []) as { status: string }[];
+  const storyboard = { handed: sbHanded ?? 0, projects: sbProjects.length, rendered: sbProjects.filter((r) => r.status === "rendered" || r.status === "prompts").length };
   const banana: Record<string, { count: number; downloaded: number; handedOff: number }> = {};
   for (const r of (rows ?? []) as { src: string | null; dl: string | null; ho: Record<string, string> | null }[]) {
     if (!r.src) continue;
@@ -45,7 +50,7 @@ async function linkStats(userId: string | undefined, days: 7 | 30) {
     if (r.dl) m.downloaded += 1;
     if (r.ho && Object.keys(r.ho).length) m.handedOff += 1;
   }
-  return { days, banana, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0, image, imageTotal: (imgTotal as { count: number | null }).count ?? 0 };
+  return { days, banana, total: total ?? 0, totalDownloaded: totalDownloaded ?? 0, image, imageTotal: (imgTotal as { count: number | null }).count ?? 0, storyboard };
 }
 
 export default async function AdminStatisticsPage({ searchParams }: { searchParams?: { linkRange?: string } }) {
@@ -331,7 +336,10 @@ export default async function AdminStatisticsPage({ searchParams }: { searchPara
               </div>
             </div>
           ))}
-          <p className="text-subtext text-xs mt-2">연계 링크: 스타일 분석기·감성 글귀·리버스 프롬프트 → 바나나 캔버스·AI 이미지 스튜디오. 바나나 다운로드는 2026-10-22부터, 다음 단계로 넘김(형식 바꾸기·스토리보드)은 바나나 v1.28부터, 이미지 스튜디오 연계는 v1.26·다운로드/바나나로 넘김은 v1.27부터 쌓입니다. 바나나 결과는 30일 뒤 자동 삭제됩니다.</p>
+          <p className="text-sm text-white mb-2" data-link-storyboard>
+            바나나 → 스토리보드 · 넘김 {bananaStats.storyboard.handed}건 → 만든 프로젝트 {bananaStats.storyboard.projects}건 → 완성 이미지까지 {bananaStats.storyboard.rendered}건
+          </p>
+          <p className="text-subtext text-xs mt-2">연계 링크: 스타일 분석기·감성 글귀·리버스 프롬프트 → 바나나 캔버스·AI 이미지 스튜디오. 바나나 다운로드는 2026-10-22부터, 다음 단계로 넘김(형식 바꾸기·스토리보드)은 바나나 v1.28부터, 이미지 스튜디오 연계는 v1.26·다운로드/바나나로 넘김은 v1.27부터, 스토리보드 프로젝트의 보낸 곳은 스토리보드 v1.13부터 쌓입니다. 바나나 결과는 30일 뒤 자동 삭제됩니다.</p>
         </GlassCard>
       )}
     </div>

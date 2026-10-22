@@ -22,3 +22,15 @@ test("v1.12 보낸 곳(?via=) 안내·돌아가기", async () => {
   assert.match(src, /data-via-back/);
 });
 
+test("v1.13 보낸 곳을 프로젝트에 저장(정해진 이름표만, 실패해도 만들기 성공)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const api = readFileSync(new URL("../src/app/api/projects/route.ts", import.meta.url), "utf8");
+  assert.match(api, /const source = viaSource\(body\?\.source\)\?\.key;/);
+  assert.match(api, /if \(source\) await admin\.from\("storyboard_projects"\)\.update\(\{ source \}\)/);
+  const ws = readFileSync(new URL("../src/components/studio/StudioWorkspace.tsx", import.meta.url), "utf8");
+  assert.match(ws, /source: importVia\?\.key/);
+  assert.match(ws, /if \(!fromImport\) \{\s*setImportNote\(null\);\s*setImportVia\(undefined\);/);
+  const { viaSource } = await import("../src/lib/linkMark.ts");
+  assert.equal(viaSource("banana-canvas")?.key, "banana-canvas");
+  assert.equal(viaSource("x' or 1=1"), undefined);
+});

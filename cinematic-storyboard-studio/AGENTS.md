@@ -125,3 +125,10 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 ## ✅ v1.12 배포 (2026-10-22, Claude Code 윈도우) — 보낸 곳 안내·돌아가기(`?via=`)
 - 바나나 「🎬 스토리보드로」로 넘어올 때 `?via=banana-canvas`가 붙으면, 참고 이미지 안내 끝에 「↩ 바나나 캔버스로 돌아가기」(`data-via-back`). 이름표는 공용 사본 `src/lib/linkMark.ts`(공용 기준 코드 `link-mark`, 기준 바나나 — 직접 고치지 않음). 보낸 곳 저장은 하지 않음(프로젝트 표에 칸이 없어 DDL이 필요 — 주인님이 「안내 표시만」 선택).
 - 검수: 시험 20개, tsc·빌드. 크롬 화면 검수는 로그인 세션 문제로 미확인.
+
+## ✅ v1.13 배포 (2026-10-22, Claude Code 윈도우) — 보낸 곳을 프로젝트에 저장
+- 운영 DB `storyboard_projects`에 `source text`(빈 값 허용) 칸 추가 — `supabase/migrations/0003_project_source.sql`, 2026-10-22 크롬 SQL 편집기로 적용(ref `esgxyikcnnvmlhygjkth`).
+- 바나나 「🎬 스토리보드로」(`?via=banana-canvas`)로 받은 참고 이미지로 프로젝트를 만들면 화면이 `source: importVia.key`를 보내고, `POST /api/projects`가 공용 `link-mark` 이름표(`viaSource`)에 있는 값만 **프로젝트를 만든 뒤 따로** 저장한다 — 칸이 없는 DB(설치 키트 등)에서 실패해도 만들기는 성공(ERROR_LESSONS 2026-10-22 「운영 DB에 칸을 추가하면 설치 키트에서 저장 실패」 대응).
+- 직접 파일을 고르면(`pickFile(file)`) 바나나 안내·보낸 곳을 지운다(`fromImport` 인자). 돌아가기 문구는 이름표의 `back`(조사까지 맞춤).
+- 메인 관리자 연계 카드에 「바나나 → 스토리보드 · 넘김 → 만든 프로젝트 → 완성 이미지까지」 한 줄.
+- 검수: 시험 21개, tsc·빌드. 크롬: 운영 v1.13에서 바나나 서명 주소 + `via=banana-canvas`로 열어 안내·「↩ 바나나 캔버스로 돌아가기」(→ 바나나 `/history`) 확인. 실제 프로젝트 만들기 뒤 `source` 저장은 회원 데이터가 생겨 화면 시험 안 함(코드 시험으로 고정) — 다음 실제 사용 때 DB로 확인.

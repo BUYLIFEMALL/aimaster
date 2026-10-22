@@ -213,3 +213,6 @@
 
 ## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 `link-mark` 사본 사용
 - `lib/linkMark.ts`(공용 기준 코드 `link-mark` 사본, 기준 바나나 — 직접 고치지 않음) 추가. `/api/gallery/mark`가 `pickAllowed`·`onceMarkNext`, `lib/logMark.ts`가 `createOnceSender`를 씀(동작 같음). 시험 3개 통과. 동작이 같아 배포하지 않음 — 다음 배포 때 함께.
+
+## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 `link-mark` 사본 갱신
+- 기준(바나나)의 이름표 2개·`back` 문구 추가분을 사본 `lib/linkMark.ts`에 반영(이 프로그램은 이름표를 쓰지 않아 동작 같음). tsc 통과. 다음 배포 때 함께.

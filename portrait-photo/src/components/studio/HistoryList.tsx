@@ -127,7 +127,7 @@ export function HistoryList({ userId }: { userId: string }) {
                   <div className="actions">
                     {it.url && <a className="button" href={it.url} download={`인물사진-보관-${it.id.slice(0, 8)}.jpg`} target="_blank" rel="noopener noreferrer"><Download size={13} />저장</a>}
                     {/* v1.32: 서버 보관 사진을 이미지 변환 스튜디오로(서명 주소 1시간, 변환은 브라우저 안에서) */}
-                    {it.url && <a className="button" href={`https://image-convert-studio.buylife.xyz/convert?src=${encodeURIComponent(it.url)}${convertPresetQuery(it.aspect)}`} target="_blank" rel="noopener noreferrer" title="WebP·PNG·JPEG·AVIF 형식·크기 바꾸기(이미지 변환 스튜디오)">🔁 형식 바꾸기</a>}
+                    {it.url && <a className="button" href={`https://image-convert-studio.buylife.xyz/convert?src=${encodeURIComponent(it.url)}${convertPresetQuery(it.aspect)}&via=portrait-photo`} target="_blank" rel="noopener noreferrer" title="WebP·PNG·JPEG·AVIF 형식·크기 바꾸기(이미지 변환 스튜디오)">🔁 형식 바꾸기</a>}
                     {/* v1.33: 서버 보관 사진을 AI 패션스타일(코디·가상 피팅)·AI 바나나 캔버스(편집)로 — 서명 주소 1시간, 받는 쪽이 버킷·본인 폴더를 검사 */}
                     {it.url && <a className="button" href={`https://fashion-style.buylife.xyz/studio?src=${encodeURIComponent(it.url)}`} target="_blank" rel="noopener noreferrer" title="이 사진으로 상황별 코디·가상 피팅(AI 패션스타일)">👗 이 사진으로 코디</a>}
                     {it.url && <a className="button" href={`https://banana-canvas.buylife.xyz/studio?import=${encodeURIComponent(it.url)}`} target="_blank" rel="noopener noreferrer" title="배경 제거·부분 수정·합성 등 편집(AI 바나나 캔버스)">🍌 바나나로 편집</a>}

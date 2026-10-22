@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { decodeImage, requireAccess } from "@/lib/routeGuard";
 import { normalizeReference, paths, signedUrl, uploadImage } from "@/lib/projects";
 import { LIMITS } from "@/lib/storyboard/types";
+import { viaSource } from "@/lib/linkMark";
 
 // 권한 확인 결과가 정적으로 캐시되지 않게 두 줄을 세트로 선언한다(CLAUDE.md 멀티테넌시 원칙 1).
 export const dynamic = "force-dynamic";
@@ -72,5 +73,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "이미지를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 500 });
   }
   await admin.from("storyboard_projects").update({ ref_path: path }).eq("id", row.id).eq("user_id", a.user.id);
+  // v1.13: 다른 프로그램에서 보낸 참고 이미지로 만든 프로젝트면 보낸 곳(공용 `link-mark` 이름표에 있는 것만)을 따로 저장 —
+  // `source` 칸이 없는 DB(설치 키트 등)에서 실패해도 프로젝트 만들기는 그대로 성공한다
+  const source = viaSource(body?.source)?.key;
+  if (source) await admin.from("storyboard_projects").update({ source }).eq("id", row.id).eq("user_id", a.user.id);
   return NextResponse.json({ id: row.id });
 }

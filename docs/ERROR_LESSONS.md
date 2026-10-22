@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — 배포를 다 끝낸 뒤 크롬 검수를 시작하니 로그인 세션이 끝나 있어 화면 검수를 못 함 (바나나 v1.29·변환 v1.19·스토리보드 v1.12, Claude Code 윈도우)
+- 증상: 배포 Ready 뒤 바나나를 열자 `/login`으로 넘어감. 비밀번호는 에이전트가 입력하지 않으므로 검수가 「미확인」으로 끝남.
+- 해결: 검수 순서에 「코드 수정 전(늦어도 배포 전)에 대상 주소를 열어 로그인 상태 확인 → 끝났으면 먼저 주인님께 로그인 요청」을 넣음 — `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-1.
+- 다음부터 확인: 작업 시작 때 대상 프로그램 탭을 직접 열어 계정 이메일이 보이는지 본다(다른 도메인은 페이지 안 `fetch`가 CORS로 막혀 확인 불가).
+
 ## 2026-10-22 — node 시험이 바로 불러오는 공용 파일(`components/studio/shared.ts`)에 `@/` 별칭 가져오기를 넣으면 다른 시험 묶음이 통째로 깨진다 (naver-blog-seo-studio v2.00, Claude Code 윈도우)
 - 증상: `shared.ts`에 `import { splitParagraphBlocks } from "@/lib/imageNodes"`를 넣자 `npm run test:auto-publish`가 `Cannot find module '@/lib/imageNodes'`로 실패(시험 파일이 `shared.ts`를 node로 직접 불러옴). 타입 검사·빌드는 통과해서 시험을 돌려야만 드러남.
 - 해결: `shared.ts`는 그대로 두고, 그 함수를 부르는 쪽(`useStudio.ts`·`lib/imageNodeStore.ts`)에서 감쌌다. v1.93 교훈(확장자 없는 실제 가져오기)과 같은 계열 — 시험이 직접 부르는 파일인지 먼저 `grep -rn "shared.ts\|<파일명>" tests/`로 확인하고, 그런 파일에는 실제 가져오기를 넣지 않는다.

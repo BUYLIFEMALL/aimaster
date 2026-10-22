@@ -119,7 +119,7 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
         const blob = await res.blob();
         if (!res.ok || !blob.type.startsWith("image/")) throw new Error();
         const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "png";
-        await pickFile(new File([blob], `reference.${ext}`, { type: blob.type }));
+        await pickFile(new File([blob], `reference.${ext}`, { type: blob.type }), true);
         setImportNote(`${from} 결과를 참고 이미지로 넣었습니다. 주제를 적고 스토리보드를 만들어 보세요.`);
         setImportVia(via);
       } catch {
@@ -134,8 +134,13 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
     else setError(r.data.error ?? "처리에 실패했습니다.");
   }
 
-  async function pickFile(file: File | undefined) {
+  async function pickFile(file: File | undefined, fromImport = false) {
     if (!file) return;
+    // v1.13: 직접 고른 파일이면 다른 프로그램에서 온 안내·보낸 곳을 지운다(보낸 곳은 프로젝트에 저장되므로)
+    if (!fromImport) {
+      setImportNote(null);
+      setImportVia(undefined);
+    }
     if (!file.type.startsWith("image/")) return setError(t.notImage);
     if (file.size > 15 * 1024 * 1024) return setError(t.tooBig);
     setError(null);
@@ -164,7 +169,7 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
     if (!p) {
       if (!preview || preview.startsWith("http")) return;
       setStep("upload");
-      const c = await post("/api/projects", { image: preview, topic, lang, engine });
+      const c = await post("/api/projects", { image: preview, topic, lang, engine, source: importVia?.key });
       if (!c.ok) {
         setStep(null);
         return fail(c);
@@ -272,7 +277,7 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
       {importNote && !error && (
         <div role="status" className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
           {importNote}
-          {importVia && <> <a href={importVia.url} data-via-back className="font-bold underline underline-offset-2 whitespace-nowrap">↩ {importVia.name}로 돌아가기</a></>}
+          {importVia && <> <a href={importVia.url} data-via-back className="font-bold underline underline-offset-2 whitespace-nowrap">↩ {importVia.back}</a></>}
         </div>
       )}
 

@@ -30,3 +30,13 @@ test("v1.19 보낸 곳(?via=) 안내·돌아가기", async () => {
   assert.match(src, /data-via-back/);
 });
 
+
+test("v1.20 인물사진·4컷 이름표와 조사 맞춘 돌아가기 문구", async () => {
+  const { viaSource } = await import("../src/lib/linkMark.ts");
+  assert.equal(viaSource("portrait-photo").back, "AI 인물사진으로 돌아가기");
+  assert.equal(viaSource("four-cut-comics").url, "https://four-cut-comics.buylife.xyz/works");
+  assert.equal(viaSource("banana-canvas").back, "바나나 캔버스로 돌아가기");
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(src, /↩ \{importVia\.back\}/);
+});
