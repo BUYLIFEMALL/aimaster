@@ -8,7 +8,7 @@
 //       … --all --fix-map   역량 지도 목록 표의 버전 칸만 DB 운영 버전으로 고침(카드 내용은 안 건드림)
 // --go가 끝나면 pending-check --publish로 관리자 첫 화면 숫자(미배포 대기·정리 기록 진행률)도 갱신한다.
 // 배포는 비용이므로 --go는 주인님 승인 범위 안에서만 쓴다(CLAUDE.md 비용 사전 보고). 루트(메인 사이트)는 GitHub 푸시 자동 빌드라 대상이 아니다.
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -130,15 +130,30 @@ async function syncVersion() {
   const ver = appVersion(folder);
   let slug = programSlug(folder);
   if (!slug) slug = slugFromPrograms(folder, await rest("programs?select=slug,app_url"));
-  if (!ver || !slug) { console.log(`  버전 비교 못 함 — 화면 버전 ${ver ?? "없음"}, slug ${slug ?? "없음"}`); return; }
+  if (!ver || !slug) { console.log(`  버전 비교 못 함 — 화면 버전 ${ver ?? "없음"}, slug ${slug ?? "없음"}`); return null; }
   const [row] = (await rest(`programs?slug=eq.${encodeURIComponent(slug)}&select=version`)) ?? [];
   const dbVer = row?.version ?? "(없음)";
-  if (dbVer === ver) { console.log(`  ✔ 버전 일치 — ${slug}: ${ver}`); return; }
+  if (dbVer === ver) { console.log(`  ✔ 버전 일치 — ${slug}: ${ver}`); return { slug, ver, db: dbVer }; }
   console.log(`  ⚠ 버전 다름 — ${slug}: 화면 ${ver} · DB ${dbVer}`);
-  if (!setVersion) { console.log(`    맞추려면: node scripts/deploy.mjs ${folder} --version-only --set-version`); return; }
+  if (!setVersion) { console.log(`    맞추려면: node scripts/deploy.mjs ${folder} --version-only --set-version`); return { slug, ver, db: dbVer }; }
   await rest(`programs?slug=eq.${encodeURIComponent(slug)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ version: ver }) });
   const [after] = (await rest(`programs?slug=eq.${encodeURIComponent(slug)}&select=version`)) ?? [];
   console.log(`  ✔ DB 버전 갱신 — ${slug}: ${dbVer} → ${after?.version}`);
+  return { slug, ver, db: after?.version ?? dbVer };
+}
+
+/** 역량 지도에서 이 프로그램 한 줄만 새 버전으로: 목록 표 버전 칸 + 카드 「주소·폴더: … · vX.YY」(DB가 화면 버전과 같을 때만, 2026-10-23) */
+function fixMapRow(slug, ver) {
+  const file = join(ROOT, "docs", "PROGRAM_CAPABILITY_MAP.md");
+  const raw = readFileSync(file, "utf8");
+  const esc = slug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  let n = 0;
+  let out = raw.replace(new RegExp("^(\\| \\d+ \\| [^|]+\\| `" + esc + "` \\|[^|]+\\| )(v\\d+\\.\\d{2})( \\|)", "m"), (all, a, v, b) => (v === ver ? all : (n++, a + ver + b)));
+  out = out.replace(new RegExp("^(#### [^\\n]*\\(`" + esc + "`\\)\\r?\\n- 주소·폴더: [^\\n]*?` · )(v\\d+\\.\\d{2})", "m"), (all, a, v) => (v === ver ? all : (n++, a + ver)));
+  if (!n) { console.log(`  역량 지도 ${slug}: 이미 ${ver}(또는 줄 없음) — 고칠 것 없음`); return; }
+  if (out.split("\n").length !== raw.split("\n").length) { console.log("  ✖ 역량 지도 고치기 중단 — 줄 수가 달라짐(파일 그대로)"); return; }
+  writeFileSync(file, out);
+  console.log(`  ✔ 역량 지도 ${slug}: ${n}곳을 ${ver}로(목록 표 버전 칸·카드 버전) — 아래 도우미 커밋에 함께`);
 }
 
 if (versionOnly) {
@@ -171,7 +186,7 @@ if (active.some((l) => !/Claude Code\(윈도우\)/.test(l))) {
 }
 // 배포 뒤 대기 줄 정리·인수인계를 안전 커밋 도우미로 하도록, 고치기 전 기준 사본을 지금 떠 둠(2026-10-23 — 배포 기록 커밋의 되돌림 방지)
 const docAs = `deploy-${folder.replace(/[^\w.-]/g, "_")}`;
-spawnSync(process.execPath, [join(ROOT, "scripts", "safe-commit.mjs"), "--begin", "docs/PENDING_DEPLOYS.md", "docs/HANDOFF.md", "--as", docAs], { stdio: "inherit" });
+spawnSync(process.execPath, [join(ROOT, "scripts", "safe-commit.mjs"), "--begin", "docs/PENDING_DEPLOYS.md", "docs/HANDOFF.md", "docs/PROGRAM_CAPABILITY_MAP.md", "--as", docAs], { stdio: "inherit" });
 console.log(`\n[3/3] 배포 실행: npx ${cmd.join(" ")}  (빌드 1회)`);
 const r = spawnSync("npx", cmd, { cwd: dir, stdio: "inherit", shell: process.platform === "win32" });
 if (r.status !== 0) { console.log(`✖ 배포 명령 실패(코드 ${r.status}). vercel inspect로 원인을 확인하세요.`); process.exit(r.status ?? 1); }
@@ -179,9 +194,11 @@ const ls = spawnSync("npx", ["vercel", "ls", project, "--scope", "buylife"], { c
 const line = (ls.stdout || "").split("\n").find((l) => l.includes(`https://${project}-`)) ?? "";
 console.log(`\n최근 배포: ${(line.match(/https:\/\/\S+/) || ["?"])[0]}  ${(line.match(/Ready|Error|Building|Queued|Canceled/) || ["?"])[0]}`);
 console.log("\n[버전]");
-await syncVersion();
+const vr = await syncVersion();
+// 역량 지도 이 프로그램 한 줄(목록 표·카드 버전) — DB가 화면 버전과 같을 때만(다른 세션이 배포 뒤 지도를 안 고쳐 어긋나던 문제, 2026-10-23)
+if (vr && vr.db === vr.ver) fixMapRow(vr.slug, vr.ver);
 // 관리자 첫 화면 숫자(미배포 대기·정리 기록 진행률) 갱신 — 운영 DB site_settings.ops_overview 한 줄(2026-10-23)
 console.log("\n[관리자 화면 숫자 갱신]");
 spawnSync(process.execPath, [join(ROOT, "scripts", "pending-check.mjs"), "--publish"], { stdio: "inherit" });
 console.log("이어서 할 일: ① (버전이 다르면) --version-only --set-version ② 위 대기 줄을 docs/PENDING_DEPLOYS.md 「내보낸 기록」으로·폴더 대기 표시 정리 ③ 크롬 화면 확인 ④ 인수인계 문서·비용 리포트");
-console.log(`②·④ 문서 커밋은 일반 git commit 말고 (기준 사본은 이미 떠 둠):\n  node scripts/safe-commit.mjs "<메시지>" docs/PENDING_DEPLOYS.md docs/HANDOFF.md --as ${docAs} --push`);
+console.log(`②·④ 문서 커밋은 일반 git commit 말고 (기준 사본은 이미 떠 둠):\n  node scripts/safe-commit.mjs "<메시지>" docs/PENDING_DEPLOYS.md docs/HANDOFF.md docs/PROGRAM_CAPABILITY_MAP.md --as ${docAs} --push`);
