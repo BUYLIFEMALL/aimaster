@@ -54,11 +54,28 @@ if (versionOnly && args.includes("--all")) {
   }
   console.log(`[역량 지도 버전 칸] 목록 ${mapRows}줄 · DB와 다름 ${mapOff.length}개`);
   for (const l of mapOff) console.log(l);
+
+  // 지도 카드(#### 이름 (`slug`)) 「주소·폴더:」의 첫 주소 ↔ DB programs.app_url (옛 vercel.app 주소 찾기, 2026-10-23)
+  const addrOff = [];
+  for (const m of map.matchAll(/^#### [^\n]*\(`([^`]+)`\)\n- 주소·폴더: (https?:\/\/[^\s·]+)/gm)) {
+    const row = programs.find((p) => p.slug === m[1]);
+    const dbUrl = (row?.app_url ?? "").replace(/\/+$/, "");
+    if (dbUrl && m[2].replace(/\/+$/, "") !== dbUrl) addrOff.push({ slug: m[1], card: m[2], db: dbUrl });
+  }
+  console.log(`[역량 지도 카드 주소] DB app_url과 다름 ${addrOff.length}개`);
+  for (const a of addrOff) console.log(`  ⚠ ${a.slug}: 카드 ${a.card} · DB ${a.db}`);
   // --fix-map: 목록 표의 버전 칸만 DB 운영 버전으로(카드·다른 칸은 그대로). 읽기 → 바꾸기 → 줄 수·길이 확인 → 쓰기
-  if (args.includes("--fix-map") && mapOff.length) {
+  if (args.includes("--fix-map") && (mapOff.length || addrOff.length)) {
     const { writeFileSync } = await import("node:fs");
     const file = join(ROOT, "docs", "PROGRAM_CAPABILITY_MAP.md");
-    const raw = readFileSync(file, "utf8");
+    let raw = readFileSync(file, "utf8");
+    // 카드 주소도 DB app_url로(같은 카드의 「주소·폴더:」 첫 주소만)
+    for (const a of addrOff) {
+      const head = raw.match(new RegExp("^#### [^\\n]*\\(`" + a.slug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "`\\)\\r?\\n- 주소·폴더: ", "m"));
+      if (!head) continue;
+      const at = head.index + head[0].length;
+      if (raw.startsWith(a.card, at)) raw = raw.slice(0, at) + a.db + raw.slice(at + a.card.length);
+    }
     let fixed = 0;
     const out = raw.replace(/^(\| \d+ \| [^|]+\| `([^`]+)` \|[^|]+\| )(v\d+\.\d{2})( \|)/gm, (all, pre, slug, v, post) => {
       const row = programs.find((p) => p.slug === slug);
