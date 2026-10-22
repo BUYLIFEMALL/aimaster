@@ -1,6 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-10-23 — Claude Code(윈도우): INSTA v1.67 미배포분 묶음 배포(JPEG 저장·공용 사전·설명 한 줄) + 「한국어로 다시 찾기」(쓰레드는 미배포)
+- 한 일: 무료 사진 검색에서 「🔤」로 바꾼 영어 결과가 0장이면 「한국어로 다시 찾기」(INSTA·쓰레드). INSTA는 쌓인 미배포 3건과 함께 v1.67 배포. 후속 틈(원래 영어 검색어도 기억)은 한글 있을 때만으로 고쳐 미배포(`4bebfb016`).
+- 검수: 시험 78·tsc·빌드, 배포 `insta-auto-poster-ex0m69nqd` Ready, DB v1.67. 크롬(시험 회원 본인 Pixabay 키): 자동 채우기 검색어가 영어(morning coffee·hair salon startup)·맞는 사진 2장, 0장일 때 버튼 표시, PNG 첨부 → JPEG(`ff d8 ff`). 시험 데이터 삭제.
+- 커밋 `d4dcd0384` `4bebfb016`. 비용: 빌드 1회(제안 범위), Pixabay 무료 약 6회, AI 0회.
+- 링크: https://auto-instagram-posting.buylife.xyz/cardnews/background
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ 티스토리 v1.90 글 품질 보완 + 옛 자동 연결 코드 정리 배포 (빌드 1회 · AI 1회)
 - 글감 사실 살려 쓰기·문단별 최소 분량·소제목 반복 제거. 실검수 글 19번: 사실 ✅·반복 0 ✅·분량 1,219→1,800자(목표 미달, 후보 2가지 결정 대기). 배포 Ready·DB/확장/ZIP v1.90.
 - 프로그램: https://tistory-auto-blog.buylife.xyz
