@@ -113,6 +113,15 @@ $("cancelTask").addEventListener("click", async () => {
   setTimeout(() => { $("cancelTask").disabled = false; }, 2000);
 });
 
+// 2026-10-23: 자동 연결 — 연결 화면을 새 탭으로 열면, 웹이 코드를 만들어 확장(background)에 저장하고 탭을 닫는다.
+$("autoLink").addEventListener("click", () => {
+  chrome.tabs.create({ url: `${BASE}/extension-connect?from=extension` });
+  $("status").textContent = "BLOG 화면에서 연결 중... (로그인이 필요하면 로그인해 주세요)";
+});
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes[KEY]?.newValue) { renderStatus(); chrome.runtime.sendMessage({ type: "pump" }).catch(() => {}); }
+});
+
 $("link").addEventListener("click", async () => {
   const token = $("token").value.trim();
   $("link").disabled = true;

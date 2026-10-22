@@ -4,6 +4,8 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+> **✅ v1.78 배포 완료 (2026-10-23, Claude Code 윈도우 — 주인님 지시 「나머지 블로그 자동화 프로그램도 이 방식으로 싹다 바꿔」) — 확장 자동 연결·실제 설치 상태 표시(기준 구현 naver-blog-seo-studio v2.09~v2.10, 같은 날 tistory-auto-blog v1.89와 같은 구조, 루트 `docs/SHARED_FEATURE_MAP.md` §16):** ① 확장 사이드패널 「자동 연결」 → 새 탭 `/extension-connect?from=extension`(로그인 안 됐으면 `/auth?redirect=` 뒤 복귀) → `createExtensionToken`(「확장 자동 연결 · 날짜」) → `utils/extensionBridge.ts`(`blog-publishing-app`↔`-extension`) → `extension/web-bridge.js` `connect` → `background.js`(이 사이트 출처·`pat_`+64자리·`whoami` 통과 때만 `aiAutoBlogToken` 저장, 요청 시 탭 닫기) → 사이드패널 `storage.onChanged`로 「연결됨」+작업 확인(pump) ② 설정 「2. 확장 프로그램 연결」 `components/settings/ExtensionConnectButton.tsx`, 직접 발급 유지 ③ 「1. 설치 · 업데이트」 실제 버전 표시·「완료 표시」 버튼 제거 ④ 모아 둔 공용 `openai-request-params` 사본(2026-10-20 커밋, 미배포였음)도 이번 배포에 포함. 시험 extension 85(연결 5 추가)·security 39·extension-api 38·shorts 18·generation 7·tsc·eslint·로컬 빌드 통과. 배포 Ready·DB/확장/ZIP v1.78(`check-extension-release` OK). 웨일 설정: 확장 미설치라 「설치 전」·바로 연결 버튼 확인(실제 버튼 연결은 확장 설치 뒤).
+
 # AIMaster 플랫폼 공통 원칙
 
 blog는 AIMaster 저장소 안의 서브프로젝트다. 개발/유지보수 시 루트의 `../CLAUDE.md`를 **메인 지침**으로 반드시 함께 읽을 것 — "Communication"(답변은 쉬운 한글로 작성), "Platform-hub 구조", "멀티테넌시 원칙" 섹션을 포함한 전체 내용이 이 서브프로젝트에도 그대로 적용된다. 핵심 요약:

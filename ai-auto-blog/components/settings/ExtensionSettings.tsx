@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import extensionManifest from '../../extension/manifest.json'
 import {
   createExtensionToken,
@@ -8,14 +8,14 @@ import {
   revokeExtensionToken,
   type ExtensionToken,
 } from '@/blog/app/settings/extensionTokenActions'
+import { askExtension } from '@/blog/utils/extensionBridge'
+import { ExtensionConnectButton } from './ExtensionConnectButton'
 
 // 설정 화면의 "🧩 네이버 블로그 입력 확장 프로그램" 박스 — 다운로드·설치 안내 + 연동 토큰 발급/폐기(2026-10-01).
 // naver-blog-seo-studio의 ExtensionDownloadCard·ExtensionTokenManager를 BLOG 화면 스타일로 옮겼다.
 const EXTENSION_VERSION = extensionManifest.version_name ?? `v${extensionManifest.version}`
 const EXTENSION_ARCHIVE = `/downloads/ai-auto-blog-extension-latest.zip`
-// 설치·업데이트 상태 안내(naver-blog-seo-studio ExtensionDownloadCard와 같은 방식). 웹은 확장 설치 여부를 직접 알 수 없어서
-// 이 브라우저에 "내려받음/설치 완료 표시"를 기록해 두고, 프로그램이 새 버전이 되면(=확장도 새 버전) 업데이트 필요로 안내한다.
-const INSTALLED_VERSION_KEY = 'ai-auto-blog-extension-version'
+// 설치·업데이트 상태 안내: 2026-10-23부터 이 브라우저의 확장(web-bridge.js)에 실제 버전을 물어 표시한다(기준 구현 naver-blog-seo-studio).
 const DOWNLOAD_MARKER_KEY = 'ai-auto-blog-extension-downloaded'
 
 export function ExtensionSettings() {
@@ -27,33 +27,38 @@ export function ExtensionSettings() {
   const [busy, setBusy] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
   const [installedVersion, setInstalledVersion] = useState<string | null>(null)
+  const [checking, setChecking] = useState(true)
+
+  const detect = useCallback(async () => {
+    setChecking(true)
+    const ping = await askExtension<{ ok?: boolean; version?: string }>('ping', 1500)
+    setInstalledVersion(ping?.ok ? String(ping.version || '버전 확인 불가') : null)
+    setChecking(false)
+  }, [])
 
   useEffect(() => {
-    try {
-      setDownloaded(window.localStorage.getItem(DOWNLOAD_MARKER_KEY) === EXTENSION_VERSION)
-      setInstalledVersion(window.localStorage.getItem(INSTALLED_VERSION_KEY))
-    } catch { /* 저장소를 못 쓰는 브라우저 */ }
-  }, [])
+    const timer = window.setTimeout(() => {
+      try { setDownloaded(window.localStorage.getItem(DOWNLOAD_MARKER_KEY) === EXTENSION_VERSION) } catch { /* 저장소를 못 쓰는 브라우저 */ }
+      void detect()
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [detect])
 
   const isUpdate = installedVersion !== null && installedVersion !== EXTENSION_VERSION
   const isInstalled = installedVersion === EXTENSION_VERSION
-  const statusText = isInstalled
-    ? `설치 완료 표시 · ${EXTENSION_VERSION}`
-    : isUpdate
-      ? `업데이트 필요 · 설치된 버전 ${installedVersion} → 최신 ${EXTENSION_VERSION}`
-      : downloaded
-        ? '설치 진행 중 · 크롬에 확장을 추가한 뒤 아래 완료 표시를 눌러 주세요'
-        : '설치 전 · ZIP 다운로드 필요'
+  const statusText = checking
+    ? '확장 프로그램 확인 중...'
+    : isInstalled
+      ? `설치됨 · ${EXTENSION_VERSION} (최신)`
+      : isUpdate
+        ? `설치됨 · 현재 ${installedVersion} → 최신 ${EXTENSION_VERSION}로 업데이트 필요`
+        : downloaded
+          ? '다운로드 완료 · 아직 설치 전이거나 확장이 꺼져 있습니다'
+          : '설치 전 · ZIP 다운로드 필요'
 
   function markDownloadStarted() {
     try { window.localStorage.setItem(DOWNLOAD_MARKER_KEY, EXTENSION_VERSION) } catch { /* ignore */ }
     setDownloaded(true)
-  }
-
-  function markInstalled() {
-    if (!confirm('chrome://extensions에서 압축해제된 확장 프로그램을 로드했거나, 기존 확장을 새로고침했나요?')) return
-    try { window.localStorage.setItem(INSTALLED_VERSION_KEY, EXTENSION_VERSION) } catch { /* ignore */ }
-    setInstalledVersion(EXTENSION_VERSION)
   }
 
   useEffect(() => {
@@ -99,6 +104,9 @@ export function ExtensionSettings() {
         <p className="flex items-center gap-2 text-xs font-semibold text-zinc-700" role="status" aria-live="polite">
           <span className={`inline-block h-2 w-2 rounded-full ${isInstalled ? 'bg-emerald-500' : isUpdate ? 'bg-red-500' : downloaded ? 'bg-amber-400' : 'bg-zinc-300'}`} />
           {statusText}
+          <button type="button" onClick={detect} disabled={checking} className="ml-auto rounded-md border border-zinc-300 bg-white px-2 py-1 text-[11px] font-bold text-zinc-600 hover:bg-zinc-50 disabled:opacity-50">
+            다시 확인
+          </button>
         </p>
         {isUpdate && (
           <p className="rounded-lg border border-red-200 bg-red-50 p-2 text-xs leading-5 text-red-700">
@@ -114,15 +122,6 @@ export function ExtensionSettings() {
           >
             {isUpdate ? `최신 버전(${EXTENSION_VERSION}) 다시 다운로드` : downloaded || isInstalled ? 'ZIP 다시 다운로드' : `확장 프로그램 다운로드 (${EXTENSION_VERSION})`}
           </a>
-          {downloaded && !isInstalled && (
-            <button
-              type="button"
-              onClick={markInstalled}
-              className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-zinc-50"
-            >
-              크롬 설치 후 완료 표시
-            </button>
-          )}
         </div>
         <ol className="list-decimal space-y-1 pl-5 text-xs leading-5 text-zinc-600">
           <li>ZIP 파일을 내려받아 원하는 폴더에 압축을 풉니다.</li>
@@ -131,13 +130,18 @@ export function ExtensionSettings() {
           <li>새 버전을 받았다면 같은 폴더에 덮어쓴 뒤 확장 프로그램 카드의 새로고침 버튼을 누릅니다.</li>
         </ol>
         <p className="text-[11px] leading-5 text-zinc-500">
-          확장 프로그램은 이 프로그램과 같은 버전으로 함께 업데이트됩니다. 크롬 보안 정책상 웹사이트가 확장을 자동 설치하거나 설치 여부를 직접 확인할 수는 없어서,
-          완료 표시는 이 브라우저에만 기록됩니다. 확장 프로그램 화면에도 새 버전 알림이 뜹니다.
+          확장 프로그램은 이 프로그램과 같은 버전으로 함께 업데이트됩니다. 크롬 보안 정책상 웹사이트가 확장을 자동으로 설치할 수는 없습니다.
+          설치 상태는 이 브라우저에 설치된 확장에 직접 물어 표시합니다(다른 브라우저·PC의 설치 여부는 알 수 없습니다). 확장 프로그램 화면에도 새 버전 알림이 뜹니다.
         </p>
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3">
-        <p className="text-xs font-bold text-zinc-800">2. 연동 토큰 발급 → 확장 프로그램에 붙여넣기</p>
+        <p className="text-xs font-bold text-zinc-800">2. 확장 프로그램 연결</p>
+        <p className="text-xs leading-5 text-zinc-600">
+          확장을 설치한 이 브라우저에서 아래 버튼을 누르면 연결 코드가 자동으로 만들어져 확장에 바로 연결됩니다(확장 사이드패널의 &quot;자동 연결&quot; 버튼도 같습니다).
+        </p>
+        <ExtensionConnectButton onIssued={(item) => setTokens((current) => [item, ...current])} />
+        <p className="pt-2 text-[11px] font-semibold text-zinc-500">직접 입력용 코드 발급 · 연결된 코드 목록</p>
         {issued && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
             <p className="text-xs font-semibold text-amber-900">이 토큰은 지금 한 번만 보입니다. 바로 확장 프로그램의 &quot;연결&quot; 칸에 붙여넣으세요.</p>

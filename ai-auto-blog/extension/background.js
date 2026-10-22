@@ -259,6 +259,18 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     }
     if (message.type === "cancel") { if (currentTask === null) return { ok: true, idle: true }; cancelRequested = true; return { ok: true }; }
     // 카테고리 목록은 BLOG 사이트 화면(web-bridge.js)에서 온 요청만 받는다. 사이드패널·다른 사이트 요청은 거절.
+    // 2026-10-23: 웹 「바로 연결」 — 이 사이트 화면에서 온 새 연결 코드만, 서버 확인(whoami)을 통과하면 저장한다(기준 구현: naver-blog-seo-studio).
+    if (message.type === "connect") {
+      if (!["https://ai-auto-blog-one.vercel.app/", "https://ai-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
+      const token = String(message.token || "");
+      if (!/^pat_[0-9a-f]{64}$/.test(token)) return { ok: false, error: "연결 코드 형식이 올바르지 않습니다." };
+      const response = await fetch(`${BASE}/api/extension/whoami`, { headers: { Authorization: `Bearer ${token}` } });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) return { ok: false, error: body.error || `연결 확인 실패 (${response.status})` };
+      await chrome.storage.local.set({ [KEY.token]: token });
+      if (message.closeTab && sender?.tab?.id != null) setTimeout(() => { chrome.tabs.remove(sender.tab.id).catch(() => {}); }, 1500);
+      return { ok: true, email: body.email || "" };
+    }
     if (message.type === "categories") {
       if (!["https://ai-auto-blog-one.vercel.app/", "https://ai-auto-blog.buylife.xyz/"].some((o) => String(sender?.url || "").startsWith(o))) throw new Error("허용되지 않은 요청입니다.");
       return await readCategories(sender);

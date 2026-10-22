@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ ai-auto-blog v1.78 확장 자동 연결·실제 설치 상태 표시 (빌드 1회 · AI 0회)
+- SEO 스튜디오 방식 적용(블로그 프로그램 일괄 적용 3/5). 모아 둔 openai-request-params 사본도 함께 배포. 배포 Ready·DB/확장/ZIP v1.78. 다음: naver-blog-agent(8자리 연결 번호 방식).
+- 프로그램: https://ai-auto-blog.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — ✅ 미배포 대기분 3곳 배포: threads-affiliate-poster v1.82 · style-dna-analyzer v1.37 · cinematic-storyboard-studio v1.17 (주인님 승인 빌드 3회)
 - 함께 나간 것: 30일 정리 기록(공용 `cleanup-usage-log` 사본) · 좌측 메뉴 계정 위치(`22c6cda35`, 스토리보드는 메모만 있던 것을 이번에 `991a43a44`로 고침) · 공용 사본 대기분(`member-scheduler` → 쓰레드 제휴, `openai-request-params` → 스타일 분석기).
 - 검수: 로컬 build 3곳 통과 → 한 곳씩 `deploy.mjs <폴더> --go --owner` → `vercel inspect` Ready·운영 주소 연결(`8a491v5nx`·`c4gl4nkzu`·`i597de3cx`) → DB 버전 맞춤 → 정리 경로 비밀값 없이 401 3곳, 쓰레드 제휴 회원 예약 실행 가짜 토큰 401 → 크롬(관리자) 화면 버전 v1.82·v1.37·v1.17, 계정·로그아웃이 마지막 메뉴 바로 아래(스토리보드는 390px iframe에서 ☰ 펼침 메뉴도 확인).
