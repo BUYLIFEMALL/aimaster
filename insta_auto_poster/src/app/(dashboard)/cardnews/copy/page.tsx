@@ -31,8 +31,8 @@ export default function CopyPage() {
   const subMax = remakeOn ? 120 : 70;
   // v1.58 장마다 원문과 그대로 겹치는지 브라우저에서 다시 검사(고치면 바로 사라짐) — 문구 API와 같은 검사 대상
   const guardRef = remakeOn ? remakeGuardText(project.remake?.sourceText ?? "") : "";
-  const pageCopied = (p: CardPage) =>
-    guardRef ? copiedPhrases(pageTexts([{ headline: p.headline, sub: p.sub, points: p.points, number: p.number }]), guardRef).length > 0 : false;
+  const pageCopied = (p: CardPage): string[] =>
+    guardRef ? copiedPhrases(pageTexts([{ headline: p.headline, sub: p.sub, points: p.points, number: p.number }]), guardRef) : [];
 
   const generate = async () => {
     setConfirm(false);
@@ -130,7 +130,8 @@ export default function CopyPage() {
       {pages.length > 0 && (
         <div className="space-y-3">
           {pages.map((p, i) => {
-            const copied = pageCopied(p);
+            const phrases = pageCopied(p);
+            const copied = phrases.length > 0;
             return (
             <Card key={p.id} className={copied ? "outline outline-2 outline-offset-2 outline-amber-400" : undefined}>
               <div className="mb-2 flex items-center justify-between gap-2">
@@ -139,8 +140,11 @@ export default function CopyPage() {
                   {i === 0 ? " · 표지" : i === pages.length - 1 ? " · 마무리" : ""}
                 </span>
                 {copied && (
-                  <span className="whitespace-nowrap rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300" title="원본 게시물 문장과 6어절 이상 그대로 겹칩니다. 다른 표현으로 고쳐 주세요.">
-                    ⚠ 겹침
+                  <span
+                    className="cursor-help whitespace-nowrap rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300"
+                    title={`원본 게시물 문장과 그대로 겹치는 구절(다른 표현으로 고쳐 주세요):\n${phrases.slice(0, 3).map((x) => `「${x}」`).join("\n")}`}
+                  >
+                    ⚠ 겹침 {phrases.length}
                   </span>
                 )}
               </div>

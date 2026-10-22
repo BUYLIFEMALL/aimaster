@@ -6,6 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { analyzeVideosAction } from "@/lib/actions/svs";
 import { formatNumber } from "@/lib/youtube/metrics";
 import { useStudio } from "@/components/studio/StudioProvider";
+import { refHandoffHash } from "@/lib/reference";
+
+// v1.13 대사를 넘길 AI 쇼츠 원스톱 주제 화면(원스톱 v1.32~가 주소 # 뒤 대사를 레퍼런스로 받음)
+const ONESTOP_TOPIC_URL = "https://shorts-onestop-studio.buylife.xyz/topic";
 import {
   Card,
   ErrorBanner,
@@ -142,6 +146,27 @@ export function AnalyzeStep() {
               </p>
             )}
           </Card>
+
+          {/* v1.13 Gemini가 영상을 직접 본 경우 받아쓴 대사 → AI 쇼츠 원스톱 레퍼런스(대사는 주소 # 뒤라 서버로 가지 않음) */}
+          {analysis.transcript && (
+            <Card>
+              <details>
+                <summary className="cursor-pointer text-base font-bold text-[#f0f6fc]">🎙 영상 대사(받아쓰기)</summary>
+                <p className="mt-3 whitespace-pre-wrap rounded-lg border border-[#30363d] bg-[#0d1117] p-3 text-xs leading-relaxed text-[#c9d1d9]">{analysis.transcript}</p>
+              </details>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#8b949e]">
+                <a
+                  href={`${ONESTOP_TOPIC_URL}${refHandoffHash(analysis.transcript)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="whitespace-nowrap rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-1.5 font-bold text-[#f0f6fc] hover:border-rose-400/60"
+                >
+                  🎬 이 대사로 쇼츠 만들기
+                </a>
+                <span>AI 쇼츠 원스톱이 새 탭으로 열리고, 대사가 레퍼런스로 들어갑니다(흐름만 참고하고 문장은 새로 씁니다).</span>
+              </div>
+            </Card>
+          )}
 
           <Card>
             <h2 className="text-base font-bold text-[#f0f6fc]">🎯 11대 바이럴 메커니즘</h2>

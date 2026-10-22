@@ -90,6 +90,8 @@ export interface AnalysisResult {
   contentDNA: ContentDNA;
   commentInsights: CommentInsight[];
   note?: string;
+  /** v1.13 Gemini가 영상을 직접 볼 때 받아쓴 실제 대사(추정 분석에는 없음) — AI 쇼츠 원스톱 레퍼런스로 넘김 */
+  transcript?: string;
 }
 
 export interface RoadmapStep {

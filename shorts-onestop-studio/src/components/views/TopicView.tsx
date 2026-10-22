@@ -7,7 +7,8 @@ import { ApiError, api, toMsg, type Item, type Msg } from "@/components/ui/api";
 import { modelName } from "@/lib/models";
 import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scriptFromLines, type Format, type ShortsScript, type Tone } from "@/lib/script";
 import { extractReel } from "@/lib/reelsMedia";
-import { guardText, hasCopy, readRefHandoff } from "@/lib/reference";
+import { guardText, hasCopy } from "@/lib/reference";
+import { takeRefHandoff } from "@/lib/refHandoff";
 
 // v1.31 참고 자료와 그대로 겹치는 장면 표시(브라우저 안에서 다시 검사 — 고치면 바로 사라짐)
 const COPY_STYLE = { outline: "2px solid #f5c542", outlineOffset: 2, borderRadius: 12 } as const;
@@ -43,14 +44,15 @@ export function TopicView() {
     void loadGuides();
     const id = new URLSearchParams(window.location.search).get("id");
     if (id) api<{ item: Item<ShortsScript> }>(`/api/items?id=${id}`).then(({ item }) => { setScript(item.data); setGuardRef(""); setItemId(item.id); setTopic(item.data.topic); if (item.data.category) setCategory(item.data.category); }).catch((e) => setMsg(toMsg(e)));
-    // v1.32 INSTA 떡상 리메이크에서 넘긴 릴스 대사 → 참고 자료의 레퍼런스 쇼츠 블록(v1.30 베끼기 방지 그대로 적용), 주소의 # 부분은 바로 지움
-    const handoff = readRefHandoff(window.location.hash);
+    // v1.32 다른 프로그램(INSTA 떡상 리메이크·쇼츠 바이럴 분석)이 넘긴 대사 → 참고 자료의 레퍼런스 쇼츠 블록(v1.30 베끼기 방지 그대로 적용), 주소의 # 부분은 바로 지움
+    // v1.33 로그인 화면을 거쳐 온 경우는 그때 보관한 대사를 꺼냄
+    const handoff = takeRefHandoff(window.location.hash);
     if (handoff) {
-      const block = `[레퍼런스 쇼츠 대본 — 「인스타 릴스」에서 실제로 말한 내용, 그대로 베끼지 말고 구성·후킹만 참고]\n${handoff}`;
+      const block = `[레퍼런스 쇼츠 대본 — 「넘겨받은 레퍼런스 쇼츠」에서 실제로 말한 내용, 그대로 베끼지 말고 구성·후킹만 참고]\n${handoff}`;
       setReference((cur) => (cur.trim() ? `${cur.trim()}\n\n${block}` : block).slice(0, 12000));
       setMode("ai");
-      setMsg({ text: "INSTA 포스팅 자동화에서 넘긴 릴스 대사를 참고 자료에 넣었습니다. 주제를 고르고 대본을 만들면 흐름만 참고하고 문장은 새로 씁니다.", ok: true });
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      setMsg({ text: "다른 프로그램에서 넘긴 쇼츠 대사를 참고 자료에 넣었습니다. 주제를 고르고 대본을 만들면 흐름만 참고하고 문장은 새로 씁니다.", ok: true });
+      if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
   }, [loadGuides]);
 

@@ -108,7 +108,11 @@ ${
     "promptModifiers": "이미지·영상 생성 AI에 넣을 영어 키워드(쉼표 구분)"
   },
   "contentDNA": { "topicPattern": "소재 패턴", "hookPattern": "훅 패턴", "narrativePattern": "전개 패턴" },
-  "commentInsights": [ { "category": "Positive | Question | Request | Negative", "insight": "댓글에서 읽히는 반응·니즈" } ]
+  "commentInsights": [ { "category": "Positive | Question | Request | Negative", "insight": "댓글에서 읽히는 반응·니즈" } ]${
+    evidence === "video"
+      ? `,\n  "transcript": "영상에서 사람이 실제로 말한 대사를 들은 그대로 받아쓰기(영상이 여러 개면 [영상 1] [영상 2]처럼 나눔, 말소리가 없으면 빈 문자열)"`
+      : ""
+  }
 }
 
 [mechanisms 순서]
@@ -194,6 +198,8 @@ ${TIMELINE_RANGES.map((r, i) => `${i + 1}. ${r}`).join("\n")}`;
     contentDNA,
     commentInsights,
     note,
+    // v1.13 영상을 직접 본 경우만 — 지표 추정에는 실제 대사가 없음
+    transcript: evidence === "video" ? asString(parsed.transcript).trim().slice(0, 12000) || undefined : undefined,
   };
 }
 
