@@ -43,7 +43,7 @@
 **DB** (`supabase/migrations/`): `0001` 프로그램 등록(요금제 3종·VIP 자동 부여·시험 계정 사용기간) · `0002` `ams_generations`(RLS 본인 조회·삭제, 쓰기는 서버만) + 비공개 버킷 `ai-music-studio`(50MB) + 키 이름 확인(이미 모두 있어 변경 없음). **30일 정리**: `/api/cron/cleanup` 매일 03:30 KST(`CRON_SECRET`), 파일 먼저 삭제 → 행 삭제, 공용 정리 기록 남김.
 
 ## 4. 버전·변경 이력
-- **v1.01 (2026-10-23)** 첫 배포 — 화면 5개, 공급자 5곳·모델 11개, 비교 생성, AI 가사, 30일 정리. 검수: 단위 시험 13, tsc·lint·build, 운영 배포 Ready(`ai-music-studio-1trveqkpn`), 크롬 시험 계정 실제 생성 5곳 모두 성공·보관함 재생 6개 확인. 플랜: `docs/PLAN_20261023_AI_MUSIC_STUDIO.md`.
+- **v1.01 (2026-10-23)** 첫 배포 — 화면 5개, 공급자 5곳·모델 11개, 비교 생성, AI 가사, 30일 정리. 검수: 단위 시험 13, tsc·lint·build, 운영 배포 Ready(`ai-music-studio-1trveqkpn`), 크롬 시험 계정 실제 생성 5곳 모두 성공·보관함 재생 6개 확인. 플랜: `docs/PLAN_20261023_AI_MUSIC_STUDIO.md`. 같은 날 카탈로그 썸네일(실사, 관리자 Gemini 상위 모델 1회 — `supabase/migrations/0003_thumbnail.sql`, DB 값만이라 버전 변경 없음).
 
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
 ## 6. 연계·병합 아이디어 → `docs/IMPROVEMENTS.md` §3
