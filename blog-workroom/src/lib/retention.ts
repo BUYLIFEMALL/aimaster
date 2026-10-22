@@ -26,3 +26,13 @@ export function retainedFilter(now: Date = new Date()): string {
 export function orphanJobFolders(folders: string[], liveJobIds: Set<string>): string[] {
   return folders.filter((folder) => !liveJobIds.has(folder));
 }
+
+/** 2026-10-23: 공개 주소에서 이 회원·이 작업 폴더의 저장 경로만 꺼낸다(다른 회원·다른 버킷 주소면 null) — 이미지를 다시 만들 때 옛 파일 삭제용 */
+export function jobImagePath(url: string | null | undefined, bucket: string, userId: string, jobId: string): string | null {
+  if (!url) return null;
+  const marker = `/storage/v1/object/public/${bucket}/`;
+  const at = url.indexOf(marker);
+  if (at < 0) return null;
+  const path = decodeURIComponent(url.slice(at + marker.length).split("?")[0]);
+  return path.startsWith(`${userId}/${jobId}/`) && !path.includes("..") ? path : null;
+}

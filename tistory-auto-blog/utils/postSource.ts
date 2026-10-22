@@ -67,3 +67,14 @@ export function readPostSource(value: unknown): PostSource | null {
 }
 
 export const SOURCE_KIND_LABELS: Record<SourceKind, string> = { http: '웹 주소', rss: 'RSS 피드', perplexity: 'Perplexity 검색', shorts: '유튜브 쇼츠' }
+
+// 2026-10-23: 글감 출처를 본문 근거로 — 글감 제목·요약을 AI 지시문에 「참고 자료」로 넣는다. 자료에 없는 사실은 지어내지 않게 한다.
+export interface SourceMaterial { title: string; summary: string; label: string }
+export function sourceMaterialRule(material: SourceMaterial | null | undefined): string {
+  if (!material) return ''
+  const clip = (value: string, max: number) => String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, max)
+  const title = clip(material.title, 200)
+  const summary = clip(material.summary, 1200)
+  if (!title && !summary) return ''
+  return `- 참고 자료(회원이 모은 글감, 출처: ${clip(material.label, 300)}): 제목 「${title}」 / 요약 「${summary}」 — 이 자료에 있는 사실을 근거로 쓰고, 자료에 없는 수치·날짜·고유명사·인용은 지어내지 마세요. 확인되지 않은 내용은 일반적인 설명으로만 쓰세요.`
+}

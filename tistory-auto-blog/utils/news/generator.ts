@@ -5,6 +5,7 @@ import { generateContentJson } from '@/blog/utils/ai/contentJson'
 import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, resolveImageCount, type ContentProvider } from '@/blog/utils/ai/contentModels'
 import { removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
 import { sanitizeBodyYear, sanitizeYear } from '@/blog/utils/yearPolicy'
+import { sourceMaterialRule, type SourceMaterial } from '@/blog/utils/postSource'
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -36,6 +37,7 @@ export interface AutoPostOptions {
   wordCount?: number
   keywords?: string[]
   referenceUrls?: string[]
+  sourceMaterial?: SourceMaterial // 2026-10-23: 글감 출처를 본문 근거로
   customInstructions?: string
   /** 본문 생성 플랫폼·모델·본인 키 (SEO 스튜디오와 같은 선택지, utils/ai/contentModels.ts) */
   contentProvider?: ContentProvider
@@ -138,6 +140,7 @@ ${toneRule}
 ${audienceRule}
 ${wordCountRule}
 ${referenceRule}
+${sourceMaterialRule(options.sourceMaterial)}
 ${customRule}
 
 [기준 연도 엄수: 현재 연도는 ${new Date().getFullYear()}년입니다. 모든 연도 표기, 정책, 정보, 가이드, 제목은 반드시 ${new Date().getFullYear()}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요. 단, 실제로 있었던 과거 사실의 연도는 그대로 둡니다.]
@@ -214,7 +217,8 @@ ${koreaNowRule()}
     ...paragraphGroups.map((group) => `Paragraph ${group.map((index) => index + 1).join('-')}: ${group.map((index) => headings[index]).join(' / ')}`),
   ]
   console.log(`[AI Post Generator] ${imageCount} images → title 1 + paragraph groups ${JSON.stringify(paragraphGroups.map((g) => g.map((i) => i + 1)))}`)
-  const images = await generateSegmentImages({
+  // 2026-10-23: 0장이면 이미지 생성을 건너뛴다(이미지 비용 없음)
+  const images = imageCount === 0 ? [] : await generateSegmentImages({
     topic: options.topic,
     title,
     segments,

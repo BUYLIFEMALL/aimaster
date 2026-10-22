@@ -129,10 +129,11 @@ export function resolveImageModel(value: unknown): string {
 
 // 글 이미지 장수(2026-10-01 주인님 지시): 1번은 글 전체를 대표하는 제목용 이미지, 나머지는 문단 4개를 나눠 맡는다
 // (앞 문단에만 몰리지 않게 — utils/news/generator.ts groupParagraphs).
-export const MIN_IMAGE_COUNT = 1
+export const MIN_IMAGE_COUNT = 0 // 2026-10-23: 0장 = 이미지 없이 글만(이미지 비용 없음)
 export const MAX_IMAGE_COUNT = 5
 export const DEFAULT_IMAGE_COUNT = 3
 export const IMAGE_COUNT_OPTIONS = [
+  { value: 0, label: '0장 · 이미지 없이 글만 (이미지 비용 없음)' },
   { value: 1, label: '1장 · 제목용(전체 내용 대표)' },
   { value: 2, label: '2장 · 제목용 + 본문 전체(문단 1~4) 1장' },
   { value: 3, label: '3장 · 제목용 + 문단 1~2 / 문단 3~4 (기본)' },
@@ -141,6 +142,7 @@ export const IMAGE_COUNT_OPTIONS = [
 ] as const
 
 export function resolveImageCount(value: unknown): number {
+  if (value === undefined || value === null || value === '') return DEFAULT_IMAGE_COUNT
   const n = Math.round(Number(value))
-  return Number.isFinite(n) && n > 0 ? Math.min(MAX_IMAGE_COUNT, Math.max(MIN_IMAGE_COUNT, n)) : DEFAULT_IMAGE_COUNT
+  return Number.isFinite(n) && n >= 0 ? Math.min(MAX_IMAGE_COUNT, Math.max(MIN_IMAGE_COUNT, n)) : DEFAULT_IMAGE_COUNT
 }

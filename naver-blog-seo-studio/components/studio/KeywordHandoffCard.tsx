@@ -6,7 +6,9 @@ import type { KeywordEvidence } from "@/lib/keywordEvidence";
 import type { Studio } from "./useStudio";
 
 const date = (value: string) => new Date(value).toLocaleDateString("ko-KR");
-const show = (value: number | string) => (typeof value === "number" ? value.toLocaleString("ko-KR") : value);
+// 2026-10-23: 데이터랩 지수처럼 소수가 있는 값은 소수 첫째 자리까지만 보여 준다(값 자체는 바꾸지 않음)
+export const showValue = (value: number | string) => (typeof value === "number" ? value.toLocaleString("ko-KR", { maximumFractionDigits: 1 }) : value);
+const show = showValue;
 
 export function KeywordHandoffCard({ s, onResearch }: { s: Studio; onResearch?: (evidence: KeywordEvidence) => void }) {
   const { keywordHandoff, setKeywordHandoff, applyHandoffToTitle, applyHandoffToResearch } = s;

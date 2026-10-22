@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ⏳ 작은 개선 4가지 (미배포 대기 · 빌드 0회 · AI 0회)
+- 티스토리: 이미지 0장 선택지, 글감 출처를 본문 근거로 사용. SEO 스튜디오: 데이터랩 지수 소수 첫째 자리 표시. 작업실: 이미지를 다시 만들면 옛 파일 바로 삭제.
+- 새 배포 지침에 따라 모두 커밋만 하고 각 프로그램의 다음 배포 때 함께(티스토리 v1.88·SEO v2.05·작업실 v1.13) — 각 폴더 AGENTS.md 맨 위 「미배포 대기」.
+- 프로그램: https://tistory-auto-blog.buylife.xyz · https://naver-blog-seo-studio.buylife.xyz · https://blog-workroom.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 좌측 메뉴 계정·로그아웃 위치 18곳 수정 (**미배포 대기**, 빌드 0회)
 - 코드상 의심 22곳 점검 → `detail-page-12p`는 문제없음, 다른 세션 작업 중인 `cinematic-storyboard-studio`·`image-convert-studio`·`video-to-gif` 제외, 18곳 수정(커밋 `22c6cda35`, 클래스만, tsc 18개 통과). 각 프로그램 다음 배포 때 함께 — 목록 `docs/PENDING_DEPLOYS.md`. 기준: YOUTUBE Shots v1.38(실화면 확인).
 - 함께 점검: 크론 있는 34개 프로그램 모두 운영 `CRON_SECRET` 등록 확인(빠진 곳 없음).

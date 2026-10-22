@@ -135,7 +135,7 @@ function AiFormPageInner() {
         setContentModel(resolveContentModel(saved.contentProvider, saved.contentModel))
       }
       if (saved?.imageModel) setImageModel(resolveImageModel(saved.imageModel))
-      if (saved?.imageCount) setImageCount(resolveImageCount(saved.imageCount))
+      if (saved?.imageCount !== undefined) setImageCount(resolveImageCount(saved.imageCount))
     } catch {}
   }, [])
   useEffect(() => {
@@ -242,7 +242,7 @@ function AiFormPageInner() {
 
     try {
       setLoading(true)
-      setStatusMsg(`AI 인공지능 모델이 트렌드를 분석하고 AI자동 블로그 및 본문 내용을 토대로 ${imageCount}개의 AI이미지를 생성 중입니다...`)
+      setStatusMsg(imageCount === 0 ? 'AI가 본문을 쓰는 중입니다(이미지 없이)...' : `AI 인공지능 모델이 트렌드를 분석하고 AI자동 블로그 및 본문 내용을 토대로 ${imageCount}개의 AI이미지를 생성 중입니다...`)
 
       const validUrls = referenceUrls.map((u) => normalizeUrl(u)).filter((u) => u.length > 0)
 

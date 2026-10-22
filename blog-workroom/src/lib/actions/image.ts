@@ -7,6 +7,7 @@ import { splitParagraphs } from "@/lib/logic";
 import { SYS_JSON, imagePlanPrompt, imagePrompt } from "@/lib/prompts";
 import { createItem, updateItem } from "@/lib/store";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { jobImagePath } from "@/lib/retention";
 import { num, objArr, str } from "@/lib/util";
 import type { ImageJobData, ImageNode } from "@/lib/types";
 import { need, s, type Handler } from "./common";
@@ -64,5 +65,9 @@ export const generate: Handler = async ({ userId, body }) => {
   const nodes = latest.data.nodes.map((n) => (n.id === node.id ? { ...n, prompt, url: url ?? n.url, status: url ? "done" as const : "error" as const, error } : n));
   const saved = await updateItem(userId, job.id, { data: { ...latest.data, nodes } });
   if (!url) throw new UserError(502, error ?? "이미지를 만들지 못했습니다.", { item: saved });
+  // 2026-10-23: 새 이미지가 저장된 뒤에만 이 노드의 옛 파일을 지운다(이 회원·이 작업 폴더의 파일만, 실패해도 결과에는 영향 없음)
+  const previous = latest.data.nodes.find((n) => n.id === node.id)?.url;
+  const oldPath = previous && previous !== url ? jobImagePath(previous, BUCKET, userId, job.id) : null;
+  if (oldPath) await createAdminClient().storage.from(BUCKET).remove([oldPath]).catch(() => undefined);
   return saved;
 };

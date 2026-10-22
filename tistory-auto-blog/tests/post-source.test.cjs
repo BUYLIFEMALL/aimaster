@@ -46,3 +46,22 @@ test('주소는 http(s)만, 쇼츠·RSS 종류 구분, 저장값 읽기', () => 
   assert.equal(s.readPostSource({ candidateId: 'x' }), null);
   assert.equal(s.SOURCE_KIND_LABELS.shorts, '유튜브 쇼츠');
 });
+
+test('2026-10-23: 글감 출처를 본문 근거 문구로 넣는다(없으면 빈 문자열)', () => {
+  const rule = s.sourceMaterialRule({ title: '캠핑의 역사', summary: '캠핑은 19세기에 시작됐다.', label: 'https://ko.wikipedia.org/wiki/캠핑' });
+  assert.match(rule, /참고 자료/);
+  assert.match(rule, /캠핑의 역사/);
+  assert.match(rule, /지어내지 마세요/);
+  assert.equal(s.sourceMaterialRule(undefined), '');
+  assert.equal(s.sourceMaterialRule({ title: '', summary: ' ', label: 'x' }), '');
+});
+
+test('2026-10-23: 이미지 0장 선택지(빈 값은 기본 3장)', () => {
+  const m = loadTs('utils/ai/contentModels.ts');
+  assert.equal(m.resolveImageCount(0), 0);
+  assert.equal(m.resolveImageCount('0'), 0);
+  assert.equal(m.resolveImageCount(undefined), 3);
+  assert.equal(m.resolveImageCount(''), 3);
+  assert.equal(m.resolveImageCount(9), 5);
+  assert.equal(m.IMAGE_COUNT_OPTIONS[0].value, 0);
+});

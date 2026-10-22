@@ -21,3 +21,13 @@ test("조회 조건과 남은 작업이 없는 이미지 폴더 고르기", () =
   assert.equal(retainedFilter(NOW), "kind.in.(settings,blog),created_at.gt.2026-09-22T00:00:00.000Z");
   assert.deepEqual(orphanJobFolders(["a", "b", "c"], new Set(["b"])), ["a", "c"]);
 });
+
+test("2026-10-23: 옛 이미지 경로는 이 회원·이 작업 폴더 것만 고른다", async () => {
+  const { jobImagePath } = await import("../src/lib/retention.ts");
+  const base = "https://x.supabase.co/storage/v1/object/public/blog-workroom/";
+  assert.equal(jobImagePath(`${base}u1/j1/n1-1.png`, "blog-workroom", "u1", "j1"), "u1/j1/n1-1.png");
+  assert.equal(jobImagePath(`${base}u2/j1/n1-1.png`, "blog-workroom", "u1", "j1"), null);
+  assert.equal(jobImagePath(`${base}u1/j2/n1-1.png`, "blog-workroom", "u1", "j1"), null);
+  assert.equal(jobImagePath("https://other.com/a.png", "blog-workroom", "u1", "j1"), null);
+  assert.equal(jobImagePath(null, "blog-workroom", "u1", "j1"), null);
+});

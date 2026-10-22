@@ -1,5 +1,7 @@
 # AI 블로그 작업실 자동화 (`blog-workroom`) — 인수인계
 
+> **⏳ 미배포 대기 (2026-10-23, Claude Code 윈도우) — 이미지를 다시 만들 때 옛 파일 바로 삭제:** `src/lib/actions/image.ts`가 새 이미지 저장·작업 갱신이 끝난 뒤에만 그 노드의 옛 파일을 지움(`src/lib/retention.ts` `jobImagePath` — 이 회원·이 작업 폴더 파일만, 실패해도 결과 영향 없음). 시험 12·tsc 통과. **다음에 배포하는 CLI:** v1.13(코드·DB)로 올려 함께 배포하고 이 줄을 「배포 완료」로 바꿀 것.
+
 - 주소: https://blog-workroom.buylife.xyz (Vercel 프로젝트 `blog-workroom`, `prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY`) · slug `blog-workroom` · 카테고리 블로그 · 버전 **v1.06**
 - **2026-10-22 v1.12 BC-05 30일 자동 삭제(Claude Code 윈도우·웨일):** 설정(`settings`)·내 블로그와 문체(`blog`)를 뺀 작업(키워드·자료·초안·최종본·이미지 작업 등)은 만든 지 30일 뒤 삭제. `src/lib/retention.ts`(순수 함수) — `listItems`·`getItem`이 같은 기준(`retainedFilter`)으로 바로 숨김, `GET /api/cron/cleanup`(Vercel Cron 매일 18:20 UTC, `CRON_SECRET` 필요, `?dry=1` 미리보기)이 지난 행 삭제 + 남은 이미지 작업이 없는 버킷 폴더(회원/작업번호) 파일 삭제. **버그 수정:** 이미지 작업을 지워도 파일이 남던 문제 — `removeJobImages`. 화면 맨 아래 보관 안내. 시험 11(새 2), 배포 Ready, DB v1.12, Vercel 대시보드 「Run」 200·행 12건 그대로(지울 대상 0) 확인.
 - **디자인 인수인계서**: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md) | **디자인 플랜**: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](docs/PLAN_20261016_DESIGN_RENEWAL.md)

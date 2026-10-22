@@ -14,7 +14,7 @@ import {
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
 import { getErrorMessage } from '@/utils/errorMessage'
-import { buildPostSource, isCandidateId, type CandidateRow } from '@/blog/utils/postSource'
+import { buildPostSource, isCandidateId, type CandidateRow, type SourceMaterial } from '@/blog/utils/postSource'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       )
     }
-    if (!resolvedApiKey) {
+    // 2026-10-23: 이미지 0장이면 이미지용 Gemini 키가 없어도 된다(본문을 Gemini로 쓰는 경우는 위에서 이미 확인)
+    if (!resolvedApiKey && resolveImageCount(body.imageCount) > 0) {
       return NextResponse.json(
         {
           code: 'API_KEY_REQUIRED',
@@ -71,9 +72,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // v1.87 글감 출처: 본인 글감이고 모은 지 30일 안일 때만 저장(아니면 출처 없이 글은 그대로 만든다)
+    let postSource = null
+    let sourceMaterial: SourceMaterial | undefined
+    if (isCandidateId(body.candidateId)) {
+      const { data: candidateRow } = await adminClient
+        .from('tistory_candidates')
+        .select('id, user_id, source_type, source_input, created_at, title, summary')
+        .eq('id', body.candidateId)
+        .eq('user_id', user.id)
+        .maybeSingle()
+      postSource = buildPostSource(candidateRow as CandidateRow | null, user.id)
+      if (postSource && candidateRow) sourceMaterial = { title: String(candidateRow.title ?? ''), summary: String(candidateRow.summary ?? ''), label: postSource.label }
+    }
+
     // 단일 topic 또는 세부 options 객체 수신 지원
     const options: AutoPostOptions = {
       topic: body.topic || body.keyword || body.query || '',
+      sourceMaterial,
       categorySlug: body.category_slug || body.categorySlug,
       tone: body.tone,
       targetAudience: body.targetAudience || body.target_audience,
@@ -187,18 +203,6 @@ export async function POST(request: NextRequest) {
           .maybeSingle()
         if (firstCategory?.id) targetCategoryIds.push(firstCategory.id)
       }
-    }
-
-    // v1.87 글감 출처: 본인 글감이고 모은 지 30일 안일 때만 저장(아니면 출처 없이 글은 그대로 만든다)
-    let postSource = null
-    if (isCandidateId(body.candidateId)) {
-      const { data: candidateRow } = await supabase
-        .from('tistory_candidates')
-        .select('id, user_id, source_type, source_input, created_at')
-        .eq('id', body.candidateId)
-        .eq('user_id', user.id)
-        .maybeSingle()
-      postSource = buildPostSource(candidateRow as CandidateRow | null, user.id)
     }
 
     // 3.3 tistory_posts 테이블에 등록 (PostgreSQL DEFAULT IDENTITY 시퀀스 사용)
