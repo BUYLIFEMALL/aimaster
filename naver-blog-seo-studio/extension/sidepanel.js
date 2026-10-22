@@ -717,14 +717,14 @@ async function uploadNaverImage(tabId, dataUrl) {
   throw new Error("이미지 파일은 선택됐지만 네이버 편집기 반영을 확인하지 못했습니다. 이미지 도구를 다시 연 뒤 재시도하세요.");
 }
 
-// 2026-10-23: 2~4글자씩 묶어 입력해 속도를 약 3배로(줄바꿈은 Enter 키로 따로, 쉬는 간격은 그대로)
+// 2026-10-23: 1~3글자씩 묶어 입력(평균 2글자 — 한 글자씩보다 약 2배 빠름. v2.06의 2~4글자는 주인님 확인 결과 너무 빨라 낮춤). 줄바꿈은 Enter 키로 따로, 쉬는 간격은 그대로
 function typingChunks(text) {
   const characters = Array.from(text);
   const chunks = [];
   let index = 0;
   while (index < characters.length) {
     if (characters[index] === "\n") { chunks.push("\n"); index += 1; continue; }
-    const size = randomDelay(2, 4);
+    const size = randomDelay(1, 3);
     let chunk = "";
     while (index < characters.length && characters[index] !== "\n" && Array.from(chunk).length < size) chunk += characters[index++];
     chunks.push(chunk);

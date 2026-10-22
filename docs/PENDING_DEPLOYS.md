@@ -16,6 +16,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `naver-blog-seo-studio` (운영 v2.07) | 확장 입력 속도 한 단계 낮춤(2~4글자 → 1~3글자 묶음) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 맨 위 「미배포 대기」 | v2.08(manifest·ZIP·DB 함께), `check-extension-release` OK 확인 |
 | `insta_auto_poster` (운영 v1.64) | 카드뉴스 「전체 무료 사진 자동 채우기」·사진 출처 배지, 사진 검색을 공용 기준 코드 `free-photo-search` 기준으로 정리 | `428fcdfc3` | 2026-10-23 · Claude Code(윈도우) | `insta_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 크롬에서 자동 채우기 2장·배지·키 없음 안내 1번 확인 |
 | `emotion-writer` (운영 v1.25) | 사진 검색·받기를 공용 `free-photo-search` 사본으로(내부 정리, 동작 같음) | `428fcdfc3` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 사진 검색 → 선택 → 이미지 만들기 확인 |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
