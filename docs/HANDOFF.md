@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ✅ 메인 관리자 「🛠️ 운영 상태」 카드 배포 (메인 빌드 1회, 주인님 승인)
+- `components/admin/SystemUsageMonitor.tsx`(`16ef10466`): 「실시간 시스템 & DB 사용량」 탭 위에 카드 3칸 — 미배포 대기(건수·프로그램 수·「프로그램 펼쳐 보기」) · 30일 정리 기록(n/전체·기록 남기는 곳·「기록 안 남기는 n곳 펼쳐 보기」) · 공용 문서 되돌림 최근 24시간(사라짐 0이면 초록, 있으면 빨강+커밋 목록). 「30일 자동 정리」 카드 안에 있던 두 줄은 이 카드로 옮김. API 변경 없음(`site_settings.ops_overview` 값을 그대로 읽음).
+- 배포: 푸시 자동 빌드 `aimaster-fhh791kf0` Ready, `www.buylife.xyz` 연결 확인. 크롬(관리자 로그인)에서 카드 3칸·펼쳐 보기 동작 확인(표시: 대기 24건·정리 기록 3/23·되돌림 0건, 의심 6).
+- 숫자 갱신: 저장소에서 `node scripts/pending-check.mjs --publish`(배포 도우미 `--go`가 자동 실행). 메인 사이트 링크: https://www.buylife.xyz/admin
+
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ 예약 리마인드 v1.28 엑셀 일괄 등록 + 예약 시각 9시간 버그 수정 (빌드 1회 · 유료 호출 0)
 - 마케팅 독립 확장 ②. 예약 엑셀 미리보기→등록·양식, 그리고 **손 입력 예약이 서버(UTC)에서 9시간 늦게 저장돼 리마인드가 9시간 늦게 나가던 버그**를 한국 시간으로 고침(운영 예약·규칙 0건이라 피해 없음). 시험 6개·build·배포 `booking-reminder-4unwdpsta` Ready·DB v1.28. 크롬 미리보기 확인(등록 안 함). 대기분 3건 함께 나감.
 - 마케팅(홍보) 카테고리 작업(병합 A·독립 확장 2건) 모두 끝. 상세 `booking-reminder/AGENTS.md` 2026-10-23 v1.28. 링크: https://booking-reminder.buylife.xyz/reservations
