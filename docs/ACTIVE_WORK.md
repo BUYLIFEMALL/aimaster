@@ -18,4 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `threads/` | Claude Code(윈도우, 크롬) | 2026-10-23 | 미배포 3건 배포(사전 보강·한국어로 다시 찾기) (v1.32) |
 | `ai-video-studio/` (신규) + 공용 `ai-video-*` 기준 이전(`ai-image-studio/lib/video/` → 사본) | Claude Code(윈도우, 크롬) | 2026-10-23 | AI 영상 스튜디오 1차 v1.01(생성 작업실 + 갤러리, 플랜 `ai-video-studio/docs/PLAN_20261023_AI_VIDEO_STUDIO.md`) |
