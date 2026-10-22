@@ -225,3 +225,6 @@
 
 ## 🟡 미배포 대기 (2026-10-23, Claude Code 윈도우, 버전 그대로 v1.28) — 배지 이름 · 형식 바꾸기 넘김 기록
 - `PROVIDER_NAMES["image-convert-studio"]`, 갤러리 형식 바꾸기 → `markLog(id,"convert")` → `/api/gallery/mark` `convert` → `metadata.handoffs.convert`. 시험 `test:prompt-source` 6개(기존 v1.27 기대값 1곳은 허용 목록 확장에 맞게 고침)·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위.
+
+## ✅ v1.29 배포 (2026-10-23, Claude Code 윈도우)
+- 함께 나간 대기: 플랫폼 배지 「이미지 변환 스튜디오」, 갤러리 「형식 바꾸기」 첫 클릭 → `handoffs.convert`. 크롬(관리자 계정): 큰 보기 창 「형식 바꾸기」 클릭 → 새 탭 변환 스튜디오 + DB 생성 기록 `handoffs.convert` 시각 확인 → 메인 관리자 연계 표 이미지 스튜디오 행 「1 → 1건 (100%)」.

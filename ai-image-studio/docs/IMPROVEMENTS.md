@@ -1,9 +1,5 @@
 # AI 이미지 스튜디오 (ai-image-studio) 개선사항 관리 대장 (IMPROVEMENTS.md)
 
-> **🟡 미배포 대기 (2026-10-23, Claude Code 윈도우 — 「작은 수정은 모았다가 배포」 지침)** 다음 이미지 스튜디오 배포 때 함께(운영 v1.28, 버전은 그때 한 번).
-> - 플랫폼 배지 `image-convert-studio` → 「이미지 변환 스튜디오」(`PROVIDER_NAMES`).
-> - 갤러리 「형식 바꾸기」(카드·큰 보기 창) 첫 클릭 → `markLog(id, "convert")` → `/api/gallery/mark` 종류 `convert` → 생성 기록 `metadata.handoffs.convert`(한 번만). 메인 관리자 연계 표 「AI 이미지 스튜디오 → 변환 스튜디오」 행이 이 값을 셈(메인은 이미 배포됨 — 이 배포 전까지 그 행은 0).
-
 > **기준일자**: 2026-10-17  
 > **프로그램**: AI 이미지 스튜디오 (`ai-image-studio`)  
 > **현재 버전**: `v1.11` → `v1.12`  
