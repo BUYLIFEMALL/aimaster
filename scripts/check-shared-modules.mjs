@@ -357,6 +357,7 @@ const MODULES = [
       "threads-affiliate-poster/src/lib/cleanupUsageLog.ts",
       "trending-product-finder/lib/cleanupUsageLog.ts",
       "youtube-auto-reply/lib/cleanupUsageLog.ts",
+      "real_estate_sales/src/lib/cleanupUsageLog.ts",
       "threads/src/lib/cleanupUsageLog.ts",
       "ai-music-studio/lib/cleanupUsageLog.ts",
     ],
