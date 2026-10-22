@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — ✅ 상세페이지 GIF 자동화 v1.11 크롬 실검수 (이커머스 2차 재비교 작업 ④ 완료)
+- 화면 안에서 만든 4초 시험 영상 2개: A를 1~2.5초로 자름 → GIF 60프레임·1.51초, B 전체 3.97초. 전체 ZIP `gif-all.zip`에 두 GIF 정상. 컴퓨터 저장·서버 전송·비용 없음. 남은 작업: ⑤ 상세페이지 이미지 문구 고치기(별도 플랜), ⑥ 상품소싱 상태 줄.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 유튜브 바이럴 v1.22 대본 분석 Gemini 영상 직접·대사 → 원스톱 · INSTA v1.60 겹침 펼치기 · 쇼츠 바이럴 내보내기 대사(미배포) (빌드 2회, Gemini 1회)
 - 유튜브 자막 긁어오기가 빈 값을 돌려줘 대본 분석이 모두 자막 없이 돌던 것을 발견 → Gemini가 영상을 직접 보고 대사까지 받게 바꾸고 「🎬 이 대사로 쇼츠 만들기」로 원스톱에. INSTA 「⚠ 겹침 n」 누르면 구절 펼침. 쇼츠 바이럴 내보내기 대사는 커밋만(다음 배포 때). 상세 각 폴더 `AGENTS.md`, `docs/ERROR_LESSONS.md` 2026-10-22.
 - 프로그램: https://youtube-viral-studio.buylife.xyz · https://auto-instagram-posting.buylife.xyz · https://shorts-viral-studio.buylife.xyz(미배포분 있음)
