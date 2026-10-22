@@ -36,6 +36,14 @@ chrome.runtime.onMessage.addListener((message,sender,reply)=>{
   const run=activeRun;if(!run||sender.tab?.id!==run.tabId||message.runId!==run.id||message.executionUntil!==run.until){reply({ok:false,error:"입력 연결 확인 실패"});return false;}
   const ms=Math.min(500,Math.max(0,Number(message.delayMs)||0));setTimeout(()=>reply({ok:activeRun===run&&!run.cancelled&&Date.now()<run.until}),ms);return true;
  }
+ // 2026-10-23: 웹 「바로 연결」 — 이 사이트 화면(web-bridge.js)에서 온, 웹이 방금 만든 43자리 코드만 서버 확인 뒤 저장한다(기준 구현: naver-blog-seo-studio).
+ if(message.action==="connectFromWeb"){
+  if(sender.id!==chrome.runtime.id||!String(sender.url||"").startsWith(BASE+"/")){reply({ok:false,error:"허용되지 않은 요청입니다."});return false;}
+  (async()=>{const token=String(message.token||"");if(!/^[A-Za-z0-9_-]{43}$/.test(token))return {ok:false,error:"연결 코드 형식이 올바르지 않습니다."};
+   const r=await fetch(BASE+"/api/extension",{headers:{Authorization:"Bearer "+token},cache:"no-store"});if(!r.ok){const d=await r.json().catch(()=>({}));return {ok:false,error:d.error||"연결 확인 실패 ("+r.status+")"};}
+   await chrome.storage.local.set({"bcm-token":token});if(message.closeTab&&Number.isInteger(sender.tab?.id))setTimeout(()=>{chrome.tabs.remove(sender.tab.id).catch(()=>{});},1500);return {ok:true};
+  })().then(reply,e=>reply({ok:false,error:e.message}));return true;
+ }
  if(sender.id!==chrome.runtime.id||!sender.url?.startsWith(chrome.runtime.getURL(""))){reply({ok:false,error:"허용되지 않은 확장 요청"});return false;}
  (async()=>{
   if(message.action==="connect"){if(!/^[A-Za-z0-9_-]{43}$/.test(message.token||""))throw new Error("웹에서 발급한 본인 연결 코드를 입력해 주세요.");await chrome.storage.local.set({"bcm-token":message.token});return {ok:true};}

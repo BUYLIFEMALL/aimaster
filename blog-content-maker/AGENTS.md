@@ -1,5 +1,7 @@
 # AI 블로그 콘텐츠 제작 자동화 (blog-content-maker) — 작업 지침 및 인수인계 규격서
 
+> **✅ v1.11 배포 완료 (2026-10-23, Claude Code 윈도우 — 주인님 지시 「나머지 블로그 자동화 프로그램도 이 방식으로 싹다 바꿔」) — 확장 자동 연결·실제 설치 상태 표시(기준 구현 naver-blog-seo-studio v2.09~v2.10, 루트 `docs/SHARED_FEATURE_MAP.md` §16):** ① 웹-확장 연결 통로를 새로 만듦 — `extension/web-bridge.js`(이 사이트 화면만, `bcm-app`↔`bcm-extension`, `ping`·`connect`), `manifest.json` `content_scripts` 등록 ② `extension/background.js` `connectFromWeb`(확장 화면만 받던 기존 출처 검사 앞에서 처리 — 이 사이트 출처·43자리 형식·`GET /api/extension` 확인 통과 때만 `bcm-token` 저장, 요청 시 탭 닫기) ③ 확장 팝업 「자동 연결 (웹에서 로그인)」 → 새 화면 `/extension-connect?from=extension`(`requireProgramAccess`, proxy가 넘긴 현재 주소로 로그인 뒤 복귀), 코드 직접 입력은 접힘 칸, 저장되면 팝업이 원고 목록을 다시 불러옴 ④ 웹 `src/components/ExtensionConnect.tsx`(`ExtensionConnectButton` — `POST /api/extension {action:"issue"}`로 7일 코드 발급 → `src/lib/extensionPageBridge.ts`로 전달, `ExtensionInstallStatus` — 실제 확장 버전 표시)를 설정 「Chrome 확장 연결」에 배치, 기존 발급 버튼은 「직접 입력용 연결 코드 발급」 ⑤ **로그인 폼 복귀 수정**: `src/components/auth/LoginForm.tsx`가 늘 `/dashboard`로 가던 것을 주소의 `redirect`(이 사이트 안 `/` 경로만)로 복귀하게 함. 서버 API 변경 없음. 시험 10·tsc·eslint·로컬 빌드(ZIP v1.11) 통과, `verify-native-extension`은 확장이 설치된 크롬이 필요해 생략. 배포 Ready·DB/확장/ZIP v1.11(`check-extension-release` OK). 웨일 설정 화면: 「확장을 찾지 못했습니다 · 설치 전이거나 v1.10 이하」(미설치)·바로 연결·직접 입력용 발급 버튼 확인. 실제 버튼 연결은 확장 설치 뒤.
+
 > 먼저 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`·`docs/HANDOFF.md`를 읽습니다.
 > 최신 배포 URL: [https://blog-content-maker.buylife.xyz](https://blog-content-maker.buylife.xyz)
 
