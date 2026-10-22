@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.28 공용 영상 코드 사본 배포 (빌드 1회)
+- 공용 `ai-video-*` 사본 전환 + Seedance 1 Lite 이어 붙이기 끔을 배포, DB v1.28, 크롬에서 버전·모델 목록 확인. ai-image-studio 기준 파일은 화면 미사용이라 다음 배포 때.
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — Vercel 프로젝트 프레임워크 설정 일괄 정리: Other → Next.js 13개 (설정만, 빌드 없음)
 - 대시보드의 점선 삼각형 아이콘 = 프로젝트 설정 Framework Preset이 Other. `vercel.json`의 `"framework": "nextjs"`로 배포는 정상이었지만 안전을 위해 프로젝트 설정도 Next.js로 맞춤(주인님 승인).
 - 팀 90개 → 89개 Next.js. 바꾼 13개와 명령은 `docs/ERROR_LESSONS.md` 2026-10-21 `vercel project add` 항목 보완에 기록. `dream`(배포·도메인 없음, 저장소 폴더 없음)만 그대로.

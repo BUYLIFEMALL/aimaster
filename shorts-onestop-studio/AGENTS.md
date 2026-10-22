@@ -157,3 +157,7 @@
 ## 2026-10-22 — AI 영상 호출을 공용 기준 코드로 전환(코드만, 미배포) (Claude Code 윈도우)
 - `src/lib/videoModels.ts`·`videoParse.ts`·`videoProviders.ts`(신규)는 이제 공용 `ai-video-*` 사본(기준 `ai-image-studio/lib/video/`) — 직접 고치지 말 것. `src/lib/videoGen.ts`는 공용 `submitVideoJob`·`checkVideoJob`을 부르고 `VideoGenError`를 원스톱 `AiError`/`UserError`로 바꾼 뒤 회원 폴더에 저장하는 얇은 연결 코드. 장면 사진 주소 검사가 공개 버킷 주소도 받도록 넓어짐(원스톱 동작 영향 없음).
 - 검수: tsc·`npm test` 13개·build 통과, 동작 같음 → **다음 원스톱 배포 때 함께**(버전 +0.01도 그때). 주인님 결정(빌드 1회 — Shots만).
+
+## 2026-10-22 v1.28 — 공용 영상 코드 사본 배포 + Seedance 1 Lite 이어 붙이기 끔 (Claude Code 윈도우)
+- 저장소에만 있던 공용 기준 코드 `ai-video-*` 사본 전환(`videoGen.ts` → 공용 `videoProviders`, 동작 같음)과 Shots v1.33에서 E006이 재현된 Seedance 1 Lite `endFrame: false`를 배포. 화면 목록에 「가장 저렴 · 720p · 이어 붙이기 없음」, 「이어 붙이기」를 켜도 이 모델은 첫 화면만 보내고 단가도 기본 단가로 계산.
+- 검수: tsc·`npm test` 13개·build, 배포 Ready(`shorts-onestop-studio-1vmxo3g1j`, 빌드 1회 — 주인님 승인), DB v1.28, 크롬 시험 회원 대시보드 v1.28·디자인 화면 영상 모델 목록 확인(유료 생성 없음).

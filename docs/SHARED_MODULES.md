@@ -93,8 +93,8 @@
 | 2026-10-20 인스타 게시 처리·예약 API 5개 공용 기준 코드화(`insta-posting` 외 4개, 값은 `schedulerConfig.ts` — 동작 같음) | (없음 — 모두 배포됨) | tsc·테스트·build 통과. 다음 배포 때 함께, 버전 +0.01도 그때 · ✅ `four-cut-comics`는 v1.22(2026-10-20)로 배포됨 · ✅ `ai-webtoon-studio`는 v1.21(2026-10-20)로 배포됨 · ✅ `ai-influencer-studio`는 v1.19(2026-10-20)로 배포됨 |
 | 2026-10-20 `openai-request-params` 사본 새로 적용(「GPT-4 계열만 온도」 분기 → `openAIGenerationParams`, 동작 같음) | `style-dna-analyzer` · `cardnews-studio` · `naver-blog-allinone` · `ai-auto-blog` · `tistory-auto-blog` · `threads-content-ops` | naver-blog-agent는 v2.01에 사본/모델 안내 배포 완료. **ai-auto-blog는 2026-10-21 v1.76(이름 변경) 배포에 포함됨.** 나머지 각 tsc 0·기존 테스트 통과(naver-blog-agent `test:models` 모의 불러오기에 사본 추가). 다음 배포자는 버전 +0.01(코드·DB)하고 버전 기록에 적을 것 |
 | 2026-10-19 `instagram-publish` 기준 분리(게시 함수를 `publish.ts`로 옮기고 `client.ts`가 다시 내보냄 — 동작 같음) | `insta_auto_poster` | tsc·`test:own-meta` 통과. 다음 배포 때 버전 +0.01과 함께 나감 |
-| 2026-10-22 `ai-video-*` 등록(Claude Code 윈도우) — 원스톱 `videoGen.ts`를 공용 `videoProviders` 사용으로 전환(동작 같음), 기준 파일은 ai-image-studio에 추가(화면에서 아직 안 씀) | `shorts-onestop-studio`(v1.28로 다음 배포 때) · `ai-image-studio`(다음 배포 때, 버전 변화 없음 가능) | ✅ 원스톱 tsc·시험 13개·build, ai-image-studio tsc, 공용 점검 일치. Shots v1.32는 배포됨 |
-| 2026-10-22 `ai-video-models` Seedance 1 Lite 이어 붙이기 끔(Claude Code 윈도우, Shots v1.33) — 끝 화면 E006 재현 | `shorts-onestop-studio`·`ai-image-studio`(위 줄과 함께 다음 배포 때 — 원스톱은 그때까지 이 모델 이어 붙이기가 켜진 채로, 거절되면 오류 안내) | ✅ 원스톱 tsc·시험 13개, 공용 점검 일치, Shots 배포 |
+| 2026-10-22 `ai-video-*` 등록(Claude Code 윈도우) — 원스톱 `videoGen.ts`를 공용 `videoProviders` 사용으로 전환(동작 같음), 기준 파일은 ai-image-studio에 추가(화면에서 아직 안 씀) | ~~`shorts-onestop-studio`~~ ✅ 2026-10-22 v1.28 배포 · `ai-image-studio`(다음 배포 때, 버전 변화 없음 가능) | ✅ 원스톱 tsc·시험 13개·build, ai-image-studio tsc, 공용 점검 일치. Shots v1.32는 배포됨 |
+| 2026-10-22 `ai-video-models` Seedance 1 Lite 이어 붙이기 끔(Claude Code 윈도우, Shots v1.33) — 끝 화면 E006 재현 | ~~`shorts-onestop-studio`~~ ✅ 2026-10-22 v1.28 배포 · `ai-image-studio`(다음 배포 때 — 화면 미사용) | ✅ 원스톱 tsc·시험 13개, 공용 점검 일치, Shots 배포 |
 
 ## 2026-10-19 기능 안정화·점진 레퍼런스 모듈화와 아이디어 검토
 
