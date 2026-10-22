@@ -17,7 +17,8 @@
     "sync:program-version": "node scripts/sync-program-version.mjs",
     "test:blc12": "node --test tests/blc12-collect.test.cjs",
     "test:publication": "node --test tests/publication-page.test.cjs",
-    "test:collect-safety": "node --test tests/collect-safety.test.cjs"
+    "test:collect-safety": "node --test tests/collect-safety.test.cjs",
+    "test:post-source": "node --test tests/post-source.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

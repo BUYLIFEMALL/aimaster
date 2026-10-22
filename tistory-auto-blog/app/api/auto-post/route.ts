@@ -14,6 +14,7 @@ import {
   type ContentProvider,
 } from '@/blog/utils/ai/contentModels'
 import { getErrorMessage } from '@/utils/errorMessage'
+import { buildPostSource, isCandidateId, type CandidateRow } from '@/blog/utils/postSource'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -188,6 +189,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // v1.87 글감 출처: 본인 글감이고 모은 지 30일 안일 때만 저장(아니면 출처 없이 글은 그대로 만든다)
+    let postSource = null
+    if (isCandidateId(body.candidateId)) {
+      const { data: candidateRow } = await supabase
+        .from('tistory_candidates')
+        .select('id, user_id, source_type, source_input, created_at')
+        .eq('id', body.candidateId)
+        .eq('user_id', user.id)
+        .maybeSingle()
+      postSource = buildPostSource(candidateRow as CandidateRow | null, user.id)
+    }
+
     // 3.3 tistory_posts 테이블에 등록 (PostgreSQL DEFAULT IDENTITY 시퀀스 사용)
     const { data: createdPost, error: postError } = await supabase
       .from('tistory_posts')
@@ -198,6 +211,7 @@ export async function POST(request: NextRequest) {
         author_id: authorId,
         user_id: user.id,
         reading_minutes: postData.readingMinutes,
+        source: postSource,
       })
       .select('id, title, published_at')
       .single()

@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from '@/blog/utils/ai/openaiRequestParams'
+import { buildPostSource, isCandidateId, SOURCE_KIND_LABELS, type CandidateRow, type PostSource } from '@/blog/utils/postSource'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
@@ -112,6 +113,9 @@ function AiFormPageInner() {
     return raw ? raw.split(',').map((k) => k.trim()).filter(Boolean) : []
   })
   const [referenceUrls, setReferenceUrls] = useState<string[]>(['', '', ''])
+  // v1.87: 글감에서 넘어온 경우 출처(원본 주소·모은 날짜·만료일)를 보여 주고 생성 때 함께 저장한다(본인 글감만 — 화면은 RLS, 서버는 user_id로 다시 확인).
+  const candidateId = isCandidateId(searchParams.get('candidate')) ? searchParams.get('candidate') : null
+  const [postSource, setPostSource] = useState<PostSource | null>(null)
   
   // 나노바나나 AI 이미지 설정 상태
   const [imageModel, setImageModel] = useState<string>(DEFAULT_IMAGE_MODEL)
@@ -147,6 +151,20 @@ function AiFormPageInner() {
 
   const [loading, setLoading] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!supabase || !candidateId) return
+    supabase
+      .from('tistory_candidates')
+      .select('id, user_id, source_type, source_input, created_at')
+      .eq('id', candidateId)
+      .maybeSingle()
+      .then(({ data }) => {
+        const source = data ? buildPostSource(data as CandidateRow, (data as CandidateRow).user_id) : null
+        setPostSource(source)
+        if (source?.url) setReferenceUrls((prev) => (prev.some((u) => u.trim()) ? prev : [source.url as string, prev[1] ?? '', prev[2] ?? '']))
+      })
+  }, [supabase, candidateId])
 
   useEffect(() => {
     if (!supabase) return
@@ -230,6 +248,7 @@ function AiFormPageInner() {
 
       const payload = {
         topic: topic.trim(),
+        candidateId: postSource?.candidateId, // v1.87: 서버가 다시 확인해 출처 저장
         category_slugs: categorySlugs,
         category_slug: categorySlugs[0],
         tone,
@@ -455,6 +474,14 @@ function AiFormPageInner() {
               )}
             </div>
 
+            {/* v1.87 글감 출처 */}
+            {postSource && (
+              <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-xs text-slate-700">
+                <p className="font-bold text-slate-900">📎 글감 출처 · {SOURCE_KIND_LABELS[postSource.kind]}</p>
+                <p className="mt-1 break-all">{postSource.url ? <a href={postSource.url} target="_blank" rel="noreferrer noopener" className="text-blue-700 underline">{postSource.label}</a> : postSource.label}</p>
+                <p className="mt-1 text-slate-500">모은 날 {new Date(postSource.collectedAt).toLocaleDateString('ko-KR')} · {new Date(postSource.expiresAt).toLocaleDateString('ko-KR')}까지 보관 · 이 글을 만들면 출처가 글에 함께 저장됩니다(티스토리 본문에는 넣지 않음)</p>
+              </div>
+            )}
             {/* 참고 웹페이지 링크 */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs font-bold text-slate-700">

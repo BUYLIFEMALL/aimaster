@@ -10,6 +10,7 @@ import { getErrorMessage } from '@/utils/errorMessage'
 import AutoPublishPanel from '@/blog/components/AutoPublishPanel'
 import TistoryPublishPanel from '@/blog/components/TistoryPublishPanel'
 import { DEFAULT_TISTORY_PUBLISH, type TistoryPublish } from '@/blog/utils/tistoryPublish'
+import { readPostSource, SOURCE_KIND_LABELS } from '@/blog/utils/postSource'
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
 
@@ -77,6 +78,7 @@ interface Post {
   reading_minutes: number
   author_id: number
   tistory_publish?: { automation?: { mode?: string } }
+  source?: unknown // v1.87 글감 출처
 }
 
 /* ------------------------------------------------------------------ */
@@ -616,6 +618,16 @@ export default function PostDetailPage() {
                 </button>
               </div>
             </div>
+            {/* v1.87 글감 출처(티스토리 본문에는 넣지 않음) */}
+            {(() => {
+              const source = readPostSource(post.source)
+              if (!source) return null
+              return (
+                <p className="mt-3 break-all text-xs text-slate-500">
+                  📎 글감 출처: {SOURCE_KIND_LABELS[source.kind]} · {source.url ? <a href={source.url} target="_blank" rel="noreferrer noopener" className="text-blue-700 underline">{source.label}</a> : source.label} · 모은 날 {new Date(source.collectedAt).toLocaleDateString('ko-KR')}
+                </p>
+              )
+            })()}
             {/* 발행 설정(카테고리·공개 범위·댓글·홈주제·발행 시점): 버튼 줄과 분리해 전체 폭으로 펼친다 */}
             <TistoryPublishPanel value={publish} onChange={setPublish} disabled={handoffState === 'sending' || autoQueued || Boolean(post.tistory_publish?.automation)} />
             <AutoPublishPanel key={post.id} postId={post.id} publish={publish} initial={post.tistory_publish} onQueued={() => setAutoQueued(true)} />

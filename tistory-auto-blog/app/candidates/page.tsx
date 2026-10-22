@@ -629,7 +629,7 @@ export default function CandidatesPage() {
         ) : (
           <ul className="space-y-3">
             {filteredCandidates.map((c) => {
-              const writeParams = new URLSearchParams({ topic: c.title })
+              const writeParams = new URLSearchParams({ topic: c.title, candidate: c.id }) // v1.87: 글감 출처를 이어 받도록 번호도 넘김
               if (c.keywords && c.keywords.length > 0) writeParams.set('keywords', c.keywords.join(','))
               return (
                 <li key={c.id} className="bg-white border border-slate-200 rounded-2xl p-5">
