@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): 공용 기준 코드 `link-mark` · 관리자 「바나나 vs 이미지 스튜디오」 막대 · 바나나 → 변환 스튜디오/스토리보드 보낸 곳 안내
+- 한 일: ① 연계 기록 처리(정해진 값만·첫 1회만 저장·한 화면 한 번만 보내기)와 받는 쪽 `?via=` 이름표를 공용 기준 코드 `link-mark`(기준 `banana-canvas/src/lib/bnc/linkMark.ts`, 사본 이미지 스튜디오·변환 스튜디오·스토리보드)로 묶고 바나나·이미지 스튜디오 기록 코드를 이것으로 교체(동작 같음) ② 메인 `app/admin/statistics` 카드에 보낸 프로그램마다 바나나(노랑) vs 이미지 스튜디오(하늘색) 막대 ③ 바나나 「형식 바꾸기」·「스토리보드로」가 `&via=banana-canvas`를 보내고 두 프로그램이 「↩ 바나나 캔버스로 돌아가기」 안내(저장은 하지 않음 — 주인님 선택 「안내 표시만」). 두 프로그램은 `?src=`를 그림 주소로 쓰므로 보낸 곳은 `via`.
+- 검수: 시험 바나나 42·변환 42·스토리보드 20·이미지 스튜디오 3, tsc·빌드, 사본 3곳 일치, 메인 통계 파일 타입 오류 0. 못 한 것: 크롬 화면 검수 — 크롬의 바나나 로그인 세션이 끝나 로그인 화면으로 넘어감(비밀번호 입력 불가), 관리자 카드(주인님 로그인 필요). 운영 파일 이름이 로컬 빌드와 달라 묶음 파일 대조도 못 함.
+- 미배포: 이미지 스튜디오 `link-mark` 사본(동작 같음) — 다음 배포 때.
+- 배포: 바나나 v1.29 → 변환 스튜디오 v1.19 → 스토리보드 v1.12 → 메인 자동 빌드(모두 Ready, 빌드 4회), DB 버전 3줄. 커밋 7dccc1bbc·e3a010db4 + 이 커밋.
+- 링크: https://banana-canvas.buylife.xyz · https://image-convert-studio.buylife.xyz · https://cinematic-storyboard-studio.buylife.xyz · https://www.buylife.xyz/admin/statistics
+
 ## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.13: 세로 9:16 · 목록 출처 표시 · 글자 수 (빌드 1회, Gemini 전략 1·이미지 1)
 - 「화면 비율」 가로 16:9 / 세로 9:16(쇼츠·릴스 표지), 실제 생성 768×1376 확인. 목록 「🔗 SEO 전략 …」·「세로 9:16」, 칩 「40자」/「1.2K자」. 세로 결과 칸 화면 모양은 로그인이 풀려 미확인. 상세 `thumbnail-master/AGENTS.md` v1.13.
 - 프로그램: https://thumbnail-master.buylife.xyz

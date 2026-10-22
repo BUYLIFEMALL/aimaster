@@ -229,3 +229,9 @@
 - 바나나에는 인스타·블로그로 보내는 기능이 없어 실제로 결과를 넘기는 두 링크만 기록한다(새 넘김 링크를 추가하면 `Handoff` 타입·PATCH 허용 값·관리자 카드 설명에 함께 추가).
 - 메인 관리자 카드: 보낸 프로그램별 「다음 단계로 넘김」 건수(비율), 「최근 7일 / 30일」 전환(`?linkRange=7`).
 - 검수: 시험 41개(v1.27 시험 기대값은 공통 처리로 모양만 바뀌어 기대값만 고침), tsc·빌드. 크롬: 넘김 기록 API(없는 번호 404·모르는 값 400, 회원 데이터 변경 없음).
+
+## ✅ v1.29 배포 (2026-10-22, Claude Code 윈도우) — 공용 기준 코드 `link-mark`(기준) · 변환/스토리보드에 보낸 곳
+- **공용 기준 코드 `link-mark` 기준 파일** `src/lib/bnc/linkMark.ts`: `pickAllowed`(정해진 값만)·`onceMarkNext`(첫 1회만 저장할 다음 jsonb 값, 이미 있으면 null)·`createOnceSender`(한 화면 한 번만 보내기)·`VIA_SOURCES`/`viaSource`/`withVia`(받는 쪽 보낸 곳 `?via=`). 사본: `ai-image-studio/lib/linkMark.ts`·`image-convert-studio/src/lib/linkMark.ts`·`cinematic-storyboard-studio/src/lib/linkMark.ts`. 이 파일만 고치고 사본에 반영.
+- `PATCH /api/history/[id]`·`downloadMark.ts`가 이를 쓰도록 바꿈(동작 같음).
+- 「🔁 형식 바꾸기」·「🎬 스토리보드로」 주소에 `&via=banana-canvas`(`withVia`). 두 프로그램은 `?src=`를 그림 주소로 이미 쓰므로 보낸 곳은 `via`.
+- 검수: 시험 42개, tsc·빌드. 크롬 화면 검수는 이번에 바나나 로그인 세션이 끝나 있어 못 함(비밀번호 입력 불가) — 다음 로그인 때 확인.

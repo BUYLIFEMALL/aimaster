@@ -210,3 +210,6 @@
 - 공용 사본 `lib/bananaIdeaLink.ts`에 `imageStudioLink(prompt, src)`가 생김(기준 스타일 분석기, 직접 고치지 않음).
 - 메인 관리자 카드 「AI 이미지 스튜디오」 표에 「다운로드까지」·「바나나로 넘김」 칸.
 - 검수: `test:prompt-source` 3개, tsc·빌드. 크롬: `/api/gallery/mark` 없는 번호 404·잘못된 종류/형식 400(회원 데이터 변경 없음). 실제 다운로드·바나나 클릭 뒤 기록은 미확인(파일 내려받기·실제 생성 필요).
+
+## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 `link-mark` 사본 사용
+- `lib/linkMark.ts`(공용 기준 코드 `link-mark` 사본, 기준 바나나 — 직접 고치지 않음) 추가. `/api/gallery/mark`가 `pickAllowed`·`onceMarkNext`, `lib/logMark.ts`가 `createOnceSender`를 씀(동작 같음). 시험 3개 통과. 동작이 같아 배포하지 않음 — 다음 배포 때 함께.

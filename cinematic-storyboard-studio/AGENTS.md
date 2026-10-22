@@ -121,3 +121,7 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 - `/studio?src=<바나나 서명 주소>`: 새 `src/lib/importSource.ts`(`banana-canvas-files` 서명 주소만), `StudioWorkspace.tsx`가 브라우저에서 받아 직접 고른 파일과 같은 `pickFile`로 미리보기에 넣음(서버 업로드는 지금처럼 [스토리보드 생성] 때). 성공 안내(`role=status`). 서버 코드 변경 없음.
 - 검수: 시험 19개(새 `tests/importSource.test.mjs`), build, 배포 `cinematic-storyboard-studio-o8wyi0zvi` Ready, DB v1.11. 크롬(시험 회원): 바나나 버킷 시험 그림 → 참고 이미지로 들어옴·안내 표시, 생성은 안 누름, 시험 그림 삭제.
 - 남은 일: AI 이미지 스튜디오 결과 받기는 다른 세션의 이미지 스튜디오 작업 뒤 `IMPORT_SOURCES`에 `ai-image-generations` 추가 + 보내는 버튼.
+
+## ✅ v1.12 배포 (2026-10-22, Claude Code 윈도우) — 보낸 곳 안내·돌아가기(`?via=`)
+- 바나나 「🎬 스토리보드로」로 넘어올 때 `?via=banana-canvas`가 붙으면, 참고 이미지 안내 끝에 「↩ 바나나 캔버스로 돌아가기」(`data-via-back`). 이름표는 공용 사본 `src/lib/linkMark.ts`(공용 기준 코드 `link-mark`, 기준 바나나 — 직접 고치지 않음). 보낸 곳 저장은 하지 않음(프로젝트 표에 칸이 없어 DDL이 필요 — 주인님이 「안내 표시만」 선택).
+- 검수: 시험 20개, tsc·빌드. 크롬 화면 검수는 로그인 세션 문제로 미확인.
