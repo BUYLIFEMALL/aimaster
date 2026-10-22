@@ -186,3 +186,12 @@ test("v1.16 원래 문구 표시 · 세로 길이 확인 문장", async () => {
   assert.equal(lengthConfirmText(long, "16:9"), "");
   assert.equal(lengthConfirmText([long[1]], "9:16"), "");
 });
+
+test("v1.19 30일 정리: 이미지 경로·회원별 개수·기준 시각", async () => {
+  const { imagePathsOf, cleanupByUser, retentionCutoff, projectFolder } = await import("../src/lib/tmb/retention.ts");
+  assert.deepEqual(imagePathsOf({ images_a: { versions: [{ path: "u/p/a-1.jpg" }, { path: "u/p/a-2.jpg" }], cur: 1 }, images_b: { versions: [{ path: "u/p/b-1.jpg" }] } }), ["u/p/a-1.jpg", "u/p/a-2.jpg", "u/p/b-1.jpg"]);
+  assert.deepEqual(imagePathsOf({ images_a: null, images_b: { versions: [{ path: 3 }, {}] } }), []);
+  assert.deepEqual(cleanupByUser([{ userId: "u1", images: 3 }, { userId: "u1", images: 0 }, { userId: "u2", images: 2 }]), { u1: { projects: 2, images: 3 }, u2: { projects: 1, images: 2 } });
+  assert.equal(retentionCutoff(Date.UTC(2026, 10, 12)), "2026-10-13T00:00:00.000Z");
+  assert.equal(projectFolder("u", "p"), "u/p");
+});
