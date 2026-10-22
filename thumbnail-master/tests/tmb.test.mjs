@@ -160,3 +160,17 @@ test("v1.14 세로 9:16 문구 전략은 더 짧게(가로는 그대로)", async
   assert.ok(!h.includes("[세로 9:16 표지]"));
   assert.equal(verticalCopyRule("16:9"), "");
 });
+
+test("v1.15 세로 문구 길이 안내 · 문구 바뀜 표시", async () => {
+  const { mainWarning, subWarning, textChanged } = await import("../src/lib/tmb/strategy.ts");
+  assert.equal(subWarning("할머니 밥상에 기절한 사돈", "16:9"), null);
+  assert.ok(subWarning("할머니 밥상에 기절한 사돈", "9:16"));
+  assert.equal(subWarning("프랑스 사돈 먹방", "9:16"), null);
+  assert.equal(mainWarning("벨트 터진 진짜 이유", "9:16"), null);
+  assert.ok(mainWarning("시골 할머니집에서 보낸 3일 잔치", "9:16"));
+  assert.equal(mainWarning("시골 할머니집에서 보낸 3일 잔치"), null);
+  assert.equal(textChanged(undefined, { main: "a", sub: "b" }), false);
+  assert.equal(textChanged({ path: "p", v: 1, at: "", model: "" }, { main: "a", sub: "b" }), false);
+  assert.equal(textChanged({ path: "p", v: 1, at: "", model: "", main: "a", sub: "b" }, { main: " a ", sub: "b" }), false);
+  assert.equal(textChanged({ path: "p", v: 1, at: "", model: "", main: "a", sub: "b" }, { main: "a", sub: "c" }), true);
+});

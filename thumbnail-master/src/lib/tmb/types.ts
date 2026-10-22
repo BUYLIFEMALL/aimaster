@@ -47,7 +47,8 @@ export interface Strategy {
   b: OptionText;
 }
 
-export interface ImageVersion { path: string; v: number; at: string; model: string; instruction?: string }
+/** v1.15 main·sub = 이 이미지를 만들 때 쓴 문구(지금 문구와 다르면 결과 칸에 「문구가 바뀌었습니다」). 예전 이미지는 없음 */
+export interface ImageVersion { path: string; v: number; at: string; model: string; instruction?: string; main?: string; sub?: string }
 export interface ImageSet { versions: ImageVersion[]; cur: number }
 export const EMPTY_SET: ImageSet = { versions: [], cur: -1 };
 

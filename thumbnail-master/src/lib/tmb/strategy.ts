@@ -1,4 +1,4 @@
-import type { OptionText, Strategy } from "./types";
+import type { ImageVersion, OptionText, Ratio, Strategy } from "./types";
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => !!v && typeof v === "object" && !Array.isArray(v);
@@ -43,13 +43,28 @@ export function normalizeStrategy(raw: unknown): Strategy | null {
 }
 
 /** 메인 문구가 길면 경고 문구를 돌려준다(3~5단어 권장) */
-export function mainWarning(main: string): string | null {
+export function mainWarning(main: string, ratio: Ratio = "16:9"): string | null {
   const t = main.trim();
   if (!t) return "메인 문구를 입력해 주세요.";
   const words = t.split(/\s+/).length;
+  if (ratio === "9:16" && (words > 4 || noSpaceLen(t) > 12)) return "세로 표지는 폭이 좁습니다. 메인 문구를 2~4단어로 줄이면 잘 보입니다.";
   if (words > 6 || t.length > 28) return "메인 문구가 깁니다. 3~5단어로 줄이면 클릭률이 높아집니다.";
   return null;
 }
+
+/** v1.15 세로 9:16만 서브 문구 길이 안내(가로는 기존처럼 안내 없음) */
+export function subWarning(sub: string, ratio: Ratio): string | null {
+  if (ratio !== "9:16") return null;
+  return noSpaceLen(sub.trim()) > 10 ? "세로 표지는 서브 문구를 10자 이내(띄어쓰기 제외)로 줄이면 잘 보입니다." : null;
+}
+
+/** v1.15 이미지를 만든 문구와 지금 문구가 다른가(문구 기록이 없는 예전 이미지는 false) */
+export function textChanged(ver: ImageVersion | undefined, now: { main: string; sub: string }): boolean {
+  if (!ver || ver.main === undefined) return false;
+  return ver.main.trim() !== now.main.trim() || (ver.sub ?? "").trim() !== now.sub.trim();
+}
+
+function noSpaceLen(s: string): number { return s.replace(/\s+/g, "").length; }
 
 export const responseSchema = {
   type: "OBJECT",

@@ -49,6 +49,7 @@ export function cleanSet(raw: unknown): ImageSet {
     .map((v, i) => ({
       path: String(v.path), v: typeof v.v === "number" ? v.v : i + 1, at: String(v.at ?? ""),
       model: String(v.model ?? ""), ...(typeof v.instruction === "string" ? { instruction: v.instruction.slice(0, 300) } : {}),
+      ...(typeof v.main === "string" ? { main: v.main.slice(0, 80) } : {}), ...(typeof v.sub === "string" ? { sub: v.sub.slice(0, 80) } : {}),
     }));
   const cur = typeof r.cur === "number" && r.cur >= 0 && r.cur < versions.length ? r.cur : versions.length - 1;
   return { versions, cur };

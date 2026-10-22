@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
   try { path = await saveImage(g.userId, projectId, option, await toJpeg(out.bytes)); }
   catch { return json({ error: "이미지를 저장하지 못했습니다. 다시 시도해 주세요." }, 500); }
 
-  const { set, removed } = pushVersion(current, { path, at: new Date().toISOString(), model: out.model, instruction });
+  const { set, removed } = pushVersion(current, { path, at: new Date().toISOString(), model: out.model, instruction, ...(base.main !== undefined ? { main: base.main, sub: base.sub } : {}) });
   const col = option === "a" ? "images_a" : "images_b";
   const { error } = await createAdminClient()
     .from("thumbnail_master_projects")

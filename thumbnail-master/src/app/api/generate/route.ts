@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   catch { return json({ error: "이미지를 저장하지 못했습니다. 다시 시도해 주세요." }, 500); }
 
   const current = option === "a" ? proj.images_a : proj.images_b;
-  const { set, removed } = pushVersion(current, { path, at: new Date().toISOString(), model: out.model });
+  const { set, removed } = pushVersion(current, { path, at: new Date().toISOString(), model: out.model, main: strategy[option].main, sub: strategy[option].sub });
   const col = option === "a" ? "images_a" : "images_b";
   const { error } = await createAdminClient()
     .from("thumbnail_master_projects")

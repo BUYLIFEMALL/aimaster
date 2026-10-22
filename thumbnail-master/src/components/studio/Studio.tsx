@@ -4,7 +4,7 @@ import { Check, ClipboardCopy, Download, FileText, ImageIcon, Loader2, RefreshCw
 import type { Audience, BorderStyle, ImageSet, Inputs, Opt, ProjectDoc, RefDoc, Strategy, SubjectType } from "@/lib/tmb/types";
 import { AGES, EMPTY_SET, ETHNICITIES, OPTS } from "@/lib/tmb/types";
 import { AUDIENCES } from "@/lib/tmb/audience";
-import { mainWarning } from "@/lib/tmb/strategy";
+import { mainWarning, subWarning, textChanged } from "@/lib/tmb/strategy";
 import { DOC_MAX_CHARS, charsLabel, missingInputs } from "@/lib/tmb/validate";
 
 interface ApiErr { error?: string; needKey?: boolean }
@@ -259,7 +259,8 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
             <div className="tm-opts">
               {OPTS.map((o) => {
                 const t = strategy[o];
-                const warn = mainWarning(t.main);
+                const warn = mainWarning(t.main, inputs.style.ratio);
+                const subWarn = subWarning(t.sub, inputs.style.ratio);
                 return (
                   <article key={o} className="tm-opt">
                     <h4><span className={`tm-badge ${o}`}>{LABEL[o]}</span> {t.label}</h4>
@@ -270,6 +271,7 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                     <label className="tm-field">서브 문구
                       <input value={t.sub} maxLength={80} onChange={(e) => updateOpt(o, { sub: e.target.value })} />
                     </label>
+                    {subWarn && <small className="tm-warn">{subWarn}</small>}
                     <label className="tm-field">스타일 제안
                       <input value={t.styleHint} maxLength={200} onChange={(e) => updateOpt(o, { styleHint: e.target.value })} />
                     </label>
@@ -340,6 +342,7 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                     {url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt={`썸네일 ${LABEL[o]}`} /> : <div className="tm-empty">{b ? "" : "아직 생성되지 않았습니다."}</div>}
                     {b && <div className="tm-overlay"><Loader2 className="ls-spin" /><span>{b === "gen" ? "썸네일 생성 중…" : "수정 반영 중…"}</span></div>}
                   </div>
+                  {!b && textChanged(cur, strategy[o]) && <small className="tm-warn" role="status">문구가 바뀌었습니다 — [다시 생성]을 누르면 새 문구로 만듭니다.</small>}
                   {s.versions.length > 1 && (
                     <div className="tm-versions" aria-label="버전">
                       {s.versions.map((v, i) => (
