@@ -139,6 +139,10 @@ export default function AdminSidebar() {
           </div>
           <GoldGradientText className="text-sm font-bold">ADMIN</GoldGradientText>
         </Link>
+        {/* 휴대폰 폭에서는 좌측 메뉴(아래쪽 계정 표시)가 숨겨지므로 머리줄에 로그인 계정을 보인다(2026-10-23) */}
+        <span className="ml-2 mr-auto max-w-[45vw] truncate text-[11px] text-subtext" title={userEmail}>
+          {userEmail || ""}
+        </span>
         <button onClick={() => setOpen(!open)} className="text-subtext hover:text-white p-1">
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>

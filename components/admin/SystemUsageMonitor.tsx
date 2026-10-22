@@ -110,7 +110,7 @@ const CLEANUP_LABEL: Record<string, string> = {
   videos: "영상", voices: "음성", covers: "표지", images: "이미지", projects: "프로젝트", segments: "장면 기록",
   // 2026-10-23 공용 cleanup-usage-log로 기록을 붙인 프로그램들의 이름
   tracks: "곡", posts: "글", ideas: "글감", history: "분석 기록", reports: "추천 보고서", snapshots: "트렌드 기록",
-  competition: "경쟁 조사", comments: "댓글", sentiments: "지역 분위기",
+  competition: "경쟁 조사", comments: "댓글", sentiments: "지역 분위기", products: "상품",
 };
 const DAY_MS = 86_400_000;
 
@@ -683,7 +683,11 @@ export default function SystemUsageMonitor() {
                 <GlassCard className="p-4 space-y-2">
                   <p className="text-sm font-bold text-gold">30일 자동 정리 (최근 30일, 기록을 남기는 프로그램만)</p>
                   {data.opsOverview?.cleanup && (
-                    <p className="text-xs text-white/50">진행률·기록 안 남기는 곳 목록은 맨 위 「🛠️ 운영 상태」에 있습니다.</p>
+                    // 기록을 아직 안 남기는 곳 — NEW 표시는 7일만 보이므로 남은 곳을 이 카드에서 바로(2026-10-23)
+                    <p className="text-xs text-white/50">
+                      기록 붙음 {data.opsOverview.cleanup.logging.length}/{data.opsOverview.cleanup.total}곳 · 아직 기록을 안 남기는 곳 {data.opsOverview.cleanup.notLogging.length}곳
+                      {data.opsOverview.cleanup.notLogging.length > 0 && `: ${data.opsOverview.cleanup.notLogging.join(", ")}`}
+                    </p>
                   )}
                   {data.cleanupByProgram.length === 0 ? (
                     <p className="text-xs text-white/50">아직 정리 기록이 없습니다(각 프로그램이 매일 새벽에 실행하고, 지울 것이 있을 때만 기록합니다).</p>

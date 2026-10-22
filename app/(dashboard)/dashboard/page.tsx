@@ -12,6 +12,7 @@ export const fetchCache = "force-no-store";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import Badge from "@/components/ui/Badge";
+import RelogAdminButton from "@/components/dashboard/RelogAdminButton";
 import { formatKRW, formatDate, daysRemaining } from "@/lib/utils/format";
 import { getContrastTextColor } from "@/lib/utils/color";
 
@@ -104,6 +105,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
       {searchParams?.notice === "admin_only" && (
         <div role="alert" data-notice="admin-only" className="mb-6 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
           관리자 화면은 관리자 계정으로만 볼 수 있어 내 구독으로 이동했습니다. 지금 로그인한 계정: <b>{user.email}</b>
+          <RelogAdminButton />
         </div>
       )}
       {/* Header */}
