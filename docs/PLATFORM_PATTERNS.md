@@ -773,3 +773,21 @@ API가 있으면 이 항목 자체가 해당 없음 — `naver-cafe-poster` 참�
 - **점검**: 예약·발행 기능을 만들거나 고친 뒤, 그리고 배포 뒤에 `node scripts/check-scheduled-dispatch.mjs`(파일 기준)와 `node scripts/check-scheduled-dispatch.mjs --live`(Vercel 실제 등록 대조)를 돌려 모두 통과해야 완료다. 실패하면 종료 코드 1.
 - **실행 기록 확인**: 일반 `vercel logs`는 함수 출력만 보여 요청이 잡히지 않는다 — `npx vercel logs requests --since 20m --json`으로 해당 주소의 GET 200을 확인한다.
 - **수강생·독립 배포본(Vercel 무료 요금제)**: 하루 1번보다 잦은 cron이 있으면 배포가 실패하므로 키트에는 운영용 `vercel.json`을 넣지 않고 cron-job.org로 안내한다(`scripts/make_lecture_kit.py`).
+
+## 35. 30일 자동 정리 작업은 회원별 정리 기록(`usage_logs` `cleanup_expired`)을 남긴다 (2026-10-22, Claude Code 윈도우)
+
+- **왜**: 정리 작업(매일 새벽 Vercel Cron)이 무엇을 지웠는지 로그를 열지 않고 관리자 첫 화면(시스템 사용량 「DB·저장소」 탭 「30일 자동 정리」 표)과 회원 화면(예: Shots 「이 장면 이미지는 30일이 지나 정리됐습니다」)에서 보게 하려고. DB 칸 추가 없음 — 기존 공용 `usage_logs` 사용. 관리자 통계(`app/admin/statistics`)는 정해진 action만 세므로 사용량이 부풀지 않는다.
+- **현재 적용**: YOUTUBE Shots v1.37(`shots/src/app/api/cron/cleanup-videos/route.ts`, metadata `videos`·`voices`·`covers`·`images`·`segments[]`), AI 썸네일·SEO v1.19(`thumbnail-master/src/app/api/cron/cleanup/route.ts`, `projects`·`images`). 정리 작업이 있는 나머지 약 20개 프로그램은 **다음에 그 프로그램을 손볼 때** 붙인다(일괄 수정 금지 — 공통 개발 방향 「점진 적용」, 작은 수정이면 배포 지침대로 미배포 대기).
+- **붙이는 법(정리 작업 끝에, 미리보기 `?dry=1` 때는 남기지 않음)**:
+  ```ts
+  // 회원별로 1건. quantity = 지운 총수, metadata = 종류별 숫자(배열이면 개수로 합산됨)
+  const { data: program } = await admin.from("programs").select("id").eq("slug", "<이 프로그램 slug>").maybeSingle();
+  for (const [userId, c] of Object.entries(byUser)) {
+    await admin.from("usage_logs").insert({
+      user_id: userId, program_id: program.id, action: "cleanup_expired",
+      quantity: c.images + c.rows, credits_used: 0, metadata: { images: c.images, rows: c.rows },
+    });
+  }
+  ```
+- **이름 규칙**: metadata 칸은 영어 이름(숫자 또는 배열). 관리자 표가 `components/admin/SystemUsageMonitor.tsx` `CLEANUP_LABEL`(영상·음성·표지·이미지·프로젝트·장면 기록)로 한국어로 보여 주므로, 새 이름을 쓰면 그 표에도 한 줄 추가(없으면 영어 이름 그대로 보임).
+- **주의**: 정리 경로는 `CRON_SECRET`이 비었을 때 통과되지 않게 `process.env.CRON_SECRET?.trim()` 확인(ERROR_LESSONS 2026-10-20). 회원 화면에 「정리됨」을 보여 주려면 지운 대상 id를 metadata 배열에 넣는다(Shots `segments`).
