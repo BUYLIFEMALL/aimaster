@@ -25,7 +25,7 @@ export function PhotoKeyCheckButton({ provider }: { provider: "pixabay" | "pexel
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-2 pl-1" data-photo-key-check={provider}>
       <button type="button" onClick={() => void check()} disabled={state.busy} className="whitespace-nowrap rounded-lg border border-[#2f3650] px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-slate-500 disabled:opacity-50">
-        {state.busy ? "확인 중…" : "연결 확인"}
+        {state.busy ? "확인 중…" : `${provider === "pixabay" ? "Pixabay" : "Pexels"} 연결 확인`}
       </button>
       {state.message && <span className={`text-xs ${state.ok ? "text-emerald-400" : "text-rose-400"}`}>{state.ok ? "✅ " : "⚠ "}{state.message}</span>}
     </div>

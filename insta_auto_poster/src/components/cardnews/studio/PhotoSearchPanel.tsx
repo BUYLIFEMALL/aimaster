@@ -73,7 +73,12 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, targ
             </option>
           ))}
         </select>
-        <input aria-label="사진 검색어" className={`${FLEX_INPUT} min-w-0 flex-1 px-2.5 py-1.5 text-xs`} value={query} maxLength={100} placeholder="예: 커피, office, 바다" onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void search()} />
+        <input aria-label="사진 검색어" className={`${FLEX_INPUT} min-w-0 flex-1 px-2.5 py-1.5 text-xs`} value={query} maxLength={100} placeholder="예: 커피, office, 바다" onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
+          // v1.66: 피드 새 글 양식 안에 놓이면 Enter가 「게시물 생성하기」까지 제출하므로 막는다(회원 키 AI 생성·즉시 게시 방지)
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          void search();
+        }} />
         <button type="button" aria-label="사진 검색" disabled={!query.trim() || !!busy} onClick={() => void search()} className={`${BTN_GHOST} shrink-0 px-2.5 py-1.5 text-xs`}>
           {busy === "search" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
         </button>

@@ -68,3 +68,12 @@ test("v1.65: 서로 다른 사진·연결 확인·피드 직접 첨부(JPEG 저�
   assert.match(route, /body\.target === "feed"/);
   assert.match(route, /from\("insta-post-images"\)\.upload\(feedPath, jpeg, \{ contentType: "image\/jpeg"/);
 });
+
+test("v1.66: 사진 검색어 Enter는 바깥 양식(새 글)을 제출하지 않는다", async () => {
+  const { readFileSync } = await import("node:fs");
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /if \(e\.key !== "Enter"\) return;\s*e\.preventDefault\(\);/);
+  // 패널 안 버튼은 모두 type="button"(양식 제출 금지)
+  const buttons = panel.match(/<button\b[^>]*>/g) ?? [];
+  assert.ok(buttons.length > 0 && buttons.every((b) => b.includes('type="button"')));
+});
