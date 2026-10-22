@@ -222,7 +222,7 @@ const MODULES = [
     // 전후 비교 슬라이더 위치 계산(화면 좌표→비율, 키보드 이동, 틀 안 이미지 좌표·색 차이) — 화면 모양은 각 프로그램(2026-10-22)
     id: "compare-slider",
     source: "style-dna-analyzer/src/lib/dna/compare.ts",
-    copies: ["banana-canvas/src/lib/bnc/compare.ts"],
+    copies: ["banana-canvas/src/lib/bnc/compare.ts", "image-convert-studio/src/lib/imageTools/compare.ts"],
   },
   {
     // 외부 라이브러리 없는 ZIP 만들기(저장 방식·UTF-8 파일 이름) — 여러 크기 한 번에 받기(2026-10-22)

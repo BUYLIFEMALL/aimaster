@@ -5,6 +5,7 @@ import { Check, Download, Loader2, Trash2, X, Sliders, Layers, Sparkles, Image a
 import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/engine";
 import { CENTER, MAX_ZOOM, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
 import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
+import { BeforeAfter } from "./BeforeAfter";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -60,6 +61,8 @@ export function ConvertTool() {
   const [flipV, setFlipV] = useState(false);
   const [cropId, setCropId] = useState<CropRatioId>("original");
   const [editingId, setEditingId] = useState<string | null>(null);
+  // v1.16: 전후 비교 창
+  const [comparingId, setComparingId] = useState<string | null>(null);
   const [maxW, setMaxW] = useState(1920);
   const [maxH, setMaxH] = useState(1920);
   const [busy, setBusy] = useState(false);
@@ -194,6 +197,7 @@ export function ConvertTool() {
   const cropActive = !!presetId || cropId !== "original";
   const transformActive = cropActive || rotate !== 0 || flipH || flipV;
   const editing = items.find((i) => i.id === editingId) ?? null;
+  const comparing = items.find((i) => i.id === comparingId && i.result) ?? null;
   const fieldClass = "rounded-xl border border-[#1e293b] bg-[#0d121f] px-3 py-2 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50";
   const btn = "ics-btn inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
 
@@ -547,6 +551,15 @@ export function ConvertTool() {
                         {t.convert.save}
                       </button>
                     )}
+                    {item.result && (
+                      <button
+                        type="button"
+                        className={`${btn} ics-ghost whitespace-nowrap py-1.5 text-[11px]`}
+                        onClick={() => setComparingId(item.id)}
+                      >
+                        {t.convert.compare}
+                      </button>
+                    )}
                     <button
                       type="button"
                       aria-label="remove"
@@ -563,6 +576,23 @@ export function ConvertTool() {
           </div>
         )}
       </section>
+      {/* v1.16: 전후 비교 창 */}
+      {comparing?.result && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t.convert.compareTitle} onClick={() => setComparingId(null)}>
+          <div className="max-h-[94vh] w-full max-w-3xl overflow-auto rounded-2xl border border-[#2a3852] bg-[#111726] p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-bold text-white">{t.convert.compareTitle} — <span className="text-slate-300">{comparing.file.name}</span></h3>
+              <button type="button" aria-label={t.convert.close} className="rounded-lg p-1.5 text-slate-400 hover:bg-[#1e293b] hover:text-white" onClick={() => setComparingId(null)}><X className="h-4 w-4" /></button>
+            </div>
+            {transformActive && <p className="mb-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-200">{t.convert.compareGeomNote}</p>}
+            <BeforeAfter
+              before={comparing.url}
+              after={comparing.result.url}
+              labels={{ before: t.convert.compareBefore, after: t.convert.compareAfter, diff: t.convert.compareDiff, hint: t.convert.compareHint, position: t.convert.comparePosition }}
+            />
+          </div>
+        </div>
+      )}
       {/* v1.13: 자를 위치 편집 창 */}
       {editing && cropActive && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" onClick={() => setEditingId(null)}>

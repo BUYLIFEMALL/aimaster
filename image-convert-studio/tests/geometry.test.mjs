@@ -74,3 +74,14 @@ test("v1.14 확대: 같은 비율로 영역을 1/배율로 줄이고, 배율은 
   assert.equal(Math.round((p.crop.width / p.crop.height) * 1000), 800);
   assert.equal(p.crop.height, 1500);
 });
+
+test("v1.16 전후 비교: 공용 compare-slider 사본과 화면 연결", async () => {
+  const { percentAt, colorDiffPercent } = await import("../src/lib/imageTools/compare.ts");
+  assert.equal(percentAt(150, 100, 200), 25);
+  assert.equal(colorDiffPercent([0, 0, 0], [255, 255, 255]), 100);
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(src, /<BeforeAfter\s+before=\{comparing\.url\}\s+after=\{comparing\.result\.url\}/);
+  const { DICTS } = await import("../src/lib/i18n.ts");
+  for (const d of Object.values(DICTS)) assert.ok(d.convert.compare && d.convert.compareGeomNote && d.convert.close);
+});

@@ -144,3 +144,8 @@
 
 ## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 첫 주소 검색값 넘기기 (다음 배포 때 v1.16)
 - 주인님 지시로 코드만 반영하고 배포는 보류. 첫 주소 `/?preset=story&src=…`가 `/convert`로 넘어갈 때 검색값을 그대로 붙여 넘김(`src/lib/imageTools/convertPath.ts` + `src/app/page.tsx`). 시험 `tests/convertPath.test.mjs` 3개 추가, 전체 34개·tsc·build 통과. 로컬 개발 서버는 DB 접속 설정이 없어 화면 확인 불가 — 배포 후 크롬에서 `/?preset=story`로 확인할 것. 다음 배포 때 버전 v1.16(코드+DB).
+
+## v1.16 (2026-10-22, Claude Code 윈도우) — 「⇆ 전후 비교」 창 + 첫 주소 검색값 넘기기 배포
+- 변환이 끝난 그림마다 「⇆ 전후 비교」 버튼 → 창에서 원본과 변환 결과를 같은 틀(원본 비율, 최대 높이 520px)에 겹쳐 선을 끌어 비교, 선·동그라미 자리의 두 색(HEX)과 색 차이(%) 표시(그림 밖은 「—」). 회전·반전·자르기·규격을 쓴 경우 「같은 자리가 어긋날 수 있음(품질·필터 비교에 알맞음)」 안내. `src/components/tool/BeforeAfter.tsx`, 위치 계산은 공용 기준 코드 `compare-slider` 사본 `src/lib/imageTools/compare.ts`. 문구 ko/en 사전에 추가(`compare*`·`close`).
+- 함께 나감: 보류였던 첫 주소 `/?preset=…&src=…` 검색값 넘기기(`convertPath.ts`).
+- 시험 35개·tsc·build 통과, 배포 Ready, DB v1.16. 크롬: `/?preset=story` → `/convert?preset=story`·결과 1080×1920, 빨강/파랑 시험 그림 변환 후 비교 창·주황 안내·틀 693×520, 24% 자리 결과 「—」, 40% 자리 #E02020→#E1201F 0.3% 확인(AI 없음, 모두 브라우저 안).
