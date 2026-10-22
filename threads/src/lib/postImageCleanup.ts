@@ -1,6 +1,8 @@
 // v1.30 — 글 이미지(post-images/<회원>/) 30일 정리. 주인님 결정(2026-10-23): 「어떤 글에도 쓰이지 않는 파일만」 지운다.
 // 글(posts.image_url, 상태와 상관없이)이 가리키는 파일과 30일이 안 된 파일은 남긴다 — 예약 게시·게시글 관리 미리보기가 깨지지 않게.
 // 저장하지 않고 나간 업로드·무료 사진, 다시 만들기 전 AI 이미지가 대상. 호출처: 하루 1회 자동 실행 /api/cleanup-images.
+// v1.31(주인님 결정 2026-10-23): 게시 완료 후 30일 지난 글은 사진 칸에서 이 버킷 주소를 빼고(본문·Threads 링크·게시 기록은 남김),
+// 그 뒤 같은 「안 쓰이는 파일」 규칙으로 파일을 지운다. 초안·예약·게시 중·실패 글은 손대지 않는다.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
@@ -32,6 +34,16 @@ export function referencedPaths(imageUrls: (string | null | undefined)[]): Set<s
   return out;
 }
 
+/** 게시 완료 30일 지난 글의 새 image_url — 이 버킷 주소만 빼고 다른 주소는 남김(남는 게 없으면 null). 바뀌지 않으면 undefined */
+export function strippedImageUrl(post: { status: string; created_at: string; image_url: string | null }, now = Date.now()): string | null | undefined {
+  if (post.status !== "published" || !post.image_url) return undefined;
+  if (new Date(post.created_at).getTime() >= now - POST_IMAGE_RETENTION_DAYS * DAY) return undefined;
+  const all = post.image_url.split(",").map((u) => u.trim()).filter(Boolean);
+  const kept = all.filter((u) => !postImagePath(u));
+  if (kept.length === all.length) return undefined;
+  return kept.length ? kept.join(",") : null;
+}
+
 /** 지울 파일: 30일 지남 + 어떤 글도 가리키지 않음 */
 export function expiredUnreferenced(files: { path: string; createdAt: string | null }[], used: Set<string>, now = Date.now()): string[] {
   const cutoff = now - POST_IMAGE_RETENTION_DAYS * DAY;
@@ -41,7 +53,19 @@ export function expiredUnreferenced(files: { path: string; createdAt: string | n
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** 모든 회원 폴더를 돌며 정리한다. admin = 서비스 키 클라이언트 */
-export async function cleanupPostImages(admin: SupabaseClient, now = Date.now()): Promise<{ members: number; removed: number; kept: number }> {
+export async function cleanupPostImages(admin: SupabaseClient, now = Date.now()): Promise<{ members: number; removed: number; kept: number; postsCleared: number }> {
+  // 1단계: 게시 완료 30일 지난 글의 사진 칸에서 이 버킷 주소를 뺀다(실패한 글은 그대로 → 그 파일은 아래에서 안 지워짐)
+  const { data: oldPosts, error: oldError } = await admin.from("posts").select("id, status, created_at, image_url").eq("status", "published").not("image_url", "is", null);
+  if (oldError) throw new Error(`posts 읽기 실패: ${oldError.message}`);
+  let postsCleared = 0;
+  for (const post of (oldPosts ?? []) as { id: string; status: string; created_at: string; image_url: string | null }[]) {
+    const next = strippedImageUrl(post, now);
+    if (next === undefined) continue;
+    const { error } = await admin.from("posts").update({ image_url: next }).eq("id", post.id).eq("status", "published");
+    if (!error) postsCleared += 1;
+  }
+
+  // 2단계: 지금 글들이 가리키는 파일을 다시 읽어, 어떤 글에도 쓰이지 않는 30일 지난 파일만 지운다
   const { data: posts, error: postsError } = await admin.from("posts").select("image_url");
   // 글 목록을 못 읽으면 무엇이 쓰이는지 모르므로 아무것도 지우지 않는다
   if (postsError) throw new Error(`posts 읽기 실패: ${postsError.message}`);
@@ -69,5 +93,5 @@ export async function cleanupPostImages(admin: SupabaseClient, now = Date.now())
     }
   }
   await logCleanupUsage(admin, "auto-threads-posting", counts);
-  return { members, removed, kept };
+  return { members, removed, kept, postsCleared };
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PHOTO_PROVIDERS, type Photo, type PhotoProvider } from "@/lib/photoSearch";
+import { toEnglishKeywords } from "@/lib/photoKeywords";
 
 /**
  * v1.29: 글 첨부 이미지에 무료 사진(회원 본인 Pixabay·Pexels 키). 고르면 서버(/api/photos)가 post-images/<회원>/ 에 저장한 주소를 넘긴다.
@@ -14,6 +15,19 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
+  const [translateNote, setTranslateNote] = useState("");
+
+  // v1.31: 한국어 주제 → 사진 검색용 영어 키워드(AI 없이 사전으로)
+  const toEnglish = () => {
+    const source = (query || defaultQuery).trim();
+    const english = toEnglishKeywords(source);
+    if (english) {
+      setQuery(english);
+      setTranslateNote("");
+    } else {
+      setTranslateNote("사전에 없는 말이에요. 검색어를 직접 영어로 적어 주세요(예: coffee, office).");
+    }
+  };
 
   const call = async (body: Record<string, unknown>) => {
     const res = await fetch("/api/photos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -81,11 +95,15 @@ export function FreePhotoPicker({ defaultQuery, disabled, remaining, onPicked }:
           }}
           className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
         />
+        <button type="button" data-photo-english disabled={!!busy || !(query || defaultQuery).trim()} onClick={toEnglish} className="shrink-0 whitespace-nowrap rounded-lg border border-neutral-300 bg-white px-2.5 py-2 text-sm text-neutral-700 hover:bg-neutral-100 disabled:opacity-50">
+          🔤 영어로
+        </button>
         <button type="button" aria-label="사진 검색" disabled={!!busy || !(query || defaultQuery).trim()} onClick={() => void search()} className="shrink-0 whitespace-nowrap rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50">
           {busy === "search" ? "검색 중…" : "검색"}
         </button>
       </div>
       <p className="text-xs text-neutral-500">본인 {provider === "pixabay" ? "Pixabay" : "Pexels"} 키로 검색합니다(무료). 영어로 찾으면 결과가 더 많아요(예: 「커피」 → coffee). 누르면 이미지 목록에 추가됩니다(남은 {remaining}장).</p>
+      {translateNote && <p className="text-xs text-amber-700">{translateNote}</p>}
       {error && (
         <p className="text-xs text-red-600">
           {error.message}
