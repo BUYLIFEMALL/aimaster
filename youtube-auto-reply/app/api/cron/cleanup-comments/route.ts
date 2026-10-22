@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -38,8 +39,13 @@ export async function GET(request: NextRequest) {
     .update({ comment_text: "", author_display_name: null, generated_reply: null })
     .lt("fetched_at", cutoff)
     .neq("comment_text", "")
-    .select("id");
+    .select("id, user_id");
   if (scrubbed.error) return NextResponse.json({ error: scrubbed.error.message }, { status: 500 });
 
-  return NextResponse.json({ expired: expired.data?.length ?? 0, scrubbed: scrubbed.data?.length ?? 0, cutoff });
+  // 30일 정리 기록 — 회원별로 내용을 비운 댓글 수(comments)
+  const counts: CleanupCounts = new Map();
+  for (const r of (scrubbed.data ?? []) as { user_id: string }[]) addCleanupCount(counts, r.user_id, "comments");
+  const loggedOwners = await logCleanupUsage(admin, "youtube-auto-reply", counts);
+
+  return NextResponse.json({ expired: expired.data?.length ?? 0, scrubbed: scrubbed.data?.length ?? 0, cutoff, loggedOwners });
 }

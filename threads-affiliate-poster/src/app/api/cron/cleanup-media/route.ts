@@ -5,6 +5,7 @@ import {
   getMediaRetentionCutoff,
   extractStoragePathFromUrl,
 } from "@/lib/mediaRetention";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,7 +30,7 @@ async function handleCleanup(request: NextRequest) {
   // 1) 30일 이상 지난 게시글 목록 조회
   const { data: expiredPosts, error: fetchError } = await supabase
     .from("tap_posts")
-    .select("id, image_url, video_url, created_at")
+    .select("id, user_id, image_url, video_url, created_at")
     .lt("created_at", cutoff.toISOString());
 
   if (fetchError) {
@@ -82,6 +83,15 @@ async function handleCleanup(request: NextRequest) {
     return NextResponse.json({ error: deleteError.message }, { status: 500 });
   }
 
+  // 30일 정리 기록 — 회원별 지운 글 수(posts)·첨부 파일 수(images)
+  const counts: CleanupCounts = new Map();
+  for (const post of expiredPosts ?? []) {
+    addCleanupCount(counts, post.user_id as string, "posts");
+    const files = [post.image_url, post.video_url].filter(Boolean).join(",").split(",").map((u: string) => u.trim()).filter((u: string) => u && extractStoragePathFromUrl(u));
+    addCleanupCount(counts, post.user_id as string, "images", files.length);
+  }
+  const loggedOwners = await logCleanupUsage(supabase, "threads-affiliate-poster", counts);
+
   return NextResponse.json({
     success: true,
     retentionDays: MEDIA_RETENTION_DAYS,
@@ -89,6 +99,7 @@ async function handleCleanup(request: NextRequest) {
     expiredPostsCount: expiredPosts?.length ?? 0,
     deletedPostsCount: count ?? 0,
     deletedFilesCount: removedFilesCount,
+    loggedOwners,
   });
 }
 

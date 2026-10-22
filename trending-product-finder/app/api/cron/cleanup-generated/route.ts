@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { retentionCutoff, RETENTION_DAYS } from "@/lib/retention";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -36,11 +37,18 @@ export async function GET(request: NextRequest) {
     { table: "trend_snapshots", column: "fetched_at" },
     { table: "shopping_competition", column: "fetched_at" },
   ];
+  const counts: CleanupCounts = new Map();
+  const KEY = { recommendation_reports: "reports", trend_snapshots: "snapshots", shopping_competition: "competition" } as const;
   for (const t of targets) {
-    const { count, error } = await admin.from(t.table).delete({ count: "exact" }).lt(t.column, cutoff);
+    // 지운 행의 user_id를 받아 회원별로 센다(30일 정리 기록)
+    const { data, error } = await admin.from(t.table).delete().lt(t.column, cutoff).select("user_id");
     if (error) errors.push(`${t.table}: ${error.message}`);
-    else result[t.table] = count ?? 0;
+    else {
+      result[t.table] = data?.length ?? 0;
+      for (const r of (data ?? []) as { user_id: string }[]) addCleanupCount(counts, r.user_id, KEY[t.table]);
+    }
   }
+  result.loggedOwners = await logCleanupUsage(admin, "trending-product-finder", counts);
 
   const { count: cleared, error: snapError } = await admin
     .from("trend_watchlist")

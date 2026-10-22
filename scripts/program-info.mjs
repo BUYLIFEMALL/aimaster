@@ -85,6 +85,9 @@ export function cleanupPrograms() {
     try { crons = JSON.parse(readFileSync(vj, "utf8")).crons ?? []; } catch { continue; }
     const paths = crons.map((c) => c.path).filter((p) => /clean|retention|purge|expire/i.test(p));
     if (!paths.length) continue;
+    // 정리 코드에 「cleanup-usage-log: 회원 데이터 아님」 표시가 있으면 회원별 기록 대상이 아니므로 진행률에서 뺀다(2026-10-23)
+    const exempt = paths.some((p) => ["src/app", "app"].some((base) => { const f = join(ROOT, folder, base, p.replace(/^\//, ""), "route.ts"); return existsSync(f) && /cleanup-usage-log: 회원 데이터 아님/.test(readFileSync(f, "utf8")); }));
+    if (exempt) continue;
     const logs = paths.some((p) => {
       const rel = p.replace(/^\//, "");
       for (const base of ["src/app", "app"]) {
