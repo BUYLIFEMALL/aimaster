@@ -5,6 +5,8 @@ import { openAIErrorReason, openAIGenerationParams } from "./openaiRequestParams
 import { getExplicitYears, getKoreaToday } from "./freshness";
 import type { SeoPersona } from "./personas";
 import { factRule, groundingSection, type DraftGrounding } from "./groundingPrompt";
+import { styleSection } from "./stylePrompt";
+import type { StyleProfile } from "../style";
 
 export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
 
@@ -79,7 +81,7 @@ export async function requestDraftJson(apiKey: string, provider: ContentProvider
   return JSON.parse(raw) as Partial<SeoDraft>;
 }
 
-export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions; grounding?: DraftGrounding }): Promise<SeoDraft> {
+export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions; grounding?: DraftGrounding; style?: { name: string; profile: StyleProfile } }): Promise<SeoDraft> {
   if (!/^[\x00-\xFF]*$/.test(params.apiKey)) throw new Error("등록된 OpenAI API 키 형식이 올바르지 않습니다.");
   const today = getKoreaToday();
   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];
@@ -87,7 +89,7 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
   const messages: OpenAiMessage[] = [
         { role: "system", content: `당신은 한국어 네이버 블로그 콘텐츠 편집자입니다. 오늘은 한국 기준 ${today}입니다. ${STRATEGY_GUIDE[params.strategy] ?? STRATEGY_GUIDE["C-Rank 기본"]}
 
-선택한 글쓰기 페르소나는 '${params.persona.name}'입니다. 다음 톤과 관점을 일관되게 반영하세요: ${params.persona.toneDescription}
+선택한 글쓰기 페르소나는 '${params.persona.name}'입니다. 다음 톤과 관점을 일관되게 반영하세요: ${params.persona.toneDescription}${styleSection(params.style)}
 
 검색 의도를 먼저 추론하고, 독자가 실제로 도움을 얻는 자연스러운 초안을 작성하세요. 제목은 25~40자 안팎으로 핵심 키워드를 한 번만 넣습니다. 본문은 다음 규칙을 반드시 지킵니다.
 1. 첫 문단은 검색 의도에 바로 답하는 3~4문장 요약입니다.

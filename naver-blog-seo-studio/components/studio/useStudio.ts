@@ -35,6 +35,7 @@ export function useStudio() {
   const [experienceQuestionPending, setExperienceQuestionPending] = useState(false);
   const [experienceQuestionMessage, setExperienceQuestionMessage] = useState("");
   const [naturalStyle, setNaturalStyle] = useState(false);
+  const [selectedStyleId, setSelectedStyleId] = useState(""); // BLC-08b: 승인한 내 문체(빈 값 = 적용 안 함)
   const [includeFaq, setIncludeFaq] = useState(false);
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
   const [titleEditValue, setTitleEditValue] = useState("");
@@ -103,7 +104,7 @@ export function useStudio() {
     const syncMenuFromHash = () => {
       // 이전에 공유된 #new-draft#new-draft 같은 중복 해시도 지원한다.
       const hashParts = window.location.hash.slice(1).split("#");
-      const menu = hashParts.find((part) => ["dashboard", "title", "new-draft", "research", "draft", "history"].includes(part));
+      const menu = hashParts.find((part) => ["dashboard", "title", "new-draft", "research", "my-style", "draft", "history"].includes(part));
       setActiveMenu(menu ?? "dashboard");
     };
 
@@ -375,7 +376,7 @@ export function useStudio() {
     setPending(true);
     setMessage("AI가 블로그(원문)을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
-      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel, experienceNote, naturalStyle, includeFaq, researchId: overrides?.researchId }) });
+      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel, experienceNote, naturalStyle, includeFaq, researchId: overrides?.researchId, styleId: selectedStyleId || undefined }) });
       const result = await response.json() as { draft?: { id: string; title: string; body: string; seo_report?: Record<string, string> | null; created_at?: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "블로그(원문) 생성에 실패했습니다.");
       const draft = result.draft;
@@ -768,6 +769,8 @@ export function useStudio() {
     setNaturalStyle,
     includeFaq,
     setIncludeFaq,
+    selectedStyleId,
+    setSelectedStyleId,
   };
 }
 

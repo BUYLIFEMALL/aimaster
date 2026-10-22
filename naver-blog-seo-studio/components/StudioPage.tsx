@@ -9,6 +9,7 @@ import { NewDraftView } from "@/components/studio/NewDraftView";
 import { OptimizeView } from "@/components/studio/OptimizeView";
 import { HistoryView } from "@/components/studio/HistoryView";
 import { ResearchView } from "@/components/studio/ResearchView";
+import { StyleView } from "@/components/studio/StyleView";
 
 // 2026-10-17 파일 나누기: 상태·처리 함수는 useStudio, 화면 5개는 components/studio/*View.tsx로 옮김(동작 변경 없음)
 export default function StudioPage({ email }: { email: string }) {
@@ -36,6 +37,8 @@ export default function StudioPage({ email }: { email: string }) {
         {activeMenu === "new-draft" && <NewDraftView s={s} />}
 
         {activeMenu === "research" && <ResearchView s={s} />}
+
+        {activeMenu === "my-style" && <StyleView s={s} />}
 
         {activeMenu === "draft" && <OptimizeView s={s} />}
 

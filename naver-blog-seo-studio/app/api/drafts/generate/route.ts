@@ -7,6 +7,7 @@ import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { isApproved, type GroundPoint, type ResearchSource } from "@/lib/grounding";
 import type { DraftGrounding } from "@/lib/ai/groundingPrompt";
+import { isStyleApproved, type StyleProfile } from "@/lib/style";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ const EXPERIENCE_NOTE_MAX = 1_500;
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown; styleId?: unknown } | null;
   const experienceNote = typeof input?.experienceNote === "string" ? input.experienceNote.trim() : "";
   if (experienceNote.length > EXPERIENCE_NOTE_MAX) return NextResponse.json({ error: `내 실제 경험은 ${EXPERIENCE_NOTE_MAX.toLocaleString("ko-KR")}자 이내로 입력해주세요.` }, { status: 400 });
   const options = { experienceNote: experienceNote || undefined, naturalStyle: input?.naturalStyle === true, includeFaq: input?.includeFaq === true };
@@ -50,6 +51,18 @@ export async function POST(request: Request) {
     grounding = { keyword: research.keyword, angle: research.angle ?? undefined, points };
     groundingRecord = { researchId: research.id, keyword: research.keyword, approvalHash: research.approval_hash, approvedAt: research.approved_at, points };
   }
+  // BLC-08b: 본인 문체 — styleId가 있을 때만. 승인·지문이 맞는 본인 문체만 쓴다(없으면 기존 경로 그대로).
+  let style: { name: string; profile: StyleProfile } | undefined;
+  let styleRecord: Record<string, unknown> | undefined;
+  if (input?.styleId !== undefined) {
+    const styleId = typeof input.styleId === "string" ? input.styleId : "";
+    const { data: row } = styleId ? await supabase.from("naver_blog_seo_styles").select("id, name, profile, approved_at, approval_hash")
+      .eq("id", styleId).eq("user_id", access.user.id).maybeSingle() : { data: null };
+    if (!row) return NextResponse.json({ error: "선택한 내 문체를 찾지 못했습니다. 30일이 지나 삭제됐을 수 있습니다." }, { status: 404 });
+    if (!isStyleApproved(row)) return NextResponse.json({ code: "STYLE_NOT_APPROVED", error: "내 문체를 승인한 뒤 바뀌었거나 아직 승인하지 않았습니다. 「내 문체」에서 다시 승인해주세요." }, { status: 409 });
+    style = { name: row.name, profile: row.profile as StyleProfile };
+    styleRecord = { styleId: row.id, name: row.name, approvalHash: row.approval_hash };
+  }
   const apiKey = await resolveApiKey(supabase, access.user.id, provider);
   if (!apiKey) {
     const label = provider === "anthropic" ? "Claude" : provider === "gemini" ? "Gemini" : "OpenAI";
@@ -57,9 +70,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model: resolveContentModel(provider, input?.model), grounding });
+    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model: resolveContentModel(provider, input?.model), grounding, style });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
-    const seoReport = groundingRecord ? { ...draft.seoReport, grounding: groundingRecord } : draft.seoReport;
+    const seoReport = { ...draft.seoReport, ...(groundingRecord ? { grounding: groundingRecord } : {}), ...(styleRecord ? { style: styleRecord } : {}) };
     const { data: saved, error } = await supabase.from("naver_blog_seo_drafts")
       .insert({ user_id: access.user.id, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: seoReport, status: "ready" })
       .select("id, title, body, seo_report, created_at").single();

@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { CONTENT_PROVIDER_LABELS, CONTENT_PROVIDERS, getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
 import type { GroundPoint, ResearchSource } from "@/lib/grounding";
+import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
 
 type Research = { id: string; keyword: string; sources: ResearchSource[]; points: GroundPoint[]; angle: string | null; approved_at: string | null; approval_hash: string | null; approval_valid?: boolean; created_at: string };
@@ -110,6 +111,7 @@ export function ResearchView({ s }: { s: Studio }) {
         </>}
 
         {approved && <div className="field"><p className="section-description">④ 승인한 근거만 사실로 사용해 「{research.keyword}」 글을 만듭니다. 생성 AI·페르소나·전략은 「새 글 만들기」 설정을 따릅니다. 대표·본문 이미지는 만들지 않으니 필요하면 다음 화면에서 만드세요.</p>
+          <StyleSelect value={s.selectedStyleId} onChange={s.setSelectedStyleId} onManage={() => openMenu("my-style")} />
           <button type="button" className="primary" disabled={Boolean(busy) || pending} onClick={write}>{busy === "write" || pending ? "글을 만드는 중..." : "이 근거로 글 만들기"}</button></div>}
       </>}
 

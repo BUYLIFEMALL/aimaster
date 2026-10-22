@@ -1,5 +1,7 @@
 # 네이버 블로그 SEO 스튜디오 개발 지침
 
+> **v1.85 (2026-10-22) BLC-08b 「내 문체」 운영 반영:** 내 글(공개 RSS·붙여 넣은 표본) → 문체 분석 → 서버 승인(지문) → 새 글·자료부터 집필에서 선택 적용(기본 적용 안 함), 원고 `seo_report.style` 기록. 새 표 `naver_blog_seo_styles`. **남은 문제: 페르소나 말투가 문체보다 우선돼 말투 반영 약함(v1.86 후보, 승인 대기)**. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
+
 > **v1.84 (2026-10-22) BLC-08a 「자료부터 집필」 운영 완료:** 자료 모으기 → 근거 정리(인용 확인) → 서버 승인 → 승인 근거로 글 생성·출처 표시. 기존 새 글·최적화 경로 불변. 새 표 `naver_blog_seo_research`. [플랜](docs/PLAN_20261022_BLC08_GROUNDED_WRITING.md) · [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 
 > **자동 포스팅 v1.83 운영 검수 완료:** [플랜](docs/PLAN_20261021_AUTO_PUBLISH.md) · [최종 인수인계](docs/IMPROVEMENT_HANDOFF_20261021_AUTO_PUBLISH.md). 코드 `a2fe43f9`·운영 Ready·DB/설치 확장/라이브 ZIP 일치. Edge 지정 일반 회원의 비공개 최종 발행 1건·실제 URL/시각 DB 저장·결과 재확인·웹 생성 기록/재열기와, 별도 원고의 웹 전송→확장 전체 미리보기·4단계/복사/516px 검수 완료. 유료 AI 0. 이미지가 포함된 실제 발행·전체공개·예약은 이번 검수 범위 밖입니다. 다음은 티스토리 자동 포스팅입니다.

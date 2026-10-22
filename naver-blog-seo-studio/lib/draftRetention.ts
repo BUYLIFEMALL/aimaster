@@ -66,18 +66,28 @@ export async function purgeExpiredResearch(supabase: SupabaseClient, userId?: st
   return { deleted: error ? 0 : data?.length ?? 0, error };
 }
 
+// BLC-08b (2026-10-22): 본인 문체 자료·분석도 만든 날 기준 30일 뒤 삭제한다.
+export async function purgeExpiredStyles(supabase: SupabaseClient, userId?: string) {
+  let query = supabase.from("naver_blog_seo_styles").delete().lt("created_at", getRetentionCutoff());
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query.select("id");
+  return { deleted: error ? 0 : data?.length ?? 0, error };
+}
+
 export async function purgeExpiredSeoStudioData(supabase: SupabaseClient, userId?: string) {
-  const [drafts, titleRecommendations, research] = await Promise.all([
+  const [drafts, titleRecommendations, research, styles] = await Promise.all([
     purgeExpiredDrafts(supabase, userId),
     purgeExpiredTitleRecommendations(supabase, userId),
     purgeExpiredResearch(supabase, userId),
+    purgeExpiredStyles(supabase, userId),
   ]);
   return {
-    deleted: drafts.deleted + titleRecommendations.deleted + research.deleted,
+    deleted: drafts.deleted + titleRecommendations.deleted + research.deleted + styles.deleted,
     draftsDeleted: drafts.deleted,
     titleRecommendationsDeleted: titleRecommendations.deleted,
     researchDeleted: research.deleted,
-    error: drafts.error ?? titleRecommendations.error ?? research.error,
+    stylesDeleted: styles.deleted,
+    error: drafts.error ?? titleRecommendations.error ?? research.error ?? styles.error,
   };
 }
 

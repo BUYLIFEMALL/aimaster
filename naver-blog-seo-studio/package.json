@@ -14,7 +14,8 @@
     "extension:archive": "node scripts/build-extension-archive.mjs",
     "test:openai-params": "node --test tests/openaiRequestParams.test.mjs",
     "test:auto-publish": "node --test tests/auto-publish.test.mjs tests/auto-publish-controller.test.mjs tests/browser/auto-publish-page.test.mjs",
-    "test:grounding": "node --test tests/grounding.test.mjs"
+    "test:grounding": "node --test tests/grounding.test.mjs",
+    "test:style": "node --test tests/style.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

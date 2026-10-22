@@ -6,6 +6,7 @@ import { GEMINI_IMAGE_MODELS, type GeminiImageModel } from "@/lib/ai/geminiModel
 import { getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
 import { openAIModelBadge, openAIModelNotice, openAIModelTier, openAIModelTierHint } from "@/lib/ai/openaiRequestParams";
 import { strategies } from "./shared";
+import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
 
 export function TitleView({ s }: { s: Studio }) {
@@ -41,6 +42,7 @@ export function TitleView({ s }: { s: Studio }) {
     <input id="custom-persona" value={customPersona} maxLength={500} onChange={(event) => setCustomPersona(event.target.value)} placeholder="예: 30대 초보 창업자에게 차분하게 설명하는 실무 멘토" />
     <small>말투, 독자 대상, 설명 방식 등을 500자 이내로 입력하세요.</small>
   </div>}
+  <StyleSelect value={s.selectedStyleId} onChange={s.setSelectedStyleId} onManage={() => s.openMenu("my-style")} />
   <section className="writing-options" aria-label="글쓰기 선택 사항">
     <div className="field">
       <label htmlFor="experience-note">내 실제 경험 (선택)</label>
