@@ -26,6 +26,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
+import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex } from "@/lib/gifLadder";
 import { GIF_INBOX_PATH, GIF_RECEIVER_ORIGIN, MSG_FILE, isReadyMessage } from "@/lib/gifHandoff";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
@@ -45,6 +46,8 @@ type Job = {
   trimEnd: string;
   // v1.12: 대기 목록에 보여 줄 첫 장면(작은 JPEG data: 주소). 브라우저가 못 읽는 영상은 비어 있고 번호 칸을 보여 준다.
   thumbnail?: string;
+  // v1.15: 세로/가로 비율 — 한 번에 만들기의 메모리 어림에 쓴다(못 읽으면 비어 있음)
+  aspect?: number;
 };
 
 const THUMB_WIDTH = 160;
@@ -53,7 +56,7 @@ const THUMB_WIDTH = 160;
  * 파일의 영상 길이(초)와 첫 장면 썸네일을 브라우저 video 요소로 읽는다. 못 읽은 값은 undefined.
  * 맨 첫 장면은 검은 화면인 경우가 많아 0.1초(짧은 영상은 길이의 절반) 지점을 그린다.
  */
-function readVideoInfo(file: File): Promise<{ duration?: number; thumbnail?: string }> {
+function readVideoInfo(file: File): Promise<{ duration?: number; thumbnail?: string; aspect?: number }> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const video = document.createElement("video");
@@ -61,18 +64,20 @@ function readVideoInfo(file: File): Promise<{ duration?: number; thumbnail?: str
     video.muted = true;
     video.playsInline = true;
     let duration: number | undefined;
+    let aspect: number | undefined;
     let finished = false;
     const done = (thumbnail?: string) => {
       if (finished) return;
       finished = true;
       clearTimeout(timer);
       URL.revokeObjectURL(url);
-      resolve({ duration, thumbnail });
+      resolve({ duration, thumbnail, aspect });
     };
     // 장면을 못 그리는 영상(코덱 미지원 등)에서 멈추지 않게 길이만이라도 돌려준다
     const timer = setTimeout(() => done(), 8000);
     video.onloadedmetadata = () => {
       duration = Number.isFinite(video.duration) ? video.duration : undefined;
+      aspect = video.videoWidth && video.videoHeight ? video.videoHeight / video.videoWidth : undefined;
       video.currentTime = duration ? Math.min(0.1, duration / 2) : 0;
     };
     video.onseeked = () => {
@@ -121,19 +126,7 @@ const STATUS_LABEL: Record<Job["status"], string> = {
 const CORE_VERSION = "0.12.6";
 const CORE_BASE_URL = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${CORE_VERSION}/dist/umd`;
 
-// 화질 단계 사다리 — 원본 해상도부터 시작해서 결과 GIF가 8MiB 밑으로 내려갈 때까지
-// 해상도/색상 수를 단계적으로 낮춘다.
-const CANDIDATES = [
-  { scale: 1, colors: 256 },
-  { scale: 0.94, colors: 256 },
-  { scale: 0.86, colors: 256 },
-  { scale: 0.76, colors: 256 },
-  { scale: 0.68, colors: 224 },
-  { scale: 0.6, colors: 192 },
-  { scale: 0.52, colors: 160 },
-  { scale: 0.45, colors: 128 },
-];
-const MAX_OUTPUT_BYTES = 8 * 1024 * 1024;
+// 화질 단계 사다리(CANDIDATES)·8MiB 상한·건너뛰기 계산은 lib/gifLadder.ts (v1.15)
 
 function formatBytes(bytes: number) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
@@ -175,10 +168,10 @@ export default function ConverterWorkspace() {
     ].slice(0, MAX_FILES));
     // v1.11: 영상 길이를 읽어 구간 입력 옆에 보여 준다(같은 File 객체로 같은 줄을 찾음). v1.12: 첫 장면 썸네일도 함께.
     for (const file of incoming) {
-      void readVideoInfo(file).then(({ duration, thumbnail }) => {
+      void readVideoInfo(file).then(({ duration, thumbnail, aspect }) => {
         if (duration === undefined && thumbnail === undefined) return;
         setJobs((current) =>
-          current.map((j) => (j.file === file ? { ...j, duration, thumbnail } : j))
+          current.map((j) => (j.file === file ? { ...j, duration, thumbnail, aspect } : j))
         );
       });
     }
@@ -303,7 +296,7 @@ export default function ConverterWorkspace() {
     }
     setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "processing", progress: 1 } : j)));
     try {
-      const ffmpeg = await getFFmpeg();
+      let ffmpeg = await getFFmpeg();
       setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, progress: 5 } : j)));
 
       const dotIndex = job.file!.name.lastIndexOf(".");
@@ -311,53 +304,76 @@ export default function ConverterWorkspace() {
       const inputName = `input${ext}`;
       await ffmpeg.writeFile(inputName, await fetchFile(job.file!));
 
-      const onProgress = ({ progress: ratio }: { progress: number }, base: number) => {
-        const clamped = Math.min(1, Math.max(0, ratio));
+      // v1.15: 진행률은 정수로(소수점 긴 숫자가 보이던 문제), 시도마다 25%씩 구간을 준다.
+      const setProgress = (value: number) =>
         setJobs((current) =>
-          current.map((j) => (j.id === job.id ? { ...j, progress: Math.min(99, base + clamped * 5) } : j))
+          current.map((j) => (j.id === job.id ? { ...j, progress: Math.min(99, Math.round(value)) } : j))
         );
+
+      // 변환할 길이(구간을 고른 경우 그 길이) — 한 번에 만들기의 메모리 어림용
+      const startSec = job.trimStart.trim() === "" ? 0 : Number(job.trimStart);
+      const endSec = job.trimEnd.trim() === "" ? job.duration : Number(job.trimEnd);
+      const seconds = endSec !== undefined ? endSec - startSec : undefined;
+
+      const filterBase = (w: number) => `fps=${fps},scale=${w}:-1:flags=lanczos`;
+      // 예전 방식: 색상표 만들기 → GIF 만들기(영상을 두 번 해석)
+      const twoPass = async (w: number, colors: number) => {
+        await ffmpeg.exec([
+          ...trim.args, "-i", inputName,
+          "-vf", `${filterBase(w)},palettegen=max_colors=${colors}:stats_mode=diff`,
+          "palette.png",
+        ]);
+        return ffmpeg.exec([
+          ...trim.args, "-i", inputName, "-i", "palette.png",
+          "-lavfi", `${filterBase(w)} [x]; [x][1:v] paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
+          "output.gif",
+        ]);
       };
+      // v1.15: 한 번에 만들기(영상을 한 번만 해석). 결과 화질은 예전 방식과 같은 필터.
+      const singlePass = (w: number, colors: number) =>
+        ffmpeg.exec([
+          ...trim.args, "-i", inputName,
+          "-lavfi",
+          `${filterBase(w)},split[a][b];[a]palettegen=max_colors=${colors}:stats_mode=diff[p];[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
+          "output.gif",
+        ]);
 
       let outputBytes: Uint8Array | null = null;
-      for (let index = 0; index < CANDIDATES.length; index++) {
+      // v1.15: 결과가 8MiB를 넘으면 넘은 비율로 필요한 단계를 어림해 한 번에 건너뛴다(lib/gifLadder.ts).
+      for (let index = 0, attempt = 0; index !== -1; attempt++) {
         const candidate = CANDIDATES[index];
-        const base = 10 + index * 10;
-        setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, progress: base } : j)));
+        const base = Math.min(85, 10 + attempt * 25);
+        setProgress(base);
         const scaledWidth = Math.max(1, Math.floor(width * candidate.scale));
 
-        const paletteHandler = (e: { progress: number }) => onProgress(e, base);
-        ffmpeg.on("progress", paletteHandler);
-        await ffmpeg.exec([
-          ...trim.args,
-          "-i",
-          inputName,
-          "-vf",
-          `fps=${fps},scale=${scaledWidth}:-1:flags=lanczos,palettegen=max_colors=${candidate.colors}:stats_mode=diff`,
-          "palette.png"
-        ]);
-        ffmpeg.off("progress", paletteHandler);
-
-        const useHandler = (e: { progress: number }) => onProgress(e, base + 5);
-        ffmpeg.on("progress", useHandler);
-        await ffmpeg.exec([
-          ...trim.args,
-          "-i",
-          inputName,
-          "-i",
-          "palette.png",
-          "-lavfi",
-          `fps=${fps},scale=${scaledWidth}:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
-          "output.gif"
-        ]);
-        ffmpeg.off("progress", useHandler);
-
-        const data = await ffmpeg.readFile("output.gif");
-        const bytes = data as Uint8Array;
-        if (bytes.byteLength <= MAX_OUTPUT_BYTES) {
-          outputBytes = bytes;
-          break;
+        const handler = ({ progress: ratio }: { progress: number }) =>
+          setProgress(base + Math.min(1, Math.max(0, ratio)) * 24);
+        ffmpeg.on("progress", handler);
+        try {
+          let code: number | null = null;
+          if (canSinglePass(scaledWidth, job.aspect, fps, seconds)) {
+            try {
+              code = await singlePass(scaledWidth, candidate.colors);
+            } catch {
+              // 메모리 부족 등으로 엔진이 멈추면 새로 불러와 예전 방식으로 다시 만든다.
+              ffmpeg.off("progress", handler);
+              ffmpeg.terminate();
+              ffmpegRef.current = null;
+              loadingRef.current = null;
+              ffmpeg = await getFFmpeg();
+              ffmpeg.on("progress", handler);
+              await ffmpeg.writeFile(inputName, await fetchFile(job.file!));
+            }
+          }
+          if (code !== 0) await twoPass(scaledWidth, candidate.colors);
+        } finally {
+          ffmpeg.off("progress", handler);
         }
+
+        const bytes = (await ffmpeg.readFile("output.gif")) as Uint8Array;
         outputBytes = bytes;
+        if (bytes.byteLength <= MAX_OUTPUT_BYTES) break;
+        index = nextCandidateIndex(index, bytes.byteLength);
       }
 
       await ffmpeg.deleteFile(inputName).catch(() => {});
