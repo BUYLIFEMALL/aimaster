@@ -19,3 +19,14 @@ test("다른 버킷·공개 주소·다른 호스트·http는 받지 않는다",
   assert.equal(importSourceOf(sign("portrait-photo-files").replace("https:", "http:"), SB), null);
   assert.equal(importSourceOf("not a url", SB), null);
 });
+
+test("v1.19 보낸 곳(?via=) 안내·돌아가기", async () => {
+  const { viaSource } = await import("../src/lib/linkMark.ts");
+  assert.equal(viaSource("banana-canvas").url, "https://banana-canvas.buylife.xyz/history");
+  assert.equal(viaSource("evil"), undefined);
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(src, /viaSource\(params\.get\("via"\)\)/);
+  assert.match(src, /data-via-back/);
+});
+

@@ -8,6 +8,7 @@ import { safeName } from "@/lib/storyboard/plan";
 import { STRINGS } from "./i18n";
 import { importSourceOf } from "@/lib/importSource";
 import { SplitEditor } from "./SplitEditor";
+import { viaSource } from "@/lib/linkMark";
 
 type Step = "upload" | "analyze" | "render" | "prompts" | null;
 interface Project {
@@ -72,6 +73,7 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
   const [step, setStep] = useState<Step>(null);
   const [error, setError] = useState<string | null>(null);
   const [importNote, setImportNote] = useState<string | null>(null);
+  const [importVia, setImportVia] = useState<ReturnType<typeof viaSource>>(undefined);
   const [needKey, setNeedKey] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [duration, setDuration] = useState<number>(10);
@@ -103,7 +105,10 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
 
   // 다른 프로그램(AI 바나나 캔버스) 결과를 참고 이미지로 받기(?src=서명 주소, v1.11) — 직접 고른 파일과 같은 pickFile 흐름
   useEffect(() => {
-    const src = new URLSearchParams(window.location.search).get("src");
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get("src");
+    // v1.12: 보낸 프로그램(`?via=`, 공용 `link-mark` 이름표에 있는 것만) — 안내 옆 돌아가기 링크
+    const via = viaSource(params.get("via"));
     if (!src) return;
     window.history.replaceState(null, "", window.location.pathname);
     const from = importSourceOf(src, process.env.NEXT_PUBLIC_SUPABASE_URL);
@@ -116,6 +121,7 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
         const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "png";
         await pickFile(new File([blob], `reference.${ext}`, { type: blob.type }));
         setImportNote(`${from} 결과를 참고 이미지로 넣었습니다. 주제를 적고 스토리보드를 만들어 보세요.`);
+        setImportVia(via);
       } catch {
         setError(`이미지를 불러오지 못했습니다(주소는 1시간 뒤 만료됩니다). ${from}에서 다시 보내 주세요.`);
       }
@@ -266,6 +272,7 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
       {importNote && !error && (
         <div role="status" className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
           {importNote}
+          {importVia && <> <a href={importVia.url} data-via-back className="font-bold underline underline-offset-2 whitespace-nowrap">↩ {importVia.name}로 돌아가기</a></>}
         </div>
       )}
 

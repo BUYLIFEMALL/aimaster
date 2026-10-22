@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isUuid } from "@/lib/bnc/paths";
 import type { OutputItem } from "@/lib/bnc/types";
 import { remove, signUrls } from "@/lib/files";
+import { onceMarkNext, pickAllowed } from "@/lib/bnc/linkMark";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -38,17 +39,13 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   try { body = await request.json(); } catch { return json({ error: "요청 형식이 올바르지 않습니다." }, 400); }
   // v1.27: 처음 다운로드한 시각을 `options.downloadedAt`에 한 번만 남긴다(본인 결과만, 이미 있으면 그대로)
   // v1.28: 다음 단계로 넘긴 곳(형식 바꾸기·스토리보드)도 `options.handoffs.<곳>`에 처음 한 번만
-  const handoff = body.handoff === "convert" || body.handoff === "storyboard" ? body.handoff : null;
+  const handoff = pickAllowed(body.handoff, ["convert", "storyboard"] as const);
   if (body.downloaded === true || handoff) {
     const admin = createAdminClient();
     const { data } = await admin.from("banana_canvas_results").select("options").eq("id", g.id).eq("user_id", g.user.id).maybeSingle();
     if (!data) return json({ error: "결과를 찾을 수 없습니다." }, 404);
-    const options = (data.options ?? {}) as Record<string, unknown>;
-    const handoffs = (options.handoffs && typeof options.handoffs === "object" ? options.handoffs : {}) as Record<string, string>;
-    const now = new Date().toISOString();
-    const next = body.downloaded === true
-      ? (options.downloadedAt ? null : { ...options, downloadedAt: now })
-      : (handoffs[handoff!] ? null : { ...options, handoffs: { ...handoffs, [handoff!]: now } });
+    // 첫 1회만 저장(공용 기준 코드 `link-mark`)
+    const next = onceMarkNext(data.options, body.downloaded === true ? { kind: "download" } : { kind: "handoff", to: handoff! }, new Date().toISOString());
     if (next) {
       const { error } = await admin.from("banana_canvas_results").update({ options: next }).eq("id", g.id).eq("user_id", g.user.id);
       if (error) return json({ error: "저장하지 못했습니다." }, 500);

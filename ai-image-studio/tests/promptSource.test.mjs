@@ -29,8 +29,9 @@ test("v1.27 첫 다운로드·바나나로 보낸 시각 기록", () => {
   assert.match(route, /logId: logIds\[0\] \?\? null/);
   const mark = read("app/api/gallery/mark/route.ts");
   assert.match(mark, /\.eq\("user_id", user\.id\)\.eq\("program_id", AI_IMAGE_STUDIO_PROGRAM_ID\)/);
-  assert.match(mark, /metadata\.downloadedAt \? null/);
-  assert.match(mark, /handoffs\.banana \? null/);
+  // 2026-10-22: 첫 1회만 저장·정해진 값은 공용 `link-mark`(동작 같음)
+  assert.match(mark, /onceMarkNext\(data\.metadata/);
+  assert.match(mark, /pickAllowed\(body\.kind, \["download", "banana"\]/);
   const viewer = read("components/ImageResultViewer.tsx");
   assert.match(viewer, /markLog\(logId, "download"\)/);
   assert.match(viewer, /markLog\(logId, "banana"\)/);

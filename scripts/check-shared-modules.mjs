@@ -231,6 +231,12 @@ const MODULES = [
     copies: ["banana-canvas/src/lib/bnc/compare.ts", "image-convert-studio/src/lib/imageTools/compare.ts", "portrait-photo/src/lib/portrait/compare.ts"],
   },
   {
+    // 프로그램 사이 연계 기록(정해진 값만·첫 1회만 저장·화면 한 번만 보내기)과 받는 쪽 보낸 곳 이름표 `?via=`(2026-10-22)
+    id: "link-mark",
+    source: "banana-canvas/src/lib/bnc/linkMark.ts",
+    copies: ["ai-image-studio/lib/linkMark.ts", "image-convert-studio/src/lib/linkMark.ts", "cinematic-storyboard-studio/src/lib/linkMark.ts"],
+  },
+  {
     // 바나나 캔버스 「이미지 생성」 아이디어 칸으로 보내는 주소(`/studio?idea=`·600자 한도·보낸 곳 `src`) — 문구는 각 프로그램(2026-10-22)
     id: "banana-idea-link",
     source: "style-dna-analyzer/src/lib/dna/bananaIdeaLink.ts",

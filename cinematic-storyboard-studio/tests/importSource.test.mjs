@@ -11,3 +11,14 @@ test("바나나 버킷 서명 주소만 받는다", () => {
   assert.equal(importSourceOf("https://evil.example.com/storage/v1/object/sign/banana-canvas-files/a.png", SB), null);
   assert.equal(importSourceOf("x", SB), null);
 });
+
+test("v1.12 보낸 곳(?via=) 안내·돌아가기", async () => {
+  const { viaSource } = await import("../src/lib/linkMark.ts");
+  assert.equal(viaSource("banana-canvas").name, "바나나 캔버스");
+  assert.equal(viaSource("x"), undefined);
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/studio/StudioWorkspace.tsx", import.meta.url), "utf8");
+  assert.match(src, /viaSource\(params\.get\("via"\)\)/);
+  assert.match(src, /data-via-back/);
+});
+

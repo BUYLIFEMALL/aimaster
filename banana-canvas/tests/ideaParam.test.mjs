@@ -81,7 +81,8 @@ test("v1.27 인페인트·컷 다시도 출처 유지, 상세 창 보낸 곳, �
   const route = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
   assert.match(route, /downloadedAt/);
   // v1.28: 다운로드·넘김 공통 처리로 모양만 바뀜 — 이미 있으면 다시 쓰지 않음
-  assert.match(route, /options\.downloadedAt \? null/);
+  // v1.29: 첫 1회만 저장은 공용 `link-mark`의 onceMarkNext로(동작 같음)
+  assert.match(route, /onceMarkNext\(data\.options/);
 });
 
 test("v1.28 다음 단계로 넘김 기록(형식 바꾸기·스토리보드)", () => {
@@ -89,6 +90,25 @@ test("v1.28 다음 단계로 넘김 기록(형식 바꾸기·스토리보드)", 
   assert.match(studio, /markHandoff\(result\.id, "convert"\)/);
   assert.match(studio, /markHandoff\(result\.id, "storyboard"\)/);
   const route = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
-  assert.match(route, /body\.handoff === "convert" \|\| body\.handoff === "storyboard"/);
-  assert.match(route, /handoffs\[handoff!\] \? null/);
+  assert.match(route, /pickAllowed\(body\.handoff, \["convert", "storyboard"\]/);
 });
+
+test("v1.29 공용 link-mark — 정해진 값·첫 1회·한 번만 보내기·via", async () => {
+  const { pickAllowed, onceMarkNext, createOnceSender, viaSource, withVia } = await import("../src/lib/bnc/linkMark.ts");
+  assert.equal(pickAllowed("convert", ["convert", "storyboard"]), "convert");
+  assert.equal(pickAllowed("evil", ["convert"]), null);
+  const now = "2026-10-22T00:00:00.000Z";
+  assert.deepEqual(onceMarkNext({ a: 1 }, { kind: "download" }, now), { a: 1, downloadedAt: now });
+  assert.equal(onceMarkNext({ downloadedAt: "x" }, { kind: "download" }, now), null);
+  assert.deepEqual(onceMarkNext(null, { kind: "handoff", to: "convert" }, now), { handoffs: { convert: now } });
+  assert.equal(onceMarkNext({ handoffs: { convert: "x" } }, { kind: "handoff", to: "convert" }, now), null);
+  assert.deepEqual(onceMarkNext({ handoffs: { convert: "x" } }, { kind: "handoff", to: "storyboard" }, now), { handoffs: { convert: "x", storyboard: now } });
+  let n = 0; const once = createOnceSender(); once("k", () => n++); once("k", () => n++); once("j", () => n++);
+  assert.equal(n, 2);
+  assert.equal(viaSource("banana-canvas").name, "바나나 캔버스");
+  assert.equal(viaSource("toString"), undefined);
+  assert.equal(withVia("https://x/convert?src=a", "banana-canvas"), "https://x/convert?src=a&via=banana-canvas");
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.equal((studio.match(/, "banana-canvas"\)\}/g) ?? []).length, 2);
+});
+

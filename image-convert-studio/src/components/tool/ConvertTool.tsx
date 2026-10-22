@@ -22,6 +22,7 @@ import { fmt } from "@/lib/i18n";
 import { Dropzone } from "./Dropzone";
 import { importSourceOf } from "@/lib/importSource";
 import { useLang } from "./LangProvider";
+import { viaSource } from "@/lib/linkMark";
 
 type Status = "idle" | "working" | "done" | "error";
 interface Item {
@@ -112,11 +113,14 @@ export function ConvertTool() {
   // 다른 프로그램 「형식 바꾸기」로 넘어온 결과(?src=서명 주소)를 목록에 넣는다(v1.09 바나나 캔버스, v1.10 AI 인물사진·AI 4컷 만화).
   // 허용 버킷은 lib/importSource.ts. 처리는 지금처럼 브라우저 안에서만.
   const [importNote, setImportNote] = useState("");
+  // v1.19: 보낸 프로그램(`?via=`, 공용 `link-mark` 이름표에 있는 것만) — 안내 옆 돌아가기 링크
+  const [importVia, setImportVia] = useState<ReturnType<typeof viaSource>>(undefined);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const src = params.get("src");
     // v1.13: 보낸 프로그램이 게시처 규격도 함께 넘기면(?preset=insta-portrait) 미리 골라 둔다
     const pre = presetFromParam(params.get("preset"));
+    const via = viaSource(params.get("via"));
     if (pre) setPresetId(pre.id);
     if (!src) return;
     window.history.replaceState(null, "", window.location.pathname);
@@ -130,6 +134,7 @@ export function ConvertTool() {
         const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "png";
         addFiles([new File([blob], `${from.replace(/\s+/g, "-")}-result.${ext}`, { type: blob.type })]);
         setImportNote(`${from} 결과를 목록에 넣었습니다. 형식과 크기를 고른 뒤 변환하세요.`);
+        setImportVia(via);
       } catch {
         setImportNote(`이미지를 불러오지 못했습니다(주소가 1시간 뒤 만료됩니다). ${from}에서 다시 「형식 바꾸기」를 눌러 주세요.`);
       }
@@ -270,7 +275,12 @@ export function ConvertTool() {
     <div className="space-y-6">
       {/* 1. 드롭존 섹션 */}
       <section className="rounded-2xl border border-[#1e293b] bg-[#111726] p-4 sm:p-5 shadow-sm">
-        {importNote && <p role="status" className="mb-3 rounded-lg border border-amber-300/40 bg-amber-50/10 px-3 py-2 text-sm">{importNote}</p>}
+        {importNote && (
+          <p role="status" className="mb-3 rounded-lg border border-amber-300/40 bg-amber-50/10 px-3 py-2 text-sm" data-import-via={importVia?.key ?? ""}>
+            {importNote}
+            {importVia && <> <a href={importVia.url} data-via-back className="font-bold underline underline-offset-2 whitespace-nowrap">↩ {importVia.name}로 돌아가기</a></>}
+          </p>
+        )}
         <Dropzone currentCount={items.length} label={t.dropzone.convert} onFiles={addFiles} />
       </section>
 

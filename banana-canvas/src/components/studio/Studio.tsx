@@ -16,6 +16,7 @@ import type { ComicPreset, EditPreset, Preset, RestorePreset } from "@/lib/bnc/p
 import { checkImageFile } from "@/lib/imageFileCheck";
 import { presetIdForSize } from "@/lib/bnc/postPresets";
 import { percentAt } from "@/lib/bnc/compare";
+import { withVia } from "@/lib/bnc/linkMark";
 
 // 이미지 변환 스튜디오(브라우저 처리)로 결과를 넘겨 형식·크기를 바꾼다(v1.14)
 const CONVERT_URL = "https://image-convert-studio.buylife.xyz/convert";
@@ -601,8 +602,8 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
                           <button type="button" onClick={() => { void saveImage(o.url!, `banana_${result.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`); markDownloaded(result.id); }}><Download size={13} />다운로드</button>
                           <button type="button" onClick={() => setZoom(o.url)}><Maximize2 size={13} />크게 보기{o.w ? ` (${o.w}×${o.h})` : ""}</button>
                           <button type="button" onClick={() => useAsBase(o)}><RefreshCw size={13} />이 결과로 계속 편집</button>
-                          <a className="button" href={`${CONVERT_URL}?src=${encodeURIComponent(o.url)}${convertPreset(o.w, o.h)}`} target="_blank" rel="noopener noreferrer" onClick={() => markHandoff(result.id, "convert")}>🔁 형식 바꾸기(WebP·PNG·JPG)</a>
-                          <a className="button" href={`${STORYBOARD_URL}?src=${encodeURIComponent(o.url)}`} target="_blank" rel="noopener noreferrer" onClick={() => markHandoff(result.id, "storyboard")} title="이 결과로 9컷 영화 스토리보드·영상 프롬프트 만들기(시네마틱 스토리보드)">🎬 스토리보드로</a>
+                          <a className="button" href={withVia(`${CONVERT_URL}?src=${encodeURIComponent(o.url)}${convertPreset(o.w, o.h)}`, "banana-canvas")} target="_blank" rel="noopener noreferrer" onClick={() => markHandoff(result.id, "convert")}>🔁 형식 바꾸기(WebP·PNG·JPG)</a>
+                          <a className="button" href={withVia(`${STORYBOARD_URL}?src=${encodeURIComponent(o.url)}`, "banana-canvas")} target="_blank" rel="noopener noreferrer" onClick={() => markHandoff(result.id, "storyboard")} title="이 결과로 9컷 영화 스토리보드·영상 프롬프트 만들기(시네마틱 스토리보드)">🎬 스토리보드로</a>
                         </div>
                       )}
                     </figure>
