@@ -214,6 +214,12 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 변환 스튜디오 v1.12 F3 게시처 규격·회전·반전·비율 자르기 · AI 웹툰 v1.30 컷 첨부 안내 · 카탈로그 공통 버튼 후보 등록
+- F3: 규격 6종(인스타 피드·세로·스토리, 유튜브 썸네일, 블로그·카톡 공유, 스마트스토어 상품)·회전·반전·가운데 자르기를 브라우저 엔진에 추가. 실화면에서 반전 방향 버그(rotate 뒤 scale) 발견·수정(배포 2회, 승인 범위). 크롬에서 1080×1350·방향 확인. `docs/ERROR_LESSONS.md`에 교훈 2건.
+- 웹툰 v1.30: 캐릭터 미리보기 아래 컷 첨부 여부 안내(✓/⚠), 크롬에서 ✓ 확인.
+- `docs/DESIGN_TEMPLATE_CATALOG.md` §7-3에 「그라데이션 글로우 버튼」 공통 컴포넌트 후보(규칙·대비 기준·옮기는 법) 등록.
+- 프로그램: https://image-convert-studio.buylife.xyz · https://ai-webtoon-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 그라데이션 글로우 버튼 이식: 감성 글귀 v1.20(로즈) · 이미지 변환 스튜디오 v1.11(바이올렛)
 - 주인님 결정: 「나노바나나 크림 팝」 템플릿 전체가 아니라 바나나 v1.21의 버튼 방식만 각 프로그램 색으로(각 템플릿 유지). 감성 글귀는 CSS 맨 끝 덧입힘, 변환 스튜디오는 Tailwind 클래스 유지 + `ics-*` 클래스 덧붙임.
 - 검수: 시험 24·23개·build, 배포 각 1회 Ready, DB v1.20·v1.11, 크롬 화면 확인, 흰 글자 대비 4.5:1 이상.
