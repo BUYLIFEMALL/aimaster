@@ -9,6 +9,7 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scrip
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
 import { takeRefHandoff } from "@/lib/refHandoff";
+import { refBlockHeader, refBlocks, removeRefBlock } from "@/lib/refBlocks";
 
 // v1.31 참고 자료와 그대로 겹치는 장면 표시(브라우저 안에서 다시 검사 — 고치면 바로 사라짐)
 const COPY_STYLE = { outline: "2px solid #f5c542", outlineOffset: 2, borderRadius: 12 } as const;
@@ -49,8 +50,7 @@ export function TopicView() {
     // v1.34 보낸 프로그램 이름이 있으면 머리말·안내에 표시(회원이 여러 프로그램을 오갈 때 출처 구분)
     const { text: handoff, from } = takeRefHandoff(window.location.hash);
     if (handoff) {
-      const source = from ? `${from}에서 넘겨받은 레퍼런스 쇼츠` : "넘겨받은 레퍼런스 쇼츠";
-      const block = `[레퍼런스 쇼츠 대본 — 「${source}」에서 실제로 말한 내용, 그대로 베끼지 말고 구성·후킹만 참고]\n${handoff}`;
+      const block = `${refBlockHeader(from || "다른 프로그램")}\n${handoff}`;
       setReference((cur) => (cur.trim() ? `${cur.trim()}\n\n${block}` : block).slice(0, 12000));
       setMode("ai");
       setMsg({ text: `${from ? `「${from}」` : "다른 프로그램"}에서 넘긴 쇼츠 대사를 참고 자료에 넣었습니다. 주제를 고르고 대본을 만들면 흐름만 참고하고 문장은 새로 씁니다.`, ok: true });
@@ -81,7 +81,7 @@ export function TopicView() {
       if (!reel.audio) { setMsg({ text: "이 영상에서 소리를 읽지 못했습니다. mp4(H.264·AAC) 영상으로 다시 시도해 주세요." }); return; }
       setBusy(`말소리를 받아쓰는 중… (${reel.audio.seconds}초 분량, 보통 10~30초)`);
       const r = await api<{ transcript: string }>("/api/ai/transcribe", { body: { audio: { mimeType: reel.audio.mimeType, data: reel.audio.data } } });
-      const block = `[레퍼런스 쇼츠 대본 — 「${file.name}」에서 실제로 말한 내용, 그대로 베끼지 말고 구성·후킹만 참고]\n${r.transcript}`;
+      const block = `${refBlockHeader(file.name)}\n${r.transcript}`;
       setReference((cur) => (cur.trim() ? `${cur.trim()}\n\n${block}` : block).slice(0, 12000));
       setMsg({ text: `「${file.name}」의 말소리를 받아써 참고 자료에 넣었습니다. 주제를 고르고 대본을 만들면 이 흐름을 참고합니다.`, ok: true });
     } catch (e) {
@@ -157,7 +157,19 @@ export function TopicView() {
               <div className="chips">{CATEGORIES.map((c) => <button key={c} type="button" className={`chip ${category === c ? "on" : ""}`} onClick={() => { setCategory(c); setTopics([]); }}>{CAT_EMOJI[c]} {c}</button>)}</div>
               <div className="grid2">
                 <label>내 키워드·아이디어 (선택)<input value={seed} maxLength={200} onChange={(e) => setSeed(e.target.value)} placeholder="예: 직장인 아침 루틴, 40대 다이어트" /></label>
-                <label>참고 자료 (선택 — 기사·메모를 붙여넣거나 파일로)<textarea rows={2} value={reference} maxLength={12000} onChange={(e) => setReference(e.target.value)} placeholder="이 내용을 근거로 주제·대본을 씁니다." /></label>
+                <label>참고 자료 (선택 — 기사·메모를 붙여넣거나 파일로)
+                  {/* v1.35 레퍼런스 쇼츠 블록마다 출처·글자 수·빼기(회원 메모는 그대로) */}
+                  {refBlocks(reference).length > 0 && (
+                    <span className="row" style={{ gap: 6, flexWrap: "wrap", fontWeight: 500 }}>
+                      {refBlocks(reference).map((b, i) => (
+                        <span key={i} className="badge brand" style={{ whiteSpace: "nowrap" }}>
+                          🎬 출처 {b.source || "알 수 없음"} · 대사 {b.chars.toLocaleString()}자{" "}
+                          <button type="button" className="link-button" onClick={(e) => { e.preventDefault(); setReference((cur) => removeRefBlock(cur, i)); }}>✕ 빼기</button>
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                  <textarea rows={2} value={reference} maxLength={12000} onChange={(e) => setReference(e.target.value)} placeholder="이 내용을 근거로 주제·대본을 씁니다." /></label>
               </div>
               <div className="row">
                 <label className="button" style={{ fontWeight: 600 }}>📄 파일 불러오기<input type="file" accept=".txt,.md,.markdown,.csv,.json" hidden onChange={(e) => void readFile(e.target.files?.[0])} /></label>

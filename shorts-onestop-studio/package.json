@@ -6,7 +6,7 @@
     "dev": "next dev -p 3066",
     "build": "next build",
     "start": "next start",
-    "test": "node --test tests/video.test.ts tests/reference.test.ts"
+    "test": "node --test tests/video.test.ts tests/reference.test.ts tests/refBlocks.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
