@@ -24,33 +24,20 @@ if (versionOnly && args.includes("--all")) {
   const { readdirSync } = await import("node:fs");
   const { appVersion, programSlug, rest, slugFromPrograms } = await import("./program-info.mjs");
   const programs = await rest("programs?select=slug,version,app_url");
-  const off = [], skipped = [];
-  let checked = 0;
+  const off = [];
+  let checked = 0, skipped = 0;
   for (const d of readdirSync(ROOT).sort()) {
     if (!existsSync(join(ROOT, d, ".vercel", "project.json"))) continue;
     const ver = appVersion(d);
     const slug = programSlug(d) ?? slugFromPrograms(d, programs);
     const row = programs.find((p) => p.slug === slug);
-    if (!ver || !row) { skipped.push(`${d}(${!ver ? "버전 파일 없음" : `DB 프로그램 없음${slug ? ` — slug ${slug}` : ""}`})`); continue; }
+    if (!ver || !row) { skipped += 1; continue; }
     checked += 1;
     if (row.version !== ver) off.push(`  ⚠ ${d} (${slug}): 화면 ${ver} · DB ${row.version}`);
   }
-  console.log(`[버전 전체 비교] 비교 ${checked}개 · 어긋남 ${off.length}개 · 건너뜀 ${skipped.length}개`);
+  console.log(`[버전 전체 비교] 비교 ${checked}개 · 어긋남 ${off.length}개 · 건너뜀 ${skipped}개(버전 파일 또는 DB 프로그램 없음)`);
   for (const l of off) console.log(l);
   if (off.length) console.log("  맞추기(폴더 하나씩, 그 폴더를 맡은 세션이 없을 때만): node scripts/deploy.mjs <폴더> --version-only --set-version");
-  if (skipped.length) console.log(`  건너뜀: ${skipped.join(", ")}`);
-
-  // 역량 지도(docs/PROGRAM_CAPABILITY_MAP.md) 목록 표의 버전 칸 ↔ DB 운영 버전(지도 갱신 누락 찾기)
-  const map = readFileSync(join(ROOT, "docs", "PROGRAM_CAPABILITY_MAP.md"), "utf8").replace(/\r\n/g, "\n");
-  const mapOff = [];
-  let mapRows = 0;
-  for (const m of map.matchAll(/^\| \d+ \| [^|]+\| `([^`]+)` \|[^|]+\| (v\d+\.\d{2}) \|/gm)) {
-    mapRows += 1;
-    const row = programs.find((p) => p.slug === m[1]);
-    if (row && row.version && row.version !== m[2]) mapOff.push(`  ⚠ ${m[1]}: 지도 ${m[2]} · DB ${row.version}`);
-  }
-  console.log(`[역량 지도 버전 칸] 목록 ${mapRows}줄 · DB와 다름 ${mapOff.length}개`);
-  for (const l of mapOff) console.log(l);
   process.exit(0);
 }
 
