@@ -39,7 +39,8 @@
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-mastering-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `infinite-loop-video` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `infinite-loop-video/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
-| `music-video-studio` (운영 v1.12) | 장면 화면 루프 버튼 「On (8s)」→「On」(Omni Flash는 8초 고정 없음) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, 장면 화면 루프 버튼 문구 확인 |
+| `ai-image-studio` | 공용 `ai-video-*` 사본 전환(기준이 ai-video-studio로 이전) — 머리 주석·선택값 추가, **화면에서 안 쓰는 파일이라 동작 불변** | `cea11442a`·`6c02ccf41` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `ai-video-*` | 버전 +0.01 |
+| `music-video-studio` (운영 v1.12) | 장면 화면 루프 버튼 「On (8s)」→「On」(Omni Flash는 8초 고정 없음) · 공용 `ai-video-*` 사본 머리 주석(기준 이전, 동작 불변) `6c02ccf41` | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, 장면 화면 루프 버튼 문구 확인 |
 | `shots` | 공용 사본 `ai-video-providers` 동기화 — 선택값 `aspectRatio`·글만 생성(Gemini) 추가, 기본값 그대로라 **동작 불변** | `cea11442a` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `ai-video-providers` | 버전 +0.01, 장면 영상 1회(9:16) 확인 |
 | `shorts-onestop-studio` | 공용 사본 `ai-video-providers` 동기화 — 위와 같음(동작 불변, 영상 시험 13개 통과) | `cea11442a` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `ai-video-providers` | 버전 +0.01, 장면 영상 1회(9:16) 확인 |
 | `naver-cafe-poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `naver-cafe-poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |

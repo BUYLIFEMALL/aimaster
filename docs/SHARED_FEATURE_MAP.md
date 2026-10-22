@@ -137,6 +137,17 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | shorts-onestop-studio | `src/lib/youtube/client.ts` | 🔵 사본 | v1.19, 브라우저 MP4 → 재개 가능 업로드 |
 | playlist-channel-studio(영상 만들기) | — | ⚪ 후보 | 같은 브라우저 MP4라 그대로 붙일 수 있음 |
 
+## 11-1. AI 영상 생성 연동 — 공용 모듈 `ai-video-models`·`ai-video-parse`·`ai-video-providers` (기준: **AI 영상 스튜디오**, 2026-10-23 이전)
+
+AI 영상 모델(Gemini Omni Flash·fal·Replicate)의 제출→상태 확인→영상 받기는 **AI 영상 스튜디오(`ai-video-studio/lib/video/`)를 기준**으로 하고 나머지는 사본(이미지 연동 = ai-image-studio와 같은 방식). 공용은 모델·단가·호출·대기·결과 받기까지, **영상 프롬프트는 프로그램마다 따로**. 선택값: `aspectRatio`(기본 9:16), `startUrl` 생략=글만(Gemini만). 재시도 없음(이중 과금 방지).
+
+| 프로그램 | 파일 | 상태 | 비고 |
+|---|---|---|---|
+| ai-video-studio | `lib/video/videoModels.ts`·`videoParse.ts`·`videoProviders.ts` | 🟢 기준 | v1.01 영상 생성 작업실·갤러리(실생성 Gemini·fal 확인) |
+| ai-image-studio | `lib/video/*` | 🔵 사본 | 2026-10-23까지 기준이었음(화면 미사용) |
+| shots · shorts-onestop-studio | `src/lib/video/*` · `src/lib/video*.ts` | 🔵 사본 | 장면 영상 9:16 |
+| music-video-studio | `src/lib/video/*` | 🔵 사본 | v1.12 Veo 종료 대응, 16:9·글만·루프 |
+
 ## 12. 브라우저 MP4 만들기 — 공용 모듈 `browser-mp4-encoder` (2026-10-21 등록, 엔진 공유 2번)
 
 영상 합성을 서버가 아니라 회원 브라우저(WebCodecs)에서 해 합성 요금·서버 시간이 없다. 공용은 인코딩·MP4 묶기·소리 섞기까지이고, 장면을 어떻게 그릴지(`drawFrame`)·어떤 소리를 넣을지는 각 프로그램이 정한다. 완성 MP4를 서버에 보낼 때는 Vercel 4.5MB 한도 때문에 저장소 서명 업로드 주소로 브라우저가 직접 올린다(Shots `shots-videos`).

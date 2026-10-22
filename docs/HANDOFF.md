@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 영상 스튜디오 v1.01 1차-가 신규 개발·배포 (빌드 2회 · 영상 생성 시험 2회 약 $0.75 · 썸네일 1회 · 시험 계정 본인 키)
+- 새 프로그램 `ai-video-studio/`(이름 「AI 영상 스튜디오」 주인님 확정, 영상 연동 레퍼런스). 뼈대 = AI 음악 스튜디오(작업 표·잠금·갤러리·30일 정리), 화면 = 이미지 스튜디오식 Step1(설명·화풍·카메라)·Step2(플랫폼→모델→옵션·시작/끝 사진). 공용 `ai-video-*` **기준을 ai-image-studio → ai-video-studio로 이전**(사본 주석만 바뀜, 미배포 대기).
+- DB(운영 esgxyikcnnvmlhygjkth, 크롬 SQL 편집기): `avs_generations`(RLS)·비공개 버킷 `ai-video-studio`·programs(v1.01·요금제 3·VIP 자동 부여·시험 계정)·썸네일. Vercel 프로젝트·도메인·환경변수 5개.
+- 검수: 시험 6·tsc·build, 크롬 시험 계정 실생성 — Gemini 글만 5초 16:9 → 5.01초 2.0MB / fal Seedance 사진→영상 5초 → 5.04초 6.5MB, 갤러리·내려받기, 390px(iframe). 관찰: 첫 배포에서 fal 요청 2회 「키 없음」 400(원인 미확정, 기록 장치 추가 후 성공) — `ai-video-studio/docs/IMPROVEMENTS.md`.
+- 다음: 1차-나(fal 새 모델 5종) → 2차 편집·합치기. 플랜 `ai-video-studio/docs/PLAN_20261023_AI_VIDEO_STUDIO.md`.
+- 프로그램: https://ai-video-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 shop-detail-page v1.29 배포 (맥미니 v1.29 마무리)
 - 맥미니 커밋 `2601629aa`(회원 점검 급한 것 5건): 사본 일치·tsc·build → DB v1.29 → 배포 READY → 크롬 `/products`에 v1.29·상품 목록 맨 위·매뉴얼 접힘 확인.
 - 못 한 것: 상품 상세 버튼 문구·두 번 누름 확인·비용 안내·500px 폭 — **맥미니 세션께**: 배포 끝, 맥미니 크롬 실검수 부탁드립니다(AI 버튼은 누르지 않음).
