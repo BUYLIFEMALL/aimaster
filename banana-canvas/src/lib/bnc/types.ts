@@ -1,3 +1,4 @@
+import type { BananaSource } from "./bananaIdeaLink";
 export type Kind =
   | "generate" | "edit" | "synthesis" | "bgremove" | "inpaint" | "idphoto" | "floorplan"
   | "lifealbum" | "comic" | "story" | "recipe" | "restore" | "graphic" | "expand";
@@ -50,6 +51,8 @@ export interface RunParams {
   languages?: string[];
   imageSize?: ImageSize;
   maintainSubject?: boolean;
+  /** v1.25: 다른 프로그램이 보낸 아이디어로 만든 생성의 보낸 곳(공용 이름표에 있는 이름만, 기록 `options.ideaSource`) */
+  ideaSource?: BananaSource;
 }
 
 export interface OutputItem { path: string; mime: string; w: number; h: number; text?: string }

@@ -4,7 +4,7 @@ import { BookmarkPlus, Download, ImageIcon, Loader2, RefreshCw, Star, Trash2 } f
 import { KIND_LABEL, type Kind } from "@/lib/bnc/types";
 import { PRESET_KIND_LABEL, isPresetKind, presetFromRecord } from "@/lib/bnc/presets";
 
-interface Row { id: string; kind: Kind; title: string; prompt: string; model: string; favorite: boolean; created_at: string; count: number; cover: string | null }
+interface Row { id: string; kind: Kind; title: string; prompt: string; model: string; favorite: boolean; created_at: string; count: number; cover: string | null; ideaSource?: string | null }
 interface Out { path: string; url: string | null; text?: string; mime?: string }
 interface Detail { id: string; outputs: Out[]; kind: Kind; options: unknown; prompt: string }
 
@@ -107,7 +107,7 @@ export function HistoryList() {
             <div key={r.id} className="project-card">
               <div className="bc-cover" onClick={() => void show(r)}>{r.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" /> : <ImageIcon size={28} />}</div>
               <h3>{KIND_LABEL[r.kind] ?? r.kind}{r.title ? ` · ${r.title}` : ""}</h3>
-              <small>{r.count}장 · {when(r.created_at)}</small>
+              <small>{r.count}장 · {when(r.created_at)}{r.ideaSource && <span className="bc-src" data-history-source title="다른 프로그램이 보낸 아이디어로 만든 결과"> · 🔗 {r.ideaSource}</span>}</small>
               <div className="actions">
                 <button type="button" className="primary" onClick={() => void show(r)}>열기</button>
                 <a className="button" href={`/studio?from=${r.id}`}>이어서 편집</a>

@@ -2,6 +2,7 @@ import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, ImageSize, Kind, 
 import { GRAPHIC_LANGUAGES, GRAPHIC_STYLES, templateById } from "./graphicTemplates";
 import { ASPECTS, KINDS, MAX_SOURCES } from "./types";
 import { PROCESSES, STYLES, categoryById, processById, styleById } from "./styles";
+import { isBananaSource } from "./bananaIdeaLink";
 import {
   BGREMOVE_PROMPT, IDPHOTO_PROMPT, INPAINT_PROMPT, KOREAN_PEOPLE_RULE, comicPrompt, expandPrompt, floorplanPrompt, graphicPrompt, inpaintEditPrompt, lifeAlbumPrompt, restorePrompt, synthesisPrompt,
 } from "./prompts";
@@ -58,6 +59,7 @@ export function cleanParams(raw: unknown): RunParams | null {
     colorize: r.colorize !== false,
     sourceNotes: (Array.isArray(r.sourceNotes) ? r.sourceNotes : []).slice(0, sources.length).map((n) => text(n, 300)),
     background: r.background === "keep" || r.background === "change" ? r.background : "auto",
+    ideaSource: r.kind === "generate" && isBananaSource(r.ideaSource) ? r.ideaSource : undefined,
     ...graphicParams(r),
   };
 }

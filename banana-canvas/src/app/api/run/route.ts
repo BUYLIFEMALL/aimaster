@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     .from("banana_canvas_results")
     .insert({
       user_id: g.userId, kind: p.kind, title: result.title, prompt: (p.prompt ?? "").slice(0, 600),
-      options: { model: p.model, aspect: p.aspect, processes: p.processes, style: p.style, upscale: p.upscale, category: p.category, age: p.age, comicStyle: p.comicStyle, comicLang: p.comicLang, repair: p.repair, colorize: p.colorize, background: p.background, sourceNotes: p.sourceNotes, templateId: p.templateId, fields: p.fields, preset: p.preset, languages: p.languages, imageSize: p.imageSize, ...result.meta },
+      options: { model: p.model, aspect: p.aspect, processes: p.processes, style: p.style, upscale: p.upscale, category: p.category, age: p.age, comicStyle: p.comicStyle, comicLang: p.comicLang, repair: p.repair, colorize: p.colorize, background: p.background, sourceNotes: p.sourceNotes, templateId: p.templateId, fields: p.fields, preset: p.preset, languages: p.languages, imageSize: p.imageSize, ideaSource: p.ideaSource, ...result.meta },
       input_paths: result.inputs, outputs: result.outputs, model_used: result.model,
     })
     .select("id, created_at")

@@ -36,5 +36,23 @@ test("보낸 프로그램 이름(src) — 정해 둔 이름만", async () => {
   assert.equal(ideaSourceName("<b>x</b>"), undefined);
   assert.equal(ideaSourceName(["reverse-prompt"]), undefined);
   const page = readFileSync(new URL("../src/app/(workspace)/studio/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /ideaSource=\{ideaSourceName\(src\)\}/);
+  assert.match(page, /ideaSource=\{ideaSourceKey\(src\)\}/);
+});
+
+test("v1.25 받는 쪽 한도·이름표 = 공용 사본, 돌아가기 주소, 생성 기록에 보낸 곳", async () => {
+  const { MAX_IDEA, ideaSourceUrl, ideaSourceKey } = await import("../src/lib/bnc/ideaParam.ts");
+  const { MAX_BANANA_IDEA } = await import("../src/lib/bnc/bananaIdeaLink.ts");
+  assert.equal(MAX_IDEA, MAX_BANANA_IDEA);
+  assert.equal(ideaSourceUrl("reverse-prompt"), "https://reverse-prompt.buylife.xyz");
+  assert.equal(ideaSourceUrl("javascript:alert(1)"), undefined);
+  assert.equal(ideaSourceKey("emotion-writer"), "emotion-writer");
+  const { cleanParams } = await import("../src/lib/bnc/tasks.ts");
+  assert.equal(cleanParams({ kind: "generate", prompt: "고양이", ideaSource: "reverse-prompt" }).ideaSource, "reverse-prompt");
+  assert.equal(cleanParams({ kind: "generate", prompt: "고양이", ideaSource: "evil" }).ideaSource, undefined);
+  assert.equal(cleanParams({ kind: "edit", prompt: "x", ideaSource: "reverse-prompt" }).ideaSource, undefined);
+  const route = readFileSync(new URL("../src/app/api/run/route.ts", import.meta.url), "utf8");
+  assert.match(route, /ideaSource: p\.ideaSource/);
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /maxLength=\{MAX_IDEA\}/);
+  assert.match(studio, /data-idea-back/);
 });

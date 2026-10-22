@@ -1,5 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ideaSourceName, ideaSourceUrl, MAX_IDEA } from "@/lib/bnc/ideaParam";
+import type { BananaSource } from "@/lib/bnc/bananaIdeaLink";
 import { Download, ImagePlus, Loader2, Maximize2, Plus, RefreshCw, Sparkles, Star, Trash2, Wand2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, Kind, ModelLevel, SynthBackground } from "@/lib/bnc/types";
@@ -106,7 +108,7 @@ function Card({ icon, title, hint, needsImage, locked, children, id }: { icon: s
   );
 }
 
-export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }: { fromId?: string; fromIndex?: number; importUrl?: string; initialIdea?: string; ideaSource?: string }) {
+export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }: { fromId?: string; fromIndex?: number; importUrl?: string; initialIdea?: string; ideaSource?: BananaSource }) {
   const [model, setModel] = useState<ModelLevel>("flash");
   const [base, setBase] = useState<Img | null>(null);
   const [sources, setSources] = useState<Img[]>([]);
@@ -385,9 +387,15 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
           </section>
 
           <Card id="card-generate" icon="✨" title="이미지 생성" hint="아이디어만 입력하면 새 이미지를 만듭니다. 원본 이미지가 없어도 됩니다.">
-            <textarea rows={3} value={idea} maxLength={600} onChange={(e) => setIdea(e.target.value)} placeholder="예: 우주를 나는 고양이" disabled={disabled} aria-label="이미지 아이디어" />
+            <textarea rows={3} value={idea} maxLength={MAX_IDEA} onChange={(e) => setIdea(e.target.value)} placeholder="예: 우주를 나는 고양이" disabled={disabled} aria-label="이미지 아이디어" />
             {/* v1.24: 다른 프로그램이 보낸 아이디어 — 채우기만 하고 자동 생성은 하지 않음 */}
-            {initialIdea && idea === initialIdea && <p className="bc-hint" data-idea-from-link data-idea-source={ideaSource ?? ""}>{ideaSource ? `「${ideaSource}」에서` : "다른 프로그램에서"} 보낸 아이디어를 채웠습니다. 확인한 뒤 [이미지 생성]을 눌러 주세요.</p>}
+            {initialIdea && idea === initialIdea && (
+              <p className="bc-hint" data-idea-from-link data-idea-source={ideaSource ?? ""}>
+                {ideaSource ? `「${ideaSourceName(ideaSource)}」에서` : "다른 프로그램에서"} 보낸 아이디어를 채웠습니다. 확인한 뒤 [이미지 생성]을 눌러 주세요.
+                {/* v1.25: 문구를 고치러 보낸 프로그램으로 돌아가기(공용 이름표의 주소만) */}
+                {ideaSource && <> <a href={ideaSourceUrl(ideaSource)} data-idea-back>↩ {ideaSourceName(ideaSource)} 화면으로 돌아가기</a></>}
+              </p>
+            )}
             <div className="bc-row2">
               <label className="bc-field">카테고리
                 <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={disabled}>
@@ -398,7 +406,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
             <AspectPick value={genAspect} onChange={(a) => setGenAspect(a as Aspect)} />
             <div className="bc-btns">
               <button type="button" className="bc-suggest" disabled={disabled || !idea.trim()} onClick={() => void suggest("generate", setIdea)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
-              <button type="button" className="primary" disabled={disabled || !idea.trim()} onClick={() => void run("generate", { prompt: idea, category, aspect: genAspect })}><Wand2 size={14} />이미지 생성</button>
+              <button type="button" className="primary" disabled={disabled || !idea.trim()} onClick={() => void run("generate", { prompt: idea, category, aspect: genAspect, ideaSource })}><Wand2 size={14} />이미지 생성</button>
             </div>
           </Card>
 
