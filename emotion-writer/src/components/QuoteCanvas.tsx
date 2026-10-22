@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { renderQuote, renderQuoteAt, canvasBlob } from "@/lib/studio/render";
 import { CHANNEL_SIZES, channelFileName, channelZipNames, type ChannelSize } from "@/lib/studio/channels";
 import { createZip } from "@/lib/studio/zip";
+import { useBandColors } from "./useBandColor";
+import { adviseOverlay } from "@/lib/studio/readability";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
 import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -27,6 +29,12 @@ export function QuoteCanvas({
   const [result, setResult] = useState({ identity: "", image: "", error: "" });
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
+  // v1.24: 크기마다 배경을 그 비율로 잘라 글자 대비를 따로 계산 — 4.5:1 미만이면 ⚠
+  const channelBands = useBandColors(image, CHANNEL_SIZES, design.position);
+  const channelAdvice = (id: string) => {
+    const bg = channelBands?.[id];
+    return bg ? adviseOverlay(bg, design.color, design.overlay) : null;
+  };
 
   useEffect(() => {
     if (!image || !quote) return;
@@ -251,15 +259,22 @@ export function QuoteCanvas({
       {ready && (
         <div className="mt-3 space-y-2">
           <p className="text-xs font-semibold text-slate-400 text-center">📐 다른 크기로 받기 — 같은 글귀를 채널 규격에 맞게 다시 배치(AI 비용 없음)</p>
+          {CHANNEL_SIZES.some((c) => { const a = channelAdvice(c.id); return a !== null && !a.ok; }) && (
+            <p className="text-[11px] text-center text-amber-700" data-weak-note>⚠ 표시 크기는 글자가 놓이는 자리의 배경이 밝아 대비가 4.5:1에 못 미칩니다. 버튼에 마우스를 올리면 수치가 보입니다.</p>
+          )}
           <div className="flex flex-wrap justify-center gap-2">
-            {CHANNEL_SIZES.map((c) => (
+            {CHANNEL_SIZES.map((c) => {
+              const adv = channelAdvice(c.id);
+              const weak = adv !== null && !adv.ok;
+              return (
               <button
                 key={c.id}
                 type="button"
                 className="text-xs px-3 py-1.5 inline-flex items-center gap-1.5 whitespace-nowrap"
                 disabled={busy || saving}
                 onClick={() => void downloadChannel(c)}
-                title={`${c.width}×${c.height} JPG로 저장`}
+                data-weak-contrast={weak ? adv.contrast : undefined}
+                title={weak ? `${c.width}×${c.height} — 글자 대비 ${adv.contrast}:1로 읽기 어려울 수 있어요. 배경 어둡기를 올려 보세요.` : `${c.width}×${c.height} JPG로 저장`}
               >
                 {/* v1.22: 실제 비율대로 그린 작은 상자(긴 변 16px) — 크기를 한눈에 고르게 */}
                 <span
@@ -268,8 +283,10 @@ export function QuoteCanvas({
                   style={{ width: Math.round((16 * c.width) / Math.max(c.width, c.height)), height: Math.round((16 * c.height) / Math.max(c.width, c.height)) }}
                 />
                 {c.label}
+                {weak && <span aria-label={`대비 ${adv.contrast}:1 부족`}>⚠</span>}
               </button>
-            ))}
+              );
+            })}
             <button
               type="button"
               className="text-xs px-3 py-1.5 inline-flex items-center gap-1.5 whitespace-nowrap font-semibold"
