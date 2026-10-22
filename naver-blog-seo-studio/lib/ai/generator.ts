@@ -90,7 +90,7 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
   const messages: OpenAiMessage[] = [
         { role: "system", content: `당신은 한국어 네이버 블로그 콘텐츠 편집자입니다. 오늘은 한국 기준 ${today}입니다. ${STRATEGY_GUIDE[params.strategy] ?? STRATEGY_GUIDE["C-Rank 기본"]}
 
-선택한 글쓰기 페르소나는 '${params.persona.name}'입니다. 다음 톤과 관점을 일관되게 반영하세요: ${params.persona.toneDescription}${styleSection(params.style)}
+선택한 글쓰기 페르소나는 '${params.persona.name}'입니다. 다음 톤과 관점을 일관되게 반영하세요: ${params.persona.toneDescription}${styleSection(params.style && { name: params.style.name, profile: params.style.profile })}
 
 검색 의도를 먼저 추론하고, 독자가 실제로 도움을 얻는 자연스러운 초안을 작성하세요. 제목은 25~40자 안팎으로 핵심 키워드를 한 번만 넣습니다. 본문은 다음 규칙을 반드시 지킵니다.
 1. 첫 문단은 검색 의도에 바로 답하는 3~4문장 요약입니다.
@@ -125,6 +125,7 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
       compactLength = expandedLength;
     }
   }
+  // v1.91: 첫 생성에는 해요체 필수 규칙을 넣지 않는다(gpt-4o-mini 본문이 짧아져 생성 실패, 규칙 없음 2/2·있음 1/4 성공). 끝맺음은 여기서만 고친다.
   // v1.88: 승인 문체의 끝맺음(해요체/합니다체)이 70% 미만이면 끝맺음만 고치는 요청 1회. 180초가 지났으면 300초 제한 때문에 건너뛴다.
   let styleEnding: { target: StyleEnding; before: number; after: number; fixed: boolean; skipped?: string } | undefined;
   const ending = params.style?.ending;
