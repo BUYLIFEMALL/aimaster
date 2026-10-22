@@ -80,6 +80,7 @@ export function ImageTextEditor({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const baseRef = useRef<ImageBitmap | null>(null);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const dragMoved = useRef(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [edits, setEdits] = useState<TextEdit[]>([]);
   const [draft, setDraft] = useState<TextEdit | null>(null);
@@ -164,11 +165,13 @@ export function ImageTextEditor({
     }
     e.currentTarget.setPointerCapture(e.pointerId);
     dragStart.current = toImagePoint(e);
+    dragMoved.current = false;
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
     const start = dragStart.current;
     if (!start) return;
+    dragMoved.current = true;
     const p = toImagePoint(e);
     const rect = {
       x: Math.round(Math.min(start.x, p.x)),
@@ -188,7 +191,12 @@ export function ImageTextEditor({
   }
 
   function onPointerUp() {
+    // 끌지 않고 뗀 경우(💧 찍기 클릭·그냥 누름)는 작성 중인 영역·덮는 색을 그대로 둔다
+    // (v1.26 실검수: 찍은 색이 뗄 때 바깥 색으로 다시 덮여 쓰이던 문제)
+    const dragged = dragStart.current !== null && dragMoved.current;
     dragStart.current = null;
+    dragMoved.current = false;
+    if (!dragged) return;
     setDraft((prev) => {
       if (!prev || prev.w < 8 || prev.h < 8) return null;
       return { ...prev, fill: sampleEdgeColor(baseContext(), prev, "outside") };

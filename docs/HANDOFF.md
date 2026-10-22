@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(맥미니): 상세페이지 v1.26 크롬 확인 · v1.27 💧 찍기 결함 수정 (배포 승인 대기)
+- v1.26 확인: 바깥/안쪽 색 버튼·가장 많은 색 정상. 💧 찍기는 손을 뗄 때 바깥 색으로 다시 덮여 실패 → v1.27에서 끌었을 때만 뗄 때 처리(`ImageTextEditor.tsx` `dragMoved`). tsc 0, eslint 0. ERROR_LESSONS 2026-10-22 추가.
+- **윈도우 CLI 다음 첫 단계(주인님 승인 후)**: SQL `shop-detail-page/supabase/migrations/20261022_eyedropper_fix_v1_27.sql`(버전만) → `shop-detail-page` 배포 1회 → `shop-detail-page/AGENTS.md` 맨 아래 기록.
+- 링크: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 원스톱 v1.36·AI 썸네일·SEO v1.10: 출처 띠 보완 · 원스톱 대본 → 썸네일 「SEO 전략」 (빌드 2회, AI 호출 없음)
 - 원스톱 띠: 긴 이름 「…」·줄바꿈, 이름 누르면 칸 안 그 레퍼런스로 이동. ⑤ 업로드 문구 아래 「📤 이 대본으로 썸네일 만들기」 → thumbnail-master `/seo` 대본 칸 자동 채움(로그인 거쳐도 보관). 공용 `reference-copy-guard` 사본 4곳. 크롬 실제 링크 클릭 검수 끝, 로그아웃 경유는 미확인. 상세 각 폴더 `AGENTS.md`, 아이디어 `IDEA-ONESTOP-SEO-01` 적용 완료.
 - 프로그램: https://shorts-onestop-studio.buylife.xyz · https://thumbnail-master.buylife.xyz

@@ -330,3 +330,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 공용 사본(`store-zip`·`gemini-image-client`·`gemini-image-models`) 일치·tsc 통과 → 배포 READY(`shop-detail-page-46vyfunhr-buylife.vercel.app`) → 운영 DB `programs.version` v1.26(`20261022_cover_color_v1_26.sql`과 같은 버전 갱신만, DB 구조 변경 없음).
 - 크롬(메인 크롬): `/products` 화면에 v1.26 표시, 「셀러 성공 꿀팁 & FAQ」 탭에 「Q. 이미지 속 글자(가격·행사 문구)만 고칠 수 있나요?」 확인. **덮는 색 버튼·💧 실제 시험은 맥미니 크롬에서 진행 예정**(미확인).
 - 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
+
+## 2026-10-22 v1.26 크롬 실검수 → v1.27 💧 찍기 결함 수정 (Claude Code 맥미니 · v1.27 배포 대기)
+- v1.26 운영 확인(시험 계정, 저장 없음): 화면 v1.26, 덮는 색 칸 아래 「바깥 색」「안쪽 색」「💧 찍기」 표시. 배지 안쪽만 지정 → 자동·바깥·안쪽 모두 녹색(`#1d6b5b`·`#1e6b5b`) 정상. 💧 찍기 → 노란 테두리·안내 띠 정상, 찍기 모드도 꺼짐.
+- **결함**: 💧로 배지 안쪽(원본 색 `#1d6b5d` 확인)을 찍어도 덮는 색이 회색 `#f1f2f1` 그대로. 원인: 찍기는 `onPointerDown`에서 처리했지만 손을 뗄 때 `onPointerUp`이 무조건 작성 중 영역의 덮는 색을 바깥 색으로 다시 계산해 덮어씀. 같은 이유로 영역을 지정해 둔 뒤 끌지 않고 한 번 누르기만 해도 고른 색이 바깥 색으로 돌아갔다.
+- 수정(v1.27): `dragMoved` 표시 — 실제로 끌었을 때만 뗄 때 처리(영역 확정·바깥 색 계산). SQL `supabase/migrations/20261022_eyedropper_fix_v1_27.sql`(버전만). 검수: tsc 0, eslint 0.
+- **윈도우 CLI 다음 첫 단계**: SQL `20261022_eyedropper_fix_v1_27.sql` → `shop-detail-page` 배포 1회(주인님 승인 후). 그 뒤 맥미니 크롬에서 💧 찍기·저장·원본 복구 확인.

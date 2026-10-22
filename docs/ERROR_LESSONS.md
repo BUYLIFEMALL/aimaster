@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — 캔버스에서 「누를 때」 처리한 클릭(색 찍기)을 「뗄 때」 처리가 다시 덮어쓴다 (shop-detail-page v1.26 → v1.27, Claude Code 맥미니)
+- 증상: 문구 고치기 「💧 찍기」로 배지 안쪽을 눌러도 덮는 색이 바뀌지 않음(찍기 모드는 꺼짐 — 동작한 것처럼 보임).
+- 원인: 찍기는 `onPointerDown`에서 색을 넣고 끝냈지만, 같은 클릭의 `onPointerUp`이 「영역 지정 끝」으로 보고 덮는 색을 바깥 색으로 다시 계산해 덮어씀.
+- 해결: 실제로 끌었을 때(`onPointerMove`가 한 번이라도 돈 때)만 `onPointerUp` 처리(`shop-detail-page/components/products/ImageTextEditor.tsx` `dragMoved`).
+- 다음부터: 같은 요소에 누르기·끌기·떼기 처리가 함께 있으면, 새 클릭 기능을 넣을 때 떼기 처리가 그 결과를 바꾸지 않는지 확인한다. 시험은 화면 값(입력칸 값)까지 읽어 확인한다 — 모드가 꺼진 것만 보고 성공으로 판단하지 않는다.
+
 ## 2026-10-22 — `check-shared-modules.mjs --sync`는 모든 모듈을 맞추므로, 다른 세션이 고치는 중인 기준 파일(미커밋)이 그 세션 사본까지 퍼진다 (banana-idea-link 등록, Claude Code 윈도우)
 - 증상: 내 새 모듈(`banana-idea-link`)을 맞추려고 `--sync`를 돌렸더니, 다른 Claude 세션이 작업 중인 `reference-copy-guard`의 미커밋 기준(`shorts-onestop-studio/src/lib/reference.ts`) 내용이 그 세션 사본 3개(인스타·쇼츠 바이럴·유튜브 바이럴)에 함께 쓰였다.
 - 해결: 사본 3개의 HEAD 내용이 HEAD 기준과 같음(그 세션이 아직 맞추기 전)을 확인한 뒤 그 3개만 `git checkout HEAD --`로 되돌림. 다른 세션의 기준 파일은 건드리지 않음.
