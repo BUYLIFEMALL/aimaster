@@ -436,3 +436,10 @@ input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--bran
 
 /* v1.29 꺼진 [인물 사진 만들기] 아래 이유 한 줄 */
 .st-generate-why { margin: 6px 0 0; font-size: 12px; color: var(--muted, #94a3b8); text-align: center; }
+
+/* F4(v1.35) 목적별 묶음 저장 */
+.bundle-box{margin-top:12px;padding:12px;border:1px dashed var(--line, #d6d3d1);border-radius:12px;display:flex;flex-direction:column;gap:8px}
+.bundle-pick summary{cursor:pointer;font-size:13px;font-weight:600}
+.bundle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 12px;margin-top:8px;max-height:240px;overflow:auto}
+.bundle-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500}
+.bundle-item input{width:auto}

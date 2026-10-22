@@ -11,17 +11,15 @@ import { GraphicCard } from "./GraphicCard";
 import { PresetRow } from "./PresetRow";
 import type { ComicPreset, EditPreset, Preset, RestorePreset } from "@/lib/bnc/presets";
 import { checkImageFile } from "@/lib/imageFileCheck";
+import { presetIdForSize } from "@/lib/bnc/postPresets";
 
 // 이미지 변환 스튜디오(브라우저 처리)로 결과를 넘겨 형식·크기를 바꾼다(v1.14)
 const CONVERT_URL = "https://image-convert-studio.buylife.xyz/convert";
 // v1.17: 결과를 시네마틱 스토리보드 참고 이미지로(받는 쪽이 banana-canvas-files 서명 주소만 받음)
 const STORYBOARD_URL = "https://cinematic-storyboard-studio.buylife.xyz/studio";
-// 변환 스튜디오 v1.13 ?preset= — 결과 비율이 게시처 규격과 맞으면 그 규격으로 바로 받게 한다(맞는 것이 없으면 붙이지 않음)
+// 변환 스튜디오 v1.13 ?preset= — 결과 비율이 게시처 규격과 맞으면 그 규격으로 바로 받게 한다(공용 기준 코드 post-presets 사본)
 function convertPreset(w: number, h: number): string {
-  if (!w || !h) return "";
-  const r = w / h;
-  const near = (v: number) => Math.abs(r - v) / v < 0.03;
-  const id = near(1) ? "insta-feed" : near(4 / 5) ? "insta-portrait" : near(9 / 16) ? "story" : near(16 / 9) ? "youtube-thumb" : "";
+  const id = presetIdForSize(w, h);
   return id ? `&preset=${id}` : "";
 }
 

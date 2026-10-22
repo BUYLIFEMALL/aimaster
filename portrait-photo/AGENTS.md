@@ -198,3 +198,8 @@
 
 ## v1.34 (2026-10-22, Claude Code 윈도우) — 형식 바꾸기 규격 붙이기 배포
 - 「🔁 형식 바꾸기」 링크에 저장 비율이 1:1·4:5·9:16·16:9면 `&preset=`(insta-feed/insta-portrait/story/youtube-thumb) 붙임 — 변환 스튜디오 v1.13이 규격을 자동 선택. 배포 `portrait-photo-kffhyfkfw` Ready, DB v1.34, 시험 35개, 운영 스크립트 포함 확인(시험 회원 서버 보관 사진이 없어 링크 화면 확인은 못 함).
+
+## v1.35 (2026-10-22, Claude Code 윈도우) — F4 「📦 목적별 묶음 저장」 + 공용 post-presets 사본
+- 결과 한 장을 여러 규격(증명사진 규격 21종 + 프로필 3종)으로 한 번에 ZIP 저장, AI 호출 없음. 기본 묶음: 💼 취업·이력서(이력서·인화 고해상도·프로필 정사각) / ✈️ 여권·여행(여권·미국 비자·K-ETA, 크기 참고용) / 📱 SNS 프로필(정사각·4:5·원형), 「직접 고르기」로 최대 12개. 규격은 [규격 저장]과 같은 머리 기준 추천 영역(`recommendSizedCrop`), 프로필은 프로필 세트와 같은 `profileCrop`. 저장 후 용량 초과 파일·규격별 주의 문구를 한 번에 안내. 새 `src/lib/portrait/bundles.ts`, 시험 `tests/bundles.test.mjs`(4개).
+- 「형식 바꾸기」 규격 고르기를 공용 사본 `src/lib/portrait/postPresets.ts`(`presetIdForSize`)로 교체(동작 같음).
+- 배포 `portrait-photo-g9vrilar6` Ready, DB v1.35, 시험 39개. **화면 확인 미완료**: 생성 전 「본인 사진·사용 동의」 확인란(회원 동의 절차)을 에이전트가 대신 체크하지 않아 결과 화면까지 가지 못함 — 주인님이 체크해 주시면(또는 실제 결과가 있을 때) 묶음 저장 ZIP 확인.

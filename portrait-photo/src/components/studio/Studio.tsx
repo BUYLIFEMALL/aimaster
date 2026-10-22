@@ -20,6 +20,7 @@ import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/imageFileChe
 import { downloadBlob, makeThumb, prepareInput, renderProfile, renderSized, renderPng, toUploadJpeg, whitenDataUrl } from "@/lib/portrait/canvas";
 import { addHistory } from "@/lib/portrait/history";
 import { createZip } from "@/lib/portrait/zip";
+import { BUNDLES, bundleFileName, bundleItemLabel, cleanBundle, type BundleKey } from "@/lib/portrait/bundles";
 import { GuideOverlay } from "./GuideOverlay";
 import { ZoomCompare } from "./ZoomCompare";
 import { CropAdjuster } from "./CropAdjuster";
@@ -95,6 +96,8 @@ export function Studio({ userId }: { userId: string }) {
   const [active, setActive] = useState(0);
   const [count, setCount] = useState(1);
   const [sizeId, setSizeId] = useState(SIZE_PRESETS[0].id);
+  // F4(v1.35): 목적별 묶음 저장 — 고른 규격·프로필 항목
+  const [bundleKeys, setBundleKeys] = useState<BundleKey[]>(BUNDLES[0].items);
   const [compare, setCompare] = useState(false);
   const [grid, setGrid] = useState(false);
   const [zoomOn, setZoomOn] = useState(false);
@@ -635,6 +638,51 @@ export function Studio({ userId }: { userId: string }) {
     } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
   }
 
+  /** F4(v1.35): 지금 보고 있는 결과 한 장을 고른 규격·프로필로 한 번에 ZIP 저장(AI 호출 없음). 규격은 [규격 저장]과 같은 머리 기준 추천 영역, 프로필은 프로필 세트와 같은 계산 */
+  async function saveBundle() {
+    if (!shown) return;
+    const keys = cleanBundle(bundleKeys);
+    if (keys.length === 0) { setError("묶음에 넣을 규격을 하나 이상 골라 주세요."); return; }
+    setSaving("bundle");
+    try {
+      let src = shown;
+      if (whiten) { try { src = (await whitenDataUrl(src)).dataUrl; } catch { /* 원본 사용 */ } }
+      const im = new Image();
+      await new Promise<void>((resolve, reject) => { im.onload = () => resolve(); im.onerror = () => reject(new Error("이미지를 읽지 못했습니다.")); im.src = src; });
+      const W = im.naturalWidth, H = im.naturalHeight;
+      const m = currentMeasure();
+      const base = batchMode ? nameFor(sourceIdx, "인물사진") : "인물사진";
+      const entries: { name: string; data: Uint8Array }[] = [];
+      const over: string[] = [];
+      const cautions: string[] = [];
+      for (const k of keys) {
+        const [kind, id] = k.split(":");
+        if (kind === "size") {
+          const preset = sizePresetById(id);
+          const rec = m ? recommendSizedCrop(m, preset, m.srcW, m.srcH) : { mode: "none" as const };
+          const crop = rec.mode !== "none" && rec.crop && m ? scaleCrop(rec.crop, m.srcW, m.srcH, W, H) : undefined;
+          const r = await renderSized(src, preset, { mirrored, filter, applyFilter: toneActive, crop });
+          if (r.overLimit) over.push(preset.label);
+          if (preset.caution && !cautions.includes(preset.caution)) cautions.push(preset.caution);
+          entries.push({ name: bundleFileName(base, k), data: new Uint8Array(await r.blob.arrayBuffer()) });
+        } else {
+          const f = PROFILE_FORMATS.find((x) => x.id === id)!;
+          const c = m ? scaleCrop(profileCrop(m, f, m.srcW, m.srcH), m.srcW, m.srcH, W, H) : profileCrop(null, f, W, H);
+          const blob = await renderProfile(src, f, c, { mirrored, filter, applyFilter: toneActive, circleBg: profileCircleBg });
+          entries.push({ name: bundleFileName(base, k), data: new Uint8Array(await blob.arrayBuffer()) });
+        }
+      }
+      const zip = createZip(entries);
+      downloadBlob(new Blob([zip as BlobPart], { type: "application/zip" }), `${base}-묶음-${entries.length}종-${localDateStamp()}.zip`);
+      setNotice([
+        `묶음 ${entries.length}종을 ZIP 하나로 저장했습니다(${keys.map(bundleItemLabel).join(" · ")}).`,
+        m ? "머리 위치를 기준으로 규격마다 잘랐습니다(추정값이라 눈으로 확인하세요)." : "머리 위치를 몰라 규격은 가운데, 프로필은 위쪽 가운데로 잘랐습니다 — [머리 비율 검사] 또는 [얼굴 위치 직접 지정]을 하면 얼굴 기준으로 잘립니다.",
+        over.length ? `용량 제한을 넘은 파일: ${over.join(", ")} — 제출처에서 다시 압축해 주세요.` : "",
+        ...cautions,
+      ].filter(Boolean).join(" "));
+    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); } finally { setSaving(""); }
+  }
+
   async function saveSized() {
     if (!shown) return;
     const preset = sizePresetById(sizeId);
@@ -1039,6 +1087,28 @@ export function Studio({ userId }: { userId: string }) {
                   {SIZE_PRESETS.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
                 </select>
                 <button type="button" onClick={saveSized} disabled={!!saving}>{saving === "lic" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}규격 저장 ({sizePresetById(sizeId).note}){sizedRecommendation().rec.mode !== "none" ? " · 추천 영역" : ""}</button>
+              </div>
+            )}
+            {shown && (
+              <div className="bundle-box">
+                <b>📦 목적별 묶음 저장</b> <small className="muted">— 이 사진 한 장을 여러 규격으로 한 번에 ZIP 저장(AI 호출 없음)</small>
+                <div className="chips" role="group" aria-label="기본 묶음">
+                  {BUNDLES.map((b) => (
+                    <Chip key={b.id} on={b.items.length === bundleKeys.length && b.items.every((k) => bundleKeys.includes(k))} onClick={() => setBundleKeys(b.items)} title={b.desc}>{b.label}</Chip>
+                  ))}
+                </div>
+                <details className="bundle-pick">
+                  <summary>직접 고르기 ({bundleKeys.length}개 선택)</summary>
+                  <div className="bundle-grid">
+                    {[...SIZE_PRESETS.map((z) => `size:${z.id}` as BundleKey), ...PROFILE_FORMATS.map((f) => `profile:${f.id}` as BundleKey)].map((k) => (
+                      <label key={k} className="bundle-item">
+                        <input type="checkbox" checked={bundleKeys.includes(k)} onChange={(e) => setBundleKeys((cur) => cleanBundle(e.target.checked ? [...cur, k] : cur.filter((x) => x !== k)))} />
+                        <span>{bundleItemLabel(k)}</span>
+                      </label>
+                    ))}
+                  </div>
+                </details>
+                <button type="button" className="primary" onClick={() => void saveBundle()} disabled={!!saving || bundleKeys.length === 0}>{saving === "bundle" ? <Loader2 size={14} className="ls-spin" /> : <Download size={14} />}묶음 저장 ({bundleKeys.length}종, ZIP)</button>
               </div>
             )}
           </section>
