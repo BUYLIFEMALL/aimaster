@@ -355,3 +355,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 섹션 이미지 GIF 허용(10MB), 섹션 ZIP은 GIF 원본 그대로 `.gif`, 긴 PNG·HTML은 첫 장면(안내 한 줄), GIF 섹션은 「✏️ 문구」 숨김. S-22-18 배지 안내 한 줄(편집 창·FAQ), FAQ에 GIF 항목.
 - 버전 v1.28(`lib/version.ts`, SQL `supabase/migrations/20261022_gif_inbox_v1_28.sql` — 버전만). 검수: 메시지 검사 시험 12가지, tsc 0, eslint 0.
 - **윈도우 CLI 다음 첫 단계**: SQL → `shop-detail-page` 배포 1회 → (Ready 뒤) `video-to-gif` v1.14 배포. 그 뒤 맥미니 크롬 실검수.
+
+## 2026-10-22 ✅ v1.28 배포 (Claude Code 윈도우 — 맥미니 GIF 받기 마무리)
+- 맥미니 커밋 `a2f2378c5`(GIF → 상세페이지 섹션 보내기) 마무리. 공용 모듈 `gif-handoff`(기준 `shop-detail-page/lib/gifHandoff.ts`, 사본 `video-to-gif/lib/gifHandoff.ts`) OK. **배포 순서: 상세페이지 → GIF**(앞 배포 Ready 확인 뒤).
+- 배포 전 코드 점검(윈도우): GIF 업로드는 브라우저 → 저장소 직접 올리기(`uploadCustomSectionImage`, 서버 요청 크기 제한 해당 없음), 크기 한도 10MB 한 값(`GIF_MAX_BYTES`), 저장 주소는 기존 직접 올린 섹션 이미지와 같은 방식.
+- tsc·로컬 build 통과(`/products/gif-inbox` 경로 생성) → DB `programs.version` v1.28(`20261022_gif_inbox_v1_28.sql`과 같은 버전 갱신만) → 배포 READY(`shop-detail-page-od5o4dmx5-buylife.vercel.app`).
+- 크롬(메인 크롬, 관리자 로그인): `/products/gif-inbox` 직접 열기 → 「GIF 받기」 화면과 「GIF 자동화에서 🛍 상세페이지로를 눌러 주세요」 안내·GIF 자동화 열기 링크 표시, 사이드바 v1.28 확인. 실제 보내기·섹션 넣기·ZIP·500px 확인은 맥미니 크롬에서 진행 예정(미확인).
+- 비용: Vercel 빌드 1회(이번 묶음 2회 중), AI 0회.

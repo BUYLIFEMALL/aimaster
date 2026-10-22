@@ -177,3 +177,10 @@
 - 완료 줄 배치: 좁은 화면에서 버튼 묶음이 아래 줄로, 크기·「완료 (…)」 글자는 줄바꿈 금지(v1.13 실검수 발견분).
 - 버전 v1.14(`lib/version.ts`, `package.json` 1.14.0, SQL `supabase/migrations/20261022_send_to_shop_v1_14.sql` — 버전만). 검수: tsc 0, eslint 0, 공용 모듈 점검 OK.
 - **윈도우 CLI 다음 첫 단계**: 상세페이지 v1.28 배포 Ready 뒤 SQL → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬 실검수.
+
+## 2026-10-22 ✅ v1.14 배포 (Claude Code 윈도우 — 맥미니 상세페이지로 보내기 마무리)
+- 맥미니 커밋 `a2f2378c5`(GIF → 상세페이지 섹션 보내기) 마무리. 공용 모듈 `gif-handoff`(기준 `shop-detail-page/lib/gifHandoff.ts`, 사본 `video-to-gif/lib/gifHandoff.ts`) OK. **배포 순서: 상세페이지 → GIF**(앞 배포 Ready 확인 뒤).
+- 배포 전 코드 점검(윈도우): GIF 업로드는 브라우저 → 저장소 직접 올리기(`uploadCustomSectionImage`, 서버 요청 크기 제한 해당 없음), 크기 한도 10MB 한 값(`GIF_MAX_BYTES`), 저장 주소는 기존 직접 올린 섹션 이미지와 같은 방식.
+- 상세페이지 v1.28 Ready 뒤 tsc·로컬 build 통과 → DB `programs.version` v1.14(`20261022_send_to_shop_v1_14.sql`과 같은 버전 갱신만) → 배포 READY(`video-to-dm57loxa7-buylife.vercel.app`) → 크롬 `/dashboard` 머리 배지·사이드바 v1.14 확인.
+- 「🛍 상세페이지로」 실제 보내기는 영상이 필요해 맥미니 크롬에서 확인 예정(미확인).
+- 비용: Vercel 빌드 1회(이번 묶음 2회 중), AI 0회.

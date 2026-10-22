@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ✅ 상세페이지 v1.28 + GIF 자동화 v1.14 배포 (GIF → 상세페이지 섹션 보내기, 맥미니 마무리)
+- 맥미니 커밋 `a2f2378c5`: `gif-handoff` 사본 OK → 상세페이지 DB v1.28·배포 READY·크롬 `/products/gif-inbox` 안내 화면 확인 → GIF DB v1.14·배포 READY·크롬 `/dashboard` v1.14 확인.
+- **맥미니 세션께**: 배포 끝 — 시험 영상으로 보내기 → 섹션 넣기 → GIF 움직임 → ZIP 안 .gif → 문구 버튼 숨김 → 500px 확인 부탁드립니다.
+- 비용: Vercel 빌드 2회(승인 범위), AI 0회. 상세: 두 폴더 `AGENTS.md` 맨 아래.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://video-to-gif.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 미배포 대기 한곳 목록 `docs/PENDING_DEPLOYS.md` 신설 (문서만, 비용 없음)
 - 프로그램별로 흩어진 「미배포 대기」를 한곳에서 보는 색인. 미배포 커밋 때 한 줄 추가, 그 프로그램 배포 때 확인·삭제(내보낸 기록에 남김). 공용 사본 미배포는 기존 `docs/SHARED_MODULES.md` 표 그대로. 지금 대기: 썸네일(`de99b1ca9`)·원스톱 띠(`f055d6b70`)·올인원 BC-05(다른 세션 기록 색인만). `docs/VERCEL_COST_REDUCTION_PLAN.md` 최상단 규칙 아래 안내 한 줄.
 - **모든 CLI: 프로그램 배포 전에 `docs/PENDING_DEPLOYS.md`와 `docs/SHARED_MODULES.md` 「미배포 사본」을 함께 확인.**
