@@ -16,8 +16,8 @@ import {
   setContentSourceStatus,
   updateContentSource,
 } from "./web-actions";
-import type { CoupangProduct } from "@/threads-content-ops/lib/coupang";
-import type { TossCategory, TossProduct } from "@/threads-content-ops/lib/toss";
+import type { CoupangProduct } from "@/threads-content-ops/lib/affiliate-clients/coupangApi";
+import type { TossCategory, TossProduct } from "@/threads-content-ops/lib/affiliate-clients/toss";
 import CoupangManualRegistration from "./CoupangManualRegistration";
 
 type Account = { id: string; username: string | null };

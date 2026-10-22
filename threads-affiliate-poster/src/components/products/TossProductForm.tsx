@@ -9,7 +9,7 @@ import {
   registerTossProductAction,
   type RegisterProductState,
 } from "@/lib/actions/products";
-import type { TossProduct, TossCategory } from "@/lib/toss/client";
+import type { TossProduct, TossCategory } from "@/lib/affiliate-clients/toss";
 
 const initialState: RegisterProductState = {};
 
@@ -159,7 +159,7 @@ export function TossProductForm() {
           <p className="text-sm font-medium text-neutral-900">선택한 상품: {selected.productName}</p>
           <input type="hidden" name="productName" value={selected.productName} />
           <input type="hidden" name="imageUrl" value={selected.imageUrl ?? ""} />
-          <input type="hidden" name="tacaId" value={selected.tacaId} />
+          <input type="hidden" name="tacaId" value={selected.tacaId ?? ""} />
           {selected.tacaItemId != null && <input type="hidden" name="tacaItemId" value={selected.tacaItemId} />}
           <input type="hidden" name="price" value={selected.price ?? ""} />
         </div>

@@ -4,15 +4,15 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
+import { searchCoupangProducts, type CoupangProduct } from "@/lib/affiliate-clients/coupangApi";
 import {
   checkCoupangAffiliateLink,
   COUPANG_LINK_MESSAGES,
   extractCoupaNgUrl,
   parseCoupangShareCode,
-} from "@/lib/coupang/links";
-import { cropPhotoFromCoupangBanner } from "@/lib/coupang/widget";
-import { getPromotionLinks, getProductDetails, extractAliexpressProductId, resolveAliexpressUrl } from "@/lib/aliexpress/client";
+} from "@/lib/affiliate-clients/coupangLinks";
+import { cropPhotoFromCoupangBanner } from "@/lib/affiliate-clients/coupangBanner";
+import { ALIEXPRESS_IMAGE_WARNING, findAliexpressImage, getPromotionLinks, normalizeImageUrl, resolveAliexpressUrl } from "@/lib/affiliate-clients/aliexpress";
 import {
   getBestSelling,
   getCategories,
@@ -21,7 +21,7 @@ import {
   issueShareLink,
   type TossProduct,
   type TossCategory,
-} from "@/lib/toss/client";
+} from "@/lib/affiliate-clients/toss";
 import { analyzeProductAppeal, type ProductAppealAnalysis } from "@/lib/ai/productAnalyzer";
 
 function parseEnrichmentFields(formData: FormData) {
@@ -125,74 +125,6 @@ export async function registerCoupangProductAction(
   await logProgramUsage({ userId: user.id, action: "register_coupang_product" });
   revalidatePath("/products");
   return { success: true };
-}
-
-/**
- * Product image for an AliExpress item: official productdetail API first (retried on the API's
- * rate limit inside the client), then the product page's meta image. The page is only trusted when
- * it is the page of this very product, so a generic/landing image is never saved as the product photo.
- */
-async function findAliexpressImage(
-  urls: string[],
-  auth: { appKey: string; appSecret: string; trackingId: string },
-): Promise<string | null> {
-  const productId = urls.map((u) => extractAliexpressProductId(u)).find(Boolean) ?? null;
-  if (productId) {
-    const details = await getProductDetails([productId], auth);
-    if (details[0]?.imageUrl) return normalizeImageUrl(details[0].imageUrl);
-  }
-  for (const url of urls) {
-    const img = await tryFetchOgImage(url, productId);
-    if (img) return normalizeImageUrl(img);
-  }
-  return null;
-}
-
-function normalizeImageUrl(url: string): string {
-  const trimmed = url.trim();
-  if (trimmed.startsWith("//")) return `https:${trimmed}`;
-  if (trimmed.startsWith("http://")) return trimmed.replace("http://", "https://");
-  return trimmed;
-}
-
-const ALIEXPRESS_IMAGE_WARNING =
-  "상품은 등록됐지만 알리익스프레스에서 상품 이미지를 가져오지 못했습니다. 잠시 후 상품 목록의 \"이미지 다시 가져오기\"를 눌러주세요.";
-
-async function tryFetchOgImage(url: string, productId?: string | null): Promise<string | null> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4500);
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
-        Cookie: "aep_usuc_f=site=kor&c_tp=KRW&region=KR; intl_locale=ko_KR;",
-      },
-    });
-    clearTimeout(timeoutId);
-    if (!res.ok) return null;
-    const html = await res.text();
-    // A block/landing page carries a site-wide image; only accept the meta image of this product's page.
-    if (productId && !html.includes(productId)) return null;
-    const match =
-      html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
-      html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i) ||
-      html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i) ||
-      html.match(/<link[^>]*rel=["']image_src["'][^>]*href=["']([^"']+)["']/i) ||
-      html.match(/"product_main_image_url"\s*:\s*"([^"]+)"/i) ||
-      html.match(/"image"\s*:\s*\[?\s*"([^"]+)"/i);
-    let img = match ? match[1] : null;
-    if (img) {
-      img = img.trim().replace(/\\/g, "");
-      if (img.startsWith("//")) img = `https:${img}`;
-      else if (img.startsWith("http://")) img = img.replace("http://", "https://");
-    }
-    return img;
-  } catch {
-    return null;
-  }
 }
 
 /** 알리익스프레스 상품 URL을 제휴 링크로 변환해 등록한다. */
@@ -388,7 +320,7 @@ export async function deleteProductAction(formData: FormData) {
  * (<a href="https://link.coupang.com/a/..."><img src=".../affiliate/banner/..." alt="상품명"></a>):
  * link and name come from the code, and the product photo is cut out of the banner and stored in
  * post-images. Only coupangcdn.com banner URLs are fetched. The "일반태그" (coupa.ng) is refused because
- * coupa.ng blocks every cloud server (see src/lib/coupang/widget.ts).
+ * coupa.ng blocks every cloud server (see src/lib/affiliate-clients/coupangBanner.ts).
  */
 export async function importCoupangBlogTagAction(
   text: string,

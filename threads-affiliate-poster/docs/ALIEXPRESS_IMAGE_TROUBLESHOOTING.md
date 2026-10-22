@@ -44,7 +44,7 @@
 
 | 파일 | 변경 |
 |---|---|
-| `src/lib/aliexpress/client.ts` | `callTopApi()`가 `ApiCallLimit`을 받으면 1.2초 → 2.5초 → 4초 기다리며 **최대 3번 다시 시도**. 오류에 코드를 담는 `AliexpressApiError` 추가 |
+| `src/lib/affiliate-clients/aliexpress.ts`(2026-10-23 공용 기준 코드로 옮김) | `callTopApi()`가 `ApiCallLimit`을 받으면 1.2초 → 2.5초 → 4초 기다리며 **최대 3번 다시 시도**. 오류에 코드를 담는 `AliexpressApiError` 추가 |
 | `src/lib/actions/products.ts` | 이미지 찾기를 `findAliexpressImage()` 하나로 통일(공식 API → 이 상품 페이지의 메타 이미지). 페이지 긁기는 **그 페이지에 상품 번호가 있을 때만** 이미지를 인정(차단·안내 페이지의 공용 이미지를 상품 사진으로 저장하지 않게) |
 | 같은 파일 | 끝내 이미지를 못 찾으면 조용히 넘어가지 않고 **"이미지를 가져오지 못했습니다" 경고**를 등록 결과에 표시 |
 | 같은 파일 + `ProductList.tsx` | 사진이 없거나 깨진 알리 상품에 **"🖼 이미지 다시 가져오기"** 버튼 (`refreshAliexpressImageAction`) |

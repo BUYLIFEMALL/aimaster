@@ -8,7 +8,7 @@ import {
   extractCoupaNgUrl,
   parseCoupangShareCode,
   type ParsedCoupangShare,
-} from "@/lib/coupang/links";
+} from "@/lib/affiliate-clients/coupangLinks";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -17,7 +17,7 @@ import {
   importCoupangBlogTagAction,
   type RegisterProductState,
 } from "@/lib/actions/products";
-import type { CoupangProduct } from "@/lib/coupang/client";
+import type { CoupangProduct } from "@/lib/affiliate-clients/coupangApi";
 
 const initialState: RegisterProductState = {};
 

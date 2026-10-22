@@ -22,7 +22,7 @@ import WebSetup from "./WebSetup";
 import UsageGuide from "./UsageGuide";
 import MobileNav from "./MobileNav";
 import { PRODUCT_SOURCE_TYPES } from "@/threads-content-ops/lib/productPost";
-import { isTossProxyConfigured } from "@/threads-content-ops/lib/toss";
+import { isTossProxyConfigured } from "@/threads-content-ops/lib/affiliate-clients/toss";
 import { POST_STATUSES, type PostCounts } from "@/threads-content-ops/lib/postStatus";
 import { memberSchedulerState } from "@/threads-content-ops/lib/memberScheduler";
 import SchedulePublishingControl from "./SchedulePublishingControl";

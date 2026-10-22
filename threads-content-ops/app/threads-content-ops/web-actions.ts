@@ -34,21 +34,12 @@ import {
   type ShortVideo,
   type ShortsOrder,
 } from "@/threads-content-ops/lib/youtubeShorts";
-import {
-  COUPANG_LINK_MESSAGES,
-  buildProductDetailUrl,
-  checkCoupangAffiliateLink,
-  createCoupangDeeplink,
-  isCoupangImageUrl,
-  isCoupangShortUrl,
-  searchCoupangProducts,
-  type CoupangProduct,
-} from "@/threads-content-ops/lib/coupang";
-import { TOSS_PROXY_MISSING_MESSAGE, getTossBestSelling, getTossCategories, getTossCategoryBestSelling, getTossTodayDeals, isTossProxyConfigured, issueTossShareLink, type TossCategory, type TossProduct } from "@/threads-content-ops/lib/toss";
+import { buildProductDetailUrl, createCoupangDeeplink, isCoupangShortUrl, searchCoupangProducts, type CoupangProduct } from "@/threads-content-ops/lib/affiliate-clients/coupangApi";
+import { COUPANG_LINK_MESSAGES, checkCoupangAffiliateLink, isCoupangImageUrl, readCoupangShare } from "@/threads-content-ops/lib/affiliate-clients/coupangLinks";
+import { TOSS_PROXY_MISSING_MESSAGE, getBestSelling, getCategories, getCategoryBestSelling, getTodayDeals, isTossProxyConfigured, issueShareLink, type TossCategory, type TossProduct } from "@/threads-content-ops/lib/affiliate-clients/toss";
 import { withYearRule } from "@/threads-content-ops/lib/yearRule";
-import { ALIEXPRESS_IMAGE_WARNING, createAliexpressPromotionLink, findAliexpressImage, resolveAliexpressUrl } from "@/threads-content-ops/lib/aliexpress";
-import { readCoupangShare } from "@/threads-content-ops/lib/coupangLinks";
-import { cropPhotoFromCoupangBanner } from "@/threads-content-ops/lib/coupangBanner";
+import { ALIEXPRESS_IMAGE_WARNING, createAliexpressPromotionLink, findAliexpressImage, resolveAliexpressUrl } from "@/threads-content-ops/lib/affiliate-clients/aliexpress";
+import { cropPhotoFromCoupangBanner } from "@/threads-content-ops/lib/affiliate-clients/coupangBanner";
 
 const PROGRAM_SLUG = "threads-content-ops";
 const CREDENTIAL_PROVIDERS = new Set([
@@ -974,10 +965,10 @@ export async function browseTossForSources(mode: "best" | "category" | "today", 
     if (!["best", "category", "today"].includes(mode)) throw new Error("지원하지 않는 목록입니다.");
     const { supabase, user } = await authorizedUser();
     const auth = await loadTossAuth(supabase, user.id);
-    if (mode === "best") return { ok: true, products: await getTossBestSelling(auth) };
-    if (mode === "today") return { ok: true, products: await getTossTodayDeals(auth) };
+    if (mode === "best") return { ok: true, products: (await getBestSelling(auth)).products };
+    if (mode === "today") return { ok: true, products: (await getTodayDeals(auth)).products };
     if (!categoryId || categoryId.length > 100) throw new Error("카테고리를 먼저 선택해 주세요.");
-    return { ok: true, products: await getTossCategoryBestSelling(auth, categoryId) };
+    return { ok: true, products: (await getCategoryBestSelling(auth, categoryId)).products };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "토스쇼핑 상품을 불러오지 못했습니다." };
   }
@@ -987,7 +978,7 @@ export async function fetchTossCategoriesForSources(): Promise<{ ok: true; categ
   try {
     const { supabase, user } = await authorizedUser();
     const auth = await loadTossAuth(supabase, user.id);
-    return { ok: true, categories: await getTossCategories(auth) };
+    return { ok: true, categories: await getCategories(auth) };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "토스쇼핑 카테고리를 불러오지 못했습니다." };
   }
@@ -1004,7 +995,7 @@ export async function registerTossSource(input: { accountId: string; product: To
 
     const { supabase, user } = await authorizedUser();
     const auth = await loadTossAuth(supabase, user.id);
-    const link = await issueTossShareLink(auth, { tacaItemId, tacaId });
+    const link = await issueShareLink(auth, { tacaItemId, tacaId });
 
     const price = Number(product.price);
     await insertContentSource(supabase, user.id, {

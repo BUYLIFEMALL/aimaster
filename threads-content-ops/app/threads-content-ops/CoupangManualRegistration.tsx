@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { previewCoupangShare } from "./web-actions";
-import { MAX_COUPANG_SHARE_LENGTH, parseCoupangShareCode, readCoupangShare } from "@/threads-content-ops/lib/coupangLinks";
+import { MAX_COUPANG_SHARE_LENGTH, parseCoupangShareCode, readCoupangShare } from "@/threads-content-ops/lib/affiliate-clients/coupangLinks";
 
 type Input = { title: string; shareCode: string; summary: string };
 const fieldClass = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400";

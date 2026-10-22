@@ -16,7 +16,7 @@ function load(relative, mocks = {}, globals = {}) {
     URL, Buffer, AbortSignal, console, Date, crypto, ...globals });
   return module.exports;
 }
-const links = load('threads-content-ops/lib/coupangLinks.ts');
+const links = load('threads-content-ops/lib/affiliate-clients/coupangLinks.ts');
 const short = 'https://link.coupang.com/a/testManual';
 const bannerUrl = 'https://img3a.coupangcdn.com/image/affiliate/banner/test@2x.jpg';
 const html = `<a href="${short}?a=1&amp;b=2"><img src="${bannerUrl}" alt="상품 &amp; 생활 &#54620;"></a>`;
@@ -53,7 +53,7 @@ test('배너 사진 잘라내기, CDN 외 요청·리다이렉트·큰 파일 �
   }
   const bytes = jpeg.encode({ data: pixels, width: 240, height: 480 }, 95).data;
   let calls = 0;
-  const crop = load('threads-content-ops/lib/coupangBanner.ts', { 'server-only': {}, './coupangLinks': links }, {
+  const crop = load('threads-content-ops/lib/affiliate-clients/coupangBanner.ts', { 'server-only': {}, './coupangLinks': links }, {
     fetch: async (url, options) => {
       calls++; assert.equal(url, bannerUrl); assert.equal(options.redirect, 'error');
       return new Response(bytes, { headers: { 'content-type': 'image/jpeg' } });
@@ -64,7 +64,7 @@ test('배너 사진 잘라내기, CDN 외 요청·리다이렉트·큰 파일 �
   const photo = jpeg.decode(await crop.cropPhotoFromCoupangBanner(bannerUrl));
   assert.equal(photo.width, 240); assert.equal(photo.height, 240);
   assert.ok(photo.data[0] > 200 && photo.data[1] < 50);
-  const huge = load('threads-content-ops/lib/coupangBanner.ts', { 'server-only': {}, './coupangLinks': links }, {
+  const huge = load('threads-content-ops/lib/affiliate-clients/coupangBanner.ts', { 'server-only': {}, './coupangLinks': links }, {
     fetch: async () => new Response(Buffer.alloc(2000001), { headers: { 'content-type': 'image/jpeg' } }),
   });
   await assert.rejects(huge.cropPhotoFromCoupangBanner(bannerUrl), /너무 큽니다/);
@@ -95,9 +95,9 @@ function fixture(options = {}) {
     '@/lib/supabase/server': { createClient: async () => db },
     '@/lib/access/checkProgramAccess': { checkProgramAccess: async () => ({ allowed: !options.noAccess }) },
     '@/lib/apiKeys': { resolveApiKey: async () => { state.keyCalls++; throw new Error('API key should not be requested'); } },
-    '@/threads-content-ops/lib/coupangLinks': links,
+    '@/threads-content-ops/lib/affiliate-clients/coupangLinks': links,
     '@/threads-content-ops/lib/media': { MEDIA_BUCKET: 'ai-image-generations', memberMediaFolder: id => `${id}/threads-content-ops/up` },
-    '@/threads-content-ops/lib/coupangBanner': { cropPhotoFromCoupangBanner: async () => { state.cropCalls++; if (options.photoError) throw new Error('CDN unavailable'); return Buffer.from('photo'); } },
+    '@/threads-content-ops/lib/affiliate-clients/coupangBanner': { cropPhotoFromCoupangBanner: async () => { state.cropCalls++; if (options.photoError) throw new Error('CDN unavailable'); return Buffer.from('photo'); } },
   }, { has: () => true, get: (target, id) => target[id] ?? {} }));
   return { state, actions, input: { accountId: 'own-account', title: '', shareCode: html, summary: '직접 입력 메모' } };
 }

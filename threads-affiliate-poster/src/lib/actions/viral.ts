@@ -13,7 +13,7 @@ import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS } from "@/lib/ai/models";
 import { openAIGenerationParams } from "@/lib/ai/openaiRequestParams";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
-import { searchProducts as searchCoupangProducts, type CoupangProduct } from "@/lib/coupang/client";
+import { searchCoupangProducts, type CoupangProduct } from "@/lib/affiliate-clients/coupangApi";
 import { searchThreadsByKeyword, ThreadsKeywordSearchError, type ThreadsKeywordSearchPost, type ThreadsSearchMediaChild } from "@/lib/threads/client";
 
 // Only "threads" items are real posts; examples and AI drafts are labelled as such in the UI.

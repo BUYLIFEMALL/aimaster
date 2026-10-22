@@ -17,7 +17,7 @@ import {
   type ThreadsSearchStatus,
 } from "@/lib/actions/viral";
 import { connectThreadsAccountWithKeywordSearchAction, connectThreadsAccountWithKeywordSearchNewCallbackAction } from "@/lib/actions/accounts";
-import type { CoupangProduct } from "@/lib/coupang/client";
+import type { CoupangProduct } from "@/lib/affiliate-clients/coupangApi";
 import { PRESET_PERSONAS } from "@/lib/constants/personas";
 import { PersonaPicker } from "@/components/personas/PersonaPicker";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
