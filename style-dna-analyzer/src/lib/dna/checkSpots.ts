@@ -31,8 +31,10 @@ export function spotChange(prev: number | null, now: number | null): { delta: nu
 }
 
 // v1.34 추세 기록: 저장된 점검 지점이 있을 때 새로 생성할 때마다 평균 차이를 남긴다(최근 20회)
-export interface TrendPoint { at: string; avg: number; n: number; /** v1.35: 그 회차에 쓴 프롬프트 앞부분(최대 120자) */ prompt?: string }
-export const MAX_TREND_PROMPT = 120;
+export interface TrendPoint { at: string; avg: number; n: number; /** v1.35: 그 회차에 쓴 프롬프트 원문(최대 2,000자 — 편집 칸으로 다시 불러올 수 있게) */ prompt?: string }
+export const MAX_TREND_PROMPT = 2000;
+/** 화면에 보여 줄 프롬프트 길이 */
+export const TREND_PROMPT_PREVIEW = 120;
 export const MAX_TREND = 20;
 
 /** 밖에서 온 값을 검사해 올바른 점만, 최근 20개 남긴다 */
@@ -45,7 +47,7 @@ export function cleanTrend(raw: unknown): TrendPoint[] {
     const avg = clampPct(o.avg);
     const n = typeof o.n === "number" && Number.isInteger(o.n) && o.n > 0 && o.n <= MAX_CHECK_SPOTS ? o.n : null;
     if (avg === null || n === null || typeof o.at !== "string" || Number.isNaN(Date.parse(o.at))) continue;
-    const prompt = typeof o.prompt === "string" ? o.prompt.replace(/\s+/g, " ").trim().slice(0, MAX_TREND_PROMPT) : "";
+    const prompt = typeof o.prompt === "string" ? o.prompt.trim().slice(0, MAX_TREND_PROMPT) : "";
     out.push(prompt ? { at: new Date(o.at).toISOString(), avg, n, prompt } : { at: new Date(o.at).toISOString(), avg, n });
   }
   return out.slice(-MAX_TREND);
@@ -72,4 +74,17 @@ export function sparklineXY(values: number[], width: number, height: number, pad
     const y = pad + ((v - min) / span) * (height - pad * 2);
     return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
   });
+}
+
+/** v1.35: 화면용 프롬프트 미리보기(공백 정리, 120자 + …) */
+export function promptPreview(prompt: string): string {
+  const one = prompt.replace(/\s+/g, " ").trim();
+  return one.length > TREND_PROMPT_PREVIEW ? `${one.slice(0, TREND_PROMPT_PREVIEW)}…` : one;
+}
+
+/** v1.35: 평균 차이가 가장 낮은(원본에 가장 가까운) 회차 — 같으면 최근 회차. 없으면 -1 */
+export function bestTrendIndex(values: number[]): number {
+  let best = -1;
+  values.forEach((v, i) => { if (best < 0 || v <= values[best]) best = i; });
+  return best;
 }

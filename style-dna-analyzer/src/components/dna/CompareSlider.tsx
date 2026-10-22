@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { averageDiff, colorDiffPercent, containPoint, defaultSplit, percentAt, percentForKey, splitClip, toHex, type SplitMode } from "@/lib/dna/compare";
-import { sparklinePoints, sparklineXY, spotChange, type CheckSpot, type TrendPoint } from "@/lib/dna/checkSpots";
+import { bestTrendIndex, promptPreview, sparklinePoints, sparklineXY, spotChange, type CheckSpot, type TrendPoint } from "@/lib/dna/checkSpots";
 
 type Pixels = { data: Uint8ClampedArray; w: number; h: number; natW: number; natH: number };
 type RGB = [number, number, number];
@@ -79,9 +79,9 @@ const MAX_SPOTS = 8;
  * v1.31: 가로/세로 분할 전환(세로가 긴 원본은 처음부터 위아래), 점검 지점 최대 8곳 저장·평균 차이.
  * v1.32: 점검 지점을 분석 보관함에 저장(savedSpots·onSaveSpots), 다시 생성하면 같은 자리의 「이전 → 지금」 차이 비교.
  * v1.34: 새 결과마다 저장된 지점의 평균 차이를 한 번 기록(onTrend)하고 작은 추세 그래프로 보여 준다.
- * v1.35: 그래프의 점을 누르면 그 회차의 평균 차이와 그때 쓴 프롬프트 앞부분을 보여 준다.
+ * v1.35: 그래프의 점을 누르면 그 회차의 평균 차이와 그때 쓴 프롬프트를 보여 주고, 「🏆 최고 기록」(가장 낮은 차이) 표시·편집 칸으로 불러오기.
  */
-export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [], onSaveSpots, trend = [], onTrend }: { before: string; after: string; maxHeight?: number; savedSpots?: CheckSpot[]; onSaveSpots?: (spots: CheckSpot[]) => Promise<void>; trend?: TrendPoint[]; onTrend?: (avg: number, n: number) => void }) {
+export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [], onSaveSpots, trend = [], onTrend, onLoadPrompt }: { before: string; after: string; maxHeight?: number; savedSpots?: CheckSpot[]; onSaveSpots?: (spots: CheckSpot[]) => Promise<void>; trend?: TrendPoint[]; onTrend?: (avg: number, n: number) => void; onLoadPrompt?: (prompt: string) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState(50);
   const [posY, setPosY] = useState(50);
@@ -140,6 +140,7 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
   const trendValues = trend.map((t) => t.avg);
   const [pickedTrend, setPickedTrend] = useState<number | null>(null);
   const picked = pickedTrend !== null ? trend[pickedTrend] ?? null : null;
+  const bestIdx = trendValues.length > 1 ? bestTrendIndex(trendValues) : -1;
   const trendChange = trendValues.length > 1 ? spotChange(trendValues[0], trendValues[trendValues.length - 1]) : null;
 
   const persist = async () => {
@@ -304,8 +305,8 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
                     key={i}
                     cx={x}
                     cy={y}
-                    r={pickedTrend === i ? 5 : 3.5}
-                    fill={pickedTrend === i ? "#f59e0b" : "#38bdf8"}
+                    r={pickedTrend === i ? 5 : i === bestIdx ? 4.5 : 3.5}
+                    fill={pickedTrend === i ? "#f59e0b" : i === bestIdx ? "#22c55e" : "#38bdf8"}
                     stroke="#fff"
                     strokeWidth="1"
                     className="cursor-pointer"
@@ -321,14 +322,24 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
               <p className="text-[11px] text-slate-900">
                 추세 {trendValues.length}회 · 처음 <span data-trend-first>{trendValues[0]}%</span> → 최근 <span data-trend-last>{trendValues[trendValues.length - 1]}%</span>
                 {trendChange && <TrendMark trend={trendChange.trend} delta={trendChange.delta} />}
+                {bestIdx >= 0 && (
+                  <button type="button" data-trend-best={bestIdx + 1} onClick={() => setPickedTrend(bestIdx)} className="ml-2 font-bold text-emerald-400 hover:underline">
+                    🏆 최고 기록 {bestIdx + 1}회차 {trendValues[bestIdx]}%
+                  </button>
+                )}
                 <span className="block text-[10px] opacity-80">선이 올라갈수록 원본 색에 가까워진 것입니다. 점을 누르면 그때 쓴 프롬프트를 보여 드립니다.</span>
               </p>
             </div>
           )}
           {picked && (
             <div className="mb-2 rounded-lg border border-amber-400/60 px-2 py-1.5 text-[11px] text-slate-900" data-trend-picked>
-              <b>{(pickedTrend ?? 0) + 1}회차</b> · {new Date(picked.at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} · 평균 차이 <b>{picked.avg}%</b> ({picked.n}곳)
-              <p className="mt-0.5 break-words font-mono text-[10px] opacity-90">{picked.prompt ? `「${picked.prompt}」` : "이 회차는 프롬프트가 기록되지 않았습니다(v1.35 이전 기록)."}</p>
+              <b>{(pickedTrend ?? 0) + 1}회차{pickedTrend === bestIdx ? " 🏆" : ""}</b> · {new Date(picked.at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} · 평균 차이 <b>{picked.avg}%</b> ({picked.n}곳)
+              <p className="mt-0.5 break-words font-mono text-[10px] opacity-90">{picked.prompt ? `「${promptPreview(picked.prompt)}」` : "이 회차는 프롬프트가 기록되지 않았습니다(v1.35 이전 기록)."}</p>
+              {picked.prompt && onLoadPrompt && (
+                <button type="button" data-load-prompt onClick={() => onLoadPrompt(picked.prompt!)} className="mt-1 font-bold text-sky-400 hover:underline">
+                  ✏ 이 프롬프트를 편집 칸으로 불러오기
+                </button>
+              )}
             </div>
           )}
           <ul className="space-y-1">

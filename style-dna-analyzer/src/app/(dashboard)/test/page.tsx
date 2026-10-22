@@ -278,6 +278,12 @@ export default function TestPage() {
                 maxHeight={640}
                 savedSpots={record.checkSpots ?? []}
                 trend={record.checkTrend ?? []}
+                onLoadPrompt={(p) => {
+                  // v1.35: 좋았던 회차의 프롬프트로 돌아가기 — 직접 편집 모드로 바꾸고 맨 위로
+                  setCustomPrompt(p);
+                  setIsEditingPrompt(true);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
                 onTrend={(avg, n) => {
                   // v1.34: 기록 실패(예: 추세 칸이 아직 없는 DB)는 화면을 막지 않고 조용히 넘긴다
                   void fetch(`/api/analyses/${record.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trendAdd: { avg, n, prompt: result.prompt } }) })

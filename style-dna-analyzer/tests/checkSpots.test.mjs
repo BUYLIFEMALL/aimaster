@@ -36,12 +36,22 @@ test("v1.34 추세: 검사·20개 자르기·그래프 좌표", async () => {
 
 test("v1.35 추세 점 프롬프트·점 좌표", async () => {
   const { cleanTrend, appendTrend, sparklineXY, sparklinePoints, MAX_TREND_PROMPT } = await import("../src/lib/dna/checkSpots.ts");
-  const long = "a  very\nlong prompt ".repeat(20);
+  // v1.35 정정: 저장은 원문(앞뒤 공백만 정리, 최대 2,000자) — 편집 칸으로 다시 불러오기 위해 줄바꿈 유지
+  const long = "a  very\nlong prompt ".repeat(200);
   const [p] = cleanTrend([{ at: "2026-10-22T00:00:00Z", avg: 10, n: 2, prompt: long }]);
   assert.equal(p.prompt.length, MAX_TREND_PROMPT);
-  assert.ok(!/\s{2,}/.test(p.prompt));
+  assert.ok(p.prompt.includes("\n"));
   assert.equal(cleanTrend([{ at: "2026-10-22T00:00:00Z", avg: 10, n: 2, prompt: 5 }])[0].prompt, undefined);
   assert.equal(appendTrend([], { at: "2026-10-22T00:00:00Z", avg: 3, n: 1, prompt: " cat " })[0].prompt, "cat");
   assert.deepEqual(sparklineXY([60, 30, 0], 100, 20), [[3, 17], [50, 10], [97, 3]]);
   assert.equal(sparklinePoints([60, 30, 0], 100, 20), "3,17 50,10 97,3");
+});
+
+test("v1.35 최고 기록·프롬프트 미리보기", async () => {
+  const { bestTrendIndex, promptPreview } = await import("../src/lib/dna/checkSpots.ts");
+  assert.equal(bestTrendIndex([62.9, 34.8, 40]), 1);
+  assert.equal(bestTrendIndex([30, 20, 20]), 2); // 같으면 최근
+  assert.equal(bestTrendIndex([]), -1);
+  assert.equal(promptPreview("a   b\nc"), "a b c");
+  assert.equal(promptPreview("x".repeat(130)), "x".repeat(120) + "…");
 });
