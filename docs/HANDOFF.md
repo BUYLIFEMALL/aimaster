@@ -227,6 +227,12 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 바나나 v1.22·인물사진 v1.34 규격 링크 배포 · 공용 기준 코드 post-presets 등록 · 감성 글귀 v1.22 비율 아이콘
+- 바나나 캔버스 v1.22·AI 인물사진 v1.34: 「형식 바꾸기」 `&preset=` 배포(운영 스크립트 포함 확인, 링크 화면 확인은 결과·보관 사진이 없어 생략).
+- 공용 기준 코드 `post-presets`(기준 `image-convert-studio/src/lib/imageTools/postPresets.ts`, 사본 감성 글귀·4컷) 등록 — `docs/SHARED_MODULES.md`, `check-shared-modules.mjs`. 변환 스튜디오·4컷은 동작 같음·다음 배포 때.
+- 감성 글귀 v1.22: 크기 버튼마다 실제 비율 상자 아이콘, 크롬에서 6개 크기 확인.
+- 빌드 3회(승인), AI 0회. 프로그램: https://emotion-writer.buylife.xyz · https://banana-canvas.buylife.xyz · https://portrait-photo.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 변환 스튜디오 v1.14 확대 자르기 · 4컷 v1.29 완성작 크기 기록·규격 자동 · 감성 글귀 v1.21 크기 통일
 - 변환 스튜디오 v1.14: 「자를 위치」 창 확대 슬라이더(100~300%, 비율 유지) — 크롬에서 가운데 빨간 정사각형만 1080×1080으로 잘림 확인.
 - 4컷 v1.29: 서버 보관 저장 때 JPEG 머리에서 실제 가로·세로를 읽어 기록, 형식 바꾸기 링크에 `&preset=` — 크롬에서 시험 저장 → 1080×1080 기록·`insta-feed` 확인 → 시험 항목 삭제.
