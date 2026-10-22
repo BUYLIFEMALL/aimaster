@@ -169,3 +169,10 @@
 
 ### 2026-10-23 🟡 미배포 대기 (운영 v1.25 그대로) — 사진 검색을 공용 기준 코드 `free-photo-search` 사본으로 (Claude Code 윈도우, 커밋 `428fcdfc3`)
 - `src/lib/studio/photoSearch.ts`(사본, 직접 고치지 않음 — 기준 INSTA `src/lib/cardnews/photoSearch.ts` 수정 후 `--sync`). 상세 `docs/IMPROVEMENTS.md` 맨 위. 비용 없음.
+
+## 2026-10-23 v1.26 — 사진 검색 「🔤 영어로」(공용 사전) + 「한국어로 다시 찾기」 (Claude Code 윈도우)
+- 6단계 배경 사진 검색칸 옆 「🔤 영어로」: 검색어(비어 있으면 5단계 글귀)를 공용 기준 코드 `photo-keywords` 사본 `src/lib/studio/photoKeywords.ts`(기준 `threads/src/lib/photoKeywords.ts`, 직접 고치지 말 것)로 영어 단어로 바꿈(AI 없음). 영어 결과가 0장이면 「한국어로 다시 찾기」(한글이 있을 때만). `Workspace.tsx` `toEnglish`·`search(override)`.
+- 함께 나감: 사진 검색·받기 공용 `free-photo-search` 사본 전환(`428fcdfc3`, 동작 같음).
+- 검수: 공용 코드 일치, tsc 0, `npm test` 35, 로컬 build, 배포 `emotion-writer-qg9gjgkjq` Ready, DB v1.26. 크롬: 메뉴 v1.26, 「아침 커피」→ morning coffee, 버튼 위치 확인(실제 검색은 안 함).
+- 비용: Vercel 빌드 1회(제안 범위).
+

@@ -19,6 +19,7 @@ import {
 import { QuoteCanvas } from "./QuoteCanvas";
 import { useBandColor } from "./useBandColor";
 import { adviseOverlay } from "@/lib/studio/readability";
+import { toEnglishKeywords } from "@/lib/studio/photoKeywords";
 import { KeySettings } from "./KeySettings";
 import {
   Sparkles,
@@ -122,6 +123,9 @@ export function Workspace({
   const [modal, setModal] = useState<Provider | null>(null);
   const [image, setImage] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
+  // v1.26: 「🔤 영어로」(공용 사전 photo-keywords, AI 없음) 전 한국어 검색어 — 영어 결과가 0장이면 「한국어로 다시 찾기」
+  const [koreanBefore, setKoreanBefore] = useState("");
+  const [translateNote, setTranslateNote] = useState("");
   const [photo, setPhoto] = useState<Photo | null>(null);
   // v1.23: 기본값은 안내 문구로만 보여 줌(덧붙여 써서 「naturenature」처럼 0장이 되는 일 방지) — 비우고 검색하면 nature
   const [query, setQuery] = useState("");
@@ -295,7 +299,17 @@ export function Workspace({
     );
   }
 
-  function search() {
+  function toEnglish() {
+    const source = (query.trim() || draft.quote).trim();
+    const english = toEnglishKeywords(source);
+    if (english) {
+      setKoreanBefore(/[가-힣]/.test(source) ? source.slice(0, 100) : "");
+      setQuery(english);
+      setTranslateNote("");
+    } else setTranslateNote("사전에 없는 말이에요. 검색어를 직접 영어로 적어 주세요(예: sunrise, flowers).");
+  }
+
+  function search(override?: string) {
     if (!draft.source || draft.source === "gemini") return;
     if (!keys[draft.source]) {
       setModal(draft.source);
@@ -303,7 +317,7 @@ export function Workspace({
     }
     run<{ photos: Photo[] }>(
       "/api/photos",
-      { provider: draft.source, query: query.trim() || DEFAULT_PHOTO_QUERY, ratio: draft.ratio },
+      { provider: draft.source, query: (override ?? query).trim() || DEFAULT_PHOTO_QUERY, ratio: draft.ratio },
       "사진을 찾고 있습니다…",
       (d) => {
         setPhotos(d.photos);
@@ -630,17 +644,36 @@ export function Workspace({
                         value={query}
                         maxLength={100}
                         disabled={disabled}
-                        onChange={(e) => setQuery(e.target.value)}
+                        onChange={(e) => { setQuery(e.target.value); setKoreanBefore(""); }}
                         placeholder="예: nature, sunrise, flowers (비워 두면 nature)"
                       />
+                      <button type="button" data-photo-english className="flex items-center gap-1.5 whitespace-nowrap" disabled={disabled || !(query.trim() || draft.quote.trim())} onClick={toEnglish}>
+                        🔤 영어로
+                      </button>
                       <button className="primary flex items-center gap-1.5" disabled={disabled}>
                         <Search size={14} />
                         <span>사진 검색</span>
                       </button>
                     </form>
                     <p className="muted">
-                      영어 검색어를 사용하면 더 많은 사진을 찾을 수 있습니다.
+                      영어 검색어를 사용하면 더 많은 사진을 찾을 수 있습니다. 「🔤 영어로」를 누르면 검색어(비어 있으면 글귀)를 영어 단어로 바꿉니다.
                     </p>
+                    {translateNote && <p className="muted">{translateNote}</p>}
+                    {koreanBefore && photos.length === 0 && /검색 결과가 없습니다/.test(notice ?? "") && (
+                      <button
+                        type="button"
+                        data-photo-korean-retry
+                        disabled={disabled}
+                        onClick={() => {
+                          const k = koreanBefore;
+                          setKoreanBefore("");
+                          setQuery(k);
+                          search(k);
+                        }}
+                      >
+                        한국어로 다시 찾기 (「{koreanBefore.slice(0, 20)}」)
+                      </button>
+                    )}
                     <div className="photo-grid">
                       {photos.map((p) => (
                         <button
