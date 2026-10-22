@@ -301,3 +301,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 한계: 배경이 복잡한 곳은 덮은 자리가 티 날 수 있음(단색·그라데이션 배경에 적합). 글자는 사각형 안 가운데 높이에 맞춰 그림(넘치면 가로로 줄여 맞춤).
 - 버전 v1.25(SQL `supabase/migrations/20261022_text_edit_v1_25.sql` — 버전만). 검수: tsc 0, eslint 0. 실제 편집·저장은 배포 뒤 맥미니 크롬에서 시험 계정으로 확인 예정.
 - **윈도우 CLI 다음 첫 단계**: SQL `20261022_text_edit_v1_25.sql` → `shop-detail-page` 배포 1회.
+
+## 2026-10-22 ✅ v1.25 배포 (Claude Code 윈도우 — 맥미니 v1.25 이미지 문구 고치기 마무리)
+- 맥미니 커밋 `ae1fe84ca`(생성 이미지 위 문구 고치기 — 영역 선택·주변 색으로 덮기·새 문구 쓰기·새 버전으로 저장, AI 호출 없음) 마무리.
+- 공용 사본(`store-zip`·`gemini-image-client`·`gemini-image-models`) 일치·tsc 통과 → 배포 READY(`shop-detail-page-eulp5kld0-buylife.vercel.app`) → 운영 DB `programs.version` v1.25(`20261022_text_edit_v1_25.sql`과 같은 버전 갱신만, DB 구조 변경 없음).
+- 크롬(메인 크롬): `/products` 화면에 v1.25 표시 확인. **문구 고치기 실제 시험은 맥미니 세션에서 진행 예정**(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
