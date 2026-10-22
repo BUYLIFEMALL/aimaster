@@ -223,6 +223,12 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 변환 스튜디오 v1.14 확대 자르기 · 4컷 v1.29 완성작 크기 기록·규격 자동 · 감성 글귀 v1.21 크기 통일
+- 변환 스튜디오 v1.14: 「자를 위치」 창 확대 슬라이더(100~300%, 비율 유지) — 크롬에서 가운데 빨간 정사각형만 1080×1080으로 잘림 확인.
+- 4컷 v1.29: 서버 보관 저장 때 JPEG 머리에서 실제 가로·세로를 읽어 기록, 형식 바꾸기 링크에 `&preset=` — 크롬에서 시험 저장 → 1080×1080 기록·`insta-feed` 확인 → 시험 항목 삭제.
+- 감성 글귀 v1.21: 다른 크기로 받기를 변환 스튜디오 규격과 같은 이름·숫자로(1200×630·유튜브 썸네일 추가).
+- 빌드 3회(승인), AI 0회. 프로그램: https://image-convert-studio.buylife.xyz · https://four-cut-comics.buylife.xyz · https://emotion-writer.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 이미지 변환 스튜디오 v1.13 자를 위치 끌기·썸네일 즉시 반영·?preset 받기 (+ 보내는 쪽 미배포)
 - v1.13: 규격·자르기를 고르면 그림마다 「✂ 자를 위치」 창에서 틀을 끌어 위치 지정, 회전·반전·자르기 모습을 썸네일에 변환 전 표시, `?preset=` 자동 선택. 크롬에서 끌기 → 결과 위치 정확 확인. 배포 1회.
 - ⏸ 미배포: 바나나 캔버스(결과 크기 기준)·AI 인물사진(저장 비율 기준) 「형식 바꾸기」 링크에 `&preset=` — 각 프로그램 다음 배포 때. 4컷은 저장 비율이 컷 하나 기준이라 보류(`four-cut-comics/docs/IMPROVEMENTS.md`).
