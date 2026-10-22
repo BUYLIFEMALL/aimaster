@@ -5,7 +5,7 @@ import { isContentProvider, resolveContentModel } from "@/lib/ai/contentModels";
 import { getKoreaToday } from "@/lib/ai/freshness";
 import { requestDraftJson } from "@/lib/ai/generator";
 import { researchPrompt } from "@/lib/ai/groundingPrompt";
-import { filterPoints, type ResearchSource } from "@/lib/grounding";
+import { filterPoints, withApproval, type ResearchSource } from "@/lib/grounding";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -50,5 +50,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     .eq("id", id).eq("user_id", access.user.id)
     .select("id, keyword, sources, points, angle, approved_at, approval_hash, created_at, updated_at").single();
   if (error) return NextResponse.json({ error: "정리한 근거를 저장하지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ research: data, dropped });
+  return NextResponse.json({ research: withApproval(data), dropped });
 }

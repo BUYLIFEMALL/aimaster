@@ -51,3 +51,14 @@ test("BLC-08a: without grounding the fact rule is byte-identical to v1.83; groun
   assert.match(g, /승인한 근거/);
   assert.match(factRule([], true), /승인한 근거 목록/);
 });
+
+test("BLC-08a: withApproval marks an approved-then-edited record invalid for the screen", async () => {
+  const { withApproval } = await import("../lib/grounding.ts");
+  const points = filterPoints([{ text: "가을에는 따뜻한 침낭을 고릅니다.", source: 1, quote: "침낭을 영하 5도" }], sources).points;
+  const ok = withApproval({ id: "r1", points, approved_at: "2026-10-22T00:00:00Z", approval_hash: approvalHash(points) });
+  assert.equal(ok.approval_valid, true);
+  assert.equal(ok.id, "r1");
+  const edited = withApproval({ ...ok, points: points.map((p) => ({ ...p, text: p.text + "!" })) });
+  assert.equal(edited.approval_valid, false);
+  assert.equal(withApproval({ points: [], approved_at: null, approval_hash: null }).approval_valid, false);
+});

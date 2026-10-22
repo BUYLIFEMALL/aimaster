@@ -56,3 +56,8 @@ export function isApproved(research: { points?: unknown; approved_at?: string | 
   const points = Array.isArray(research.points) ? research.points as GroundPoint[] : [];
   return Boolean(research.approved_at && research.approval_hash && points.some((p) => p.kept) && research.approval_hash === approvalHash(points));
 }
+
+/** 화면용: 승인이 지금도 유효한지(생성 때와 같은 규칙)를 함께 내려 「승인 뒤 바뀜」을 표시하게 한다 */
+export function withApproval<T extends { points?: unknown; approved_at?: string | null; approval_hash?: string | null }>(research: T): T & { approval_valid: boolean } {
+  return { ...research, approval_valid: isApproved(research) };
+}

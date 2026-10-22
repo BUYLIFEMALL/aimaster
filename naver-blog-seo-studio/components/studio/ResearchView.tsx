@@ -7,7 +7,7 @@ import { CONTENT_PROVIDER_LABELS, CONTENT_PROVIDERS, getContentModels, getDefaul
 import type { GroundPoint, ResearchSource } from "@/lib/grounding";
 import type { Studio } from "./useStudio";
 
-type Research = { id: string; keyword: string; sources: ResearchSource[]; points: GroundPoint[]; angle: string | null; approved_at: string | null; approval_hash: string | null; created_at: string };
+type Research = { id: string; keyword: string; sources: ResearchSource[]; points: GroundPoint[]; angle: string | null; approved_at: string | null; approval_hash: string | null; approval_valid?: boolean; created_at: string };
 const KIND_LABEL: Record<string, string> = { blog: "블로그", news: "뉴스", url: "직접 URL", memo: "내 메모" };
 
 async function post(url: string, body: unknown) {
@@ -62,7 +62,9 @@ export function ResearchView({ s }: { s: Studio }) {
     if (draft) openMenu("new-draft");
   });
 
-  const approved = Boolean(research?.approved_at);
+  // 서버가 생성 때와 같은 규칙으로 계산한 승인 유효 여부. 승인 시각은 있는데 무효면 승인 뒤 근거가 바뀐 것이다.
+  const approved = Boolean(research?.approval_valid);
+  const stale = Boolean(research?.approved_at) && !approved;
   const sourceTitle = (n: number) => research?.sources.find((src) => src.n === n);
 
   return (
@@ -79,7 +81,7 @@ export function ResearchView({ s }: { s: Studio }) {
       {recent.length > 0 && <div className="field"><label htmlFor="research-recent">최근 자료 다시 열기 (30일 보관)</label>
         <select id="research-recent" value={research?.id ?? ""} onChange={(e) => load(recent.find((r) => r.id === e.target.value) ?? null)}>
           <option value="">선택 안 함</option>
-          {recent.map((r) => <option key={r.id} value={r.id}>{r.keyword} · 자료 {r.sources.length}건 · {r.approved_at ? "승인됨" : r.points.length ? "근거 정리됨" : "자료만"} · {new Date(r.created_at).toLocaleDateString("ko-KR")}</option>)}
+          {recent.map((r) => <option key={r.id} value={r.id}>{r.keyword} · 자료 {r.sources.length}건 · {r.approval_valid ? "승인됨" : r.approved_at ? "승인 뒤 바뀜" : r.points.length ? "근거 정리됨" : "자료만"} · {new Date(r.created_at).toLocaleDateString("ko-KR")}</option>)}
         </select></div>}
 
       {research && <>
@@ -96,7 +98,8 @@ export function ResearchView({ s }: { s: Studio }) {
         <button type="button" className="secondary" disabled={Boolean(busy)} onClick={analyze}>{busy === "analyze" ? "근거를 정리하는 중..." : research.points.length ? "근거 다시 정리(승인이 풀립니다)" : "근거 정리하기"}</button>
 
         {research.points.length > 0 && <>
-          <h3 className="card-title">③ 남길 근거 고르기 {approved ? "· ✅ 승인됨" : ""}</h3>
+          <h3 className="card-title">③ 남길 근거 고르기 {approved ? "· ✅ 승인됨" : stale ? "· ⚠️ 승인 뒤 바뀜 · 다시 승인 필요" : ""}</h3>
+          {stale && <p className="freshness-note">승인한 뒤 근거 내용이 바뀌어 이 근거로는 글을 만들 수 없습니다. 남길 근거를 다시 확인하고 승인해주세요.</p>}
           {research.angle && <p className="section-description">글의 방향: {research.angle}</p>}
           <ul style={{ listStyle: "none", paddingLeft: 0 }}>{research.points.map((p, i) => (
             <li key={i}><label><input type="checkbox" disabled={approved} checked={keep.has(i)} onChange={(e) => setKeep((set) => { const next = new Set(set); if (e.target.checked) next.add(i); else next.delete(i); return next; })} /> {p.text} <small>— 「{p.quote}」 ({sourceTitle(p.source)?.title || `자료 ${p.source}`})</small></label></li>

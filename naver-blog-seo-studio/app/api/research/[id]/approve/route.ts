@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
-import { approvalHash, type GroundPoint } from "@/lib/grounding";
+import { approvalHash, withApproval, type GroundPoint } from "@/lib/grounding";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -31,5 +31,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     .eq("id", id).eq("user_id", access.user.id)
     .select("id, keyword, sources, points, angle, approved_at, approval_hash, created_at, updated_at").single();
   if (error) return NextResponse.json({ error: "승인 상태를 저장하지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ research: data });
+  return NextResponse.json({ research: withApproval(data) });
 }

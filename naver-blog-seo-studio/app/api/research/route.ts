@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { purgeExpiredResearch } from "@/lib/draftRetention";
-import type { ResearchSource } from "@/lib/grounding";
+import { withApproval, type ResearchSource } from "@/lib/grounding";
 import { naverSearch } from "@/lib/naverSearch";
 import { fetchPublicArticle } from "@/lib/safeFetch";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +24,7 @@ export async function GET() {
   const { data, error } = await supabase.from("naver_blog_seo_research").select(LIST_COLUMNS)
     .eq("user_id", access.user.id).order("created_at", { ascending: false }).limit(20);
   if (error) return NextResponse.json({ error: "자료 목록을 불러오지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ research: data ?? [] });
+  return NextResponse.json({ research: (data ?? []).map(withApproval) });
 }
 
 export async function POST(request: Request) {
@@ -82,5 +82,5 @@ export async function POST(request: Request) {
     .insert({ user_id: access.user.id, keyword, sources: numbered, points: [] })
     .select(LIST_COLUMNS).single();
   if (error) return NextResponse.json({ error: "자료를 저장하지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ research: data, warnings });
+  return NextResponse.json({ research: withApproval(data), warnings });
 }
