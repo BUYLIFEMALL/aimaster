@@ -18,15 +18,17 @@ export async function GET(request: Request) {
   const drafts = (data ?? []).map((draft) => {
     const report = typeof draft.seo_report === "object" && draft.seo_report !== null ? draft.seo_report as { contentImages?: unknown; contentBlocks?: unknown } : {};
     const contentImages = Array.isArray(report.contentImages) ? report.contentImages
-      .filter((item): item is { slot?: string; sentence?: string } => typeof item === "object" && item !== null)
+      // BLC-10: 이미지 파일이 아직 없는 노드(만드는 중·실패)는 보내지 않는다 — 그 칸을 요청하면 대표 이미지가 대신 내려가므로
+      .filter((item): item is { slot?: string; sentence?: string; path?: string } => typeof item === "object" && item !== null && typeof (item as { path?: unknown }).path === "string")
       .map((item) => ({ slot: item.slot, sentence: item.sentence })) : [];
+    const readySlots = new Set(contentImages.map((item) => item.slot));
     const contentBlocks: Array<{ id: string; type: "text"; text: string } | { id: string; type: "image"; slot: "cover" | "content-1" | "content-2" | "content-3"; alt: string }> = [];
     if (Array.isArray(report.contentBlocks)) for (const rawBlock of report.contentBlocks) {
       if (typeof rawBlock !== "object" || rawBlock === null) continue;
       const item = rawBlock as { id?: unknown; type?: unknown; text?: unknown; slot?: unknown; alt?: unknown };
       if (typeof item.id !== "string") continue;
       if (item.type === "text" && typeof item.text === "string") contentBlocks.push({ id: item.id, type: "text", text: item.text });
-      if (item.type === "image" && (item.slot === "cover" || item.slot === "content-1" || item.slot === "content-2" || item.slot === "content-3")) contentBlocks.push({ id: item.id, type: "image", slot: item.slot, alt: typeof item.alt === "string" ? item.alt : "" });
+      if (item.type === "image" && (item.slot === "cover" || ((item.slot === "content-1" || item.slot === "content-2" || item.slot === "content-3") && readySlots.has(item.slot)))) contentBlocks.push({ id: item.id, type: "image", slot: item.slot, alt: typeof item.alt === "string" ? item.alt : "" });
     }
     return {
       publication_fingerprint: publicationFingerprint(draft), id: draft.id, topic: draft.topic, keywords: draft.keywords, strategy: draft.strategy, title: draft.title, body: draft.body,

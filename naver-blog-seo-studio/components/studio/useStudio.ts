@@ -8,6 +8,7 @@ import { DEFAULT_GEMINI_IMAGE_MODEL, type GeminiImageModel } from "@/lib/ai/gemi
 import { DEFAULT_OPENAI_CONTENT_MODEL } from "@/lib/ai/openaiModels";
 import { CONTENT_MODEL_OPTIONS, getContentModels, type ContentProvider } from "@/lib/ai/contentModels";
 import { parseSavedModel, SAVED_MODEL_KEY } from "@/lib/savedModel";
+import { placeNodeBlock, removeNodeBlock, upsertNode } from "@/lib/imageNodes";
 import { strategies, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, missingBlockImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
 
 export function useStudio() {
@@ -105,6 +106,9 @@ export function useStudio() {
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
   const [contentImagePending, setContentImagePending] = useState(false);
   const [regeneratingContentImageSlot, setRegeneratingContentImageSlot] = useState<ContentImageSlot | null>(null);
+  // BLC-10: 노드마다 덧붙일 요청 입력값, 화면 안 삭제 확인 중인 노드
+  const [imageRequests, setImageRequests] = useState<Partial<Record<ContentImageSlot, string>>>({});
+  const [confirmDeleteSlot, setConfirmDeleteSlot] = useState<ContentImageSlot | null>(null);
   const [extensionDraftId, setExtensionDraftId] = useState<string | null>(null);
   const [handoffPending, setHandoffPending] = useState(false);
   const [handoffMessage, setHandoffMessage] = useState("");
@@ -515,40 +519,106 @@ export function useStudio() {
     } finally { setImagePending(false); }
   }
 
+  // BLC-10 (2026-10-22): 본문 이미지를 노드 단위로 — 요청 1번에 이미지 1장, 서버가 그 노드만 저장(다른 이미지·위치 그대로).
+  async function makeContentImage(draftId: string, slot: ContentImageSlot, request?: string) {
+    const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId, slot, model: imageModel, ...(request !== undefined ? { request } : {}) }) });
+    const result = await response.json() as { image?: ContentImage; error?: string };
+    if (!response.ok || !result.image) throw new Error(result.error || "본문 이미지를 만들지 못했습니다.");
+    setContentImages((items) => upsertNode(items, result.image!));
+    return result.image;
+  }
+
+  // ① 목표 장수까지 빈 칸의 기준 문장만 정하고(글 AI 1회) ② 이미지가 없는 노드만 1장씩 만든다. 실패하면 멈추고, 만든 장은 저장돼 있다.
   async function generateContentImages(draft: DraftRecord | null = currentDraft) {
     if (!draft) return setMessage("먼저 AI 블로그(원문)을 생성하거나 생성 기록에서 블로그(원문)을 선택해주세요.");
     setContentImagePending(true);
-    setMessage(`AI가 본문 핵심 문장 ${contentImageCount}개를 고르고, 각 문장에 맞는 이미지를 생성하고 있습니다.`);
+    let done = 0;
     try {
-      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, count: contentImageCount, model: imageModel, openaiModel: activeOpenAIModel }) });
-      const result = await response.json() as { images?: ContentImage[]; error?: string };
-      if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
-      setContentImages(result.images);
-      setContentBlocks(createContentBlocks({ ...draft, seo_report: { ...(draft.seo_report ?? {}), contentImages: result.images } as unknown as Record<string, string> }, result.images));
-      setCurrentDraft((current) => current?.id === draft.id ? withoutContentImages(current) : withoutContentImages(draft));
-      setMessage(`본문 핵심 문장 ${contentImageCount}개와 매칭된 이미지가 생성되었습니다. 각 문장 바로 위에 전송됩니다.`);
+      setMessage("이미지가 들어갈 빈 칸의 기준 문장을 고르고 있습니다.");
+      const response = await fetch("/api/images/plan-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, count: contentImageCount, openaiModel: activeOpenAIModel }) });
+      const result = await response.json() as { images?: ContentImage[]; blocks?: ContentBlock[]; added?: ContentImageSlot[]; error?: string };
+      if (!response.ok || !result.images) throw new Error(result.error || "본문 이미지 구성을 정하지 못했습니다.");
+      const images = result.images;
+      setContentImages(images);
+      // 화면 블록(아직 저장 안 한 이동·수정 포함)은 그대로 두고 새 노드만 기준 문단 앞에 넣는다
+      setContentBlocks((blocks) => (result.added ?? []).reduce((next, slot) => {
+        const node = images.find((image) => image.slot === slot);
+        return node ? placeNodeBlock(next, node) : next;
+      }, blocks.length ? blocks : result.blocks ?? []));
+      const pending = images.filter((image) => !image.path).map((image) => image.slot);
+      for (const slot of pending) {
+        setRegeneratingContentImageSlot(slot);
+        setMessage(`본문 이미지 ${done + 1}/${pending.length}장을 만들고 있습니다.`);
+        await makeContentImage(draft.id, slot);
+        done += 1;
+      }
+      setMessage(pending.length ? `본문 이미지 ${done}장을 만들었습니다. 이미 있던 이미지와 위치는 그대로입니다.` : "모든 칸에 이미지가 있습니다. 바꾸려면 이미지마다 「다시 만들기」를 눌러주세요.");
       refreshHistory().catch(() => {});
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "본문 매칭 이미지 생성에 실패했습니다.");
-    } finally { setContentImagePending(false); }
+      const reason = error instanceof Error ? error.message : "본문 이미지를 만들지 못했습니다.";
+      setMessage(`${reason}${done ? ` (만든 ${done}장은 저장됐습니다.)` : ""} 다시 누르면 남은 칸만 만듭니다.`);
+    } finally { setContentImagePending(false); setRegeneratingContentImageSlot(null); }
   }
 
-  async function regenerateContentImage(image: ContentImage) {
+  // 노드 하나만 (요청을 고쳐) 다시 만든다. request를 보내면 노드에 저장된다.
+  async function regenerateContentImage(image: ContentImage, request?: string) {
     if (!currentDraft) return;
+    const no = image.slot.replace("content-", "");
     setRegeneratingContentImageSlot(image.slot);
-    setMessage(`${image.slot.replace("content-", "")}번 본문 이미지만 다시 생성하고 있습니다.`);
+    setMessage(`${no}번 본문 이미지만 ${image.path ? "다시 " : ""}만들고 있습니다. 다른 이미지와 위치는 그대로입니다.`);
     try {
-      const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: currentDraft.id, slot: image.slot, model: imageModel }) });
-      const result = await response.json() as { image?: ContentImage; error?: string };
-      if (!response.ok || !result.image) throw new Error(result.error || "본문 이미지를 다시 생성하지 못했습니다.");
-      const nextImages = contentImages.map((item) => item.slot === image.slot ? result.image! : item);
-      setContentImages(nextImages);
-      setCurrentDraft((current) => current ? { ...current, seo_report: { ...(current.seo_report ?? {}), contentImages: nextImages } as unknown as Record<string, string> } : current);
-      setMessage(`${image.slot.replace("content-", "")}번 본문 이미지를 새로 생성했습니다. 기준 문장과 위치는 유지됩니다.`);
+      await makeContentImage(currentDraft.id, image.slot, request);
+      setMessage(`${no}번 본문 이미지를 ${image.path ? "새로 " : ""}만들었습니다. 기준 문장과 위치는 그대로입니다.`);
       refreshHistory().catch(() => {});
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "본문 이미지를 다시 생성하지 못했습니다.");
+      setMessage(error instanceof Error ? error.message : "본문 이미지를 만들지 못했습니다.");
     } finally {
+      setRegeneratingContentImageSlot(null);
+    }
+  }
+
+  // 노드 하나 삭제 — 기록·블록·파일을 함께 지운다(AI 호출 없음).
+  async function deleteContentImage(slot: ContentImageSlot) {
+    if (!currentDraft) return;
+    setConfirmDeleteSlot(null);
+    setRegeneratingContentImageSlot(slot);
+    try {
+      const response = await fetch("/api/images/delete-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: currentDraft.id, slot }) });
+      const result = await response.json() as { images?: ContentImage[]; error?: string };
+      if (!response.ok || !result.images) throw new Error(result.error || "본문 이미지를 삭제하지 못했습니다.");
+      setContentImages(result.images);
+      setContentBlocks((blocks) => removeNodeBlock(blocks, slot));
+      setMessage(`${slot.replace("content-", "")}번 본문 이미지를 삭제했습니다. 다른 이미지와 위치는 그대로입니다.`);
+      refreshHistory().catch(() => {});
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "본문 이미지를 삭제하지 못했습니다.");
+    } finally {
+      setRegeneratingContentImageSlot(null);
+    }
+  }
+
+  // 이 문단 앞에 이미지 노드를 넣고(글 AI 1회) 이어서 이미지 1장을 만든다.
+  async function addContentImageAt(blockId: string) {
+    const block = contentBlocks.find((item) => item.id === blockId);
+    if (!currentDraft || block?.type !== "text") return;
+    setContentImagePending(true);
+    setMessage("이 문단에 맞는 장면을 정하고 있습니다.");
+    try {
+      const response = await fetch("/api/images/add-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: currentDraft.id, paragraph: block.text, beforeBlockId: blockId, openaiModel: activeOpenAIModel }) });
+      const result = await response.json() as { image?: ContentImage; error?: string };
+      if (!response.ok || !result.image) throw new Error(result.error || "이 문단에 넣을 이미지를 준비하지 못했습니다.");
+      const node = result.image;
+      setContentImages((items) => upsertNode(items, node));
+      setContentBlocks((blocks) => placeNodeBlock(blocks, node, blockId));
+      setRegeneratingContentImageSlot(node.slot);
+      setMessage(`${node.slot.replace("content-", "")}번 본문 이미지를 만들고 있습니다.`);
+      await makeContentImage(currentDraft.id, node.slot);
+      setMessage(`이 문단 앞에 ${node.slot.replace("content-", "")}번 본문 이미지를 넣었습니다.`);
+      refreshHistory().catch(() => {});
+    } catch (error) {
+      setMessage(`${error instanceof Error ? error.message : "이 문단에 이미지를 넣지 못했습니다."} 자리는 남아 있으니 「만들기」로 다시 시도할 수 있습니다.`);
+    } finally {
+      setContentImagePending(false);
       setRegeneratingContentImageSlot(null);
     }
   }
@@ -608,7 +678,9 @@ export function useStudio() {
 
   async function saveCurrentDraft(silent = false) {
     if (!currentDraft) return false;
-    const blocksForSave = syncBodyFromBlocks(contentBlocks) === currentDraft.body
+    // BLC-10: 공백·줄바꿈 차이만 있으면 블록 배치를 그대로 쓴다(문단 나누기로 생기는 줄바꿈 차이에 배치가 다시 만들어지지 않게)
+    const squash = (text: string) => text.replace(/\s+/g, " ").trim();
+    const blocksForSave = squash(syncBodyFromBlocks(contentBlocks)) === squash(currentDraft.body)
       ? contentBlocks
       : createContentBlocks(currentDraft, contentImages);
     setDraftSaving(true);
@@ -783,6 +855,12 @@ export function useStudio() {
     generateImage,
     generateContentImages,
     regenerateContentImage,
+    deleteContentImage,
+    addContentImageAt,
+    imageRequests,
+    setImageRequests,
+    confirmDeleteSlot,
+    setConfirmDeleteSlot,
     activeHistoryDraft,
     knownCategoryIds,
     historyCategoryOf,

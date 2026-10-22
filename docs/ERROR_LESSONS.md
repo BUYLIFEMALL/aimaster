@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — API 경로를 지운 뒤 `next build`가 「Cannot find module …/route.js」로 실패하면 로컬 `.next/dev/types`(개발 서버가 만든 타입)가 옛 경로를 들고 있는 것 (naver-blog-seo-studio v1.99 BLC-10, Claude Code 윈도우)
+- 증상: `app/api/images/generate-content/route.ts`를 지우고 `npm run build` → `.next/dev/types/validator.ts`가 지운 경로를 찾다 `Failed to type check.` `npx tsc --noEmit`도 `.next/types`·`.next/dev/types`에서 같은 오류.
+- 해결: 코드 문제가 아니라 예전 생성물 — `.next/dev/types`만 지우고 다시 빌드하면 통과(Vercel은 깨끗한 상태에서 빌드하므로 운영 영향 없음). 경로를 지우는 작업은 로컬 빌드 전에 이 폴더를 먼저 지운다.
+- 함께: 공유 저장소에서 `git rm`은 삭제를 바로 스테이징한다 — 커밋 직전이 아니면 `git restore --staged <경로>`로 스테이징만 되돌린다(다른 세션 커밋에 섞이지 않게). 셸 명령 맨 앞에 입력 없는 `cat > 파일`을 두면 입력을 기다리며 멈추고 빈 파일을 남긴다.
+
 ## 2026-10-22 — 캔버스에서 「누를 때」 처리한 클릭(색 찍기)을 「뗄 때」 처리가 다시 덮어쓴다 (shop-detail-page v1.26 → v1.27, Claude Code 맥미니)
 - 증상: 문구 고치기 「💧 찍기」로 배지 안쪽을 눌러도 덮는 색이 바뀌지 않음(찍기 모드는 꺼짐 — 동작한 것처럼 보임).
 - 원인: 찍기는 `onPointerDown`에서 색을 넣고 끝냈지만, 같은 클릭의 `onPointerUp`이 「영역 지정 끝」으로 보고 덮는 색을 바깥 색으로 다시 계산해 덮어씀.

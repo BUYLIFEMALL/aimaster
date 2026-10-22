@@ -333,6 +333,11 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .content-block textarea:focus { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 .content-block-image img { display: block; width: min(100%, 720px); height: auto !important; margin: 14px auto 0; aspect-ratio: auto; object-fit: contain; }
 .content-block-image p { margin: 0; padding: 10px 13px; color: #657b92; font-size: 12px; line-height: 1.55; }
+/* BLC-10 본문 이미지 노드: 빈 자리·요청 입력·노드 버튼 줄 */
+.content-image-empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; min-height: 120px; margin: 10px 0; border: 1px dashed #c9d6e6; border-radius: 10px; background: #f8fbff; padding: 14px; color: #657b92; font-size: 12px; text-align: center; }
+.content-image-empty p { margin: 0; padding: 0; }
+.content-image-list .generated-image-preview input[type="text"] { width: 100%; margin-top: 10px; }
+.content-image-node-actions { flex-wrap: wrap; padding: 9px 0 0 !important; }
 .content-block-editor-note { padding-top: 11px; border-top: 1px dashed #d8e4f2; }
 .content-block-editor-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 14px; }
 .content-block-editor-footer .content-block-editor-note { flex: 1; margin: 0; }

@@ -28,7 +28,7 @@ export type DraftRecord = {
 };
 
 export type ContentImageSlot = "content-1" | "content-2" | "content-3";
-export type ContentImage = { slot: ContentImageSlot; sentence: string; prompt?: string; path?: string; mimeType?: string; model?: string };
+export type ContentImage = { slot: ContentImageSlot; sentence: string; prompt?: string; request?: string; path?: string; mimeType?: string; model?: string };
 export type ContentBlock =
   | { id: string; type: "text"; text: string }
   | { id: string; type: "image"; slot: "cover" | ContentImageSlot; alt: string };
