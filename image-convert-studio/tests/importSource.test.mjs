@@ -106,3 +106,17 @@ test("미배포 대기(2026-10-22): 보낸 쪽 이름표 전달·너무 큰 결�
   assert.match(tool, /quality: Math\.min\(quality, RESAVE_RETRY_QUALITY\)/);
   assert.match(tool, /if \(blob\.size >= previous\.blob\.size\)/);
 });
+
+test("미배포 대기(2026-10-22): 이미지 스튜디오에서 받기·다시 저장, PNG는 WebP로 바꿔 다시 변환", async () => {
+  const { importSourceOf } = await import("../src/lib/importSource.ts");
+  const SB = "https://esgxyikcnnvmlhygjkth.supabase.co";
+  assert.equal(importSourceOf(`${SB}/storage/v1/object/sign/ai-image-generations/u/a.png?token=t`, SB), "AI 이미지 스튜디오");
+  const { resaveTarget } = await import("../src/lib/resave.ts");
+  assert.equal(resaveTarget("ai-image-studio", "image/webp")?.api, "https://ai-image-studio.buylife.xyz/api/import-result");
+  const { viaSource } = await import("../src/lib/linkMark.ts");
+  assert.equal(viaSource("ai-image-studio")?.back, "AI 이미지 스튜디오로 돌아가기");
+  const { readFileSync } = await import("node:fs");
+  const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(tool, /item\.result\.blob\.type === "image\/png" \? "WebP로 바꿔 다시 변환"/);
+  assert.match(tool, /const toWebp = previous\.blob\.type === "image\/png";/);
+});

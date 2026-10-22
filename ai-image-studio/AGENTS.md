@@ -216,3 +216,6 @@
 
 ## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 `link-mark` 사본 갱신
 - 기준(바나나)의 이름표 2개·`back` 문구 추가분을 사본 `lib/linkMark.ts`에 반영(이 프로그램은 이름표를 쓰지 않아 동작 같음). tsc 통과. 다음 배포 때 함께.
+
+## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.27) — 갤러리 형식 바꾸기 · 변환 스튜디오에서 다시 저장 받기
+- `lib/convertLink.ts`·갤러리 🔁 링크, `app/api/import-result/route.ts`(공용 `resave-receiver` 사본, `usage_logs` action `image_import`, 본인 폴더 `<회원>/<uuid>.<ext>`), `link-mark` 사본 갱신. 시험 `test:prompt-source` 4개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위, 루트 `docs/PENDING_DEPLOYS.md`.

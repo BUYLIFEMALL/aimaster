@@ -21,7 +21,9 @@ export function resaveCors(origin: string | null): Record<string, string> {
 export function detectImageExt(b: Uint8Array): ResaveExt | null {
   if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpg";
   if (b.length >= 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 && b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a) return "png";
-  if (b.length >= 12 && String.fromCharCode(...b.subarray(0, 4)) === "RIFF" && String.fromCharCode(...b.subarray(8, 12)) === "WEBP") return "webp";
+  // 펼치기(...) 없이 비교 — 대상 버전이 낮은 tsconfig(이미지 스튜디오)에서도 통과
+  const at = (i: number, text: string) => text.split("").every((c, k) => b[i + k] === c.charCodeAt(0));
+  if (b.length >= 12 && at(0, "RIFF") && at(8, "WEBP")) return "webp";
   return null;
 }
 

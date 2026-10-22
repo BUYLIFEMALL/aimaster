@@ -39,3 +39,16 @@ test("v1.27 첫 다운로드·바나나로 보낸 시각 기록", () => {
   assert.match(gallery, /markLog\(item\.id, "banana"\)/);
   assert.match(gallery, /handleDownload\(item\.image_url, item\.provider, item\.id\)/);
 });
+
+test("미배포 대기(2026-10-22): 갤러리 형식 바꾸기 링크·변환 스튜디오에서 다시 저장 받기", () => {
+  const link = readFileSync(new URL("../lib/convertLink.ts", import.meta.url), "utf8");
+  assert.match(link, /&via=ai-image-studio/);
+  assert.match(link, /includes\("\/storage\/v1\/object\/sign\/ai-image-generations\/"\)/);
+  const api = readFileSync(new URL("../app/api/import-result/route.ts", import.meta.url), "utf8");
+  assert.match(api, /resaveCors\(request\.headers\.get\("origin"\)\)/);
+  assert.match(api, /readResaveBody\(await request\.text\(\), MAX_IMPORT_B64\)/);
+  assert.match(api, /action: "image_import"/);
+  assert.match(api, /const path = `\$\{user\.id\}\//);
+  const ui = readFileSync(new URL("../components/GalleryClient.tsx", import.meta.url), "utf8");
+  assert.match(ui, /data-convert-link/);
+});

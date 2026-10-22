@@ -240,7 +240,7 @@ const MODULES = [
     // 이미지 변환 스튜디오 「○○에 다시 저장」을 받는 쪽 공통(CORS 그 주소만·본문 base64·첫 바이트 형식 판별·이름표) — 저장할 곳은 각 프로그램(2026-10-22)
     id: "resave-receiver",
     source: "four-cut-comics/src/lib/resaveReceiver.ts",
-    copies: ["portrait-photo/src/lib/resaveReceiver.ts", "banana-canvas/src/lib/bnc/resaveReceiver.ts"],
+    copies: ["portrait-photo/src/lib/resaveReceiver.ts", "banana-canvas/src/lib/bnc/resaveReceiver.ts", "ai-image-studio/lib/resaveReceiver.ts"],
   },
   {
     // 바나나 캔버스 「이미지 생성」 아이디어 칸으로 보내는 주소(`/studio?idea=`·600자 한도·보낸 곳 `src`) — 문구는 각 프로그램(2026-10-22)

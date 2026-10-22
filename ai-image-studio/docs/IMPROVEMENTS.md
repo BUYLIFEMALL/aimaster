@@ -1,5 +1,10 @@
 # AI 이미지 스튜디오 (ai-image-studio) 개선사항 관리 대장 (IMPROVEMENTS.md)
 
+> **🟡 미배포 대기 (2026-10-22, Claude Code 윈도우 — 「작은 수정은 모았다가 배포」 지침)** 다음 이미지 스튜디오 배포 때 함께(운영 v1.27, 버전은 그때 한 번).
+> - 갤러리 카드 「🔁 형식 바꾸기」(`lib/convertLink.ts`, `via=ai-image-studio`·`label=프롬프트 앞 40자`, 우리 저장소 서명 주소만).
+> - 새 API `POST /api/import-result`: 변환 스튜디오에서 다시 저장한 그림을 본인 폴더에 저장하고 `usage_logs` 작업 종류 **`image_import`**로 남김(갤러리에 그대로 나옴, 관리자 생성 통계 `image_generation`에는 안 섞임). 공용 `resave-receiver` 사본 `lib/resaveReceiver.ts`(기준 4컷). 버킷 형식 제한 없음 확인.
+> - 공용 `link-mark` 사본 갱신(이미지 스튜디오 이름표) — 동작 같음. **변환 스튜디오와 함께 배포해야 기능이 이어짐.**
+
 > **기준일자**: 2026-10-17  
 > **프로그램**: AI 이미지 스튜디오 (`ai-image-studio`)  
 > **현재 버전**: `v1.11` → `v1.12`  

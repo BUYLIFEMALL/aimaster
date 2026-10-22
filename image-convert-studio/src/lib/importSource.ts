@@ -4,6 +4,7 @@ export const IMPORT_SOURCES: Record<string, string> = {
   "banana-canvas-files": "바나나 캔버스",
   "portrait-photo-files": "AI 인물사진",
   "four-cut-comics-files": "AI 4컷 만화",
+  "ai-image-generations": "AI 이미지 스튜디오", // 미배포 정리 2026-10-22 — 갤러리 「형식 바꾸기」
 };
 
 /** 받을 수 있으면 보낸 프로그램 이름, 아니면 null */

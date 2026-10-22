@@ -217,13 +217,14 @@ export function ConvertTool() {
     const previous = item.result;
     patch(item.id, { status: "working", error: undefined, note: undefined });
     try {
-      const blob = await convertImage(item.file, { ...options, quality: Math.min(quality, RESAVE_RETRY_QUALITY), focus: item.focus ?? null });
+      const toWebp = previous.blob.type === "image/png";
+      const blob = await convertImage(item.file, toWebp ? { ...options, ...shrinkRetryOptions(quality), focus: item.focus ?? null } : { ...options, quality: Math.min(quality, RESAVE_RETRY_QUALITY), focus: item.focus ?? null });
       if (blob.size >= previous.blob.size) {
         patch(item.id, { status: "done", note: t.convert.retryNoGain });
         return;
       }
       URL.revokeObjectURL(previous.url);
-      patch(item.id, { status: "done", result: { blob, name: previous.name, url: URL.createObjectURL(blob) }, note: `품질 ${Math.round(RESAVE_RETRY_QUALITY * 100)}%로 다시 변환했습니다.` });
+      patch(item.id, { status: "done", result: { blob, name: toWebp ? outputFileName(item.file.name, "webp") : previous.name, url: URL.createObjectURL(blob) }, note: toWebp ? "WebP로 바꿔 다시 변환했습니다." : `품질 ${Math.round(RESAVE_RETRY_QUALITY * 100)}%로 다시 변환했습니다.` });
       setResave((m) => { const n = { ...m }; delete n[item.id]; return n; });
     } catch (error) {
       patch(item.id, { status: "error", error: error instanceof Error ? error.message : t.convert.error });
@@ -690,7 +691,8 @@ export function ConvertTool() {
                           📥 {resaveTarget(importVia.key, item.result.blob.type)!.name}에 다시 저장하기엔 너무 큽니다(약 2.2MB까지) — 품질이나 크기를 낮춰 다시 변환해 주세요.
                           {/* 같은 형식·품질 70%로 한 번에 다시 변환(작아질 때만 바꿈) */}
                           <button type="button" data-resave-retry disabled={item.status === "working"} onClick={() => void retryForResave(item)} className="ml-1 mt-1 inline-block rounded border border-amber-300/50 px-1.5 py-0.5 font-bold text-amber-100 hover:bg-amber-400/20 disabled:opacity-60">
-                            품질 {Math.round(RESAVE_RETRY_QUALITY * 100)}%로 다시 변환
+                            {/* PNG는 품질 값이 없어 WebP(품질 80%)로 바꿔 다시 변환 */}
+                            {item.result.blob.type === "image/png" ? "WebP로 바꿔 다시 변환" : `품질 ${Math.round(RESAVE_RETRY_QUALITY * 100)}%로 다시 변환`}
                           </button>
                         </p>
                       ) : (

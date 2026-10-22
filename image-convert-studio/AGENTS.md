@@ -196,3 +196,6 @@
 
 ## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.24) — 이름표 전달 · 품질 70%로 다시 변환
 - `?label=` → 다시 저장 본문 `label`, 「너무 큼」 옆 「품질 70%로 다시 변환」(`RESAVE_RETRY_QUALITY` 0.7). 시험 48개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위, 루트 `docs/PENDING_DEPLOYS.md`.
+
+## 🟡 미배포 대기 추가 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.24) — 이미지 스튜디오 연계 · PNG → WebP 다시 변환
+- 가져오기 허용 `ai-image-generations`, 다시 저장 대상 이미지 스튜디오, 「너무 큼」에서 PNG면 「WebP로 바꿔 다시 변환」. 시험 49개·tsc·로컬 빌드.

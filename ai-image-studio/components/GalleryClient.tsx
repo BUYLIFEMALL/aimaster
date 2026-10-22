@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { bananaEditUrl } from "@/lib/bananaLink";
+import { convertLinkOf } from "@/lib/convertLink";
 import { markLog } from "@/lib/logMark";
 import {
   History,
@@ -521,6 +522,19 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                         aria-label="바나나 캔버스로 보내 편집"
                       >
                         <span aria-hidden className="block h-5 w-5 text-center leading-5">🍌</span>
+                      </a>
+                    )}
+                    {convertLinkOf(item.image_url, item.prompt) && (
+                      <a
+                        href={convertLinkOf(item.image_url, item.prompt)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-convert-link
+                        className="p-3 rounded-xl bg-zinc-950/90 text-white hover:bg-violet-400 hover:text-zinc-950 transition-colors border border-zinc-700"
+                        title="형식 바꾸기(이미지 변환 스튜디오)"
+                        aria-label="형식 바꾸기(이미지 변환 스튜디오)"
+                      >
+                        <span aria-hidden className="block h-5 w-5 text-center leading-5">🔁</span>
                       </a>
                     )}
                     <button

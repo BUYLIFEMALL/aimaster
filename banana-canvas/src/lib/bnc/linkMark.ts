@@ -32,6 +32,7 @@ export const VIA_SOURCES = {
   "banana-canvas": { name: "바나나 캔버스", url: "https://banana-canvas.buylife.xyz/history", back: "바나나 캔버스로 돌아가기" },
   "portrait-photo": { name: "AI 인물사진", url: "https://portrait-photo.buylife.xyz/history", back: "AI 인물사진으로 돌아가기" },
   "four-cut-comics": { name: "AI 4컷 만화", url: "https://four-cut-comics.buylife.xyz/works", back: "AI 4컷 만화로 돌아가기" },
+  "ai-image-studio": { name: "AI 이미지 스튜디오", url: "https://ai-image-studio.buylife.xyz/gallery", back: "AI 이미지 스튜디오로 돌아가기" },
 } as const;
 export type ViaSource = keyof typeof VIA_SOURCES;
 

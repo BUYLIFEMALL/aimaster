@@ -16,7 +16,8 @@
 |---|---|---|---|---|---|
 | `banana-canvas` (운영 v1.31) | 다운로드 파일 이름 확장자(WebP → `.webp`, 기록 상세·작업 화면) · 다시 저장 이름표를 기록 제목에 | `a00e43925` · `b0502560e` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `banana-canvas/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.32, `resave-receiver` 사본도 함께(SHARED_MODULES) |
 | `four-cut-comics` (운영 v1.34) | 「형식 바꾸기」 링크 `&label=` · 다시 저장 작품 제목 「○○ 3화 · WEBP」 · `resave-receiver` 기준 파일로 정리 | `b0502560e` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `four-cut-comics/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.35, 변환 스튜디오와 순서 상관없음 |
-| `image-convert-studio` (운영 v1.24) | `?label=` 받아 다시 저장에 전달 · 「너무 큼」 옆 「품질 70%로 다시 변환」 | `b0502560e` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `image-convert-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.25, 바나나 그림이 2.2MB 넘게 나오는 설정으로 크롬 확인 |
+| `image-convert-studio` (운영 v1.24) | `?label=` 받아 다시 저장에 전달 · 「너무 큼」 옆 「품질 70%로 다시 변환」(PNG면 「WebP로 바꿔 다시 변환」) · 이미지 스튜디오에서 받기·다시 저장 | `b0502560e` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `image-convert-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.25, 바나나 그림이 2.2MB 넘게 나오는 설정으로 크롬 확인 |
+| `ai-image-studio` (운영 v1.27) | 갤러리 「🔁 형식 바꾸기」 · 새 API `/api/import-result`(변환 스튜디오에서 다시 저장 → 갤러리, `usage_logs` `image_import`) | 이번 묶음 커밋 | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `ai-image-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.28, **변환 스튜디오와 같은 날 배포**해야 이어짐 — 갤러리 → 형식 바꾸기 → 다시 저장 → 갤러리에 「변환 스튜디오에서 다시 저장」 크롬 확인 |
 | `shorts-onestop-studio` (운영 v1.36) | 출처 띠 모서리 10px·`inline-flex`·「✕ 빼기」 오른쪽 끝 | `f055d6b70` | 2026-10-22 · Claude Code(윈도우) | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 「처리(코드만, 미배포)」 | 버전 v1.37, 휴대폰 폭(375px)에서 긴 이름 띠 모양 확인 |
 | `naver-blog-allinone` (운영 v1.50) | BC-05 보관함 30일 자동 삭제(`GET /api/cron/cleanup`, Vercel Cron) | `naver-blog-allinone/AGENTS.md` 맨 위 참고 | 2026-10-22 · Claude Code(윈도우·웨일 세션) | `naver-blog-allinone/AGENTS.md` 맨 위 「⏳ 미배포 대기」 | 그 항목의 확인 방법대로(이 줄은 색인만 — 원문은 해당 세션 기록) |
 

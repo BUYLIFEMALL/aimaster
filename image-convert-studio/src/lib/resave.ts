@@ -6,6 +6,7 @@ export const RESAVE_TARGETS: Partial<Record<ViaSource, { name: string; api: stri
   "portrait-photo": { name: "인물사진 보관함", api: "https://portrait-photo.buylife.xyz/api/saved", open: "https://portrait-photo.buylife.xyz/history", maxB64: 3_000_000 },
   "banana-canvas": { name: "바나나 기록", api: "https://banana-canvas.buylife.xyz/api/import-result", open: "https://banana-canvas.buylife.xyz/history", maxB64: 3_000_000 },
   "four-cut-comics": { name: "4컷 보관함", api: "https://four-cut-comics.buylife.xyz/api/import-result", open: "https://four-cut-comics.buylife.xyz/works", maxB64: 3_000_000 },
+  "ai-image-studio": { name: "이미지 스튜디오 갤러리", api: "https://ai-image-studio.buylife.xyz/api/import-result", open: "https://ai-image-studio.buylife.xyz/gallery", maxB64: 3_000_000 },
 };
 
 /** 「너무 큼」일 때 한 번에 다시 시도하는 품질(미배포 정리 2026-10-22) */
