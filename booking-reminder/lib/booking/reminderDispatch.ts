@@ -30,6 +30,7 @@ function fillTemplate(text: string, reservation: DueReservation): string {
   const time = new Date(reservation.reservation_at).toLocaleString("ko-KR", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Asia/Seoul", // 서버(UTC)에서 돌아도 문자 속 {time}은 한국 시간(v1.28)
   });
   return text.replace(/\{name\}/g, reservation.customer_name).replace(/\{time\}/g, time);
 }

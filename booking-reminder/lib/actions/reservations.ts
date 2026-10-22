@@ -4,16 +4,16 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import type { ReservationStatus } from "@/types/database.types";
+import { parseKstDateTime } from "@/lib/reservationImport";
 
 export interface ReservationActionState {
   error?: string;
 }
 
 function toTimestamptz(dateLocal: string): string | null {
-  // <input type="datetime-local"> 값(예: "2026-08-20T14:30")을 그대로 Date로 파싱하면
-  // 브라우저/서버 로컬 타임존 기준으로 해석된다 — 이 앱은 국내 대상이라 문제 없다.
-  const date = new Date(dateLocal);
-  return isNaN(date.getTime()) ? null : date.toISOString();
+  // <input type="datetime-local"> 값(예: "2026-08-20T14:30")은 시간대가 없다. 서버(Vercel)는 UTC라
+  // new Date()로 읽으면 한국 23:30으로 저장돼 리마인드가 9시간 늦게 나갔다(v1.27까지) → 한국 시간으로 읽는다(v1.28).
+  return parseKstDateTime(dateLocal);
 }
 
 export async function createReservationAction(formData: FormData): Promise<ReservationActionState> {

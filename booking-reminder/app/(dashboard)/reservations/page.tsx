@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { ReservationCreateForm } from "@/components/reservations/ReservationCreateForm";
+import { ReservationImportForm } from "@/components/reservations/ReservationImportForm";
 import { ReservationRow, type ReservationData } from "@/components/reservations/ReservationRow";
 import { ReminderRulesSection, type ReminderRuleData } from "@/components/reservations/ReminderRulesSection";
 import { APP_VERSION } from "@/lib/version";
@@ -252,6 +253,9 @@ export default async function ReservationsPage() {
           <span className="text-xs text-slate-400">문자/카카오톡 발송을 위해 연락처를 입력하세요</span>
         </div>
         <ReservationCreateForm />
+        <div className="mt-4">
+          <ReservationImportForm />
+        </div>
       </div>
 
       {/* 5. 리마인드 규칙 설정 섹션 */}

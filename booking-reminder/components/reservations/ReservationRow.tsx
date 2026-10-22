@@ -61,10 +61,12 @@ export function ReservationRow({ reservation }: { reservation: ReservationData }
     month: "long",
     day: "numeric",
     weekday: "short",
+    timeZone: "Asia/Seoul",
   });
   const formattedTime = dateObj.toLocaleTimeString("ko-KR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Seoul",
   });
 
   return (
