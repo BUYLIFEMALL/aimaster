@@ -20,7 +20,11 @@
 - **#11 기존 의존성 보안 경고 (보완·일부 남음)**: 초기 npm audit 11건(critical1/high10), Next16.2.11. [공식 next/og 공지](https://github.com/vercel/next.js/security/advisories/GHSA-vcvr-r3jv-pc5j)·[Windows 공지](https://github.com/vercel/next.js/security/advisories/GHSA-p293-qw3h-jr36)와 npm 수정 버전을 대조해 같은16계열 Next/eslint-config-next16.4.2 및 허용 범위의 source-map-js/brace-expansion/js-yaml을 갱신했습니다. 보완 후 운영 의존성0건, 전체는 개발 lint 도구 사슬5high(braces/fast-glob/micromatch/eslint-config-next/@next/eslint-plugin-next) 남음. 실제 악용 검사는 안 했고 전체 보안 해결을 주장하지 않습니다. npm audit fix --force가 권하는 구버전 다운그레이드는 하지 않습니다. 다음: lint 사슬의 공식 수정판/대체 경로를 별도 검토하고 회귀 검사. before/after JSON은 docs/evidence/.
 - **#12 상세 GET의 자동 분석과 검수·미리읽기 위험 (높음·미해결)**: 상세가 서버 렌더 중 ensureListingAnalysis를 호출하므로 브라우저 POST만 막아도 비용 발생을 막을 수 없습니다. tests/runtime.mjs는 상세/미리읽기 GET까지 검사 브라우저에서 차단하고 실제 상세는 방문하지 않습니다. #4 자동 분석 선택/명시적 실행·동시 요청 중복 방지·Next Link 미리읽기 정책을 함께 검토합니다. 이번 무료 검수의 상세·유료 분석 품질은 합성 경계 검사이며 운영 유료 검수로 확대하지 않습니다.
 
-## 2026-10-23 ⚠ 확인 필요 — 지역 분위기(AI 시장조사) 캐시가 회원 구분 없는 공용 표 (Claude Code 윈도우, 발견만·미처리)
+## 2026-10-23 ~~⚠ 확인 필요 — 지역 분위기(AI 시장조사) 캐시가 회원 구분 없는 공용 표~~ → 아래 「정정」(잘못된 판단) (Claude Code 윈도우, 발견만·미처리)
 - `real_estate_district_sentiment`에는 `user_id`가 없고 `unique (sgg_nm, sentiment_date)`라 지역·날짜마다 한 줄뿐이다. 그런데 정리 코드(`src/app/api/cron/cleanup-sentiment/route.ts`) 주석은 「회원별 AI 시장조사 캐시」라고 한다.
 - 회원 본인 키로 만든 AI 결과를 다른 회원이 그대로 받아 쓰는 구조라면 최상위 규칙(생성 데이터 회원별 격리·전역 생성 캐시 금지, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`)과 어긋난다. 무료 공공 데이터만으로 만드는 값이면 예외 조항 해당일 수 있음 — 생성 경로(어느 키로 만드는지) 확인 후 주인님 판단 필요.
 - 같은 날 정리 코드에 「cleanup-usage-log: 회원 데이터 아님」 표시(`05902a01d`, 주석만 — 배포 불필요)를 달아 관리자 「30일 정리 기록」 진행률 분모에서 뺐다.
+
+## 2026-10-23 정정 — 지역 분위기 캐시는 v1.12부터 회원별 (Claude Code 윈도우)
+- 위 「확인 필요」 항목은 **잘못된 판단**이었다. 처음 표를 만든 SQL(`20260810050751_real_estate_sales_init.sql`)만 보고 user_id가 없다고 봤으나, `supabase/migrations/20261017_district_sentiment_per_user_v1_12.sql`에서 이미 `user_id` 추가·`unique (user_id, sgg_nm, sentiment_date)`·회원 본인 RLS로 바뀌었고, `src/lib/ai/sentiment.ts`도 회원 본인 Perplexity 키로 만들어 본인 행만 읽고 쓴다. **최상위 규칙 위반 없음.** (운영 표가 0행이라 칸을 직접 확인하지 못한 것이 원인)
+- 조치: 정리 코드의 「회원 데이터 아님」 표시를 지우고 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록을 붙임(`61142a909`, 공용 `cleanup-usage-log` 사본). **미배포 대기** — 다음 배포 때 함께, 버전 +0.01.
