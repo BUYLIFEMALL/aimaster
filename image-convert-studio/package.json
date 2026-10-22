@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import tsx --test tests/imagetools.test.mjs tests/access.test.mjs tests/imageFileCheck.test.mjs tests/importSource.test.mjs tests/geometry.test.mjs"
+    "test": "node --import tsx --test tests/imagetools.test.mjs tests/access.test.mjs tests/imageFileCheck.test.mjs tests/importSource.test.mjs tests/geometry.test.mjs tests/convertPath.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

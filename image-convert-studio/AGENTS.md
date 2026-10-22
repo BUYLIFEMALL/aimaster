@@ -141,3 +141,6 @@
 - 함께 나감: 공용 기준 코드 post-presets 기준 파일 `src/lib/imageTools/postPresets.ts`(geometry.ts가 다시 내보냄, 동작 같음).
 - 시험 31개·tsc·build 통과, 배포 `image-convert-studio-ekmip46j4` Ready, DB v1.15. 크롬 검수: 운영 v1.15, 비율 상자 크기 원본 16×16 점선·1:1 16×16·4:5 13×16·3:4 12×16·9:16 9×16·16:9 16×9, 규격 스토리 12×22·유튜브 22×12·해제 시 숨김.
 - 발견(미처리, 낮음): 루트 `/?preset=story`로 열면 `/convert`로 넘어가며 `?preset=`이 빠짐. 다른 프로그램 링크는 모두 `/convert?src=…&preset=…`로 바로 보내 영향 없음 — 루트 이동에서 검색값을 넘기면 해결.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 첫 주소 검색값 넘기기 (다음 배포 때 v1.16)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 첫 주소 `/?preset=story&src=…`가 `/convert`로 넘어갈 때 검색값을 그대로 붙여 넘김(`src/lib/imageTools/convertPath.ts` + `src/app/page.tsx`). 시험 `tests/convertPath.test.mjs` 3개 추가, 전체 34개·tsc·build 통과. 로컬 개발 서버는 DB 접속 설정이 없어 화면 확인 불가 — 배포 후 크롬에서 `/?preset=story`로 확인할 것. 다음 배포 때 버전 v1.16(코드+DB).
