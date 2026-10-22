@@ -15,7 +15,17 @@ import { measureAudio as measure } from "@/lib/pipeline";
 import { YoutubeUploadCard } from "@/components/views/YoutubeUploadCard";
 import { logBrowserUsage } from "@/lib/youtube/browserUpload";
 import type { YoutubeUpload } from "@/lib/script";
+import { refHandoffHash } from "@/lib/reference";
+import { APP_NAME } from "@/lib/version";
 
+// v1.36 대본을 넘길 AI 썸네일·SEO 자동화 「SEO 전략」 화면(v1.10~가 주소 # 뒤 대본을 받음)
+const THUMBNAIL_SEO_URL = "https://thumbnail-master.buylife.xyz/seo";
+/** 넘길 대본 글 — 주제 + 장면 제목·내레이션 순서대로 */
+const scriptPlain = (s: ShortsScript) =>
+  [`주제: ${s.topic}`, `${s.intro.title}\n${s.intro.narration}`, ...s.cards.map((c) => `${c.title}\n${c.narration}`), `${s.outro.title}\n${s.outro.narration}`]
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .join("\n\n");
 const label = (s: ShortsScript, i: number) => (i === 0 ? "인트로" : i === s.cards.length + 1 ? "아웃트로" : `카드 ${i}`);
 function setVoice(s: ShortsScript, i: number, v: Voice | undefined): ShortsScript {
   const c = structuredClone(s); const n = c.cards.length;
@@ -276,6 +286,11 @@ ${script.seo!.hashtags.join(" ")}`, "설명란+해시태그")}><Copy size={13} /
                   </div>
                 </>}
                 <div className="actions"><button type="button" className={script.seo ? "" : "primary"} disabled={!!busy || !!exp} onClick={() => void makeSeo()}><Search size={14} />{script.seo ? "다시 만들기" : "업로드 문구 만들기"}</button><Busy on={busy.startsWith("업로드")} label={busy} /></div>
+                {/* v1.36 완성 대본 → AI 썸네일·SEO 자동화 「SEO 전략」(3가지 전략·고정 댓글·썸네일 제작). 주소 # 뒤라 서버로 가지 않음 */}
+                <p className="muted" style={{ margin: 0 }}>
+                  <a href={`${THUMBNAIL_SEO_URL}${refHandoffHash(scriptPlain(script), APP_NAME)}`} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, whiteSpace: "nowrap" }}>📤 이 대본으로 썸네일 만들기</a>{" "}
+                  — AI 썸네일·SEO 자동화가 새 탭으로 열리고 대본이 들어갑니다(3가지 제목 전략·고정 댓글·썸네일 제작).
+                </p>
               </section>
               <YoutubeUploadCard key={item?.id} projectId={item?.id ?? null} script={script} blob={file?.blob ?? null} disabled={!!busy || !!exp} onUploaded={saveUpload} />
             </div>

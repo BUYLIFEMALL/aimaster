@@ -198,7 +198,7 @@ const MODULES = [
     // 참고 자료 베끼기 방지(연속 6어절 겹침 찾기·검사 대상 고르기, 순수 함수 — 원스톱 v1.30~v1.31, INSTA v1.57 리메이크 문구, 쇼츠 바이럴 v1.13·유튜브 바이럴 v1.22 대사 넘기기)
     id: "reference-copy-guard",
     source: "shorts-onestop-studio/src/lib/reference.ts",
-    copies: ["insta_auto_poster/src/lib/cardnews/referenceCopy.ts", "shorts-viral-studio/src/lib/reference.ts", "youtube-viral-studio/src/lib/reference.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/referenceCopy.ts", "shorts-viral-studio/src/lib/reference.ts", "youtube-viral-studio/src/lib/reference.ts", "thumbnail-master/src/lib/reference.ts"],
   },
   {
     // 브라우저 안 영상 → 장면 이미지·소리(모노 WAV) 추출(INSTA v1.49~v1.50 운영 검증, 원스톱 v1.29 레퍼런스 쇼츠 대본 따기)

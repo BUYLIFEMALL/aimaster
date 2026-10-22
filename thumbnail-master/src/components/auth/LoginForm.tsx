@@ -1,16 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { hasStashedRefHandoff, stashRefHandoff } from "@/lib/refHandoff";
 export function LoginForm() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  // v1.10 다른 프로그램이 넘긴 대본이 주소 # 뒤에 있으면 보관하고 주소에서 지움 → 로그인 뒤 SEO 전략 화면으로
+  useEffect(() => {
+    if (stashRefHandoff(window.location.hash)) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  }, []);
   async function login(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setPending(true); setError("");
     const form = new FormData(event.currentTarget);
     try {
       const { error } = await createClient().auth.signInWithPassword({ email: String(form.get("email")).trim(), password: String(form.get("password")) });
       if (error) { setError("이메일 또는 비밀번호를 확인해 주세요."); return; }
-      window.location.assign("/open");
+      window.location.assign(hasStashedRefHandoff() ? "/seo" : "/open");
     } catch { setError("로그인 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."); }
     finally { setPending(false); }
   }

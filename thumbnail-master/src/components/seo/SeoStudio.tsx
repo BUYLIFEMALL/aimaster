@@ -2,8 +2,9 @@
 
 // 2026-10-20 병합 D: AI 유튜브 썸네일 프로의 SEO 전략 화면을 이 앱 디자인으로 옮긴 것.
 // AI 호출은 서버(/api/seo/strategy)에서 회원 본인 Gemini 키로 한다 — 키를 브라우저로 받지 않는다.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { takeRefHandoff } from "@/lib/refHandoff";
 import { Copy, Check, Sparkles, FileUp, ImagePlus } from "lucide-react";
 
 interface SeoStrategy {
@@ -60,6 +61,16 @@ export function SeoStudio() {
   const [needKey, setNeedKey] = useState(false);
   const [result, setResult] = useState<SeoResult | null>(null);
   const [truncated, setTruncated] = useState(false);
+  const [handoffNote, setHandoffNote] = useState("");
+
+  // v1.10 다른 프로그램(AI 쇼츠 원스톱)이 넘긴 대본 → 대본 칸, 주소의 # 부분은 바로 지움(로그인을 거친 경우 보관분)
+  useEffect(() => {
+    const { text, from } = takeRefHandoff(window.location.hash);
+    if (!text) return;
+    setScript(text.slice(0, 30_000));
+    setHandoffNote(`「${from || "다른 프로그램"}」에서 넘긴 대본을 넣었습니다. 고칠 곳이 있으면 고친 뒤 「SEO 전략 3가지 만들기」를 눌러 주세요.`);
+    if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  }, []);
 
   async function loadFile(file: File | undefined) {
     if (!file) return;
@@ -119,6 +130,7 @@ export function SeoStudio() {
   return (
     <div className="stack">
       <section className="card stack">
+        {handoffNote && <p className="notice" role="status">📥 {handoffNote}</p>}
         <label htmlFor="seo-script">영상 대본 · 기획안 · 아이디어</label>
         <textarea
           id="seo-script"

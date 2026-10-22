@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileText, Plus, Save, Sparkles, Trash2, Wand2 } from "lucide-react";
 import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
@@ -9,7 +9,7 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scrip
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
 import { takeRefHandoff } from "@/lib/refHandoff";
-import { refBlockHeader, refBlocks, removeRefBlock } from "@/lib/refBlocks";
+import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
 
 // v1.31 참고 자료와 그대로 겹치는 장면 표시(브라우저 안에서 다시 검사 — 고치면 바로 사라짐)
 const COPY_STYLE = { outline: "2px solid #f5c542", outlineOffset: 2, borderRadius: 12 } as const;
@@ -26,6 +26,16 @@ export function TopicView() {
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [category, setCategory] = useState<string>("");
   const [seed, setSeed] = useState(""), [reference, setReference] = useState("");
+  const refBox = useRef<HTMLTextAreaElement>(null);
+  // v1.36 띠 이름을 누르면 참고 자료 칸 안 그 레퍼런스 머리말로 커서·화면 이동
+  function jumpToRef(start: number) {
+    const el = refBox.current;
+    if (!el) return;
+    el.focus();
+    el.setSelectionRange(start, start);
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+    el.scrollTop = Math.max(0, (el.value.slice(0, start).split("\n").length - 1) * lineHeight - 4);
+  }
   const [topics, setTopics] = useState<Topic[]>([]), [topic, setTopic] = useState("");
   const [tone, setTone] = useState<Tone>("friendly"), [format, setFormat] = useState<Format>("list"), [cards, setCards] = useState(5);
   const [touched, setTouched] = useState({ tone: false, format: false, cards: false });
@@ -158,18 +168,20 @@ export function TopicView() {
               <div className="grid2">
                 <label>내 키워드·아이디어 (선택)<input value={seed} maxLength={200} onChange={(e) => setSeed(e.target.value)} placeholder="예: 직장인 아침 루틴, 40대 다이어트" /></label>
                 <label>참고 자료 (선택 — 기사·메모를 붙여넣거나 파일로)
-                  {/* v1.35 레퍼런스 쇼츠 블록마다 출처·글자 수·빼기(회원 메모는 그대로) */}
+                  {/* v1.35 레퍼런스 쇼츠 블록마다 출처·글자 수·빼기(회원 메모는 그대로) · v1.36 긴 이름 줄임·줄바꿈 허용, 이름 누르면 그 위치로 */}
                   {refBlocks(reference).length > 0 && (
                     <span className="row" style={{ gap: 6, flexWrap: "wrap", fontWeight: 500 }}>
                       {refBlocks(reference).map((b, i) => (
-                        <span key={i} className="badge brand" style={{ whiteSpace: "nowrap" }}>
-                          🎬 출처 {b.source || "알 수 없음"} · 대사 {b.chars.toLocaleString()}자{" "}
-                          <button type="button" className="link-button" onClick={(e) => { e.preventDefault(); setReference((cur) => removeRefBlock(cur, i)); }}>✕ 빼기</button>
+                        <span key={i} className="badge brand" style={{ maxWidth: "100%", whiteSpace: "normal" }}>
+                          <button type="button" className="link-button" title={`${b.source || "알 수 없음"} — 누르면 칸 안 이 레퍼런스로 이동`} style={{ whiteSpace: "normal", textAlign: "left" }} onClick={(e) => { e.preventDefault(); jumpToRef(b.start); }}>
+                            🎬 출처 {shortSource(b.source || "알 수 없음")} · 대사 {b.chars.toLocaleString()}자
+                          </button>
+                          <button type="button" className="link-button" style={{ whiteSpace: "nowrap" }} onClick={(e) => { e.preventDefault(); setReference((cur) => removeRefBlock(cur, i)); }}>✕ 빼기</button>
                         </span>
                       ))}
                     </span>
                   )}
-                  <textarea rows={2} value={reference} maxLength={12000} onChange={(e) => setReference(e.target.value)} placeholder="이 내용을 근거로 주제·대본을 씁니다." /></label>
+                  <textarea ref={refBox} rows={2} value={reference} maxLength={12000} onChange={(e) => setReference(e.target.value)} placeholder="이 내용을 근거로 주제·대본을 씁니다." /></label>
               </div>
               <div className="row">
                 <label className="button" style={{ fontWeight: 600 }}>📄 파일 불러오기<input type="file" accept=".txt,.md,.markdown,.csv,.json" hidden onChange={(e) => void readFile(e.target.files?.[0])} /></label>
