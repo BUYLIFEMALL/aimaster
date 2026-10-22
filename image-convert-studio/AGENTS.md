@@ -175,3 +175,9 @@
 ## ✅ v1.20 배포 (2026-10-22, Claude Code 윈도우) — 인물사진·4컷에서 온 그림도 보낸 곳 안내
 - 공용 `link-mark` 사본의 이름표에 `portrait-photo`(AI 인물사진 → `/history`)·`four-cut-comics`(AI 4컷 만화 → `/works`) 추가, 돌아가기 링크 문구는 이름표의 `back`(「AI 인물사진으로 돌아가기」처럼 조사까지 맞춤)을 그대로 씀.
 - 검수: 시험 43개, tsc·빌드. 크롬: 운영 v1.20에 서명 주소 + `via=portrait-photo`로 열어 「↩ AI 인물사진으로 돌아가기」(→ 인물사진 `/history`) 확인.
+
+## ✅ v1.21 배포 (2026-10-22, Claude Code 윈도우) — 받은 그림의 「변환 완료」 신호
+- 새 API `POST /api/link-done` `{via}`(`src/app/api/link-done/route.ts`): `checkProgramAccessApi` 후 공용 `link-mark` 이름표(`viaSource`)에 있는 값만 받아 회원 본인 `usage_logs`에 1줄(action `linked_convert`, `metadata.via`) — 그림은 받지 않음(변환은 계속 브라우저 안에서만), DB 칸 추가 없음.
+- 화면: 다른 프로그램에서 받은 그림(File)을 `importedFile` ref로 기억하고, 그 그림의 변환이 성공하면 `markLinkDone(importVia.key)`(`src/lib/linkDone.ts`, `createOnceSender`로 화면당 한 번, `keepalive`, 실패 무시).
+- 메인 관리자 연계 카드 「형식 바꾸기 → 변환 완료」(바나나는 넘김 → 변환, 인물사진·4컷은 넘김 기록이 없어 완료 건수만).
+- 검수: 시험 44개, tsc·빌드. 크롬: 운영 v1.21 표시, 로그인 없이 `/api/link-done` → 401. 로그인 상태의 400(없는 이름표)·실제 변환 뒤 기록 1줄은 검수 중 `.buylife.xyz` 로그인 세션이 끝나 미확인 — 다음 첫 단계: 로그인 후 바나나 서명 주소 + `via=banana-canvas`로 열어 변환 → `usage_logs`(action `linked_convert`) 확인.

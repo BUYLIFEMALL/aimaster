@@ -40,3 +40,19 @@ test("v1.20 인물사진·4컷 이름표와 조사 맞춘 돌아가기 문구", 
   const src = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
   assert.match(src, /↩ \{importVia\.back\}/);
 });
+
+test("v1.21 받은 그림의 변환을 처음 마치면 보낸 곳으로 변환 완료 신호(정해진 이름표만·한 번만)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(tool, /importedFile\.current = imported;/);
+  assert.match(tool, /if \(item\.file === importedFile\.current\) markLinkDone\(importVia\?\.key\);/);
+  const lib = readFileSync(new URL("../src/lib/linkDone.ts", import.meta.url), "utf8");
+  assert.match(lib, /once\(via, \(\) => \{/);
+  assert.match(lib, /"\/api\/link-done"/);
+  const api = readFileSync(new URL("../src/app/api/link-done/route.ts", import.meta.url), "utf8");
+  assert.match(api, /checkProgramAccessApi\(\)/);
+  assert.match(api, /const via = viaSource\(body\?\.via\)\?\.key;/);
+  assert.match(api, /action: "linked_convert", metadata: \{ via \}/);
+  assert.match(api, /export const dynamic = "force-dynamic";/);
+  assert.match(api, /export const fetchCache = "force-no-store";/);
+});

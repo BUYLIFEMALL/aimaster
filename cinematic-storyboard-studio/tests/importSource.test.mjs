@@ -34,3 +34,10 @@ test("v1.13 보낸 곳을 프로젝트에 저장(정해진 이름표만, 실패�
   assert.equal(viaSource("banana-canvas")?.key, "banana-canvas");
   assert.equal(viaSource("x' or 1=1"), undefined);
 });
+
+test("v1.14 4컷 만화 완성작도 받는다(보낸 곳 이름표·저장은 같은 흐름)", async () => {
+  assert.equal(importSourceOf(`${SB}/storage/v1/object/sign/four-cut-comics-files/u/a.jpg?token=t`, SB), "AI 4컷 만화");
+  assert.equal(importSourceOf(`${SB}/storage/v1/object/public/four-cut-comics-files/u/a.jpg`, SB), null);
+  const { viaSource } = await import("../src/lib/linkMark.ts");
+  assert.equal(viaSource("four-cut-comics")?.back, "AI 4컷 만화로 돌아가기");
+});

@@ -189,3 +189,6 @@
 
 ## ✅ v1.31 배포 (2026-10-22, Claude Code 윈도우) — 형식 바꾸기에 보낸 곳 붙이기
 - 「내 작품」의 「🔁 형식 바꾸기」 주소 끝에 `&via=four-cut-comics` — 변환 스튜디오 v1.20이 「↩ AI 4컷 만화로 돌아가기」(→ `/works`)를 보여 줌. 시험 `tests/convertVia.test.mjs`(전체 60개), tsc·빌드. 크롬: 로그인 확인(저장한 작품이 없어 버튼 자체는 미표시).
+
+## ✅ v1.32 배포 (2026-10-22, Claude Code 윈도우) — 완성작을 스토리보드로
+- 「내 작품」(서버 보관함)에 「🎬 스토리보드로」(`data-storyboard-link`, `https://cinematic-storyboard-studio.buylife.xyz/studio?src=<서명 주소>&via=four-cut-comics`). 시험 `tests/convertVia.test.mjs`(전체 61개), tsc·빌드. 크롬 화면은 로그인 세션 종료로 미확인.

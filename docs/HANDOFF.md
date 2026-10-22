@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(윈도우): 변환 스튜디오 v1.21 「변환 완료」 신호 · 4컷 v1.32 → 스토리보드 v1.14 · 관리자 연계 카드 2줄
+- 한 일: ① 변환 스튜디오 새 API `POST /api/link-done`(권한 확인·정해진 이름표만·본인 `usage_logs` action `linked_convert`), 받은 그림의 변환 첫 성공 때 한 번만 보냄 ③ 4컷 「내 작품」에 「🎬 스토리보드로」(`via=four-cut-comics`), 스토리보드 허용 목록에 `four-cut-comics-files` ④ 메인 `app/admin/statistics` 연계 카드에 「형식 바꾸기 → 변환 완료」(보낸 곳별)·스토리보드 줄을 바나나/4컷으로 나눔. DB 칸 추가 없음. ②(인물사진 서버 사진 표시)는 이미 v1.32부터 서버 보관함에 「형식 바꾸기」가 있어 제외(지난 제안이 잘못된 판단).
+- 검수: 시험 변환 44·스토리보드 22·4컷 61, tsc·빌드, 메인 통계 파일 타입 오류 0. 크롬: 변환 v1.21 표시·로그인 없는 `/api/link-done` 401. 못 한 것: 검수 도중 `.buylife.xyz` 로그인 세션이 끝나(변환·4컷 모두 `/login`) 로그인 상태 400·실제 변환 기록·4컷 링크·스토리보드 4컷 안내 화면·관리자 카드 미확인 — 주인님 재로그인 후 확인.
+- 참고: 같은 시각 맥미니 요청(video-to-gif v1.12 배포)은 주인님 지시로 다른 세션 담당 — 이 세션의 배포 스크립트가 로컬 빌드에서 멈춰(`.next` ENOENT, 다른 세션 동시 빌드로 보임) 배포 안 됨, `video-to-gif/lib/version.ts`는 HEAD로 되돌림(내용 같음, 줄바꿈만).
+- 배포: 변환 v1.21 → 스토리보드 v1.14 → 4컷 v1.32 → 메인 자동 빌드(빌드 4회), DB 버전 3줄.
+- 링크: https://image-convert-studio.buylife.xyz · https://cinematic-storyboard-studio.buylife.xyz · https://four-cut-comics.buylife.xyz · https://www.buylife.xyz/admin/statistics
+
 ## 2026-10-22 — Claude Code(맥미니): ✅ 상세페이지 GIF 자동화 v1.12 맥미니 크롬 실검수 — 대기 목록 첫 장면 썸네일
 - 화면 안에서 만든 시험 영상 2개(빨강·파랑, 서버 전송 없음) → 썸네일 2개가 서로 다른 장면으로 표시, 01·02 번호 겹침 확인. 길이 4.0초 표시, A 구간 1~2.5초 변환 → 둘 다 완료(A 585KB, B 1.42MB), 완료 뒤에도 썸네일 유지. 전체 ZIP `gif-all.zip` 안 `시험A.gif`·`시험B.gif` 둘 다 `GIF89a`(컴퓨터 저장 없음).
 - 휴대폰 폭: 창이 최대화돼 실제 축소 못 함 — 코드 구조(썸네일 `w-16 shrink-0`, 이름 칸 `min-w-0 flex-1`)로만 확인. 상세 `video-to-gif/AGENTS.md` 맨 아래. 2-2 작업 완료.

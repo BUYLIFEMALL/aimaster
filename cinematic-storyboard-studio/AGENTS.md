@@ -132,3 +132,7 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 - 직접 파일을 고르면(`pickFile(file)`) 바나나 안내·보낸 곳을 지운다(`fromImport` 인자). 돌아가기 문구는 이름표의 `back`(조사까지 맞춤).
 - 메인 관리자 연계 카드에 「바나나 → 스토리보드 · 넘김 → 만든 프로젝트 → 완성 이미지까지」 한 줄.
 - 검수: 시험 21개, tsc·빌드. 크롬: 운영 v1.13에서 바나나 서명 주소 + `via=banana-canvas`로 열어 안내·「↩ 바나나 캔버스로 돌아가기」(→ 바나나 `/history`) 확인. 실제 프로젝트 만들기 뒤 `source` 저장은 회원 데이터가 생겨 화면 시험 안 함(코드 시험으로 고정) — 다음 실제 사용 때 DB로 확인.
+
+## ✅ v1.14 배포 (2026-10-22, Claude Code 윈도우) — AI 4컷 만화 완성작도 참고 이미지로
+- `src/lib/importSource.ts` 허용 목록에 `four-cut-comics-files`(AI 4컷 만화) 추가. 4컷 「🎬 스토리보드로」(`?via=four-cut-comics`)로 오면 안내·「↩ AI 4컷 만화로 돌아가기」, 프로젝트를 만들면 `source='four-cut-comics'`(v1.13 흐름 그대로). 관리자 카드 스토리보드 줄에 「4컷 만화 → 만든 프로젝트 → 완성 이미지까지」.
+- 검수: 시험 22개, tsc·빌드. 크롬 화면은 로그인 세션 종료로 미확인.

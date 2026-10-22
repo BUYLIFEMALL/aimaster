@@ -23,6 +23,7 @@ import { Dropzone } from "./Dropzone";
 import { importSourceOf } from "@/lib/importSource";
 import { useLang } from "./LangProvider";
 import { viaSource } from "@/lib/linkMark";
+import { markLinkDone } from "@/lib/linkDone";
 
 type Status = "idle" | "working" | "done" | "error";
 interface Item {
@@ -115,6 +116,8 @@ export function ConvertTool() {
   const [importNote, setImportNote] = useState("");
   // v1.19: 보낸 프로그램(`?via=`, 공용 `link-mark` 이름표에 있는 것만) — 안내 옆 돌아가기 링크
   const [importVia, setImportVia] = useState<ReturnType<typeof viaSource>>(undefined);
+  // v1.21: 다른 프로그램에서 받은 그림(File) — 이 그림의 변환을 처음 마치면 보낸 곳으로 「변환 완료」 신호
+  const importedFile = useRef<File | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const src = params.get("src");
@@ -132,7 +135,9 @@ export function ConvertTool() {
         const blob = await res.blob();
         if (!res.ok || !blob.type.startsWith("image/")) throw new Error();
         const ext = blob.type === "image/jpeg" ? "jpg" : blob.type.split("/")[1] || "png";
-        addFiles([new File([blob], `${from.replace(/\s+/g, "-")}-result.${ext}`, { type: blob.type })]);
+        const imported = new File([blob], `${from.replace(/\s+/g, "-")}-result.${ext}`, { type: blob.type });
+        importedFile.current = imported;
+        addFiles([imported]);
         setImportNote(`${from} 결과를 목록에 넣었습니다. 형식과 크기를 고른 뒤 변환하세요.`);
         setImportVia(via);
       } catch {
@@ -166,6 +171,7 @@ export function ConvertTool() {
       const blob = await convertImage(item.file, { ...options, focus: item.focus ?? null });
       if (item.result) URL.revokeObjectURL(item.result.url);
       patch(item.id, { status: "done", result: { blob, name: outputFileName(item.file.name, format), url: URL.createObjectURL(blob) } });
+      if (item.file === importedFile.current) markLinkDone(importVia?.key);
     } catch (error) {
       patch(item.id, { status: "error", error: error instanceof Error ? error.message : t.convert.error });
     }
