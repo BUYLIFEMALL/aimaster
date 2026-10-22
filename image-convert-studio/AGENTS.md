@@ -135,3 +135,9 @@
 - `Focus.zoom`(1~3, `clampFocus`가 보정): 비율은 그대로 두고 자를 영역을 1/배율로 줄임(`cropAt`). 「자를 위치」 창에 확대 슬라이더(100~300%). 규격 프리셋이면 작은 영역을 정확한 크기로 고화질 확대.
 - 검수: 시험 31개·build, 배포 `image-convert-studio-gzxwu7xwp` Ready, DB v1.14. 크롬: 1600×1200 가운데 400×400 빨간 정사각형 + 인스타 피드 + 확대 300% → 1080×1080 전부 빨강 확인.
 - ⏸ 미배포(2026-10-22): 공용 기준 코드 `post-presets` 기준 파일 `src/lib/imageTools/postPresets.ts` 신설, `geometry.ts`가 다시 내보냄(동작 같음). 다음 배포 때 함께. 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync`로 감성 글귀·4컷 사본에 반영.
+
+## v1.15 (2026-10-22, Claude Code 윈도우) — 비율 선택에 실제 비율 상자 아이콘
+- 「비율 자르기」 버튼마다 실제 비율대로 그린 작은 상자(긴 변 16px, 원본은 점선 정사각)를 넣음 — 감성 글귀 v1.22와 같은 모양. 「게시처 규격」은 선택 상자(select)라 안에 그림을 못 넣어, 고른 규격의 비율 상자(긴 변 22px)를 선택칸 옆에 표시. `src/components/tool/ConvertTool.tsx`의 `RatioBox`.
+- 함께 나감: 공용 기준 코드 post-presets 기준 파일 `src/lib/imageTools/postPresets.ts`(geometry.ts가 다시 내보냄, 동작 같음).
+- 시험 31개·tsc·build 통과, 배포 `image-convert-studio-ekmip46j4` Ready, DB v1.15. 크롬 검수: 운영 v1.15, 비율 상자 크기 원본 16×16 점선·1:1 16×16·4:5 13×16·3:4 12×16·9:16 9×16·16:9 16×9, 규격 스토리 12×22·유튜브 22×12·해제 시 숨김.
+- 발견(미처리, 낮음): 루트 `/?preset=story`로 열면 `/convert`로 넘어가며 `?preset=`이 빠짐. 다른 프로그램 링크는 모두 `/convert?src=…&preset=…`로 바로 보내 영향 없음 — 루트 이동에서 검색값을 넘기면 해결.

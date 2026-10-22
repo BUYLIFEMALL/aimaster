@@ -316,19 +316,23 @@ export function ConvertTool() {
         <div className="mt-4 flex flex-wrap items-end gap-4 border-t border-[#1e293b] pt-4">
           <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-400">
             <span className="text-slate-200 font-semibold">{t.convert.preset}</span>
-            <select className={fieldClass} value={presetId} onChange={(event) => setPresetId(event.target.value)}>
-              <option value="" className="bg-[#0d121f] text-slate-200">{t.convert.presetNone}</option>
-              {POST_PRESETS.map((p) => (
-                <option key={p.id} value={p.id} className="bg-[#0d121f] text-slate-200">{t.presets[p.id] ?? p.label}</option>
-              ))}
-            </select>
+            <span className="flex items-center gap-2">
+              <select className={fieldClass} value={presetId} onChange={(event) => setPresetId(event.target.value)}>
+                <option value="" className="bg-[#0d121f] text-slate-200">{t.convert.presetNone}</option>
+                {POST_PRESETS.map((p) => (
+                  <option key={p.id} value={p.id} className="bg-[#0d121f] text-slate-200">{t.presets[p.id] ?? p.label}</option>
+                ))}
+              </select>
+              {/* v1.15: 선택 상자 안에는 그림을 넣을 수 없어, 고른 규격의 비율 상자를 옆에 표시 */}
+              {presetById(presetId) && <RatioBox ratio={presetById(presetId)!.width / presetById(presetId)!.height} size={22} />}
+            </span>
           </label>
           <div className="flex flex-col gap-1.5 text-xs">
             <span className="text-slate-200 font-semibold">{t.convert.crop}</span>
             <div className="flex flex-wrap gap-1.5" role="group" aria-label={t.convert.crop}>
               {CROP_RATIOS.map((c) => (
                 <button key={c.id} type="button" disabled={!!presetId} aria-pressed={cropId === c.id} onClick={() => setCropId(c.id)}
-                  className={`${btn} whitespace-nowrap ${cropId === c.id && !presetId ? "ics-primary" : "ics-ghost"}`}>{c.id === "original" ? t.convert.cropOriginal : c.label}</button>
+                  className={`${btn} inline-flex items-center gap-1.5 whitespace-nowrap ${cropId === c.id && !presetId ? "ics-primary" : "ics-ghost"}`}><RatioBox ratio={c.ratio} />{c.id === "original" ? t.convert.cropOriginal : c.label}</button>
               ))}
             </div>
           </div>
@@ -586,4 +590,11 @@ export function ConvertTool() {
       )}
     </div>
   );
+}
+
+/** v1.15: 실제 비율대로 그린 작은 상자(긴 변 size px) — 감성 글귀 v1.22와 같은 모양. ratio=null(원본)은 점선 정사각 */
+function RatioBox({ ratio, size = 16 }: { ratio: number | null; size?: number }) {
+  const w = ratio === null ? size : ratio >= 1 ? size : Math.round(size * ratio);
+  const h = ratio === null ? size : ratio >= 1 ? Math.round(size / ratio) : size;
+  return <span aria-hidden className={`inline-block shrink-0 rounded-[3px] border-[1.5px] border-current opacity-70 ${ratio === null ? "border-dashed" : ""}`} style={{ width: w, height: h }} />;
 }
