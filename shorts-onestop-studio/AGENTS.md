@@ -215,3 +215,10 @@
 - 검수: tsc, `npm test` 25개(`tests/refBlocks.test.ts` 4개 추가), 배포 `shorts-onestop-studio-cno750dn9` Ready, DB v1.35. 크롬(메인 크롬): 이름 실은 주소 → 띠 「🎬 출처 INSTA 포스팅 자동화 · 대사 15자 ✕ 빼기」(넘침 없음)·머리말 「출처:」, 칸 맨 앞에 메모 입력 후 「빼기」 → 블록·띠만 사라지고 메모 「내 메모입니다」 유지.
 - 못 한 것: 휴대폰 폭 화면 확인(띠가 `nowrap`이라 아주 긴 파일 이름이면 좁은 화면에서 넘칠 수 있음 — `docs/IMPROVEMENTS.md`).
 - 비용: 빌드 1회(승인 범위), AI 호출 없음.
+
+## 2026-10-22 v1.36 — 출처 띠 보완(긴 이름·위치 이동) · 완성 대본 → AI 썸네일·SEO 자동화 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_SCRIPT_TO_THUMBNAIL.md`(주인님 승인).
+- `src/lib/refBlocks.ts`: `refBlocks()`가 블록 시작 위치 `start`도 돌려줌, `shortSource(이름, 20)`. `TopicView.tsx`: 띠 이름 버튼(누르면 `jumpToRef` — 칸에 초점·커서를 머리말로·줄 높이로 스크롤), 이름 20자 「…」(전체는 title), 줄바꿈 허용, 「✕ 빼기」만 `nowrap`.
+- `RenderView.tsx` ⑤ 업로드 문구 아래 「📤 이 대본으로 썸네일 만들기」: 주제+장면 제목·내레이션(`scriptPlain`)을 공용 `refHandoffHash(대본, APP_NAME)`로 `https://thumbnail-master.buylife.xyz/seo`에(새 탭, 주소 `#` 뒤라 서버로 안 감, 12000자).
+- 검수: tsc, `npm test` 27개(2개 추가), 배포 `shorts-onestop-studio-mteeg9izb` Ready, DB v1.36. 크롬(메인 크롬): 25자 이름 → 「…」·title 전체, 칸 앞 메모+빈 줄 20개 뒤 이름 클릭 → 커서 24(머리말 첫 글자)·scrollTop 9→392·머리말 보임. 375px 틀: 띠 294px·넘침 0·페이지 가로 넘침 0(3줄로 꺾여 높이 92px). 저장된 대본 「물 마시는 습관…」 `/render` → 링크(대본 453자·이름) 클릭 → 새 탭 썸네일 v1.10 대본 칸 453자·안내 확인.
+- 비용: 빌드 2회(원스톱·썸네일, 승인 범위), AI 호출 없음.

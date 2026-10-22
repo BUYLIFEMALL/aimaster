@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 원스톱 v1.36·AI 썸네일·SEO v1.10: 출처 띠 보완 · 원스톱 대본 → 썸네일 「SEO 전략」 (빌드 2회, AI 호출 없음)
+- 원스톱 띠: 긴 이름 「…」·줄바꿈, 이름 누르면 칸 안 그 레퍼런스로 이동. ⑤ 업로드 문구 아래 「📤 이 대본으로 썸네일 만들기」 → thumbnail-master `/seo` 대본 칸 자동 채움(로그인 거쳐도 보관). 공용 `reference-copy-guard` 사본 4곳. 크롬 실제 링크 클릭 검수 끝, 로그아웃 경유는 미확인. 상세 각 폴더 `AGENTS.md`, 아이디어 `IDEA-ONESTOP-SEO-01` 적용 완료.
+- 프로그램: https://shorts-onestop-studio.buylife.xyz · https://thumbnail-master.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ SEO블로그 스튜디오 v1.98 OpenAI 전용 기능에 화면 모델 함께 보내기 (빌드 1회 · AI 1회)
 - 제목 추천·기존 글 분석/최적화·본문 이미지 고르기가 화면에 적용된 OpenAI 모델을 요청에 실어 보내, 모델을 바꾸자마자 눌러도 맞는 모델 사용(웨일에서 요청 본문 확인). 시험 60 통과, DB/확장/ZIP v1.98 OK. 시험 계정 기본 AI는 OpenAI · gpt-4o-mini.
 - 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래. 다음: BLC-10(문단별 이미지 노드) — 플랜·비용 먼저 보고. 버전이 v1.98이라 v1.99 다음은 v2.00(핵심 원칙 5).

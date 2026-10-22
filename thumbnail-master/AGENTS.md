@@ -97,3 +97,9 @@
 
 ## 2026-10-20 병합 D 3단계 완료 — 카탈로그 「AI 썸네일·SEO 자동화」 (Claude Code 윈도우)
 - DB 이름·소개 갱신, 썸네일 프로 노출 중지·옛 화면 이동(키 API 410), 프로에만 권한이 있던 5명에게 같은 사용기간으로 이 프로그램 권한 부여. 상세 플랜 §8.
+
+## 2026-10-22 v1.10 — AI 쇼츠 원스톱 대본 받기(「SEO 전략」) (Claude Code 윈도우)
+- 플랜 `../shorts-onestop-studio/docs/PLAN_20261022_SCRIPT_TO_THUMBNAIL.md`(주인님 승인).
+- 공용 `reference-copy-guard` 4번째 사본 `src/lib/reference.ts`(기준 `shorts-onestop-studio/src/lib/reference.ts`, 직접 고치지 말고 `--sync`) — 넘기기 형식 `#ref-transcript=…&ref-from=이름`만 사용.
+- `src/lib/refHandoff.ts`(새, 탭 저장소 키 `thumbnail-ref-handoff`): 로그인 양식이 열릴 때 보관·주소 `#` 지움, 로그인 뒤 보관분 있으면 `/seo`(없으면 예전처럼 `/open`). `SeoStudio.tsx`: 대본 칸 채움(30,000자) + 「📥 「○○」에서 넘긴 대본을 넣었습니다…」, 주소 `#` 지움. AI 호출은 회원이 「SEO 전략 3가지 만들기」를 눌러야 함.
+- 검수: tsc, `npm test` 13개(`tests/refHandoff.test.mjs` 2개 추가), 배포 `thumbnail-master-gl0dxb9ah` Ready, DB v1.10. 크롬: 시험 주소·원스톱 실제 링크 클릭 둘 다 대본 칸·안내 확인. 못 한 것: 로그아웃 상태에서 로그인을 거쳐 오는 흐름(비밀번호 입력은 주인님 몫).
