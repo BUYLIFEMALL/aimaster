@@ -18,5 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `threads-affiliate-poster/` · `style-dna-analyzer/` · `cinematic-storyboard-studio/` | Claude Code(윈도우, 크롬) | 2026-10-23 | 미배포 대기분 배포(정리 기록·좌측 메뉴, 승인 빌드 3회) |
 | `music-video-studio/` + 공용 `ai-video-providers`(기준 `ai-image-studio/lib/video/`, 사본 shots·shorts-onestop-studio 동기화만) | Claude Code(윈도우, 크롬) | 2026-10-23 | Veo 3.1 Preview 종료 대응 → Gemini Omni Flash (v1.12, 플랜 `music-video-studio/docs/PLAN_20261023_VEO_TO_OMNI.md`) |

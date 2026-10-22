@@ -187,3 +187,9 @@
 
 ## 2026-10-22 (버전 변경 없음·미배포, Claude Code 윈도우) — 공용 기준 코드에 `imageStudioLink` 옮김
 - 공용 기준 코드 `banana-idea-link`(`src/lib/dna/bananaIdeaLink.ts`, 이 프로그램이 기준)에 `IMAGE_STUDIO_URL`·`MAX_IMAGE_STUDIO_PROMPT`(6000)·`imageStudioLink(prompt, src)` 추가. `studioLink.ts`의 `imageStudioLink`는 이를 불러 `src=style-dna-analyzer`로 보냄(주소·동작 같음, `MAX_LINK_PROMPT`는 다시 내보냄). 시험 39개 통과. 동작이 같아 배포하지 않음 — 다음 배포 때 함께.
+
+## 2026-10-23 v1.37 — 미배포 대기분 묶음 배포 (Claude Code 윈도우, 주인님 승인 빌드)
+- 함께 나간 것: 정리 기록(images) `8ad8ea2e5`·`f53021369` · 좌측 메뉴 계정 위치 `22c6cda35` · 공용 사본 `openai-request-params`.
+- 30일 정리 작업이 회원별 `usage_logs` action `cleanup_expired`를 남김(공용 기준 코드 `cleanup-usage-log` 사본 `cleanupUsageLog.ts` — 직접 고치지 말 것, 기준 `four-cut-comics/src/lib/cleanupUsageLog.ts` + `--sync`). 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률에 나온다.
+- 검수: 로컬 build 통과, 배포 `style-dna-analyzer-c4gl4nkzu` Ready·운영 주소 연결, DB v1.37, 정리 경로 비밀값 없이 401, 크롬(관리자) 화면 버전 v1.37·계정이 마지막 메뉴 바로 아래. 첫 정리 기록은 다음 정리 시각 이후 관리자 화면에서 확인(지울 것이 있을 때만 기록).
+- 비용: Vercel 빌드 1회.

@@ -143,3 +143,9 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 
 ## ✅ v1.16 배포 — 2026-10-23 대기분 정리 배포(Claude Code 윈도우, 이미지 연계 세션)
 - 함께 나간 대기: 공용 `link-mark` 사본(이름표 인물사진·4컷·이미지 스튜디오 추가, 동작 같음). 시험 23개·tsc·빌드.
+
+## 2026-10-23 v1.17 — 미배포 대기분 묶음 배포 (Claude Code 윈도우, 주인님 승인 빌드)
+- 함께 나간 것: 정리 기록(projects·images) `4cafe5eb3`·`f53021369` · 좌측 메뉴 계정 위치 메모 → 이번에 고침(`991a43a44`, 메뉴 `flex-1` → `min-h-0 shrink`).
+- 30일 정리 작업이 회원별 `usage_logs` action `cleanup_expired`를 남김(공용 기준 코드 `cleanup-usage-log` 사본 `cleanupUsageLog.ts` — 직접 고치지 말 것, 기준 `four-cut-comics/src/lib/cleanupUsageLog.ts` + `--sync`). 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률에 나온다.
+- 검수: 로컬 build 통과, 배포 `cinematic-storyboard-studio-i597de3cx` Ready·운영 주소 연결, DB v1.17, 정리 경로 비밀값 없이 401, 크롬(관리자) 화면 버전 v1.17·계정이 마지막 메뉴 바로 아래. 첫 정리 기록은 다음 정리 시각 이후 관리자 화면에서 확인(지울 것이 있을 때만 기록).
+- 비용: Vercel 빌드 1회.
