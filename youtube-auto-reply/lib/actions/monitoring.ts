@@ -22,7 +22,11 @@ export async function startMonitoringAction(formData: FormData): Promise<StartMo
 
   const intervalMinutes = Number(formData.get("intervalMinutes"));
   const startFromInput = String(formData.get("startFrom") ?? "").trim();
-  const startFrom = startFromInput ? new Date(startFromInput) : new Date();
+  // v1.30: 화면의 datetime-local 값(예: 2026-10-23T04:06)은 시간대 없는 한국 시간이다. 서버(UTC)가 그대로 읽으면 9시간 늦게 저장돼
+  // 켠 뒤 9시간 동안 달린 댓글을 건너뛰었다(threads-comment-reply v1.26 검수 중 발견) → 시간대가 없으면 +09:00을 붙여 읽는다.
+  const startFrom = startFromInput
+    ? new Date(/(?:[zZ]|[+-]\d{2}:?\d{2})$/.test(startFromInput) ? startFromInput : `${startFromInput}+09:00`)
+    : new Date();
   if (Number.isNaN(startFrom.getTime())) return { error: "시작 시점이 올바르지 않습니다." };
 
   const { error } = await supabase.from("ytreply_settings").upsert(
