@@ -77,3 +77,22 @@ test("v1.66: 사진 검색어 Enter는 바깥 양식(새 글)을 제출하지 �
   const buttons = panel.match(/<button\b[^>]*>/g) ?? [];
   assert.ok(buttons.length > 0 && buttons.every((b) => b.includes('type="button"')));
 });
+
+test("미배포 대기(2026-10-23): 피드 이미지는 JPEG로 저장 — 서버 변환(투명 → 흰 배경)·브라우저 변환·저장 경로", async () => {
+  const sharp = (await import("sharp")).default;
+  const { toInstagramJpeg } = await import("../../src/lib/posts/instagramJpeg.ts");
+  const png = await sharp({ create: { width: 8, height: 8, channels: 4, background: { r: 255, g: 0, b: 0, alpha: 0 } } }).png().toBuffer();
+  const out = await toInstagramJpeg(png, "image/png");
+  assert.equal(out.mimeType, "image/jpeg");
+  assert.equal(out.ext, "jpg");
+  const meta = await sharp(out.bytes).metadata();
+  assert.equal(meta.format, "jpeg");
+  const { data } = await sharp(out.bytes).raw().toBuffer({ resolveWithObject: true });
+  assert.ok(data[0] > 240 && data[1] > 240 && data[2] > 240); // 투명 부분은 흰색
+  const jpg = await sharp({ create: { width: 4, height: 4, channels: 3, background: "#123456" } }).jpeg().toBuffer();
+  assert.equal((await toInstagramJpeg(jpg, "image/jpeg")).bytes, jpg); // JPEG는 그대로
+  const { readFileSync } = await import("node:fs");
+  for (const f of ["../../src/lib/actions/ai.ts", "../../src/lib/actions/slides.ts"]) assert.match(readFileSync(new URL(f, import.meta.url), "utf8"), /toInstagramJpeg\(Buffer\.from\(/);
+  const client = readFileSync(new URL("../../src/lib/uploadImageClient.ts", import.meta.url), "utf8");
+  assert.match(client, /canvas\.toBlob\(resolve, "image\/jpeg", 0\.92\)/);
+});

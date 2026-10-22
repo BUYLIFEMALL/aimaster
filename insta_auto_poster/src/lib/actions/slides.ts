@@ -5,6 +5,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generatePostImage, type NanoBananaModelType } from "@/lib/ai/generator";
+import { toInstagramJpeg } from "@/lib/posts/instagramJpeg";
 
 // shots/src/lib/actions/scripts.ts의 "장면당 이미지 생성+수정" 패턴을 그대로 이식했다.
 // insta_post_slides.image_url(활성 이미지) + image_urls(생성 이력 배열) 구조.
@@ -20,12 +21,13 @@ async function uploadSlideImage(
   base64: string,
   mimeType: string,
 ): Promise<string> {
-  const ext = mimeType.split("/")[1] ?? "png";
-  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  // 피드 게시 API는 JPEG만 받으므로 저장할 때 JPEG로 맞춘다(JPEG면 그대로)
+  const jpeg = await toInstagramJpeg(Buffer.from(base64, "base64"), mimeType);
+  const path = `${userId}/${crypto.randomUUID()}.${jpeg.ext}`;
 
   const { error } = await supabase.storage
     .from("insta-post-images")
-    .upload(path, Buffer.from(base64, "base64"), { contentType: mimeType, upsert: false });
+    .upload(path, jpeg.bytes, { contentType: jpeg.mimeType, upsert: false });
   if (error) throw new Error(error.message);
 
   const { data } = supabase.storage.from("insta-post-images").getPublicUrl(path);

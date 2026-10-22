@@ -14,6 +14,7 @@ import {
 } from "@/lib/ai/generator";
 import { logProgramUsage, requireProgramAccess } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { toInstagramJpeg } from "@/lib/posts/instagramJpeg";
 
 export interface GenerateContentState {
   caption?: string;
@@ -90,13 +91,14 @@ export async function generateImageAction(input: {
       { prompt: input.prompt, model: input.model, aspectRatio: input.aspectRatio },
       apiKey,
     );
-    const ext = result.mimeType.split("/")[1] ?? "png";
-    const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+    // 피드 게시 API는 JPEG만 받으므로 저장할 때 JPEG로 맞춘다(JPEG면 그대로)
+    const jpeg = await toInstagramJpeg(Buffer.from(result.base64, "base64"), result.mimeType);
+    const path = `${user.id}/${crypto.randomUUID()}.${jpeg.ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("insta-post-images")
-      .upload(path, Buffer.from(result.base64, "base64"), {
-        contentType: result.mimeType,
+      .upload(path, jpeg.bytes, {
+        contentType: jpeg.mimeType,
         upsert: false,
       });
     if (uploadError) {

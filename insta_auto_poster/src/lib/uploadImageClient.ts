@@ -21,7 +21,39 @@ export interface UploadImageDirectResult {
  * 올리면 Vercel 함수를 거치지 않아 이 제한 자체가 적용되지 않는다. Storage 버킷 RLS가
  * "{auth.uid()}/파일명" 경로에만 쓰기를 허용하므로 본인 폴더 밖에는 못 쓴다.
  */
-export async function uploadImageDirect(file: File): Promise<UploadImageDirectResult> {
+// 인스타 피드 게시 API는 JPEG만 받는다. 피드 게시는 저장된 공개 주소를 그대로 넘기므로 PNG·WEBP는 올리기 전에
+// 브라우저에서 흰 배경 위 JPEG(품질 92)로 바꾼다(2026-10-23, 미배포 대기). 바꾸지 못하면 원본을 그대로 올린다.
+export function needsJpegConversion(type: string): boolean {
+  return type !== "image/jpeg";
+}
+async function toJpegFile(file: File): Promise<File> {
+  const bitmap = await createImageBitmap(file);
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bitmap, 0, 0);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+  if (!blob) return file;
+  return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+}
+
+export async function uploadImageDirect(original: File): Promise<UploadImageDirectResult> {
+  if (!ALLOWED_MIME_TYPES.has(original.type)) {
+    return { error: "JPG, PNG, WEBP 형식의 이미지만 업로드할 수 있습니다." };
+  }
+  let file = original;
+  if (needsJpegConversion(original.type)) {
+    try {
+      file = await toJpegFile(original);
+    } catch {
+      file = original;
+    }
+  }
   if (!ALLOWED_MIME_TYPES.has(file.type)) {
     return { error: "JPG, PNG, WEBP 형식의 이미지만 업로드할 수 있습니다." };
   }
