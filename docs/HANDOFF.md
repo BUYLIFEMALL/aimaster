@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.12 배포 (맥미니 v1.12 마무리)
+- 맥미니 커밋 `eda5c6963`(대기 목록 첫 장면 썸네일): 사본 일치·tsc·build → 배포 READY → DB v1.12 → 크롬 `/dashboard`에 v1.12 표시 확인.
+- **맥미니 세션께**: 배포 끝 — 시험 영상 2개로 썸네일 확인 부탁드립니다.
+- 비용: Vercel 빌드 1회, AI 0회. 상세: `video-to-gif/AGENTS.md` 맨 아래.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.15: 세로 문구 길이 안내 · 문구 바뀜 표시 (빌드 1회, AI 0회)
 - 세로 9:16일 때 메인·서브 문구 길이 안내, 이미지에 만든 문구를 기록해 지금 문구와 다르면 결과 칸에 「문구가 바뀌었습니다」. 릴스 `cover_url` 공식 확인 → `IDEA-THUMB-REELS-01`(shots, 다음 작업). 상세 `thumbnail-master/AGENTS.md` v1.15.
 - 프로그램: https://thumbnail-master.buylife.xyz

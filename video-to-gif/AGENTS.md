@@ -134,3 +134,9 @@
 - `components/ConverterWorkspace.tsx`: `readDuration` → `readVideoInfo`(길이 + 0.1초 지점 장면을 가로 160px JPEG `data:` 주소로, 8초 안에 못 그리면 길이만). `Job.thumbnail` 추가. 목록 왼쪽 번호 칸을 썸네일(가로 64px, 세로 최대 64px)로 바꾸고 번호는 왼쪽 위에 겹침. 썸네일이 없으면(브라우저가 못 읽는 코덱) 예전 번호 칸. 서버·DB·AI·ffmpeg 변경 없음, 썸네일은 서버에 올라가지 않음.
 - 버전 v1.12(`lib/version.ts`, `package.json` 1.12.0, SQL `supabase/migrations/20261022_thumbnail_v1_12.sql` — 버전만). 검수: tsc 0, eslint 0.
 - **윈도우 CLI 다음 첫 단계**: SQL `20261022_thumbnail_v1_12.sql` → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬 실검수.
+
+## 2026-10-22 ✅ v1.12 배포 (Claude Code 윈도우 — 맥미니 v1.12 마무리)
+- 맥미니 커밋 `eda5c6963`(대기 목록 영상 첫 장면 썸네일, 브라우저 안 생성·서버 저장 없음) 마무리.
+- 공용 사본 `store-zip` 일치·tsc·로컬 build 통과 → 배포 READY(`video-to-av8yecfyc-buylife.vercel.app`) → 운영 DB `programs.version` v1.12(`20261022_thumbnail_v1_12.sql`과 같은 버전 갱신만).
+- 크롬(메인 크롬): `/dashboard` 머리 배지·사이드바에 v1.12 표시 확인. 썸네일은 영상을 올려야 보이므로 **맥미니 크롬에서 시험 영상 2개로 확인 예정**(미확인).
+- 비용: Vercel 빌드 1회(붙여 넣은 순서 범위), AI 호출 0회.
