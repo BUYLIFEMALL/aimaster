@@ -206,3 +206,6 @@
 
 ## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.34) — `resave-receiver` 기준 · 작품 이름표
 - 공용 기준 코드 `resave-receiver` 기준 `src/lib/resaveReceiver.ts`(사본: 인물사진 `src/lib/resaveReceiver.ts`, 바나나 `src/lib/bnc/resaveReceiver.ts`) — 이 파일만 고치고 사본에 손으로 복사(`--sync` 안 씀). `/api/import-result`가 사용. 「형식 바꾸기」 링크 `&label=`, 다시 저장 작품 제목 「○○ 3화 · WEBP」. 시험 65개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위, 루트 `docs/PENDING_DEPLOYS.md`.
+
+## ✅ v1.35 배포 — 2026-10-23 대기분 정리 배포(Claude Code 윈도우, 이미지 연계 세션)
+- 함께 나간 대기: 「형식 바꾸기」 `&label=`, 다시 저장 작품 제목 「○○ 3화 · WEBP」, `resave-receiver` 기준 파일, `link-mark` 사본. 크롬(관리자 계정): 변환 스튜디오에서 `label=검수 3화`로 다시 저장 → 카드 제목 「검수 3화 · WEBP」 확인 후 삭제.

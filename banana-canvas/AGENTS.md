@@ -255,3 +255,6 @@
 
 ## 🟡 미배포 대기 추가 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.31) — `resave-receiver` 사본 사용
 - `/api/import-result`가 공용 `resave-receiver` 사본(`src/lib/bnc/resaveReceiver.ts`)으로 CORS·본문·형식 판별, 이름표 있으면 제목에. 시험 45개·tsc·로컬 빌드. 대기 목록: `docs/IMPROVEMENTS.md` 맨 위.
+
+## ✅ v1.32 배포 — 2026-10-23 대기분 정리 배포(Claude Code 윈도우, 이미지 연계 세션)
+- 함께 나간 대기: 다운로드 파일 이름 `.webp`(기록 상세·작업 화면), `/api/import-result`가 공용 `resave-receiver` 사본 사용·이름표 제목, `link-mark` 이름표(인물사진·4컷·이미지 스튜디오), `banana-idea-link` 사본. 시험 45개·tsc·빌드. 크롬: 다른 프로그램 검수 흐름에서 함께 확인(바나나 넘김 화면 시험은 이번에 안 함).

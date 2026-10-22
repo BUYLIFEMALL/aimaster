@@ -140,3 +140,6 @@ src/components/studio/*         StudioWorkspace(흐름), SplitEditor(자르기),
 ## ✅ v1.15 배포 (2026-10-22, Claude Code 윈도우) — AI 인물사진 서버 보관 사진도 참고 이미지로
 - `src/lib/importSource.ts` 허용 목록에 `portrait-photo-files`(AI 인물사진). 기존 시험의 「인물사진 주소는 거절」 기대값을 「AI 인물사진」으로 바꿈(시험은 유지). 보낸 곳 `via=portrait-photo` → 「↩ AI 인물사진으로 돌아가기」·`source='portrait-photo'`(v1.13 흐름).
 - 검수: 시험 23개, tsc·빌드. 크롬 화면은 인물사진 보관 사진이 없어 미확인(코드 시험으로 고정).
+
+## ✅ v1.16 배포 — 2026-10-23 대기분 정리 배포(Claude Code 윈도우, 이미지 연계 세션)
+- 함께 나간 대기: 공용 `link-mark` 사본(이름표 인물사진·4컷·이미지 스튜디오 추가, 동작 같음). 시험 23개·tsc·빌드.

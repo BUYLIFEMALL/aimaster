@@ -34,6 +34,8 @@ interface GalleryItem {
   enhanced_prompt?: string;
   image_url: string;
   created_at: string;
+  /** 작업 종류 — `image_import`면 변환 스튜디오에서 다시 저장한 그림(model 칸에 형식) */
+  action?: string;
 }
 
 interface GalleryClientProps {
@@ -493,6 +495,11 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     <span className="rounded-lg bg-zinc-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-medium text-zinc-300 border border-zinc-800">
                       {getModelLabel(item.model)}
                     </span>
+                    {item.action === "image_import" && (
+                      <span data-converted-badge className="rounded-lg bg-violet-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-violet-200 border border-violet-700/60">
+                        🔁 변환됨 · {item.model}
+                      </span>
+                    )}
                   </div>
 
                   {/* Quick Action Overlay */}
@@ -707,6 +714,19 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     >
                       <span aria-hidden>🍌</span>
                       <span>바나나 캔버스로 보내 편집</span>
+                    </a>
+                  )}
+
+                  {convertLinkOf(activeModalItem.image_url, activeModalItem.prompt) && (
+                    <a
+                      href={convertLinkOf(activeModalItem.image_url, activeModalItem.prompt)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-convert-link-modal
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-violet-300 font-bold transition-colors border border-zinc-700 mt-1"
+                    >
+                      <span aria-hidden>🔁</span>
+                      <span>형식 바꾸기(이미지 변환 스튜디오)</span>
                     </a>
                   )}
 

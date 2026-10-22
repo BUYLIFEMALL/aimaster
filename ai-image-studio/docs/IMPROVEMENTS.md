@@ -1,10 +1,5 @@
 # AI 이미지 스튜디오 (ai-image-studio) 개선사항 관리 대장 (IMPROVEMENTS.md)
 
-> **🟡 미배포 대기 (2026-10-22, Claude Code 윈도우 — 「작은 수정은 모았다가 배포」 지침)** 다음 이미지 스튜디오 배포 때 함께(운영 v1.27, 버전은 그때 한 번).
-> - 갤러리 카드 「🔁 형식 바꾸기」(`lib/convertLink.ts`, `via=ai-image-studio`·`label=프롬프트 앞 40자`, 우리 저장소 서명 주소만).
-> - 새 API `POST /api/import-result`: 변환 스튜디오에서 다시 저장한 그림을 본인 폴더에 저장하고 `usage_logs` 작업 종류 **`image_import`**로 남김(갤러리에 그대로 나옴, 관리자 생성 통계 `image_generation`에는 안 섞임). 공용 `resave-receiver` 사본 `lib/resaveReceiver.ts`(기준 4컷). 버킷 형식 제한 없음 확인.
-> - 공용 `link-mark` 사본 갱신(이미지 스튜디오 이름표) — 동작 같음. **변환 스튜디오와 함께 배포해야 기능이 이어짐.**
-
 > **기준일자**: 2026-10-17  
 > **프로그램**: AI 이미지 스튜디오 (`ai-image-studio`)  
 > **현재 버전**: `v1.11` → `v1.12`  
@@ -37,3 +32,6 @@
 - ✅ 결과 버킷 비공개 + 서명 주소, 30일 정리 cron 이전(갤러리 열람 때 전체 회원 삭제 제거).
 - ⚪ 미사용 표 `user_image_generations`(0012)와 정리 함수(0014) 정리 여부 판단 필요(코드 참조 없음).
 - ⚪ 업로드 실패 시 공급사 주소(만료됨) 또는 data URL을 기록에 그대로 남김 — 큰 data URL이 `usage_logs.metadata`에 들어갈 수 있음. 실패 시 재시도 또는 기록 생략 검토.
+
+## 2026-10-23 발견 (Claude Code 윈도우, v1.28 검수 중)
+- [ ] 다시 저장한 그림(`image_import`) 카드의 플랫폼 배지가 `getProviderLabel("image-convert-studio")` 기본값으로 「IMAGE-CONVERT-STUDIO」 영문 그대로 나옴 → 「이미지 변환 스튜디오」로 라벨 추가(작은 수정 — 미배포 대기로 모을 것).

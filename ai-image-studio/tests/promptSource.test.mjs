@@ -52,3 +52,12 @@ test("미배포 대기(2026-10-22): 갤러리 형식 바꾸기 링크·변환 �
   const ui = readFileSync(new URL("../components/GalleryClient.tsx", import.meta.url), "utf8");
   assert.match(ui, /data-convert-link/);
 });
+
+test("v1.28: 갤러리 「변환됨」 표시·큰 보기 창 형식 바꾸기", () => {
+  const page = readFileSync(new URL("../app/(dashboard)/gallery/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /action: log\.action as string/);
+  const ui = readFileSync(new URL("../components/GalleryClient.tsx", import.meta.url), "utf8");
+  assert.match(ui, /item\.action === "image_import" && \(/);
+  assert.match(ui, /data-converted-badge/);
+  assert.match(ui, /data-convert-link-modal/);
+});

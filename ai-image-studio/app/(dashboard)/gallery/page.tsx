@@ -33,7 +33,8 @@ export default async function GalleryPage() {
       prompt: log.metadata?.prompt || "",
       enhanced_prompt: log.metadata?.enhanced_prompt || "",
       image_url: displayUrlOf(log.metadata, signed),
-      created_at: log.created_at
+      created_at: log.created_at,
+      action: log.action as string
     }))
     .filter((item) => Boolean(item.image_url));
 

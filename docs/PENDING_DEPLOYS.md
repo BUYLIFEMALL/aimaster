@@ -14,10 +14,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `banana-canvas` (운영 v1.31) | 다운로드 파일 이름 확장자(WebP → `.webp`, 기록 상세·작업 화면) · 다시 저장 이름표를 기록 제목에 | `a00e43925` · `b0502560e` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `banana-canvas/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.32, `resave-receiver` 사본도 함께(SHARED_MODULES) |
-| `four-cut-comics` (운영 v1.34) | 「형식 바꾸기」 링크 `&label=` · 다시 저장 작품 제목 「○○ 3화 · WEBP」 · `resave-receiver` 기준 파일로 정리 | `b0502560e` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `four-cut-comics/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.35, 변환 스튜디오와 순서 상관없음 |
-| `image-convert-studio` (운영 v1.24) | `?label=` 받아 다시 저장에 전달 · 「너무 큼」 옆 「품질 70%로 다시 변환」(PNG면 「WebP로 바꿔 다시 변환」) · 이미지 스튜디오에서 받기·다시 저장 | `b0502560e` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `image-convert-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.25, 바나나 그림이 2.2MB 넘게 나오는 설정으로 크롬 확인 |
-| `ai-image-studio` (운영 v1.27) | 갤러리 「🔁 형식 바꾸기」 · 새 API `/api/import-result`(변환 스튜디오에서 다시 저장 → 갤러리, `usage_logs` `image_import`) | `acf432dbe` | 2026-10-22 · Claude Code(윈도우, 이미지 연계 세션) | `ai-image-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 v1.28, **변환 스튜디오와 같은 날 배포**해야 이어짐 — 갤러리 → 형식 바꾸기 → 다시 저장 → 갤러리에 「변환 스튜디오에서 다시 저장」 크롬 확인 |
 | `naver-blog-allinone` (운영 v1.50) | BC-05 보관함 30일 자동 삭제(`GET /api/cron/cleanup`, Vercel Cron) | `naver-blog-allinone/AGENTS.md` 맨 위 참고 | 2026-10-22 · Claude Code(윈도우·웨일 세션) | `naver-blog-allinone/AGENTS.md` 맨 위 「⏳ 미배포 대기」 | 그 항목의 확인 방법대로(이 줄은 색인만 — 원문은 해당 세션 기록) |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-mastering-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -42,5 +38,11 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `four-cut-comics` | v1.35 · 2026-10-23 (이미지 연계 정리 배포) | 작품 이름표·resave-receiver 기준 `b0502560e` · link-mark 사본 `acf432dbe` |
+| `portrait-photo` | v1.42 · 2026-10-23 (이미지 연계 정리 배포) | resave-receiver 사본 `b0502560e` · link-mark 사본 `acf432dbe` |
+| `banana-canvas` | v1.32 · 2026-10-23 (이미지 연계 정리 배포) | 다운로드 확장자 `a00e43925` · 이름표 제목·resave-receiver 사본 `b0502560e` · link-mark 기준 `acf432dbe` |
+| `ai-image-studio` | v1.28 · 2026-10-23 (이미지 연계 정리 배포) | 갤러리 형식 바꾸기·다시 저장 받기 `acf432dbe` · 변환됨 배지·큰 보기 창 버튼(이번 커밋) |
+| `cinematic-storyboard-studio` | v1.16 · 2026-10-23 (이미지 연계 정리 배포) | link-mark 사본 `acf432dbe` |
+| `image-convert-studio` | v1.25 · 2026-10-23 (이미지 연계 정리 배포) | 이름표 전달·품질 70% `b0502560e` · PNG→WebP·이미지 스튜디오 연계 `acf432dbe` |
 | `thumbnail-master` | v1.19 · 2026-10-22 (`85aff6a76`) | 쇼츠 표지 안내 `de99b1ca9` |
 | `shorts-onestop-studio` | v1.37 · 2026-10-23 (`9bdcef674`) | 출처 띠 모양 `f055d6b70` |

@@ -1,10 +1,5 @@
 # 개선 제안서 (IMPROVEMENTS.md) — image-convert-studio
 
-> **🟡 미배포 대기 (2026-10-22, Claude Code 윈도우 — 「작은 수정은 모았다가 배포」 지침)** 다음 변환 스튜디오 배포 때 함께(운영 v1.24).
-> - `?label=`(보낸 쪽 원래 이름)을 받아 두었다가 다시 저장 본문에 `label`로 보냄(받는 쪽이 몰라도 무해).
-> - 「너무 큼」 안내 옆 「품질 70%로 다시 변환」(`retryForResave`, 같은 형식·품질 min(현재,70%), 작아질 때만 바꿈 — PNG 결과면 「WebP로 바꿔 다시 변환」(품질 80% WebP)으로 바꿈.
-> - 가져오기 허용 목록에 `ai-image-generations`(AI 이미지 스튜디오), 다시 저장 대상에 「이미지 스튜디오 갤러리」(`/api/import-result`) — **이미지 스튜디오와 함께 배포해야 이어짐.** `link-mark` 사본 갱신.
-
 - **작성 일자**: 2026-10-18
 - **작업자**: Antigravity CLI (agy, 윈도우)
 - **대상 프로그램**: 17번 `이미지 변환 스튜디오` (`image-convert-studio`)

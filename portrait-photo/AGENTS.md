@@ -241,3 +241,6 @@
 
 ## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.41) — `resave-receiver` 사본 사용
 - `/api/saved` POST가 공용 `resave-receiver` 사본으로 CORS·본문·형식(첫 바이트) 처리. 시험 47개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위.
+
+## ✅ v1.42 배포 — 2026-10-23 대기분 정리 배포(Claude Code 윈도우, 이미지 연계 세션)
+- 함께 나간 대기: `/api/saved`가 공용 `resave-receiver` 사본(형식은 파일 첫 바이트로 판별), `link-mark` 사본. 크롬(관리자 계정): 변환 스튜디오에서 WebP 다시 저장 성공 → 삭제. 스튜디오 자체 저장은 이번에 화면 시험 안 함(같은 판별 함수, 시험 코드로 고정).
