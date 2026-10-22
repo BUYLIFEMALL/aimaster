@@ -176,3 +176,7 @@
 ## 2026-10-22 메인 관리자 — 30일 정리 「프로그램별 표」로 확대 (Claude Code 윈도우, shots 버전 변경 없음)
 - 위 「Shots 30일 정리 합계 한 줄」을 바꿈: `app/api/admin/system-usage/route.ts` `cleanupByProgram`(최근 30일 `usage_logs` action `cleanup_expired`를 프로그램별로 — metadata 숫자는 이름별 합산, 배열은 개수) → 응답 `cleanupByProgram`(예전 `shotsCleanup` 없앰). `components/admin/SystemUsageMonitor.tsx` 「Supabase DB & 미디어 파일 용량」 탭 「30일 자동 정리」 표(프로그램·지운 항목·회원·마지막 정리), 칸 이름 한국어 `CLEANUP_LABEL`.
 - 커밋 `66f7d5bd8`, 메인 사이트 자동 빌드 `aimaster-gnthv9lv0` Ready. 크롬(관리자, 배포 전에 로그인 요청): API 200·새 칸 있음·예전 칸 없음, 카드 「아직 정리 기록이 없습니다」 표시. 표 줄은 기록이 생긴 뒤(Shots 2026-10-23 03:30 KST, 썸네일 2026-11-12 무렵) 확인 필요.
+
+## 2026-10-22 v1.38 — 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로 (Claude Code 윈도우, 주인님 지시)
+- 원인: `src/components/layout/Sidebar.tsx` 메뉴 영역이 `flex flex-1 …`이라 남는 높이를 다 차지해 계정 블록이 화면 맨 아래(1185px 창에서 1094px)로 밀림 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」 위반. 메뉴를 `min-h-0 shrink`(낮은 화면에서만 줄며 내부 스크롤)로 바꿈.
+- 검수: tsc·build, 커밋 `2236b08ec`, 배포 `shots-8d4yrfu7q` Ready(주인님 「지금 배포」 승인, 빌드 1회), DB v1.38. 크롬(관리자): 데스크톱 계정 652px·마지막 메뉴 아래 16px, 400px 폭 펼침 메뉴도 16px.
