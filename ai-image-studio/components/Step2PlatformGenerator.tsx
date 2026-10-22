@@ -31,6 +31,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
     imageUrl: string;
     revisedPrompt?: string;
     metadata?: Record<string, any>;
+    logId?: string | null;
   } | null>(null);
 
   const [highlightFlash, setHighlightFlash] = useState(false);
@@ -127,7 +128,8 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
       setGeneratedResult({
         imageUrl: data.imageUrl,
         revisedPrompt: data.revisedPrompt,
-        metadata: data.metadata
+        metadata: data.metadata,
+        logId: data.logId ?? null
       });
     } catch (err: any) {
       setError(err.message || "오류가 발생했습니다.");
@@ -342,6 +344,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
           providerName={currentProvider.name}
           modelName={currentModel.name}
           originalPrompt={prompt}
+          logId={generatedResult.logId}
         />
       )}
     </div>

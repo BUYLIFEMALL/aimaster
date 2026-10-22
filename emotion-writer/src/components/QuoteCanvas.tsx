@@ -10,7 +10,7 @@ import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
 import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { instaPostLink, instaRatioOk } from "@/lib/instaHandoff";
-import { bananaBackgroundLink } from "@/lib/studio/bananaLink";
+import { bananaBackgroundLink, imageStudioBackgroundLink } from "@/lib/studio/bananaLink";
 
 export function QuoteCanvas({
   image,
@@ -295,11 +295,22 @@ export function QuoteCanvas({
         </button>
       </div>
       {/* v1.24: 이 글귀 분위기의 배경을 바나나 캔버스에서(아이디어 칸만 채움, 자동 생성 없음) */}
-      {quote && bananaBackgroundLink(quote) && (
+      {quote && (bananaBackgroundLink(quote) || imageStudioBackgroundLink(quote)) && (
         <p className="text-center text-xs">
-          <a href={bananaBackgroundLink(quote)!} target="_blank" rel="noopener noreferrer" data-banana-bg className="font-semibold text-rose-700 underline underline-offset-2">
-            🍌 이 글귀 분위기의 배경을 바나나 캔버스에서 만들기
-          </a>
+          {bananaBackgroundLink(quote) && (
+            <a href={bananaBackgroundLink(quote)!} target="_blank" rel="noopener noreferrer" data-banana-bg className="font-semibold text-rose-700 underline underline-offset-2">
+              🍌 이 글귀 분위기의 배경을 바나나 캔버스에서 만들기
+            </a>
+          )}
+          {/* v1.25: 같은 문구로 AI 이미지 스튜디오에서(엔진·모델을 골라 생성) */}
+          {imageStudioBackgroundLink(quote) && (
+            <>
+              {bananaBackgroundLink(quote) && <span aria-hidden> · </span>}
+              <a href={imageStudioBackgroundLink(quote)!} target="_blank" rel="noopener noreferrer" data-image-studio-bg className="font-semibold text-rose-700 underline underline-offset-2">
+                🎨 이미지 스튜디오에서 만들기
+              </a>
+            </>
+          )}
         </p>
       )}
       {!instaRatioOk(ratio) && ready && (

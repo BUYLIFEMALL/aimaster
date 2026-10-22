@@ -22,3 +22,19 @@ test("대시보드 안내·생성 요청·기록 저장 연결", () => {
   assert.match(route, /const source = promptSourceKey\(ideaSource\)/);
   assert.match(route, /\.\.\.\(source \? \{ ideaSource: source \} : \{\}\)/);
 });
+
+test("v1.27 첫 다운로드·바나나로 보낸 시각 기록", () => {
+  const route = read("app/api/generate/route.ts");
+  assert.match(route, /\.select\("id"\)\.single\(\)/);
+  assert.match(route, /logId: logIds\[0\] \?\? null/);
+  const mark = read("app/api/gallery/mark/route.ts");
+  assert.match(mark, /\.eq\("user_id", user\.id\)\.eq\("program_id", AI_IMAGE_STUDIO_PROGRAM_ID\)/);
+  assert.match(mark, /metadata\.downloadedAt \? null/);
+  assert.match(mark, /handoffs\.banana \? null/);
+  const viewer = read("components/ImageResultViewer.tsx");
+  assert.match(viewer, /markLog\(logId, "download"\)/);
+  assert.match(viewer, /markLog\(logId, "banana"\)/);
+  const gallery = read("components/GalleryClient.tsx");
+  assert.match(gallery, /markLog\(item\.id, "banana"\)/);
+  assert.match(gallery, /handleDownload\(item\.image_url, item\.provider, item\.id\)/);
+});

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Download, Copy, Check, Maximize2, X, Sparkles, Wand2 } from "lucide-react";
 import { bananaEditUrl } from "@/lib/bananaLink";
+import { markLog } from "@/lib/logMark";
 
 interface ImageResultViewerProps {
   imageUrl: string;
@@ -10,6 +11,8 @@ interface ImageResultViewerProps {
   providerName: string;
   modelName: string;
   originalPrompt: string;
+  /** v1.27: 이 그림의 생성 기록 번호(첫 다운로드·바나나로 보낸 시각을 남김) */
+  logId?: string | null;
 }
 
 export function ImageResultViewer({
@@ -18,6 +21,7 @@ export function ImageResultViewer({
   providerName,
   modelName,
   originalPrompt,
+  logId,
 }: ImageResultViewerProps) {
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -29,6 +33,7 @@ export function ImageResultViewer({
   };
 
   const handleDownload = async () => {
+    markLog(logId, "download");
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
@@ -73,6 +78,7 @@ export function ImageResultViewer({
           {bananaEditUrl(imageUrl) && (
             <a
               href={bananaEditUrl(imageUrl)!}
+              onClick={() => markLog(logId, "banana")}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-xs font-bold text-zinc-950 bg-amber-400 hover:bg-amber-300 px-3.5 py-1.5 rounded-lg transition-colors shadow-sm"

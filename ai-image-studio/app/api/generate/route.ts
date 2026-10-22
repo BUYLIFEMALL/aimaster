@@ -85,6 +85,7 @@ export async function POST(req: Request) {
     const supabaseAdmin = createAdminClient();
 
     const results = [];
+    const logIds: (string | null)[] = [];
     for (let i = 0; i < count; i++) {
       const rawResult = await adapter.generateImage({
         prompt,
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
       results.push(result);
 
       // Save permanent record to usage_logs DB table
-      const { error: insertErr } = await supabaseAdmin.from("usage_logs").insert({
+      const { data: logRow, error: insertErr } = await supabaseAdmin.from("usage_logs").insert({
         user_id: user.id,
         program_id: AI_IMAGE_STUDIO_PROGRAM_ID,
         action: "image_generation",
@@ -116,7 +117,9 @@ export async function POST(req: Request) {
           ...(source ? { ideaSource: source } : {}),
           ...(imagePath ? { image_path: imagePath } : { image_url: rawResult.imageUrl })
         }
-      });
+      }).select("id").single();
+      // v1.27: 화면이 다운로드·바나나로 보낸 것을 이 기록에 남길 수 있게 기록 번호를 돌려준다
+      logIds.push(logRow?.id ?? null);
 
       if (insertErr) {
         console.error("Failed to save image generation to DB usage_logs:", insertErr);
@@ -128,7 +131,8 @@ export async function POST(req: Request) {
     return Response.json({
       success: true,
       imageUrl: primaryResult.imageUrl,
-      images: results.map(r => ({ imageUrl: r.imageUrl, revisedPrompt: r.revisedPrompt, metadata: r.metadata })),
+      logId: logIds[0] ?? null,
+      images: results.map((r, i) => ({ imageUrl: r.imageUrl, revisedPrompt: r.revisedPrompt, metadata: r.metadata, logId: logIds[i] ?? null })),
       revisedPrompt: primaryResult.revisedPrompt,
       metadata: primaryResult.metadata
     });

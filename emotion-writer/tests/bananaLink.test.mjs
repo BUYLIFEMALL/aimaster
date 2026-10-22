@@ -12,3 +12,12 @@ test("글귀 → 바나나 아이디어 주소", () => {
   assert.equal(bananaBackgroundLink("가".repeat(MAX_BANANA_IDEA)), null);
   assert.equal(bananaBackgroundLink(""), null);
 });
+
+test("v1.25 이미지 스튜디오 배경 링크(같은 문구·보낸 곳)", async () => {
+  const { imageStudioBackgroundLink, quoteBackgroundIdea } = await import("../src/lib/studio/bananaLink.ts");
+  const u = new URL(imageStudioBackgroundLink("오늘도 수고했어요"));
+  assert.equal(u.origin + u.pathname, "https://ai-image-studio.buylife.xyz/dashboard");
+  assert.equal(u.searchParams.get("prompt"), quoteBackgroundIdea("오늘도 수고했어요"));
+  assert.equal(u.searchParams.get("src"), "emotion-writer");
+  assert.equal(imageStudioBackgroundLink(""), null);
+});

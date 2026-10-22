@@ -19,6 +19,17 @@ export function isBananaSource(v: unknown): v is BananaSource {
   return typeof v === "string" && Object.prototype.hasOwnProperty.call(BANANA_SOURCES, v);
 }
 
+// 2026-10-22: AI 이미지 스튜디오 2단계 프롬프트 칸(`/dashboard?prompt=`)으로 보내는 주소도 여기서 만든다(자동 생성 없음).
+// 이미지 스튜디오는 같은 이름표로 `src`를 받아 안내·돌아가기 링크·생성 기록에 쓴다. 너무 긴 프롬프트는 주소가 길어져 null
+export const IMAGE_STUDIO_URL = "https://ai-image-studio.buylife.xyz/dashboard";
+export const MAX_IMAGE_STUDIO_PROMPT = 6000;
+
+export function imageStudioLink(prompt: string | null | undefined, src?: BananaSource): string | null {
+  const p = (prompt ?? "").trim();
+  if (!p || p.length > MAX_IMAGE_STUDIO_PROMPT) return null;
+  return `${IMAGE_STUDIO_URL}?prompt=${encodeURIComponent(p)}${src ? `&src=${src}` : ""}`;
+}
+
 export function bananaIdeaLink(idea: string | null | undefined, src?: BananaSource): string | null {
   const p = (idea ?? "").trim();
   if (!p || p.length > MAX_BANANA_IDEA) return null;

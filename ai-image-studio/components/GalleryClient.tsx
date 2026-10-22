@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { bananaEditUrl } from "@/lib/bananaLink";
+import { markLog } from "@/lib/logMark";
 import {
   History,
   Image as ImageIcon,
@@ -139,7 +140,8 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDownload = async (imageUrl: string, filenameSuffix: string) => {
+  const handleDownload = async (imageUrl: string, filenameSuffix: string, logId?: string) => {
+    markLog(logId, "download");
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
@@ -502,7 +504,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                       <Maximize2 className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => handleDownload(item.image_url, item.provider)}
+                      onClick={() => handleDownload(item.image_url, item.provider, item.id)}
                       className="p-3 rounded-xl bg-zinc-950/90 text-white hover:bg-emerald-400 hover:text-zinc-950 transition-colors border border-zinc-700"
                       title="다운로드"
                     >
@@ -511,6 +513,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     {bananaEditUrl(item.image_url) && (
                       <a
                         href={bananaEditUrl(item.image_url)!}
+                        onClick={() => markLog(item.id, "banana")}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-3 rounded-xl bg-zinc-950/90 text-white hover:bg-amber-400 hover:text-zinc-950 transition-colors border border-zinc-700"
@@ -673,7 +676,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                   </button>
 
                   <button
-                    onClick={() => handleDownload(activeModalItem.image_url, activeModalItem.provider)}
+                    onClick={() => handleDownload(activeModalItem.image_url, activeModalItem.provider, activeModalItem.id)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-zinc-950 font-bold transition-colors shadow-md shadow-emerald-400/10"
                   >
                     <Download className="h-4 w-4" />
@@ -683,6 +686,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                   {bananaEditUrl(activeModalItem.image_url) && (
                     <a
                       href={bananaEditUrl(activeModalItem.image_url)!}
+                      onClick={() => markLog(activeModalItem.id, "banana")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-bold transition-colors border border-zinc-700 mt-1"
