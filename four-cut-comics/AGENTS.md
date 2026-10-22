@@ -169,3 +169,5 @@
 - `src/components/studio/InstaDirectPublish.tsx` 게시 기록(`InstaPostHistory`) 바로 위에 「내 작품」과 같은 접힌 한 줄 그래프(`InstaWeekPosts` 사본, `.fcc-week` CSS, 게시·예약 뒤 `historyKey`로 다시 불러옴). tsc·테스트 56·로컬 build 통과.
 - 주인님 지시로 바로 배포: v1.28 READY, DB v1.28, 커밋 `f50e678f1`·`776d1c7de`. 크롬: v1.28 표시·「내 작품」 그래프 정상(같은 컴포넌트·CSS)·`/studio` 200. **게시 칸 그래프 자체는 4컷 생성을 모두 마쳐야 나타나(`allDone`) 유료 이미지 생성 없이는 화면으로 못 봄 — 회원이 만화를 완성했을 때 확인.** 비용: Vercel 빌드 1회.
 - 같은 날 보류(주인님 결정): 시험 계정으로 실제 게시해 막대 높이·썸네일을 확인하는 일은 하지 않음(공개 게시). 회원 실제 게시가 생기면 그때 화면으로 확인.
+
+- 2026-10-22 (Claude Code 윈도우): 위 `.fcc-week` CSS 누락을 `node scripts/check-shared-modules.mjs`가 자동으로 찾음(`PLAIN_CSS_COPIES`, 빠진 클래스 이름을 `FAIL CSS`로 보고). 규칙 하나를 빼서 잡히는지 확인함.

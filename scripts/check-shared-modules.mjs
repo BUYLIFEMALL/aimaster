@@ -616,6 +616,88 @@ for (const dir of programDirs) {
 }
 console.log(`이미지 호출 ${timeChecked}곳 시간 검사(직접 확인 ${timeUnknown}곳)`);
 
+// Tailwind 없는 프로그램의 사본 클래스 검사(2026-10-22): 공용 컴포넌트는 Tailwind 클래스로 쓰여 있어,
+// Tailwind가 없는 프로그램은 자기 CSS의 범위(scope) 안에 같은 이름을 직접 정의해 둔다.
+// 기준이 새 클래스를 쓰기 시작했는데 그 CSS에 없으면 그 프로그램에서만 모양이 빠지므로 문제로 보고한다.
+// ignore: 정의하지 않아도 되는 클래스(다른 클래스가 대신 그리는 것). 새 프로그램을 붙이면 아래 표에 한 줄 추가.
+const PLAIN_CSS_COPIES = [
+  {
+    dir: "four-cut-comics",
+    css: "four-cut-comics/src/app/globals.css",
+    scope: ".fcc-week",
+    files: [
+      "four-cut-comics/src/components/weekChart/WeekReplyChart.tsx",
+      "four-cut-comics/src/components/weekChart/WeekReplyPanel.tsx",
+      "four-cut-comics/src/components/weekChart/InstaWeekPosts.tsx",
+    ],
+    ignore: ["ring-pink-400", "ring-offset-1", "ring-offset-transparent", "from-rose-500", "to-pink-400", "focus-visible:ring-pink-400"],
+  },
+];
+
+/** t[i]가 '{'일 때 짝이 맞는 '}' 다음 위치(문자열·템플릿 안의 괄호는 건너뜀) */
+function skipBraces(t, i) {
+  let d = 0;
+  while (i < t.length) {
+    const ch = t[i];
+    if (ch === '"' || ch === "'") { i = t.indexOf(ch, i + 1) + 1 || t.length; continue; }
+    if (ch === "`") { i = skipTemplate(t, i); continue; }
+    if (ch === "{") d++;
+    else if (ch === "}" && --d === 0) return i + 1;
+    i++;
+  }
+  return i;
+}
+function skipTemplate(t, i) {
+  i++;
+  while (i < t.length) {
+    if (t[i] === "\\") { i += 2; continue; }
+    if (t[i] === "`") return i + 1;
+    if (t[i] === "$" && t[i + 1] === "{") { i = skipBraces(t, i + 1); continue; }
+    i++;
+  }
+  return i;
+}
+/** 파일의 className 값에 글자로 적힌 클래스 이름들(변수로 넘긴 것은 제외) */
+function classTokens(text) {
+  const out = new Set();
+  const re = /className=/g;
+  let m;
+  while ((m = re.exec(text))) {
+    const i = m.index + m[0].length;
+    const end = text[i] === '"' ? text.indexOf('"', i + 1) + 1 : text[i] === "{" ? skipBraces(text, i) : i;
+    const expr = text.slice(i, end);
+    const parts = [];
+    for (const q of expr.matchAll(/"([^"]*)"|'([^']*)'/g)) parts.push(q[1] ?? q[2]);
+    for (const q of expr.matchAll(/`([^`]*)`/g)) parts.push(q[1].replace(/\$\{[^}]*\}/g, " "));
+    for (const p of parts) for (const tok of p.split(/\s+/)) if (/^[a-z][a-z0-9:/.\[\]#%-]*$/.test(tok)) out.add(tok);
+  }
+  return out;
+}
+const cssEscape = (tok) => tok.replace(/[:/.[\]#%]/g, (ch) => "\\" + ch);
+for (const p of PLAIN_CSS_COPIES) {
+  const cssPath = path.join(root, p.css);
+  if (!fs.existsSync(cssPath)) continue;
+  const css = fs.readFileSync(cssPath, "utf8");
+  const missing = new Set();
+  for (const file of p.files) {
+    const fp = path.join(root, file);
+    if (!fs.existsSync(fp)) continue;
+    for (const tok of classTokens(fs.readFileSync(fp, "utf8"))) {
+      if (p.ignore.includes(tok)) continue;
+      const sel = `${p.scope} .${cssEscape(tok)}`;
+      let at = css.indexOf(sel), found = false;
+      while (at >= 0 && !found) { found = /[{:>,\s]/.test(css[at + sel.length] ?? ""); at = css.indexOf(sel, at + 1); }
+      if (!found) missing.add(tok);
+    }
+  }
+  if (missing.size) {
+    console.log(`FAIL     CSS: ${p.dir} — ${p.css}의 ${p.scope} 안에 정의가 없는 클래스 ${missing.size}개(이 프로그램은 Tailwind가 없어 공용 컴포넌트 모양이 빠짐): ${[...missing].join(" ")}`);
+    bad++;
+  } else {
+    console.log(`OK       CSS: ${p.dir} — 공용 사본 ${p.files.length}개의 클래스가 ${p.scope} 안에 모두 정의됨`);
+  }
+}
+
 // 동기화된 사본 폴더의 자동 시험(게시 묶음을 고치면 이중 게시 방지 시험이 함께 돈다)
 for (const dir of testDirsToRun) {
   const r = spawnSync("npm", ["test"], { cwd: path.join(root, dir), shell: true, encoding: "utf8" });
@@ -633,7 +715,7 @@ for (const dir of testDirsToRun) {
 }
 
 if (bad) {
-  console.log(`\n${bad}건 문제(사본 불일치·시간 초과·시험 실패)`);
+  console.log(`\n${bad}건 문제(사본 불일치·시간 초과·시험 실패·Tailwind 없는 사본 CSS 누락)`);
   process.exit(1);
 }
 console.log("\n모든 사본이 기준과 같고, 이미지 호출 시간이 300초 안입니다.");
