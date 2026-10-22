@@ -51,7 +51,8 @@
 ---
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
-- **현재 버전**: `v1.51` (2026-10-22)
+- **현재 버전**: `v1.52` (2026-10-22)
+- **v1.52 (2026-10-22)**: 상위 3개 묶어 분석, 경쟁 계정 즐겨찾기(공용 표 `member_watch_accounts`) — 아래 v1.52 절.
 - **v1.51 (2026-10-22)**: 해시태그 수집을 Apify 전용 수집기로, 오류 항목 안내 — 아래 v1.51 절.
 - **v1.50 (2026-10-22)**: 🔍 인기 게시물 자동 수집(Facebook 페이지 방식은 공식 API, 그 밖·해시태그는 회원 Apify 토큰), 릴스 소리 최대 3분, 장면 시점 — 아래 v1.50 절.
 - **v1.49 (2026-10-22)**: 떡상 리메이크에 릴스 영상 파일 올리기(브라우저에서 장면 4장·소리만 뽑아 분석, Gemini는 말까지) — 아래 2026-10-22 v1.49 절.
@@ -292,3 +293,11 @@
 - 크롬(시험 회원) 실검수: **@nasa 계정 수집 성공**(26초, Apify $0.054) → 반응도 상위 5개(1위 좋아요 208만·댓글 6,253, 2위 릴스 조회 1,057만) 썸네일 5개 표시 → 「🔥 이 게시물로 분석」 → 원문 칸(출처·반응 수·주소·캡션)·이미지 3장 채움 → Gemini 떡상 분석 23초 성공(NASA 게시물 내용 요약).
 - **한글 해시태그 `#재테크`는 전용 수집기도 빈 결과**(Apify 로그 「NO RESULTS … private or has no posts」, $0.0026) — 우리 요청은 정상, Apify·인스타 쪽 제한으로 판단. 원인 좁히기(영문 해시태그·`keywordSearch` 옵션)는 비용 승인 범위 밖이라 미시험(`docs/IMPROVEMENTS.md`).
 - 검수: tsc·`test:cardnews` 59·build, 배포 `insta-auto-poster-4khiuh7va` Ready(빌드 1회 — 주인님 추가 승인), DB v1.51. 비용: 빌드 1회, Apify 3회 합계 약 $0.059, Gemini 1회 약 $0.02~0.05(모두 시험 회원 본인 토큰·키, 승인 범위).
+
+### 2026-10-22 v1.52 — 🔥 상위 3개 묶어 분석 · ★ 경쟁 계정 즐겨찾기(공용 표 `member_watch_accounts`) (Claude Code 윈도우)
+- 주인님 승인: 추가개선 1·2(빌드 1회·Apify 1회·Gemini 1회), 즐겨찾기 저장은 「B. 회원별 DB 표」.
+- **DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기)**: 공용 표 `member_watch_accounts`(user_id·platform(instagram/threads/youtube/tiktok)·handle·created_at, unique(user_id,platform,handle), RLS 본인만 select·insert·delete) — 결과 rows 0·policies 3·rls true. 다른 프로그램도 platform으로 재사용. 기록 `supabase/migrations/20261022210000_member_watch_accounts_v1_52.sql`. 계정 이름만 저장(30일 생성 데이터 아님), 회원당 20개.
+- 수집 API `collect`: `watch_list`·`watch_add`·`watch_remove`(회원 세션 클라이언트 → RLS로 본인 것만). `collect.ts`: `bundleImageUrls`(게시물마다 고르게 최대 6장)·`remakeBundleText`(「여러 게시물의 공통 성공 패턴」 지시 + ①②③ 출처·반응 수·캡션).
+- 화면 `CollectPanel`: 계정 입력 옆 ☆ 즐겨찾기 / ★ 즐겨찾기됨, 「★ 즐겨찾는 계정」 칩(누르면 바로 수집·✕ 빼기), 결과 위 「🔥 상위 3개 묶어 분석」.
+- 검수: tsc, `test:cardnews` 60개(묶음 1개 추가), build, 배포 `insta-auto-poster-m9mo7w5og` Ready, DB v1.52. 크롬(시험 회원): nasa 즐겨찾기 → 「즐겨찾기됨」·칩 → 새로고침 뒤 칩 유지(DB 행 `instagram:nasa` 1건, 비로그인 조회 빈 목록) → 칩 눌러 수집 14초(Apify $0.054) → 묶어 분석 → 원문 ①②③·이미지 5장(릴스는 표지 1장) → Gemini 33초 성공, 세 게시물을 묶은 공통 패턴(압도적 비주얼 + 인간 승리 서사) 요약·관점 TOP 3.
+- 시험 회원 즐겨찾기에 `nasa` 1건이 남음(본인 데이터, 필요하면 칩 ✕로 삭제).

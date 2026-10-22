@@ -2,10 +2,10 @@
 
 // 🔍 인기 게시물 수집(v1.50): 계정 이름·해시태그 → 반응도 상위 5개 → 하나를 고르면 이미지·캡션을 떡상 리메이크 재료로 넘긴다.
 // 수집 결과는 이 화면에만 두고 저장하지 않는다. 인스타 이미지 주소는 브라우저에서 못 받으므로(CORS) 서버가 줄여서 돌려준다.
-import { useState } from "react";
-import { Heart, Loader2, MessageCircle, Play, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Heart, Loader2, MessageCircle, Play, Search, Star, X } from "lucide-react";
 import { BTN_GHOST, ErrorNote, INPUT } from "./ui";
-import { remakeSourceText, type CollectedPost, type CollectKind, type CollectSource } from "@/lib/cardnews/collect";
+import { BUNDLE_SIZE, bundleImageUrls, normalizeUsername, remakeBundleText, remakeSourceText, type CollectedPost, type CollectKind, type CollectSource } from "@/lib/cardnews/collect";
 
 export interface CollectPick { text: string; images: { name: string; mimeType: string; data: string; preview: string }[] }
 
@@ -19,11 +19,28 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
   const [busy, setBusy] = useState(false);
   const [picking, setPicking] = useState<string | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
+  // v1.52 경쟁 계정 즐겨찾기(회원별 DB 표 member_watch_accounts — 계정 이름만)
+  const [watch, setWatch] = useState<string[]>([]);
+  const [watchBusy, setWatchBusy] = useState(false);
+  const handle = kind === "account" ? normalizeUsername(query) : null;
+  const starred = !!handle && watch.includes(handle);
 
-  async function search() {
+  async function watchCall(action: "watch_list" | "watch_add" | "watch_remove", h?: string) {
+    setWatchBusy(true);
+    try {
+      const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, handle: h }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { if (action !== "watch_list") setError({ message: d.error || "즐겨찾기를 바꾸지 못했습니다." }); return; }
+      setWatch(d.watch ?? []);
+    } catch { /* 목록을 못 불러와도 수집은 그대로 */ } finally { setWatchBusy(false); }
+  }
+  useEffect(() => { void watchCall("watch_list"); }, []);
+
+  async function search(over?: { kind: CollectKind; query: string }) {
+    const k = over?.kind ?? kind, q = over?.query ?? query;
     setBusy(true); setError(null); setPosts(null);
     try {
-      const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search", kind, query }) });
+      const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search", kind: k, query: q }) });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { setError({ message: d.error || "가져오지 못했습니다.", needKey: d.needApiKey }); return; }
       setPosts(d.posts ?? []); setSource(d.source ?? null);
@@ -32,14 +49,16 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
     } finally { setBusy(false); }
   }
 
-  async function pick(p: CollectedPost) {
-    setPicking(p.id); setError(null);
+  async function pick(p: CollectedPost | CollectedPost[]) {
+    const list = Array.isArray(p) ? p : [p];
+    setPicking(Array.isArray(p) ? "bundle" : p.id); setError(null);
     try {
-      const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "images", urls: p.images.slice(0, Math.max(1, maxImages)) }) });
+      const urls = Array.isArray(p) ? bundleImageUrls(list, Math.max(1, maxImages)) : p.images.slice(0, Math.max(1, maxImages));
+      const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "images", urls }) });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { setError({ message: d.error || "게시물 이미지를 받지 못했습니다." }); return; }
-      const images = (d.images as { mimeType: string; data: string }[]).map((img, i) => ({ ...img, name: `@${p.owner} ${i + 1}`, preview: `data:${img.mimeType};base64,${img.data}` }));
-      onPick({ text: remakeSourceText(p), images });
+      const images = (d.images as { mimeType: string; data: string }[]).map((img, i) => ({ ...img, name: `@${list[0].owner} ${i + 1}`, preview: `data:${img.mimeType};base64,${img.data}` }));
+      onPick({ text: Array.isArray(p) ? remakeBundleText(list) : remakeSourceText(p), images });
     } catch {
       setError({ message: "네트워크 오류로 이미지를 받지 못했습니다." });
     } finally { setPicking(null); }
@@ -57,17 +76,40 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
           ))}
         </div>
         <input className={`${INPUT} min-w-0 flex-1`} value={query} maxLength={80} placeholder={kind === "account" ? "계정 이름 (예: nasa)" : "해시태그 (예: 재테크)"} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && query.trim() && !busy) void search(); }} />
+        {kind === "account" && (
+          <button type="button" onClick={() => handle && void watchCall(starred ? "watch_remove" : "watch_add", handle)} disabled={!handle || watchBusy} title={starred ? "즐겨찾기에서 빼기" : "즐겨찾기에 추가"} aria-pressed={starred} className={`${BTN_GHOST} shrink-0 whitespace-nowrap`}>
+            <Star className={`h-4 w-4 ${starred ? "fill-yellow-400 text-yellow-400" : ""}`} /> {starred ? "즐겨찾기됨" : "즐겨찾기"}
+          </button>
+        )}
         <button type="button" onClick={() => void search()} disabled={busy || !query.trim()} className={`${BTN_GHOST} shrink-0 whitespace-nowrap`}>
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} 가져오기
         </button>
       </div>
+      {watch.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] text-slate-400">★ 즐겨찾는 계정</span>
+          {watch.map((h) => (
+            <span key={h} className="inline-flex items-center overflow-hidden rounded-full border border-[#262c3d] text-[11px]">
+              <button type="button" disabled={busy} onClick={() => { setKind("account"); setQuery(h); void search({ kind: "account", query: h }); }} className="whitespace-nowrap px-2 py-0.5 text-slate-200 hover:bg-[#161922]">@{h}</button>
+              <button type="button" aria-label={`@${h} 즐겨찾기 빼기`} disabled={watchBusy} onClick={() => void watchCall("watch_remove", h)} className="px-1 py-0.5 text-slate-500 hover:text-slate-200"><X className="h-3 w-3" /></button>
+            </span>
+          ))}
+        </div>
+      )}
       <p className="text-[11px] text-slate-400">파란 버튼(Facebook 페이지 방식)으로 연결했다면 계정 수집은 인스타 공식 API(무료), 그 밖에는 본인 Apify 토큰을 씁니다(최근 20개 중 좋아요+댓글×3+조회수×0.05 상위 5개). 공개 게시물만, 결과는 저장하지 않습니다.</p>
       {busy && <p className="text-[11px] text-slate-400">가져오는 중입니다(Apify는 30초~2분 걸릴 수 있어요)…</p>}
       {error && <ErrorNote message={error.message} needKey={error.needKey} />}
       {posts && posts.length === 0 && <p className="text-xs text-slate-400">가져올 게시물이 없습니다. 공개 프로페셔널 계정인지, 해시태그 철자를 확인해 주세요.</p>}
       {posts && posts.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[11px] text-slate-400">{source === "official" ? "인스타 공식 API" : "Apify"}로 가져온 반응도 상위 {posts.length}개</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] text-slate-400">{source === "official" ? "인스타 공식 API" : "Apify"}로 가져온 반응도 상위 {posts.length}개</p>
+            {posts.length >= 2 && (
+              <button type="button" onClick={() => void pick(posts.slice(0, BUNDLE_SIZE))} disabled={!!picking} className="whitespace-nowrap rounded-lg border border-orange-400/50 px-2.5 py-1 text-xs font-bold text-orange-300 hover:bg-orange-500/10 disabled:opacity-50">
+                {picking === "bundle" ? "이미지 받는 중…" : `🔥 상위 ${Math.min(BUNDLE_SIZE, posts.length)}개 묶어 분석`}
+              </button>
+            )}
+          </div>
           {posts.map((p, i) => (
             <div key={p.id} className="flex gap-3 rounded-lg border border-[#262c3d] p-2">
               <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-md bg-black">

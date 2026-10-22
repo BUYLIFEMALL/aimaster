@@ -276,3 +276,17 @@ test("수집: 인스타 이미지 서버만, 원문 칸 글에 출처·반응 �
   const t = remakeSourceText({ id: "1", permalink: "https://www.instagram.com/p/1/", caption: "본문", owner: "acc", type: "image", likes: 1200, comments: 3, views: 0, images: ["x"], timestamp: "", score: 0 });
   assert.equal(t, ["[수집한 인기 게시물] @acc · 좋아요 1,200 · 댓글 3", "https://www.instagram.com/p/1/", "", "본문"].join("\n"));
 });
+
+// ── v1.52 상위 3개 묶어 분석 ──
+import { bundleImageUrls, remakeBundleText } from "../../src/lib/cardnews/collect.ts";
+
+test("묶음 분석: 게시물마다 고르게 이미지(최대 6장), 원문에 공통 패턴 지시와 게시물별 출처", () => {
+  const mk = (i, n) => ({ id: String(i), permalink: `https://www.instagram.com/p/${i}/`, caption: `캡션${i}`, owner: "acc", type: "carousel", likes: 10 * i, comments: i, views: 0, images: Array.from({ length: n }, (_, k) => `https://a.cdninstagram.com/${i}-${k}.jpg`), timestamp: "", score: 0 });
+  const posts = [mk(1, 5), mk(2, 1), mk(3, 3)];
+  assert.deepEqual(bundleImageUrls(posts), ["https://a.cdninstagram.com/1-0.jpg", "https://a.cdninstagram.com/1-1.jpg", "https://a.cdninstagram.com/2-0.jpg", "https://a.cdninstagram.com/3-0.jpg", "https://a.cdninstagram.com/3-1.jpg"]);
+  assert.equal(bundleImageUrls(posts, 2).length, 2, "자리가 2장뿐이면 2장까지만");
+  const t = remakeBundleText(posts);
+  assert.match(t, /^\[수집한 인기 게시물 3개 — 한 게시물이 아니라 여러 게시물에 공통으로/);
+  assert.ok(t.includes("① @acc · 좋아요 10 · 댓글 1") && t.includes("③ @acc · 좋아요 30 · 댓글 3"));
+  assert.ok(t.includes("캡션2"));
+});

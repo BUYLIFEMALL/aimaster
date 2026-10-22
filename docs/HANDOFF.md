@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — INSTA v1.52 상위 3개 묶어 분석 · 경쟁 계정 즐겨찾기 (빌드 1회, DB 표 1개)
+- 공용 표 `member_watch_accounts`(운영 DB, RLS 본인만, 주인님 승인) — ★ 즐겨찾기 칩으로 바로 수집, 「🔥 상위 3개 묶어 분석」으로 공통 성공 패턴 분석. 크롬 실검수 성공(Apify $0.054, Gemini 1회). 수집 기능은 `docs/SHARED_FEATURE_MAP.md` 14번 공용화 후보.
+- 프로그램: https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — INSTA v1.51 인기 게시물 수집 실측(@계정 성공·한글 해시태그 빈 결과) (빌드 1회)
 - 시험 회원 Apify 토큰으로 @nasa 수집 → 상위 5개 → 게시물로 분석 → Gemini 떡상 분석까지 성공. 해시태그는 전용 수집기로 바꿨지만 `#재테크`는 Apify가 빈 결과(원인 좁히기는 승인 후). 비용: 빌드 1, Apify 약 $0.059, Gemini 1회.
 - 프로그램: https://auto-instagram-posting.buylife.xyz

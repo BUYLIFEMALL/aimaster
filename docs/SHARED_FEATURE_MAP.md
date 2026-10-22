@@ -160,6 +160,18 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 
 주의: 화면용 코드라 `"use client"` 쪽에서만 부른다. 소리를 못 푸는 형식(일부 mov 코덱)이면 장면만 돌려준다. 사본을 만들 때 `scripts/check-shared-modules.mjs`에 등록하고 기준만 고친다.
 
+## 14. 경쟁 콘텐츠(인기 게시물) 수집 · 경쟁 계정 즐겨찾기 — 공용화 후보 (2026-10-22 등록)
+
+다른 계정·해시태그의 인기 게시물을 회원 본인 값으로 가져와 반응도순으로 고르는 기능. 키는 공용 `user_api_keys`의 `apify`(한 번 등록하면 모든 프로그램 재사용), 즐겨찾기는 공용 표 `member_watch_accounts`(platform 칸으로 인스타·쓰레드·유튜브·틱톡 구분, RLS 본인만).
+
+| 구분 | 위치 | 상태 |
+|---|---|---|
+| 기준 후보(순수 함수) | `insta_auto_poster/src/lib/cardnews/collect.ts` — 계정·해시태그 다듬기, Apify(`instagram-scraper`·`instagram-hashtag-scraper`)·공식 API(`business_discovery`) 결과 공통 모양, 반응도(좋아요+댓글×3+조회수×0.05) 상위 n, 묶음 이미지·원문, 인스타 이미지 서버 판별 + 시험 `tests/cardnews/remake.test.mjs` | 🟢 INSTA v1.50~v1.52 운영(@nasa 실수집·묶음 분석 확인) |
+| 서버(프로그램별) | `insta_auto_poster/src/app/api/cardnews/remake/collect/route.ts` — search(공식 API → Apify)·images(sharp 1024px)·watch_* | 프로그램마다 각자(권한·오류 형식) |
+| 적용 후보 | `threads-content-ops`·`threads`(쓰레드 경쟁 계정 — Apify 쓰레드 수집기 필요), `shorts-viral-studio`(유튜브는 이미 Data API), `competitor-analysis` | ⚪ 필요할 때 |
+
+주의: 한글 해시태그는 Apify가 빈 결과를 돌려준 사례(2026-10-22 `#재테크`) — 계정 수집을 우선 안내. Apify는 공식 API가 아니므로 화면에 「공개 게시물만·본인 책임」 안내를 함께 둔다.
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |
@@ -176,6 +188,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | 날짜 | 내용 | 작업 |
 |---|---|---|
 | 2026-10-20 | 병합 C: 유튜브 조회·황금 엔진 기준을 youtube-channel-consultant → youtube-viral-studio로 이동 | Claude Code(윈도우) |
+| 2026-10-22 | 「14. 경쟁 콘텐츠 수집·경쟁 계정 즐겨찾기」 공용화 후보 등록(기준 후보 INSTA `collect.ts` v1.52, 공용 키 `apify`·공용 표 `member_watch_accounts`) | Claude Code(윈도우) |
 | 2026-10-22 | 「13. 브라우저 안 영상 → 장면·소리 추출」 공용화 후보 등록(기준 후보 INSTA `reelsMedia.ts` v1.50, 사본 없음) | Claude Code(윈도우) |
 | 2026-10-20 | 「9. 프로그램 공지 띠」(`program-notice-banner`, 사본 5곳)·「10. 텔레그램 승인 봇 연동」(공용화 후보, allowed_updates 함정) 등록 | Claude Code(윈도우) |
 | 2026-10-20 | `openai-request-params` 사본 7곳 추가(미배포), youtube-channel-consultant 제외·shorts-viral-studio 해당 없음 | Claude Code(윈도우) |

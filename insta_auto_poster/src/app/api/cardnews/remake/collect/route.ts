@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
 import {
-  COLLECT_FETCH, COLLECT_MAX_IMAGES, fromApifyItem, fromGraphMedia, isInstagramCdn, normalizeHashtag, normalizeUsername, rankPosts,
+  COLLECT_FETCH, COLLECT_MAX_IMAGES, WATCH_MAX, fromApifyItem, fromGraphMedia, isInstagramCdn, normalizeHashtag, normalizeUsername, rankPosts,
   type CollectKind, type CollectSource, type CollectedPost,
 } from "@/lib/cardnews/collect";
 
@@ -96,6 +96,28 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
 
   try {
+    // v1.52 경쟁 계정 즐겨찾기 — 공용 표 member_watch_accounts(platform instagram), 회원 세션으로 읽고 써서 RLS가 본인 것만 허용
+    if (body.action === "watch_list" || body.action === "watch_add" || body.action === "watch_remove") {
+      const db = (await createClient()) as unknown as { from: (t: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
+      const table = () => db.from("member_watch_accounts");
+      if (body.action !== "watch_list") {
+        const handle = normalizeUsername(String(body.handle ?? ""));
+        if (!handle) return json(400, { error: "계정 이름(영문·숫자·밑줄·점)을 확인해 주세요." });
+        if (body.action === "watch_add") {
+          const { count } = await table().select("id", { count: "exact", head: true }).eq("user_id", userId).eq("platform", "instagram");
+          if ((count ?? 0) >= WATCH_MAX) return json(400, { error: `즐겨찾기는 ${WATCH_MAX}개까지 저장할 수 있습니다. 안 쓰는 계정을 먼저 빼 주세요.` });
+          const { error } = await table().upsert({ user_id: userId, platform: "instagram", handle }, { onConflict: "user_id,platform,handle", ignoreDuplicates: true });
+          if (error) throw new Error(error.message);
+        } else {
+          const { error } = await table().delete().eq("user_id", userId).eq("platform", "instagram").eq("handle", handle);
+          if (error) throw new Error(error.message);
+        }
+      }
+      const { data, error } = await table().select("handle").eq("user_id", userId).eq("platform", "instagram").order("created_at", { ascending: false }).limit(WATCH_MAX);
+      if (error) throw new Error(error.message);
+      return json(200, { watch: ((data ?? []) as { handle: string }[]).map((r) => r.handle) });
+    }
+
     if (body.action === "images") {
       const urls = (Array.isArray(body.urls) ? body.urls : []).filter((u): u is string => typeof u === "string" && isInstagramCdn(u)).slice(0, COLLECT_MAX_IMAGES);
       if (!urls.length) return json(400, { error: "가져올 이미지가 없습니다." });

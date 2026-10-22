@@ -110,3 +110,22 @@ export function remakeSourceText(p: CollectedPost): string {
   const head = `[수집한 인기 게시물] @${p.owner || "알 수 없음"} · 좋아요 ${p.likes.toLocaleString("ko-KR")} · 댓글 ${p.comments.toLocaleString("ko-KR")}${p.views ? ` · 조회 ${p.views.toLocaleString("ko-KR")}` : ""}\n${p.permalink}`;
   return `${head}\n\n${p.caption}`.slice(0, 12000);
 }
+
+// ── v1.52 상위 3개 묶어 분석 · 경쟁 계정 즐겨찾기 ──
+export const BUNDLE_SIZE = 3;
+export const WATCH_MAX = 20;
+
+/** 묶음 분석에 넣을 이미지 — 게시물마다 앞에서부터 고르게(최대 max장, 기본 게시물당 2장) */
+export function bundleImageUrls(posts: CollectedPost[], max = COLLECT_MAX_IMAGES): string[] {
+  const per = Math.max(1, Math.floor(max / Math.max(1, posts.length)));
+  const picked = posts.flatMap((p) => p.images.slice(0, per));
+  return picked.slice(0, max);
+}
+
+/** 묶음 분석 원문 — 여러 게시물의 공통 성공 패턴을 찾으라는 안내 + 게시물별 출처·반응 수·캡션 */
+export function remakeBundleText(posts: CollectedPost[]): string {
+  const marks = ["①", "②", "③", "④", "⑤"];
+  const head = `[수집한 인기 게시물 ${posts.length}개 — 한 게시물이 아니라 여러 게시물에 공통으로 나타나는 성공 패턴(주제·후킹·구성·톤)을 찾아 분석하세요. 이미지는 게시물 순서대로 들어 있습니다]`;
+  const body = posts.map((p, i) => `${marks[i] ?? `${i + 1}.`} ${remakeSourceText(p).replace(/^\[수집한 인기 게시물\] /, "").slice(0, 3000)}`).join("\n\n");
+  return `${head}\n\n${body}`.slice(0, 12000);
+}
