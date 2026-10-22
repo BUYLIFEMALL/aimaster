@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 역량 지도 버전 칸 47곳 맞춤 · 공용 문서 덮어쓰기 방안 · 비공개 프로그램 7곳 조사 (비용 없음)
+- ① `node scripts/deploy.mjs --version-only --all --fix-map`으로 `docs/PROGRAM_CAPABILITY_MAP.md` 목록 표 **버전 칸만** 47곳을 DB 운영 버전으로(주인님 결정, `dce8e6164`). 같은 커밋에 `8028a6495`가 되돌린 `scripts/deploy.mjs` 다시 반영.
+- ② 방안 문서 `docs/PROPOSAL_20261023_SHARED_DOC_OVERWRITE.md`(A 항목별 새 파일 · B 되돌림 경고 훅 · C 안전 커밋 도우미, 추천 B+C 뒤 A) — **주인님 결정 대기**, 지침·구조 변경 없음.
+- ③ `--all`이 건너뛴 7곳 조사(읽기만): 모두 DB에 있고 **비공개(`is_active=false`)**. `cardnews-studio`·`instagram-dm-reply`·`seo-thumbnail-pro`·`youtube-channel-consultant`·`yt-playlist-studio`는 `D:/Antigravity/AIMaster_backup/retired-programs/`에 백업 있음·git 태그 없음·폴더 남아 있음(버전 파일 없음). `detail-page-12p`·`prompt-template-studio`는 백업 없음(2026-10-22·21 수정 — 은퇴인지 숨김인지 확인 필요). 폴더 삭제·태그는 주인님 결정 사항이라 하지 않음.
+- `scripts/program-info.mjs`: slug가 폴더 이름과 같은 프로그램을 「DB 없음」으로 오판하던 것 수정 → `--all` 비교 78·어긋남 3(`competitor-analysis` v1.08/v1.07, `longtail-keyword-expander` v1.11/v1.10, `video-to-gif` v1.16/v1.15 — 다른 세션 진행 중으로 보여 손대지 않음)·건너뜀 5.
+
 ## 2026-10-23 — Claude Code(윈도우): 이미지 스튜디오 v1.29 · 변환 스튜디오 v1.26 대기분 배포 — 넘김 기록·「너무 큼」 화면 첫 실제 확인
 - 배포(주인님 승인, 빌드 2회): 이미지 스튜디오 v1.29(배지 「이미지 변환 스튜디오」·형식 바꾸기 넘김 기록) → 변환 스튜디오 v1.26(검수용 `?qa=big`). DB 버전 2줄. 미배포 표 2줄 → 「내보낸 기록」.
 - 검수(크롬, 배포 전 로그인 확인·관리자 계정): 갤러리 큰 보기 창 「형식 바꾸기」 → `handoffs.convert` 기록 → 관리자 연계 표 이미지 스튜디오 「1 → 1건 (100%)」. 변환 스튜디오 `?qa=big&via=portrait-photo` → PNG 10.63MB 「너무 큼」 → 「WebP로 바꿔 다시 변환」 2.13MB → 다시 저장 버튼. 시험 데이터 없음(넘김 기록 1줄만 남음).

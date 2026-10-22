@@ -69,6 +69,8 @@ export function vercelProject(folder) {
 /** slug 상수가 없는 폴더는 DB programs.app_url(`https://<이름>.buylife.xyz`·`<프로젝트>.vercel.app`)로 찾는다 */
 export function slugFromPrograms(folder, programs) {
   const names = [folder, vercelProject(folder)].filter(Boolean).map((n) => n.toLowerCase().replace(/_/g, "-"));
+  const same = programs.find((p) => names.includes(p.slug)); // slug가 폴더·프로젝트 이름과 같은 경우(2026-10-23 detail-page-12p 등 오판 수정)
+  if (same) return same.slug;
   const hit = programs.find((p) => names.some((n) => (p.app_url ?? "").toLowerCase().includes(`//${n}.`)));
   return hit?.slug ?? null;
 }
