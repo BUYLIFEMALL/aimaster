@@ -39,3 +39,36 @@ test("reconcile checks results without clicking or arming again", async () => {
   assert.equal(s.commands.length, 40);
   assert.equal(s.commands.every(command => command === "published"), true);
 });
+
+// 2026-10-23: a run cut off by closing/reloading the side panel is closed as failed on the next open,
+// but a run still refreshed by another open panel, or one already past "writing", is left alone.
+async function recovery({ aliveAgoMs, serverState }) {
+  const requests = [], elements = new Map();
+  const sandbox = vm.createContext({
+    BASE: "https://test.invalid", seoAutoBusy: false, seoPublication: null, Date,
+    plainText: value => value, getToken: async () => "own", sleep: async () => {}, seoAutoPublishPage() {},
+    $: id => { if (!elements.has(id)) elements.set(id, { value: "", addEventListener() {}, textContent: "" }); return elements.get(id); },
+    chrome: { storage: { local: { set: async () => {}, get: async () => ({ seo_publish_outbox_v1: { draftId: "draft1", runId: "run1", tabId: 3, aliveAt: Date.now() - aliveAgoMs } }) } } },
+    fetch: async (_url, options) => {
+      const { action } = JSON.parse(options.body); requests.push(action);
+      return { ok: true, json: async () => ({ publication: { runId: "run1", state: action === "failed" ? "failed" : serverState } }) };
+    },
+  });
+  vm.runInContext(source, sandbox);
+  for (let i = 0; i < 10; i++) await new Promise(resolve => setImmediate(resolve));
+  return { requests, status: elements.get("generateStatus")?.textContent || "", sandbox };
+}
+test("panel reopen closes a writing run that stopped refreshing", async () => {
+  const r = await recovery({ aliveAgoMs: 5 * 60 * 1000, serverState: "writing" });
+  assert.deepEqual(r.requests, ["status", "failed"]);
+  assert.match(r.status, /중간에 멈춰 정리/);
+  assert.equal(r.sandbox.seoPublication, null);
+});
+test("panel reopen leaves a run that another panel is still refreshing", async () => {
+  const r = await recovery({ aliveAgoMs: 10 * 1000, serverState: "writing" });
+  assert.deepEqual(r.requests, []);
+});
+test("panel reopen never fails a run already publishing", async () => {
+  const r = await recovery({ aliveAgoMs: 5 * 60 * 1000, serverState: "publishing" });
+  assert.deepEqual(r.requests, ["status"]);
+});

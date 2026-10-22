@@ -945,6 +945,7 @@ async function fillDraftIntoNaver(options = {}) {
   }
   inputStartedAt = Date.now();
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
+  $("keepPanelOpen").hidden = false;
   let attachedTabId = null;
   try {
     const title = activeWebDraftTitle;
@@ -1064,6 +1065,7 @@ async function fillDraftIntoNaver(options = {}) {
     $("generateStatus").textContent = formatBrowserError(error, "네이버 편집기 입력");
     await reportWebDraftInputResult("failed", { error: error instanceof Error ? error.message : String(error) }).catch(() => {});
   } finally {
+    $("keepPanelOpen").hidden = true;
     if (attachedTabId !== null) {
       try { await chrome.debugger.detach({ tabId: attachedTabId }); } catch { /* tab may have navigated */ }
     }

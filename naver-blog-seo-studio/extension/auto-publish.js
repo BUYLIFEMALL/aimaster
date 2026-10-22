@@ -2,8 +2,29 @@ const SEO_PUBLISH_OUTBOX = "seo_publish_outbox_v1";
 async function persistPublication() {
   // Resume identifiers only: generated titles, body, images and private URLs
   // are always re-read through the member/30-day server gate.
+  // aliveAt: the panel running this run refreshes it every 15s, so another
+  // panel can tell a live run from one cut off by closing/reloading the panel.
   const { draftId, runId, tabId } = seoPublication;
-  await chrome.storage.local.set({ [SEO_PUBLISH_OUTBOX]: { draftId, runId, tabId } });
+  await chrome.storage.local.set({ [SEO_PUBLISH_OUTBOX]: { draftId, runId, tabId, aliveAt: Date.now() } });
+}
+const SEO_ALIVE_TIMEOUT_MS = 60 * 1000;
+// 2026-10-23: the run lives in this side panel, so closing or reloading it stops
+// the code without any report. On open, close out such a run right away instead
+// of waiting for the server's 20-minute cleanup. Only "writing" is touched:
+// publishing/uncertain still go through the result check, never a new click.
+async function recoverInterruptedPublication() {
+  const saved = (await chrome.storage.local.get(SEO_PUBLISH_OUTBOX))[SEO_PUBLISH_OUTBOX];
+  if (!saved?.runId || seoAutoBusy || Date.now() - Number(saved.aliveAt || 0) < SEO_ALIVE_TIMEOUT_MS) return;
+  const recovering = { ...saved };
+  seoPublication = recovering;
+  try {
+    const state = await publicationApi("status");
+    if (state.state !== "writing" || seoAutoBusy) return;
+    await publicationApi("failed", { error: "사이드패널이 닫히거나 확장이 새로고침되어 입력이 중간에 멈췄습니다. 최종 발행 버튼은 누르지 않았습니다." });
+    $("generateStatus").textContent = "이전 자동 포스팅이 사이드패널이 닫혀 중간에 멈춰 정리했습니다. 네이버 탭의 입력 중이던 글은 확인 후 지우고 다시 시작하세요.";
+  } finally {
+    if (!seoAutoBusy && seoPublication?.runId === recovering.runId) seoPublication = null;
+  }
 }
 
 async function publicationApi(action, details = {}) {
@@ -79,6 +100,7 @@ async function startAutoPublication() {
   if (seoAutoBusy) return;
   seoAutoBusy = true;
   for (const id of ["autoPublish", "fill", "previewFill", "webDraftList", "refreshWebDrafts", "publishBlogId", "publishVisibility", "publishCategory", "publishTags"]) $(id).disabled = true;
+  const alive = setInterval(() => { if (seoPublication?.runId) persistPublication().catch(() => {}); }, 15 * 1000);
   try {
     if (!activeWebDraftId || !activeWebDraftTitle || !activeWebDraftBody) throw new Error("웹 원고를 먼저 선택하고 미리보기를 확인해 주세요.");
     const blogId = $("publishBlogId").value.trim(), visibility = $("publishVisibility").value;
@@ -101,9 +123,11 @@ async function startAutoPublication() {
     if (seoPublication?.runId) await publicationApi(seoPublication.state === "writing" ? "failed" : "uncertain", { error: error.message }).catch(() => {});
     $("generateStatus").textContent = error.message;
   } finally {
+    clearInterval(alive);
     seoAutoBusy = false;
     for (const id of ["autoPublish", "fill", "previewFill", "webDraftList", "refreshWebDrafts", "publishBlogId", "publishVisibility", "publishCategory", "publishTags"]) $(id).disabled = false;
   }
 }
 $("autoPublish").addEventListener("click", startAutoPublication);
 $("reconcilePublish").addEventListener("click", () => reconcileAutoPublication().catch(error => { $("generateStatus").textContent = error.message; }));
+recoverInterruptedPublication().catch(() => {});
