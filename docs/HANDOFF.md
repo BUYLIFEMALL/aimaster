@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 배포 도우미: 배포 뒤 관리자 숫자 자동 갱신 · 전체 버전 비교 `--all` (비용 없음)
+- `node scripts/deploy.mjs <폴더> --go`가 버전 비교 뒤 `pending-check.mjs --publish`까지 실행(관리자 「30일 자동 정리」 카드 숫자 갱신). `node scripts/deploy.mjs --version-only --all`: 연결된 프로그램 전체 화면 ↔ DB 버전 비교, 어긋난 곳만 보고(DB 안 고침). 첫 실행: 비교 76·어긋남 1(`competitor-analysis` 화면 v1.08·DB v1.07)·건너뜀 7. **모든 CLI: 주 1회 실행 권장.**
+
 ## 2026-10-23 Claude Code(윈도우) — 관리자 「미배포 대기 n건 · 정리 기록 n/23」 + 배포 도우미 DB 버전 맞춤 (메인 사이트 자동 빌드 1회)
 - `scripts/program-info.mjs`(slug·`APP_VERSION`·Vercel 프로젝트·운영 DB REST·30일 정리 크론 목록과 `cleanup_expired` 붙음 여부), `pending-check.mjs --publish`(운영 DB `site_settings` 키 `ops_overview`에 대기 건수·정리 진행률 저장), `deploy.mjs --version-only [--set-version]`·`--go` 뒤 버전 비교. 관리자 `app/api/admin/system-usage` `opsOverview`·`SystemUsageMonitor` 정리 카드에 두 줄(커밋 `097652493`, 배포 `aimaster-nmqm9suwx` Ready, 크롬 관리자 확인: 정리 기록 3/23·미배포 24건).
 - 전체 버전 비교(76개): 화면과 DB가 다른 곳은 `competitor-analysis`(화면 v1.08·DB v1.07) 1곳 — 다른 세션 미커밋 변경이 있어 손대지 않음(배포 대기인지 그 세션 확인 필요).
