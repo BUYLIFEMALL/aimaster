@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.08 불러오는 중 입력 막기·실패 실행 원고 불러오기 허용 (빌드 1회 · AI 0회)
+- v2.07 실검수: 문단 나눔 정상, 3,332자 65초. 원고를 다 불러오기 전 입력 시 이미지 누락·`claim` 404로 완료 기록 누락 → 수정. 모아 둔 입력 속도 1~3글자도 함께 배포. 배포 Ready·DB/확장/ZIP v2.08.
+- 남은 일: 이미지 6장 포함 실제 입력 재확인(`naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래).
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 역량 지도 뒤처진 카드 2차 5개 · safe-commit 「바뀐 줄」 미리 보기 (비용 없음)
 - 카드(`3ac6eb007`): `stepmail`(v1.10→v1.27)·`personality-code`(`mbti/`, v1.04→v1.21, 「자체 로그인(vercel.app)」 단점 삭제 — `cookieDomain` 공용 로그인 확인)·`mbti-character`(v1.07→v1.24)·`document-translator`(v1.04→v1.21, 기능 변화 없음 명시)·`crm-google-form`(v1.09→v1.16, 「배포 대기」 문구 삭제). 남은 뒤처진 카드는 `deploy.mjs --version-only --all` 「카드 내용」.
 - ⚠ 이 커밋에 **인스타 세션의 미커밋 2줄**(77번 줄 `auto-instagram-posting` v1.64→v1.66, v1.63~v1.64 설명 줄)이 함께 들어감 — 내가 기준 사본을 뜬 뒤 그 세션이 고친 줄이라 구별 불가. 내용은 그 세션의 최신 값이라 그대로 둠(인스타 세션은 그 줄을 다시 커밋할 필요 없음).

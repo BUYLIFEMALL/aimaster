@@ -210,7 +210,14 @@ function openWebDraftPreview() {
   if (!preview.open) preview.showModal();
 }
 
+// 2026-10-23: 원고(이미지·블록)를 다 불러오기 전에 입력을 시작하면 이미지 없는 원고로 잘못 입력되므로, 불러오는 동안 입력을 막는다.
+let webDraftLoading = false;
 async function loadSelectedWebDraft() {
+  webDraftLoading = true;
+  try { return await loadSelectedWebDraftNow(); } finally { webDraftLoading = false; }
+}
+
+async function loadSelectedWebDraftNow() {
   const draft = webDrafts.find((item) => item.id === $("webDraftList").value);
   if (!draft) throw new Error("미리볼 콘텐츠를 먼저 선택해주세요.");
   clearWebDraftPreview();
@@ -922,6 +929,11 @@ $("link").addEventListener("click", async () => {
 
 async function fillDraftIntoNaver(options = {}) {
   const automatic = options?.auto === true;
+  if (webDraftLoading) {
+    $("generateStatus").textContent = "콘텐츠와 이미지를 불러오는 중입니다. 「…불러왔습니다」 안내가 나온 뒤 다시 눌러 주세요.";
+    if (automatic) throw new Error("콘텐츠를 아직 불러오는 중입니다.");
+    return;
+  }
   inputStartedAt = Date.now();
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;

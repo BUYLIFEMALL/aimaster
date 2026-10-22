@@ -16,7 +16,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `naver-blog-seo-studio` (운영 v2.07) | 확장 입력 속도 한 단계 낮춤(2~4글자 → 1~3글자 묶음) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 맨 위 「미배포 대기」 | v2.08(manifest·ZIP·DB 함께), `check-extension-release` OK 확인 |
 | `emotion-writer` (운영 v1.25) | 사진 검색·받기를 공용 `free-photo-search` 사본으로(내부 정리, 동작 같음) | `428fcdfc3` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 사진 검색 → 선택 → 이미지 만들기 확인 |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-mastering-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -41,6 +40,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `naver-blog-seo-studio` | v2.08 · 2026-10-23 | 확장 입력 속도 한 단계 낮춤(1~3글자 묶음) `add21ed73` |
 | `insta_auto_poster` | v1.65 · 2026-10-23 (서로 다른 사진·연결 확인·피드 첨부) → v1.66 Enter 수정 | 자동 채우기·출처 배지·공용 기준 코드 `428fcdfc3` |
 | `booking-reminder` | v1.28 · 2026-10-23 (엑셀 일괄 등록·한국 시간 수정) | 좌측 메뉴 계정 위치 `22c6cda35` · 공용 사본 telegram-bot-client `linkButton` · 버튼 줄바꿈 `f0871e568` |
 | `stepmail` | v1.27 · 2026-10-23 (문자 차수 발송) | 좌측 메뉴 계정 위치 `22c6cda35` · 공용 사본 member-scheduler(가짜 토큰 401 확인) |
