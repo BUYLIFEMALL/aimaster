@@ -149,3 +149,7 @@
 - 변환이 끝난 그림마다 「⇆ 전후 비교」 버튼 → 창에서 원본과 변환 결과를 같은 틀(원본 비율, 최대 높이 520px)에 겹쳐 선을 끌어 비교, 선·동그라미 자리의 두 색(HEX)과 색 차이(%) 표시(그림 밖은 「—」). 회전·반전·자르기·규격을 쓴 경우 「같은 자리가 어긋날 수 있음(품질·필터 비교에 알맞음)」 안내. `src/components/tool/BeforeAfter.tsx`, 위치 계산은 공용 기준 코드 `compare-slider` 사본 `src/lib/imageTools/compare.ts`. 문구 ko/en 사전에 추가(`compare*`·`close`).
 - 함께 나감: 보류였던 첫 주소 `/?preset=…&src=…` 검색값 넘기기(`convertPath.ts`).
 - 시험 35개·tsc·build 통과, 배포 Ready, DB v1.16. 크롬: `/?preset=story` → `/convert?preset=story`·결과 1080×1920, 빨강/파랑 시험 그림 변환 후 비교 창·주황 안내·틀 693×520, 24% 자리 결과 「—」, 40% 자리 #E02020→#E1201F 0.3% 확인(AI 없음, 모두 브라우저 안).
+
+## v1.17 (2026-10-22, Claude Code 윈도우) — 비교 창 「‹ 이전 그림 / 다음 그림 ›」
+- 전후 비교 창에서 변환이 끝난 그림만 차례로 넘김(「2 / 5」 표시, 처음·끝에서 버튼 꺼짐, 키보드 PageUp/PageDown·Esc 닫기). 그림이 바뀌면 비교 위치·색 집게를 새로 시작(`key={comparing.id}`). 문구 ko/en `comparePrev`·`compareNext`.
+- 시험 36개·tsc·build 통과, 배포 Ready, DB v1.17. 크롬: 빨강·초록·파랑 시험 그림 3장 변환 → 1/3 → 2/3(버튼) → 3/3(PageDown) → 2/3(PageUp), 그림마다 색 값 바뀜(#E02020·#20C040·#2050E0), 끝에서 버튼 꺼짐 확인.

@@ -81,7 +81,16 @@ test("v1.16 전후 비교: 공용 compare-slider 사본과 화면 연결", async
   assert.equal(colorDiffPercent([0, 0, 0], [255, 255, 255]), 100);
   const { readFileSync } = await import("node:fs");
   const src = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
-  assert.match(src, /<BeforeAfter\s+before=\{comparing\.url\}\s+after=\{comparing\.result\.url\}/);
+  assert.match(src, /<BeforeAfter\s+key=\{comparing\.id\}\s+before=\{comparing\.url\}\s+after=\{comparing\.result\.url\}/);
   const { DICTS } = await import("../src/lib/i18n.ts");
   for (const d of Object.values(DICTS)) assert.ok(d.convert.compare && d.convert.compareGeomNote && d.convert.close);
+});
+
+test("v1.17 비교 창 이전/다음", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(src, /const comparable = items\.filter\(\(i\) => i\.result\);/);
+  assert.match(src, /e\.key === "PageDown"/);
+  const { DICTS } = await import("../src/lib/i18n.ts");
+  for (const d of Object.values(DICTS)) assert.ok(d.convert.comparePrev && d.convert.compareNext);
 });

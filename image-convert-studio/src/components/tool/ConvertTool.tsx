@@ -198,6 +198,13 @@ export function ConvertTool() {
   const transformActive = cropActive || rotate !== 0 || flipH || flipV;
   const editing = items.find((i) => i.id === editingId) ?? null;
   const comparing = items.find((i) => i.id === comparingId && i.result) ?? null;
+  // v1.17: 비교 창에서 변환이 끝난 그림만 차례로 넘기기
+  const comparable = items.filter((i) => i.result);
+  const compareIdx = comparing ? comparable.findIndex((i) => i.id === comparing.id) : -1;
+  const stepCompare = (d: number) => {
+    const next = comparable[compareIdx + d];
+    if (next) setComparingId(next.id);
+  };
   const fieldClass = "rounded-xl border border-[#1e293b] bg-[#0d121f] px-3 py-2 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50";
   const btn = "ics-btn inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
 
@@ -578,14 +585,33 @@ export function ConvertTool() {
       </section>
       {/* v1.16: 전후 비교 창 */}
       {comparing?.result && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t.convert.compareTitle} onClick={() => setComparingId(null)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.convert.compareTitle}
+          onClick={() => setComparingId(null)}
+          onKeyDown={(e) => {
+            if (e.key === "PageUp") { e.preventDefault(); stepCompare(-1); }
+            if (e.key === "PageDown") { e.preventDefault(); stepCompare(1); }
+            if (e.key === "Escape") setComparingId(null);
+          }}
+        >
           <div className="max-h-[94vh] w-full max-w-3xl overflow-auto rounded-2xl border border-[#2a3852] bg-[#111726] p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center justify-between gap-3">
               <h3 className="text-sm font-bold text-white">{t.convert.compareTitle} — <span className="text-slate-300">{comparing.file.name}</span></h3>
               <button type="button" aria-label={t.convert.close} className="rounded-lg p-1.5 text-slate-400 hover:bg-[#1e293b] hover:text-white" onClick={() => setComparingId(null)}><X className="h-4 w-4" /></button>
             </div>
+            {comparable.length > 1 && (
+              <div className="mb-3 flex items-center justify-center gap-3">
+                <button type="button" className={`${btn} ics-ghost whitespace-nowrap py-1.5 text-[11px]`} disabled={compareIdx <= 0} onClick={() => stepCompare(-1)}>{t.convert.comparePrev}</button>
+                <span className="font-mono text-xs font-bold text-slate-200" data-compare-pos>{compareIdx + 1} / {comparable.length}</span>
+                <button type="button" className={`${btn} ics-ghost whitespace-nowrap py-1.5 text-[11px]`} disabled={compareIdx >= comparable.length - 1} onClick={() => stepCompare(1)}>{t.convert.compareNext}</button>
+              </div>
+            )}
             {transformActive && <p className="mb-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-200">{t.convert.compareGeomNote}</p>}
             <BeforeAfter
+              key={comparing.id}
               before={comparing.url}
               after={comparing.result.url}
               labels={{ before: t.convert.compareBefore, after: t.convert.compareAfter, diff: t.convert.compareDiff, hint: t.convert.compareHint, position: t.convert.comparePosition }}
