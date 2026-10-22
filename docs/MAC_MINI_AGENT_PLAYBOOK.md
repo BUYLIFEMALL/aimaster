@@ -64,6 +64,8 @@
 | Claude Code | **맥미니 Google Chrome**(claude-in-chrome 확장). `list_connected_browsers`에서 macOS·isLocal 항목만 선택 | ✅ 사용 중 |
 | Codex · Antigravity | **맥미니 Microsoft Edge 전용, 화면에 보이는 창(포그라운드)** — 크롬은 Claude 전용이라 쓰지 않음 | ❌ **Edge 미설치** → 설치 전에는 ① 주인님께 Edge 설치 요청 또는 ② 화면 검수를 맥미니 Claude Code나 윈도우 CLI에 요청. 크롬으로 대신하지 않는다 |
 
+> **2026-10-22 개정(주인님 지시)**: 브라우저 분담이 **Claude Code = 크롬, Codex = 엣지, agy = 네이버 웨일**로 바뀌었습니다(장비가 달라도 같음 — 그 장비에 웨일이 없으면 agy는 주인님께 설치를 요청). 이것은 기본 할당이며, 필요하면 주인님이 그 세션에서 브라우저를 지정하고 지정받은 세션은 그 브라우저를 씁니다(예: agy·Codex 토큰 한도 때 Claude Code 세션에 엣지/웨일). 원문: 루트 `CLAUDE.md` 맨 위 「CLI별 브라우저 고정 규칙」·「보조 지침 — 세션 지정 브라우저」.
+
 공통 검수 순서(주인님이 보는 창에서, 단계마다 한글로 안내):
 1. 시험 계정 `buylifemall@naver.com` 로그인 상태 확인(로그인은 주인님이 직접).
 2. 데스크톱 폭에서 주요 화면 캡처(대시보드·작업 화면·📖 매뉴얼·설정).

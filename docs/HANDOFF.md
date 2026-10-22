@@ -1,8 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-22 Claude Code(윈도우) — CLI별 브라우저 규칙 개정: agy = 웨일 + Claude Code 대행 세션 보조 지침 (문서만, 빌드 없음)
+## 2026-10-22 Claude Code(윈도우) — CLI별 브라우저 규칙 개정: agy = 웨일 + 세션 지정 브라우저 보조 지침 (문서만, 빌드 없음)
 - 주인님 지시: Claude Code = 크롬(그대로), Codex = 엣지(그대로), **agy = 네이버 웨일**(엣지에서 변경). 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위 규칙 표와 `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2 표를 고침.
-- 보조 지침: agy·Codex가 토큰 한도로 멈추면 주인님이 채팅으로 지정한 Claude Code 세션만 엣지/웨일 사용(ACTIVE_WORK에 「브라우저: 엣지(Codex 대행)」 표기, 한 브라우저 한 세션, 세션 안에서만 유효).
+- 보조 지침(세션 지정 브라우저): 위 분담은 CLI별 **기본 할당**이고, 필요하면 주인님이 그 세션에서 브라우저를 지정 → 그 세션은 지정 브라우저를 작업 브라우저로 사용(모든 CLI 공통, 예: agy·Codex 토큰 한도 때 Claude Code에 엣지/웨일). 주인님 채팅 지시로만 성립, ACTIVE_WORK에 「브라우저: 엣지(주인님 지정)」 표기, 한 브라우저 한 세션, 세션 안에서만 유효.
+- 다른 CLI 참고용으로 `docs/CLI_COLLABORATION_RULES.md` 8번, `docs/MAC_MINI_AGENT_PLAYBOOK.md`·`docs/MAC_MINI_WORK_GUIDE.md` 브라우저 표 아래 메모에도 같은 내용을 덧붙임(기존 내용은 그대로).
 - 웨일 Claude 확장 deviceId `ee21e4c0-686f-4014-8be0-d87ac8c99ad7` 제어 확인(Whale 5). 남은 일: 엣지 deviceId 확인(윈도우 `96fdc2f3…`·`b210cc19…` 중 하나일 수 있음) 후 8-1-2 표 기록, agy가 웨일을 여는 방법(실행 파일 경로)은 agy 세션에서 확인.
 
 ## 2026-10-22 Claude Code(윈도우) — Shots v1.33 Seedance 1 Lite 이어 붙이기 끔·다시 만들기 버튼·다크 선택칸 색·영상 장면 MP4 실측 (빌드 1회)
