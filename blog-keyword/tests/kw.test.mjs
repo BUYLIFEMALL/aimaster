@@ -117,3 +117,16 @@ test("SEO 스튜디오로 보내기 주소에는 기록 번호만 싣는다", as
   assert.equal(seoHandoffUrl("캠핑 의자"), null);
   assert.equal(seoHandoffUrl("1; drop"), null);
 });
+
+test("기록 보관: 30일 지나면 숨김·삭제, 즐겨찾기는 계속 보관", async () => {
+  const { isRetained, daysLeft, retentionCutoff, RETENTION_DAYS } = await import("../src/lib/kw/retention.ts");
+  const now = new Date("2026-10-22T00:00:00Z");
+  assert.equal(RETENTION_DAYS, 30);
+  assert.equal(retentionCutoff(now), "2026-09-22T00:00:00.000Z");
+  assert.equal(isRetained({ favorite: false, created_at: "2026-09-22T00:00:01Z" }, now), true);
+  assert.equal(isRetained({ favorite: false, created_at: "2026-09-22T00:00:00Z" }, now), false);
+  assert.equal(isRetained({ favorite: true, created_at: "2025-01-01T00:00:00Z" }, now), true);
+  assert.equal(daysLeft({ favorite: false, created_at: "2026-10-21T12:00:00Z" }, now), 30);
+  assert.equal(daysLeft({ favorite: false, created_at: "2026-09-01T00:00:00Z" }, now), 0);
+  assert.equal(daysLeft({ favorite: true, created_at: "2026-09-01T00:00:00Z" }, now), null);
+});

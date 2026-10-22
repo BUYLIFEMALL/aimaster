@@ -39,6 +39,14 @@
 작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
 
 
+## 2026-10-22 v1.07 — BC-05 분석 기록 30일 자동 삭제, 즐겨찾기는 보관 (Claude Code 윈도우)
+
+- **주인님 결정(2026-10-22):** 「즐겨찾기는 용량 많이 잡아 먹는게 아니잖아 놔두는 걸로 하자」 — 즐겨찾기한 기록은 30일 삭제에서 뺍니다(회원 생성 데이터 30일 규칙의 주인님 결정 예외). 즐겨찾기가 아닌 기록은 만든 지 30일 뒤 삭제합니다.
+- DB: `supabase/migrations/0004_reports_retention_30d.sql` — `cleanup_blog_keyword_reports()`(security definer, 일반 역할 실행 권한 회수) + `pg_cron` `blog-keyword-reports-retention-30d`(매시간 23분 UTC). 운영 DB(`esgxyikcnnvmlhygjkth`)에 웨일 Supabase SQL 편집기로 적용, 작업 등록(active) 확인, 함수 시험 실행 결과 지운 기록 0건·남은 기록 1건.
+- 앱: `src/lib/kw/retention.ts`(`RETENTION_DAYS`·`retentionCutoff`·`isRetained`·`daysLeft`, 순수 함수) — `listReports`·`loadReport`가 같은 기준으로 바로 숨김(`favorite=true` 또는 30일 안). 기록 화면에 「만든 지 30일 뒤 자동 삭제(최대 100건) · ⭐ 즐겨찾기는 계속 보관」, 줄마다 「N일 뒤 삭제」/「즐겨찾기 보관」, 30일 지난 즐겨찾기를 풀 때 확인 창. 기존 100건 정리는 그대로.
+- 시험 15 통과(새 1), 타입·빌드 통과, 배포 Ready, DB `v1.07`(package 1.0.7), 웨일 실검수(안내 문구·남은 날·즐겨찾기 켜고 끄기) 완료.
+- 연결: SEO 스튜디오 `keyword-handoff`는 아직 「만든 지 30일 안」만 받습니다 — 30일 지난 즐겨찾기도 받게 할지는 SEO 다음 배포(v2.03) 때 함께 맞춥니다.
+
 ## 2026-10-22 v1.06 — BLC-11 「SEO 스튜디오로 보내기」 (Claude Code 윈도우)
 
 - 결과 줄(`Workbench.tsx`)에 「SEO 스튜디오로 보내기」 — `src/lib/kw/links.ts` `seoHandoffUrl(reportId)`가 `https://naver-blog-seo-studio.buylife.xyz/dashboard#title&keyword-report=<기록 번호>`를 새 탭으로 엽니다. 주소에는 기록 번호만(UUID가 아니면 버튼 숨김), AI 호출 없음. 기록 화면에서 연 결과(`?report=`)에도 나옵니다.

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Star, Trash2 } from "lucide-react";
 import { FEATURE_INFO, type Feature, type ReportSummary } from "@/lib/kw/types";
+import { daysLeft, RETENTION_DAYS } from "@/lib/kw/retention";
 
 const title = (id: string) => FEATURE_INFO.find((f) => f.id === id)?.title ?? id;
 
@@ -25,6 +26,7 @@ export function HistoryList() {
   useEffect(() => { void load(); }, [load]);
 
   async function toggle(r: ReportSummary) {
+    if (r.favorite && daysLeft({ ...r, favorite: false }) === 0 && !window.confirm(`만든 지 ${RETENTION_DAYS}일이 지난 기록입니다. 즐겨찾기를 풀면 곧 삭제됩니다. 풀까요?`)) return;
     setList((cur) => cur?.map((x) => (x.id === r.id ? { ...x, favorite: !x.favorite } : x)) ?? cur);
     const res = await fetch("/api/history", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r.id, favorite: !r.favorite }) });
     if (!res.ok) void load();
@@ -58,7 +60,7 @@ export function HistoryList() {
           <input aria-label="키워드로 기록 찾기" placeholder="🔎 키워드로 기록 찾기" value={query} onChange={(e) => setQuery(e.target.value)} />
           <div className="actions">
             <button type="button" aria-pressed={onlyFav} onClick={() => setOnlyFav((v) => !v)}><Star size={13} />즐겨찾기만 보기</button>
-            <span className="muted">{shown.length} / {list.length}건 · 최근 100건 보관(즐겨찾기 제외)</span>
+            <span className="muted">{shown.length} / {list.length}건 · 만든 지 {RETENTION_DAYS}일 뒤 자동 삭제(최대 100건) · ⭐ 즐겨찾기는 계속 보관</span>
           </div>
         </div>
         {counts.size > 1 && (
@@ -79,7 +81,7 @@ export function HistoryList() {
               <a href={`/dashboard?report=${r.id}`} className="kw-hist-main">
                 <span className="kw-badge">{title(r.feature)}</span>
                 <strong>{r.keyword}</strong>
-                <small>{new Date(r.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</small>
+                <small>{new Date(r.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} · {r.favorite ? "즐겨찾기 보관" : `${daysLeft(r)}일 뒤 삭제`}</small>
               </a>
               <button type="button" aria-label={r.favorite ? "즐겨찾기 해제" : "즐겨찾기"} aria-pressed={r.favorite} onClick={() => toggle(r)}><Star size={14} /></button>
               <button type="button" aria-label="삭제" onClick={() => remove(r)}><Trash2 size={14} /></button>

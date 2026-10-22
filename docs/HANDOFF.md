@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ AI 블로그 키워드 자동화 v1.07 BC-05 분석 기록 30일 자동 삭제(즐겨찾기 보관) (빌드 1회 · AI 0회 · DB 함수·예약 작업 1개씩)
+- 만든 지 30일 지난 기록을 매시간 삭제(`pg_cron` `blog-keyword-reports-retention-30d`, `cleanup_blog_keyword_reports()`), 앱도 같은 기준으로 바로 숨김. **즐겨찾기는 보관 — 주인님 결정 예외(2026-10-22)**. 기록 화면에 보관 안내·남은 날 표시. BC-05 중 키워드 부분만 처리(작업실·올인원은 미처리).
+- 시험 15 통과, 배포 Ready, DB v1.07, 운영 DB 예약 작업 active·함수 시험 실행(0건 삭제) 확인, 웨일 실검수 완료. 상세: `blog-keyword/AGENTS.md` v1.07.
+- 프로그램: https://blog-keyword.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.14: 세로 문구 짧게 · 세로 목록 표지 전체 보이기 (빌드 1회, Gemini 전략 1회)
 - 세로 9:16일 때 문구 전략 지침에 「메인 2~4단어·서브 10자 이내」 추가(실제 시험: 문구가 짧아짐), 목록 세로 카드 `contain`, v1.13에서 못 본 세로 결과 칸 확인. 원스톱 업로드 썸네일 지정은 쇼츠 노출 공식 문서가 없어 보류 유지(`IDEA-THUMB-ONESTOP-01`). 상세 `thumbnail-master/AGENTS.md` v1.14.
 - 프로그램: https://thumbnail-master.buylife.xyz

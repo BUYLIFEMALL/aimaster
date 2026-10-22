@@ -2,8 +2,9 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { AnalysisResult, Feature, ReportSummary } from "@/lib/kw/types";
 import { isFeature } from "@/lib/kw/types";
+import { retentionCutoff } from "@/lib/kw/retention";
 
-// 분석 기록: 회원당 최대 100건(즐겨찾기는 한도에서 제외). 서버는 service role이므로 모든 쿼리에서 user_id로 직접 거른다.
+// 분석 기록: 회원당 최대 100건(즐겨찾기는 한도에서 제외). v1.07: 만든 지 30일이 지나면 삭제(즐겨찾기 제외) — DB 예약 작업 + 목록·열기에서 바로 숨김. 서버는 service role이므로 모든 쿼리에서 user_id로 직접 거른다.
 export const MAX_REPORTS = 100;
 const TABLE = "blog_keyword_reports";
 
@@ -40,6 +41,7 @@ export async function listReports(userId: string): Promise<ReportSummary[]> {
     .from(TABLE)
     .select("id, feature, keyword, favorite, created_at")
     .eq("user_id", userId)
+    .or(`favorite.eq.true,created_at.gt.${retentionCutoff()}`)
     .order("created_at", { ascending: false })
     .limit(MAX_REPORTS + 50);
   return (data ?? []).filter((r) => isFeature(r.feature)) as ReportSummary[];
@@ -51,6 +53,7 @@ export async function loadReport(userId: string, id: string): Promise<ReportRow 
     .select("id, feature, keyword, favorite, created_at, params, result")
     .eq("id", id)
     .eq("user_id", userId)
+    .or(`favorite.eq.true,created_at.gt.${retentionCutoff()}`)
     .maybeSingle();
   if (!data || !isFeature(data.feature)) return null;
   return data as unknown as ReportRow;
