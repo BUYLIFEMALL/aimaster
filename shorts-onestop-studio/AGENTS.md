@@ -225,3 +225,9 @@
 
 ## 2026-10-22 (미배포 — 다음 배포 때 함께, v1.37) — 출처 띠 모양 (Claude Code 윈도우)
 - `TopicView.tsx` 띠: `display: inline-flex`·`border-radius: 10px`·「✕ 빼기」 `margin-left: auto`(좁은 화면에서 여러 줄일 때 알약 모양 대신 둥근 사각, 빼기는 오른쪽 끝). tsc 통과. **다음에 원스톱을 배포하는 CLI는 버전 +0.01, 휴대폰 폭에서 모양 확인 후 이 항목을 「배포됨(버전)」으로.**
+
+## 2026-10-23 v1.37 — 30일 정리 기록(`usage_logs` cleanup_expired) + 대기 중이던 출처 띠 모양 배포 (Claude Code 윈도우)
+- `src/app/api/cron/cleanup-media/route.ts`: 회원 폴더별 지운 개수(`images`·`voices`·`videos`)를 세어 회원별 `usage_logs` `cleanup_expired` 1건(`docs/PLATFORM_PATTERNS.md` §35, 메인 관리자 「30일 자동 정리」 표에 합산). 응답에 `loggedOwners`.
+- 함께 배포: 출처 띠 모서리 10px·「✕ 빼기」 오른쪽 끝(`f055d6b70`, 미배포 대기 해제).
+- 검수: tsc·시험 27개·build, 커밋 `9bdcef674`, 배포 `shorts-onestop-studio-9qojmdj84` Ready, DB v1.37, 정리 경로 비밀값 없이 401. 크롬(관리자) 375px 프레임 `/topic#ref-transcript=…&ref-from=<긴 이름>`: 띠 모서리 10px·2줄(52px)·「✕ 빼기」 오른쪽 끝(가장자리 9px)·가로 넘침 없음 → 시험 대본은 「✕ 빼기」로 지움.
+- 비용: 빌드 1회, AI 0회.

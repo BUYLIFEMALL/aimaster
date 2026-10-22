@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.37: 30일 정리 기록 + 출처 띠 모양 배포 (빌드 1회)
+- 정리 작업이 회원별 `usage_logs` `cleanup_expired` 기록(메인 관리자 표 합산). 미배포 대기였던 띠 모양 함께 배포(`docs/PENDING_DEPLOYS.md` 내보낸 기록). 375px에서 띠 확인. 상세 `shorts-onestop-studio/AGENTS.md` v1.37.
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 — Claude Code(윈도우): **미배포 대기 묶음** — 이미지 스튜디오 갤러리 「형식 바꾸기」·「다시 저장」 받기 · 변환 스튜디오 PNG → WebP 다시 변환
 - 한 일(모두 미배포, 버전 그대로, 주인님 선택 A): ③ 이미지 스튜디오 갤러리 🔁 링크(`via=ai-image-studio`, `label`) + 새 API `/api/import-result`(공용 `resave-receiver` 사본, 본인 폴더 저장, `usage_logs` `image_import` — 갤러리에 나오고 생성 통계엔 안 섞임), `link-mark` 이름표에 이미지 스튜디오(기준 바나나 → 사본 5곳 손 복사), 변환 스튜디오 가져오기 허용 `ai-image-generations`·다시 저장 대상 추가 ② 「너무 큼」에서 PNG면 「WebP로 바꿔 다시 변환」. `resave-receiver` 기준의 WebP 판별을 펼치기 없이 고침(이미지 스튜디오 낮은 tsconfig에서 타입 오류 — 동작 같음, 사본 3곳 반영).
 - 검수: 시험 이미지 스튜디오 4·변환 49·바나나 45·스토리보드 23·인물사진 47·4컷 65, tsc(종료 코드 0) 6곳, 로컬 빌드 6곳 통과, 사본(link-mark 5·resave-receiver 3) 일치.

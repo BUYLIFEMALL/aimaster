@@ -10,6 +10,7 @@
 - 증상: `io.open(p, "w").write(hf(io.open(p).read()))`처럼 **쓰기 열기를 먼저** 한 줄에 쓰자, 파이썬이 `open(..., "w")`를 먼저 실행해 파일을 비운 뒤 읽음 → 빈 내용으로 처리하다 실패, 작업 파일 0바이트(커밋 쪽 `.git/*_mine.md` 경로는 정상이라 커밋엔 문제 없음).
 - 영향: 작업 시작 때부터 ` M`이던 다른 세션의 미커밋 수정이 디스크에서 사라졌을 수 있음. git 오브젝트(최근 2.5시간 HANDOFF 사본 14개 모두 커밋된 것)·편집기 로컬 기록에서 미커밋 사본을 찾지 못함 → 커밋된 최신 내용(HEAD)으로 작업 파일 복원(`git show HEAD:docs/HANDOFF.md`, 비지 않았는지 확인 후 바꿔치기).
 - 다음부터: ① 파일 고치기는 **읽기 → 내용 만들기 → (비지 않았는지 확인) → 쓰기** 세 줄로 나눈다(`s = rd(p); s2 = f(s); assert len(s2) >= len(s); wr(p, s2)`) ② 한 줄에 `open(p, "w")`와 같은 파일 읽기를 섞지 않는다 ③ 다른 세션이 ` M` 상태로 쓰는 공용 문서는 작업 파일을 건드리기 전에 사본을 하나 떠 둔다(`cp docs/HANDOFF.md <scratchpad>/HANDOFF.before`).
+- **추가(2026-10-23)**: 같은 날 `64ce6668c`(메인 관리자 문서)에서 HANDOFF가 `git status`상 깨끗해 작업 파일을 그대로 `git add` → 읽은 뒤 커밋 전 사이에 **다른 세션(웨일)이 작업 파일에만 써 둔 미커밋 항목(티스토리 v1.87 8줄)이 섞여 내 커밋으로 올라감**(내용은 그 세션의 완료 기록이라 지우지 않음, 중복 없음 확인). 다음부터: 공용 문서(HANDOFF·IDEA·CAPABILITY_MAP·PENDING_DEPLOYS 등)는 깨끗해 보여도 **항상 「HEAD 내용 + 내 변경」을 `hash-object`/`update-index`로 커밋**하고 작업 파일은 같은 변경만 더한다(작업 파일을 그대로 `git add` 금지).
 
 ## 2026-10-22 — 새 API 파일을 만든다며 같은 경로의 기존 API(`banana-canvas/src/app/api/import/route.ts`, 원본 가져오기)를 확인 없이 덮어씀 (바나나 v1.31, Claude Code 윈도우)
 - 증상: Write 도구 결과가 「created」가 아니라 「updated」로 나와 알아챔 — 이미 쓰이는 `/api/import`(AI 이미지 스튜디오·인물사진 → 바나나 원본 가져오기, `Studio.tsx`가 호출)를 다른 기능으로 바꿀 뻔함.
