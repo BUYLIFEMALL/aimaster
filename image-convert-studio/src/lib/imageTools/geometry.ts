@@ -12,19 +12,9 @@ export const CROP_RATIOS: { id: CropRatioId; label: string; ratio: number | null
   { id: "16:9", label: "16:9", ratio: 16 / 9 },
 ];
 
-/** 게시처 규격: 고르면 그 비율로 가운데 자르기 + 정확한 크기로 맞춤 */
-export interface PostPreset { id: string; label: string; width: number; height: number }
-export const POST_PRESETS: PostPreset[] = [
-  { id: "insta-feed", label: "인스타 피드 1:1", width: 1080, height: 1080 },
-  { id: "insta-portrait", label: "인스타 세로 4:5", width: 1080, height: 1350 },
-  { id: "story", label: "스토리·릴스 9:16", width: 1080, height: 1920 },
-  { id: "youtube-thumb", label: "유튜브 썸네일 16:9", width: 1280, height: 720 },
-  { id: "share-og", label: "블로그·카톡 공유 1200×630", width: 1200, height: 630 },
-  { id: "store-product", label: "스마트스토어 상품 1:1", width: 1000, height: 1000 },
-];
-export function presetById(id: string | null | undefined): PostPreset | null {
-  return POST_PRESETS.find((p) => p.id === id) ?? null;
-}
+/** 게시처 규격: 고르면 그 비율로 가운데 자르기 + 정확한 크기로 맞춤 — 목록은 공용 기준 코드 post-presets */
+export { POST_PRESETS, presetById, type PostPreset } from "./postPresets";
+import { presetById, type PostPreset } from "./postPresets";
 
 export function normalizeRotation(deg: number): Rotation {
   const r = ((Math.round(deg / 90) * 90) % 360 + 360) % 360;

@@ -226,11 +226,17 @@ export function QuoteCanvas({
               <button
                 key={c.id}
                 type="button"
-                className="text-xs px-3 py-1.5"
+                className="text-xs px-3 py-1.5 inline-flex items-center gap-1.5 whitespace-nowrap"
                 disabled={busy || saving}
                 onClick={() => void downloadChannel(c)}
                 title={`${c.width}×${c.height} JPG로 저장`}
               >
+                {/* v1.22: 실제 비율대로 그린 작은 상자(긴 변 16px) — 크기를 한눈에 고르게 */}
+                <span
+                  aria-hidden
+                  className="inline-block shrink-0 rounded-[3px] border-[1.5px] border-current opacity-70"
+                  style={{ width: Math.round((16 * c.width) / Math.max(c.width, c.height)), height: Math.round((16 * c.height) / Math.max(c.width, c.height)) }}
+                />
                 {c.label}
               </button>
             ))}

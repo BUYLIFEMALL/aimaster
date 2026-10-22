@@ -2,6 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { CHANNEL_SIZES, channelFileName } from "../src/lib/studio/channels.ts";
+import { readFileSync } from "node:fs";
 
 test("채널 규격 크기", () => {
   const byId = Object.fromEntries(CHANNEL_SIZES.map((c) => [c.id, [c.width, c.height]]));
@@ -25,4 +26,12 @@ test("v1.21 이미지 변환 스튜디오 규격과 같은 이름·숫자(공통
     assert.ok(c, id);
     assert.deepEqual([c.width, c.height], wh);
   }
+});
+
+test("v1.22 공용 기준 코드 사본에서 크기 목록을 만들고, 버튼에 비율 아이콘", () => {
+  const ch = readFileSync(new URL("../src/lib/studio/channels.ts", import.meta.url), "utf8");
+  assert.match(ch, /from "\.\/postPresets"/);
+  assert.equal(CHANNEL_SIZES.length, 6);
+  const q = readFileSync(new URL("../src/components/QuoteCanvas.tsx", import.meta.url), "utf8");
+  assert.match(q, /16 \* c\.width\) \/ Math\.max\(c\.width, c\.height\)/);
 });

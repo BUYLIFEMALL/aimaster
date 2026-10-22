@@ -1,3 +1,5 @@
+import { presetIdForSize } from "./postPresets";
+
 // v1.29: 완성작 실제 가로·세로 기록 + 이미지 변환 스튜디오 「형식 바꾸기」 규격(?preset=) 고르기 — 순수 함수(시험 대상)
 
 /** JPEG 머리 정보(SOF0~SOF15, DHT·JPG·DAC 제외)에서 가로·세로를 읽는다. 못 읽으면 null */
@@ -20,10 +22,7 @@ export function jpegSize(buf: Uint8Array): { width: number; height: number } | n
   return null;
 }
 
-/** 실제 크기 비율이 게시처 규격과 ±3% 안이면 그 규격 이름(변환 스튜디오 v1.13 ?preset=), 아니면 빈 문자열 */
+/** 실제 크기 비율이 게시처 규격과 ±3% 안이면 그 규격 이름(변환 스튜디오 ?preset=) — 공용 기준 코드 post-presets 사본 */
 export function convertPresetFor(width?: number, height?: number): string {
-  if (!width || !height) return "";
-  const r = width / height;
-  const near = (v: number) => Math.abs(r - v) / v < 0.03;
-  return near(1) ? "insta-feed" : near(4 / 5) ? "insta-portrait" : near(9 / 16) ? "story" : near(16 / 9) ? "youtube-thumb" : "";
+  return presetIdForSize(width, height);
 }

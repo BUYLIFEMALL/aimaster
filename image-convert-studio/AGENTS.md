@@ -134,3 +134,4 @@
 ## 2026-10-22 v1.14 — 자를 위치 확대(틀 크기) (Claude Code 윈도우)
 - `Focus.zoom`(1~3, `clampFocus`가 보정): 비율은 그대로 두고 자를 영역을 1/배율로 줄임(`cropAt`). 「자를 위치」 창에 확대 슬라이더(100~300%). 규격 프리셋이면 작은 영역을 정확한 크기로 고화질 확대.
 - 검수: 시험 31개·build, 배포 `image-convert-studio-gzxwu7xwp` Ready, DB v1.14. 크롬: 1600×1200 가운데 400×400 빨간 정사각형 + 인스타 피드 + 확대 300% → 1080×1080 전부 빨강 확인.
+- ⏸ 미배포(2026-10-22): 공용 기준 코드 `post-presets` 기준 파일 `src/lib/imageTools/postPresets.ts` 신설, `geometry.ts`가 다시 내보냄(동작 같음). 다음 배포 때 함께. 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync`로 감성 글귀·4컷 사본에 반영.

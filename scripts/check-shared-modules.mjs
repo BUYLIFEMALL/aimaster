@@ -207,6 +207,12 @@ const MODULES = [
     copies: ["shorts-onestop-studio/src/lib/videoProviders.ts", "shots/src/lib/video/videoProviders.ts"],
   },
   {
+    // 게시처 규격(인스타 피드·세로·스토리·유튜브 썸네일·블로그 공유·스마트스토어) 이름·크기, 크기로 규격 고르기 — 변환 스튜디오 ?preset= 값(2026-10-22)
+    id: "post-presets",
+    source: "image-convert-studio/src/lib/imageTools/postPresets.ts",
+    copies: ["emotion-writer/src/lib/studio/postPresets.ts", "four-cut-comics/src/lib/comic/postPresets.ts"],
+  },
+  {
     // 브라우저 안 MP4 만들기(WebCodecs + mp4-muxer, 내레이션·배경음악 섞기). 2026-10-21 엔진 공유 2번 — Shots 「브라우저에서 만들기(무료)」에 사용
     id: "browser-mp4-encoder",
     source: "shorts-onestop-studio/src/lib/render/mp4Encoder.ts",

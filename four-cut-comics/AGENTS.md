@@ -179,3 +179,4 @@
 ## 2026-10-22 v1.29 — 완성작 실제 크기 기록 · 「형식 바꾸기」 규격 자동 (Claude Code 윈도우)
 - 새 `src/lib/comic/imageSize.ts`: `jpegSize`(JPEG 머리 정보 SOF에서 가로·세로, 의존성 없음)·`convertPresetFor`(±3% 규격 매칭). `saved.ts` `saveComic`이 서버 보관 저장 때 `width`·`height`를 목록(index.json)에 기록(화면 값을 믿지 않고 저장 JPEG에서 읽음). `ServerWorks.tsx` 형식 바꾸기 링크에 `&preset=`(이미지 변환 스튜디오 v1.13이 받음). 크기 없는 옛 저장분은 규격 없이 그대로.
 - 검수: 시험 59개(새 `tests/imageSize.test.mjs` 3개)·build, 배포 `four-cut-comics-5tg6me2ll` Ready, DB v1.29. 크롬(시험 회원): 1080×1080 시험 JPEG 보관 저장 → 목록 width/height 1080 → 링크 `preset=insta-feed` 확인 → 시험 항목 삭제(AI 호출 없음).
+- ⏸ 미배포(2026-10-22): `convertPresetFor`가 공용 사본 `src/lib/comic/postPresets.ts`(`presetIdForSize`)를 씀(동작 같음, 시험 59개). 사본 직접 수정 금지 — 기준 `image-convert-studio/src/lib/imageTools/postPresets.ts`.

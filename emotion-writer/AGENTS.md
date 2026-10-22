@@ -136,3 +136,8 @@
 ## 2026-10-22 v1.21 — 「다른 크기로 받기」 규격을 이미지 변환 스튜디오와 통일 (Claude Code 윈도우)
 - `lib/studio/channels.ts`: id·이름·숫자를 변환 스튜디오 게시처 규격과 같게(insta-feed·insta-portrait·story·youtube-thumb·share-og). 가로 공유 1200×628 → 1200×630, 유튜브 썸네일 1280×720 추가, 세로 3:4는 유지(6종). 시험 기대값 갱신 + 통일 시험 추가(25개).
 - 배포 `emotion-writer-am8h4mdjz` Ready, DB v1.21. 크롬: 운영 화면이 불러온 스크립트에 새 규격 포함·옛 이름 없음 확인(버튼은 글귀 완성 후 표시 — 실제 다운로드는 v1.18 검수 방식과 같아 이번엔 생략).
+
+## 2026-10-22 v1.22 — 크기 버튼 비율 아이콘 · 공용 기준 코드 post-presets 사본 사용 (Claude Code 윈도우)
+- 「다른 크기로 받기」 버튼마다 실제 비율대로 그린 작은 상자(긴 변 16px, `aria-hidden`). 크기 목록은 공용 사본 `src/lib/studio/postPresets.ts`에서 만들고 세로 3:4만 더함(기준 `image-convert-studio/src/lib/imageTools/postPresets.ts` — 사본 직접 수정 금지, `--sync`).
+- 배포 `emotion-writer-bt1lbzk7v` Ready, DB v1.22, 시험 26개. 크롬(시험 회원, AI 비용 없음): 글귀 직접 입력 + Pixabay 「nature」 12장 → 완성 화면에서 아이콘 6개 크기(16×16·13×16·9×16·12×16·16×9·16×8) 확인.
+- 검수 메모: 검색칸에 기본값 「nature」가 이미 있어 자동 입력 시 「naturenature」→ 0건(앱 문제 아님, 칸을 비우고 입력할 것).
