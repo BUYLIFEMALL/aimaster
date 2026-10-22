@@ -255,3 +255,7 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - **발견·수정(v1.22)**: 받은 파일 이름이 한글 대신 `%EC%8B%9C%ED%97%98…_sections_860px.zip`로 저장됨. 원인: `createSignedUrl(path, 60, { download: 이름 })`(storage-js 2.112.3)이 이름을 **두 번 인코딩**해 저장소 서버가 한 번 풀면 `%EC…`가 그대로 파일 이름이 됨. `lib/exportDownload.ts` `redirectToDownload`: 이름 없이 서명 주소를 만들고 `&download=encodeURIComponent(이름)`을 직접 붙임 → 서버가 `filename*=UTF-8''…`로 보내 한글 이름 저장(서명 유효, 206 확인). 저장소 전체에서 같은 패턴은 이 파일뿐. 커밋 `0b5182080`, 배포 READY, DB v1.22(`20261022_download_name_v1_22.sql`).
 - 수정 뒤 크롬에서 두 버튼 다시 눌러 `D:\PDS`에 `시험용 스테인리스 텀블러 500ml_merged_detail.png`·`…_sections_860px.zip` 한글 이름으로 저장 확인. (시험으로 받은 파일 3개가 `D:\PDS`에 남아 있음 — 지워도 됨)
 - 비용: Vercel 빌드 2회(v1.21 붙여 넣은 순서 1회 + v1.22 수정 1회 — 주인님 승인), AI 호출 0회.
+
+## 2026-10-22 ✅ v1.22 맥미니 크롬 확인 (Claude Code 맥미니) — 이커머스 2차 재비교 작업 ① 완료
+- 맥미니 크롬, 시험 계정(파일을 컴퓨터에 저장하지 않고 화면 안에서 받아 내용만 확인): 화면 v1.22, 버튼 2개(아래 고정 줄에 긴 PNG 버튼 + 오른쪽 「📦 섹션별 ZIP」). ① 긴 PNG → 서명 주소(`/object/sign/`)로 이동, `download` 값이 한글 이름 그대로 「시험용 스테인리스 텀블러 500ml_merged_detail.png」(한 번만 인코딩됨 — v1.22 수정 확인), PNG 860×1152·1.3MB ② ZIP → 서명 주소·`application/zip`·이름 「…_sections_860px.zip」, 안에 `01_프로모션_배너.jpg`(UTF-8 이름 표시 켬, JPEG 860×1152). 완료 섹션이 1개라 01·02… 여러 장 순서는 코드 확인만(윈도우 기록과 같음).
+- 이번 확인으로 시험 계정 상품 폴더 `merged/`에 PNG·ZIP 1개씩이 더 저장됨(상품과 함께 30일 정리). 비용 없음.
