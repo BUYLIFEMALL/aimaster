@@ -71,7 +71,7 @@ function loadWorker({ storage = {}, routes = {}, adapterOptions = {} } = {}) {
       alarms: { create() { return Promise.resolve(); }, onAlarm: { addListener() {} } },
       sidePanel: { setPanelBehavior: () => Promise.resolve() },
       action: { setBadgeText: async () => {}, setBadgeBackgroundColor: async () => {} },
-      tabs: { query: async () => [], update: async (id, props) => { events.tabUpdates.push([id, props]); return { id, windowId: 5 }; } },
+      tabs: { query: async () => [], update: async (id, props) => { events.tabUpdates.push([id, props]); return { id, windowId: 5 }; }, remove: async (id) => { (events.tabRemovals ||= []).push(id); } },
       windows: { update: async (id, props) => { events.windowUpdates.push([id, props]); } },
       notifications: { create: async (id, options) => { events.notifications.push({ id, options }); }, clear: async () => {}, onClicked: { addListener(fn) { listeners.notificationClick = fn; } } },
     },
@@ -330,4 +330,41 @@ test('restart after arm only reads/records result and never repeats input or fin
   await w.send({type:'pump'});assert.ok(await w.settled(()=>w.store.tistoryTaskState?.outcome==='published'));
   assert.deepEqual(w.requests.filter(r=>r.path.endsWith('/auto-publish')).map(r=>r.body.action),['status','published']);
   assert.ok(!w.adapter.calls.includes('prepare') && !w.adapter.calls.includes('final:click'));
+});
+
+// ---- 2026-10-23 자동 연결: 이 사이트 화면에서 온 올바른 코드만 서버 확인 뒤 저장하고, 요청 시 탭을 닫는다 ----
+const goodToken = `pat_${'a'.repeat(64)}`;
+const whoamiOk = { '/api/extension/whoami': () => ({ status: 200, body: { email: 'member@example.com' } }) };
+test('connect: refuses requests from other sites without calling the server', async () => {
+  const w = loadWorker({ routes: whoamiOk });
+  const response = await w.send({ type: 'connect', token: goodToken }, { url: 'https://evil.example/', tab: { id: 9 } });
+  assert.match(response.error, /허용되지 않은/);
+  assert.equal(w.requests.filter((r) => r.path.includes('whoami')).length, 0);
+  assert.equal(w.store.tistoryAutoBlogToken, undefined);
+});
+test('connect: refuses malformed tokens without calling the server', async () => {
+  const w = loadWorker({ routes: whoamiOk });
+  const response = await w.send({ type: 'connect', token: 'pat_123' }, siteSender);
+  assert.equal(response.ok, false);
+  assert.equal(w.requests.filter((r) => r.path.includes('whoami')).length, 0);
+});
+test('connect: does not store a token the server rejects', async () => {
+  const w = loadWorker({ routes: { '/api/extension/whoami': () => ({ status: 401, body: { error: '토큰 거절' } }) } });
+  const response = await w.send({ type: 'connect', token: goodToken }, siteSender);
+  assert.equal(response.ok, false);
+  assert.equal(w.store.tistoryAutoBlogToken, undefined);
+});
+test('connect: stores a verified token and closes the extension-opened tab', async () => {
+  const w = loadWorker({ routes: whoamiOk });
+  const response = await w.send({ type: 'connect', token: goodToken, closeTab: true }, { url: 'https://tistory-auto-blog.buylife.xyz/extension-connect?from=extension', tab: { id: 44 } });
+  assert.equal(response.ok, true);
+  assert.equal(response.email, 'member@example.com');
+  assert.equal(w.store.tistoryAutoBlogToken, goodToken);
+  assert.ok(await w.settled(() => (w.events.tabRemovals || []).includes(44), 400));
+});
+test('connect: keeps the settings tab open when closeTab is not requested', async () => {
+  const w = loadWorker({ routes: whoamiOk });
+  await w.send({ type: 'connect', token: goodToken }, siteSender);
+  await new Promise((r) => setTimeout(r, 1700));
+  assert.deepEqual(w.events.tabRemovals || [], []);
 });

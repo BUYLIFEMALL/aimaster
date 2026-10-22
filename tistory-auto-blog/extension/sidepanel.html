@@ -21,12 +21,19 @@
 
     <section class="card">
       <h2>계정 연결</h2>
-      <p class="hint"><a href="https://tistory-auto-blog.buylife.xyz/settings" target="_blank" rel="noreferrer">티스토리 포스팅 자동화 설정</a>에서 발급한 연동 토큰을 붙여넣으세요.</p>
-      <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="pat_... 토큰 붙여넣기" />
+      <p class="hint">「자동 연결」을 누르면 티스토리 포스팅 자동화 화면이 열리고(로그인 필요) 연결 코드가 자동으로 만들어져 연결됩니다.</p>
       <div class="connection-actions">
-        <button id="link" type="button">티스토리 연결</button>
+        <button id="autoLink" type="button">자동 연결</button>
         <div id="connectionStatus" class="status">연결되지 않음</div>
       </div>
+      <details class="manual-token">
+        <summary>연결 코드 직접 입력</summary>
+        <p class="hint"><a href="https://tistory-auto-blog.buylife.xyz/settings" target="_blank" rel="noreferrer">티스토리 포스팅 자동화 설정</a>에서 발급한 코드를 붙여 넣으세요.</p>
+        <div class="connection-actions">
+          <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="pat_... 코드 붙여넣기" />
+          <button id="link" type="button">연결</button>
+        </div>
+      </details>
     </section>
 
     <section class="card">

@@ -66,3 +66,5 @@ button.secondary { background: #27313a; }
 .task-title{display:block;font-size:13px;color:#1f3448;margin-bottom:4px;word-break:keep-all}.task-stage{font-size:12px;font-weight:700;color:#2563eb;margin-bottom:6px}#taskProgress{display:block;width:100%;height:10px;margin:6px 0}.task-notes{color:#a15c00}
 #taskCard[data-outcome="publish_ready"] .task-stage,#taskCard[data-outcome="completed"] .task-stage{color:#18753a}#taskCard[data-outcome="failed"] .task-stage{color:#c1272d}#taskCard[data-outcome="cancelled"] .task-stage{color:#68727a}
 .review-badge{flex:0 0 auto;border-radius:999px;background:#fff1eb;color:#c74724;padding:4px 7px;font-size:10px;font-weight:700}
+/* 2026-10-23: 연결 코드 직접 입력은 접어 둠 */
+.manual-token{margin-top:8px;font-size:12px}.manual-token summary{cursor:pointer;color:#5b6b80}.manual-token .connection-actions input{flex:1;min-width:0;margin:0}
