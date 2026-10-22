@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 역량 지도 뒤처진 카드 1차 5개 갱신 · `deploy --go`가 지도 한 줄 자동 수정 (비용 없음)
+- 카드 갱신(`44a497d44`): 차이 큰 순서로 `tarot-reading`(v1.06→v1.27)·`personality-suite`(v1.06→v1.27)·`naver-cafe-poster`(v1.07→v1.27)·`ai-image-studio`(v1.09→v1.29)·`threads-content-ops`(v1.95→v2.14) — 카드 버전, 각 `AGENTS.md` 근거의 「최근 추가」, `threads-content-ops` 단점 보완. 남은 뒤처진 카드 27개(`deploy.mjs --version-only --all` 「카드 내용」). 블로그 병합 대상(`naver-blog-seo-studio`·`tistory-auto-blog`, Codex)과 작업 중 폴더(`booking-reminder`)는 뺌.
+- `deploy.mjs <폴더> --go`: 빌드 전 기준 사본에 역량 지도 추가, 배포 뒤 DB 버전 = 화면 버전이면 그 프로그램의 목록 표 버전 칸·카드 버전만 고침(`fixMapRow`), 끝 안내의 도우미 커밋 명령에 지도 파일 포함. 실제 지도 파일로 함수 시험 후 원래대로 되돌림(고칠 것 없으면 건너뜀·없는 slug 건너뜀 확인).
+- 다음 첫 단계: 다음 묶음 5개(`booking-reminder` 작업이 끝나면 포함, `stepmail`·`personality-code`·`mbti-character`·`document-translator` 등). 관리자 화면 「운영 상태」 카드는 메인 빌드 1회 승인 대기.
+
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ Step Mail v1.27 문자(SMS·LMS) 차수 발송 (빌드 1회 · 테스트 문자 1통 · AI 0회)
 - 마케팅 독립 프로그램 확장 ①(주인님 결정: 문자만). 캠페인 채널 이메일·문자·둘 다, 회원 본인 SOLAPI(공용 `user_solapi_accounts`), 「(광고)」·수신거부 자동, 엑셀 전화번호 열, 설정 SOLAPI 칸. DB 칸 추가(`stepmail/supabase/migrations/20261023150000_*`, 크롬 SQL Editor). 시험 9개·build·배포 `stepmail-7qbwcx7ss` Ready·DB v1.27.
 - 크롬: 문자 캠페인 화면·미리보기 확인(저장 안 함), 테스트 문자 1통 관리자 본인 번호로 성공. 함께 나간 대기분 3건(메뉴 계정 위치·member-scheduler 사본·버튼 줄바꿈) — `docs/PENDING_DEPLOYS.md` 「내보낸 기록」.
