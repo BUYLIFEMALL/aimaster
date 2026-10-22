@@ -1,7 +1,7 @@
 # AI 가사영상 자동화 (`lyric-video-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`를 먼저 읽는다. 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
-> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.09**
+> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.10**
 > 출발점: 외부 상용 앱 Lyricbi 1.9.0 분석([`docs/analysis-lyricbi-20261021/REPORT.md`](../docs/analysis-lyricbi-20261021/REPORT.md)) — **코드는 옮기지 않고** 기능·흐름만 참고해 새로 만들었다.
 
 ## 1. 사용 목적과 대상
@@ -74,3 +74,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## 2026-10-23 v1.10 — AI 음악 스튜디오 곡 가져오기(?ams=) (Claude Code 윈도우)
+- `/source?ams=<생성 번호>&i=<곡 순서>`로 들어오면 한 번만 가져온다(`src/components/studio/AmsImportCard.tsx`, 음악 넣기 화면 위). 서버 `src/lib/ams.ts` + `GET /api/ams/song` — 공용 DB `ams_generations`를 회원 본인 행만 읽기, 비공개 저장소 `ai-music-studio` 1시간 서명 주소. **Lyria 시간 가사(`[0.0:3.7] 가사`)는 `src/lib/amsLyrics.ts`(공용 모듈 `ams-timed-lyrics` 기준, 시험 3개)로 줄 시간표로 바꿔 그대로 넣음**, 없으면 가사 글(구간 표시 제거), 연주곡은 빈 가사. 외부 AI 호출 없음. 기존 `?suno=` 흐름은 그대로.
+- 검수: 시험 14·tsc·build, 배포 `lyric-video-studio-ewv8hq0sy` Ready·DB v1.10, 크롬 시험 계정 — Lyria 3 Clip 곡으로 들어가 음악·제목과 시간 가사 8줄 자동 입력 확인. 비용: Vercel 빌드 1회.

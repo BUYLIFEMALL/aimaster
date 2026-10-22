@@ -45,6 +45,8 @@
 ## 4. 버전·변경 이력
 - **v1.01 (2026-10-23)** 첫 배포 — 화면 5개, 공급자 5곳·모델 11개, 비교 생성, AI 가사, 30일 정리. 검수: 단위 시험 13, tsc·lint·build, 운영 배포 Ready(`ai-music-studio-1trveqkpn`), 크롬 시험 계정 실제 생성 5곳 모두 성공·보관함 재생 6개 확인. 플랜: `docs/PLAN_20261023_AI_MUSIC_STUDIO.md`. 같은 날 카탈로그 썸네일(실사, 관리자 Gemini 상위 모델 1회 — `supabase/migrations/0003_thumbnail.sql`, DB 값만이라 버전 변경 없음).
 
+- **v1.02 (2026-10-23)** ① AI 가사 분량을 곡 길이에 맞춤(`lib/lyricsLength.ts` — 30초 10줄·2분 22줄·그 이상 34줄 상한, 넘치면 구간 단위로 자름 + 지시문 강화. 실호출: 30초 요청 27줄 → 7줄) ② 다른 프로그램으로 보내기 — 곡 카드 「🎬 가사 영상 →」(`https://lyric-video-studio.buylife.xyz/source?ams=<생성 번호>&i=<곡 순서>`)·「🎞️ 플레이리스트 영상으로 보내기 →」, 보관함 「완성곡 N개로 플레이리스트 영상 만들기 →」(`https://playlist-channel-studio.buylife.xyz/video?ams=<번호>:<순서>,…` 최대 20곡). 받는 쪽: 가사영상 v1.10·플레이리스트 v1.27(공용 모듈 `ams-timed-lyrics`). 배포 `ai-music-studio-ojg8c0h8g` Ready, 크롬 시험 계정으로 두 보내기 모두 확인(Lyria 시간 가사 8줄 그대로 연결).
+
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
 ## 6. 연계·병합 아이디어 → `docs/IMPROVEMENTS.md` §3
 ## 7. UI/UX 개선안 → `docs/IMPROVEMENTS.md` §2, 디자인: `docs/DESIGN_HANDOFF.md`

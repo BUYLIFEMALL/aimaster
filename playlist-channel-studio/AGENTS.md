@@ -209,3 +209,8 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 유튜브 카드(가로 영상)에 「🎨 『AI 썸네일·SEO 자동화』에서 고르기」: `GET /api/youtube/thumbnail-picks` → `src/lib/youtube/thumbnailPicks.ts`가 공용 DB `thumbnail_master_projects`에서 **회원 본인 행만** 최근 12개(옵션 A/B 현재 버전), 비공개 버킷 `thumbnail-master-images` 서명 주소(1시간). 고르면 그 그림을 기존 `makeThumbnail`로 1280×720·2MB 이하 JPG로 만들어 미리보기·내려받기·업로드 후 지정. 「↩ 배경 그림으로 되돌리기」. 배경이 영상이어도 고른 썸네일은 지정 가능. AI 호출 없음.
 - 검수: tsc·시험 23개·build, 배포 Ready, DB v1.26. 크롬(시험 회원): API 200·빈 목록(시험 회원·관리자 모두 썸네일 프로젝트는 있으나 만든 그림 0개 — DB 확인). 시험 회원은 유튜브 미연결이라 업로드 양식 자체가 안 보임. **그림이 있는 계정의 화면 확인은 남음**(관리자 로그인 + 썸네일 1장 필요). 비용: Vercel 빌드 1회.
 - **2026-10-21 관리자 화면 확인 완료**: 주인님 승인으로 「AI 썸네일·SEO 자동화」에서 관리자 본인 Gemini 키로 A안 1장(`gemini-3-pro-image`, 1K, 1회 — 화면 버튼은 2장을 만들어 API로 A만 요청)과 전략 글 1회를 만든 뒤, 고르기 목록 1장 → 고르기 → 1280×720·171KB 미리보기·지정 체크·「↩ 고른 썸네일 빼기」 확인. 실제 유튜브 업로드·지정은 하지 않음(지정 함수는 v1.23에서 200 확인).
+
+## 2026-10-23 v1.27 — AI 음악 스튜디오 곡 가져오기(?ams=) + 미배포 대기 1건 내보냄 (Claude Code 윈도우)
+- `/video?ams=<생성 번호>:<곡 순서>,…`(최대 20곡)로 들어오면 미디어 센터 맨 위 「🎧 AI 음악 스튜디오에서 보낸 곡」 패널(`src/components/video/AmsImportPanel.tsx`)이 곡 목록을 보여 주고, 회원이 「곡 N개 추가」를 누르면 목록 끝에 넣는다. 서버 `src/lib/amsTracks.ts` + `GET /api/ams/songs?refs=` — 회원 본인 행만, 비공개 저장소 서명 주소. Lyria 시간 가사는 `src/lib/amsLyrics.ts`(공용 모듈 `ams-timed-lyrics` 사본, 기준 lyric-video-studio)로 곡 가사 층에 연결. 외부 AI 호출 없음.
+- 함께 내보낸 대기: 좌측 메뉴 계정·로그아웃 위치(`22c6cda35`).
+- 검수: 시험 23·tsc·build, 배포 `playlist-channel-studio-pa8ct6t4x` Ready·DB v1.27, 크롬 시험 계정 — 완성곡 6개로 들어가 「곡 6개 추가」 → 목록 6곡·시간 가사 1곡 확인. 계정 위치는 화면 캡처상 마지막 메뉴 바로 아래. 비용: Vercel 빌드 1회.

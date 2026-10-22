@@ -48,4 +48,4 @@
 
 ## 2026-10-22 Claude Code(윈도우) — 대기: 음악(SUNO) 리믹스 결과 받기 (다음 빌드 때 함께)
 - [ ] `?remix=<리믹스 변주 id>`로 음악(SUNO) 리믹스 결과(`music_track_remix_variants`, 회원 본인 것만)를 읽기. **주인님 지시: 따로 배포하지 않고, 이 프로그램을 다음에 다른 작업으로 빌드할 때 함께 넣고 시험한다.** 상세 플랜·시험용 리믹스 번호: [`music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`](../../music/docs/PLAN_20261022_REMIX_SHORTCUTS.md). 음악(SUNO) 리믹스 카드 링크는 두 프로그램 배포 뒤에 켠다.
-- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+- **배포됨 v1.27(2026-10-23, 커밋 `22c6cda35`)** — 아래는 당시 대기 기록: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
