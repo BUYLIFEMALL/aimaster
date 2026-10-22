@@ -1,5 +1,6 @@
 # 네이버 블로그 SEO 스튜디오 개발 지침
 
+> **✅ v2.06 배포 완료 (2026-10-23, Claude Code 윈도우 — 주인님 지시 「속도를 좀 빠르게」, A안 승인) — 확장 네이버 편집기 입력 속도 약 3배:** `extension/sidepanel.js` `typeWithDebugger`가 새 `typingChunks`로 글자를 2~4개씩 묶어 `Input.insertText`로 입력(줄바꿈은 Enter 키로 따로, 글자 사이 24~52ms·가끔 0.1~0.2초 쉬는 간격은 그대로). 3,500자 기준 입력 호출 3,500회 → 약 1,170회. 원문 복원·이모지·줄바꿈 무작위 2,000회 확인, tsc·auto-publish 18·update-banner 3 통과. 배포 Ready·DB/확장/ZIP v2.06(`check-extension-release` OK, 라이브 ZIP 내용 = 로컬). 회원은 ZIP 다시 받기 → 덮어쓰기 → 확장 새로고침 필요. 실제 입력 시간 재측정은 주인님 확장 갱신 뒤. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 > **✅ v2.05로 배포 완료(2026-10-23, Claude Code 윈도우 — 배포 Ready·DB/확장/ZIP v2.05·키워드 카드 「87.5」 표시 확인) — 데이터랩 지수 소수점 정리:** 키워드 넘겨받기 카드(`components/studio/KeywordHandoffCard.tsx` `showValue`)가 소수가 있는 값을 소수 첫째 자리까지만 표시(87.47439 → 87.5, 값 자체는 그대로). tsc·린트·keyword-handoff 시험 통과. (배포 때 할 일:) v2.05(코드·확장·ZIP·DB)로 올려 함께 배포하고 이 줄을 「배포 완료」로 바꿀 것.
 
 > **v2.03~v2.04 (2026-10-22) 키워드 넘겨받기 보완:** ① 로그인 뒤 번호 유지 — `app/login/LoginForm.tsx`가 로그인 화면 주소의 `#…keyword-report=<번호>`를(`handoffIdFromHash`로 번호 모양일 때만) 로그인 뒤 주소에 그대로 붙입니다(브라우저 저장소 사용 안 함). ② 같은 탭 해시 변경 — `useStudio.ts`가 `hashchange`에서 새 번호면 다시 불러오고, v2.04에서 늦게 도착한 앞 번호 응답은 버립니다(`lastId`). ③ 키워드 도구 v1.07이 즐겨찾기를 30일 뒤에도 보관하므로 `judgeHandoff`가 `favorite=true`면 기간과 무관하게 받고 `expiresAt`·`daysLeft`를 null로, 카드에 「키워드 도구 즐겨찾기 — 계속 보관」. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.

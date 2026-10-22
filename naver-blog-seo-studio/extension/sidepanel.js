@@ -709,21 +709,39 @@ async function uploadNaverImage(tabId, dataUrl) {
   throw new Error("이미지 파일은 선택됐지만 네이버 편집기 반영을 확인하지 못했습니다. 이미지 도구를 다시 연 뒤 재시도하세요.");
 }
 
+// 2026-10-23: 2~4글자씩 묶어 입력해 속도를 약 3배로(줄바꿈은 Enter 키로 따로, 쉬는 간격은 그대로)
+function typingChunks(text) {
+  const characters = Array.from(text);
+  const chunks = [];
+  let index = 0;
+  while (index < characters.length) {
+    if (characters[index] === "\n") { chunks.push("\n"); index += 1; continue; }
+    const size = randomDelay(2, 4);
+    let chunk = "";
+    while (index < characters.length && characters[index] !== "\n" && Array.from(chunk).length < size) chunk += characters[index++];
+    chunks.push(chunk);
+  }
+  return chunks;
+}
+
 async function typeWithDebugger(tabId, value) {
   const text = plainText(value);
+  const total = Array.from(text).length;
   let typed = 0;
+  let reported = 0;
   const startedAt = Date.now();
-  for (const character of text) {
-    if (character === "\n") {
+  for (const chunk of typingChunks(text)) {
+    if (chunk === "\n") {
       await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
       await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
     } else {
-      await debuggerCommand(tabId, "Input.insertText", { text: character });
+      await debuggerCommand(tabId, "Input.insertText", { text: chunk });
     }
-    typed += 1;
-    if (typed === 1 || typed % 25 === 0 || typed === text.length) {
+    typed += Array.from(chunk).length;
+    if (reported === 0 || typed - reported >= 25 || typed === total) {
+      reported = typed;
       const elapsed = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
-      $("generateStatus").textContent = `네이버 편집기 입력 중... ${typed}/${text.length}자 · ${elapsed}초`;
+      $("generateStatus").textContent = `네이버 편집기 입력 중... ${typed}/${total}자 · ${elapsed}초`;
     }
     await sleep(randomDelay(24, 52));
     if (Math.random() < 0.03) await sleep(randomDelay(110, 220));

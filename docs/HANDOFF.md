@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.06 확장 입력 속도 약 3배 (빌드 1회 · AI 0회)
+- 주인님 지시 「속도를 좀 빠르게」 → A안(2~4글자 묶음 입력, 쉬는 간격 유지). 배포 Ready·DB/확장/ZIP v2.06 확인. 회원은 확장 ZIP 다시 받아 덮어쓰기 필요.
+- 실검수 중 원고 `a4357bbf`가 자동 포스팅(비공개)으로 실행돼 `writing`에 14분 넘게 멈춤 — 원인 확인·입력 시간 재측정 남음(`naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래).
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-23 — Claude Code(맥미니): 상세페이지 GIF 자동화 v1.16 진행률 바로잡기 (배포 대기)
 - 진행률이 한 시도 안에서 되돌아가던 문제(35→59→35): 출력 시간 기준 비율·줄지 않음·두 번 방식 앞뒤 절반. 변환 방식·화질·속도 그대로, 서버·DB·AI 변경 없음.
 - **윈도우 CLI 다음 첫 단계**: SQL `video-to-gif/supabase/migrations/20261023_progress_v1_16.sql`(버전만) → `video-to-gif` 배포 1회 → `video-to-gif/AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.
