@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ⏸ 코드만 반영(배포 보류, 주인님 지시): 변환 스튜디오 첫 주소 검색값 · 인물사진 묶음 미리보기 · 감성 글귀 전체 크기 ZIP + 공용 모듈 store-zip (빌드 0회)
+- **이미지 변환 스튜디오**(다음 배포 v1.16): `/?preset=…&src=…`를 `/convert`로 넘길 때 검색값 유지(`convertPath.ts`). 커밋 199adaecd.
+- **AI 인물사진**(다음 배포 v1.36): 묶음 저장 버튼 위에 들어갈 파일 목록·픽셀 크기·장수 표시(`bundlePreview`). 커밋 eda0d9875.
+- **감성 글귀**(다음 배포 v1.24): 「📦 전체 6가지 ZIP 1개로」 버튼. 새 공용 기준 코드 `store-zip`(기준 인물사진 `zip.ts`, 사본 감성 글귀). 커밋 78779ae3f.
+- 세 프로그램 모두 시험·tsc·build 통과, 화면 확인은 배포 후. 배포할 때 버전(코드+DB)을 올리고 크롬 확인. 다음 작업: F5 스타일 분석기 비교 슬라이더.
+
 ## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.21 — 긴 PNG 서명 주소 · 섹션별 ZIP (배포 대기, 이커머스 2차 재비교 작업 ①)
 - 긴 PNG가 서버 응답으로 바로 나가 Vercel 4.5MB 한도를 넘을 수 있던 것을 저장 후 60초 서명 주소로 바꿈. 새 「📦 섹션별 ZIP」(860px JPG, 01·02… 순서, 새 패키지 없음). AI 0회, tsc 0.
 - **윈도우 순서**(빌드 1회): SQL `shop-detail-page/supabase/migrations/20261022_zip_export_v1_21.sql` → `shop-detail-page` 배포 → 크롬 확인(긴 PNG·ZIP 내려받기). 상세: `shop-detail-page/AGENTS.md` 맨 아래.
