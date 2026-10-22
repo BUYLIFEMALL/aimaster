@@ -20,3 +20,13 @@ test("v1.10 로그인 화면을 거치면 보관했다가 한 번만 꺼냄", ()
   assert.equal(hasStashedRefHandoff(), false);
   assert.equal(stashRefHandoff("#other=1"), false);
 });
+
+test("v1.11 SEO 대본 → 그 프로젝트 썸네일 제작 참고 문서로 1회만", async () => {
+  const { stashSeoDoc, takeSeoDoc } = await import("../src/lib/refHandoff.ts");
+  stashSeoDoc("p1", { name: "AI 쇼츠 원스톱 제작 자동화 대본", text: "주제: 재테크\n\n장면 제목 A" });
+  stashSeoDoc("p2", { name: "빈 대본", text: "   " });
+  assert.equal(takeSeoDoc("p2"), null);
+  assert.equal(takeSeoDoc("other"), null);
+  assert.deepEqual(takeSeoDoc("p1"), { name: "AI 쇼츠 원스톱 제작 자동화 대본", text: "주제: 재테크\n\n장면 제목 A" });
+  assert.equal(takeSeoDoc("p1"), null);
+});

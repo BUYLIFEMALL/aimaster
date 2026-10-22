@@ -4,7 +4,7 @@
 // AI 호출은 서버(/api/seo/strategy)에서 회원 본인 Gemini 키로 한다 — 키를 브라우저로 받지 않는다.
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { takeRefHandoff } from "@/lib/refHandoff";
+import { stashSeoDoc, takeRefHandoff } from "@/lib/refHandoff";
 import { Copy, Check, Sparkles, FileUp, ImagePlus } from "lucide-react";
 
 interface SeoStrategy {
@@ -62,12 +62,14 @@ export function SeoStudio() {
   const [result, setResult] = useState<SeoResult | null>(null);
   const [truncated, setTruncated] = useState(false);
   const [handoffNote, setHandoffNote] = useState("");
+  const [handoffFrom, setHandoffFrom] = useState("");
 
   // v1.10 다른 프로그램(AI 쇼츠 원스톱)이 넘긴 대본 → 대본 칸, 주소의 # 부분은 바로 지움(로그인을 거친 경우 보관분)
   useEffect(() => {
     const { text, from } = takeRefHandoff(window.location.hash);
     if (!text) return;
     setScript(text.slice(0, 30_000));
+    setHandoffFrom(from);
     setHandoffNote(`「${from || "다른 프로그램"}」에서 넘긴 대본을 넣었습니다. 고칠 곳이 있으면 고친 뒤 「SEO 전략 3가지 만들기」를 눌러 주세요.`);
     if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
   }, []);
@@ -120,6 +122,8 @@ export function SeoStudio() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.project?.id) throw new Error(data.error || "프로젝트를 만들지 못했습니다.");
+      // v1.11 이 대본(장면 제목 포함)을 새 프로젝트의 참고 문서로 — A/B 썸네일 문구를 만들 때 함께 읽음
+      stashSeoDoc(data.project.id, { name: handoffFrom ? `${handoffFrom} 대본` : "SEO 전략 대본", text: script });
       router.push(`/project/${data.project.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "프로젝트를 만들지 못했습니다.");

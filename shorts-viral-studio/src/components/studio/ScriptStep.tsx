@@ -5,6 +5,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { generateScriptAction } from "@/lib/actions/svs";
 import { downloadMarkdown } from "@/lib/export";
+import { refHandoffHash } from "@/lib/reference";
+import type { Scene } from "@/types/svs";
+
+// v1.15 대본을 넘길 AI 썸네일·SEO 자동화 「SEO 전략」 화면(v1.10~가 주소 # 뒤 대본을 받음)
+const THUMBNAIL_SEO_URL = "https://thumbnail-master.buylife.xyz/seo";
+/** 넘길 대본 글 — 주제 + 씬마다 자막·나레이션 */
+const scriptPlain = (topic: string, scenes: Scene[]) =>
+  [topic ? `주제: ${topic}` : "", ...scenes.map((s) => [s.caption, s.narration].map((t) => t?.trim()).filter(Boolean).join("\n"))]
+    .filter(Boolean)
+    .join("\n\n");
 import { useStudio } from "@/components/studio/StudioProvider";
 import {
   Card,
@@ -150,9 +160,19 @@ export function ScriptStep() {
         <Card>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-bold text-[#f0f6fc]">🎬 생성된 대본 ({data.scenes.length}씬)</h2>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <SaveStatus />
               <GhostButton onClick={() => downloadMarkdown(data)} className="py-2 text-xs">📥 .md 저장</GhostButton>
+              {/* v1.15 이 대본 → AI 썸네일·SEO 자동화 「SEO 전략」(3가지 제목 전략·고정 댓글·썸네일 제작). 주소 # 뒤라 서버로 가지 않음 */}
+              <a
+                href={`${THUMBNAIL_SEO_URL}${refHandoffHash(scriptPlain(data.selectedIdea?.title || data.search.query, data.scenes), "쇼츠 떡상 분석·대본 자동화")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="AI 썸네일·SEO 자동화가 새 탭으로 열리고 이 대본이 들어갑니다"
+                className="whitespace-nowrap rounded-xl border border-[#30363d] bg-[#21262d] px-4 py-2 text-xs font-semibold text-[#c9d1d9] hover:bg-[#30363d] hover:text-[#f0f6fc]"
+              >
+                📤 썸네일 만들기
+              </a>
             </div>
           </div>
           <p className="mb-3 text-[11px] text-[#8b949e]">문구를 직접 눌러 고칠 수 있습니다. 고친 내용은 프로젝트 저장 시 함께 저장됩니다.</p>

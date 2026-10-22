@@ -6,6 +6,7 @@ import { AGES, EMPTY_SET, ETHNICITIES, OPTS } from "@/lib/tmb/types";
 import { AUDIENCES } from "@/lib/tmb/audience";
 import { mainWarning } from "@/lib/tmb/strategy";
 import { DOC_MAX_CHARS, missingInputs } from "@/lib/tmb/validate";
+import { takeSeoDoc } from "@/lib/refHandoff";
 
 interface ApiErr { error?: string; needKey?: boolean }
 type Busy = Record<"strategy" | Opt, "" | "gen" | "edit">;
@@ -59,6 +60,14 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
   const aborts = useRef<AbortController[]>([]);
   const first = useRef(true);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // v1.11 「SEO 전략」에서 넘어온 새 프로젝트면 그 대본을 참고 문서로 붙임(✕로 뺄 수 있음)
+  useEffect(() => {
+    const seo = takeSeoDoc(projectId);
+    if (!seo) return;
+    setDoc({ name: seo.name, text: seo.text.slice(0, DOC_MAX_CHARS), truncated: seo.text.length > DOC_MAX_CHARS });
+    setNotice("「SEO 전략」 대본을 참고 문서로 붙였습니다. A/B 썸네일 문구를 만들 때 함께 읽습니다(필요 없으면 ✕).");
+  }, [projectId]);
 
   const set = <K extends keyof Inputs>(key: K, value: Inputs[K]) => setInputs((p) => ({ ...p, [key]: value }));
   const setSubject = (patch: Partial<Inputs["subject"]>) => setInputs((p) => ({ ...p, subject: { ...p.subject, ...patch } }));

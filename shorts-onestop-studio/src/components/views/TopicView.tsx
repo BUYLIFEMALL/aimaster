@@ -172,11 +172,11 @@ export function TopicView() {
                   {refBlocks(reference).length > 0 && (
                     <span className="row" style={{ gap: 6, flexWrap: "wrap", fontWeight: 500 }}>
                       {refBlocks(reference).map((b, i) => (
-                        <span key={i} className="badge brand" style={{ maxWidth: "100%", whiteSpace: "normal" }}>
+                        <span key={i} className="badge brand" style={{ maxWidth: "100%", whiteSpace: "normal", display: "inline-flex", alignItems: "flex-start", gap: 6, borderRadius: 10 }}>
                           <button type="button" className="link-button" title={`${b.source || "알 수 없음"} — 누르면 칸 안 이 레퍼런스로 이동`} style={{ whiteSpace: "normal", textAlign: "left" }} onClick={(e) => { e.preventDefault(); jumpToRef(b.start); }}>
                             🎬 출처 {shortSource(b.source || "알 수 없음")} · 대사 {b.chars.toLocaleString()}자
                           </button>
-                          <button type="button" className="link-button" style={{ whiteSpace: "nowrap" }} onClick={(e) => { e.preventDefault(); setReference((cur) => removeRefBlock(cur, i)); }}>✕ 빼기</button>
+                          <button type="button" className="link-button" style={{ whiteSpace: "nowrap", marginLeft: "auto" }} onClick={(e) => { e.preventDefault(); setReference((cur) => removeRefBlock(cur, i)); }}>✕ 빼기</button>
                         </span>
                       ))}
                     </span>
