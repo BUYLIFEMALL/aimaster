@@ -21,11 +21,17 @@ export interface Style {
   size: Size;
 }
 
+/** v1.12 참고 문서(올린 파일 또는 「SEO 전략」 대본) — 프로젝트와 함께 저장, A/B 문구를 만들 때 AI가 함께 읽음 */
+export interface RefDoc { name: string; text: string; truncated: boolean }
+
 export interface Inputs {
   topic: string;
   audience: Audience;
   subject: Subject;
   style: Style;
+  doc?: RefDoc;
+  /** v1.12 들어온 경로 표시(예: 「SEO 전략 A · 호기심 유발형」) */
+  origin?: string;
 }
 
 export interface OptionText { label: string; main: string; sub: string; styleHint: string }

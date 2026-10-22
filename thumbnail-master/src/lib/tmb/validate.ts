@@ -1,4 +1,4 @@
-import type { Audience, BorderStyle, Gender, Inputs, Opt, Size, Strategy, SubjectType } from "./types";
+import type { Audience, BorderStyle, Gender, Inputs, Opt, RefDoc, Size, Strategy, SubjectType } from "./types";
 import { AGES, EMPTY_INPUTS, ETHNICITIES } from "./types";
 import { normalizeStrategy } from "./strategy";
 
@@ -32,7 +32,17 @@ export function cleanInputs(raw: unknown): Inputs {
       withText: st.withText === false ? false : true,
       size: (st.size === "1K" ? "1K" : "2K") as Size,
     },
+    ...cleanRefDoc(r.doc),
+    ...(clean(r.origin, 60) ? { origin: clean(r.origin, 60) } : {}),
   };
+}
+
+/** v1.12 참고 문서: 글이 있을 때만 남기고 길이·제어 문자 정리 */
+function cleanRefDoc(raw: unknown): { doc?: RefDoc } {
+  const o = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const { text, truncated } = cleanDocText(o.text);
+  if (!text) return {};
+  return { doc: { name: clean(o.name, 80) || "참고 문서", text, truncated: truncated || o.truncated === true } };
 }
 
 export function missingInputs(i: Inputs): string | null {

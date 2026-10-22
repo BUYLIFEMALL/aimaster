@@ -121,3 +121,16 @@ test("stageOf·cleanName", () => {
   assert.equal(cleanName("  "), "제목 없는 썸네일");
   assert.equal(cleanName(" 파스타  썸네일 "), "파스타 썸네일");
 });
+
+test("v1.12 cleanInputs: 참고 문서·출처 표시를 지키고, 비거나 이상한 값은 버림", () => {
+  const i = cleanInputs({ topic: "주제", origin: "  SEO 전략 A ·  호기심 유발형 ", doc: { name: "원스톱 대본", text: "장면 1\n장면 2\u0001", truncated: false } });
+  assert.equal(i.origin, "SEO 전략 A · 호기심 유발형");
+  assert.deepEqual(i.doc, { name: "원스톱 대본", text: "장면 1\n장면 2", truncated: false });
+  const big = cleanInputs({ topic: "주제", doc: { text: "가".repeat(DOC_MAX_CHARS + 5) } });
+  assert.equal(big.doc.text.length, DOC_MAX_CHARS);
+  assert.equal(big.doc.truncated, true);
+  assert.equal(big.doc.name, "참고 문서");
+  const none = cleanInputs({ topic: "주제", doc: { text: "   " }, origin: 3 });
+  assert.equal("doc" in none, false);
+  assert.equal("origin" in none, false);
+});

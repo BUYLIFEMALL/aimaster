@@ -46,30 +46,3 @@ export function takeRefHandoff(hash: string): RefHandoff {
   }
   return { text: "", from: "" };
 }
-
-// v1.11 「SEO 전략」 대본 → 「썸네일 제작」 참고 문서(A/B 문구를 만들 때 AI가 함께 읽음) — 새 프로젝트 하나에만 1회 전달
-const DOC_KEY = (projectId: string) => `thumbnail-seo-doc:${projectId}`;
-
-export type SeoDoc = { name: string; text: string };
-
-export function stashSeoDoc(projectId: string, doc: SeoDoc): void {
-  if (!doc.text.trim()) return;
-  try {
-    sessionStorage.setItem(DOC_KEY(projectId), JSON.stringify(doc));
-  } catch {
-    /* 저장소를 못 쓰면 참고 문서 없이 진행 */
-  }
-}
-
-/** 썸네일 제작 화면: 이 프로젝트로 보관된 대본(꺼내면 지움) */
-export function takeSeoDoc(projectId: string): SeoDoc | null {
-  try {
-    const raw = sessionStorage.getItem(DOC_KEY(projectId));
-    if (!raw) return null;
-    sessionStorage.removeItem(DOC_KEY(projectId));
-    const v = JSON.parse(raw) as Partial<SeoDoc>;
-    return typeof v?.text === "string" && v.text.trim() ? { name: typeof v.name === "string" ? v.name : "SEO 전략 대본", text: v.text } : null;
-  } catch {
-    return null;
-  }
-}

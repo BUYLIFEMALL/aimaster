@@ -1,12 +1,11 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ClipboardCopy, Download, FileText, ImageIcon, Loader2, RefreshCw, Sparkles, Wand2, X } from "lucide-react";
-import type { Audience, BorderStyle, ImageSet, Inputs, Opt, ProjectDoc, Strategy, SubjectType } from "@/lib/tmb/types";
+import type { Audience, BorderStyle, ImageSet, Inputs, Opt, ProjectDoc, RefDoc, Strategy, SubjectType } from "@/lib/tmb/types";
 import { AGES, EMPTY_SET, ETHNICITIES, OPTS } from "@/lib/tmb/types";
 import { AUDIENCES } from "@/lib/tmb/audience";
 import { mainWarning } from "@/lib/tmb/strategy";
 import { DOC_MAX_CHARS, missingInputs } from "@/lib/tmb/validate";
-import { takeSeoDoc } from "@/lib/refHandoff";
 
 interface ApiErr { error?: string; needKey?: boolean }
 type Busy = Record<"strategy" | Opt, "" | "gen" | "edit">;
@@ -53,21 +52,19 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
   const [busy, setBusy] = useState<Busy>(IDLE);
   const [error, setError] = useState<{ text: string; needKey: boolean } | null>(null);
   const [notice, setNotice] = useState("");
-  const [doc, setDoc] = useState<{ name: string; text: string; truncated: boolean } | null>(null);
+  // v1.12 참고 문서는 inputs.doc에 두어 자동 저장(PUT)으로 프로젝트와 함께 저장 — 다시 열어도 그대로
+  const doc = inputs.doc ?? null;
+  const setDoc = (d: RefDoc | null) => setInputs((p) => {
+    const next = { ...p };
+    delete next.doc;
+    return d ? { ...next, doc: d } : next;
+  });
   const [edit, setEdit] = useState<Record<Opt, string>>({ a: "", b: "" });
   const [copied, setCopied] = useState("");
   const [saved, setSaved] = useState<"saved" | "saving" | "error">("saved");
   const aborts = useRef<AbortController[]>([]);
   const first = useRef(true);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  // v1.11 「SEO 전략」에서 넘어온 새 프로젝트면 그 대본을 참고 문서로 붙임(✕로 뺄 수 있음)
-  useEffect(() => {
-    const seo = takeSeoDoc(projectId);
-    if (!seo) return;
-    setDoc({ name: seo.name, text: seo.text.slice(0, DOC_MAX_CHARS), truncated: seo.text.length > DOC_MAX_CHARS });
-    setNotice("「SEO 전략」 대본을 참고 문서로 붙였습니다. A/B 썸네일 문구를 만들 때 함께 읽습니다(필요 없으면 ✕).");
-  }, [projectId]);
 
   const set = <K extends keyof Inputs>(key: K, value: Inputs[K]) => setInputs((p) => ({ ...p, [key]: value }));
   const setSubject = (patch: Partial<Inputs["subject"]>) => setInputs((p) => ({ ...p, subject: { ...p.subject, ...patch } }));
@@ -193,6 +190,7 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
 
       <section className="card tm-step" id="topic">
         <h2><span className="gd-num">1</span> 주제 · 피사체</h2>
+        {inputs.origin && <p className="eyebrow" style={{ marginTop: -4 }}>🔗 {inputs.origin}에서 시작한 프로젝트</p>}
         <label className="tm-field">영상 주제 또는 요청사항
           <textarea rows={3} value={inputs.topic} maxLength={600} onChange={(e) => set("topic", e.target.value)} placeholder="예: 집에서 만드는 초간단 알리오올리오 파스타 레시피" />
         </label>

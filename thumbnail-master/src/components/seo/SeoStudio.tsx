@@ -4,7 +4,7 @@
 // AI 호출은 서버(/api/seo/strategy)에서 회원 본인 Gemini 키로 한다 — 키를 브라우저로 받지 않는다.
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { stashSeoDoc, takeRefHandoff } from "@/lib/refHandoff";
+import { takeRefHandoff } from "@/lib/refHandoff";
 import { Copy, Check, Sparkles, FileUp, ImagePlus } from "lucide-react";
 
 interface SeoStrategy {
@@ -118,12 +118,18 @@ export function SeoStudio() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: s.title.slice(0, 60), inputs: { topic } }),
+        // v1.12 대본(장면 제목 포함)을 참고 문서로, 고른 전략을 출처 표시로 함께 저장 — 프로젝트를 다시 열어도 그대로
+        body: JSON.stringify({
+          name: s.title.slice(0, 60),
+          inputs: {
+            topic,
+            origin: `SEO 전략 ${String.fromCharCode(65 + i)} · ${s.strategy}`,
+            doc: { name: handoffFrom ? `${handoffFrom} 대본` : "SEO 전략 대본", text: script, truncated: false },
+          },
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.project?.id) throw new Error(data.error || "프로젝트를 만들지 못했습니다.");
-      // v1.11 이 대본(장면 제목 포함)을 새 프로젝트의 참고 문서로 — A/B 썸네일 문구를 만들 때 함께 읽음
-      stashSeoDoc(data.project.id, { name: handoffFrom ? `${handoffFrom} 대본` : "SEO 전략 대본", text: script });
       router.push(`/project/${data.project.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "프로젝트를 만들지 못했습니다.");
