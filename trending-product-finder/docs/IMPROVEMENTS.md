@@ -32,3 +32,6 @@
 - ✅ 소싱 결과·⭐ 관심 상품 → AI 상세페이지 자동화(`shop-detail-page` v1.19) 새 상품 화면으로 바로 연결(「📄 상세페이지」, 새 창). 상품명·원본 판매처·원본 링크만 넘기고 도매가·사진은 넘기지 않음. 소싱 결과 한 줄은 좁은 화면에서 버튼이 다음 줄로 내려가게(`flex-wrap`).
 - ✅ (같은 v1.23 추가) 마진 계산기의 추천판매가를 선택적으로 상세페이지 「정상가」로 넘김(체크칸, 기본 켜짐). 할인가로는 넘기지 않음.
 
+## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
+- 생성 데이터 30일 정리(`cleanup-generated`)가 지운 행의 user_id로 회원별 `cleanup_expired`(reports·snapshots·competition) 기록 — 공용 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
+- 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.

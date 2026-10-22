@@ -68,3 +68,7 @@ F-004: 네이버 검색/트렌드 캐시 회원 간 공유 — 제안·미수정
 - [낮음·로직] 상세페이지에서 가져온 이미지(`post-images/<회원id>/from-shop-detail/`)는 글을 저장하지 않으면 30일 정리(`api/cron/cleanup-media`, `tap_posts` 기준)에 잡히지 않는다. 원본 1장당 1개라 늘지는 않지만, 정리 작업에 「`from-shop-detail/` 폴더 30일 지난 파일」을 더하는 것을 검토.
 - [연계] 같은 방식으로 INSTA 포스팅 자동화(`auto-instagram-posting`)에도 받는 화면을 만들 수 있다 — 그쪽은 주소로 값을 받는 화면부터 필요(상세페이지 S-22-10 2단계). → 2026-10-22 INSTA v1.53으로 구현(배포 대기).
 - **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+
+## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
+- 글 30일 정리(`cleanup-media`)가 회원별 `usage_logs` `cleanup_expired`(posts=지운 글, images=첨부 파일) 기록 — 공용 `cleanup-usage-log` 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
+- 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
