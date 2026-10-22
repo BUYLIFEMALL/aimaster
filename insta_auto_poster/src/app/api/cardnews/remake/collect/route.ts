@@ -47,7 +47,8 @@ async function viaApify(token: string, kind: CollectKind, q: string): Promise<Co
   const actor = kind === "account" ? APIFY_ACCOUNT_ACTOR : APIFY_HASHTAG_ACTOR;
   const input = kind === "account"
     ? { directUrls: [`https://www.instagram.com/${q}/`], resultsType: "posts", resultsLimit: COLLECT_FETCH, addParentData: false }
-    : { hashtags: [q], resultsType: "posts", resultsLimit: COLLECT_FETCH };
+    // v1.53: 키워드 검색을 켜야 한글 해시태그가 나오고(끄면 #재테크 no_items) 최신 글 대신 반응 좋은 글이 온다(2026-10-22 실측)
+    : { hashtags: [q], keywordSearch: true, resultsType: "posts", resultsLimit: COLLECT_FETCH };
   let res: Response;
   try {
     res = await fetch(`https://api.apify.com/v2/acts/${actor}/run-sync-get-dataset-items?timeout=180`, {
