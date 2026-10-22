@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-23 — 다른 CLI가 공용 스테이징에 파일을 올려 둔 채일 때 「임시 스테이징 공간」으로 내 파일만 커밋하면, 공용 스테이징에 남은 내 경로(특히 docs/HANDOFF.md)가 옛 내용이라 다음 커밋이 내 변경을 지운다 (Claude Code 윈도우)
+- 증상: `GIT_INDEX_FILE=임시파일`로 read-tree HEAD → 내 파일만 add → write-tree/commit-tree/update-ref로 커밋한 뒤, 공용 스테이징에 `docs/HANDOFF.md`가 「내 항목 5줄 삭제」로 올라가 있었다(공용 스테이징은 커밋 전 HEAD 내용을 들고 있음).
+- 해결: 커밋 직후 **내가 커밋한 모든 경로**(프로그램 폴더 + docs/HANDOFF.md 등 공용 문서)를 `git reset -q -- <경로>`로 새 HEAD에 맞춘다. 단, 그 경로에 다른 CLI가 올려 둔 변경이 없는지(`git diff --cached -- <경로>`가 내 변경의 반대뿐인지) 먼저 확인한다.
+- 다음부터: 공용 스테이징이 비어 있으면 평소대로(add → commit). 다른 CLI 파일이 남아 있을 때만 임시 스테이징을 쓰고, 끝나면 `git diff --cached --name-only`로 내 경로가 남지 않았는지 확인한다. `bad sha1 file: .git/objects/…/.smbdelete…` 경고는 공유 폴더(SMB) 임시 파일 때문이며 커밋·푸시에는 영향이 없었다.
+
 ## 2026-10-22 — 다른 형식(WebP·PNG)을 저장하게 바꿨는데 Storage 버킷 `allowed_mime_types`가 JPEG만 허용해 업로드가 500으로 실패 (four-cut-comics v1.34, Claude Code 윈도우)
 - 증상: 변환 스튜디오 → 4컷 「다시 저장」이 「보관함에 저장하지 못했습니다」. 인물사진·바나나 버킷은 형식 제한이 없어 같은 기능이 됐는데 4컷만 실패.
 - 원인: `four-cut-comics-files` 버킷을 만들 때 `allowed_mime_types = ['image/jpeg','application/json']`(마이그레이션 0006) — 코드가 아니라 저장소 설정이 거절.
