@@ -106,7 +106,7 @@ function Card({ icon, title, hint, needsImage, locked, children, id }: { icon: s
   );
 }
 
-export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; fromIndex?: number; importUrl?: string }) {
+export function Studio({ fromId, fromIndex, importUrl, initialIdea }: { fromId?: string; fromIndex?: number; importUrl?: string; initialIdea?: string }) {
   const [model, setModel] = useState<ModelLevel>("flash");
   const [base, setBase] = useState<Img | null>(null);
   const [sources, setSources] = useState<Img[]>([]);
@@ -118,7 +118,7 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
   const [over, setOver] = useState(false);
 
   // 이미지 생성
-  const [idea, setIdea] = useState("");
+  const [idea, setIdea] = useState(initialIdea ?? "");
   const [category, setCategory] = useState("default");
   const [genAspect, setGenAspect] = useState<Aspect>("1:1");
   // 편집
@@ -373,6 +373,8 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
 
           <Card id="card-generate" icon="✨" title="이미지 생성" hint="아이디어만 입력하면 새 이미지를 만듭니다. 원본 이미지가 없어도 됩니다.">
             <textarea rows={3} value={idea} maxLength={600} onChange={(e) => setIdea(e.target.value)} placeholder="예: 우주를 나는 고양이" disabled={disabled} aria-label="이미지 아이디어" />
+            {/* v1.24: 다른 프로그램이 보낸 아이디어 — 채우기만 하고 자동 생성은 하지 않음 */}
+            {initialIdea && idea === initialIdea && <p className="bc-hint" data-idea-from-link>다른 프로그램에서 보낸 아이디어를 채웠습니다. 확인한 뒤 [이미지 생성]을 눌러 주세요.</p>}
             <div className="bc-row2">
               <label className="bc-field">카테고리
                 <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={disabled}>

@@ -194,3 +194,6 @@
 - 원본↔완성 비교(`Compare`)에서 그림 위를 직접 누르거나 끌면 선이 그 자리로 옴(pointer capture, 손가락 가능, `.bc-compare` 커서 ew-resize·touch-action none). 기존 슬라이더 막대(키보드)는 그대로. 위치 계산은 새 공용 기준 코드 `compare-slider` 사본 `src/lib/bnc/compare.ts`(기준 `style-dna-analyzer/src/lib/dna/compare.ts`).
 - 함께 나감: 보류였던 post-presets 사본 교체(형식 바꾸기 규격 고르기, 동작 같음).
 - 시험 33개·tsc·build 통과, 배포 `banana-canvas-gkvishjrs` Ready, DB v1.23. 크롬: 운영 v1.23, 운영 CSS·스크립트에 끌기 코드 포함 확인. **비교 화면 자체는 실제 결과가 있어야 보여 화면 끌기 확인은 미완료** — 다음에 결과가 있을 때 확인.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — `/studio?idea=` 받기 (다음 배포 때 v1.24, compare-slider 사본 추가분과 함께)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 다른 프로그램(이미지 스타일 분석기 추세 회차 등)이 `/studio?idea=`로 보낸 글을 「이미지 생성」 아이디어 칸에 채움(앞뒤 공백 정리·600자 자름·글이 아니면 버림, **자동 생성 없음**), 채웠으면 칸 아래 「다른 프로그램에서 보낸 아이디어를 채웠습니다」 안내. `src/lib/bnc/ideaParam.ts`(`cleanIdeaParam`), 시험 `tests/ideaParam.test.mjs`(2개, 전체 35개)·tsc·build 통과.
