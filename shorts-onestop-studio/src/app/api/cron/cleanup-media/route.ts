@@ -21,6 +21,8 @@ export async function GET(request: Request) {
   const store = createAdminClient().storage.from(BUCKET);
   const now = Date.now();
   const removed: Record<string, number> = { image: 0, voice: 0, video: 0 };
+  // v1.37 회원별 지운 개수 → usage_logs cleanup_expired(메인 관리자 「30일 자동 정리」 표, docs/PLATFORM_PATTERNS.md §35)
+  const byOwner: Record<string, { images: number; voices: number; videos: number }> = {};
   for (let offset = 0; ; offset += 1000) {
     const { data: folders, error } = await store.list("", { limit: 1000, offset });
     if (error) return json({ error: error.message }, 500);
@@ -35,11 +37,30 @@ export async function GET(request: Request) {
           const stale = files.filter((x) => x.created_at && now - new Date(x.created_at).getTime() > TTL_MS).map((x) => `${dir}/${x.name}`);
           for (let i = 0; i < stale.length; i += 100) await store.remove(stale.slice(i, i + 100));
           removed[sub || "image"] += stale.length;
+          if (stale.length) {
+            const c = (byOwner[f.name] ??= { images: 0, voices: 0, videos: 0 });
+            c[sub === "voice" ? "voices" : sub === "video" ? "videos" : "images"] += stale.length;
+          }
           if (stale.length < 1000) break;
         }
       }
     }
     if ((folders?.length ?? 0) < 1000) break;
   }
-  return json({ ok: true, removed });
+  let loggedOwners = 0;
+  const owners = Object.entries(byOwner);
+  if (owners.length) {
+    const admin = createAdminClient();
+    const { data: program } = await admin.from("programs").select("id").eq("slug", "shorts-onestop-studio").maybeSingle();
+    if (program) {
+      for (const [userId, c] of owners) {
+        const { error: logErr } = await admin.from("usage_logs").insert({
+          user_id: userId, program_id: program.id, action: "cleanup_expired",
+          quantity: c.images + c.voices + c.videos, credits_used: 0, metadata: { ...c },
+        });
+        if (!logErr) loggedOwners += 1;
+      }
+    }
+  }
+  return json({ ok: true, removed, loggedOwners });
 }
