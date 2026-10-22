@@ -172,3 +172,7 @@
 ## 2026-10-22 메인 관리자 — Shots 30일 정리 합계 한 줄 (Claude Code 윈도우, 메인 사이트 변경·shots 버전 변경 없음)
 - `app/api/admin/system-usage/route.ts` `shotsCleanupLast30d` — 최근 30일 `usage_logs`(program `auto-shorts-posting`, action `cleanup_expired`)의 영상·음성·표지·이미지·장면 합계와 마지막 시각 → 응답 `shotsCleanup`. `components/admin/SystemUsageMonitor.tsx` 「DB·저장소」 탭 테이블 카드 위에 「YOUTUBE Shots 30일 정리(최근 30일) — 영상 n · 음성 n · 표지 n · 이미지 n개 삭제」(기록 없으면 「아직 정리 기록이 없습니다」).
 - 커밋 `945f1c2c8`, 메인 사이트 푸시 자동 빌드 `aimaster-vldq0j21b Ready`. 크롬(관리자): 시험 회원 로그인 상태라 /admin → /dashboard, API 403(관리자 보호 정상). 관리자 화면 표시는 미확인 — 정리 기록이 생긴 뒤(2026-10-23 03:30 KST 이후) 관리자 로그인으로 「DB·저장소」 탭 숫자 확인 필요.
+
+## 2026-10-22 메인 관리자 — 30일 정리 「프로그램별 표」로 확대 (Claude Code 윈도우, shots 버전 변경 없음)
+- 위 「Shots 30일 정리 합계 한 줄」을 바꿈: `app/api/admin/system-usage/route.ts` `cleanupByProgram`(최근 30일 `usage_logs` action `cleanup_expired`를 프로그램별로 — metadata 숫자는 이름별 합산, 배열은 개수) → 응답 `cleanupByProgram`(예전 `shotsCleanup` 없앰). `components/admin/SystemUsageMonitor.tsx` 「Supabase DB & 미디어 파일 용량」 탭 「30일 자동 정리」 표(프로그램·지운 항목·회원·마지막 정리), 칸 이름 한국어 `CLEANUP_LABEL`.
+- 커밋 `66f7d5bd8`, 메인 사이트 자동 빌드 `aimaster-gnthv9lv0` Ready. 크롬(관리자, 배포 전에 로그인 요청): API 200·새 칸 있음·예전 칸 없음, 카드 「아직 정리 기록이 없습니다」 표시. 표 줄은 기록이 생긴 뒤(Shots 2026-10-23 03:30 KST, 썸네일 2026-11-12 무렵) 확인 필요.

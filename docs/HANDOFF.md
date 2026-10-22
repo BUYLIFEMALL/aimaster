@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ 티스토리 포스팅 자동화 v1.87 글감 출처 + 모아 둔 수정 4가지 (빌드 1회 · AI 본문 1회+이미지 1장 · DB 칸 1개 추가)
+- 글감 → 글쓰기 → 글 저장까지 원본 주소·모은 날·만료일(출처)이 이어지고 글 보기 화면에 표시(티스토리 본문에는 넣지 않음). `tistory_posts.source` 칸 추가(운영 적용). 미배포로 모아 두었던 RSS 안전 해석·글 생성 150초 제한·시험 연결·문서 안내도 함께 배포.
+- 시험 166·tsc 통과, 배포 Ready, DB/확장/ZIP v1.87 OK, 웨일 실검수(글 17번 생성·출처 저장·표시) 완료. 상세: `tistory-auto-blog/AGENTS.md` 맨 위.
+- 프로그램: https://tistory-auto-blog.buylife.xyz
+
+## 2026-10-22 Claude Code(윈도우) — 메인 관리자: 30일 자동 정리 「프로그램별 표」 (메인 사이트 자동 빌드 1회)
+- 시스템 사용량 「DB & 미디어」 탭에 `usage_logs` `cleanup_expired` 최근 30일 프로그램별 표(Shots v1.37·썸네일 v1.19 기록). 다른 세션의 `app/admin/statistics`와 다른 파일. 상세 `shots/AGENTS.md` 메인 관리자 항목.
+- 프로그램: https://www.buylife.xyz/admin
+
 ## 2026-10-22 — Claude Code(맥미니): ✅ 상세페이지 여러 장 순서 화면 확인 (코드 변경 없음, 비용 없음)
 - 시험 상품 2장으로 순서 바꾸기 → 섹션 ZIP 번호·세로 롱 이미지 순서 반영 확인 → 원래 순서로 복구. 상세 `shop-detail-page/AGENTS.md` 맨 아래. 링크: https://shop-detail-page.buylife.xyz
 
