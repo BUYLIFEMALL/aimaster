@@ -103,7 +103,7 @@ export function useStudio() {
     const syncMenuFromHash = () => {
       // 이전에 공유된 #new-draft#new-draft 같은 중복 해시도 지원한다.
       const hashParts = window.location.hash.slice(1).split("#");
-      const menu = hashParts.find((part) => ["dashboard", "title", "new-draft", "draft", "history"].includes(part));
+      const menu = hashParts.find((part) => ["dashboard", "title", "new-draft", "research", "draft", "history"].includes(part));
       setActiveMenu(menu ?? "dashboard");
     };
 
@@ -364,7 +364,7 @@ export function useStudio() {
     setExperienceNote((note) => `${note.trim() ? `${note.trim()}\n` : ""}- ${question} → `);
   }
 
-  async function prepareDraft(overrides?: { topic: string; keywords: string; selectedTitle: string; sourceContext?: string }) {
+  async function prepareDraft(overrides?: { topic: string; keywords: string; selectedTitle: string; sourceContext?: string; researchId?: string }) {
     const draftTopic = overrides?.topic ?? topic;
     const draftKeywords = overrides?.keywords ?? keywords;
     const draftTitle = overrides?.selectedTitle ?? selectedTitle;
@@ -375,7 +375,7 @@ export function useStudio() {
     setPending(true);
     setMessage("AI가 블로그(원문)을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
-      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel, experienceNote, naturalStyle, includeFaq }) });
+      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel, experienceNote, naturalStyle, includeFaq, researchId: overrides?.researchId }) });
       const result = await response.json() as { draft?: { id: string; title: string; body: string; seo_report?: Record<string, string> | null; created_at?: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "블로그(원문) 생성에 실패했습니다.");
       const draft = result.draft;

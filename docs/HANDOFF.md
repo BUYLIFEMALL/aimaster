@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — SEO 블로그 스튜디오 v1.84: BLC-08a 자료부터 집필 (빌드 1회, DB 새 표 1개)
+- BLC-08a v1.84 운영 완료(2026-10-22 Claude Code 윈도우, 웨일 — Codex 크레딧 제한으로 주인님 지시 이어받음): 새 메뉴 「🧾 자료부터 집필」 — ① 자료 모으기(검색어 → 네이버 블로그 상위 5건 본문+뉴스 5건, 회원 본인 `naver_client_id/secret` 공용 키 / 직접 공개 URL 3개·메모, AI 없음) ② 근거 정리(회원 AI 키 1회, 인용이 해당 자료 원문에 있고 원문 25자 연속 복사가 아닌 것만 남김 — 작업실 `quoteInText`·`copiesSource` 사본 `lib/grounding.ts`) ③ 남길 근거 승인(서버 `approve` API가 승인 시각·지문 기록, 작업실의 브라우저 저장 방식 약점 보강) ④ 이 근거로 글 만들기(생성 API `researchId`일 때만 승인·지문 재확인 후 남긴 근거만 프롬프트에, 원고 `seo_report.grounding`에 기록, 원고 화면 「사용한 근거」 카드). **researchId가 없으면 기존 경로 그대로**(7번 규칙 문장 v1.83과 동일함을 시험으로 고정), 기존 글 최적화 경로 불변(`drafts/extract`의 공개 주소 검사는 `lib/safeFetch.ts`로 위치만 이동). DB: 새 표 `naver_blog_seo_research`(RLS 본인 4개, 30일 정리·일일 크론 포함 — 운영 SQL 편집기로 적용, 공개 키 삽입 42501 거절 확인). 시험 68/68(새 `test:grounding` 4)·tsc·빌드. 배포 `dpl_9z4q4XxymvkXvfLrQtGwY3eEF5Vo` Ready·DB/확장/ZIP v1.84(확장 코드 변경 없음). 실제(시험 계정, 웨일): 위키백과 URL+메모 자료 2건 → gpt-4o-mini 근거 정리(후보 12 중 7 남김·5 자동 제외) → 5개만 승인 → 글 생성(공백 제외 2,217자, 근거 5개·지문 기록, 근거 밖 연도 0) → 「사용한 근거 5개」 카드·출처 링크 표시. 기존 URL 가져오기 200·내부 주소 400 확인. 미시험: 네이버 검색 수집 경로(시험 계정에 네이버 검색 키 없음), 승인 뒤 변조 거절은 단위 시험으로만. 다음: BLC-08b 본인 문체.
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 v1.21 배포 + v1.22 내려받기 한글 이름 수정 (맥미니 v1.21 마무리)
 - v1.21(긴 PNG 서명 주소 내려받기·섹션별 860px ZIP): DB 버전 → 배포 READY → 크롬(시험 계정) PNG 860px·ZIP `01_프로모션_배너.jpg` 확인.
 - **발견·수정 v1.22**: 받은 파일 이름이 `%EC%8B%9C…`로 깨짐(storage-js가 `download` 이름을 두 번 인코딩). `lib/exportDownload.ts`에서 이름을 한 번만 인코딩해 직접 붙임 → 배포 READY·DB v1.22·크롬에서 한글 이름 저장 확인. 교훈: `docs/ERROR_LESSONS.md` 맨 위.

@@ -4,6 +4,7 @@ import { generateContentJson } from "./contentJson";
 import { openAIErrorReason, openAIGenerationParams } from "./openaiRequestParams";
 import { getExplicitYears, getKoreaToday } from "./freshness";
 import type { SeoPersona } from "./personas";
+import { factRule, groundingSection, type DraftGrounding } from "./groundingPrompt";
 
 export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
 
@@ -59,7 +60,8 @@ function normalizeSeoReport(report: Partial<Record<string, unknown>> | undefined
 
 type OpenAiMessage = { role: "system" | "user"; content: string };
 
-async function requestDraftJson(apiKey: string, provider: ContentProvider, model: string, messages: OpenAiMessage[]) {
+// BLC-08a: 근거 정리(app/api/research/[id]/analyze)도 같은 3사 호출을 쓴다.
+export async function requestDraftJson(apiKey: string, provider: ContentProvider, model: string, messages: OpenAiMessage[]) {
   if (provider !== "openai") {
     const system = messages.find((message) => message.role === "system")?.content ?? "";
     const user = messages.find((message) => message.role === "user")?.content ?? "";
@@ -77,7 +79,7 @@ async function requestDraftJson(apiKey: string, provider: ContentProvider, model
   return JSON.parse(raw) as Partial<SeoDraft>;
 }
 
-export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions }): Promise<SeoDraft> {
+export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions; grounding?: DraftGrounding }): Promise<SeoDraft> {
   if (!/^[\x00-\xFF]*$/.test(params.apiKey)) throw new Error("등록된 OpenAI API 키 형식이 올바르지 않습니다.");
   const today = getKoreaToday();
   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];
@@ -94,10 +96,10 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
 4. 독자가 실제로 실행할 수 있도록 업무 흐름, 선택 기준, 흔한 실수, 점검 방법을 포함합니다. 주제에 맞는 경우에만 최소 2개의 목록형 문단(• 기호)을 사용합니다. 확인되지 않은 실제 기업명·수치·경험담은 만들지 않습니다.
 5. 핵심 키워드는 제목과 도입부, 관련 소제목에 자연스럽게 반영하며 억지 반복·키워드 나열·해시태그는 금지합니다.
 6. 확인되지 않은 수치, 출처, 체험담을 만들지 말고 필요한 곳은 [확인 필요]라고 표시합니다. AI 탐지 회피를 약속하거나 자동 발행을 유도하지 않습니다.
-7. 실시간 검색·뉴스·공식 자료가 제공되지 않았으므로 최신 수치, 정책, 순위, 연도별 사실을 지어내지 마세요. 사용자가 직접 제시한 연도(${explicitYears.join(", ") || "없음"}) 외의 연도는 제목과 본문에 쓰지 마세요. 최신성 검증이 필요한 내용은 [확인 필요]로 표시합니다.${buildOptionRules(params.options, params.strategy)}
+${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptionRules(params.options, params.strategy)}
 
 제목과 본문은 JSON으로만 응답하세요. 형식: {"title":"...","body":"...","seoReport":{"searchIntent":"...","strength":"...","factCheck":"..."}}` },
-        { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n페르소나: ${params.persona.name}${experienceSection(params.options)}${params.sourceContext ? `\n\n기존 글에서 확인한 핵심 내용(새 글의 관점과 구조를 잡는 참고 자료이며 문장을 복제하지 마세요):\n${params.sourceContext}` : ""}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },
+        { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n페르소나: ${params.persona.name}${experienceSection(params.options)}${params.sourceContext ? `\n\n기존 글에서 확인한 핵심 내용(새 글의 관점과 구조를 잡는 참고 자료이며 문장을 복제하지 마세요):\n${params.sourceContext}` : ""}${groundingSection(params.grounding)}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },
   ];
   let parsed = await requestDraftJson(params.apiKey, params.provider, model, messages);
   if (!parsed.title || !parsed.body) throw new Error("AI가 제목과 본문을 모두 반환하지 않았습니다.");
@@ -109,7 +111,7 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
     const shortage = 2_300 - compactLength;
     const expanded = await requestDraftJson(params.apiKey, params.provider, model, [
       { role: "system", content: "당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 2,000~3,500자의 자연스러운 완성형 본문으로 확장하고, 4개 소제목과 각 소제목 아래 2개 이상의 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}" },
-      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 2,300자 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 1~2개씩 더합니다.` },
+      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}${groundingSection(params.grounding)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 2,300자 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 1~2개씩 더합니다.` },
     ]);
     if (!expanded.body) throw new Error("AI가 보강 본문을 반환하지 않았습니다.");
     const expandedBody = normalizeBlogText(expanded.body);

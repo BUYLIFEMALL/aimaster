@@ -58,16 +58,26 @@ export async function purgeExpiredTitleRecommendations(supabase: SupabaseClient,
   return { deleted: deleteError ? 0 : expired.length, error: deleteError };
 }
 
+// BLC-08a (2026-10-22): 「자료부터 집필」 자료·근거도 만든 날 기준 30일 뒤 삭제한다.
+export async function purgeExpiredResearch(supabase: SupabaseClient, userId?: string) {
+  let query = supabase.from("naver_blog_seo_research").delete().lt("created_at", getRetentionCutoff());
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query.select("id");
+  return { deleted: error ? 0 : data?.length ?? 0, error };
+}
+
 export async function purgeExpiredSeoStudioData(supabase: SupabaseClient, userId?: string) {
-  const [drafts, titleRecommendations] = await Promise.all([
+  const [drafts, titleRecommendations, research] = await Promise.all([
     purgeExpiredDrafts(supabase, userId),
     purgeExpiredTitleRecommendations(supabase, userId),
+    purgeExpiredResearch(supabase, userId),
   ]);
   return {
-    deleted: drafts.deleted + titleRecommendations.deleted,
+    deleted: drafts.deleted + titleRecommendations.deleted + research.deleted,
     draftsDeleted: drafts.deleted,
     titleRecommendationsDeleted: titleRecommendations.deleted,
-    error: drafts.error ?? titleRecommendations.error,
+    researchDeleted: research.deleted,
+    error: drafts.error ?? titleRecommendations.error ?? research.error,
   };
 }
 
