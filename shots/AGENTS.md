@@ -145,3 +145,12 @@
 - 원인: 공용 `Input`·`Textarea`가 `clsx`로 기본 `text-neutral-900`을 붙이고 화면에서 넘긴 다크 색은 뒤에 이어 붙일 뿐이라(클래스 병합 아님) CSS 순서상 다크 색이 지는 경우가 있었음 → 덮어쓰는 쪽에 Tailwind v4 우선 표기 `text-[#f1f1f1]!` 등 사용(빌드 CSS `color:#f1f1f1!important` 확인). 공용 컴포넌트 자체는 흰 카드에서도 쓰이므로 그대로 둠.
 - v1.33에서 다크로 바꾼 선택칸 중 흰 카드 안 2곳(`ScriptEditor` 이미지 전체 생성, `PostingSection` 카테고리)은 흰 카드 색으로 되돌림. 매뉴얼의 빨강·초록 강조와 주제 목록 「영상스크립트 보기」 빨간 배지는 디자인 의도라 그대로.
 - 검수: tsc·build, 배포 Ready(`shots-cglzg2fmx`, 빌드 1회 — 주인님 승인), DB v1.34, 라이브 재검사 8개 화면 통과(디자인 강조 2개 제외), 장면 카드 화면 캡처 확인. 비용: 빌드 1회 외 없음.
+
+## 2026-10-22 v1.35 — 릴스 표지 이미지(cover_url) (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_REEL_COVER.md`(주인님 승인). 출처: 아이디어 `IDEA-THUMB-REELS-01`(AI 썸네일·SEO 자동화 v1.13 세로 9:16 JPG를 릴스 표지로).
+- `src/lib/instagram/reelCover.ts`(경로 `<회원>/covers/<영상>.jpg`·JPG·8MB 확인·9:16 안내, 버킷 `shorts-images`), `src/lib/actions/reelCover.ts`(일회용 업로드 주소·확인·삭제, `findReelCoverUrl`), `src/components/candidates/ReelCoverPicker.tsx`(인스타 칸 「표지 이미지 (JPG, 선택)」), `client.ts` `createReelContainer`·`publishInstagramReel`에 `coverUrl` → `cover_url`, `postToInstagramAction`이 표지를 찾아 함께 보냄(없으면 예전 그대로 첫 화면). 30일 정리에 표지 포함(`updated_at` 기준). DB·버킷 설정 변경 없음.
+- 시험 파일 `tests/reelCover.test.mjs`(이 프로그램 첫 시험, `node --test tests/reelCover.test.mjs`).
+- 검수: tsc·build·시험 통과, 커밋 `c7e442fe7`, 배포 `shots-b2mhjafyw` Ready, DB v1.35, 정리 경로 비밀값 없이 401. 저장소 실제 시험(시험 회원 폴더, 액션과 같은 순서): 썸네일 세로 JPG(219KB) 일회용 주소 업로드 2회(덮어쓰기) 성공, 목록 `image/jpeg`, 공개 주소 200, 삭제 후 열리지 않음.
+- 못 한 것: 시험 회원 shots에 **인스타그램이 연결돼 있지 않아** 표지 칸(연동중 영역 안)을 화면으로 보지 못함. 실제 릴스 게시(외부 공개)도 안 함 — 회원이 표지를 넣고 게시할 때 인스타에서 표지 반영 확인 필요.
+- 비용: 빌드 1회, AI 0회.
+- `browser-mp4-encoder` 사본(2026-10-21 반영)은 v1.33부터 배포에 포함됨(`docs/SHARED_MODULES.md` 갱신).

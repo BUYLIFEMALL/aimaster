@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — YOUTUBE Shots v1.35: 릴스 표지 이미지(cover_url) (빌드 1회, AI 0회)
+- 인스타 칸에 「표지 이미지 (JPG, 선택)」 — AI 썸네일·SEO 자동화의 세로 9:16 JPG를 올리면 릴스 `cover_url`로 함께 보냄. 저장 `shorts-images/<회원>/covers/<영상>.jpg`(DB·버킷 설정 변경 없음), 30일 정리 포함. 저장소 실제 시험 통과, 시험 회원 인스타 미연결이라 화면·실제 게시는 미확인. 상세 `shots/AGENTS.md` v1.35.
+- 프로그램: https://shots.buylife.xyz
+
 ## 2026-10-22 — Claude Code(맥미니): 상세페이지 GIF 자동화 v1.13 끌어서 고르는 구간 막대·장면 미리보기 (배포 대기)
 - 구간 숫자 칸 아래 막대·손잡이 2개(끌기·키보드)와 「장면 보기」(끄는 시점 장면, 구간 반복 재생). 숫자 칸과 같은 값을 써서 서로 따라감. 서버·DB·AI·변환 엔진 변경 없음. 계산 시험 12가지 통과, tsc 0, eslint 0.
 - **윈도우 CLI 다음 첫 단계**: SQL `video-to-gif/supabase/migrations/20261022_trim_bar_v1_13.sql`(버전만) → `video-to-gif` 배포 1회 → `video-to-gif/AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.

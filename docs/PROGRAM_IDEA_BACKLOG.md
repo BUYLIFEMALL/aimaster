@@ -331,4 +331,4 @@
 ## 2026-10-22 썸네일 세로 표지 → 릴스 표지(cover_url) (Claude Code 윈도우)
 | ID | 개발·유지보수 | 디자인 | 신규 자동화 시스템 | 안정성 / 현재 적용 / 편의 | 처리 |
 |---|---|---|---|---|---|
-| IDEA-THUMB-REELS-01 | `shots` 릴스 게시(`src/lib/instagram/client.ts` `createReelContainer`, 지금 `video_url`만)에 `cover_url` 추가. 회원이 썸네일에서 받은 세로 JPG를 shots에 올리면 회원 본인 저장 경로의 공개 주소로 보냄(프로그램끼리 직접 호출 없음) | 릴스 게시 칸에 「표지 이미지(JPG, 선택)」 | 단순 연계(새 시스템 아님) | 안정성: 높음 — Meta 공식 문서 확인(2026-10-22: `cover_url` JPEG·8MB·9:16 권장·공개 주소, `thumb_offset`보다 우선) / 적용: 썸네일 v1.13 세로 JPG와 맞음 / 편의: 보통 | 🔎 검토 대기 — 다음: shots 게시 흐름·저장소(공개 주소) 조사 후 플랜 |
+| IDEA-THUMB-REELS-01 | `shots` 릴스 게시(`src/lib/instagram/client.ts` `createReelContainer`, 지금 `video_url`만)에 `cover_url` 추가. 회원이 썸네일에서 받은 세로 JPG를 shots에 올리면 회원 본인 저장 경로의 공개 주소로 보냄(프로그램끼리 직접 호출 없음) | 릴스 게시 칸에 「표지 이미지(JPG, 선택)」 | 단순 연계(새 시스템 아님) | 안정성: 높음 — Meta 공식 문서 확인(2026-10-22: `cover_url` JPEG·8MB·9:16 권장·공개 주소, `thumb_offset`보다 우선) / 적용: 썸네일 v1.13 세로 JPG와 맞음 / 편의: 보통 | ✅ 적용(2026-10-22 shots v1.35) — 인스타 칸 「표지 이미지 (JPG, 선택)」 → `cover_url`, 저장 `shorts-images/<회원>/covers/<영상>.jpg`, 30일 정리 포함. 저장소 실제 시험 통과. 남은 확인: 인스타 연결 계정 화면·실제 게시 반영 |
