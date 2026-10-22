@@ -276,6 +276,14 @@ export default function TestPage() {
                 after={result.image}
                 maxHeight={640}
                 savedSpots={record.checkSpots ?? []}
+                trend={record.checkTrend ?? []}
+                onTrend={(avg, n) => {
+                  // v1.34: 기록 실패(예: 추세 칸이 아직 없는 DB)는 화면을 막지 않고 조용히 넘긴다
+                  void fetch(`/api/analyses/${record.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trendAdd: { avg, n } }) })
+                    .then(async (res) => (res.ok ? ((await res.json()) as { checkTrend?: typeof record.checkTrend }) : null))
+                    .then((data) => { if (data?.checkTrend) setRecord({ ...record, checkTrend: data.checkTrend }); })
+                    .catch(() => undefined);
+                }}
                 onSaveSpots={async (spots) => {
                   const res = await fetch(`/api/analyses/${record.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ checkSpots: spots }) });
                   const data = await res.json().catch(() => ({}));

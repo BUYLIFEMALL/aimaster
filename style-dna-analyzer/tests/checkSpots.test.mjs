@@ -20,3 +20,16 @@ test("이전 → 지금 변화", () => {
   assert.deepEqual(spotChange(30, 30.3), { delta: 0.3, trend: "same" });
   assert.equal(spotChange(null, 3), null);
 });
+
+test("v1.34 추세: 검사·20개 자르기·그래프 좌표", async () => {
+  const { cleanTrend, appendTrend, sparklinePoints, MAX_TREND } = await import("../src/lib/dna/checkSpots.ts");
+  assert.deepEqual(cleanTrend([{ at: "2026-10-22T00:00:00Z", avg: 34.84, n: 2 }, { at: "x", avg: 1, n: 1 }, { at: "2026-10-22T00:00:00Z", avg: 5, n: 0 }]), [{ at: "2026-10-22T00:00:00.000Z", avg: 34.8, n: 2 }]);
+  let list = [];
+  for (let i = 0; i < 25; i++) list = appendTrend(list, { at: new Date(Date.UTC(2026, 9, 22, 0, i)).toISOString(), avg: i, n: 1 });
+  assert.equal(list.length, MAX_TREND);
+  assert.equal(list[0].avg, 5);
+  assert.equal(sparklinePoints([], 100, 20), "");
+  assert.equal(sparklinePoints([10], 100, 20), "50,3");
+  // 값이 높을수록 아래(차이가 크면 아래, 줄어들면 위로 올라가는 모양)
+  assert.equal(sparklinePoints([60, 30, 0], 100, 20), "3,17 50,10 97,3");
+});

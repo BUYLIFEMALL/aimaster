@@ -1,4 +1,4 @@
-import type { CheckSpot } from "./checkSpots";
+import type { CheckSpot, TrendPoint } from "./checkSpots";
 // [이미지 모델 교체 2026-10-17] gemini-3.1-flash-image(-preview) → gemini-nano-banana-2.1, gemini-2.5-flash-image → gemini-3.1-flash-lite-image(경량 1K), 기준: ai-image-studio v1.11.
 // 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
 import type { AiProvider } from "@/lib/ai/models";
@@ -80,6 +80,8 @@ export interface AnalysisRecord {
   history: RefineEntry[];
   /** v1.32: 결과 테스트 점검 지점(위치·그때의 차이) */
   checkSpots?: CheckSpot[];
+  /** v1.34: 다시 생성할 때마다 남긴 평균 차이(최근 20회) */
+  checkTrend?: TrendPoint[];
   createdAt: string;
   updatedAt: string;
 }

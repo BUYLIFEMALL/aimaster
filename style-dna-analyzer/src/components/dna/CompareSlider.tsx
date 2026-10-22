@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { averageDiff, colorDiffPercent, containPoint, defaultSplit, percentAt, percentForKey, splitClip, toHex, type SplitMode } from "@/lib/dna/compare";
-import { spotChange, type CheckSpot } from "@/lib/dna/checkSpots";
+import { sparklinePoints, spotChange, type CheckSpot, type TrendPoint } from "@/lib/dna/checkSpots";
 
 type Pixels = { data: Uint8ClampedArray; w: number; h: number; natW: number; natH: number };
 type RGB = [number, number, number];
@@ -78,8 +78,9 @@ const MAX_SPOTS = 8;
  * v1.29: 동그라미 자리(선 위치·높이)의 원본·생성 색을 HEX와 차이(%)로 보여 주는 색 집게.
  * v1.31: 가로/세로 분할 전환(세로가 긴 원본은 처음부터 위아래), 점검 지점 최대 8곳 저장·평균 차이.
  * v1.32: 점검 지점을 분석 보관함에 저장(savedSpots·onSaveSpots), 다시 생성하면 같은 자리의 「이전 → 지금」 차이 비교.
+ * v1.34: 새 결과마다 저장된 지점의 평균 차이를 한 번 기록(onTrend)하고 작은 추세 그래프로 보여 준다.
  */
-export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [], onSaveSpots }: { before: string; after: string; maxHeight?: number; savedSpots?: CheckSpot[]; onSaveSpots?: (spots: CheckSpot[]) => Promise<void> }) {
+export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [], onSaveSpots, trend = [], onTrend }: { before: string; after: string; maxHeight?: number; savedSpots?: CheckSpot[]; onSaveSpots?: (spots: CheckSpot[]) => Promise<void>; trend?: TrendPoint[]; onTrend?: (avg: number, n: number) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState(50);
   const [posY, setPosY] = useState(50);
@@ -126,6 +127,17 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
   const prevAvg = averageDiff(savedSpots.map((s) => s.diff));
   const nowAvg = averageDiff(compared.map((c) => c.now));
   const avgChange = spotChange(prevAvg, nowAvg);
+
+  // v1.34: 결과(after)마다 한 번만 추세에 기록 — 두 이미지 픽셀을 다 읽은 뒤
+  const recordedFor = useRef<string | null>(null);
+  const measuredN = compared.filter((c) => c.now !== null).length;
+  useEffect(() => {
+    if (!onTrend || nowAvg === null || !beforePx || !afterPx || recordedFor.current === after) return;
+    recordedFor.current = after;
+    onTrend(nowAvg, measuredN);
+  }, [onTrend, nowAvg, beforePx, afterPx, after, measuredN]);
+  const trendValues = trend.map((t) => t.avg);
+  const trendChange = trendValues.length > 1 ? spotChange(trendValues[0], trendValues[trendValues.length - 1]) : null;
 
   const persist = async () => {
     if (!onSaveSpots || !spots.length) return;
@@ -280,6 +292,18 @@ export function CompareSlider({ before, after, maxHeight = 480, savedSpots = [],
             </p>
             <button type="button" onClick={loadSaved} className="shrink-0 text-[11px] font-bold text-sky-400 hover:underline">지점 불러오기</button>
           </div>
+          {trendValues.length > 0 && (
+            <div className="mb-2 flex items-center gap-3 rounded-lg border border-slate-200 px-2 py-1.5" aria-label="추세">
+              <svg width="120" height="28" viewBox="0 0 120 28" aria-hidden className="shrink-0">
+                <polyline points={sparklinePoints(trendValues, 120, 28)} fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+              </svg>
+              <p className="text-[11px] text-slate-900">
+                추세 {trendValues.length}회 · 처음 <span data-trend-first>{trendValues[0]}%</span> → 최근 <span data-trend-last>{trendValues[trendValues.length - 1]}%</span>
+                {trendChange && <TrendMark trend={trendChange.trend} delta={trendChange.delta} />}
+                <span className="block text-[10px] opacity-80">선이 올라갈수록 원본 색에 가까워진 것입니다.</span>
+              </p>
+            </div>
+          )}
           <ul className="space-y-1">
             {compared.map(({ sp, now, change }, n) => (
               <li key={n} className="flex items-center gap-2 text-[11px] text-slate-900">

@@ -29,3 +29,42 @@ export function spotChange(prev: number | null, now: number | null): { delta: nu
   const delta = Math.round((now - prev) * 10) / 10;
   return { delta, trend: Math.abs(delta) < 0.5 ? "same" : delta < 0 ? "better" : "worse" };
 }
+
+// v1.34 추세 기록: 저장된 점검 지점이 있을 때 새로 생성할 때마다 평균 차이를 남긴다(최근 20회)
+export interface TrendPoint { at: string; avg: number; n: number }
+export const MAX_TREND = 20;
+
+/** 밖에서 온 값을 검사해 올바른 점만, 최근 20개 남긴다 */
+export function cleanTrend(raw: unknown): TrendPoint[] {
+  if (!Array.isArray(raw)) return [];
+  const out: TrendPoint[] = [];
+  for (const r of raw) {
+    if (!r || typeof r !== "object") continue;
+    const o = r as Record<string, unknown>;
+    const avg = clampPct(o.avg);
+    const n = typeof o.n === "number" && Number.isInteger(o.n) && o.n > 0 && o.n <= MAX_CHECK_SPOTS ? o.n : null;
+    if (avg === null || n === null || typeof o.at !== "string" || Number.isNaN(Date.parse(o.at))) continue;
+    out.push({ at: new Date(o.at).toISOString(), avg, n });
+  }
+  return out.slice(-MAX_TREND);
+}
+
+/** 새 점을 붙이고 최근 20개만 남긴다 */
+export function appendTrend(list: unknown, point: unknown): TrendPoint[] {
+  return cleanTrend([...cleanTrend(list), point]);
+}
+
+/** 작은 꺾은선 그래프 좌표(SVG polyline points). 차이가 클수록 아래, 줄어들수록 위 — 원본에 가까워지면 선이 올라간다 */
+export function sparklinePoints(values: number[], width: number, height: number, pad = 3): string {
+  if (!values.length) return "";
+  const max = Math.max(...values), min = Math.min(...values);
+  const span = max - min || 1;
+  const step = values.length > 1 ? (width - pad * 2) / (values.length - 1) : 0;
+  return values
+    .map((v, i) => {
+      const x = values.length > 1 ? pad + i * step : width / 2;
+      const y = pad + ((v - min) / span) * (height - pad * 2);
+      return `${Math.round(x * 10) / 10},${Math.round(y * 10) / 10}`;
+    })
+    .join(" ");
+}
