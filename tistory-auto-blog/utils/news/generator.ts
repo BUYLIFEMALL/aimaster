@@ -4,6 +4,7 @@ import { generateSegmentImages } from './imageGenerator'
 import { generateContentJson } from '@/blog/utils/ai/contentJson'
 import { DEFAULT_CONTENT_PROVIDER, DEFAULT_IMAGE_COUNT, resolveContentModel, resolveImageCount, type ContentProvider } from '@/blog/utils/ai/contentModels'
 import { removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
+import { sanitizeBodyYear, sanitizeYear } from '@/blog/utils/yearPolicy'
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -186,15 +187,16 @@ ${koreaNowRule()}
     user: prompt,
   })) as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  const title = parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`
-  const excerpt = parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`
+  // v1.86 (BLC-12): 공용 year-policy — 제목·태그의 과거 연도는 올해로, 요약·본문은 최신 정보 표기만 올해로(과거 사실은 보존)
+  const title = sanitizeYear(parsed['제목'] || `[SEO] ${options.topic} 완벽 가이드`)
+  const excerpt = sanitizeBodyYear(parsed['요약글'] || `${options.topic}에 관한 심층 분석 리포트입니다.`)
 
-  const body1Text = formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || '')
-  const body2Text = formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || '')
-  const body3Text = formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || '')
-  const body4Text = formatReadableParagraphs(parsed['문단 4'] || parsed['4문단'] || '')
+  const body1Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 1'] || parsed['1문단'] || ''))
+  const body2Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 2'] || parsed['2문단'] || ''))
+  const body3Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 3'] || parsed['3문단'] || ''))
+  const body4Text = sanitizeBodyYear(formatReadableParagraphs(parsed['문단 4'] || parsed['4문단'] || ''))
 
-  const hashtags = generateHashtags(options.topic, keywordsList, parsed)
+  const hashtags = sanitizeYear(generateHashtags(options.topic, keywordsList, parsed))
 
   // 이미지 배치(2026-10-01 주인님 지시): 1번은 글 전체를 대표하는 "제목용" 이미지(요약 바로 아래).
   // 나머지(문단 이미지 k장)는 문단 4개를 k개 묶음으로 나눠 **글 전체에 고르게** 맡긴다 — 앞 문단에만 몰리지 않게.

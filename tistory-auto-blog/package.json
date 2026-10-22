@@ -14,7 +14,8 @@
     "test:extension-api": "node --test tests/extension-api.test.cjs",
     "test:shorts": "node --test tests/shorts-collection.test.cjs",
     "test:home-topics": "node --test tests/home-topics.test.mjs",
-    "sync:program-version": "node scripts/sync-program-version.mjs"
+    "sync:program-version": "node scripts/sync-program-version.mjs",
+    "test:blc12": "node --test tests/blc12-collect.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
@@ -38,7 +39,8 @@
     "lucide-react": "^0.563.0",
     "next": "16.2.10",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "undici": "7.30.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

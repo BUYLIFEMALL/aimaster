@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ BLC-12 티스토리 포스팅 자동화 v1.86 검증 부품 적용 (빌드 1회 · OpenAI 1회)
+- 글감 URL 수집을 공용 `safe-fetch` 사본으로(내부·사설 주소 차단·리디렉트 재검사·15초·3MB — 기존엔 보호 없음), 생성 결과 연도 보정을 새 공용 기준 `year-policy`(기준 naver-blog-agent)로. 확장·TinyMCE·태그·예약·자동 발행 변경 없음. AI 오류 안내·출처 객체·RSS·근거 인용·실행 선점·BLC-07은 비교 뒤 제외(이유는 플랜).
+- 시험 151 통과, 배포 Ready, DB/확장/ZIP v1.86 OK, 웨일 실검수(내부 주소 거절·공개 주소 수집) 완료. 공용 등록: `scripts/check-shared-modules.mjs`·`docs/SHARED_MODULES.md`. 상세: `tistory-auto-blog/docs/PLAN_20261022_BLC12_VERIFIED_PARTS.md`.
+- 프로그램: https://tistory-auto-blog.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.17~v1.18: 세로 결과에 릴스 표지 안내 링크 (빌드 2회, AI 0회)
 - 세로 9:16 결과 칸에 「릴스 표지로 쓰기 ↗」(YOUTUBE Shots 영상 포스팅) 안내, v1.18에서 링크 색 보이게 수정. 상세 `thumbnail-master/AGENTS.md` v1.17~v1.18.
 - 프로그램: https://thumbnail-master.buylife.xyz

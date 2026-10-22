@@ -1,5 +1,7 @@
 import 'server-only'
 import * as cheerio from 'cheerio'
+import { BlockedUrlError, safeFetch } from '../safeFetch'
+import { sanitizeYear } from '../yearPolicy'
 
 // threads/shots의 "AI 콘텐츠 3종 수집 패턴"(docs/PLATFORM_PATTERNS.md §2)을 blog에 이식한 버전.
 // 다른 점: threads/shots는 후보 자체가 곧 게시글 본문이지만, blog는 후보가 "주제 + 키워드"
@@ -20,15 +22,57 @@ export function stripHtml(html: string): string {
     .trim()
 }
 
+// v1.86 (BLC-12): 회원이 넣은 주소는 공용 기준 safe-fetch로만 가져온다 — 내부·사설 주소 차단, 리디렉트마다 재검사,
+// 15초 제한, 본문은 3MB까지만 읽는다(넘으면 중단).
+export const FETCH_TIMEOUT_MS = 15_000
+export const FETCH_MAX_BYTES = 3 * 1024 * 1024
+
+export async function readLimited(response: Response, maxBytes = FETCH_MAX_BYTES): Promise<ArrayBuffer> {
+  const declared = Number(response.headers.get('content-length') ?? 0)
+  if (declared > maxBytes) {
+    await response.body?.cancel()
+    throw new Error('페이지가 너무 큽니다(3MB 초과). 다른 주소를 넣어주세요.')
+  }
+  if (!response.body) return new ArrayBuffer(0)
+  const reader = response.body.getReader()
+  const chunks: Uint8Array[] = []
+  let total = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    total += value.byteLength
+    if (total > maxBytes) {
+      await reader.cancel()
+      throw new Error('페이지가 너무 큽니다(3MB 초과). 다른 주소를 넣어주세요.')
+    }
+    chunks.push(value)
+  }
+  const out = new Uint8Array(total)
+  let offset = 0
+  for (const chunk of chunks) { out.set(chunk, offset); offset += chunk.byteLength }
+  return out.buffer
+}
+
 /** 응답 인코딩을 Content-Type 헤더(없으면 <meta charset>)로 감지해서 디코딩한다. */
 async function fetchHtml(url: string): Promise<string> {
-  const response = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; AIMaster-Blog/1.0)' },
-  })
+  let response: Response
+  try {
+    ;({ response } = await safeFetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; AIMaster-Blog/1.0)' },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    }))
+  } catch (error) {
+    if (error instanceof BlockedUrlError) throw new Error(error.message)
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+      throw new Error(`페이지가 ${FETCH_TIMEOUT_MS / 1000}초 안에 응답하지 않았습니다. 잠시 뒤 다시 시도하거나 다른 주소를 넣어주세요.`)
+    }
+    throw new Error('페이지에 연결하지 못했습니다. 주소를 확인해주세요.')
+  }
   if (!response.ok) {
+    await response.body?.cancel()
     throw new Error(`페이지를 가져오지 못했습니다. (${response.status})`)
   }
-  const buffer = await response.arrayBuffer()
+  const buffer = await readLimited(response)
   const contentType = response.headers.get('content-type') ?? ''
   let charset = contentType.match(/charset=([^;]+)/i)?.[1]?.trim().toLowerCase()
   if (!charset) {
@@ -380,5 +424,6 @@ export async function structureBlogCandidates(params: {
   if (candidates.length === 0) {
     throw new Error('생성된 블로그 주제 후보가 없습니다.')
   }
-  return candidates.slice(0, maxItems)
+  // v1.86 (BLC-12): 주제·키워드의 과거 연도는 올해로(공용 year-policy)
+  return candidates.slice(0, maxItems).map((c) => ({ ...c, title: sanitizeYear(c.title), keywords: (c.keywords ?? []).map((k) => sanitizeYear(k)) }))
 }

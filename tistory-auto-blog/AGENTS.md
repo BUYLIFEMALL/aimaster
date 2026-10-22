@@ -1,4 +1,5 @@
-﻿# tistory-auto-blog — 티스토리 포스팅 자동화
+﻿> **2026-10-22 v1.86 BLC-12 검증 부품 적용(Claude Code 윈도우·웨일):** ① 글감 URL 수집(`utils/ai/collector.ts` `fetchHtml`)을 공용 기준 `safe-fetch` 사본(`utils/safeFetch.ts`, `undici` 7.30.0)으로 — 내부·사설 주소 차단·리디렉트마다 재검사·15초 제한·본문 3MB까지(`readLimited`). ② 생성 결과 연도 보정을 공용 기준 `year-policy` 사본(`utils/yearPolicy.ts`, 기준 naver-blog-agent)으로 — 제목·태그·주제 후보·쇼츠 후보는 과거 연도를 올해로, 요약·본문은 최신 정보 표기만(과거 사실 보존). 확장·TinyMCE·태그 입력·예약·자동 발행 코드 변경 없음(버전만). 시험 `test:blc12` 3 + 기존 148 통과. [플랜](docs/PLAN_20261022_BLC12_VERIFIED_PARTS.md) · [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
+# tistory-auto-blog — 티스토리 포스팅 자동화
 
 > **2026-10-22 v1.85 운영 배포(Claude Code 윈도우, Codex 이어받음):** 저장 응답 보존(`Network.configureDurableMessages`)·커스텀 도메인 `/entry/` 결과를 관리 목록의 같은 주소·제목 본인 글 번호로 연결. 157개 통과·DB/확장/ZIP v1.85 OK. 15번 결과는 읽기 확인 후 수동 복구(자동 성공 아님). **실제 검수 완료: 16번 비공개 자동 발행 → 232번 주소·시각 자동 기록(웨일, 관리자 계정).** 미시험: 공개·예약·이미지 포함. 상세 [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래 · [플랜](docs/PLAN_20261022_AUTO_PUBLISH_V185.md).
 > **운영 이름 변경 완료:** v1.83 Ready·Edge 새 이름 확인, 소스 release/tistory-name-v183-20261022 (`8589073f`). [배포 완료/차기 v1.84 구분](docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md). master 자동 발행 후보는 v1.84 미배포입니다.

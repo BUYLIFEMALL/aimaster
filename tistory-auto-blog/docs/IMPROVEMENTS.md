@@ -95,3 +95,8 @@
 - 미시험: 공개·예약·이미지 포함 자동 발행.
 - 2026-10-22 처리: `scripts/sync-program-version.mjs` 다운로드 주소를 새 주소 `https://tistory-auto-blog.buylife.xyz/downloads/tistory-auto-blog-extension-latest.zip`로 변경, DB 재동기화·`check-extension-release` OK(빌드 없음). 확장의 옛·새 주소 허용 목록은 그대로 둠.
 - 2026-10-22 관찰: 엣지를 닫은 뒤에도 시험 계정(naver) 확장 토큰 1개가 계속 사용됨(03:17 기준) — 엣지가 아닌 다른 브라우저/PC에 시험 계정으로 연결된 티스토리 확장이 켜져 있음. 시험 계정 글 자동 포스팅 검수 전에 그 확장을 확인할 것.
+
+## 2026-10-22 v1.86 (Claude Code 윈도우·웨일) — BLC-12 검증 부품 적용
+- **처리:** 글감 URL 수집 보안(공용 `safe-fetch` 사본, 15초·3MB), 생성 결과 연도 보정(공용 `year-policy` 사본 — 제목·태그·주제 후보·쇼츠 후보·요약·본문). 확장·TinyMCE·태그·예약·자동 발행 변경 없음. 상세: [플랜](PLAN_20261022_BLC12_VERIFIED_PARTS.md).
+- **검수:** 시험 3(새)+148 통과, tsc 0, 빌드·배포 Ready, DB/확장/ZIP v1.86 OK. 웨일: 내부 주소 거절 안내, 위키백과 주소 주제 1건 수집(OpenAI 1회, 시험 계정 키). 시험으로 수집한 주제 1건(「캠핑의 역사와 정의…」)은 남겨 둠(30일 자동 삭제 대상).
+- **남은 후보:** 출처 객체(소유자·만료·원본 주소를 원고까지), RSS 안전 해석(에이전트 `rss.ts`), 글 생성 AI 호출 시간 제한(검증된 기준 없음 — SEO도 없음), `tests/publication-page.test.cjs`가 test 스크립트에 연결되지 않음, AGENTS.md 본문 하단 「진행 상태」 표가 옛 내용(조사 단계)으로 남아 있음.

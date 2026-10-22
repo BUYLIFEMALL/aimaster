@@ -1,5 +1,6 @@
 import 'server-only'
 import type { BlogCandidateDraft } from '@/blog/utils/ai/collector'
+import { sanitizeYear } from '../yearPolicy'
 
 // 유튜브 쇼츠 분석 → 블로그 게시글 주제 후보(v1.66). `threads-content-ops/lib/shortsAnalysis.ts`·`naver-blog-agent`의 쇼츠 분석을
 // 이 프로그램의 목적(블로그 글 주제 수집)에 맞게 옮겼다. 회원 본인의 키만 쓴다 — Gemini 키가 있으면 공개 영상을 직접 보고 분석하고,
@@ -120,13 +121,13 @@ export function parseShortAnalysis(raw: string, maxItems: number): Omit<ShortAna
   const candidates = (Array.isArray(parsed.candidates) ? parsed.candidates : [])
     .map((item): BlogCandidateDraft | null => {
       const candidate = (item ?? {}) as Record<string, unknown>
-      const title = text(candidate.title, 120)
+      const title = sanitizeYear(text(candidate.title, 120)) // v1.86 BLC-12: 과거 연도는 올해로
       const summary = text(candidate.summary ?? candidate.content, 800)
       if (!title || !summary) return null
       return {
         title,
         summary,
-        keywords: Array.isArray(candidate.keywords) ? candidate.keywords.filter((k): k is string => typeof k === 'string').map((k) => k.trim().replace(/^#+/, '').slice(0, 40)).filter(Boolean).slice(0, 8) : [],
+        keywords: Array.isArray(candidate.keywords) ? candidate.keywords.filter((k): k is string => typeof k === 'string').map((k) => sanitizeYear(k.trim().replace(/^#+/, '').slice(0, 40))).filter(Boolean).slice(0, 8) : [],
       }
     })
     .filter((item): item is BlogCandidateDraft => Boolean(item))
