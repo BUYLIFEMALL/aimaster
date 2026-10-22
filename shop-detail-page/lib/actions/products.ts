@@ -104,6 +104,35 @@ export async function analyzeByNameAction(formData: FormData): Promise<AnalyzePr
   }
 }
 
+/**
+ * v1.24: 상품별 섹션 순서 저장(「↑」「↓」). null이면 기본 순서로 되돌린다.
+ * 회원 본인 상품만(RLS + user_id 조건). 섹션 이름은 1~100자, 최대 40개, 중복 없이.
+ */
+export async function saveSectionSequenceAction(
+  productId: string,
+  keys: string[] | null,
+): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  if (keys !== null) {
+    const valid =
+      Array.isArray(keys) &&
+      keys.length <= 40 &&
+      new Set(keys).size === keys.length &&
+      keys.every((k) => typeof k === "string" && k.length >= 1 && k.length <= 100);
+    if (!valid) return { error: "섹션 순서 값이 올바르지 않습니다." };
+  }
+
+  const { error } = await supabase
+    .from("shop_products")
+    .update({ section_sequence: keys })
+    .eq("id", productId)
+    .eq("user_id", user.id);
+  if (error) return { error: `순서 저장 실패: ${error.message}` };
+  return {};
+}
+
 /** 분석 결과(사용자가 검토/수정 가능)를 실제 상품으로 저장한다. */
 export async function createProductAction(formData: FormData) {
   const user = await requireProgramAccess();

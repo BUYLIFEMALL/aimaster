@@ -8,6 +8,7 @@ import { HtmlExportPanel } from "@/components/products/HtmlExportPanel";
 import type { ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
 import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
+import { applySectionSequence } from "@/lib/sectionOrder";
 
 export const dynamic = "force-dynamic";
 
@@ -134,7 +135,8 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         <SectionImageGrid
           productId={product.id}
           language={product.language}
-          templates={templates ?? []}
+          templates={applySectionSequence(templates ?? [], product.section_sequence)}
+          hasCustomOrder={Boolean(product.section_sequence?.length)}
           initialImages={initialImages}
           initialModel={product.default_image_model as ImageModelKey}
           threadsDraft={threadsDraftText(product)}

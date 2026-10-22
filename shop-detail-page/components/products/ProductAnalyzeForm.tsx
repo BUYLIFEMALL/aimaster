@@ -426,7 +426,8 @@ export function ProductAnalyzeForm({
             저장과 섹션 이미지 생성에는 위 1번의 대표이미지가 필요합니다. 사진을 올린 뒤 「Gemini AI로 상품 소구점 분석하기」를 다시 누르면 사진 기준으로 분석합니다.
           </p>
         )}
-        {analyzed && (
+        {/* v1.24(S-22-14): 상품명만으로 채운 경우는 위 전용 안내만 보인다(사진 기준 안내와 어긋나지 않게). */}
+        {analyzed && !isNameEstimate && (
           <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
             ⚠️ AI가 사진·사양서로 <b>추정</b>한 내용입니다. 스펙·인증·가격·효능 표현은 실제 상품 정보와 꼭 맞춰 고친 뒤 저장해 주세요.
           </p>

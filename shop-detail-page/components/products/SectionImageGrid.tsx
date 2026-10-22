@@ -7,6 +7,7 @@ import {
   selectSectionImageAction,
   setProductStatusAction,
 } from "@/lib/actions/images";
+import { saveSectionSequenceAction } from "@/lib/actions/products";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
@@ -34,6 +35,7 @@ export function SectionImageGrid({
   initialImages,
   initialModel,
   threadsDraft = "",
+  hasCustomOrder = false,
 }: {
   productId: string;
   language: string;
@@ -43,6 +45,8 @@ export function SectionImageGrid({
   initialModel?: ImageModelKey;
   // v1.19(추가): 쓰레드 쇼핑제휴로 넘길 본문 초안(상품명·핵심 특징, 할인가가 있을 때만 가격).
   threadsDraft?: string;
+  // v1.24: 회원이 섹션 순서를 바꿔 저장해 두었는지(shop_products.section_sequence) — 「기본 순서로」 버튼 표시용.
+  hasCustomOrder?: boolean;
 }) {
   const [states, setStates] = useState<Record<string, SectionState>>(() => {
     const init: Record<string, SectionState> = {};
@@ -58,6 +62,39 @@ export function SectionImageGrid({
   const [isRunning, setIsRunning] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  // v1.24: 섹션 순서(「↑」「↓」). 바꾸면 바로 저장하고, 긴 이미지·섹션 ZIP·HTML 내보내기도 이 순서를 따른다.
+  const [ordered, setOrdered] = useState<TemplateInfo[]>(templates);
+  const [customOrder, setCustomOrder] = useState(hasCustomOrder);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+
+  async function saveOrder(next: TemplateInfo[], keys: string[] | null) {
+    const prev = ordered;
+    setOrdered(next);
+    setOrderError(null);
+    setIsSavingOrder(true);
+    const result = await saveSectionSequenceAction(productId, keys);
+    setIsSavingOrder(false);
+    if (result.error) {
+      setOrdered(prev);
+      setOrderError(result.error);
+      return;
+    }
+    setCustomOrder(keys !== null);
+  }
+
+  function moveSection(index: number, delta: -1 | 1) {
+    const target = index + delta;
+    if (target < 0 || target >= ordered.length) return;
+    const next = [...ordered];
+    [next[index], next[target]] = [next[target], next[index]];
+    void saveOrder(next, next.map((t) => t.section_key));
+  }
+
+  function resetOrder() {
+    const next = [...ordered].sort((a, b) => a.section_order - b.section_order);
+    void saveOrder(next, null);
+  }
 
   const uploadTargetRef = useRef<TemplateInfo | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -98,7 +135,7 @@ export function SectionImageGrid({
     setIsRunning(true);
     await setProductStatusAction(productId, "generating");
     try {
-      for (const template of templates) {
+      for (const template of ordered) {
         const ok = await generateOne(template);
         if (!ok) break;
       }
@@ -295,7 +332,7 @@ export function SectionImageGrid({
               <div className="w-16 h-1.5 rounded-full bg-slate-700" />
             </div>
             <div className="h-[560px] sm:h-[680px] overflow-y-auto bg-white rounded-b-[1.8rem]">
-              {templates.map((t) =>
+              {ordered.map((t) =>
                 states[t.section_key]?.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img key={t.section_key} src={imageSrc(states[t.section_key].url)} alt={t.section_name} className="block w-full" />
@@ -306,9 +343,25 @@ export function SectionImageGrid({
         </div>
       )}
 
+      {/* v1.24: 섹션 순서 안내·기본 순서로 되돌리기 */}
+      <div className="max-w-lg mx-auto mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+        <span>각 섹션의 「↑」「↓」로 순서를 바꾸면 긴 이미지·섹션 ZIP·HTML도 같은 순서로 나옵니다.</span>
+        {customOrder && (
+          <button
+            type="button"
+            onClick={resetOrder}
+            disabled={isSavingOrder || isRunning}
+            className="shrink-0 whitespace-nowrap font-bold text-slate-600 hover:text-blue-700 bg-white px-2.5 py-1 rounded-lg border border-slate-200 disabled:opacity-50"
+          >
+            ↺ 기본 순서로
+          </button>
+        )}
+        {orderError && <p className="w-full font-semibold text-rose-700">{orderError}</p>}
+      </div>
+
       {/* 섹션 세로 한 줄 나열 (실제 상세페이지 레이아웃과 동일) */}
-      <div className="flex flex-col gap-4 max-w-lg mx-auto mt-6">
-        {templates.map((t) => {
+      <div className="flex flex-col gap-4 max-w-lg mx-auto mt-3">
+        {ordered.map((t, index) => {
           const state = states[t.section_key];
           const threadsHref = state.status === "done" && state.url ? threadsPostUrl(state.url, threadsDraft) : null;
           const instaHref = state.status === "done" && state.url ? instaPostUrl(state.url, threadsDraft) : null;
@@ -321,11 +374,33 @@ export function SectionImageGrid({
               <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50/80 border-b border-slate-100">
                 <div className="flex items-center gap-2 truncate pr-2">
                   <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60 font-mono">
-                    #{t.section_order.toString().padStart(2, "0")}
+                    #{(index + 1).toString().padStart(2, "0")}
                   </span>
                   <p className="text-xs font-bold text-slate-800 truncate">
                     {t.section_name}
                   </p>
+                  <span className="flex items-center gap-0.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => moveSection(index, -1)}
+                      disabled={index === 0 || isSavingOrder || isRunning}
+                      aria-label={`${t.section_name} 위로`}
+                      title="위로 옮기기"
+                      className="w-6 h-6 text-[11px] font-bold text-slate-500 hover:text-blue-700 bg-white rounded border border-slate-200 disabled:opacity-30"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveSection(index, 1)}
+                      disabled={index === ordered.length - 1 || isSavingOrder || isRunning}
+                      aria-label={`${t.section_name} 아래로`}
+                      title="아래로 옮기기"
+                      className="w-6 h-6 text-[11px] font-bold text-slate-500 hover:text-blue-700 bg-white rounded border border-slate-200 disabled:opacity-30"
+                    >
+                      ↓
+                    </button>
+                  </span>
                 </div>
                 {state.status === "done" && (
                   <button

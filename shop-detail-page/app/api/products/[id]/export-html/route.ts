@@ -5,6 +5,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { generateTextWithGemini } from "@/lib/ai/gemini";
 import { buildHtmlDetailPrompt, sanitizeGeneratedHtml, toHtmlTemplate } from "@/lib/ai/htmlDetailPrompt";
 import { imageSrc } from "@/lib/imageSrc";
+import { applySectionSequence } from "@/lib/sectionOrder";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -51,7 +52,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     .not("image_url", "is", null);
 
   const byKey = new Map((rows ?? []).map((r) => [r.section_key, r.image_url as string]));
-  const images = (templates ?? [])
+  // v1.24: 회원이 정한 섹션 순서(section_sequence)를 따른다.
+  const images = applySectionSequence(templates ?? [], product.section_sequence)
     .filter((t) => byKey.has(t.section_key))
     .map((t, i) => ({ placeholder: `[IMAGE_${i + 1}]`, sectionName: t.section_name, src: imageSrc(byKey.get(t.section_key)) }));
   if (images.length === 0) {

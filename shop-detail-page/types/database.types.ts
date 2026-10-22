@@ -72,6 +72,7 @@ export interface Database {
           image_generation_notes: string | null;
           default_image_model: string;
           layout_preset: string;
+          section_sequence: string[] | null;
           status: ProductStatus;
           language: string;
           currency: string;
@@ -101,6 +102,7 @@ export interface Database {
           image_generation_notes?: string | null;
           default_image_model?: string;
           layout_preset?: string;
+          section_sequence?: string[] | null;
           status?: ProductStatus;
           language?: string;
           currency?: string;
@@ -130,6 +132,7 @@ export interface Database {
           image_generation_notes?: string | null;
           default_image_model?: string;
           layout_preset?: string;
+          section_sequence?: string[] | null;
           status?: ProductStatus;
           language?: string;
           currency?: string;

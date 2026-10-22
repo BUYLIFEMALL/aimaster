@@ -4,6 +4,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { downloadImageAsBase64 } from "@/lib/storageImage";
 import { redirectToDownload, safeFileName, storeExport } from "@/lib/exportDownload";
+import { applySectionSequence } from "@/lib/sectionOrder";
 
 const TARGET_WIDTH = 860;
 
@@ -23,7 +24,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   const { data: product, error: productError } = await supabase
     .from("shop_products")
-    .select("id, product_label, name, language, user_id")
+    .select("id, product_label, name, language, user_id, section_sequence")
     .eq("id", productId)
     .single();
   if (productError || !product) {
@@ -44,7 +45,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   try {
     const resizedBuffers: { buffer: Buffer; height: number }[] = [];
-    for (const img of images) {
+    // v1.24: 회원이 정한 섹션 순서대로 세로로 붙인다.
+    for (const img of applySectionSequence(images, product.section_sequence)) {
       let original: Buffer;
       try {
         original = Buffer.from((await downloadImageAsBase64(supabase, img.image_url as string)).base64, "base64");

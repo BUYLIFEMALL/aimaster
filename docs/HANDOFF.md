@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.24 — 섹션 순서 바꾸기 (DB·배포 대기, 이커머스 2차 재비교 작업 ③)
+- 섹션 카드 「↑」「↓」로 순서를 바꾸면 상품별로 저장되고 긴 이미지·섹션 ZIP·HTML이 같은 순서. 「↺ 기본 순서로」. DB 칸 `shop_products.section_sequence text[]` 추가(주인님 승인). 작업 ② 작은 문제(S-22-14)도 함께. AI 0회, tsc·eslint 0, 순서 함수 시험 6가지 통과.
+- **윈도우 순서(중요)**: ① SQL `shop-detail-page/supabase/migrations/20261022_section_sequence_v1_24.sql` **먼저**(칸 없이 코드가 나가면 긴 PNG·ZIP 실패) ② `shop-detail-page` 배포 1회 ③ 크롬 확인은 맥미니.
+- 프로그램: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 스타일 분석기 v1.33 점검 지점 보관(DB check_spots) · 변환 스튜디오 v1.17 이전/다음 · 인물사진 v1.36 비교 끌기 (빌드 4회, DB 칸 1개, AI 0원)
 - **이미지 스타일 분석기 v1.32~v1.33**: 운영 DB `sda_analyses.check_spots` 추가(ref esgxyikcnnvmlhygjkth), `PATCH /api/analyses/[id]`로 점검 지점 저장, 다시 생성하면 「이전 → 지금」 차이·평균 변화. v1.32 뒤 다크 테마 흐린 글자(1.7:1) 발견 → v1.33 수정(추가 빌드 승인). 크롬: 저장·새로고침 유지·평균 62.9%→34.8% ↓ 확인 후 검수 데이터 비움. 커밋 f277b7fcd.
 - **이미지 변환 스튜디오 v1.17**: 비교 창 「‹ 이전 / 다음 ›」·PageUp/PageDown, 크롬에서 3장 넘기기 확인. 커밋 3be6dd89e.
