@@ -21,6 +21,7 @@ export default function TestPage() {
   const [result, setResult] = useState<{ image: string; match: number | null } | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [zoomOpen, setZoomOpen] = useState(false);
+  const [showSingles, setShowSingles] = useState(false);
 
   if (!record) return <NeedAnalysis>먼저 1단계에서 이미지를 분석하거나 보관함에서 분석을 불러와주세요.</NeedAnalysis>;
 
@@ -215,7 +216,8 @@ export default function TestPage() {
 
         {/* 결과 비교 패널 */}
         <div className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          {/* v1.29: 결과가 나오면 개별 두 카드는 접고 아래 비교 상자를 크게 보여 준다 */}
+          <div className={`grid gap-4 sm:grid-cols-2 ${result && !showSingles ? "hidden" : ""}`}>
             <Card className="space-y-2">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold text-slate-900">원본 레퍼런스</h2>
@@ -263,8 +265,13 @@ export default function TestPage() {
           {/* F5(v1.27): 원본 ↔ 생성 겹쳐 비교 */}
           {result && (
             <Card className="space-y-2">
-              <h2 className="text-sm font-bold text-slate-900">원본 ↔ 생성 비교</h2>
-              <CompareSlider before={record.imageUrl} after={result.image} />
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-sm font-bold text-slate-900">원본 ↔ 생성 비교</h2>
+                <button type="button" onClick={() => setShowSingles((v) => !v)} className="text-[11px] font-bold text-violet-700 hover:underline" aria-expanded={showSingles}>
+                  {showSingles ? "개별 이미지 접기 ▴" : "개별 이미지 보기 ▾"}
+                </button>
+              </div>
+              <CompareSlider before={record.imageUrl} after={result.image} maxHeight={640} />
             </Card>
           )}
 
