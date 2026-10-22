@@ -54,3 +54,21 @@ export async function revokeExtensionToken(id: string): Promise<{ ok?: true; err
     .eq('program_slug', EXTENSION_PROGRAM_SLUG)
   return error ? { error: error.message } : { ok: true }
 }
+
+// 2026-10-23: 자동 연결이 성공한 뒤, 같은 회원의 다른 「확장 자동 연결」 코드 중 한 번도 쓰이지 않았거나 30일 넘게 안 쓰인 것만 폐기한다
+// (다른 PC·브라우저에서 쓰고 있는 코드와 직접 발급한 코드는 그대로 둔다). 기준 구현: naver-blog-seo-studio/lib/tokenActions.ts.
+export async function retireStaleAutoTokens(keepId: string): Promise<{ ok?: boolean; error?: string }> {
+  const access = await checkProgramAccessApi()
+  if (!access.allowed) return { error: access.error }
+  const cutoff = new Date(Date.now() - 30 * 86400000).toISOString()
+  const { error } = await createAdminClient()
+    .from('personal_access_tokens')
+    .update({ revoked_at: new Date().toISOString() })
+    .eq('user_id', access.user.id)
+    .eq('program_slug', EXTENSION_PROGRAM_SLUG)
+    .is('revoked_at', null)
+    .like('label', '확장 자동 연결%')
+    .neq('id', keepId)
+    .or(`last_used_at.is.null,last_used_at.lt.${cutoff}`)
+  return error ? { error: error.message } : { ok: true }
+}

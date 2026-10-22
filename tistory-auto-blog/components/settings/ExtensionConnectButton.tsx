@@ -4,7 +4,7 @@
 // auto: 확장의 「자동 연결」 버튼으로 열린 화면이면 들어오자마자 연결하고, 확장이 이 탭을 닫는다. 기준 구현: naver-blog-seo-studio.
 import { useEffect, useRef, useState } from 'react'
 import { askExtension } from '@/blog/utils/extensionBridge'
-import { createExtensionToken, type ExtensionToken } from '@/blog/app/settings/extensionTokenActions'
+import { createExtensionToken, retireStaleAutoTokens, type ExtensionToken } from '@/blog/app/settings/extensionTokenActions'
 
 type State = { kind: 'idle' | 'working' | 'done' | 'error'; message: string }
 
@@ -23,6 +23,7 @@ export function ExtensionConnectButton({ auto = false, onIssued }: { auto?: bool
     const result = await askExtension<{ ok?: boolean; email?: string; error?: string }>('connect', 15000, { token: issued.token, closeTab: auto })
     if (!result) return setState({ kind: 'error', message: '확장이 응답하지 않았습니다. 확장을 최신 버전으로 업데이트한 뒤 다시 시도해 주세요.' })
     if (!result.ok) return setState({ kind: 'error', message: result.error || '확장 연결에 실패했습니다.' })
+    void retireStaleAutoTokens(issued.item.id).catch(() => undefined) // 연결 성공 뒤에만, 안 쓰이는 옛 자동 연결 코드 정리
     setState({ kind: 'done', message: `확장 연결 완료: ${result.email ?? ''}${auto ? ' · 이 탭은 곧 닫힙니다.' : ''}` })
   }
 

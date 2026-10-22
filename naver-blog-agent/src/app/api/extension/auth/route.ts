@@ -29,6 +29,12 @@ export async function GET() {
     if (error) {
       // 테이블이 아직 없더라도 메모리/기본 응답 폴백 지원
       console.warn("DB token error:", error);
+    } else {
+      // 2026-10-23: 이 회원의 기한이 지났고 연결에 쓰이지 않은 번호만 정리한다(번호를 쓰지 않으면 토큰이 확장에 전달되지 않아 다시 쓰일 수 없음).
+      // 연결이 끝난 기기(pair_code가 비어 있는 행)는 건드리지 않는다.
+      await admin.from("nba_extension_tokens").delete()
+        .eq("user_id", user.id).not("pair_code", "is", null).lt("pair_code_expires_at", new Date().toISOString())
+        .then(() => undefined, () => undefined);
     }
 
     return NextResponse.json({
