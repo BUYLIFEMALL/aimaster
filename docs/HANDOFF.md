@@ -174,6 +174,11 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 이미지 S1 검토: 4컷·웹툰 캐릭터 일관성·컷별 다시 만들기 (코드 변경 없음)
+- 결과: 두 프로그램 모두 컷 1장씩 생성·컷별 다시 만들기가 이미 있음, 화면 잠금으로 이중 클릭 충분(서버 선점 불필요), 새 공용 코드 불필요. **웹툰은 캐릭터 시트·참고 사진을 컷 그림에 보내지 않음** → 제안 W8(시트 최대 3장 첨부, 공용 `generateGeminiImage({ parts })` 사용).
+- 문서: `docs/analysis-image-consolidation-20261021/REPORT.md` §9-5, `ai-webtoon-studio/docs/IMPROVEMENTS.md`.
+- 다음 첫 단계: W8 승인 여부 확인(빌드 1회 + 생성 시험 1~2장) 또는 F3.
+
 ## 2026-10-22 Claude Code(윈도우) — 바나나 캔버스 v1.19 레시피를 템플릿 그래픽까지 + 이름 바꾸기
 - 한 일: 템플릿 그래픽 설정(템플릿·칸 값·화풍·언어·비율·해상도) 레시피 저장·불러오기(서버는 실행 경로와 같은 `graphicParams` 검사), ✏️ 이름 바꾸기(`PATCH /api/presets`), v1.18 미배포 기록 상세 오류 문장 수정 함께 배포. DDL(kind 'graphic'·본인 수정 RLS) 운영 DB `esgxyikcnnvmlhygjkth` 크롬 실행 성공.
 - 검수: 시험 33개·build, 배포 `banana-canvas-j33vtzgdy` Ready, DB v1.19, 비로그인 401, 크롬(시험 회원) 저장→새로 고침→불러오기(템플릿·칸 값·9:16 복원)→이름 바꾸기→삭제, 시험 레시피 0개.

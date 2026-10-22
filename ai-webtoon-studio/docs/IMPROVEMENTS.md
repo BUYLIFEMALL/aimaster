@@ -53,3 +53,6 @@ F-012: 웹툰 생성 실패/키 미등록 뒤 다른 외부 엔진 자동 호출
 - **제안 ②(UI)**: 회차마다 캡션을 미리 보고 고칠 수 있게(지금은 제목·줄거리·해시태그 자동).
 - **제안 ③(연계)**: 4컷 만화 직접 게시(인스타 확대 4단계)에서 `slideRender.ts`·`EpisodeBatchSchedule`을 그대로 쓰면 「4컷 시리즈 묶음 예약」까지 바로 가능.
 - **상태**: 제안 ①②③ 미구현.
+
+## 2026-10-22 S1 검토에서 발견 (Claude Code 윈도우, 미구현)
+- [중요·미구현] 캐릭터 시트·참고 사진이 컷 그림에 쓰이지 않음: `lib/imageGen.ts` `generateCutImage`가 글 프롬프트만 `/api/ai/image`로 보내고, 서버도 `prompt`·`aspectRatio`만 받음 → 컷마다 인물 외모가 달라질 수 있음. 제안 W8: 컷 `characterNames`의 인물 시트(없으면 참고 사진) 최대 3장을 줄여(4컷 `shrinkForUpload` 참고) 보내고, 서버는 공용 `generateGeminiImage({ parts })`로 첨부. 공용 사본(`geminiImage.ts`)은 고치지 않음. 근거: `docs/analysis-image-consolidation-20261021/REPORT.md` §9-5.
