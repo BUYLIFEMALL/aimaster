@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — SEO블로그 스튜디오 v1.89 끝맺음 재시도 배포 → 다시 생성 실패로 v1.87 되돌림 (빌드 1회 · AI 약 3~4회)
+- v1.89: 보강 요청에 끝맺음 한 줄 + 끝맺음 수정본은 1,500자·원래 길이 이상일 때만 채택. 같은 조건 실검수에서 「보강 후에도 본문 분량이 너무 짧습니다(1,305자)」, 원고 저장 0.
+- `vercel promote`로 v1.87(`dpl_121KGm4aeGkDCZqMh94pVQUQPrq1`) 복귀, DB·확장 v1.87 OK. 저장소 v1.87, 변경은 `naver-blog-seo-studio/docs/patches/v1.89-ending-recheck-REVERTED.patch` 보관.
+- 원인 판단: 보강 요청에 끝맺음 지시를 넣으면 gpt-4o-mini 보강이 늘지 않음. 다음 안(승인 대기): 보강은 v1.87 그대로, 보강이 끝난 뒤 끝맺음만 안전 수정 1회.
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — SEO블로그 스튜디오 v1.88 끝맺음 재검사 배포 → 생성 실패로 v1.87 되돌림 (빌드 1회 · AI 약 3~4회)
 - v1.88: 보강 요청에도 문체 지시 + 생성 후 끝맺음 비율 70% 미만이면 끝맺음만 고치는 요청 1회. 실검수(gpt-4o-mini) 결과 「보강 후에도 본문 분량이 너무 짧습니다(1,232자)」로 생성 실패, 원고 저장 0.
 - 회원 비용 낭비 위험이 있어 `vercel promote`로 v1.87 배포(`dpl_121KGm4aeGkDCZqMh94pVQUQPrq1`)로 되돌림(빌드 없음), DB·확장 v1.87 검증 OK. 저장소도 v1.87로 되돌리고 v1.88 변경은 `naver-blog-seo-studio/docs/patches/v1.88-ending-recheck-REVERTED.patch`에 보관.

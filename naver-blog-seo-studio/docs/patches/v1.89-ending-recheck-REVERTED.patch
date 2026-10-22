@@ -1,0 +1,141 @@
+diff --git a/naver-blog-seo-studio/lib/ai/generator.ts b/naver-blog-seo-studio/lib/ai/generator.ts
+index 48571a504..5ff4cccdb 100644
+--- a/naver-blog-seo-studio/lib/ai/generator.ts
++++ b/naver-blog-seo-studio/lib/ai/generator.ts
+@@ -5,8 +5,8 @@ import { openAIErrorReason, openAIGenerationParams } from "./openaiRequestParams
+ import { getExplicitYears, getKoreaToday } from "./freshness";
+ import type { SeoPersona } from "./personas";
+ import { factRule, groundingSection, type DraftGrounding } from "./groundingPrompt";
+-import { styleSection } from "./stylePrompt";
+-import type { StyleEnding, StyleProfile } from "../style";
++import { endingRule, styleSection } from "./stylePrompt";
++import { endingShare, type StyleEnding, type StyleProfile } from "../style";
+ 
+ export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
+ 
+@@ -86,6 +86,7 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
+   const today = getKoreaToday();
+   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];
+   const model = resolveContentModel(params.provider, params.model);
++  const startedAt = Date.now();
+   const messages: OpenAiMessage[] = [
+         { role: "system", content: `당신은 한국어 네이버 블로그 콘텐츠 편집자입니다. 오늘은 한국 기준 ${today}입니다. ${STRATEGY_GUIDE[params.strategy] ?? STRATEGY_GUIDE["C-Rank 기본"]}
+ 
+@@ -112,7 +113,7 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
+   for (let attempt = 0; attempt < 2 && compactLength < 2_000; attempt += 1) {
+     const shortage = 2_300 - compactLength;
+     const expanded = await requestDraftJson(params.apiKey, params.provider, model, [
+-      { role: "system", content: "당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 2,000~3,500자의 자연스러운 완성형 본문으로 확장하고, 4개 소제목과 각 소제목 아래 2개 이상의 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}" },
++      { role: "system", content: `당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 2,000~3,500자의 자연스러운 완성형 본문으로 확장하고, 4개 소제목과 각 소제목 아래 2개 이상의 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}${endingRule(params.style?.ending)}` },
+       { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}${groundingSection(params.grounding)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 2,300자 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 1~2개씩 더합니다.` },
+     ]);
+     if (!expanded.body) throw new Error("AI가 보강 본문을 반환하지 않았습니다.");
+@@ -124,9 +125,34 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
+       compactLength = expandedLength;
+     }
+   }
++  // v1.88: 승인 문체의 끝맺음(해요체/합니다체)이 70% 미만이면 끝맺음만 고치는 요청 1회. 180초가 지났으면 300초 제한 때문에 건너뛴다.
++  let styleEnding: { target: StyleEnding; before: number; after: number; fixed: boolean; skipped?: string } | undefined;
++  const ending = params.style?.ending;
++  if (ending) {
++    const before = endingShare(body, ending);
++    styleEnding = { target: ending, before: Math.round(before * 100) / 100, after: Math.round(before * 100) / 100, fixed: false };
++    if (before < 0.7 && Date.now() - startedAt > 180_000) styleEnding.skipped = "시간 제한으로 끝맺음 수정을 건너뜀";
++    else if (before < 0.7) {
++      const label = ending === "haeyo" ? "해요체(「~요」로 끝맺음, 예: ~해요·~이에요·~거든요)" : "합니다체(「~습니다」「~입니다」로 끝맺음)";
++      const fixedDraft = await requestDraftJson(params.apiKey, params.provider, model, [
++        { role: "system", content: `당신은 한국어 블로그 교정자입니다. 받은 본문의 내용·사실·문단 순서·소제목·줄바꿈·[확인 필요] 표시는 그대로 두고, 소제목을 뺀 평서문의 끝맺음만 ${label}로 자연스럽게 고칩니다. 문장을 지우거나 줄이지 않습니다. JSON만 반환합니다: {"body":"고친 본문"}` },
++        { role: "user", content: body },
++      ]);
++      const fixedBody = fixedDraft.body ? normalizeBlogText(fixedDraft.body) : "";
++      const fixedLength = fixedBody.replace(/\s/g, "").length;
++      const after = fixedBody ? endingShare(fixedBody, ending) : before;
++      // v1.89: 수정본은 최소 분량(1,500자) 이상이고 원래보다 짧지 않으며 비율이 나아졌을 때만 쓴다 — 후처리 때문에 생성이 실패하지 않게.
++      if (fixedBody && fixedLength >= 1_500 && fixedLength >= compactLength && after > before) {
++        body = fixedBody;
++        compactLength = fixedLength;
++        styleEnding = { ...styleEnding, after: Math.round(after * 100) / 100, fixed: true };
++      }
++    }
++  }
+   // v1.74: 1,500자 이상이면 회원 키 요금이 헛되지 않게 저장하고 분량 안내를 붙입니다(2,000자 미만은 발행 전 점검에서도 경고).
+   if (compactLength < 1_500) throw new Error(`AI가 보강 후에도 본문 분량이 너무 짧습니다. (공백 제외 ${compactLength}자 / 최소 1,500자) 다른 모델로 다시 시도해주세요.`);
+   const seoReport = normalizeSeoReport(parsed.seoReport, body);
+   if (compactLength < 2_000) seoReport.lengthNotice = `본문이 공백 제외 ${compactLength.toLocaleString("ko-KR")}자로 권장 분량(2,000자)보다 짧습니다. 직접 내용을 보강하거나 더 큰 모델로 다시 만들어 보세요.`;
++  if (styleEnding) Object.assign(seoReport, { styleEnding });
+   return { title, body, seoReport };
+ }
+diff --git a/naver-blog-seo-studio/lib/ai/stylePrompt.ts b/naver-blog-seo-studio/lib/ai/stylePrompt.ts
+index 5a80e5ffe..61efed723 100644
+--- a/naver-blog-seo-studio/lib/ai/stylePrompt.ts
++++ b/naver-blog-seo-studio/lib/ai/stylePrompt.ts
+@@ -17,6 +17,11 @@ export function stylePrompt(name: string, posts: StylePost[], samples: string[])
+   };
+ }
+ 
++// v1.89: 보강 요청에는 문체 전체가 아니라 끝맺음 한 줄만 넣는다(v1.88에서 전체 문체 지시가 분량 지시와 충돌한 것으로 추정).
++export function endingRule(ending: StyleEnding | null | undefined): string {
++  return ending ? ENDING_RULE[ending] : "";
++}
++
+ export function styleSection(style: { name: string; profile: StyleProfile; ending?: StyleEnding | null } | undefined): string {
+   if (!style) return "";
+   const s = style.profile;
+diff --git a/naver-blog-seo-studio/lib/style.ts b/naver-blog-seo-studio/lib/style.ts
+index 8080419e5..1bf9bcd17 100644
+--- a/naver-blog-seo-studio/lib/style.ts
++++ b/naver-blog-seo-studio/lib/style.ts
+@@ -58,3 +58,11 @@ export function detectEnding(texts: string[]): StyleEnding | null {
+   if (nida >= 3 && nida >= yo * 2) return "hamnida";
+   return null;
+ }
++
++// v1.88: 생성된 본문에서 목표 끝맺음이 차지하는 비율(평서문 ~요·~니다 중). 둘 다 없으면 1.
++export function endingShare(text: string, ending: StyleEnding): number {
++  const yo = (text.match(/요(?=[.!~]|\s*$)/gm) || []).length;
++  const nida = (text.match(/니다(?=[.!]|\s*$)/gm) || []).length;
++  if (!yo && !nida) return 1;
++  return (ending === "haeyo" ? yo : nida) / (yo + nida);
++}
+diff --git a/naver-blog-seo-studio/lib/version.ts b/naver-blog-seo-studio/lib/version.ts
+index 823bea298..f0f623039 100644
+--- a/naver-blog-seo-studio/lib/version.ts
++++ b/naver-blog-seo-studio/lib/version.ts
+@@ -2,4 +2,4 @@
+  * Member-facing program version. Keep this in sync with programs.version.
+  * See the root AGENTS.md version-management rule before every release.
+  */
+-export const APP_VERSION = "v1.87";
++export const APP_VERSION = "v1.89";
+diff --git a/naver-blog-seo-studio/tests/style.test.mjs b/naver-blog-seo-studio/tests/style.test.mjs
+index acfd92ec2..351f23c6e 100644
+--- a/naver-blog-seo-studio/tests/style.test.mjs
++++ b/naver-blog-seo-studio/tests/style.test.mjs
+@@ -1,7 +1,7 @@
+ import { test } from "node:test";
+ import assert from "node:assert/strict";
+-import { normalizeStyle, cleanSamples, parseBlogId, profileHash, isStyleApproved, withStyleApproval, detectEnding } from "../lib/style.ts";
+-import { styleSection } from "../lib/ai/stylePrompt.ts";
++import { normalizeStyle, cleanSamples, parseBlogId, profileHash, isStyleApproved, withStyleApproval, detectEnding, endingShare } from "../lib/style.ts";
++import { endingRule, styleSection } from "../lib/ai/stylePrompt.ts";
+ import { parseNaverRss } from "../lib/naverRssParse.ts";
+ 
+ const raw = { summary: "생활 정보를 차분하게 정리하는 블로그", tone: "친근한 존댓말", sentence: "짧은 문장 위주", structure: "요약 → 소제목 3개 → 정리", reader: "30대 직장인", expressions: ["정리해 보면", "", 3], avoid: ["무조건"], strengths: ["예시가 구체적"], cautions: ["과장 금지"], extra: "무시" };
+@@ -71,3 +71,17 @@ test("v1.87: detectEnding counts declarative endings (questions excluded) and st
+   assert.match(styleSection({ name: "내 블로그", profile, ending: "hamnida" }), /합니다체입니다/);
+   assert.doesNotMatch(styleSection({ name: "내 블로그", profile, ending: null }), /문장 끝맺음\(필수\)/);
+ });
++
++test("v1.88: endingShare measures the target ending among declarative endings", () => {
++  const mixed = "준비가 필요해요. 텐트를 골라요. 침낭이 중요합니다. 무엇이 필요한가요?";
++  assert.equal(Math.round(endingShare(mixed, "haeyo") * 100), 67);
++  assert.equal(Math.round(endingShare(mixed, "hamnida") * 100), 33);
++  assert.equal(endingShare("소제목만 있는 글", "haeyo"), 1);
++});
++
++test("v1.89: endingRule is one line for expansion requests and empty without an ending", () => {
++  assert.match(endingRule("haeyo"), /^\n문장 끝맺음\(필수\): .*해요체/);
++  assert.equal(endingRule("haeyo").split("\n").length, 2);
++  assert.equal(endingRule(null), "");
++  assert.equal(endingRule(undefined), "");
++});
