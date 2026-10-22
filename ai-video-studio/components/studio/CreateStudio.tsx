@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Check, Clapperboard, ImagePlus, KeyRound, Loader2, Sparkles, X } from "lucide-react";
-import { MODELS, PROVIDERS, clampSeconds, estCostUsd, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
+import { MODELS, PROVIDERS, clampSeconds, estCostUsd, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { GenerationCard } from "./GenerationCard";
 
@@ -82,6 +82,7 @@ export function CreateStudio() {
   const [modelId, setModelId] = useState<string>(MODELS.find((m) => m.provider === "gemini")?.id ?? MODELS[0].id);
   const [seconds, setSeconds] = useState<number>(5);
   const [aspect, setAspect] = useState<AspectRatio>("16:9");
+  const [resolution, setResolution] = useState<string | null>(null);
   const [startImage, setStartImage] = useState<string | null>(null);
   const [endImage, setEndImage] = useState<string | null>(null);
   const [registered, setRegistered] = useState<Set<string> | null>(null);
@@ -101,7 +102,8 @@ export function CreateStudio() {
   const model: StudioModel = useMemo(() => MODELS.find((m) => m.id === modelId) ?? MODELS[0], [modelId]);
   const sec = clampSeconds(model, seconds);
   const withEnd = !!endImage && !!startImage && model.endFrame;
-  const cost = estCostUsd(model, sec, withEnd);
+  const pickedRes = pickResolution(model, resolution);
+  const cost = estCostUsd(model, sec, withEnd, pickedRes);
   const hasKey = registered ? registered.has(PROVIDERS[model.provider].keyProvider) : null;
   const finalPrompt = composePrompt(idea, styleId, cameraId);
 
@@ -147,7 +149,7 @@ export function CreateStudio() {
       const res = await fetch("/api/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: model.id, prompt: finalPrompt, seconds: sec, aspectRatio: aspect, startImage, endImage: model.endFrame ? endImage : null }),
+        body: JSON.stringify({ model: model.id, prompt: finalPrompt, seconds: sec, aspectRatio: aspect, resolution: pickedRes, startImage, endImage: model.endFrame ? endImage : null }),
       });
       const data = await res.json();
       if (!res.ok) throw Object.assign(new Error(data.error || "생성을 시작하지 못했습니다."), { keys: !!data.missingKeys });
@@ -243,6 +245,12 @@ export function CreateStudio() {
             </div>
           )}
         </div>
+        {model.resolutions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-zinc-300">해상도(높을수록 비쌈)</p>
+            <div className="flex flex-wrap gap-2">{model.resolutions.map((r) => <button key={r} type="button" aria-pressed={pickedRes === r} onClick={() => setResolution(r)} className={chip(pickedRes === r)}>{r}{model.perSecByRes?.[r] ? ` · 초당 $${model.perSecByRes[r]}` : ""}</button>)}</div>
+          </div>
+        )}
         {model.aspects.length === 0 && <p className="text-[11px] text-zinc-500">이 모델은 시작 장면 사진의 비율을 따릅니다.</p>}
 
         <div className="flex flex-wrap gap-4">
@@ -254,7 +262,7 @@ export function CreateStudio() {
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
           <p className="text-sm text-zinc-300">
-            예상 비용 <b className="text-white">약 ${cost.toFixed(2)}</b> <span className="text-zinc-500">(약 {Math.round((cost * 1400) / 10) * 10}원 · {model.name} {sec}초{withEnd ? " · 끝 장면 포함" : ""})</span>
+            예상 비용 <b className="text-white">약 ${cost.toFixed(2)}</b> <span className="text-zinc-500">(약 {Math.round((cost * 1400) / 10) * 10}원 · {model.name} {sec}초{pickedRes ? ` · ${pickedRes}` : ""}{withEnd ? " · 끝 장면 포함" : ""})</span>
           </p>
           {confirming ? (
             <span className="flex items-center gap-2">

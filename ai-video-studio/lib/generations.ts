@@ -95,6 +95,7 @@ export async function startJob(admin: Admin, row: GenerationRow, apiKey: string)
       seconds: row.duration_s,
       maxBytes: MAX_VIDEO_BYTES,
       aspectRatio: row.aspect_ratio ?? undefined,
+      resolution: typeof row.options?.resolution === "string" ? row.options.resolution : undefined,
     });
     if ("bytes" in r) return await complete(admin, row, r.bytes);
     await admin

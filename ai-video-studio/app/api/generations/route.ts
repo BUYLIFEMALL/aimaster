@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi, getUserApiKey, logProgramUsage } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/server";
-import { PROVIDERS, clampSeconds, estCostUsd, findModel, type AspectRatio } from "@/lib/providers/catalog";
+import { PROVIDERS, clampSeconds, estCostUsd, findModel, pickResolution, type AspectRatio } from "@/lib/providers/catalog";
 import { BUCKET, advance, startJob, toClient, type GenerationRow } from "@/lib/generations";
 
 export const dynamic = "force-dynamic";
@@ -90,6 +90,7 @@ export async function POST(request: Request) {
   const withEnd = !!end && model.endFrame;
   const aspect: AspectRatio | null = model.aspects.length ? (model.aspects.includes(body.aspectRatio as AspectRatio) ? (body.aspectRatio as AspectRatio) : model.aspects[0]) : null;
   const seconds = clampSeconds(model, body.seconds);
+  const resolution = pickResolution(model, body.resolution);
 
   // 회원 본인 키만 — 없으면 등록 안내(다른 회원·운영자 키로 대신하지 않음)
   const provider = PROVIDERS[model.provider];
@@ -134,8 +135,8 @@ export async function POST(request: Request) {
       duration_s: seconds,
       start_image: startPath,
       end_image: endPath,
-      options: {},
-      est_cost_usd: estCostUsd(model, seconds, withEnd),
+      options: resolution ? { resolution } : {},
+      est_cost_usd: estCostUsd(model, seconds, withEnd, resolution),
     })
     .select("*")
     .single();
@@ -145,7 +146,7 @@ export async function POST(request: Request) {
   }
 
   await startJob(admin, created as GenerationRow, apiKey);
-  await logProgramUsage(user.id, "generate_video", 1, { model: model.id, seconds, withEnd });
+  await logProgramUsage(user.id, "generate_video", 1, { model: model.id, seconds, withEnd, resolution });
 
   const { data: fresh } = await admin.from("avs_generations").select("*").eq("id", id);
   return NextResponse.json({ generations: await toClient(admin, (fresh ?? [created]) as GenerationRow[]) }, { headers: { "Cache-Control": "private, no-store" } });

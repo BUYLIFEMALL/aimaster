@@ -5,7 +5,7 @@
 // 이 파일은 프로그램 고유 모듈(오류 클래스·저장소·권한)을 쓰지 않는다 — 오류는 VideoGenError로 던지고, 각 프로그램이 자기 오류 형식·저장소로 바꾼다.
 // 이중 과금 방지: 자동 재시도 없음. 키를 실어 보내는 주소는 업체 공식 호스트만(isHost).
 // 외부 무료배포 shorts-auto(라이선스 없음)의 코드는 쓰지 않고 새로 만들었다(docs/analysis-shorts-auto-20261022).
-import type { VideoJob, VideoModel, VideoProvider } from "./videoModels";
+import type { FalInputSpec, VideoJob, VideoModel, VideoProvider } from "./videoModels";
 import { falState, findGeminiVideo, geminiState, isHost, isJobId, replicateOutputUrl, replicateState } from "./videoParse";
 
 const GEMINI = "https://generativelanguage.googleapis.com/v1beta";
@@ -72,11 +72,22 @@ async function geminiVideoBytes(json: unknown, key: string, maxBytes: number): P
   return null;
 }
 
+/** 2026-10-23 fal 입력 칸 규칙(FalInputSpec)대로 요청 본문을 만든다 — 모델마다 사진 칸·길이 형식·소리 칸 이름이 다르다 */
+export function falInput(spec: FalInputSpec, prompt: string, startUrl: string, endUrl: string | undefined, seconds: number, aspect: "9:16" | "16:9", resolution?: string): Record<string, unknown> {
+  const input: Record<string, unknown> = { prompt, [spec.image]: startUrl };
+  input.duration = spec.duration === "int" ? seconds : spec.duration === "s" ? `${seconds}s` : String(seconds);
+  if (endUrl) input.end_image_url = endUrl;
+  if (spec.audio) input[spec.audio] = false;
+  if (spec.aspect) input.aspect_ratio = aspect;
+  if (spec.resolutions?.length) input.resolution = resolution && spec.resolutions.includes(resolution) ? resolution : spec.resolutions[0];
+  return input;
+}
+
 // ── 제출 ─────────────────────────────────────────────
 // prompt는 호출하는 쪽이 만든다(videoModels.ts motionPrompt 권장). endUrl은 모델이 끝 화면을 지원할 때만 쓴다.
 // startUrl·endUrl은 https 주소 또는 data:image/...;base64 주소. startUrl 생략(글만으로 생성)은 Gemini만 된다.
 // aspectRatio는 기본 9:16(세로 쇼츠) — 2026-10-23 뮤직비디오(16:9 가로)용으로 추가, Gemini·fal Seedance에 적용.
-export async function submitVideoJob(o: { key: string; model: VideoModel; prompt: string; startUrl?: string; endUrl?: string; seconds: number; maxBytes?: number; aspectRatio?: "9:16" | "16:9" }): Promise<SubmitResult> {
+export async function submitVideoJob(o: { key: string; model: VideoModel; prompt: string; startUrl?: string; endUrl?: string; seconds: number; maxBytes?: number; aspectRatio?: "9:16" | "16:9"; resolution?: string }): Promise<SubmitResult> {
   const maxBytes = o.maxBytes ?? 30 * 1024 * 1024;
   const withEnd = !!o.startUrl && !!o.endUrl && o.model.endFrame;
   const aspect = o.aspectRatio ?? "9:16";
@@ -109,9 +120,12 @@ export async function submitVideoJob(o: { key: string; model: VideoModel; prompt
   }
 
   if (o.model.provider === "fal") {
-    const input: Record<string, unknown> = { prompt: o.prompt, image_url: o.startUrl, duration: String(o.seconds), generate_audio: false };
-    if (withEnd) input.end_image_url = o.endUrl;
-    if (o.model.id.includes("seedance")) Object.assign(input, { resolution: "720p", aspect_ratio: aspect });
+    const spec = o.model.fal;
+    const input: Record<string, unknown> = spec
+      ? falInput(spec, o.prompt, o.startUrl!, withEnd ? o.endUrl : undefined, o.seconds, aspect, o.resolution)
+      : { prompt: o.prompt, image_url: o.startUrl, duration: String(o.seconds), generate_audio: false };
+    if (!spec && withEnd) input.end_image_url = o.endUrl;
+    if (!spec && o.model.id.includes("seedance")) Object.assign(input, { resolution: "720p", aspect_ratio: aspect });
     const res = await fetch(`https://queue.fal.run/${o.model.id}`, { method: "POST", headers: { Authorization: `Key ${o.key}`, "Content-Type": "application/json" }, body: JSON.stringify(input), cache: "no-store", signal: AbortSignal.timeout(60_000) });
     if (!res.ok) await providerError("fal", res);
     const json = (await res.json()) as { request_id?: string; status_url?: string; response_url?: string };

@@ -1,7 +1,7 @@
 // AI 영상 스튜디오 — 공급자·모델 목록(화면과 서버 공용, 서버 전용 코드 없음).
 // 모델·단가·길이는 공용 기준 코드 ai-video-models(@/lib/video/videoModels — 이 프로그램이 기준)에서 그대로 가져온다.
 // 여기서는 화면에 필요한 공급자 설명·키 이름과 「이 모델이 무엇을 받는지」만 덧붙인다.
-import { VIDEO_MODELS, findVideoModel, sceneCost, type VideoModel, type VideoProvider } from "@/lib/video/videoModels";
+import { STUDIO_VIDEO_MODELS, findStudioVideoModel, sceneCost, type VideoModel, type VideoProvider } from "@/lib/video/videoModels";
 
 export type ProviderId = VideoProvider;
 export type AspectRatio = "16:9" | "9:16";
@@ -51,17 +51,19 @@ export interface StudioModel extends VideoModel {
   needsImage: boolean;
   /** 고를 수 있는 화면 비율 — 비어 있으면 시작 사진 비율을 따른다 */
   aspects: AspectRatio[];
+  /** 고를 수 있는 해상도(첫 값이 기본) — 비어 있으면 모델이 정함 */
+  resolutions: string[];
 }
 
 function studioOf(m: VideoModel): StudioModel {
-  const aspects: AspectRatio[] = m.provider === "gemini" || m.id.includes("seedance") ? ["16:9", "9:16"] : [];
-  return { ...m, needsImage: m.provider !== "gemini", aspects };
+  const aspects: AspectRatio[] = m.provider === "gemini" || m.fal?.aspect || (!m.fal && m.id.includes("seedance")) ? ["16:9", "9:16"] : [];
+  return { ...m, needsImage: m.provider !== "gemini", aspects, resolutions: [...(m.fal?.resolutions ?? [])] };
 }
 
-export const MODELS: StudioModel[] = VIDEO_MODELS.map(studioOf);
+export const MODELS: StudioModel[] = STUDIO_VIDEO_MODELS.map(studioOf);
 
 export function findModel(id: unknown): StudioModel | undefined {
-  const m = findVideoModel(id);
+  const m = findStudioVideoModel(id);
   return m ? studioOf(m) : undefined;
 }
 
@@ -71,6 +73,12 @@ export function clampSeconds(m: StudioModel, requested: unknown): number {
 }
 
 /** 예상 비용(USD) — 화면에서는 「약」으로 안내하고 실제 청구는 회원 계정 기준 */
-export function estCostUsd(m: StudioModel, seconds: number, withEnd: boolean): number {
-  return Math.round(sceneCost(m, withEnd, seconds) * 100) / 100;
+export function estCostUsd(m: StudioModel, seconds: number, withEnd: boolean, resolution?: string | null): number {
+  return Math.round(sceneCost(m, withEnd, seconds, resolution) * 100) / 100;
+}
+
+/** 고른 해상도가 모델 목록에 있으면 그 값, 아니면 기본(첫 값) — 해상도 칸이 없는 모델은 null */
+export function pickResolution(m: StudioModel, requested: unknown): string | null {
+  if (!m.resolutions.length) return null;
+  return typeof requested === "string" && m.resolutions.includes(requested) ? requested : m.resolutions[0];
 }
