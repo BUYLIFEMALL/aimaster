@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { BookmarkPlus, Download, ImageIcon, Loader2, RefreshCw, Star, Trash2 } from "lucide-react";
 import { KIND_LABEL, type Kind } from "@/lib/bnc/types";
 import { PRESET_KIND_LABEL, isPresetKind, presetFromRecord } from "@/lib/bnc/presets";
+import { ideaSourceName, ideaSourceUrl } from "@/lib/bnc/ideaParam";
+import { markDownloaded } from "@/lib/bnc/downloadMark";
 
 interface Row { id: string; kind: Kind; title: string; prompt: string; model: string; favorite: boolean; created_at: string; count: number; cover: string | null; ideaSource?: string | null }
 interface Out { path: string; url: string | null; text?: string; mime?: string }
@@ -126,6 +128,16 @@ export function HistoryList() {
         <div className="bc-zoom multi" role="dialog" aria-modal="true" onClick={() => { if (recutting === null) setOpen(null); }}>
           <div className="bc-zoom-body" onClick={(e) => e.stopPropagation()}>
             {error && <p role="alert" className="error" style={{ marginBottom: 10, color: "var(--danger)" }}>{error}</p>}
+            {/* v1.27: 다른 프로그램에서 온 결과면 보낸 곳과 돌아가기 링크 */}
+            {(() => {
+              const src = (open.options as { ideaSource?: unknown } | null)?.ideaSource;
+              const name = ideaSourceName(src);
+              return name ? (
+                <p className="bc-hint bc-detail-src" data-detail-source style={{ marginBottom: 10 }}>
+                  🔗 「{name}」에서 온 아이디어로 만든 결과입니다. <a href={ideaSourceUrl(src)} data-idea-back>↩ {name} 화면으로 돌아가기</a>
+                </p>
+              ) : null;
+            })()}
             {isPresetKind(open.kind) && (
               <div className="bc-preset">
                 <span className="bc-label">📌 이 설정을 레시피로 저장</span>
@@ -147,7 +159,7 @@ export function HistoryList() {
                       </button>
                     </div>
                   )}
-                  {o.url && <div className="actions"><button type="button" onClick={() => void saveImage(o.url!, `banana_${open.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`)}><Download size={13} />다운로드</button></div>}
+                  {o.url && <div className="actions"><button type="button" onClick={() => { void saveImage(o.url!, `banana_${open.kind}_${i + 1}${o.mime?.includes("jpeg") ? ".jpg" : ".png"}`); markDownloaded(open.id); }}><Download size={13} />다운로드</button></div>}
                 </figure>
               ))}
             </div>

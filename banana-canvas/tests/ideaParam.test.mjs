@@ -66,3 +66,19 @@ test("v1.26 이어서 편집 출처 이어받기·연계 결과 필터", () => {
   const list = readFileSync(new URL("../src/components/workspace/HistoryList.tsx", import.meta.url), "utf8");
   assert.match(list, /data-only-src/);
 });
+
+test("v1.27 인페인트·컷 다시도 출처 유지, 상세 창 보낸 곳, 다운로드 기록", () => {
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  // 인페인트는 run()을 거쳐 carrySource가 붙는다
+  assert.match(studio, /await run\("inpaint"/);
+  // 컷 다시 만들기는 기존 기록을 갱신(새 기록 없음) → 그 기록의 options.ideaSource 유지
+  const recut = readFileSync(new URL("../src/app/api/run/recut/route.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(recut, /\.insert\(/);
+  assert.match(studio, /markDownloaded\(result\.id\)/);
+  const list = readFileSync(new URL("../src/components/workspace/HistoryList.tsx", import.meta.url), "utf8");
+  assert.match(list, /data-detail-source/);
+  assert.match(list, /markDownloaded\(open\.id\)/);
+  const route = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
+  assert.match(route, /downloadedAt/);
+  assert.match(route, /if \(!options\.downloadedAt\)/);
+});

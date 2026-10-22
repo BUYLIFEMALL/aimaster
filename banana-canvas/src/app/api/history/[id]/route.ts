@@ -34,8 +34,20 @@ export async function GET(_r: NextRequest, ctx: Ctx) {
 export async function PATCH(request: NextRequest, ctx: Ctx) {
   const g = await guard(ctx);
   if (g.res) return g.res;
-  let body: { favorite?: unknown } = {};
+  let body: { favorite?: unknown; downloaded?: unknown } = {};
   try { body = await request.json(); } catch { return json({ error: "요청 형식이 올바르지 않습니다." }, 400); }
+  // v1.27: 처음 다운로드한 시각을 `options.downloadedAt`에 한 번만 남긴다(본인 결과만, 이미 있으면 그대로)
+  if (body.downloaded === true) {
+    const admin = createAdminClient();
+    const { data } = await admin.from("banana_canvas_results").select("options").eq("id", g.id).eq("user_id", g.user.id).maybeSingle();
+    if (!data) return json({ error: "결과를 찾을 수 없습니다." }, 404);
+    const options = (data.options ?? {}) as Record<string, unknown>;
+    if (!options.downloadedAt) {
+      const { error } = await admin.from("banana_canvas_results").update({ options: { ...options, downloadedAt: new Date().toISOString() } }).eq("id", g.id).eq("user_id", g.user.id);
+      if (error) return json({ error: "저장하지 못했습니다." }, 500);
+    }
+    return json({ ok: true });
+  }
   if (typeof body.favorite !== "boolean") return json({ error: "바꿀 내용이 없습니다." }, 400);
   const { error } = await createAdminClient().from("banana_canvas_results").update({ favorite: body.favorite }).eq("id", g.id).eq("user_id", g.user.id);
   if (error) return json({ error: "저장하지 못했습니다." }, 500);
