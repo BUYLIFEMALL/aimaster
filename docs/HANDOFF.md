@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — INSTA 포스팅 v1.53 · AI 상세페이지 자동화 v1.20 (배포 대기, S-22-10 2단계 인스타)
+- 상세페이지 완료 섹션 「📸 인스타 홍보글」 → INSTA `/posts/new?from=shop-detail&shopImage=&caption=`: 저장 위치만 넘기고 INSTA가 본인 폴더 확인 후 `insta-post-images/<본인>/sd-<해시>`로 복사, 캡션 초안·초록/빨간 안내. 쓰레드 v1.81과 같은 방식. AI 0회, tsc 0.
+- 1단계(쓰레드) 맥미니 크롬 재확인 통과(이미지·초안, 새로고침 1장, 남의 ID 차단).
+- **윈도우 순서**(빌드 2회): ① INSTA SQL `insta_auto_poster/supabase/migrations/20261022220000_shop_detail_import_v1_53.sql` → `npm run test:import` → `insta_auto_poster` 배포 ② Ready 뒤 상세페이지 SQL `shop-detail-page/supabase/migrations/20261022_insta_link_v1_20.sql` → `shop-detail-page` 배포 ③ 크롬 확인만(생성·게시 버튼 누르지 않음). 상세: `shop-detail-page/AGENTS.md` 맨 아래 v1.20.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — 네이버 블로그 에이전트 v2.09: BLC-07 입력 검증 보강 (빌드 1회)
 - BLC-07 v2.09 운영 완료(2026-10-22 Claude Code 윈도우, 웨일 — Codex 크레딧 제한으로 주인님 지시 이어받음): ① 빈 본문 차단 — 서버(`src/app/api/extension/task/route.ts` + `src/lib/bodyText.ts`)가 본문 문단 없는 대기 원고를 가져가지 않고 `failed`「본문이 비어 있어 입력하지 않았습니다」(다음 원고는 막지 않음), 확장 `writeArticle`도 `EMPTY_BODY` ② 발행 직전 정확 대조 — 이미지 AI 표시 뒤·발행 설정 뒤(최종 버튼 직전)에 `matchingWriterPrefix`로 문서 전체를 다시 대조, 다르면 `FINAL_MISMATCH`로 발행 0(기존 `verify`는 순서 포함만 봐서 중복·추가 문단 통과). 시험: 새 시험(빈 본문 판정·서버 실패 처리 후 다음 원고 정상·중복/추가 문단 거절·정상 통과) 추가, 기존 시험은 가짜 함수/기대값만 보완. 배포 `dpl_B6ng8tG17guwDz7qzN4WKCRWB1Fj` Ready·DB/확장/ZIP v2.09·`check-extension-release` OK. 실제 검수: 웨일 v2.09 확장(주인님 새로고침)으로 비공개 합성 원고 → 약 50초 `published`, `post_url`(logNo=224450052863)·`published_at` 자동 기록, 외부 「비공개 글 입니다.」·RSS 미노출. AI 0. 이미 있던 장치(빈 편집기·선점·runId·임대·복구·옛 확장 호환)는 다시 만들지 않음. 원래부터 실패하던 시험 3개(`test:writing-styles`·`test:categories`·`test:post-status`, server-only 모듈 실행 환경 문제)는 이번 변경과 무관 — 미처리. 미시험: 실제 화면에서 FINAL_MISMATCH가 나는 경우(시험으로만 확인).
 - 다음: 블로그 작업표 BLC-08(작업실 → SEO 본인 문체·근거 승인). 프로그램: https://naver-blog-agent.buylife.xyz

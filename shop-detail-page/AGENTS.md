@@ -225,3 +225,8 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 상세페이지 v1.19 → 상품소싱 v1.23 → 쓰레드 쇼핑제휴 v1.81 순서로 배포(각 READY). tsc·로컬 build 통과.
 - 크롬(시험 계정 `buylifemall@naver.com`, 생성·게시 버튼은 누르지 않음): ① 상세페이지 v1.19, 완료 섹션(쿠팡 12단 `cp_promotion`)의 「🧵 쓰레드 홍보글」 → 새 창 쓰레드 쇼핑제휴 `/posts/new` v1.81에 공개 저장소 `post-images/<회원id>/from-shop-detail/<해시>.jpg` 이미지 1장(정상 표시)·초안(상품명+특징 3줄, 할인가 없어 가격 줄 없음)·초록 안내 ② 새로고침해도 이미지 1장·같은 파일 이름(복사본 늘지 않음) ③ 주소의 회원 ID를 다른 값으로 바꾸면 빨간 「⚠️ 본인이 만든 상세페이지 이미지만 가져올 수 있습니다.」·이미지 0장. 상품소싱 `/sourcing` v1.23 오류 없이 열림(「📄 상세페이지」 버튼은 소싱 결과가 있어야 보여 미확인 — 검색 비용).
 - 비용: Vercel 빌드 3회(주인님이 붙여 주신 순서대로), AI 호출 0회.
+
+## 2026-10-22 v1.20 — 「📸 인스타 홍보글」 (S-22-10 2단계, Claude Code 맥미니 · 배포 대기)
+- 섹션 카드 버전 줄의 「🧵 쓰레드 홍보글」 옆에 「📸 인스타 홍보글」(완료된 섹션만). 같은 초안(`threadsDraftText`)을 `caption`으로, 이미지는 비공개 버킷 안 **위치만** `shopImage`로 INSTA 포스팅 자동화 `/posts/new`에 새 창으로 넘긴다(`lib/threadsLink.ts` `instaPostUrl`). 받는 쪽 `insta_auto_poster` v1.53 `src/lib/shopDetailImport.ts`가 본인 폴더 확인 후 「직접 첨부」와 같은 공개 버킷 `insta-post-images/<본인>/sd-<해시>.<확장자>`로 복사. 버튼 줄은 좁은 카드에서 줄바꿈(`flex-wrap`). AI 호출 없음.
+- 버전 v1.20(`lib/version.ts`, SQL `supabase/migrations/20261022_insta_link_v1_20.sql` — 버전만). 검수: tsc 0.
+- **윈도우 CLI 다음 첫 단계**: ① INSTA SQL `insta_auto_poster/supabase/migrations/20261022220000_shop_detail_import_v1_53.sql` → `insta_auto_poster` 시험 `npm run test:import`(맥미니는 esbuild가 윈도우용이라 실행 불가) → 배포 1회 ② Ready 뒤 상세페이지 SQL `20261022_insta_link_v1_20.sql` → `shop-detail-page` 배포 1회 ③ 크롬 확인(생성·게시 버튼은 누르지 않음): 「📸 인스타 홍보글」 → INSTA 새 글에 이미지 1장·캡션 초안·초록 안내 / 새로고침해도 1장 / 회원 ID를 바꾸면 빨간 안내.

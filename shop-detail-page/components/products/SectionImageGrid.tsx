@@ -11,7 +11,7 @@ import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
-import { threadsPostUrl } from "@/lib/threadsLink";
+import { instaPostUrl, threadsPostUrl } from "@/lib/threadsLink";
 
 interface TemplateInfo {
   id: string;
@@ -311,6 +311,7 @@ export function SectionImageGrid({
         {templates.map((t) => {
           const state = states[t.section_key];
           const threadsHref = state.status === "done" && state.url ? threadsPostUrl(state.url, threadsDraft) : null;
+          const instaHref = state.status === "done" && state.url ? instaPostUrl(state.url, threadsDraft) : null;
           return (
             <div
               key={t.section_key}
@@ -389,23 +390,37 @@ export function SectionImageGrid({
 
               {/* 재생성 이력 썸네일 바 */}
               <div className="p-3 bg-white border-t border-slate-100">
-                <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     VERSIONS ({state.history.length})
                   </p>
-                  {/* v1.19(추가, S-22-10): 선택한 이미지 1장을 쓰레드 쇼핑제휴 새 글로 넘긴다(AI 호출 없음). */}
-                  {threadsHref && (
-                    <a
-                      href={threadsHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="선택한 이미지 1장과 상품명·핵심 특징을 쓰레드 쇼핑제휴 자동화의 새 글 화면으로 넘깁니다"
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0 whitespace-nowrap"
-                    >
-                      <span>🧵</span>
-                      <span>쓰레드 홍보글</span>
-                    </a>
-                  )}
+                  {/* v1.19(추가, S-22-10): 선택한 이미지 1장을 쓰레드 쇼핑제휴 새 글로 넘긴다(AI 호출 없음). v1.20: 인스타 새 글도. */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {threadsHref && (
+                      <a
+                        href={threadsHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="선택한 이미지 1장과 상품명·핵심 특징을 쓰레드 쇼핑제휴 자동화의 새 글 화면으로 넘깁니다"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0 whitespace-nowrap"
+                      >
+                        <span>🧵</span>
+                        <span>쓰레드 홍보글</span>
+                      </a>
+                    )}
+                    {instaHref && (
+                      <a
+                        href={instaHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="선택한 이미지 1장과 상품명·핵심 특징을 INSTA 포스팅 자동화의 새 글 화면으로 넘깁니다"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0 whitespace-nowrap"
+                      >
+                        <span>📸</span>
+                        <span>인스타 홍보글</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {state.history.map((url, i) => (
