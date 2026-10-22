@@ -181,3 +181,10 @@
 - 「③ 대본 다듬기」: 대본 생성 때 검사 대상 글을 기억(`guardRef`)하고 인트로(제목+내레이션)·카드(제목+내레이션)·아웃트로(내레이션)마다 브라우저에서 다시 검사 → 겹치면 노란 테두리(`#f5c542`)·「⚠ 겹침」, 고치면 바로 사라짐. 「내 대본」·불러온 대본은 검사 대상 비움.
 - 검수: tsc, `npm test` 18개(2개 추가), build, 배포 `shorts-onestop-studio-ejdlf5ph1` Ready, DB v1.31. 크롬(시험 회원, 새 탭): 기사형 참고 자료 + 체크 → 대본 8초, 겹침 0 → 1번 카드에 기사 문장 붙이기 → 노란 테두리·「⚠ 겹침」(화면 캡처) → 원래대로 → 사라짐. 대본 저장 안 함.
 - 비용: 빌드 1회, 대본 생성 1회 약 $0.01~0.02(시험 회원 본인 키, 승인 범위).
+
+## 2026-10-22 v1.32 — INSTA 받아쓰기 받는 입구 (Claude Code 윈도우)
+- 플랜 `../insta_auto_poster/docs/PLAN_20261022_COPY_GUARD_CARDS_HANDOFF.md`. 주제 화면(`/topic`)이 열릴 때 주소 `#ref-transcript=` 대사가 있으면 참고 자료에 「[레퍼런스 쇼츠 대본 — 「인스타 릴스」에서 실제로 말한 내용…]」 블록으로 넣고(v1.30 6어절 규칙·재요청·v1.31 노란 테두리 그대로), 「AI가 직접 대본」 모드·초록 안내, `history.replaceState`로 `#` 지움. 저장은 하지 않음(화면 상태).
+- 공용 기준 `src/lib/reference.ts`에 `REF_HASH`·`REF_HANDOFF_MAX`(12000)·`refHandoffHash`·`readRefHandoff`(깨진 값·다른 `#`은 빈 값) — INSTA 사본 동기화(`--sync`).
+- 검수: tsc, `npm test` 19개(1개 추가), build, 배포 `shorts-onestop-studio-hzu3893ld` Ready, DB v1.32, 크롬(시험 회원)에서 INSTA 버튼 주소로 열어 블록·안내 확인(대본 생성은 안 함).
+- 미확인: 로그인하지 않은 상태로 넘기기 주소를 열면 로그인 화면을 거치며 `#` 부분이 사라질 수 있음(`docs/IMPROVEMENTS.md`).
+- 비용: 빌드 1회, AI 호출 없음.

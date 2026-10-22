@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — INSTA v1.58 문구 장별 겹침 테두리 · 받아쓰기 → AI 쇼츠 원스톱 v1.32 (빌드 2회, AI 0회)
+- INSTA 문구 화면 겹친 장에 노란 테두리, 떡상 리메이크 받아쓰기를 「🎬 이 대사로 쇼츠 만들기」로 원스톱 참고 자료에 넘김(주소 `#` 뒤, 서버로 안 감). 넘기기 함수는 공용 `reference-copy-guard`. 크롬 확인. 상세 `insta_auto_poster/AGENTS.md` v1.58, `shorts-onestop-studio/AGENTS.md` v1.32.
+- 프로그램: https://auto-instagram-posting.buylife.xyz · https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — SEO블로그 스튜디오 v1.87 문체 끝맺음 자동 판별 (빌드 1회 · AI 1회) — 부분 개선
 - 표본의 「~요」/「~니다」를 AI 없이 세어 해요체면 필수 끝맺음 규칙을 넣고 원고 `seo_report.style.ending`에 기록. 배포 Ready·DB/확장/ZIP v1.87, 시험 50 통과. 코드는 공유 인덱스 때문에 다른 세션 커밋 `e122c3b4c`에 함께 들어감(내용 동일, 원격 반영됨).
 - 실검수(같은 자료·문체·gpt-4o-mini): 평서문 「~요」 4→29로 늘었으나 「~니다」 29가 섞임. 다음 후보(승인 대기): 생성 후 끝맺음 비율 재검사·1회 재요청, 또는 상위 모델 비교. 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래.
