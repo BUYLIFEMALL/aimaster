@@ -234,8 +234,8 @@ Claude Code도 Codex(Orca)와 같은 방식으로, 주인님이 로그인해 둔
   | ~~보조 Claude (`buylifemall1@gmail.com`)~~ | ~~엣지~~ | **2026-10-16 사용 중단** — 엣지는 이제 Antigravity·Codex 전용 |
   | ~~Antigravity (Gemini) — 엣지~~ | ~~엣지~~ | 2026-10-16~10-21 기록. **2026-10-22부터 웨일로 변경** |
   | **Antigravity (Gemini)** | **웨일**(Naver Whale) 전용 | **2026-10-22 주인님 지시.** Claude 확장 연결 deviceId `ee21e4c0-686f-4014-8be0-d87ac8c99ad7`(2026-10-22 제어 확인, Whale 5 / Chromium 150) — Claude Code는 주인님이 세션에서 지정할 때만 고른다 |
-  | **Codex** | **엣지**(Microsoft Edge) 전용 | **작업 시 Edge만 사용 (2026-10-16 주인님 지시)** |
-  | **세션 지정**(모든 CLI) | 주인님이 그 세션에서 지정한 브라우저 | **2026-10-22 보조 지침** — 위 표는 기본 할당이고, 필요하면 주인님이 채팅으로 세션마다 지정한다(예: agy·Codex 토큰 한도 때 Claude Code 세션에 엣지/웨일). 상세: 루트 `CLAUDE.md` 맨 위 「보조 지침 — 세션 지정 브라우저」. 엣지 deviceId는 미확인(윈도우 연결 목록의 `96fdc2f3…`·`b210cc19…` 중 하나일 수 있음 — 확인 후 기록) |
+  | **Codex** | **엣지**(Microsoft Edge) 전용 | **작업 시 Edge만 사용 (2026-10-16 주인님 지시)**. Claude 확장 연결 deviceId `b210cc19-22d5-48f0-bd2b-b8e854ce7919`(2026-10-22 확인, Microsoft Edge 155) — 엣지 창을 닫으면 연결이 끊겨 목록에서 사라진다 |
+  | **세션 지정**(모든 CLI) | 주인님이 그 세션에서 지정한 브라우저 | **2026-10-22 보조 지침** — 위 표는 기본 할당이고, 필요하면 주인님이 채팅으로 세션마다 지정한다(예: agy·Codex 토큰 한도 때 Claude Code 세션에 엣지/웨일). 상세: 루트 `CLAUDE.md` 맨 위 「보조 지침 — 세션 지정 브라우저」. 엣지 deviceId `b210cc19-22d5-48f0-bd2b-b8e854ce7919`(2026-10-22 확인). 윈도우 연결 목록의 `96fdc2f3…`는 아직 미확인(Aside일 수 있음) |
 
   - 확장을 다시 설치하면 deviceId가 바뀔 수 있으니, 바뀌면 이 표를 고친다. 시험용으로 만들었던 크롬 새 프로필(`66bc74e9…`, 구글 `buylifemall1`)은 2026-10-14 삭제했다 — 크롬에는 메인 계정의 기본 프로필 하나만 둔다.
   - 엣지는 이 PC에 Claude Code 연결(native messaging host `com.anthropic.claude_code_browser_extension`)이 등록돼 있어 쓸 수 있다. 네이버 웨일·Aside는 등록이 없어 쓰지 않는다. 엣지 확장은 크롬 웹스토어의 같은 확장(`fcoeoabgfenejglbffodgkkbkcdhcgfn`)을 설치한다.
