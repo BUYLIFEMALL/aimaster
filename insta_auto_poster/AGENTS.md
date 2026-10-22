@@ -394,3 +394,7 @@
 - 검수: `test:cardnews` 72개(새 4개 `tests/cardnews/photoSearch.test.mjs`), `test:own-meta`, tsc 0, 로컬 build 2회, 배포 `insta-auto-poster-cowg2267p`(v1.63)·`insta-auto-poster-hh6ybkjhx`(v1.64) Ready, DB v1.64, 비로그인 401. 크롬(관리자 계정 본인 Pixabay 키): 시험 작업(문구 2장) → 「coffee」 12장 → 사진 누르면 약 7초 뒤 그 장 배경(WebP 103KB, 공개 주소 200) → 새로고침 뒤 유지 → v1.64에서 한 줄 배치(선택 96·검색어 153·버튼 48px)·한글 검색어 「아침 루틴」 결과 → 다른 서버 주소 거절·Pexels 키 없음 안내 → 설정 화면 칸. 시험 작업·사진 모두 삭제(관리자 폴더 0개).
 - 미확인: Pexels 실제 검색(관리자·시험 계정 모두 Pexels 키 없음), 휴대폰 폭 화면, 고른 사진으로 실제 인스타 게시.
 - 비용: Vercel 빌드 2회(1회 승인 + 배치 수정 1회 추가 승인), Pixabay 검색 4회(무료·관리자 본인 키), AI 0회.
+
+### 2026-10-23 🟡 미배포 대기 (운영 v1.64 그대로) — 전체 무료 사진 자동 채우기 · 출처 배지 · 공용 기준 코드 `free-photo-search` (Claude Code 윈도우, 커밋 `428fcdfc3`)
+- 배경 화면 「전체 무료 사진 자동 채우기」·썸네일 출처 배지, `photoSearch.ts`를 공용 기준 코드로(사본 `emotion-writer/src/lib/studio/photoSearch.ts`, **사본은 직접 고치지 말고 이 파일만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`**). 상세 `docs/IMPROVEMENTS.md` 맨 위.
+- 검수: `test:cardnews` 73개, tsc 0, 로컬 build, `check-shared-modules` 일치. 크롬 화면 검수는 다음 배포 때. 비용 없음(빌드 0회).

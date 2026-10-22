@@ -166,3 +166,6 @@
 ## ✅ v1.25 배포 (2026-10-22, Claude Code 윈도우) — 이미지 스튜디오에서 만들기
 - 미리보기 아래 「🍌 이 글귀 분위기의 배경을 바나나 캔버스에서 만들기」 옆에 「🎨 이미지 스튜디오에서 만들기」(`data-image-studio-bg`). 같은 「글자 없이…」 문구(`quoteBackgroundIdea`)를 `imageStudioBackgroundLink`(`src/lib/studio/bananaLink.ts`)가 공용 사본의 `imageStudioLink(…, "emotion-writer")`로 만든다(6000자 이하, 자동 생성 없음). 이미지 스튜디오가 「감성 글귀에서 보낸 프롬프트」·돌아가기·생성 기록에 씀.
 - 같은 배포로 공용 사본 `bananaIdeaLink.ts`의 `BANANA_SOURCES`·`imageStudioLink` 추가분도 나감. 시험 35개, tsc·빌드. 크롬: 운영 화면 v1.25, 묶음 파일에 주소·`emotion-writer`·문구 포함(링크 클릭은 글귀 생성 AI 비용이 들어 생략).
+
+### 2026-10-23 🟡 미배포 대기 (운영 v1.25 그대로) — 사진 검색을 공용 기준 코드 `free-photo-search` 사본으로 (Claude Code 윈도우, 커밋 `428fcdfc3`)
+- `src/lib/studio/photoSearch.ts`(사본, 직접 고치지 않음 — 기준 INSTA `src/lib/cardnews/photoSearch.ts` 수정 후 `--sync`). 상세 `docs/IMPROVEMENTS.md` 맨 위. 비용 없음.

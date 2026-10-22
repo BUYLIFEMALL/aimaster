@@ -1,5 +1,10 @@
 # INSTA 포스팅 자동화 (`insta_auto_poster`) 개선 및 특이사항 기록
 
+> **🟡 미배포 대기 (2026-10-23, Claude Code 윈도우 — 「작은 소스 수정은 모았다가 배포」 지침)** 다음 INSTA 배포 때 함께(운영 v1.64, 버전은 그때 한 번). 커밋 `428fcdfc3`.
+> - 카드뉴스 배경 「전체 무료 사진 자동 채우기」(제공처 선택 + 버튼, 배경 없는 장마다 제목으로 검색해 첫 사진 → 기존 `/api/cardnews/photos` search·pick, 두 장씩 동시, 본인 키 없으면 한 번 안내 후 멈춤). 사진 썸네일 왼쪽 위 「Pixabay」·「Pexels」 출처 배지.
+> - `src/lib/cardnews/photoSearch.ts`가 공용 기준 코드 `free-photo-search`의 **기준**이 됨: 프로그램 전용 가져오기 없음, 비율은 문자열(「1:1」이면 정사각), `searchPhotos(…, { signal, call })`·`downloadPhoto(url, { signal, call, maxBytes })`(기본 8MB), 키 오류 문구 「본인 API 키와 사용 권한을 확인해주세요」. 동작은 같음.
+> - **배포 뒤 확인**: 크롬에서 시험 작업 2장 → 자동 채우기 → 두 장 모두 배경, 배지 표시, 사진 키 없는 계정(Pexels 선택)으로 안내 1번만.
+
 ## 1. 이번 버전 (`v1.23`) 주요 개선 사항 (2026-10-18)
 - **디자인 테마 전면 리뉴얼**:
   - 기존의 단조로운 라이트 테마(`bg-white`)에서 **플로우 위저드 스타일 (인스타 바이럴 변형)** 다크 모드(`bg-[#0d0f17]`, 서피스 `#161922`, 보더 `#262c3d`, 인스타 로즈/핑크 그라디언트)로 전면 일체화.
@@ -77,8 +82,10 @@
 - 2026-10-22 처리(코드만, 미배포): 공용 기준 `copiedPhrases`가 원문 글자를 돌려주도록 수정·사본 동기화 — INSTA 다음 배포 때 화면에 반영.
 
 ## 2026-10-23 v1.63~v1.64 무료 사진 검색 (Claude Code 윈도우)
-- [ ] **공용화 후보**: 사진 검색(`src/lib/cardnews/photoSearch.ts`)이 감성 글귀(`emotion-writer/src/lib/studio/services.ts` `searchPhotos`·`photoDataUrl`, `validation.ts` `allowedPhotoUrl`)와 같은 로직의 사본입니다. 감성 글귀 쪽은 다른 기능과 한 파일에 섞여 있어 이번에는 묶지 않음 — 다음에 감성 글귀를 고칠 때 INSTA 파일을 기준으로 공용 기준 코드(`free-photo-search`) 등록 검토. landing-architect도 Pixabay 키를 씀(확인 필요).
+- [x] (2026-10-23 처리, 미배포 대기 — 공용 기준 코드 `free-photo-search` 등록, 기준 이 파일·사본 감성 글귀) **공용화 후보**: 사진 검색(`src/lib/cardnews/photoSearch.ts`)이 감성 글귀(`emotion-writer/src/lib/studio/services.ts` `searchPhotos`·`photoDataUrl`, `validation.ts` `allowedPhotoUrl`)와 같은 로직의 사본입니다. 감성 글귀 쪽은 다른 기능과 한 파일에 섞여 있어 이번에는 묶지 않음 — 다음에 감성 글귀를 고칠 때 INSTA 파일을 기준으로 공용 기준 코드(`free-photo-search`) 등록 검토. landing-architect도 Pixabay 키를 씀(확인 필요).
 - [ ] Pexels 실제 검색 미검수(관리자·시험 계정 모두 Pexels 키 없음) — 키가 생기면 「무료 사진 검색」에서 제공처 Pexels로 한 번 확인.
-- [ ] 같은 장에서 사진을 7번 넘게 바꾸면 「만든 이미지」 목록(최대 6개)에서 밀려난 파일이 작업 삭제 때 정리되지 않을 수 있음(AI 배경과 같은 동작, 30일 정리에는 포함되는지 확인 필요).
+- [x] (2026-10-23 확인 — 이미 처리됨: 작업 저장 때 `api/projects/[id]/route.ts` `removedImagePaths`가 목록에서 밀려난 내 파일을 지움, 코드 변경 없음) 같은 장에서 사진을 7번 넘게 바꾸면 「만든 이미지」 목록(최대 6개)에서 밀려난 파일이 작업 삭제 때 정리되지 않을 수 있음(AI 배경과 같은 동작, 30일 정리에는 포함되는지 확인 필요).
 - [ ] 휴대폰 폭(375px)에서 사진 검색 칸 화면 확인 미실시(카드가 한 열이라 패널 폭은 넓어짐).
 - 발견(공통): 카드뉴스 `ui.tsx`의 `SELECT`·`INPUT`이 `w-full`을 갖고 있어 다른 너비 클래스를 덧붙이면 무시될 수 있음 — 새 칸을 만들 때 `replace("w-full ", "")`로 빼고 쓰기.
+
+- [ ] (2026-10-23 연계 제안, 기록만) INSTA 피드 새 글 「직접 첨부」에도 무료 사진 검색 — 고른 사진은 `insta-post-images/<회원>/`(직접 첨부와 같은 버킷)에 저장해야 해서 `pick` 저장 위치를 고를 수 있게 하거나 피드 전용 API가 필요. 빌드 1회, AI 0.

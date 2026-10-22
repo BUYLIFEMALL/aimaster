@@ -1,5 +1,9 @@
 # 감성 글귀 이미지 (emotion-writer) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+> **🟡 미배포 대기 (2026-10-23, Claude Code 윈도우 — 내부 정리, 동작 같음)** 다음 감성 글귀 배포 때 함께(운영 v1.25, 버전은 그때). 커밋 `428fcdfc3`.
+> - 사진 검색·받기를 공용 기준 코드 `free-photo-search` 사본 `src/lib/studio/photoSearch.ts`로(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`, **사본 직접 수정 금지**). `services.ts` `searchPhotos`·`photoDataUrl`과 `validation.ts` `allowedPhotoUrl`은 인자·3MB 한도를 그대로 둔 연결 함수(오류는 `AppError`로 바꿈). 키 오류 문구만 「본인 API 키와 사용 권한을 확인해주세요」(띄어쓰기)·429 문구 「검색 한도에 도달했습니다」로 조금 바뀜.
+> - 검수: 기존 시험 35개 그대로 통과(기대값 변경 없음), tsc 0, 로컬 build. **배포 뒤 확인**: 사진 검색(Pixabay) → 사진 선택 → 이미지 만들기.
+
 > **작성 일자**: 2026-10-18  
 > **작성자**: Antigravity (윈도우)  
 > **기준 버전**: `v1.15`  

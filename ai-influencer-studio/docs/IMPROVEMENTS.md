@@ -35,3 +35,6 @@
 - **제안 ①(로직)**: 작업 히스토리(현재 브라우저 저장)를 DB로 옮기면(IMPROVEMENTS #3) 예약 기록에서 원본 화보로 바로 돌아가기·다른 기기에서 예약 확인이 가능해진다.
 - **제안 ③(연계)**: 인플루언서 「일과 플래닝」으로 만든 여러 컷을 하루 시간표대로 자동 예약(예: 아침·점심·저녁 컷을 각 시각에)하는 「하루 일과 자동 예약」 — 예약 표·실행 경로는 v1.15 그대로 재사용.
 - **상태**: 제안 ①②③ 미구현.
+
+## 2026-10-23 연계 제안 — 무료 사진 검색 붙이기 (Claude Code 윈도우, 기록만·구현 아님)
+- [ ] 화보 배경·참고 사진에 「📷 무료 사진 검색」(회원 본인 Pixabay·Pexels 키, 공용 `user_api_keys` — 감성 글귀·INSTA에서 넣은 키 그대로)을 붙이기. 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본을 쓰고, 고른 사진 저장(버킷·경로)과 화면은 이 프로그램 방식으로. 참고 구현: INSTA `src/app/api/cardnews/photos/route.ts`·`src/components/cardnews/studio/PhotoSearchPanel.tsx`. 예상 비용: 빌드 1회, AI 0. 착수 전 플랜·승인 필요.

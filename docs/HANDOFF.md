@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 무료 사진 검색 공용 기준 코드 `free-photo-search` 등록 · INSTA 「전체 무료 사진 자동 채우기」·출처 배지 (**미배포 대기**)
+- 한 일: INSTA `src/lib/cardnews/photoSearch.ts`를 기준(프로그램 전용 가져오기 없음)으로 바꾸고 감성 글귀 `src/lib/studio/photoSearch.ts` 사본 추가, 감성 글귀 사진 함수는 사본을 부르는 연결(인자·3MB 한도 그대로), `check-shared-modules` 등록·일치. INSTA 배경 화면 「전체 무료 사진 자동 채우기」(배경 없는 장마다 제목 검색 → 첫 사진, 키 없으면 한 번 안내 후 멈춤)·썸네일 출처 배지. 「7번 넘게 바꾸면 남는 파일」은 이미 `removedImagePaths`가 처리해 변경 없음. 웹툰·AI 인플루언서·4컷·INSTA 피드 직접 첨부 연계는 각 IMPROVEMENTS와 IDEA-FREEPHOTO-01에 기록만.
+- 검수: INSTA 시험 73·감성 글귀 시험 35(기대값 변경 없음), tsc 0 두 곳, 로컬 build 두 곳. 크롬 화면 검수는 다음 배포 때(`docs/PENDING_DEPLOYS.md` 2줄).
+- 커밋 `428fcdfc3`(코드) + 이 문서 커밋. 비용 없음(빌드 0회, AI 0회).
+- 링크: https://auto-instagram-posting.buylife.xyz/cardnews/background · https://emotion-writer.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.07 문단 나눔 복구·입력 확인 강화 (빌드 1회 · AI 0회)
 - v2.06 실검수에서 문단·소제목이 이어 붙는 문제 발견 → Enter 키에 줄바꿈 문자, 입력 확인에 문단 수 비교, 완료 문구에 걸린 시간, 20분 넘게 멈춘 자동 포스팅 실행 자동 정리·입력만 결과 기록 허용. 배포 Ready·DB/확장/ZIP v2.07.
 - 남은 일: 주인님 확장 새로고침 뒤 실제 네이버 편집기 문단 나눔 재확인(`naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래).

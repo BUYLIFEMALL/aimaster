@@ -73,3 +73,6 @@
 
 ## 2026-10-22 (Claude Code 윈도우) — 형식 바꾸기 ?preset= 보류
 - [✅ v1.29 해결 — 저장 때 실제 크기 기록 후 규격 매칭] 변환 스튜디오 v1.13이 `?preset=`을 받지만, 4컷 저장 항목의 `aspect`는 컷 하나 비율이고 완성작(여러 컷 합본) 전체 비율과 달라 잘못 잘릴 수 있어 붙이지 않음. 완성작 실제 가로·세로를 저장 목록에 넣으면 그때 규격 매칭 가능.
+
+## 2026-10-23 연계 제안 — 무료 사진 검색 붙이기 (Claude Code 윈도우, 기록만·구현 아님)
+- [ ] 컷 배경에 「📷 무료 사진 검색」(회원 본인 Pixabay·Pexels 키, 공용 `user_api_keys` — 감성 글귀·INSTA에서 넣은 키 그대로)을 붙이기. 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본을 쓰고, 고른 사진 저장(버킷·경로)과 화면은 이 프로그램 방식으로. 참고 구현: INSTA `src/app/api/cardnews/photos/route.ts`·`src/components/cardnews/studio/PhotoSearchPanel.tsx`. 예상 비용: 빌드 1회, AI 0. 착수 전 플랜·승인 필요.

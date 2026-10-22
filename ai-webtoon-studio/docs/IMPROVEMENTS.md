@@ -57,3 +57,6 @@ F-012: 웹툰 생성 실패/키 미등록 뒤 다른 외부 엔진 자동 호출
 ## 2026-10-22 S1 검토에서 발견 (Claude Code 윈도우, 미구현)
 - [중요·미구현] 캐릭터 시트·참고 사진이 컷 그림에 쓰이지 않음: `lib/imageGen.ts` `generateCutImage`가 글 프롬프트만 `/api/ai/image`로 보내고, 서버도 `prompt`·`aspectRatio`만 받음 → 컷마다 인물 외모가 달라질 수 있음. 제안 W8: 컷 `characterNames`의 인물 시트(없으면 참고 사진) 최대 3장을 줄여(4컷 `shrinkForUpload` 참고) 보내고, 서버는 공용 `generateGeminiImage({ parts })`로 첨부. 공용 사본(`geminiImage.ts`)은 고치지 않음. 근거: `docs/analysis-image-consolidation-20261021/REPORT.md` §9-5.
 - [✅ v1.29 W8 구현·배포] 위 항목 해결 — 컷 인물 시트 최대 3장 첨부. [✅ v1.30] 무료 대체 그림은 첨부되지 않는다는 화면 안내 추가.
+
+## 2026-10-23 연계 제안 — 무료 사진 검색 붙이기 (Claude Code 윈도우, 기록만·구현 아님)
+- [ ] 컷 배경에 「📷 무료 사진 검색」(회원 본인 Pixabay·Pexels 키, 공용 `user_api_keys` — 감성 글귀·INSTA에서 넣은 키 그대로)을 붙이기. 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본을 쓰고, 고른 사진 저장(버킷·경로)과 화면은 이 프로그램 방식으로. 참고 구현: INSTA `src/app/api/cardnews/photos/route.ts`·`src/components/cardnews/studio/PhotoSearchPanel.tsx`. 예상 비용: 빌드 1회, AI 0. 착수 전 플랜·승인 필요.
