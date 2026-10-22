@@ -40,6 +40,8 @@ test("BLC-08b: no style -> empty section (prompt unchanged); style -> tone/struc
   assert.match(s, /「내 블로그」 문체/);
   assert.match(s, /어조: 친근한 존댓말/);
   assert.match(s, /쓰지 않는 표현: 무조건/);
+  // v1.86: 실검수에서 페르소나 「-습니다」체가 문체 말투를 덮어씀 → 말투·끝맺음은 문체 우선
+  assert.match(s, /페르소나 톤보다 이 문체를 우선/);
 });
 
 test("BLC-08b: parseNaverRss reads channel name and naver post items only", () => {

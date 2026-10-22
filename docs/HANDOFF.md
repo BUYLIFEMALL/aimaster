@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — SEO블로그 스튜디오 v1.86 문체 말투 보완 시도 (빌드 1회 · AI 1회) — 효과 없음
+- 「말투·끝맺음은 페르소나보다 승인 문체 우선」 문장을 문체가 있을 때만 추가. 배포 Ready·DB/확장/ZIP v1.86. 같은 조건 재생성 원고도 「~니다」 50 / 「~요」 8로 v1.85와 같음 → 미해결.
+- 다음(승인 대기): v1.87 — 표본 문장 끝(요/니다) 비율을 AI 없이 세어 구체적인 해요체/합니다체 규칙을 넣기. 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래.
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.24 — 섹션 순서 바꾸기 (DB·배포 대기, 이커머스 2차 재비교 작업 ③)
 - 섹션 카드 「↑」「↓」로 순서를 바꾸면 상품별로 저장되고 긴 이미지·섹션 ZIP·HTML이 같은 순서. 「↺ 기본 순서로」. DB 칸 `shop_products.section_sequence text[]` 추가(주인님 승인). 작업 ② 작은 문제(S-22-14)도 함께. AI 0회, tsc·eslint 0, 순서 함수 시험 6가지 통과.
 - **윈도우 순서(중요)**: ① SQL `shop-detail-page/supabase/migrations/20261022_section_sequence_v1_24.sql` **먼저**(칸 없이 코드가 나가면 긴 PNG·ZIP 실패) ② `shop-detail-page` 배포 1회 ③ 크롬 확인은 맥미니.

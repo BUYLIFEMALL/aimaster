@@ -1,6 +1,6 @@
 # 네이버 블로그 SEO 스튜디오 개발 지침
 
-> **v1.85 (2026-10-22) BLC-08b 「내 문체」 운영 반영:** 내 글(공개 RSS·붙여 넣은 표본) → 문체 분석 → 서버 승인(지문) → 새 글·자료부터 집필에서 선택 적용(기본 적용 안 함), 원고 `seo_report.style` 기록. 새 표 `naver_blog_seo_styles`. **남은 문제: 페르소나 말투가 문체보다 우선돼 말투 반영 약함(v1.86 후보, 승인 대기)**. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
+> **v1.85 (2026-10-22) BLC-08b 「내 문체」 운영 반영:** 내 글(공개 RSS·붙여 넣은 표본) → 문체 분석 → 서버 승인(지문) → 새 글·자료부터 집필에서 선택 적용(기본 적용 안 함), 원고 `seo_report.style` 기록. 새 표 `naver_blog_seo_styles`. **남은 문제: 본문 말투에 문체 끝맺음이 반영되지 않음 — v1.86(문체 우선 문장 추가) 배포·실검수했으나 효과 없음, v1.87 후보(표본 끝맺음 자동 판별) 승인 대기**. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 
 > **v1.84 (2026-10-22) BLC-08a 「자료부터 집필」 운영 완료:** 자료 모으기 → 근거 정리(인용 확인) → 서버 승인 → 승인 근거로 글 생성·출처 표시. 기존 새 글·최적화 경로 불변. 새 표 `naver_blog_seo_research`. [플랜](docs/PLAN_20261022_BLC08_GROUNDED_WRITING.md) · [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 
