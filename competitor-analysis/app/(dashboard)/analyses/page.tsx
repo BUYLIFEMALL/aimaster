@@ -47,7 +47,7 @@ export default async function AnalysesPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHero
-        badge="STEP 2 · 분석 결과"
+        badge="STEP 3 · 분석 결과"
         title="경쟁사 분석 결과 모아 보기"
         description="지금까지 실행한 모든 분석을 최신순으로 보여 드립니다. 행을 누르면 상위 노출 도메인·AI 리포트 전체를 볼 수 있어요."
       />

@@ -25,6 +25,7 @@ const MODULES = [
       "booking-reminder/lib/telegram/client.ts",
       "crm-google-form/lib/telegram/client.ts",
       "longtail-keyword-expander/lib/telegram/client.ts",
+      "competitor-analysis/lib/telegram/client.ts",
       "real_estate_sales/src/lib/telegram/client.ts",
       "trending-product-finder/lib/telegram/client.ts",
     ],

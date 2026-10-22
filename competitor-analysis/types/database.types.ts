@@ -237,6 +237,159 @@ export interface Database {
         };
         Relationships: [];
       };
+      // 2026-10-23 병합 A: 롱테일 키워드분석 표(longtail-keyword-expander에서 옮겨 옴).
+      // 텔레그램은 프로그램 접두어 없는 공용 테이블(booking-reminder/real_estate_sales/
+      // crm-google-form과 공유, docs/PLATFORM_PATTERNS.md §9).
+      user_telegram_links: {
+        Row: {
+          id: string;
+          user_id: string;
+          program_slug: string;
+          bot_token: string;
+          chat_id: string;
+          bot_username: string | null;
+          linked_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          program_slug: string;
+          bot_token: string;
+          chat_id: string;
+          bot_username?: string | null;
+          linked_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          program_slug?: string;
+          bot_token?: string;
+          chat_id?: string;
+          bot_username?: string | null;
+          linked_at?: string;
+        };
+        Relationships: [];
+      };
+      longtail_seed_keywords: {
+        Row: {
+          id: string;
+          user_id: string;
+          keyword: string;
+          engine: SerpEngine;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          keyword: string;
+          engine?: SerpEngine;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          keyword?: string;
+          engine?: SerpEngine;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      longtail_related_keywords: {
+        Row: {
+          id: string;
+          user_id: string;
+          seed_id: string;
+          keyword: string;
+          relevance_score: number | null;
+          source: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          seed_id: string;
+          keyword: string;
+          relevance_score?: number | null;
+          source?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          seed_id?: string;
+          keyword?: string;
+          relevance_score?: number | null;
+          source?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      longtail_expansions: {
+        Row: {
+          id: string;
+          user_id: string;
+          seed_id: string;
+          related_id: string | null;
+          keyword: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          seed_id: string;
+          related_id?: string | null;
+          keyword: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          seed_id?: string;
+          related_id?: string | null;
+          keyword?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      longtail_runs: {
+        Row: {
+          id: string;
+          user_id: string;
+          seed_id: string;
+          executed_at: string;
+          related_count: number;
+          expansion_count: number;
+          summary_text: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          seed_id: string;
+          executed_at?: string;
+          related_count?: number;
+          expansion_count?: number;
+          summary_text?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          seed_id?: string;
+          executed_at?: string;
+          related_count?: number;
+          expansion_count?: number;
+          summary_text?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

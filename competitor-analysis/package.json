@@ -10,7 +10,8 @@
     "test:browser": "node tests/browser.mjs",
     "test:runtime": "node tests/runtime.mjs",
     "build:verify": "node tests/local.mjs build",
-    "test:retention": "node tests/retention.mjs"
+    "test:retention": "node tests/retention.mjs",
+    "test:expansion": "node tests/expansion.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

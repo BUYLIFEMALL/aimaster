@@ -8,15 +8,16 @@ export const fetchCache = "force-no-store";
 
 const PIPELINE = [
   { icon: "🔑", title: "본인 키 등록", desc: "SerpApi·Perplexity·OpenAI 필수, Anthropic은 선택", time: "약 5분", href: "/settings" },
-  { icon: "🔍", title: "키워드 등록", desc: "구글/네이버 선택, 구글은 지역·언어 세부 옵션", time: "10초", href: "/keywords" },
-  { icon: "⚡", title: "지금 분석하기", desc: "상위 도메인 수집 → 회사 리서치 → AI 리포트", time: "1~2분", href: "/keywords" },
+  { icon: "🌱", title: "키워드 확장", desc: "씨드 키워드 → 연관·롱테일 키워드 + 블로그 작업 지시문", time: "30초~1분", href: "/expand" },
+  { icon: "⚡", title: "경쟁사 분석", desc: "키워드 등록 → 상위 도메인 수집 → 회사 리서치 → AI 리포트", time: "1~2분", href: "/keywords" },
   { icon: "🏢", title: "결과 활용", desc: "경쟁사 표시, 리포트 복사·HTML 리포트 만들기", time: "바로", href: "/analyses" },
 ];
 
 const SCREENS = [
   { icon: "🏠", name: "대시보드", desc: "지표 4종, 키 연결 상태, 최근 분석 5건" },
-  { icon: "🔍", name: "1. 키워드 관리", desc: "키워드 등록·검색·표/카드 보기·지금 분석하기" },
-  { icon: "📋", name: "2. 분석 결과 목록", desc: "모든 분석을 검색하고 표/카드로 비교" },
+  { icon: "🌱", name: "1. 키워드 확장", desc: "씨드 키워드 등록·지금 확장하기·관련도 점수·작업 지시문 복사·CSV" },
+  { icon: "🔍", name: "2. 경쟁사 분석", desc: "키워드 등록·검색·표/카드 보기·지금 분석하기" },
+  { icon: "📋", name: "3. 분석 결과 목록", desc: "모든 분석을 검색하고 표/카드로 비교" },
   { icon: "🏢", name: "내 경쟁사", desc: "표시한 도메인과 등장 키워드·노출 횟수" },
 ];
 
@@ -28,6 +29,14 @@ const RESULT_TYPES = [
 ];
 
 const FAQ = [
+  {
+    q: "키워드 확장은 무엇을 해 주나요?",
+    a: "씨드 키워드 하나를 네이버(또는 구글) 검색결과로 분석해 연관 키워드와 관련도 점수를 매기고, 그 아래로 더 구체적인 롱테일 키워드를 넓힌 뒤 블로그 담당자에게 줄 작업 지시문을 만들어 드립니다. 1회에 SerpApi 1회 + OpenAI 3회가 회원님 본인 키로 사용됩니다. 텔레그램을 연결하면 결과 요약도 받아볼 수 있습니다.",
+  },
+  {
+    q: "롱테일 키워드분석 자동화에서 쓰던 자료는요?",
+    a: "2026-10-23부터 롱테일 키워드분석은 이 프로그램의 「🌱 키워드 확장」으로 합쳐졌습니다. 같은 계정으로 들어오시면 등록한 씨드 키워드와 최근 30일 안의 확장 결과, 연결한 텔레그램 봇을 그대로 보실 수 있습니다.",
+  },
   {
     q: "분석 한 번에 비용이 얼마나 드나요?",
     a: "SerpApi 검색 1회 + 처음 보는 도메인 수만큼 Perplexity·OpenAI 호출이 회원님 본인 키로 사용됩니다. 회원님 본인이 최근 30일 안에 조사한 회사 정보만 재사용합니다. 다른 회원의 자료는 사용하지 않습니다.",
@@ -59,7 +68,7 @@ export default async function GuidePage() {
     <div className="mx-auto max-w-5xl">
       <PageHero
         badge="📖 연동 & 사용 매뉴얼"
-        title="3분 만에 익히는 경쟁사 키워드분석"
+        title="3분 만에 익히는 키워드·경쟁사 분석"
         description="키 등록부터 경쟁사 리포트 활용까지, 아래 4단계만 따라오시면 됩니다."
       >
         <Link href="/keywords" className="mx-btn-primary">

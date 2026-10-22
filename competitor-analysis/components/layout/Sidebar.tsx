@@ -6,13 +6,14 @@ import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
 
-// 경쟁사 키워드 분석은 "키워드 등록+분석 실행 → 분석 결과 확인"으로 이어지는 2단계 핵심
-// 흐름이라, 사이드바도 그 순서를 위→아래 스텝퍼로 보여준다. "내 경쟁사"는 특정 키워드 하나가
+// 키워드·경쟁사 분석은 "키워드 넓히기 → 키워드 등록+경쟁사 분석 → 분석 결과 확인" 3단계 흐름이라(2026-10-23 병합 A로
+// 롱테일 키워드분석의 확장 기능이 1단계로 들어옴), 사이드바도 그 순서를 위→아래 스텝퍼로 보여준다. "내 경쟁사"는 특정 키워드 하나가
 // 아니라 지금까지 등장한 경쟁사를 키워드 전체에 걸쳐 모아보는 부가 기능이라 순서에 넣지 않고
 // 스텝퍼 아래 별도 자리에 둔다. API 키 설정·매뉴얼은 순차 흐름이 아닌 유틸리티라 맨 아래로 분리.
 const FLOW_STEPS = [
-  { step: 1, href: "/keywords", icon: "🔍", label: "키워드 관리", description: "키워드 등록 + 지금 분석하기" },
-  { step: 2, href: "/analyses", icon: "📋", label: "분석 결과 목록", description: "실행한 분석 리포트 확인" },
+  { step: 1, href: "/expand", icon: "🌱", label: "키워드 확장", description: "연관·롱테일 키워드 + 작업 지시문" },
+  { step: 2, href: "/keywords", icon: "🔍", label: "경쟁사 분석", description: "키워드 등록 + 지금 분석하기" },
+  { step: 3, href: "/analyses", icon: "📋", label: "분석 결과 목록", description: "실행한 분석 리포트 확인" },
 ];
 
 const SECONDARY_ITEMS = [
@@ -125,7 +126,7 @@ function Brand() {
     <div>
       <div className="flex items-center gap-2 px-2">
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-mx-primary text-sm">🏢</span>
-        <span className="text-base font-bold text-mx-text">경쟁사 키워드분석</span>
+        <span className="text-base font-bold text-mx-text">키워드·경쟁사 분석</span>
       </div>
       <p className="mt-1 px-2 text-xs text-mx-muted">
         <span className="mx-chip-amber px-2 py-0.5">{APP_VERSION}</span>

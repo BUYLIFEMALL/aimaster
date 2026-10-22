@@ -50,7 +50,7 @@ export default async function KeywordsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHero
-        badge="STEP 1 · 키워드 관리"
+        badge="STEP 2 · 경쟁사 분석"
         title="키워드 등록 & 분석"
         description="키워드를 등록하고 「지금 분석하기」를 누르면 구글(또는 네이버) 검색결과의 상위 노출 도메인을 경쟁사로 찾아 리서치하고, 경쟁사·USP·콘텐츠 아이디어 리포트를 만들어 드립니다."
         tip="이미 다른 회원이 조사한 회사 정보는 다시 조사하지 않아, 새로 등장한 도메인만 AI 호출이 생깁니다."

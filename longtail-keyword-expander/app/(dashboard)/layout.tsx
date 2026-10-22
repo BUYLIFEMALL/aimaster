@@ -1,16 +1,9 @@
-import { requireProgramAccess } from "@/lib/access";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { MovedNotice } from "@/components/MovedNotice";
 
+// 2026-10-23 병합 A(v1.11): 모든 화면(대시보드·키워드·결과·설정·매뉴얼)은 키워드·경쟁사 분석으로 옮겨졌다는 안내만 보여 준다.
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireProgramAccess();
-
-  return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <Sidebar userEmail={user.email ?? ""} />
-      <main className="min-w-0 flex-1 p-4 md:p-8">{children}</main>
-    </div>
-  );
+export default function DashboardLayout() {
+  return <MovedNotice />;
 }

@@ -4,6 +4,9 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { PageHero } from "@/components/layout/PageHero";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
+import { disconnectTelegramAction } from "@/lib/actions/telegram";
+import { getTelegramLink } from "@/lib/telegramLink";
 import type { ApiKeyProvider } from "@/types/database.types";
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API 중 매뉴얼이 있는
@@ -59,16 +62,17 @@ export default async function SettingsPage() {
     .eq("user_id", user.id);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  const telegramLink = await getTelegramLink(supabase, user.id);
 
   return (
     <div className="mx-auto max-w-3xl">
       <PageHero
         badge="🔑 API키등록·플랫폼연동"
         title="API 키 설정"
-        description="SerpApi·Perplexity·OpenAI는 분석에 필요하고, Anthropic은 보기 좋은 HTML 리포트를 만들 때만 씁니다. 모두 회원님 본인 키로 동작합니다."
+        description="키워드 확장에는 SerpApi·OpenAI, 경쟁사 분석에는 SerpApi·Perplexity·OpenAI가 필요하고, Anthropic은 보기 좋은 HTML 리포트를 만들 때만 씁니다. 모두 회원님 본인 키로 동작합니다."
       />
       <p className="mb-6 text-sm leading-relaxed text-mx-muted">
-        경쟁사 키워드 분석에는 본인의 SerpApi(구글/네이버 검색결과 조회) 키가 필요합니다.{" "}
+        키워드 확장과 경쟁사 분석에는 본인의 SerpApi(구글/네이버 검색결과 조회) 키가 필요합니다.{" "}
         <span className="font-semibold text-mx-text">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
         등록하지 않은 상태로 분석을 시도하면 등록 안내가 뜨고 막힙니다. Perplexity/OpenAI는 경쟁사
         리서치와 분석 리포트 작성에 쓰이고, Anthropic은 리포트를 보기 좋은 HTML로 변환하는
@@ -97,6 +101,46 @@ export default async function SettingsPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mx-card mt-5 p-4">
+        <div className="mb-3">
+          <h2 className="text-sm font-bold text-mx-text">📨 텔레그램 알림 연동 (선택)</h2>
+          <p className="text-xs text-mx-muted">
+            🌱 키워드 확장이 끝나면 결과 요약을 본인 텔레그램 봇으로도 받아볼 수 있어요. 롱테일 키워드분석에서 연결해 둔
+            봇이 있으면 그대로 이어서 씁니다.
+          </p>
+        </div>
+        {telegramLink ? (
+          <div className="space-y-3">
+            <p className="text-sm text-mx-success">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
+            <form action={disconnectTelegramAction}>
+              <button type="submit" className="mx-btn-danger text-xs">
+                연동 해제
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <ol className="list-inside list-decimal space-y-2 text-sm text-mx-muted">
+              <li>
+                텔레그램에서 <span className="font-semibold text-mx-text">@BotFather</span>를 검색해서 대화를 시작하세요.
+              </li>
+              <li>
+                <code className="rounded bg-mx-raised px-1 py-0.5 text-mx-text">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요 (마지막엔
+                반드시 <code className="rounded bg-mx-raised px-1 py-0.5 text-mx-text">bot</code>으로 끝나야 해요).
+              </li>
+              <li>
+                완료되면 BotFather가 <strong>토큰</strong>을 알려줘요. 그 값을 복사하세요.
+              </li>
+              <li>
+                방금 만든 내 봇을 텔레그램에서 열고, <strong>아무 메시지나 1개</strong> 보내세요.
+              </li>
+              <li>아래 입력창에 토큰을 붙여넣고 &quot;연동 확인하기&quot;를 눌러주세요.</li>
+            </ol>
+            <TelegramConnectForm />
+          </div>
+        )}
       </div>
 
       <div className="mx-card mt-5 p-4">

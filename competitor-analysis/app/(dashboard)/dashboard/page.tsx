@@ -11,15 +11,15 @@ export const fetchCache = "force-no-store";
 
 const PIPELINE = [
   { icon: "🔑", title: "키 등록", desc: "SerpApi·Perplexity·OpenAI 본인 키", href: "/settings" },
-  { icon: "🔍", title: "키워드 등록", desc: "구글 또는 네이버 선택", href: "/keywords" },
-  { icon: "⚡", title: "지금 분석하기", desc: "상위 도메인 → 회사 리서치 → AI 리포트", href: "/keywords" },
+  { icon: "🌱", title: "키워드 확장", desc: "연관·롱테일 키워드 + 작업 지시문", href: "/expand" },
+  { icon: "⚡", title: "경쟁사 분석", desc: "상위 도메인 → 회사 리서치 → AI 리포트", href: "/keywords" },
   { icon: "🏢", title: "경쟁사 관리", desc: "중요한 도메인을 내 경쟁사로 표시", href: "/competitors" },
 ];
 
 const KEY_ROWS: { id: "serpapi" | "perplexity" | "openai" | "anthropic"; label: string; optional?: boolean }[] = [
   { id: "serpapi", label: "SerpApi (검색결과)" },
   { id: "perplexity", label: "Perplexity (회사 리서치)" },
-  { id: "openai", label: "OpenAI (분석 리포트)" },
+  { id: "openai", label: "OpenAI (분석 리포트·키워드 확장)" },
   { id: "anthropic", label: "Anthropic (HTML 리포트)", optional: true },
 ];
 
@@ -49,12 +49,15 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-6xl">
       <PageHero
         badge="🏠 대시보드"
-        title="키워드 하나로 경쟁사와 콘텐츠 전략까지"
-        description="키워드를 넣으면 검색 상위에 노출되는 도메인을 경쟁사로 찾아 회사 정보를 리서치하고, 경쟁사·차별점(USP)·콘텐츠 아이디어 리포트를 만들어 드립니다."
-        tip="분석 1회에 SerpApi 1회 + 새로 등장한 도메인 수만큼 Perplexity·OpenAI 호출이 회원님 본인 키로 사용됩니다."
+        title="키워드 하나로 롱테일 확장부터 경쟁사 분석까지"
+        description="키워드를 넣으면 연관·롱테일 키워드로 넓혀 블로그 작업 지시문을 만들고, 검색 상위에 노출되는 도메인을 경쟁사로 찾아 회사 정보를 리서치하고, 경쟁사·차별점(USP)·콘텐츠 아이디어 리포트를 만들어 드립니다."
+        tip="키워드 확장 1회에 SerpApi 1회 + OpenAI 3회, 경쟁사 분석 1회에 SerpApi 1회 + 새로 등장한 도메인 수만큼 Perplexity·OpenAI 호출이 회원님 본인 키로 사용됩니다."
       >
-        <Link href="/keywords" className="mx-btn-primary">
-          🔍 키워드 분석하러 가기
+        <Link href="/expand" className="mx-btn-primary">
+          🌱 키워드 확장하기
+        </Link>
+        <Link href="/keywords" className="mx-btn-ghost">
+          🔍 경쟁사 분석하기
         </Link>
         <Link href="/guide" className="mx-btn-ghost">
           📖 사용 매뉴얼
