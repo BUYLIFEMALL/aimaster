@@ -42,3 +42,21 @@ export function colorDiffPercent(a: [number, number, number], b: [number, number
   const d = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   return Math.round((d / Math.hypot(255, 255, 255)) * 1000) / 10;
 }
+
+export type SplitMode = "horizontal" | "vertical";
+
+/** v1.31: 분할 방식에 따라 원본 쪽을 잘라 낼 clip-path. 가로 분할은 선(pos)의 왼쪽, 세로 분할은 선(posY)의 위쪽이 원본 */
+export function splitClip(mode: SplitMode, pos: number, posY: number): string {
+  return mode === "vertical" ? `inset(0 0 ${100 - posY}% 0)` : `inset(0 ${100 - pos}% 0 0)`;
+}
+
+/** v1.31: 처음 분할 방식 — 세로가 가로보다 1.2배 이상 길면 위아래로 나눈다 */
+export function defaultSplit(w: number, h: number): SplitMode {
+  return w > 0 && h >= w * 1.2 ? "vertical" : "horizontal";
+}
+
+/** v1.31 점검 지점: 차이 값들의 평균(소수 첫째 자리). 값이 없으면 null */
+export function averageDiff(values: (number | null | undefined)[]): number | null {
+  const v = values.filter((x): x is number => typeof x === "number" && Number.isFinite(x));
+  return v.length ? Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 10) / 10 : null;
+}

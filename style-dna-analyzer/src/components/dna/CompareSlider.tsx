@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { colorDiffPercent, containPoint, percentAt, percentForKey, toHex } from "@/lib/dna/compare";
+import { averageDiff, colorDiffPercent, containPoint, defaultSplit, percentAt, percentForKey, splitClip, toHex, type SplitMode } from "@/lib/dna/compare";
 
 type Pixels = { data: Uint8ClampedArray; w: number; h: number; natW: number; natH: number };
 type RGB = [number, number, number];
@@ -68,10 +68,14 @@ function Swatch({ label, rgb }: { label: string; rgb: RGB | null }) {
   );
 }
 
+type Spot = { id: number; x: number; y: number; a: RGB | null; b: RGB | null };
+const MAX_SPOTS = 8;
+
 /**
- * F5(v1.27~): 원본과 생성 이미지를 같은 틀에 겹쳐 가운데 선을 끌어 비교한다(바나나 캔버스 Compare 참고).
+ * F5(v1.27~): 원본과 생성 이미지를 같은 틀에 겹쳐 선을 끌어 비교한다(바나나 캔버스 Compare 참고).
  * 틀 비율은 원본을 따르고, 두 이미지 모두 잘리지 않게 틀 안에 맞춘다(object-contain).
  * v1.29: 동그라미 자리(선 위치·높이)의 원본·생성 색을 HEX와 차이(%)로 보여 주는 색 집게.
+ * v1.31: 가로/세로 분할 전환(세로가 긴 원본은 처음부터 위아래), 점검 지점 최대 8곳 저장·평균 차이.
  */
 export function CompareSlider({ before, after, maxHeight = 480 }: { before: string; after: string; maxHeight?: number }) {
   const box = useRef<HTMLDivElement>(null);
@@ -80,8 +84,12 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [frame, setFrame] = useState<{ w: number; h: number } | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [mode, setMode] = useState<SplitMode | null>(null);
+  const [spots, setSpots] = useState<Spot[]>([]);
+  const nextId = useRef(1);
   const beforePx = usePixels(before);
   const afterPx = usePixels(after);
+  const split: SplitMode = mode ?? (size ? defaultSplit(size.w, size.h) : "horizontal");
 
   useEffect(() => {
     const el = box.current;
@@ -100,9 +108,31 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
 
   const a = frame ? pick(beforePx, frame.w, frame.h, pos, posY) : null;
   const b = frame ? pick(afterPx, frame.w, frame.h, pos, posY) : null;
+  const diffOf = (x: RGB | null, y: RGB | null) => (x && y ? colorDiffPercent(x, y) : null);
+  const avg = averageDiff(spots.map((s) => diffOf(s.a, s.b)));
+  const nowDiff = diffOf(a, b);
+
+  const saveSpot = () => {
+    if (spots.length >= MAX_SPOTS) return;
+    setSpots((list) => [...list, { id: nextId.current++, x: pos, y: posY, a, b }]);
+  };
 
   return (
     <div className="space-y-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <span className="text-[11px] font-bold text-slate-500">나누기</span>
+        {(["horizontal", "vertical"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            aria-pressed={split === m}
+            onClick={() => setMode(m)}
+            className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${split === m ? "border-violet-500 bg-violet-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+          >
+            {m === "horizontal" ? "◧ 좌우" : "⬒ 위아래"}
+          </button>
+        ))}
+      </div>
       <div
         ref={box}
         className={`relative mx-auto w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-100 select-none touch-none ${dragging ? "cursor-grabbing" : "cursor-crosshair"}`}
@@ -115,7 +145,7 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={after} alt="생성 이미지" draggable={false} className="absolute inset-0 h-full w-full object-contain" />
-        <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+        <div className="absolute inset-0" style={{ clipPath: splitClip(split, pos, posY) }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={before}
@@ -126,25 +156,33 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
           />
         </div>
         <span className="pointer-events-none absolute left-2 top-2 rounded-md bg-slate-900/70 px-2 py-0.5 text-[11px] font-bold text-white">원본</span>
-        <span className="pointer-events-none absolute right-2 top-2 rounded-md bg-violet-700/80 px-2 py-0.5 text-[11px] font-bold text-white">생성</span>
-        <span className="pointer-events-none absolute inset-y-0 w-0.5 -translate-x-1/2 bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.35)]" style={{ left: `${pos}%` }} />
+        <span className={`pointer-events-none absolute rounded-md bg-violet-700/80 px-2 py-0.5 text-[11px] font-bold text-white ${split === "vertical" ? "left-2 bottom-2" : "right-2 top-2"}`}>생성</span>
+        {split === "vertical"
+          ? <span className="pointer-events-none absolute inset-x-0 h-0.5 -translate-y-1/2 bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.35)]" style={{ top: `${posY}%` }} />
+          : <span className="pointer-events-none absolute inset-y-0 w-0.5 -translate-x-1/2 bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.35)]" style={{ left: `${pos}%` }} />}
+        {spots.map((s, n) => (
+          <span key={s.id} data-spot={n + 1} className="pointer-events-none absolute flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-amber-500 text-[10px] font-black text-white shadow" style={{ left: `${s.x}%`, top: `${s.y}%` }}>
+            {n + 1}
+          </span>
+        ))}
         <span
           role="slider"
           tabIndex={0}
           aria-label="원본과 생성 이미지 비교 위치"
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuenow={pos}
+          aria-valuenow={split === "vertical" ? posY : pos}
           onKeyDown={(e) => {
             const n = percentForKey(pos, e.key, e.shiftKey);
             if (n !== null) { e.preventDefault(); setPos(n); return; }
             const y = percentForKey(posY, e.key === "ArrowUp" ? "ArrowLeft" : e.key === "ArrowDown" ? "ArrowRight" : "", e.shiftKey);
-            if (y !== null) { e.preventDefault(); setPosY(y); }
+            if (y !== null) { e.preventDefault(); setPosY(y); return; }
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); saveSpot(); }
           }}
           className="absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-violet-700 text-xs font-black text-white shadow-lg outline-none focus-visible:ring-4 focus-visible:ring-violet-300"
           style={{ left: `${pos}%`, top: `${posY}%` }}
         >
-          ⇆
+          {split === "vertical" ? "⇅" : "⇆"}
         </span>
       </div>
       {(beforePx || afterPx) && (
@@ -152,12 +190,43 @@ export function CompareSlider({ before, after, maxHeight = 480 }: { before: stri
           <Swatch label="원본 색" rgb={a} />
           <div className="text-center">
             <p className="text-[10px] font-bold text-slate-500">색 차이</p>
-            <p className="text-sm font-black text-slate-900">{a && b ? `${colorDiffPercent(a, b)}%` : "—"}</p>
+            <p className="text-sm font-black text-slate-900">{nowDiff === null ? "—" : `${nowDiff}%`}</p>
           </div>
           <Swatch label="생성 색" rgb={b} />
+          <button
+            type="button"
+            onClick={saveSpot}
+            disabled={spots.length >= MAX_SPOTS}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            📍 이 자리 저장 ({spots.length}/{MAX_SPOTS})
+          </button>
         </div>
       )}
-      <p className="text-[11px] text-slate-500">틀을 누르거나 끌면 선과 동그라미가 그 자리로 옵니다. 동그라미 자리의 원본·생성 색을 아래에서 비교하세요(키보드: ←/→ 선, ↑/↓ 높이). 「—」는 그 자리에 그림이 없는 여백입니다.</p>
+      {spots.length > 0 && (
+        <div className="mx-auto max-w-md rounded-xl border border-slate-200 bg-white px-3 py-2" aria-label="점검 지점">
+          <div className="mb-1 flex items-center justify-between">
+            <p className="text-[11px] font-bold text-slate-900">점검 지점 {spots.length}곳 · 평균 차이 <span data-avg>{avg === null ? "—" : `${avg}%`}</span></p>
+            <button type="button" onClick={() => setSpots([])} className="text-[11px] font-bold text-slate-500 hover:underline">모두 지우기</button>
+          </div>
+          <ul className="space-y-1">
+            {spots.map((s, n) => {
+              const d = diffOf(s.a, s.b);
+              return (
+                <li key={s.id} className="flex items-center gap-2 text-[11px] text-slate-700">
+                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[9px] font-black text-white">{n + 1}</span>
+                  <span className="font-mono">{s.a ? toHex(...s.a) : "—"}</span>
+                  <span aria-hidden>→</span>
+                  <span className="font-mono">{s.b ? toHex(...s.b) : "—"}</span>
+                  <span className="ml-auto font-bold text-slate-900">{d === null ? "—" : `${d}%`}</span>
+                  <button type="button" aria-label={`${n + 1}번 지점 지우기`} onClick={() => setSpots((list) => list.filter((x) => x.id !== s.id))} className="text-slate-400 hover:text-slate-700">✕</button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      <p className="text-[11px] text-slate-500">틀을 누르거나 끌면 선과 동그라미가 그 자리로 옵니다. 동그라미 자리의 원본·생성 색을 비교하고 「📍 이 자리 저장」(또는 동그라미에서 Enter)으로 여러 곳을 모아 평균 차이를 보세요. 키보드: ←/→ 좌우, ↑/↓ 위아래. 「—」는 그 자리에 그림이 없는 여백입니다.</p>
     </div>
   );
 }

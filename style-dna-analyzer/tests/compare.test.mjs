@@ -42,3 +42,14 @@ test("v1.29 HEX와 색 차이", async () => {
   assert.equal(colorDiffPercent([0, 0, 0], [255, 255, 255]), 100);
   assert.equal(colorDiffPercent([10, 20, 30], [10, 20, 30]), 0);
 });
+
+test("v1.31 분할·평균", async () => {
+  const { splitClip, defaultSplit, averageDiff } = await import("../src/lib/dna/compare.ts");
+  assert.equal(splitClip("horizontal", 30, 80), "inset(0 70% 0 0)");
+  assert.equal(splitClip("vertical", 30, 80), "inset(0 0 20% 0)");
+  assert.equal(defaultSplit(1000, 1500), "vertical");
+  assert.equal(defaultSplit(1000, 1100), "horizontal");
+  assert.equal(defaultSplit(0, 10), "horizontal");
+  assert.equal(averageDiff([10, 20, null, 31]), 20.3);
+  assert.equal(averageDiff([null]), null);
+});
