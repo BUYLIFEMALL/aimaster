@@ -58,3 +58,11 @@ export function detectEnding(texts: string[]): StyleEnding | null {
   if (nida >= 3 && nida >= yo * 2) return "hamnida";
   return null;
 }
+
+// v1.88: 생성된 본문에서 목표 끝맺음이 차지하는 비율(평서문 ~요·~니다 중). 둘 다 없으면 1.
+export function endingShare(text: string, ending: StyleEnding): number {
+  const yo = (text.match(/요(?=[.!~]|\s*$)/gm) || []).length;
+  const nida = (text.match(/니다(?=[.!]|\s*$)/gm) || []).length;
+  if (!yo && !nida) return 1;
+  return (ending === "haeyo" ? yo : nida) / (yo + nida);
+}

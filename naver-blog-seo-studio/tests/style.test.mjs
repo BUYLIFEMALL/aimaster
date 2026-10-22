@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeStyle, cleanSamples, parseBlogId, profileHash, isStyleApproved, withStyleApproval, detectEnding } from "../lib/style.ts";
+import { normalizeStyle, cleanSamples, parseBlogId, profileHash, isStyleApproved, withStyleApproval, detectEnding, endingShare } from "../lib/style.ts";
 import { styleSection } from "../lib/ai/stylePrompt.ts";
 import { parseNaverRss } from "../lib/naverRssParse.ts";
 
@@ -70,4 +70,11 @@ test("v1.87: detectEnding counts declarative endings (questions excluded) and st
   assert.match(styleSection({ name: "내 블로그", profile, ending: "haeyo" }), /해요체입니다.*「~요」로 끝내고/);
   assert.match(styleSection({ name: "내 블로그", profile, ending: "hamnida" }), /합니다체입니다/);
   assert.doesNotMatch(styleSection({ name: "내 블로그", profile, ending: null }), /문장 끝맺음\(필수\)/);
+});
+
+test("v1.88: endingShare measures the target ending among declarative endings", () => {
+  const mixed = "준비가 필요해요. 텐트를 골라요. 침낭이 중요합니다. 무엇이 필요한가요?";
+  assert.equal(Math.round(endingShare(mixed, "haeyo") * 100), 67);
+  assert.equal(Math.round(endingShare(mixed, "hamnida") * 100), 33);
+  assert.equal(endingShare("소제목만 있는 글", "haeyo"), 1);
 });
