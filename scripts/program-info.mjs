@@ -90,7 +90,7 @@ export function cleanupPrograms() {
       for (const base of ["src/app", "app"]) {
         for (const name of ["route.ts", "route.js"]) {
           const f = join(ROOT, folder, base, rel, name);
-          if (existsSync(f) && /cleanup_expired|CLEANUP_ACTION/.test(readFileSync(f, "utf8"))) return true;
+          if (existsSync(f) && /cleanup_expired|CLEANUP_ACTION|logCleanupUsage/.test(readFileSync(f, "utf8"))) return true;
         }
       }
       return false;

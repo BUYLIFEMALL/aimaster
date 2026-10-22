@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BUCKET, expiredFilter } from "@/lib/saved";
+import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,6 +20,7 @@ export async function GET(request: Request) {
   }
   const admin = createAdminClient();
   let rows = 0;
+  const counts: CleanupCounts = new Map();
   for (let round = 0; round < MAX_ROUNDS; round++) {
     const { data, error } = await admin.from("portrait_photo_saved").select("id, path").or(expiredFilter()).limit(BATCH);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -27,8 +29,10 @@ export async function GET(request: Request) {
     await admin.storage.from(BUCKET).remove(list.map((r) => r.path));
     const { error: delErr } = await admin.from("portrait_photo_saved").delete().in("id", list.map((r) => r.id));
     if (delErr) return NextResponse.json({ error: delErr.message }, { status: 500 });
+    for (const r of list) addCleanupCount(counts, ownerFromPath(r.path), "images");
     rows += list.length;
     if (list.length < BATCH) break;
   }
-  return NextResponse.json({ ok: true, rows });
+  const loggedOwners = await logCleanupUsage(admin, "portrait-photo", counts);
+  return NextResponse.json({ ok: true, rows, loggedOwners });
 }

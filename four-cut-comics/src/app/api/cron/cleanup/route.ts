@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BUCKET, purgeExpiredSaved } from "@/lib/saved";
+import { logCleanupUsage } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -10,20 +11,6 @@ export const maxDuration = 300;
 // 예전엔 그 회원이 목록을 열거나 저장할 때만 지워져, 접속하지 않는 회원 작품이 30일을 넘겨 남았다. Vercel cron(vercel.json, 매일 03:00 KST).
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// 30일 정리 기록(2026-10-23) — 회원별 usage_logs action `cleanup_expired`(메인 관리자 「30일 자동 정리」 표·「운영 상태」). 기록 실패해도 정리는 계속.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function logCleanup(admin: any, counts: Map<string, Record<string, number>>) {
-  try {
-    if (!counts.size) return;
-    const { data: program } = await admin.from("programs").select("id").eq("slug", "four-cut-comics").maybeSingle();
-    if (!program) return;
-    await admin.from("usage_logs").insert([...counts].map(([user_id, m]) => ({
-      user_id, program_id: program.id, action: "cleanup_expired", quantity: Object.values(m).reduce((a, b) => a + b, 0), metadata: m,
-    })));
-  } catch (e) {
-    console.error("[cleanup] usage_logs 기록 실패:", e);
-  }
-}
 const PAGE = 1000;
 const MAX_PAGES = 10;
 
@@ -49,6 +36,6 @@ export async function GET(request: Request) {
     }
     if ((data ?? []).length < PAGE) break;
   }
-  await logCleanup(admin, counts);
+  await logCleanupUsage(admin, "four-cut-comics", counts);
   return NextResponse.json({ ok: true, members, removed, loggedOwners: counts.size });
 }

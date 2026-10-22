@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { cleanupUserContent } from "@/threads-content-ops/lib/contentCleanup";
 import { cleanupUserMedia } from "@/threads-content-ops/lib/mediaCleanup";
+import { logCleanupUsage } from "@/threads-content-ops/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본 (images=이미지·영상, posts=보관함 글, ideas=글감)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -44,22 +45,7 @@ export async function GET(request: NextRequest) {
       failed += 1;
     }
   }
-  await logCleanup(service, counts);
+  await logCleanupUsage(service, "threads-content-ops", counts);
   return NextResponse.json({ users: userIds.length, removed, postsUpdated, viralDeleted, draftsDeleted, failed, loggedOwners: counts.size });
 }
 
-// 30일 정리 기록(2026-10-23) — 회원별 usage_logs action `cleanup_expired`(메인 관리자 「30일 자동 정리」 표·「운영 상태」). 기록 실패해도 정리는 계속.
-// images = 지운 이미지·영상 파일, posts = 보관함 글, ideas = 글감
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function logCleanup(admin: any, counts: Map<string, Record<string, number>>) {
-  try {
-    if (!counts.size) return;
-    const { data: program } = await admin.from("programs").select("id").eq("slug", "threads-content-ops").maybeSingle();
-    if (!program) return;
-    await admin.from("usage_logs").insert([...counts].map(([user_id, m]) => ({
-      user_id, program_id: program.id, action: "cleanup_expired", quantity: Object.values(m).reduce((a, b) => a + b, 0), metadata: m,
-    })));
-  } catch (e) {
-    console.error("[cleanup] usage_logs 기록 실패:", e);
-  }
-}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { retentionCutoff } from "@/lib/retention";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -89,19 +90,10 @@ export async function GET(request: NextRequest) {
     const { error } = await db.from("music_tracks").delete().in("id", tracks.map((t: { id: string }) => t.id));
     if (error) throw new Error(`track delete failed: ${error.message}`);
     result.tracks = tracks.length;
-    // 30일 정리 기록(2026-10-23) — 회원별 지운 곡 수를 usage_logs action `cleanup_expired`로(메인 관리자 「30일 자동 정리」 표). 기록 실패해도 정리는 계속.
-    try {
-      const perUser = new Map<string, number>();
-      for (const t of tracks as { user_id: string }[]) perUser.set(t.user_id, (perUser.get(t.user_id) ?? 0) + 1);
-      const { data: program } = await db.from("programs").select("id").eq("slug", "music-automation").maybeSingle();
-      if (program) {
-        await db.from("usage_logs").insert([...perUser].map(([user_id, n]) => ({
-          user_id, program_id: program.id, action: "cleanup_expired", quantity: n, metadata: { tracks: n },
-        })));
-      }
-    } catch (e) {
-      console.error("[cleanup] usage_logs 기록 실패:", e);
-    }
+    // 30일 정리 기록 — 회원별 지운 곡 수(공용 기준 코드 cleanup-usage-log 사본, 기록 실패해도 정리는 계속)
+    const counts: CleanupCounts = new Map();
+    for (const t of tracks as { user_id: string }[]) addCleanupCount(counts, t.user_id, "tracks");
+    await logCleanupUsage(db, "music-automation", counts);
   }
 
   // 2) 곡이 하나도 남지 않은 30일 지난 기획

@@ -335,6 +335,21 @@ const MODULES = [
     copies: ["ai-influencer-studio/src/lib/instagram/cronJobOrg.ts", "ai-webtoon-studio/src/lib/instagram/cronJobOrg.ts", "four-cut-comics/src/lib/instagram/cronJobOrg.ts"],
   },
   {
+    // 30일 정리 기록(usage_logs action cleanup_expired, 회원별 한 줄) — logCleanupUsage·addCleanupCount·ownerFromPath. 2026-10-23 등록
+    id: "cleanup-usage-log",
+    source: "four-cut-comics/src/lib/cleanupUsageLog.ts",
+    copies: [
+      "cinematic-storyboard-studio/src/lib/cleanupUsageLog.ts",
+      "threads-content-ops/lib/cleanupUsageLog.ts",
+      "music/lib/cleanupUsageLog.ts",
+      "portrait-photo/src/lib/cleanupUsageLog.ts",
+      "banana-canvas/src/lib/cleanupUsageLog.ts",
+      "style-dna-analyzer/src/lib/cleanupUsageLog.ts",
+      "ai-image-studio/lib/cleanupUsageLog.ts",
+      "reverse-prompt/src/lib/cleanupUsageLog.ts",
+    ],
+  },
+  {
     // 성격·운세 4개 「이어서 보기」 링크(타로점·캐릭코드·성격코드 주소, 넘어온 곳 이름) — 2026-10-20 등록
     id: "personality-program-links",
     source: "personality-suite/src/lib/programLinks.ts",

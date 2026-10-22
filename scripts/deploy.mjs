@@ -101,6 +101,23 @@ if (versionOnly && args.includes("--all")) {
   console.log(`[역량 지도 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개`);
   for (const l of stale) console.log(l);
 
+  // 30일 정리 기록 확인(2026-10-23): 코드로 기록을 남기는 프로그램 → 최근 7일 기록 있음 / 배포 대기(PENDING_DEPLOYS에 정리 기록 줄) / 배포됐는데 기록 없음
+  try {
+    const { cleanupPrograms, slugFromPrograms } = await import("./program-info.mjs");
+    const logging = cleanupPrograms().filter((c) => c.logs).map((c) => ({ ...c, slug: c.slug ?? slugFromPrograms(c.folder, programs) }));
+    const pendingText = readFileSync(join(ROOT, "docs", "PENDING_DEPLOYS.md"), "utf8").split(/\r?\n/).filter((l) => l.startsWith("| `") && /cleanup_expired|정리 기록/.test(l));
+    const pendingFolders = new Set(pendingText.map((l) => (l.match(/^\| `([^`]+)`/) || [])[1]));
+    const since = new Date(Date.now() - 7 * 86_400_000).toISOString();
+    const recent = await rest(`usage_logs?select=program_id&action=eq.cleanup_expired&created_at=gte.${since}&limit=5000`);
+    const allProgs = await rest("programs?select=id,slug");
+    const seen = new Set((recent ?? []).map((r) => allProgs.find((p) => p.id === r.program_id)?.slug).filter(Boolean));
+    const has = logging.filter((c) => seen.has(c.slug));
+    const waiting = logging.filter((c) => !seen.has(c.slug) && pendingFolders.has(c.folder));
+    const silent = logging.filter((c) => !seen.has(c.slug) && !pendingFolders.has(c.folder));
+    console.log(`[30일 정리 기록] 코드로 기록 ${logging.length}곳 · 최근 7일 기록 있음 ${has.length} · 배포 대기 ${waiting.length} · 배포됐는데 7일간 기록 없음 ${silent.length}`);
+    if (silent.length) console.log(`  ⚠ ${silent.map((c) => c.folder).join(", ")} — 지울 것이 없었을 수도 있음. 그 프로그램 정리 작업 응답의 loggedOwners·Vercel 로그 「[cleanup]」로 확인`);
+  } catch (e) { console.log(`[30일 정리 기록] 확인 실패 — ${e.message}`); }
+
   // 최근 24시간 공용 문서 되돌림 감사(check-shared-doc-reverts --audit) — 지금 HEAD에서 사라진 줄이 있을 때만 자세히(2026-10-23)
   const au = spawnSync(process.execPath, [join(ROOT, "scripts", "check-shared-doc-reverts.mjs"), "--audit", "24", "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   try {

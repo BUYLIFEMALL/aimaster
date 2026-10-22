@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { BUCKET } from "@/lib/dna/records";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const admin = createAdminClient();
   let rows = 0, files = 0;
+  const counts: CleanupCounts = new Map();
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
     const { data: old, error } = await admin
@@ -37,10 +39,12 @@ export async function GET(request: Request) {
     }
     const { error: delErr } = await admin.from("sda_analyses").delete().in("id", old.map((r) => r.id as string));
     if (delErr) return NextResponse.json({ error: delErr.message }, { status: 500 });
+    for (const r of old) addCleanupCount(counts, ownerFromPath(r.image_path as string), "images");
     rows += old.length;
     files += paths.length;
     if (old.length < BATCH) break;
   }
 
-  return NextResponse.json({ ok: true, cutoff, rows, files });
+  const loggedOwners = await logCleanupUsage(admin, "style-dna-analyzer", counts);
+  return NextResponse.json({ ok: true, cutoff, rows, files, loggedOwners });
 }

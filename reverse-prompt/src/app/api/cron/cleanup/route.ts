@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { json } from "@/lib/aiRoute";
 import { BUCKET, TEMP_TTL_MS } from "@/lib/rpa/media";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,12 +20,14 @@ export async function GET(request: Request) {
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   let rows = 0;
+  const counts: CleanupCounts = new Map();
   for (let round = 0; round < MAX_ROUNDS; round++) {
-    const { data: old, error } = await admin.from("reverse_prompt_history").select("id").lt("created_at", cutoff).limit(BATCH);
+    const { data: old, error } = await admin.from("reverse_prompt_history").select("id, user_id").lt("created_at", cutoff).limit(BATCH);
     if (error) return json({ error: error.message }, 500);
     if (!old?.length) break;
     const { error: delErr } = await admin.from("reverse_prompt_history").delete().in("id", old.map((r) => r.id as string));
     if (delErr) return json({ error: delErr.message }, 500);
+    for (const r of old) addCleanupCount(counts, r.user_id as string, "history");
     rows += old.length;
     if (old.length < BATCH) break;
   }
@@ -40,5 +43,6 @@ export async function GET(request: Request) {
     for (let i = 0; i < stale.length; i += 100) await store.remove(stale.slice(i, i + 100));
     files += stale.length;
   }
-  return json({ ok: true, cutoff, rows, files });
+  const loggedOwners = await logCleanupUsage(admin, "reverse-prompt", counts);
+  return json({ ok: true, cutoff, rows, files, loggedOwners });
 }

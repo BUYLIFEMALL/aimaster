@@ -2,6 +2,7 @@ import { json } from "@/lib/aiRoute";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { remove } from "@/lib/files";
 import type { OutputItem } from "@/lib/bnc/types";
+import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,6 +20,7 @@ export async function GET(request: Request) {
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const admin = createAdminClient();
   let rows = 0, files = 0;
+  const counts: CleanupCounts = new Map();
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
     const { data: old, error } = await admin
@@ -32,9 +34,14 @@ export async function GET(request: Request) {
     for (let i = 0; i < paths.length; i += 100) await remove(paths.slice(i, i + 100));
     const { error: delErr } = await admin.from("banana_canvas_results").delete().in("id", old.map((r) => r.id as string));
     if (delErr) return json({ error: delErr.message }, 500);
+    for (const r of old) {
+      const rp = [...((r.outputs as OutputItem[] | null) ?? []).map((o) => o.path), ...((r.input_paths as string[] | null) ?? [])].filter(Boolean);
+      addCleanupCount(counts, ownerFromPath(rp[0]), "images", rp.length);
+    }
     rows += old.length;
     files += paths.length;
     if (old.length < BATCH) break;
   }
-  return json({ ok: true, cutoff, rows, files });
+  const loggedOwners = await logCleanupUsage(admin, "banana-canvas", counts);
+  return json({ ok: true, cutoff, rows, files, loggedOwners });
 }

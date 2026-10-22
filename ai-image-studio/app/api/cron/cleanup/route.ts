@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { BUCKET, storagePathOf } from "@/lib/imageStorage";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -20,11 +21,12 @@ export async function GET(request: Request) {
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const admin = createAdminClient();
   let rows = 0, files = 0;
+  const counts: CleanupCounts = new Map();
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
     const { data: old, error } = await admin
       .from("usage_logs")
-      .select("id, metadata")
+      .select("id, user_id, metadata")
       .eq("program_id", AI_IMAGE_STUDIO_PROGRAM_ID)
       .lt("created_at", cutoff)
       .limit(BATCH);
@@ -38,10 +40,12 @@ export async function GET(request: Request) {
     }
     const { error: delErr } = await admin.from("usage_logs").delete().in("id", old.map((r) => r.id));
     if (delErr) return Response.json({ error: delErr.message }, { status: 500 });
+    for (const r of old) if (storagePathOf(r.metadata)) addCleanupCount(counts, r.user_id as string, "images");
     rows += old.length;
     files += paths.length;
     if (old.length < BATCH) break;
   }
 
-  return Response.json({ ok: true, cutoff, rows, files });
+  const loggedOwners = await logCleanupUsage(admin, "ai-image-studio", counts);
+  return Response.json({ ok: true, cutoff, rows, files, loggedOwners });
 }

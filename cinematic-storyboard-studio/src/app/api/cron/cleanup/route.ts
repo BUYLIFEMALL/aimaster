@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { removeProjectFolder } from "@/lib/projects";
+import { logCleanupUsage } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -11,20 +12,6 @@ export const maxDuration = 300;
 const BATCH = 200;
 const MAX_ROUNDS = 10;
 
-// 30일 정리 기록(2026-10-23) — 회원별 usage_logs action `cleanup_expired`(메인 관리자 「30일 자동 정리」 표·「운영 상태」). 기록 실패해도 정리는 계속.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function logCleanup(admin: any, counts: Map<string, Record<string, number>>) {
-  try {
-    if (!counts.size) return;
-    const { data: program } = await admin.from("programs").select("id").eq("slug", "cinematic-storyboard-studio").maybeSingle();
-    if (!program) return;
-    await admin.from("usage_logs").insert([...counts].map(([user_id, m]) => ({
-      user_id, program_id: program.id, action: "cleanup_expired", quantity: Object.values(m).reduce((a, b) => a + b, 0), metadata: m,
-    })));
-  } catch (e) {
-    console.error("[cleanup] usage_logs 기록 실패:", e);
-  }
-}
 
 export async function GET(request: Request) {
   // 비밀값이 비어 있으면 「Bearer undefined」로 통과되는 사고를 막는다(docs/ERROR_LESSONS.md 2026-10-20).
@@ -60,6 +47,6 @@ export async function GET(request: Request) {
     rows += old.length;
     if (old.length < BATCH) break;
   }
-  await logCleanup(admin, counts);
+  await logCleanupUsage(admin, "cinematic-storyboard-studio", counts);
   return NextResponse.json({ ok: true, cutoff, rows, files, loggedOwners: counts.size });
 }
