@@ -10,6 +10,21 @@ function extractJson(value: string): Record<string, unknown> {
   return JSON.parse(trimmed) as Record<string, unknown>
 }
 
+// 2026-10-22: 글 생성 AI 호출 시간 제한 — 글 생성 경로(maxDuration 300초)에서 이미지 생성 시간을 남기도록 150초.
+// 시간이 넘으면 요청을 끊고 안내한다(자동 재시도 없음 — 이미 처리 중이던 요청에 요금이 나갈 수 있어 이중 과금을 피함).
+export const CONTENT_TIMEOUT_MS = 150_000
+
+export async function timedFetch(provider: string, url: string, init: RequestInit, timeoutMs = CONTENT_TIMEOUT_MS): Promise<Response> {
+  try {
+    return await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) })
+  } catch (error) {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+      throw new Error(`${provider} 글 생성이 ${Math.round(timeoutMs / 1000)}초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도하거나 더 빠른 모델을 골라 주세요.`)
+    }
+    throw error
+  }
+}
+
 function safeError(provider: string, status: number, body: string) {
   const detail = body.replace(/AIza[\w-]{20,}|sk-[\w-]{20,}/g, '[API 키 숨김]').replace(/\s+/g, ' ').slice(0, 200)
   return new Error(`${provider} 글 생성 요청에 실패했습니다. (${status}${detail ? `: ${detail}` : ''})`)
@@ -25,7 +40,7 @@ export async function generateContentJson(params: {
   const { provider, apiKey, model, system, user } = params
 
   if (provider === 'anthropic') {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await timedFetch('Claude', 'https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       // 한국어 장문(공백 제외 2,000자 이상) + JSON이라 넉넉하게 잡는다.
@@ -39,7 +54,7 @@ export async function generateContentJson(params: {
   }
 
   if (provider === 'gemini') {
-    const response = await fetch(
+    const response = await timedFetch('Gemini', 
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -59,7 +74,7 @@ export async function generateContentJson(params: {
   }
 
   // GPT-5 이상은 temperature를 기본값만 허용하므로 GPT-4 계열에만 지정한다.
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await timedFetch('OpenAI', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
@@ -90,7 +105,7 @@ export async function generateContentJson(params: {
 }
 
 async function generateOpenAIResponsesJson(params: { apiKey: string; model: string; system: string; user: string }) {
-  const response = await fetch('https://api.openai.com/v1/responses', {
+  const response = await timedFetch('OpenAI', 'https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${params.apiKey}` },
     body: JSON.stringify({

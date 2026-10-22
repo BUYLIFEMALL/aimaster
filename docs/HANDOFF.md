@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ⏳ 티스토리 포스팅 자동화 남은 후보 4개 (미배포 대기 · 빌드 0회 · AI 0회)
+- 구글 뉴스 RSS 안전 해석, 글 생성 AI 호출 150초 제한(재시도 없음), 연결 안 된 시험 연결, 옛 진행 상태 표 안내. 시험 163·tsc 통과. 새 배포 지침에 따라 **다음 티스토리 배포(v1.87) 때 함께** — 상세 `tistory-auto-blog/AGENTS.md` 맨 위.
+- 출처 객체는 DB 변경이 필요해 별도 플랜 보고 대기.
+- 프로그램: https://tistory-auto-blog.buylife.xyz
+
 ## 2026-10-22 — Claude Code(맥미니): GIF 자동화 → 상세페이지 섹션 보내기 (상세 v1.28 · GIF v1.14, 배포 대기)
 - GIF 완료 줄 「🛍 상세페이지로」 → 상세페이지 「GIF 받기」(`/products/gif-inbox`) 창으로 브라우저 안에서 GIF 전달(서버 없음) → 상품·섹션 골라 넣기. 섹션 GIF 허용, 섹션 ZIP은 GIF 원본, GIF 섹션 문구 버튼 숨김, S-22-18 배지 안내, GIF 완료 줄 좁은 화면 배치. 새 공용 기준 코드 `gif-handoff`(`docs/SHARED_MODULES.md`). DB 구조·AI 변경 없음.
 - **윈도우 CLI 다음 첫 단계**: ① SQL `shop-detail-page/supabase/migrations/20261022_gif_inbox_v1_28.sql` → `shop-detail-page` 배포 → Ready ② SQL `video-to-gif/supabase/migrations/20261022_send_to_shop_v1_14.sql` → `video-to-gif` 배포 → Ready. 각 `AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.

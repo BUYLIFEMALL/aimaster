@@ -15,7 +15,9 @@
     "test:shorts": "node --test tests/shorts-collection.test.cjs",
     "test:home-topics": "node --test tests/home-topics.test.mjs",
     "sync:program-version": "node scripts/sync-program-version.mjs",
-    "test:blc12": "node --test tests/blc12-collect.test.cjs"
+    "test:blc12": "node --test tests/blc12-collect.test.cjs",
+    "test:publication": "node --test tests/publication-page.test.cjs",
+    "test:collect-safety": "node --test tests/collect-safety.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

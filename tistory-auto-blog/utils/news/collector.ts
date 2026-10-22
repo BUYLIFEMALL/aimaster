@@ -40,9 +40,14 @@ function cleanHtml(text: string): string {
     .trim()
 }
 
-function parseRssXml(xmlText: string): NewsArticle[] {
+// 2026-10-22 RSS 안전 해석: 속성 있는 <item>도 인식, 여러 줄 CDATA 풀기, http(s) 링크만, 항목 최대 RSS_MAX_ITEMS개.
+export const RSS_MAX_ITEMS = 30
+const unwrapCdata = (value: string) => value.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').trim()
+const safeLink = (value: string) => (/^https?:\/\//i.test(value) ? value.slice(0, 1000) : '')
+
+export function parseRssXml(xmlText: string): NewsArticle[] {
   const articles: NewsArticle[] = []
-  const itemMatches = xmlText.match(/<item>[\s\S]*?<\/item>/gi) || []
+  const itemMatches = (xmlText.match(/<item\b[^>]*>[\s\S]*?<\/item>/gi) || []).slice(0, RSS_MAX_ITEMS)
   const now = new Date()
 
   for (const itemXml of itemMatches) {
@@ -54,11 +59,11 @@ function parseRssXml(xmlText: string): NewsArticle[] {
 
     if (!titleMatch) continue
 
-    const rawTitle = titleMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim()
-    const rawLink = linkMatch ? linkMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
+    const rawTitle = unwrapCdata(titleMatch[1])
+    const rawLink = linkMatch ? safeLink(unwrapCdata(linkMatch[1])) : ''
     const pubDateStr = pubDateMatch ? pubDateMatch[1].trim() : ''
-    const rawSource = sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
-    const rawSnippet = descriptionMatch ? descriptionMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim() : ''
+    const rawSource = sourceMatch ? unwrapCdata(sourceMatch[1]) : ''
+    const rawSnippet = descriptionMatch ? unwrapCdata(descriptionMatch[1]) : ''
 
     // clean HTML
     let title = cleanHtml(rawTitle)

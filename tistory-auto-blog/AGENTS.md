@@ -1,4 +1,5 @@
-﻿> **2026-10-22 v1.86 BLC-12 검증 부품 적용(Claude Code 윈도우·웨일):** ① 글감 URL 수집(`utils/ai/collector.ts` `fetchHtml`)을 공용 기준 `safe-fetch` 사본(`utils/safeFetch.ts`, `undici` 7.30.0)으로 — 내부·사설 주소 차단·리디렉트마다 재검사·15초 제한·본문 3MB까지(`readLimited`). ② 생성 결과 연도 보정을 공용 기준 `year-policy` 사본(`utils/yearPolicy.ts`, 기준 naver-blog-agent)으로 — 제목·태그·주제 후보·쇼츠 후보는 과거 연도를 올해로, 요약·본문은 최신 정보 표기만(과거 사실 보존). 확장·TinyMCE·태그 입력·예약·자동 발행 코드 변경 없음(버전만). 시험 `test:blc12` 3 + 기존 148 통과. [플랜](docs/PLAN_20261022_BLC12_VERIFIED_PARTS.md) · [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
+﻿> **⏳ 미배포 대기 (2026-10-22, Claude Code 윈도우) — v1.86 뒤 남은 후보 처리:** ① 구글 뉴스 RSS 안전 해석(`utils/news/collector.ts` `parseRssXml` — 속성 있는 `<item>` 인식, 여러 줄 CDATA 풀기(예전엔 한 줄만 풀려 요약에 CDATA가 남을 수 있었음), http(s) 링크만, 최대 30개) ② 글 생성 AI 호출 150초 제한(`utils/ai/contentJson.ts` `timedFetch`, 재시도 없음, 한국어 안내) ③ 연결되지 않던 시험 `tests/publication-page.test.cjs`를 `npm run test:publication`으로 연결(9 통과) ④ 아래쪽 「진행 상태」 표에 2026-10-01 기록이라는 안내 추가. 새 시험 `test:collect-safety` 3. 전체 시험 163·tsc 통과. 확장 코드 변경 없음. **다음에 이 프로그램을 배포하는 CLI:** 버전 v1.87(코드·확장·ZIP·DB)로 올려 함께 배포하고 이 줄을 「배포 완료」로 바꿀 것.
+> **2026-10-22 v1.86 BLC-12 검증 부품 적용(Claude Code 윈도우·웨일):** ① 글감 URL 수집(`utils/ai/collector.ts` `fetchHtml`)을 공용 기준 `safe-fetch` 사본(`utils/safeFetch.ts`, `undici` 7.30.0)으로 — 내부·사설 주소 차단·리디렉트마다 재검사·15초 제한·본문 3MB까지(`readLimited`). ② 생성 결과 연도 보정을 공용 기준 `year-policy` 사본(`utils/yearPolicy.ts`, 기준 naver-blog-agent)으로 — 제목·태그·주제 후보·쇼츠 후보는 과거 연도를 올해로, 요약·본문은 최신 정보 표기만(과거 사실 보존). 확장·TinyMCE·태그 입력·예약·자동 발행 코드 변경 없음(버전만). 시험 `test:blc12` 3 + 기존 148 통과. [플랜](docs/PLAN_20261022_BLC12_VERIFIED_PARTS.md) · [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 # tistory-auto-blog — 티스토리 포스팅 자동화
 
 > **2026-10-22 v1.85 운영 배포(Claude Code 윈도우, Codex 이어받음):** 저장 응답 보존(`Network.configureDurableMessages`)·커스텀 도메인 `/entry/` 결과를 관리 목록의 같은 주소·제목 본인 글 번호로 연결. 157개 통과·DB/확장/ZIP v1.85 OK. 15번 결과는 읽기 확인 후 수동 복구(자동 성공 아님). **실제 검수 완료: 16번 비공개 자동 발행 → 232번 주소·시각 자동 기록(웨일, 관리자 계정).** 미시험: 공개·예약·이미지 포함. 상세 [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래 · [플랜](docs/PLAN_20261022_AUTO_PUBLISH_V185.md).
@@ -305,6 +306,7 @@ aver-blog-agent, 29번)**: 1회 생성으로 티스토리와 네이버 블로그
 - 상세 계획·결정사항·단계: [`docs/TISTORY_PLAN.md`](docs/TISTORY_PLAN.md)
 
 ## 진행 상태 (2026-10-01 클라우드 세션 갱신)
+> **⚠️ 2026-10-22 안내: 아래 표는 2026-10-01 초기 개발 당시 기록입니다(조사 단계·v1.02 기준).** 지금은 모든 단계가 끝나 자동 포스팅까지 운영 중(v1.86)이며, 현재 상태는 이 문서 맨 위 항목과 [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래를 봅니다. 표는 이력으로 남깁니다.
 | 단계 | 내용 | 상태 |
 |---|---|---|
 | 0 | 티스토리 화면 조사 도구 `inspector-extension/` | ✅ 코드 완성. **주인님 PC에서 실행 → JSON 결과 전달 대기** |
