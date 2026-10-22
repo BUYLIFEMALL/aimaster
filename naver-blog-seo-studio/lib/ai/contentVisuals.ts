@@ -1,7 +1,7 @@
 import "server-only";
 import { openAIGenerationParams } from "./openaiRequestParams";
 
-export const CONTENT_IMAGE_SLOTS = ["content-1", "content-2", "content-3"] as const;
+export const CONTENT_IMAGE_SLOTS = ["content-1", "content-2", "content-3", "content-4", "content-5", "content-6"] as const;
 export type ContentImageSlot = typeof CONTENT_IMAGE_SLOTS[number];
 
 export type ContentVisual = {

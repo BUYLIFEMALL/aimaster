@@ -5,13 +5,13 @@ import { DraftCategoryPanel } from "@/components/categories/DraftCategoryPanel";
 import Image from "next/image";
 import { SEO_PERSONAS } from "@/lib/ai/personas";
 import { GEMINI_IMAGE_MODELS, type GeminiImageModel } from "@/lib/ai/geminiModels";
-import { fitContentBlockTextarea, reportLabels, reportEntries, type ContentImageSlot } from "./shared";
+import { fitContentBlockTextarea, reportLabels, reportEntries, CONTENT_IMAGE_COUNTS, contentImageCountLabel, type ContentImageCount, type ContentImageSlot } from "./shared";
 import { freeSlots } from "@/lib/imageNodes";
 import { QualityPanel } from "./QualityPanel";
 import type { Studio } from "./useStudio";
 
 export function NewDraftView({ s }: { s: Studio }) {
-  const { strategy, selectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateContentImagesWithDraft, setGenerateContentImagesWithDraft, imageModel, setImageModel, contentImageCount, setContentImageCount, history, setHistory, currentDraft, setCurrentDraft, draftSaving, draftSaveMessage, imagePending, generatedImage, contentImages, contentBlocks, contentImagePending, regeneratingContentImageSlot, handoffPending, handoffMessage, selectedPersonaName, openMenu, reuseDraft, sendDraftToExtension, generateImage, generateContentImages, regenerateContentImage, deleteContentImage, addContentImageAt, imageRequests, setImageRequests, confirmDeleteSlot, setConfirmDeleteSlot, updateTextBlock, moveContentBlock, removeContentBlock, addTextBlock, saveCurrentDraft, copyDraftText } = s;
+  const { strategy, selectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateContentImagesWithDraft, setGenerateContentImagesWithDraft, imageModel, setImageModel, contentImageCount, setContentImageCount, history, setHistory, currentDraft, setCurrentDraft, draftSaving, draftSaveMessage, imagePending, generatedImage, contentImages, contentBlocks, contentImagePending, regeneratingContentImageSlot, handoffPending, handoffMessage, selectedPersonaName, openMenu, reuseDraft, sendDraftToExtension, generateImage, generateContentImages, regenerateContentImage, deleteContentImage, addContentImageAt, uploadContentImage, imageRequests, setImageRequests, confirmDeleteSlot, setConfirmDeleteSlot, updateTextBlock, moveContentBlock, removeContentBlock, addTextBlock, saveCurrentDraft, copyDraftText } = s;
   // BLC-10: 본문 이미지 노드 — 작업 중이면 다른 이미지 버튼을 잠그고, 빈 칸 수(목표 장수까지 + 이미지 없는 노드)를 계산
   const imageBusy = contentImagePending || regeneratingContentImageSlot !== null;
   const openSlots = freeSlots(contentImages).length;
@@ -38,7 +38,7 @@ export function NewDraftView({ s }: { s: Studio }) {
                 ? confirmDeleteSlot === block.slot
                   ? <><button type="button" className="text-button danger" onClick={() => void deleteContentImage(block.slot as ContentImageSlot)} disabled={imageBusy}>정말 삭제</button><button type="button" className="text-button" onClick={() => setConfirmDeleteSlot(null)}>취소</button></>
                   : <button type="button" className="text-button danger" onClick={() => setConfirmDeleteSlot(block.slot as ContentImageSlot)} disabled={imageBusy}>이미지 삭제</button>
-                : <>{block.type === "text" && openSlots > 0 && <button type="button" className="text-button" onClick={() => void addContentImageAt(block.id)} disabled={imageBusy}>여기에 이미지</button>}<button type="button" className="text-button danger" onClick={() => removeContentBlock(block.id)}>전송 제외</button></>}</div></div>
+                : <>{block.type === "text" && openSlots > 0 && <button type="button" className="text-button" onClick={() => void addContentImageAt(block.id)} disabled={imageBusy}>여기에 이미지</button>}{block.type === "text" && openSlots > 0 && <PhotoPicker label="내 사진 넣기" disabled={imageBusy} onPick={(file) => void uploadContentImage(file, { blockId: block.id })} />}<button type="button" className="text-button danger" onClick={() => removeContentBlock(block.id)}>전송 제외</button></>}</div></div>
               {block.type === "text" ? <textarea value={block.text} onChange={(event) => updateTextBlock(block.id, event.target.value)} onInput={(event) => fitContentBlockTextarea(event.currentTarget)} aria-label="본문 문단 수정" /> : <div className="content-block-image">{block.slot === "cover"
                 ? <Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image`} alt={block.alt} width={1280} height={720} unoptimized />
                 : nodeOf(block.slot)?.path
@@ -50,16 +50,16 @@ export function NewDraftView({ s }: { s: Studio }) {
         </section>}
         {currentDraft && <section className="draft-image-stage content-image-stage card" aria-labelledby="content-images-title">
           <div className="content-image-heading"><strong id="content-images-title">본문 이미지 {contentImages.filter((item) => item.path).length}/{Math.max(contentImageCount, contentImages.length)}장</strong></div>
-          <p className="content-image-heading-description">이미지마다 따로 만들고·다시 만들고·지울 수 있습니다. 하나를 바꿔도 다른 이미지와 위치는 그대로입니다. 빈 칸 만들기는 아직 없는 칸만 만들고(본인 키, 칸마다 이미지 1장), 편집기 문단의 「여기에 이미지」로 원하는 문단 앞에 넣을 수도 있습니다(최대 3장).</p>
+          <p className="content-image-heading-description">이미지마다 따로 만들고·다시 만들고·지울 수 있습니다. 하나를 바꿔도 다른 이미지와 위치는 그대로입니다. 빈 칸 만들기는 아직 없는 칸만 만들고(본인 키, 칸마다 이미지 1장), 편집기 문단의 「여기에 이미지」로 원하는 문단 앞에 넣을 수도 있습니다(최대 6장). 「내 사진」으로 바꾸거나 넣으면 AI 비용이 들지 않습니다.</p>
           <label className="image-with-draft-option content-image-auto-option"><input type="checkbox" checked={generateContentImagesWithDraft} onChange={(event) => setGenerateContentImagesWithDraft(event.target.checked)} /> <span><strong>블로그(원문) 생성 시 본문 이미지도 함께 생성</strong><small>활성화하면 대표 이미지와 별도로 핵심 문장 이미지 {contentImageCount}장을 생성합니다.</small></span><span className="image-model-control"><b>이미지 생성 모델</b><select id="content-image-model" value={imageModel} onChange={(event) => setImageModel(event.target.value as GeminiImageModel)} disabled={imagePending || contentImagePending || regeneratingContentImageSlot !== null}>{GEMINI_IMAGE_MODELS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></span></label>
-          <div className="content-image-control-row"><div className="field content-image-count-field"><label htmlFor="draft-content-image-count">총 이미지 구성</label><select id="draft-content-image-count" value={contentImageCount} onChange={(event) => setContentImageCount(Number(event.target.value) as 2 | 3)}><option value={2}>기본 3장 · 대표 1장 + 본문 2장</option><option value={3}>4장 생성 · 대표 1장 + 본문 3장</option></select></div><button type="button" className="secondary content-image-generate-button" onClick={() => void generateContentImages()} disabled={imageBusy || neededImages === 0}>{contentImagePending ? "본문 이미지 만드는 중..." : neededImages ? `빈 칸 이미지 ${neededImages}장 만들기` : "모든 칸에 이미지가 있습니다"}</button></div>
+          <div className="content-image-control-row"><div className="field content-image-count-field"><label htmlFor="draft-content-image-count">총 이미지 구성</label><select id="draft-content-image-count" value={contentImageCount} onChange={(event) => setContentImageCount(Number(event.target.value) as ContentImageCount)}>{CONTENT_IMAGE_COUNTS.map((count) => <option key={count} value={count}>{contentImageCountLabel(count)}</option>)}</select><small>본문 이미지 1장마다 본인 Gemini 키로 과금됩니다.</small></div><button type="button" className="secondary content-image-generate-button" onClick={() => void generateContentImages()} disabled={imageBusy || neededImages === 0}>{contentImagePending ? "본문 이미지 만드는 중..." : neededImages ? `빈 칸 이미지 ${neededImages}장 만들기` : "모든 칸에 이미지가 있습니다"}</button></div>
           {contentImages.length > 0 && <div className="content-image-list">{contentImages.map((item) => {
             const no = item.slot.replace("content-", "");
             const request = imageRequests[item.slot] ?? item.request ?? "";
             return <div className="generated-image-preview" key={item.slot}><strong>{no}번 이미지가 들어갈 문장</strong><p>{item.sentence}</p>
               {item.path ? <Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${item.slot}&v=${encodeURIComponent(item.path)}`} alt={`${no}번 본문 문장 매칭 이미지`} width={1280} height={720} unoptimized /> : <div className="content-image-empty"><p>{regeneratingContentImageSlot === item.slot ? "이미지를 만드는 중입니다..." : "아직 이미지가 없습니다."}</p></div>}
-              <input type="text" value={request} maxLength={200} placeholder="요청 덧붙이기 (선택, 예: 사람 없이 소품만)" aria-label={`${no}번 이미지 요청`} onChange={(event) => setImageRequests((current) => ({ ...current, [item.slot]: event.target.value }))} disabled={imageBusy} />
-              <div className="content-image-node-actions"><button type="button" className="secondary compact" onClick={() => void regenerateContentImage(item, request)} disabled={imageBusy}>{regeneratingContentImageSlot === item.slot ? "만드는 중..." : item.path ? "이 이미지만 다시 만들기" : "이 이미지 만들기"}</button>
+              {item.prompt && <input type="text" value={request} maxLength={200} placeholder="요청 덧붙이기 (선택, 예: 사람 없이 소품만)" aria-label={`${no}번 이미지 요청`} onChange={(event) => setImageRequests((current) => ({ ...current, [item.slot]: event.target.value }))} disabled={imageBusy} />}
+              <div className="content-image-node-actions">{item.prompt && <button type="button" className="secondary compact" onClick={() => void regenerateContentImage(item, request)} disabled={imageBusy}>{regeneratingContentImageSlot === item.slot ? "만드는 중..." : item.path ? "이 이미지만 다시 만들기" : "이 이미지 만들기"}</button>}<PhotoPicker label={item.model === "내 사진" ? "다른 사진으로 바꾸기" : "내 사진으로 바꾸기"} disabled={imageBusy} onPick={(file) => void uploadContentImage(file, { slot: item.slot })} />
                 {confirmDeleteSlot === item.slot
                   ? <><button type="button" className="text-button danger" onClick={() => void deleteContentImage(item.slot)} disabled={imageBusy}>정말 삭제</button><button type="button" className="text-button" onClick={() => setConfirmDeleteSlot(null)}>취소</button></>
                   : <button type="button" className="text-button danger" onClick={() => setConfirmDeleteSlot(item.slot)} disabled={imageBusy}>삭제</button>}</div>
@@ -80,4 +80,9 @@ function GroundingSources({ report }: { report: unknown }) {
     <p className="freshness-note">승인한 근거만 사실로 쓰도록 지시했습니다. 인용 확인은 전체 사실 확인·표절 판정이 아니니 발행 전에 직접 확인해주세요.</p>
     <ol>{grounding.points.map((p, i) => <li key={i}>{p.text} <small>— 「{p.quote}」 {p.link ? <a href={p.link} target="_blank" rel="noreferrer">{p.title || "출처"}</a> : p.title}</small></li>)}</ol>
   </section>;
+}
+
+// v2.01: 「내 사진」 고르기 — 버튼 모양 label 안에 숨긴 파일 입력(JPG·PNG·WebP). 고른 뒤 값을 비워 같은 파일도 다시 고를 수 있게.
+function PhotoPicker({ label, disabled, onPick }: { label: string; disabled: boolean; onPick: (file: File) => void }) {
+  return <label className={`text-button photo-picker${disabled ? " is-disabled" : ""}`} aria-disabled={disabled}>{label}<input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={disabled} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) onPick(file); }} /></label>;
 }

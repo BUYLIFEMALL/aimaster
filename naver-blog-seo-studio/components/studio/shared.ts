@@ -27,7 +27,11 @@ export type DraftRecord = {
   naver_category?: { id: string; name: string } | null;
 };
 
-export type ContentImageSlot = "content-1" | "content-2" | "content-3";
+export type ContentImageSlot = "content-1" | "content-2" | "content-3" | "content-4" | "content-5" | "content-6";
+// v2.01: 본문 이미지 장수 선택지(대표 1장 별도). 이미지 1장마다 회원 본인 Gemini 키로 과금된다.
+export const CONTENT_IMAGE_COUNTS = [2, 3, 4, 5, 6] as const;
+export type ContentImageCount = typeof CONTENT_IMAGE_COUNTS[number];
+export const contentImageCountLabel = (count: number) => `총 ${count + 1}장 · 대표 1장 + 본문 ${count}장${count === 2 ? " (기본)" : ""}`;
 export type ContentImage = { slot: ContentImageSlot; sentence: string; prompt?: string; request?: string; path?: string; mimeType?: string; model?: string };
 export type ContentBlock =
   | { id: string; type: "text"; text: string }
@@ -44,7 +48,7 @@ export function getContentBlocks(draft: DraftRecord | null): ContentBlock[] {
   return blocks.filter((item): item is ContentBlock => {
     if (typeof item !== "object" || item === null || !("id" in item) || !("type" in item)) return false;
     if (item.type === "text") return "text" in item && typeof item.text === "string";
-    return item.type === "image" && "slot" in item && (item.slot === "cover" || item.slot === "content-1" || item.slot === "content-2" || item.slot === "content-3");
+    return item.type === "image" && "slot" in item && (item.slot === "cover" || /^content-[1-6]$/.test(String(item.slot)));
   });
 }
 

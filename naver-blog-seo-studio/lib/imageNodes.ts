@@ -2,7 +2,7 @@
 // 노드 = seo_report.contentImages의 한 항목. 칸 번호(content-1~3)가 노드 번호라 확장·자동 발행은 그대로 쓴다.
 // 노드 하나를 바꿀 때 다른 노드와 블록 위치는 건드리지 않는다.
 
-export const IMAGE_SLOTS = ["content-1", "content-2", "content-3"] as const;
+export const IMAGE_SLOTS = ["content-1", "content-2", "content-3", "content-4", "content-5", "content-6"] as const; // v2.01: 최대 6장
 export type ImageSlot = typeof IMAGE_SLOTS[number];
 export type ImageNode = { slot: ImageSlot; sentence: string; prompt?: string; request?: string; path?: string; mimeType?: string; model?: string };
 export type NodeBlock =
@@ -108,6 +108,21 @@ export function reflowBlocks(oldBlocks: NodeBlock[], newBody: string, nodes: Pic
 
 export function removeNodeBlock(blocks: NodeBlock[], slot: ImageSlot): NodeBlock[] {
   return blocks.filter((block) => !(block.type === "image" && block.slot === slot));
+}
+
+// v2.01: 「내 사진」 — 확장자가 아니라 파일 앞부분으로 형식을 확인한다(JPG·PNG·WebP만, 4MB 이하는 경로에서 확인).
+export const UPLOAD_MAX_BYTES = 4 * 1024 * 1024;
+export function detectImageType(bytes: Uint8Array): "image/jpeg" | "image/png" | "image/webp" | null {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (bytes.length >= 8 && [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((value, index) => bytes[index] === value)) return "image/png";
+  if (bytes.length >= 12 && String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP") return "image/webp";
+  return null;
+}
+
+// 내 사진을 새 노드로 넣을 때 기준 문장 — 그 문단의 첫 문장(최대 360자)
+export function firstSentence(paragraph: string): string {
+  const text = squash(paragraph);
+  return (text.match(/^[^.!?。！？]+[.!?。！？]?/)?.[0] ?? text).trim().slice(0, 360);
 }
 
 // 회원이 덧붙이는 요청(한국어 그대로) — 저장된 장면 설명은 그대로 두고 뒤에 붙인다.

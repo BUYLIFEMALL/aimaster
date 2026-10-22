@@ -5,7 +5,7 @@ import { SEO_PERSONAS } from "@/lib/ai/personas";
 import { GEMINI_IMAGE_MODELS, type GeminiImageModel } from "@/lib/ai/geminiModels";
 import { getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
 import { openAIModelBadge, openAIModelNotice, openAIModelTier, openAIModelTierHint } from "@/lib/ai/openaiRequestParams";
-import { strategies } from "./shared";
+import { strategies, CONTENT_IMAGE_COUNTS, contentImageCountLabel, type ContentImageCount } from "./shared";
 import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
 
@@ -90,10 +90,10 @@ export function TitleView({ s }: { s: Studio }) {
   </label>
   <div className="field">
     <label htmlFor="content-image-count">생성할 이미지 수</label>
-    <select id="content-image-count" value={contentImageCount} onChange={(event) => setContentImageCount(Number(event.target.value) as 2 | 3)}>
-      <option value={2}>기본 3장 · 대표 1장 + 본문 2장</option>
-      <option value={3}>4장 생성 · 대표 1장 + 본문 3장</option>
+    <select id="content-image-count" value={contentImageCount} onChange={(event) => setContentImageCount(Number(event.target.value) as ContentImageCount)}>
+      {CONTENT_IMAGE_COUNTS.map((count) => <option key={count} value={count}>{contentImageCountLabel(count)}</option>)}
     </select>
+    <small>본문 이미지 1장마다 본인 Gemini 키로 과금됩니다.</small>
     <small>본문의 서로 다른 핵심 문단에 맞춰 이미지를 생성합니다.</small>
   </div>
   <button type="button" className="primary" onClick={() => void createDraftFromSelectedTitle()} disabled={!selectedTitle || pending || imagePending || (personaId === "custom" && !customPersona.trim())}>{pending ? "AI 블로그(원문) 생성 중..." : imagePending ? "대표 이미지 생성 중..." : "선택한 제목과 전략으로 AI 블로그(원문) 생성하기"}</button>

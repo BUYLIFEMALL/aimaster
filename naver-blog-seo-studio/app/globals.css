@@ -338,6 +338,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .content-image-empty p { margin: 0; padding: 0; }
 .content-image-list .generated-image-preview input[type="text"] { width: 100%; margin-top: 10px; }
 .content-image-node-actions { flex-wrap: wrap; padding: 9px 0 0 !important; }
+.photo-picker { cursor: pointer; }
+.photo-picker.is-disabled { cursor: not-allowed; opacity: .5; }
 .content-block-editor-note { padding-top: 11px; border-top: 1px dashed #d8e4f2; }
 .content-block-editor-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 14px; }
 .content-block-editor-footer .content-block-editor-note { flex: 1; margin: 0; }

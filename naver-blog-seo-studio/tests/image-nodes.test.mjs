@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { freeSlots, upsertNode, removeNode, placeNodeBlock, removeNodeBlock, cleanRequest, nodePrompt, isImageSlot, splitParagraphBlocks, reflowBlocks } from "../lib/imageNodes.ts";
+import { freeSlots, upsertNode, removeNode, placeNodeBlock, removeNodeBlock, cleanRequest, nodePrompt, isImageSlot, splitParagraphBlocks, reflowBlocks, detectImageType, firstSentence, IMAGE_SLOTS } from "../lib/imageNodes.ts";
 
 const text = (id, t) => ({ id, type: "text", text: t });
 const img = (slot) => ({ id: slot, type: "image", slot, alt: "" });
@@ -8,13 +8,13 @@ const img = (slot) => ({ id: slot, type: "image", slot, alt: "" });
 test("BLC-10: freeSlots / upsertNode / removeNode change only the target node", () => {
   const a = { slot: "content-1", sentence: "가", path: "p1" };
   const b = { slot: "content-3", sentence: "다", path: "p3" };
-  assert.deepEqual(freeSlots([a, b]), ["content-2"]);
+  assert.deepEqual(freeSlots([a, b]), ["content-2", "content-4", "content-5", "content-6"]); // v2.01: 6칸
   const replaced = upsertNode([a, b], { ...b, path: "p3-new" });
   assert.equal(replaced.find((n) => n.slot === "content-1"), a);
   assert.equal(replaced.find((n) => n.slot === "content-3").path, "p3-new");
   assert.deepEqual(upsertNode([b], a).map((n) => n.slot), ["content-1", "content-3"]);
   assert.deepEqual(removeNode([a, b], "content-1"), [b]);
-  assert.ok(isImageSlot("content-2") && !isImageSlot("cover") && !isImageSlot("content-4"));
+  assert.ok(isImageSlot("content-2") && !isImageSlot("cover") && !isImageSlot("content-7")) // v2.01: 6칸;
 });
 
 test("BLC-10: placeNodeBlock splits at the paragraph of the sentence and keeps existing positions", () => {
@@ -61,4 +61,17 @@ test("v2.00: reflowBlocks keeps each image before the same following paragraph a
   const gone = reflowBlocks(blocks, "완전히 다른 첫 문단입니다.\n\n완전히 다른 둘째 문단입니다.", [{ slot: "content-1", sentence: "둘째 문단" }]);
   assert.equal(gone.filter((b) => b.type === "image").length, 3);
   assert.deepEqual(gone.map((b) => b.type === "image" ? `[${b.slot}]` : "t"), ["[cover]", "t", "[content-1]", "t", "[content-2]"]);
+});
+
+test("v2.01: six slots, photo type is checked by content, first sentence of a paragraph", () => {
+  assert.equal(IMAGE_SLOTS.length, 6);
+  assert.deepEqual(freeSlots([{ slot: "content-1", sentence: "a" }, { slot: "content-4", sentence: "b" }]), ["content-2", "content-3", "content-5", "content-6"]);
+  assert.ok(isImageSlot("content-6") && !isImageSlot("content-7"));
+  assert.equal(detectImageType(new Uint8Array([0xff, 0xd8, 0xff, 0xe0])), "image/jpeg");
+  assert.equal(detectImageType(new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0])), "image/png");
+  assert.equal(detectImageType(new Uint8Array([...Buffer.from("RIFF"), 0, 0, 0, 0, ...Buffer.from("WEBP")])), "image/webp");
+  assert.equal(detectImageType(new Uint8Array([...Buffer.from("<svg onload=x>")])), null);
+  assert.equal(detectImageType(new Uint8Array([0x47, 0x49, 0x46, 0x38])), null); // GIF 거절
+  assert.equal(firstSentence("  텐트는 무게가 중요합니다.  그다음은 크기입니다."), "텐트는 무게가 중요합니다.");
+  assert.equal(firstSentence("마침표 없는 제목형 문단"), "마침표 없는 제목형 문단");
 });

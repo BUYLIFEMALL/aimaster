@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   try {
     const { draft, state } = await readNodes(supabase, access.user.id, draftId);
     const slot = freeSlots(state.images)[0];
-    if (!slot) return NextResponse.json({ error: "본문 이미지는 최대 3장입니다. 다른 이미지를 삭제한 뒤 넣어주세요." }, { status: 400 });
+    if (!slot) return NextResponse.json({ error: "본문 이미지는 최대 6장입니다. 다른 이미지를 삭제한 뒤 넣어주세요." }, { status: 400 });
     const openaiKey = await resolveApiKey(supabase, access.user.id, "openai");
     if (!openaiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "문단에 맞는 장면을 정하려면 OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
     const [visual] = await selectContentVisuals({

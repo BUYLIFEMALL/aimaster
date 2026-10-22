@@ -15,7 +15,7 @@ function blocksOfDraft(draft: DraftRecord) {
   const stored = getContentBlocks(draft);
   return splitParagraphBlocks(stored.length ? stored : createContentBlocks(draft));
 }
-import { strategies, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, missingBlockImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
+import { strategies, type ContentImageCount, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, missingBlockImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
 
 export function useStudio() {
   const [strategy, setStrategy] = useState(strategies[0][0]);
@@ -68,7 +68,7 @@ export function useStudio() {
     fetch("/api/settings/ai-model", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: { provider: contentProvider, model: contentModel } }) })
       .then((r) => r.ok ? r.json() : null).then((d: { openaiFeature?: string } | null) => { if (d?.openaiFeature) setOpenAIFeatureModel(d.openaiFeature); }).catch(() => {});
   }, [contentProvider, contentModel]);
-  const [contentImageCount, setContentImageCount] = useState<2 | 3>(2);
+  const [contentImageCount, setContentImageCount] = useState<ContentImageCount>(2);
   // v1.74 글쓰기 선택 사항(저장하지 않고 생성 요청에만 사용)
   const [experienceNote, setExperienceNote] = useState("");
   const [experienceQuestions, setExperienceQuestions] = useState<string[]>([]);
@@ -199,7 +199,7 @@ export function useStudio() {
     setSelectedTitle(draft.title);
     const restoredContentImages = getContentImages(draft);
     setContentImages(restoredContentImages);
-    setContentImageCount(restoredContentImages.length === 3 ? 3 : 2);
+    setContentImageCount(Math.min(6, Math.max(2, restoredContentImages.length)) as ContentImageCount);
     setContentBlocks(blocksOfDraft(draft));
     setCurrentDraft(withoutContentImages(draft));
     rememberBase(draft);
@@ -603,6 +603,37 @@ export function useStudio() {
     }
   }
 
+  // v2.01: 내 사진으로 노드를 바꾸거나(slot) 그 문단 앞에 넣는다(blockId). AI 호출 없음.
+  async function uploadContentImage(file: File, target: { slot: ContentImageSlot } | { blockId: string }) {
+    if (!currentDraft) return;
+    const block = "blockId" in target ? contentBlocks.find((item) => item.id === target.blockId) : undefined;
+    if ("blockId" in target && block?.type !== "text") return;
+    if (file.size > 4 * 1024 * 1024) return setMessage("사진은 4MB 이하로 올려주세요.");
+    const form = new FormData();
+    form.append("draftId", currentDraft.id);
+    form.append("file", file);
+    if ("slot" in target) form.append("slot", target.slot);
+    else if (block?.type === "text") { form.append("beforeBlockId", block.id); form.append("paragraph", block.text); }
+    setContentImagePending(true);
+    if ("slot" in target) setRegeneratingContentImageSlot(target.slot);
+    setMessage("내 사진을 올리고 있습니다.");
+    try {
+      const response = await fetch("/api/images/upload-content", { method: "POST", body: form });
+      const result = await response.json().catch(() => ({})) as { image?: ContentImage; error?: string };
+      if (!response.ok || !result.image) throw new Error(result.error || "사진을 올리지 못했습니다.");
+      const node = result.image;
+      setContentImages((items) => upsertNode(items, node));
+      if ("blockId" in target) setContentBlocks((blocks) => placeNodeBlock(blocks, node, target.blockId));
+      setMessage(`${node.slot.replace("content-", "")}번 본문 이미지를 내 사진으로 ${"slot" in target ? "바꿨" : "넣었"}습니다. 다른 이미지와 위치는 그대로입니다.`);
+      refreshHistory().catch(() => {});
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "사진을 올리지 못했습니다.");
+    } finally {
+      setContentImagePending(false);
+      setRegeneratingContentImageSlot(null);
+    }
+  }
+
   // 이 문단 앞에 이미지 노드를 넣고(글 AI 1회) 이어서 이미지 1장을 만든다.
   async function addContentImageAt(blockId: string) {
     const block = contentBlocks.find((item) => item.id === blockId);
@@ -863,6 +894,7 @@ export function useStudio() {
     regenerateContentImage,
     deleteContentImage,
     addContentImageAt,
+    uploadContentImage,
     imageRequests,
     setImageRequests,
     confirmDeleteSlot,
