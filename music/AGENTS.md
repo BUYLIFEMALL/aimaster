@@ -411,3 +411,6 @@ POST 콜백을 보낸다. 이 라우트는:
 
 ## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+## 2026-10-23 ⏸ 미배포 — 공용 Suno 코드에 콜백 주소 선택값 `callbackOrigin` (Claude Code 윈도우, 커밋 acccf06eb)
+- `lib/ai/suno.ts`(공용 모듈 `suno-api-client` 기준) `RequestSunoGenerationInput.callbackOrigin?` 추가 — 비우면 지금처럼 이 앱 주소. 사본을 쓰는 AI 음악 스튜디오 v1.03이 자기 웹훅으로 신호를 받으려고 넣음. **이 앱의 동작은 바뀌지 않아 배포하지 않음** — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.

@@ -8,9 +8,10 @@
 
 ## 기능·로직
 - [x] AI 가사 분량을 길이에 맞게(짧은 곡 줄 수 초과) — v1.02
-- [ ] ElevenLabs composition_plan
-- [ ] 화면을 닫아도 대기열형 완료 처리(예약 확인 또는 웹훅)
-- [ ] 실제 비용 기록
+- [x] ElevenLabs composition_plan — v1.03
+- [x] 화면을 닫아도 대기열형 완료 처리(예약 확인 또는 웹훅) — v1.03 웹훅
+- [x] 실제 비용 기록 — v1.03 실측 가능한 값(부분)
+- [ ] Suno V6 Wild 모델 카드 추가(주인님 질문 2026-10-23 — 원하시면)
 - [ ] Mureka·Stable Audio 3·Lyria RealTime 연동(2차)
 
 ## 외부 연계
