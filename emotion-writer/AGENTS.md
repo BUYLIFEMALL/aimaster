@@ -148,3 +148,8 @@
 
 ## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 「다른 크기로 받기」 전체 ZIP (다음 배포 때 v1.24)
 - 주인님 지시로 코드만 반영하고 배포는 보류. 「다른 크기로 받기」 줄 끝에 「📦 전체 6가지 ZIP 1개로」 버튼: 6가지 크기를 차례로 다시 그려 JPG로 만든 뒤 ZIP 하나로 저장(AI 호출 없음). ZIP은 공용 기준 코드 `store-zip` 사본 `src/lib/studio/zip.ts`(기준 `portrait-photo/src/lib/portrait/zip.ts`). 이름은 `channelZipNames()`. 시험 1개 추가(전체 27개)·tsc·build 통과. 배포 후 크롬에서 다운로드를 가로채 ZIP 파일 수 확인할 것.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 배경 어둡기 추천 (다음 배포 때 v1.24, 다른 크기 ZIP과 함께)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 배경 사진에서 글자 구역(위 12~45%·가운데 30~70%·아래 55~88%, 가로 9~91%)의 평균 색을 검은 막 씌우기 전 기준으로 재서(`src/components/useBandColor.ts`, 결과 크기 1/10로 꽉 채워 그림), 글자색과의 대비(WCAG)를 「배경 어둡기」 슬라이더 아래에 표시: 4.5:1 이상이면 초록 「✓ 잘 읽힙니다」, 모자라면 주황 「배경 어둡기 N% 추천 [적용]」(5% 단위, 최대 75), 글자색이 어두우면 「글자색을 밝게」, 가장 어둡게 해도 모자라면 「글자 위치나 사진을 바꿔 보세요」. 계산 `src/lib/studio/readability.ts`(`adviseOverlay`·`contrastRatio`·`darken`·`textBand`), 시험 `tests/readability.test.mjs`(3개, 전체 30개). CSS `.status-note.good`(7.3:1)·`.warning`(6.8:1). 글자 그림자는 계산에 넣지 않은 보수적 기준.
+- 바나나 캔버스는 밝기·어둡기 조절 설정이 없어 이번 제안(배경 밝기 추천)은 적용하지 않음.
+- tsc·build 통과. 화면 확인은 배포 후.

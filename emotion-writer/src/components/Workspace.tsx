@@ -17,6 +17,8 @@ import {
   type Ratio,
 } from "@/lib/studio/config";
 import { QuoteCanvas } from "./QuoteCanvas";
+import { useBandColor } from "./useBandColor";
+import { adviseOverlay } from "@/lib/studio/readability";
 import { KeySettings } from "./KeySettings";
 import {
   Sparkles,
@@ -123,6 +125,9 @@ export function Workspace({
   const [photo, setPhoto] = useState<Photo | null>(null);
   // v1.23: 기본값은 안내 문구로만 보여 줌(덧붙여 써서 「naturenature」처럼 0장이 되는 일 방지) — 비우고 검색하면 nature
   const [query, setQuery] = useState("");
+  // v1.24: 글자 구역 배경 밝기로 「배경 어둡기」 추천
+  const bandColor = useBandColor(image, draft.ratio, draft.design.position);
+  const overlayAdvice = bandColor ? adviseOverlay(bandColor, draft.design.color, draft.design.overlay) : null;
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState("");
@@ -810,6 +815,18 @@ export function Workspace({
                       }
                     />
                   </label>
+                  {overlayAdvice && (
+                    <p className={overlayAdvice.ok ? "status-note good" : "status-note warning"} data-overlay-advice>
+                      글자 대비 {overlayAdvice.contrast}:1
+                      {overlayAdvice.ok
+                        ? " ✓ 잘 읽힙니다."
+                        : overlayAdvice.recommended !== null
+                          ? <> — 배경 어둡기 <b>{overlayAdvice.recommended}%</b>를 추천합니다. <button type="button" disabled={disabled} onClick={() => change({ design: { ...draft.design, overlay: overlayAdvice.recommended! } })}>적용</button></>
+                          : overlayAdvice.darkText
+                            ? " — 글자색이 어두워 배경을 어둡게 할수록 더 안 보입니다. 글자색을 밝게 바꿔 보세요."
+                            : " — 가장 어둡게 해도 4.5:1에 못 미칩니다. 글자 위치나 사진을 바꿔 보세요."}
+                    </p>
+                  )}
                   <label>
                     서명 (선택)
                     <input

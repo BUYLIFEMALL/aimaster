@@ -517,6 +517,19 @@ section[id] {
   color: #b91c1c;
 }
 
+/* v1.24: 배경 어둡기 추천 — 충분하면 초록, 추천 필요하면 주황 */
+.status-note.good {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.status-note.warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
 .status-note button {
   padding: 4px 10px;
   margin-left: 8px;
