@@ -19,6 +19,8 @@ async function post(url: string, body: unknown) {
   return result;
 }
 
+const OPEN_KEY = "seo-research-open";
+
 export function ResearchView({ s }: { s: Studio }) {
   const { contentProvider, setContentProvider, contentModel, setContentModel, prepareDraft, openMenu, setTopic, setKeywords, pending } = s;
   const [keyword, setKeyword] = useState("");
@@ -33,9 +35,18 @@ export function ResearchView({ s }: { s: Studio }) {
   const load = (item: Research | null) => {
     setResearch(item);
     setKeep(new Set((item?.points ?? []).map((p, i) => (p.kept ? i : -1)).filter((i) => i >= 0)));
+    // v1.95: 메뉴를 옮겼다 돌아와도 같은 자료를 다시 열도록 이 탭에만 기억(실패하면 기억 없이 동작)
+    try { if (item) sessionStorage.setItem(OPEN_KEY, item.id); else sessionStorage.removeItem(OPEN_KEY); } catch {}
   };
   useEffect(() => {
-    fetch("/api/research").then((r) => r.json()).then((d: { research?: Research[] }) => setRecent(d.research ?? [])).catch(() => {});
+    fetch("/api/research").then((r) => r.json()).then((d: { research?: Research[] }) => {
+      const list = d.research ?? [];
+      setRecent(list);
+      let openId: string | null = null;
+      try { openId = sessionStorage.getItem(OPEN_KEY); } catch {}
+      const item = openId ? list.find((r) => r.id === openId) : undefined;
+      if (item) load(item);
+    }).catch(() => {});
   }, []);
 
   async function run(step: typeof busy, task: () => Promise<void>) {

@@ -24,6 +24,7 @@ export function SectionWriter({ s, researchId }: { s: Studio; researchId: string
   const [busy, setBusy] = useState<"" | "outline" | "write" | "join">("");
   const [writing, setWriting] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
+  const [confirmRestart, setConfirmRestart] = useState(false);
   const stopRef = useRef(false);
 
   const keep = (next: Outline) => { setOutline(next); setTitle((t) => (next.titles.includes(t) ? t : next.title)); setOutlines((list) => [next, ...list.filter((x) => x.id !== next.id)]); };
@@ -105,7 +106,14 @@ export function SectionWriter({ s, researchId }: { s: Studio; researchId: string
           : !allDone && <button type="button" className="primary" disabled={Boolean(busy) || writing !== null} onClick={writeRest}>남은 구간 모두 쓰기</button>}
         {changedAfterJoin && <p className="freshness-note">합친 뒤 구간이 바뀌었습니다. 다시 합치면 기존 원고는 그대로 두고 새 원고를 만듭니다.</p>}
         {allDone && <button type="button" className="primary" disabled={Boolean(busy) || writing !== null} onClick={join}>{busy === "join" ? "원고로 합치는 중..." : outline.status === "joined" ? "합친 원고 열기" : "원고로 합치기"}</button>}
-        <button type="button" className="secondary" disabled={Boolean(busy) || writing !== null} onClick={createOutline}>새 구성으로 다시 시작</button>
+        {/* v1.95: 실수로 눌러 AI를 쓰지 않도록 화면 안 2단계 확인 */}
+        {confirmRestart
+          ? <div className="field">
+              <p className="freshness-note">지금 구성은 그대로 남고, 새 목차를 만드는 데 본인 AI 키를 1회 씁니다.</p>
+              <button type="button" className="primary" disabled={Boolean(busy) || writing !== null} onClick={() => { setConfirmRestart(false); createOutline(); }}>새 구성 만들기</button>
+              <button type="button" className="secondary" onClick={() => setConfirmRestart(false)}>취소</button>
+            </div>
+          : <button type="button" className="secondary" disabled={Boolean(busy) || writing !== null} onClick={() => setConfirmRestart(true)}>새 구성으로 다시 시작</button>}
       </>}
       {notice && <div className="notice" role="status">{notice}</div>}
     </div>
