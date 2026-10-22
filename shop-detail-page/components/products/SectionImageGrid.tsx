@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/images";
 import { saveSectionSequenceAction } from "@/lib/actions/products";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
+import { ImageTextEditor } from "@/components/products/ImageTextEditor";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
@@ -163,7 +164,11 @@ export function SectionImageGrid({
     const template = uploadTargetRef.current;
     e.target.value = "";
     if (!file || !template) return;
+    await saveCustomFile(template, file);
+  }
 
+  // 직접 등록한 파일(또는 v1.25 문구 고치기 결과)을 본인 폴더에 올리고 새 버전으로 추가한다. 실패하면 오류 문구를 돌려준다.
+  async function saveCustomFile(template: TemplateInfo, file: File): Promise<string | null> {
     setStates((prev) => ({
       ...prev,
       [template.section_key]: { ...prev[template.section_key], status: "uploading" },
@@ -175,7 +180,7 @@ export function SectionImageGrid({
         ...prev,
         [template.section_key]: { ...prev[template.section_key], status: "error", error: uploadResult.error },
       }));
-      return;
+      return uploadResult.error ?? "업로드하지 못했습니다.";
     }
 
     const result = await addCustomSectionImageAction(productId, template.id, uploadResult.url);
@@ -184,7 +189,7 @@ export function SectionImageGrid({
         ...prev,
         [template.section_key]: { ...prev[template.section_key], status: "error", error: result.error },
       }));
-      return;
+      return result.error;
     }
 
     setStates((prev) => ({
@@ -195,7 +200,11 @@ export function SectionImageGrid({
         history: [...prev[template.section_key].history, uploadResult.url!],
       },
     }));
+    return null;
   }
+
+  // v1.25: 이미지 위 문구 고치기 편집기를 연 섹션
+  const [textEditing, setTextEditing] = useState<TemplateInfo | null>(null);
 
   const doneCount = Object.values(states).filter((s) => s.status === "done").length;
   const hasAnyImage = doneCount > 0;
@@ -207,6 +216,19 @@ export function SectionImageGrid({
         <ApiKeyRequiredModal
           missingLabels={["Google (Gemini / 나노바나나)"]}
           onClose={() => setShowApiKeyModal(false)}
+        />
+      )}
+
+      {textEditing && states[textEditing.section_key]?.url && (
+        <ImageTextEditor
+          imageUrl={states[textEditing.section_key].url!}
+          sectionName={textEditing.section_name}
+          onCancel={() => setTextEditing(null)}
+          onSave={async (file) => {
+            const error = await saveCustomFile(textEditing, file);
+            if (error) throw new Error(error);
+            setTextEditing(null);
+          }}
         />
       )}
 
@@ -403,14 +425,26 @@ export function SectionImageGrid({
                   </span>
                 </div>
                 {state.status === "done" && (
-                  <button
-                    onClick={() => generateOne(t)}
-                    disabled={isRunning}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0"
-                  >
-                    <span>🔄</span>
-                    <span>재생성</span>
-                  </button>
+                  <span className="flex items-center gap-1 shrink-0">
+                    {/* v1.25: 이미지 속 가격·날짜 같은 문구를 AI 없이 고쳐 새 버전으로 저장 */}
+                    <button
+                      onClick={() => setTextEditing(t)}
+                      disabled={isRunning}
+                      title="이미지 속 문구를 AI 없이 고쳐 새 버전으로 저장합니다(원본은 버전 목록에 남음)"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0 whitespace-nowrap"
+                    >
+                      <span>✏️</span>
+                      <span>문구</span>
+                    </button>
+                    <button
+                      onClick={() => generateOne(t)}
+                      disabled={isRunning}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0 whitespace-nowrap"
+                    >
+                      <span>🔄</span>
+                      <span>재생성</span>
+                    </button>
+                  </span>
                 )}
                 {/* v1.18: 아직 만들지 않았거나 실패한 섹션도 한 장씩 만들 수 있게 한다(전체 생성만 있던 문제, S-22-01). */}
                 {(state.status === "idle" || state.status === "error") && (
