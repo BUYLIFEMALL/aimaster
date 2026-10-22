@@ -15,7 +15,7 @@
 | **프로그램 번호** | **36번** |
 | **프로그램 명칭** | **상세페이지 GIF 자동화 (VideoToGIF)** |
 | **프로그램 slug** | `video-to-gif` |
-| **현재 버전** | `v1.10` (`package.json`, `lib/version.ts`, Supabase DB 3중 동기화) |
+| **현재 버전** | `v1.11` (코드만 — 배포·DB 대기, `package.json`, `lib/version.ts`, Supabase DB 3중 동기화) |
 | **공식 도메인** | `https://video-to-gif.buylife.xyz` (대시보드: `/dashboard`) |
 | **적용 템플릿** | **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션** |
 | **테마 및 색상** | 다크 차콜 (`#0d1117` + `#161b22`) + 이커머스 앰버 골드 (`#f59e0b`) |
@@ -107,3 +107,11 @@
 
 ## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - components/ConverterWorkspace.tsx(미리보기 하단): 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+## 2026-10-22 v1.11 — 구간 자르기 · 완료된 GIF 전체 ZIP · 변환 엔진 불러오기 실패 복구 (Claude Code 맥미니 · 배포 대기, 이커머스 2차 재비교 작업 ④)
+- **구간 자르기**: 파일 줄마다 「✂️ 구간 시작·끝(초)」(변환 전·오류 때만, 빈칸이면 처음·끝까지) + 영상 길이 표시(파일을 넣을 때 브라우저 video 요소로 읽음). ffmpeg 두 단계(팔레트·GIF) 모두 입력 앞에 `-ss 시작`·`-t 길이`. 잘못된 값(음수, 끝 ≤ 시작, 시작 ≥ 길이)은 변환 전에 그 줄을 오류로 표시.
+- **전체 ZIP**: 완료가 2개 이상이면 「변환 시작」 아래 「📦 완료된 GIF 전체 ZIP」 → `gif-all.zip`(브라우저 안에서, 서버로 안 보냄). **공용 기준 코드 `store-zip` 사본 `lib/zip.ts`**(기준 `portrait-photo/src/lib/portrait/zip.ts`, 직접 고치지 말 것), 같은 이름은 `uniqueNames`로 구분.
+- **D-47-01**: `getFFmpeg` 불러오기가 한 번 실패하면 실패한 약속이 남아 이후 변환도 계속 실패 → 실패 때 비우고 다음 시도에 다시 불러옴, 안내 문구 「변환 엔진을 불러오지 못했습니다…」.
+- 화면 위 배지가 「v1.10」 고정 글자였던 것을 `APP_VERSION`으로.
+- 버전 v1.11(`lib/version.ts`·`package.json` 1.11.0, SQL `supabase/migrations/20261022_trim_zip_v1_11.sql` — 버전만). 검수: tsc 0, eslint 0, 구간 함수 무료 시험 7가지 통과(빈칸·시작만·끝만·둘 다·끝<시작·음수·길이 초과), 공용 코드 점검 사본 일치.
+- **윈도우 CLI 다음 첫 단계**: SQL `20261022_trim_zip_v1_11.sql` → `video-to-gif` 배포 1회. 크롬 확인은 맥미니(짧은 시험 영상 2개로 구간 변환·전체 ZIP).

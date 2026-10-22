@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — 상세페이지 GIF 자동화 v1.11 — 구간 자르기·전체 ZIP (배포 대기, 이커머스 2차 재비교 작업 ④)
+- 파일마다 시작·끝(초)으로 필요한 구간만 GIF로, 완료 2개 이상이면 전체 ZIP(공용 `store-zip` 사본 등록), 변환 엔진 불러오기 실패 뒤 계속 실패하던 문제(D-47-01) 복구. AI 0회, tsc·eslint 0, 구간 함수 시험 7가지 통과. 상세페이지 v1.24 크롬 실검수도 끝남(순서 유지·기본 순서 복귀 통과, ZIP 번호는 완료 이미지 1장이라 코드 확인만).
+- **윈도우 순서**(빌드 1회): SQL `video-to-gif/supabase/migrations/20261022_trim_zip_v1_11.sql` → `video-to-gif` 배포. 크롬 확인은 맥미니.
+- 프로그램: https://video-to-gif.buylife.xyz · https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 원스톱 v1.33 로그인 거쳐도 대사 유지 · INSTA v1.59 겹친 구절 표시 · 쇼츠 바이럴 v1.13 영상 대사 → 원스톱 (빌드 3회, Gemini 1회)
 - 로그인하지 않은 상태로 넘긴 대사가 사라지던 것을 `sessionStorage` 보관으로 해결, INSTA 「⚠ 겹침 n」에 겹친 구절, 쇼츠 바이럴 Gemini 영상 분석 대사를 「🎬 이 대사로 쇼츠 만들기」로 원스톱에. 크롬 확인. 상세 각 폴더 `AGENTS.md`(v1.33·v1.59·v1.13).
 - 프로그램: https://shorts-onestop-studio.buylife.xyz · https://auto-instagram-posting.buylife.xyz · https://shorts-viral-studio.buylife.xyz

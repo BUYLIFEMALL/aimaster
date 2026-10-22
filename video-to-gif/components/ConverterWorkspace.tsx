@@ -22,6 +22,8 @@ import {
   Play
 } from "lucide-react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { createZip, uniqueNames } from "@/lib/zip";
+import { APP_VERSION } from "@/lib/version";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 type Job = {
@@ -34,7 +36,44 @@ type Job = {
   outputSize?: number;
   error?: string;
   downloadUrl?: string;
+  // v1.11: 구간 자르기(초, 빈칸이면 처음·끝). 영상 길이는 파일을 넣을 때 브라우저가 읽는다.
+  duration?: number;
+  trimStart: string;
+  trimEnd: string;
 };
+
+/** 파일의 영상 길이(초)를 브라우저 video 요소로 읽는다. 못 읽으면 undefined. */
+function readDuration(file: File): Promise<number | undefined> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    const done = (value?: number) => {
+      URL.revokeObjectURL(url);
+      resolve(value);
+    };
+    video.onloadedmetadata = () => done(Number.isFinite(video.duration) ? video.duration : undefined);
+    video.onerror = () => done(undefined);
+    video.src = url;
+  });
+}
+
+/** 구간 입력값을 ffmpeg 입력 옵션으로 바꾼다. 잘못된 값이면 오류 문구를 돌려준다. */
+function trimArgs(job: Job): { args: string[]; error?: string } {
+  const start = job.trimStart.trim() === "" ? 0 : Number(job.trimStart);
+  const end = job.trimEnd.trim() === "" ? undefined : Number(job.trimEnd);
+  if (!Number.isFinite(start) || start < 0) return { args: [], error: "시작 시간이 올바르지 않습니다." };
+  if (end !== undefined && (!Number.isFinite(end) || end <= start)) {
+    return { args: [], error: "끝 시간은 시작 시간보다 커야 합니다." };
+  }
+  if (job.duration !== undefined && start >= job.duration) {
+    return { args: [], error: "시작 시간이 영상 길이보다 깁니다." };
+  }
+  const args: string[] = [];
+  if (start > 0) args.push("-ss", String(start));
+  if (end !== undefined) args.push("-t", String(end - start));
+  return { args };
+}
 
 const MAX_FILES = 20;
 const MAX_FILE_BYTES = 200 * 1024 * 1024;
@@ -90,9 +129,44 @@ export default function ConverterWorkspace() {
         name: file.name,
         size: file.size,
         status: "ready" as const,
-        progress: 0
+        progress: 0,
+        trimStart: "",
+        trimEnd: ""
       })),
     ].slice(0, MAX_FILES));
+    // v1.11: 영상 길이를 읽어 구간 입력 옆에 보여 준다(파일 이름·크기로 같은 줄을 찾음).
+    for (const file of incoming) {
+      void readDuration(file).then((duration) => {
+        if (duration === undefined) return;
+        setJobs((current) =>
+          current.map((j) => (j.file === file ? { ...j, duration } : j))
+        );
+      });
+    }
+  }
+
+  function updateTrim(id: string, field: "trimStart" | "trimEnd", value: string) {
+    setJobs((current) => current.map((j) => (j.id === id ? { ...j, [field]: value } : j)));
+  }
+
+  // v1.11: 완료된 GIF를 ZIP 하나로(공용 기준 코드 store-zip 사본 lib/zip.ts — 직접 고치지 말 것).
+  async function downloadAllZip() {
+    const done = jobs.filter((j) => j.status === "done" && j.downloadUrl);
+    if (done.length < 2) return;
+    const names = uniqueNames(done.map((j) => `${j.name.replace(/\.[^.]+$/, "")}.gif`));
+    const entries = await Promise.all(
+      done.map(async (j, i) => ({
+        name: names[i],
+        data: new Uint8Array(await (await fetch(j.downloadUrl!)).arrayBuffer()),
+      }))
+    );
+    const zip = createZip(entries);
+    const url = URL.createObjectURL(new Blob([zip.slice().buffer], { type: "application/zip" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "gif-all.zip";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
   }
 
   function remove(id: string) {
@@ -122,12 +196,23 @@ export default function ConverterWorkspace() {
         });
         ffmpegRef.current = ffmpeg;
         return ffmpeg;
-      })();
+      })().catch((error) => {
+        // v1.11(D-47-01): 불러오기에 한 번 실패하면 다음 변환도 계속 실패하던 문제 — 다음 시도 때 다시 불러온다.
+        loadingRef.current = null;
+        throw new Error(
+          `변환 엔진을 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. (${error instanceof Error ? error.message : "알 수 없는 오류"})`
+        );
+      });
     }
     return loadingRef.current;
   }
 
   async function convertOne(job: Job) {
+    const trim = trimArgs(job);
+    if (trim.error) {
+      setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "error", error: trim.error } : j)));
+      return;
+    }
     setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "processing", progress: 1 } : j)));
     try {
       const ffmpeg = await getFFmpeg();
@@ -155,6 +240,7 @@ export default function ConverterWorkspace() {
         const paletteHandler = (e: { progress: number }) => onProgress(e, base);
         ffmpeg.on("progress", paletteHandler);
         await ffmpeg.exec([
+          ...trim.args,
           "-i",
           inputName,
           "-vf",
@@ -166,6 +252,7 @@ export default function ConverterWorkspace() {
         const useHandler = (e: { progress: number }) => onProgress(e, base + 5);
         ffmpeg.on("progress", useHandler);
         await ffmpeg.exec([
+          ...trim.args,
           "-i",
           inputName,
           "-i",
@@ -229,7 +316,7 @@ export default function ConverterWorkspace() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
             <Sparkles className="h-3.5 w-3.5" />
-            이커머스 상세페이지 GIF 랩 v1.10
+            이커머스 상세페이지 GIF 랩 {APP_VERSION}
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -355,6 +442,9 @@ export default function ConverterWorkspace() {
                         <p className="truncate text-sm font-bold text-gray-200">{job.name}</p>
                         <div className="mt-1 flex items-center gap-2 text-xs">
                           <span className="text-gray-400">{formatBytes(job.size)}</span>
+                          {job.duration !== undefined && (
+                            <span className="text-gray-400">· 길이 {job.duration.toFixed(1)}초</span>
+                          )}
                           <span className="text-gray-400">•</span>
                           {job.status === "done" ? (
                             <span className="inline-flex items-center gap-1 font-bold text-emerald-400">
@@ -413,6 +503,42 @@ export default function ConverterWorkspace() {
                         </button>
                       </div>
                     </div>
+
+                    {/* v1.11: 구간 자르기 — 변환 전·오류 때만 고칠 수 있다(빈칸이면 처음부터 끝까지) */}
+                    {(job.status === "ready" || job.status === "error") && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                        <span className="font-bold text-gray-300">✂️ 구간</span>
+                        <label className="flex items-center gap-1">
+                          시작
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            min={0}
+                            step={0.1}
+                            value={job.trimStart}
+                            onChange={(e) => updateTrim(job.id, "trimStart", e.target.value)}
+                            placeholder="0"
+                            className="w-20 rounded-lg border border-[#30363d] bg-[#161b22] px-2 py-1 text-gray-200"
+                          />
+                          초
+                        </label>
+                        <label className="flex items-center gap-1">
+                          끝
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            min={0}
+                            step={0.1}
+                            value={job.trimEnd}
+                            onChange={(e) => updateTrim(job.id, "trimEnd", e.target.value)}
+                            placeholder={job.duration !== undefined ? job.duration.toFixed(1) : "끝까지"}
+                            className="w-20 rounded-lg border border-[#30363d] bg-[#161b22] px-2 py-1 text-gray-200"
+                          />
+                          초
+                        </label>
+                        <span>필요한 부분만 남기면 GIF가 가볍고 선명해집니다.</span>
+                      </div>
+                    )}
 
                     {/* 진행률 바 */}
                     {job.status === "processing" && (
@@ -548,6 +674,15 @@ export default function ConverterWorkspace() {
                 </>
               )}
             </button>
+            {jobs.filter((j) => j.status === "done").length >= 2 && (
+              <button
+                onClick={() => void downloadAllZip()}
+                className="mt-2 w-full rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-bold text-amber-300 hover:bg-amber-500/20 transition-colors flex items-center justify-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>📦 완료된 GIF 전체 ZIP ({jobs.filter((j) => j.status === "done").length}개)</span>
+              </button>
+            )}
           </div>
         </aside>
       </section>
