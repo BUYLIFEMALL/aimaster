@@ -1,16 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-23 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.15 배포 (맥미니 v1.15 마무리)
-- 맥미니 커밋 `d3e4a1210`(변환 속도 개선): 사본 일치·tsc·build → 배포 READY → DB v1.15 → 크롬 `/dashboard`에 v1.15 표시 확인.
-- **맥미니 세션께**: 배포 끝 — 3초·10초 영상 시간 재측정, GIF 크기·프레임·8MB 이하, 큰 영상 예전 방식 처리, 구간·ZIP·썸네일·상세페이지로 보내기 확인 부탁드립니다.
-- 비용: Vercel 빌드 1회, AI 0회. 상세: `video-to-gif/AGENTS.md` 맨 아래.
-- 프로그램: https://video-to-gif.buylife.xyz
-
 ## 2026-10-23 — Claude Code(윈도우): **이미지 연계 대기분 정리 배포(6곳)** · 이미지 스튜디오 갤러리 「변환됨」 배지·큰 보기 창 「형식 바꾸기」
 - 배포(주인님 승인, 빌드 6회, 받는 쪽부터 → 부르는 쪽 마지막): 4컷 v1.35 → 인물사진 v1.42 → 바나나 v1.32 → 이미지 스튜디오 v1.28 → 스토리보드 v1.16 → 변환 스튜디오 v1.25, DB 버전 6줄. 함께 나간 대기: 바나나 다운로드 `.webp`·이름표 제목, 4컷 작품 이름표, 변환 이름표 전달·품질 70%/PNG→WebP·이미지 스튜디오 연계, 이미지 스튜디오 갤러리 형식 바꾸기·`/api/import-result`(`image_import`), 공용 `resave-receiver`(기준 4컷·사본 3)·`link-mark`(기준 바나나·사본 5). 새로 넣은 것: 갤러리 `image_import` 카드 「🔁 변환됨 · WEBP」, 큰 보기 창 「🔁 형식 바꾸기」.
 - 검수(크롬, 배포 전 로그인 확인 — 이번엔 관리자 계정으로 로그인돼 있었음): 갤러리 카드·큰 보기 창 링크 → 변환 스튜디오 「AI 이미지 스튜디오 결과 … ↩ 돌아가기」 → 변환 → 갤러리·4컷(`label=검수 3화` → 「검수 3화 · WEBP」)·인물사진(첫 바이트 판별) 다시 저장 성공·열기 링크 — 시험 그림·기록 3건 모두 삭제. 못 한 것: 「너무 큼」 화면(2.2MB 넘는 결과 필요 — 시험 코드), 바나나 다운로드 이름(실제 다운로드 클릭 안 함 — 시험 코드). 발견: 다시 저장 카드 플랫폼 배지 영문 「IMAGE-CONVERT-STUDIO」(이미지 스튜디오 IMPROVEMENTS).
 - 기록: `docs/PENDING_DEPLOYS.md` 이 세션 4줄 → 「내보낸 기록」 6줄, `SHARED_MODULES.md` 미배포 사본 2줄 ✅, 각 프로그램 IMPROVEMENTS 대기 표시 삭제. 커밋 때 다른 세션 스테이징(HANDOFF 등) 보존 — 내 경로만 `-o`, HANDOFF는 임시 인덱스.
 - 링크: https://ai-image-studio.buylife.xyz/gallery · https://image-convert-studio.buylife.xyz · https://four-cut-comics.buylife.xyz · https://portrait-photo.buylife.xyz · https://banana-canvas.buylife.xyz · https://cinematic-storyboard-studio.buylife.xyz
+
+## 2026-10-23 Claude Code(윈도우) — ✅ 동영상 GIF 변환 video-to-gif v1.15 배포 (맥미니 v1.15 마무리)
+- 맥미니 커밋 `d3e4a1210`(변환 속도 개선): 사본 일치·tsc·build → 배포 READY → DB v1.15 → 크롬 `/dashboard`에 v1.15 표시 확인.
+- **맥미니 세션께**: 배포 끝 — 3초·10초 영상 시간 재측정, GIF 크기·프레임·8MB 이하, 큰 영상 예전 방식 처리, 구간·ZIP·썸네일·상세페이지로 보내기 확인 부탁드립니다.
+- 비용: Vercel 빌드 1회, AI 0회. 상세: `video-to-gif/AGENTS.md` 맨 아래.
+- 프로그램: https://video-to-gif.buylife.xyz
 
 ## 2026-10-23 Claude Code(윈도우) — ⏳ 작은 개선 4가지 (미배포 대기 · 빌드 0회 · AI 0회)
 - 티스토리: 이미지 0장 선택지, 글감 출처를 본문 근거로 사용. SEO 스튜디오: 데이터랩 지수 소수 첫째 자리 표시. 작업실: 이미지를 다시 만들면 옛 파일 바로 삭제.
