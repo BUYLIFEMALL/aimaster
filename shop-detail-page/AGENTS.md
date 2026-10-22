@@ -259,3 +259,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 ## 2026-10-22 ✅ v1.22 맥미니 크롬 확인 (Claude Code 맥미니) — 이커머스 2차 재비교 작업 ① 완료
 - 맥미니 크롬, 시험 계정(파일을 컴퓨터에 저장하지 않고 화면 안에서 받아 내용만 확인): 화면 v1.22, 버튼 2개(아래 고정 줄에 긴 PNG 버튼 + 오른쪽 「📦 섹션별 ZIP」). ① 긴 PNG → 서명 주소(`/object/sign/`)로 이동, `download` 값이 한글 이름 그대로 「시험용 스테인리스 텀블러 500ml_merged_detail.png」(한 번만 인코딩됨 — v1.22 수정 확인), PNG 860×1152·1.3MB ② ZIP → 서명 주소·`application/zip`·이름 「…_sections_860px.zip」, 안에 `01_프로모션_배너.jpg`(UTF-8 이름 표시 켬, JPEG 860×1152). 완료 섹션이 1개라 01·02… 여러 장 순서는 코드 확인만(윈도우 기록과 같음).
 - 이번 확인으로 시험 계정 상품 폴더 `merged/`에 PNG·ZIP 1개씩이 더 저장됨(상품과 함께 30일 정리). 비용 없음.
+
+## 2026-10-22 v1.23 — 「📝 사진 없이 상품명으로 먼저 채우기」 (Claude Code 맥미니 · 배포 대기, 이커머스 2차 재비교 작업 ②, A안)
+- AI 12단의 `autoSearchProductInfo`(상품명 → 스펙·설명·타겟·톤) 장점을 옮김. 주인님 결정 A안: **입력칸 채우기만**, 저장·섹션 이미지 생성에는 지금처럼 실제 대표이미지 필요(사진 없는 상품 그림으로 구매자가 오해하지 않게). 12단의 추천 할인율·긴급 프로모션 문구는 옮기지 않음(v1.18 혜택 표기 원칙).
+- 코드: `lib/ai/productAnalysisPrompt.ts` `buildNameAnalysisPrompt`(당해 연도 규칙, 확인할 수 없는 수치·인증 「확인 필요」, 가격·혜택 문구 금지, 원본 정보가 있으면 우선) · `lib/actions/products.ts` `analyzeByNameAction`(권한 확인 → 회원 본인 Gemini 키 → 기존 `analyzeProductWithGemini`에 이미지 0장으로 글만 분석) · `components/products/ProductAnalyzeForm.tsx` 분석 버튼 아래 「📝 사진 없이 상품명으로 먼저 채우기」(상품명 칸이 있어야 켜짐) + 결과 칸 위 「상품명만으로 AI가 추정한 값」 안내. 결과 형식에는 가격 칸이 없음.
+- 버전 v1.23(`lib/version.ts`, SQL `supabase/migrations/20261022_name_fill_v1_23.sql` — 버전만). 검수: tsc 0, eslint(바꾼 3파일) 0, 프롬프트 무료 점검 6항목 통과(연도·혜택 금지·확인 필요·원본 유무·예시).
+- **윈도우 CLI 다음 첫 단계**: SQL `20261022_name_fill_v1_23.sql` → `shop-detail-page` 배포 1회. 그 뒤 맥미니가 크롬(시험 계정 본인 Gemini 키)으로 상품명 채우기 1회 실검수(글만 분석, 수 원).

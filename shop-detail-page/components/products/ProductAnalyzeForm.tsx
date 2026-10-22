@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { uploadImageDirect, uploadSpecDocument } from "@/lib/uploadImageClient";
-import { analyzeProductAction, createProductAction } from "@/lib/actions/products";
+import { analyzeByNameAction, analyzeProductAction, createProductAction } from "@/lib/actions/products";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import type { FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
@@ -56,6 +56,8 @@ export function ProductAnalyzeForm({
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingReference, setIsUploadingReference] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  // v1.23: 상품명만으로 채운 결과(AI 추정값)인지 — 확인 안내를 띄운다
+  const [isNameEstimate, setIsNameEstimate] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -165,6 +167,38 @@ export function ProductAnalyzeForm({
       if (result.data) {
         setFields(result.data);
         setAnalyzed(true);
+        setIsNameEstimate(false);
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }
+
+  // v1.23(AI 12단에서 옮김): 사진 없이 상품명(과 원본 정보)만으로 입력칸을 채운다. 저장·이미지 생성에는 여전히 사진이 필요하다.
+  async function handleAnalyzeByName() {
+    if (!productLabel.trim()) {
+      setError("상품명을 먼저 입력해주세요.");
+      return;
+    }
+    setError(null);
+    setIsAnalyzing(true);
+    try {
+      const formData = new FormData();
+      formData.set("productName", productLabel);
+      formData.set("sourceText", sourceText);
+      const result = await analyzeByNameAction(formData);
+      if (result.needsApiKey) {
+        setShowApiKeyModal(true);
+        return;
+      }
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      if (result.data) {
+        setFields(result.data);
+        setAnalyzed(true);
+        setIsNameEstimate(true);
       }
     } finally {
       setIsAnalyzing(false);
@@ -357,6 +391,16 @@ export function ProductAnalyzeForm({
             </>
           )}
         </button>
+        <button
+          type="button"
+          onClick={handleAnalyzeByName}
+          disabled={!productLabel.trim() || isAnalyzing}
+          title="사진이 아직 없을 때 상품명(과 원본 정보)만으로 분석 칸을 먼저 채웁니다. 섹션 이미지를 만들려면 대표 사진이 필요합니다."
+          className="w-full bg-white hover:bg-slate-50 disabled:opacity-50 text-slate-700 font-bold py-2.5 px-4 rounded-xl border border-slate-200 transition-all flex items-center justify-center gap-2 text-sm"
+        >
+          <span>📝</span>
+          <span>사진 없이 상품명으로 먼저 채우기</span>
+        </button>
         {!hasGeminiKey && (
           <p className="text-xs text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
             ⚠️ Gemini API 키가 등록되어 있지 않습니다. 분석 시도 시 등록 모달이 표시됩니다.
@@ -376,6 +420,12 @@ export function ProductAnalyzeForm({
             </span>
           )}
         </div>
+        {analyzed && isNameEstimate && (
+          <p className="text-xs text-amber-800 bg-amber-50 p-3 rounded-lg border border-amber-200 leading-relaxed">
+            📝 사진 없이 <b>상품명만으로 AI가 추정한 값</b>입니다. 실제 상품과 다른 소재·치수·색상은 꼭 고쳐 주세요. 「확인 필요」 칸은 아는 사실로 채우거나 비워 두세요.
+            저장과 섹션 이미지 생성에는 위 1번의 대표이미지가 필요합니다. 사진을 올린 뒤 「Gemini AI로 상품 소구점 분석하기」를 다시 누르면 사진 기준으로 분석합니다.
+          </p>
+        )}
         {analyzed && (
           <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
             ⚠️ AI가 사진·사양서로 <b>추정</b>한 내용입니다. 스펙·인증·가격·효능 표현은 실제 상품 정보와 꼭 맞춰 고친 뒤 저장해 주세요.

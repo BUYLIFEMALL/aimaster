@@ -76,6 +76,26 @@ ${FEW_SHOT_EXAMPLE}`;
 ${FEW_SHOT_EXAMPLE}`;
 }
 
+/**
+ * v1.23(이커머스 2차 재비교 작업 ②, AI 12단 `autoSearchProductInfo`에서 옮김): 사진 없이 상품명(과 원본 정보)만으로 입력칸을 채운다.
+ * 12단과 달리 할인율·긴급 프로모션 문구는 만들지 않는다(v1.18 근거 없는 혜택 표기 금지). 가격 칸은 결과에 없다.
+ * 사진이 없으므로 색상·디자인은 이 종류 상품의 일반적인 추천으로 쓰고, 확인할 수 없는 수치·인증은 "확인 필요"로 둔다.
+ */
+export function buildNameAnalysisPrompt(productName: string, sourceText: string | null): string {
+  const year = new Date().getFullYear();
+  const info = sourceText?.trim() ? `\n\n# 판매자가 적은 원본 정보\n${sourceText.trim()}` : "";
+  return `상품 이미지는 없다. 판매자가 알려준 상품명 "${productName.trim()}"${info ? "과 아래 원본 정보" : ""}만으로 이 상품을 판매하는 상세페이지에 필요한 정보를 아래 예시와 같은 JSON으로 정리하라.
+[기준 연도 엄수: 현재 연도는 ${year}년이다. 연도·트렌드·정보는 ${year}년 기준으로 쓰고 과거 연도로 퇴행하지 마라.]
+- 상품명에서 알 수 있는 내용과 이 종류 상품의 일반적인 특징으로 쓰되, 원본 정보에 있는 사실을 우선한다.
+- 원본 정보로 확인할 수 없는 소재·치수·용량·인증·수상·수치는 지어내지 말고 "확인 필요"로 적어라.
+- 가격·할인·한정 수량·이벤트 같은 혜택 문구는 쓰지 마라("상품가격"·"할인가격"은 "확인 필요").
+- 사진이 없으므로 디자인정보는 이 상품에 어울리는 추천 색상·분위기로 적어라.
+JSON만 출력하고 다른 설명은 출력하지 마라.${info}
+
+# 예시
+${FEW_SHOT_EXAMPLE}`;
+}
+
 export interface RawProductAnalysis {
   상품명?: string;
   카테고리?: string;

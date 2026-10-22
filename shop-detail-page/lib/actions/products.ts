@@ -9,7 +9,7 @@ import {
   parseJsonFromModelText,
 } from "@/lib/ai/gemini";
 import { downloadImageAsBase64 } from "@/lib/storageImage";
-import { buildProductAnalysisPrompt, type RawProductAnalysis } from "@/lib/ai/productAnalysisPrompt";
+import { buildNameAnalysisPrompt, buildProductAnalysisPrompt, type RawProductAnalysis } from "@/lib/ai/productAnalysisPrompt";
 import { flattenProductAnalysis, type FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
 import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, type ImageModelKey } from "@/lib/ai/imageModels";
 import { toLayoutPreset } from "@/lib/layoutPresets";
@@ -68,6 +68,39 @@ export async function analyzeProductAction(formData: FormData): Promise<AnalyzeP
     return { data: flattenProductAnalysis(raw) };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "상품분석 중 오류가 발생했습니다." };
+  }
+}
+
+/**
+ * v1.23(AI 12단 「상품명만으로 채우기」 이관): 사진 없이 상품명(과 원본 정보)만으로 분석 입력칸을 채운다.
+ * 회원 본인 Gemini 키, 글만 보내는 분석 1회. 결과는 AI 추정값이라 화면에서 확인 안내를 띄운다.
+ * 저장·섹션 이미지 생성에는 지금처럼 실제 상품 사진이 필요하다(사진 없는 상품 그림으로 구매자가 오해하지 않게).
+ */
+export async function analyzeByNameAction(formData: FormData): Promise<AnalyzeProductState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const productName = String(formData.get("productName") ?? "").trim().slice(0, 200);
+  const sourceText = String(formData.get("sourceText") ?? "").trim();
+  if (!productName) {
+    return { error: "상품명을 먼저 입력해주세요." };
+  }
+
+  const apiKey = await resolveApiKey(supabase, user.id, "gemini");
+  if (!apiKey) {
+    return { needsApiKey: true };
+  }
+
+  try {
+    const text = await analyzeProductWithGemini({
+      prompt: buildNameAnalysisPrompt(productName, sourceText || null),
+      images: [],
+      apiKey,
+    });
+    const raw = parseJsonFromModelText<RawProductAnalysis>(text);
+    return { data: flattenProductAnalysis(raw) };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "상품명 분석 중 오류가 발생했습니다." };
   }
 }
 
