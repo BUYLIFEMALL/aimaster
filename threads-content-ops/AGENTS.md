@@ -711,3 +711,7 @@
 - 검사: tsc, `npm test` 36개(새 `tests/attention-media.test.cjs` 4개 — 3사 요청 모양·첨부 없을 때 예전과 같음), build. 커밋 `47b447340`, 배포 `threads-content-1ipmi41ke` Ready, DB v2.15(크롬 SQL Editor). 함께 나간 대기분: 30일 정리 기록 `4cafe5eb3`.
 - 크롬(시험 회원): v2.15, 추천 주제(「새벽 감성 심야」), 사진 1장 첨부 → GPT-4.1 실제 생성 1회 성공(사진의 「재료 3개·5분·파슬리·고추·프라이팬」 반영), 초안 저장 안 함. 남은 점: `docs/IMPROVEMENTS.md` 맨 아래.
 - 링크: https://threads-content-ops.buylife.xyz/threads-content-ops?tab=create
+
+## 2026-10-23 v2.16 — 상품 연동 코드를 공용 기준 코드 `affiliate-clients` 사본으로 (Claude Code 윈도우)
+- `lib/coupang.ts`·`coupangLinks.ts`·`coupangBanner.ts`·`aliexpress.ts`·`toss.ts` 삭제 → `lib/affiliate-clients/`(기준 `threads-affiliate-poster/src/lib/affiliate-clients/`, **직접 고치지 말 것**). 이름 변경: 토스 `getTossBestSelling`·`getTossTodayDeals`·`getTossCategoryBestSelling` → `getBestSelling`·`getTodayDeals`·`getCategoryBestSelling`(결과가 `{ products, nextCursor }`), `getTossCategories` → `getCategories`, `issueTossShareLink` → `issueShareLink`. 쿠팡 링크 판정은 `coupangLinks`에서 직접 가져옴.
+- `tests/coupang-manual.test.cjs` 경로만 새 위치로. 시험 36개 통과, build, 배포 `threads-content-5w7cio7b0` Ready, DB v2.16, 크롬 쇼핑제휴 상품 등록 화면 정상.

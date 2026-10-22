@@ -650,3 +650,9 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 30일 정리 작업이 회원별 `usage_logs` action `cleanup_expired`를 남김(공용 기준 코드 `cleanup-usage-log` 사본 `cleanupUsageLog.ts` — 직접 고치지 말 것, 기준 `four-cut-comics/src/lib/cleanupUsageLog.ts` + `--sync`). 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률에 나온다.
 - 검수: 로컬 build 통과, 배포 `threads-affiliate-poster-8a491v5nx` Ready·운영 주소 연결, DB v1.82, 정리 경로 비밀값 없이 401, 크롬(관리자) 화면 버전 v1.82·계정이 마지막 메뉴 바로 아래. 첫 정리 기록은 다음 정리 시각 이후 관리자 화면에서 확인(지울 것이 있을 때만 기록).
 - 비용: Vercel 빌드 1회.
+
+## 2026-10-23 v1.83 — 상품 연동 코드를 공용 기준 코드 `affiliate-clients`로 (이 앱이 기준, Claude Code 윈도우)
+- `src/lib/coupang/{client,links,widget}.ts`·`aliexpress/client.ts`·`toss/client.ts`와 `actions/products.ts` 안의 알리 사진 찾기 → `src/lib/affiliate-clients/{coupangLinks,coupangApi,coupangBanner,aliexpress,toss}.ts`. 사본 `threads-content-ops/lib/affiliate-clients/`(공용 기준 코드 — 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`). 플랜 `docs/PLAN_20261023_SHARED_AFFILIATE_CLIENTS.md`.
+- 운영 앱 쪽 안전장치를 기준에 넣음: 붙여넣은 HTML 2만 자 한도·스크립트/주석 제거·쿠팡 CDN 이미지만 사진으로·배너 받을 때 리디렉션 거부·2MB 한도, 쿠팡 401/429 안내 구분, 쿠팡·알리 요청 시간 제한. 이름 변경: `searchProducts` → `searchCoupangProducts`. 알리 사진 찾기 메타 이미지 후보에서 너무 넓은 `"image":` 패턴은 뺌.
+- 토스: 목록에 없는 `tacaId`가 숨은 입력에 「NaN」으로 들어가던 것 → `TossProduct.tacaId`는 `null`, 화면은 빈 값, 쉐어링크는 tacaItemId(우선) 하나만 보냄. FIXIE_URL 앞뒤 공백 무시·미설정 안내 문구.
+- 시험 `npm run test:affiliate-clients`(7개, 외부 호출 가짜). 배포 `threads-affiliate-poster-hxign6r21` Ready, DB v1.83, 크롬 상품 등록 화면·일반 쿠팡 주소 거절 확인.
