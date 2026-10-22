@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ Step Mail v1.27 문자(SMS·LMS) 차수 발송 (빌드 1회 · 테스트 문자 1통 · AI 0회)
+- 마케팅 독립 프로그램 확장 ①(주인님 결정: 문자만). 캠페인 채널 이메일·문자·둘 다, 회원 본인 SOLAPI(공용 `user_solapi_accounts`), 「(광고)」·수신거부 자동, 엑셀 전화번호 열, 설정 SOLAPI 칸. DB 칸 추가(`stepmail/supabase/migrations/20261023150000_*`, 크롬 SQL Editor). 시험 9개·build·배포 `stepmail-7qbwcx7ss` Ready·DB v1.27.
+- 크롬: 문자 캠페인 화면·미리보기 확인(저장 안 함), 테스트 문자 1통 관리자 본인 번호로 성공. 함께 나간 대기분 3건(메뉴 계정 위치·member-scheduler 사본·버튼 줄바꿈) — `docs/PENDING_DEPLOYS.md` 「내보낸 기록」.
+- 다음 첫 단계: 마케팅 독립 확장 ② 예약 리마인드 엑셀 일괄 등록 플랜. 상세 `stepmail/AGENTS.md` 2026-10-23 v1.27. 링크: https://stepmail.buylife.xyz
+
 ## 2026-10-23 — Claude Code(윈도우): 무료 사진 검색 공용 기준 코드 `free-photo-search` 등록 · INSTA 「전체 무료 사진 자동 채우기」·출처 배지 (**미배포 대기**)
 - 한 일: INSTA `src/lib/cardnews/photoSearch.ts`를 기준(프로그램 전용 가져오기 없음)으로 바꾸고 감성 글귀 `src/lib/studio/photoSearch.ts` 사본 추가, 감성 글귀 사진 함수는 사본을 부르는 연결(인자·3MB 한도 그대로), `check-shared-modules` 등록·일치. INSTA 배경 화면 「전체 무료 사진 자동 채우기」(배경 없는 장마다 제목 검색 → 첫 사진, 키 없으면 한 번 안내 후 멈춤)·썸네일 출처 배지. 「7번 넘게 바꾸면 남는 파일」은 이미 `removedImagePaths`가 처리해 변경 없음. 웹툰·AI 인플루언서·4컷·INSTA 피드 직접 첨부 연계는 각 IMPROVEMENTS와 IDEA-FREEPHOTO-01에 기록만.
 - 검수: INSTA 시험 73·감성 글귀 시험 35(기대값 변경 없음), tsc 0 두 곳, 로컬 build 두 곳. 크롬 화면 검수는 다음 배포 때(`docs/PENDING_DEPLOYS.md` 2줄).
