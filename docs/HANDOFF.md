@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.15: 세로 문구 길이 안내 · 문구 바뀜 표시 (빌드 1회, AI 0회)
+- 세로 9:16일 때 메인·서브 문구 길이 안내, 이미지에 만든 문구를 기록해 지금 문구와 다르면 결과 칸에 「문구가 바뀌었습니다」. 릴스 `cover_url` 공식 확인 → `IDEA-THUMB-REELS-01`(shots, 다음 작업). 상세 `thumbnail-master/AGENTS.md` v1.15.
+- 프로그램: https://thumbnail-master.buylife.xyz
+
 ## 2026-10-22 — Claude Code(윈도우): 스토리보드 v1.13 보낸 곳 저장(DDL) · 인물사진 v1.38·4컷 v1.31 → 변환 스튜디오 v1.20 `via` · 검수 전 로그인 확인 단계
 - 한 일: ① 운영 DB `storyboard_projects.source text` 추가(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기, `cinematic-storyboard-studio/supabase/migrations/0003_project_source.sql`), 바나나에서 받은 참고 이미지로 만든 프로젝트에 보낸 곳 저장(만든 뒤 따로·실패해도 만들기 성공), 메인 `app/admin/statistics` 연계 카드에 「바나나 → 스토리보드 · 넘김 → 만든 프로젝트 → 완성 이미지까지」 ② 검수 순서에 「코드 수정 전(늦어도 배포 전) 대상 주소 로그인 확인 → 끝났으면 먼저 주인님께 요청」(`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-1, ERROR_LESSONS) — 이번 작업에서 먼저 적용(인물사진·4컷·바나나 로그인 정상 확인) ③ 인물사진·4컷 「형식 바꾸기」에 `&via=`, 공용 `link-mark` 이름표 2개 + 조사 맞춘 `back` 문구(「AI 인물사진으로 돌아가기」).
 - 검수: 시험 스토리보드 21·변환 43·인물사진 44·4컷 60, tsc(바나나·이미지 스튜디오 포함)·빌드, 사본 3곳 일치, 메인 통계 파일 타입 오류 0. 크롬: 변환 v1.20 `via=portrait-photo` → 「↩ AI 인물사진으로 돌아가기」(→ `/history`), 스토리보드 v1.13 `via=banana-canvas` → 「↩ 바나나 캔버스로 돌아가기」. 못 한 것: 실제 스토리보드 프로젝트 만들기 뒤 `source` 저장(회원 데이터 생김 — 다음 실제 사용 때 DB 확인), 인물사진·4컷 버튼 자체(이 브라우저에 기록·작품 없음), 관리자 카드 화면.
