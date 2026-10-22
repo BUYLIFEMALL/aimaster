@@ -393,7 +393,7 @@ const MODULES = [
     // 글 생성 결과의 과거 연도 보정(제목·태그는 올해로, 본문은 최신 정보 표기만). 2026-10-22 BLC-12 등록 — 기준은 블로그 에이전트(v2.09 검증)
     id: "year-policy",
     source: "naver-blog-agent/src/lib/yearPolicy.ts",
-    copies: ["tistory-auto-blog/utils/yearPolicy.ts"],
+    copies: ["tistory-auto-blog/utils/yearPolicy.ts", "naver-blog-allinone/src/lib/blog/yearPolicy.ts", "ai-auto-blog/utils/yearPolicy.ts"], // 2026-10-23 BLC-13: 같은 규칙의 기존 파일 2곳을 사본으로 등록(올인원은 주석만 달랐음)
   },
   {
     // 올린 사진을 브라우저 안에서 풀어 보고 깨졌으면 「사진을 읽지 못했어요」(2026-10-19). 사본은 프로그램을 적용할 때마다 추가
