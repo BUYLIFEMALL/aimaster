@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(맥미니): 공용 수집 스크립트 `scripts/analyze-category.mjs` 읽기 실패 건너뛰기
+- 정리·이동 중인 파일·잠긴 폴더를 만나면 수집 전체가 멈추던 문제(`EACCES`·`ENOENT`) → `readText()`·`walk()`에서 읽기 실패는 건너뜀. 출력 형식·DB 읽기 방식은 그대로(읽기 전용).
+- 시험: 실패 상황 흉내(전 중단 / 후 1개 읽고 2개 건너뜀), 실제 실행 `--slugs shop-detail-page,video-to-gif` 정상. 근거: `docs/analysis-ecommerce-consolidation-20261021/REPORT.md` §7. 비용 없음.
+
 ## 2026-10-22 — Claude Code(맥미니): 상세페이지 v1.27 크롬 실검수 — 문구 고치기 덮는 색 선택지(S-22-17) 완료
 - 💧 찍기로 배지 녹색을 찍어 흰 글자로 바꾸기·새 버전 저장(VERSIONS 3)·원본 다시 선택, 끌지 않은 클릭에도 색 유지, `/guide` FAQ 확인. 작은 안내 개선 S-22-18은 다음 배포 때 함께.
 - 비용: 빌드 2회(승인), AI 0회. 남은 일: 없음. 링크: https://shop-detail-page.buylife.xyz

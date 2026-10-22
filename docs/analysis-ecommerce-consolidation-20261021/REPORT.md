@@ -84,7 +84,7 @@
 - 맥미니 검수 범위: tsc 0(세 앱), 무료 로직 시험(저장 주소 해석 117/117, 정리 대상 모의 집계, 12단 가져오기 판단, HTML 정리 함수). 빌드·배포·실제 화면·실제 AI 생성은 미검수.
 
 ## 7. 분석 중 발견한 개선 제안
-- 공용 스크립트 `scripts/analyze-category.mjs`의 `findFolder()`가 폴더 정리 중인 파일(`existsSync` 뒤 읽기 실패)에서 멈춘다 → 파일 읽기를 `try/catch`로 감싸 건너뛰게(작은 수정, 스크립트 작성 CLI와 협의).
+- 공용 스크립트 `scripts/analyze-category.mjs`의 `findFolder()`가 폴더 정리 중인 파일(`existsSync` 뒤 읽기 실패)에서 멈춘다 → 파일 읽기를 `try/catch`로 감싸 건너뛰게(작은 수정, 스크립트 작성 CLI와 협의). → **✅ 2026-10-22 처리**(Claude Code 맥미니, 주인님 지시): `readText()`로 읽기 실패 파일은 빈 값으로 건너뜀(`findFolder`·`codeFacts`), `walk()`도 폴더 목록 읽기 실패 시 건너뜀. 시험: 끊어진 연결·잠긴 파일·잠긴 폴더 — 전 `EACCES`로 중단 / 후 1개 읽고 2개 건너뜀, 실제 실행(`--slugs shop-detail-page,video-to-gif`) 결과 형식 동일. 나머지 2개 제안(12단 배지 표기, 상품소싱 옛 모델)은 이미 처리돼 있었음.
 - `detail-page-12p/AGENTS.md` 배지 표기(`free`)와 운영 DB(`new`) 불일치 정정.
 - `trending-product-finder`의 `gemini-2.0-flash` 사용처 2곳 최신 모델 교체 점검.
 

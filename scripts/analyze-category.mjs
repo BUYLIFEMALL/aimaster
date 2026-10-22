@@ -20,9 +20,15 @@ const COMMON_TABLES = new Set(["profiles", "programs", "subscriptions", "user_pr
 const LIBS = ["pptxgenjs", "mammoth", "pdfjs-dist", "xlsx", "exceljs", "jszip", "cheerio", "playwright", "puppeteer", "docx", "html2canvas", "marked", "react-markdown", "@tiptap/react", "fabric", "konva", "turndown", "mp4-muxer", "remotion", "sharp"];
 const SKIP = new Set(["node_modules", ".next", ".vercel", ".git", "dist", "out", "public"]);
 
+// 정리·이동 중이라 확인 직후 사라졌거나 잠긴 파일·폴더는 건너뛴다(읽기 실패로 수집 전체가 멈추지 않게, 2026-10-22)
+function readText(p) {
+  try { return fs.readFileSync(p, "utf8"); } catch { return ""; }
+}
+
 function walk(dir, out = []) {
-  if (!fs.existsSync(dir)) return out;
-  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+  let entries;
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return out; }
+  for (const e of entries) {
     if (SKIP.has(e.name)) continue;
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p, out); else if (/\.(ts|tsx|js|jsx|mjs)$/.test(e.name)) out.push(p);
@@ -40,7 +46,7 @@ function findFolder(slug) {
       const base = path.join(root, d.name, sub);
       for (const f of ["src/lib/version.ts", "lib/version.ts", "src/lib/access.ts", "lib/access.ts", "utils/access.ts", "src/lib/programAccess.ts", "lib/programAccess.ts"]) {
         const p = path.join(base, f);
-        if (fs.existsSync(p) && re.test(fs.readFileSync(p, "utf8"))) return path.relative(root, base).replace(/\\/g, "/") || d.name;
+        if (fs.existsSync(p) && re.test(readText(p))) return path.relative(root, base).replace(/\\/g, "/") || d.name;
       }
     }
   }
@@ -52,7 +58,7 @@ function codeFacts(folder) {
   const files = walk(fs.existsSync(path.join(base, "src")) ? path.join(base, "src") : base);
   let lines = 0, api = 0, ls = 0, idb = 0, ownKey = 0; const tables = new Set(), models = new Map();
   for (const f of files) {
-    const t = fs.readFileSync(f, "utf8"); lines += t.split("\n").length;
+    const t = readText(f); if (!t) continue; lines += t.split("\n").length;
     if (/[\\/]api[\\/].*route\.(ts|js)$/.test(f)) api++;
     if (/localStorage\.(get|set)Item/.test(t)) ls++;
     if (/indexedDB|idb-keyval|Dexie/.test(t)) idb++;
