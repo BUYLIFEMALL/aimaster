@@ -156,3 +156,11 @@
 ## 2026-10-22 v1.26 — 서버 보관함 「🔁 형식 바꾸기」 (Claude Code 윈도우, 이미지 재비교 L3)
 - `ServerWorks.tsx` 서버 보관 작품의 [다운로드] 옆에 `https://image-convert-studio.buylife.xyz/convert?src=<서명 주소>` 링크(서명 1시간). 브라우저 「내 작품」은 주소가 없어 제외. 받는 쪽 변환 스튜디오 v1.10.
 - 검수: 시험 56개, build, 배포 `four-cut-comics-4hgjhd854` Ready, DB v1.26. 받기 흐름은 같은 코드로 인물사진 시험 그림 확인.
+
+## 2026-10-22 v1.27 — 「📊 최근 7일 게시」 그래프 · 최근 7일 게시 완료 조회 · 게시 뒤 썸네일 1장 (Claude Code 윈도우)
+- 「내 작품」 → 「📤 인스타그램 예약」 칸 맨 위에 접힌 한 줄 그래프(`src/components/studio/WorksInstaSchedule.tsx`, 예약 뒤 `historyKey`가 바뀌면 다시 불러옴). 공용 사본 4개 새로 등록: `src/lib/weekChart/bucket.ts`·`src/components/weekChart/{WeekReplyChart,WeekReplyPanel,InstaWeekPosts}.tsx`(직접 고치지 말 것 — 기준을 고친 뒤 `--sync`).
+- **이 프로그램은 Tailwind가 없다** — 공용 컴포넌트는 Tailwind 클래스로 쓰여 있어 `src/app/globals.css` 끝에 `.fcc-week` 안에서만 같은 이름의 클래스 93개를 정의(전역 button·a 규칙을 그 칸 안에서 풀고, 분홍 강조는 브랜드 색 `--brand`로). **공용 기준이 새 Tailwind 클래스를 쓰기 시작하면 이 CSS에도 추가해야 한다**(안 하면 그 부분만 모양이 빠짐). 공용 기준 파일은 바꾸지 않아 다른 8곳 재배포 없음.
+- 기록 API `GET ?week=1`: `status=published`·`published_at` ≥ 한국 시간 6일 전 0시·게시 시각 내림차순·최대 500건(기존 응답은 그대로). 공용 `InstaWeekPosts`가 이 주소로 불러 「📊 최근 7일 게시」가 최근 30건에서 멈추지 않음.
+- 게시 성공 때 첫 장 이미지를 남김(`removeImagesKeepThumb` — 예약 실행·「이미 올라감」 확인·즉시 게시(기록 저장까지 성공했을 때만)). 실패·취소는 지금처럼 전부 삭제, 남긴 장은 30일 정리(`cleanupOldPosts`)가 행과 함께 지움. 그날 목록 썸네일 되살림(배포 전 기록은 그림이 이미 지워져 패널이 숨김).
+- 검수: tsc·테스트(웹툰 22·인플루언서 18·네컷 56)·로컬 build, 로그인 없이 `?week=1` 401, 크롬(관리자 로그인) 버전 표시·`?week=1` 200·전부 게시 완료 행(이 계정 최근 7일 게시 0건이라 막대 높이·썸네일 실제 모양은 미확인). 커밋 `cb7490943`(7일 게시 완료 조회)·`2814ec839`(썸네일 1장)·`503456cbe`(배포판 /cardnews)·`cb2c488c5`(네컷 그래프)·`2dc19dac2`(버전). 비용: Vercel 빌드 4곳 각 1회(승인 범위 안), 유료 AI 호출 없음.
+- 크롬: `/works` 그래프 펼침 — 막대 7개·높이 128px·날짜 10/16~오늘, 네컷 테마로 정상 표시. 배포 `four-cut-comics.buylife.xyz` READY, DB v1.27.

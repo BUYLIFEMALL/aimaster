@@ -277,21 +277,28 @@ ai-influencer-studio/
 - 공용 기준 코드 사본(직접 고치지 말 것): `src/components/weekChart/InstaWeekPosts.tsx`(기준 insta_auto_poster)·`WeekReplyPanel.tsx`·`WeekReplyChart.tsx`·`src/lib/weekChart/bucket.ts`(기준 comment-inbox). 데이터는 기존 `/api/instagram/posts`(본인 최근 30건, 공용 `insta-posts-route` — 응답에 `caption` 추가). 게시 완료 뒤 이미지를 지우는 표라 썸네일은 없음.
 - 검수: tsc·build, 커밋 `4ae8a4b9`·`3e7ecf43`·`bf0b8479`, 배포 `ai-influencer-studio-ixcal01ow`(v1.22) → `ai-influencer-studio-hzsguzd4q`(v1.23) READY, DB 반영, 크롬(시험 회원)에서 버전·접힌 한 줄·펼치기·막대 누르기 「이날 게시한 글이 없어요」. 게시 기록 0건이라 높이 있는 막대는 미확인. 비용: Vercel 빌드 2회(썸네일 바로잡기 다시 배포 1회 포함).
 
-## 2026-10-22 ⏸ 보류 — 7일 그래프 글자 크게 (주인님 지시: 「놔뒀다가 다음에 수정할때 그때 같이 빌드」)
+## 2026-10-22 ✅ 배포됨(v1.24, 2026-10-22) — 7일 그래프 글자 크게 (주인님 지시: 「놔뒀다가 다음에 수정할때 그때 같이 빌드」)
 - 무엇: 공용 그래프 사본 `src/components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx` 글자 한 단계씩 크게(제목 14→16px, 합계 12→14px, 막대 위 건수 11→14px, 날짜·요일 10→12px, 흐린 글자 투명도 60→80%, 그날 목록도 한 단계씩). 커밋 `9479f0bc`로 저장소에는 이미 반영됨.
 - **이 프로그램 단독 배포는 하지 않는다.** 다음에 이 프로그램을 다른 이유로 수정해 배포할 때 **함께 빌드**되며, 그때 버전 +0.01·DB 버전 갱신·크롬에서 그래프 글자 크기 확인 후 이 항목을 「배포됨(버전)」으로 바꾼다. 쓰레드 쇼핑제휴(v1.79)에는 이미 배포됨.
 
-## 2026-10-22 ⏸ 대기 — 게시 기록 API 「최근 7일 게시 완료만」 조회
-- **⏸ 다음 빌드 때 함께 — 「최근 7일 게시 완료만」 조회(2026-10-22 주인님 지시: 따로 빌드하지 않고 이 프로그램을 다음에 수정·배포할 때 같이)**
+## 2026-10-22 ✅ 배포됨(v1.24, 2026-10-22) — 게시 기록 API 「최근 7일 게시 완료만」 조회
+- **✅ 배포됨(v1.24) — 다음 빌드 때 함께였던 항목 — 「최근 7일 게시 완료만」 조회(2026-10-22 주인님 지시: 따로 빌드하지 않고 이 프로그램을 다음에 수정·배포할 때 같이)**
   - 왜: 「📊 최근 7일 게시」 그래프(공용 `insta-week-posts`)가 게시 기록 API의 최근 30건(생성 순)만 받아서 세므로, 일주일에 30건 넘게 만들거나 예약이 많은 회원은 그래프·그날 목록이 덜 나온다.
   - 할 일: `src/app/api/instagram/posts/route.ts`의 GET에 `?week=1`을 받으면 `status=published`·`published_at` ≥ 한국 시간 6일 전 0시(`weekStartIso()`, `lib/weekChart/bucket.ts`)·`order(published_at desc)`·`limit(500)`로 돌려주게 추가(기존 응답은 그대로 — 예약 요약·기록 화면이 계속 씀). 그다음 공용 기준 `insta_auto_poster/src/components/weekChart/InstaWeekPosts.tsx`가 `postsUrl + "?week=1"`로 부르게 바꾸고 `node scripts/check-shared-modules.mjs --sync`. 이 파일은 공용 `insta-posts-route` **사본**이라 직접 고치지 말고 기준(`ai-webtoon-studio`)을 고친 뒤 `--sync`.
   - 검수: 그래프 합계가 DB의 최근 7일 게시 완료 수와 같은지(30건 넘는 시험 데이터는 만들지 않고 쿼리 조건으로 확인), 막대 누르기·예약 요약 줄이 그대로인지. 배포 뒤 이 항목을 「배포됨(버전)」으로 바꾼다.
 
-## 2026-10-22 ⏸ 대기 — 게시 뒤 썸네일용 이미지 1장 남기기
-- **⏸ 다음 빌드 때 함께 — 게시 뒤 썸네일용 이미지 1장 남기기(2026-10-22 주인님 지시: 따로 빌드하지 않고 다음 수정·배포 때 같이)**
+## 2026-10-22 ✅ 배포됨(v1.24, 2026-10-22) — 게시 뒤 썸네일용 이미지 1장 남기기
+- **✅ 배포됨(v1.24) — 다음 빌드 때 함께였던 항목 — 게시 뒤 썸네일용 이미지 1장 남기기(2026-10-22 주인님 지시: 따로 빌드하지 않고 다음 수정·배포 때 같이)**
   - 왜: 그날 게시 목록(공용 `week-reply-panel`)에 썸네일을 보이고 싶은데, `src/lib/instagram/posting.ts`가 게시 완료(즉시·예약·이미 올라감 확인) 직후 `removeImages(post.image_paths)`로 저장소 파일을 **모두** 지워서 지금은 썸네일이 없음(2026-10-22 v1.46에서 썸네일을 뺀 이유).
   - 할 일: 게시 **성공** 때만 첫 장(`image_paths[0]`)은 남기고 나머지만 지움(실패·취소는 지금처럼 전부 삭제). 남긴 장은 기존 30일 정리(`cleanupOldPosts` — 생성 30일 뒤 행과 이미지 삭제)가 그대로 지우므로 별도 정리 불필요. 그다음 ① 게시 기록 API가 `image_paths`를 돌려주고 ② 공용 `InstaWeekPosts`(기준 `insta_auto_poster`)에 `thumbUrl: publicImageUrl(r.image_paths, imageBucket)`와 `imageBucket` 항목을 되살리고 ③ INSTA 대시보드 `src/lib/instaWeek.ts`의 카드뉴스·AI 인플루언서·웹툰·네컷 `image` 칸을 `image_paths`로(카드뉴스 저장소 `cardnews-images`, 나머지 `insta-post-images`). 되돌릴 코드는 커밋 `3e7ecf43`(썸네일 추가)·`bf0b8479`(뺌)에 있음. 공용 `insta-posting` **사본** — 기준(`ai-webtoon-studio`)을 고친 뒤 `--sync`. 즉시 게시 경로 `src/app/api/instagram/publish/route.ts`도 확인.
   - 검수: 게시 완료 행의 첫 장 주소가 200으로 열리는지 실제로 확인(2026-10-22 교훈 — 주소가 404면 깨진 그림), 30일 정리 뒤 남은 장도 지워지는지 코드로 확인. 배포 뒤 이 항목을 「배포됨(버전)」으로.
 
-## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+## 2026-10-22 ✅ 배포됨(v1.24, 2026-10-22) — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - src/components/Header.tsx(휴대폰에서 「API 키」로 줄여 표시, 오른쪽 묶음 shrink-0): 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+### 2026-10-22 v1.24 — 최근 7일 게시 완료만 조회 · 게시 뒤 썸네일 1장 (Claude Code 윈도우)
+- 기록 API `GET ?week=1`: `status=published`·`published_at` ≥ 한국 시간 6일 전 0시·게시 시각 내림차순·최대 500건(기존 응답은 그대로). 공용 `InstaWeekPosts`가 이 주소로 불러 「📊 최근 7일 게시」가 최근 30건에서 멈추지 않음.
+- 게시 성공 때 첫 장 이미지를 남김(`removeImagesKeepThumb` — 예약 실행·「이미 올라감」 확인·즉시 게시(기록 저장까지 성공했을 때만)). 실패·취소는 지금처럼 전부 삭제, 남긴 장은 30일 정리(`cleanupOldPosts`)가 행과 함께 지움. 그날 목록 썸네일 되살림(배포 전 기록은 그림이 이미 지워져 패널이 숨김).
+- 함께 나간 저장소 변경: 공용 그래프 글자 크게(`9479f0bc`) 등 보류분.
+- 검수: tsc·테스트(웹툰 22·인플루언서 18·네컷 56)·로컬 build, 로그인 없이 `?week=1` 401, 크롬(관리자 로그인) 버전 표시·`?week=1` 200·전부 게시 완료 행(이 계정 최근 7일 게시 0건이라 막대 높이·썸네일 실제 모양은 미확인). 커밋 `cb7490943`(7일 게시 완료 조회)·`2814ec839`(썸네일 1장)·`503456cbe`(배포판 /cardnews)·`cb2c488c5`(네컷 그래프)·`2dc19dac2`(버전). 비용: Vercel 빌드 4곳 각 1회(승인 범위 안), 유료 AI 호출 없음.
+- 공용 사본(`insta-posts-route`·`insta-posting`·`insta-week-posts`)은 `--sync`로, 즉시 게시 route는 직접 고침. 「좁은 칸 버튼 줄바꿈」 세션의 미배포 변경(커밋 `f0871e568`)도 이 배포에 함께 나감. 배포 `ai-influencer.buylife.xyz` READY, DB v1.24.
