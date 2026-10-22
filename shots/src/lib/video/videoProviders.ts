@@ -33,6 +33,8 @@ async function providerError(provider: VideoProvider, res: Response): Promise<ne
   if (res.status === 429) throw new VideoGenError(429, "quota", `본인 ${n} 계정의 사용 한도에 걸렸습니다. 잠시 후 다시 시도하거나 결제 설정을 확인해 주세요.`);
   if (res.status === 400 && provider === "gemini" && /billing|free tier|paid/i.test(text)) throw new VideoGenError(402, "quota", billing);
   if (res.status === 404) throw new VideoGenError(422, "model", `${n}에서 이 영상 모델을 쓸 수 없습니다. 다른 모델을 골라 주세요.`);
+  // 2026-10-23 Seedance 2.0: 실사 인물 사진을 시작 장면으로 받지 않음(업체 안전 정책) — 원문 대신 쉬운 안내
+  if ((res.status === 400 || res.status === 422) && /likeness(es)? of real people/i.test(text)) throw new VideoGenError(422, "input", `${n}의 이 모델은 실제 사람 얼굴이 담긴 사진을 시작 장면으로 받지 않습니다. 인물이 없는 사진이나 다른 모델(Kling·Wan·MiniMax 등)을 써 주세요.`);
   if (res.status === 400 || res.status === 422) throw new VideoGenError(422, "input", `${n}가 요청을 받지 않았습니다(장면 사진·설명을 바꿔 보세요). ${text.replace(/\s+/g, " ").slice(0, 160)}`);
   throw new VideoGenError(502, "provider", `${n} 서버가 응답하지 않습니다(${res.status}). 잠시 후 다시 시도해 주세요.`);
 }

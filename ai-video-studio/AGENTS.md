@@ -21,6 +21,7 @@
 - 한계: 해상도 720p 고정(공용 코드), 오디오 끔(fal), 텍스트→영상은 Gemini만, 모델 목록 1차-가 범위.
 
 ## 4. 버전 히스토리
+- **v1.02 (2026-10-23, Claude Code 윈도우)**: 1차-나 — fal 최신 모델 5종(Kling 3.0 Standard·Seedance 2.0·Veo 3.1·MiniMax H3(구 Hailuo)·Wan 3.0)을 공용 기준에 **모델별 입력 칸 규칙(`FalInputSpec`: 사진 칸·길이 형식·소리 칸·비율·해상도)**으로 추가, `STUDIO_VIDEO_MODELS`(스튜디오 전용 — 다른 프로그램 목록 불변), 해상도 선택·해상도별 비용. 실생성: Kling 3.0 5초 → 5.04초 8.4MB · MiniMax H3 768P → 5.18초 6.5MB · Wan 3.0 480p → 5초 2.9MB 성공 / **Seedance 2.0은 실사 인물 사진을 업체가 거절**(「likenesses of real people」) → 쉬운 안내 문구로 바꿈(미배포 대기) / Veo 3.1 실생성 미시험(비용 승인 대기).
 - **v1.01 (2026-10-23, Claude Code 윈도우)**: 1차-가 — 생성 작업실·갤러리·매뉴얼·키 등록, 공용 영상 기준 이전, DB(`avs_generations`·버킷·programs·요금제 3·VIP 자동 부여·시험 계정), 썸네일. 검수: 시험 6, tsc, build, 크롬 시험 계정 실생성 2회 성공(Gemini 글만 5초 16:9 → 5.01초 1280×720 2.0MB / fal Seedance 사진→영상 5초 → 5.04초 6.5MB), 390px(iframe 확인).
 
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
