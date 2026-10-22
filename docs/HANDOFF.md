@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ AI 상세페이지 자동화 v1.20 배포 (맥미니 커밋분 「📸 인스타 홍보글」, 빌드 1회)
+- 순서: INSTA v1.53은 해시태그 세션이 맥미니분까지 포함해 먼저 배포(13:32 Ready, DB v1.53) → 다시 배포하지 않음. `npm run test:import` 2/2 통과. 상세페이지 tsc → 배포 `dpl_Gjdn2NwhHp7k8sL9fLDPJFseFhTN` Ready → DB `shop-detail-page` v1.20(`20261022_insta_link_v1_20.sql`과 같은 버전 갱신만).
+- 화면 확인(웨일, 관리자 계정, 생성·게시 버튼 누르지 않음): ① 상세페이지 v1.20·완료 섹션 15개 모두 「인스타 홍보글」 → INSTA 새 글에 이미지 1장(`insta-post-images` 본인 폴더 복사)·캡션 초안 284자·초록 안내 ② 새로고침 뒤에도 이미지 1장 ③ 주소의 회원 ID를 다른 회원으로 바꾸면 이미지 0장·빨간 안내 「본인이 만든 상세페이지 이미지만 가져올 수 있습니다.」
+- 남은 일: 맥미니 크롬에서 같은 시험(맥미니 세션). 프로그램: https://shop-detail-page.buylife.xyz · https://auto-instagram-posting.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — INSTA v1.53 배포: 해시태그 키워드 검색(한글 해시태그 해결) + 맥미니 v1.53 함께 (빌드 1회)
 - `keywordSearch: true`로 `#재테크` 인기 릴스 5개 수집 확인. 맥미니 Claude Code가 커밋만 해 둔 v1.53(상세페이지 섹션 이미지 받기)도 이 배포에 포함돼 하나의 v1.53으로 정리(작업 중 표에 그 세션 줄이 없었음 — 다음부터 맥미니도 표 등록 필요). 상세페이지 v1.20은 미배포.
 - 프로그램: https://auto-instagram-posting.buylife.xyz
