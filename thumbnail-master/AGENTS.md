@@ -122,3 +122,10 @@
 - `types.ts` `Ratio`·`Style.ratio`(기본 「16:9」, `EMPTY_INPUTS`), `validate.ts` `cleanInputs`가 「9:16」만 허용·`charsLabel`. `gemini.ts` `makeImage(…, ratio)` → `imageConfig.aspectRatio`. `prompts.ts` `ratioLine`(세로: 쇼츠·릴스 표지, 위 15%·아래 20% 피해 가운데)·`editPrompt(instruction, ratio)`. `/api/generate`는 보낸 입력값, `/api/edit`는 저장된 입력값의 비율 사용. `Studio.tsx` 해상도 옆 「화면 비율」, 세로 결과 칸 높이 제한, 칩 글자 수. `GET /api/projects` 출처·비율만 읽어 `ProjectList` 카드에 「🔗 …」·「세로 9:16」.
 - 검수: tsc, `npm test` 15개(비율·프롬프트·글자 수 시험 추가), 배포 `thumbnail-master-3gw3s1d3h` Ready, DB v1.13. 크롬(시험 회원): 목록(`/dashboard`)에 「🔗 SEO 전략 B · 가치 제안형」, 「프랑스 신사…」 프로젝트 「전략 생성」(Flash 1회) → 「화면 비율」 세로 9:16·1K 선택·저장 확인 → A안만 `/api/generate` 1회 → **768×1376(≈9:16), gemini-3-pro-image, 22초**. 못 한 것: 새로 고친 뒤 로그인이 풀려(로그인 화면, 비밀번호는 입력하지 않음) 세로 결과 칸 모양을 화면으로 보지 못함 — 다음 확인 때 주인님 로그인 뒤 같은 프로젝트(`b725bfeb-…`) 3단계 결과 칸 확인.
 - 비용: 빌드 1회, Gemini 전략 1회(약 $0.01 이하)·이미지 1회(3 Pro Image 1K 약 $0.13), 시험 회원 본인 키.
+
+## 2026-10-22 v1.14 — 세로 9:16 문구 전략 짧게 · 세로 목록 표지 전체 보이기 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_VERTICAL_COPY.md`(주인님 승인).
+- `src/lib/tmb/prompts.ts` `verticalCopyRule(ratio)`를 `strategySystem` 공통 규칙 아래에 넣음(세로만, 가로는 빈 줄). `ProjectList.tsx` 세로 카드 `tm-cover--v`, `globals.css` `.tm-cover--v img{object-fit:contain}`.
+- 검수: tsc, `npm test` 16개(세로/가로 지침 시험 추가), 커밋 `5c294037d`, 배포 `thumbnail-master-187xas2t8` Ready, DB v1.14. 크롬(시험 회원): 목록 세로 카드 `contain`으로 이미지 전체 보임. 「프랑스 신사…」(`b725bfeb-…`, 9:16) 「전략 새로 만들기」 1회(Flash) — A 「시골 할머니집 3일 잔치 / 단 72시간 만에 +4kg 달성」→「3일 만에 +4kg?! / 프랑스 사돈의 폭풍 먹방」, B 「프랑스 신사가 비명 지른 이유 / 체중계 폭발시킨 K-할머니의 고봉밥」→「벨트 터진 진짜 이유 / 할머니 밥상에 기절한 사돈」. v1.13에서 못 본 3단계 세로 결과 칸도 확인(360×640, 768×1376 이미지 전체 표시).
+- 한계: 서브 문구는 띄어쓰기 포함 12~13자로 「10자 이내」를 조금 넘음(AI 지시라 강제 아님). 이미지(A안)는 다시 만들지 않아 예전 문구가 그대로 들어 있음.
+- 비용: 빌드 1회, Gemini 전략 1회(Flash, 약 $0.01 이하), 시험 회원 본인 키. 이미지 0회.

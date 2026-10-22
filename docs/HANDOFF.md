@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.14: 세로 문구 짧게 · 세로 목록 표지 전체 보이기 (빌드 1회, Gemini 전략 1회)
+- 세로 9:16일 때 문구 전략 지침에 「메인 2~4단어·서브 10자 이내」 추가(실제 시험: 문구가 짧아짐), 목록 세로 카드 `contain`, v1.13에서 못 본 세로 결과 칸 확인. 원스톱 업로드 썸네일 지정은 쇼츠 노출 공식 문서가 없어 보류 유지(`IDEA-THUMB-ONESTOP-01`). 상세 `thumbnail-master/AGENTS.md` v1.14.
+- 프로그램: https://thumbnail-master.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ BLC-11 키워드 결과를 SEO 스튜디오로 넘기기 (blog-keyword v1.06 · SEO블로그 스튜디오 v2.02, 빌드 2회 · Gemini 1회)
 - 키워드 결과 줄에 「SEO 스튜디오로 보내기」(기록 번호만 전달). SEO 서버가 두 프로그램 권한·본인 기록·생성 30일 안을 확인해 실측(출처)·AI 추정·값 없음을 나눈 카드로 보여 주고, 「제목 추천에 쓰기」·「자료 검색어로 쓰기」로 칸을 채웁니다. SEO DB 저장·스키마 변경 없음.
 - 시험 키워드 14·SEO 72 통과, 두 배포 Ready, DB v1.06/v2.02, 확장/ZIP v2.02 OK, 웨일 실검수 완료. 남은 일: 키워드 30일 자동 삭제(BC-05) 결정, 로그인 뒤 해시 보존. 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md`·`blog-keyword/docs/IMPROVEMENTS.md` 맨 아래.
