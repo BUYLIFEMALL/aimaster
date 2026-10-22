@@ -29,4 +29,4 @@
 ## 2026-10-19 플랫폼 분석 — 추가 검토·개발 제안 (미구현)
 
 F-011: Cron 인증 비밀 누락 시 fail-closed 아님 — 제안·미수정. 운영 설정/코드/조건부를 구분한 [분석 인수인계](IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md)와 공통 보고서의 검수/승인 기준을 확인합니다. 이미 구현된 내용은 새 결함으로 되돌리지 않습니다.
-- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+- **✅ 배포됨 v1.27(2026-10-23, 데스크톱 폭 계정 위치 확인) — 이전 「미배포 대기」(커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)

@@ -175,5 +175,16 @@ F-011(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 검수: tsc·build 통과(테스트가 있는 프로그램은 테스트도), 공용 코드 점검 일치, 설치 키트 DB 대조 통과.
 - **미배포**(내부 정리): 다음 배포 때 함께, 버전 +0.01도 그때. 그 배포 때 예약 상태 화면과 회원 실행 주소 가짜 토큰 401을 확인.
 
-## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+## 2026-10-22 ✅ v1.27로 배포됨(2026-10-23) — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - components/settings/ApiKeyRow.tsx, components/leads/LeadsTable.tsx(일괄 선택 바): 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+## 2026-10-23 v1.27 — 📱 문자(SMS·LMS) 차수 발송 (Claude Code 윈도우)
+- 주인님 결정: 채널은 **문자만**(카카오 알림톡은 광고성 내용 심사 반려라 제외, 브랜드 메시지는 나중). 플랜 `docs/PLAN_20261023_SMS_STEP_SEND.md`, 근거 `../docs/analysis-marketing-consolidation-20261023/REPORT.md` §3.
+- 캠페인 채널 email·sms·both(`stepmail_campaigns.channel`·`sms_text`·`sms_optout`, 문자 전용은 `draft_id` 빈칸). 발송(`lib/dispatch.ts`): 차수·시간·수량 규칙 그대로, 문자는 전화번호 있는 리드만, 회원 본인 SOLAPI(공용 `user_solapi_accounts`), 「(광고)」·수신거부 안내 자동(`lib/sms.ts`), 「둘 다」는 하나라도 성공하면 차수 +1, 기록 `stepmail_send_log.channel`·`to_phone`. 계정·본문·수신거부가 없으면 아무것도 안 보내고 「지금 실행」에 안내.
+- 리드 `phone`(엑셀 「전화번호·핸드폰·휴대폰·휴대전화·연락처」, 010-1234-5678로 정리, **파일에 전화 열이 없으면 phone 키를 빼서 기존 번호를 지우지 않음**), 목록에 전화번호 칸, 양식에 전화번호 열. 설정 「📱 문자·카카오 (SOLAPI)」(booking-reminder 화면·저장 함수 그대로 복사 — 다른 프로그램에서 연결했으면 그대로 보임). 캠페인 화면 채널 선택·문자 미리보기(바이트·SMS/LMS), 카드에 📱 본문. 매뉴얼 FAQ Q4(문자) 추가·Q3 엑셀 열 설명 정정.
+- **SOLAPI 클라이언트 사본**: `lib/solapi/client.ts`는 booking-reminder와 같은 파일(이제 7곳: booking-reminder·crm-google-form·kakao_auto_poster·real_estate_sales·trending-product-finder·stepmail 등). 공용 기준 코드 등록은 아직 안 함 — 고칠 일이 생기면 먼저 `docs/SHARED_MODULES.md`에 등록부터.
+- DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor, 주인님 승인): `supabase/migrations/20261023150000_stepmail_v1_27_sms_channel.sql` — 칸 추가·빈칸 허용만, 기존 행 변경 없음(리드 9,996행 그대로).
+- 검사: tsc·build, 새 `npm run test:sms` 9개(번호 정리·문구·문자 전용·둘 다·둘 다 실패·SOLAPI 없음·수신거부 없음·기존 이메일 그대로·엑셀 전화 열). 배포 `stepmail-7qbwcx7ss` Ready·DB v1.27. 크롬(관리자): 새 캠페인 「📱 문자」 → 이메일 칸 숨김·미리보기 「(광고) [바이라이프] 홍길동님…」 85바이트 단문(저장 안 함), 설정 SOLAPI 칸에 관리자 연결 표시, **테스트 문자 1통을 관리자 본인 번호(뒷자리 8400)로 발송 성공**. 실제 리드 대상 캠페인 실행은 하지 않음(관리자 리드가 실제 자료라).
+- 함께 나간 대기분: 좌측 메뉴 계정 위치(`22c6cda35`, 데스크톱 확인), 공용 `member-scheduler` 사본(가짜 토큰 401), 좁은 칸 버튼 줄바꿈(`f0871e568`).
+- 남은 일: 문자 캠페인 실발송 검수(시험 리드 1명만 담긴 계정 필요 — 시험 계정에 SOLAPI 연결 필요), 리드 수동 추가·수정 화면의 전화번호 입력, 수신거부 링크/080 자동 처리, 카카오 브랜드 메시지 채널, SOLAPI 클라이언트 공용 등록.
+- 링크: https://stepmail.buylife.xyz/campaigns/new
