@@ -51,8 +51,8 @@ test("자를 위치: 0이면 왼쪽/위 끝, 1이면 오른쪽/아래 끝, 범�
   assert.deepEqual(cropAt(4000, 3000, 1, { x: 0, y: 0.5 }), { x: 0, y: 0, width: 3000, height: 3000 });
   assert.deepEqual(cropAt(4000, 3000, 1, { x: 1, y: 0.5 }), { x: 1000, y: 0, width: 3000, height: 3000 });
   assert.deepEqual(cropAt(1000, 2000, 1, { x: 0.5, y: 0.25 }), { x: 0, y: 250, width: 1000, height: 1000 });
-  assert.deepEqual(clampFocus({ x: -3, y: 9 }), { x: 0, y: 1 });
-  assert.deepEqual(clampFocus(null), { x: 0.5, y: 0.5 });
+  assert.deepEqual(clampFocus({ x: -3, y: 9 }), { x: 0, y: 1, zoom: 1 });
+  assert.deepEqual(clampFocus(null), { x: 0.5, y: 0.5, zoom: 1 });
   const p = planTransform(4000, 3000, { rotate: 90, cropRatio: 1, focus: { x: 0.5, y: 0 } });
   assert.deepEqual(p.crop, { x: 0, y: 0, width: 3000, height: 3000 });
 });
@@ -62,4 +62,15 @@ test("?preset= 은 목록에 있는 규격 이름만", () => {
   assert.equal(presetFromParam("<script>"), null);
   assert.equal(presetFromParam("unknown-size"), null);
   assert.equal(presetFromParam(null), null);
+});
+
+test("v1.14 확대: 같은 비율로 영역을 1/배율로 줄이고, 배율은 1~3으로 보정", () => {
+  assert.deepEqual(cropAt(4000, 3000, 1, { x: 0.5, y: 0.5, zoom: 2 }), { x: 1250, y: 750, width: 1500, height: 1500 });
+  assert.deepEqual(cropAt(4000, 3000, 1, { x: 0, y: 0, zoom: 3 }), { x: 0, y: 0, width: 1000, height: 1000 });
+  assert.equal(clampFocus({ zoom: 10 }).zoom, 3);
+  assert.equal(clampFocus({ zoom: 0.2 }).zoom, 1);
+  const p = planTransform(4000, 3000, { preset: presetById("insta-portrait"), focus: { x: 0.5, y: 0.2, zoom: 2 } });
+  assert.deepEqual(p.exact, { width: 1080, height: 1350 });
+  assert.equal(Math.round((p.crop.width / p.crop.height) * 1000), 800);
+  assert.equal(p.crop.height, 1500);
 });

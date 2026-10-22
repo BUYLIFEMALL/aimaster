@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Download, Loader2, Trash2, X, Sliders, Layers, Sparkles, Image as ImageIcon } from "lucide-react";
 import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/engine";
-import { CENTER, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
+import { CENTER, MAX_ZOOM, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
 import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
 import {
   FORMAT_LABEL,
@@ -569,6 +569,14 @@ export function ConvertTool() {
               <TransformedPreview url={editing.url} t={previewT} focus={editing.focus} maxSide={640} className="max-h-[60vh] max-w-full"
                 onFocusChange={(f) => patch(editing.id, { focus: f, status: editing.result ? "idle" : editing.status })} />
             </div>
+            {/* v1.14: 확대 — 틀을 작게 해 얼굴 등 일부만 남긴다(비율 유지) */}
+            <label className="mt-3 flex items-center gap-3 text-xs font-semibold text-slate-200">
+              <span className="whitespace-nowrap">{t.convert.cropZoom}</span>
+              <input type="range" min={1} max={MAX_ZOOM} step={0.05} value={editing.focus?.zoom ?? 1}
+                onChange={(e) => patch(editing.id, { focus: { ...(editing.focus ?? CENTER), zoom: Number(e.target.value) } })}
+                className="flex-1 accent-violet-500 cursor-pointer" aria-label={t.convert.cropZoom} />
+              <span className="w-12 text-right font-mono text-violet-300">{Math.round((editing.focus?.zoom ?? 1) * 100)}%</span>
+            </label>
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" className={`${btn} ics-ghost whitespace-nowrap`} onClick={() => patch(editing.id, { focus: { ...CENTER } })}>{t.convert.cropCenter}</button>
               <button type="button" className={`${btn} ics-primary whitespace-nowrap`} onClick={() => setEditingId(null)}>{t.convert.cropDone}</button>

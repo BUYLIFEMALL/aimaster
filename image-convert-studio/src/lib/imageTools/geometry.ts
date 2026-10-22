@@ -47,18 +47,24 @@ export function centerCrop(w: number, h: number, ratio: number | null): { x: num
 }
 
 /** v1.13: 자를 위치(초점). 0 = 왼쪽/위 끝, 0.5 = 가운데, 1 = 오른쪽/아래 끝 */
-export interface Focus { x: number; y: number }
-export const CENTER: Focus = { x: 0.5, y: 0.5 };
+/** v1.14: zoom = 확대 배율(1~3) — 같은 비율을 유지한 채 자를 영역을 1/zoom 크기로 줄인다(얼굴 위주 자르기) */
+export interface Focus { x: number; y: number; zoom?: number }
+export const CENTER: Focus = { x: 0.5, y: 0.5, zoom: 1 };
+export const MAX_ZOOM = 3;
 export function clampFocus(f: Partial<Focus> | null | undefined): Focus {
   const c = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5);
-  return { x: c(f?.x), y: c(f?.y) };
+  const z = typeof f?.zoom === "number" && Number.isFinite(f.zoom) ? Math.min(MAX_ZOOM, Math.max(1, f.zoom)) : 1;
+  return { x: c(f?.x), y: c(f?.y), zoom: z };
 }
 
 /** 초점 위치로 ratio에 맞게 자를 영역(남는 여백 안에서 초점만큼 이동) */
 export function cropAt(w: number, h: number, ratio: number | null, focus?: Partial<Focus> | null): { x: number; y: number; width: number; height: number } {
   const c = centerCrop(w, h, ratio);
   const f = clampFocus(focus);
-  return { ...c, x: Math.round((w - c.width) * f.x), y: Math.round((h - c.height) * f.y) };
+  const z = f.zoom ?? 1;
+  const cw = Math.max(1, Math.round(c.width / z));
+  const ch = Math.max(1, Math.round(c.height / z));
+  return { x: Math.round((w - cw) * f.x), y: Math.round((h - ch) * f.y), width: cw, height: ch };
 }
 
 /** 다른 프로그램에서 넘어온 ?preset= 값 — 목록에 있는 규격 이름만 받는다 */

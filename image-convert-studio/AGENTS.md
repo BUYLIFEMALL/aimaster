@@ -130,3 +130,7 @@
 - `geometry.ts`: 초점(0~1) 자르기 `cropAt`·`clampFocus`, `presetFromParam`(목록 이름만). 엔진 `focus` 옵션. 새 컴포넌트 `components/tool/TransformedPreview.tsx`(회전·반전·자르기를 작은 캔버스에 그리고 바깥을 어둡게, 끌기로 초점 변경 — Pointer 이벤트, 엔진과 같은 반전→회전 순서).
 - 화면: 규격·자르기를 고르면 카드에 「✂ 자를 위치」(그림마다 저장, ✓ 표시) → 편집 창에서 틀 끌기·가운데로·완료. 회전·반전·자르기를 고르면 썸네일이 변환 전에 그 모습으로 보임. `?src=…&preset=insta-portrait`로 오면 규격 자동 선택.
 - 검수: 시험 30개·build, 배포 `image-convert-studio-caq2i16lj` Ready, DB v1.13. 크롬: `?preset=insta-feed` 자동 선택, 왼쪽 빨간 띠 그림 → 썸네일 미리보기 확인 → 틀을 왼쪽 끝으로 끌기 → 1080×1080 결과 왼쪽 끝 빨간색(가운데 자르기면 잘려 나갈 부분) 확인.
+
+## 2026-10-22 v1.14 — 자를 위치 확대(틀 크기) (Claude Code 윈도우)
+- `Focus.zoom`(1~3, `clampFocus`가 보정): 비율은 그대로 두고 자를 영역을 1/배율로 줄임(`cropAt`). 「자를 위치」 창에 확대 슬라이더(100~300%). 규격 프리셋이면 작은 영역을 정확한 크기로 고화질 확대.
+- 검수: 시험 31개·build, 배포 `image-convert-studio-gzxwu7xwp` Ready, DB v1.14. 크롬: 1600×1200 가운데 400×400 빨간 정사각형 + 인스타 피드 + 확대 300% → 1080×1080 전부 빨강 확인.
