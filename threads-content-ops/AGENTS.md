@@ -715,3 +715,11 @@
 ## 2026-10-23 v2.16 — 상품 연동 코드를 공용 기준 코드 `affiliate-clients` 사본으로 (Claude Code 윈도우)
 - `lib/coupang.ts`·`coupangLinks.ts`·`coupangBanner.ts`·`aliexpress.ts`·`toss.ts` 삭제 → `lib/affiliate-clients/`(기준 `threads-affiliate-poster/src/lib/affiliate-clients/`, **직접 고치지 말 것**). 이름 변경: 토스 `getTossBestSelling`·`getTossTodayDeals`·`getTossCategoryBestSelling` → `getBestSelling`·`getTodayDeals`·`getCategoryBestSelling`(결과가 `{ products, nextCursor }`), `getTossCategories` → `getCategories`, `issueTossShareLink` → `issueShareLink`. 쿠팡 링크 판정은 `coupangLinks`에서 직접 가져옴.
 - `tests/coupang-manual.test.cjs` 경로만 새 위치로. 시험 36개 통과, build, 배포 `threads-content-5w7cio7b0` Ready, DB v2.16, 크롬 쇼핑제휴 상품 등록 화면 정상.
+
+## 2026-10-23 v2.17 — 작성 탭 「📷 무료 사진」(Pixabay·Pexels) (Claude Code 윈도우, 커밋 `4dbb2a99e`)
+- 글 생성 결과 카드(`AttentionComposer.tsx` `VariantCard`)의 「🎬 내 영상 추가」 옆 「📷 무료 사진」(`app/threads-content-ops/FreePhotoPicker.tsx`): 회원 본인 Pixabay·Pexels 키(공용 `user_api_keys`)로 12장 검색 → 누르면 서버 액션 `addFreePhoto`가 받아 **회원 `up` 폴더**(`memberMediaFolder(userId, "up")`)에 저장 → 기존 30일 정리 그대로. Threads가 받는 **JPEG·PNG(8MB)만**. 상품이 연결된 글이면 「상품 글은 상품 사진이 먼저」 안내. 검색어 Enter `preventDefault()`, 「🔤 영어로」(공용 사전 `photo-keywords`), 영어 결과 0장이면 「한국어로 다시 찾기」(한글 있을 때만).
+- 서버 액션 `searchFreePhotos`·`addFreePhoto`(`web-actions.ts`, `authorizedUser()` → `resolveApiKey`), 키 종류·`CREDENTIAL_PROVIDERS`·`saveMemberCredentials`에 pixabay·pexels. 설정 「📷 글 첨부 무료 사진 (선택)」 키 칸 + 「연결 확인」(`PhotoKeyCheck.tsx`).
+- 공용 사본(직접 고치지 말 것): `lib/photoSearch.ts`(기준 INSTA `src/lib/cardnews/photoSearch.ts`), `lib/photoKeywords.ts`(기준 쓰레드 `src/lib/photoKeywords.ts`) — 고칠 땐 기준만 고치고 `node scripts/check-shared-modules.mjs --sync`.
+- 경위: 2026-10-23 처음 구현 때 다른 세션 두 개가 차례로 이 폴더(v2.15·v2.16)를 작업 중이라 보류 패치로 빼 두었다가, 둘 다 끝난 뒤 적용(`web-actions.ts`는 상품 연동 리팩터링으로 가져오기 줄이 바뀌어 손으로 맞춤). 보류 폴더 `docs/pending-patches/…`는 같은 커밋에서 삭제.
+- 검수: tsc 0, `npm test` 36, 로컬 build, 공용 코드 검사 일치, 배포 `threads-content-mo1wxt689` Ready, DB v2.17. 크롬(관리자): 설정 칸·Pixabay 「등록됨」·연결 확인 「✅ 연결됨 — 사진 12장」. **미확인: 작성 탭 「📷 무료 사진」 화면·사진 추가(`addFreePhoto`)** — 결과 카드는 AI 글 생성 뒤에만 나와 회원 키 비용이 들므로 이번에 하지 않음. 다음에 글 생성을 할 때(또는 비용 승인 뒤) 사진 추가 → `ai-image-generations/<회원>/threads-content-ops/up/…jpg` 확인.
+- 비용: Vercel 빌드 1회(제안 범위), Pixabay 무료 1회, AI 0.

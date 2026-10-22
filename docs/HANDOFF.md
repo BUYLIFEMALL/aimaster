@@ -1,6 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-10-23 — Claude Code(윈도우): 쓰레드 콘텐츠 운영 v2.17 작성 탭 「📷 무료 사진」 — 보류 패치 적용(다른 세션 두 개 종료 뒤)
+- 한 일: 보관해 둔 패치 적용(`web-actions.ts`는 상품 연동 리팩터링 뒤라 손으로 맞춤) + 공용 사전 `photo-keywords`·「한국어로 다시 찾기」까지 넣어 쓰레드 포스팅·INSTA와 같은 검색 경험. 고른 사진은 회원 `up` 폴더(30일 정리 그대로), JPEG·PNG만. 보류 폴더 삭제.
+- 검수: tsc·시험 36·빌드·공용 코드 검사, 배포 `threads-content-mo1wxt689` Ready, DB v2.17, 크롬 설정 「연결 확인」 ✅(사진 12장). 미확인: 작성 탭 사진 추가 화면(AI 글 생성 뒤에만 나와 비용 때문에 생략).
+- 커밋 `4dbb2a99e`. 비용: 빌드 1회(제안 범위), Pixabay 무료 1회, AI 0회.
+- 링크: https://threads-content-ops.buylife.xyz/threads-content-ops?tab=create
+
 ## 2026-10-23 Claude Code(윈도우) — ⏳ ai-auto-blog 소제목 반복 제거 (미배포 대기 · 비용 없음)
 - 티스토리 v1.90과 같은 방식: 지시문 1줄 + 본문 조립 때 `utils/news/headingDedupe.ts` `dropRepeatedHeading`. 시험 generation 8·security 39·extension-api 38·extension 85·tsc 통과. 옛 자동 연결 코드 정리와 함께 다음 배포 때 내보냄(`docs/PENDING_DEPLOYS.md`).
 - 프로그램: https://ai-auto-blog.buylife.xyz
