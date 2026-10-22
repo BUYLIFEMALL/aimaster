@@ -105,3 +105,12 @@ test("v1.18 비교 창 용량 변화", async () => {
   assert.equal(fmt(DICTS.ko.convert.compareSize, { a: "1 MB", b: "280 KB", pct: "\u221272%" }), "원본 1 MB → 변환 280 KB (\u221272%)");
   assert.ok(DICTS.en.convert.compareSize.includes("{pct}"));
 });
+
+test("v1.18 절감률 3단계", async () => {
+  const { savingGrade } = await import("../src/lib/imageTools/sizeChange.ts");
+  assert.equal(savingGrade(72), "great");
+  assert.equal(savingGrade(30), "great");
+  assert.equal(savingGrade(29), "small");
+  assert.equal(savingGrade(0), "small");
+  assert.equal(savingGrade(-1), "bigger");
+});

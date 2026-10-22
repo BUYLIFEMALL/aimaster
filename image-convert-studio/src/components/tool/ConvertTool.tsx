@@ -6,7 +6,7 @@ import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/en
 import { CENTER, MAX_ZOOM, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
 import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
 import { BeforeAfter } from "./BeforeAfter";
-import { sizeChangeLabel } from "@/lib/imageTools/sizeChange";
+import { savingGrade, sizeChangeLabel } from "@/lib/imageTools/sizeChange";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -458,13 +458,23 @@ export function ConvertTool() {
           <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3.5">
             {items.map((item) => {
               const ratio = item.result ? Math.round((1 - item.result.blob.size / item.file.size) * 100) : 0;
+              // v1.18: 절감률 3단계 — 많이 줄면 초록, 조금 줄면 회색, 늘면 주황(카드 테두리도 주황으로 표시)
+              const grade = item.result ? savingGrade(ratio) : null;
+              const gradeText = grade === "great" ? "text-emerald-400" : grade === "bigger" ? "text-amber-400" : "text-slate-200";
+              const gradeBadge = grade === "great"
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : grade === "bigger"
+                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                  : "bg-slate-500/10 text-slate-300 border border-slate-500/30";
               return (
                 <div
                   key={item.id}
                   className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-[#0d121f] transition-all ${
                     item.selected
                       ? "border-violet-500 ring-2 ring-violet-500/30 shadow-md shadow-violet-500/10"
-                      : "border-[#1e293b] hover:border-[#334155]"
+                      : grade === "bigger"
+                        ? "border-amber-500/60 hover:border-amber-400"
+                        : "border-[#1e293b] hover:border-[#334155]"
                   }`}
                 >
                   {/* 체크박스 선택 버튼 */}
@@ -511,14 +521,8 @@ export function ConvertTool() {
                       {item.result && (
                         <>
                           <span className="text-slate-400"> → </span>
-                          <span className="text-emerald-400 font-bold">{formatBytes(item.result.blob.size)}</span>
-                          <span
-                            className={`ml-1 inline-block rounded px-1 text-[10px] ${
-                              ratio >= 0
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                            }`}
-                          >
+                          <span className={`${gradeText} font-bold`}>{formatBytes(item.result.blob.size)}</span>
+                          <span data-saving-grade={grade ?? undefined} className={`ml-1 inline-block rounded px-1 text-[10px] ${gradeBadge}`}>
                             {fmt(ratio >= 0 ? t.convert.saved : t.convert.bigger, { p: Math.abs(ratio) })}
                           </span>
                         </>
