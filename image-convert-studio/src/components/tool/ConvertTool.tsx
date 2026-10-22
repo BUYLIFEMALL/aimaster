@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Download, Loader2, Trash2, X, Sliders, Layers, Sparkles, Image as ImageIcon } from "lucide-react";
 import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/engine";
+import { CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, type CropRatioId, type Rotation } from "@/lib/imageTools/geometry";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -49,6 +50,12 @@ export function ConvertTool() {
   const [filter, setFilter] = useState<ResampleFilter>("lanczos3");
   const [sharpen, setSharpen] = useState(80);
   const [limitSize, setLimitSize] = useState(false);
+  // F3(v1.12): 게시처 규격·회전·반전·비율 자르기
+  const [presetId, setPresetId] = useState("");
+  const [rotate, setRotate] = useState<Rotation>(0);
+  const [flipH, setFlipH] = useState(false);
+  const [flipV, setFlipV] = useState(false);
+  const [cropId, setCropId] = useState<CropRatioId>("original");
   const [maxW, setMaxW] = useState(1920);
   const [maxH, setMaxH] = useState(1920);
   const [busy, setBusy] = useState(false);
@@ -74,10 +81,15 @@ export function ConvertTool() {
       scale,
       maxWidth: limitSize ? maxW : undefined,
       maxHeight: limitSize ? maxH : undefined,
-      filter: scale !== 1 || limitSize ? filter : undefined,
+      filter: scale !== 1 || limitSize || presetId ? filter : undefined,
       unsharpAmount: scale > 1 ? sharpen : 0,
+      rotate,
+      flipH,
+      flipV,
+      cropRatio: CROP_RATIOS.find((c) => c.id === cropId)?.ratio ?? null,
+      preset: presetById(presetId),
     }),
-    [format, quality, scale, limitSize, maxW, maxH, filter, sharpen]
+    [format, quality, scale, limitSize, maxW, maxH, filter, sharpen, rotate, flipH, flipV, cropId, presetId]
   );
 
   const patch = (id: string, change: Partial<Item>) => setItems((list) => list.map((item) => (item.id === id ? { ...item, ...change } : item)));
@@ -168,7 +180,7 @@ export function ConvertTool() {
 
   const selectedCount = items.filter((item) => item.selected).length;
   const doneCount = items.filter((item) => item.result).length;
-  const showFilter = scale !== 1 || limitSize;
+  const showFilter = scale !== 1 || limitSize || !!presetId;
   const fieldClass = "rounded-xl border border-[#1e293b] bg-[#0d121f] px-3 py-2 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50";
   const btn = "ics-btn inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
 
@@ -287,6 +299,46 @@ export function ConvertTool() {
             </>
           )}
         </div>
+        {/* F3(v1.12): 게시처 규격 · 회전 · 반전 · 비율 자르기 */}
+        <div className="mt-4 flex flex-wrap items-end gap-4 border-t border-[#1e293b] pt-4">
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-400">
+            <span className="text-slate-200 font-semibold">{t.convert.preset}</span>
+            <select className={fieldClass} value={presetId} onChange={(event) => setPresetId(event.target.value)}>
+              <option value="" className="bg-[#0d121f] text-slate-200">{t.convert.presetNone}</option>
+              {POST_PRESETS.map((p) => (
+                <option key={p.id} value={p.id} className="bg-[#0d121f] text-slate-200">{t.presets[p.id] ?? p.label}</option>
+              ))}
+            </select>
+          </label>
+          <div className="flex flex-col gap-1.5 text-xs">
+            <span className="text-slate-200 font-semibold">{t.convert.crop}</span>
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label={t.convert.crop}>
+              {CROP_RATIOS.map((c) => (
+                <button key={c.id} type="button" disabled={!!presetId} aria-pressed={cropId === c.id} onClick={() => setCropId(c.id)}
+                  className={`${btn} whitespace-nowrap ${cropId === c.id && !presetId ? "ics-primary" : "ics-ghost"}`}>{c.id === "original" ? t.convert.cropOriginal : c.label}</button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5 text-xs">
+            <span className="text-slate-200 font-semibold">{t.convert.rotate}: <span className="text-violet-400 font-mono">{rotate}°</span></span>
+            <div className="flex flex-wrap gap-1.5">
+              <button type="button" className={`${btn} ics-ghost whitespace-nowrap`} onClick={() => setRotate(normalizeRotation(rotate - 90))}>↺ {t.convert.rotLeft}</button>
+              <button type="button" className={`${btn} ics-ghost whitespace-nowrap`} onClick={() => setRotate(normalizeRotation(rotate + 90))}>↻ {t.convert.rotRight}</button>
+              <button type="button" className={`${btn} ics-ghost whitespace-nowrap`} onClick={() => setRotate(normalizeRotation(rotate + 180))}>{t.convert.rot180}</button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5 text-xs">
+            <span className="text-slate-200 font-semibold">{t.convert.flip}</span>
+            <div className="flex flex-wrap gap-1.5">
+              <button type="button" aria-pressed={flipH} onClick={() => setFlipH((v) => !v)} className={`${btn} whitespace-nowrap ${flipH ? "ics-primary" : "ics-ghost"}`}>⇋ {t.convert.flipH}</button>
+              <button type="button" aria-pressed={flipV} onClick={() => setFlipV((v) => !v)} className={`${btn} whitespace-nowrap ${flipV ? "ics-primary" : "ics-ghost"}`}>⇵ {t.convert.flipV}</button>
+            </div>
+          </div>
+          {(presetId || rotate || flipH || flipV || cropId !== "original") && (
+            <button type="button" className={`${btn} ics-danger whitespace-nowrap`} onClick={() => { setPresetId(""); setRotate(0); setFlipH(false); setFlipV(false); setCropId("original"); }}>{t.convert.transformReset}</button>
+          )}
+        </div>
+        {presetId && <p className="mt-2 text-[11px] text-violet-300">{t.convert.presetNote}</p>}
         <p className="mt-4 text-[11px] text-slate-400 border-t border-[#1e293b]/60 pt-3">🔒 {t.privacy}</p>
       </section>
 

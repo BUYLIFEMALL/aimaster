@@ -21,6 +21,7 @@ import {
   type OutputFormat,
   type ResampleFilter,
 } from "./formats";
+import { planTransform, type PostPreset, type Rotation } from "./geometry";
 
 export interface ConvertOptions {
   format: OutputFormat;
@@ -33,6 +34,12 @@ export interface ConvertOptions {
   filter?: ResampleFilter;
   /** 0~300, 업스케일(>1×)일 때만 적용 */
   unsharpAmount?: number;
+  /** F3(v1.12): 회전·반전·가운데 비율 자르기·게시처 규격(프리셋이면 정확한 크기, 배율·크기 제한보다 우선) */
+  rotate?: Rotation;
+  flipH?: boolean;
+  flipV?: boolean;
+  cropRatio?: number | null;
+  preset?: PostPreset | null;
 }
 
 export class ImageToolError extends Error {
@@ -81,14 +88,42 @@ function toBlob(canvas: HTMLCanvasElement, format: OutputFormat, quality: number
 export async function convertImage(file: Blob, options: ConvertOptions): Promise<Blob> {
   const bitmap = await decode(file);
   try {
-    const { width: outW, height: outH } = targetSize(bitmap.width, bitmap.height, { scale: options.scale, maxWidth: options.maxWidth, maxHeight: options.maxHeight });
+    // F3: 회전·반전·자르기를 먼저 적용한 원본(source)을 만들고, 아래 크기 조정은 그 원본으로 한다
+    const plan = planTransform(bitmap.width, bitmap.height, { rotate: options.rotate, flipH: options.flipH, flipV: options.flipV, cropRatio: options.cropRatio, preset: options.preset });
+    if (exceedsCanvasLimit(plan.rotW, plan.rotH)) {
+      throw new ImageToolError("too_large", `이미지가 너무 큽니다(${plan.rotW}×${plan.rotH}px).`);
+    }
+    let source: CanvasImageSource = bitmap;
+    let srcW = bitmap.width, srcH = bitmap.height;
+    if (!plan.identity) {
+      const rot = document.createElement("canvas");
+      rot.width = plan.rotW;
+      rot.height = plan.rotH;
+      const rc = rot.getContext("2d");
+      if (!rc) throw new ImageToolError("canvas", "Canvas를 만들 수 없습니다.");
+      rc.translate(plan.rotW / 2, plan.rotH / 2);
+      // 반전은 회전한 결과(화면에 보이는 방향) 기준 — scale을 rotate보다 먼저 걸어야 한다(2026-10-22 실화면 검수에서 발견)
+      rc.scale(options.flipH ? -1 : 1, options.flipV ? -1 : 1);
+      rc.rotate(((options.rotate ?? 0) * Math.PI) / 180);
+      rc.drawImage(bitmap, -bitmap.width / 2, -bitmap.height / 2);
+      const cut = document.createElement("canvas");
+      cut.width = plan.crop.width;
+      cut.height = plan.crop.height;
+      const cc = cut.getContext("2d");
+      if (!cc) throw new ImageToolError("canvas", "Canvas를 만들 수 없습니다.");
+      cc.drawImage(rot, plan.crop.x, plan.crop.y, plan.crop.width, plan.crop.height, 0, 0, plan.crop.width, plan.crop.height);
+      source = cut;
+      srcW = cut.width;
+      srcH = cut.height;
+    }
+    const { width: outW, height: outH } = plan.exact ?? targetSize(srcW, srcH, { scale: options.scale, maxWidth: options.maxWidth, maxHeight: options.maxHeight });
     if (exceedsCanvasLimit(outW, outH)) {
       throw new ImageToolError("too_large", `출력 크기(${outW}×${outH}px)가 너무 큽니다. 배율을 낮추거나 크기 제한을 사용하세요.`);
     }
     const out = document.createElement("canvas");
     out.width = outW;
     out.height = outH;
-    const resized = outW !== bitmap.width || outH !== bitmap.height;
+    const resized = outW !== srcW || outH !== srcH;
     const ctxOut = out.getContext("2d");
     if (!ctxOut) throw new ImageToolError("canvas", "Canvas를 만들 수 없습니다.");
     if (options.format === "jpeg") {
@@ -97,11 +132,11 @@ export async function convertImage(file: Blob, options: ConvertOptions): Promise
     }
     if (resized && options.filter) {
       const src = document.createElement("canvas");
-      src.width = bitmap.width;
-      src.height = bitmap.height;
+      src.width = srcW;
+      src.height = srcH;
       const ctxSrc = src.getContext("2d");
       if (!ctxSrc) throw new ImageToolError("canvas", "Canvas를 만들 수 없습니다.");
-      ctxSrc.drawImage(bitmap, 0, 0);
+      ctxSrc.drawImage(source, 0, 0);
       bitmap.close?.();
       const pica = await getPica();
       const amount = options.unsharpAmount ?? 0;
@@ -120,7 +155,7 @@ export async function convertImage(file: Blob, options: ConvertOptions): Promise
     } else {
       ctxOut.imageSmoothingEnabled = true;
       ctxOut.imageSmoothingQuality = "high";
-      ctxOut.drawImage(bitmap, 0, 0, outW, outH);
+      ctxOut.drawImage(source, 0, 0, outW, outH);
       bitmap.close?.();
     }
     return await toBlob(out, options.format, options.quality);
