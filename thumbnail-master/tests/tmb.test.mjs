@@ -134,3 +134,20 @@ test("v1.12 cleanInputs: 참고 문서·출처 표시를 지키고, 비거나 �
   assert.equal("doc" in none, false);
   assert.equal("origin" in none, false);
 });
+
+test("v1.13 화면 비율: 기본 16:9, 9:16만 허용, 프롬프트에 반영", async () => {
+  const { imagePrompt, editPrompt, ratioLine } = await import("../src/lib/tmb/prompts.ts");
+  const { charsLabel } = await import("../src/lib/tmb/validate.ts");
+  assert.equal(cleanInputs({ topic: "x" }).style.ratio, "16:9");
+  assert.equal(cleanInputs({ topic: "x", style: { ratio: "9:16" } }).style.ratio, "9:16");
+  assert.equal(cleanInputs({ topic: "x", style: { ratio: "4:5" } }).style.ratio, "16:9");
+  const strategy = { summary: "", imagePrompt: "p", imagePromptKo: "", a: { label: "A", main: "메인", sub: "서브", styleHint: "s" }, b: { label: "B", main: "m", sub: "s", styleHint: "s" } };
+  const vertical = imagePrompt(strategy, "a", cleanInputs({ topic: "x", style: { ratio: "9:16" } }));
+  assert.ok(vertical.includes(ratioLine("9:16")) && !vertical.includes("16:9 YouTube"));
+  assert.ok(imagePrompt(strategy, "a", cleanInputs({ topic: "x" })).includes("16:9 YouTube thumbnail composition."));
+  assert.ok(editPrompt("밝게", "9:16").includes("Keep the 9:16 composition"));
+  assert.ok(editPrompt("밝게").includes("Keep the 16:9 composition"));
+  assert.equal(charsLabel(40), "40자");
+  assert.equal(charsLabel(999), "999자");
+  assert.equal(charsLabel(1234), "1.2K자");
+});

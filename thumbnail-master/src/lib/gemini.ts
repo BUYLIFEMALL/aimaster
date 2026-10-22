@@ -93,7 +93,7 @@ const IMAGE_BUDGET_MS = 100_000;
  * 2026-10-18: 호출·대기·이미지 받기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio).
  * 두 모델을 합쳐 100초 안에서 남은 시간만 다음 모델에 준다. 시간 초과·한도·키 오류는 폴백하지 않는다(이중 과금 방지). 모델·비율·화질은 그대로.
  */
-export async function makeImage(apiKey: string, parts: ImagePart[], size: "1K" | "2K"): Promise<{ bytes: Buffer; model: string }> {
+export async function makeImage(apiKey: string, parts: ImagePart[], size: "1K" | "2K", ratio: "16:9" | "9:16" = "16:9"): Promise<{ bytes: Buffer; model: string }> {
   const apiParts = parts.map((p) => (p.image ? { inlineData: { mimeType: p.image.mime, data: p.image.data.toString("base64") } } : { text: p.text ?? "" }));
   const deadline = Date.now() + IMAGE_BUDGET_MS;
   let last: AiError | null = null;
@@ -105,7 +105,7 @@ export async function makeImage(apiKey: string, parts: ImagePart[], size: "1K" |
         apiKey,
         modelName: model,
         parts: apiParts,
-        aspectRatio: "16:9",
+        aspectRatio: ratio,
         imageSize: model === IMAGE_MODELS[0] ? size : undefined,
         timeoutMs: remaining,
         retries: 0,

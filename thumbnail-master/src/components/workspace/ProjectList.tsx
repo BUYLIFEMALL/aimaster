@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { FilePlus2, ImageIcon, Trash2 } from "lucide-react";
 
 const STAGE: Record<string, string> = { input: "입력 단계", strategy: "전략 완료", image: "썸네일 생성 완료" };
-interface Row { id: string; name: string; stage: string; updated_at: string; cover: string | null }
+interface Row { id: string; name: string; stage: string; updated_at: string; cover: string | null; origin?: string | null; ratio?: "16:9" | "9:16" }
 
 function when(iso: string) {
   const d = new Date(iso);
@@ -57,7 +57,8 @@ export function ProjectList() {
             <div key={r.id} className="project-card">
               <div className="tm-cover">{r.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" /> : <ImageIcon size={28} />}</div>
               <h3>{r.name}</h3>
-              <small>{STAGE[r.stage] ?? ""} · {when(r.updated_at)}</small>
+              <small>{STAGE[r.stage] ?? ""} · {when(r.updated_at)}{r.ratio === "9:16" ? " · 세로 9:16" : ""}</small>
+              {r.origin && <small className="muted">🔗 {r.origin}</small>}
               <div className="actions">
                 <a className="button primary" href={`/project/${r.id}`}>열기</a>
                 <button type="button" onClick={() => remove(r)} aria-label={`${r.name} 삭제`}><Trash2 size={14} />삭제</button>

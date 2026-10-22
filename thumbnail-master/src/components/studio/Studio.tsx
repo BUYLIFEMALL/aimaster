@@ -5,11 +5,13 @@ import type { Audience, BorderStyle, ImageSet, Inputs, Opt, ProjectDoc, RefDoc, 
 import { AGES, EMPTY_SET, ETHNICITIES, OPTS } from "@/lib/tmb/types";
 import { AUDIENCES } from "@/lib/tmb/audience";
 import { mainWarning } from "@/lib/tmb/strategy";
-import { DOC_MAX_CHARS, missingInputs } from "@/lib/tmb/validate";
+import { DOC_MAX_CHARS, charsLabel, missingInputs } from "@/lib/tmb/validate";
 
 interface ApiErr { error?: string; needKey?: boolean }
 type Busy = Record<"strategy" | Opt, "" | "gen" | "edit">;
 const IDLE: Busy = { strategy: "", a: "", b: "" };
+// v1.13 세로 결과 칸 — 너무 길어지지 않게 높이를 제한하고 가운데
+const VERTICAL_CANVAS = { aspectRatio: "9 / 16", height: "min(70vh, 640px)", width: "auto", maxWidth: "100%", marginInline: "auto" } as const;
 const LABEL: Record<Opt, string> = { a: "A안", b: "B안" };
 
 async function call<T>(url: string, method: string, body?: unknown, signal?: AbortSignal): Promise<{ ok: true; data: T } | { ok: false; error: string; needKey: boolean }> {
@@ -199,7 +201,7 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
           <button type="button" onClick={() => fileRef.current?.click()}><FileText size={14} />대본 문서 올리기 (.txt .md .csv)</button>
           {doc && (
             <span className="tm-doc">
-              {doc.name} · {(doc.text.length / 1000).toFixed(1)}K자{doc.truncated ? " (앞 3만 자만 사용)" : ""}
+              {doc.name} · {charsLabel(doc.text.length)}{doc.truncated ? " (앞 3만 자만 사용)" : ""}
               <button type="button" aria-label="문서 제거" onClick={() => setDoc(null)}><X size={12} /></button>
             </span>
           )}
@@ -291,6 +293,12 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                   <option value="2K">2K (고화질, 느림)</option><option value="1K">1K (빠름)</option>
                 </select>
               </label>
+              {/* v1.13 세로 9:16 — 쇼츠·릴스 표지 */}
+              <label className="tm-field">화면 비율
+                <select value={inputs.style.ratio} onChange={(e) => setStyle({ ratio: e.target.value === "9:16" ? "9:16" : "16:9" })}>
+                  <option value="16:9">가로 16:9 (유튜브 썸네일)</option><option value="9:16">세로 9:16 (쇼츠·릴스 표지)</option>
+                </select>
+              </label>
             </div>
             <label className="tm-check"><input type="checkbox" checked={inputs.style.withText} onChange={(e) => setStyle({ withText: e.target.checked })} />이미지에 문구를 직접 넣기 (해제하면 글자 없이 배경만 생성)</label>
 
@@ -328,7 +336,7 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
               return (
                 <div key={o} className="tm-result" data-opt={o}>
                   <div className="tm-result-head"><span className={`tm-badge ${o}`}>{LABEL[o]}</span> <b>{strategy[o].main}</b></div>
-                  <div className="tm-canvas">
+                  <div className="tm-canvas" style={inputs.style.ratio === "9:16" ? VERTICAL_CANVAS : undefined}>
                     {url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt={`썸네일 ${LABEL[o]}`} /> : <div className="tm-empty">{b ? "" : "아직 생성되지 않았습니다."}</div>}
                     {b && <div className="tm-overlay"><Loader2 className="ls-spin" /><span>{b === "gen" ? "썸네일 생성 중…" : "수정 반영 중…"}</span></div>}
                   </div>

@@ -14,7 +14,7 @@ export async function GET() {
   if (!access.allowed) return json({ error: access.error }, access.status);
   const { data, error } = await createAdminClient()
     .from("thumbnail_master_projects")
-    .select("id, name, stage, images_a, images_b, updated_at")
+    .select("id, name, stage, images_a, images_b, updated_at, origin:inputs->>origin, ratio:inputs->style->>ratio") // v1.13 참고 문서(최대 3만 자)는 읽지 않음
     .eq("user_id", access.user.id)
     .order("updated_at", { ascending: false })
     .limit(100);
@@ -26,7 +26,7 @@ export async function GET() {
   }
   const urls = await signUrls(Object.values(covers).filter((p): p is string => !!p));
   const projects = (data ?? []).map((r) => ({
-    id: r.id, name: r.name, stage: r.stage, updated_at: r.updated_at, cover: covers[r.id] ? urls[covers[r.id]!] ?? null : null,
+    id: r.id, name: r.name, stage: r.stage, updated_at: r.updated_at, origin: r.origin ?? null, ratio: r.ratio === "9:16" ? "9:16" : "16:9", cover: covers[r.id] ? urls[covers[r.id]!] ?? null : null,
   }));
   return json({ projects });
 }

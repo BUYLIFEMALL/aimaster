@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
   let out: { bytes: Buffer; model: string };
   try {
-    out = await ai.makeImage(g.apiKey, [{ text: imagePrompt(strategy, option, inputs) }], inputs.style.size);
+    out = await ai.makeImage(g.apiKey, [{ text: imagePrompt(strategy, option, inputs) }], inputs.style.size, inputs.style.ratio);
   } catch (e) { return fail(e); }
 
   let path: string;

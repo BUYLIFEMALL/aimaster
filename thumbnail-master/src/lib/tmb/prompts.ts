@@ -1,4 +1,4 @@
-import type { Inputs, Opt, Strategy, Subject, Style } from "./types";
+import type { Inputs, Opt, Ratio, Strategy, Subject, Style } from "./types";
 import { audienceInfo } from "./audience";
 
 /** 모든 AI 프롬프트는 당해 연도 기준(CLAUDE.md 핵심 원칙 8) */
@@ -108,10 +108,17 @@ export function imagePrompt(strategy: Strategy, opt: Opt, inputs: Inputs): strin
     subjectBlock(inputs.subject),
     text,
     extras.length ? `[Visual Extra Rules]\n${extras.join("\n")}` : "",
-    "- Lighting: professional studio lighting, rim light. Quality: 8k, hyper-realistic, sharp focus. 16:9 YouTube thumbnail composition.",
+    `- Lighting: professional studio lighting, rim light. Quality: 8k, hyper-realistic, sharp focus. ${ratioLine(style.ratio)}`,
   ].filter(Boolean).join("\n\n");
 }
 
-export function editPrompt(instruction: string): string {
-  return `Modify this YouTube thumbnail image. Keep the 16:9 composition and everything not mentioned unchanged. Instruction: ${instruction}`;
+/** v1.13 화면 비율에 맞는 구도 문구(세로는 쇼츠·릴스 표지 — 위아래 UI에 가리지 않게 가운데 배치) */
+export function ratioLine(ratio: Ratio): string {
+  return ratio === "9:16"
+    ? "9:16 vertical cover composition for YouTube Shorts / Instagram Reels. Keep the subject and text in the central safe area (avoid the top 15% and bottom 20%)."
+    : "16:9 YouTube thumbnail composition.";
+}
+
+export function editPrompt(instruction: string, ratio: Ratio = "16:9"): string {
+  return `Modify this ${ratio === "9:16" ? "vertical cover" : "YouTube thumbnail"} image. Keep the ${ratio} composition and everything not mentioned unchanged. Instruction: ${instruction}`;
 }

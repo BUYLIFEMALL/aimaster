@@ -3,6 +3,8 @@ export type SubjectType = "person" | "animal" | "object" | "none";
 export type Gender = "auto" | "male" | "female";
 export type BorderStyle = "none" | "solid" | "neon" | "sketch";
 export type Size = "1K" | "2K";
+/** v1.13 화면 비율 — 가로 16:9(유튜브 썸네일) / 세로 9:16(쇼츠·릴스 표지) */
+export type Ratio = "16:9" | "9:16";
 export type Opt = "a" | "b";
 export const OPTS: Opt[] = ["a", "b"];
 
@@ -19,6 +21,7 @@ export interface Style {
   channelName: string;
   withText: boolean;
   size: Size;
+  ratio: Ratio;
 }
 
 /** v1.12 참고 문서(올린 파일 또는 「SEO 전략」 대본) — 프로젝트와 함께 저장, A/B 문구를 만들 때 AI가 함께 읽음 */
@@ -57,7 +60,7 @@ export const EMPTY_INPUTS: Inputs = {
   topic: "",
   audience: "adults",
   subject: { type: "person", gender: "auto", age: "20대 (Young Adult)", ethnicity: "한국인 (Korean)", description: "" },
-  style: { border: "none", channelName: "", withText: true, size: "2K" },
+  style: { border: "none", channelName: "", withText: true, size: "2K", ratio: "16:9" },
 };
 export const EMPTY_DOC: ProjectDoc = { inputs: EMPTY_INPUTS, strategy: null };
 

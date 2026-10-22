@@ -1,4 +1,4 @@
-import type { Audience, BorderStyle, Gender, Inputs, Opt, RefDoc, Size, Strategy, SubjectType } from "./types";
+import type { Audience, BorderStyle, Gender, Inputs, Opt, Ratio, RefDoc, Size, Strategy, SubjectType } from "./types";
 import { AGES, EMPTY_INPUTS, ETHNICITIES } from "./types";
 import { normalizeStrategy } from "./strategy";
 
@@ -31,6 +31,7 @@ export function cleanInputs(raw: unknown): Inputs {
       channelName: clean(st.channelName, 30),
       withText: st.withText === false ? false : true,
       size: (st.size === "1K" ? "1K" : "2K") as Size,
+      ratio: (st.ratio === "9:16" ? "9:16" : "16:9") as Ratio,
     },
     ...cleanRefDoc(r.doc),
     ...(clean(r.origin, 60) ? { origin: clean(r.origin, 60) } : {}),
@@ -90,4 +91,9 @@ export function isOwnImagePath(userId: string, projectId: string, path: unknown)
 
 export function stageOf(strategy: Strategy | null, hasImage: boolean): "input" | "strategy" | "image" {
   return hasImage ? "image" : strategy ? "strategy" : "input";
+}
+
+/** v1.13 참고 문서 글자 수 표시 — 1,000자 미만은 「40자」, 그 이상은 「1.2K자」 */
+export function charsLabel(n: number): string {
+  return n < 1000 ? `${n.toLocaleString("ko-KR")}자` : `${(n / 1000).toFixed(1)}K자`;
 }
