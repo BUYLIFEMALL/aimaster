@@ -11,7 +11,7 @@
 - [x] ElevenLabs composition_plan — v1.03
 - [x] 화면을 닫아도 대기열형 완료 처리(예약 확인 또는 웹훅) — v1.03 웹훅
 - [x] 실제 비용 기록 — v1.03 실측 가능한 값(부분)
-- [x] Suno V6 Wild 모델 카드 추가 — v1.04 (실제 생성 1회 확인은 남음)
+- [x] Suno V6 Wild 모델 카드 추가 — v1.04 (실제 생성 확인: 2곡 29초, 크레딧 약 12)
 - [ ] Mureka·Stable Audio 3·Lyria RealTime 연동(2차)
 
 ## 외부 연계
