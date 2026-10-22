@@ -151,3 +151,12 @@ test("v1.13 화면 비율: 기본 16:9, 9:16만 허용, 프롬프트에 반영",
   assert.equal(charsLabel(999), "999자");
   assert.equal(charsLabel(1234), "1.2K자");
 });
+
+test("v1.14 세로 9:16 문구 전략은 더 짧게(가로는 그대로)", async () => {
+  const { verticalCopyRule } = await import("../src/lib/tmb/prompts.ts");
+  const v = strategySystem(cleanInputs({ topic: "x", style: { ratio: "9:16" } }));
+  const h = strategySystem(cleanInputs({ topic: "x" }));
+  assert.ok(v.includes("[세로 9:16 표지]") && v.includes("2~4단어"));
+  assert.ok(!h.includes("[세로 9:16 표지]"));
+  assert.equal(verticalCopyRule("16:9"), "");
+});

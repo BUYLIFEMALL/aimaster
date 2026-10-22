@@ -181,6 +181,7 @@ small{font-size:11px}
 .tm-row input{flex:1}
 .tm-cover{aspect-ratio:16/9;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#94a3b8;overflow:hidden}
 .tm-cover img{width:100%;height:100%;object-fit:cover}
+.tm-cover--v img{object-fit:contain}
 button[aria-pressed=true]{background:#eef2ff;border-color:#a5b4fc;color:#4338ca}
 @media(max-width:900px){.tm-aud{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){.tm-grid3,.tm-opts,.tm-results{grid-template-columns:1fr}}

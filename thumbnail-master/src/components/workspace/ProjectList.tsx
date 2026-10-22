@@ -55,7 +55,7 @@ export function ProjectList() {
         <div className="project-grid">
           {rows.map((r) => (
             <div key={r.id} className="project-card">
-              <div className="tm-cover">{r.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" /> : <ImageIcon size={28} />}</div>
+              <div className={r.ratio === "9:16" ? "tm-cover tm-cover--v" : "tm-cover"}>{r.cover ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.cover} alt="" /> : <ImageIcon size={28} />}</div>
               <h3>{r.name}</h3>
               <small>{STAGE[r.stage] ?? ""} · {when(r.updated_at)}{r.ratio === "9:16" ? " · 세로 9:16" : ""}</small>
               {r.origin && <small className="muted">🔗 {r.origin}</small>}

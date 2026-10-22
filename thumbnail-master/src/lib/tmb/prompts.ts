@@ -46,6 +46,13 @@ export function subjectBlock(s: Subject): string {
   return `[Character Requirement - MANDATORY]\n- Subject: OBJECT / ITEM\n- Detail: ${s.description || "Key item related to the topic"}`;
 }
 
+/** v1.14 세로 9:16 표지는 폭이 좁아 문구를 더 짧게(가로는 빈 줄 — 기존 지침 그대로) */
+export function verticalCopyRule(ratio: Ratio): string {
+  return ratio === "9:16"
+    ? "- [세로 9:16 표지] 폭이 좁은 쇼츠·릴스 표지입니다. 메인 텍스트는 2~4단어(한 줄 8자 안팎), 서브 텍스트는 10자 이내로 위의 규칙보다 더 짧게 씁니다. 위·아래 화면 가장자리를 피해 가운데에 들어갈 길이여야 합니다."
+    : "";
+}
+
 /** 전략 생성용 시스템 지침 */
 export function strategySystem(inputs: Inputs): string {
   const a = audienceInfo(inputs.audience);
@@ -67,7 +74,7 @@ ${subjectBlock(inputs.subject)}
 
 [공통 규칙]
 - 메인 텍스트는 매우 짧고 굵게(3~5단어). 서브 텍스트는 메인을 보조하되 반드시 작성합니다(숫자, vs, 기간 등).
-- 텍스트는 한국어로 작성합니다(주제가 다른 언어면 그 언어).
+${verticalCopyRule(inputs.style.ratio)}- 텍스트는 한국어로 작성합니다(주제가 다른 언어면 그 언어).
 - imagePrompt는 영어로, 배경·인물(설정된 피사체)·조명·구도를 묘사합니다. 이미지 안에 들어갈 글자는 포함하지 마세요.
 - imagePromptKo는 imagePrompt를 한국어로 옮긴 사용자 표시용 문장입니다.
 - 시각 연출 키워드: "Hyper-realistic, 8k, High Contrast, Cinematic Lighting".
