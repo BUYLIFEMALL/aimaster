@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ⏳ SEO 스튜디오 끊긴 자동 포스팅 처리 (미배포 대기 · 비용 없음)
+- 입력 중 「사이드패널 닫지 마세요」 안내 + 다시 열 때 갱신이 1분 넘게 멈춘 `writing` 실행을 즉시 failed로 정리(서버 변경 없음). 시험 auto-publish 22·browser 26 통과. 다음 배포 때 v2.12로(`docs/PENDING_DEPLOYS.md`).
+- 덧붙임: v2.11 배포 커밋에서 빠졌던 ZIP·버전 SQL을 `08abc577a`로 보충(원인 `docs/ERROR_LESSONS.md` 맨 위).
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 휴대폰 폭 계정 표시 일괄 점검 스크립트 (비용 없음)
 - `node scripts/check-mobile-account.mjs [--all]`: 좌측 메뉴(로그아웃이 있는 파일)가 있는 78개 프로그램을 코드로 읽어 휴대폰 폭에서 계정·로그아웃이 보이는지 판정 — 서랍 메뉴(setOpen+translate-x)·반응형 감춤(sm/md/lg/xl:hidden, max-[..]:)·CSS 1024px 이하 미디어 쿼리·메뉴 내용 공용 사용(`renderNavContent()`/`{navContent}` 두 번) 인식. 세션 시작 점검(`deploy.mjs --version-only --all`)에도 요약·후보가 나옴.
 - 결과: 후보 1곳 `music` — 767px 이하에서 좌측 메뉴가 숨지 않고 본문 위에 쌓임(계정은 보이지만 원칙 19와 다름) → `music/docs/IMPROVEMENTS.md`에 기록(미처리). 첫 판정에서 잡힌 `shorts-viral-studio`는 오판(공용 메뉴 내용을 서랍·데스크톱 양쪽에서 씀)이라 판정 보완.

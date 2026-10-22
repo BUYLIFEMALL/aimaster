@@ -18,6 +18,7 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `threads-comment-reply` | **회원 영향(급함)** 모니터링 「이 시점 이후 댓글만」 시각을 한국 시간으로 읽기 — 지금은 9시간 늦게 저장돼 켠 뒤 9시간 동안의 댓글을 건너뜀(v1.26 검수 중 발견). 지금 켠 회원은 영향 없음(8월에 켠 1명) | `e6139cd39` | 2026-10-23 · Claude Code(윈도우) — 빌드 승인 대기 | `threads-comment-reply/docs/IMPROVEMENTS.md` |
+| `naver-blog-seo-studio` (운영 v2.11) | 끊긴 자동 포스팅 처리(입력 중 「사이드패널 닫지 마세요」 안내 · 다시 열 때 `writing` 실행 즉시 정리) — 확장 코드 변경 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
 | `threads-content-ops` (운영 v2.17) | 보관함 초안 「수정」 중 무료 사진 추가·빼기(저장·발행·예약 때 함께 저장, 본인 폴더만) | `922cedd37` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/AGENTS.md` 맨 아래 「⏸ 미배포 대기」 | v2.18, 초안 수정 → 무료 사진 추가 → 저장 → 썸네일·저장 경로 확인(작성 탭 `addFreePhoto` 미확인 항목도 함께) |
 | `music` (운영 v1.43) | 공용 Suno 코드 `callbackOrigin` 선택값(이 앱 동작 변화 없음 — AI 음악 스튜디오 v1.03용) | `acccf06eb` | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, 곡 생성 1회 콜백 정상 확인 |
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
