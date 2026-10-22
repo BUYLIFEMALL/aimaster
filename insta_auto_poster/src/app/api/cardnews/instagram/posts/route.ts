@@ -5,6 +5,7 @@ import { getMemberInstagramAccount, INSTA_CONNECT_URL } from "@/lib/cardnews/ins
 import { insertPost, ownProjectId, removeImages, validPaths } from "@/lib/cardnews/instagram/posts";
 import { MAX_PENDING_PER_USER, validateScheduleTime } from "@/lib/cardnews/schedule";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { weekStartIso } from "@/lib/weekChart/bucket";
 import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled } from "@/lib/posts/memberScheduler";
 
 /**
@@ -27,13 +28,17 @@ export const fetchCache = "force-no-store";
 
 const COLUMNS = "id, project_id, title, caption, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
 
-/** GET — 내 인스타 게시 기록(최근 30일, 최신순 30건). ?projectId= 이면 그 카드뉴스 기록만 */
+/** GET — 내 인스타 게시 기록(최근 30일, 최신순 30건). ?projectId= 이면 그 카드뉴스 기록만. ?week=1 이면 최근 7일 게시 완료만(게시 시각순, 최대 500건 — 7일 그래프용) */
 export async function GET(request: Request) {
   const gate = await authorize();
   if (!gate.ok) return gate.response;
   const url = new URL(request.url);
   const projectId = url.searchParams.get("projectId");
-  let q = createAdminClient().from("cns_insta_posts").select(COLUMNS).eq("user_id", gate.auth.user.id).order("created_at", { ascending: false }).limit(30);
+  const base = createAdminClient().from("cns_insta_posts").select(COLUMNS).eq("user_id", gate.auth.user.id);
+  let q =
+    url.searchParams.get("week") === "1"
+      ? base.eq("status", "published").gte("published_at", weekStartIso()).order("published_at", { ascending: false }).limit(500)
+      : base.order("created_at", { ascending: false }).limit(30);
   if (projectId && /^[0-9a-f-]{36}$/i.test(projectId)) q = q.eq("project_id", projectId);
   const { data, error } = await q;
   if (error) return NextResponse.json({ error: "게시 기록을 불러오지 못했습니다." }, { status: 500 });

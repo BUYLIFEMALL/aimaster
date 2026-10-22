@@ -2,7 +2,7 @@
 
 // 인스타 게시 기록 API 하나로 「📊 최근 7일 게시」 그래프 + 막대 누르면 그날 게시한 글 — 공용 기준 코드(docs/SHARED_MODULES.md 「insta-week-posts」).
 // 기준: insta_auto_poster(카드뉴스 홈). 사본은 직접 고치지 말고 기준을 고친 뒤 node scripts/check-shared-modules.mjs --sync.
-// 새 서버 기능 없이, 이미 있는 본인 게시 기록 API(최근 30건)를 화면에서 한 번 불러 날짜별로 센다. 테마 색은 부르는 쪽이 넘긴다.
+// 본인 게시 기록 API를 ?week=1(최근 7일 게시 완료만, 최대 500건)로 한 번 불러 날짜별로 센다. 테마 색은 부르는 쪽이 넘긴다.
 // 썸네일은 넣지 않는다 — 이 게시 기록 표들은 인스타 게시가 끝나면 저장소 이미지를 지운다(posting.ts removeImages).
 import { useCallback, useEffect, useState } from "react";
 import { WeekReplyPanel, type DayReplyItem, type PanelClasses } from "@/components/weekChart/WeekReplyPanel";
@@ -34,7 +34,7 @@ export function InstaWeekPosts({
   defaultOpen = false,
   refreshEvent,
 }: {
-  /** 본인 게시 기록 API(GET → { posts: PostRow[] }, 최근 30건) */
+  /** 본인 게시 기록 API(GET ?week=1 → { posts: PostRow[] }, 최근 7일 게시 완료) */
   postsUrl: string;
   classes: PanelClasses;
   /** 바깥 카드 테두리·배경(프로그램 테마) */
@@ -49,7 +49,7 @@ export function InstaWeekPosts({
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(postsUrl, { cache: "no-store" });
+      const r = await fetch(`${postsUrl}${postsUrl.includes("?") ? "&" : "?"}week=1`, { cache: "no-store" });
       const d = r.ok ? await r.json() : null;
       setRows(d?.posts ?? []);
     } catch {
@@ -100,7 +100,7 @@ export function InstaWeekPosts({
         </span>
         <span className={`text-xs font-normal ${classes.muted}`}>{open ? "접기 ▲" : "그래프 보기 ▼"}</span>
       </button>
-      {open && <WeekReplyPanel days={days} loadDay={loadDay} classes={classes} labels={{ ...LABELS, title: "날짜별 게시" }} perPlatformLimit={30} />}
+      {open && <WeekReplyPanel days={days} loadDay={loadDay} classes={classes} labels={{ ...LABELS, title: "날짜별 게시" }} perPlatformLimit={500} />}
     </div>
   );
 }

@@ -27,11 +27,22 @@ async function checkScheduleReady(userId: string): Promise<{ error?: string; cro
 
 const COLUMNS = "id, title, caption, page_count, status, scheduled_at, published_at, permalink, ig_username, error_message, created_at";
 
-/** GET — 내 인스타 게시 기록(최근 30일, 최신순 30건) */
-export async function GET() {
+/** 한국 시간 6일 전 0시(UTC ISO) — 「최근 7일」 그래프의 시작(lib/weekChart/bucket.ts weekStartIso와 같은 계산, 이 사본을 쓰는 프로그램에 그 파일이 없을 수 있어 여기 둠) */
+function weekStartIso(now = Date.now()): string {
+  const KST = 9 * 3600_000;
+  const k = new Date(now + KST);
+  return new Date(Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate()) - KST - 6 * 86400_000).toISOString();
+}
+
+/** GET — 내 인스타 게시 기록(최근 30일, 최신순 30건). ?week=1 이면 최근 7일 게시 완료만(게시 시각순, 최대 500건 — 7일 그래프용) */
+export async function GET(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const { data, error } = await createAdminClient().from(POSTS_TABLE).select(COLUMNS).eq("user_id", access.user.id).order("created_at", { ascending: false }).limit(30);
+  const base = createAdminClient().from(POSTS_TABLE).select(COLUMNS).eq("user_id", access.user.id);
+  const week = new URL(request.url).searchParams.get("week") === "1";
+  const { data, error } = week
+    ? await base.eq("status", "published").gte("published_at", weekStartIso()).order("published_at", { ascending: false }).limit(500)
+    : await base.order("created_at", { ascending: false }).limit(30);
   if (error) return NextResponse.json({ error: "게시 기록을 불러오지 못했습니다." }, { status: 500 });
   return NextResponse.json({ posts: data ?? [] });
 }
