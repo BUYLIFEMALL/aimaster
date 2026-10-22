@@ -54,6 +54,18 @@ async function cleanupByProgram(serviceClient: any, programs: { id: string; name
   }
 }
 
+// 2026-10-23: 저장소 쪽 요약(미배포 대기 건수·30일 정리 기록 진행률) — `node scripts/pending-check.mjs --publish`가 site_settings `ops_overview`에 저장
+async function opsOverview(serviceClient: any) {
+  try {
+    const { data } = await serviceClient.from("site_settings").select("value").eq("key", "ops_overview").maybeSingle();
+    const v = typeof data?.value === "string" ? JSON.parse(data.value) : data?.value;
+    return v && typeof v === "object" ? v : null;
+  } catch (e) {
+    console.error("ops_overview read error:", e);
+    return null;
+  }
+}
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -438,6 +450,7 @@ async function getAllBucketFiles(
       dbTableStats,
       storageStats,
       cleanupByProgram: await cleanupByProgram(serviceClient, programs ?? []),
+      opsOverview: await opsOverview(serviceClient),
     });
   } catch (error: any) {
     console.error("System Usage Monitor API Error:", error);

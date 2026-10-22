@@ -115,6 +115,7 @@ export default function SystemUsageMonitor() {
     dbTableStats: DbTableStat[];
     storageStats: StorageStat[];
     cleanupByProgram?: { slug: string; name: string; runs: number; members: number; counts: Record<string, number>; lastAt: string | null }[];
+    opsOverview?: { updatedAt: string; pending?: { rows: number; programs: string[] }; cleanup?: { total: number; logging: string[]; notLogging: string[] } } | null;
     timestamp: string;
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -597,6 +598,24 @@ export default function SystemUsageMonitor() {
               {data.cleanupByProgram && (
                 <GlassCard className="p-4 space-y-2">
                   <p className="text-sm font-bold text-gold">30일 자동 정리 (최근 30일, 기록을 남기는 프로그램만)</p>
+                  {data.opsOverview && (
+                    <div className="space-y-0.5 text-xs text-white/70">
+                      {data.opsOverview.cleanup && (
+                        <p title={`아직 기록을 안 남기는 곳: ${data.opsOverview.cleanup.notLogging.join(", ")}`}>
+                          정리 기록 붙음 <b className="text-white">{data.opsOverview.cleanup.logging.length}</b> / 정리 작업 {data.opsOverview.cleanup.total}개 프로그램
+                          {" "}— {data.opsOverview.cleanup.logging.join(", ")}
+                        </p>
+                      )}
+                      {data.opsOverview.pending && (
+                        <p title={data.opsOverview.pending.programs.join(", ")}>
+                          미배포 대기 <b className="text-white">{data.opsOverview.pending.rows}</b>건 · 프로그램 {data.opsOverview.pending.programs.length}개 (다음 배포 때 함께 나갈 작은 수정)
+                        </p>
+                      )}
+                      <p className="text-white/40">
+                        기준 {new Date(data.opsOverview.updatedAt).toLocaleString("ko-KR")} — 저장소에서 <code>node scripts/pending-check.mjs --publish</code>로 갱신
+                      </p>
+                    </div>
+                  )}
                   {data.cleanupByProgram.length === 0 ? (
                     <p className="text-xs text-white/50">아직 정리 기록이 없습니다(각 프로그램이 매일 새벽에 실행하고, 지울 것이 있을 때만 기록합니다).</p>
                   ) : (

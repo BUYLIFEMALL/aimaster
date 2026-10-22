@@ -2,6 +2,7 @@
 // 배포 전 「미배포 대기」 확인 — 2026-10-23 (Claude Code 윈도우)
 // 사용: node scripts/pending-check.mjs <폴더> [<폴더> ...]   예) node scripts/pending-check.mjs shots thumbnail-master
 //       node scripts/pending-check.mjs --all                 프로그램별 대기 개수
+//       node scripts/pending-check.mjs --publish             관리자 화면용 요약(대기 건수·30일 정리 기록 진행률)을 운영 DB site_settings.ops_overview에 저장
 // 읽는 곳: docs/PENDING_DEPLOYS.md 「대기 중」 표(프로그램 자체의 작은 수정) + docs/SHARED_MODULES.md 「미배포 사본」 표(공용 기준 코드 사본).
 // 읽기만 하고 아무것도 바꾸지 않는다. 배포가 끝나면 지침대로 두 표의 해당 줄을 직접 정리한다(docs/VERCEL_COST_REDUCTION_PLAN.md 맨 위).
 import { readFileSync } from "node:fs";
@@ -43,6 +44,26 @@ const shared = tableRows(read("docs/SHARED_MODULES.md"), "미배포 사본").map
 const args = process.argv.slice(2);
 if (!args.length) {
   console.log("사용: node scripts/pending-check.mjs <폴더> [<폴더> ...]  |  --all");
+  process.exit(0);
+}
+
+// --publish: 관리자 첫 화면용 요약을 운영 DB site_settings(key `ops_overview`)에 저장 — 메인 사이트는 저장소 문서를 못 읽어서(2026-10-23)
+if (args.includes("--publish")) {
+  const { cleanupPrograms, rest, slugFromPrograms } = await import("./program-info.mjs");
+  const programs = await rest("programs?select=slug,app_url,name");
+  const cleanup = cleanupPrograms().map((c) => ({ ...c, slug: c.slug ?? slugFromPrograms(c.folder, programs) }));
+  const pendingPrograms = [...new Set(pending.map((p) => p.name))].sort();
+  const value = {
+    updatedAt: new Date().toISOString(),
+    pending: { rows: pending.length, programs: pendingPrograms },
+    cleanup: { total: cleanup.length, logging: cleanup.filter((c) => c.logs).map((c) => c.slug ?? c.folder), notLogging: cleanup.filter((c) => !c.logs).map((c) => c.slug ?? c.folder) },
+  };
+  await rest("site_settings?on_conflict=key", {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({ key: "ops_overview", value, updated_at: value.updatedAt }),
+  });
+  console.log(`✔ site_settings.ops_overview 저장 — 미배포 대기 ${value.pending.rows}줄(프로그램 ${pendingPrograms.length}개), 30일 정리 기록 ${value.cleanup.logging.length}/${value.cleanup.total}`);
   process.exit(0);
 }
 
