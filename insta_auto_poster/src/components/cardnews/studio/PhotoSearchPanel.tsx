@@ -11,7 +11,8 @@ const NARROW_SELECT = SELECT.replace("w-full ", "");
 const FLEX_INPUT = INPUT.replace("w-full ", "");
 
 /** 페이지 카드 안의 「📷 무료 사진 검색」(v1.63) — 회원 본인 Pixabay·Pexels 키, 고르면 그 장의 배경이 된다. */
-export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked }: { defaultQuery: string; ratio: RatioId; disabled?: boolean; onPicked: (url: string) => void }) {
+// target "feed"(v1.65): 피드 새 글 「직접 첨부」용 — 서버가 insta-post-images에 JPEG로 저장한다.
+export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked, target, buttonLabel = "무료 사진 검색" }: { defaultQuery: string; ratio: RatioId; disabled?: boolean; onPicked: (url: string) => void; target?: "feed"; buttonLabel?: string }) {
   const [open, setOpen] = useState(false);
   const [provider, setProvider] = useState<PhotoProvider>("pixabay");
   const [query, setQuery] = useState(defaultQuery.slice(0, 100));
@@ -45,7 +46,7 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked }: { 
     setBusy(photo.id);
     setError(null);
     try {
-      const data = await call({ action: "pick", url: photo.url });
+      const data = await call({ action: "pick", url: photo.url, ...(target ? { target } : {}) });
       onPicked(data.url as string);
     } catch (e) {
       setError({ message: (e as Error).message });
@@ -57,7 +58,7 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked }: { 
   if (!open) {
     return (
       <button type="button" disabled={disabled} onClick={() => setOpen(true)} className={`${BTN_GHOST} w-full px-3 py-1.5 text-xs`}>
-        <Camera className="h-3.5 w-3.5" /> 무료 사진 검색
+        <Camera className="h-3.5 w-3.5" /> {buttonLabel}
       </button>
     );
   }

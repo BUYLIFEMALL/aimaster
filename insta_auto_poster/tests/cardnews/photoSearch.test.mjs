@@ -53,3 +53,18 @@ test("미배포 대기(2026-10-23): 전체 무료 사진 자동 채우기·출�
   const base = readFileSync(new URL("../../src/lib/cardnews/photoSearch.ts", import.meta.url), "utf8");
   assert.doesNotMatch(base, /^import /m);
 });
+
+test("v1.65: 서로 다른 사진·연결 확인·피드 직접 첨부(JPEG 저장)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("../../src/app/(dashboard)/cardnews/background/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /data-photo-distinct/);
+  assert.match(page, /used\?\.add\(first\.url\)/);
+  const settings = readFileSync(new URL("../../src/app/(dashboard)/settings/page.tsx", import.meta.url), "utf8");
+  assert.match(settings, /<PhotoKeyCheckButton/);
+  const form = readFileSync(new URL("../../src/components/posts/PostForm.tsx", import.meta.url), "utf8");
+  assert.match(form, /target="feed"/);
+  assert.match(form, /!IS_STANDALONE && slides\.length < requiredSlides/);
+  const route = readFileSync(new URL("../../src/app/api/cardnews/photos/route.ts", import.meta.url), "utf8");
+  assert.match(route, /body\.target === "feed"/);
+  assert.match(route, /from\("insta-post-images"\)\.upload\(feedPath, jpeg, \{ contentType: "image\/jpeg"/);
+});

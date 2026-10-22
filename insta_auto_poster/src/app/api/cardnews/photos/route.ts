@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import sharp from "sharp";
 import { authorize } from "@/lib/cardnews/apiGuard";
 import { getUserApiKey } from "@/lib/cardnews/apiKeys";
 import { optimizeBackground } from "@/lib/cardnews/ai/imageOptimize";
@@ -14,7 +15,7 @@ const rec = (v: unknown): Record<string, unknown> => (v && typeof v === "object"
 /**
  * 배경 무료 사진(v1.63).
  * - search: 회원 본인 Pixabay·Pexels 키로 12장 검색(무료, 결과는 저장하지 않음)
- * - pick: 고른 사진(제공처 이미지 서버 주소만)을 받아 WebP로 줄여 이 회원 폴더에 저장 → 공개 주소(인스타 게시에 필요)
+ * - pick: 고른 사진(제공처 이미지 서버 주소만)을 받아 WebP로 줄여 이 회원 폴더에 저장 → 공개 주소(인스타 게시에 필요). target "feed"면 피드 직접 첨부용 JPEG(insta-post-images)
  */
 export async function POST(request: Request) {
   try {
@@ -25,6 +26,18 @@ export async function POST(request: Request) {
 
     if (body.action === "pick") {
       const photo = await downloadPhoto(body.url);
+      // v1.65: 피드 새 글 「직접 첨부」용 — 직접 첨부와 같은 insta-post-images/<회원>/ 에 JPEG(긴 변 1440px 이하)로. 피드 게시는 형식을 바꾸지 않고 보내므로 JPEG로 저장한다.
+      if (body.target === "feed") {
+        const jpeg = await sharp(photo.bytes).rotate().resize({ width: 1440, height: 1440, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 90 }).toBuffer();
+        const feedPath = `${userId}/${crypto.randomUUID()}.jpg`;
+        const feedAdmin = createAdminClient();
+        const { error: feedError } = await feedAdmin.storage.from("insta-post-images").upload(feedPath, jpeg, { contentType: "image/jpeg", upsert: false });
+        if (feedError) {
+          console.error("feed photo upload error:", feedError.message.slice(0, 200));
+          return NextResponse.json({ error: "사진을 저장하지 못했습니다. 잠시 뒤 다시 시도해주세요." }, { status: 500 });
+        }
+        return NextResponse.json({ url: feedAdmin.storage.from("insta-post-images").getPublicUrl(feedPath).data.publicUrl });
+      }
       const optimized = await optimizeBackground(photo.bytes, photo.mime);
       const path = `${userId}/${crypto.randomUUID()}.${optimized.ext}`;
       const admin = createAdminClient();

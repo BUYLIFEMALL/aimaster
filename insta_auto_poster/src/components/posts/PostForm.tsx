@@ -17,6 +17,7 @@ import { uploadImageDirect } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import { IS_STANDALONE } from "@/lib/deployment";
+import { PhotoSearchPanel } from "@/components/cardnews/studio/PhotoSearchPanel";
 import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
 import type { ImageAspectRatio, InstaTone } from "@/lib/ai/generator";
 import type { ApiKeyProvider, InstaPostType } from "@/types/database.types";
@@ -858,6 +859,19 @@ export function PostForm({
                 }}
               />
             </label>
+          )}
+          {/* v1.65: 회원 본인 Pixabay·Pexels 키로 무료 사진을 골라 첨부(서버가 insta-post-images에 JPEG로 저장). 배포판은 키 칸이 없어 숨김 */}
+          {!IS_STANDALONE && slides.length < requiredSlides && (
+            <div className="mt-2" data-feed-photo>
+              <PhotoSearchPanel
+                defaultQuery={topic}
+                ratio="4:5"
+                target="feed"
+                buttonLabel="무료 사진으로 첨부 (Pixabay·Pexels)"
+                disabled={addingUpload || isGeneratingAll}
+                onPicked={(url) => setSlides((prev) => (prev.length >= requiredSlides ? prev : [...prev, { imagePrompt: "", imageUrl: url, imageUrls: [url] }]))}
+              />
+            </div>
           )}
           {readyWithoutAi && (
             <p className="mt-2 text-xs text-emerald-400">

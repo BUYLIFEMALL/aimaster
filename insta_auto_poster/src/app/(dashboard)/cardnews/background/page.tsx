@@ -23,6 +23,8 @@ export default function BackgroundPage() {
   // 전체 무료 사진 자동 채우기(무료, AI 없음): 배경이 없는 장마다 제목으로 검색해 첫 사진을 넣는다.
   const [fillProvider, setFillProvider] = useState<PhotoProvider>("pixabay");
   const [photoKeyNote, setPhotoKeyNote] = useState("");
+  // v1.65: 장마다 서로 다른 사진 — 이번 채우기에서 이미 고른 사진(제공처 주소)은 건너뛴다.
+  const [distinctPhotos, setDistinctPhotos] = useState(true);
 
   if (!plan.topic.trim() || pages.length === 0) return <NeedPlan>먼저 1단계 기획과 2단계 문구를 마쳐주세요.</NeedPlan>;
 
@@ -99,14 +101,16 @@ export default function BackgroundPage() {
     return data;
   };
 
-  const fillOneWithPhoto = async (pageId: string): Promise<"ok" | "fail" | "nokey"> => {
+  const fillOneWithPhoto = async (pageId: string, used: Set<string> | null): Promise<"ok" | "fail" | "nokey"> => {
     const page = pages.find((p) => p.id === pageId);
     if (!page) return "fail";
     setState((s) => ({ ...s, [pageId]: { loading: true } }));
     try {
       const found = await photoCall({ action: "search", provider: fillProvider, query: (page.headline || plan.topic).slice(0, 100), ratio: plan.ratio });
-      const first = (found.photos as { url: string }[] | undefined)?.[0];
-      if (!first) throw new Error("이 장 제목으로 찾은 사진이 없습니다. 「무료 사진 검색」에서 다른 검색어로 골라주세요.");
+      const list = (found.photos as { url: string }[] | undefined) ?? [];
+      const first = used ? list.find((ph) => !used.has(ph.url)) : list[0];
+      if (!first) throw new Error(list.length ? "다른 장과 겹치지 않는 사진이 없습니다. 「무료 사진 검색」에서 다른 검색어로 골라주세요." : "이 장 제목으로 찾은 사진이 없습니다. 「무료 사진 검색」에서 다른 검색어로 골라주세요.");
+      used?.add(first.url); // 받기 전에 넣어야 동시에 도는 다른 장이 같은 사진을 고르지 않는다
       const picked = await photoCall({ action: "pick", url: first.url });
       addPhoto(pageId, picked.url as string);
       setState((s) => ({ ...s, [pageId]: { loading: false } }));
@@ -129,11 +133,12 @@ export default function BackgroundPage() {
     const queue = pages.filter((p) => !p.imageUrl).map((p) => p.id);
     // 본인 키가 없으면 장마다 같은 안내가 반복되지 않게 바로 멈춘다.
     let stop = false;
+    const used = distinctPhotos ? new Set<string>() : null;
     const worker = async () => {
       for (;;) {
         const id = stop ? undefined : queue.shift();
         if (!id) return;
-        if ((await fillOneWithPhoto(id)) === "nokey") stop = true;
+        if ((await fillOneWithPhoto(id, used)) === "nokey") stop = true;
       }
     };
     await Promise.all([worker(), worker()]);
@@ -188,6 +193,10 @@ export default function BackgroundPage() {
           <button type="button" data-photo-fill disabled={anyLoading || missing === 0} onClick={() => void fillAllWithPhotos()} className={BTN_GHOST}>
             <Camera className="h-4 w-4" /> 전체 무료 사진 자동 채우기
           </button>
+          <label className="flex items-center gap-1.5 text-xs text-slate-300">
+            <input type="checkbox" data-photo-distinct checked={distinctPhotos} onChange={(e) => setDistinctPhotos(e.target.checked)} className="accent-pink-500" />
+            장마다 서로 다른 사진
+          </label>
           <span className="text-xs text-gray-500">AI 비용 없이, 배경이 없는 장마다 제목으로 찾은 첫 사진을 넣습니다(본인 무료 키).</span>
         </div>
         {photoKeyNote && <ErrorNote message={photoKeyNote} needKey />}

@@ -14,6 +14,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { memberSchedulerState } from "@/lib/posts/memberScheduler";
 import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
+import { PhotoKeyCheckButton } from "@/components/settings/PhotoKeyCheckButton";
 
 const AUTH_METHOD_LABELS: Record<string, string> = {
   facebook_login: "Facebook 계정 연동",
@@ -191,6 +192,11 @@ export default async function SettingsPage({
                   helpLabel={PHOTO_KEY_HELP[provider]?.label}
                 />
               ))}
+              {section.providers
+                .filter((provider): provider is "pixabay" | "pexels" => (provider === "pixabay" || provider === "pexels") && keyMap.has(provider))
+                .map((provider) => (
+                  <PhotoKeyCheckButton key={`check-${provider}`} provider={provider} />
+                ))}
             </div>
           </div>
         ))}
