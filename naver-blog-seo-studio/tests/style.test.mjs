@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeStyle, cleanSamples, parseBlogId, profileHash, isStyleApproved, withStyleApproval } from "../lib/style.ts";
+import { normalizeStyle, cleanSamples, parseBlogId, profileHash, isStyleApproved, withStyleApproval, detectEnding } from "../lib/style.ts";
 import { styleSection } from "../lib/ai/stylePrompt.ts";
 import { parseNaverRss } from "../lib/naverRssParse.ts";
 
@@ -58,4 +58,16 @@ test("BLC-08b: approval survives jsonb key reordering (hash uses a fixed field o
   const reordered = Object.fromEntries(Object.entries(profile).reverse());
   assert.equal(profileHash(reordered), profileHash(profile));
   assert.equal(isStyleApproved({ profile: reordered, approved_at: "2026-10-22T00:00:00Z", approval_hash: profileHash(profile) }), true);
+});
+
+test("v1.87: detectEnding counts declarative endings (questions excluded) and styleSection adds a concrete ending rule", () => {
+  const haeyo = ["솔직히 처음엔 귀찮았는데요, 한 번 해 두니까 편하더라고요. 방충제를 넣어 두면 좋아요. 여러분도 해 보세요!", "요즘 쌀쌀하죠? 문풍지를 붙이면 바람이 줄어요. 관리비가 조금 줄었답니다. 댓글로 남겨 주세요!"];
+  assert.equal(detectEnding(haeyo), "haeyo");
+  assert.equal(detectEnding(["준비가 필요합니다. 텐트를 고릅니다. 침낭도 챙깁니다. 무엇이 필요한가요?"]), "hamnida");
+  assert.equal(detectEnding(["좋아요. 필요합니다."]), null);
+  assert.equal(detectEnding([]), null);
+  const profile = normalizeStyle(raw);
+  assert.match(styleSection({ name: "내 블로그", profile, ending: "haeyo" }), /해요체입니다.*「~요」로 끝내고/);
+  assert.match(styleSection({ name: "내 블로그", profile, ending: "hamnida" }), /합니다체입니다/);
+  assert.doesNotMatch(styleSection({ name: "내 블로그", profile, ending: null }), /문장 끝맺음\(필수\)/);
 });

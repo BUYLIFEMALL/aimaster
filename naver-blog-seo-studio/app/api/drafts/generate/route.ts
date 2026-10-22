@@ -7,7 +7,7 @@ import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { isApproved, type GroundPoint, type ResearchSource } from "@/lib/grounding";
 import type { DraftGrounding } from "@/lib/ai/groundingPrompt";
-import { isStyleApproved, type StyleProfile } from "@/lib/style";
+import { detectEnding, isStyleApproved, type StyleEnding, type StyleProfile, type StylePost } from "@/lib/style";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -52,16 +52,17 @@ export async function POST(request: Request) {
     groundingRecord = { researchId: research.id, keyword: research.keyword, approvalHash: research.approval_hash, approvedAt: research.approved_at, points };
   }
   // BLC-08b: 본인 문체 — styleId가 있을 때만. 승인·지문이 맞는 본인 문체만 쓴다(없으면 기존 경로 그대로).
-  let style: { name: string; profile: StyleProfile } | undefined;
+  let style: { name: string; profile: StyleProfile; ending: StyleEnding | null } | undefined;
   let styleRecord: Record<string, unknown> | undefined;
   if (input?.styleId !== undefined) {
     const styleId = typeof input.styleId === "string" ? input.styleId : "";
-    const { data: row } = styleId ? await supabase.from("naver_blog_seo_styles").select("id, name, profile, approved_at, approval_hash")
+    const { data: row } = styleId ? await supabase.from("naver_blog_seo_styles").select("id, name, profile, samples, posts, approved_at, approval_hash")
       .eq("id", styleId).eq("user_id", access.user.id).maybeSingle() : { data: null };
     if (!row) return NextResponse.json({ error: "선택한 내 문체를 찾지 못했습니다. 30일이 지나 삭제됐을 수 있습니다." }, { status: 404 });
     if (!isStyleApproved(row)) return NextResponse.json({ code: "STYLE_NOT_APPROVED", error: "내 문체를 승인한 뒤 바뀌었거나 아직 승인하지 않았습니다. 「내 문체」에서 다시 승인해주세요." }, { status: 409 });
-    style = { name: row.name, profile: row.profile as StyleProfile };
-    styleRecord = { styleId: row.id, name: row.name, approvalHash: row.approval_hash };
+    const ending = detectEnding([...((row.samples as string[] | null) ?? []), ...(((row.posts as StylePost[] | null) ?? []).map((p) => p.text))]);
+    style = { name: row.name, profile: row.profile as StyleProfile, ending };
+    styleRecord = { styleId: row.id, name: row.name, approvalHash: row.approval_hash, ending };
   }
   const apiKey = await resolveApiKey(supabase, access.user.id, provider);
   if (!apiKey) {

@@ -1,6 +1,12 @@
 // BLC-08b (2026-10-22): 본인 문체 프롬프트 — 순수 함수. blog-workroom src/lib/prompts.ts의 stylePrompt·styleBrief 기반.
 // 문체가 없으면 styleSection은 빈 문자열이라 생성 프롬프트가 v1.84와 같다.
-import type { StyleProfile, StylePost } from "../style";
+import type { StyleEnding, StyleProfile, StylePost } from "../style";
+
+// v1.87: 표본에서 센 끝맺음을 구체적인 규칙으로(v1.86 실검수에서 추상적인 어조 설명만으로는 말투가 안 바뀜)
+const ENDING_RULE: Record<StyleEnding, string> = {
+  haeyo: "\n문장 끝맺음(필수): 이 작성자의 글은 해요체입니다. 소제목을 뺀 본문의 모든 평서문을 「~해요」「~이에요」「~거든요」「~더라고요」처럼 「~요」로 끝내고, 「~습니다」「~입니다」로 끝내지 마세요.",
+  hamnida: "\n문장 끝맺음(필수): 이 작성자의 글은 합니다체입니다. 본문의 평서문을 「~습니다」「~입니다」로 끝냅니다.",
+};
 
 export function stylePrompt(name: string, posts: StylePost[], samples: string[]): { system: string; user: string } {
   const postText = posts.map((p, i) => `#${i + 1} 제목: ${p.title}\n본문: ${p.text.slice(0, 1800)}`).join("\n\n");
@@ -11,8 +17,8 @@ export function stylePrompt(name: string, posts: StylePost[], samples: string[])
   };
 }
 
-export function styleSection(style: { name: string; profile: StyleProfile } | undefined): string {
+export function styleSection(style: { name: string; profile: StyleProfile; ending?: StyleEnding | null } | undefined): string {
   if (!style) return "";
   const s = style.profile;
-  return `\n\n사용자가 승인한 「${style.name}」 문체를 따르세요(사실·경험은 지어내지 말고 말투·문장·구성 습관만 따름). 말투·문장 끝맺음(예: ~요/~습니다)은 위 페르소나 톤보다 이 문체를 우선하고, 페르소나는 관점과 내용 구성에만 반영합니다. 자주 쓰는 표현에 보이는 끝맺음을 본문 전체에 일관되게 씁니다:\n어조: ${s.tone}\n문장: ${s.sentence}\n구성: ${s.structure}\n독자: ${s.reader}${s.expressions.length ? `\n자주 쓰는 표현(자연스러울 때만): ${s.expressions.join(", ")}` : ""}${s.avoid.length ? `\n쓰지 않는 표현: ${s.avoid.join(", ")}` : ""}`;
+  return `\n\n사용자가 승인한 「${style.name}」 문체를 따르세요(사실·경험은 지어내지 말고 말투·문장·구성 습관만 따름). 말투·문장 끝맺음(예: ~요/~습니다)은 위 페르소나 톤보다 이 문체를 우선하고, 페르소나는 관점과 내용 구성에만 반영합니다. 자주 쓰는 표현에 보이는 끝맺음을 본문 전체에 일관되게 씁니다:\n어조: ${s.tone}\n문장: ${s.sentence}\n구성: ${s.structure}\n독자: ${s.reader}${s.expressions.length ? `\n자주 쓰는 표현(자연스러울 때만): ${s.expressions.join(", ")}` : ""}${s.avoid.length ? `\n쓰지 않는 표현: ${s.avoid.join(", ")}` : ""}${style.ending ? ENDING_RULE[style.ending] : ""}`;
 }

@@ -6,7 +6,7 @@ import { getExplicitYears, getKoreaToday } from "./freshness";
 import type { SeoPersona } from "./personas";
 import { factRule, groundingSection, type DraftGrounding } from "./groundingPrompt";
 import { styleSection } from "./stylePrompt";
-import type { StyleProfile } from "../style";
+import type { StyleEnding, StyleProfile } from "../style";
 
 export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
 
@@ -81,7 +81,7 @@ export async function requestDraftJson(apiKey: string, provider: ContentProvider
   return JSON.parse(raw) as Partial<SeoDraft>;
 }
 
-export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions; grounding?: DraftGrounding; style?: { name: string; profile: StyleProfile } }): Promise<SeoDraft> {
+export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions; grounding?: DraftGrounding; style?: { name: string; profile: StyleProfile; ending?: StyleEnding | null } }): Promise<SeoDraft> {
   if (!/^[\x00-\xFF]*$/.test(params.apiKey)) throw new Error("등록된 OpenAI API 키 형식이 올바르지 않습니다.");
   const today = getKoreaToday();
   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];

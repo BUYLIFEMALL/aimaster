@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — 이미지 스타일 분석기 v1.34 추세 그래프 배포 (DB check_trend 칸 추가, 빌드 1회, AI 0원)
+- 운영 DB `sda_analyses.check_trend` 추가(ref esgxyikcnnvmlhygjkth) → v1.34 배포. 크롬(가로채기): 추세 3회 기록, 처음 62.9% → 최근 34.8% ↓, 그래프 선 위로 상승 확인. 검수 데이터는 빈 목록으로 되돌림. SQL 편집기 Ctrl+Enter 미반영 사례 ERROR_LESSONS 보완.
+- 크롬에 SQL 편집기 탭(실행 끝난 칸 추가 SQL, 「저장 안 됨」)이 남아 있음 — 닫을 때 「나가기」 눌러도 됨. 남은 배포 보류: 변환 스튜디오 v1.18, 인물사진 v1.37, 감성 글귀 v1.24, 4컷 post-presets, 바나나 compare 사본 추가분.
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 v1.24 배포 (맥미니 「상품별 섹션 순서 ↑↓」 마무리, DB 칸 추가)
 - 운영 DB `shop_products.section_sequence text[]` 칸 추가(기존 데이터 영향 없음, 되돌리기 SQL은 마이그레이션 파일에) → 결과 1행·v1.24 → 배포 READY → 크롬에서 ↑↓ 버튼·긴 PNG/ZIP 내려받기 정상. 비용: 빌드 1회. **맥미니 세션께**: 배포 끝. 상세: `shop-detail-page/AGENTS.md` 맨 아래.
 - 프로그램: https://shop-detail-page.buylife.xyz

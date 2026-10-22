@@ -46,3 +46,15 @@ export function isStyleApproved(row: { profile?: unknown; approved_at?: string |
 export function withStyleApproval<T extends { profile?: unknown; approved_at?: string | null; approval_hash?: string | null }>(row: T): T & { approval_valid: boolean } {
   return { ...row, approval_valid: isStyleApproved(row) };
 }
+
+// v1.87: 표본·글 본문의 평서문 끝맺음(「~요」 vs 「~니다」)을 AI 없이 센다. 질문형(?)은 제외.
+// 한쪽이 3번 이상이고 다른 쪽의 2배 이상일 때만 정하고, 애매하면 null(지시를 넣지 않음).
+export type StyleEnding = "haeyo" | "hamnida";
+export function detectEnding(texts: string[]): StyleEnding | null {
+  const all = texts.join("\n");
+  const yo = (all.match(/요(?=[.!~]|\s*$)/gm) || []).length;
+  const nida = (all.match(/니다(?=[.!]|\s*$)/gm) || []).length;
+  if (yo >= 3 && yo >= nida * 2) return "haeyo";
+  if (nida >= 3 && nida >= yo * 2) return "hamnida";
+  return null;
+}
