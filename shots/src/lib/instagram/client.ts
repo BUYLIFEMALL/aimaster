@@ -112,6 +112,7 @@ async function createReelContainer(params: {
   igUserId: string;
   videoUrl: string;
   caption: string;
+  coverUrl?: string | null;
 }): Promise<string> {
   const body = new URLSearchParams({
     access_token: params.accessToken,
@@ -120,6 +121,8 @@ async function createReelContainer(params: {
     caption: params.caption,
     share_to_feed: "false",
   });
+  // v1.35 릴스 표지(JPEG·8MB·9:16 권장, 공개 주소) — 있으면 thumb_offset보다 우선
+  if (params.coverUrl) body.set("cover_url", params.coverUrl);
   const response = await fetch(`${GRAPH_BASE}/${params.igUserId}/media`, { method: "POST", body });
   const data = await parseGraphResponse<{ id: string }>(response);
   return data.id;
@@ -161,6 +164,7 @@ export interface PublishReelInput {
   igUserId: string;
   videoUrl: string;
   caption: string;
+  coverUrl?: string | null;
 }
 
 export interface PublishReelResult {
@@ -175,6 +179,7 @@ export async function publishInstagramReel(input: PublishReelInput): Promise<Pub
     igUserId: input.igUserId,
     videoUrl: input.videoUrl,
     caption: input.caption,
+    coverUrl: input.coverUrl,
   });
 
   await waitForContainerReady({ accessToken: input.accessToken, creationId });

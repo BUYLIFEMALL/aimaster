@@ -10,6 +10,7 @@ import { resolveFacebookLoginApp } from "@/lib/apiKeys";
 import { buildOAuthState } from "@/lib/oauthState";
 import { generateInstagramCaption } from "@/lib/ai/posting";
 import { getInstagramAuthorizeUrl, publishInstagramReel } from "@/lib/instagram/client";
+import { findReelCoverUrl } from "@/lib/actions/reelCover";
 
 export interface ConnectInstagramState {
   error?: string;
@@ -154,6 +155,7 @@ export async function postToInstagramAction(
       igUserId: account.ig_user_id,
       videoUrl: video.rendered_video_url,
       caption,
+      coverUrl: await findReelCoverUrl(user.id, videoId),
     });
 
     await supabase

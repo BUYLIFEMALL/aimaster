@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { YoutubeConnectCard } from "@/components/youtube/YoutubeConnectCard";
 import { Textarea } from "@/components/ui/Textarea";
+import { ReelCoverPicker } from "@/components/candidates/ReelCoverPicker";
 import { clsx } from "@/lib/clsx";
 import { YOUTUBE_CATEGORY_OPTIONS } from "@/lib/youtubeCategories";
 import {
@@ -365,6 +366,8 @@ export function PostingSection({
                 <p className="mt-1 text-sm text-green-600">수정 내용이 저장되었습니다.</p>
               )}
             </div>
+
+            {video.instagram_status !== "posted" && <ReelCoverPicker videoId={video.id} disabled={isPostingInstagram} />}
 
             {!canPost && <p className="text-sm text-neutral-500">먼저 영상 생성을 완료해주세요.</p>}
 

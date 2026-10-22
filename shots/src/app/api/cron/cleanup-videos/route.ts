@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { REEL_COVER_BUCKET, reelCoverFolder } from "@/lib/instagram/reelCover";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
   const storage = supabase.storage.from(BUCKET);
 
   const list = async (prefix: string, bucket = storage) => {
-    const out: { name: string; id: string | null; created_at?: string | null }[] = [];
+    const out: { name: string; id: string | null; created_at?: string | null; updated_at?: string | null }[] = [];
     for (let offset = 0; ; offset += 1000) {
       const { data, error } = await bucket.list(prefix, { limit: 1000, offset });
       if (error) throw new Error(error.message);
@@ -88,7 +89,32 @@ export async function GET(request: NextRequest) {
       removedVoices += batch.length;
     }
   }
+
+  // v1.35: 릴스 표지(shorts-images `<회원 id>/covers/<영상 id>.jpg`)도 만든(마지막으로 올린) 지 30일이 지나면 지운다
+  const coverStorage = supabase.storage.from(REEL_COVER_BUCKET);
+  const expiredCovers: string[] = [];
+  let removedCovers = 0;
+  try {
+    for (const owner of (await list("", coverStorage)).filter((x) => x.id === null)) {
+      for (const file of (await list(reelCoverFolder(owner.name), coverStorage)).filter((x) => x.id !== null)) {
+        checked += 1;
+        const at = file.updated_at ?? file.created_at;
+        if (at && new Date(at) < cutoff) expiredCovers.push(`${reelCoverFolder(owner.name)}/${file.name}`);
+      }
+    }
+    if (!dryRun) {
+      for (let i = 0; i < expiredCovers.length; i += 100) {
+        const batch = expiredCovers.slice(i, i + 100);
+        const { error } = await coverStorage.remove(batch);
+        if (error) throw new Error(error.message);
+        removedCovers += batch.length;
+      }
+    }
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : "cover cleanup failed", removed, removedVoices, removedCovers }, { status: 500 });
+  }
+  console.log(`[cleanup-videos] covers expired ${expiredCovers.length} removed ${removedCovers}`);
   console.log(`[cleanup-videos] voices expired ${expiredVoices.length} removed ${removedVoices}`);
   console.log(`[cleanup-videos] cutoff ${cutoff.toISOString()} checked ${checked} expired ${expired.length} removed ${removed} cleared ${clearedVideos}${dryRun ? " (dry-run)" : ""}`);
-  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, expiredVoices: expiredVoices.length, removedVoices, dryRun });
+  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, expiredVoices: expiredVoices.length, removedVoices, expiredCovers: expiredCovers.length, removedCovers, dryRun });
 }
