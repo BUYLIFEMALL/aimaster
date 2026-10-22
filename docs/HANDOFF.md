@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — ✅ S-22-10 완료 — 상세페이지 → 쓰레드·인스타 이미지 넘기기
+- 상세페이지 v1.20 · INSTA v1.53 배포 뒤 맥미니 크롬, 시험 계정 `buylifemall@naver.com`으로 3가지 확인 통과(이미지 1장·캡션 초안·초록 안내 / 새로고침 1장 / 남의 회원 ID 차단). 윈도우 기록의 「시험 계정 확인」 남은 일 끝. 비용 없음.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://auto-instagram-posting.buylife.xyz · https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 이미지 묶음: 인물사진 v1.35 목적별 묶음 저장(F4) · 감성 글귀 v1.23 검색칸 · 변환 스튜디오 v1.15 비율 아이콘 · post-presets 사본 4곳 (빌드 3회, AI 0원)
 - **AI 인물사진 v1.35**: 결과 한 장을 💼 취업·이력서 / ✈️ 여권·여행 / 📱 SNS 프로필 묶음(또는 직접 고르기 최대 12개)으로 ZIP 하나에 저장, AI 호출 없음(`src/lib/portrait/bundles.ts`, 시험 39개). 형식 바꾸기 규격 고르기를 공용 사본으로 교체. 배포 Ready·DB v1.35. **화면 검수 미완료** — 생성 전 「본인 사진·사용 동의」 확인란을 에이전트가 대신 체크하지 않아 결과 화면까지 못 감(주인님 체크 후 확인 필요).
 - **감성 글귀 v1.23**: 사진 검색칸 기본값 「nature」를 안내 문구로만 표시, 비우고 검색하면 nature. 크롬: 빈칸 검색 → 본인 Pixabay 무료 키로 12장(비용 없음).
