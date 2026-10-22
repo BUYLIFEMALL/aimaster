@@ -105,13 +105,16 @@ function formatBytes(bytes: number): string {
   return (bytes / 1024).toFixed(1) + " KB";
 }
 
+/** 정리 기록(usage_logs cleanup_expired) metadata 칸 이름 → 화면 이름 */
+const CLEANUP_LABEL: Record<string, string> = { videos: "영상", voices: "음성", covers: "표지", images: "이미지", projects: "프로젝트", segments: "장면 기록" };
+
 export default function SystemUsageMonitor() {
   const [data, setData] = useState<{
     summary: UsageSummary;
     programs: ProgramMetric[];
     dbTableStats: DbTableStat[];
     storageStats: StorageStat[];
-    shotsCleanup?: { runs: number; videos: number; voices: number; covers: number; images: number; segments: number; lastAt: string | null };
+    cleanupByProgram?: { slug: string; name: string; runs: number; members: number; counts: Record<string, number>; lastAt: string | null }[];
     timestamp: string;
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -590,19 +593,38 @@ export default function SystemUsageMonitor() {
                 </div>
               </GlassCard>
 
-              {/* YOUTUBE Shots 30일 정리 합계(2026-10-22, shots v1.37 usage_logs cleanup_expired) */}
-              {data.shotsCleanup && (
-                <GlassCard className="p-4">
-                  <p className="text-sm text-white">
-                    <span className="font-bold text-gold">YOUTUBE Shots 30일 정리(최근 30일)</span>
-                    {" "}— 영상 {data.shotsCleanup.videos.toLocaleString()} · 음성 {data.shotsCleanup.voices.toLocaleString()} · 표지 {data.shotsCleanup.covers.toLocaleString()} · 이미지 {data.shotsCleanup.images.toLocaleString()}개 삭제
-                    {data.shotsCleanup.segments > 0 && <> (장면 {data.shotsCleanup.segments.toLocaleString()}개 기록 비움)</>}
-                  </p>
-                  <p className="mt-1 text-xs text-white/50">
-                    {data.shotsCleanup.lastAt
-                      ? `마지막 정리 ${new Date(data.shotsCleanup.lastAt).toLocaleString("ko-KR")} · 회원별 기록 ${data.shotsCleanup.runs.toLocaleString()}건`
-                      : "아직 정리 기록이 없습니다(매일 03:30 KST 실행, 지울 것이 있을 때만 기록)."}
-                  </p>
+              {/* 프로그램별 30일 정리(2026-10-22, usage_logs cleanup_expired — YOUTUBE Shots v1.37·AI 썸네일 v1.19부터 기록) */}
+              {data.cleanupByProgram && (
+                <GlassCard className="p-4 space-y-2">
+                  <p className="text-sm font-bold text-gold">30일 자동 정리 (최근 30일, 기록을 남기는 프로그램만)</p>
+                  {data.cleanupByProgram.length === 0 ? (
+                    <p className="text-xs text-white/50">아직 정리 기록이 없습니다(각 프로그램이 매일 새벽에 실행하고, 지울 것이 있을 때만 기록합니다).</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-white/80">
+                        <thead>
+                          <tr className="text-left text-white/50">
+                            <th className="py-1 pr-3 font-medium">프로그램</th>
+                            <th className="py-1 pr-3 font-medium">지운 항목</th>
+                            <th className="py-1 pr-3 font-medium">회원</th>
+                            <th className="py-1 font-medium">마지막 정리</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data.cleanupByProgram.map((p) => (
+                            <tr key={p.slug} className="border-t border-white/10">
+                              <td className="py-1.5 pr-3 text-white">{p.name}</td>
+                              <td className="py-1.5 pr-3">
+                                {Object.entries(p.counts).filter(([, n]) => n > 0).map(([k, n]) => `${CLEANUP_LABEL[k] ?? k} ${n.toLocaleString()}`).join(" · ") || "—"}
+                              </td>
+                              <td className="py-1.5 pr-3">{p.members.toLocaleString()}명</td>
+                              <td className="py-1.5">{p.lastAt ? new Date(p.lastAt).toLocaleString("ko-KR") : "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </GlassCard>
               )}
 

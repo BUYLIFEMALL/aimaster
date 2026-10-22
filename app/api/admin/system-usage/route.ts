@@ -22,36 +22,35 @@ const BUCKET_PROGRAM_MAP: Record<string, { programSlug: string; programName: str
   "kakao-report-images": { programSlug: "kakao-auto-posting", programName: "카카오톡 뉴스레터" },
 };
 
-// 2026-10-22: YOUTUBE Shots(v1.37) 30일 정리 작업이 회원별로 남기는 usage_logs(action cleanup_expired) — 최근 30일 합계
-async function shotsCleanupLast30d(serviceClient: any, programs: { id: string; slug: string }[]) {
-  const empty = { runs: 0, videos: 0, voices: 0, covers: 0, images: 0, segments: 0, lastAt: null as string | null };
-  const shots = programs.find((p) => p.slug === "auto-shorts-posting");
-  if (!shots) return empty;
+// 2026-10-22: 프로그램들의 30일 정리 작업이 회원별로 남기는 usage_logs(action cleanup_expired) — 최근 30일 프로그램별 합계
+// (YOUTUBE Shots v1.37: videos·voices·covers·images·segments[], AI 썸네일·SEO v1.19: projects·images). metadata의 숫자 칸은 이름 그대로 더하고, 배열 칸은 개수를 더한다.
+async function cleanupByProgram(serviceClient: any, programs: { id: string; name: string; slug: string }[]) {
   try {
     const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
     const { data } = await serviceClient
       .from("usage_logs")
-      .select("metadata, created_at")
-      .eq("program_id", shots.id)
+      .select("program_id, user_id, metadata, created_at")
       .eq("action", "cleanup_expired")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
-      .limit(5000);
-    const out = { ...empty };
-    for (const row of (data ?? []) as { metadata: any; created_at: string }[]) {
-      const m = row.metadata ?? {};
-      out.runs += 1;
-      out.videos += Number(m.videos) || 0;
-      out.voices += Number(m.voices) || 0;
-      out.covers += Number(m.covers) || 0;
-      out.images += Number(m.images) || 0;
-      out.segments += Array.isArray(m.segments) ? m.segments.length : 0;
-      out.lastAt ??= row.created_at;
+      .limit(10000);
+    const byId = new Map<string, { slug: string; name: string; runs: number; users: Set<string>; counts: Record<string, number>; lastAt: string | null }>();
+    for (const row of (data ?? []) as { program_id: string; user_id: string; metadata: any; created_at: string }[]) {
+      const prog = programs.find((p) => p.id === row.program_id);
+      const g = byId.get(row.program_id) ?? { slug: prog?.slug ?? "?", name: prog?.name ?? "알 수 없는 프로그램", runs: 0, users: new Set<string>(), counts: {}, lastAt: null };
+      g.runs += 1;
+      if (row.user_id) g.users.add(row.user_id);
+      for (const [k, v] of Object.entries(row.metadata ?? {})) {
+        const n = Array.isArray(v) ? v.length : Number(v);
+        if (Number.isFinite(n)) g.counts[k] = (g.counts[k] ?? 0) + n;
+      }
+      g.lastAt ??= row.created_at;
+      byId.set(row.program_id, g);
     }
-    return out;
+    return [...byId.values()].map((g) => ({ slug: g.slug, name: g.name, runs: g.runs, members: g.users.size, counts: g.counts, lastAt: g.lastAt }));
   } catch (e) {
-    console.error("shots cleanup summary error:", e);
-    return empty;
+    console.error("cleanup summary error:", e);
+    return [];
   }
 }
 
@@ -438,7 +437,7 @@ async function getAllBucketFiles(
       programs: programMetrics,
       dbTableStats,
       storageStats,
-      shotsCleanup: await shotsCleanupLast30d(serviceClient, programs ?? []),
+      cleanupByProgram: await cleanupByProgram(serviceClient, programs ?? []),
     });
   } catch (error: any) {
     console.error("System Usage Monitor API Error:", error);
