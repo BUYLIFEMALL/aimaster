@@ -63,7 +63,7 @@ export function cleanParams(raw: unknown): RunParams | null {
 }
 
 /** 템플릿 그래픽 입력 정리: 템플릿에 있는 칸·목록에 있는 화풍·언어만 받는다 */
-function graphicParams(r: Record<string, unknown>): Partial<RunParams> {
+export function graphicParams(r: Record<string, unknown>): Partial<RunParams> {
   const tpl = templateById(r.templateId);
   const raw = (r.fields && typeof r.fields === "object" ? r.fields : {}) as Record<string, unknown>;
   const fields: Record<string, string> = {};

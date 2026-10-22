@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { cleanPresetName, cleanPresetSettings, presetFromRecord, isPresetKind, MAX_PRESETS } from "../src/lib/bnc/presets.ts";
 import { recutPlan, replaceOutput, RECUT_LOCK_MS } from "../src/lib/bnc/recut.ts";
+import { GRAPHIC_TEMPLATES, GRAPHIC_STYLES } from "../src/lib/bnc/graphicTemplates.ts";
 
 const UID = "11111111-2222-4333-8444-555555555555";
 const out = (n, text) => ({ path: `${UID}/out/aaaaaaaa-bbbb-4ccc-8ddd-00000000000${n}.png`, mime: "image/png", w: 1, h: 1, text });
@@ -85,7 +86,7 @@ test("서버 코드: 권한·본인 키·선점(이중 과금 방지)·본인 �
   assert.match(r, /catch \(e\) \{\s*await release\(\);/);
   assert.match(r, /maxDuration = 300/);
   const pr = read("../src/app/api/presets/route.ts");
-  assert.equal((pr.match(/checkProgramAccessApi\(\)/g) ?? []).length, 3);
+  assert.ok((pr.match(/checkProgramAccessApi\(\)/g) ?? []).length >= 3);
   assert.match(pr, /\.delete\(\)\.eq\("id", id\)\.eq\("user_id", access\.user\.id\)/);
   assert.match(pr, />= MAX_PRESETS/);
 });
@@ -94,4 +95,45 @@ test("새 스토리·레시피는 다시 만들기에 필요한 정보를 기록
   assert.match(read("../src/lib/runner.ts"), /meta: \{ storyCharacter: character \}/);
   assert.match(read("../src/lib/runner.ts"), /meta: \{ stepPrompts:/);
   assert.match(read("../src/app/api/run/route.ts"), /\.\.\.result\.meta \}/);
+});
+
+// v1.19 템플릿 그래픽 레시피·이름 바꾸기
+test("그래픽 레시피: 목록에 있는 템플릿·화풍·언어, 그 템플릿에 있는 칸만", () => {
+  const tpl = GRAPHIC_TEMPLATES.find((t) => t.fields.length > 0);
+  const f0 = tpl.fields[0].id;
+  const g = cleanPresetSettings("graphic", {
+    templateId: tpl.id, fields: { [f0]: "  카페   오픈 ", hacked: "x" }, preset: "nope", languages: ["한국어", "클링온"],
+    prompt: "할인 문구", aspect: "21:9", imageSize: "8K", maintainSubject: false,
+  });
+  assert.equal(g.templateId, tpl.id);
+  assert.deepEqual(g.fields, { [f0]: "카페 오픈" });
+  assert.equal(g.preset, "");
+  assert.deepEqual(g.languages, ["한국어"]);
+  assert.equal(g.aspect, "1:1");
+  assert.equal(g.imageSize, "1K");
+  assert.equal(g.maintainSubject, false);
+  assert.equal(cleanPresetSettings("graphic", { templateId: "없는-템플릿" }), null);
+  const ok = cleanPresetSettings("graphic", { templateId: tpl.id, preset: GRAPHIC_STYLES[0].value, aspect: "9:16", imageSize: "2K" });
+  assert.equal(ok.preset, GRAPHIC_STYLES[0].value);
+  assert.equal(ok.aspect, "9:16");
+  assert.equal(ok.imageSize, "2K");
+});
+
+test("기록에서 그래픽 레시피 만들기", () => {
+  const tpl = GRAPHIC_TEMPLATES[0];
+  const s = presetFromRecord("graphic", { templateId: tpl.id, fields: {}, languages: ["English"], aspect: "16:9", imageSize: "1K" }, "추가 요청");
+  assert.equal(s.templateId, tpl.id);
+  assert.equal(s.prompt, "추가 요청");
+  assert.equal(s.aspect, "16:9");
+  assert.equal(isPresetKind("graphic"), true);
+});
+
+test("이름 바꾸기: 권한 확인·본인 레시피만·이름 검사", () => {
+  const pr = read("../src/app/api/presets/route.ts");
+  assert.equal((pr.match(/checkProgramAccessApi\(\)/g) ?? []).length, 4);
+  assert.match(pr, /update\(\{ name \}\)\.eq\("id", body\.id\)\.eq\("user_id", access\.user\.id\)/);
+  assert.match(pr, /export async function PATCH[\s\S]*cleanPresetName\(body\.name\)/);
+  const sql = read("../supabase/migrations/20261022_v1_19_presets_graphic_rename.sql");
+  assert.match(sql, /'graphic'/);
+  assert.match(sql, /for update using \(auth\.uid\(\) = user_id\)/);
 });

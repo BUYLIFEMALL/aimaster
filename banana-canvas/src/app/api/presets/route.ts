@@ -8,7 +8,7 @@ import { MAX_PRESETS, cleanPresetName, cleanPresetSettings, isPresetKind } from 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 「내 작업 레시피」(v1.18): 회원 본인 레시피만 읽고·저장하고·지운다(banana_canvas_presets, 회원당 최대 20개)
+// 「내 작업 레시피」(v1.18): 회원 본인 레시피만 읽고·저장하고·이름 바꾸고(v1.19)·지운다(banana_canvas_presets, 회원당 최대 20개)
 
 export async function GET() {
   const access = await checkProgramAccessApi();
@@ -38,6 +38,23 @@ export async function POST(request: NextRequest) {
     .from("banana_canvas_presets").insert({ user_id: access.user.id, kind: body.kind, name, settings })
     .select("id, kind, name, settings").single();
   if (error || !data) return json({ error: "레시피를 저장하지 못했습니다." }, 500);
+  return json({ item: data });
+}
+
+// v1.19: 레시피 이름 바꾸기(본인 레시피만)
+export async function PATCH(request: NextRequest) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return json({ error: access.error }, access.status);
+  let body: Record<string, unknown> = {};
+  try { body = await request.json(); } catch { return json({ error: "요청 형식이 올바르지 않습니다." }, 400); }
+  if (!isUuid(body.id)) return json({ error: "레시피를 찾을 수 없습니다." }, 404);
+  const name = cleanPresetName(body.name);
+  if (!name) return json({ error: "레시피 이름을 입력해 주세요(30자 이내)." }, 400);
+  const { data, error } = await createAdminClient()
+    .from("banana_canvas_presets").update({ name }).eq("id", body.id).eq("user_id", access.user.id)
+    .select("id, kind, name, settings").maybeSingle();
+  if (error) return json({ error: "이름을 바꾸지 못했습니다." }, 500);
+  if (!data) return json({ error: "레시피를 찾을 수 없습니다." }, 404);
   return json({ item: data });
 }
 

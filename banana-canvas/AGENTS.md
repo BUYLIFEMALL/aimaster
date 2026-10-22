@@ -170,3 +170,10 @@
 - 파일: `lib/bnc/presets.ts`·`recut.ts`, `api/presets`, `api/run/recut`, `components/studio/PresetRow.tsx`, Studio·HistoryList, 시험 `tests/f2RecipeRecut.test.mjs`. 플랜 `docs/PLAN_20261022_F2_RECIPE_RECUT.md`.
 - 검수: 시험 30개·build, 배포 `banana-canvas-bix8dl937` Ready, DB v1.18, 크롬 확인(409 안내·레시피 저장/불러오기/삭제). **실제 컷 다시 만들기 1장은 미확인**(시험 회원에 스토리 기록 없음).
 - ⏸ 미배포 코드 수정: 기록 상세를 열 때 앞 기록의 오류 문장 지우기 + 상세 창 오류 글자색을 밝게(`HistoryList.tsx`) — 다음 배포 때 함께.
+
+## 2026-10-22 v1.19 — 레시피를 「📐 템플릿 그래픽」까지 + 레시피 이름 바꾸기 (Claude Code 윈도우, F2 후속 제안)
+- 템플릿 그래픽 카드 설정(템플릿·칸 값·화풍·언어·추가 요청·비율·해상도·원본 인물 유지)도 레시피로 저장·불러오기. 서버는 실행 경로와 같은 `graphicParams`(tasks.ts에서 export)로 목록에 있는 템플릿·화풍·언어, 그 템플릿에 있는 칸만 남긴다. 불러오면 직군·검색 필터를 풀고 템플릿·값을 채움(실행은 회원이). 기록 상세 「레시피로 저장」도 템플릿 그래픽 기록에서 동작.
+- 레시피를 고르면 ✏️(이름 바꾸기)·✕(지우기). `PATCH /api/presets`(본인 레시피만).
+- DB(`esgxyikcnnvmlhygjkth`): kind 제약에 'graphic' 추가, 본인 수정 RLS — `supabase/migrations/20261022_v1_19_presets_graphic_rename.sql`(크롬 SQL Editor 실행 성공).
+- v1.18에서 미뤘던 기록 상세 오류 문장 초기화·글자색도 이번 배포에 포함.
+- 검수: 시험 33개·build, 배포 `banana-canvas-j33vtzgdy` Ready, DB v1.19, 비로그인 PATCH 401, 크롬(시험 회원) 채널 아트/배너·칸 값·9:16 저장 → 새로 고침 → 불러오기 정확히 복원 → 이름 바꾸기(DB 반영) → 삭제(DB 0개).

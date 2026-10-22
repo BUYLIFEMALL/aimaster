@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookmarkPlus, X } from "lucide-react";
+import { BookmarkPlus, Pencil, X } from "lucide-react";
 import type { Preset, PresetKind, PresetSettings } from "@/lib/bnc/presets";
 import { MAX_PRESETS } from "@/lib/bnc/presets";
 
@@ -18,7 +18,9 @@ export function PresetRow({ kind, presets, current, disabled, onApply, onChange,
   onError: (text: string) => void;
 }) {
   const mine = presets.filter((p) => p.kind === kind);
+  // naming: 새로 저장 / renaming: 고른 레시피 이름 바꾸기(v1.19)
   const [naming, setNaming] = useState(false);
+  const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState("");
   const [pick, setPick] = useState("");
   const [saving, setSaving] = useState(false);
@@ -32,6 +34,19 @@ export function PresetRow({ kind, presets, current, disabled, onApply, onChange,
       if (!res.ok) { onError(data.error ?? "레시피를 저장하지 못했습니다."); return; }
       onChange([data.item as Preset, ...presets]);
       setNaming(false); setName(""); setPick((data.item as Preset).id);
+    } catch { onError("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."); }
+    finally { setSaving(false); }
+  }
+
+  async function rename() {
+    if (!name.trim() || !pick) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/presets", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: pick, name }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { onError(data.error ?? "이름을 바꾸지 못했습니다."); return; }
+      onChange(presets.map((p) => (p.id === pick ? (data.item as Preset) : p)));
+      setRenaming(false); setName("");
     } catch { onError("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."); }
     finally { setSaving(false); }
   }
@@ -53,13 +68,20 @@ export function PresetRow({ kind, presets, current, disabled, onApply, onChange,
           {mine.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       )}
-      {pick && <button type="button" disabled={disabled} aria-label="고른 레시피 지우기" title="고른 레시피 지우기" onClick={() => void drop(pick)}><X size={13} /></button>}
-      {naming ? (
+      {pick && !renaming && (
         <>
-          <input value={name} maxLength={30} autoFocus disabled={saving} placeholder="레시피 이름 (예: 빈티지 필름 보정)" aria-label="레시피 이름"
-            onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void save(); if (e.key === "Escape") setNaming(false); }} />
-          <button type="button" className="primary" disabled={saving || !name.trim()} onClick={() => void save()}>{saving ? "저장 중…" : "저장"}</button>
-          <button type="button" disabled={saving} onClick={() => setNaming(false)}>취소</button>
+          <button type="button" disabled={disabled} aria-label="고른 레시피 이름 바꾸기" title="고른 레시피 이름 바꾸기"
+            onClick={() => { setNaming(false); setRenaming(true); setName(mine.find((p) => p.id === pick)?.name ?? ""); }}><Pencil size={13} /></button>
+          <button type="button" disabled={disabled} aria-label="고른 레시피 지우기" title="고른 레시피 지우기" onClick={() => void drop(pick)}><X size={13} /></button>
+        </>
+      )}
+      {naming || renaming ? (
+        <>
+          <input value={name} maxLength={30} autoFocus disabled={saving} placeholder="레시피 이름 (예: 빈티지 필름 보정)" aria-label={renaming ? "새 레시피 이름" : "레시피 이름"}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") void (renaming ? rename() : save()); if (e.key === "Escape") { setNaming(false); setRenaming(false); } }} />
+          <button type="button" className="primary" disabled={saving || !name.trim()} onClick={() => void (renaming ? rename() : save())}>{saving ? "저장 중…" : renaming ? "이름 바꾸기" : "저장"}</button>
+          <button type="button" disabled={saving} onClick={() => { setNaming(false); setRenaming(false); setName(""); }}>취소</button>
         </>
       ) : (
         <button type="button" disabled={disabled || presets.length >= MAX_PRESETS} title={presets.length >= MAX_PRESETS ? `레시피는 ${MAX_PRESETS}개까지 저장할 수 있습니다` : "지금 카드 설정을 레시피로 저장"}

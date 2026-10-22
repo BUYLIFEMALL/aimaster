@@ -5,15 +5,20 @@ import { FileText, Sparkles, Wand2 } from "lucide-react";
 import type { Aspect } from "@/lib/bnc/types";
 import { ASPECTS } from "@/lib/bnc/types";
 import { GRAPHIC_LANGUAGES, GRAPHIC_STYLES, GRAPHIC_TEMPLATES, JOB_CATEGORIES } from "@/lib/bnc/graphicTemplates";
+import type { GraphicPreset, Preset } from "@/lib/bnc/presets";
+import { PresetRow } from "./PresetRow";
 
 const TEXT_EXT = /\.(txt|md|json|csv)$/i;
 const MAX_FILE_CHARS = 6000;
 
-export function GraphicCard({ disabled, hasBase, onRun, onError }: {
+export function GraphicCard({ disabled, hasBase, onRun, onError, presets, onPresetsChange }: {
   disabled: boolean;
   hasBase: boolean;
   onRun: (extra: Record<string, unknown>) => void;
   onError: (r: { error: string; needKey: boolean }) => void;
+  /** v1.19 내 작업 레시피 */
+  presets: Preset[];
+  onPresetsChange: (next: Preset[]) => void;
 }) {
   const [cat, setCat] = useState("ALL");
   const [q, setQ] = useState("");
@@ -34,6 +39,13 @@ export function GraphicCard({ disabled, hasBase, onRun, onError }: {
   const tpl = GRAPHIC_TEMPLATES.find((t) => t.id === tplId) ?? GRAPHIC_TEMPLATES[0];
 
   function pick(id: string) { setTplId(id); setFields({}); }
+  // 지금 카드 값(실행할 때 보내는 값과 같은 모양) — 레시피 저장용
+  const currentFields = () => Object.fromEntries(tpl.fields.map((f) => [f.id, fields[f.id] ?? (f.options ? f.defaultValue ?? f.options[0] : "")]));
+  function applyPreset(g: GraphicPreset) {
+    setCat("ALL"); setQ(""); // 고른 템플릿이 목록에 보이게 필터를 푼다
+    setTplId(g.templateId); setFields(g.fields); setPreset(g.preset); setLangs(g.languages.length ? g.languages : ["한국어"]);
+    setExtra(g.prompt); setAspect(g.aspect); setSize(g.imageSize); setMaintain(g.maintainSubject);
+  }
 
   async function addDocs(files: FileList | null) {
     const picked = Array.from(files ?? []).filter((f) => TEXT_EXT.test(f.name)).slice(0, 3);
@@ -126,8 +138,11 @@ export function GraphicCard({ disabled, hasBase, onRun, onError }: {
         </div>
       )}
       <textarea rows={2} value={extra} maxLength={600} onChange={(e) => setExtra(e.target.value)} placeholder="추가 요청 (선택, 예: 상단에 「오픈 기념 20% 할인」 문구)" disabled={disabled} aria-label="템플릿 추가 요청" />
+      <PresetRow kind="graphic" presets={presets} onChange={onPresetsChange} disabled={disabled} onError={(text) => onError({ error: text, needKey: false })}
+        current={(): GraphicPreset => ({ templateId: tpl.id, fields: currentFields(), preset, languages: langs, prompt: extra, aspect, imageSize: size, maintainSubject: maintain })}
+        onApply={(x) => applyPreset(x as GraphicPreset)} />
       <button type="button" className="primary" disabled={disabled}
-        onClick={() => onRun({ templateId: tpl.id, fields: Object.fromEntries(tpl.fields.map((f) => [f.id, fields[f.id] ?? (f.options ? f.defaultValue ?? f.options[0] : "")])), preset: preset || undefined, languages: langs, prompt: extra, aspect, imageSize: size, maintainSubject: maintain })}>
+        onClick={() => onRun({ templateId: tpl.id, fields: currentFields(), preset: preset || undefined, languages: langs, prompt: extra, aspect, imageSize: size, maintainSubject: maintain })}>
         <Wand2 size={14} />그래픽 만들기
       </button>
     </section>

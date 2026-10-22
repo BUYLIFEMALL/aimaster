@@ -1,17 +1,23 @@
-import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle } from "./types";
+import type { Aspect, AspectOrOriginal, ComicLang, ComicStyle, ImageSize } from "./types";
 import { ASPECTS } from "./types";
 import { processById, styleById } from "./styles";
+import { graphicParams } from "./tasks";
 
 /** 「내 작업 레시피」(v1.18): 성공한 카드 설정을 이름 붙여 저장했다가 다른 사진에 다시 채운다. 실행은 회원이 직접 누른다. */
-export type PresetKind = "edit" | "restore" | "comic";
-export const PRESET_KINDS: PresetKind[] = ["edit", "restore", "comic"];
-export const PRESET_KIND_LABEL: Record<PresetKind, string> = { edit: "이미지 편집", restore: "옛 사진 복원", comic: "만화 패널" };
+// v1.19: 템플릿 그래픽 카드(템플릿·칸 값·화풍·언어·비율·해상도)도 레시피로
+export type PresetKind = "edit" | "restore" | "comic" | "graphic";
+export const PRESET_KINDS: PresetKind[] = ["edit", "restore", "comic", "graphic"];
+export const PRESET_KIND_LABEL: Record<PresetKind, string> = { edit: "이미지 편집", restore: "옛 사진 복원", comic: "만화 패널", graphic: "템플릿 그래픽" };
 export const MAX_PRESETS = 20;
 
 export interface EditPreset { processes: string[]; style: string; prompt: string; upscale: 2 | 4 }
 export interface RestorePreset { repair: boolean; colorize: boolean; upscale: 0 | 2 | 4; aspect: AspectOrOriginal; prompt: string }
 export interface ComicPreset { comicStyle: ComicStyle; comicLang: ComicLang; aspect: Aspect }
-export type PresetSettings = EditPreset | RestorePreset | ComicPreset;
+export interface GraphicPreset {
+  templateId: string; fields: Record<string, string>; preset: string; languages: string[];
+  prompt: string; aspect: Aspect; imageSize: ImageSize; maintainSubject: boolean;
+}
+export type PresetSettings = EditPreset | RestorePreset | ComicPreset | GraphicPreset;
 export interface Preset { id: string; kind: PresetKind; name: string; settings: PresetSettings }
 
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
@@ -36,6 +42,16 @@ export function cleanPresetSettings(kind: PresetKind, raw: unknown): PresetSetti
     const prompt = text(r.prompt, 600);
     if (!processes.length && !style && !prompt) return null;
     return { processes, style, prompt, upscale: r.upscale === 4 ? 4 : 2 };
+  }
+  if (kind === "graphic") {
+    // 실행 경로(cleanParams)와 같은 검사: 목록에 있는 템플릿·화풍·언어, 그 템플릿에 있는 칸만
+    const g = graphicParams(r);
+    if (!g.templateId) return null;
+    return {
+      templateId: g.templateId, fields: g.fields ?? {}, preset: g.preset ?? "", languages: g.languages ?? [],
+      prompt: text(r.prompt, 600), aspect: ASPECTS.includes(r.aspect as Aspect) ? (r.aspect as Aspect) : "1:1",
+      imageSize: g.imageSize ?? "1K", maintainSubject: g.maintainSubject !== false,
+    };
   }
   if (kind === "restore") {
     const aspect = r.aspect === "original" || ASPECTS.includes(r.aspect as Aspect) ? (r.aspect as AspectOrOriginal) : "original";

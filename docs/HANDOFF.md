@@ -174,6 +174,12 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — 바나나 캔버스 v1.19 레시피를 템플릿 그래픽까지 + 이름 바꾸기
+- 한 일: 템플릿 그래픽 설정(템플릿·칸 값·화풍·언어·비율·해상도) 레시피 저장·불러오기(서버는 실행 경로와 같은 `graphicParams` 검사), ✏️ 이름 바꾸기(`PATCH /api/presets`), v1.18 미배포 기록 상세 오류 문장 수정 함께 배포. DDL(kind 'graphic'·본인 수정 RLS) 운영 DB `esgxyikcnnvmlhygjkth` 크롬 실행 성공.
+- 검수: 시험 33개·build, 배포 `banana-canvas-j33vtzgdy` Ready, DB v1.19, 비로그인 401, 크롬(시험 회원) 저장→새로 고침→불러오기(템플릿·칸 값·9:16 복원)→이름 바꾸기→삭제, 시험 레시피 0개.
+- 다음 첫 단계: S1(4컷·웹툰 캐릭터 일관성 + 「이 컷만 다시」 방식 적용) 검토 보고, 그 뒤 F3.
+- 프로그램: https://banana-canvas.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 이미지 플랜 F2: 바나나 캔버스 v1.18 「내 작업 레시피」 + 「이 컷만 다시」
 - 한 일: 편집·옛 사진 복원·만화 카드 설정을 이름 붙여 저장·불러오기(새 표 `banana_canvas_presets`, 회원별 RLS, 20개), 연속 스토리 컷·레시피 단계를 이미지 1장만 다시 만들기(`api/run/recut`, `banana_canvas_results.busy_until` 선점으로 이중 과금 방지). DDL은 운영 DB `esgxyikcnnvmlhygjkth`에 크롬 SQL Editor로 실행(성공).
 - 검수: 시험 30개·build, 배포 `banana-canvas-bix8dl937` Ready, DB v1.18, 비로그인 401, 크롬(시험 회원) 409 안내·레시피 저장/불러오기/삭제 확인, 시험 흔적 정리. 실제 1장 생성은 미확인(시험 기록 없음).

@@ -370,7 +370,7 @@ export function Studio({ fromId, fromIndex, importUrl }: { fromId?: string; from
             </div>
           </Card>
 
-          <GraphicCard disabled={disabled} hasBase={!noBase} onRun={(extra) => void run("graphic", extra)} onError={fail} />
+          <GraphicCard disabled={disabled} hasBase={!noBase} onRun={(extra) => void run("graphic", extra)} onError={fail} presets={presets} onPresetsChange={setPresets} />
 
           <Card id="card-quick" icon="⚡" title="빠른 작업" hint="버튼 한 번으로 끝나는 변환입니다." needsImage locked={noBase}>
             <div className="bc-quick">
