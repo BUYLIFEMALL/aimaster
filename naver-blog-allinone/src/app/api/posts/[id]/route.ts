@@ -5,6 +5,7 @@ import { toSavedPost, UUID_RE } from "@/lib/blog/records";
 import type { ImageSlot } from "@/lib/blog/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { retentionCutoff } from "@/lib/blog/retention";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -18,7 +19,7 @@ export async function GET(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   if (!UUID_RE.test(id)) return NextResponse.json({ error: "글 주소가 올바르지 않습니다." }, { status: 400 });
   const supabase = await createClient();
-  const { data } = await supabase.from("aio_posts").select("*").eq("id", id).eq("user_id", gate.userId).maybeSingle();
+  const { data } = await supabase.from("aio_posts").select("*").eq("id", id).eq("user_id", gate.userId).gt("created_at", retentionCutoff()).maybeSingle(); // BC-05
   if (!data) return NextResponse.json({ error: "저장된 글을 찾을 수 없습니다." }, { status: 404 });
   return NextResponse.json({ post: toSavedPost(data) });
 }

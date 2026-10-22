@@ -3,6 +3,7 @@ import { authorize } from "@/lib/apiAccess";
 import { MAX_POSTS, sanitizePost } from "@/lib/blog/sanitize";
 import { toSavedPost, toSummary } from "@/lib/blog/records";
 import { createClient } from "@/lib/supabase/server";
+import { retentionCutoff } from "@/lib/blog/retention";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -16,6 +17,7 @@ export async function GET() {
     .from("aio_posts")
     .select("id, title, summary, article, images, settings, review_status, created_at, updated_at")
     .eq("user_id", gate.userId)
+    .gt("created_at", retentionCutoff()) // BC-05: 만든 지 30일 지난 글은 바로 숨김(Cron이 삭제)
     .order("updated_at", { ascending: false })
     .limit(MAX_POSTS);
   if (error) return NextResponse.json({ error: "보관함을 불러오지 못했습니다." }, { status: 500 });

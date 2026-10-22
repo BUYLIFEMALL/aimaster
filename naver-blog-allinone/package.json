@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test tests/blog.test.mjs"
+    "test": "node --import tsx --test tests/blog.test.mjs tests/retention.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

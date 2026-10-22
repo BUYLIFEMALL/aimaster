@@ -90,6 +90,7 @@ export function LibrarySection({ onOpen, onGoCreate }: Props) {
           <span className="p-2 rounded-xl bg-indigo-50 text-indigo-600"><Archive className="w-5 h-5" /></span>
           <div>
             <h2 className="text-base font-black text-slate-900">내 보관함</h2>
+            <p className="mt-1 text-xs text-slate-500">🗂️ 저장한 글과 이미지는 만든 날부터 30일 뒤 자동으로 삭제됩니다. 카테고리는 계속 보관됩니다.</p>
             <p className="text-xs text-slate-500">생성한 글과 이미지는 자동으로 저장됩니다. 카드를 눌러 다시 열고 편집·복사·확장 전달을 이어가세요. (최대 100개)</p>
           </div>
         </div>
