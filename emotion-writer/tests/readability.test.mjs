@@ -27,3 +27,14 @@ test("이미 충분하면 ok, 어두운 글자는 어둡기 대신 글자색 안
   assert.equal(d.recommended, null);
   assert.equal(adviseOverlay([200, 200, 200], "nope", 35), null);
 });
+
+test("v1.24 전체 ZIP 전 확인 계획", async () => {
+  const { zipOverlayPlan } = await import("../src/lib/studio/readability.ts");
+  const ok = { contrast: 6, ok: true, recommended: null, darkText: false };
+  const a = { contrast: 3, ok: false, recommended: 50, darkText: false };
+  const b = { contrast: 2.5, ok: false, recommended: 60, darkText: false };
+  const dark = { contrast: 2, ok: false, recommended: null, darkText: true };
+  assert.deepEqual(zipOverlayPlan([ok, null, ok]), { weak: 0, raiseTo: null });
+  assert.deepEqual(zipOverlayPlan([ok, a, b]), { weak: 2, raiseTo: 60 });
+  assert.deepEqual(zipOverlayPlan([dark, ok]), { weak: 1, raiseTo: null });
+});

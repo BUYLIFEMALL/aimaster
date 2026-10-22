@@ -57,3 +57,13 @@ export function adviseOverlay(bg: RGB, textHex: string, current: number, max = 7
   }
   return { contrast, ok: false, recommended: null, darkText };
 }
+
+/**
+ * v1.24: 전체 ZIP 받기 전 확인 — 대비가 부족한 크기 수와, 올려 받을 어둡기(부족한 크기들의 추천값 중 최댓값).
+ * 어둡게 해도 안 되는 크기(추천값 없음)만 있으면 raiseTo는 null
+ */
+export function zipOverlayPlan(advices: (OverlayAdvice | null)[]): { weak: number; raiseTo: number | null } {
+  const weakOnes = advices.filter((a): a is OverlayAdvice => a !== null && !a.ok);
+  const recs = weakOnes.map((a) => a.recommended).filter((r): r is number => r !== null);
+  return { weak: weakOnes.length, raiseTo: recs.length ? Math.max(...recs) : null };
+}

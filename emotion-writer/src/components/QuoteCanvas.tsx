@@ -5,7 +5,7 @@ import { renderQuote, renderQuoteAt, canvasBlob } from "@/lib/studio/render";
 import { CHANNEL_SIZES, channelFileName, channelZipNames, type ChannelSize } from "@/lib/studio/channels";
 import { createZip } from "@/lib/studio/zip";
 import { useBandColors } from "./useBandColor";
-import { adviseOverlay } from "@/lib/studio/readability";
+import { adviseOverlay, zipOverlayPlan } from "@/lib/studio/readability";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
 import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -35,6 +35,9 @@ export function QuoteCanvas({
     const bg = channelBands?.[id];
     return bg ? adviseOverlay(bg, design.color, design.overlay) : null;
   };
+  // v1.24: 전체 ZIP 전에 대비가 부족한 크기가 있으면 한 번 묻는다(화면 안 안내, 브라우저 확인창 아님)
+  const [zipAsk, setZipAsk] = useState(false);
+  const zipPlan = zipOverlayPlan(CHANNEL_SIZES.map((c) => channelAdvice(c.id)));
 
   useEffect(() => {
     if (!image || !quote) return;
@@ -121,8 +124,11 @@ export function QuoteCanvas({
   }
 
   // v1.24: 「다른 크기로 받기」 전체를 ZIP 하나로 — 공용 기준 코드 store-zip 사본(AI 재호출 없음)
-  async function downloadAllChannels() {
+  async function downloadAllChannels(overlayOverride?: number) {
     if (!ready || busy || saving) return;
+    setZipAsk(false);
+    // 「어둡기 올리고 받기」는 ZIP만 그 어둡기로 다시 그린다(화면 설정은 그대로)
+    const zipDesign = overlayOverride !== undefined ? { ...design, overlay: overlayOverride } : design;
     setSaving(true);
     setNotice("");
     try {
@@ -130,7 +136,7 @@ export function QuoteCanvas({
       const entries = [];
       for (const [i, c] of CHANNEL_SIZES.entries()) {
         const draft = document.createElement("canvas");
-        await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, design);
+        await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, zipDesign);
         const blob = await canvasBlob(draft, "jpeg");
         entries.push({ name: names.files[i], data: new Uint8Array(await blob.arrayBuffer()) });
       }
@@ -141,7 +147,7 @@ export function QuoteCanvas({
       anchor.download = names.zip;
       anchor.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setNotice(`${entries.length}가지 크기를 ZIP 하나로 저장했습니다.`);
+      setNotice(overlayOverride !== undefined ? `배경 어둡기 ${overlayOverride}%로 ${entries.length}가지 크기를 ZIP 하나로 저장했습니다(화면 설정은 그대로).` : `${entries.length}가지 크기를 ZIP 하나로 저장했습니다.`);
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "ZIP을 만들지 못했습니다.");
     } finally {
@@ -291,12 +297,24 @@ export function QuoteCanvas({
               type="button"
               className="text-xs px-3 py-1.5 inline-flex items-center gap-1.5 whitespace-nowrap font-semibold"
               disabled={busy || saving}
-              onClick={() => void downloadAllChannels()}
+              onClick={() => (zipPlan.weak > 0 ? setZipAsk(true) : void downloadAllChannels())}
               title={`${CHANNEL_SIZES.length}가지 크기를 JPG로 만들어 ZIP 하나로 저장`}
             >
               📦 전체 {CHANNEL_SIZES.length}가지 ZIP 1개로
             </button>
           </div>
+          {zipAsk && zipPlan.weak > 0 && (
+            <div className="status-note warning text-center" role="alert" data-zip-ask>
+              ⚠ {zipPlan.weak}가지 크기는 글자가 잘 안 보일 수 있습니다.
+              <span className="mt-1 flex flex-wrap justify-center gap-2">
+                <button type="button" disabled={busy || saving} onClick={() => void downloadAllChannels()}>그대로 받기</button>
+                {zipPlan.raiseTo !== null && (
+                  <button type="button" disabled={busy || saving} onClick={() => void downloadAllChannels(zipPlan.raiseTo!)}>어둡기 {zipPlan.raiseTo}%로 올리고 받기</button>
+                )}
+                <button type="button" onClick={() => setZipAsk(false)}>취소</button>
+              </span>
+            </div>
+          )}
         </div>
       )}
 
