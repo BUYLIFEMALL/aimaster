@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — `check-shared-modules.mjs --sync`는 모든 모듈을 맞추므로, 다른 세션이 고치는 중인 기준 파일(미커밋)이 그 세션 사본까지 퍼진다 (banana-idea-link 등록, Claude Code 윈도우)
+- 증상: 내 새 모듈(`banana-idea-link`)을 맞추려고 `--sync`를 돌렸더니, 다른 Claude 세션이 작업 중인 `reference-copy-guard`의 미커밋 기준(`shorts-onestop-studio/src/lib/reference.ts`) 내용이 그 세션 사본 3개(인스타·쇼츠 바이럴·유튜브 바이럴)에 함께 쓰였다.
+- 해결: 사본 3개의 HEAD 내용이 HEAD 기준과 같음(그 세션이 아직 맞추기 전)을 확인한 뒤 그 3개만 `git checkout HEAD --`로 되돌림. 다른 세션의 기준 파일은 건드리지 않음.
+- 다음부터 확인: `--sync` 직후 출력의 `SYNCED` 줄을 모두 읽고, 내 모듈이 아닌 줄이 있으면 그 폴더가 `docs/ACTIVE_WORK.md`에 있는지·기준이 미커밋인지 확인해 내 것만 남긴다(또는 새 사본은 기준 파일을 손으로 복사).
+
 ## 2026-10-22 — 「저장 번호가 다르면 막기」 충돌 확인은 다른 기능이 같은 번호를 바꾸면 정상 저장까지 막는다 · 순수 함수 파일의 확장자 없는 가져오기는 node 시험에서 깨진다 (naver-blog-seo-studio v1.93 BLC-09, Claude Code 윈도우)
 - 증상(배포 전 발견): 원고 수정 충돌 확인을 `seo_report.saveRevision` 비교로 만들었더니, 본문 이미지 생성·카테고리 변경 API도 그 번호를 바꾸는데 화면은 새 번호를 받지 않아, 이미지를 만든 뒤 글을 저장하면 「다른 창에서 저장」으로 잘못 막히는 구조였다.
 - 해결: 화면이 서버에서 받은 시점의 제목·본문(`baseTitle`·`baseBody`)을 보내 DB의 제목·본문과 비교(`app/api/drafts/[draftId]/route.ts`). 이미지·카테고리 변경은 제목·본문을 바꾸지 않아 영향 없음.

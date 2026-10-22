@@ -26,3 +26,15 @@ test("v1.24 받은 아이디어 카드로 이동·강조(움직임 줄이기 존
   const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.bc-card\.bc-flash\{animation:bcFlash/);
 });
+
+test("보낸 프로그램 이름(src) — 정해 둔 이름만", async () => {
+  const { ideaSourceName } = await import("../src/lib/bnc/ideaParam.ts");
+  assert.equal(ideaSourceName("reverse-prompt"), "리버스 프롬프트");
+  assert.equal(ideaSourceName("emotion-writer"), "감성 글귀");
+  assert.equal(ideaSourceName("style-dna-analyzer"), "이미지 스타일 분석기");
+  assert.equal(ideaSourceName("toString"), undefined);
+  assert.equal(ideaSourceName("<b>x</b>"), undefined);
+  assert.equal(ideaSourceName(["reverse-prompt"]), undefined);
+  const page = readFileSync(new URL("../src/app/(workspace)/studio/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /ideaSource=\{ideaSourceName\(src\)\}/);
+});

@@ -7,7 +7,8 @@ test("글귀 → 바나나 아이디어 주소", () => {
   assert.equal(quoteBackgroundIdea("오늘도\n  수고했어요 "), "글자 없이, 이 글귀의 분위기를 담은 감성 배경 이미지: 오늘도 수고했어요");
   const url = bananaBackgroundLink("오늘도 수고했어요");
   assert.ok(url.startsWith("https://banana-canvas.buylife.xyz/studio?idea="));
-  assert.equal(decodeURIComponent(url.split("idea=")[1]), quoteBackgroundIdea("오늘도 수고했어요"));
+  assert.equal(new URL(url).searchParams.get("idea"), quoteBackgroundIdea("오늘도 수고했어요"));
+  assert.equal(new URL(url).searchParams.get("src"), "emotion-writer");
   assert.equal(bananaBackgroundLink("가".repeat(MAX_BANANA_IDEA)), null);
   assert.equal(bananaBackgroundLink(""), null);
 });
