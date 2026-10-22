@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 음악 스튜디오 v1.06 Lyria 3.5 분위기 이미지·WAV 받기 (빌드 1회 · Lyria 1회 $0.08 · 시험 계정 본인 키)
+- 이미지 최대 4장(화면에서 1024px로 줄임, 저장 안 함), WAV 선택(`response_format.mime_type: audio/wav`). 크롬 시험 계정 실제 생성: 이미지 1장 + WAV → 19초, 11.8MB 저장.
+- 프로그램: https://ai-music-studio.buylife.xyz
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 영상 스튜디오 v1.02 1차-나 fal 최신 모델 5종 (빌드 1회 · 실생성 3회 약 $0.97 · 시험 계정 본인 fal 키)
 - 공용 `ai-video-*` 기준(ai-video-studio)에 **모델별 fal 입력 칸 규칙 `FalInputSpec`**(사진 칸·길이 형식·소리 칸·비율·해상도)과 `STUDIO_VIDEO_MODELS`(스튜디오 전용, 다른 프로그램 목록 불변)·해상도별 단가 추가 → Kling 3.0 Standard·Seedance 2.0·Veo 3.1·MiniMax H3(구 Hailuo)·Wan 3.0. 커밋 `a48b36725`, 배포 Ready, DB v1.02.
 - 검수: 스튜디오 시험 8(모델별 요청 본문)·원스톱 27·뮤직비디오 18·5개 프로그램 tsc·사본 12 일치. 실생성: Kling 3.0 5.04초 8.4MB · MiniMax H3 768P 5.18초 6.5MB · Wan 3.0 480p 5초 2.9MB 성공 / **Seedance 2.0은 실사 인물 사진 거절**(업체 안전 정책) → 쉬운 안내로 바꿈 `96423f5ec`(미배포 대기) / Veo 3.1 미시험.
