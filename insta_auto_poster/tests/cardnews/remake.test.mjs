@@ -327,6 +327,18 @@ test("AI 호출: Gemini 파일 영상은 형식과 함께 보냄", async () => {
 import { withTranscript } from "../../src/lib/cardnews/collect.ts";
 test("받아쓰기: 원문 뒤에 표시와 함께 붙이고, 비어 있으면 그대로", () => {
   assert.equal(withTranscript("본문", "  "), "본문");
-  assert.equal(withTranscript("본문", " 안녕하세요 "), ["본문", "", "[릴스 말소리 받아쓰기 — 영상에서 실제로 말한 내용]", "안녕하세요"].join("\n"));
+  assert.equal(withTranscript("본문", " 안녕하세요 "), ["본문", "", "[릴스 말소리 받아쓰기 — 영상에서 실제로 말한 내용]", "▶ 후킹(첫 문장 — 표지 카피 참고): 안녕하세요"].join("\n"));
   assert.equal(withTranscript("a".repeat(11990), "b".repeat(100)).length, 12000, "원문 칸 한도 12000자");
+});
+
+// ── v1.56 받아쓰기 후킹·본문·마무리 ──
+import { splitTranscript } from "../../src/lib/cardnews/collect.ts";
+test("받아쓰기 나누기: 첫 문장 후킹·가운데 본문·마지막 문장 마무리", () => {
+  assert.deepEqual(splitTranscript(""), { hook: "", body: "", ending: "" });
+  assert.deepEqual(splitTranscript("하나뿐이에요"), { hook: "하나뿐이에요", body: "", ending: "" });
+  assert.deepEqual(splitTranscript("아직도 S&P500만 사요? 첫 번째, SCHD. 두 번째, SPMO.\n세 번째, SMH! 팔로우하세요~"),
+    { hook: "아직도 S&P500만 사요?", body: "첫 번째, SCHD. 두 번째, SPMO. 세 번째, SMH!", ending: "팔로우하세요~" });
+  const t = withTranscript("캡션", "후킹입니다. 가운데. 끝입니다.");
+  assert.ok(t.startsWith("캡션\n\n[릴스 말소리"), "캡션이 위");
+  assert.ok(t.includes("▶ 후킹(첫 문장 — 표지 카피 참고): 후킹입니다.") && t.includes("▶ 본문: 가운데.") && t.includes("▶ 마무리(마지막 문장 — 행동 유도 참고): 끝입니다."));
 });

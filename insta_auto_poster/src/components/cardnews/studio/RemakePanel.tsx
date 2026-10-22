@@ -222,6 +222,25 @@ export function RemakePanel() {
         </div>
       </div>
 
+      {/* v1.56 재료 배지 — 분석 전에 무엇이 들어갔는지 한눈에 */}
+      {hasInput && (
+        <div className="flex flex-wrap items-center gap-1.5" aria-label="분석에 들어갈 재료">
+          <span className="text-[11px] text-slate-400">분석 재료</span>
+          {[
+            remake.sourceText.trim() && !remake.sourceText.includes("[릴스 말소리 받아쓰기") ? `📝 원문 ${remake.sourceText.trim().length.toLocaleString("ko-KR")}자` : "",
+            remake.sourceText.includes("[릴스 말소리 받아쓰기") ? `📝 원문 ${remake.sourceText.split("\n\n[릴스 말소리 받아쓰기")[0].trim().length.toLocaleString("ko-KR")}자` : "",
+            remake.sourceText.includes("[릴스 말소리 받아쓰기") ? "🎙 받아쓰기(후킹·본문·마무리)" : "",
+            remake.sourceUrl.trim() ? "🔗 주소" : "",
+            images.length ? `🖼 캡처 ${images.length}장` : "",
+            reel ? `🎞 릴스 장면 ${reel.frames.length}장` : "",
+            reel?.audio ? (isGemini ? `🔊 소리 ${reel.audio.seconds}초` : "🔇 소리 제외(Gemini 아님)") : "",
+            geminiFile ? (isGemini ? "🎬 영상 첨부" : "🎬 영상 첨부(Gemini에서만)") : "",
+          ].filter(Boolean).map((b) => (
+            <span key={b} className="whitespace-nowrap rounded-full border border-[#262c3d] bg-[#0d0f17] px-2 py-0.5 text-[11px] text-slate-200">{b}</span>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" onClick={() => void analyze()} disabled={loading || !hasInput || !project.plan.category.trim() || !engineReady} className={BTN_PRIMARY}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Flame className="h-4 w-4" />} {analysis ? "다시 분석" : "떡상 분석"}

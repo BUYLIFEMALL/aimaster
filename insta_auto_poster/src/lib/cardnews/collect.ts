@@ -153,5 +153,19 @@ export function isGeminiFileRef(v: unknown): v is { name: string; uri: string; m
 export function withTranscript(text: string, transcript: string): string {
   const t = transcript.trim();
   if (!t) return text;
-  return `${text}\n\n[릴스 말소리 받아쓰기 — 영상에서 실제로 말한 내용]\n${t}`.slice(0, 12000);
+  // v1.56 후킹(첫 문장)·본문·마무리(마지막 문장)로 나눠 넣는다 — 캡션은 위에 그대로, 표지 카피·장 구성 잡기 쉽게
+  const { hook, body, ending } = splitTranscript(t);
+  const parts = [`▶ 후킹(첫 문장 — 표지 카피 참고): ${hook}`];
+  if (body) parts.push(`▶ 본문: ${body}`);
+  if (ending) parts.push(`▶ 마무리(마지막 문장 — 행동 유도 참고): ${ending}`);
+  return `${text}\n\n[릴스 말소리 받아쓰기 — 영상에서 실제로 말한 내용]\n${parts.join("\n")}`.slice(0, 12000);
+}
+
+/** v1.56 받아쓰기를 문장 단위로 나눠 첫 문장(후킹)·가운데(본문)·마지막 문장(마무리)으로. AI 없이 문장 부호·줄바꿈 기준 */
+export function splitTranscript(transcript: string): { hook: string; body: string; ending: string } {
+  const sentences = transcript.replace(/\s+/g, " ").trim().split(/(?<=[.!?。…~])\s+/).map((s) => s.trim()).filter(Boolean);
+  if (sentences.length === 0) return { hook: "", body: "", ending: "" };
+  if (sentences.length === 1) return { hook: sentences[0], body: "", ending: "" };
+  if (sentences.length === 2) return { hook: sentences[0], body: "", ending: sentences[1] };
+  return { hook: sentences[0], body: sentences.slice(1, -1).join(" "), ending: sentences[sentences.length - 1] };
 }
