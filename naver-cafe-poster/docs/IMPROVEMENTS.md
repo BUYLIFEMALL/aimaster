@@ -53,3 +53,4 @@
 - 근거: v1.21 작업 중 `src/lib/scheduledSource/dispatch.ts`(예전 `generate-and-post`)를 보니 핸드폰 번호만 확인하고 `checkProgramAccess`(구독·사용기간)는 확인하지 않는다 → 사용기간이 끝난 회원의 켜 둔 정기 실행이 계속 돌 수 있다(카드뉴스 `dispatchDuePosts`는 예약 시각에 권한을 확인함).
 - 제안: 실행 직전 `checkProgramAccess`로 확인하고, 권한이 없으면 실행하지 않고 `last_error`에 안내를 남긴다. 카카오(`kakao_auto_poster`)도 같은 구조 — 함께 처리 권장.
 - 다음 첫 단계: 사용기간이 끝난 회원의 정기 소스 수를 DB로 먼저 세어 영향 범위를 확인한 뒤 플랜 보고.
+- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)

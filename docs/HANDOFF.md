@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 좌측 메뉴 계정·로그아웃 위치 18곳 수정 (**미배포 대기**, 빌드 0회)
+- 코드상 의심 22곳 점검 → `detail-page-12p`는 문제없음, 다른 세션 작업 중인 `cinematic-storyboard-studio`·`image-convert-studio`·`video-to-gif` 제외, 18곳 수정(커밋 `22c6cda35`, 클래스만, tsc 18개 통과). 각 프로그램 다음 배포 때 함께 — 목록 `docs/PENDING_DEPLOYS.md`. 기준: YOUTUBE Shots v1.38(실화면 확인).
+- 함께 점검: 크론 있는 34개 프로그램 모두 운영 `CRON_SECRET` 등록 확인(빠진 곳 없음).
+
 ## 2026-10-23 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.37: 30일 정리 기록 + 출처 띠 모양 배포 (빌드 1회)
 - 정리 작업이 회원별 `usage_logs` `cleanup_expired` 기록(메인 관리자 표 합산). 미배포 대기였던 띠 모양 함께 배포(`docs/PENDING_DEPLOYS.md` 내보낸 기록). 375px에서 띠 확인. 상세 `shorts-onestop-studio/AGENTS.md` v1.37.
 - 프로그램: https://shorts-onestop-studio.buylife.xyz

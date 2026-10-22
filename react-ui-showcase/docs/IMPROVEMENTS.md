@@ -33,3 +33,4 @@
 
 ## 2026-10-21 병합 D
 - [x] 기능 전체를 UI Canvas 「🧩 컴포넌트 갤러리」로 이전(v1.06). 이 폴더의 이후 개선 제안은 `ui-canvas/docs/IMPROVEMENTS.md`에 적습니다.
+- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)

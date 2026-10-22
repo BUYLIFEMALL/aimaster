@@ -33,3 +33,4 @@ F-008: 예약 알림의 선점 전 발송·실패 재시도 누락, F-009: 예�
 ## 2026-10-20 v1.21 처리·발견 (Claude Code 윈도우)
 - ✅ F-008(선점 전 발송) 해결 — 발송 전 `booking_reminder_sends` 선점. ✅ F-010(Cron 회원 자격 재확인) 해결 — 실행 직전 이용 권한 확인. ✅ F-011(Cron 비밀값 빈 값) 해결. 상세 `AGENTS.md` v1.21. F-009(시간대)는 미처리.
 - 🆕 발견(미수정, 다음 배포 때): 규칙 「켜기」가 실패(「내 cron-job.org」인데 키 없음 등)하면 서버가 규칙을 다시 끄고 안내를 돌려주지만 `components/reservations/ReminderRulesSection.tsx` `handleToggle`이 결과를 버려 화면에 안내가 안 보인다. crm-google-form v1.10에서 같은 문제를 고친 방식(`toggleError` 상태 + 규칙 줄 아래 문구) 그대로 옮기면 된다.
+- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)

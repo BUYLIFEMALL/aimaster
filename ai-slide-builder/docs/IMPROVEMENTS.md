@@ -35,3 +35,4 @@
    - 슬라이드 내 각 장표의 헤드라인과 요약 카피를 `ai-writing-editor` 엔진으로 보내 설득력 높은 비즈니스 문장으로 정밀 윤문.
 3. **76번 `thumbnail-master` / 80번 `banana-canvas`와의 연계**:
    - 슬라이드 표지(`title`) 배경 그래픽이나 장표 삽화 이미지를 `banana-canvas` 및 `thumbnail-master` 툴에서 생성하여 직접 삽입.
+- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)

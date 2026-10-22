@@ -47,3 +47,4 @@
 
 - (2026-10-22, Claude Code) 「스플릿 비교 뷰어」 v1.28로 구현·배포 완료(`src/components/dna/CompareSlider.tsx`). 남은 제안: 비교 상자 안 같은 자리의 색(HEX)을 선 위치에서 바로 보여 주는 「색 집게」, 세로 분할 전환.
 - (2026-10-22, Claude Code) 색 집게·결과 화면 접기 v1.30 완료. 남은 제안: 세로 분할 전환, 색 집게 위치를 여러 개 찍어 평균 차이를 내는 「점검 지점 저장」.
+- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
