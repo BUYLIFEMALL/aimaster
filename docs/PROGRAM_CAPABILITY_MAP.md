@@ -103,6 +103,7 @@
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.06 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
 | 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.09 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
 | 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | 마케팅(홍보) | v1.08 | 운영(2026-10-21 신규) | 인스타 댓글·DM·쓰레드·유튜브 댓글의 검토 대기 항목을 한곳에 급한 순으로 모아 고쳐서 바로 승인·게시 |
+| 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.01 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
 
 ## 0. 이 문서를 쓰는 방법
 1. **새 프로그램 기획 전**: §3 분야 묶음에서 비슷한 프로그램을 찾고, §4 카드의 장점·단점을 읽는다. 「기존 A의 장점 + B의 장점 − A·B의 단점」으로 기획안을 쓰고, 보고할 때 어떤 프로그램에서 무엇을 가져왔는지 밝힌다.
@@ -175,7 +176,7 @@
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
 | Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply(댓글·DM 응대 — 2026-10-20 instagram-dm-reply 병합) | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
 | 유튜브 | youtube-viral-studio(YOUTUBE 트렌드 분석 — 떡상 발굴 + 채널·키워드 진단, 2026-10-20 youtube-channel-consultant 병합) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(AI 썸네일·SEO 자동화 — A/B 썸네일 + SEO 전략, 2026-10-20 seo-thumbnail-pro 병합) · (병합됨: seo-thumbnail-pro 메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
-| 음악 | music-automation(정밀 기획 + Suno V6 실제 생성, 2026-10-21 suno-music-studio 병합) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
+| 음악 | ai-music-studio(여러 음악 AI 생성·비교, 음악 모델 레퍼런스, 2026-10-23) · music-automation(정밀 기획 + Suno V6 실제 생성, 2026-10-21 suno-music-studio 병합) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
 | 상세페이지 | shop-detail-page(사진·사양서 분석 → 15섹션·쿠팡 12단·스토어 9단 이미지 + HTML 내보내기, 2026-10-21 detail-page-12p·auto-detail-page 병합) | 사진 분석 + 스펙 자동 채우기 + 이미지형·HTML형 동시 출력 |
@@ -907,6 +908,17 @@
 - **활용 용도**: 플레이리스트 영상을 올리는 유튜버(편집 툴 없이 영상화·음악에 맞춘 화면) · 긴 영상을 정리하는 분(시청 편의 향상·설명란 작성 단축) · 채널 분위기를 꾸밀 분(채널 정체성·여러 스타일 선택)
 - **단점·한계**: 긴 렌더링은 브라우저를 켜 둬야 함 · 음악 저작권은 회원 책임
 - **키·계정·주의**: AI 배경 생성에만 회원 본인의 Gemini API 키를 씁니다. 음악 파일의 저작권은 직접 확인하세요.
+
+#### AI 음악 스튜디오 (`ai-music-studio`)
+- 주소·폴더: https://ai-music-studio.buylife.xyz · `ai-music-studio/` · v1.01 (2026-10-23 신규, **음악 모델 연동의 레퍼런스 프로그램** — 이미지의 ai-image-studio와 같은 역할)
+- **차별점**: Suno 하나에 묶이지 않고 공식 API 음악 모델(Google Lyria·ElevenLabs·fal·Replicate)과 Suno를 한 화면에서 골라, 같은 설명으로 최대 3개 모델을 나란히 들어 비교합니다.
+- **기능**: 모델 카드 11개(보컬 여부·길이·대략 비용·상업 조건 표시)에서 골라 보컬곡·연주곡을 만듭니다. / AI 가사 쓰기(본인 Gemini 또는 OpenAI)로 [Verse]·[Chorus] 가사를 받아 고칩니다. / 모델 비교로 2~3개 모델 동시 생성, 결과는 비공개 보관함에 30일 보관·서명 주소 재생·영문 파일명 내려받기.
+- **장점**: 여러 음악 AI 한곳에 · 나란히 비교 · 만들기 전 예상 비용 · 웹훅 없이 상태 조회 방식(콜백 위조 걱정 없음)
+- **사용 순서**: 1 키 연결 → 2 곡 설명·가사 → 3 모델 고르고 만들기(또는 비교) → 4 보관함
+- **활용 용도**: 영상 배경음악이 필요한 크리에이터(연주곡 길이 지정·모델별 비용 비교) · AI로 노래를 만드는 분(같은 가사로 여러 모델) · 음악 AI를 비교해 고르려는 분(모델 카드 한눈에)
+- **단점·한계**: 비용은 공개 가격 기반 대략값 · ElevenLabs 작곡 계획·Lyria 실시간·Mureka·Suno 연장 등 고급 기능 없음(Suno 고급은 음악(SUNO)자동화) · 화면을 닫으면 대기열형 곡은 다음 방문 때 완료 처리 · 다른 프로그램 보내기 미구현
+- **재사용 부품**: 공급자 어댑터 `lib/providers/adapters/{gemini,elevenlabs,fal,replicate,suno}.ts`(다른 프로그램 배경음악 생성 공용화 후보), Suno는 `music/lib/ai/suno.ts` 공용 사본(`suno-api-client`)
+- **키·계정·주의**: 회원 본인 Gemini·ElevenLabs·sunoapi.org·fal·Replicate 키(가사 쓰기 선택 OpenAI). 비용은 본인 계정 청구.
 
 #### AI Audio분석 자동화 (`ai-audio-analyzer`)
 - 주소·폴더: https://audio.buylife.xyz · `ai-audio-analyzer/` · v1.11 · FREE (2026-10-21 v1.11: 모든 API 이용 권한 확인, 브라우저 → Gemini 파일 저장소 직접 업로드로 100MB까지)

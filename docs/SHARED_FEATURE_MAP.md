@@ -173,6 +173,16 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 
 주의: 해시태그 수집기는 `keywordSearch: true`를 켜야 한글 해시태그가 나오고 반응 좋은 글이 온다(끄면 `#재테크` 빈 결과·영문도 최신 글 — 2026-10-22 실측, INSTA v1.53). Apify는 공식 API가 아니므로 화면에 「공개 게시물만·본인 책임」 안내를 함께 둔다. 릴스 영상 분석(v1.54)은 서버가 영상을 잠깐 받아 회원 본인 Gemini Files API에 올리고 분석 뒤 바로 지운다(`insta_auto_poster/src/lib/cardnews/ai/geminiFiles.ts` — 다른 프로그램의 「영상 레퍼런스 분석」에도 사본 후보).
 
+## 15. AI 음악 생성 호출 — 기준 프로그램 ai-music-studio (2026-10-23 등록)
+
+음악 생성 모델·엔드포인트·호출 방식·대기(상태 조회)·결과 받아오기의 기준은 **ai-music-studio `lib/providers/`**(이미지의 ai-image-studio와 같은 역할). 음악을 만드는 다른 프로그램(쇼츠 배경음악, 뮤직비디오 등)을 고치거나 새로 만들 때 이 어댑터를 먼저 본다. 프롬프트·가사 지시문은 프로그램마다 고유하게 둔다.
+
+| 위치 | 파일 | 상태 |
+|---|---|---|
+| 기준 | ai-music-studio `lib/providers/catalog.ts`(모델 목록) · `adapters/{gemini,elevenlabs,fal,replicate,suno}.ts` · `lib/generations.ts`(접수→상태 조회→저장, 잠금·이중 과금 방지) | 🟢 v1.01 — 5곳 실제 생성 검수(2026-10-23) |
+| Suno 사본 | `ai-music-studio/lib/ai/suno.ts` ← 기준 `music/lib/ai/suno.ts`(공용 모듈 `suno-api-client`) | 🟢 일치 |
+| 아직 각자 구현 | `music/`(Suno 전용 — 유지), `auto-shorts-posting`·`music-video-studio` 등의 배경음악 Suno 호출 | ⚪ 공용화 후보(어댑터 사본화는 다음 작업) |
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |

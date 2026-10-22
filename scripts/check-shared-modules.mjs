@@ -280,6 +280,13 @@ const MODULES = [
     copies: ["playlist-channel-studio/src/lib/lyrics.ts"],
   },
   {
+    // sunoapi.org Suno 연동(생성·연장·상태 조회·크레딧 등). 2026-10-23 등록 — AI 음악 스튜디오가 음악(SUNO)자동화 코드를 그대로 씀(주인님 결정).
+    // 콜백 주소(SUNO_CALLBACK_ORIGIN)는 음악(SUNO)자동화 주소로 고정 — 사본 프로그램은 콜백 대신 상태 조회로 결과를 받는다.
+    id: "suno-api-client",
+    source: "music/lib/ai/suno.ts",
+    copies: ["ai-music-studio/lib/ai/suno.ts"],
+  },
+  {
     // Suno 시간 가사(get-timestamped-lyrics의 alignedWords) → 줄 단위 가사 시간표. 2026-10-21 등록 — 가사영상 곡 가져오기·플레이리스트 여러 곡 가져오기
     id: "suno-timed-lyrics",
     source: "lyric-video-studio/src/lib/sunoAlign.ts",
@@ -351,6 +358,7 @@ const MODULES = [
       "trending-product-finder/lib/cleanupUsageLog.ts",
       "youtube-auto-reply/lib/cleanupUsageLog.ts",
       "threads/src/lib/cleanupUsageLog.ts",
+      "ai-music-studio/lib/cleanupUsageLog.ts",
     ],
   },
   {

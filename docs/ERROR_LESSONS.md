@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+
+## 2026-10-23 — Supabase SQL 편집기 `/sql/new` 주소가 다른 세션이 남긴 「삭제(DELETE) 쿼리 탭」을 열어 둠 (AI 음악 스튜디오 v1.01, Claude Code 윈도우)
+- 증상: 운영 DB 마이그레이션을 하려고 `/sql/new`로 들어갔는데, 편집기가 다른 세션이 쓰던 `delete from public.booking_reservations …` 쿼리 탭으로 열렸다(실행하지 않음).
+- 원인: SQL 편집기는 마지막으로 열린 탭을 다시 보여 준다. 그대로 Ctrl+Enter를 누르면 남의 삭제 쿼리가 운영 DB에서 실행될 수 있다.
+- 해결: 편집기 안의 「+」로 **새 쿼리 탭**을 연 뒤, `monaco.editor.getEditors()[0].getModel().getValue()`가 빈 값인지 확인하고 내 SQL을 넣었다. 남의 탭은 지우거나 덮어쓰지 않았고, 저장 안 된 내 탭이 있어 다른 주소로 못 넘어가면 새 브라우저 탭을 열었다(강제 이동은 남의 탭 상태까지 날릴 수 있음).
+- 다음부터: SQL 실행 전 반드시 ① 새 쿼리 탭 ② 편집기 내용이 내 SQL뿐인지 확인 ③ 「Potential issue detected」 경고가 뜨면 어떤 문장 때문인지 확인 후 실행.
 ## 2026-10-23 — Git Bash에서 `vercel crons run /api/…`가 「Cron job with path C:/Program Files/Git/api/… not found」 (threads v1.30, Claude Code 윈도우)
 - 증상: 등록된 자동 실행을 바로 한 번 돌리려고 `vercel crons run /api/cleanup-images`를 실행하자 경로를 못 찾음(`vercel crons ls`에는 있음).
 - 원인: Git Bash(MSYS)가 `/`로 시작하는 인자를 윈도우 경로로 바꿔 Vercel에 `C:/Program Files/Git/api/…`가 전달됨.
