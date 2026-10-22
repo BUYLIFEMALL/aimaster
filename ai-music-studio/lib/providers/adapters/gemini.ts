@@ -35,10 +35,16 @@ export const geminiAdapter: ProviderAdapter = {
   synchronous: true,
   async start(model, input, apiKey) {
     const text = composePrompt(input, { withLyrics: true, withDuration: model.durationControl });
+    // v1.06 이미지(최대 MAX_IMAGES장)가 있으면 input을 텍스트+이미지 묶음으로, WAV를 고르면 response_format.mime_type(API 참조 AudioResponseFormat)
+    const images = model.imageInput ? (input.images ?? []) : [];
+    const payloadInput = images.length
+      ? [{ type: "text", text: text.slice(0, 8000) }, ...images.map((im) => ({ type: "image", mime_type: im.mimeType, data: im.data }))]
+      : text.slice(0, 8000);
+    const responseFormat = model.wavOutput && input.format === "wav" ? { type: "audio", mime_type: "audio/wav" } : { type: "audio" };
     const res = await fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({ model: model.model, input: text.slice(0, 8000), response_format: { type: "audio" } }),
+      body: JSON.stringify({ model: model.model, input: payloadInput, response_format: responseFormat }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
       cache: "no-store",
     });
@@ -52,12 +58,12 @@ export const geminiAdapter: ProviderAdapter = {
       .map((p) => p.text)
       .join("\n")
       .trim();
-    const mime = audio.mime_type || audio.mimeType || "audio/mpeg";
+    const mime = audio.mime_type || audio.mimeType || (input.format === "wav" ? "audio/wav" : "audio/mpeg");
     return {
       kind: "done",
       files: [{ data: new Uint8Array(Buffer.from(audio.data, "base64")), contentType: mime }],
       lyricsOut: lyricsOut || undefined,
-      actual: `정액 ${model.model === "lyria-3-clip-preview" ? "$0.04(30초)" : "$0.08(1곡)"} — Gemini API 가격표`,
+      actual: `정액 ${model.model === "lyria-3-clip-preview" ? "$0.04(30초)" : "$0.08(1곡)"} — Gemini API 가격표${images.length ? ` · 이미지 ${images.length}장` : ""}${input.format === "wav" && model.wavOutput ? " · WAV" : ""}`,
     };
   },
 };

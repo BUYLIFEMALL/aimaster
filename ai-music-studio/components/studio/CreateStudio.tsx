@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Check, KeyRound, Loader2, Mic, Music2, Sparkles, Wand2 } from "lucide-react";
-import { MAX_COMPARE, MODELS, PROVIDERS, clampDuration, validateForModel, type MusicModel } from "@/lib/providers/catalog";
+import { MAX_COMPARE, MAX_IMAGES, MODELS, PROVIDERS, clampDuration, validateForModel, type InputImage, type MusicModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { GenerationCard } from "./GenerationCard";
 
@@ -19,6 +19,23 @@ const LANGUAGES = [
 ];
 
 type Mode = "single" | "compare";
+type PickedImage = InputImage & { preview: string; name: string };
+
+/** v1.06 사진을 긴 변 1024px JPEG로 줄인다(요청 본문 한도 안에 맞추기 — 원본은 서버로 보내지 않음) */
+async function shrinkImage(file: File): Promise<PickedImage> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error("이미지를 읽지 못했습니다.")); i.src = url; });
+    const scale = Math.min(1, 1024 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
+    c.getContext("2d")?.drawImage(img, 0, 0, c.width, c.height);
+    const dataUrl = c.toDataURL("image/jpeg", 0.85);
+    return { mimeType: "image/jpeg", data: dataUrl.split(",")[1] ?? "", preview: dataUrl, name: file.name };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 
 // v1.05 처음에는 추천 3개(+이미 고른 모델)만 보여 주고 「모델 모두 보기」로 펼친다
 const RECOMMENDED = ["gemini:lyria-3.5", "elevenlabs:music_v2_5", "suno:V6"];
@@ -79,6 +96,8 @@ export function CreateStudio({ mode }: { mode: Mode }) {
   const [error, setError] = useState<{ text: string; keys?: boolean } | null>(null);
   const [results, setResults] = useState<ClientGeneration[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const [images, setImages] = useState<PickedImage[]>([]);
+  const [format, setFormat] = useState<"mp3" | "wav">("mp3");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -94,6 +113,20 @@ export function CreateStudio({ mode }: { mode: Mode }) {
   const anyDuration = chosen.some((m) => m.durationControl);
   const maxDuration = Math.max(30, ...chosen.filter((m) => m.durationControl).map((m) => m.maxDurationS));
   const totalCost = chosen.reduce((sum, m) => sum + m.estCostUsd(clampDuration(m, durationS)), 0);
+  const imageModel = chosen.find((m) => m.imageInput);
+  const wavModel = chosen.find((m) => m.wavOutput);
+
+  async function addImages(files: FileList | null) {
+    if (!files?.length) return;
+    setError(null);
+    const room = MAX_IMAGES - images.length;
+    const picked: PickedImage[] = [];
+    for (const f of Array.from(files).slice(0, Math.max(0, room))) {
+      if (!/^image\/(jpeg|png|webp)$/.test(f.type)) { setError({ text: "JPG·PNG·WEBP 이미지만 넣을 수 있습니다." }); continue; }
+      try { picked.push(await shrinkImage(f)); } catch { setError({ text: `「${f.name}」을 읽지 못했습니다.` }); }
+    }
+    setImages((prev) => [...prev, ...picked].slice(0, MAX_IMAGES));
+  }
 
   function toggle(key: string) {
     setError(null);
@@ -159,7 +192,7 @@ export function CreateStudio({ mode }: { mode: Mode }) {
       const res = await fetch("/api/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ models: selected, prompt, title, lyrics, instrumental, language, durationS }),
+        body: JSON.stringify({ models: selected, prompt, title, lyrics, instrumental, language, durationS, format: wavModel ? format : "mp3", images: imageModel ? images.map(({ mimeType, data }) => ({ mimeType, data })) : [] }),
       });
       const data = await res.json();
       if (!res.ok) throw Object.assign(new Error(data.error || "생성을 시작하지 못했습니다."), { keys: !!data.missingKeys });
@@ -255,6 +288,47 @@ export function CreateStudio({ mode }: { mode: Mode }) {
               onChange={(e) => setDurationS(Number(e.target.value))} className="h-6 w-full accent-violet-500 disabled:opacity-40" />
           </div>
         </div>
+
+        {(imageModel || wavModel) && (
+          <div className="grid grid-cols-1 gap-3 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 sm:grid-cols-2">
+            {imageModel && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-zinc-200">🖼️ 분위기 이미지 (선택, 최대 {MAX_IMAGES}장 · {imageModel.name}만 사용)</p>
+                <div className="flex flex-wrap gap-2">
+                  {images.map((im, n) => (
+                    <div key={n} className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={im.preview} alt={im.name} className="h-16 w-16 rounded-lg object-cover" />
+                      <button type="button" onClick={() => setImages((prev) => prev.filter((_, k) => k !== n))} aria-label={`${im.name} 빼기`}
+                        className="absolute -right-1 -top-1 rounded-full bg-zinc-900 px-1.5 text-xs text-zinc-300 hover:text-red-300">×</button>
+                    </div>
+                  ))}
+                  {images.length < MAX_IMAGES && (
+                    <label className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-lg border border-dashed border-zinc-600 text-xl text-zinc-400 hover:border-violet-400">
+                      +
+                      <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={(e) => { void addImages(e.target.files); e.target.value = ""; }} />
+                    </label>
+                  )}
+                </div>
+                <p className="text-[11px] text-zinc-500">사진의 분위기·색감으로 곡을 만듭니다. 사진은 저장하지 않고 이번 생성에만 씁니다.</p>
+              </div>
+            )}
+            {wavModel && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-zinc-200">💾 받을 파일 형식 ({wavModel.name})</p>
+                <div className="flex gap-2" role="group" aria-label="파일 형식">
+                  {(["mp3", "wav"] as const).map((f) => (
+                    <button key={f} type="button" onClick={() => setFormat(f)} aria-pressed={format === f}
+                      className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-bold ${format === f ? "border-violet-500/50 bg-violet-500/15 text-violet-200" : "border-zinc-700 text-zinc-400"}`}>
+                      {f === "mp3" ? "MP3 (가벼움)" : "WAV (고음질·마스터링용)"}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-zinc-500">WAV는 2분 곡이 약 20MB로 큽니다. 가격은 같습니다.</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {!instrumental && (
           <div className="space-y-2">

@@ -94,6 +94,10 @@ export interface MusicModel {
   /** 예상 비용(달러, 대략) */
   estCostUsd: (durationS: number) => number;
   commercial: string;
+  /** v1.06 분위기 이미지로 작곡(최대 MAX_IMAGES장) */
+  imageInput?: boolean;
+  /** v1.06 WAV(고음질)로 받기 선택 */
+  wavOutput?: boolean;
 }
 
 export const MODELS: MusicModel[] = [
@@ -114,6 +118,8 @@ export const MODELS: MusicModel[] = [
     costNote: "곡당 약 $0.08",
     estCostUsd: () => 0.08,
     commercial: "Gemini 유료 API 출력, SynthID 워터마크 포함",
+    imageInput: true,
+    wavOutput: true,
   },
   {
     key: "gemini:lyria-3-clip-preview",
@@ -302,6 +308,14 @@ export const MODELS: MusicModel[] = [
 ];
 
 export const MAX_COMPARE = 3;
+/** 요청 본문 한도(Vercel 4.5MB) 안에 맞추려고 공식 한도(10장)보다 적게 받는다 — 화면에서 1024px JPEG로 줄여 보냄 */
+export const MAX_IMAGES = 4;
+
+export interface InputImage {
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
+  /** base64(접두어 없음) */
+  data: string;
+}
 
 export function findModel(key: string): MusicModel | undefined {
   return MODELS.find((m) => m.key === key);
@@ -321,6 +335,10 @@ export interface GenerationInput {
   instrumental: boolean;
   durationS: number;
   language: string;
+  /** v1.06 Lyria 3.5 전용 — 저장하지 않고 생성 요청에만 씀 */
+  images?: InputImage[];
+  /** v1.06 Lyria 3.5 전용 */
+  format?: "mp3" | "wav";
 }
 
 /** 이 모델로 보낼 수 있는 입력인지(안 되면 회원에게 보여 줄 이유) */

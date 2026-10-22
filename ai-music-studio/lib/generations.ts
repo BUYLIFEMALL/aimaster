@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { findModel, type GenerationInput, type MusicModel, type ProviderId } from "@/lib/providers/catalog";
+import { findModel, type GenerationInput, type InputImage, type MusicModel, type ProviderId } from "@/lib/providers/catalog";
 import type { AudioFile, ProviderAdapter } from "@/lib/providers/types";
 import { geminiAdapter } from "@/lib/providers/adapters/gemini";
 import { elevenlabsAdapter } from "@/lib/providers/adapters/elevenlabs";
@@ -45,6 +45,7 @@ export function inputOf(row: GenerationRow): GenerationInput {
     instrumental: row.instrumental,
     durationS: row.duration_s ?? 120,
     language: String(row.options?.language ?? "auto"),
+    format: row.options?.format === "wav" ? "wav" : "mp3",
   };
 }
 
@@ -128,12 +129,13 @@ async function complete(admin: Admin, row: GenerationRow, files: AudioFile[], ly
 }
 
 /** 요청 안에서 끝나는 공급자(Gemini·ElevenLabs) — 응답을 돌려준 뒤(waitUntil) 기다려 저장한다 */
-export async function runSynchronous(admin: Admin, row: GenerationRow, apiKey: string) {
+/** images: v1.06 분위기 이미지(저장하지 않고 이 요청에서만 전달) */
+export async function runSynchronous(admin: Admin, row: GenerationRow, apiKey: string, images?: InputImage[]) {
   const model = modelOf(row);
   if (!model) return markFailed(admin, row.id, "지원하지 않는 모델입니다.");
   if (!(await claimLock(admin, row.id, SYNC_TIMEOUT_MS))) return;
   try {
-    const r = await adapterOf(row.provider).start(model, inputOf(row), apiKey);
+    const r = await adapterOf(row.provider).start(model, { ...inputOf(row), images }, apiKey);
     if (r.kind !== "done") throw new Error("예상하지 못한 응답입니다.");
     await complete(admin, row, r.files, r.lyricsOut, r.actual);
   } catch (e) {

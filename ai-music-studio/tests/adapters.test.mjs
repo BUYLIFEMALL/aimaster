@@ -127,3 +127,22 @@ test("ElevenLabs: 가사에 구간 표시가 있으면 작곡 계획(composition
   assert.equal(calls[0].body.composition_plan.chunks[0].text, "[Verse]\n창밖에 비\n두 번째 줄");
   assert.match(r.actual, /작곡 계획 2구간/);
 });
+
+test("Lyria 3.5: 이미지가 있으면 input을 텍스트+이미지 묶음으로, WAV면 response_format.mime_type (v1.06)", async () => {
+  const audio = Buffer.from("RIFFfake").toString("base64");
+  const calls = mockFetch(() => json({ steps: [{ type: "model_output", content: [{ type: "audio", data: audio, mime_type: "audio/wav" }] }] }));
+  const r = await geminiAdapter.start(findModel("gemini:lyria-3.5"), { ...input, format: "wav", images: [{ mimeType: "image/jpeg", data: "AAAA" }] }, "K");
+  assert.ok(Array.isArray(calls[0].body.input));
+  assert.equal(calls[0].body.input[0].type, "text");
+  assert.deepEqual(calls[0].body.input[1], { type: "image", mime_type: "image/jpeg", data: "AAAA" });
+  assert.deepEqual(calls[0].body.response_format, { type: "audio", mime_type: "audio/wav" });
+  assert.equal(r.files[0].contentType, "audio/wav");
+  assert.match(r.actual, /이미지 1장 · WAV/);
+});
+
+test("Lyria 3 Clip은 이미지·WAV 선택을 무시한다(지원 모델만)", async () => {
+  const calls = mockFetch(() => json({ steps: [{ type: "model_output", content: [{ type: "audio", data: "QQ==" }] }] }));
+  await geminiAdapter.start(findModel("gemini:lyria-3-clip-preview"), { ...input, format: "wav", images: [{ mimeType: "image/jpeg", data: "AAAA" }] }, "K");
+  assert.equal(typeof calls[0].body.input, "string");
+  assert.deepEqual(calls[0].body.response_format, { type: "audio" });
+});

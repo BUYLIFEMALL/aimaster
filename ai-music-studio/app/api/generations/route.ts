@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { checkProgramAccessApi, getUserApiKey, logProgramUsage } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/server";
-import { MAX_COMPARE, PROVIDERS, clampDuration, findModel, validateForModel, type MusicModel } from "@/lib/providers/catalog";
+import { MAX_COMPARE, MAX_IMAGES, PROVIDERS, clampDuration, findModel, validateForModel, type InputImage, type MusicModel } from "@/lib/providers/catalog";
 import { adapterOf, advance, runSynchronous, startAsync, toClient, type GenerationRow } from "@/lib/generations";
 
 export const dynamic = "force-dynamic";
@@ -62,7 +62,8 @@ export async function POST(request: Request) {
   let body: Record<string, unknown>;
   try {
     const raw = await request.text();
-    if (raw.length > 32_000) return NextResponse.json({ error: "입력이 너무 깁니다." }, { status: 413 });
+    // v1.06 분위기 이미지(최대 4장, 화면에서 1024px로 줄임) 때문에 Vercel 본문 한도(4.5MB) 안쪽으로
+    if (raw.length > 4_300_000) return NextResponse.json({ error: "입력이 너무 큽니다(이미지를 줄여 주세요)." }, { status: 413 });
     body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
@@ -82,6 +83,14 @@ export async function POST(request: Request) {
   const instrumental = body.instrumental === true;
   const language = LANGUAGES.has(String(body.language)) ? String(body.language) : "auto";
   const requested = typeof body.durationS === "number" ? body.durationS : null;
+  const format = body.format === "wav" ? "wav" : "mp3";
+  const images: InputImage[] = (Array.isArray(body.images) ? body.images : [])
+    .filter((im): im is InputImage =>
+      !!im && typeof im === "object" &&
+      ["image/jpeg", "image/png", "image/webp"].includes((im as InputImage).mimeType) &&
+      typeof (im as InputImage).data === "string" && /^[A-Za-z0-9+/=]+$/.test((im as InputImage).data.slice(0, 200)) &&
+      (im as InputImage).data.length <= 1_500_000)
+    .slice(0, MAX_IMAGES);
 
   for (const m of models as MusicModel[]) {
     const why = validateForModel(m, { instrumental, lyrics });
@@ -125,7 +134,7 @@ export async function POST(request: Request) {
       lyrics: lyrics || null,
       instrumental,
       duration_s: durationS,
-      options: { language },
+      options: { language, ...(m.wavOutput && format === "wav" ? { format: "wav" } : {}), ...(m.imageInput && images.length ? { images: images.length } : {}) },
       est_cost_usd: m.estCostUsd(durationS),
     };
   });
@@ -138,7 +147,8 @@ export async function POST(request: Request) {
   const rows = created as GenerationRow[];
   for (const row of rows) {
     const key = keys.get(PROVIDERS[row.provider].keyProvider) as string;
-    if (adapterOf(row.provider).synchronous) waitUntil(runSynchronous(admin, row, key));
+    const model = findModel(`${row.provider}:${row.model}`);
+    if (adapterOf(row.provider).synchronous) waitUntil(runSynchronous(admin, row, key, model?.imageInput && images.length ? images : undefined));
     else await startAsync(admin, row, key);
   }
   await logProgramUsage(user.id, "generate_music", rows.length, {
