@@ -1,6 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-10-23 — Claude Code(윈도우): 쓰레드 댓글자동화 v1.26 — 자동 수집 회원 선택(Vercel / 본인 cron-job.org) + AI 지시문 Threads용
+- 주인님 결정 「고객이 본인이 선택하게 해줘」. 그전에는 설정에 「예약 모니터링 켜기」가 있어도 예약 호출(`vercel.json`)이 없어 켜도 아무 일도 안 일어났음. youtube-auto-reply v1.12 구조를 그대로 이식: 공용 `member-scheduler` 사본(`lib/schedulerMember/`, 표 `th_member_scheduler`, 토큰 `threply_…`, 끄기 스위치 `THREPLY_PLATFORM_SCHEDULER=off`), 회원 실행 주소 `/api/cron/dispatch-member`(Next 14라 `@vercel/functions` waitUntil), 운영자 주소는 Vercel 방식·비일시정지 회원만, 처리 전 이용 권한 재확인·`last_run_at` 조건부 선점, `vercel.json` 5분 예약, 설정 「⏰ 예약 실행 방식」·상태 줄·일시정지/재개, 매뉴얼 FAQ. AI 답글 지시문 「유튜브 채널 운영자·영상 제목」 → Threads용.
+- DB(ref esgxyikcnnvmlhygjkth, 크롬 SQL Editor, 해시 일치): `threads-comment-reply/supabase/migrations/20261023220000_th_member_scheduler_v1_26.sql` — 새 표 + 버전 v1.26.
+- 검수: tsc·build·시험 43개, 배포 `threads-comment-reply-nbicmtaj2` Ready, 실행 주소 무인증·`Bearer undefined`·가짜 토큰 401. 크롬(시험 회원): 실행 방식 구역(키 없으면 cron-job.org 선택지 꺼짐·안내), 모니터링 시작(24시간) → 19:10 UTC 운영 호출에서 켠 회원 2명 모두 처리(`last_run_at` 기록) → 일시정지·재개 → 중지(원래대로 꺼짐). 게시 없음.
+- **발견·미배포(급함)**: 「이 시점 이후 댓글만」 시각이 9시간 늦게 저장됨(서버가 한국 시간 입력을 UTC로 읽음) → 고침(커밋, 빌드 1회 추가 승인 대기). **유튜브 댓글 앱(`youtube-auto-reply/lib/actions/monitoring.ts:25`)도 같은 코드 — 미수정, 주인님께 여쭘.**
+- 다음 후보: 인스타 댓글 프로그램(`instagram-comment-reply`)도 예약 호출이 비어 있어 같은 상태.
+- 커밋 `09e25aa32`(+ 수정 미배포). 비용: 빌드 1회(승인), 시험 회원 본인 키 AI 초안은 새 댓글이 있을 때만(확인 못 함).
+- 링크: https://threads-comment-reply.buylife.xyz/settings
+
 ## 2026-10-23 Claude Code(윈도우) — 🔎 SEO 스튜디오 자동 포스팅 멈춤 원인 조사 (코드 변경 없음 · 비용 없음)
 - 실행이 사이드패널 안에서 돌아 사이드패널 닫힘·확장 새로고침 때 보고 없이 끊김(하트비트·재개 없음). 이번 건은 느린 v2.05 입력 중 v2.06 확장 새로고침으로 끊긴 것이 가장 유력. 개선 후보 (가) 안내 한 줄 (나) 다시 열 때 즉시 실패 보고 (다) background 작업기 이전 — `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래.
 - 프로그램: https://naver-blog-seo-studio.buylife.xyz
