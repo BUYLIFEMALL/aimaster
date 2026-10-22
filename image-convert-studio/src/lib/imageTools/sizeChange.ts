@@ -32,3 +32,9 @@ export function retryOutcome(original: number, previous: number, retried: number
   if (!(retried < previous)) return "noGain";
   return isGrownFile(original, retried) ? "stillBigger" : "smaller";
 }
+
+/** v1.18: 「모두 다시 변환」 결과 세기 */
+export function countRetry(outcomes: (RetryOutcome | "error")[]): { total: number; smaller: number; stillBigger: number; noGain: number; failed: number } {
+  const n = (k: RetryOutcome | "error") => outcomes.filter((o) => o === k).length;
+  return { total: outcomes.length, smaller: n("smaller"), stillBigger: n("stillBigger"), noGain: n("noGain"), failed: n("error") };
+}

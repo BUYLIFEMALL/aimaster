@@ -6,7 +6,7 @@ import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/en
 import { CENTER, MAX_ZOOM, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
 import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
 import { BeforeAfter } from "./BeforeAfter";
-import { isGrownFile, retryOutcome, savingGrade, shrinkRetryOptions, sizeChangeLabel } from "@/lib/imageTools/sizeChange";
+import { countRetry, isGrownFile, retryOutcome, savingGrade, shrinkRetryOptions, sizeChangeLabel, type RetryOutcome } from "@/lib/imageTools/sizeChange";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -165,8 +165,9 @@ export function ConvertTool() {
   };
 
   // v1.18: 용량이 늘어난 그림을 WebP·품질 80% 이하로 다시 변환(화면 설정은 그대로). 이전 결과보다 작을 때만 바꾼다
-  const retrySmaller = async (item: Item) => {
-    if (!item.result) return;
+  const [retrySummary, setRetrySummary] = useState("");
+  const retrySmaller = async (item: Item): Promise<RetryOutcome | "error"> => {
+    if (!item.result) return "noGain";
     const previous = item.result;
     patch(item.id, { status: "working", error: undefined, note: undefined });
     try {
@@ -174,7 +175,7 @@ export function ConvertTool() {
       const outcome = retryOutcome(item.file.size, previous.blob.size, blob.size);
       if (outcome === "noGain") {
         patch(item.id, { status: "done", note: t.convert.retryNoGain });
-        return;
+        return outcome;
       }
       URL.revokeObjectURL(previous.url);
       patch(item.id, {
@@ -182,17 +183,26 @@ export function ConvertTool() {
         result: { blob, name: outputFileName(item.file.name, "webp"), url: URL.createObjectURL(blob) },
         note: outcome === "stillBigger" ? t.convert.retryStillBigger : fmt(t.convert.retryDone, { pct: sizeChangeLabel(item.file.size, blob.size) ?? "" }),
       });
+      return outcome;
     } catch (error) {
       patch(item.id, { status: "error", error: error instanceof Error ? error.message : t.convert.error });
+      return "error";
     }
   };
 
   const retryAllGrown = async () => {
     setBusy(true);
+    setRetrySummary("");
+    const outcomes: (RetryOutcome | "error")[] = [];
     try {
-      for (const item of items.filter((i) => i.result && isGrownFile(i.file.size, i.result.blob.size))) await retrySmaller(item);
+      for (const item of items.filter((i) => i.result && isGrownFile(i.file.size, i.result.blob.size))) outcomes.push(await retrySmaller(item));
     } finally {
       setBusy(false);
+      // v1.18: 카드를 하나씩 보지 않아도 결과를 알 수 있게 한 줄 요약
+      if (outcomes.length) {
+        const c = countRetry(outcomes);
+        setRetrySummary(fmt(t.convert.retrySummary, c) + (c.failed ? fmt(t.convert.retryFailed, { n: c.failed }) : ""));
+      }
     }
   };
 
@@ -444,6 +454,12 @@ export function ConvertTool() {
               >
                 {fmt(t.convert.retryAll, { n: grownCount })}
               </button>
+            )}
+            {retrySummary && (
+              <span className="rounded-xl border border-[#334155] bg-[#162032] px-3 py-1 font-medium text-slate-200" role="status" data-retry-summary>
+                {retrySummary}
+                <button type="button" aria-label={t.convert.close} className="ml-2 text-slate-400 hover:text-white" onClick={() => setRetrySummary("")}>✕</button>
+              </span>
             )}
           </div>
 
