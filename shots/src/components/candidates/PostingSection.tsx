@@ -169,7 +169,7 @@ export function PostingSection({
               <select
                 value={suggestState.categoryId ?? categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-900"
+                className="w-full rounded-lg border border-[#2e2e2e] bg-[#121212] px-3 py-2 text-sm text-[#f1f1f1] outline-none focus:border-[#ff0000] [&_option]:bg-[#181818]"
               >
                 <option value="">카테고리를 선택하세요</option>
                 {YOUTUBE_CATEGORY_OPTIONS.map((opt) => (

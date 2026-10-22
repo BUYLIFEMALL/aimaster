@@ -87,7 +87,7 @@ export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextIma
         <select
           name="imageModel"
           defaultValue="nanobanana-2-2k"
-          className="rounded-lg border border-neutral-300 px-2 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+          className="rounded-lg border border-[#2e2e2e] bg-[#121212] px-2 py-1.5 text-xs text-[#f1f1f1] outline-none focus:border-[#ff0000] [&_option]:bg-[#181818]"
         >
           {NANO_BANANA_MODEL_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>

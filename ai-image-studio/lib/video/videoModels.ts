@@ -30,7 +30,8 @@ export interface VideoJob { provider: VideoProvider; model: string; id: string; 
 
 export const VIDEO_MODELS: readonly VideoModel[] = [
   { id: "gemini-omni-1.1-flash", provider: "gemini", name: "Gemini Omni Flash", perSec: 0.1, endFrame: true, durations: [5, 8, 10], note: "기본 · 구글 키 그대로(결제 연결된 키 필요) · 720p" },
-  { id: "bytedance/seedance-1-lite", provider: "replicate", name: "Seedance 1 Lite (Replicate)", perSec: 0.036, endFrame: true, durations: [5, 8, 10], note: "가장 저렴 · 720p" },
+  // 2026-10-22 Shots v1.33: 끝 화면(last_frame_image)을 넣으면 E006으로 2회 거절(같은 사진 끝 화면 없이 성공) — 이어 붙이기 끔
+  { id: "bytedance/seedance-1-lite", provider: "replicate", name: "Seedance 1 Lite (Replicate)", perSec: 0.036, endFrame: false, durations: [5, 8, 10], note: "가장 저렴 · 720p · 이어 붙이기 없음" },
   { id: "kwaivgi/kling-v2.1", provider: "replicate", name: "Kling v2.1 (Replicate)", perSec: 0.05, perSecEnd: 0.09, endFrame: true, durations: [5, 10], note: "720p · 이어 붙이면 1080p(pro) 단가" },
   { id: "fal-ai/bytedance/seedance/v1.5/pro/image-to-video", provider: "fal", name: "Seedance 1.5 Pro (fal)", perSec: 0.05, endFrame: true, durations: [5, 8, 10], note: "가성비 · 720p" },
   { id: "fal-ai/kling-video/o3/standard/image-to-video", provider: "fal", name: "Kling O3 Standard (fal)", perSec: 0.14, endFrame: true, durations: [5, 8, 10], note: "고품질" },

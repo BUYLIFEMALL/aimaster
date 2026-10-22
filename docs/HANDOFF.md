@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — Shots v1.33 Seedance 1 Lite 이어 붙이기 끔·다시 만들기 버튼·다크 선택칸 색·영상 장면 MP4 실측 (빌드 1회)
+- E006은 같은 사진 조합 재시도에서도 재현 → 공용 `ai-video-models`(기준 ai-image-studio)에서 이 모델 이어 붙이기 끔, 거절 시 「이어지게 끄고 다시 만들기」 버튼(회원 클릭 때만). 원스톱·ai-image-studio는 사본만 반영(미배포, `docs/SHARED_MODULES.md`).
+- 선택칸 4곳 다크 색. 영상 장면 MP4 실측: 46초·1080×1920·17.6MB, 장면 1 구간 움직임 확인. 남은 일: 장면 카드 이름표·입력칸 글자색(다크), 묶음 ②(인스타 레퍼런스 분석) 플랜 — `shots/docs/IMPROVEMENTS.md`.
+- 프로그램: https://shots.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 영상 호출 공용 기준 코드 `ai-video-*`(기준 ai-image-studio) + Shots v1.32 장면 AI 영상 (빌드 1회 — Shots만)
 - 기준 `ai-image-studio/lib/video/`(모델·해석·업체 호출), 사본 원스톱 `src/lib/`·Shots `src/lib/video/`. 원스톱 `videoGen.ts`는 공용 사용으로 전환(동작 같음) — **원스톱·ai-image-studio 미배포(다음 배포 때)**, `docs/SHARED_MODULES.md` 미배포 표.
 - Shots: 장면 카드 「🎬 장면 AI 영상」, `/api/video/scene`, 저장 `shots-videos/<회원>/<영상>-scenes/<장면>.mp4`(표 변경 없음), 브라우저 만들기에 영상 장면. 배포 Ready·DB v1.32. 크롬 시험 회원: Replicate 이어 붙이기 E006 거절 → 끝 화면 없이 성공. 비용: 빌드 1회, 약 $0.28(시험 회원 키).
