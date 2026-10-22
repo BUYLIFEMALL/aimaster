@@ -326,3 +326,7 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 검수(맥미니): tsc 0, eslint(바뀐 파일) 0. 검색·발송·AI 호출 0, 비용 0.
 - **윈도우 CLI 다음 첫 단계**: `shop-detail-page` v1.19 배포가 Ready가 된 뒤(받는 쪽 먼저) → `npm run test:trend && npm run build` → `vercel deploy --prod --yes` → `update programs set version='v1.23', updated_at=now() where slug='trending-product-finder';` → 크롬 `/sourcing`의 ⭐ 관심 상품 카드 「📄 상세페이지 만들기」가 상세페이지 새 상품 화면(상품명·원본 정보 채움)을 새 창으로 여는지 확인(검색 버튼은 누르지 않아도 관심 상품으로 확인 가능). 375px 폭에서 소싱 결과 줄 버튼이 잘리지 않는지.
 
+## 2026-10-22 ✅ v1.23 배포됨 (Claude Code 윈도우 — 맥미니 세션 대기분)
+- 상세페이지 v1.19 → 상품소싱 v1.23 → 쓰레드 쇼핑제휴 v1.81 순서로 배포(각 READY). DB `programs.version` v1.23. tsc·로컬 build 통과.
+- 크롬(시험 계정 `buylifemall@naver.com`, 생성·게시 버튼은 누르지 않음): ① 상세페이지 v1.19, 완료 섹션(쿠팡 12단 `cp_promotion`)의 「🧵 쓰레드 홍보글」 → 새 창 쓰레드 쇼핑제휴 `/posts/new` v1.81에 공개 저장소 `post-images/<회원id>/from-shop-detail/<해시>.jpg` 이미지 1장(정상 표시)·초안(상품명+특징 3줄, 할인가 없어 가격 줄 없음)·초록 안내 ② 새로고침해도 이미지 1장·같은 파일 이름(복사본 늘지 않음) ③ 주소의 회원 ID를 다른 값으로 바꾸면 빨간 「⚠️ 본인이 만든 상세페이지 이미지만 가져올 수 있습니다.」·이미지 0장. 상품소싱 `/sourcing` v1.23 오류 없이 열림(「📄 상세페이지」 버튼은 소싱 결과가 있어야 보여 미확인 — 검색 비용).
+- 비용: Vercel 빌드 3회(주인님이 붙여 주신 순서대로), AI 호출 0회.

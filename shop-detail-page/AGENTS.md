@@ -219,3 +219,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 검수(맥미니): tsc 0, `next lint`(바뀐 파일) 0. AI 호출 0, 비용 0.
 - **추가 2(같은 v1.19, S-22-10 1단계)**: 섹션 카드 버전 줄 오른쪽 「🧵 쓰레드 홍보글」(완료된 섹션만) — 선택한 이미지 1장의 **비공개 버킷 안 위치**와 본문 초안(상품명·핵심 특징 최대 3줄·할인가가 있을 때만 가격, `lib/threadsLink.ts`)을 쓰레드 쇼핑제휴 `/posts/new`로 새 창에 넘긴다. 서명 주소는 넘기지 않고, 받는 쪽(threads-affiliate-poster v1.81 `src/lib/shopDetailImport.ts`)이 본인 폴더인지 확인한 뒤 자기 공개 저장소로 복사한다. AI 호출 없음. 인스타는 받는 화면이 없어 2단계로 남김.
 - **윈도우 CLI 다음 첫 단계**: v1.18이 아직 배포 전이면 한 번에 — ① SQL `20261022_promo_templates_v1_18.sql`(이미 적용했으면 건너뜀) → ② SQL `20261022_append_section_image_v1_19.sql` → ③ `shop-detail-page` 배포 1회(v1.19) → ④ 크롬 확인(생성 버튼은 누르지 않음): `/guide` 규격 카드·단가, `/products/new?from=sourcing&name=시험상품&source=원본 링크: https://example.com` 미리 채움, 대기 섹션 「✨ 생성」 버튼.
+
+## 2026-10-22 ✅ v1.18·v1.19 배포됨 (Claude Code 윈도우 — 맥미니 세션 대기분)
+- 운영 DB(`esgxyikcnnvmlhygjkth`, 주인님 크롬 SQL 편집기 새 쿼리·저장): v1.18 템플릿 2행(`cp_promotion`·`ss_hook_promo`) 문구 + v1.19 함수 `shop_append_section_image`(security invoker) + `programs.version` v1.19 — 결과 2행·함수 1개·v1.19 확인, 조회로 다시 확인. (편집기의 「WHERE 없는 UPDATE」 경고는 함수 안 `on conflict … do update`를 가리킨 것 — 세 update 문은 모두 `where` 있음)
+- 상세페이지 v1.19 → 상품소싱 v1.23 → 쓰레드 쇼핑제휴 v1.81 순서로 배포(각 READY). tsc·로컬 build 통과.
+- 크롬(시험 계정 `buylifemall@naver.com`, 생성·게시 버튼은 누르지 않음): ① 상세페이지 v1.19, 완료 섹션(쿠팡 12단 `cp_promotion`)의 「🧵 쓰레드 홍보글」 → 새 창 쓰레드 쇼핑제휴 `/posts/new` v1.81에 공개 저장소 `post-images/<회원id>/from-shop-detail/<해시>.jpg` 이미지 1장(정상 표시)·초안(상품명+특징 3줄, 할인가 없어 가격 줄 없음)·초록 안내 ② 새로고침해도 이미지 1장·같은 파일 이름(복사본 늘지 않음) ③ 주소의 회원 ID를 다른 값으로 바꾸면 빨간 「⚠️ 본인이 만든 상세페이지 이미지만 가져올 수 있습니다.」·이미지 0장. 상품소싱 `/sourcing` v1.23 오류 없이 열림(「📄 상세페이지」 버튼은 소싱 결과가 있어야 보여 미확인 — 검색 비용).
+- 비용: Vercel 빌드 3회(주인님이 붙여 주신 순서대로), AI 호출 0회.

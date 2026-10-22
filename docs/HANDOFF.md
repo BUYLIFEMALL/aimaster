@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 v1.19 · 상품소싱 v1.23 · 쓰레드 쇼핑제휴 v1.81 배포 (맥미니 세션 대기분)
+- 운영 DB(`esgxyikcnnvmlhygjkth`): 상세페이지 v1.18 템플릿 문구·v1.19 함수 `shop_append_section_image` 적용(v1.18은 미적용 상태였음), 버전 v1.19·v1.23·v1.81.
+- 크롬 확인 3가지 통과: 「🧵 쓰레드 홍보글」 → 이미지 1장+초안, 새로고침해도 1장, 남의 회원 ID면 빨간 안내. 게시·생성 버튼은 누르지 않음. 비용: Vercel 빌드 3회, AI 0회.
+- 남은 것: 인스타 쪽 연결(2단계)은 맥미니 세션 기록대로 쓰레드 검수 뒤 — 이제 진행 가능. 상세: 세 프로그램 `AGENTS.md` 맨 아래.
+- 프로그램: https://shop-detail-page.buylife.xyz · https://trending-product-finder.buylife.xyz/sourcing · https://threads-affiliate-poster.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — INSTA v1.52 상위 3개 묶어 분석 · 경쟁 계정 즐겨찾기 (빌드 1회, DB 표 1개)
 - 공용 표 `member_watch_accounts`(운영 DB, RLS 본인만, 주인님 승인) — ★ 즐겨찾기 칩으로 바로 수집, 「🔥 상위 3개 묶어 분석」으로 공통 성공 패턴 분석. 크롬 실검수 성공(Apify $0.054, Gemini 1회). 수집 기능은 `docs/SHARED_FEATURE_MAP.md` 14번 공용화 후보.
 - 프로그램: https://auto-instagram-posting.buylife.xyz
