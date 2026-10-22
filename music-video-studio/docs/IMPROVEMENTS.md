@@ -8,6 +8,12 @@
 
 ---
 
+## 🚨 긴급 (2026-10-23, Claude Code 윈도우 발견 — 미처리)
+- **Gemini API Veo 3.1 Preview 종료로 장면 영상 생성 실패 가능**: Google 공식 문서(https://ai.google.dev/gemini-api/docs/video)에 「The Veo 3.1 Preview in the Gemini API has been shut down」, 종료일 **2026-10-22**. 종료 모델 ID `veo-3.1-generate-preview`·`veo-3.1-fast-generate-preview`·`veo-3.1-lite-generate-preview` — 이 프로그램이 그대로 사용 중(`src/lib/music/presets.ts:41-46`, 기본값 `src/lib/music/project.ts:21`).
+- **권장 대체**: `gemini-omni-1.1-flash`(같은 회원 Gemini 키, Interactions API) — 이미 공용 기준 코드 `ai-video-providers`(`ai-image-studio/lib/video/videoProviders.ts`, 사본 shots·shorts-onestop-studio)에 구현돼 있음. 연동 부분만 교체(이미지 프롬프트 규칙과 같이 프롬프트는 유지). 4·6·8초·16:9 등 옵션 차이 확인 필요.
+- **상태**: 기록만 함. 운영 화면 실패 여부 실측 전. 회원 피해 버그라 별도 작업으로 즉시 처리 대상(배포 예외 — 회원 피해).
+- **다음 첫 단계**: 운영 화면에서 장면 영상 1회 생성 시 오류 확인(시험 계정 키, 비용 발생 → 사전 승인) → 공용 `ai-video-providers` 사본 도입 → 모델 선택지 교체.
+
 ## 1. 프로그램 로직 및 기능 개선
 
 ### 1) 오디오 파일 기반 비트(BPM) 분석 및 씬 전환 자동 동기화
