@@ -123,7 +123,7 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
   });
   await scenario('tab closes at final click: uncertain result, no automatic publication retry',async()=>{
     const b=await browser({connection,editorTab:1,activeTask:task('waiting_login')});b.add();
-    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
     b.execute(async({args})=>{
       if(args[0]==='inspect')return [{frameId:0,result:{status:'valid'}}];
       if(args[0]==='click' && args[1].selector.includes('tpb*i.publish')){b.tabs.delete(1);throw new Error('No tab with id: 1.');}
@@ -172,7 +172,7 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
   await scenario('prepare ends after settings; protected editor survives the next task',async()=>{
     const t={...task('waiting_login'),type:'prepare',payload:{title:'준비 원고',executionMode:'prepare',publishScheduleMode:'reserve',interactive:true}};
     const b=await browser({connection,editorTab:1,activeTask:t});b.add();
-    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
     await b.sandbox.resume(t);
     assert.equal(b.reports[0].prepared,true);assert.equal(b.reports[0].success,false);
     assert.equal(b.data.lastPrepared.taskId,'task');assert.equal(b.data.preparedEditorTabs[0].id,1);
@@ -198,7 +198,7 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
   await scenario('prepare settings failure never reports ready or presses final button',async()=>{
     const t={...task('waiting_login'),type:'prepare',payload:{executionMode:'prepare',publishScheduleMode:'now'}};
     const b=await browser({connection,activeTask:t});b.add();
-    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
     b.execute(async({args})=>{if(args[0]==='settings')return [{frameId:0,result:{error:'카테고리 확인 실패'}}];
       return [{frameId:0,result:args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
     await b.sandbox.resume(t);assert.equal(b.reports[0].prepared,false);assert.match(b.reports[0].error,/카테고리/);
@@ -257,7 +257,7 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
   });
   await scenario('final stage refusal prevents the actual final publication click',async()=>{
     const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});b.add();let finalClicks=0;
-    b.sandbox.writeArticle=async()=>({complete:true});
+    b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
     b.execute(async request=>{if(request.args[0]==='click' && request.args[1].selector.includes('tpb*i.publish'))finalClicks++;return [{frameId:0,result:request.args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
     b.network(async(_url,init)=>{const body=JSON.parse(init.body);return body.action==='stage'&&body.stage==='final_publish'?{ok:false,status:409,json:async()=>({error:'만료',code:'LEASE_EXPIRED'})}:{ok:true,json:async()=>({state:'running',runId:body.runId,leaseMs:180000})};});
     await assert.rejects(()=>b.sandbox.publish({...task('writing'),runId:'current'}),error=>error.code==='LEASE_EXPIRED');assert.equal(finalClicks,0);
@@ -299,7 +299,7 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     const t={...task('writing'),runId:'current'};
     const b=await browser({connection,activeTask:t,preparedEditorTabs:[{id:2}]});b.add();b.add({id:2});
     b.sandbox.buildWriterSteps=()=>({steps:[],plan:[],imageCount:2});b.sandbox.articlePlan=()=>[];
-    b.sandbox.runWriter=async()=>{b.calls.push(['authoring-complete']);};
+    b.sandbox.runWriter=async()=>{b.calls.push(['authoring-complete']);};b.sandbox.hasBodyText=()=>true;b.sandbox.finalMatch=async()=>{};
     await b.sandbox.writeArticle(t);
     const completed=b.calls.findIndex(c=>c[0]==='authoring-complete'),focus=b.calls.findIndex(c=>c[0]==='focus'),ai=b.calls.findIndex(c=>c[0]==='script'&&c[1]==='imageAi');
     assert.ok(completed<focus && focus<ai);assert.deepEqual(b.calls.filter(c=>c[0]==='update').map(c=>c[1]),[1]);
@@ -337,7 +337,7 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
       const b=await browser({connection,activeTask:t,preparedEditorTabs:[{id:2}]});b.add();b.add(2);
       const protectedTab=structuredClone(b.tabs.get(2));let title='',blocks=[];
       b.network(async(url)=>url.includes('example.test')?{ok:true,blob:async()=>new Blob(['synthetic-jpeg'],{type:'image/jpeg'})}:{ok:true,json:async()=>({state:'running'})});
-      b.sandbox.buildWriterSteps=writer.buildWriterSteps;b.sandbox.runWriter=writer.runWriter;b.sandbox.articlePlan=()=>[];
+      b.sandbox.buildWriterSteps=writer.buildWriterSteps;b.sandbox.runWriter=writer.runWriter;b.sandbox.articlePlan=()=>[];b.sandbox.matchingWriterPrefix=writer.matchingWriterPrefix;b.sandbox.hasBodyText=()=>true; // image-identity scenario; empty-body rule has its own test
       b.execute(async({args})=>{
         const [command,value]=args;
         if(command==='inspect')return [{frameId:0,result:{status:'valid'}}];

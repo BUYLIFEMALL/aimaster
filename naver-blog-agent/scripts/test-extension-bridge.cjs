@@ -44,6 +44,7 @@ function loadTS(filename) {
     if (id === '@/lib/naverPublishing') return loadTS(path.join(root, 'src/lib/naverPublishing.ts'));
     if (id === '@/lib/shoppingLinks') return loadTS(path.join(root, 'src/lib/shoppingLinks.ts'));
     if (id === '@/lib/executionRuns') return loadTS(path.join(root, 'src/lib/executionRuns.ts'));
+    if (id === '@/lib/bodyText') return loadTS(path.join(root, 'src/lib/bodyText.ts'));
     if (id === '@/lib/postReview') return loadTS(path.join(root, 'src/lib/postReview.ts'));
     if (id === './postReviewSnapshot') return loadTS(path.join(root, 'src/lib/postReviewSnapshot.ts'));
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ body, status: init?.status || 200 }) } };
@@ -302,7 +303,8 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   assert.equal(writer.matchingWriterPrefix(entered, layout.steps), layout.steps.length);
   assert.equal(authoringCommands.includes('click'), false, '실제 편집기 검수와 원고 입력은 최종 발행 버튼을 누르지 않음');
   assert.equal(authoringCommands.includes('settings'), false);
-  assert.equal(authoringCommands.at(-1), 'verify', '본문 입력 후 검증까지 완료');
+  assert.equal(authoringCommands.at(-2), 'verify', '본문 입력 후 검증까지 완료');
+  assert.equal(authoringCommands.at(-1), 'snapshot', 'BLC-07: 검증 뒤 문서 전체 정확 대조');
   assert.ok(authoringCommands.indexOf('finalUi')<authoringCommands.indexOf('imageAi'));
 
   // A resume popup can arrive after an initially valid, empty editor snapshot.

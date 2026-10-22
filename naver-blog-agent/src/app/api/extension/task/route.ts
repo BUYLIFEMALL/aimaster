@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticateExtension, buildBridgePayload } from "@/lib/extensionBridge";
+import { hasBodyText } from "@/lib/bodyText";
 import { validSource } from "@/lib/sourceBundle";
 import { getPostReview } from "@/lib/postReview";
 import { PrivatePhotoError, resolvePrivatePostPhotos } from "@/lib/privatePhotos";
@@ -9,7 +10,6 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 const reply=(body:Record<string,unknown>,init:Parameters<typeof NextResponse.json>[1]={})=>NextResponse.json(body,{...init,headers:{"Cache-Control":"no-store"}});
-
 // 크롬 확장이 발행 대기(queued) 원고 1건을 가져가는 경로 (확장 폴링)
 export async function POST(req: Request) {
   try {
@@ -45,6 +45,13 @@ export async function POST(req: Request) {
     if (!posts || posts.length === 0) return reply({ task: null });
 
     const row = posts[0];
+    // BLC-07: a queued draft with no body paragraph would become a title-only post.
+    // Fail it (only while still queued) so it neither publishes nor blocks the next draft.
+    if (!hasBodyText(row.content)) {
+      await admin.from("nba_posts").update({ status: "failed", error_message: "본문이 비어 있어 입력하지 않았습니다. 원고를 확인해 주세요.", updated_at: new Date().toISOString() })
+        .eq("id", row.id).eq("user_id", userId).eq("status", "queued");
+      return reply({ task: null });
+    }
     if (row.research_summary?.source_bundle && !validSource(row.research_summary.source_bundle, userId)) return reply({error: "원고의 근거 자료가 만료됐습니다. 새로 수집한 자료로 작성해 주세요."}, {status: 410});
     const hasPrivatePhotos = Array.isArray(row.images) && row.images.some((image: any) => image && typeof image === "object" && "storagePath" in image);
     if (hasPrivatePhotos && (body.supportsPrivatePhotos !== true || body.supportsRuns !== true)) {

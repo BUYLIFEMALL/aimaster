@@ -24,6 +24,8 @@ function buildWriterSteps(payload,plan) {
   }
   return {steps,plan:filteredPlan,imageCount:seen.size};
 }
+// BLC-07: a draft without any body paragraph must never become a title-only post.
+function hasBodyText(steps){return steps.some(step=>step.type==='paragraph' && writerNormalize(step.text));}
 function withoutGeneratedPreviews(blocks){
   const content=[];
   for(const block of blocks){
@@ -98,4 +100,4 @@ async function runWriter({steps,read,apply,save,checkCancelled,onProgress,requir
   }
   return {complete:true,cursor};
 }
-if(typeof module!=='undefined')module.exports={buildWriterSteps,writerUnits,matchingWriterPrefix,runWriter};
+if(typeof module!=='undefined')module.exports={buildWriterSteps,writerUnits,matchingWriterPrefix,runWriter,hasBodyText};

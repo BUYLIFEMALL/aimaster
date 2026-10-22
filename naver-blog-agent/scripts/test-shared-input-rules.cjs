@@ -47,3 +47,20 @@ test('a populated or unrelated-preview editor stops before any input with a read
     assert.equal(applied,0);
   }
 });
+
+// BLC-07 (2026-10-22): bring BLOG's EMPTY_BODY / FINAL_MISMATCH guarantees into the agent.
+test('BLC-07: a draft without a body paragraph is detected before any input',()=>{
+  assert.equal(writer.hasBodyText([{type:'title',text:title},{type:'quote',text:title,style:'default'},{type:'image',name:'one.png'}]),false);
+  assert.equal(writer.hasBodyText([{type:'title',text:title},{type:'paragraph',text:' ​ '}]),false);
+  assert.equal(writer.hasBodyText(steps),true);
+});
+test('BLC-07: final exact match rejects a duplicated or extra block that in-order containment accepts',()=>{
+  const containment=(snapshot)=>{const actual=snapshot.blocks.map(b=>b.text || '').join('');let offset=0;
+    return ['첫 문단','둘째 문단'].every(t=>{const i=actual.indexOf(t,offset);if(i<0)return false;offset=i+t.length;return true;});};
+  for(const extra of [{type:'paragraph',text:'첫 문단'},{type:'paragraph',text:'끼어든 문장'}]){
+    const snapshot={title,blocks:[blocks[0],extra,blocks[1],blocks[2]]};
+    assert.equal(containment(snapshot),true,'old verify-style check passes');
+    assert.notEqual(writer.matchingWriterPrefix(snapshot,steps),steps.length,'new final match rejects');
+  }
+  assert.equal(writer.matchingWriterPrefix({title,blocks},steps),steps.length,'unchanged document still passes');
+});

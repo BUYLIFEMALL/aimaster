@@ -302,9 +302,15 @@ async function prepareFinalEditorUi(task) {
   await chrome.windows.update(tab.windowId,{focused:true,...(window.state==='minimized'?{state:'normal'}:{})});
   await sleep(100);
 }
+// BLC-07: the loose 'verify' only proves blocks appear in order; before publishing,
+// the whole document must still equal the authored steps (no duplicate or extra blocks).
+async function finalMatch(tabId,steps) {
+  if(matchingWriterPrefix(await command(tabId,'snapshot'),steps)!==steps.length)throw Object.assign(new Error('발행 직전 문서가 저장 원고와 달라 발행하지 않았습니다. 입력한 글은 보존됩니다.'),{code:'FINAL_MISMATCH'});
+}
 async function writeArticle(task,options={}) {
   const tabId=task.tabId, p=task.payload;
   const {steps,plan,imageCount}=buildWriterSteps(p,articlePlan(p.article));
+  if(!hasBodyText(steps))throw Object.assign(new Error('본문이 비어 있어 입력하지 않았습니다. 원고를 확인해 주세요.'),{code:'EMPTY_BODY'});
   await runWriter({steps,requireEmpty:true,
     read:()=>command(tabId,'snapshot'),
     apply:async(block,anchor)=>{
@@ -325,15 +331,17 @@ async function writeArticle(task,options={}) {
   await prepareFinalEditorUi(task);
   await command(tabId,'imageAi');
   await command(tabId,'verify',{title:p.title,article:p.article,plan,titleQuote:true,requireAi:true,sectionStyle:'quotation_line',imageCount});
-  return {complete:true,imageCount,steps:steps.length};
+  await finalMatch(tabId,steps);
+  return {complete:true,imageCount,steps:steps.length,writerSteps:steps};
 }
 async function publish(task) {
   const tabId=task.tabId,p=task.payload;
   if(p.executionMode!==undefined && !['prepare','publish'].includes(p.executionMode))throw new Error('진행 방식이 올바르지 않습니다. 원고는 보존됩니다.');
-  await writeArticle(task);
+  const written=await writeArticle(task);
   await command(tabId,'click',{selector:'button[data-click-area="tpb.publish"], button[class*="publish_btn__"]',skipIfSelector:'button[data-testid="seOnePublishBtn"]'}); await sleep(400);
   await command(tabId,'settings',p);
   if((await inspect(tabId)).status!=='valid')throw new Error('로그인 상태가 변경되었습니다. 작성된 글을 확인하세요.');
+  await finalMatch(tabId,written.writerSteps);
   if(task.type==='prepare' || p.executionMode==='prepare'){
     await taskRunning(task);
     await chrome.storage.local.set({activeTask:{...task,stage:'prepared'}});

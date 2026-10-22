@@ -296,3 +296,13 @@ test('manual retirement prevents old pending results from reviving the abandoned
   const before=JSON.stringify(row);assert.equal((await route.POST(h.request({taskId:ID,runId:run.runId,success:false,error:'old result'}))).body.code,'RUN_SUPERSEDED');
   assert.equal(JSON.stringify(row),before);
 });
+test('BLC-07: an empty-body queued draft is failed without a claim and does not block the next draft',async()=>{
+  const h=harness(),empty=h.seed('queued','PASS');empty.content='[SECTION - 소제목]\n[IMAGE INSERT - 1]\n   ';
+  const route=h.load('app/api/extension/task/route.ts');
+  const first=await route.POST(h.request(modernClaim));
+  assert.equal(first.body.task,null);assert.equal(empty.status,'failed');assert.match(empty.error_message,/본문이 비어/);
+  assert.equal(empty.research_summary.execution,undefined,'no run was attached');
+  const next=h.seed('queued','PASS');next.id='second';
+  const again=await route.POST(h.request(modernClaim));
+  assert.equal(again.body.task.id,'second');assert.equal(next.status,'publishing');assert.equal(empty.status,'failed');
+});
