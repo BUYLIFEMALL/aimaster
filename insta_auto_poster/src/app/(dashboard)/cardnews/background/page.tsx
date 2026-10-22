@@ -6,6 +6,7 @@ import { ImagePlus, Loader2, RefreshCw } from "lucide-react";
 import { IMAGE_MODELS } from "@/lib/cardnews/ai/imageModels";
 import { CardCanvas } from "@/components/cardnews/studio/CardCanvas";
 import { useStudio } from "@/components/cardnews/studio/ProjectProvider";
+import { PhotoSearchPanel } from "@/components/cardnews/studio/PhotoSearchPanel";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT, NeedPlan, SELECT, StepHeader } from "@/components/cardnews/studio/ui";
 
 type PageState = { loading: boolean; error?: string };
@@ -80,6 +81,13 @@ export default function BackgroundPage() {
     runningAll.current = false;
   };
 
+  // 무료 사진(v1.63): 고른 사진을 AI 배경과 똑같이 그 장의 배경·만든 이미지 목록에 넣는다.
+  const addPhoto = (pageId: string, url: string) =>
+    update((d) => ({
+      ...d,
+      pages: d.pages.map((p) => (p.id === pageId ? { ...p, imageUrl: url, imageUrls: [...(p.imageUrls ?? []), url].slice(-6) } : p)),
+    }));
+
   const selectImage = (pageId: string, url: string) =>
     update((d) => ({ ...d, pages: d.pages.map((p) => (p.id === pageId ? { ...p, imageUrl: url } : p)) }));
 
@@ -87,7 +95,7 @@ export default function BackgroundPage() {
 
   return (
     <div className="space-y-6">
-      <StepHeader step={4} title="배경 생성" desc="페이지마다 배경 이미지를 만듭니다. 글자는 이미지에 넣지 않고 우리가 위에 얹습니다." />
+      <StepHeader step={4} title="배경 생성" desc="페이지마다 배경 이미지를 AI로 만들거나 무료 사진(Pixabay·Pexels)에서 고릅니다. 글자는 이미지에 넣지 않고 우리가 위에 얹습니다." />
 
       <Card className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -157,6 +165,7 @@ export default function BackgroundPage() {
                 )}
               </div>
               {st?.error && <ErrorNote message={st.error} />}
+              <PhotoSearchPanel defaultQuery={p.headline || plan.topic} ratio={plan.ratio} disabled={st?.loading} onPicked={(url) => addPhoto(p.id, url)} />
               {(p.imageUrls?.length ?? 0) > 1 && (
                 <div>
                   <p className="mb-1 text-[11px] text-gray-500">만든 이미지(눌러서 선택)</p>

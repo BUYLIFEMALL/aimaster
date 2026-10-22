@@ -2,6 +2,8 @@ import "server-only";
 import { createAdminClient } from "@/lib/cardnews/supabase/admin";
 
 export type ApiKeyProvider = "openai" | "gemini" | "anthropic";
+/** 배경 무료 사진 검색(v1.63) — 공용 user_api_keys 항목, 감성 글귀 등에서 넣은 키 그대로 재사용 */
+export type PhotoKeyProvider = "pixabay" | "pexels";
 /** 설정 화면에서 저장·삭제할 수 있는 키(AI 키 + 공용 연동 키, v1.24) */
 export type SettingsKeyProvider = ApiKeyProvider | "cronjob_org_api_key";
 
@@ -25,7 +27,7 @@ export const ALL_PROVIDERS: SettingsKeyProvider[] = [
  */
 export async function getUserApiKey(
   userId: string,
-  provider: ApiKeyProvider
+  provider: ApiKeyProvider | PhotoKeyProvider
 ): Promise<string | null> {
   const adminClient = createAdminClient();
   const { data } = await adminClient

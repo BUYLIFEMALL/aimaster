@@ -36,6 +36,11 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 ];
 
 const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
+// 무료 사진 키 발급 주소(v1.63)
+const PHOTO_KEY_HELP: Partial<Record<ApiKeyProvider, { url: string; label: string }>> = {
+  pixabay: { url: "https://pixabay.com/api/docs/", label: "Pixabay에서 무료 키 받기" },
+  pexels: { url: "https://www.pexels.com/api/", label: "Pexels에서 무료 키 받기" },
+};
 // Facebook 페이지 방식 전용(2026-10-16, Instagram 로그인 방식과 앱 ID가 달라 칸 분리)
 const FACEBOOK_PROVIDERS: ApiKeyProvider[] = ["facebook_app_id", "facebook_app_secret"];
 
@@ -60,6 +65,11 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
     title: "🔥 인기 게시물 수집 (선택)",
     description: "카드뉴스 「떡상 리메이크」에서 해시태그·다른 계정의 인기 게시물을 가져올 때 씁니다(apify.com 가입 → Settings → API & Integrations의 Personal API token, 매달 무료 크레딧 $5). 파란 버튼(Facebook 페이지 방식)으로 연결했다면 계정 이름 수집은 토큰 없이 인스타 공식 API로 됩니다. 공식 API가 아닌 수집이라 공개 게시물만, 본인 책임으로 사용해 주세요.",
     providers: ["apify"],
+  },
+  {
+    title: "📷 카드뉴스 배경 무료 사진 (선택)",
+    description: "카드뉴스 4단계 「배경 생성」에서 AI 대신 무료 사진을 고를 때 씁니다. 둘 중 하나만 있어도 됩니다 — Pixabay(pixabay.com/api/docs 로그인 후 Parameters의 key), Pexels(pexels.com/api 가입 후 Your API Key). 둘 다 무료이며, 다른 프로그램(감성 글귀 등)에서 이미 넣었다면 그대로 「등록됨」입니다.",
+    providers: ["pixabay", "pexels"],
   },
 ];
 
@@ -161,7 +171,7 @@ export default async function SettingsPage({
           </ol>
         </div>
 
-        {SECTIONS.filter((s) => !(IS_STANDALONE && s.providers.includes("apify"))).map((section) => (
+        {SECTIONS.filter((s) => !(IS_STANDALONE && (s.providers.includes("apify") || s.providers.includes("pixabay")))).map((section) => (
           <div
             key={section.title}
             className="rounded-2xl border border-[#262c3d] bg-[#161922] p-5 shadow-xs"
@@ -177,6 +187,8 @@ export default async function SettingsPage({
                   provider={provider}
                   label={PROVIDER_LABELS[provider]}
                   maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                  helpUrl={PHOTO_KEY_HELP[provider]?.url}
+                  helpLabel={PHOTO_KEY_HELP[provider]?.label}
                 />
               ))}
             </div>

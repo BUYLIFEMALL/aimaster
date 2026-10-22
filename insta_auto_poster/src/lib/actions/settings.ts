@@ -24,6 +24,8 @@ const VALID_PROVIDERS: ApiKeyProvider[] = [
   "facebook_app_secret",
   "cronjob_org_api_key",
   "apify",
+  "pixabay",
+  "pexels",
 ];
 
 export async function saveApiKeyAction(
