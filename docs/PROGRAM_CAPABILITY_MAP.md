@@ -63,7 +63,7 @@
 | 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.15 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.81 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.04 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
-| 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.22 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
+| 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.23 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
 | 48 | YOUTUBE 플레이리스트 자동화 | `playlist-channel-studio` | 유튜브 | v1.26 | 운영 | 장르만 고르면 제목·Suno 프롬프트·가사·썸네일을 만들고, 음악에 반응하는 1080p 플레이리스트 영상까지 완성하는 도구(2026-10-20 yt-playlist-studio 병합) |
 | 49 | AI 썸네일·SEO 자동화 | `thumbnail-master` | 유튜브 | v1.09 | 운영 | 대본으로 제목·설명·태그 SEO 전략 3가지를 만들고, 타겟별 A/B 문구가 들어간 유튜브 썸네일까지 완성하는 도구(2026-10-20 seo-thumbnail-pro 병합) |
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |

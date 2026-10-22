@@ -196,3 +196,6 @@
 - 검수: tsc, `npm test` 19개, build, 배포 `shorts-onestop-studio-nhc5nvw5i` Ready, DB v1.33. 크롬(시험 회원): 같은 탭 저장소에 대사를 넣고 `/topic` → 참고 자료 블록·안내, 저장소 비워짐. 쇼츠 바이럴 v1.13 버튼 주소로도 확인.
 - 미확인: 실제 로그아웃 상태에서 로그인까지 이어지는 전체 흐름(주인님 크롬 로그인을 풀어야 해서 하지 않음) — `docs/IMPROVEMENTS.md` 2026-10-22 항목 갱신.
 - 비용: 빌드 1회, AI 호출 없음.
+
+## 2026-10-22 (미배포 — 다음 배포 때 함께) — 공용 기준 `reference.ts`: 겹친 구절을 원문 글자 그대로 (Claude Code 윈도우)
+- `copiedPhrases`가 어절의 원래 위치(`wordSpans`)로 원문을 잘라 돌려줌(「S P500」 → 「S&P500」, 쉼표 등 유지). 판정 규칙은 그대로. 시험 1개 추가(20개 통과). 사본 3곳 `--sync`(INSTA·쇼츠 바이럴·유튜브 바이럴 — 유튜브 바이럴만 v1.23에 배포). **다음에 이 프로그램을 배포하는 CLI는 버전 +0.01하고 이 항목을 「배포됨(버전)」으로 바꿀 것.** 플랜 `../youtube-viral-studio/docs/PLAN_20261022_SUMMARY_TRANSCRIPT.md`.

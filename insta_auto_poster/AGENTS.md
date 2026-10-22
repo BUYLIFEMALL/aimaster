@@ -368,3 +368,6 @@
 - 검수: tsc, `test:cardnews` 68개, build, 배포 `insta-auto-poster-bx43gfg08` Ready, DB v1.60. 크롬(시험 회원, AI 호출 없음): ETF 작업 2장에 원문 두 문장 → 「⚠ 겹침 2 ▼」 → 누르면 「▲」·구절 2개 목록(화면 캡처) → 되돌림·원문 비움.
 - 발견: 구절이 「S&P500」을 「S P500」으로 보여 줌(검사 함수가 문장 부호를 걷어 낸 어절로 구절을 만들기 때문) — `docs/IMPROVEMENTS.md`.
 - 비용: 빌드 1회, AI 호출 없음.
+
+### 2026-10-22 (미배포 — 다음 배포 때 함께) — 겹친 구절 원문 글자 그대로 (공용 사본 동기화, Claude Code 윈도우)
+- `src/lib/cardnews/referenceCopy.ts`(공용 `reference-copy-guard` 사본) 동기화 — 문구 화면 「⚠ 겹침」 목록이 「S&P500」처럼 원문 글자로 보이게 됨. `test:cardnews` 68개 통과. **다음 배포 때 버전 +0.01하고 「배포됨(버전)」으로.**
