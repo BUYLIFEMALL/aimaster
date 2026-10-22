@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — CLI별 브라우저 규칙 개정: agy = 웨일 + Claude Code 대행 세션 보조 지침 (문서만, 빌드 없음)
+- 주인님 지시: Claude Code = 크롬(그대로), Codex = 엣지(그대로), **agy = 네이버 웨일**(엣지에서 변경). 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위 규칙 표와 `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2 표를 고침.
+- 보조 지침: agy·Codex가 토큰 한도로 멈추면 주인님이 채팅으로 지정한 Claude Code 세션만 엣지/웨일 사용(ACTIVE_WORK에 「브라우저: 엣지(Codex 대행)」 표기, 한 브라우저 한 세션, 세션 안에서만 유효).
+- 웨일 Claude 확장 deviceId `ee21e4c0-686f-4014-8be0-d87ac8c99ad7` 제어 확인(Whale 5). 남은 일: 엣지 deviceId 확인(윈도우 `96fdc2f3…`·`b210cc19…` 중 하나일 수 있음) 후 8-1-2 표 기록, agy가 웨일을 여는 방법(실행 파일 경로)은 agy 세션에서 확인.
+
 ## 2026-10-22 Claude Code(윈도우) — Shots v1.33 Seedance 1 Lite 이어 붙이기 끔·다시 만들기 버튼·다크 선택칸 색·영상 장면 MP4 실측 (빌드 1회)
 - E006은 같은 사진 조합 재시도에서도 재현 → 공용 `ai-video-models`(기준 ai-image-studio)에서 이 모델 이어 붙이기 끔, 거절 시 「이어지게 끄고 다시 만들기」 버튼(회원 클릭 때만). 원스톱·ai-image-studio는 사본만 반영(미배포, `docs/SHARED_MODULES.md`).
 - 선택칸 4곳 다크 색. 영상 장면 MP4 실측: 46초·1080×1920·17.6MB, 장면 1 구간 움직임 확인. 남은 일: 장면 카드 이름표·입력칸 글자색(다크), 묶음 ②(인스타 레퍼런스 분석) 플랜 — `shots/docs/IMPROVEMENTS.md`.

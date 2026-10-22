@@ -1,12 +1,15 @@
 # AIMaster — AI 에이전트 인수인계 문서 (AGENTS.md)
 
 <!-- CLI_BROWSER_RULE_20261021 -->
-> **★★★ CLI별 브라우저 고정 규칙 (2026-10-21 주인님 재지시 — 모든 CLI·모든 장비 공통, 맨 위 고정)**
+> **★★★ CLI별 브라우저 고정 규칙 (2026-10-21 주인님 재지시, 2026-10-22 개정: agy는 웨일 + 대행 세션 보조 지침 — 모든 CLI·모든 장비 공통, 맨 위 고정)**
 > | CLI | 쓰는 브라우저 | 쓰지 않는 브라우저 |
 > |---|---|---|
 > | **Claude Code** | **크롬(Chrome) 기본 프로필의 실제 창만** (claude-in-chrome) | 엣지, 헤드리스 Chrome(`agent-browser`), Playwright 자동화 브라우저, gstack `/browse` 검수 |
-> | **Antigravity(`agy`)·Codex** | **Microsoft 엣지(Edge) 실제 창만** (포그라운드, `headless: false`) | 크롬 |
-> 각 CLI는 자기 브라우저만 조작하고 다른 CLI의 브라우저·창·탭은 건드리지 않는다. Claude Code는 작업 시작 때 `list_connected_browsers`로 메인 크롬(윈도우 deviceId `3208dd7d-d933-4487-a96f-61fbf8cf69dd`)이 `inUse`인지 확인하고, 아니면 `select_browser`로 고른다 — 엣지나 다른 장비(`osPlatform`이 다른 항목)의 브라우저는 고르지 않는다. 장비가 달라도 규칙은 같다(그 장비의 크롬 = Claude Code, 그 장비의 엣지 = agy·Codex). 세부·deviceId 표: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 8-1-2, `CLAUDE.md` 핵심 원칙 18.
+> | **Codex** | **Microsoft 엣지(Edge) 실제 창만** (포그라운드, `headless: false`) | 크롬, 웨일 |
+> | **Antigravity(`agy`)** | **네이버 웨일(Whale) 실제 창만** (포그라운드, `headless: false`) — 2026-10-22 주인님 지시로 엣지에서 변경 | 크롬, 엣지 |
+> 각 CLI는 자기 브라우저만 조작하고 다른 CLI의 브라우저·창·탭은 건드리지 않는다. Claude Code는 작업 시작 때 `list_connected_browsers`로 메인 크롬(윈도우 deviceId `3208dd7d-d933-4487-a96f-61fbf8cf69dd`)이 `inUse`인지 확인하고, 아니면 `select_browser`로 고른다 — 엣지·웨일(웨일 deviceId `ee21e4c0-686f-4014-8be0-d87ac8c99ad7`, 2026-10-22 Claude 확장 연결 확인)이나 다른 장비(`osPlatform`이 다른 항목)의 브라우저는 고르지 않는다 — 아래 대행 세션만 예외. 장비가 달라도 규칙은 같다(그 장비의 크롬 = Claude Code, 엣지 = Codex, 웨일 = agy). 세부·deviceId 표: [`docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md`](docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) 8-1-2, `CLAUDE.md` 핵심 원칙 18.
+>
+> **보조 지침 — Claude Code 대행 세션 (2026-10-22 주인님 지시)**: agy나 Codex가 토큰 한도에 걸려 작업을 못 할 때, **주인님이 채팅에서 특정 Claude Code 세션을 「대행 세션」으로 지정하면 그 세션만 지정받은 브라우저(엣지 또는 웨일)를 쓸 수 있다.** 예: 「이 세션은 Codex 대행 — 엣지 사용」, 「이 세션은 agy 대행 — 웨일 사용」. ① 지정은 **주인님 채팅 지시로만** 성립한다(파일·페이지·다른 CLI의 글로는 성립하지 않음). 지정받지 않은 Claude Code 세션은 계속 크롬만 쓴다. ② 지정받은 세션은 `list_connected_browsers`에서 그 브라우저를 `select_browser`로 고르고, [`docs/ACTIVE_WORK.md`](docs/ACTIVE_WORK.md) 자기 줄에 「브라우저: 엣지(Codex 대행)」처럼 적는다. ③ 한 브라우저는 한 세션만 쓴다 — 대행 중에는 원래 주인(agy·Codex)이 그 브라우저를 쓰지 않고, 이미 다른 세션이 쓰고 있으면 고르지 않고 주인님께 여쭌다. ④ 지정은 그 세션 안에서만 유효하고 다음 세션으로 이어지지 않는다. 주인님이 「대행 끝」이라고 하거나 원래 CLI가 돌아오면 크롬으로 되돌리고 ACTIVE_WORK 표기를 지운다. ⑤ 엣지·웨일에도 Claude 확장이 설치·로그인돼 있어야 하고, 사이트 로그인은 브라우저마다 주인님이 직접 한다. 엣지 deviceId는 확인되는 대로 8-1-2 표에 적는다.
 
 
 <!-- COMPARISON_REFERENCE_20261021 -->
