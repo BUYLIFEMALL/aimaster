@@ -76,3 +76,39 @@ for (const provider of ['serpapi', 'openai']) {
   assert.equal(r.error, '키워드를 찾을 수 없습니다.'); assert.equal(fx.paid.length, 0);
   ok('다른 회원 씨드 키워드는 실행 불가'); }
 console.log('키워드 확장 시험 모두 통과');
+
+// ── 2026-10-23 v1.09: 확장 결과 → 경쟁사 분석 바로 등록 ──
+const out2 = await build({ entryPoints: ['lib/actions/expandSeeds.ts'], bundle: true, write: false, format: 'esm', platform: 'node',
+  plugins: [{ name: 'mocks', setup(b) {
+    b.onResolve({ filter: /.*/ }, a => mocks[a.path] ? { path: a.path, namespace: 'mock' } : undefined);
+    b.onLoad({ filter: /.*/, namespace: 'mock' }, a => ({ contents: mocks[a.path], loader: 'js' }));
+  } }] });
+const { registerKeywordsForAnalysisAction } = await import('data:text/javascript;base64,' + Buffer.from(out2.outputFiles[0].text).toString('base64'));
+function regFixture() {
+  const now = new Date().toISOString(), old = new Date(Date.now() - 40 * 86400000).toISOString();
+  const fx = { inserts: [], rows: {
+    longtail_seed_keywords: [{ id: 'seed-a', user_id: 'member-a', keyword: '씨드', engine: 'naver' }, { id: 'seed-b', user_id: 'member-b', keyword: '남의씨드', engine: 'naver' }],
+    longtail_related_keywords: [{ user_id: 'member-a', seed_id: 'seed-a', keyword: '연관A', created_at: now }, { user_id: 'member-a', seed_id: 'seed-a', keyword: '지난연관', created_at: old }],
+    longtail_expansions: [{ user_id: 'member-a', seed_id: 'seed-a', keyword: '롱테일1', created_at: now }],
+    competitor_keywords: [{ user_id: 'member-a', keyword: '연관A', engine: 'naver' }, { user_id: 'member-b', keyword: '롱테일1', engine: 'naver' }],
+  } };
+  fx.client = { from: t => {
+    const f = []; const rows = () => (fx.rows[t] ?? []).filter(r => f.every(([k, v, kind]) => kind === 'in' ? v.includes(r[k]) : kind === 'gt' ? r[k] > v : r[k] === v));
+    const api = { select: () => api, eq: (k, v) => (f.push([k, v]), api), in: (k, v) => (f.push([k, v, 'in']), api), gt: (k, v) => (f.push([k, v, 'gt']), api),
+      maybeSingle: async () => ({ data: rows()[0] ?? null }), insert: async p => (fx.inserts.push(...p), { error: null }), then: r => r({ data: rows(), error: null }) };
+    return api; } };
+  globalThis.fx = fx; return fx;
+}
+{ const fx = regFixture(); const r = await registerKeywordsForAnalysisAction('seed-a', ['씨드', '연관A', '롱테일1']);
+  assert.deepEqual(r, { added: 2, skipped: 1 });
+  assert.deepEqual(fx.inserts.map(x => [x.keyword, x.user_id, x.engine, x.location, x.lang]), [['씨드', 'member-a', 'naver', 'South Korea', 'ko'], ['롱테일1', 'member-a', 'naver', 'South Korea', 'ko']]);
+  ok('고른 키워드를 본인 경쟁사 키워드로 등록(씨드 검색엔진, 이미 있는 것 건너뜀 — 다른 회원 등록분은 무관)'); }
+{ const fx = regFixture(); const r = await registerKeywordsForAnalysisAction('seed-b', ['남의씨드']);
+  assert.equal(r.error, '키워드를 찾을 수 없습니다.'); assert.equal(fx.inserts.length, 0); ok('다른 회원 씨드의 결과는 등록 불가'); }
+{ const fx = regFixture(); const r = await registerKeywordsForAnalysisAction('seed-a', ['연관A', '아무키워드']);
+  assert.match(r.error, /결과에 없는/); assert.equal(fx.inserts.length, 0); ok('확장 결과에 없는 키워드는 거부'); }
+{ const fx = regFixture(); const r = await registerKeywordsForAnalysisAction('seed-a', ['지난연관']);
+  assert.match(r.error, /결과에 없는/); assert.equal(fx.inserts.length, 0); ok('30일 지난 결과의 키워드는 거부'); }
+{ regFixture(); const r = await registerKeywordsForAnalysisAction('seed-a', Array.from({ length: 11 }, (_, i) => 'k' + i));
+  assert.match(r.error, /10개까지/); ok('한 번에 10개까지'); }
+console.log('경쟁사 분석 등록 시험 모두 통과');

@@ -5,6 +5,7 @@ import { retentionCutoff } from "@/lib/retention";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { CsvButton, type CsvRow } from "@/components/expand/CsvButton";
+import { SendToAnalysis } from "@/components/expand/SendToAnalysis";
 import { formatDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -94,6 +95,19 @@ export default async function RunDetailPage({ params }: PageProps) {
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-mx-text">{run.summary_text}</p>
         </div>
       )}
+
+      <SendToAnalysis
+        seedId={seed.id}
+        keywords={Array.from(
+          new Map(
+            [
+              { keyword: seed.keyword, kind: "씨드" },
+              ...relatedList.map((r) => ({ keyword: r.keyword, kind: "연관" })),
+              ...(expansions ?? []).map((e) => ({ keyword: e.keyword, kind: "롱테일" })),
+            ].map((k) => [k.keyword, k] as const),
+          ).values(),
+        )}
+      />
 
       {seedDirectExpansions.length > 0 && (
         <div className="mx-card">
