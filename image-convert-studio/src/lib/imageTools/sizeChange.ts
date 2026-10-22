@@ -14,3 +14,9 @@ export function savingGrade(ratio: number): SavingGrade {
   if (ratio < 0) return "bigger";
   return ratio >= 30 ? "great" : "small";
 }
+
+/** v1.18: 목록 배지와 같은 계산(절감률 반올림)으로 「용량이 늘어난 그림」인지 */
+export function isGrownFile(original: number, converted: number): boolean {
+  if (!(original > 0)) return false;
+  return savingGrade(Math.round((1 - converted / original) * 100)) === "bigger";
+}

@@ -114,3 +114,13 @@ test("v1.18 절감률 3단계", async () => {
   assert.equal(savingGrade(0), "small");
   assert.equal(savingGrade(-1), "bigger");
 });
+
+test("v1.18 용량 늘어남 판정·필터 문구", async () => {
+  const { isGrownFile } = await import("../src/lib/imageTools/sizeChange.ts");
+  assert.equal(isGrownFile(1000, 1100), true);
+  assert.equal(isGrownFile(1000, 1004), false); // 반올림 0% — 배지도 회색
+  assert.equal(isGrownFile(1000, 500), false);
+  assert.equal(isGrownFile(0, 10), false);
+  const { DICTS } = await import("../src/lib/i18n.ts");
+  for (const d of Object.values(DICTS)) assert.ok(d.convert.onlyGrown.includes("{n}") && d.convert.showAll);
+});

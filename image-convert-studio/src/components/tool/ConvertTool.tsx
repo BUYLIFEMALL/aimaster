@@ -6,7 +6,7 @@ import { buildZip, convertImage, type ConvertOptions } from "@/lib/imageTools/en
 import { CENTER, MAX_ZOOM, CROP_RATIOS, POST_PRESETS, normalizeRotation, presetById, presetFromParam, type CropRatioId, type Focus, type Rotation } from "@/lib/imageTools/geometry";
 import { TransformedPreview, type PreviewTransform } from "./TransformedPreview";
 import { BeforeAfter } from "./BeforeAfter";
-import { savingGrade, sizeChangeLabel } from "@/lib/imageTools/sizeChange";
+import { isGrownFile, savingGrade, sizeChangeLabel } from "@/lib/imageTools/sizeChange";
 import {
   FORMAT_LABEL,
   OUTPUT_FORMATS,
@@ -192,6 +192,11 @@ export function ConvertTool() {
 
   const selectedCount = items.filter((item) => item.selected).length;
   const doneCount = items.filter((item) => item.result).length;
+  // v1.18: 용량이 늘어난 그림만 모아 보기(다시 손볼 그림 찾기) — 없으면 필터를 꺼진 것으로 본다
+  const [onlyGrown, setOnlyGrown] = useState(false);
+  const grownCount = items.filter((item) => item.result && isGrownFile(item.file.size, item.result.blob.size)).length;
+  const showOnlyGrown = onlyGrown && grownCount > 0;
+  const visibleItems = showOnlyGrown ? items.filter((item) => item.result && isGrownFile(item.file.size, item.result.blob.size)) : items;
   const showFilter = scale !== 1 || limitSize || !!presetId;
   // v1.13: 변환 전 미리보기(썸네일·자를 위치 창)
   const previewT: PreviewTransform = { rotate, flipH, flipV, cropRatio: CROP_RATIOS.find((c) => c.id === cropId)?.ratio ?? null, preset: presetById(presetId) };
@@ -384,6 +389,17 @@ export function ConvertTool() {
             <span className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 font-medium text-emerald-300">
               {fmt(t.convert.done, { n: doneCount })}
             </span>
+            {grownCount > 0 && (
+              <button
+                type="button"
+                aria-pressed={showOnlyGrown}
+                data-only-grown
+                onClick={() => setOnlyGrown((v) => !v)}
+                className={`rounded-xl border px-3 py-1 font-medium transition ${showOnlyGrown ? "border-amber-400 bg-amber-500/20 text-amber-200" : "border-amber-500/40 bg-amber-950/40 text-amber-300 hover:bg-amber-900/40"}`}
+              >
+                {showOnlyGrown ? t.convert.showAll : fmt(t.convert.onlyGrown, { n: grownCount })}
+              </button>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -456,7 +472,7 @@ export function ConvertTool() {
           </div>
         ) : (
           <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3.5">
-            {items.map((item) => {
+            {visibleItems.map((item) => {
               const ratio = item.result ? Math.round((1 - item.result.blob.size / item.file.size) * 100) : 0;
               // v1.18: 절감률 3단계 — 많이 줄면 초록, 조금 줄면 회색, 늘면 주황(카드 테두리도 주황으로 표시)
               const grade = item.result ? savingGrade(ratio) : null;
