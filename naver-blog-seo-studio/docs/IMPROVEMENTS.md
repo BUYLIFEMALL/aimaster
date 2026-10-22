@@ -119,3 +119,8 @@
 - **처리:** `lib/savedModel.ts` `accountContentModel`(계정 값 → 예전 OpenAI 설정 이어받기 → 없음), `lib/ai/openaiModels.ts` `getUserOpenAIContentModel`(기본 AI가 OpenAI면 그 모델 → 예전 값 → gpt-4.1, 이미지 고르기 라우트도 이 함수로). `useStudio.ts` — 브라우저 기억으로 먼저 보이고 GET 결과로 덮음, GET을 받은 뒤에만 바뀐 값을 POST(받기 전 저장해 다른 PC 값을 덮는 일 방지). `TitleView.tsx` — 기본 AI가 OpenAI가 아니면 「AI 제목 추천은 OpenAI 전용 기능 모델(○○)로 만듭니다」 안내. 설정 화면 「AI 모델」 카드(글쓰기 기본 AI / OpenAI 전용 기능 모델 — 기본 AI가 OpenAI면 잠기고 같은 모델 표시).
 - **검수(웨일, 시험 계정, AI 1회):** 처음 열기 → 계정의 예전 값 gpt-4.1이 브라우저 기억(gpt-4o-mini)보다 우선. gpt-4o-mini 선택 → 계정 저장(GET 확인, OpenAI 전용도 gpt-4o-mini). 브라우저 기억 삭제 후 새로고침 → gpt-4o-mini(다른 PC와 같은 상황). Claude 선택 → 계정 저장, 제목 화면 안내(gpt-4.1) 표시. 설정 화면이 계정 값과 일치, 설정에서 OpenAI·gpt-4o-mini 저장 → 작업 화면 반영. 제목 추천 1회 정상 저장. 시험 59(새 1), 타입 검사, 린트, 빌드 통과. DB/확장/ZIP v1.97 OK.
 - **남은 점:** 작업 화면에서 모델을 바꾸고 1초 안에 제목 추천을 누르면 계정 저장 전 값으로 만들어질 수 있음(저장 요청이 비동기). 필요하면 제목 추천 요청에 화면 모델을 함께 보내는 방식 검토.
+
+## v1.98 (2026-10-22, Claude Code 윈도우·웨일) — 계정 저장 전에 눌러도 맞는 모델 쓰기
+- **처리:** `useStudio.ts` `activeOpenAIModel`(기본 AI가 OpenAI면 `contentModel`, 아니면 `openAIFeatureModel`)을 `/api/titles/recommend`·`/api/drafts/analyze`·`/api/drafts/optimize`·`/api/images/generate-content` 요청에 `openaiModel`로 보냄(이미지 라우트는 `model`이 이미지 모델이라 이름을 나눔). `lib/ai/openaiModels.ts` `getUserOpenAIContentModel(meta, requested)` — 목록에 있는 요청 값 → 계정 기본 AI(OpenAI일 때) → 예전 값 → gpt-4.1. 값을 안 보내는 옛 화면·확장은 그대로.
+- **검수(웨일, 시험 계정, AI 1회 gpt-4o):** gpt-4o-mini → gpt-4o로 바꾸고 50ms 뒤 제목 추천 → 계정 저장 요청과 60ms 차이로 나간 제목 추천 본문에 `openaiModel: "gpt-4o"`, 응답 200. 시험 뒤 시험 계정을 gpt-4o-mini로 되돌림(GET 확인). 시험 60(새 1), 타입 검사, 린트, 빌드 통과. DB/확장/ZIP v1.98 OK.
+- **남은 점:** 없음(모델 선택 관련 v1.94~v1.98 후보 모두 처리). 다음 작업: BLC-10(문단별 이미지 노드).

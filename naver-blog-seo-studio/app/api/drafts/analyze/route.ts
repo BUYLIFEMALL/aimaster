@@ -11,7 +11,7 @@ export const fetchCache = "force-no-store";
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { body?: string } | null;
+  const input = await request.json().catch(() => null) as { body?: string; openaiModel?: unknown } | null;
   const body = input?.body?.trim() ?? "";
   if (body.length < 50 || body.length > 20_000) return NextResponse.json({ error: "분석할 글을 50~20,000자로 입력해주세요." }, { status: 400 });
   const supabase = await createClient();
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
   try {
-    const model = getUserOpenAIContentModel(access.user.user_metadata);
+    const model = getUserOpenAIContentModel(access.user.user_metadata, input?.openaiModel);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },

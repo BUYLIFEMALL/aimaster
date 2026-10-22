@@ -16,7 +16,7 @@ type SeoReport = Record<string, unknown>;
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { draftId?: string; count?: number; model?: unknown } | null;
+  const input = await request.json().catch(() => null) as { draftId?: string; count?: number; model?: unknown; openaiModel?: unknown } | null;
   const draftId = input?.draftId?.trim();
   const count = input?.count === 3 ? 3 : input?.count === 2 || input?.count === undefined ? 2 : null;
   if (!count) return NextResponse.json({ error: "본문 이미지는 2장 또는 3장만 생성할 수 있습니다." }, { status: 400 });
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const publicationReport = draftReport(draft.seo_report);
   if (draftLocked(publicationReport)) return NextResponse.json({ error: "자동 발행을 시작한 원고의 이미지는 바꿀 수 없습니다." }, { status: 409 });
   try {
-    const visuals = await selectContentVisuals({ apiKey: openaiKey, topic: draft.topic, title: draft.title, body: draft.body, count, model: getUserOpenAIContentModel(access.user.user_metadata) });
+    const visuals = await selectContentVisuals({ apiKey: openaiKey, topic: draft.topic, title: draft.title, body: draft.body, count, model: getUserOpenAIContentModel(access.user.user_metadata, input?.openaiModel) });
     const imageModel = resolveGeminiImageModel(input?.model);
     const generated: ContentVisual[] = [];
     for (const visual of visuals) {

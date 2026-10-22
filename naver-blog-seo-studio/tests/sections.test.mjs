@@ -98,3 +98,12 @@ test("v1.97: account model wins, legacy OpenAI setting is inherited, OpenAI-only
   assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "anthropic", model: "claude-haiku-4-5" }, naver_blog_seo_openai_model: "gpt-5" }), "gpt-5");
   assert.equal(getUserOpenAIContentModel({}), "gpt-4.1");
 });
+
+test("v1.98: the OpenAI model sent by the screen wins over the account value; unknown names are ignored", async () => {
+  const { getUserOpenAIContentModel } = await import("../lib/ai/openaiModels.ts");
+  const meta = { naver_blog_seo_content_model: { provider: "openai", model: "gpt-4o-mini" }, naver_blog_seo_openai_model: "gpt-4.1" };
+  assert.equal(getUserOpenAIContentModel(meta, "gpt-4o"), "gpt-4o");
+  assert.equal(getUserOpenAIContentModel(meta, "not-a-model"), "gpt-4o-mini");
+  assert.equal(getUserOpenAIContentModel(meta, undefined), "gpt-4o-mini");
+  assert.equal(getUserOpenAIContentModel({}, 123), "gpt-4.1");
+});

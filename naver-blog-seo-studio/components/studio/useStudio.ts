@@ -35,6 +35,8 @@ export function useStudio() {
   // 계정 값을 받은 뒤에만 계정에 저장한다(받기 전에 저장하면 이 PC 값이 다른 PC에서 고른 값을 덮어씀).
   const accountModelRef = useRef<string | null>(null);
   const [openAIFeatureModel, setOpenAIFeatureModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
+  // v1.98: OpenAI 전용 기능 요청에 함께 보내는 지금 적용 중인 OpenAI 모델(계정 저장 전에 눌러도 맞게)
+  const activeOpenAIModel = contentProvider === "openai" ? contentModel : openAIFeatureModel;
   useEffect(() => {
     const restoreModel = () => {
       let saved = null;
@@ -283,7 +285,7 @@ export function useStudio() {
     if (!topic.trim()) return setMessage("주제를 먼저 입력해주세요.");
     setTitlePending(true);
     try {
-      const response = await fetch("/api/titles/recommend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords }) });
+      const response = await fetch("/api/titles/recommend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords, openaiModel: activeOpenAIModel }) });
       const result = await response.json() as { recommendation?: TitleRecommendationRecord; error?: string };
       if (!response.ok) throw new Error(result.error || "제목 추천에 실패했습니다.");
       if (!result.recommendation) throw new Error("저장된 제목 추천 결과를 받지 못했습니다.");
@@ -301,7 +303,7 @@ export function useStudio() {
     if (!existingBody.trim()) return setMessage("기존 글을 먼저 붙여넣어주세요.");
     setOptimizePending(true);
     try {
-      const response = await fetch("/api/drafts/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody, keywords: optimizationKeywords, personaId, customPersona }) });
+      const response = await fetch("/api/drafts/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody, keywords: optimizationKeywords, personaId, customPersona, openaiModel: activeOpenAIModel }) });
       const result = await response.json() as { result?: { title: string; body: string; improvements: string[] }; error?: string };
       if (!response.ok) throw new Error(result.error || "기존 글 최적화에 실패했습니다.");
       setOptimized(result.result ?? null);
@@ -342,7 +344,7 @@ export function useStudio() {
     if (!existingBody.trim()) return setMessage("분석할 기존 글을 먼저 붙여넣거나 가져와주세요.");
     setAnalysisPending(true);
     try {
-      const response = await fetch("/api/drafts/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody }) });
+      const response = await fetch("/api/drafts/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: existingBody, openaiModel: activeOpenAIModel }) });
       const result = await response.json() as { analysis?: ContentAnalysis; error?: string };
       if (!response.ok || !result.analysis) throw new Error(result.error || "글 분석에 실패했습니다.");
       setContentAnalysis(result.analysis);
@@ -518,7 +520,7 @@ export function useStudio() {
     setContentImagePending(true);
     setMessage(`AI가 본문 핵심 문장 ${contentImageCount}개를 고르고, 각 문장에 맞는 이미지를 생성하고 있습니다.`);
     try {
-      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, count: contentImageCount, model: imageModel }) });
+      const response = await fetch("/api/images/generate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, count: contentImageCount, model: imageModel, openaiModel: activeOpenAIModel }) });
       const result = await response.json() as { images?: ContentImage[]; error?: string };
       if (!response.ok || !result.images?.length) throw new Error(result.error || "본문 매칭 이미지를 생성하지 못했습니다.");
       setContentImages(result.images);

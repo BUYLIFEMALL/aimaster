@@ -22,7 +22,9 @@ export function resolveOpenAIContentModel(value: unknown): OpenAIContentModel {
 
 // v1.97: OpenAI 전용 기능(제목 추천·기존 글 분석/최적화·본문 이미지 고르기)의 모델.
 // 글쓰기 기본 AI(naver_blog_seo_content_model)가 OpenAI면 그 모델, 아니면 「OpenAI 전용 기능 모델」(naver_blog_seo_openai_model), 없으면 기본값.
-export function getUserOpenAIContentModel(userMetadata: Record<string, unknown> | null | undefined) {
+// v1.98: requested = 화면이 보낸 지금 적용 중인 OpenAI 모델(계정 저장 전에 눌러도 맞게). 목록에 없으면 무시.
+export function getUserOpenAIContentModel(userMetadata: Record<string, unknown> | null | undefined, requested?: unknown) {
+  if (isOpenAIContentModel(requested)) return requested;
   const chosen = userMetadata?.naver_blog_seo_content_model as { provider?: unknown; model?: unknown } | undefined;
   if (chosen?.provider === "openai" && isOpenAIContentModel(chosen.model)) return chosen.model;
   return resolveOpenAIContentModel(userMetadata?.naver_blog_seo_openai_model);

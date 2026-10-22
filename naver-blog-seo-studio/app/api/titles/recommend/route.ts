@@ -38,7 +38,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; openaiModel?: unknown } | null;
   const topic = input?.topic?.trim() ?? "";
   const keywords = input?.keywords?.trim() ?? "";
   const today = getKoreaToday();
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ code: "API_KEY_REQUIRED", error: "OpenAI API 키를 먼저 등록해주세요." }, { status: 400 });
 
   try {
-    const model = getUserOpenAIContentModel(access.user.user_metadata);
+    const model = getUserOpenAIContentModel(access.user.user_metadata, input?.openaiModel);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
