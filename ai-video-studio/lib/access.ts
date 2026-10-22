@@ -76,12 +76,14 @@ export async function checkAdminApi() {
 
 /** 로그인한 회원 본인이 등록한 API 키만 돌려준다. 없으면 null — 다른 회원·운영자 키로 대신하지 않는다. */
 export async function getUserApiKey(userId: string, provider: string): Promise<string | null> {
-  const { data } = await createAdminClient()
+  const { data, error } = await createAdminClient()
     .from("user_api_keys")
     .select("api_key")
     .eq("user_id", userId)
     .eq("provider", provider)
     .maybeSingle();
+  // 키 값은 남기지 않는다 — 조회 실패 원인만(2026-10-23 fal 키가 있는데 「없음」으로 나온 문제 추적)
+  if (error || !data?.api_key) console.error("[getUserApiKey] 없음", { provider, user: userId.slice(0, 8), error: error?.message ?? null, hasRow: !!data });
   return data?.api_key ?? null;
 }
 
