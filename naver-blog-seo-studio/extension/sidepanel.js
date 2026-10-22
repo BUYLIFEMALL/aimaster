@@ -267,7 +267,10 @@ async function reportWebDraftInputResult(status, details = {}) {
   });
   if (!response.ok) {
     const result = await response.json().catch(() => ({}));
-    throw new Error(result.error || `입력 결과 기록 실패 (${response.status})`);
+    const message = result.error || `입력 결과 기록 실패 (${response.status})`;
+    // 2026-10-23: 호출하는 쪽이 오류를 넘기므로, 서버 기록이 안 된 사실은 여기서 화면에 남긴다.
+    $("webDraftStatus").textContent = `웹 기록 실패: ${message} (네이버 편집기 입력 자체와는 별개입니다)`;
+    throw new Error(message);
   }
 }
 
@@ -512,7 +515,12 @@ async function fillPublishInfoIntoNaver() {
   }
 }
 
+// 2026-10-23: 입력이 끝난 뒤에도 걸린 시간을 남긴다(진행 중 표시는 완료 문구로 덮이므로).
+let inputStartedAt = 0;
+const inputElapsedText = () => (inputStartedAt ? ` (걸린 시간 ${Math.max(1, Math.round((Date.now() - inputStartedAt) / 1000))}초)` : "");
+
 async function preparePublishSettingsAfterContentInput(paragraphCount, inputSummary) {
+  inputSummary = `${inputSummary}${inputElapsedText()}`;
   if (seoAutoBusy && seoPublication?.runId) return finishAutoPublication();
   await reportWebDraftInputResult("completed", { paragraphCount }).catch(() => {});
   const category = $("publishCategory").value.trim();
@@ -529,7 +537,7 @@ async function preparePublishSettingsAfterContentInput(paragraphCount, inputSumm
     await fillPublishInfoIntoNaver();
     await chrome.storage.local.set({ [PUBLISH_SETTINGS_KEY]: { category, tags } });
     await reportWebDraftInputResult("publish_ready", { paragraphCount }).catch(() => {});
-    $("generateStatus").textContent = "콘텐츠·이미지·카테고리·태그 입력 완료. 네이버 마지막 발행 버튼만 직접 누르세요.";
+    $("generateStatus").textContent = `콘텐츠·이미지·카테고리·태그 입력 완료${inputElapsedText()}. 네이버 마지막 발행 버튼만 직접 누르세요.`;
     $("publishStatus").textContent = "카테고리·태그 자동 입력 완료. 마지막 발행 버튼은 직접 누르세요.";
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
@@ -732,7 +740,8 @@ async function typeWithDebugger(tabId, value) {
   const startedAt = Date.now();
   for (const chunk of typingChunks(text)) {
     if (chunk === "\n") {
-      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+      // 2026-10-23: 줄바꿈 문자(\r)를 함께 보내야 네이버 편집기가 새 문단을 만든다(없으면 문단이 이어 붙음).
+      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", text: "\r", unmodifiedText: "\r", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
       await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
     } else {
       await debuggerCommand(tabId, "Input.insertText", { text: chunk });
@@ -816,6 +825,16 @@ async function focusNaverEditor(tabId, kind, placement = "end") {
   return results.find((entry) => entry.result?.ok)?.result || { ok: false };
 }
 
+// 2026-10-23: 입력 확인 실패 이유(제목·본문·문단 나눔)를 한 줄로 만든다.
+function inputCheckDetails(verification) {
+  const counts = `${verification.actualParagraphCount || 0}/${verification.expectedParagraphCount || 0}문단`;
+  return [
+    verification.titleMatched === false ? "제목 확인 실패" : null,
+    verification.bodyMatched === false ? `본문 확인 실패 (${counts})` : null,
+    verification.bodyMatched !== false && verification.paragraphsMatched === false ? `문단 나눔 확인 실패 (${counts})` : null,
+  ].filter(Boolean).join(", ") || "본문 확인 실패";
+}
+
 async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
   let lastError;
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -837,13 +856,17 @@ async function verifyNaverEditorContent(tabId, expectedTitle, expectedBody) {
       const expectedParagraphs = String(bodyValue || "").replace(/\\n/g, "\n").split(/\n+/).map(normalize).filter(Boolean);
       const titleMatched = !expectedTitleText || actualTitleText.includes(expectedTitleText);
       const bodyMatched = !expectedBodyText || expectedParagraphs.every((paragraph) => actualBodyText.includes(paragraph));
+      const actualParagraphTotal = bodyParagraphs.map((paragraph) => normalize(paragraph.innerText || paragraph.textContent || "")).filter(Boolean).length;
+      // 2026-10-23: 글자는 다 들어갔어도 문단 나눔이 사라지면(문단 수 부족) 입력 실패로 본다.
+      const paragraphsMatched = !expectedBodyText || actualParagraphTotal >= expectedParagraphs.length;
       return {
-        ok: titleMatched && bodyMatched,
+        ok: titleMatched && bodyMatched && paragraphsMatched,
         titleMatched,
         bodyMatched,
+        paragraphsMatched,
         actualTitle: actualTitleText.slice(0, 120),
         actualBody: actualBodyText.slice(0, 240),
-        actualParagraphCount: bodyParagraphs.map((paragraph) => normalize(paragraph.innerText || paragraph.textContent || "")).filter(Boolean).length,
+        actualParagraphCount: actualParagraphTotal,
         expectedParagraphCount: expectedParagraphs.length,
         frame: location.href,
       };
@@ -899,6 +922,7 @@ $("link").addEventListener("click", async () => {
 
 async function fillDraftIntoNaver(options = {}) {
   const automatic = options?.auto === true;
+  inputStartedAt = Date.now();
   $("generateStatus").textContent = "네이버 편집기에 실제 키보드 입력 중...";
   let attachedTabId = null;
   try {
@@ -932,7 +956,7 @@ async function fillDraftIntoNaver(options = {}) {
       const expectedBody = activeWebDraftBlocks.filter((block) => block.type === "text").map((block) => block.text.trim()).filter(Boolean).join("\n\n") || body;
       const verification = await verifyNaverEditorContent(tab.id, title, expectedBody);
       if (!verification.ok) {
-        const details = verification.titleMatched === false ? "제목 확인 실패" : "본문 확인 실패";
+        const details = inputCheckDetails(verification);
         await reportWebDraftInputResult("failed", { error: details }).catch(() => {});
         throw new Error(`${details}. 구조 분석을 실행한 뒤 다시 시도해주세요.`);
       }
@@ -958,7 +982,7 @@ async function fillDraftIntoNaver(options = {}) {
       await typeBodyWithMatchedImages(tab.id, body, activeWebDraftContentImages);
       const verification = await verifyNaverEditorContent(tab.id, title, body);
       if (!verification.ok) {
-        const details = verification.titleMatched === false ? "제목 확인 실패" : "본문 확인 실패";
+        const details = inputCheckDetails(verification);
         await reportWebDraftInputResult("failed", { error: details }).catch(() => {});
         throw new Error(`${details}. 구조 분석을 실행해 주세요.`);
       }
@@ -1000,10 +1024,7 @@ async function fillDraftIntoNaver(options = {}) {
     if (!imageDataUrl) await typeWithDebugger(tab.id, body);
     const verification = await verifyNaverEditorContent(tab.id, title, body);
     if (!verification.ok) {
-      const details = [
-        verification.titleMatched === false ? "제목 확인 실패" : null,
-        verification.bodyMatched === false ? `본문 확인 실패 (${verification.actualParagraphCount || 0}/${verification.expectedParagraphCount || 0}문단)` : null,
-      ].filter(Boolean).join(", ");
+      const details = inputCheckDetails(verification);
       $("generateStatus").textContent = `입력 결과 확인 실패: ${details || "실제 편집기 내용을 읽지 못했습니다."} 구조 분석을 실행해 주세요.`;
       await reportWebDraftInputResult("failed", { error: details || "입력 결과 확인에 실패했습니다." }).catch(() => {});
       if (automatic) throw new Error(details || "입력 결과 확인에 실패했습니다.");

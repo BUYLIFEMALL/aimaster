@@ -122,3 +122,18 @@ test("SEO explanation hides publication metadata without stripping result from d
   assert.deepEqual(JSON.parse(JSON.stringify(studio.reportEntries(draft.seo_report))), [["intent", "검색 의도"]]);
   assert.equal(draft.seo_report.autoPublish.state, "published");
 });
+
+test("stale writing runs (20+ min, before arm) end and allow manual input records", () => {
+  const now = Date.parse("2026-10-23T01:30:00Z");
+  const run = (state, minutesAgo) => ({ runId: "run-1", state, startedAt: new Date(now - minutesAgo * 60000).toISOString() });
+  assert.equal(guards.staleWritingRun(run("writing", 21), now), true);
+  assert.equal(guards.staleWritingRun(run("writing", 19), now), false);
+  assert.equal(guards.staleWritingRun(run("publishing", 60), now), false);
+  assert.equal(guards.staleWritingRun({ runId: "run-1", state: "writing" }, now), false);
+  assert.equal(guards.manualInputAllowed({}, now), true);
+  assert.equal(guards.manualInputAllowed(run("failed", 1), now), true);
+  assert.equal(guards.manualInputAllowed(run("writing", 21), now), true);
+  assert.equal(guards.manualInputAllowed(run("writing", 5), now), false);
+  assert.equal(guards.manualInputAllowed(run("publishing", 60), now), false);
+  assert.equal(guards.manualInputAllowed(run("uncertain", 60), now), false);
+});

@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.07 문단 나눔 복구·입력 확인 강화 (빌드 1회 · AI 0회)
+- v2.06 실검수에서 문단·소제목이 이어 붙는 문제 발견 → Enter 키에 줄바꿈 문자, 입력 확인에 문단 수 비교, 완료 문구에 걸린 시간, 20분 넘게 멈춘 자동 포스팅 실행 자동 정리·입력만 결과 기록 허용. 배포 Ready·DB/확장/ZIP v2.07.
+- 남은 일: 주인님 확장 새로고침 뒤 실제 네이버 편집기 문단 나눔 재확인(`naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래).
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 되돌림 감사를 세션 시작 점검에 연결 · 훅 알림 · `safe-commit --handoff` · `deploy --go` 기준 사본 자동 (비용 없음)
 - `node scripts/deploy.mjs --version-only --all`에 ① 최근 24시간 공용 문서 되돌림 감사(「⚠ 사라짐」만 자세히) ② 역량 지도 카드 본문 버전이 화면 버전보다 5단계 이상 뒤처진 카드 목록(보고만, 지금 32개) 추가.
 - 감사 정확도: 같은 `slug`를 가진 새 줄이 있으면 「고친 줄」로 봄(이름 변경 오탐 `ecde77a84` 제외), 확인한 의도 정리는 `scripts/reverts-reviewed.txt`(현재 `14aa68ce3`·`b1756a5bf`) → 지금 사라짐 0건.

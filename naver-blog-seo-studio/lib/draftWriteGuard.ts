@@ -17,6 +17,14 @@ export function nextDraftReport(report: DraftReport, changes: DraftReport = {}):
   return { ...report, ...changes, saveRevision: randomUUID() };
 }
 export const draftLocked = (report: DraftReport) => Boolean(draftReport(report.autoPublish).runId);
+// 2026-10-23: 최종 발행 권한(arm)을 받기 전 「입력 중」에서 20분 넘게 멈춘 실행은 끝난 것으로 본다(최종 버튼은 누르지 않은 단계).
+export const STALE_WRITING_MS = 20 * 60 * 1000;
+export function staleWritingRun(run: DraftReport, now = Date.now()) {
+  const startedAt = typeof run.startedAt === "string" ? Date.parse(run.startedAt) : NaN;
+  return run.state === "writing" && Number.isFinite(startedAt) && now - startedAt > STALE_WRITING_MS;
+}
+// 「편집기로 입력만」 결과는 자동 포스팅 실행이 없거나, 실패했거나, 멈춘 실행일 때만 기록한다.
+export const manualInputAllowed = (run: DraftReport, now = Date.now()) => !run.runId || run.state === "failed" || staleWritingRun(run, now);
 export function publicationFingerprint(row: Record<string, unknown>) {
   const report = draftReport(row.seo_report);
   return createHash("sha256").update(JSON.stringify([

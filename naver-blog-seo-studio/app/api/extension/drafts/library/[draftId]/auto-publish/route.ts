@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { createServiceClient } from "@/lib/supabase/service";
-import { draftReport, matchDraftRevision, nextDraftReport, publicationFingerprint, naverPostUrl, writableDraft } from "@/lib/draftWriteGuard";
+import { draftReport, matchDraftRevision, nextDraftReport, publicationFingerprint, naverPostUrl, staleWritingRun, writableDraft } from "@/lib/draftWriteGuard";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -24,10 +24,12 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   if (!row) return fail("유효한 내 전송 원고를 찾지 못했습니다.", 404);
   const report = draftReport(row.seo_report);
   const current = draftReport(report.autoPublish);
-  if (input.action === "status") return json({ publication: current, title: row.title });
+  if (input.action === "status" && !staleWritingRun(current)) return json({ publication: current, title: row.title });
   const now = new Date().toISOString();
   let publication: Record<string, unknown>;
-  if (input.action === "claim") {
+  if (input.action === "status") {
+    publication = { ...current, state: "failed", error: "20분 넘게 입력이 끝나지 않아 실행을 끝냈습니다. 최종 발행 버튼은 누르지 않았습니다.", checkedAt: now };
+  } else if (input.action === "claim") {
     if (input.fingerprint !== publicationFingerprint(row)) return fail("미리보기 이후 원고가 변경됐습니다. 목록에서 원고를 다시 불러와 확인해 주세요.");
     if (current.runId) return fail("이미 실행한 원고입니다. 결과를 먼저 확인하세요. 다시 쓰려면 새 원고로 복제해 주세요.");
     const blogId = String(input.blogId || "").trim();
