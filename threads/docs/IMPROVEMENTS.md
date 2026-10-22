@@ -45,8 +45,14 @@
 - **이유**: SNS 계정 연동 직후 프로필 사진을 정리하려는 회원이 많고, 인물사진 v1.24에서 같은 사진으로 정사각·세로·원형 프로필을 한 번에 만들 수 있게 됐다.
 - **원칙**: 프로그램 간 호출·데이터 전달 없이 링크만. 인물사진은 회원 본인 Gemini 키·이용 권한이 따로 필요하므로 문구에 "별도 프로그램(이용 권한 필요)"을 밝힌다.
 - **상태**: 미구현 제안(매뉴얼 화면은 AGY 디자인 영역이라 Claude Code가 코드를 고치지 않음). 구현 시 이 프로그램 버전 +0.01.
-- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+- **✅ 배포됨(v1.29, 2026-10-23 — 무료 사진 배포에 함께 나감, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
 
 ## 2026-10-23 연계 제안 — 글 첨부 이미지에 무료 사진 (Claude Code 윈도우, 조사만·구현 아님)
-- [ ] 글 작성 「이미지 & 캐러셀」(`src/components/posts/PostForm.tsx` 약 533행)에 「📷 무료 사진」 — 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본 + 회원 본인 Pixabay·Pexels 키(공용 `user_api_keys`). 고르면 서버가 받아 공개 버킷 `post-images/<회원>/`에 **JPEG**로 저장 → 이미지 목록에 추가(INSTA v1.65 피드 첨부와 같은 흐름). 키 형식 `src/types/database.types.ts:2`에 pixabay·pexels 추가, 설정에 키 칸·연결 확인.
+- [x] (2026-10-23 v1.29 배포) 글 작성 「이미지 & 캐러셀」(`src/components/posts/PostForm.tsx` 약 533행)에 「📷 무료 사진」 — 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본 + 회원 본인 Pixabay·Pexels 키(공용 `user_api_keys`). 고르면 서버가 받아 공개 버킷 `post-images/<회원>/`에 **JPEG**로 저장 → 이미지 목록에 추가(INSTA v1.65 피드 첨부와 같은 흐름). 키 형식 `src/types/database.types.ts:2`에 pixabay·pexels 추가, 설정에 키 칸·연결 확인.
 - 주의: 글 작성 전체가 `<form onSubmit>` 안(`PostForm.tsx:357`) — 검색어 Enter `preventDefault()` 필수(INSTA v1.65 사고, `docs/ERROR_LESSONS.md` 2026-10-23). 예상 빌드 1회, AI 0.
+
+## 2026-10-23 v1.29 후속 (Claude Code 윈도우)
+- [ ] 무료 사진을 추가한 뒤 글을 저장하지 않고 나가면 `post-images/<회원>/` 파일이 남음(직접 업로드와 같은 동작) — 정리 방식 확인 필요.
+- [ ] 설정 「Pixabay/Pexels 연결 확인」 버튼(INSTA v1.65 `PhotoKeyCheckButton` 방식)은 아직 없음.
+- [ ] 무료 사진 검색어 기본값이 글감 주제(`topic`)라 한국어 주제면 결과가 적을 수 있음 — 영어 키워드 추천은 미구현.
+- 미확인: 좌측 메뉴 계정 위치(`22c6cda35`, 함께 배포)의 휴대폰 폭 화면, Pexels 실검색, 무료 사진을 붙인 글의 실제 Threads 게시.

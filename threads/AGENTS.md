@@ -2,7 +2,7 @@
 
 > **프로그램명**: Threads 포스팅 자동화 (`auto-threads-posting`)  
 > **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
-> **현재 버전**: `v1.22`  
+> **현재 버전**: `v1.29`  
 > **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**  
 > **관리자 계정**: `buylifemall@gmail.com`  
 > **일반 테스트 계정**: `buylifemall@naver.com`
@@ -51,6 +51,7 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 
+- **v1.29 (2026-10-23, Claude Code 윈도우) — 글 첨부 이미지에 📷 무료 사진(Pixabay·Pexels)**: 공용 기준 코드 `free-photo-search` 사본 `src/lib/photoSearch.ts`(직접 고치지 말고 기준 INSTA `src/lib/cardnews/photoSearch.ts` 수정 후 `--sync`), API `POST /api/photos`(`checkProgramAccessApi` → 회원 본인 키 `getUserApiKey`, search 12장 / pick = 받아서 공개 버킷 `post-images/<회원>/`에 저장 — **Threads가 받는 JPEG·PNG만**, 그 밖은 거절, `sharp` 추가 없음), 새 글 이미지 칸 「📷 무료 사진으로 추가」(`src/components/posts/FreePhotoPicker.tsx`, 밝은 상자·출처 배지·작가, 최대 20장, **검색어 Enter `preventDefault()` — 글 작성 `<form>` 안이라 제출·AI 자동 생성 방지**), 설정 「📷 글 첨부 무료 사진 (선택)」 키 칸(공용 `user_api_keys`, 다른 프로그램 키 「등록됨」), 키 형식·`VALID_PROVIDERS`·라벨에 pixabay·pexels. 함께 나감: 좌측 메뉴 계정 위치(`22c6cda35`). 커밋 `bc329f157`, 배포 `threads-crhee97ol` Ready, DB v1.29. 크롬(관리자 본인 Pixabay 키): 새 글 → 「cafe」 Enter → 검색만(결과 12장·배지, 제출·생성 없음) → 첫 사진 추가 → `post-images/<관리자>/…jpg`(JPEG 420KB, 200), 캐러셀 1/20 → 설정 칸 「등록됨」. 글 저장·게시 안 함, 시험 사진 삭제. 비용: 빌드 1회, Pixabay 무료 2회, AI 0.
 - **v1.28 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 설정 화면 API 키 한 줄의 「수정」·「삭제」가 긴 안내 문구 옆에서 「수/정」으로 꺾이던 것 수정(`src/components/settings/ApiKeyRow.tsx` 머리줄 `gap-3`, 라벨 `min-w-0`, 버튼 묶음 `shrink-0 whitespace-nowrap`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
 
 ### `v1.22` (2026-10-20) - Claude Code (윈도우) — 공용 부품 정정(권한 합치기 제거)

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 쓰레드 포스팅 v1.29 글 첨부 이미지 무료 사진 · INSTA 자동 채우기 설명 한 줄(**미배포 대기**)
+- 한 일: `threads/` 새 글 이미지 칸 「📷 무료 사진으로 추가」(공용 `free-photo-search` 사본, 회원 본인 Pixabay·Pexels 키, JPEG·PNG만 `post-images/<회원>/` 저장, 검색어 Enter 제출 방지), 설정 키 칸. 함께 나감: 좌측 메뉴 계정 위치(`22c6cda35`). INSTA 자동 채우기 설명 「AI 비용 없이 · 본인 무료 키」(커밋 `8022fbf0a`, 미배포 대기).
+- 검수: tsc·빌드, 배포 `threads-crhee97ol` Ready, DB v1.29, 비로그인 401, 크롬(관리자 본인 Pixabay 키) Enter는 검색만 → 사진 추가 JPEG 420KB 200·캐러셀 1/20 → 설정 「등록됨」. 글 저장·게시 없음, 시험 사진 삭제. 미확인: Pexels·휴대폰 폭·실제 Threads 게시.
+- 커밋 `bc329f157`. 비용: 빌드 1회(승인), Pixabay 무료 2회, AI 0회.
+- 링크: https://auto-threads-posting.buylife.xyz/posts/new
+
 ## 2026-10-23 Claude Code(윈도우) — 30일 정리 기록 3차 3곳(미배포 대기) · 부동산 공용 캐시 의심 · 블로그 병합 담당 정정 (비용 없음)
 - **정정(주인님)**: 블로그 병합 대상 8개 프로그램은 지금 **다른 Claude Code 세션이 담당**(Codex 아님). 이 문서의 이전 항목들(오늘)에 「Codex 담당」이라 적은 곳은 이 정정으로 읽는다. 그 세션이 정리 기록을 붙일 때는 공용 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`)를 사본으로 받아 `logCleanupUsage(admin, slug, counts)`만 부르면 된다(`check-shared-modules.mjs` 등록 + `--sync`).
 - 3차(`af9b2719c`·`05902a01d`): `threads-affiliate-poster`(posts·images)·`trending-product-finder`(reports·snapshots·competition, 지운 행 user_id)·`youtube-auto-reply`(comments). tsc 통과, **미배포 대기**(PENDING 3줄·각 IMPROVEMENTS). 사본 등록 줄은 Threads 세션 커밋 `bc329f157`에 함께 들어감(내용은 의도 그대로).
