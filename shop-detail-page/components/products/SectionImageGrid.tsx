@@ -462,13 +462,22 @@ export function SectionImageGrid({
 
       {/* 최종 병합 다운로드 버튼 (하단 고정형 시각화) */}
       {hasAnyImage && (
-        <div className="sticky bottom-4 z-20 pt-4">
+        <div className="sticky bottom-4 z-20 pt-4 flex flex-col sm:flex-row gap-2">
           <a
             href={`/api/products/${productId}/export`}
-            className="flex items-center justify-center gap-2 w-full text-center text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 px-6 py-4 rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-[1.01] active:scale-[0.99]"
+            className="flex flex-1 items-center justify-center gap-2 text-center text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 px-6 py-4 rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-[1.01] active:scale-[0.99]"
           >
             <span className="text-lg">📥</span>
             <span>선택한 이미지로 최종 {templates.length}단 상세페이지 세로 롱 이미지(860px) 병합 & 다운로드</span>
+          </a>
+          {/* v1.21: 섹션마다 가로 860px JPG로 맞춰 번호 순서대로 ZIP 하나에(긴 한 장 대신 여러 장으로 올릴 때) */}
+          <a
+            href={`/api/products/${productId}/export-zip`}
+            title="섹션마다 가로 860px JPG로 맞춰 01, 02… 순서로 ZIP 하나에 담아 받습니다"
+            className="flex items-center justify-center gap-2 text-center text-sm font-bold text-indigo-700 bg-white hover:bg-indigo-50 border border-indigo-200 px-5 py-4 rounded-2xl shadow-xl shadow-blue-500/10 transition-all whitespace-nowrap shrink-0"
+          >
+            <span className="text-lg">📦</span>
+            <span>섹션별 ZIP</span>
           </a>
         </div>
       )}

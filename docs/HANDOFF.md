@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(맥미니) — AI 상세페이지 자동화 v1.21 — 긴 PNG 서명 주소 · 섹션별 ZIP (배포 대기, 이커머스 2차 재비교 작업 ①)
+- 긴 PNG가 서버 응답으로 바로 나가 Vercel 4.5MB 한도를 넘을 수 있던 것을 저장 후 60초 서명 주소로 바꿈. 새 「📦 섹션별 ZIP」(860px JPG, 01·02… 순서, 새 패키지 없음). AI 0회, tsc 0.
+- **윈도우 순서**(빌드 1회): SQL `shop-detail-page/supabase/migrations/20261022_zip_export_v1_21.sql` → `shop-detail-page` 배포 → 크롬 확인(긴 PNG·ZIP 내려받기). 상세: `shop-detail-page/AGENTS.md` 맨 아래.
+- 프로그램: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — INSTA v1.54 수집한 릴스 「🎬 영상까지 분석」 · 유형 필터 (빌드 1회)
 - 서버가 릴스 영상을 회원 본인 Gemini Files API에 잠깐 올려 화면·말까지 분석하고 즉시 삭제(저장 없음). 크롬: #재테크 1위 릴스 → 캡션에 없는 ETF 3종·수익률까지 분석, 임시 파일 삭제 확인. 「전체·릴스·캐러셀·사진」 필터.
 - 프로그램: https://auto-instagram-posting.buylife.xyz

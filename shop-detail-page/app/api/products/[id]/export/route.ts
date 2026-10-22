@@ -3,6 +3,7 @@ import sharp from "sharp";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { downloadImageAsBase64 } from "@/lib/storageImage";
+import { redirectToDownload, safeFileName, storeExport } from "@/lib/exportDownload";
 
 const TARGET_WIDTH = 860;
 
@@ -81,13 +82,12 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       .png()
       .toBuffer();
 
-    const fileName = `${(product.product_label || product.name || "product").replace(/[/\\:*?"<>|]/g, "_")}_merged_detail.png`;
+    const fileName = `${safeFileName(product.product_label || product.name || "product")}_merged_detail.png`;
     const path = `${user.id}/products/${productId}/merged/${Date.now()}.png`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("shop-detail-images")
-      .upload(path, merged, { contentType: "image/png", upsert: false });
-    if (!uploadError) {
+    // v1.21: 저장한 뒤 서명 주소로 내려받게 한다(응답 본문 4.5MB 한도 회피). 저장·서명이 안 되면 예전처럼 본문으로 보낸다.
+    const stored = await storeExport(supabase, path, merged, "image/png");
+    if (stored) {
       const { data: publicUrlData } = supabase.storage.from("shop-detail-images").getPublicUrl(path);
       await supabase.from("shop_page_exports").insert({
         product_id: productId,
@@ -95,6 +95,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
         language: product.language,
         image_url: publicUrlData.publicUrl,
       });
+      const redirect = await redirectToDownload(supabase, path, fileName);
+      if (redirect) return redirect;
     }
 
     return new NextResponse(new Uint8Array(merged), {
