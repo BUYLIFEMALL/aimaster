@@ -197,7 +197,7 @@ export default function BackgroundPage() {
             <input type="checkbox" data-photo-distinct checked={distinctPhotos} onChange={(e) => setDistinctPhotos(e.target.checked)} className="accent-pink-500" />
             장마다 서로 다른 사진
           </label>
-          <span className="text-xs text-gray-500">AI 비용 없이, 배경이 없는 장마다 제목으로 찾은 첫 사진을 넣습니다(본인 무료 키).</span>
+          <span className="text-xs text-gray-500" title="배경이 없는 장마다 그 장 제목으로 찾은 사진을 넣습니다">AI 비용 없이 · 본인 무료 키</span>
         </div>
         {photoKeyNote && <ErrorNote message={photoKeyNote} needKey />}
 
