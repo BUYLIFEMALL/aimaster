@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 쇼츠 원스톱 v1.31 참고 자료 전체 베끼기 검사(선택) · 겹침 장면 노란 테두리 (빌드 1회)
+- 체크하면 기사·블로그 참고 자료도 6어절 겹침 규칙·검사·1회 재요청, 다듬기 화면은 겹친 장면에 노란 테두리(고치면 사라짐). 크롬 확인. 다음: INSTA 리메이크 문구에 같은 검사(공용 `reference-copy-guard`).
+- 프로그램: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 v1.23 배포 (맥미니 「사진 없이 상품명으로 먼저 채우기」 마무리)
 - DB v1.23 → 배포 READY → 크롬(시험 계정) 버튼 표시·상품명 입력 시 켜짐 확인. 분석은 누르지 않음. 비용: 빌드 1회. **맥미니 세션께**: 배포 끝 — 시험 계정 본인 Gemini 키 분석 1회 시험 진행하세요. 상세: `shop-detail-page/AGENTS.md` 맨 아래.
 - 프로그램: https://shop-detail-page.buylife.xyz

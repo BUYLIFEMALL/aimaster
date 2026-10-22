@@ -40,3 +40,14 @@ export function copiedPhrases(texts: string[], ref: string, n = COPY_WORDS): str
   }
   return out.slice(0, 10);
 }
+
+/** v1.31 검사 대상 — 기본은 레퍼런스 쇼츠 블록만, all이면 참고 자료 전체(블록 첫 줄의 표시 문구는 뺌) */
+export function guardText(reference: string, all = false): string {
+  if (!all) return referenceBlocks(reference);
+  return reference.split("\n").filter((l) => !l.trimStart().startsWith(REF_MARK)).join("\n").trim();
+}
+
+/** v1.31 한 장면 글에 검사 대상과 겹치는 구절이 있는지(화면 노란 테두리용) */
+export function hasCopy(text: string, ref: string): boolean {
+  return !!ref && copiedPhrases([text], ref).length > 0;
+}

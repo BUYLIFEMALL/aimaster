@@ -23,3 +23,17 @@ test("연속 6어절 이상 같으면 겹침, 짧은 사실(숫자·고유명사
   assert.deepEqual(copiedPhrases(["완전히 다른 문장으로 시작하는 대본입니다."], REF), []);
   assert.deepEqual(copiedPhrases(["아무거나"], "짧은 레퍼런스"), [], "레퍼런스가 6어절보다 짧으면 검사 안 함");
 });
+
+// ── v1.31 참고 자료 전체 검사 · 장면 겹침 판정 ──
+import { guardText, hasCopy } from "../src/lib/reference.ts";
+test("검사 대상: 기본은 레퍼런스 블록만, 전체 선택이면 표시 문구만 빼고 모두", () => {
+  const reference = `기사 본문 첫째 문장이 여기에 길게 이어집니다 정말로요.\n\n${REF_MARK} — 「a.mp4」]\n${REF}`;
+  assert.equal(guardText(reference), REF);
+  const all = guardText(reference, true);
+  assert.ok(all.includes("기사 본문 첫째 문장이") && all.includes(REF) && !all.includes(REF_MARK));
+});
+test("장면 겹침 판정: 고치면 사라짐, 검사 대상이 없으면 항상 false", () => {
+  assert.equal(hasCopy("예전엔 도서관에서 책 하나 찾겠다고 몇 시간씩 헤맸죠", REF), true);
+  assert.equal(hasCopy("서가 사이를 오래 돌아다닌 적 있으신가요?", REF), false);
+  assert.equal(hasCopy("아무 문장", ""), false);
+});

@@ -33,7 +33,7 @@ export function narrationBudget(seconds: number, cards: number): { perScene: num
   return { perScene: Math.max(18, Math.round(total / scenes)), total };
 }
 
-export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string; seconds?: number }) {
+export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string; seconds?: number; guardAll?: boolean }) {
   const budget = o.seconds ? narrationBudget(o.seconds, o.cards) : null;
   const system = [
     "당신은 한국어 유튜브 쇼츠 대본 작가입니다. 화면에는 짧은 글자만, 자세한 내용은 내레이션으로 전달하는 세로 카드형 쇼츠 대본을 씁니다.",
@@ -48,6 +48,8 @@ export function scriptPrompt(o: { topic: string; category: string; tone: Tone; f
     o.reference ? `참고 자료(이 내용을 근거로 쓰고, 자료에 없는 사실을 지어내지 마세요):\n${o.reference}` : "",
     // v1.30 레퍼런스 쇼츠 받아쓰기(v1.29)가 있으면 베끼기 금지 — 구성·후킹·심리만 참고
     o.reference?.includes(REF_MARK) ? `[레퍼런스 쇼츠 사용 규칙] 「${REF_MARK}…」 블록은 다른 사람이 만든 쇼츠의 실제 대사입니다. 구성·후킹 방식·심리만 참고하고 문장은 완전히 새로 쓰세요. 그 블록과 연속 ${COPY_WORDS}어절 이상 같은 표현을 쓰지 마세요(숫자·고유명사 같은 사실은 써도 됩니다). 첫 문장(후킹)은 특히 다른 상황·다른 말로 시작하세요.` : "",
+    // v1.31 회원이 「참고 자료 전체도 베끼기 검사」를 켜면 기사·블로그 글도 같은 규칙
+    o.reference && o.guardAll ? `[참고 자료 사용 규칙] 참고 자료의 사실은 근거로 쓰되, 문장은 내 말로 새로 쓰세요. 참고 자료와 연속 ${COPY_WORDS}어절 이상 같은 표현을 쓰지 마세요(숫자·고유명사는 써도 됩니다).` : "",
     `규칙:
 - 인트로 1장 + 카드 정확히 ${o.cards}장 + 아웃트로 1장.
 - 인트로 title은 첫 1초에 멈추게 하는 18자 이내 질문·숫자·반전형 문장, eyebrow는 8자 이내 꼬리표.

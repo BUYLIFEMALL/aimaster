@@ -7,6 +7,11 @@ import { ApiError, api, toMsg, type Item, type Msg } from "@/components/ui/api";
 import { modelName } from "@/lib/models";
 import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scriptFromLines, type Format, type ShortsScript, type Tone } from "@/lib/script";
 import { extractReel } from "@/lib/reelsMedia";
+import { guardText, hasCopy } from "@/lib/reference";
+
+// v1.31 참고 자료와 그대로 겹치는 장면 표시(브라우저 안에서 다시 검사 — 고치면 바로 사라짐)
+const COPY_STYLE = { outline: "2px solid #f5c542", outlineOffset: 2, borderRadius: 12 } as const;
+const CopyBadge = () => <span className="badge" style={{ background: "rgba(245,197,66,.18)", color: "#f5c542" }} title="참고 자료와 6어절 이상 그대로 겹칩니다. 다른 표현으로 고쳐 주세요.">⚠ 겹침</span>;
 
 type Topic = { title: string; hook: string; format: Format | null };
 type Guide = Item<{ text: string }>;
@@ -27,6 +32,8 @@ export function TopicView() {
   const [manual, setManual] = useState(""), [firstIntro, setFirstIntro] = useState(true), [lastOutro, setLastOutro] = useState(true);
   const [script, setScript] = useState<ShortsScript | null>(null), [itemId, setItemId] = useState<string | null>(null);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null);
+  // v1.31 참고 자료 전체 베끼기 검사(선택) · 대본을 만들 때 쓴 검사 대상 글(장면 노란 테두리용)
+  const [guardAll, setGuardAll] = useState(false), [guardRef, setGuardRef] = useState("");
 
   const guide = useMemo(() => guides.find((g) => g.title === category), [guides, category]);
   useEffect(() => { setGuideText(guide?.data.text ?? ""); }, [guide]);
@@ -35,7 +42,7 @@ export function TopicView() {
   useEffect(() => {
     void loadGuides();
     const id = new URLSearchParams(window.location.search).get("id");
-    if (id) api<{ item: Item<ShortsScript> }>(`/api/items?id=${id}`).then(({ item }) => { setScript(item.data); setItemId(item.id); setTopic(item.data.topic); if (item.data.category) setCategory(item.data.category); }).catch((e) => setMsg(toMsg(e)));
+    if (id) api<{ item: Item<ShortsScript> }>(`/api/items?id=${id}`).then(({ item }) => { setScript(item.data); setGuardRef(""); setItemId(item.id); setTopic(item.data.topic); if (item.data.category) setCategory(item.data.category); }).catch((e) => setMsg(toMsg(e)));
   }, [loadGuides]);
 
   function pickTopic(t: string, f?: Format | null) {
@@ -81,11 +88,11 @@ export function TopicView() {
   async function makeScript() {
     setBusy("대본을 쓰는 중… (보통 10~40초)"); setMsg(null);
     try {
-      const r = await api<{ script: ShortsScript; copied?: string[] }>("/api/ai/script", { body: { topic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined } });
-      setScript(r.script); setItemId(null);
+      const r = await api<{ script: ShortsScript; copied?: string[] }>("/api/ai/script", { body: { topic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined, guardAll } });
+      setScript(r.script); setItemId(null); setGuardRef(guardText(reference, guardAll));
       // v1.30 레퍼런스 쇼츠와 그대로 겹치는 구절이 남았으면 다듬기에서 고치도록 알린다
       setMsg(r.copied?.length
-        ? { text: `대본이 완성됐지만 레퍼런스 쇼츠와 그대로 겹치는 구절이 ${r.copied.length}개 남았습니다. 아래 「③ 대본 다듬기」에서 다른 표현으로 고쳐 주세요: 「${r.copied.slice(0, 3).join("」, 「")}」` }
+        ? { text: `대본이 완성됐지만 참고 자료와 그대로 겹치는 구절이 ${r.copied.length}개 남았습니다. 아래 「③ 대본 다듬기」의 노란 테두리 장면을 다른 표현으로 고쳐 주세요: 「${r.copied.slice(0, 3).join("」, 「")}」` }
         : { text: "대본이 완성됐습니다. 아래에서 고친 뒤 보관함에 저장하세요.", ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
@@ -93,7 +100,7 @@ export function TopicView() {
   function makeManual() {
     const s = scriptFromLines(manual, { topic, firstAsIntro: firstIntro, lastAsOutro: lastOutro });
     if (!s) { setMsg({ text: `장면이 ${MIN_CARDS}줄 이상 필요합니다(인트로·아웃트로 줄 제외). 한 줄에 한 장면씩 적어 주세요.` }); return; }
-    setScript(s); setItemId(null); setMsg({ text: "장면을 만들었습니다. 화면에 보일 제목을 다듬은 뒤 저장하세요.", ok: true });
+    setScript(s); setItemId(null); setGuardRef(""); setMsg({ text: "장면을 만들었습니다. 화면에 보일 제목을 다듬은 뒤 저장하세요.", ok: true });
   }
 
   async function save() {
@@ -143,6 +150,7 @@ export function TopicView() {
                 <label className="button" style={{ fontWeight: 600 }}>📄 파일 불러오기<input type="file" accept=".txt,.md,.markdown,.csv,.json" hidden onChange={(e) => void readFile(e.target.files?.[0])} /></label>
                 <label className="button" style={{ fontWeight: 600 }} title="저장해 둔 쇼츠 영상의 말소리를 본인 OpenAI 키로 받아써 참고 자료에 넣습니다(최대 3분, 영상은 어디에도 올리지 않음)">🎬 레퍼런스 쇼츠에서 대본 따기<input type="file" accept="video/mp4,video/quicktime,video/webm" hidden disabled={!!busy} onChange={(e) => { void readVideo(e.target.files?.[0]); e.target.value = ""; }} /></label>
                 {reference && <button type="button" className="link-button" onClick={() => setReference("")}>참고 자료 지우기</button>}
+                {reference && <label className="row" style={{ gap: 6, fontWeight: 500 }} title="켜면 붙여 넣은 기사·블로그 글도 6어절 이상 그대로 옮기지 않게 검사합니다(레퍼런스 쇼츠는 항상 검사)"><input type="checkbox" checked={guardAll} onChange={(e) => setGuardAll(e.target.checked)} />📋 참고 자료 전체도 베끼기 검사</label>}
                 <label className="row" style={{ gap: 6, fontWeight: 500 }}><input type="checkbox" checked={useGuide} disabled={!category} onChange={(e) => setUseGuide(e.target.checked)} />내 지침 사용{category && (guide ? <span className="badge brand">저장됨</span> : <span className="badge">없음</span>)}</label>
                 <button type="button" className="link-button" disabled={!category} onClick={() => setGuideOpen((v) => !v)}>✍️ {category || "분야"} 지침 {guideOpen ? "닫기" : "쓰기"}</button>
               </div>
@@ -184,11 +192,11 @@ export function TopicView() {
           <section className="card stack">
             <div className="row" style={{ justifyContent: "space-between" }}><h2>③ 대본 다듬기 <small>{script.source === "ai" ? `AI 대본 · ${script.model ? modelName(script.model) : ""}` : "내 대본"}</small></h2>
               <div className="actions"><button className="primary" disabled={!!busy} onClick={() => void save()}><Save size={14} />{itemId ? "보관함에 다시 저장" : "보관함에 저장"}</button><Busy on={busy.startsWith("저장")} label={busy} /></div></div>
-            <div className="scene"><div className="scene-tag">🎬<span>인트로</span></div><div className="stack" style={{ gap: 8 }}>
+            <div className="scene" style={hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) ? COPY_STYLE : undefined}><div className="scene-tag">🎬<span>인트로</span>{hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) && <CopyBadge />}</div><div className="stack" style={{ gap: 8 }}>
               <div className="row"><label>꼬리표<input value={script.intro.eyebrow} maxLength={30} onChange={(e) => upd((s) => { s.intro.eyebrow = e.target.value; return s; })} /></label><label style={{ flex: 3 }}>화면 제목<input value={script.intro.title} maxLength={50} onChange={(e) => upd((s) => { s.intro.title = e.target.value; return s; })} /></label></div>
               <label>내레이션<textarea rows={2} value={script.intro.narration} maxLength={400} onChange={(e) => upd((s) => { s.intro.narration = e.target.value; return s; })} /></label></div></div>
             {script.cards.map((c, i) => (
-              <div key={i} className="scene"><div className="scene-tag">{i + 1}<span>{c.tag || "카드"}</span>
+              <div key={i} className="scene" style={hasCopy(`${c.title} ${c.narration}`, guardRef) ? COPY_STYLE : undefined}><div className="scene-tag">{i + 1}<span>{c.tag || "카드"}</span>{hasCopy(`${c.title} ${c.narration}`, guardRef) && <CopyBadge />}
                 <button type="button" className="link-button" aria-label={`${i + 1}번 카드 삭제`} disabled={script.cards.length <= MIN_CARDS} onClick={() => upd((s) => { s.cards.splice(i, 1); return s; })}><Trash2 size={13} /></button></div>
                 <div className="stack" style={{ gap: 8 }}>
                   <div className="row"><label>태그<input value={c.tag ?? ""} maxLength={20} onChange={(e) => upd((s) => { s.cards[i].tag = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>화면 제목<input value={c.title} maxLength={40} onChange={(e) => upd((s) => { s.cards[i].title = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>한 줄 설명<input value={c.desc} maxLength={60} onChange={(e) => upd((s) => { s.cards[i].desc = e.target.value; return s; })} /></label></div>
@@ -196,7 +204,7 @@ export function TopicView() {
                 </div></div>
             ))}
             {script.cards.length < MAX_CARDS && <div><button type="button" onClick={() => upd((s) => { s.cards.push({ tag: "", title: "새 카드", desc: "", narration: "" }); return s; })}><Plus size={13} />카드 추가</button></div>}
-            <div className="scene"><div className="scene-tag">🏁<span>아웃트로</span></div><div className="stack" style={{ gap: 8 }}>
+            <div className="scene" style={hasCopy(script.outro.narration, guardRef) ? COPY_STYLE : undefined}><div className="scene-tag">🏁<span>아웃트로</span>{hasCopy(script.outro.narration, guardRef) && <CopyBadge />}</div><div className="stack" style={{ gap: 8 }}>
               <div className="row"><label style={{ flex: 2 }}>화면 제목<input value={script.outro.title} maxLength={50} onChange={(e) => upd((s) => { s.outro.title = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>부제<input value={script.outro.subtitle} maxLength={80} onChange={(e) => upd((s) => { s.outro.subtitle = e.target.value; return s; })} /></label></div>
               <label>행동 유도 문구(쉼표로 구분)<input value={script.outro.cta.join(", ")} onChange={(e) => upd((s) => { s.outro.cta = e.target.value.split(",").map((v) => v.trim()).filter(Boolean).slice(0, 3); return s; })} /></label>
               <label>내레이션<textarea rows={2} value={script.outro.narration} maxLength={400} onChange={(e) => upd((s) => { s.outro.narration = e.target.value; return s; })} /></label></div></div>
