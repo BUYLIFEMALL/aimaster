@@ -60,7 +60,7 @@
 | 41 | AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | 블로그 | v1.10 | 운영 | 주제·기존 원고로 글과 이미지를 만들고 수정 이력·발행 전 점검·네이버 입력까지 돕는 제작 도구 |
 | 42 | Threads AI 기획 자동화 | `threads-easy-planner` | 쓰레드 | v1.46 | 운영 | 초보자도 버튼 하나로 Threads 글의 첫 문장 훅부터 본문·댓글 CTA·후속 아이디어까지 기획 |
 | 43 | Threads 포스팅 자동화 | `auto-threads-posting` | 쓰레드 | v1.32 | 운영 | 글감 수집부터 AI 초안, 이미지 첨부, 즉시·예약 게시까지 하는 기본형 Threads 포스팅 도구 |
-| 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.26 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
+| 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.27 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.83 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
 | 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.17 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.24 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구(2026-10-20 youtube-channel-consultant 병합) |
@@ -69,7 +69,7 @@
 | 50 | YOUTUBE CHANNEL CONSULTANT | `youtube-channel-consultant` | 유튜브 | v1.11 | **병합됨 → youtube-viral-studio(2026-10-20), 노출 중지** | 유튜브 채널·키워드를 분석해 성장 전략과 공략할 소형 고효율 채널을 찾는 컨설턴트 |
 | 51 | 쇼츠 떡상 분석·대본 자동화 | `shorts-viral-studio` | 유튜브 | v1.15 | 운영 | 떡상한 유튜브 쇼츠를 찾아 공식을 분석하고 새 소재·대본·제작 프롬프트까지 만드는 도구 |
 | 52 | YOUTUBE Shots(이미지 스토리) 자동화 | `auto-shorts-posting` | 유튜브 | v1.38 | 운영 | 주제 수집부터 6장면 이미지·Suno 음악·영상 제작, 쇼츠·릴스 업로드까지 하는 이미지 스토리 도구 |
-| 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.29 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
+| 53 | 유튜브 댓글자동화 | `youtube-auto-reply` | 유튜브 | v1.30 | 운영 | 내 유튜브 채널 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 54 | AI 유튜브 썸네일 프로 | `seo-thumbnail-pro` | 유튜브 | v1.12 | **병합됨 → thumbnail-master(2026-10-20), 노출 중지** | 대본으로 A/B/C 제목·설명·태그·고정 댓글 전략과 16:9 썸네일까지 한 번에 만드는 유튜브 도구 |
 | 55 | Suno 음악기획 자동화 | `suno-music-studio` | 음악 | v1.12 | **병합됨 → music-automation(2026-10-21), 노출 중지** | 음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구 |
 | 56 | AI 마스터링 스튜디오 | `ai-mastering-studio` | 음악 | v1.10 | 운영 | WAV 음원을 브라우저에서 마스터링하고 원하는 소리를 적으면 AI가 설정값을 제안하는 도구 |

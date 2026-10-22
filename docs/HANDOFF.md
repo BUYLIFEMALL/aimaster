@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ 댓글 모니터링 시작 시각 9시간 밀림 수정: Threads 댓글 v1.27 · 유튜브 댓글 v1.30 (빌드 2회 · AI 0회)
+- 원인: 설정 화면의 시작 시각(`datetime-local`)은 시간대 없는 한국 시간인데 UTC 서버가 그대로 읽어 9시간 늦게 저장 → 켠 뒤 9시간 동안 달린 댓글을 건너뜀. 두 앱 `lib/actions/monitoring.ts`에서 시간대가 없으면 `+09:00`을 붙여 읽음. 커밋 `e6139cd39`·`3f8897cd7`, DB 버전 크롬 SQL Editor로 갱신.
+- 검수: 두 배포 Ready, 회원 실행 주소 가짜 토큰 401·`/login` 200. 크롬(시험 회원) 쓰레드 설정 v1.27에서 13:06으로 시작 → DB `04:06 UTC`(=한국 13:06) 저장 확인 → 바로 중지해 원래(꺼짐)로 복구, 예약 실행 0회. 유튜브 대시보드 v1.30·함께 나간 공용 그래프 글자 크게(제목 16px) 확인.
+- 함께 나간 대기분(유튜브): 30일 정리 회원별 기록, 공용 그래프 `noun`·`labels`·글자 크게. 발견: 쓰레드 「모니터링 중지」 직후 화면 버튼이 새로고침 전까지 안 바뀜(DB는 정상) → `threads-comment-reply/docs/IMPROVEMENTS.md`.
+- 프로그램: https://threads-comment-reply.buylife.xyz · https://youtube-auto-reply.buylife.xyz
 
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 음악 스튜디오 v1.06 Lyria 3.5 분위기 이미지·WAV 받기 (빌드 1회 · Lyria 1회 $0.08 · 시험 계정 본인 키)
 - 이미지 최대 4장(화면에서 1024px로 줄임, 저장 안 함), WAV 선택(`response_format.mime_type: audio/wav`). 크롬 시험 계정 실제 생성: 이미지 1장 + WAV → 19초, 11.8MB 저장.
