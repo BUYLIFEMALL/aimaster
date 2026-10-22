@@ -67,3 +67,20 @@ export function zipOverlayPlan(advices: (OverlayAdvice | null)[]): { weak: numbe
   const recs = weakOnes.map((a) => a.recommended).filter((r): r is number => r !== null);
   return { weak: weakOnes.length, raiseTo: recs.length ? Math.max(...recs) : null };
 }
+
+export const POSITIONS: Design["position"][] = ["top", "center", "bottom"];
+
+/**
+ * v1.24 「글자 자리 바꿔 받기」: 세 자리(위/가운데/아래) 배경색 중 지금 어둡기에서 대비가 가장 좋은 자리.
+ * 지금 자리보다 대비가 좋아질 때만 돌려준다(아니면 null)
+ */
+export function bestPosition(bands: Partial<Record<Design["position"], RGB | null>>, textHex: string, overlay: number, current: Design["position"]): { position: Design["position"]; contrast: number } | null {
+  const text = hexToRgb(textHex);
+  if (!text) return null;
+  const score = (p: Design["position"]) => { const bg = bands[p]; return bg ? contrastRatio(text, darken(bg, overlay)) : -1; };
+  const now = score(current);
+  let best: Design["position"] = current;
+  for (const p of POSITIONS) if (score(p) > score(best)) best = p;
+  if (best === current || score(best) <= now) return null;
+  return { position: best, contrast: Math.round(score(best) * 10) / 10 };
+}

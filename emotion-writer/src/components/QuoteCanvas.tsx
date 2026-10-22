@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { renderQuote, renderQuoteAt, canvasBlob } from "@/lib/studio/render";
 import { CHANNEL_SIZES, channelFileName, channelZipNames, type ChannelSize } from "@/lib/studio/channels";
 import { createZip } from "@/lib/studio/zip";
-import { useBandColors } from "./useBandColor";
-import { adviseOverlay, zipOverlayPlan } from "@/lib/studio/readability";
+import { useBandGrid } from "./useBandColor";
+import { adviseOverlay, bestPosition, POSITIONS, zipOverlayPlan } from "@/lib/studio/readability";
 import { ratioSize, type Ratio, type Design } from "@/lib/studio/config";
 import { Download, Image as ImageIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -30,14 +30,25 @@ export function QuoteCanvas({
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
   // v1.24: 크기마다 배경을 그 비율로 잘라 글자 대비를 따로 계산 — 4.5:1 미만이면 ⚠
-  const channelBands = useBandColors(image, CHANNEL_SIZES, design.position);
+  const bandGrid = useBandGrid(image, CHANNEL_SIZES);
   const channelAdvice = (id: string) => {
-    const bg = channelBands?.[id];
+    const bg = bandGrid?.[`${id}|${design.position}`];
     return bg ? adviseOverlay(bg, design.color, design.overlay) : null;
   };
   // v1.24: 전체 ZIP 전에 대비가 부족한 크기가 있으면 한 번 묻는다(화면 안 안내, 브라우저 확인창 아님)
   const [zipAsk, setZipAsk] = useState(false);
   const zipPlan = zipOverlayPlan(CHANNEL_SIZES.map((c) => channelAdvice(c.id)));
+  // v1.24: 「글자 자리 바꿔 받기」 — 대비가 부족한 크기만 대비가 가장 좋은 자리로(지금 어둡기 기준)
+  const POS_LABEL: Record<Design["position"], string> = { top: "위", center: "가운데", bottom: "아래" };
+  const moves: Record<string, Design["position"]> = {};
+  for (const c of CHANNEL_SIZES) {
+    const adv = channelAdvice(c.id);
+    if (!adv || adv.ok || !bandGrid) continue;
+    const bands = Object.fromEntries(POSITIONS.map((p) => [p, bandGrid[`${c.id}|${p}`] ?? null]));
+    const best = bestPosition(bands, design.color, design.overlay, design.position);
+    if (best) moves[c.id] = best.position;
+  }
+  const moveCount = Object.keys(moves).length;
 
   useEffect(() => {
     if (!image || !quote) return;
@@ -124,10 +135,10 @@ export function QuoteCanvas({
   }
 
   // v1.24: 「다른 크기로 받기」 전체를 ZIP 하나로 — 공용 기준 코드 store-zip 사본(AI 재호출 없음)
-  async function downloadAllChannels(overlayOverride?: number) {
+  async function downloadAllChannels(overlayOverride?: number, positionMoves?: Record<string, Design["position"]>) {
     if (!ready || busy || saving) return;
     setZipAsk(false);
-    // 「어둡기 올리고 받기」는 ZIP만 그 어둡기로 다시 그린다(화면 설정은 그대로)
+    // 「어둡기 올리고 받기」·「글자 자리 바꿔 받기」는 ZIP만 바꿔 그린다(화면 설정은 그대로)
     const zipDesign = overlayOverride !== undefined ? { ...design, overlay: overlayOverride } : design;
     setSaving(true);
     setNotice("");
@@ -136,7 +147,7 @@ export function QuoteCanvas({
       const entries = [];
       for (const [i, c] of CHANNEL_SIZES.entries()) {
         const draft = document.createElement("canvas");
-        await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, zipDesign);
+        await renderQuoteAt(draft, image, quote, { width: c.width, height: c.height }, positionMoves?.[c.id] ? { ...zipDesign, position: positionMoves[c.id] } : zipDesign);
         const blob = await canvasBlob(draft, "jpeg");
         entries.push({ name: names.files[i], data: new Uint8Array(await blob.arrayBuffer()) });
       }
@@ -147,7 +158,14 @@ export function QuoteCanvas({
       anchor.download = names.zip;
       anchor.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setNotice(overlayOverride !== undefined ? `배경 어둡기 ${overlayOverride}%로 ${entries.length}가지 크기를 ZIP 하나로 저장했습니다(화면 설정은 그대로).` : `${entries.length}가지 크기를 ZIP 하나로 저장했습니다.`);
+      const moved = positionMoves ? CHANNEL_SIZES.filter((c) => positionMoves[c.id]).map((c) => `${c.label}→${POS_LABEL[positionMoves[c.id]]}`) : [];
+      setNotice(
+        moved.length
+          ? `${entries.length}가지 크기를 ZIP 하나로 저장했습니다. 글자 자리를 옮긴 크기: ${moved.join(", ")}(화면 설정은 그대로).`
+          : overlayOverride !== undefined
+            ? `배경 어둡기 ${overlayOverride}%로 ${entries.length}가지 크기를 ZIP 하나로 저장했습니다(화면 설정은 그대로).`
+            : `${entries.length}가지 크기를 ZIP 하나로 저장했습니다.`,
+      );
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "ZIP을 만들지 못했습니다.");
     } finally {
@@ -310,6 +328,9 @@ export function QuoteCanvas({
                 <button type="button" disabled={busy || saving} onClick={() => void downloadAllChannels()}>그대로 받기</button>
                 {zipPlan.raiseTo !== null && (
                   <button type="button" disabled={busy || saving} onClick={() => void downloadAllChannels(zipPlan.raiseTo!)}>어둡기 {zipPlan.raiseTo}%로 올리고 받기</button>
+                )}
+                {moveCount > 0 && (
+                  <button type="button" disabled={busy || saving} data-zip-move={moveCount} onClick={() => void downloadAllChannels(undefined, moves)}>글자 자리 바꿔 받기({moveCount}가지)</button>
                 )}
                 <button type="button" onClick={() => setZipAsk(false)}>취소</button>
               </span>

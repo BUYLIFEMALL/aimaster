@@ -38,3 +38,13 @@ test("v1.24 전체 ZIP 전 확인 계획", async () => {
   assert.deepEqual(zipOverlayPlan([ok, a, b]), { weak: 2, raiseTo: 60 });
   assert.deepEqual(zipOverlayPlan([dark, ok]), { weak: 1, raiseTo: null });
 });
+
+test("v1.24 글자 자리 바꿔 받기", async () => {
+  const { bestPosition } = await import("../src/lib/studio/readability.ts");
+  const bands = { top: [230, 230, 240], center: [200, 200, 200], bottom: [40, 40, 50] };
+  const r = bestPosition(bands, "#ffffff", 35, "top");
+  assert.equal(r.position, "bottom");
+  assert.ok(r.contrast >= 4.5);
+  assert.equal(bestPosition(bands, "#ffffff", 35, "bottom"), null); // 이미 가장 좋음
+  assert.equal(bestPosition({ top: [100, 100, 100] }, "#ffffff", 35, "top"), null); // 다른 자리 정보 없음
+});

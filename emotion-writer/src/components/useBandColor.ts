@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { coverRect } from "@/lib/studio/render";
 import { ratioSize, type Design, type Ratio } from "@/lib/studio/config";
-import { textBand, type RGB } from "@/lib/studio/readability";
+import { POSITIONS, textBand, type RGB } from "@/lib/studio/readability";
 
 /**
  * 결과 크기(width×height)를 1/10로 줄여 drawQuote와 같은 꽉 채우기(coverRect)로 그린 뒤,
@@ -59,4 +59,27 @@ export function useBandColor(image: string, ratio: Ratio, position: Design["posi
   const size = ratioSize(ratio);
   const colors = useBandColors(image, [{ id: "main", width: size.width, height: size.height }], position);
   return colors?.main ?? null;
+}
+
+/** v1.24: 크기마다 세 자리(위/가운데/아래) 배경색을 사진 한 번 읽어 함께 구한다 — 키 = `${크기 id}|${자리}` */
+export function useBandGrid(image: string, sizes: readonly { id: string; width: number; height: number }[]): Record<string, RGB | null> | null {
+  const [state, setState] = useState<{ key: string; colors: Record<string, RGB | null> } | null>(null);
+  const key = JSON.stringify([image, sizes.map((s) => [s.id, s.width, s.height])]);
+  useEffect(() => {
+    if (!image) return;
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      if (cancelled) return;
+      const colors: Record<string, RGB | null> = {};
+      for (const s of sizes) for (const p of POSITIONS) colors[`${s.id}|${p}`] = bandColorOf(img, s.width, s.height, p);
+      setState({ key, colors });
+    };
+    img.onerror = () => { if (!cancelled) setState({ key, colors: {} }); };
+    img.src = image;
+    return () => { cancelled = true; };
+    // key가 image·sizes를 모두 담는다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return image && state?.key === key ? state.colors : null;
 }
