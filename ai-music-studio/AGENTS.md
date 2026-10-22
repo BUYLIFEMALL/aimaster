@@ -49,6 +49,8 @@
 
 - **v1.03 (2026-10-23)** ① **화면을 닫아도 완성 처리**: fal(`?fal_webhook=`)·Replicate(`webhook`, completed)·Suno(공용 기준에 `callbackOrigin` 선택값 추가 — music은 미배포 대기)가 `/api/webhooks/[provider]`로 신호 → 신호로만 쓰고 회원 본인 키로 다시 조회한 결과로만 저장(`advance`, 잠금). 가짜 웹훅은 「모르는 작업」으로 무시 ② **ElevenLabs 작곡 계획**: 가사 구간 표시가 있으면 `composition_plan`(구간별 가사·길이, 줄 수 비례, 3~120초) — `lib/providers/elevenlabsPlan.ts`(시험 4) ③ **실측 기록** `options.actual`: Lyria 정액, ElevenLabs 길이×단가, fal 추론 시간, Replicate 실행 시간, Suno 크레딧 전후 차이(같은 키 동시 작업이면 합산될 수 있어 「약」) + 카드에 플랫폼 「사용량 확인 ↗」 ④ 모델 카드 글씨 키움(설명 14px·칩·문구 12px, 흐림 85%). 검수: 시험 23·tsc·lint·build, 배포 `ai-music-studio-o9immx7nw` Ready·DB v1.03, **시험 계정으로 4개 접수 후 탭을 닫고** DB만 조회 → 4개 모두 웹훅으로 완성(fal 7초·Replicate 27초·Suno 43초 2곡·ElevenLabs 작곡 계획 4초), Suno V6 Mini 2곡 = 크레딧 약 12. 플랜 `docs/PLAN_20261023_V103.md`. Mureka는 백로그(선불 충전 필요).
 
+- **v1.04 (2026-10-23)** Suno V6 Wild 모델 카드 추가(`suno:V6_WILD`, 공용 Suno 코드에 이미 있던 모델 — 모델 12개). 배포 `ai-music-studio-8530x18lm` Ready·DB v1.04, 크롬 화면 카드·설명 14px 확인. **실제 생성은 미검수**(크롬이 관리자 계정이라 시험 계정 원칙상 생략 — 다음 시험 계정 로그인 때 1회 확인).
+
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
 ## 6. 연계·병합 아이디어 → `docs/IMPROVEMENTS.md` §3
 ## 7. UI/UX 개선안 → `docs/IMPROVEMENTS.md` §2, 디자인: `docs/DESIGN_HANDOFF.md`
