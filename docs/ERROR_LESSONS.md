@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-22 — Supabase 서명 주소 `{ download: 한글 이름 }`이면 받은 파일 이름이 `%EC%8B%9C…`로 저장된다 — shop-detail-page v1.22
+- 증상: 긴 PNG·섹션 ZIP을 내려받으면 내용은 정상인데 파일 이름이 `%EC%8B%9C%ED%97%98…zip` 글자 그대로.
+- 원인: `storage-js`(2.112.3)의 `createSignedUrl(path, sec, { download: name })`이 이름을 두 번 인코딩(`%25EC…`)해 붙인다. 저장소 서버는 한 번만 풀어 `filename=%EC…`로 보낸다.
+- 해결: 이름 없이 서명 주소를 만든 뒤 `&download=${encodeURIComponent(name)}`를 직접 붙인다 → 서버가 `filename*=UTF-8''…`로 보내 한글 이름 저장, 서명도 유효(`shop-detail-page/lib/exportDownload.ts`).
+- 다음부터: 한글 이름으로 내려받게 할 때는 실제로 받아 파일 이름까지 확인한다(`fetch`로는 다른 도메인 머리글이 안 보여 놓친다). 크롬 저장 폴더는 `D:\PDS`.
+
 ## 2026-10-22 — Pixabay 이미지 주소 형식이 `cdn.pixabay.com/photo/…` → `pixabay.com/get/<토큰>.jpg`로 바뀌어, 옛 형식만 허용하던 감성 글귀의 사진 검색 결과가 모두 걸러짐(「검색 결과가 없습니다」) (emotion-writer v1.19, Claude Code 윈도우)
 - 증상: 「nature」 같은 흔한 검색어도 0장. API 자체는 200·500건 정상.
 - 원인: 외부 서비스 응답 주소 형식 변경 + 코드의 엄격한 호스트·경로 허용 목록(`allowedPhotoUrl`).
