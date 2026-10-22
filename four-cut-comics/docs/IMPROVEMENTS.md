@@ -78,3 +78,7 @@
 - [ ] 컷 배경에 「📷 무료 사진 검색」(회원 본인 Pixabay·Pexels 키, 공용 `user_api_keys` — 감성 글귀·INSTA에서 넣은 키 그대로)을 붙이기. 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본을 쓰고, 고른 사진 저장(버킷·경로)과 화면은 이 프로그램 방식으로. 참고 구현: INSTA `src/app/api/cardnews/photos/route.ts`·`src/components/cardnews/studio/PhotoSearchPanel.tsx`. 예상 비용: 빌드 1회, AI 0. 착수 전 플랜·승인 필요.
 
 - (2026-10-23 정정, Claude Code 윈도우) 위 「무료 사진 검색 붙이기」는 **맞지 않음 — 보류**: 이 프로그램의 컷은 캐릭터 시트를 첨부해 AI로 그리는 한 장 그림이라 따로 쓸 「배경 칸」이 없고, 사진을 참고로 첨부하면 결국 AI 호출(비용)이라 「AI 없이 무료」 장점이 없음. 필요해지면 「참고 사진」 용도로 다시 검토.
+
+## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `4cafe5eb3`
+- 서버 보관함 30일 정리(`/api/cron/cleanup`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 작품 수) 기록. 메인 관리자 「🛠️ 운영 상태」의 「30일 정리 기록」 진행률(23곳 중)에 들어가고, 정리 결과가 「30일 자동 정리」 표에 회원 수·지운 개수로 나온다. 기록 실패해도 정리는 계속(오류 로그만).
+- 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꿀 것(`docs/PENDING_DEPLOYS.md` 줄도 정리).
