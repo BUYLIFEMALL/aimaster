@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 공용 기준 코드 `cleanup-usage-log` · 30일 정리 기록 2차 5곳(미배포 대기) · 점검에 「배포됐는데 기록 없음」 · safe-commit 잠금 재시도 (비용 없음)
+- 공용 `cleanup-usage-log`(`8ad8ea2e5`): 기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`(`logCleanupUsage`·`addCleanupCount`·`ownerFromPath`), 사본 8곳, `scripts/check-shared-modules.mjs`·`docs/SHARED_MODULES.md` 등록. 1차 4곳의 손 복사 함수를 사본으로 교체.
+- 2차 5곳(`f53021369`): `portrait-photo`·`banana-canvas`·`style-dna-analyzer`(경로 첫 폴더로 회원), `ai-image-studio`(지우는 기록 행의 user_id, 이미지 있던 행만), `reverse-prompt`(기록 행 user_id, 임시 파일 제외). 9곳 tsc 통과, 공용 함수 간이 시험(더하기·경로·기록 1줄·빈 묶음·실패 시 0) 통과. **미배포 대기**(PENDING 5줄·각 IMPROVEMENTS). 코드 기준 진행률 **12/23**.
+- `deploy.mjs --version-only --all`에 「30일 정리 기록」: 코드로 기록하는 곳 → 최근 7일 기록 있음 / 배포 대기 / 배포됐는데 7일간 기록 없음(지울 것이 없었을 수도). 판정 규칙(`program-info.mjs`)이 `logCleanupUsage`도 인식.
+- ⚠ 사고와 보완(`d06568170`): 「운영 상태」 카드 커밋 뒤 공용 스테이징에 관리자 화면 파일의 **커밋 직전 내용**이 남아 있었음(다른 세션이 커밋했다면 카드가 지워질 상황) — 도우미의 스테이징 맞추기가 다른 세션 `index.lock`과 부딪혀 조용히 실패한 것으로 판단. 손으로 HEAD에 맞춤(작업 파일·HEAD는 정상이었음). 이제 잠금이 풀릴 때까지 최대 40초 재시도, 실패하면 경고·명령 안내.
+- 다음 메인 빌드 때 함께: 정리 표 이름표에 `tracks` 곡·`posts` 보관함 글·`ideas` 글감·`history` 분석 기록 추가, 「운영 상태」 24시간 지난 기록 「갱신 필요」 표시.
+- 남은 정리 기록: 블로그 병합 6곳(Codex 담당), `real_estate_sales`·`threads-affiliate-poster`·`trending-product-finder`·`youtube-auto-reply`(회원 구분 방식 확인 필요), `shop-detail-page`(맥미니 영역).
+
 ## 2026-10-23 — Claude Code(윈도우): INSTA 피드 이미지 JPEG 저장(**미배포 대기**) · 휴대폰 폭 확인 · 무료 사진 다음 대상 조사(쓰레드 2곳 적합, 상세페이지 부적합)
 - 한 일: 피드 직접 첨부 PNG·WEBP는 브라우저에서, AI 이미지는 서버(`instagramJpeg.ts`)에서 JPEG로 저장(커밋 `8b44df90d`) — Meta 피드 API는 JPEG만, 기존 게시 3건 모두 JPEG·PNG 시도 0건이라 실제 게시 시험 없이 미배포 대기(`docs/PENDING_DEPLOYS.md`). 휴대폰 폭은 크롬 창이 최대화라 390px iframe으로 측정 — 자동 채우기 줄 4줄·피드 무료 사진 칸 한 줄, 가로 넘침 없음, 코드 변경 없음. 무료 사진 다음 대상 조사: `threads/`·`threads-content-ops/` 글 첨부 이미지 적합(IDEA-FREEPHOTO-02), `shop-detail-page` 부적합(제품 사진).
 - 검수: 시험 76·`test:import` 2·tsc·로컬 build. 시험 작업 삭제, 창 크기 원래대로. 비용 없음(빌드 0회).
