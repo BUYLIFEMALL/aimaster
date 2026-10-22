@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(맥미니): 상세페이지 GIF 자동화 v1.16 진행률 바로잡기 (배포 대기)
+- 진행률이 한 시도 안에서 되돌아가던 문제(35→59→35): 출력 시간 기준 비율·줄지 않음·두 번 방식 앞뒤 절반. 변환 방식·화질·속도 그대로, 서버·DB·AI 변경 없음.
+- **윈도우 CLI 다음 첫 단계**: SQL `video-to-gif/supabase/migrations/20261023_progress_v1_16.sql`(버전만) → `video-to-gif` 배포 1회 → `video-to-gif/AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.
+- 비용(예정): Vercel 빌드 1회, AI 0회. 링크: https://video-to-gif.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 공용 문서 되돌림 경고 훅 설치(방안 B) · 은퇴 5곳 정정 · 역량 지도 카드 보완 후보 (비용 없음)
 - **훅(모든 CLI·윈도우·맥미니 공통 `.git/hooks/pre-commit`)**: `scripts/check-shared-doc-reverts.mjs --staged` — 이번 커밋이 공용 문서(HANDOFF·PENDING_DEPLOYS·CAPABILITY_MAP·SHARED_MODULES·IDEA·ERROR_LESSONS·ACTIVE_WORK·CLAUDE/AGENTS/GEMINI/DESIGN)에서 **최근 2시간 안 다른 커밋이 넣은 줄을 지우면 경고만**(커밋은 계속). 원본 `scripts/git-hooks/pre-commit`, 설치 `node scripts/git-hooks/install.mjs`. 시험: 별도 인덱스로 최근 줄 1개를 지우면 경고, 변경 없으면 조용함.
 - **정정**: 바로 아래 항목의 「은퇴 5곳 git 태그 없음·폴더 정리 필요」는 틀림 — 2026-10-21 이미 정리 완료(코드 삭제, 폴더엔 **「옛 주소 전달」 앱만 남아 운영 중 → 지우면 안 됨**), 태그 `backup/old-apps-20261021`(원격에도 있음)·백업 `D:/Antigravity/AIMaster_backup/retired-programs/README.md`. `deploy.mjs --all`이 이런 폴더를 「은퇴·옛 주소 전달」로 표시하게 고침.

@@ -48,3 +48,17 @@ export function canSinglePass(width: number, aspect: number | undefined, fps: nu
   const bytes = width * Math.round(width * aspect) * 4 * Math.ceil(fps * seconds);
   return bytes <= SINGLE_PASS_MAX_BYTES;
 }
+
+/**
+ * v1.16: 엔진 진행 이벤트 → 0~1 비율. 엔진의 `progress`는 입력 길이 기준이라 구간 자르기·두 번째 입력(palette.png)에서
+ * 튀므로, 변환할 길이(초)를 알면 출력 시간 `time`(마이크로초) ÷ 길이로 계산한다.
+ * 길이를 모르거나 계산 값이 1.2를 넘으면(단위가 다른 경우 등) 엔진의 `progress`를 쓴다.
+ */
+export function progressRatio(event: { progress: number; time?: number }, seconds: number | undefined): number {
+  const clamp = (v: number) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0);
+  if (seconds && seconds > 0 && typeof event.time === "number" && Number.isFinite(event.time)) {
+    const byTime = event.time / (seconds * 1_000_000);
+    if (byTime >= 0 && byTime <= 1.2) return clamp(byTime);
+  }
+  return clamp(event.progress);
+}

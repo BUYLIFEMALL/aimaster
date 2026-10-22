@@ -222,3 +222,9 @@
 - 회귀 없음: 전체 ZIP(GIF 2개 `GIF89a`), 구간 1~2.5초 → 60프레임(40fps 1.5초)·0.6초, 썸네일·「상세페이지로」 버튼 그대로. 진행률 정수 표시.
 - 발견(작음, 백로그): ① 예전 두 번 방식에서는 한 시도 안에서 진행률이 두 번 차오름(35→59→35…) ② 매우 복잡한 영상은 45%에서도 8MiB를 넘어 실패 — fps를 낮추는 단계 추가 검토.
 - 비용: 이번 검수 없음(브라우저 안 변환, AI 0회).
+
+## 2026-10-23 v1.16 — 변환 진행률 바로잡기 (Claude Code 맥미니 · 배포 대기, 주인님 승인)
+- 플랜: [`docs/PLAN_20261023_PROGRESS.md`](docs/PLAN_20261023_PROGRESS.md). G-1(v1.15 실검수 발견 ①).
+- `lib/gifLadder.ts` `progressRatio`(출력 시간 ÷ 변환할 길이, 이상하면 엔진 `progress`) + `ConverterWorkspace.tsx` 시도 안에서 줄지 않음·두 번 방식 앞뒤 절반.
+- 버전 v1.16(`lib/version.ts`, `package.json` 1.16.0, SQL `supabase/migrations/20261023_progress_v1_16.sql` — 버전만). 검수: 순수 함수 시험 8가지, tsc 0, eslint 0.
+- **윈도우 CLI 다음 첫 단계**: SQL → `video-to-gif` 배포 1회. 그 뒤 맥미니 크롬 진행률 기록 실검수.

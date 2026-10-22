@@ -26,7 +26,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
-import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex } from "@/lib/gifLadder";
+import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio } from "@/lib/gifLadder";
 import { GIF_INBOX_PATH, GIF_RECEIVER_ORIGIN, MSG_FILE, isReadyMessage } from "@/lib/gifHandoff";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
@@ -315,14 +315,18 @@ export default function ConverterWorkspace() {
       const endSec = job.trimEnd.trim() === "" ? job.duration : Number(job.trimEnd);
       const seconds = endSec !== undefined ? endSec - startSec : undefined;
 
+      // v1.16: 진행률 — 시도 안에서 지금 실행이 그릴 구간(두 번 방식은 색상표 앞 절반·GIF 뒤 절반)
+      let phase = { from: 0, to: 1 };
       const filterBase = (w: number) => `fps=${fps},scale=${w}:-1:flags=lanczos`;
       // 예전 방식: 색상표 만들기 → GIF 만들기(영상을 두 번 해석)
       const twoPass = async (w: number, colors: number) => {
+        phase = { from: 0, to: 0.5 };
         await ffmpeg.exec([
           ...trim.args, "-i", inputName,
           "-vf", `${filterBase(w)},palettegen=max_colors=${colors}:stats_mode=diff`,
           "palette.png",
         ]);
+        phase = { from: 0.5, to: 1 };
         return ffmpeg.exec([
           ...trim.args, "-i", inputName, "-i", "palette.png",
           "-lavfi", `${filterBase(w)} [x]; [x][1:v] paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
@@ -330,13 +334,15 @@ export default function ConverterWorkspace() {
         ]);
       };
       // v1.15: 한 번에 만들기(영상을 한 번만 해석). 결과 화질은 예전 방식과 같은 필터.
-      const singlePass = (w: number, colors: number) =>
-        ffmpeg.exec([
+      const singlePass = (w: number, colors: number) => {
+        phase = { from: 0, to: 1 };
+        return ffmpeg.exec([
           ...trim.args, "-i", inputName,
           "-lavfi",
           `${filterBase(w)},split[a][b];[a]palettegen=max_colors=${colors}:stats_mode=diff[p];[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle`,
           "output.gif",
         ]);
+      };
 
       let outputBytes: Uint8Array | null = null;
       // v1.15: 결과가 8MiB를 넘으면 넘은 비율로 필요한 단계를 어림해 한 번에 건너뛴다(lib/gifLadder.ts).
@@ -346,8 +352,14 @@ export default function ConverterWorkspace() {
         setProgress(base);
         const scaledWidth = Math.max(1, Math.floor(width * candidate.scale));
 
-        const handler = ({ progress: ratio }: { progress: number }) =>
-          setProgress(base + Math.min(1, Math.max(0, ratio)) * 24);
+        // v1.16: 출력 시간 기준 비율(lib/gifLadder.ts progressRatio)을 지금 구간에 그리고, 시도 안에서는 줄어들지 않게
+        let shown = 0;
+        const handler = (event: { progress: number; time: number }) => {
+          const r = phase.from + progressRatio(event, seconds) * (phase.to - phase.from);
+          if (r <= shown) return;
+          shown = r;
+          setProgress(base + r * 24);
+        };
         ffmpeg.on("progress", handler);
         try {
           let code: number | null = null;
