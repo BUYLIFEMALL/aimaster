@@ -11,6 +11,7 @@ import { PostingSection } from "@/components/candidates/PostingSection";
 import { MissingApiKeyNotice } from "@/components/settings/MissingApiKeyNotice";
 import type { ApiKeyProvider } from "@/types/database.types";
 import { listSceneVideos } from "@/lib/video/sceneVideo";
+import { findExpiredSegments } from "@/lib/cleanupLog";
 
 // JSON2Video는 「② 고급 합성」을 고를 때만 필요(2026-10-21 브라우저에서 만들기 기본)
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["gemini", "openai", "suno"];
@@ -59,6 +60,8 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
     getShotsInstagramAccount(supabase, user.id).then((a) => ({ data: a ? { ig_username: a.ig_username } : null })),
   ]);
   const sceneVideos = await listSceneVideos(user.id, video.id); // v1.32 장면 AI 영상(있으면 브라우저 만들기에서 이미지 대신)
+  // v1.37 30일 정리로 이미지가 비워진 장면(정리 기록에 있는 것만)
+  const expiredSegmentIds = await findExpiredSegments(user.id, (segments ?? []).filter((s) => !s.image_url).map((s) => s.id));
   const missingProviders = REQUIRED_PROVIDERS.filter((p) => !registeredProviders.has(p));
 
   return (
@@ -69,7 +72,7 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
         저장하면 그 내용으로 이미지가 생성됩니다.
       </p>
       <MissingApiKeyNotice missing={missingProviders} />
-      <ScriptEditor video={video} segments={segments ?? []} sceneVideos={sceneVideos} keyProviders={[...registeredProviders]} />
+      <ScriptEditor video={video} segments={segments ?? []} sceneVideos={sceneVideos} keyProviders={[...registeredProviders]} expiredSegmentIds={expiredSegmentIds} />
       <div className="mt-6">
         <BgmSection video={video} tracks={bgmTracks ?? []} />
       </div>

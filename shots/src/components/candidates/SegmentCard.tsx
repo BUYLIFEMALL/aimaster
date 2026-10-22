@@ -21,7 +21,7 @@ const initialSaveState: SaveSegmentState = {};
 const initialRegenerateState: RegenerateImageState = {};
 const initialSelectState: SelectImageState = {};
 
-export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextImage = false, keyProviders = [] }: { videoId: string; segment: Segment; sceneVideoUrl?: string | null; hasNextImage?: boolean; keyProviders?: string[] }) {
+export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextImage = false, keyProviders = [], imageExpired = false }: { videoId: string; segment: Segment; sceneVideoUrl?: string | null; hasNextImage?: boolean; keyProviders?: string[]; imageExpired?: boolean }) {
   const [saveState, saveAction, isSaving] = useActionState(saveSegmentAction, initialSaveState);
   const [regenState, regenAction, isRegenerating] = useActionState(
     regenerateSegmentImageAction,
@@ -102,6 +102,9 @@ export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextIma
         </Button>
         {regenState.error && <p className="text-xs text-red-600">{regenState.error}</p>}
       </form>
+      {imageExpired && !segment.image_url && (
+        <p className="mt-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-xs text-amber-300">이 장면 이미지는 만든 지 30일이 지나 정리됐습니다 — 위에서 다시 생성해 주세요.</p>
+      )}
       <p className="mt-1 text-xs text-[#aaaaaa]">생성 이미지는 만든 지 30일이 지나면 자동으로 지워집니다(다시 생성할 수 있습니다).</p>
 
       {segment.image_urls.length > 0 && (

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { REEL_COVER_BUCKET, reelCoverFolder } from "@/lib/instagram/reelCover";
-import { pruneSegmentImages } from "@/lib/sceneImageCleanup";
+import { CLEANUP_ACTION, cleanupByOwner, pruneSegmentImages } from "@/lib/sceneImageCleanup";
+import { logProgramUsage } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -121,6 +122,7 @@ export async function GET(request: NextRequest) {
   // 장면 기록(image_urls 이력·image_url 선택)에서 그 주소를 뺀다 → 화면은 기존 「이 이미지 생성」 상태로 보인다.
   const expiredImages: string[] = [];
   let removedImages = 0, clearedSegments = 0;
+  const segmentsByOwner: Record<string, string[]> = {};
   try {
     for (const owner of (await list("", coverStorage)).filter((x) => x.id === null)) {
       for (const file of (await list(owner.name, coverStorage)).filter((x) => x.id !== null)) {
@@ -137,8 +139,8 @@ export async function GET(request: NextRequest) {
         const urls = batch.map((p) => coverStorage.getPublicUrl(p).data.publicUrl);
         const removedSet = new Set(urls);
         const [byHistory, bySelected] = await Promise.all([
-          supabase.from("shorts_video_segments").select("id, image_url, image_urls").overlaps("image_urls", urls),
-          supabase.from("shorts_video_segments").select("id, image_url, image_urls").in("image_url", urls),
+          supabase.from("shorts_video_segments").select("id, user_id, image_url, image_urls").overlaps("image_urls", urls),
+          supabase.from("shorts_video_segments").select("id, user_id, image_url, image_urls").in("image_url", urls),
         ]);
         if (byHistory.error || bySelected.error) throw new Error((byHistory.error ?? bySelected.error)!.message);
         const segs = new Map([...(byHistory.data ?? []), ...(bySelected.data ?? [])].map((s) => [s.id, s]));
@@ -148,6 +150,7 @@ export async function GET(request: NextRequest) {
           const { error: upErr } = await supabase.from("shorts_video_segments").update(next).eq("id", seg.id);
           if (upErr) throw new Error(upErr.message);
           clearedSegments += 1;
+          (segmentsByOwner[seg.user_id] ??= []).push(seg.id);
         }
       }
     }
@@ -156,6 +159,15 @@ export async function GET(request: NextRequest) {
   }
   console.log(`[cleanup-videos] scene images expired ${expiredImages.length} removed ${removedImages} segments ${clearedSegments}`);
   console.log(`[cleanup-videos] voices expired ${expiredVoices.length} removed ${removedVoices}`);
+  // v1.37: 회원별 정리 기록(usage_logs, 미리보기 때는 남기지 않음) — 스크립트 화면 「정리됐습니다」 표시·관리자 화면 합계에 쓴다
+  let loggedOwners = 0;
+  if (!dryRun) {
+    const byOwner = cleanupByOwner({ videos: expired, voices: expiredVoices, covers: expiredCovers, images: expiredImages }, segmentsByOwner);
+    for (const [userId, c] of Object.entries(byOwner)) {
+      await logProgramUsage({ userId, action: CLEANUP_ACTION, quantity: c.videos + c.voices + c.covers + c.images, metadata: { ...c } });
+      loggedOwners += 1;
+    }
+  }
   console.log(`[cleanup-videos] cutoff ${cutoff.toISOString()} checked ${checked} expired ${expired.length} removed ${removed} cleared ${clearedVideos}${dryRun ? " (dry-run)" : ""}`);
-  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, expiredVoices: expiredVoices.length, removedVoices, expiredCovers: expiredCovers.length, removedCovers, expiredImages: expiredImages.length, removedImages, clearedSegments, dryRun });
+  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, expiredVoices: expiredVoices.length, removedVoices, expiredCovers: expiredCovers.length, removedCovers, expiredImages: expiredImages.length, removedImages, clearedSegments, loggedOwners, dryRun });
 }
