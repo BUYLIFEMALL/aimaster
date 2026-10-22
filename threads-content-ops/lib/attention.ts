@@ -99,13 +99,19 @@ function aiErrorMessage(status: number, provider: EngineProvider): string {
   return `글 생성 요청이 실패했습니다. (${name} ${status})`;
 }
 
-async function callJson(engine: Engine, systemPrompt: string, user: string): Promise<string> {
+/** 글 생성에 함께 보내는 회원 사진(또는 영상 캡처) — JPEG base64. 저장하지 않는다(v2.15). */
+export type AnalysisImages = { type: "image" | "video"; base64List: string[] };
+
+async function callJson(engine: Engine, systemPrompt: string, user: string, images: string[] = []): Promise<string> {
   const system = withYearRule(systemPrompt); // 핵심 원칙 8번: 항상 당해 연도 기준
   if (engine.provider === "anthropic") {
+    const content = images.length
+      ? [...images.map((data) => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data } })), { type: "text", text: user }]
+      : user;
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": engine.apiKey, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: engine.model, max_tokens: 4096, system, messages: [{ role: "user", content: user }] }),
+      body: JSON.stringify({ model: engine.model, max_tokens: 4096, system, messages: [{ role: "user", content }] }),
       cache: "no-store",
       signal: AbortSignal.timeout(80_000),
     });
@@ -119,7 +125,7 @@ async function callJson(engine: Engine, systemPrompt: string, user: string): Pro
       headers: { "Content-Type": "application/json", "x-goog-api-key": engine.apiKey },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: "user", parts: [{ text: user }] }],
+        contents: [{ role: "user", parts: [...images.map((data) => ({ inlineData: { mimeType: "image/jpeg", data } })), { text: user }] }],
         generationConfig: { responseMimeType: "application/json", temperature: 0.8 },
       }),
       cache: "no-store",
@@ -134,7 +140,7 @@ async function callJson(engine: Engine, systemPrompt: string, user: string): Pro
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${engine.apiKey}` },
     body: JSON.stringify({
       model: engine.model,
-      messages: [{ role: "system", content: system }, { role: "user", content: user }],
+      messages: [{ role: "system", content: system }, { role: "user", content: images.length ? [...images.map((data) => ({ type: "image_url", image_url: { url: `data:image/jpeg;base64,${data}` } })), { type: "text", text: user }] : user }],
       response_format: { type: "json_object" },
       // GPT-5.x/6 같은 추론 계열 모델은 temperature를 받지 않아 GPT-4 계열에만 보낸다.
       ...openAIGenerationParams(engine.model, { temperature: 0.8 }),
@@ -190,6 +196,13 @@ function systemWith(personaTone: string | undefined, custom: CustomInput, range:
   return extras.length ? `${base}\n\n${extras.join("\n\n")}` : base;
 }
 
+/** 사진·영상 첨부 안내(v2.15, 기획 앱에서 옮김). 이 앱의 사실 원칙에 맞게 「보이는 것만」 쓰게 한다. */
+export function mediaBlock(media: AnalysisImages): string {
+  const what = media.type === "video" ? `회원이 올린 영상에서 순서대로 캡처한 장면 ${media.base64List.length}장` : `회원이 직접 올린 사진 ${media.base64List.length}장`;
+  return `[첨부한 시각 자료 — ${what}]
+첨부 이미지에서 실제로 보이는 것(제품 모양·구조·크기감·색·사용 장면·변화)을 글감의 사실로 써도 됩니다. 이미지에 보이지 않는 기능·효과·수치·후기·사용 기간은 지어내지 마세요. 글에는 '사진', '영상', '1번째', '넘기면' 같은 매체를 가리키는 말을 쓰지 말고 장면 자체를 묘사하세요. <data>의 [내 실제 경험]이 없으면 직접 써 본 체험담처럼 꾸미지 마세요.`;
+}
+
 /** 문장·줄 경계에서 자른다(상한을 넘었을 때의 마지막 안전망). 이모티콘이 반으로 잘리지 않게 한다. */
 export function trimToMax(textValue: string, max: number): string {
   if (textValue.length <= max) return textValue;
@@ -234,7 +247,7 @@ export async function fitPlanToRange(plan: AttentionPlan, range: LengthRange, en
   return { ...plan, content: finalContents[0], hookVariants: plan.hookVariants.map((variant, index) => ({ ...variant, content: finalContents[index + 1] })) };
 }
 
-export async function generateAttentionPlan(params: { topic: string; note?: string; personaTone?: string; custom?: CustomInput; engine: Engine; range?: LengthRange; operation?: OperationRules }): Promise<AttentionPlan> {
+export async function generateAttentionPlan(params: { topic: string; note?: string; personaTone?: string; custom?: CustomInput; engine: Engine; range?: LengthRange; operation?: OperationRules; media?: AnalysisImages }): Promise<AttentionPlan> {
   const range = params.range ?? { min: 450, max: 480 };
   const custom = params.custom ?? {};
   const parts = [`[글감]\n${params.topic}`];
@@ -245,7 +258,11 @@ export async function generateAttentionPlan(params: { topic: string; note?: stri
   if (custom.targetAudience) parts.push(`[타깃 독자]\n${custom.targetAudience}`);
   if (params.note) parts.push(`[추가 요청]\n${params.note}`);
   const user = `<data>\n${parts.join("\n\n")}\n</data>\n\n위 글감으로 주목받는 Threads 글 1세트와 5대 훅 유형별 글 5개를 만들어줘.`;
-  const raw = await callJson(params.engine, systemWith(params.personaTone, custom, range, params.operation), user);
+  const media = params.media?.base64List.length ? params.media : undefined;
+  const system = systemWith(params.personaTone, custom, range, params.operation) + (media ? `
+
+${mediaBlock(media)}` : "");
+  const raw = await callJson(params.engine, system, user, media?.base64List);
   if (!raw) throw new Error("AI가 빈 응답을 반환했습니다. 다시 시도해 주세요.");
   return fitPlanToRange(normalizeAttentionPlan(raw), range, params.engine, Boolean(custom.linkedProduct));
 }

@@ -17,7 +17,7 @@ import {
   structureCandidates,
   type ViralCandidateDraft,
 } from "@/threads-content-ops/lib/collector";
-import { generateAttentionPlan, hasOperationRules, planImagePrompts, rewriteAttentionPost, type AttentionPlan, type OperationRules } from "@/threads-content-ops/lib/attention";
+import { generateAttentionPlan, hasOperationRules, planImagePrompts, rewriteAttentionPost, type AnalysisImages, type AttentionPlan, type OperationRules } from "@/threads-content-ops/lib/attention";
 import { DEFAULT_ENGINE, PERSONAS, REWRITE_MODES, IMAGE_KEY_LABEL, MAX_GENERATE_COUNT, findImageModel, isKnownEngine, isKnownRatio, type RewriteMode } from "@/threads-content-ops/lib/personas";
 import { generateImageBytes } from "@/threads-content-ops/lib/postImage";
 import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MEDIA_BUCKET, memberMediaFolder, ownedMediaPath, sanitizeMedia, type PostMedia } from "@/threads-content-ops/lib/media";
@@ -1415,7 +1415,21 @@ async function loadOperationRules(supabase: Awaited<ReturnType<typeof authorized
 
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
-export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; personaTone?: string; custom?: CustomFields; engine?: EngineInput; productId?: string; accountId?: string }): Promise<AttentionResult> {
+/** 글 생성에 함께 보낸 사진·영상 캡처(v2.15)를 검사한다: 최대 5장, JPEG base64, 한 장 1.5MB 이하. 저장하지 않는다. */
+const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
+function cleanAnalysisMedia(media: unknown): AnalysisImages | undefined {
+  if (!media || typeof media !== "object") return undefined;
+  const { type, base64List } = media as { type?: unknown; base64List?: unknown };
+  if (!Array.isArray(base64List) || !base64List.length) return undefined;
+  if (type !== "image" && type !== "video") throw new Error("첨부 자료 형식을 확인해 주세요.");
+  if (base64List.length > 5) throw new Error("사진·영상 장면은 최대 5장까지 첨부할 수 있습니다.");
+  for (const item of base64List) {
+    if (typeof item !== "string" || item.length > 2_000_000 || !BASE64_RE.test(item)) throw new Error("첨부 사진을 읽지 못했습니다. 다시 첨부해 주세요.");
+  }
+  return { type, base64List: base64List as string[] };
+}
+
+export async function generateAttentionPost(input: { topic: string; note?: string; personaId?: string; personaTone?: string; custom?: CustomFields; engine?: EngineInput; productId?: string; accountId?: string; media?: AnalysisImages }): Promise<AttentionResult> {
   try {
     const topic = clean(input.topic, 1_201);
     const note = clean(input.note, 301);
@@ -1423,6 +1437,7 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     if (note.length > 300) throw new Error("추가 요청은 300자 이내로 입력해 주세요.");
     const persona = input.personaId ? PERSONAS.find((item) => item.id === input.personaId) : undefined;
     if (input.personaId && !persona) throw new Error("지원하지 않는 페르소나입니다.");
+    const media = cleanAnalysisMedia(input.media);
     const custom: CustomFields = { product: clean(input.custom?.product, 200), experience: clean(input.custom?.experience, 800), targetAudience: clean(input.custom?.targetAudience, 200), benchmarkPost: clean(input.custom?.benchmarkPost, 2_000) };
     const { supabase, user } = await authorizedUser();
     const linked = await loadLinkedProduct(supabase, user.id, input.productId);
@@ -1432,7 +1447,7 @@ export async function generateAttentionPost(input: { topic: string; note?: strin
     if (!resolved.ok) return { ok: false, needKey: true, error: resolved.error };
     const operation = await loadOperationRules(supabase, user.id, input.accountId);
     const personaTone = input.personaTone === undefined ? persona?.tonePrompt : clean(input.personaTone, 800);
-    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone, custom, engine: resolved.engine, range, operation }) };
+    return { ok: true, plan: await generateAttentionPlan({ topic, note: note || undefined, personaTone, custom, engine: resolved.engine, range, operation, media }) };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "글을 생성하지 못했습니다." };
   }

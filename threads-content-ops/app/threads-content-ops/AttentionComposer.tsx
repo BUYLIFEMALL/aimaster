@@ -7,6 +7,8 @@ import { DEFAULT_ENGINE, DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, ENGINES, 
 import { createClient } from "@/lib/supabase/client";
 import { MAX_IMAGE_BYTES, MAX_MEDIA, MAX_VIDEO_BYTES, MEDIA_BUCKET, MEDIA_RETENTION_DAYS, memberMediaFolder, type PostMedia } from "@/threads-content-ops/lib/media";
 import { assemblePostBody, disclosureFor, productPlatformLabel, type LinkedProduct } from "@/threads-content-ops/lib/productPost";
+import { MAX_ANALYSIS_IMAGES, processAnalysisImages, processAnalysisVideo, type AnalysisMedia } from "@/threads-content-ops/lib/mediaProcessor";
+import { currentTimeContext, MOOD_TOPICS } from "@/threads-content-ops/lib/topicSuggestions";
 import { deleteMediaFile, generateAttentionPost, generatePostImage, planPostImages, publishSavedDraft, rewriteGeneratedPost, saveGeneratedDraft, scheduleSavedDraft } from "./web-actions";
 
 type Account = { id: string; username: string | null };
@@ -58,6 +60,28 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
   const imageKeyReady = configuredProviders.includes(imagePlatform.keyProvider);
   const engineInfo = ENGINES.find((item) => item.provider === engine.provider) ?? ENGINES[0];
   const generating = generatingLabel !== null;
+  // v2.15 기획 앱에서 옮김: 사진·영상을 AI가 보고 글쓰기(저장하지 않음), 요일·시간대 추천 주제
+  const [analysis, setAnalysis] = useState<AnalysisMedia | null>(null);
+  const [analysisBusy, setAnalysisBusy] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
+  const analysisImageInput = useRef<HTMLInputElement>(null);
+  const analysisVideoInput = useRef<HTMLInputElement>(null);
+  const [timeContext] = useState(() => currentTimeContext());
+  const attachAnalysis = async (files: File[], kind: "image" | "video") => {
+    if (!files.length) return;
+    setAnalysisError("");
+    setAnalysisBusy(true);
+    try {
+      if (kind === "image" && files.length > MAX_ANALYSIS_IMAGES) setAnalysisError(`사진은 최대 ${MAX_ANALYSIS_IMAGES}장까지라 앞의 ${MAX_ANALYSIS_IMAGES}장만 첨부했습니다.`);
+      setAnalysis(kind === "image" ? await processAnalysisImages(files) : await processAnalysisVideo(files[0]));
+      setPlan(null);
+    } catch (error) {
+      setAnalysisError(error instanceof Error ? error.message : "첨부 파일을 처리하지 못했습니다.");
+    } finally {
+      setAnalysisBusy(false);
+    }
+  };
+  const pickTopic = (value: string) => { setViralId(""); setTopic(value); setPlan(null); setMessage(null); };
 
   // 글감 내용이 스크롤 없이 모두 보이도록 입력 내용 길이에 맞춰 세로 칸을 키운다.
   useEffect(() => {
@@ -87,6 +111,7 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
         topic: effectiveTopic, note, personaId: forcedPersonaId ?? (personaId || undefined),
         personaTone: template?.personaTone ?? (personaId ? personaTone : undefined),
         custom: { product: template?.product ?? product, experience, targetAudience: template?.targetAudience ?? targetAudience, benchmarkPost: benchmark }, engine, productId: productId || undefined, accountId: accountId || undefined,
+        media: analysis ? { type: analysis.type, base64List: analysis.base64List } : undefined,
       });
       if (result.ok) setPlan(result.plan);
       else setMessage({ ok: false, text: result.error });
@@ -147,6 +172,32 @@ export default function AttentionComposer({ userId, schedulerReady, operationAcc
         : <p className="mt-3 rounded-xl border border-dashed border-violet-300 bg-white p-3 text-sm text-neutral-600">사용할 수 있는 글감이 없습니다. <Link className="font-semibold underline" href="/threads-content-ops?tab=viral">떡상 콘텐츠 수집</Link>에서 글감을 모으거나 아래에 주제를 직접 입력하세요.</p>}
       <label className="mt-4 block text-sm font-medium text-neutral-700">글감·주제 <span className="font-normal text-neutral-500">(글감을 고르면 자동으로 채워지며 고쳐 써도 됩니다. 비워 두고 페르소나를 누르면 그 페르소나의 기본 주제로 만듭니다)</span></label>
       <textarea ref={topicRef} className={`${inputClass} mt-1 min-h-48 resize-y overflow-hidden leading-relaxed`} maxLength={1200} value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="예: 전자레인지 찜기, 세탁조 클리너, 월요병 (소재나 상품명도 좋아요)" />
+
+      <details className="mt-3 rounded-xl border border-violet-200 bg-violet-50/40 p-3">
+        <summary className="cursor-pointer text-sm font-bold text-neutral-900">💡 무엇을 쓸지 모르겠다면 — 지금 시간대 추천 주제 <span className="font-normal text-neutral-500">({timeContext.timeLabel} · {timeContext.vibe})</span></summary>
+        <div className="mt-3 flex flex-wrap gap-2">{timeContext.topics.map((item) => <button key={item} type="button" disabled={generating} onClick={() => pickTopic(item)} className="rounded-full border border-violet-300 bg-white px-3 py-1 text-xs text-neutral-800 hover:bg-violet-100 disabled:opacity-50">{item}</button>)}</div>
+        <div className="mt-3 space-y-2">{MOOD_TOPICS.map((mood) => <div key={mood.label} className="flex flex-wrap items-center gap-2"><span className="w-24 shrink-0 text-xs font-semibold text-neutral-700">{mood.emoji} {mood.label}</span>{mood.topics.map((item) => <button key={item} type="button" disabled={generating} onClick={() => pickTopic(item)} className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-xs text-neutral-700 hover:bg-neutral-100 disabled:opacity-50">{item}</button>)}</div>)}</div>
+        <p className="mt-2 text-[11px] text-neutral-500">누르면 주제 칸에 채워집니다. 주제는 예시일 뿐이고, 글감에 없는 경험은 지어내지 않습니다.</p>
+      </details>
+
+      <div className="mt-3 rounded-xl border border-dashed border-violet-300 bg-white p-3">
+        <input ref={analysisImageInput} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={(event) => { const files = Array.from(event.target.files ?? []); event.target.value = ""; void attachAnalysis(files, "image"); }} />
+        <input ref={analysisVideoInput} type="file" accept="video/mp4,video/quicktime,video/webm" className="hidden" onChange={(event) => { const files = Array.from(event.target.files ?? []); event.target.value = ""; void attachAnalysis(files, "video"); }} />
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-neutral-800">📷 사진·영상 보고 글쓰기 <span className="font-normal text-neutral-500">(선택)</span></span>
+          <button type="button" disabled={analysisBusy || generating} onClick={() => analysisImageInput.current?.click()} className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-50">🖼️ 사진 첨부 (최대 {MAX_ANALYSIS_IMAGES}장)</button>
+          <button type="button" disabled={analysisBusy || generating} onClick={() => analysisVideoInput.current?.click()} className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-50">🎬 영상 첨부 (장면 5컷)</button>
+          {analysis && <button type="button" disabled={generating} onClick={() => { setAnalysis(null); setAnalysisError(""); }} className="rounded-lg border border-rose-300 px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50">✕ 첨부 빼기</button>}
+          {analysisBusy && <span className="inline-flex items-center gap-1 text-xs text-neutral-500"><Loader2 size={12} className="animate-spin" />준비 중…</span>}
+        </div>
+        {analysis && <div className="mt-2">
+          <p className="text-xs text-neutral-600">{analysis.type === "video" ? `영상 「${analysis.label}」에서 뽑은 장면 ${analysis.previews.length}컷` : analysis.label}을 AI가 보고 글을 씁니다.</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className="mt-2 flex flex-wrap gap-2">{analysis.previews.map((src, index) => <img key={index} src={src} alt={`첨부 ${index + 1}`} className="h-16 w-16 rounded-md border border-neutral-200 object-cover" />)}</div>
+        </div>}
+        {analysisError && <p className="mt-2 text-xs text-rose-600" role="alert">{analysisError}</p>}
+        <p className="mt-2 text-[11px] text-neutral-500">첨부한 사진·영상에 실제로 보이는 것만 글에 씁니다(보이지 않는 효과·후기는 지어내지 않음). 글 생성에만 쓰고 저장하지 않으며, 게시할 이미지는 아래 결과 글에서 따로 추가합니다. 사진을 읽을 수 있는 모델이 필요합니다.</p>
+      </div>
     </section>
 
     <section className="rounded-2xl border-2 border-sky-300 bg-white p-5 shadow-sm">

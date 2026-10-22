@@ -6,7 +6,7 @@
     "dev": "next dev -p 3051",
     "build": "next build",
     "start": "next start",
-    "test": "node --test tests/coupang-manual.test.cjs tests/draft-actions.test.cjs"
+    "test": "node --test tests/coupang-manual.test.cjs tests/draft-actions.test.cjs tests/attention-media.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
