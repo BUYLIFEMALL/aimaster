@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 v1.27 배포 (맥미니 문구 고치기 💧 찍기 결함 수정 마무리)
+- 맥미니 커밋 `3ddd59df5`: 사본 일치·tsc → 배포 READY → DB v1.27 → 크롬 `/products`에 v1.27·FAQ 확인.
+- 못 한 것: 💧 찍기·새 버전 저장 실제 시험 — **맥미니 세션께**: 배포 끝, 맥미니 크롬 확인 부탁드립니다(끝나면 원본 버전 재선택).
+- 비용: Vercel 빌드 1회(주인님 추가 승인), AI 0회. 상세: `shop-detail-page/AGENTS.md` 맨 아래.
+- 프로그램: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.11·쇼츠 바이럴 v1.15: SEO 대본 → 썸네일 제작 참고 문서 · 쇼츠 바이럴 대본 → 썸네일 (빌드 2회, Gemini 1회) · 원스톱 띠 모양(코드만)
 - 「이 전략으로 썸네일 만들기」 때 SEO 대본이 제작 화면 참고 문서로 자동 첨부(A/B 문구에 반영). 쇼츠 바이럴 「🎬 생성된 대본」에 「📤 썸네일 만들기」. 유튜브 바이럴 대본 분석은 남의 영상이라 보내지 않음(제안 정정). 크롬 실제 흐름(쇼츠 바이럴 → SEO 전략 1회 → 제작 화면 참고 문서) 검수 끝. 원스톱 띠 모양은 미배포(다음 배포 v1.37). 상세 각 폴더 `AGENTS.md`.
 - 프로그램: https://thumbnail-master.buylife.xyz · https://shorts-viral-studio.buylife.xyz
