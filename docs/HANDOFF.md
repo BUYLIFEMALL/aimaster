@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 30일 정리 기록 3차 3곳(미배포 대기) · 부동산 공용 캐시 의심 · 블로그 병합 담당 정정 (비용 없음)
+- **정정(주인님)**: 블로그 병합 대상 8개 프로그램은 지금 **다른 Claude Code 세션이 담당**(Codex 아님). 이 문서의 이전 항목들(오늘)에 「Codex 담당」이라 적은 곳은 이 정정으로 읽는다. 그 세션이 정리 기록을 붙일 때는 공용 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`)를 사본으로 받아 `logCleanupUsage(admin, slug, counts)`만 부르면 된다(`check-shared-modules.mjs` 등록 + `--sync`).
+- 3차(`af9b2719c`·`05902a01d`): `threads-affiliate-poster`(posts·images)·`trending-product-finder`(reports·snapshots·competition, 지운 행 user_id)·`youtube-auto-reply`(comments). tsc 통과, **미배포 대기**(PENDING 3줄·각 IMPROVEMENTS). 사본 등록 줄은 Threads 세션 커밋 `bc329f157`에 함께 들어감(내용은 의도 그대로).
+- `real_estate_sales` 지역 분위기 표는 user_id가 없어 「회원 데이터 아님」 표시 → 진행률 분모 제외. 진행률(코드 기준) **15/22** — 남은 7곳 = 블로그 병합 세션 6곳 + `shop-detail-page`(맥미니 영역).
+- ⚠ 발견(미처리): 그 표가 「회원별 캐시」 주석과 달리 회원 구분 없는 공용 캐시 — 회원 키 AI 결과 공유라면 최상위 규칙 위반 가능. `real_estate_sales/docs/IMPROVEMENTS.md` 2026-10-23, 주인님 판단 필요.
+- 다음 메인 빌드 때 함께(코드 미작성): 정리 표 이름표 추가(`tracks` 곡·`posts` 글·`ideas` 글감·`history` 분석 기록·`reports` 추천 보고서·`snapshots` 트렌드 기록·`competition` 경쟁 조사·`comments` 댓글), 「운영 상태」 24시간 지난 기록 「갱신 필요」, 「프로그램 펼쳐 보기」를 대기 줄 수 많은 순서로(지금 `ops_overview.pending.programs`는 이름만 → `--publish`에 줄 수도 함께 저장 필요).
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ SEO 스튜디오 v2.09 확장 자동 연결 (빌드 1회 · AI 0회)
 - 확장 「자동 연결」 또는 웹 설정 「확장 프로그램 바로 연결」 한 번으로 연결 코드 자동 발급·저장(복사·붙여넣기 없음). 우리 사이트 출처·코드 형식·서버 확인을 통과해야 저장. 배포 Ready·DB/확장/ZIP v2.09.
 - 남은 일: 주인님 확장 새로고침 뒤 버튼 2곳 실제 연결·v2.08 입력 재확인. 확장 카드 「설치 전」 표시 문제는 후보(`naver-blog-seo-studio/docs/IMPROVEMENTS.md`).
