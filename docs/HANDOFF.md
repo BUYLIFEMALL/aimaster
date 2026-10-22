@@ -1,11 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+
 ## 2026-10-23 — Claude Code(윈도우): 쓰레드 콘텐츠 운영 「📷 무료 사진」 — **보류**(다른 세션이 같은 폴더 작업 중 발견)
 - 주인님 승인(빌드 1회) 후 구현(tsc 통과)하다가, 다른 Claude Code 세션(윈도우)이 같은 `threads-content-ops/`에서 「기획 앱 기능 합치기 v2.15」(커밋 `47b447340`, DB v2.15)를 진행 중인 것을 ACTIVE_WORK에서 발견 — 처음 확인 때는 없던 줄. 같은 폴더 동시 작업 금지라 **배포하지 않았고**, 그 세션 배포에 검수 안 된 제 코드가 섞이지 않도록 제 변경만 되돌려 폴더를 그 세션 커밋 상태로 복원(그 세션 파일·커밋은 건드리지 않음).
 - 보관: `docs/pending-patches/threads-content-ops-free-photo-20261023/`(패치·새 파일 2개·다시 적용하는 법 README). 그 세션이 끝나면 README 순서로 적용 → 다음 버전(v2.16 예상) 배포.
 - 비용 없음(빌드 0회, AI 0회).
 
+## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ 뮤직비디오 v1.12 Veo 3.1 Preview 종료 대응 → Gemini Omni Flash (빌드 1회 · 영상 생성 시험 1회 약 $0.40 · 시험 계정 본인 키)
+- Google이 Gemini API Veo 3.1 Preview 3종을 2026-10-22 종료(공식 문서 확인) → 뮤직비디오 장면 영상이 막혀 있었음. 공용 `ai-video-providers` 사본(`music-video-studio/src/lib/video/`)으로 전환, 기준(`ai-image-studio/lib/video/videoProviders.ts`)에 `aspectRatio`·글만 생성(Gemini) 선택값 추가(기존 사본 동작 불변). start→job, status(POST)→진행 JSON/완료 MP4, download API 삭제. 커밋 `cea11442a`.
+- 검수: 뮤직비디오 시험 18·tsc·build, 원스톱 영상 시험 13, ai-image-studio·shots·원스톱 tsc, 공용 사본 일치. 배포 Ready·DB v1.12. 크롬 시험 계정 실생성: 글만 4초 → 4.01초·1280×720·MP4 1.45MB.
+- 미배포 대기: 뮤직비디오 루프 버튼 「On (8s)」→「On」, shots·shorts-onestop-studio 공용 사본(동작 불변) — `docs/PENDING_DEPLOYS.md`. 남은 확인: 이미지→영상·루프 실호출, 휴대폰 폭 계정 위치.
+- 저장소 전체 검색: 종료된 Veo·Sora 모델을 부르는 코드 0곳(교훈 `docs/ERROR_LESSONS.md` 맨 위). 관련 조사 보고서: `ai-video-studio/docs/RESEARCH_20261023_PLATFORMS.md`(다음 작업 = AI 영상 스튜디오 개발 플랜).
+- 프로그램: https://music-video-studio.buylife.xyz
 ## 2026-10-23 Claude Code(윈도우, 크롬) — ✅ AI 음악 스튜디오 v1.01 신규 개발·배포 (빌드 1회 · 음악 생성 시험 약 $0.26 · 시험 계정 본인 키)
 - 새 프로그램 `ai-music-studio/`(주인님 지시 「ai-image-studio처럼 음악 전용 자동화」, 이름 「AI 음악 스튜디오」 확정). 공급자 5곳·모델 11개: Google Lyria 3.5/3 Clip(Gemini), ElevenLabs Music v2.5, fal(MiniMax 2.6·ACE-Step·Stable Audio 2.5), Replicate(MiniMax 2.5·Lyria 2·Stable Audio 2.5, 주인님 추가 결정), Suno V6/V6 Mini(**`music/lib/ai/suno.ts` 그대로 — 공용 모듈 `suno-api-client` 등록**). 화면: 음악 만들기·모델 비교(최대 3개)·내 보관함(30일)·API키등록·매뉴얼. 음악(SUNO)자동화는 Suno 전용 독립 프로그램으로 유지(주인님 결정).
 - DB(운영 esgxyikcnnvmlhygjkth, 크롬 SQL 편집기): `programs` 등록(v1.01·요금제 3·VIP 자동 부여 144명·시험 계정 사용기간), 표 `ams_generations`(RLS), 비공개 버킷 `ai-music-studio`(50MB). Vercel 프로젝트 `ai-music-studio` 생성·환경변수 5개(CRON_SECRET 포함)·도메인 연결, 배포 `ai-music-studio-1trveqkpn` Ready.
