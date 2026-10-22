@@ -234,3 +234,10 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 
 ## 2026-10-22 v1.25 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우)
 - **v1.25 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 설정 화면 API 키 한 줄의 「수정」·「삭제」·「지금 사용 중」 꺾임 수정(`components/settings/ApiKeyRow.tsx`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
+
+## 2026-10-23 v1.26 — 자동 수집 회원 선택(Vercel / 본인 cron-job.org) + AI 지시문 Threads용 (Claude Code 윈도우)
+- 주인님 「고객이 본인이 선택하게 해줘」. 플랜 `docs/PLAN_20261023_MEMBER_AUTO_COLLECT.md`, 기준 구현 `youtube-auto-reply` v1.12. 그전에는 설정의 「예약 모니터링」을 켜도 예약 호출이 없어(`vercel.json` crons 비어 있음) 동작하지 않았다.
+- 코드: `lib/schedulerMember/`(공용 `member-scheduler` 사본 `memberScheduler.ts` — **직접 수정 금지**, 이 앱 값 `schedulerConfig.ts`: 표 `th_member_scheduler`·토큰 `threply_`·끄기 스위치 `THREPLY_PLATFORM_SCHEDULER`·남은 일 = 모니터링 켠 설정 수, `cronJobOrg.ts`, `dispatch.ts`(이용 권한 재확인 + `last_run_at` 조건부 선점)), `lib/programAccess.ts`(유튜브 앱 사본), `lib/actions/scheduler.ts`, `monitoring.ts`(켜기/끄기 때 작업 맞추기), `settings.ts`(cron-job.org 키 허용·변경·삭제 처리), `/api/cron/dispatch-member`(Next 14라 `@vercel/functions` waitUntil), `/api/cron/sync-comments`(Vercel 방식·비일시정지 회원만), `vercel.json` 5분 예약, 설정 「⏰ 예약 실행 방식」·상태 줄, 매뉴얼 FAQ.
+- AI 답글 지시문 `lib/ai/reply.ts`: 「유튜브 채널 운영자·영상 제목」 → 「Threads 계정 운영자·내 Threads 글」(인자 `videoTitle` → `postText`).
+- DB: `supabase/migrations/20261023220000_th_member_scheduler_v1_26.sql`(크롬 SQL Editor). 배포 `threads-comment-reply-nbicmtaj2` Ready. 검수 내용은 루트 `docs/HANDOFF.md` 같은 날 항목.
+- **미배포(급함, 빌드 승인 대기)**: 모니터링 「이 시점 이후 댓글만」을 한국 시간으로 읽기(`lib/actions/monitoring.ts`) — 화면 값(시간대 없음)을 서버가 UTC로 읽어 9시간 늦게 저장되던 버그.

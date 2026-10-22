@@ -20,3 +20,10 @@
 - [ ] **(결정 필요)** 자동 댓글 수집 예약이 처음부터 꺼져 있음(`vercel.json` crons 비어 있음, README 「사용자 승인 후 활성화」). 지금은 수집 버튼을 눌러야 함. 켠다면 공용 `member-scheduler`(회원 본인 cron-job.org 선택)로.
 - [ ] 30일 자동 삭제 없음(`th_comments` 등).
 - 근거·전체 비교: [`../../docs/analysis-threads-consolidation-20261023/REPORT.md`](../../docs/analysis-threads-consolidation-20261023/REPORT.md) §6 (분석·제안, 병합 미실행)
+
+## 2026-10-23 v1.26 처리 결과 (Claude Code 윈도우)
+- [x] AI 답글 지시문 유튜브용 → Threads용(v1.26 배포)
+- [x] 자동 수집 예약 — 회원이 실행 방식 선택(v1.26 배포, Vercel 실검수)
+- [ ] **(급함, 커밋됨·미배포)** 모니터링 시작 시점 9시간 밀림 수정 — 다음 배포(승인 대기)
+- [ ] 30일 자동 삭제 없음(그대로)
+- [ ] 같은 9시간 밀림이 `youtube-auto-reply/lib/actions/monitoring.ts:25`에도 있음(유튜브 앱 미수정 — 주인님 결정 대기)
