@@ -43,13 +43,16 @@ values ('ai-music-studio', 'ai-music-studio', false, 52428800,
 on conflict (id) do update set public = false, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
 
 -- 공용 user_api_keys 허용 목록에 이 프로그램이 쓰는 이름이 없으면 추가(기존 이름 그대로, 한 번 등록하면 모든 프로그램 재사용).
-do $$ declare def text; p text; begin
+-- (2026-10-23 적용 시점 확인: 여섯 이름 모두 이미 있어 제약은 그대로였다)
+do $$ declare def text; orig text; p text; begin
   select pg_get_constraintdef(c.oid) into def from pg_constraint c join pg_class t on t.oid = c.conrelid
    where t.relname = 'user_api_keys' and c.conname = 'user_api_keys_provider_check';
   if def is null then return; end if;
+  orig := def;
   foreach p in array array['gemini','elevenlabs','fal','replicate','suno','openai'] loop
     if def !~ ('[{,]' || p || '[,}]') then def := replace(def, chr(39) || chr(123), chr(39) || chr(123) || p || ','); end if;
   end loop;
+  if def = orig then return; end if;
   execute 'alter table public.user_api_keys drop constraint user_api_keys_provider_check';
   execute 'alter table public.user_api_keys add constraint user_api_keys_provider_check ' || def;
 end $$;
