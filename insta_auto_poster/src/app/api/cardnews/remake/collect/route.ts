@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { getInstaAccountForUser } from "@/lib/instagram/memberAccount";
+import { getUserApiKey as getCardnewsKey } from "@/lib/cardnews/apiKeys";
+import { GeminiFileError, uploadToGemini } from "@/lib/cardnews/ai/geminiFiles";
 import {
   COLLECT_FETCH, COLLECT_MAX_IMAGES, WATCH_MAX, fromApifyItem, fromGraphMedia, isInstagramCdn, normalizeHashtag, normalizeUsername, rankPosts,
   type CollectKind, type CollectSource, type CollectedPost,
@@ -24,6 +26,25 @@ const GRAPH = "https://graph.facebook.com/v21.0";
 const APIFY_ACCOUNT_ACTOR = "apify~instagram-scraper";
 const APIFY_HASHTAG_ACTOR = "apify~instagram-hashtag-scraper";
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // v1.54 릴스 영상(분석용으로 잠깐 받아 Gemini에 올림, 저장 안 함)
+
+async function readCapped(res: Response, max: number): Promise<Uint8Array | null> {
+  const len = Number(res.headers.get("content-length") ?? 0);
+  if (len > max) return null;
+  const reader = res.body?.getReader();
+  if (!reader) return null;
+  const parts: Uint8Array[] = []; let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > max) { await reader.cancel(); return null; }
+    parts.push(value);
+  }
+  const out = new Uint8Array(total); let o = 0;
+  for (const p of parts) { out.set(p, o); o += p.byteLength; }
+  return out;
+}
 
 const json = (status: number, body: Record<string, unknown>) => NextResponse.json(body, { status, headers: { "Cache-Control": "private, no-store" } });
 
@@ -40,7 +61,7 @@ async function viaOfficial(token: string, igUserId: string, username: string): P
       : "인스타 공식 API에서 게시물을 가져오지 못했습니다. 인스타 연결을 다시 확인해 주세요.");
   }
   const owner = d.business_discovery.username ?? username;
-  return rankPosts((d.business_discovery.media?.data ?? []).map((m) => fromGraphMedia(m, owner)));
+  return rankPosts((d.business_discovery.media?.data ?? []).map((m) => fromGraphMedia(m, owner)), COLLECT_FETCH);
 }
 
 async function viaApify(token: string, kind: CollectKind, q: string): Promise<CollectedPost[]> {
@@ -66,7 +87,7 @@ async function viaApify(token: string, kind: CollectKind, q: string): Promise<Co
   if (!res.ok) throw new BlockedUrlError(`Apify 수집에 실패했습니다(${res.status}). 잠시 뒤 다시 시도해 주세요.`);
   const raw = (await res.json().catch(() => [])) as unknown;
   const items = Array.isArray(raw) ? raw : [];
-  const posts = rankPosts(items.map(fromApifyItem));
+  const posts = rankPosts(items.map(fromApifyItem), COLLECT_FETCH);
   // 결과 없이 오류 항목만 오면(비공개·없는 계정 등) 빈 목록 대신 이유를 알려 준다
   const errItem = items.find((x) => x && typeof x === "object" && "error" in (x as object)) as { error?: string; errorDescription?: string } | undefined;
   if (!posts.length && errItem) {
@@ -117,6 +138,30 @@ export async function POST(request: Request) {
       const { data, error } = await table().select("handle").eq("user_id", userId).eq("platform", "instagram").order("created_at", { ascending: false }).limit(WATCH_MAX);
       if (error) throw new Error(error.message);
       return json(200, { watch: ((data ?? []) as { handle: string }[]).map((r) => r.handle) });
+    }
+
+    // v1.54 「🎬 영상까지 분석」 — 수집한 릴스 영상을 회원 본인 Gemini 키로 Gemini 파일에 올리고 참조만 돌려준다(분석 후 analyze가 지움)
+    if (body.action === "reel_video") {
+      const videoUrl = typeof body.videoUrl === "string" ? body.videoUrl : "";
+      if (!isInstagramCdn(videoUrl)) return json(400, { error: "영상 주소가 올바르지 않습니다. 다시 수집해 주세요." });
+      const key = await getCardnewsKey(userId, "gemini");
+      if (!key) return json(400, { error: "영상 분석은 본인 Gemini 키가 필요합니다. [API키등록·플랫폼연동]에서 등록해 주세요.", needApiKey: true, provider: "gemini" });
+      let bytes: Uint8Array | null = null; let mime = "video/mp4";
+      try {
+        const { response } = await safeFetch(videoUrl, { signal: AbortSignal.timeout(60_000) });
+        if (response.ok) {
+          const ct = (response.headers.get("content-type") ?? "").split(";")[0].trim();
+          if (/^video\/(mp4|quicktime|webm)$/.test(ct)) mime = ct;
+          bytes = await readCapped(response, MAX_VIDEO_BYTES);
+        }
+      } catch { bytes = null; }
+      if (!bytes) return json(502, { error: "릴스 영상을 받지 못했습니다(주소 만료·100MB 초과). 다시 수집하거나 영상을 저장해 「릴스 영상 올리기」를 이용해 주세요." });
+      try {
+        const file = await uploadToGemini(key, bytes, mime, `remake-reel-${Date.now()}`);
+        return json(200, { file, sizeMB: Math.round((bytes.byteLength / 1048576) * 10) / 10 });
+      } catch (e) {
+        return json(502, { error: e instanceof GeminiFileError ? e.message : "Gemini에 영상을 올리지 못했습니다." });
+      }
     }
 
     if (body.action === "images") {

@@ -290,3 +290,35 @@ test("묶음 분석: 게시물마다 고르게 이미지(최대 6장), 원문에
   assert.ok(t.includes("① @acc · 좋아요 10 · 댓글 1") && t.includes("③ @acc · 좋아요 30 · 댓글 3"));
   assert.ok(t.includes("캡션2"));
 });
+
+// ── v1.54 릴스 영상까지 분석 · 유형 필터 ──
+import { filterPosts, isGeminiFileRef } from "../../src/lib/cardnews/collect.ts";
+
+test("수집 릴스: 영상 주소 읽기, 유형 필터", () => {
+  const v = fromApifyItem({ id: "v1", url: "https://www.instagram.com/reel/v1/", type: "Video", displayUrl: "https://a.cdninstagram.com/c.jpg", videoUrl: "https://a.cdninstagram.com/v.mp4", likesCount: 3 });
+  assert.equal(v.videoUrl, "https://a.cdninstagram.com/v.mp4");
+  const img = fromApifyItem({ id: "i1", url: "https://www.instagram.com/p/i1/", type: "Image", displayUrl: "https://a.cdninstagram.com/i.jpg", videoUrl: "https://a.cdninstagram.com/x.mp4" });
+  assert.equal(img.videoUrl, undefined, "사진에는 영상 주소를 붙이지 않음");
+  const g = fromGraphMedia({ id: "g", permalink: "https://www.instagram.com/p/g/", media_type: "VIDEO", media_url: "https://x.fbcdn.net/v.mp4", thumbnail_url: "https://x.fbcdn.net/t.jpg" }, "acc");
+  assert.equal(g.videoUrl, "https://x.fbcdn.net/v.mp4");
+  assert.deepEqual(filterPosts([v, img, g], "video").map((p) => p.id), ["v1", "g"]);
+  assert.equal(filterPosts([v, img, g], "all").length, 3);
+});
+
+test("Gemini 파일 참조: 우리 서버가 올린 Files API 영상만 통과", () => {
+  const ok = { name: "files/abc-123", uri: "https://generativelanguage.googleapis.com/v1beta/files/abc-123", mimeType: "video/mp4" };
+  assert.ok(isGeminiFileRef(ok));
+  assert.ok(!isGeminiFileRef({ ...ok, uri: "https://evil.example/v1beta/files/abc-123" }));
+  assert.ok(!isGeminiFileRef({ ...ok, name: "files/../x" }));
+  assert.ok(!isGeminiFileRef({ ...ok, mimeType: "image/png" }));
+  assert.ok(!isGeminiFileRef(null));
+});
+
+test("AI 호출: Gemini 파일 영상은 형식과 함께 보냄", async () => {
+  let body;
+  const fake = async (url, init) => { body = JSON.parse(init.body); return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: "ok" }] } }] }), { status: 200 }); };
+  await callLlm({ provider: "gemini", model: "m", apiKey: "k", system: "s", user: "u", videoUrl: "https://generativelanguage.googleapis.com/v1beta/files/a", videoMimeType: "video/mp4" }, fake);
+  assert.deepEqual(body.contents[0].parts[0], { fileData: { fileUri: "https://generativelanguage.googleapis.com/v1beta/files/a", mimeType: "video/mp4" } });
+  await callLlm({ provider: "gemini", model: "m", apiKey: "k", system: "s", user: "u", videoUrl: "https://www.youtube.com/watch?v=x" }, fake);
+  assert.deepEqual(body.contents[0].parts[0], { fileData: { fileUri: "https://www.youtube.com/watch?v=x" } }, "유튜브는 예전처럼");
+});

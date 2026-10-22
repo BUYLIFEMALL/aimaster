@@ -170,7 +170,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | 서버(프로그램별) | `insta_auto_poster/src/app/api/cardnews/remake/collect/route.ts` — search(공식 API → Apify)·images(sharp 1024px)·watch_* | 프로그램마다 각자(권한·오류 형식) |
 | 적용 후보 | `threads-content-ops`·`threads`(쓰레드 경쟁 계정 — Apify 쓰레드 수집기 필요), `shorts-viral-studio`(유튜브는 이미 Data API), `competitor-analysis` | ⚪ 필요할 때 |
 
-주의: 해시태그 수집기는 `keywordSearch: true`를 켜야 한글 해시태그가 나오고 반응 좋은 글이 온다(끄면 `#재테크` 빈 결과·영문도 최신 글 — 2026-10-22 실측, INSTA v1.53). Apify는 공식 API가 아니므로 화면에 「공개 게시물만·본인 책임」 안내를 함께 둔다.
+주의: 해시태그 수집기는 `keywordSearch: true`를 켜야 한글 해시태그가 나오고 반응 좋은 글이 온다(끄면 `#재테크` 빈 결과·영문도 최신 글 — 2026-10-22 실측, INSTA v1.53). Apify는 공식 API가 아니므로 화면에 「공개 게시물만·본인 책임」 안내를 함께 둔다. 릴스 영상 분석(v1.54)은 서버가 영상을 잠깐 받아 회원 본인 Gemini Files API에 올리고 분석 뒤 바로 지운다(`insta_auto_poster/src/lib/cardnews/ai/geminiFiles.ts` — 다른 프로그램의 「영상 레퍼런스 분석」에도 사본 후보).
 
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 

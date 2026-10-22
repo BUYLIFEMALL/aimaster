@@ -3,6 +3,8 @@ import { authorize, parseEngine, requireOwnKey } from "@/lib/cardnews/apiGuard";
 import { callLlm, LlmError } from "@/lib/cardnews/ai/llm";
 import { buildRemakeAnalysisPrompt, extractArticleText, isInstagramUrl, isYoutubeUrl, parseRemakeAnalysis } from "@/lib/cardnews/ai/remakePrompts";
 import { BlockedUrlError, safeFetch } from "@/lib/cardnews/safeFetch";
+import { isGeminiFileRef } from "@/lib/cardnews/collect";
+import { deleteGeminiFile } from "@/lib/cardnews/ai/geminiFiles";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -49,6 +51,9 @@ export async function POST(request: Request) {
       ? { mimeType: "audio/wav", data: rawAudio.data }
       : undefined;
     if (rawAudio && !audio) return NextResponse.json({ error: "릴스 소리 형식이나 길이가 올바르지 않습니다. 영상을 다시 올려 주세요." }, { status: 400 });
+    // v1.54 수집한 릴스 영상(수집 API가 회원 본인 Gemini 키로 올린 Files API 파일) — 분석 뒤 지운다
+    const geminiFile = body.geminiFile === undefined ? undefined : isGeminiFileRef(body.geminiFile) ? body.geminiFile : null;
+    if (geminiFile === null) return NextResponse.json({ error: "영상 정보가 올바르지 않습니다. 「영상까지 분석」을 다시 눌러 주세요." }, { status: 400 });
     if (!category) return NextResponse.json({ error: "분야를 먼저 정해주세요." }, { status: 400 });
     if (!text.trim() && !url && images.length === 0) {
       return NextResponse.json({ error: "레퍼런스를 하나 이상 넣어주세요(원문 붙여넣기·주소·화면 캡처·릴스 영상)." }, { status: 400 });
@@ -56,6 +61,9 @@ export async function POST(request: Request) {
 
     const engine = parseEngine(body.engine);
     if (!engine.ok) return engine.response;
+    if (geminiFile && engine.provider !== "gemini") {
+      return NextResponse.json({ error: "수집한 릴스 영상 분석은 Google Gemini에서만 됩니다. 분석 AI를 Gemini로 바꿔 주세요." }, { status: 400 });
+    }
     if (audio && engine.provider !== "gemini") {
       return NextResponse.json({ error: "릴스 소리 분석은 Google Gemini에서만 됩니다. 분석 AI를 Gemini로 바꾸거나 장면만 분석해 주세요." }, { status: 400 });
     }
@@ -85,8 +93,14 @@ export async function POST(request: Request) {
     const key = await requireOwnKey(gate.auth.user.id, engine.provider, engine.label);
     if (!key.ok) return key.response;
 
-    const prompt = buildRemakeAnalysisPrompt({ category, text, articleText: article?.text, articleTitle: article?.title, videoUrl, imageCount: images.length, reelFrames, hasAudio: !!audio });
-    const raw = await callLlm({ provider: engine.provider, model: engine.model, apiKey: key.apiKey, system: prompt.system, user: prompt.user, json: true, videoUrl, images, audio });
+    const vUrl = geminiFile?.uri ?? videoUrl;
+    const prompt = buildRemakeAnalysisPrompt({ category, text, articleText: article?.text, articleTitle: article?.title, videoUrl: vUrl, imageCount: images.length, reelFrames, hasAudio: !!audio });
+    let raw: string;
+    try {
+      raw = await callLlm({ provider: engine.provider, model: engine.model, apiKey: key.apiKey, system: prompt.system, user: prompt.user, json: true, videoUrl: vUrl, videoMimeType: geminiFile?.mimeType, images, audio });
+    } finally {
+      if (geminiFile) await deleteGeminiFile(key.apiKey, geminiFile.name);
+    }
     const analysis = parseRemakeAnalysis(raw);
     if (!analysis) return NextResponse.json({ error: "AI 분석 결과 형식이 맞지 않습니다. 다시 시도하거나 다른 모델을 선택해보세요." }, { status: 502 });
     return NextResponse.json({ analysis, articleTitle: article?.title ?? "" });

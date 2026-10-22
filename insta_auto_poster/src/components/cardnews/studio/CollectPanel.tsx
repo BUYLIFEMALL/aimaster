@@ -5,13 +5,16 @@
 import { useEffect, useState } from "react";
 import { Heart, Loader2, MessageCircle, Play, Search, Star, X } from "lucide-react";
 import { BTN_GHOST, ErrorNote, INPUT } from "./ui";
-import { BUNDLE_SIZE, bundleImageUrls, normalizeUsername, remakeBundleText, remakeSourceText, type CollectedPost, type CollectKind, type CollectSource } from "@/lib/cardnews/collect";
+import { BUNDLE_SIZE, COLLECT_TOP, bundleImageUrls, filterPosts, normalizeUsername, remakeBundleText, remakeSourceText, type CollectedPost, type CollectFilter, type CollectKind, type CollectSource } from "@/lib/cardnews/collect";
 
-export interface CollectPick { text: string; images: { name: string; mimeType: string; data: string; preview: string }[] }
+export interface GeminiFileRef { name: string; uri: string; mimeType: string }
+export interface CollectPick { text: string; images: { name: string; mimeType: string; data: string; preview: string }[]; geminiFile?: GeminiFileRef }
+
+const FILTERS: { id: CollectFilter; label: string }[] = [{ id: "all", label: "전체" }, { id: "video", label: "릴스" }, { id: "carousel", label: "캐러셀" }, { id: "image", label: "사진" }];
 
 const fmt = (n: number) => n.toLocaleString("ko-KR");
 
-export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick: (p: CollectPick) => void }) {
+export function CollectPanel({ maxImages, isGemini, onPick }: { maxImages: number; isGemini: boolean; onPick: (p: CollectPick) => void }) {
   const [kind, setKind] = useState<CollectKind>("account");
   const [query, setQuery] = useState("");
   const [posts, setPosts] = useState<CollectedPost[] | null>(null);
@@ -19,6 +22,9 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
   const [busy, setBusy] = useState(false);
   const [picking, setPicking] = useState<string | null>(null);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
+  // v1.54 유형 필터(서버는 가져온 20개를 반응도순으로 모두 주고, 화면이 거른 뒤 상위 5개를 보여 줌)
+  const [filter, setFilter] = useState<CollectFilter>("all");
+  const shown = posts ? filterPosts(posts, filter).slice(0, COLLECT_TOP) : null;
   // v1.52 경쟁 계정 즐겨찾기(회원별 DB 표 member_watch_accounts — 계정 이름만)
   const [watch, setWatch] = useState<string[]>([]);
   const [watchBusy, setWatchBusy] = useState(false);
@@ -38,7 +44,7 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
 
   async function search(over?: { kind: CollectKind; query: string }) {
     const k = over?.kind ?? kind, q = over?.query ?? query;
-    setBusy(true); setError(null); setPosts(null);
+    setBusy(true); setError(null); setPosts(null); setFilter("all");
     try {
       const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "search", kind: k, query: q }) });
       const d = await res.json().catch(() => ({}));
@@ -49,16 +55,24 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
     } finally { setBusy(false); }
   }
 
-  async function pick(p: CollectedPost | CollectedPost[]) {
+  async function pick(p: CollectedPost | CollectedPost[], withVideo = false) {
     const list = Array.isArray(p) ? p : [p];
-    setPicking(Array.isArray(p) ? "bundle" : p.id); setError(null);
+    setPicking(Array.isArray(p) ? "bundle" : withVideo ? `${p.id}:video` : p.id); setError(null);
     try {
+      // v1.54 「🎬 영상까지 분석」 — 서버가 릴스 영상을 회원 본인 Gemini 키로 Gemini 파일에 올리고 참조만 받는다(저장 안 함)
+      let geminiFile: GeminiFileRef | undefined;
+      if (withVideo && !Array.isArray(p) && p.videoUrl) {
+        const vr = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "reel_video", videoUrl: p.videoUrl }) });
+        const vd = await vr.json().catch(() => ({}));
+        if (!vr.ok) { setError({ message: vd.error || "릴스 영상을 준비하지 못했습니다.", needKey: vd.needApiKey }); return; }
+        geminiFile = vd.file;
+      }
       const urls = Array.isArray(p) ? bundleImageUrls(list, Math.max(1, maxImages)) : p.images.slice(0, Math.max(1, maxImages));
       const res = await fetch("/api/cardnews/remake/collect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "images", urls }) });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { setError({ message: d.error || "게시물 이미지를 받지 못했습니다." }); return; }
       const images = (d.images as { mimeType: string; data: string }[]).map((img, i) => ({ ...img, name: `@${list[0].owner} ${i + 1}`, preview: `data:${img.mimeType};base64,${img.data}` }));
-      onPick({ text: Array.isArray(p) ? remakeBundleText(list) : remakeSourceText(p), images });
+      onPick({ text: Array.isArray(p) ? remakeBundleText(list) : remakeSourceText(p), images, geminiFile });
     } catch {
       setError({ message: "네트워크 오류로 이미지를 받지 못했습니다." });
     } finally { setPicking(null); }
@@ -100,17 +114,27 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
       {busy && <p className="text-[11px] text-slate-400">가져오는 중입니다(Apify는 30초~2분 걸릴 수 있어요)…</p>}
       {error && <ErrorNote message={error.message} needKey={error.needKey} />}
       {posts && posts.length === 0 && <p className="text-xs text-slate-400">가져올 게시물이 없습니다. 공개 프로페셔널 계정인지, 해시태그 철자를 확인해 주세요.</p>}
-      {posts && posts.length > 0 && (
+      {posts && posts.length > 0 && shown && (
         <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {FILTERS.map((f) => {
+              const n = filterPosts(posts, f.id).length;
+              return (
+                <button key={f.id} type="button" onClick={() => setFilter(f.id)} aria-pressed={filter === f.id} disabled={n === 0} className={`whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] disabled:opacity-40 ${filter === f.id ? "border-purple-500 bg-purple-600 text-white" : "border-[#262c3d] text-slate-300 hover:bg-[#161922]"}`}>
+                  {f.label} {n}
+                </button>
+              );
+            })}
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[11px] text-slate-400">{source === "official" ? "인스타 공식 API" : "Apify"}로 가져온 반응도 상위 {posts.length}개</p>
-            {posts.length >= 2 && (
-              <button type="button" onClick={() => void pick(posts.slice(0, BUNDLE_SIZE))} disabled={!!picking} className="whitespace-nowrap rounded-lg border border-orange-400/50 px-2.5 py-1 text-xs font-bold text-orange-300 hover:bg-orange-500/10 disabled:opacity-50">
-                {picking === "bundle" ? "이미지 받는 중…" : `🔥 상위 ${Math.min(BUNDLE_SIZE, posts.length)}개 묶어 분석`}
+            <p className="text-[11px] text-slate-400">{source === "official" ? "인스타 공식 API" : "Apify"}로 가져온 {posts.length}개 중 반응도 상위 {shown.length}개</p>
+            {shown.length >= 2 && (
+              <button type="button" onClick={() => void pick(shown.slice(0, BUNDLE_SIZE))} disabled={!!picking} className="whitespace-nowrap rounded-lg border border-orange-400/50 px-2.5 py-1 text-xs font-bold text-orange-300 hover:bg-orange-500/10 disabled:opacity-50">
+                {picking === "bundle" ? "이미지 받는 중…" : `🔥 상위 ${Math.min(BUNDLE_SIZE, shown.length)}개 묶어 분석`}
               </button>
             )}
           </div>
-          {posts.map((p, i) => (
+          {shown.map((p, i) => (
             <div key={p.id} className="flex gap-3 rounded-lg border border-[#262c3d] p-2">
               <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-md bg-black">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -125,12 +149,17 @@ export function CollectPanel({ maxImages, onPick }: { maxImages: number; onPick:
                   <button type="button" onClick={() => void pick(p)} disabled={!!picking} className="whitespace-nowrap text-xs font-bold text-orange-300 hover:text-orange-200 disabled:opacity-50">
                     {picking === p.id ? "이미지 받는 중…" : "🔥 이 게시물로 분석"}
                   </button>
+                  {p.type === "video" && p.videoUrl && (
+                    <button type="button" onClick={() => void pick(p, true)} disabled={!!picking || !isGemini} title={isGemini ? "영상(화면+소리)을 Gemini가 직접 봅니다" : "분석 AI가 Gemini일 때만 됩니다"} className="whitespace-nowrap text-xs font-bold text-sky-300 hover:text-sky-200 disabled:opacity-50">
+                      {picking === `${p.id}:video` ? "영상 준비 중(최대 1~2분)…" : "🎬 영상까지 분석"}
+                    </button>
+                  )}
                   <a href={p.permalink} target="_blank" rel="noopener noreferrer" className="whitespace-nowrap text-[11px] text-slate-400 underline">인스타에서 보기</a>
                 </div>
               </div>
             </div>
           ))}
-          <p className="text-[11px] text-slate-400">릴스(▶)는 표지와 캡션만 가져옵니다. 말한 내용까지 분석하려면 영상을 저장해 아래 「릴스 영상 올리기」에 넣어 주세요.</p>
+          <p className="text-[11px] text-slate-400">릴스(▶)는 「🔥 이 게시물로 분석」이면 표지·캡션만, 「🎬 영상까지 분석」이면 분석 AI가 Gemini일 때 영상의 화면과 소리까지 봅니다(영상은 분석용으로 잠깐 받아 본인 Gemini에 올리고, 분석 직후 지움 — 우리 서버에 저장하지 않음. 공개 게시물만, 본인 책임).</p>
         </div>
       )}
     </div>

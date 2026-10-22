@@ -15,6 +15,8 @@ export interface CollectedPost {
   views: number;
   /** 화면에 보여 줄·분석에 넣을 이미지 주소(최대 6장, 영상은 표지) */
   images: string[];
+  /** v1.54 영상(릴스) 원본 주소 — 「영상까지 분석」에서 서버가 잠깐 받아 Gemini에 올림(없을 수 있음) */
+  videoUrl?: string;
   timestamp: string;
   score: number;
 }
@@ -66,6 +68,7 @@ export function fromApifyItem(raw: unknown): CollectedPost | null {
     likes: num(d.likesCount), comments: num(d.commentsCount), views: num(d.videoViewCount) || num(d.videoPlayCount),
     images: images.length ? images : [str(d.displayUrl, 2000)],
     timestamp: str(d.timestamp, 40),
+    ...(type === "video" && str(d.videoUrl, 2000) ? { videoUrl: str(d.videoUrl, 2000) } : {}),
   });
 }
 
@@ -83,6 +86,7 @@ export function fromGraphMedia(raw: unknown, owner: string): CollectedPost | nul
     id, permalink, caption: str(d.caption), owner, type,
     likes: num(d.like_count), comments: num(d.comments_count), views: num(d.view_count),
     images: [cover], timestamp: str(d.timestamp, 40),
+    ...(type === "video" && str(d.media_url, 2000) ? { videoUrl: str(d.media_url, 2000) } : {}),
   });
 }
 
@@ -128,4 +132,19 @@ export function remakeBundleText(posts: CollectedPost[]): string {
   const head = `[수집한 인기 게시물 ${posts.length}개 — 한 게시물이 아니라 여러 게시물에 공통으로 나타나는 성공 패턴(주제·후킹·구성·톤)을 찾아 분석하세요. 이미지는 게시물 순서대로 들어 있습니다]`;
   const body = posts.map((p, i) => `${marks[i] ?? `${i + 1}.`} ${remakeSourceText(p).replace(/^\[수집한 인기 게시물\] /, "").slice(0, 3000)}`).join("\n\n");
   return `${head}\n\n${body}`.slice(0, 12000);
+}
+
+// ── v1.54 유형 필터 · Gemini 파일 참조 검사 ──
+export type CollectFilter = "all" | CollectedPost["type"];
+export function filterPosts(posts: CollectedPost[], f: CollectFilter): CollectedPost[] {
+  return f === "all" ? posts : posts.filter((p) => p.type === f);
+}
+
+/** 분석 API가 받을 Gemini 파일 참조인지(회원 본인 키로 우리 서버가 올린 Files API 파일만) */
+export function isGeminiFileRef(v: unknown): v is { name: string; uri: string; mimeType: string } {
+  if (!v || typeof v !== "object") return false;
+  const d = v as Record<string, unknown>;
+  return typeof d.name === "string" && /^files\/[a-z0-9-]{1,64}$/.test(d.name)
+    && typeof d.uri === "string" && d.uri === `https://generativelanguage.googleapis.com/v1beta/${d.name}`
+    && typeof d.mimeType === "string" && /^video\/(mp4|quicktime|webm)$/.test(d.mimeType);
 }

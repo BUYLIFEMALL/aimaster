@@ -8,7 +8,7 @@ import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT } from "./ui";
 import { VIRAL_ANGLES } from "@/lib/cardnews/ai/remakePrompts";
 import { IMAGE_READ_FAIL_MESSAGE, splitReadableImages } from "@/lib/cardnews/imageFileCheck";
 import { extractReel, REEL_MAX_AUDIO_SEC, type ReelMaterial } from "@/lib/cardnews/reelsMedia";
-import { CollectPanel } from "./CollectPanel";
+import { CollectPanel, type GeminiFileRef } from "./CollectPanel";
 import type { AngleId, RemakeState } from "@/lib/cardnews/types";
 
 const MAX_IMAGES = 6;
@@ -46,6 +46,8 @@ export function RemakePanel() {
   // v1.49 릴스 영상: 이 브라우저 안에서 장면 4장 + 소리(WAV)만 뽑아 분석에 씀(파일은 어디에도 올리지 않음)
   const [reel, setReel] = useState<ReelMaterial | null>(null);
   const [reelBusy, setReelBusy] = useState(false);
+  // v1.54 수집한 릴스 영상(서버가 회원 본인 Gemini 키로 올린 파일 참조) — 분석 한 번에 쓰고 서버가 지운다
+  const [geminiFile, setGeminiFile] = useState<GeminiFileRef | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const analysis = remake.analysis;
@@ -94,6 +96,7 @@ export function RemakePanel() {
       images: all.map(({ mimeType, data }) => ({ mimeType, data })),
       reelFrames: reel?.frames.length ?? 0,
       ...(reel?.audio && isGemini ? { audio: { mimeType: reel.audio.mimeType, data: reel.audio.data } } : {}),
+      ...(geminiFile && isGemini ? { geminiFile } : {}),
       engine: project.engine,
     });
     if (body.length > MAX_BODY_CHARS) {
@@ -117,6 +120,8 @@ export function RemakePanel() {
       setError({ message: "네트워크 오류로 분석하지 못했습니다. 잠시 뒤 다시 시도해주세요." });
     } finally {
       setLoading(false);
+      // 서버가 분석 직후 Gemini 파일을 지우므로(성공·실패 모두) 다음 분석에 다시 보내지 않는다
+      if (geminiFile) setGeminiFile(null);
     }
   }
 
@@ -132,7 +137,7 @@ export function RemakePanel() {
     }));
   }
 
-  const hasInput = !!remake.sourceText.trim() || !!remake.sourceUrl.trim() || images.length > 0 || !!reel;
+  const hasInput = !!remake.sourceText.trim() || !!remake.sourceUrl.trim() || images.length > 0 || !!reel || !!geminiFile;
 
   return (
     <Card className="space-y-4">
@@ -143,12 +148,21 @@ export function RemakePanel() {
 
       <CollectPanel
         maxImages={captureRoom}
+        isGemini={isGemini}
         onPick={(p) => {
           patch({ sourceText: p.text });
           setImages(p.images.slice(0, captureRoom));
+          setGeminiFile(p.geminiFile ?? null);
           setError(null);
         }}
       />
+
+      {geminiFile && (
+        <p className="flex flex-wrap items-center gap-2 rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-[11px] text-sky-200">
+          🎬 수집한 릴스 영상이 첨부됐습니다 — 「떡상 분석」 때 Gemini가 화면과 소리를 함께 봅니다(분석 한 번 뒤 자동 삭제).
+          <button type="button" onClick={() => setGeminiFile(null)} className="whitespace-nowrap underline">빼기</button>
+        </p>
+      )}
 
       <Field label="원문 붙여넣기 (캡션·대본·기사 본문)">
         <textarea className={`${INPUT} min-h-28`} value={remake.sourceText} maxLength={12000} placeholder="떡상 게시물의 캡션, 릴스 대본, 기사 본문 등을 붙여넣으세요." onChange={(e) => patch({ sourceText: e.target.value })} />

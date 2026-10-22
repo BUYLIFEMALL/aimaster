@@ -12,6 +12,8 @@ export interface LlmRequest {
   user: string;
   /** Gemini만: 공개 YouTube 주소를 넘기면 모델이 영상을 직접 본다 */
   videoUrl?: string;
+  /** v1.54 videoUrl이 Gemini Files API 파일이면 그 형식(video/mp4 등) */
+  videoMimeType?: string;
   /** JSON 응답을 요청한다(Gemini responseMimeType, OpenAI json_object). 프롬프트에 JSON이라는 말이 있어야 한다. */
   json?: boolean;
   /** 함께 볼 이미지(base64, 떡상 레퍼런스 화면 캡처 등). 세 공급사 모두 지원 */
@@ -62,7 +64,7 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
     url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
     headers = { "Content-Type": "application/json", "x-goog-api-key": apiKey };
     const parts: unknown[] = [];
-    if (videoUrl) parts.push({ fileData: { fileUri: videoUrl } });
+    if (videoUrl) parts.push({ fileData: req.videoMimeType ? { fileUri: videoUrl, mimeType: req.videoMimeType } : { fileUri: videoUrl } });
     for (const img of images) parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
     if (req.audio) parts.push({ inlineData: { mimeType: req.audio.mimeType, data: req.audio.data } });
     parts.push({ text: user });
