@@ -160,6 +160,8 @@ export function buildTask(p: RunParams, ctx: TaskCtx): Task {
       return { ...base, mode: "story", title: p.prompt!.slice(0, 40), needs: { base: false, sources: false, mask: false }, modalities: "image", prompt: p.prompt!, estimate: 8 };
     case "recipe":
       return { ...base, mode: "recipe", title: p.prompt!.slice(0, 40), needs: { base: false, sources: false, mask: false }, modalities: "image", prompt: p.prompt!, estimate: 8 };
+    case "import": // v1.31: 다시 저장한 외부 결과 — AI 실행 작업이 아니다(실행 API는 KINDS 확인에서 먼저 거절)
+      throw new Error("실행할 수 없는 작업입니다.");
   }
 }
 

@@ -13,7 +13,7 @@ function convertPresetQuery(aspect: string): string {
   const id = presetIdForSize(w, h);
   return id ? `&preset=${id}` : "";
 }
-interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string; expiresAt: string | null }
+interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string; expiresAt: string | null ; format?: string }
 
 export function HistoryList({ userId }: { userId: string }) {
   const [items, setItems] = useState<HistoryItem[] | null>(null);
@@ -123,6 +123,8 @@ export function HistoryList({ userId }: { userId: string }) {
                     : <div className="hist-thumb" />}
                   <small>{new Date(it.createdAt).toLocaleString("ko-KR")}</small>
                   <h3>{it.purposeLabel}</h3>
+                  {/* v1.41: 이미지 변환 스튜디오에서 다시 저장한 사진 표시 */}
+                  {it.model === "image-convert-studio" && <span className="muted" data-converted-badge style={{ fontSize: 12 }}>🔁 변환됨{it.format ? ` · ${it.format}` : ""}</span>}
                   <p className="muted">{it.aspect} · {Math.round(it.bytes / 1024)}KB</p>
                   <small className="muted">{it.expiresAt ? `${new Date(it.expiresAt).toLocaleDateString("ko-KR")}에 자동 삭제` : "30일 안에 자동 삭제"}</small>
                   <div className="actions">

@@ -26,3 +26,11 @@ test("v1.40 보관함 저장 API는 변환 스튜디오 주소만 CORS 허용(�
   assert.match(api, /export async function OPTIONS/);
   assert.doesNotMatch(api, /Access-Control-Allow-Origin": "\*"/);
 });
+
+test("v1.41 다시 저장한 사진에 「변환됨 · 형식」 표시(서버 보관함 카드)", () => {
+  const src = readFileSync(new URL("../src/lib/saved.ts", import.meta.url), "utf8");
+  assert.match(src, /format: formatOf\(r\.path\)/);
+  assert.match(src, /return ext === "jpg" \|\| ext === "jpeg" \? "JPEG" : ext\.toUpperCase\(\);/);
+  const ui = readFileSync(new URL("../src/components/studio/HistoryList.tsx", import.meta.url), "utf8");
+  assert.match(ui, /it\.model === "image-convert-studio" && <span[^>]*data-converted-badge/);
+});

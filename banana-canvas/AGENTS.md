@@ -243,3 +243,9 @@
 - `PATCH /api/history/[id]`가 넘김(`handoff: convert|storyboard`)을 **처음** 저장할 때 `options.handoffs`는 그대로 두고, 본인 `usage_logs`에도 1줄(action `linked_handoff`, `metadata.to`는 받는 프로그램 slug `image-convert-studio`·`cinematic-storyboard-studio`, `itemId`는 결과 번호). 관리자 연계 표가 세 프로그램을 한 쿼리로 세고 옛 `options.handoffs`와 같은 결과 번호로 중복 제거.
 - 같은 배포로 저장소에만 있던 공용 사본(`link-mark` 이름표 2개·`back` 문구, `banana-idea-link`의 `imageStudioLink`)도 나감.
 - 검수: 시험 43개, tsc·빌드. 넘김 클릭 뒤 기록은 이번에 화면 시험 안 함(코드 시험으로 고정).
+
+## ✅ v1.31 배포 (2026-10-22, Claude Code 윈도우) — 변환 스튜디오에서 「바나나 기록에 다시 저장」
+- 새 API `POST /api/import-result`(**`/api/import`는 다른 프로그램 이미지를 원본으로 가져오는 기존 API — 다른 경로로 둠**): 권한 확인 → base64(≤3,000,000자) → `sharp`로 실제 형식(JPEG·PNG·WebP)·가로세로 확인 → 본인 `<회원>/out/`에 저장 → 결과 기록 1건(작업 종류 `import`, 제목 「변환 스튜디오에서 다시 저장」, `options.importedFrom/format`) → 30건 한도 정리(`/api/run`과 같은 규칙). CORS는 `https://image-convert-studio.buylife.xyz`만(로그인 쿠키). AI 호출 없음.
+- `Kind`에 `import`(이름표 「외부에서 가져옴」) 추가 — 실행 목록 `KINDS`에는 없어 `/api/run`이 거절, `buildTask`는 `import`면 오류를 던짐(타입 맞춤).
+- 배포: 예외 ② 적용(변환 스튜디오가 이 새 API를 부름 — 2026-10-22 23:17 「작은 수정은 모았다가 배포」 지침).
+- 검수: 시험 44개, tsc·빌드. 크롬(시험 계정): 변환 → 「📥 바나나 기록에 다시 저장」 → 기록 맨 위 「외부에서 가져옴 · 변환 스튜디오에서 다시 저장」 확인 후 삭제, 기존 `/api/import` 잘못된 주소 → 원래 안내 문구 400(그대로임 확인).

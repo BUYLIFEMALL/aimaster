@@ -185,3 +185,7 @@
 ## ✅ v1.22 배포 (2026-10-22, Claude Code 윈도우) — 인물사진 보관함에 다시 저장
 - 인물사진에서 받은 그림(`via=portrait-photo`)을 JPEG·PNG·WebP로 변환하면 결과 카드에 「📥 인물사진 보관함에 다시 저장」(`data-resave`). `src/lib/resave.ts`가 결과를 base64로 바꿔 인물사진 기존 저장 API `https://portrait-photo.buylife.xyz/api/saved`에 `credentials: "include"`로 POST(회원 본인 로그인 쿠키 `.buylife.xyz`, 한도 base64 3,000,000자 ≈ 2MB, 이름 「변환 스튜디오에서 다시 저장」·model `image-convert-studio`). 받는 곳 목록 `RESAVE_TARGETS`(지금은 인물사진만 — 4컷은 대본 포함 구조, 바나나는 결과 표 구조라 별도).
 - 검수: 시험 45개, tsc·빌드. 크롬(시험 계정): 바나나 시험 그림 + `via=portrait-photo` → WebP 변환 → 「다시 저장」 → 「✅ 인물사진 보관함에 저장했습니다」, 인물사진 보관함에 1장(188KB) 확인 후 삭제. 같은 흐름에서 `linked_convert`(via portrait-photo) 기록 1줄 확인(v1.21 미확인분).
+
+## ✅ v1.23 배포 (2026-10-22, Claude Code 윈도우) — 바나나에도 다시 저장 · 보관함 열기
+- `src/lib/resave.ts` `RESAVE_TARGETS`에 바나나(`https://banana-canvas.buylife.xyz/api/import-result`, 「바나나 기록」) 추가, 받는 곳마다 `open`(보관함 주소). 저장 성공 뒤 「○○ 열기 ↗」(`data-resave-open`, 새 탭). 4컷은 아직 대상 아님(대본 포함 구조).
+- 배포: 예외 ② 적용(바나나 새 API와 함께 실화면 검수가 전제). 검수: 시험 46개, tsc·빌드. 크롬: 바나나·인물사진 두 곳 다시 저장 성공·열기 링크 확인.

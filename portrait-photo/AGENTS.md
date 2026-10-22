@@ -233,3 +233,8 @@
 ## ✅ v1.40 배포 (2026-10-22, Claude Code 윈도우) — 보관함 저장 API에 변환 스튜디오 CORS
 - `src/app/api/saved/route.ts`: `OPTIONS` + POST 응답에 `Origin`이 `https://image-convert-studio.buylife.xyz`일 때만 `Access-Control-Allow-Origin`(그 주소)·`Allow-Credentials: true`·`Vary: Origin`. 저장 로직(`savePost`, 권한·형식·한도·30장·보관 기간)은 그대로. GET·DELETE는 CORS 없음.
 - 검수: 시험 46개, tsc·빌드. 크롬(시험 계정): 변환 스튜디오에서 다시 저장 성공, 다른 주소(스토리보드)에서 같은 API POST → 브라우저 차단. v1.39 버튼 실제 확인: 보관 사진 카드에 「형식 바꾸기」(`via=portrait-photo`)·「🎬 스토리보드로」, 스토리보드로 클릭 → `linked_handoff`(to 스토리보드) 기록 1줄, 스토리보드 v1.15 「↩ AI 인물사진으로 돌아가기」. 시험 사진은 삭제(시험 기록 `usage_logs` 2줄은 남음).
+
+## ✅ v1.41 배포 (2026-10-22, Claude Code 윈도우) — 「변환됨 · 형식」 표시
+- `listSaved`가 저장 경로 확장자로 `format`(JPEG·PNG·WEBP, `formatOf`)을 돌려주고, 서버 보관함 카드에서 `model === "image-convert-studio"`면 「🔁 변환됨 · WEBP」(`data-converted-badge`). DB 변경 없음.
+- 배포: 작은 화면 수정이지만 변환 스튜디오·바나나 묶음과 같은 실화면 검수를 위해 함께 배포(예외 ②로 기록, 23:17 새 지침 확인 전 배포 — 이후 작은 수정은 미배포 대기로 모음).
+- 검수: 시험 47개, tsc·빌드. 크롬(시험 계정): 다시 저장한 사진에 「🔁 변환됨 · WEBP」 확인 후 삭제.

@@ -61,11 +61,21 @@ test("v1.22 보관함에 다시 저장: 인물사진에서 온 JPEG·PNG·WebP�
   const { resaveTarget } = await import("../src/lib/resave.ts");
   assert.equal(resaveTarget("portrait-photo", "image/webp")?.api, "https://portrait-photo.buylife.xyz/api/saved");
   assert.equal(resaveTarget("portrait-photo", "image/avif"), null);
-  assert.equal(resaveTarget("banana-canvas", "image/png"), null);
+  assert.equal(resaveTarget("banana-canvas", "image/png")?.api, "https://banana-canvas.buylife.xyz/api/import-result"); // v1.23부터
   assert.equal(resaveTarget(undefined, "image/png"), null);
   const { readFileSync } = await import("node:fs");
   const lib = readFileSync(new URL("../src/lib/resave.ts", import.meta.url), "utf8");
   assert.match(lib, /credentials: "include"/);
   const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
   assert.match(tool, /item\.file === importedFile\.current && importVia && resaveTarget\(importVia\.key, item\.result\.blob\.type\)/);
+});
+
+test("v1.23 다시 저장 뒤 보관함 열기 링크·4컷은 아직 대상 아님", async () => {
+  const { resaveTarget } = await import("../src/lib/resave.ts");
+  assert.equal(resaveTarget("banana-canvas", "image/webp")?.open, "https://banana-canvas.buylife.xyz/history");
+  assert.equal(resaveTarget("portrait-photo", "image/jpeg")?.open, "https://portrait-photo.buylife.xyz/history");
+  assert.equal(resaveTarget("four-cut-comics", "image/png"), null);
+  const { readFileSync } = await import("node:fs");
+  const tool = readFileSync(new URL("../src/components/tool/ConvertTool.tsx", import.meta.url), "utf8");
+  assert.match(tool, /data-resave-open/);
 });

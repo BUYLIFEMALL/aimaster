@@ -117,3 +117,19 @@ test("v1.30 첫 넘김은 본인 usage_logs에도 linked_handoff 1줄(받는 프
   assert.match(api, /const HANDOFF_TO = \{ convert: "image-convert-studio", storyboard: "cinematic-storyboard-studio" \} as const;/);
   assert.match(api, /if \(next\) \{[\s\S]*if \(handoff\) \{[\s\S]*action: "linked_handoff", metadata: \{ to: HANDOFF_TO\[handoff\], itemId: g\.id \}/);
 });
+
+test("v1.31 변환 스튜디오에서 다시 저장(/api/import-result): 그 주소만 CORS·실제 형식 확인·실행 목록에는 없음", () => {
+  const api = readFileSync(new URL("../src/app/api/import-result/route.ts", import.meta.url), "utf8");
+  assert.match(api, /const IMPORT_ORIGIN = "https:\/\/image-convert-studio\.buylife\.xyz";/);
+  assert.match(api, /request\.headers\.get\("origin"\) === IMPORT_ORIGIN/);
+  assert.match(api, /sharp\(bytes\)\.metadata\(\)/);
+  assert.match(api, /kind: "import"/);
+  assert.match(api, /\.range\(MAX_HISTORY, MAX_HISTORY \+ 100\)/);
+  assert.doesNotMatch(api, /Access-Control-Allow-Origin": "\*"/);
+  const types = readFileSync(new URL("../src/lib/bnc/types.ts", import.meta.url), "utf8");
+  assert.match(types, /import: "외부에서 가져옴"/);
+  assert.doesNotMatch(types.match(/export const KINDS: Kind\[\] = \[[^\]]*\]/)[0], /"import"/);
+  // 원본 가져오기 API(/api/import)는 그대로
+  const old = readFileSync(new URL("../src/app/api/import/route.ts", import.meta.url), "utf8");
+  assert.match(old, /const ALLOWED_BUCKETS = \["ai-image-generations", "portrait-photo-files"\];/);
+});

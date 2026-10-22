@@ -1,9 +1,10 @@
-// v1.22: 다른 프로그램에서 받은 그림을 변환한 뒤, 그 프로그램 서버 보관함에 다시 저장(지금은 AI 인물사진만).
+// v1.22: 다른 프로그램에서 받은 그림을 변환한 뒤, 그 프로그램 서버 보관함에 다시 저장(v1.22 인물사진, v1.23 바나나 캔버스 기록).
 // 받는 쪽 기존 저장 API를 회원 본인 로그인 쿠키(.buylife.xyz)로 부른다 — 받는 쪽이 이 주소만 CORS로 허용한다.
 import type { ViaSource } from "./linkMark";
 
-export const RESAVE_TARGETS: Partial<Record<ViaSource, { name: string; api: string; maxB64: number }>> = {
-  "portrait-photo": { name: "인물사진 보관함", api: "https://portrait-photo.buylife.xyz/api/saved", maxB64: 3_000_000 },
+export const RESAVE_TARGETS: Partial<Record<ViaSource, { name: string; api: string; open: string; maxB64: number }>> = {
+  "portrait-photo": { name: "인물사진 보관함", api: "https://portrait-photo.buylife.xyz/api/saved", open: "https://portrait-photo.buylife.xyz/history", maxB64: 3_000_000 },
+  "banana-canvas": { name: "바나나 기록", api: "https://banana-canvas.buylife.xyz/api/import-result", open: "https://banana-canvas.buylife.xyz/history", maxB64: 3_000_000 },
 };
 export const RESAVE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 

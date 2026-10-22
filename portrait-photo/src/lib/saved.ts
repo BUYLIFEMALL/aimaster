@@ -14,7 +14,7 @@ import { createdCutoff, effectiveExpiry, expiresAtFor, normalizeRetention } from
 export { RETENTION_DAYS, normalizeRetention, expiresAtFor } from "./retention";
 
 export interface SavedRow { id: string; path: string; purpose_label: string; aspect: string; model: string; bytes: number; created_at: string; expires_at: string | null }
-export interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string; expiresAt: string | null }
+export interface SavedItem { id: string; url: string | null; purposeLabel: string; aspect: string; model: string; bytes: number; createdAt: string; expiresAt: string | null; format?: string }
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
@@ -39,6 +39,12 @@ export async function purgeExpired(userId: string): Promise<number> {
   return rows.length;
 }
 
+/** 저장 경로 확장자로 본 형식(v1.41 「변환됨 · WEBP」 표시용) */
+export function formatOf(path: string): string {
+  const ext = path.split(".").pop()?.toLowerCase() ?? "";
+  return ext === "jpg" || ext === "jpeg" ? "JPEG" : ext.toUpperCase();
+}
+
 export async function listSaved(userId: string): Promise<SavedItem[]> {
   await purgeExpired(userId);
   const admin = createAdminClient();
@@ -53,7 +59,7 @@ export async function listSaved(userId: string): Promise<SavedItem[]> {
   const { data: signed } = await admin.storage.from(BUCKET).createSignedUrls(rows.map((r) => r.path), SIGNED_URL_SECONDS);
   const urlByPath = new Map<string, string | null>((signed ?? []).map((s) => [s.path ?? "", s.signedUrl ?? null]));
   return rows.map((r) => ({
-    id: r.id, url: urlByPath.get(r.path) ?? null, purposeLabel: r.purpose_label, aspect: r.aspect, model: r.model, bytes: r.bytes, createdAt: r.created_at, expiresAt: effectiveExpiry(r.created_at, r.expires_at),
+    id: r.id, url: urlByPath.get(r.path) ?? null, purposeLabel: r.purpose_label, aspect: r.aspect, model: r.model, bytes: r.bytes, format: formatOf(r.path), createdAt: r.created_at, expiresAt: effectiveExpiry(r.created_at, r.expires_at),
   }));
 }
 

@@ -1,7 +1,9 @@
 import type { BananaSource } from "./bananaIdeaLink";
 export type Kind =
   | "generate" | "edit" | "synthesis" | "bgremove" | "inpaint" | "idphoto" | "floorplan"
-  | "lifealbum" | "comic" | "story" | "recipe" | "restore" | "graphic" | "expand";
+  | "lifealbum" | "comic" | "story" | "recipe" | "restore" | "graphic" | "expand"
+  // v1.31: 이미지 변환 스튜디오에서 다시 저장한 결과(/api/import-result) — AI 실행 작업이 아니라 KINDS에는 없다
+  | "import";
 export type Aspect = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
 export type AspectOrOriginal = Aspect | "original";
 export type ModelLevel = "flash" | "pro";
@@ -19,6 +21,7 @@ export const ASPECTS: Aspect[] = ["1:1", "16:9", "9:16", "4:3", "3:4"];
 export const KIND_LABEL: Record<Kind, string> = {
   generate: "이미지 생성", edit: "이미지 편집", synthesis: "이미지 합성", bgremove: "배경 제거", inpaint: "부분 삭제",
   idphoto: "증명사진 변환", floorplan: "평면도 3D 변환", lifealbum: "인생 앨범", comic: "만화 패널", story: "연속 스토리", recipe: "이미지 레시피", restore: "옛 사진 복원", graphic: "템플릿 그래픽", expand: "비율 확장",
+  import: "외부에서 가져옴",
 };
 
 /** 사용자 입력 파라미터(서버가 정리한 뒤 쓴다). 이미지는 Storage 경로로만 전달한다. */

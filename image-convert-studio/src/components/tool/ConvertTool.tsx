@@ -673,6 +673,11 @@ export function ConvertTool() {
                       >
                         {resave[item.id]?.state === "saving" ? "저장하는 중…" : resave[item.id]?.state === "saved" ? `✅ ${resaveTarget(importVia.key, item.result.blob.type)!.name}에 저장했습니다` : `📥 ${resaveTarget(importVia.key, item.result.blob.type)!.name}에 다시 저장`}
                       </button>
+                      {resave[item.id]?.state === "saved" && (
+                        <a href={resaveTarget(importVia.key, item.result.blob.type)!.open} target="_blank" rel="noopener noreferrer" data-resave-open className="mt-1 block text-center text-[11px] font-bold text-emerald-200 underline underline-offset-2">
+                          {resaveTarget(importVia.key, item.result.blob.type)!.name} 열기 ↗
+                        </a>
+                      )}
                       {resave[item.id]?.state === "error" && <p className="mt-1 text-[11px] text-rose-300" role="alert">{resave[item.id]?.msg}</p>}
                     </div>
                   )}
