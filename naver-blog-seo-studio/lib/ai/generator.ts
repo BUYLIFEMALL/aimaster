@@ -127,7 +127,7 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
   }
   // v1.91: 첫 생성에는 해요체 필수 규칙을 넣지 않는다(gpt-4o-mini 본문이 짧아져 생성 실패, 규칙 없음 2/2·있음 1/4 성공). 끝맺음은 여기서만 고친다.
   // v1.88: 승인 문체의 끝맺음(해요체/합니다체)이 70% 미만이면 끝맺음만 고치는 요청 1회. 180초가 지났으면 300초 제한 때문에 건너뛴다.
-  let styleEnding: { target: StyleEnding; before: number; after: number; fixed: boolean; skipped?: string } | undefined;
+  let styleEnding: { target: StyleEnding; before: number; after: number; fixed: boolean; skipped?: string; candidate?: { length: number; share: number; originalLength: number } } | undefined;
   const ending = params.style?.ending;
   if (ending) {
     const before = endingShare(body, ending);
@@ -142,8 +142,10 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
       const fixedBody = fixedDraft.body ? normalizeBlogText(fixedDraft.body) : "";
       const fixedLength = fixedBody.replace(/\s/g, "").length;
       const after = fixedBody ? endingShare(fixedBody, ending) : before;
-      // v1.89: 수정본은 최소 분량(1,500자) 이상이고 원래보다 짧지 않으며 비율이 나아졌을 때만 쓴다 — 후처리 때문에 생성이 실패하지 않게.
-      if (fixedBody && fixedLength >= 1_500 && fixedLength >= compactLength && after > before) {
+      // v1.92: 해요체로 바꾸면 문장마다 1~2자 짧아지므로(필요합니다→필요해요) 원래 길이의 95%까지 허용. 최소 분량(1,500자)은 그대로라 후처리 때문에 생성이 실패하지 않는다.
+      // 버려진 수정본도 원인을 볼 수 있게 길이·비율을 남긴다.
+      styleEnding = { ...styleEnding, candidate: { length: fixedLength, share: Math.round(after * 100) / 100, originalLength: compactLength } };
+      if (fixedBody && fixedLength >= 1_500 && fixedLength >= compactLength * 0.95 && after > before) {
         body = fixedBody;
         compactLength = fixedLength;
         styleEnding = { ...styleEnding, after: Math.round(after * 100) / 100, fixed: true };

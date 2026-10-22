@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ SEO블로그 스튜디오 v1.92 내 문체 해요체 반영 확인 (빌드 1회 · AI 약 4회)
+- 끝맺음 수정본 채택 조건을 1,500자 이상 + 원래 길이 95% 이상 + 비율 개선으로 완화, 버려진 후보도 `seo_report.styleEnding.candidate`에 기록. DB/확장/ZIP v1.92 OK, 시험 51 통과.
+- 웨일 실검수(시험 계정, gpt-4o-mini): 생성 성공, 「~요」 비율 5%→84%(채택 98% 길이), 자연스러운 해요체. 남은 점: gpt-4.1·합니다체 실검수 미확인, gpt-4o-mini 원고는 1,500~1,800자대라 분량 안내가 자주 붙음.
+- 다음 순서: BLC-09(구간별 저장·이어쓰기). 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래.
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(맥미니) — ✅ 상세페이지 GIF 자동화 v1.11 크롬 실검수 (이커머스 2차 재비교 작업 ④ 완료)
 - 화면 안에서 만든 4초 시험 영상 2개: A를 1~2.5초로 자름 → GIF 60프레임·1.51초, B 전체 3.97초. 전체 ZIP `gif-all.zip`에 두 GIF 정상. 컴퓨터 저장·서버 전송·비용 없음. 남은 작업: ⑤ 상세페이지 이미지 문구 고치기(별도 플랜), ⑥ 상품소싱 상태 줄.
 - 프로그램: https://video-to-gif.buylife.xyz
