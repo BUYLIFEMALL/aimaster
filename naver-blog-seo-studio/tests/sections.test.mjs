@@ -75,3 +75,13 @@ test("BLC-09 v1.94: section length targets were raised (intro 300~450, sections 
   assert.match(body, /공백 제외 450~650자, 3개 이상 문단/);
   assert.match(body, /구체적인 예시나 판단 기준/);
 });
+
+test("v1.96: parseSavedModel keeps only a provider+model pair that is still in the list", async () => {
+  const { parseSavedModel } = await import("../lib/savedModel.ts");
+  const options = [{ value: "gpt-4o-mini", label: "a", provider: "openai" }, { value: "claude-haiku-4-5", label: "b", provider: "anthropic" }];
+  assert.deepEqual(parseSavedModel(JSON.stringify({ provider: "openai", model: "gpt-4o-mini" }), options), { provider: "openai", model: "gpt-4o-mini" });
+  assert.equal(parseSavedModel(JSON.stringify({ provider: "openai", model: "retired-model" }), options), null);
+  assert.equal(parseSavedModel(JSON.stringify({ provider: "gemini", model: "claude-haiku-4-5" }), options), null);
+  assert.equal(parseSavedModel("{깨진", options), null);
+  assert.equal(parseSavedModel(null, options), null);
+});

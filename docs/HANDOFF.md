@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ SEO블로그 스튜디오 v1.96 고른 AI 모델 기억 (빌드 1회 · AI 0회)
+- 작업 화면에서 고른 AI 회사·모델을 브라우저에 기억해 새로고침해도 유지(목록에 없는 모델은 기본값). 시험 58 통과, DB/확장/ZIP v1.96 OK, 웨일 실검수 완료.
+- 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래. 다음: BLC-10(문단별 이미지 노드) — 플랜·비용 먼저 보고.
+- 프로그램: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-22 — Claude Code(윈도우): 바나나 캔버스 v1.25 — 공용 사본으로 한도 맞춤·「↩ 보낸 곳으로 돌아가기」·보낸 곳 기록
 - 한 일: 바나나에 `banana-idea-link` 사본(`src/lib/bnc/bananaIdeaLink.ts`) 추가 → 아이디어 칸 한도 600을 보내는 쪽과 같은 값으로, 보낸 곳 이름·주소 표 `BANANA_SOURCES`를 공용 코드로 옮김(기준 스타일 분석기, 보내는 3곳 사본은 동작 같아 저장소만·다음 배포 때). 안내 옆 「↩ ○○ 화면으로 돌아가기」 링크. 받은 아이디어로 생성하면 `banana_canvas_results.options.ideaSource` 저장(DB 칸 추가 없음), 「내 결과 기록」 카드에 「🔗 ○○」 표시.
 - 집계 SQL(관리자): `select options->>'ideaSource' src, count(*) from banana_canvas_results where options ? 'ideaSource' group by 1 order by 2 desc;`

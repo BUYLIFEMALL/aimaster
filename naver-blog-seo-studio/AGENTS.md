@@ -1,5 +1,6 @@
 # 네이버 블로그 SEO 스튜디오 개발 지침
 
+> **v1.96 (2026-10-22) 고른 AI 모델 기억:** 작업 화면의 AI 회사·모델(제목 추천·새 글·자료부터 집필·내 문체 공용)을 `localStorage` 키 `seo-content-model`에 기억해 새로고침해도 유지. 목록에 없는 모델·깨진 값은 기본값(`lib/savedModel.ts` `parseSavedModel`). 설정 화면의 「OpenAI 생성모델」(계정 저장, 이미지 고르기 전용)과는 별개. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 > **v1.95 (2026-10-22) 자료부터 집필 사용성:** 메뉴를 옮겼다 돌아와도 마지막으로 연 자료를 다시 엶(`sessionStorage` 키 `seo-research-open`, 실패하면 기억 없이 동작). 「새 구성으로 다시 시작」은 화면 안 2단계 확인(새 구성 만들기 / 취소) 뒤에만 목차 AI 1회. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 > **v1.94 (2026-10-22) 구간별로 쓰기 다듬기:** 구간 분량 지시 상향(도입 300~450자, 구간 450~650자·3문단 이상·문단마다 예시나 판단 기준) — gpt-4o-mini 실측 1,658자 → 2,636자(공백 제외), 분량 안내 사라짐. 합친 원고를 열 때 전용 안내(새로 합침 「구간 N개를 합친 원고를 열었습니다…」 / 재사용 「구간이 바뀌지 않아 이미 합친 원고를 다시 열었습니다.」), `reuseDraft(draft, notice?)`. [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.
 > **v1.93 (2026-10-22) BLC-09 「구간별로 쓰기」 운영 완료:** 자료부터 집필 → 목차 → 구간마다 저장(중지·이어쓰기·실패 구간만 다시 쓰기) → 원고로 합치기(기존 원고 화면·발행 흐름 그대로), 원고 수정 시 다른 창·탭 저장 충돌 409. 새 표 `naver_blog_seo_outlines`. [플랜](docs/PLAN_20261022_BLC09_SECTION_WRITING.md) · [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.

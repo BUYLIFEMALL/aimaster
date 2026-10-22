@@ -6,7 +6,8 @@ import { useCategories } from "@/components/categories/useCategories";
 import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
 import { DEFAULT_GEMINI_IMAGE_MODEL, type GeminiImageModel } from "@/lib/ai/geminiModels";
 import { DEFAULT_OPENAI_CONTENT_MODEL } from "@/lib/ai/openaiModels";
-import { getContentModels, type ContentProvider } from "@/lib/ai/contentModels";
+import { CONTENT_MODEL_OPTIONS, getContentModels, type ContentProvider } from "@/lib/ai/contentModels";
+import { parseSavedModel, SAVED_MODEL_KEY } from "@/lib/savedModel";
 import { strategies, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, missingBlockImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
 
 export function useStudio() {
@@ -28,6 +29,21 @@ export function useStudio() {
   const [imageModel, setImageModel] = useState<GeminiImageModel>(DEFAULT_GEMINI_IMAGE_MODEL);
   const [contentProvider, setContentProvider] = useState<ContentProvider>("openai");
   const [contentModel, setContentModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
+  // v1.96: 고른 AI 회사·모델을 이 브라우저에 기억. 불러오기가 끝나기 전에는 저장하지 않아 기본값이 덮어쓰지 않게 한다.
+  const modelLoadedRef = useRef(false);
+  useEffect(() => {
+    const restoreModel = () => {
+      let saved = null;
+      try { saved = parseSavedModel(localStorage.getItem(SAVED_MODEL_KEY), CONTENT_MODEL_OPTIONS); } catch {}
+      if (saved) { setContentProvider(saved.provider); setContentModel(saved.model); }
+      modelLoadedRef.current = true;
+    };
+    restoreModel();
+  }, []);
+  useEffect(() => {
+    if (!modelLoadedRef.current) return;
+    try { localStorage.setItem(SAVED_MODEL_KEY, JSON.stringify({ provider: contentProvider, model: contentModel })); } catch {}
+  }, [contentProvider, contentModel]);
   const [contentImageCount, setContentImageCount] = useState<2 | 3>(2);
   // v1.74 글쓰기 선택 사항(저장하지 않고 생성 요청에만 사용)
   const [experienceNote, setExperienceNote] = useState("");
