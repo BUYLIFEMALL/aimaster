@@ -1,5 +1,5 @@
-// [공용 기준 코드 `ai-video-client` — 기준: ai-image-studio/lib/video/videoProviders.ts, 사본: shorts-onestop-studio/src/lib/videoProviders.ts·
-//  shots/src/lib/video/videoProviders.ts. 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`]
+// [공용 기준 코드 `ai-video-client` — 기준: ai-video-studio/lib/video/videoProviders.ts(2026-10-23 ai-image-studio에서 이전), 사본: ai-image-studio/lib/video/·
+//  shorts-onestop-studio/src/lib/·shots/src/lib/video/·music-video-studio/src/lib/video/. 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`]
 // AI 동영상 업체 호출(회원 본인 키): Gemini Omni Flash(Interactions API)·fal(대기열)·Replicate(예측) — 「제출 → 상태 확인 → 영상 바이트」.
 // 영상은 1~5분 걸려 한 번의 요청으로 기다리면 Vercel 300초 제한에 걸리므로 제출 번호를 저장하고 화면이 몇 초마다 확인한다.
 // 이 파일은 프로그램 고유 모듈(오류 클래스·저장소·권한)을 쓰지 않는다 — 오류는 VideoGenError로 던지고, 각 프로그램이 자기 오류 형식·저장소로 바꾼다.

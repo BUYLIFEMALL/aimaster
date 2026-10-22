@@ -1,4 +1,4 @@
-// [공용 기준 코드 `ai-video-client` — 기준: ai-image-studio/lib/video/videoParse.ts, 사본은 --sync로만]
+// [공용 기준 코드 `ai-video-client` — 기준: ai-video-studio/lib/video/videoParse.ts(2026-10-23 ai-image-studio에서 이전), 사본은 --sync로만]
 // AI 동영상 — 업체 응답 해석·주소 검사(다른 모듈을 불러오지 않는 순수 파일).
 
 export type JobState = "running" | "done" | "failed";
