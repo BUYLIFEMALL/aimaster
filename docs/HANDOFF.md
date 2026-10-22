@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(맥미니): 상세페이지 GIF 자동화 v1.17 진행률 결함 수정 (v1.16 실검수 ❌ → 배포 대기)
+- v1.16 실검수: 변환 정상이나 진행률이 시도마다 시작 즉시 끝 값으로 뛰고 멈춤. 원인: 엔진이 색상표 단계 동안 「값 없음」(time=INT64 최대)을 보내는데 1로 처리. v1.17은 이 값을 무시(주인님 승인, 빌드 1회 추가). 상세 `video-to-gif/AGENTS.md`, `docs/ERROR_LESSONS.md` 맨 위.
+- **윈도우 CLI 다음 첫 단계**: SQL `video-to-gif/supabase/migrations/20261023_progress_fix_v1_17.sql`(버전만) → `video-to-gif` 배포 1회 → `video-to-gif/AGENTS.md` 맨 아래 기록. 그 뒤 맥미니 크롬 실검수.
+- 비용(예정): Vercel 빌드 1회, AI 0회. 링크: https://video-to-gif.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — ⏸ 30일 정리 기록 1차 4곳(미배포 대기) · 다음 메인 빌드 할 일 등록 (비용 없음)
 - `4cafe5eb3`: 정리 작업이 회원별 `usage_logs` action `cleanup_expired` 기록 — `four-cut-comics`(images)·`cinematic-storyboard-studio`(projects·images)·`threads-content-ops`(images·posts·ideas)·`music`(tracks, 유예 2026-10-28까지). 기록 실패해도 정리는 계속. 각 tsc 통과. **미배포 대기**(`docs/PENDING_DEPLOYS.md` 4줄·각 `docs/IMPROVEMENTS.md`) — 다음 배포 때 함께, 버전도 그때 +0.01. 진행률(코드 기준) 3/23 → **7/23**.
 - 남은 16곳: 블로그 병합 대상 6곳(`ai-auto-blog`·`blog-workroom`·`naver-blog-agent`·`naver-blog-allinone`·`naver-blog-seo-studio`·`tistory-auto-blog`, Codex 담당 — 손대지 않음), 회원 구분 없이 지우는 곳 9곳(`ai-image-studio`·`banana-canvas`·`portrait-photo`·`real_estate_sales`·`reverse-prompt`·`style-dna-analyzer`·`threads-affiliate-poster`·`trending-product-finder`·`youtube-auto-reply` — 회원별로 세도록 코드를 더 바꿔야 함), `shop-detail-page`(맥미니 작업 영역, 여러 단계).

@@ -355,7 +355,9 @@ export default function ConverterWorkspace() {
         // v1.16: 출력 시간 기준 비율(lib/gifLadder.ts progressRatio)을 지금 구간에 그리고, 시도 안에서는 줄어들지 않게
         let shown = 0;
         const handler = (event: { progress: number; time: number }) => {
-          const r = phase.from + progressRatio(event, seconds) * (phase.to - phase.from);
+          const ratio = progressRatio(event, seconds);
+          if (ratio === null) return; // v1.17: 색상표 단계의 「값 없음」은 무시(시도 시작 값 유지)
+          const r = phase.from + ratio * (phase.to - phase.from);
           if (r <= shown) return;
           shown = r;
           setProgress(base + r * 24);

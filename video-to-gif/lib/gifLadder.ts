@@ -50,15 +50,17 @@ export function canSinglePass(width: number, aspect: number | undefined, fps: nu
 }
 
 /**
- * v1.16: 엔진 진행 이벤트 → 0~1 비율. 엔진의 `progress`는 입력 길이 기준이라 구간 자르기·두 번째 입력(palette.png)에서
- * 튀므로, 변환할 길이(초)를 알면 출력 시간 `time`(마이크로초) ÷ 길이로 계산한다.
- * 길이를 모르거나 계산 값이 1.2를 넘으면(단위가 다른 경우 등) 엔진의 `progress`를 쓴다.
+ * v1.16~v1.17: 엔진 진행 이벤트 → 0~1 비율, 쓸 수 없는 값이면 null(무시).
+ * 엔진은 색상표(palettegen) 단계 동안 출력이 없어 `time`=INT64 최대·`progress`≈9e11 같은 「값 없음」을 보낸다(v1.16 실측).
+ * 이런 값을 1로 자르면 진행률이 끝 값으로 뛰므로 버린다. 정상 값은 출력 시간 `time`(마이크로초) ÷ 변환할 길이를,
+ * 길이를 모르면 엔진 `progress`를 쓴다.
  */
-export function progressRatio(event: { progress: number; time?: number }, seconds: number | undefined): number {
-  const clamp = (v: number) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0);
-  if (seconds && seconds > 0 && typeof event.time === "number" && Number.isFinite(event.time)) {
+export function progressRatio(event: { progress: number; time?: number }, seconds: number | undefined): number | null {
+  const clamp = (v: number) => Math.min(1, Math.max(0, v));
+  if (seconds && seconds > 0 && typeof event.time === "number" && Number.isFinite(event.time) && event.time >= 0) {
     const byTime = event.time / (seconds * 1_000_000);
-    if (byTime >= 0 && byTime <= 1.2) return clamp(byTime);
+    return byTime <= 1.2 ? clamp(byTime) : null;
   }
-  return clamp(event.progress);
+  const p = event.progress;
+  return Number.isFinite(p) && p >= 0 && p <= 1.5 ? clamp(p) : null;
 }
