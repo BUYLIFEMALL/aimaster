@@ -34,10 +34,10 @@ async function cleanupByProgram(serviceClient: any, programs: { id: string; name
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(10000);
-    const byId = new Map<string, { slug: string; name: string; runs: number; users: Set<string>; counts: Record<string, number>; lastAt: string | null }>();
+    const byId = new Map<string, { slug: string; name: string; runs: number; users: Set<string>; counts: Record<string, number>; lastAt: string | null; firstAt: string | null }>();
     for (const row of (data ?? []) as { program_id: string; user_id: string; metadata: any; created_at: string }[]) {
       const prog = programs.find((p) => p.id === row.program_id);
-      const g = byId.get(row.program_id) ?? { slug: prog?.slug ?? "?", name: prog?.name ?? "알 수 없는 프로그램", runs: 0, users: new Set<string>(), counts: {}, lastAt: null };
+      const g = byId.get(row.program_id) ?? { slug: prog?.slug ?? "?", name: prog?.name ?? "알 수 없는 프로그램", runs: 0, users: new Set<string>(), counts: {}, lastAt: null, firstAt: null };
       g.runs += 1;
       if (row.user_id) g.users.add(row.user_id);
       for (const [k, v] of Object.entries(row.metadata ?? {})) {
@@ -45,9 +45,10 @@ async function cleanupByProgram(serviceClient: any, programs: { id: string; name
         if (Number.isFinite(n)) g.counts[k] = (g.counts[k] ?? 0) + n;
       }
       g.lastAt ??= row.created_at;
+      g.firstAt = row.created_at; // 최신순으로 읽으므로 마지막 값이 최근 30일 안 첫 기록(2026-10-23 「NEW」 표시용)
       byId.set(row.program_id, g);
     }
-    return [...byId.values()].map((g) => ({ slug: g.slug, name: g.name, runs: g.runs, members: g.users.size, counts: g.counts, lastAt: g.lastAt }));
+    return [...byId.values()].map((g) => ({ slug: g.slug, name: g.name, runs: g.runs, members: g.users.size, counts: g.counts, lastAt: g.lastAt, firstAt: g.firstAt }));
   } catch (e) {
     console.error("cleanup summary error:", e);
     return [];

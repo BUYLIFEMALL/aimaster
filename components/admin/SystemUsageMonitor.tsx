@@ -106,7 +106,13 @@ function formatBytes(bytes: number): string {
 }
 
 /** 정리 기록(usage_logs cleanup_expired) metadata 칸 이름 → 화면 이름 */
-const CLEANUP_LABEL: Record<string, string> = { videos: "영상", voices: "음성", covers: "표지", images: "이미지", projects: "프로젝트", segments: "장면 기록" };
+const CLEANUP_LABEL: Record<string, string> = {
+  videos: "영상", voices: "음성", covers: "표지", images: "이미지", projects: "프로젝트", segments: "장면 기록",
+  // 2026-10-23 공용 cleanup-usage-log로 기록을 붙인 프로그램들의 이름
+  tracks: "곡", posts: "글", ideas: "글감", history: "분석 기록", reports: "추천 보고서", snapshots: "트렌드 기록",
+  competition: "경쟁 조사", comments: "댓글", sentiments: "지역 분위기",
+};
+const DAY_MS = 86_400_000;
 
 export default function SystemUsageMonitor() {
   const [data, setData] = useState<{
@@ -114,10 +120,10 @@ export default function SystemUsageMonitor() {
     programs: ProgramMetric[];
     dbTableStats: DbTableStat[];
     storageStats: StorageStat[];
-    cleanupByProgram?: { slug: string; name: string; runs: number; members: number; counts: Record<string, number>; lastAt: string | null }[];
+    cleanupByProgram?: { slug: string; name: string; runs: number; members: number; counts: Record<string, number>; lastAt: string | null; firstAt?: string | null }[];
     opsOverview?: {
       updatedAt: string;
-      pending?: { rows: number; programs: string[] };
+      pending?: { rows: number; programs: string[]; byProgram?: Record<string, number> };
       cleanup?: { total: number; logging: string[]; notLogging: string[] };
       reverts?: { hours: number; commits: number; suspect: number; lost: number; lostCommits: string[] } | null;
     } | null;
@@ -275,6 +281,9 @@ export default function SystemUsageMonitor() {
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <p className="text-sm font-bold text-gold">🛠️ 운영 상태</p>
                 <p className="text-[11px] text-white/40">
+                  {Date.now() - new Date(data.opsOverview.updatedAt).getTime() > DAY_MS && (
+                    <span className="mr-1.5 rounded bg-amber-500/20 px-1.5 py-0.5 font-bold text-amber-300">⚠ 갱신 필요(24시간 지남)</span>
+                  )}
                   기준 {new Date(data.opsOverview.updatedAt).toLocaleString("ko-KR")} · 저장소에서 <code>node scripts/pending-check.mjs --publish</code>로 갱신(배포 도우미가 자동 실행)
                 </p>
               </div>
@@ -289,7 +298,14 @@ export default function SystemUsageMonitor() {
                     {data.opsOverview.pending.programs.length > 0 && (
                       <details>
                         <summary className="cursor-pointer text-gold/80">프로그램 펼쳐 보기</summary>
-                        <p className="mt-1 leading-relaxed">{data.opsOverview.pending.programs.join(", ")}</p>
+                        <p className="mt-1 leading-relaxed">
+                          {(() => {
+                            // 대기 줄 수가 많은 순(같으면 이름순) — 묶어서 배포할 곳을 고르기 쉽게(2026-10-23)
+                            const by = data.opsOverview.pending!.byProgram;
+                            const list = [...data.opsOverview.pending!.programs].sort((a, b) => (by?.[b] ?? 0) - (by?.[a] ?? 0) || a.localeCompare(b));
+                            return list.map((n) => (by && by[n] > 1 ? `${n} ${by[n]}줄` : n)).join(", ");
+                          })()}
+                        </p>
                       </details>
                     )}
                   </div>
@@ -685,7 +701,13 @@ export default function SystemUsageMonitor() {
                         <tbody>
                           {data.cleanupByProgram.map((p) => (
                             <tr key={p.slug} className="border-t border-white/10">
-                              <td className="py-1.5 pr-3 text-white">{p.name}</td>
+                              <td className="py-1.5 pr-3 text-white">
+                                {p.name}
+                                {/* 최근 30일 안 첫 기록이 7일 안이면 새로 동작하기 시작한 곳(2026-10-23) */}
+                                {p.firstAt && Date.now() - new Date(p.firstAt).getTime() < 7 * DAY_MS && (
+                                  <span className="ml-1.5 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">NEW</span>
+                                )}
+                              </td>
                               <td className="py-1.5 pr-3">
                                 {Object.entries(p.counts).filter(([, n]) => n > 0).map(([k, n]) => `${CLEANUP_LABEL[k] ?? k} ${n.toLocaleString()}`).join(" · ") || "—"}
                               </td>

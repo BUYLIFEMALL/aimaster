@@ -65,7 +65,8 @@ if (args.includes("--publish")) {
   const value = {
     updatedAt: new Date().toISOString(),
     reverts,
-    pending: { rows: pending.length, programs: pendingPrograms },
+    // byProgram: 프로그램별 대기 줄 수(관리자 「펼쳐 보기」를 많은 순으로, 2026-10-23)
+    pending: { rows: pending.length, programs: pendingPrograms, byProgram: Object.fromEntries(pendingPrograms.map((n) => [n, pending.filter((p) => p.name === n).length])) },
     cleanup: { total: cleanup.length, logging: cleanup.filter((c) => c.logs).map((c) => c.slug ?? c.folder), notLogging: cleanup.filter((c) => !c.logs).map((c) => c.slug ?? c.folder) },
   };
   await rest("site_settings?on_conflict=key", {
