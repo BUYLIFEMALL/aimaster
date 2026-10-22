@@ -106,3 +106,24 @@
 - Remotion 브라우저 렌더: https://www.remotion.dev/docs/client-side-rendering/
 - Mediabunny: https://mediabunny.dev/
 - 대안 비교: https://www.pkgpulse.com/guides/remotion-vs-motion-canvas-vs-revideo-programmatic-video-2026 , https://motionbox.io/blog/best-json2video-alternatives-in-2026
+
+## 10. A-0 사전 확인 결과 (2026-10-23, 로컬·무료, 윈도우 PC 메인 크롬)
+
+시험 환경: 임시 Vite 앱(저장소 밖 scratchpad), `remotion`·`@remotion/web-renderer`·`@remotion/media`·`@remotion/google-fonts`·`@remotion/player` 4.0.538, `mediabunny` 1.62.0, React 19.1. 구성: 클립 3개(각 4초, 0.33초 페이드 인, 클립 소리 0) + 배경음악(WAV, 끝 1초 페이드아웃) + 한글 가사 4줄(SVG `<text>`, Noto Sans KR 900, 노란 글씨·검은 테두리). 단계마다 하나씩 실행해 확인했다.
+
+| 단계 | 결과 | 근거 |
+|---|---|---|
+| 1. Mediabunny로 시험 재료 만들기 | ✅ | 클립 3개(H.264 1280×720 + AAC) 5.5초, 다시 열어 길이 4.01초 확인 |
+| 2. Remotion Player 미리보기 | ✅ | 재생 화면 캡처: 클립·자막·페이드 인이 시간에 맞음(3.03초 「너와 걷던 그 길」 등) |
+| 3. 720p 렌더(`renderMediaOnWeb`) | ✅ (공식 샘플 클립) | 12초 영상 → 14.0초(외부 주소) / 12.7초(`blob:` 주소), H.264+AAC 2.37MB, 길이 12.01초. 결과 화면에 클립·자막 확인, 소리 크기 0.04(음악 있음)·끝부분 0.001(페이드아웃 적용) |
+| 4. 1080p 렌더 | ✅ | 12.6초, 1920×1080, 4.58MB, 메모리 증가 없음(약 31MB) — 이 PC(22코어) 기준 거의 실시간 |
+
+**발견한 문제·주의사항**
+- **R1(위험)**: Mediabunny `CanvasSource`로 직접 만든 클립(B프레임 없음, `avc1.64001f`)을 `<Video>`에 넣으면 렌더가 0.2초 프레임에서 멈춤(`delayRender "Extracting frame at time 0.2"` 28초 시간 초과 → 정리 중 `InputDisposedError`). 조건을 하나씩 바꿔 Player 동시 사용·클립 소리 트랙·키프레임 간격·`blob:` 주소는 원인이 아님을 확인. 일반 인코더 파일(B프레임 있음)은 정상. **브라우저(WebCodecs)로 만든 영상을 Remotion에 다시 넣는 경우 문제가 될 수 있다** → A단계 전에 실제 Veo 클립·휴대폰 영상·우리 프로그램이 만든 MP4로 다시 확인할 것. 필요하면 Remotion 저장소에 문제를 알릴 것.
+- Player 미리보기는 같은 클립에서도 정상 재생(렌더만 문제).
+- 한글 글꼴: CSS 글꼴은 결과물에 안 들어감 → **SVG `<text>` + `@remotion/google-fonts`로 넣어야 함**(시험에서 정상 표시 확인). Noto Sans KR은 121개 파일로 나뉘어 불러와짐(경고) — 운영에서는 굵기 1개만 쓰고 미리 불러오기.
+- 영상·소리는 반드시 `@remotion/media`의 `<Video>`·`<Audio>` 사용(`<OffthreadVideo>`·`<Html5Video>` 불가). `z-index`·`mix-blend-mode`·`backdrop-filter` 불가 → 순서대로 쌓기.
+- `renderMediaOnWeb`의 `composition`에 `defaultProps` 필수(타입 검사).
+- Player에 `acknowledgeRemotionLicense` 속성을 주면 라이선스 경고가 사라짐(무료 조건 확인됨).
+
+**결론**: Remotion 브라우저 렌더로 「클립 + 음악 + 한글 자막 → MP4」가 회원 PC에서 무료로 실시간 수준 속도로 된다. A단계(뮤직비디오 합치기) 진행 가능. 단 R1을 먼저 실제 클립으로 확인한다.
