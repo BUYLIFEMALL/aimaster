@@ -233,8 +233,14 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 같은 날 그래프 사본에 `noun` 선택 항목 추가(커밋 `10835a02`, 동작 같음) — **다음 배포 때 함께 나감**.
 
 ## 2026-10-22 미배포 공용 변경 안내
-- **미배포 공용 변경 안내(2026-10-22, Claude Code 윈도우) — 다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나감**: 공용 기준 코드 사본 `components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx`·`lib/weekChart/bucket.ts`(문구 선택 항목·썸네일·`publicImageUrl`)이 저장소에서 바뀌었지만 이 프로그램 화면·동작은 같다(기본값 그대로). 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 배포 뒤 이 줄을 「배포됨(버전)」으로 바꾼다. 목록: 루트 `docs/SHARED_MODULES.md`.
+- **미배포 공용 변경 안내(2026-10-22, Claude Code 윈도우) — 다음에 이 프로그램을 배포할 때 버전 +0.01과 함께 나감**: 공용 기준 코드 사본 `components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx`·`lib/weekChart/bucket.ts`(문구 선택 항목·썸네일·`publicImageUrl`)이 저장소에서 바뀌었지만 이 프로그램 화면·동작은 같다(기본값 그대로). 사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. → **배포됨(v1.30, 2026-10-23)**. 목록: 루트 `docs/SHARED_MODULES.md`.
 
-## 2026-10-22 ⏸ 보류 — 7일 그래프 글자 크게 (주인님 지시: 「놔뒀다가 다음에 수정할때 그때 같이 빌드」)
+## 2026-10-22 ✅ 배포됨(v1.30, 2026-10-23) — 7일 그래프 글자 크게 (주인님 지시: 「놔뒀다가 다음에 수정할때 그때 같이 빌드」)
 - 무엇: 공용 그래프 사본 `components/weekChart/WeekReplyChart.tsx`·`WeekReplyPanel.tsx` 글자 한 단계씩 크게(제목 14→16px, 합계 12→14px, 막대 위 건수 11→14px, 날짜·요일 10→12px, 흐린 글자 투명도 60→80%, 그날 목록도 한 단계씩). 커밋 `9479f0bc`로 저장소에는 이미 반영됨.
 - **이 프로그램 단독 배포는 하지 않는다.** 다음에 이 프로그램을 다른 이유로 수정해 배포할 때 **함께 빌드**되며, 그때 버전 +0.01·DB 버전 갱신·크롬에서 그래프 글자 크기 확인 후 이 항목을 「배포됨(버전)」으로 바꾼다. 쓰레드 쇼핑제휴(v1.79)에는 이미 배포됨.
+
+## 2026-10-23 v1.30 — 모니터링 시작 시각을 한국 시간으로 읽기 + 대기분 함께 배포 (Claude Code 윈도우)
+- `lib/actions/monitoring.ts`: 화면 `datetime-local` 값에 시간대가 없으면 `+09:00`을 붙여 읽음(예전엔 UTC로 읽혀 9시간 늦게 저장 → 켠 뒤 9시간 동안의 댓글을 건너뜀). threads-comment-reply v1.26 검수 중 발견, 같은 날 그 앱 v1.27도 수정.
+- 함께 나감: 30일 정리 회원별 기록(`af9b2719c`·`05902a01d`), 공용 그래프 `noun`·`labels`·설명 문구·글자 크게(`9479f0bc`).
+- 커밋 `3f8897cd7`, DB v1.30(크롬 SQL Editor), 배포 `youtube-auto-reply-o6rx062y0` Ready, 가짜 토큰 401·`/login` 200, 크롬 대시보드 v1.30·그래프 제목 16px. 시작 시각 실저장은 같은 코드인 쓰레드 앱에서 확인(유튜브는 시험 회원 채널 미연결). 비용: 빌드 1회.
+- 남은 확인: 다음 30일 정리 시각(매일 03:40 KST) 뒤 관리자 「30일 자동 정리」 표에 줄이 생기는지.

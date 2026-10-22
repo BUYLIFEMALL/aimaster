@@ -240,4 +240,8 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 - 코드: `lib/schedulerMember/`(공용 `member-scheduler` 사본 `memberScheduler.ts` — **직접 수정 금지**, 이 앱 값 `schedulerConfig.ts`: 표 `th_member_scheduler`·토큰 `threply_`·끄기 스위치 `THREPLY_PLATFORM_SCHEDULER`·남은 일 = 모니터링 켠 설정 수, `cronJobOrg.ts`, `dispatch.ts`(이용 권한 재확인 + `last_run_at` 조건부 선점)), `lib/programAccess.ts`(유튜브 앱 사본), `lib/actions/scheduler.ts`, `monitoring.ts`(켜기/끄기 때 작업 맞추기), `settings.ts`(cron-job.org 키 허용·변경·삭제 처리), `/api/cron/dispatch-member`(Next 14라 `@vercel/functions` waitUntil), `/api/cron/sync-comments`(Vercel 방식·비일시정지 회원만), `vercel.json` 5분 예약, 설정 「⏰ 예약 실행 방식」·상태 줄, 매뉴얼 FAQ.
 - AI 답글 지시문 `lib/ai/reply.ts`: 「유튜브 채널 운영자·영상 제목」 → 「Threads 계정 운영자·내 Threads 글」(인자 `videoTitle` → `postText`).
 - DB: `supabase/migrations/20261023220000_th_member_scheduler_v1_26.sql`(크롬 SQL Editor). 배포 `threads-comment-reply-nbicmtaj2` Ready. 검수 내용은 루트 `docs/HANDOFF.md` 같은 날 항목.
-- **미배포(급함, 빌드 승인 대기)**: 모니터링 「이 시점 이후 댓글만」을 한국 시간으로 읽기(`lib/actions/monitoring.ts`) — 화면 값(시간대 없음)을 서버가 UTC로 읽어 9시간 늦게 저장되던 버그.
+- ~~미배포(급함)~~ → v1.27로 배포됨(아래).
+
+## 2026-10-23 v1.27 — 모니터링 시작 시각을 한국 시간으로 읽기 (Claude Code 윈도우)
+- `lib/actions/monitoring.ts`: 화면의 `datetime-local` 값(시간대 없음)에 시간대가 없으면 `+09:00`을 붙여 읽음 — 예전엔 UTC로 읽혀 9시간 늦게 저장돼 켠 뒤 9시간 동안의 댓글을 건너뜀. 같은 수정을 `youtube-auto-reply` v1.30에도 넣음.
+- 커밋 `e6139cd39`·`3f8897cd7`, DB v1.27(크롬 SQL Editor), 배포 `threads-comment-reply-ood6m9vpm` Ready, 가짜 토큰 401·`/login` 200. 크롬(시험 회원): 13:06 시작 → DB `04:06 UTC`(=한국 13:06) 확인 → 바로 중지(꺼짐 복구, 예약 실행 0회). 비용: 빌드 1회.

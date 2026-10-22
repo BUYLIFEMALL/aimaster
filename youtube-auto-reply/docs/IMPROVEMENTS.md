@@ -36,6 +36,6 @@
 - [x] 대시보드 「검토를 기다리는 댓글」 형식을 INSTA 댓글·DM·쓰레드 댓글과 통일(제목 옆 건수 + 오른쪽 위 전체 보기). 통합 댓글 받은편지함은 루트 `docs/PROGRAM_IDEA_BACKLOG.md` 검토 대기.
 - [x] (2026-10-21 v1.22) 대시보드 검토 대기 댓글에 영상 썸네일·영상 묶음 바로가기(세 댓글 프로그램 동작 통일).
 
-## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
+## 2026-10-23 ✅ 배포됨 v1.30 (정리 기록, 예전 「미배포 대기」) — Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
 - 댓글 30일 정리(`cleanup-comments`)가 회원별 `cleanup_expired`(comments=내용을 비운 댓글 수) 기록 — 공용 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
