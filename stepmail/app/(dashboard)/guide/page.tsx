@@ -288,7 +288,7 @@ export default async function GuidePage() {
         </div>
       </div>
 
-      {/* 6. 자주 묻는 질문 (FAQ 6종) */}
+      {/* 6. 자주 묻는 질문 (FAQ 7종) */}
       <section className="space-y-4">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <span>❓</span>
@@ -322,13 +322,23 @@ export default async function GuidePage() {
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-              `.xlsx` 형식 파일이어야 하며, 첫 번째 행에 '이메일'(또는 'email'), '고객명'(또는 'name'), '회사명' 등의 헤더가 포함되어야 합니다. '잠재고객 DB관리' 화면의 '양식 다운로드' 버튼을 클릭하시면 표준 엑셀 템플릿을 바로 내려받아 사용하실 수 있습니다.
+              `.xlsx` 형식 파일이어야 하며, 첫 번째 행에 '이메일'(필수)·'전화번호'(문자 발송용, 선택)·'닉네임'·'채널'·'상태' 열이 있으면 읽습니다. '잠재고객 DB관리' 화면의 '양식 다운로드' 버튼을 클릭하시면 표준 엑셀 템플릿을 바로 내려받아 사용하실 수 있습니다.
             </p>
           </details>
 
           <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
-              <span>Q4. 1차 발송 후 2차, 3차 팔로우업은 어떻게 진행되나요?</span>
+              <span>Q4. 이메일 대신 문자(SMS·LMS)로도 차수 발송할 수 있나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              네. 설정에서 본인 SOLAPI 문자 계정(API Key·발신번호)을 연결한 뒤, 캠페인을 만들 때 발송 채널을 「문자」 또는 「둘 다」로 고르면 됩니다. 문자는 엑셀에 전화번호가 있는 고객에게만 나가고, 광고 문자 규정(정보통신망법)에 따라 「(광고)」 표시와 입력하신 무료 수신거부 안내가 자동으로 붙습니다. 90바이트(한글 약 45자)를 넘으면 장문(LMS)으로 나가며 요금은 본인 SOLAPI 계정에 청구됩니다. 카카오 알림톡은 광고성 내용을 보낼 수 없어 넣지 않았습니다.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q5. 1차 발송 후 2차, 3차 팔로우업은 어떻게 진행되나요?</span>
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
@@ -338,7 +348,7 @@ export default async function GuidePage() {
 
           <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
-              <span>Q5. 고객이 답장을 주거나 계약이 성사되면 어떻게 처리하나요?</span>
+              <span>Q6. 고객이 답장을 주거나 계약이 성사되면 어떻게 처리하나요?</span>
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
@@ -348,7 +358,7 @@ export default async function GuidePage() {
 
           <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
-              <span>Q6. 예약 발송은 무엇으로 돌아가나요? 내 cron-job.org로 돌릴 수 있나요?</span>
+              <span>Q7. 예약 발송은 무엇으로 돌아가나요? 내 cron-job.org로 돌릴 수 있나요?</span>
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">

@@ -10,13 +10,14 @@ export default async function NewCampaignPage({ searchParams: sp }: { searchPara
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
-  const [{ data: drafts }, { data: smtpAccounts }] = await Promise.all([
+  const [{ data: drafts }, { data: smtpAccounts }, { data: solapi }] = await Promise.all([
     supabase.from("stepmail_email_drafts").select("id, subject").eq("user_id", user.id).order("created_at", { ascending: false }),
     supabase
       .from("user_smtp_accounts")
       .select("id, label, is_active")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true }),
+    supabase.from("user_solapi_accounts").select("user_id").eq("user_id", user.id).maybeSingle(),
   ]);
 
   return (
@@ -26,7 +27,7 @@ export default async function NewCampaignPage({ searchParams: sp }: { searchPara
         <h1 className="text-3xl font-black text-gray-900 mb-2">예약 발송 캠페인 만들기</h1>
         <p className="text-gray-500 text-base">원하는 수량, 시간대, 반복주기로 자동 발송을 예약합니다</p>
       </div>
-      <CampaignForm drafts={drafts ?? []} smtpAccounts={smtpAccounts ?? []} defaultDraftId={searchParams.draftId} />
+      <CampaignForm drafts={drafts ?? []} smtpAccounts={smtpAccounts ?? []} defaultDraftId={searchParams.draftId} hasSolapi={Boolean(solapi)} />
     </div>
   );
 }

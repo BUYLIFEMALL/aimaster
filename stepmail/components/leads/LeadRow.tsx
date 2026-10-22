@@ -13,6 +13,7 @@ export interface LeadRowData {
   channel: string | null;
   nickname: string | null; // 선택 항목 — 없으면 null
   email: string;
+  phone: string | null;
   status: LeadStatus;
   send_count: number;
   last_sent_at: string | null;
@@ -63,6 +64,7 @@ export function LeadRow({
         />
       </td>
       <td className="py-2 px-3 text-sm text-gray-900">{lead.email}</td>
+      <td className="py-2 px-3 text-sm text-gray-500 whitespace-nowrap">{lead.phone ?? "-"}</td>
       <td className="py-2 px-3 text-sm text-gray-500">{lead.nickname ?? "-"}</td>
       <td className="py-2 px-3 text-sm text-gray-500">{lead.channel ?? "-"}</td>
       <td className="py-2 px-3">

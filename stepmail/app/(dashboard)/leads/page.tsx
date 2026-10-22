@@ -48,7 +48,7 @@ export default async function LeadsPage({
   let countQuery = supabase.from("stepmail_leads").select("id", { count: "exact", head: true }).eq("user_id", user.id);
   let listQuery = supabase
     .from("stepmail_leads")
-    .select("id, input_date, channel, nickname, email, status, send_count, last_sent_at, updated_at")
+    .select("id, input_date, channel, nickname, email, phone, status, send_count, last_sent_at, updated_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .range(from, to);

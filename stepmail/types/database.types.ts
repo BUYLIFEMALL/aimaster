@@ -17,6 +17,7 @@ export type ApiKeyProvider =
 // 공통의 "new"와 종료 상태(customer_completed/stopped) 3가지로만 구분한다.
 export type LeadStatus = "new" | "customer_completed" | "stopped";
 export type CampaignRecurrence = "once" | "daily" | "weekly";
+export type CampaignChannel = "email" | "sms" | "both";
 export type SendLogStatus = "sent" | "failed";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -52,8 +53,16 @@ export interface Database {
         };
         Relationships: [];
       };
+      // 공용 SOLAPI 문자 계정(crm-google-form 0003·0005, booking-reminder 등과 공유) — 2026-10-23 v1.27 문자 발송
+      user_solapi_accounts: {
+        Row: { user_id: string; api_key: string; api_secret: string; sender_phone: string; kakao_pf_id: string | null; rcs_brand_id: string | null; created_at: string; updated_at: string };
+        Insert: { user_id: string; api_key: string; api_secret: string; sender_phone: string; kakao_pf_id?: string | null; rcs_brand_id?: string | null; created_at?: string; updated_at?: string };
+        Update: { user_id?: string; api_key?: string; api_secret?: string; sender_phone?: string; kakao_pf_id?: string | null; rcs_brand_id?: string | null; created_at?: string; updated_at?: string };
+        Relationships: [];
+      };
       stepmail_leads: {
         Row: {
+          phone: string | null;
           id: string;
           user_id: string;
           input_date: string | null;
@@ -68,6 +77,7 @@ export interface Database {
           updated_at: string;
         };
         Insert: {
+          phone?: string | null;
           id?: string;
           user_id: string;
           input_date?: string | null;
@@ -82,6 +92,7 @@ export interface Database {
           updated_at?: string;
         };
         Update: {
+          phone?: string | null;
           id?: string;
           user_id?: string;
           input_date?: string | null;
@@ -192,9 +203,12 @@ export interface Database {
       };
       stepmail_campaigns: {
         Row: {
+          channel: CampaignChannel;
+          sms_text: string | null;
+          sms_optout: string | null;
           id: string;
           user_id: string;
-          draft_id: string;
+          draft_id: string | null;
           name: string;
           target_send_count: number;
           quantity_per_run: number;
@@ -208,9 +222,12 @@ export interface Database {
           updated_at: string;
         };
         Insert: {
+          channel?: CampaignChannel;
+          sms_text?: string | null;
+          sms_optout?: string | null;
           id?: string;
           user_id: string;
-          draft_id: string;
+          draft_id: string | null;
           name: string;
           target_send_count?: number;
           quantity_per_run?: number;
@@ -224,9 +241,12 @@ export interface Database {
           updated_at?: string;
         };
         Update: {
+          channel?: CampaignChannel;
+          sms_text?: string | null;
+          sms_optout?: string | null;
           id?: string;
           user_id?: string;
-          draft_id?: string;
+          draft_id?: string | null;
           name?: string;
           target_send_count?: number;
           quantity_per_run?: number;
@@ -261,6 +281,8 @@ export interface Database {
       };
       stepmail_send_log: {
         Row: {
+          channel: string;
+          to_phone: string | null;
           id: string;
           user_id: string;
           campaign_id: string | null;
@@ -272,6 +294,8 @@ export interface Database {
           sent_at: string;
         };
         Insert: {
+          channel?: string;
+          to_phone?: string | null;
           id?: string;
           user_id: string;
           campaign_id?: string | null;
@@ -283,6 +307,8 @@ export interface Database {
           sent_at?: string;
         };
         Update: {
+          channel?: string;
+          to_phone?: string | null;
           id?: string;
           user_id?: string;
           campaign_id?: string | null;

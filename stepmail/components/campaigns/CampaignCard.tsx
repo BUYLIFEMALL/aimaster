@@ -23,6 +23,8 @@ export interface CampaignCardData {
   is_active: boolean;
   last_run_at: string | null;
   stepmail_email_drafts: { subject: string } | null;
+  channel: "email" | "sms" | "both";
+  sms_text: string | null;
 }
 
 export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
@@ -87,7 +89,10 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
           {campaign.is_active ? "활성" : "중지됨"}
         </span>
       </div>
-      <p className="text-xs text-gray-500 truncate">📧 {campaign.stepmail_email_drafts?.subject ?? "(삭제된 초안)"}</p>
+      {campaign.channel !== "sms" && (
+        <p className="text-xs text-gray-500 truncate">📧 {campaign.stepmail_email_drafts?.subject ?? "(삭제된 초안)"}</p>
+      )}
+      {campaign.channel !== "email" && <p className="text-xs text-gray-500 truncate">📱 {campaign.sms_text ?? "(문자 본문 없음)"}</p>}
       <p className="text-xs text-gray-500">🎯 {targetSendCountLabel(campaign.target_send_count)} · 최대 {campaign.quantity_per_run}건</p>
       <p className="text-xs text-gray-500">⏰ {scheduleText}</p>
       <p className="text-xs text-gray-400 mt-1">

@@ -117,6 +117,7 @@ export function LeadsTable({ leads }: { leads: LeadRowData[] }) {
                 />
               </th>
               <th className="py-2 px-3 text-xs font-semibold text-gray-500">이메일</th>
+              <th className="py-2 px-3 text-xs font-semibold text-gray-500 whitespace-nowrap">전화번호</th>
               <th className="py-2 px-3 text-xs font-semibold text-gray-500">닉네임</th>
               <th className="py-2 px-3 text-xs font-semibold text-gray-500">채널</th>
               <th className="py-2 px-3 text-xs font-semibold text-gray-500">상태</th>

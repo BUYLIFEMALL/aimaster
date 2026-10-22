@@ -9,8 +9,8 @@ export const fetchCache = "force-no-store";
  * 이름/순서를 맞춘 샘플 엑셀 양식을 내려준다. 리드 목록 화면에 실제로 쓰이는 항목만 담는다
  * — 입력일/최종수정일은 가져오기·발송 시 시스템이 자동으로 채우는 값이라 입력폼에서 뺀다.
  */
-const HEADERS = ["이메일", "닉네임", "채널", "상태"];
-const SAMPLE_ROW = ["example@email.com", "홍길동", "인스타그램", "미발송"];
+const HEADERS = ["이메일", "전화번호", "닉네임", "채널", "상태"];
+const SAMPLE_ROW = ["example@email.com", "010-1234-5678", "홍길동", "인스타그램", "미발송"];
 
 export async function GET() {
   const access = await checkProgramAccessApi();

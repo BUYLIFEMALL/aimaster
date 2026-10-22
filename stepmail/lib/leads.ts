@@ -1,11 +1,16 @@
 import "server-only";
 import * as XLSX from "xlsx";
 import type { LeadStatus } from "@/types/database.types";
+import { normalizeMobile } from "@/lib/sms";
+
+// v1.27: 전화번호 열 이름 후보. 파일에 이 열이 있을 때만 phone을 채워(없으면 키 자체를 빼서) 기존 번호를 지우지 않는다.
+const PHONE_HEADERS = ["전화번호", "핸드폰", "휴대폰", "휴대전화", "연락처"];
 
 export interface ParsedLeadRow {
   channel: string | null;
   nickname: string | null; // 없으면 null(선택 항목, 필수 아님)
   email: string;
+  phone?: string | null; // 파일에 전화 열이 있을 때만 들어감(번호가 비었거나 핸드폰이 아니면 null)
   status: LeadStatus;
   send_count: number; // 0 = 미발송, 1~5 = 몇 차까지 발송했는지
 }
@@ -39,6 +44,7 @@ export function parseLeadsWorkbook(buffer: Buffer): ParsedLeadRow[] {
   const sheet = wb.Sheets[sheetName];
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: null });
 
+  const phoneHeader = rows.length > 0 ? PHONE_HEADERS.find((h) => h in rows[0]) : undefined;
   const result: ParsedLeadRow[] = [];
   const seenEmails = new Set<string>();
 
@@ -54,6 +60,7 @@ export function parseLeadsWorkbook(buffer: Buffer): ParsedLeadRow[] {
       channel: cellToText(row["채널"]),
       nickname: cellToText(row["닉네임"]), // 닉네임 컬럼이 비어있으면 null(선택 항목)
       email,
+      ...(phoneHeader ? { phone: normalizeMobile(row[phoneHeader]) } : {}),
       status,
       send_count: sendCount,
     });

@@ -39,7 +39,7 @@ export function LeadImportForm() {
     <form onSubmit={handleSubmit} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
       <p className="text-sm font-bold text-gray-800 mb-2">엑셀로 리드 가져오기</p>
       <p className="text-xs text-gray-500 mb-3">
-        컬럼: 이메일(필수) / 닉네임 / 채널 / 상태(미발송, 1~5차 발송, 발송제외, 수신거부). 이미
+        컬럼: 이메일(필수) / 전화번호(문자 발송용, 선택) / 닉네임 / 채널 / 상태(미발송, 1~5차 발송, 발송제외, 수신거부). 이미
         등록된 이메일은 최신 정보로 갱신됩니다.
       </p>
       <div className="flex flex-wrap items-center gap-2">

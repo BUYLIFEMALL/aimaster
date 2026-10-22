@@ -8,6 +8,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
 import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
+import { SolapiAccountSection } from "@/components/settings/SolapiAccountSection";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -37,6 +38,12 @@ export default async function SettingsPage() {
     .eq("user_id", user.id);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  // v1.27 문자 발송: 공용 user_solapi_accounts(예약 리마인드 등에서 연결했으면 그대로 보임)
+  const { data: solapiAccount } = await supabase
+    .from("user_solapi_accounts")
+    .select("api_key, sender_phone, kakao_pf_id, rcs_brand_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
   const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
 
   return (
@@ -69,6 +76,11 @@ export default async function SettingsPage() {
             />
           ))}
         </div>
+      </div>
+
+      {/* 📱 문자(SMS·LMS) 차수 발송용 SOLAPI 계정(v1.27) — 화면·저장 함수는 booking-reminder와 같음 */}
+      <div className="mt-5">
+        <SolapiAccountSection account={solapiAccount ?? null} />
       </div>
 
       {/* ⏰ 예약 발송 실행 방식(v1.21, 지침 docs/SCHEDULER_POLICY.md) — 캠페인 켜기/끄기는 「예약 발송」 화면에서 한다 */}

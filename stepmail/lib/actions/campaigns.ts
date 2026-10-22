@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { dispatchCampaign } from "@/lib/dispatch";
-import type { CampaignRecurrence } from "@/types/database.types";
+import type { CampaignChannel, CampaignRecurrence } from "@/types/database.types";
+import { buildSmsText, smsBytes, LMS_MAX_BYTES } from "@/lib/sms";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled, stopMemberSchedulerIfIdle } from "@/lib/schedulerMember/memberScheduler";
@@ -58,26 +59,45 @@ export async function createCampaignAction(formData: FormData): Promise<CreateCa
   const weeklyDayRaw = formData.get("weeklyDay");
   const weeklyDay = recurrence === "weekly" && weeklyDayRaw != null ? Number(weeklyDayRaw) : null;
   const smtpAccountIds = formData.getAll("smtpAccountIds").map(String).filter(Boolean);
+  // v1.27 문자(SMS·LMS) 차수 발송
+  const channelInput = String(formData.get("channel") ?? "email");
+  const channel: CampaignChannel = channelInput === "sms" || channelInput === "both" ? channelInput : "email";
+  const wantsEmail = channel !== "sms";
+  const wantsSms = channel !== "email";
+  const smsText = String(formData.get("smsText") ?? "").trim();
+  const smsOptout = String(formData.get("smsOptout") ?? "").trim();
 
-  if (!draftId) return { error: "발송할 이메일 초안을 선택해주세요." };
   if (!name) return { error: "캠페인 이름을 입력해주세요." };
-  if (smtpAccountIds.length === 0) return { error: "발송에 사용할 이메일 계정을 하나 이상 선택해주세요." };
+  if (wantsEmail && !draftId) return { error: "발송할 이메일 초안을 선택해주세요." };
+  if (wantsEmail && smtpAccountIds.length === 0) return { error: "발송에 사용할 이메일 계정을 하나 이상 선택해주세요." };
+  if (wantsSms && !smsText) return { error: "문자 본문을 입력해주세요." };
+  if (wantsSms && !smsOptout) return { error: "광고 문자에는 무료 수신거부 안내가 꼭 필요합니다(예: 무료수신거부 080-000-0000)." };
+  if (wantsSms && smsBytes(buildSmsText(smsText, smsOptout, "")) > LMS_MAX_BYTES) return { error: "문자가 너무 깁니다(2000바이트 이하)." };
 
   const supabase = await createClient();
 
-  const { data: draft } = await supabase
-    .from("stepmail_email_drafts")
-    .select("id")
-    .eq("id", draftId)
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (!draft) return { error: "이메일 초안을 찾을 수 없습니다." };
+  if (wantsEmail) {
+    const { data: draft } = await supabase
+      .from("stepmail_email_drafts")
+      .select("id")
+      .eq("id", draftId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!draft) return { error: "이메일 초안을 찾을 수 없습니다." };
+  }
+  if (wantsSms) {
+    const { data: solapi } = await supabase.from("user_solapi_accounts").select("user_id").eq("user_id", user.id).maybeSingle();
+    if (!solapi) return { error: "설정에서 본인 SOLAPI 문자 계정을 먼저 연결해 주세요." };
+  }
 
   const { data: campaign, error } = await supabase
     .from("stepmail_campaigns")
     .insert({
       user_id: user.id,
-      draft_id: draftId,
+      draft_id: wantsEmail ? draftId : null,
+      channel,
+      sms_text: wantsSms ? smsText : null,
+      sms_optout: wantsSms ? smsOptout : null,
       name,
       target_send_count: targetSendCount,
       quantity_per_run: quantityPerRun,
@@ -91,13 +111,15 @@ export async function createCampaignAction(formData: FormData): Promise<CreateCa
 
   if (error || !campaign) return { error: error?.message ?? "캠페인 저장에 실패했습니다." };
 
-  const links = smtpAccountIds.map((smtpAccountId, idx) => ({
-    campaign_id: campaign.id,
-    smtp_account_id: smtpAccountId,
-    sort_order: idx,
-  }));
-  const { error: linkError } = await supabase.from("stepmail_campaign_smtp_accounts").insert(links);
-  if (linkError) return { error: linkError.message };
+  if (wantsEmail) {
+    const links = smtpAccountIds.map((smtpAccountId, idx) => ({
+      campaign_id: campaign.id,
+      smtp_account_id: smtpAccountId,
+      sort_order: idx,
+    }));
+    const { error: linkError } = await supabase.from("stepmail_campaign_smtp_accounts").insert(links);
+    if (linkError) return { error: linkError.message };
+  }
 
   const syncError = await syncMemberScheduler(user.id, campaign.id, true);
   revalidatePath("/campaigns");
@@ -162,6 +184,7 @@ export async function runCampaignNowAction(campaignId: string): Promise<RunCampa
     });
     revalidatePath("/campaigns");
     revalidatePath("/leads");
+    if (result.notice) return { error: result.notice };
     return { sentCount: result.sentCount, failedCount: result.failedCount };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "캠페인 실행 중 오류가 발생했습니다." };
