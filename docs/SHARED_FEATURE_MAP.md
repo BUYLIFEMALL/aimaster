@@ -148,6 +148,18 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | lyric-video-studio | `src/lib/render/mp4Encoder.ts` (+ 그리기 `draw.ts`·`export.ts`) | 🔵 사본 | v1.01(2026-10-21), 가사 영상 — 곡 파일을 48kHz로 디코딩해 그대로 넘김(소리 섞기 함수 안 씀), 8Mbps |
 | playlist-channel-studio(영상 만들기) | `src/lib/render/video-exporter.ts`(자체) | ⛔ 대상 아님 | 2026-10-21 확인: 소리 빠짐은 2026-10-16 이미 수정됨. 수십 분~1시간 영상이라 디스크 직접 쓰기·조금씩 소리 넣기가 필요 — 전체를 메모리에 올리는 이 모듈로 바꾸면 나빠짐(1시간 소리만 약 1.4GB). 주인님 확인 「3번 제외」 |
 
+## 13. 브라우저 안 영상 → 장면·소리 추출 — 공용화 후보 (2026-10-22 등록)
+
+영상 파일을 서버·저장소로 올리지 않고 **브라우저 안에서** 장면 이미지 몇 장과 작은 소리(모노 WAV)만 뽑아 AI 분석 재료로 쓰는 기능. Vercel 요청 한도(4.5MB) 안에서 Gemini가 말소리까지 듣게 한다(저장 용량·서버 비용 없음).
+
+| 구분 | 위치 | 상태 |
+|---|---|---|
+| 기준 후보 | `insta_auto_poster/src/lib/cardnews/reelsMedia.ts` — `extractReel`(장면 4장 10~90% 시점·긴 변 720px JPEG + 소리), `pickFrameTimes`, `pickAudioFormat`(90초까지 12kHz 16비트 → 길면 8kHz까지 낮춤 → 8kHz 8비트, 최대 3분 ≈ base64 3MB), `encodeWavMono`, `bytesToBase64` + 시험 `tests/cardnews/remake.test.mjs` | 🟢 INSTA v1.49~v1.50 운영(크롬 46초 영상 → 1초 추출, Gemini가 내레이션 내용 반영) |
+| 받는 쪽(서버) | 같은 프로그램 `src/app/api/cardnews/remake/analyze/route.ts`(audio/wav·base64 3MB·Gemini만) + `src/lib/cardnews/ai/llm.ts`(Gemini `inlineData`) | 프로그램마다 각자(오류 형식·프롬프트가 다름) |
+| 적용 후보 | `shorts-viral-studio`(내 영상·저장한 쇼츠 파일 분석 — 지금은 유튜브 주소만), `shorts-onestop-studio`·`auto-shorts-posting`(레퍼런스 영상으로 대본·장면 기획), `competitor-analysis`(경쟁 릴스 분석) | ⚪ 필요할 때 사본으로(급하지 않음) |
+
+주의: 화면용 코드라 `"use client"` 쪽에서만 부른다. 소리를 못 푸는 형식(일부 mov 코덱)이면 장면만 돌려준다. 사본을 만들 때 `scripts/check-shared-modules.mjs`에 등록하고 기준만 고친다.
+
 ## 6. 공통 기반(이미 같은 구조로 복사해 쓰는 것)
 
 | 기능 | 기준 위치 | 비고 |
@@ -164,6 +176,7 @@ OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tok
 | 날짜 | 내용 | 작업 |
 |---|---|---|
 | 2026-10-20 | 병합 C: 유튜브 조회·황금 엔진 기준을 youtube-channel-consultant → youtube-viral-studio로 이동 | Claude Code(윈도우) |
+| 2026-10-22 | 「13. 브라우저 안 영상 → 장면·소리 추출」 공용화 후보 등록(기준 후보 INSTA `reelsMedia.ts` v1.50, 사본 없음) | Claude Code(윈도우) |
 | 2026-10-20 | 「9. 프로그램 공지 띠」(`program-notice-banner`, 사본 5곳)·「10. 텔레그램 승인 봇 연동」(공용화 후보, allowed_updates 함정) 등록 | Claude Code(윈도우) |
 | 2026-10-20 | `openai-request-params` 사본 7곳 추가(미배포), youtube-channel-consultant 제외·shorts-viral-studio 해당 없음 | Claude Code(윈도우) |
 | 2026-10-20 | 「8. OpenAI 모델별 요청 규칙」 `openai-request-params` 등록 — 기준 naver-blog-seo-studio v1.77, 사본 threads-affiliate-poster v1.68, 바꿀 후보 9곳 | Claude Code(윈도우) |
