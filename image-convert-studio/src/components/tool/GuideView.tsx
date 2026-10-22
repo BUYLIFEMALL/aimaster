@@ -93,14 +93,14 @@ export function GuideView() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
               href="/convert"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl ics-primary bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition-all"
             >
               <ImagePlus size={15} />
               <span>변환 스튜디오 바로가기</span>
             </Link>
             <Link
               href="/collage"
-              className="inline-flex items-center gap-2 rounded-xl border border-[#334155] bg-[#1e293b]/80 hover:bg-[#334155] px-4 py-2.5 text-xs font-bold text-slate-200 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl ics-secondary border border-[#334155] bg-[#1e293b]/80 hover:bg-[#334155] px-4 py-2.5 text-xs font-bold text-slate-200 transition-all"
             >
               <LayoutGrid size={15} className="text-violet-400" />
               <span>콜라주 만들기</span>

@@ -29,3 +29,52 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* ==========================================================================
+   v1.11 그라데이션 글로우 버튼(바이올렛) — 바나나 캔버스 v1.21 버튼 방식을 이 프로그램 색으로 이식(2026-10-22 주인님 승인)
+   Tailwind 클래스는 그대로 두고 ics-* 클래스를 덧붙인다(레이어 밖 CSS가 Tailwind 유틸리티보다 우선). 흰 글자 대비 4.5:1 이상
+   ========================================================================== */
+.ics-btn, .ics-primary, .ics-secondary, .ics-ghost, .ics-danger {
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease, filter 0.15s ease;
+}
+.ics-primary {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 45%, #4f46e5 100%) !important;
+  border: 1px solid rgba(167, 139, 250, 0.55) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(20, 0, 60, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 6px 18px rgba(124, 58, 237, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+.ics-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8148f0 0%, #7c3aed 45%, #5b50f0 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 26px rgba(139, 92, 246, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+  transform: translateY(-1px);
+}
+.ics-primary:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 2px 5px rgba(20, 0, 60, 0.45) !important; }
+.ics-secondary {
+  background: linear-gradient(180deg, #2a3a55 0%, #1c2740 100%) !important;
+  border: 1px solid #3d4f6e !important;
+  color: #f1f5f9 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.ics-secondary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #33456a 0%, #22304d 100%) !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(139, 92, 246, 0.28);
+  transform: translateY(-1px);
+}
+.ics-ghost {
+  background: linear-gradient(180deg, #1a2438 0%, #131b2b 100%) !important;
+  border: 1px solid #2a3852 !important;
+  color: #e2e8f0 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.ics-ghost:hover:not(:disabled) { border-color: #7c3aed !important; color: #ffffff !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 12px rgba(124, 58, 237, 0.22); transform: translateY(-1px); }
+.ics-danger {
+  background: linear-gradient(180deg, rgba(136, 19, 55, 0.35) 0%, rgba(76, 5, 25, 0.35) 100%) !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
+  color: #fecdd3 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.ics-danger:hover:not(:disabled) { border-color: #fb7185 !important; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25); transform: translateY(-1px); }
+.ics-btn:disabled, .ics-primary:disabled, .ics-secondary:disabled, .ics-ghost:disabled, .ics-danger:disabled { transform: none; box-shadow: none !important; filter: saturate(0.6); }

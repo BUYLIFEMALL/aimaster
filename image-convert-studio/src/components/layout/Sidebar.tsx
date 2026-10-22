@@ -176,7 +176,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
           type="button"
           aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
           onClick={() => setMobileOpen((v) => !v)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#1e293b] bg-[#162032] text-slate-300 hover:text-white transition-colors"
+          className="flex h-9 w-9 items-center justify-center rounded-lg ics-ghost border border-[#1e293b] bg-[#162032] text-slate-300 hover:text-white transition-colors"
         >
           {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>

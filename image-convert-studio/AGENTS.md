@@ -114,3 +114,8 @@
 - 새 `src/lib/importSource.ts`(`IMPORT_SOURCES`·`importSourceOf`): `?src=`는 우리 Supabase의 `banana-canvas-files`·`portrait-photo-files`·`four-cut-comics-files` **서명 주소만** 받음(공개 주소·다른 버킷·다른 호스트·http는 거부). `ConvertTool`의 안내·파일 이름이 보낸 프로그램 이름을 따름. 이미지는 지금처럼 브라우저 안에서만 처리.
 - 검수: 시험 23개(새 `tests/importSource.test.mjs` 2개), build, 배포 `image-convert-studio-losm32qsc` Ready, DB v1.10. 크롬: 인물사진 버킷 시험 그림(320×240, DB 행 없음)의 서명 주소로 열기 → 「AI 인물사진 결과를 목록에 넣었습니다」·목록에 들어옴 → 시험 그림 삭제.
 - 남은 일: 이미지 스튜디오(`ai-image-generations`) 결과 받기는 다른 세션의 이미지 스튜디오 작업이 끝난 뒤 보내는 버튼과 함께 추가.
+
+## 2026-10-22 v1.11 — 그라데이션 글로우 버튼(바이올렛) 이식 (Claude Code 윈도우)
+- 바나나 캔버스 v1.21 버튼 방식(그라데이션 + 안쪽 하이라이트 + 색 번짐 그림자, 호버 1px 뜸)만 이 프로그램 바이올렛 색으로 이식. 템플릿(크리에이티브 아틀리에 — 이미지 스튜디오 에디션, 다크)은 그대로.
+- 방법: Tailwind 클래스는 지우지 않고 버튼에 `ics-primary/ics-secondary/ics-ghost/ics-danger`(공통 `btn`에 `ics-btn`)를 덧붙이고 `globals.css` 끝에서 정의(레이어 밖 CSS가 Tailwind 유틸리티보다 우선). 20곳.
+- 대비: 실행 버튼 흰 글자 5.1~6.3:1, 보조 10.4, 고스트 12.6, 삭제 12.8. 시험 23개·build, 배포 `image-convert-studio-dpcqphw1j` Ready, DB v1.11, 크롬 화면 확인.

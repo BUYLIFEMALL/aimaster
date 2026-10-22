@@ -93,7 +93,7 @@ export function CollageTool() {
   };
 
   const fieldClass = "rounded-xl border border-[#1e293b] bg-[#0d121f] px-3 py-2 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50";
-  const btn = "inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
+  const btn = "ics-btn inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
   const num = (value: number, set: (n: number) => void, min: number, max: number, fallback: number) => ({
     type: "number" as const,
     min,
@@ -252,7 +252,7 @@ export function CollageTool() {
         <div className="mt-5 flex flex-wrap gap-2.5 pt-2">
           <button
             type="button"
-            className={`${btn} bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-md shadow-violet-500/20`}
+            className={`${btn} ics-primary bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-md shadow-violet-500/20`}
             onClick={() => void make()}
             disabled={busy || items.length === 0}
           >
@@ -270,7 +270,7 @@ export function CollageTool() {
           </button>
           <button
             type="button"
-            className={`${btn} border border-[#334155] bg-[#1e293b] text-white hover:bg-[#334155]`}
+            className={`${btn} ics-secondary border border-[#334155] bg-[#1e293b] text-white hover:bg-[#334155]`}
             onClick={download}
             disabled={!result}
           >
@@ -279,7 +279,7 @@ export function CollageTool() {
           </button>
           <button
             type="button"
-            className={`${btn} border border-rose-900/40 bg-rose-950/20 text-rose-300 hover:bg-rose-950/40`}
+            className={`${btn} ics-danger border border-rose-900/40 bg-rose-950/20 text-rose-300 hover:bg-rose-950/40`}
             onClick={clearAll}
             disabled={busy || items.length === 0}
           >

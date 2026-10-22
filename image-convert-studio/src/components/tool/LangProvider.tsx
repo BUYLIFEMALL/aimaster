@@ -60,7 +60,7 @@ export function LangSwitcher() {
           aria-pressed={lang === code}
           className={`rounded-lg px-3 py-1.5 transition-all text-xs font-medium ${
             lang === code
-              ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs"
+              ? "ics-primary bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs"
               : "text-slate-400 hover:text-slate-200 hover:bg-[#162032]"
           }`}
         >

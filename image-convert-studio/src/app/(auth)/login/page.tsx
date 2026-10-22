@@ -61,7 +61,7 @@ function LoginCard() {
             }}
             className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all ${
               mode === "login"
-                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs"
+                ? "ics-primary bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
@@ -75,7 +75,7 @@ function LoginCard() {
             }}
             className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all ${
               mode === "signup"
-                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs"
+                ? "ics-primary bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
@@ -98,7 +98,7 @@ function LoginCard() {
             </p>
             <a
               href={`${MAIN_SITE_URL}/register`}
-              className="inline-flex items-center justify-center gap-1.5 w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 py-3 text-xs font-bold text-white transition-all shadow-md shadow-violet-500/20"
+              className="inline-flex items-center justify-center gap-1.5 w-full rounded-xl ics-primary bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 py-3 text-xs font-bold text-white transition-all shadow-md shadow-violet-500/20"
             >
               <span>AIMaster 회원가입 하러가기</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -153,7 +153,7 @@ function LoginCard() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 py-3 text-xs font-bold text-white transition-all shadow-md shadow-violet-500/20 disabled:opacity-50 mt-2"
+              className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl ics-primary bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 py-3 text-xs font-bold text-white transition-all shadow-md shadow-violet-500/20 disabled:opacity-50 mt-2"
             >
               {isPending ? (
                 <>

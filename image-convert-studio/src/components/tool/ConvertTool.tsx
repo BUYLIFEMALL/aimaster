@@ -170,7 +170,7 @@ export function ConvertTool() {
   const doneCount = items.filter((item) => item.result).length;
   const showFilter = scale !== 1 || limitSize;
   const fieldClass = "rounded-xl border border-[#1e293b] bg-[#0d121f] px-3 py-2 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50";
-  const btn = "inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
+  const btn = "ics-btn inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
     <div className="space-y-6">
@@ -308,7 +308,7 @@ export function ConvertTool() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              className={`${btn} border border-[#1e293b] bg-[#162032] text-slate-300 hover:bg-[#1e293b] hover:text-white`}
+              className={`${btn} ics-ghost border border-[#1e293b] bg-[#162032] text-slate-300 hover:bg-[#1e293b] hover:text-white`}
               onClick={() => setItems((list) => list.map((item) => ({ ...item, selected: true })))}
               disabled={items.length === 0}
             >
@@ -316,7 +316,7 @@ export function ConvertTool() {
             </button>
             <button
               type="button"
-              className={`${btn} border border-[#1e293b] bg-[#162032] text-slate-300 hover:bg-[#1e293b] hover:text-white`}
+              className={`${btn} ics-ghost border border-[#1e293b] bg-[#162032] text-slate-300 hover:bg-[#1e293b] hover:text-white`}
               onClick={() => setItems((list) => list.map((item) => ({ ...item, selected: false })))}
               disabled={items.length === 0}
             >
@@ -324,7 +324,7 @@ export function ConvertTool() {
             </button>
             <button
               type="button"
-              className={`${btn} border border-rose-900/40 bg-rose-950/20 text-rose-300 hover:bg-rose-950/40`}
+              className={`${btn} ics-danger border border-rose-900/40 bg-rose-950/20 text-rose-300 hover:bg-rose-950/40`}
               onClick={clearAll}
               disabled={busy || items.length === 0}
             >
@@ -338,7 +338,7 @@ export function ConvertTool() {
         <div className="mt-4 flex flex-wrap gap-2.5">
           <button
             type="button"
-            className={`${btn} bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-md shadow-violet-500/20`}
+            className={`${btn} ics-primary bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-md shadow-violet-500/20`}
             onClick={() => void convertSelected()}
             disabled={busy || selectedCount === 0}
           >
@@ -357,7 +357,7 @@ export function ConvertTool() {
 
           <button
             type="button"
-            className={`${btn} border border-[#334155] bg-[#1e293b] text-white hover:bg-[#334155]`}
+            className={`${btn} ics-secondary border border-[#334155] bg-[#1e293b] text-white hover:bg-[#334155]`}
             onClick={() => void downloadZip()}
             disabled={zipping || doneCount === 0}
           >
@@ -452,7 +452,7 @@ export function ConvertTool() {
                   <div className="flex gap-1.5 p-2 pt-0 border-t border-[#1e293b]/50 mt-auto">
                     <button
                       type="button"
-                      className={`${btn} flex-1 bg-violet-600 hover:bg-violet-500 text-white py-1.5 text-[11px]`}
+                      className={`${btn} flex-1 ics-primary bg-violet-600 hover:bg-violet-500 text-white py-1.5 text-[11px]`}
                       onClick={() => void convertSingle(item)}
                       disabled={busy}
                     >
@@ -461,7 +461,7 @@ export function ConvertTool() {
                     {item.result && (
                       <button
                         type="button"
-                        className={`${btn} flex-1 border border-[#334155] bg-[#1e293b] hover:bg-[#334155] text-slate-200 py-1.5 text-[11px]`}
+                        className={`${btn} flex-1 ics-secondary border border-[#334155] bg-[#1e293b] hover:bg-[#334155] text-slate-200 py-1.5 text-[11px]`}
                         onClick={() => triggerDownload(item.result!.url, item.result!.name)}
                       >
                         {t.convert.save}
