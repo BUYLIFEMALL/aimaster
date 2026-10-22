@@ -2,7 +2,7 @@
 
 > **프로그램명**: Threads 포스팅 자동화 (`auto-threads-posting`)  
 > **공식 서비스 URL**: https://auto-threads-posting.buylife.xyz  
-> **현재 버전**: `v1.29`  
+> **현재 버전**: `v1.30`  
 > **적용 디자인 템플릿**: **스레드 바이럴 스튜디오 스타일 (Threads Viral Studio Style)**  
 > **관리자 계정**: `buylifemall@gmail.com`  
 > **일반 테스트 계정**: `buylifemall@naver.com`
@@ -51,6 +51,7 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 
+- **v1.30 (2026-10-23, Claude Code 윈도우) — 글 이미지 30일 정리 · 무료 사진 키 연결 확인 · 영어 안내**: 그전엔 `post-images` 정리 장치가 전혀 없어 저장 안 한 업로드·다시 만들기 전 AI 이미지가 계속 쌓였음(회원 13명, 101개·400MB, 30일 지난 49개). 주인님 결정 「어떤 글에도 쓰이지 않는 파일만」 → `src/lib/postImageCleanup.ts`(글 `posts.image_url`이 가리키는 파일은 상태와 상관없이 남김, 글 목록을 못 읽으면 아무것도 지우지 않음) + `/api/cleanup-images`(`CRON_SECRET`, `vercel.json` `30 18 * * *` = 한국 새벽 3시 30분) + 공용 `cleanup-usage-log` 사본 `src/lib/cleanupUsageLog.ts`(관리자 「30일 자동 정리」 표). 설정 「Pixabay/Pexels 연결 확인」(`src/components/settings/PhotoKeyCheckButton.tsx`, 키 등록된 제공처만), 검색 칸 「영어로 찾으면 결과가 더 많아요」. 커밋 `bd39f54fe`, 배포 `threads-oxrjiye8x` Ready, DB v1.30, `vercel crons ls`에 두 일정, 정리 주소 비밀값 없음/틀림 401. **첫 실행(`MSYS_NO_PATHCONV=1 vercel crons run /api/cleanup-images`, 2026-10-22T17:58Z): 42개 삭제 → 59개·258MB, 글이 쓰는 30일 지난 7개는 남음, `usage_logs` cleanup_expired 3줄 합계 42.** 실행 전 같은 규칙으로 읽기 전용 계산(42개)과 일치. 크롬: 연결 확인 「✅ 연결됨 — 사진 12장」, 영어 안내 표시. 비용: 빌드 1회, Pixabay 무료 1회, AI 0.
 - **v1.29 (2026-10-23, Claude Code 윈도우) — 글 첨부 이미지에 📷 무료 사진(Pixabay·Pexels)**: 공용 기준 코드 `free-photo-search` 사본 `src/lib/photoSearch.ts`(직접 고치지 말고 기준 INSTA `src/lib/cardnews/photoSearch.ts` 수정 후 `--sync`), API `POST /api/photos`(`checkProgramAccessApi` → 회원 본인 키 `getUserApiKey`, search 12장 / pick = 받아서 공개 버킷 `post-images/<회원>/`에 저장 — **Threads가 받는 JPEG·PNG만**, 그 밖은 거절, `sharp` 추가 없음), 새 글 이미지 칸 「📷 무료 사진으로 추가」(`src/components/posts/FreePhotoPicker.tsx`, 밝은 상자·출처 배지·작가, 최대 20장, **검색어 Enter `preventDefault()` — 글 작성 `<form>` 안이라 제출·AI 자동 생성 방지**), 설정 「📷 글 첨부 무료 사진 (선택)」 키 칸(공용 `user_api_keys`, 다른 프로그램 키 「등록됨」), 키 형식·`VALID_PROVIDERS`·라벨에 pixabay·pexels. 함께 나감: 좌측 메뉴 계정 위치(`22c6cda35`). 커밋 `bc329f157`, 배포 `threads-crhee97ol` Ready, DB v1.29. 크롬(관리자 본인 Pixabay 키): 새 글 → 「cafe」 Enter → 검색만(결과 12장·배지, 제출·생성 없음) → 첫 사진 추가 → `post-images/<관리자>/…jpg`(JPEG 420KB, 200), 캐러셀 1/20 → 설정 칸 「등록됨」. 글 저장·게시 안 함, 시험 사진 삭제. 비용: 빌드 1회, Pixabay 무료 2회, AI 0.
 - **v1.28 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 설정 화면 API 키 한 줄의 「수정」·「삭제」가 긴 안내 문구 옆에서 「수/정」으로 꺾이던 것 수정(`src/components/settings/ApiKeyRow.tsx` 머리줄 `gap-3`, 라벨 `min-w-0`, 버튼 묶음 `shrink-0 whitespace-nowrap`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
 

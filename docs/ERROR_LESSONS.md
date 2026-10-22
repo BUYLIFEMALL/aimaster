@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-23 — Git Bash에서 `vercel crons run /api/…`가 「Cron job with path C:/Program Files/Git/api/… not found」 (threads v1.30, Claude Code 윈도우)
+- 증상: 등록된 자동 실행을 바로 한 번 돌리려고 `vercel crons run /api/cleanup-images`를 실행하자 경로를 못 찾음(`vercel crons ls`에는 있음).
+- 원인: Git Bash(MSYS)가 `/`로 시작하는 인자를 윈도우 경로로 바꿔 Vercel에 `C:/Program Files/Git/api/…`가 전달됨.
+- 해결: `MSYS_NO_PATHCONV=1 vercel crons run /api/cleanup-images --non-interactive`. (PowerShell에서는 변환이 없음)
+- 다음부터 확인: Git Bash에서 `/`로 시작하는 주소를 인자로 넘기는 CLI(vercel·gh 등)는 `MSYS_NO_PATHCONV=1`을 붙인다. 회원 파일을 지우는 정리 작업은 첫 실행 전에 같은 규칙으로 읽기 전용 계산을 해 두고, 실행 뒤 개수가 맞는지 대조한다.
+
 ## 2026-10-23 — ffmpeg.wasm 진행 이벤트가 색상표(palettegen) 단계 동안 「값 없음」을 보내, 진행률이 시작 즉시 끝 값으로 뛰고 멈춤 (video-to-gif v1.16, Claude Code 맥미니)
 - 증상: 시도마다 0.2초 만에 그 시도의 끝 값(34%·59%)으로 뛰고 끝날 때까지 멈춤. v1.15의 「35→59→35」 되돌아감도 같은 원인.
 - 원인: 엔진 작업자(Worker) 메시지를 기록해 보니 한 번에 만들기(`split→palettegen→paletteuse`)는 색상표가 끝날 때까지 출력이 없어 `time`=9223372036854776000(INT64 최대)·`progress`≈925094169328을 보내고, 그 뒤 GIF 내보내기 동안만 `time`(마이크로초)·`progress`(0→1)가 정상. v1.16은 「이상하면 엔진 progress로 대신 → 0~1로 자름」이라 1이 됐고, 「줄지 않음」이 이후 정상 값을 버림.

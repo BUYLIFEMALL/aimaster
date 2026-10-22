@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우): 쓰레드 포스팅 v1.30 글 이미지 30일 정리(안 쓰이는 파일만) · 무료 사진 연결 확인 · 영어 안내
+- 한 일: `post-images` 정리 장치가 없던 것을 확인(101개·400MB) → 주인님 결정대로 「어떤 글에도 쓰이지 않는 30일 지난 파일만」 하루 1회 정리(`src/lib/postImageCleanup.ts`, `/api/cleanup-images`, 공용 `cleanup-usage-log` 사본). 설정 「Pixabay/Pexels 연결 확인」, 검색 칸 영어 안내.
+- 검수: tsc·빌드, 배포 `threads-oxrjiye8x` Ready, DB v1.30, 일정 등록 확인, 정리 주소 401(비밀값 없음/틀림). 첫 실행으로 42개 삭제(실행 전 읽기 전용 계산 42개와 일치) → 59개·258MB, 글이 쓰는 7개 남음, 정리 기록 3줄 합계 42. 크롬: 연결 확인 ✅·영어 안내.
+- 커밋 `bd39f54fe`. 비용: 빌드 1회(승인), Pixabay 무료 1회, AI 0회. 교훈: Git Bash `vercel crons run` 경로 변환(`docs/ERROR_LESSONS.md`).
+- 링크: https://auto-threads-posting.buylife.xyz/settings
+
 ## 2026-10-23 — Claude Code(윈도우): 쓰레드 카테고리 병합·독립 분석 (분석만, 주인님 결정 대기)
 - 결론: 5개 → 4개. **묶음 A: Threads AI 기획 → Threads 콘텐츠 운영**(기획 앱 페르소나·훅·다시 쓰기는 이미 운영 앱에 이식됨, 기획 앱은 게시 없음·브라우저 사본이 회원 구분 없음). 포스팅(FREE 입문판)·쇼핑제휴(BEST, 사용 기록 최다)·댓글자동화는 독립 유지. 쇼핑제휴↔운영 앱 상품·제휴 연동 코드는 공용 기준 코드 등록 제안.
 - 별개로 찾은 문제(미수정): ① 댓글자동화 AI 답글 지시문이 「유튜브 채널 운영자」(`threads-comment-reply/lib/ai/reply.ts:23`, 회원 영향) ② 쇼핑제휴 네이버 캐시 회원 공유(F-004 미수정) ③ 댓글자동화 자동 수집 예약이 처음부터 꺼짐 ④ 포스팅 NewsBlur 비밀번호 평문 저장(`threads/`는 다른 세션 v1.30 작업 중이라 그 뒤).
