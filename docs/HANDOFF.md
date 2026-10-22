@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 Claude Code(윈도우) — AI 썸네일·SEO v1.17~v1.18: 세로 결과에 릴스 표지 안내 링크 (빌드 2회, AI 0회)
+- 세로 9:16 결과 칸에 「릴스 표지로 쓰기 ↗」(YOUTUBE Shots 영상 포스팅) 안내, v1.18에서 링크 색 보이게 수정. 상세 `thumbnail-master/AGENTS.md` v1.17~v1.18.
+- 프로그램: https://thumbnail-master.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — YOUTUBE Shots v1.36: 장면 이미지 30일 정리 · 인스타 미연결 표지 안내 (빌드 1회, AI 0회)
 - 정리 작업이 30일 지난 장면 이미지(`shorts-images`)를 지우고 장면 기록 주소도 비움(주인님 삭제 승인). 첫 실삭제 예정 2026-10-23 03:30 KST — 대상 19개(59.7MB)·장면 18개, **다음 세션에서 Vercel 로그 확인**. 상세 `shots/AGENTS.md` v1.36.
 - 프로그램: https://shots.buylife.xyz

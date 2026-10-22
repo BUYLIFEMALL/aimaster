@@ -141,3 +141,9 @@
 - `src/lib/tmb/strategy.ts` `changedTextLine`·`lengthConfirmText`, `Studio.tsx` 결과 칸 비교 한 줄·「2종 생성」 전 확인 창.
 - 검수: tsc, `npm test` 18개, 커밋 `b9d6480de`, 배포 `thumbnail-master-217geow2b` Ready, DB v1.16. 크롬(시험 회원, AI 0회): 「프랑스 신사…」(9:16)에서 「썸네일 2종 다시 생성」 → 확인 창 문장 확인, 취소 시 `/api/generate` 0건. 결과 칸 비교 한 줄은 예전 이미지(문구 기록 없음)라 화면 미확인 — 다음 이미지 생성 때 확인.
 - 비용: 빌드 1회, AI 0회.
+
+## 2026-10-22 v1.17~v1.18 — 세로 결과에 릴스 표지 안내 링크 (Claude Code 윈도우)
+- 플랜 `docs/PLAN_20261022_REELS_COVER_LINK.md`(주인님 승인). `Studio.tsx` `SHOTS_POSTING_URL`(https://shots.buylife.xyz/videos) — 세로 9:16·이미지 있을 때만 결과 칸 안내 + 「릴스 표지로 쓰기 ↗」(새 창). YOUTUBE Shots 자동화 v1.35 릴스 표지 올리기와 연결.
+- v1.17 커밋 `aca079447` 배포 `thumbnail-master-2tlwl5gv2`. 크롬에서 링크가 설명 글과 같은 색·밑줄 없음 발견 → v1.18 `1c1d63637` 배포 `thumbnail-master-q9xblcqq0`(브랜드 보라·밑줄·굵게, 계산값 rgb(139,92,246)·underline·600 확인). DB v1.18.
+- 검수: tsc, `npm test` 18개, 크롬(시험 회원) 「프랑스 신사…」 A안(이미지 있음)에만 안내·링크, B안(없음)은 없음.
+- 비용: 빌드 2회(v1.17·v1.18 — v1.18은 주인님 추가 승인), AI 0회.
