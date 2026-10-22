@@ -1,6 +1,7 @@
-// 카드뉴스 배경 무료 사진 검색(v1.63) — 회원 본인 Pixabay·Pexels 키로 검색하고, 고른 사진만 서버가 받아 회원 폴더에 저장한다.
-// 감성 글귀 자동화(emotion-writer/src/lib/studio/services.ts searchPhotos·photoDataUrl, validation.ts allowedPhotoUrl) 방식을 옮김 — 공용화 후보(docs/IMPROVEMENTS.md).
-import type { RatioId } from "@/lib/cardnews/presets";
+// 공용 기준 코드 `free-photo-search`(2026-10-23 등록) — 회원 본인 Pixabay·Pexels 키로 무료 사진 검색 + 고른 사진 받기.
+// 기준: insta_auto_poster/src/lib/cardnews/photoSearch.ts · 사본: emotion-writer/src/lib/studio/photoSearch.ts
+// 사본은 직접 고치지 말고 기준만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 오류 형식·크기 한도·저장 방식은 부르는 쪽에서 정한다.
+// 이 파일은 프로그램 전용 모듈을 가져오지 않는다(사본이 그대로 동작해야 함).
 
 export type PhotoProvider = "pixabay" | "pexels";
 export const PHOTO_PROVIDERS: { value: PhotoProvider; label: string }[] = [
@@ -9,8 +10,8 @@ export const PHOTO_PROVIDERS: { value: PhotoProvider; label: string }[] = [
 ];
 export type Photo = { id: string; url: string; preview: string; pageUrl: string; author: string; source: PhotoProvider };
 
-type Fetcher = (input: URL, init?: RequestInit) => Promise<Response>;
-const MAX_PHOTO = 8 * 1024 * 1024;
+export type PhotoFetcher = (input: URL, init?: RequestInit) => Promise<Response>;
+export type PhotoCallOptions = { signal?: AbortSignal; call?: PhotoFetcher };
 
 export class PhotoError extends Error {
   constructor(message: string, readonly status = 400) {
@@ -20,6 +21,10 @@ export class PhotoError extends Error {
 
 export const isPhotoProvider = (v: unknown): v is PhotoProvider => v === "pixabay" || v === "pexels";
 export const providerLabel = (p: PhotoProvider) => (p === "pixabay" ? "Pixabay" : "Pexels");
+
+function withTimeout(parent: AbortSignal | undefined, ms: number) {
+  return parent ? AbortSignal.any([parent, AbortSignal.timeout(ms)]) : AbortSignal.timeout(ms);
+}
 
 /** 제공처 이미지 서버의 사진 경로만 허용한다(임의 주소 대신 받아 주기 방지). */
 export function allowedPhotoUrl(value: unknown): URL {
@@ -32,6 +37,7 @@ export function allowedPhotoUrl(value: unknown): URL {
   }
   const hostOk =
     (url.hostname === "cdn.pixabay.com" && url.pathname.startsWith("/photo/")) ||
+    // Pixabay가 큰·중간 이미지를 pixabay.com/get/<토큰>.jpg 형식으로도 줌(2026-10-22 확인)
     (url.hostname === "pixabay.com" && url.pathname.startsWith("/get/")) ||
     (url.hostname === "images.pexels.com" && url.pathname.startsWith("/photos/"));
   if (url.protocol !== "https:" || url.username || url.password || url.port || url.hash || !hostOk || !/\.(?:jpe?g|png|webp)$/i.test(url.pathname))
@@ -39,15 +45,16 @@ export function allowedPhotoUrl(value: unknown): URL {
   return url;
 }
 
-/** 검색 요청 주소·머리글. Pixabay는 주소에 key, Pexels는 Authorization 머리글. */
-export function photoSearchRequest(provider: PhotoProvider, key: string, query: string, ratio: RatioId) {
+/** 검색 요청 주소·머리글. Pixabay는 주소에 key, Pexels는 Authorization 머리글. 비율이 "1:1"이면 정사각, 그 밖은 세로. */
+export function photoSearchRequest(provider: PhotoProvider, key: string, query: string, ratio: string) {
+  const square = ratio === "1:1";
   if (provider === "pixabay") {
     const url = new URL("https://pixabay.com/api/");
-    url.search = new URLSearchParams({ key, q: query, image_type: "photo", safesearch: "true", per_page: "12", orientation: ratio === "1:1" ? "all" : "vertical" }).toString();
+    url.search = new URLSearchParams({ key, q: query, image_type: "photo", safesearch: "true", per_page: "12", orientation: square ? "all" : "vertical" }).toString();
     return { url, headers: {} as Record<string, string> };
   }
   const url = new URL("https://api.pexels.com/v1/search");
-  url.search = new URLSearchParams({ query, per_page: "12", orientation: ratio === "1:1" ? "square" : "portrait" }).toString();
+  url.search = new URLSearchParams({ query, per_page: "12", orientation: square ? "square" : "portrait" }).toString();
   return { url, headers: { Authorization: key } as Record<string, string> };
 }
 
@@ -80,38 +87,46 @@ export function parsePhotos(provider: PhotoProvider, data: unknown): Photo[] {
 
 function providerError(status: number, provider: PhotoProvider) {
   const name = providerLabel(provider);
-  if (status === 401 || status === 403) return new PhotoError(`${name} API 키가 올바르지 않습니다. [API키등록·플랫폼연동]에서 본인 키를 확인해주세요.`, 400);
-  if (status === 429) return new PhotoError(`${name} 검색 한도를 넘었습니다. 잠시 뒤 다시 시도해주세요.`, 429);
+  if (status === 401 || status === 403) return new PhotoError(`${name} 본인 API 키와 사용 권한을 확인해주세요.`, 400);
+  if (status === 429) return new PhotoError(`${name} 검색 한도에 도달했습니다. 잠시 뒤 다시 시도해주세요.`, 429);
   return new PhotoError(`${name} 사진 검색에 실패했습니다. 잠시 뒤 다시 시도해주세요.`, 502);
 }
 
-export async function searchPhotos(provider: PhotoProvider, key: string, query: string, ratio: RatioId, call: Fetcher = fetch): Promise<Photo[]> {
+export async function searchPhotos(provider: PhotoProvider, key: string, query: string, ratio: string, opts: PhotoCallOptions = {}): Promise<Photo[]> {
   const req = photoSearchRequest(provider, key, query, ratio);
-  const res = await call(req.url, { headers: req.headers, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(20_000) });
+  const call = opts.call ?? fetch;
+  const res = await call(req.url, { headers: req.headers, cache: "no-store", redirect: "error", signal: withTimeout(opts.signal, 20_000) });
   if (!res.ok) throw providerError(res.status, provider);
   return parsePhotos(provider, await res.json());
 }
 
-/** 고른 사진을 받아 온다(제공처 주소만, 8MB까지). */
-export async function downloadPhoto(url: unknown, call: Fetcher = fetch): Promise<{ bytes: Buffer; mime: string }> {
+/** 고른 사진을 받아 온다(제공처 주소만, 리디렉션 거부, 이미지 형식만, maxBytes까지 — 기본 8MB). */
+export async function downloadPhoto(url: unknown, opts: PhotoCallOptions & { maxBytes?: number } = {}): Promise<{ bytes: Buffer; mime: string }> {
+  const max = opts.maxBytes ?? 8 * 1024 * 1024;
+  const tooBig = () => new PhotoError(`사진은 ${Math.round(max / 1024 / 1024)}MB 이하만 사용할 수 있습니다.`, 413);
   const safe = allowedPhotoUrl(url);
-  const res = await call(safe, { cache: "no-store", redirect: "error", signal: AbortSignal.timeout(25_000) });
+  const call = opts.call ?? fetch;
+  const res = await call(safe, { cache: "no-store", redirect: "error", signal: withTimeout(opts.signal, 25_000) });
   if (!res.ok || !res.body) throw new PhotoError("사진을 가져오지 못했습니다. 다른 사진을 골라주세요.", 502);
   const mime = res.headers.get("content-type")?.split(";")[0] ?? "";
   if (!["image/png", "image/jpeg", "image/webp"].includes(mime)) throw new PhotoError("지원하는 이미지 형식이 아닙니다.", 502);
-  if (Number(res.headers.get("content-length")) > MAX_PHOTO) throw new PhotoError("사진이 너무 큽니다. 다른 사진을 골라주세요.", 413);
+  if (Number(res.headers.get("content-length")) > max) throw tooBig();
   const reader = res.body.getReader();
   const parts: Uint8Array[] = [];
   let size = 0;
-  for (;;) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    size += value.length;
-    if (size > MAX_PHOTO) {
-      await reader.cancel();
-      throw new PhotoError("사진이 너무 큽니다. 다른 사진을 골라주세요.", 413);
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      size += value.length;
+      if (size > max) {
+        await reader.cancel();
+        throw tooBig();
+      }
+      parts.push(value);
     }
-    parts.push(value);
+  } finally {
+    reader.releaseLock();
   }
   if (!size) throw new PhotoError("사진 파일이 비어 있습니다.", 502);
   return { bytes: Buffer.concat(parts), mime };

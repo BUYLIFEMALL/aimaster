@@ -1,3 +1,4 @@
+import { allowedPhotoUrl as sharedAllowedPhotoUrl, PhotoError } from "./photoSearch";
 import {
   IMAGE_MODELS,
   RATIOS,
@@ -80,33 +81,12 @@ export function parseQuotes(raw: string): string[] {
   return normalized;
 }
 // Only provider CDNs and photo paths are accepted. No arbitrary URL proxy or redirects.
+// 규칙은 공용 기준 코드 `free-photo-search` 사본(./photoSearch)에 있고, 여기서는 오류만 AppError로 바꾼다.
 export function allowedPhotoUrl(value: unknown): URL {
-  if (typeof value !== "string" || value.length > 2000)
-    throw new AppError("이미지 주소가 올바르지 않습니다.");
-  let url: URL;
   try {
-    url = new URL(value);
-  } catch {
-    throw new AppError("이미지 주소가 올바르지 않습니다.");
+    return sharedAllowedPhotoUrl(value);
+  } catch (err) {
+    if (err instanceof PhotoError) throw new AppError(err.message, err.status);
+    throw err;
   }
-  if (
-    url.protocol !== "https:" ||
-    url.username ||
-    url.password ||
-    url.port ||
-    url.hash ||
-    !(
-      (url.hostname === "cdn.pixabay.com" &&
-        url.pathname.startsWith("/photo/")) ||
-      // v1.18: Pixabay가 큰·중간 이미지를 pixabay.com/get/<토큰>.jpg 형식으로 주도록 바뀜(2026-10-22 확인) — 예전 형식만 허용해 검색 결과가 모두 걸러지던 문제 수정
-      (url.hostname === "pixabay.com" && url.pathname.startsWith("/get/")) ||
-      (url.hostname === "images.pexels.com" &&
-        url.pathname.startsWith("/photos/"))
-    ) ||
-    !/\.(?:jpe?g|png|webp)$/i.test(url.pathname)
-  )
-    throw new AppError(
-      "지원하는 사진 제공처의 이미지 주소만 사용할 수 있습니다.",
-    );
-  return url;
 }

@@ -86,6 +86,7 @@ export function PhotoSearchPanel({ defaultQuery, ratio, disabled, onPicked }: { 
             <button key={p.id} type="button" disabled={!!busy} onClick={() => void pick(p)} title={`${p.author} · ${p.source === "pixabay" ? "Pixabay" : "Pexels"}`} className="group relative aspect-[4/5] overflow-hidden rounded-lg border border-[#262c3d] hover:border-pink-500 disabled:opacity-60">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.preview} alt="" className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+              <span data-photo-source className="absolute left-1 top-1 rounded bg-black/70 px-1 py-px text-[8px] font-bold text-white">{p.source === "pixabay" ? "Pixabay" : "Pexels"}</span>
               <span className="absolute inset-x-0 bottom-0 truncate bg-black/60 px-1 py-0.5 text-[9px] text-slate-200">{p.author}</span>
               {busy === p.id && (
                 <span className="absolute inset-0 flex items-center justify-center bg-black/50">

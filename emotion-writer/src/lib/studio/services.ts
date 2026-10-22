@@ -1,12 +1,12 @@
 import {
   AppError,
-  allowedPhotoUrl,
   parseQuotes,
   type validateCopy,
   type validateImage,
 } from "./validation";
 import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import type { Photo, Ratio } from "./config";
+import { downloadPhoto, PhotoError, searchPhotos as sharedSearchPhotos, type PhotoFetcher } from "./photoSearch";
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -130,6 +130,11 @@ export async function generateImage(
   }
   return `data:${image.mimeType};base64,${image.data.replace(/\s+/g, "")}`;
 }
+// 사진 검색·받기는 공용 기준 코드 `free-photo-search` 사본(./photoSearch, 직접 고치지 않음)을 쓰고, 오류만 이 프로그램 형식(AppError)으로 바꾼다.
+function asAppError(err: unknown): never {
+  if (err instanceof PhotoError) throw new AppError(err.message, err.status);
+  throw err;
+}
 export async function searchPhotos(
   provider: "pixabay" | "pexels",
   key: string,
@@ -138,110 +143,22 @@ export async function searchPhotos(
   parent?: AbortSignal,
   call: Fetcher = fetch,
 ): Promise<Photo[]> {
-  const url = new URL(
-    provider === "pixabay"
-      ? "https://pixabay.com/api/"
-      : "https://api.pexels.com/v1/search",
-  );
-  if (provider === "pixabay") {
-    url.search = new URLSearchParams({
-      key,
-      q: query,
-      image_type: "photo",
-      safesearch: "true",
-      per_page: "12",
-      orientation: ratio === "1:1" ? "all" : "vertical",
-    }).toString();
-  } else
-    url.search = new URLSearchParams({
-      query,
-      per_page: "12",
-      orientation: ratio === "1:1" ? "square" : "portrait",
-    }).toString();
-  const res = await call(url, {
-    headers: provider === "pexels" ? { Authorization: key } : {},
-    cache: "no-store",
-    redirect: "error",
-    signal: signal(parent, 20_000),
-  });
-  if (!res.ok)
-    throw providerError(
-      res.status,
-      provider === "pixabay" ? "Pixabay" : "Pexels",
-    );
-  const data = await res.json();
-  const rows = provider === "pixabay" ? data.hits : data.photos;
-  if (!Array.isArray(rows))
-    throw new AppError("사진 검색 응답을 읽지 못했습니다.", 502);
-  const photos: Photo[] = [];
-  for (const r of rows.slice(0, 12)) {
-    const original = provider === "pixabay" ? r.largeImageURL : r.src?.large2x;
-    const preview = provider === "pixabay" ? r.webformatURL : r.src?.medium;
-    const pageUrl = provider === "pixabay" ? r.pageURL : r.url;
-    try {
-      allowedPhotoUrl(original);
-      allowedPhotoUrl(preview);
-      const page = new URL(pageUrl);
-      if (
-        page.protocol !== "https:" ||
-        !["pixabay.com", "www.pexels.com"].includes(page.hostname)
-      )
-        continue;
-      photos.push({
-        id: String(r.id),
-        url: original,
-        preview,
-        pageUrl,
-        author: String(provider === "pixabay" ? r.user : r.photographer).slice(
-          0,
-          100,
-        ),
-        source: provider,
-      });
-    } catch {
-      /* Ignore malformed provider rows; never expose untrusted image hosts. */
-    }
+  try {
+    return await sharedSearchPhotos(provider, key, query, ratio, { signal: parent, call: call as PhotoFetcher });
+  } catch (err) {
+    return asAppError(err);
   }
-  return photos;
 }
 export async function photoDataUrl(
   url: string,
   parent?: AbortSignal,
   call: Fetcher = fetch,
 ) {
-  const safeUrl = allowedPhotoUrl(url);
-  const res = await call(safeUrl, {
-    cache: "no-store",
-    redirect: "error",
-    signal: signal(parent, 25_000),
-  });
-  if (!res.ok)
-    throw new AppError(
-      "사진을 가져오지 못했습니다. 다른 사진을 선택하거나 다시 시도해 주세요.",
-      502,
-    );
-  const mime = res.headers.get("content-type")?.split(";")[0];
-  if (!mime || !["image/png", "image/jpeg", "image/webp"].includes(mime))
-    throw new AppError("지원하는 이미지 형식이 아닙니다.", 502);
-  if (Number(res.headers.get("content-length")) > MAX_IMAGE || !res.body)
-    throw new AppError("사진은 3MB 이하만 사용할 수 있습니다.", 413);
-  const reader = res.body.getReader();
-  const parts: Uint8Array[] = [];
-  let size = 0;
   try {
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      size += value.length;
-      if (size > MAX_IMAGE) {
-        await reader.cancel();
-        throw new AppError("사진은 3MB 이하만 사용할 수 있습니다.", 413);
-      }
-      parts.push(value);
-    }
-  } finally {
-    reader.releaseLock();
+    // data URL로 돌려주므로 3MB로 제한(Vercel 응답 4.5MB 안)
+    const { bytes, mime } = await downloadPhoto(url, { signal: parent, call: call as PhotoFetcher, maxBytes: MAX_IMAGE });
+    return `data:${mime};base64,${bytes.toString("base64")}`;
+  } catch (err) {
+    return asAppError(err);
   }
-  if (!size) throw new AppError("사진 파일이 비어 있습니다.", 502);
-  return `data:${mime};base64,${Buffer.concat(parts).toString("base64")}`;
 }

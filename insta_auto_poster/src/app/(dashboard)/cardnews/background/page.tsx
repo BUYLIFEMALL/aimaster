@@ -2,11 +2,12 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { ImagePlus, Loader2, RefreshCw } from "lucide-react";
+import { Camera, ImagePlus, Loader2, RefreshCw } from "lucide-react";
 import { IMAGE_MODELS } from "@/lib/cardnews/ai/imageModels";
 import { CardCanvas } from "@/components/cardnews/studio/CardCanvas";
 import { useStudio } from "@/components/cardnews/studio/ProjectProvider";
 import { PhotoSearchPanel } from "@/components/cardnews/studio/PhotoSearchPanel";
+import { PHOTO_PROVIDERS, type PhotoProvider } from "@/lib/cardnews/photoSearch";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT, NeedPlan, SELECT, StepHeader } from "@/components/cardnews/studio/ui";
 
 type PageState = { loading: boolean; error?: string };
@@ -19,6 +20,9 @@ export default function BackgroundPage() {
   const [confirmAll, setConfirmAll] = useState(false);
   const [needKey, setNeedKey] = useState(false);
   const runningAll = useRef(false);
+  // 전체 무료 사진 자동 채우기(무료, AI 없음): 배경이 없는 장마다 제목으로 검색해 첫 사진을 넣는다.
+  const [fillProvider, setFillProvider] = useState<PhotoProvider>("pixabay");
+  const [photoKeyNote, setPhotoKeyNote] = useState("");
 
   if (!plan.topic.trim() || pages.length === 0) return <NeedPlan>먼저 1단계 기획과 2단계 문구를 마쳐주세요.</NeedPlan>;
 
@@ -88,6 +92,54 @@ export default function BackgroundPage() {
       pages: d.pages.map((p) => (p.id === pageId ? { ...p, imageUrl: url, imageUrls: [...(p.imageUrls ?? []), url].slice(-6) } : p)),
     }));
 
+  const photoCall = async (body: Record<string, unknown>) => {
+    const res = await fetch("/api/cardnews/photos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw Object.assign(new Error(data.error || "사진을 처리하지 못했습니다."), { needKey: !!data.needApiKey });
+    return data;
+  };
+
+  const fillOneWithPhoto = async (pageId: string): Promise<"ok" | "fail" | "nokey"> => {
+    const page = pages.find((p) => p.id === pageId);
+    if (!page) return "fail";
+    setState((s) => ({ ...s, [pageId]: { loading: true } }));
+    try {
+      const found = await photoCall({ action: "search", provider: fillProvider, query: (page.headline || plan.topic).slice(0, 100), ratio: plan.ratio });
+      const first = (found.photos as { url: string }[] | undefined)?.[0];
+      if (!first) throw new Error("이 장 제목으로 찾은 사진이 없습니다. 「무료 사진 검색」에서 다른 검색어로 골라주세요.");
+      const picked = await photoCall({ action: "pick", url: first.url });
+      addPhoto(pageId, picked.url as string);
+      setState((s) => ({ ...s, [pageId]: { loading: false } }));
+      return "ok";
+    } catch (e) {
+      if ((e as { needKey?: boolean }).needKey) {
+        setPhotoKeyNote((e as Error).message);
+        setState((s) => ({ ...s, [pageId]: { loading: false } }));
+        return "nokey";
+      }
+      setState((s) => ({ ...s, [pageId]: { loading: false, error: (e as Error).message } }));
+      return "fail";
+    }
+  };
+
+  const fillAllWithPhotos = async () => {
+    if (runningAll.current) return;
+    runningAll.current = true;
+    setPhotoKeyNote("");
+    const queue = pages.filter((p) => !p.imageUrl).map((p) => p.id);
+    // 본인 키가 없으면 장마다 같은 안내가 반복되지 않게 바로 멈춘다.
+    let stop = false;
+    const worker = async () => {
+      for (;;) {
+        const id = stop ? undefined : queue.shift();
+        if (!id) return;
+        if ((await fillOneWithPhoto(id)) === "nokey") stop = true;
+      }
+    };
+    await Promise.all([worker(), worker()]);
+    runningAll.current = false;
+  };
+
   const selectImage = (pageId: string, url: string) =>
     update((d) => ({ ...d, pages: d.pages.map((p) => (p.id === pageId ? { ...p, imageUrl: url } : p)) }));
 
@@ -124,6 +176,21 @@ export default function BackgroundPage() {
           </button>
           <span className="text-xs text-gray-500">{missing === 0 ? "모든 페이지에 배경이 있습니다. 마음에 안 드는 장만 다시 만들 수 있습니다." : `배경이 없는 ${missing}장을 만듭니다.`}</span>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2 border-t border-[#262c3d] pt-3">
+          <select aria-label="자동 채우기 사진 제공처" className={`${SELECT.replace("w-full ", "")} w-28 px-2 py-2 text-xs`} value={fillProvider} onChange={(e) => setFillProvider(e.target.value as PhotoProvider)}>
+            {PHOTO_PROVIDERS.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" data-photo-fill disabled={anyLoading || missing === 0} onClick={() => void fillAllWithPhotos()} className={BTN_GHOST}>
+            <Camera className="h-4 w-4" /> 전체 무료 사진 자동 채우기
+          </button>
+          <span className="text-xs text-gray-500">AI 비용 없이, 배경이 없는 장마다 제목으로 찾은 첫 사진을 넣습니다(본인 무료 키).</span>
+        </div>
+        {photoKeyNote && <ErrorNote message={photoKeyNote} needKey />}
 
         {confirmAll && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">

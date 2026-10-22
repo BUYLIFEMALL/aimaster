@@ -38,6 +38,18 @@ test("응답 해석: 허용 주소 행만, 작가·출처 포함", () => {
 
 test("검색 실패 안내: 키 오류·한도", async () => {
   const fake = (status) => async () => new Response("{}", { status });
-  await assert.rejects(searchPhotos("pixabay", "k", "q", "4:5", fake(401)), /API 키가 올바르지 않습니다/);
-  await assert.rejects(searchPhotos("pexels", "k", "q", "4:5", fake(429)), /한도/);
+  await assert.rejects(searchPhotos("pixabay", "k", "q", "4:5", { call: fake(401) }), /API 키와 사용 권한/);
+  await assert.rejects(searchPhotos("pexels", "k", "q", "4:5", { call: fake(429) }), /한도/);
+});
+
+test("미배포 대기(2026-10-23): 전체 무료 사진 자동 채우기·출처 배지·공용 기준 코드 독립성", async () => {
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("../../src/app/(dashboard)/cardnews/background/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /data-photo-fill/);
+  assert.match(page, /=== "nokey"\) stop = true/);
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /data-photo-source/);
+  // 공용 기준 코드는 프로그램 전용 모듈을 가져오지 않는다(사본이 그대로 동작해야 함)
+  const base = readFileSync(new URL("../../src/lib/cardnews/photoSearch.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(base, /^import /m);
 });
