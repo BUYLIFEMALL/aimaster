@@ -1,6 +1,7 @@
 "use client";
 
 import { notify, askConfirm } from "@/lib/uiDialog";
+import { ExtensionConnectButton, ExtensionInstallStatus } from "@/components/extension/ExtensionConnectButton";
 import { useState } from "react";
 import Link from "next/link";
 import { APP_VERSION } from "@/lib/version";
@@ -353,8 +354,8 @@ export function SettingsClient({
               <div className="text-xs font-semibold text-neutral-700 mb-1.5">연결 단계:</div>
               <ol className="text-xs text-neutral-600 space-y-1 list-decimal list-inside">
                 <li>아래 버튼으로 확장 ZIP을 다운받아 압축을 푼 뒤 크롬에 등록합니다.</li>
-                <li>코드 발급 버튼을 눌러 생성된 8자리 페어링 코드를 복사합니다.</li>
-                <li>크롬 브라우저 우측 상단 확장 아이콘을 누르고 네이버 블로그 ID와 코드를 입력해 연결합니다. (등록한 블로그 ID와 같아야 합니다.)</li>
+                <li>「확장 프로그램 바로 연결」을 누르면 연결 번호가 자동으로 만들어져 등록한 블로그로 바로 연결됩니다(확장 팝업의 「자동 연결」도 같습니다).</li>
+                <li>직접 입력하려면 맨 아래에서 연결 번호를 발급받아 확장 팝업에 네이버 블로그 ID와 함께 입력합니다. (등록한 블로그 ID와 같아야 합니다.)</li>
               </ol>
             </div>
 
@@ -370,7 +371,10 @@ export function SettingsClient({
               <p className="mt-2 text-[11px] text-neutral-500">
                 현재 배포된 확장 버전은 <b>{APP_VERSION}</b>입니다. 설치된 확장 아이콘에 붉은 <b>NEW</b> 표시가 뜨면 이 ZIP을 다시 받아 기존 폴더에 덮어쓰고 chrome://extensions에서 새로고침하세요.
               </p>
+              <ExtensionInstallStatus latest={APP_VERSION} />
             </div>
+
+            <ExtensionConnectButton />
 
             {pairCode ? (
               <div className="p-4 rounded-xl border-2 border-emerald-300 bg-emerald-50/50 space-y-3">
@@ -402,7 +406,7 @@ export function SettingsClient({
                 className="w-full py-2.5 px-4 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-900 text-xs font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${pairLoading ? "animate-spin" : ""}`} />
-                <span>{pairLoading ? "코드 발급 중..." : "크롬 확장 페어링 코드 발급하기"}</span>
+                <span>{pairLoading ? "코드 발급 중..." : "직접 입력용 연결 번호 발급하기"}</span>
               </button>
             )}
           </div>

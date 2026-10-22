@@ -505,6 +505,14 @@ chrome.runtime.onInstalled.addListener(()=>{runBackground(pump);runBackground(ch
 setInterval(()=>runBackground(pump),10000);
 runBackground(pump);
 runBackground(checkUpdate);
+// 연결 번호로 이 Chrome을 연결한다(팝업 직접 입력·웹 「바로 연결」 공통).
+async function pairWithCode(code,blogIdValue){
+  const state=await stored();if(state.activeTask)throw new Error('진행 중인 작업을 먼저 취소하세요.');
+  const blogId=String(blogIdValue||'').trim();if(!/^[A-Za-z0-9_-]{2,40}$/.test(blogId))throw new Error('네이버 블로그 ID를 영문·숫자 2~40자로 입력하세요.');
+  const deviceId=state.deviceId || crypto.randomUUID();const connection=await api('/pair',{code,deviceId,blogId});
+  await chrome.storage.local.set({deviceId,connection});await chrome.storage.local.remove(['session','editorTab','lastPrepared']);
+}
+
 chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
   (async()=>{
     if(message.type==='editorWait'){
@@ -556,11 +564,14 @@ chrome.runtime.onMessage.addListener((message,_sender,reply)=>{
     }
     if(message.type==='status'){runBackground(pump);return stored();}
     if(message.type==='checkUpdate'){await checkUpdate();return {update:(await stored()).update || null};}
-    if(message.type==='pair'){
-      const state=await stored();if(state.activeTask)throw new Error('진행 중인 작업을 먼저 취소하세요.');
-      const blogId=String(message.blogId||'').trim();if(!/^[A-Za-z0-9_-]{2,40}$/.test(blogId))throw new Error('네이버 블로그 ID를 영문·숫자 2~40자로 입력하세요.');
-      const deviceId=state.deviceId || crypto.randomUUID();const connection=await api('/pair',{code:message.code,deviceId,blogId});
-      await chrome.storage.local.set({deviceId,connection});await chrome.storage.local.remove(['session','editorTab','lastPrepared']);return {ok:true};
+    if(message.type==='pair'){await pairWithCode(message.code,message.blogId);return {ok:true};}
+    // 2026-10-23: 웹 「바로 연결」 — 우리 사이트 화면(web-bridge)에서 온, 웹이 방금 발급한 8자리 번호만 받는다(기준 구현: naver-blog-seo-studio).
+    if(message.type==='pairFromWeb'){
+      if(!['https://naver-blog-agent.vercel.app/','https://naver-blog-agent.buylife.xyz/'].some(o=>String(_sender?.url||'').startsWith(o)))throw new Error('허용되지 않은 요청입니다.');
+      const code=String(message.code||'').trim().toUpperCase();if(!/^[0-9A-F]{8}$/.test(code))throw new Error('연결 번호 형식이 올바르지 않습니다.');
+      await pairWithCode(code,message.blogId);
+      if(message.closeTab && Number.isInteger(_sender?.tab?.id))setTimeout(()=>{chrome.tabs.remove(_sender.tab.id).catch(()=>{});},1500);
+      return {ok:true,blogId:String(message.blogId||'').trim()};
     }
     if(message.type==='session'){if(!(await stored()).connection)throw new Error('먼저 연결 코드를 입력하세요.');const tabId=await editorTab(true);await inspectSession(tabId);runBackground(pump);return {ok:true};}
     if(message.type==='disconnect'){if((await stored()).activeTask)throw new Error('앱에서 대기를 먼저 취소하세요.');await api('/disconnect');await chrome.storage.local.remove(['connection','session','editorTab','lastPrepared']);return {ok:true};}

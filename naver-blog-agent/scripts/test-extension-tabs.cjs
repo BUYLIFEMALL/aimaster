@@ -360,5 +360,28 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
       assert.deepEqual(b.tabs.get(2),protectedTab);assert.equal(b.calls.some(c=>c[0]==='create'||(c[0]==='script'&&c[1]==='click')),false);
     }
   });
+  // 2026-10-23 웹 「바로 연결」: 프로그램 사이트에서 온 8자리 번호만 받아 기존 연결 처리로 저장하고, 확장이 연 탭은 닫는다.
+  await scenario('pairFromWeb: only the program site and 8-hex codes, then the existing pairing stores the connection and closes the tab',async()=>{
+    const b=await browser({});
+    const seen=[];b.network(async url=>{seen.push(url);return {ok:true,json:async()=>({success:true,token:'tok-web',userId:'owner'})};});
+    const evil=await b.send({type:'pairFromWeb',code:'ABCD1234',blogId:'myblog'},{url:'https://evil.example/',tab:{id:5}});
+    assert.match(evil.error,/허용되지 않은/);assert.equal(seen.length,0);assert.equal(b.data.connection,undefined);
+    const bad=await b.send({type:'pairFromWeb',code:'12',blogId:'myblog'},{url:'https://naver-blog-agent.buylife.xyz/extension-connect',tab:{id:5}});
+    assert.match(bad.error,/형식/);assert.equal(seen.length,0);
+    const noBlog=await b.send({type:'pairFromWeb',code:'ABCD1234',blogId:''},{url:'https://naver-blog-agent.buylife.xyz/settings',tab:{id:5}});
+    assert.match(noBlog.error,/블로그 ID/);assert.equal(seen.length,0);
+    b.tabs.set(5,{id:5,windowId:1,status:'complete',url:'https://naver-blog-agent.buylife.xyz/extension-connect?from=extension'});
+    const ok=await b.send({type:'pairFromWeb',code:'abcd1234',blogId:'myblog',closeTab:true},{url:'https://naver-blog-agent.buylife.xyz/extension-connect?from=extension',tab:{id:5}});
+    assert.equal(ok.ok,true);assert.equal(b.data.connection.token,'tok-web');assert.equal(b.data.connection.blogId,'myblog');
+    assert.ok(seen.some(u=>String(u).endsWith('/api/extension/auth')));
+    await flush();assert.equal(b.tabs.has(5),false);
+  });
+  await scenario('pairFromWeb: keeps the settings tab open when closeTab is not requested',async()=>{
+    const b=await browser({});
+    b.network(async()=>({ok:true,json:async()=>({success:true,token:'tok-web',userId:'owner'})}));
+    b.tabs.set(6,{id:6,windowId:1,status:'complete',url:'https://naver-blog-agent.buylife.xyz/settings'});
+    const ok=await b.send({type:'pairFromWeb',code:'ABCD1234',blogId:'myblog'},{url:'https://naver-blog-agent.buylife.xyz/settings',tab:{id:6}});
+    assert.equal(ok.ok,true);await flush();assert.equal(b.tabs.has(6),true);
+  });
   console.log(`${passed} browser lifecycle regression scenarios passed`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

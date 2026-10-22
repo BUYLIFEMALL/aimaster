@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ 블로그 에이전트 v2.10 확장 자동 연결·실제 설치 상태 표시 (빌드 1회 · AI 0회)
+- 8자리 연결 번호 방식은 서버 그대로, 웹이 등록 블로그를 골라 번호를 만들어 확장에 넘김(블로그 프로그램 일괄 적용 4/5). 배포 Ready·DB/확장/ZIP v2.10. 설치 상태 문구 1건은 미배포 대기. 다음: blog-content-maker.
+- 프로그램: https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, 웨일) — ✅ ai-auto-blog v1.78 확장 자동 연결·실제 설치 상태 표시 (빌드 1회 · AI 0회)
 - SEO 스튜디오 방식 적용(블로그 프로그램 일괄 적용 3/5). 모아 둔 openai-request-params 사본도 함께 배포. 배포 Ready·DB/확장/ZIP v1.78. 다음: naver-blog-agent(8자리 연결 번호 방식).
 - 프로그램: https://ai-auto-blog.buylife.xyz
