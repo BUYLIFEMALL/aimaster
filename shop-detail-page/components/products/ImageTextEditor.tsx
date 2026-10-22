@@ -3,8 +3,10 @@
 // v1.25: 생성된 섹션 이미지 위 문구(가격·행사 날짜 등)를 브라우저 안에서 고친다. AI 호출 없음.
 // 고칠 부분을 사각형으로 지정 → 주변 색으로 덮기 → 새 문구 쓰기. 여러 곳을 차례로 고칠 수 있고,
 // 결과는 기존 「직접 등록」과 같은 길로 새 버전으로 저장된다(원본은 버전 목록에 남음).
+// v1.26: 덮는 색 선택지 — 바깥 색(기본)·안쪽 색·💧 이미지에서 찍기, 자동 색은 가장 많은 색.
 import { useEffect, useRef, useState } from "react";
 import { imageSrc } from "@/lib/imageSrc";
+import { dominantColor } from "@/lib/dominantColor";
 
 type Rect = { x: number; y: number; w: number; h: number };
 type TextEdit = Rect & {
@@ -18,22 +20,35 @@ type TextEdit = Rect & {
 
 const FONT_FAMILY = '"Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif';
 
-/** 사각형 테두리 바로 바깥 픽셀의 평균색 — 덮기 색 기본값 */
-function sampleBorderColor(ctx: CanvasRenderingContext2D, r: Rect): string {
+function readPixels(ctx: CanvasRenderingContext2D, pts: [number, number][]) {
   const { width, height } = ctx.canvas;
-  const pts: [number, number][] = [];
-  const step = Math.max(1, Math.floor(Math.max(r.w, r.h) / 40));
-  for (let x = r.x; x <= r.x + r.w; x += step) pts.push([x, r.y - 2], [x, r.y + r.h + 2]);
-  for (let y = r.y; y <= r.y + r.h; y += step) pts.push([r.x - 2, y], [r.x + r.w + 2, y]);
-  let rs = 0, gs = 0, bs = 0, n = 0;
+  const out: [number, number, number][] = [];
   for (const [x, y] of pts) {
     if (x < 0 || y < 0 || x >= width || y >= height) continue;
     const d = ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
-    rs += d[0]; gs += d[1]; bs += d[2]; n++;
+    out.push([d[0], d[1], d[2]]);
   }
-  if (!n) return "#ffffff";
-  const hex = (v: number) => Math.round(v / n).toString(16).padStart(2, "0");
-  return `#${hex(rs)}${hex(gs)}${hex(bs)}`;
+  return out;
+}
+
+/**
+ * 사각형 테두리 바로 바깥(outside, 기본값) 또는 바로 안쪽(inside) 점들에서 가장 많은 색 — 덮기 색.
+ * v1.26: 평균 대신 가장 많은 색(배지와 배경이 섞여도 탁한 색이 나오지 않게), 안쪽 선택지 추가.
+ */
+function sampleEdgeColor(ctx: CanvasRenderingContext2D, r: Rect, side: "outside" | "inside"): string {
+  const o = side === "outside" ? -2 : 2;
+  const pts: [number, number][] = [];
+  const step = Math.max(1, Math.floor(Math.max(r.w, r.h) / 40));
+  for (let x = r.x; x <= r.x + r.w; x += step) pts.push([x, r.y + o], [x, r.y + r.h - o]);
+  for (let y = r.y; y <= r.y + r.h; y += step) pts.push([r.x + o, y], [r.x + r.w - o, y]);
+  return dominantColor(readPixels(ctx, pts));
+}
+
+/** 💧 찍은 자리의 색(3×3 점) */
+function pickColorAt(ctx: CanvasRenderingContext2D, x: number, y: number): string {
+  const pts: [number, number][] = [];
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) pts.push([x + dx, y + dy]);
+  return dominantColor(readPixels(ctx, pts));
 }
 
 function drawEdit(ctx: CanvasRenderingContext2D, e: TextEdit) {
@@ -70,6 +85,22 @@ export function ImageTextEditor({
   const [draft, setDraft] = useState<TextEdit | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [picking, setPicking] = useState(false);
+  const baseCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+
+  // 덮기 색은 원본 이미지에서 고른다(이미 적용한 수정과 섞이지 않게 원본만 그린 임시 캔버스, 한 번 만들어 재사용)
+  function baseContext() {
+    if (!baseCtxRef.current) {
+      const base = baseRef.current!;
+      const tmp = document.createElement("canvas");
+      tmp.width = base.width;
+      tmp.height = base.height;
+      const tctx = tmp.getContext("2d", { willReadFrequently: true })!;
+      tctx.drawImage(base, 0, 0);
+      baseCtxRef.current = tctx;
+    }
+    return baseCtxRef.current;
+  }
 
   // 원본 이미지 불러오기(우리 저장소 주소 → 서명 주소로 받아 캔버스에 그림)
   useEffect(() => {
@@ -124,6 +155,13 @@ export function ImageTextEditor({
 
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!baseRef.current || isSaving) return;
+    if (picking && draft) {
+      // 💧 찍기 중에는 영역을 새로 잡지 않고 그 자리 색만 덮는 색으로
+      const p = toImagePoint(e);
+      set("fill", pickColorAt(baseContext(), p.x, p.y));
+      setPicking(false);
+      return;
+    }
     e.currentTarget.setPointerCapture(e.pointerId);
     dragStart.current = toImagePoint(e);
   }
@@ -153,14 +191,7 @@ export function ImageTextEditor({
     dragStart.current = null;
     setDraft((prev) => {
       if (!prev || prev.w < 8 || prev.h < 8) return null;
-      // 덮기 색은 원본 이미지에서 고른다(이미 적용한 수정과 섞이지 않게 원본만 그린 임시 캔버스 사용)
-      const base = baseRef.current!;
-      const tmp = document.createElement("canvas");
-      tmp.width = base.width;
-      tmp.height = base.height;
-      const tctx = tmp.getContext("2d", { willReadFrequently: true })!;
-      tctx.drawImage(base, 0, 0);
-      return { ...prev, fill: sampleBorderColor(tctx, prev) };
+      return { ...prev, fill: sampleEdgeColor(baseContext(), prev, "outside") };
     });
   }
 
@@ -168,6 +199,7 @@ export function ImageTextEditor({
     if (!draft) return;
     setEdits((prev) => [...prev, draft]);
     setDraft(null);
+    setPicking(false);
   }
 
   async function save() {
@@ -208,7 +240,7 @@ export function ImageTextEditor({
         </div>
         <p className="text-xs text-slate-500 leading-relaxed">
           ① 이미지에서 고칠 글자 위를 끌어 사각형으로 지정 → ② 새 문구·크기·색을 정하고 「이 부분 적용」 → 여러 곳을 반복한 뒤 「새 버전으로 저장」.
-          덮는 색은 사각형 주변 색으로 자동으로 고르며 바꿀 수 있습니다. 원래 이미지는 버전 목록에 그대로 남습니다.
+          덮는 색은 사각형 바깥에서 가장 많은 색으로 자동으로 고르며, 「안쪽 색」이나 「💧 찍기」(이미지에서 색을 직접 찍기)로 바꿀 수 있습니다. 원래 이미지는 버전 목록에 그대로 남습니다.
         </p>
 
         {loadError ? (
@@ -220,7 +252,7 @@ export function ImageTextEditor({
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
-              className="w-full h-auto rounded-lg border border-slate-200 bg-slate-50 cursor-crosshair touch-none"
+              className={`w-full h-auto rounded-lg border bg-slate-50 touch-none ${picking ? "border-amber-400 ring-2 ring-amber-300 cursor-cell" : "border-slate-200 cursor-crosshair"}`}
             />
             <div className="space-y-2 text-xs">
               {draft ? (
@@ -257,6 +289,20 @@ export function ImageTextEditor({
                       <input type="color" value={draft.fill} onChange={(e) => set("fill", e.target.value)} className="mt-1 block w-full h-8 rounded border border-slate-200" />
                     </label>
                   </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    <button type="button" onClick={() => set("fill", sampleEdgeColor(baseContext(), draft, "outside"))} className="rounded-lg border border-slate-200 py-1.5 font-bold text-slate-600 hover:bg-slate-50" title="사각형 바로 바깥에서 가장 많은 색">
+                      바깥 색
+                    </button>
+                    <button type="button" onClick={() => set("fill", sampleEdgeColor(baseContext(), draft, "inside"))} className="rounded-lg border border-slate-200 py-1.5 font-bold text-slate-600 hover:bg-slate-50" title="사각형 바로 안쪽에서 가장 많은 색(배지 안쪽만 지정했을 때)">
+                      안쪽 색
+                    </button>
+                    <button type="button" onClick={() => setPicking((v) => !v)} className={`rounded-lg border py-1.5 font-bold ${picking ? "border-amber-400 bg-amber-50 text-amber-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`} title="이미지에서 덮을 색을 직접 찍기">
+                      💧 찍기
+                    </button>
+                  </div>
+                  {picking && (
+                    <p className="rounded-lg bg-amber-50 border border-amber-200 p-2 font-semibold text-amber-800">이미지에서 덮을 색이 있는 곳을 한 번 눌러 주세요(예: 배지 안쪽).</p>
+                  )}
                   <label className="flex items-center gap-2 font-bold text-slate-700">
                     <input type="checkbox" checked={draft.bold} onChange={(e) => set("bold", e.target.checked)} />
                     굵게
@@ -265,7 +311,7 @@ export function ImageTextEditor({
                     <button type="button" onClick={applyDraft} className="flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold py-2">
                       이 부분 적용
                     </button>
-                    <button type="button" onClick={() => setDraft(null)} className="rounded-lg border border-slate-200 px-3 font-bold text-slate-600">
+                    <button type="button" onClick={() => { setDraft(null); setPicking(false); }} className="rounded-lg border border-slate-200 px-3 font-bold text-slate-600">
                       취소
                     </button>
                   </div>

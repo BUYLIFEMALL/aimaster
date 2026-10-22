@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-22 — Claude Code(맥미니): 상세페이지 v1.26 문구 고치기 덮는 색 선택지 + 사용 안내 FAQ (배포 대기)
+- 한 일: 편집 창에 「바깥 색」「안쪽 색」「💧 찍기」(이미지에서 색 직접 찍기), 자동 덮는 색을 평균 → 가장 많은 색(`lib/dominantColor.ts`), `/guide` FAQ 1개. 서버·DB·AI 변경 없음.
+- 검수(맥미니): tsc 0, eslint 0, `dominantColor` 시험 5/5.
+- **윈도우 CLI 다음 첫 단계**: SQL `shop-detail-page/supabase/migrations/20261022_cover_color_v1_26.sql`(버전만) → `shop-detail-page` 배포 1회 → 결과를 `shop-detail-page/AGENTS.md` 맨 아래에. 그 뒤 맥미니 크롬 실검수.
+- 비용(예정): Vercel 빌드 1회, AI 0회. 링크: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우, 웨일) — ✅ SEO블로그 스튜디오 v1.97 기본 AI 모델 계정 저장 (빌드 1회 · AI 1회)
 - 고른 AI 회사·모델을 계정에 저장해 어느 PC에서나 같게, 제목 추천 등 OpenAI 전용 기능도 기본 AI가 OpenAI면 같은 모델. 설정 화면 「AI 모델」 카드 복구(그동안 화면에 없어 바꿀 수 없었음). 시험 59 통과, DB/확장/ZIP v1.97 OK, 웨일 실검수 완료.
 - 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래. 다음: BLC-10(문단별 이미지 노드) — 플랜·비용 먼저 보고.

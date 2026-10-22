@@ -317,3 +317,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 ## 2026-10-22 문서 정리 (Claude Code 맥미니, 코드 변경 없음)
 - 작업 대기 목록 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) 새로 만듦(필수 6종 중 빠져 있던 문서) — 완료 v1.15~v1.25, 대기 S-22-17(덮는 색 선택지)·여러 장 순서 화면 확인·2026-11-21 정리 확인·Phase 표 정리, GIF 연계, 보류 F2·장면 카피.
 - `docs/IMPROVEMENTS.md`: S-22-01~09의 「배포 대기」를 실제 기록(v1.18·v1.19 배포·SQL 적용)대로, S-22-16을 완료로 고치고 S-22-17 추가, §2 옛 백로그 3개에 처리 버전 표시.
+
+## 2026-10-22 v1.26 — 문구 고치기 덮는 색 선택지 + 사용 안내 FAQ (Claude Code 맥미니 · 배포 대기, S-22-17, 주인님 승인)
+- 플랜: [`docs/PLAN_20261022_COVER_COLOR.md`](docs/PLAN_20261022_COVER_COLOR.md). v1.25 실검수에서 배지보다 넓게 지정하면 배지까지 바깥 색으로 덮이던 문제.
+- `components/products/ImageTextEditor.tsx`: 덮는 색 칸 아래 「바깥 색」「안쪽 색」「💧 찍기」(찍는 동안 영역을 새로 잡지 않고 그 자리 3×3 점 색, 안내 띠·노란 테두리). 자동 색은 평균 대신 가장 많은 색(새 `lib/dominantColor.ts`, 채널당 16단계로 묶음). 원본만 그린 임시 캔버스는 한 번 만들어 재사용(`baseContext`).
+- `components/guide/CommerceUsageGuide.tsx`: FAQ 「이미지 속 글자(가격·행사 문구)만 고칠 수 있나요?」(사용법·배지 살리는 법·복잡한 배경 한계).
+- 버전 v1.26(SQL `supabase/migrations/20261022_cover_color_v1_26.sql` — 버전만). 검수: tsc 0, eslint 0, `dominantColor` 시험 5/5. 서버·DB·AI 변경 없음.
+- **윈도우 CLI 다음 첫 단계**: SQL `20261022_cover_color_v1_26.sql` → `shop-detail-page` 배포 1회. 그 뒤 맥미니 크롬 실검수.
