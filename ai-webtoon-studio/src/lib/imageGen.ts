@@ -1,5 +1,6 @@
 import { ArtStyle, CharacterInfo, CutScene, WebtoonProject } from "./types";
 import { ART_STYLE_PROMPT_MAP } from "./gemini";
+import { pickCutRefUrls, type CutRef } from "./cutRefs";
 
 // 1. 캐릭터 시트 이미지 생성 (턴어라운드 모델 시트)
 export async function generateCharacterSheetImage(
@@ -35,15 +36,45 @@ export async function generateCutImage(
   const styleInfo = ART_STYLE_PROMPT_MAP[project.artStyle];
   const prompt = `${cut.prompt}, ${cut.cameraAngle}, ${cut.description}, ${styleInfo.enTag}, 8k comic artwork, masterpiece`;
 
+  // W8(v1.29): 이 컷 인물의 캐릭터 시트(없으면 참고 사진)를 줄여서 함께 보낸다 — 컷마다 같은 얼굴·옷
+  const refs = await shrinkRefs(pickCutRefUrls(cut, project.characters || []));
+
   // 세로 스크롤 레이아웃에 최적화된 종횡비 (3:4 또는 1:1)
-  return await requestImageGeneration(prompt, { width: 768, height: 1024 }, onFallback);
+  return await requestImageGeneration(prompt, { width: 768, height: 1024 }, onFallback, refs);
+}
+
+/** 참고 그림을 긴 변 768px JPEG로 줄인다(요청 크기 한도 안, 4컷 만화 shrinkForUpload와 같은 방식). 실패한 그림은 건너뜀 */
+async function shrinkRefs(urls: string[], maxEdge = 768): Promise<CutRef[]> {
+  const out: CutRef[] = [];
+  for (const url of urls) {
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error("load"));
+        el.src = url;
+      });
+      const s = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.naturalWidth * s));
+      c.height = Math.max(1, Math.round(img.naturalHeight * s));
+      const ctx = c.getContext("2d");
+      if (!ctx) continue;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      out.push({ data: c.toDataURL("image/jpeg", 0.85).split(",")[1], mimeType: "image/jpeg" });
+    } catch { /* 이 그림만 건너뜀 */ }
+  }
+  return out;
 }
 
 // 실제 이미지 생성 API 요청 함수
 async function requestImageGeneration(
   prompt: string,
   dimensions: { width: number; height: number },
-  onFallback?: (reason: string) => void
+  onFallback?: (reason: string) => void,
+  refs: CutRef[] = []
 ): Promise<string> {
   // 1. Gemini 이미지 모델 시도 (사용자 본인 키가 있을 때)
   // [이미지 모델 교체 2026-10-17] 종료된 Imagen 3(predict) → gemini-nano-banana-2.1(generateContent), 기준: ai-image-studio v1.11.
@@ -55,7 +86,7 @@ async function requestImageGeneration(
     const res = await fetch("/api/ai/image", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4" }),
+      body: JSON.stringify({ prompt, aspectRatio: dimensions.width > dimensions.height ? "4:3" : "3:4", ...(refs.length ? { refs } : {}) }),
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && typeof data?.dataUrl === "string") return data.dataUrl;

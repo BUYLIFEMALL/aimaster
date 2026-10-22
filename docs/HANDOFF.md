@@ -195,6 +195,12 @@ https://tistory-auto-blog.buylife.xyz
 - 프로그램: https://shorts-onestop-studio.buylife.xyz
 
 <!-- TISTORY_AUTO_PUBLISH_20261022 -->
+## 2026-10-22 Claude Code(윈도우) — AI 웹툰 v1.29 W8: 캐릭터 시트를 컷 그림에 첨부(인물 일관성)
+- 한 일: 컷 인물의 시트(없으면 참고 사진) 최대 3장을 줄여 `api/ai/image`에 함께 보내고 공용 `generateGeminiImage({ parts })`로 첨부. 공용 사본 수정 없음.
+- 검수: 시험 27개·build, 배포 Ready, DB v1.29, 실제 생성 1장(시험 회원 키)에서 참고 그림 특징 반영 확인.
+- 문서: `ai-webtoon-studio/AGENTS.md`, IMPROVEMENTS, REPORT §9-5.
+- 프로그램: https://ai-webtoon-studio.buylife.xyz
+
 ## 2026-10-22 Claude Code(윈도우) — 바나나 캔버스 v1.20 디자인 리뉴얼: 「나노바나나 크림 팝 스타일」(새 템플릿 11번) + 가독성
 - 한 일: 연한 바나나 크림 바탕·먹선 갈색·바나나 옐로·잎 초록 토큰, 카드 위 바나나 껍질 띠, 스티커 팝 버튼. 본문 15px·보조 글자 대비 7.4:1·노란 글씨 금지. 기능 코드 변경 없음. DESIGN.md 카탈로그 11번·현황판 ✅, `docs/DESIGN_TEMPLATE_CATALOG.md` 그룹 C에 등록.
 - 검수: 시험 33개·build, 배포 2회(보정 포함) Ready, DB v1.20, 크롬(시험 회원) 스튜디오·매뉴얼·설정, 휴대폰 폭은 390px 틀로 확인(가로 넘침 0·잘림 0, 꺾인 버튼 1개 보정).

@@ -215,3 +215,8 @@ F-012(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 함께 나간 저장소 변경: 공용 그래프 글자 크게(`9479f0bc`) 등 보류분.
 - 검수: tsc·테스트(웹툰 22·인플루언서 18·네컷 56)·로컬 build, 로그인 없이 `?week=1` 401, 크롬(관리자 로그인) 버전 표시·`?week=1` 200·전부 게시 완료 행(이 계정 최근 7일 게시 0건이라 막대 높이·썸네일 실제 모양은 미확인). 커밋 `cb7490943`(7일 게시 완료 조회)·`2814ec839`(썸네일 1장)·`503456cbe`(배포판 /cardnews)·`cb2c488c5`(네컷 그래프)·`2dc19dac2`(버전). 비용: Vercel 빌드 4곳 각 1회(승인 범위 안), 유료 AI 호출 없음.
 - 이 프로그램이 기준인 공용 코드: `insta-posts-route`(`src/app/api/instagram/posts/route.ts`, 사본에 `bucket.ts`가 없을 수 있어 주 시작 계산을 route 안에 둠 — 공용 `weekStartIso`와 1년치 시각 대조 일치)·`insta-posting`(`removeImagesKeepThumb`). 즉시 게시 `src/app/api/instagram/publish/route.ts`는 프로그램별 파일이라 직접 고침. 배포 `ai-webtoon-studio.buylife.xyz` READY, DB v1.29.
+
+## 2026-10-22 v1.29 — W8 캐릭터 시트를 컷 그림에 첨부 (Claude Code 윈도우, 이미지 S1 검토 후속)
+- 문제: 캐릭터 시트·참고 사진을 만들어도 컷 그림 요청은 글 프롬프트만 보내 컷마다 인물이 달라질 수 있었음(S1 검토, `docs/analysis-image-consolidation-20261021/REPORT.md` §9-5).
+- 변경: `src/lib/cutRefs.ts`(컷 `characterNames` → 시트 우선·없으면 참고 사진, 브라우저 안 그림만·최대 3장, 서버 검사, 일관성 지시 문구), `lib/imageGen.ts` `generateCutImage`가 768px JPEG로 줄여 `refs` 전송, `api/ai/image`가 검사 후 공용 `generateGeminiImage({ parts })`로 첨부(공용 사본 수정 없음, 재시도 0·1K·120초 그대로). 무료 대체 렌더러는 첨부 없이 그대로.
+- 검수: 시험 27개(새 `tests/cutRefs.test.mjs` 5개)·build, 배포 `ai-webtoon-studio-30sodgrjz` Ready(첫 배포 명령은 배포를 만들지 못해 재실행), DB v1.29, 비로그인 401. **실제 생성 1장**(시험 회원 본인 키, 빠른 모델, 18초): 단순 캐릭터 그림(파란 머리·빨간 셔츠·숫자 7) 첨부 → 결과 컷에 같은 특징 반영 확인.

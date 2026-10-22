@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { generateGeminiImage } from "@/lib/geminiImage";
 import { getMemberGeminiKey, NO_KEY_MESSAGE } from "@/lib/serverAi";
+import { parseCutRefs, withRefInstruction } from "@/lib/cutRefs";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,6 +20,9 @@ export async function POST(req: NextRequest) {
   if (!prompt.trim() || prompt.length > 8_000) {
     return NextResponse.json({ error: "프롬프트가 비었거나 너무 깁니다." }, { status: 400 });
   }
+  // W8(v1.29): 컷 인물의 캐릭터 시트를 참고 그림으로 첨부(최대 3장, 4컷 만화와 같은 검사)
+  const refs = parseCutRefs(body?.refs);
+  if (typeof refs === "string") return NextResponse.json({ error: refs }, { status: 400 });
 
   const apiKey = await getMemberGeminiKey(access.user.id);
   if (!apiKey) return NextResponse.json({ error: NO_KEY_MESSAGE, noKey: true }, { status: 400 });
@@ -27,7 +31,9 @@ export async function POST(req: NextRequest) {
     const image = await generateGeminiImage({
       apiKey,
       modelName: "gemini-nano-banana-2.1",
-      prompt,
+      ...(refs.length
+        ? { parts: [...refs.map((r) => ({ inlineData: { mimeType: r.mimeType, data: r.data } })), { text: withRefInstruction(prompt, refs.length) }] }
+        : { prompt }),
       aspectRatio,
       imageSize: "1K",
       timeoutMs: 120_000,
