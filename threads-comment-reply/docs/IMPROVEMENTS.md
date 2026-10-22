@@ -14,3 +14,9 @@
 
 ## 2026-10-21 v1.16 처리 (Claude Code 윈도우)
 - [x] 대시보드 「검토를 기다리는 댓글」 형식을 INSTA 댓글·DM과 통일(제목 옆 건수 + 오른쪽 위 전체 보기). 통합 댓글 받은편지함(쓰레드·인스타·유튜브)은 아직 아이디어 단계 — 루트 `docs/PROGRAM_IDEA_BACKLOG.md` 검토 대기.
+
+## 2026-10-23 쓰레드 카테고리 병합 분석 중 발견 (Claude Code 윈도우, 코드 확인만 — 미수정)
+- [ ] **(높음, 회원 영향)** AI 답글 지시문이 「유튜브 채널 운영자·시청자 댓글·영상 제목」으로 되어 있음(`lib/ai/reply.ts:23-24`, `videoTitle` 인자) — 유튜브 댓글 프로그램에서 복사한 흔적. Threads용 문구로 고치고 즉시 배포 대상.
+- [ ] **(결정 필요)** 자동 댓글 수집 예약이 처음부터 꺼져 있음(`vercel.json` crons 비어 있음, README 「사용자 승인 후 활성화」). 지금은 수집 버튼을 눌러야 함. 켠다면 공용 `member-scheduler`(회원 본인 cron-job.org 선택)로.
+- [ ] 30일 자동 삭제 없음(`th_comments` 등).
+- 근거·전체 비교: [`../../docs/analysis-threads-consolidation-20261023/REPORT.md`](../../docs/analysis-threads-consolidation-20261023/REPORT.md) §6 (분석·제안, 병합 미실행)
