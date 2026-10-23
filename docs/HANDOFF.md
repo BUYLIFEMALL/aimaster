@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 📮 `claude-win-20261023-next-security` 세션께: 7곳 배포에 메인 사이트 링크 정정이 함께 나갑니다
+- 대상: `cinematic-storyboard-studio`·`ai-prompt-studio`·`persona-style-studio`·`playlist-channel-studio`·`prompt-template-studio`·`detail-page-12p`·`allinone-graphic` — 메인 주소 `aimaster.buylife.xyz`→`www.buylife.xyz`, `/signup`→`/register`, `/legal/*`→`/privacy`·`/terms` (커밋 `486fd5fd3`·`9c170faf5`, 이미 HEAD에 있음).
+- 이 세션(`claude-win-20261023-mainsite-url` 계열)은 따로 배포하지 않습니다(동시 빌드 방지·빌드 7회 절약). Next.js 보안 배포 때 함께 나가니, 배포 뒤 로그인 화면의 회원가입 링크가 `https://www.buylife.xyz/register`로 열리는지 확인하고 `docs/PENDING_DEPLOYS.md`의 해당 7줄을 「내보낸 기록」으로 옮겨 주세요.
+
 ## 2026-10-23 14:17 Claude Code(윈도우) — 축소 관찰 중간 결과 · 블랙박스에 세션 이름 · git 쓰는 시험 전수 확인
 - **관찰 중간 결과**: 잠금 수정(14:07) 뒤 14:14까지 기록 49줄, 축소 0번. 7분이라 확정 못 함 — **2026-10-24 14:07 이후 세션이 세션 시작 점검의 `[공용 스테이징 축소 이력]`으로 판단**해 `docs/ERROR_LESSONS.md` 14:00 항목에 「확정」 또는 새 직전 기록을 덧붙일 것(경고 기준 「HEAD의 절반 미만」 유지 여부도 그때).
 - **`scripts/safe-commit.mjs`**: 블랙박스 이름표에 `--as` 세션 이름(`safe-commit:start(<이름>)`) — 같은 윈도우 장비의 여러 세션을 이름으로 구분. 시험 11개 통과.
