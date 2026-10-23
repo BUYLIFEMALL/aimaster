@@ -53,6 +53,13 @@ try {
     console.log(starts.length
       ? `⚠ [공용 스테이징 축소 이력] 최근 24시간 ${starts.length}번: ${starts.join(" · ")} — 기록 ${logPath}`
       : `[공용 스테이징 축소 이력] 최근 24시간 없음 (기록 ${first ? first.when + "부터" : "없음"})`);
+    // 세션 트레일러 이행률(2026-10-23): 트레일러 도입(15:20) 이후·최근 7일 커밋 중 `AIMaster-Session:`이 붙은 비율 — 규칙이 지켜지는지 매번 보이게
+    try {
+      const since = new Date(Math.max(new Date("2026-10-23T15:20:00").getTime(), Date.now() - 7 * 24 * 3600_000)).toISOString();
+      const commits = git(["log", `--since=${since}`, "--format=%h|%(trailers:key=AIMaster-Session,valueonly,separator=%x2C)"]).split("\n").filter(Boolean);
+      const tagged = commits.filter((l) => l.split("|")[1]).length;
+      if (commits.length) console.log(`[세션 이름 표시] 최근 커밋 ${commits.length}개 중 ${tagged}개(${Math.round((tagged / commits.length) * 100)}%)에 세션 이름 — 나머지는 「세션 미상」(도우미 --as 또는 AIMASTER_SESSION=<세션> git commit, 멀티세션 규칙 §2-1)`);
+    } catch { /* 기록 실패는 무시 */ }
     // 원인 확정 관찰(2026-10-23): 안전 커밋 도우미 「공용 스테이징 맞추기」 잠금 수정 뒤 24시간 축소가 없으면 원인 확정 — 사람이 날짜를 기억하지 않아도 되게
     const OBSERVE = { from: new Date("2026-10-23T14:07:00"), what: "safe-commit 잠금 수정 a88f09453" };
     const after = [];
