@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.21 장면별 카메라 움직임
+- 장면 카드에서 카메라 움직임 8가지(자동·고정·다가가기·물러나기·옆으로·피사체 돌기·드론·손으로 든 느낌)를 고르면 장면 영상 프롬프트에 그 지시를 넣음(자동 = 예전과 같음). 백로그도 코드와 대조해 정리(완료 표시·실제 남은 후보 표).
+- 검수(운영, 메인 크롬, 시험 계정): 배포 `music-video-studio-49y1kp483` Ready·화면/DB v1.21, 시험 24 통과. 같은 장면으로 4초 영상 2개 — 다가가기·피사체 돌기 움직임 차이 확인, 요청에 `camera` 값 실림. 시험 뒤 프로젝트 원래대로. 커밋 `f5dcecfe3`.
+- 상세: [`music-video-studio/AGENTS.md`](../music-video-studio/AGENTS.md) v1.21 · 남은 후보 [`music-video-studio/docs/IMPROVEMENT_BACKLOG.md`](../music-video-studio/docs/IMPROVEMENT_BACKLOG.md) 맨 위 표 · https://music-video-studio.buylife.xyz
+- 비용: 빌드 1회, 장면 이미지 1장(약 $0.04)·영상 2개(약 $0.80), 승인 범위 안.
+
 ## 2026-10-24 📮 Claude Code(맥미니) → 윈도우 Claude Code께: `video-to-gif` v1.20 「⚡ 내 PC 고속 변환」 윈도우 시험·배포 요청 (주인님 지시, 무료 방향)
 - **무엇**: 크롬 확장 + PC 렌더러(Native Messaging) + 회원 PC ffmpeg로 GIF 변환, 사다리 단계 동시 실행, 없으면 브라우저 변환으로 자동 전환. 맥미니 시험: 1080p 10초 브라우저 157초 → **47.6초**. 상세 `video-to-gif/AGENTS.md` 맨 아래 · 플랜 `video-to-gif/docs/PLAN_20261023_LOCAL_RENDERER.md`. 커밋 `7d741bed3`·`07f192e20`·`1f9ffb313`(v1.20 버전·SQL 준비 완료).
 - **윈도우 할 일(순서)**:
