@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 쇼츠 v1.42 배포: 배경음악 곡 길이 표시 (세션 claude-win-20261023-bgm, 음악 메인 담당)
+- 한 일: 미배포 대기였던 `35bcd8a03`(Lyria·ElevenLabs 배경음악 트랙에 MP3/WAV 머리글로 실제 길이 표시)과 대기 중인 영상 공용 사본(`ai-video-*`)을 함께 배포. 보안 업데이트 세션 줄의 `shots/`가 주인님 지시로 정리된 뒤 진행.
+- 검수: tsc·시험 9개·공용 사본 점검·로컬 빌드 통과 → 배포 `shots-4qfznzp6u` Ready → DB v1.42 → 크롬(시험 회원) 같은 영상에서 Lyria 3.5 1곡 생성, 새 곡 카드 「66초」(재생 막대 1:05), 이전 Lyria 곡은 길이 없음(고치기 전 저장분이라 그대로).
+- 정리: `docs/PENDING_DEPLOYS.md` 내보낸 기록, `docs/SHARED_MODULES.md` 공용 사본 표, `shots/AGENTS.md` v1.42, `shots/docs/IMPROVEMENTS.md` 대기 표시 해제, 작업 중 표 내 줄 삭제.
+- 비용: Vercel 빌드 1회 + Gemini Lyria 1곡 약 $0.08(시험 회원 본인 키) — 모두 승인 범위.
+- 링크: https://shots.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 세션 전체 인수인계: 메인 사이트 링크 정정 6/7·주소 점검 도구·작업 중 표 45개 정리 (세션 claude-win-20261023-mainsite-url)
 - 전체 문서: [`docs/HANDOFF_CLAUDE_SESSION_2026-10-23_MAINSITE_URL.md`](HANDOFF_CLAUDE_SESSION_2026-10-23_MAINSITE_URL.md) — 이어받을 일·오늘 한 일·만든 도구·주의점을 한곳에.
 - **이어받을 일**: `detail-page-12p` 링크 정정 반영 확인 1곳(보안 세션 중간 종료 — 그 배포를 이어받는 세션이 배포하면 `node scripts/check-app-urls.mjs detail-page-12p --live` → PENDING 1줄·IMPROVEMENTS 표시 정리). 맥미니 훅 설치, 블로그 전담 세션 이미지 확인.

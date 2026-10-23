@@ -17,7 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `shots` (운영 v1.41) | Lyria·ElevenLabs 배경음악 트랙에 실제 길이 표시(MP3/WAV 머리글로 계산) | `35bcd8a03` | 2026-10-23 · Claude Code(윈도우) | `shots/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, Lyria 1곡으로 「OO초」 확인 |
 | `naver-blog-agent` (운영 v2.14) | 확장 아이콘 팝업 폭 넓힘(`extension/connect.css` 최소 폭 440px — 주인님 지적 「너무 좁아서 글들이 제대로 안보여」) — 확장 코드 변경 | 이 줄을 넣은 커밋 직전 `fix(naver-blog-agent): widen extension popup` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01(manifest·ZIP·DB 함께) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -59,6 +58,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `shots` | v1.42 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-bgm`, 승인 빌드 1회, `shots-4qfznzp6u`) | Lyria·ElevenLabs 배경음악 실제 길이 표시 `35bcd8a03`(크롬 Lyria 1곡 「66초」 확인) · 공용 `ai-video-providers` 선택값 사본 · `ai-video-*` 기준 이전 사본(동작 불변) |
 | `video-to-gif` | v1.19 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `video-to-kjwuwh5xt`) | 좌측 메뉴 「색상표 최적화 고화질 변환」 · 미리보기 Esc 닫기(G-23-06) · 8MiB 초과용 25·20fps 단계(`db5116a9f`) — 크롬에서 v1.19·메뉴 문구·사다리 안내 확인, 실제 변환은 맥미니 실검수 남음 |
 | `trending-product-finder` | v1.24 · 2026-10-23 14:04 Next.js 보안 업데이트 배포(`claude-win-20261023-next-security`, 커밋 `be7d1fd4a`)에 함께 나감 — 표 정리는 Claude Code(맥미니) `claude-mac-20261023-ecommerce` | 30일 정리 회원별 기록 `af9b2719c`·`05902a01d` · 공용 `solapi-client` 사본 `36d0a4fdc`(세 커밋 모두 배포 커밋의 조상임을 확인). 다음 정리(매일 03:50) 뒤 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 남음 |
 | `cinematic-storyboard-studio`·`ai-prompt-studio`·`allinone-graphic` | 2026-10-23 Next.js 보안 업데이트 배포(`claude-win-20261023-next-security`)에 함께 나감 | 메인 사이트 링크 정정 `486fd5fd3` — 로그인 화면 스크립트에 `www.buylife.xyz`만 있고 옛 주소 없음, AI 프롬프트 스튜디오는 크롬에서 회원가입 링크 `/register` 확인 |
