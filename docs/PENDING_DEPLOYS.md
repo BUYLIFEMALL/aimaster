@@ -35,7 +35,6 @@
 | `reverse-prompt` | 분석 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(history) 기록 — 공용 `cleanup-usage-log` 사본(1시간 임시 파일은 세지 않음) | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `reverse-prompt/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `four-cut-comics` | 서버 보관함 30일 정리(`/api/cron/cleanup`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 작품 수) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `four-cut-comics/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
-| `ai-mastering-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `infinite-loop-video` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `infinite-loop-video/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-image-studio` | 공용 `ai-video-*` 사본 전환(기준이 ai-video-studio로 이전) — 머리 주석·선택값 추가, **화면에서 안 쓰는 파일이라 동작 불변** | `cea11442a`·`6c02ccf41` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `ai-video-*` | 버전 +0.01 |
 | `naver-cafe-poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `naver-cafe-poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -60,6 +59,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-mastering-studio` | v1.12 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-bgm`, 승인 빌드 1회, `ai-mastering-studio-560vmpqod`) | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로 `22c6cda35`(크롬 데스크톱·390px 확인) |
 | `naver-blog-agent` | v2.16 · 2026-10-23 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-agent-5vxc7vkrv`) | 블로그 병합 A-1 참고 URL·추가 지시 `1aa3bed9c` + A-2 주제 최근 뉴스 근거 |
 | `ai-music-studio` | v1.13 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-bgm`, 승인 빌드 1회, `ai-music-studio-pwose5nlf`) | 공급자 색 점·띠 투명 수정 `39f7471d3`(크롬 계산값 5색 확인) |
 | `ai-music-studio` | v1.12 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-bgm`, 승인 빌드 1회, `ai-music-studio-brcpsck8j`) | 제안 가 미니 플레이어 반복·무작위 `36abe772a` · 나 실제 소리 파형 `c15faae8e` · 다 이 설정으로 다시 만들기 `abb7cb4cf` · 라 보관함 공급자 필터 `a7b5deef4` (크롬 확인) |
