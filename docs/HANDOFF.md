@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(맥미니) · 세션 `claude-mac-20261023-ecommerce` — 이커머스 담당: 남은 일 정리 3건 (문서만 · 비용 없음)
+- 담당: 주인님 지정 「이커머스 카테고리」(`shop-detail-page`·`video-to-gif`·`trending-product-finder`, 병합된 `auto-detail-page`·`detail-page-12p`).
+- ① `trending-product-finder`: 미배포 대기 2줄(30일 정리 기록 `af9b2719c`·`05902a01d`, 공용 `solapi-client` 사본 `36d0a4fdc`)은 14:04 보안 업데이트 배포 v1.24(`be7d1fd4a`)에 이미 포함(세 커밋이 배포 커밋의 조상) → `docs/PENDING_DEPLOYS.md` 「내보낸 기록」으로, 프로그램 개선 문서 「배포됨」. 커밋 `e3c359d07`. 남은 확인: 다음 03:50 정리 뒤 관리자 「30일 자동 정리」 표에 줄이 생기는지.
+- ② `video-to-gif` 완료 줄 글자 끊김, ③ `shop-detail-page` S-22-18 배지 안내: 둘 다 이미 v1.14·v1.28에서 고치고 맥미니 크롬 실검수까지 끝난 것인데 개선 문서에 「미구현」으로 남아 있었음 → 표시만 정정(`c996d183d`·`a0adfc6a2`, 코드 변경 없음).
+- 교훈: 개선 문서의 「미구현」 줄은 코드·`AGENTS.md` 실검수 기록과 대조한 뒤 남은 일로 보고할 것(이번에 처음 보고 때 대조 없이 옮겼다가 바로잡음).
+- 이커머스 남은 일: `video-to-gif` 미배포 2건(메뉴 문구·Esc 닫기, 다음 배포 v1.19) · fps 낮추는 단계(회원 사례 나오면) · `shop-detail-page` Phase 표 정리(Phase 3·4 필요 여부 주인님 확인) · 2026-11-21 뒤 30일 정리 확인. `detail-page-12p`는 보안 업데이트 세션 작업 중이라 손대지 않음.
+- 푸시: 하지 않음(작업 단위로 모아서 — 다음 푸시 때 함께 나감).
+
 ## 2026-10-23 Claude Code(윈도우) — 잠금 증거 기록·묵은 항목 표시 정리·맥미니 검사 연동 (세션 claude-win-lessons)
 - 한 일(`5b6329c9d`): `scripts/index-watch.mjs` ① `.git/index.lock` 5분 초과 시 잠금당 한 번 `.git/aimaster-lock-evidence.txt`에 잠금 생성 ±2분 기록 줄 + 그 장비 git·관련 프로세스(시작 시각·명령줄 300자) ② 묵은 항목 요약은 앞 5개 + 「외 N개」, 정리 명령은 다음 줄에 전체 파일로 ③ `--stale-only` 모드(있으면 종료 코드 3). `scripts/mac-mini/commit-gate.sh`가 pull 뒤 이 검사로 멈추고 정리 명령 안내(자동 정리 안 함).
 - 검수: 저장소 밖 임시 저장소에서 묵은 항목 7개·10분 묵은 잠금을 만들어 감지·증거 1회 기록 확인, 기존 시험 16개 통과, `bash -n` 통과. 맥미니 실제 실행은 미확인(다음 맥미니 커밋 때 확인).
