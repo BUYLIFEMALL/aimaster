@@ -17,6 +17,12 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
+| `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
+| `crm-google-form` | 공용 `solapi-client` 기준 등록(머리 주석만) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `crm-google-form/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
+| `kakao_auto_poster` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) · ⚠ 로컬 빌드가 Next.js 16.4.0 보안 경고로 멈춤 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 맨 아래 | **배포 전에 Next.js 보안 업데이트 필요할 수 있음**(주인님 승인), 버전 +0.01 |
+| `trending-product-finder` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
+| `real_estate_sales` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `music-video-studio` (운영 v1.15) | **회원 피해 수정(급함)**: 장면 이미지 생성 `/api/music/image` 500 — sharp 리눅스 libvips 누락 → `next.config.ts` `serverExternalPackages`·`outputFileTracingIncludes` | `8f1171788` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당) | `music-video-studio/AGENTS.md` v1.15 | 버전 +0.01(v1.16), 빌드 승인 대기, 배포 뒤 이미지 1장·최종 뮤직비디오 렌더 확인 |
 | `ai-video-studio` (운영 v1.05) | 영상 합치기 기준 코드 보강(사진 장면·반복 재생·`splitEvenly`·프로그램별 최대 길이) — **동작 변화 없음**, 공용 `video-edit-*` 기준 | `208c80842` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `video-edit-*` | 다음 배포 때 함께, 버전 +0.01 |
 | `ai-auto-blog` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `ai-auto-blog/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |

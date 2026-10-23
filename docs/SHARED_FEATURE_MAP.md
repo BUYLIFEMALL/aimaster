@@ -317,3 +317,15 @@ AI가 참고 자료(레퍼런스 쇼츠 받아쓰기·떡상 게시물 캡션·�
 - **기준 파일(SEO 스튜디오):** 웹 `lib/extensionBridge.ts`(`askExtension`), `app/extension-connect/page.tsx`, `app/settings/ExtensionConnectButton.tsx`, `app/settings/ExtensionDownloadCard.tsx` · 확장 `extension/web-bridge.js`(`connect` 메시지), `extension/background.js`(`connectWithToken` — 우리 사이트 출처·코드 형식·`whoami` 통과 때만 저장, 요청 시 탭 닫기), `extension/sidepanel.*`(「자동 연결」 버튼·직접 입력 접힘·`storage.onChanged`) · 시험 `tests/extension-connect.test.mjs`.
 - **적용 방식:** 프로그램마다 저장 키·서버 주소·코드 형식이 달라 사본 동기화(`check-shared-modules`) 대신 같은 구조로 각자 구현(기준 구현 참고형). 연결 통로는 웹→확장 방향으로 코드를 받기만 하고 확장이 코드를 내주지 않는다.
 - **적용 현황:** ✅ `naver-blog-seo-studio` v2.10 · ✅ `tistory-auto-blog` v1.89(2026-10-23) · ✅ `ai-auto-blog` v1.78(2026-10-23) · ✅ `naver-blog-agent` v2.10(2026-10-23, 8자리 번호 방식 — 서버 그대로·웹이 번호 발급해 확장에 전달) · ✅ `blog-content-maker` v1.11(2026-10-23, 연결 통로 새로 만듦·로그인 복귀 수정) — **일괄 적용 완료** · 해당 없음 `naver-blog-allinone`(확장이 서버 계정 미사용) · 보류 `naver-blog-auto-poster-web`(비공개).
+
+## 17. 문자·카카오 발송(SOLAPI) — 공용 기준 코드 `solapi-client` (2026-10-23 등록)
+
+**기준** `crm-google-form/lib/solapi/client.ts` · **사본** booking-reminder · stepmail · kakao_auto_poster(`src/`) · trending-product-finder · real_estate_sales(`src/`). 사본은 직접 고치지 말고 기준만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.
+
+| 무엇 | 공용 여부 | 이유 |
+|---|---|---|
+| 발송 연결 `lib/solapi/client.ts`(문자·알림톡·친구톡·RCS·잔액) | ✅ 공용 | 6곳이 같은 코드 |
+| 계정 저장·확인·테스트 문자 `lib/actions/solapiAccount.ts` | ✗ 프로그램별 | 카카오: 채널 친구 주소·알림톡 템플릿·이메일 함께 보내기 / 부동산: 저장 방식·RCS 칸 처리. 테스트 문자 머리말은 각 프로그램 이름 |
+| 메인 사이트 `lib/sms/solapi.ts` | ✗ | 운영자 비밀번호 찾기 문자, 구조 다름 |
+
+새 프로그램에서 문자·카카오 발송이 필요하면 이 사본을 가져다 쓰고, 회원 계정은 공용 표 `user_solapi_accounts`를 그대로 쓴다(최상위 규칙: 회원 본인 SOLAPI 계정만).

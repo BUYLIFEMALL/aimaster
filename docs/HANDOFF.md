@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우) · 세션 `claude-win-20261023-solapi-shared`: SOLAPI 발송 코드 공용 기준 코드 `solapi-client` 등록 + 테스트 문자 이름 버그 (미배포 · 비용 없음)
+
+- 주인님 선택 「SOLAPI 공용 등록」, 승인 「진행, 미배포 대기」. 플랜 `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`.
+- 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳 `--sync`(카카오·상품소싱·부동산은 주석 정리 + 쓰지 않는 `sendRcs` 추가, 동작 같음). 계정 저장 `solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님(등록부·기능 지도 17절에 이유 기록).
+- 버그: booking-reminder·stepmail이 crm 코드를 복사해 테스트 문자가 「[구글폼 CRM] …」으로 나가던 것, booking-reminder 이메일 테스트·텔레그램 연동 메시지의 「구글폼 CRM」까지 각 프로그램 이름으로.
+- 커밋 `36d0a4fdc`(18개 파일, 파일 삭제 0). 검수: 6곳 tsc, Step Mail `test:sms`·예약 리마인드 `test:import` 통과, 로컬 build 5곳 통과, 공용 점검 일치. **kakao_auto_poster는 로컬 build가 Next.js 16.4.0 보안 경고(SecurityFatalError)로 종료 코드 1** — 이번 수정과 무관, 다음 배포 전 Next.js 보안 업데이트 필요할 수 있음(ERROR_LESSONS 맨 위).
+- 커밋 중 사고 방지: 공용 스크립트 `scripts/check-shared-modules.mjs`를 일반 커밋으로 넣으려다 pre-commit 훅이 막음 → 바뀐 줄이 내 등록 블록 13줄뿐인지 확인한 뒤 `AIMASTER_SHARED_SCRIPT_OK=1`로 경로 지정 커밋(공용 스테이징에 남았던 내 파일 18개는 커밋으로 비움).
+- 다음 첫 단계: 여섯 프로그램 각 다음 배포 때 함께 내보냄(`docs/PENDING_DEPLOYS.md` 6줄). 카카오는 Next.js 보안 업데이트 여부 먼저.
+
 ## 2026-10-23 Claude Code(윈도우) — 공용 스크립트 일반 커밋 차단 장치 · 훅 설치 스크립트 정정 (세션 `claude-win-20261023-script-guard`·`…-hook-installer`)
 - pre-commit 훅이 공용 스크립트(`check-shared-doc-reverts.mjs`의 `SHARED_SCRIPTS`: deploy·safe-commit·pending-check·check-* 등)를 일반 `git commit`으로 올리면 막는다(`--block-scripts`). 안전 커밋 도우미는 훅을 거치지 않아 막히지 않음. 혼자 고친 것을 확인한 경우만 `AIMASTER_SHARED_SCRIPT_OK=1`. 커밋 `b9d3d4094`. 시험(임시 인덱스): 공용 스크립트 차단·확인 변수 통과·일반 파일 통과·훅 전체 동작 확인.
 - 설치 스크립트가 pre-commit 머리말 「커밋 직전 검사」(새)·「커밋 직전 알림」(옛)을 모두 알아보게 고침 — 옛 글자만 보다가 교체를 거부했었음. 이 PC 설치본 갱신 완료. **다른 장비(맥미니)는 `node scripts/git-hooks/install.mjs` 한 번 실행 필요.**
