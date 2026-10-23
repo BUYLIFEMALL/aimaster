@@ -13,8 +13,11 @@ import { join, relative, resolve } from "node:path";
 
 // 세션 이름: 이름표에 이미 (이름)이 없으면 환경변수 AIMASTER_SESSION을 붙인다 — 훅은 git이 부를 때 환경변수를 물려받으므로
 // `AIMASTER_SESSION=claude-win-x git commit …`이면 훅 기록에도 세션 이름이 남는다(2026-10-23)
-const rawTag = process.argv[2] || "manual";
-const tag = !rawTag.includes("(") && process.env.AIMASTER_SESSION ? `${rawTag}(${process.env.AIMASTER_SESSION.replace(/[^\w.-]/g, "_")})` : rawTag;
+// `register <세션명>`(2026-10-23): 작업 중 표에 줄을 올릴 때 한 번 — 아직 커밋 전인 세션도 메시지 주소를 남겨 다른 세션이 바로 문의
+const regName = process.argv[2] === "register" ? (process.argv[3] || "").replace(/[^\w.-]/g, "_") : "";
+if (process.argv[2] === "register" && !regName) { console.error("사용: node scripts/index-watch.mjs register <세션명>"); process.exit(2); }
+const rawTag = regName ? "register" : process.argv[2] || "manual";
+const tag = regName ? `register(${regName})` : !rawTag.includes("(") && process.env.AIMASTER_SESSION ? `${rawTag}(${process.env.AIMASTER_SESSION.replace(/[^\w.-]/g, "_")})` : rawTag;
 const quiet = process.argv.includes("--quiet");
 try {
   const env = { ...process.env };
@@ -22,6 +25,15 @@ try {
   const git = (args) => execFileSync("git", args, { encoding: "utf8", env, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
   const root = git(["rev-parse", "--show-toplevel"]).trim();
   const gitDir = resolve(root, git(["rev-parse", "--git-dir"]).trim());
+  // `who <세션명>`(2026-10-23): 그 세션의 메시지 주소만 꺼내 보기(읽기만, 블랙박스에 기록하지 않음)
+  if (process.argv[2] === "who") {
+    const n = process.argv[3] || "";
+    const p = join(gitDir, "aimaster-sessions.txt");
+    const ls = existsSync(p) ? readFileSync(p, "utf8").trimEnd().split("\n").filter((l) => !n || l.split(" | ")[1] === n) : [];
+    if (!ls.length) { console.log(`기록 없음${n ? `: ${n}` : ""} — 그 세션이 \`node scripts/index-watch.mjs register <세션명>\`을 하거나 세션 이름을 붙여 커밋하면 생김. 없으면 ListAgents로 찾기`); process.exit(n ? 1 : 0); }
+    for (const l of (n ? ls.slice(-1) : ls)) { const [at, name, host, addr] = l.split(" | "); console.log(`${name} · ${host} · ${addr} (기록 ${at}) — SendMessage의 to에 주소를 그대로, 같은 장비에서만 통함`); }
+    process.exit(0);
+  }
   const shown = (p) => relative(root, p).replace(/\\/g, "/"); // 안내 문장에는 저장소 기준 짧은 경로(.git/…)로(2026-10-23)
   // 묵은 스테이징 항목(2026-10-23): 스테이징은 HEAD와 다른데(M·D) 작업 파일은 HEAD와 같은 파일 = 옛 판이 스테이징에 남은 것.
   // 누가 일반 커밋에 섞으면 그 파일의 최근 변경이 되돌려진다(예: 루트 지침의 새 최상위 규칙). 새로 추가(A)는 진짜 작업일 수 있어 뺀다.
@@ -76,6 +88,12 @@ try {
         if (ls.length > 2000) writeFileSync(sessionsPath, [...ls.slice(-1000), `${t(new Date())} | ${rec}`].join("\n") + "\n");
       }
     } catch { /* 무시 */ }
+  }
+  if (regName) {
+    console.log(process.env.CLAUDE_CODE_MESSAGING_SOCKET
+      ? `✔ 등록: ${regName} · ${hostname()} — 다른 세션은 \`node scripts/index-watch.mjs who ${regName}\`로 주소를 보고 SendMessage`
+      : `ℹ 이 CLI에는 Claude Code 메시지 주소가 없어 이름만 블랙박스에 남겼습니다(${regName}) — 문의는 작업 중 표·HANDOFF로`);
+    process.exit(0);
   }
   // 이름 → 가장 최근 주소(장비 포함)
   const addressOf = (n) => { try { const ls = readFileSync(sessionsPath, "utf8").trimEnd().split("\n").filter((l) => l.split(" | ")[1] === n); const p = ls.pop()?.split(" | "); return p ? `${p[3]}@${p[2]}` : ""; } catch { return ""; } };
@@ -212,7 +230,7 @@ try {
         const idle = tableRows.filter((r) => r.name && r.start && new Date(`${r.start}T23:59:59`).getTime() < since && !seen(r.name));
         if (idle.length) console.log(`⚠ [작업 중 표 오래된 줄] ${idle.length}줄: ${idle.slice(0, 3).map((r) => `${r.folder}(${r.name}, ${r.start} 시작)`).join(", ")}${idle.length > 3 ? ` 외 ${idle.length - 3}줄` : ""} — 24시간 동안 그 세션의 기록·커밋이 없음. 끝난 세션일 수 있으니 지우지 말고 주인님께 확인(docs/ACTIVE_WORK.md 사용법 4)`);
         // 지금 작업 중인 세션 목록(폴더 → 세션 이름) — 다른 세션에 메시지를 보낼 때 바로 찾게. ⚠가 없어 요약 한 줄이 되어도 따로 보인다
-        if (tableRows.some((r) => r.name)) activeList = `[작업 중 세션] ${tableRows.filter((r) => r.name).map((r) => { const a = addressOf(r.name); return `${r.folder}${r.folders.length > 1 ? ` 외 ${r.folders.length - 1}개` : ""} → ${r.name}${a ? `(메시지 ${a})` : ""}`; }).join(" · ")}`;
+        if (tableRows.some((r) => r.name)) activeList = `[작업 중 세션] ${tableRows.filter((r) => r.name).map((r) => { const a = addressOf(r.name); return `${r.folder}${r.folders.length > 1 ? ` 외 ${r.folders.length - 1}개` : ""} → ${r.name}${a ? `(주소 있음@${a.split("@").pop()})` : ""}`; }).join(" · ")}${tableRows.some((r) => r.name && addressOf(r.name)) ? " — 주소는 `node scripts/index-watch.mjs who <세션명>`" : ""}`;
         // 표에 없는 세션이 표의 폴더를 고침(2026-10-23): 24시간 안 커밋 중 세션 이름이 붙었고 그 폴더 줄의 세션과 다른 것 — 같은 폴더 동시 작업을 빨리 잡는다
         // (이름 없는 커밋은 판단하지 않음. 주인님 승인으로 다른 세션이 맡는 경우도 있으니 막지 않고 확인만)
         try {
