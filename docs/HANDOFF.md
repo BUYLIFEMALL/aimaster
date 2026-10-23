@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 이름 바꾸기 커밋 확인 · commit-msg 세션 트레일러 · 분석 폴더는 저장소 밖
+- **`7d86d9923` 되돌림 의심 해소**: 「역량 지도 → 프로그램 비교표」 이름 바꾸기(주인님 지시)로, 지운 9줄 모두 이름만 바뀐 새 줄로 대체됨을 단어 단위로 대조 → `scripts/reverts-reviewed.txt`에 확인. 세션 시작 점검 저장소 안전 「확인 필요」 4 → 1건(14:00 축소 이력, 24시간 뒤 자동으로 빠짐).
+- **`scripts/git-hooks/commit-msg`(새)**: `AIMASTER_SESSION`이 있으면 일반 `git commit`에도 `AIMaster-Session:` 트레일러(`git interpret-trailers`, 이미 있으면 그대로). `install.mjs`가 함께 설치 — 이 PC 설치 완료. **맥미니·새 clone은 `node scripts/git-hooks/install.mjs` 한 번**. 임시 저장소 시험 3경우 통과(있음·없음·중복 방지).
+- **`docs/REA_REVERSE_ENGINEERING.md`**: 분석용 작업 폴더·`git clone`·`git init`은 저장소 밖(`D:\PDS\Program_dev\<대상>_work\` 또는 scratch)에, 저장소엔 결과만. 기존 `.analysis-threads-auto/`는 예시로만 적고 건드리지 않음.
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 메인 사이트 링크 정정: 7곳 중 3곳 반영 확인, 4곳 대기 (세션 `claude-win-20261023-mainsite-url`)
 - 보안 업데이트 세션 배포로 시네마틱 스토리보드·AI 프롬프트 스튜디오·올인원 그래픽이 나갔고, 새 주소만 있는 것을 확인(AI 프롬프트 스튜디오는 크롬에서 회원가입 링크 `/register`까지). 미배포 표 3줄 정리.
 - 남은 4곳(페르소나 스타일·플레이리스트 채널·프롬프트 템플릿·상세페이지 12p)은 그 세션의 배포를 기다림. 이어서: `docs/IMPROVEMENT_HANDOFF_20261023_MAINSITE_LINK_PENDING.md` 5절.
