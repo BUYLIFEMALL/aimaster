@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-23 — 저장소에 마이그레이션 SQL이 있는데 운영 DB에는 표가 없어, 보관함 「저장 완료」가 실은 브라우저에만 저장되고 있었다 (threads-easy-planner v1.48, Claude Code 윈도우)
+- **증상**: 이미지 칸을 추가하려고 `alter table tep_saved_plans …`를 운영 SQL 편집기에서 돌리자 `relation "public.tep_saved_plans" does not exist`. 화면은 그동안 「보관함에 저장되었습니다」를 보여 줌.
+- **원인**: `supabase/migrations/0001_tep_saved_plans.sql`이 운영 DB에 적용된 적이 없음. 저장 코드가 DB 실패 시 로컬 저장소로 조용히 대체(`savedPlansStorage.ts`)해 오류가 드러나지 않았다.
+- **해결**: 주인님 승인 뒤 표·정책·이미지 칸·버킷을 운영에 생성(`threads-easy-planner/supabase/migrations/20261023_tep_images_v1_48.sql`), 크롬에서 저장 → 로컬 캐시의 id가 DB uuid인지로 확인.
+- **다음부터 확인**: 「조용한 로컬 대체」가 있는 저장 기능은 운영 DB에 표가 있는지 `select to_regclass('public.<표>')`로 먼저 본다. 마이그레이션 파일이 있다는 것만으로 적용됐다고 가정하지 않는다. (덤) Supabase SQL 편집기에 긴 SQL을 한 글자씩 입력하면 화면이 멈춘다 — `window.monaco.editor.getModels()[0].setValue(sql)`로 넣으면 즉시 들어감.
+
 ## 2026-10-23 15:38 — 끊긴 git 작업의 `.git/index.lock`(0바이트)이 1시간 넘게 남았는데, 그동안 커밋 26개가 성공해 아무도 몰랐다 (Claude Code 윈도우, 맥미니 세션이 발견)
 - 증상: 맥미니에서 `.git/index`·`.git/index.lock`이 둘 다 14:33에 멈춘 것을 발견했다. 윈도우에서 재보니 실제로 `index.lock`(0바이트, 14:33:30)이 있었고, 잡고 있는 git 프로세스는 없었다. 같은 시각 이후 14:30~15:35에 커밋 26개는 정상으로 들어갔다.
 - 원인: 공용 스테이징 기록(`.git/aimaster-index-log.txt`)에 14:32:35~14:34:24 사이 기록된 작업이 없다. 그래서 잠금을 만든 명령은 **미확인**이다(훅·도우미 밖의 git 명령, 편집기의 git 기능, SMB 쪽 명령 등이 끊긴 것으로 추정). 커밋이 계속 성공한 이유는 안전 커밋 도우미·경로 커밋 도우미가 **임시 인덱스(`GIT_INDEX_FILE`)로 커밋**해 공용 잠금에 걸리지 않았기 때문이다. 대신 공용 스테이징(`index`)은 14:33 이후 한 번도 갱신되지 않았다.

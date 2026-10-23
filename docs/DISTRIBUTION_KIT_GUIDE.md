@@ -177,6 +177,7 @@
 | `SNS_Auto_Posting_Kit` | **v1.07** | 2026-10-20 | 가입 화면 오류 수정(buylife.xyz 이동·확인 메일 localhost), 마법사 마무리 URL Configuration 안내. 211개 파일·비밀값·DB 대조 통과, 두 프로그램 tsc·기존 시험 통과 | 프로그램 코드 변경은 독립 모드 전용 — 운영 미배포(다음 배포 때) |
 | `SNS_Auto_Posting_Kit` | **v1.08** | 2026-10-22 | INSTA v1.34→v1.46(7일 게시 그래프·그날 게시 글, 게시 시각 칸 `published_at` + 칸 없는 DB 대비 저장 보완, 화면 정리), Threads 운영 v2.14(같음). 카드뉴스 병합 코드·공지 띠는 배포판에서 숨김 — 공지 띠를 독립 모드에서 그리지 않게 `(dashboard)/layout.tsx` 수정, `kit.json` `schemaCheckIgnore`에 `cns_projects`·`cns_templates`·`cns_insta_posts`·`cardnews-images`·`notices`. 299개 파일·비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build`(INSTA) 통과. 출력 `D:PDSAIMater_KIT\x60 | v1.07 이하 설치자는 `KIT/upgrade-20261022-published-at.sql` 권장(안 해도 게시 정상). 실제 수강생 계정 설치·게시는 미시험 |
 | `Threads_AI_Planner_Kit` | **v1.01** | 2026-10-23 | Threads AI 기획 자동화(`threads-easy-planner` v1.47) 단독 첫 배포판 — 독립 모드 스위치·자체 가입/메일 확인 경로·`KIT/`(PROMPTS.md 프롬프트 정리 포함). 58개 파일·비밀값·DB 대조 통과, 짧은 경로 독립 모드 `npm ci`+`build`+`next start` 동작 확인. 출력 `D:\PDS\AIMater_KIT\` | 플랫폼 앱·예약 없음(AI 키만). 실제 수강생 계정 설치 리허설 대기 |
+| `Threads_AI_Planner_Kit` | **v1.02** | 2026-10-23 | 프로그램 v1.48 — 글과 함께 이미지 자동 생성(나노바나나·GPT Image, 버킷 `tep-images`·`image_urls` 칸), v1.01 설치자용 `KIT/upgrade-20261023-images.sql`, PROMPTS 9장. 65개 파일·비밀값·DB 대조(버킷 1) 통과, 짧은 경로 독립 모드 `npm ci`+`build` 통과 | 운영 v1.48 배포·크롬 실생성 1장 확인. 실제 수강생 설치 리허설 대기 |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
