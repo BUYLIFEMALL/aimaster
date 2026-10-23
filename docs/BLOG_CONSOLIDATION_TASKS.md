@@ -109,6 +109,18 @@
 | BLC-INS-01 | 올인원 `src/lib/blog/pipeline.ts` 사진 경로는 최대 6장, 에이전트 `src/app/api/generate/route.ts`의 imageCount는 1~5 | 업로드 사진 수와 AI 생성 장수를 분리해야 원본 6장 누락/오류 방지. BLC-02~04 | 개발: 규격/변환/검증; 디자인: ‘내 사진’과 ‘AI 생성 장수’ 안내 분리; 신규 시스템 아님. 안정성: 1~6장 순서/대표/저장 회귀 필요; 적용성: 기존 코드 차이 확인; 편의: 원본 사진 보존 | 이관 설계 과제 등록, 현재 앱 결함으로 판정하지 않음 |
 | BLOG-WORK-BUNDLE-01 | 공통 아이디어 표에 이미 있는 ‘회원 개인 콘텐츠 작업 묶음’ | 키워드→자료→원고 전달 시 반복 검색/생성을 줄일 가능성. BLC-11과 중복 범위 먼저 비교 | 개발: 작업 ID/revision/권한; 디자인: 이어서 작업; 새 흐름 후보이며 신규성 미확정. 안정성: 설계 검증 필요; 적용성: 단계적 적용 후보; 편의: 반복 입력 감소 기대 | 별도 제안 검토 대기. 이번 등록으로 구현 승인/완료 처리하지 않음 |
 
+### 30일 정리 기록(관리자 「30일 자동 정리」 표) — 병합 대상 6곳 남음 (2026-10-23 Claude Code 윈도우 안내, 비용 없음)
+- 관리자 대시보드 「Supabase DB & 미디어 파일 용량」 탭의 30일 정리 표는 각 프로그램 정리 작업이 회원별 `usage_logs`(`action=cleanup_expired`)를 남겨야 나온다. 지금 26곳 중 19곳 완료, **남은 7곳 중 6곳이 이 병합 대상**이다.
+- 붙이는 법: 공용 기준 코드 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`)를 `node scripts/check-shared-modules.mjs --sync`로 사본을 받고, 정리 route에서 지운 행을 `addCleanupCount(counts, user_id, "<표 이름>", 1)`로 센 뒤 끝에 `await logCleanupUsage(admin, "<slug>", counts)` 한 줄. 기록 실패는 정리를 막지 않는다. 지우는 행을 고를 때 `user_id`를 함께 select해야 회원별로 센다. 예: `threads/src/lib/postImageCleanup.ts`.
+- 대상(정리 route · 지우는 표):
+  - `ai-auto-blog` — `app/api/cron/cleanup-images/route.ts` · `blog_posts`, `blog_candidates`
+  - `blog-workroom` — `src/app/api/cron/cleanup/route.ts` · `blog_workroom_items`
+  - `naver-blog-agent` — `src/app/api/cron/cleanup/route.ts` · `nba_collected_materials`, `nba_posts`
+  - `naver-blog-allinone` — `src/app/api/cron/cleanup/route.ts` · `aio_posts`
+  - `naver-blog-seo-studio` — `app/api/cron/draft-retention/route.ts` · 표 이름이 다른 파일 함수 안에 있음(route가 부르는 함수에서 세기)
+  - `tistory-auto-blog` — `app/api/cron/cleanup-images/route.ts` · `tistory_posts`, `tistory_candidates`
+- 병합으로 폐지될 프로그램은 붙이지 않아도 된다(남는 쪽만). 붙였으면 `node scripts/deploy.mjs --version-only --all`의 「30일 정리 기록」 줄에서 빠지는지 확인. 급하지 않은 변경이라 다음 배포 때 함께(미배포 대기).
+
 ## 다음 CLI 인수인계 양식
 
 ```text
