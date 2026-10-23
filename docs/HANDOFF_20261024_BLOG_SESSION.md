@@ -20,9 +20,9 @@
 | A-2 | 주제 관련 최근 뉴스 (BLOG) | ✅ v2.16 배포 `naver-blog-agent-5vxc7vkrv` | `src/lib/topicNews.ts` |
 | A-3 | 사진 후기 방문 정보·근거 있는 FAQ (올인원) | ✅ v2.17 배포 | `src/lib/photoReview.ts`, `ai/photoReviewPipeline.ts` |
 | A-4 | 화자 직접 입력·내 경험 메모·경험 질문 (올인원) | ✅ v2.17 배포 `naver-blog-agent-bu2m09y4n` | `src/lib/memberVoice.ts`, `api/experience-questions` |
-| **A-5** | **본문 이미지를 다른 문단으로 옮기기 (BLOG)** | ⏸ **플랜 커밋 완료(`01682e6b6`), 주인님 승인 대기 — 코드 미수정** | [`PLAN_20261023_MERGE_A5_IMAGE_MOVE.md`](../naver-blog-agent/docs/PLAN_20261023_MERGE_A5_IMAGE_MOVE.md) |
-| A-6 | 썸네일에 제목 글자 넣기 (올인원) | ⚪ 플랜 전 | — |
-| A-7 | 메모·파일로 주제 입력 (올인원) | ⚪ 플랜 전 | — |
+| A-5 | 본문 이미지를 위/아래 **소제목**으로 옮기기 (BLOG) | ✅ v2.18 배포 `naver-blog-agent-mejx4uje3` | `src/lib/draftImages.ts` `moveImageMarker` |
+| A-6 | 대표 이미지에 제목 글자 넣기·되돌리기 (올인원) | ✅ v2.18 배포 | `src/lib/thumbnailTitle.ts` |
+| A-7 | 메모·텍스트 파일로 글감 만들기 (올인원) | ✅ v2.18 배포 | `src/lib/memoSource.ts`, `api/collector` `memo` |
 
 - 권장: A-5·A-6·A-7은 모두 AI 비용이 없으므로 **세 기능을 만든 뒤 v2.18로 한 번에 배포(빌드 1회)**. 버전은 실제 배포 때만 올린다.
 - A-5 구현 요점: `src/lib/draftImages.ts`에 `moveImageMarker(content, slot, "up"|"down")` — `[IMAGE INSERT - 설명]` 표시를 한 문단 위/아래로 옮기고, 다른 표시를 지나치면 본문 이미지 목록 순서도 바꾼다(화면·확장은 N번째 표시에 N번째 사진을 끼움, `page.tsx` bodySlotIndex). 결과 이미지 카드에 「▲ 위 문단으로」「▼ 아래 문단으로」 버튼, 저장은 기존 지우기와 같은 `persistImages` 흐름(본문이 바뀌면 검수 표시 초기화).
@@ -55,3 +55,9 @@
 
 프로그램 링크:
 https://naver-blog-agent.buylife.xyz
+
+## 8. 2026-10-24 갱신 — 묶음 A 완료
+- A-5·A-6·A-7 구현 → v2.18 배포(빌드 1회) → 크롬 확인 완료. 상세: `naver-blog-agent/AGENTS.md` 맨 위, `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래.
+- 미배포 대기 1건: 글자 넣은 대표 이미지 카드 전체 표시 `9ee3cb3d8`(다음 에이전트 배포 때 v2.19).
+- **다음 첫 단계:** 묶음 B(작업실·콘텐츠 → SEO 스튜디오) 기능 하나씩 플랜 보고 → 승인. 먼저 `naver-blog-seo-studio` 작업 중 표·인수인계를 확인한다.
+- 주인님 결정 대기는 §5 그대로(경계 2건, v2.15 자동 감지 실제 확인, 확장 팝업 확인, BC-05·자동 연결 ⑨).
