@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 네이버 블로그 에이전트: 옛 버킷 이미지 주소 글 23건 이관 · 「프로그램 비교표」 명칭 정정 (세션 `claude-win-20261023-nba-oldimg`·`claude-win-20261023-rename-compare`)
+- **이관(운영 DB ref `esgxyikcnnvmlhygjkth`, 주인님 승인)**: 미발행 글 23건(시험 회원 21·관리자 1·일반 회원 1)의 옛 버킷 주소 76곳 → 파일 40개를 `naver-blog-agent-media` 같은 경로로 복사, 글 23행을 소유자+id+updated_at 조건으로 주소만 교체(23/23). 옛 주소 남은 글 0, 새 주소 40개 200, 상태 분포 그대로, 크롬(시험 회원) 열람 화면 이미지 24장 표시. 플랜 `naver-blog-agent/docs/PLAN_20261023_OLD_IMAGE_MIGRATION.md`.
+- **미배포 대기(v2.13)**: 30일 정리가 복사본을 파일 이름의 생성 시각으로 판정 `f1aabf2a2` — 다음 배포 때 함께.
+- **명칭 정정(주인님 지시)**: `docs/PROGRAM_CAPABILITY_MAP.md`는 「프로그램 비교표」(구 「역량 지도」). 루트 CLAUDE/AGENTS/GEMINI·분야별 요약 맨 위 안내, 원칙 23/22 본문, 협업 규칙, 문서 제목, `scripts/deploy.mjs` 출력 변경(`48b3fc4d0` 등). 파일 경로·옛 기록은 그대로.
+- 비용 없음.
+- 링크: https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — music v1.45 배포(휴대폰 폭 가로 넘침) · 비교표 카드 찾기 보완
 - **music v1.45**(세션 `claude-win-music-v145`, 승인 빌드 1회, `music-4n6o3dlzo` Ready): `<main>` `overflow-x-clip`. 크롬 390px: 수정 전 창이 114px 밀림 → 수정 뒤 `scrollX` 0. DB·비교표 v1.45. **발견(미처리)**: 휴대폰 폭에서 기획 목록 선택 막대(sticky)가 화면 아래에 붙지 않음(데스크톱 정상, 이번 수정과 무관) → `music/docs/IMPROVEMENTS.md` 맨 아래.
 - **`deploy.mjs`**: 프로그램 비교표 카드 제목과 「주소·폴더」 줄 사이에 메모 줄이 있으면 카드를 못 찾던 문제 수정(버전 자동 고침·카드 주소/내용 점검 3곳). 그 결과 그동안 숨어 있던 차이가 보임 — **카드 주소가 DB와 다른 4곳**: `video-to-gif`·`shop-detail-page`·`auto-detail-page`(옛 vercel.app 주소), `playlist-channel-studio`(카드 playlist-channel-studio · DB playlist-maker — 어느 쪽이 맞는지 담당 세션 확인 필요). 카드 내용 뒤처짐 20 → 34개(10단계 이상 15개).
