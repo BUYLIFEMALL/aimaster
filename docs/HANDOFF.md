@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 공용 스테이징 블랙박스 · emotion-writer 문서 정정 · 맥미니 커밋 안내
+- **블랙박스 `scripts/index-watch.mjs`(새)**: 세션 시작 점검·커밋 전/푸시 전 훅·`safe-commit`/`commit-paths` 시작·끝마다 `.git/aimaster-index-log.txt`(커밋 안 됨, 두 장비 공유)에 「시각 · 장비 · pid · 부른 곳 · index 크기@수정 시각 · 항목 수 · HEAD 파일 수」 한 줄. 직전 기록보다 절반 아래로 줄면 ⚠와 직전 기록 표시(막지 않음), 최근 2,000줄 유지. **다음에 스테이징이 줄면 이 파일에서 줄어든 시각 앞뒤 줄을 보고 원인을 좁힐 것.** 훅 재설치 완료, 자기 시험·도우미 시험 9개 통과.
+- **emotion-writer `AGENTS.md`** 1·3절 사진 출처·편집 비율을 코드 기준으로(문서만, 77번 줄 버전 기록은 그대로). 「Gemini 2.5」는 실제 `gemini-2.5-flash`라 맞음.
+- **맥미니 플레이북 §2-1·§4**: 권장 커밋 = `commit-paths.mjs`(일반)·`safe-commit.mjs`(공용 문서), `commit-gate.sh`는 대안. **맥미니 세션 확인 요청**: `node --test scripts/commit-paths.test.mjs scripts/safe-commit.test.mjs` → pass 9·fail 0, `sh -x .git/hooks/pre-commit 2>&1 | head -3`으로 훅이 node를 찾는지. 결과를 HANDOFF에.
+- 참고: 지금 공용 스테이징에 `shop-detail-page` 항목 5개(수정 3·삭제 2)가 올라가 있음 — 맥미니 담당 폴더라 건드리지 않음.
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — AI 음악 스튜디오 v1.10: Lyria RealTime(실험) 서버 녹음
 - 주인님 선택 「가」: 서버가 회원 Gemini 키로 웹소켓(`BidiGenerateMusic`, v1beta→거절 시 v1alpha) 연결 → 설명·PLAY → 정한 길이(10~120초)만큼 16비트 PCM을 모아 WAV로 저장(키는 서버에서만). `lib/providers/lyriaRealtime.ts`, `adapters/gemini.ts` 분기, 모델 `gemini:lyria-realtime-exp`(연주곡, 비용 추정 30초당 $0.04). 근거: 공식 문서 + 구글 공식 JS 라이브러리 원본.
 - 검수: 가짜 웹소켓 시험 4개 포함 33개·build, 커밋 `8386be97f`, 배포 `ai-music-studio-67tdocyrr` Ready, DB v1.10. 크롬 시험 회원: 30초 요청 → 약 33초 만에 완료, WAV 48kHz 스테레오 5.49MB·30초 재생.
