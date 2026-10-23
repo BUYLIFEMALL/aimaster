@@ -44,7 +44,6 @@
 | `ai-slide-builder` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-slide-builder/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
-| `auto-detail-page` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `auto-detail-page/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-mastering-studio` | 좌측 「GUIDE」 배지 클래스 띄어쓰기 누락(`text-[10px]bg-gradient-to-r`)으로 글자 크기·금색 배경이 안 붙던 것 수정(클래스만) | `b5b875484` | 2026-10-24 · Claude Code(윈도우 · 세션 `claude-win-20261023-bgm`) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 크롬에서 배지 금색 배경 확인 |
 | `competitor-analysis` | 경쟁사 분석 화면 안내 문구 정정(「다른 회원이 조사한 회사 정보 재사용」 → 본인 30일 안 조사만) | `87b773ef2` | 2026-10-23 · Claude Code(윈도우) | `competitor-analysis/AGENTS.md` 2026-10-23 v1.09 절 | 버전 +0.01 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
@@ -60,6 +59,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `auto-detail-page` | **배포 안 함 — 배포 불필요(꺼진 프로그램)** · 2026-10-24 주인님 결정(Claude Code 맥미니 `claude-mac-20261023-ecommerce`) | 좌측 메뉴 계정 위치 `22c6cda35` — 프로그램이 「AI 상세페이지 자동화」에 병합돼 `is_active=false`라 회원이 보지 않는 화면에 빌드 비용만 들어 내보내지 않음. 코드는 저장소에 남아 있어 다시 켜서 배포할 때 함께 나감 |
 | `naver-blog-seo-studio` | v2.15 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-seo-studio-2myivnlgq`) | 「길게」 분량 보강(소제목마다 문단 4개) `ff50a6a91` + 블로그 병합 B-4 이미지 비율·표현 방식·참고 사진(저장 안 함) `7ec2f9029` |
 | `shorts-onestop-studio` | v1.41 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 회원 기능 실패 수정·승인 빌드, `shorts-onestop-studio-r6ntxtshv`) | Kling v2.1 제거 `c2b698db4` + 대기분 공용 사본 동기화 `fd1f3cb67`(동작 불변) — 크롬 `/design` 선택 목록 4개·화면 코드에 kling-v2.1 없음 |
 | `shots` | v1.43 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 회원 기능 실패 수정·승인 빌드, `shots-lrb2sbwid`) | Kling v2.1 제거 `c2b698db4` + 대기분 공용 사본 동기화 `fd1f3cb67`(동작 불변) — 화면 v1.43, 장면 편집 화면은 시험 계정 장면이 없어 미확인 |
