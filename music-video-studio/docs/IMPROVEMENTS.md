@@ -12,7 +12,7 @@
 - **Gemini API Veo 3.1 Preview 종료로 장면 영상 생성 실패 가능**: Google 공식 문서(https://ai.google.dev/gemini-api/docs/video)에 「The Veo 3.1 Preview in the Gemini API has been shut down」, 종료일 **2026-10-22**. 종료 모델 ID `veo-3.1-generate-preview`·`veo-3.1-fast-generate-preview`·`veo-3.1-lite-generate-preview` — 이 프로그램이 그대로 사용 중(`src/lib/music/presets.ts:41-46`, 기본값 `src/lib/music/project.ts:21`).
 - **권장 대체**: `gemini-omni-1.1-flash`(같은 회원 Gemini 키, Interactions API) — 이미 공용 기준 코드 `ai-video-providers`(`ai-image-studio/lib/video/videoProviders.ts`, 사본 shots·shorts-onestop-studio)에 구현돼 있음. 연동 부분만 교체(이미지 프롬프트 규칙과 같이 프롬프트는 유지). 4·6·8초·16:9 등 옵션 차이 확인 필요.
 - **상태**: ✅ v1.12로 처리·배포(커밋 `cea11442a`). 공용 `ai-video-providers` 사본으로 Gemini Omni Flash 사용. 크롬 시험 계정 실제 생성 1회 성공 — 글만 프롬프트 4초 → 4.01초·1280×720(16:9)·MP4 1.45MB, 장면 묘사와 일치.
-- **미배포 대기(2026-10-23)**: 장면 화면 루프 버튼 문구 「On (8s)」→「On」(8초 고정 규칙 없어짐). 다음 배포 때 함께 — `docs/PENDING_DEPLOYS.md`.
+- ~~미배포 대기~~ ✅ v1.13에 함께 배포(2026-10-23): 장면 화면 루프 버튼 문구 「On (8s)」→「On」(8초 고정 규칙 없어짐). 다음 배포 때 함께 — `docs/PENDING_DEPLOYS.md`.
 - **남은 확인**: 루프(시작 이미지 = 끝 화면)와 이미지→영상 생성은 실제 호출로 아직 시험하지 않음(가짜 응답 시험만 통과). 회원이 처음 쓸 때 오류가 나면 이 항목부터 확인.
 
 ## 1. 프로그램 로직 및 기능 개선

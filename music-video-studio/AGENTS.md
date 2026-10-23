@@ -114,3 +114,9 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-23 v1.13 — 「이 뮤직비디오의 곡」: AI 음악 스튜디오 가져오기 + 직접 올리기 (Claude Code 윈도우)
+- 주인님 지시 「내가 만들어놓은 음악에서 가져오거나 직접 등록 하거나 둘다 가능하게 해줘」, 플랜 루트 `docs/analysis-music-studio-20261023/BGM_SHARED_PLAN.md` 3단계.
+- `MusicProject.song`(`SongRef`: source ams|file·제목·ref·파일 이름·길이·모델) — `sanitizeProject`가 곡 번호 형식·출처를 검사. 서버 `src/lib/music/amsSongs.ts` + `GET /api/music/ams`(목록 / `?ref=` 듣기 주소 1시간). 직접 올린 파일은 `src/lib/music/localSong.ts`(IndexedDB `music_video_studio`/`song`, 서버 전송 없음). 화면 `src/components/studio/SongCard.tsx`(1단계 맨 위).
+- 한계: 직접 올린 파일은 그 브라우저에만 있음(다른 PC·사이트 데이터 삭제 시 다시 올리기 안내). 「새로 시작」은 곡 정보만 비우고 브라우저 보관 파일은 다음 올리기 때 덮어씀. 최종 영상 합치기(곡+장면)는 이 프로그램에 아직 없음 — 다음 후보.
+- 검수·배포: tsc·시험 19개·build, 배포 Ready·DB v1.13, 크롬 직접 올리기·유지·빼기·404 확인. 시험 계정 가져오기 화면은 로그인 후 확인 필요. 비용: 빌드 1회.
