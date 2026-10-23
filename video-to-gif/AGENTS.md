@@ -370,3 +370,7 @@
 - `/guide#mac-ffmpeg`로 바로 이동(구역 맨 위): Homebrew 공식 설치 한 줄·evermeet.cx 링크·`~/Library/Application Support/BuylifeGifRenderer` 안내. `#renderer-update` 「🔔 업데이트 방법」 확장·렌더러 방법. 엣지(`edge://extensions`)·윈도우 경고(메모장으로 확인) 문구 표시.
 - 확인 못 한 것: 「너무 옛 판 → 브라우저 변환」 실제 화면(최소 판을 올려야 재현 — 판단 함수 시험·운영 페이지 판단 확인만), 맥에서 ffmpeg가 없을 때의 작업 화면 연결(이 맥미니에는 ffmpeg가 있음).
 - 비용: 없음.
+- 추가 확인(같은 날): 주인님이 맥미니 크롬 확장을 새로고침해 v1.21로 올린 뒤 「다시 확인」 → 확장 v1.21·새 버전 알림 사라짐·「사용 중 · ffmpeg 8.1」 그대로 — 옛 판 알림 → 업데이트 → 알림 사라짐 흐름 확인.
+
+## 📌 인수인계 (2026-10-24, 이커머스 담당 세션)
+- 이 세션(10-23~10-24)의 전체 정리·남은 일·환경·배운 점: [`docs/IMPROVEMENT_HANDOFF_20261024.md`](docs/IMPROVEMENT_HANDOFF_20261024.md). 다음 CLI는 이 문서부터 읽을 것.
