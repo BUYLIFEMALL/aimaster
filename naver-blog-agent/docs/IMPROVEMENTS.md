@@ -197,6 +197,12 @@
 - `test:categories`: v2.08부터 원고 저장이 브라우저 캐시 전에 `cacheablePosts()`(`src/lib/postCache.ts`)를 쓰는데 시험 환경에 없어 캐시가 조용히 실패 → `scripts/test-category-selection.cjs` 환경에 실제 `cacheablePosts` 추가.
 - 결과: 블로그 에이전트 `test:*` 전체 실패 0건. 프로그램 코드 변경 없음.
 
-## 2026-10-23 (Claude Code 윈도우, 쓰레드 콘텐츠 운영 작업 중 발견) — ⚠️ 확인 필요: 이미지 공개 주소가 깨졌을 가능성
+## 2026-10-23 (Claude Code 윈도우, 쓰레드 콘텐츠 운영 작업 중 발견) — ✅ v2.12로 해결(2026-10-23): 이미지 공개 주소가 깨졌던 문제
 - `src/app/api/generate-image/route.ts`(약 71행)·`upload-image`가 버킷 `ai-image-generations`에 올리고 `getPublicUrl`로 공개 주소를 돌려준다. 그런데 이 버킷은 2026-10-21 AI 이미지 자동화 v1.23에서 **비공개**로 바뀌었다(공개 주소 → 400 「Bucket not found」). 쓰레드 콘텐츠 운영에서 실제로 확인한 증상과 같은 구조라, 블로그 글에 넣는 생성·업로드 이미지가 깨질 가능성이 크다.
 - 아직 이 프로그램에서 직접 확인하지 않았다(코드 확인만). 다음 첫 단계: 이미지 1장 생성/업로드 → 받은 주소를 열어 400인지 확인 → 맞으면 쓰레드 콘텐츠 운영 v2.19처럼 전용 공개 버킷으로 옮기거나 서명 주소로 바꾸는 방안을 주인님께 여쭙기(외부 블로그에 붙는 이미지라 서명 주소는 만료 문제가 있음).
+
+## 2026-10-23 v2.12 (Claude Code 윈도우) — 이미지 전용 공개 버킷 `naver-blog-agent-media`
+- 확인: 옛 버킷 `ai-image-generations`의 이 프로그램 파일 54장(회원 폴더 3개, 10-21 이후 6장) 공개 주소가 모두 400 「Bucket not found」였다.
+- 수정(주인님 선택 「전용 공개 버킷」): `src/lib/mediaBucket.ts`(`MEDIA_BUCKET = "naver-blog-agent-media"`, `LEGACY_MEDIA_BUCKET`) → `upload-image`·`generate-image`가 새 버킷 사용. `cron/cleanup`은 두 버킷을 모두 돌며 30일 지난 파일을 지움(개수 누적). 업로드는 서버(서비스 키)만 하므로 storage 정책 없음. 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 버킷 생성, SQL 기록 `supabase/migrations/20261023240000_nba_media_bucket_v212.sql`.
+- 검수: tsc 0, `test:post-save`·`test:member-data`·`test:publishing`·`test:extension` 통과, 빌드 통과(확장 ZIP v2.12). 크롬(시험 회원)에서 프로그램 화면 안에서 `/api/upload-image`로 120×80 PNG 업로드 → 200, 새 버킷 주소 이미지가 화면에 표시(naturalWidth 120) → 시험 파일 삭제.
+- 남은 일: 옛 버킷에 남은 54장은 옮기지 않음(주인님 선택) — 이미 저장된 글의 옛 이미지 주소는 계속 깨진 채로 30일 정리 때 사라진다. AI 이미지 생성(유료)은 같은 저장 코드라 별도 시험하지 않음.

@@ -1,5 +1,7 @@
 # 네이버 블로그 에이전트 (naver-blog-agent) — AI 에이전트 인수인계 문서
 
+> **✅ v2.12 배포(2026-10-23) — 이미지 전용 공개 버킷:** 옛 공용 버킷 `ai-image-generations`가 10-21 비공개로 바뀌어 생성·업로드 이미지 공개 주소가 400이던 문제. `src/lib/mediaBucket.ts`의 `naver-blog-agent-media`(공개)로 저장, 30일 정리는 두 버킷 모두. 상세 `docs/IMPROVEMENTS.md` 맨 아래.
+
 > **✅ v2.11로 배포 완료(2026-10-23) — 쓰이지 않은 연결 번호 정리:** `src/app/api/extension/auth/route.ts` GET(번호 발급)이 새 번호를 저장한 뒤, 이 회원의 **기한이 지났고 연결에 쓰이지 않은 번호(`pair_code` 남아 있음)만** 삭제(토큰이 확장에 전달된 적 없어 다시 쓰일 수 없는 행, 연결된 기기 행은 그대로). 운영 DB 조회: 현재 대상 0행·연결된 기기 7. tsc 통과.
 
 > **✅ v2.11로 배포 완료(2026-10-23) — 설치 상태 문구:** `src/components/extension/ExtensionConnectButton.tsx` `ExtensionInstallStatus`가 확장 응답이 없을 때 「확장을 찾지 못했습니다 · 설치 전이거나 v2.09 이하 버전입니다」로 표시(v2.09 이하 확장의 연결 통로는 `ping`에 답하지 않아, v2.10에서는 설치돼 있어도 「설치 전」으로 보였음 — 웨일 실확인). tsc 통과.
