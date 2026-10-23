@@ -39,3 +39,8 @@
 ## 2026-10-23 ✅ 배포됨 v1.30 (정리 기록, 예전 「미배포 대기」) — Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
 - 댓글 30일 정리(`cleanup-comments`)가 회원별 `cleanup_expired`(comments=내용을 비운 댓글 수) 기록 — 공용 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
+
+## 2026-10-23 미배포 대기 — 「모니터링 중지」 즉시 화면 반영 (Claude Code 윈도우)
+
+- 쓰레드 댓글 앱 v1.27 검수 중 발견한 문제(중지 직후 버튼이 새로고침 전까지 「중지」로 남음)가 같은 구조라 함께 고침. `components/settings/MonitoringSettingsForm.tsx`가 중지 성공 즉시 꺼짐 화면을 보여 주고, 서버 값이 바뀌면 다시 서버 값을 따른다.
+- 다음 배포 때: 버전 +0.01, 중지 → 바로 「▶ 모니터링 시작」 확인.

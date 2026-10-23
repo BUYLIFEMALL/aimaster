@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { startMonitoringAction, stopMonitoringAction } from "@/lib/actions/monitoring";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
@@ -26,6 +26,9 @@ export function MonitoringSettingsForm({
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 중지 직후 router.refresh()가 늦게 반영돼 버튼이 「중지」로 남던 문제 — 중지에 성공하면 화면부터 꺼짐으로 바꾼다. 서버 값이 바뀌면 다시 서버 값을 따른다.
+  const [stopped, setStopped] = useState(false);
+  useEffect(() => setStopped(false), [enabled]);
 
   async function handleStart(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,13 +47,14 @@ export function MonitoringSettingsForm({
     setIsPending(true);
     try {
       await stopMonitoringAction();
+      setStopped(true);
       router.refresh();
     } finally {
       setIsPending(false);
     }
   }
 
-  if (enabled) {
+  if (enabled && !stopped) {
     return (
       <div className="space-y-3">
         <p className="text-sm text-th-success">
