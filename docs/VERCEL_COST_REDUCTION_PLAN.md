@@ -24,7 +24,7 @@
 | # | 내용 | 상태 |
 |---|---|---|
 | A1 | 팀 기본 빌드 머신과 전체 프로젝트를 **Basic(2 vCPU)**으로 변경 | ✅ 2026-10-17 주인님 적용 |
-| A2 | 동시 빌드 추가 구매(On-Demand Concurrent Builds) 끄기 — 여러 빌드가 겹치면 줄을 서서 순서대로(느려지지만 추가 요금 없음) | 🟡 주인님이 Vercel 설정에서 확인 |
+| A2 | 동시 빌드 추가 구매(On-Demand Concurrent Builds) 끄기 — 여러 빌드가 겹치면 줄을 서서 순서대로(느려지지만 추가 요금 없음) | ✅ 2026-10-23 완료 — 조회 결과 92개 중 **62개가 켜져 있었음**(팀 기본값은 꺼짐·포함 자리 1개). 주인님 승인으로 Vercel API `PATCH /v9/projects/{id}` `resourceConfig.elasticConcurrencyEnabled=false`로 62개 모두 끔 → 재조회 92개 전부 꺼짐, 다른 설정 변화 0. 원래 값 백업: `docs/evidence/vercel-odcb-backup-20261023.json`(다시 켤 프로젝트가 있으면 대시보드 프로젝트 Settings → Build and Deployment → On-Demand Concurrent Builds). 점검: 같은 API로 `elasticConcurrencyEnabled===true` 프로젝트가 0개인지 |
 | A3 | **Basic에서 빌드가 `JavaScript heap out of memory`(메모리 부족)로 실패하면** — Basic·Standard는 메모리가 둘 다 8GB라 Standard로 올려도 대개 해결되지 않는다. ① 먼저 그 프로그램만 빌드 명령의 Node 메모리 한도를 올린다: `package.json`의 `"build": "next build"` → `"build": "node --max-old-space-size=6144 ./node_modules/next/dist/bin/next build"`(윈도우 로컬에서도 동작, 추가 비용 없음) ② 그래도 실패하면 **그 프로젝트만** Enhanced(16GB)로 올리고 이 표·그 프로그램 `AGENTS.md`에 기록한다(팀 기본값은 Basic 유지). CPU가 모자라 빌드가 너무 느린 경우만 Standard를 검토한다 | ✅ 2026-10-17 규칙 확정(주인님 제안 반영) |
 
 ### B. 메인 사이트 불필요한 자동 빌드 막기 (가장 효과 큼)
@@ -64,6 +64,7 @@
 ## 4. 이력
 
 - 2026-10-23 (Claude Code 윈도우, 주인님 지시) **동시 빌드 금지 규칙 추가** — 팀 전체 한 번에 하나씩 배포(시작 전 빌드 중 배포 확인), 푸시는 작업 단위로 모아서. 근거: Next.js 보안 업데이트 49개 연속 배포 중 메인 사이트 git 빌드가 푸시마다 생겼다 취소돼(40분 60건) 동시 빌드 자리를 차지함을 발견 — Vercel 문서 「Ignored Build Step으로 취소된 빌드도 배포 한도·동시 빌드 자리를 차지」. A2(동시 빌드 추가 구매 끄기)는 여전히 주인님 확인 대기.
+- 2026-10-23 (Claude Code 윈도우, 주인님 승인 「62개 모두 끄기」) **A2 완료** — 켜져 있던 62개 프로젝트의 동시 빌드 추가 구매를 끔(92개 전부 꺼짐). 겹친 빌드는 이제 추가 요금 없이 줄을 서서 기다린다.
 | 날짜 | 내용 | 작성 |
 |---|---|---|
 | 2026-10-17 | B1·B2 적용(`vercel.json` `ignoreCommand` → `scripts/vercel-ignore-build.sh`), C1~C6 규칙을 CLAUDE.md·AGENTS.md·GEMINI.md 「배포 비용 절감 규칙」·공용 기준 코드 규칙(재배포 등급제)에 반영, A3 메모리 부족 대응 | Claude Code(윈도우) |
