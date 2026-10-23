@@ -211,3 +211,22 @@ test("v1.20 곡의 시간 가사는 lyrics_out에만 있다 — 장면 시각 �
   assert.equal(sanitizeProject({ timedLyrics: lyricsOut }).timedLyrics, lyricsOut);
   assert.equal(sanitizeProject({}).timedLyrics, "");
 });
+
+test("v1.21 장면별 카메라 움직임: 자동은 예전 문장, 고르면 지시로 바꿈, 저장본 정리", async () => {
+  const { CAMERA_MOTIONS, isCameraMotion } = await import("../src/lib/music/presets.ts");
+  const old = buildVideoPrompt({ prompt: "x" }, "anime", false);
+  assert.equal(buildVideoPrompt({ prompt: "x" }, "anime", false, "auto"), old, "자동은 예전과 같다");
+  assert.match(old, /Smooth, gentle camera motion/);
+  const orbit = buildVideoPrompt({ prompt: "x" }, "anime", false, "orbit");
+  assert.match(orbit, /Camera movement: Smooth arc shot orbiting/);
+  assert.match(orbit, /even if the scene description mentions a different one/);
+  assert.ok(!/Smooth, gentle camera motion/.test(orbit), "고정 문구는 빠진다");
+  assert.match(orbit, /No text, no subtitles, no logos/);
+  assert.match(buildVideoPrompt({ prompt: "x" }, "anime", true, "push_in"), /dolly push-in[\s\S]*loops seamlessly/, "루프 문장 유지");
+  assert.equal(CAMERA_MOTIONS.length, 8);
+  assert.ok(CAMERA_MOTIONS.every((c) => c.value === "auto" || c.prompt.length > 20));
+  assert.ok(isCameraMotion("drone") && !isCameraMotion("zoom") && !isCameraMotion(undefined));
+  // 저장본: 목록 값만 남기고, 자동·잘못된 값·옛 저장본은 칸 없음
+  const s = sanitizeProject({ scenes: [{ id: "a", lyric: "l", prompt: "p", camera: "orbit" }, { id: "b", lyric: "l", prompt: "p", camera: "zoom" }, { id: "c", lyric: "l", prompt: "p", camera: "auto" }, { id: "d", lyric: "l", prompt: "p" }] }).scenes;
+  assert.deepEqual(s.map((x) => x.camera), ["orbit", undefined, undefined, undefined]);
+});

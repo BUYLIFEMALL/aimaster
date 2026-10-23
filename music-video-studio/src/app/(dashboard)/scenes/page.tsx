@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, Film, ImageIcon, Loader2, Package } from "lucide-react";
 import JSZip from "jszip";
-import { ASPECT_RATIOS, VEO_MODELS, VIDEO_LENGTHS, type AspectRatioId, type VeoModelId, type VideoLength } from "@/lib/music/presets";
+import { ASPECT_RATIOS, CAMERA_MOTIONS, VEO_MODELS, type CameraMotionId, VIDEO_LENGTHS, type AspectRatioId, type VeoModelId, type VideoLength } from "@/lib/music/presets";
 import { effectiveLength, estimateCost } from "@/lib/music/veo";
 import type { Scene } from "@/lib/music/types";
 import { useStudio } from "@/components/studio/ProjectProvider";
@@ -55,6 +55,8 @@ export default function ScenesPage() {
   }
 
   const patchVideo = (patch: Partial<typeof video>) => update((p) => ({ ...p, video: { ...p.video, ...patch } }));
+  const setCamera = (id: string, camera: CameraMotionId) =>
+    update((p) => ({ ...p, scenes: p.scenes.map((sc) => (sc.id === id ? { ...sc, camera: camera === "auto" ? undefined : camera } : sc)) }));
   const perSceneCost = (hasImage: boolean) => estimateCost(video.model, effectiveLength(video.length, video.loop, hasImage));
   const modelInfo = VEO_MODELS.find((m) => m.value === video.model)!;
 
@@ -90,7 +92,7 @@ export default function ScenesPage() {
       const start = await fetch("/api/music/video/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: scene.prompt, model: video.model, length: video.length, loop: video.loop, ratio: video.ratio, artStyle, image }),
+        body: JSON.stringify({ prompt: scene.prompt, model: video.model, length: video.length, loop: video.loop, ratio: video.ratio, artStyle, image, camera: scene.camera ?? "auto" }),
       });
       // 영상(MP4)이 응답되면 완성 — 시작 때 바로 올 수도, 상태 확인 중에 올 수도 있다
       const showVideo = async (res: Response) => {
@@ -366,6 +368,21 @@ export default function ScenesPage() {
               </div>
 
               <div className="space-y-2 pt-2 border-t border-slate-800/60">
+                {/* v1.21 장면별 카메라 움직임 — 영상 프롬프트에만 쓰인다(자동 = 예전과 같음) */}
+                <label className="flex items-center gap-2 text-xs text-slate-400">
+                  <span className="shrink-0 font-semibold">카메라 움직임</span>
+                  <select
+                    className={SELECT}
+                    value={s.camera ?? "auto"}
+                    disabled={m.videoBusy}
+                    onChange={(e) => setCamera(s.id, e.target.value as CameraMotionId)}
+                  >
+                    {CAMERA_MOTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  </select>
+                </label>
+                {video.loop && CAMERA_MOTIONS.find((c) => c.value === s.camera)?.oneWay && (
+                  <p className="text-[11px] leading-relaxed text-amber-300/90">심리스 루프가 켜져 있어 처음 구도로 돌아와야 합니다. 한 방향 움직임은 어색할 수 있어요 — 「고정」·「피사체 돌기」·「손으로 든 느낌」을 권합니다.</p>
+                )}
                 <div className="flex flex-wrap gap-1.5">
                   <button
                     type="button"

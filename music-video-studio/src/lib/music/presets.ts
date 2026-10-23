@@ -59,3 +59,17 @@ export const ASPECT_RATIOS: Option<AspectRatioId>[] = [
 export const TEXT_MODEL = "gemini-3.7-flash";
 // 2026-10-17: 장면 이미지 모델 이름은 공용 기준 코드 gemini-image-models(@/lib/ai/nanoBananaModels — 기준은 ai-image-studio)의 기본 등급(주인님 지시로 통합). 화질·온도는 이 프로그램이 정한다(1K·0.7).
 export const IMAGE_MODEL = getNanoBananaConfig(DEFAULT_NANO_BANANA_MODEL).modelName;
+
+// v1.21 장면별 카메라 움직임 — 장면 영상 프롬프트에 넣는 영어 지시(auto는 예전 고정 문구 그대로). oneWay는 한 방향으로만 움직여 심리스 루프와 잘 맞지 않는 것.
+export type CameraMotionId = "auto" | "static" | "push_in" | "pull_out" | "truck" | "orbit" | "drone" | "handheld";
+export const CAMERA_MOTIONS: (Option<CameraMotionId> & { prompt: string; oneWay?: boolean })[] = [
+  { value: "auto", label: "자동", prompt: "" },
+  { value: "static", label: "고정", prompt: "Locked-off static camera on a tripod; the camera does not move, only the subject and environment move." },
+  { value: "push_in", label: "천천히 다가가기", prompt: "Slow, steady dolly push-in toward the main subject.", oneWay: true },
+  { value: "pull_out", label: "천천히 물러나기", prompt: "Slow, steady dolly pull-out away from the main subject, gradually revealing more of the surroundings.", oneWay: true },
+  { value: "truck", label: "옆으로 이동", prompt: "Smooth lateral tracking shot moving sideways alongside the subject.", oneWay: true },
+  { value: "orbit", label: "피사체 돌기", prompt: "Smooth arc shot orbiting slowly around the main subject." },
+  { value: "drone", label: "드론처럼 내려다보며", prompt: "Aerial drone shot gliding slowly forward high above the scene, looking down.", oneWay: true },
+  { value: "handheld", label: "손으로 든 느낌", prompt: "Handheld camera with subtle natural shake, intimate documentary feel." },
+];
+export const isCameraMotion = (v: unknown): v is CameraMotionId => CAMERA_MOTIONS.some((c) => c.value === v);

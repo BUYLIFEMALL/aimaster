@@ -1,4 +1,4 @@
-import type { ArtStyleId, AspectRatioId, SceneCount, VeoModelId, VideoLength } from "./presets";
+import type { ArtStyleId, AspectRatioId, CameraMotionId, SceneCount, VeoModelId, VideoLength } from "./presets";
 
 export interface Scene {
   id: string;
@@ -6,6 +6,8 @@ export interface Scene {
   lyric: string;
   /** 영문 촬영 묘사(이미지·영상 생성에 쓴다) */
   prompt: string;
+  /** v1.21 장면 영상의 카메라 움직임 — 없거나 "auto"면 예전처럼 고정 문구 */
+  camera?: CameraMotionId;
 }
 
 export interface VideoSettings {

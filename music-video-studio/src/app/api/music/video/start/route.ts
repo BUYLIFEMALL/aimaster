@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authorize, requireGeminiKey, rec, errorJson } from "@/lib/apiGuard";
 import { buildVideoPrompt } from "@/lib/music/prompts";
 import { isVeoModel, isVideoLength } from "@/lib/music/veo";
-import { ART_STYLES, ASPECT_RATIOS, type ArtStyleId, type AspectRatioId } from "@/lib/music/presets";
+import { ART_STYLES, ASPECT_RATIOS, isCameraMotion, type ArtStyleId, type AspectRatioId } from "@/lib/music/presets";
 import { findVideoModel } from "@/lib/video/videoModels";
 import { submitVideoJob, VideoGenError } from "@/lib/video/videoProviders";
 
@@ -35,6 +35,8 @@ export async function POST(request: Request) {
     if (!model || model.provider !== "gemini") return errorJson("지원하지 않는 영상 모델입니다.", 400);
     const artStyle = (ART_STYLES.some((s) => s.value === body.artStyle) ? body.artStyle : "cinematic") as ArtStyleId;
     const ratio = (ASPECT_RATIOS.some((r) => r.value === body.ratio) ? body.ratio : "16:9") as AspectRatioId;
+    // v1.21 장면별 카메라 움직임 — 목록 밖 값은 자동(예전 고정 문구)
+    const camera = isCameraMotion(body.camera) ? body.camera : "auto";
     const image = cleanDataUrl(body.image);
     if (body.image && !image) return errorJson("장면 이미지 형식이 올바르지 않습니다.", 400);
     // 심리스 루프: 끝 화면을 시작 이미지와 같게 지정한다(이미지가 있을 때만)
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
     const result = await submitVideoJob({
       key: key.apiKey,
       model,
-      prompt: buildVideoPrompt({ prompt: scenePrompt }, artStyle, loop),
+      prompt: buildVideoPrompt({ prompt: scenePrompt }, artStyle, loop, camera),
       startUrl: image,
       endUrl: loop ? image : undefined,
       seconds: body.length,

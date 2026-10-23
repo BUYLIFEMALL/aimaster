@@ -1,6 +1,6 @@
 // 가사·스토리보드·이미지 프롬프트와 AI 응답 파서(순수 함수). 연도는 매번 현재 연도를 넣는다(루트 CLAUDE.md 핵심 원칙 8).
 // 사용자 입력은 <data> 태그 안의 "데이터"로만 취급하게 하고(지시문 무시), 인물은 기본적으로 한국인으로 묘사한다(핵심 원칙 3).
-import { ART_STYLES, type ArtStyleId } from "./presets";
+import { ART_STYLES, CAMERA_MOTIONS, type ArtStyleId, type CameraMotionId } from "./presets";
 import type { Scene } from "./types";
 
 const clean = (text: string, max: number): string => text.replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
@@ -110,12 +110,16 @@ export function buildImagePrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyl
     .join(" ");
 }
 
-export function buildVideoPrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyleId, loop: boolean): string {
+export function buildVideoPrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyleId, loop: boolean, camera: CameraMotionId = "auto"): string {
   const style = ART_STYLES.find((s) => s.value === artStyle) ?? ART_STYLES[0];
+  // v1.21 장면별 카메라 움직임 — 고르면 고정 문구 대신 그 지시를 넣고, 장면 묘사의 카메라 표현보다 우선하게 한다
+  const motion = CAMERA_MOTIONS.find((c) => c.value === camera && c.value !== "auto");
   return [
     scene.prompt,
     `Visual style: ${style.prompt}.`,
-    "Smooth, gentle camera motion suited to a music video. No text, no subtitles, no logos.",
+    motion
+      ? `Camera movement: ${motion.prompt} Follow this camera movement even if the scene description mentions a different one. No text, no subtitles, no logos.`
+      : "Smooth, gentle camera motion suited to a music video. No text, no subtitles, no logos.",
     loop ? "The scene should return to its starting composition so it loops seamlessly." : "",
   ]
     .filter(Boolean)

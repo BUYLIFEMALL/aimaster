@@ -171,6 +171,7 @@ export default function GuidePage() {
             </p>
             <div className="rounded-lg bg-slate-950/60 p-2.5 text-[11px] text-slate-400 border border-slate-800/80">
               💡 심리스 루프 On 설정 시 쇼츠 배경용 무한 반복 클립 제작 가능!
+              <br />🎥 장면 카드의 「카메라 움직임」에서 다가가기·물러나기·피사체 돌기·드론 등을 장면마다 고를 수 있어요(기본 「자동」).
             </div>
           </div>
         </div>

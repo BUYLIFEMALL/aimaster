@@ -1,5 +1,5 @@
 // 프로젝트 기본값과 검증(브라우저 저장본·불러온 JSON 파일을 허용 목록·범위로 정리한다).
-import { ART_STYLES, ASPECT_RATIOS, GENRES, SCENE_COUNTS, VEO_MODELS, VIDEO_LENGTHS, type SceneCount } from "./presets";
+import { ART_STYLES, ASPECT_RATIOS, GENRES, isCameraMotion, SCENE_COUNTS, VEO_MODELS, VIDEO_LENGTHS, type SceneCount } from "./presets";
 import type { MusicProject, Scene, SongRef } from "./types";
 
 export function newSceneId(): string {
@@ -43,7 +43,7 @@ export function sanitizeProject(raw: unknown): MusicProject {
   const video = rec(r.video);
   const scenes: Scene[] = (Array.isArray(r.scenes) ? r.scenes : []).slice(0, 8).map((s, i) => {
     const sr = rec(s);
-    return { id: str(sr.id, 64, `s-${i}`), lyric: str(sr.lyric, 300), prompt: str(sr.prompt, 900) };
+    return { id: str(sr.id, 64, `s-${i}`), lyric: str(sr.lyric, 300), prompt: str(sr.prompt, 900), ...(isCameraMotion(sr.camera) && sr.camera !== "auto" ? { camera: sr.camera } : {}) };
   });
   const count = (SCENE_COUNTS as readonly number[]).includes(r.sceneCount as number) ? (r.sceneCount as SceneCount) : fb.sceneCount;
   return {
