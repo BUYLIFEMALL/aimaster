@@ -19,6 +19,12 @@
 - 다음부터: ① 커밋 직후 `git show --stat HEAD | tail -1`의 삭제 수가 비정상(수백~수천)이면 푸시하지 말 것 ② 이상하면 `git ls-files | wc -l`(정상 약 1만)과 `git ls-tree -r HEAD | wc -l` 비교 ③ 복구는 「정상 커밋 트리 + 이후 커밋의 A/M 파일만」으로, 이후 커밋의 「A」로 들어간 공용 문서는 조각일 수 있으니 줄 수를 정상본과 비교 ④ 안전 커밋 도우미·`deploy.mjs` 세션 점검에 「인덱스 항목 수 급감」 경고를 넣는 것이 좋다(제안).
 - **재발 방지 적용(2026-10-23, Claude Code 윈도우, 주인님 지시)**: 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 최상단에 사고 내용과 규칙 5가지를 고정. 자동 차단 `scripts/check-index-health.mjs` — pre-commit(이번 커밋이 50개 넘게 지우거나 스테이징이 HEAD 절반 아래면 커밋 차단)·pre-push(올릴 커밋 중 50개 넘는 삭제나 트리 절반 감소면 푸시 차단), 승인된 대량 삭제만 `AIMASTER_ALLOW_MASS_DELETE=1`. 설치 `node scripts/git-hooks/install.mjs`(pre-push 추가). 시험: 정상 통과 0.2초, 폴더 하나(263개) 삭제·65개 인덱스·`c2e7c4db2` 푸시 흉내 모두 차단, 승인 변수만 통과.
 
+## 2026-10-23 — Storage 파일을 다른 버킷·경로로 복사하면 저장소 생성 시각(`created_at`)이 복사 시점으로 바뀌어, 그 시각으로 지우는 30일 정리가 원래 기한보다 늦게 지운다 (naver-blog-agent v2.13, Claude Code 윈도우)
+- 증상: 옛 버킷 → 새 버킷으로 이미지 40장을 옮긴 뒤, 정리 작업(`cron/cleanup`)이 파일의 `created_at`(복사한 날)로 판정해 최대 14일 늦게 지우게 됨. 「최초 생성 기준 30일」 원칙 위반.
+- 해결: 파일 이름에 들어 있는 생성 시각(13자리 ms)과 저장소 시각 중 이른 쪽으로 판정(`naver-blog-agent/src/app/api/cron/cleanup/route.ts`, `f1aabf2a2`).
+- 다른 프로그램 점검(2026-10-23, 블로그 8개 제외): 저장소 복사가 있는 `blog-content-maker`(원고 복제)·`music`(구간 수정본 커버)은 **DB 기록의 생성일/만료일**로 지우므로 해당 없음. 저장소 시각으로 지우는 곳은 `threads-content-ops/lib/mediaCleanup.ts`·`shots` 영상 정리·`shop-detail-page` 생성물 정리·`banana-canvas/src/lib/files.ts` 등 — 지금은 파일을 옮기지 않아 문제 없음.
+- 다음부터 확인: 버킷 이관·경로 변경으로 파일을 복사할 때는 ① 그 프로그램의 정리 기준이 저장소 시각인지 DB 생성일인지 먼저 본다 ② 저장소 시각이면 원래 생성일을 지킬 방법(파일 이름 시각, DB 생성일 대조)을 같은 작업에서 넣는다.
+
 ## 2026-10-23 — 여러 프로그램이 함께 쓰던 Storage 버킷을 한 프로그램이 비공개로 바꾸자, 공개 주소(`getPublicUrl`)를 쓰던 다른 프로그램의 사진이 모두 400 「Bucket not found」 (threads-content-ops v2.19, Claude Code 윈도우)
 - 증상: 쓰레드 콘텐츠 운영 보관함에 붙인 사진 썸네일이 글자(대체 텍스트)로만 보임. 파일은 저장소에 있는데 공개 주소가 400 `NoSuchBucket`. Threads 발행도 사진 주소를 못 가져가 실패할 상태.
 - 원인: `ai-image-generations` 버킷을 AI 이미지 자동화 v1.23(10-21)이 비공개로 바꿈(`update storage.buckets set public=false`, 이 SQL은 `updated_at`을 안 바꿔 버킷 정보로는 시점이 안 보임). 같은 버킷을 쓰는 쓰레드 콘텐츠 운영·네이버 블로그 에이전트는 확인하지 않았음.
