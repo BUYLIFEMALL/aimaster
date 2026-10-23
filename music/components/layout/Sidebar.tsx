@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
@@ -45,11 +46,34 @@ const UTILITY_ITEMS = [
 
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
+  // 휴대폰 폭(767px 이하)에서는 메뉴를 접고 위쪽 ☰ 버튼으로 펼친다(원칙 19, 2026-10-23). 페이지를 옮기면 다시 접는다.
+  const [mobileOpen, setMobileOpen] = useState(false);
+  useEffect(() => setMobileOpen(false), [pathname]);
 
   return (
     <aside className="flex w-full flex-col border-b border-[#272732] bg-[#121217] p-4 md:w-72 md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0 z-20">
+      {/* 휴대폰 머리줄: 로고·버전·펼침 버튼 */}
+      <div className="flex items-center justify-between md:hidden">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="flex items-center justify-center h-7 px-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xs tracking-wider">
+            SUNO
+          </span>
+          <span className="text-base font-black tracking-tight text-white truncate">음악 자동화</span>
+          <span className="text-[11px] font-bold text-orange-400">{APP_VERSION}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-expanded={mobileOpen}
+          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+          className="h-10 w-10 shrink-0 rounded-xl border border-[#272732] bg-[#16161f] text-lg text-zinc-200"
+        >
+          {mobileOpen ? "✕" : "☰"}
+        </button>
+      </div>
+
       {/* 상단 브랜드 헤더 */}
-      <div className="md:min-h-0 md:overflow-y-auto pr-1">
+      <div className={`${mobileOpen ? "block mt-4" : "hidden"} md:block md:mt-0 md:min-h-0 md:overflow-y-auto pr-1`}>
         <div className="mb-6 px-1">
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2">
