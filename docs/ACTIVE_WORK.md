@@ -18,5 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `naver-blog-seo-studio/` | Claude Code(윈도우, 웨일 주인님 지정) | 2026-10-23 | 자동 포스팅 background 이전 + v2.12 배포 |
+| `naver-blog-seo-studio/` | Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg` | 2026-10-23 | 입력·자동 포스팅 background 이전(`c65d87fbb`, 미배포) → 다음 확인점: 주인님 웨일 실입력 결과 → v2.12 배포(빌드 1회 승인됨, `deploy.mjs`) |
 | `music-video-studio/` (공용 `ai-video-*` 사본 파일은 손대지 않음) | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-bgm` | 2026-10-23 | 배경음악 공용화 3단계 — AI 음악 스튜디오 곡 가져오기 + 직접 올리기(플랜 `docs/analysis-music-studio-20261023/BGM_SHARED_PLAN.md`) |
