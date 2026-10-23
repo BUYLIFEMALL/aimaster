@@ -7,6 +7,7 @@ import { removeDuplicateTitleLines } from '@/blog/utils/duplicateTitle'
 import { sanitizeBodyYear, sanitizeYear } from '@/blog/utils/yearPolicy'
 import { sourceMaterialRule, type SourceMaterial } from '@/blog/utils/postSource'
 import { dropRepeatedHeading } from './headingDedupe'
+import { lengthPlan } from './lengthPlan'
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -118,9 +119,9 @@ async function generateWithContentModel(
 
   const toneRule = options.tone ? `- 글 분위기 (Tone): '${options.tone}' 어조와 문체로 작성하세요.` : ''
   const audienceRule = options.targetAudience ? `- 대상 독자 (Target Audience): '${options.targetAudience}' 독자층을 염두에 두고 맞춤형 용어와 어조로 작성하세요.` : ''
-  const wordCountRule = options.wordCount ? `- 목표 단어 수 (Word Count): 약 ${options.wordCount}단어 (공백 제외 약 ${Math.round(options.wordCount * 3.5)}자 이상)로 풍부하게 작성하세요.` : ''
-  // 2026-10-23: 전체 목표 분량을 문단 4개에 나눈 최소 글자 수(gpt-4o-mini가 1,000단어 지시에도 1,200자 정도로 짧게 쓰던 문제, 글 18번)
-  const minPerParagraph = Math.max(500, Math.round((options.wordCount ? options.wordCount * 3.5 : 2000) / 4))
+  // 2026-10-23 v1.92 후보: 분량을 단락 「개수」로 지시한다(글자 수만 주면 GPT-4.1도 목표의 60%만 씀, 글 20번) — utils/news/lengthPlan.ts
+  const { totalChars, perSection: minPerParagraph, unitsPerSection } = lengthPlan(options.wordCount)
+  const wordCountRule = options.wordCount ? `- 목표 분량: 공백 제외 약 ${totalChars}자(문단 4개 × 약 ${minPerParagraph}자)로 풍부하게 작성하세요.` : ''
   const referenceRule = options.referenceUrls && options.referenceUrls.length > 0 ? `- 참고 URL: ${options.referenceUrls.join(', ')}` : ''
   const customRule = options.customInstructions ? `- 추가 필수 지시사항 (Custom Instructions): ${options.customInstructions} (★ 이 지침을 최우선으로 반영할 것)` : ''
 
@@ -154,14 +155,16 @@ ${koreaNowRule()}
 2. 소제목 및 문단 구성: { "제목", "요약글", "소제목 1", "소제목 2", "소제목 3", "소제목 4", "문단 1", "문단 2", "문단 3", "문단 4" } 4개의 독립적인 소제목과 문단으로 구성하세요. 4개 문단은 서로 다른 핵심 내용을 다루세요.
 3. 태그 사용 필수 룰:
    - 각 문단의 소제목("소제목 1", "소제목 2", "소제목 3", "소제목 4")은 마크다운 ## (<h2>) 태그로 표현됩니다.
-   - 글 전체 내용 중 구체적 세부 설명 부분에 마크다운 ### (<h3>) 태그를 정확히 3번 사용하세요. ### 작은 제목은 바로 위 ## 소제목과 다른 문구로 쓰고, 소제목 문구를 그대로 되풀이하지 마세요.
+   - 각 문단("문단 1"~"문단 4")은 마크다운 ### (<h3>) 작은 제목 1개로 시작하세요(글 전체 4개). ### 작은 제목은 바로 위 ## 소제목과 다른 문구로 쓰고, 소제목 문구를 그대로 되풀이하지 마세요.
    - 글 전체 내용 중 리스트 또는 핵심 질문/답변 목록 부분에 마크다운 - (<li>) 태그를 2번 이상 사용하세요.
-4. 분량 및 딥다이브 설명:
-   - 각 문단("문단 1", "문단 2", "문단 3", "문단 4")은 구체적인 정보, 설명, 풍부한 예시를 포함하여 문단마다 공백 제외 ${minPerParagraph}자 이상(전체 ${minPerParagraph * 4}자 이상)이 되도록 길고 풍부하게 작성하세요. 짧게 요약하지 마세요.
+4. 분량 및 딥다이브 설명 (단락 개수를 반드시 지키세요):
+   - 각 문단은 「### 작은 제목 1개 + 단락 ${unitsPerSection}개」로 구성합니다. 단락 하나는 3~4문장(공백 제외 약 250자)입니다. 목록(-)은 단락 수에 넣지 않습니다.
+   - 단락마다 구체적인 예시, 수치, 실천 방법 중 하나 이상을 담으세요. 같은 말을 되풀이해 길이를 채우지 마세요.
+   - 그래서 문단마다 공백 제외 약 ${minPerParagraph}자 이상, 글 전체 약 ${totalChars}자 이상이 됩니다. 단락 수를 줄이거나 짧게 요약하지 마세요.
 5. 가독성 및 톤앤매너:
    - 정보성 글을 작성하되, 사람들이 끝까지 읽기 편하도록 대학생 수준에서 편하게 읽을 수 있는 명확하고 친절한 어조로 작성하세요.
    - 구글 검색 사용자의 검색 의도를 고려하여 질의-답변(Q&A) 구조와 명쾌한 해결책을 제시하세요.
-   - 2~3문장마다 줄바꿈(\n\n)을 넣어 가독성을 극대화하세요.
+   - 단락(3~4문장)마다 줄바꿈(\n\n)을 넣어 가독성을 극대화하세요.
    - 강조하려고 일반 단어·표현을 작은따옴표/큰따옴표로 감싸지 마세요. 직접 인용이나 고유 명칭에 꼭 필요한 따옴표만 원문 표기 그대로 사용하세요.
 
 [필수 지침 - JSON 출력 구조]:
@@ -173,10 +176,10 @@ ${koreaNowRule()}
   "소제목 2": "${subKey2} 관련 매력적인 2번 소제목",
   "소제목 3": "${subKey3} 관련 매력적인 3번 소제목",
   "소제목 4": "${subKey4} 관련 매력적인 4번 소제목",
-  "문단 1": "소제목 1에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)",
-  "문단 2": "소제목 2에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)",
-  "문단 3": "소제목 3에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)",
-  "문단 4": "소제목 4에 해당하는 구체적이고 풍부한 설명, 예시, H3 및 LI 태그 포함 문단 (2~3문장마다 \n\n 줄바꿈)"
+  "문단 1": "소제목 1에 해당하는 ### 작은 제목 1개 + 단락 ${unitsPerSection}개(단락마다 3~4문장, 예시·수치·방법 포함, LI 태그 활용, 단락 사이 \n\n 줄바꿈)",
+  "문단 2": "소제목 2에 해당하는 ### 작은 제목 1개 + 단락 ${unitsPerSection}개(단락마다 3~4문장, 예시·수치·방법 포함, LI 태그 활용, 단락 사이 \n\n 줄바꿈)",
+  "문단 3": "소제목 3에 해당하는 ### 작은 제목 1개 + 단락 ${unitsPerSection}개(단락마다 3~4문장, 예시·수치·방법 포함, LI 태그 활용, 단락 사이 \n\n 줄바꿈)",
+  "문단 4": "소제목 4에 해당하는 ### 작은 제목 1개 + 단락 ${unitsPerSection}개(단락마다 3~4문장, 예시·수치·방법 포함, LI 태그 활용, 단락 사이 \n\n 줄바꿈)"
 }
 `.trim()
 
