@@ -63,6 +63,7 @@
   2. 창이 숨김 상태라 캡처·크기 조절이 안 되면, 페이지 안에 `width:400px` iframe으로 같은 주소를 열고 iframe 안의 `getComputedStyle`로 `.desktop-sidebar`=none·`.mobile-sidebar`=block·본문 폭·가로 넘침 없음을 확인한다(미디어 쿼리는 iframe 폭 기준, 같은 도메인이라 로그인 유지). 보고에는 "화면으로 본 것"과 "스타일 값으로 확인한 것"을 구분해 적는다.
   3. 점검 명령(위쪽 메뉴 코드는 있는데 전환 규칙이 없는 프로그램만 출력, 2026-10-14 기준 0개):
      `for d in */; do p=${d%/}; grep -rqs 'className="mobile-sidebar"' $p/src --include=*.tsx && ! grep -q "mobile-sidebar{display:block" $p/src/app/globals.css && echo $p; done`
+  4. **배포 전 점검(무료, 코드 읽기만, 2026-10-23~)**: `node scripts/check-mobile-account.mjs` — 좌측 메뉴가 있는 모든 프로그램에서 「휴대폰 전환(☰) 흔적 없음」·「데스크톱 전용 메뉴에만 로그아웃 1곳(펼침 메뉴에 계정 빠짐)」 후보를 보여 준다(`--all`은 전체 목록). 새 프로그램·뼈대 복사·좌측 메뉴 수정 뒤 후보에 내 폴더가 없어야 한다(2026-10-23 기준 0곳). 코드 판정이라 오판이 있을 수 있으니 후보는 위 1~2번으로 화면 확인. 세션 시작 점검(`node scripts/deploy.mjs --version-only --all`)에도 요약 한 줄이 나온다.
 
 ## 구현 골격
 
@@ -88,6 +89,7 @@ const UTILITY_ITEMS = [
 - [ ] 낮은 화면에서 메뉴만 내부 스크롤되고 계정·로그아웃에 접근할 수 있다.
 - [ ] 모바일 메뉴에서도 동일한 항목과 순서를 확인했다.
 - [ ] 767px 이하에서 좌측 메뉴가 숨고 위쪽 접는 메뉴가 나오며 본문이 화면 전체 폭이다(전환 CSS 포함, 가로 넘침 없음 — 위 "모바일 레이아웃" 검수 방법으로 확인).
+- [ ] 배포 전 `node scripts/check-mobile-account.mjs` 후보에 이 프로그램이 없다(휴대폰 ☰ 펼침 메뉴에 계정·로그아웃 포함).
 - [ ] 링크 대상과 활성 상태를 브라우저에서 확인했다.
 
 ## 예외
