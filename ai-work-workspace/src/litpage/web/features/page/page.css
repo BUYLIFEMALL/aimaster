@@ -15,6 +15,14 @@
   transition: transform 200ms ease;
 }
 .layout.layout-wide { --content-width: minmax(auto, 100%); }
+/* 이식판: 휴대폰 폭(767px 이하)에서는 좌우 여백을 16px로 줄인다(원본은 최소 96px라 390px 화면에서 본문이 200px 아래로 좁아졌다 — docs/SIDEBAR_LAYOUT_STANDARD.md 모바일 기준) */
+@media (max-width: 767px) {
+  .layout {
+    --margin-width: minmax(16px, 1fr);
+    --margin-left-width: minmax(16px, 1fr) !important;
+    --margin-right-width: minmax(16px, 1fr) !important;
+  }
+}
 .layout-full { grid-column: full; isolation: isolate; }
 .layout-content { grid-column: content; min-width: 0; }
 .nc-page-header { position: relative; width: 100%; }

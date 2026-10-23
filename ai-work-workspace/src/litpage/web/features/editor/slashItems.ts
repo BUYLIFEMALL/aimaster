@@ -14,6 +14,7 @@ import { pageIdOfBlock } from './commands.ts';
 import { insertDatabase } from '../database/createDatabase.ts';
 import { openMoveToDialog } from '../page/MoveTo.tsx';
 import { applySlashOverrides, extraSlashItems } from './blocks/registry.ts';
+import { AI_STAGE_OPEN } from '../ai/aiApi.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { ColorSwatch } from './colorSwatch.tsx';
 import { stickyFormat } from './prefs.ts';
@@ -297,7 +298,9 @@ export function slashCatalog(): SlashItem[] {
   ];
   // block modules (editor/blocks/*.block.tsx) replace how some items create their block (callout v2, tabs, embeds…);
   // other areas add items through registerSlashItems (AI image, skills …)
-  return applySlashOverrides([...items, ...extraSlashItems()]);
+  const all = applySlashOverrides([...items, ...extraSlashItems()]);
+  // 이식판 1단계: AI(회의록 받아쓰기·AI 블록·AI에게 묻기·스킬·AI 이미지·에이전트)는 회원 본인 키 연결(2단계) 전까지 메뉴에서 뺀다
+  return AI_STAGE_OPEN ? all : all.filter((it) => !/^(ai-|ask-ai|agent)/i.test(String((it as { id?: string }).id ?? '')));
 }
 
 /** Compact aliases of a Turn into target: "Bulleted list" → turnbullet, turnintobulletedlist … (…078). */
