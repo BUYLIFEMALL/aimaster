@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 카테고리 템플릿 문서 주소를 DB 기준으로 재생성 · 세션 시작 점검에 주소 요약 한 줄 (세션 `claude-win-20261023-ctm-url`·`claude-win-20261023-url-summary`)
+- `scripts/generate_category_template_map.cjs`가 운영 DB `programs.app_url`을 먼저 쓰도록 고치고 `docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md` 재생성 — 연결 안 되던 주소 7개(INSTA·Threads 포스팅·시네마틱·LP·플레이리스트·Shots·GIF)를 실제 주소로, 그 밖의 내용 변경 없음(생성 전 비교로 확인). `fcca2d1b1`.
+- `deploy.mjs --version-only --all`에 「문서 속 프로그램 주소」 한 줄(`check-app-urls.mjs --json`, 동시 접속으로 22초→2초) `d6136e3fd`. 현재 연결 안 되는 주소 14개(예: `aimaster.buylife.xyz` 21곳, `tarot.buylife.xyz` 4곳, `docs/DESIGN_TEMPLATE_CATALOG.md`의 옛 이름 주소들) — 각 문서 담당이 정리.
+- **⚠ 알림(다른 세션)**: 내 커밋 `48b3fc4d0`(「프로그램 비교표」 명칭 변경)에 다른 세션이 고치던 `scripts/deploy.mjs` 미커밋 수정(비교표 카드에서 제목과 「주소·폴더」 줄 사이 메모 줄이 있어도 찾는 정규식, music 카드)이 함께 들어갔다. 내용은 그대로 원격에 있으니 그 세션은 다시 커밋할 필요 없음(작업 파일이 HEAD와 같으면 이 때문). 되돌리지 않음.
+- 비용 없음.
+
 ## 2026-10-23 — Claude Code(윈도우) · 세션 `claude-win-20261023-collect-status`: 댓글 자동 수집 상태 보기 — 세 댓글 앱 + 통합 받은편지함 (미배포 · 비용 없음)
 
 - 주인님 승인(INSTA v1.36 보고 추가 개선 제안 3개, 「전부 미배포 대기」). 플랜 `comment-inbox/docs/PLAN_20261023_AUTO_COLLECT_STATUS.md`.
