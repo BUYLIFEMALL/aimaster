@@ -85,6 +85,56 @@ for (const f of targets) {
   }
 }
 
+/** 충돌 때 재시도(2026-10-23): (기준 → 지금) 차이를 덩어리로 나눠, 덩어리마다 「바뀌기 전 줄들」이 HEAD에서 정확히 한 곳이면 그 자리를 바꾼다.
+ *  기준 사본에 다른 세션의 미커밋 줄이 섞여 3방향 병합이 「같은 자리」로 멈출 때, 내 덩어리만 HEAD에 얹는다(오늘 손으로 하던 「HEAD + 내 변경」).
+ *  앞뒤 2줄을 붙여 찾고, 못 찾으면 붙인 줄 없이 다시 찾는다. 하나라도 못 찾거나 여러 곳이면 실패(추측해서 넣지 않음). */
+function patchOnto(head, base, work) {
+  if (head === null) return null;
+  const crlf = head.includes("\r\n");
+  const H = toLF(head).split("\n");
+  const tmp = join(GITDIR, "safe-commit", `.tmp-p-${process.pid}`);
+  mkdirSync(tmp, { recursive: true });
+  const [b, w] = ["base", "work"].map((n) => join(tmp, n));
+  writeFileSync(b, toLF(base)); writeFileSync(w, toLF(work));
+  const diffOf = (ctx) => { try { return run(["diff", "--no-index", "--no-color", `-U${ctx}`, b, w]); } catch (e) { return e.stdout?.toString() ?? ""; } };
+  const hunksOf = (txt) => {
+    const out = []; let cur = null;
+    for (const l of txt.split("\n")) {
+      if (l.startsWith("@@")) { cur = { before: [], after: [] }; out.push(cur); continue; }
+      if (!cur || l.startsWith("\\")) continue;
+      if (l.startsWith(" ")) { cur.before.push(l.slice(1)); cur.after.push(l.slice(1)); }
+      else if (l.startsWith("-")) cur.before.push(l.slice(1));
+      else if (l.startsWith("+")) cur.after.push(l.slice(1));
+    }
+    return out;
+  };
+  const find = (seq) => {
+    if (!seq.length) return [];
+    const hits = [];
+    for (let i = 0; i + seq.length <= H.length; i++) if (seq.every((s, k) => H[i + k] === s)) hits.push(i);
+    return hits;
+  };
+  const wide = hunksOf(diffOf(2)), narrow = hunksOf(diffOf(0));
+  rmSync(tmp, { recursive: true, force: true });
+  const plan = [];
+  for (const h of wide) {
+    let hits = find(h.before), use = h;
+    if (hits.length !== 1) {
+      // 붙인 줄(앞뒤 문맥)에 다른 세션 줄이 섞였을 수 있음 → 같은 변경의 문맥 없는 덩어리로(빼는 줄이 있을 때만 — 순수 추가는 자리를 알 수 없음)
+      const core = narrow.filter((n) => n.before.length && h.before.join("\n").includes(n.before.join("\n")) && h.after.join("\n").includes(n.after.join("\n")));
+      if (core.length !== 1) return null;
+      use = core[0]; hits = find(use.before);
+      if (hits.length !== 1) return null;
+    }
+    plan.push({ at: hits[0], len: use.before.length, after: use.after });
+  }
+  plan.sort((x, y) => y.at - x.at);
+  for (let i = 1; i < plan.length; i++) if (plan[i].at + plan[i].len > plan[i - 1].at) return null; // 덩어리가 겹치면 포기
+  for (const p of plan) H.splice(p.at, p.len, ...p.after);
+  const out = H.join("\n");
+  return crlf ? out.replace(/\n/g, "\r\n") : out;
+}
+
 /** 3방향 병합: HEAD 내용 + (기준 → 지금) 차이. 줄바꿈은 HEAD 저장 형식에 맞춤 */
 function mergeOnto(head, base, work) {
   const crlf = head !== null && head.includes("\r\n");
@@ -98,6 +148,10 @@ function mergeOnto(head, base, work) {
   catch (e) { out = e.stdout?.toString() ?? ""; conflicts = e.status > 0 ? e.status : -1; }
   rmSync(tmp, { recursive: true, force: true });
   if (conflicts > 0) {
+    // 2026-10-23: 겹침이 있으면 먼저 「내 변경 덩어리를 HEAD의 정확한 자리에」 얹어 본다 — 아래 자동 풀이는 「내 줄 → HEAD 줄」로 이어 붙여
+    // 줄 순서가 바뀔 수 있었다(임시 저장소 재현: A B C D2 E2 F2 → A B E2 F2 C D2). 덩어리 자리를 못 찾을 때만(예: 두 세션이 맨 위에 각자 추가) 아래로.
+    const p = patchOnto(head, base, work);
+    if (p !== null) return { out: p, conflicts: 0, patched: true };
     // 겹친 곳이 「양쪽 모두 같은 자리에 새 줄을 넣기만 한 것」(기준 쪽이 비어 있음)이면 둘 다 남김: 내 줄 위, HEAD 줄 아래
     // (HANDOFF 맨 위에 두 세션이 각자 항목을 넣는 흔한 경우). 기존 줄을 서로 다르게 고친 진짜 충돌은 그대로 충돌.
     const M = "".padEnd(17, "<"), B = "".padEnd(17, "|"), E = "".padEnd(17, "="), Z = "".padEnd(17, ">");
@@ -172,6 +226,7 @@ for (let attempt = 1; attempt <= 5 && !done; attempt++) {
           console.log("  최신 HEAD를 다시 읽고 그 위에 다시 고친 뒤 --begin부터 다시 하세요.");
           process.exit(1);
         }
+        if (m.patched) console.log(`ℹ ${f}: 3방향 병합이 겹쳐 「HEAD + 내 변경 덩어리」(각 덩어리를 HEAD의 같은 자리에) 방식으로 얹었습니다 — 기준 사본에 다른 세션 미커밋 줄이 섞인 경우. 아래 바뀐 줄을 확인하세요.`);
         text = m.out;
       }
       if (head !== null && text === head) { results.push({ f, same: true }); continue; }
