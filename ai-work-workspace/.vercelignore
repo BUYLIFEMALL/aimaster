@@ -1,0 +1,9 @@
+node_modules
+.next
+.vercel
+.env
+.env.*
+upstream-tests
+tests
+test-artifacts
+tsconfig.tsbuildinfo

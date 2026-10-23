@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { runRpc } from "@/server/runtime";
 import { memberFromUser } from "@/server/member";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -20,6 +21,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const site = request.headers.get("sec-fetch-site");
   if (site && site !== "same-origin" && site !== "none") {
     return NextResponse.json({ name: "PermissionError", message: "Cross-site request blocked" }, { status: 403 });
+  }
+  if (name === "signOut") {
+    // 로그아웃은 AIMaster 통합 로그인(Supabase 세션)을 끝낸다 — 원본 자체 세션 쿠키는 쓰지 않는다
+    await (await createClient()).auth.signOut();
+    return NextResponse.json({}, { headers: { "Cache-Control": "private, no-store" } });
   }
   const access = await checkProgramAccessApi();
   if (!access.allowed) {

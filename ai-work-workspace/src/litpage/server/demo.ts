@@ -46,8 +46,9 @@ export function demoConfig(): { enabled: boolean; resetHours?: number; sandboxHo
 export function isSafeDemoDataDir(raw: string | undefined): boolean {
   if (!raw || raw.includes('\0')) return false;
   const dir = resolve(raw);
-  const home = resolve(process.env.HOME ?? '');
-  const cwd = resolve(process.cwd());
+  // 이식판: 체험 모드는 쓰지 않는다. 빌드 추적이 프로젝트 전체를 담지 않게 이 경로 계산은 추적에서 뺀다
+  const home = resolve(/*turbopackIgnore: true*/ process.env.HOME ?? '');
+  const cwd = resolve(/*turbopackIgnore: true*/ process.cwd());
   if (dir === '/' || dir === home || dir === cwd || dir === dirname(cwd) || dir === '/tmp' || dir === '/private/tmp') return false;
   if (dir.includes('/.git/') || dir.endsWith('/.git') || dir.includes('/node_modules/') || dir.includes('/.claude/')) return false;
   const name = basename(dir).toLowerCase();

@@ -20,7 +20,7 @@ import { extraHandlers } from './api/extra.ts';
 import { registerAiRoutes } from './aiStream.ts';
 import { registerMailRoutes } from './mail.ts';
 import { registerPublicApi } from './publicApi/routes.ts';
-import { cleanFileName, cleanMime, fileHeaders, fileRow, storeFile } from './content/files.ts';
+import { cleanFileName, cleanMime, fileHeaders, fileRow, readFileContent, storeFile } from './content/files.ts';
 import { hit } from './ratelimit.ts';
 import { audit } from './audit.ts';
 import { pageIdOf } from './search.ts';
@@ -187,7 +187,9 @@ app.get('/files/:id/:name', (c) => {
   // Uploaded files remain usable to signed-in demo visitors, but capability URLs must not expose them anonymously.
   if (isDemoMode() && !userForToken(parseCookies(c.req.header('cookie')).lit_session)) return c.text(DEMO_MESSAGE, 403);
   const row = fileRow(c.req.param('id'));
-  if (!row || !existsSync(row.path)) return c.text('Not found', 404);
+  // 이식판: 내용은 DB(files.content)에 있다 — 운영 다운로드 라우트(src/app/files)와 같은 길
+  const content = row ? readFileContent(row.id) : null;
+  if (!row || !content) return c.text('Not found', 404);
   if (isDemoMode()) {
     // demo visitors only reach files of their own workspace (or their own uploads)
     const viewer = userForToken(parseCookies(c.req.header('cookie')).lit_session);
@@ -198,9 +200,8 @@ app.get('/files/:id/:name', (c) => {
     const userId = userForToken(parseCookies(c.req.header('cookie')).lit_session);
     if (!userId || userId !== row.user_id) return c.text('Not found', 404);
   }
-  const stream = Readable.toWeb(createReadStream(row.path)) as ReadableStream;
-  return new Response(stream, {
-    headers: { ...fileHeaders(row, c.req.query('download') === '1'), 'Content-Length': String(statSync(row.path).size) },
+  return new Response(new Uint8Array(content), {
+    headers: { ...fileHeaders(row, c.req.query('download') === '1'), 'Content-Length': String(content.length) },
   });
 });
 

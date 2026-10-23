@@ -54,6 +54,15 @@ export const useSession = create<SessionState>((set, get) => ({
       set({ status: 'ready', userId, spaceId, demoMode: res.demoMode ?? { enabled: false } });
       connectRealtime(spaceIds);
     } catch (e: any) {
+      // 이식판: 로그인·이용 권한은 AIMaster 통합 계정이 맡는다 — 원본 로그인 화면 대신 AIMaster 로그인/안내로 보낸다
+      if (e?.status === 401) {
+        location.href = `/login?redirect=${encodeURIComponent(location.pathname + location.search)}`;
+        return;
+      }
+      if (e?.status === 403) {
+        location.href = 'https://www.buylife.xyz/programs/ai-work-workspace?need_access=1';
+        return;
+      }
       if (e?.status === 401) set({ status: 'anonymous', userId: null, spaceId: null, demoMode: e?.data?.demoMode ?? { enabled: false } });
       else {
         console.error(e);

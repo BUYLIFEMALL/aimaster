@@ -1,8 +1,9 @@
-// Stored files (same storage as POST /api/upload): DATA_DIR/files/<id> + a row in the `files` table, served at
-// /files/<id>/<name> by app.ts (fileResponse). Uploads are capability URLs (random ids) that render inline only for
+// Stored files (same storage as POST /api/upload): a row in the `files` table, served at /files/<id>/<name>.
+// Uploads are capability URLs (random ids) that render inline only for
 // passive types; anything a browser could execute (HTML, SVG, XML, scripts, unknown types) is served as a sandboxed
 // download. Export results are `private`: only the user who exported can fetch them.
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+// 이식판: 원본은 내용을 서버 디스크(DATA_DIR/files/<id>)에 두었다. Vercel 디스크는 요청이 끝나면 사라지므로
+// 내용을 같은 DB의 files.content(BYTEA)에 둔다(동기 DB 다리로 원본 동기 함수 모양 유지). 큰 파일은 Storage 이전 과제.
 import { join } from 'node:path';
 import { newId } from '#shared/ids.ts';
 import { DATA_DIR, db } from '../db.ts';
@@ -26,6 +27,7 @@ try {
 } catch {
   /* column exists */
 }
+db.exec('ALTER TABLE files ADD COLUMN content BLOB');
 
 const MIME: Record<string, string> = {
   md: 'text/markdown; charset=utf-8', markdown: 'text/markdown; charset=utf-8', txt: 'text/plain; charset=utf-8', csv: 'text/csv; charset=utf-8',
@@ -59,10 +61,9 @@ export function storeFile(
   const buf = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
   const clean = cleanFileName(name);
   const path = join(DATA_DIR, 'files', id);
-  writeFileSync(path, buf);
   const type = mime ?? mimeFor(clean);
-  db.prepare('INSERT INTO files (id, space_id, user_id, name, mime, size, path, created_time, private, render) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(id, spaceId, userId, clean, type, buf.length, path, Date.now(), opts.private ? 1 : 0, opts.render ? 1 : 0);
+  db.prepare('INSERT INTO files (id, space_id, user_id, name, mime, size, path, created_time, private, render, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(id, spaceId, userId, clean, type, buf.length, path, Date.now(), opts.private ? 1 : 0, opts.render ? 1 : 0, buf);
   return { id, name: clean, mime: type, size: buf.length, url: `/files/${id}/${encodeURIComponent(clean)}` };
 }
 
@@ -82,9 +83,16 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function fileRow(id: string): FileRow | undefined {
   if (!UUID.test(id)) return undefined;
-  const row = db.prepare('SELECT * FROM files WHERE id = ?').get(id) as FileRow | undefined;
-  // content always lives at DATA_DIR/files/<id>; the stored path column is never trusted
+  const row = db.prepare('SELECT id, space_id, user_id, name, mime, size, created_time, private, render FROM files WHERE id = ?').get(id) as FileRow | undefined;
+  // 이식판: 내용은 files.content에 있다. path는 원본 호출부 호환용 이름으로만 남긴다(디스크에 파일 없음)
   return row ? { ...row, path: join(DATA_DIR, 'files', row.id) } : undefined;
+}
+
+/** 저장된 파일 내용(없으면 null). */
+export function readFileContent(id: string): Buffer | null {
+  if (!UUID.test(id)) return null;
+  const row = db.prepare('SELECT content FROM files WHERE id = ?').get(id) as { content: Uint8Array | null } | undefined;
+  return row?.content ? Buffer.from(row.content) : null;
 }
 
 export function fileIdFromUrl(url: string): string | null {
@@ -97,10 +105,12 @@ export function readStoredFile(urlOrId: string, userId: string | null, opts?: { 
   const id = fileIdFromUrl(urlOrId) ?? (UUID.test(urlOrId) ? urlOrId : null);
   if (!id) return null;
   const row = fileRow(id);
-  if (!row || !existsSync(row.path)) return null;
+  if (!row) return null;
   if (row.private && row.user_id !== userId) return null;
   if (!opts?.anyUser && row.user_id && row.user_id !== userId) return null;
-  return { name: row.name, mime: row.mime, data: readFileSync(row.path) };
+  const data = readFileContent(id);
+  if (!data) return null;
+  return { name: row.name, mime: row.mime, data };
 }
 
 // Types a browser displays without running code: served inline. Everything else is an attachment.
