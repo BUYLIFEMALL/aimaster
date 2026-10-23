@@ -1,3 +1,0 @@
--- 2026-10-13 정정: 카탈로그 썸네일을 실사 규칙(docs/PLATFORM_PATTERNS.md §13)에 맞춰 교체 (앱 코드·버전 변경 없음)
---  - `scripts/generate-program-thumbnail.mjs`(규칙 템플릿)로 한국인 실사 16:9 이미지를 생성해 `catalog/markdown-studio-thumbnail.jpg`로 업로드,
---    programs.thumbnail_url을 갱신했다(옛 PNG는 Storage에서 삭제). 이 파일은 기록용이며 다시 실행할 SQL은 없다.

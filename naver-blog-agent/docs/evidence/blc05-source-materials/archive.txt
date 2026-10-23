@@ -1,3 +1,0 @@
-manifest.json 동기화 완료 -> version 2.7.0, version_name v2.07
-Created public\downloads\naver-blog-agent-extension-v2.07.zip (47966 bytes)
-Created public\downloads\naver-blog-agent-extension-latest.zip (47966 bytes)

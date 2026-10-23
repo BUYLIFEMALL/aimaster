@@ -1,4 +1,0 @@
--- 뮤직비디오 자동화 카탈로그 썸네일(2026-10-12). scripts/generate-program-thumbnail.mjs 로 생성·업로드했고
--- programs.thumbnail_url 이 아래 주소(버전 쿼리 포함)로 갱신되어 있다. 재생성하면 같은 스크립트가 값을 다시 쓴다.
--- 이미지: Storage program-images/catalog/music-video-studio-thumbnail.jpg (16:9, 한국인 크리에이터가 스토리보드·영상 타임라인 이중 모니터로 작업하는 실사)
--- update public.programs set thumbnail_url = 'https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/music-video-studio-thumbnail.jpg?v=1791798923060' where slug = 'music-video-studio';

@@ -1,1 +1,0 @@
-model selection ok: 17 models passed through, defaults match

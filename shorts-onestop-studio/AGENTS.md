@@ -231,3 +231,8 @@
 - 함께 배포: 출처 띠 모서리 10px·「✕ 빼기」 오른쪽 끝(`f055d6b70`, 미배포 대기 해제).
 - 검수: tsc·시험 27개·build, 커밋 `9bdcef674`, 배포 `shorts-onestop-studio-9qojmdj84` Ready, DB v1.37, 정리 경로 비밀값 없이 401. 크롬(관리자) 375px 프레임 `/topic#ref-transcript=…&ref-from=<긴 이름>`: 띠 모서리 10px·2줄(52px)·「✕ 빼기」 오른쪽 끝(가장자리 9px)·가로 넘침 없음 → 시험 대본은 「✕ 빼기」로 지움.
 - 비용: 빌드 1회, AI 0회.
+
+## 2026-10-23 v1.38 — 배경음악: AI 음악 스튜디오 내 곡에서 고르기 (Claude Code 윈도우)
+- 플랜 루트 `docs/analysis-music-studio-20261023/BGM_SHARED_PLAN.md` 2단계(주인님 승인). `src/lib/amsSongs.ts`(목록·복사, 공용 `ams_generations` 읽기만·본인 `user_id`), `/api/ams/songs`(GET)·`/api/ams/import`(POST, 같은 출처), `RenderView` 「🎵 ③ 배경음악」 고르기 목록. 복사본 `<회원>/ams/<uuid>.mp3|wav`(15MB까지) → 기존 `bgm` 모양 그대로라 미리보기·MP4 섞기 코드 변경 없음. 30일 정리 `SUBFOLDERS`에 `ams`(기록 이름 `tracks`).
+- 검수: tsc·시험 27개·build, 배포 Ready·DB v1.38, 크롬 시험 회원 목록 14곡·고르기·복사본 재생 확인. 비용: 빌드 1회.
+- 미배포 대기: 고른 곡 이름 번호 유지 `b48814471`.

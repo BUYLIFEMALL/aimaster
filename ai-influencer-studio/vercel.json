@@ -1,9 +1,0 @@
-{
-  "framework": "nextjs",
-  "crons": [
-    {
-      "path": "/api/instagram/dispatch",
-      "schedule": "*/5 * * * *"
-    }
-  ]
-}

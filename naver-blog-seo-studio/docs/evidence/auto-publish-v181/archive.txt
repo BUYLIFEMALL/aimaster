@@ -1,6 +1,0 @@
-﻿
-> naver-blog-seo-studio@0.1.0 extension:archive
-> node scripts/build-extension-archive.mjs
-
-Created public\downloads\naver-blog-seo-studio-extension-v1.81.zip (32522 bytes)
-Created public\downloads\naver-blog-seo-studio-extension-latest.zip (고정 주소용 최신 사본)

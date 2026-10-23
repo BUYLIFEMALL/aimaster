@@ -1,8 +1,0 @@
-/desktop
-/docs
-/tests
-/scripts
-/assets
-/supabase
-/*.md
-.env*

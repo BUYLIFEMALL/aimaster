@@ -1,8 +1,0 @@
-{
-  "checked_at": "2026-10-17T02:44:57.784Z",
-  "deployment_id": "dpl_4r4FxwdNB38SzofnmBQFYakRmdMt",
-  "query": "--no-follow --since 30m --level error --json",
-  "exit_code": 0,
-  "error_count": 0,
-  "limitations": "Only the selected deployment and observed 30-minute interval; not a guarantee about future traffic."
-}

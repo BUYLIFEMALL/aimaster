@@ -1,9 +1,0 @@
-{
-  "browser": "Microsoft Edge (visible)",
-  "mode": "public redirect, no login/key entry",
-  "checked_at": "2026-10-16T11:26:24.144Z",
-  "legacy_path": "https://www.buylife.xyz/naver-blog-seo-studio",
-  "new_origin_observed": true,
-  "final_origin": "https://naver-blog-seo-studio.buylife.xyz",
-  "main_runtime_change": "Preserve other CLI SEO Studio redirect to new domain"
-}

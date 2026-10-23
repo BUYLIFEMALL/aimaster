@@ -1,8 +1,0 @@
-﻿									64 링크 AI 웹툰 자동화 v1.05 FREE, Value: https://ai-webtoon-studio.buylife.xyz/, Secondary Actions: SetValue
-									78 텍스트 buylifemall@naver.com
-										84 텍스트 ● Gemini API 연동 완료 (브라우저 격리 보관)
-									85 단추 이미지 일괄 저장 (.zip)
-									86 단추 전체 이어붙여 저장 (JPG)
-									92 단추 인물 1
-									94 텍스트 인물 이름
-									95 편집 인물 이름을 입력하세요, Secondary Actions: SetValue

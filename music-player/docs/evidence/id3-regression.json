@@ -1,8 +1,0 @@
-{
-  "baseline": "ad0d91a2",
-  "fixture": "synthetic ID3v2.3 metadata, encoding flag 0 / Korean bytes",
-  "before": "³» ´«¿¡ º¸¿©",
-  "after": "내 눈에 보여",
-  "original_bug_reproduced": true,
-  "fixed": true
-}

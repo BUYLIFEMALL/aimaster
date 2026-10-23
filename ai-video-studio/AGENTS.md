@@ -21,12 +21,12 @@
 - 한계: 해상도 720p 고정(공용 코드), 오디오 끔(fal), 텍스트→영상은 Gemini만, 모델 목록 1차-가 범위.
 
 ## 4. 버전 히스토리
-- **v1.03 (2026-10-23, Claude Code 윈도우)**: 업체가 실사 인물 사진을 거절하면 원문 JSON 대신 쉬운 안내(공용 `ai-video-providers`, `96423f5ec`) 배포 · Seedance 2.0(인물 없는 사진)·Veo 3.1 실생성 확인(결과는 아래 줄 보완).
+- **v1.03 (2026-10-23, Claude Code 윈도우)**: 업체가 실사 인물 사진을 거절하면 원문 JSON 대신 쉬운 안내(공용 `ai-video-providers`, `96423f5ec`) 배포 · 실생성(시험 계정 본인 fal 키, 사람 없는 턴테이블 사진): **Veo 3.1** 720p 4초 → 4.0초 1280×720 1.6MB(약 2분) · **Seedance 2.0** 480p 4초 → 4.04초 864×496 1.0MB(약 4분 반) 성공. **1차-나 5종 모두 실생성 확인 완료**(Seedance 2.0은 실사 인물 사진만 업체가 거절).
 - **v1.02 (2026-10-23, Claude Code 윈도우)**: 1차-나 — fal 최신 모델 5종(Kling 3.0 Standard·Seedance 2.0·Veo 3.1·MiniMax H3(구 Hailuo)·Wan 3.0)을 공용 기준에 **모델별 입력 칸 규칙(`FalInputSpec`: 사진 칸·길이 형식·소리 칸·비율·해상도)**으로 추가, `STUDIO_VIDEO_MODELS`(스튜디오 전용 — 다른 프로그램 목록 불변), 해상도 선택·해상도별 비용. 실생성: Kling 3.0 5초 → 5.04초 8.4MB · MiniMax H3 768P → 5.18초 6.5MB · Wan 3.0 480p → 5초 2.9MB 성공 / **Seedance 2.0은 실사 인물 사진을 업체가 거절**(「likenesses of real people」) → 쉬운 안내 문구로 바꿈(미배포 대기) / Veo 3.1 실생성 미시험(비용 승인 대기).
 - **v1.01 (2026-10-23, Claude Code 윈도우)**: 1차-가 — 생성 작업실·갤러리·매뉴얼·키 등록, 공용 영상 기준 이전, DB(`avs_generations`·버킷·programs·요금제 3·VIP 자동 부여·시험 계정), 썸네일. 검수: 시험 6, tsc, build, 크롬 시험 계정 실생성 2회 성공(Gemini 글만 5초 16:9 → 5.01초 1280×720 2.0MB / fal Seedance 사진→영상 5초 → 5.04초 6.5MB), 390px(iframe 확인).
 
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
-- **1차-나**: fal 새 모델(Kling 3.0·Seedance 2.0·Veo 3.1·Hailuo·Wan) — 공식 입력값 확인하며 하나씩, 공용 기준에 모델별 추가 입력(`extra`)·해상도·오디오·글만 생성(fal t2v) 선택값.
+- ~~1차-나~~ 완료(v1.02~v1.03). 남은 선택값: 오디오 켜기·글만 생성(fal t2v).
 - 2차: 편집·합치기 스튜디오(Remotion + Mediabunny, R1 대책). 3차: 립싱크·업스케일·배경 제거·Runway/Vidu.
 - 관찰: 첫 배포에서 fal 생성 요청이 2번 「fal API 키가 없습니다」(400)로 막힘(DB 키는 10-21부터 그대로) → 조회 실패 기록(`[getUserApiKey] 없음`, 값 없음) 추가 후 재배포하자 성공. 재발하면 Vercel 로그에서 이 기록부터 확인.
 

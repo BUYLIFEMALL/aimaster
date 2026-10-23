@@ -1,1 +1,0 @@
-update public.programs set version = 'v1.10', updated_at = now() where slug = 'threads-content-ops';

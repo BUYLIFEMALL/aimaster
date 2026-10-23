@@ -1,6 +1,0 @@
-{
-  "checked_at": "2026-10-16T17:49:19.728Z",
-  "url": "https://real-estate-sales.buylife.xyz/api/collect/dispatch",
-  "status": 401,
-  "mode": "no Authorization header; expected rejection before dispatch"
-}

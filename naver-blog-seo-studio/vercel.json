@@ -1,5 +1,0 @@
-{
-  "crons": [
-    { "path": "/api/cron/draft-retention", "schedule": "0 18 * * *" }
-  ]
-}
