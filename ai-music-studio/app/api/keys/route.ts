@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // 공용 user_api_keys(회원별, 모든 프로그램 공용) — 이 프로그램이 쓰는 이름만 다룬다. 키 값은 화면으로 돌려주지 않는다.
-const ALLOWED = ["gemini", "elevenlabs", "suno", "fal", "replicate", "openai"] as const;
+// mureka: 2026-10-23 코드 준비(화면에는 MUREKA_ENABLED일 때만 보임)
+const ALLOWED = ["gemini", "elevenlabs", "suno", "fal", "replicate", "openai", "mureka"] as const;
 type Allowed = (typeof ALLOWED)[number];
 const isAllowed = (v: unknown): v is Allowed => typeof v === "string" && (ALLOWED as readonly string[]).includes(v);
 

@@ -2,7 +2,14 @@
 // 가격은 2026-10-23 공개 가격표·중계 플랫폼 표기 기준의 「대략」 값이다(실제 청구는 각 플랫폼 기준). 근거: docs/analysis-music-studio-20261023/PLAN.md
 // 새 모델을 넣을 때는 여기 한 줄 + lib/providers/adapters/<공급자>.ts 입력 변환만 고친다.
 
-export type ProviderId = "gemini" | "elevenlabs" | "fal" | "replicate" | "suno";
+export type ProviderId = "gemini" | "elevenlabs" | "fal" | "replicate" | "suno" | "mureka";
+
+/**
+ * 2026-10-23 Mureka 연동 코드만 준비(주인님 지시: 「작업만 해놔 나중에 필요하면 연동해서 사용할께」).
+ * false 동안 Mureka 모델·키 칸·안내가 화면과 서버(모델 찾기)에 나오지 않는다. 켜는 법: true로 바꾸고, 시험 계정 키로 1곡 생성해
+ * adapters/mureka.ts 머리 주석의 확인 항목(결과 칸·모델 이름)을 본 뒤 배포. 선불 충전 $30부터.
+ */
+export const MUREKA_ENABLED = false;
 
 export interface ProviderInfo {
   id: ProviderId;
@@ -57,6 +64,16 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
     keyLink: "https://fal.ai/dashboard/keys",
     placeholder: "fal 키 (id:secret)",
     description: "키 하나로 MiniMax Music 2.6·ACE-Step·Stable Audio 2.5를 씁니다.",
+  },
+  mureka: {
+    id: "mureka",
+    usageLink: "https://platform.mureka.ai/console/billing",
+    name: "Mureka",
+    keyProvider: "mureka",
+    keyLabel: "Mureka API Key",
+    keyLink: "https://platform.mureka.ai/apiKeys",
+    placeholder: "Mureka 키",
+    description: "Mureka 노래·연주곡을 만듭니다(한 번에 2곡). platform.mureka.ai에서 선불 충전($30부터) 후 키를 발급합니다.",
   },
   replicate: {
     id: "replicate",
@@ -306,6 +323,30 @@ export const MODELS: MusicModel[] = [
     commercial: "Stability 커뮤니티 라이선스(연매출 100만 달러 미만)",
   },
 ];
+
+/** Mureka 모델(MUREKA_ENABLED일 때만 MODELS에 들어간다). 모델 이름 "auto"는 공식 MCP 서버 기본값 — 켤 때 실제 목록으로 확인 */
+export const MUREKA_MODELS: MusicModel[] = [
+  {
+    key: "mureka:auto",
+    provider: "mureka",
+    model: "auto",
+    name: "Mureka (자동 · 최신 모델)",
+    description: "가사 중심 노래에 강한 모델. 보컬곡은 가사가 필요하고, 연주곡도 만듭니다. 한 번에 2곡.",
+    vocals: true,
+    lyricsRequired: true,
+    durationControl: false,
+    maxDurationS: 240,
+    defaultDurationS: 150,
+    outputs: 2,
+    costNote: "곡당 약 $0.045 (선불 충전)",
+    estCostUsd: () => 0.09,
+    commercial: "Mureka 유료 API 출력",
+  },
+];
+if (MUREKA_ENABLED) MODELS.push(...MUREKA_MODELS);
+
+/** 화면(키 등록·안내)에 보일 공급자 — 켜지지 않은 공급자는 뺀다 */
+export const VISIBLE_PROVIDERS: ProviderInfo[] = Object.values(PROVIDERS).filter((p) => p.id !== "mureka" || MUREKA_ENABLED);
 
 export const MAX_COMPARE = 3;
 /** 요청 본문 한도(Vercel 4.5MB) 안에 맞추려고 공식 한도(10장)보다 적게 받는다 — 화면에서 1024px JPEG로 줄여 보냄 */

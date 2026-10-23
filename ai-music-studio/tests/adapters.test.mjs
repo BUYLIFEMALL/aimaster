@@ -146,3 +146,41 @@ test("Lyria 3 Clip은 이미지·WAV 선택을 무시한다(지원 모델만)", 
   assert.equal(typeof calls[0].body.input, "string");
   assert.deepEqual(calls[0].body.response_format, { type: "audio" });
 });
+
+// 2026-10-23 Mureka(코드만 준비, MUREKA_ENABLED=false) — 실제 호출 없이 요청 주소·본문과 상태 해석만 검사
+import { murekaAdapter } from "../lib/providers/adapters/mureka.ts";
+import { MUREKA_MODELS, MUREKA_ENABLED, VISIBLE_PROVIDERS, findModel as findModel2 } from "../lib/providers/catalog.ts";
+
+test("Mureka: 꺼져 있는 동안 모델·키 칸이 화면에 나오지 않는다", () => {
+  assert.equal(MUREKA_ENABLED, false);
+  assert.equal(findModel2("mureka:auto"), undefined);
+  assert.ok(!VISIBLE_PROVIDERS.some((p) => p.id === "mureka"));
+});
+
+test("Mureka: 보컬곡은 /v1/song/generate(가사 포함), 연주곡은 /v1/instrumental/generate", async () => {
+  const m = MUREKA_MODELS[0];
+  const calls = mockFetch(() => json({ id: "435134" }));
+  const r = await murekaAdapter.start(m, input, "MK");
+  assert.equal(calls[0].url, "https://api.mureka.ai/v1/song/generate");
+  assert.equal(calls[0].init.headers.Authorization, "Bearer MK");
+  assert.equal(calls[0].body.model, "auto");
+  assert.match(calls[0].body.lyrics, /창밖에 비/);
+  assert.deepEqual(r, { kind: "queued", taskId: "435134", meta: { kind: "song" } });
+  const r2 = await murekaAdapter.start(m, { ...input, instrumental: true }, "MK");
+  assert.equal(calls[1].url, "https://api.mureka.ai/v1/instrumental/generate");
+  assert.equal(calls[1].body.lyrics, undefined);
+  assert.equal(r2.meta.kind, "instrumental");
+});
+
+test("Mureka: 상태 해석 — 진행 중 / 완료(choices[].url) / 실패", async () => {
+  const m = MUREKA_MODELS[0];
+  const calls = mockFetch((_u, _i, n) => n === 1 ? json({ status: "preparing" }) : n === 2 ? json({ status: "succeeded", choices: [{ url: "https://cdn.mureka.ai/a.mp3" }, { url: "https://cdn.mureka.ai/b.mp3" }] }) : json({ status: "timeouted" }));
+  assert.deepEqual(await murekaAdapter.poll(m, "1", { kind: "instrumental" }, "MK"), { state: "processing" });
+  assert.equal(calls[0].url, "https://api.mureka.ai/v1/instrumental/query/1");
+  const done = await murekaAdapter.poll(m, "1", { kind: "song" }, "MK");
+  assert.equal(done.state, "done");
+  assert.deepEqual(done.files.map((f) => f.url), ["https://cdn.mureka.ai/a.mp3", "https://cdn.mureka.ai/b.mp3"]);
+  const failed = await murekaAdapter.poll(m, "1", { kind: "song" }, "MK");
+  assert.equal(failed.state, "failed");
+  assert.match(failed.error, /timeouted/);
+});

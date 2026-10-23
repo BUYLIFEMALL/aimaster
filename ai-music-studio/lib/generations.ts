@@ -7,6 +7,7 @@ import { elevenlabsAdapter } from "@/lib/providers/adapters/elevenlabs";
 import { falAdapter } from "@/lib/providers/adapters/fal";
 import { replicateAdapter } from "@/lib/providers/adapters/replicate";
 import { sunoAdapter } from "@/lib/providers/adapters/suno";
+import { murekaAdapter } from "@/lib/providers/adapters/mureka";
 import type { ClientGeneration, ClientOutput, GenerationRow, OutputFile } from "@/lib/generationTypes";
 
 export type { GenerationRow } from "@/lib/generationTypes";
@@ -24,6 +25,7 @@ const ADAPTERS: Record<ProviderId, ProviderAdapter> = {
   fal: falAdapter,
   replicate: replicateAdapter,
   suno: sunoAdapter,
+  mureka: murekaAdapter,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

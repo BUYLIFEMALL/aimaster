@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { AlertCircle, BookOpen, Check, ExternalLink, Key, Loader2, Trash2 } from "lucide-react";
-import { PROVIDERS } from "@/lib/providers/catalog";
+import { VISIBLE_PROVIDERS } from "@/lib/providers/catalog";
 import { GUIDE_LINKS } from "@/lib/guides";
 
 const ITEMS = [
-  ...Object.values(PROVIDERS).map((p) => ({ provider: p.keyProvider, name: p.keyLabel, desc: p.description, link: p.keyLink, placeholder: p.placeholder })),
+  ...VISIBLE_PROVIDERS.map((p) => ({ provider: p.keyProvider, name: p.keyLabel, desc: p.description, link: p.keyLink, placeholder: p.placeholder })),
   {
     provider: "openai",
     name: "OpenAI API Key (선택)",

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MODELS, PROVIDERS } from "@/lib/providers/catalog";
+import { MODELS, PROVIDERS, VISIBLE_PROVIDERS } from "@/lib/providers/catalog";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -102,7 +102,7 @@ export default function GuidePage() {
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-white">키 발급 콘솔 바로가기</h2>
         <div className="flex flex-wrap gap-2">
-          {Object.values(PROVIDERS).map((p) => (
+          {VISIBLE_PROVIDERS.map((p) => (
             <a key={p.id} href={p.keyLink} target="_blank" rel="noreferrer"
               className="whitespace-nowrap rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:border-violet-500/40">
               {p.name} ↗
