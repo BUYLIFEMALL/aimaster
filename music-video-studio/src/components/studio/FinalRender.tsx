@@ -9,7 +9,7 @@ import { Download, Film, Loader2 } from "lucide-react";
 import { EditComposition } from "@/components/edit/Composition";
 import { CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, dimensions, layout, splitEvenly, validate, type CaptionSize, type CaptionStyle, type EditClip, type EditProject, type EditQuality } from "@/lib/edit/timeline";
 import { loadLocalSong } from "@/lib/music/localSong";
-import { sceneLengthsFromLyrics } from "@/lib/music/sceneTiming";
+import { sceneLengthsFromLyrics, timingLyrics } from "@/lib/music/sceneTiming";
 import { detectBeat, snapLengths, type BeatInfo } from "@/lib/music/beat";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card } from "@/components/studio/ui";
@@ -102,8 +102,8 @@ export function FinalRender() {
   }, [song?.source, song?.ref, song?.fileName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const usable = scenes.filter((s) => media[s.id]?.videoUrl || media[s.id]?.imageUrl);
-  // v1.18 곡이 시간 가사(AI 음악 스튜디오 Lyria)면 장면 가사가 나오는 시각에 장면을 바꾸고, 못 맞추면 곡 길이를 고르게 나눈다
-  const timed = songSec ? sceneLengthsFromLyrics(project.lyrics, usable.map((s) => s.lyric), songSec) : null;
+  // v1.18(v1.20 고침: 곡의 시간 가사는 timedLyrics에 따로 있음) 곡이 시간 가사(AI 음악 스튜디오 Lyria)면 장면 가사가 나오는 시각에 장면을 바꾸고, 못 맞추면 곡 길이를 고르게 나눈다
+  const timed = songSec ? sceneLengthsFromLyrics(timingLyrics(project), usable.map((s) => s.lyric), songSec) : null;
   const base = timed ?? (songSec ? splitEvenly(songSec, usable.length) : usable.map(() => FALLBACK_SCENE_S));
   // v1.19 전환을 박자에 맞춤 — 가사 시각이면 가까운 박(조금만 옮김), 고르게 나눴으면 마디(4박) 시작
   const beatInfo = beat && beat !== "busy" ? beat : null;

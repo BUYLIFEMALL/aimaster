@@ -191,3 +191,23 @@ test("v1.19 장면 전환을 박자에 맞추기", async () => {
   assert.deepEqual(snapLengths([10], beat), [10]);
   assert.deepEqual(snapLengths([4, 4], { period: 0, firstBeat: 0 }), [4, 4]);
 });
+
+test("v1.20 곡의 시간 가사는 lyrics_out에만 있다 — 장면 시각 맞추기가 그쪽을 쓴다", async () => {
+  const { sceneLengthsFromLyrics, timedLyricsFromAms, timingLyrics } = await import("../src/lib/music/sceneTiming.ts");
+  const lyrics = "[Verse]\n너를 부르면\n[Chorus]\n다시 만나 우리";
+  const lyricsOut = "[0.0:5.0] [Verse] 너를 부르면\n[12.0:16.0] [Chorus] 다시 만나 우리";
+  // 가져오기: 시간 가사만 담고, 연주곡·시간 없는 글·빈 값은 ""
+  assert.equal(timedLyricsFromAms(false, lyricsOut), lyricsOut);
+  assert.equal(timedLyricsFromAms(true, lyricsOut), "");
+  assert.equal(timedLyricsFromAms(false, lyrics), "");
+  assert.equal(timedLyricsFromAms(false, null), "");
+  // 예전 동작(가사 입력칸만)으로는 맞추지 못하고, 시간 가사로는 맞춘다
+  const scenes = ["[Verse] 너를 부르면", "[Chorus] 다시 만나 우리"];
+  assert.equal(sceneLengthsFromLyrics(lyrics, scenes, 30), null);
+  assert.deepEqual(sceneLengthsFromLyrics(timingLyrics({ lyrics, timedLyrics: timedLyricsFromAms(false, lyricsOut) }), scenes, 30), [12, 18]);
+  // 시간 가사가 없으면 가사 입력칸(직접 붙여 넣은 시간 가사)
+  assert.equal(timingLyrics({ lyrics: lyricsOut, timedLyrics: "" }), lyricsOut);
+  // 저장본 정리: 칸이 유지되고, 옛 저장본은 ""
+  assert.equal(sanitizeProject({ timedLyrics: lyricsOut }).timedLyrics, lyricsOut);
+  assert.equal(sanitizeProject({}).timedLyrics, "");
+});

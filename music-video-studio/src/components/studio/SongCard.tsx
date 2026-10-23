@@ -12,7 +12,7 @@ import type { SongRef } from "@/lib/music/types";
 const AMS_URL = "https://ai-music-studio.buylife.xyz";
 const MAX_FILE = 50 * 1024 * 1024;
 
-interface AmsSongItem { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; createdAt: string; style: string; lyrics: string; audioUrl: string | null }
+interface AmsSongItem { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; createdAt: string; style: string; lyrics: string; timedLyrics?: string; audioUrl: string | null }
 
 const mmss = (s: number | null | undefined) => (s ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}` : "");
 
@@ -56,13 +56,14 @@ export function SongCard() {
     return () => { alive = false; };
   }, [song?.source, song?.ref, song?.fileName]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setSong = (next: SongRef | null, fill?: { title: string; style: string; lyrics: string }) => {
+  const setSong = (next: SongRef | null, fill?: { title: string; style: string; lyrics: string; timedLyrics: string }) => {
     update((p) => {
-      if (!fill) return { ...p, song: next };
+      if (!fill) return { ...p, song: next, timedLyrics: "" };
       const lyricsChanged = !!fill.lyrics && fill.lyrics !== p.lyrics;
       return {
         ...p,
         song: next,
+        timedLyrics: fill.timedLyrics,
         title: fill.title.slice(0, 60) || p.title,
         sunoStyle: fill.style || p.sunoStyle,
         ...(lyricsChanged ? { lyrics: fill.lyrics, scenes: [], mood: "" } : {}),
@@ -86,7 +87,7 @@ export function SongCard() {
     const willReplace = !!s.lyrics && !!current.lyrics.trim() && s.lyrics !== current.lyrics;
     if (willReplace && !window.confirm("지금 가사와 만들어 둔 스토리보드가 이 곡의 가사로 바뀝니다. 가져올까요?")) return;
     setObjectUrl(null);
-    setSong({ source: "ams", title: s.title, ref: s.ref, durationS: s.durationS, model: s.model }, { title: s.title.replace(/ \(\d+\)$/, ""), style: s.style, lyrics: s.lyrics });
+    setSong({ source: "ams", title: s.title, ref: s.ref, durationS: s.durationS, model: s.model }, { title: s.title.replace(/ \(\d+\)$/, ""), style: s.style, lyrics: s.lyrics, timedLyrics: s.timedLyrics || "" });
     setList(null); setError("");
   };
 

@@ -33,6 +33,8 @@ export interface MusicProject {
   title: string;
   sunoStyle: string;
   lyrics: string;
+  /** v1.20 가져온 곡의 시간 가사(장면 시각 맞추기용, 화면에 보이지 않음) — 곡을 바꾸거나 빼면 비운다 */
+  timedLyrics: string;
   sceneCount: SceneCount;
   extra: string;
   artStyle: ArtStyleId;

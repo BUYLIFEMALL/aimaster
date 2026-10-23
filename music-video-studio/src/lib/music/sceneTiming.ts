@@ -62,3 +62,14 @@ export function sceneLengthsFromLyrics(rawLyrics: string, sceneLyrics: string[],
   }
   return out;
 }
+
+/** v1.20 AI 음악 스튜디오 곡의 시간 가사 원문 — Lyria는 시간 가사를 lyrics_out에 따로 준다(lyrics는 회원이 입력한 시간 없는 가사). 시간 가사가 아니면 "" */
+export function timedLyricsFromAms(instrumental: boolean, lyricsOut: string | null | undefined): string {
+  if (instrumental || !lyricsOut || !amsTimedLines(lyricsOut)) return "";
+  return lyricsOut.slice(0, 6000);
+}
+
+/** v1.20 장면 시각을 맞출 때 쓸 가사 — 곡의 시간 가사가 있으면 그것, 없으면 가사 입력칸(직접 붙여 넣은 시간 가사도 지원) */
+export function timingLyrics(p: { timedLyrics?: string; lyrics: string }): string {
+  return p.timedLyrics || p.lyrics;
+}

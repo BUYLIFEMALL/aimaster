@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { timedLyricsFromAms } from "./sceneTiming";
 
 // v1.13 AI 음악 스튜디오(ai-music-studio)에서 회원 본인이 만든 곡을 가져온다(가사영상 v1.10·플레이리스트 v1.27·쇼츠 원스톱 v1.38과 같은 규칙).
 // 공용 DB ams_generations를 읽기만 하고 회원 user_id로 거른다. 저장소 ai-music-studio는 비공개라 1시간 서명 주소로만 넘긴다.
@@ -8,7 +9,7 @@ const BUCKET = "ai-music-studio";
 const TTL = 60 * 60;
 
 type Output = { path?: string; title?: string; durationS?: number; bytes?: number };
-type Row = { id: string; title: string | null; prompt: string; lyrics: string | null; model: string; instrumental: boolean; created_at: string; outputs: Output[] | null };
+type Row = { id: string; title: string | null; prompt: string; lyrics: string | null; lyrics_out: string | null; model: string; instrumental: boolean; created_at: string; outputs: Output[] | null };
 
 export interface AmsSongItem {
   ref: string;
@@ -20,6 +21,8 @@ export interface AmsSongItem {
   /** 곡 설명(스타일) — 가져오면 「Suno 스타일 프롬프트」 칸에 넣는다 */
   style: string;
   lyrics: string;
+  /** v1.20 Lyria 시간 가사 원문(「[0.0:3.7] 가사」) — 없으면 "" */
+  timedLyrics: string;
   audioUrl: string | null;
 }
 
@@ -33,7 +36,7 @@ export async function listAmsSongs(userId: string): Promise<AmsSongItem[]> {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("ams_generations")
-    .select("id, title, prompt, lyrics, model, instrumental, created_at, outputs")
+    .select("id, title, prompt, lyrics, lyrics_out, model, instrumental, created_at, outputs")
     .eq("user_id", userId).eq("status", "completed")
     .order("created_at", { ascending: false }).limit(40);
   if (error) throw new Error(error.message);
@@ -53,6 +56,7 @@ export async function listAmsSongs(userId: string): Promise<AmsSongItem[]> {
     createdAt: row.created_at,
     style: row.prompt.slice(0, 300),
     lyrics: row.instrumental ? "" : (row.lyrics ?? "").slice(0, 3000),
+    timedLyrics: timedLyricsFromAms(row.instrumental, row.lyrics_out),
     audioUrl: urls.get(o.path as string) ?? null,
   }));
 }
