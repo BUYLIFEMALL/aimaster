@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg`: ✅ 네이버 블로그 SEO 스튜디오 v2.12 — 사이드패널을 닫아도 입력·자동 포스팅이 이어짐 (빌드 1회)
+
+- **무엇**: 확장의 「네이버 편집기로 입력」·「자동 포스팅 시작」·「발행 결과만 다시 확인」을 사이드패널이 아니라 확장 서비스 워커가 실행(`background.js`가 `sidepanel.js`·`auto-publish-page.js`·`auto-publish.js`를 `importScripts`, 워커 안 `$()`는 `seoRunUiElement`가 받아 `chrome.storage.local` `seo_run_ui_v1`에 저장 → 사이드패널이 비춤). 함께 내보냄: 입력 중 안내, 사이드패널을 다시 열 때 끊긴 `writing` 실행 즉시 정리. 서버 코드 변경 없음.
+- **커밋**: `19a124d24`(안내·끊긴 실행 정리) · `c65d87fbb`(background 실행 + 새 시험) · `1b4950030`(v2.12 manifest·ZIP·SQL, 6개 파일·삭제는 옛 v2.11 ZIP 1개) · 문서 커밋. 배포 `naver-blog-seo-studio-cr31jrmfr` Ready.
+- **DB**(운영 `esgxyikcnnvmlhygjkth`): `programs` slug `naver-blog-seo-studio` 1행 version·extension_version v2.11→v2.12(`supabase/migrations/20261023121000_bump_version_v2_12.sql`).
+- **검수**: 시험 auto-publish 26(새 `tests/background-run.test.mjs` 4)·browser 26(1 건너뜀)·연결 5·새 버전 3·카테고리 2·tsc 통과 / `check-extension-release` OK(DB·확장·ZIP v2.12) / 웨일 운영 화면 v2.12 / **웨일 실입력**: 「서울에서 가까운 가을여행 명소 7곳」 블록 6개(이미지 포함) 93초 입력 완료, 서버 `naver_input_status=completed`(03:07 UTC).
+- **주의**: 같은 글쓰기 탭에서 이미지 업로드가 한 번 멈추면 네이버 업로드 대기열이 막혀 다음 시도도 「업로드 준비 중 0/1」에서 멈춤 → 새 글쓰기 탭에서 다시. 실제 자동 포스팅(최종 발행)은 시험하지 않음(시험 글 발행 금지).
+- **회원 안내**: 최신 ZIP 받기 → 기존 폴더에 덮어쓰기 → 확장 관리에서 새로고침.
+- **다음 첫 단계**: 남은 후보 ⑦ SEO 원고에 생성 모델 이름 기록 · ⑨ 블로그 자동화(Web) 재공개 시 자동 연결 · ⑩ 티스토리 긴 글 분량 보완(주인님 지시 대기).
+- 링크: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-23 — Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-insta-autocollect`: ✅ INSTA 댓글·DM 자동화 v1.36 — 댓글 자동 수집 회원 선택 + 버그 3개 (빌드 1회 · AI 0회)
 
 - **무엇**: 설정 「⏱ 예약 모니터링」을 켜도 예약이 없어(`crons: []`) 아무 일도 안 일어나던 것을 쓰레드 댓글 v1.26과 같은 방식으로 — 실행 방식 회원 선택(AIMaster 기본 Vercel 5분 / 내 cron-job.org), 회원 실행 주소 `/api/cron/dispatch-member`, 처리 전 이용 권한 재확인, `last_run_at` 조건부 선점. 함께: 시작 시각 9시간 밀림, AI 지시문 「유튜브 채널 운영자」 → 인스타그램, 중지 직후 화면. 함께 나간 대기분: 7일 그래프 글자 크게·좁은 칸 버튼 줄바꿈·그래프 문구 선택 항목.
