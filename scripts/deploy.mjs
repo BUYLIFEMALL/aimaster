@@ -344,6 +344,9 @@ const cmd = ["vercel", "deploy", "--prod", "--yes", "--scope", "buylife"];
 if (!go) {
   console.log(`\n[3/3] 배포하지 않았습니다(확인만). 배포하려면: node scripts/deploy.mjs ${folder} --go`);
   console.log(`      실행할 명령: (cd ${folder} && npx ${cmd.join(" ")})`);
+  // 막는 세션이 있으면 맨 끝에 한 줄 더(2026-10-23 — [2/3]의 보낼 문안이 긴 출력 중간에 묻혔음). 내 줄이면 --go 때 --owner로 넘김
+  const blockers = [...new Set(active.map((l) => rowInfo(l).name || "(이름 없는 세션)"))];
+  if (blockers.length) console.log(`  ⚠ 막힘: 작업 중 표에 ${blockers.join(", ")} 세션의 줄 — --go 해도 멈춤. 위 [2/3] 「보낼 문안」으로 문의하거나, 내 줄이면 --owner <내 세션 이름>`);
   process.exit(0);
 }
 // 작업 중 표에 이 폴더 줄이 있으면 배포하지 않는다. 내 줄이면 --owner "<내 줄의 작업 설명 일부>"로 표시(같은 장비의 다른 세션과 구별, 2026-10-23)
