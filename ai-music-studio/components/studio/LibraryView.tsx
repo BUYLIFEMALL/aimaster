@@ -5,16 +5,17 @@ import Link from "next/link";
 import { Loader2, RefreshCw } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { GenerationCard, PLAYLIST_URL } from "./GenerationCard";
+import { isStarred as isStar, matches, providerCounts, type StatusFilter as Filter } from "@/lib/libraryFilter";
+import { styleOf } from "@/lib/providerStyle";
 
-type Filter = "all" | "completed" | "running" | "failed" | "star";
 type Sort = "new" | "star" | "model";
-const isStar = (g: ClientGeneration) => g.options?.star === true;
 
 export function LibraryView() {
   const [items, setItems] = useState<ClientGeneration[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("new");
+  const [provider, setProvider] = useState("all"); // v1.12 공급자 거르기(Suno·Lyria 등)
   const [loading, setLoading] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -42,7 +43,7 @@ export function LibraryView() {
   }, [load]);
 
   const shown = (items ?? [])
-    .filter((g) => filter === "all" || (filter === "star" ? isStar(g) : g.status === filter))
+    .filter((g) => matches(g, filter, provider))
     .slice()
     .sort((a, b) =>
       sort === "star" ? Number(isStar(b)) - Number(isStar(a)) || b.created_at.localeCompare(a.created_at)
@@ -55,6 +56,7 @@ export function LibraryView() {
     failed: items?.filter((g) => g.status === "failed").length ?? 0,
     star: items?.filter(isStar).length ?? 0,
   };
+  const providers = providerCounts(items ?? [], filter);
   const FILTERS: { key: Filter; label: string }[] = [
     { key: "all", label: `전체 ${counts.all}` },
     { key: "completed", label: `완성 ${counts.completed}` },
@@ -93,9 +95,29 @@ export function LibraryView() {
         </label>
       </div>
 
+      {providers.length > 1 && (
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="공급자 거르기">
+          <button type="button" onClick={() => setProvider("all")} aria-pressed={provider === "all"}
+            className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-bold ${provider === "all" ? "border-violet-500/50 bg-violet-500/15 text-violet-200" : "border-zinc-800 text-zinc-400 hover:text-zinc-200"}`}>
+            모든 공급자
+          </button>
+          {providers.map((pv) => {
+            const st = styleOf(pv.id);
+            const on = provider === pv.id;
+            return (
+              <button key={pv.id} type="button" onClick={() => setProvider(on ? "all" : pv.id)} aria-pressed={on}
+                className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-bold ${on ? `border-zinc-500 bg-zinc-800 ${st.text}` : "border-zinc-800 text-zinc-400 hover:text-zinc-200"}`}>
+                <span className={`h-2 w-2 rounded-full ${st.dot}`} aria-hidden="true" />{st.label} {pv.count}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {(() => {
         // 완성곡 전부(최대 20곡, 최신 순)를 플레이리스트 영상으로 — 그쪽에서 회원이 「곡 추가」를 눌러 넣는다
-        const refs = (items ?? []).filter((g) => g.status === "completed").flatMap((g) => g.outputs.map((_, n) => `${g.id}:${n}`)).slice(0, 20);
+        // v1.12 공급자를 골랐으면 그 공급자 곡만
+        const refs = (items ?? []).filter((g) => g.status === "completed" && (provider === "all" || g.provider === provider)).flatMap((g) => g.outputs.map((_, n) => `${g.id}:${n}`)).slice(0, 20);
         return refs.length > 1 ? (
           <a href={`${PLAYLIST_URL}?ams=${refs.join(",")}`} target="_blank" rel="noreferrer"
             className="block w-fit whitespace-nowrap rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-xs font-bold text-violet-200 hover:bg-violet-500/20">
