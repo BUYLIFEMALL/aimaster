@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우) · 세션 `claude-win-20261023-collect-status`: 댓글 자동 수집 상태 보기 — 세 댓글 앱 + 통합 받은편지함 (미배포 · 비용 없음)
+
+- 주인님 승인(INSTA v1.36 보고 추가 개선 제안 3개, 「전부 미배포 대기」). 플랜 `comment-inbox/docs/PLAN_20261023_AUTO_COLLECT_STATUS.md`.
+- ① 세 앱 설정 「다음 확인 예정」(마지막 확인 + 주기, 일시정지 등이면 「없음」) ② 「⏰ 실행 상태」 아래 늘 「실행 방식 바꾸기 ↓」 ③ `comment-inbox` 「🤖 자동 수집 상태」 카드(회원 본인 행만 읽기, 쓰기 없음). DB 변경 없음.
+- 커밋 `24562d6aa`(21개 파일, 파일 삭제 0). 검수: 네 앱 tsc·로컬 build, 받은편지함 시험 45개 통과(새 2개), 공용 사본 점검 일치. **배포: 미배포 대기** — `docs/PENDING_DEPLOYS.md` 4줄(쓰레드·유튜브는 「중지 즉시 반영」 대기와 함께).
+- 다음 첫 단계: 각 앱 다음 배포 때 크롬에서 표시 확인. 받은편지함 카드는 관리자 계정에서 「INSTA 켜짐 · 12시간마다 · 다음 예정 약 10/24 00:10」처럼 보여야 함.
+
 ## 2026-10-23 Claude Code(윈도우) — music 막대 오판 정정 · 비교표 카드 주소 4곳 · 공용 스크립트도 안전 커밋 알림
 - **music**: 「휴대폰 폭에서 선택 막대가 안 붙음」은 스크롤 없이 잰 **오판**이었다 — 막대는 목록 묶음 맨 앞 `sticky`라 목록까지 스크롤하면 390px에서도 화면 아래 16px에 붙음. 코드 변경 없음, `music/docs/IMPROVEMENTS.md` 정정.
 - **프로그램 비교표 카드 주소 4곳 → DB 공식 주소**: `playlist-channel-studio`(→ playlist-maker.buylife.xyz, 그 폴더 AGENTS의 공식 주소), `video-to-gif`·`shop-detail-page`·`auto-detail-page`(옛 vercel.app → buylife.xyz). 옛 주소는 모두 새 주소로 넘어감 확인. 카드 버전 숫자(내용 기준)는 그대로. 세션 점검 「카드 주소 다름」 0개.
