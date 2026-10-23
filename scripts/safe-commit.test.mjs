@@ -86,3 +86,57 @@ test("④ --mine + 최근 2시간 다른 커밋: 커밋은 하되 푸시는 미�
     assert.deepEqual(r.head("n.md"), ["a", "b", "c"]);
   } finally { r.done(); }
 });
+
+// 2026-10-23: --mine 이진 파일·삭제 커밋(일반 파일도 도우미로 커밋 — 경로 지정 커밋이 공용 스테이징을 줄이던 사고 대책)
+const bin = (n) => Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, n, 0xff, 0x00, 0x10]);
+test("⑤ --mine 이진 새 파일: 바이트 그대로 커밋된다", () => {
+  const r = repo();
+  try {
+    r.commit("a.md", ["a"], "c1");
+    writeFileSync(join(r.dir, "x.zip"), bin(1));
+    const out = r.helper("이진 추가", "x.zip", "--mine");
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    const got = execFileSync("git", ["show", "HEAD:x.zip"], { cwd: r.dir });
+    assert.deepEqual([...got], [...bin(1)]);
+  } finally { r.done(); }
+});
+
+test("⑥ --mine 이진 수정: 새 바이트로 바뀌고, 같은 내용이면 커밋하지 않는다", () => {
+  const r = repo();
+  try {
+    writeFileSync(join(r.dir, "x.zip"), bin(1)); r.git("add", "x.zip"); r.git("commit", "-qm", "c1");
+    writeFileSync(join(r.dir, "x.zip"), bin(2));
+    assert.equal(r.helper("이진 수정", "x.zip", "--mine").status, 0);
+    assert.deepEqual([...execFileSync("git", ["show", "HEAD:x.zip"], { cwd: r.dir })], [...bin(2)]);
+    const before = r.git("rev-parse", "HEAD").trim();
+    const out = r.helper("같은 내용", "x.zip", "--mine");
+    assert.equal(out.status, 0);
+    assert.equal(r.git("rev-parse", "HEAD").trim(), before, "같은 내용인데 커밋됨");
+  } finally { r.done(); }
+});
+
+test("⑦ --mine 삭제: 지금 없는 파일이 최신 커밋에서 빠지고, 다른 파일은 그대로", () => {
+  const r = repo();
+  try {
+    r.commit("keep.md", ["k"], "c1");
+    writeFileSync(join(r.dir, "old.zip"), bin(3)); r.git("add", "old.zip"); r.git("commit", "-qm", "c2");
+    rmSync(join(r.dir, "old.zip"));
+    const out = r.helper("옛 파일 삭제", "old.zip", "--mine");
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.equal(r.git("ls-tree", "HEAD", "--name-only").trim().split("\n").sort().join(","), "keep.md");
+    assert.equal(r.git("ls-files").trim(), "keep.md", "공용 스테이징도 맞춰져야 함");
+  } finally { r.done(); }
+});
+
+test("⑧ 이진 파일을 --mine 없이: 거부하고 커밋하지 않는다", () => {
+  const r = repo();
+  try {
+    writeFileSync(join(r.dir, "x.zip"), bin(1)); r.git("add", "x.zip"); r.git("commit", "-qm", "c1");
+    assert.equal(r.helper("--begin", "x.zip", "--as", "me").status, 0);
+    writeFileSync(join(r.dir, "x.zip"), bin(4));
+    const before = r.git("rev-parse", "HEAD").trim();
+    const out = r.helper("이진", "x.zip", "--as", "me");
+    assert.notEqual(out.status, 0, "이진인데 병합 커밋됨: " + out.stdout);
+    assert.equal(r.git("rev-parse", "HEAD").trim(), before);
+  } finally { r.done(); }
+});

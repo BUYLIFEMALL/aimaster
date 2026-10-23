@@ -78,7 +78,11 @@ if (!message || !files.length) {
 const targets = files.map(rel);
 const mine = flag("--mine");
 for (const f of targets) {
-  if (!existsSync(join(ROOT, f))) { console.log(`✖ ${f}: 파일이 없습니다(삭제 커밋은 지원하지 않음).`); process.exit(1); }
+  // 2026-10-23: --mine이면 「지금 없고 HEAD에는 있는 파일」을 삭제로 커밋한다(일반 파일도 도우미로 커밋 — 경로 지정 커밋이 공용 스테이징을 줄이던 사고 대책)
+  if (!existsSync(join(ROOT, f))) {
+    if (mine && tryRun(["cat-file", "-e", `HEAD:${f}`]) !== null) continue;
+    console.log(`✖ ${f}: 파일이 없습니다(삭제 커밋은 --mine으로만, 최신 커밋에 있는 파일이어야 함).`); process.exit(1);
+  }
   if (!mine && !existsSync(snapPath(f))) {
     console.log(`✖ ${f}: 기준 사본이 없습니다. 고치기 전에 --begin을 먼저 실행하세요(지금 파일 전체가 내 것이면 --mine).`);
     process.exit(1);
@@ -217,7 +221,25 @@ for (let attempt = 1; attempt <= 5 && !done; attempt++) {
     run(["read-tree", oldHead], { env });
     for (const f of targets) {
       const head = headBlob(oldHead, f);
-      const work = readFileSync(join(ROOT, f), "utf8");
+      // 2026-10-23: 삭제(--mine, 지금 파일 없음) — 임시 인덱스에서 빼기만 한다
+      if (!existsSync(join(ROOT, f))) {
+        if (head === null) { results.push({ f, same: true }); continue; }
+        run(["update-index", "--force-remove", "--", f], { env });
+        results.push({ f, deleted: true, head });
+        continue;
+      }
+      // 2026-10-23: 이진 파일(0 바이트 포함, 예: 확장 ZIP·이미지) — 글자 병합 없이 원래 바이트 그대로 올린다(--mine만)
+      const raw = readFileSync(join(ROOT, f));
+      if (raw.includes(0)) {
+        if (!mine) { console.log(`✖ ${f}: 이진 파일은 줄 단위 병합을 할 수 없습니다 — 파일 전체가 내 것이면 --mine으로 커밋하세요.`); process.exit(1); }
+        const sha = run(["hash-object", "-w", "--stdin"], { input: raw }).trim();
+        if (tryRun(["rev-parse", `${oldHead}:${f}`])?.trim() === sha) { results.push({ f, same: true }); continue; }
+        const mode = (tryRun(["ls-tree", oldHead, "--", f]) ?? "").split(/\s+/)[0] || "100644";
+        run(["update-index", "--add", "--cacheinfo", `${mode},${sha},${f}`], { env });
+        results.push({ f, sha, head, binary: true });
+        continue;
+      }
+      const work = raw.toString("utf8");
       let text;
       if (mine) {
         const crlf = head !== null && head.includes("\r\n");
@@ -273,6 +295,8 @@ const indexOp = (args) => {
 };
 const indexFailed = [];
 for (const r of done.changed) {
+  // 2026-10-23: 삭제·이진 파일은 공용 스테이징을 새 HEAD에 맞추기만 한다(줄 병합 대상 아님)
+  if (r.deleted || r.binary) { if (!indexOp(["reset", "-q", "HEAD", "--", r.f])) indexFailed.push(r.f); continue; }
   const staged = tryRun(["show", `:${r.f}`]);
   // 스테이징 내용이 최근 커밋 이력에 있던 내용 그대로면 「묵은 항목」(누군가 별도 인덱스로 커밋한 뒤 안 맞춘 것) → 새 HEAD로 맞춤
   const stagedSha = (tryRun(["ls-files", "-s", "--", r.f]) ?? "").split(/\s+/)[1];
