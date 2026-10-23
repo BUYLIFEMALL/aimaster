@@ -104,6 +104,7 @@ create table if not exists public.tep_saved_plans (
   persona_id text,
   persona_name text,
   model_label text,
+  image_urls jsonb not null default '[]'::jsonb,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -119,5 +120,13 @@ create policy tep_saved_plans_delete_own on public.tep_saved_plans for delete to
 create index if not exists idx_tep_saved_plans_user_created on public.tep_saved_plans (user_id, created_at desc);
 drop trigger if exists tep_saved_plans_set_updated_at on public.tep_saved_plans;
 create trigger tep_saved_plans_set_updated_at before update on public.tep_saved_plans for each row execute function public.set_updated_at();
+
+-- 예전 버전 DB에 다시 실행해도 이미지 칸이 생기게(배포판 v1.02~)
+alter table public.tep_saved_plans add column if not exists image_urls jsonb not null default '[]'::jsonb;
+
+-- 글과 함께 만든 이미지 저장 공간(공개 읽기, 올리기는 서버만). 경로 「<회원 id>/<파일>」, 30일 지나면 보관함을 열 때 자동 삭제
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('tep-images', 'tep-images', true, 12582912, array['image/png', 'image/jpeg', 'image/webp'])
+on conflict (id) do nothing;
 
 -- 끝. 마법사는 마지막에 만들어지는 tep_saved_plans 표로 설치 성공을 확인합니다.

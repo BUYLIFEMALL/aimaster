@@ -6,6 +6,16 @@ import {
   generateThreadPlanAction,
   rewriteThreadPlanAction,
 } from "@/lib/actions/planner";
+import { planImagePromptsAction, generatePlanImageAction } from "@/lib/actions/images";
+import {
+  IMAGE_MODEL_OPTIONS,
+  IMAGE_RATIO_OPTIONS,
+  DEFAULT_IMAGE_MODELS,
+  MAX_IMAGE_COUNT,
+  findImageModel,
+  isImageRatio,
+  type ImageRatio,
+} from "@/lib/ai/imageModels";
 import type {
   TopicSuggestion,
   ThreadPlanResult,
@@ -57,6 +67,13 @@ import {
   RotateCcw,
 } from "lucide-react";
 
+interface PlanImage {
+  url?: string;
+  prompt: string;
+  status: "loading" | "done" | "error";
+  error?: string;
+}
+
 export function PlannerApp() {
   // 메인 키워드 입력
   const [topicInput, setTopicInput] = useState("");
@@ -107,6 +124,15 @@ export function PlannerApp() {
   const [editedContent, setEditedContent] = useState("");
   const [loadedFromStorageId, setLoadedFromStorageId] = useState<string | null>(null);
 
+  // 글과 함께 만드는 이미지(2026-10-23 v1.48) — 설정은 이 브라우저에 기억
+  const [autoImage, setAutoImage] = useState(true);
+  const [imageModel, setImageModel] = useState<string>(DEFAULT_IMAGE_MODELS.gemini);
+  const [imageRatio, setImageRatio] = useState<ImageRatio>("4:5");
+  const [imageCount, setImageCount] = useState(1);
+  const [planImages, setPlanImages] = useState<PlanImage[]>([]);
+  const [isImagePlanning, setIsImagePlanning] = useState(false);
+  const isImageBusy = isImagePlanning || planImages.some((img) => img.status === "loading");
+
   // 아무 생각 없을 때 랜덤 럭키 픽 상태
   const [isLuckyGenerated, setIsLuckyGenerated] = useState(false);
   const [luckyTimeLabel, setLuckyTimeLabel] = useState<string>("");
@@ -124,6 +150,18 @@ export function PlannerApp() {
         } else {
           setSelectedModel(DEFAULT_AI_MODELS[savedProvider]);
         }
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      const savedImage = JSON.parse(localStorage.getItem("tep_image_settings") || "null");
+      if (savedImage && typeof savedImage === "object") {
+        if (typeof savedImage.auto === "boolean") setAutoImage(savedImage.auto);
+        if (typeof savedImage.model === "string" && findImageModel(savedImage.model)) setImageModel(savedImage.model);
+        if (typeof savedImage.ratio === "string" && isImageRatio(savedImage.ratio)) setImageRatio(savedImage.ratio);
+        if (Number(savedImage.count) >= 1 && Number(savedImage.count) <= MAX_IMAGE_COUNT) setImageCount(Number(savedImage.count));
       }
     } catch {
       // ignore
@@ -172,6 +210,7 @@ export function PlannerApp() {
     if (plan.persona_name) setUsedPersonaLabel(plan.persona_name);
     if (plan.model_label) setUsedModelLabel(plan.model_label);
     setLoadedFromStorageId(plan.id);
+    setPlanImages((plan.image_urls || []).map((url) => ({ url, prompt: "", status: "done" as const })));
     setIsSaved(true);
     setIsEditingContent(false);
     showCopyToast(`📂 [${plan.topic}] 콘텐츠를 보관함에서 불러왔습니다! 수정 후 다시 저장할 수 있습니다.`);
@@ -186,6 +225,85 @@ export function PlannerApp() {
       localStorage.setItem("threads_planner_model", defaultModel);
     } catch {
       // ignore
+    }
+  }
+
+  function saveImageSettings(next: { auto?: boolean; model?: string; ratio?: ImageRatio; count?: number }) {
+    const merged = { auto: autoImage, model: imageModel, ratio: imageRatio, count: imageCount, ...next };
+    setAutoImage(merged.auto);
+    setImageModel(merged.model);
+    setImageRatio(merged.ratio);
+    setImageCount(merged.count);
+    try {
+      localStorage.setItem("tep_image_settings", JSON.stringify(merged));
+    } catch {
+      // ignore
+    }
+  }
+
+  // 이미지 1장 생성(프롬프트 → 회원 키로 생성 → 저장 주소)
+  async function generateOneImage(index: number, prompt: string) {
+    setPlanImages((prev) => prev.map((img, i) => (i === index ? { ...img, prompt, status: "loading", error: undefined } : img)));
+    const res = await generatePlanImageAction({ prompt, model: imageModel, ratio: imageRatio }).catch(() => null);
+    if (res?.needApiKey) {
+      setMissingProviderName(res.missingProvider === "openai" ? "OpenAI (GPT Image)" : "Gemini (나노바나나)");
+      setNeedApiKeyModal(true);
+    }
+    setPlanImages((prev) =>
+      prev.map((img, i): PlanImage =>
+        i === index
+          ? res?.success && res.data
+            ? { url: res.data.url, prompt, status: "done" }
+            : { ...img, status: "error", error: res?.error || "이미지를 만들지 못했습니다." }
+          : img,
+      ),
+    );
+    if (res?.success) setIsSaved(false);
+  }
+
+  // 글 → 이미지 프롬프트 → 장마다 생성(동시에)
+  async function runImageGeneration(plan: ThreadPlanResult, bodyOverride?: string) {
+    setIsImagePlanning(true);
+    setPlanImages([]);
+    try {
+      const res = await planImagePromptsAction({
+        topic: plan.topic,
+        hook: plan.hook,
+        content: bodyOverride ?? plan.content,
+        count: imageCount,
+        textModel: { provider: selectedProvider, model: selectedModel },
+      });
+      if (res.needApiKey) {
+        setMissingProviderName(PROVIDER_SHORT_LABELS[selectedProvider]);
+        setNeedApiKeyModal(true);
+        return;
+      }
+      if (!res.success || !res.data) {
+        setPlanImages([{ prompt: "", status: "error", error: res.error || "이미지 프롬프트를 만들지 못했습니다." }]);
+        return;
+      }
+      const prompts = res.data;
+      setPlanImages(prompts.map((prompt) => ({ prompt, status: "loading" as const })));
+      setIsImagePlanning(false);
+      await Promise.all(prompts.map((prompt, i) => generateOneImage(i, prompt)));
+    } catch {
+      setPlanImages([{ prompt: "", status: "error", error: "이미지를 만들지 못했습니다." }]);
+    } finally {
+      setIsImagePlanning(false);
+    }
+  }
+
+  async function downloadImage(url: string, index: number) {
+    try {
+      const blob = await (await fetch(url)).blob();
+      const href = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = `threads-image-${index + 1}.${blob.type.includes("jpeg") ? "jpg" : blob.type.includes("webp") ? "webp" : "png"}`;
+      a.click();
+      URL.revokeObjectURL(href);
+    } catch {
+      window.open(url, "_blank", "noopener");
     }
   }
 
@@ -426,6 +544,8 @@ export function PlannerApp() {
       setUsedPersonaLabel(effectiveLabel);
       setExpandedHookIdx(null);
       setIsSaved(false); // 생성 직후에는 미저장 상태로 시작 (마음에 드는 콘텐츠일 때 사용자가 [보관함에 저장] 클릭)
+      setPlanImages([]);
+      if (autoImage) void runImageGeneration(res.data); // 글과 함께 이미지 자동 생성(글은 먼저 보여 주고 이미지는 이어서)
     } catch {
       setErrorMessage("글 생성 중 오류가 발생했습니다.");
     } finally {
@@ -559,6 +679,10 @@ export function PlannerApp() {
       showCopyToast("✅ 이미 보관함에 저장된 콘텐츠입니다.");
       return;
     }
+    if (isImageBusy) {
+      showCopyToast("🖼 이미지를 만드는 중입니다. 다 만들어지면 함께 저장해 주세요.");
+      return;
+    }
     setIsSaving(true);
     try {
       const contentToSave = isEditingContent ? editedContent : currentPlan.content;
@@ -573,6 +697,7 @@ export function PlannerApp() {
         personaId: activePersonaId || undefined,
         personaName: usedPersonaLabel || undefined,
         modelLabel: usedModelLabel || undefined,
+        imageUrls: planImages.filter((img) => img.status === "done" && img.url).map((img) => img.url as string),
       });
 
       if (res.success) {
@@ -1066,6 +1191,62 @@ export function PlannerApp() {
           </div>
         </div>
 
+        {/* 이미지 자동화 설정 (2026-10-23 v1.48) — 글과 함께 이미지 생성 */}
+        <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-3 md:p-3.5 shadow-2xs space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label className="flex items-center gap-2 text-xs font-bold text-neutral-800 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={autoImage}
+                onChange={(e) => saveImageSettings({ auto: e.target.checked })}
+                className="h-4 w-4 accent-neutral-900 cursor-pointer"
+              />
+              <span>🖼 글과 함께 이미지 만들기</span>
+            </label>
+            <span className="text-[11px] text-neutral-500">
+              나노바나나 = Gemini 키 · GPT Image = OpenAI 키 (본인 키 사용)
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
+            <select
+              value={imageModel}
+              onChange={(e) => saveImageSettings({ model: e.target.value })}
+              className="sm:col-span-6 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+              aria-label="이미지 모델"
+            >
+              {IMAGE_MODEL_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <select
+              value={imageRatio}
+              onChange={(e) => { if (isImageRatio(e.target.value)) saveImageSettings({ ratio: e.target.value }); }}
+              className="sm:col-span-4 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+              aria-label="이미지 비율"
+            >
+              {IMAGE_RATIO_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <select
+              value={imageCount}
+              onChange={(e) => saveImageSettings({ count: Number(e.target.value) })}
+              className="sm:col-span-2 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 focus:border-neutral-900 focus:outline-none shadow-xs cursor-pointer"
+              aria-label="이미지 장수"
+            >
+              {Array.from({ length: MAX_IMAGE_COUNT }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n}장
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 글 생성 버튼 그리드 (6대 페르소나) */}
         <div className="space-y-3 pt-1">
           <div className="flex flex-wrap items-center justify-between gap-1.5">
@@ -1511,6 +1692,106 @@ export function PlannerApp() {
           </div>
 
           <div className="p-5 md:p-7 space-y-6">
+            {/* 0. 글과 함께 만든 이미지 (2026-10-23 v1.48) */}
+            {(planImages.length > 0 || isImagePlanning) ? (
+              <div className="rounded-2xl border border-sky-200/80 bg-sky-50/50 p-4 md:p-5 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-sky-900 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4" />
+                    <span>글과 함께 올릴 이미지</span>
+                    <span className="text-[11px] font-medium text-sky-700">({findImageModel(imageModel)?.label.replace(/^\S+\s/, "") ?? imageModel})</span>
+                  </span>
+                  <button
+                    type="button"
+                    disabled={isImageBusy}
+                    onClick={() => runImageGeneration(currentPlan, isEditingContent ? editedContent : undefined)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-[#ffffff] text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer disabled:opacity-50"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>{isImageBusy ? "만드는 중..." : "이미지 다시 만들기"}</span>
+                  </button>
+                </div>
+                {isImagePlanning && (
+                  <div className="flex items-center gap-2 text-xs text-sky-800">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>글 내용으로 사진 장면을 구상하는 중입니다...</span>
+                  </div>
+                )}
+                <div className={`grid gap-3 ${planImages.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 max-w-sm"}`}>
+                  {planImages.map((img, idx) => (
+                    <div key={idx} className="rounded-xl border border-sky-100 bg-white overflow-hidden">
+                      <div className={`relative w-full bg-neutral-100 ${imageRatio === "1:1" ? "aspect-square" : "aspect-[4/5]"}`}>
+                        {img.status === "done" && img.url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={img.url} alt={`글 이미지 ${idx + 1}`} className="absolute inset-0 h-full w-full object-cover" />
+                        ) : img.status === "loading" ? (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-xs text-neutral-500">
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <span>이미지를 그리는 중입니다 (최대 1~2분)</span>
+                          </div>
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center p-4 text-center text-xs text-red-600 leading-relaxed">
+                            {img.error || "이미지를 만들지 못했습니다."}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 p-2.5">
+                        {img.status === "done" && img.url && (
+                          <button
+                            type="button"
+                            onClick={() => downloadImage(img.url as string, idx)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-neutral-200 bg-white text-[11px] font-bold text-neutral-700 hover:bg-neutral-100 cursor-pointer"
+                          >
+                            ⬇ 다운로드
+                          </button>
+                        )}
+                        {img.prompt && img.status !== "loading" && (
+                          <button
+                            type="button"
+                            onClick={() => generateOneImage(idx, img.prompt)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-neutral-200 bg-white text-[11px] font-bold text-neutral-700 hover:bg-neutral-100 cursor-pointer"
+                          >
+                            ↻ 이 장만 다시
+                          </button>
+                        )}
+                      </div>
+                      {img.prompt && (
+                        <details className="border-t border-neutral-100 px-2.5 py-2 text-[11px] text-neutral-500">
+                          <summary className="cursor-pointer font-semibold">프롬프트 보기·고치기</summary>
+                          <textarea
+                            defaultValue={img.prompt}
+                            rows={4}
+                            maxLength={1500}
+                            onBlur={(e) => {
+                              const value = e.target.value;
+                              setPlanImages((prev) => prev.map((item, i) => (i === idx ? { ...item, prompt: value } : item)));
+                            }}
+                            className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-[11px] text-neutral-700 focus:outline-none focus:border-neutral-400"
+                          />
+                          <span className="block mt-1 text-neutral-400">고친 뒤 [이 장만 다시]를 누르면 고친 프롬프트로 다시 그립니다.</span>
+                        </details>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[11px] text-sky-800/80">
+                  이미지는 [보관함에 저장]하면 글과 함께 30일 보관됩니다. 다운로드해서 Threads 글에 첨부하세요.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-dashed border-sky-200 bg-sky-50/30 p-3">
+                <span className="text-xs text-sky-900">🖼 이 글에 어울리는 이미지를 만들어 볼까요?</span>
+                <button
+                  type="button"
+                  onClick={() => runImageGeneration(currentPlan, isEditingContent ? editedContent : undefined)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-[#ffffff] text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>이 글로 이미지 만들기</span>
+                </button>
+              </div>
+            )}
+
             {/* 1. 피드를 멈추는 첫 문장 후킹 박스 (황금 4단계 1단계) */}
             <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4 md:p-5 space-y-2">
               <div className="flex items-center justify-between">

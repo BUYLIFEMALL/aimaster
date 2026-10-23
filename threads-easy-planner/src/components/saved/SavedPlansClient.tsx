@@ -300,6 +300,18 @@ export function SavedPlansClient() {
                   </div>
                 </div>
 
+                {/* 2-1. 글과 함께 만든 이미지 (2026-10-23 v1.48) — 누르면 원본을 새 창으로 */}
+                {plan.image_urls && plan.image_urls.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {plan.image_urls.map((url, i) => (
+                      <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block w-24 h-28 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-100" title="원본 이미지 열기(마우스 오른쪽 → 다른 이름으로 저장)">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={`저장된 이미지 ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+
                 {/* 3. 댓글 / CTA */}
                 {plan.reply_cta && (
                   <div className="rounded-xl bg-blue-50/70 border border-blue-200/70 px-3.5 py-2.5 text-xs text-blue-950 font-semibold flex items-start gap-2">

@@ -243,6 +243,8 @@ export interface SavedThreadPlan {
   persona_id?: string;
   persona_name?: string;
   model_label?: string;
+  /** 글과 함께 만든 이미지 공개 주소(2026-10-23 v1.48, 칸 없는 옛 DB면 없음) */
+  image_urls?: string[];
   created_at: string;
   updated_at?: string;
 }

@@ -105,6 +105,7 @@ export async function savePlanToStorage(input: SavePlanInput): Promise<{
       persona_id: input.personaId,
       persona_name: input.personaName,
       model_label: input.modelLabel,
+      image_urls: input.imageUrls || [],
       created_at: nowIso,
       updated_at: nowIso,
     };

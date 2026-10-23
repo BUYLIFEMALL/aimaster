@@ -3,6 +3,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SavedThreadPlan, HookVariant } from "@/types/planner";
+import { IMAGE_BUCKET, isOwnImageUrl } from "@/lib/storage/imageBucket";
 
 export interface SavePlanInput {
   topic: string;
@@ -15,6 +16,21 @@ export interface SavePlanInput {
   personaId?: string;
   personaName?: string;
   modelLabel?: string;
+  /** 글과 함께 만든 이미지 주소(이 회원 폴더 것만 저장) */
+  imageUrls?: string[];
+}
+
+/** 30일 지난 이 회원의 글 이미지 파일을 지운다(보관함 목록을 열 때, 실패해도 목록은 계속) */
+async function sweepExpiredImages(admin: ReturnType<typeof createAdminClient>, userId: string, cutoffMs: number) {
+  try {
+    const { data } = await admin.storage.from(IMAGE_BUCKET).list(userId, { limit: 1000, sortBy: { column: "created_at", order: "asc" } });
+    const expired = (data ?? [])
+      .filter((f) => f.created_at && new Date(f.created_at).getTime() < cutoffMs)
+      .map((f) => `${userId}/${f.name}`);
+    if (expired.length > 0) await admin.storage.from(IMAGE_BUCKET).remove(expired);
+  } catch {
+    // 이미지 정리 실패가 목록 조회를 막지 않게
+  }
 }
 
 export interface SavePlanResult {
@@ -44,13 +60,20 @@ export async function saveThreadPlanAction(input: SavePlanInput): Promise<SavePl
       persona_id: input.personaId || null,
       persona_name: input.personaName || null,
       model_label: input.modelLabel || null,
+      image_urls: (input.imageUrls || []).filter((url) => isOwnImageUrl(url, user.id)).slice(0, 4),
     };
 
-    const { data, error } = await (admin as any)
+    let { data, error } = await (admin as any)
       .from("tep_saved_plans")
       .insert(insertPayload)
       .select("*")
       .single();
+    // 이미지 칸(image_urls)이 없는 옛 DB(배포판 v1.01 설치본 등)면 그 칸만 빼고 다시 저장 — 글 저장은 항상 되게
+    if (error && /image_urls/i.test(error.message ?? "")) {
+      const { image_urls: _skip, ...withoutImages } = insertPayload;
+      void _skip;
+      ({ data, error } = await (admin as any).from("tep_saved_plans").insert(withoutImages).select("*").single());
+    }
 
     if (error) {
       console.warn("[saveThreadPlanAction] DB 저장 실패 (테이블 미생성 또는 권한):", error.message);
@@ -99,6 +122,7 @@ export async function getSavedThreadPlansAction(): Promise<{
     } catch {
       // sweep 오류가 조회 자체를 중단시키지 않도록 방어
     }
+    await sweepExpiredImages(admin, user.id, Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const { data, error } = await (admin as any)
       .from("tep_saved_plans")
