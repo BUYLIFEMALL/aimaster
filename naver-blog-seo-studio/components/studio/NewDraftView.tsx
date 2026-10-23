@@ -10,6 +10,7 @@ import { freeSlots } from "@/lib/imageNodes";
 import { QualityPanel } from "./QualityPanel";
 import { DraftReviewPanel } from "./DraftReviewPanel";
 import { RevisionsPanel } from "./RevisionsPanel";
+import { SocialCopyPanel } from "./SocialCopyPanel";
 import type { Studio } from "./useStudio";
 import type { DraftRecord } from "./shared";
 
@@ -34,6 +35,7 @@ export function NewDraftView({ s }: { s: Studio }) {
         {currentDraft && <QualityPanel draft={currentDraft} imageCount={(currentDraft.image_path || generatedImage ? 1 : 0) + contentImages.filter((item) => item.path).length} />}
         {currentDraft && <DraftReviewPanel draft={currentDraft} provider={s.contentProvider} model={s.contentModel} onReviewed={(seoReport) => s.setCurrentDraft((draft) => draft && draft.id === currentDraft.id ? { ...draft, seo_report: seoReport as DraftRecord["seo_report"] } : draft)} />}
         {currentDraft && <RevisionsPanel draft={currentDraft} busy={s.draftSaving} onRestore={(revision) => void s.restoreRevision(revision)} />}
+        {currentDraft && <SocialCopyPanel draft={currentDraft} provider={s.contentProvider} model={s.contentModel} onSaved={(seoReport) => s.setCurrentDraft((draft) => draft && draft.id === currentDraft.id ? { ...draft, seo_report: seoReport as DraftRecord["seo_report"] } : draft)} />}
         {currentDraft && <GroundingSources report={currentDraft.seo_report} />}
         {currentDraft && <section className="content-block-editor card" aria-labelledby="content-block-editor-title">
           <div className="content-block-editor-head"><div><h2 id="content-block-editor-title" className="card-title">블로그(원문) 편집기</h2><p>문단은 직접 수정하고 이미지는 위·아래 버튼으로 위치를 바꿀 수 있습니다. 저장 후 확장 프로그램은 이 순서 그대로 네이버 편집기에 입력합니다.</p></div><button type="button" className="secondary compact" onClick={addTextBlock}>문단 추가</button></div>

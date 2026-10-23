@@ -259,3 +259,10 @@
 ## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기: 블로그 병합 B-6 수정본 이력·비교·되돌리기 (콘텐츠 메이커 → SEO 스튜디오)
 - 원고 저장(`PATCH /api/drafts/[draftId]`)에서 제목·본문이 실제로 바뀌면 바뀌기 전 글을 `seo_report.revisions`에 최근 10개까지(같은 글 중복 안 함, 원고와 함께 30일 뒤 삭제, **DB 변경 없음**). 새 글 화면 「수정 이력 (N)」 카드: 수정본 고르기 → 지금 글과 문단 단위 비교(추가 초록·삭제 빨강, 「바뀐 문단만 보기」) → 「이 수정본으로 되돌리기」(확인 창, 같은 저장 경로 `reason: "restore"` → 지금 글도 「되돌리기 전」으로 이력에 남음, 문단 묶음을 함께 보내 이미지 배치 유지). 콘텐츠 메이커는 옛 글 보기만 있었음.
 - 바꾼 것: 새 `lib/draftRevisions.ts` · `app/api/drafts/[draftId]/route.ts` · `components/studio/useStudio.ts`(`restoreRevision`) · 새 `components/studio/RevisionsPanel.tsx` · `NewDraftView.tsx` · 새 시험 `tests/draft-revisions.test.mjs`(2) + `tests/auto-publish.test.mjs`(실제 저장 경로로 이력·되돌리기 1, 가짜 의존성에 `@/lib/draftRevisions`). tsc·시험 18종 통과. AI 호출 없음.
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기: 블로그 병합 B-8 SNS 공유 문구 (콘텐츠 메이커 → SEO 스튜디오)
+- 새 경로 `POST /api/drafts/[draftId]/social`(로그인+권한, 회원 본인 AI 키·고른 모델, 1회 호출): 스레드(500자)·X(140자)·페이스북(600자) 문구. 지시문에 현재 연도·「원고에 없는 체험·수치·성과·가격·과장 금지」·원고 안 명령 무시. 서버가 플랫폼 이름 검사·문장 단위로 상한 자르기. 결과는 `seo_report.social`(문구·시각·원고 지문·모델) — **DB 변경 없음**. 자동 포스팅 중이라 저장 못 하면 문구만 돌려줌(복사 가능).
+- 화면: 수정 이력 카드 아래 「SNS 공유 문구」 카드 — 문구 만들기/다시 만들기, 플랫폼별 글자 수·복사. 원고가 바뀌면 「다시 만들기 권장」 표시(B-1과 같은 지문). 발행된 원고는 네이버 글 주소를 끝에 붙여 복사(X는 주소 23자로 계산해 본문을 먼저 줄임). 콘텐츠 메이커보다 나아진 점: 글자 수 맞춤·주소 자동 포함·바뀜 표시.
+- 바꾼 것: 새 `lib/socialCopy.ts` · 새 `app/api/drafts/[draftId]/social/route.ts` · 새 `components/studio/SocialCopyPanel.tsx` · `NewDraftView.tsx` · 새 시험 `tests/social-copy.test.mjs`(4) + `package.json` `test:social-copy`. tsc·전체 시험 108개 통과.
+- 실측 1회(시험 계정 본인 OpenAI 키, gpt-4o-mini, 저장 안 함, 원고 「가을 캠핑 준비…」 3,201자): 스레드 109자·X 64자·페이스북 146자 — 모두 상한 안, 원고 내용(보온·장비 점검·캠핑장 선택)만 사용, 지어낸 수치 없음 ✅. 다만 분량이 상한보다 꽤 짧음(지시문의 「2~4문장」 영향) — 필요하면 다음에 조정.
+- 범위 밖: SNS 직접 올리기(스레드·인스타 자동화 프로그램과의 연계 후보).

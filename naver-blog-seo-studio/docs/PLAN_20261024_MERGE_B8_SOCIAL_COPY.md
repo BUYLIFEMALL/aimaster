@@ -1,7 +1,7 @@
 # 병합 묶음 B-8: SNS 공유 문구 (콘텐츠 메이커 → SEO 스튜디오) — 개발 플랜 (2026-10-24)
 
 - 작성: Claude Code(윈도우) 블로그 전담 `claude-win-20261023-blog2`
-- 상태: **플랜 보고 — 주인님 승인 대기(코드 미수정)**
+- 상태: **구현·로컬 검수·실측 완료(2026-10-24, 주인님 「진행해」) — v2.16 배포 대상**. 결과: `docs/IMPROVEMENTS.md` 맨 아래
 - 근거: 블로그 병합 묶음 B([REPORT](../../docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge-independent-20261023) — 콘텐츠 메이커 「SNS 공유 문구」). 묶음 B 마지막.
 
 ## 원본(콘텐츠 메이커)

@@ -26,7 +26,8 @@
     "test:length-plan": "node --test tests/length-plan.test.mjs",
     "test:image-options": "node --test tests/image-options.test.mjs",
     "test:draft-export": "node --test tests/draft-export.test.mjs",
-    "test:draft-revisions": "node --test tests/draft-revisions.test.mjs"
+    "test:draft-revisions": "node --test tests/draft-revisions.test.mjs",
+    "test:social-copy": "node --test tests/social-copy.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
