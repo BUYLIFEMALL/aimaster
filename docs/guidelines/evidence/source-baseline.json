@@ -1,0 +1,25 @@
+{
+  "captured_date": "2026-10-23",
+  "captured_head": "5b6a6b95ff5e7949bee7551e9f7caaafc63ba920",
+  "purpose": "Original-body preservation, includes concurrent mass-deletion prevention additions",
+  "sources": [
+    {
+      "source": "AGENTS.md",
+      "sha256": "e406d4f8c6e88d1615564d4df1d020eb7df397bd0563205929de572d626b3076",
+      "bytes": 168680,
+      "lines": 926
+    },
+    {
+      "source": "CLAUDE.md",
+      "sha256": "9cecbd71471592bf4af332df987c56a04bc894a2f00a1d50653b58d6cbc58d67",
+      "bytes": 180038,
+      "lines": 817
+    },
+    {
+      "source": "GEMINI.md",
+      "sha256": "2a882891c6f5f4e3dce404b2e468d6081ad662e12a384345a2295f0f473b7ff7",
+      "bytes": 50037,
+      "lines": 199
+    }
+  ]
+}
