@@ -17,7 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `ai-video-studio` (운영 v1.02) | 업체가 실사 인물 사진을 거절하면 원문 JSON 대신 쉬운 안내(공용 `ai-video-providers`) · Seedance 2.0 설명 「실사 인물 사진은 업체가 거절」 | `96423f5ec` | 2026-10-23 · Claude Code(윈도우) | `ai-video-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, Seedance 2.0 거절 안내 문구 확인 |
 | `naver-blog-seo-studio` (운영 v2.11) | 끊긴 자동 포스팅 처리(입력 중 「사이드패널 닫지 마세요」 안내 · 다시 열 때 `writing` 실행 즉시 정리) — 확장 코드 변경 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
 | `naver-blog-seo-studio` (운영 v2.11) | 입력·자동 포스팅을 확장 background로 이전(사이드패널을 닫아도 이어짐) — **배포 전 웨일 실입력 확인 필요**(주인님 확장 새로고침) | `c65d87fbb` | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 끝 | 위 줄과 함께 v2.12(manifest·ZIP·DB) |
 | `threads-content-ops` (운영 v2.19) | 보관함 초안: 저장 직후 뺀 사진이 몇 초 다시 보이던 화면 문제(`editingRef`) · 쿠팡 수동 등록 실패 때 임시 상품 사진을 서버 키로 삭제(새 버킷에 회원 조회 정책 없음) | `f92acc076` · `6b44abdc8` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/docs/IMPROVEMENTS.md` 「v2.19 후속」 | v2.20, 초안 사진 ✕ → 저장 직후 바로 0장 |
@@ -58,6 +57,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-video-studio` | v1.03 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `ai-video-studio-mcgdidz4n`) | 실사 인물 사진 거절 시 쉬운 안내 `96423f5ec` |
 | `insta_auto_poster` | v1.68 · 2026-10-23 (모아 둔 수정, 제안 범위 빌드 1회) | 「🔤」 한글일 때만 기억 `4bebfb016` · 「✕ 슬라이드 N 빼기」 `447780d5c` · 공용 사본 member-scheduler·instagram-publish |
 | `music` | v1.44 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `music-36j3lwxcj`) | 공용 Suno `callbackOrigin` `acccf06eb` · 곡 30일 정리 회원별 기록 `4cafe5eb3`(2026-10-29 첫 실제 삭제 뒤 관리자 정리 표 확인) · 휴대폰 ☰ 펼침 메뉴 `2fcddccb7`(크롬 390px 확인) |
 | `naver-blog-agent` | v2.12 · 2026-10-23 (이미지 전용 공개 버킷, 회원 피해 수정·승인 빌드 1회) | 대기 항목 없음 |
