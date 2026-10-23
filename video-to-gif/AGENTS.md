@@ -345,4 +345,12 @@
 - 변환(윈도우 렌더러, 엣지와 같은 메시지 순서를 node 시험 도구로): 3초 720p → GIF89a 1,103,096바이트, 변환 1.0초·전체 2.3초, 진행률 메시지·조각 받기·정리 정상.
 - 배포: tsc 0·`npm run build` 통과 → `video-to-gzwcztx49` Ready → video-to-gif.buylife.xyz. DB v1.20 + `extension_version` v1.00 + `extension_download_url`(SQL 파일과 같은 값, `program-info.mjs` rest로). 내려받기 3파일 200.
 - 화면(엣지): 일반 탭 v1.20·「⚡ 내 PC 고속 변환 · 사용 중 · PC의 ffmpeg 9.0.2」 → 렌더러 삭제(등록 키·폴더) 뒤 「다시 확인」 → 「확장은 설치됐지만 PC 렌더러가 없습니다. 렌더러 설치 방법」(브라우저 변환으로 자동 전환). 확장 없는 탭은 「지금은 브라우저에서 변환합니다…」. 시험 뒤 렌더러 다시 설치해 둠.
-- **남은 것**: ① `check-extension-release.mjs`가 「프로그램 버전 v1.20 ≠ 확장 버전 v1.00」으로 실패(핵심 원칙 10 — 확장 `version_name`을 프로그램 버전과 맞추는 규칙). DB·ZIP은 서로 v1.00으로 일치해 회원 영향 없음 → 다음 배포 때 `manifest.json` v1.20 + ZIP 다시 만들기 + DB 확장 버전 맞추기(맥미니 판단) ② 웹 앱 화면으로 실제 긴 영상 변환 시간 측정(윈도우)은 하지 않음 ③ 맥미니 크롬 배포 화면 실검수.
+- **남은 것**: ① `check-extension-release.mjs`가 「프로그램 버전 v1.20 ≠ 확장 버전 v1.00」으로 실패(핵심 원칙 10 — 확장 `version_name`을 프로그램 버전과 맞추는 규칙). DB·ZIP은 서로 v1.00으로 일치해 회원 영향 없음 → 다음 배포 때 `manifest.json` v1.20 + ZIP 다시 만들기 + DB 확장 버전 맞추기(맥미니 판단) ② 웹 앱 화면으로 실제 긴 영상 변환 시간 측정(윈도우)은 하지 않음 ③ 맥미니 크롬 배포 화면 실검수. → ②·③은 아래 맥미니 실검수로 완료.
+
+## 2026-10-24 ✅ v1.20 맥미니 크롬 배포 화면 실검수 (Claude Code 맥미니 · `claude-mac-20261023-ecommerce`, 시험 계정 `buylifemall@naver.com`)
+- 운영 내려받기 5개(`gif-renderer-extension-latest.zip`·`gif-renderer-windows-latest.zip`·`install-mac.sh`·`host.pl`·`version.json`) 모두 200, 운영 `host.pl` = 맥미니 설치본과 같음.
+- `/dashboard` v1.20, 설정 패널 「⚡ 내 PC 고속 변환 · 사용 중 · PC의 ffmpeg 8.1」.
+- **웹 앱 화면으로 실제 변환**: 화면 안에서 만든 1080p 10초 MP4(14,933,867바이트, 앞선 측정과 같은 영상)를 넣고 「변환 시작」 → 버튼 「⚡ 내 PC로 변환 중...」 → **24.5초** 완료, 336×189·7.27MiB·400장·장면 간격 2/3(40fps)·`GIF89a`, 브라우저 전환 안내 없음. 결과는 앞선 측정과 같은 5단계. 시간은 앞선 47.6초보다 짧음 — 앞선 측정 때는 다른 시험 실행이 겹쳐 PC가 바빴던 것으로 보임(코드 변경 없음 확인). 같은 영상 브라우저 변환은 157초.
+- 렌더러 등록(`NativeMessagingHosts/xyz.buylife.gif_renderer.json`)을 잠시 치우고 「다시 확인」 → 「확장은 설치됐지만 PC 렌더러가 없습니다. 렌더러 설치 방법」, 되돌리고 「다시 확인」 → 「사용 중」.
+- `/guide#local-renderer` 바로 이동(구역 맨 위), 제목 「더 빠르게 — 내 PC 고속 변환 (선택, 무료)」, 링크 2개 200, 맥 터미널 한 줄 표시.
+- 비용: 없음(브라우저·PC 안 변환, AI 0회).
