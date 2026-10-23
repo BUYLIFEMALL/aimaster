@@ -194,3 +194,9 @@
 - 함께 나간 것: 공용 `ai-video-providers` 선택값(`aspectRatio`·`startUrl` 생략), `ai-video-*` 기준 이전(`ai-video-studio/lib/video/`) 사본 — 동작 불변.
 - 검수: tsc·시험·build, 배포 `shots-4qfznzp6u` Ready, DB v1.42, 크롬 시험 회원 Lyria 3.5 1곡 → 카드 「66초」(재생 막대 1:05). 이미 저장된 예전 Lyria 곡은 길이가 없는 그대로(다시 계산하지 않음).
 - 비용: 빌드 1회, Gemini 약 $0.08(시험 회원 키).
+
+## 2026-10-24 v1.43 — 공용 영상 모델에서 Kling v2.1 제거 (Claude Code 윈도우, 영상 담당 `claude-win-video`)
+- 공용 `ai-video-models`에서 Replicate `kwaivgi/kling-v2.1` 제거(업체 서비스 종료, 오류 1203 discontinued — 고르면 항상 실패하던 문제). 기준 `ai-video-studio/lib/video/videoModels.ts` → 이 폴더 사본 복사(커밋 `c2b698db4`). 기본 모델(Gemini)은 그대로, 옛 장면 기록의 모델 이름 표시는 `?.name` 대체값으로 안전.
+- 함께 나간 것: 대기분 공용 사본 동기화 `fd1f3cb67`(fal 소리·글→영상 선택값, 동작 불변).
+- 검수: tsc·build, 배포 `shots-lrb2sbwid` Ready, DB v1.43, 크롬 화면 v1.43. 장면 영상 선택 화면은 시험 계정에 장면이 없어 화면 확인 못 함(같은 사본 파일을 쓰는 원스톱 쇼츠에서 목록 4개 확인).
+- 비용: 빌드 1회.

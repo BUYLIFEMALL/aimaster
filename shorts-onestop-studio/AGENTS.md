@@ -239,3 +239,10 @@
 
 ## 2026-10-23 v1.39 — `/render?ams=` 링크로 오면 가장 최근 대본에 배경음악 자동으로 넣기(`RenderView` `pendingAms`), 고른 곡 이름 번호 유지. (Claude Code 윈도우)
 - 검수: tsc·시험·build, 배포 Ready·DB 버전 맞춤, 크롬 시험 회원으로 AI 음악 스튜디오 링크 → 곡 들어감 확인. 비용: 빌드 1회.
+
+## 2026-10-24 v1.41 — 공용 영상 모델에서 Kling v2.1 제거 (Claude Code 윈도우, 영상 담당 `claude-win-video`)
+- 공용 `ai-video-models`에서 Replicate `kwaivgi/kling-v2.1` 제거(업체 서비스 종료, 오류 1203 discontinued — 고르면 항상 실패하던 문제). 기준 `ai-video-studio/lib/video/videoModels.ts` → 이 폴더 사본 복사(커밋 `c2b698db4`). 기본 모델(Gemini)은 그대로, 옛 장면 기록의 모델 이름 표시는 `?.name` 대체값으로 안전.
+- 시험 `tests/video.test.ts`의 Kling v2.1 경우는 지우지 않고 같은 값의 시험용 객체로 바꿈 + 「목록에 없음」 확인(27개 통과).
+- 함께 나간 것: 대기분 공용 사본 동기화 `fd1f3cb67`(동작 불변).
+- 검수: tsc·시험·build, 배포 `shorts-onestop-studio-r6ntxtshv` Ready, DB v1.41, 크롬 `/design` 「AI 영상 모델」 선택 목록 4개(Gemini·Seedance 1 Lite·Seedance 1.5 Pro·Kling O3), 화면 코드에 kling-v2.1 없음.
+- 비용: 빌드 1회.
