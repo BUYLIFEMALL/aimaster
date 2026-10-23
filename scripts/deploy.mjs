@@ -329,7 +329,9 @@ console.log(`\n[2/3] 작업 중 표(docs/ACTIVE_WORK.md)에서 ${folder}`);
 const rowInfo = (l) => { const c = l.split("|").map((x) => x.trim()); const folders = (c[1].match(/`[^`]+`/g) ?? []).length; return { name: (c[2]?.match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1] ?? c[2]?.match(/세션 `([^`]+)`/)?.[1] ?? "", agent: (c[2] ?? "").slice(0, 80), task: (c[4] ?? "").slice(0, 100), folders }; };
 if (active.length) for (const l of active) { const r = rowInfo(l); console.log(`  ⚠ 세션 ${r.name || "(이름 없음)"} · ${r.agent}${r.folders > 1 ? ` · 폴더 ${r.folders}개를 함께 맡음` : ""} · 작업: ${r.task}`); }
 // 보낼 문안(2026-10-23) — 점검만 할 때도 보이게 여기서. 복사해 그대로 보내면 받는 쪽이 무엇을 해 달라는지 바로 안다(첫 줄이 미리보기). 내 줄이면 무시
-for (const n of [...new Set(active.map((l) => rowInfo(l).name).filter(Boolean))]) console.log(`  보낼 문안(→ ${n}, 내 줄이 아니면): [문의] ${n} 세션이 docs/ACTIVE_WORK.md에 올린 \`${folder}/\` 작업이 끝났으면 그 줄에서 \`${folder}/\`만 빼 주실 수 있을까요? ${folder} 배포를 하려는데 scripts/deploy.mjs가 그 줄 때문에 멈춥니다. 아직 쓰고 계시면 끝날 때까지 기다리겠습니다.`);
+// 그 세션의 메시지 주소(.git/aimaster-sessions.txt, index-watch.mjs가 세션 이름 붙은 커밋 때 기록 — 같은 장비에서만 통함)
+const addrOf = (n) => { try { const p = readFileSync(join(ROOT, ".git", "aimaster-sessions.txt"), "utf8").trimEnd().split("\n").filter((l) => l.split(" | ")[1] === n).pop()?.split(" | "); return p ? ` · SendMessage 주소 ${p[3]}(${p[2]})` : " · 주소 기록 없음(ListAgents로 찾기)"; } catch { return " · 주소 기록 없음(ListAgents로 찾기)"; } };
+for (const n of [...new Set(active.map((l) => rowInfo(l).name).filter(Boolean))]) console.log(`  보낼 문안(→ ${n}${addrOf(n)}, 내 줄이 아니면): [문의] ${n} 세션이 docs/ACTIVE_WORK.md에 올린 \`${folder}/\` 작업이 끝났으면 그 줄에서 \`${folder}/\`만 빼 주실 수 있을까요? ${folder} 배포를 하려는데 scripts/deploy.mjs가 그 줄 때문에 멈춥니다. 아직 쓰고 계시면 끝날 때까지 기다리겠습니다.`);
 if (!active.length) console.log("  (줄 없음)");
 // 휴대폰 폭 메뉴(check-mobile-account.mjs, 코드 읽기) — 이 폴더가 확인 필요 후보면 경고만(배포는 막지 않음, 2026-10-23)
 {
