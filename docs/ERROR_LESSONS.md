@@ -15,6 +15,13 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — Replicate `kwaivgi/kling-v2.1`이 업체에서 서비스 종료돼 생성이 실패한다(공용 `ai-video-models` 목록에 남아 있음) (ai-video-studio v1.13 예시 생성 중, Claude Code 윈도우)
+- **증상**: 시험 계정으로 Kling v2.1(Replicate) 5초를 접수하자 실패 — 업체 오류 `Error code 1203: The model 'kling-v2-1' has been discontinued and is no longer available`. 같은 때 다른 9개 모델은 정상.
+- **원인**: 업체가 모델을 종료했는데 공용 기준 `ai-video-studio/lib/video/videoModels.ts`의 `STUDIO_VIDEO_MODELS`와 다른 프로그램용 `VIDEO_MODELS`(5개) 둘 다에 남아 있음. 사본: `ai-image-studio`·`music-video-studio`·`shorts-onestop-studio`·`shots`.
+- **영향**: 위 프로그램에서 회원이 이 모델을 고르면 매번 실패(자동 재시도 없음). 업체가 거절해 요금은 나가지 않았을 가능성이 큼(미확인).
+- **처리**: 아직 안 고침 — 공용 기준에서 빼고 `--sync` 뒤 사본 프로그램 배포가 필요해 주인님 승인 대기. 상세 `ai-video-studio/docs/IMPROVEMENTS.md`.
+- **다음부터 확인**: 모델 목록을 바꾸지 않아도 업체가 모델을 끝낼 수 있다 — 예시·검수용 실생성 때 모든 모델 결과를 확인하고, 종료 오류(1203·discontinued)가 보이면 바로 이 문서와 공용 기준 문서에 적는다.
+
 ## 2026-10-24 04:39 — 새 프로그램 배포 명령이 메인 사이트(`aimaster`) 운영 배포를 만들었다: 커밋 명령과 배포 명령을 동시에 실행 (ai-work-workspace v1.01, Claude Code 윈도우)
 - 증상: `cd ai-work-workspace && vercel deploy --prod --yes --scope buylife`의 결과 주소가 `aimaster-f4wvhvi1o-buylife.vercel.app`(www.buylife.xyz 연결). 새 프로젝트에는 배포 0건. 배포 출처 `cli`, 커밋 메시지는 내 커밋.
 - 원인: 같은 응답 안에서 `cd /d/Antigravity/AIMaster && git commit …`(루트로 이동)과 위 배포 명령을 **동시에(병렬로)** 실행했다. 두 명령이 같은 셸을 써서 배포가 루트(루트 `.vercel/project.json` = aimaster)에서 실행된 것으로 판단.

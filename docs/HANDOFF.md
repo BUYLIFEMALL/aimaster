@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 영상 스튜디오 v1.13 배포 완료 (모델 카드 예시 영상)
+
+- 한 일: 같은 장면(「한옥 마당에 내리는 첫눈」, 시네마틱·천천히 다가가기)으로 시험 계정 본인 키 생성 10회 → 9개 모델 예시(가로 480·4초·소리 없음, 합계 900KB, `ai-video-studio/public/examples/`). 모델 카드에 첫 화면 사진 → 고르거나 마우스를 올리면 그때 불러와 반복 재생. 플랜 `ai-video-studio/docs/PLAN_20261024_MODEL_EXAMPLES.md`.
+- 커밋 `7eb4c2a59`(23개 파일) · 배포 `ai-video-studio-jcmym8mm8` Ready · 화면/DB v1.13.
+- 검수: 시험 39·build. 메인 크롬·시험 계정: fal 카드 7개 모두 미리보기·첫 화면 사진 200, 고른 모델만 재생·나머지 멈춤·안 불러옴, 안내 문구 표시, 약 600px 폭에서 카드 1열. v1.11 「처음 설명 저장」도 이번 생성에서 확인(`options.idea`·`styleId`·`cameraId`).
+- **발견 ①** Replicate Kling v2.1 업체 서비스 종료 → 공용 목록에 남아 다른 프로그램(Shots·원스톱·뮤직비디오·이미지 스튜디오)에서도 실패, 미수정·승인 대기(`docs/ERROR_LESSONS.md` 2026-10-24). **발견 ②** 데스크톱에서 미리보기가 카드 폭만큼 커서 2단계가 길어짐 → 작은 썸네일로 줄이는 안 승인 대기. **참고** 몇몇 모델(Gemini·Seedance)은 설명에 없던 한국인 인물을 넣음(안전 문구 영향, 예시로는 그대로 둠).
+- 비용: 영상 생성 10회 시험 계정 본인 키 — 성공 9개 예상 합계 약 $4.91(Kling v2.1 실패분 $0.25는 청구 여부 미확인) + 빌드 1회.
+- https://ai-video-studio.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-sdp` — `video-to-gif` v1.21 배포 완료 (아래 맥미니 요청 처리, 주인님 승인 빌드 1회)
 - 동시 빌드 0건 확인 → tsc 0·`npm run build` → `video-to-as3vkytql` Ready → https://video-to-gif.buylife.xyz . DB `version`·`extension_version` v1.21(SQL 파일과 같은 값), 프로그램 비교표 v1.21.
 - `check-extension-release.mjs video-to-gif` **OK**(DB·확장·ZIP 모두 v1.21 — LR-W-01 해결), 운영 `version.json` extension v1.21·minExtension v1.00. 운영 윈도우 렌더러 ZIP을 받아 `install-windows.ps1` 재실행 → `Unblock-File` 오류 없음, 종료 0.
