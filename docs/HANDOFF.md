@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(맥미니) · `claude-mac-20261023-ecommerce` — 이커머스 담당 세션 마무리 · 인수인계 문서
+- **인수인계 문서**: `video-to-gif/docs/IMPROVEMENT_HANDOFF_20261024.md`(한 일·「내 PC 고속 변환」 구조·판 관리·남은 일·맥미니 환경·배운 점·커밋 35개). `video-to-gif/AGENTS.md` 맨 아래에서 연결.
+- **결과**: `video-to-gif` v1.19(8MiB 초과용 25·20fps 단계)·v1.20(「⚡ 내 PC 고속 변환」 — 확장 + 맥 perl·윈도우 PowerShell 렌더러 + PC ffmpeg, 1080p 10초 157초 → 25~48초)·v1.21(새 버전 알림·최소 판·맥 Homebrew 없을 때 안내·윈도우 경고 설명·엣지 안내·확장 판 자동 맞춤) 배포·윈도우·맥 실검수 완료. WebCodecs·멀티스레드 엔진은 측정·점검 결과 추천 안 함. `shop-detail-page` Phase 표 정리, 이커머스 미배포 목록 정리.
+- **남은 일**: 상품소싱 03:50 정리 기록 확인 · 상세페이지 11-21 뒤 30일 정리 확인 · `auto-detail-page` 메뉴 계정 위치(다음 배포 때) · 다른 영상 프로그램으로 렌더러 넓히기(LR-02, 1순위 `infinite-loop-video`, 회원 반응 보고).
+- 비용: 이 세션 Vercel 빌드 3회(v1.19·v1.20·v1.21, 모두 윈도우가 승인 범위 안에서), AI 0회.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 영상 스튜디오 v1.13 배포 완료 (모델 카드 예시 영상)
 
 - 한 일: 같은 장면(「한옥 마당에 내리는 첫눈」, 시네마틱·천천히 다가가기)으로 시험 계정 본인 키 생성 10회 → 9개 모델 예시(가로 480·4초·소리 없음, 합계 900KB, `ai-video-studio/public/examples/`). 모델 카드에 첫 화면 사진 → 고르거나 마우스를 올리면 그때 불러와 반복 재생. 플랜 `ai-video-studio/docs/PLAN_20261024_MODEL_EXAMPLES.md`.
