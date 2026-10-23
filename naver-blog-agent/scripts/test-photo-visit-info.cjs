@@ -57,3 +57,17 @@ test('older saved results without visit fields still validate', async () => {
   const old = { ...result }; delete old.visit; delete old.includeFaq;
   assert.equal(pr.photoReviewResultSchema.safeParse(old).success, true);
 });
+test('FAQ omitted by the model is rebuilt only from member visit info; too little info goes to confirm', async () => {
+  const visit = { kind: '맛집', region: '서울 성수동', visitDate: '2026-10-20', companion: '친구 1명' };
+  const { result } = await run({ ...base, visit, includeFaq: true }, draftWith([P]));
+  const last = result.paragraphs.at(-1);
+  assert.deepEqual(last.evidence, ['member-notes']);
+  assert.match(last.text, /자주 묻는 질문/); assert.match(last.text, /서울 성수동에 있어요/); assert.match(last.text, /2026년 10월 20일/); assert.match(last.text, /친구 1명과 함께/);
+  assert.equal(pr.photoReviewResultSchema.safeParse(result).success, true);
+  const few = await run({ ...base, visit: { region: '서울' }, includeFaq: true }, draftWith([P]));
+  assert.equal(few.result.paragraphs.length, 1); assert.ok(few.result.confirm.some(c => /FAQ/.test(c)));
+  const modelFaq = await run({ ...base, visit, includeFaq: true }, { title: 't', paragraphs: [{ text: '본문', evidence: [P] }, { text: '자주 묻는 질문\nQ. 위치? A. 성수', evidence: ['member-notes'] }], confirm: [] });
+  assert.equal(modelFaq.result.paragraphs.length, 2);
+  assert.equal(pipe.buildVisitFaq(undefined), null);
+  assert.match(pipe.buildVisitFaq({ region: '부산', companion: '엄마' }), /엄마와 함께/);
+});
