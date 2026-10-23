@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 세션 점검에 「안전장치 자기 시험」 · 30일 정리 기록 남은 7곳 안내(블로그 병합·맥미니)
+- **`deploy.mjs --version-only --all`** 에 `[커밋·푸시 안전장치 자기 시험]`: 실제 훅 파일로 ① 빈 임시 스테이징(`GIT_INDEX_FILE`, 공용 index 안 건드림) → pre-commit이 막는지 ② 알려진 대량 삭제 커밋 `c2e7c4db2` 푸시 흉내 → pre-push가 막는지. 통과시키면 「⚠ … 고장」이 맨 위 요약에. 고장 난 훅(`04b887892` 판)으로 몇 초 바꿔 ⚠ 나오는 것 확인 후 즉시 재설치(설치본 = 원본).
+- **30일 정리 기록 19/26 — 남은 7곳은 모두 다른 세션 담당**:
+  - 블로그 병합 6곳(`ai-auto-blog`·`blog-workroom`·`naver-blog-agent`·`naver-blog-allinone`·`naver-blog-seo-studio`·`tistory-auto-blog`) → 붙이는 법·정리 route·지우는 표를 `docs/BLOG_CONSOLIDATION_TASKS.md` 「30일 정리 기록」 절에 적음(폐지될 쪽은 안 붙여도 됨).
+  - **맥미니 세션(`shop-detail-page`)**: `app/api/cron/cleanup-generated/route.ts`가 `shop_products`(user_id 있음)를 지울 때 공용 `cleanup-usage-log` 사본(`check-shared-modules.mjs --sync`)으로 `addCleanupCount(counts, user_id, "products", 1)` → 끝에 `await logCleanupUsage(admin, "<slug>", counts)`. 관리자 표 이름표 `products` = 「상품」은 이미 준비됨. 붙이면 다음 배포 때 윈도우가 함께 내보냄.
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 휴대폰 폭 「가로 넘침」 점검 추가
 - `scripts/check-mobile-account.mjs`에 `[휴대폰 폭 가로 넘침]` 항목: 넓은 고정 폭(360px 이상) `absolute`·`fixed` 장식이 오른쪽 끝 고정만이 아니고 같은 파일에 `overflow-hidden/clip`이 없으면 「⚠ 가로 넘침 의심」. 세션 시작 점검·`deploy.mjs <폴더>` 경고에도 그대로 나옴.
 - 결과: 지금 저장소 전체 **0곳**(music은 미배포 수정 `overflow-x-clip`으로 이미 해결). 수정 전 music 레이아웃으로 바꿔 넣으면 `w-[400px]` 후보로 잡힘(시험 뒤 원복).
