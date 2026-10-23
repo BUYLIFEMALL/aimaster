@@ -1,0 +1,1198 @@
+[
+ {
+  "id": "prj_rWXFsqDOx7Cd9HDTE649DubpWDlj",
+  "name": "aimaster",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed",
+   "elasticConcurrencyEnabled": false
+  }
+ },
+ {
+  "id": "prj_uyaVCtMOO4U7yqnuYqRNi1s0GlID",
+  "name": "video-to-gif",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_RyaZYKLdH71H51qP7ZInCaB8kfrf",
+  "name": "ui-canvas",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_bHZIgJGNZotRyQMNgiPn7UPRjDkd",
+  "name": "thumbnail-master",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_BHh3me01sTyn12CQJrOgihl7Fyvu",
+  "name": "suno-music-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_zLfo2cUVIpiVnWOuIJJHSFAByEgP",
+  "name": "reverse-prompt",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_edNhV9A6kre1MOX3gIIBoVtlrp8f",
+  "name": "portrait-photo",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_IMBywWlSqMCEBjOcvwp3gaMMml4J",
+  "name": "photo-remake-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_oUxUAAgdvNPtd5eE1228ikwtmbJZ",
+  "name": "personality-suite",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_uMySme1trJhY9tBOATChPeDRUiNG",
+  "name": "music-player",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_37ryBw2gcK6dMhrpWhlwpsRtkIPc",
+  "name": "markdown-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_DxXYl9q23cPhNwvBozpiI3UQBepp",
+  "name": "landing-architect",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_PVkHByYNP7Sf6KcLd5Re1yfqORjp",
+  "name": "kakao_auto_poster",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_OhLyLo6d44jF2zsowf1UHtj1Trm9",
+  "name": "four-cut-comics",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_dfaM5UJc1h7agyWnsZDxOqU4KiyN",
+  "name": "file-merge",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_9bUD0GPi2oaYVaFiGJ3eqZwKTPl7",
+  "name": "shorts-onestop-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_00obA6Ka6YCAZHhoLw7Gpl67tOar",
+  "name": "fashion-style",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_LVNI2nqD5l28n0ZoXj5c0Znxuom4",
+  "name": "emotion-writer",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_KbBlrCVpC3Hk321t6ytRyZcSqOjd",
+  "name": "document-translator",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_JAiIquUBnFPgVggCwRblgZ17WSXK",
+  "name": "banana-canvas",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_Rw99fwnqnLUQyKNcItpc0aa3q10B",
+  "name": "ai-writing-editor",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_63n8QA2nI24d6lzntGOgna8krucy",
+  "name": "ai-task-planner",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_UqvnhsAeohJCELpcZwF7S9HlZC3x",
+  "name": "vinyl-lp-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_l32j4uY0hMw1gFrug0WAACARrS1B",
+  "name": "threads-easy-planner",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_CbpAAfOrbTsgzEmyX6CEs0JCmgX8",
+  "name": "threads-affiliate-poster",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_aOy3s9FqarLxLufrAuIxgu511FwM",
+  "name": "threads",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed",
+   "elasticConcurrencyEnabled": false
+  }
+ },
+ {
+  "id": "prj_gJIIELdstnObcj4eZssf6pHSbBKu",
+  "name": "style-dna-analyzer",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_hoRrpjiLUoLGCIPNEc5XoNgKatPf",
+  "name": "shots",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed",
+   "elasticConcurrencyEnabled": true
+  }
+ },
+ {
+  "id": "prj_NBUYFxPSi8klN59L0PUIlBpg25Cq",
+  "name": "shorts-viral-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_UXft9hlJwCugmGkao13IFicMGS1E",
+  "name": "react-ui-showcase",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_oayREWHVqhEJ5alXSQfTkQ9Hw6Dn",
+  "name": "prompt-template-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_uif6WngcZJ6bJEFPenwVDUtDs1vL",
+  "name": "playlist-channel-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_ZHJW07IlNQfbri6Xu5dg7Kpn99fn",
+  "name": "persona-style-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_MzprKvFjspw1uvCWcTxj71mmdLMV",
+  "name": "naver-cafe-poster",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_azZVx29mMvv2vyfUGQlXKFA35F93",
+  "name": "music-video-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_nzxSUns6qCMftSL26BzSiWhRczbc",
+  "name": "insta-auto-poster",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_oLGmjEm1RcBXCxaY3NuyVm2cJYsy",
+  "name": "image-convert-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_aF3SfBdNceg7Afk5vOtvGCFVPiPc",
+  "name": "ai-music-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_1ujLS6wF0HodxPnY10NvfEojzF5O",
+  "name": "cinematic-storyboard-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_HoyeM8lSo7G2ZlZCUfBLf0LPCris",
+  "name": "allinone-graphic",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_RbmM4Au1rFRZPHFMZFIgwjryQYCh",
+  "name": "ai-webtoon-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_6Ht4oFhx9iK9ZEGhP6YL2Ns0Ay7R",
+  "name": "ai-slide-builder",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_FVY1Edaev6fMUCR9b2CQmeCeNiqV",
+  "name": "ai-prompt-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_tR2yZVSMAXQmc9qBPUnzjiJUjdrF",
+  "name": "ai-mastering-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_tCxATcVIdYr3RLR7CjFeCX6CGv3N",
+  "name": "shop-detail-page",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_QhwjNogPLM6cNsO4OuGtqwowbv3x",
+  "name": "ai-influencer-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_Bu5B8l0AL6adRlxagBZxsBIYUi58",
+  "name": "ai-doc-chatbot",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_J78EZfEp2dMu8RUucr4Lkc5JGVY5",
+  "name": "ai-audio-analyzer",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_roE5C3Oo20z0yvImNygBnnYXL70k",
+  "name": "youtube-auto-reply",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_IFLvGo33Rj45fTrnLy8A19M5PEUh",
+  "name": "trending-product-finder",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_paM9d3wl8OPM3UQR4KXOaakgQ6X3",
+  "name": "ai-video-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_r1bOAHBZ82ktcPI9RYYGe2w35QXY",
+  "name": "blog-workroom",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_TTqJjNfMreWtL9deM33SC0JNe8bY",
+  "name": "naver-blog-allinone",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_p3Qc2mOwj5LnPlE5zaAd2stxvibm",
+  "name": "tistory-auto-blog",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_Yyxngm6K3IFhdsY1u7rusgBiaM6l",
+  "name": "ai-auto-blog",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_uns69mwxF4wJARy1ViF2Lgj0PzWT",
+  "name": "naver-blog-agent",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_FpGHp3MKQtU1wljZMiBA6y4tEu6V",
+  "name": "naver-blog-seo-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_TtZhrqJMgrMY5c3pL3Z3TKcsl0Dt",
+  "name": "comment-inbox",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_vwjKT3EDuVq7716eaR1mcsnD2ADQ",
+  "name": "threads-comment-reply",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_yw9HHgyrDQ2Scav1M3JKD9MRRabo",
+  "name": "music",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_Hz4yrZ6ttm7Eo9wepfjSYsddsq8a",
+  "name": "instagram-comment-reply",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_qcCFSNxjGu5NggFMN28ytyzX0z8A",
+  "name": "threads-content-ops",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_ZVdqLRJfHfgEiPCAIPasRebaPat0",
+  "name": "lyric-video-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_Q9Ei24ZuVzCfYX031UGZfqiwEuxR",
+  "name": "blog-content-maker",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_ioEvZSHGKxBKpCeeHkalfXNr1K5M",
+  "name": "stepmail",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_vbFOc4iVBpvHJUZdpDdiOr2vZDch",
+  "name": "web-crawler-saas",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_PCcF4fU44xbYMTCljqwpxnthkoth",
+  "name": "booking-reminder",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_1It7Em1XLeQoX5J6wFWbmWxCGxg6",
+  "name": "competitor-analysis",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_eOtyTt6PtTUozXZtyVgcGQve7XFD",
+  "name": "longtail-keyword-expander",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_19eZzb9XOfUd1I21R3RN2FJ16u4i",
+  "name": "ai-image-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_QiEq4gYfGCILhQFl4lwr3a827z05",
+  "name": "blog-keyword",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_wQJuT1yUtTpZG4HagTwWrPl6Ydb4",
+  "name": "youtube-viral-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_Ya6VyM6PpAxT0QUqwoobr0AmnW9w",
+  "name": "naver-blog-auto-poster-web",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_Bn2kNb8LiiE9Od59FJ5vL7FHWHvF",
+  "name": "naver-blog-auto-poster",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_g64vFafe4Etwkc34y75WlCMnGxDs",
+  "name": "cardnews-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_eVY72OfgTnAhVtVDsHNt4ScRAkXo",
+  "name": "youtube-channel-consultant",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_AiBO4kQUwKVtyslke8sJjzSW57ym",
+  "name": "auto-detail-page",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed",
+   "elasticConcurrencyEnabled": false
+  }
+ },
+ {
+  "id": "prj_7kIhcmOsc4T1wnnjm9oRv0tPvXQf",
+  "name": "detail-page-12p",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_wmz2GZXutBmMwFH6BfqkecMLa0gV",
+  "name": "website-scraper",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_GJBLHYiAq29MpoNjVgMRMzqUbOZg",
+  "name": "real-estate-sales",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed",
+   "elasticConcurrencyEnabled": true
+  }
+ },
+ {
+  "id": "prj_vhsX9ix7k45wDFvoG2I8a79bhXPb",
+  "name": "crm-google-form",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_DicBg4lTEF8irkE7rT9nSqUcfr5U",
+  "name": "yt-playlist-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_PCdWezvxuiCJPKb6msyRbKgONxDa",
+  "name": "seo-thumbnail-pro",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_HHjvBGfww9stuQaakANwttuablHc",
+  "name": "instagram-dm-reply",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_0l8qtOFNg0p9zWg1ZuVFbHhcFyOY",
+  "name": "dev-kit-insta",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_s0ZEsSghR0eiKgFDfID8cfxBOJyU",
+  "name": "ebook-studio",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": false,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_WCLRnSw1c5SdpgPf4VH7dw1ZnTm8",
+  "name": "tarot",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_vFKamMadqV6wRDBBK5nJZM7HQasn",
+  "name": "mbti-character",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_6qDvramU9GzOqKssqtw8yA3u6BHH",
+  "name": "mbti",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_EJZ4hdc0JvSBpH2Qrsuke2xTW2kf",
+  "name": "dream",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_LOKuNPZ7HAjNImFpT49xDPHi3K4B",
+  "name": "infinite-loop-video",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ },
+ {
+  "id": "prj_bli7SOH6CpY7EIPnfMTzDjsvAfHv",
+  "name": "blog",
+  "resourceConfig": {
+   "fluid": true,
+   "functionDefaultRegions": [
+    "iad1"
+   ],
+   "elasticConcurrencyEnabled": true,
+   "buildMachineType": "basic",
+   "buildMachineSelection": "fixed"
+  }
+ }
+]
