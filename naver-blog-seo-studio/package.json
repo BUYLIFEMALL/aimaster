@@ -1,0 +1,42 @@
+{
+  "name": "naver-blog-seo-studio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test:browser": "node --test tests/browser/extension-regression.test.mjs",
+    "test:update-banner": "node --test tests/update-banner.test.mjs",
+    "test:categories": "node --test tests/categories.test.mjs",
+    "test:seo-quality": "node --test tests/seo-quality.test.mjs",
+    "extension:archive": "node scripts/build-extension-archive.mjs",
+    "test:openai-params": "node --test tests/openaiRequestParams.test.mjs",
+    "test:auto-publish": "node --test tests/auto-publish.test.mjs tests/auto-publish-controller.test.mjs tests/background-run.test.mjs tests/browser/auto-publish-page.test.mjs",
+    "test:grounding": "node --test tests/grounding.test.mjs",
+    "test:style": "node --test tests/style.test.mjs",
+    "test:sections": "node --test tests/sections.test.mjs",
+    "test:image-nodes": "node --test tests/image-nodes.test.mjs",
+    "test:keyword-handoff": "node --test tests/keyword-handoff.test.mjs",
+    "test:extension-connect": "node --test tests/extension-connect.test.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.57.0",
+    "lucide-react": "^0.563.0",
+    "next": "^16.3.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "archiver": "^7.0.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "playwright-core": "^1.47.0",
+    "typescript": "^5"
+  }
+}

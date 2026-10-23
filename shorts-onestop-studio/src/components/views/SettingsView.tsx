@@ -1,0 +1,113 @@
+"use client";
+import { useCallback, useEffect, useState } from "react";
+import { KeyRound, PlugZap, ShieldCheck, Trash2 } from "lucide-react";
+import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
+import { GUIDES } from "@/lib/guides";
+import { DEFAULT_MODEL, PROVIDER_LABEL, TEXT_MODELS, modelName, type AiProvider } from "@/lib/models";
+
+type Msg = { text: string; ok?: boolean } | null;
+type KeyState = Record<string, { hasKey: boolean; maskedKey: string | null }>;
+const GROUPS: { p: "gemini" | "openai" | "anthropic" | "pexels" | "pixabay" | "fal" | "replicate" | "elevenlabs"; title: string; desc: string; ph: string; guide: string; guideLabel: string }[] = [
+  { p: "gemini", title: "Google Gemini API 키", desc: "대본·주제 추천·AI 이미지·음성(TTS)·AI 영상(기본 Gemini Omni Flash)에 씁니다. 텍스트는 무료 한도가 있는 저렴한 모델(Flash-Lite)로 시작할 수 있고, AI 영상은 결제가 연결된 키에서만 됩니다.", ph: "AIza…", guide: GUIDES.gemini, guideLabel: "Gemini API 키 발급 매뉴얼" },
+  { p: "openai", title: "OpenAI API 키", desc: "대본·주제 추천을 OpenAI로 만들 때 필요합니다(유료).", ph: "sk-…", guide: GUIDES.openai, guideLabel: "OpenAI API 키 발급 매뉴얼" },
+  { p: "anthropic", title: "Anthropic Claude API 키", desc: "대본·주제 추천을 Claude로 만들 때 필요합니다(유료).", ph: "sk-ant-…", guide: GUIDES.anthropic, guideLabel: "Claude API 키 발급 매뉴얼" },
+  { p: "pixabay", title: "🖼️ Pixabay API 키 (스톡 사진·영상)", desc: "✅ 추천 — 장면 배경으로 쓸 무료 사진·일러스트·영상을 검색합니다. 키 발급·사용 무료(사용량 한도 있음). 이 키 하나만 있어도 스톡 검색을 쓸 수 있습니다.", ph: "12345678-…", guide: GUIDES.pixabay, guideLabel: "Pixabay API 키 발급 매뉴얼" },
+  { p: "pexels", title: "🎬 Pexels API 키 (스톡 영상·사진)", desc: "⚠️ 2026-10-16 현재 Pexels가 새 API 키 발급을 일시 중단했습니다. 이미 키가 있는 분만 등록하고, 새로 시작하면 아래 Pixabay 키를 쓰세요.", ph: "Pexels API Key", guide: GUIDES.pexels, guideLabel: "Pexels API 키 발급 매뉴얼" },
+  { p: "replicate", title: "🎬 Replicate API 토큰 (AI 영상 · 선택)", desc: "장면 사진을 움직이는 영상으로 만들 때 고를 수 있습니다. 가장 저렴한 Seedance 1 Lite(5초 약 $0.18)와 Kling v2.1을 씁니다. 기본은 Gemini 키라 없어도 됩니다(유료·종량제).", ph: "r8_…", guide: GUIDES.replicate, guideLabel: "Replicate API 토큰 발급 매뉴얼" },
+  { p: "fal", title: "🎬 fal API 키 (AI 영상 · 선택)", desc: "장면 영상을 Seedance 1.5 Pro·Kling O3로 만들 때 고를 수 있습니다. 기본은 Gemini 키라 없어도 됩니다(유료·종량제, 잔액 충전 필요).", ph: "xxxx:yyyy", guide: GUIDES.fal, guideLabel: "fal API 키 발급 매뉴얼" },
+  { p: "elevenlabs", title: "🎙️ ElevenLabs API 키 (내 목소리 복제 · 선택)", desc: "내 목소리를 복제해 내레이션에 쓸 때 필요합니다. 목소리 복제는 ElevenLabs 유료 요금제(Starter 이상)에서만 되며, 음성 생성 글자 수만큼 본인 계정에서 차감됩니다.", ph: "sk_…", guide: GUIDES.elevenlabs, guideLabel: "ElevenLabs API 키 발급 매뉴얼" },
+];
+
+function Message({ msg }: { msg: Msg }) {
+  if (!msg) return null;
+  return <div role="status" className={`notice ${msg.ok ? "success" : "error-box"}`}>{msg.text}</div>;
+}
+
+export function SettingsView() {
+  const [keys, setKeys] = useState<KeyState | null>(null);
+  const [vals, setVals] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false), [msg, setMsg] = useState<Msg>(null);
+  const [testMsg, setTestMsg] = useState<Record<string, Msg>>({});
+
+  const load = useCallback(async () => {
+    try {
+      const k = await fetch("/api/keys", { cache: "no-store" }).then((r) => r.json());
+      if (k.error) throw new Error(k.error);
+      setKeys(k.keys);
+    } catch (e) { setMsg({ text: e instanceof Error ? e.message : "상태를 불러오지 못했습니다." }); }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
+  const [settings, setSettings] = useState<{ provider: AiProvider; model: string } | null>(null);
+  useEffect(() => { fetch("/api/settings", { cache: "no-store" }).then((r) => r.json()).then((d) => d.settings && setSettings(d.settings)).catch(() => undefined); }, []);
+  async function saveSettings(next: { provider: AiProvider; model: string }) {
+    setSettings(next); setBusy(true); setMsg(null);
+    try {
+      const r = await fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(next) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error ?? "저장하지 못했습니다.");
+      setSettings(d.settings); setMsg({ text: `사용할 AI를 ${PROVIDER_LABEL[next.provider]} · ${modelName(next.model)}(으)로 저장했습니다.`, ok: true });
+    } catch (e) { setMsg({ text: e instanceof Error ? e.message : "저장하지 못했습니다." }); } finally { setBusy(false); }
+  }
+
+  async function saveKey(p: string) {
+    setBusy(true); setMsg(null);
+    try {
+      const r = await fetch("/api/keys", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provider: p, apiKey: (vals[p] ?? "").trim() }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error ?? "저장하지 못했습니다.");
+      setVals((v) => ({ ...v, [p]: "" })); setMsg({ text: "저장했습니다. [연결 확인]으로 동작을 확인해 보세요.", ok: true }); await load();
+    } catch (e) { setMsg({ text: e instanceof Error ? e.message : "저장하지 못했습니다." }); } finally { setBusy(false); }
+  }
+  async function removeKey(p: string) {
+    if (!window.confirm("등록한 키를 삭제할까요?")) return;
+    setBusy(true);
+    try { const r = await fetch(`/api/keys?provider=${p}`, { method: "DELETE" }); if (!r.ok) throw new Error(); await load(); } catch { setMsg({ text: "삭제하지 못했습니다." }); } finally { setBusy(false); }
+  }
+  async function test(target: string) {
+    setTestMsg((m) => ({ ...m, [target]: { text: "확인하는 중입니다…", ok: true } }));
+    try {
+      const r = await fetch("/api/keys/test", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target }) });
+      const d = await r.json().catch(() => ({}));
+      setTestMsg((m) => ({ ...m, [target]: { text: d.message ?? d.error ?? "확인하지 못했습니다.", ok: r.ok } }));
+    } catch { setTestMsg((m) => ({ ...m, [target]: { text: "서버에 연결하지 못했습니다." } })); }
+  }
+
+  return (
+    <div className="stack">
+      <div className="notice"><strong><ShieldCheck size={14} style={{ verticalAlign: "-2px" }} /> 본인 키로만 동작합니다</strong><p>대본·주제·이미지·음성은 회원 본인의 API 키로 호출됩니다. 운영자나 다른 회원의 키로 대신 처리하지 않으며, 키는 서버에서만 쓰고 화면에는 일부만 표시합니다. 각 공급사의 이용 조건과 요금이 본인 계정에 적용됩니다. 텍스트 AI 키는 하나만 있어도 됩니다.</p></div>
+      <Message msg={msg} />
+      <section className="card stack">
+        <h2>🤖 사용할 AI {settings && <small>· 주제·대본 모델: {modelName(settings.model)}</small>}</h2>
+        {!settings ? <p className="muted">불러오는 중…</p> : <div className="field-grid">
+          <label>AI 공급사<select value={settings.provider} disabled={busy} onChange={(e) => { const p = e.target.value as AiProvider; void saveSettings({ provider: p, model: DEFAULT_MODEL[p] }); }}>{(Object.keys(PROVIDER_LABEL) as AiProvider[]).map((p) => <option key={p} value={p}>{PROVIDER_LABEL[p]}{keys?.[p]?.hasKey ? "" : " (키 미등록)"}</option>)}</select></label>
+          <label>모델<select value={settings.model} disabled={busy} onChange={(e) => void saveSettings({ provider: settings.provider, model: e.target.value })}>{TEXT_MODELS.filter((m) => m.provider === settings.provider).map((m) => <option key={m.id} value={m.id}>{m.name} — {m.purpose}</option>)}</select></label>
+        </div>}
+        <small className="muted">공급사를 바꾸면 그 공급사의 가장 가벼운 모델(기본값)로 맞춰집니다. 모델 이름은 공급사 목록 기준이며 계정에 따라 쓸 수 없는 모델이 있을 수 있습니다.</small>
+      </section>
+      {GROUPS.map((g) => {
+        const st = keys?.[g.p];
+        return (
+          <section key={g.p} className="card stack">
+            <h2><KeyRound size={15} style={{ verticalAlign: "-3px" }} /> {g.title}</h2>
+            <p className="muted">{g.desc}</p>
+            <label>API 키 {keys ? (st?.hasKey ? <span className="ok" style={{ fontWeight: 500 }}>· 등록됨 <code>{st.maskedKey}</code></span> : <span className="muted" style={{ fontWeight: 500 }}>· 미등록</span>) : null}
+              <input type="password" autoComplete="off" value={vals[g.p] ?? ""} onChange={(e) => setVals((v) => ({ ...v, [g.p]: e.target.value }))} placeholder={st?.hasKey ? "새 값으로 바꾸기" : g.ph} />
+            </label>
+            <div className="actions">
+              <button className="primary" disabled={busy || !(vals[g.p] ?? "").trim()} onClick={() => void saveKey(g.p)}>안전하게 저장</button>
+              {st?.hasKey && <button disabled={busy} onClick={() => void removeKey(g.p)}><Trash2 size={13} />저장값 삭제</button>}
+              <button disabled={busy || !st?.hasKey} onClick={() => void test(g.p)}><PlugZap size={14} />연결 확인</button>
+              <GuideLinkButton url={g.guide} label={`${g.guideLabel} (팝업)`} />
+            </div>
+            {testMsg[g.p] && <p role="status" className={testMsg[g.p]!.ok ? "ok" : "error"} style={{ fontSize: 12 }}>{testMsg[g.p]!.text}</p>}
+          </section>
+        );
+      })}
+      <section className="card">
+        <h2>📖 연동 매뉴얼</h2>
+        <p>각 키 발급 방법을 단계별로 따라 할 수 있습니다. 음성 키는 음성 단계가 열릴 때 이곳에 추가됩니다.</p>
+        <div className="actions" style={{ marginTop: 12 }}>{GROUPS.map((g) => <GuideLinkButton key={g.p} url={g.guide} label={g.guideLabel} />)}</div>
+      </section>
+    </div>
+  );
+}

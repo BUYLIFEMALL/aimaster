@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-10-16T18:34:46.649223+00:00",
+  "slug": "youtube-auto-reply",
+  "version": "v1.09",
+  "app_url": "https://youtube-auto-reply.buylife.xyz",
+  "badges": [],
+  "operation": "programs release version only; no schema/member data/env/Cron changes"
+}

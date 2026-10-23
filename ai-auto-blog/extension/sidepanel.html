@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><title>블로그 포스팅 네이버 입력기</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+  <main>
+    <header><span class="eyebrow">AIMaster · <span id="extensionVersion">-</span></span><h1 style="font-size:clamp(18px, 6vw, 24px);white-space:nowrap">블로그 포스팅 네이버 입력기</h1><p>블로그 포스팅 자동화에서 "네이버 입력기로 보내기"를 누르면 이 확장이 네이버 글쓰기 화면을 열어 사람처럼 입력하고 발행 직전까지 준비합니다. 마지막 발행은 직접 누릅니다.</p></header>
+    <div id="updateBanner" class="card" hidden style="border:1px solid #fca5a5;background:#fef2f2">
+      <strong>새 버전이 나왔습니다</strong>
+      <p class="hint" id="updateBannerText"></p>
+      <a id="updateBannerLink" href="https://ai-auto-blog.buylife.xyz/settings" target="_blank" rel="noreferrer">최신 버전 받으러 가기 (BLOG 설정)</a>
+    </div>
+    <section class="card">
+      <h2>계정 연결</h2>
+      <p class="hint">「자동 연결」을 누르면 BLOG 화면이 열리고(로그인 필요) 연결 코드가 자동으로 만들어져 연결됩니다.</p>
+      <div class="connection-actions">
+        <button id="autoLink">자동 연결</button>
+        <div id="status" class="status">연결되지 않음</div>
+      </div>
+      <details class="manual-token">
+        <summary>연결 코드 직접 입력</summary>
+        <p class="hint"><a href="https://ai-auto-blog.buylife.xyz/settings" target="_blank">BLOG 설정</a>에서 발급한 코드를 붙여 넣으세요.</p>
+        <div class="connection-actions">
+          <input id="token" type="password" placeholder="pat_... 코드 붙여넣기">
+          <button id="link">연결</button>
+        </div>
+      </details>
+      <h2 style="margin-top:14px">내 네이버 블로그</h2>
+      <p class="hint">자동 입력은 여기에 저장한 블로그의 글쓰기 화면에만 합니다. 다른 계정으로 로그인돼 있으면 입력하지 않고 멈춥니다.</p>
+      <input id="blogId" placeholder="네이버 블로그 아이디 (예: myblog)" autocomplete="off">
+      <div class="connection-actions">
+        <button id="saveBlogId" class="secondary">블로그 ID 저장</button>
+        <div id="blogIdStatus" class="status">-</div>
+      </div>
+      <label class="checkbox-row"><input id="notifyToggle" type="checkbox" checked> 입력이 끝나면 크롬 알림 받기</label>
+      <label class="checkbox-row"><input id="imageAiToggle" type="checkbox"> 이미지에 "AI 활용" 표시 자동 켜기 (기본 꺼짐)</label>
+    </section>
+    <section class="card" id="taskCard" hidden>
+      <h2>진행 상태</h2>
+      <strong id="taskTitle" class="task-title"></strong>
+      <div id="taskStage" class="task-stage"></div>
+      <progress id="taskProgress" value="0" max="1" hidden></progress>
+      <div id="taskMessage" class="status"></div>
+      <div id="taskNotes" class="status task-notes"></div>
+      <button id="cancelTask" class="secondary" hidden>입력 중지</button>
+      <p class="hint">입력 중에는 네이버 탭을 닫거나 글쓰기 화면을 직접 만지지 마세요. 이 패널을 닫아도 작업은 계속되며, 사람처럼 한 글자씩 입력해 글 길이에 따라 5~10분 정도 걸립니다.</p>
+    </section>
+    <!-- 관리자 계정으로 연결했을 때만 보인다(개발·오류 진단용). 일반 회원 화면에는 나타나지 않는다. -->
+    <section class="card" id="inspectCard" hidden>
+      <h2>에디터 구조 분석 <span class="review-badge">관리자</span></h2>
+      <p class="hint">입력 오류가 나면 네이버 글쓰기 화면에서 이 분석을 실행하고 결과를 복사해 전달해주세요.</p>
+      <button id="inspect">구조 분석</button>
+      <div id="inspectStatus" class="status">대기 중</div>
+      <textarea id="inspectResult" rows="10" readonly placeholder="분석 결과가 여기에 표시됩니다"></textarea>
+    </section>
+  </main>
+  <script src="blog-core.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

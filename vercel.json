@@ -1,0 +1,13 @@
+{
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
+  "crons": [
+    {
+      "path": "/api/email/cron/subscription-expiry?secret=${CRON_SECRET}",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/email/cron/scheduled-delay-check",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}

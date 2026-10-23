@@ -1,0 +1,33 @@
+# naver-blog-auto-poster_app은 별도 Electron 데스크톱 앱이라 이 Next.js 배포와 무관하다.
+# runtime/에는 실행 중인 Playwright 브라우저 프로필(잠긴 파일 포함)이 들어있어서,
+# Vercel CLI가 로컬 파일을 스캔하다 EBUSY로 배포 자체가 실패하는 문제가 있었다
+# (2026-09-20 발견). 2026-09-21에 데스크톱 앱(_app)과 크롬 확장(_web)을 별도 폴더로
+# 분리하면서 경로도 함께 갱신함 — 크롬 확장(_web)은 node_modules/runtime이 없어 대상 아님.
+naver-blog-auto-poster_app/runtime
+naver-blog-auto-poster_app/node_modules
+
+# ai-auto-blog/(BLOG 원문생성 자동화, 2026-10-01 blog/에서 이름 변경)는 2026-10-01부터 자체 Vercel 프로젝트(ai-auto-blog)로 따로 배포되고 루트 앱이 import하지 않는다.
+/ai-auto-blog
+
+# tistory-auto-blog/(티스토리 원문생성 자동화, 2026-10-01 ai-auto-blog를 복제해 신설)도 자체 Vercel 프로젝트로 따로 배포되며 루트 앱이 import하지 않는다.
+/tistory-auto-blog
+
+# threads-easy-planner/(Threads AI 기획기)도 자체 Vercel 프로젝트로 따로 배포되며 루트 앱이 import하지 않는다.
+/threads-easy-planner
+# threads-content-ops/(쓰레드 콘텐츠 운영)도 2026-10-15부터 자체 Vercel 프로젝트로 배포한다(루트는 옛 주소 전달만).
+/threads-content-ops
+# 네이버 블로그 자동화 App·Web의 웹 화면도 2026-10-15부터 각 폴더 web/에서 자체 Vercel 프로젝트로 배포한다.
+/naver-blog-auto-poster_app/web
+/naver-blog-auto-poster_web/web
+
+
+# shorts-viral-studio/(쇼츠 떡상 분석·대본 자동화, 2026-10-04 신설)는 자체 Vercel 프로젝트로 따로 배포되고 루트 앱이 import하지 않는다.
+/shorts-viral-studio
+
+# cardnews-studio/(CARDNEWS STUDIO, 2026-10-11 신설)는 자체 Vercel 프로젝트로 따로 배포되고 루트 앱이 import하지 않는다.
+/cardnews-studio
+
+/style-dna-analyzer
+
+# labs/(AIMaster_dev 독립 실험 프로그램, 2026-10-19)는 각자 자체 Vercel 프로젝트로 배포되며 루트 앱과 무관하다(docs/AIMASTER_DEV_LAB_GUIDELINES.md).
+/labs

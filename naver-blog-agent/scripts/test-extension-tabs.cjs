@@ -1,0 +1,387 @@
+// Run the actual background worker against a browser that can close tabs between awaits.
+// No paid APIs, member data changes or real publication.
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const source = process.argv[2]
+  ? require('node:child_process').execFileSync('git',['show',process.argv[2]+':naver-blog-agent/extension/background.js'],{encoding:'utf8'})
+  : fs.readFileSync(path.join(__dirname,'../extension/background.js'),'utf8');
+const flush = () => new Promise(resolve=>setImmediate(resolve));
+let passed = 0;
+async function scenario(name, check) { await check(); passed++; console.log('PASS '+name); }
+async function browser(initial={}) {
+  const data=structuredClone(initial), tabs=new Map(), events={}, calls=[], reports=[], warnings=[];
+  let execute = async({args})=>[{frameId:0,result:args[0]==='inspect'?{status:'valid',hasContent:false}:{ok:true,categories:[{id:'29',name:'AI'}]}}];
+  const normalNetwork=async(url,init)=>({ok:true,json:async()=>url.endsWith('/finish')
+    ? {success:true,persisted:true,taskId:JSON.parse(init.body).taskId,runId:JSON.parse(init.body).runId,status:JSON.parse(init.body).prepared?'prepared':JSON.parse(init.body).success?'published':'failed'}
+    : {task:null,state:'running',runId:init?.body?JSON.parse(init.body).runId:undefined,leaseMs:180000,userId:'owner'}});
+  let network = normalNetwork;
+  const event=name=>({addListener(fn){events[name]=fn;}});
+  const absent=id=>new Error('No tab with id: '+id+'.');
+  const get=async id=>{calls.push(['get',id]);if(!tabs.has(id))throw absent(id);return structuredClone(tabs.get(id));};
+  const sandbox={URL,AbortSignal,Uint8Array,btoa,Number,Date,crypto,console:{warn:m=>warnings.push(m)},
+    importScripts(){},setInterval(){},clearInterval(){},setTimeout:resolve=>resolve(),
+    chrome:{
+      storage:{local:{get:async keys=>Object.fromEntries((Array.isArray(keys)?keys:[keys]).filter(k=>k in data).map(k=>[k,structuredClone(data[k])])),set:async values=>Object.assign(data,structuredClone(values)),remove:async keys=>(Array.isArray(keys)?keys:[keys]).forEach(k=>delete data[k])}},
+      tabs:{get,query:async()=>[...tabs.values()].map(t=>structuredClone(t)),
+        create:async details=>{const tab={id:100+tabs.size,windowId:1,status:'complete',...details};tabs.set(tab.id,tab);calls.push(['create',tab.id]);return tab;},
+        update:async(id,details)=>{calls.push(['update',id]);if(!tabs.has(id))throw absent(id);Object.assign(tabs.get(id),details);return structuredClone(tabs.get(id));},
+        remove:async id=>{if(!tabs.delete(id))throw absent(id);},onUpdated:event('updated'),onRemoved:event('removed'),onReplaced:event('replaced')},
+      windows:{get:async id=>({id,state:'normal'}),update:async(id,details)=>{calls.push(['focus',id,details]);return {};}},scripting:{executeScript:async request=>{calls.push(['script',request.args[0]]);return execute(request);}},
+      alarms:{create:async()=>{},onAlarm:event('alarm')},action:{onClicked:event('clicked'),setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
+      runtime:{getManifest:()=>({version_name:'v1.63'}),getURL:f=>'chrome-extension://test/'+f,onStartup:event('startup'),onInstalled:event('installed'),onMessage:event('message')}
+    },
+    editorCommand(){},fetch:async(url,init)=>{if(url.endsWith('/finish'))reports.push(JSON.parse(init.body));return network(url,init);}
+  };
+  // Keep startup disconnected; then install the scenario state after startup has settled.
+  const connection=data.connection;delete data.connection;
+  vm.createContext(sandbox);vm.runInContext(source,sandbox);await flush();
+  if(connection)data.connection=connection;
+  return {sandbox,data,tabs,events,calls,reports,warnings,execute:fn=>execute=fn,network:fn=>network=fn,resetNetwork:()=>network=normalNetwork,
+    send:(message,sender={})=>new Promise(resolve=>events.message(message,sender,resolve)),
+    add:(id=1)=>tabs.set(id,{id,windowId:1,status:'complete',url:'https://blog.naver.com/myblog/postwrite'})};
+}
+const connection={blogId:'myblog',token:'test-token'};
+const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,stage,type:'publish',payload:{publishScheduleMode:'now',interactive:true}});
+(async()=>{
+  await scenario('closed idle tab: clear references, preserve account and checkpoint, stop repeated queries',async()=>{
+    const b=await browser({connection,editorTab:1,completedEditorTab:{id:1},session:{status:'valid',checkedAt:'2000-01-01'},authoringCheckpoint:{done:5}});
+    await b.sandbox.pump();
+    assert.equal(b.data.editorTab,undefined);assert.equal(b.data.completedEditorTab,undefined);
+    assert.match(b.data.session.reason,/탭이 닫혔거나/);assert.equal(b.data.connection.token,'test-token');assert.equal(b.data.authoringCheckpoint.done,5);
+    const count=b.calls.filter(c=>c[0]==='get').length;await b.sandbox.pump();
+    assert.equal(b.calls.filter(c=>c[0]==='get').length,count);assert.equal(b.calls.some(c=>c[0]==='create'),false);
+  });
+  await scenario('onRemoved and onReplaced preserve task and ignore unrelated/old events',async()=>{
+    const b=await browser({connection,editorTab:2,completedEditorTab:{id:1},activeTask:task('writing'),authoringCheckpoint:{done:6}});
+    await b.events.removed(1);assert.equal(b.data.editorTab,2);assert.equal(b.data.completedEditorTab,undefined);
+    await b.events.removed(99);assert.equal(b.data.editorTab,2);
+    await b.events.replaced(3,2);assert.equal(b.data.editorTab,undefined);assert.equal(b.data.activeTask.stage,'writing');assert.equal(b.data.authoringCheckpoint.done,6);
+  });
+  await scenario('tab closes after existence check but before injection: friendly error and no retry',async()=>{
+    const b=await browser({connection,editorTab:1});b.add();
+    b.execute(async()=>{b.tabs.delete(1);throw new Error('No tab with id: 1.');});
+    await assert.rejects(()=>b.sandbox.command(1,'title',{text:'제목'}),e=>e.code==='EDITOR_TAB_CLOSED');
+    assert.equal(b.data.editorTab,undefined);assert.equal(b.calls.filter(c=>c[0]==='script').length,1);
+  });
+  await scenario('empty frame response returns unknown; permission errors remain visible',async()=>{
+    const b=await browser({connection,editorTab:1});b.add();b.execute(async()=>[]);
+    assert.equal((await b.sandbox.inspect(1)).status,'unknown');
+    b.execute(async()=>{throw new Error('Cannot access contents of the page.');});
+    await assert.rejects(()=>b.sandbox.command(1,'title'),/Cannot access/);assert.equal(b.data.editorTab,1);
+  });
+  await scenario('user explicitly reconnects after tab loss: reuse own editor without clearing contents',async()=>{
+    const b=await browser({connection,editorTab:1,authoringCheckpoint:{done:7}});b.add(2);
+    assert.equal(await b.sandbox.editorTab(true),2);assert.equal(b.data.editorTab,2);
+    assert.equal(b.calls.some(c=>c[0]==='create'),false);assert.equal(b.tabs.get(2).url,'https://blog.naver.com/myblog/postwrite');assert.equal(b.data.authoringCheckpoint.done,7);
+  });
+  await scenario('fresh task after browser restart never navigates a restored editor with a changed tab id',async()=>{
+    const b=await browser({connection,editorTab:1,preparedEditorTabs:[{id:1}],authoringCheckpoint:{done:7}});b.add(2);
+    const next=await b.sandbox.editorTab(true,{blogId:'myblog',freshEditor:true});
+    assert.notEqual(next,2);assert.equal(b.calls.some(c=>c[0]==='update' && c[1]===2),false);
+    assert.equal(b.tabs.get(2).url,'https://blog.naver.com/myblog/postwrite');assert.equal(b.data.authoringCheckpoint.done,7);
+    assert.equal(b.data.editorTab,next);assert.equal(b.calls.filter(c=>c[0]==='create').length,1);
+  });
+  await scenario('fresh task leaves an unregistered personal editor and read page untouched',async()=>{
+    const b=await browser({connection,editorTab:2});b.add(2);b.add(3);b.tabs.get(3).url='https://blog.naver.com/myblog/123';
+    const next=await b.sandbox.editorTab(false,{blogId:'myblog',freshEditor:true});
+    assert.notEqual(next,2);assert.notEqual(next,3);assert.equal(b.calls.some(c=>c[0]==='update'),false);
+    assert.equal(b.data.editorTab,next);
+  });
+  await scenario('selected tab disappears before focus: friendly error without resetting another editor',async()=>{
+    const b=await browser({connection,editorTab:1});b.add();
+    b.sandbox.chrome.tabs.update=async()=>{b.tabs.delete(1);throw new Error('No tab with id: 1.');};
+    await assert.rejects(()=>b.sandbox.editorTab(true),e=>e.code==='EDITOR_TAB_CLOSED');assert.equal(b.data.editorTab,undefined);assert.equal(b.calls.some(c=>c[0]==='create'),false);
+  });
+  await scenario('waiting task loses tab: report one controlled failure and keep checkpoint',async()=>{
+    const b=await browser({connection,editorTab:1,activeTask:task('waiting_login'),authoringCheckpoint:{done:8}});
+    await b.sandbox.pump();assert.equal(b.reports.length,1);assert.match(b.reports[0].error,/EDITOR_TAB_CLOSED/);
+    assert.equal(b.data.activeTask,undefined);assert.equal(b.data.authoringCheckpoint.done,8);assert.equal(b.calls.some(c=>c[0]==='create'),false);
+  });
+  await scenario('worker restarts while writing: never reset or publish editor automatically',async()=>{
+    const b=await browser({connection,activeTask:task('writing'),authoringCheckpoint:{done:9}});b.add();
+    await b.sandbox.pump();assert.equal(b.reports.length,1);assert.match(b.reports[0].error,/EDITOR_INTERRUPTED/);
+    assert.equal(b.calls.some(c=>['script','update','create'].includes(c[0])),false);assert.equal(b.data.authoringCheckpoint.done,9);
+  });
+  await scenario('login screen closes after preparation: finish once instead of repeating a stuck task',async()=>{
+    const b=await browser({connection,editorTab:1,activeTask:task('waiting_login')});
+    b.sandbox.prepareFreshNaver=async()=>({status:'expired'});
+    await b.sandbox.pump();assert.equal(b.reports.length,1);assert.match(b.reports[0].error,/EDITOR_TAB_CLOSED/);assert.equal(b.data.activeTask,undefined);
+  });
+  await scenario('worker restarts after final click: uncertain result, no repeat publication',async()=>{
+    const b=await browser({connection,activeTask:task('final_publish')});
+    await b.sandbox.pump();assert.equal(b.reports.length,1);assert.match(b.reports[0].error,/PUBLISH_UNCERTAIN/);assert.equal(b.calls.some(c=>c[0]==='create'||c[0]==='script'),false);
+  });
+  await scenario('tab closes during body input: one controlled failure, no new editor or final click',async()=>{
+    const b=await browser({connection,editorTab:1,activeTask:task('waiting_login'),authoringCheckpoint:{done:9}});b.add();
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});
+    b.sandbox.publish=async()=>b.sandbox.command(1,'paragraph',{text:'본문'});
+    b.execute(async({args})=>{if(args[0]==='paragraph'){b.tabs.delete(1);throw new Error('No tab with id: 1.');}return [{frameId:0,result:{status:'valid'}}];});
+    await b.sandbox.resume(task('waiting_login'));assert.equal(b.reports.length,1);assert.match(b.reports[0].error,/EDITOR_TAB_CLOSED/);
+    assert.equal(b.data.authoringCheckpoint.done,9);assert.equal(b.calls.some(c=>c[0]==='create'||c[1]==='click'),false);
+  });
+  await scenario('tab closes at final click: uncertain result, no automatic publication retry',async()=>{
+    const b=await browser({connection,editorTab:1,activeTask:task('waiting_login')});b.add();
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
+    b.execute(async({args})=>{
+      if(args[0]==='inspect')return [{frameId:0,result:{status:'valid'}}];
+      if(args[0]==='click' && args[1].selector.includes('tpb*i.publish')){b.tabs.delete(1);throw new Error('No tab with id: 1.');}
+      return [{frameId:0,result:{ok:true}}];
+    });
+    await b.sandbox.resume(task('waiting_login'));assert.equal(b.reports.length,1);assert.match(b.reports[0].error,/PUBLISH_UNCERTAIN/);
+    const scripts=b.calls.filter(c=>c[0]==='script').length;await b.sandbox.pump();assert.equal(b.calls.filter(c=>c[0]==='script').length,scripts);
+  });
+  await scenario('slow old-tab inspection cannot overwrite the replacement session',async()=>{
+    const b=await browser({connection,editorTab:1,titleProbeBuild:'20260927.7',session:{status:'valid',reason:'new session'}});
+    b.sandbox.inspect=async()=>{b.data.editorTab=2;return {status:'unknown',reason:'old session',closed:true};};
+    await b.sandbox.inspectSession(1);assert.equal(b.data.session.reason,'new session');
+    await b.events.removed(1);assert.equal(b.data.editorTab,2);assert.equal(b.data.session.reason,'new session');
+  });
+  await scenario('confirmed publication + finish network failure: retain success and retry only reporting',async()=>{
+    const b=await browser({connection,activeTask:task('writing'),authoringCheckpoint:{done:10}});b.add();
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.publish=async()=>({published:true,url:'https://blog.naver.com/myblog/123'});
+    b.network(async url=>{if(url.endsWith('/finish'))throw new Error('Failed to fetch');return {ok:true,json:async()=>({state:'running'})};});
+    await assert.rejects(()=>b.sandbox.resume(task('writing')),/Failed to fetch/);
+    assert.equal(b.reports.length,1);assert.equal(b.data.pendingResult.result.published,true);assert.equal(b.data.pendingResult.error,undefined);
+    b.resetNetwork();await b.sandbox.pump();
+    assert.equal(b.reports.length,2);assert.equal(b.reports[1].success,true);assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);assert.equal(b.data.authoringCheckpoint.done,10);
+  });
+  for(const [name,receipt] of [
+    ['missing storage confirmation',{success:true}],
+    ['storage failure',{success:true,persisted:false,taskId:'task',status:'published'}],
+    ['different task',{success:true,persisted:true,taskId:'other',status:'published'}],
+    ['different outcome',{success:true,persisted:true,taskId:'task',status:'failed'}],
+  ])await scenario('HTTP 200 '+name+': keep success and retry reporting without input',async()=>{
+    const pending={id:'task',result:{published:true,url:'https://blog.naver.com/myblog/123'}};
+    const b=await browser({connection,activeTask:task('final_publish'),pendingResult:pending,authoringCheckpoint:{done:10}});
+    b.network(async()=>({ok:true,json:async()=>receipt}));await b.sandbox.pump();
+    assert.deepEqual(b.data.pendingResult,pending);assert.equal(b.data.activeTask.stage,'final_publish');
+    assert.match(b.data.connectionError,/결과 저장 확인/);assert.equal(b.calls.length,0);
+    b.resetNetwork();await b.sandbox.pump();assert.equal(b.reports.length,2);
+    assert.equal(b.reports[1].success,true);assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);
+    assert.equal(b.data.authoringCheckpoint.done,10);assert.equal(b.calls.length,0);
+  });
+  await scenario('HTTP 503 DB rejection: keep confirmed result until server recovers',async()=>{
+    const pending={id:'task',result:{published:true,url:null}};
+    const b=await browser({connection,activeTask:task('final_publish'),pendingResult:pending});
+    b.network(async()=>({ok:false,status:503,json:async()=>({error:'발행 결과 저장을 확인하지 못했습니다.'})}));
+    await b.sandbox.pump();assert.deepEqual(b.data.pendingResult,pending);assert.match(b.data.connectionError,/저장/);
+    b.resetNetwork();await b.sandbox.pump();assert.equal(b.data.pendingResult,undefined);assert.equal(b.calls.length,0);
+  });
+  await scenario('prepare ends after settings; protected editor survives the next task',async()=>{
+    const t={...task('waiting_login'),type:'prepare',payload:{title:'준비 원고',executionMode:'prepare',publishScheduleMode:'reserve',interactive:true}};
+    const b=await browser({connection,editorTab:1,activeTask:t});b.add();
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
+    await b.sandbox.resume(t);
+    assert.equal(b.reports[0].prepared,true);assert.equal(b.reports[0].success,false);
+    assert.equal(b.data.lastPrepared.taskId,'task');assert.equal(b.data.preparedEditorTabs[0].id,1);
+    const clicks=b.calls.filter(c=>c[0]==='script' && c[1]==='click');assert.equal(clicks.length,1);
+    assert.equal(b.data.activeTask,undefined);assert.equal(b.data.pendingResult,undefined);
+    const next=await b.sandbox.editorTab(false,{blogId:'myblog',freshEditor:true});assert.notEqual(next,1);
+    assert.equal(b.calls.some(c=>c[0]==='update' && c[1]===1),false);
+    await b.events.removed(1);assert.equal(b.data.preparedEditorTabs.length,0);
+  });
+  await scenario('prepare reporting failure retains ready editor; retry restores protection without input',async()=>{
+    const t={...task('prepared'),type:'prepare',payload:{title:'준비 원고',executionMode:'prepare',publishScheduleMode:'reserve'}};
+    const pending={id:'task',result:{prepared:true,published:false}};
+    const b=await browser({connection,activeTask:t,pendingResult:pending});b.add();
+    b.network(async()=>({ok:false,status:503,json:async()=>({error:'결과 저장 실패'})}));
+    await b.sandbox.pump();assert.deepEqual(b.data.pendingResult,pending);
+    assert.equal(b.data.preparedEditorTabs[0].id,1);assert.equal(b.data.activeTask.stage,'prepared');
+    delete b.data.preparedEditorTabs;delete b.data.lastPrepared;
+    b.resetNetwork();await b.sandbox.pump();
+    assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.preparedEditorTabs[0].id,1);
+    assert.equal(b.calls.some(c=>['script','update','create'].includes(c[0])),false);
+    assert.equal(b.reports.length,2);assert.equal(b.reports[1].prepared,true);
+  });
+  await scenario('prepare settings failure never reports ready or presses final button',async()=>{
+    const t={...task('waiting_login'),type:'prepare',payload:{executionMode:'prepare',publishScheduleMode:'now'}};
+    const b=await browser({connection,activeTask:t});b.add();
+    b.sandbox.prepareFreshNaver=async()=>({status:'valid'});b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
+    b.execute(async({args})=>{if(args[0]==='settings')return [{frameId:0,result:{error:'카테고리 확인 실패'}}];
+      return [{frameId:0,result:args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
+    await b.sandbox.resume(t);assert.equal(b.reports[0].prepared,false);assert.match(b.reports[0].error,/카테고리/);
+    assert.equal(b.data.lastPrepared,undefined);
+    assert.equal(b.calls.filter(c=>c[0]==='script' && c[1]==='click').length,1);
+  });
+  await scenario('restart after prepared checkpoint only reports readiness, never clicks or reserves',async()=>{
+    const t={...task('prepared'),type:'prepare',payload:{title:'준비 원고',executionMode:'prepare',publishScheduleMode:'reserve'}};
+    const b=await browser({connection,activeTask:t});b.add();await b.sandbox.pump();
+    assert.equal(b.reports[0].prepared,true);assert.equal(b.calls.some(c=>c[0]==='script'),false);
+  });
+  await scenario('successful category read survives closed web requester; member isolation still enforced',async()=>{
+    const b=await browser({connection,editorTab:1});b.add();
+    const denied=await b.send({type:'categories',userId:'other',blogId:'myblog'});assert.match(denied.error,/회원이 다릅니다/);
+    const result=await b.send({type:'categories',userId:'owner',blogId:'myblog'},{tab:{id:999},url:'https://naver-blog-agent.vercel.app/queue'});
+    assert.equal(result.categories.length,1);assert.equal(result.error,undefined);assert.equal(result.token,undefined);
+  });
+  await scenario('updated event uses provided tab instead of racy second query; every event rejection is handled',async()=>{
+    const b=await browser();await b.events.updated(999,{status:'complete'},{url:'https://blog.naver.com/myblog/postwrite'});
+    assert.equal(b.calls.some(c=>c[0]==='get'),false);
+    b.sandbox.chrome.tabs.create=async()=>{throw new Error('No tab with id: 999.');};
+    await b.events.clicked();assert.match(b.data.connectionError,/No tab/);
+    b.sandbox.chrome.storage.local.get=async()=>{throw new Error('Storage unavailable');};
+    await b.events.updated(999,{status:'complete'},{url:'https://example.com'});assert.equal(b.data.connectionError,'Storage unavailable');
+    b.sandbox.chrome.storage.local.set=async()=>{throw new Error('Storage unavailable');};
+    await b.events.removed(1);assert.equal(b.warnings.length,1);
+  });
+  await scenario('lost claim response returns recovery without editor input',async()=>{
+    const b=await browser({connection});
+    b.network(async()=>({ok:true,json:async()=>({task:null,recovery:{id:'task',runId:'lost',stage:'claimed'}})}));
+    await b.sandbox.pump();assert.equal(b.data.recovery.runId,'lost');assert.equal(b.calls.some(call=>['create','script','update'].includes(call[0])),false);assert.equal(b.reports.length,0);
+  });
+  await scenario('wrong run receipt retains pending result and retries only reporting',async()=>{
+    const active={...task('prepared'),runId:'current',type:'prepare',payload:{executionMode:'prepare'}};
+    const b=await browser({connection,activeTask:active});b.add();
+    b.network(async()=>({ok:true,json:async()=>({success:true,persisted:true,taskId:'task',runId:'wrong',status:'prepared'})}));
+    await b.sandbox.pump();assert.equal(b.data.pendingResult.runId,'current');assert.equal(b.data.activeTask.stage,'prepared');assert.equal(b.calls.some(call=>call[0]==='script'),false);
+    b.resetNetwork();await b.sandbox.pump();assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);assert.equal(b.reports.every(result=>result.runId==='current'),true);
+  });
+  await scenario('superseded result preserves actual outcome and checkpoint separately',async()=>{
+    const active={...task('final_publish'),runId:'old'};
+    const b=await browser({connection,activeTask:active,pendingResult:{id:'task',runId:'old',result:{published:true,url:'https://blog.naver.com/myblog/123'}},authoringCheckpoint:{done:8}});
+    b.network(async()=>({ok:false,status:409,json:async()=>({error:'이전 실행',code:'RUN_SUPERSEDED'})}));
+    await b.sandbox.pump();assert.equal(b.data.pendingResult,undefined);assert.equal(b.data.activeTask,undefined);
+    assert.equal(b.data.resultConflicts[0].result.published,true);assert.equal(b.data.resultConflicts[0].checkpoint.done,8);assert.equal(b.calls.some(call=>call[0]==='script'||call[0]==='create'),false);
+  });
+  await scenario('expired run stops before any tab change and awaits member recovery',async()=>{
+    const b=await browser({connection,activeTask:{...task('waiting_login'),runId:'expired'},authoringCheckpoint:{done:2}});b.add();
+    b.network(async()=>({ok:false,status:409,json:async()=>({error:'실행 만료',code:'LEASE_EXPIRED'})}));
+    await b.sandbox.pump();assert.equal(b.data.activeTask.runId,'expired');assert.equal(b.data.authoringCheckpoint.done,2);assert.equal(b.calls.length,0);assert.equal(b.reports.length,0);
+  });
+  await scenario('modern injection carries run identity and finite browser deadline',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});b.add();let permission;
+    b.execute(async request=>{if(request.args[0]==='paragraph')permission=request.args[1];return [{frameId:0,result:request.args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
+    await b.sandbox.command(1,'paragraph',{text:'본문'});assert.equal(permission.runId,'current');assert.ok(permission.executionUntil>Date.now());assert.ok(permission.executionUntil<=Date.now()+180000);
+  });
+  await scenario('final stage refusal prevents the actual final publication click',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});b.add();let finalClicks=0;
+    b.sandbox.writeArticle=async()=>({complete:true});b.sandbox.finalMatch=async()=>{}; // BLC-07 final match belongs to the stubbed authoring step
+    b.execute(async request=>{if(request.args[0]==='click' && request.args[1].selector.includes('tpb*i.publish'))finalClicks++;return [{frameId:0,result:request.args[0]==='inspect'?{status:'valid'}:{ok:true}}];});
+    b.network(async(_url,init)=>{const body=JSON.parse(init.body);return body.action==='stage'&&body.stage==='final_publish'?{ok:false,status:409,json:async()=>({error:'만료',code:'LEASE_EXPIRED'})}:{ok:true,json:async()=>({state:'running',runId:body.runId,leaseMs:180000})};});
+    await assert.rejects(()=>b.sandbox.publish({...task('writing'),runId:'current'}),error=>error.code==='LEASE_EXPIRED');assert.equal(finalClicks,0);
+  });
+  await scenario('member recovery retires local stopped task so the extension can accept a new run',async()=>{
+    const b=await browser({connection,activeTask:{...task('waiting_login'),runId:'retired'},authoringCheckpoint:{done:4}});
+    b.network(async()=>({ok:true,json:async()=>({state:'draft',execution:{runId:'retired',stage:'abandoned'}})}));
+    await b.sandbox.pump();assert.equal(b.data.activeTask,undefined);assert.equal(b.data.resultConflicts[0].runId,'retired');assert.equal(b.data.resultConflicts[0].checkpoint.done,4);assert.equal(b.calls.length,0);
+  });
+  await scenario('editor wait resumes only our Naver frame and does not renew the lease',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});
+    b.sandbox.chrome.runtime.id='own-extension';
+    const replies=[];
+    assert.equal(b.events.message({type:'editorWait',delayMs:50,runId:'current',executionUntil:Date.now()+165000},{id:'own-extension',tab:{id:1,url:'https://blog.naver.com/myblog/postwrite'}},r=>replies.push(r)),true);
+    for(let n=0;n<5;n++)await flush();
+    assert.equal(replies[0].ok,true);assert.equal(b.calls.length,0);assert.equal(b.reports.length,0);
+  });
+  await scenario('editor wait rejects foreign sender, wrong tab/run, expired lease and excessive delay',async()=>{
+    for(const variant of ['sender','host','tab','run','expiry','delay']){
+      const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});
+      b.sandbox.chrome.runtime.id='own-extension';
+      const message={type:'editorWait',delayMs:50,runId:'current',executionUntil:Date.now()+165000};
+      const sender={id:'own-extension',tab:{id:1,url:'https://blog.naver.com/myblog/postwrite'}};
+      if(variant==='sender')sender.id='foreign';if(variant==='host')sender.tab.url='https://naver-blog-agent.vercel.app/';
+      if(variant==='tab')sender.tab.id=99;if(variant==='run')message.runId='old';
+      if(variant==='expiry')message.executionUntil=Date.now()-1;if(variant==='delay')message.delayMs=1001;
+      let reply;b.events.message(message,sender,r=>reply=r);for(let n=0;n<5;n++)await flush();
+      assert.ok(reply.error,variant);assert.equal(reply.ok,undefined);assert.equal(b.calls.length,0);
+    }
+  });
+  await scenario('a retired execution during worker wait cannot resume page input',async()=>{
+    const b=await browser({connection,activeTask:{...task('writing'),runId:'current'}});
+    b.sandbox.chrome.runtime.id='own-extension';
+    b.sandbox.setTimeout=resolve=>{b.data.activeTask.runId='new';resolve();};
+    let reply;b.events.message({type:'editorWait',delayMs:50,runId:'current',executionUntil:Date.now()+165000},{id:'own-extension',tab:{id:1,url:'https://blog.naver.com/myblog/postwrite'}},r=>reply=r);
+    for(let n=0;n<5;n++)await flush();assert.match(reply.error,/새 실행으로 바뀌어/);
+  });
+  await scenario('final UI verification brings only the current task tab forward after authoring',async()=>{
+    const t={...task('writing'),runId:'current'};
+    const b=await browser({connection,activeTask:t,preparedEditorTabs:[{id:2}]});b.add();b.add({id:2});
+    b.sandbox.buildWriterSteps=()=>({steps:[],plan:[],imageCount:2});b.sandbox.articlePlan=()=>[];
+    b.sandbox.runWriter=async()=>{b.calls.push(['authoring-complete']);};b.sandbox.hasBodyText=()=>true;b.sandbox.finalMatch=async()=>{};
+    await b.sandbox.writeArticle(t);
+    const completed=b.calls.findIndex(c=>c[0]==='authoring-complete'),focus=b.calls.findIndex(c=>c[0]==='focus'),ai=b.calls.findIndex(c=>c[0]==='script'&&c[1]==='imageAi');
+    assert.ok(completed<focus && focus<ai);assert.deepEqual(b.calls.filter(c=>c[0]==='update').map(c=>c[1]),[1]);
+    assert.equal(b.calls.filter(c=>c[0]==='focus').length,1);assert.equal(b.calls.some(c=>c[0]==='create'),false);
+    assert.equal(b.calls.some(c=>c[0]==='script'&&c[1]==='click'),false);
+  });
+  await scenario('stopped or replaced execution cannot focus an editor for final verification',async()=>{
+    for(const stopped of [true,false]){
+      const t={...task('writing'),runId:'current'};
+      const b=await browser({connection,activeTask:stopped?t:{...t,runId:'new'}});b.add();
+      if(stopped)b.network(async()=>({ok:true,json:async()=>({state:'draft',runId:'current'})}));
+      await assert.rejects(()=>b.sandbox.prepareFinalEditorUi(t),e=>e.code==='RUN_STOPPED');
+      assert.equal(b.calls.some(c=>c[0]==='update'||c[0]==='focus'),false);
+    }
+  });
+  await scenario('final verification restores a minimized task window without moving another tab',async()=>{
+    const b=await browser({connection,activeTask:task('writing')});b.add();
+    b.sandbox.chrome.windows.get=async id=>({id,state:'minimized'});
+    await b.sandbox.prepareFinalEditorUi(task('writing'));
+    const focused=b.calls.find(c=>c[0]==='focus');assert.equal(focused[2].focused,true);assert.equal(focused[2].state,'normal');
+  });
+  await scenario('image upload names follow fetched MIME even when an old payload says PNG',async()=>{
+    for(const [mime,suffix] of [['image/jpeg','jpg'],['image/png','png'],['image/webp','webp'],['image/gif','gif']]){
+      const b=await browser();
+      b.network(async()=>({ok:true,blob:async()=>new Blob(['synthetic-image'],{type:mime})}));
+      const asset=await b.sandbox.loadAsset({payload:{assets:[{url:'https://example.test/image',name:'blog_img_title.png'}]}},0);
+      assert.equal(asset.mime,mime);assert.equal(asset.name,'blog_img_title.'+suffix);
+      assert.equal(asset.data,btoa('synthetic-image'));
+    }
+  });
+  await scenario('actual writer verifies JPEG identity and still stops on another uploaded filename',async()=>{
+    const writer=require('../extension/writer.js');
+    for(const wrongName of [false,true]){
+      const t={...task('writing'),payload:{title:'제목',article:'',assets:[{url:'https://example.test/cover.jpg',name:'blog_img_title.png'}],titleImageIndex:0,bodyImages:[]}};
+      const b=await browser({connection,activeTask:t,preparedEditorTabs:[{id:2}]});b.add();b.add(2);
+      const protectedTab=structuredClone(b.tabs.get(2));let title='',blocks=[];
+      b.network(async(url)=>url.includes('example.test')?{ok:true,blob:async()=>new Blob(['synthetic-jpeg'],{type:'image/jpeg'})}:{ok:true,json:async()=>({state:'running'})});
+      b.sandbox.buildWriterSteps=writer.buildWriterSteps;b.sandbox.runWriter=writer.runWriter;b.sandbox.articlePlan=()=>[];b.sandbox.matchingWriterPrefix=writer.matchingWriterPrefix;b.sandbox.hasBodyText=()=>true; // image-identity scenario; empty-body rule has its own test
+      b.execute(async({args})=>{
+        const [command,value]=args;
+        if(command==='inspect')return [{frameId:0,result:{status:'valid'}}];
+        if(command==='snapshot')return [{frameId:0,result:{ok:true,title,blocks:structuredClone(blocks)}}];
+        if(command==='title')title=value.text;
+        if(command==='quote')blocks.push({id:'quote',type:'quote',text:value.text,style:value.style});
+        if(command==='image'){
+          assert.equal(value.mime,'image/jpeg');
+          blocks.push({id:'image',type:'image',name:wrongName?'another-image.jpg':value.name.replace(/\.[^.]+$/,'.jpg')});
+        }
+        return [{frameId:0,result:{ok:true}}];
+      });
+      if(wrongName){
+        await assert.rejects(()=>b.sandbox.writeArticle(t),/입력 3\/3.*원고와 달라/);
+        assert.equal(b.data.authoringCheckpoint.cursor,2);assert.equal(b.calls.some(c=>c[0]==='focus'),false);
+      }else{
+        assert.equal((await b.sandbox.writeArticle(t)).complete,true);
+        assert.equal(b.data.authoringCheckpoint.cursor,3);assert.equal(b.data.authoringCheckpoint.snapshot.blocks.at(-1).name,'blog_img_title.jpg');
+      }
+      assert.deepEqual(b.tabs.get(2),protectedTab);assert.equal(b.calls.some(c=>c[0]==='create'||(c[0]==='script'&&c[1]==='click')),false);
+    }
+  });
+  // 2026-10-23 웹 「바로 연결」: 프로그램 사이트에서 온 8자리 번호만 받아 기존 연결 처리로 저장하고, 확장이 연 탭은 닫는다.
+  await scenario('pairFromWeb: only the program site and 8-hex codes, then the existing pairing stores the connection and closes the tab',async()=>{
+    const b=await browser({});
+    const seen=[];b.network(async url=>{seen.push(url);return {ok:true,json:async()=>({success:true,token:'tok-web',userId:'owner'})};});
+    const evil=await b.send({type:'pairFromWeb',code:'ABCD1234',blogId:'myblog'},{url:'https://evil.example/',tab:{id:5}});
+    assert.match(evil.error,/허용되지 않은/);assert.equal(seen.length,0);assert.equal(b.data.connection,undefined);
+    const bad=await b.send({type:'pairFromWeb',code:'12',blogId:'myblog'},{url:'https://naver-blog-agent.buylife.xyz/extension-connect',tab:{id:5}});
+    assert.match(bad.error,/형식/);assert.equal(seen.length,0);
+    const noBlog=await b.send({type:'pairFromWeb',code:'ABCD1234',blogId:''},{url:'https://naver-blog-agent.buylife.xyz/settings',tab:{id:5}});
+    assert.match(noBlog.error,/블로그 ID/);assert.equal(seen.length,0);
+    b.tabs.set(5,{id:5,windowId:1,status:'complete',url:'https://naver-blog-agent.buylife.xyz/extension-connect?from=extension'});
+    const ok=await b.send({type:'pairFromWeb',code:'abcd1234',blogId:'myblog',closeTab:true},{url:'https://naver-blog-agent.buylife.xyz/extension-connect?from=extension',tab:{id:5}});
+    assert.equal(ok.ok,true);assert.equal(b.data.connection.token,'tok-web');assert.equal(b.data.connection.blogId,'myblog');
+    assert.ok(seen.some(u=>String(u).endsWith('/api/extension/auth')));
+    await flush();assert.equal(b.tabs.has(5),false);
+  });
+  await scenario('pairFromWeb: keeps the settings tab open when closeTab is not requested',async()=>{
+    const b=await browser({});
+    b.network(async()=>({ok:true,json:async()=>({success:true,token:'tok-web',userId:'owner'})}));
+    b.tabs.set(6,{id:6,windowId:1,status:'complete',url:'https://naver-blog-agent.buylife.xyz/settings'});
+    const ok=await b.send({type:'pairFromWeb',code:'ABCD1234',blogId:'myblog'},{url:'https://naver-blog-agent.buylife.xyz/settings',tab:{id:6}});
+    assert.equal(ok.ok,true);await flush();assert.equal(b.tabs.has(6),true);
+  });
+  console.log(`${passed} browser lifecycle regression scenarios passed`);
+})().catch(error=>{console.error(error);process.exitCode=1;});

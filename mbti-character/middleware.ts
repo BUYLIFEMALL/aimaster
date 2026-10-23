@@ -1,0 +1,67 @@
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
+
+// 2026-09-14 사용자 결정: 이 프로그램은 더 이상 로그인 없는 완전 공개 사이트가 아니다 —
+// AIMaster 회원가입 유도 채널로도 쓰기 위해 검사(/test)와 결과(/result) 이용에 로그인을
+// 요구한다. 랜딩 페이지(/)는 비로그인 방문자도 볼 수 있는 마케팅 화면으로 남겨둔다.
+const AUTH_REQUIRED_PATHS = ["/test", "/result", "/settings"];
+
+// 2026-10-16 도메인 통일(SSO): 옛 *.vercel.app 주소로 들어온 화면 요청은 새 주소로 보낸다(로그인 쿠키는 .buylife.xyz에서만 공유).
+// API는 옮기지 않는다(옛 주소의 크론·외부 호출·확장이 그대로 동작, 옛 주소는 지우지 않음).
+const NEW_ORIGIN = "https://mbti-character.buylife.xyz";
+
+export async function middleware(request: NextRequest) {
+  const reqHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
+  if (reqHost.endsWith(".vercel.app") && !request.nextUrl.pathname.startsWith("/api")) {
+    return NextResponse.redirect(`${NEW_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`, 308);
+  }
+  const cookieDomain = cookieDomainForHost(reqHost);
+  let supabaseResponse = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim())!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options),
+          );
+        },
+      },
+    },
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  const isAuthRequired = AUTH_REQUIRED_PATHS.some((p) => pathname.startsWith(p));
+
+  if (isAuthRequired && !user) {
+    // request.nextUrl.clone()으로 만들면 원래 있던 쿼리스트링(예: 공유 링크의 ?img=...)이
+    // /login URL에 그대로 남아 redirect 파라미터와 뒤섞여버린다(2026-09-14 실기기 확인 —
+    // 공유 링크를 비로그인 상태로 열었을 때 /login?img=...&redirect=... 형태로 지저분하게
+    // 붙는 버그). /login에는 redirect 파라미터 하나만 깨끗하게 실어 보낸다.
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname + request.nextUrl.search);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (user && pathname === "/login") {
+    return NextResponse.redirect(new URL("/test", request.url));
+  }
+
+  return supabaseResponse;
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/og).*)"],
+};

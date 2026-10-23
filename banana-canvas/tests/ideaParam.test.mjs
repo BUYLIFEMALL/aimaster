@@ -1,0 +1,140 @@
+// v1.24 ?idea= 받기 — 무료 시험
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { cleanIdeaParam, MAX_IDEA } from "../src/lib/bnc/ideaParam.ts";
+
+test("아이디어 주소값 정리", () => {
+  assert.equal(cleanIdeaParam("  우주 고양이  "), "우주 고양이");
+  assert.equal(cleanIdeaParam("x".repeat(700)).length, MAX_IDEA);
+  assert.equal(cleanIdeaParam(""), undefined);
+  assert.equal(cleanIdeaParam(["a"]), undefined);
+  assert.equal(cleanIdeaParam(undefined), undefined);
+});
+
+test("스튜디오 페이지가 idea를 받아 칸을 채운다(자동 생성 없음)", () => {
+  const page = readFileSync(new URL("../src/app/(workspace)/studio/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /initialIdea=\{cleanIdeaParam\(idea\)\}/);
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /useState\(initialIdea \?\? ""\)/);
+});
+
+test("v1.24 받은 아이디어 카드로 이동·강조(움직임 줄이기 존중)", () => {
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /getElementById\("card-generate"\)/);
+  assert.match(studio, /prefers-reduced-motion: reduce/);
+  const css = readFileSync(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.bc-card\.bc-flash\{animation:bcFlash/);
+});
+
+test("보낸 프로그램 이름(src) — 정해 둔 이름만", async () => {
+  const { ideaSourceName } = await import("../src/lib/bnc/ideaParam.ts");
+  assert.equal(ideaSourceName("reverse-prompt"), "리버스 프롬프트");
+  assert.equal(ideaSourceName("emotion-writer"), "감성 글귀");
+  assert.equal(ideaSourceName("style-dna-analyzer"), "이미지 스타일 분석기");
+  assert.equal(ideaSourceName("toString"), undefined);
+  assert.equal(ideaSourceName("<b>x</b>"), undefined);
+  assert.equal(ideaSourceName(["reverse-prompt"]), undefined);
+  const page = readFileSync(new URL("../src/app/(workspace)/studio/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /ideaSource=\{ideaSourceKey\(src\)\}/);
+});
+
+test("v1.25 받는 쪽 한도·이름표 = 공용 사본, 돌아가기 주소, 생성 기록에 보낸 곳", async () => {
+  const { MAX_IDEA, ideaSourceUrl, ideaSourceKey } = await import("../src/lib/bnc/ideaParam.ts");
+  const { MAX_BANANA_IDEA } = await import("../src/lib/bnc/bananaIdeaLink.ts");
+  assert.equal(MAX_IDEA, MAX_BANANA_IDEA);
+  assert.equal(ideaSourceUrl("reverse-prompt"), "https://reverse-prompt.buylife.xyz");
+  assert.equal(ideaSourceUrl("javascript:alert(1)"), undefined);
+  assert.equal(ideaSourceKey("emotion-writer"), "emotion-writer");
+  const { cleanParams } = await import("../src/lib/bnc/tasks.ts");
+  assert.equal(cleanParams({ kind: "generate", prompt: "고양이", ideaSource: "reverse-prompt" }).ideaSource, "reverse-prompt");
+  assert.equal(cleanParams({ kind: "generate", prompt: "고양이", ideaSource: "evil" }).ideaSource, undefined);
+  // v1.26: 이어서 편집한 작업도 같은 출처로 — 모든 작업 종류에서 받음(이름표에 있는 이름만)
+  assert.equal(cleanParams({ kind: "edit", prompt: "x", ideaSource: "reverse-prompt" }).ideaSource, "reverse-prompt");
+  assert.equal(cleanParams({ kind: "edit", prompt: "x", ideaSource: "x" }).ideaSource, undefined);
+  const route = readFileSync(new URL("../src/app/api/run/route.ts", import.meta.url), "utf8");
+  assert.match(route, /ideaSource: p\.ideaSource/);
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /maxLength=\{MAX_IDEA\}/);
+  assert.match(studio, /data-idea-back/);
+});
+
+test("v1.26 이어서 편집 출처 이어받기·연계 결과 필터", () => {
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /ideaSource: carrySource, \.\.\.extra/);
+  assert.match(studio, /ideaSourceKey\(r\.data\.item\.options\?\.ideaSource\)/);
+  const list = readFileSync(new URL("../src/components/workspace/HistoryList.tsx", import.meta.url), "utf8");
+  assert.match(list, /data-only-src/);
+});
+
+test("v1.27 인페인트·컷 다시도 출처 유지, 상세 창 보낸 곳, 다운로드 기록", () => {
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  // 인페인트는 run()을 거쳐 carrySource가 붙는다
+  assert.match(studio, /await run\("inpaint"/);
+  // 컷 다시 만들기는 기존 기록을 갱신(새 기록 없음) → 그 기록의 options.ideaSource 유지
+  const recut = readFileSync(new URL("../src/app/api/run/recut/route.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(recut, /\.insert\(/);
+  assert.match(studio, /markDownloaded\(result\.id\)/);
+  const list = readFileSync(new URL("../src/components/workspace/HistoryList.tsx", import.meta.url), "utf8");
+  assert.match(list, /data-detail-source/);
+  assert.match(list, /markDownloaded\(open\.id\)/);
+  const route = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
+  assert.match(route, /downloadedAt/);
+  // v1.28: 다운로드·넘김 공통 처리로 모양만 바뀜 — 이미 있으면 다시 쓰지 않음
+  // v1.29: 첫 1회만 저장은 공용 `link-mark`의 onceMarkNext로(동작 같음)
+  assert.match(route, /onceMarkNext\(data\.options/);
+});
+
+test("v1.28 다음 단계로 넘김 기록(형식 바꾸기·스토리보드)", () => {
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /markHandoff\(result\.id, "convert"\)/);
+  assert.match(studio, /markHandoff\(result\.id, "storyboard"\)/);
+  const route = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
+  assert.match(route, /pickAllowed\(body\.handoff, \["convert", "storyboard"\]/);
+});
+
+test("v1.29 공용 link-mark — 정해진 값·첫 1회·한 번만 보내기·via", async () => {
+  const { pickAllowed, onceMarkNext, createOnceSender, viaSource, withVia } = await import("../src/lib/bnc/linkMark.ts");
+  assert.equal(pickAllowed("convert", ["convert", "storyboard"]), "convert");
+  assert.equal(pickAllowed("evil", ["convert"]), null);
+  const now = "2026-10-22T00:00:00.000Z";
+  assert.deepEqual(onceMarkNext({ a: 1 }, { kind: "download" }, now), { a: 1, downloadedAt: now });
+  assert.equal(onceMarkNext({ downloadedAt: "x" }, { kind: "download" }, now), null);
+  assert.deepEqual(onceMarkNext(null, { kind: "handoff", to: "convert" }, now), { handoffs: { convert: now } });
+  assert.equal(onceMarkNext({ handoffs: { convert: "x" } }, { kind: "handoff", to: "convert" }, now), null);
+  assert.deepEqual(onceMarkNext({ handoffs: { convert: "x" } }, { kind: "handoff", to: "storyboard" }, now), { handoffs: { convert: "x", storyboard: now } });
+  let n = 0; const once = createOnceSender(); once("k", () => n++); once("k", () => n++); once("j", () => n++);
+  assert.equal(n, 2);
+  assert.equal(viaSource("banana-canvas").name, "바나나 캔버스");
+  assert.equal(viaSource("toString"), undefined);
+  assert.equal(withVia("https://x/convert?src=a", "banana-canvas"), "https://x/convert?src=a&via=banana-canvas");
+  const studio = readFileSync(new URL("../src/components/studio/Studio.tsx", import.meta.url), "utf8");
+  assert.equal((studio.match(/, "banana-canvas"\)\}/g) ?? []).length, 2);
+});
+
+test("v1.30 첫 넘김은 본인 usage_logs에도 linked_handoff 1줄(받는 프로그램 이름으로)", () => {
+  const api = readFileSync(new URL("../src/app/api/history/[id]/route.ts", import.meta.url), "utf8");
+  assert.match(api, /const HANDOFF_TO = \{ convert: "image-convert-studio", storyboard: "cinematic-storyboard-studio" \} as const;/);
+  assert.match(api, /if \(next\) \{[\s\S]*if \(handoff\) \{[\s\S]*action: "linked_handoff", metadata: \{ to: HANDOFF_TO\[handoff\], itemId: g\.id \}/);
+});
+
+test("v1.31 변환 스튜디오에서 다시 저장(/api/import-result): 그 주소만 CORS·실제 형식 확인·실행 목록에는 없음", () => {
+  const api = readFileSync(new URL("../src/app/api/import-result/route.ts", import.meta.url), "utf8");
+  assert.match(api, /resaveCors\(request\.headers\.get\("origin"\)\)/); // 2026-10-22 공용 기준 코드 resave-receiver 사본
+  assert.match(api, /readResaveBody\(await request\.text\(\), MAX_IMPORT_B64\)/);
+  assert.match(api, /sharp\(r\.bytes\)\.metadata\(\)/);
+  assert.match(api, /kind: "import"/);
+  assert.match(api, /\.range\(MAX_HISTORY, MAX_HISTORY \+ 100\)/);
+  assert.doesNotMatch(api, /Access-Control-Allow-Origin": "\*"/);
+  const types = readFileSync(new URL("../src/lib/bnc/types.ts", import.meta.url), "utf8");
+  assert.match(types, /import: "외부에서 가져옴"/);
+  assert.doesNotMatch(types.match(/export const KINDS: Kind\[\] = \[[^\]]*\]/)[0], /"import"/);
+  // 원본 가져오기 API(/api/import)는 그대로
+  const old = readFileSync(new URL("../src/app/api/import/route.ts", import.meta.url), "utf8");
+  assert.match(old, /const ALLOWED_BUCKETS = \["ai-image-generations", "portrait-photo-files"\];/);
+});
+
+test("미배포 대기(2026-10-22): 기록 다운로드 이름이 WebP면 .webp", () => {
+  const ui = readFileSync(new URL("../src/components/workspace/HistoryList.tsx", import.meta.url), "utf8");
+  assert.match(ui, /o\.mime\?\.includes\("webp"\) \? "\.webp" : "\.png"/);
+});

@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "scope": "actual React components and member-local fixture, mocked APIs only; not production member/provider test",
+  "checks": [
+    "empty manual builder, no API",
+    "skeleton protection and builder reset undo",
+    "same provider retains custom model",
+    "preset/current selection/explicit merge preserves lyrics",
+    "generated Style synchronizes controls and editor",
+    "empty album metadata reload and edit",
+    "expand/collapse, selected pending only, reorder preserves lyrics",
+    "dedicated album import/export preserves builder and invalid import preserves album",
+    "recording mode forces web, actual citation link, unknown year, own Style save",
+    "search transfers preserve album/song and failed search retains result",
+    "desktop/mobile width, no browser errors"
+  ],
+  "mockedRequests": 5,
+  "providerCalls": 0,
+  "errors": []
+}

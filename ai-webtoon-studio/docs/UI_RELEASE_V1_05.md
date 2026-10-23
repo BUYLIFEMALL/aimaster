@@ -1,0 +1,31 @@
+# v1.05 기본 캐릭터 이름 제거
+
+2026-10-12 / Codex / 주인님 요청: "기본값 강민우 삭제해줘".
+
+`DEFAULT_PROJECT.characters[0].name`을 빈 문자열로 변경하고 이름 입력 안내를 일반 문구로 바꿨습니다. 이름 없는 탭은 기존 UI의 `인물 1` 표기를 사용합니다. 다른 예시 내용은 이번 이름 수정 범위에서 변경하지 않습니다.
+
+기존 브라우저의 로컬 프로젝트에서 예전 이름이 되살아나는 것을 방지하기 위해 `getStoredProject()`에서 원본 기본 프로젝트 ID·제목·작가·시놉시스·외형·스타일·컷 설정·스토리까지 일치하는 경우만 이름을 비웁니다. 참조 이미지·시트·표지·원고·컷이 있거나 수정한 필드가 있으면 보존합니다. 이름이 같은 실제 사용자 캐릭터 전체를 일괄 삭제하지 않습니다. 원본 저장값은 조회 시 덮어쓰지 않으며 다음 사용자가 수정할 때 기존 저장 흐름으로 저장합니다. JSON 불러오기에서는 명시한 이름을 유지합니다.
+
+코드/패키지/DB 목표 버전 v1.05 / 1.05.0. 검수: 빌드·타입, 변경 storage ESLint, 새 기본값·미수정 예시·수정/생성한 자료 보존 조건 확인. 별도 유료 AI 호출·이미지 생성·회원 키 변경은 없습니다.
+
+배포 대상: buylife/ai-webtoon-studio (`prj_RbmM4Au1rFRZPHFMZFIgwjryQYCh`). studio 및 automation 커스텀 주소를 유지합니다. 운영 반영 후 아래 메타데이터 버전 DML만 실행합니다.
+
+```sql
+update public.programs set version='v1.05', updated_at=now()
+where slug='ai-webtoon-studio';
+```
+
+## 후속 요청: API 상태 이동
+
+주인님의 화살표 캡처 요청에 따라 `Header.tsx`의 Gemini API 상태를 상단 ZIP/JPG 다운로드 버튼 왼쪽으로 이동했습니다. 별도 하단 줄을 제거하고 반응형 줄바꿈을 유지했습니다. 상태 판단/문구·노란 버튼 클릭 동작은 그대로이며 `role=status`를 적용했습니다.
+
+기본 이름 제거 커밋 `c33b8087`, API 상태 이동 커밋 `6ab9a3df`: 두 구현 커밋 모두 origin/master 푸시 완료. 빌드/타입·storage/Header ESLint 성공. 실제 모듈을 실행해 빈 새 기본값, 원본 저장 예시 정리, 수정한 제목/이름/묘사/참조 사진/시트/표지/원고/컷/컷 설정/추가 캐릭터 보존 10개 경우를 확인했습니다.
+
+## 운영 반영 및 검수 완료
+
+- Vercel 프로덕션 배포 `dpl_589r3igXhugMZbJLHMNZvCyhEh55` Ready. 배포 URL: https://ai-webtoon-studio-230h9q2s3-buylife.vercel.app . 운영 주소 https://ai-webtoon-studio.buylife.xyz 및 https://ai-webtoon-automation.buylife.xyz 연결 유지.
+- 공용 DB `programs`의 `ai-webtoon-studio` 버전 v1.05 동기화 완료. 환경변수·스키마·회원 API 키 변경 없음.
+- 로그인된 일반 회원 Chrome에서 v1.05 표시, 캐릭터 탭 `인물 1`, 빈 이름 입력란의 `인물 이름을 입력하세요` 안내, Gemini API 상태 → ZIP → JPG 버튼 순서를 접근성 트리로 확인했습니다. 이름 입력란에는 기존 `강민우` 값이 없습니다.
+- 운영 JS HTTP 200 및 일반 이름 안내, 옛 이름 안내 제거, API 상태가 다운로드 버튼보다 앞에 있는 구조, 별도 하단 상태 줄 제거, 노란 다운로드 버튼 스타일을 확인했습니다.
+- 증거: [운영 화면 접근성 트리](evidence/v1.05-live-accessibility.txt), [운영 JS 검사](evidence/v1.05-live-assets.json). 네이티브 화면 캡처 제공자가 이미지를 반환하지 않아 픽셀 캡처 검수는 하지 못했습니다. 실제 회원 화면 접근성 트리와 운영 자산을 구분해 확인했습니다.
+- 유료 AI 호출 및 콘텐츠 생성 없음. 이번 두 UI 요청의 남은 작업 없음. 기존 앱 전체 lint 문제 등 이전 인수인계에 기록된 별도 과제는 이번 검수 범위에 포함하지 않습니다.

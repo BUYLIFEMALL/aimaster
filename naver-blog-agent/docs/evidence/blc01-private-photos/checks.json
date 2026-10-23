@@ -1,0 +1,66 @@
+{
+  "at": "2026-10-20T07:54:27.112Z",
+  "production": false,
+  "databaseRef": "esgxyikcnnvmlhygjkth",
+  "realStorageCalls": 0,
+  "paidCalls": 0,
+  "publicationCalls": 0,
+  "versionChanged": false,
+  "extensionArchiveRebuilt": false,
+  "checks": [
+    {
+      "name": "regression",
+      "command": "node --test --test-reporter=tap scripts/test-private-photos.cjs scripts/test-new-draft-mode.cjs scripts/test-post-review.cjs scripts/test-post-save.cjs scripts/test-queue-confirmation.cjs scripts/test-homefeed-schedule-links.cjs scripts/test-naver-ranking.cjs scripts/test-extension-results.cjs scripts/test-editor-safety.cjs",
+      "startedAt": "2026-10-20T07:54:09.739Z",
+      "finishedAt": "2026-10-20T07:54:11.533Z",
+      "exitCode": 0,
+      "tests": 140
+    },
+    {
+      "name": "extension-lifecycle",
+      "command": "node scripts/test-extension-tabs.cjs",
+      "startedAt": "2026-10-20T07:54:11.534Z",
+      "finishedAt": "2026-10-20T07:54:11.636Z",
+      "exitCode": 0
+    },
+    {
+      "name": "extension-bridge",
+      "command": "node scripts/test-extension-bridge.cjs",
+      "startedAt": "2026-10-20T07:54:11.636Z",
+      "finishedAt": "2026-10-20T07:54:12.020Z",
+      "exitCode": 0
+    },
+    {
+      "name": "publishing",
+      "command": "node scripts/test-naver-publishing.cjs",
+      "startedAt": "2026-10-20T07:54:12.020Z",
+      "finishedAt": "2026-10-20T07:54:12.380Z",
+      "exitCode": 0
+    },
+    {
+      "name": "typecheck",
+      "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+      "startedAt": "2026-10-20T07:54:12.380Z",
+      "finishedAt": "2026-10-20T07:54:16.374Z",
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "command": "node node_modules/next/dist/bin/next build",
+      "startedAt": "2026-10-20T07:54:16.374Z",
+      "finishedAt": "2026-10-20T07:54:27.112Z",
+      "exitCode": 0
+    }
+  ],
+  "sha256": {
+    "src/lib/privatePhotos.ts": "b93e96f39b06afe9b12fada189932a7344aa90e7687a28f8f06870212ed74dad",
+    "src/lib/extensionBridge.ts": "af9580e88772125a24584aa5a53f4e9a9df2953b76654c6ca853b8e2652e73df",
+    "src/app/api/photos/route.ts": "41b4cc0043a99de28acaf741fd16498da52d846e6490fbd059512c83494c2477",
+    "src/app/api/photos/resolve/route.ts": "2d55c2d90df8e8f82aac64d1f067baba3d3775313a1f0a0516498d5f113a20ef",
+    "src/app/api/extension/photos/route.ts": "dd4bd3d2144d354aed00e1dd3aeca128cf88b425083d1bb30ecc540d6a106e5e",
+    "src/app/api/extension/task/route.ts": "9a1278e88d2cbc563ba1d44f7d03052faf04eab4331fc441717ea0df5830ad6e",
+    "src/app/api/cron/cleanup/route.ts": "0bed0d6e2e6be29d9ade6215da26f5e0a76f4af98397ef2572531d395f6878b1",
+    "extension/background.js": "749d4fc3639d365edf7c3e0459e38ff85a0afbb9b2d5572ac606aa077af67a14",
+    "scripts/test-private-photos.cjs": "5846decff19e4a85244c209b3c5df934f94da8b9b247dd7c902715de5ed9b2c2"
+  }
+}

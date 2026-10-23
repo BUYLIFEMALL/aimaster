@@ -1,0 +1,48 @@
+{
+  "createdAt": "2026-10-21",
+  "analyst": "Claude Code (Windows)",
+  "scope": "static analysis only; installer not executed; no code or DB changes",
+  "target": {
+    "source": "D:\\PDS\\Program_dev\\Lyricbi-Setup-1.9.0.exe",
+    "bytes": 157251071,
+    "sha256": "3d85e4f7d8bff857b43e46bc69a9259c013ea1d63ee8970b52dfb81ff7cf9c95",
+    "unpack": "7-Zip (NSIS) -> $PLUGINSDIR/app-64.7z -> resources/app.asar (90,814,176 bytes) -> @electron/asar 3.2.17 extract (scratch folder)",
+    "package": { "name": "lyricbi", "version": "1.9.0", "license": "UNLICENSED", "main": "electron/main.mjs" },
+    "keyDependencies": ["remotion 4.0.506", "@remotion/renderer", "@remotion/player", "express 5", "multer 2", "mp4-muxer", "mediabunny", "react 19.2.3", "zod 4"],
+    "appFiles": {
+      "electron/main.mjs": 16639, "electron/internetTime.mjs": 2940, "electron/preload.js": 2137,
+      "server/index.mjs": 29665, "server/render.mjs": 14332, "server/pexels.mjs": 14347, "server/paths.mjs": 2543,
+      "dist/app/assets/index-*.js": 2281126, "dist/app/assets/worker-*.js": 759462, "dist/remotion/bundle.js": 4447161
+    },
+    "remotionSourceModules": 32,
+    "uiKoreanStrings": 918,
+    "aiCalls": { "openai": 0, "gemini": 0, "anthropic": 0, "whisper": 0 },
+    "externalServices": ["api.pexels.com (member key)", "Google Fonts", "internet time HEAD x6 (cloudflare, google, microsoft, apple, github, 1.1.1.1)"],
+    "license": "monthly 4-digit code, PBKDF2+AES-GCM in renderer, stored userData/license.dat, 72h first-run grace, 7-day offline, end date 2028-01-01"
+  },
+  "repoComparison": {
+    "foldersChecked": ["playlist-channel-studio", "vinyl-lp-studio", "music", "ai-audio-analyzer", "music-video-studio", "shorts-onestop-studio", "suno-music-studio", "music-player"],
+    "srtOrVttHandlingFiles": 0,
+    "karaokeFiles": 0,
+    "timestampedLyricsFiles": 0,
+    "playlistRendererResolution": "1920x1080 or 1280x720 fixed, no text drawing",
+    "musicTracksHasSunoIds": "music/supabase/migrations/0001_music_tables.sql task_id, suno_audio_id"
+  },
+  "productionDbRead": {
+    "ref": "esgxyikcnnvmlhygjkth",
+    "method": "node scripts/analyze-category.mjs --slugs playlist-channel-studio,vinyl-lp-studio,music-automation,music-video-studio,ai-audio-analyzer,music-player,suno-music-studio (GET only)",
+    "programs": [
+      { "slug": "music-automation", "version": "v1.16", "badges": "best", "accessMembers": 234, "usageLogs": 107, "usageMembers": 4, "lastUsed": "2026-10-19" },
+      { "slug": "playlist-channel-studio", "version": "v1.16", "badges": "new", "accessMembers": 143, "usageLogs": 0 },
+      { "slug": "vinyl-lp-studio", "version": "v1.12", "badges": "new", "accessMembers": 143, "usageLogs": 0 },
+      { "slug": "music-video-studio", "version": "v1.11", "badges": "new", "accessMembers": 143, "usageLogs": 0 },
+      { "slug": "ai-audio-analyzer", "version": "v1.10", "badges": "free,new", "accessMembers": 143, "usageLogs": 0 },
+      { "slug": "music-player", "version": "v1.08", "badges": "new,free", "accessMembers": 175, "usageLogs": 0 },
+      { "slug": "suno-music-studio", "version": "v1.11", "badges": "new", "accessMembers": 144, "usageLogs": 0 }
+    ]
+  },
+  "externalDocs": {
+    "sunoTimestampedLyrics": "https://docs.sunoapi.org/suno-api/get-timestamped-lyrics — POST /api/v1/generate/get-timestamped-lyrics {taskId, audioId} -> data.alignedWords[{word,startS,endS,success,palign}]; doc only, not called"
+  },
+  "notVerified": ["actual Suno timestamped-lyrics call and its credit cost", "Lyricbi runtime behaviour (not executed)", "Remotion license tier for operator (not needed if Remotion is not used)"]
+}

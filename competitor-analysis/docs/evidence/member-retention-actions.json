@@ -1,0 +1,36 @@
+{
+  "candidate": "v1.08",
+  "checked_at": "2026-10-16T11:58:28.159Z",
+  "mode": "actual actions; mocked DB/providers, no live writes or paid requests",
+  "checks": [
+    {
+      "name": "다른 회원·30일 만료 회사정보는 재사용하지 않고 본인 키로 재조사",
+      "passed": true
+    },
+    {
+      "name": "회사정보 모든 조회에 소유자·기한, 모든 저장에 본인 소유자 지정",
+      "passed": true
+    },
+    {
+      "name": "유효한 본인 최신 조사만 재사용·생성일 연장 없음",
+      "passed": true
+    },
+    {
+      "name": "만료된 분석은 리포트 유료 호출 전에 차단",
+      "passed": true
+    },
+    {
+      "name": "리포트 갱신에도 본인·기한 제한",
+      "passed": true
+    },
+    {
+      "name": "리포트 생성 중 만료·삭제되면 저장 성공으로 오판하지 않음",
+      "passed": true
+    },
+    {
+      "name": "본인 키 없으면 대체 키·분석·저장 없이 등록 안내",
+      "passed": true
+    }
+  ],
+  "paid_network_calls": 0
+}

@@ -1,0 +1,136 @@
+{
+  "collectedAt": "2026-10-14T08:05:00.334549+00:00",
+  "sourceUrl": "https://aistudio.google.com/apps/9596827a-a428-415c-aaae-8547cbe137ea",
+  "fileCount": 19,
+  "sourceBytes": 77015,
+  "zipSha256": "01400663f728151b975b75fcb346cfc19bb5a0e6223a97a87a935a73c6fdbc60",
+  "files": [
+    {
+      "name": "metadata.json",
+      "bytes": 322,
+      "sha256": "38849b9d6d47d42f8a762ba52ce701e87139ff9397c0a12f1c2ebda05ce868e7",
+      "lines": 7
+    },
+    {
+      "name": "components/ReverseTranslationModal.tsx",
+      "bytes": 2847,
+      "sha256": "488d00070dd32745e5ff303dd2571544ca58bc5956c531b7d05db2351c98a89e",
+      "lines": 78
+    },
+    {
+      "name": "components/AnalysisPopover.tsx",
+      "bytes": 1468,
+      "sha256": "031c7247e8b02b520cef9feb9e05e3f3067e6f4830c9f834c9fa8c48de2dbc15",
+      "lines": 46
+    },
+    {
+      "name": "components/HelpModal.tsx",
+      "bytes": 5541,
+      "sha256": "79802d5cd26ef260f7aed757b32b7611b3ec59b8ff7eb69fab471a882831b136",
+      "lines": 105
+    },
+    {
+      "name": "components/TranslatorWorkspace.tsx",
+      "bytes": 31030,
+      "sha256": "2e307a8a224e161ee16a5b348273b48efffd7d9ae715c2e98348beb70d99a571",
+      "lines": 619
+    },
+    {
+      "name": "App.tsx",
+      "bytes": 1378,
+      "sha256": "77cd22fbd819513f2b76062fd0e981092151624093682116f8008ff4d06198d3",
+      "lines": 41
+    },
+    {
+      "name": ".gitignore",
+      "bytes": 253,
+      "sha256": "fe718e7babb14f3cbad2d97f08889b9ce5215ed3fe0e43b2b8cfbfb3b9b844e8",
+      "lines": 24
+    },
+    {
+      "name": "components/Header.tsx",
+      "bytes": 773,
+      "sha256": "8a3731e0a437c560cd0020e10a45819d9f318d7f4aa2c11ba48221ebfdaa2e39",
+      "lines": 23
+    },
+    {
+      "name": "index.html",
+      "bytes": 1579,
+      "sha256": "211bfc950d913608d55669e981f676f985eafd90f81c8e3000716c33e0529388",
+      "lines": 48
+    },
+    {
+      "name": "package.json",
+      "bytes": 597,
+      "sha256": "9d189ca0c2e075ce7475c25e83825510f7864621344e17ddf82762db1c52017d",
+      "lines": 27
+    },
+    {
+      "name": "components/AnalysisPanel.tsx",
+      "bytes": 12592,
+      "sha256": "d38738162b45c4acac259fc926b1aba427642459076432a8656a80434da181bd",
+      "lines": 288
+    },
+    {
+      "name": "index.tsx",
+      "bytes": 351,
+      "sha256": "ae81dfafdff7a6fad7980c40d898be4abe99641e0c1dfab81e41906b73e64a91",
+      "lines": 16
+    },
+    {
+      "name": "services/geminiService.ts",
+      "bytes": 8090,
+      "sha256": "048d70a916e0c8732c9c8d3b7a1caafb31f7641c2d6ce52f85b77b6208d5ab14",
+      "lines": 176
+    },
+    {
+      "name": "types.ts",
+      "bytes": 868,
+      "sha256": "0a6e6e83d5d9dc22be8937325e703120dfdf70142aadad1c63e3fde66d98db0e",
+      "lines": 39
+    },
+    {
+      "name": "vite.config.ts",
+      "bytes": 580,
+      "sha256": "63e5a78aeea5894837a62ad0b90869c602bad713f93ae44e61c436a7b7689a19",
+      "lines": 23
+    },
+    {
+      "name": "tsconfig.json",
+      "bytes": 542,
+      "sha256": "8641deb29adfd1958488d1951f0d5ddf3013f498aa67ce0f621e347f0ef608d2",
+      "lines": 29
+    },
+    {
+      "name": "components/Loader.tsx",
+      "bytes": 489,
+      "sha256": "f4151095ff94d93fa7c86b9b6f0f222873b314484a16ed817597e6a16039f9b4",
+      "lines": 16
+    },
+    {
+      "name": "components/Icon.tsx",
+      "bytes": 7173,
+      "sha256": "655a5f7dc82bb9661051589c0a7fdb90ba3eab0b1f9e25f538dd0cfe1d8fd6be",
+      "lines": 84
+    },
+    {
+      "name": "README.md",
+      "bytes": 542,
+      "sha256": "0a3bb5f9382b7303131e1801cf60e62c545f286d66a55d25dd94d10cd1b6dd51",
+      "lines": 20
+    }
+  ],
+  "runtime": {
+    "url": "https://ais-pre-uhzeaqxv3n4rdkqix5rpfn-3695817424.asia-northeast1.run.app/assets/index-DClkYqUC.js",
+    "httpStatus": 200,
+    "bytes": 1684474,
+    "sha256": "eaf646824259571391119869611560a76683c883ce9a6da97d01c626871098e2",
+    "fixedModel": "gemini-2.5-flash",
+    "modelOccurrences": 3
+  },
+  "html": {
+    "bytes": 30264,
+    "sha256": "723216b248f61192f021772a2fb46cfc75f237275acf46231078768f746f6ae6"
+  },
+  "rawCodeCommitted": false
+}

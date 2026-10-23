@@ -1,0 +1,111 @@
+import { resolveApiKey } from "@/lib/apiKeys";
+import { NextRequest, NextResponse } from "next/server";
+import { SITE_ORIGIN, FACEBOOK_REDIRECT_FOR } from "@/lib/oauthRedirect";
+import { createClient } from "@/lib/supabase/server";
+import { checkProgramAccessApi } from "@/lib/access";
+import {
+  exchangeFacebookCode,
+  exchangeForLongLivedFacebookToken,
+  findInstagramBusinessAccounts,
+} from "@/lib/instagram/client";
+import { PENDING_INSTAGRAM_CONNECTION_COOKIE, type PendingInstagramConnection } from "@/lib/instagram/pendingConnection";
+import { IS_STANDALONE } from "@/lib/deployment";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+// Facebook 로그인 방식의 Instagram OAuth 콜백. 회원 본인 Meta 앱(App ID/Secret)으로만 동작한다(운영자 공용 앱 없음).
+// Access Token은 여기서만 처리되고, 브라우저로는 절대 직접 전달되지 않습니다 (짧게 사는
+// httpOnly 쿠키에 담아 선택 화면으로만 넘깁니다).
+export async function GET(request: NextRequest) {
+  // 2026-10-16 도메인 통일(SSO) 콜백: 회원 앱에 등록된 콜백(환경변수, 옛 *.vercel.app 주소)으로 돌아오면 로그인 쿠키가 없으므로
+  // 같은 경로·쿼리 그대로 새 주소(https://auto-instagram-posting.buylife.xyz)로 넘겨 거기서 토큰을 교환한다. 교환 시 redirect_uri는 옛 주소 문자열 그대로라 일치 검사 통과.
+  // 넘길 때 via=old를 붙여, 새 주소에서 토큰 교환 시 인증 요청에 썼던 옛 콜백 주소를 그대로 쓰게 한다(두 주소 동시 지원).
+  // 독립 운영 복사본(수강생 *.vercel.app)은 자기 주소에서 그대로 교환한다(2026-10-18)
+  if (!IS_STANDALONE && (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "").endsWith(".vercel.app")) {
+    const next = new URL(`${SITE_ORIGIN}${request.nextUrl.pathname}${request.nextUrl.search}`);
+    next.searchParams.set("via", "old");
+    return NextResponse.redirect(next.toString(), 307);
+  }
+  // 새 콜백으로 바로 돌아오면 via가 없다 → 새 주소로 교환
+  const redirectUri = FACEBOOK_REDIRECT_FOR(request.nextUrl.searchParams.get("via") === "old" ? "old" : "new");
+  const code = request.nextUrl.searchParams.get("code");
+  const state = request.nextUrl.searchParams.get("state");
+  const oauthError = request.nextUrl.searchParams.get("error");
+
+  // 연결 후 돌아갈 주소는 옛 주소 환경변수가 아닌 새 주소 기준(옛 주소 삭제 후에도 동작)
+  const siteUrl = SITE_ORIGIN;
+
+  if (oauthError || !code || !state) {
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // state 값에 요청 시점의 user.id를 담아 보냈으므로, 콜백에서도 동일 사용자인지 확인합니다.
+  if (!user || user.id !== state) {
+    return NextResponse.redirect(`${siteUrl}/login`);
+  }
+
+  // 로그인만으로는 부족 — 이 프로그램 이용 권한(구독/개별부여/등급)이 없으면
+  // OAuth 토큰을 저장하지 않는다 (로그인만 한 비구독자가 계정 연동까지 끝내는 것 방지).
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.redirect(`${siteUrl}/settings?error=no_access`);
+  }
+
+  try {
+    // 회원 본인 Meta 앱 키만 사용한다(운영자 공용 앱 없음).
+    // Facebook 페이지 방식: Facebook 앱 전용 칸(2026-10-16) 우선, 둘 다 비어 있으면 같은 회원의 기존 칸 값(기존 연결 유지).
+    // 인증 요청에 쓴 앱 ID와 같은 쌍을 써야 하므로 ID/시크릿을 같은 칸 묶음에서 고른다.
+    const [fbId, fbSecret, metaId, metaSecret] = await Promise.all([
+      resolveApiKey(supabase, user.id, "facebook_app_id"),
+      resolveApiKey(supabase, user.id, "facebook_app_secret"),
+      resolveApiKey(supabase, user.id, "meta_app_id"),
+      resolveApiKey(supabase, user.id, "meta_app_secret"),
+    ]);
+    const [appId, appSecret] = fbId ? [fbId, fbSecret] : [metaId, metaSecret];
+    if (!appId || !appSecret) {
+      return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed`);
+    }
+    const shortLived = await exchangeFacebookCode(code, appId, appSecret, redirectUri);
+    const longLived = await exchangeForLongLivedFacebookToken(shortLived, appId, appSecret);
+    const candidates = await findInstagramBusinessAccounts(longLived.accessToken);
+
+    // Meta가 fb_exchange_token 응답에 expires_in을 안 주거나 이상한 값을 준 경우를 대비한 방어 코드.
+    const DEFAULT_LONG_LIVED_TOKEN_SECONDS = 60 * 24 * 60 * 60; // Meta 공식 문서 기준 장기 토큰 수명 60일
+    const expiresInSeconds =
+      Number.isFinite(longLived.expiresInSeconds) && longLived.expiresInSeconds > 0
+        ? longLived.expiresInSeconds
+        : DEFAULT_LONG_LIVED_TOKEN_SECONDS;
+
+    // 후보가 여러 개(또는 1개)든 항상 선택 화면을 거치게 한다 — Make의 "페이지 선택" 단계와 동일한
+    // 사용자 경험. 액세스 토큰은 여기서만 잠깐 httpOnly 쿠키에 담고, 실제 DB 저장은 사용자가
+    // 페이지를 확정 선택한 뒤(confirmInstagramAccountAction)에만 이뤄진다.
+    const pending: PendingInstagramConnection = {
+      accessToken: longLived.accessToken,
+      expiresInSeconds,
+      candidates,
+    };
+
+    const response = NextResponse.redirect(`${siteUrl}/accounts/select`);
+    response.cookies.set(PENDING_INSTAGRAM_CONNECTION_COOKIE, JSON.stringify(pending), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+      path: "/",
+    });
+    return response;
+  } catch (err) {
+    // 원인 진단용: 서버 콘솔에 실제 에러를 남기고, 화면에도 메시지를 보여준다.
+    // access_token 자체는 이 에러 메시지에 담기지 않으므로(우리 코드에서 던지는 Error는
+    // 항상 사람이 읽을 설명 문자열) 노출 걱정 없이 그대로 보여줘도 된다.
+    const message = err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.";
+    console.error("[instagram/callback] 계정 연결 실패:", message);
+    return NextResponse.redirect(`${siteUrl}/settings?error=connect_failed&reason=${encodeURIComponent(message)}`);
+  }
+}

@@ -1,0 +1,62 @@
+// 쓰레드 스튜디오식 페이지 머리말 — 큰 제목 + 설명 + 오른쪽 동작 버튼 자리
+export function StudioHeader({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon?: string;
+  title: string;
+  description?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="mb-6 flex flex-col gap-3 border-b border-th-border pb-5 md:flex-row md:items-end md:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-2xl font-bold tracking-tight text-th-text">
+          {icon && <span className="mr-2">{icon}</span>}
+          {title}
+        </h1>
+        {description && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-th-muted">{description}</p>}
+      </div>
+      {children && <div className="flex shrink-0 flex-wrap gap-2">{children}</div>}
+    </div>
+  );
+}
+
+// 채널 분석 카드처럼 큰 숫자 + 라벨
+export function StatCard({
+  label,
+  value,
+  hint,
+  accent = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  hint?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-th-border bg-th-surface p-4">
+      <p className="text-xs font-medium text-th-muted">{label}</p>
+      <p className={`mt-2 text-3xl font-bold tabular-nums ${accent ? "text-th-link" : "text-th-text"}`}>{value}</p>
+      {hint && <p className="mt-1 text-[11px] text-th-muted">{hint}</p>}
+    </div>
+  );
+}
+
+// 쓰레드 답글처럼 동그란 프로필(이름 첫 글자)
+export function Avatar({ name, size = 36 }: { name: string | null; size?: number }) {
+  const label = (name ?? "?").replace(/^@/, "").trim().charAt(0).toUpperCase() || "?";
+  const hues = [0, 25, 200, 140, 280, 330, 45, 170];
+  const hue = hues[(name ?? "").length % hues.length];
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white"
+      style={{ width: size, height: size, fontSize: size * 0.42, backgroundColor: `hsl(${hue} 55% 42%)` }}
+    >
+      {label}
+    </span>
+  );
+}

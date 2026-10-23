@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><title>Naver Blog SEO Studio</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+  <main>
+    <header><span class="eyebrow">AIMaster · <span id="extensionVersion">-</span></span><h1>Naver Blog<br>SEO Studio</h1><p>웹에서 완성한 콘텐츠를 네이버 편집기에 안전하게 입력합니다.</p></header>
+    <div id="updateBanner" class="card" hidden style="border:1px solid #fca5a5;background:#fef2f2">
+      <strong>새 버전이 나왔습니다</strong>
+      <p class="hint" id="updateBannerText"></p>
+      <a id="updateBannerLink" href="https://naver-blog-seo-studio.buylife.xyz/settings" target="_blank" rel="noreferrer">최신 버전 받으러 가기</a>
+    </div>
+    <section class="card">
+      <h2>계정 연결</h2>
+      <p class="hint">「자동 연결」을 누르면 SEO 스튜디오 화면이 열리고(로그인 필요) 연결 코드가 자동으로 만들어져 연결됩니다.</p>
+      <div class="connection-actions">
+        <button id="autoLink">자동 연결</button>
+        <div id="status" class="status">연결되지 않음</div>
+      </div>
+      <details class="manual-token">
+        <summary>연결 코드 직접 입력</summary>
+        <p class="hint"><a href="https://naver-blog-seo-studio.buylife.xyz/settings" target="_blank">SEO Studio 설정</a>에서 발급한 코드를 붙여 넣으세요.</p>
+        <div class="connection-actions">
+          <input id="token" type="password" placeholder="pat_... 코드 붙여넣기">
+          <button id="link">연결</button>
+        </div>
+      </details>
+    </section>
+    <section class="card" aria-labelledby="web-draft-title">
+      <h2 id="web-draft-title">전송된 콘텐츠</h2>
+      <p class="hint">콘텐츠 생성·이미지·편집·SEO 검토는 웹에서 완료하세요. 목록을 새로고침한 뒤 콘텐츠를 선택하면 완성 콘텐츠와 이미지가 자동으로 불러와지고, 네이버 글쓰기 화면에 입력할 수 있습니다.</p>
+      <select id="webDraftList" aria-label="전송된 콘텐츠 선택"><option value="">전송된 콘텐츠가 없습니다.</option></select>
+      <div class="draft-actions">
+        <a class="web-create-link" href="https://naver-blog-seo-studio.buylife.xyz/dashboard#new-draft" target="_blank" rel="noreferrer">웹에서 새 콘텐츠 만들기</a>
+        <button id="refreshWebDrafts" class="secondary">전송된 콘텐츠 목록 새로고침</button>
+        <button id="loadWebDraft" class="secondary">전체 포스팅 미리보기</button>
+      </div>
+      <div id="webDraftStatus" class="status">대기 중</div>
+      <dialog id="webDraftPreview" class="web-draft-preview" aria-labelledby="webDraftPreviewHeading">
+        <div class="web-draft-preview-header">
+          <div><span class="eyebrow">최종 확인</span><h3 id="webDraftPreviewHeading">전체 포스팅 미리보기</h3></div>
+          <button id="closeWebDraftPreview" class="icon-button" type="button" aria-label="미리보기 닫기">×</button>
+        </div>
+        <p class="hint">네이버에 입력될 제목·본문·이미지 순서를 그대로 확인하세요.</p>
+        <article id="webDraftPreviewContent" class="web-draft-preview-content" aria-label="전송할 전체 포스팅 내용"></article>
+        <div class="web-draft-preview-actions">
+          <button id="closeWebDraftPreviewFooter" class="secondary" type="button">닫기</button>
+          <button id="previewFill" class="primary" type="button">네이버 편집기로 입력</button>
+        </div>
+      </dialog>
+      <div id="webDraftTagSuggestion" class="draft-tag-suggestion" hidden>
+        <strong>콘텐츠 추천 태그</strong><span id="webDraftTagList"></span>
+        <button id="applyWebDraftTags" class="secondary">추천 태그 적용</button>
+      </div>
+      <div class="content-input-row">
+        <div class="content-progress" aria-live="polite">
+          <strong>네이버 입력 진행 상황</strong>
+          <ol class="content-progress-steps">
+            <li><span>1</span>콘텐츠 선택</li>
+            <li><span>2</span>미리보기 확인</li>
+            <li><span>3</span>네이버 입력</li>
+          </ol>
+          <div id="generateStatus" class="status">대기 중 · 콘텐츠를 미리본 뒤 네이버 입력을 실행하세요.</div>
+          <p id="keepPanelOpen" class="hint" hidden style="color:#b15b00;font-weight:700">⚠️ 입력 중입니다. 사이드패널은 닫아도 입력이 계속되지만, 끝날 때까지 확장을 새로고침하거나 네이버 탭을 닫지 마세요.</p>
+        </div>
+        <button id="fill" class="primary">네이버 편집기로 입력</button>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="auto-publish-title">
+      <h2 id="auto-publish-title">자동 포스팅</h2>
+      <p class="hint">선택한 원고를 새 글쓰기 탭에 입력하고, 전체 내용과 공개 범위를 확인한 뒤 마지막 발행까지 자동으로 진행합니다. 기존 준비 탭은 사용하지 않습니다.</p>
+      <label for="publishBlogId">실제 블로그 ID</label><input id="publishBlogId" placeholder="블로그 주소의 ID (로그인 ID와 다를 수 있음)">
+      <label for="publishVisibility">공개 범위</label><select id="publishVisibility"><option value="private">비공개</option><option value="public">전체공개</option></select>
+      <button id="autoPublish" class="primary">선택한 원고 자동 포스팅 시작</button>
+      <button id="reconcilePublish" class="secondary">발행 결과만 다시 확인</button>
+      <a id="publishResultLink" hidden target="_blank" rel="noreferrer">실제 발행된 글 열기 ↗</a>
+      <p class="hint">발행 결과가 불확실하면 다시 발행하지 않습니다. 결과 확인만 실행하세요. 실행을 시작한 원고는 수정·삭제 대신 새 원고로 복제할 수 있습니다.</p>
+    </section>
+    <section class="card">
+      <h2>카테고리·태그 설정</h2>
+      <p class="hint">저장한 카테고리·태그는 콘텐츠 입력 완료 후 자동으로 설정합니다. 이 버튼은 자동 입력이 실패했을 때 다시 실행하는 용도이며, 네이버의 마지막 발행 버튼은 직접 누릅니다.</p>
+      <div class="publish-field">
+        <label for="publishCategory">카테고리명</label>
+        <input id="publishCategory" placeholder="카테고리 전체 이름 (예: 국내 여행)">
+      </div>
+      <div class="publish-field">
+        <label for="publishTags">추천테그</label>
+        <input id="publishTags" placeholder="추천테그 추출 후 직접 수정할 수 있습니다">
+      </div>
+      <div class="publish-actions">
+        <button id="extractRecommendedTags" class="secondary">추천테그 추출</button>
+        <button id="savePublishSettings" class="secondary">카테고리·태그 저장</button>
+        <button id="fillPublishInfo" class="primary">카테고리·태그 다시 입력</button>
+      </div>
+      <div id="publishStatus" class="status">카테고리·태그 설정 대기 중</div>
+    </section>
+    <section id="editorInspectionSection" class="card" hidden>
+      <h2>에디터 구조 분석</h2>
+      <p class="hint">네이버 편집기의 iframe, 제목·본문 후보, 실제 contenteditable 요소를 확인합니다. 입력 오류가 발생하면 결과를 복사해 전달해주세요.</p>
+      <button id="inspect">구조 분석</button>
+      <div id="inspectStatus" class="status">대기 중</div>
+      <textarea id="inspectResult" rows="10" readonly placeholder="분석 결과가 여기에 표시됩니다"></textarea>
+    </section>
+  </main>
+  <script src="naver-category-page.js"></script>
+  <script src="sidepanel.js"></script>
+  <script src="auto-publish-page.js"></script>
+  <script src="auto-publish.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+import "server-only";
+import { getYtReplyAccount } from "@/lib/youtube/memberAccount";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database.types";
+import { getUserApiKey } from "@/lib/apiKeys";
+import { getValidYoutubeAccessToken } from "@/lib/youtube/token";
+import { listRecentCommentThreads } from "@/lib/youtube/client";
+import { generateCommentReply } from "@/lib/ai/reply";
+import { getTonePresetInstruction } from "@/lib/tonePresets";
+import { getReplyModelProvider } from "@/lib/ai/models";
+import { sendTelegramMessage, sendTelegramMessageWithButtons } from "@/lib/telegram/client";
+import { postCommentReplyForUser } from "@/lib/comments/post";
+
+const THIS_PROGRAM_SLUG = "youtube-auto-reply";
+
+export interface RunCommentSyncResult {
+  error?: string;
+  needsApiKey?: string;
+  newCount?: number;
+}
+
+/**
+ * 모니터링 중인 영상들의 최신 댓글을 가져와 신규 댓글만 저장(status=pending_review) + AI 답글
+ * 초안 생성까지 하는 핵심 로직. "지금 새 댓글 확인하기" 버튼(lib/actions/comments.ts)과 예약
+ * 모니터링 cron(app/api/cron/sync-comments/route.ts) 양쪽에서 공유한다.
+ *
+ * cutoffAt을 주면 그 시점 이후에 달린 댓글만 대상으로 삼는다 — 예약 모니터링을 처음 켰을 때
+ * 그동안 밀린 과거 댓글이 한꺼번에 몰려서 처리되는 것을 막기 위함이다(수동 버튼 클릭 시에는
+ * cutoffAt 없이 최근 댓글 전부를 본다).
+ */
+export async function runCommentSync(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  cutoffAt?: string | null,
+): Promise<RunCommentSyncResult> {
+  // v1.14: 공용 연결 계정(채널 관리 권한·같은 Google 앱) → 없으면 ytreply_accounts
+  const account = await getYtReplyAccount(supabase, userId);
+  if (!account) return { error: "유튜브 채널이 연결되어 있지 않습니다." };
+
+  const clientId = await getUserApiKey(supabase, userId, "google_client_id");
+  const clientSecret = await getUserApiKey(supabase, userId, "google_client_secret");
+  if (!clientId || !clientSecret) return { error: "설정 페이지에서 Google OAuth Client ID/Secret을 먼저 등록해주세요." };
+
+  const { data: videos } = await supabase
+    .from("ytreply_videos")
+    .select("id, youtube_video_id, title, custom_link")
+    .eq("user_id", userId)
+    .eq("is_monitored", true);
+  if (!videos || videos.length === 0) return { error: "모니터링 중인 영상이 없습니다. 먼저 영상을 동기화해주세요." };
+
+  const { data: settings } = await supabase
+    .from("ytreply_settings")
+    .select("default_link, ai_instructions, tone_preset, reply_model, auto_approve")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  // 답글 초안 생성에 어떤 AI를 쓸지(OpenAI/Anthropic/Gemini)는 reply_model 선택에 따라
+  // 달라지고, 그에 맞는 provider의 키가 등록되어 있어야 한다.
+  const aiProvider = getReplyModelProvider(settings?.reply_model);
+  const aiApiKey = await getUserApiKey(supabase, userId, aiProvider);
+  if (!aiApiKey) return { needsApiKey: aiProvider };
+
+  const toneInstruction = getTonePresetInstruction(settings?.tone_preset ?? null);
+  const combinedInstructions = [toneInstruction, settings?.ai_instructions].filter(Boolean).join(" ") || null;
+
+  const { data: telegramLink } = await supabase
+    .from("user_telegram_links")
+    .select("bot_token, chat_id")
+    .eq("user_id", userId)
+    .eq("program_slug", THIS_PROGRAM_SLUG)
+    .maybeSingle();
+
+  try {
+    const accessToken = await getValidYoutubeAccessToken(supabase, userId, account, clientId, clientSecret);
+
+    let newCount = 0;
+    const cutoffMs = cutoffAt ? new Date(cutoffAt).getTime() : null;
+
+    for (const video of videos) {
+      const rawThreads = await listRecentCommentThreads(accessToken, video.youtube_video_id, userId, 20);
+      // commentThreads.list는 최상위 댓글만 반환하고 답글(대댓글)은 같은 스레드 안에 중첩되어
+      // 따로 나오지 않는 구조라, threads-comment-reply에서 발견한 "본인 답글을 새 댓글로 착각"
+      // 하는 무한 루프는 구조적으로 재현되지 않는다(2026-08-26 확인). 다만 채널 소유자가 자기
+      // 영상에 본인 명의로 고정 댓글 등을 남긴 경우까지 AI가 답글을 달지 않도록, 동일한 안전장치를
+      // 방어적으로 추가한다.
+      const threads = rawThreads.filter(
+        (t) => (t.authorDisplayName ?? "").toLowerCase() !== account.channel_title.toLowerCase(),
+      );
+      if (threads.length === 0) continue;
+
+      const inWindow = cutoffMs
+        ? threads.filter((t) => !t.publishedAt || new Date(t.publishedAt).getTime() >= cutoffMs)
+        : threads;
+      if (inWindow.length === 0) continue;
+
+      const { data: existing } = await supabase
+        .from("ytreply_comments")
+        .select("youtube_comment_id")
+        .eq("user_id", userId)
+        .in(
+          "youtube_comment_id",
+          inWindow.map((t) => t.topLevelCommentId),
+        );
+      const existingIds = new Set((existing ?? []).map((e) => e.youtube_comment_id));
+      const freshThreads = inWindow.filter((t) => !existingIds.has(t.topLevelCommentId));
+      if (freshThreads.length === 0) continue;
+
+      const link = video.custom_link ?? settings?.default_link ?? null;
+
+      for (const thread of freshThreads) {
+        let generatedReply: string | null = null;
+        try {
+          generatedReply = await generateCommentReply({
+            videoTitle: video.title,
+            commentAuthor: thread.authorDisplayName,
+            commentText: thread.textOriginal,
+            link,
+            customInstructions: combinedInstructions,
+            model: settings?.reply_model,
+            apiKey: aiApiKey,
+          });
+        } catch (err) {
+          console.error(`답글 초안 생성 실패 (comment ${thread.topLevelCommentId}):`, err);
+        }
+
+        const { data: inserted, error } = await supabase
+          .from("ytreply_comments")
+          .insert({
+            user_id: userId,
+            video_id: video.id,
+            youtube_comment_id: thread.topLevelCommentId,
+            author_display_name: thread.authorDisplayName,
+            comment_text: thread.textOriginal,
+            generated_reply: generatedReply,
+            status: "pending_review",
+          })
+          .select("id")
+          .single();
+        if (error || !inserted) continue;
+        newCount += 1;
+
+        // 자동 게시(선택 기능, 기본 off)가 켜져 있으면 사람 검토 없이 바로 게시하고, 텔레그램에는
+        // 버튼 없는 결과 알림만 보낸다. 꺼져 있으면(기본값) 기존처럼 승인 버튼 메시지를 보낸다.
+        if (settings?.auto_approve && generatedReply) {
+          const postResult = await postCommentReplyForUser(supabase, userId, inserted.id, generatedReply);
+          if (telegramLink) {
+            const text = postResult.success
+              ? [
+                  `🤖 자동 게시 완료`,
+                  `🎬 ${video.title}`,
+                  `💬 ${thread.authorDisplayName ?? "익명"}: ${thread.textOriginal}`,
+                  "",
+                  `✅ 게시된 답글:\n${generatedReply}`,
+                ].join("\n")
+              : `⚠️ 자동 게시 실패 (${video.title}): ${postResult.error ?? "알 수 없는 오류"}`;
+            await sendTelegramMessage({ botToken: telegramLink.bot_token, chatId: telegramLink.chat_id, text }).catch(
+              (sendErr) => console.error(`텔레그램 자동 게시 알림 발송 실패 (comment ${inserted.id}):`, sendErr),
+            );
+          }
+        } else if (telegramLink && generatedReply) {
+          try {
+            const { messageId } = await sendTelegramMessageWithButtons({
+              botToken: telegramLink.bot_token,
+              chatId: telegramLink.chat_id,
+              text: [
+                `🎬 ${video.title}`,
+                `💬 ${thread.authorDisplayName ?? "익명"}: ${thread.textOriginal}`,
+                "",
+                `✍️ AI 답글 초안:\n${generatedReply}`,
+              ].join("\n"),
+              buttons: [
+                { text: "✅ 답변승인", callbackData: `post:${inserted.id}` },
+                { text: "⏸ 답변보류", callbackData: `hold:${inserted.id}` },
+                { text: "❌ 답변제외", callbackData: `skip:${inserted.id}` },
+              ],
+              // 2026-10-21: 휴대폰 알림에서 바로 통합 받은편지함(comment-inbox)으로 — 다른 플랫폼 댓글·DM도 한곳에서
+              linkButton: { text: "📥 통합 받은편지함에서 보기", url: "https://comment-inbox.buylife.xyz/inbox?p=youtube" },
+            });
+            await supabase
+              .from("ytreply_comments")
+              .update({ telegram_chat_id: telegramLink.chat_id, telegram_message_id: messageId })
+              .eq("id", inserted.id);
+          } catch (sendErr) {
+            console.error(`텔레그램 승인 메시지 발송 실패 (comment ${inserted.id}):`, sendErr);
+          }
+        }
+      }
+    }
+
+    return { newCount };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "댓글 조회 중 오류가 발생했습니다.";
+    if (message === "YOUTUBE_RECONNECT_REQUIRED") {
+      return { error: "유튜브 채널 연결이 만료되었습니다. 설정 페이지에서 다시 연결해주세요." };
+    }
+    return { error: message };
+  }
+}

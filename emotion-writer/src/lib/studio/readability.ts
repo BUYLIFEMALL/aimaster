@@ -1,0 +1,105 @@
+// v1.24: 「배경 어둡기」 추천 — 글자가 놓이는 자리의 배경 밝기와 글자색으로 대비(WCAG)를 계산해
+// 4.5:1 이상이 되는 가장 작은 어둡기(5% 단위)를 찾는다. 순수 함수(시험 대상)
+import type { Design } from "./config";
+
+export type RGB = [number, number, number];
+export const TARGET_CONTRAST = 4.5;
+
+/** 글자 구역(위/가운데/아래)의 세로 범위(0~1) — drawQuote의 글자 배치와 맞춘 대략값 */
+export function textBand(position: Design["position"]): [number, number] {
+  return position === "top" ? [0.12, 0.45] : position === "bottom" ? [0.55, 0.88] : [0.3, 0.7];
+}
+
+export function hexToRgb(hex: string): RGB | null {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** WCAG 상대 휘도 */
+export function luminance([r, g, b]: RGB): number {
+  const f = (v: number) => { const x = v / 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+export function contrastRatio(a: RGB, b: RGB): number {
+  const la = luminance(a), lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/** drawQuote처럼 검은 막(overlay%)을 씌운 배경색 */
+export function darken([r, g, b]: RGB, overlay: number): RGB {
+  const k = 1 - Math.max(0, Math.min(100, overlay)) / 100;
+  return [r * k, g * k, b * k];
+}
+
+export interface OverlayAdvice {
+  /** 지금 어둡기에서의 대비(소수 첫째 자리) */
+  contrast: number;
+  ok: boolean;
+  /** 4.5:1이 되는 가장 작은 어둡기(5% 단위, 지금보다 큼). 어둡게 해도 안 되면 null */
+  recommended: number | null;
+  /** 글자가 어두운 색이라 어둡게 할수록 대비가 떨어지는 경우 */
+  darkText: boolean;
+}
+
+export function adviseOverlay(bg: RGB, textHex: string, current: number, max = 75): OverlayAdvice | null {
+  const text = hexToRgb(textHex);
+  if (!text) return null;
+  const now = contrastRatio(text, darken(bg, current));
+  const contrast = Math.round(now * 10) / 10;
+  const darkText = luminance(text) < 0.4;
+  if (now >= TARGET_CONTRAST) return { contrast, ok: true, recommended: null, darkText };
+  if (darkText) return { contrast, ok: false, recommended: null, darkText };
+  for (let o = Math.ceil((current + 1) / 5) * 5; o <= max; o += 5) {
+    if (contrastRatio(text, darken(bg, o)) >= TARGET_CONTRAST) return { contrast, ok: false, recommended: o, darkText };
+  }
+  return { contrast, ok: false, recommended: null, darkText };
+}
+
+/**
+ * v1.24: 전체 ZIP 받기 전 확인 — 대비가 부족한 크기 수와, 올려 받을 어둡기(부족한 크기들의 추천값 중 최댓값).
+ * 어둡게 해도 안 되는 크기(추천값 없음)만 있으면 raiseTo는 null
+ */
+export function zipOverlayPlan(advices: (OverlayAdvice | null)[]): { weak: number; raiseTo: number | null } {
+  const weakOnes = advices.filter((a): a is OverlayAdvice => a !== null && !a.ok);
+  const recs = weakOnes.map((a) => a.recommended).filter((r): r is number => r !== null);
+  return { weak: weakOnes.length, raiseTo: recs.length ? Math.max(...recs) : null };
+}
+
+export const POSITIONS: Design["position"][] = ["top", "center", "bottom"];
+
+/**
+ * v1.24 「글자 자리 바꿔 받기」: 세 자리(위/가운데/아래) 배경색 중 지금 어둡기에서 대비가 가장 좋은 자리.
+ * 지금 자리보다 대비가 좋아질 때만 돌려준다(아니면 null)
+ */
+export function bestPosition(bands: Partial<Record<Design["position"], RGB | null>>, textHex: string, overlay: number, current: Design["position"]): { position: Design["position"]; contrast: number } | null {
+  const text = hexToRgb(textHex);
+  if (!text) return null;
+  const score = (p: Design["position"]) => { const bg = bands[p]; return bg ? contrastRatio(text, darken(bg, overlay)) : -1; };
+  const now = score(current);
+  let best: Design["position"] = current;
+  for (const p of POSITIONS) if (score(p) > score(best)) best = p;
+  if (best === current || score(best) <= now) return null;
+  return { position: best, contrast: Math.round(score(best) * 10) / 10 };
+}
+
+/**
+ * v1.24 「자리 옮기고 어둡기도 올리기」: 한 크기에 대해 먼저 가장 좋은 자리로 옮기고(지금 자리보다 나을 때만),
+ * 그 자리에서도 4.5:1에 못 미치면 필요한 어둡기(5% 단위, 최대 max)를 찾는다. 바꿀 것이 없으면 null
+ */
+export function fixPlan(bands: Partial<Record<Design["position"], RGB | null>>, textHex: string, overlay: number, current: Design["position"], max = 75): { position: Design["position"]; overlay: number; contrast: number } | null {
+  const moved = bestPosition(bands, textHex, overlay, current);
+  const position = moved?.position ?? current;
+  const bg = bands[position];
+  if (!bg) return null;
+  const adv = adviseOverlay(bg, textHex, overlay, max);
+  if (!adv) return null;
+  if (adv.ok) return moved ? { position, overlay, contrast: moved.contrast } : null;
+  if (adv.recommended !== null) {
+    const text = hexToRgb(textHex)!;
+    return { position, overlay: adv.recommended, contrast: Math.round(contrastRatio(text, darken(bg, adv.recommended)) * 10) / 10 };
+  }
+  return moved ? { position, overlay, contrast: moved.contrast } : null;
+}

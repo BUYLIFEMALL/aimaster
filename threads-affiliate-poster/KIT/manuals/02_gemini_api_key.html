@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google Gemini API 키 발급받기</title>
+<style>body{font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;max-width:760px;margin:32px auto;padding:0 16px;line-height:1.7;color:#1f2937;background:#fff}
+h1{font-size:22px}code{background:#f3f4f6;padding:1px 4px;border-radius:4px}a{color:#2563eb}
+div,p{color:#1f2937!important}li{margin:4px 0}img{max-width:100%}</style></head>
+<body><h1>Google Gemini API 키 발급받기</h1>
+<p style="font-size:12px;color:#6b7280!important">※ 이 문서의 <b>&lt;복제본-주소&gt;</b>는 복제한 프로그램의 실제 주소(예: my-tap.vercel.app)로 바꿔 읽으세요.</p>
+<p>Gemini API 키는 나노바나나 이미지 생성 등 Google AI 기반 기능에서 사용됩니다.</p>
+<p>⚠️ <strong>이미지 생성(나노바나나)이나 영상 생성(Veo3)까지 쓰려면 먼저 결제 정보를 등록해 유료 계정으로 전환해야 합니다</strong> — 무료 계정 상태로는 이런 생성형 기능이 호출되지 않습니다. 순서는 다음과 같습니다.</p>
+<ol>
+<li><a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>(Google Cloud Console)에서 새 프로젝트를 만듭니다. 과금을 다른 용도와 분리해서 추적하고 싶다면 "Gemini 전용" 프로젝트를 하나 따로 만드는 것을 추천합니다.</li>
+<li>만든 프로젝트를 선택한 상태에서 검색창에 <strong>"Gemini API"</strong>를 검색해 사용 설정(활성화)합니다.</li>
+<li>좌측 메뉴에서 결제(Billing)로 이동해 결제 정보를 등록하고 유료 계정으로 전환합니다.</li>
+</ol>
+<p>💡 유료 계정으로 전환해도 바로 과금되지는 않습니다 — 구글이 신규 제공하는 크레딧(약 300달러, 3개월간 사용 가능)을 다 쓴 뒤부터 실제 과금이 시작됩니다. 과금을 원하지 않으면 나중에 Cloud Console에서 "결제 사용 중지"로 막을 수 있습니다(다만 다시 쓰려면 연동 설정을 다시 해야 하는 번거로움이 있습니다).</p>
+<p>결제 설정까지 끝났다면 API 키를 생성합니다.</p>
+<ol>
+<li><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a>(Google AI Studio)에 같은 구글 계정으로 로그인합니다.</li>
+<li>좌측 메뉴 또는 상단의 <strong>Get API key</strong> 버튼을 클릭합니다.</li>
+<li><strong>API 키 만들기(Create API key)</strong>를 클릭하고, 위에서 만든 Gemini 전용 프로젝트를 선택해 그 프로젝트 안에 키를 생성합니다 — 이렇게 하면 이후 나노바나나/Veo 사용량을 이 프로젝트 단위로 따로 추적할 수 있습니다.</li>
+<li>생성된 키(<code>AIza...</code>로 시작)를 복사해둡니다.</li>
+<li>복사한 키를 이 프로그램의 각 프로그램 설정 페이지 "Google(Gemini)" 항목에 붙여넣고 저장합니다.</li>
+</ol>
+</body></html>

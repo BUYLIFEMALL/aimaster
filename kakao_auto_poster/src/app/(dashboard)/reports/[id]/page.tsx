@@ -1,0 +1,141 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { requireProgramAccess } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
+import { getKakaoAccount } from "@/lib/kakao/memberAccount";
+import { resolveApiKey as resolveKakaoKey } from "@/lib/apiKeys";
+import { SendKakaoButton } from "@/components/reports/SendKakaoButton";
+import { ReportEditor } from "@/components/reports/ReportEditor";
+import { KakaoShareButtons } from "@/components/reports/KakaoShareButtons";
+import { extractFirstImageUrl } from "@/lib/reportContent";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kakaoautoposter.vercel.app";
+
+export default async function ReportDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
+}) {
+  const user = await requireProgramAccess();
+  const { id } = await params;
+  const { edit } = await searchParams;
+  const supabase = await createClient();
+
+  const { data: report } = await supabase
+    .from("kakao_reports")
+    .select(
+      "id, topic_id, title, summary, content, kakao_sent_at, kakao_send_error, broadcast_sent_at, broadcast_error, telegram_review_status, created_at, share_token",
+    )
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!report) notFound();
+
+  const [{ data: topic }, { data: profile }, { data: solapiAccount }, { data: kakaoAccount }] = await Promise.all([
+    supabase.from("kakao_topics").select("topic_name").eq("id", report.topic_id).maybeSingle(),
+    supabase.from("profiles").select("phone").eq("id", user.id).maybeSingle(),
+    supabase.from("user_solapi_accounts").select("kakao_pf_id").eq("user_id", user.id).maybeSingle(),
+    (async () => ({ data: await getKakaoAccount(supabase, user.id, await resolveKakaoKey(supabase, user.id, "kakao_rest_api_key")).then((a) => (a ? { nickname: a.nickname } : null)) }))(),
+  ]);
+
+  // 카카오 로그인(무료) 또는 SOLAPI(카카오 채널) 둘 중 하나만 연동돼 있어도 발송 가능하다 —
+  // lib/kakaoSend.ts가 카카오 로그인을 우선 사용하고 없으면 SOLAPI로 자동 전환한다.
+  const canSendKakao = Boolean(kakaoAccount) || Boolean(profile?.phone && solapiAccount?.kakao_pf_id);
+
+  // 회원이 본문에 이미지를 넣어둔 리포트라면(직접 삽입 또는 예약 생성 시 자동 삽입) 카카오톡
+  // 공유 카드에 그 이미지를 그대로 보여준다 — 없을 때만 /api/og 브랜드 카드로 대체한다
+  // (2026-09-15 사용자 요청: "생성된 콘텐츠에 이미지가 있을경우 카카오톡 카드 이미지가
+  // 표시되게 할수 있나? 지금은 그냥 제목만 표시되네").
+  const kakaoShareImageUrl =
+    extractFirstImageUrl(report.content) ?? `${SITE_URL}/api/og?token=${report.share_token}`;
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      <Link href="/reports" className="mb-4 inline-block text-sm text-neutral-500 hover:text-neutral-900">
+        ← 리포트 목록
+      </Link>
+
+      <div className="rounded-2xl border-2 border-neutral-300 bg-white p-6 shadow-sm">
+        {topic && <p className="mb-2 text-xs font-medium text-yellow-700">📌 {topic.topic_name}</p>}
+        <p className="mb-2 text-xs text-neutral-400">{new Date(report.created_at).toLocaleString("ko-KR")}</p>
+
+        <div className="mb-6 rounded-lg bg-yellow-50 p-4">
+          <p className="mb-1 text-xs font-bold text-yellow-800">💬 카카오톡 발송 요약</p>
+          <p className="whitespace-pre-line text-sm text-neutral-700">{report.summary}</p>
+        </div>
+
+        <ReportEditor
+          reportId={report.id}
+          userId={user.id}
+          title={report.title}
+          content={report.content}
+          initialEditing={edit === "1"}
+        />
+
+        <div className="mb-6 border-t border-neutral-200 pt-4">
+          <p className="mb-2 text-xs font-bold text-neutral-700">
+            🔗 원하는 채팅방에 공유하기
+          </p>
+          <p className="mb-3 text-xs text-neutral-500">
+            아래 버튼으로 카카오톡 친구/채팅방을 직접 골라 공유할 수 있어요. 받는 사람은
+            AIMaster 회원이 아니어도 로그인 없이 바로 내용을 읽을 수 있습니다.
+          </p>
+          <KakaoShareButtons
+            shareUrl={`${SITE_URL}/share/${report.share_token}`}
+            shareText={report.title}
+            shareDescription={report.summary}
+            imageUrl={kakaoShareImageUrl}
+          />
+        </div>
+
+        <div className="border-t border-neutral-200 pt-4">
+          {report.telegram_review_status === "pending" && (
+            <p className="mb-2 text-xs text-blue-600">
+              📮 텔레그램으로 검토 요청을 보냈습니다. 텔레그램에서 발행 여부를 결정하거나, 아래에서 바로 발송할 수 있습니다.
+            </p>
+          )}
+          {report.telegram_review_status === "rejected" && !report.kakao_sent_at && (
+            <p className="mb-2 text-xs text-neutral-500">❌ 텔레그램에서 발행 안 함으로 처리됐습니다. 필요하면 아래에서 다시 발송할 수 있습니다.</p>
+          )}
+          {report.kakao_sent_at && (
+            <p className="mb-2 text-xs text-green-600">
+              ✓ {new Date(report.kakao_sent_at).toLocaleString("ko-KR")}에 카카오톡으로 발송됨
+            </p>
+          )}
+          {report.kakao_send_error && !report.kakao_sent_at && (
+            <p className="mb-2 text-xs text-red-600">직전 발송 실패: {report.kakao_send_error}</p>
+          )}
+          {report.broadcast_sent_at && (
+            <p className="mb-2 text-xs text-neutral-500">
+              📣 수신자 목록 발송 결과:{" "}
+              {report.broadcast_error ? (
+                <span className="text-yellow-700">{report.broadcast_error}</span>
+              ) : (
+                <span className="text-green-600">전원 발송 성공</span>
+              )}
+            </p>
+          )}
+
+          {canSendKakao ? (
+            <SendKakaoButton reportId={report.id} />
+          ) : (
+            <p className="text-xs text-neutral-500">
+              카카오톡으로 발송하려면{" "}
+              <Link href="/settings" className="font-medium text-blue-600 hover:underline">
+                설정 페이지
+              </Link>
+              에서 카카오 로그인(무료, 추천)으로 연동하거나 카카오 채널(SOLAPI)을 연동하고
+              AIMaster 프로필에 전화번호를 등록해주세요.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

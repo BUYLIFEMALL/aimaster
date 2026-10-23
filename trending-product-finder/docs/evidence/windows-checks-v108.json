@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-10-16T18:55:58.265260+00:00",
+  "mac_source": "4011b733",
+  "version": "v1.08",
+  "package": "1.08.0",
+  "build": {
+    "passed": true,
+    "typescript": true,
+    "next": "15.5.27",
+    "react": "19.2.4",
+    "nodemailer": "10.1.2",
+    "eslint": "No ESLint warnings or errors"
+  },
+  "supabase_key_compat": {
+    "passed": true,
+    "cases": "legacy/new/both/blank public/server factory credentials"
+  },
+  "cron_changed": false,
+  "env_files_changed": false,
+  "database_schema_changed": false,
+  "paid_calls": 0,
+  "sends": 0,
+  "shared_stash_recovery": "d49e6303; only own project tracked6/untracked15 restored; stash/index/other projects untouched"
+}

@@ -1,0 +1,154 @@
+"use client";
+
+import { askConfirm } from "@/lib/uiDialog";
+import { useEffect, useId, useRef, useState } from "react";
+import { fetchNaverCategories } from "@/lib/naverExtensionClient";
+import { normalizeNaverTags, type NaverCategory, type NaverExecutionMode } from "@/lib/naverPublishing";
+import { PostSaveClient } from "@/lib/postSaveClient";
+
+type Props = { postId: string | null; saveRevision?: string; onSaved?: (tags: string[], post:any, expected:string|undefined) => void; onBlockingChange?: (blocked: boolean) => void };
+export default function NaverPublishSettings(props: Props) {
+  return <SettingsForm key={props.postId || "unsaved"} {...props} />;
+}
+
+function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props) {
+  const validId = Boolean(postId && /^[\da-f-]{36}$/i.test(postId));
+  const id = useId();
+  const mounted = useRef(true);
+  const saver=useRef<PostSaveClient|null>(null);
+  const previousRevision=useRef(saveRevision);
+  const [reload, setReload]=useState(0);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const [identity, setIdentity] = useState<{userId: string; blogId: string} | null>(null);
+  const [category, setCategory] = useState<NaverCategory | null>(null);
+  const [executionMode,setExecutionMode]=useState<NaverExecutionMode>("publish");
+  const [reserved,setReserved]=useState(false);
+  const [reserveAt,setReserveAt]=useState("");
+  const [categories, setCategories] = useState<NaverCategory[]>([]);
+  const [defaultCategory, setDefaultCategory] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const [setDefault, setSetDefault] = useState(false);
+  const [busy, setBusy] = useState<"load" | "categories" | "save" | null>(validId ? "load" : null);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [savedForm, setSavedForm] = useState<string | null>(null);
+  const form = JSON.stringify({category,tags,setDefault,executionMode,reserved,reserveAt:reserved?reserveAt:""});
+  const dirty = savedForm !== null && form !== savedForm;
+  const pendingTag = Boolean(tagInput.trim());
+  useEffect(() => {
+    onBlockingChange?.(Boolean(busy) || Boolean(error) || dirty || pendingTag || (validId && !identity));
+    return () => { onBlockingChange?.(false); };
+  }, [busy, error, dirty, pendingTag, validId, identity, onBlockingChange]);
+
+  useEffect(() => {
+    if(previousRevision.current === saveRevision)return;
+    previousRevision.current=saveRevision;
+    if(saver.current?.revision === saveRevision)return;
+    if(dirty || pendingTag || busy){setError("원고가 변경됐습니다. 입력한 설정을 복사해 보관한 뒤 최신 설정을 다시 불러와 주세요.");return;}
+    setReload(value=>value+1);
+  }, [saveRevision, dirty, pendingTag, busy]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!validId) return;
+    setBusy("load");setError("");setMessage("");
+    (async () => {
+      try {
+        const res = await fetch(`/api/posts/${postId}/publishing`, {cache:"no-store"});
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "발행 설정을 불러오지 못했습니다.");
+        if (!cancelled) {
+          saver.current=new PostSaveClient({id:postId!,save_revision:data.save_revision},false,(_url,init)=>fetch(`/api/posts/${postId}/publishing`,init));
+          setIdentity({userId:data.userId,blogId:data.blogId}); setCategory(data.category);
+          setDefaultCategory(data.defaultCategory); setTags(data.tags);setTagInput("");setSetDefault(false);
+          setExecutionMode(data.executionMode);
+          const at=data.reserved && data.scheduledAt ? toLocalInput(data.scheduledAt) : "";
+          setReserved(Boolean(data.reserved)); setReserveAt(at);
+          setSavedForm(JSON.stringify({category:data.category,tags:data.tags,setDefault:false,executionMode:data.executionMode,reserved:Boolean(data.reserved),reserveAt:at}));
+        }
+      } catch (err) { if (!cancelled) setError(err instanceof Error ? err.message : "발행 설정을 확인해 주세요."); }
+      finally { if (!cancelled) setBusy(null); }
+    })();
+    return () => { cancelled = true; };
+  }, [postId, validId, reload]);
+
+  async function loadCategories() {
+    if (!identity) return;
+    setBusy("categories"); setError(""); setMessage("");
+    try { const list = await fetchNaverCategories(identity.userId, identity.blogId); if (mounted.current) { setCategories(list); setMessage(`네이버 카테고리 ${list.length}개를 불러왔습니다.`); } }
+    catch (err) { if (mounted.current) setError(err instanceof Error ? err.message : "카테고리 조회 실패"); }
+    finally { if (mounted.current) setBusy(null); }
+  }
+
+  function addTag() {
+    const [tag] = normalizeNaverTags([tagInput]);
+    if (!tag) { setError("태그를 100자 이내로 입력해 주세요."); return; }
+    if (tags.includes(tag)) { setTagInput(""); return; }
+    if (tags.length >= 10) { setError("자동 등록 태그는 최대 10개입니다."); return; }
+    setTags([...tags, tag]); setTagInput(""); setMessage(""); setError("");
+  }
+
+  async function save() {
+    setBusy("save"); setError(""); setMessage("");
+    try {
+      if (tagInput.trim()) throw new Error("입력 중인 태그를 먼저 추가해 주세요.");
+      if(!saver.current)throw new Error("최신 원고의 발행 설정을 다시 열어 주세요.");
+      const expected=saver.current.revision;
+      if (reserved && !reserveAt) throw new Error("예약 날짜와 시각을 선택해 주세요.");
+      const reservation={enabled:reserved,at:reserved?new Date(reserveAt).toISOString():null};
+      const post=await saver.current.save({category,tags,setDefault,executionMode,reservation});
+      const data={tags:post.tags,executionMode};
+      if (!mounted.current) return;
+      setTags(data.tags); setExecutionMode(data.executionMode); onSaved?.(data.tags,post,expected); setMessage(`진행 방식·카테고리·태그${reserved?"·예약을":"를"} 저장했습니다. 다음 전송에 적용됩니다. 준비 완료 원고의 설정을 바꾸면 다시 준비해야 합니다.`);
+      if (setDefault) setDefaultCategory(category?.name || "");
+      setSetDefault(false); setSavedForm(JSON.stringify({category,tags:data.tags,setDefault:false,executionMode:data.executionMode,reserved,reserveAt:reserved?reserveAt:""}));
+    } catch (err) { if (mounted.current) setError(err instanceof Error ? err.message : "발행 설정 저장 실패"); }
+    finally { if (mounted.current) setBusy(null); }
+  }
+
+  return <section className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3" aria-label="네이버 발행 설정">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <p className="font-bold text-sm text-neutral-900">네이버 발행 설정</p>
+      <button type="button" onClick={loadCategories} disabled={!identity || Boolean(busy)} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs font-bold text-neutral-700 disabled:opacity-50">{busy === "categories" ? "불러오는 중…" : "네이버 카테고리 불러오기"}</button>
+    </div>
+    {!validId ? <p className="text-xs text-neutral-600">원고를 보관함에 저장한 뒤 카테고리와 태그를 설정할 수 있습니다.</p> : <>
+      <p className="text-xs text-neutral-500">{identity?.blogId || "블로그 확인 중"} · 글감 분류와 별도로 네이버에 등록된 카테고리를 선택합니다.</p>
+      <label htmlFor={`${id}-mode`} className="block text-xs font-semibold text-neutral-700">확장 진행 방식</label>
+      <select id={`${id}-mode`} value={executionMode} disabled={Boolean(busy)} onChange={event=>{setExecutionMode(event.target.value as NaverExecutionMode);setMessage("");}} className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">
+        <option value="prepare">발행 전 준비까지만 · 최종 버튼은 직접 누름</option>
+        <option value="publish">최종 발행까지 자동 진행</option>
+      </select>
+      <p className="text-xs text-neutral-600">{executionMode==="prepare" ? "본문·이미지·카테고리·태그·공개 범위·예약 설정까지 준비한 뒤 멈춥니다. 최신 확장이 필요합니다. 열린 원고를 확인하고 직접 최종 발행해 주세요." : "기존 자동 발행 방식입니다. 전송하면 확장이 최종 발행 버튼까지 누릅니다."}</p>
+      <p className="text-xs font-semibold text-neutral-700">발행 시각</p>
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="발행 시각">
+        <label className="flex items-center gap-1 text-xs text-neutral-700"><input type="radio" name={`${id}-when`} checked={!reserved} disabled={Boolean(busy)} onChange={()=>{setReserved(false);setMessage("");}} />바로 발행</label>
+        <label className="flex items-center gap-1 text-xs text-neutral-700"><input type="radio" name={`${id}-when`} checked={reserved} disabled={Boolean(busy)} onChange={()=>{setReserved(true);setMessage("");}} />예약 발행</label>
+        {reserved && <input type="datetime-local" step={600} aria-label="예약 날짜와 시각" value={reserveAt} disabled={Boolean(busy)} onChange={event=>{setReserveAt(event.target.value);setMessage("");}} className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900" />}
+      </div>
+      {reserved && <p className="text-xs text-neutral-500">네이버 예약은 10분 단위이며 지금부터 20분 이후로 정해 주세요(예: 14:10, 14:20).</p>}
+      <label htmlFor={`${id}-category`} className="block text-xs font-semibold text-neutral-700">네이버 발행 카테고리</label>
+      <select id={`${id}-category`} value={category?.id || ""} disabled={Boolean(busy)} onChange={event => { setCategory(categories.find(c=>c.id===event.target.value) || null); setSetDefault(false); setMessage(""); }} className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">
+        <option value="">{defaultCategory ? `블로그 기본값 사용: ${defaultCategory}` : "네이버에서 현재 선택된 카테고리 유지"}</option>
+        {category && !categories.some(c=>c.id===category.id) && <option value={category.id}>{category.name}</option>}
+        {categories.map(c=><option key={c.id} value={c.id}>{c.name} (#{c.id})</option>)}
+      </select>
+      <label className="flex items-center gap-2 text-xs text-neutral-600"><input type="checkbox" checked={setDefault} onChange={event=>setSetDefault(event.target.checked)} disabled={Boolean(busy) || !category} />이 선택을 이 블로그의 기본 카테고리로도 저장</label>
+      <p className="text-xs font-semibold text-neutral-700">자동 등록 태그 ({tags.length}/10)</p>
+      <div className="flex flex-wrap gap-2">{tags.map(tag=><button type="button" key={tag} aria-label={`${tag} 태그 삭제`} disabled={Boolean(busy)} onClick={()=>{setTags(tags.filter(t=>t!==tag));setMessage("");}} className="rounded-lg border border-neutral-200 px-2 py-1 text-xs text-neutral-700">#{tag} ×</button>)}</div>
+      <div className="flex gap-2"><input aria-label="네이버 태그 추가" value={tagInput} onChange={event=>setTagInput(event.target.value)} onKeyDown={event=>{if(event.key==="Enter"){event.preventDefault();addTag();}}} disabled={Boolean(busy)} placeholder="태그 입력 후 추가 또는 Enter" className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900" /><button type="button" disabled={Boolean(busy)} onClick={addTag} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-700">태그 추가</button></div>
+      <div className="flex justify-end gap-2"><button type="button" disabled={Boolean(busy)} onClick={async ()=>{if((dirty || pendingTag) && !await askConfirm("변경한 설정을 먼저 복사해 보관해 주세요. 최신 설정을 다시 불러오면 현재 입력 중인 설정이 바뀝니다. 계속하시겠습니까?"))return;setReload(value=>value+1);}} className="rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-700 disabled:opacity-50">설정 다시 불러오기</button><button type="button" disabled={!identity || Boolean(busy)} onClick={save} className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50">{busy==="save" ? "저장 중…" : "발행 설정 저장"}</button></div>
+    </>}
+    {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
+    {(dirty || pendingTag) && <p className="text-xs text-amber-700">변경한 발행 설정을 저장한 뒤 발행 전송해 주세요.</p>}
+    {message && <p role="status" className="text-xs text-emerald-700">{message}</p>}
+  </section>;
+}
+
+/** ISO 시각을 datetime-local 입력값(내 컴퓨터 시간)으로 바꾼다. */
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}

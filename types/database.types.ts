@@ -1,0 +1,240 @@
+export type BillingType = "monthly" | "bimonthly" | "quarterly" | "biannual" | "annual" | "lifetime";
+export type SubscriptionStatus = "active" | "expired" | "cancelled";
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
+export type AffiliateStatus = "pending" | "settled" | "rejected";
+export type SettlementStatus = "pending" | "approved" | "rejected";
+
+export interface MemberGrade {
+  id: string;
+  name: string;
+  slug: string;
+  color: string | null;
+  sort_order: number;
+  max_programs: number | null;
+  auto_grant?: boolean;
+  default_access_days?: number | null;
+  /** 자동 부여 기간 계산 기준: signup=가입일, grant=등급 지정(부여)일 */
+  access_start_basis?: "signup" | "grant" | null;
+  created_at: string;
+}
+
+export interface Profile {
+  id: string;
+  email: string;
+  name: string | null;
+  phone: string | null;
+  grade_id: string | null;
+  is_admin: boolean;
+  affiliate_code: string | null;
+  referred_by: string | null;
+  created_at: string;
+  is_suspended: boolean;
+  suspended_at: string | null;
+  suspended_reason: string | null;
+  // joined
+  grade?: MemberGrade | null;
+}
+
+export interface Category {
+  id: string;
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  sort_order: number;
+  // joined
+  children?: Category[];
+}
+
+export interface Program {
+  id: string;
+  category_id: string | null;
+  required_grade_id: string | null;
+  name: string;
+  slug: string;
+  short_desc: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  video_url: string | null;
+  images: string[];
+  version: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  // platform-hub: 실제 배포된 AI 웹앱 URL (없으면 일반 판매용 프로그램)
+  app_url: string | null;
+  // 크롬 확장이 있는 프로그램의 최신 확장 ZIP 주소·버전 (없으면 null). docs/EXTENSION_RELEASE_RULES.md
+  extension_download_url?: string | null;
+  extension_version?: string | null;
+  // 상세 페이지 핵심 특징·사용 순서(프로그램별, 2026-10-16). lib/programs/detailSections.ts
+  detail_sections?: { features: { icon: string; title: string; desc: string }[]; steps: { title: string; desc: string }[]; audiences?: { icon: string; title: string; desc: string; points: string[] }[] } | null;
+  // 관리자가 수동으로 다는 추천 뱃지 (Badge 컴포넌트 variant와 동일한 값). 여러 개(예: FREE +
+  // NEW) 동시에 달 수 있어 배열이다. 빈 배열이면 뱃지 없음.
+  badges: ("new" | "best" | "sale" | "coming" | "free" | "recommended" | "premium")[];
+  // 회원 추천(♥) 투표 수 — program_likes 변경 시 DB 트리거가 자동 집계한다
+  like_count?: number;
+  // joined
+  category?: Category | null;
+  required_grade?: MemberGrade | null;
+  pricing_plans?: PricingPlan[];
+}
+
+export interface PricingPlan {
+  id: string;
+  program_id: string;
+  name: string;
+  billing_type: BillingType;
+  price: number;
+  original_price: number | null;
+  is_active: boolean;
+  sort_order: number;
+}
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  program_id: string;
+  pricing_plan_id: string;
+  status: SubscriptionStatus;
+  started_at: string;
+  expires_at: string | null;
+  payapp_order_id: string | null;
+  created_at: string;
+  // joined
+  program?: Program;
+  pricing_plan?: PricingPlan;
+}
+
+export interface PaymentRecord {
+  id: string;
+  user_id: string;
+  subscription_id: string | null;
+  amount: number;
+  status: PaymentStatus;
+  payapp_order_id: string | null;
+  payapp_data: Record<string, unknown> | null;
+  paid_at: string | null;
+  created_at: string;
+}
+
+export interface AffiliateClick {
+  id: string;
+  affiliate_code: string;
+  referrer_id: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  page_url: string | null;
+  created_at: string;
+}
+
+export interface GradeProgramAccess {
+  id: string;
+  grade_id: string;
+  program_id: string;
+  created_at: string;
+  // joined
+  grade?: MemberGrade;
+  program?: Program;
+}
+
+export interface AffiliateRate {
+  program_id: string;
+  rate: number;
+}
+
+export interface AffiliateEarning {
+  id: string;
+  referrer_id: string;
+  payment_record_id: string;
+  program_id: string;
+  commission_rate: number;
+  commission_amount: number;
+  status: AffiliateStatus;
+  created_at: string;
+  // joined
+  program?: Program;
+  payment_record?: PaymentRecord;
+}
+
+export interface SettlementRequest {
+  id: string;
+  user_id: string;
+  amount: number;
+  bank_name: string | null;
+  account_number: string | null;
+  account_holder: string | null;
+  status: SettlementStatus;
+  admin_note: string | null;
+  requested_at: string;
+  processed_at: string | null;
+}
+
+export interface UserProgramAccess {
+  id: string;
+  user_id: string;
+  program_id: string;
+  granted_by: string | null;
+  granted_at: string;
+  expires_at: string | null;
+  // joined
+  program?: Program;
+}
+
+export interface UsageLog {
+  id: string;
+  user_id: string;
+  program_id: string;
+  action: string;
+  quantity: number;
+  credits_used: number;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  // joined
+  program?: Program;
+}
+
+export interface UserSession {
+  id: string;
+  user_id: string;
+  session_token: string;
+  device_info: string | null;
+  ip_address: string | null;
+  last_active: string;
+  created_at: string;
+}
+
+export interface SiteSetting {
+  key: string;
+  value: unknown;
+  updated_at: string;
+}
+
+export type ConcurrentLoginPolicy = "force_logout" | "block_new";
+
+export type CouponType = "percentage" | "fixed" | "free";
+
+export interface Coupon {
+  id: string;
+  code: string;
+  type: CouponType;
+  value: number;
+  program_id: string | null;
+  assigned_user_id: string | null;
+  max_uses: number | null;
+  current_uses: number;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  // joined
+  program?: Program | null;
+  assigned_user?: { name: string | null; email: string } | null;
+}
+
+export interface CouponUsage {
+  id: string;
+  coupon_id: string;
+  user_id: string;
+  payment_record_id: string | null;
+  discount_amount: number;
+  used_at: string;
+}

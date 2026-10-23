@@ -1,0 +1,19 @@
+{
+  "browser": "Microsoft Edge, headless:false, dedicated report profile",
+  "mode": "local analysis HTML only; no member session or external site used",
+  "tables": 17,
+  "sections": 14,
+  "search": {
+    "query": "사진",
+    "shown": 13,
+    "total": 137
+  },
+  "viewports": [
+    "1440x1000",
+    "375x812"
+  ],
+  "mobileDocumentOverflow": false,
+  "pageErrors": [],
+  "paidCalls": 0,
+  "window": "kept open for user"
+}

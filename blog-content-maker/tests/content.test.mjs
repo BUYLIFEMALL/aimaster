@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {createRequire} from 'node:module';
+import {normalizeBrief,normalizeDraft,auditDraft,fingerprint,articleHtml,markdownHtml,activeAssets} from '../src/lib/content.ts';
+const require=createRequire(import.meta.url);
+const writer=require('../extension/writer.js');
+const draft=()=>normalizeDraft({title:'주방 정리 방법',body:'## 준비하기\n\n실제 생활에 맞춰 물건을 나누고 공간을 확보합니다. 사용 빈도에 따라 정리하며 안전한 동선을 먼저 확인합니다.\n\n## 자주 묻는 질문\n\n어디부터 시작하나요? 작은 서랍부터 정리합니다.',tags:['주방정리'],media:[{kind:'image',alt:'주방 정리',prompt:'clean kitchen',placement:0}]});
+const asset=(id='a')=>({id,project_id:'p',path:'u/p/a.jpg',mime:'image/jpeg',bytes:1,alt:'주방 정리',prompt:'kitchen',plan_id:'media-1',placement:0,kind:'image',url:'https://example.com/'+id+'.jpg'});
+test('입력 수량·모드·분량은 서버 허용 범위로 정리한다',()=>{const b=normalizeBrief({imageCount:100,sceneCount:-2,mode:'unknown',targetLength:10000});assert.equal(b.imageCount,10);assert.equal(b.sceneCount,0);assert.equal(b.mode,'information');assert.equal(b.targetLength,6000);});
+test('이미지 자리표시자만 있으면 실제 이미지 점검을 통과하지 않는다',()=>{const d=draft();d.body+='\n\n[이미지: 주방]';const report=auditDraft(d,normalizeBrief({imageCount:1}),[]);assert.equal(report.items.find(x=>x.id==='images').status,'warn');assert.equal(auditDraft(d,normalizeBrief({imageCount:1}),[asset()]).items.find(x=>x.id==='images').status,'pass');});
+test('원고·ALT·위치가 바뀌면 기존 점검 서명이 달라진다',()=>{const d=draft(),a=asset(),old=fingerprint(d,[a]);assert.notEqual(fingerprint({...d,body:d.body+' 변경'},[a]),old);assert.notEqual(fingerprint(d,[{...a,alt:'새 설명'}]),old);assert.notEqual(fingerprint(d,[{...a,placement:2}]),old);});
+test('직접 확인하지 않은 사실·경험을 자동 통과시키지 않는다',()=>{const report=auditDraft(draft(),normalizeBrief({imageCount:0}),[]);assert.equal(report.items.find(x=>x.id==='facts').status,'review');assert.equal(report.items.find(x=>x.id==='experience').status,'review');});
+test('HTML 입력은 실행되지 않고 표 내용은 보존된다',()=>{const html=markdownHtml('<script>alert(1)</script>\n\n| 항목 | 값 |\n|---|---|\n| 개수 | 3 |');assert.ok(!html.includes('<script>'));assert.ok(html.includes('&lt;script&gt;'));assert.ok(html.includes('<table>'));assert.ok(html.includes('<td>3</td>'));});
+test('재생성한 이미지는 최신 자산만 본문에 넣고 이전 파일은 보존한다',()=>{const assets=[asset('old'),asset('new')];assert.equal(activeAssets(assets).length,1);assert.equal(assets.length,2);const html=articleHtml(draft(),assets);assert.ok(html.includes('/new.jpg'));assert.ok(!html.includes('/old.jpg'));assert.equal((html.match(/<img /g)||[]).length,1);});
+test('입력기는 기존 내용과 다른 원고를 덮어쓰지 않는다',()=>{const steps=[{type:'title',text:'새 제목'},{type:'paragraph',text:'새 본문'}];assert.equal(writer.matchingWriterPrefix({title:'기존 제목',blocks:[{type:'paragraph',text:'기존 내용'}]},steps),-1);});
+test('부분 이미지 입력은 확인 없이 재시도하지 않는다',async()=>{let uploads=0;const steps=[{type:'title',text:'제목'},{type:'image',name:'a.jpg'}];let state={title:'제목',blocks:[]};await assert.rejects(writer.runWriter({steps,read:async()=>state,apply:async()=>{uploads++;state={title:'제목',blocks:[{type:'image',name:'unexpected.jpg'}]};throw new Error('불확실한 업로드');},save:async()=>{},checkCancelled:async()=>{}}));assert.equal(uploads,1);});
+test('확장 편집 명령은 최종 발행·임의 클릭을 허용하지 않는다',async()=>{const context=vm.createContext({});vm.runInContext(fs.readFileSync(new URL('../extension/editor.js',import.meta.url),'utf8'),context);for(const command of ['click','settings','publish','published'])assert.equal((await context.editorCommand(command,{})).ok,false);});
+
+test("새 원고와 이미지 제외 원고에 이전 계획의 이미지를 넣지 않는다",()=>{const a=asset(),d=draft();d.media=[];assert.equal(activeAssets([a],d.media).length,0);assert.ok(!articleHtml(d,[a]).includes("<img"));d.media=[{id:"new-plan",kind:"image",alt:"new",prompt:"new",placement:0}];assert.equal(activeAssets([a],d.media).length,0);assert.ok(!articleHtml(d,[a]).includes("<img"));});

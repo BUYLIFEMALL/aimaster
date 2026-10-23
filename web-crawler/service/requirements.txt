@@ -1,0 +1,9 @@
+# web-crawler-saas 백엔드(FastAPI) 전용 의존성.
+# 크롤링 엔진 자체의 의존성(scrapling/playwright 등)은 상위 requirements.txt를 그대로 재사용한다.
+-r ../requirements.txt
+
+fastapi>=0.115
+uvicorn[standard]>=0.32
+supabase>=2.10
+httpx>=0.27
+pydantic>=2.9

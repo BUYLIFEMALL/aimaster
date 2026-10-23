@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-20",
+  "origin": "http://127.0.0.1:4321",
+  "browser": "Microsoft Edge",
+  "windowId": 2884854,
+  "memberSession": {
+    "email": "buylifemall@naver.com",
+    "loginPerformedBy": "user",
+    "verifiedBy": "dashboard and generation page accessibility tree",
+    "passwordHandledByAgent": false
+  },
+  "verifiedUi": [
+    "Local dashboard authenticated as the designated ordinary test account",
+    "Navigation to generation page via existing menu",
+    "GPT-4.1 selection displays balanced tier and relative cost badge",
+    "Switch to Claude changes model selector to Claude Sonnet 5 and hides OpenAI badge",
+    "Switch back to OpenAI restores GPT-4.1 selector and balanced badge"
+  ],
+  "notVerified": [
+    "Expandable hint body: click did not expose body in subsequent state",
+    "Individual OpenAI model selection: both label and value attempts retained GPT-4.1",
+    "Reasoning latency notice in actual browser",
+    "Model card pixel inspection: subsequent screenshot capture failed",
+    "Authenticated photo API probes",
+    "Real private Storage and extension preparation"
+  ],
+  "browserLimits": {
+    "modelSetValueVerification": "value_mismatch; selector remained GPT-4.1",
+    "modelScreenshot": "screenshot_failed; no image returned",
+    "remoteDebuggingPortPresent": false,
+    "aside": "CLI guide inspected; no separate browser launched or delegated, no Edge session binding established"
+  },
+  "laterSuccessfulVerification": {
+    "navigation": "Address SetValue then Return, followed by confirmed local document URL and ordinary member account",
+    "hintExpanded": "Relative cost explanation observed in returned tree and screenshot",
+    "modelChanged": "GPT-4.1 to GPT-6 Luna via dropdown, Down, Return",
+    "lunaBadge": "Fast tier and one-unit relative cost displayed",
+    "reasoningLatencyNotice": "Displayed for GPT-6 Luna",
+    "pixelInspection": "Screenshot viewed; model card text readable and contained",
+    "screenshot": "member-model-hints-luna-20261020.png",
+    "restored": "Toolbar reload restored saved GPT-4.1; default-saved status and member account verified",
+    "keyboardLimit": "Intermittent window_not_focused still occurred on later Home; no stable platform repair claimed",
+    "apiAndStorage": "Authenticated photo API and real Storage/extension preparation still pending"
+  },
+  "preferenceSaveClicked": false,
+  "generationClicked": false,
+  "databaseRef": "esgxyikcnnvmlhygjkth",
+  "contentOrSchemaWritesByAgent": 0,
+  "storageWrites": 0,
+  "paidAiCalls": 0,
+  "finalPublications": 0,
+  "deployments": 0,
+  "versionChanged": false
+}

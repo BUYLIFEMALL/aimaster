@@ -1,0 +1,57 @@
+# v1.05 원본 메뉴·레이아웃 비교와 기능 보강
+
+2026-10-12 Codex. 운영 주소: https://suno-music-studio.buylife.xyz/.
+원본: https://suno-prompt-manager-six.vercel.app/ (SU-Note v3.6).
+
+## 조사와 구현 범위
+
+원본 공개 화면의 빌더·앨범·프리셋·검색·댄스 머신·가이드를 직접 열고 옵션, 메뉴, 카드, 가이드 인덱스를 조사했습니다. 기존 v1.03 전수 선택 조사와 이번 화면 조사를 함께 사용했습니다. 원본의 유료 AI 호출과 실제 Suno 음원 생성은 조사 성공으로 계산하지 않습니다. 공개 선택 메타데이터를 사용하되 음악 Style 레시피와 설명은 자체 작성했습니다.
+
+| 원본 화면·옵션 | v1.05 반영 | 차이·범위 |
+|---|---|---|
+| 빌더 → 앨범 → 프리셋 → 검색 → 댄스 머신 → 가이드 → 저장됨 | 동일 메뉴 순서, 흰색 230px 사이드바, 활성 메뉴 표시 | AIMaster 대시보드·API키등록·플랫폼연동·다른 프로그램 링크 추가 |
+| 빌더의 왼쪽 Style/가사/AI, 오른쪽 제어/팔레트 | 제목·Style·가사·AI 작성과 제어 패널 분리 | 흰색 작업 화면 유지; 검은 원본 테마를 복제하지 않음 |
+| 앨범 왼쪽 컨셉, 오른쪽 트랙 | 빌더와 독립된 앨범 설정, 컨셉/상세 의도, 15종 다중 무드, 흐름, 참고 프리셋, 설정 가져오기 | 12곡 고정 대신 3~12곡; 원본 기본 동작에 맞춰 새 앨범 기본값 12곡 |
+| 앨범 트랙·일괄 작사 | 곡별 펼침, 별도 보컬·랩 보이스, 미완성 가사 순차 생성·취소, 편곡 일괄 적용 | 제목·가사·트랙 ID 보존; 실패한 초안을 자동 중복 생성하지 않음 |
+| 앨범 저장·초기화 | 앨범만 저장/JSON 내보내기, 초기화와 세션 내 되돌리기 | 빌더 자료·저장된 보관함 보존 |
+| 프리셋 460 배지·실제 목록 461 | 실제 461개 카드, 분류/시대/그룹/유형/검색, 직접 로드·복사, 참고 방향 3종 | 정확한 461 표시, 12개씩 페이지; 원본 문장 전체 복제 없음 |
+| 검색 공급사 3종·웹 검색 ON/OFF | 로컬 검색, 선택 공급사 AI 기획 6개, 선택적 공급사 웹 검색, 실제 출처·원문 표시 | 기획 예시를 실제 대표곡이라고 표시하지 않음; 실제 웹 검색 호출 검수는 남음 |
+| 댄스 200개·좌측 카드/우측 조합 | 200개 카드, 12분류/7 BPM 범위, 9종 태그, 시드/조합/복사/빌더 전송 | 마지막 템포 선택을 우선, BPM 중복 제거, 회원별 조합 저장 |
+| 가이드 93개 인덱스와 태그 표 | 93개 챕터 이동, 구조 태그 22종, 자체 설명/예시, 검색·페이지, 관련 라이브러리 연계 | 원본 93개 본문 전체와 모든 예제를 복제한 것이 아님 |
+| 분할 모드 | 좁은 보기 ON/OFF, 회원별 기억 | Suno 별도 창과 함께 배치; Suno iframe·계정 공유 없음 |
+| 언어·테마 | 가사 한영 비율·제목 언어 기존 지원 유지 | 전체 UI 영문 전환/다크 테마는 이번 범위에 없음 |
+
+앨범 설정(`Draft.albumBrief`)과 댄스 조합(`Draft.dance`)은 기존 JSON을 읽을 수 있는 선택 필드입니다. 저장된 앨범을 불러와도 빌더를 덮어쓰지 않습니다. 앨범 공통 설정 변경은 곡별 보컬 선택을 유지하며 Style과 자동 제외어만 갱신합니다. 편곡 일괄 적용은 모든 곡의 길이를 먼저 확인하여 일부만 바뀌는 상태를 방지합니다.
+
+## 검색·회원 보호
+
+`/api/search`는 회원 인증·프로그램 이용 권한·핸드폰 정책·CSRF·입력 크기·private,no-store를 적용합니다. 회원이 선택한 모델과 본인 키만 사용합니다. 웹 검색은 Google Search grounding / Claude web search / OpenAI Responses web search를 공급사별로 호출하고 출처를 확인한 다음 음악 기획을 생성합니다. 공급사·키 폴백이나 숨겨진 모델 치환이 없습니다.
+
+로컬 검색은 AI 호출 0회, 웹 검색을 끈 AI 기획은 1회, 켠 경우 조사와 기획 최대 2회입니다. 공급사 도구 자체 비용은 별도일 수 있습니다. 모델/계정이 해당 도구를 지원하지 않거나 출처가 없거나 응답이 잘리면 오류로 처리하고 이전 결과를 보존합니다. URL과 출처를 검증하고 검색 원문을 프롬프트 지시로 취급하지 않습니다. Gemini 검색 제안은 스크립트·같은 출처 권한 없는 sandbox에 표시합니다.
+
+구현 참고 공식 문서: [Google](https://ai.google.dev/gemini-api/docs/generate-content/google-search?hl=en), [Claude](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool), [OpenAI](https://developers.openai.com/api/docs/guides/tools-web-search).
+
+## 검수 증거
+
+- `npm test` 44/44, `npm run lint`, `npx tsc --noEmit`, `npm run build` 통과. 소유자·키·권한·중단, 이전 백업, 앨범 분리, 보컬 유지, 편곡 원자성, 템포 충돌, 공급사 웹 프로토콜/출처/실패 처리 포함.
+- 실제 Sidebar/Workspace 컴포넌트로 프런트 검수 23개 통과. 가짜 API 요청 6회, 실제 공급사 호출 0회. 메뉴·필터·앨범·보관·복원·JSON·검색 실패 보존·좁은 보기와 모바일 검사. 운영 로그인 흐름 검수로 계산하지 않습니다.
+- 1600px 및 390px 문서 너비가 화면 너비와 일치. 계정 블록과 메뉴 끝 간격 8px. 콘솔 오류 0개.
+- [프런트 결과](assets/layout-v105-ui-fixture.json), [앨범](assets/layout-v105-album-fixture.png), [가이드](assets/layout-v105-guide-fixture.png), [모바일](assets/layout-v105-mobile-fixture.png).
+- 검수 도구/원본 조사 증거: `D:/PDS/suno-comparison-20261012/`. 인증 우회 페이지·운영 테스트 계정·공용 키를 새로 만들지 않았습니다.
+
+## 운영 반영
+
+코드 APP_VERSION v1.05, package 1.05.0. DB 버전 갱신 SQL: `supabase/migrations/20261012114007_suno_layout_workflows_v105.sql` (메타데이터 UPDATE만, 스키마 변경 없음). 확장 프로그램 없음.
+
+- 구현 커밋 `37ba2e4adccd66d6ac7e4be68c91cd80cd5c7fab`, `origin/master` 푸시 성공.
+- Vercel 프로덕션 `dpl_ABfzGxj6AvjArFvyKY1Xk78iG7Aj`, READY. 배포 메타데이터의 Git SHA가 구현 커밋과 일치합니다. 팀 buylife의 suno-music-studio 프로젝트만 배포했습니다.
+- https://suno-music-studio-4eb7z7bq1-buylife.vercel.app → https://suno-music-studio.buylife.xyz alias 성공. 옛 vercel.app 주소도 유지합니다.
+- DB `programs.version` v1.05와 코드 버전 일치. `extension_version`/`extension_download_url`은 null입니다.
+- 2026-10-12 20:51 KST 운영 HTTP 검사: /login 200, /·/settings 및 7개 메뉴 URL 비로그인 307, generate/search POST와 keys GET/POST 비로그인 401. 모두 private,no-store 및 X-Vercel-Cache MISS. 실제 로그인 HTML이 참조한 JS 8개 모두 200. [운영 검사 결과](assets/live-v105-http.json).
+- 회원 화면의 버전 문자열은 관측하지 않았습니다. 버전 증거는 배포 Git SHA·소스·DB 일치입니다. 실제 회원 AI 호출은 아래 남은 항목으로 유지합니다.
+
+## 남은 실제 사용 검수
+
+새 버전의 실제 회원 Chrome에서 앨범 생성/곡별 작사/백업 가져오기, 3종 공급사의 본인 모델 웹 검색 실호출 및 출처, 번호 미등록 회원 차단을 확인해야 합니다. 모의 공급사 검사와 비로그인 운영 HTTP로 대신했다고 보고하지 않습니다. 공유 Chrome은 다른 CLI의 작업 화면이고 이전 별도 창 실행은 자동 승인 정책으로 거절되어 회원 브라우저를 빼앗거나 세션을 복사하지 않았습니다. 본인 API가 등록된 회원으로 비용을 정한 소량 표본부터 진행합니다. 과거 v1.01 Gemini 1곡 성공은 이번 신규 웹 검색 성공 증거가 아닙니다.
+
+Suno 최종 음원 생성은 회원 본인의 Suno에서 직접 수행합니다. 이 프로그램은 음악 기획·Style·가사·앨범 자료를 준비하며 음원 자동 공개를 구현하지 않습니다.

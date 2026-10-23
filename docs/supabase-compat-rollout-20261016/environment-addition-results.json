@@ -1,0 +1,1122 @@
+[
+  {
+    "project": "ai-image-studio",
+    "slug": "ai-image-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-image-studio",
+    "slug": "ai-image-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-auto-blog",
+    "slug": "ai-auto-blog",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-audio-analyzer",
+    "slug": "ai-audio-analyzer",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-audio-analyzer",
+    "slug": "ai-audio-analyzer",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-influencer-studio",
+    "slug": "ai-influencer-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-influencer-studio",
+    "slug": "ai-influencer-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-mastering-studio",
+    "slug": "ai-mastering-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-mastering-studio",
+    "slug": "ai-mastering-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-prompt-studio",
+    "slug": "ai-prompt-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-prompt-studio",
+    "slug": "ai-prompt-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-slide-builder",
+    "slug": "ai-slide-builder",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-slide-builder",
+    "slug": "ai-slide-builder",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-task-planner",
+    "slug": "ai-task-planner",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-task-planner",
+    "slug": "ai-task-planner",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-writing-editor",
+    "slug": "ai-writing-editor",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-writing-editor",
+    "slug": "ai-writing-editor",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-webtoon-studio",
+    "slug": "ai-webtoon-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ai-webtoon-studio",
+    "slug": "ai-webtoon-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "allinone-graphic",
+    "slug": "allinone-graphic",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "allinone-graphic",
+    "slug": "allinone-graphic",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "auto-detail-page",
+    "slug": "auto-detail-page",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "auto-detail-page",
+    "slug": "auto-detail-page",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "blog-content-maker",
+    "slug": "blog-content-maker",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "blog-keyword",
+    "slug": "blog-keyword",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "blog-keyword",
+    "slug": "blog-keyword",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "banana-canvas",
+    "slug": "banana-canvas",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "banana-canvas",
+    "slug": "banana-canvas",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "blog-workroom",
+    "slug": "blog-workroom",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "blog-workroom",
+    "slug": "blog-workroom",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "booking-reminder",
+    "slug": "booking-reminder",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "booking-reminder",
+    "slug": "booking-reminder",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "cardnews-studio",
+    "slug": "cardnews-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "cardnews-studio",
+    "slug": "cardnews-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "cinematic-storyboard-studio",
+    "slug": "cinematic-storyboard-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "cinematic-storyboard-studio",
+    "slug": "cinematic-storyboard-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "competitor-analysis",
+    "slug": "competitor-analysis",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "competitor-analysis",
+    "slug": "competitor-analysis",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "crm-google-form",
+    "slug": "crm-google-form",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "crm-google-form",
+    "slug": "crm-google-form",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "detail-page-12p",
+    "slug": "detail-page-12p",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "detail-page-12p",
+    "slug": "detail-page-12p",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "document-translator",
+    "slug": "document-translator",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "document-translator",
+    "slug": "document-translator",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ebook-studio",
+    "slug": "ebook-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ebook-studio",
+    "slug": "ebook-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "emotion-writer",
+    "slug": "emotion-writer",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "emotion-writer",
+    "slug": "emotion-writer",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "fashion-style",
+    "slug": "fashion-style",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "fashion-style",
+    "slug": "fashion-style",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "file-merge",
+    "slug": "file-merge",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "file-merge",
+    "slug": "file-merge",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "four-cut-comics",
+    "slug": "four-cut-comics",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "four-cut-comics",
+    "slug": "four-cut-comics",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "image-convert-studio",
+    "slug": "image-convert-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "image-convert-studio",
+    "slug": "image-convert-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "website-scraper",
+    "slug": "website-scraper",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "website-scraper",
+    "slug": "website-scraper",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "infinite-loop-video",
+    "slug": "infinite-loop-video",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "infinite-loop-video",
+    "slug": "infinite-loop-video",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "insta-auto-poster",
+    "slug": "auto-instagram-posting",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "insta-auto-poster",
+    "slug": "auto-instagram-posting",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "instagram-comment-reply",
+    "slug": "instagram-comment-reply",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "instagram-comment-reply",
+    "slug": "instagram-comment-reply",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "instagram-dm-reply",
+    "slug": "instagram-dm-reply",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "instagram-dm-reply",
+    "slug": "instagram-dm-reply",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "kakao_auto_poster",
+    "slug": "kakao-auto-posting",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "kakao_auto_poster",
+    "slug": "kakao-auto-posting",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "landing-architect",
+    "slug": "landing-architect",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "landing-architect",
+    "slug": "landing-architect",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "longtail-keyword-expander",
+    "slug": "longtail-keyword-expander",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "longtail-keyword-expander",
+    "slug": "longtail-keyword-expander",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "mbti",
+    "slug": "personality-code",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "mbti",
+    "slug": "personality-code",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "markdown-studio",
+    "slug": "markdown-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "markdown-studio",
+    "slug": "markdown-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "mbti-character",
+    "slug": "mbti-character",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "mbti-character",
+    "slug": "mbti-character",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "music",
+    "slug": "music-automation",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "music",
+    "slug": "music-automation",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "music-video-studio",
+    "slug": "music-video-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "music-video-studio",
+    "slug": "music-video-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "music-player",
+    "slug": "music-player",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "music-player",
+    "slug": "music-player",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-agent",
+    "slug": "naver-blog-agent",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-agent",
+    "slug": "naver-blog-agent",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-allinone",
+    "slug": "naver-blog-allinone",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-allinone",
+    "slug": "naver-blog-allinone",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-auto-poster",
+    "slug": "naver-blog-auto-poster",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-auto-poster",
+    "slug": "naver-blog-auto-poster",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-auto-poster-web",
+    "slug": "naver-blog-auto-poster-web",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-auto-poster-web",
+    "slug": "naver-blog-auto-poster-web",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-seo-studio",
+    "slug": "naver-blog-seo-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-blog-seo-studio",
+    "slug": "naver-blog-seo-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-cafe-poster",
+    "slug": "naver-cafe-poster",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "naver-cafe-poster",
+    "slug": "naver-cafe-poster",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "persona-style-studio",
+    "slug": "persona-style-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "persona-style-studio",
+    "slug": "persona-style-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "personality-suite",
+    "slug": "personality-suite",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "personality-suite",
+    "slug": "personality-suite",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "photo-remake-studio",
+    "slug": "photo-remake-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "photo-remake-studio",
+    "slug": "photo-remake-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "portrait-photo",
+    "slug": "portrait-photo",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "portrait-photo",
+    "slug": "portrait-photo",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "prompt-template-studio",
+    "slug": "prompt-template-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "prompt-template-studio",
+    "slug": "prompt-template-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "playlist-channel-studio",
+    "slug": "playlist-channel-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "playlist-channel-studio",
+    "slug": "playlist-channel-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "react-ui-showcase",
+    "slug": "ai-web-ui",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "react-ui-showcase",
+    "slug": "ai-web-ui",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "reverse-prompt",
+    "slug": "reverse-prompt",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "reverse-prompt",
+    "slug": "reverse-prompt",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "real-estate-sales",
+    "slug": "real-estate-sales",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "real-estate-sales",
+    "slug": "real-estate-sales",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "seo-thumbnail-pro",
+    "slug": "seo-thumbnail-pro",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "seo-thumbnail-pro",
+    "slug": "seo-thumbnail-pro",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "shop-detail-page",
+    "slug": "shop-detail-page",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "shop-detail-page",
+    "slug": "shop-detail-page",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "shorts-viral-studio",
+    "slug": "shorts-viral-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "shorts-viral-studio",
+    "slug": "shorts-viral-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "shots",
+    "slug": "auto-shorts-posting",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "shots",
+    "slug": "auto-shorts-posting",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "stepmail",
+    "slug": "stepmail",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "stepmail",
+    "slug": "stepmail",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "style-dna-analyzer",
+    "slug": "style-dna-analyzer",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "style-dna-analyzer",
+    "slug": "style-dna-analyzer",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "suno-music-studio",
+    "slug": "suno-music-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "suno-music-studio",
+    "slug": "suno-music-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads",
+    "slug": "auto-threads-posting",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads",
+    "slug": "auto-threads-posting",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "tarot",
+    "slug": "tarot-reading",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "tarot",
+    "slug": "tarot-reading",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-affiliate-poster",
+    "slug": "threads-affiliate-poster",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-affiliate-poster",
+    "slug": "threads-affiliate-poster",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-easy-planner",
+    "slug": "threads-easy-planner",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-easy-planner",
+    "slug": "threads-easy-planner",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-comment-reply",
+    "slug": "threads-comment-reply",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-comment-reply",
+    "slug": "threads-comment-reply",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "thumbnail-master",
+    "slug": "thumbnail-master",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "thumbnail-master",
+    "slug": "thumbnail-master",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-content-ops",
+    "slug": "threads-content-ops",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "threads-content-ops",
+    "slug": "threads-content-ops",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "tistory-auto-blog",
+    "slug": "tistory-auto-blog",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "trending-product-finder",
+    "slug": "trending-product-finder",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "trending-product-finder",
+    "slug": "trending-product-finder",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ui-canvas",
+    "slug": "ui-canvas",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "ui-canvas",
+    "slug": "ui-canvas",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "video-to-gif",
+    "slug": "video-to-gif",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "vinyl-lp-studio",
+    "slug": "vinyl-lp-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "vinyl-lp-studio",
+    "slug": "vinyl-lp-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "web-crawler-saas",
+    "slug": "web-crawler-saas",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "web-crawler-saas",
+    "slug": "web-crawler-saas",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "youtube-auto-reply",
+    "slug": "youtube-auto-reply",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "youtube-auto-reply",
+    "slug": "youtube-auto-reply",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "youtube-channel-consultant",
+    "slug": "youtube-channel-consultant",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "youtube-channel-consultant",
+    "slug": "youtube-channel-consultant",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "youtube-viral-studio",
+    "slug": "youtube-viral-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "youtube-viral-studio",
+    "slug": "youtube-viral-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "yt-playlist-studio",
+    "slug": "yt-playlist-studio",
+    "key": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "target": "production",
+    "ok": true
+  },
+  {
+    "project": "yt-playlist-studio",
+    "slug": "yt-playlist-studio",
+    "key": "SUPABASE_SECRET_KEY",
+    "target": "production",
+    "ok": true
+  }
+]

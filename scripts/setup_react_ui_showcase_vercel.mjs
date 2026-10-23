@@ -1,0 +1,62 @@
+import fs from "node:fs";
+import { execSync } from "node:child_process";
+
+function loadEnv(path) {
+  const text = fs.readFileSync(path, "utf8");
+  const env = {};
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const idx = trimmed.indexOf("=");
+    if (idx === -1) continue;
+    env[trimmed.slice(0, idx)] = trimmed.slice(idx + 1).replace(/^["']|["']$/g, "");
+  }
+  return env;
+}
+
+const env = loadEnv("D:/Antigravity/AIMaster/.env.local");
+
+const targets = [
+  { key: "NEXT_PUBLIC_SUPABASE_URL", val: env.NEXT_PUBLIC_SUPABASE_URL },
+  { key: "NEXT_PUBLIC_SUPABASE_ANON_KEY", val: (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()) },
+  { key: "SUPABASE_SERVICE_ROLE_KEY", val: (env.SUPABASE_SECRET_KEY?.trim() || env.SUPABASE_SERVICE_ROLE_KEY?.trim()) },
+  { key: "NEXT_PUBLIC_MAIN_SITE_URL", val: "https://www.buylife.xyz" },
+];
+
+const targetCwd = "D:/Antigravity/AIMaster/react-ui-showcase";
+
+console.log("=== Vercel Environment Variables Setup ===");
+for (const t of targets) {
+  if (!t.val) {
+    console.error(`Skipping ${t.key}: value is empty`);
+    continue;
+  }
+  console.log(`Adding ${t.key} to Vercel production & preview...`);
+  try {
+    execSync(`vercel env add ${t.key} production --force`, {
+      cwd: targetCwd,
+      input: t.val,
+      stdio: ["pipe", "inherit", "inherit"],
+    });
+    execSync(`vercel env add ${t.key} preview --force`, {
+      cwd: targetCwd,
+      input: t.val,
+      stdio: ["pipe", "inherit", "inherit"],
+    });
+    console.log(`Successfully added ${t.key}`);
+  } catch (err) {
+    console.error(`Failed to add ${t.key}:`, err.message);
+  }
+}
+
+console.log("\n=== Vercel Domain Setup ===");
+try {
+  console.log("Adding domain react-ui-showcase.buylife.xyz...");
+  execSync("vercel domains add react-ui-showcase.buylife.xyz", {
+    cwd: targetCwd,
+    stdio: "inherit",
+  });
+  console.log("Domain added successfully!");
+} catch (err) {
+  console.error("Domain setup note:", err.message);
+}

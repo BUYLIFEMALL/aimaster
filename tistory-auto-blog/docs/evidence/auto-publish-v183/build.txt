@@ -1,0 +1,71 @@
+
+> blog@0.1.0 prebuild
+> node scripts/build-extension-archive.mjs
+
+Created public\downloads\tistory-auto-blog-extension-v1.83.zip (52133 bytes)
+Created public\downloads\tistory-auto-blog-extension-latest.zip (고정 주소용 최신 사본)
+
+> blog@0.1.0 build
+> next build
+
+▲ Next.js 16.2.10 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 7.5s
+  Running TypeScript ...
+  Finished TypeScript in 4.7s ...
+  Collecting page data using 21 workers ...
+  Generating static pages using 21 workers (0/12) ...
+  Generating static pages using 21 workers (3/12)
+  Generating static pages using 21 workers (6/12)
+  Generating static pages using 21 workers (9/12)
+✓ Generating static pages using 21 workers (12/12) in 235ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /api/auto-post
+├ ƒ /api/candidates/[id]
+├ ƒ /api/candidates/http
+├ ƒ /api/candidates/perplexity
+├ ƒ /api/candidates/rss
+├ ƒ /api/candidates/shorts
+├ ƒ /api/cron/cleanup-images
+├ ƒ /api/extension/posts
+├ ƒ /api/extension/posts/[id]/auto-publish
+├ ƒ /api/extension/posts/[id]/heartbeat
+├ ƒ /api/extension/posts/[id]/input-result
+├ ƒ /api/extension/task
+├ ƒ /api/extension/whoami
+├ ƒ /api/newsblur-account
+├ ƒ /api/newsblur-account/feeds
+├ ƒ /api/posts/[id]
+├ ƒ /api/posts/[id]/duplicate
+├ ƒ /api/posts/[id]/extension-handoff
+├ ƒ /api/posts/generate-editor-image
+├ ƒ /api/posts/tistory-publish-default
+├ ƒ /auth
+├ ƒ /auth/confirm
+├ ƒ /candidates
+├ ○ /changelog
+├ ○ /community
+├ ƒ /dashboard
+├ ○ /docs
+├ ○ /guide
+├ ƒ /my-posts
+├ ƒ /posts/[id]
+├ ƒ /posts/[id]/edit
+├ ○ /preview
+├ ○ /privacy
+├ ƒ /settings
+├ ○ /topics
+├ ƒ /write
+└ ƒ /write/ai-form
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

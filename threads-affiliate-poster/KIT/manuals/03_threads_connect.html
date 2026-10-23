@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쓰레드(Threads) 계정 연동하기</title>
+<style>body{font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;max-width:760px;margin:32px auto;padding:0 16px;line-height:1.7;color:#1f2937;background:#fff}
+h1{font-size:22px}code{background:#f3f4f6;padding:1px 4px;border-radius:4px}a{color:#2563eb}
+div,p{color:#1f2937!important}li{margin:4px 0}img{max-width:100%}</style></head>
+<body><h1>쓰레드(Threads) 계정 연동하기</h1>
+<p style="font-size:12px;color:#6b7280!important">※ 이 문서의 <b>&lt;복제본-주소&gt;</b>는 복제한 프로그램의 실제 주소(예: my-tap.vercel.app)로 바꿔 읽으세요.</p>
+<p class="mb-4 text-base font-medium text-neutral-300">
+  💡 Meta 앱 검수(App Review) 없이 본인 계정에서 쓰레드(Threads) 자동 포스팅·댓글 관리·쇼핑제휴 검색을 쓰기 위한 연동 매뉴얼입니다. (2026-09-28 갱신)
+</p>
+
+<div class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
+  <p class="text-amber-400 font-semibold mb-1">⚠️ 앱 ID 입력 시 필수 확인 사항!</p>
+  <p class="text-sm text-neutral-300">
+    Meta 앱 설정 화면 맨 위의 [앱 ID]가 아니라, 같은 화면 <strong>아래쪽</strong>에 있는
+    <strong class="text-amber-300">Threads 앱 ID</strong> 및 <strong class="text-amber-300">Threads 앱 시크릿 코드</strong>를 입력해야 합니다.
+    맨 위 앱 ID나 인스타그램 앱 ID를 넣으면 연결 시 "앱 ID가 전송되지 않았습니다"(오류 코드 4476002) 오류가 납니다.
+    쓰레드 프로그램의 Threads 앱 ID는 인스타그램 프로그램의 앱 ID와 <strong>따로 저장</strong>되므로 서로 덮어쓰지 않습니다.
+  </p>
+</div>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">1단계: Meta 개발자 센터에서 앱 만들기</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li><a href="https://developers.facebook.com/" target="_blank" class="text-sky-400 underline font-semibold">Meta Developer Portal</a> 접속 ➔ 로그인</li>
+  <li>우측 상단 <strong>[내 앱]</strong> ➔ <strong>[앱 만들기]</strong> 클릭</li>
+  <li>앱 유형을 <strong>비즈니스(Business)</strong>로 선택하고 생성 완료</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">2단계: Threads API 액세스 이용 사례 추가</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>앱 대시보드 ➔ 왼쪽 메뉴 <strong>[이용 사례]</strong> (또는 제품 추가) 클릭</li>
+  <li><strong>Threads API 액세스</strong> 이용 사례를 선택하고 추가합니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">3단계: Threads 앱 ID &amp; Threads 앱 시크릿 코드 확인 및 등록</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>왼쪽 메뉴 <strong>[앱 설정] ➔ [기본 설정]</strong>으로 이동합니다.</li>
+  <li>화면을 아래로 내려 <strong>Threads 앱 ID</strong> 및 <strong>Threads 앱 시크릿 코드</strong>를 복사합니다.</li>
+  <li>복사한 두 값을 사용하는 쓰레드 프로그램의 <strong>API키등록·플랫폼연동</strong> 페이지에 입력하고 저장합니다. (한 번 저장하면 쓰레드 프로그램 3개가 같은 값을 함께 씁니다)</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">4단계: 리디렉션 콜백 URL 설정</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>왼쪽 메뉴 <strong>[이용 사례] ➔ [Threads API 액세스] ➔ [설정]</strong>으로 이동합니다.</li>
+  <li><strong>리디렉션 콜백 URL</strong> 칸에 사용하는 프로그램의 주소를 추가합니다(여러 개 추가 가능):
+    <div class="my-2 rounded bg-neutral-800 p-2.5 font-mono text-sm text-sky-300 border border-neutral-700 select-all">https://threads-nu-dusky.vercel.app/api/threads/callback</div>
+    <div class="my-2 rounded bg-neutral-800 p-2.5 font-mono text-sm text-sky-300 border border-neutral-700 select-all">https://threads-comment-reply.vercel.app/api/threads/callback</div>
+    <div class="my-2 rounded bg-neutral-800 p-2.5 font-mono text-sm text-sky-300 border border-neutral-700 select-all">https://&lt;복제본-주소&gt;/api/threads/callback</div>
+  </li>
+  <li>(권장) 같은 화면의 <strong>제거 콜백 URL</strong>과 <strong>삭제 콜백 URL</strong>에 아래 주소를 넣으면, 앱을 제거하거나 데이터 삭제를 요청할 때 쓰레드 프로그램 3개의 연결 정보가 자동으로 정리됩니다.
+    <div class="my-2 rounded bg-neutral-800 p-2.5 font-mono text-sm text-sky-300 border border-neutral-700 select-all">https://&lt;복제본-주소&gt;/api/threads/uninstall</div>
+    <div class="my-2 rounded bg-neutral-800 p-2.5 font-mono text-sm text-sky-300 border border-neutral-700 select-all">https://&lt;복제본-주소&gt;/api/threads/delete</div>
+  </li>
+  <li><strong>저장</strong>을 누릅니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">5단계: 필수 권한(Permissions) 확인</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li><strong>[Threads API 액세스] ➔ [권한 및 기능]</strong>으로 이동합니다.</li>
+  <li>사용하는 기능에 맞는 권한이 추가돼 있는지 확인합니다: <code>threads_basic</code>, <code>threads_content_publish</code>(포스팅), <code>threads_read_replies</code>·<code>threads_manage_replies</code>(댓글), <code>threads_keyword_search</code>(쇼핑제휴 키워드 검색 — 8단계)</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">6단계: 본인 계정을 Threads 테스터로 추가</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li><strong>[이용 사례] ➔ [Threads API 액세스] ➔ [설정]</strong> 화면 아래 <strong>[Threads 테스터 추가 또는 삭제]</strong>에서 본인 쓰레드 아이디로 초대합니다.</li>
+  <li>스마트폰 <strong>쓰레드(Threads) 앱</strong> ➔ <code>설정</code> ➔ <code>계정</code> ➔ <code>웹사이트 권한</code> ➔ <code>초대</code>에서 초대를 <strong>[승인]</strong>합니다. 이 단계를 빼먹으면 "권한이 없습니다" 오류가 납니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">7단계: 웹 서비스 접속 &amp; Threads 계정 연결 완료</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>쓰레드 프로그램의 <strong>API키등록·플랫폼연동</strong> ➔ <strong>[Threads 계정 연결하기]</strong> 클릭</li>
+  <li>로그인 및 권한 동의를 허용하면 완료! 🎉</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">8단계 (쇼핑제휴 트렌드 검색을 쓸 때): 키워드 검색 권한 추가</h3>
+<ol class="list-decimal list-inside space-y-2 mb-4 text-neutral-300">
+  <li><strong>[Threads API 액세스] ➔ [권한 및 기능]</strong>에서 <code>threads_keyword_search</code> 옆 <strong>[추가]</strong>를 누릅니다.</li>
+  <li>쇼핑제휴 프로그램 <strong>[트렌드 &amp; 떡상 탐지기]</strong>에서 검색하면 나오는 안내 박스의 <strong>[🔑 검색 권한 포함해서 Threads 다시 연결]</strong>을 눌러 권한을 승인합니다.</li>
+  <li>권한을 추가하지 않고 다시 연결 버튼만 누르면 Meta 화면에서 오류가 날 수 있으니 1번을 먼저 해주세요.</li>
+</ol>
+<div class="mb-6 p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sm text-neutral-300">
+  ℹ️ Meta 정책상 앱 검수 승인 전에는 <strong>본인 계정의 글만</strong> 검색됩니다. 다른 사람의 공개 글까지 검색하려면 Meta 비즈니스 인증·테크 제공업체 등록·앱 검수 승인이 필요합니다.
+  승인 전에는 트렌드 화면의 <strong>[🔗 떡상글 직접 가져오기]</strong>로 참고할 인기 글의 링크와 본문을 붙여넣어 활용하세요.
+</div>
+
+<div class="mt-8 p-4 rounded-xl bg-neutral-800/80 border border-neutral-700">
+  <h4 class="text-md font-bold text-amber-400 mb-2">💡 핵심 요약 정리</h4>
+  <ul class="list-disc list-inside space-y-1 text-sm text-neutral-300">
+    <li><strong>앱 ID 구별</strong>: 맨 위 앱 ID가 아닌 아래쪽 <code class="text-sky-300">Threads 앱 ID</code>와 <code class="text-sky-300">Threads 앱 시크릿 코드</code>를 입력하세요.</li>
+    <li><strong>리디렉션 URL</strong>: Threads API 액세스 설정의 <code class="text-sky-300">리디렉션 콜백 URL</code>에 사용하는 프로그램 주소를 추가하세요.</li>
+    <li><strong>테스터 승인</strong>: 본인 계정을 Threads 테스터로 추가하고 쓰레드 앱에서 초대를 승인해야 검수 없이 바로 동작합니다.</li>
+    <li><strong>키워드 검색</strong>: <code class="text-sky-300">threads_keyword_search</code> 권한 추가 후 "검색 권한 포함해서 다시 연결"을 눌러야 합니다(승인 전에는 본인 글만 검색).</li>
+  </ul>
+</div>
+</body></html>

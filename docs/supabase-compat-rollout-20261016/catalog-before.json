@@ -1,0 +1,740 @@
+[
+  {
+    "slug": "ai-audio-analyzer",
+    "name": "AI Audio분석 자동화",
+    "version": "v1.03",
+    "app_url": "https://audio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-auto-blog",
+    "name": "BLOG(원문)생성 자동화",
+    "version": "v1.63",
+    "app_url": "https://ai-auto-blog-one.vercel.app",
+    "extension_version": "v1.63",
+    "extension_download_url": "https://ai-auto-blog-one.vercel.app/downloads/ai-auto-blog-extension-latest.zip",
+    "is_active": true
+  },
+  {
+    "slug": "ai-image-studio",
+    "name": "AI 이미지 스튜디오",
+    "version": "v1.08",
+    "app_url": "https://ai-image-studio.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-influencer-studio",
+    "name": "AI 인플루언서 자동화",
+    "version": "v1.07",
+    "app_url": "https://ai-influencer.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-mastering-studio",
+    "name": "AI 마스터링 스튜디오",
+    "version": "v1.03",
+    "app_url": "https://ai-mastering-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-prompt-studio",
+    "name": "AI Prompt 자동화",
+    "version": "v1.03",
+    "app_url": "https://ai-prompt.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-slide-builder",
+    "name": "AI 슬라이드 자동화",
+    "version": "v1.06",
+    "app_url": "https://ai-slide-builder.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-task-planner",
+    "name": "AI 할 일·성과 관리",
+    "version": "v1.06",
+    "app_url": "https://ai-task-planner.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-web-ui",
+    "name": "AI 웹 UI 제작 자동화",
+    "version": "v1.03",
+    "app_url": "https://ai-web-ui.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-webtoon-studio",
+    "name": "AI 웹툰 자동화",
+    "version": "v1.08",
+    "app_url": "https://ai-webtoon-automation.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ai-writing-editor",
+    "name": "AI 글쓰기 에디터 자동화",
+    "version": "v1.06",
+    "app_url": "https://ai-writing-editor.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "allinone-graphic",
+    "name": "AI 올인원 그래픽 자동화",
+    "version": "v1.02",
+    "app_url": "https://graphic.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "auto-detail-page",
+    "name": "상세페이지 자동생성기 v1",
+    "version": "v1.05",
+    "app_url": "https://shop-page-seven.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "auto-instagram-posting",
+    "name": "INSTA 포스팅 자동화",
+    "version": "v1.06",
+    "app_url": "https://insta-auto-poster-red.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "auto-shorts-posting",
+    "name": "YOUTUBE Shots(이미지 스토리) 자동화",
+    "version": "v1.08",
+    "app_url": "https://shots.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "auto-threads-posting",
+    "name": "Threads 포스팅 자동화",
+    "version": "v1.05",
+    "app_url": "https://threads-nu-dusky.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "banana-canvas",
+    "name": "AI 바나나 캔버스 자동화",
+    "version": "v1.04",
+    "app_url": "https://banana-canvas.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "blog-content-maker",
+    "name": "AI 블로그 콘텐츠 제작 자동화",
+    "version": "v1.03",
+    "app_url": "https://blog-content-maker.buylife.xyz",
+    "extension_version": "v1.03",
+    "extension_download_url": "https://blog-content-maker.buylife.xyz/downloads/blog-content-maker-extension-latest.zip",
+    "is_active": true
+  },
+  {
+    "slug": "blog-keyword",
+    "name": "AI 블로그 키워드 자동화",
+    "version": "v1.03",
+    "app_url": "https://blog-keyword.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "blog-workroom",
+    "name": "AI 블로그 작업실 자동화",
+    "version": "v1.03",
+    "app_url": "https://blog-workroom.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "booking-reminder",
+    "name": "예약(취소)방지 리마인드 자동화",
+    "version": "v1.05",
+    "app_url": "https://booking-reminder.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "cardnews-studio",
+    "name": "INSTA Cardnews 자동화",
+    "version": "v1.08",
+    "app_url": "https://cardnews-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "cinematic-storyboard-studio",
+    "name": "시네마틱 스토리보드 자동화",
+    "version": "v1.04",
+    "app_url": "https://cinematic-storyboard-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "competitor-analysis",
+    "name": "경쟁사 키워드분석 자동화",
+    "version": "v1.04",
+    "app_url": "https://competitor-analysis-flax.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "crm-google-form",
+    "name": "구글폼 CRM 자동화",
+    "version": "v1.05",
+    "app_url": "https://crm-google-form.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "detail-page-12p",
+    "name": "AI 12단 상세페이지 자동화",
+    "version": "v1.02",
+    "app_url": "https://detail-12p.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "document-translator",
+    "name": "AI 문서번역 자동화",
+    "version": "v1.03",
+    "app_url": "https://document-translator.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ebook-studio",
+    "name": "eBook Studio",
+    "version": "v1.04",
+    "app_url": "https://ebook-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "emotion-writer",
+    "name": "감성 글귀 이미지",
+    "version": "v1.08",
+    "app_url": "https://emotion-writer.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "fashion-style",
+    "name": "AI 패션스타일 자동화",
+    "version": "v1.05",
+    "app_url": "https://fashion-style.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "file-merge",
+    "name": "AI 엑셀·텍스트 합치기 자동화",
+    "version": "v1.05",
+    "app_url": "https://file-merge.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "four-cut-comics",
+    "name": "AI 4컷 만화 자동화",
+    "version": "v1.07",
+    "app_url": "https://four-cut-comics.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "image-convert-studio",
+    "name": "이미지 변환 스튜디오",
+    "version": "v1.05",
+    "app_url": "https://image-convert-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "infinite-loop-video",
+    "name": "무한루프 영상자동화",
+    "version": "v1.03",
+    "app_url": "https://infinite-loop-video.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "instagram-comment-reply",
+    "name": "INSTA 댓글자동화",
+    "version": "v1.05",
+    "app_url": "https://instagram-comment-reply.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "instagram-dm-reply",
+    "name": "INSTA DM답변 자동화",
+    "version": "v1.04",
+    "app_url": "https://instagram-dm-reply.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "kakao-auto-posting",
+    "name": "카카오톡 뉴스레터 자동화",
+    "version": "v1.08",
+    "app_url": "https://kakao-auto-posting.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "landing-architect",
+    "name": "AI 랜딩페이지 기획 자동화",
+    "version": "v1.05",
+    "app_url": "https://landing-architect.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "longtail-keyword-expander",
+    "name": "롱테일 키워드분석 자동화",
+    "version": "v1.04",
+    "app_url": "https://longtail-keyword-expander.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "markdown-studio",
+    "name": "마크다운 문서 자동화",
+    "version": "v1.07",
+    "app_url": "https://markdown-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "mbti-character",
+    "name": "캐릭코드(MBTI) 측정기",
+    "version": "v1.06",
+    "app_url": "https://mbti-character.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "music-automation",
+    "name": "음악(SUNO)자동화",
+    "version": "v1.04",
+    "app_url": "https://music-rho-virid-22.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "music-player",
+    "name": "뮤직 플레이어 자동화",
+    "version": "v1.02",
+    "app_url": "https://music-player.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "music-video-studio",
+    "name": "뮤직비디오 자동화",
+    "version": "v1.04",
+    "app_url": "https://music-video-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "naver-blog-agent",
+    "name": "네이버 블로그 에이전트",
+    "version": "v1.83",
+    "app_url": "https://naver-blog-agent.vercel.app",
+    "extension_version": "v1.83",
+    "extension_download_url": "https://naver-blog-agent.vercel.app/downloads/naver-blog-agent-extension-latest.zip",
+    "is_active": true
+  },
+  {
+    "slug": "naver-blog-allinone",
+    "name": "네이버 블로그 올인원 자동화",
+    "version": "v1.41",
+    "app_url": "https://naver-blog-allinone.buylife.xyz",
+    "extension_version": "v1.41",
+    "extension_download_url": "https://naver-blog-allinone.buylife.xyz/downloads/naver-blog-allinone-latest.zip",
+    "is_active": true
+  },
+  {
+    "slug": "naver-blog-auto-poster",
+    "name": "네이버 블로그 자동화(App)",
+    "version": "v1.04",
+    "app_url": "https://naver-blog-auto-poster.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": false
+  },
+  {
+    "slug": "naver-blog-auto-poster-web",
+    "name": "네이버 블로그 자동화(Web)",
+    "version": "v1.05",
+    "app_url": "https://naver-blog-auto-poster-web.buylife.xyz",
+    "extension_version": "v1.05",
+    "extension_download_url": "https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip",
+    "is_active": false
+  },
+  {
+    "slug": "naver-blog-seo-studio",
+    "name": "네이버 블로그 SEO 스튜디오",
+    "version": "v1.63",
+    "app_url": "https://www.buylife.xyz/naver-blog-seo-studio",
+    "extension_version": "v1.63",
+    "extension_download_url": "https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-latest.zip",
+    "is_active": true
+  },
+  {
+    "slug": "naver-cafe-poster",
+    "name": "네이버 카페 포스팅 자동화",
+    "version": "v1.06",
+    "app_url": "https://naver-cafe-poster.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "persona-style-studio",
+    "name": "페르소나 문체 자동화",
+    "version": "v1.05",
+    "app_url": "https://persona-style-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "personality-code",
+    "name": "성격코드(MBTI) 측정기",
+    "version": "v1.03",
+    "app_url": "https://mbti-rho-two.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "personality-suite",
+    "name": "AI 종합 성격 진단 자동화",
+    "version": "v1.05",
+    "app_url": "https://personality-suite.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "photo-remake-studio",
+    "name": "AI 포토 리메이크 자동화",
+    "version": "v1.02",
+    "app_url": "https://photo-remake-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "playlist-channel-studio",
+    "name": "플레이리스트 채널 제작 자동화",
+    "version": "v1.06",
+    "app_url": "https://playlist-channel-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "portrait-photo",
+    "name": "AI 인물사진 자동화",
+    "version": "v1.18",
+    "app_url": "https://portrait-photo.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "prompt-template-studio",
+    "name": "AI 프롬프트 템플릿 자동화",
+    "version": "v1.02",
+    "app_url": "https://prompt-template.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "real-estate-sales",
+    "name": "부동산 실거래 투자분석 자동화",
+    "version": "v1.08",
+    "app_url": "https://real-estate-sales-delta.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "reverse-prompt",
+    "name": "AI 리버스 프롬프트 자동화",
+    "version": "v1.03",
+    "app_url": "https://reverse-prompt.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "seo-thumbnail-pro",
+    "name": "AI 유튜브 썸네일 프로",
+    "version": "v1.03",
+    "app_url": "https://seo-thumbnail-pro.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "shop-detail-page",
+    "name": "상세페이지 자동화(15p)",
+    "version": "v1.04",
+    "app_url": "https://shop-detail-page.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "shorts-viral-studio",
+    "name": "쇼츠 떡상 분석·대본 자동화",
+    "version": "v1.08",
+    "app_url": "https://shorts-viral-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "stepmail",
+    "name": "대량 메일발송 자동화(Step Mail)",
+    "version": "v1.09",
+    "app_url": "https://stepmail.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "style-dna-analyzer",
+    "name": "이미지 스타일 분석기",
+    "version": "v1.14",
+    "app_url": "https://style-dna-analyzer.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "suno-music-studio",
+    "name": "Suno 음악기획 자동화",
+    "version": "v1.08",
+    "app_url": "https://suno-music-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "tarot-reading",
+    "name": "AIMaster 타로점",
+    "version": "v1.05",
+    "app_url": "https://tarot-eight-jet.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "threads-affiliate-poster",
+    "name": "Threads 쇼핑제휴 자동화",
+    "version": "v1.51",
+    "app_url": "https://threads-affiliate-poster.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "threads-comment-reply",
+    "name": "Threads 댓글자동화",
+    "version": "v1.05",
+    "app_url": "https://threads-comment-reply.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "threads-content-ops",
+    "name": "Threads 콘텐츠 운영 자동화",
+    "version": "v1.94",
+    "app_url": "https://threads-content-ops.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "threads-easy-planner",
+    "name": "Threads AI 기획 자동화",
+    "version": "v1.42",
+    "app_url": "https://threads-easy-planner.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "thumbnail-master",
+    "name": "AI 썸네일 마스터 자동화",
+    "version": "v1.03",
+    "app_url": "https://thumbnail-master.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "tistory-auto-blog",
+    "name": "티스토리(원문)생성 자동화",
+    "version": "v1.70",
+    "app_url": "https://tistory-auto-blog-pearl.vercel.app",
+    "extension_version": "v1.70",
+    "extension_download_url": "https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-latest.zip",
+    "is_active": true
+  },
+  {
+    "slug": "trending-product-finder",
+    "name": "상품소싱 자동화",
+    "version": "v1.05",
+    "app_url": "https://trending-product-finder.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "ui-canvas",
+    "name": "UI Canvas 자동화",
+    "version": "v1.06",
+    "app_url": "https://ui-canvas.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "video-to-gif",
+    "name": "상세페이지 GIF 자동화",
+    "version": "v1.04",
+    "app_url": "https://video-to-gif-buylife.vercel.app/dashboard",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "vinyl-lp-studio",
+    "name": "LP 턴테이블 자동화",
+    "version": "v1.03",
+    "app_url": "https://lp-turntable.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "web-crawler-saas",
+    "name": "웹 크롤링 자동화",
+    "version": "v1.04",
+    "app_url": "https://web-crawler-saas.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "website-scraper",
+    "name": "Website Scraper",
+    "version": "v1.10",
+    "app_url": "https://website-scraper.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "youtube-auto-reply",
+    "name": "유튜브 댓글자동화",
+    "version": "v1.05",
+    "app_url": "https://youtube-auto-reply.vercel.app",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "youtube-channel-consultant",
+    "name": "YOUTUBE CHANNEL CONSULTANT",
+    "version": "v1.05",
+    "app_url": "https://youtube-channel-consultant.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "youtube-viral-studio",
+    "name": "YOUTUBE VIRAL FINDER",
+    "version": "v1.11",
+    "app_url": "https://youtube-viral-studio.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  },
+  {
+    "slug": "yt-playlist-studio",
+    "name": "Youtube Playlist 자동화",
+    "version": "v1.03",
+    "app_url": "https://youtube-playlist.buylife.xyz",
+    "extension_version": null,
+    "extension_download_url": null,
+    "is_active": true
+  }
+]

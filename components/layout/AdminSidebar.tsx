@@ -1,0 +1,168 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  ChevronLeft,
+  Menu,
+  X,
+  UserCheck,
+  LogOut,
+} from "lucide-react";
+import GoldGradientText from "@/components/ui/GoldGradientText";
+import { cn } from "@/lib/utils/cn";
+import { ADMIN_NAV_ITEMS as NAV_ITEMS } from "@/components/layout/adminNavItems";
+import { createClient } from "@/lib/supabase/client";
+
+export default function AdminSidebar() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      const supabase = createClient();
+      await fetch("/api/session/logout", { method: "POST" }).catch(() => {});
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch {
+      router.push("/");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        setUserEmail(user.email);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // 여러 항목이 겹치는 경로(예: /admin/programs, /admin/programs/new)일 때
+  // 가장 구체적인(긴) href 하나만 활성 표시되도록 계산
+  const activeHref = NAV_ITEMS
+    .filter(({ href }) => href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+
+  const navContent = (
+    <div className="flex flex-col h-full justify-between overflow-hidden">
+      <div className="flex-shrink-0 p-4 border-b border-gold/20">
+        <Link href="/" className="flex items-center gap-2 mb-1">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
+            <span className="text-black font-bold text-xs">AI</span>
+          </div>
+          <GoldGradientText className="text-lg font-bold">AI Master</GoldGradientText>
+        </Link>
+        <div className="text-xs text-gold/60 font-semibold tracking-widest">ADMIN PANEL</div>
+        
+        {/* 사이트로 돌아가기: ADMIN PANEL 하단으로 이동 */}
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
+          className="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1.5 rounded-lg bg-white/5 text-xs text-subtext hover:text-white hover:bg-white/10 transition-colors border border-white/5"
+        >
+          <ChevronLeft size={14} />
+          사이트로 돌아가기
+        </Link>
+      </div>
+
+      <nav className="p-3 flex-1 overflow-y-auto">
+        {NAV_ITEMS.map(({ href, icon: Icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            onClick={() => setOpen(false)}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1",
+              href === activeHref
+                ? "text-gold bg-gold/10"
+                : "text-subtext hover:text-white hover:bg-white/5"
+            )}
+          >
+            <Icon size={16} />
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      {/* 좌하단 푸터: 로그아웃 버튼 + 관리자 계정 메일 정보 (맨 하단 고정) */}
+      <div className="p-3 border-t border-gold/20 bg-black/40 text-xs flex-shrink-0 space-y-2">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-rose-500/15 text-subtext hover:text-rose-300 border border-white/5 hover:border-rose-500/30 transition-all font-medium text-xs cursor-pointer disabled:opacity-50"
+          title="관리자 로그아웃"
+        >
+          <LogOut size={13} className={loggingOut ? "animate-spin" : ""} />
+          <span>{loggingOut ? "로그아웃 중..." : "로그아웃"}</span>
+        </button>
+
+        <div className="flex items-center gap-2 overflow-hidden px-1 py-0.5">
+          <UserCheck size={14} className="text-gold flex-shrink-0" />
+          <span className="font-semibold text-gold flex-shrink-0">관리자</span>
+          <span className="text-white/30 flex-shrink-0 font-light">|</span>
+          <span className="truncate text-subtext font-medium" title={userEmail}>
+            {userEmail || "관리자 계정"}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* 모바일 헤더 */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-surface border-b border-gold/20 px-4 py-3 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-light flex items-center justify-center">
+            <span className="text-black font-bold text-xs">AI</span>
+          </div>
+          <GoldGradientText className="text-sm font-bold">ADMIN</GoldGradientText>
+        </Link>
+        {/* 휴대폰 폭에서는 좌측 메뉴(아래쪽 계정 표시)가 숨겨지므로 머리줄에 로그인 계정을 보인다(2026-10-23) */}
+        <span className="ml-2 mr-auto max-w-[45vw] truncate text-[11px] text-subtext" title={userEmail}>
+          {userEmail || ""}
+        </span>
+        <button onClick={() => setOpen(!open)} className="text-subtext hover:text-white p-1">
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+
+      {/* 모바일 오버레이 */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-30 bg-black/60" onClick={() => setOpen(false)} />
+      )}
+
+      {/* 사이드바 (맨 하단 고정 레이아웃) */}
+      <aside
+        className={cn(
+          "fixed md:sticky top-0 left-0 h-screen w-60 bg-surface border-r border-gold/20 flex-shrink-0 transition-transform duration-200 z-30 flex flex-col overflow-hidden",
+          "md:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {navContent}
+      </aside>
+    </>
+  );
+}

@@ -1,0 +1,15 @@
+{
+  "slug": "longtail-keyword-expander",
+  "version": "v1.06",
+  "source_commit": "54eaee73a87f0be9fb5f0f9dc2c52fb8703bf857",
+  "design_commit": "770f7351",
+  "project_id": "prj_eOtyTt6PtTUozXZtyVgcGQve7XFD",
+  "deployment_id": "dpl_GqzpS51EDAxU6UYGCHHt8xkqEhr7",
+  "deployment_state": "READY",
+  "immutable_url": "https://longtail-keyword-expander-elsspaufj-buylife.vercel.app",
+  "live_url": "https://longtail-keyword-expander.vercel.app",
+  "db_version": "v1.06",
+  "db_version_verified": true,
+  "checked_at": "2026-10-16T05:33:36.417Z",
+  "source_meta_verified": true
+}

@@ -1,0 +1,119 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
+import { NextRequest, NextResponse } from "next/server";
+import { CHARACTERS, ALL_TYPE_CODES } from "@/lib/characters";
+import { getImageStyle } from "@/lib/imageStyles";
+import { checkProgramAccessApi } from "@/lib/access";
+import { resolveApiKey } from "@/lib/apiKeys";
+import { createClient } from "@/lib/supabase/server";
+import { GeminiImageError, generateGeminiImage } from "@/lib/ai/geminiImage";
+import { DEFAULT_NANO_BANANA_MODEL, getNanoBananaConfig } from "@/lib/ai/nanoBananaModels";
+
+const STORAGE_BUCKET = "mbti-character-images";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
+/**
+ * "나노바나나"로 불리는 Gemini 이미지 생성 모델을 호출한다.
+ *
+ * 2026-09-14: 로그인이 없던 시절엔 방문자가 결과 화면에서 그때그때 Gemini API 키를 직접
+ * 입력하고 브라우저 localStorage에만 보관하는 BYOK 방식이었다. 로그인이 필수가 된 뒤에도
+ * 이 방식이 그대로 남아있어 "API 키를 프로그램 시작할 때 등록하게 하는 절차가 빠져있다"는
+ * 지적을 받고서, 다른 서브프로젝트(naver-cafe-poster 등)와 동일한 표준 패턴으로 바꿨다 —
+ * 클라이언트는 더 이상 apiKey를 보내지 않고, 이 라우트가 checkProgramAccessApi()로 로그인을
+ * 확인한 뒤 resolveApiKey()로 그 회원이 /settings에서 등록해둔 본인 Gemini 키를 공용
+ * user_api_keys 테이블에서 꺼내 쓴다. 앱/운영자 공용 키로 폴백하지 않으므로, 키 미등록 시
+ * 조용히 실패하지 않고 명확한 에러를 반환한다(클라이언트는 이를 ApiKeyRequiredModal로 안내).
+ *
+ * 클라이언트가 자유 텍스트 프롬프트를 직접 보내게 하지 않는다 — 그러면 방문자가 우리 서버를
+ * 임의 프롬프트 릴레이로 악용할 수 있으므로, 반드시 CHARACTERS/IMAGE_STYLES에 미리 정의된
+ * 조합(typeCode + styleId)만 받아 서버에서 프롬프트를 조립한다.
+ *
+ * 생성된 이미지는 base64로만 돌려주지 않고 Supabase Storage(mbti-character-images, 공개
+ * 버킷)에 회원 본인 폴더(`${user.id}/...`)로 업로드해 공개 URL을 반환한다 — 카카오톡
+ * 공유(Kakao.Share의 imageUrl)와 링크 공유 시 og:image 둘 다 실제 HTTP(S) 이미지 URL이
+ * 있어야 미리보기가 뜨기 때문이다(base64 데이터 URL은 두 경우 모두 쓸 수 없다). 업로드는
+ * 로그인 세션이 실린 서버 클라이언트로 하므로 RLS가 그대로 적용되어 본인 폴더에만 쓸 수
+ * 있다(instagram-comment-reply의 ig-media-thumbnails 버킷과 동일 패턴).
+ */
+// 환경변수 GEMINI_IMAGE_MODEL(실제 모델 이름)이 있으면 그 값, 없으면 공용 모델 목록 기본 등급(2026-10-17: Vercel에 미등록 확인)
+const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || getNanoBananaConfig(DEFAULT_NANO_BANANA_MODEL).modelName;
+
+function buildPrompt(typeCode: string, styleId: string): string | null {
+  const character = CHARACTERS[typeCode];
+  const style = getImageStyle(styleId);
+  if (!character || !style) return null;
+
+  return (
+    `${style.promptModifier}. A single character portrait of "${character.name}", who works as ` +
+    `${character.role}. Personality traits: ${character.traits.join(", ")}. ${character.description} ` +
+    `Plain simple background, no text or logos or watermark in the image, square 1:1 composition, high quality illustration.`
+  );
+}
+
+export async function POST(request: NextRequest) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) {
+    return NextResponse.json({ error: access.error }, { status: access.status });
+  }
+
+  const apiKey = await resolveApiKey(access.user.id, "gemini");
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: "Gemini API 키가 등록되지 않았습니다. /settings에서 먼저 등록해주세요.", code: "NO_API_KEY" },
+      { status: 400 },
+    );
+  }
+
+  let body: { typeCode?: string; styleId?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
+  }
+
+  const { typeCode, styleId } = body;
+
+  if (!typeCode || !ALL_TYPE_CODES.includes(typeCode.toUpperCase())) {
+    return NextResponse.json({ error: "알 수 없는 유형입니다." }, { status: 400 });
+  }
+  if (!styleId || !getImageStyle(styleId)) {
+    return NextResponse.json({ error: "알 수 없는 스타일입니다." }, { status: 400 });
+  }
+
+  const prompt = buildPrompt(typeCode.toUpperCase(), styleId);
+  if (!prompt) {
+    return NextResponse.json({ error: "프롬프트를 만들 수 없습니다." }, { status: 400 });
+  }
+
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client, 모델 이름은 gemini-image-models(기준은 ai-image-studio).
+  // 키는 머리글로, 시간 제한·서버 오류·혼잡 1회 재시도, 응답의 모든 조각에서 이미지 탐색, 안전 차단·한도·키 오류 한국어 안내. 프롬프트·비율·화질은 그대로.
+  let image: { base64: string; mimeType: string };
+  try {
+    image = await generateGeminiImage({ apiKey, modelName: MODEL_ID, prompt, responseModalities: ["IMAGE"], timeoutMs: 30000 });
+  } catch (e) {
+    if (e instanceof GeminiImageError) return NextResponse.json({ error: e.message }, { status: e.status >= 400 && e.status < 600 ? e.status : 502 });
+    return NextResponse.json({ error: "이미지 생성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요." }, { status: 502 });
+  }
+
+  const { mimeType, base64 } = image;
+  const buffer = Buffer.from(base64, "base64");
+  const ext = mimeType?.includes("png") ? "png" : mimeType?.includes("webp") ? "webp" : "jpg";
+  const objectPath = `${access.user.id}/${typeCode.toUpperCase()}-${styleId}-${Date.now()}.${ext}`;
+
+  const supabase = await createClient();
+  const { error: uploadError } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .upload(objectPath, buffer, { contentType: mimeType ?? "image/png", upsert: true });
+
+  if (uploadError) {
+    return NextResponse.json(
+      { error: "이미지 저장에 실패했습니다. 잠시 후 다시 시도해주세요." },
+      { status: 502 },
+    );
+  }
+
+  const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(objectPath);
+  return NextResponse.json({ imageUrl: pub.publicUrl });
+}

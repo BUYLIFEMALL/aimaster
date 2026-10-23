@@ -1,0 +1,44 @@
+[
+  {
+    "slug": "ai-auto-blog",
+    "version": "v1.64",
+    "ok": true,
+    "source_matches_zip": true
+  },
+  {
+    "slug": "blog-content-maker",
+    "version": "v1.04",
+    "ok": true,
+    "source_matches_zip": true
+  },
+  {
+    "slug": "naver-blog-agent",
+    "version": "v1.84",
+    "ok": true,
+    "source_matches_zip": true
+  },
+  {
+    "slug": "naver-blog-allinone",
+    "version": "v1.42",
+    "ok": true,
+    "source_matches_zip": true
+  },
+  {
+    "slug": "naver-blog-auto-poster-web",
+    "version": "v1.06",
+    "ok": true,
+    "source_matches_zip": true
+  },
+  {
+    "slug": "naver-blog-seo-studio",
+    "version": "v1.64",
+    "ok": true,
+    "source_matches_zip": true
+  },
+  {
+    "slug": "tistory-auto-blog",
+    "version": "v1.71",
+    "ok": true,
+    "source_matches_zip": true
+  }
+]

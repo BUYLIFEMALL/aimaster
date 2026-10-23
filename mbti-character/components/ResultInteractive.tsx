@@ -1,0 +1,239 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { Character } from "@/lib/characters";
+import { IMAGE_STYLES, STYLE_PREFERENCE_STORAGE_KEY } from "@/lib/imageStyles";
+import { StyleButtonGrid } from "@/components/StyleButtonGrid";
+import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { ShareButtons } from "@/components/ShareButtons";
+
+const DIMENSION_LABELS: Record<string, string> = {
+  EI: "외향-내향",
+  SN: "감각-직관",
+  TF: "사고-감정",
+  JP: "판단-인식",
+};
+
+/**
+ * 검사 결과 화면의 동적인 부분(캐릭터 비주얼, 스타일 선택, 공유)을 전부 이 하나의 클라이언트
+ * 컴포넌트가 담당한다 — "설문조사를 끝내면 이모티콘 대신 자동으로 생성된 캐릭터 이미지가
+ * 표시되고, 공유하면 그 이미지가 포함돼야 한다"는 요구(2026-09-14)를 만족하려면, 생성된
+ * 이미지 URL 하나를 히어로 비주얼과 공유 버튼이 함께 참조해야 하기 때문이다 — 서버
+ * 컴포넌트로 두 곳을 나눠서는 상태를 공유할 수 없어서, 정적인 문구(성향 지표/특징 포함)도
+ * 함께 이 컴포넌트 안으로 옮겼다.
+ */
+/** 화면을 다시 그리지 않고 주소의 검색 값만 바꾼다(브라우저 기록 덮어쓰기). */
+function replaceQuery(edit: (q: URLSearchParams) => void) {
+  try {
+    const url = new URL(window.location.href);
+    edit(url.searchParams);
+    window.history.replaceState(window.history.state, "", url.toString());
+  } catch {}
+}
+
+export function ResultInteractive({
+  character,
+  hasApiKey,
+  initialImageUrl,
+  shareUrlBase,
+  fallbackOgImageUrl,
+  strengths,
+  autoGenerate = true,
+}: {
+  character: Character;
+  hasApiKey: boolean;
+  initialImageUrl: string | null;
+  shareUrlBase: string;
+  fallbackOgImageUrl: string;
+  strengths: Record<string, string | undefined>;
+  /** v1.21: 다른 프로그램 링크(?from=)로 들어오면 false — 회원 키로 이미지가 예고 없이 생성되지 않게 버튼으로만 생성
+   *  v1.23: 검사를 막 끝내고 넘어온 경우(?fresh=1)에만 true — 새로고침·뒤로 가기·공유 링크로는 자동 생성하지 않는다 */
+  autoGenerate?: boolean;
+}) {
+  const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [styleId, setStyleId] = useState(IMAGE_STYLES[0].id);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STYLE_PREFERENCE_STORAGE_KEY);
+      if (saved && IMAGE_STYLES.some((s) => s.id === saved)) setStyleId(saved);
+    } catch {}
+  }, []);
+
+  async function generate(withStyleId: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/generate-character-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ typeCode: character.code, styleId: withStyleId }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        if (json.code === "NO_API_KEY") {
+          setShowKeyModal(true);
+          return;
+        }
+        throw new Error(json.error ?? "이미지 생성에 실패했습니다.");
+      }
+      setImageUrl(json.imageUrl);
+      // 새로고침해도 방금 만든 그림이 남도록 주소에 img를 넣는다(서버가 신뢰 저장소 주소만 받음)
+      replaceQuery((q) => q.set("img", json.imageUrl));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 검사가 끝나고 이 결과 화면에 처음 도달했을 때(공유 링크로 들어와 이미 이미지가 있는
+  // 경우가 아니라면), API 키가 등록돼 있으면 곧바로 자동 생성한다 — 버튼을 눌러야만
+  // 생성되던 방식에서 "결과가 곧 캐릭터 이미지"가 되도록 바꾼 것(2026-09-14 요청).
+  useEffect(() => {
+    // fresh 표시는 한 번만 쓰고 바로 지운다 — 새로고침·뒤로 가기로 다시 과금되지 않게
+    if (autoGenerate) replaceQuery((q) => q.delete("fresh"));
+    if (!initialImageUrl && hasApiKey && autoGenerate) {
+      generate(styleId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleSelectStyle(id: string) {
+    setStyleId(id);
+    try {
+      localStorage.setItem(STYLE_PREFERENCE_STORAGE_KEY, id);
+    } catch {}
+  }
+
+  function handleRegenerateClick() {
+    if (!hasApiKey) {
+      setShowKeyModal(true);
+      return;
+    }
+    generate(styleId);
+  }
+
+  const shareImageUrl = imageUrl ?? fallbackOgImageUrl;
+  const shareUrl = imageUrl ? `${shareUrlBase}?img=${encodeURIComponent(imageUrl)}` : shareUrlBase;
+
+  return (
+    <>
+      {showKeyModal && <ApiKeyRequiredModal onClose={() => setShowKeyModal(false)} />}
+
+      <div className="rounded-3xl overflow-hidden shadow-lg mb-8">
+        <div
+          className="px-6 py-10 text-center text-white"
+          style={{ background: `linear-gradient(135deg, ${character.color}, #111827)` }}
+        >
+          {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage 공개 URL이라 next/image 최적화 대상이 아니다
+            <img
+              src={imageUrl}
+              alt={character.name}
+              className="w-40 h-40 mx-auto mb-3 rounded-2xl object-cover shadow-lg"
+            />
+          ) : loading ? (
+            <div className="w-40 h-40 mx-auto mb-3 rounded-2xl bg-white/10 flex items-center justify-center animate-pulse">
+              <span className="text-4xl">{character.emoji}</span>
+            </div>
+          ) : (
+            <div className="text-6xl mb-3">{character.emoji}</div>
+          )}
+          {loading && <p className="text-xs opacity-70 mb-2">AI 캐릭터 이미지 생성 중... (최대 30초)</p>}
+          <p className="text-sm opacity-80 mb-1">나와 닮은 캐릭터는</p>
+          <h1 className="text-4xl font-black mb-1">{character.name}</h1>
+          <p className="text-sm opacity-80 mb-3">{character.role}</p>
+          <span className="inline-block px-5 py-2 rounded-full bg-white/20 text-3xl font-black tracking-widest">
+            {character.code}
+          </span>
+        </div>
+        <div className="bg-[#120d24] px-6 py-6">
+          <p className="text-center text-slate-300 font-medium mb-4">&ldquo;{character.quote}&rdquo;</p>
+          <p className="text-sm text-slate-400 leading-relaxed">{character.description}</p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-8">
+        <h2 className="text-sm font-bold text-slate-100 mb-1">🎨 캐릭터 이미지</h2>
+        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+          {hasApiKey ? (
+            "스타일을 바꿔서 다시 생성할 수 있어요."
+          ) : (
+            <>
+              <a href="/settings" className="underline hover:text-slate-200">
+                설정
+              </a>
+              에서 Gemini API 키를 등록하면 나만의 캐릭터 이미지를 만들 수 있어요.
+            </>
+          )}
+        </p>
+        <div className="flex flex-col gap-3">
+          <StyleButtonGrid selectedId={styleId} onSelect={handleSelectStyle} />
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          <button
+            type="button"
+            onClick={handleRegenerateClick}
+            disabled={loading}
+            className="px-6 py-3 rounded-2xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-500 transition-colors disabled:opacity-50"
+          >
+            {loading ? "생성 중..." : imageUrl ? "🔄 이 스타일로 다시 생성" : "✨ AI 캐릭터 이미지 생성하기"}
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-6">
+        <h2 className="text-sm font-bold text-slate-100 mb-4">나의 성향 지표</h2>
+        <div className="space-y-3">
+          {Object.entries(DIMENSION_LABELS).map(([dim, label]) => {
+            const raw = Number(strengths[dim] ?? 50);
+            const strength = Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 50;
+            return (
+              <div key={dim}>
+                <div className="flex justify-between text-xs text-slate-400 mb-1">
+                  <span>{label}</span>
+                  <span>{strength}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-[#1c1536] overflow-hidden">
+                  <div className="h-full rounded-full bg-purple-600" style={{ width: `${strength}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-[#2a1f4e] bg-[#120d24] p-5 mb-8">
+        <h2 className="text-sm font-bold text-slate-100 mb-3">{character.name}의 특징</h2>
+        <div className="flex flex-wrap gap-2">
+          {character.traits.map((t) => (
+            <span key={t} className="px-3 py-1.5 rounded-full bg-[#1c1536] text-xs font-semibold text-slate-300">
+              #{t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-4">
+        {/* 카카오톡 Feed 템플릿의 채팅 버블은 description을 약 2줄로 무조건 잘라서
+            "..."로 표시한다(카카오 자체 UI 제약, API로 보내는 길이와 무관) — 대사+설명
+            전체를 보냈더니 설명 문단이 통째로 안 보이고 어색하게 잘렸다(2026-09-14 실기기
+            확인). 그래서 짧은 대사 한 줄만 보내 자연스럽게 끝나도록 되돌렸다. 전체 설명은
+            카드를 눌러 결과 페이지로 들어오면 보인다. */}
+        <ShareButtons
+          shareUrl={shareUrl}
+          shareText={`나와 닮은 캐릭터는 ${character.name}(${character.code})! 너도 확인해봐`}
+          shareDescription={character.quote}
+          imageUrl={shareImageUrl}
+        />
+        <Link href="/test" className="text-sm text-slate-500 hover:text-white underline">
+          다시 검사하기
+        </Link>
+      </div>
+    </>
+  );
+}

@@ -1,0 +1,313 @@
+App=msedge (pid 17488)
+Window: "네이버 블로그 에이전트 | AIMaster 외 페이지 5개 - 개인 - Microsoft​ Edge", App: msedge.
+
+0 window 네이버 블로그 에이전트 | AIMaster 외 페이지 5개 - 개인 - Microsoft​ Edge
+	1 영역 네이버 블로그 에이전트 | AIMaster - Microsoft Edge
+		2 영역
+			3 영역
+				4 영역
+					5 단추 최소화
+					6 단추 최대화
+					7 단추 닫기
+				8 영역
+					9 영역
+						10 도구 모음 앱 바
+							11 단추 뒤로
+							12 단추 새로 고침
+							13 그룹
+								14 단추 사이트 정보 보기
+								15 편집 주소 표시줄 및 검색 창, Value: https://naver-blog-agent.buylife.xyz/#private-photo-input, Secondary Actions: SetValue
+								16 영역
+								17 영역
+									18 단추 읽기 모드 시작(F9)
+									19 단추 이 페이지를 즐겨찾기에 추가(Ctrl+D)
+							20 영역
+								21 단추 확장
+								22 영역
+							23 단추 개인 프로필
+							24 단추 설정 및 기타 (Alt+F)
+							25 단추 채팅
+						26 도구 모음 즐겨찾기 모음
+							27 도구 모음 저장된 탭 그룹
+								28 단추 탭 그룹
+							29 구분 기호 분리기
+							30 책갈피 폴더 버튼 BuyLife
+							31 책갈피 폴더 버튼 개인
+							32 책갈피 폴더 버튼 Work
+							33 단추 숨겨진 즐겨찾기가 있는 메뉴
+							34 책갈피 폴더 버튼 다른 즐겨찾기
+							35 구분 기호 분리기
+					36 영역
+						37 영역
+							38 영역
+								39 영역
+									40 영역
+										41 영역
+										42 문서 네이버 블로그 에이전트 | AIMaster, Value: https://naver-blog-agent.buylife.xyz/#private-photo-input, Secondary Actions: SetValue, Scroll
+											43 머리글
+												44 단추 사이드 메뉴 열기
+												45 텍스트 N
+												46 텍스트 네이버 블로그 에이전트
+												47 텍스트 v2.02
+												48 링크 확장 ZIP, Value: https://naver-blog-agent.buylife.xyz/downloads/naver-blog-agent-extension-latest.zip, Secondary Actions: SetValue
+											49 기본
+												50 텍스트 5단계 AI 파이프라인
+												51 텍스트 ·
+												52 텍스트 네이버 C-Rank & DIA+ 알고리즘 최적화
+												53 제목 네이버 블로그 원고 자동 생성
+												54 텍스트 6대 상황별 페르소나를 선택하거나 맞춤 기획 조건을 입력하면, 리서치부터 휴머나이저 윤문, 스마트에디터 서식 생성까지 100% 자동 완성됩니다.
+												55 링크 📑 생성 원고 보관함 22건, Value: https://naver-blog-agent.buylife.xyz/queue, Secondary Actions: SetValue
+												56 단추 최근 원고 열기
+												57 텍스트 🔥
+												58 텍스트 수집한 떡상 글감에서 선택하기
+												59 텍스트 0
+												60 텍스트 건 보관
+												61 링크 + 새 글감 수집하러 가기, Value: https://naver-blog-agent.buylife.xyz/collector, Secondary Actions: SetValue
+												62 콤보 상자 수집된 떡상 글감 선택, Value: -- 아직 수집된 글감이 없습니다. 우측 상단에서 새 글감을 수집해 보세요 --, Secondary Actions: SetValue
+												63 텍스트 🎭
+												64 텍스트 글의 화자 (페르소나) 선택
+												65 텍스트 화자 맞춤형 자동 작성
+												66 그룹
+													67 텍스트 👩‍🍳
+													68 텍스트 가전·살림 주부형
+													69 텍스트 살림 9단 꼼꼼 비교
+													70 텍스트 실생활 가성비 & 살림 꿀팁 톤
+													71 텍스트 추천 주제:
+													72 텍스트 살림 9단이 직접 써보고 엄선한 삶의 질 수직상승 살림·가전 필수템 솔직 후기
+													73 전환 버튼 ✓ 선택됨, Secondary Actions: Toggle
+													74 단추 즉시 생성 →
+												75 그룹
+													76 텍스트 🏠
+													77 텍스트 독신·자취생형
+													78 텍스트 2030 자취 찐현실 썰
+													79 텍스트 퇴근 후 귀차니즘 & 생존 꿀팁 톤
+													80 텍스트 추천 주제:
+													81 텍스트 퇴근 후 손 하나 까딱하기 싫은 자취생을 구원해 준 원룸 생존템 4선
+													82 전환 버튼 페르소나 불러오기, Secondary Actions: Toggle
+													83 단추 즉시 생성 →
+												84 그룹
+													85 텍스트 💼
+													86 텍스트 워킹맘·직장인형
+													87 텍스트 퇴근길 지친 30대 공감
+													88 텍스트 시간 1초 아끼는 현실 피로 공감 & 팁
+													89 텍스트 추천 주제:
+													90 텍스트 퇴근길 지친 직장인과 워킹맘의 하루를 1시간 아껴주는 현실 시간 단축 꿀팁
+													91 전환 버튼 페르소나 불러오기, Secondary Actions: Toggle
+													92 단추 즉시 생성 →
+												93 그룹
+													94 텍스트 💄
+													95 텍스트 20대 쇼핑·뷰티 에디터형
+													96 텍스트 감성 추천 & 종결템 썰
+													97 텍스트 비싼 건 줄 알았는데 가성비 종결템
+													98 텍스트 추천 주제:
+													99 텍스트 비싼 백화점 브랜드인 줄 알았는데 올영 세일 때 쟁여야 할 가성비 종결템 솔직 리뷰
+													100 전환 버튼 페르소나 불러오기, Secondary Actions: Toggle
+													101 단추 즉시 생성 →
+												102 그룹
+													103 텍스트 ⚡
+													104 텍스트 IT·테크 리뷰어형
+													105 텍스트 팩트 분석 & 스펙 비교
+													106 텍스트 모르면 평생 손해 보는 논리 톤
+													107 텍스트 추천 주제:
+													108 텍스트 3주 동안 실사용해보고 결론 내린 최신 가성비 전자기기 스펙·장단점 팩트 비교
+													109 전환 버튼 페르소나 불러오기, Secondary Actions: Toggle
+													110 단추 즉시 생성 →
+												111 그룹
+													112 텍스트 💰
+													113 텍스트 N잡러·재테크 부업형
+													114 텍스트 자본주의 현실 극복
+													115 텍스트 월 100 더 버는 현실 실행 톤
+													116 텍스트 추천 주제:
+													117 텍스트 통장 잔고 50만원에서 부업으로 월 100만원 파이프라인 만든 현실 과정과 팁
+													118 전환 버튼 페르소나 불러오기, Secondary Actions: Toggle
+													119 단추 즉시 생성 →
+												120 텍스트 📏
+												121 텍스트 원하는 글자수 생성 설정
+												122 텍스트 1 ~ 4,000자 범위 설정
+												123 텍스트 목표 글자수:
+												124 텍스트 2,000
+												125 텍스트 자
+												126 스핀 단추, Value: 2000, Secondary Actions: SetValue
+												127 텍스트 자
+												128 슬라이더, Value: 2001, Secondary Actions: SetValue
+												129 텍스트 1자
+												130 텍스트 1,000자
+												131 텍스트 2,000자 (추천 표준)
+												132 텍스트 3,000자
+												133 텍스트 4,000자 (최대)
+												134 텍스트 💡 [네이버 블로그 표준] C-Rank / DIA+ 검색 상위 노출 황금 분량 (소제목 3~4개)
+												135 텍스트 빠른 선택:
+												136 단추 1,000자
+												137 단추 1,800자 (기본)
+												138 단추 2,000자 (추천)
+												139 단추 2,500자 (상위)
+												140 단추 3,500자 (심층)
+												141 단추 4,000자 (최대)
+												142 세부정보 private-photo-input
+													143 펼치기/접기 삼각형 내 사진 준비 선택 · 대표 · 순서 · 설명 0/6장 펼치기
+														144 텍스트 내 사진 준비
+														145 텍스트 선택 · 대표 · 순서 · 설명
+														146 텍스트 0
+														147 텍스트 /
+														148 텍스트 6
+														149 텍스트 장
+														150 텍스트 펼치기
+												151 제목 기획 세부 조건 미세 조정
+												152 텍스트 페르소나 선택 시 자동 입력되며, 자유롭게 수정할 수 있습니다.
+												153 텍스트 발행할 네이버 블로그 ID
+												154 링크 블로그 계정 설정 ↗, Value: https://naver-blog-agent.buylife.xyz/settings, Secondary Actions: SetValue
+												155 콤보 상자 발행할 네이버 블로그 ID, Value: 메인 블로그 (buylifemall), Secondary Actions: SetValue
+												156 텍스트 카테고리 선택
+												157 콤보 상자 카테고리 선택, Value: 등록된 카테고리를 선택하세요, Secondary Actions: SetValue
+												158 단추 카테고리 추가·수정·삭제 (순서 정렬)
+												159 텍스트 특정 주제 (비워두면 페르소나 및 트렌드로 자동 발굴)
+												160 편집 특정 주제 (비워두면 페르소나 및 트렌드로 자동 발굴), Value: 살림 9단이 직접 써보고 엄선한 삶의 질 수직상승 살림·가전 필수템 솔직 후기, Secondary Actions: SetValue
+												161 텍스트 발행 목적 및 독자 타깃
+												162 편집 발행 목적 및 독자 타깃, Value: 실제 주부 입장에서 가성비와 찐활용도를 꼼꼼하게 비교 분석하여 이웃들에게 추천, Secondary Actions: SetValue
+												163 텍스트 검색 키워드 (쉼표 구분)
+												164 편집 검색 키워드 (쉼표 구분), Value: 가전제품 비교, 살림 꿀팁, 세탁 노하우, 가성비 주방용품, 삶의 질 상승템, Secondary Actions: SetValue
+												165 그룹 원고 말끝·문체 설정
+													166 텍스트 원고 말끝·문체 설정
+													167 텍스트 페르소나는 글의 화자입니다. 말끝과 문체는 별도로 선택하며, 페르소나·카테고리를 바꿔도 선택값을 유지합니다.
+													168 텍스트 말끝 선택
+													169 그룹 말끝 선택
+														170 전환 버튼 해요체, Secondary Actions: Toggle
+														171 전환 버튼 합니다체, Secondary Actions: Toggle
+														172 전환 버튼 친근한 반말, Secondary Actions: Toggle
+														173 전환 버튼 한다체, Secondary Actions: Toggle
+													174 텍스트 문체 선택
+													175 그룹 문체 선택
+														176 전환 버튼 기본 화자의 개성을 자연스럽게, Secondary Actions: Toggle
+														177 전환 버튼 간결한 짧은 문장·핵심 위주, Secondary Actions: Toggle
+														178 전환 버튼 부드러운 온화하고 부담 없는 표현, Secondary Actions: Toggle
+														179 전환 버튼 힘 있는 명료한 강조·분명한 전달, Secondary Actions: Toggle
+														180 전환 버튼 담백한 수식어 없이 정보 전달, Secondary Actions: Toggle
+														181 전환 버튼 감성적인 절제된 비유·이미지 표현, Secondary Actions: Toggle
+														182 전환 버튼 상세한 맥락·조건을 충분히 설명, Secondary Actions: Toggle
+														183 전환 버튼 대화하듯 말하듯 편안한 문장, Secondary Actions: Toggle
+													184 그룹
+														185 텍스트 표현 예시 ·
+														186 텍스트 해요체
+														187 텍스트 +
+														188 텍스트 기본
+														189 텍스트 구매 전 유지비도 함께 확인해요.
+														190 텍스트 문체 차이를 보여주는 예시입니다. 실제 원고는 입력한 주제로 작성하며 경험·후기·수치를 지어내지 않습니다.
+													191 텍스트 글 구성
+													192 그룹 글 구성 선택
+														193 전환 버튼 기본 정보형 검색에 맞춘 소제목 목차 구성, Secondary Actions: Toggle
+														194 전환 버튼 홈판형 이슈글 질문형 도입·소제목 4개·클릭형 제목, Secondary Actions: Toggle
+													195 텍스트 네이버 쇼핑 커넥트 링크
+													196 텍스트 (선택 · 최대
+													197 텍스트 5
+													198 텍스트 개, 한 줄에 하나)
+													199 편집 네이버 쇼핑 커넥트 링크 (선택 · 최대 5개, 한 줄에 하나), Secondary Actions: SetValue
+													200 텍스트 브랜드커넥트에서 직접 발급한 링크를 넣으면 소제목마다 하나씩 들어가고, 글 맨 앞에 대가성 문구가 자동으로 붙습니다: “
+													201 텍스트 이 포스팅은 네이버 쇼핑 커넥트 활동의 일환으로, 판매가 발생하면 수수료를 제공받습니다.
+													202 텍스트 ”
+												203 단추 5단계 AI 블로그 글 생성 시작
+												204 지역 AI 글·이미지 생성 기본 모델 설정
+													205 제목 AI 글·이미지 생성 기본 모델 설정
+													206 텍스트 선택한 모델로 글과 이미지를 생성합니다. 기본값으로 저장하면 다음 접속에도 그대로 적용됩니다.
+													207 텍스트 🤖 AI 글 생성 엔진 선택
+													208 텍스트 5단계 파이프라인 전체 적용
+													209 전환 버튼 🤖 GPT OpenAI · 키 미등록, Secondary Actions: Toggle
+														210 텍스트 🤖
+														211 텍스트 GPT
+														212 텍스트 OpenAI
+														213 텍스트 · 키 미등록
+													214 전환 버튼 🧠 Claude Anthropic · 키 미등록, Secondary Actions: Toggle
+														215 텍스트 🧠
+														216 텍스트 Claude
+														217 텍스트 Anthropic
+														218 텍스트 · 키 미등록
+													219 전환 버튼 ✨ Gemini Google · 키 미등록, Secondary Actions: Toggle
+														220 텍스트 ✨
+														221 텍스트 Gemini
+														222 텍스트 Google
+														223 텍스트 · 키 미등록
+													224 텍스트 🎯
+													225 텍스트 GPT
+													226 텍스트 세부 실행 모델
+													227 콤보 상자 🎯 GPT 세부 실행 모델, Value: 🚀 GPT-4.1 (최신 세대 스마트 모델 · 기본 추천), Secondary Actions: SetValue
+													228 세부정보
+														229 펼치기/접기 삼각형 모델 성격: ⚖️ 균형 · 비용 💰💰 ⓘ
+															230 텍스트 모델 성격:
+															231 텍스트 ⚖️ 균형 · 비용 💰💰
+															232 텍스트 ⓘ
+													233 텍스트 GPT
+													234 텍스트 API 키가 등록되지 않았습니다.
+													235 텍스트
+													236 링크 API키등록·플랫폼연동, Value: https://naver-blog-agent.buylife.xyz/settings, Secondary Actions: SetValue
+													237 텍스트 에서 본인 키를 저장하거나 다른 엔진을 선택해 주세요.
+													238 텍스트 🖼️ 이미지 생성 모델 설정
+													239 텍스트 하단 결과의 파란색 [AI 이미지 생성]에 적용
+													240 전환 버튼 🍌 NanoBanana Google Gemini · 키 미등록, Secondary Actions: Toggle
+														241 텍스트 🍌
+														242 텍스트 NanoBanana
+														243 텍스트 Google Gemini
+														244 텍스트 · 키 미등록
+													245 전환 버튼 🤖 GPT Image OpenAI · 키 미등록, Secondary Actions: Toggle
+														246 텍스트 🤖
+														247 텍스트 GPT Image
+														248 텍스트 OpenAI
+														249 텍스트 · 키 미등록
+													250 전환 버튼 ⚡ FLUX 2.0 Black Forest · 키 미등록, Secondary Actions: Toggle
+														251 텍스트 ⚡
+														252 텍스트 FLUX 2.0
+														253 텍스트 Black Forest
+														254 텍스트 · 키 미등록
+													255 전환 버튼 🚀 Z-Image Alibaba 6B · 키 미등록, Secondary Actions: Toggle
+														256 텍스트 🚀
+														257 텍스트 Z-Image
+														258 텍스트 Alibaba 6B
+														259 텍스트 · 키 미등록
+													260 텍스트 🎯
+													261 텍스트 NanoBanana
+													262 텍스트 세부 실행 모델
+													263 콤보 상자 🎯 NanoBanana 세부 실행 모델, Value: NanoBanana 2-2K (고화질 시네마틱 · 기본 추천), Secondary Actions: SetValue
+													264 텍스트 📐 비율
+													265 콤보 상자 📐 비율, Value: 1:1 정사각형 (기본), Secondary Actions: SetValue
+													266 텍스트 🔢 생성 장수
+													267 콤보 상자 🔢 생성 장수, Value: 2장 (썸네일+본문 기본), Secondary Actions: SetValue
+													268 텍스트 💡 사람이 등장할 경우 항상 한국인/동아시아인으로 생성하며, 이미지 내 글자·워터마크를 넣지 않고 깔끔한 실사로 만듭니다.
+													269 텍스트 Gemini
+													270 텍스트 API 키가 등록되지 않았습니다.
+													271 텍스트
+													272 링크 API키등록·플랫폼연동, Value: https://naver-blog-agent.buylife.xyz/settings, Secondary Actions: SetValue
+													273 텍스트 에서 본인 키를 저장하거나 다른 플랫폼을 선택해 주세요.
+													274 텍스트 현재 선택값으로 생성됩니다. 계속 사용하려면 기본 모델 설정을 저장해 주세요.
+													275 단추 기본 모델 설정 저장
+													276 상태
+														277 텍스트 저장된 모델 설정을 불러오지 못했습니다. 현재 선택값을 확인 후 저장해 주세요.
+												278 텍스트 5단계 AI 에이전트 파이프라인 대기 중
+												279 텍스트 상단에서
+												280 텍스트 6대 상황별 페르소나
+												281 텍스트 를 선택하거나 주제/키워드를 입력한 후
+												282 텍스트 [5단계 AI 블로그 글 생성 시작]
+												283 텍스트 을 누르면, 리서치부터 휴머나이징 윤문이 완료된 스마트에디터 ONE 원고가 이 자리에 완성됩니다.
+											284 그룹
+											285 경고 __next-route-announcer__
+								286 편집, Secondary Actions: SetValue
+						287 영역
+					288 Tab 탭 표시줄
+						289 단추 검색 탭
+						290 영역 view_25
+							291 Tab
+								292 단추 Claude 탭 그룹("새로운 탭")
+								293 탭 항목 새로운 탭 - 탭 그룹의 일부Claude - 삭제됨 - 메모리 사용량 - 314 MB, Secondary Actions: Select
+								294 탭 항목 BLC-01 실제 확장 준비 검수 - 메모리 사용량 - 31.5 MB, Secondary Actions: Select
+								295 탭 항목 ●AI자동화, 인플루언서|공동구매|무료체험단|.. : 네이버블로그 - 메모리 사용량 - 275 MB, Secondary Actions: Select
+								296 탭 항목 쇼핑몰|폐쇄몰|공동구매|마케팅자동화|N잡|온라.. : 네이버블로그 - 메모리 사용량 - 252 MB, Secondary Actions: Select
+								297 탭 항목 쇼핑몰|폐쇄몰|공동구매|마케팅자동화|N잡|온라인강의 : 네이버 블로그 - 메모리 사용량 - 216 MB, Secondary Actions: Select
+								298 탭 항목 네이버 블로그 에이전트 | AIMaster - 메모리 사용량 - 185 MB, Secondary Actions: Select
+									299 단추 탭 닫기
+								300 영역
+									301 영역
+										302 영역
+									303 영역
+								304 영역
+							305 영역
+						306 단추 새 탭
+						307 영역
+			308 영역
+		309 상태 제안 사용 가능

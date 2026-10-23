@@ -1,0 +1,11 @@
+{
+  "project": "file-merge",
+  "project_id": "prj_dfaM5UJc1h7agyWnsZDxOqU4KiyN",
+  "deployment_id": "dpl_ChZf914SSBYsuAa6TZRjQB58dbB4",
+  "ready_state": "READY",
+  "source_commit": "7e6c1cedcab6cffc73c19724fa3995ceb049837c",
+  "url": "https://file-merge-8to2pg4at-buylife.vercel.app",
+  "app_url": "https://file-merge.buylife.xyz",
+  "version": "v1.07",
+  "checked_at": "2026-10-16T17:03:30.543Z"
+}

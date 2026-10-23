@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+:root {
+  --background: #060911;
+  --foreground: #f8fafc;
+  --surface: #0d121f;
+  --surface-card: #131b2e;
+  --line: #1e293b;
+  --line-highlight: #334155;
+  --neon-cyan: #00f0ff;
+  --neon-purple: #8b5cf6;
+  --neon-amber: #f59e0b;
+  --neon-emerald: #10b981;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* 사이버 네온 발광 유틸리티 */
+.neon-glow-cyan {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+}
+.neon-glow-purple {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
+}
+.neon-glow-amber {
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+}
+
+/* 마스터링 콘솔 스튜디오 히어로 배너 */
+.studio-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12) 0%, rgba(139, 92, 246, 0.12) 50%, rgba(245, 158, 11, 0.08) 100%), #0d121f;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  margin-bottom: 24px;
+}
+
+.studio-hero-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.studio-hero-desc {
+  font-size: 13.5px;
+  color: #cbd5e1;
+  max-width: 780px;
+  line-height: 1.6;
+}
+
+.studio-hero-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+.badge-tag.cyan { background: rgba(0, 240, 255, 0.12); border-color: rgba(0, 240, 255, 0.3); color: #38bdf8; }
+.badge-tag.purple { background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.3); color: #c084fc; }
+.badge-tag.amber { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; }
+
+/* 3대 KPI 카드 그리드 */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+}
+
+.kpi-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.kpi-icon-wrap.cyan { background: rgba(0, 240, 255, 0.15); color: #38bdf8; }
+.kpi-icon-wrap.purple { background: rgba(139, 92, 246, 0.15); color: #a855f7; }
+.kpi-icon-wrap.amber { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+.kpi-content strong { display: block; font-size: 14px; font-weight: 750; color: #f1f5f9; }
+.kpi-content small { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+/* 가이드북 아코디언 및 테이블 */
+.gd-faq details {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 18px;
+  background: #0f1422;
+  transition: border-color 0.15s ease;
+}
+.gd-faq details[open] {
+  border-color: rgba(0, 240, 255, 0.4);
+  background: #141c2e;
+}
+.gd-faq summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #f1f5f9;
+}
+.gd-faq p {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+@media (max-width: 767px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}

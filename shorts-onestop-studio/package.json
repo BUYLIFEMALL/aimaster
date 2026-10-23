@@ -1,0 +1,27 @@
+{
+  "name": "shorts-onestop-studio",
+  "version": "1.18.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3066",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --test tests/video.test.ts tests/reference.test.ts tests/refBlocks.test.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.3",
+    "lucide-react": "1.48.0",
+    "mp4-muxer": "^5.2.2",
+    "next": "16.4.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3"
+  }
+}

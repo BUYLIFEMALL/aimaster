@@ -1,0 +1,8 @@
+﻿{
+    "Status":  200,
+    "WeatherAbsent":  true,
+    "FallbackDateAbsent":  true,
+    "ClockIntervalAbsent":  true,
+    "DownloadButtonsPresent":  true,
+    "YellowButtonsPresent":  true
+}

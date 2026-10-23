@@ -1,0 +1,27 @@
+{
+  "project": "youtube-auto-reply",
+  "project_id": "prj_roE5C3Oo20z0yvImNygBnnYXL70k",
+  "deployment_id": "dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W",
+  "ready_state": "READY",
+  "source_commit": "b11fdd05faf98487913f3b8fea671a72eaef1d54",
+  "verified_program_commit": "a7d5dc62ef3c03a8bec7c78df4e2469528c13782",
+  "program_runtime_unchanged_between_commits": true,
+  "url": "https://youtube-auto-reply-kt0v7ki7r-buylife.vercel.app",
+  "app_url": "https://youtube-auto-reply.buylife.xyz",
+  "version": "v1.09",
+  "regions": [
+    "iad1"
+  ],
+  "cron_definition": [
+    {
+      "path": "/api/cron/check-connection",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/sync-comments",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "production_target": "dpl_A8cU1FgnHP9dHuUxTERFp9MNp28W",
+  "checked_at": "2026-10-16T18:32:49.009Z"
+}

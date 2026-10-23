@@ -1,0 +1,239 @@
+// [이미지 모델 교체 2026-10-17] 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview) → 최신 정식(gemini-nano-banana-2.1·gemini-3-pro-image), 기준: ai-image-studio v1.11 lib/providers/adapters/gemini.ts.
+// 실제 이미지 생성 시험은 하지 않았음 — 이미지 생성 오류가 나면 그때 테스트 검증한다(주인님 지시).
+import "server-only";
+import { Anthropic } from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
+import { ensureParagraphBreaks } from "./formatContent";
+import {
+  type AIModelProvider,
+  DEFAULT_AI_MODELS,
+  AI_MODEL_OPTIONS,
+  PROVIDER_SHORT_LABELS,
+} from "./models";
+import { getNanoBananaConfig, type NanoBananaModelType } from "./nanoBananaModels";
+import { generateGeminiImage } from "./geminiImage";
+import { openAIGenerationParams } from "./openaiRequestParams";
+
+export type ThreadsTone = "전문적" | "친근함" | "설득력있는" | "격식있는" | "위트있는" | string;
+
+export interface GeneratePostInput {
+  topic: string;
+  tone?: string;
+  keywords?: string[];
+  referenceUrls?: string[];
+  /** 본문(제목 제외) 최대 글자 수. 생략 시 450(일반 게시글 기본값). 제휴 게시글은
+   * 고지문구+CTA+링크 길이를 먼저 계산한 뒤 남는 만큼을 전달해서, AI가 사후에
+   * 잘려나가는 게 아니라 처음부터 그 분량에 맞춰 알차게 채워 쓰도록 한다. */
+  maxLength?: number;
+}
+
+export interface GeneratePostResult {
+  content: string;
+}
+
+const TONE_INSTRUCTIONS: Record<string, string> = {
+  전문적: "신뢰감 있고 정보 전달에 집중하되, 딱딱해지지 않게 반말 유지.",
+  친근함: "친근하고 편안한 에너지로, 반말 유지.",
+  설득력있는: "구매 욕구를 자극하는 설득력 있는 어조로, 반말 유지.",
+  격식있는: "차분하고 안정감 있는 분위기로, 존댓말이 아닌 반말을 유지하되 가볍지 않게.",
+  위트있는: "위트있고 재치있게, 반말 유지.",
+};
+
+// Threads 게시물 전용 카피라이팅 규칙(threads/ 프로젝트와 동일). 제목(훅) + 본문
+// 구조로, 짧고 스캔하기 쉬운 형태로 구매욕을 자극하는 게 목적이다.
+//
+// 본문 글자수 상한은 고정값이 아니라 호출부가 넘겨준 targetLength를 그대로 박아 넣는다
+// (2026-09-12) — 제휴 게시글은 고지문구+CTA+제휴링크 길이가 상품마다 달라서, AI가
+// "일단 450자로 쓰면 나중에 코드가 알아서 자르겠지"라는 식으로 생성하면 문장 중간이
+// 뚝 잘리거나 Threads 500자 제한을 넘겨버린다. 실제 남는 예산을 정확히 알려주고 그
+// 안에서 최대한 알차게 채우도록 지시하는 게 사후 슬라이싱보다 훨씬 안전하다.
+function buildThreadsSystemPrompt(targetLength: number): string {
+  return `너는 세계에서 가장 유능한 Threads 콘텐츠 전문가야. 너의 개인적인 답변은 하지 마.
+이 정보를 사용하여 상품을 포착하여 상품 구매욕을 일으킬 수 있는 짧고 매력적인 Threads 게시물을 만드십시오. 다음 조건을 반드시 지키세요.
+
+1. 제목은 10자 이내로 작성해 주세요
+2. 제목 앞에 어울리는 이모티콘을 붙여주고 작성해 주세요
+3. 본문(제목 제외)은 공백 포함 ${targetLength}자를 절대 넘기지 말되, 여유를 두지 말고 최대한 가깝게(${targetLength}자에 근접하게) 내용을 충실히 채우세요. 이 글자수는 뒤에 고지 문구·CTA·링크가 이어 붙는 전제로 정확히 계산된 예산이니, 짧게 끝내지도 말고 넘기지도 마세요
+4. 1~2문장마다 문단을 끊고, 문단과 문단 사이에는 반드시 줄바꿈을 두 번(빈 줄 하나) 넣어서 시각적으로 나누어 주세요. 하나의 긴 문단으로 이어 쓰지 마세요
+5. 무조건 반말로만 작성하세요. 존댓말(-습니다/-해요/-세요 등)은 절대 쓰지 마세요
+6. 주어진 키워드가 있다면 자연스럽게 본문에 녹여 넣으세요 (해시태그 나열 금지)
+7. 참고 웹페이지 링크가 주어지면 그 내용을 참고해서 사실 관계나 포인트를 반영하되, 본문에 URL 자체를 그대로 나열하지 마세요
+8. 사용자 메시지에 별도의 CTA 지시사항이 없다면 게시글 맨 마지막에 링크나 "확인하기" 같은 행동 유도 문구를 절대 추가하지 마세요. placeholder(예: "{링크}", "{URL}")를 지어내는 것도 금지입니다
+
+톤은 트렌디하고, 열정적이며, 유익해야 합니다.
+팔로워와 흥미로운 팁이나 통찰력을 공유한다고 상상해보세요.
+
+게시글을 만든 후에는 추가 해설이나 설명 없이 바로 출력하면 됩니다.`;
+}
+
+async function fetchUrlExcerpt(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : "";
+
+    const cleanText = html
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const excerpt = cleanText.slice(0, 400);
+    return title ? `[${title}] ${excerpt}` : excerpt;
+  } catch {
+    return null;
+  }
+}
+
+export async function generatePostContent(
+  input: GeneratePostInput,
+  apiKey: string,
+  provider: AIModelProvider = "openai",
+  model?: string,
+): Promise<GeneratePostResult> {
+  const providerLabel = PROVIDER_SHORT_LABELS[provider] || provider;
+  if (!apiKey) {
+    throw new Error(`${providerLabel} API 키가 없습니다. 설정에서 본인 키를 등록해주세요.`);
+  }
+
+  const targetLength = input.maxLength ?? 450;
+  const toneInstruction =
+    TONE_INSTRUCTIONS[input.tone ?? "친근함"] ||
+    (input.tone ? `지정된 페르소나/어조: ${input.tone}` : TONE_INSTRUCTIONS["친근함"]);
+  const keywords = (input.keywords ?? []).filter((k) => k.trim().length > 0);
+  const keywordLine = keywords.length > 0 ? `\n포함할 키워드: ${keywords.join(", ")}` : "";
+
+  const referenceUrls = (input.referenceUrls ?? []).filter((u) => u.trim().length > 0);
+  let referenceLine = "";
+  if (referenceUrls.length > 0) {
+    const fetchedExcerpts = await Promise.all(
+      referenceUrls.map(async (url) => {
+        const text = await fetchUrlExcerpt(url);
+        return text ? `- ${url} (페이지 본문 요약: ${text})` : `- ${url}`;
+      }),
+    );
+    referenceLine = `\n참고 웹페이지 내용 및 링크:\n${fetchedExcerpts.join("\n")}`;
+  }
+
+  const userPrompt = `상품/주제 정보: ${input.topic}\n(참고 톤: ${toneInstruction})${keywordLine}${referenceLine}`;
+  const systemPrompt = buildThreadsSystemPrompt(targetLength);
+  const selectedModel = model || DEFAULT_AI_MODELS[provider];
+
+  let rawContent = "";
+
+  if (provider === "anthropic") {
+    const anthropic = new Anthropic({ apiKey });
+    const params: Anthropic.Beta.MessageCreateParamsNonStreaming = {
+      model: selectedModel,
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }],
+    };
+    if (selectedModel === "claude-opus-5") {
+      params.betas = ["server-side-fallback-2026-07-01"];
+      params.fallbacks = "default";
+    }
+    const response = await anthropic.beta.messages.create(params);
+    if (response.stop_reason === "refusal") {
+      throw new Error("Claude가 이 요청을 처리하지 않았습니다. 다른 AI 엔진이나 모델로 다시 시도해주세요.");
+    }
+    rawContent = response.content
+      .filter((block): block is Anthropic.Beta.BetaTextBlock => block.type === "text")
+      .map((block) => block.text)
+      .join("")
+      .trim();
+  } else if (provider === "gemini") {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const geminiModel = genAI.getGenerativeModel({
+      model: selectedModel,
+      systemInstruction: systemPrompt,
+    });
+    const result = await geminiModel.generateContent({
+      contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+      generationConfig: {
+        maxOutputTokens: 1000,
+        temperature: 0.7,
+      },
+    });
+    rawContent = result.response.text().trim();
+  } else {
+    // OpenAI
+    const openai = new OpenAI({ apiKey });
+    const completion = await openai.chat.completions.create({
+      model: selectedModel,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      // 모델별 규칙(추론 모델은 온도 제외·max_completion_tokens)은 공용 기준 코드 openai-request-params가 처리(v1.68)
+      ...openAIGenerationParams(selectedModel, { temperature: 0.8, maxTokens: 600 }),
+    });
+    rawContent = completion.choices[0]?.message?.content?.trim() || "";
+  }
+
+  if (!rawContent) {
+    throw new Error(`${providerLabel} AI가 빈 응답을 반환했습니다.`);
+  }
+
+  const content = ensureParagraphBreaks(rawContent);
+
+  return { content: content.length > targetLength ? content.slice(0, targetLength).trim() : content };
+}
+
+export interface GeneratePostImageInput {
+  prompt: string;
+  model?: NanoBananaModelType;
+}
+
+export interface GeneratePostImageResult {
+  base64: string;
+  mimeType: string;
+}
+
+// 2026-10-17: 나노바나나 등급별 모델·화질·온도는 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)로 통합(주인님 지시).
+export type { NanoBananaModelType } from "./nanoBananaModels";
+
+const DEFAULT_IMAGE_MODEL = (process.env.GEMINI_IMAGE_MODEL || "nanobanana-2-2k") as NanoBananaModelType;
+
+const KOREAN_DEFAULT_PEOPLE_INSTRUCTION =
+  "If this scene includes any human figures, depict them as Korean/East Asian people by default. Only depict a different ethnicity/nationality if the prompt above explicitly names a specific foreign celebrity, politician, entertainer, or athlete, or explicitly describes a foreign country/setting.";
+
+export async function generatePostImage(
+  input: GeneratePostImageInput,
+  apiKey: string,
+): Promise<GeneratePostImageResult> {
+  if (!apiKey) {
+    throw new Error("Gemini API 키가 없습니다. 설정에서 본인 키를 등록해주세요.");
+  }
+
+  const modelConfig = getNanoBananaConfig(input.model ?? DEFAULT_IMAGE_MODEL);
+  const composedPrompt = `${input.prompt}\n\n${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
+
+  // 2026-10-17: 호출·대기·이미지 받아오기는 공용 기준 코드 gemini-image-client(./geminiImage — 기준은 ai-image-studio)로.
+  // 키는 머리글로, 120초 시간 제한, 서버 오류·혼잡 1회 재시도, 안전 차단·한도·키 오류 한국어 안내(키 가림). 프롬프트·비율은 그대로.
+  const { base64, mimeType } = await generateGeminiImage({
+    apiKey,
+    modelName: modelConfig.modelName,
+    prompt: composedPrompt,
+    aspectRatio: "1:1",
+    imageSize: modelConfig.imageSize,
+    temperature: modelConfig.temperature,
+    responseModalities: ["Image"],
+  });
+
+  return { base64, mimeType };
+}

@@ -1,0 +1,150 @@
+import { requireProgramAccess } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
+import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
+import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
+import { disconnectTelegramAction } from "@/lib/actions/telegram";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { PageHero } from "@/components/layout/PageHero";
+import type { ApiKeyProvider } from "@/types/database.types";
+
+export const dynamic = "force-dynamic";
+
+const PROVIDERS: ApiKeyProvider[] = ["serpapi", "openai"];
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
+// 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
+// 2026-09-13). SerpApi는 아직 등록된 매뉴얼이 없어 대상에서 뺐다(추후 /admin/guides에
+// 추가되면 여기에도 연결할 것).
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+];
+
+const HELP_LINKS: Partial<
+  Record<ApiKeyProvider, { url: string; label: string; highlight?: string; description?: string }>
+> = {
+  serpapi: {
+    url: "https://serpapi.com/manage-api-key",
+    label: "SerpApi 키 발급받기 (serpapi.com)",
+    highlight: "무료 플랜: 월 250회 검색 무료",
+    description: "일 단위 한도는 따로 없음 · 250회 소진 후에는 유료 플랜 결제 필요",
+  },
+  openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
+};
+
+export default async function SettingsPage() {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const [{ data: keys }, { data: telegramLink }] = await Promise.all([
+    supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
+    supabase
+      .from("user_telegram_links")
+      .select("bot_username")
+      .eq("user_id", user.id)
+      .eq("program_slug", "longtail-keyword-expander")
+      .maybeSingle(),
+  ]);
+
+  const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-8">
+      <section>
+        <PageHero
+          badge="🔑 API키등록·플랫폼연동"
+          title="API 키 설정"
+          description="본인 SerpApi·OpenAI 키를 등록하면 키워드 확장을 바로 시작할 수 있어요. 텔레그램 알림은 선택입니다."
+        />
+        <p className="mb-6 text-sm leading-relaxed text-mx-muted">
+          롱테일 키워드분석에는 본인의 SerpApi(구글/네이버 검색결과 조회)와 OpenAI(연관·롱테일
+          키워드 추출, 작업 지시 생성) 키가 필요합니다.{" "}
+          <span className="font-semibold text-mx-text">앱(관리자) 공용 키로 대신 동작하지 않으며</span>,
+          등록하지 않은 상태로 실행을 시도하면 등록 안내가 뜨고 막힙니다. SerpApi 키는 경쟁사
+          키워드 분석 등 다른 AIMaster 프로그램에서 이미 등록하셨다면 여기서도 그대로 재사용됩니다
+          — 다시 등록하실 필요 없습니다.
+        </p>
+        <div className="space-y-5">
+          <div className="mx-card p-4">
+            <div className="mb-3">
+              <h2 className="text-sm font-bold text-mx-text">🔑 SerpApi · OpenAI</h2>
+              <p className="text-xs text-mx-muted">검색결과 조회(SerpApi)와 연관·롱테일 키워드 추출·작업 지시 생성(OpenAI)에 필요합니다</p>
+            </div>
+            <div className="space-y-3">
+              {PROVIDERS.map((provider) => (
+                <ApiKeyRow
+                  key={provider}
+                  provider={provider}
+                  label={PROVIDER_LABELS[provider]}
+                  maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                  helpUrl={HELP_LINKS[provider]?.url}
+                  helpLabel={HELP_LINKS[provider]?.label}
+                  helpHighlight={HELP_LINKS[provider]?.highlight}
+                  helpDescription={HELP_LINKS[provider]?.description}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="mx-card p-4">
+            <div className="mb-3">
+              <h2 className="text-sm font-bold text-mx-text">📨 텔레그램 알림 연동</h2>
+              <p className="text-xs text-mx-muted">
+                키워드 확장이 끝나면 결과 요약을 텔레그램으로도 받아볼 수 있어요(선택 기능). 봇 연동은
+                프로그램마다 독립적이라, 다른 AIMaster 프로그램에서 이미 연동하셨어도 여기서는 별도로
+                연동해야 합니다.
+              </p>
+            </div>
+
+            {telegramLink ? (
+              <div className="space-y-3">
+                <p className="text-sm text-mx-success">✅ @{telegramLink.bot_username ?? "내 봇"}으로 연동되어 있어요.</p>
+                <form action={disconnectTelegramAction}>
+                  <button type="submit" className="mx-btn-danger text-xs">
+                    연동 해제
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <ol className="list-inside list-decimal space-y-2 text-sm text-mx-muted">
+                  <li>
+                    텔레그램에서 <span className="font-semibold text-mx-text">@BotFather</span>를 검색해서 대화를 시작하세요.
+                  </li>
+                  <li>
+                    <code className="rounded bg-mx-raised px-1 py-0.5 text-mx-text">/newbot</code> 명령을 보내고, 안내에 따라 봇 이름을 정하세요 (마지막엔
+                    반드시 <code className="rounded bg-mx-raised px-1 py-0.5 text-mx-text">bot</code>으로 끝나야 해요).
+                  </li>
+                  <li>
+                    완료되면 BotFather가 <strong>토큰</strong>을 알려줘요. 그 값을 복사하세요.
+                  </li>
+                  <li>
+                    방금 만든 내 봇을 텔레그램에서 열고, <strong>아무 메시지나 1개</strong> 보내세요.
+                  </li>
+                  <li>아래 입력창에 토큰을 붙여넣고 &quot;연동 확인하기&quot;를 눌러주세요.</li>
+                </ol>
+                <TelegramConnectForm />
+              </div>
+            )}
+          </div>
+
+          <div className="mx-card">
+            <div className="mb-4">
+              <h2 className="text-sm font-bold text-mx-text">📖 연동 매뉴얼</h2>
+              <p className="text-xs text-mx-muted">
+                이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+                따라 할 수 있습니다.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {GUIDE_LINKS.map((guide) => (
+                <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

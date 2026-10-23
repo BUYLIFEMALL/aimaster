@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input {
+    @apply w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+  .input-sm {
+    @apply w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+  
+  /* 플로우 위저드 스타일 — 캘린더 리마인드 에디션 컴포넌트 */
+  .studio-hero {
+    @apply relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50/50 to-indigo-50/40 p-6 md:p-8 shadow-sm;
+  }
+  .stat-card {
+    @apply rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-200;
+  }
+  .pipeline-step-card {
+    @apply relative flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-blue-300 transition-all;
+  }
+  .guide-card {
+    @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:border-blue-200 transition-all;
+  }
+}
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

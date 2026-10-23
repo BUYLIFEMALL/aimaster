@@ -1,0 +1,65 @@
+{
+  "base": "https://real-estate-sales.buylife.xyz",
+  "browser": "Microsoft Edge (visible)",
+  "member": "buylifemall@naver.com",
+  "member_is_admin": false,
+  "version": "v1.11",
+  "checked_at": "2026-10-16T17:48:34.509Z",
+  "checks": [
+    {
+      "name": "비로그인 접근 차단·복귀 경로",
+      "passed": true
+    },
+    {
+      "name": "로그인·회원가입 블랙 테마·통합 가입 안내",
+      "passed": true
+    },
+    {
+      "name": "일반 회원·v1.11·대시보드 지표4종",
+      "passed": true
+    },
+    {
+      "name": "Tailwind v4 실제 블랙/카드 색·옛 gold/dark 토큰 재연결",
+      "passed": true
+    },
+    {
+      "name": "관심 지역·목록·설정·매뉴얼 FAQ·유료/저장 버튼 미실행",
+      "passed": true
+    },
+    {
+      "name": "서버 자동 분석을 부르는 상세 GET·prefetch 검사기 차단",
+      "passed": true
+    },
+    {
+      "name": "375px 5개 회원 화면·접는 메뉴/계정·가로 넘침 없음",
+      "passed": true
+    },
+    {
+      "name": "휴대폰 메뉴 이동 후 자동 닫힘",
+      "passed": true
+    },
+    {
+      "name": "회원 데이터 수 유지·쓰기/유료 호출·페이지 오류0",
+      "passed": true
+    }
+  ],
+  "counts_before": [
+    1,
+    0,
+    0,
+    0
+  ],
+  "counts_after": [
+    1,
+    0,
+    0,
+    0
+  ],
+  "writes": [],
+  "detailBlocks": [
+    "/listings/test-cost-guard"
+  ],
+  "errors": [],
+  "paid_calls": 0,
+  "actual_detail_visited": false
+}

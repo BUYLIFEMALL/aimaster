@@ -1,0 +1,117 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
+import { requireProgramAccess } from "@/lib/access";
+import { resolveApiKey, PROVIDER_LABELS } from "@/lib/apiKeys";
+import { getFacebookAuthorizeUrl, getInstagramAuthorizeUrl } from "@/lib/instagram/client";
+import { FACEBOOK_REDIRECT_FOR, INSTAGRAM_REDIRECT_FOR, type CallbackMode } from "@/lib/oauthRedirect";
+import { PENDING_INSTAGRAM_CONNECTION_COOKIE, type PendingInstagramConnection } from "@/lib/instagram/pendingConnection";
+import type { InstagramAuthMethod } from "@/types/database.types";
+import { deleteSharedInstagramAccount, saveSharedInstagramAccount } from "@/lib/instagram/memberAccount";
+
+/**
+ * 인스타그램 연결을 시작한다. formData의 hidden "method" 필드로 방식을 고른다.
+ * 두 방식 모두 회원 본인 Meta 앱(App ID/Secret)이 먼저 등록되어 있어야 한다(운영자 공용 앱 없음).
+ * - facebook_login: Facebook 로그인 + 페이지에 연결된 인스타그램 비즈니스 계정.
+ * - instagram_login: Instagram API with Instagram Login.
+ */
+export async function connectInstagramAccountAction(formData: FormData) {
+  const user = await requireProgramAccess();
+  const method = (String(formData.get("method") ?? "facebook_login") as InstagramAuthMethod);
+
+  const supabase = await createClient();
+  // Facebook 페이지 방식은 Facebook 앱 ID(전용 칸, 2026-10-16), 비어 있으면 같은 회원의 기존 칸 값 — 기존 연결 유지.
+  // Instagram 로그인 방식은 Instagram 앱 ID(meta_app_id).
+  const appId =
+    method === "facebook_login"
+      ? (await resolveApiKey(supabase, user.id, "facebook_app_id")) ?? (await resolveApiKey(supabase, user.id, "meta_app_id"))
+      : await resolveApiKey(supabase, user.id, "meta_app_id");
+  if (!appId) {
+    redirect(
+      `/settings?error=connect_failed&reason=${encodeURIComponent(
+        `${method === "facebook_login" ? PROVIDER_LABELS.facebook_app_id : PROVIDER_LABELS.meta_app_id}가 없습니다. 설정 페이지에서 본인 Meta 앱 값을 먼저 등록해주세요.`,
+      )}`,
+    );
+  }
+
+  // CSRF 방지 및 콜백에서 사용자를 식별하기 위한 state 값 (user.id를 그대로 사용)
+  // 기본은 회원 앱에 예전부터 등록된 옛 콜백, [새 주소로 연결](callback=new)은 새 콜백으로 인증한다(두 주소 동시 지원)
+  const callbackMode: CallbackMode = formData.get("callback") === "new" ? "new" : "old";
+  if (method === "instagram_login") redirect(getInstagramAuthorizeUrl(user.id, appId, INSTAGRAM_REDIRECT_FOR(callbackMode)));
+  redirect(getFacebookAuthorizeUrl(user.id, appId, FACEBOOK_REDIRECT_FOR(callbackMode)));
+}
+
+/** accounts/select 화면에서 사용자가 페이지를 확정 선택했을 때만 실제로 DB에 저장한다(facebook_login 전용). */
+export async function confirmInstagramAccountAction(formData: FormData) {
+  const user = await requireProgramAccess();
+  const pageId = String(formData.get("pageId") ?? "");
+  const cookieStore = await cookies();
+  const raw = cookieStore.get(PENDING_INSTAGRAM_CONNECTION_COOKIE)?.value;
+
+  if (!raw) {
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("연결 세션이 만료되었습니다. 다시 시도해주세요.")}`);
+  }
+
+  let pending: PendingInstagramConnection;
+  try {
+    pending = JSON.parse(raw);
+  } catch {
+    cookieStore.delete(PENDING_INSTAGRAM_CONNECTION_COOKIE);
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("연결 세션을 해석하지 못했습니다. 다시 시도해주세요.")}`);
+  }
+
+  const chosen = pending.candidates.find((c) => c.pageId === pageId);
+  if (!chosen) {
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent("선택한 페이지를 찾지 못했습니다. 다시 시도해주세요.")}`);
+  }
+
+  const tokenExpiresAt = new Date(Date.now() + pending.expiresInSeconds * 1000).toISOString();
+  const supabase = await createClient();
+  const { error } = await supabase.from("insta_accounts").upsert(
+    {
+      user_id: user.id,
+      ig_user_id: chosen.igUserId,
+      ig_username: chosen.igUsername,
+      page_id: chosen.pageId,
+      auth_method: "facebook_login",
+      access_token: pending.accessToken,
+      token_expires_at: tokenExpiresAt,
+    },
+    { onConflict: "user_id" },
+  );
+
+  cookieStore.delete(PENDING_INSTAGRAM_CONNECTION_COOKIE);
+
+  if (error) {
+    redirect(`/settings?error=connect_failed&reason=${encodeURIComponent(error.message)}`);
+  }
+
+  // v1.30: 공용 연결 계정에도 저장(이중 기록) — 콜백과 같은 순서로 앱 ID를 고른다
+  await saveSharedInstagramAccount({
+    userId: user.id,
+    igUserId: chosen.igUserId,
+    username: chosen.igUsername ?? null,
+    pageId: chosen.pageId,
+    authMethod: "facebook_login",
+    accessToken: pending.accessToken,
+    tokenExpiresAt,
+    appId: (await resolveApiKey(supabase, user.id, "facebook_app_id")) ?? (await resolveApiKey(supabase, user.id, "meta_app_id")),
+  });
+
+  revalidatePath("/settings");
+  redirect("/settings?connected=1");
+}
+
+export async function disconnectInstagramAccountAction() {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  await supabase.from("insta_accounts").delete().eq("user_id", user.id);
+  // v1.30: 공용 연결 계정도 함께 해제(남겨 두면 해제해도 계속 연결된 상태로 보임)
+  await deleteSharedInstagramAccount(user.id);
+
+  revalidatePath("/settings");
+}

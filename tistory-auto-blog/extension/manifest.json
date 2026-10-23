@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "티스토리 포스팅 자동화 · AIMaster",
+  "version": "1.90.0",
+  "version_name": "v1.90",
+  "description": "본인 원고를 티스토리 새 글에 입력하고, 자동 포스팅 선택 시 마지막 발행과 실제 게시 URL 기록까지 진행합니다. 입력 준비 조작도 지원합니다.",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "debugger",
+    "sidePanel",
+    "storage",
+    "scripting",
+    "tabs",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://*.tistory.com/*",
+    "https://tistory-auto-blog-pearl.vercel.app/*",
+    "https://tistory-auto-blog.buylife.xyz/*",
+    "https://esgxyikcnnvmlhygjkth.supabase.co/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://tistory-auto-blog-pearl.vercel.app/*",
+        "https://tistory-auto-blog.buylife.xyz/*"
+      ],
+      "js": [
+        "web-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "티스토리 포스팅 자동화",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쓰레드(Threads) 공개 글 검색 권한 받기 — Meta 비즈니스 앱 승인 절차</title>
+<style>body{font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;max-width:760px;margin:32px auto;padding:0 16px;line-height:1.7;color:#1f2937;background:#fff}
+h1{font-size:22px}code{background:#f3f4f6;padding:1px 4px;border-radius:4px}a{color:#2563eb}
+div,p{color:#1f2937!important}li{margin:4px 0}img{max-width:100%}</style></head>
+<body><h1>쓰레드(Threads) 공개 글 검색 권한 받기 — Meta 비즈니스 앱 승인 절차</h1>
+<p style="font-size:12px;color:#6b7280!important">※ 이 문서의 <b>&lt;복제본-주소&gt;</b>는 복제한 프로그램의 실제 주소(예: my-tap.vercel.app)로 바꿔 읽으세요.</p>
+<p class="mb-4 text-base font-medium text-neutral-300">
+  💡 쇼핑제휴 자동화의 <strong>[트렌드 &amp; 떡상 탐지기]</strong>에서 <strong>다른 사람이 올린 공개 글</strong>까지 검색하려면, 내 Meta 앱이 <code>threads_keyword_search</code> 권한의 <strong>고급 액세스</strong> 승인을 받아야 합니다. 이 매뉴얼은 그 승인을 받는 전체 과정을 순서대로 설명합니다. (2026-09-29 작성)
+</p>
+
+<div class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-sm text-neutral-300 space-y-1">
+  <p class="text-amber-400 font-semibold">⚠️ 시작 전에 꼭 알아두세요</p>
+  <ul class="list-disc list-inside space-y-1">
+    <li><strong>사업자등록증이 필요합니다.</strong> Meta가 비즈니스 인증을 요구하기 때문에 개인(사업자 없음)은 승인을 받을 수 없습니다.</li>
+    <li>전체 과정은 보통 <strong>수일~수주</strong> 걸립니다(인증·검수 대기 포함).</li>
+    <li>중간에 <strong>"테크 제공업체" 등록</strong>이 나오는데, <strong>한 번 등록하면 되돌릴 수 없습니다.</strong> 매년 Meta의 데이터 사용 점검에 응해야 하는 의무가 생깁니다.</li>
+    <li>승인 전에도 <strong>[🔗 떡상글 직접 가져오기]</strong>로 다른 사람의 인기 글을 붙여넣어 똑같이 벤치마킹할 수 있습니다. 급하지 않다면 이 방법만으로도 충분합니다.</li>
+  </ul>
+</div>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">0단계: 준비물 체크</h3>
+<ul class="list-disc list-inside space-y-1 mb-6 text-neutral-300">
+  <li>사업자등록증 (사진 또는 PDF, 글자가 선명하게)</li>
+  <li>사업자등록증과 <strong>똑같은</strong> 상호·주소·대표 전화번호</li>
+  <li>회사 웹사이트 주소 (하단에 상호·사업자번호·주소가 보이면 인증에 유리합니다)</li>
+  <li>앱 아이콘 이미지 (정사각형, 512~1024px, 5MB 이하)</li>
+  <li>이미 연동된 Meta 앱 (없다면 먼저 <strong>"쓰레드(Threads) 계정 연동하기"</strong> 매뉴얼로 앱을 만들고 연결하세요)</li>
+</ul>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">1단계: 앱 기본 설정 채우기</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li><a href="https://developers.facebook.com/apps" target="_blank" class="text-sky-400 underline font-semibold">Meta 개발자 센터</a> → 내 앱 선택 → 왼쪽 <strong>[앱 설정] → [기본 설정]</strong></li>
+  <li>아래 칸을 채우고 맨 아래 <strong>[변경 내용 저장]</strong>을 누릅니다.
+    <div class="my-2 rounded bg-neutral-800 p-3 text-sm border border-neutral-700 space-y-1">
+      <p><span class="text-amber-300">개인정보처리방침 URL</span>: <span class="font-mono text-sky-300 select-all">https://&lt;복제본-주소&gt;/legal/privacy</span></p>
+      <p><span class="text-amber-300">서비스 약관 URL</span>: <span class="font-mono text-sky-300 select-all">https://&lt;복제본-주소&gt;/legal/terms</span></p>
+      <p><span class="text-amber-300">사용자 데이터 삭제</span>: "데이터 삭제 안내 URL" 선택 → <span class="font-mono text-sky-300 select-all">https://&lt;복제본-주소&gt;/legal/data-deletion</span></p>
+      <p><span class="text-amber-300">앱 도메인</span>: <span class="font-mono text-sky-300 select-all">&lt;복제본-주소&gt;</span> 추가</p>
+      <p><span class="text-amber-300">카테고리</span>: 비즈니스 및 페이지 · <span class="text-amber-300">앱 아이콘</span>: 업로드</p>
+    </div>
+  </li>
+  <li>URL은 반드시 <strong>https://</strong>까지 전체 주소로 넣으세요. 페이스북 기본 주소(facebook.com)가 들어가 있으면 반려됩니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">2단계: Threads 설정에 콜백 주소 3개 넣기</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>왼쪽 <strong>[이용 사례] → [Threads API 액세스] → [설정]</strong></li>
+  <li>세 칸에 아래 주소를 넣고 <strong>[저장]</strong>합니다.
+    <div class="my-2 rounded bg-neutral-800 p-3 text-sm border border-neutral-700 space-y-1">
+      <p><span class="text-amber-300">리디렉션 콜백 URL</span>: <span class="font-mono text-sky-300 select-all">https://&lt;복제본-주소&gt;/api/threads/callback</span></p>
+      <p><span class="text-amber-300">제거 콜백 URL</span>: <span class="font-mono text-sky-300 select-all">https://&lt;복제본-주소&gt;/api/threads/uninstall</span></p>
+      <p><span class="text-amber-300">삭제 콜백 URL</span>: <span class="font-mono text-sky-300 select-all">https://&lt;복제본-주소&gt;/api/threads/delete</span></p>
+    </div>
+  </li>
+  <li>제거·삭제 주소는 회원이 앱 권한을 지우거나 데이터 삭제를 요청할 때 연결 정보를 자동으로 정리해 주는 곳입니다. Meta 심사에서 필수로 확인합니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">3단계: 검색 권한 추가 + 한 번 써보기</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li><strong>[이용 사례] → [Threads API 액세스] → [권한 및 기능]</strong>에서 <code>threads_keyword_search</code> 옆 <strong>[추가]</strong>를 누릅니다.</li>
+  <li>쇼핑제휴 자동화 <strong>[트렌드 &amp; 떡상 탐지기]</strong> 맨 위 안내 박스의 <strong>[🔑 검색 권한 포함해서 Threads 연결]</strong>을 눌러 승인합니다.</li>
+  <li>아무 키워드로 <strong>한 번 검색</strong>합니다. Meta는 심사 전에 이 권한으로 실제 호출한 기록이 있어야 신청을 받아줍니다. (권한 목록의 "API 호출" 숫자가 1 이상이면 준비 완료)</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">4단계: 앱 검수에 추가 → 테크 제공업체 등록</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li><code>threads_keyword_search</code> 줄의 <strong>[옵션 ▼] → [앱 검수에 추가]</strong>를 누릅니다.</li>
+  <li>"테크 제공업체가 되어야 합니다" 창이 뜨면 내용을 읽고 <strong>[Continue]</strong>를 누릅니다. <span class="text-amber-300">(되돌릴 수 없음)</span></li>
+  <li><strong>다른 권한은 앱 검수에 추가하지 마세요.</strong> 쓰지 않는 권한을 함께 올리면 반려 사유가 됩니다. (<code>threads_basic</code>이 필요하다고 나오는 경우에만 함께 추가)</li>
+  <li>권한 이름 아래 <strong>[요구 사항]</strong>을 누르면 남은 단계(비즈니스 인증·액세스 인증·데이터 처리 질문·앱 검수)를 볼 수 있습니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">5단계: 비즈니스 인증 (가장 오래 걸림)</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>왼쪽 <strong>[검수] → [인증]</strong> 또는 <a href="https://business.facebook.com" target="_blank" class="text-sky-400 underline font-semibold">business.facebook.com</a> → 설정 → <strong>보안 센터</strong></li>
+  <li>법적 상호는 <strong>사업자등록증의 상호와 글자까지 똑같이</strong> 입력합니다. (예: 도메인 이름이 아니라 등록증상의 상호)</li>
+  <li>주소·전화번호·웹사이트도 등록증 및 웹사이트 하단 정보와 똑같이 맞추고, 사업자등록증을 업로드합니다.</li>
+  <li>전화·문자·이메일 확인 절차가 나오면 진행합니다. 결과는 보통 며칠 걸립니다.</li>
+  <li><strong>"승인되지 않음"</strong>이 뜨면 보안 센터에서 거절 사유를 확인하고, 정보를 고친 뒤 <strong>[다시 제출]</strong>을 누릅니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">6단계: 액세스 인증</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>비즈니스 인증이 끝나면 <strong>[검수] → [인증]</strong>의 <strong>액세스 인증 [인증 시작]</strong>이 열립니다.</li>
+  <li>안내에 따라 우리 서비스가 어떤 데이터를 어떻게 쓰는지 답하고 제출합니다. 보통 5일 이내에 연락이 옵니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">7단계: 데이터 처리 질문 답하기</h3>
+<div class="my-2 rounded bg-neutral-800 p-3 text-sm border border-neutral-700 space-y-1 mb-6 text-neutral-300">
+  <p><span class="text-amber-300">데이터에 접근하는 처리자·서비스 제공업체가 있나요?</span> → 예: Supabase(데이터베이스), Vercel(서버 호스팅)</p>
+  <p><span class="text-amber-300">데이터 책임 주체는?</span> → 사업자등록증상의 상호</p>
+  <p><span class="text-amber-300">지난 12개월간 국가안보 목적으로 공공기관에 데이터를 제공했나요?</span> → 아니요</p>
+  <p><span class="text-amber-300">그런 요청에 대한 정책이 있나요?</span> → "적법성 검토", "필요 최소한만 제공", "요청 문서화" 선택</p>
+</div>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">8단계: 앱 검수 제출</h3>
+<ol class="list-decimal list-inside space-y-2 mb-4 text-neutral-300">
+  <li>왼쪽 <strong>[검수] → [앱 검수]</strong>에서 <code>threads_keyword_search</code> 요청서를 엽니다.</li>
+  <li><strong>사용 방법 설명(영문)</strong> 칸에 아래 문장을 붙여넣습니다.
+    <div class="my-2 rounded bg-neutral-800 p-3 font-mono text-xs text-sky-300 border border-neutral-700 select-all whitespace-pre-line">Our app helps a Threads creator plan posts for products they promote. On the "Trends" page, the signed-in user types a keyword and we call the Threads keyword search endpoint with the user's own access token to show recent and top public posts about that topic. Each result shows the post text, author username, time and a link to the original post on Threads. The user can bookmark a post as a reference and then write their own new post with AI assistance, referencing the style of the saved post. We do not republish or modify other people's posts and do not store engagement metrics. Search results are shown only to the user who searched and are never shared, sold, or used for advertising. Saved references and the access token are deleted when the user disconnects, removes the app, or requests data deletion (https://&lt;복제본-주소&gt;/legal/data-deletion).</div>
+  </li>
+  <li><strong>테스트 방법 안내</strong>: 심사관이 로그인해서 따라 할 수 있게 아래 순서를 영문으로 적고, 맨 아래에 <strong>테스트용 계정 이메일·비밀번호</strong>를 적습니다. (테스트 계정에 프로그램 이용 권한이 필요하면 운영자에게 요청하세요)
+    <div class="my-2 rounded bg-neutral-800 p-3 font-mono text-xs text-sky-300 border border-neutral-700 whitespace-pre-line">1. Sign in at https://&lt;복제본-주소&gt;/login with the test account below.
+2. Open "API키등록·플랫폼연동" (Settings) and connect a Threads account.
+3. Open "트렌드 &amp; 떡상 탐지기" (Trends), type a keyword such as "travel" and press "검색" (Search).
+4. Results labeled "실제 Threads 글" come from the keyword search endpoint; click "Threads에서 원문·반응 보기" to open the original post.</div>
+  </li>
+  <li><strong>시연 영상(1~2분)</strong>을 녹화해 올립니다: 로그인 → Threads 연결(권한 동의 화면) → 트렌드에서 검색 → 결과의 원문 링크 열기 → 찜 → AI 캡션 생성 → 설정에서 연결 해제. 영어 자막을 넣으면 통과에 유리합니다.</li>
+  <li><strong>[제출]</strong>을 누릅니다.</li>
+</ol>
+
+<h3 class="text-lg font-bold text-white mt-6 mb-3">9단계: 승인 후</h3>
+<ol class="list-decimal list-inside space-y-2 mb-6 text-neutral-300">
+  <li>승인 알림이 오면 앱을 <strong>게시(라이브)</strong> 상태로 둡니다.</li>
+  <li>트렌드 화면에서 검색하면 다른 사용자의 공개 글이 <strong>"실제 Threads 글"</strong>로 나오고, 안내 박스의 상태가 <strong>"✅ 다른 사람의 공개 글 검색 가능"</strong>으로 바뀝니다. 해시태그·미디어·작성자 필터도 쓸 수 있습니다.</li>
+  <li><strong>반려되면</strong> 반려 사유를 읽고 지적된 부분(설명·영상·URL 등)만 고쳐서 다시 제출하면 됩니다.</li>
+</ol>
+
+<div class="mt-8 p-4 rounded-xl bg-neutral-800/80 border border-neutral-700">
+  <h4 class="text-md font-bold text-amber-400 mb-2">💡 자주 막히는 곳</h4>
+  <ul class="list-disc list-inside space-y-1 text-sm text-neutral-300">
+    <li><strong>"앱 ID가 전송되지 않았습니다"(4476002)</strong>: 설정에 맨 위 앱 ID가 아니라 <strong>기본 설정 하단의 Threads 앱 ID</strong>를 넣어야 합니다.</li>
+    <li><strong>"An unknown error occurred"로 검색 실패</strong>: <code>threads_keyword_search</code>를 추가한 뒤 <strong>검색 권한 포함 재연결</strong>을 하지 않은 경우입니다.</li>
+    <li><strong>비즈니스 인증 반려</strong>: 대부분 상호·주소가 등록증과 다르거나 서류가 흐린 경우입니다.</li>
+    <li><strong>화면을 캡처해 공유할 때</strong>: 앱 시크릿 코드가 보이지 않게 가려주세요.</li>
+  </ul>
+</div>
+</body></html>

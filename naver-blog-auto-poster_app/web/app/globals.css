@@ -1,0 +1,354 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gold: #d4af37;
+    --gold-light: #f5c842;
+    --dark: #0a0a0f;
+    --dark-50: #12121a;
+    --dark-100: #1a1a26;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #0a0a0f;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 스크롤바 스타일 */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #12121a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  /* 글래스모피즘 카드 */
+  .glass-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border-width: 1px;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-card-gold {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    border-width: 1px;
+    background: rgba(212, 175, 55, 0.05);
+    border-color: rgba(212, 175, 55, 0.2);
+  }
+
+  /* 골드 그라데이션 텍스트 */
+  .gold-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #d4af37, #f5c842);
+  }
+
+  /* 골드 버튼 */
+  .btn-gold {
+    @apply font-bold px-6 py-3 rounded-xl transition-all duration-200 text-black;
+    background: linear-gradient(135deg, #d4af37, #f5c842);
+  }
+  .btn-gold:hover {
+    @apply opacity-90 scale-[1.02];
+    box-shadow: 0 0 24px rgba(212, 175, 55, 0.4);
+  }
+
+  /* 아웃라인 버튼 */
+  .btn-outline {
+    @apply font-semibold px-6 py-3 rounded-xl border transition-all duration-200;
+    border-color: rgba(212, 175, 55, 0.4);
+    color: #d4af37;
+  }
+  .btn-outline:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.7);
+  }
+
+  /* 입력 필드 */
+  .input-dark {
+    @apply w-full px-4 py-3 rounded-xl text-white focus:outline-none transition-all;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .input-dark:focus {
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+  }
+  .input-dark::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  select.input-dark {
+    appearance: none;
+    background: rgba(255, 255, 255, 0.05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;
+    padding-right: 40px;
+    color: #ffffff !important;
+    cursor: pointer;
+  }
+  select.input-dark option,
+  select option {
+    background: #1a1a2e;
+    color: #ffffff;
+    padding: 8px 12px;
+  }
+  /* input[type=date]/time 등 네이티브 폼 컨트롤은 color-scheme을 명시하지 않으면
+     브라우저가 밝은(라이트) 색상으로 달력 아이콘·텍스트를 그려서, 어두운 배경 위에서
+     보이지 않거나(검정 아이콘) 값이 안 보이는 것처럼 느껴진다(실제로 값은 들어가지만
+     안 보여서 "설정이 안 된다"고 오인하기 쉽다). 이 카드 자체를 다크 스킴으로
+     선언해서 네이티브 위젯도 밝은 텍스트/아이콘으로 그려지게 한다. */
+  input.input-dark[type="date"],
+  input.input-dark[type="time"],
+  input.input-dark[type="datetime-local"] {
+    color-scheme: dark;
+  }
+
+  /* 섹션 구분선 */
+  .gold-divider {
+    @apply h-px w-full;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+  }
+
+  /* 뱃지 */
+  .badge-gold {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full text-black;
+    background: linear-gradient(135deg, #d4af37, #f5c842);
+  }
+  .badge-new {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full text-black;
+    background: linear-gradient(135deg, #ef4444, #f87171);
+  }
+  .badge-best {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full text-black;
+    background: linear-gradient(135deg, #d4af37, #f5c842);
+  }
+}
+
+/* ── Tiptap Rich Text Editor ── */
+.prose-editor {
+  color: #ffffff;
+  line-height: 1.75;
+}
+.prose-editor h1 { font-size: 1.75rem; font-weight: 700; margin: 1.2em 0 0.6em; color: #fff; }
+.prose-editor h2 { font-size: 1.35rem; font-weight: 700; margin: 1em 0 0.5em; color: #fff; }
+.prose-editor h3 { font-size: 1.1rem; font-weight: 600; margin: 0.9em 0 0.4em; color: #fff; }
+.prose-editor p { margin: 0.5em 0; }
+.prose-editor strong { color: #f5c842; }
+.prose-editor em { color: rgba(255,255,255,0.85); }
+.prose-editor u { text-decoration: underline; text-underline-offset: 3px; }
+.prose-editor s { opacity: 0.6; }
+.prose-editor mark { background: rgba(212,175,55,0.35); color: #fff; border-radius: 2px; padding: 0 2px; }
+.prose-editor a { color: #d4af37; text-decoration: underline; }
+.prose-editor a:hover { color: #f5c842; }
+.prose-editor ul { list-style: disc; padding-left: 1.5em; margin: 0.5em 0; }
+.prose-editor ol { list-style: decimal; padding-left: 1.5em; margin: 0.5em 0; }
+.prose-editor li { margin: 0.25em 0; }
+.prose-editor blockquote {
+  border-left: 3px solid #d4af37;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+}
+.prose-editor hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5em 0; }
+.prose-editor code {
+  background: rgba(0,0,0,0.4);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: 'Courier New', monospace;
+  color: #f5c842;
+}
+.prose-editor pre {
+  background: rgba(0,0,0,0.4);
+  border-radius: 8px;
+  padding: 1em;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+.prose-editor pre code { background: none; padding: 0; color: #e2e8f0; }
+.prose-editor img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }
+.prose-editor iframe { border-radius: 8px; max-width: 100%; }
+/* Tiptap Youtube embed */
+.prose-editor .tiptap-youtube-div { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 1em 0; border-radius: 8px; }
+.prose-editor .tiptap-youtube-div iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; }
+/* Table */
+.prose-editor table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+.prose-editor th {
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 0.5em 0.75em;
+  font-weight: 600;
+  text-align: left;
+}
+.prose-editor td {
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.5em 0.75em;
+}
+.prose-editor tr:hover td { background: rgba(255,255,255,0.03); }
+/* Selected cell */
+.prose-editor .selectedCell { background: rgba(212,175,55,0.08) !important; }
+
+@layer utilities {
+  .text-sub {
+    color: #a0a0b0;
+  }
+  .bg-dark {
+    background-color: #0a0a0f;
+  }
+  .bg-dark-50 {
+    background-color: #12121a;
+  }
+  .border-glass {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .border-gold-faint {
+    border-color: rgba(212, 175, 55, 0.2);
+  }
+}
+
+
+/* AI 글쓰기 폼 입력창 칠흑 검정색 폰트 강제 룰 */
+.ai-form-container input,
+.ai-form-container textarea,
+.ai-form-container select,
+input.ai-form-input,
+textarea.ai-form-input,
+select.ai-form-input {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+.ai-form-container input::placeholder,
+.ai-form-container textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+/* AutoBlog 블로그 영역 전용 화이트 라이트 테마 강제 보장 (!important) */
+.blog-light-scope {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.blog-light-scope main,
+.blog-light-scope article,
+.blog-light-scope section {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.blog-light-scope h1 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+.blog-light-scope h2,
+.blog-light-scope h3,
+.blog-light-scope h4,
+.blog-light-scope h5,
+.blog-light-scope h6 {
+  color: #0f172a !important;
+}
+
+.blog-light-scope p,
+.blog-light-scope li,
+.blog-light-scope div {
+  color: #1e293b;
+}
+
+.blog-light-scope .text-zinc-600,
+.blog-light-scope .text-zinc-500,
+.blog-light-scope .text-zinc-400,
+.blog-light-scope .text-slate-600,
+.blog-light-scope .text-slate-500 {
+  color: #334155 !important;
+}
+
+.blog-light-scope .text-zinc-900,
+.blog-light-scope .text-zinc-800,
+.blog-light-scope .text-slate-900,
+.blog-light-scope .text-slate-800 {
+  color: #0f172a !important;
+}
+
+/* 본문 마크다운 (prose) 화이트 테마 완전 강제 오버라이드 */
+.blog-light-scope .prose,
+.blog-light-scope article {
+  color: #1e293b !important;
+  background-color: #ffffff !important;
+}
+
+.blog-light-scope .prose p,
+.blog-light-scope .prose li,
+.blog-light-scope .prose span,
+.blog-light-scope .prose div {
+  color: #334155 !important;
+}
+
+.blog-light-scope .prose strong,
+.blog-light-scope .prose b {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+.blog-light-scope .prose h1,
+.blog-light-scope .prose h2,
+.blog-light-scope .prose h3,
+.blog-light-scope .prose h4 {
+  color: #0f172a !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+/* 요약 박스 라이트 테마 보장 */
+.blog-light-scope .bg-indigo-50\/40,
+.blog-light-scope .bg-blue-50 {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+
+.blog-light-scope .bg-indigo-50\/40 p,
+.blog-light-scope .bg-blue-50 p {
+  color: #0369a1 !important;
+}
+
+
+/* v1.04 흰색 표준 화면(2026-10-15, 핵심 원칙 "웹 작업 화면은 흰색 베이스") — 위의 다크 규칙을 덮어쓴다 */
+@layer base {
+  body { background-color: #f8fafc; color: #0f172a; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+}
+@layer components {
+  .glass-card { backdrop-filter: none; -webkit-backdrop-filter: none; background: #ffffff; border-color: #e2e8f0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
+  .gold-text { background: none; -webkit-text-fill-color: currentColor; color: #0f172a; }
+  .btn-gold { background: #059669; color: #ffffff; box-shadow: none; }
+  .btn-gold:hover { background: #047857; transform: none; box-shadow: none; }
+  .input-dark { color: #0f172a; background: #ffffff; border: 1px solid #cbd5e1; }
+  .input-dark:focus { border-color: #059669; box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15); }
+  .input-dark::placeholder { color: #94a3b8; }
+}

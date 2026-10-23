@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-20T07:55:31.490Z",
+  "target": "local-production-build",
+  "authenticated": false,
+  "realStorageCalls": 0,
+  "checks": [
+    {
+      "route": "/api/photos",
+      "status": 401,
+      "cacheControl": "no-store",
+      "body": {
+        "error": "로그인이 필요합니다."
+      }
+    },
+    {
+      "route": "/api/photos/resolve",
+      "status": 401,
+      "cacheControl": "no-store",
+      "body": {
+        "error": "로그인이 필요합니다."
+      }
+    },
+    {
+      "route": "/api/extension/photos",
+      "status": 401,
+      "cacheControl": "no-store",
+      "body": {
+        "error": "인증 토큰이 누락되었습니다."
+      }
+    },
+    {
+      "route": "/api/extension/task",
+      "status": 401,
+      "cacheControl": "no-store",
+      "body": {
+        "error": "인증 토큰이 누락되었습니다."
+      }
+    },
+    {
+      "route": "/api/cron/cleanup?dry=1",
+      "status": 401,
+      "body": {
+        "error": "인증되지 않은 요청입니다."
+      }
+    }
+  ]
+}

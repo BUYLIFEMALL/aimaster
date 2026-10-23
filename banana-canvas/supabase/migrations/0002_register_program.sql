@@ -1,0 +1,37 @@
+-- AI 바나나 캔버스 자동화 (slug: banana-canvas) — 프로그램 등록 + 요금제 3종 + VIP 등급 접근 + 썸네일 (v1.01, 2026-10-14)
+-- 카테고리 이미지, 최소 등급 일반, 배지 new(FREE 아님). AI는 회원 본인 Gemini 키.
+-- 주의: Supabase MCP execute_sql은 여러 문장을 한 번에 보내면 거부될 수 있어 문장별로 적용했다.
+
+INSERT INTO public.programs (slug, name, short_desc, description, app_url, version, is_active, badges, category_id, required_grade_id)
+VALUES (
+  'banana-canvas',
+  'AI 바나나 캔버스 자동화',
+  '사진 한 장을 Nano Banana로 복원·스타일 변환·합성·배경 제거하고 증명사진·인생 앨범·만화·스토리까지 만드는 이미지 변환 도구함',
+  '이미지 한 장(또는 아이디어 문장)을 Nano Banana(Gemini 이미지 모델)로 만들고 고치는 도구함입니다. 이미지 생성(카테고리 11종·종횡비 5종·프롬프트 제안), 편집(복원·컬러화·채색·업스케일 2x/4x, 스타일 20종), 이미지 합성(소스 최대 5장·얼굴 고정·종횡비 확장), 빠른 작업(배경 제거 투명 PNG·브러시 부분 삭제·증명사진·평면도 3D), 스페셜(인생 앨범·만화 패널 3스타일·연속 스토리 8컷·이미지 레시피)을 지원하고, 결과는 기록 30건에 저장되어 이어서 편집할 수 있습니다. 업로드한 이미지는 비공개 임시 저장소에서 1시간 안에 삭제되며, AI는 회원 본인의 Google Gemini API 키로 동작합니다. 이미지 생성 전문 엔진 중심의 ai-image-studio, 직군별 프리셋 중심의 allinone-graphic과 달리 "사진 한 장 변환"에 초점을 둡니다.',
+  'https://banana-canvas.buylife.xyz',
+  'v1.01',
+  true,
+  ARRAY['new']::text[],
+  'b5cec438-a6cc-43e5-83bc-59368f8a2c4d',
+  '861b7a37-d056-4404-80f5-85edb2e2ebff'
+)
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name, short_desc = EXCLUDED.short_desc, description = EXCLUDED.description,
+  app_url = EXCLUDED.app_url, version = EXCLUDED.version, is_active = EXCLUDED.is_active,
+  badges = EXCLUDED.badges, category_id = EXCLUDED.category_id, required_grade_id = EXCLUDED.required_grade_id,
+  updated_at = NOW();
+
+INSERT INTO public.pricing_plans (program_id, name, billing_type, price, original_price, is_active, sort_order)
+SELECT p.id, v.name, v.bt, v.price, v.price, true, v.so
+FROM public.programs p
+CROSS JOIN (VALUES ('1개월','monthly',10000,1), ('2개월','bimonthly',20000,2), ('3개월','quarterly',30000,3)) AS v(name, bt, price, so)
+WHERE p.slug = 'banana-canvas'
+  AND NOT EXISTS (SELECT 1 FROM public.pricing_plans pp WHERE pp.program_id = p.id);
+
+INSERT INTO public.grade_program_access (grade_id, program_id)
+SELECT g.id, p.id FROM public.member_grades g, public.programs p
+WHERE g.name LIKE 'VIP%' AND p.slug = 'banana-canvas'
+  AND NOT EXISTS (SELECT 1 FROM public.grade_program_access a WHERE a.grade_id = g.id AND a.program_id = p.id);
+
+-- 썸네일은 scripts/generate-program-thumbnail.mjs(§13 실사 16:9)로 생성해 program-images 버킷에 올리고 programs.thumbnail_url을 직접 갱신했다.
+--   https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/banana-canvas-thumbnail.jpg?v=1791918566803

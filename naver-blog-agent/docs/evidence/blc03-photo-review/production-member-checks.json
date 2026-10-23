@@ -1,0 +1,69 @@
+{
+  "completedAt": "2026-10-20T18:11:11.968950+00:00",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v2.03",
+  "codeCommit": "1812bf7f",
+  "deploymentId": "dpl_5LXFFLqas2kyfer2VD8SEjXPVpfd",
+  "browser": "visible Microsoft Edge window 2884854",
+  "member": "buylifemall@naver.com",
+  "authentication": "actual member login; user entered password; no password read or entry by agent",
+  "generation": {
+    "model": "gpt-4o-mini",
+    "uiInvocations": 1,
+    "pipelineApiCalls": 2,
+    "apiCallCountEvidence": "successful two-stage pipeline, no automatic retry; supplier billing log not queried",
+    "fixture": "synthetic solid-color PNG, no visit/food/price experience",
+    "targetLength": 1000,
+    "result": "short source-limited draft; observed no fabricated taste, price or visit experience in this fixture",
+    "generalQualityGuarantee": false
+  },
+  "checks": {
+    "privatePhotoReady": true,
+    "originalExpiryVisible": true,
+    "observationAndMemberNotesSeparated": true,
+    "paragraphEvidenceVisible": true,
+    "unknownFactsAndManualReviewWarningVisible": true,
+    "copySucceededWithWarning": true,
+    "copyCharacters": 229,
+    "inputChangeHidOldResultAndEvidence": true,
+    "extraGenerationAfterInputChange": false,
+    "photoSelectionClearedToZero": true,
+    "guideSteps2Through4AndCopy": true,
+    "memberSettingsLink": "/settings",
+    "guideToPhotoAnchorAndExpand": true
+  },
+  "storage": {
+    "newTestPhotos": 1,
+    "newTestPhotoBytes": 422,
+    "newDraftRows": 0,
+    "physicalDeletes": 0,
+    "retention": "original creation plus 30 days"
+  },
+  "screens": {
+    "outerNarrowWidthPx": 516,
+    "viewport375px": "not tested",
+    "narrowInputAndResultViewed": true,
+    "guideNarrowAndDesktopViewed": true,
+    "capture": "native PrintWindow fallback after intermittent Orca screenshot_failed",
+    "resultCapture": "viewed then deleted; generated article and observations are not committed",
+    "windowAtFinish": "normal 1433x1399; temporary always-on-top disabled; existing Naver prepared editor tabs preserved"
+  },
+  "atFinish": {
+    "selectedPhotos": 0,
+    "placeAndVisitNotes": "cleared by route unmount",
+    "draftPreview": "cleared",
+    "engine": "original gpt-4.1 restored on fresh route; no preference save",
+    "localServer": "stopped in previous turn"
+  },
+  "paidAiCalls": 2,
+  "aiImageGenerations": 0,
+  "draftWrites": 0,
+  "finalPublications": 0,
+  "dbChangesThisVerification": "read-only object and draft counts; release metadata was updated in previous turn",
+  "limits": [
+    "one synthetic fixture; other providers exercised through mock requests only",
+    "forced expiry/network failure covered by automated tests; not induced in production",
+    "draft persistence/editing/queue/extension integration remains BLC-04"
+  ],
+  "complete": true
+}

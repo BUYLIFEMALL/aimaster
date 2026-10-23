@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-20",
+  "scope": "read-only analysis and proposal of seven operating blog programs",
+  "sourceCommit": "cde4c6fa",
+  "codeVersions": {
+    "naver-blog-agent": "v1.96",
+    "ai-auto-blog": "v1.75",
+    "naver-blog-allinone": "v1.49",
+    "blog-workroom": "v1.11",
+    "blog-keyword": "v1.05",
+    "naver-blog-seo-studio": "v1.80",
+    "tistory-auto-blog": "v1.82"
+  },
+  "inProgressExcluded": "naver-blog-agent v1.97 by another CLI",
+  "executedChecks": [
+    {"command": "node --test ai-auto-blog/tests/extension-engine.test.cjs tistory-auto-blog/tests/extension-engine.test.cjs", "passed": 46, "failed": 0, "mode": "fake editor/adapter; no browser or external service"},
+    {"cwd": "naver-blog-seo-studio", "command": "node --test tests/seo-quality.test.mjs", "passed": 7, "failed": 0, "mode": "pure quality rules and strategy source regression"},
+    {"function": "readNaverExecutionMode", "caseMissingPrefs": "publish", "caseExplicitPrepare": "prepare", "mode": "pure function only, no actual publication"}
+  ],
+  "blockedChecks": [
+    {"program": "naver-blog-allinone", "command": "node --import tsx --test tests/blog.test.mjs", "reason": "tsx loader startup failed: uv_os_get_passwd ENOMEM"},
+    {"program": "blog-workroom", "command": "node --conditions=react-server --import tsx --test tests/logic.test.mjs", "reason": "tsx loader startup failed: uv_os_get_passwd ENOMEM"},
+    {"program": "blog-workroom", "alternative": "native Node", "reason": "application alias @/lib requires configured loader"},
+    {"program": "blog-keyword", "alternative": "native Node", "reason": "extensionless import requires configured loader"}
+  ],
+  "externalPrimaryReferences": [
+    "https://developers.naver.com/docs/serviceapi/datalab/search/search.md",
+    "https://developers.naver.com/docs/serviceapi/search/blog/blog.md"
+  ],
+  "notPerformed": ["production member E2E", "production bucket/RLS/cron inspection", "paid generation", "real external editor input", "publication", "merge", "retirement", "schema/key/environment changes", "deployment"],
+  "paidCalls": 0,
+  "publicationCalls": 0,
+  "runtimeCodeChanged": false,
+  "commitPush": "not performed: .git is read-only in this session"
+}

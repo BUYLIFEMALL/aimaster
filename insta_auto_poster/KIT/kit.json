@@ -1,0 +1,31 @@
+{
+  "title": "INSTA 포스팅 자동화",
+  "shortName": "insta",
+  "callbackPath": "/api/instagram/callback/byok",
+  "description": "주제 수집·캡션·이미지 생성·즉시/예약 게시",
+  "callbackLabel": "Meta(Instagram) 앱 리디렉션 콜백 주소",
+  "authRedirectPath": "/api/auth/confirm",
+  "checkTable": "insta_member_scheduler",
+  "nextStep": "KIT/README.md 의 Meta 앱 만들기 단계부터 진행하세요.",
+  "exclude": [
+    "scripts",
+    "README.md",
+    "vercel.json"
+  ],
+  "overrides": {
+    ".env.example": "KIT/env.example"
+  },
+  "schemaCheckIgnore": [
+    "member_platform_accounts",
+    "integration_catalog",
+    "cns_projects",
+    "cns_templates",
+    "cns_insta_posts",
+    "cardnews-images",
+    "notices"
+  ],
+  "schema": {
+    "mode": "static"
+  },
+  "extraEnv": []
+}

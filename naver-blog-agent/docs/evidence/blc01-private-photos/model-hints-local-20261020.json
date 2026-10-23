@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-20",
+  "scope": "BLC-01 companion change explicitly required by program AGENTS.md",
+  "file": "src/app/(dashboard)/page.tsx",
+  "sha256": "360fa937f0544f1a4b9d2103ccce591474236668f9361c444f87703aee2d0ec2",
+  "change": "Reuse shared OpenAI model badge, expandable cost hint and reasoning latency notice in the text model selector",
+  "sharedCopyModified": false,
+  "checks": [
+    { "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false", "exitCode": 0 },
+    { "command": "node node_modules/next/dist/bin/next build", "exitCode": 0 },
+    { "name": "existing nine-file regression suite", "tests": 140, "passed": 140, "exitCode": 0 },
+    { "command": "git diff --check -- naver-blog-agent/src/app/(dashboard)/page.tsx", "exitCode": 0 }
+  ],
+  "httpWithoutAuthentication": [
+    { "method": "POST", "path": "/api/photos", "status": 401 },
+    { "method": "POST", "path": "/api/photos/resolve", "status": 401 },
+    { "method": "POST", "path": "/api/extension/photos", "status": 401 },
+    { "method": "POST", "path": "/api/extension/task", "status": 401 },
+    { "method": "GET", "path": "/api/cron/cleanup", "status": 401 }
+  ],
+  "httpNote": "An initial GET probe to /api/extension/task returned 405; the route implements POST. Correct POST probe returned 401.",
+  "localServer": "http://127.0.0.1:4321",
+  "localServerSession": 55844,
+  "browserVerification": "Pending designated ordinary test member login; not bypassed",
+  "edge": {
+    "existingWindow": 2884854,
+    "keyboard": "window_not_focused even after user confirmed window visible",
+    "nativeForegroundRead": "Orca window 3344724 in WinSta0 at 17:41:16 KST",
+    "directNewWindowLaunch": "blocked by policy",
+    "menuNewWindowAttempt": "element_not_found after menu state changed; no new window observed"
+  },
+  "databaseRef": "esgxyikcnnvmlhygjkth",
+  "databaseWrites": 0,
+  "storageWrites": 0,
+  "paidAiCalls": 0,
+  "finalPublications": 0,
+  "deployments": 0,
+  "releaseVersion": "v2.00",
+  "extensionArchiveRebuilt": false
+}

@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/posts/dispatch-scheduled",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cardnews/instagram/dispatch",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

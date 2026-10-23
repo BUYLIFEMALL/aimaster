@@ -1,0 +1,4 @@
+// Program version, shown in the sidebar. Keep it equal to programs.version in the shared DB.
+// Bump the two-digit minor on every change (v1.01 -> v1.02); a major rework moves to the next major (v2.01).
+export const APP_VERSION = "v1.68";
+export const APP_NAME = "INSTA 포스팅 자동화";

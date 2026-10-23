@@ -1,0 +1,5 @@
+-- user_telegram_links(real_estate_sales가 만든 공용 테이블)를 프로그램별로 다른 봇을
+-- 연결할 수 있도록 (user_id, program_slug) 단위로 바꾸는 실 변경은
+-- real_estate_sales/supabase/migrations/20260823120000_telegram_links_per_program.sql에서
+-- 수행했다(2026-08-23). 이 프로젝트도 이 테이블을 쓰므로, `program_slug = 'crm-google-form'`로
+-- 연동할 때부터는 다른 프로그램과 별도의 봇을 쓸 수 있다. 여기서는 추가로 실행할 DDL이 없다.

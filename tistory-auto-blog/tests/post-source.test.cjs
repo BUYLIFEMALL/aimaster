@@ -1,0 +1,82 @@
+// v1.87 (2026-10-22): 글감 출처 규칙
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const ts = require('typescript');
+
+function loadTs(file) {
+  const source = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+  const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const module = { exports: {} };
+  vm.runInThisContext(`(function (exports, require, module) { ${output}\n})`)(module.exports, () => ({}), module);
+  return module.exports;
+}
+
+const s = loadTs('utils/postSource.ts');
+const ME = '11111111-1111-1111-1111-111111111111';
+const ID = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+const NOW = new Date('2026-10-22T00:00:00Z');
+const row = (over = {}) => ({ id: ID, user_id: ME, source_type: 'http', source_input: 'https://news.example.com/a/1', created_at: '2026-10-20T00:00:00Z', ...over });
+
+test('본인 글감이고 30일 안이면 출처를 만든다', () => {
+  const src = s.buildPostSource(row(), ME, NOW);
+  assert.equal(src.candidateId, ID);
+  assert.equal(src.kind, 'http');
+  assert.equal(src.url, 'https://news.example.com/a/1');
+  assert.equal(src.collectedAt, '2026-10-20T00:00:00.000Z');
+  assert.equal(src.expiresAt, '2026-11-19T00:00:00.000Z');
+});
+
+test('다른 회원·30일 지남·잘못된 번호는 출처 없음', () => {
+  assert.equal(s.buildPostSource(row({ user_id: '22222222-2222-2222-2222-222222222222' }), ME, NOW), null);
+  assert.equal(s.buildPostSource(row({ created_at: '2026-09-22T00:00:00Z' }), ME, NOW), null);
+  assert.equal(s.buildPostSource(row({ id: '1; drop' }), ME, NOW), null);
+  assert.equal(s.buildPostSource(null, ME, NOW), null);
+});
+
+test('주소는 http(s)만, 쇼츠·RSS 종류 구분, 저장값 읽기', () => {
+  assert.equal(s.buildPostSource(row({ source_input: 'javascript:alert(1)' }), ME, NOW).url, null);
+  assert.equal(s.buildPostSource(row({ source_input: 'https://user:pw@x.com/' }), ME, NOW).url, null);
+  assert.equal(s.buildPostSource(row({ source_input: 'https://www.youtube.com/shorts/abc' }), ME, NOW).kind, 'shorts');
+  assert.equal(s.buildPostSource(row({ source_type: 'rss', source_input: '내 피드' }), ME, NOW).kind, 'rss');
+  const saved = s.buildPostSource(row(), ME, NOW);
+  assert.deepEqual(s.readPostSource(JSON.parse(JSON.stringify(saved))), saved);
+  assert.equal(s.readPostSource({ candidateId: 'x' }), null);
+  assert.equal(s.SOURCE_KIND_LABELS.shorts, '유튜브 쇼츠');
+});
+
+test('2026-10-23: 글감 출처를 본문 근거 문구로 넣는다(없으면 빈 문자열)', () => {
+  const rule = s.sourceMaterialRule({ title: '캠핑의 역사', summary: '캠핑은 19세기에 시작됐다.', label: 'https://ko.wikipedia.org/wiki/캠핑' });
+  assert.match(rule, /참고 자료/);
+  assert.match(rule, /캠핑의 역사/);
+  assert.match(rule, /지어내지 마세요/);
+  assert.match(rule, /구체적 사실은 흐리거나 빼지 말고/); // 2026-10-23: 자료의 사실은 살려 쓰기
+  assert.equal(s.sourceMaterialRule(undefined), '');
+  assert.equal(s.sourceMaterialRule({ title: '', summary: ' ', label: 'x' }), '');
+});
+
+test('2026-10-23: 이미지 0장 선택지(빈 값은 기본 3장)', () => {
+  const m = loadTs('utils/ai/contentModels.ts');
+  assert.equal(m.resolveImageCount(0), 0);
+  assert.equal(m.resolveImageCount('0'), 0);
+  assert.equal(m.resolveImageCount(undefined), 3);
+  assert.equal(m.resolveImageCount(''), 3);
+  assert.equal(m.resolveImageCount(9), 5);
+  assert.equal(m.IMAGE_COUNT_OPTIONS[0].value, 0);
+});
+
+// 2026-10-23: 소제목(##)과 같은 문구의 작은 제목(###·<h3>)만 지우고 나머지 내용은 그대로 둔다(글 18번 중복 소제목).
+test('dropRepeatedHeading removes only small headings that repeat the section heading', () => {
+  const { dropRepeatedHeading } = loadTs('utils/news/headingDedupe.ts');
+  const body = ['캠핑을 즐기려면 장비가 필요합니다.', '', '### 캠핑 장비: 필수 아이템과 선택 가이드', '', '텐트는 수면 공간입니다.', '', '### 텐트 고르는 법', '', '크기를 봅니다.'].join('\n');
+  const out = dropRepeatedHeading(body, '캠핑 장비: 필수 아이템과 선택 가이드');
+  assert.ok(!out.includes('### 캠핑 장비'));
+  assert.ok(out.includes('### 텐트 고르는 법'));
+  assert.ok(out.includes('캠핑을 즐기려면 장비가 필요합니다.') && out.includes('텐트는 수면 공간입니다.'));
+  assert.ok(!/\n{3,}/.test(out));
+  assert.ok(!dropRepeatedHeading('<h3>캠핑 장비 필수 아이템과 선택 가이드</h3>\n본문', '캠핑 장비: 필수 아이템과 선택 가이드').includes('<h3>'));
+  assert.equal(dropRepeatedHeading('### 다른 제목\n본문', '소제목'), '### 다른 제목\n본문');
+  assert.equal(dropRepeatedHeading('본문', ''), '본문');
+});

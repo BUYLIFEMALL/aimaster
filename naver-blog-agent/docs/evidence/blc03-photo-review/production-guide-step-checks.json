@@ -1,0 +1,19 @@
+{
+  "steps": [
+    {
+      "step": 2,
+      "detailVisible": true
+    },
+    {
+      "step": 3,
+      "detailVisible": true
+    },
+    {
+      "step": 4,
+      "detailVisible": true
+    }
+  ],
+  "ruleCopySuccess": true,
+  "memberSettingsLink": "/settings",
+  "photoScreenLink": "/#private-photo-input"
+}

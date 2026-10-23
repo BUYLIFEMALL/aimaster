@@ -1,0 +1,14 @@
+
+D:\Antigravity\AIMaster\naver-blog-agent\src\app\api\collector\materials\route.ts
+   9:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Antigravity\AIMaster\naver-blog-agent\src\lib\collectedMaterials.ts
+  10:44   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:38   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:44   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:49   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:94   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:109  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 8 problems (0 errors, 8 warnings)

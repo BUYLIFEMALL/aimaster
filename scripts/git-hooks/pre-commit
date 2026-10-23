@@ -1,0 +1,9 @@
+#!/bin/sh
+# AIMaster 커밋 직전 알림(2026-10-20) — 이번 커밋에 시험 안 한 OpenAI 모델 이름이 추가되면 경고만 띄운다.
+# 커밋은 절대 막지 않는다(node가 없거나 오류가 나도 그대로 진행). 설치: node scripts/git-hooks/install.mjs
+command -v node >/dev/null 2>&1 || exit 0
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$root/scripts/check-openai-models.mjs" ] && { node "$root/scripts/check-openai-models.mjs" --staged 2>/dev/null || true; }
+# 2026-10-23: 공용 문서(HANDOFF 등)에서 최근 2시간 안 다른 커밋이 넣은 줄을 지우면 경고(커밋은 계속) — docs/PROPOSAL_20261023_SHARED_DOC_OVERWRITE.md 방안 B
+[ -f "$root/scripts/check-shared-doc-reverts.mjs" ] && { node "$root/scripts/check-shared-doc-reverts.mjs" --staged || true; }
+exit 0

@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-14T12:52:27.687Z",
+  "version": "v1.03",
+  "downloads": [
+    {
+      "file": "v103-live-translation.txt",
+      "bytes": 260,
+      "sha256": "6e04b7285cd259e44c7b76f55035fe400babc5a53771b273e5e178c03a6b9fe0"
+    },
+    {
+      "file": "v103-live-translation.md",
+      "bytes": 260,
+      "sha256": "6e04b7285cd259e44c7b76f55035fe400babc5a53771b273e5e178c03a6b9fe0"
+    },
+    {
+      "file": "v103-live-translation.docx",
+      "bytes": 10060,
+      "sha256": "a2c4512f426ee331d77d685509bfabdc8884ea821b349779a3d4ea3694f64aaf"
+    },
+    {
+      "file": "v103-live-backup.json",
+      "bytes": 4114,
+      "sha256": "bbc5843f76fc2e807cc548b748722fed71ee466aba06d515d617bb9d017b70a4"
+    }
+  ],
+  "actualLineBreaks": true,
+  "urlSeparateFromNextSentence": true,
+  "datesAndParticipantCountPreserved": true,
+  "manualEditInBackup": true,
+  "reverseInBackup": true,
+  "docxHeadingListAndHyperlink": true,
+  "backupRoundTripValidated": true
+}

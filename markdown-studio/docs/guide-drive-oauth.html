@@ -1,0 +1,156 @@
+<p>이 안내는 <strong>Google Cloud를 처음 써 보는 분</strong>도 그림 없이 글만 보고 따라 할 수 있게 한 단계씩 풀어 쓴 것입니다. 전체 소요 시간은 <strong>약 10~15분</strong>이고, 한 번만 하면 됩니다. 비용은 <strong>무료</strong>입니다.</p>
+
+<h2>먼저 알아두세요</h2>
+<ul>
+<li><strong>왜 해야 하나요?</strong> 이 프로그램은 운영자의 구글 앱을 빌려 쓰지 않고, <strong>내가 직접 만든 구글 앱</strong>으로 <strong>내 구글 드라이브</strong>에 연결합니다. 그래서 내 문서는 내 드라이브에만 저장되고 운영자도 볼 수 없습니다. 이 앱의 "신분증" 역할을 하는 것이 <strong>클라이언트 ID</strong>입니다.</li>
+<li><strong>무엇을 만드나요?</strong> ① 구글 클라우드 프로젝트(앱을 담는 상자) ② 드라이브 사용 설정 ③ 동의 화면(앱 소개) ④ 클라이언트 ID(웹 앱 신분증). 이 4가지입니다.</li>
+<li><strong>안전한가요?</strong> 프로그램은 <code>drive.file</code>이라는 가장 좁은 권한만 요청합니다. <strong>이 프로그램이 만든 파일만</strong> 볼 수 있고, 내 드라이브의 다른 파일은 볼 수 없습니다. 파일은 지우지도 않습니다.</li>
+<li><strong>준비물:</strong> 구글 계정(Gmail), 크롬 같은 최신 브라우저, 그리고 프로그램 설정 화면에 표시된 <strong>내 사이트 주소</strong>(예: <code>https://markdown-studio.buylife.xyz</code>). 주소는 설정 화면의 <strong>"주소 복사"</strong> 버튼으로 복사해 두세요.</li>
+<li><strong>화면이 조금 다를 수 있어요.</strong> 구글이 화면을 자주 바꿉니다. 메뉴 이름이 약간 달라도 같은 이름의 항목을 찾아 누르면 됩니다. 영어로 보이면 오른쪽 위 설정에서 언어를 한국어로 바꾸거나, 괄호 안의 영어 이름을 찾으세요.</li>
+</ul>
+
+<h2>1단계. 구글 클라우드에 로그인하기</h2>
+<ol>
+<li>새 탭에서 <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>을 엽니다.</li>
+<li><strong>드라이브를 연결할 구글 계정</strong>으로 로그인합니다. 계정이 여러 개라면 오른쪽 위 동그란 프로필 사진을 눌러 올바른 계정인지 확인하세요.</li>
+<li>처음이라면 "이용약관 동의" 창이 나올 수 있습니다. 국가를 <strong>대한민국</strong>으로 두고 약관에 체크한 뒤 <strong>동의 및 계속</strong>을 누르세요. (결제 정보 입력은 요구하지 않습니다. 결제 정보를 넣으라는 화면이 나오면 건너뛰어도 됩니다.)</li>
+</ol>
+<p>✅ 이렇게 보이면 성공: 파란색 <strong>Google Cloud</strong> 로고가 있는 화면이 열립니다.</p>
+
+<h2>2단계. 프로젝트 만들기</h2>
+<ol>
+<li>화면 맨 위 왼쪽, Google Cloud 로고 옆의 <strong>프로젝트 선택 상자</strong>(프로젝트 이름이나 "프로젝트 선택"이라고 적힌 곳)를 누릅니다.</li>
+<li>작은 창 오른쪽 위의 <strong>새 프로젝트</strong>(New project)를 누릅니다.</li>
+<li><strong>프로젝트 이름</strong>에 알아보기 쉬운 이름을 적습니다. 예: <code>my-markdown-drive</code> (영어·숫자·하이픈 권장)</li>
+<li>"위치"(조직)는 그대로 둡니다. <strong>만들기</strong>를 누르세요.</li>
+<li>몇 초 뒤 오른쪽 위 알림(종 모양)에 "프로젝트가 생성되었습니다"가 뜨면 <strong>프로젝트 선택</strong>을 눌러 방금 만든 프로젝트로 들어갑니다.</li>
+</ol>
+<p>✅ 이렇게 보이면 성공: 맨 위 왼쪽 프로젝트 이름이 내가 만든 이름으로 바뀌어 있습니다. <strong>이후 모든 단계는 반드시 이 프로젝트 안에서</strong> 진행하세요. (이미 쓰는 프로젝트가 있으면 새로 만들지 않고 그 프로젝트를 골라도 됩니다.)</p>
+
+<h2>3단계. 구글 드라이브 사용 설정하기</h2>
+<ol>
+<li>왼쪽 위 <strong>☰ 메뉴</strong>(줄 3개)를 누릅니다.</li>
+<li><strong>API 및 서비스</strong> → <strong>라이브러리</strong>를 누릅니다.</li>
+<li>가운데 검색창에 <code>Google Drive API</code>를 입력하고 검색 결과에서 <strong>Google Drive API</strong>를 누릅니다. (비슷한 이름이 여러 개면 "Google Enterprise API"가 붙은 곳의 <strong>Google Drive API</strong>를 고르세요.)</li>
+<li>파란색 <strong>사용</strong>(Enable) 버튼을 누릅니다. 이미 사용 중이면 "API 관리"라고 표시되며, 그대로 두면 됩니다.</li>
+</ol>
+<p>✅ 이렇게 보이면 성공: 화면에 "API가 사용 설정됨" 또는 "API 관리" 버튼이 보입니다.</p>
+
+<h2>4단계. 동의 화면 만들기 (앱 소개 입력)</h2>
+<p>구글이 "이 앱이 내 드라이브에 접근해도 되나요?"라고 물을 때 보여주는 화면을 준비하는 단계입니다.</p>
+<ol>
+<li>왼쪽 ☰ 메뉴 → <strong>API 및 서비스</strong> → <strong>OAuth 동의 화면</strong>을 누릅니다. 최신 화면에서는 <strong>Google 인증 플랫폼</strong>(Google Auth Platform)이 열리고 <strong>"시작하기"</strong> 버튼이 보입니다. 누르세요.</li>
+<li><strong>앱 정보</strong>: 앱 이름에 <code>내 마크다운 문서</code>처럼 아무 이름이나 적고, <strong>사용자 지원 이메일</strong>은 목록에서 내 이메일을 고릅니다. <strong>다음</strong>을 누릅니다.</li>
+<li><strong>대상</strong>(Audience): <strong>외부</strong>(External)를 선택하고 <strong>다음</strong>을 누릅니다. (개인 Gmail은 "외부"만 선택할 수 있습니다.)</li>
+<li><strong>연락처 정보</strong>: 내 이메일을 입력하고 <strong>다음</strong>을 누릅니다.</li>
+<li><strong>완료</strong>: "Google API 서비스 사용자 데이터 정책에 동의합니다"에 체크하고 <strong>계속</strong> → <strong>만들기</strong>를 누릅니다.</li>
+</ol>
+<p>✅ 이렇게 보이면 성공: 왼쪽에 <strong>개요 · 브랜딩 · 대상 · 클라이언트 · 데이터 액세스</strong> 같은 메뉴가 나타납니다. (옛 화면이면 "게시 상태: 테스트"가 보입니다.)</p>
+
+<h2>5단계. 내 계정을 테스트 사용자로 추가하기 (가장 많이 빠뜨리는 단계!)</h2>
+<p>앱이 "테스트" 상태일 때는 <strong>미리 등록한 사람만</strong> 로그인할 수 있습니다. 이 단계를 빠뜨리면 내 계정으로도 "액세스 차단됨" 오류가 나옵니다.</p>
+<ol>
+<li>왼쪽 메뉴에서 <strong>대상</strong>(Audience)을 누릅니다. (옛 화면은 OAuth 동의 화면 안의 "테스트 사용자" 영역)</li>
+<li>화면을 아래로 내려 <strong>테스트 사용자</strong>(Test users) 항목을 찾아 <strong>+ Add users</strong>(사용자 추가)를 누릅니다.</li>
+<li>드라이브를 연결할 <strong>내 구글 이메일</strong>을 입력하고 <strong>저장</strong>을 누릅니다. (여러 명이 같은 프로젝트를 쓰면 줄마다 한 명씩 추가)</li>
+</ol>
+<p>✅ 이렇게 보이면 성공: 테스트 사용자 목록에 내 이메일이 나타납니다. 상단의 게시 상태는 <strong>테스트</strong>(Testing) 그대로 두면 됩니다.</p>
+
+<h2>6단계. 클라이언트 ID 만들기 (핵심 단계)</h2>
+<ol>
+<li>왼쪽 메뉴에서 <strong>클라이언트</strong>(Clients)를 누릅니다. (옛 화면: ☰ → API 및 서비스 → <strong>사용자 인증 정보</strong> → 위쪽 <strong>+ 사용자 인증 정보 만들기</strong> → <strong>OAuth 클라이언트 ID</strong>)</li>
+<li><strong>+ 클라이언트 만들기</strong>(Create client)를 누릅니다.</li>
+<li><strong>애플리케이션 유형</strong>에서 반드시 <strong>웹 애플리케이션</strong>(Web application)을 고르세요. (데스크톱, Android, iOS 등을 고르면 동작하지 않습니다.)</li>
+<li><strong>이름</strong>은 아무거나 적습니다. 예: <code>markdown-drive</code></li>
+<li>아래로 내려 <strong>승인된 JavaScript 원본</strong>(Authorized JavaScript origins) 영역을 찾아 <strong>+ URI 추가</strong>를 누릅니다.</li>
+<li>나타난 입력칸에 <strong>프로그램 설정 화면에 표시된 주소를 그대로</strong> 붙여 넣습니다. 예:
+<br><code>https://markdown-studio.buylife.xyz</code>
+<br>※ 맨 끝에 <code>/</code>를 붙이지 마세요. 앞의 <code>https://</code>는 꼭 있어야 하고, 주소 뒤에 다른 글자(<code>/settings</code> 등)를 붙이면 안 됩니다.</li>
+<li><strong>"승인된 리디렉션 URI" 영역은 비워 둡니다.</strong> 이름이 비슷해 헷갈리기 쉬운데, 이 프로그램은 리디렉션 방식을 쓰지 않습니다.</li>
+<li>맨 아래 <strong>만들기</strong>(Create)를 누릅니다.</li>
+</ol>
+<p>✅ 이렇게 보이면 성공: "OAuth 클라이언트가 생성되었습니다" 창이 나타나고 <strong>클라이언트 ID</strong>(<code>숫자-문자.apps.googleusercontent.com</code> 모양)가 보입니다.</p>
+<p>⚠️ 같은 창에 <strong>클라이언트 보안 비밀번호</strong>(Client secret)도 보일 수 있습니다. 이 프로그램은 <strong>사용하지 않으니 복사하거나 어디에도 입력하지 마세요.</strong></p>
+
+<h2>7단계. 클라이언트 ID 복사하기</h2>
+<ol>
+<li>생성 완료 창의 <strong>클라이언트 ID</strong> 오른쪽 <strong>복사 아이콘(📋)</strong>을 누릅니다.</li>
+<li>창을 닫았다면 왼쪽 <strong>클라이언트</strong> 메뉴에서 방금 만든 클라이언트를 눌러 열면 오른쪽에 클라이언트 ID가 다시 보입니다.</li>
+<li><code>.apps.googleusercontent.com</code>까지 <strong>한 줄 전체</strong>가 복사되어야 합니다.</li>
+</ol>
+<p>💡 클라이언트 ID는 비밀번호가 아니라 앱의 이름표 같은 공개 정보입니다. 다만 <strong>클라이언트 보안 비밀번호(Secret)는 절대 남에게 보여주지 마세요.</strong></p>
+
+<h2>8단계. 프로그램에 입력하고 연결하기</h2>
+<ol>
+<li>프로그램의 <strong>API키등록·플랫폼연동</strong> 화면으로 돌아옵니다.</li>
+<li><strong>Google Client ID</strong> 입력칸에 복사한 값을 붙여 넣고 <strong>Client ID 저장</strong>을 누릅니다. ("Client ID를 이 브라우저에 저장했습니다"가 뜹니다.)</li>
+<li><strong>Google에 연결</strong> 버튼을 누릅니다. 작은 <strong>구글 창</strong>이 열립니다. (팝업이 차단되면 주소창 오른쪽의 차단 표시를 눌러 허용하세요.)</li>
+<li>드라이브를 연결할 <strong>내 계정</strong>을 고릅니다.</li>
+<li>"Google에서 확인하지 않은 앱" 안내가 나오면 <strong>고급</strong> → <strong>(앱 이름)(안전하지 않음)으로 이동</strong>을 누릅니다. (내가 만든 앱이라서 나오는 정상적인 안내입니다.)</li>
+<li><strong>Google 드라이브에서 이 앱이 만든 파일 보기 및 관리</strong> 같은 항목에 체크한 뒤 <strong>계속</strong>을 누릅니다. <strong>체크를 해제하면 연결이 되지 않습니다.</strong></li>
+</ol>
+<p>✅ 이렇게 보이면 성공: 설정 화면에 <strong>"연결됨: 내 이메일"</strong>이 표시됩니다.</p>
+
+<h2>9단계. 잘 되는지 시험해 보기</h2>
+<p>⚠️ <strong>연결은 "문서 보관함" 화면에서 해야 합니다.</strong> 보안을 위해 구글 접근 허가 정보를 화면 메모리에만 두기 때문에, 다른 메뉴로 이동하거나 새로고침하면 연결이 풀립니다. (8단계는 "설정이 맞는지 확인하는 연습"이고, 실제로 올릴 때는 아래처럼 보관함에서 다시 연결합니다.)</p>
+<ol>
+<li>프로그램 왼쪽 메뉴에서 <strong>4. 문서 보관함</strong>을 누릅니다.</li>
+<li>맨 아래 <strong>Google Drive</strong> 카드에서 <strong>Google에 연결</strong>을 누르고, 8단계처럼 계정을 고른 뒤 허용합니다. (이미 허용한 적이 있으면 계정만 고르면 됩니다.)</li>
+<li>카드에 <strong>"연결됨: 내 이메일"</strong>이 보이면 <strong>현재 문서 올리기</strong>(또는 <strong>전체 문서 올리기</strong>)를 누릅니다.</li>
+<li>결과 목록에 <strong>"새로 올림"</strong>이 표시되면 성공입니다. 구글 드라이브(drive.google.com)를 열어 <strong>"마크다운 문서 자동화"</strong> 폴더와 그 안의 문서를 확인해 보세요.</li>
+<li>Drive에서 올린 파일을 수정한 뒤 보관함에서 <strong>Drive 목록 불러오기</strong>를 누르면 "Drive에서 변경됨"으로 표시되고, 선택해서 가져올 수 있습니다.</li>
+</ol>
+
+<h2>막혔을 때 (오류별 해결 방법)</h2>
+<h3>구글 창에 "오류 400: origin_mismatch"가 나와요</h3>
+<ul>
+<li>6단계의 <strong>승인된 JavaScript 원본</strong>에 주소가 없거나 틀린 것입니다. 클라이언트를 열어 주소를 확인하세요. 끝의 <code>/</code>, 공백, 오타가 없어야 합니다.</li>
+<li><strong>리디렉션 URI</strong> 칸이 아니라 <strong>JavaScript 원본</strong> 칸인지 확인하세요.</li>
+<li>저장 직후에는 반영까지 <strong>5분(길면 몇 시간)</strong> 걸릴 수 있습니다. 잠시 기다린 뒤 다시 시도하세요.</li>
+</ul>
+<h3>"액세스 차단됨" 또는 "access_denied"가 나와요</h3>
+<ul>
+<li>5단계의 <strong>테스트 사용자</strong>에 내 이메일이 없는 것입니다. 추가하세요. 구글 창에서 고른 계정이 등록한 계정과 같은지도 확인하세요.</li>
+</ul>
+<h3>구글 창이 열리자마자 닫혀요 / "연결 창이 닫혔습니다"</h3>
+<ul>
+<li>브라우저가 팝업을 막은 것일 수 있습니다. 주소창 오른쪽의 팝업 차단 표시를 눌러 <strong>항상 허용</strong>하고 다시 시도하세요.</li>
+<li>위의 origin_mismatch 때문에 구글이 창을 바로 닫는 경우도 있으니 6단계 주소를 다시 확인하세요.</li>
+</ul>
+<h3>연결은 됐는데 "Drive API가 사용 설정되어 있지 않습니다"라고 나와요</h3>
+<ul>
+<li>3단계를 <strong>클라이언트를 만든 같은 프로젝트</strong>에서 했는지 확인하세요. 프로젝트가 다르면 소용이 없습니다. 맨 위 프로젝트 이름을 확인하고 3단계를 다시 하세요.</li>
+</ul>
+<h3>"Drive 파일 접근" 권한이 없다고 나와요</h3>
+<ul>
+<li>8단계 마지막의 체크 항목을 해제한 경우입니다. 설정 화면에서 <strong>Google에 연결</strong>을 다시 누르고 해당 항목에 체크하세요.</li>
+</ul>
+<h3>잘못된 클라이언트 ID라고 나와요</h3>
+<ul>
+<li><code>숫자-문자.apps.googleusercontent.com</code> 형태 <strong>한 줄 전체</strong>인지 확인하세요. 앞뒤 공백이나 줄바꿈이 섞이지 않았는지, 보안 비밀번호(Secret)를 넣지 않았는지도 확인하세요.</li>
+</ul>
+<h3>새로고침했더니 연결이 풀렸어요</h3>
+<ul>
+<li>정상입니다. 보안을 위해 접근 허가 정보는 이 브라우저 화면 메모리에만 두고 저장하지 않습니다. 다른 메뉴로 이동해도 같습니다. <strong>문서 보관함의 Google Drive 카드에서 Google에 연결</strong>을 다시 누르면 되고, 클라이언트 ID는 그대로 기억됩니다.</li>
+</ul>
+
+<h2>자주 묻는 질문</h2>
+<ul>
+<li><strong>비용이 드나요?</strong> 아니요. 구글 클라우드 프로젝트와 OAuth 클라이언트 만들기, 드라이브 API 사용은 무료입니다. 결제 수단을 등록할 필요가 없습니다.</li>
+<li><strong>내 드라이브의 다른 파일도 보이나요?</strong> 아니요. 이 프로그램이 만든 파일(그리고 "마크다운 문서 자동화" 폴더 안의 항목)만 접근합니다.</li>
+<li><strong>이미 구글 클라우드를 쓰고 있어요.</strong> 새 프로젝트를 만들지 않아도 됩니다. 기존 프로젝트에서 3~7단계를 하면 되고, 이미 만든 <strong>웹 애플리케이션</strong> 클라이언트가 있으면 <strong>승인된 JavaScript 원본에 주소만 추가</strong>해도 됩니다(기존 항목은 지우지 마세요).</li>
+<li><strong>"테스트" 상태로 계속 써도 되나요?</strong> 네, 본인과 등록한 테스트 사용자만 쓰는 개인용이면 충분합니다.</li>
+<li><strong>연결을 끊고 싶어요.</strong> 프로그램의 <strong>연결 해제</strong> 버튼을 누르세요. 구글 쪽에서도 끊으려면 <a href="https://myaccount.google.com/permissions" target="_blank">myaccount.google.com/permissions</a>에서 이 앱을 찾아 "액세스 권한 삭제"를 누르면 됩니다. 드라이브의 파일은 지워지지 않습니다.</li>
+<li><strong>다른 사람이 내 앱을 쓸 수 있나요?</strong> 클라이언트 ID가 알려져도 <strong>내가 등록한 테스트 사용자만</strong> 로그인할 수 있고, 연결된 정보는 각자의 브라우저에만 저장됩니다.</li>
+</ul>
+
+<h2>설정 완료 체크리스트</h2>
+<ul>
+<li>☐ 내 프로젝트가 만들어졌고 맨 위에 그 이름이 보인다</li>
+<li>☐ Google Drive API가 "사용"으로 되어 있다</li>
+<li>☐ 동의 화면(앱 이름·이메일)을 만들었다</li>
+<li>☐ 테스트 사용자에 내 이메일을 추가했다</li>
+<li>☐ 웹 애플리케이션 클라이언트를 만들고 <strong>JavaScript 원본</strong>에 프로그램 주소를 넣었다 (리디렉션 URI는 비움)</li>
+<li>☐ 클라이언트 ID(한 줄 전체)를 프로그램에 저장했다 / Secret은 넣지 않았다</li>
+<li>☐ "Google에 연결"에서 Drive 파일 접근을 허용했고 "연결됨"이 보인다</li>
+</ul>

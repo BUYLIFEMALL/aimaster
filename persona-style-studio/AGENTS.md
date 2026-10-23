@@ -1,0 +1,100 @@
+# 페르소나 문체 자동화 — 인수인계 (AGENTS.md)
+
+> 다른 CLI(Codex·Gemini·다른 Claude 세션)가 대화 없이 이어서 작업할 수 있도록 쓴 문서입니다. 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`를 먼저 읽습니다. 작업 기록은 아래 "작업 기록"에 **추가만** 합니다.
+
+## 1. 한눈에 보기
+| 항목 | 값 |
+|---|---|
+| 이름 / slug | 페르소나 문체 자동화 / `persona-style-studio` |
+| 현재 버전 | **v1.09 — 사용 종료(2026-10-21 병합 B)**: AI 글쓰기 에디터 「🎚️ 문체 바꾸기」로 옮겨짐. 화면은 안내만, API 410, 카탈로그 숨김(`is_active=false`) |
+| 라이브 | https://persona-style-studio.buylife.xyz (옛 `persona-style-studio.vercel.app` 유지) |
+| 적용 디자인 템플릿 | **포커스 스튜디오 스타일 (Focus Studio Style · 문체 변환 스튜디오)** |
+| 인수인계 문서 | [로그인 플랜](docs/PLAN_20261017_LOGIN_RENEWAL.md) · [로그인 인수인계](docs/IMPROVEMENT_HANDOFF_20261017.md) · [디자인 인수인계](docs/DESIGN_HANDOFF.md) · [가이드 플랜](docs/PLAN_20261016_DESIGN_RENEWAL.md) · [개선 대장](docs/IMPROVEMENTS.md) |
+| Vercel | 팀 `buylife`, 프로젝트 `persona-style-studio` (CLI 업로드 배포) |
+| 배지·카테고리 | FREE + new, Tools, 최소 등급 일반, 요금제 1·2·3개월(1만/2만/3만원) 등록 |
+| 스택 | Next.js 16 · React 19 · Tailwind 4 · Supabase · `@google/genai` |
+| AI 모델 | `gemini-2.5-flash` (`src/lib/gemini.ts`의 `GEMINI_TEXT_MODEL` 한 줄, thinking 끔 → 응답 약 1~3초) |
+| 비용 | **회원 본인의 Gemini 키**로 서버에서 호출 → 운영자 비용 없음 → 프리미엄 후보 아님 |
+| 참고 원본 | prompt-equalizer.vercel.app (HTML·번들 전체 분석, 구조·동작만 참고, 기본 페르소나·샘플·프리셋 문구는 새로 작성) |
+
+## 2. 무엇을 하는 프로그램인가
+글을 넣고 창의성·명확성·감정 깊이·길이·전문성 5개 슬라이더(프리셋 8종)와 캐릭터 페르소나(말투·세계관·문체)로 문체를 바꿔 다시 써 준다. 화면은 3단: 왼쪽 페르소나 / 가운데 집필 캔버스 / 오른쪽 이퀄라이저·프리셋.
+
+## 3. 구조
+```
+src/lib/persona/types.ts     타입·상수(EQ 키, 한도, 라벨)
+src/lib/persona/data.ts      프리셋 8·기본 페르소나 10·샘플 5 (ko/en) — 문구는 직접 작성
+src/lib/persona/prompt.ts    값 보정, 길이→분량 비율, 다시쓰기/페르소나 생성 프롬프트(연도 지침 포함), JSON 파싱
+src/lib/gemini.ts            회원 키로 Gemini 호출 + 오류를 한국어 문구로 변환
+src/lib/apiKeys.ts           user_api_keys(provider=gemini) 읽기/저장 — 본인 키만, 폴백 없음
+src/app/api/rewrite          글 다시쓰기(권한→본인 키→8,000자 제한)
+src/app/api/persona-generate 이름·역할로 페르소나 상세 자동 생성(JSON)
+src/app/api/personas         내 페르소나 목록/저장/삭제(기본 페르소나 수정값 + custom-… ), 최대 custom 100개
+src/app/api/drafts           초안 목록/저장/삭제, 최대 200개
+src/app/api/user-key         Gemini 키 상태(마스킹)/저장
+src/components/studio/*      StudioWorkspace(상태·API 연결), PersonaPanel, CanvasPanel, EqPanel, EqSlider, i18n
+src/components/settings/ApiKeySettings.tsx   API키등록·플랫폼연동 + 📖 연동 매뉴얼 팝업(platform_guides f442cd37…)
+supabase/migrations/0001_persona_style_tables.sql  테이블·RLS, 0002_register_program.sql  프로그램 등록
+tests/persona.test.mjs · access.test.mjs   `npm test` 14개 통과
+```
+- 접근 판정은 `image-convert-studio`와 같은 핸드폰 확인 포함 코드(정지 → 관리자 → 핸드폰 → FREE → 구독 → 등급+부여). 모든 API route는 `checkProgramAccessApi()` + `dynamic/fetchCache` 두 줄 선언.
+- 사이드바 표준: ← 다른 프로그램 보기, 번호 흐름(1 집필 스튜디오), API키등록·플랫폼연동, 사용 안내, 계정·로그아웃이 마지막 메뉴 바로 아래.
+
+## 4. DB (공용 Supabase `esgxyikcnnvmlhygjkth`)
+- `persona_style_personas` (user_id, persona_key, name, role, description, avatar, lore, voice, style, eq_values jsonb, UNIQUE(user_id, persona_key)) — RLS owner-only. 기본 페르소나를 고치면 persona_key=`persona-…` 행이 생기고(초기화=삭제), 직접 만든 것은 `custom-…`.
+- `persona_style_drafts` (user_id, title, content, eq_values, persona_key) — RLS owner-only.
+- 서버는 service role로 쓰되 **항상 user_id로 필터**한다.
+
+## 5. 동작 메모 (원본과 다르게 한 점)
+- 키: 원본은 브라우저 localStorage(base64)+브라우저에서 직접 호출 → 우리는 서버 호출·DB 저장(본인 키만). 키 없으면 `needKey` 응답 → "API 키 등록이 필요합니다" 팝업.
+- 저장: 원본의 로컬 폴더 파일 → 계정 DB + 내보내기/가져오기(JSON) + 초안은 `.txt` 다운로드도 함께.
+- 길이 슬라이더는 원문 대비 분량 비율(0→30%, 50→100%, 100→200%)로 프롬프트에 명시. 입력은 `<original_text>` 태그로 감싸 지시문으로 오해하지 않게 함. 당해 연도(2026) 지침 포함.
+- 원본의 하단 가짜 값(TOKENS 420/4096, LATENCY 12ms)은 만들지 않고 실제 입력 글자 수·마지막 응답 시간만 표시.
+- 결과는 캔버스 글을 덮어쓰고(원본과 같음) **되돌리기** 버튼으로 직전 글 복원(원본에 없던 추가).
+
+## 6. 배포·운영 절차
+1. `npm test` → `npm run build`. 2. 버전 +0.01(`src/lib/version.ts`의 `APP_VERSION` **줄만** — 주석의 "v1.01 형태" 문구를 바꾸지 않게 주의) + `package.json` + DB `update programs set version='vX.YY' where slug='persona-style-studio'` + 이 문서·README 기록. 3. `cd persona-style-studio && vercel deploy --prod --yes --scope buylife`. 4. 경로를 지정해 커밋(`git commit -- persona-style-studio …`) 후 `git push origin master`. 5. 라이브를 새로고침해 사이드바 버전 확인.
+- 환경변수 4개(Supabase URL/ANON/SERVICE_ROLE, `NEXT_PUBLIC_MAIN_SITE_URL`)는 `scripts/add-persona-style-vercel-env.mjs`로 production에 등록 완료.
+
+## 7. 알려진 한계·남은 일
+- 화면 검수(2026-10-13, 일반 회원 `buylifemall@naver.com` 실제 Chrome): 접근 판정 통과, 페르소나 만들기+**AI 자동 생성**(본인 키)+저장, 내보내기(JSON 내용 확인)·가져오기(기본 페르소나 수정본+새 인물)·초기화·삭제, 초안 저장(txt 다운로드 내용 확인)·불러오기 모달·초안 반영, English 전환(전 영역), 키 없음 팝업(응답을 흉내 내 확인 — 이 계정은 키가 등록돼 있어 실제 미등록 상태는 못 봄), 슬라이더 **마우스 드래그**(85→21)·키보드·프리셋 선택/해제, 모바일 폭(390px) 가로 넘침 없음. 시험 데이터는 모두 삭제함.
+- 슬라이더는 Pointer Events(마우스 드래그 확인)와 키보드를 지원하지만 실제 **터치 기기**에서는 시험하지 못했다.
+- 결과 비교(원문/결과 나란히)는 만들지 않았다(되돌리기만).
+- 모델 응답이 매우 길면 Vercel 함수 기본 시간 안에 끝나는지(8,000자 입력 + 긴 출력) 점검 필요.
+
+## 8. 작업 기록 (추가만)
+- **2026-10-13 v1.01** 신규 구축·배포·프로그램 등록·도메인 연결, 테이블 마이그레이션 적용.
+- **2026-10-13 v1.02** Gemini thinking 끔(응답 약 20초 → 1~3초), 페르소나 패널 머리글 줄바꿈 수정. 썸네일 생성·등록(관리자 Gemini 키 1회 사용, 임시 파일 삭제).
+- **2026-10-13 v1.03** 일반 회원 화면 시험 결과 반영: 내보내기 파일 날짜를 한국 날짜로, 페르소나 패널을 화면 높이 안으로 제한(수정 패널의 저장 버튼이 화면 밖으로 밀리던 문제).
+- **2026-10-13 v1.04** 페르소나 패널 높이를 `100vh-7rem`으로 더 줄여 스크롤 없이 수정 패널의 저장 버튼이 보이게 함(확인 완료).
+
+
+## B5 (2026-10-15) — 한국 시간 현재 월 기준 추가 (v1.05)
+
+- 주 생성·분석 지침에 한국 시간 기준 현재 연·월을 반영하고, 계절·시기 표현은 현재 월에 맞추며 불필요한 계절·연도 표현을 덧붙이지 않도록 했습니다.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.06 (persona-style-studio)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+
+## 2026-10-16 Antigravity(Windows) — 포커스 스튜디오 디자인 리뉴얼 & 전 화면 단일 배경색(#f8fafc) 일체화 및 비주얼 가이드북 전면 고도화 (v1.07)
+
+- **적용 디자인 템플릿**: **포커스 스튜디오 스타일 (Focus Studio Style · 문체 변환 스튜디오)**
+- **단일 배경색 일체화**: 라이트 클린 슬레이트 `#f8fafc`, 퓨어 화이트 카드, 바이올렛/퍼플 포인트 (`globals.css`, `DashboardLayout`, 전 화면 통일).
+- **비주얼 사용 매뉴얼 (`/guide`) 전면 고도화**: 5단계 파이프라인 인포그래픽, 5대 슬라이더 매트릭스 치트시트, FAQ 4종 아코디언, 보안 원칙 배너 탑재.
+- **사이드바 메뉴 표준화**: 유틸리티 메뉴를 표준 `📖 연동 & 사용 매뉴얼`로 변경 및 활성 스타일 적용.
+- **배포 및 검수**: Vercel 프로덕션 배포 (`https://persona-style-studio.buylife.xyz/`), Microsoft Edge 실세션 데스크톱/모바일 6종 검수 완료.
+
+<!-- DETAILED_PROGRAM_REVIEW_20261019 -->
+## 2026-10-19 Codex — 프로그램별 상세 개선 분석(구현 아님)
+
+[세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
+<!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-21 Claude Code(윈도우) — 병합 B: AI 글쓰기 에디터로 흡수, 사용 종료 (v1.09)
+- 기능(슬라이더 5·프리셋 8·페르소나 10·나만의 페르소나)은 `ai-writing-editor` v1.11 「🎚️ 문체 바꾸기」로 옮김(프롬프트 `src/lib/persona/*` 그대로 복사, 표 `persona_style_personas` 재사용).
+- 이 앱: `/`·`(dashboard)` 전 화면 → `components/MovedNotice.tsx`, `/api/{rewrite,persona-generate,personas,drafts,user-key}` → 410. 옛 작업 화면 부품(`components/studio/*`)은 쓰이지 않지만 지우지 않고 남김.
+- DB: `programs` v1.09·`is_active=false`. 페르소나·초안 표는 0건이라 옮길 데이터 없음. 권한 175명은 에디터 권한 이미 보유(24명 기간 연장). 백업 `D:\Antigravity\AIMaster_backup\merge-b-20261021`.
+- 확인: 첫 화면·로그인 `/studio` 안내, `/api/rewrite` 410, 카탈로그 미노출.

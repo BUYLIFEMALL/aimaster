@@ -1,0 +1,36 @@
+// 관리자 패널 좌측 메뉴 목록 — 관리자 사이드바와 메인 사이트 상단 사용자 메뉴(바로가기)가 같이 쓴다.
+import {
+  LayoutDashboard,
+  Package,
+  PackagePlus,
+  Users,
+  Award,
+  CreditCard,
+  BarChart2,
+  Shield,
+  Settings,
+  Ticket,
+  HelpCircle,
+  Megaphone,
+  FileText,
+  KeyRound,
+  Sparkles,
+} from "lucide-react";
+
+export const ADMIN_NAV_ITEMS = [
+  { href: "/admin", icon: LayoutDashboard, label: "대시보드" },
+  { href: "/admin/programs", icon: Package, label: "프로그램 관리" },
+  { href: "/admin/programs/new", icon: PackagePlus, label: "프로그램 추가" },
+  { href: "/admin/prompts", icon: Sparkles, label: "프로그램별 프롬프트 관리" },
+  { href: "/admin/members", icon: Users, label: "회원 관리 (사용권한/기간)" },
+  { href: "/admin/access-matrix", icon: Shield, label: "접근 권한 관리" },
+  { href: "/admin/grades", icon: Award, label: "등급 관리" },
+  { href: "/admin/coupons", icon: Ticket, label: "쿠폰 관리" },
+  { href: "/admin/faq", icon: HelpCircle, label: "FAQ 관리" },
+  { href: "/admin/guides", icon: KeyRound, label: "API/플랫폼 가이드 관리" },
+  { href: "/admin/notices", icon: Megaphone, label: "공지사항 관리" },
+  { href: "/admin/legal", icon: FileText, label: "약관/정책 관리" },
+  { href: "/admin/settlements", icon: CreditCard, label: "정산 관리" },
+  { href: "/admin/statistics", icon: BarChart2, label: "통계" },
+  { href: "/admin/settings", icon: Settings, label: "사이트 설정" },
+];

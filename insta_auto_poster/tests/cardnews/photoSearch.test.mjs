@@ -1,0 +1,123 @@
+// 배경 무료 사진 검색(v1.63) — 주소 허용 규칙, 검색 요청 모양, 응답 해석
+import test from "node:test";
+import assert from "node:assert/strict";
+import { allowedPhotoUrl, photoSearchRequest, parsePhotos, searchPhotos, isPhotoProvider } from "../../src/lib/cardnews/photoSearch.ts";
+
+test("제공처 이미지 서버의 사진 경로만 허용", () => {
+  assert.ok(allowedPhotoUrl("https://cdn.pixabay.com/photo/2020/01/01/a.jpg"));
+  assert.ok(allowedPhotoUrl("https://pixabay.com/get/abc123.jpg"));
+  assert.ok(allowedPhotoUrl("https://images.pexels.com/photos/1/pexels-1.jpeg"));
+  for (const bad of ["http://cdn.pixabay.com/photo/a.jpg", "https://evil.com/photo/a.jpg", "https://images.pexels.com/photos/a.jpg#x", "https://cdn.pixabay.com/photo/a.svg", "https://images.pexels.com:8443/photos/a.jpg", 123])
+    assert.throws(() => allowedPhotoUrl(bad));
+});
+
+test("검색 요청: Pixabay는 주소에 키, Pexels는 머리글에 키", () => {
+  const a = photoSearchRequest("pixabay", "K1", "커피", "4:5");
+  assert.equal(a.url.hostname, "pixabay.com");
+  assert.equal(a.url.searchParams.get("key"), "K1");
+  assert.equal(a.url.searchParams.get("orientation"), "vertical");
+  assert.deepEqual(a.headers, {});
+  const b = photoSearchRequest("pexels", "K2", "coffee", "1:1");
+  assert.equal(b.url.searchParams.get("orientation"), "square");
+  assert.equal(b.url.searchParams.has("key"), false);
+  assert.equal(b.headers.Authorization, "K2");
+  assert.ok(isPhotoProvider("pexels") && !isPhotoProvider("unsplash"));
+});
+
+test("응답 해석: 허용 주소 행만, 작가·출처 포함", () => {
+  const pix = parsePhotos("pixabay", { hits: [
+    { id: 1, largeImageURL: "https://pixabay.com/get/a.jpg", webformatURL: "https://pixabay.com/get/a_640.jpg", pageURL: "https://pixabay.com/photos/a-1/", user: "kim" },
+    { id: 2, largeImageURL: "https://evil.com/a.jpg", webformatURL: "https://pixabay.com/get/b.jpg", pageURL: "https://pixabay.com/photos/b-2/", user: "x" },
+  ] });
+  assert.equal(pix.length, 1);
+  assert.deepEqual([pix[0].id, pix[0].author, pix[0].source], ["1", "kim", "pixabay"]);
+  const pex = parsePhotos("pexels", { photos: [{ id: 9, src: { large2x: "https://images.pexels.com/photos/9/a.jpeg", medium: "https://images.pexels.com/photos/9/a-m.jpeg" }, url: "https://www.pexels.com/photo/a-9/", photographer: "lee" }] });
+  assert.equal(pex[0].author, "lee");
+  assert.throws(() => parsePhotos("pexels", { nope: 1 }));
+});
+
+test("검색 실패 안내: 키 오류·한도", async () => {
+  const fake = (status) => async () => new Response("{}", { status });
+  await assert.rejects(searchPhotos("pixabay", "k", "q", "4:5", { call: fake(401) }), /API 키와 사용 권한/);
+  await assert.rejects(searchPhotos("pexels", "k", "q", "4:5", { call: fake(429) }), /한도/);
+});
+
+test("미배포 대기(2026-10-23): 전체 무료 사진 자동 채우기·출처 배지·공용 기준 코드 독립성", async () => {
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("../../src/app/(dashboard)/cardnews/background/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /data-photo-fill/);
+  assert.match(page, /=== "nokey"\) stop = true/);
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /data-photo-source/);
+  // 공용 기준 코드는 프로그램 전용 모듈을 가져오지 않는다(사본이 그대로 동작해야 함)
+  const base = readFileSync(new URL("../../src/lib/cardnews/photoSearch.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(base, /^import /m);
+});
+
+test("v1.65: 서로 다른 사진·연결 확인·피드 직접 첨부(JPEG 저장)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("../../src/app/(dashboard)/cardnews/background/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /data-photo-distinct/);
+  assert.match(page, /used\?\.add\(first\.url\)/);
+  const settings = readFileSync(new URL("../../src/app/(dashboard)/settings/page.tsx", import.meta.url), "utf8");
+  assert.match(settings, /<PhotoKeyCheckButton/);
+  const form = readFileSync(new URL("../../src/components/posts/PostForm.tsx", import.meta.url), "utf8");
+  assert.match(form, /target="feed"/);
+  assert.match(form, /!IS_STANDALONE && slides\.length < requiredSlides/);
+  const route = readFileSync(new URL("../../src/app/api/cardnews/photos/route.ts", import.meta.url), "utf8");
+  assert.match(route, /body\.target === "feed"/);
+  assert.match(route, /from\("insta-post-images"\)\.upload\(feedPath, jpeg, \{ contentType: "image\/jpeg"/);
+});
+
+test("v1.66: 사진 검색어 Enter는 바깥 양식(새 글)을 제출하지 않는다", async () => {
+  const { readFileSync } = await import("node:fs");
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /if \(e\.key !== "Enter"\) return;\s*e\.preventDefault\(\);/);
+  // 패널 안 버튼은 모두 type="button"(양식 제출 금지)
+  const buttons = panel.match(/<button\b[^>]*>/g) ?? [];
+  assert.ok(buttons.length > 0 && buttons.every((b) => b.includes('type="button"')));
+});
+
+test("미배포 대기(2026-10-23): 피드 이미지는 JPEG로 저장 — 서버 변환(투명 → 흰 배경)·브라우저 변환·저장 경로", async () => {
+  const sharp = (await import("sharp")).default;
+  const { toInstagramJpeg } = await import("../../src/lib/posts/instagramJpeg.ts");
+  const png = await sharp({ create: { width: 8, height: 8, channels: 4, background: { r: 255, g: 0, b: 0, alpha: 0 } } }).png().toBuffer();
+  const out = await toInstagramJpeg(png, "image/png");
+  assert.equal(out.mimeType, "image/jpeg");
+  assert.equal(out.ext, "jpg");
+  const meta = await sharp(out.bytes).metadata();
+  assert.equal(meta.format, "jpeg");
+  const { data } = await sharp(out.bytes).raw().toBuffer({ resolveWithObject: true });
+  assert.ok(data[0] > 240 && data[1] > 240 && data[2] > 240); // 투명 부분은 흰색
+  const jpg = await sharp({ create: { width: 4, height: 4, channels: 3, background: "#123456" } }).jpeg().toBuffer();
+  assert.equal((await toInstagramJpeg(jpg, "image/jpeg")).bytes, jpg); // JPEG는 그대로
+  const { readFileSync } = await import("node:fs");
+  for (const f of ["../../src/lib/actions/ai.ts", "../../src/lib/actions/slides.ts"]) assert.match(readFileSync(new URL(f, import.meta.url), "utf8"), /toInstagramJpeg\(Buffer\.from\(/);
+  const client = readFileSync(new URL("../../src/lib/uploadImageClient.ts", import.meta.url), "utf8");
+  assert.match(client, /canvas\.toBlob\(resolve, "image\/jpeg", 0\.92\)/);
+});
+
+test("미배포 대기(2026-10-23): 공용 사전 photo-keywords — 한국어 → 영어, 한 글자 잘못 나누기 없음, 자동 채우기·검색 칸 연결", async () => {
+  const { toEnglishKeywords } = await import("../../src/lib/cardnews/photoKeywords.ts");
+  assert.equal(toEnglishKeywords("아침 커피 루틴"), "morning coffee");
+  assert.equal(toEnglishKeywords("주말아침에 고양이랑"), "weekend morning cat");
+  assert.equal(toEnglishKeywords("미용실 창업"), "hair salon startup");
+  assert.equal(toEnglishKeywords("비용 절감 방법"), ""); // 비(rain)로 잘못 바꾸지 않음
+  assert.equal(toEnglishKeywords("약속 시간"), "");
+  assert.equal(toEnglishKeywords("AI 마케팅"), "ai marketing");
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("../../src/app/(dashboard)/cardnews/background/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /query: toEnglishKeywords\(korean\) \|\| korean/);
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /data-photo-english/);
+});
+
+test("v1.67: 영어 결과 0장이면 「한국어로 다시 찾기」, 직접 고치면 기억한 한국어는 지움", async () => {
+  const { readFileSync } = await import("node:fs");
+  const panel = readFileSync(new URL("../../src/components/cardnews/studio/PhotoSearchPanel.tsx", import.meta.url), "utf8");
+  assert.match(panel, /setKoreanBefore\(\/\[가-힣\]\/\.test\(query\) \? query : ""\);/);
+  assert.match(panel, /photos\.length === 0 && koreanBefore &&/);
+  assert.match(panel, /data-photo-korean-retry/);
+  assert.match(panel, /setQuery\(e\.target\.value\); setKoreanBefore\(""\);/);
+  assert.match(panel, /const search = async \(override\?: string\)/);
+});

@@ -1,0 +1,365 @@
+import { requireUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { getThreadsAccountForUser } from "@/lib/threads/memberAccount";
+import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
+import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
+import { Button } from "@/components/ui/Button";
+import { connectThreadsAccountAction, connectThreadsAccountNewCallbackAction, disconnectThreadsAccountAction } from "@/lib/actions/accounts";
+import { SITE_ORIGIN, THREADS_REDIRECT_NEW, THREADS_REDIRECT_OLD } from "@/lib/oauthRedirect";
+import { CopyAddress } from "@/components/settings/CopyAddress";
+import { ThreadsMetaAddressSummary } from "@/components/settings/ThreadsMetaAddressSummary";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { GUIDE_BASE_URL } from "@/lib/deployment";
+import type { ApiKeyProvider } from "@/types/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/posts/memberScheduler";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
+
+// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
+// 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster에서 시작된 플랫폼 표준을 그대로 적용). 검색어
+// 트렌드는 공개 데이터라 키/매뉴얼이 필요 없어 대상에서 뺐다.
+const GUIDE_LINKS: { guideId: string; label: string }[] = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "78a00b16-eef5-42be-810b-80c513d57ab4", label: "Replicate(FLUX) API 키 발급받기" },
+  { guideId: "343996d3-8c77-455d-9bd4-54bcd47a34cd", label: "쓰레드(Threads) 계정 연동하기" },
+  { guideId: "117ffedb-c554-458a-9b92-e9ed6ee33988", label: "쿠팡파트너스 API 키 발급받기" },
+  { guideId: "0eb4180e-a076-4ee6-b75e-6b3c3c9ec442", label: "알리익스프레스 API 키 발급받기" },
+  { guideId: "de6e2878-1615-455a-a219-c9b0b3d0795a", label: "토스쇼핑 쉐어링크 API 키 발급받기" },
+  { guideId: "e39a02e3-2b00-45a1-92ed-2e33d0d331d2", label: "네이버 브랜드커넥트 링크 등록하기" },
+];
+
+const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "gemini", "anthropic", "replicate"];
+const META_PROVIDERS: ApiKeyProvider[] = ["threads_app_id", "threads_app_secret"];
+const NAVER_PROVIDERS: ApiKeyProvider[] = ["naver_client_id", "naver_client_secret"];
+const COUPANG_PROVIDERS: ApiKeyProvider[] = ["coupang_access_key", "coupang_secret_key"];
+const ALIEXPRESS_PROVIDERS: ApiKeyProvider[] = [
+  "aliexpress_app_key",
+  "aliexpress_app_secret",
+  "aliexpress_tracking_id",
+];
+const TOSS_PROVIDERS: ApiKeyProvider[] = ["toss_access_key", "toss_secret_key", "toss_publisher_id"];
+// 토스 쉐어링크 API는 호출 서버의 고정 아웃바운드 IP를 미리 등록해야 발송을 허용한다.
+// 회원마다 다른 IP가 아니라, 이 플랫폼(Vercel)이 고정 IP 프록시(Fixie)로 내보내는
+// IP 2개를 모든 회원이 각자 본인 토스 어드민에 그대로 등록하면 된다.
+const TOSS_FIXED_IPS = ["52.87.82.133", "52.5.155.132"];
+
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ connected?: string; error?: string }>;
+}) {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { connected, error } = await searchParams;
+
+  const [{ data: keys }, { data: account }] = await Promise.all([
+    supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
+    // v1.66: 다른 Threads 프로그램에서 연결한 공용 계정도 「연결됨」으로 보여 준다
+    getThreadsAccountForUser(user.id).then((data) => ({ data })),
+  ]);
+
+  const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  // 예약 발행 실행 방식(v1.63): 운영 기본 Vercel, 복제 키트 기본 cron-job.org. 지침: 루트 docs/SCHEDULER_POLICY.md
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-8">
+      <div>
+        <h1 className="mb-2 text-2xl font-bold text-white tracking-tight">API키 설정 및 플랫폼 연동</h1>
+        <p className="text-sm text-neutral-400">
+          게시글/이미지 생성이나 제휴 링크 생성 전 본인의 API 키를 먼저 등록해주세요. 안 쓰는
+          플랫폼의 키는 등록하지 않아도 됩니다.
+        </p>
+      </div>
+
+      {connected && (
+        <div className="rounded-lg border border-green-300 bg-green-50 p-4 text-sm text-green-800">
+          Threads 계정이 성공적으로 연결되었습니다.
+        </div>
+      )}
+      {error === "meta_app_missing" && (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          설정 페이지에서 본인의 Threads 앱 ID / Threads 앱 시크릿 코드를 먼저 등록해주세요.
+        </div>
+      )}
+      {error && error !== "meta_app_missing" && (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          Threads 계정 연결에 실패했습니다. 다시 시도해주세요.
+        </div>
+      )}
+
+      <ThreadsMetaAddressSummary
+        uninstallUrl={`${SITE_ORIGIN}/api/threads/uninstall`}
+        deleteUrl={`${SITE_ORIGIN}/api/threads/delete`}
+      />
+
+      {/* 플랫폼/계열별로 그룹 박스를 나눠서 어떤 키가 어떤 기능에 쓰이는지 한눈에 구분되도록 한다.
+          박스 배경(neutral-100)은 페이지 body(neutral-50)와 뚜렷이 대비되도록 하고, border-2 +
+          shadow-sm으로 테두리를 확실히 보이게 한다. */}
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <h2 className="mb-1 text-sm font-bold text-neutral-900">📈 네이버 검색어트렌드</h2>
+        <p className="text-xs text-neutral-500">
+          검색어트렌드는 회원 개인 데이터가 아니라 공개 시장 데이터라 별도 키 등록이 필요 없습니다.
+          &quot;트렌드 키워드 찾기&quot; 메뉴에서 바로 조회할 수 있습니다.
+        </p>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🧵 Threads 계정 연결</h2>
+          <p className="text-xs text-neutral-500">
+            게시글을 자동으로 게시할 Threads 계정을 연결합니다(OAuth).
+          </p>
+        </div>
+
+        <div className="mb-4 space-y-2 text-xs text-neutral-500">
+          <p>
+            Meta 앱이 아직 개발(Development) 모드이기 때문에, 그 앱의 &quot;역할&quot; 메뉴에서
+            테스터(tester)로 등록된 계정만 연결이 됩니다. 본인 명의로 Meta 앱을 직접 만들고
+            아래 두 값(Threads 앱 ID / Threads 앱 시크릿 코드)을 등록한 뒤, 그 앱의 유효한 OAuth 리디렉션 URI에
+            아래 콜백 주소를 추가하고, &quot;역할&quot; 메뉴에서 본인 쓰레드 계정을 테스터로
+            추가해주셔야 연결할 수 있습니다.
+          </p>
+          {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+            <p className="font-semibold text-neutral-700">아래 두 주소를 모두 등록해주세요(기존 주소는 곧 정리될 예정이라 새 주소도 꼭 추가).</p>
+          )}
+          <CopyAddress value={THREADS_REDIRECT_OLD()} />
+          {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+            <>
+              <CopyAddress value={THREADS_REDIRECT_NEW} />
+              <p>새 주소를 등록한 뒤에는 아래 [새 주소로 연결] 버튼으로 연결해 보세요.</p>
+            </>
+          )}
+        </div>
+
+        <div className="mb-4 space-y-3">
+          {META_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+
+        <div className="rounded-lg border border-neutral-200 bg-white p-4">
+          {account ? (
+            <div>
+              <p className="text-sm text-neutral-500">연결된 계정</p>
+              <p className="mt-1 text-lg font-medium text-neutral-900">
+                @{account.username ?? account.threads_user_id}
+              </p>
+              {account.token_expires_at && (
+                <p className="mt-1 text-xs text-neutral-500">
+                  토큰 만료: {new Date(account.token_expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
+                </p>
+              )}
+              <p className="mt-3 text-xs text-neutral-500">연결을 해제하면 이 계정을 함께 쓰는 다른 Threads 프로그램에서도 해제됩니다.</p>
+              <form action={disconnectThreadsAccountAction} className="mt-2">
+                <Button type="submit" variant="danger">
+                  연결 해제
+                </Button>
+              </form>
+              {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+                <form action={connectThreadsAccountNewCallbackAction} className="mt-2">
+                  <Button type="submit" variant="secondary">
+                    새 주소로 다시 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)
+                  </Button>
+                </form>
+              )}
+            </div>
+          ) : (
+            <div>
+              <p className="mb-4 text-sm text-neutral-600">
+                게시글을 자동으로 게시하려면 먼저 위의 Threads 앱 ID / Threads 앱 시크릿 코드를 등록한 뒤 Threads
+                계정을 연결해야 합니다.
+              </p>
+              <form action={connectThreadsAccountAction}>
+                <Button type="submit">Threads 계정 연결하기</Button>
+              </form>
+              {THREADS_REDIRECT_OLD() !== THREADS_REDIRECT_NEW && (
+                <form action={connectThreadsAccountNewCallbackAction} className="mt-2">
+                  <Button type="submit" variant="secondary">
+                    새 주소로 연결 (Meta 앱에 새 콜백 주소를 등록한 경우)
+                  </Button>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🤖 캡션/이미지 생성 AI</h2>
+          <p className="text-xs text-neutral-500">
+            게시글 캡션과 이미지(NanoBanana) 자동 생성에 쓰입니다. 둘 중 1개만 등록해도 됩니다.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {AI_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🔎 네이버 검색·데이터랩 (트렌드/시장 조사)</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://developers.naver.com" target="_blank" rel="noreferrer" className="underline">
+              developers.naver.com
+            </a>
+            에서 애플리케이션을 만들고 &quot;검색&quot;과 &quot;데이터랩(검색어트렌드)&quot; API를 사용 설정한 뒤 발급받은 Client ID/Secret을 등록해주세요. 본인 키로만 조회됩니다.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {NAVER_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🛒 쿠팡파트너스</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://partners.coupang.com" target="_blank" rel="noreferrer" className="underline">
+              partners.coupang.com
+            </a>
+            에서 API 신청 후 발급받은 Access Key/Secret Key를 등록해주세요.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {COUPANG_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">🌏 알리익스프레스</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://portals.aliexpress.com" target="_blank" rel="noreferrer" className="underline">
+              portals.aliexpress.com
+            </a>
+            에서 Affiliate API 신청 후 발급받은 App Key/Secret을 등록해주세요.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {ALIEXPRESS_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">💙 토스쇼핑 쉐어링크</h2>
+          <p className="text-xs text-neutral-500">
+            <a href="https://sharelink.toss.im" target="_blank" rel="noreferrer" className="underline">
+              sharelink.toss.im
+            </a>
+            에서 크리에이터 신청 후, 관리자콘솔에서 발급받은 Access Key/Secret Key와 Publisher
+            ID(발급 주체 UUID)를 등록해주세요.
+          </p>
+          <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+            <p className="font-semibold">⚠️ 허용 IP 등록이 꼭 필요합니다</p>
+            <p className="mt-1">
+              토스 쉐어링크는 호출 서버의 고정 IP를 미리 등록해야 발급이 됩니다.
+              본인 토스 어드민의 &quot;허용 IP&quot; 설정에 아래 IP 2개를 그대로 등록해주세요
+            </p>
+            <ul className="mt-2 space-y-0.5 font-mono text-sm font-bold text-amber-900">
+              {TOSS_FIXED_IPS.map((ip) => (
+                <li key={ip}>{ip}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {TOSS_PROVIDERS.map((provider) => (
+            <ApiKeyRow
+              key={provider}
+              provider={provider}
+              label={PROVIDER_LABELS[provider]}
+              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">⏰ 예약 발행</h2>
+          <p className="text-xs text-neutral-500">
+            {scheduler.defaultMode === "cronjob"
+              ? "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「내 cron-job.org」(무료 — 아래에 키만 등록)이고, Vercel 유료(Pro)라면 「Vercel 예약 호출」을 켜고 고를 수 있습니다."
+              : "예약한 글을 정한 시각에 자동으로 올리는 방식을 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고, 본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요."}{" "}
+            예약은 새 게시글 작성·수정 화면에서 하고, 즉시 게시는 방식과 상관없이 됩니다.
+          </p>
+        </div>
+        <SchedulerModePicker initialMode={scheduler.mode} defaultMode={scheduler.defaultMode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
+        <p className="mb-2 text-xs font-semibold text-neutral-800">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+        <ol className="mb-3 list-decimal space-y-1 pl-4 text-xs text-neutral-600">
+          <li><a className="font-semibold underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+          <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
+          <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+        </ol>
+        <ApiKeyRow
+          provider="cronjob_org_api_key"
+          label={PROVIDER_LABELS.cronjob_org_api_key}
+          maskedValue={keyMap.has("cronjob_org_api_key") ? maskApiKey(keyMap.get("cronjob_org_api_key")!) : null}
+        />
+      </section>
+
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <h2 className="mb-1 text-sm font-bold text-neutral-900">📎 네이버 브랜드커넥트</h2>
+        <p className="text-xs text-neutral-500">
+          네이버 브랜드커넥트는 공식 API가 없어 별도 키 등록이 필요 없습니다. &quot;상품
+          관리&quot; 화면에서 직접 발급받은 링크를 붙여넣어 등록해주세요.
+        </p>
+      </section>
+
+      {GUIDE_BASE_URL && (
+      <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
+          <p className="text-xs text-neutral-500">
+            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
+            따라 할 수 있습니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GUIDE_LINKS.map((guide) => (
+            <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+          ))}
+        </div>
+      </section>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,977 @@
+"use client";
+
+import { startTransition, useActionState, useState, useTransition } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
+import type { PostActionState } from "@/lib/actions/posts";
+import {
+  generateContentAction,
+  generateImageAction,
+  generateCardNewsContentAction,
+  generateCardNewsCaptionAction,
+  generateVisualPromptsAction,
+} from "@/lib/actions/ai";
+import { deleteUploadedImageAction } from "@/lib/actions/upload";
+import { uploadImageDirect } from "@/lib/uploadImageClient";
+import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
+import { IS_STANDALONE } from "@/lib/deployment";
+import { PhotoSearchPanel } from "@/components/cardnews/studio/PhotoSearchPanel";
+import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
+import type { ImageAspectRatio, InstaTone } from "@/lib/ai/generator";
+import type { ApiKeyProvider, InstaPostType } from "@/types/database.types";
+
+type PublishMode = "draft" | "schedule" | "now";
+type Tone = InstaTone;
+
+interface SlideDraft {
+  imagePrompt: string;
+  imageUrl: string;
+  imageUrls: string[];
+}
+
+const TONE_OPTIONS: { value: Tone; label: string }[] = [
+  { value: "전문적", label: "전문적" },
+  { value: "친근함", label: "친근함" },
+  { value: "설득력있는", label: "설득력있는" },
+  { value: "격식있는", label: "격식있는" },
+  { value: "위트있는", label: "위트있는" },
+];
+
+const SUGGESTED_TOPICS = [
+  "신제품 출시 소식",
+  "이번 주 트렌드 인사이트",
+  "고객 후기 하이라이트",
+  "업계 꿀팁 공유",
+  "한정 프로모션 안내",
+  "브랜드 스토리 한 조각",
+];
+
+const ASPECT_RATIO_OPTIONS: { value: ImageAspectRatio; label: string }[] = [
+  { value: "9:16", label: "9:16 (세로, 기본)" },
+  { value: "1:1", label: "1:1 (정사각)" },
+  { value: "16:9", label: "16:9 (가로)" },
+];
+
+const IMAGE_MODEL_OPTIONS = [
+  { value: "nanobanana-2-2k", label: "NanoBanana 2-2K (2K 고화질 비주얼 - 추천)" },
+  { value: "nanobanana-2-4k", label: "NanoBanana 2-4K (4K 울트라 HD)" },
+  { value: "nanobanana-pro", label: "NanoBanana Pro (프로페셔널 인포그래픽)" },
+  { value: "nanobanana", label: "NanoBanana Standard (기본 모델)" },
+] as const;
+
+const CARD_NEWS_SLIDE_COUNT = 4;
+
+interface PostFormProps {
+  action: (prevState: PostActionState, formData: FormData) => Promise<PostActionState>;
+  submitLabel: string;
+  mode: "create" | "edit";
+  initialPostType?: InstaPostType;
+  initialCaption?: string;
+  initialHashtags?: string[];
+  /** v1.47: 다른 프로그램이 넘긴 첨부 이미지(서버 페이지가 본인 폴더인지 검사함) — 첫 슬라이드로 넣는다 */
+  initialImageUrl?: string;
+  initialScheduledAtLocal?: string;
+  initialPublishMode?: PublishMode;
+  hasInstagramAccount: boolean;
+  // 설정에서 본인이 등록해둔 API 키 provider 목록. 등록 안 된 provider로 생성을
+  // 시도하면 조용히 실패시키지 않고 팝업으로 안내한다 (관리자 공용 키로 폴백하지 않음).
+  registeredProviders?: ApiKeyProvider[];
+  initialTopic?: string;
+  initialKeywords?: string[];
+}
+
+const initialState: PostActionState = {};
+
+export function PostForm({
+  action,
+  submitLabel,
+  mode,
+  initialPostType = "feed",
+  initialCaption = "",
+  initialHashtags = [],
+  initialImageUrl,
+  initialScheduledAtLocal = "",
+  initialPublishMode = "draft",
+  hasInstagramAccount,
+  registeredProviders = [],
+  initialTopic = "",
+  initialKeywords = [],
+}: PostFormProps) {
+  const [state, formAction, isPending] = useActionState(action, initialState);
+  const [postType, setPostType] = useState<InstaPostType>(initialPostType);
+  const [publishMode, setPublishMode] = useState<PublishMode>(initialPublishMode);
+  const [scheduledAtLocal, setScheduledAtLocal] = useState(initialScheduledAtLocal);
+  const [caption, setCaption] = useState(initialCaption);
+  const [hashtags, setHashtags] = useState(initialHashtags.join(" "));
+
+  const isCreate = mode === "create";
+
+  const [topic, setTopic] = useState(initialTopic);
+  const [tone, setTone] = useState<Tone>("친근함");
+  const [keywordInput, setKeywordInput] = useState("");
+  const [keywords, setKeywords] = useState<string[]>(initialKeywords);
+  const [referenceUrls, setReferenceUrls] = useState<string[]>(["", "", ""]);
+  const [ctaText, setCtaText] = useState("");
+  const [ctaUrl, setCtaUrl] = useState("");
+  const [openaiApiKey, setOpenaiApiKey] = useState("");
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [missingKeyModal, setMissingKeyModal] = useState<string[] | null>(null);
+
+  const registeredSet = new Set(registeredProviders);
+  // 캡션/원고 생성은 항상 OpenAI, 이미지 생성은 항상 Gemini가 필요하다. 폼에 직접
+  // 키를 입력해둔 경우(선택 필드)는 그것도 "본인 키 있음"으로 인정한다.
+  const findMissingProviders = (): string[] => {
+    const missing: string[] = [];
+    if (!registeredSet.has("openai") && !openaiApiKey.trim()) missing.push(PROVIDER_LABELS.openai);
+    if (!registeredSet.has("gemini") && !geminiApiKey.trim()) missing.push(PROVIDER_LABELS.gemini);
+    return missing;
+  };
+
+  const handleAddKeyword = (kw: string) => {
+    const trimmed = kw.trim();
+    if (trimmed && !keywords.includes(trimmed)) {
+      setKeywords((prev) => [...prev, trimmed]);
+    }
+    setKeywordInput("");
+  };
+  const handleRemoveKeyword = (target: string) => {
+    setKeywords((prev) => prev.filter((k) => k !== target));
+  };
+  const handleKeywordKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddKeyword(keywordInput);
+    }
+  };
+  const handleReferenceUrlChange = (index: number, value: string) => {
+    setReferenceUrls((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const [imageModel, setImageModel] = useState<(typeof IMAGE_MODEL_OPTIONS)[number]["value"]>(
+    "nanobanana-2-2k",
+  );
+  const [aspectRatio, setAspectRatio] = useState<ImageAspectRatio>("9:16");
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+
+  // 카드뉴스는 4개, 피드는 1개 슬라이드를 관리한다 (insta_post_slides 1행 = 1슬라이드와 동일 개념).
+  const [slides, setSlides] = useState<SlideDraft[]>(
+    initialImageUrl ? [{ imagePrompt: "", imageUrl: initialImageUrl, imageUrls: [initialImageUrl] }] : [],
+  );
+  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
+  const [, startRegenerating] = useTransition();
+
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+  async function generateOneImage(prompt: string): Promise<string | null> {
+    const MAX_ATTEMPTS = 2;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+      const result = await generateImageAction({
+        prompt,
+        apiKey: geminiApiKey,
+        model: imageModel,
+        aspectRatio,
+      });
+      if (result.imageUrl) return result.imageUrl;
+    }
+    return null;
+  }
+
+  const generateSlideImages = async (
+    sourceText: string,
+    slideCount: number,
+  ): Promise<SlideDraft[] | null> => {
+    setStatusMsg("본문을 분석해서 이미지 프롬프트를 만들고 있습니다...");
+    const promptsResult = await generateVisualPromptsAction({ text: sourceText, slideCount, apiKey: openaiApiKey });
+    if (promptsResult.error || !promptsResult.slides || promptsResult.slides.length === 0) {
+      setAiError(promptsResult.error ?? "이미지 프롬프트 생성에 실패했습니다.");
+      setStatusMsg(null);
+      return null;
+    }
+
+    const nextSlides: SlideDraft[] = [];
+    for (let i = 0; i < promptsResult.slides.length; i += 1) {
+      setStatusMsg(
+        slideCount > 1
+          ? `슬라이드 이미지 ${i + 1}/${promptsResult.slides.length}를 생성하고 있습니다...`
+          : "나노바나나로 이미지를 생성하고 있습니다...",
+      );
+      const imageUrl = await generateOneImage(promptsResult.slides[i].imagePrompt);
+      if (!imageUrl) {
+        setAiError(`슬라이드 ${i + 1} 이미지 생성에 실패했습니다. 다시 시도해주세요.`);
+        setStatusMsg(null);
+        return null;
+      }
+      nextSlides.push({ imagePrompt: promptsResult.slides[i].imagePrompt, imageUrl, imageUrls: [imageUrl] });
+      setSlides([...nextSlides]);
+    }
+    return nextSlides;
+  };
+
+  const runGenerateAll = async (): Promise<{ caption: string; hashtags: string; slides: SlideDraft[] } | null> => {
+    setAiError(null);
+    const validReferenceUrls = referenceUrls.map((u) => u.trim()).filter((u) => u.length > 0);
+    const alreadyHasCaption = caption.trim().length > 0;
+
+    // 게시글 주제 수집(/candidates)에서 넘어온 캡션은 이제 그 자체로 900~1400자짜리
+    // 장문 소스 콘텐츠다(collector.ts 참고) — 짧은 완성 캡션이 아니라 "재료"로 취급한다.
+    const seedContent = alreadyHasCaption ? caption.trim() : "";
+
+    if (postType === "card_news") {
+      let title = topic;
+      let content = seedContent;
+
+      if (!seedContent) {
+        setStatusMsg("카드뉴스 원고를 생성하고 있습니다...");
+        const contentResult = await generateCardNewsContentAction({
+          topic,
+          keywords,
+          referenceUrls: validReferenceUrls,
+          apiKey: openaiApiKey,
+        });
+        if (contentResult.error || !contentResult.content) {
+          setAiError(contentResult.error ?? "카드뉴스 원고 생성에 실패했습니다.");
+          setStatusMsg(null);
+          return null;
+        }
+        title = contentResult.title ?? topic;
+        content = contentResult.content;
+      }
+
+      setStatusMsg("인스타그램 카드뉴스용 캡션(900~1400자)으로 재가공하고 있습니다...");
+      const captionResult = await generateCardNewsCaptionAction({
+        title,
+        content,
+        apiKey: openaiApiKey,
+      });
+      if (captionResult.error || !captionResult.caption) {
+        setAiError(captionResult.error ?? "캡션 생성에 실패했습니다.");
+        setStatusMsg(null);
+        return null;
+      }
+      const finalCaption = captionResult.caption;
+      const finalHashtags = (captionResult.hashtags ?? []).join(" ");
+      setCaption(finalCaption);
+      setHashtags(finalHashtags);
+
+      const nextSlides = await generateSlideImages(content, CARD_NEWS_SLIDE_COUNT);
+      if (!nextSlides) return null;
+
+      setStatusMsg(null);
+      return { caption: finalCaption, hashtags: finalHashtags, slides: nextSlides };
+    }
+
+    // 피드: 짧은 캡션(450자 내외) 하나면 충분하다. 후보에서 넘어온 장문 소스가 있으면
+    // 그걸 근거로 압축해서 짧은 캡션을 새로 뽑고, 없으면 주제만으로 생성한다.
+    setStatusMsg(
+      seedContent
+        ? "수집된 콘텐츠를 압축해서 인스타그램 캡션으로 재가공하고 있습니다..."
+        : "AI가 인스타그램 트렌드를 분석해서 캡션을 작성하고 있습니다...",
+    );
+    const textResult = await generateContentAction({
+      topic,
+      tone,
+      keywords,
+      referenceUrls: validReferenceUrls,
+      sourceContent: seedContent || undefined,
+      cta: ctaUrl.trim() ? { text: ctaText.trim(), url: ctaUrl.trim() } : undefined,
+      apiKey: openaiApiKey,
+    });
+    if (textResult.error || !textResult.caption) {
+      setAiError(textResult.error ?? "캡션 생성에 실패했습니다.");
+      setStatusMsg(null);
+      return null;
+    }
+    const finalCaption = textResult.caption;
+    const finalHashtags = (textResult.hashtags ?? []).join(" ");
+    setCaption(finalCaption);
+    setHashtags(finalHashtags);
+
+    const nextSlides = await generateSlideImages(finalCaption, 1);
+    if (!nextSlides) return null;
+
+    setStatusMsg(null);
+    return { caption: finalCaption, hashtags: finalHashtags, slides: nextSlides };
+  };
+
+  const handleRegenerateSlide = (index: number) => {
+    const current = slides[index];
+    if (!current) return;
+    setRegeneratingIndex(index);
+    startRegenerating(async () => {
+      const imageUrl = await generateOneImage(current.imagePrompt);
+      if (imageUrl) {
+        setSlides((prev) =>
+          prev.map((s, i) => (i === index ? { ...s, imageUrl, imageUrls: [...s.imageUrls, imageUrl] } : s)),
+        );
+      } else {
+        setAiError(`슬라이드 ${index + 1} 이미지 재생성에 실패했습니다.`);
+      }
+      setRegeneratingIndex(null);
+    });
+  };
+
+  const handleSlidePromptChange = (index: number, value: string) => {
+    setSlides((prev) => prev.map((s, i) => (i === index ? { ...s, imagePrompt: value } : s)));
+  };
+
+  const handleSelectSlideImage = (index: number, url: string) => {
+    setSlides((prev) => prev.map((s, i) => (i === index ? { ...s, imageUrl: url } : s)));
+  };
+
+  // 재생성/업로드할 때마다 Storage에 이미지가 계속 쌓이는 것을 막기 위한 이력 삭제.
+  // 최소 1장은 남겨야 하고(활성 이미지 없이는 게시 불가), 활성 이미지를 지우면 남은 것 중
+  // 가장 최근 것을 새 활성 이미지로 돌린다. Storage 파일도 함께 지운다(실패해도 무시).
+  const handleDeleteSlideImage = (index: number, url: string) => {
+    setSlides((prev) =>
+      prev.map((s, i) => {
+        if (i !== index) return s;
+        if (s.imageUrls.length <= 1) return s;
+        const nextUrls = s.imageUrls.filter((u) => u !== url);
+        const nextActive = s.imageUrl === url ? nextUrls[nextUrls.length - 1] : s.imageUrl;
+        return { ...s, imageUrl: nextActive, imageUrls: nextUrls };
+      }),
+    );
+    const fd = new FormData();
+    fd.set("imageUrl", url);
+    void deleteUploadedImageAction(fd);
+  };
+
+  const handleUploadSlideImage = (index: number, file: File) => {
+    setRegeneratingIndex(index);
+    startRegenerating(async () => {
+      const result = await uploadImageDirect(file);
+      if (result.url) {
+        const url = result.url;
+        setSlides((prev) =>
+          prev.map((s, i) => (i === index ? { ...s, imageUrl: url, imageUrls: [...s.imageUrls, url] } : s)),
+        );
+      } else {
+        setAiError(result.error ?? "이미지 업로드에 실패했습니다.");
+      }
+      setRegeneratingIndex(null);
+    });
+  };
+
+  // v1.27: 다른 프로그램(예: 4컷 만화)에서 넘겨받은 그림처럼, AI 생성 없이 내 이미지 파일로 슬라이드를 채운다.
+  const requiredSlides = postType === "card_news" ? CARD_NEWS_SLIDE_COUNT : 1;
+  const readyWithoutAi = isCreate && caption.trim().length > 0 && slides.length >= requiredSlides;
+  const [addingUpload, setAddingUpload] = useState(false);
+  // v1.28: 여러 파일을 한 번에 고르면 파일 이름순으로 남은 장수만큼 차례로 올린다(카드뉴스 4장 한 번에).
+  const handleAddUploadedSlides = (files: File[]) => {
+    const picked = [...files]
+      .sort((a, b) => a.name.localeCompare(b.name, "ko", { numeric: true }))
+      .slice(0, Math.max(0, requiredSlides - slides.length));
+    if (picked.length === 0) return;
+    setAddingUpload(true);
+    startRegenerating(async () => {
+      for (const file of picked) {
+        const result = await uploadImageDirect(file);
+        if (!result.url) {
+          setAiError(result.error ?? "이미지 업로드에 실패했습니다.");
+          break;
+        }
+        const url = result.url;
+        setSlides((prev) => [...prev, { imagePrompt: "", imageUrl: url, imageUrls: [url] }]);
+      }
+      setAddingUpload(false);
+    });
+  };
+
+  const [zoomTarget, setZoomTarget] = useState<{ index: number; url: string } | null>(null);
+
+  const scheduledAtIso =
+    publishMode === "schedule" && scheduledAtLocal ? new Date(scheduledAtLocal).toISOString() : "";
+
+  const buildFormData = (finalCaption: string, finalHashtags: string, finalSlides: SlideDraft[]) => {
+    const fd = new FormData();
+    fd.set("postType", postType);
+    fd.set("caption", finalCaption);
+    fd.set("hashtags", finalHashtags);
+    fd.set("slidesJson", JSON.stringify(finalSlides));
+    fd.set("publishMode", publishMode);
+    fd.set("scheduledAt", scheduledAtIso);
+    return fd;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isCreate) {
+      // 수정 화면: 슬라이드는 별도 액션으로 이미 반영돼 있으므로 캡션/발행 정보만 제출한다.
+      startTransition(() => {
+        formAction(buildFormData(caption, hashtags, slides));
+      });
+      return;
+    }
+
+    // v1.27: 캡션과 필요한 장수의 이미지가 이미 있으면(내 이미지 첨부·다른 프로그램에서 넘겨받음) AI 생성 없이 그대로 저장한다.
+    if (readyWithoutAi) {
+      setAiError(null);
+      startTransition(() => {
+        formAction(buildFormData(caption, hashtags, slides.slice(0, requiredSlides)));
+      });
+      return;
+    }
+
+    if (!topic.trim()) {
+      setAiError("주제를 입력해주세요.");
+      return;
+    }
+
+    const missing = findMissingProviders();
+    if (missing.length > 0) {
+      setMissingKeyModal(missing);
+      return;
+    }
+
+    setIsGeneratingAll(true);
+    setAiError(null);
+    try {
+      const result = await runGenerateAll();
+      if (!result) return;
+      startTransition(() => {
+        formAction(buildFormData(result.caption, result.hashtags, result.slides));
+      });
+    } catch (err) {
+      // runGenerateAll() 내부의 각 단계는 실패 시 에러 메시지를 반환하지만, 요청 자체가
+      // 네트워크/브라우저 단에서 끊기는 경우(예: URL이 지나치게 길어 서버까지 요청이
+      // 도달하지 못하는 경우)는 예외로만 드러난다. 이 경우도 화면이 "생성 중..."에
+      // 영원히 멈추지 않고 사용자에게 실패를 알리도록 방어적으로 처리한다.
+      setAiError(err instanceof Error ? err.message : "게시물 생성 중 예기치 못한 오류가 발생했습니다.");
+    } finally {
+      setIsGeneratingAll(false);
+    }
+  };
+
+  return (
+    <>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {isCreate && (
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-200">게시물 형식</label>
+          <div className="flex gap-2">
+            {(
+              [
+                { value: "feed", label: "피드 (이미지 1장)" },
+                { value: "card_news", label: "카드뉴스 (캐러셀 4장)" },
+              ] as const
+            ).map((option) => (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                  postType === option.value
+                    ? "border-pink-500 bg-pink-500/20 font-semibold text-pink-100"
+                    : "border-[#2f3650] text-slate-300 hover:border-slate-500"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="postTypeRadio"
+                  value={option.value}
+                  checked={postType === option.value}
+                  onChange={() => {
+                    setPostType(option.value);
+                    setSlides([]);
+                  }}
+                  className="sr-only"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+          {/* v1.37 병합 2단계: 글자가 깨지지 않는 카드뉴스는 카드뉴스 스튜디오(배경 + 한글 따로 얹기)로 안내. 직접 첨부 4장은 여기서 그대로 가능 */}
+          {postType === "card_news" && !IS_STANDALONE && (
+            <p className="mt-2 rounded-lg border border-pink-500/30 bg-pink-500/10 px-3 py-2 text-xs text-pink-200">
+              🎨 한글 문구가 깨지지 않는 4~10장 카드뉴스는{" "}
+              <a href="/cardnews/plan" className="font-bold underline">카드뉴스 스튜디오</a>에서 만들 수 있어요. 여기서는 AI 이미지 4장 또는 내 이미지 4장을 바로 올립니다.
+            </p>
+          )}
+        </div>
+      )}
+      {isCreate && (
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-200">화면비율</label>
+          <div className="flex gap-2">
+            {ASPECT_RATIO_OPTIONS.map((option) => (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                  aspectRatio === option.value
+                    ? "border-pink-500 bg-pink-500/20 font-semibold text-pink-100"
+                    : "border-[#2f3650] text-slate-300 hover:border-slate-500"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="aspectRatioRadio"
+                  value={option.value}
+                  checked={aspectRatio === option.value}
+                  onChange={() => setAspectRatio(option.value)}
+                  className="sr-only"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-slate-400">
+            4장 모두 이 비율로 생성됩니다. 인스타그램은 세로(9:16)가 기본으로 유리합니다.
+          </p>
+        </div>
+      )}
+      {isCreate && (
+        <div className="space-y-3 rounded-lg border border-[#262c3d] bg-[#131725] p-3">
+          <div>
+            <label className="block text-sm font-medium text-slate-200">
+              AI로 {postType === "card_news" ? "카드뉴스 원고+이미지 4장" : "캡션+이미지"} 자동 생성
+            </label>
+            <p className="text-xs text-slate-400">
+              {`주제나 키워드를 입력하고 아래 "${submitLabel}"를 누르면 인스타그램 톤(반말)의 캡션과 나노바나나 이미지가 함께 생성된 뒤 바로 저장됩니다.`}
+            </p>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-400">주제 (필수)</label>
+            <div className="flex flex-wrap gap-2">
+              <Input
+                className="min-w-[200px] flex-1"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="주제를 입력하세요 (예: 여름 세일 프로모션)"
+                autoComplete="off"
+                name="ai_topic_field"
+              />
+              <select
+                value={tone}
+                onChange={(e) => setTone(e.target.value as Tone)}
+                className="rounded-lg border bg-[#0d0f17] border-[#2f3650] px-3 py-2 text-sm text-slate-200"
+              >
+                {TONE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            {SUGGESTED_TOPICS.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setTopic(item)}
+                className="rounded-full border border-[#262c3d] bg-[#0d0f17] px-2.5 py-1 text-xs text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-slate-400">키워드 (선택)</label>
+            <Input
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              onKeyDown={handleKeywordKeyDown}
+              placeholder="키워드 입력 후 Enter (선택)"
+              className="text-sm"
+              autoComplete="off"
+              name="ai_keyword_field"
+            />
+            {keywords.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {keywords.map((kw) => (
+                  <span
+                    key={kw}
+                    className="inline-flex items-center gap-1 rounded-md bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-200"
+                  >
+                    #{kw}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveKeyword(kw)}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-slate-400">참고 웹페이지 링크 (선택)</label>
+              <span className="text-[11px] text-slate-400">최대 3개</span>
+            </div>
+            <div className="space-y-1.5">
+              {referenceUrls.map((url, idx) => (
+                <Input
+                  key={idx}
+                  type="text"
+                  name={`ai_reference_url_field_${idx + 1}`}
+                  autoComplete="off"
+                  value={url}
+                  onChange={(e) => handleReferenceUrlChange(idx, e.target.value)}
+                  placeholder={`https://example.com/reference-${idx + 1}`}
+                  className="text-sm"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5 rounded-lg border border-[#262c3d] bg-[#131725] p-3">
+            <label className="block text-xs font-medium text-slate-400">
+              🔗 홍보 링크 (선택) — 캡션 하단에 자연스럽게 삽입됩니다
+            </label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <Input
+                type="text"
+                name="cta_text_field"
+                autoComplete="off"
+                value={ctaText}
+                onChange={(e) => setCtaText(e.target.value)}
+                placeholder="추천 문구 (예: 지금 바로 확인하기)"
+                className="text-sm"
+              />
+              <Input
+                type="url"
+                name="cta_url_field"
+                autoComplete="off"
+                value={ctaUrl}
+                onChange={(e) => setCtaUrl(e.target.value)}
+                placeholder="https://example.com/offer"
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          {statusMsg && (
+            <p className="animate-pulse rounded-md bg-[#0d0f17]/5 px-3 py-2 text-xs font-medium text-slate-200">
+              🚀 {statusMsg}
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <select
+              value={imageModel}
+              onChange={(e) => setImageModel(e.target.value as typeof imageModel)}
+              className="rounded-lg border bg-[#0d0f17] border-[#2f3650] px-3 py-2 text-sm text-slate-200"
+            >
+              {IMAGE_MODEL_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <Input
+              type="text"
+              name="gemini_key_field"
+              autoComplete="new-password"
+              value={geminiApiKey}
+              onChange={(e) => setGeminiApiKey(e.target.value)}
+              placeholder="내 Gemini API 키 (선택, 비워두면 설정에 저장된 키 사용)"
+              className="text-xs"
+              style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
+            />
+          </div>
+          <Input
+            type="text"
+            name="openai_key_field"
+            autoComplete="new-password"
+            value={openaiApiKey}
+            onChange={(e) => setOpenaiApiKey(e.target.value)}
+            placeholder="내 OpenAI API 키 (선택, 비워두면 설정에 저장된 키 사용)"
+            className="text-xs"
+            style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
+          />
+          {aiError && <p className="text-xs text-rose-400">{aiError}</p>}
+        </div>
+      )}
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-200">캡션</label>
+        {isCreate && (
+          <p className="mb-1 text-xs text-slate-400">
+            {`"${submitLabel}" 클릭 시 위 AI 설정으로 자동 생성되어 채워집니다.`}
+          </p>
+        )}
+        <Textarea
+          name="caption"
+          rows={14}
+          maxLength={2200}
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          placeholder="인스타그램에 게시할 캡션을 입력하세요."
+        />
+        <p className="mt-1 text-right text-xs text-slate-400">
+          {caption.length} / {postType === "card_news" ? "1400자 권장 (최대 2200)" : "450자 권장 (최대 2200)"}
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-200">해시태그 (선택)</label>
+        <Input
+          name="hashtags"
+          value={hashtags}
+          onChange={(e) => setHashtags(e.target.value)}
+          placeholder="공백으로 구분 (예: 다이어트팁 여름세일)"
+        />
+        <p className="mt-1 text-xs text-slate-400">캡션 아래에 자동으로 #과 함께 붙어서 게시됩니다.</p>
+      </div>
+
+      {isCreate && (
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-200">
+            {postType === "card_news" ? `이미지 (필수, ${CARD_NEWS_SLIDE_COUNT}장)` : "이미지 (필수, 1장)"}
+          </label>
+          <p className="mb-2 text-xs text-slate-400">
+            인스타그램 게시물은 이미지가 반드시 있어야 합니다. 위 &quot;{submitLabel}&quot;를 누르면 자동으로
+            채워지고, 생성 후에는 이미지를 클릭해 확대해서 확인하거나, 프롬프트를 고쳐 개별 재생성하거나,
+            직접 가진 이미지 파일을 올려서 쓰거나, 이전에 생성했던 후보 중에서 골라 쓸 수 있습니다.
+          </p>
+          {slides.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-[#2f3650] p-4 text-center text-sm text-slate-400">
+              아직 생성된 이미지가 없습니다.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {slides.map((slide, index) => (
+                <div key={index} className="space-y-2 rounded-lg border border-[#262c3d] bg-[#0d0f17] p-3">
+                  <button
+                    type="button"
+                    onClick={() => setZoomTarget({ index, url: slide.imageUrl })}
+                    className="mx-auto block w-full max-w-sm"
+                    title="클릭하면 확대해서 볼 수 있습니다"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slide.imageUrl}
+                      alt={`슬라이드 ${index + 1}`}
+                      className="aspect-square w-full rounded-md object-cover"
+                    />
+                  </button>
+                  <Textarea
+                    rows={10}
+                    value={slide.imagePrompt}
+                    onChange={(e) => handleSlidePromptChange(index, e.target.value)}
+                    className="text-xs leading-relaxed"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full text-xs"
+                    onClick={() => handleRegenerateSlide(index)}
+                    disabled={regeneratingIndex === index || isGeneratingAll}
+                  >
+                    {regeneratingIndex === index ? "생성/업로드 중..." : `슬라이드 ${index + 1} 다시 생성`}
+                  </Button>
+                  {/* v1.68: 이 장을 목록에서 뺀다(파일은 지우지 않음). 장 수가 모자라면 아래 파일 첨부·무료 사진 칸이 다시 나와 채울 수 있다. */}
+                  <button
+                    type="button"
+                    data-slide-remove
+                    onClick={() => {
+                      setZoomTarget(null);
+                      setSlides((prev) => prev.filter((_, i) => i !== index));
+                    }}
+                    disabled={regeneratingIndex !== null || isGeneratingAll}
+                    className="w-full rounded-lg border border-red-900/60 px-2 py-1.5 text-xs text-red-300 hover:bg-red-950/40 disabled:opacity-50"
+                  >
+                    ✕ 슬라이드 {index + 1} 빼기
+                  </button>
+
+                  <label className="block cursor-pointer rounded-lg border border-dashed border-[#2f3650] px-2 py-1.5 text-center text-xs text-slate-400 hover:border-slate-500">
+                    이미지 파일 직접 첨부 (JPG/PNG/WEBP, 10MB 이하)
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={regeneratingIndex === index || isGeneratingAll}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleUploadSlideImage(index, file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+
+                  {slide.imageUrls.length > 1 && (
+                    <div>
+                      <p className="mb-1 text-[11px] text-slate-400">
+                        생성/업로드 이력 (클릭해서 선택, 돋보기로 확대, ✕로 삭제)
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {slide.imageUrls.map((url) => {
+                          const isSelected = url === slide.imageUrl;
+                          return (
+                            <div key={url} className="relative">
+                              <button
+                                type="button"
+                                onClick={() => handleSelectSlideImage(index, url)}
+                                disabled={isSelected}
+                                className={`relative h-14 w-14 overflow-hidden rounded-md border-2 ${
+                                  isSelected ? "border-blue-500" : "border-transparent"
+                                }`}
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={url} alt="후보 이미지" className="h-full w-full object-cover" />
+                                {isSelected && (
+                                  <span className="absolute inset-0 flex items-center justify-center bg-blue-500/30 text-[9px] font-medium text-white">
+                                    선택됨
+                                  </span>
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setZoomTarget({ index, url })}
+                                className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900/80 text-[10px] text-white"
+                                title="확대해서 보기"
+                              >
+                                🔍
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteSlideImage(index, url)}
+                                className="absolute -left-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600/90 text-[10px] text-white"
+                                title="이 이미지 삭제"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {slides.length < requiredSlides && (
+            <label className="mt-2 block cursor-pointer rounded-lg border border-dashed border-[#2f3650] px-2 py-2 text-center text-xs text-slate-400 hover:border-slate-500">
+              {addingUpload
+                ? "올리는 중..."
+                : `이미지 파일 직접 첨부 (${slides.length}/${requiredSlides}장, JPG/PNG/WEBP, 10MB 이하${requiredSlides > 1 ? " · 여러 장 한 번에 선택 가능, 파일 이름순" : ""})`}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple={requiredSlides > 1}
+                className="hidden"
+                disabled={addingUpload || isGeneratingAll}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  if (files.length > 0) handleAddUploadedSlides(files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+          {/* v1.65: 회원 본인 Pixabay·Pexels 키로 무료 사진을 골라 첨부(서버가 insta-post-images에 JPEG로 저장). 배포판은 키 칸이 없어 숨김 */}
+          {!IS_STANDALONE && slides.length < requiredSlides && (
+            <div className="mt-2" data-feed-photo>
+              <PhotoSearchPanel
+                defaultQuery={topic}
+                ratio="4:5"
+                target="feed"
+                buttonLabel="무료 사진으로 첨부 (Pixabay·Pexels)"
+                disabled={addingUpload || isGeneratingAll}
+                onPicked={(url) => setSlides((prev) => (prev.length >= requiredSlides ? prev : [...prev, { imagePrompt: "", imageUrl: url, imageUrls: [url] }]))}
+              />
+            </div>
+          )}
+          {readyWithoutAi && (
+            <p className="mt-2 text-xs text-emerald-400">
+              캡션과 이미지가 준비되어 있어 &quot;{submitLabel}&quot;를 누르면 AI 생성 없이 그대로 저장됩니다.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-200">게시방식 결정</label>
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              { value: "draft", label: "임시저장" },
+              { value: "schedule", label: "예약 게시" },
+              { value: "now", label: "즉시 게시" },
+            ] as const
+          ).map((option) => (
+            <label
+              key={option.value}
+              className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                publishMode === option.value
+                  ? "border-pink-500 bg-pink-500/20 font-semibold text-pink-100"
+                  : "border-[#2f3650] text-slate-300 hover:border-slate-500"
+              }`}
+            >
+              <input
+                type="radio"
+                name="publishMode"
+                value={option.value}
+                checked={publishMode === option.value}
+                onChange={() => setPublishMode(option.value)}
+                className="sr-only"
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+        {publishMode === "now" && !hasInstagramAccount && (
+          <p className="mt-2 text-xs text-rose-400">
+            인스타그램 계정이 연결되어 있지 않아 즉시 게시할 수 없습니다. 계정 연결 후 이용해주세요.
+          </p>
+        )}
+      </div>
+
+      {publishMode === "schedule" && (
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-200">예약 시각</label>
+          <Input
+            type="datetime-local"
+            value={scheduledAtLocal}
+            onChange={(e) => setScheduledAtLocal(e.target.value)}
+          />
+          <p className="mt-1 text-xs text-slate-400">예약 시각 후 자동으로 발행됩니다(Vercel 방식은 5분 안, 「내 cron-job.org」는 1분 안). 실행 방식은 설정 → ⏰ 예약 발행에서 고릅니다.</p>
+        </div>
+      )}
+      <input type="hidden" name="scheduledAt" value={scheduledAtIso} />
+
+      {state.error && (
+        <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">
+          {state.error}
+        </p>
+      )}
+
+      <Button
+        type="submit"
+        disabled={isPending || isGeneratingAll || (publishMode === "now" && !hasInstagramAccount)}
+      >
+        {isGeneratingAll ? "생성 중..." : isPending ? "처리 중..." : submitLabel}
+      </Button>
+    </form>
+    {missingKeyModal && (
+      <ApiKeyRequiredModal missingLabels={missingKeyModal} onClose={() => setMissingKeyModal(null)} />
+    )}
+    {zoomTarget && (
+      <ImageZoomModal
+        imageUrl={zoomTarget.url}
+        title={`슬라이드 ${zoomTarget.index + 1}`}
+        isActive={zoomTarget.url === slides[zoomTarget.index]?.imageUrl}
+        onSelect={() => {
+          handleSelectSlideImage(zoomTarget.index, zoomTarget.url);
+          setZoomTarget(null);
+        }}
+        onClose={() => setZoomTarget(null)}
+      />
+    )}
+    </>
+  );
+}

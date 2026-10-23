@@ -1,0 +1,15 @@
+
+D:\Antigravity\AIMaster\tistory-auto-blog\app\posts\[id]\page.tsx
+  221:19  warning  'origText' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  275:16  warning  'e' is defined but never used                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  330:18  warning  'e' is defined but never used                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  347:16  warning  'e' is defined but never used                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  378:9   warning  'coverGradient' is assigned a value but never used                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  673:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\AIMaster\tistory-auto-blog\app\write\ai-form\page.tsx
+   9:27  warning  'getBlogAuthPath' is defined but never used     @typescript-eslint/no-unused-vars
+  89:10  warning  'basePath' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  99:10  warning  'userEmail' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 9 problems (0 errors, 9 warnings)

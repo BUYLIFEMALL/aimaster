@@ -1,0 +1,45 @@
+# Youtube Playlist 자동화 (YouTube Playlist Automation)
+
+> **버전**: `v1.08`
+> **공식 도메인**: `https://youtube-playlist.buylife.xyz` (기존: `https://yt-playlist.buylife.xyz`)  
+> **플랫폼**: AIMaster 통합 서브프로젝트
+
+## 주요 기능
+- **Web Audio 기반 10종 오디오 스펙트럼 비주얼라이저** (막대, 대칭, 미니, 원형, 선형, 파형, 필드, 라디알, 듀얼)
+- **8종 감성 필터 & 10종 오버레이 & 6종 EDM FX & 14종 파티클 시스템**
+- **유튜브 설명란용 챕터 타임라인 원클릭 복사**
+- **Gemini Imagen 3 AI 배경 1클릭 자동 생성**
+- **WebCodecs + mp4-muxer 기반 1080p MP4 브라우저 GPU 가속 고속 렌더링**
+- **File System Access API 디스크 직접 스트리밍 저장 지원**
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.04 (yt-playlist-studio)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## 기능·로직·장점·단점 (v1.08 최신 기준)
+
+- **기능:** 본인 파일 음원/배경/로고/GIF 구성, 스펙트럼·필터·파티클 편집, 챕터 복사, 본인 Gemini 키 배경 생성, WebCodecs MP4 출력, 사용 매뉴얼. v1.08은 Viral Finder 참고 메모 수신을 추가합니다.
+- **로직:** AIMaster 로그인/프로그램 자격 후 회원 ID를 스튜디오에 전달합니다. 본인 Gemini 키만 조회/사용합니다. 파일/편집/인코딩은 브라우저에서 처리합니다. 참고 메모는 동일 회원·유튜브 HTTPS URL·발급5분을 검사해 해당 화면 메모리에만 표시하고 메뉴 이동/새로고침/만료 시 제거합니다. DB·localStorage·서버 로그에 메모를 저장하지 않습니다.
+- **장점:** 파일을 서버에 올리지 않는 제작 흐름, 본인 키, GPU 인코딩, 같은 계정의 영상 참고와 실제 제작을 분리한 연결, 다크·모바일 UI.
+- **단점/한계:** WebCodecs/저장 API 브라우저 지원과 PC 자원에 의존합니다. 입력 메모의 회원ID 비교는 수신 확인이며 서명된 인증 토큰이 아닙니다(사람이 입력한 제목/URL을 읽기 전용으로 표시할 뿐 어떤 권한도 부여하지 않음). 실제 미디어 가져오기/프로젝트 자동 적용/지속 메모는 없습니다. 이번에는 실제 음원 렌더/유료 AI 회귀를 실행하지 않았습니다.
+
+## v1.08 변경 히스토리 (2026-10-17 Codex)
+
+- 동일 회원5분 참고 메모 수신/주소 검증·자동 제거, 가이드 안내. 모바일 드로어의 실제 닫기 버튼에 접근성 이름 추가(가려진 바깥 버튼과 구분). Next16.4.2 보안 보완, package1.08.0/APPv1.08. DB 표시는 배포 후 동기화합니다.
+- 사전 검사: 빌드/타입, 파서6, 실제 일반 회원 Edge1440/375 연계10, 비로그인API3개401, npm audit0. 코드 복구 후 전체 재검수했습니다. [최종 인수인계](docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md) · [개선 대기 목록](docs/IMPROVEMENT_BACKLOG.md).
+
+## 목적·개발 도구·후속 제안 (공통 7항목 보완)
+
+- **목적/대상:** 본인 음원·배경 자료로 유튜브 플레이리스트 영상을 만드는 제작자. 브라우저 안에서 편집·출력하고 회원 본인 AI 키를 연결합니다.
+- **도구/기법/스킬:** Next.js16.4.2·React19·TypeScript·Tailwind4, WebAudio·Canvas·WebCodecs, mp4-muxer·GIF 처리, Supabase 통합 인증/본인 키, 회원 Gemini 배경 생성. 이번 작업은 PowerShell/Node, Playwright 실제 Edge, Vercel CLI와 Supabase·Postgres·배포·React 점검 지침을 사용했습니다. 별도 실행 플러그인이나 공용 AI 키를 추가하지 않았습니다.
+- **기능/로직/장단점·버전:** 위 최신 기능/히스토리 및 [v1.08 결과](docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md)를 기준으로 확인합니다. 브라우저 자원·지원 API 의존과 실제 렌더 재검수 미실행 한계를 유지합니다.
+- **작업 대기:** [개선 대기 목록](docs/IMPROVEMENT_BACKLOG.md). 썸네일 캡처, 트랙 번호, 모바일 포커스/Escape, 사용요금 안내는 미구현입니다. 기존 코드/화면부터 비교한 뒤 플랜을 제시합니다.
+- **연계/아이디어:** Viral Finder의 같은 회원 참고 메모 수신은 구현했습니다. Suno 메타데이터/챕터 연계와 프로젝트 자동 적용은 제안이며 실제 음원 다운로드·게시를 자동 실행하지 않습니다.
+- **UI/스타일:** 기존 유튜브 다크 색을 유지했습니다. 후속 제안은 모바일 포커스 복귀·키보드 닫기와 제작 단계/비용 안내 개선입니다. 이번에는 실제 메뉴 닫기 버튼의 접근성 이름만 보완했습니다.
+
+## v1.08 운영 완료·미완료 구분 (2026-10-17 종료)
+
+참고 메모 수신·본인/5분 검증·가이드·모바일 닫기·Next16.4.2 운영 반영. 소스 ea42c5b8db7bb4510c3f1f941bfb8c9869fe863c 푸시, dpl_HLTavGo2Qn2nqX7A5rDqUuWt8qJy READY, APP/DBv1.08. 빌드/타입·파서6·운영 Edge10·API3개401 통과. 실제 미디어 인코딩·유료 AI는 미검수. 썸네일/트랙번호/포커스·Escape/요금 안내/Suno 연계는 미구현. [완료·미완료/재개 순서](docs/IMPROVEMENT_HANDOFF_20261017_V108_REFERENCE.md) · [대기 목록](docs/IMPROVEMENT_BACKLOG.md).
+
+https://youtube-playlist.buylife.xyz

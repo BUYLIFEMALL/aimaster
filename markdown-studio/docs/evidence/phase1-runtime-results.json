@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-10-12T19:28:02.775Z",
+  "productionBuild": true,
+  "platformConfiguration": "intentionally absent",
+  "realMemberLoginVerified": false,
+  "checks": [
+    {
+      "name": "/dashboard redirects to setup without platform configuration",
+      "passed": true
+    },
+    {
+      "name": "/prepare redirects to setup without platform configuration",
+      "passed": true
+    },
+    {
+      "name": "/editor redirects to setup without platform configuration",
+      "passed": true
+    },
+    {
+      "name": "/export redirects to setup without platform configuration",
+      "passed": true
+    },
+    {
+      "name": "/library redirects to setup without platform configuration",
+      "passed": true
+    },
+    {
+      "name": "/login redirects to setup without platform configuration",
+      "passed": true
+    },
+    {
+      "name": "Session API fails closed with JSON 503/no-store",
+      "passed": true
+    },
+    {
+      "name": "Logout rejects a foreign origin",
+      "passed": true
+    },
+    {
+      "name": "Real production Chrome displays setup and no document workspace",
+      "passed": true
+    }
+  ]
+}

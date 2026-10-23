@@ -1,0 +1,81 @@
+✔ lost arm ACK stops before the final click (3.5335ms)
+✔ reconcile checks results without clicking or arming again (4.4102ms)
+✔ atomic claim grants one run when two extensions race (45.626ms)
+✔ foreign, expired, and unauthenticated drafts cannot claim (75.7414ms)
+✔ arm rejects changed content and cannot grant another final click (31.013ms)
+✔ published URL must be this blog, confirmed only after arm, receipt is idempotent (18.0607ms)
+✔ uncertain results can reconcile but never re-arm or restart (17.491ms)
+✔ actual save handler preserves a locked original; revision rejects stale writes (36.8839ms)
+✔ stale preview cannot claim a newer server draft (14.6663ms)
+✔ only an empty editor belonging to the chosen blog is accepted (1374.5472ms)
+✔ whole text order, extra text and image count are checked (280.6035ms)
+✔ selected visibility is required and final click occurs at most once (378.1809ms)
+✔ posted URL and exact viewer title must agree; editor is never a result (930.7621ms)
+✔ content changed in editor after settings cannot reach the final click (252.194ms)
+✔ preserves spaces and Korean text in the title (954.5855ms)
+✔ creates separate paragraphs for single and multiple newlines (405.7345ms)
+✔ normalizes markdown without removing internal paragraph breaks (0.3014ms)
+✔ shows the manifest version in the extension panel instead of a hard-coded label (3.014ms)
+✔ limits editor structure inspection to a server-verified admin extension session (2.683ms)
+✔ extracts publish tag recommendations from the selected content topic, keywords, and body (1.9394ms)
+✔ keeps meaningful Korean words intact and excludes generic or conjugated body words from tag recommendations (7.832ms)
+✔ does not recommend punctuation-tailed predicates or component words already covered by a specific travel tag (1.4145ms)
+✔ places category and recommendation labels beside their publish inputs (2.2998ms)
+✔ legacy preparation opens settings without clicking the final publish button (1.7558ms)
+✔ production image upload intercepts native chooser and selects successful iframe result (2819.2567ms)
+✔ failed image upload releases interception and reports failure (2.3494ms)
+✔ extension keeps content creation in the web studio and exposes only the handoff controls (1.3631ms)
+✔ supports a fourth image with a third sentence-matched content slot (11.41ms)
+✔ places sentence-matched images before the containing paragraph without splitting it (6.9807ms)
+✔ selects the image model beside representative image creation and sends it to every image action (12.7621ms)
+✔ keeps one image model selector for initial creation and later regeneration (9.5936ms)
+✔ lays out content-image auto generation with its model and keeps the image description on the right (8.8145ms)
+✔ visually separates image preparation from the complete content editor (1.281ms)
+✔ keeps content-block position controls on a single toolbar line (1.7632ms)
+✔ saves edits directly from the complete content editor (8.0562ms)
+✔ expands each content paragraph editor to avoid an inner scrollbar (6.8032ms)
+✔ preserves each generated image's original aspect ratio in previews (1.1902ms)
+✔ selects an OpenAI, Claude, or Gemini content model above representative image generation (7.1019ms)
+✔ keeps the dashboard navigation aligned with the product workflow (7.0852ms)
+﹣ legacy extension SEO checklist was removed in favor of web-studio review (0.1274ms) # SKIP
+✔ publish settings keep tag focus and select exact category without publishing (1528.0124ms)
+(node:36176) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/Antigravity/AIMaster/naver-blog-seo-studio/lib/categories.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\Antigravity\AIMaster\naver-blog-seo-studio\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 카테고리: 형식 검사·중복 제거·순서 다시 매기기 (1.182ms)
+✔ 네이버 카테고리: 번호·이름 형식과 목록 대조 (0.3668ms)
+(node:34388) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/Antigravity/AIMaster/naver-blog-seo-studio/lib/ai/openaiRequestParams.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\Antigravity\AIMaster\naver-blog-seo-studio\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 추론 모델 판정 (0.862ms)
+✔ 온도: 추론 모델은 빼고, 기존 모델은 그대로 (0.6349ms)
+✔ 출력 한도: 추론 모델은 max_completion_tokens(최소 4000), 기존 모델은 max_tokens (0.1463ms)
+✔ 모델 안내 문구 (0.1615ms)
+✔ 모델 성격 표시 (0.2893ms)
+✔ 모델 성격 설명 (0.1296ms)
+✔ 상대 비용 표시 (0.1493ms)
+✔ OpenAI 거부 이유 (21.5131ms)
+(node:1912) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/Antigravity/AIMaster/naver-blog-seo-studio/lib/seoQuality.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\Antigravity\AIMaster\naver-blog-seo-studio\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 점검표: 잘 쓴 글은 대부분 통과 (13.0898ms)
+✔ 점검표: 문제 있는 글은 경고 (0.2657ms)
+✔ 점검표: 키워드가 없으면 키워드 항목은 건너뛰고 점수에서 뺌 (1.131ms)
+✔ 점검표: 키워드 과다 반복 경고 (0.1708ms)
+✔ 단어 빈도: 조사 떼기·불용어 제외·상위 정렬 (0.9531ms)
+✔ 전략 이름: 화면 목록 = 생성기 목록, 생성 API는 생성기 목록을 사용 (v1.74 회귀 방지) (6.3057ms)
+✔ 여러 단어 키워드: 단어가 모두 있으면 포함으로 판정 (v1.75) (0.4797ms)
+✔ 최신 버전이 더 높으면 배너를 보여주고 ZIP 주소를 연결한다 (1.4752ms)
+✔ 같거나 낮은 버전, 연결 실패, 다른 사이트 주소에서는 배너를 숨긴다 (2.9049ms)
+✔ 버전 비교는 숫자로 한다 (v1.10 > v1.9, v2.01 > v1.99) (0.944ms)
+ℹ tests 61
+ℹ suites 0
+ℹ pass 60
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 6259.6921

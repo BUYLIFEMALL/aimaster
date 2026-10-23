@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-20",
+  "agent": "Codex Windows",
+  "databaseRef": "esgxyikcnnvmlhygjkth",
+  "baselineHead": "3c727fab",
+  "sourceHashesCompared": 9,
+  "sourceHashesMatched": 9,
+  "checks": [
+    { "name": "regression", "tests": 140, "passed": 140, "exitCode": 0 },
+    { "name": "extension-lifecycle", "scenarios": 42, "exitCode": 0 },
+    { "name": "extension-bridge", "exitCode": 0 },
+    { "name": "publishing", "exitCode": 0 },
+    { "name": "typecheck", "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false", "exitCode": 0 }
+  ],
+  "build": "Previous successful build retained; source hashes unchanged; not rerun in this preflight",
+  "databaseReadOnly": {
+    "programVersion": "v2.00",
+    "extensionVersion": "v2.00",
+    "bucketExists": false,
+    "namedPolicyExists": false,
+    "storageObjectsRlsEnabled": true,
+    "storagePolicyCount": 61
+  },
+  "edge": {
+    "windowId": 2884854,
+    "runtimeAccess": "available",
+    "windowList": "success",
+    "accessibilityTree": "success",
+    "screenshotCapture": "success",
+    "newTab": "observed in returned window title and tree",
+    "addressSetValue": "verified",
+    "address": "https://naver-blog-agent.buylife.xyz",
+    "keyboard": "window_not_focused, including one retry with restore-window",
+    "foregroundRestore": "not verified",
+    "navigation": "not verified",
+    "separateWindowLaunch": "Start-Process blocked by policy; no bypass attempted",
+    "memberSession": "not verified"
+  },
+  "edgeRetry": {
+    "trigger": "User requested retry",
+    "windowId": 2884854,
+    "initialPage": "https://naver-blog-agent.buylife.xyz/dashboard",
+    "navigationByAccessibilityClick": "verified by subsequent document URL and guide content",
+    "verifiedPage": "https://naver-blog-agent.buylife.xyz/guide",
+    "faqClick": "verified by subsequent expanded answer text",
+    "keyboardEscapeWithRestore": "window_not_focused",
+    "visibleSession": "administrator; not the designated ordinary test member",
+    "screenshot": "edge-retry-guide-20261020.png",
+    "conclusion": "Accessibility navigation and clicks work; keyboard focus remains unavailable; no member photo or extension verification"
+  },
+  "pending": ["Explicit approval for proposed bucket and policy", "Designated ordinary member login for member verification", "Keyboard foreground focus if keyboard-dependent operations are required"],
+  "databaseWrites": 0,
+  "storageWrites": 0,
+  "paidAiCalls": 0,
+  "finalPublicationCalls": 0,
+  "deployments": 0,
+  "versionChanged": false,
+  "extensionArchiveRebuilt": false
+}

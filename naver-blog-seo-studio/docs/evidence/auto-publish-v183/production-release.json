@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-21T09:51:54.399Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v1.83",
+  "codeCommit": "a2fe43f9",
+  "deploymentId": "dpl_3X4mNRdiSx47iYsTpnafx64VP4Tb",
+  "deployment": "https://naver-blog-seo-studio-a4glfjyzx-buylife.vercel.app",
+  "officialAlias": "https://naver-blog-seo-studio.buylife.xyz",
+  "readyAndAliasesVerified": true,
+  "release": "DB/installed extension/manifest/live ZIP v1.83 matched; release checker failures0 warnings0",
+  "checks": [
+    {
+      "path": "/api/extension/drafts/library",
+      "method": "GET",
+      "status": 401,
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "path": "/api/extension/drafts/library/00000000-0000-0000-0000-000000000000/auto-publish",
+      "method": "POST",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/drafts/history",
+      "method": "GET",
+      "status": 401,
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,152 @@
+{
+  "checkedAt": "2026-10-12T11:51:40.284Z",
+  "version": "v1.05",
+  "scope": "anonymous production HTTP and live login assets; no authenticated member or provider calls",
+  "checks": [
+    {
+      "path": "/login",
+      "method": "GET",
+      "status": 200,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F"
+    },
+    {
+      "path": "/settings",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2Fsettings"
+    },
+    {
+      "path": "/api/generate",
+      "method": "POST",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/api/search",
+      "method": "POST",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/api/keys",
+      "method": "GET",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/api/keys",
+      "method": "POST",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/?section=builder",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F%3Fsection%3Dbuilder"
+    },
+    {
+      "path": "/?section=album",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F%3Fsection%3Dalbum"
+    },
+    {
+      "path": "/?section=presets",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F%3Fsection%3Dpresets"
+    },
+    {
+      "path": "/?section=search",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F%3Fsection%3Dsearch"
+    },
+    {
+      "path": "/?section=dance",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F%3Fsection%3Ddance"
+    },
+    {
+      "path": "/?section=guide",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F%3Fsection%3Dguide"
+    },
+    {
+      "path": "/?section=library",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F%3Fsection%3Dlibrary"
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/2c_2b2prcozy6.js",
+      "status": 200
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/0meshd4c712hl.js",
+      "status": 200
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/2q5mg60p52qzv.js",
+      "status": 200
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/2b6kz7m49hf-d.js",
+      "status": 200
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/turbopack-1cvbnb3nlabgn.js",
+      "status": 200
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/00z4pmesk2f4f.js",
+      "status": 200
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/298hal_wcejof.js",
+      "status": 200
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/0c0hxoamwjsbw.js",
+      "status": 200
+    }
+  ],
+  "versionEvidence": "Vercel deployed code commit 37ba2e4a and DB v1.05; protected member page not inspected."
+}

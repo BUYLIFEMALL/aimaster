@@ -1,0 +1,54 @@
+{
+  "at": "2026-10-21T03:10:43.473Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v2.07",
+  "codeCommit": "0081219a",
+  "deploymentId": "dpl_GUZGHbBMEMCs1HW6MDauHGDgJPp6",
+  "deployment": "https://naver-blog-agent-lwq2jf8zv-buylife.vercel.app",
+  "readyVerified": true,
+  "extensionReleaseCheck": "DB v2.07 / ext v2.07 / zip v2.07; failures=0 warnings=0",
+  "checks": [
+    {
+      "name": "version",
+      "status": 200,
+      "latest": "v2.07",
+      "pass": true
+    },
+    {
+      "name": "/api/collector/materials GET",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "/api/collector/materials PATCH",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "/api/collector POST",
+      "status": 401,
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "name": "/api/generate POST",
+      "status": 401,
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "name": "/api/extension/task POST",
+      "status": 401,
+      "cacheControl": "no-store",
+      "pass": true
+    },
+    {
+      "name": "cron-auth",
+      "status": 401,
+      "pass": true
+    }
+  ],
+  "passed": true
+}

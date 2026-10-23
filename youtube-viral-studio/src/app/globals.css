@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/*
+ * 유튜브 다크 콘솔 스타일 — 스튜디오 변형 (DESIGN.md 9번 계열).
+ * youtube-auto-reply v1.09와 같은 값(yt-*). 설명: docs/DESIGN_HANDOFF.md
+ */
+:root {
+  --background: #0f0f0f;
+  --foreground: #f1f1f1;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@theme {
+  --color-yt-bg: #0f0f0f;
+  --color-yt-surface: #181818;
+  --color-yt-raised: #212121;
+  --color-yt-hover: #2a2a2a;
+  --color-yt-border: #303030;
+  --color-yt-text: #f1f1f1;
+  --color-yt-muted: #aaaaaa;
+  --color-yt-red: #ff0000;
+  --color-yt-red-hover: #cc0000;
+  --color-yt-link: #3ea6ff;
+  --color-yt-success: #2ba640;
+  --color-yt-warn: #f9ab00;
+  --color-yt-danger: #ff4e45;
+  --color-yt-violet: #c4b5fd;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
+}
+
+@layer components {
+  /* 유튜브식 알약(Pill) 버튼 */
+  .yt-btn-red {
+    @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-yt-red px-5 text-sm font-bold text-white transition-colors hover:bg-yt-red-hover disabled:opacity-50;
+  }
+  .yt-btn {
+    @apply inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-yt-raised px-5 text-sm font-semibold text-yt-text transition-colors hover:bg-yt-hover disabled:opacity-50;
+  }
+  .yt-card {
+    @apply rounded-xl border border-yt-border bg-yt-surface p-5;
+  }
+  .yt-section-title {
+    @apply mb-3 text-base font-bold text-yt-text;
+  }
+  .yt-chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-yt-raised px-3 py-1 text-xs font-semibold text-yt-text;
+  }
+}

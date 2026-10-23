@@ -1,0 +1,667 @@
+[
+  {
+    "slug": "ai-audio-analyzer",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 13,
+    "logFile": ".vercel/supabase-compat-builds/ai-audio-analyzer.log"
+  },
+  {
+    "slug": ".",
+    "version": null,
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 28,
+    "logFile": ".vercel/supabase-compat-builds/aimaster.log"
+  },
+  {
+    "slug": "ai-auto-blog",
+    "version": "v1.64",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 36,
+    "logFile": ".vercel/supabase-compat-builds/ai-auto-blog.log"
+  },
+  {
+    "slug": "ai-influencer-studio",
+    "version": "v1.08",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 23,
+    "logFile": ".vercel/supabase-compat-builds/ai-influencer-studio.log"
+  },
+  {
+    "slug": "ai-image-studio",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 42,
+    "logFile": ".vercel/supabase-compat-builds/ai-image-studio.log"
+  },
+  {
+    "slug": "ai-mastering-studio",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/ai-mastering-studio.log"
+  },
+  {
+    "slug": "ai-prompt-studio",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/ai-prompt-studio.log"
+  },
+  {
+    "slug": "ai-slide-builder",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/ai-slide-builder.log"
+  },
+  {
+    "slug": "ai-task-planner",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/ai-task-planner.log"
+  },
+  {
+    "slug": "ai-webtoon-studio",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/ai-webtoon-studio.log"
+  },
+  {
+    "slug": "ai-writing-editor",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 15,
+    "logFile": ".vercel/supabase-compat-builds/ai-writing-editor.log"
+  },
+  {
+    "slug": "allinone-graphic",
+    "version": "v1.03",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/allinone-graphic.log"
+  },
+  {
+    "slug": "banana-canvas",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 15,
+    "logFile": ".vercel/supabase-compat-builds/banana-canvas.log"
+  },
+  {
+    "slug": "blog-content-maker",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 13,
+    "logFile": ".vercel/supabase-compat-builds/blog-content-maker.log"
+  },
+  {
+    "slug": "blog-keyword",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 14,
+    "logFile": ".vercel/supabase-compat-builds/blog-keyword.log"
+  },
+  {
+    "slug": "blog-workroom",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 16,
+    "logFile": ".vercel/supabase-compat-builds/blog-workroom.log"
+  },
+  {
+    "slug": "auto-detail-page",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 77,
+    "logFile": ".vercel/supabase-compat-builds/auto-detail-page.log"
+  },
+  {
+    "slug": "cardnews-studio",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 21,
+    "logFile": ".vercel/supabase-compat-builds/cardnews-studio.log"
+  },
+  {
+    "slug": "cinematic-storyboard-studio",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 23,
+    "logFile": ".vercel/supabase-compat-builds/cinematic-storyboard-studio.log"
+  },
+  {
+    "slug": "booking-reminder",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 44,
+    "logFile": ".vercel/supabase-compat-builds/booking-reminder.log"
+  },
+  {
+    "slug": "competitor-analysis",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 36,
+    "logFile": ".vercel/supabase-compat-builds/competitor-analysis.log"
+  },
+  {
+    "slug": "crm-google-form",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 47,
+    "logFile": ".vercel/supabase-compat-builds/crm-google-form.log"
+  },
+  {
+    "slug": "detail-page-12p",
+    "version": "v1.03",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 26,
+    "logFile": ".vercel/supabase-compat-builds/detail-page-12p.log"
+  },
+  {
+    "slug": "document-translator",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 29,
+    "logFile": ".vercel/supabase-compat-builds/document-translator.log"
+  },
+  {
+    "slug": "ebook-studio",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 26,
+    "logFile": ".vercel/supabase-compat-builds/ebook-studio.log"
+  },
+  {
+    "slug": "emotion-writer",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 21,
+    "logFile": ".vercel/supabase-compat-builds/emotion-writer.log"
+  },
+  {
+    "slug": "fashion-style",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/fashion-style.log"
+  },
+  {
+    "slug": "file-merge",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 16,
+    "logFile": ".vercel/supabase-compat-builds/file-merge.log"
+  },
+  {
+    "slug": "four-cut-comics",
+    "version": "v1.08",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 19,
+    "logFile": ".vercel/supabase-compat-builds/four-cut-comics.log"
+  },
+  {
+    "slug": "website-scraper",
+    "version": "v1.11",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 22,
+    "logFile": ".vercel/supabase-compat-builds/website-scraper.log"
+  },
+  {
+    "slug": "image-convert-studio",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 20,
+    "logFile": ".vercel/supabase-compat-builds/image-convert-studio.log"
+  },
+  {
+    "slug": "infinite-loop-video",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/infinite-loop-video.log"
+  },
+  {
+    "slug": "auto-instagram-posting",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 23,
+    "logFile": ".vercel/supabase-compat-builds/auto-instagram-posting.log"
+  },
+  {
+    "slug": "instagram-comment-reply",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 41,
+    "logFile": ".vercel/supabase-compat-builds/instagram-comment-reply.log"
+  },
+  {
+    "slug": "instagram-dm-reply",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 31,
+    "logFile": ".vercel/supabase-compat-builds/instagram-dm-reply.log"
+  },
+  {
+    "slug": "landing-architect",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/landing-architect.log"
+  },
+  {
+    "slug": "kakao-auto-posting",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 34,
+    "logFile": ".vercel/supabase-compat-builds/kakao-auto-posting.log"
+  },
+  {
+    "slug": "markdown-studio",
+    "version": "v1.10",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/markdown-studio.log",
+    "followup": "New-only local build after Antigravity v1.10 completion"
+  },
+  {
+    "slug": "longtail-keyword-expander",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 36,
+    "logFile": ".vercel/supabase-compat-builds/longtail-keyword-expander.log"
+  },
+  {
+    "slug": "personality-code",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 65,
+    "logFile": ".vercel/supabase-compat-builds/personality-code.log"
+  },
+  {
+    "slug": "mbti-character",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 51,
+    "logFile": ".vercel/supabase-compat-builds/mbti-character.log"
+  },
+  {
+    "slug": "music-player",
+    "version": "v1.03",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 16,
+    "logFile": ".vercel/supabase-compat-builds/music-player.log"
+  },
+  {
+    "slug": "music-video-studio",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/music-video-studio.log"
+  },
+  {
+    "slug": "naver-blog-agent",
+    "version": "v1.84",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 26,
+    "logFile": ".vercel/supabase-compat-builds/naver-blog-agent.log"
+  },
+  {
+    "slug": "music-automation",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 70,
+    "logFile": ".vercel/supabase-compat-builds/music-automation.log"
+  },
+  {
+    "slug": "naver-blog-allinone",
+    "version": "v1.42",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 19,
+    "logFile": ".vercel/supabase-compat-builds/naver-blog-allinone.log"
+  },
+  {
+    "slug": "naver-blog-auto-poster",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 37,
+    "logFile": ".vercel/supabase-compat-builds/naver-blog-auto-poster.log"
+  },
+  {
+    "slug": "naver-blog-auto-poster-web",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 31,
+    "logFile": ".vercel/supabase-compat-builds/naver-blog-auto-poster-web.log"
+  },
+  {
+    "slug": "naver-blog-seo-studio",
+    "version": "v1.64",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 20,
+    "logFile": ".vercel/supabase-compat-builds/naver-blog-seo-studio.log"
+  },
+  {
+    "slug": "naver-cafe-poster",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 27,
+    "logFile": ".vercel/supabase-compat-builds/naver-cafe-poster.log"
+  },
+  {
+    "slug": "persona-style-studio",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 21,
+    "logFile": ".vercel/supabase-compat-builds/persona-style-studio.log"
+  },
+  {
+    "slug": "personality-suite",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/personality-suite.log"
+  },
+  {
+    "slug": "photo-remake-studio",
+    "version": "v1.03",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 15,
+    "logFile": ".vercel/supabase-compat-builds/photo-remake-studio.log"
+  },
+  {
+    "slug": "playlist-channel-studio",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 21,
+    "logFile": ".vercel/supabase-compat-builds/playlist-channel-studio.log"
+  },
+  {
+    "slug": "portrait-photo",
+    "version": "v1.19",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 14,
+    "logFile": ".vercel/supabase-compat-builds/portrait-photo.log"
+  },
+  {
+    "slug": "prompt-template-studio",
+    "version": "v1.03",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/prompt-template-studio.log"
+  },
+  {
+    "slug": "ai-web-ui",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 15,
+    "logFile": ".vercel/supabase-compat-builds/ai-web-ui.log"
+  },
+  {
+    "slug": "reverse-prompt",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 16,
+    "logFile": ".vercel/supabase-compat-builds/reverse-prompt.log"
+  },
+  {
+    "slug": "real-estate-sales",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 25,
+    "logFile": ".vercel/supabase-compat-builds/real-estate-sales.log"
+  },
+  {
+    "slug": "seo-thumbnail-pro",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 16,
+    "logFile": ".vercel/supabase-compat-builds/seo-thumbnail-pro.log"
+  },
+  {
+    "slug": "shorts-viral-studio",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 21,
+    "logFile": ".vercel/supabase-compat-builds/shorts-viral-studio.log"
+  },
+  {
+    "slug": "auto-shorts-posting",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 23,
+    "logFile": ".vercel/supabase-compat-builds/auto-shorts-posting.log"
+  },
+  {
+    "slug": "shop-detail-page",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 65,
+    "logFile": ".vercel/supabase-compat-builds/shop-detail-page.log"
+  },
+  {
+    "slug": "stepmail",
+    "version": "v1.10",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 27,
+    "logFile": ".vercel/supabase-compat-builds/stepmail.log"
+  },
+  {
+    "slug": "suno-music-studio",
+    "version": "v1.09",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/suno-music-studio.log"
+  },
+  {
+    "slug": "style-dna-analyzer",
+    "version": "v1.15",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 24,
+    "logFile": ".vercel/supabase-compat-builds/style-dna-analyzer.log"
+  },
+  {
+    "slug": "auto-threads-posting",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 19,
+    "logFile": ".vercel/supabase-compat-builds/auto-threads-posting.log"
+  },
+  {
+    "slug": "threads-affiliate-poster",
+    "version": "v1.52",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 22,
+    "logFile": ".vercel/supabase-compat-builds/threads-affiliate-poster.log"
+  },
+  {
+    "slug": "tarot-reading",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 80,
+    "logFile": ".vercel/supabase-compat-builds/tarot-reading.log"
+  },
+  {
+    "slug": "threads-comment-reply",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 63,
+    "logFile": ".vercel/supabase-compat-builds/threads-comment-reply.log"
+  },
+  {
+    "slug": "threads-easy-planner",
+    "version": "v1.43",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 22,
+    "logFile": ".vercel/supabase-compat-builds/threads-easy-planner.log"
+  },
+  {
+    "slug": "threads-content-ops",
+    "version": "v1.95",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 54,
+    "logFile": ".vercel/supabase-compat-builds/threads-content-ops.log"
+  },
+  {
+    "slug": "thumbnail-master",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/thumbnail-master.log"
+  },
+  {
+    "slug": "tistory-auto-blog",
+    "version": "v1.71",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 33,
+    "logFile": ".vercel/supabase-compat-builds/tistory-auto-blog.log"
+  },
+  {
+    "slug": "ui-canvas",
+    "version": "v1.07",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/ui-canvas.log"
+  },
+  {
+    "slug": "trending-product-finder",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 54,
+    "logFile": ".vercel/supabase-compat-builds/trending-product-finder.log"
+  },
+  {
+    "slug": "vinyl-lp-studio",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/vinyl-lp-studio.log"
+  },
+  {
+    "slug": "web-crawler-saas",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 17,
+    "logFile": ".vercel/supabase-compat-builds/web-crawler-saas.log"
+  },
+  {
+    "slug": "video-to-gif",
+    "version": "v1.05",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 78,
+    "logFile": ".vercel/supabase-compat-builds/video-to-gif.log"
+  },
+  {
+    "slug": "youtube-channel-consultant",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 23,
+    "logFile": ".vercel/supabase-compat-builds/youtube-channel-consultant.log"
+  },
+  {
+    "slug": "youtube-auto-reply",
+    "version": "v1.06",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 53,
+    "logFile": ".vercel/supabase-compat-builds/youtube-auto-reply.log"
+  },
+  {
+    "slug": "yt-playlist-studio",
+    "version": "v1.04",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 18,
+    "logFile": ".vercel/supabase-compat-builds/yt-playlist-studio.log"
+  },
+  {
+    "slug": "youtube-viral-studio",
+    "version": "v1.12",
+    "ok": true,
+    "exit_code": 0,
+    "seconds": 19,
+    "logFile": ".vercel/supabase-compat-builds/youtube-viral-studio.log"
+  }
+]

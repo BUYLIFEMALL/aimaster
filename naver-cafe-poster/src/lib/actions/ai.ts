@@ -1,0 +1,165 @@
+"use server";
+
+import { generateCafePostContent, reviseCafePostContent, type ReviseCafePostInput } from "@/lib/ai/cafeGenerator";
+import type { CafeTone } from "@/lib/ai/tone";
+import { generatePostImage, generateContentImagePrompt, type NanoBananaModelType } from "@/lib/ai/imageGenerator";
+import { requireProgramAccess, logProgramUsage } from "@/lib/access";
+import { resolveApiKey } from "@/lib/apiKeys";
+import { createClient } from "@/lib/supabase/server";
+
+export interface GenerateContentState {
+  title?: string;
+  content?: string;
+  error?: string;
+}
+
+export interface GenerateImageState {
+  imageUrl?: string;
+  error?: string;
+}
+
+export interface GenerateCafePostInput {
+  topic: string;
+  referenceContent?: string;
+  tone?: CafeTone;
+  targetAudience?: string;
+  wordCount?: number;
+  keywords?: string[];
+  referenceUrls?: string[];
+  customInstructions?: string;
+  cta?: { text: string; url: string };
+}
+
+export async function generateCafePostAction(input: GenerateCafePostInput): Promise<GenerateContentState> {
+  const user = await requireProgramAccess();
+
+  if (!input.topic.trim()) {
+    return { error: "글감(주제)을 입력해주세요." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const apiKey = await resolveApiKey(supabase, user.id, "openai");
+    if (!apiKey) {
+      return { error: "OpenAI API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+    }
+
+    const result = await generateCafePostContent(input, apiKey);
+
+    await logProgramUsage({ userId: user.id, action: "ai_generate_cafe_post" });
+
+    return result;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AI 생성에 실패했습니다.";
+    return { error: message };
+  }
+}
+
+/** 이미 생성/저장된 초안을 자연어 지시로 다시 고쳐 쓴다("생성"과 별개인 "수정 요청").
+ * "AI 자동 초안생성" 화면에 옮겨온 세부 옵션/CTA(2026-09-13)도 여기서 함께 반영된다. */
+export async function reviseCafePostAction(input: ReviseCafePostInput): Promise<GenerateContentState> {
+  const user = await requireProgramAccess();
+
+  if (!input.instruction.trim()) {
+    return { error: "수정 지시사항을 입력해주세요." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const apiKey = await resolveApiKey(supabase, user.id, "openai");
+    if (!apiKey) {
+      return { error: "OpenAI API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+    }
+
+    const result = await reviseCafePostContent(input, apiKey);
+
+    await logProgramUsage({ userId: user.id, action: "ai_revise_cafe_post" });
+
+    return result;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AI 수정에 실패했습니다.";
+    return { error: message };
+  }
+}
+
+export interface GenerateImagePromptState {
+  prompt?: string;
+  error?: string;
+}
+
+/**
+ * 방금 생성된 제목/본문을 분석해서 그 내용을 묘사하는 영문 이미지 프롬프트 1개를 만든다
+ * (blog의 generateArticleBasedImagePrompts()를 1장짜리로 단순화해서 이식, 2026-09-12).
+ * "AI 글 생성 시작"을 누르면 텍스트 생성 직후 이 액션으로 프롬프트를 뽑아 곧바로
+ * generateCafeImageAction에 넘기는 자동 흐름에 쓴다 — 제목만 그대로 이미지 프롬프트로
+ * 쓰던 것보다 실제 본문 내용을 반영한 이미지가 나온다.
+ */
+export async function generateCafeImagePromptAction(input: {
+  title: string;
+  content: string;
+}): Promise<GenerateImagePromptState> {
+  const user = await requireProgramAccess();
+
+  if (!input.content.trim()) {
+    return { error: "본문이 없어서 이미지 프롬프트를 만들 수 없습니다." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const apiKey = await resolveApiKey(supabase, user.id, "gemini");
+    if (!apiKey) {
+      return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+    }
+
+    const prompt = await generateContentImagePrompt(input.title, input.content, apiKey);
+    return { prompt };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "이미지 프롬프트 생성에 실패했습니다.";
+    return { error: message };
+  }
+}
+
+/** 나노바나나(Gemini) 대표 이미지 생성 — blog(BLOG(원문)생성 자동화) AI 글쓰기 폼과 동일 기능. */
+export async function generateCafeImageAction(input: {
+  prompt: string;
+  apiKey?: string;
+  model?: NanoBananaModelType;
+  endpoint?: string;
+}): Promise<GenerateImageState> {
+  const user = await requireProgramAccess();
+
+  if (!input.prompt.trim()) {
+    return { error: "이미지 프롬프트를 입력해주세요." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const apiKey = input.apiKey?.trim() || (await resolveApiKey(supabase, user.id, "gemini"));
+    if (!apiKey) {
+      return { error: "Gemini API 키가 없습니다. 설정 페이지에서 본인 키를 등록해주세요." };
+    }
+
+    const result = await generatePostImage(
+      { prompt: input.prompt, model: input.model, endpoint: input.endpoint },
+      apiKey,
+    );
+    const ext = result.mimeType.split("/")[1] ?? "png";
+    const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("post-images")
+      .upload(path, Buffer.from(result.base64, "base64"), { contentType: result.mimeType, upsert: false });
+    if (uploadError) {
+      throw new Error(uploadError.message);
+    }
+
+    const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+
+    await logProgramUsage({ userId: user.id, action: "ai_generate_cafe_image" });
+
+    return { imageUrl: data.publicUrl };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "이미지 생성에 실패했습니다.";
+    return { error: message };
+  }
+}

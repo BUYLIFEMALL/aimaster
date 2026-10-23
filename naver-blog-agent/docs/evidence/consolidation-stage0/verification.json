@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-20",
+  "scope": "blog consolidation stage 0: new drafts explicitly prepare; existing choices preserved",
+  "project": "AIMaster operating",
+  "dbRef": "esgxyikcnnvmlhygjkth",
+  "codexProductionWrites": 0,
+  "paidCalls": 0,
+  "publications": 0,
+  "tests": {"newDraftAndRelated": 82, "homefeedAndRanking": 15, "failed": 0, "additionalStandaloneScripts": ["test-naver-publishing.cjs", "test-extension-bridge.cjs"]},
+  "typecheck": "passed --noEmit --incremental false",
+  "build": "passed next build",
+  "runtimeCommit": "9e3bb9ea",
+  "deployment": {"reportedBy": "Claude Code in d8f3ec1c", "name": "naver-blog-agent-z1v26l3j2", "version": "v2.00", "reportedStatus": "Ready", "independentlyVerifiedByCodex": false},
+  "localBrowser": "Microsoft Edge visible; no logged-in member; anonymous APIs 401",
+  "liveBrowser": "blocked net::ERR_NETWORK_ACCESS_DENIED",
+  "remainingUncommitted": ["test-new-draft-mode.cjs", "guide one paragraph", "plan/handoff/improvement/readme/common documentation", "local evidence"],
+  "commitPushByCodex": "not performed: .git read-only",
+  "photoIntegrationImplemented": false,
+  "retiredPrograms": []
+}

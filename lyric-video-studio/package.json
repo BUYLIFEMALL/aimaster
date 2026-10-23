@@ -1,0 +1,27 @@
+{
+  "name": "lyric-video-studio",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3077",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --test tests/lyrics.test.ts tests/sunoAlign.test.ts tests/amsLyrics.test.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.3",
+    "lucide-react": "1.48.0",
+    "mp4-muxer": "^5.2.2",
+    "next": "16.4.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3"
+  }
+}

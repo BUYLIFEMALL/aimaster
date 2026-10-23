@@ -1,0 +1,21 @@
+{
+  "project": "competitor-analysis",
+  "project_id": "prj_1It7Em1XLeQoX5J6wFWbmWxCGxg6",
+  "deployment_id": "dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt",
+  "state": "READY",
+  "target": "production",
+  "url": "https://competitor-analysis-d7krwoagy-buylife.vercel.app",
+  "app_url": "https://competitor-analysis.buylife.xyz",
+  "source_commit": "c80a44aff91720f7f69c7ec6dde016fdd6c02e5d",
+  "mac_source": "ac41f83c",
+  "version": "v1.07",
+  "built_from": "isolated git archive; no local env file copied",
+  "checked_at": "2026-10-16T11:16:04.044Z",
+  "db_version": "v1.07",
+  "db_badges": [
+    "free"
+  ],
+  "vip_members": 138,
+  "vip_valid_grants": 138,
+  "runtime_unchanged_after_source_commit": true
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Threads 쇼핑제휴 자동화",
+  "shortName": "tap",
+  "description": "쿠팡·알리·토스·네이버 제휴 상품으로 Threads 홍보 글 AI 생성·즉시/예약 게시",
+  "callbackPath": "/api/threads/callback",
+  "callbackLabel": "Meta(Threads) 앱 리디렉션 콜백 주소",
+  "checkTable": "tap_member_scheduler",
+  "authRedirectPath": "/auth/callback",
+  "nextStep": "KIT/README.md 의 2-5단계(Supabase 주소 설정)와 4단계(Meta 앱 만들기)를 이어서 진행하세요.",
+  "exclude": [
+    "scripts",
+    "docs",
+    "README.md",
+    ".env.example",
+    "clone-kit"
+  ],
+  "overrides": {
+    "vercel.json": "KIT/vercel.json",
+    ".env.example": "KIT/env.example"
+  },
+  "schemaCheckIgnore": [
+    "member_platform_accounts",
+    "integration_catalog",
+    "tco_threads_accounts",
+    "th_posts"
+  ],
+  "schema": {
+    "mode": "generate",
+    "parts": [
+      "KIT/database/00_core_tables.sql",
+      "supabase/migrations/*.sql",
+      "KIT/database/99_finalize.sql"
+    ]
+  },
+  "extraEnv": [
+    {
+      "name": "NEXT_PUBLIC_OPERATOR_NAME",
+      "question": "개인정보처리방침·약관에 표시할 운영자 이름(상호, 예: 홍길동 마케팅)",
+      "default": ""
+    },
+    {
+      "name": "NEXT_PUBLIC_OPERATOR_EMAIL",
+      "question": "운영자 연락 이메일(약관·개인정보 페이지에 표시)",
+      "default": ""
+    },
+    {
+      "name": "FIXIE_URL",
+      "question": "(선택) 토스쇼핑용 Fixie 고정 IP 프록시 주소 — 토스를 안 쓰면 그냥 Enter",
+      "secret": true
+    }
+  ]
+}

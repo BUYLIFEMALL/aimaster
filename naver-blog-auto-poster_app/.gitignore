@@ -1,0 +1,11 @@
+node_modules/
+dist/
+runtime/
+*.local
+.env
+.env.*
+
+# 네이버 로그인 세션이 저장되는 실제 브라우저 프로필 — 비밀번호는 저장 안 하지만
+# 로그인 쿠키가 들어있으므로 Git에 올리지 않는다.
+browser-profile/
+browser-profiles/

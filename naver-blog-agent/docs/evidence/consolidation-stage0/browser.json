@@ -1,0 +1,24 @@
+{
+  "browser": "Microsoft Edge, headless:false, dedicated profile",
+  "paidCalls": 0,
+  "publication": 0,
+  "checks": [
+    {
+      "target": "local guide",
+      "url": "http://127.0.0.1:4317/login?redirect=%2Fdashboard",
+      "memberSession": false
+    },
+    {
+      "endpoint": "/api/generate",
+      "status": 401
+    },
+    {
+      "endpoint": "/api/posts",
+      "status": 401
+    }
+  ],
+  "liveVerification": {
+    "status": "blocked",
+    "reason": "Earlier visible Edge attempt returned net::ERR_NETWORK_ACCESS_DENIED at https://naver-blog-agent.buylife.xyz/queue; no repeat attempt in this run"
+  }
+}

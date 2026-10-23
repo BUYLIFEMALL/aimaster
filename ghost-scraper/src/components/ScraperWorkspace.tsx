@@ -1,0 +1,291 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { Sidebar, FlowStep } from "@/components/layout/Sidebar";
+import { Header } from "@/components/layout/Header";
+import { UrlInputSection } from "@/components/scraper/UrlInputSection";
+import { ScraperTabs, TabId } from "@/components/scraper/ScraperTabs";
+import { SectorModal } from "@/components/modals/SectorModal";
+import { SettingsModal } from "@/components/modals/SettingsModal";
+import {
+  CrawlResult,
+  AiStructuredItem,
+  AppSettings,
+  DEFAULT_SETTINGS,
+  SelectedSector,
+} from "@/lib/types";
+import {
+  getStoredSettings,
+  saveStoredSettings,
+  getStoredLastCrawl,
+  saveStoredLastCrawl,
+  exportDataAsJson,
+} from "@/lib/storage";
+import { analyzeHtmlWithGemini } from "@/lib/gemini";
+import { APP_VERSION } from "@/lib/version";
+import { PageHero } from "@/components/ui/PageHero";
+import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
+import { AlertCircle, Database } from "lucide-react";
+
+interface ScraperWorkspaceProps {
+  userEmail: string;
+}
+
+export default function ScraperWorkspace({ userEmail }: ScraperWorkspaceProps) {
+  const [url, setUrl] = useState("https://buylife.blog");
+  const [crawlResult, setCrawlResult] = useState<CrawlResult | null>(null);
+  const [aiItems, setAiItems] = useState<AiStructuredItem[] | null>(null);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [currentStep, setCurrentStep] = useState<FlowStep>("input");
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
+
+  const [isSectorModalOpen, setIsSectorModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+
+  // 1. 초기 로컬스토리지 및 서버 키 로드
+  useEffect(() => {
+    // 매뉴얼(/guide) 등 다른 화면에서 「API키등록」을 눌러 들어오면 설정 창을 바로 연다.
+    if (new URLSearchParams(window.location.search).get("settings") === "1") {
+      setIsSettingsModalOpen(true);
+    }
+    const local = getStoredSettings();
+    setSettings(local);
+
+    const last = getStoredLastCrawl();
+    if (last) {
+      setCrawlResult(last);
+      setUrl(last.metadata.url || "https://buylife.blog");
+    }
+
+    // 서버 DB(user_api_keys)에서 개인 Gemini 키 확인
+    if (!local.geminiApiKey) {
+      fetch("/api/user/key")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.key) {
+            setSettings((prev) => {
+              const updated = { ...prev, geminiApiKey: data.key };
+              saveStoredSettings(updated);
+              return updated;
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
+
+  // 2. 크롤링 실행 핸들러
+  const handleStartCrawl = async (targetOverride?: string) => {
+    const target = (targetOverride || url).trim();
+    if (!target) return;
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/crawl", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: target }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "웹사이트 크롤링에 실패했습니다.");
+      }
+
+      setCrawlResult(data);
+      saveStoredLastCrawl(data);
+      setCurrentStep("review");
+      setActiveTab("overview");
+    } catch (err: any) {
+      setErrorMessage(err.message || "크롤링 도중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. AI 분석 실행 핸들러
+  const handleRunAiAnalysis = async (customHtml?: string) => {
+    const targetHtml = customHtml || crawlResult?.cleanedHtml;
+    if (!targetHtml) {
+      setErrorMessage("분석할 웹페이지 HTML이 없습니다. 먼저 크롤링을 진행해주세요.");
+      return;
+    }
+
+    if (!settings.geminiApiKey) {
+      setIsSettingsModalOpen(true);
+      setErrorMessage("Gemini API 키가 필요합니다. 설정 창에서 API 키를 등록해주세요.");
+      return;
+    }
+
+    setIsAiLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const results = await analyzeHtmlWithGemini(
+        settings.geminiApiKey,
+        crawlResult?.metadata.url || url,
+        targetHtml,
+        settings.geminiModel
+      );
+      setAiItems(results);
+      setCurrentStep("ai");
+      setActiveTab("aiResult");
+    } catch (err: any) {
+      setErrorMessage(err.message || "AI 분석 중 오류가 발생했습니다.");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  // 4. 시각적 섹터 선택 시 해당 HTML로 AI 분석 실행
+  const handleSelectSectorForAi = (sector: SelectedSector) => {
+    handleRunAiAnalysis(sector.html);
+  };
+
+  // 5. 전체 데이터 JSON 내보내기
+  const handleExportJson = () => {
+    if (!crawlResult) return;
+    const exportData = {
+      crawlResult,
+      aiItems,
+      exportedAt: new Date().toISOString(),
+      generator: `Website Scraper ${APP_VERSION}`,
+    };
+    exportDataAsJson(exportData, `website_scraper_${new URL(crawlResult.metadata.url).hostname}`);
+  };
+
+  return (
+    <div className="flex min-h-screen bg-mx-bg">
+      {/* 좌측 표준 사이드바 */}
+      <Sidebar
+        currentStep={currentStep}
+        onSelectStep={setCurrentStep}
+        onOpenSettings={() => setIsSettingsModalOpen(true)}
+        onOpenSectorModal={() => setIsSectorModalOpen(true)}
+        onExportJson={handleExportJson}
+        crawlResult={crawlResult}
+        isOpenMobile={isMobileNavOpen}
+        onCloseMobile={() => setIsMobileNavOpen(false)}
+        userEmail={userEmail}
+      />
+
+      {/* 우측 메인 영역 */}
+      <div className="flex flex-1 flex-col min-w-0">
+        <Header
+          settings={settings}
+          onOpenSettings={() => setIsSettingsModalOpen(true)}
+          onOpenMobileNav={() => setIsMobileNavOpen(true)}
+        />
+
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          <PageHero
+            badge="🕸️ 웹 데이터 수집 · 스마트 매트릭스"
+            title="웹사이트 주소 하나로 데이터 표까지"
+            description="URL을 넣으면 본문 구조·글목록·표·링크·이미지를 자동으로 분류하고, 회원님 본인 Gemini 키로 반복 목록을 깔끔한 표(순번·제목·링크·썸네일)로 정리해 드립니다."
+            tip="공개된 페이지만 수집합니다. 로그인이 필요한 페이지나 화면을 그린 뒤 내용을 불러오는 사이트는 일부만 보일 수 있어요."
+          />
+
+          {/* 오류 메시지 배너 */}
+          {errorMessage && (
+            <div className="flex items-start gap-3 rounded-2xl border border-mx-danger bg-[#4c0519]/40 p-4 text-sm text-[#fecdd3]">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-mx-danger" />
+              <div className="flex-1">
+                <p className="font-bold">안내 및 오류</p>
+                <p className="mt-0.5 leading-relaxed">{errorMessage}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setErrorMessage(null)}
+                className="min-h-[36px] px-2 text-xs font-bold text-[#fda4af] hover:text-white"
+              >
+                닫기
+              </button>
+            </div>
+          )}
+
+          {/* 1. URL 입력 및 크롤링 섹션 */}
+          <UrlInputSection
+            url={url}
+            onChangeUrl={setUrl}
+            onStartCrawl={() => handleStartCrawl()}
+            onOpenSectorModal={() => setIsSectorModalOpen(true)}
+            isLoading={isLoading}
+          />
+
+          {/* 수집 결과 핵심 지표 */}
+          {crawlResult && (
+            <KpiGrid>
+              <KpiCard icon="📝" label="감지된 글목록" value={crawlResult.stats.listItemsCount} hint="반복 목록 후보" />
+              <KpiCard icon="🔗" label="링크" value={crawlResult.stats.linksCount} tone="green" />
+              <KpiCard icon="🖼️" label="이미지" value={crawlResult.stats.imagesCount} tone="amber" />
+              <KpiCard
+                icon="🤖"
+                label="AI 정리 항목"
+                value={aiItems ? aiItems.length : "—"}
+                hint={aiItems ? "Gemini 분석 완료" : `표 ${crawlResult.stats.tablesCount}개 · ${crawlResult.stats.payloadSizeKb} KB`}
+                tone="muted"
+              />
+            </KpiGrid>
+          )}
+
+          {/* 2. 크롤링 결과 7대 탭 뷰어 */}
+          {crawlResult ? (
+            <ScraperTabs
+              activeTab={activeTab}
+              onChangeTab={setActiveTab}
+              crawlResult={crawlResult}
+              aiItems={aiItems}
+              onRunAiAnalysis={() => handleRunAiAnalysis()}
+              isAiLoading={isAiLoading}
+            />
+          ) : (
+            <div className="space-y-3 rounded-2xl border border-dashed border-mx-border bg-mx-surface p-8 py-16 text-center">
+              <Database className="mx-auto h-10 w-10 text-mx-muted" />
+              <h3 className="text-sm font-bold text-mx-text">
+                크롤링된 데이터가 없습니다
+              </h3>
+              <p className="mx-auto max-w-md text-sm leading-relaxed text-mx-muted">
+                상단 입력창에 수집할 웹사이트 URL을 입력하고 <strong>'크롤링 시작'</strong> 버튼을
+                누르거나, <strong>'시각적 섹터 선택'</strong>을 클릭하여 웹 화면에서 직접 데이터를
+                캡처하세요.
+              </p>
+            </div>
+          )}
+        </main>
+
+        {/* 푸터 */}
+        <footer className="mt-auto border-t border-mx-border bg-mx-surface py-6 text-center text-xs text-mx-muted">
+          <p>© 2026 AIMaster · Website Scraper · 사용자 개인 API 키 격리 보관 원칙 준수</p>
+        </footer>
+      </div>
+
+      {/* 모달 목록 */}
+      <SectorModal
+        isOpen={isSectorModalOpen}
+        onClose={() => setIsSectorModalOpen(false)}
+        targetUrl={url}
+        onSelectSectorForAi={handleSelectSectorForAi}
+        onNavigateUrl={(newUrl) => {
+          setUrl(newUrl);
+          handleStartCrawl(newUrl);
+        }}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        settings={settings}
+        onSaveSettings={setSettings}
+      />
+    </div>
+  );
+}

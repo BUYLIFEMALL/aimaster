@@ -1,0 +1,427 @@
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { EditorContent, useEditor, useEditorState, type Editor as TiptapEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Markdown } from "@tiptap/markdown";
+import Placeholder from "@tiptap/extension-placeholder";
+import { TableKit } from "@tiptap/extension-table";
+import Image from "@tiptap/extension-image";
+import { TextStyle, Color } from "@tiptap/extension-text-style";
+import Highlight from "@tiptap/extension-highlight";
+import TextAlign from "@tiptap/extension-text-align";
+import { ArrowLeft, Check, ClipboardCopy, Download, FileText, Loader2, SlidersHorizontal, Wand2 } from "lucide-react";
+import type { EqValues, Persona } from "@/lib/persona/types";
+import { FORMATS, LIMITS, type ActionId, type ContentType, type FormatId, type Source, type Suggestion } from "@/lib/we/types";
+import { deriveTitle } from "@/lib/we/util";
+import { findText, rangeText, splitParagraphs } from "@/lib/we/pmText";
+import { BubbleToolbar } from "./BubbleToolbar";
+import { ImageMenu } from "./ImageMenu";
+import { RichToolbar } from "./RichToolbar";
+import { SuggestionPanel } from "./SuggestionPanel";
+import { StylePanel, type StyleRunResult, type StyleScope } from "./StylePanel";
+import { isImageFile, uploadImage } from "./imageUpload";
+
+type SaveState = "saved" | "dirty" | "saving" | "error";
+const BLOCK = "\n\n";
+
+function download(name: string, text: string, mime: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: mime }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** AI가 돌려준 마크다운을 ProseMirror 노드로 바꾼다. 한 문단이면 인라인 내용만 돌려줘 선택 범위 안에서 문단이 쪼개지지 않게 한다. */
+function toNodes(editor: TiptapEditor, md: string) {
+  const parsed = editor.markdown?.parse(md);
+  const blocks = parsed?.content ?? [];
+  if (blocks.length === 1 && blocks[0].type === "paragraph") return blocks[0].content ?? [];
+  return blocks.length ? blocks : [{ type: "text", text: md }];
+}
+
+export function Editor({
+  id, initialTitle, initialContent, initialContentType, format, sources, autoAnalyze,
+}: {
+  id: string;
+  initialTitle: string;
+  initialContent: string;
+  initialContentType: ContentType;
+  format: FormatId;
+  sources: Source[];
+  autoAnalyze: boolean;
+}) {
+  const [title, setTitle] = useState(initialTitle);
+  // 저장용 본문: 처음에는 불러온 그대로(마크다운 또는 HTML), 편집이 시작되면 HTML로 바뀐다
+  const [content, setContent] = useState(initialContent);
+  const [ctype, setCtype] = useState<ContentType>(initialContentType);
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
+  const [save, setSave] = useState<SaveState>("saved");
+  // 오른쪽 패널: 글 분석 또는 문체 바꾸기(한 번에 하나)
+  const [panel, setPanel] = useState<"none" | "analysis" | "style">("none");
+  const styleTarget = useRef<{ from: number; to: number; text: string; all: boolean; result: string } | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [note, setNote] = useState("");
+  const [copied, setCopied] = useState<"" | "rich" | "md">("");
+  const [notice, setNotice] = useState("");
+  const first = useRef(true);
+  const ranAuto = useRef(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const uploadRef = useRef<(files: File[], at?: number) => Promise<void>>(async () => {});
+  const formatLabel = FORMATS.find((f) => f.id === format)?.label ?? "자유 형식";
+
+  const editor = useEditor({
+    immediatelyRender: false, // Next.js SSR과 하이드레이션 불일치를 막는다
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+        link: { openOnClick: false, autolink: true, HTMLAttributes: { rel: "noreferrer noopener", target: "_blank" } },
+      }),
+      Markdown.configure({ markedOptions: { gfm: true, breaks: true } }),
+      Placeholder.configure({ placeholder: "여기에 글을 쓰거나 붙여 넣으세요. 문장을 드래그하면 AI 수정 툴바가 나타납니다." }),
+      TableKit.configure({ table: { resizable: true } }),
+      Image.configure({
+        allowBase64: false,
+        resize: { enabled: true, directions: ["bottom-right", "bottom-left"], minWidth: 80, minHeight: 40, alwaysPreserveAspectRatio: true },
+      }),
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+    ],
+    content: initialContent,
+    contentType: initialContentType,
+    editorProps: {
+      attributes: { class: "we-prose", "aria-label": "본문 편집기", "aria-multiline": "true", spellcheck: "false" },
+      // 이미지를 붙여 넣거나 끌어다 놓으면 올려서 넣는다(base64로 본문에 들어가지 않게)
+      handlePaste: (_view, event) => {
+        const files = Array.from(event.clipboardData?.files ?? []).filter(isImageFile);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        void uploadRef.current(files);
+        return true;
+      },
+      handleDrop: (view, event) => {
+        const files = Array.from((event as DragEvent).dataTransfer?.files ?? []).filter(isImageFile);
+        if (files.length === 0) return false;
+        event.preventDefault();
+        const at = view.posAtCoords({ left: (event as DragEvent).clientX, top: (event as DragEvent).clientY })?.pos;
+        void uploadRef.current(files, at);
+        return true;
+      },
+    },
+    onUpdate: ({ editor: e }) => { setContent(e.getHTML()); setCtype("html"); },
+  });
+
+  const stats = useEditorState({
+    editor,
+    selector: ({ editor: e }) => ({
+      chars: e ? e.getText({ blockSeparator: BLOCK }).replace(/\s/g, "").length : 0,
+      empty: e ? e.isEmpty : true,
+      selChars: e && !e.state.selection.empty ? rangeText(e.state.doc, e.state.selection.from, e.state.selection.to).trim().length : 0,
+    }),
+  });
+
+  // ---- 자동 저장(1.5초 디바운스) ----
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    setSave("dirty");
+    const t = setTimeout(async () => {
+      setSave("saving");
+      try {
+        const res = await fetch("/api/documents", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id,
+            title: title.trim() || deriveTitle(editor?.getText({ blockSeparator: BLOCK }) ?? ""),
+            content, content_type: ctype, format, sources,
+          }),
+        });
+        setSave(res.ok ? "saved" : "error");
+      } catch { setSave("error"); }
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [id, title, content, ctype, format, sources, editor]);
+
+  function showError(message: string, needKey?: boolean) { setError({ message, needKey }); }
+
+  // ---- 이미지 넣기 ----
+  const insertImages = useCallback(async (files: File[], at?: number) => {
+    if (!editor || files.length === 0) return;
+    setUploading(true); setError(null);
+    try {
+      for (const f of files) {
+        const r = await uploadImage(f);
+        if (!r.ok) { showError(r.error); break; }
+        const chain = editor.chain().focus();
+        if (typeof at === "number") chain.setTextSelection(at);
+        chain.setImage({ src: r.url, alt: r.alt }).run();
+      }
+    } finally { setUploading(false); }
+  }, [editor]);
+  useEffect(() => { uploadRef.current = insertImages; }, [insertImages]);
+
+  // ---- 선택한 부분 수정 ----
+  async function rewrite(payload: { action?: ActionId; instruction?: string }) {
+    if (!editor || busy) return;
+    const { from, to } = editor.state.selection;
+    const doc = editor.state.doc;
+    const text = rangeText(doc, from, to);
+    if (!text.trim()) return;
+    const size = doc.content.size;
+    setBusy(true); setError(null); setNotice("");
+    try {
+      const res = await fetch("/api/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selection: text, ...payload,
+          before: rangeText(doc, Math.max(0, from - 400), from),
+          after: rangeText(doc, to, Math.min(size, to + 400)),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || typeof data.text !== "string") { showError(data.error ?? "수정하지 못했습니다.", !!data.needKey); return; }
+      // 응답을 기다리는 동안 본문이 바뀌었을 수 있으므로 위치를 다시 확인한다
+      const cur = editor.state.doc;
+      const target = rangeText(cur, from, Math.min(to, cur.content.size)) === text ? { from, to } : findText(cur, text, from);
+      if (!target) { showError("선택한 문장이 그 사이 바뀌어 적용하지 못했습니다. 다시 선택해 주세요."); return; }
+      editor.chain().focus().insertContentAt(target, toNodes(editor, data.text)).run();
+    } catch {
+      showError("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally { setBusy(false); }
+  }
+
+  // ---- 전체 글 분석 ----
+  const analyze = useCallback(async () => {
+    if (!editor) return;
+    const body = editor.getText({ blockSeparator: BLOCK });
+    if (body.trim().length < 20) { setPanel("analysis"); setSuggestions([]); setNote("분석하려면 글이 20자 이상이어야 합니다."); return; }
+    setPanel("analysis"); setAnalyzing(true); setError(null); setNote("");
+    try {
+      const res = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: body }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { showError(data.error ?? "분석하지 못했습니다.", !!data.needKey); setSuggestions([]); return; }
+      setSuggestions(Array.isArray(data.suggestions) ? data.suggestions : []);
+      setNote(data.truncated ? `긴 글이라 앞부분 ${LIMITS.analyze.toLocaleString("ko-KR")}자만 분석했습니다.` : data.note ?? "");
+    } catch {
+      showError("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally { setAnalyzing(false); }
+  }, [editor]);
+
+  useEffect(() => {
+    if (autoAnalyze && editor && !ranAuto.current) {
+      ranAuto.current = true;
+      void analyze();
+      window.history.replaceState(null, "", `/editor/${id}`);
+    }
+  }, [autoAnalyze, editor, analyze, id]);
+
+  /**
+   * 제안 한 개를 본문의 현재 위치에서 찾아 바꾼다. 못 찾으면 false.
+   * - 한 문단 안: insertText(그 자리의 서식을 이어받음)
+   * - 문단 경계를 넘는 제안: 합쳐서 한 문단으로 바꾸거나(교체문에 빈 줄이 없을 때), 교체문의 문단 수만큼 문단으로 나눈다
+   */
+  const applySuggestion = useCallback((s: Suggestion): boolean => {
+    if (!editor) return false;
+    const doc = editor.state.doc;
+    const r = findText(doc, s.originalText);
+    if (!r) return false;
+    const parts = splitParagraphs(s.suggestedText);
+    if (parts.length > 1) {
+      editor.chain().insertContentAt(r, parts.map((p) => ({ type: "paragraph", content: [{ type: "text", text: p }] }))).run();
+    } else {
+      const text = (parts[0] ?? s.suggestedText).replace(/\n/g, " ");
+      // 문단을 넘는 범위도 insertText가 앞 문단 끝과 뒤 문단 시작을 하나로 합친다
+      editor.view.dispatch(editor.state.tr.insertText(text, r.from, r.to));
+    }
+    return true;
+  }, [editor]);
+
+  function applyOne(s: Suggestion) {
+    const ok = applySuggestion(s);
+    setSuggestions((cur) => cur.filter((x) => x.originalText !== s.originalText));
+    setNotice(ok ? "" : "본문에서 해당 문장을 찾지 못해 이 제안을 목록에서 뺐습니다(글이 바뀌었습니다).");
+  }
+
+  function applyMany(list: Suggestion[]) {
+    let applied = 0;
+    for (const s of list) if (applySuggestion(s)) applied += 1;
+    const done = new Set(list.map((s) => s.originalText));
+    setSuggestions((cur) => cur.filter((s) => !done.has(s.originalText)));
+    const skipped = list.length - applied;
+    setNotice(`${applied}개를 적용했습니다.${skipped ? ` 본문에서 찾지 못한 ${skipped}개는 건너뛰었습니다.` : ""}`);
+  }
+
+  function locate(s: Suggestion) {
+    if (!editor) return;
+    const r = findText(editor.state.doc, s.originalText);
+    if (!r) { setNotice("본문에서 해당 문장을 찾지 못했습니다."); return; }
+    editor.chain().focus().setTextSelection(r).scrollIntoView().run();
+  }
+
+  // ---- 문체 바꾸기(병합 B) ----
+  // 선택 부분은 일반 텍스트, 글 전체는 마크다운(제목·목록·표 서식 유지)으로 보내고, 적용할 때 그 사이 본문이 바뀌었는지 다시 확인한다.
+  async function runStyle(scope: StyleScope, values: EqValues, persona: Persona | null): Promise<StyleRunResult> {
+    if (!editor) return { error: "에디터가 아직 준비되지 않았습니다." };
+    const { from, to, empty } = editor.state.selection;
+    const all = scope === "all" || empty;
+    const text = all ? editor.getMarkdown() : rangeText(editor.state.doc, from, to);
+    if (!text.trim()) return { error: "바꿀 글이 없습니다." };
+    styleTarget.current = null;
+    try {
+      const res = await fetch("/api/style-rewrite", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, values, persona }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || typeof data.text !== "string") return { error: data.error ?? "문체를 바꾸지 못했습니다.", needKey: !!data.needKey };
+      styleTarget.current = { from, to, text, all, result: data.text };
+      return { text: data.text };
+    } catch {
+      return { error: "서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요." };
+    }
+  }
+
+  function applyStyle(): boolean {
+    const t = styleTarget.current;
+    if (!editor || !t) return false;
+    if (t.all) {
+      if (editor.getMarkdown() !== t.text) return false;
+      const blocks = editor.markdown?.parse(t.result)?.content ?? [];
+      editor.chain().focus().insertContentAt({ from: 0, to: editor.state.doc.content.size }, blocks.length ? blocks : [{ type: "paragraph", content: [{ type: "text", text: t.result }] }]).run();
+    } else {
+      const cur = editor.state.doc;
+      const target = rangeText(cur, t.from, Math.min(t.to, cur.content.size)) === t.text ? { from: t.from, to: t.to } : findText(cur, t.text, t.from);
+      if (!target) return false;
+      editor.chain().focus().insertContentAt(target, toNodes(editor, t.result)).run();
+    }
+    styleTarget.current = null;
+    return true;
+  }
+
+  // ---- 복사·내보내기 ----
+  async function copyRich() {
+    if (!editor) return;
+    const html = editor.getHTML();
+    const text = editor.getText({ blockSeparator: BLOCK });
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]);
+    } catch {
+      try { await navigator.clipboard.writeText(text); } catch { /* 복사 권한이 없으면 아래 안내 */ }
+    }
+    setCopied("rich");
+    setTimeout(() => setCopied(""), 1800);
+  }
+  async function copyMarkdown() {
+    if (!editor) return;
+    try { await navigator.clipboard.writeText(editor.getMarkdown()); } catch { /* 권한 없음 */ }
+    setCopied("md");
+    setTimeout(() => setCopied(""), 1800);
+  }
+
+  const saveLabel = { saved: "✓ 저장됨", dirty: "● 저장 대기", saving: "저장 중…", error: "저장 실패 — 네트워크를 확인해 주세요" }[save];
+  const safeName = (title.trim() || "글").replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40);
+  const hasText = !(stats?.empty ?? true);
+
+  return (
+    <div className={`we-editor ${panel !== "none" ? "with-panel" : ""}`}>
+      <div className="we-main">
+        <div className="we-bar">
+          <a href="/dashboard" className="button"><ArrowLeft size={13} />새 글·홈</a>
+          <input className="we-title" aria-label="문서 제목" value={title} maxLength={LIMITS.title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 없는 글" />
+          <span className="we-badge">{formatLabel}</span>
+          <span className={`we-save ${save}`} role="status">{saveLabel}</span>
+        </div>
+        <div className="we-actions">
+          <button type="button" onClick={copyRich} disabled={!hasText} title="서식·표·이미지를 유지한 채 복사(블로그·문서에 붙여 넣기)">
+            {copied === "rich" ? <Check size={13} /> : <ClipboardCopy size={13} />}{copied === "rich" ? "복사 완료" : "서식 복사"}
+          </button>
+          <button type="button" onClick={copyMarkdown} disabled={!hasText} title="글자 색·정렬·형광펜은 마크다운에 담기지 않습니다">
+            {copied === "md" ? <Check size={13} /> : <FileText size={13} />}{copied === "md" ? "복사 완료" : "마크다운 복사"}
+          </button>
+          <button type="button" disabled={!hasText} onClick={() => editor && download(`${safeName}.md`, editor.getMarkdown(), "text/markdown;charset=utf-8")}><Download size={13} />.md</button>
+          <button type="button" disabled={!hasText} onClick={() => editor && download(`${safeName}.html`, `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${escapeHtml(title || "글")}</title></head><body>${editor.getHTML()}</body></html>`, "text/html;charset=utf-8")}><Download size={13} />.html</button>
+          <button type="button" disabled={!hasText} onClick={() => editor && download(`${safeName}.txt`, editor.getText({ blockSeparator: BLOCK }), "text/plain;charset=utf-8")}><Download size={13} />.txt</button>
+          <button type="button" className="primary" disabled={analyzing || !hasText} onClick={() => void analyze()}>
+            {analyzing ? <Loader2 size={13} className="we-spin" /> : <Wand2 size={13} />}글 분석
+          </button>
+          <button type="button" className="primary" aria-pressed={panel === "style"} disabled={!hasText} onClick={() => setPanel((p) => (p === "style" ? "none" : "style"))} title="슬라이더·프리셋·페르소나로 선택한 부분이나 글 전체의 말투를 바꿉니다">
+            <SlidersHorizontal size={13} />문체 바꾸기
+          </button>
+          <span className="muted we-chars">{(stats?.chars ?? 0).toLocaleString("ko-KR")}자(공백 제외)</span>
+        </div>
+        {error && (
+          <p role="alert" className="lp-alert">
+            <span>{error.message}</span>
+            {error.needKey && <a className="button" href="/settings">키 등록하러 가기</a>}
+            <button type="button" aria-label="닫기" onClick={() => setError(null)}>×</button>
+          </p>
+        )}
+        {notice && <p className="notice" role="status">{notice}</p>}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          multiple
+          hidden
+          aria-label="이미지 파일 선택"
+          onChange={(e) => { const files = Array.from(e.target.files ?? []); e.target.value = ""; void insertImages(files); }}
+        />
+        <div className="we-sheet">
+          {editor && <RichToolbar editor={editor} uploading={uploading} onPickImage={() => fileRef.current?.click()} />}
+          <div className="we-editor-wrap">
+            <EditorContent editor={editor} />
+            {editor && (
+              <>
+                <BubbleToolbar
+                  editor={editor}
+                  busy={busy}
+                  onAction={(a) => void rewrite({ action: a })}
+                  onInstruction={(t) => void rewrite({ instruction: t })}
+                  onStyle={() => setPanel("style")}
+                />
+                <ImageMenu editor={editor} />
+              </>
+            )}
+          </div>
+        </div>
+        {sources.length > 0 && (
+          <details className="we-sources">
+            <summary>참고한 출처 {sources.length}건</summary>
+            <ul>{sources.map((s) => <li key={s.uri}><a href={s.uri} target="_blank" rel="noreferrer noopener">{s.title}</a></li>)}</ul>
+          </details>
+        )}
+      </div>
+      {panel === "style" && (
+        <StylePanel
+          selectionChars={stats?.selChars ?? 0}
+          totalChars={stats?.chars ?? 0}
+          onRun={runStyle}
+          onApply={applyStyle}
+          onClose={() => setPanel("none")}
+        />
+      )}
+      {panel === "analysis" && (
+        <SuggestionPanel
+          suggestions={suggestions}
+          analyzing={analyzing}
+          note={note}
+          hint="제안의 [적용]을 누르면 본문에서 그 문장을 다시 찾아 바꿉니다. 바꾼 뒤에는 Ctrl+Z로 되돌릴 수 있습니다."
+          onApply={applyOne}
+          onApplyAll={applyMany}
+          onDismiss={(s) => setSuggestions((cur) => cur.filter((x) => x.originalText !== s.originalText))}
+          onLocate={locate}
+          onClose={() => setPanel("none")}
+          onRerun={() => void analyze()}
+        />
+      )}
+    </div>
+  );
+}

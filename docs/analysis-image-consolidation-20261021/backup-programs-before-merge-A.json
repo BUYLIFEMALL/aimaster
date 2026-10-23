@@ -1,0 +1,192 @@
+[
+  {
+    "id": "62a6f994-1394-4b7e-8e54-874ce67e8109",
+    "category_id": "b5cec438-a6cc-43e5-83bc-59368f8a2c4d",
+    "name": "AI 바나나 캔버스 자동화",
+    "slug": "banana-canvas",
+    "short_desc": "사진 한 장을 Nano Banana로 복원·스타일 변환·합성·배경 제거하는 이미지 도구함",
+    "description": "<p>🍌 <strong>사진 한 장으로 복원·스타일 변환·합성·배경 제거부터 앨범·만화까지 해 보는, Nano Banana 이미지 편집 도구 모음입니다.</strong></p><p>✨ 이미지 생성(카테고리 11종·비율 5종·프롬프트 제안)과 편집(복원·컬러화·채색·2배/4배 확대, 스타일 20종)을 한곳에서 합니다.</p><p>🧩 소스 최대 5장을 얼굴을 고정한 채 합성하고, 배경 제거(투명 PNG)·브러시 부분 삭제·증명사진·평면도 3D 같은 빠른 작업도 지원합니다.</p><p>🎁 인생 앨범, 만화 패널 3가지 스타일, 8컷 연속 스토리, 이미지 레시피 같은 스페셜 기능이 있고, 결과는 기록 30건에 남아 이어서 편집할 수 있습니다.</p><p>🔑 회원 본인의 Google Gemini API 키로 동작합니다. 올린 이미지는 비공개 임시 저장소에서 1시간 안에 삭제되며, 본인 또는 동의받은 사진만 사용하세요.</p>",
+    "thumbnail_url": "https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/banana-canvas-thumbnail.jpg?v=1791918566803",
+    "video_url": null,
+    "images": [],
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-10-13T19:08:58.190167+00:00",
+    "updated_at": "2026-10-21T11:01:54.47105+00:00",
+    "required_grade_id": "861b7a37-d056-4404-80f5-85edb2e2ebff",
+    "app_url": "https://banana-canvas.buylife.xyz",
+    "badges": [
+      "free"
+    ],
+    "version": "v1.11",
+    "extension_download_url": null,
+    "extension_version": null,
+    "like_count": 2,
+    "detail_sections": {
+      "steps": [
+        {
+          "desc": "생성·편집·합성·빠른 작업 중 고릅니다.",
+          "title": "작업 고르기"
+        },
+        {
+          "desc": "이미지와 원하는 변화를 입력합니다.",
+          "title": "사진·지시 넣기"
+        },
+        {
+          "desc": "결과를 보고 이어서 편집합니다.",
+          "title": "결과 확인"
+        },
+        {
+          "desc": "기록 30건에서 다시 열고 내려받습니다.",
+          "title": "저장"
+        }
+      ],
+      "features": [
+        {
+          "desc": "복원·컬러화·채색·확대와 스타일 20종 변환을 합니다.",
+          "icon": "✨",
+          "title": "생성·편집"
+        },
+        {
+          "desc": "얼굴을 고정한 채 여러 소스를 합성합니다.",
+          "icon": "🧩",
+          "title": "최대 5장 합성"
+        },
+        {
+          "desc": "배경 제거·부분 삭제·증명사진·평면도 3D를 지원합니다.",
+          "icon": "✂️",
+          "title": "빠른 작업"
+        },
+        {
+          "desc": "인생 앨범·만화 패널·8컷 스토리를 만듭니다.",
+          "icon": "🎁",
+          "title": "스페셜 기능"
+        }
+      ],
+      "audiences": [
+        {
+          "desc": "Nano Banana로 배경 제거·스타일 변환을 빠른 작업 버튼으로 처리합니다.",
+          "icon": "🍌",
+          "title": "사진 편집을 자주 하는 1인 셀러",
+          "points": [
+            "포토샵 없이 기본 편집",
+            "상품 사진 빠른 정리"
+          ]
+        },
+        {
+          "desc": "최대 5장의 사진을 한 장으로 자연스럽게 합성합니다.",
+          "icon": "🧩",
+          "title": "여러 사진을 합성하는 디자이너",
+          "points": [
+            "모델·상품·배경 합성",
+            "연출 컷 시안 제작"
+          ]
+        },
+        {
+          "desc": "복원과 스페셜 기능으로 흐리거나 손상된 사진을 다시 씁니다.",
+          "icon": "🛠️",
+          "title": "오래된 사진을 살리고 싶은 분",
+          "points": [
+            "추억 사진 복원",
+            "다양한 스타일 변환"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "91381e48-7b0b-4378-a300-cad64599c355",
+    "category_id": "b5cec438-a6cc-43e5-83bc-59368f8a2c4d",
+    "name": "AI 포토 리메이크 자동화",
+    "slug": "photo-remake-studio",
+    "short_desc": "오래된 사진을 복원·컬러화·확대하고 사물을 자연스럽게 합성하는 포토 리메이크 스튜디오",
+    "description": "<p>📷 <strong>오래된 사진을 원래 구도 그대로 복원·컬러화하고, 인물 사진에 사물을 자연스럽게 합성하는 AI 포토 리메이크 스튜디오입니다.</strong></p><p>🕰️ 사진 복원은 긁힘·찢어짐·빛바램을 고치고 흑백 사진에 색을 입히며, 얼굴·나이·구도를 보존한 채 실제 2배·4배(긴 변 최대 8192px)로 확대합니다.</p><p>🧩 사물 합성은 기본 사진에 사물을 최대 5장까지 넣고 사물별 착용·사용 방식을 지시합니다. AI가 합성 지시를 제안하고, 배경 유지 또는 변경을 고릅니다.</p><p>🔍 원본과 결과를 비교 슬라이더로 보고 실제 픽셀 크기를 확인한 뒤 JPEG·PNG로 저장하며, 최근 20개는 내 브라우저 보관함에 남습니다.</p><p>🔑 회원 본인의 Gemini API 키를 사용합니다. 원본 사진은 서버에 보관하지 않으며, 본인 사진이나 동의받은 사진만 사용하세요.</p>",
+    "thumbnail_url": "https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/photo-remake-studio-thumbnail.jpg?v=1791997011974",
+    "video_url": null,
+    "images": [],
+    "is_active": true,
+    "sort_order": 132,
+    "created_at": "2026-10-14T16:56:21.030963+00:00",
+    "updated_at": "2026-10-19T00:30:58.271536+00:00",
+    "required_grade_id": "861b7a37-d056-4404-80f5-85edb2e2ebff",
+    "app_url": "https://photo-remake-studio.buylife.xyz",
+    "badges": [
+      "new"
+    ],
+    "version": "v1.10",
+    "extension_download_url": null,
+    "extension_version": null,
+    "like_count": 2,
+    "detail_sections": {
+      "steps": [
+        {
+          "desc": "복원하거나 합성할 사진을 올립니다.",
+          "title": "사진 올리기"
+        },
+        {
+          "desc": "복원 또는 사물 합성을 고릅니다.",
+          "title": "작업 선택"
+        },
+        {
+          "desc": "보존할 점과 요청을 넣고 만듭니다.",
+          "title": "지시·생성"
+        },
+        {
+          "desc": "슬라이더로 비교하고 저장합니다.",
+          "title": "비교·저장"
+        }
+      ],
+      "features": [
+        {
+          "desc": "긁힘·빛바램을 고치고 구도를 지킵니다.",
+          "icon": "🕰️",
+          "title": "원래 구도 복원"
+        },
+        {
+          "desc": "흑백 사진에 자연스러운 색을 입힙니다.",
+          "icon": "🎨",
+          "title": "흑백 컬러화"
+        },
+        {
+          "desc": "긴 변 최대 8192px까지 키웁니다.",
+          "icon": "🔍",
+          "title": "실제 2·4배 확대"
+        },
+        {
+          "desc": "최대 5개 사물을 착용·사용하게 합성합니다.",
+          "icon": "🧩",
+          "title": "사물 합성"
+        }
+      ],
+      "audiences": [
+        {
+          "desc": "원래 구도를 지키며 사진을 복원하고 흑백을 컬러로 바꿉니다.",
+          "icon": "🖼️",
+          "title": "오래된 가족사진을 살릴 분",
+          "points": [
+            "추억 사진 되살리기",
+            "구도 변형 없음"
+          ]
+        },
+        {
+          "desc": "실제 2·4배 확대로 인쇄·액자용 크기를 만듭니다.",
+          "icon": "🔍",
+          "title": "작은 사진을 키워야 하는 분",
+          "points": [
+            "인쇄 품질 확보",
+            "흐림 없는 확대"
+          ]
+        },
+        {
+          "desc": "사물을 자연스럽게 합성해 원하는 장면을 만듭니다.",
+          "icon": "🧩",
+          "title": "사진에 사물을 더할 분",
+          "points": [
+            "연출 컷 제작",
+            "어색함 없는 합성"
+          ]
+        }
+      ]
+    }
+  }
+]

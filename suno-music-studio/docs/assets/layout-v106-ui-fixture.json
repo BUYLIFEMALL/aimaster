@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "scope": "actual Sidebar/Workspace components, frontend fixture and mocked APIs; not authenticated production",
+  "providerCalls": 0,
+  "mockedRequests": 6,
+  "checks": [
+    "seven reference menus",
+    "gallery filters and load",
+    "old lyrics preservation",
+    "independent album settings",
+    "multiselect moods",
+    "builder import",
+    "per-track voice",
+    "sequential lyrics",
+    "album-only save",
+    "JSON export",
+    "reset undo",
+    "dance seed and composition",
+    "93 guide index and table",
+    "web sources and six suggestions",
+    "saved albums",
+    "reload persistence",
+    "account adjacency",
+    "desktop width",
+    "mobile navigation and width",
+    "guide pagination and tag search",
+    "failed search preserves prior results",
+    "dance state persistence",
+    "compact view persistence"
+  ],
+  "desktop": {
+    "width": 1600,
+    "document": 1600,
+    "footer": 670.140625,
+    "last": 662.140625
+  },
+  "mobile": {
+    "width": 390,
+    "document": 390
+  },
+  "errors": []
+}

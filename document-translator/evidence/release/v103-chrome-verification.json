@@ -1,0 +1,54 @@
+{
+  "version": "v1.03",
+  "browser": "Actual visible Google Chrome",
+  "member": "buylifemall@naver.com",
+  "authenticated": true,
+  "model": "gemini-3.8-flash",
+  "paidAiCalls": 3,
+  "operations": [
+    {
+      "kind": "translate",
+      "status": "done",
+      "createdAt": "2026-10-14T12:45:19.7271Z"
+    },
+    {
+      "kind": "review",
+      "status": "done",
+      "createdAt": "2026-10-14T12:46:14.044746Z"
+    },
+    {
+      "kind": "reverse",
+      "status": "done",
+      "createdAt": "2026-10-14T12:46:38.962970Z"
+    }
+  ],
+  "apiAi200Requests": 3,
+  "manualEdit": "Operational Verification Notice",
+  "serverSaveAndReloadRestore": true,
+  "projectRevision": 1,
+  "projectTitle": "Codex-v103-live-20261014-2145",
+  "projectExpiresAt": "2026-11-13T12:47:28.030335Z",
+  "glossarySaveApplyReloadRestore": true,
+  "glossaryTitle": "Codex-v103-terms-20261014",
+  "glossaryRevision": 1,
+  "glossaryTerms": 1,
+  "backupUiImportAndRestore": true,
+  "downloads": [
+    "TXT",
+    "MD",
+    "DOCX",
+    "JSON",
+    "CSV"
+  ],
+  "docxSemanticXmlChecked": true,
+  "realNewlineAndUrlBoundaryChecked": true,
+  "mobileWindowWidth": 516,
+  "mobileMenuAndThreeTabs": true,
+  "windowRestored": {
+    "width": 1560,
+    "height": 1372
+  },
+  "actualPhoneTested": false,
+  "remainingRequestedWork": [],
+  "sampleRecordsRetainedForUserReview": true
+}

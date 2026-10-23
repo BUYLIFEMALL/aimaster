@@ -1,0 +1,33 @@
+// 인스타 예약 게시 — 이 프로그램만의 값(2026-10-20). 공용 기준 코드 `memberScheduler.ts`·`cronJobOrg.ts`(카드뉴스 기준 사본, 직접 고치지 않음)가 읽는다.
+// 이 파일은 공용 사본이 아니다 — 프로그램마다 다르게 둔다. 지침: 루트 docs/SCHEDULER_POLICY.md · 등록: docs/SHARED_MODULES.md 「insta-member-scheduler」
+/** 회원 cron-job.org가 부를 이 사이트 주소(공식 주소 = programs.app_url) */
+export const SCHEDULER_SITE_ORIGIN = "https://ai-influencer.buylife.xyz";
+/** 회원 실행 방식 표 */
+export const SCHEDULER_TABLE = "aif_member_scheduler";
+/** 게시 기록·예약 표(남은 예약 세기) */
+export const SCHEDULER_POSTS_TABLE = "aif_insta_posts";
+/** 회원 전용 토큰 앞글자(「aif_」 + 64자리) */
+export const SCHEDULER_TOKEN_PREFIX = "aif";
+/** 관리자가 Vercel 방식을 끌 때 쓰는 환경변수 이름(값이 off면 꺼짐, 없으면 켜짐) */
+export const PLATFORM_SCHEDULER_ENV = "AIF_PLATFORM_SCHEDULER";
+/** 회원 cron-job.org가 1분마다 부르는 실행 주소 */
+export const MEMBER_DISPATCH_PATH = "/api/instagram/dispatch-member";
+/** 회원 cron-job.org에 만드는 작업 이름 */
+export const CRON_JOB_TITLE = "AIMaster AI 인플루언서 인스타 예약 게시(1분)";
+
+// v2단계(2026-10-20): 공용 게시 처리 코드(posting.ts·api/instagram/*)가 읽는 이 프로그램 값
+import { THIS_PROGRAM_SLUG } from "@/lib/access";
+/** 이 프로그램 slug(예약 실행 때 회원 이용 권한 확인) */
+export const SCHEDULER_PROGRAM_SLUG = THIS_PROGRAM_SLUG;
+/** 인스타 이미지 확인 함수 — 프로그램마다 파일 이름이 달라 여기서 다시 내보낸다 */
+export { MAX_INSTA_CAPTION, validInstaPaths } from "./feedImage";
+
+// 공용 member-scheduler(2026-10-20 15개로 확대)가 읽는 값
+import type { SupabaseClient } from "@supabase/supabase-js";
+/** 설치 키트(배포판) 모드 — 이 프로그램은 운영 전용 */
+export const SCHEDULER_IS_STANDALONE = false;
+/** 「남은 일」 = 남은 예약 게시 수(0이면 회원 cron-job.org 작업을 끈다) */
+export async function countRemainingWork(service: SupabaseClient, userId: string): Promise<number> {
+  const { count } = await service.from(SCHEDULER_POSTS_TABLE).select("id", { count: "exact", head: true }).eq("user_id", userId).eq("status", "scheduled");
+  return count ?? 0;
+}

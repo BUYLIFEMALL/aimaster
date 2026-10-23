@@ -1,0 +1,29 @@
+{
+  "title": "Threads 콘텐츠 운영 자동화",
+  "shortName": "threads",
+  "callbackPath": "/api/threads-content-ops/callback",
+  "description": "글감 수집·AI 글 생성·즉시/예약 게시",
+  "callbackLabel": "Meta(Threads) 앱 리디렉션 콜백 주소",
+  "authRedirectPath": "/api/threads-content-ops/auth/confirm",
+  "checkTable": "tco_member_scheduler",
+  "nextStep": "KIT\\README.md 의 4단계(Meta 앱 만들기)부터 진행하세요.",
+  "exclude": [
+    "desktop",
+    "scripts",
+    "tests",
+    "README.md",
+    ".env.example"
+  ],
+  "overrides": {
+    "vercel.json": "KIT/vercel.json",
+    ".env.example": "KIT/env.example"
+  },
+  "schemaCheckIgnore": [
+    "member_platform_accounts",
+    "integration_catalog"
+  ],
+  "schema": {
+    "mode": "static"
+  },
+  "extraEnv": []
+}

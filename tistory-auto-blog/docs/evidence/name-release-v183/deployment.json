@@ -1,0 +1,29 @@
+{
+  "deploymentId": "dpl_XNn3nGXS8ie45DQXvyDhda5YfGC5",
+  "url": "https://tistory-auto-blog-f6hbpbzq0-buylife.vercel.app",
+  "officialUrl": "https://tistory-auto-blog.buylife.xyz",
+  "status": "READY",
+  "sourceCommit": "8589073f",
+  "sourceBranch": "release/tistory-name-v183-20261022",
+  "productionVersion": "v1.83",
+  "productionName": "티스토리 포스팅 자동화",
+  "dbRef": "esgxyikcnnvmlhygjkth",
+  "dbVersion": "v1.83",
+  "dbExtensionVersion": "v1.83",
+  "edgeVisibleWindow": {
+    "pid": 17488,
+    "hwnd": 2884854,
+    "member": "buylifemall@naver.com",
+    "page": "/posts/13",
+    "titleHeaderSidebarNameConfirmed": true,
+    "versionConfirmed": "v1.83",
+    "capture": "edge-name-header.png"
+  },
+  "paidAiCalls": 0,
+  "productionBuilds": 1,
+  "finalPublications": 0,
+  "automaticPublishIncluded": false,
+  "masterNextVersion": "v1.84",
+  "pendingOpenAIHelperIncluded": true,
+  "openAIModelNoticeUiRelease": "pending v1.84"
+}

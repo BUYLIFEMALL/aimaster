@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-21T02:57:38.200Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "migrationApplied": true,
+  "rls": true,
+  "anonymousRead": false,
+  "authenticatedWrite": false,
+  "authenticatedRpc": false,
+  "serviceRpc": true,
+  "sourceRowsAfterRollback": 0,
+  "transactionAssertions": [
+    "own unexpired read",
+    "expired hidden",
+    "foreign hidden",
+    "direct member write denied",
+    "client RPC denied",
+    "stale batch rollback",
+    "foreign mutation denied",
+    "archive edit preserves source and dates",
+    "expiry cleanup preserves live archived source"
+  ],
+  "syntheticWritesRolledBack": true
+}

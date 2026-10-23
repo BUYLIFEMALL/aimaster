@@ -1,0 +1,95 @@
+{
+  "checkedAt": "2026-10-12T10:53:55.557Z",
+  "version": "v1.04",
+  "checks": [
+    {
+      "path": "/login",
+      "method": "GET",
+      "status": 200,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2F"
+    },
+    {
+      "path": "/settings",
+      "method": "GET",
+      "status": 307,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "cache": "MISS",
+      "location": "/login?redirect=%2Fsettings"
+    },
+    {
+      "path": "/api/generate",
+      "method": "POST",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/api/keys",
+      "method": "GET",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "path": "/api/keys",
+      "method": "POST",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "cache": "MISS",
+      "location": null
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/2c_2b2prcozy6.js",
+      "status": 200,
+      "containsVersion": false
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/0meshd4c712hl.js",
+      "status": 200,
+      "containsVersion": false
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/2q5mg60p52qzv.js",
+      "status": 200,
+      "containsVersion": false
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/2b6kz7m49hf-d.js",
+      "status": 200,
+      "containsVersion": false
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/turbopack-1cvbnb3nlabgn.js",
+      "status": 200,
+      "containsVersion": false
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/00z4pmesk2f4f.js",
+      "status": 200,
+      "containsVersion": false
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/298hal_wcejof.js",
+      "status": 200,
+      "containsVersion": false
+    },
+    {
+      "asset": "/_next/static/immutable/chunks/0c0hxoamwjsbw.js",
+      "status": 200,
+      "containsVersion": false
+    }
+  ],
+  "versionEvidence": "Vercel deployed commit 490c8440fa981f958763fa22e32666f7faec7a28 plus DB version v1.04; protected member page not inspected."
+}

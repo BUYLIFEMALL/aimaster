@@ -1,0 +1,747 @@
+{
+  "scope": "Analysis complete for all 83; program-folder copies defer when shared work is active or dirty",
+  "checked_head": "2eff4d2f20d86ac258dbc841c2cc30fd10138686",
+  "programs": [
+    {
+      "slug": "ai-writing-editor",
+      "folder": "ai-writing-editor",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-writing-editor/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-writing-editor/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-writing-editor.md"
+    },
+    {
+      "slug": "cinematic-storyboard-studio",
+      "folder": "cinematic-storyboard-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "cinematic-storyboard-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "cinematic-storyboard-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/cinematic-storyboard-studio.md"
+    },
+    {
+      "slug": "landing-architect",
+      "folder": "landing-architect",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "landing-architect/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "landing-architect/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/landing-architect.md"
+    },
+    {
+      "slug": "markdown-studio",
+      "folder": "markdown-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "markdown-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "markdown-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/markdown-studio.md"
+    },
+    {
+      "slug": "persona-style-studio",
+      "folder": "persona-style-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "persona-style-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "persona-style-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/persona-style-studio.md"
+    },
+    {
+      "slug": "ui-canvas",
+      "folder": "ui-canvas",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ui-canvas/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ui-canvas/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ui-canvas.md"
+    },
+    {
+      "slug": "website-scraper",
+      "folder": "ghost-scraper",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ghost-scraper/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ghost-scraper/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/website-scraper.md"
+    },
+    {
+      "slug": "web-crawler-saas",
+      "folder": "web-crawler",
+      "state": "deferred",
+      "reason": "기존 미커밋/미추적 변경이 있는 프로그램 폴더",
+      "central_document": "docs/program-reviews-20261019/programs/web-crawler-saas.md",
+      "document": null
+    },
+    {
+      "slug": "ai-prompt-studio",
+      "folder": "ai-prompt-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-prompt-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-prompt-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-prompt-studio.md"
+    },
+    {
+      "slug": "prompt-template-studio",
+      "folder": "prompt-template-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "prompt-template-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "prompt-template-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/prompt-template-studio.md"
+    },
+    {
+      "slug": "ai-slide-builder",
+      "folder": "ai-slide-builder",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-slide-builder/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-slide-builder/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-slide-builder.md"
+    },
+    {
+      "slug": "ai-web-ui",
+      "folder": "react-ui-showcase",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "react-ui-showcase/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "react-ui-showcase/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-web-ui.md"
+    },
+    {
+      "slug": "threads-easy-planner",
+      "folder": "threads-easy-planner",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "threads-easy-planner/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "threads-easy-planner/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/threads-easy-planner.md"
+    },
+    {
+      "slug": "auto-threads-posting",
+      "folder": "threads",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "threads/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "threads/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/auto-threads-posting.md"
+    },
+    {
+      "slug": "threads-comment-reply",
+      "folder": "threads-comment-reply",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "threads-comment-reply/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "threads-comment-reply/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/threads-comment-reply.md"
+    },
+    {
+      "slug": "threads-affiliate-poster",
+      "folder": "threads-affiliate-poster",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "threads-affiliate-poster/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "threads-affiliate-poster/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/threads-affiliate-poster.md"
+    },
+    {
+      "slug": "threads-content-ops",
+      "folder": "threads-content-ops",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "threads-content-ops/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "threads-content-ops/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/threads-content-ops.md"
+    },
+    {
+      "slug": "auto-instagram-posting",
+      "folder": "insta_auto_poster",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "insta_auto_poster/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "insta_auto_poster/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/auto-instagram-posting.md"
+    },
+    {
+      "slug": "ai-influencer-studio",
+      "folder": "ai-influencer-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-influencer-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-influencer-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-influencer-studio.md"
+    },
+    {
+      "slug": "instagram-comment-reply",
+      "folder": "instagram-comment-reply",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "instagram-comment-reply/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "instagram-comment-reply/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/instagram-comment-reply.md"
+    },
+    {
+      "slug": "instagram-dm-reply",
+      "folder": "instagram-dm-reply",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "instagram-dm-reply/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "instagram-dm-reply/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/instagram-dm-reply.md"
+    },
+    {
+      "slug": "ai-webtoon-studio",
+      "folder": "ai-webtoon-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-webtoon-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-webtoon-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-webtoon-studio.md"
+    },
+    {
+      "slug": "cardnews-studio",
+      "folder": "cardnews-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "cardnews-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "cardnews-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/cardnews-studio.md"
+    },
+    {
+      "slug": "ai-auto-blog",
+      "folder": "ai-auto-blog",
+      "state": "deferred",
+      "reason": "기존 미커밋/미추적 변경이 있는 프로그램 폴더",
+      "central_document": "docs/program-reviews-20261019/programs/ai-auto-blog.md",
+      "document": null
+    },
+    {
+      "slug": "blog-keyword",
+      "folder": "blog-keyword",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "blog-keyword/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "blog-keyword/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/blog-keyword.md"
+    },
+    {
+      "slug": "tistory-auto-blog",
+      "folder": "tistory-auto-blog",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "tistory-auto-blog/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "tistory-auto-blog/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/tistory-auto-blog.md"
+    },
+    {
+      "slug": "naver-blog-agent",
+      "folder": "naver-blog-agent",
+      "state": "deferred",
+      "reason": "기존 미커밋/미추적 변경이 있는 프로그램 폴더",
+      "central_document": "docs/program-reviews-20261019/programs/naver-blog-agent.md",
+      "document": null
+    },
+    {
+      "slug": "naver-blog-allinone",
+      "folder": "naver-blog-allinone",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "naver-blog-allinone/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "naver-blog-allinone/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/naver-blog-allinone.md"
+    },
+    {
+      "slug": "blog-workroom",
+      "folder": "blog-workroom",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "blog-workroom/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "blog-workroom/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/blog-workroom.md"
+    },
+    {
+      "slug": "blog-content-maker",
+      "folder": "blog-content-maker",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "blog-content-maker/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "blog-content-maker/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/blog-content-maker.md"
+    },
+    {
+      "slug": "naver-cafe-poster",
+      "folder": "naver-cafe-poster",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "naver-cafe-poster/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "naver-cafe-poster/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/naver-cafe-poster.md"
+    },
+    {
+      "slug": "naver-blog-auto-poster",
+      "folder": "naver-blog-auto-poster_app",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "naver-blog-auto-poster_app/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "naver-blog-auto-poster_app/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/naver-blog-auto-poster.md"
+    },
+    {
+      "slug": "naver-blog-auto-poster-web",
+      "folder": "naver-blog-auto-poster_web",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "naver-blog-auto-poster_web/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "naver-blog-auto-poster_web/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/naver-blog-auto-poster-web.md"
+    },
+    {
+      "slug": "naver-blog-seo-studio",
+      "folder": "naver-blog-seo-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "naver-blog-seo-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "naver-blog-seo-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/naver-blog-seo-studio.md"
+    },
+    {
+      "slug": "playlist-channel-studio",
+      "folder": "playlist-channel-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "playlist-channel-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "playlist-channel-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/playlist-channel-studio.md"
+    },
+    {
+      "slug": "thumbnail-master",
+      "folder": "thumbnail-master",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "thumbnail-master/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "thumbnail-master/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/thumbnail-master.md"
+    },
+    {
+      "slug": "youtube-channel-consultant",
+      "folder": "youtube-channel-consultant",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "youtube-channel-consultant/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "youtube-channel-consultant/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/youtube-channel-consultant.md"
+    },
+    {
+      "slug": "youtube-viral-studio",
+      "folder": "youtube-viral-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "youtube-viral-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "youtube-viral-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/youtube-viral-studio.md"
+    },
+    {
+      "slug": "shorts-viral-studio",
+      "folder": "shorts-viral-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "shorts-viral-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "shorts-viral-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/shorts-viral-studio.md"
+    },
+    {
+      "slug": "auto-shorts-posting",
+      "folder": "shots",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "shots/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "shots/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/auto-shorts-posting.md"
+    },
+    {
+      "slug": "youtube-auto-reply",
+      "folder": "youtube-auto-reply",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "youtube-auto-reply/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "youtube-auto-reply/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/youtube-auto-reply.md"
+    },
+    {
+      "slug": "seo-thumbnail-pro",
+      "folder": "seo-thumbnail-pro",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "seo-thumbnail-pro/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "seo-thumbnail-pro/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/seo-thumbnail-pro.md"
+    },
+    {
+      "slug": "shorts-onestop-studio",
+      "folder": "shorts-onestop-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "shorts-onestop-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "shorts-onestop-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/shorts-onestop-studio.md"
+    },
+    {
+      "slug": "crm-google-form",
+      "folder": "crm-google-form",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "crm-google-form/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "crm-google-form/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/crm-google-form.md"
+    },
+    {
+      "slug": "kakao-auto-posting",
+      "folder": "kakao_auto_poster",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "kakao_auto_poster/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "kakao_auto_poster/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/kakao-auto-posting.md"
+    },
+    {
+      "slug": "trending-product-finder",
+      "folder": "trending-product-finder",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "trending-product-finder/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "trending-product-finder/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/trending-product-finder.md"
+    },
+    {
+      "slug": "video-to-gif",
+      "folder": "video-to-gif",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "video-to-gif/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "video-to-gif/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/video-to-gif.md"
+    },
+    {
+      "slug": "shop-detail-page",
+      "folder": "shop-detail-page",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "shop-detail-page/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "shop-detail-page/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/shop-detail-page.md"
+    },
+    {
+      "slug": "auto-detail-page",
+      "folder": "auto-detail-page",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "auto-detail-page/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "auto-detail-page/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/auto-detail-page.md"
+    },
+    {
+      "slug": "detail-page-12p",
+      "folder": "detail-page-12p",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "detail-page-12p/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "detail-page-12p/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/detail-page-12p.md"
+    },
+    {
+      "slug": "stepmail",
+      "folder": "stepmail",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "stepmail/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "stepmail/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/stepmail.md"
+    },
+    {
+      "slug": "competitor-analysis",
+      "folder": "competitor-analysis",
+      "state": "deferred",
+      "reason": "기존 미커밋/미추적 변경이 있는 프로그램 폴더",
+      "central_document": "docs/program-reviews-20261019/programs/competitor-analysis.md",
+      "document": null
+    },
+    {
+      "slug": "longtail-keyword-expander",
+      "folder": "longtail-keyword-expander",
+      "state": "deferred",
+      "reason": "기존 미커밋/미추적 변경이 있는 프로그램 폴더",
+      "central_document": "docs/program-reviews-20261019/programs/longtail-keyword-expander.md",
+      "document": null
+    },
+    {
+      "slug": "booking-reminder",
+      "folder": "booking-reminder",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "booking-reminder/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "booking-reminder/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/booking-reminder.md"
+    },
+    {
+      "slug": "ai-image-studio",
+      "folder": "ai-image-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-image-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-image-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-image-studio.md"
+    },
+    {
+      "slug": "banana-canvas",
+      "folder": "banana-canvas",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "banana-canvas/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "banana-canvas/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/banana-canvas.md"
+    },
+    {
+      "slug": "fashion-style",
+      "folder": "fashion-style",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "fashion-style/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "fashion-style/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/fashion-style.md"
+    },
+    {
+      "slug": "four-cut-comics",
+      "folder": "four-cut-comics",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "four-cut-comics/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "four-cut-comics/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/four-cut-comics.md"
+    },
+    {
+      "slug": "image-convert-studio",
+      "folder": "image-convert-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "image-convert-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "image-convert-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/image-convert-studio.md"
+    },
+    {
+      "slug": "portrait-photo",
+      "folder": "portrait-photo",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "portrait-photo/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "portrait-photo/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/portrait-photo.md"
+    },
+    {
+      "slug": "style-dna-analyzer",
+      "folder": "style-dna-analyzer",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "style-dna-analyzer/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "style-dna-analyzer/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/style-dna-analyzer.md"
+    },
+    {
+      "slug": "emotion-writer",
+      "folder": "emotion-writer",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "emotion-writer/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "emotion-writer/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/emotion-writer.md"
+    },
+    {
+      "slug": "allinone-graphic",
+      "folder": "allinone-graphic",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "allinone-graphic/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "allinone-graphic/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/allinone-graphic.md"
+    },
+    {
+      "slug": "photo-remake-studio",
+      "folder": "photo-remake-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "photo-remake-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "photo-remake-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/photo-remake-studio.md"
+    },
+    {
+      "slug": "ai-mastering-studio",
+      "folder": "ai-mastering-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-mastering-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-mastering-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-mastering-studio.md"
+    },
+    {
+      "slug": "music-video-studio",
+      "folder": "music-video-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "music-video-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "music-video-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/music-video-studio.md"
+    },
+    {
+      "slug": "suno-music-studio",
+      "folder": "suno-music-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "suno-music-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "suno-music-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/suno-music-studio.md"
+    },
+    {
+      "slug": "music-automation",
+      "folder": "music",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "music/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "music/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/music-automation.md"
+    },
+    {
+      "slug": "vinyl-lp-studio",
+      "folder": "vinyl-lp-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "vinyl-lp-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "vinyl-lp-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/vinyl-lp-studio.md"
+    },
+    {
+      "slug": "yt-playlist-studio",
+      "folder": "yt-playlist-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "yt-playlist-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "yt-playlist-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/yt-playlist-studio.md"
+    },
+    {
+      "slug": "ai-audio-analyzer",
+      "folder": "ai-audio-analyzer",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-audio-analyzer/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-audio-analyzer/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-audio-analyzer.md"
+    },
+    {
+      "slug": "infinite-loop-video",
+      "folder": "infinite-loop-video",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "infinite-loop-video/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "infinite-loop-video/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/infinite-loop-video.md"
+    },
+    {
+      "slug": "music-player",
+      "folder": "music-player",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "music-player/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "music-player/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/music-player.md"
+    },
+    {
+      "slug": "reverse-prompt",
+      "folder": "reverse-prompt",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "reverse-prompt/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "reverse-prompt/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/reverse-prompt.md"
+    },
+    {
+      "slug": "real-estate-sales",
+      "folder": "real_estate_sales",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "real_estate_sales/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "real_estate_sales/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/real-estate-sales.md"
+    },
+    {
+      "slug": "ai-task-planner",
+      "folder": "ai-task-planner",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ai-task-planner/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ai-task-planner/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ai-task-planner.md"
+    },
+    {
+      "slug": "document-translator",
+      "folder": "document-translator",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "document-translator/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "document-translator/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/document-translator.md"
+    },
+    {
+      "slug": "file-merge",
+      "folder": "file-merge",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "file-merge/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "file-merge/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/file-merge.md"
+    },
+    {
+      "slug": "personality-suite",
+      "folder": "personality-suite",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "personality-suite/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "personality-suite/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/personality-suite.md"
+    },
+    {
+      "slug": "personality-code",
+      "folder": "mbti",
+      "state": "deferred",
+      "reason": "기존 미커밋/미추적 변경이 있는 프로그램 폴더 / ACTIVE_WORK에서 다른 CLI 작업 중",
+      "central_document": "docs/program-reviews-20261019/programs/personality-code.md",
+      "document": null
+    },
+    {
+      "slug": "mbti-character",
+      "folder": "mbti-character",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "mbti-character/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "mbti-character/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/mbti-character.md"
+    },
+    {
+      "slug": "tarot-reading",
+      "folder": "tarot",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "tarot/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "tarot/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/tarot-reading.md"
+    },
+    {
+      "slug": "ebook-studio",
+      "folder": "ebook-studio",
+      "state": "installed",
+      "reason": "설치 직전 기존 변경 없음 확인; 새 분석 문서와 전용 링크 절만 추가",
+      "document": "ebook-studio/docs/DETAILED_REVIEW_20261019.md",
+      "entry": "ebook-studio/AGENTS.md",
+      "central_document": "docs/program-reviews-20261019/programs/ebook-studio.md"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+import { retentionCutoff } from "@/lib/retention";
+import { redirect } from "next/navigation";
+import { requireProgramAccess } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
+
+interface PageProps {
+  params: { id: string };
+}
+
+// 특정 회차를 안 골랐을 때 들어오는 인덱스 페이지. 가장 최근 분석 결과로 바로 보내고,
+// 분석 이력이 아예 없으면 왼쪽 사이드바(레이아웃)에서 "지금 분석하기"를 누르라는 안내만 보여준다.
+export default async function KeywordIndexPage({ params }: PageProps) {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+
+  const { data: latestJob } = await supabase
+    .from("competitor_serp_jobs")
+    .select("id").gt("created_at", retentionCutoff())
+    .eq("user_id", user.id)
+    .eq("keyword_id", params.id)
+    .order("executed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (latestJob) {
+    redirect(`/keywords/${params.id}/jobs/${latestJob.id}`);
+  }
+
+  return (
+    <div className="mx-card py-16 text-center">
+      <p className="text-5xl">📊</p>
+      <p className="mt-4 text-sm text-mx-muted">아직 분석 이력이 없습니다. 「⚡ 지금 분석하기」를 눌러 첫 결과를 만들어 보세요.</p>
+    </div>
+  );
+}

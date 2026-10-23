@@ -1,0 +1,246 @@
+# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.30)
+
+> 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+
+## 한 줄 요약
+인물 사진 1장 + 촬영 목적(증명사진·비즈니스·SNS·시네마틱·자유) 프리셋 + 조명·카메라·배경·포즈·복장·피부 질감·필름 룩·보정 4종 → 회원 **본인 Gemini 키**로 인물 사진 1장을 만든다. 후처리(좌우 반전 입력, 배경 순백 정리, 413×531 증명사진 JPEG, 밝기·노출·대비, 가이드선)는 모두 브라우저에서 한다. 사진·결과는 **서버에 저장하지 않고** 브라우저 IndexedDB(최근 20장)에만 둔다. 참고 원본은 AI Studio "Cinematic Portrait Studio 2"이며 코드·문구·브랜드(크레딧·링크)는 복제하지 않았다.
+
+## 구조
+- `src/lib/portrait/` **순수 로직(단위 테스트)**: `options`(옵션 데이터·id), `purposes`(목적 프리셋 5종 — 모든 id가 실제 옵션을 가리켜야 함), `prompt`(`buildPrompt`: 옵션 **id만** 받아 서버가 영어 프롬프트 조립 — 임의 문장 주입 불가), `validate`(`parseGenerateRequest`: 이미지 base64 3.2M자·MIME·옵션 형식), `post`(순백 정리 BFS·`coverCrop`·`fitWithin`·`toneFilter`).
+- v1.02 추가: `post.ts`의 `SIZE_PRESETS`(여권·운전면허 413×531, 주민등록증·이력서 354×472, 미국 비자 600×600, 반명함 709×945)·`clampCandidates`(1~4장), `canvas.ts`의 `renderSized`, Studio의 **후보 N장 동시 생성**(요청 N건을 `Promise.allSettled`로 병렬, 일부 실패 허용)·후보 선택 줄·**원본/결과 비교 슬라이더**(`clip-path`).
+- v1.03 추가: **서버 보관함(선택)** `lib/saved.ts`·`/api/saved`(GET 목록+서명 URL 1시간, POST 저장, DELETE `?id=`/`?all=1`) — 비공개 버킷 `portrait-photo-files`, 테이블 `portrait_photo_saved`(RLS owner-only, 서비스 롤 + `user_id` 필터, 최대 30장). 회원이 스튜디오에서 토글을 켠 경우에만 **생성 결과(원본 제외)** 를 JPEG ≤2048px로 줄여 올린다(기본 꺼짐, localStorage에 선택 기억). **일괄 처리**: 사진을 최대 6장 올리면 같은 옵션으로 사진마다 1장씩 2개씩 병렬 생성, [전체 저장]. 규격 프리셋 5종(여권·주민등록증·운전면허 3.5×4.5, 이력서 3×4, 중국 비자 33×48mm 380×553, 미국 비자 600×600, 인화용 709×945).
+- v1.04 추가: `zip.ts`(의존성 없는 저장 방식 ZIP·UTF-8 이름·중복 이름 처리, 일괄 [ZIP으로 전체 저장]), 규격 프리셋 7종(공식 사이트 확인분: 캐나다 `canada.ca` 1200×1800·200KB~5MB, 영국 `gov.uk` 600×750 이상·50KB~10MB — 둘 다 **AI 사진 접수 불가 가능성 경고문 `caution`** 표시, 일본 외무성 35×45mm는 기존 여권 규격과 동일), 보관 기간(7·30·90일·무기한, `expires_at`) — 만료분은 `purgeExpired`가 목록·저장 때 삭제.
+- v1.05 추가: 규격 프리셋 9종(공식 사이트 확인분 인도 여권 630×810 `passportindia.gov.in`, 인도 비자 600×600·10~300KB `indianvisaonline.gov.in` 추가), **후보 한눈에 비교**(여러 후보를 격자로 보고 선택, 후보 2장 이상 생성 직후 자동으로 격자), 서버 보관함 **사용량 표시**(장수/30·합계 MB).
+- v1.06 추가: 규격 프리셋 12종(공식 사이트 확인분 미국 여권 온라인 갱신 `travel.state.gov` 54KB~10MB, 싱가포르 `ica.gov.sg` 400×514, 베트남 전자비자 `evisa.gov.vn` 4×6cm 추가; 미국 비자·DV 정사각 600~1200·≤240KB 안내를 us-visa 라벨에 반영), **확대 비교**(`ZoomCompare.tsx`: 후보 두 장을 같은 위치·배율로 나란히 확대, 포인터 위치 공유), **일괄 모드 저장 이름**(`safeFileName`·`baseNameOf`: 업로드 파일 이름 기본값, 금지 문자 제거, 40자 제한 → ZIP·개별 저장 파일명).
+- v1.07 추가: 규격 14종(홍콩 `immd.gov.hk` 1280×1600·≤5MB, 뉴질랜드 `passports.govt.nz` 900×1200·250KB~5MB 추가, 한국 여권은 외교부 여권안내의 **AI 편집·합성·생성 사진 불허·흰색 의상 금지** 경고 추가), **머리 비율 검사**(`/api/headcheck`·`detectHead`: 정수리·턱 위치를 AI가 추정 → `headInCrop`/`evaluateHead`로 규격 공식 범위와 비교, 범위가 확인된 규격만: 한국/일본 71~80%, 캐나다 45~50%, 미국 50~69%, 영국 64~76%, 홍콩 64~72%), **일괄 모드 순서 변경(↑↓)·저장 제외**(`moveItem`, `skip[]`), 증명사진 프롬프트의 머리 크기 지시 강화(약 80%, 실측 추정 37%→50~56%), 최소 용량 규격은 품질을 올려 재시도.
+- v1.08 추가: **얼굴 확대 자르기**(`tightCrop`: 머리 비율 검사 결과(정수리·턱·얼굴 중심 X)로 규격 비율 영역을 계산해 머리가 공식 범위 중간값이 되도록 더 가깝게 잘라 저장, 머리 비율 검사에서 "작게 나옴"일 때만 버튼 표시, 원본 한계는 `clamped`로 알림, `renderSized`의 `crop` 인자), `detectHead`가 `centerX`(얼굴 가로 중심)도 반환, 규격 15종(대만 `boca.gov.tw` 413×531 이상·JPEG ≤5MB 추가, 수정·거울상 불허 경고).
+- v1.09 추가: **자르기 영역 미리보기·수동 조정**(`CropAdjuster.tsx`: 원본 위 잘리는 영역(드래그)·확대/가로/세로 슬라이더·저장될 모습 미리보기·머리 높이 비율 표시·추천 영역 되돌리기, 순수 계산 `cropFromControls`/`controlsFromCrop`/`maxHeightFrac`), 규격 16종(인도네시아 전자비자 `evisa.imigrasi.go.id` 400×600 이상·머리 50~60% 추가).
+- v1.10 추가: **규격별 조정 값 기억**(저장 시 `controlsFromCrop`을 localStorage `portrait-photo:crop:<presetId>`에 저장, `parseStoredControls`로 검증해 [지난 조정 값 불러오기]로 사용), **일괄 모드 사진별 영역 지정**(`batchCrops`: 사진 번호·규격·영역·기준 크기 저장 → 크기가 달라지면 `scaleCrop`으로 비례 변환), [규격으로 일괄 저장 (ZIP)]: 제외하지 않은 모든 결과를 선택 규격 JPEG로 ZIP 저장(지정 영역 우선·나머지는 자동 중앙 자르기, 이름 지정 반영). 규격 수는 16종 유지(공식 확인된 신규 디지털 규격 없음).
+- v1.11 추가: **일괄 머리 비율 검사 + 자동 확대 자르기**(`autoCropBatch`: 제외하지 않은 사진마다 `/api/headcheck`를 동시 2건으로 호출 → `decideBatchCrop`이 범위 안/큼/작음/얼굴 없음을 판정, 작음이면 `tightCrop` 영역을 `batchCrops`에 지정, 결과 목록 표시. **비용 안내 2단계 확인**: 첫 클릭은 "AI N회 호출" 안내만, 두 번째 클릭에서 시작), 규격 17종(아일랜드 `ireland.ie` 715×951 이상·JPEG ≤9MB 추가).
+- v1.12 추가: **"얼굴 없음"만 다시 검사**(`autoCropBatch(only)`: 보고 목록에서 얼굴을 찾지 못한 사진 번호만 재호출, 나머지 보고는 유지, 2단계 비용 확인), **범위 안 사진도 얼굴 중앙 맞춤 옵션**(`centerFaceCrop`·`decideBatchCrop(..., centerOk)`: 크기는 기본 자르기와 같고 얼굴 가로 중심만 맞춤), 규격 18종(호주 시민권 신청 `immi.homeaffairs.gov.au` 1200×1600 선호·JPEG 70KB~3.5MB·머리 32~36mm 추가).
+- v1.13 추가: **얼굴 위치 직접 지정**(`CropAdjuster`의 `onMark`: 사진에서 ① 정수리 ② 턱 끝을 클릭 → `marksToMeasure`가 순서와 무관하게 측정값으로 변환, AI 호출 없음, 너무 가까우면 거부) → `handleMark`가 `headMeasure`·`batchCrops`·보고를 갱신해 추천 영역 재계산, **일괄 보고 행 바로가기**([영역 조정]·얼굴 없음 사진은 [얼굴 위치 직접 지정], `gotoCrop`+`pendingCrop` 효과로 해당 결과를 선택·순백 정리 준비 후 패널 열기), 규격 19종(폴란드 신분증 전자 신청 `gov.pl` 492×633 이상·2.5MB·얼굴 70~80% 추가).
+- 클라이언트 전용: `canvas.ts`(입력 1,600px JPEG 축소+셀카 반전, 순백 정리, PNG/413×531 렌더, 썸네일), `history.ts`(IndexedDB `portrait-photo:<userId>`, 최대 20).
+- 서버: `gemini.ts`(`IMAGE_MODELS` — v1.20부터 flash=`gemini-nano-banana-2.1`, pro=`gemini-3-pro-image`, v1.21부터 공용 호출 `geminiImage.ts` 사본 사용(imageSize는 pro만), pro 없음→flash 폴백, 오류 분류 key/quota/timeout/safety/noimage), `aiRoute.ts`(`guardAi(request, maxBody)`: 권한→본문 한도→본인 키).
+- API(모두 `checkProgramAccessApi` + `force-dynamic`): `POST /api/generate`, `/api/keys`(+`/test`).
+- 화면: `/studio`(`Studio.tsx`, 3열: 사진·보정·모델 / 결과·저장 / 옵션), `/history`, `/settings`, `/guide`.
+- DB 테이블 없음. 키는 공용 `user_api_keys`(provider `gemini`).
+
+## 지킬 것
+- 키는 회원 본인 Gemini 키만. 없으면 `needKey` 안내, 폴백 금지. 이미지 생성은 호출마다 본인 키 비용(Pro·2K/4K 더 큼)이라는 안내 유지.
+- **얼굴 사진은 민감 정보**: 원본 사진은 어떤 경우에도 서버에 저장·로그하지 않는다. 생성 결과는 회원이 서버 보관함을 직접 켠 경우에만 저장한다(기본 꺼짐). "본인 또는 동의받은 사진" 확인 체크를 생성 전에 요구한다. 타인·유명인 사칭 금지 안내 유지.
+- **공식 서류 통과 보장 문구 금지**(원본의 "정부24 100% 통과"류 제거). 순백 정리·413×531은 "참고용, 제출 기관 규정 확인" 안내와 함께 둔다.
+- 프롬프트 첫 규칙은 **얼굴 동일성**(눈·코·입·턱 형태·나이·피부 톤 변경 금지)이고 텍스트·로고 금지. 영어 고정 템플릿이며 색 이름은 영어 `name`을 쓴다(한국어 라벨 금지 — 단위 테스트가 잡았음).
+- 요청 본문은 Vercel 4.5MB 한도 때문에 입력을 긴 변 1,600px JPEG로 줄여 base64 3.2M자 이하로 보낸다.
+- 새 옵션을 추가하면 `purposes.ts`의 id 참조와 `tests/portrait.test.mjs`(개수·id 일관성)를 함께 고친다.
+- 버전은 `src/lib/version.ts`·`package.json`·DB `programs.version`을 함께 올린다. Supabase MCP `execute_sql`은 문장별로 보낸다.
+- 화면은 v1.22부터 「크리에이티브 아틀리에 — 포토 스튜디오 그래파이트 변형」(어두운 중립 회색, `docs/DESIGN_HANDOFF.md`) + 표준 사이드바(계정은 마지막 메뉴 바로 아래, `← 다른 프로그램 보기` 상단).
+
+## 검수
+- `npm test`(순수 로직 19건: 두 점→측정값(순서·경계·너무 가까움)·수동 지정 확대 자르기·폴란드 규격 포함, 얼굴 중앙 맞춤·호주 규격 포함, 일괄 판정(작음·범위 안·큼·얼굴 없음·범위 없는 규격·얼굴 중심)·아일랜드 규격 포함, 조정 값 검증·영역 비례 변환 포함, 자르기 영역 계산·왕복·경계 보정·인도네시아 규격 포함, 확대 자르기(달성 비율·범위·중심 X·한계)·대만 규격 포함, 머리 비율 평가·순서 이동·홍콩/뉴질랜드 규격 포함, 파일 이름 정리·미국/싱가포르/베트남 규격 포함, 규격 비율·픽셀 범위(캐나다·영국·인도), ZIP 구조·CRC32 표준값, 보관 기간), `npx tsc --noEmit`, `npm run build`.
+- 실제 생성: `NODE_OPTIONS=--conditions=react-server node --import tsx test-artifacts/real-call.mts [flash|pro] [id-photo|business|sns|cinematic]`(운영자 키, 비용 발생. 입력은 AI가 만든 가상 인물 썸네일). 실측: flash 9초(PNG 1.5MB), pro 19초(JPEG 0.6MB).
+- 운영 확인(2026-10-14): 로그인 Chrome에서 사진 올리기 → 동의 체크 없을 때 안내 → 생성(864×1184) → 순백 정리 44% → 가이드선 → PNG(843KB)·413×531 JPEG(30KB) 저장 → 기록 목록·전체 삭제.
+
+## 남은 일 (v1.11 후보)
+- 일괄 모드에서 사진마다 [머리 비율 검사] 후 자동 확대 자르기 일괄 적용(AI 호출 N회 비용 안내 필요), 규격은 공식 사이트로 확인된 것만 계속 추가(호주·솅겐·태국·말레이시아·필리핀·브라질·아랍에미리트·튀르키예 보류 유지).
+- 일반 회원(`buylifemall@naver.com`) 로그인 흐름 재확인(주인님 로그인 후).
+- v1.02 운영 확인(2026-10-14): 후보 3장 15초에 동시 생성 → 후보 선택 → 원본 비교 슬라이더 → 미국 비자 600×600(51KB) 저장 → 기록 삭제.
+- v1.03 운영 확인(2026-10-14): 사진 2장 일괄 생성 21초 → 서버 보관함 자동 저장 → 서명 URL 이미지 200(JPEG 106KB) → 없는 id 삭제 404 → 보관함·기록 전체 삭제.
+- 규격 사실 확인(웹 검색 2026-10-14): 주민등록증은 3.5×4.5cm(이력서만 3×4cm), 중국 비자 33×48mm 전자 사진은 가로 354~420·세로 472~560px(용량은 자료마다 차이), 캐나다는 자료 간 픽셀이 달라 미추가, 출입국 외국인등록은 변형 사진 불허.
+- v1.04 운영 확인(2026-10-14): 일괄 2장 → 보관 기간 7일(만료 10-21 기록) → ZIP(2항목, application/zip) → 캐나다 1200×1800 226KB 저장·주의 문구 → 만료 처리된 항목이 목록 조회 때 삭제됨 → 전체 삭제.
+- 규격 사실 확인(공식 사이트 검색 2026-10-14): canada.ca(50×70mm, 디지털 JPEG 200KB~5MB, 최소 1800×1200~최대 4500×3000, 사진사 촬영 원본), gov.uk(최소 600×750, 50KB~10MB, 소프트웨어 변경 금지), mofa.go.jp(35×45mm).
+- v1.05 운영 확인(2026-10-14): 후보 4장 → 격자 4칸 → 4번 선택 시 스테이지 복귀·활성 4번, 인도 비자 600×600(54KB)·인도 여권 630×810(76KB) 저장·주의 문구, 보관함 사용량 `4장 / 30장 · 합계 0.5MB` → 전체 삭제.
+- 규격 확인(공식 검색 2026-10-14): passportindia.gov.in(630×810 ICAO, 변경 금지), indianvisaonline.gov.in(JPEG 10~300KB 정사각), passports.gov.au(인쇄 35×45mm만·디지털 사양 없음), europa.eu(솅겐 35×45 공식 근거 확인 못함).
+- v1.06 운영 확인(2026-10-14): 일괄 2장 → 저장 이름 `홍길동_증명`/`김영희`(업로드 이름) → `영희/프로필:최종?` 입력 시 ZIP 항목 `영희프로필최종-3x4-1K.png` → 확대 비교 2칸·포인터 위치 동기화(30% 20%) → 기록 삭제.
+- 규격 확인(공식 검색 2026-10-14): travel.state.gov(비자·DV 정사각 600~1200px·JPEG ≤240KB, 여권 온라인 갱신 54KB~10MB), ica.gov.sg(400×514, 현재 안내 최대 8MB·옛 안내 150KB → 보수적 150KB), evisa.gov.vn(4×6cm JPG, 2MB 안내와 50KB 안내가 달라 보수적 50KB, 픽셀은 안내 없음 → 300dpi 환산 472×709로 표기).
+- v1.07 운영 확인(2026-10-14): 일괄 3장 → ↑↓로 순서 변경(가·나 → 나·가) → 3번 제외 → ZIP 항목 `나-…`, `가-…` 2개 → [머리 비율 검사] 한국 여권 규격: 머리 약 44%(기준 71~80%) 안내 → 범위 미확인 규격(중국 비자)은 검사 안 함 안내 → 기록 삭제. 한계: 머리 위치는 AI 추정(실측 대비 오차 5~10%p), 모델이 증명사진 머리 비율 71~80%를 잘 따르지 못해 현재 50~56% 수준.
+- 규격 확인(공식 검색 2026-10-14): passport.go.kr/mofa.go.kr(여권 3.5×4.5cm, 머리 3.2~3.6cm, 온라인 413×531 권장, AI 편집 불허·흰색 의상 금지·6개월 이내), immd.gov.hk(40×50mm, JPEG ≤5MB, 카메라 최소 1200×1600, 머리 32~36mm), passports.govt.nz(JPEG 250KB~5MB, 900~4500×1200~6000, 3:4).
+- v1.08 운영 확인(2026-10-14): SNS 목적 결과(머리 약 43%)로 머리 비율 검사 → 확대 자르기 버튼 `머리 약 43% → 76%` → 413×531 JPEG 52KB 저장·안내 문구 → 화면 확인(처음에는 얼굴이 가로 중앙이 아니어서 잘림 → `centerX` 반영 후 얼굴 중앙·전체 포함 확인) → 기록 삭제.
+- 규격 확인(공식 검색 2026-10-14): boca.gov.tw(전자 파일 JPEG·RGB 24비트·≤5MB·413×531px 이상, 머리 3.2~3.6cm, 수정·합성·거울상 불허), bmi.bund.de(독일 35×45mm·머리 32~36mm, 2025-05-01부터 사진 제출 방식 변경, 디지털 픽셀 규격 미확인), mfa.go.th(태국 전자비자: 3MB와 200KB 안내 불일치·픽셀 없음).
+- v1.09 운영 확인(2026-10-14): SNS 목적 결과 → 머리 비율 검사 → [자르기 영역 조정] 열기(추천 영역 머리 76% 범위 안, 스테이지 숨김) → 확대 슬라이더 변경 시 머리 67% 작음으로 갱신 → 가로 45로 이동 후 저장 413×531 51KB `증명사진-passport-조정-…jpg` → 추천 영역으로 되돌리기 76% → 닫기 시 스테이지 복귀 → 기록 삭제.
+- 규격 확인(공식 검색 2026-10-14): evisa.imigrasi.go.id(4×6cm, 최소 400×600, 포털 2MB·다른 공식 페이지 200KB, 머리 50~60%), dfa.gov.ph(필리핀 여권은 사진을 DFA에서 직접 촬영 — 디지털 규격 없음), imi.gov.my/kln.gov.my(말레이시아 여권 온라인은 사진관 제출 형식·픽셀 미확인, 비자 포털은 25KB).
+- v1.10 운영 확인(2026-10-14): 일괄 2장 → 1번 영역 조정(확대 2·가로 40)·[이 사진의 영역으로 지정] 표시 → 저장 시 `portrait-photo:crop:passport` 기억 → [규격으로 일괄 저장] ZIP `가-passport-413x531.jpg`, `나-…` (지정 1장·자동 1장 안내) → 다시 열면 [지난 조정 값 불러오기] → 값 복원(1.9×) → 기록·저장 키 삭제.
+- 규격 확인(공식 검색 2026-10-14): gov.br/mre·pf.gov.br(브라질: 인쇄 5×7cm만, 3세 이상은 창구 촬영), icp.gov.ae(UAE 3.5×4.5cm·얼굴 70~80%, 디지털 규격 미확인), mfa.gov.tr(튀르키예 영사관별 50×60mm/5×5cm 불일치) — 모두 디지털 규격 미확인으로 추가하지 않음.
+- v1.11 운영 확인(2026-10-14): 일괄 2장(SNS 목적·3:4) → 첫 클릭 `확인하고 시작 (AI 2회 호출)` + 비용 안내 → 실제 `/api/headcheck` 2회 → 보고 `가 머리 약 36% → 확대 자르기로 약 76%`, `나 얼굴 위치를 찾지 못해 자동 중앙 자르기` → [규격으로 일괄 저장] ZIP 2장(직접 지정 1·자동 1) → 기록 삭제.
+- 규격 확인(공식 검색 2026-10-14): ireland.ie(715×951 이상·JPEG·≤9MB·디지털 원본만·셀카/웹캠 불가), fedpol.admin.ch(스위스 35×45mm·얼굴 29mm 이상, 디지털 규격 미확인), dha.gov.za(남아공은 지점 촬영) — 스위스·남아공은 추가하지 않음.
+- v1.12 운영 확인(2026-10-14): 일괄 2장 → 중앙 맞춤 옵션 표시 → 일괄 검사 AI 2회 → 보고(가 32%→76%, 나 48%→76%) → 모의 응답으로 얼굴 없음 상태를 만든 뒤 `얼굴 없음 N장만 다시 검사` 버튼 → `확인하고 다시 검사 (AI 1회 호출)`·비용 안내 → 실제 호출 정확히 1회·다른 사진 보고 유지 → 기록 삭제. 범위 안·큼 사진의 중앙 맞춤은 운영에서 해당 상태를 만들기 어려워 단위 테스트로 검증(AI 검출은 호출마다 달라질 수 있음).
+- 규격 확인(공식 검색 2026-10-14): immi.homeaffairs.gov.au(시민권 신청 사진: JPEG 70KB~3.5MB, 선호 1200×1600, 편집 불가), rijksoverheid.nl(네덜란드 35×45mm·인쇄 400dpi, 픽셀 규격 없음), polisen.se(스웨덴은 경찰서에서 직접 촬영) — 호주만 추가.
+- v1.13 운영 확인(2026-10-14): 일괄 2장 → 모의 응답으로 얼굴 없음 → 보고 행에 `영역 조정`·`얼굴 위치 직접 지정` 버튼 → "나" 행에서 열기(활성 결과 자동 전환) → 정수리·턱 두 점 클릭(점 1·2 표시, 안내 문구 단계 전환) → 보고 `수동 지정: 머리 약 43% → 확대 자르기로 약 76%`·패널 머리 76% 범위 안 → "가" 행 [영역 조정] 바로가기 → 규격 일괄 ZIP "직접 지정 1장·자동 1장" → 기록 삭제.
+- 규격 확인(공식 검색 2026-10-14): gov.pl(폴란드 신분증 전자 신청 492×633·2.5MB, 안내 문서 약 740일 경과), bmi.gv.at(오스트리아 35×45mm·머리 약 2/3·최대 36mm, 디지털 규격 없음), mzv.cz(체코 35×45mm·인쇄 250dpi, 픽셀 규격 없음) — 폴란드만 추가.
+- v1.14 추가: **직접 지정한 얼굴 위치 재사용**(`measures` 상태에 사진별 측정값 보관, `changePreset(id)`가 규격 변경 시 AI 호출 없이 `decideBatchCrop`으로 영역·보고를 다시 계산), **보고 행 사진 썸네일**(`.rep-thumb`), `describeBatchDecision` 순수 함수 분리, 한국 여권 안내 보강(공식: passport.go.kr 413×531 권장·허용 395~431×507~550·≤500KB, mois.go.kr 주민등록증 보정 불가). 규격은 19종 유지(이번 후보 중 새로 공식 확인된 규격 없음).
+- v1.14 검수(2026-10-14): 단위 20/20, tsc 정상, 배포·DB v1.14 완료. **운영 화면 확인은 buylife 세션 만료("로그인이 필요합니다.")로 미완료** — 로그인 후 일괄 검사 → 규격 변경 → 재계산(AI 호출 0회)·썸네일 표시 확인 필요.
+- 남은 일(v1.15 후보): 썸네일 확대 보기, 공식 확인된 규격만 추가(솅겐·태국·말레이시아·필리핀·브라질·UAE·튀르키예·스위스·남아공·네덜란드·스웨덴·오스트리아·체코·이탈리아 보류).
+- v1.15 추가: **일괄 보고 썸네일 확대 보기**(`rep-thumb-btn` 클릭 → `repZoom` 오버레이, 클릭하면 닫힘). 규격은 19종 유지(이번에도 새로 공식 확인된 규격 없음 — 추측으로 추가하지 않음). 검수: 단위 20/20, tsc·빌드 정상, 배포·DB v1.15. 운영 화면 확인은 로그인 세션 필요(v1.14 항목과 함께 대기).
+- 규격 확인(검색 2026-10-14, v1.15 이후): 일본 여권 온라인(MOFA)·한국 K-ETA(k-eta.go.kr)·이탈리아 여권(Polizia di Stato)은 공식 페이지 디지털 사양을 확인하지 못했고 제3자 사이트들의 수치(K-ETA 100KB/300KB, 600/700px 등)가 서로 달라 **추가하지 않음**. 공식 페이지(mofa.go.jp, k-eta.go.kr, poliziadistato.it)를 직접 열어 확인되면 추가한다. 코드 변경 없음(버전 v1.15 유지).
+- v1.16 추가: **일본 여권 온라인 신청 규격(`jp-passport`)** — 규격 20종. 공식 확인(외무성 mofa.go.jp, 2026-10-14, 브라우저로 열람; WebFetch·curl은 Akamai 403): `pass_2.html` 35×45mm 테두리 없음·무배경(흰색 권장)·6개월 이내·머리 34±2mm, `page24_002222.html` 온라인 업로드 JPG·마이나포털 600KB 이하·ORRnet 20KB~2MB, 픽셀 수 규정 없음 → 300dpi 환산 413×531로 표기. 단위 20/20·DB v1.16.
+- 규격 확인 보류 유지: K-ETA(k-eta.go.kr 공식 페이지에 사진 사양 문구 없음, FAQ만 확인), 이탈리아(poliziadistato.it 해당 페이지 404). 막힌 공식 사이트는 로그인된 Chrome으로 열면 읽을 수 있다.
+- v1.17 추가: **한국 K-ETA 안면 사진 규격(`kr-keta`)** — 규격 21종. 공식 확인: 법무부 출입국·외국인정책본부 K-ETA FAQ(immigration.go.kr 게시 PDF, 2026-10-14 열람) "안면 사진 JPG, 100KB 이하, 가로세로 700픽셀 이하, 앱 촬영 시 자동 보정", 여권 인적면 사진은 선택·JPG 300KB 이하. 비율·머리 비율 규정 없음 → 3:4 525×700 표기, 머리 검사 없음. 제3자의 600px·300KB 수치는 옛 자료로 판단.
+- 보류 유지: 태국 e-Visa(thaievisa.go.th 메인에 사양 없음·FAQ/사용자 매뉴얼 필요, 제3자는 3MB·1MB·120KB 불일치), 이탈리아(vistoperitalia 포털 업로드 안내 미확인), 솅겐·말레이시아·필리핀·브라질·UAE·튀르키예·스위스·남아공·네덜란드·스웨덴·오스트리아·체코.
+
+## 2026-10-14 v1.18 — 모바일 셸 CSS 추가 (Claude Code)
+
+- 증상: 767px 이하에서도 좌측 메뉴가 남아 본문이 눌림. 원인: `Sidebar.tsx`의 `.mobile-sidebar`(위쪽 접는 메뉴)는 있었지만 `src/app/globals.css`에 전환 규칙이 없었음(복사한 뼈대 공통 누락).
+- 수정: `globals.css` 끝에 `@media(max-width:767px)` 셸 규칙(markdown-studio·four-cut-comics와 동일) 추가. 기능 로직 변경 없음. 버전 v1.18(코드·package·DB).
+- 검수: 빌드, 프로덕션 배포, 운영 화면을 폭 400px 틀(iframe)에 띄워 좌측 메뉴 숨김·위쪽 메뉴 표시·본문 385px·가로 넘침 없음 확인. 실제 휴대폰 터치는 미확인.
+
+
+## 2026-10-16 DB 연동 변수 호환 — v1.19 (portrait-photo)
+
+작업 전 [최상위 데이터베이스 연동 지침](../docs/DATABASE_CONNECTION_POLICY.md)과 [전체 전환 인수인계](../docs/DATABASE_CONNECTION_HANDOFF.md)를 먼저 읽습니다. 공개 키는 새 PUBLISHABLE 이름 우선·기존 ANON 이름 호환, 서버 키는 새 SECRET 이름 우선·기존 SERVICE_ROLE 이름 호환입니다. 새 값 없음/공백일 때만 같은 종류의 기존 값을 사용하며, 인증 실패 후 다른 키로 재시도하지 않습니다. 기존 변수·실제 키·회원 권한·Cron은 유지합니다. 배포·회원 검수 결과는 전체 인수인계의 프로그램별 기록에서 확인합니다. 기존 변수 삭제와 실제 키 폐기는 별개이며 안정화 확인 전 삭제하지 않습니다.
+
+## v1.20 (2026-10-17) 이미지 모델 최신 교체 — Claude Code(윈도우)
+- `src/lib/gemini.ts` : 구형(gemini-2.5-flash-image·gemini-3.1-flash-image·*-preview·Imagen) → 최신 정식(`gemini-nano-banana-2.1`·`gemini-3-pro-image`), 주소 v1beta (기준: ai-image-studio v1.11 `lib/providers/adapters/gemini.ts`).
+- 실제 이미지 생성 시험은 하지 않았습니다 — 이미지 생성 오류가 나면 그때 테스트 검증합니다(주인님 지시).
+
+## 2026-10-18 v1.21 — 이미지 생성 호출을 공용 기준 코드로 (이미지 4묶음 B · SDK 사용형, Claude Code 윈도우)
+- **한 일**: `src/lib/gemini.ts` `callImage` 삭제 → `generatePortrait`가 공용 호출. pro 모델이 없으면 flash로 넘어가는 흐름 유지, 두 번 호출해도 105초(라우트 120초) 안(시간 검사 `CHECK` — 직접 확인 최대 105초). 쓰지 않게 된 `isModelUnavailable`·`SAFETY_REASONS` 정리.
+- **왜**: ① SDK 호출에 시간 제한이 없어 Vercel 함수 한도에서 원인 모를 끊김(요금은 나갔을 수 있음) ② 응답의 첫 이미지만 꺼내 `gemini-3-pro-image`의 중간 초안(thought) 이미지를 결과로 쓸 위험 ③ 영어 오류 문장을 정규식으로 추측해 분류 — 공용 모듈은 시간 제한·최종 이미지 선택·상태 코드별 오류 구분·키 가리기·시간 초과 표준 안내(Google AI Studio 사용량 확인)를 갖췄다.
+- **바꾸지 않은 것**: 프롬프트·모델 이름·비율·화질·화면·글 생성 호출(SDK 그대로). 유료 생성이라 재시도 0(이중 과금 방지).
+- **검수**: tsc 0, 프로그램 테스트(20개 통과), `check-shared-modules` OK, Vercel 프로덕션 배포·DB 버전, 크롬 화면 버전. eslint는 이 폴더에 설정 파일이 없어(이전부터) 실행 안 됨. 실제 이미지 생성 시험은 하지 않음(비용) — 오류가 나면 그때 검증.
+- **주의(다음 CLI)**: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본이다(기준: `ai-image-studio/lib/providers/`). 직접 고치지 않고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 이 프로그램만 다르게 해야 하면 호출하는 쪽에서 덮어쓴다. 점검표: 루트 `docs/SHARED_MODULE_CHECKPOINTS.md`.
+
+## 2026-10-18 v1.22 — 디자인 리뉴얼 「크리에이티브 아틀리에 — 포토 스튜디오 그래파이트 변형」 (Claude Code 윈도우)
+- 중립 그래파이트 배경(`#121316`)·스튜디오 라이트 블루(`#7cc4fa`)·텅스텐 앰버(`#f6c177`), 결과 무대 격자·네 귀퉁이 초점 표시, ①~④ 단계 칩(표시 전용), 메뉴 `📖 연동 & 사용 매뉴얼`, 비주얼 매뉴얼(마스코트·4단계 흐름·목적 5종 카드(`PURPOSES` 직접 사용)·좋은/피할 사진·규격 크기 그림·머리 비율 그림). 기능 로직·프롬프트·API·규격 값 무변경.
+- 바뀐 파일: `globals.css`(맨 위 토큰 + 맨 끝 덮어쓰기 묶음, 클래스 이름 유지), `Sidebar.tsx`, `Studio.tsx`(단계 칩만), `guide/page.tsx`, `version.ts`. DB v1.22.
+- 검수: tsc 0, 테스트 20개 통과, 로컬 빌드, Vercel 프로덕션 배포(Ready)·DB 버전. 크롬 화면 확인 결과는 `docs/DESIGN_HANDOFF.md`.
+- 상세: `docs/PLAN_20261018_DESIGN_RENEWAL.md` · `docs/DESIGN_HANDOFF.md` · `docs/IMPROVEMENT_HANDOFF_20261018.md`(다음 첫 단계).
+
+## 2026-10-18 v1.23 — 규격 저장 기본값을 「추천 영역」으로 (Claude Code 윈도우)
+- **문제**: 모델이 증명사진 머리 기준(한국 여권 71~80%)을 잘 못 맞춰 43~56%에 머무는데, [규격 저장]은 항상 가운데를 잘랐다. 머리 위치를 알아도 기본 버튼은 쓰지 않았고, 「작음」일 때만 별도 [얼굴 확대 자르기] 버튼이 떴다.
+- **한 일**: `post.ts` `recommendSizedCrop(m, preset, srcW, srcH)` 추가(작음·큼 → `tightCrop`, 범위 안 → `centerFaceCrop`, 측정 없음·기준 없는 규격 → none). `Studio.tsx`: `currentMeasure()`(같은 사진의 `headMeasure` → 없으면 `measures[sourceIdx]`), `saveSized`가 추천 영역으로 저장(측정 크기 ≠ 현재 이미지면 `scaleCrop`, 파일 이름 `-추천`, 안내 문구에 머리 % 변화), 버튼 이름 `· 추천 영역`, 기존 `saveTight`·확대 버튼 삭제 → 안내 한 줄, [자르기 영역 조정] 추천 값도 같은 함수. 머리 비율 검사 「작음」 안내 문구, 매뉴얼 ④ 절·FAQ 수정. 안 쓰게 된 `.st-tight` CSS 삭제.
+- **주의**: 「큼」은 기본 가운데 자르기가 이미 원본 최대 크기라 비율을 낮출 수 없다 — 위치만 맞추고 다시 만들기를 안내한다. AI 호출은 추가하지 않는다(회원이 누른 검사·직접 지정 값만 사용). 일괄 ZIP(`saveSizedBatch`)은 그대로(백로그).
+- **검수**: tsc 0, `npm test` 21/21(새 테스트 「규격 저장 추천 영역」 — 작음·범위 안·큼·없음 4경우), 빌드, Vercel 프로덕션(같은 날 두 번째 — 주인님 지시), DB v1.23, 크롬 버전·매뉴얼 문구·스튜디오 오류 없음 확인. 생성 사진으로 저장하는 실제 흐름은 비용 때문에 별도 확인(`docs/IMPROVEMENT_HANDOFF_20261018.md`).
+- 플랜: `docs/PLAN_20261018_SIZED_SAVE_RECOMMEND.md`.
+
+## 2026-10-18 v1.24 — 일괄 저장 통일 · 머리 검사 안내 강조 · 프로필 세트 (Claude Code 윈도우, **10-19 배포 예정**)
+- **일괄 통일**: `decideBatchCrop`이 내부에서 `recommendSizedCrop`을 써 단일 [규격 저장]과 같은 판정(범위 안 → 얼굴 가운데, 큼 → 위치만). `centerOk` 인자·[범위 안 사진도 얼굴을 가로 중앙에 맞춤] 체크박스 삭제(기본 동작). `saveSizedBatch`: 지정 영역 → 없으면 `measures` 추천 영역 → 가운데. 보고 「큼」 문구 갱신, `autoCropBatch`는 `describeBatchDecision` 한 곳으로.
+- **안내 강조**: 머리 기준이 있는 규격인데 현재 사진 측정값이 없으면 저장 줄 위에 안내 + [머리 비율 검사]·[얼굴 위치 직접 지정 (무료)](`gotoCrop(active, true)`)를 `primary`로.
+- **프로필 세트**: `post.ts` `PROFILE_FORMATS`(1:1 1080·4:5 1080×1350·원형 1080)·`PROFILE_HEAD_RATIO` 0.42·`profileCrop`, `canvas.ts` `renderProfile`(원형은 바깥 투명 PNG), `Studio.tsx` `saveProfileSet` → ZIP. AI 호출·서버 저장 없음.
+- **정정**: v1.23 보고의 "AI 이미지 자동화 프로필 크롭으로 넘기기"는 ai-image-studio에 그런 기능이 없어 인물사진 안의 프로필 세트로 대체(대안 B는 백로그).
+- **검수**: tsc 0, `npm test` 22/22(기존 `decideBatchCrop` 테스트는 기대값만 새 동작으로 수정 + 「프로필 세트 구도」 추가), 빌드. 배포·DB·크롬은 10-19(같은 날 같은 프로그램 3번째 배포를 피함).
+- 플랜: `docs/PLAN_20261018_V124_BATCH_HINT_PROFILE.md`.
+- **v1.24 추가(같은 날, 같은 배포)**: ① **증명사진 생성 구도**: `prompt.ts` `SYMMETRY`의 "머리 약 80% 꽉 찬 구도" 한 줄 → **SAFE ID FRAMING**(머리 55~65%, 정수리 위 여백, 양어깨 전체, 얼굴 가로 가운데). 이유: 저장 때 확대(`recommendSizedCrop`)로 공식 기준을 맞출 수 있지만 크게 나온 사진은 고칠 수 없으므로 생성은 여유 있게. 주인님 지시에 따른 프롬프트 변경(`docs/IMAGE_PROMPT_RULES.md`). 실제 효과는 생성 1회로 확인 필요. ② **프로필 세트 미리보기**: `openProfilePreview`가 3장을 만들어 패널에 먼저 보여 주고, `saveProfileSet`은 같은 Blob을 ZIP(보이는 모양 = 저장 모양), 보고 있는 사진이 바뀌면 미리보기 닫힘. ③ 쓰레드·인스타 매뉴얼 「여기서 만들기」 링크는 AGY 영역이라 각 `docs/IMPROVEMENTS.md`에 제안만 기록. 플랜: `docs/PLAN_20261018_V124B_FRAMING_PREVIEW_LINK.md`.
+- ~~**발견(미처리)**: `SYMMETRY` 블록이 비즈니스 목적의 「은은한 미소」와 충돌~~ → **같은 v1.24에서 처리**: `prompt.ts` 블록 분리 — `SYMMETRY`(정면·대칭·귀·어깨·균일 조명) / `ID_FRAMING`(여유 구도·입 다문 무표정). `PromptInput.idFraming?`(없으면 `symmetry`를 따름 — 배포 직후 옛 화면 호환), `validate.ts` 선택 값 검증, `Studio.tsx`가 `idFraming: purposeId === "id-photo"`로 보냄. 자유 커스텀에서 대칭만 켜면 대칭 지시만 들어감. 테스트 「비즈니스·증명사진 구도 지시 분리」.
+- **원형 바깥색**: 프로필 미리보기 패널에 「원형 바깥: 투명/흰색」(`renderProfile` `circleBg`, 바꾸면 미리보기 다시 그림). AI 인플루언서 연계는 `ai-influencer-studio/docs/IMPROVEMENTS.md`에 매뉴얼 링크 제안만(AGY 영역). 플랜: `docs/PLAN_20261018_V124C_BUSINESS_CIRCLE_INFLUENCER.md`.
+
+## 2026-10-18 v1.24 배포 → v1.25 즉시 수정 (Claude Code 윈도우)
+- **v1.24 배포**(같은 날 — 주인님 정정: 배포는 하루 횟수 제한이 아니라 순차 배포가 원칙). DB v1.24.
+- **v1.25 수정**: 크롬 실검수에서 [얼굴 위치 직접 지정 (무료)] 바로가기가 **같은 사진에서는 패널이 열리지 않음** 발견. 원인: `gotoCrop`이 항상 `setCleaned(null)` → 순백 정리 효과는 `result`가 바뀔 때만 다시 돌아 `cleaned`가 계속 비어 `pendingCrop` 효과가 영원히 대기(순백 정리 표시도 사라짐). 일괄 보고(다른 사진으로 이동)에서는 `result`가 바뀌어 드러나지 않았음. 수정: 같은 사진이면 정리본을 지우지 않음(`if (i !== active) setCleaned(null)`). 회원 영향 버그라 바로 배포, DB v1.25.
+- **운영 실검수(2026-10-18, 크롬, AI 가상 인물 사진 입력, Flash 1K 2회)**: ① 증명사진 목적 생성 8초 — 흰 배경·양어깨·머리 약 60~65%(눈대중, 새 여유 구도 반영) ② 측정 전 안내·강조 버튼 2개 표시, [규격 저장]에 「추천 영역」 없음 ③ 비즈니스 목적 생성 10초 — **은은한 미소·상반신**(무표정 충돌 해소) ④ 직접 지정(정수리·턱) → "머리 약 42% → 76%", 패널 「76%(기준 71~80%) 범위 안」 ⑤ [규격 저장 · 추천 영역] → `증명사진-passport-추천-413x531-…jpg` 44KB·안내 문구 ⑥ 프로필 미리보기 3장(얼굴 기준)·원형 바깥 투명→흰색 다시 그림 → ZIP 1개(1.8MB)·패널 닫힘. 저장은 내려받기 직전에 가로채 파일명·크기만 확인(PC에 파일 저장 안 함).
+
+## 2026-10-18 브라우저 자동 테스트 추가 (Claude Code 윈도우, 앱 코드 무변경 — 버전·배포 없음)
+- **발견**: `package.json`에 `test:browser` 명령·`playwright`는 있었지만 테스트 파일이 없었다(뼈대 복사 흔적).
+- **추가**: `tests/browser.mjs` + `tests/browser-entry.tsx` — 바나나 캔버스와 같은 방식(esbuild로 `Studio` 묶음 → 로컬 시험 서버 → 보이는 Chrome). `/api/generate`·`/api/headcheck`는 모의 응답이라 **AI 호출·비용 없음**.
+- **검사 9개**: 기본 목적 증명사진 / 생성(모의)·`idFraming=true`·`symmetry=true` 전송 / 측정 전 안내·강조 버튼 2개·[규격 저장]에 추천 표시 없음 / **같은 사진에서 [얼굴 위치 직접 지정] 패널 열림(v1.25 회귀)**·두 점 → 머리 % 안내 / [규격 저장 · 추천 영역] 파일 이름 `증명사진-passport-추천-413x531-날짜.jpg`·JPEG / 머리 비율 검사(모의) 안내 / 프로필 미리보기 3장 → 원형 흰색 → ZIP 안 3개 파일 이름 / 390px 가로 넘침 없음 / 화면 스크립트 오류 없음.
+- **회귀 검증**: `gotoCrop`을 v1.24 코드로 잠시 되돌리면 「직접 지정 패널 열림」 단계에서 실패함을 확인 후 원복.
+- **실행**: `npm run test:browser` (보이는 Chrome 창이 잠깐 열림). 입력 사진 `test-artifacts/out-business-pro.png`(AI 가상 인물)이 필요한데 `test-artifacts/`는 Git 제외 — 다른 PC에서는 임의의 인물 PNG를 같은 이름으로 넣는다. 실패하면 `test-artifacts/browser-fail.png`에 화면이 남는다.
+- **검수 순서 권장**: 화면 동작을 바꾼 작업은 배포 전에 `npx tsc --noEmit` → `npm test` → `npm run test:browser` → `npm run build`.
+
+## 2026-10-19 v1.26 — 브라우저 안 얼굴 인식으로 머리 위치 자동 측정 (Claude Code 윈도우)
+- **한 일**: 결과가 나오면 회원 PC 브라우저 안에서 Google MediaPipe **FaceLandmarker**(`@mediapipe/tasks-vision` **1.0.0 고정** — 최신 1.1.1은 출시 5일이라 2026-07 판 사용)로 얼굴 점 478개를 찾아 머리 위치를 자동 추정 → 아무것도 누르지 않아도 [규격 저장]·[규격으로 일괄 저장]·[프로필 세트]가 머리 기준 추천 영역으로 동작. **사진 서버 전송·AI 호출 없음.**
+- **계산**: `post.ts` `landmarksToMeasure` — 턱 = 점 152, 이마 위 = 점 10, 정수리 = 이마 위 − α × (턱 − 이마 위), 가로 중심 = 점 234·454 가운데. **α = 0.42**(`FACE_CROWN_ALPHA`, 시험 사진 3장 눈대중 정수리와 비교해 0.41·0.44·0.40, 머리 비율 오차 약 ±2%p). 보정 도구 `node tests/face-calibrate.mjs <사진...>`.
+- **파일**: `src/lib/portrait/faceLocal.ts`(처음 쓸 때만 동적 불러오기, 실패하면 다음에 재시도), 모델·실행 파일은 **`public/mediapipe/`에 함께 배포**(외부 CDN 의존 없음: `face_landmarker.task` 3.7MB — Google 공식 `storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/`, SHA-256 `64184E22…BC9FF` / `wasm/vision_wasm_internal.*`(SIMD)·`vision_wasm_nosimd_internal.*` — `node_modules/@mediapipe/tasks-vision/wasm/`에서 복사, 라이브러리 버전을 올리면 함께 다시 복사).
+- **화면**: `Studio.tsx` — `results`가 바뀌면 측정값 없는 결과만 한 장씩 자동 추정(`measures[fi].auto = true`), 진행 중엔 "브라우저 안에서 자동으로 찾는 중" 안내, 찾으면 녹색 안내에 「머리 위치: 브라우저 자동 추정」 + 고치는 방법. 우선순위: 직접 지정·AI 검사 값이 있으면 자동 추정이 덮어쓰지 않음. 얼굴을 못 찾으면 예전 흐름(측정 전 안내·강조 버튼).
+- **검수**: tsc 0, 단위 24/24(「얼굴 점 → 머리 위치」 추가), 브라우저 10/10 — 1단계는 얼굴 인식 파일을 막아 예전 흐름, 2단계는 허용해 **누르지 않아도 추천 영역 저장(머리 약 50% → 76%)·AI 호출 0회**. 빌드, Vercel 배포 Ready, 운영 주소에서 모델(200, 3.7MB)·wasm(200, application/wasm) 확인, DB v1.26.
+- **한계·주의**: 정수리는 얼굴 점이 아니라 비율 추정이라 머리숱·올림머리·모자에 따라 어긋날 수 있다(그래서 출처 표시와 직접 지정 안내를 둠). 첫 사용 때 약 15MB(모델+실행 파일)를 내려받는다(이후 브라우저 캐시). 옆모습·여러 사람·아주 작은 얼굴은 실패할 수 있다.
+
+## 2026-10-19 v1.27 — 생성 전 사진 품질 점검 · 머리 위치 선 (Claude Code 윈도우)
+- **사진 품질 점검**: 사진을 올리는 즉시(일괄은 사진마다) 브라우저 안 얼굴 인식으로 점검 — `post.ts` `assessFaces`(얼굴 없음 / 여러 사람 / 이마~턱 15% 미만 / 코끝이 얼굴 너비의 25% 이상 치우침=옆모습 / 눈 선 15° 이상 기움). 안내만 하고 막지 않음, 문제없으면 「정면 얼굴 1명 확인」. `faceLocal.ts` `checkPhotoLocal`, 얼굴 인식은 최대 3명까지 찾고 머리 위치 추정은 가장 큰 얼굴(`largestFace`).
+- **머리 위치 선**: 측정값(자동 추정·검사·직접 지정)이 있으면 결과 사진 위에 정수리(파란 점선, 출처 표시)·턱(주황 점선). 사진이 무대 안에 `contain`으로 그려지는 영역을 `overlayY`로 계산. 「머리 위치 선 보기」(기본 켬). **플랜과 다르게** 증명사진 가이드선이 켜져 있어도 함께 보인다 — 증명사진 목적은 가이드선이 기본으로 켜져 있어 숨기면 가장 많이 쓰는 경우에 안 보이기 때문(이름표로 구분).
+- **매뉴얼**: FAQ 「추천 영역」을 자동 추정 기준으로 고치고 「사진 점검」 FAQ 추가.
+- **검수**: tsc 0, 단위 25/25(품질 판정 5경우·가장 큰 얼굴·선 위치), 브라우저 13/13(크롬 포그라운드 — 정상 사진 「정면 1명」, 여러 사람 합성 「2명」 경고, 작은 얼굴 경고·생성 버튼 유지, 선 표시·끄고 켜기), 빌드, Vercel Ready, DB v1.27. **운영 실검수(메인 크롬, Flash 1K 1회, AI 가상 인물 입력)**: 사진 점검 「정면 얼굴 1명 확인」 → 생성 8초 → 누르지 않아도 「머리 위치: 브라우저 자동 추정 · 머리 약 58% → 76%」 → 확대해 보니 정수리 선은 머리카락 맨 위, 턱 선은 턱 끝에 정확히 맞음 → [규격 저장 · 추천 영역] `증명사진-passport-추천-413x531-…jpg` 39KB.
+- **발견(→ v1.28 처리)**: 저장 파일 이름의 날짜가 세계 표준시(`toISOString`)라 한국 시간 오전 9시 전에는 하루 전 날짜로 찍힌다 — `IMPROVEMENTS.md`.
+
+## 2026-10-19 v1.28 — 저장 파일 이름 날짜를 현지(한국) 날짜로 (Claude Code 윈도우)
+- **문제**: 파일 이름 날짜가 `toISOString().slice(0, 10)`(세계 표준시)라 한국 시간 오전 0~9시엔 하루 전 날짜. 플랜 `docs/PLAN_20261019_V128_LOCAL_DATE_FILENAME.md`.
+- **수정**: `post.ts` `localDateStamp(d)`(회원 PC 현지 날짜 `YYYY-MM-DD`) → `Studio.tsx` 4곳(증명사진 ZIP·인물사진 ZIP·프로필 세트 ZIP·규격 저장 JPG)·`HistoryList.tsx` 1곳 교체. 서버 저장 시각(`apiKeys.ts`·`saved.ts`)은 비교용이라 그대로.
+- **검수**: 단위 26/26(오전 8시 30분 → 같은 날짜 — 옛 방식이면 10-18로 실패), tsc 0, 빌드, 브라우저 13/13(크롬 포그라운드, 저장 이름 `…-2026-10-19.jpg`), Vercel Ready(`portrait-photo-l4gq06cdh`), DB v1.28, 메인 크롬 운영 화면 v1.28 표시. AI 비용 없음.
+
+## 2026-10-21 v1.30 — 결과 배경 밝기 전환 · 단계 칩 이동 · 안 쓰는 CSS 정리 (Claude Code 윈도우)
+- **결과 무대 배경**: 생성 결과 제목 줄에 「배경」 동그라미 4개(기본 격자·흰색·회색·검정). 사진 가장자리·머리카락 경계를 밝은/어두운 바탕에서 확인하는 용도. 선택은 이 브라우저에만 기억(`localStorage` `portrait-photo:stage-bg`, 못 쓰면 기본값). CSS `.st-stage.bg-white|bg-gray|bg-black`.
+- **단계 칩**: 「1 사진·2 목적·옵션·3 만들기·4 저장·규격」을 버튼으로 바꿔 누르면 해당 영역으로 부드럽게 이동(`goToArea`, 4번은 저장 버튼 줄이 없으면 결과 상자로). 구역 id `st-sec-N`·`st-purposes`·`st-result`·`st-save`.
+- **CSS 정리**: 옛 성격 검사 화면에서 넘어온 안 쓰는 규칙(runner·scale-btn·bar-row·trend·weight-row·care-notice 등 24개 클래스)을 `globals.css`에서 지움. 쓰이는 `a.project-card`·`.bars`·`.bar`와 인쇄 규칙(안 쓰는 선택자만 뺌)은 남김. 가이드 `gd-*` 3개는 혹시 몰라 유지.
+- **검수**: 단위 31/31, tsc, 빌드, Vercel Ready, DB v1.30. 운영(메인 크롬·일반 회원): 검정 선택 → 무대 `rgb(0,0,0)`·저장 확인 → 새로고침 뒤에도 유지 → 맨 아래에서 「3 만들기」 → 결과 상자가 화면 위(12px), 「1 사진」 → 사진 구역(0px), 390px iframe 가로 넘침 없음. 시험 뒤 배경 기본값으로 되돌림. 비용: Vercel 빌드 1회, AI 0회.
+- 남은 백로그(비용 승인·실제 휴대폰·AGY 담당·별도 플랜 필요): `docs/IMPROVEMENT_BACKLOG.md`. 커밋 `1943d4e5`.
+
+## 2026-10-19 v1.29 — 깨진 사진 안내(공용 `image-file-check` 기준) · 꺼진 [만들기] 이유 한 줄 (Claude Code 윈도우)
+- **공용 기준 코드 신설**: `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — 올린 사진을 브라우저 안에서 실제로 풀어 보고(서버 전송 없음) 깨졌으면 「사진을 읽지 못했어요…」. `createImageBitmap` 실패 시 `Image`로 한 번 더 확인해 둘 다 실패할 때만 실패(정상 사진 오판 방지), 확인 수단이 없는 환경은 통과. **이 파일이 기준** — 다른 이미지 프로그램은 사본(`docs/SHARED_MODULES.md` `image-file-check`). 플랜 `docs/PLAN_20261019_IMAGE_FILE_CHECK_SHARED.md`.
+- **적용**: `onPick`에서 `splitReadableImages` — 모두 깨졌으면 안내하고 받지 않음, 일부만 깨졌으면 빼고 「읽지 못한 사진 n장(이름)은 뺐습니다」.
+- **꺼진 [인물 사진 만들기] 이유**: 사진이 없으면 「① 인물 사진 칸에 사진을 먼저 올려 주세요.」, 사진은 있는데 동의 미체크면 「위 「본인 사진·사용 동의」에 체크해야 만들 수 있어요.」(`.st-generate-why`, 준비되면 숨김).
+- **검수**: 단위 31/31(공용 5 포함), 브라우저 14/14(깨진 사진 안내·미리보기 안 받음·이유 문구 전환), tsc, 빌드, Vercel READY(`portrait-photo-61i7cpw88`), DB v1.29. 운영 실측(메인 크롬): 깨진 JPG → 안내 표시·미리보기 없음·버튼 꺼짐, 이유 한 줄 표시. AI 비용 없음.
+
+## 7대 핵심 항목 (2026-10-18 정리)
+1. **사용 목적·대상**: 사진관에 가기 어려운 개인·구직자·1인 사업자·크리에이터가 사진 한 장으로 증명·비즈니스 프로필·SNS·화보 인물 사진을 만들고, 국내외 규격 크기로 저장.
+2. **기술 스택**: Next.js App Router + TypeScript, 순수 CSS(`globals.css`), Supabase(공용 인증·권한·선택형 서버 보관함 버킷 `portrait-photo-files`), Google Gemini 이미지(공용 기준 코드 `geminiImage.ts` 사본), Canvas(순백 정리·규격 저장·ZIP), IndexedDB 기록, Vercel.
+3. **핵심 기능·구조·장단점**: 목적 프리셋 5종 + 조명·카메라·배경·포즈·복장·피부·필름·보정 4종, 후보 1~4장·격자/확대 비교, 원본 비교 슬라이더, 규격 21종 저장·머리 비율 검사·자르기 영역 조정·얼굴 위치 직접 지정, 일괄 6장·ZIP. 장점: 원본 서버 미저장·본인 키·공식 출처로 확인한 규격. 단점: 머리 비율을 모델이 잘 못 따름(50~56%), `Studio.tsx` 한 파일이 큼(890줄), 안 쓰는 CSS 잔존, 실제 휴대폰 터치 미검수.
+4. **버전**: v1.30(운영). 이력은 위 각 절.
+5. **대기 과제**: `docs/IMPROVEMENT_BACKLOG.md`.
+6. **연계·아이디어**: 결과 사진을 AI 이미지 자동화 배경 교체·명함/이력서 프로그램으로 넘기기 등 — `docs/IMPROVEMENTS.md` 3절.
+7. **UI/UX 제안**: 단계 칩 클릭 이동, 결과 무대 배경 밝기 전환(흰/회색/검정), 라이트 테마 토글 — `docs/IMPROVEMENTS.md` 2절.
+
+<!-- DETAILED_PROGRAM_REVIEW_20261019 -->
+## 2026-10-19 Codex — 프로그램별 상세 개선 분석(구현 아님)
+
+[세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
+<!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-22 v1.31 — 서버 보관함 매일 정리 cron + 보관 기간 30일 상한 (Claude Code 윈도우, 이미지 재비교 W7)
+- **보관 기간(최상위 규칙 30일)**: 선택지 `[0(직접 삭제할 때까지), 7, 30, 90]` → **`[7, 30]`**, 새 순수 파일 `src/lib/retention.ts`(`normalizeRetention`·`expiresAtFor` 30일 상한·`effectiveExpiry`·`createdCutoff`, `saved.ts`가 다시 내보냄). 옛 무기한·90일 사진도 「만든 날 + 30일」에 만료(정리 조건 `expires_at < 지금 OR created_at < 30일 전` — `expiredFilter`), 목록에도 실제 만료일 표시. 화면 선택지·브라우저에 저장된 옛 0·90 값은 30일로, 목록 문구 「직접 삭제할 때까지 보관」 → 「30일 안에 자동 삭제」.
+- **매일 정리**: 새 `src/app/api/cron/cleanup/route.ts`(모든 회원의 만료 사진을 저장소·표에서 삭제, 200개씩 최대 10회), `vercel.json` cron `0 18 * * *`(03:00 KST), `CRON_SECRET` Production 등록. 예전엔 그 회원이 목록을 열거나 저장할 때만 지워져 접속하지 않는 회원 사진이 남았음(목록·저장 때 정리도 같은 조건으로 그대로 둠).
+- 검수: tsc 0, 시험 35개(새 `tests/retention.test.mjs` 4개), build, 배포 `portrait-photo-e4p7xow2z` Ready, DB v1.31. 배포 전 운영 조회: 서버 보관 사진 0장(지울 것 없음)·새 `.or()` 조건 오류 없음. 정리 작업 비밀값 없이 401·비밀값으로 `{"ok":true,"rows":0}`. 크롬(시험 회원) v1.31, 서버 보관을 잠깐 켜서 선택지 「7일·30일」만 확인 후 다시 끔.
+
+## 2026-10-22 v1.32 — 서버 보관함 「🔁 형식 바꾸기」 (Claude Code 윈도우, 이미지 재비교 L3)
+- `HistoryList.tsx` 서버 보관 사진의 [저장] 옆에 `https://image-convert-studio.buylife.xyz/convert?src=<서명 주소>` 링크(서명 1시간). 방금 만든 결과(브라우저 안 데이터)는 주소로 넘길 수 없어 서버 보관 사진에만. 받는 쪽 변환 스튜디오 v1.10.
+- 검수: 시험 35개, build, 배포 `portrait-photo-hwbkummkx` Ready, DB v1.32. 받기 흐름은 시험 그림으로 크롬 확인(시험 계정 보관함이 비어 버튼 자체는 화면에서 못 봄).
+
+## 2026-10-22 v1.33 — 서버 보관함 「👗 이 사진으로 코디」·「🍌 바나나로 편집」 (Claude Code 윈도우, 이미지 재비교 L4)
+- `HistoryList.tsx` 서버 보관 사진에 AI 패션스타일(`/studio?src=`)·AI 바나나 캔버스(`/studio?import=`) 링크(서명 1시간). 받는 쪽이 버킷(바나나는 본인 폴더까지)을 검사.
+- 검수: 시험 35개, build, 배포 `portrait-photo-d91agj3kp` Ready, DB v1.33. 받는 두 흐름은 시험 그림으로 크롬 확인(시험 계정 보관함이 비어 버튼 자체는 화면에서 못 봄).
+
+## v1.34 (2026-10-22, Claude Code 윈도우) — 형식 바꾸기 규격 붙이기 배포
+- 「🔁 형식 바꾸기」 링크에 저장 비율이 1:1·4:5·9:16·16:9면 `&preset=`(insta-feed/insta-portrait/story/youtube-thumb) 붙임 — 변환 스튜디오 v1.13이 규격을 자동 선택. 배포 `portrait-photo-kffhyfkfw` Ready, DB v1.34, 시험 35개, 운영 스크립트 포함 확인(시험 회원 서버 보관 사진이 없어 링크 화면 확인은 못 함).
+
+## v1.35 (2026-10-22, Claude Code 윈도우) — F4 「📦 목적별 묶음 저장」 + 공용 post-presets 사본
+- 결과 한 장을 여러 규격(증명사진 규격 21종 + 프로필 3종)으로 한 번에 ZIP 저장, AI 호출 없음. 기본 묶음: 💼 취업·이력서(이력서·인화 고해상도·프로필 정사각) / ✈️ 여권·여행(여권·미국 비자·K-ETA, 크기 참고용) / 📱 SNS 프로필(정사각·4:5·원형), 「직접 고르기」로 최대 12개. 규격은 [규격 저장]과 같은 머리 기준 추천 영역(`recommendSizedCrop`), 프로필은 프로필 세트와 같은 `profileCrop`. 저장 후 용량 초과 파일·규격별 주의 문구를 한 번에 안내. 새 `src/lib/portrait/bundles.ts`, 시험 `tests/bundles.test.mjs`(4개).
+- 「형식 바꾸기」 규격 고르기를 공용 사본 `src/lib/portrait/postPresets.ts`(`presetIdForSize`)로 교체(동작 같음).
+- 배포 `portrait-photo-g9vrilar6` Ready, DB v1.35, 시험 39개. **화면 확인 미완료**: 생성 전 「본인 사진·사용 동의」 확인란(회원 동의 절차)을 에이전트가 대신 체크하지 않아 결과 화면까지 가지 못함 — 주인님이 체크해 주시면(또는 실제 결과가 있을 때) 묶음 저장 ZIP 확인.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 묶음 저장 미리보기 (다음 배포 때 v1.36)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 「묶음 저장」 버튼 위에 들어갈 파일 목록(규격 이름·픽셀 크기·JPG/PNG)과 「들어갈 파일 N장 · ZIP 1개」를 표시. `bundlePreview()`(`src/lib/portrait/bundles.ts`), 화면 `.bundle-preview`. 시험 1개 추가(전체 40개)·tsc·build 통과. 화면 확인은 배포 후(결과 사진이 있어야 묶음 상자가 보임 — v1.35 F4 화면 확인과 함께).
+
+## v1.36 (2026-10-22, Claude Code 윈도우) — 「원본과 비교」 사진 위 끌기 + 묶음 저장 미리보기 배포
+- 「원본과 비교」를 켜면 결과 사진 위를 직접 누르거나 끌어 선을 옮김(pointer capture, 손가락 가능, `.st-stage.cmp-on` 커서·touch-action). 기존 슬라이더 막대는 그대로. 위치 계산은 공용 기준 코드 `compare-slider` 사본 `src/lib/portrait/compare.ts`.
+- 함께 나감: 보류였던 묶음 저장 미리보기(`bundlePreview`).
+- 시험 41개·tsc·build 통과, 배포 Ready, DB v1.36. 크롬: 운영 v1.36, 운영 CSS·스크립트에 끌기·미리보기 코드 포함 확인. **결과 사진이 있어야 비교·묶음 상자가 보여 실제 화면 조작은 미확인** — 사진 사용 동의 체크는 회원 절차라 에이전트가 하지 않음.
+
+## ⏸ 미배포 (2026-10-22, Claude Code 윈도우) — 「원본과 비교」 색 집게 (다음 배포 때 v1.37)
+- 주인님 지시로 코드만 반영하고 배포는 보류. 「원본과 비교」 중 사진 위를 누르거나 끈 자리에 작은 점을 찍고, 아래에 그 자리의 원본·결과 색(HEX, 주변 5×5 평균)과 색 차이(%)를 표시(피부 톤 확인용). 셀카 원본 반전(`selfie`)·결과 좌우 반전(`mirrored`)을 맞춰 읽고, 밝기 보정·배경 정리 중이면 「원래 픽셀 기준」 안내. `src/components/studio/ColorPick.tsx`(`useImagePixels`·`pickColor`·`ColorPickRow`), 좌표는 공용 compare-slider 사본의 `containPoint`·`colorDiffPercent`. CSS `.cmp-dot`·`.cpk*`.
+- 시험 1개 추가(전체 42개)·tsc·build 통과. 화면 확인은 배포 후, 결과 사진이 있어야 함(사진 사용 동의 체크는 회원 절차).
+- (같은 미배포 v1.37에 추가) **밝기 보정 추천**: 색 집게로 집은 자리의 원본·결과 휘도 비율로 「결과가 원본과 같은 밝기가 되는 밝기 값」(−50~50, 지금 노출 값 제외)을 계산해, 현재 밝기와 3 이상 다르면 「밝기 +N 추천 [적용]」 표시 → 누르면 세부 조정의 밝기 슬라이더 값이 바뀜. 결과가 너무 어두우면(휘도 8 미만) 추천하지 않음. `recommendBrightness`(`ColorPick.tsx`), CSS `.cpk-rec`. 시험 1개 추가(전체 43개)·tsc·build 통과.
+
+## ✅ v1.37 배포 (2026-10-22, Claude Code 윈도우)
+- 위 「⏸ 미배포」 v1.37 항목들(원본과 비교 색 집게·밝기 보정 추천)이 이 버전으로 나감. 시험 43개. 크롬: 운영 화면 v1.37 확인(결과 화면 조작은 사진 사용 동의 체크가 회원 몫이라 미검수 — 남은 일).
+- 배포 묶음(2026-10-22, Claude Code 윈도우): 바나나 v1.24 → 스타일 분석기 v1.35 → 감성 글귀 v1.24 → 리버스 프롬프트 v1.12 → 변환 스튜디오 v1.18 → 인물사진 v1.37 → 4컷 v1.30 순차 배포(빌드 7회, 실패 0), DB `programs.version` 갱신, 크롬에서 화면 버전 확인.
+
+## ✅ v1.38 배포 (2026-10-22, Claude Code 윈도우) — 형식 바꾸기에 보낸 곳 붙이기
+- 「내 기록」의 「🔁 형식 바꾸기」 주소 끝에 `&via=portrait-photo` — 변환 스튜디오 v1.20이 「↩ AI 인물사진으로 돌아가기」를 보여 줌. 시험 `tests/convertVia.test.mjs`(전체 44개), tsc·빌드. 크롬: 로그인 확인(이 브라우저에 기록이 없어 버튼 자체는 미표시), 받는 쪽 화면은 변환 스튜디오에서 확인.
+
+## ✅ v1.39 배포 (2026-10-22, Claude Code 윈도우) — 넘김 기록 · 스토리보드로
+- 서버 보관함 사진에 「🎬 스토리보드로」(`data-storyboard-link`, `https://cinematic-storyboard-studio.buylife.xyz/studio?src=<서명 주소>&via=portrait-photo`).
+- 넘김 기록: 「🔁 형식 바꾸기」·「🎬 스토리보드로」를 처음 누르면 `markHandoff(it.id, to)`(`src/lib/linkHandoff.ts`, 버튼마다 한 번) → 새 API `POST /api/link-handoff` `{to, itemId}`(권한 확인, `to`는 `image-convert-studio`·`cinematic-storyboard-studio`만, `itemId`는 UUID만) → 회원 본인 `usage_logs` action `linked_handoff`. DB 칸 추가 없음(보관함 표에 jsonb가 없어 이 방식).
+- 공용 기준 코드 `link-mark` 사본 `src/lib/linkMark.ts` 새로 둠(기준 바나나 — 직접 고치지 않음).
+- 검수: 시험 45개, tsc·빌드. 크롬(시험 계정): 운영 v1.39, `/api/link-handoff` 잘못된 to·itemId → 400. 버튼 자체는 시험 계정 서버 보관함이 비어 미확인(사진을 만들려면 AI 비용).
+
+## ✅ v1.40 배포 (2026-10-22, Claude Code 윈도우) — 보관함 저장 API에 변환 스튜디오 CORS
+- `src/app/api/saved/route.ts`: `OPTIONS` + POST 응답에 `Origin`이 `https://image-convert-studio.buylife.xyz`일 때만 `Access-Control-Allow-Origin`(그 주소)·`Allow-Credentials: true`·`Vary: Origin`. 저장 로직(`savePost`, 권한·형식·한도·30장·보관 기간)은 그대로. GET·DELETE는 CORS 없음.
+- 검수: 시험 46개, tsc·빌드. 크롬(시험 계정): 변환 스튜디오에서 다시 저장 성공, 다른 주소(스토리보드)에서 같은 API POST → 브라우저 차단. v1.39 버튼 실제 확인: 보관 사진 카드에 「형식 바꾸기」(`via=portrait-photo`)·「🎬 스토리보드로」, 스토리보드로 클릭 → `linked_handoff`(to 스토리보드) 기록 1줄, 스토리보드 v1.15 「↩ AI 인물사진으로 돌아가기」. 시험 사진은 삭제(시험 기록 `usage_logs` 2줄은 남음).
+
+## ✅ v1.41 배포 (2026-10-22, Claude Code 윈도우) — 「변환됨 · 형식」 표시
+- `listSaved`가 저장 경로 확장자로 `format`(JPEG·PNG·WEBP, `formatOf`)을 돌려주고, 서버 보관함 카드에서 `model === "image-convert-studio"`면 「🔁 변환됨 · WEBP」(`data-converted-badge`). DB 변경 없음.
+- 배포: 작은 화면 수정이지만 변환 스튜디오·바나나 묶음과 같은 실화면 검수를 위해 함께 배포(예외 ②로 기록, 23:17 새 지침 확인 전 배포 — 이후 작은 수정은 미배포 대기로 모음).
+- 검수: 시험 47개, tsc·빌드. 크롬(시험 계정): 다시 저장한 사진에 「🔁 변환됨 · WEBP」 확인 후 삭제.
+
+## 🟡 미배포 대기 (2026-10-22, Claude Code 윈도우, 버전 그대로 v1.41) — `resave-receiver` 사본 사용
+- `/api/saved` POST가 공용 `resave-receiver` 사본으로 CORS·본문·형식(첫 바이트) 처리. 시험 47개·tsc·로컬 빌드. 상세: `docs/IMPROVEMENTS.md` 맨 위.
+
+## ✅ v1.42 배포 — 2026-10-23 대기분 정리 배포(Claude Code 윈도우, 이미지 연계 세션)
+- 함께 나간 대기: `/api/saved`가 공용 `resave-receiver` 사본(형식은 파일 첫 바이트로 판별), `link-mark` 사본. 크롬(관리자 계정): 변환 스튜디오에서 WebP 다시 저장 성공 → 삭제. 스튜디오 자체 저장은 이번에 화면 시험 안 함(같은 판별 함수, 시험 코드로 고정).

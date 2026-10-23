@@ -1,0 +1,176 @@
+import "server-only";
+
+// Upstage API(회원 본인 키). 공식 문서 확인 2026-10-19:
+// - 답변: POST https://api.upstage.ai/v1/chat/completions (OpenAI 호환), 모델 solar-pro4 / solar-mini4
+// - 임베딩: POST https://api.upstage.ai/v1/embeddings, solar-embedding-2-query / -passage (1024차원, 요청당 최대 100개)
+//   (옛 embedding-query/-passage 별칭은 2026-12-31 종료 예정이라 쓰지 않음)
+// - 문서 읽기: POST https://api.upstage.ai/v1/document-digitization, model=document-parse (동기 100쪽까지)
+import { joinBatchTexts, textFromParseResult } from "./core";
+
+const BASE = "https://api.upstage.ai/v1";
+export const ANSWER_MODEL = "solar-pro4";
+export const ROUTER_MODEL = "solar-mini4";
+export const EMBED_QUERY_MODEL = "solar-embedding-2-query";
+export const EMBED_PASSAGE_MODEL = "solar-embedding-2-passage";
+export const EMBED_DIM = 1024;
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+/** Upstage 오류를 회원이 알아볼 수 있는 한국어 문장으로 바꾼다(키 값은 넣지 않음) */
+async function upstageError(res: Response): Promise<Error> {
+  const body = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+  const msg = body?.error?.message ?? "";
+  if (res.status === 401 || res.status === 403) return new Error("Upstage API 키가 올바르지 않습니다. [API키등록·플랫폼연동]에서 키를 확인해 주세요.");
+  if (res.status === 429) return new Error("Upstage 사용 한도에 걸렸습니다. 잠시 뒤 다시 시도하거나 Upstage 콘솔에서 크레딧을 확인해 주세요.");
+  return new Error(`Upstage 요청이 실패했습니다(${res.status}). ${msg}`.trim());
+}
+
+/** 답변을 한 번에 받는다(라우터 판단 등 짧은 호출용) */
+export async function chatOnce(apiKey: string, model: string, messages: ChatMessage[], maxTokens = 300): Promise<string> {
+  const res = await fetch(`${BASE}/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0 }),
+  });
+  if (!res.ok) throw await upstageError(res);
+  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  return data.choices?.[0]?.message?.content ?? "";
+}
+
+/** 답변을 조금씩 받아 onDelta로 넘긴다(SSE). 끝나면 전체 답변을 돌려준다 */
+export async function chatStream(apiKey: string, messages: ChatMessage[], onDelta: (text: string) => void): Promise<string> {
+  const res = await fetch(`${BASE}/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: ANSWER_MODEL, messages, stream: true, temperature: 0.3 }),
+  });
+  if (!res.ok || !res.body) throw await upstageError(res);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let full = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t.startsWith("data:")) continue;
+      const payload = t.slice(5).trim();
+      if (payload === "[DONE]") continue;
+      try {
+        const j = JSON.parse(payload) as { choices?: { delta?: { content?: string } }[] };
+        const piece = j.choices?.[0]?.delta?.content ?? "";
+        if (piece) {
+          full += piece;
+          onDelta(piece);
+        }
+      } catch {
+        /* 조각이 잘린 줄은 무시 */
+      }
+    }
+  }
+  return full;
+}
+
+/** 여러 문장을 임베딩한다(100개씩 나눠 요청) */
+export async function embed(apiKey: string, texts: string[], kind: "query" | "passage"): Promise<number[][]> {
+  const model = kind === "query" ? EMBED_QUERY_MODEL : EMBED_PASSAGE_MODEL;
+  const out: number[][] = [];
+  for (let i = 0; i < texts.length; i += 100) {
+    const batch = texts.slice(i, i + 100);
+    const res = await fetch(`${BASE}/embeddings`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model, input: batch }),
+    });
+    if (!res.ok) throw await upstageError(res);
+    const data = (await res.json()) as { data?: { index: number; embedding: number[] }[] };
+    const rows = (data.data ?? []).sort((a, b) => a.index - b.index).map((d) => d.embedding);
+    if (rows.length !== batch.length || rows.some((r) => r.length !== EMBED_DIM)) throw new Error("Upstage 임베딩 결과가 예상과 다릅니다. 잠시 뒤 다시 시도해 주세요.");
+    out.push(...rows);
+  }
+  return out;
+}
+
+/** 동기 읽기 한도(100쪽)를 넘어 비동기로 읽어야 하는 문서 */
+export class NeedsAsyncParseError extends Error {
+  constructor() {
+    super("100쪽이 넘는 문서라 오래 걸리는 방식으로 읽습니다.");
+  }
+}
+
+function parseForm(file: Blob, fileName: string): FormData {
+  const form = new FormData();
+  form.append("model", "document-parse");
+  form.append("document", file, fileName);
+  form.append("output_formats", JSON.stringify(["markdown", "text"]));
+  return form;
+}
+
+/** PDF 등 문서를 Upstage Document Parse로 읽어 마크다운(없으면 텍스트)으로 돌려준다. 100쪽 초과(413)는 NeedsAsyncParseError */
+export async function parseDocument(apiKey: string, file: Blob, fileName: string): Promise<string> {
+  const res = await fetch(`${BASE}/document-digitization`, { method: "POST", headers: { Authorization: `Bearer ${apiKey}` }, body: parseForm(file, fileName) });
+  if (res.status === 413 && file.size <= 100 * 1024 * 1024) throw new NeedsAsyncParseError();
+  if (!res.ok) throw await upstageError(res);
+  return textFromParseResult(await res.json());
+}
+
+// ── 비동기 문서 읽기(L3) — 공식 문서 확인 2026-10-19 ─────────────────────
+// POST /v1/document-digitization/async (2,000쪽·500MB) → request_id
+// GET  /v1/document-digitization/requests/{id} → status, total_pages, completed_pages, batches[{status, download_url(15분 유효), start_page}]
+// 대기열 포함 최대 72시간 → 서버가 기다리지 않고 화면이 주기적으로 확인한다. 저장이 끝나면 결과를 DELETE해 Upstage에 남기지 않는다.
+
+/** 비동기 읽기 요청 → request_id */
+export async function submitAsyncParse(apiKey: string, file: Blob, fileName: string): Promise<string> {
+  const res = await fetch(`${BASE}/document-digitization/async`, { method: "POST", headers: { Authorization: `Bearer ${apiKey}` }, body: parseForm(file, fileName) });
+  if (!res.ok) throw await upstageError(res);
+  const data = (await res.json()) as { request_id?: string };
+  if (!data.request_id) throw new Error("Upstage가 요청 번호를 돌려주지 않았습니다. 잠시 뒤 다시 시도해 주세요.");
+  return data.request_id;
+}
+
+export interface AsyncParseStatus {
+  status: "pending" | "completed" | "failed";
+  totalPages: number;
+  completedPages: number;
+  failure?: string;
+  /** completed일 때만: 쪽 순서대로 이은 글 */
+  text?: string;
+}
+
+/** 비동기 읽기 상태 확인. 모든 배치가 끝났으면 결과 글까지 받아 온다 */
+export async function getAsyncParse(apiKey: string, requestId: string): Promise<AsyncParseStatus> {
+  const res = await fetch(`${BASE}/document-digitization/requests/${encodeURIComponent(requestId)}`, { headers: { Authorization: `Bearer ${apiKey}` } });
+  if (!res.ok) throw await upstageError(res);
+  const data = (await res.json()) as {
+    status?: string;
+    failure_message?: string;
+    total_pages?: number;
+    completed_pages?: number;
+    batches?: { status?: string; failure_message?: string; download_url?: string; start_page?: number }[];
+  };
+  const batches = data.batches ?? [];
+  const base = { totalPages: data.total_pages ?? 0, completedPages: data.completed_pages ?? 0 };
+  const failed = data.status === "failed" ? data : batches.find((b) => b.status === "failed");
+  if (failed) return { ...base, status: "failed", failure: failed.failure_message || "Upstage가 문서를 읽지 못했습니다." };
+  if (data.status !== "completed" || !batches.length || batches.some((b) => b.status !== "completed" || !b.download_url)) return { ...base, status: "pending" };
+
+  const parts: { start_page: number; text: string }[] = [];
+  for (const b of batches) {
+    const r = await fetch(b.download_url!);
+    if (!r.ok) throw new Error(`Upstage 결과를 받지 못했습니다(${r.status}). 잠시 뒤 다시 확인해 주세요.`);
+    parts.push({ start_page: b.start_page ?? 0, text: textFromParseResult(await r.json()) });
+  }
+  return { ...base, status: "completed", text: joinBatchTexts(parts) };
+}
+
+/** 저장이 끝난 비동기 결과를 Upstage에서 지운다(실패해도 무시 — Upstage도 30일 뒤 자동 삭제) */
+export async function deleteAsyncParse(apiKey: string, requestId: string): Promise<void> {
+  await fetch(`${BASE}/document-digitization/requests/${encodeURIComponent(requestId)}`, { method: "DELETE", headers: { Authorization: `Bearer ${apiKey}` } }).catch(() => undefined);
+}

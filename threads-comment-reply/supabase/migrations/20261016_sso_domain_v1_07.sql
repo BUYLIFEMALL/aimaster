@@ -1,0 +1,2 @@
+-- v1.07 (2026-10-16): 도메인 통일(SSO) — threads-comment-reply.buylife.xyz, 로그인 쿠키 .buylife.xyz 공유
+update public.programs set version='v1.07', app_url='https://threads-comment-reply.buylife.xyz', updated_at=now() where slug='threads-comment-reply';

@@ -1,0 +1,21 @@
+{
+  "version": "v1.03",
+  "codeCommit": "8d34b366",
+  "deploymentId": "dpl_24P3TriNLZV9gPDcahnegaeUVdMA",
+  "readyState": "READY",
+  "target": "production",
+  "liveUrl": "https://document-translator.buylife.xyz",
+  "deploymentUrl": "https://document-translator-ei17imvfh-buylife.vercel.app",
+  "catalogVersion": "v1.03",
+  "automaticChecks": 10,
+  "httpChecks": 10,
+  "rlsTables": 3,
+  "serverOnlyFunctions": 4,
+  "latestCronStatus": "succeeded",
+  "authenticatedUi": "completed actual Chrome flow on identical v1.03 source",
+  "paidAiCallsThisContinuation": 3,
+  "testedDeploymentId": "dpl_G7Md8LUSXVR5XmNC8EjjsRBTgikh",
+  "deployedCommit": "dec1eccd",
+  "finalHttpVerifiedAt": "2026-10-14T13:11:27Z",
+  "finalHttpChecks": 10
+}

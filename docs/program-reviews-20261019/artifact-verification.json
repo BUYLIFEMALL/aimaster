@@ -1,0 +1,424 @@
+{
+  "scope": "Report artifacts only; not product feature tests",
+  "checks": [
+    {
+      "name": "83 unique programs and complete catalog coverage",
+      "passed": true
+    },
+    {
+      "name": "265 unique detailed items",
+      "passed": true
+    },
+    {
+      "name": "14 categories",
+      "passed": true
+    },
+    {
+      "name": "Every program has all three perspectives",
+      "passed": true
+    },
+    {
+      "name": "Every item has a reason, evidence limits, scope, acceptance and adoption criteria",
+      "passed": true
+    },
+    {
+      "name": "Items are program-specific, no repeated reason/template rows",
+      "passed": true
+    },
+    {
+      "name": "All evidence locations exist at the stated revision",
+      "passed": true
+    },
+    {
+      "name": "All evidence belongs to the reviewed program",
+      "passed": true
+    },
+    {
+      "name": "Frozen source links preserve paths including bracket routes",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-writing-editor",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: cinematic-storyboard-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: landing-architect",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: markdown-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: persona-style-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ui-canvas",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: website-scraper",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: web-crawler-saas",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-prompt-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: prompt-template-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-slide-builder",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-web-ui",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: threads-easy-planner",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: auto-threads-posting",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: threads-comment-reply",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: threads-affiliate-poster",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: threads-content-ops",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: auto-instagram-posting",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-influencer-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: instagram-comment-reply",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: instagram-dm-reply",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-webtoon-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: cardnews-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-auto-blog",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: blog-keyword",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: tistory-auto-blog",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: naver-blog-agent",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: naver-blog-allinone",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: blog-workroom",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: blog-content-maker",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: naver-cafe-poster",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: naver-blog-auto-poster",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: naver-blog-auto-poster-web",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: naver-blog-seo-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: playlist-channel-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: thumbnail-master",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: youtube-channel-consultant",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: youtube-viral-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: shorts-viral-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: auto-shorts-posting",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: youtube-auto-reply",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: seo-thumbnail-pro",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: shorts-onestop-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: crm-google-form",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: kakao-auto-posting",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: trending-product-finder",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: video-to-gif",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: shop-detail-page",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: auto-detail-page",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: detail-page-12p",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: stepmail",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: competitor-analysis",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: longtail-keyword-expander",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: booking-reminder",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-image-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: banana-canvas",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: fashion-style",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: four-cut-comics",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: image-convert-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: portrait-photo",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: style-dna-analyzer",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: emotion-writer",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: allinone-graphic",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: photo-remake-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-mastering-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: music-video-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: suno-music-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: music-automation",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: vinyl-lp-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: yt-playlist-studio",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-audio-analyzer",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: infinite-loop-video",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: music-player",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: reverse-prompt",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: real-estate-sales",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ai-task-planner",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: document-translator",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: file-merge",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: personality-suite",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: personality-code",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: mbti-character",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: tarot-reading",
+      "passed": true
+    },
+    {
+      "name": "Dossier complete: ebook-studio",
+      "passed": true
+    },
+    {
+      "name": "Each program has selected core-source reading evidence",
+      "passed": true
+    },
+    {
+      "name": "Excel 7 sheets and exact program/item counts",
+      "passed": true
+    },
+    {
+      "name": "Excel rows preserve detailed reasons and acceptance",
+      "passed": true
+    },
+    {
+      "name": "Excel has filters and frozen headings",
+      "passed": true
+    },
+    {
+      "name": "Excel no executable formulas",
+      "passed": true
+    },
+    {
+      "name": "HTML exact 83 program cards and 265 item sections",
+      "passed": true
+    },
+    {
+      "name": "HTML no external scripts/fonts or implicit product requests",
+      "passed": true
+    },
+    {
+      "name": "Readability: no long unspaced Korean fragments",
+      "passed": true
+    },
+    {
+      "name": "All 83 folder publication decisions recorded",
+      "passed": true
+    },
+    {
+      "name": "Published folder documents exist and link to central snapshot",
+      "passed": true
+    },
+    {
+      "name": "Deferred folders have explicit reasons and full central dossiers",
+      "passed": true
+    },
+    {
+      "name": "Headed Microsoft Edge report checks passed, no external requests",
+      "passed": true
+    }
+  ],
+  "passed": 104,
+  "programs": 83,
+  "items": 265
+}
