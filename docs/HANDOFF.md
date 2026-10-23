@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 📮 Claude Code(맥미니) → 윈도우 Claude Code께: `video-to-gif` v1.20 「⚡ 내 PC 고속 변환」 윈도우 시험·배포 요청 (주인님 지시, 무료 방향)
+- **무엇**: 크롬 확장 + PC 렌더러(Native Messaging) + 회원 PC ffmpeg로 GIF 변환, 사다리 단계 동시 실행, 없으면 브라우저 변환으로 자동 전환. 맥미니 시험: 1080p 10초 브라우저 157초 → **47.6초**. 상세 `video-to-gif/AGENTS.md` 맨 아래 · 플랜 `video-to-gif/docs/PLAN_20261023_LOCAL_RENDERER.md`. 커밋 `7d741bed3`·`07f192e20`·`1f9ffb313`(v1.20 버전·SQL 준비 완료).
+- **윈도우 할 일(순서)**:
+  1. 윈도우 크롬에 확장 로드(주인님 도움 — `chrome://extensions` → 개발자 모드 → 압축해제된 확장 프로그램 로드 → `video-to-gif\local-renderer\extension`), ID `efgimakonmphcdojhiegemjmpbokpcgk` 확인.
+  2. `video-to-gif\local-renderer\install\install-windows.bat` 더블클릭(또는 `public\downloads\local-renderer\gif-renderer-windows-latest.zip`을 풀어 실행) → ffmpeg 없으면 winget `Gyan.FFmpeg` 설치, `HKCU\Software\Google\Chrome\NativeMessagingHosts\xyz.buylife.gif_renderer` 등록 확인. 경고 창·PowerShell 5.1 한글 표시 확인.
+  3. 크롬 재시작 → 운영 `/dashboard` 콘솔에서 `chrome.runtime.connect('efgimakonmphcdojhiegemjmpbokpcgk')` 후 `{type:'ping'}` → `pong`(host `powershell`, `psVersion` 5.1)·짧은 영상 변환 확인(맥미니 기록의 메시지 순서 그대로).
+  4. 동시 빌드 없는지 확인 → `cd video-to-gif && npx tsc --noEmit && npm run build` → 배포(빌드 1회, **주인님 사전 승인 필요**) → SQL `20261024_local_renderer_v1_20.sql`(버전·확장 버전·내려받기 주소) → `node scripts/check-extension-release.mjs video-to-gif` 가능하면 확인.
+  5. 배포 뒤 윈도우 크롬에서 설정 패널 「⚡ 내 PC 고속 변환 · 사용 중」, 변환 시간, 렌더러 삭제(`uninstall-windows.bat`) 뒤 브라우저 변환으로 자동 전환되는지 확인.
+- **배포 뒤 맥미니가 할 일**: 맥미니 크롬에서 배포된 화면 실검수(맥 렌더러 이미 설치됨).
+- 비용: 개발 0원. 배포 Vercel 빌드 1회(그때 승인). 회원 0원(서명·공증·웹 스토어 없음).
+- 참고: 맥미니에 PowerShell 7.6.6(`~/.local/bin/pwsh`, 공식 배포판·해시 확인)과 맥 렌더러(`~/Library/Application Support/BuylifeGifRenderer`)를 시험용으로 설치해 둠.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.20 시간 가사 장면 맞추기 버그 수정
 - 원인: Lyria 시간 가사는 `ams_generations.lyrics_out`에 있는데 뮤직비디오만 `lyrics`(시간 없음)를 읽어, 실제 곡에서 장면 길이가 늘 「고르게 나눔」이었음. 곡을 고를 때 시간 가사를 프로젝트 `timedLyrics`에 담아 장면 계산에 쓰도록 고침(공용 사본 `amsLyrics.ts`는 그대로).
 - 검수(운영, 메인 크롬, 시험 계정): 배포 `music-video-studio-8hb7wv216` Ready·화면/DB v1.20, 시험 23 통과. Lyria 곡 「빗방울이 머무는 밤」으로 「가사 시각에 맞춤」 표시, 렌더 전환 15.0초 = 후렴 시작(고르게 나누면 15.4초). 시험 뒤 프로젝트 원래대로 되돌림. 커밋 `6f353b885`·문서 커밋 별도.
