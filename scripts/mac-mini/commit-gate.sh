@@ -25,6 +25,13 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 [[ -z "$MSG" ]] && { echo "커밋 메시지(-m)가 필요합니다."; exit 2; }
+# 2026-10-23 저장소 대량 삭제 사고(c2e7c4db2) 재발 방지 — pull·커밋 전에 공용 스테이징이 쪼그라들었는지 먼저 본다(훅 check-index-health.mjs와 같은 기준: HEAD의 절반 미만).
+IDX=$(git ls-files | wc -l | tr -d ' '); HEADN=$(git ls-tree -r --name-only HEAD | wc -l | tr -d ' ')
+if (( HEADN > 200 && IDX * 2 < HEADN )); then
+  echo "⛔ 중단: 공용 스테이징 파일 수 ${IDX}개가 HEAD ${HEADN}개의 절반보다 적습니다 — .git/index가 망가졌을 수 있습니다."
+  echo "   pull·커밋·푸시하지 말고 주인님께 알리세요. index·index.lock을 지우거나 reset으로 고치지 않습니다(루트 CLAUDE.md 최상단)."
+  exit 1
+fi
 git pull -q --ff-only || { echo "pull 실패 — 원격과 갈라졌는지 확인하세요."; exit 1; }
 # 작업 폴더의 공용 문서에도 같은 변경을 적용(최신 HEAD 위에)
 for pair in "${SHARED[@]}"; do f="${pair%%:*}"; sc="${pair#*:}"; python3 "$sc" < "$f" > "$f.gate.tmp" && mv "$f.gate.tmp" "$f" || { echo "작업 폴더 변환 실패: $f"; exit 1; }; done
