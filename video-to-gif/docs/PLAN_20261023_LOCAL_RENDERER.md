@@ -38,6 +38,13 @@ GIF 자동화 웹(video-to-gif.buylife.xyz) ─chrome.runtime.connect(확장 ID)
 ## 비용
 개발·시험 0원(AI 호출 없음). 배포 Vercel 빌드 1~2회. 회원 0원. 서명·공증·웹 스토어 등록 안 함.
 
+## 1단계 시제품 결과 (2026-10-24, 맥미니) — `video-to-gif/local-renderer/`
+- 파일: `extension/`(MV3, 고정 키 → ID `efgimakonmphcdojhiegemjmpbokpcgk`, 비밀 키는 저장소에 넣지 않음), `host/host.pl`(맥 perl)·`host/host.ps1`+`host.bat`(윈도우 PowerShell 5.1, ASCII 전용), `install/install-mac.sh`·`uninstall-mac.sh`, `install/install-windows.bat`+`.ps1`(BOM UTF-8, ffmpeg 없으면 `winget install Gyan.FFmpeg --scope user`)·`uninstall-windows.bat`.
+- 메시지: `ping/pong`, `begin`·`chunk`(512KB, 조각마다 `chunk-ok`)·`end`, `encode{job,req,width,fps,colors,start,duration}` → `progress`·`result`·`result-chunk`(600KB)·`result-end`, `release`. 확장은 `ext-hello`만 직접 답하고 나머지는 중계.
+- 크롬 흉내 시험 도구(저장소 밖): perl 3초 6.8초·10초 20.3초, PowerShell 7(맥) 같은 결과, 명령 끼워 넣기 값 거부. **발견·수정**: 맥 기본 `JSON::PP`가 700KB 조각 해석이 느려 20MB 전송 16.5초 → 조각은 정규식으로 바로 꺼내 **0.5초**(PowerShell도 같은 방식).
+- **실제 크롬(맥미니, 운영 페이지 → 확장 v1.00 → host.pl → ffmpeg 8.1)**: 같은 1080p 10초 시험 영상(14,933,867바이트), 앱과 같은 사다리 — 전송 1.1초, 시도 1(560px) 41.8초 → 시도 2(336px·192색) 17.8초, **전체 60.7초**(지금 웹 157초, **약 2.6배**), 결과 336×189·7.27MiB·400장·장면 간격 2/3(=40fps). 앞서 「약 5배」는 다른 시험 영상 기준이었고, 이 영상에서는 2.6배.
+- 다음 개선 후보: 렌더러는 PC 코어를 여럿 쓸 수 있으므로 사다리 단계를 **여러 개 동시에** 돌려 맞는 것 중 가장 큰 것을 고르면 전체 ≈ 첫 시도 시간(약 40초)까지 줄일 수 있음(2단계에서 검토).
+
 ## 열어 둔 점
 - 쇼츠·뮤직비디오 등 다른 영상 프로그램도 같은 렌더러를 쓸 수 있게, 명령 종류를 「gif」로 이름 붙여 나중에 늘릴 수 있게 설계.
 - 맥 정적 ffmpeg 빌드의 출처·라이선스는 1단계에서 확정(LGPL판 우선).
