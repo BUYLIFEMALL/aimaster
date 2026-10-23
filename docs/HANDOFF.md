@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 배포판 ALLA AI v1.05 최종본 + 공용 마법사 `resultSteps` · 세션 `claude-win-20261023-tep-kit`
+- `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.05.zip`: 설치 SQL을 Lab DB에서 임시 스키마로 실행·되돌리기 검증(오류 0, 남은 것 0), 풀어서 독립 모드 build·start(탭 제목 ALLA AI) 확인.
+- 공용 마법사(`scripts/kit-template/setup.ps1`·`setup.sh`)에 `kit.json` `resultSteps`(선택) — 설치결과.txt 다음 단계를 프로그램별로. 기존 키트는 문구 그대로(항목 없음). 문법·BOM 검사 통과.
+- 운영 영향 없음(배포 없음). 남은 일: 실제 수강생 계정 마법사 리허설.
+
 ## 2026-10-23 Claude Code(윈도우) — AI 음악 스튜디오 제안 가. 미니 플레이어 반복·무작위 (세션 claude-win-20261023-bgm, **미배포**)
 - 주인님 지시로 제안 가~라를 백로그(`ai-music-studio/docs/IMPROVEMENT_BACKLOG.md`)에 올려 순차 진행, 배포는 모아서. 가 완료: 반복(끔→목록→한 곡)·무작위 버튼, 순서 규칙 `lib/playerOrder.ts`(시험 7개, 전체 40개 통과), tsc·build 통과. 커밋 `36abe772a`. 같은 날 AI 음악 스튜디오 소리 재생은 주인님이 직접 확인(정상), Mureka 켜기는 주인님 지시로 보류.
 - 다음 첫 단계: 제안 나(실제 소리 분석 파형). 배포는 나~라까지 모아 빌드 1회(사전 승인).
