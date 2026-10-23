@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `music-video-studio` | 장면 영상 일괄 생성 전체 진행률·남은 시간 칸(완료·진행 중·대기·실패, 막대, 지난 시간, 끝난 장면 평균으로 남은 시간) — 화면만 | `0a7f66d7c` | 2026-10-24 · Claude Code(윈도우 · 세션 `claude-win-20261024-music`) | `music-video-studio/AGENTS.md` 맨 위 「미배포 대기」 | 주인님 결정: 백로그 3번(가로 타임라인·끌어서 순서 바꾸기)과 묶어 v1.23으로 1회 배포, 그때 영상 2개 일괄 생성으로 진행 칸 확인 |
 | `ai-video-studio` (운영 v1.11) | 다듬기 프롬프트에 「설명에 사람이 없으면 인물을 넣지 않는다」 추가(시험 1개 보강) | `ffaae22b2` | 2026-10-24 · Claude Code(윈도우, 영상 담당 `claude-win-video`) | `ai-video-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 운영에서 사람 없는 설명(예: 레코드판 홈 스튜디오)으로 다듬기 1회 → 3안 모두 인물 없음 확인 |
 | `video-to-gif` (운영 v1.20) | LR-W-01 확장 버전 맞춤 — `scripts/build-local-renderer.mjs`가 `lib/version.ts`를 읽어 확장 `manifest.json` 버전을 자동으로 맞춤, 지금 v1.20으로 ZIP 다시 만듦 | 이 줄과 같은 `video-to-gif` 커밋 | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `video-to-gif/docs/IMPROVEMENTS.md` LR-W-01 | **버전을 올린 뒤 `node scripts/build-local-renderer.mjs` 다시 실행**(확장도 새 버전으로) → 배포 → DB `extension_version`을 같은 버전으로 → `check-extension-release.mjs video-to-gif` OK |
 | `ai-image-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
