@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — 쇼츠 Lyria·ElevenLabs 배경음악 곡 길이 표시(미배포 대기)
+- Lyria는 길이를 주지 않아 트랙에 「OO초」가 없던 문제: `shots/src/lib/audioDuration.ts`(MP3 첫 프레임 비트레이트·Xing 프레임 수, WAV fmt/data 청크로 계산, 못 읽으면 null)를 `generateSyncBackgroundMusic`에 연결(ElevenLabs도 요청 길이 대신 실제 길이). 시험 9개(새 5개)·tsc·build 통과, 커밋 `35bcd8a03`. **배포: 미배포 대기(작은 수정)**. 실제 Lyria 파일로는 다음 배포 때 확인.
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 묵은 스테이징 감지 + 점검표 보강 (세션 claude-win-lessons)
 - 한 일: `scripts/index-watch.mjs` — 「작업 파일=HEAD인데 스테이징만 다른」 묵은 항목을 해시 비교로 감지하고 정리 명령(`git reset -q HEAD -- <파일>`)을 세션 시작 점검에 표시, 기록마다 `lock=Ns`(잠금 나이)·5분 넘으면 ⚠ (`2b0ff763f`·`c73c6f9a2`). 실제 묵은 항목 14개 정리(스테이징 10,641 = HEAD, 차이 0).
 - `docs/ERROR_LESSONS.md` A 점검표 2번 아래 2줄(역슬래시 경로는 Edit 도구 · `[🚨 저장소 안전]` 묶음 먼저 확인), 15:38 index.lock 사고 항목에 윈도우 보완 1줄.
