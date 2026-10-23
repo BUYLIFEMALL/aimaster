@@ -18,7 +18,7 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `music-video-studio` (운영 v1.18) | 공용 `video-edit-timeline`·`video-edit-composition` 사본 동기화(장면 늘리기 `hold`·겹쳐 바꾸기 — 뮤직비디오는 쓰지 않아 동작 불변) | `179b58ccc` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.07 | 버전 +0.01 |
-| `ai-music-studio` (운영 v1.11) | 제안 가. 미니 플레이어 반복(끔→목록→한 곡)·무작위 재생 · 제안 나. 실제 소리 파형 막대(재생한 곡만) | `36abe772a` · `c15faae8e` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-bgm` | `ai-music-studio/AGENTS.md` 맨 아래 · 플랜 `docs/PLAN_20261023_PLAYER_REPEAT_SHUFFLE.md` | 제안 나~라와 모아 빌드 1회(사전 승인) → v1.12, 크롬에서 버튼 동작 + 주인님 소리 확인 |
+| `ai-music-studio` (운영 v1.11) | 제안 가. 미니 플레이어 반복(끔→목록→한 곡)·무작위 재생 · 제안 나. 실제 소리 파형 막대(재생한 곡만) · 제안 다. 「이 설정으로 다시 만들기」 | `36abe772a` · `c15faae8e` · `abb7cb4cf` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-bgm` | `ai-music-studio/AGENTS.md` 맨 아래 · 플랜 `docs/PLAN_20261023_PLAYER_REPEAT_SHUFFLE.md` | 제안 나~라와 모아 빌드 1회(사전 승인) → v1.12, 크롬에서 버튼 동작 + 주인님 소리 확인 |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
