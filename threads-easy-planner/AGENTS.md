@@ -388,3 +388,8 @@
 - 운영 DB의 `tep_saved_plans`(보관함)·버킷 `tep-images`는 그대로(보관함 DB 저장은 운영에서도 계속 사용).
 - 배포 v1.49 Ready(빌드 1회), DB 버전 v1.49. ALLA AI 이름 코드(미배포 대기분)도 함께 나감 — 운영 이름은 그대로. 크롬 확인: 버전 v1.49, 이미지 칸·버튼 없음, 이름 「Threads AI 기획 자동화」.
 - 배포판 `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.04.zip`(동작은 v1.03과 같음, 원본 코드 동기화).
+
+## 2026-10-23 배포판 ALLA AI v1.05(최종본) — Claude Code 윈도우 · 세션 `claude-win-20261023-tep-kit`
+- 주인님 지시 「다른 계정으로 옮겨서 바로 설치할 수 있도록 최종버전으로」. `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.05.zip`(65개 파일).
+- 검증: ① `KIT/schema.sql` 전체를 Lab DB(ref rjjtjakljjxsgjelqgek)에서 임시 스키마 `kit_test`로 바꿔 `begin … rollback` 실행 → 오류 0, 남은 것 0 ② 공용 마법사 `설치결과.txt` 「다음 단계」가 플랫폼 앱·cron-job.org를 늘 적던 문제 → `kit.json` `resultSteps`(선택) 추가, 이 키트는 「키 저장 → 글 생성」 2단계 ③ 압축을 풀어 독립 모드 `npm ci`+build+start → 탭 제목 「ALLA AI」, `/`→`/login`.
+- 남은 일: 실제 새 Supabase·Vercel 계정으로 마법사 8단계 리허설(주인님 수강생 역할).
