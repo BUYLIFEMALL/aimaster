@@ -99,3 +99,10 @@
 - 정정: 2026-10-22 순서 확인 기록의 「되돌리기 버튼 없음」은 틀림 — 상품 화면에 「↺ 기본 순서로」가 있음.
 - 확인된 좋은 점: 상품 화면 비용 안내, 설정 화면(키 가림·연동 매뉴얼 팝업), 문구 고치기 창(배지 안내 실화면 확인), 500px 가로 넘침 없음, 규격 선택에 따라 저장 버튼 이름이 바뀜.
 - 처리(2026-10-23): S-23-01·02·03·06·07 → ✅ v1.29 배포·맥미니 크롬 실검수(실패 시 상태는 코드·함수 시험만) — 플랜 [`PLAN_20261023_MEMBER_FIXES.md`](PLAN_20261023_MEMBER_FIXES.md). 남은 제안: S-23-04·05·08·09.
+
+## 2026-10-24 미배포 대기 — 30일 정리 회원별 기록 (Claude Code 맥미니 · `claude-mac-20261023-ecommerce`, 커밋 `34094c954`)
+- 발견: 30일 자동 정리(`app/api/cron/cleanup-generated/route.ts`)가 지운 개수를 로그에만 남기고 관리자 「30일 자동 정리」 표의 원본(`usage_logs` `cleanup_expired`)을 남기지 않았음(상품소싱 등 다른 프로그램은 기록함).
+- 수정: 공용 기준 코드 `cleanup-usage-log` 사본 `lib/cleanupUsageLog.ts` 추가(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, **직접 고치지 말 것** — 기준 수정 후 `node scripts/check-shared-modules.mjs --sync`). 만료 상품은 회원별 `products` 1·`images` 지운 파일 수, 상품 없이 남은 파일은 경로 첫 폴더(회원 id)로 `images`. 응답에 `membersLogged`. 기록이 실패해도 정리는 계속.
+- 검수(맥미니): tsc 0, eslint 0, 공용 사본 점검 일치. 유예(2026-11-21 KST)까지는 정리가 건너뛰므로 운영 기록은 그 뒤 첫 실행(KST 04:10)에서 확인.
+- 배포: 미배포 대기(작은 소스 수정) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 v1.31, 이 항목과 `docs/PENDING_DEPLOYS.md` 줄을 정리.
+
