@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 프로그램 비교표 카드 11개 내용 갱신 · 모바일 검수 6번(고정 막대)
+- **비교표 카드 갱신**(10단계 이상 뒤처진 카드 14개 중 11개): 각 폴더 `AGENTS.md` 버전 기록을 기준으로 기능·장점·단점·사용 순서·최근 추가·버전을 실제 배포 내용으로 갱신 — `booking-reminder` v1.28 · `auto-threads-posting` v1.32 · `threads-comment-reply` v1.27 · `playlist-channel-studio` v1.27 · `youtube-auto-reply` v1.30 · `emotion-writer` v1.26 · `trending-product-finder` v1.23 · `video-to-gif` v1.18 · `auto-detail-page` v1.21(15p 이동 안내 기준) · `auto-instagram-posting` v1.68 · `instagram-comment-reply` v1.36. 미구현·미배포는 장점에 넣지 않음. 남은 3개(`naver-blog-seo-studio`·`tistory-auto-blog` 블로그 병합 세션, `shop-detail-page` 맥미니 세션)는 각 담당 몫.
+- 발견(참고): `emotion-writer/AGENTS.md` 3절의 「Unsplash·4:5」는 실제 코드(Pixabay·Pexels, 9:16·1:1·3:4)와 다름 — 카드는 코드 기준. `video-to-gif` 사이드바 옛 문구 「2-Pass」 남음(그 폴더 v1.18 기록).
+- **`docs/SIDEBAR_LAYOUT_STANDARD.md` 모바일 검수 6번**: 고정 막대(sticky)는 해당 구역까지 스크롤한 뒤 잰다(music v1.45 오판 사례).
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 카테고리 템플릿 문서 주소를 DB 기준으로 재생성 · 세션 시작 점검에 주소 요약 한 줄 (세션 `claude-win-20261023-ctm-url`·`claude-win-20261023-url-summary`)
 - `scripts/generate_category_template_map.cjs`가 운영 DB `programs.app_url`을 먼저 쓰도록 고치고 `docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md` 재생성 — 연결 안 되던 주소 7개(INSTA·Threads 포스팅·시네마틱·LP·플레이리스트·Shots·GIF)를 실제 주소로, 그 밖의 내용 변경 없음(생성 전 비교로 확인). `fcca2d1b1`.
 - `deploy.mjs --version-only --all`에 「문서 속 프로그램 주소」 한 줄(`check-app-urls.mjs --json`, 동시 접속으로 22초→2초) `d6136e3fd`. 현재 연결 안 되는 주소 14개(예: `aimaster.buylife.xyz` 21곳, `tarot.buylife.xyz` 4곳, `docs/DESIGN_TEMPLATE_CATALOG.md`의 옛 이름 주소들) — 각 문서 담당이 정리.
