@@ -5,7 +5,8 @@
 $ErrorActionPreference = 'Stop'
 $HostName = 'xyz.buylife.gif_renderer'
 $ExtId = 'efgimakonmphcdojhiegemjmpbokpcgk'
-$Src = Split-Path -Parent $PSScriptRoot          # ZIP 을 푼 폴더(local-renderer)
+# 배포 ZIP 은 이 스크립트 옆에 host\ 가 있고, 저장소에서는 한 단계 위(local-renderer\host)에 있다.
+$Src = if (Test-Path (Join-Path $PSScriptRoot 'host\host.ps1')) { $PSScriptRoot } else { Split-Path -Parent $PSScriptRoot }
 $Dest = Join-Path $env:LOCALAPPDATA 'BuylifeGifRenderer'
 
 Write-Host '▶ GIF 자동화 내 PC 고속 변환 — 설치를 시작합니다.'
