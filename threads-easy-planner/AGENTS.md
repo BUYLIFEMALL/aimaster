@@ -358,3 +358,11 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-23 배포 키트(수강생 이식용) — Claude Code 윈도우 · 세션 `claude-win-20261023-tep-kit`
+- **무엇**: 주인님 지시 「수강생에게 바로 이식해서 적용할 수 있도록 배포버전으로 준비, 파일·DB·프롬프트를 하나의 압축으로」. `docs/DISTRIBUTION_KIT_GUIDE.md` 표준(코드 하나 + 독립 모드 스위치 + `KIT/` + 패키지 설치마법사)대로 만들었다.
+- **독립 모드 스위치**(`NEXT_PUBLIC_STANDALONE_MODE=true`일 때만, 운영 동작은 그대로): `src/lib/deployment.ts`(신규) · `access.ts`(로그인한 본인 바로 사용) · `proxy.ts`(수강생 `*.vercel.app` 주소를 운영 주소로 옮기지 않음 — **이것을 빼면 수강생 사이트 전체가 buylife로 튕김**) · 로그인 화면 자체 회원가입 폼 + `src/app/auth/confirm/route.ts`(확인 메일 링크) · 로그아웃 `/login` · 좌측 「다른 프로그램 보기」·로그인 하단 AIMaster 홈·설정 안내 문구·탭 제목 브랜드.
+- **KIT/**: `kit.json`(checkTable `tep_saved_plans`, authRedirectPath `/auth/confirm`, 콜백 없음·예약 없음) · `schema.sql`(profiles+가입 트리거, 권한 호환 빈 표, `user_api_keys` openai/gemini/anthropic, `tep_saved_plans`) · `env.example` · `README.md`(표준 목차, 4장 플랫폼 앱·6장 예약은 「해당 없음」) · `PLATFORMS.md`(AI 키 3종) · `PROMPTS.md`(프롬프트 정리 — `python scripts/build-kit-prompts.py threads-easy-planner`로 코드에서 다시 뽑음, 포장 제외).
+- **배포판**: `D:\PDS\AIMater_KIT\Threads_AI_Planner_Kit_v1.01.zip`(58개 파일, 프로그램 v1.47) — 비밀값 검사·DB 대조 통과. 압축을 짧은 경로에 풀어 `npm ci` + 독립 모드 `npm run build` 통과, `next start`로 `/`→`/login`, `/auth/confirm`→`/login?confirmed=1`, `*.vercel.app` 머리글에서 이동 없음, 탭 제목 「Threads AI 기획기 | 홍길동 마케팅」, 로그인 HTML에 AIMaster·buylife 0건, 크롬 실제 창에서 회원가입 폼 확인.
+- **못 한 것**: 실제 수강생 계정(새 Supabase·Vercel)으로 마법사 설치 리허설(지침 §6, 주인님 수강생 역할 필요), 실제 AI 글 생성 1회(비용·키 필요). 클라이언트 번들에 숨긴 링크 문자열(`buylife.xyz/programs`)이 코드로는 남아 있음(화면에는 안 나옴).
+- **운영 배포**: 미배포 대기(독립 모드 전용 변경 — 운영 화면 변화 없음, 버전 올리지 않음, 다음 배포 때 함께). 운영 빌드 로컬 통과.

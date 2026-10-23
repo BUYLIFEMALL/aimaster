@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveApiKeyAction, deleteApiKeyAction } from "@/lib/actions/settings";
 import type { AIProvider } from "@/lib/apiKeys";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -53,7 +54,7 @@ export default async function SettingsPage() {
       </div>
 
       <div className="rounded-2xl bg-amber-50/70 border border-amber-200/80 p-4 text-xs text-amber-800 leading-relaxed">
-        💡 <strong>안내:</strong> AIMaster는 &apos;엔진은 우리가 만들고, 연료(API키)는 회원 본인 것을 쓴다&apos;는 원칙으로 운영됩니다.
+        💡 <strong>안내:</strong> {IS_STANDALONE ? "이 프로그램은" : "AIMaster는"} &apos;엔진은 우리가 만들고, 연료(API키)는 회원 본인 것을 쓴다&apos;는 원칙으로 운영됩니다.
         회원님의 API 키는 암호화되어 안전하게 보관되며, 오직 회원님의 글 생성에만 사용됩니다.
       </div>
 

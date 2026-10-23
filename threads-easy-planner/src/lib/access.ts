@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const THIS_PROGRAM_SLUG = "threads-easy-planner";
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL || "https://www.buylife.xyz";
@@ -28,6 +29,8 @@ const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[01
 
 export async function requireProgramAccess() {
   const user = await requireUser();
+  // 독립 운영(수강생 배포판): 등급·구독·핸드폰 판정 없이 로그인한 본인은 바로 사용
+  if (IS_STANDALONE) return user;
   const adminClient = createAdminClient() as unknown as SupabaseLike;
 
   // 1. 계정 정지 여부 및 관리자, 회원 등급 조회

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { authSchema } from "@/lib/validation";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 export interface AuthActionState {
   error?: string;
@@ -42,5 +43,5 @@ export async function signInAction(
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("https://www.buylife.xyz/login");
+  redirect(IS_STANDALONE ? "/login" : "https://www.buylife.xyz/login");
 }

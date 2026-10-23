@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 const MENU_ITEMS = [
   { href: "/", icon: "✏️", label: "스레드 기획기", desc: "주제 추천 및 원클릭 글 생성" },
@@ -36,12 +37,14 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               초간편판
             </span>
           </div>
-          <a
-            href="https://www.buylife.xyz/programs"
-            className="mt-2 block px-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
-          >
-            ← 다른 프로그램 보기
-          </a>
+          {!IS_STANDALONE && (
+            <a
+              href="https://www.buylife.xyz/programs"
+              className="mt-2 block px-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+            >
+              ← 다른 프로그램 보기
+            </a>
+          )}
         </div>
 
         {/* 내비게이션 메뉴 */}
