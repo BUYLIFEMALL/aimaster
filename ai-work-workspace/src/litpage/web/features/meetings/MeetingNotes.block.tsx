@@ -28,6 +28,7 @@ import { noSttReason, useSttProvider } from './capabilities.ts';
 import { autoConsentPref, consentEnforced, consentPlays, copyConsent, playConsent } from './consent.ts';
 import { isRecordingHere, meetingState, startMeeting, pauseMeeting, stopMeeting, useLiveState, type MeetingStateValue } from './session.ts';
 import { speechSupported } from './speech.ts';
+import { AI_STAGE_OPEN } from '../ai/aiApi.ts';
 import { meetingsEnabled } from './entry.ts';
 import { hideSlashItemWhen, overrideSlashItem } from '../editor/blocks/registry.ts';
 import { place, type SlashContext } from '../editor/slashItems.ts';
@@ -255,6 +256,9 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
     controls = <span className="nc-mtg-start busy" aria-busy="true"><span className="nc-mtg-spinner" />{t('lp.meetings.summarizing', 'Summarizing')}</span>;
   } else if (someoneElse) {
     controls = null;
+  } else if (!AI_STAGE_OPEN) {
+    // 이식판 1단계: 받아쓰기·요약은 회원 본인 키 연결(2단계)에서 연다 — 이미 만든 블록에도 시작 버튼 대신 안내만 보인다
+    controls = <span className="nc-mtg-start secondary" aria-disabled="true">{t('aww.meetings.next_stage', '다음 단계에서 열립니다')}</span>;
   } else if (recordingHere || paused || busy) {
     controls = (
       <span className={`nc-mtg-rec ${paused ? 'paused' : ''}`} data-testid="meeting-recording">
@@ -310,7 +314,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
       if (noteIds.length) return <BlockList parentId={notes!.id} ids={notes!.content} depth={depth + 1} readOnly={!canEdit} />;
       return (
         <div className={`nc-mtg-empty ${canEdit && notes ? 'clickable' : ''}`} onMouseDown={(e) => { if (!canEdit || !notes) return; e.preventDefault(); addFirstBlock(notes.id); }}>
-          {startedBefore ? t('lp.meetings.litpage_ai_turns_your_notes_and', 'AIMaster turns your notes and the transcript into a summary') : t('lp.meetings.here_s_the_flow_1_press', 'Here’s the flow:\n1. Press “Start transcribing” to begin.\n2. Jot notes here whenever you like, and AI will use them for a better summary.\n3. Once you’re finished, press “Stop”. AI then writes up a summary and action items.')}
+          {!AI_STAGE_OPEN ? t('aww.meetings.notes_only', '지금은 이 칸에 회의 메모를 직접 적어 두세요.\nAI 받아쓰기와 요약은 다음 단계에서 열립니다.') : startedBefore ? t('lp.meetings.litpage_ai_turns_your_notes_and', 'AIMaster turns your notes and the transcript into a summary') : t('lp.meetings.here_s_the_flow_1_press', 'Here’s the flow:\n1. Press “Start transcribing” to begin.\n2. Jot notes here whenever you like, and AI will use them for a better summary.\n3. Once you’re finished, press “Stop”. AI then writes up a summary and action items.')}
         </div>
       );
     }
@@ -390,7 +394,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
           <span className="grow" />
           {canEdit && enabled && <span role="button" className="nc-mtg-iconbtn" aria-label={t('lp.meetings.play_a_spoken_consent_notice', 'Play a spoken consent notice')} data-tooltip={t('lp.meetings.play_a_spoken_consent_notice', 'Play a spoken consent notice')} onClick={() => void playConsent()}><Icon name="volumeOn" size={16} /></span>}
           {canEdit && enabled && <span role="button" className="nc-mtg-iconbtn" aria-label={t('lp.meetings.copy_the_consent_message', 'Copy the consent message')} data-tooltip={t('lp.meetings.copy_the_consent_message', 'Copy the consent message')} onClick={() => void copyConsent(storeLocally)}><Icon name="copy" size={16} /></span>}
-          {canEdit && enabled && !startedBefore && !recordingHere && (
+          {AI_STAGE_OPEN && canEdit && enabled && !startedBefore && !recordingHere && (
             <span
               role="button"
               className={`nc-mtg-iconbtn ${stt === null ? 'disabled' : ''}`}
