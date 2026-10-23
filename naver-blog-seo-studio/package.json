@@ -23,7 +23,8 @@
     "test:model-record": "node --test tests/model-record.test.mjs",
     "test:draft-review": "node --test tests/draft-review.test.mjs",
     "test:style-keep": "node --test tests/style-keep.test.mjs",
-    "test:length-plan": "node --test tests/length-plan.test.mjs"
+    "test:length-plan": "node --test tests/length-plan.test.mjs",
+    "test:image-options": "node --test tests/image-options.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

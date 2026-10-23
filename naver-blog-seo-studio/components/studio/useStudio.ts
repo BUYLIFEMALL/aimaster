@@ -2,6 +2,8 @@
 
 // StudioPage의 상태·처리 함수를 그대로 옮긴 훅 (2026-10-17 파일 나누기, 로직 변경 없음)
 import { useEffect, useState, useRef } from "react";
+import type { ImageRatio, ImageStyle } from "@/lib/imageOptions";
+import type { ImageRefInput } from "./ImageOptionsPanel";
 import type { DraftLength } from "@/lib/lengthPlan";
 import { useCategories } from "@/components/categories/useCategories";
 import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
@@ -39,6 +41,11 @@ export function useStudio() {
   const [generateImageWithDraft, setGenerateImageWithDraft] = useState(true);
   const [generateContentImagesWithDraft, setGenerateContentImagesWithDraft] = useState(true);
   const [imageModel, setImageModel] = useState<GeminiImageModel>(DEFAULT_GEMINI_IMAGE_MODEL);
+  // 병합 B-4: 이미지 비율·표현 방식·참고 사진(참고 사진은 브라우저에만 두고 요청에만 실음)
+  const [imageRatio, setImageRatio] = useState<ImageRatio>("16:9");
+  const [imageStyle, setImageStyle] = useState<ImageStyle>("default");
+  const [imageRefs, setImageRefs] = useState<ImageRefInput[]>([]);
+  const imageOptionBody = () => ({ aspectRatio: imageRatio, style: imageStyle, ...(imageRefs.length ? { refs: imageRefs.map(({ mimeType, data }) => ({ mimeType, data })) } : {}) });
   const [contentProvider, setContentProvider] = useState<ContentProvider>("openai");
   const [contentModel, setContentModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
   // v1.96: 고른 AI 회사·모델을 이 브라우저에 기억. 불러오기가 끝나기 전에는 저장하지 않아 기본값이 덮어쓰지 않게 한다.
@@ -552,7 +559,7 @@ export function useStudio() {
     setImagePending(true);
     setMessage("나노바나나가 블로그 대표 이미지를 생성하고 있습니다.");
     try {
-      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, topic: draft.topic || topic, title: draft.title, keywords: draft.keywords.join(", ") || keywords, model: imageModel }) });
+      const response = await fetch("/api/images/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId: draft.id, topic: draft.topic || topic, title: draft.title, keywords: draft.keywords.join(", ") || keywords, model: imageModel, ...imageOptionBody() }) });
       const result = await response.json() as { image?: { dataUrl: string; model: string; path?: string; mimeType?: string }; error?: string };
       if (!response.ok || !result.image) throw new Error(result.error || "이미지 생성에 실패했습니다.");
       const image = result.image;
@@ -573,7 +580,7 @@ export function useStudio() {
 
   // BLC-10 (2026-10-22): 본문 이미지를 노드 단위로 — 요청 1번에 이미지 1장, 서버가 그 노드만 저장(다른 이미지·위치 그대로).
   async function makeContentImage(draftId: string, slot: ContentImageSlot, request?: string) {
-    const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId, slot, model: imageModel, ...(request !== undefined ? { request } : {}) }) });
+    const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId, slot, model: imageModel, ...imageOptionBody(), ...(request !== undefined ? { request } : {}) }) });
     const result = await response.json() as { image?: ContentImage; error?: string };
     if (!response.ok || !result.image) throw new Error(result.error || "본문 이미지를 만들지 못했습니다.");
     setContentImages((items) => upsertNode(items, result.image!));
@@ -841,6 +848,12 @@ export function useStudio() {
     setGenerateContentImagesWithDraft,
     imageModel,
     setImageModel,
+    imageRatio,
+    setImageRatio,
+    imageStyle,
+    setImageStyle,
+    imageRefs,
+    setImageRefs,
     contentProvider,
     setContentProvider,
     contentModel,

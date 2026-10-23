@@ -2,6 +2,7 @@
 
 // StudioPage에서 옮긴 「title」 화면 (2026-10-17 파일 나누기, 화면·동작 변경 없음)
 import { DRAFT_LENGTHS, LENGTH_PLANS, type DraftLength } from "@/lib/lengthPlan";
+import { ImageOptionsPanel } from "./ImageOptionsPanel";
 import { SEO_PERSONAS } from "@/lib/ai/personas";
 import { KeywordHandoffCard } from "./KeywordHandoffCard";
 import { GEMINI_IMAGE_MODELS, type GeminiImageModel } from "@/lib/ai/geminiModels";
@@ -12,7 +13,7 @@ import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
 
 export function TitleView({ s }: { s: Studio }) {
-  const { draftLength, setDraftLength, strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, openAIFeatureModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq } = s;
+  const { imageRatio, setImageRatio, imageStyle, setImageStyle, imageRefs, setImageRefs, draftLength, setDraftLength, strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, openAIFeatureModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq } = s;
   return (
     <section className="title-recommendation" id="title">
           <KeywordHandoffCard s={s} />
@@ -100,6 +101,7 @@ export function TitleView({ s }: { s: Studio }) {
     <small>본문 이미지 1장마다 본인 Gemini 키로 과금됩니다.</small>
     <small>본문의 서로 다른 핵심 문단에 맞춰 이미지를 생성합니다.</small>
   </div>
+  <ImageOptionsPanel ratio={imageRatio} setRatio={setImageRatio} style={imageStyle} setStyle={setImageStyle} refs={imageRefs} setRefs={setImageRefs} disabled={pending || imagePending} />
   <button type="button" className="primary" onClick={() => void createDraftFromSelectedTitle()} disabled={!selectedTitle || pending || imagePending || (personaId === "custom" && !customPersona.trim())}>{pending ? "AI 블로그(원문) 생성 중..." : imagePending ? "대표 이미지 생성 중..." : "선택한 제목과 전략으로 AI 블로그(원문) 생성하기"}</button>
 </section></>}
         {false && <section className="legacy-content-model-selection card" aria-label="본문 생성 모델 선택">
