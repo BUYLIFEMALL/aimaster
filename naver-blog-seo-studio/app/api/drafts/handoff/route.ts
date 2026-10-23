@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { reviewBlockMessage } from "@/lib/draftReview";
+import { draftReport } from "@/lib/draftWriteGuard";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -12,6 +14,10 @@ export async function POST(request: Request) {
   const draftId = input?.draftId?.trim();
   if (!draftId) return NextResponse.json({ error: "전송할 초안을 선택해주세요." }, { status: 400 });
   const supabase = await createClient();
+  // 병합 B-1: 현재 글을 AI 검수했고 필수 지적이 남아 있으면 넘기지 않는다(검수하지 않은 글은 그대로 넘김).
+  const { data: current } = await supabase.from("naver_blog_seo_drafts").select("title, body, seo_report").eq("id", draftId).eq("user_id", access.user.id).maybeSingle();
+  const blocked = current ? reviewBlockMessage(draftReport(current.seo_report), current.title, current.body) : null;
+  if (blocked) return NextResponse.json({ code: "REVIEW_MUST_FIX", error: blocked }, { status: 409 });
   const { data, error } = await supabase.from("naver_blog_seo_drafts")
     .update({ extension_handoff_at: new Date().toISOString(), extension_imported_at: null })
     .eq("id", draftId).eq("user_id", access.user.id).is("seo_report->autoPublish->>runId", null).gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString())

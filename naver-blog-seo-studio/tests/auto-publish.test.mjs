@@ -12,6 +12,7 @@ function moduleAt(path, mocks = {}) {
   return module.exports;
 }
 const guards = moduleAt("../lib/draftWriteGuard.ts");
+const review = moduleAt("../lib/draftReview.ts");
 const fixture = () => ({ id: "draft-1", user_id: "member-1", title: "자동 발행 합성 시험", body: "본인 합성 원고입니다. 실제 추천이나 체험담이 아닙니다.", created_at: new Date().toISOString(), extension_handoff_at: new Date().toISOString(), seo_report: {}, image_path: null });
 const field = (row, column) => column.split(/->>?/).reduce((value, key) => value?.[key], row) ?? null;
 function setup(initial = fixture()) {
@@ -41,6 +42,7 @@ function setup(initial = fixture()) {
     "@/lib/supabase/service": { createServiceClient: () => db },
     "@/lib/supabase/server": { createClient: async () => db },
     "@/lib/draftWriteGuard": guards,
+    "@/lib/draftReview": review,
   };
   const route = moduleAt("../app/api/extension/drafts/library/[draftId]/auto-publish/route.ts", mocks);
   const call = (action, values = {}, token = "own") => route.POST(new Request("https://test.invalid", { method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json" }, body: JSON.stringify({ action, ...(action === "claim" ? { fingerprint: guards.publicationFingerprint(store.row) } : {}), ...values }) }), { params: Promise.resolve({ draftId: "draft-1" }) });
@@ -51,6 +53,16 @@ test("atomic claim grants one run when two extensions race", async () => {
   const responses = await Promise.all([s.call("claim", { blogId: "my_blog", visibility: "private" }), s.call("claim", { blogId: "my_blog", visibility: "private" })]);
   assert.deepEqual(responses.map(r => r.status).sort(), [200, 409]);
   assert.equal(s.store.updates, 1);
+});
+test("merge B-1: a current AI review with a must-fix blocks the claim; a stale review does not", async () => {
+  const draft = fixture();
+  const mustReview = { issues: [{ area: "민감·과장 표현", level: "필수", quote: "본인 합성 원고", reason: "x", suggestion: "" }], summary: "", at: new Date().toISOString(), bodyHash: review.reviewHash(draft.title, draft.body) };
+  const blocked = setup({ ...draft, seo_report: { review: mustReview } });
+  const res = await blocked.call("claim", { blogId: "my_blog", visibility: "private" });
+  assert.equal(res.status, 409); assert.match((await res.json()).error, /필수 수정/);
+  assert.equal(blocked.store.updates, 0);
+  const stale = setup({ ...draft, seo_report: { review: { ...mustReview, bodyHash: "old" } } });
+  assert.equal((await stale.call("claim", { blogId: "my_blog", visibility: "private" })).status, 200);
 });
 test("foreign, expired, and unauthenticated drafts cannot claim", async () => {
   for (const patch of [{ user_id: "another-member" }, { created_at: "2000-01-01T00:00:00.000Z" }]) {

@@ -20,7 +20,8 @@
     "test:image-nodes": "node --test tests/image-nodes.test.mjs",
     "test:keyword-handoff": "node --test tests/keyword-handoff.test.mjs",
     "test:extension-connect": "node --test tests/extension-connect.test.mjs",
-    "test:model-record": "node --test tests/model-record.test.mjs"
+    "test:model-record": "node --test tests/model-record.test.mjs",
+    "test:draft-review": "node --test tests/draft-review.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

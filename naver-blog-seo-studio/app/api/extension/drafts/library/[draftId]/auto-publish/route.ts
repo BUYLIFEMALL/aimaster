@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { draftReport, matchDraftRevision, nextDraftReport, publicationFingerprint, naverPostUrl, staleWritingRun, writableDraft } from "@/lib/draftWriteGuard";
+import { reviewBlockMessage } from "@/lib/draftReview";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -35,6 +36,8 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
     const blogId = String(input.blogId || "").trim();
     if (!/^[A-Za-z0-9_-]{2,40}$/.test(blogId) || !["public", "private"].includes(input.visibility)) return fail("실제 블로그 ID와 공개 범위를 선택해 주세요.", 400);
     if (!row.title?.trim() || !row.body?.trim()) return fail("제목과 본문을 먼저 저장해 주세요.", 400);
+    const reviewBlocked = reviewBlockMessage(report, row.title, row.body); // 병합 B-1: 필수 검수 지적이 남으면 자동 포스팅을 시작하지 않음
+    if (reviewBlocked) return fail(reviewBlocked);
     publication = { runId: randomUUID(), state: "writing", blogId, visibility: input.visibility, fingerprint: publicationFingerprint(row), startedAt: now };
   } else {
     if (typeof input.runId !== "string" || current.runId !== input.runId) return fail("현재 원고의 발행 실행이 아닙니다.");

@@ -1,7 +1,7 @@
 # 병합 묶음 B-1: AI 검수 6영역·발행 전 확정 (작업실 → SEO 스튜디오) — 개발 플랜 (2026-10-24)
 
 - 작성: Claude Code(윈도우) 블로그 전담 `claude-win-20261023-blog2`
-- 상태: **플랜 보고 — 주인님 승인 대기(코드 미수정)**
+- 상태: **구현·로컬 검수·실제 확인 1회 완료(2026-10-24, 주인님 「진행해」 — 검수는 선택, 필수 지적만 발행 차단) — 미배포 대기(B-2·B-3과 묶어 배포)**. 결과: `docs/IMPROVEMENTS.md` 맨 아래
 - 근거: 블로그 병합 묶음 B([REPORT](../../docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge-independent-20261023) — 작업실·콘텐츠 → SEO, 첫 항목 「AI 검수 6영역·최종본 확정」).
 
 ## 원본(작업실)의 기능
@@ -34,3 +34,8 @@
 | 검수 AI 호출(실제 확인) | 1회 | 시험 계정 본인 OpenAI 키(가장 저렴한 모델) | 약 5~20원 |
 | Vercel 빌드 | 1회(B-1~B-3 묶음) | 팀 `buylife` | 배포 1회분 |
 | 회원 부담 | 「AI 검수」를 누를 때만 1회 | 회원 본인 키 | 원고 길이에 따라 수 원~수십 원 |
+
+## 구현 중 정한 점 (2026-10-24)
+- 검수 모듈 `lib/draftReview.ts`는 실행 시점 import가 없는 한 파일(화면·서버·시험 공용). 본문 인용 확인·자료 복제 판정은 서버 경로가 `lib/grounding.ts`의 `quoteInText`·`copiesSource`를 넘긴다(`grounding.ts`가 `node:crypto`를 써서 화면에서 직접 부를 수 없음).
+- 지문은 `reviewHash`(제목+본문, 앞뒤 공백 정리). 발행 입구 3곳(웹 넘기기 `api/drafts/handoff`, 자동 포스팅 시작 `auto-publish` claim, 편집기 입력 가져가기 `library/claim`)에서 `reviewBlockMessage`로 「현재 글 + 필수 지적」일 때만 409 `REVIEW_MUST_FIX`.
+- 서버가 조사 자료 원문과 25자 이상 같은 문장을 「자료 유사 표현·권장」으로 더한다(작업실에는 없던 보강).

@@ -219,3 +219,10 @@
 
 ## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
 - 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기: 블로그 병합 B-1 AI 검수 6영역·발행 전 확정 (작업실 → SEO 스튜디오)
+- 작업실 `review`·`finalize`를 가져오되 **검수는 선택**(매 발행마다 AI 비용을 강제하지 않음), **현재 글에 필수 지적이 남으면 발행 입구 3곳에서 막음**. 결과는 원고 `seo_report.review`(DB 변경 없음), 글을 고치면 「다시 검수 필요」.
+- 검수 기준: 원고 생성 때 남긴 승인 근거(`seo_report.grounding.points`)·승인 문체(`seo_report.style`), 조사 자료 원문(본인 `research`)은 자료 복제 판정에만. 지적은 본문에 실제 있는 인용만 남기고, 검수 중 글이 바뀌면 409.
+- 바꾼 것: 새 `lib/draftReview.ts` · 새 `app/api/drafts/[draftId]/review/route.ts` · `api/drafts/handoff`·`api/extension/drafts/library/[draftId]/auto-publish`·`.../claim`(차단) · 새 `components/studio/DraftReviewPanel.tsx`(새 글 화면 품질 패널 아래) · 시험 `tests/draft-review.test.mjs`(3) + `tests/auto-publish.test.mjs`(차단 1 추가, 가짜 의존성에 `@/lib/draftReview`).
+- 검수: tsc, 시험 13종 통과(`test:browser`는 실행하지 않음). 실제 1회(시험 계정 본인 OpenAI 키, gpt-4o-mini, 저장 안 함, 원고 `9b2ec70d` 3,201자·근거 5·문체 있음): 지적 4건 모두 본문 인용 확인 통과, 전부 「작성 원칙·권장」(질문형 소제목). **한계:** 가장 저렴한 모델은 한 영역만 보는 얕은 검수 — 화면에서 상위 모델 사용을 권하는 안내가 필요할 수 있음.
+- 남은 것: B-2(문체 영구 보관)·B-3(분량 선택)과 함께 배포(빌드 1회) → 크롬에서 검수 카드·필수 지적 차단 확인(시험 계정, 발행 안 함).
