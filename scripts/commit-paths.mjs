@@ -12,7 +12,7 @@
 //          ④ 공용 스테이징이 정상일 때만 내 경로 항목을 새 HEAD로 맞춤(쪼그라들어 있으면 건드리지 않고 경고)
 // 주인님이 승인한 실제 대량 삭제만 AIMASTER_ALLOW_MASS_DELETE=1.
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const ROOT = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim();
@@ -41,6 +41,12 @@ if (shared.length) {
   process.exit(1);
 }
 
+// 임시 스테이징 정리: 끝날 때 항상 내 것을 지우고(process.exit은 finally를 건너뜀), 시작할 때 1시간 넘은 같은 종류를 지운다(공용 index는 안 건드림)
+for (const n of readdirSync(GITDIR)) {
+  if (!n.startsWith("index.commit-paths-")) continue;
+  try { if (Date.now() - statSync(join(GITDIR, n)).mtimeMs > 3600_000) rmSync(join(GITDIR, n), { force: true }); } catch { /* 다른 세션이 막 지움 */ }
+}
+process.on("exit", () => { for (const s of ["", ".lock"]) rmSync(join(GITDIR, `index.commit-paths-${process.pid}${s}`), { force: true }); });
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
 let done = null;
 for (let attempt = 1; attempt <= 5 && !done; attempt++) {

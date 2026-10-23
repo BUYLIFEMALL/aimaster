@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync, utimesSync, existsSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -70,6 +70,23 @@ test("③ 파일 50개 넘게 지우면 막는다", () => {
     const out = r.helper("bulk 삭제", "bulk");
     assert.notEqual(out.status, 0, out.stdout);
     assert.equal(r.git("rev-parse", "HEAD").trim(), before);
+  } finally { r.done(); }
+});
+
+test("⑤ 1시간 넘은 임시 스테이징 파일만 정리, 최근 것·공용 index는 그대로", () => {
+  const r = repo(0);
+  try {
+    const old = join(r.dir, ".git", "index.commit-paths-99999"), fresh = join(r.dir, ".git", "index.commit-paths-99998");
+    writeFileSync(old, "x"); writeFileSync(fresh, "y");
+    const t = (Date.now() - 2 * 3600_000) / 1000;
+    utimesSync(old, t, t);
+    writeFileSync(join(r.dir, "keep.txt"), "k5\n");
+    const out = r.helper("keep 수정", "keep.txt");
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.equal(existsSync(old), false);
+    assert.equal(existsSync(fresh), true);
+    assert.ok(existsSync(join(r.dir, ".git", "index")));
+    assert.equal(readdirSync(join(r.dir, ".git")).filter((n) => n.startsWith(`index.commit-paths-`) && !n.endsWith("99998")).length, 0); // 내 임시 파일도 남지 않음
   } finally { r.done(); }
 });
 
