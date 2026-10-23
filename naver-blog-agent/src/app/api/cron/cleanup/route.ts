@@ -99,7 +99,11 @@ export async function GET(request: NextRequest) {
           const { data: files } = await storage.list(subPath, { limit: 1000 });
           if (files) {
             for (const file of files) {
-              if (file.created_at && new Date(file.created_at) < cutoff) {
+              // v2.13: 2026-10-23 옛 버킷에서 옮긴 복사본은 저장 시각이 이관 시점이라, 파일 이름의 생성 시각(ms, `<ms>-…`·`attached-<ms>-…`)이 더 이르면 그것으로 판정(원래 30일 기한 유지)
+              const nameMs = Number(file.name.match(/^(?:attached-)?(\d{13})-/)?.[1] ?? NaN);
+              const storedMs = file.created_at ? Date.parse(file.created_at) : NaN;
+              const bornMs = Math.min(...[nameMs, storedMs].filter((n) => Number.isFinite(n)));
+              if (Number.isFinite(bornMs) && bornMs < cutoff.getTime()) {
                 imagesToDelete.push(`${subPath}/${file.name}`);
               }
             }

@@ -206,3 +206,9 @@
 - 수정(주인님 선택 「전용 공개 버킷」): `src/lib/mediaBucket.ts`(`MEDIA_BUCKET = "naver-blog-agent-media"`, `LEGACY_MEDIA_BUCKET`) → `upload-image`·`generate-image`가 새 버킷 사용. `cron/cleanup`은 두 버킷을 모두 돌며 30일 지난 파일을 지움(개수 누적). 업로드는 서버(서비스 키)만 하므로 storage 정책 없음. 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 버킷 생성, SQL 기록 `supabase/migrations/20261023240000_nba_media_bucket_v212.sql`.
 - 검수: tsc 0, `test:post-save`·`test:member-data`·`test:publishing`·`test:extension` 통과, 빌드 통과(확장 ZIP v2.12). 크롬(시험 회원)에서 프로그램 화면 안에서 `/api/upload-image`로 120×80 PNG 업로드 → 200, 새 버킷 주소 이미지가 화면에 표시(naturalWidth 120) → 시험 파일 삭제.
 - 남은 일: 옛 버킷에 남은 54장은 옮기지 않음(주인님 선택) — 이미 저장된 글의 옛 이미지 주소는 계속 깨진 채로 30일 정리 때 사라진다. AI 이미지 생성(유료)은 같은 저장 코드라 별도 시험하지 않음.
+
+## 2026-10-23 (Claude Code 윈도우, 세션 `claude-win-20261023-nba-oldimg`) — 옛 버킷 이미지 주소 글 23건 이관 완료 + 정리 작업 시각 기준 (**미배포 대기 → v2.13**)
+- 집계(읽기): `nba_posts` 29건 중 23건(회원 3명 — 시험 회원 21·관리자 1·일반 회원 1, 초안 12·발행 준비 5·실패 6, 발행 0)이 옛 버킷 주소 76곳(파일 40개) 사용. `nba_collected_materials`는 0건.
+- 이관(주인님 승인 「모두 새 버킷으로 옮기기」, 운영 ref `esgxyikcnnvmlhygjkth`, 플랜 `docs/PLAN_20261023_OLD_IMAGE_MIGRATION.md`): 파일 40개를 새 버킷 같은 경로로 복사(원본 모두 있음) → 글 23행을 소유자+id+updated_at 조건으로 주소만 교체(23/23행, 건너뜀 0). 재확인: 옛 주소 쓰는 글 0건, 새 주소 40개 모두 200, 상태 분포 그대로. 크롬(시험 회원) 보관함 「원고 및 이미지 전체 열람」에서 NASA 글 이미지 24장 새 버킷에서 표시(옛 주소 0).
+- 30일 기한 유지: 복사본은 저장 시각이 이관 시점이라 `cron/cleanup`이 파일 이름의 13자리 생성 시각이 더 이르면 그것으로 판정하도록 수정(54개 파일 모두 이름 시각과 실제 차이 2초 이내 확인). tsc 0, `test:member-data`·`test:post-save` 통과. **배포 전까지는 복사본이 이관 시점 기준으로 지워지므로 다음 배포 때 꼭 함께 나가야 함.**
+- 옛 버킷 원본 54개는 그대로(30일 정리가 지움).
