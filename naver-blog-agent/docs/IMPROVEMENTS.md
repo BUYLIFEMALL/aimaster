@@ -229,3 +229,10 @@
 
 ## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 확장 팝업 폭
 - 주인님 지적 「가로폭을 늘려줘 너무 좁아서 글들이 제대로 안보여」: 확장 아이콘 팝업(`extension/connect.html`)에 폭 지정이 없어 약 200px로 줄어 있었음 → `connect.css`에 `html,body{min-width:440px}`. 새 탭으로 열 때는 그대로. 확장 코드 변경이라 다음 배포 때 버전 +0.01(manifest·ZIP·DB 함께).
+
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ✅ v2.15: 준비 모드 직접 발행 결과 기록
+- 문제: 준비 모드(`execution_mode=prepare`) 글을 회원이 직접 발행해도 보관함이 「발행 전 준비 완료」로 남고 주소·시각이 비었음(서버 `finish`는 `publishing`만 받음). 블로그 자동화 완성 기준(발행 결과 기록) 미달이었음.
+- 한 일: 확장 자동 감지(읽기만) + 보관함 직접 입력, 서버 규칙 `src/lib/preparedPublish.ts`. DB 칸 추가 없음. 상세는 AGENTS.md 맨 위·플랜.
+- 검수: tsc·로컬 빌드, 시험 22종(새 `test:prepared-publish` 5, `test:extension-tabs` 시나리오 5 추가) 통과. 배포 Ready·DB/확장/ZIP v2.15·`check-extension-release` OK. 크롬(시험 계정): 준비 완료 6건 카드에 버튼, 다른 블로그 주소 입력 시 「이 원고의 블로그(buylifeacademy) 글 주소를 넣어 주세요」 거절(기록 안 됨).
+- 남은 일: ① 실제 자동 감지 확인 — 주인님이 준비 모드 원고 1건을 열린 탭에서 직접 비공개 발행 → 보관함 「발행 완료」+주소 확인 ② 예약 발행은 탭이 글 주소로 바뀌지 않아 자동 감지 대상 아님(발행 뒤 주소 입력) ③ 이미 준비 완료로 남은 옛 원고 6건은 회원이 필요하면 주소로 기록.
