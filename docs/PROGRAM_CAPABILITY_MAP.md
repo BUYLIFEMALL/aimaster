@@ -76,7 +76,7 @@
 | 55 | Suno 음악기획 자동화 | `suno-music-studio` | 음악 | v1.12 | **병합됨 → music-automation(2026-10-21), 노출 중지** | 음악 스타일·가사·앨범을 AI와 설계해 Suno에 바로 넣을 자료로 정리하는 음악 기획 도구 |
 | 56 | AI 마스터링 스튜디오 | `ai-mastering-studio` | 음악 | v1.11 | 운영 | WAV 음원을 브라우저에서 마스터링하고 원하는 소리를 적으면 AI가 설정값을 제안하는 도구 |
 | 58 | 음악(SUNO)자동화 | `music-automation` | 음악 | v1.45 | 운영(2026-10-21 Suno 음악기획 병합) | 프리셋 461개로 곡·앨범을 정밀 기획하고 Suno V6로 실제 음악까지 만들어 보관하는 음악 자동화 |
-| 57 | 뮤직비디오 자동화 | `music-video-studio` | 음악 | v1.16 | 운영 | 주제·장르로 가사와 스토리보드를 만들고 장면 이미지·AI 영상(Gemini Omni Flash)까지 만드는 뮤직비디오 도구 |
+| 57 | 뮤직비디오 자동화 | `music-video-studio` | 음악 | v1.17 | 운영 | 주제·장르로 가사와 스토리보드를 만들고 장면 이미지·AI 영상(Gemini Omni Flash)까지 만드는 뮤직비디오 도구 |
 | 59 | LP 턴테이블 자동화 | `vinyl-lp-studio` | 음악 | v1.12 | 운영 | 나만의 LP·CD 앨범 아트를 만들고 돌아가는 턴테이블 MP4·GIF 영상으로 완성하는 도구 |
 | 60 | Youtube Playlist 자동화 | `yt-playlist-studio` | 음악 | v1.15 | **병합됨 → playlist-channel-studio(2026-10-20), 노출 중지** | 음악에 반응하는 스펙트럼·파티클·AI 배경으로 1080p 유튜브 플레이리스트 영상을 만드는 도구 |
 | 61 | AI Audio분석 자동화 | `ai-audio-analyzer` | 음악 | v1.13 | 운영 | 음성·음악 파일로 회의록·화자 분석, Suno 역설계 프롬프트, 음향 진단을 만드는 오디오 분석실 |
@@ -874,7 +874,7 @@
 - **키·계정·주의**: 오디오 파일은 서버로 전송하지 않습니다. 프리셋과 수동 조정은 키 없이 쓰고, AI 제안만 회원 본인의 Gemini·OpenAI·Claude 키 중 하나를 사용합니다.
 
 #### 뮤직비디오 자동화 (`music-video-studio`)
-- 주소·폴더: https://music-video-studio.buylife.xyz · `music-video-studio/` · v1.16
+- 주소·폴더: https://music-video-studio.buylife.xyz · `music-video-studio/` · v1.17
 - **2026-10-23 v1.15~v1.16**: **「🎬 최종 뮤직비디오 만들기」** — 장면 영상(없으면 장면 이미지를 천천히 확대) + 이 뮤직비디오의 곡 + 장면별 가사 자막을 **회원 PC 브라우저에서 MP4 한 편으로 렌더**(무료, 곡 길이를 장면 수로 나눔, 짧은 영상은 반복). 공용 `video-edit-*` 사본(기준 AI 영상 스튜디오). v1.16 장면 이미지 생성 500(sharp libvips 누락) 수정.
 - **2026-10-23 v1.12**: Google Veo 3.1 Preview(Gemini API) 2026-10-22 종료 → 장면 영상을 **Gemini Omni Flash**(초당 약 $0.10, 16:9·9:16, 글만/이미지/루프)로 교체, 공용 `ai-video-providers` 사본 사용. 아래 「Veo」 표현은 이 모델로 읽는다.
 - **차별점**: 주제와 장르로 노래 가사를 쓰고, 장면별 이미지와 AI 영상 클립을 만들고, 곡과 가사 자막을 얹어 완성 뮤직비디오 한 편까지 내 PC에서 무료로 렌더하는 뮤직비디오 자동화입니다.
