@@ -7,7 +7,7 @@ import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { isApproved, type GroundPoint, type ResearchSource } from "@/lib/grounding";
 import type { DraftGrounding } from "@/lib/ai/groundingPrompt";
-import { detectEnding, isStyleApproved, type StyleEnding, type StyleProfile, type StylePost } from "@/lib/style";
+import { styleEnding, isStyleApproved, type StyleEnding, type StyleProfile } from "@/lib/style";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       .eq("id", styleId).eq("user_id", access.user.id).maybeSingle() : { data: null };
     if (!row) return NextResponse.json({ error: "선택한 내 문체를 찾지 못했습니다. 30일이 지나 삭제됐을 수 있습니다." }, { status: 404 });
     if (!isStyleApproved(row)) return NextResponse.json({ code: "STYLE_NOT_APPROVED", error: "내 문체를 승인한 뒤 바뀌었거나 아직 승인하지 않았습니다. 「내 문체」에서 다시 승인해주세요." }, { status: 409 });
-    const ending = detectEnding([...((row.samples as string[] | null) ?? []), ...(((row.posts as StylePost[] | null) ?? []).map((p) => p.text))]);
+    const ending = styleEnding(row);
     style = { name: row.name, profile: row.profile as StyleProfile, ending };
     styleRecord = { styleId: row.id, name: row.name, approvalHash: row.approval_hash, ending };
   }

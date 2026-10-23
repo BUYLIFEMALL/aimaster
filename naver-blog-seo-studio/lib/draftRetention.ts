@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { addCleanupCount, type CleanupCounts } from "@/lib/cleanupUsageLog";
+import { clearedStyleProfile } from "@/lib/style";
 
 // counts(2026-10-23, 선택): 매일 크론이 실제로 지운 것을 회원별로 센다(usage_logs cleanup_expired). 회원 요청 때의 본인 정리는 넘기지 않는다.
 
@@ -73,12 +74,26 @@ export async function purgeExpiredResearch(supabase: SupabaseClient, userId?: st
 }
 
 // BLC-08b (2026-10-22): 본인 문체 자료·분석도 만든 날 기준 30일 뒤 삭제한다.
+// 병합 B-2 (2026-10-24, 주인님 A안): 분석 결과가 있는 문체는 지우지 않고 블로그 글 원문(samples·posts)만 비운다 —
+// 분석 결과·승인은 계속 쓰고(승인 지문은 profile 항목만 봄), 끝맺음은 profile.ending에 남긴다. 분석이 없는 「자료만」 문체는 예전처럼 지운다.
 export async function purgeExpiredStyles(supabase: SupabaseClient, userId?: string, counts?: CleanupCounts) {
-  let query = supabase.from("naver_blog_seo_styles").delete().lt("created_at", getRetentionCutoff());
+  const table = "naver_blog_seo_styles";
+  let query = supabase.from(table).select("id, user_id, profile, samples, posts")
+    .lt("created_at", getRetentionCutoff()).is("profile->>sourceClearedAt", null).limit(RETENTION_BATCH_SIZE);
   if (userId) query = query.eq("user_id", userId);
-  const { data, error } = await query.select("id, user_id");
-  if (counts && !error) for (const row of data ?? []) addCleanupCount(counts, row.user_id, "styles");
-  return { deleted: error ? 0 : data?.length ?? 0, error };
+  const { data, error } = await query;
+  if (error) return { deleted: 0, error };
+  let done = 0;
+  let lastError: unknown = null;
+  for (const row of data ?? []) {
+    const profile = clearedStyleProfile(row);
+    const result = profile
+      ? await supabase.from(table).update({ samples: [], posts: [], profile }).eq("id", row.id).eq("user_id", row.user_id).select("id").maybeSingle()
+      : await supabase.from(table).delete().eq("id", row.id).eq("user_id", row.user_id).select("id").maybeSingle();
+    if (result.error) { lastError = result.error; continue; }
+    if (result.data) { done++; if (counts) addCleanupCount(counts, row.user_id, "styles"); }
+  }
+  return { deleted: done, error: lastError };
 }
 
 // BLC-09 (2026-10-22): 「구간별로 쓰기」 목차·구간 본문도 30일 뒤 삭제.

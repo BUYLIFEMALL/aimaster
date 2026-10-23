@@ -2,7 +2,9 @@
 // 항목 구성은 blog-workroom StyleProfile(src/lib/types.ts)과 같다. 승인은 08a 근거 승인과 같은 지문 방식.
 import { createHash } from "node:crypto";
 
-export interface StyleProfile { summary: string; tone: string; sentence: string; structure: string; reader: string; expressions: string[]; avoid: string[]; strengths: string[]; cautions: string[] }
+export interface StyleProfile { summary: string; tone: string; sentence: string; structure: string; reader: string; expressions: string[]; avoid: string[]; strengths: string[]; cautions: string[];
+  /** 병합 B-2: 30일 뒤 원문을 비울 때 원문에서 찾은 끝맺음을 남긴다(승인 지문 항목 아님). */
+  ending?: StyleEnding | null; sourceClearedAt?: string }
 export interface StylePost { title: string; link: string; text: string }
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -65,4 +67,22 @@ export function endingShare(text: string, ending: StyleEnding): number {
   const nida = (text.match(/니다(?=[.!]|\s*$)/gm) || []).length;
   if (!yo && !nida) return 1;
   return (ending === "haeyo" ? yo : nida) / (yo + nida);
+}
+
+// 병합 B-2(작업실 「문체 영구 보관」, A안): 30일이 지나면 블로그 글 원문(samples·posts)만 비우고 분석 결과·승인은 계속 쓴다.
+// 원문이 비면 끝맺음을 다시 찾을 수 없으므로, 비우기 전에 찾은 값을 profile.ending에 남긴다(profileHash 항목이 아니라 승인 유지).
+export function styleEnding(row: { profile?: unknown; samples?: unknown; posts?: unknown }): StyleEnding | null {
+  const samples = Array.isArray(row.samples) ? row.samples.filter((s): s is string => typeof s === "string") : [];
+  const posts = Array.isArray(row.posts) ? (row.posts as StylePost[]).map((p) => String(p?.text || "")) : [];
+  const detected = detectEnding([...samples, ...posts]);
+  if (detected) return detected;
+  const kept = row.profile && typeof row.profile === "object" ? (row.profile as StyleProfile).ending : null;
+  return kept === "haeyo" || kept === "hamnida" ? kept : null;
+}
+
+/** 원문을 비운 뒤 저장할 분석 결과: 끝맺음·정리 시각만 더한다. 분석이 없는 문체(자료만)는 null — 남길 것이 없어 행을 지운다. */
+export function clearedStyleProfile(row: { profile?: unknown; samples?: unknown; posts?: unknown }, now = new Date().toISOString()): StyleProfile | null {
+  const profile = row.profile && typeof row.profile === "object" ? row.profile as StyleProfile : null;
+  if (!profile?.summary) return null;
+  return { ...profile, ending: styleEnding(row), sourceClearedAt: profile.sourceClearedAt || now };
 }

@@ -5,7 +5,7 @@ import { getExplicitYears } from "./ai/freshness";
 import type { SectionRules } from "./ai/sectionPrompt";
 import { styleSection } from "./ai/stylePrompt";
 import { isApproved, type GroundPoint, type ResearchSource } from "./grounding";
-import { detectEnding, isStyleApproved, type StyleEnding, type StyleProfile, type StylePost } from "./style";
+import { styleEnding, isStyleApproved, type StyleEnding, type StyleProfile } from "./style";
 
 export const OUTLINE_COLUMNS = "id, research_id, style_id, keyword, title, titles, sections, status, draft_id, joined_hash, strategy, persona_id, custom_persona, created_at, updated_at";
 
@@ -32,7 +32,7 @@ export async function loadStyle(supabase: SupabaseClient, userId: string, styleI
     .eq("id", id).eq("user_id", userId).maybeSingle() : { data: null };
   if (!row) return { error: "선택한 내 문체를 찾지 못했습니다. 30일이 지나 삭제됐을 수 있습니다.", status: 404 };
   if (!isStyleApproved(row)) return { code: "STYLE_NOT_APPROVED", error: "내 문체를 승인한 뒤 바뀌었거나 아직 승인하지 않았습니다. 「내 문체」에서 다시 승인해주세요.", status: 409 };
-  const ending = detectEnding([...((row.samples as string[] | null) ?? []), ...(((row.posts as StylePost[] | null) ?? []).map((p) => p.text))]);
+  const ending = styleEnding(row);
   return {
     style: { name: row.name, profile: row.profile as StyleProfile, ending },
     record: { styleId: row.id, name: row.name, approvalHash: row.approval_hash, ending },

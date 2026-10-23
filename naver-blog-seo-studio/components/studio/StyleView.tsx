@@ -52,7 +52,7 @@ export function StyleView({ s }: { s: Studio }) {
     <section className="card" id="my-style">
       <div className="card-head"><h2 className="card-title">내 문체</h2><span className="card-caption">내 글 → 분석 → 승인</span></div>
       <p className="section-description">내 블로그 공개 글이나 직접 붙여 넣은 글 표본으로 말투·문장·구성 습관을 분석합니다. 승인한 문체만 새 글에 적용되며, 기본은 「적용 안 함」입니다.</p>
-      <p className="freshness-note">문체를 따라 쓰는 것은 읽는 느낌을 맞추기 위한 것이며 AI 탐지 회피를 약속하지 않습니다. 공개 글만 읽고, 자료와 분석은 30일 뒤 자동 삭제됩니다.</p>
+      <p className="freshness-note">문체를 따라 쓰는 것은 읽는 느낌을 맞추기 위한 것이며 AI 탐지 회피를 약속하지 않습니다. 공개 글만 읽습니다. 가져온 글 원문은 30일 뒤 자동 삭제되고, 분석 결과와 승인은 계속 보관됩니다(직접 삭제할 수 있습니다).</p>
 
       <div className="field"><label htmlFor="style-name">이름 (선택)</label><input id="style-name" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder="예: 내 생활정보 블로그" /></div>
       <div className="field"><label htmlFor="style-blog">네이버 블로그 주소 또는 ID (선택)</label><input id="style-blog" value={blog} onChange={(e) => setBlog(e.target.value)} placeholder="https://blog.naver.com/아이디" />
@@ -60,7 +60,7 @@ export function StyleView({ s }: { s: Studio }) {
       <div className="field"><label htmlFor="style-samples">내 글 표본 붙여넣기 (선택, 40자 이상 · 여러 개는 --- 줄로 구분, 최대 10개)</label><textarea id="style-samples" rows={5} value={sampleText} onChange={(e) => setSampleText(e.target.value)} placeholder={"첫 번째 글 본문\n---\n두 번째 글 본문"} /></div>
       <button type="button" className="primary" disabled={(!blog.trim() && !sampleText.trim()) || Boolean(busy)} onClick={create}>{busy === "create" ? "글을 가져오는 중..." : "문체 자료 만들기"}</button>
 
-      {list.length > 0 && <div className="field"><label htmlFor="style-recent">내 문체 목록 (30일 보관)</label>
+      {list.length > 0 && <div className="field"><label htmlFor="style-recent">내 문체 목록 (분석 결과는 계속 보관 · 글 원문은 30일)</label>
         <select id="style-recent" value={style?.id ?? ""} onChange={(e) => setStyle(list.find((x) => x.id === e.target.value) ?? null)}>
           <option value="">선택 안 함</option>
           {list.map((x) => <option key={x.id} value={x.id}>{x.name} · {x.approval_valid ? "승인됨" : x.approved_at ? "승인 뒤 바뀜" : x.profile ? "분석됨" : "자료만"} · {new Date(x.created_at).toLocaleDateString("ko-KR")}</option>)}
@@ -68,6 +68,7 @@ export function StyleView({ s }: { s: Studio }) {
 
       {style && <>
         <h3 className="card-title">{style.name} — 블로그 글 {style.posts.length}개 · 표본 {style.samples.length}개</h3>
+        {p?.sourceClearedAt && <p className="freshness-note">블로그 글 원문은 30일이 지나 정리됐습니다({new Date(p.sourceClearedAt).toLocaleDateString("ko-KR")}). 분석 결과와 승인은 그대로 새 글에 쓰며, 다시 분석하려면 글을 새로 가져와 주세요.</p>}
         {style.posts.length > 0 && <ol>{style.posts.map((x, i) => <li key={i}><a href={x.link} target="_blank" rel="noreferrer">{x.title}</a></li>)}</ol>}
         <div className="field"><label htmlFor="style-provider">문체 분석 AI (본인 키 1회 사용)</label>
           <select id="style-provider" value={contentProvider} onChange={(e) => { const v = e.target.value as ContentProvider; setContentProvider(v); setContentModel(getDefaultContentModel(v)); }}>
@@ -76,7 +77,7 @@ export function StyleView({ s }: { s: Studio }) {
           <select aria-label="문체 분석 모델" value={contentModel} onChange={(e) => setContentModel(e.target.value)}>
             {getContentModels(contentProvider).map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select></div>
-        <button type="button" className="secondary" disabled={Boolean(busy)} onClick={analyze}>{busy === "analyze" ? "분석하는 중..." : p ? "다시 분석(승인이 풀립니다)" : "문체 분석하기"}</button>
+        <button type="button" className="secondary" disabled={Boolean(busy) || (!style.posts.length && !style.samples.length)} onClick={analyze}>{busy === "analyze" ? "분석하는 중..." : p ? "다시 분석(승인이 풀립니다)" : "문체 분석하기"}</button>
 
         {p && <>
           <h3 className="card-title">분석 결과 {style.approval_valid ? "· ✅ 승인됨" : stale ? "· ⚠️ 승인 뒤 바뀜 · 다시 승인 필요" : ""}</h3>
