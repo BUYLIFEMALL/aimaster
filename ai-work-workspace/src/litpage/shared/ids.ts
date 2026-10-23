@@ -1,4 +1,4 @@
-// IDs: UUID v4 like Litpage's record ids; URL form is the 32-char hex without dashes.
+// IDs: UUID v4 like Workspace's record ids; URL form is the 32-char hex without dashes.
 export function newId(): string {
   return globalThis.crypto.randomUUID();
 }
@@ -13,7 +13,7 @@ export function expandId(hex32: string): string {
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
 }
 
-/** "My Page Title" + id -> "My-Page-Title-<32hex>" (Litpage page URL slug). */
+/** "My Page Title" + id -> "My-Page-Title-<32hex>" (Workspace page URL slug). */
 export function pageSlug(title: string, id: string): string {
   const words = title
     .normalize('NFKC')

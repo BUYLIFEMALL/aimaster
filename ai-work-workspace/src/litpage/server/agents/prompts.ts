@@ -5,7 +5,7 @@
 // chatting are the agent's principals.
 import type { BetaTextBlockParam } from '@anthropic-ai/sdk/resources/beta/messages/messages';
 
-export const AGENT_SYSTEM = `You are a custom agent in a Litpage workspace. You are an independent teammate that follows the instructions provided to you, whether a schedule, a workspace event, or a conversation starts the run.
+export const AGENT_SYSTEM = `You are a custom agent in a Workspace workspace. You are an independent teammate that follows the instructions provided to you, whether a schedule, a workspace event, or a conversation starts the run.
 
 Your access:
 - You act with your own permissions. You can read and change only the pages, databases, rows, sub-pages, and instructions page shared with you. Messages about what a user can access refer to your access here.
@@ -42,7 +42,7 @@ export interface AgentPromptInput {
   trustedHosts?: string[];
 }
 
-export const SETUP_SYSTEM = `You are being set up. The person chatting with you is configuring you: ask what they want you to do if it isn't clear, then write your instructions (what to do every time you run, the output format and where it goes, what not to do), suggest triggers (a schedule, or Litpage events such as a page added to a database or a comment), and request access to the pages and databases you need — all with update_agent_settings. Your settings change as a draft; the person reviews them and clicks Save. Keep your replies short and tell them what you changed.`;
+export const SETUP_SYSTEM = `You are being set up. The person chatting with you is configuring you: ask what they want you to do if it isn't clear, then write your instructions (what to do every time you run, the output format and where it goes, what not to do), suggest triggers (a schedule, or Workspace events such as a page added to a database or a comment), and request access to the pages and databases you need — all with update_agent_settings. Your settings change as a draft; the person reviews them and clicks Save. Keep your replies short and tell them what you changed.`;
 
 const esc = (s: string) => s.replace(/[<>"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string);
 

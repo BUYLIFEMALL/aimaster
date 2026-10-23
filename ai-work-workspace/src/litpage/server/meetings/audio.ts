@@ -7,12 +7,12 @@
 // - Automatic transcript deletion (Enterprise, Settings › Meeting notes): a daily job deletes transcripts older than
 // the chosen number of days ("Transcript was deleted … according to your workspace’s automatic transcript deletion
 // policy").
-import { existsSync, readFileSync, unlinkSync } from 'node:fs';
+// 이식판: 음성 파일 내용은 DB(files.content)에서 읽는다(디스크 사용 안 함)
 import type { BlockRecord, SpaceRecord } from '#shared/records.ts';
 import { roleAtLeast } from '#shared/permissions.ts';
 import { db, getRecord } from '../db.ts';
 import { blockRole } from '../records.ts';
-import { fileRow } from '../content/files.ts';
+import { fileRow, readFileContent } from '../content/files.ts';
 import { registerJobHandler, scheduleJob, getJob, cancelJob } from '../scheduler.ts';
 import {
   MeetingError, assertCanEdit, assertEnabled, assertNotTemplate, deleteTranscript, ensureStructure, importSegments, meetingBlock, recordState, spaceSetting,
@@ -56,11 +56,7 @@ function audioMime(name: string, mime: string): string | null {
 function removeFile(fileId: string) {
   const row = fileRow(fileId);
   if (!row) return;
-  try {
-    if (existsSync(row.path)) unlinkSync(row.path);
-  } catch {
-    /* already gone */
-  }
+  // 이식판: 내용은 files.content(DB)에 있어 행을 지우면 함께 지워진다
   db.prepare('DELETE FROM files WHERE id = ?').run(fileId);
   db.prepare('DELETE FROM meeting_audio WHERE file_id = ?').run(fileId);
 }
@@ -130,9 +126,10 @@ export async function transcribeUploaded(blockId: string, userId: string): Promi
   if (!provider) return fail('This recording could not be transcribed.', 'stt_unavailable');
   // only a file uploaded as this block's audio (not whatever id the state names)
   const row = isBlockAudio(blockId, audio.file_id) ? fileRow(audio.file_id) : undefined;
-  if (!row || !existsSync(row.path)) return fail('Audio recovery is unavailable. The local recording may have expired.', 'audio_missing');
+  const content = row ? readFileContent(row.id) : null;
+  if (!row || !content) return fail('Audio recovery is unavailable. The local recording may have expired.', 'audio_missing');
   try {
-    const out = await provider.transcribe({ data: readFileSync(row.path), mime: audio.mime, name: audio.name, language: st.language });
+    const out = await provider.transcribe({ data: content, mime: audio.mime, name: audio.name, language: st.language });
     importSegments(blockId, userId, out.segments);
     removeBlockAudio(blockId, audio.file_id);
     recordState(userId, meetingBlock(blockId), { state: 'transcript_ready', error: undefined, audio: { ...audio, status: 'deleted' } }, 'transcribed');

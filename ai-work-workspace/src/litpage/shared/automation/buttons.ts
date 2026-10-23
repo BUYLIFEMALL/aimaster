@@ -105,7 +105,7 @@ export function buttonPropertySteps(prop: PropertySchema | undefined, schema?: R
   });
 }
 
-/** Label shown on a button property cell (Litpage: separate button label, defaults to the property name). */
+/** Label shown on a button property cell (Workspace: separate button label, defaults to the property name). */
 export function buttonPropertyLabel(prop: PropertySchema | undefined): string {
   return String((prop as any)?.button_label ?? prop?.name ?? '');
 }

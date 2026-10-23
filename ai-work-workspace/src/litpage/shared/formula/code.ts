@@ -67,7 +67,7 @@ export function formulaSourceOf(ps: PropertySchema | undefined): string {
   return '';
 }
 
-/** Replace `prop("Name")` calls with property tokens (Litpage converts typed/pasted prop() into tokens). */
+/** Replace `prop("Name")` calls with property tokens (Workspace converts typed/pasted prop() into tokens). */
 export function resolvePropCalls(src: string, schema: Record<string, PropertySchema>, collection?: { id: string; spaceId?: string }): string {
   const toks = lex(src);
   let out = '';
@@ -101,7 +101,7 @@ export function sourceToPlain(src: string, nameOf: (propId: string, collectionId
   return out;
 }
 
-/** Make a formula property schema in Litpage's v2 shape. */
+/** Make a formula property schema in Workspace's v2 shape. */
 export function formulaSchema(name: string, src: string, resultType?: unknown): PropertySchema {
   return { name, type: 'formula', version: 'v2', formula2: { code: sourceToCode(src), result_type: resultType ?? { type: 'unknown' } } } as unknown as PropertySchema;
 }

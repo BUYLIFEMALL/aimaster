@@ -499,7 +499,7 @@ describe('provider selection, models and Auto', () => {
     expect(config.providerId()).toBe('none');
     expect(client.aiConfigured()).toBe(false);
     expect(() => client.requireConfigured()).toThrow(client.NO_KEY_MESSAGE);
-    expect(client.NO_KEY_MESSAGE).toBe('Connect an AI provider to use Litpage AI');
+    expect(client.NO_KEY_MESSAGE).toBe('Connect an AI provider to use AIMaster');
     set({ NC_AI_PROVIDER: 'openai' });
     expect(client.aiConfigured()).toBe(false);
     set({ OPENAI_API_KEY: KEY, ANTHROPIC_API_KEY: 'sk-ant-test-0000000000', NC_AI_PROVIDER: 'anthropic' });

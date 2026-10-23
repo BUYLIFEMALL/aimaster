@@ -358,7 +358,7 @@ describe('notification emails and the mail outbox', () => {
     expect(sent[0].subject).toBe(`Alice tagged you on Page ${pageId.slice(0, 4)}`);
     expect(sent[0].html).toContain('hello &lt;b&gt;');
     expect(sent[0].status).toBe('stored'); // no SMTP in tests
-    // read in Litpage before the delay → no email
+    // read in Workspace before the delay → no email
     const n2 = notify.pushNotification({ user_id: ids.carol, space_id: ids.space, type: 'comment', navigable_block_id: pageId, actor_id: ids.alice, activity: { page_id: pageId, text: 'later' } });
     seed.saveRecord('notification', { ...db.getRecord<any>('notification', n2.id), read: true });
     await scheduler.runDueJobs(Date.now() + 301_000);
@@ -381,7 +381,7 @@ describe('notification emails and the mail outbox', () => {
     await call(null, 'sendSignInCode', { email: 'newbie@ws.test' });
     const m = mail.listMail({ to: 'newbie@ws.test', kind: 'login_code' });
     expect(m).toHaveLength(1);
-    expect(m[0].subject).toMatch(/^Litpage sign-in code: \d{6}$/);
+    expect(m[0].subject).toMatch(/^Workspace sign-in code: \d{6}$/);
     await call(ids.alice, 'inviteMembers', { spaceId: ids.space, emails: ['invitee@ws.test'] });
     expect(mail.listMail({ to: 'invitee@ws.test', kind: 'workspace_invite' })[0].subject).toBe('Alice asked you to join Acme');
     // page invite to an unknown address: placeholder account + immediate email
@@ -417,7 +417,7 @@ describe('notification emails and the mail outbox', () => {
     });
     await new Promise<void>((r) => server.listen(0, '127.0.0.1', () => r()));
     const port = (server.address() as any).port;
-    await mail.deliver({ host: '127.0.0.1', port, secure: false, user: 'u', pass: 'p', from: 'Litpage <notify@example.test>', insecure: true },
+    await mail.deliver({ host: '127.0.0.1', port, secure: false, user: 'u', pass: 'p', from: 'Workspace <notify@example.test>', insecure: true },
       { id: 'm1', to: 'x@example.test', subject: 'Hé', text: 'line\n.dot', html: '<p>hi</p>' });
     server.close();
     expect(transcript.some((l) => l.startsWith('EHLO'))).toBe(true);

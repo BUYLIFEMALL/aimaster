@@ -20,7 +20,7 @@ describe('ops', () => {
     expect(r.properties.title).toEqual([['b']]);
     expect(r.format).toEqual({ page_icon: '🔥' });
   });
-  it('list ops are idempotent and position-aware (Litpage semantics)', () => {
+  it('list ops are idempotent and position-aware (Workspace semantics)', () => {
     let r: any = { id: 'p', version: 1, content: ['a', 'b'] };
     r = applyOperation(r, op.listAfter(ptr, ['content'], 'c', 'a'));
     expect(r.content).toEqual(['a', 'c', 'b']);

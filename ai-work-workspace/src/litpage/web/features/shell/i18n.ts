@@ -8,6 +8,7 @@
 //   t('lp.shell.search_or_ask_here', 'Search or ask here')
 //   t('lp.shell.count_plural_one_other', '{count, plural, one {# page} other {# pages}}', { count: 3 })
 import ko from './i18n.ko-KR.json';
+import { setDateLocale } from '#shared/database/dates.ts';
 
 export type Locale = 'en-US' | 'ko-KR';
 export const LOCALES: { id: Locale; label: string; native: string }[] = [
@@ -31,6 +32,8 @@ function initialLocale(): Locale {
 
 let current: Locale = initialLocale();
 document.documentElement.lang = current.slice(0, 2);
+// 이식판: 데이터베이스 날짜 표시도 화면 언어를 따른다
+setDateLocale(current === 'ko-KR' ? 'ko' : 'en');
 
 export function getLocale(): Locale {
   return current;

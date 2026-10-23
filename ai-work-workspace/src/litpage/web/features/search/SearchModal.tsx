@@ -179,7 +179,7 @@ export function SearchModal() {
           const pageRows: Row[] = res.results.map((r: Row['result'] & { id: string; navigate?: Row['navigate'] }) => ({ id: r.id, navigate: r.navigate ?? { pageId: r.id }, result: r }));
           const actionRows = filtering ? [] : quickNavRows(query);
           const personRows: Row[] = (people?.userIds ?? []).map((uid: string) => ({ id: `person:${uid}`, kind: 'person' as const, userId: uid, navigate: { pageId: '' } }));
-          // top result "Search every source with AI" → Litpage AI research chat (nc:ai-search)
+          // top result "Search every source with AI" → AIMaster research chat (nc:ai-search)
           const aiRows: Row[] = query.trim() ? [{ id: 'action:ai', kind: 'action' as const, navigate: { pageId: '' }, action: { label: t('lp.search.search_every_source_with_ai', 'Search every source with AI'), icon: 'aiFace', run: () => window.dispatchEvent(new CustomEvent('nc:ai-search', { detail: { query: query.trim(), research: true } })) } } as Row] : [];
           setRows([...aiRows, ...actionRows, ...pageRows, ...personRows]);
           setTotal(res.total ?? res.results.length);
@@ -327,7 +327,7 @@ export function SearchModal() {
 
   return createPortal(
     <div className="nc-qf-layer" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
-      <div role="dialog" aria-label={t('lp.search.search_litpage', 'Search Litpage')} className="lit-dialog nc-qf-dialog" style={{ width: showPane ? 1006 : 600 }}>
+      <div role="dialog" aria-label={t('lp.search.search_litpage', 'Search Workspace')} className="lit-dialog nc-qf-dialog" style={{ width: showPane ? 1006 : 600 }}>
         <div className="search-snapshot-container nc-qf-grid">
           <div className="nc-qf-header">
             <div className="nc-qf-input-wrap">

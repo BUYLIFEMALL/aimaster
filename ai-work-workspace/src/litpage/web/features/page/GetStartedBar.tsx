@@ -25,7 +25,7 @@ export function GetStartedBar({ pageId }: { pageId: string }) {
     turnPageIntoDatabase(pageId, viewType, { setupPanel });
   };
   const spaceId = getBlock(pageId)?.space_id;
-  // no "Ask AI" while the workspace has Litpage AI off
+  // no "Ask AI" while the workspace has AIMaster off
   const aiOn = policyFromSpaceSettings(records.get<SpaceRecord>('space', spaceId ?? '')?.settings as Record<string, unknown> | undefined).enabled;
   const items: [string, ReactNode, () => void][] = [
     ...(aiOn ? [['Ask AI', <span className="nc-chip-ai"><Icon name="aiFace" size={14} /></span>, () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId } }))] as [string, ReactNode, () => void]] : []),

@@ -3,7 +3,7 @@
 // the assistant does not remember earlier prompts, it sees the database (property names, types, options and the
 // properties of related databases), the current formula and its error. The answer is a formula in plain
 // `prop("Name")` form (the client turns names back into property tokens) plus a short explanation; a formula that
-// doesn't parse gets one repair round ("Repairing"). No provider → 400 "Connect an AI provider to use Litpage AI".
+// doesn't parse gets one repair round ("Repairing"). No provider → 400 "Connect an AI provider to use AIMaster".
 //
 //   aiFormula { collectionId, prompt, formula?, error?, targetType?, context?: [{ label, type }] }
 //     → { formula, explanation, repaired? }
@@ -38,7 +38,7 @@ const FUNCTIONS = Object.values(LIBRARY)
   .sort()
   .join(', ');
 
-const SYSTEM_PROMPT = `You are the formula assistant inside a Litpage-style database. You write, fix and explain formulas written in the Formulas 2.0 language.
+const SYSTEM_PROMPT = `You are the formula assistant inside a Workspace-style database. You write, fix and explain formulas written in the Formulas 2.0 language.
 
 Language:
 - prop("Property name") reads a property of the current page. Relation and rollup properties are lists of pages; read a property of related pages with .map(current.prop("Name")), .first().prop("Name") or .filter(current.prop("Done")). Person properties are lists of people: use .first() or .map(current.name()).
@@ -178,7 +178,7 @@ export const handlers = {
       throw e;
     }
     const prompt = str(body?.prompt, MAX_PROMPT).trim();
-    if (!prompt) throw new ApiError('Tell Litpage AI what to write.', 400);
+    if (!prompt) throw new ApiError('Tell AIMaster what to write.', 400);
     if (!aiAllowed(userId)) throw new ApiError(AI_RATE_MESSAGE, 429);
     const context = Array.isArray(body?.context)
       ? (body.context as unknown[]).slice(0, 40).map((c: any) => ({ label: str(c?.label, 80), type: str(c?.type, 40) || undefined })).filter((c) => c.label)

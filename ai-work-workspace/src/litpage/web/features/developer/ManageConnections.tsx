@@ -116,7 +116,7 @@ export function ApiConnectionsManage() {
   const { connections, loaded } = useConnections();
   useEffect(() => { void useConnections.getState().load(true); }, []);
   return (
-    <Group title={t('lp.developer.api_connections', 'API connections')} description={t('lp.developer.internal_connections_that_call_the_litpa', 'Internal connections that call the Litpage API with their own token. They reach only the pages shared with them.')}>
+    <Group title={t('lp.developer.api_connections', 'API connections')} description={t('lp.developer.internal_connections_that_call_the_litpa', 'Internal connections that call the Workspace API with their own token. They reach only the pages shared with them.')}>
       {connections.length ? (
         <table className="nc-set-table" data-testid="api-connections">
           <thead><tr><th>{t('lp.developer.connection', 'Connection')}</th><th>{t('lp.developer.owner', 'Owner')}</th><th>{t('lp.developer.capabilities', 'Capabilities')}</th><th style={{ width: 70 }}>{t('lp.developer.pages', 'Pages')}</th><th style={{ width: 44 }} /></tr></thead>

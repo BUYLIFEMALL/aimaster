@@ -79,7 +79,7 @@ export function openaiError(status: number | undefined, payload: unknown, meta: 
   }
   if (st === 403 || /permission/i.test(type)) return new ProviderError('permission', 'This API key isn’t allowed to use the configured model.', 403, extra);
   if (/usage_limit/i.test(`${type} ${code}`)) return new ProviderError('rate_limited', 'The AI provider’s usage limit was reached. Try again later.', 429, extra);
-  if (st === 429 || /rate_limit/i.test(`${type} ${code}`)) return new ProviderError('rate_limited', 'Litpage AI is receiving too many requests. Try again in a moment.', 429, extra);
+  if (st === 429 || /rate_limit/i.test(`${type} ${code}`)) return new ProviderError('rate_limited', 'AIMaster is receiving too many requests. Try again in a moment.', 429, extra);
   if (st === 404 || /model/i.test(detail) && /not (supported|found|available)|does not exist|unknown model|unsupported model/i.test(detail)) {
     return new ProviderError('not_found', `The model ${model} isn’t available from the AI provider.`, 400, extra);
   }
@@ -87,12 +87,12 @@ export function openaiError(status: number | undefined, payload: unknown, meta: 
     return new ProviderError('bad_request', 'This conversation is too long for the model. Start a new chat or attach less content.', 400, extra);
   }
   if (st === 400 || st === 413 || st === 422 || /invalid_request/i.test(type)) {
-    return new ProviderError('bad_request', `Litpage AI couldn’t process this request. ${detail}`.trim(), 400, extra);
+    return new ProviderError('bad_request', `AIMaster couldn’t process this request. ${detail}`.trim(), 400, extra);
   }
   if ((st && st >= 500) || /server_error|overloaded|unavailable/i.test(`${type} ${code}`)) {
-    return new ProviderError('overloaded', 'Litpage AI is temporarily unavailable. Try again in a moment.', 503, extra);
+    return new ProviderError('overloaded', 'AIMaster is temporarily unavailable. Try again in a moment.', 503, extra);
   }
-  return new ProviderError('unknown', 'Something went wrong with Litpage AI. Try again.', 502, extra);
+  return new ProviderError('unknown', 'Something went wrong with AIMaster. Try again.', 502, extra);
 }
 
 const retryable = (e: ProviderError) => e.retryAfterMs !== Infinity && (e.code === 'overloaded' || e.code === 'network' || (e.code === 'rate_limited' && !/usage limit/.test(e.message)));
@@ -212,7 +212,7 @@ class OpenAIMessageStream {
         });
       } catch (e) {
         if (this.signal?.aborted) throw abortError();
-        if (idle) throw new ProviderError('overloaded', 'Litpage AI took too long to respond. Try again.', 504, { detail: 'idle timeout' });
+        if (idle) throw new ProviderError('overloaded', 'AIMaster took too long to respond. Try again.', 504, { detail: 'idle timeout' });
         throw new ProviderError('network', 'Couldn’t reach the AI provider. Check the server’s network connection.', 502, { detail: scrub(String((e as Error)?.cause ?? (e as Error)?.message ?? e)).slice(0, 200) });
       }
       requestId = requestIdOf(res.headers);
@@ -229,7 +229,7 @@ class OpenAIMessageStream {
         if (Number.isFinite(ra) && ra > 0) err.retryAfterMs = ra <= 4 ? ra * 1000 : Infinity;
         throw err;
       }
-      if (!res.body) throw new ProviderError('unknown', 'Something went wrong with Litpage AI. Try again.', 502, { requestId, detail: 'empty response body' });
+      if (!res.body) throw new ProviderError('unknown', 'Something went wrong with AIMaster. Try again.', 502, { requestId, detail: 'empty response body' });
       let ended = false;
       for await (const ev of readSse(timed(res.body as unknown as AsyncIterable<Uint8Array>, arm))) {
         if (!ev.data || ev.data === '[DONE]') continue;
@@ -248,12 +248,12 @@ class OpenAIMessageStream {
       }
       if (!ended) {
         if (this.signal?.aborted) throw abortError();
-        if (idle) throw new ProviderError('overloaded', 'Litpage AI took too long to respond. Try again.', 504, { requestId, detail: 'idle timeout' });
+        if (idle) throw new ProviderError('overloaded', 'AIMaster took too long to respond. Try again.', 504, { requestId, detail: 'idle timeout' });
         throw new ProviderError('overloaded', 'The AI provider closed the connection early. Try again.', 502, { requestId, detail: 'stream ended before response.completed' });
       }
     } catch (e) {
       if (this.signal?.aborted) throw abortError();
-      if (idle && !(e instanceof ProviderError)) throw new ProviderError('overloaded', 'Litpage AI took too long to respond. Try again.', 504, { requestId, detail: 'idle timeout' });
+      if (idle && !(e instanceof ProviderError)) throw new ProviderError('overloaded', 'AIMaster took too long to respond. Try again.', 504, { requestId, detail: 'idle timeout' });
       if (e instanceof AiError) throw e;
       throw new ProviderError('network', 'Couldn’t reach the AI provider. Check the server’s network connection.', 502, { requestId, detail: scrub(String((e as Error)?.message ?? e)).slice(0, 200) });
     } finally {

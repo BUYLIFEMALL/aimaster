@@ -47,7 +47,7 @@ for (const col of ['title', 'name']) {
   if (!(db.prepare('PRAGMA table_info(template_reviews)').all() as { name: string }[]).some((c) => c.name === col)) db.exec(`ALTER TABLE template_reviews ADD COLUMN ${col} TEXT`);
 }
 
-// the template catalog ships with Litpage: its "last updated" is the catalog's release date
+// the template catalog ships with Workspace: its "last updated" is the catalog's release date
 const CATALOG_UPDATED = Date.UTC(2026, 8, 15);
 
 function stats(uid: string) {

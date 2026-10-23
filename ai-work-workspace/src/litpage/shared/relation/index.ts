@@ -44,7 +44,7 @@ export interface RelationChange {
 
 /**
  * Plan the property writes for setting a relation value, including the reverse side of a two-way relation
- * (Litpage keeps both sides in sync: adding B to A.Rel adds A to B.Reverse; removal likewise).
+ * (Workspace keeps both sides in sync: adding B to A.Rel adds A to B.Reverse; removal likewise).
  */
 export function planRelationChange(opts: {
   row: BlockRecord;
@@ -114,7 +114,7 @@ export function relationSchemas(opts: {
     } as PropertySchema;
     return { source, reverse: { collectionId: opts.targetCollectionId, propId: opts.reversePropId, schema: reverse } };
   }
-  // self relation without a second property acts symmetrically (Litpage: one property, both directions)
+  // self relation without a second property acts symmetrically (Workspace: one property, both directions)
   if (self) source.property = opts.sourcePropId;
   return { source };
 }

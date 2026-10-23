@@ -130,9 +130,9 @@ export function ConnectionsSection() {
         <div className="nm-row">
           <div className="nm" title={c.name}>{c.name}</div>
           {c.litpage && (
-            <span className="built" data-tooltip={t('lp.settings.built_and_maintained_by_litpage', 'Built and maintained by Litpage')}>
+            <span className="built" data-tooltip={t('lp.settings.built_and_maintained_by_litpage', 'Built and maintained by Workspace')}>
               <Icon name="badgeCheck" size={12} />
-              <span>{t('lp.settings.made_by_litpage', 'Built by Litpage')}</span>
+              <span>{t('lp.settings.made_by_litpage', 'Built by Workspace')}</span>
             </span>
           )}
         </div>
@@ -149,7 +149,7 @@ export function ConnectionsSection() {
       title={t('lp.settings.connections', 'Connections')}
       subtitle={
         <span className="nc-set-balanced">
-          {t('lp.settings.connect_services_to_use_in_litpage', 'Connect services to use in Litpage. Search, sync, and automate work across the tools your team already uses.')}
+          {t('lp.settings.connect_services_to_use_in_litpage', 'Connect services to use in Workspace. Search, sync, and automate work across the tools your team already uses.')}
         </span>
       }
     >
@@ -221,9 +221,9 @@ export function ConnectionsSection() {
                 {c.key === 'featured' && (
                   <div className="nc-set-cmore-row">
                     <div className="nc-set-mcp-hint">
-                      <span>{t('lp.settings.use_litpage_with_your_ai_tools', 'Use Litpage with your AI tools through a custom MCP connection:')}</span>
+                      <span>{t('lp.settings.use_litpage_with_your_ai_tools', 'Use Workspace with your AI tools through a custom MCP connection:')}</span>
                       <span role="button" tabIndex={0} className="nc-set-link strong" onClick={() => useUI.getState().set({ settingsSection: 'lit-mcp' })}>
-                        {t('lp.settings.litpage_mcp', 'Litpage MCP')}
+                        {t('lp.settings.litpage_mcp', 'Workspace MCP')}
                         <Icon name="arrowStraightRightSmall" size={14} />
                       </span>
                     </div>
@@ -382,7 +382,7 @@ function ManageConnections({ space }: { space: SpaceRecord }) {
         <Row
           id="custom-mcp-servers"
           label={t('lp.settings.turn_on_custom_mcp_servers', 'Turn on custom MCP servers')}
-          description={t('lp.settings.members_can_link_agents_to_custom', 'Members can link agents to custom MCP servers not reviewed by Litpage. Through those servers, agents can send content outside, pull in external data, and act in other systems.')}
+          description={t('lp.settings.members_can_link_agents_to_custom', 'Members can link agents to custom MCP servers not reviewed by Workspace. Through those servers, agents can send content outside, pull in external data, and act in other systems.')}
           control={<Switch label="Turn on custom MCP servers" checked={customMcp} onChange={(v) => saveSpaceSettings(space.id, { ai_custom_mcp: v })} />}
         />
       </Group>

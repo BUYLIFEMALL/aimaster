@@ -247,7 +247,7 @@ describe('Property access', () => {
     tx(ids.alice, [setOp('collection', ids.col, ['schema', 'notes', 'property_permissions'], undefined)]);
   });
 
-  it('resolves roles like Litpage (full access wins, exceptions beat the default, person-property exceptions per page)', () => {
+  it('resolves roles like Workspace (full access wins, exceptions beat the default, person-property exceptions per page)', () => {
     const prop: any = { name: 'P', type: 'text', property_permissions: { default_access: 'schema_only', overrides: [
       { type: 'group_permission', group_id: 'g1', role: 'reader' },
       { type: 'collection_property_permission', property_info: { property_id: 'own', type: 'person' }, role: 'content_only_editor' },

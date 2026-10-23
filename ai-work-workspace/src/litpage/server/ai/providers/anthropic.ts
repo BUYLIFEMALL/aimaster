@@ -35,13 +35,13 @@ export function mapAnthropicError(e: unknown, model: string): AiError | null {
   }
   if (e instanceof PermissionDeniedError) return new AiError('permission', 'This API key isn’t allowed to use the configured model.', 403);
   if (e instanceof NotFoundError) return new AiError('not_found', `The model "${model}" isn’t available from the AI provider.`, 400);
-  if (e instanceof RateLimitError) return new AiError('rate_limited', 'Litpage AI is receiving too many requests. Try again in a moment.', 429);
-  if (e instanceof InternalServerError) return new AiError('overloaded', 'Litpage AI is temporarily unavailable. Try again in a moment.', 503);
-  if (e instanceof BadRequestError) return new AiError('bad_request', `Litpage AI couldn’t process this request. ${scrub(cleanApiMessage(e))}`.trim(), 400);
+  if (e instanceof RateLimitError) return new AiError('rate_limited', 'AIMaster is receiving too many requests. Try again in a moment.', 429);
+  if (e instanceof InternalServerError) return new AiError('overloaded', 'AIMaster is temporarily unavailable. Try again in a moment.', 503);
+  if (e instanceof BadRequestError) return new AiError('bad_request', `AIMaster couldn’t process this request. ${scrub(cleanApiMessage(e))}`.trim(), 400);
   if (e instanceof APIConnectionError) return new AiError('network', 'Couldn’t reach the AI provider. Check the server’s network connection.', 502);
   if (e instanceof APIError) {
-    if (e.status === 529) return new AiError('overloaded', 'Litpage AI is temporarily overloaded. Try again in a moment.', 503);
-    return new AiError('unknown', 'Something went wrong with Litpage AI. Try again.', 502);
+    if (e.status === 529) return new AiError('overloaded', 'AIMaster is temporarily overloaded. Try again in a moment.', 503);
+    return new AiError('unknown', 'Something went wrong with AIMaster. Try again.', 502);
   }
   return null;
 }

@@ -64,7 +64,7 @@ export function providerId(): ProviderId {
     if (raw === 'anthropic' || raw === 'claude') return 'anthropic';
     if (raw !== 'none' && raw !== 'off' && warnedValue !== raw) {
       warnedValue = raw;
-      console.warn(`[ai] unknown NC_AI_PROVIDER "${raw.slice(0, 40)}": Litpage AI is off (use openai, anthropic or none)`);
+      console.warn(`[ai] unknown NC_AI_PROVIDER "${raw.slice(0, 40)}": AIMaster is off (use openai, anthropic or none)`);
     }
     return 'none';
   }

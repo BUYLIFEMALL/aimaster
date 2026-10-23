@@ -91,7 +91,7 @@ function NewConnection({ close, onCreated }: { close: () => void; onCreated?: (c
   return (
     <>
       <h3>{t('lp.developer.new_connection', 'New connection')}</h3>
-      <div className="desc">{t('lp.developer.set_up_a_connection_so_apps', 'Set up a connection so apps, agents, and workflows can authenticate with Litpage. Scope it to one workspace or several.')}</div>
+      <div className="desc">{t('lp.developer.set_up_a_connection_so_apps', 'Set up a connection so apps, agents, and workflows can authenticate with Workspace. Scope it to one workspace or several.')}</div>
       <div className="nc-dev-field">
         <label>{t('lp.developer.connection_name', 'Connection name')}</label>
         <input className="nc-dev-input" autoFocus aria-label={t('lp.developer.connection_name', 'Connection name')} value={name} placeholder={placeholder} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) void submit(); }} />
@@ -178,7 +178,7 @@ function TokensTab() {
   return (
     <>
       <div className="nc-dev-toolbar">
-        <div className="desc" style={{ fontSize: 13, color: 'var(--lp-text-secondary)' }}>{t('lp.developer.create_a_personal_access_token_for', 'Create a personal access token for Litpage API requests. <manageTokens>Manage your tokens</manageTokens>.').replace(/<[^>]+>[^<]*<\/[^>]+>\.?/, '').trim()}</div>
+        <div className="desc" style={{ fontSize: 13, color: 'var(--lp-text-secondary)' }}>{t('lp.developer.create_a_personal_access_token_for', 'Create a personal access token for Workspace API requests. <manageTokens>Manage your tokens</manageTokens>.').replace(/<[^>]+>[^<]*<\/[^>]+>\.?/, '').trim()}</div>
         <span className="grow" />
         <Button variant="primary" icon="plus" onClick={create}>{t('lp.developer.new_token', 'New token')}</Button>
       </div>
@@ -188,7 +188,7 @@ function TokensTab() {
           {(tokens ?? []).map((p) => (
             <tr key={p.id}>
               <td className="primary">{p.name || t('lp.developer.untitled_token', 'Untitled token')} <span className="nc-dev-mono">{p.prefix}…</span></td>
-              <td>{t('lp.developer.litpage_api', 'Litpage API')}</td>
+              <td>{t('lp.developer.litpage_api', 'Workspace API')}</td>
               <td>{fmtDate(p.createdTime)}</td>
               <td>{p.lastUsedTime ? fmtDate(p.lastUsedTime) : t('lp.developer.text', '—')}</td>
               <td>{t('lp.developer.active', 'Active')}</td>
@@ -367,7 +367,7 @@ function ConnectionDetail({ id }: { id: string }) {
             <div className="nc-dev-section">
               <h2>{t('lp.developer.make_your_first_request', 'Make your first request')}</h2>
               <div className="desc">{t('lp.developer.share_a_page_with_this_connection', 'Share a page with this connection (page ••• › Connections), then call the API with its token. Replace the token placeholder with the secret you copied.')}</div>
-              <pre className="nc-dev-code" data-testid="api-example">{`curl ${location.origin}/v1/search \\\n  -H "Authorization: Bearer ${c.tokenPrefix}…" \\\n  -H "Litpage-Version: 2026-10-01" \\\n  -H "Content-Type: application/json" \\\n  -d '{"page_size": 10}'`}</pre>
+              <pre className="nc-dev-code" data-testid="api-example">{`curl ${location.origin}/v1/search \\\n  -H "Authorization: Bearer ${c.tokenPrefix}…" \\\n  -H "Workspace-Version: 2026-10-01" \\\n  -H "Content-Type: application/json" \\\n  -d '{"page_size": 10}'`}</pre>
             </div>
           )}
           <div className="nc-dev-section">
@@ -496,7 +496,7 @@ function WebhooksTab({ data, reload }: { data: ConnectionDetailData; reload: () 
         return (
           <div key={w.id} className="nc-dev-section" data-testid="webhook">
             {w.status === 'pending_verification' && (
-              <div className="nc-dev-callout warn"><Icon name="warning" size={16} /><div><b>{t('lp.developer.webhook_events_won_t_arrive_until', 'Webhook events won’t arrive until your endpoint is verified')}</b><div className="sub">{t('lp.developer.verify_your_endpoint_before_receiving_ev', 'Verify your endpoint before receiving events. This confirms a secure connection between Litpage and your application.')}</div></div></div>
+              <div className="nc-dev-callout warn"><Icon name="warning" size={16} /><div><b>{t('lp.developer.webhook_events_won_t_arrive_until', 'Webhook events won’t arrive until your endpoint is verified')}</b><div className="sub">{t('lp.developer.verify_your_endpoint_before_receiving_ev', 'Verify your endpoint before receiving events. This confirms a secure connection between Workspace and your application.')}</div></div></div>
             )}
             {w.status === 'paused_errors' && (
               <div className="nc-dev-callout warn"><Icon name="warning" size={16} /><div><b>{t('lp.developer.deliveries_to_this_webhook_are_paused', 'Deliveries to this webhook are paused')}</b><div className="sub">{t('lp.developer.this_webhook_subscription_is_paused_beca', 'This webhook subscription is paused because of a high error rate. Fix the issue and resume it to restart event delivery.')}</div></div></div>
@@ -511,7 +511,7 @@ function WebhooksTab({ data, reload }: { data: ConnectionDetailData; reload: () 
                 if (ok) { await api('devUpdateWebhook', { webhookId: w.id, status: 'paused' }); reload(); }
               }}>{t('lp.developer.pause', 'Pause')}</Button>}
               {(w.status === 'paused' || w.status === 'paused_errors') && <Button onClick={async () => {
-                const ok = await confirmDialog({ title: t('lp.developer.turn_this_subscription_back_on', 'Turn this subscription back on?'), description: t('lp.developer.litpage_will_begin_sending_events_to', 'Litpage will begin sending events to your webhook URL, so make sure it can reply with a successful HTTP response.'), confirmLabel: t('lp.developer.resume', 'Resume') });
+                const ok = await confirmDialog({ title: t('lp.developer.turn_this_subscription_back_on', 'Turn this subscription back on?'), description: t('lp.developer.litpage_will_begin_sending_events_to', 'Workspace will begin sending events to your webhook URL, so make sure it can reply with a successful HTTP response.'), confirmLabel: t('lp.developer.resume', 'Resume') });
                 if (ok) { await api('devUpdateWebhook', { webhookId: w.id, status: 'active' }); reload(); }
               }}>{t('lp.developer.resume', 'Resume')}</Button>}
               <Button onClick={() => openSubDialog((close) => <WebhookForm connectionId={c.id} events={data.events} existing={w} close={close} onDone={reload} />)}>{t('lp.developer.edit_subscription', 'Edit subscription')}</Button>

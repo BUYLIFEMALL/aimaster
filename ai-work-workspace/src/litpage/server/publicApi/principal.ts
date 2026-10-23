@@ -8,7 +8,7 @@ import { db, getRecord } from '../db.ts';
 import { blockRole } from '../records.ts';
 import { integrationForToken, sha256, type Capabilities, type Integration } from './store.ts';
 
-/** The single API version supported by Litpage's public REST API. */
+/** The single API version supported by Workspace's public REST API. */
 export const API_VERSION = '2026-10-01';
 
 export interface Principal {

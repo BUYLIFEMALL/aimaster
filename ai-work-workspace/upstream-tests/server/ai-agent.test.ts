@@ -318,13 +318,13 @@ describe('chat turn', () => {
   });
 });
 
-describe('Litpage MCP server', () => {
+describe('Workspace MCP server', () => {
   it('authenticates tokens and runs tools as the token user', async () => {
     const { token } = mcp.createToken(B, spaceId, 'Claude Desktop');
     expect((await mcp.handleMcpHttp(undefined, { jsonrpc: '2.0', id: 1, method: 'tools/list' })).status).toBe(401);
     const init = await mcp.handleMcpHttp(`Bearer ${token}`, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } });
     expect(init.status).toBe(200);
-    expect((init.body as any).result.serverInfo.name).toBe('Litpage MCP');
+    expect((init.body as any).result.serverInfo.name).toBe('Workspace MCP');
     expect((await mcp.handleMcpHttp(`Bearer ${token}`, { jsonrpc: '2.0', method: 'notifications/initialized' })).status).toBe(202);
     const list = await mcp.handleMcpHttp(`Bearer ${token}`, { jsonrpc: '2.0', id: 2, method: 'tools/list' });
     const names = (list.body as any).result.tools.map((t: any) => t.name);

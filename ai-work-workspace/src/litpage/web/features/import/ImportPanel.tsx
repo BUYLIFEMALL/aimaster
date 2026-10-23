@@ -32,7 +32,7 @@ const FILE_SOURCES = (): Source[] => [
   { id: 'pdf', title: t('lp.import.pdf', 'PDF'), caption: t('lp.import.pull_content_out_of_pdf_files', 'Pull content out of PDF files'), icon: 'filePdfDoc', kind: 'pdf', accept: '.pdf,application/pdf' },
   { id: 'markdown', title: t('lp.import.text_markdown', 'Text & Markdown'), caption: t('lp.import.bring_in_notes_from_plain_text', 'Bring in notes, from plain text to rich formatting'), icon: 'fileText', kind: 'markdown', accept: '.md,.markdown,.txt,.zip,text/markdown,text/plain,application/zip' },
   { id: 'html', title: t('lp.import.html', 'HTML'), caption: t('lp.import.bring_in_web_pages_keeping_their', 'Bring in web pages, keeping their structure'), icon: 'codeBrackets', kind: 'html', accept: '.html,.htm,.zip,text/html' },
-  { id: 'word', title: t('lp.import.word', 'Word'), caption: t('lp.import.convert_word_docs_to_litpage_pages', 'Convert Word docs to Litpage pages'), icon: 'importWord', kind: 'word', accept: '.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+  { id: 'word', title: t('lp.import.word', 'Word'), caption: t('lp.import.convert_word_docs_to_litpage_pages', 'Convert Word docs to Workspace pages'), icon: 'importWord', kind: 'word', accept: '.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
 ];
 
 const THIRD_PARTY = (): Source[] => [
@@ -299,7 +299,7 @@ export function ImportPanel({ onDone, parentPageId, afterBlockId, initialKind }:
               ) : (
                 <>
                   <Icon name="cloudArrowUp" size={24} style={{ color: 'var(--lp-blue-icon-tertiary)', marginBottom: 8 }} />
-                  <div className="nc-import-drop-title">{t('lp.import.import_content_into_litpage', 'Import content into Litpage')}</div>
+                  <div className="nc-import-drop-title">{t('lp.import.import_content_into_litpage', 'Import content into Workspace')}</div>
                   <div className="nc-import-drop-line">
                     <span>{t('lp.import.drop_html_markdown_text_pdf_csv', 'Drop HTML, markdown, text, PDF, CSV, or ZIP files here, or')}</span>
                     <span role="button" className="nc-import-choose" onClick={() => pick()}>{t('lp.import.select_a_file', 'select a file')}</span>

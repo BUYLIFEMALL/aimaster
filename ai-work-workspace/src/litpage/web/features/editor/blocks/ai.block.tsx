@@ -38,7 +38,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
             <button
               className="nc-blk-btn primary"
               onClick={() => {
-                if (!emit('nc:meeting-notes', { blockId: block.id, action: state === 'transcription_in_progress' ? 'stop' : 'start' })) toast('AI meeting notes needs the Litpage desktop app or a connected AI service.');
+                if (!emit('nc:meeting-notes', { blockId: block.id, action: state === 'transcription_in_progress' ? 'stop' : 'start' })) toast('AI meeting notes needs the Workspace desktop app or a connected AI service.');
               }}
             >
               <Icon name="mic" size={14} />
@@ -63,7 +63,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
               let id = '';
               run('meetingNotes.addNote', (tx) => { id = createBlockIn(tx, { type: 'text', parentId: block.id, parentTable: 'block' }); });
               useEditor.getState().requestFocus(id, 0);
-            }}>Litpage AI will turn notes and transcript into a summary</div>
+            }}>AIMaster will turn notes and transcript into a summary</div>
           ))}
           {tab === 'summary' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>Write the summary here…</div>}
           {tab === 'transcript' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>The transcript will appear here…</div>}
@@ -90,7 +90,7 @@ function AiBlock({ block, readOnly }: BlockProps) {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && prompt.trim() && !e.nativeEvent.isComposing) {
                   e.preventDefault();
-                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast('Litpage AI is not connected in this workspace.');
+                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast('AIMaster is not connected in this workspace.');
                   setPrompt('');
                 }
               }}

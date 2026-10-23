@@ -61,7 +61,7 @@ export function GuestBanner({ spaceId }: { spaceId: string | undefined }) {
       <span className="msg">
         {state.canRequest
           ? t('lp.shell.in_you_only_have_guest_access', 'In {workspaceName} you only have guest access. Join as a member to unlock everything, or set up a workspace of your own.', { workspaceName: name })
-          : t('lp.shell.in_you_only_have_guest_access_f514', 'In {workspaceName} you only have guest access. Create your own workspace to use everything Litpage offers.', { workspaceName: name })}
+          : t('lp.shell.in_you_only_have_guest_access_f514', 'In {workspaceName} you only have guest access. Create your own workspace to use everything Workspace offers.', { workspaceName: name })}
       </span>
       {state.canRequest && (
         <div role="button" className="nc-permission-banner-btn" onClick={() => spaceId && openMembershipRequestDialog(spaceId, name)}>

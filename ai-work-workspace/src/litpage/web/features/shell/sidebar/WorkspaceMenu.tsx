@@ -208,7 +208,7 @@ function confirmLogoutAll(): Promise<void> {
     openOverlay((close) => (
       <div className="nc-ws-dialog nc-ws-add-account" role="alertdialog">
         <div className="nc-ws-add-account-title">{tRich('lp.shell.isloggedintomultipleaccounts_select_true_d1cc', '{isLoggedIntoMultipleAccounts, select, true {<bold>Sign out everywhere?</bold>} other {<bold>Log out of this account?</bold>}}', { isLoggedIntoMultipleAccounts: 'true' })}</div>
-        <div className="nc-ws-add-account-desc">{t('lp.shell.sign_in_again_to_access_your', 'Sign in again to access your Litpage workspaces.')}</div>
+        <div className="nc-ws-add-account-desc">{t('lp.shell.sign_in_again_to_access_your', 'Sign in again to access your Workspace workspaces.')}</div>
         <div className="nc-ws-add-account-footer">
           <button className="nc-btn primary danger" onClick={() => { close(); void logoutAllAccounts(); resolve(); }}>
             {t('lp.shell.isloggedintomultipleaccounts_select_true', '{isLoggedIntoMultipleAccounts, select, true {Sign out everywhere} other {Sign out}}', { isLoggedIntoMultipleAccounts: 'true' })}

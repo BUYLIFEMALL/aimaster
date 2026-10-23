@@ -66,7 +66,7 @@ export function meetingState(b: BlockRecord | undefined): MeetingStateValue {
 const SPEECH_ERRORS: Record<SpeechErrorCode, () => string> = {
   unsupported: () => t('lp.meetings.live_transcription_isn_t_supported_in', 'Live transcription isn’t supported in this browser. Use Chrome, Edge or Safari, or upload audio instead.'),
   permission: () => t('lp.meetings.microphone_permission_is_missing_allow_m', 'Microphone permission is missing. Allow microphone access in system settings'),
-  no_microphone: () => t('lp.meetings.litpage_can_t_find_a_microphone', 'Litpage can’t find a microphone. Check your system settings to connect one'),
+  no_microphone: () => t('lp.meetings.litpage_can_t_find_a_microphone', 'Workspace can’t find a microphone. Check your system settings to connect one'),
   network: () => t('lp.meetings.dictation_didn_t_work_try_again', 'Dictation didn’t work. Try again.'),
   language: () => t('lp.meetings.this_language_isn_t_supported_for', 'This language isn’t supported for live transcription in this browser. Pick another language.'),
   failed: () => t('lp.meetings.dictation_didn_t_work_try_again', 'Dictation didn’t work. Try again.'),

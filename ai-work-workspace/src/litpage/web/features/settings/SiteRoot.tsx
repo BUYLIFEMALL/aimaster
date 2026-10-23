@@ -23,7 +23,7 @@ export function SiteRoot({ domain }: { domain: string }) {
       <div className="nc-public-message" data-testid="site-not-found">
         <div className="title">{t('lp.settings.we_couldn_t_find_this_page', 'We couldn’t find this page')}</div>
         <div className="sub">{t('lp.settings.this_might_be_deleted_moved_or', 'This might be deleted, moved, or not shared with you. Double-check the link, then retry.')}</div>
-        <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.settings.open_litpage', 'Open Litpage')}</button>
+        <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.settings.open_litpage', 'Open Workspace')}</button>
       </div>
     </div>
   );

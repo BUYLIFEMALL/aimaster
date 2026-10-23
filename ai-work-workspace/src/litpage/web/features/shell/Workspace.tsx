@@ -46,7 +46,7 @@ export function Workspace() {
   useSessionHousekeeping();
 
   // "/" and "/<domain>" open the start page (Settings › Preferences › Start page: Last visited page / Top page in
-  // sidebar / Library / Litpage AI). There is no widget Home page: "Home" is only a sidebar tab.
+  // sidebar / Library / AIMaster). There is no widget Home page: "Home" is only a sidebar tab.
   // /invite/<code> (or an invite remembered across login) → join that workspace
   useEffect(() => {
     if (route.name === 'invite') rememberInvite(route.code);

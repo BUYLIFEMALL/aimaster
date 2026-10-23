@@ -1,6 +1,6 @@
 // Page verification is written by the server only (api/modules/wiki.ts setPageVerification /
 // setPageOwners: owner, plan and archive rules, expiry jobs). The transaction guard (authz.ts) keeps client writes —
-// Litpage transactions, the public API, or anything hand-built, from forging it:
+// Workspace transactions, the public API, or anything hand-built, from forging it:
 // - format.page_verification of a page can't change
 // - the value of a database's Verification property can't change, and no property may get a verification value
 // (a `vr` atom) — it could become a Verification property later

@@ -613,8 +613,8 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
         <div className="nc-publish-heading">
           <div className="nc-publish-title">{t('lp.page.publish_to_the_web', 'Publish to the web')}</div>
           <div className="nc-publish-sub">
-            {t('lp.page.build_your_own_site_on_litpage', 'Build your own site on Litpage')}
-            {HELP_URL && <a role="button" aria-label={t('lp.page.how_litpage_sites_work', 'How Litpage sites work')} href={HELP_URL} target="_blank" rel="noreferrer" className="nc-publish-help">
+            {t('lp.page.build_your_own_site_on_litpage', 'Build your own site on Workspace')}
+            {HELP_URL && <a role="button" aria-label={t('lp.page.how_litpage_sites_work', 'How Workspace sites work')} href={HELP_URL} target="_blank" rel="noreferrer" className="nc-publish-help">
               <Icon name="questionMark" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />
             </a>}
           </div>
@@ -627,7 +627,7 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
             <span style={{ flex: 1 }} />
             <Icon name="search" size={12} />
             <Icon name="ellipsis" size={12} />
-            <span className="pill">{t('lp.page.get_litpage_for_free', 'Get Litpage for free')}</span>
+            <span className="pill">{t('lp.page.get_litpage_for_free', 'Get Workspace for free')}</span>
           </div>
           <div className="sep" />
           <div style={{ height: 62 }} />

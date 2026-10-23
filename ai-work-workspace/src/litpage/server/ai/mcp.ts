@@ -186,7 +186,7 @@ async function rpc(url: string, token: string | null, session: string | null, id
 /** initialize → initialized → tools/list (connection check and tool listing). */
 export async function fetchServerTools(url: string, token: string | null): Promise<McpTool[]> {
   try {
-    const init = await rpc(url, token, null, 1, 'initialize', { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: { name: 'Litpage', version: '1.0.0' } });
+    const init = await rpc(url, token, null, 1, 'initialize', { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: { name: 'Workspace', version: '1.0.0' } });
     await rpc(url, token, init.session, null, 'notifications/initialized');
     const list = await rpc(url, token, init.session, 2, 'tools/list', {});
     const tools = Array.isArray(list.result?.tools) ? list.result.tools : [];
@@ -199,7 +199,7 @@ export async function fetchServerTools(url: string, token: string | null): Promi
       ...(t.inputSchema && typeof t.inputSchema === 'object' && JSON.stringify(t.inputSchema).length <= 20_000 ? { inputSchema: t.inputSchema } : {}),
     }));
   } catch (e) {
-    if (e instanceof FetchBlockedError) throw new AiError('bad_request', 'Failed to connect: this URL can’t be reached from Litpage.', 400);
+    if (e instanceof FetchBlockedError) throw new AiError('bad_request', 'Failed to connect: this URL can’t be reached from Workspace.', 400);
     throw new AiError('bad_request', `Connection failed: ${scrub(String((e as Error)?.message ?? e)).slice(0, 200)}`, 400);
   }
 }
@@ -302,14 +302,14 @@ export async function callMcpTool(ownerId: string, connectionId: string, tool: s
   if (!r.enabled) throw new AiError('forbidden', 'That connection is turned off.', 403);
   assertAllowed(r.space_id, r.url);
   try {
-    const init = await rpc(r.url, r.token, null, 1, 'initialize', { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: { name: 'Litpage', version: '1.0.0' } });
+    const init = await rpc(r.url, r.token, null, 1, 'initialize', { protocolVersion: PROTOCOL, capabilities: {}, clientInfo: { name: 'Workspace', version: '1.0.0' } });
     await rpc(r.url, r.token, init.session, null, 'notifications/initialized');
     const res = await rpc(r.url, r.token, init.session, 3, 'tools/call', { name: tool, arguments: args });
     const content = Array.isArray(res.result?.content) ? res.result.content : [];
     const text = content.map((c: any) => (c?.type === 'text' ? String(c.text ?? '') : c?.type ? `[${c.type}]` : '')).filter(Boolean).join('\n').slice(0, 100_000);
     return { text: text || '(no content)', isError: !!res.result?.isError };
   } catch (e) {
-    if (e instanceof FetchBlockedError) throw new AiError('bad_request', 'This MCP server can’t be reached from Litpage.', 400);
+    if (e instanceof FetchBlockedError) throw new AiError('bad_request', 'This MCP server can’t be reached from Workspace.', 400);
     throw new AiError('bad_request', `The MCP server failed: ${scrub(String((e as Error)?.message ?? e)).slice(0, 200)}`, 400);
   }
 }

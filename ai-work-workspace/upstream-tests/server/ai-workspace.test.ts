@@ -150,7 +150,7 @@ describe('AI Autofill — On page update', () => {
     expect(block(rowId).properties[sumPid]).toEqual([['Summary of Acme final']]);
   });
 
-  it('stays off when Litpage AI is disabled for the workspace or the autofill is removed', async () => {
+  it('stays off when AIMaster is disabled for the workspace or the autofill is removed', async () => {
     setSpaceSettings({ ai_enabled: false });
     setTitle(A, rowId, 'Acme disabled');
     await sleep(120);

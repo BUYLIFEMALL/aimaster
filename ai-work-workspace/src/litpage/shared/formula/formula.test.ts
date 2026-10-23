@@ -105,7 +105,7 @@ const err = (src: string, r: BlockRecord | null = blocks.t1) => ev(src, r).error
 
 // ------------------------------------------------------------------ library coverage
 describe('library', () => {
-  it('defines all 97 Litpage formula functions', () => {
+  it('defines all 97 Workspace formula functions', () => {
     expect(Object.keys(LIBRARY).length).toBe(97);
     const listed = Object.values(MENU_ORDER).flat();
     expect(listed.length).toBe(95);
@@ -191,31 +191,31 @@ describe('generic', () => {
 
 describe('text', () => {
   it('substring / contains / test / match', () => {
-    expect(val('substring("Litpage", 0, 3)')).toBe('Lit');
-    expect(val('substring("Litpage", 3)')).toBe('page');
-    expect(val('"Litpage".substring(0, 3)')).toBe('Lit');
-    expect(val('contains("Litpage", "it")')).toBe(true);
-    expect(val('"Litpage".contains("it")')).toBe(true);
+    expect(val('substring("Workspace", 0, 3)')).toBe('Lit');
+    expect(val('substring("Workspace", 3)')).toBe('page');
+    expect(val('"Workspace".substring(0, 3)')).toBe('Lit');
+    expect(val('contains("Workspace", "it")')).toBe(true);
+    expect(val('"Workspace".contains("it")')).toBe(true);
     expect(val('prop("Tags").contains("Fin")')).toBe(true);
-    expect(val('test("Litpage", "Lit")')).toBe(true);
-    expect(val('test("Litpage", "\\d")')).toBe(false);
-    expect(val('"Litpage".test("Lit")')).toBe(true);
-    expect(val('match("Litpage Litpage", "Lit")')).toEqual(['Lit', 'Lit']);
-    expect(val('match("Litpage 123 Litpage 456", "\\d+")')).toEqual(['123', '456']);
-    expect(val('"Litpage 123 Litpage 456".match("\\d+")')).toEqual(['123', '456']);
+    expect(val('test("Workspace", "Lit")')).toBe(true);
+    expect(val('test("Workspace", "\\d")')).toBe(false);
+    expect(val('"Workspace".test("Lit")')).toBe(true);
+    expect(val('match("Workspace Workspace", "Lit")')).toEqual(['Lit', 'Lit']);
+    expect(val('match("Workspace 123 Workspace 456", "\\d+")')).toEqual(['123', '456']);
+    expect(val('"Workspace 123 Workspace 456".match("\\d+")')).toEqual(['123', '456']);
     expect(val('match("abc", "x")')).toEqual([]);
   });
   it('replace / replaceAll', () => {
-    expect(val('replace("Litpage Litpage", "L", "M")')).toBe('Mitpage Litpage');
-    expect(val('"Litpage Litpage".replace("L", "M")')).toBe('Mitpage Litpage');
-    expect(val('replaceAll("Litpage Litpage", "L", "M")')).toBe('Mitpage Mitpage');
-    expect(val('replaceAll("Litpage 123", "\\d", "")')).toBe('Litpage ');
-    expect(val('"Litpage 123".replaceAll("\\d", "").trim()')).toBe('Litpage');
+    expect(val('replace("Workspace Workspace", "L", "M")')).toBe('Mitpage Workspace');
+    expect(val('"Workspace Workspace".replace("L", "M")')).toBe('Mitpage Workspace');
+    expect(val('replaceAll("Workspace Workspace", "L", "M")')).toBe('Mitpage Mitpage');
+    expect(val('replaceAll("Workspace 123", "\\d", "")')).toBe('Workspace ');
+    expect(val('"Workspace 123".replaceAll("\\d", "").trim()')).toBe('Workspace');
   });
   it('lower / upper / trim / repeat', () => {
-    expect(val('lower("LITPAGE")')).toBe('litpage');
-    expect(val('"LITPAGE".lower()')).toBe('litpage');
-    expect(val('upper("litpage")')).toBe('LITPAGE');
+    expect(val('lower("WORKSPACE")')).toBe('litpage');
+    expect(val('"WORKSPACE".lower()')).toBe('litpage');
+    expect(val('upper("litpage")')).toBe('WORKSPACE');
     expect(val('trim("  litpage  ")')).toBe('litpage');
     expect(val('"  litpage  ".trim()')).toBe('litpage');
     expect(val('repeat("0", 4)')).toBe('0000');
@@ -232,12 +232,12 @@ describe('text', () => {
     expect(val('padStart("A", 6, "xy")')).toBe('xyxyxA');
   });
   it('link / style / unstyle keep rich annotations', () => {
-    const l = ev('link("Litpage", "https://docs.litpage.dev")').value;
-    expect(l).toEqual({ type: 'text', value: [['Litpage', [['a', 'https://docs.litpage.dev']]]] });
-    const s = ev('style("Litpage", "b", "u")').value;
-    expect(s).toEqual({ type: 'text', value: [['Litpage', [['b'], ['_']]]] });
-    const c = ev('"Litpage".style("blue", "gray_background")').value;
-    expect(c).toEqual({ type: 'text', value: [['Litpage', [['h', 'blue'], ['h', 'gray_background']]]] });
+    const l = ev('link("Workspace", "https://docs.litpage.dev")').value;
+    expect(l).toEqual({ type: 'text', value: [['Workspace', [['a', 'https://docs.litpage.dev']]]] });
+    const s = ev('style("Workspace", "b", "u")').value;
+    expect(s).toEqual({ type: 'text', value: [['Workspace', [['b'], ['_']]]] });
+    const c = ev('"Workspace".style("blue", "gray_background")').value;
+    expect(c).toEqual({ type: 'text', value: [['Workspace', [['h', 'blue'], ['h', 'gray_background']]]] });
     expect(ev('unstyle(style("Text", "b", "c"))').value).toEqual({ type: 'text', value: [['Text']] });
     expect(ev('unstyle(style("Text", "blue", "b"), "blue")').value).toEqual({ type: 'text', value: [['Text', [['b']]]] });
     expect(ev('repeat("~=", 2).style("blue")').value).toEqual({ type: 'text', value: [['~=~=', [['h', 'blue']]]] });

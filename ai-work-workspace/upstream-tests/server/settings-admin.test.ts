@@ -108,7 +108,7 @@ describe('TOTP (RFC 4226 / 6238)', () => {
 });
 
 describe('password rules and changes', () => {
-  it('enforces Litpage password rules and requires the current password to change it', async () => {
+  it('enforces Workspace password rules and requires the current password to change it', async () => {
     expect(policy.passwordProblem('short1')).toMatch(/longer/);
     expect(policy.passwordProblem('aaaaaaaa1')).toMatch(/4 different/);
     expect(policy.passwordProblem('abcdefgh')).toMatch(/letters and numbers/);
@@ -131,7 +131,7 @@ describe('two-step authentication', () => {
     expect(await status(() => call(ids.admin, 'startTotpEnrollment'))).toBe(400);
     await call(ids.admin, 'changePassword', { password: 'Admin12345' });
     const start = await call(ids.admin, 'startTotpEnrollment');
-    expect(start.uri).toMatch(/^otpauth:\/\/totp\/Litpage%3Aadmin%40set\.test\?secret=/);
+    expect(start.uri).toMatch(/^otpauth:\/\/totp\/Workspace%3Aadmin%40set\.test\?secret=/);
     secret = start.secret;
     expect(await status(() => call(ids.admin, 'completeTotpEnrollment', { enrollmentId: start.enrollmentId, name: 'Phone', code: '000000' }))).toBe(400);
     expect(await status(() => call(ids.admin, 'completeTotpEnrollment', { enrollmentId: start.enrollmentId, name: '', code: mfa.totp(secret) }))).toBe(400);

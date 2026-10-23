@@ -58,7 +58,7 @@ export function McpClientsAdmin({ spaceId }: { spaceId: string }) {
   };
   const approved = data.clients.filter((c) => c.approved);
   return (
-    <Group plain title={t('lp.ai.mcp_clients', 'MCP clients')} description={t('lp.ai.litpage_s_mcp_server_gives_external', 'Litpage’s MCP server gives external MCP clients a secure way into your workspace. Once connected, members can use those clients to search, view, and work with their Litpage.')}>
+    <Group plain title={t('lp.ai.mcp_clients', 'MCP clients')} description={t('lp.ai.litpage_s_mcp_server_gives_external', 'Workspace’s MCP server gives external MCP clients a secure way into your workspace. Once connected, members can use those clients to search, view, and work with their Workspace.')}>
       <div data-testid="mcp-clients-admin">
         <Row
           id="mcp-client-restriction"
@@ -104,7 +104,7 @@ export function McpClientsAdmin({ spaceId }: { spaceId: string }) {
                       <span className="nc-ai-mcp-client-logo" aria-hidden>{c.name.slice(0, 1).toUpperCase()}</span>
                       <span>{c.name}</span>
                       {c.renamed && <span data-tooltip={t('lp.ai.an_admin_approved_this_app_for', 'An admin approved this app for the workspace and chose its name and icon.')}><Badge tone="gray">{t('lp.ai.custom', 'Custom')}</Badge></span>}
-                      {!c.known && !c.renamed && <span data-tooltip={t('lp.ai.the_sign_in_redirect_doesn_t', 'The sign-in redirect doesn’t tell Litpage which MCP client this is. The client reports its own name, which hasn’t been verified.')}><Badge tone="gray">{t('lp.ai.unknown', 'Unknown')}</Badge></span>}
+                      {!c.known && !c.renamed && <span data-tooltip={t('lp.ai.the_sign_in_redirect_doesn_t', 'The sign-in redirect doesn’t tell Workspace which MCP client this is. The client reports its own name, which hasn’t been verified.')}><Badge tone="gray">{t('lp.ai.unknown', 'Unknown')}</Badge></span>}
                       {data.restricted && !c.approved && <span data-tooltip={t('lp.ai.while_approved_mcp_clients_only_is', 'While Allowed MCP clients only is turned on, this client won’t work unless it’s on the approved list.')}><Badge tone="yellow">{t('lp.ai.not_approved', 'Not approved')}</Badge></span>}
                     </span>
                   </td>
@@ -145,7 +145,7 @@ function clientMenu(anchor: HTMLElement, spaceId: string, c: ClientRow, reload: 
               danger: true,
               onSelect: () => void setTimeout(async () => {
                 const ok = await confirmDialog({
-                  title: t('lp.ai.remove_s_access_to_litpage_mcp', 'Remove {clientName}’s access to Litpage MCP?', { clientName: c.name }),
+                  title: t('lp.ai.remove_s_access_to_litpage_mcp', 'Remove {clientName}’s access to Workspace MCP?', { clientName: c.name }),
                   description: t('lp.ai.all_tokens_held_by_members_will', 'All {clientName} tokens held by members will be revoked, and {clientName} won’t be able to make tool calls. Each member must reconnect by hand.', { clientName: c.name }),
                   confirmLabel: t('lp.ai.disconnect', 'Disconnect'),
                   danger: true,

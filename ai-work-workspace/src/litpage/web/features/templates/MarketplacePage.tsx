@@ -134,7 +134,7 @@ function Discover({ templates, onOpen, onTab }: { templates: TemplateInfo[]; onO
         <div className="nc-mkt-hero-text">
           <div className="nc-mkt-hero-label"><Icon name="chatUser" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />{t('lp.templates.consulting', 'Consulting')}</div>
           <div className="nc-mkt-hero-title">{t('lp.templates.get_a_free_setup_session', 'Get a free setup session')}</div>
-          <div className="nc-mkt-hero-desc">{t('lp.templates.certified_litpage_consultants_offer_limi', 'Certified Litpage consultants offer limited 30-minute sessions. Get help before the spots are gone.')}</div>
+          <div className="nc-mkt-hero-desc">{t('lp.templates.certified_litpage_consultants_offer_limi', 'Certified Workspace consultants offer limited 30-minute sessions. Get help before the spots are gone.')}</div>
           <div role="button" className="nc-mkt-dark-btn" onClick={() => onTab('consultants')}>{t('lp.templates.reserve_now', 'Reserve now')}</div>
         </div>
         <div className="nc-mkt-hero-art">
@@ -170,7 +170,7 @@ function Discover({ templates, onOpen, onTab }: { templates: TemplateInfo[]; onO
         >
           <div className="nc-mkt-hero-text">
             <div className="nc-mkt-hero-label"><Icon name="medal" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />{t('lp.templates.top_creator', 'Top creator')}</div>
-            <div className="nc-mkt-hero-title">Litpage</div>
+            <div className="nc-mkt-hero-title">Workspace</div>
             <div className="nc-mkt-hero-desc">{t('lp.templates.starter_templates_for_projects_notes_pla', 'Starter templates for projects, notes, planning and more — free for every workspace.')}</div>
             <div className="nc-mkt-explore bottom">
               <span>{t('lp.templates.explore', 'Explore')}<Icon name="arrowStraightRight" size={16} /></span>
@@ -560,7 +560,7 @@ function DetailStats({ tpl, all }: { tpl: TemplateInfo; all: TemplateInfo[] }) {
 
 const LISTINGS: Record<'agents' | 'consultants' | 'skills' | 'connections', { title: string; desc: string; items: { icon: string; name: string; desc: string }[] }> = {
   agents: {
-    title: 'Agents', desc: 'Custom agents that work for your team in Litpage.',
+    title: 'Agents', desc: 'Custom agents that work for your team in Workspace.',
     items: [
       { icon: '🗂️', name: 'Inbox triage', desc: 'Sorts incoming requests into the right database.' },
       { icon: '📝', name: 'Meeting summarizer', desc: 'Turns meeting notes into decisions and action items.' },
@@ -568,7 +568,7 @@ const LISTINGS: Record<'agents' | 'consultants' | 'skills' | 'connections', { ti
     ],
   },
   consultants: {
-    title: 'Consultants', desc: 'Certified experts who can help you set up Litpage.',
+    title: 'Consultants', desc: 'Certified experts who can help you set up Workspace.',
     items: [
       { icon: '🧭', name: 'Workspace setup', desc: 'A guided session to structure teamspaces and permissions.' },
       { icon: '🛠️', name: 'Database design', desc: 'Model projects, tasks and relations for your team.' },
@@ -576,7 +576,7 @@ const LISTINGS: Record<'agents' | 'consultants' | 'skills' | 'connections', { ti
     ],
   },
   skills: {
-    title: 'Skills', desc: 'Reusable instructions for Litpage AI.',
+    title: 'Skills', desc: 'Reusable instructions for AIMaster.',
     items: [
       { icon: '✍️', name: 'Write a project brief', desc: 'Drafts a brief from a few bullet points.' },
       { icon: '🔎', name: 'Research summary', desc: 'Summarizes sources into key findings.' },
@@ -584,7 +584,7 @@ const LISTINGS: Record<'agents' | 'consultants' | 'skills' | 'connections', { ti
     ],
   },
   connections: {
-    title: 'Connections', desc: 'Connect apps to search, sync and take actions from Litpage.',
+    title: 'Connections', desc: 'Connect apps to search, sync and take actions from Workspace.',
     items: [
       { icon: '💬', name: 'Chat apps', desc: 'Share pages and get notifications in your chat tools.' },
       { icon: '📁', name: 'File storage', desc: 'Embed and search files from cloud drives.' },

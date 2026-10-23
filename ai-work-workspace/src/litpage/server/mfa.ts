@@ -122,7 +122,7 @@ export function matchTotp(secretB32: string, code: string, afterStep = 0, now = 
   return null;
 }
 
-export function otpauthUri(secretB32: string, account: string, issuer = 'Litpage'): string {
+export function otpauthUri(secretB32: string, account: string, issuer = 'Workspace'): string {
   const label = encodeURIComponent(`${issuer}:${account}`);
   return `otpauth://totp/${label}?secret=${secretB32}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=${DIGITS}&period=${STEP_SECONDS}`;
 }

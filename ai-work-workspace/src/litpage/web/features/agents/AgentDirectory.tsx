@@ -17,10 +17,10 @@ type Conn = AgentSummary['connections'][number];
 type Status = AgentSummary['status'];
 
 const CONN_LABEL: Record<Conn, [string, string]> = {
-  litpage: ['nc.agents.litPages', 'Litpage pages and databases'],
+  litpage: ['nc.agents.litPages', 'Workspace pages and databases'],
   web: ['workflows.lit.permissions.webAccess', 'Web access'],
   mcp: ['nc.agents.customMcp', 'External MCP endpoint'],
-  agents: ['workflow.agent.agentAccess.title', 'Litpage agents'],
+  agents: ['workflow.agent.agentAccess.title', 'Workspace agents'],
   people: ['nc.agents.peopleDirectory', 'People Directory'],
 };
 const STATUS_LABEL: Record<Status, [string, string]> = {

@@ -254,7 +254,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
   const showEmailForm = !demo.enabled || !!demo.sharedAccount;
 
   useEffect(() => {
-    document.title = mode === 'signup' ? `Litpage - ${t('lp.auth.sign_up', 'Sign up')}` : `Litpage - ${t('lp.auth.log_in', 'Log in')}`;
+    document.title = mode === 'signup' ? `Workspace - ${t('lp.auth.sign_up', 'Sign up')}` : `Workspace - ${t('lp.auth.log_in', 'Log in')}`;
   }, [mode]);
 
   useEffect(() => {
@@ -390,7 +390,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
     ? rich(msg('lp.auth.already_a_user_log_in', 'Already a user? <loginlink>Log in</loginlink>'), {
         loginlink: (c) => <a className="nc-auth-link-sec" href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>{c}</a>,
       })
-    : rich(msg('lp.auth.new_to_litpage_sign_up', 'New to Litpage? <signuplink>Sign up</signuplink>'), {
+    : rich(msg('lp.auth.new_to_litpage_sign_up', 'New to Workspace? <signuplink>Sign up</signuplink>'), {
         signuplink: (c) => <a className="nc-auth-link-sec" href="/signup" onClick={(e) => { e.preventDefault(); navigate('/signup'); }}>{c}</a>,
       });
 
@@ -406,7 +406,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
       <div className="nc-auth-hint-line">
         {backupLeft > 0
           ? t('lp.auth.backup_codes_remaining', 'Backup codes remaining: {numRemainingCodes}.', { numRemainingCodes: backupLeft })
-          : rich(msg('lp.auth.every_recovery_code_has_been_used', 'Every recovery code has been used. To get a fresh set, open Litpage in a browser or the desktop app and select <boldtext>Settings & members</boldtext> > <boldtext>My account</boldtext> > <boldtext>Regenerate backup codes</boldtext>.'), { boldtext: (c) => <b>{c}</b> })}
+          : rich(msg('lp.auth.every_recovery_code_has_been_used', 'Every recovery code has been used. To get a fresh set, open Workspace in a browser or the desktop app and select <boldtext>Settings & members</boldtext> > <boldtext>My account</boldtext> > <boldtext>Regenerate backup codes</boldtext>.'), { boldtext: (c) => <b>{c}</b> })}
       </div>
       <button className="nc-auth-submit" type="button" onClick={() => void finishLogin(true)}>{t('lp.auth.open_account_settings', 'Open account settings')}</button>
       <button className="nc-auth-textbtn" type="button" onClick={() => void finishLogin(false)}>{t('lp.auth.skip_for_now', 'Do this later')}</button>
@@ -459,7 +459,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
         )}
         {step === 'email' && mode === 'signup' && (
           <div className="nc-auth-tip">
-            {rich(msg('lp.auth.tip_use_your_work_email_if', '<bold>Tip: use your work email</bold> (if available) to help your team join Litpage'), {
+            {rich(msg('lp.auth.tip_use_your_work_email_if', '<bold>Tip: use your work email</bold> (if available) to help your team join Workspace'), {
               bold: (c) => <b>{c}</b>,
             })}
           </div>
@@ -590,8 +590,8 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
 
   const heading = (
     <div className="nc-auth-heading">
-      <h1>{mode === 'signup' ? t('lp.auth.litpage_a_workspace_with_ai_built', 'Litpage: a workspace with AI built in.') : t('lp.auth.your_ai_workspace', 'Your intelligent workspace')}</h1>
-      <h2>{mode === 'signup' ? t('lp.auth.create_an_account_using_a_work', 'Create an account using a work email') : t('lp.auth.sign_in_to_keep_working_in', 'Sign in to keep working in Litpage')}</h2>
+      <h1>{mode === 'signup' ? t('lp.auth.litpage_a_workspace_with_ai_built', 'Workspace: a workspace with AI built in.') : t('lp.auth.your_ai_workspace', 'Your intelligent workspace')}</h1>
+      <h2>{mode === 'signup' ? t('lp.auth.create_an_account_using_a_work', 'Create an account using a work email') : t('lp.auth.sign_in_to_keep_working_in', 'Sign in to keep working in Workspace')}</h2>
     </div>
   );
 

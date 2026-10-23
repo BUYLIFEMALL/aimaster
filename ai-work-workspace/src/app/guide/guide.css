@@ -38,12 +38,39 @@
   background: var(--lp-bg-tertiary);
   color: var(--lp-text-secondary);
 }
+.aww-guide-meta-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.aww-btn.small { height: 34px; font-size: 13px; padding: 0 12px; }
+.aww-badge.strong { background: var(--lp-blue-bg-primary, #f0f9ff); color: var(--lp-blue-bg-accent); font-weight: 600; }
 .aww-guide-hero {
   border: 1px solid var(--lp-border-primary);
   border-radius: 16px;
-  padding: 22px;
+  overflow: hidden;
   background: var(--lp-bg-secondary);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
 }
+.aww-guide-hero-img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 220px; }
+.aww-guide-hero-body { padding: 22px; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.aww-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lp-text-secondary);
+}
+.aww-flow-item { display: inline-flex; align-items: center; gap: 6px; }
+.aww-flow-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--lp-bg-tertiary);
+}
+.aww-flow-arrow { color: var(--lp-text-tertiary); margin: 0 4px; }
 .aww-guide-hero h2 { margin: 0 0 8px; font-size: 18px; }
 .aww-guide-hero p, .aww-detail-block p { margin: 0; line-height: 1.75; color: var(--lp-text-secondary); }
 .aww-guide-steps {
@@ -117,4 +144,7 @@
   .aww-guide { padding: 20px 16px 48px; }
   .aww-guide h1 { font-size: 21px; }
   .aww-guide-steps, .aww-shortcuts { grid-template-columns: minmax(0, 1fr); }
+  .aww-guide-hero { grid-template-columns: minmax(0, 1fr); }
+  .aww-guide-hero-img { min-height: 180px; max-height: 220px; }
+  .aww-guide-meta-right { align-items: flex-start; }
 }

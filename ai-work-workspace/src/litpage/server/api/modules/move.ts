@@ -1,4 +1,4 @@
-// Move to another workspace: pages can't move between workspaces, so Litpage duplicates them
+// Move to another workspace: pages can't move between workspaces, so Workspace duplicates them
 // ("Page will be duplicated, not moved" → "I understand, duplicate"). The copy keeps content, databases (schema, views,
 // rows) and icons/covers; comments, sharing and page history stay behind, links/relations may break.
 //   getMoveTargets { spaceId }   destinations in a workspace the user belongs to: Private, joined teamspaces

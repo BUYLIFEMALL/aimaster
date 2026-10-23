@@ -65,7 +65,7 @@ beforeAll(async () => {
 
 describe('formula assistant', () => {
   it('needs a key (connect-a-key state)', async () => {
-    await expect(mod.handlers.aiFormula({ userId, setCookie: () => {} } as any, { collectionId: 'colfx', prompt: 'days until due' })).rejects.toThrow('Connect an AI provider to use Litpage AI');
+    await expect(mod.handlers.aiFormula({ userId, setCookie: () => {} } as any, { collectionId: 'colfx', prompt: 'days until due' })).rejects.toThrow('Connect an AI provider to use AIMaster');
   });
 
   it('sends the schema, related databases, formula, error and automation values; returns formula + explanation', async () => {

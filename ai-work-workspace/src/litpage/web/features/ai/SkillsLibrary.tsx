@@ -89,18 +89,18 @@ function SkillRow({ s, tab }: { s: SkillInfo; tab: 'enabled' | 'discover' }) {
           <span className="nc-ellipsis">{s.name || 'Untitled'}</span>
           {s.builtin && <span className="nc-badge gray">Default</span>}
         </div>
-        <div className="nc-ai-skill-desc nc-ellipsis" data-tooltip={s.description ? undefined : 'Litpage AI uses this description to choose when the skill applies. Edit the opening of the page to change it.'}>
+        <div className="nc-ai-skill-desc nc-ellipsis" data-tooltip={s.description ? undefined : 'AIMaster uses this description to choose when the skill applies. Edit the opening of the page to change it.'}>
           {s.description || 'No description'}
         </div>
         <div className="nc-ai-skill-where">
           {s.inChat && <span>In chat</span>}
-          {s.inPage && <span data-tooltip="This skill can appear as you work across Litpage pages">In a page</span>}
+          {s.inPage && <span data-tooltip="This skill can appear as you work across Workspace pages">In a page</span>}
           {!s.mine && !s.builtin && s.createdBy && <span>by {s.createdBy}</span>}
         </div>
       </div>
       <div className="nc-ai-skill-actions">
         {tab === 'enabled' && !s.builtin && (
-          <div role="switch" aria-checked={s.automatic} tabIndex={0} className="nc-ai-skill-auto" data-tooltip="Let Litpage AI use this skill automatically when relevant" onClick={() => void setSkillAutomatic(s, !s.automatic)}>
+          <div role="switch" aria-checked={s.automatic} tabIndex={0} className="nc-ai-skill-auto" data-tooltip="Let AIMaster use this skill automatically when relevant" onClick={() => void setSkillAutomatic(s, !s.automatic)}>
             <span>Use automatically</span>
             <span className={`nc-ai-switch ${s.automatic ? 'on' : ''}`} aria-hidden><span /></span>
           </div>

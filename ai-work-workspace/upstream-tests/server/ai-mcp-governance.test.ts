@@ -109,7 +109,7 @@ describe('MCP clients: approved list, visibility, disconnect', () => {
   });
 });
 
-describe('memory sync over Litpage MCP', () => {
+describe('memory sync over Workspace MCP', () => {
   it('saves and reads the person’s memories; off when Memories are off', async () => {
     const token = nmcp.createToken(B, spaceId, 'Agent').token;
     await initialize(token, 'Claude Code');

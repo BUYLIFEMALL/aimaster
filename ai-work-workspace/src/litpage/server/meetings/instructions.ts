@@ -154,4 +154,4 @@ export const CUSTOM_TEMPLATE = `Use these instructions to shape your AI meeting 
 Concise and neutral. Use bullet points.
 
 ## Team context
-Add names, projects or terms Litpage AI should know about.`;
+Add names, projects or terms AIMaster should know about.`;

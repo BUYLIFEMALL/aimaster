@@ -8,11 +8,11 @@ import { useUI } from '../../lib/store/ui.ts';
 export function databaseDocumentTitle(dbName: string, viewName: string | undefined, multipleViews: boolean): string {
   let t = dbName.trim() || 'New database';
   if (multipleViews && viewName) t = `${t} | ${viewName}`;
-  return `${t.slice(0, 100)} | Litpage`;
+  return `${t.slice(0, 100)} | Workspace`;
 }
 
 export function pageDocumentTitle(title: string, untitled: string): string {
-  return `${(title.trim() || untitled).slice(0, 100)} | Litpage`;
+  return `${(title.trim() || untitled).slice(0, 100)} | Workspace`;
 }
 
 export function unreadTitlePrefix(count: number): string {
@@ -27,7 +27,7 @@ export function useDocumentTitle(title: string | null) {
     const full = unreadTitlePrefix(unread) + title;
     document.title = full;
     return () => {
-      if (document.title === full) document.title = 'Litpage';
+      if (document.title === full) document.title = 'Workspace';
     };
   }, [title, unread]);
 }

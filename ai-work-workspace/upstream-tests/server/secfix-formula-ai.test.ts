@@ -60,7 +60,7 @@ const ask = (userId: string, body: any) => mod.handlers.aiFormula({ userId, setC
 describe('formula assistant for button blocks', () => {
   it('accepts the button instead of a data source, for people who can edit it', async () => {
     // reaches the request checks (an empty prompt is refused before any model call) instead of "Not found"
-    await expect(ask(ids.owner, { blockId: ids.button, prompt: '' })).rejects.toThrow('Tell Litpage AI what to write.');
+    await expect(ask(ids.owner, { blockId: ids.button, prompt: '' })).rejects.toThrow('Tell AIMaster what to write.');
     await expect(ask(ids.viewer, { blockId: ids.button, prompt: 'now' })).rejects.toThrow('Not found');
     await expect(ask(ids.stranger, { blockId: ids.button, prompt: 'now' })).rejects.toThrow('Not found');
     await expect(ask(ids.owner, { prompt: 'now' })).rejects.toThrow('Not found');

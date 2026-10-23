@@ -27,7 +27,7 @@ function Launch({ close }: { close: () => void }) {
       <div className="nc-agent-launch-cards">
         {[
           ['customAgentsLaunchModal.variant1.slackQa', 'Slack Q&A assistant', 'Answers recurring questions in a team channel.', '💬'],
-          ['customAgentsLaunchModal.variant1.taskTriager', 'Task triager', 'Collects and routes work in Litpage.', '🗂️'],
+          ['customAgentsLaunchModal.variant1.taskTriager', 'Task triager', 'Collects and routes work in Workspace.', '🗂️'],
           ['customAgentsLaunchModal.variant1.weeklyReporter', 'Weekly update writer', 'Drafts and sends a weekly progress update.', '📈'],
         ].map(([id, title, desc, emoji]) => (
           <div key={id} className="nc-agent-launch-card">

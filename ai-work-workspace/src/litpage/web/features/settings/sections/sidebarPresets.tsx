@@ -35,7 +35,7 @@ function presetName(p: SidebarPreset): string {
 }
 
 function createdBy(p: SidebarPreset): string {
-  if (p.litpage) return t('lp.settings.made_by_litpage', 'Built by Litpage');
+  if (p.litpage) return t('lp.settings.made_by_litpage', 'Built by Workspace');
   const u = p.created_by_id ? records.get<UserRecord>('lit_user', p.created_by_id) : undefined;
   return u ? t('lp.settings.created_by', 'Created by {name}', { name: u.name || u.email }) : t('lp.settings.made_by_this_workspace', 'Made by this workspace');
 }
@@ -210,7 +210,7 @@ function PresetPreview({ preset, close }: { preset: SidebarPreset; close: () => 
   return (
     <>
       <h3>{presetName(preset)}</h3>
-      {preset.litpage && <div className="desc">{t('lp.settings.litpage_presets_aren_t_editable', 'Litpage presets aren’t editable.')}</div>}
+      {preset.litpage && <div className="desc">{t('lp.settings.litpage_presets_aren_t_editable', 'Workspace presets aren’t editable.')}</div>}
       <TabPreview tab={preset} />
       <div className="actions"><Button onClick={close}>{t('lp.settings.exit_preview', 'Exit preview')}</Button></div>
     </>

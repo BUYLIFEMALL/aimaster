@@ -63,4 +63,4 @@ export function aiAllowed(userId: string): boolean {
   return hit(`ai:user-day:${userId}`, perDay, 86_400_000);
 }
 
-export const AI_RATE_MESSAGE = 'You’ve reached the Litpage AI request limit. Try again in a moment.';
+export const AI_RATE_MESSAGE = 'You’ve reached the AIMaster request limit. Try again in a moment.';

@@ -177,7 +177,7 @@ describe('recurrence', () => {
 });
 
 describe('validation / buttons / template variables / webhook', () => {
-  it('validates steps with Litpage messages', () => {
+  it('validates steps with Workspace messages', () => {
     const look = { surface: 'automation' as const, schema: col.schema, collection: (id: string) => (id === 'col-1' ? col : undefined), block: () => undefined, webhooksAllowed: true };
     const issues = validateAutomation({ type: 'event', mode: 'any', events: [] }, [
       { id: 'a', type: 'add_page', edits: [] },

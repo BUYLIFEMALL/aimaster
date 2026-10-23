@@ -1,4 +1,4 @@
-// Litpage's 10 named colors used for text, backgrounds, select options and blocks.
+// Workspace's 10 named colors used for text, backgrounds, select options and blocks.
 export const COLOR_NAMES = ['default', 'gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'] as const;
 export type ColorName = (typeof COLOR_NAMES)[number];
 

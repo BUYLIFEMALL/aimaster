@@ -157,15 +157,15 @@ function layout(o: LayoutOpts): string {
   const btn = o.button
     ? `<p style="margin:24px 0 8px"><a href="${esc(o.button.url)}" style="display:inline-block;background:#2383e2;color:#ffffff;text-decoration:none;font-weight:500;font-size:14px;line-height:20px;padding:6px 14px;border-radius:6px">${esc(o.button.label)}</a></p>`
     : '';
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${esc(o.heading ?? 'Litpage')}</title></head>
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${esc(o.heading ?? 'Workspace')}</title></head>
 <body style="margin:0;padding:0;background:#ffffff;color:#37352f;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
 ${o.preheader ? `<div style="display:none;max-height:0;overflow:hidden">${esc(o.preheader)}</div>` : ''}
 <div style="max-width:520px;margin:0 auto;padding:32px 24px">
-<div style="font-weight:700;font-size:18px;letter-spacing:-0.2px;margin-bottom:28px"><span style="display:inline-block;width:24px;height:24px;border:2px solid #37352f;border-radius:4px;text-align:center;line-height:24px;font-size:14px;margin-right:8px">N</span>Litpage</div>
+<div style="font-weight:700;font-size:18px;letter-spacing:-0.2px;margin-bottom:28px"><span style="display:inline-block;width:24px;height:24px;border:2px solid #37352f;border-radius:4px;text-align:center;line-height:24px;font-size:14px;margin-right:8px">N</span>Workspace</div>
 ${o.heading ? `<h1 style="font-size:24px;line-height:1.3;font-weight:700;margin:0 0 16px">${esc(o.heading)}</h1>` : ''}
 <div style="font-size:15px;line-height:1.6">${o.body}</div>
 ${btn}
-<div style="margin-top:40px;padding-top:16px;border-top:1px solid #e9e9e7;font-size:12px;line-height:1.5;color:#9b9a97">${o.footer ?? 'You received this email because of your Litpage notification settings.'}</div>
+<div style="margin-top:40px;padding-top:16px;border-top:1px solid #e9e9e7;font-size:12px;line-height:1.5;color:#9b9a97">${o.footer ?? 'You received this email because of your Workspace notification settings.'}</div>
 </div></body></html>`;
 }
 
@@ -174,11 +174,11 @@ const quote = (s: string) => `<div style="margin:12px 0;padding:2px 0 2px 14px;b
 export const mailTemplates = {
   loginCode(code: string): MailContent {
     return {
-      subject: `Litpage sign-in code: ${code}`,
-      text: `Sign in to Litpage\n\nUse this one-time code:\n\n${code}\n\nIf you did not request it, you can ignore this message.`,
+      subject: `Workspace sign-in code: ${code}`,
+      text: `Sign in to Workspace\n\nUse this one-time code:\n\n${code}\n\nIf you did not request it, you can ignore this message.`,
       html: layout({
-        preheader: `Your one-time Litpage code is ${code}`,
-        heading: 'Sign in to Litpage',
+        preheader: `Your one-time Workspace code is ${code}`,
+        heading: 'Sign in to Workspace',
         body: `<p>Enter this one-time code to continue:</p><p style="font-size:24px;font-weight:600;letter-spacing:2px;background:#f7f6f3;border-radius:6px;padding:12px 16px;display:inline-block">${esc(code)}</p><p style="color:#787774">If you did not request a sign-in, you can ignore this message.</p>`,
         footer: 'This code expires after 15 minutes.',
       }),
@@ -201,9 +201,9 @@ export const mailTemplates = {
   workspaceInvite(o: { inviter: string; workspace: string; url: string }): MailContent {
     return {
       subject: `${o.inviter} asked you to join ${o.workspace}`,
-      text: `${o.inviter} asked you to join ${o.workspace} on Litpage.\n\nJoin here: ${o.url}`,
+      text: `${o.inviter} asked you to join ${o.workspace} on Workspace.\n\nJoin here: ${o.url}`,
       html: layout({
-        heading: `Join ${o.workspace} on Litpage`,
+        heading: `Join ${o.workspace} on Workspace`,
         body: `<p><b>${esc(o.inviter)}</b> asked you to join the <b>${esc(o.workspace)}</b> workspace.</p>`,
         button: { label: 'Join workspace', url: o.url },
       }),
@@ -218,7 +218,7 @@ export const mailTemplates = {
       html: layout({
         preheader: o.quote ?? o.headline,
         body: `<p>${esc(o.headline)}</p>${o.quote ? quote(o.quote) : ''}${o.detail ? `<p style="color:#787774">${esc(o.detail)}</p>` : ''}`,
-        button: { label: o.button ?? 'View in Litpage', url: o.url },
+        button: { label: o.button ?? 'View in Workspace', url: o.url },
         footer: `You received this email because of your notification settings${o.workspace ? ` in ${esc(o.workspace)}` : ''}. Change them in Settings › Notifications.`,
       }),
     };
@@ -256,11 +256,11 @@ export const mailTemplates = {
   newLogin(o: { time: number; ip?: string; device?: string }): MailContent {
     const when = new Date(o.time).toUTCString();
     return {
-      subject: 'New login to Litpage',
-      text: `We noticed a new login to your Litpage account.\n\nTime: ${when}${o.device ? `\nDevice: ${o.device}` : ''}${o.ip ? `\nIP address: ${o.ip}` : ''}\n\nIf this was you, you can ignore this email. If not, log out of all devices in Settings › My account.`,
+      subject: 'New login to Workspace',
+      text: `We noticed a new login to your Workspace account.\n\nTime: ${when}${o.device ? `\nDevice: ${o.device}` : ''}${o.ip ? `\nIP address: ${o.ip}` : ''}\n\nIf this was you, you can ignore this email. If not, log out of all devices in Settings › My account.`,
       html: layout({
-        heading: 'New login to Litpage',
-        body: `<p>We noticed a new login to your Litpage account.</p><p style="color:#787774">Time: ${esc(when)}${o.device ? `<br>Device: ${esc(o.device)}` : ''}${o.ip ? `<br>IP address: ${esc(o.ip)}` : ''}</p><p>If this was you, you can ignore this email. If not, go to Settings › My account and log out of all devices.</p>`,
+        heading: 'New login to Workspace',
+        body: `<p>We noticed a new login to your Workspace account.</p><p style="color:#787774">Time: ${esc(when)}${o.device ? `<br>Device: ${esc(o.device)}` : ''}${o.ip ? `<br>IP address: ${esc(o.ip)}` : ''}</p><p>If this was you, you can ignore this email. If not, go to Settings › My account and log out of all devices.</p>`,
         footer: 'Security notifications are always sent.',
       }),
     };
@@ -293,7 +293,7 @@ export function smtpConfig(): SmtpConfig | null {
   return {
     host: u.hostname, port: Number(u.port) || (secure ? 465 : 587), secure,
     user: u.username ? decodeURIComponent(u.username) : undefined, pass: u.password ? decodeURIComponent(u.password) : undefined,
-    from: process.env.NC_MAIL_FROM ?? 'Litpage <notify@localhost>', insecure: u.searchParams.get('insecure') === '1',
+    from: process.env.NC_MAIL_FROM ?? 'Workspace <notify@localhost>', insecure: u.searchParams.get('insecure') === '1',
   };
 }
 

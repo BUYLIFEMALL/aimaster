@@ -191,7 +191,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
         <Section title={t('lp.page.favicon', 'Favicon')}>
           <div className="nc-site-segment" role="radiogroup" aria-label="Favicon">
             <div role="radio" aria-checked={s.favicon === 'page_icon'} className={`opt ${s.favicon === 'page_icon' ? 'on' : ''}`} onClick={() => set({ favicon: 'page_icon' })}>{t('lp.page.page_icon', 'Page icon')}</div>
-            <div role="radio" aria-checked={s.favicon === 'litpage'} className={`opt ${s.favicon === 'litpage' ? 'on' : ''}`} onClick={() => set({ favicon: 'litpage' })}>{t('lp.page.litpage_logo', 'Litpage logo')}</div>
+            <div role="radio" aria-checked={s.favicon === 'litpage'} className={`opt ${s.favicon === 'litpage' ? 'on' : ''}`} onClick={() => set({ favicon: 'litpage' })}>{t('lp.page.litpage_logo', 'Workspace logo')}</div>
             <div role="radio" aria-checked={!!s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage'} className={`opt ${s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage' ? 'on' : ''}`}
               onClick={(e) => openIconPicker(e.currentTarget, { current: s.favicon, onPick: (v) => set({ favicon: v ?? 'page_icon' }) })}>
               {s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage' ? <PageIcon icon={s.favicon} size={16} /> : null}
@@ -206,7 +206,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
             ['breadcrumbs', t('lp.page.breadcrumbs', 'Breadcrumbs'), t('lp.page.show_page_breadcrumbs_in_the_header', 'Show page breadcrumbs in the header’s top-left corner')],
             ['search', t('lp.page.search', 'Search'), t('lp.page.let_visitors_search_your_site_content', 'Let visitors search your site content')],
             ['share', t('lp.page.share', 'Share'), t('lp.page.let_visitors_share_your_site', 'Let visitors share your site')],
-            ['signup', t('lp.page.display_a_litpage_signup_button', 'Display a Litpage signup button'), t('lp.page.choose_whether_your_site_displays_the', 'Choose whether your site displays the ‘Get Litpage Free’ button')],
+            ['signup', t('lp.page.display_a_litpage_signup_button', 'Display a Workspace signup button'), t('lp.page.choose_whether_your_site_displays_the', 'Choose whether your site displays the ‘Get Workspace Free’ button')],
           ] as const).map(([k, label, tip]) => (
             <div key={k} className="nc-setting-row" data-tooltip={tip}>
               <div className="label">{label}</div>

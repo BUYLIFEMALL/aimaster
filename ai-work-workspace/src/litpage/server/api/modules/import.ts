@@ -479,7 +479,7 @@ export const handlers: Record<string, Handler> = {
         ops.push({ pointer: { table: 'collection_view', id: vid, spaceId: sp }, path: ['format', 'table_properties'], command: 'set', args: list });
       }
     }
-    // a user-initiated write: lock database and property access apply as to Litpage edits (dbaccess.ts)
+    // a user-initiated write: lock database and property access apply as to Workspace edits (dbaccess.ts)
     const changes = applyTransactions(uid, [{ id: newId(), spaceId: sp, debug: { userAction: 'mergeCsv' }, operations: ops }], ctx.clientId, { userInitiated: true });
     const rm = new RecordMapBuilder(uid);
     for (const ch of changes) rm.add(ch.table, ch.record);

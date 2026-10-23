@@ -243,7 +243,7 @@ function spaceMembers(spaceId: string | null): UserRecord[] {
 }
 
 function scopeLabel(sc: SourceScope): string {
-  if (sc.kind === 'workspace') return 'Litpage';
+  if (sc.kind === 'workspace') return 'Workspace';
   if (sc.kind === 'web') return 'Web';
   if (sc.kind === 'page' || sc.kind === 'teamspace') return sc.title || 'Untitled';
   return 'All sources';
@@ -321,7 +321,7 @@ function ContextChip({ pageId, included, onToggle }: { pageId: string; included:
   const title = pageTitle(block) || 'Untitled';
   if (!included) {
     return (
-      <div role="button" className="nc-ai-context-chip ghost" data-tooltip="Add context so Litpage AI can tailor its response" onClick={() => onToggle(true)}>
+      <div role="button" className="nc-ai-context-chip ghost" data-tooltip="Add context so AIMaster can tailor its response" onClick={() => onToggle(true)}>
         <Icon name="plusSmall" size={14} />
         <span>Current page</span>
       </div>
@@ -658,7 +658,7 @@ export function ChatComposer(p: Props) {
     if (on && readPref<string>('nc:ai:webWarned', '0') !== '1') {
       const ok = await choiceDialog({
         title: 'Confirm this action?',
-        description: 'Web access lets Litpage AI browse the internet and connected workspace data without asking for approval. Continue? This comes with risks like data loss and prompt injection.',
+        description: 'Web access lets AIMaster browse the internet and connected workspace data without asking for approval. Continue? This comes with risks like data loss and prompt injection.',
         buttons: [{ label: 'Cancel', value: false }, { label: 'Enable web access', value: true, primary: true }],
       });
       if (!ok) return;
@@ -680,7 +680,7 @@ export function ChatComposer(p: Props) {
           title: 'Sources',
           items: [
             { id: 'src-all', label: 'All sources', icon: 'squareGrid2X2', description: 'Your workspace, the web and connected apps', checked: scope.kind === 'all', onSelect: () => setScope({ kind: 'all' }) },
-            { id: 'src-litpage', label: 'Litpage', icon: 'aiFace', description: 'Only pages in this workspace', checked: scope.kind === 'workspace', onSelect: () => setScope({ kind: 'workspace' }) },
+            { id: 'src-litpage', label: 'Workspace', icon: 'aiFace', description: 'Only pages in this workspace', checked: scope.kind === 'workspace', onSelect: () => setScope({ kind: 'workspace' }) },
             {
               id: 'src-web', label: 'Web', icon: 'globe', checked: scope.kind === 'web', disabled: !status.policy.webSearch,
               description: status.policy.webSearch ? 'Only the web' : 'Web browsing is disabled by your workspace admin.', onSelect: () => setScope({ kind: 'web' }),
@@ -796,7 +796,7 @@ export function ChatComposer(p: Props) {
     if (id === 'skip_all') {
       const choice = await choiceDialog<'with' | 'without'>({
         title: 'Enable action without approval?',
-        description: 'Litpage AI can act in your workspace and connected apps without asking first. Continue only if you trust this setting. Web browsing gives the agent unrestricted internet access. You can change it later from the + menu.',
+        description: 'AIMaster can act in your workspace and connected apps without asking first. Continue only if you trust this setting. Web browsing gives the agent unrestricted internet access. You can change it later from the + menu.',
         buttons: [{ label: 'Cancel', value: null as unknown as 'with' }, { label: 'Without internet', value: 'without' }, { label: 'With internet', value: 'with', primary: true }],
         width: 440,
       });
@@ -821,7 +821,7 @@ export function ChatComposer(p: Props) {
       width: 360,
       header: (
         <div className="nc-ai-menu-head">
-          <span>How should Litpage AI request approval?</span>
+          <span>How should AIMaster request approval?</span>
           {HELP_URL && (<a href={HELP_URL} target="_blank" rel="noopener noreferrer">Learn more</a>)}
         </div>
       ),
@@ -903,7 +903,7 @@ export function ChatComposer(p: Props) {
   };
 
   const approvalLabel = approval === 'always_ask' ? 'Always ask' : approval === 'skip_all' ? 'No approval prompts' : 'Review risky actions';
-  const noticeText = offline ? 'Litpage AI isn’t available offline. Reconnect to continue' : status.policy.enabled === false ? 'AI is turned off for this workspace' : NO_KEY_MESSAGE;
+  const noticeText = offline ? 'AIMaster isn’t available offline. Reconnect to continue' : status.policy.enabled === false ? 'AI is turned off for this workspace' : NO_KEY_MESSAGE;
 
   return (
     <div

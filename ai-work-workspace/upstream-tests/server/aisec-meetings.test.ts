@@ -58,7 +58,8 @@ async function status(p: () => unknown): Promise<number> {
 const now = Date.now();
 const rec = (id: string) => db.getRecord<any>('block', id)!;
 const state = (id: string) => rec(id).format?.transcription_state ?? { state: 'notes_ready' };
-const fileExists = (id: string) => !!db.db.prepare('SELECT 1 AS hit FROM files WHERE id = ?').get(id) && existsSync(files.fileRow(id)!.path);
+// 이식판: 파일 내용은 DB(files.content)에 있다 — 행과 내용이 모두 남아 있으면 「있음」
+const fileExists = (id: string) => !!db.db.prepare('SELECT 1 AS hit FROM files WHERE id = ?').get(id) && !!files.readFileContent(id);
 
 function block(id: string, type: string, parentId: string, parentTable: string, extra: Record<string, unknown> = {}) {
   return { id, version: 1, type, parent_id: parentId, parent_table: parentTable, space_id: ids.space, alive: true, created_time: now, created_by_id: ids.owner, last_edited_time: now, last_edited_by_id: ids.owner, ...extra } as any;

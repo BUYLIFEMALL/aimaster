@@ -1,5 +1,5 @@
 // Calculations (table footer, board/group headers, rollups): the 23 aggregators of
-// aggregations with Litpage's result formats (counts, percents, number formats, dates).
+// aggregations with Workspace's result formats (counts, percents, number formats, dates).
 import type { BlockRecord, PropertySchema } from '../records.ts';
 import { formatDay, formatDuration, formatTime } from './dates.ts';
 import { formatNumber } from './numbers.ts';

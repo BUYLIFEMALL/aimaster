@@ -1,5 +1,5 @@
 // AI JSON endpoints (POST /api/rpc/<name>). Streaming lives in ../../aiStream.ts (SSE).
-// Every endpoint that would call the model returns 400 "Connect an AI provider to use Litpage AI"
+// Every endpoint that would call the model returns 400 "Connect an AI provider to use AIMaster"
 // when the selected provider is not configured.
 import { newId } from '#shared/ids.ts';
 import { op as mk } from '#shared/ops.ts';
@@ -452,7 +452,7 @@ export const handlers = {
     const header = Array.isArray(body?.header) ? body.header.slice(0, 50).map(cell) : [];
     if (!header.length) throw new ApiError('This table has no columns.', 400);
     const rows = Array.isArray(body?.rows) ? body.rows.slice(0, 1000).map((r: unknown) => (Array.isArray(r) ? r.slice(0, 50).map(cell) : [])) : [];
-    const title = typeof body?.title === 'string' && body.title.trim() ? body.title.trim().slice(0, 200) : 'Table from Litpage AI';
+    const title = typeof body?.title === 'string' && body.title.trim() ? body.title.trim().slice(0, 200) : 'Table from AIMaster';
     return guarded(() => {
       const spec = rowsToDb(title, [header, ...rows]);
       const b = new OpsBuilder(spaceId, userId);
@@ -476,8 +476,8 @@ export const handlers = {
       const meta = { space_id: spaceId, alive: true, created_time: now, created_by_id: userId, created_by_table: 'lit_user', last_edited_time: now, last_edited_by_id: userId, last_edited_by_table: 'lit_user' };
       const ops = [
         mk.set({ table: 'block', id, spaceId }, [], { id, type: 'page', properties: { title: [[title]] }, format: { page_icon: '🧠', ai_skill: { enabled: true } }, content: [p1, p2], parent_id: spaceId, parent_table: 'space', permissions: [{ type: 'user_permission', role: 'editor', user_id: userId }], ...meta }),
-        mk.set({ table: 'block', id: p1, spaceId }, [], { id: p1, type: 'text', properties: { title: [['Describe when Litpage AI should use this skill.']] }, parent_id: id, parent_table: 'block', ...meta }),
-        mk.set({ table: 'block', id: p2, spaceId }, [], { id: p2, type: 'text', properties: { title: [['Write the steps or instructions Litpage AI should follow.']] }, parent_id: id, parent_table: 'block', ...meta }),
+        mk.set({ table: 'block', id: p1, spaceId }, [], { id: p1, type: 'text', properties: { title: [['Describe when AIMaster should use this skill.']] }, parent_id: id, parent_table: 'block', ...meta }),
+        mk.set({ table: 'block', id: p2, spaceId }, [], { id: p2, type: 'text', properties: { title: [['Write the steps or instructions AIMaster should follow.']] }, parent_id: id, parent_table: 'block', ...meta }),
         mk.listBefore({ table: 'space_view', id: sv.id, spaceId }, ['private_pages'], id),
       ];
       applyTransactions(userId, [{ id: newId(), spaceId, debug: { userAction: 'ai.skill.create' }, operations: ops }], undefined, { client: true });

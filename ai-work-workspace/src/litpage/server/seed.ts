@@ -92,13 +92,13 @@ const t = (s: string): RichText => [[s]];
 
 function gettingStartedContent(): BlockSpec[] {
   return [
-    { type: 'text', title: t('👋 Welcome to Litpage. This page is a safe place to try the workspace.') },
+    { type: 'text', title: t('👋 Welcome to Workspace. This page is a safe place to try the workspace.') },
     { type: 'text', title: t('A few quick experiments will show you how pages, blocks, and databases fit together.') },
     { type: 'to_do', title: [['Open the '], ['/', [['c']]], [' slash menu and add a heading, callout, or sub-page.']] },
     { type: 'to_do', title: [['Hover over this line, then use the '], ['⋮⋮', [['c']]], [' drag handle to reorder it.']] },
     { type: 'to_do', title: t('Add a database, add a few rows, and switch between its table, board, and calendar views') },
     { type: 'to_do', title: t('Share a page with a teammate and choose whether they can edit, comment, or read') },
-    { type: 'to_do', title: t('Ask Litpage AI to summarize a page or turn a rough idea into a first draft') },
+    { type: 'to_do', title: t('Ask AIMaster to summarize a page or turn a rough idea into a first draft') },
     { type: 'to_do', title: [['Try '], ['⌘/Ctrl + P', [['c']]], [' to find a page, and '], ['⌘/Ctrl + K', [['c']]], [' to open quick actions.']] },
     {
       type: 'toggle', title: t('More shortcuts and ideas'),
@@ -113,9 +113,14 @@ function gettingStartedContent(): BlockSpec[] {
   ];
 }
 
-/** `opts.welcome` replaces the "Welcome to Litpage" private page (demo sandboxes start on their own page). */
+/** `opts.welcome` replaces the "Welcome to Workspace" private page (demo sandboxes start on their own page). */
 export function createWorkspace(
-  userId: string, name: string, icon?: string, opts: { welcome?: { title: string; icon: string; content: BlockSpec[] } } = {},
+  userId: string, name: string, icon?: string,
+  opts: {
+    welcome?: { title: string; icon: string; content: BlockSpec[] };
+    /** 이식판: 기본 팀 이름·팀 홈 문서(한국어 회원용). 없으면 원본 영어 기본값 */
+    team?: { name: string; homeTitle: string; homeText: string };
+  } = {},
 ): { space: SpaceRecord; spaceView: SpaceViewRecord; team: TeamRecord } {
   return tx(() => {
     const now = Date.now();
@@ -129,7 +134,7 @@ export function createWorkspace(
     };
     const teamId = newId();
     const team: TeamRecord = {
-      id: teamId, version: 0, space_id: spaceId, name: 'General', icon: '🏠', description: '', team_pages: [],
+      id: teamId, version: 0, space_id: spaceId, name: opts.team?.name ?? 'General', icon: '🏠', description: '', team_pages: [],
       parent_id: spaceId, parent_table: 'space', alive: true,
       membership: [{ user_id: userId, role: 'owner', added_time: now }],
       settings: { type: 'open', default_page_role: 'editor' }, created_time: now, created_by_id: userId, is_default: true,
@@ -139,13 +144,13 @@ export function createWorkspace(
     save('team', team);
     const svId = newId();
     const gettingStarted = createPage({
-      spaceId, userId, parentId: spaceId, parentTable: 'space', title: opts.welcome?.title ?? 'Welcome to Litpage', icon: opts.welcome?.icon ?? '👋',
+      spaceId, userId, parentId: spaceId, parentTable: 'space', title: opts.welcome?.title ?? 'Welcome to Workspace', icon: opts.welcome?.icon ?? '👋',
       content: opts.welcome?.content ?? gettingStartedContent(), permissions: [{ type: 'user_permission', role: 'editor', user_id: userId }],
     });
     const teamHome = createPage({
-      spaceId, userId, parentId: teamId, parentTable: 'team', title: 'Team Home', icon: '🏠',
+      spaceId, userId, parentId: teamId, parentTable: 'team', title: opts.team?.homeTitle ?? 'Team Home', icon: '🏠',
       content: [
-        { type: 'text', title: t('A shared home for everyone on this team. Add docs, wikis, and projects here.') },
+        { type: 'text', title: t(opts.team?.homeText ?? 'A shared home for everyone on this team. Add docs, wikis, and projects here.') },
       ],
     });
     team.team_pages = [teamHome.id];
@@ -250,7 +255,7 @@ export function ensureTemplateGallery(): Record<string, string> {
   tx(() => {
     const now = Date.now();
     if (!getRecord('lit_user', TEMPLATE_USER_ID)) {
-      save('lit_user', { id: TEMPLATE_USER_ID, version: 0, email: 'templates@litpage.local', name: 'Litpage', given_name: 'Litpage', created_time: now, onboarding_completed: true });
+      save('lit_user', { id: TEMPLATE_USER_ID, version: 0, email: 'templates@workspace.local', name: 'Workspace', given_name: 'Workspace', created_time: now, onboarding_completed: true });
     }
     // retire the previous version's roots
     for (const id of Object.values(cur?.pages ?? {})) {

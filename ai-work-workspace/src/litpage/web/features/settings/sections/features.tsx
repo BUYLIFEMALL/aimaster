@@ -1,4 +1,4 @@
-// Settings › Import, Litpage AI, meeting notes, Litpage MCP, verified pages, public pages, and developer tools.
+// Settings › Import, AIMaster, meeting notes, Workspace MCP, verified pages, public pages, and developer tools.
 // Personal choices persist to user_settings.settings, workspace switches (admins) to space.settings.
 import { useEffect, useState } from 'react';
 import type { BlockRecord, SpaceRecord, UserRecord } from '#shared/records.ts';
@@ -53,14 +53,14 @@ export function ImportSection() {
   return (
     <SectionPage
       title={t('lp.settings.import', 'Import')}
-      subtitle={t('lp.settings.pull_files_and_content_from_other', 'Pull files and content from other tools into Litpage')}
+      subtitle={t('lp.settings.pull_files_and_content_from_other', 'Pull files and content from other tools into Workspace')}
     >
       <ImportPanel onDone={closeSettings} />
     </SectionPage>
   );
 }
 
-// ---------------------------------------------------------------------------------------------- Litpage AI
+// ---------------------------------------------------------------------------------------------- AIMaster
 
 const AI_CONNECTORS: { id: string; name: string; color: string; desc: string }[] = [
   { id: 'slack', name: 'Slack', color: '#4a154b', desc: 'Search messages and channels' },
@@ -96,7 +96,7 @@ export function LitAISection() {
   };
 
   return (
-    <SectionPage title={t('lp.settings.litpage_ai', 'Litpage AI')} subtitle={t('lp.settings.configure_ai_features_to_suit_you', 'Configure AI features to suit you and manage connectors')}>
+    <SectionPage title={t('lp.settings.litpage_ai', 'AIMaster')} subtitle={t('lp.settings.configure_ai_features_to_suit_you', 'Configure AI features to suit you and manage connectors')}>
       {/* tab pills, then the tab body 44px below */}
       <div className="nc-set-ai-sec">
       <Pills
@@ -126,7 +126,7 @@ export function LitAISection() {
           <div className="nc-set-ai-personal">
             <div className="col">
               <div className="ttl">{t('lp.settings.personalization', 'Personalization')}</div>
-              <div className="desc">{t('lp.settings.choose_a_name_for_your_litpage', 'Choose a name for your Litpage AI')}</div>
+              <div className="desc">{t('lp.settings.choose_a_name_for_your_litpage', 'Choose a name for your AIMaster')}</div>
               <div style={{ marginTop: 6 }}>
                 <Button icon="pencilSmall" onClick={() => openSubDialog((close) => <PersonalizeBody close={close} prefs={prefs} />)}>{t('lp.settings.personalize', 'Personalize')}</Button>
               </div>
@@ -147,7 +147,7 @@ export function LitAISection() {
                 <Icon name="page" size={18} />
                 <div className="main">
                   <div className="ttl">{titleOf(page)}</div>
-                  <div className="sub">{t('lp.settings.guidance_litpage_agent_keeps_in_mind', 'Guidance Litpage Agent keeps in mind while helping you')}</div>
+                  <div className="sub">{t('lp.settings.guidance_litpage_agent_keeps_in_mind', 'Guidance Workspace Agent keeps in mind while helping you')}</div>
                 </div>
                 <Button small onClick={() => { closeSettings(); openPage(page.id); }}>{t('lp.settings.open_page', 'Open page')}</Button>
                 <span role="button" className="nc-set-icon-btn" aria-label={t('lp.settings.choose_another_page', 'Choose another page')} onClick={(e) => openMenu(e.currentTarget as HTMLElement, {
@@ -233,8 +233,8 @@ function PersonalizeBody({ close, prefs }: { close: () => void; prefs: UserPrefs
     <>
       <h3>{t('lp.settings.personalization', 'Personalization')}</h3>
       <div>
-        <label className="nc-set-label">{t('lp.settings.name', 'Name')} · {t('lp.settings.pick_what_litpage_agent_calls_itself', 'Pick what Litpage Agent calls itself')}</label>
-        <div className="nc-set-input"><input autoFocus maxLength={40} placeholder={t('lp.settings.name_your_litpage_agent', 'Name your Litpage agent')} value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <label className="nc-set-label">{t('lp.settings.name', 'Name')} · {t('lp.settings.pick_what_litpage_agent_calls_itself', 'Pick what Workspace Agent calls itself')}</label>
+        <div className="nc-set-input"><input autoFocus maxLength={40} placeholder={t('lp.settings.name_your_litpage_agent', 'Name your Workspace agent')} value={name} onChange={(e) => setName(e.target.value)} /></div>
       </div>
       <div className="actions">
         <Button variant="primary" onClick={() => { savePrefs({ ai_name: name.trim() }); close(); }}>{t('lp.settings.save', 'Save')}</Button>
@@ -406,29 +406,29 @@ export function MeetingNotesSection() {
   );
 }
 
-// ---------------------------------------------------------------------------------------------- Litpage MCP
+// ---------------------------------------------------------------------------------------------- Workspace MCP
 
 interface McpClient { id: string; name: string; caption: string; color: string; letter: string; custom?: boolean; url?: string }
 
 function mcpCatalog(): McpClient[] {
-  const fallback = (appName: string) => t('lp.settings.link_with_your_litpage_workspace', 'Link {appName} with your Litpage workspace', { appName });
+  const fallback = (appName: string) => t('lp.settings.link_with_your_litpage_workspace', 'Link {appName} with your Workspace workspace', { appName });
   return [
-    { id: 'chatgpt', name: 'ChatGPT', caption: t('lp.settings.let_chatgpt_deep_research_pull_in', 'Let ChatGPT Deep Research pull in context from Litpage'), color: '#000000', letter: 'C' },
-    { id: 'claude', name: 'Claude', caption: t('lp.settings.have_claude_collaborate_with_you_in', 'Have Claude collaborate with you in Litpage.'), color: '#d97757', letter: 'C' },
-    { id: 'composio', name: 'Composio', caption: t('lp.settings.create_composio_workflows_with_litpage_a', 'Create Composio workflows with Litpage access'), color: '#2b2b2b', letter: 'C' },
-    { id: 'cursor', name: 'Cursor', caption: t('lp.settings.find_and_cite_litpage_docs_and', 'Find and cite Litpage docs and tasks without leaving your editor'), color: '#111111', letter: 'C' },
-    { id: 'devin', name: 'Devin', caption: t('lp.settings.let_devin_tap_into_your_litpage', 'Let Devin tap into your Litpage workspace while building'), color: '#1a7f64', letter: 'D' },
-    { id: 'figma', name: 'Figma', caption: t('lp.settings.prototype_from_your_litpage_prds_by', 'Prototype from your Litpage PRDs by linking them to Figma.'), color: '#a259ff', letter: 'F' },
-    { id: 'github', name: 'GitHub', caption: t('lp.settings.track_github_issues_and_pull_requests', 'Track GitHub issues and pull requests as connected tasks in Litpage'), color: '#1f2328', letter: 'G' },
-    { id: 'glass', name: 'Glass', caption: t('lp.settings.give_glass_litpage_context_for_everyday', 'Give Glass Litpage context for everyday work.'), color: '#e8e05a', letter: 'G' },
+    { id: 'chatgpt', name: 'ChatGPT', caption: t('lp.settings.let_chatgpt_deep_research_pull_in', 'Let ChatGPT Deep Research pull in context from Workspace'), color: '#000000', letter: 'C' },
+    { id: 'claude', name: 'Claude', caption: t('lp.settings.have_claude_collaborate_with_you_in', 'Have Claude collaborate with you in Workspace.'), color: '#d97757', letter: 'C' },
+    { id: 'composio', name: 'Composio', caption: t('lp.settings.create_composio_workflows_with_litpage_a', 'Create Composio workflows with Workspace access'), color: '#2b2b2b', letter: 'C' },
+    { id: 'cursor', name: 'Cursor', caption: t('lp.settings.find_and_cite_litpage_docs_and', 'Find and cite Workspace docs and tasks without leaving your editor'), color: '#111111', letter: 'C' },
+    { id: 'devin', name: 'Devin', caption: t('lp.settings.let_devin_tap_into_your_litpage', 'Let Devin tap into your Workspace workspace while building'), color: '#1a7f64', letter: 'D' },
+    { id: 'figma', name: 'Figma', caption: t('lp.settings.prototype_from_your_litpage_prds_by', 'Prototype from your Workspace PRDs by linking them to Figma.'), color: '#a259ff', letter: 'F' },
+    { id: 'github', name: 'GitHub', caption: t('lp.settings.track_github_issues_and_pull_requests', 'Track GitHub issues and pull requests as connected tasks in Workspace'), color: '#1f2328', letter: 'G' },
+    { id: 'glass', name: 'Glass', caption: t('lp.settings.give_glass_litpage_context_for_everyday', 'Give Glass Workspace context for everyday work.'), color: '#e8e05a', letter: 'G' },
     { id: 'grok', name: 'Grok Bot', caption: fallback('Grok Bot'), color: '#000000', letter: 'X' },
-    { id: 'hubspot', name: 'HubSpot', caption: t('lp.settings.keep_hubspot_account_notes_alongside_lit', 'Keep HubSpot account notes alongside Litpage work.'), color: '#ff7a59', letter: 'H' },
-    { id: 'make', name: 'Make', caption: t('lp.settings.use_make_to_automate_work_in', 'Use Make to automate work in Litpage'), color: '#6d00cc', letter: 'M' },
-    { id: 'mistral', name: 'Mistral', caption: t('lp.settings.draft_plans_and_database_entries_in', 'Draft plans and database entries in Litpage.'), color: '#fa520f', letter: 'M' },
+    { id: 'hubspot', name: 'HubSpot', caption: t('lp.settings.keep_hubspot_account_notes_alongside_lit', 'Keep HubSpot account notes alongside Workspace work.'), color: '#ff7a59', letter: 'H' },
+    { id: 'make', name: 'Make', caption: t('lp.settings.use_make_to_automate_work_in', 'Use Make to automate work in Workspace'), color: '#6d00cc', letter: 'M' },
+    { id: 'mistral', name: 'Mistral', caption: t('lp.settings.draft_plans_and_database_entries_in', 'Draft plans and database entries in Workspace.'), color: '#fa520f', letter: 'M' },
     { id: 'muse', name: 'Muse', caption: fallback('Muse'), color: '#3d3d3d', letter: 'M' },
-    { id: 'poke', name: 'Poke', caption: t('lp.settings.let_poke_use_your_litpage_workspace', 'Let Poke use your Litpage workspace'), color: '#ff4f81', letter: 'P' },
-    { id: 'vscode', name: 'VS Code', caption: t('lp.settings.bring_litpage_context_into_your_code', 'Bring Litpage context into your code by linking your IDE.'), color: '#007acc', letter: 'V' },
-    { id: 'zapier', name: 'Zapier', caption: t('lp.settings.connect_litpage_to_zapier_automations', 'Connect Litpage to Zapier automations.'), color: '#ff4f00', letter: 'Z' },
+    { id: 'poke', name: 'Poke', caption: t('lp.settings.let_poke_use_your_litpage_workspace', 'Let Poke use your Workspace workspace'), color: '#ff4f81', letter: 'P' },
+    { id: 'vscode', name: 'VS Code', caption: t('lp.settings.bring_litpage_context_into_your_code', 'Bring Workspace context into your code by linking your IDE.'), color: '#007acc', letter: 'V' },
+    { id: 'zapier', name: 'Zapier', caption: t('lp.settings.connect_litpage_to_zapier_automations', 'Connect Workspace to Zapier automations.'), color: '#ff4f00', letter: 'Z' },
   ];
 }
 
@@ -483,8 +483,8 @@ export function LitMcpSection() {
 
   return (
     <SectionPage
-      title={t('lp.settings.litpage_mcp', 'Litpage MCP')}
-      subtitle={t('lp.settings.work_in_litpage_from_other_apps', 'Work in Litpage from other apps. The Litpage MCP server lets agents, apps, and tools act on this workspace.')}
+      title={t('lp.settings.litpage_mcp', 'Workspace MCP')}
+      subtitle={t('lp.settings.work_in_litpage_from_other_apps', 'Work in Workspace from other apps. The Workspace MCP server lets agents, apps, and tools act on this workspace.')}
     >
       <Group plain title={t('lp.settings.enabled_clients', 'Enabled clients ({count})', { count: enabledClients.length })}>
         {enabledClients.length ? (
@@ -506,7 +506,7 @@ export function LitMcpSection() {
       </Group>
       <Group>
         <div className="nc-set-mcp-head">
-          <div className="nc-set-group-title plain inline">{t('lp.settings.mcp_clients_for_litpage', 'MCP clients for Litpage')}</div>
+          <div className="nc-set-group-title plain inline">{t('lp.settings.mcp_clients_for_litpage', 'MCP clients for Workspace')}</div>
           <div className="nc-set-people-actions">
             {searching ? (
               <div className="nc-set-input nc-set-people-search">
@@ -546,7 +546,7 @@ export function LitMcpSection() {
           </div>
         )}
         <div className="nc-set-crosslink">
-          {rich(msg('lp.settings.need_github_prs_slack_or_google', 'Need GitHub PRs, Slack, or Google Drive content in Litpage? <nowrap><link>Connections</link></nowrap>'), {}, {
+          {rich(msg('lp.settings.need_github_prs_slack_or_google', 'Need GitHub PRs, Slack, or Google Drive content in Workspace? <nowrap><link>Connections</link></nowrap>'), {}, {
             nowrap: (c) => <span style={{ whiteSpace: 'nowrap' }}>{c}</span>,
           }).map((n) => n)}
           {' '}
@@ -556,7 +556,7 @@ export function LitMcpSection() {
           </span>
         </div>
       </Group>
-      {/* Litpage MCP server: access tokens and owner governance. */}
+      {/* Workspace MCP server: access tokens and owner governance. */}
       <LitMcpAccess />
     </SectionPage>
   );
@@ -763,7 +763,7 @@ function DomainsGroup({ space, admin, sites }: { space: SpaceRecord; admin: bool
       <div className="nc-set-domains-head">
         <div>
           <div className="ttl">{t('lp.settings.domains', 'Domains')}</div>
-          <div className="sub">{t('lp.settings.domains_where_your_litpage_sites_can', 'Domains where your Litpage sites can be published')}</div>
+          <div className="sub">{t('lp.settings.domains_where_your_litpage_sites_can', 'Domains where your Workspace sites can be published')}</div>
         </div>
         <span data-tooltip={t('lp.settings.this_workspace_can_have_only_litpage', 'This workspace can have only {maximumDomains} .litpage.site domains', { maximumDomains: 1 })}>
           <Button disabled>{t('lp.settings.new_domain', 'New domain')}</Button>
@@ -846,7 +846,7 @@ function DomainBody({ space, close }: { space: SpaceRecord; close: () => void })
   return (
     <>
       <h3>{t('lp.settings.change_the_domain_name', 'Change the domain name')}</h3>
-      <div className="desc">{t('lp.settings.give_your_litpage_site_its_own', 'Give your Litpage site its own domain')}</div>
+      <div className="desc">{t('lp.settings.give_your_litpage_site_its_own', 'Give your Workspace site its own domain')}</div>
       <div className="nc-set-input nc-set-domain-input">
         <input autoFocus value={v} placeholder={t('lp.settings.yourdomain', 'yourdomain')} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && state?.ok) void save(); }} />
         <span className="suffix">.litpage.site</span>
@@ -912,7 +912,7 @@ export function DeveloperSection() {
               {t('lp.settings.generate_your_own_api_access_token', 'Generate your own API access token')}
             </>
           )}
-          description={rich(msg('lp.settings.create_a_personal_access_token_for', 'Create a personal access token for Litpage API requests. <manageTokens>Manage your tokens</manageTokens>.'), {}, {
+          description={rich(msg('lp.settings.create_a_personal_access_token_for', 'Create a personal access token for Workspace API requests. <manageTokens>Manage your tokens</manageTokens>.'), {}, {
             manageTokens: (c) => <a href="#" onClick={(e) => { e.preventDefault(); setShow(true); }}>{c}</a>,
           })}
           control={<Button disabled={!space} onClick={() => space && openSubDialog((close) => <NewTokenBody spaceId={space.id} close={close} onCreated={() => { load(); setShow(true); }} />)}>{t('lp.settings.new_token', 'New token')}</Button>}

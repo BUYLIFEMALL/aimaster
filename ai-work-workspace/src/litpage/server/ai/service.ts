@@ -71,7 +71,7 @@ function wrapEvents(ev: TurnEvents) {
 /** Workspace members only, with AI enabled in workspace settings. */
 export function assertAiAllowed(spaceId: string, userId: string) {
   if (!spaceId || !isMember(spaceId, userId)) throw new AiError('forbidden', 'You cannot access this workspace.', 403);
-  if (!workspaceAiPolicy(spaceId).enabled) throw new AiError('forbidden', 'Litpage AI is turned off in this workspace.', 403);
+  if (!workspaceAiPolicy(spaceId).enabled) throw new AiError('forbidden', 'AIMaster is turned off in this workspace.', 403);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ function turnMeta(p: ChatParams): { meta: string; people: { userId: string; name
   const sc = scopeOf(p);
   if (sc?.kind === 'page') lines.push(`Sources: the user limited this question to the page “${sc.title}” (page_id: ${sc.id}) and its sub-pages — workspace search only looks there.`);
   else if (sc?.kind === 'teamspace') lines.push(`Sources: the user limited this question to the team “${sc.title}”. Workspace search stays there.`);
-  else if (sc?.kind === 'workspace') lines.push('Sources: Litpage workspace only (no web, no connected apps).');
+  else if (sc?.kind === 'workspace') lines.push('Sources: Workspace workspace only (no web, no connected apps).');
   else if (sc?.kind === 'web') lines.push('Sources: the web only — answer from web search, not from the workspace.');
   return { meta: lines.join('\n'), people, teamspaces };
 }
@@ -433,7 +433,7 @@ export async function executeChatTurn(prep: PreparedChat, ev: TurnEvents = {}, s
   let data: MessageData;
   const common = { steps: stepList.length ? stepList : undefined, changed: changed || undefined, mode, modelChoice: honored } as Partial<MessageData>;
   if (error) data = { text: '', status: 'error', error: { code: error.code, message: error.message }, sources: [...turnSources.values()], ...common };
-  else if (result!.refused) data = { text: '', status: 'refused', error: { code: 'refusal', message: 'Litpage AI can’t help with that request.' }, ...common };
+  else if (result!.refused) data = { text: '', status: 'refused', error: { code: 'refusal', message: 'AIMaster can’t help with that request.' }, ...common };
   else data = { text: result!.text, status: result!.aborted ? 'stopped' : 'complete', sources: [...turnSources.values()], model: result!.model, ...common };
   const message = addMessage(thread.id, 'assistant', data, turnId);
   let title: string | undefined;
@@ -491,11 +491,11 @@ export function prepareWriter(p: WriterParams): ModelRequest {
     if (!canRead(p.pageId, p.userId)) throw new AiError('forbidden', 'You don’t have access to this page.', 403);
     page = readPage(p.pageId, p.userId, { maxChars: 60_000 }) ?? undefined;
     const sid = getRecord<BlockRecord>('block', p.pageId)?.space_id;
-    if (sid && !workspaceAiPolicy(sid).enabled) throw new AiError('forbidden', 'Litpage AI is turned off in this workspace.', 403);
+    if (sid && !workspaceAiPolicy(sid).enabled) throw new AiError('forbidden', 'AIMaster is turned off in this workspace.', 403);
   } else if (p.spaceId) {
     assertAiAllowed(p.spaceId, p.userId);
   } else {
-    throw new AiError('bad_request', 'Open a page to use Litpage AI.', 400);
+    throw new AiError('bad_request', 'Open a page to use AIMaster.', 400);
   }
   if (p.skillId) {
     const spaceId = (p.pageId ? getRecord<BlockRecord>('block', p.pageId)?.space_id : undefined) ?? p.spaceId ?? '';
@@ -504,7 +504,7 @@ export function prepareWriter(p: WriterParams): ModelRequest {
     skill = 'custom';
     prompt = `Follow these skill instructions (“${s.name}”) on ${p.selection?.trim() ? 'the selected text' : 'the page'}${prompt?.trim() ? `, and this request: ${prompt.trim()}` : ''}:\n\n${s.instructions}`;
   }
-  if (skill === 'custom' && !prompt?.trim()) throw new AiError('bad_request', 'Tell Litpage AI what to write.', 400);
+  if (skill === 'custom' && !prompt?.trim()) throw new AiError('bad_request', 'Tell AIMaster what to write.', 400);
   const references = (p.mentions ?? []).slice(0, 5).map((id) => readPage(id, p.userId, { maxChars: 20_000 })).filter((x): x is PageContext => !!x);
   const language = LANGUAGES.find((l) => l.toLowerCase() === p.language?.trim().toLowerCase()) ?? (p.language?.trim().slice(0, 40) || undefined);
   const tone = TONES.find((t) => t.toLowerCase() === p.tone?.trim().toLowerCase()) ?? (p.tone?.trim().slice(0, 40) || undefined);
@@ -532,7 +532,7 @@ export async function executeSimple(where: string, req: ModelRequest, ev: TurnEv
   try {
     const r = await runStream(req, wrapEvents(ev), { signal, client });
     if (DEBUG) console.log(`[ai] ${where} ${describeUsage(r.usage)}`);
-    if (r.refused) return { text: '', status: 'refused', error: { code: 'refusal', message: 'Litpage AI can’t help with that request.' } };
+    if (r.refused) return { text: '', status: 'refused', error: { code: 'refusal', message: 'AIMaster can’t help with that request.' } };
     return { text: r.text, status: r.aborted ? 'stopped' : 'complete' };
   } catch (e) {
     const err = mapError(e);
@@ -549,7 +549,7 @@ export function prepareAiBlock(p: { userId: string; blockId: string; prompt?: st
   const b = getRecord<BlockRecord>('block', p.blockId);
   if (!b || b.alive === false) throw new AiError('not_found', 'This AI block no longer exists.', 404);
   if (!canRead(p.blockId, p.userId)) throw new AiError('forbidden', 'You don’t have permission to generate this block.', 403);
-  if (!workspaceAiPolicy(b.space_id).enabled) throw new AiError('forbidden', 'Litpage AI is turned off in this workspace.', 403);
+  if (!workspaceAiPolicy(b.space_id).enabled) throw new AiError('forbidden', 'AIMaster is turned off in this workspace.', 403);
   const fmt = (b.format ?? {}) as Record<string, unknown>;
   const output = (['custom', 'page_summary', 'key_points', 'action_items'].includes(String(p.output ?? fmt.ai_output)) ? String(p.output ?? fmt.ai_output) : 'custom') as AiBlockOutput;
   const prompt = String(p.prompt ?? fmt.ai_prompt ?? '').slice(0, 20_000);
@@ -590,7 +590,7 @@ export async function runAutofill(p: AutofillParams, client?: ClaudeLike): Promi
   requireConfigured();
   const r = rowForAutofill(p.rowId, p.userId);
   if (!r) throw new AiError('not_found', 'That database row doesn’t exist or you can’t access it.', 404);
-  if (!workspaceAiPolicy(r.row.space_id).enabled) throw new AiError('forbidden', 'Litpage AI is turned off in this workspace.', 403);
+  if (!workspaceAiPolicy(r.row.space_id).enabled) throw new AiError('forbidden', 'AIMaster is turned off in this workspace.', 403);
   const prop = r.col.schema[p.propId];
   if (!prop) throw new AiError('bad_request', 'Unknown property.', 400);
   const kind: AutofillKind = ['summary', 'keywords', 'translation', 'custom'].includes(p.kind) ? p.kind : 'custom';
@@ -601,7 +601,7 @@ export async function runAutofill(p: AutofillParams, client?: ClaudeLike): Promi
     kind, propertyName: prop.name, propertyType: prop.type, prompt: p.prompt?.slice(0, 4_000), language: p.language?.slice(0, 40), options, row,
   });
   const res = await runStream(req, {}, { client });
-  if (res.refused) throw new AiError('refusal', 'Litpage AI can’t help with that request.', 400);
+  if (res.refused) throw new AiError('refusal', 'AIMaster can’t help with that request.', 400);
   return autofillValue(res.text, prop.type, options);
 }
 
@@ -619,7 +619,7 @@ export async function runQuery(p: { userId: string; spaceId: string; query: stri
     if (pc) ctx.push({ kind: 'source', pageId: pc.pageId, title: pc.title, markdown: pc.markdown, truncated: pc.truncated, n: n++ });
   }
   const res = await runStream(buildQaRequest(p.query, ctx, aiPersona(p.userId)), {}, { client });
-  if (res.refused) throw new AiError('refusal', 'Litpage AI can’t help with that request.', 400);
+  if (res.refused) throw new AiError('refusal', 'AIMaster can’t help with that request.', 400);
   return { answer: res.text, sources: ctx.map((c) => ({ n: c.n!, pageId: c.pageId, title: c.title })) };
 }
 

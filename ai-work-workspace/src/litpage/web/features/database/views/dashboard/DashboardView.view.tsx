@@ -337,7 +337,7 @@ function DashboardView(props: ViewProps) {
           <div className="nc-dash-empty-title">Start using your dashboard</div>
           <div className="nc-dash-empty-sub">Combine charts, tables, and lists of this data source in one place.</div>
           <div className="nc-dash-cards">
-            <div className="nc-dash-card disabled" onClick={() => useUI.getState().toast('Litpage AI is not available in this workspace')}><div>Ask Litpage AI to build<br />your dashboard</div><Icon name="aiFace" size={28} color="var(--lp-icon-tertiary)" /></div>
+            <div className="nc-dash-card disabled" onClick={() => useUI.getState().toast('AIMaster is not available in this workspace')}><div>Ask AIMaster to build<br />your dashboard</div><Icon name="aiFace" size={28} color="var(--lp-icon-tertiary)" /></div>
             <div role="button" className="nc-dash-card" onClick={(e) => !readOnly && addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><div>Add charts, tables, or lists to<br />your dashboard</div><div className="nc-dash-card-art"><span><Icon name="plus" size={16} /></span><span><Icon name="donutChart" size={16} /></span><span><Icon name="chartBarXAxis" size={16} /></span></div></div>
             <div className="nc-dash-card disabled"><div>Learn about filters across<br />multiple data sources</div><Icon name="filter" size={24} color="var(--lp-icon-tertiary)" /></div>
           </div>

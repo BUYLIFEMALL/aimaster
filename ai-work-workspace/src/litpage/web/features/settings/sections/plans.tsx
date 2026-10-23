@@ -37,7 +37,7 @@ function plans(): PlanInfo[] {
       tagline: t('lp.settings.more_control_for_growing_organizations', 'More control for growing organizations'),
       features: [
         t('lp.settings.everything_in_pro', 'Everything in Pro'),
-        t('lp.settings.litpage_ai_and_custom_agents', 'Litpage AI and custom agents'),
+        t('lp.settings.litpage_ai_and_custom_agents', 'AIMaster and custom agents'),
         t('lp.settings.ai_meeting_notes', 'AI meeting notes'),
         t('lp.settings.pdf_and_member_exports', 'PDF and member exports'),
         t('lp.settings.image_generation', 'Image generation'),
@@ -112,7 +112,7 @@ export function PlansSection() {
           </div>
           <div className="nc-set-plan-ai">
             <div className="txt">
-              <div className="ttl"><span className="ai-face"><Icon name="aiFace" size={14} /></span>{t('lp.settings.litpage_ai', 'Litpage AI')}</div>
+              <div className="ttl"><span className="ai-face"><Icon name="aiFace" size={14} /></span>{t('lp.settings.litpage_ai', 'AIMaster')}</div>
               <div className="desc">{t('lp.settings.ai_search_meeting_notes_and_image', 'AI search, meeting notes, and image generation are available at the Business level')}</div>
             </div>
             {PLAN_RANK[plan] >= PLAN_RANK.business ? (
@@ -131,7 +131,7 @@ export function PlansSection() {
       <div className="nc-set-compare">
         <div className="nc-set-compare-title">{t('lp.settings.feature_levels', 'Feature levels')}</div>
         <div className="nc-set-sep" />
-        <p className="nc-set-plan-note">{t('lp.settings.levels_exist_to_try_plan_dependent', 'Levels exist to try plan-dependent features. Litpage is self-hosted, so there is no billing.')}</p>
+        <p className="nc-set-plan-note">{t('lp.settings.levels_exist_to_try_plan_dependent', 'Levels exist to try plan-dependent features. Workspace is self-hosted, so there is no billing.')}</p>
         <div className="nc-set-plan-head">
           <div className="lbl" />
           {all.map((p) => (
@@ -168,7 +168,7 @@ export function BillingSection() {
   if (!space) return null;
   const info = plans().find((p) => p.key === plan) ?? plans()[1];
   return (
-    <SectionPage title={t('lp.settings.billing', 'Billing')} subtitle={t('lp.settings.litpage_is_self_hosted_so_there', 'Litpage is self-hosted, so there is nothing to bill.')}>
+    <SectionPage title={t('lp.settings.billing', 'Billing')} subtitle={t('lp.settings.litpage_is_self_hosted_so_there', 'Workspace is self-hosted, so there is nothing to bill.')}>
       <Group title={t('lp.settings.your_current_feature_level', 'Your current feature level')}>
         <Row
           id="billing-plan"
@@ -176,7 +176,7 @@ export function BillingSection() {
           description={info.tagline}
           control={<Button onClick={() => useUI.getState().set({ settingsSection: 'plans' })}>{t('lp.settings.view_feature_levels', 'View feature levels')}</Button>}
         />
-        <div className="nc-set-plan-note">{t('lp.settings.levels_exist_to_try_plan_dependent', 'Levels exist to try plan-dependent features. Litpage is self-hosted, so there is no billing.')}</div>
+        <div className="nc-set-plan-note">{t('lp.settings.levels_exist_to_try_plan_dependent', 'Levels exist to try plan-dependent features. Workspace is self-hosted, so there is no billing.')}</div>
       </Group>
     </SectionPage>
   );

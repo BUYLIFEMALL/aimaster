@@ -201,7 +201,7 @@ function TwoStepSetup({ sec, close, onChange }: { sec: AccountSecurity; close: (
   return (
     <>
       <h3>{t('lp.settings.authenticator_based_two_step_verificatio', 'Authenticator-based two-step verification is on')}</h3>
-      <div className="desc">{t('lp.settings.whenever_you_enter_your_password_litpage', 'Whenever you enter your password, Litpage will request a verification code to confirm it’s you.')}</div>
+      <div className="desc">{t('lp.settings.whenever_you_enter_your_password_litpage', 'Whenever you enter your password, Workspace will request a verification code to confirm it’s you.')}</div>
       <div className="actions">
         <Button variant="primary" onClick={() => { close(); void loadAccountSecurity().then((s) => openManageTwoStep(s, onChange)); }}>{t('lp.settings.see_two_step_verification_options', 'See two-step verification options')}</Button>
         <Button onClick={close}>{t('lp.settings.close', 'Close')}</Button>
@@ -213,7 +213,7 @@ function TwoStepSetup({ sec, close, onChange }: { sec: AccountSecurity; close: (
 function BackupCodes({ codes, onDone }: { codes: string[]; onDone: () => void }) {
   const download = () => {
     const text = [
-      t('lp.settings.litpage_backup_codes', 'Litpage recovery codes'),
+      t('lp.settings.litpage_backup_codes', 'Workspace recovery codes'),
       t('lp.settings.keep_these_somewhere_secure_and_check', 'Keep these somewhere secure and check off each code as you use it.'),
       '',
       ...codes,
@@ -296,7 +296,7 @@ function ManageTwoStep({ initial, close, onChange }: { initial: AccountSecurity;
     return (
       <>
         <h3>{t('lp.settings.two_step_verification_is_off', 'Two-step verification is off')}</h3>
-        <div className="desc">{t('lp.settings.two_step_verification_was_removed_from', 'Two-step verification was removed from your account. Litpage will ask only for your password when you sign in.')}</div>
+        <div className="desc">{t('lp.settings.two_step_verification_was_removed_from', 'Two-step verification was removed from your account. Workspace will ask only for your password when you sign in.')}</div>
         <div className="actions"><Button variant="primary" onClick={close}>{t('lp.settings.complete', 'Complete')}</Button></div>
       </>
     );
@@ -311,9 +311,9 @@ function ManageTwoStep({ initial, close, onChange }: { initial: AccountSecurity;
         <h3>{isTurnOff || lastFactor ? t('lp.settings.disable_two_step_verification', 'Disable two-step verification') : t('lp.settings.delete_6b57', 'Delete {friendlyName}', { friendlyName: pending.kind === 'delete' ? pending.factor.name : '' })}</h3>
         <div className="desc">
           {isTurnOff
-            ? t('lp.settings.disabling_two_step_verification_removes', 'Disabling two-step verification removes an extra layer of account security. Litpage will ask only for your password when you sign in.')
+            ? t('lp.settings.disabling_two_step_verification_removes', 'Disabling two-step verification removes an extra layer of account security. Workspace will ask only for your password when you sign in.')
             : lastFactor
-              ? t('lp.settings.deleting_disables_two_step_verification', 'Deleting {mfaSettingName} disables two-step verification and removes an extra layer of account security. Litpage will ask only for your password when you sign in.', { mfaSettingName: pending.factor.name })
+              ? t('lp.settings.deleting_disables_two_step_verification', 'Deleting {mfaSettingName} disables two-step verification and removes an extra layer of account security. Workspace will ask only for your password when you sign in.', { mfaSettingName: pending.factor.name })
               : bold(msg('lp.settings.after_deletion_codes_from_won_t', 'After deletion, codes from {friendlyName} won’t work. <boldtext>Delete this verification method?</boldtext>').replace('{friendlyName}', pending.kind === 'delete' ? pending.factor.name : ''))}
         </div>
         <div className="actions">
@@ -538,7 +538,7 @@ function ManageEmails({ close, onChange }: { close: () => void; onChange: () => 
     return (
       <>
         <h3>{t('lp.settings.add_an_email_address', 'Add an email address')}</h3>
-        <div className="desc">{t('lp.settings.add_an_email_for_signing_in', 'Add an email for signing in to this Litpage account. It must not already belong to another Litpage account.')}</div>
+        <div className="desc">{t('lp.settings.add_an_email_for_signing_in', 'Add an email for signing in to this Workspace account. It must not already belong to another Workspace account.')}</div>
         <div>
           <label className="nc-set-label">{t('lp.settings.email_address', 'Email address')}</label>
           <div className="nc-set-input"><input autoFocus type="email" aria-label={t('lp.settings.add_an_email_address', 'Add an email address')} value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void send(); }} /></div>
@@ -570,7 +570,7 @@ function ManageEmails({ close, onChange }: { close: () => void; onChange: () => 
   return (
     <div className="left">
       <h3>{t('lp.settings.manage_emails', 'Manage emails')}</h3>
-      <div className="desc">{t('lp.settings.sign_in_to_litpage_with_several', 'Sign in to Litpage with several email addresses under one account')}</div>
+      <div className="desc">{t('lp.settings.sign_in_to_litpage_with_several', 'Sign in to Workspace with several email addresses under one account')}</div>
       <div>
         {(sec?.emails ?? []).map((e) => (
           <div key={e.email} className="nc-set-email-row" data-email={e.email}>

@@ -54,7 +54,7 @@ async function chat(agentId: string, userId: string, text: string, turns: Turn[]
   const out = await runs.executeAgentChat(prep, {}, undefined, fake(turns, seen) as any);
   return { out, seen, prep };
 }
-const overloaded = () => new AiError('overloaded', 'Litpage AI is busy right now. Try again in a moment.', 529);
+const overloaded = () => new AiError('overloaded', 'AIMaster is busy right now. Try again in a moment.', 529);
 
 beforeAll(async () => {
   ({ newId } = await import('#shared/ids.ts'));

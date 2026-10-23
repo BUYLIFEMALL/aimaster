@@ -65,7 +65,7 @@ export function ImportModal() {
           <header className="nc-import-modal-header">
             <div className="nc-import-modal-title">{t('lp.import.import', 'Import')}</div>
             <div className="nc-import-modal-sub">
-              <span>{t('lp.import.pull_files_and_content_from_other', 'Pull files and content from other tools into Litpage')}</span>
+              <span>{t('lp.import.pull_files_and_content_from_other', 'Pull files and content from other tools into Workspace')}</span>
               {HELP_URL && (<a href={HELP_URL} target="_blank" rel="noreferrer">{t('lp.import.learn_more', 'Learn more')}</a>)}
             </div>
           </header>

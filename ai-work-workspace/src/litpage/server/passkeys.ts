@@ -242,7 +242,7 @@ export function registrationOptions(user: { id: string; email: string; name?: st
     challengeId: id,
     publicKey: {
       challenge,
-      rp: { name: 'Litpage', id: rp.rpId },
+      rp: { name: 'Workspace', id: rp.rpId },
       user: { id: b64url(Buffer.from(user.id, 'utf8')), name: user.email, displayName: user.name || user.email },
       pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -8 }, { type: 'public-key', alg: -257 }],
       timeout: CHALLENGE_TTL,
@@ -303,7 +303,7 @@ export function verifyAssertion(challengeId: unknown, cred: AssertionResponse): 
   const ch = takeChallenge(challengeId, 'login', null);
   if (cred?.type !== 'public-key' || typeof cred.id !== 'string') throw new PasskeyError('Unexpected passkey response');
   const row = db.prepare('SELECT * FROM passkeys WHERE id = ?').get(cred.id) as any;
-  if (!row) throw new PasskeyError('This passkey isn’t registered to a Litpage account.', 401);
+  if (!row) throw new PasskeyError('This passkey isn’t registered to a Workspace account.', 401);
   const clientData = fromB64url(cred.response?.clientDataJSON);
   checkClientData(clientData, 'webauthn.get', ch);
   if (row.rp_id !== ch.rp_id) throw new PasskeyError('The passkey was created for a different site.', 401);

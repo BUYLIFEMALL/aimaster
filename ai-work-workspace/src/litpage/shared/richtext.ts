@@ -1,4 +1,4 @@
-// Rich text in Litpage's decoration format: [["plain"], ["bold", [["b"]]], ["‣", [["p", pageId]]]].
+// Rich text in Workspace's decoration format: [["plain"], ["bold", [["b"]]], ["‣", [["p", pageId]]]].
 // Atoms (mentions "‣", inline equations "⁍") are single characters carrying their payload in an annotation.
 
 export type Annotation =
@@ -17,8 +17,8 @@ export type Annotation =
   | ['lm', LinkMentionValue] // link mention (URL pasted "as mention")
   | ['m', string] // discussion (comment) highlight
   | ['sug', string] // suggested edit (legacy marker)
-  | ['si', string] // suggested insertion (discussion id) — Litpage "Suggestion insert text"
-  | ['sr', string] // suggested deletion (discussion id) — Litpage "Suggestion remove text"
+  | ['si', string] // suggested insertion (discussion id) — Workspace "Suggestion insert text"
+  | ['sr', string] // suggested deletion (discussion id) — Workspace "Suggestion remove text"
   | ['sa', string, Annotation] // suggested formatting added (discussion id, annotation)
   | ['sua', string, Annotation] // suggested formatting removed (discussion id, annotation)
   | ['ce', string, string?] // custom emoji (text "‣"): workspace emoji id, space id
@@ -142,7 +142,7 @@ export function splitAt(rt: RichText, offset: number): [RichText, RichText] {
   return [slice(rt, 0, offset), slice(rt, offset)];
 }
 
-/** Annotations active at an insertion offset (inherits from the run to the left, like Litpage; never inherits atoms/links at boundaries). */
+/** Annotations active at an insertion offset (inherits from the run to the left, like Workspace; never inherits atoms/links at boundaries). */
 export function annotationsAt(rt: RichText, offset: number): Annotation[] {
   let pos = 0;
   for (const d of rt) {
@@ -150,7 +150,7 @@ export function annotationsAt(rt: RichText, offset: number): Annotation[] {
     if (offset > pos && offset <= pos + len) {
       if (isAtom(d)) return [];
       const anns = annotationsOf(d);
-      // typing right after a link/code end does not extend it (Litpage behavior)
+      // typing right after a link/code end does not extend it (Workspace behavior)
       if (offset === pos + len) return anns.filter((a) => a[0] !== 'a' && a[0] !== 'c' && a[0] !== 'm');
       return anns;
     }
@@ -206,7 +206,7 @@ function mapRange(rt: RichText, start: number, end: number, fn: (anns: Annotatio
 export function addAnnotation(rt: RichText, start: number, end: number, ann: Annotation): RichText {
   return mapRange(rt, start, end, (anns) => {
     const rest = anns.filter((a) => a[0] !== ann[0] || (ann[0] === 'm' && a[1] !== ann[1]));
-    // color annotations: text colors and background colors are independent in Litpage's UI
+    // color annotations: text colors and background colors are independent in Workspace's UI
     if (ann[0] === 'h') {
       const isBg = String(ann[1]).endsWith('_background');
       const keep = anns.filter((a) => a[0] !== 'h' || String(a[1]).endsWith('_background') !== isBg);

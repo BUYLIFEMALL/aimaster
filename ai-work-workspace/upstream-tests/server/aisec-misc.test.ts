@@ -102,7 +102,7 @@ describe('"@" a skill in chat (item 23)', () => {
 });
 
 describe('MCP server allowlist (item 25)', () => {
-  it('owners manage it with Litpage’s validation; on + empty blocks every custom server', async () => {
+  it('owners manage it with Workspace’s validation; on + empty blocks every custom server', async () => {
     const S = ids.space;
     expect((await failure(() => call(ids.member, 'aiUpdateMcpAllowlist', { spaceId: S, enabled: true }))).status).toBe(403);
     const bad: [string, RegExp][] = [

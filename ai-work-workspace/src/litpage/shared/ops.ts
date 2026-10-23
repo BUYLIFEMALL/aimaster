@@ -1,4 +1,4 @@
-// Operations & transactions in Litpage's applyChanges shape:
+// Operations & transactions in Workspace's applyChanges shape:
 // { pointer: { table, id, spaceId }, path: string[], command, args }
 import type { Pointer, BaseRecord } from './records.ts';
 import { applySplice, invertSplice, type TextSplice } from './textmerge.ts';

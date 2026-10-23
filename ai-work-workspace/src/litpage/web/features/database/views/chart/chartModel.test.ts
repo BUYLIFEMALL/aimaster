@@ -59,7 +59,7 @@ describe('chart model', () => {
     expect(data.caption).toBe('Total');
   });
 
-  it('number chart counts all rows with Litpage\'s default title', () => {
+  it('number chart counts all rows with Workspace\'s default title', () => {
     const num = switchChartType(defaultChartConfig(schema), 'number', schema) as ChartConfig;
     expect(num.dataConfig).toEqual({ type: 'number_reducer', aggregationConfig: { aggregation: { aggregator: 'count' } } });
     const data = computeChart(rows, num, schema, ctx);

@@ -87,8 +87,8 @@ export function footerAggregationsOf(view: ViewLike): AggregationSpec[] {
 
 /**
  * Rows in the view's manual order. Rows listed in `page_sort` (rows added with "+ New page" are appended
- * there, like Litpage's `page_sort listAfter`) keep that order; rows not listed come first, newest first
- * Litpage shows a fresh view's rows newest-first.
+ * there, like Workspace's `page_sort listAfter`) keep that order; rows not listed come first, newest first
+ * Workspace shows a fresh view's rows newest-first.
  */
 export function manualOrder(rows: BlockRecord[], pageSort: string[] | undefined): BlockRecord[] {
   const newestFirst = [...rows].sort((a, b) => (b.created_time ?? 0) - (a.created_time ?? 0) || (a.id < b.id ? 1 : -1));

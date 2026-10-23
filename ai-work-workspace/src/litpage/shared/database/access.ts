@@ -1,7 +1,7 @@
 // Database access rules shared by the web client and the server (DB-PERM):
 //   - "Lock database" = format.block_locked on the database block (collection_view / collection_view_page). It freezes
 //     views (filters, sorts, groups, layout), the property schema (incl. select options) and templates; rows can still be
-//     added and edited (Litpage: "Lock database … still allows them to enter and edit data").
+//     added and edited (Workspace: "Lock database … still allows them to enter and edit data").
 //   - database-only share roles: "Can edit content" = role 'content_only_editor' (rows editable, views/schema not) and
 //     "Can also create pages" = Permission.can_create_pages_in_collection (Can view and create / Can comment and
 //     create / Can only create: new rows yes, existing rows only through other access).
@@ -33,7 +33,7 @@ export function canEditDatabaseContent(role: string | undefined): boolean {
   return role === 'content_only_editor' || roleAtLeast(role, 'read_and_write');
 }
 
-/** Lock / unlock the database: anyone with edit access (Litpage: "편집 권한자는 누구나 토글 가능"). */
+/** Lock / unlock the database: anyone with edit access (Workspace: "편집 권한자는 누구나 토글 가능"). */
 export function canToggleDatabaseLock(role: string | undefined): boolean {
   return roleAtLeast(role, 'read_and_write');
 }

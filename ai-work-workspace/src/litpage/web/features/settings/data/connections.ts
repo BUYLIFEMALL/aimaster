@@ -7,7 +7,7 @@ export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
   {
     key: 'featured', title: 'Recommended connections',
     cards: [
-      { name: 'Google Drive', litpage: true, desc: 'Browse shared files and bring documents into your Litpage pages.', action: 'Connect' },
+      { name: 'Google Drive', litpage: true, desc: 'Browse shared files and bring documents into your Workspace pages.', action: 'Connect' },
       { name: 'Slack', litpage: true, desc: 'Search conversations and send selected updates to a Slack channel.', action: 'Connect' },
       { name: 'GitHub', litpage: true, desc: 'Reference repositories, issues, and pull requests from your workspace.', action: 'Connect' },
     ],
@@ -23,7 +23,7 @@ export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
   {
     key: 'projects', title: 'Projects and tasks',
     cards: [
-      { name: 'Linear', litpage: true, desc: 'Search issues and projects while planning work in Litpage.', action: 'Connect' },
+      { name: 'Linear', litpage: true, desc: 'Search issues and projects while planning work in Workspace.', action: 'Connect' },
       { name: 'Asana', litpage: false, desc: 'Review tasks and project updates alongside your workspace notes.', action: 'Connect' },
       { name: 'GitLab', litpage: false, desc: 'Bring merge requests, issues, and project activity into context.', action: 'Connect' },
     ],
@@ -32,8 +32,8 @@ export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
     key: 'files', title: 'Files and automation',
     cards: [
       { name: 'Dropbox', litpage: false, desc: 'Search and open files from shared Dropbox folders.', action: 'Connect' },
-      { name: 'Zapier', litpage: false, desc: 'Trigger Litpage workflows from events in the services you use.', action: 'Connect' },
-      { name: 'Make', litpage: false, desc: 'Run Make scenarios that move information into or out of Litpage.', action: 'Connect' },
+      { name: 'Zapier', litpage: false, desc: 'Trigger Workspace workflows from events in the services you use.', action: 'Connect' },
+      { name: 'Make', litpage: false, desc: 'Run Make scenarios that move information into or out of Workspace.', action: 'Connect' },
     ],
   },
 ];

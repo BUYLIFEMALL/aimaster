@@ -16,7 +16,7 @@ import { DEFAULT_MODEL, modelConfigurationError, modelInfo, requestModel } from 
 
 export { AiError, ProviderError, scrub, type AiErrorCode, type ClaudeLike };
 
-export const NO_KEY_MESSAGE = 'Connect an AI provider to use Litpage AI';
+export const NO_KEY_MESSAGE = 'Connect an AI provider to use AIMaster';
 
 /** Server-side refusal fallback ("default" routes by refusal category). Anthropic only. */
 const FALLBACK_BETA = 'server-side-fallback-2026-07-01';
@@ -59,7 +59,7 @@ export function mapError(e: unknown): AiError {
   const sdk = mapAnthropicError(e, DEFAULT_MODEL);
   if (sdk) return sdk;
   if ((e as any)?.name === 'AbortError') return new AiError('aborted', 'Stopped.', 499);
-  return new AiError('unknown', 'Something went wrong with Litpage AI. Try again.', 500);
+  return new AiError('unknown', 'Something went wrong with AIMaster. Try again.', 500);
 }
 
 export function logAiError(where: string, e: unknown) {

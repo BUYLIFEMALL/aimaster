@@ -53,8 +53,8 @@ function ModelControls({ space, admin }: { space: SpaceRecord; admin: boolean })
     <Group plain title="Model controls">
       <Row
         id="ai-allowed-models"
-        label="Models available to Litpage Agent"
-        description="Choose which models Litpage Agent may use. Restricted models are dimmed in its model picker and chats set to Auto will respect these restrictions."
+        label="Models available to Workspace Agent"
+        description="Choose which models Workspace Agent may use. Restricted models are dimmed in its model picker and chats set to Auto will respect these restrictions."
       />
       <div className="nc-ai-set-models" role="list">
         {models.map((m) => (
@@ -79,9 +79,9 @@ function Usage({ spaceId }: { spaceId: string }) {
     void api('aiUsage', { spaceId }).then(setData).catch((e) => setError((e as Error)?.message ?? 'Usage couldn’t be loaded'));
   }, [spaceId]);
   return (
-    <Group plain title="Litpage AI usage in your workspace" description="Chats, messages and agent edits by member over the last 30 days.">
+    <Group plain title="AIMaster usage in your workspace" description="Chats, messages and agent edits by member over the last 30 days.">
       {error ? <div className="nc-set-row-desc">{error}</div> : !data ? <div className="nc-set-row-desc">Loading…</div> : !data.members.length ? (
-        <div className="nc-set-row-desc">Use cases appear once people in your workspace try Litpage AI.</div>
+        <div className="nc-set-row-desc">Use cases appear once people in your workspace try AIMaster.</div>
       ) : (
         <table className="nc-set-table nc-ai-usage-table">
           <thead><tr><th>Member</th><th>Chats</th><th>Messages</th><th>Agent edits</th><th>Last used</th></tr></thead>
@@ -108,13 +108,13 @@ function ConnectionRow({ c }: { c: McpConnection }) {
       <div className="nc-ai-set-conn-head">
         <Icon name="aiStepPlug" size={18} />
         <div className="main" role="button" onClick={() => setOpen(!open)}>
-          <div className="nm">{c.name} <span className="nc-ai-set-badge" data-tooltip="This server has not been reviewed by Litpage">Custom MCP</span></div>
+          <div className="nm">{c.name} <span className="nc-ai-set-badge" data-tooltip="This server has not been reviewed by Workspace">Custom MCP</span></div>
           <div className="ds">{c.url}{c.error ? ` · ${c.error}` : ` · ${c.tools.length} tools`}</div>
         </div>
         <Switch label={`Use ${c.name}`} checked={c.enabled} onChange={(v) => void update({ enabled: v })} />
         <Button small onClick={async () => { await api('aiRefreshConnection', { id: c.id }).catch(() => {}); await useConnections.getState().load(true); }}>Refresh</Button>
         <Button small variant="danger" onClick={async () => {
-          if (!(await confirmDialog({ title: `Disconnect ${c.name}?`, description: 'Litpage AI will no longer be able to use this server’s tools.', confirmLabel: 'Disconnect', danger: true }))) return;
+          if (!(await confirmDialog({ title: `Disconnect ${c.name}?`, description: 'AIMaster will no longer be able to use this server’s tools.', confirmLabel: 'Disconnect', danger: true }))) return;
           await api('aiRemoveConnection', { id: c.id });
           await useConnections.getState().load(true);
         }}>Disconnect</Button>
@@ -195,13 +195,13 @@ export function AiWorkspaceControls() {
   if (!space) return null;
   const webOn = spaceSetting<boolean>(space, 'ai_web_search', true);
   const rows: { k: string; fallback: boolean; label: string; description: ReactNode; disabled?: boolean }[] = [
-    { k: 'ai_enabled', fallback: true, label: 'Turn on Litpage AI', description: 'Enable AI for all members of your workspace.' },
+    { k: 'ai_enabled', fallback: true, label: 'Turn on AIMaster', description: 'Enable AI for all members of your workspace.' },
     { k: 'ai_web_search', fallback: true, label: 'Allow web search for this workspace', description: 'Let AI search the web for current information when it answers.' },
     { k: 'ai_web_confirm', fallback: false, label: 'Ask before making web requests', description: 'The agent may open external pages when search is not enough. Require approval before viewing any web page.', disabled: !webOn },
     { k: 'ai_skip_approvals', fallback: true, label: 'Allow actions without approval', description: 'Let agents act without asking you first' },
-    { k: 'ai_custom_mcp', fallback: true, label: 'Allow custom MCP servers', description: 'Allow members to connect agents to custom MCP servers that Litpage hasn’t reviewed. Connected agents can share content externally, access external data, and take external actions.' },
-    { k: 'ai_memories', fallback: true, label: 'Enable Memories', description: 'Let Litpage AI create and use personal memories for workspace members.' },
-    { k: 'ai_mcp_skills', fallback: true, label: 'Allow skills over MCP', description: 'Let MCP clients use Litpage skills automatically.' },
+    { k: 'ai_custom_mcp', fallback: true, label: 'Allow custom MCP servers', description: 'Allow members to connect agents to custom MCP servers that Workspace hasn’t reviewed. Connected agents can share content externally, access external data, and take external actions.' },
+    { k: 'ai_memories', fallback: true, label: 'Enable Memories', description: 'Let AIMaster create and use personal memories for workspace members.' },
+    { k: 'ai_mcp_skills', fallback: true, label: 'Allow skills over MCP', description: 'Let MCP clients use Workspace skills automatically.' },
     { k: 'ai_local_skills', fallback: true, label: 'Allow skill downloads on local devices', description: 'Let members download skills for local agent use' },
   ];
   return (
@@ -213,7 +213,7 @@ export function AiWorkspaceControls() {
         {owner && <McpAllowlist space={space} />}
       </Group>
       <ModelControls space={space} admin={owner} />
-      <Group plain title="My MCP connections" description="Remote MCP servers Litpage AI can use in your chats (+ → Connections).">
+      <Group plain title="My MCP connections" description="Remote MCP servers AIMaster can use in your chats (+ → Connections).">
         {conns.list.map((c) => <ConnectionRow key={c.id} c={c} />)}
         <div>
           <Button icon="plusSmall" disabled={!conns.customMcp} title={conns.customMcp ? undefined : 'External MCP endpoints are off in this workspace. Ask an owner to enable them.'} onClick={() => void openMcpConnectDialog()}>Add Connections</Button>
@@ -277,14 +277,14 @@ export function LitMcpAccess() {
   };
   return (
     <div className="nc-ai-set" data-testid="lit-mcp-access">
-      <Group plain title="Connect with an access token" description="Any MCP client can use this workspace through the Litpage MCP server with a personal access token. Tools act as you, with your permissions.">
+      <Group plain title="Connect with an access token" description="Any MCP client can use this workspace through the Workspace MCP server with a personal access token. Tools act as you, with your permissions.">
         <Row label="Server URL" description={<code className="nc-ai-set-code">{serverUrl}</code>} control={<Button small onClick={() => { void navigator.clipboard?.writeText(serverUrl).catch(() => {}); useUI.getState().toast('Copied'); }}>Copy</Button>} />
         {owner && (
           <Row
             id="lit-mcp-enabled"
-            label="Allow Litpage MCP for this workspace"
+            label="Allow Workspace MCP for this workspace"
             description="Members can connect MCP clients to this workspace."
-            control={<Switch label="Allow Litpage MCP for this workspace" checked={enabled} onChange={(v) => saveSpaceSettings(space.id, { lit_mcp_enabled: v })} />}
+            control={<Switch label="Allow Workspace MCP for this workspace" checked={enabled} onChange={(v) => saveSpaceSettings(space.id, { lit_mcp_enabled: v })} />}
           />
         )}
         {fresh && (

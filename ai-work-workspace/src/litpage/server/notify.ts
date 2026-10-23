@@ -183,7 +183,7 @@ export function notificationEmail(n: NotificationRecord): { subject: string; tex
     case 'access_requested':
       subject = a.kind === 'page_edit' ? `${actor} asked to edit ${pageTitle}` : `${actor} asked to access ${pageTitle}`;
       headline = subject;
-      detail = 'Open your Inbox in Litpage to approve or deny this request.';
+      detail = 'Open your Inbox in Workspace to approve or deny this request.';
       break;
     case 'access_granted':
       subject = a.kind === 'page_edit' ? `${actor} approved your edit request for ${pageTitle}` : `${actor} gave you access to ${pageTitle}`;
@@ -193,7 +193,7 @@ export function notificationEmail(n: NotificationRecord): { subject: string; tex
       subject = `${actor} asked to join ${team?.name ?? 'a team'}`;
       headline = subject;
       link = appUrl(`/${space?.domain ?? ''}/library/teamspaces`);
-      detail = 'Open your Inbox in Litpage to approve or deny this request.';
+      detail = 'Open your Inbox in Workspace to approve or deny this request.';
       break;
     case 'team_join_approved':
       subject = `${actor} welcomed you to ${team?.name ?? 'a team'}`;

@@ -353,7 +353,7 @@ export function addTab(anchor?: Anchor) {
     search: t('lp.shell.search_presets', 'Search presets…'),
     sections: [
       { items: [{ label: t('lp.shell.blank_tab', 'Blank tab'), icon: 'plus', onSelect: () => addTabFrom(null) }] },
-      { title: t('lp.shell.litpage_presets', 'Litpage presets'), items: litPresets().map(presetItem) },
+      { title: t('lp.shell.litpage_presets', 'Workspace presets'), items: litPresets().map(presetItem) },
       ...(custom.length ? [{ title: t('lp.shell.workspace_presets', 'Workspace presets'), items: custom.map(presetItem) }] : []),
     ],
   }, { placement: 'bottom-start' });
@@ -481,11 +481,11 @@ export function openMyTasks() {
 
 export const RELEASES: { label: string; date: string; url: string }[] = HELP_URL ? [
   { label: 'Agents, rebuilt to do more for less', date: '2026-10-19', url: HELP_URL },
-  { label: 'Litpage 3.8', date: '2026-10-13', url: HELP_URL },
-  { label: 'Litpage 3.7', date: '2026-09-15', url: HELP_URL },
+  { label: 'Workspace 3.8', date: '2026-10-13', url: HELP_URL },
+  { label: 'Workspace 3.7', date: '2026-09-15', url: HELP_URL },
 ] : [];
 
-export const APP_VERSION = 'Litpage 0.1.0';
+export const APP_VERSION = 'Workspace 0.1.0';
 
 
 const SEEN_KEY = 'nc:whatsNewSeen';
@@ -524,7 +524,7 @@ export function openHelpMenu(anchor: Anchor) {
         items: [
           ...(HELP_URL ? [
             { label: t('lp.shell.documentation', 'Documentation'), icon: 'book', onSelect: () => window.open(HELP_URL!, '_blank') },
-            { label: t('lp.shell.chat_with_a_litpage_expert', 'Chat with a Litpage expert'), icon: 'phone', onSelect: () => window.open(HELP_URL!, '_blank') },
+            { label: t('lp.shell.chat_with_a_litpage_expert', 'Chat with a Workspace expert'), icon: 'phone', onSelect: () => window.open(HELP_URL!, '_blank') },
             { label: t('lp.shell.get_support', 'Get support'), icon: 'bubbleRight', onSelect: () => window.open(HELP_URL!, '_blank') },
             { label: t('lp.shell.contact_sales', 'Contact sales'), icon: 'personCircle', onSelect: () => window.open(HELP_URL!, '_blank') },
           ] : []),

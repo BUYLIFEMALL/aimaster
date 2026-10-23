@@ -1,4 +1,4 @@
-// AI Agent tools never reveal more than the person can open in Litpage.
+// AI Agent tools never reveal more than the person can open in Workspace.
 // - read_comments lists the threads of the page itself: not a sub-page's (a restricted
 // sub-page's comments leaked through its parent) and not a foreign block someone listed in the page's content
 // - a database reached through a linked view is the person's view of the source: no access → not found (name, schema,

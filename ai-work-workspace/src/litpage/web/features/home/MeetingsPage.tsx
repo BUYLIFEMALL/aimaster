@@ -38,8 +38,8 @@ export function MeetingsPage() {
           <div className="nc-meet-card">
             <div className="nc-meet-card-icon"><Icon name="calendarConnect" size={28} /></div>
             <div className="nc-meet-card-text">
-              <div className="nc-meet-card-title">{t('lp.home.link_a_calendar_with_litpage', 'Link a calendar with Litpage')}</div>
-              <div className="nc-meet-card-desc">{t('lp.home.litpage_can_join_your_calls_transcribe', 'Litpage can join your calls, transcribe what’s said, and write meeting summaries for you.')}</div>
+              <div className="nc-meet-card-title">{t('lp.home.link_a_calendar_with_litpage', 'Link a calendar with Workspace')}</div>
+              <div className="nc-meet-card-desc">{t('lp.home.litpage_can_join_your_calls_transcribe', 'Workspace can join your calls, transcribe what’s said, and write meeting summaries for you.')}</div>
             </div>
             <div role="button" className="nc-lib-secondary" onClick={() => useUI.getState().openSettings('mail-calendar')}>
               {t('lp.home.connect_calendar', 'Connect calendar')}

@@ -5,10 +5,11 @@ import 'server-only';
 import { handlers, ApiError, type Ctx } from '@/litpage/server/api/handlers.ts';
 import { extraHandlers } from '@/litpage/server/api/extra.ts';
 import { realtime } from '@/litpage/server/realtime.ts';
-import { blockRole, recordRole, UserVisibility } from '@/litpage/server/records.ts';
+import { blockRole, RecordMapBuilder, recordRole, UserVisibility } from '@/litpage/server/records.ts';
 import { redactDatabaseRecord } from '@/litpage/server/propaccess.ts';
 import { getRecord, putRecord, withRequestCache } from '@/litpage/server/db.ts';
-import { createUser } from '@/litpage/server/seed.ts';
+import { createUser, createWorkspace } from '@/litpage/server/seed.ts';
+import { KOREAN_TEAM, KOREAN_WELCOME } from './koreanSeed';
 import { isSpaceMember } from '#shared/permissions.ts';
 import type { SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import { newId } from '#shared/ids.ts';
@@ -33,6 +34,8 @@ export interface Member {
   id: string;
   email: string;
   name: string;
+  /** 처음 사용자 레코드를 만들 때 메인 사이트 프로필 이름을 읽는다(없으면 name 사용) */
+  resolveName?: () => Promise<string>;
 }
 
 /** AIMaster 회원이 처음 들어오면 원본 사용자 레코드(lit_user·user_root·user_settings)를 만든다. 이메일이 바뀌면 맞춘다. */
@@ -57,6 +60,16 @@ export function ensureMember(member: Member) {
   }
 }
 
+/** 이식판에서 원본 명령 대신 쓰는 명령(돌려주는 모양은 원본과 같음) */
+const OVERRIDES: Record<string, Handler> = {
+  // 한국어 환영 문서·팀 이름으로 워크스페이스를 만든다(원본 handlers.createWorkspace와 같은 결과 모양)
+  createWorkspace(ctx, { name, icon }) {
+    if (!ctx.userId) throw new ApiError('Unauthorized', 401);
+    const { space } = createWorkspace(ctx.userId, String(name || '내 워크스페이스').slice(0, 200), icon, { welcome: KOREAN_WELCOME, team: KOREAN_TEAM });
+    return { spaceId: space.id, recordMap: new RecordMapBuilder(ctx.userId).map };
+  },
+};
+
 export interface RpcResult {
   status: number;
   body: unknown;
@@ -65,13 +78,16 @@ export interface RpcResult {
 /** 원본 /api/rpc/:name 과 같은 응답 모양({errorId, name, message})으로 처리한다. */
 export async function runRpc(name: string, body: unknown, member: Member, clientId?: string): Promise<RpcResult> {
   init();
-  const handler: Handler | undefined = Object.hasOwn(handlers, name) ? (handlers as Record<string, Handler>)[name] : undefined;
+  const handler: Handler | undefined = Object.hasOwn(OVERRIDES, name)
+    ? OVERRIDES[name]
+    : Object.hasOwn(handlers, name) ? (handlers as Record<string, Handler>)[name] : undefined;
   if (!handler) return { status: 404, body: { errorId: newId(), name: 'NotFound', message: 'Unknown endpoint' } };
   const blocked = stageBlock(name);
   if (blocked) return { status: blocked.status, body: { errorId: newId(), name: 'PermissionError', message: blocked.message } };
   const input = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
   try {
     const result = await withRequestCache(async () => {
+      if (member.resolveName && !getRecord<UserRecord>('lit_user', member.id)) member = { ...member, name: await member.resolveName() };
       ensureMember(member);
       const ctx: Ctx = { userId: member.id, clientId: clientId?.slice(0, 100), secure: true, setCookie: () => {} };
       return handler(ctx, input);

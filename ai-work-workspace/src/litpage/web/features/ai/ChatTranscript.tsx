@@ -284,7 +284,7 @@ export function Transcript(props: {
   const sources = [...all.values()];
   const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
   return (
-    <div className="nc-ai-transcript" role="log" aria-label="Litpage AI chat">
+    <div className="nc-ai-transcript" role="log" aria-label="AIMaster chat">
       {messages.map((m) =>
         m.role === 'user' ? (
           <UserRow key={m.id} m={m} />

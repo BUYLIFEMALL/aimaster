@@ -316,7 +316,7 @@ describe('runs act as the agent', () => {
     try {
       const run = runs.enqueueRun({ agent: a, kind: 'manual', label: 'Run agent', actorId: ids.A });
       await runs.drainRuns();
-      expect(runs.getRun(run.id)).toMatchObject({ status: 'failed', error: 'Connect an AI provider to use Litpage AI' });
+      expect(runs.getRun(run.id)).toMatchObject({ status: 'failed', error: 'Connect an AI provider to use AIMaster' });
     } finally {
       process.env.ANTHROPIC_API_KEY = key;
     }

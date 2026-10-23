@@ -70,7 +70,7 @@ describe('parseInline', () => {
 });
 
 describe('markdownToPlan', () => {
-  it('maps nodes to Litpage blocks', () => {
+  it('maps nodes to Workspace blocks', () => {
     const plan = markdownToPlan('## Plan\n\n- [ ] Ship\n\n3. third\n4. fourth\n\n```js\nx()\n```\n\n| A | B |\n| - | - |\n| 1 | **2** |\n\n> Quote');
     expect(plan.map((b) => b.type)).toEqual(['sub_header', 'to_do', 'numbered_list', 'numbered_list', 'code', 'table', 'quote']);
     expect(plan[1].properties).toEqual({ checked: [['No']] });

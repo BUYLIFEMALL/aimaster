@@ -24,7 +24,7 @@ const domain = () => spaceDomain(useSession.getState().spaceId);
 
 interface Shortcut { id: string; label: string; aliases: string[]; caption?: string; icon: string; run: () => void }
 
-/** Search action results (New page / New chat / New database / Litpage AI / Settings / Import / Templates / Library /
+/** Search action results (New page / New chat / New database / AIMaster / Settings / Import / Templates / Library /
  *  Inbox, theme) plus the shell destinations people type (home, trash, people …). */
 function shortcuts(): Shortcut[] {
   const dark = useUI.getState().resolvedDark;
@@ -32,11 +32,11 @@ function shortcuts(): Shortcut[] {
     { id: 'new-page', label: t('lp.search.new_page', 'New page'), aliases: [t('lp.search.create_page', 'Create page'), t('lp.search.page', 'Page')], caption: t('lp.search.start_a_blank_page', 'Start a blank page.'), icon: 'pageEmpty', run: () => void newPage({ kind: 'private' }) },
     { id: 'new-chat', label: t('lp.search.new_chat', 'New chat'), aliases: [t('lp.search.start_a_new_chat', 'Open a fresh chat'), t('lp.search.ai_chat', 'AI chat')], caption: t('lp.search.begin_a_fresh_chat_with_ai', 'Begin a fresh chat with AI.'), icon: 'chatBubble', run: () => navigate(`/${domain()}/chat`) },
     { id: 'new-database', label: t('lp.search.new_database', 'New database'), aliases: [t('lp.search.create_database', 'Create database'), t('lp.search.database', 'Database')], caption: t('lp.search.set_up_a_blank_database', 'Set up a blank database.'), icon: 'viewTable', run: () => createPrivateDatabase() },
-    { id: 'ai', label: t('lp.search.litpage_ai', 'Litpage AI'), aliases: [t('lp.search.ai', 'ai')], icon: 'aiFace', run: () => navigate(`/${domain()}/chat`) },
+    { id: 'ai', label: t('lp.search.litpage_ai', 'AIMaster'), aliases: [t('lp.search.ai', 'ai')], icon: 'aiFace', run: () => navigate(`/${domain()}/chat`) },
     { id: 'home', label: t('lp.search.home', 'Home'), aliases: ['start'], icon: 'home', run: () => navigate(`/${domain()}`) },
     { id: 'settings', label: t('lp.search.settings', 'Settings'), aliases: ['preferences'], caption: t('lp.search.adjust_account_details_and_preferences', 'Adjust account details and preferences'), icon: 'gear', run: () => useUI.getState().openSettings() },
-    { id: 'import', label: t('lp.search.import_data', 'Import data'), aliases: ['import'], caption: t('lp.search.bring_content_into_litpage_from_files', 'Bring content into Litpage from files or other tools.'), icon: 'import', run: () => useUI.getState().set({ importOpen: true }) },
-    { id: 'templates', label: t('lp.search.templates', 'Templates'), aliases: [t('lp.search.gallery', 'gallery'), 'marketplace'], caption: t('lp.search.browse_litpage_community_templates', 'Browse Litpage community templates'), icon: 'templates', run: () => navigate(`/${domain()}/marketplace`) },
+    { id: 'import', label: t('lp.search.import_data', 'Import data'), aliases: ['import'], caption: t('lp.search.bring_content_into_litpage_from_files', 'Bring content into Workspace from files or other tools.'), icon: 'import', run: () => useUI.getState().set({ importOpen: true }) },
+    { id: 'templates', label: t('lp.search.templates', 'Templates'), aliases: [t('lp.search.gallery', 'gallery'), 'marketplace'], caption: t('lp.search.browse_litpage_community_templates', 'Browse Workspace community templates'), icon: 'templates', run: () => navigate(`/${domain()}/marketplace`) },
     { id: 'library', label: t('lp.search.library', 'Library'), aliases: [t('lp.search.library_0029', 'library')], caption: t('lp.search.browse_every_page_connected_to_you', 'Browse every page connected to you'), icon: 'library', run: () => navigate(`/${domain()}/library`) },
     { id: 'inbox', label: t('lp.search.inbox', 'Inbox'), aliases: [t('lp.search.updates', 'updates'), t('lp.search.notifications', 'notifications')], icon: 'inbox', run: () => useUI.getState().set({ inboxOpen: true }) },
     { id: 'theme', label: t('lp.search.toggle_theme', 'Toggle theme'), aliases: [t('lp.search.dark_mode', 'Dark mode'), t('lp.search.light_mode', 'Light mode'), t('lp.search.theme', 'Theme')], caption: dark ? t('lp.search.use_the_light_appearance', 'Use the light appearance.') : t('lp.search.use_the_dark_appearance', 'Use the dark appearance.'), icon: dark ? 'sun' : 'moon', run: () => toggleDarkMode() },

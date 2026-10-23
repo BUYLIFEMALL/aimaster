@@ -227,7 +227,7 @@ export function openMediaPicker(block: BlockRecord, anchor: HTMLElement, opts?: 
   return openOverlay((close) => <MediaPicker blockId={block.id} close={close} replace={opts?.replace} />, { anchor, placement: 'bottom', offset: 0 });
 }
 
-const TAB_LABEL: Record<Tab, string> = { upload: 'Upload', link: 'Link', unsplash: 'Unsplash', giphy: 'GIPHY', embed: 'Embed link', add: 'Add', ai: 'Litpage AI' };
+const TAB_LABEL: Record<Tab, string> = { upload: 'Upload', link: 'Link', unsplash: 'Unsplash', giphy: 'GIPHY', embed: 'Embed link', add: 'Add', ai: 'AIMaster' };
 
 export function PickerTabs({ tabs, tab, setTab, right }: { tabs: Tab[]; tab: Tab; setTab: (t: Tab) => void; right?: ReactNode }) {
   return (

@@ -83,7 +83,7 @@ const info = (r: TokenRow): McpTokenInfo => ({
 
 export function createToken(userId: string, spaceId: string, name: string): { token: string; info: McpTokenInfo } {
   if (!isSpaceMember(getRecord<SpaceRecord>('space', spaceId), userId)) throw new AiError('forbidden', 'You aren’t a member of this workspace.', 403);
-  if (!workspaceAiPolicy(spaceId).litMcp) throw new AiError('forbidden', 'Litpage MCP is turned off for this workspace.', 403);
+  if (!workspaceAiPolicy(spaceId).litMcp) throw new AiError('forbidden', 'Workspace MCP is turned off for this workspace.', 403);
   const count = (db.prepare('SELECT COUNT(*) AS n FROM mcp_tokens WHERE user_id = ? AND space_id = ? AND revoked_time IS NULL').get(userId, spaceId) as { n: number }).n;
   if (count >= 20) throw new AiError('bad_request', 'You can have up to 20 active tokens.', 400);
   const token = `lp_pat_${randomBytes(24).toString('base64url')}`;
@@ -130,22 +130,22 @@ export interface McpCatalogClient {
 
 /** MCP client catalog; matched against the name a client reports during initialize. */
 export const MCP_CLIENT_CATALOG: McpCatalogClient[] = [
-  { key: 'claude', name: 'Claude', caption: 'Ask Claude to work with your Litpage pages.', match: /^claude\b|^claude[-_ ]|anthropic/i },
-  { key: 'chatgpt', name: 'ChatGPT', caption: 'Bring Litpage notes into ChatGPT research.', match: /chatgpt|openai/i },
-  { key: 'cursor', name: 'Cursor', caption: 'Find Litpage tasks and docs while you code.', match: /^cursor/i },
-  { key: 'vscode', name: 'VS Code', caption: 'Give your coding workspace useful Litpage context.', match: /visual studio code|vs ?code/i },
-  { key: 'figma-make', name: 'Figma Make', caption: 'Use Litpage requirements to start a Figma prototype.', match: /figma/i },
-  { key: 'github', name: 'GitHub', caption: 'Link GitHub work to tasks in Litpage.', match: /github/i },
-  { key: 'hubspot', name: 'HubSpot', caption: 'Keep HubSpot account notes alongside Litpage work.', match: /hubspot/i },
-  { key: 'make', name: 'Make', caption: 'Build Make scenarios that update Litpage.', match: /^make(\.com)?\b/i },
-  { key: 'microsoft', name: 'Microsoft 365 Copilot', caption: 'Use Litpage material in Microsoft 365 research.', match: /microsoft|m365|copilot/i },
-  { key: 'mistral', name: 'Mistral', caption: 'Draft plans and database entries in Litpage.', match: /mistral|le chat/i },
-  { key: 'perplexity', name: 'Perplexity', caption: 'Pair Litpage context with Perplexity answers.', match: /perplexity/i },
-  { key: 'poke', name: 'Poke', caption: 'Let Poke reach the Litpage workspace you choose.', match: /^poke\b/i },
-  { key: 'ramp-glass', name: 'Glass', caption: 'Give Glass Litpage context for everyday work.', match: /ramp|^glass\b/i },
-  { key: 'zapier', name: 'Zapier', caption: 'Connect Litpage to Zapier automations.', match: /zapier/i },
-  { key: 'composio', name: 'Composio', caption: 'Use Litpage in Composio workflows.', match: /composio/i },
-  { key: 'devin', name: 'Devin', caption: 'Let Devin work with your Litpage workspace.', match: /devin/i },
+  { key: 'claude', name: 'Claude', caption: 'Ask Claude to work with your Workspace pages.', match: /^claude\b|^claude[-_ ]|anthropic/i },
+  { key: 'chatgpt', name: 'ChatGPT', caption: 'Bring Workspace notes into ChatGPT research.', match: /chatgpt|openai/i },
+  { key: 'cursor', name: 'Cursor', caption: 'Find Workspace tasks and docs while you code.', match: /^cursor/i },
+  { key: 'vscode', name: 'VS Code', caption: 'Give your coding workspace useful Workspace context.', match: /visual studio code|vs ?code/i },
+  { key: 'figma-make', name: 'Figma Make', caption: 'Use Workspace requirements to start a Figma prototype.', match: /figma/i },
+  { key: 'github', name: 'GitHub', caption: 'Link GitHub work to tasks in Workspace.', match: /github/i },
+  { key: 'hubspot', name: 'HubSpot', caption: 'Keep HubSpot account notes alongside Workspace work.', match: /hubspot/i },
+  { key: 'make', name: 'Make', caption: 'Build Make scenarios that update Workspace.', match: /^make(\.com)?\b/i },
+  { key: 'microsoft', name: 'Microsoft 365 Copilot', caption: 'Use Workspace material in Microsoft 365 research.', match: /microsoft|m365|copilot/i },
+  { key: 'mistral', name: 'Mistral', caption: 'Draft plans and database entries in Workspace.', match: /mistral|le chat/i },
+  { key: 'perplexity', name: 'Perplexity', caption: 'Pair Workspace context with Perplexity answers.', match: /perplexity/i },
+  { key: 'poke', name: 'Poke', caption: 'Let Poke reach the Workspace workspace you choose.', match: /^poke\b/i },
+  { key: 'ramp-glass', name: 'Glass', caption: 'Give Glass Workspace context for everyday work.', match: /ramp|^glass\b/i },
+  { key: 'zapier', name: 'Zapier', caption: 'Connect Workspace to Zapier automations.', match: /zapier/i },
+  { key: 'composio', name: 'Composio', caption: 'Use Workspace in Composio workflows.', match: /composio/i },
+  { key: 'devin', name: 'Devin', caption: 'Let Devin work with your Workspace workspace.', match: /devin/i },
 ];
 
 /** The client behind a self-reported name: a catalog entry, or an unknown client keyed by its name. */
@@ -392,7 +392,7 @@ interface McpAuth {
  *  API: "Allow MCP" is off, or its client isn't approved (null = usable). */
 export function personalTokenBlocked(auth: McpAuth): string | null {
   if (isDemoMode()) return DEMO_MESSAGE;
-  if (!workspaceAiPolicy(auth.spaceId).litMcp) return 'Litpage MCP is turned off for this workspace.';
+  if (!workspaceAiPolicy(auth.spaceId).litMcp) return 'Workspace MCP is turned off for this workspace.';
   return clientBlocked(auth);
 }
 
@@ -419,7 +419,7 @@ interface McpToolDef {
 }
 
 const MCP_TOOLS: McpToolDef[] = [
-  { name: 'lit-search', title: 'Search Litpage', agent: 'search_workspace', readOnly: true },
+  { name: 'lit-search', title: 'Search Workspace', agent: 'search_workspace', readOnly: true },
   { name: 'lit-fetch', title: 'Fetch a page', agent: 'read_page', readOnly: true, args: { id: 'page_id' } },
   { name: 'lit-query-database', title: 'Query a database', agent: 'query_database', readOnly: true },
   { name: 'lit-get-comments', title: 'Get comments', agent: 'read_comments', readOnly: true },
@@ -438,7 +438,7 @@ function schemaFor(t: McpToolDef): Record<string, unknown> {
   const props = { ...(def.input_schema.properties as Record<string, unknown>) };
   const required = [...((def.input_schema.required as string[]) ?? [])];
   for (const [mcpName, agentName] of Object.entries(t.args)) {
-    props[mcpName] = { type: 'string', description: 'The page or database id, or its Litpage URL.' };
+    props[mcpName] = { type: 'string', description: 'The page or database id, or its Workspace URL.' };
     delete props[agentName];
     const i = required.indexOf(agentName);
     if (i >= 0) required[i] = mcpName;
@@ -457,11 +457,11 @@ export function mcpToolList(spaceId: string): Record<string, unknown>[] {
   out.push({ name: 'lit-get-self', title: 'Get self', description: 'Get the user this connection acts as and the workspace.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true } });
   // memory sync : the person's AI memories, shared with the agents they connect
   if (workspaceAiPolicy(spaceId).memories) {
-    out.push({ name: 'lit-get-memories', title: 'Get memories', description: 'Get what the user asked Litpage AI to remember (their AI instructions page) so you can follow the same preferences.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true } });
-    out.push({ name: 'lit-save-memory', title: 'Save a memory', description: 'Save something the user wants remembered across Litpage AI and the agents they connect (appended to their AI instructions page). Use it when the user states a lasting preference or fact about themselves or their work.', inputSchema: { type: 'object', properties: { memory: { type: 'string', description: 'One short sentence to remember.' } }, required: ['memory'], additionalProperties: false }, annotations: { readOnlyHint: false, destructiveHint: false } });
+    out.push({ name: 'lit-get-memories', title: 'Get memories', description: 'Get what the user asked AIMaster to remember (their AI instructions page) so you can follow the same preferences.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true } });
+    out.push({ name: 'lit-save-memory', title: 'Save a memory', description: 'Save something the user wants remembered across AIMaster and the agents they connect (appended to their AI instructions page). Use it when the user states a lasting preference or fact about themselves or their work.', inputSchema: { type: 'object', properties: { memory: { type: 'string', description: 'One short sentence to remember.' } }, required: ['memory'], additionalProperties: false }, annotations: { readOnlyHint: false, destructiveHint: false } });
   }
   if (workspaceAiPolicy(spaceId).mcpSkills) {
-    out.push({ name: 'lit-list-skills', title: 'List skills', description: 'List the skills enabled for the user in Litpage (name, id, description). Use a skill when a task matches its description.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true } });
+    out.push({ name: 'lit-list-skills', title: 'List skills', description: 'List the skills enabled for the user in Workspace (name, id, description). Use a skill when a task matches its description.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true } });
     out.push({ name: 'lit-get-skill', title: 'Get skill', description: 'Get the instructions of a skill by id.', inputSchema: { type: 'object', properties: { skill_id: { type: 'string' } }, required: ['skill_id'], additionalProperties: false }, annotations: { readOnlyHint: true } });
   }
   return out;
@@ -560,8 +560,8 @@ async function handleMessage(auth: McpAuth, m: RpcMessage): Promise<Record<strin
       return ok({
         protocolVersion: MCP_PROTOCOL_VERSIONS.includes(requested) ? requested : MCP_PROTOCOL_VERSIONS[0],
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: 'Litpage MCP', version: '1.0.0' },
-        instructions: 'Tools act as the connected user in their Litpage workspace: search and fetch pages, create and update pages and databases, and comment.',
+        serverInfo: { name: 'Workspace MCP', version: '1.0.0' },
+        instructions: 'Tools act as the connected user in their Workspace workspace: search and fetch pages, create and update pages and databases, and comment.',
       });
     }
     case 'ping':
@@ -597,8 +597,8 @@ export interface McpHttpResult {
 export async function handleMcpHttp(authorization: string | undefined, body: unknown, sessionId?: string): Promise<McpHttpResult> {
   if (isDemoMode()) return { status: 403, body: { jsonrpc: '2.0', id: null, error: { code: -32003, message: DEMO_MESSAGE } } };
   const auth = tokenAuth(authorization);
-  if (!auth) return { status: 401, body: { jsonrpc: '2.0', id: null, error: { code: -32001, message: 'Unauthorized: create an access token in Settings → Litpage MCP.' } }, headers: { 'www-authenticate': 'Bearer realm="Litpage MCP"' } };
-  if (!workspaceAiPolicy(auth.spaceId).litMcp) return { status: 403, body: { jsonrpc: '2.0', id: null, error: { code: -32003, message: 'Litpage MCP is turned off for this workspace.' } } };
+  if (!auth) return { status: 401, body: { jsonrpc: '2.0', id: null, error: { code: -32001, message: 'Unauthorized: create an access token in Settings → Workspace MCP.' } }, headers: { 'www-authenticate': 'Bearer realm="Workspace MCP"' } };
+  if (!workspaceAiPolicy(auth.spaceId).litMcp) return { status: 403, body: { jsonrpc: '2.0', id: null, error: { code: -32003, message: 'Workspace MCP is turned off for this workspace.' } } };
   if (!hit(`mcp:token:${auth.tokenId}`, Number(process.env.NC_MCP_RATE_PER_MIN) || 180, 60_000)) {
     return { status: 429, body: { jsonrpc: '2.0', id: null, error: { code: -32029, message: 'There are too many requests right now. Try again shortly.' } } };
   }

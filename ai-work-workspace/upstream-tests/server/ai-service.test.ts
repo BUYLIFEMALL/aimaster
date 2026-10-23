@@ -66,12 +66,12 @@ beforeAll(async () => {
 
 describe('chat orchestration', () => {
   it('attaches the current page, persists the turn and resolves search citations', async () => {
-    const prep = svc.prepareChatTurn({ userId, spaceId, text: 'What does Welcome to Litpage say about shortcuts?', pageId });
-    expect(prep.thread.title).toBe('What does Welcome to Litpage say about shortcuts?');
+    const prep = svc.prepareChatTurn({ userId, spaceId, text: 'What does Welcome to Workspace say about shortcuts?', pageId });
+    expect(prep.thread.title).toBe('What does Welcome to Workspace say about shortcuts?');
     const ctx = prep.userMessage!.data.contexts!;
     expect(ctx).toHaveLength(1);
-    expect(ctx[0]).toMatchObject({ kind: 'page', pageId, title: 'Welcome to Litpage' });
-    expect(ctx[0].markdown).toContain('# Welcome to Litpage');
+    expect(ctx[0]).toMatchObject({ kind: 'page', pageId, title: 'Welcome to Workspace' });
+    expect(ctx[0].markdown).toContain('# Welcome to Workspace');
     expect(ctx[0].markdown).toContain('▸ More shortcuts and ideas');
 
     const seen: any[] = [];
@@ -95,7 +95,7 @@ describe('chat orchestration', () => {
     await svc.executeChatTurn(prep2, {}, undefined, fake([say('You are welcome.')], seen2) as any);
     const msgs = seen2[0].messages;
     expect(msgs.map((m: any) => m.role)).toEqual(['user', 'assistant', 'user']);
-    expect(msgs[0].content[0].text).toContain('<page id="' + pageId + '" title="Welcome to Litpage">');
+    expect(msgs[0].content[0].text).toContain('<page id="' + pageId + '" title="Welcome to Workspace">');
     expect(msgs[1].content).toBe('The Acme deal is in your tracker [1].');
 
     // retry replaces the last answer
@@ -130,7 +130,7 @@ describe('chat orchestration', () => {
   });
 });
 
-describe('Settings → Litpage AI personalization', () => {
+describe('Settings → AIMaster personalization', () => {
   it('chat and Q&A follow the instructions page and the personalized name', async () => {
     const db = await import('../../src/litpage/server/db.ts');
     const now = Date.now();
@@ -168,7 +168,7 @@ describe('writer, block, autofill', () => {
   it('writer reads the page as context', () => {
     const req = svc.prepareWriter({ userId, pageId, skill: 'Summarize' });
     const content = req.messages[0].content as any[];
-    expect(content[0].text).toContain('Welcome to Litpage');
+    expect(content[0].text).toContain('Welcome to Workspace');
     expect(content.at(-1).text).toContain('Summarize the page');
   });
 
@@ -189,7 +189,7 @@ describe('writer, block, autofill', () => {
         err = e;
       }
       expect(err?.status).toBe(400);
-      expect(err?.message).toBe('Connect an AI provider to use Litpage AI');
+      expect(err?.message).toBe('Connect an AI provider to use AIMaster');
     } finally {
       process.env.ANTHROPIC_API_KEY = key;
     }

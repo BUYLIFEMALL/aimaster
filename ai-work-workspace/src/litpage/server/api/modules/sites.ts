@@ -5,7 +5,7 @@
 //   slug         custom short link → /public/<slug> (unique across published sites)
 //   theme        'system' | 'light' | 'dark'
 //   title / description / image   share preview + SEO (search engines, social cards)
-//   favicon      'page_icon' (default) | 'Litpage' | emoji | uploaded image URL
+//   favicon      'page_icon' (default) | 'Workspace' | emoji | uploaded image URL
 //   header       { breadcrumbs, search, share, signup (Get started), links: [{ pageId }] ≤ 10 }
 //   ga           Google Analytics measurement ID
 // Endpoints:

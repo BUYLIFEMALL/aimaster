@@ -108,9 +108,9 @@ export const PROMPT_PILLS: { label: string; icon: string; header: string; items:
     label: "Spreadsheets", icon: 'viewTable', header: "Build and analyze spreadsheets", items: [
       { label: "Spot useful patterns", prompt: "Analyze the attached spreadsheet for useful patterns. Ask for a CSV or Excel upload when none is attached, then ask up to two clarifying questions." },
       { label: "Tidy inconsistent data", prompt: "Clean and standardize the data. Ask for a CSV or Excel upload if needed, then ask up to two clarifying questions." },
-      { label: "Export a database to a spreadsheet", prompt: "Export a Litpage database to a tidy spreadsheet. Ask me to choose the database and view when missing, then ask up to two clarifying questions." },
+      { label: "Export a database to a spreadsheet", prompt: "Export a Workspace database to a tidy spreadsheet. Ask me to choose the database and view when missing, then ask up to two clarifying questions." },
       { label: "Chart spreadsheet data", prompt: "Create charts from spreadsheet data. Ask for a CSV or Excel upload when needed and ask about chart style or interactivity only if necessary." },
-      { label: "Populate a Litpage database", prompt: "Populate a Litpage database from a spreadsheet and map its fields. Ask for a CSV or Excel upload when missing, then ask up to two clarifying questions." },
+      { label: "Populate a Workspace database", prompt: "Populate a Workspace database from a spreadsheet and map its fields. Ask for a CSV or Excel upload when missing, then ask up to two clarifying questions." },
     ],
   },
   {

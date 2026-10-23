@@ -13,7 +13,7 @@ const schema: Record<string, PropertySchema> = {
 } as never;
 
 describe('form model', () => {
-  it('supports Litpage question types (status / formula excluded)', () => {
+  it('supports Workspace question types (status / formula excluded)', () => {
     expect(supportsQuestion(schema.title)).toBe(true);
     expect(supportsQuestion(schema.bbbb)).toBe(false);
     expect(supportsQuestion(schema.dddd)).toBe(false);
@@ -36,7 +36,7 @@ describe('form model', () => {
     expect(questionName({ ...q, config: { ...q.config, shouldSyncQuestionNameToPropertyName: false, name: 'Which tags?' } }, schema)).toBe('Which tags?');
   });
 
-  it('validates answers with Litpage messages', () => {
+  it('validates answers with Workspace messages', () => {
     const req = { ...questionFor('title'), config: { propertyId: 'title', isRequired: true } };
     expect(validateAnswer(req, schema.title, '')).toBe('Please answer this question');
     expect(validateAnswer(req, schema.title, 'x')).toBeNull();

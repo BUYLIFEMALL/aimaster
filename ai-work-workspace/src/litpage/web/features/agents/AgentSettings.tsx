@@ -198,7 +198,7 @@ function TriggersSection({ d, edit, update }: { d: AgentDetail; edit: boolean; u
                 <div className="nc-agent-row-title">
                   {triggerRowTitle(tr)}
                   {target && <span className="nc-agent-row-suffix"> {t('lp.agents.in', 'in {context}', { context: target.title })}</span>}
-                  {tr.type === 'lit.agent_mentioned' && <span className="nc-agent-row-suffix"> {t('lp.agents.in_litpage', 'in Litpage')}</span>}
+                  {tr.type === 'lit.agent_mentioned' && <span className="nc-agent-row-suffix"> {t('lp.agents.in_litpage', 'in Workspace')}</span>}
                 </div>
                 {next && tr.enabled && <div className="nc-agent-row-sub">{t('lp.agents.next_run', 'Next run: {time}', { time: next })}</div>}
                 {tr.type === 'lit.page_updated' && tr.properties?.length ? <div className="nc-agent-row-sub">{t('lp.agents.watching_properties', 'watching properties: {properties}', { properties: tr.properties.length })}</div> : null}
@@ -285,7 +285,7 @@ function ToolsSection({ d, edit, update }: { d: AgentDetail; edit: boolean; upda
         {
           title: t('lp.agents.add_connection', 'Add connection'),
           items: [
-            { label: t('lp.agents.litpage_pages_and_databases', 'Litpage pages and databases'), icon: 'page', onSelect: () => { setTimeout(() => openResourcePicker(anchor, (r) => void setGrant(r.blockId, 'reader')), 0); } },
+            { label: t('lp.agents.litpage_pages_and_databases', 'Workspace pages and databases'), icon: 'page', onSelect: () => { setTimeout(() => openResourcePicker(anchor, (r) => void setGrant(r.blockId, 'reader')), 0); } },
             { label: t('lp.agents.custom_mcp_server', 'External MCP endpoint'), icon: 'agentPlug', description: t('lp.agents.connect_to_an_mcp_server_for', 'Connect to an MCP server for AI inference and tools'), onSelect: () => { setTimeout(() => openMcpDialog(d), 0); } },
             ...presets.map((p) => ({
               label: p.name,
@@ -296,7 +296,7 @@ function ToolsSection({ d, edit, update }: { d: AgentDetail; edit: boolean; upda
             })),
             { label: t('lp.agents.people_directory', 'People Directory'), icon: 'agentPeople', disabled: cfg.people_directory, description: t('lp.agents.look_up_people_in_the_workspace', 'Look up people in the workspace'), onSelect: () => void update({ people_directory: true }) },
             {
-              label: t('lp.agents.litpage_agents', 'Litpage agents'),
+              label: t('lp.agents.litpage_agents', 'Workspace agents'),
               icon: 'agentFace',
               description: t('lp.agents.add_agents_here_to_let_this', 'Add agents here to let this agent call them.'),
               submenu: () => ({
@@ -353,7 +353,7 @@ function ToolsSection({ d, edit, update }: { d: AgentDetail; edit: boolean; upda
             <div className="nc-agent-row-icon"><AgentIcon icon={s.icon} size={16} /></div>
             <div className="nc-agent-row-main" role="button" onClick={() => s.canOpen && openAgent(s.id)}>
               <div className="nc-agent-row-title">{s.canOpen ? s.name : t('lp.agents.unavailable_agent', 'Unavailable agent')}</div>
-              <div className="nc-agent-row-sub">{t('lp.agents.litpage_agents', 'Litpage agents')}</div>
+              <div className="nc-agent-row-sub">{t('lp.agents.litpage_agents', 'Workspace agents')}</div>
             </div>
             {edit && <div role="button" className="nc-agent-icon-btn small" aria-label={t('lp.agents.disconnect', 'Disconnect')} onClick={() => void update({ sub_agents: cfg.sub_agents.filter((x) => x !== s.id) })}><Icon name="close" size={14} /></div>}
           </div>
@@ -529,7 +529,7 @@ function ModelSection({ d, edit, update }: { d: AgentDetail; edit: boolean; upda
   const label = cfg.model === 'auto' || !cur ? t('lp.agents.auto', 'Auto') : `${cur.name} ${cur.version}`;
   const pick = (anchor: HTMLElement) => {
     const items: MenuItemDef[] = [
-      { label: t('lp.agents.auto', 'Auto'), description: t('lp.agents.litpage_picks_the_best_model_for', 'Litpage picks the best model for each request'), checked: cfg.model === 'auto', onSelect: () => void update({ model: 'auto' }) },
+      { label: t('lp.agents.auto', 'Auto'), description: t('lp.agents.litpage_picks_the_best_model_for', 'Workspace picks the best model for each request'), checked: cfg.model === 'auto', onSelect: () => void update({ model: 'auto' }) },
       ...d.models.map((m) => ({
         label: `${m.name} ${m.version}`,
         description: m.allowed ? m.description + (/Haiku|Luna|Mini/i.test(m.name) ? ` ${t('lp.agents.smaller_models_may_be_more_vulnerable', 'Smaller models may be more vulnerable to prompt injection.')}` : '') : t('lp.agents.restricted_by_your_workspace_admin', 'Restricted by your workspace admin'),

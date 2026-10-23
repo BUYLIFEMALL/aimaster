@@ -226,7 +226,7 @@ describe('summary', () => {
   it('without an API key the block shows the connect-a-key error; viewers can’t summarize', async () => {
     const r = await call(ids.owner, 'meetingSummarize', { blockId: ids.m });
     expect(r.status).toBe('error');
-    expect(state(ids.m)).toMatchObject({ state: 'error', error: { code: 'no_key', message: 'Connect an AI provider to use Litpage AI' } });
+    expect(state(ids.m)).toMatchObject({ state: 'error', error: { code: 'no_key', message: 'Connect an AI provider to use AIMaster' } });
     expect(await status(() => call(ids.viewer, 'meetingSummarize', { blockId: ids.m }))).toBe(403);
   });
 
@@ -321,7 +321,7 @@ describe('audio upload', () => {
     expect(await status(() => call(ids.owner, 'meetingUploadAudio', { blockId: m, fileId: other.id }))).toBe(400);
   });
 
-  it('without a speech-to-text provider: Litpage’s "couldn’t be transcribed" state; the audio expires', async () => {
+  it('without a speech-to-text provider: Workspace’s "couldn’t be transcribed" state; the audio expires', async () => {
     const m = newMeeting();
     const f = await upload('standup.mp3', 'audio/mpeg');
     const r = await call(ids.owner, 'meetingUploadAudio', { blockId: m, fileId: f.id });

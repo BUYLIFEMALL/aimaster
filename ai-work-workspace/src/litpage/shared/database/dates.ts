@@ -155,11 +155,49 @@ export function formatTime(ms: number, timeFormat?: string): string {
   return `${h12}:${pad2(m)} ${ampm}`;
 }
 
+// 이식판: 화면이 한국어면 날짜도 한국어로 표시한다(화면 i18n.ts가 setDateLocale('ko') 호출). 서버·시험은 원본 영어 그대로.
+let dateLocale: 'en' | 'ko' = 'en';
+export function setDateLocale(locale: 'en' | 'ko') {
+  dateLocale = locale;
+}
+const KO_WEEKDAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+
+function formatDayKo(d: Date, dateFormat: string | undefined, ms: number, now: number): string | null {
+  const y = d.getFullYear();
+  const mo = d.getMonth() + 1;
+  const day = d.getDate();
+  switch (dateFormat) {
+    case 'MMM d':
+      return `${mo}월 ${day}일`;
+    case 'MMM DD, YYYY':
+      return `${y}년 ${mo}월 ${pad2(day)}일`;
+    case 'relative': {
+      const diff = dayDiff(ms, now);
+      if (diff === 0) return '오늘';
+      if (diff === 1) return '내일';
+      if (diff === -1) return '어제';
+      if (diff < 0 && diff >= -6) return `지난 ${KO_WEEKDAYS[d.getDay()]}`;
+      if (diff > 0 && diff <= 6) return `다음 ${KO_WEEKDAYS[d.getDay()]}`;
+      return `${y}년 ${mo}월 ${day}일`;
+    }
+    case 'MM/DD/YYYY':
+    case 'DD/MM/YYYY':
+    case 'YYYY/MM/DD':
+      return null; // 숫자 형식은 언어와 무관
+    default:
+      return `${y}년 ${mo}월 ${day}일`;
+  }
+}
+
 export function formatDay(ms: number, dateFormat?: string, now: number = Date.now()): string {
   const d = new Date(ms);
   const y = d.getFullYear();
   const mo = d.getMonth();
   const day = d.getDate();
+  if (dateLocale === 'ko') {
+    const ko = formatDayKo(d, dateFormat, ms, now);
+    if (ko) return ko;
+  }
   switch (dateFormat) {
     case 'MMM d':
       return `${MONTHS_SHORT[mo]} ${day}`;

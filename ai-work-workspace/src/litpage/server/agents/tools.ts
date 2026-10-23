@@ -64,7 +64,7 @@ export const AGENT_TOOL_DEFS: ToolDef[] = [
   {
     name: 'update_agent_settings',
     access: 'write',
-    description: 'Change your own settings as a draft the person chatting with you reviews and saves: name, description, icon, instructions (Markdown — replaces your instructions page), triggers, model, web access, and access to Litpage pages / databases.',
+    description: 'Change your own settings as a draft the person chatting with you reviews and saves: name, description, icon, instructions (Markdown — replaces your instructions page), triggers, model, web access, and access to Workspace pages / databases.',
     input_schema: {
       type: 'object',
       properties: {

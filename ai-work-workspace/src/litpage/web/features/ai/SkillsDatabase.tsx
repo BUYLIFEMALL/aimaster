@@ -52,7 +52,7 @@ function TurnIntoSkills({ collectionId, close }: { collectionId: string; close: 
   return (
     <div className="nc-tt-dialog" role="dialog" aria-label="Change to Skills database" data-menu-keys="ignore" data-testid="turn-into-skills">
       <div className="nc-tt-title">Change to Skills database</div>
-      <div className="nc-tt-sub">Every page in this database becomes a skill that Litpage AI and your agents can use. A skill with a description is used automatically when it fits the task.</div>
+      <div className="nc-tt-sub">Every page in this database becomes a skill that AIMaster and your agents can use. A skill with a description is used automatically when it fits the task.</div>
       <div className="nc-tt-row">
         <div className="nc-tt-row-label">Pick the property that describes each skill</div>
         <div

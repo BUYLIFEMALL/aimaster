@@ -12,8 +12,8 @@ function KeyHelp({ close }: { close: () => void }) {
   return (
     <PopoverSurface width={340}>
       <div className="nc-ai-keyhelp">
-        <div className="nc-ai-keyhelp-title">Connect Litpage AI to a model provider</div>
-        <p>Litpage AI runs on the provider set up on the server: OpenAI Responses API or the Anthropic Claude API. Add it to apps/server/.env.local and restart the server:</p>
+        <div className="nc-ai-keyhelp-title">Connect AIMaster to a model provider</div>
+        <p>AIMaster runs on the provider set up on the server: OpenAI Responses API or the Anthropic Claude API. Add it to apps/server/.env.local and restart the server:</p>
         <pre>NC_AI_PROVIDER=openai{'\n'}OPENAI_API_KEY=sk-proj-…{'\n'}# optional: OPENAI_BASE_URL=https://api.openai.com/v1{'\n'}# or: ANTHROPIC_API_KEY=sk-ant-…</pre>
         <p className="nc-ai-keyhelp-sub">Keys stay on the server and are never sent to the browser.</p>
         <div className="nc-ai-keyhelp-actions">

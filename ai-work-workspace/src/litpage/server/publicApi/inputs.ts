@@ -1,5 +1,5 @@
 // public API request bodies → stored records: block children (append / create page), page property values, icons and
-// covers. Validation errors use Litpage's plain wording; anything that points at another record
+// covers. Validation errors use Workspace's plain wording; anything that points at another record
 // (mentions, relations, link_to_page, synced blocks) must be readable by the calling principal.
 import { expandId, newId } from '#shared/ids.ts';
 import type { BlockRecord, CollectionRecord, PropertySchema, SelectOption, SpaceRecord, UserRecord } from '#shared/records.ts';
@@ -24,7 +24,7 @@ export const MAX_BLOCKS = 1000;
 const CODE_LANGUAGES = ['ABAP', 'Agda', 'Arduino', 'ASCII Art', 'Assembly', 'Bash', 'BASIC', 'BNF', 'C', 'C#', 'C++', 'Clojure', 'CoffeeScript', 'CSS',
   'Dart', 'Dhall', 'Diff', 'Docker', 'EBNF', 'Elixir', 'Elm', 'Erlang', 'F#', 'Flow', 'Fortran', 'Gherkin', 'GLSL', 'Go', 'GraphQL', 'Groovy', 'Haskell',
   'HCL', 'HTML', 'Idris', 'Java', 'JavaScript', 'JSON', 'Julia', 'Kotlin', 'LaTeX', 'Less', 'Lisp', 'LiveScript', 'LLVM IR', 'Lua', 'Makefile', 'Markdown',
-  'Markup', 'Mathematica', 'MATLAB', 'Mermaid', 'Nix', 'Litpage Formula', 'Objective-C', 'OCaml', 'Pascal', 'Perl', 'PHP', 'Plain Text', 'PowerShell',
+  'Markup', 'Mathematica', 'MATLAB', 'Mermaid', 'Nix', 'Workspace Formula', 'Objective-C', 'OCaml', 'Pascal', 'Perl', 'PHP', 'Plain Text', 'PowerShell',
   'Prolog', 'Protobuf', 'PureScript', 'Python', 'R', 'Racket', 'Reason', 'Rocq', 'Ruby', 'Rust', 'Sass', 'Scala', 'Scheme', 'SCSS', 'Shell', 'Smalltalk',
   'Solidity', 'SQL', 'Swift', 'TOML', 'TypeScript', 'VB.Net', 'Verilog', 'VHDL', 'Visual Basic', 'WebAssembly', 'XML', 'YAML'];
 

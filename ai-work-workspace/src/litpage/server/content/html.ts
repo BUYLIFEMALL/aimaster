@@ -1,5 +1,5 @@
 // HTML → block specs (the "HTML" importer): tolerant tokenizer + tree builder, then block/inline mapping.
-// Understands Litpage's HTML export (page-title header, to-do lists, callouts, toggles, simple tables).
+// Understands Workspace's HTML export (page-title header, to-do lists, callouts, toggles, simple tables).
 import type { Annotation, Decoration, RichText } from '#shared/richtext.ts';
 import type { Spec } from './spec.ts';
 import { safeHref } from '#shared/url.ts';

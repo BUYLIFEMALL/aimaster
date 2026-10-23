@@ -1,4 +1,4 @@
-// Public REST API (v1) and internal connections: token auth + Litpage-Version,
+// Public REST API (v1) and internal connections: token auth + Workspace-Version,
 // per-page grants (no access without a grant, descendants inherited, unlinked pages cut), capabilities, cross-workspace
 // isolation, restricted members / guests, database property access rules and row visibility, locks, pagination,
 // filters / sorts, comments, Markdown content endpoints, connection webhooks (verification + signed events).
@@ -155,7 +155,7 @@ describe('connections: creation rules and tokens', () => {
 });
 
 describe('/v1 auth, version, errors', () => {
-  it('rejects invalid tokens and validates the optional Litpage-Version header', async () => {
+  it('rejects invalid tokens and validates the optional Workspace-Version header', async () => {
     const a = await api(null, 'GET', '/users/me');
     expect(a.status).toBe(401);
     expect(a.json).toMatchObject({ object: 'error', status: 401, code: 'unauthorized' });

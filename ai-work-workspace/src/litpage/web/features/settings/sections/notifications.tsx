@@ -18,7 +18,7 @@ export function NotificationsSection() {
   const emailOn = sv?.notify_email !== false && prefValue(prefs, 'email_activity');
   return (
     <SectionPage title={t('lp.settings.notifications', 'Notifications')} subtitle={t('lp.settings.choose_when_and_how_to_get', 'Choose when and how to get notifications')}>
-      <Group title={t('lp.settings.notifications_in_litpage', 'Notifications in Litpage')}>
+      <Group title={t('lp.settings.notifications_in_litpage', 'Notifications in Workspace')}>
         <Row
           label={t('lp.settings.activity_in_a_live_meeting', 'Activity in a live meeting')}
           description={t('lp.settings.choose_which_in_app_popups_appear', 'Choose which in-app popups appear during video calls and AI meeting notes')}
@@ -36,19 +36,19 @@ export function NotificationsSection() {
         <Row
           leading={<AppTile name="Slack" />}
           label={t('lp.settings.slack', 'Slack')}
-          description={t('lp.settings.have_slack_alert_you_to_what', 'Have Slack alert you to what’s happening across your Litpage workspace')}
+          description={t('lp.settings.have_slack_alert_you_to_what', 'Have Slack alert you to what’s happening across your Workspace workspace')}
           control={<Button onClick={() => connectStub('Slack')}>{t('lp.settings.connect', 'Connect')}</Button>}
         />
         <Row
           leading={<AppTile name="Discord" />}
           label={t('lp.settings.discord', 'Discord')}
-          description={t('lp.settings.have_discord_alert_you_to_what', 'Have Discord alert you to what’s happening across your Litpage workspace')}
+          description={t('lp.settings.have_discord_alert_you_to_what', 'Have Discord alert you to what’s happening across your Workspace workspace')}
           control={<Button onClick={() => connectStub('Discord')}>{t('lp.settings.connect', 'Connect')}</Button>}
         />
         <Row
           leading={<AppTile name="Microsoft Teams" />}
           label={t('lp.settings.microsoft_teams', 'Microsoft Teams')}
-          description={t('lp.settings.have_microsoft_teams_alert_you_to', 'Have Microsoft Teams alert you to what’s happening across your Litpage workspace')}
+          description={t('lp.settings.have_microsoft_teams_alert_you_to', 'Have Microsoft Teams alert you to what’s happening across your Workspace workspace')}
           control={<Button onClick={() => connectStub('Microsoft Teams')}>{t('lp.settings.connect', 'Connect')}</Button>}
         />
       </Group>
@@ -61,7 +61,7 @@ export function NotificationsSection() {
         />
         <Row
           label={t('lp.settings.always_notify_me_by_email', 'Always notify me by email')}
-          description={t('lp.settings.keep_getting_activity_emails_even_while', 'Keep getting activity emails even while you’re using Litpage')}
+          description={t('lp.settings.keep_getting_activity_emails_even_while', 'Keep getting activity emails even while you’re using Workspace')}
           control={<Switch label="Send email notifications every time" checked={prefValue(prefs, 'email_always')} onChange={(v) => savePref('email_always', v)} />}
         />
         <Row
@@ -78,7 +78,7 @@ export function NotificationsSection() {
         />
         <Row
           label={t('lp.settings.emails_about_product_news_and_updates', 'Emails about product news and updates')}
-          description={t('lp.settings.occasionally_email_me_about_new_litpage', 'Occasionally email me about new Litpage features')}
+          description={t('lp.settings.occasionally_email_me_about_new_litpage', 'Occasionally email me about new Workspace features')}
           control={HELP_URL ? <Button icon="arrowDiagonalUpRightSmall" onClick={() => window.open(HELP_URL!, '_blank')}>{t('lp.settings.manage_settings', 'Manage settings')}</Button> : null}
         />
       </Group>
@@ -157,7 +157,7 @@ function ConnectBanner({ title, description, logos }: { title: string; descripti
       <div className="nc-set-banner-art" aria-hidden>
         <div className="logos">{logos}</div>
         <div className="dots" />
-        <div className="mock"><span className="n">N</span>Litpage<span className="pill" /><span className="pill short" /></div>
+        <div className="mock"><span className="n">N</span>Workspace<span className="pill" /><span className="pill short" /></div>
       </div>
     </div>
   );
@@ -165,11 +165,11 @@ function ConnectBanner({ title, description, logos }: { title: string; descripti
 
 export function MailCalendarSection() {
   return (
-    <SectionPage title={t('lp.settings.mail_calendar', 'Mail & Calendar')} subtitle={t('lp.settings.review_and_manage_the_email_and', 'Review and manage the email and calendar accounts linked to Litpage')}>
-      <Group plain medium title={t('lp.settings.connected_emails', 'Connected emails')} description={t('lp.settings.hand_off_drafting_and_sorting_mail', 'Hand off drafting and sorting mail to custom agents, file threads in Litpage databases, and more.')}>
+    <SectionPage title={t('lp.settings.mail_calendar', 'Mail & Calendar')} subtitle={t('lp.settings.review_and_manage_the_email_and', 'Review and manage the email and calendar accounts linked to Workspace')}>
+      <Group plain medium title={t('lp.settings.connected_emails', 'Connected emails')} description={t('lp.settings.hand_off_drafting_and_sorting_mail', 'Hand off drafting and sorting mail to custom agents, file threads in Workspace databases, and more.')}>
         <ConnectBanner
-          title={t('lp.settings.link_an_email_account_with_litpage', 'Link an email account with Litpage')}
-          description={t('lp.settings.keep_every_email_detail_together_use', 'Keep every email detail together. Use Litpage AI to search, write drafts, and get answers, or sync messages straight to your databases.')}
+          title={t('lp.settings.link_an_email_account_with_litpage', 'Link an email account with Workspace')}
+          description={t('lp.settings.keep_every_email_detail_together_use', 'Keep every email detail together. Use AIMaster to search, write drafts, and get answers, or sync messages straight to your databases.')}
           logos={<><Logo bg="#ea4335" label="M" /><Logo bg="#0a64c8" label="O" /></>}
         />
       </Group>
@@ -177,11 +177,11 @@ export function MailCalendarSection() {
         plain
         medium
         title={t('lp.settings.connected_calendars', 'Connected calendars')}
-        description={t('lp.settings.work_with_litpage_databases_from_a_calendar', 'Work with Litpage databases from your calendar, have custom agents book meetings and capture notes, and more.')}
+        description={t('lp.settings.work_with_litpage_databases_from_a_calendar', 'Work with Workspace databases from your calendar, have custom agents book meetings and capture notes, and more.')}
       >
         <ConnectBanner
-          title={t('lp.settings.link_a_calendar_with_litpage', 'Link a calendar with Litpage')}
-          description={t('lp.settings.keep_your_whole_schedule_in_one', 'Keep your whole schedule in one spot. Line up meetings, fine-tune your week, and show up ready for every call with help from Litpage AI.')}
+          title={t('lp.settings.link_a_calendar_with_litpage', 'Link a calendar with Workspace')}
+          description={t('lp.settings.keep_your_whole_schedule_in_one', 'Keep your whole schedule in one spot. Line up meetings, fine-tune your week, and show up ready for every call with help from AIMaster.')}
           logos={<><Logo bg="#1a73e8" label="31" /><Logo bg="#0a64c8" label="O" /><Logo bg="#1d1d1f" label="" /><Logo bg="#fff" fg="#111" label="31" /></>}
         />
       </Group>

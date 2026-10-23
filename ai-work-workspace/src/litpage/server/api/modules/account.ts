@@ -248,7 +248,7 @@ export const handlers: Record<string, Handler> = {
   loginWithPasskey(ctx, { challengeId, credential }) {
     if (!exemptIp(ctx.ip) && !hit(`passkey-verify:ip:${ctx.ip}`, 60, 15 * 60_000)) throw new RateLimitError('Too many login attempts. Try again later.');
     const { userId } = pk(() => verifyAssertion(challengeId, credential ?? {}));
-    if (!getRecord('lit_user', userId)) throw new ApiError('This passkey isn’t registered to a Litpage account.', 401);
+    if (!getRecord('lit_user', userId)) throw new ApiError('This passkey isn’t registered to a Workspace account.', 401);
     const token = createSession(userId);
     ctx.setCookie(sessionCookie(token, !!ctx.secure));
     auditAccount('login', userId, { ip: ctx.ip, data: { authType: 'passkey' } });
@@ -281,7 +281,7 @@ export const handlers: Record<string, Handler> = {
     if (!e || e.length > 254 || !EMAIL_RE.test(e)) throw new ApiError('Please provide a valid email address.');
     if (emailsOf(uid).length >= MAX_EMAILS) throw new ApiError(`You can add up to ${MAX_EMAILS} emails to your account.`);
     const owner = findUserIdByEmail(e);
-    if (owner) throw new ApiError(owner === uid ? 'This email is already on your account.' : 'This email is already used by another Litpage account.');
+    if (owner) throw new ApiError(owner === uid ? 'This email is already on your account.' : 'This email is already used by another Workspace account.');
     if (!hit(`email-verify:user:${uid}`, 10, 3600_000) || !hit(`email-verify:email:${e}`, 5, 15 * 60_000)) throw new RateLimitError();
     const code = String(randomInt(100000, 1000000));
     db.prepare(`INSERT INTO email_verifications (user_id, email, code_hash, expires, attempts) VALUES (?, ?, ?, ?, 0)
@@ -289,9 +289,9 @@ export const handlers: Record<string, Handler> = {
       .run(uid, e, codeHash(code), Date.now() + CODE_TTL_MS);
     sendMail({
       to: e, toUserId: uid, kind: 'verify_email', sensitive: true,
-      subject: `Your Litpage verification code is ${code}`,
-      text: `Verify your email\n\nEnter this code in Litpage to add ${e} to your account:\n\n${code}\n\nIf you didn't request this, you can ignore this email.`,
-      html: `<p>Enter this code in Litpage to add <b>${esc(e)}</b> to your account:</p><p style="font-size:24px;font-weight:700;letter-spacing:2px">${esc(code)}</p><p>If you didn't request this, you can ignore this email.</p>`,
+      subject: `Your Workspace verification code is ${code}`,
+      text: `Verify your email\n\nEnter this code in Workspace to add ${e} to your account:\n\n${code}\n\nIf you didn't request this, you can ignore this email.`,
+      html: `<p>Enter this code in Workspace to add <b>${esc(e)}</b> to your account:</p><p style="font-size:24px;font-weight:700;letter-spacing:2px">${esc(code)}</p><p>If you didn't request this, you can ignore this email.</p>`,
     });
     return { email: e, ...(devLoginCodesEnabled() ? { devCode: code } : {}) };
   },
@@ -302,7 +302,7 @@ export const handlers: Record<string, Handler> = {
     if (!row || row.expires < Date.now() || row.attempts >= 5) throw new ApiError('Invalid or expired verification code.', 401);
     db.prepare('UPDATE email_verifications SET attempts = attempts + 1 WHERE user_id = ? AND email = ?').run(uid, e);
     if (row.code_hash !== codeHash(String(code ?? ''))) throw new ApiError('Invalid or expired verification code.', 401);
-    if (findUserIdByEmail(e)) throw new ApiError('This email is already used by another Litpage account.');
+    if (findUserIdByEmail(e)) throw new ApiError('This email is already used by another Workspace account.');
     if (emailsOf(uid).length >= MAX_EMAILS) throw new ApiError(`You can add up to ${MAX_EMAILS} emails to your account.`);
     db.prepare('INSERT INTO user_emails (email, user_id, created_time) VALUES (?, ?, ?)').run(e, uid, Date.now());
     db.prepare('DELETE FROM email_verifications WHERE user_id = ? AND email = ?').run(uid, e);

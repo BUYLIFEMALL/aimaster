@@ -1,4 +1,4 @@
-// "Send webhook" body (help: webhook-actions): a POST with the page in Litpage's public API shape —
+// "Send webhook" body (help: webhook-actions): a POST with the page in Workspace's public API shape —
 // { source: {type, automation_id, action_id, event_id, attempt}, data: { object:"page", id, …, properties } } —
 // only database page properties are sent (no page content), restricted to the properties the step selected.
 import type { BlockRecord, CollectionRecord, PropertySchema } from '../records.ts';

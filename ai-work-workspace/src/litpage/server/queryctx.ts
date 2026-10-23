@@ -56,7 +56,7 @@ export function messageQueryContext(userId: string | null): ReturnType<typeof re
 }
 
 /**
- * The user's view of databases, like Litpage's record maps (propaccess.ts): rows they can't open (page-level
+ * The user's view of databases, like Workspace's record maps (propaccess.ts): rows they can't open (page-level
  * access rules, "Can only create") are left out and values of properties they can't see are removed, so filters, sorts,
  * groups, calculations, relations, rollups and formulas never read them. Use this for anything returned to the user.
  */

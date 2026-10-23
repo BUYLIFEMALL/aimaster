@@ -165,7 +165,7 @@ export function AnalyticsSection() {
       <div className="nc-set-column wide">
         {header}
         <EnterpriseUpsell
-          title={t('lp.settings.track_litpage_and_ai_use', 'Track Litpage and AI use')}
+          title={t('lp.settings.track_litpage_and_ai_use', 'Track Workspace and AI use')}
           description={t('lp.settings.upgrade_to_enterprise_to_see_workspace', 'Upgrade to Enterprise to see workspace engagement, adoption patterns, and AI usage')}
           points={[
             t('lp.settings.workspace_adoption_data', 'Workspace adoption data'),

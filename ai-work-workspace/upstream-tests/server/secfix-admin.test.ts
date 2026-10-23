@@ -150,7 +150,7 @@ describe('audit events that were defined but never recorded', () => {
 });
 
 describe('plan requests and teamspace publishing', () => {
-  it('upgrading clears the requests it meets, Litpage AI requests included', async () => {
+  it('upgrading clears the requests it meets, AIMaster requests included', async () => {
     setSpace({ plan_type: 'plus' }, { upgrade_requests: [] });
     await call(ids.member, 'requestUpgrade', { spaceId: ids.space, plan: 'lit_ai' });
     await call(ids.member, 'requestUpgrade', { spaceId: ids.space, plan: 'business' });

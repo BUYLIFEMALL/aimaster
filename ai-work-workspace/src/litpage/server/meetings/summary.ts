@@ -22,7 +22,7 @@ import {
 import { resolveInstructions } from './instructions.ts';
 import { emitMeetingSummarized } from './events.ts';
 
-export const SUMMARY_SYSTEM = `You write the summary of a meeting for Litpage AI meeting notes.
+export const SUMMARY_SYSTEM = `You write the summary of a meeting for AIMaster meeting notes.
 You get the meeting's transcript (numbered lines with time and speaker), the notes people wrote during the meeting and summary instructions.
 
 Output Markdown only:

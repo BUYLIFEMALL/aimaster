@@ -50,7 +50,7 @@ function McpForm({ d, close, preset }: { d: AgentDetail; close: () => void; pres
       <div className="nc-ai-mcp-warning">
         <Icon name="warning" size={16} />
         <div>
-          <div className="nc-ai-mcp-warning-title">{t('lp.agents.not_reviewed_by_litpage', 'Not reviewed by Litpage')}</div>
+          <div className="nc-ai-mcp-warning-title">{t('lp.agents.not_reviewed_by_litpage', 'Not reviewed by Workspace')}</div>
           <div>{t('lp.agents.once_connected_this_agent_can_use', 'Once connected, this agent can use its tools and may share data with it. Anyone who can use the agent can trigger these tools. Only connect servers you trust.')}</div>
         </div>
       </div>

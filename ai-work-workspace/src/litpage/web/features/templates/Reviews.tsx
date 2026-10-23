@@ -90,7 +90,7 @@ function ReviewDialog({ tpl, close, onDone }: { tpl: TemplateInfo; close: () => 
       ) : (
         <>
           <div className="nc-mkt-review-title">{t('lp.templates.tell_us_what_you_think', 'Tell us what you think')}</div>
-          <div className="nc-mkt-review-sub">{t('lp.templates.help_the_litpage_community_by_writing', 'Help the Litpage community by writing a review')}</div>
+          <div className="nc-mkt-review-sub">{t('lp.templates.help_the_litpage_community_by_writing', 'Help the Workspace community by writing a review')}</div>
           <StarInput value={rating} onChange={setRating} />
           <label className="nc-mkt-review-field">
             <span>{t('lp.templates.display_name_for_your_review', 'Display name for your review')}</span>

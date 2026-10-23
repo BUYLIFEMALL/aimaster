@@ -119,7 +119,7 @@ export function auditEventCatalog(): { category: AuditCategory; events: [string,
         ['custom_agent_enabled', t('lp.settings.enabled_custom_agent', 'Enabled custom agent')],
         ['custom_agent_disabled', t('lp.settings.disabled_custom_agent', 'Disabled custom agent')],
         ['custom_agent_permission_updated', t('lp.settings.custom_agent_permissions_changed', 'Custom agent permissions changed')],
-        ['custom_agent_lit_access_updated', t('lp.settings.changed_what_a_custom_agent_can', 'Changed what a custom agent can reach in Litpage')],
+        ['custom_agent_lit_access_updated', t('lp.settings.changed_what_a_custom_agent_can', 'Changed what a custom agent can reach in Workspace')],
         ['custom_agent_web_access_added', t('lp.settings.added_web_access_for_custom_agent', 'Added web access for custom agent')],
         ['custom_agent_web_access_removed', t('lp.settings.removed_web_access_for_custom_agent', 'Removed web access for custom agent')],
         ['custom_agent_model_updated', t('lp.settings.switched_a_custom_agent_s_model', 'Switched a custom agent’s model')],
@@ -134,7 +134,7 @@ export function auditEventCatalog(): { category: AuditCategory; events: [string,
         ['custom_agent_run_completed', t('lp.settings.custom_agent_finished_running', 'Custom agent finished running')],
         ['custom_agent_run_failed', t('lp.settings.custom_agent_run_hit_an_error', 'Custom agent run hit an error')],
         ['custom_agent_instructions_page_edited', t('lp.settings.instructions_page_edited_for_a_custom', 'Instructions page edited for a custom agent')],
-        // Litpage MCP clients
+        // Workspace MCP clients
         ['workspace_mcp_server_connected', t('lp.settings.connected_mcp_server', 'Connected MCP server')],
         ['workspace_mcp_allowlist_enabled', t('lp.settings.turned_on_mcp_allowlist', 'Turned on MCP allowlist')],
         ['workspace_mcp_allowlist_disabled', t('lp.settings.turned_off_mcp_allowlist', 'Turned off MCP allowlist')],
@@ -458,8 +458,8 @@ export function describeAuditEvent(e: AuditEntry): string {
     default:
       // Custom Agents: "<event>: <agent name>"
       if (e.event.startsWith('custom_agent_') && d.agent_name) return `${eventLabel(e.event)}: ${d.agent_name}${d.triggered_by_name ? ` · ${d.triggered_by_name}` : ''}${sudo}`;
-      // Litpage MCP clients (workspace_mcp_* events)
-      if (e.event === 'workspace_mcp_server_connected') return `${d.client ? t('lp.settings.opened_a_litpage_mcp_connection', '{displayName} opened a Litpage MCP connection', { displayName: String(d.client) }) : t('lp.settings.mcp_server_connection_from_an_unnamed', 'MCP server connection from an unnamed client')}${sudo}`;
+      // Workspace MCP clients (workspace_mcp_* events)
+      if (e.event === 'workspace_mcp_server_connected') return `${d.client ? t('lp.settings.opened_a_litpage_mcp_connection', '{displayName} opened a Workspace MCP connection', { displayName: String(d.client) }) : t('lp.settings.mcp_server_connection_from_an_unnamed', 'MCP server connection from an unnamed client')}${sudo}`;
       if (e.event === 'workspace_mcp_allowlist_enabled') return `${t('lp.settings.mcp_allowlist_enabled', 'MCP allowlist enabled')}${sudo}`;
       if (e.event === 'workspace_mcp_allowlist_disabled') return `${t('lp.settings.mcp_allowlist_disabled', 'MCP allowlist disabled')}${sudo}`;
       if (e.event === 'workspace_mcp_client_added_to_allowlist') return `${t('lp.settings.allowlisted_the_mcp_client', 'Allowlisted the MCP client “{clientDisplayName}”', { clientDisplayName: String(d.client ?? '') })}${sudo}`;

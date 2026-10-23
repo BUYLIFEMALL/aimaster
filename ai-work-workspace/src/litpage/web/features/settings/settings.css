@@ -156,7 +156,7 @@
 .nc-set-input input::placeholder, .nc-set-input textarea::placeholder { color: var(--lp-text-tertiary); }
 .nc-set-label { color: var(--lp-text-secondary); font-size: 12px; line-height: 16px; font-weight: 400; display: block; margin-bottom: 4px; }
 
-/* pill tabs (People / Import / Litpage AI / Connections) */
+/* pill tabs (People / Import / AIMaster / Connections) */
 .nc-set-pills { display: flex; align-items: center; gap: 6px; }
 .nc-set-pill {
   /* tab bar pill: 28px, padding 0 10px, no inner gap, count +4px */
@@ -404,7 +404,7 @@
 .nc-set-request .ttl { font-size: 14px; font-weight: 500; }
 .nc-set-request .sub { font-size: 12px; color: var(--lp-text-secondary); margin-top: 2px; }
 
-/* Litpage AI */
+/* AIMaster */
 /* AI connectors pill: three 18px white discs (shadow, 3px padding, overlap 6px) before the label (padding-end 8) */
 .nc-set-pill-logos { display: inline-flex; align-items: center; height: 20px; padding-inline-end: 8px; }
 .nc-set-pill-logos > span {
@@ -415,7 +415,7 @@
 .nc-set-pill-logos > span:nth-child(2) { z-index: 2; }
 .nc-set-pill-logos > span:nth-child(3) { z-index: 1; }
 .nc-set-pill-logos i { width: 12px; height: 12px; border-radius: 50%; color: #fff; font-size: 7px; font-style: normal; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-/* Litpage AI › General: tabs → 44 → [text column centred on a 197×124 image] → 44 → Instructions */
+/* AIMaster › General: tabs → 44 → [text column centred on a 197×124 image] → 44 → Instructions */
 .nc-set-ai-sec { display: flex; flex-direction: column; gap: 44px; }
 .nc-set-ai-general { display: flex; flex-direction: column; gap: 44px; }
 .nc-set-ai-personal { display: flex; align-items: center; min-height: 40px; gap: 16px; }
@@ -441,7 +441,7 @@
 .nc-set-db-picker { width: 300px; justify-content: space-between; }
 .nc-set-db-picker .placeholder { color: var(--lp-text-tertiary); font-weight: 400; }
 
-/* Litpage MCP */
+/* Workspace MCP */
 .nc-set-mcp-tiles { display: flex; flex-wrap: wrap; }
 .nc-set-mcp-tile { width: 132px; min-height: 90px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px 8px; border-radius: 10px; cursor: pointer; text-align: center; transition: background 0.1s; }
 .nc-set-mcp-tile:hover { background: var(--lp-bg-interactive-transparent); }

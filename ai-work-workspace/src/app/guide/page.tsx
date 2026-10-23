@@ -8,6 +8,9 @@ import "./guide.css";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+// 카탈로그 썸네일(실사, docs/PLATFORM_PATTERNS.md §13)을 매뉴얼 개요 그림으로도 쓴다
+const HERO_IMAGE = "https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/ai-work-workspace-thumbnail.jpg?v=1792785802425";
+
 const STEPS = [
   { no: 1, icon: "🏢", title: "워크스페이스 만들기", summary: "처음 들어오면 이름 하나만 정하면 내 업무 공간이 생깁니다." },
   { no: 2, icon: "✍️", title: "페이지와 블록 쓰기", summary: "/ 를 누르면 제목·할 일·표·코드 등 블록 41종을 바로 넣을 수 있습니다." },
@@ -46,22 +49,53 @@ export default async function GuidePage() {
               <h1>업무 워크스페이스 3분 시작하기</h1>
             </div>
           </div>
-          <div className="aww-guide-badges">
-            <span className="aww-badge">업무자동화</span>
-            <span className="aww-badge">⏱ 약 3분</span>
-            <span className="aww-badge">본인 키 필요 없음(1단계)</span>
+          <div className="aww-guide-meta-right">
+            <div className="aww-guide-badges">
+              <span className="aww-badge">업무자동화</span>
+              <span className="aww-badge">⏱ 약 3분</span>
+              <span className="aww-badge">본인 키 필요 없음(1단계)</span>
+            </div>
+            {/* ⑦ 바로가기(이 프로그램은 외부 콘솔 연동이 없어 워크스페이스로 바로 이동) */}
+            <a className="aww-btn primary small" href="/">
+              워크스페이스 바로 열기 →
+            </a>
           </div>
         </header>
 
         {/* ② 개요 카드 */}
         <section className="aww-guide-hero">
-          <h2>무엇을 할 수 있나요?</h2>
-          <p>
-            문서와 업무 데이터베이스를 한 화면에 모아 두는 나만의 업무 공간입니다. 회의록·업무 위키·프로젝트 보드·할 일 목록을 페이지와 블록으로
-            자유롭게 만들고, 같은 데이터를 표·보드·캘린더·타임라인 등 원하는 모양으로 바꿔 볼 수 있습니다. 내 워크스페이스는 나에게만 보이며 다른
-            회원과 섞이지 않습니다.
-          </p>
+          <img className="aww-guide-hero-img" src={HERO_IMAGE} alt="노트북으로 업무 보드와 문서를 정리하는 모습" />
+          <div className="aww-guide-hero-body">
+            <div className="aww-guide-badges">
+              <span className="aww-badge strong">🗂️ 문서 + 업무 데이터베이스</span>
+              <span className="aww-badge strong">📊 보기 12종</span>
+              <span className="aww-badge strong">🔒 나만의 공간</span>
+            </div>
+            <h2>무엇을 할 수 있나요?</h2>
+            <p>
+              문서와 업무 데이터베이스를 한 화면에 모아 두는 나만의 업무 공간입니다. 회의록·업무 위키·프로젝트 보드·할 일 목록을 페이지와 블록으로
+              자유롭게 만들고, 같은 데이터를 표·보드·캘린더·타임라인 등 원하는 모양으로 바꿔 볼 수 있습니다. 내 워크스페이스는 나에게만 보이며 다른
+              회원과 섞이지 않습니다.
+            </p>
+          </div>
         </section>
+
+        {/* 흐름 한눈에 보기 */}
+        <div className="aww-flow" aria-label="사용 흐름">
+          {STEPS.map((s, i) => (
+            <span key={s.no} className="aww-flow-item">
+              <span className="aww-flow-icon" aria-hidden>
+                {s.icon}
+              </span>
+              {s.title}
+              {i < STEPS.length - 1 && (
+                <span className="aww-flow-arrow" aria-hidden>
+                  →
+                </span>
+              )}
+            </span>
+          ))}
+        </div>
 
         {/* ③ 4단계 카드 */}
         <section className="aww-guide-steps" aria-label="핵심 4단계">

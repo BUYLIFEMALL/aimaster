@@ -6,7 +6,7 @@ import { openPage } from '../../lib/router.ts';
 import { createSseParser } from './sse.ts';
 
 
-export const NO_KEY_MESSAGE = 'Connect an AI provider to use Litpage AI';
+export const NO_KEY_MESSAGE = 'Connect an AI provider to use AIMaster';
 
 export interface AiModelOption {
   id: string;
@@ -56,11 +56,15 @@ let inflight: Promise<void> | null = null;
 const DEFAULT_POLICY: AiPolicy = { enabled: true, webSearch: true, webConfirm: false, skipApprovals: true, customMcp: true, memories: true, litMcp: true, mcpSkills: true, localSkills: true };
 
 
+/** 이식판: 2단계(회원 본인 AI 키 연결)에서 true로 연다. 서버도 같은 기준으로 AI 명령을 막는다(src/server/stagePolicy.ts). */
+export const AI_STAGE_OPEN = false;
+
 export function policyFromSpaceSettings(settings: Record<string, unknown> | null | undefined): AiPolicy {
   const s = settings ?? {};
   const b = (v: unknown, fallback: boolean) => (typeof v === 'boolean' ? v : fallback);
   return {
-    enabled: b(s.ai_enabled, true), webSearch: b(s.ai_web_search, true), webConfirm: b(s.ai_web_confirm, false), skipApprovals: b(s.ai_skip_approvals, true),
+    // 이식판 1단계: AI는 회원 본인 키 연결(2단계) 전까지 닫혀 있다 — 원본의 「워크스페이스 AI 끄기」 동작으로 진입점을 숨긴다
+    enabled: AI_STAGE_OPEN && b(s.ai_enabled, true), webSearch: b(s.ai_web_search, true), webConfirm: b(s.ai_web_confirm, false), skipApprovals: b(s.ai_skip_approvals, true),
     customMcp: b(s.ai_custom_mcp, true), memories: b(s.ai_memories, true), litMcp: b(s.lit_mcp_enabled, true), mcpSkills: b(s.ai_mcp_skills, true),
     localSkills: b(s.ai_local_skills, true),
   };
@@ -230,7 +234,7 @@ export async function streamAi(body: Record<string, unknown>, h: StreamHandlers,
     });
   } catch (e) {
     if (signal?.aborted) return { status: 'stopped', text: '' };
-    throw new AiRequestError(0, 'network', 'Couldn’t connect to Litpage AI. Check your connection.');
+    throw new AiRequestError(0, 'network', 'Couldn’t connect to AIMaster. Check your connection.');
   }
   if (!res.ok) {
     let j: any = {};
@@ -271,10 +275,10 @@ export async function streamAi(body: Record<string, unknown>, h: StreamHandlers,
     parser.end();
   } catch (e) {
     if (signal?.aborted) return { status: 'stopped', text };
-    return { status: 'error', text, error: { code: 'network', message: 'The connection to Litpage AI was interrupted.' } };
+    return { status: 'error', text, error: { code: 'network', message: 'The connection to AIMaster was interrupted.' } };
   }
   if (signal?.aborted && !done) return { status: 'stopped', text };
-  return done ?? { status: 'error', text, error: { code: 'network', message: 'Litpage AI ended before completing the task.' } };
+  return done ?? { status: 'error', text, error: { code: 'network', message: 'AIMaster ended before completing the task.' } };
 }
 
 // ---------------------------------------------------------------------------------------------

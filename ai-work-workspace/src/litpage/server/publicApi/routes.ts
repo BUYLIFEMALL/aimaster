@@ -1,7 +1,7 @@
 // Public REST API under /v1: the API surface for internal connections and
 // personal access tokens: users, search, pages (+ property items, Markdown), blocks, databases / data sources (query
 // with filters and sorts), comments.
-// Authorization: Bearer <token> · Litpage-Version: 2026-10-01 (optional)
+// Authorization: Bearer <token> · Workspace-Version: 2026-10-01 (optional)
 // Every read and write runs as the token's principal (a connection's bot or the token's person): reads go through
 // blockRole + the database property access rules (objects.ts), writes are ordinary transactions through
 // applyTransactions(…, { client: true }) — the same TxGuard checks as the service (locks, property rules, pointers).
@@ -94,7 +94,7 @@ function paginate<T>(items: T[], idOf: (t: T) => string, start: unknown, size: n
   return { page, next };
 }
 
-/** Apply operations as the principal (Litpage's write path); permission problems become forbidden. */
+/** Apply operations as the principal (Workspace's write path); permission problems become forbidden. */
 function applyAs(p: Principal, ops: Operation[], action: string) {
   if (!ops.length) return [];
   try {
@@ -847,7 +847,7 @@ async function handle(c: Context, h: Handler): Promise<Response> {
     const token = /^Bearer\s+(\S+)$/i.exec(auth.trim())?.[1] ?? '';
     const version = c.req.header('lit-version');
     if (!token) throw new PublicApiError('unauthorized', 'Unauthorized: API token is invalid.');
-    if (!hasSupportedVersion(version)) throw invalid(`Litpage-Version must be "${API_VERSION}".`);
+    if (!hasSupportedVersion(version)) throw invalid(`Workspace-Version must be "${API_VERSION}".`);
     principal = principalForToken(token);
     if (!principal) throw new PublicApiError('unauthorized', 'Unauthorized: API token is invalid.');
     const space = getRecord<SpaceRecord>('space', principal.spaceId);

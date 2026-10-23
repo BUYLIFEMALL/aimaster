@@ -1,5 +1,5 @@
 // "Translate to {language}" pill in the topbar: shown when the page's text is in a different language than the
-// UI locale; click → Litpage AI translate
+// UI locale; click → AIMaster translate
 // (dispatches `nc:ask-ai` with skill "Translate"); × dismisses the suggestion for this page.
 import { useState } from 'react';
 import { toPlainText } from '#shared/richtext.ts';

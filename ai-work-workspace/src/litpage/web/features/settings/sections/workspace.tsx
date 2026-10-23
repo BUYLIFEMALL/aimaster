@@ -816,11 +816,11 @@ export function SecuritySection() {
           />
           <Row
             id="workspace-support-access"
-            label={t('lp.settings.open_this_workspace_to_litpage_support', 'Open this workspace to Litpage support')}
+            label={t('lp.settings.open_this_workspace_to_litpage_support', 'Open this workspace to Workspace support')}
             description={supportOn && supportSince
-              ? `${t('lp.settings.allow_litpage_to_inspect_this_workspace', 'Allow Litpage to inspect this workspace’s data while troubleshooting. Access ends automatically.')} ${t('lp.settings.active_until', 'Active until {date}', { date: fmtDate(supportSince + 28 * 86_400_000) })}`
-              : t('lp.settings.allow_litpage_to_inspect_this_workspace', 'Allow Litpage to inspect this workspace’s data while troubleshooting. Access ends automatically.')}
-            control={<span data-tooltip={t('lp.settings.give_litpage_support_short_term_access', 'Give Litpage support short-term access so they can diagnose and fix problems in your workspace. It ends automatically after {days} days.', { days: 28 })}><Switch label="Workspace support access" checked={supportOn} onChange={(v) => set({ support_access: v, support_access_granted_time: v ? Date.now() : null })} /></span>}
+              ? `${t('lp.settings.allow_litpage_to_inspect_this_workspace', 'Allow Workspace to inspect this workspace’s data while troubleshooting. Access ends automatically.')} ${t('lp.settings.active_until', 'Active until {date}', { date: fmtDate(supportSince + 28 * 86_400_000) })}`
+              : t('lp.settings.allow_litpage_to_inspect_this_workspace', 'Allow Workspace to inspect this workspace’s data while troubleshooting. Access ends automatically.')}
+            control={<span data-tooltip={t('lp.settings.give_litpage_support_short_term_access', 'Give Workspace support short-term access so they can diagnose and fix problems in your workspace. It ends automatically after {days} days.', { days: 28 })}><Switch label="Workspace support access" checked={supportOn} onChange={(v) => set({ support_access: v, support_access_granted_time: v ? Date.now() : null })} /></span>}
           />
           <GateHint plan={plan} min="enterprise" text={msg('lp.settings.upgrade_to_enterprise_to_disable_publish', '<highlight>Upgrade</highlight> to Enterprise to disable publishing, duplicating and exporting')} />
         </Group>
@@ -931,7 +931,7 @@ function RetentionTab({ space, plan }: { space: SpaceRecord; plan: PlanType }) {
         label={t('lp.settings.how_long_deleted_pages_and_ai', 'How long deleted pages and AI chats are kept')}
         description={(
           <>
-            {t('lp.settings.choose_how_long_deleted_pages_and', 'Choose how long deleted pages and AI chats remain after leaving Trash before permanent deletion from Litpage servers. Only workspace owners can view or restore pages during this period.')}
+            {t('lp.settings.choose_how_long_deleted_pages_and', 'Choose how long deleted pages and AI chats remain after leaving Trash before permanent deletion from Workspace servers. Only workspace owners can view or restore pages during this period.')}
             {!ent && <Upsell text={msg('lp.settings.upgrade_to_set_the_trash_recovery', '<highlight>Upgrade</highlight> to set the Trash recovery window')} />}
           </>
         )}
@@ -939,7 +939,7 @@ function RetentionTab({ space, plan }: { space: SpaceRecord; plan: PlanType }) {
       />
       {HELP_URL && <a className="nc-set-help-link" href={HELP_URL} target="_blank" rel="noreferrer">
         <Icon name="questionMarkCircleSmall" size={16} />
-        {t('lp.settings.learn_about_litpage_data_retention', 'Learn about Litpage data retention')}
+        {t('lp.settings.learn_about_litpage_data_retention', 'Learn about Workspace data retention')}
       </a>}
     </Group>
   );
@@ -1028,7 +1028,7 @@ export function IdentitySection() {
           id="saml-auto-create"
           disabled={!saml.enabled}
           label={t('lp.settings.create_accounts_automatically', 'Create accounts automatically')}
-          description={t('lp.settings.give_first_time_saml_sso_users', 'Give first-time SAML SSO users a Litpage account automatically')}
+          description={t('lp.settings.give_first_time_saml_sso_users', 'Give first-time SAML SSO users a Workspace account automatically')}
           control={<Switch label="Create accounts automatically" disabled={!saml.enabled} checked={!!saml.auto_create} onChange={(v) => setSaml({ auto_create: v })} />}
         />
         {!business && <Upsell text={msg('lp.settings.upgrade_to_business_to_set_up', '<highlight>Upgrade</highlight> to Business to set up SAML single sign-on')} />}
@@ -1191,7 +1191,7 @@ export function RequestsSection() {
             <tbody>
               {upgradeReqs.map((r) => (
                 <tr key={r.id}>
-                  <td className="primary">{r.plan === 'lit_ai' ? t('lp.settings.litpage_ai', 'Litpage AI') : r.plan === 'business' ? t('lp.settings.business', 'Business') : r.plan === 'enterprise' ? t('lp.settings.enterprise', 'Enterprise') : r.plan.charAt(0).toUpperCase() + r.plan.slice(1)}</td>
+                  <td className="primary">{r.plan === 'lit_ai' ? t('lp.settings.litpage_ai', 'AIMaster') : r.plan === 'business' ? t('lp.settings.business', 'Business') : r.plan === 'enterprise' ? t('lp.settings.enterprise', 'Enterprise') : r.plan.charAt(0).toUpperCase() + r.plan.slice(1)}</td>
                   <td>{userName(r.requested_by)}</td>
                   <td>{fmtDate(r.created_time)}</td>
                   <td>{r.note || '—'}</td>

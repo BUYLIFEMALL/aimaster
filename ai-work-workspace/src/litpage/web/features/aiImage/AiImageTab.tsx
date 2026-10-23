@@ -125,7 +125,7 @@ export function AiImageTab({ blockId, close, generate }: { blockId?: string; clo
 export function openAiImagePopover(blockId: string, anchor: HTMLElement | DOMRect) {
   return openOverlay((close) => (
     <PopoverSurface width={540} className="nc-media-picker">
-      <div className="nc-aiimg-head"><Icon name="aiFace" size={16} />{t('lp.aiimage.litpage_ai', 'Litpage AI')}</div>
+      <div className="nc-aiimg-head"><Icon name="aiFace" size={16} />{t('lp.aiimage.litpage_ai', 'AIMaster')}</div>
       <div className="nc-aiimg-pad"><AiImageTab blockId={blockId} close={close} /></div>
     </PopoverSurface>
   ), { anchor, placement: 'bottom', offset: 0 });

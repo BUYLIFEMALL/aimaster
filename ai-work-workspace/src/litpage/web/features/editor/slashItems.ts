@@ -283,7 +283,7 @@ export function slashCatalog(): SlashItem[] {
     // hidden in the unfiltered menu, reachable by search such as “/comment”
     t('comment', 'Comment', 'Actions', 'commentFilled', (ctx) => void import('../comments/comments.tsx').then((m) => m.startCommentOnBlock(ctx.blockId)), { shortcut: '⌘⇧M', searchOnly: true, keywords: ['comment', 'discussion', 'note'] }),
     t('present', 'Start presenting here', 'Actions', 'playButton', (ctx) => presentFrom(ctx.blockId), { badge: 'Beta', shortcut: '⌘⌥P', keywords: ['present', 'presentation', 'slides', 'slideshow'] }),
-    t('ask-ai', 'Ask AI', 'Actions', 'aiFace', (ctx) => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: ctx })), { shortcut: '⌘J', keywords: ['ai', 'litpage ai', 'assistant'] }),
+    t('ask-ai', 'Ask AI', 'Actions', 'aiFace', (ctx) => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: ctx })), { shortcut: '⌘J', keywords: ['ai', 'aimaster', 'assistant'] }),
     // "/skill": pick a skill and run it on this block (features/ai handles nc:ai-skill-menu —)
     t('ai-skill', 'Skills', 'Actions', 'paperBolt', (ctx) => window.dispatchEvent(new CustomEvent('nc:ai-skill-menu', { detail: ctx })), { keywords: ['skill', 'skills', 'ai skill', 'run skill'] }),
 

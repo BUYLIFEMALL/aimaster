@@ -156,7 +156,7 @@ export function AccountSection() {
         <Row
           id="support-access"
           label={t('lp.settings.support_access', 'Support access')}
-          description={t('lp.settings.give_litpage_support_temporary_account_a', 'Give Litpage support temporary account access to troubleshoot issues or recover content for you. You can revoke access at any time.')}
+          description={t('lp.settings.give_litpage_support_temporary_account_a', 'Give Workspace support temporary account access to troubleshoot issues or recover content for you. You can revoke access at any time.')}
           control={<Switch label="Support access" checked={prefValue(prefs, 'support_access')} onChange={(v) => savePrefs({ support_access: v, support_access_granted_time: v ? Date.now() : null })} />}
         />
         <Row

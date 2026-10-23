@@ -268,7 +268,7 @@ export function InboxPanel() {
   );
 }
 
-/** "Prioritize with AI": opens the Litpage AI panel (nc:ai-open) with a "which should I handle first?" prompt and
+/** "Prioritize with AI": opens the AIMaster panel (nc:ai-open) with a "which should I handle first?" prompt and
  *  the unread Inbox items as context; without a model key the panel shows its connect state. */
 function prioritizeWithAi() {
   const me = useSession.getState().userId;

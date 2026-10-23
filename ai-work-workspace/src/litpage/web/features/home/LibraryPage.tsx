@@ -76,7 +76,7 @@ export function LibraryPage() {
   }, [tab, routeTab, domain]);
 
   useEffect(() => {
-    document.title = `${t('lp.home.library', 'Library')} | Litpage`;
+    document.title = `${t('lp.home.library', 'Library')} | Workspace`;
   }, []);
 
   const goTab = (next: LibTab) => {

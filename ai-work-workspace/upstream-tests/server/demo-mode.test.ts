@@ -177,7 +177,7 @@ function dumpAll(): Map<string, string[]> {
 }
 
 describe('demo sandboxes: creation and sample content', () => {
-  it('creates a guest, a seeded "Litpage Demo" workspace and a session that ends with the sandbox, quickly', async () => {
+  it('creates a guest, a seeded "Workspace Demo" workspace and a session that ends with the sandbox, quickly', async () => {
     const started = performance.now();
     const sb = await startSandbox();
     const ms = performance.now() - started;
@@ -194,7 +194,7 @@ describe('demo sandboxes: creation and sample content', () => {
     expect(user.name).toMatch(/^Guest \d{4}$/);
     expect(user.onboarding_completed).toBe(true);
     const space = db.getRecord<any>('space', sb.spaceId);
-    expect(space.name).toBe('Litpage Demo');
+    expect(space.name).toBe('Workspace Demo');
     expect(space.permissions).toEqual([expect.objectContaining({ user_id: sb.userId, role: 'owner' })]);
     const acct = await H.loadAccountData(sandboxCtx(sb.userId), {});
     expect(acct.demoMode.enabled).toBe(true);
@@ -520,7 +520,7 @@ describe('demo sandboxes: normal mode is unchanged', () => {
         { pointer: { table: 'block', id: sb.pageId, spaceId: sb.spaceId }, path: ['content'], command: 'listAfter', args: { id } },
       ] }] }))).toBe(200);
       const welcome = seed.createWorkspace(other, 'Other workspace');
-      expect(titleOf(db.getRecord('block', welcome.spaceView.private_pages[0]))).toBe('Welcome to Litpage');
+      expect(titleOf(db.getRecord('block', welcome.spaceView.private_pages[0]))).toBe('Welcome to Workspace');
     } finally {
       process.env.NC_DEMO_MODE = '1';
       delete process.env.NC_DEMO_MAX_RECORDS;

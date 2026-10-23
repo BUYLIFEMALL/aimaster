@@ -126,7 +126,7 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
           >
             <span className="nc-new-db-ai-avatar"><Icon name="aiFace" size={14} /></span>
             <input name="prompt" className="nc-new-db-ai-text" placeholder="Describe what to build" aria-label="Describe what to build" autoComplete="off" style={{ border: 'none', outline: 'none', background: 'transparent', font: 'inherit', color: 'inherit', flex: 1, minWidth: 0 }} />
-            <button type="submit" className="nc-new-db-ai-submit" aria-label="Send prompt to Litpage AI" style={{ border: 'none', cursor: 'pointer' }}><Icon name="arrowUp" size={14} /></button>
+            <button type="submit" className="nc-new-db-ai-submit" aria-label="Send prompt to AIMaster" style={{ border: 'none', cursor: 'pointer' }}><Icon name="arrowUp" size={14} /></button>
           </form>
         </div>
         <div className="nc-menu-section">

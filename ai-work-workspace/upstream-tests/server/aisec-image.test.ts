@@ -74,7 +74,7 @@ describe('image generation context page', () => {
     expect(JSON.stringify(seen[0].messages)).toContain('roadmap-context-owl');
   });
 
-  it('refuses another workspace’s page (Litpage AI off there) and pages the person can’t open', async () => {
+  it('refuses another workspace’s page (AIMaster off there) and pages the person can’t open', async () => {
     const seen: any[] = [];
     await expect(image.generateImage({ userId: ids.ada, spaceId: ids.a, prompt: 'chart', pageId: ids.inB, client: fake(seen) as any })).rejects.toMatchObject({ status: 403 });
     await expect(image.generateImage({ userId: ids.ada, spaceId: ids.a, prompt: 'chart', pageId: ids.private, client: fake(seen) as any })).rejects.toMatchObject({ status: 403 });

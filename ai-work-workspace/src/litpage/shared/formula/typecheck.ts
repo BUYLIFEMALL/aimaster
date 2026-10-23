@@ -1,5 +1,5 @@
 // Static result-type inference for formulas (the "Type: number" badge in the editor and `formula2.result_type`).
-// Mirrors Litpage's typechecker rules for literals, operators, property tokens and library return types.
+// Mirrors Workspace's typechecker rules for literals, operators, property tokens and library return types.
 import type { CollectionRecord, PropertySchema } from '../records.ts';
 import { formulaSourceOf, SYSTEM_TOKEN_PROPERTIES } from './code.ts';
 import { LIBRARY, T, isLambdaParam, paramAt, unifyTypes, type TypeSpec } from './library.ts';

@@ -22,12 +22,17 @@ type UseCase = 'team' | 'personal' | 'school';
 
 
 const STARTER_TEMPLATES: Record<UseCase, { id: string; label: string; icon: string }[]> = {
-  team: [{ id: 'team-wiki', label: 'Team wiki', icon: '📚' }, { id: 'project-tracker', label: 'Projects', icon: '🎯' }, { id: 'meeting-notes', label: 'Meeting notes', icon: '🗓️' }],
-  school: [{ id: 'todo-list', label: 'Assignments', icon: '✏️' }, { id: 'reading-list', label: 'Reading list', icon: '📚' }, { id: 'weekly-planner', label: 'Weekly planner', icon: '🗓️' }],
-  personal: [{ id: 'todo-list', label: 'Task list', icon: '✅' }, { id: 'journal', label: 'Journal', icon: '📔' }, { id: 'reading-list', label: 'Reading list', icon: '📚' }],
+  // 이식판: 템플릿 이름 한국어(템플릿 안 예시 내용은 아직 영어 — IMPROVEMENTS「템플릿 한국어화」)
+  team: [{ id: 'team-wiki', label: '팀 위키', icon: '📚' }, { id: 'project-tracker', label: '프로젝트', icon: '🎯' }, { id: 'meeting-notes', label: '회의록', icon: '🗓️' }],
+  school: [{ id: 'todo-list', label: '과제', icon: '✏️' }, { id: 'reading-list', label: '읽을 목록', icon: '📚' }, { id: 'weekly-planner', label: '주간 계획', icon: '🗓️' }],
+  personal: [{ id: 'todo-list', label: '할 일 목록', icon: '✅' }, { id: 'journal', label: '일기', icon: '📔' }, { id: 'reading-list', label: '읽을 목록', icon: '📚' }],
 };
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+/** 이식판: 원본 자체 비밀번호(설정·로그인)는 쓰지 않는다 — AIMaster 통합 계정이 관리 */
+const ALLOW_LOCAL_PASSWORD = false;
+/** 이식판 1단계: 팀원 초대(3단계)는 아직 닫혀 있다 */
+const INVITES_OPEN = false;
 
 function nameError(v: string): string | null {
   const s = v.trim();
@@ -62,7 +67,8 @@ export function OnboardingPage() {
   const [spaceId, setSpaceId] = useState<string | null>(null);
   const [invites, setInvites] = useState<string[]>(['', '', '']);
   const [starters, setStarters] = useState<string[] | null>(null);
-  const chosenStarters = starters ?? (use === 'personal' ? [] : STARTER_TEMPLATES[use].map((x) => x.id));
+  // 이식판: 템플릿 예시 내용이 아직 영어라 기본은 선택하지 않는다(회원이 눌러서 고를 수 있음)
+  const chosenStarters = starters ?? [];
   const fileRef = useRef<HTMLInputElement>(null);
 
   const photo = user?.profile_photo;
@@ -110,7 +116,8 @@ export function OnboardingPage() {
       const res = await api('createWorkspace', { name: wsName.trim() || t('lp.auth.my_workspace', 'My Workspace'), icon: wsIcon || undefined });
       // starter templates go to the new workspace's Private section (usable / deletable like any page)
       for (const templateId of chosenStarters) await api('getTemplate', { templateId, spaceId: res.spaceId }).catch(() => null);
-      if (use === 'team') {
+      // 이식판 1단계: 다른 회원 초대는 3단계에서 연다 — 업무용도 초대 단계 없이 바로 시작한다
+      if (use === 'team' && INVITES_OPEN) {
         setSpaceId(res.spaceId);
         setStep('invite');
       } else {
@@ -160,7 +167,7 @@ export function OnboardingPage() {
           <form className="nc-onb-card" noValidate onSubmit={(e) => { e.preventDefault(); void saveProfile(); }}>
             <div className="nc-auth-heading">
               <h1>{t('lp.auth.set_up_your_profile', 'Set up your profile')}</h1>
-              <h2>{t('lp.auth.this_is_the_name_and_photo', 'This is the name and photo people see in Litpage')}</h2>
+              <h2>{t('lp.auth.this_is_the_name_and_photo', 'This is the name and photo people see in Workspace')}</h2>
             </div>
             <div className="nc-onb-avatar-wrap">
               <div
@@ -181,7 +188,8 @@ export function OnboardingPage() {
             <div className="nc-auth-field">
               <input id="name" autoFocus autoComplete="name" placeholder={t('lp.auth.name', 'Name')} value={name} onChange={(e) => { setName(e.target.value); setNameErr(null); }} />
             </div>
-            {showPassword ? (
+            {/* 이식판: 로그인·비밀번호는 AIMaster 통합 계정이 관리하므로 비밀번호 설정을 보여 주지 않는다 */}
+            {!ALLOW_LOCAL_PASSWORD ? null : showPassword ? (
               <>
                 <label className="nc-auth-label second" htmlFor="onb-password">{t('lp.auth.create_a_password', 'Create a password')}</label>
                 <div className="nc-auth-field">
@@ -207,8 +215,8 @@ export function OnboardingPage() {
         {step === 'use' && (
           <div className="nc-onb-card wide">
             <div className="nc-auth-heading">
-              <h1>{t('lp.auth.how_will_you_use_litpage', 'How will you use Litpage?')}</h1>
-              <h2>{t('lp.auth.we_ll_use_this_to_tailor', 'We’ll use this to tailor Litpage for you')}</h2>
+              <h1>{t('lp.auth.how_will_you_use_litpage', 'How will you use Workspace?')}</h1>
+              <h2>{t('lp.auth.we_ll_use_this_to_tailor', 'We’ll use this to tailor Workspace for you')}</h2>
             </div>
             <div className="nc-onb-choices" role="radiogroup">
               {([

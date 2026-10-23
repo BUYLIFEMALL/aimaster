@@ -210,14 +210,14 @@ function ConsentChoice({ onDone }: { onDone: (v: boolean) => void }) {
     <PopoverSurface width={320}>
       <div className="nc-mtg-nux" role="dialog" aria-label={t('lp.meetings.pick_how_to_let_others_know', 'Pick how to let others know')}>
         <h3>{t('lp.meetings.pick_how_to_let_others_know', 'Pick how to let others know')}</h3>
-        <p>{t('lp.meetings.litpage_can_announce_your_transcription', 'Litpage can announce your transcription with an audio message, or you can keep getting consent on your own. Choose what happens by default in every meeting:')}</p>
+        <p>{t('lp.meetings.litpage_can_announce_your_transcription', 'Workspace can announce your transcription with an audio message, or you can keep getting consent on your own. Choose what happens by default in every meeting:')}</p>
         <label><input type="radio" name="nc-mtg-consent" checked={auto} onChange={() => setAuto(true)} />{t('lp.meetings.play_audio_automatically', 'Play audio automatically')}</label>
         <label><input type="radio" name="nc-mtg-consent" checked={!auto} onChange={() => setAuto(false)} />{t('lp.meetings.ask_for_consent_myself', 'Ask for consent myself')}</label>
         <div className="foot">
           <button className="nc-mtg-start" onClick={() => {
             savePref('meeting_auto_consent', auto);
             useUI.getState().toast(auto
-              ? t('lp.meetings.litpage_plays_a_short_audio_message', 'Litpage plays a short audio message when each meeting starts.')
+              ? t('lp.meetings.litpage_plays_a_short_audio_message', 'Workspace plays a short audio message when each meeting starts.')
               : t('lp.meetings.you_ll_ask_for_consent_yourself', 'You’ll ask for consent yourself in every meeting.'));
             onDone(auto);
           }}>{t('lp.meetings.start_transcribing', 'Start transcribing')}</button>

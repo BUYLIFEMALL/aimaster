@@ -1,5 +1,5 @@
 // Starter template catalog (seeded once per server into the hidden template-gallery space).
-// Content is written for Litpage; categories cover work, life, and school.
+// Content is written for Workspace; categories cover work, life, and school.
 import type { RichText } from '#shared/richtext.ts';
 import type { DbSpec, Spec } from './spec.ts';
 import { dayOffset } from './spec.ts';
@@ -45,7 +45,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/gradient-2.svg',
     category: 'work',
     tags: ['Meetings', 'Docs'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     featured: true,
     build: () => ({
       type: 'collection_view_page',
@@ -77,7 +77,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/gradient-4.svg',
     category: 'work',
     tags: ['Projects', 'Product management'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     featured: true,
     build: () => ({
       type: 'collection_view_page',
@@ -110,7 +110,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/solid-blue.svg',
     category: 'life',
     tags: ['Personal', 'Productivity'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     featured: true,
     build: () => ({
       type: 'page',
@@ -141,7 +141,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/gradient-6.svg',
     category: 'life',
     tags: ['Personal', 'Planning'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     build: () => ({
       type: 'page',
       text: 'Weekly planner',
@@ -173,7 +173,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/texture-vintage-paper.svg',
     category: 'life',
     tags: ['Personal', 'Learning'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     featured: true,
     build: () => ({
       type: 'collection_view_page',
@@ -207,7 +207,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/gradient-1.svg',
     category: 'life',
     tags: ['Personal', 'Wellness'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     build: () => ({
       type: 'collection_view_page',
       icon: '📓',
@@ -237,7 +237,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/gradient-3.svg',
     category: 'life',
     tags: ['Travel', 'Planning'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     build: () => ({
       type: 'page',
       text: 'Travel planner',
@@ -267,7 +267,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/pattern-grid.svg',
     category: 'work',
     tags: ['Docs', 'Company wiki'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     featured: true,
     build: () => ({
       type: 'page',
@@ -294,7 +294,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/gradient-5.svg',
     category: 'work',
     tags: ['Product management', 'Projects'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     build: () => ({
       type: 'collection_view_page',
       icon: '🗺️',
@@ -326,7 +326,7 @@ export const TEMPLATES: TemplateDef[] = [
     cover: '/covers/pattern-dots.svg',
     category: 'life',
     tags: ['Health', 'Personal'],
-    creator: 'Litpage',
+    creator: 'Workspace',
     build: () => ({
       type: 'collection_view_page',
       icon: '🔁',

@@ -1,6 +1,6 @@
 // Published page (/public/<slug-id> or /public/<custom short link>): read-only page
 // without workspace chrome. The site's settings (Site customization) shape it: theme (light / dark / system), header
-// (breadcrumbs, search across the site's pages, share, navigation links, "Get Litpage for free"), share preview / SEO
+// (breadcrumbs, search across the site's pages, share, navigation links, "Get Workspace for free"), share preview / SEO
 // (<title>, description, og:* tags, robots noindex unless "Search engine indexing" is on), favicon and Google Analytics
 // (only on real hosts). "Duplicate" (Duplicate as template → visitor's Private pages; login first). `?embed=1` renders
 // just the page for iframes ("Embed this page"). Works signed out (public_permission grants read).
@@ -136,7 +136,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
   // <head>: title, description, social preview, robots, favicon
   const page = pageId ? records.get<BlockRecord>('block', pageId) : undefined;
   const root = site?.rootId ? records.get<BlockRecord>('block', site.rootId) : undefined;
-  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || 'Untitled') : 'Litpage';
+  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || 'Untitled') : 'Workspace';
   useEffect(() => {
     document.title = docTitle;
   });
@@ -180,7 +180,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
         <div className="nc-public-message">
           <div className="title">We couldn’t find this page</div>
           <div className="sub">The page may not be published, or the link may have expired.</div>
-          <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.page.open_litpage', 'Open Litpage')}</button>
+          <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.page.open_litpage', 'Open Workspace')}</button>
         </div>
       </div>
     );
@@ -278,7 +278,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
           </button>
         )}
         {status !== 'ready' && header?.signup !== false && (
-          <button className="nc-dialog-btn outline small" onClick={() => navigate('/login')}>{t('lp.page.get_litpage_for_free', 'Get Litpage for free')}</button>
+          <button className="nc-dialog-btn outline small" onClick={() => navigate('/login')}>{t('lp.page.get_litpage_for_free', 'Get Workspace for free')}</button>
         )}
       </div>
       <PageView pageId={pageId} state={state} inPeek publicView />

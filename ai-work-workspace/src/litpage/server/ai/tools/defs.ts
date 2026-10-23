@@ -42,7 +42,7 @@ const PROPERTY_DEFS: Json = {
       name: str('Property name.'),
       type: { type: 'string', enum: ['title', 'text', 'number', 'select', 'multi_select', 'status', 'date', 'person', 'checkbox', 'url', 'email', 'phone_number', 'files', 'created_time', 'last_edited_time', 'formula'] },
       options: { type: 'array', items: { type: 'string' }, maxItems: 50, description: 'Options for select / multi_select / status.' },
-      expression: str('Formula expression (Litpage formulas 2.0), e.g. prop("Points") * 2 or if(prop("Done"), "✅", "⏳").'),
+      expression: str('Formula expression (Workspace formulas 2.0), e.g. prop("Points") * 2 or if(prop("Done"), "✅", "⏳").'),
     },
     required: ['name', 'type'],
     additionalProperties: false,
@@ -96,7 +96,7 @@ export const TOOL_DEFS: ToolDef[] = [
   {
     name: 'search_workspace',
     access: 'read',
-    description: 'Search the pages in the user’s Litpage workspace that the user can access. Call it whenever the user asks about something that may be in their workspace (projects, notes, docs, databases) and it is not already in the conversation. Returns up to 8 matching pages, each with a source number, title, page id and a text snippet. Use short keyword queries (1-5 words); try another wording or language if nothing matches.',
+    description: 'Search the pages in the user’s Workspace workspace that the user can access. Call it whenever the user asks about something that may be in their workspace (projects, notes, docs, databases) and it is not already in the conversation. Returns up to 8 matching pages, each with a source number, title, page id and a text snippet. Use short keyword queries (1-5 words); try another wording or language if nothing matches.',
     input_schema: {
       type: 'object',
       properties: {
@@ -180,7 +180,7 @@ export const TOOL_DEFS: ToolDef[] = [
   {
     name: 'create_pages',
     access: 'write',
-    description: 'Create one or more pages, or rows of a database. Content is Litpage-flavored Markdown: headings, lists, to-dos ("- [ ] "), quotes, toggles ("<details><summary>…</summary>…</details>"), callouts, code blocks, tables, dividers, and page mentions as [Title](page_id).',
+    description: 'Create one or more pages, or rows of a database. Content is Workspace-flavored Markdown: headings, lists, to-dos ("- [ ] "), quotes, toggles ("<details><summary>…</summary>…</details>"), callouts, code blocks, tables, dividers, and page mentions as [Title](page_id).',
     input_schema: {
       type: 'object',
       properties: {
@@ -307,13 +307,13 @@ export const TOOL_DEFS: ToolDef[] = [
   {
     name: 'update_memory',
     access: 'write',
-    description: 'Remember something about the user for future chats by adding it to their instructions page (Settings → Litpage AI → Instructions). Use when the user says "remember…" or states a lasting preference.',
+    description: 'Remember something about the user for future chats by adding it to their instructions page (Settings → AIMaster → Instructions). Use when the user says "remember…" or states a lasting preference.',
     input_schema: { type: 'object', properties: { memory: str('What to remember, as one short sentence.') }, required: ['memory'], additionalProperties: false },
   },
   {
     name: 'create_skill',
     access: 'write',
-    description: 'Save a reusable skill for the user: a page with instructions Litpage AI follows when the skill is used ("/" in chat or automatically when relevant).',
+    description: 'Save a reusable skill for the user: a page with instructions AIMaster follows when the skill is used ("/" in chat or automatically when relevant).',
     input_schema: {
       type: 'object',
       properties: { title: str('Skill name.'), description: str('One sentence: when to use it.'), instructions: str('The skill’s instructions as Markdown.') },
@@ -325,7 +325,7 @@ export const TOOL_DEFS: ToolDef[] = [
     // SVG illustration made by Claude (ai/image.ts provider)
     name: 'generate_image',
     access: 'write',
-    description: 'Create an image (illustration, diagram, infographic, chart, slide, mockup, sketch, cartoon, comic, pattern) with Litpage AI image generation. Use when the user asks for an image or visual. Set use_current_page (or about_page_id) when it should depict a page. Set insert_into_page_id only when the user wants the image on a page. Show the result with the Markdown image the tool returns.',
+    description: 'Create an image (illustration, diagram, infographic, chart, slide, mockup, sketch, cartoon, comic, pattern) with AIMaster image generation. Use when the user asks for an image or visual. Set use_current_page (or about_page_id) when it should depict a page. Set insert_into_page_id only when the user wants the image on a page. Show the result with the Markdown image the tool returns.',
     input_schema: {
       type: 'object',
       properties: {

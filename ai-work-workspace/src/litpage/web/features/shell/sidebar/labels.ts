@@ -93,7 +93,7 @@ export function sectionLabel(type: SectionType): string {
     case 'ai_meeting_notes':
       return t('lp.shell.ai_meeting_notes', 'AI meeting notes');
     case 'lit_apps':
-      return t('lp.shell.litpage_apps', 'Litpage apps');
+      return t('lp.shell.litpage_apps', 'Workspace apps');
     case 'developer':
       return t('lp.shell.developer', 'Developer');
     case 'teamspace':

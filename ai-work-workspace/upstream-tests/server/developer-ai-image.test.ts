@@ -90,7 +90,7 @@ describe('SVG sanitizer', () => {
 });
 
 describe('availability', () => {
-  it('needs Business / Enterprise, the workspace switch, Litpage AI on and a key', async () => {
+  it('needs Business / Enterprise, the workspace switch, AIMaster on and a key', async () => {
     expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).toThrow(/Business and Enterprise/);
     const s = db.getRecord<any>('space', ids.space)!;
     db.putRecord('space', { ...s, plan_type: 'business' });
@@ -99,7 +99,7 @@ describe('availability', () => {
     db.putRecord('space', { ...db.getRecord<any>('space', ids.space)!, settings: { ...s.settings, ai_image_generation: false } });
     expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).toThrow(/turned off/);
     db.putRecord('space', { ...db.getRecord<any>('space', ids.space)!, settings: { ...s.settings, ai_enabled: false } });
-    expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).toThrow(/Turn on Litpage AI/);
+    expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).toThrow(/Turn on AIMaster/);
     db.putRecord('space', { ...db.getRecord<any>('space', ids.space)!, settings: { ...s.settings } });
   });
 });
@@ -113,7 +113,8 @@ describe('image block', () => {
     expect(seen[0].messages[0].content).toContain('<page>');
     const row = files.fileRow(r.file.id)!;
     expect(row.mime).toBe('image/svg+xml');
-    const stored = readFileSync(row.path, 'utf8');
+    // 이식판: 파일 내용은 DB(files.content)에 있다
+    const stored = files.readFileContent(row.id)!.toString('utf8');
     expect(stored).not.toContain('script');
     const b = db.getRecord<any>('block', ids.img)!;
     expect(b.properties.source[0][0]).toBe(r.file.url);
@@ -136,7 +137,7 @@ describe('image block', () => {
     const plain = newId();
     const now = Date.now();
     db.putRecord('block', { id: plain, version: 1, type: 'image', parent_id: ids.page, parent_table: 'block', space_id: ids.space, alive: true, created_time: now, created_by_id: ids.owner, properties: { source: [['https://example.com/a.png']] } } as any);
-    await expect(image.editBlockImage({ userId: ids.owner, blockId: plain, instruction: 'x', client: fake('') as any })).rejects.toThrow(/only available for images created with Litpage AI/);
+    await expect(image.editBlockImage({ userId: ids.owner, blockId: plain, instruction: 'x', client: fake('') as any })).rejects.toThrow(/only available for images created with AIMaster/);
   });
 
   it('daily limit', async () => {

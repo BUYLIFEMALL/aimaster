@@ -94,7 +94,7 @@ function withGaps(children: ReactNode, size: 'sm' | 'lg'): ReactNode {
   ));
 }
 
-/** plain: 17px section heading without divider (Litpage AI, Meeting notes, Mail & Calendar…); medium = 500 weight. */
+/** plain: 17px section heading without divider (AIMaster, Meeting notes, Mail & Calendar…); medium = 500 weight. */
 export function Group({ title, help, children, plain, medium, description }: { title?: ReactNode; help?: string; children?: ReactNode; plain?: boolean; medium?: boolean; description?: ReactNode }) {
   return (
     <div className="nc-set-group">

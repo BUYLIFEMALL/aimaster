@@ -189,7 +189,7 @@ describe('prompt assembly', () => {
     expect((none.messages[0].content as any[])[0].text).toContain('did not find any pages');
   });
 
-  it('chat / qa: Settings → Litpage AI name and instructions follow the cached system prompt', () => {
+  it('chat / qa: Settings → AIMaster name and instructions follow the cached system prompt', () => {
     const persona = { name: 'Nori', instructions: '- Answer in Korean.\n- Use tables for comparisons.' };
     const req = buildChatRequest([{ role: 'user', text: 'hi' }], persona);
     expect(req.system).toHaveLength(2);
@@ -202,7 +202,7 @@ describe('prompt assembly', () => {
     expect(qa.system[1].text).toContain('Be brief.\n[Instructions truncated.]');
     // no personalization → the frozen system prompt alone (identical bytes)
     expect(buildChatRequest([{ role: 'user', text: 'hi' }], null).system).toEqual(buildChatRequest([{ role: 'user', text: 'hi' }]).system);
-    expect(personaSystemText({ name: 'Litpage AI' })).toBeNull();
+    expect(personaSystemText({ name: 'AIMaster' })).toBeNull();
     expect(personaSystemText({ name: '  ', instructions: '  ' })).toBeNull();
     expect(cleanPersonaName('  "Sam"\n<b>  ')).toBe('Sam b');
     expect(cleanPersonaName('x'.repeat(80))).toHaveLength(40);

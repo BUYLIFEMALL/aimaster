@@ -247,7 +247,7 @@ export const RichTextEditable = forwardRef<LeafApi, RichTextEditableProps>(funct
       onKeyDown={(e: ReactKeyboardEvent<HTMLElement>) => {
         if (e.nativeEvent.isComposing || composing.current) return;
         propsRef.current.onKeyDown?.(e, apiRef.current);
-        // every leaf, including page titles, table cells, and comments, gets Litpage undo/redo; the browser’s native
+        // every leaf, including page titles, table cells, and comments, gets Workspace undo/redo; the browser’s native
         // contenteditable history is disabled in beforeinput
         if (!e.defaultPrevented && (e.metaKey || e.ctrlKey) && !e.altKey) {
           const k = e.key.toLowerCase();

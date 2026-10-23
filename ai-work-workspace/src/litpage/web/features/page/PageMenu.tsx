@@ -214,7 +214,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     sections: [{ items: [
       // registers the page as a skill (features/ai handles nc:ask-ai action 'use-as-skill' and reports the result)
       item('Use as an AI skill', 'aiFace', { onSelect: () => { window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId, action: 'use-as-skill' } })); } }),
-      item('Use as agent guidance', 'page', { onSelect: () => aiAction(pageId, 'use-as-agent-instructions', 'Set as Litpage Agent instructions') }),
+      item('Use as agent guidance', 'page', { onSelect: () => aiAction(pageId, 'use-as-agent-instructions', 'Set as Workspace Agent instructions') }),
       // marks the page as AI meeting instructions + adds it to the person's Instructions menu (features/meetings)
       item('Use for AI meeting guidance', 'paperMicrophone', { onSelect: () => void markAsMeetingInstructions(pageId) }),
     ] }],

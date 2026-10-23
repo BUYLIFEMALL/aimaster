@@ -81,10 +81,10 @@ function navGroups(): { title: string; items: NavItem[] }[] {
     {
       title: t('lp.settings.features', 'Features'),
       items: [
-        { key: 'lit-ai', label: t('lp.settings.litpage_ai', 'Litpage AI'), icon: 'aiFace', keywords: ['ai', 'personalize', 'instructions', 'connectors', 'skills'] },
+        { key: 'lit-ai', label: t('lp.settings.litpage_ai', 'AIMaster'), icon: 'aiFace', keywords: ['ai', 'personalize', 'instructions', 'connectors', 'skills'] },
         { key: 'meeting-notes', label: t('lp.settings.meeting_notes', 'Meeting notes'), icon: 'paperMicrophone', badge: t('lp.settings.new', 'New'), keywords: ['transcript', 'consent', 'audio', 'meeting'] },
         { key: 'connections', label: t('lp.settings.connections', 'Connections'), icon: 'squareGrid2X2', keywords: ['slack', 'google', 'github', 'jira', 'integrations'] },
-        { key: 'lit-mcp', label: t('lp.settings.litpage_mcp', 'Litpage MCP'), icon: 'integration', keywords: ['mcp', 'chatgpt', 'claude', 'cursor'] },
+        { key: 'lit-mcp', label: t('lp.settings.litpage_mcp', 'Workspace MCP'), icon: 'integration', keywords: ['mcp', 'chatgpt', 'claude', 'cursor'] },
         { key: 'verified-pages', label: t('lp.settings.verified_pages', 'Verified pages'), icon: 'badgeCheck', keywords: ['verify'] },
         { key: 'public-pages', label: t('lp.settings.public_pages', 'Public pages'), icon: 'globe', keywords: ['sites', 'forms', 'domains', 'publish'] },
         { key: 'emoji', label: t('lp.settings.emoji', 'Emoji'), icon: 'emojiFace', keywords: ['custom emoji'] },

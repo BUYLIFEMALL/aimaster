@@ -116,7 +116,7 @@ function FeedbackForm({ rating, payload, close }: { rating: 'positive' | 'negati
       <div className="nc-fx-ai-feedback" role="dialog" aria-label="Feedback">
         <div className="nc-fx-ai-feedback-title">{rating === 'positive' ? 'What worked well here?' : 'What should we improve here?'}</div>
         <textarea autoFocus placeholder="Send feedback" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
-        <div className="nc-fx-ai-feedback-desc">Your notes help Litpage AI improve. We’ll share your prompt, formula, relevant table details, and comments.</div>
+        <div className="nc-fx-ai-feedback-desc">Your notes help AIMaster improve. We’ll share your prompt, formula, relevant table details, and comments.</div>
         <button
           className="nc-btn primary"
           disabled={busy}
@@ -152,7 +152,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
   const abortRef = useRef<AbortController | null>(null);
   const timers = useRef<number[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const unavailable = configured === false ? NO_KEY_MESSAGE : !enabled ? 'Litpage AI is turned off in this workspace.' : null;
+  const unavailable = configured === false ? NO_KEY_MESSAGE : !enabled ? 'AIMaster is turned off in this workspace.' : null;
 
   useEffect(() => () => {
     abortRef.current?.abort();
@@ -269,7 +269,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
           />
         )}
         {phase !== 'running' && (
-          <div role="button" aria-label="Ask Litpage AI" aria-disabled={!text.trim() || !!unavailable} className={`nc-fx-ai-send ${text.trim() && !unavailable ? 'ready' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={() => void submit()}>
+          <div role="button" aria-label="Ask AIMaster" aria-disabled={!text.trim() || !!unavailable} className={`nc-fx-ai-send ${text.trim() && !unavailable ? 'ready' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={() => void submit()}>
             <Icon name="arrowUp" size={14} strokeWidth={2.4} />
           </div>
         )}

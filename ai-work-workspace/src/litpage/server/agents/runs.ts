@@ -6,7 +6,7 @@
 // Background runs (triggers, schedules, Run, sub-agents) are queued: one at a time per agent, NC_AGENT_CONCURRENCY
 // (default 3) at once, NC_AGENT_RUNS_PER_HOUR (default 60) triggered runs per agent per hour — beyond that the agent
 // pauses ("run limit") and further runs wait until someone resumes it. Five failed triggered runs in a row pause it
-// too. Without a configured provider a run fails with "Connect an AI provider to use Litpage AI" (the Activity shows it).
+// too. Without a configured provider a run fails with "Connect an AI provider to use AIMaster" (the Activity shows it).
 import { newId } from '#shared/ids.ts';
 import type { NotificationRecord, SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import {
@@ -381,7 +381,7 @@ function preflight(agent: AgentRecord | undefined, run: RunRow): { status: RunSt
   if (!agentsAvailable(space)) return { status: 'failed', error: 'Upgrade to Business to use this agent', code: 'plan' };
   if (agent.status === 'disabled') return { status: 'failed', error: agent.paused_reason === 'disabled_by_admin' ? 'A workspace owner has paused this agent' : 'This agent is currently paused' };
   if (agent.status === 'paused' && run.kind !== 'chat' && run.kind !== 'sub_agent') return { status: 'failed', error: 'This agent is paused' };
-  if (!workspaceAiPolicy(agent.space_id).enabled) return { status: 'failed', error: 'Litpage AI is turned off in this workspace.' };
+  if (!workspaceAiPolicy(agent.space_id).enabled) return { status: 'failed', error: 'AIMaster is turned off in this workspace.' };
   if (!aiConfigured()) return { status: 'failed', error: NO_KEY_MESSAGE, code: 'no_key' };
   const orphan = orphanState(agent);
   if (orphan && Date.now() >= orphan.disableTime) return { status: 'failed', error: ORPHANED_MESSAGE, code: 'orphaned', pause: 'orphaned' };
@@ -424,7 +424,7 @@ export function prepareAgentChat(p: { userId: string; agentId: string; threadId?
   const role = agentRole(agent, p.userId);
   if (role === 'none') throw new AiError('forbidden', 'You don’t have permission to use this agent', 403);
   if (!agentsAvailable(getRecord<SpaceRecord>('space', agent.space_id))) throw new AiError('forbidden', 'Upgrade to Business to use this agent', 403);
-  if (!workspaceAiPolicy(agent.space_id).enabled) throw new AiError('forbidden', 'Litpage AI is turned off in this workspace.', 403);
+  if (!workspaceAiPolicy(agent.space_id).enabled) throw new AiError('forbidden', 'AIMaster is turned off in this workspace.', 403);
   if (!aiConfigured()) throw new AiError('no_key', NO_KEY_MESSAGE, 400);
   if (agent.status === 'disabled') throw new AiError('forbidden', 'Chat is unavailable while this agent is paused', 403);
   if (agent.status === 'paused' && agent.paused_reason === 'credit_limit') throw new AiError('forbidden', 'This custom agent has used its monthly allowance. Request more credits to continue.', 403);
@@ -705,7 +705,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   const data: MessageData = error
     ? { text: '', status: 'error', error: { code: error.code, message: error.message }, steps: stepList.length ? stepList : undefined, changed: changed || undefined, sources: [...sources.values()] } as MessageData
     : result!.refused
-      ? { text: '', status: 'refused', error: { code: 'refusal', message: 'Litpage AI can’t help with that request.' }, steps: stepList.length ? stepList : undefined } as MessageData
+      ? { text: '', status: 'refused', error: { code: 'refusal', message: 'AIMaster can’t help with that request.' }, steps: stepList.length ? stepList : undefined } as MessageData
       : { text, status: result!.aborted ? 'stopped' : 'complete', sources: [...sources.values()], model: result!.model, steps: stepList.length ? stepList : undefined, changed: changed || undefined } as MessageData;
   const message = addMessage(thread.id, 'assistant', data, turnId);
   if (opts.interactive) markRead(thread.id);
@@ -713,7 +713,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   const usage = result?.usage ?? { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const credits = creditsFor(usage);
   updateRun(run.id, {
-    status, error: error?.message ?? (result?.refused ? 'Litpage AI can’t help with that request.' : status === 'stopped' ? 'Stopped' : null), ended_time: Date.now(), model: result?.model ?? model,
+    status, error: error?.message ?? (result?.refused ? 'AIMaster can’t help with that request.' : status === 'stopped' ? 'Stopped' : null), ended_time: Date.now(), model: result?.model ?? model,
     input_tokens: usage.input + usage.cacheRead + usage.cacheWrite, output_tokens: usage.output, credits, tools: [...toolsUsed], changes: touched.length,
     result: (text || '').slice(0, 4000), review: ctx.review,
   });
@@ -731,7 +731,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   if (status === 'needs_review' && ctx.review) notifyOwners(fresh, 'review', `${ctx.review.label}. Open the agent’s Activity to allow or deny it.`, run.pageId);
   return {
     run: getRun(run.id)!, message, text, status, threadId: thread.id,
-    ...(error ? { error: { code: error.code, message: error.message } } : result?.refused ? { error: { code: 'refusal', message: 'Litpage AI can’t help with that request.' } } : {}),
+    ...(error ? { error: { code: error.code, message: error.message } } : result?.refused ? { error: { code: 'refusal', message: 'AIMaster can’t help with that request.' } } : {}),
   };
 }
 

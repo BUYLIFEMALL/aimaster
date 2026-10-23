@@ -97,7 +97,7 @@ function allowedForIp(ip: string | undefined): boolean {
 export interface CreatedSandbox { userId: string; spaceId: string; pageId: string; path: string; expires: number; token: string }
 
 /**
- * Create a sandbox: guest user (onboarding done), "Litpage Demo" workspace with the sample pages, a session that ends
+ * Create a sandbox: guest user (onboarding done), "Workspace Demo" workspace with the sample pages, a session that ends
  * with the sandbox. `replaceUserId`: the caller's current sandbox ("Start over"), deleted once the address limit allows a new one.
  */
 export function createSandbox(ip: string | undefined, replaceUserId?: string | null): CreatedSandbox {
@@ -119,7 +119,7 @@ export function createSandbox(ip: string | undefined, replaceUserId?: string | n
   db.prepare('INSERT INTO demo_sandboxes (user_id, space_id, created_time, expires) VALUES (?, ?, ?, ?)').run(userId, '', now, expires);
   const user = createUser(userId, email, `Guest ${randomInt(1000, 10000)}`);
   saveRecord('lit_user', { ...user, onboarding_completed: true });
-  const { space, spaceView } = createWorkspace(userId, 'Litpage Demo', '✨', {
+  const { space, spaceView } = createWorkspace(userId, 'Workspace Demo', '✨', {
     welcome: { title: 'Start here', icon: '👋', content: startHereContent(limits.sandboxHours) },
   });
   db.prepare('UPDATE demo_sandboxes SET space_id = ? WHERE user_id = ?').run(space.id, userId);

@@ -90,13 +90,13 @@ describe('GET /v1/comments (item 14)', () => {
 });
 
 describe('personal access tokens on /v1 (item 15)', () => {
-  it('follow "Allow Litpage MCP" and "Approved MCP clients only"', async () => {
+  it('follow "Allow Workspace MCP" and "Approved MCP clients only"', async () => {
     const pat = nmcp.createToken(ids.member, ids.space, 'scripts').token;
     expect((await api(pat, 'GET', '/users/me')).status).toBe(200);
     setSettings(ids.space, { lit_mcp_enabled: false });
     const off = await api(pat, 'GET', '/users/me');
     expect(off.status).toBe(403);
-    expect(off.json.message).toMatch(/Litpage MCP is turned off/);
+    expect(off.json.message).toMatch(/Workspace MCP is turned off/);
     setSettings(ids.space, { lit_mcp_enabled: true });
     // approved clients only: an unapproved (or unidentified) client's token stops; the owner's keeps working
     await initialize(pat, 'Cursor');
@@ -114,7 +114,7 @@ describe('personal access tokens on /v1 (item 15)', () => {
 });
 
 describe('workspace scope (item 16)', () => {
-  it('Litpage MCP tools only reach the token’s workspace', async () => {
+  it('Workspace MCP tools only reach the token’s workspace', async () => {
     const pat = nmcp.createToken(ids.member, ids.space, 'mcp').token;
     await initialize(pat, 'Claude');
     const fetched = await toolCall(pat, 'lit-fetch', { id: ids.otherPage });

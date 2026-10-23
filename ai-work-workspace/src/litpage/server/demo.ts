@@ -42,7 +42,7 @@ export function demoConfig(): { enabled: boolean; resetHours?: number; sandboxHo
   return { enabled: true, ...(hours ? { resetHours: hours } : {}), sandboxHours: demoLimits().sandboxHours, sharedAccount: demoSharedAccount() };
 }
 
-/** Only wipe a directory that clearly belongs to Litpage data. Keep the directory itself. */
+/** Only wipe a directory that clearly belongs to Workspace data. Keep the directory itself. */
 export function isSafeDemoDataDir(raw: string | undefined): boolean {
   if (!raw || raw.includes('\0')) return false;
   const dir = resolve(raw);
