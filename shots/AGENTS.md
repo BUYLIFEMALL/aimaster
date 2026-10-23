@@ -188,3 +188,9 @@
 ## 2026-10-23 v1.40 — 배경음악 모델 고르기 (Claude Code 윈도우)
 - 「음악 모델」: Suno V6·V6 Mini·V6 Wild(폴링) / Lyria 3.5·ElevenLabs(서버 액션 안에서 1곡 바로 저장, 60초 연주곡). `src/lib/bgmModels.ts`(목록), `src/lib/ai/music.ts` `generateSyncBackgroundMusic`, `src/lib/ai/musicCalls.ts` = 공용 `music-sync-calls` 사본(**직접 고치지 말 것**, 기준 `ai-music-studio/lib/providers/musicCalls.ts`). 키는 회원 본인 Gemini·ElevenLabs(`elevenlabs` 키 종류 추가). 스크립트 화면 `maxDuration = 300`.
 - 검수: 시험 4개·build, 배포 Ready·DB v1.40, 크롬 시험 회원 Lyria 62초·ElevenLabs 60초 생성·재생 확인. 비용: 빌드 1회, 약 $0.23(시험 회원 키).
+
+## 2026-10-23 v1.42 — Lyria·ElevenLabs 배경음악 실제 길이 표시 (Claude Code 윈도우, 음악 담당)
+- `src/lib/audioDuration.ts`(새 파일) `audioDurationSeconds` — MP3(Xing/Info 프레임 수, 없으면 고정 비트레이트)·WAV(fmt·data 청크) 머리글로 초 계산, 읽지 못하면 null(길이 숨김). `src/lib/ai/music.ts`가 Lyria·ElevenLabs 결과에 사용(예전엔 길이 null이라 곡 카드에 「OO초」가 없었음). 시험 `tests/audioDuration.test.mjs` 5개(전체 9개).
+- 함께 나간 것: 공용 `ai-video-providers` 선택값(`aspectRatio`·`startUrl` 생략), `ai-video-*` 기준 이전(`ai-video-studio/lib/video/`) 사본 — 동작 불변.
+- 검수: tsc·시험·build, 배포 `shots-4qfznzp6u` Ready, DB v1.42, 크롬 시험 회원 Lyria 3.5 1곡 → 카드 「66초」(재생 막대 1:05). 이미 저장된 예전 Lyria 곡은 길이가 없는 그대로(다시 계산하지 않음).
+- 비용: 빌드 1회, Gemini 약 $0.08(시험 회원 키).

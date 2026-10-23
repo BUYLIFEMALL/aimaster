@@ -1,6 +1,6 @@
 # 💡 58번 YOUTUBE Shorts 자동화 개선 및 발전 보고서 (IMPROVEMENTS.md)
 
-> **미배포 대기(2026-10-23, Claude Code 윈도우)**: Lyria·ElevenLabs로 만든 배경음악 트랙에 실제 길이(「OO초」) 표시 — MP3/WAV 머리글로 계산(`src/lib/audioDuration.ts`, 시험 5개), 커밋 `35bcd8a03`. 다음 쇼츠 배포 때 함께(버전 +0.01, Lyria 1곡 만들어 길이 표시 확인).
+> **✅ v1.42로 배포됨(2026-10-23, 크롬 Lyria 「66초」 확인) — 예전 미배포 대기(2026-10-23, Claude Code 윈도우)**: Lyria·ElevenLabs로 만든 배경음악 트랙에 실제 길이(「OO초」) 표시 — MP3/WAV 머리글로 계산(`src/lib/audioDuration.ts`, 시험 5개), 커밋 `35bcd8a03`. 다음 쇼츠 배포 때 함께(버전 +0.01, Lyria 1곡 만들어 길이 표시 확인).
 
 작업 일시: 2026-10-19  
 작업 버전: `v1.20`  
