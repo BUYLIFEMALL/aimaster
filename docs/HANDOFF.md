@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 시작 표시 재실행 차단·배포 점검 끝줄 「막힘」·일괄 작업 플랜 규칙 (세션 claude-win-lessons)
+- 한 일: ① `scripts/safe-commit.mjs`(`aa792213b`) — 이 세션의 기준 사본이 있고 작업 파일이 그 뒤 바뀌었으면 `--begin`을 거부(「이미 고친 파일입니다」 + 그대로 커밋할 명령), 정말 새로 뜰 때만 `--force-begin`. 커밋 뒤에는 기준 사본이 지워져 다음 작업은 그대로. 시험 1개 추가(safe-commit 13개·commit-paths 6개 통과) ② `scripts/deploy.mjs`(`add9eb184`) 점검 모드 맨 끝에 「⚠ 막힘: ○○ 세션의 줄 — 위 [2/3] 보낼 문안」 ③ `docs/guidelines/DEVELOPMENT.md` 3번 아래 「여러 폴더 일괄 작업 플랜에 작업 중 표 줄(세션 이름·범위 표기) 미리 적기」.
+- 검수: `deploy.mjs shots`(막힘 줄 나옴)·`music`(안 나옴) 점검 모드(배포 안 함), 시험 19개 통과.
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 작업 범위 표기·겹침 경고에 파일·배포 차단 시 보낼 문안 (세션 claude-win-lessons)
 - 한 일: ① `scripts/index-watch.mjs`(`aea3bb0dd`) 작업 중 표 폴더 칸 끝 `(범위: a·b/c)`(폴더 안 경로를 `·`로)가 있으면 그 경로를 고친 커밋만 겹침으로 봄, 겹침 경고에 바꾼 파일 1~2개 ② `docs/ACTIVE_WORK.md` 사용법 2에 범위 표기 규칙(선택, 자연어 「잠금 파일만」은 인식 안 함 → 폴더 전체) ③ `scripts/deploy.mjs`(`8db924763`·`ce260dce0`) 점검 단계 [2/3]에 막는 세션마다 「보낼 문안」(그대로 SendMessage로), 차단 시에는 물어볼 세션 이름.
 - 검수: 임시 저장소에서 범위 없음/범위 밖/범위 안 세 경우, `deploy.mjs shots`(막힘 → 문안)·`deploy.mjs music`(줄 없음) 점검 모드 실행(배포 안 함), 시험 18개 통과.
