@@ -7,13 +7,14 @@ import { useSearchParams } from "next/navigation";
 import { Player } from "@remotion/player";
 import { renderMediaOnWeb } from "@remotion/web-renderer";
 import { ArrowDown, ArrowUp, Download, Film, FolderOpen, GripVertical, ImagePlus, Layers, Loader2, Mic, Music, Save, Trash2, Upload } from "lucide-react";
+import { TrimBar } from "./TrimBar";
 import { EditComposition } from "@/components/edit/Composition";
 import { probeClip, readDuration, reencodeSoftware } from "@/components/edit/probe";
 import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
 import {
-  CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, clipSeconds, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
+  CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
   type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
 } from "@/lib/edit/timeline";
 
@@ -496,9 +497,6 @@ export function EditStudio() {
         ) : (
           <ol className="space-y-2">
             {project.clips.map((c, i) => {
-              const keep = clipSeconds(c);
-              const left = c.duration > 0 ? (Math.min(c.trimStart, c.duration) / c.duration) * 100 : 0;
-              const width = c.duration > 0 ? (keep / c.duration) * 100 : 100;
               const over = voiceOverflow(c);
               return (
                 <li key={c.id} draggable={!isBusy}
@@ -516,10 +514,8 @@ export function EditStudio() {
                     <button type="button" aria-label="뒤로" disabled={isBusy || i === project.clips.length - 1} onClick={() => moveClip(c.id, i + 1)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 disabled:opacity-30"><ArrowDown className="h-4 w-4" /></button>
                     <button type="button" aria-label="빼기" disabled={isBusy} onClick={() => removeClip(c.id)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-30"><Trash2 className="h-4 w-4" /></button>
                   </div>
-                  {/* 자르기 구간 그림: 색칠된 부분이 남는 구간 */}
-                  <div className="relative h-2 overflow-hidden rounded-full bg-zinc-800" title={`남는 구간 ${sec(keep)}`}>
-                    <div className="absolute inset-y-0 rounded-full bg-sky-500/70" style={{ left: `${left}%`, width: `${width}%` }} />
-                  </div>
+                  {/* 자르기 막대: 색칠된 부분이 남는 구간 — 양 끝 손잡이를 끌어서 조절(v1.09) */}
+                  <TrimBar duration={c.duration} trimStart={c.trimStart} trimEnd={c.trimEnd} disabled={isBusy} onChange={(next) => patchClip(c.id, next)} />
                   <div className="grid gap-2 sm:grid-cols-[auto_auto_1fr]">
                     <label className="flex items-center gap-1.5 text-[11px] text-zinc-400">앞 자르기
                       <input type="number" min={0} step={0.1} value={c.trimStart} disabled={isBusy} onChange={(e) => patchClip(c.id, { trimStart: Math.max(0, Number(e.target.value) || 0) })}
