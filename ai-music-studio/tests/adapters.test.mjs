@@ -184,3 +184,12 @@ test("Mureka: 상태 해석 — 진행 중 / 완료(choices[].url) / 실패", as
   assert.equal(failed.state, "failed");
   assert.match(failed.error, /timeouted/);
 });
+
+test("Stable Audio 3(fal): 대기열 주소와 duration·mp3 입력", async () => {
+  const calls = mockFetch(() => json({ request_id: "r1", status_url: "https://queue.fal.run/x/status", response_url: "https://queue.fal.run/x" }));
+  const m = findModel("fal:fal-ai/stable-audio-3/medium/text-to-audio");
+  assert.ok(m && !m.vocals && m.maxDurationS === 380);
+  await falAdapter.start(m, { ...input, instrumental: true, durationS: 200 }, "FK");
+  assert.match(calls[0].url, /^https:\/\/queue\.fal\.run\/fal-ai\/stable-audio-3\/medium\/text-to-audio\?fal_webhook=/);
+  assert.deepEqual(calls[0].body, { prompt: "잔잔한 피아노 발라드", duration: 200, output_format: "mp3" });
+});

@@ -22,6 +22,9 @@ function inputFor(model: MusicModel, input: GenerationInput): Record<string, unk
     }
     case "fal-ai/ace-step":
       return { tags: input.prompt.trim().slice(0, 1000), lyrics: input.instrumental ? "[inst]" : lyrics.slice(0, 4000), duration: input.durationS };
+    case "fal-ai/stable-audio-3/medium/text-to-audio":
+      // 2026-10-23 fal API 문서: prompt·negative_prompt·duration(초, 최대 380)·output_format(mp3 기본)
+      return { prompt: input.prompt.trim().slice(0, 2000), duration: input.durationS, output_format: "mp3" };
     case "fal-ai/stable-audio-25/text-to-audio":
       return { prompt: input.prompt.trim().slice(0, 2000), seconds_total: input.durationS };
     default:
