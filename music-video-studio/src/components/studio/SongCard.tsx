@@ -19,6 +19,9 @@ const mmss = (s: number | null | undefined) => (s ? `${Math.floor(s / 60)}:${Str
 export function SongCard() {
   const { project, update } = useStudio();
   const song = project.song;
+  // 주소로 들어온 곡을 비동기로 넣을 때도 「지금 가사」를 정확히 비교하려고 최신 프로젝트를 기억해 둔다
+  const latest = useRef(project);
+  latest.current = project;
   const [src, setSrc] = useState<string | null>(null);
   const [srcNote, setSrcNote] = useState("");
   const [list, setList] = useState<AmsSongItem[] | null>(null);
@@ -79,7 +82,8 @@ export function SongCard() {
   };
 
   const pick = (s: AmsSongItem) => {
-    const willReplace = !!s.lyrics && !!project.lyrics.trim() && s.lyrics !== project.lyrics;
+    const current = latest.current;
+    const willReplace = !!s.lyrics && !!current.lyrics.trim() && s.lyrics !== current.lyrics;
     if (willReplace && !window.confirm("지금 가사와 만들어 둔 스토리보드가 이 곡의 가사로 바뀝니다. 가져올까요?")) return;
     setObjectUrl(null);
     setSong({ source: "ams", title: s.title, ref: s.ref, durationS: s.durationS, model: s.model }, { title: s.title.replace(/ \(\d+\)$/, ""), style: s.style, lyrics: s.lyrics });
@@ -107,6 +111,27 @@ export function SongCard() {
     setObjectUrl(null);
     setSong(null);
   };
+
+  // v1.14 AI 음악 스튜디오 곡 카드 링크(/music?ams=<생성 번호>:<곡 순서>)로 들어오면 그 곡을 바로 가져온다(한 번만, 주소에서 값 지움)
+  const linked = useRef(false);
+  useEffect(() => {
+    if (linked.current) return;
+    linked.current = true;
+    const ref = new URLSearchParams(window.location.search).get("ams");
+    if (!ref || !/^[0-9a-f-]{36}:\d{1,2}$/i.test(ref)) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    setBusy("list"); setError("");
+    fetch("/api/music/ams", { cache: "no-store" })
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) throw new Error(d.error || "곡 목록을 불러오지 못했습니다.");
+        const s = (d.songs as AmsSongItem[]).find((x) => x.ref === ref);
+        if (!s) throw new Error("보낸 곡을 찾지 못했습니다. 내 곡이 아니거나 AI 음악 스튜디오 보관 기간(30일)이 지났을 수 있습니다.");
+        pick(s);
+      })
+      .catch((e) => setError((e as Error).message))
+      .finally(() => setBusy(""));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sceneTotal = project.sceneCount * project.video.length;
 
