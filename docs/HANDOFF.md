@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 ✅ Claude Code(윈도우) · 영상 작업 담당 `claude-win-avs-c12` — 뮤직비디오 v1.18 장면을 가사 시각에 맞추기(C2)
+- 곡 가사가 AI 음악 스튜디오 Lyria 시간 가사(「[0.0:3.7] 가사」)면 장면 가사의 첫 줄이 나오는 시각에 장면을 바꾸고, 못 맞추면 곡 길이를 고르게 나눔. 화면에 「가사 시각에 맞춤 / 고르게 나눔」 표시. 공용 `ams-timed-lyrics` 사본을 뮤직비디오에 추가(`check-shared-modules.mjs` 등록). 커밋 `c67256045`, 시험 20개 통과.
+- 검수(운영, 메인 크롬, 시험 계정): 배포 `music-video-studio-3tmbxxbny` Ready·화면/DB v1.18. 시험 계정에 시간 가사 곡이 없어 프로젝트 가사를 잠시 시간 가사 형식으로 바꿔 확인한 뒤 되돌림 → 장면 이미지 2장 생성, 64.4초 렌더에서 장면 전환 24초(후렴 시작) 확인, 자막에 「[Chorus]」 없음. 한계: 실제 Lyria 시간 가사 곡으로는 아직 확인 전.
+- 상세: [`music-video-studio/AGENTS.md`](../music-video-studio/AGENTS.md) v1.18 · https://music-video-studio.buylife.xyz
+- 다음: 같은 세션이 ② AI 영상 스튜디오 장면 자동 늘리기·크로스페이드(빌드 1회) → ③ 소리 켜기·글만으로 영상(비용 사전 승인) 순서로 진행.
+- 비용: Vercel 빌드 1회, 시험 계정 Gemini 장면 이미지 2장(약 $0.08), 모두 승인 범위 안.
 ## 2026-10-23 Claude Code(윈도우) · 블로그 전담 `claude-win-20261023-seo-bg` — 다른 세션으로 이어받기 인수인계
 - **읽을 문서: [`docs/HANDOFF_20261023_BLOG_SESSION.md`](HANDOFF_20261023_BLOG_SESSION.md)** — 오늘 끝낸 일(블로그 6곳 배포·인계 ①~④, 비공개 발행 https://blog.naver.com/buylifemall/224451486747 기록), 남은 일 순서, 주인님 결정 대기, 규칙 요약.
 - **다음 첫 단계**: ① 티스토리 분량 (나) 플랜(`tistory-auto-blog/docs/PLAN_20261023_LENGTH_PROMPT.md`) 주인님 「진행해」 받기 → 구현·GPT-4.1 1회 확인(약 60원) ② 에이전트 「준비 모드 직접 발행 결과 미기록」 개발 플랜 보고 ③ 에이전트 v2.15 배포(**미배포 대기**: 팝업 480px·버튼 한 줄 `2666fc309`, 빌드 1회 승인 필요) ④ BLC-14.
