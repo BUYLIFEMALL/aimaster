@@ -38,6 +38,12 @@
 | IDEA-AWW-02 | `ai-task-planner` 할 일 ↔ 업무 보드 주고받기 | 같은 할 일이 두 곳에 보이도록 상태 색 통일 | — (단순 연동) | 중간 / 두 프로그램 모두 운영 중 / 중간 | 검토 대기 |
 | IDEA-AWW-03 | 동기 DB 다리(`pg/bridge.ts`)를 SQLite 기반 오픈소스 이식용 레퍼런스 모듈 후보로 등록 | — | — | 높음(원본 시험 522개 통과) / 같은 방식 이식 때 / 개발 편의 | 검토 대기 |
 
+## 2026-10-24 로컬 렌더러를 영상 프로그램에 (Claude Code 윈도우, 영상 담당 `claude-win-video`, 주인님 지시) — [분석](../ai-video-studio/docs/ANALYSIS_20261024_LOCAL_RENDERER_FOR_VIDEO.md)
+
+| ID | 개발·유지보수 | 디자인 | 신규 자동화 시스템 | 안정성 / 현재 적용 / 편의 | 처리 |
+|---|---|---|---|---|---|
+| IDEA-VIDEO-LOCAL-01 | video-to-gif 「⚡ 내 PC 고속 변환」 렌더러에 영상 명령 추가: ① `loop`(무한 루프 영상, ffprobe로 소리 확인) ② `normalize`(AI 영상 스튜디오 합치기 넣는 영상 H.264 맞춤 — R1 대책 대체) ③ `scale`(1080p 키우기) ④ `compress`. 웹 `lib/localRenderer.ts` 공용 기준 등록, `pong.capabilities` | 「⚡ 내 PC로 빠르게」 선택 칸 + 설치 안내(없으면 지금처럼) | 아님(LR-02 확장) — 다만 AIMaster 영상 프로그램 공통 「무료 PC 렌더」 기반이 됨 | 안정성: 렌더러는 윈도우·맥 실검수됨(v1.21), 명령 추가는 미검증 / 적용: 무한 루프는 같은 ffmpeg 명령이라 바로, 합치기는 앞처리만 / 편의: 설치 필요(선택) | **검토 대기** — 먼저 무한 루프 브라우저 소리 버그 수정, 그 뒤 ① `loop`(렌더러 명령은 이커머스 세션과 역할 나눔) |
+
 ## 2026-10-24 AI 영상 스튜디오 v1.10·v1.11 연계 후보 (Claude Code 윈도우, 영상 담당 `claude-win-video`) — [플랜](../ai-video-studio/docs/PLAN_20261024_REUSE_FILTER.md)
 
 | ID | 개발·유지보수 | 디자인 | 신규 자동화 시스템 | 안정성 / 현재 적용 / 편의 | 처리 |
