@@ -26,13 +26,10 @@
 | `trending-product-finder` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `real_estate_sales` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `music-video-studio` (운영 v1.16) | 최종 뮤직비디오 가사 자막에서 「[Verse 1]」 같은 구간 표시 빼기(`FinalRender.tsx`) | `1b8440ac7` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당) | `music-video-studio/AGENTS.md` v1.16 | 버전 +0.01 |
-| `cinematic-storyboard-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `cinematic-storyboard-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
-| `ai-prompt-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `ai-prompt-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `persona-style-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `persona-style-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `playlist-channel-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `playlist-channel-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `prompt-template-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `9c170faf5` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `prompt-template-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `detail-page-12p` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `detail-page-12p/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
-| `allinone-graphic` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `allinone-graphic/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `instagram-comment-reply` (운영 v1.36) | 설정 「다음 확인 예정」 시각 · 「실행 방식 바꾸기 ↓」 바로가기 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `instagram-comment-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 설정에서 다음 확인 예정·바로가기 확인 |
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `trending-product-finder` | 생성 데이터 30일 정리(`cleanup-generated`)가 지운 행의 user_id로 회원별 `cleanup_expired`(reports·snapshots·competition) 기록 — 공용 사본 | `af9b2719c` · `05902a01d` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
@@ -69,6 +66,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `cinematic-storyboard-studio`·`ai-prompt-studio`·`allinone-graphic` | 2026-10-23 Next.js 보안 업데이트 배포(`claude-win-20261023-next-security`)에 함께 나감 | 메인 사이트 링크 정정 `486fd5fd3` — 로그인 화면 스크립트에 `www.buylife.xyz`만 있고 옛 주소 없음, AI 프롬프트 스튜디오는 크롬에서 회원가입 링크 `/register` 확인 |
 | `ai-video-studio` | v1.06 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `ai-video-studio-6hf0ame5b`) | 내레이션 덕킹(새 기능) · 기준 코드 보강 `208c80842` |
 | `naver-blog-seo-studio` | v2.13 · 2026-10-23 | 원고 생성 모델 기록 `07e08257e` · 30일 정리 회원별 기록 `6cd2b9783` |
 | `naver-blog-agent` | v2.14 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
