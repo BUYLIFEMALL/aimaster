@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — AI 음악 스튜디오 v1.10: Lyria RealTime(실험) 서버 녹음
+- 주인님 선택 「가」: 서버가 회원 Gemini 키로 웹소켓(`BidiGenerateMusic`, v1beta→거절 시 v1alpha) 연결 → 설명·PLAY → 정한 길이(10~120초)만큼 16비트 PCM을 모아 WAV로 저장(키는 서버에서만). `lib/providers/lyriaRealtime.ts`, `adapters/gemini.ts` 분기, 모델 `gemini:lyria-realtime-exp`(연주곡, 비용 추정 30초당 $0.04). 근거: 공식 문서 + 구글 공식 JS 라이브러리 원본.
+- 검수: 가짜 웹소켓 시험 4개 포함 33개·build, 커밋 `8386be97f`, 배포 `ai-music-studio-67tdocyrr` Ready, DB v1.10. 크롬 시험 회원: 30초 요청 → 약 33초 만에 완료, WAV 48kHz 스테레오 5.49MB·30초 재생.
+- 비용: Vercel 빌드 1회, Lyria RealTime 1회(실험 모델, 요금 미공개 — Google AI Studio 사용량에서 확인 필요). 프로그램 링크:
+https://ai-music-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, claude-win-avs-v105 · 영상 작업 담당) — 영상 합치기 공용화 + 뮤직비디오 「최종 뮤직비디오 만들기」 v1.15~v1.16
 
 - **공용 기준 코드 등록**: `video-edit-timeline`·`video-edit-voice`·`video-edit-composition`(기준 `ai-video-studio`, 사본 `music-video-studio/src/lib/edit/`·`src/components/edit/`, `check-shared-modules.mjs` 일치). 기준 보강: 사진 장면(느린 확대)·영상 반복·`splitEvenly`·프로그램별 최대 길이(시험 21, 시험 앱 실제 렌더로 확인) — AI 영상 스튜디오 동작 변화 없음(미배포 대기 `208c80842`).
