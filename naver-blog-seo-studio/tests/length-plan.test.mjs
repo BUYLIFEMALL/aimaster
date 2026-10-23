@@ -32,3 +32,9 @@ test("section prompts use the chosen size; without size they keep the old wordin
   assert.match(sectionPrompt({ ...args, index: 1, size: LENGTH_PLANS.short }).user, /300~400자/);
   assert.match(sectionPrompt({ ...args, index: 0, size: LENGTH_PLANS.long }).user, /350~500자/);
 });
+
+test("paragraph rules: normal keeps the old wording; long fixes 4 paragraphs per heading", () => {
+  assert.equal(LENGTH_PLANS.normal.paragraphs, "2개 이상의 문단을 두고, 각 문단은 3~5문장으로");
+  assert.deepEqual([LENGTH_PLANS.normal.keepParagraphs, LENGTH_PLANS.normal.expandAdd], ["2개 이상", "1~2개"]);
+  assert.match(LENGTH_PLANS.long.paragraphs, /문단 4개/); assert.equal(LENGTH_PLANS.long.expandAdd, "2~3개");
+});

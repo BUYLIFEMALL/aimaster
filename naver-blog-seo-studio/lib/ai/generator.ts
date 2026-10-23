@@ -97,7 +97,7 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
 검색 의도를 먼저 추론하고, 독자가 실제로 도움을 얻는 자연스러운 초안을 작성하세요. 제목은 25~40자 안팎으로 핵심 키워드를 한 번만 넣습니다. 본문은 다음 규칙을 반드시 지킵니다.
 1. 첫 문단은 검색 의도에 바로 답하는 3~4문장 요약입니다.
 2. ${headingRule(plan)}, 소제목 앞뒤에는 빈 줄을 둡니다. 마크다운 기호(#, *, -, ##)와 HTML은 사용하지 않습니다. 소제목은 자연스러운 질문형 또는 판단 기준형 문장으로 씁니다.
-3. 전체 본문은 공백·줄바꿈을 제외하고 반드시 ${bodyRangeText(plan)}입니다. 각 소제목 아래에는 2개 이상의 문단을 두고, 각 문단은 3~5문장으로 충분히 구체적으로 설명합니다. 짧은 요약문으로 끝내지 마세요.
+3. 전체 본문은 공백·줄바꿈을 제외하고 반드시 ${bodyRangeText(plan)}입니다. 각 소제목 아래에는 ${plan.paragraphs} 충분히 구체적으로 설명합니다. 짧은 요약문으로 끝내지 마세요.
 4. 독자가 실제로 실행할 수 있도록 업무 흐름, 선택 기준, 흔한 실수, 점검 방법을 포함합니다. 주제에 맞는 경우에만 최소 2개의 목록형 문단(• 기호)을 사용합니다. 확인되지 않은 실제 기업명·수치·경험담은 만들지 않습니다.
 5. 핵심 키워드는 제목과 도입부, 관련 소제목에 자연스럽게 반영하며 억지 반복·키워드 나열·해시태그는 금지합니다.
 6. 확인되지 않은 수치, 출처, 체험담을 만들지 말고 필요한 곳은 [확인 필요]라고 표시합니다. AI 탐지 회피를 약속하거나 자동 발행을 유도하지 않습니다.
@@ -115,8 +115,8 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
   for (let attempt = 0; attempt < 2 && compactLength < plan.min; attempt += 1) {
     const shortage = plan.expandTo - compactLength;
     const expanded = await requestDraftJson(params.apiKey, params.provider, model, [
-      { role: "system", content: `당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 ${bodyRangeText(plan)}의 자연스러운 완성형 본문으로 확장하고, ${plan.headings}개 소제목과 각 소제목 아래 2개 이상의 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}` },
-      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}${groundingSection(params.grounding)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 ${expandTargetText(plan)} 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 1~2개씩 더합니다.` },
+      { role: "system", content: `당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 ${bodyRangeText(plan)}의 자연스러운 완성형 본문으로 확장하고, ${plan.headings}개 소제목과 각 소제목 아래 ${plan.keepParagraphs} 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}` },
+      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}${groundingSection(params.grounding)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 ${expandTargetText(plan)} 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 ${plan.expandAdd}씩 더합니다.` },
     ]);
     if (!expanded.body) throw new Error("AI가 보강 본문을 반환하지 않았습니다.");
     const expandedBody = normalizeBlogText(expanded.body);

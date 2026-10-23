@@ -238,3 +238,8 @@
 - 바꾼 것: 새 `lib/lengthPlan.ts` · `lib/ai/generator.ts` · `lib/ai/sectionPrompt.ts`(`size` 인자) · `lib/sections.ts`(상한 9) · `app/api/drafts/generate`·`app/api/outlines`·`app/api/outlines/[id]/section`(`length` 받기) · `components/studio/useStudio.ts`·`TitleView.tsx`·`SectionWriter.tsx`·`shared.ts`(분량 결과 이름표) · 새 시험 `tests/length-plan.test.mjs`(3).
 - 검수: tsc, 시험 15종 통과. 실제 2회(시험 계정 본인 OpenAI 키, gpt-4o-mini, 저장 안 함, 주제 「초보자를 위한 가을 캠핑 준비물」): 짧게 1,338자 ✅(19초) / **길게 3,086자 — 보강 2회 뒤에도 하한 3,800 미달**(53초, 권장 분량 안내는 정상).
 - **남은 과제:** 저가 모델의 「길게」 미달 — 지금은 상위 모델 권장 안내만. 개선 후보: 소제목별 문단 수 지정(티스토리 v1.92 대기분 방식)·보강 목표 상향 — 추가 실측 비용이 들어 주인님 결정 대기.
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기: 「길게」 분량 보강 (B-3 후속, 주인님 승인)
+- 「길게」만 소제목마다 문단 수를 정함: 한 번에 쓰기 「반드시 문단 4개(3개 이하 금지), 문단마다 4~5문장」, 보강 때 문단 4개 유지·소제목마다 2~3개 추가(`lib/lengthPlan.ts` `paragraphs`·`keepParagraphs`·`expandAdd`, `lib/ai/generator.ts`). 짧게·보통 지시문은 글자 하나 바뀌지 않음(시험으로 고정).
+- 실측 2회(시험 계정 본인 OpenAI 키, gpt-4o-mini, 저장 안 함, 같은 주제): **3,318자·3,229자**(보강 전 3,086자 대비 +5~7%) — 여전히 하한 3,800 미달. gpt-4o-mini는 지시를 바꿔도 3,200~3,300자대에서 글을 끝낸다.
+- 판단 대기: ① 상위 모델(GPT-4o 등)로 1회 확인해 「상위 모델 권장」 안내가 맞는지 검증 ② 「길게」 목표를 저가 모델 실측에 맞춰 낮출지 ③ 지금처럼 안내만 둘지.
