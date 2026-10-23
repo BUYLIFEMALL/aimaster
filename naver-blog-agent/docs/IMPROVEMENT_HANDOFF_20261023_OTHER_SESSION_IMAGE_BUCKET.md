@@ -36,3 +36,13 @@
 
 관련 기록: `docs/IMPROVEMENTS.md` 맨 아래 2026-10-23 항목들, 루트 `docs/HANDOFF.md` 2026-10-23 항목, 루트 `docs/ERROR_LESSONS.md` 「공용 버킷 비공개 전환」 항목.
 링크: https://naver-blog-agent.buylife.xyz
+
+## 인수 결과 (2026-10-23, 블로그 전담 Claude Code 윈도우 `claude-win-20261023-seo-bg` — 주인님 지정 「블로그 전담 작업자」)
+- **① 검수 지문(읽기 확인):** `postReviewSnapshot`·`postSaveRevision` 모두 `content`·`images`를 넣어 계산 → 주소만 바뀌어도 지문이 달라짐. 운영 `nba_posts` 미발행 27건 중 이관 23건, 검수 기록 19건을 실제 계산으로 대조:
+  - 발행 준비 5 + 실패 5 = **10건(사람 확인 CONFIRMED)은 이관 때문에 STALE** — 주소를 옛 버킷으로 되돌려 계산하면 저장된 지문과 정확히 일치(이관 외 변경 없음 증명). 10건 모두 시험 회원 `buylifemall@naver.com` 글(일반 회원·관리자 0).
+  - 초안 9건(AI PASS 6·WARN 3)은 옛 주소로 계산해도 불일치 — 이관 전에 이미 검수 뒤 고친 글(이관과 무관, 그대로 둠).
+  - 저장 번호(`postSaveRevision`)는 저장하지 않고 매번 계산하므로, 영향은 이관 순간 열려 있던 편집 창의 저장 충돌뿐(일시적).
+  - **처리 제안(주인님 승인 대기):** 10건만 `research_summary.review.fingerprint`를 새 주소 기준 값으로 바꿈 — 조건: 소유자+id+「옛 주소 지문 = 저장된 지문」(이관 외 변경 없는 행만), 기대 10행. 검수 상태·확인자·시각은 그대로.
+- **② BLC 충돌:** 진행 중인 BLC 작업 없음(BLC-07 v2.09 완료), `naver-blog-agent` 미커밋 변경 없음 → `cron/cleanup` 충돌 없음.
+- **③ 배포 키트:** `naver-blog-agent/KIT/` 없음 → 해당 없음.
+- **④ 발행 준비 5건 실제 이미지 입력:** 다음 실제 발행 검수 때 확인(①을 처리해야 발행 가능).
