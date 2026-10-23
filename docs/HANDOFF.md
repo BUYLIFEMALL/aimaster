@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 시작 점검 누락 알림·세션 점검 한 줄 요약·맥미니 플레이북 (세션 claude-win-lessons)
+- 한 일(`41d4ca334`): `scripts/index-watch.mjs` ① 기록 줄에 `cli=claude|codex|agy`(환경변수 추정 — `CLAUDECODE`, `CODEX_*`, `ANTIGRAVITY*|AGY*|GEMINI_CLI*`) ② 세션 점검에 「⚠ [시작 점검 누락]」 — 16:30 이후·24시간 안에 커밋·기록은 있는데 `session-check`/`claude-session-start` 기록이 없는 장비·CLI ③ ⚠가 없으면 블랙박스 출력을 「[공용 스테이징] 이상 없음 — …」 한 줄로(⚠가 있으면 전체). `docs/MAC_MINI_AGENT_PLAYBOOK.md`에 「매 작업 시작 점검」 한 줄.
+- 검수: 임시 저장소에서 이상 없음 한 줄·맥미니 Codex 누락 감지·점검 뒤 해제 확인, 기존 시험 16개 통과. 실제 저장소는 오늘 14:00 축소 이력(24시간 안)으로 전체 출력이 정상.
+- 주의: Codex·agy의 환경변수 이름은 추정이라 실제 기록 줄에 `cli=`가 안 붙을 수 있음 — 다음에 그 CLI 기록을 보고 맞추기(안 붙으면 장비 단위로만 판단).
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 잠금 증거 파일 크기 제한·짧은 경로·Codex/agy 시작 점검 지침 (세션 claude-win-lessons)
 - 한 일: `scripts/index-watch.mjs`(`72551b09a`) ① `.git/aimaster-lock-evidence.txt` 잠금 기록이 100건을 넘으면 최근 50건만 남김 ② 경고 문장의 경로를 저장소 기준(`.git/…`)으로 짧게. 루트 `AGENTS.md`·`GEMINI.md` 맨 위 저장소 안전 규칙에 ⑥ 「작업 시작 때 `node scripts/index-watch.mjs session-check` 1번」 추가(`2445b3552`, 주인님 승인).
 - 검수: 임시 저장소에서 증거 102건 → 50건(새 증거 포함), 짧은 경로 표시 확인, 기존 시험 16개 통과.
