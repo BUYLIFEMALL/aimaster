@@ -272,3 +272,16 @@ test("v1.23 영상 일괄 생성 진행률·남은 시간", async () => {
   assert.equal(formatDuration(185), "3분 05초");
   assert.equal(formatDuration(-3), "0초");
 });
+
+test("v1.23 장면 순서 바꾸기 moveItem", async () => {
+  const { moveItem } = await import("../src/lib/music/reorder.ts");
+  const a = ["A", "B", "C", "D"];
+  assert.deepEqual(moveItem(a, 0, 2), ["B", "C", "A", "D"], "뒤로");
+  assert.deepEqual(moveItem(a, 3, 0), ["D", "A", "B", "C"], "앞으로");
+  assert.deepEqual(moveItem(a, 1, 2), ["A", "C", "B", "D"], "▶ 한 칸");
+  assert.deepEqual(a, ["A", "B", "C", "D"], "원래 배열은 그대로");
+  assert.equal(moveItem(a, 1, 1), a, "같은 자리");
+  assert.equal(moveItem(a, -1, 2), a, "범위 밖");
+  assert.equal(moveItem(a, 0, 4), a, "범위 밖");
+  assert.equal(moveItem(a, 0.5, 2), a, "정수 아님");
+});

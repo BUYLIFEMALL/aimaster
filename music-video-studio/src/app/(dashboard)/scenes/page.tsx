@@ -10,6 +10,9 @@ import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, NeedStep, SELECT, StepHeader } from "@/components/studio/ui";
 import { FinalRenderLoader } from "@/components/studio/FinalRenderLoader";
 import { formatDuration, summarizeBatch, type BatchSceneState } from "@/lib/music/batchProgress";
+import { SceneTimeline } from "@/components/studio/SceneTimeline";
+import { amsTimedLines } from "@/lib/music/amsLyrics";
+import { timingLyrics } from "@/lib/music/sceneTiming";
 
 const POLL_MS = 8000;
 const MAX_POLLS = 90; // 약 12분
@@ -355,6 +358,15 @@ export default function ScenesPage() {
 
         {error && <ErrorNote message={error.message} needKey={error.needKey} />}
       </Card>
+
+      {/* v1.23 가로 타임라인 — 끌어서 놓기·◀ ▶로 장면 순서 바꾸기 */}
+      <SceneTimeline
+        scenes={scenes}
+        media={media}
+        disabled={anyBusy}
+        timedHint={!!amsTimedLines(timingLyrics(project))}
+        onReorder={(next) => update((p) => ({ ...p, scenes: next }))}
+      />
 
       {/* 장면 그리드 */}
       <div className="grid gap-5 lg:grid-cols-2">
