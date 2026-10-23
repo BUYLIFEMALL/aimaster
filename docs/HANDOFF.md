@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 v1.48 이미지 자동화 모듈 + 배포판 v1.02 · 세션 `claude-win-20261023-tep-kit`
+- **한 일**: 글 생성 직후 이미지 자동 생성(나노바나나=Gemini 키, GPT Image=OpenAI 키, 4:5/1:1·1~2장, 다운로드·다시 만들기·프롬프트 고치기, 보관함 글+이미지 30일). Threads 콘텐츠 운영 이미지 방식 이식, 공용 `gemini-image-client`·`gemini-image-models` 사본 등록.
+- **운영 DB(ref esgxyikcnnvmlhygjkth, 주인님 승인)**: 보관함 표 `tep_saved_plans`가 운영에 없던 것을 발견해 표·정책 4개·`image_urls`·버킷 `tep-images` 생성(그동안 보관함은 브라우저에만 저장됐음, `docs/ERROR_LESSONS.md`).
+- **배포**: v1.48 Ready(빌드 1회), DB 버전 v1.48. 크롬 실검수(시험 계정 본인 키, GPT-4o-mini + NanoBanana 1K 1장): 글→이미지 자동 생성→보관함 DB 저장·썸네일 확인. 배포판 `D:\PDS\AIMater_KIT\Threads_AI_Planner_Kit_v1.02.zip`.
+- **남은 일**: GPT Image 실생성·휴대폰 폭 확인, 수강생 설치 리허설. 배포판 이름 「ALLA AI」 변경은 이어서 진행(주인님 지시).
+- 프로그램: https://threads-easy-planner.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 수강생 배포 키트 v1.01 · 세션 `claude-win-20261023-tep-kit`
 - **한 일**: `threads-easy-planner`를 수강생 이식용 배포판으로 — 원본에 독립 모드 스위치(`NEXT_PUBLIC_STANDALONE_MODE=true`일 때만: 권한 판정 생략, 자체 회원가입·`/auth/confirm`, 옛 주소 이동 끔, AIMaster 링크·문구 숨김) + `KIT/`(kit.json·schema.sql·env.example·README·PLATFORMS·PROMPTS) → `D:\PDS\AIMater_KIT\Threads_AI_Planner_Kit_v1.01.zip`(58개 파일).
 - **확인**: tsc·운영 빌드·독립 모드 빌드 통과, 비밀값 검사·DB 대조 통과, 압축을 풀어 `npm ci`+`build`+`next start`로 주소 이동·확인 경로·탭 제목·문구 확인, 크롬 실제 창에서 회원가입 폼 확인. 실제 수강생 계정 설치 리허설·AI 글 생성은 못 함.
