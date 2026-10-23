@@ -91,7 +91,8 @@ export function FinalRender() {
         duration: lengths[i] ?? FALLBACK_SCENE_S,
         trimStart: 0,
         trimEnd: 0,
-        caption: captions ? s.lyric.replace(/\s+/g, " ").trim().slice(0, 60) : "",
+        // 「[Verse 1]」「(Chorus)」 같은 구간 표시는 자막에서 뺀다
+        caption: captions ? s.lyric.replace(/\[[^\]]*\]|\((?:intro|verse|pre-?chorus|chorus|bridge|outro|hook)[^)]*\)/gi, " ").replace(/\s+/g, " ").trim().slice(0, 60) : "",
         kind: isVideo ? "video" : "image",
         loop: isVideo,
       };
