@@ -190,6 +190,24 @@ const MODULES = [
     ],
   },
   {
+    // 영상 합치기(회원 PC 브라우저 렌더, Remotion) — 시간 계산·자막 줄바꿈·저장 형식(순수 함수). AI 영상 스튜디오 v1.04~v1.05에서 만들어 운영 검증, 뮤직비디오 최종 합치기에 사본(2026-10-23)
+    id: "video-edit-timeline",
+    source: "ai-video-studio/lib/edit/timeline.ts",
+    copies: ["music-video-studio/src/lib/edit/timeline.ts"],
+  },
+  {
+    // 영상 합치기 음성 모델 목록·낱말 시각 계산(timeline이 씀). 원래 쇼츠 원스톱 voice.ts(v1.27)에서 가져옴
+    id: "video-edit-voice",
+    source: "ai-video-studio/lib/edit/voice.ts",
+    copies: ["music-video-studio/src/lib/edit/voice.ts"],
+  },
+  {
+    // 영상 합치기 Remotion 구성(그리기 층: 영상·사진 장면·페이드·SVG 한글 자막·내레이션·배경음악)
+    id: "video-edit-composition",
+    source: "ai-video-studio/components/edit/Composition.tsx",
+    copies: ["music-video-studio/src/components/edit/Composition.tsx"],
+  },
+  {
     // AI 동영상(장면 사진 → 5~10초 영상, 회원 본인 키): 모델·단가·길이 목록. 2026-10-22 원스톱 v1.23~v1.25에서 만들어 ai-image-studio를 기준으로 등록, Shots에 사본
     id: "ai-video-models",
     source: "ai-video-studio/lib/video/videoModels.ts",

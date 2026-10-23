@@ -240,6 +240,16 @@ AI 영상 모델(Gemini Omni Flash·fal·Replicate)의 제출→상태 확인→
 
 당분간 기능 개선·안정화 우선입니다. 개선 중 검증된 기능을 레퍼런스로 정리해 신규 개발/리뉴얼 때 하나씩 적용합니다. 일괄 교체는 시작하지 않습니다. [확장 지도·경계·검증 기준](analysis-20261019/REFERENCE_MODULE_PROPOSAL.md), [아이디어 표·세 가지 검토 기준](PROGRAM_IDEA_BACKLOG.md)를 함께 읽습니다. 기존 공식 기준/사본 분류는 위 표를 따르며 신규 후보는 아직 기준으로 승격하지 않았습니다.
 
+## 11-2. 영상 합치기(회원 PC 무료 렌더) — 공용 모듈 `video-edit-timeline`·`video-edit-voice`·`video-edit-composition` (기준: **AI 영상 스튜디오**, 2026-10-23 등록)
+
+| 프로그램 | 파일 | 상태 | 비고 |
+|---|---|---|---|
+| AI 영상 스튜디오 | `lib/edit/timeline.ts`·`lib/edit/voice.ts`·`components/edit/Composition.tsx` | 🟢 기준 | v1.04 합치기 · v1.05 내레이션·자동 자막·편집 저장(운영 검증) |
+| 뮤직비디오 자동화 | `src/lib/edit/`·`src/components/edit/Composition.tsx` | 🔵 사본 | v1.15 「최종 뮤직비디오 만들기」(장면 영상/이미지 + 곡 + 가사 자막) |
+
+- 새 프로그램에서 「여러 클립·이미지 + 음악 + 자막 → MP4」가 필요하면 이 세 파일을 사본으로 가져다 쓴다(그리기·시간 계산을 새로 짜지 않는다). 회원이 올린 영상을 넣으면 R1 대책(`ai-video-studio/components/edit/probe.tsx`)도 함께 쓴다.
+- 브라우저 렌더 제약: 영상·소리는 `@remotion/media`의 `<Video>`·`<Audio>`, 한글은 SVG `<text>` + `@remotion/google-fonts`(루트 `docs/PLAN_20261023_FREE_VIDEO_RENDERING.md` 10~11절).
+
 ## 13. 가사 시간표 읽기·쓰기 — 공용 모듈 `lyric-timing` (2026-10-21 등록)
 
 .srt·.lrc·붙여넣기 가사를 시간표로 읽고(번호 빠짐·화살표 공백·CRLF·BOM·꾸밈 태그에 너그러움), 탭 싱크·줄 끝·파형 끌기·시간 밀기·.srt 쓰기 규칙을 담는다. 그리기는 각 프로그램(가사영상은 프리셋 디자인, 플레이리스트는 아래쪽 자막형).
