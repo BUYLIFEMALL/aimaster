@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-23 — 색 이름을 `lib/` 파일에만 적었더니 화면에서 색이 투명했다 (ai-music-studio v1.11~v1.12, Claude Code 윈도우)
+- 증상: 공급자별 색 점·띠(`lib/providerStyle.ts`의 `bg-sky-400` 등)가 화면에서 투명(`rgba(0,0,0,0)`). 빌드·시험은 모두 통과.
+- 원인: Tailwind 3 `tailwind.config.ts`의 `content`가 `pages`·`components`·`app`만 훑어서, `lib/`에만 적힌 클래스는 CSS가 만들어지지 않음(다른 파일에 우연히 같은 클래스가 있으면 보여서 늦게 발견).
+- 해결: `content`에 `"./lib/**/*.{js,ts,jsx,tsx}"` 추가 → 빌드 CSS에서 클래스 생성 확인(`grep -l ".bg-amber-400" .next/static/css/*.css`).
+- 다음부터: 클래스 이름을 상수·함수로 `lib/`(또는 `src/lib/`)에 모으면 `content` 경로에 그 폴더가 있는지 먼저 확인하고, 배포 뒤 크롬에서 색은 계산값(`getComputedStyle`)으로 확인한다.
+
 ## 2026-10-23 — 저장소에 마이그레이션 SQL이 있는데 운영 DB에는 표가 없어, 보관함 「저장 완료」가 실은 브라우저에만 저장되고 있었다 (threads-easy-planner v1.48, Claude Code 윈도우)
 - **증상**: 이미지 칸을 추가하려고 `alter table tep_saved_plans …`를 운영 SQL 편집기에서 돌리자 `relation "public.tep_saved_plans" does not exist`. 화면은 그동안 「보관함에 저장되었습니다」를 보여 줌.
 - **원인**: `supabase/migrations/0001_tep_saved_plans.sql`이 운영 DB에 적용된 적이 없음. 저장 코드가 DB 실패 시 로컬 저장소로 조용히 대체(`savedPlansStorage.ts`)해 오류가 드러나지 않았다.
