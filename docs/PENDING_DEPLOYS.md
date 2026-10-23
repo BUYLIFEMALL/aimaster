@@ -18,7 +18,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `music-video-studio` (운영 v1.18) | 공용 `video-edit-timeline`·`video-edit-composition` 사본 동기화(장면 늘리기 `hold`·겹쳐 바꾸기 — 뮤직비디오는 쓰지 않아 동작 불변) | `179b58ccc` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.07 | 버전 +0.01 |
-| `ai-music-studio` (운영 v1.12) | 공급자 색(점·띠)이 투명하던 문제 — `tailwind.config.ts` `content`에 `./lib/**` 추가(v1.11부터) | `39f7471d3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-bgm` | `ai-music-studio/AGENTS.md` 맨 아래 | 버전 v1.13, 보관함 공급자 버튼 색 점 계산값 확인 |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -58,6 +57,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-music-studio` | v1.13 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-bgm`, 승인 빌드 1회, `ai-music-studio-pwose5nlf`) | 공급자 색 점·띠 투명 수정 `39f7471d3`(크롬 계산값 5색 확인) |
 | `ai-music-studio` | v1.12 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-bgm`, 승인 빌드 1회, `ai-music-studio-brcpsck8j`) | 제안 가 미니 플레이어 반복·무작위 `36abe772a` · 나 실제 소리 파형 `c15faae8e` · 다 이 설정으로 다시 만들기 `abb7cb4cf` · 라 보관함 공급자 필터 `a7b5deef4` (크롬 확인) |
 | `threads-easy-planner` | v1.49 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-tep-kit`, 주인님 지시 빌드 1회, `threads-easy-planner-a1lwj980x`) | 배포판 이름 ALLA AI `APP_NAME`(독립 모드 전용, 운영 이름 그대로 확인) · 이번 배포 본건: 운영에서 이미지 기능 숨김(`IMAGE_FEATURE`) |
 | `naver-blog-agent` | v2.15 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-agent-chb6zlsgx`) | 확장 팝업 폭 480px·버튼 한 줄 `2666fc309`(올린 세션 `claude-win-20261023-seo-bg`) + 준비 모드 직접 발행 결과 기록(새 기능) |
