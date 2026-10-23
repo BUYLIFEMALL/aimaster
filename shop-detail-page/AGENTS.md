@@ -407,3 +407,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - S-23-09: 사이드바 「영상→GIF 만들기 ↗」(`GIF_SENDER_ORIGIN/dashboard`, 새 탭), 섹션 목록 아래 「제품 영상을 움직이는 섹션으로 넣으려면 상세페이지 GIF 자동화 ↗에서 변환한 뒤 「🛍 상세페이지로」…」.
 - 버전 v1.30(SQL `supabase/migrations/20261023_mobile_link_v1_30.sql` — 버전만). 검수: tsc 0, eslint(바꾼 4파일) 0. 서버·DB 구조·AI 변경 없음.
 - **윈도우 CLI 다음 첫 단계**: SQL → `shop-detail-page` 배포 1회. 그 뒤 맥미니 크롬 실검수.
+
+## 2026-10-23 ✅ v1.30 배포 (Claude Code 윈도우 — 맥미니 v1.30 마무리)
+- 맥미니 커밋 `124a7fe62`(휴대폰 하단 버튼 한 줄·문구 고치기 창 `createPortal`·상품명 `*`/저장 조건 안내·GIF 자동화 링크) 마무리.
+- 점검: 공용 사본 일치·`tsc`·로컬 `npm run build` 통과 → 운영 DB `programs.version` v1.30(`20261023_mobile_link_v1_30.sql`, 버전만) → `deploy.mjs --go` 배포 Ready `shop-detail-page-4sp0aci7v`, `shop-detail-page.buylife.xyz` 연결.
+- 크롬(메인 크롬, 시험 계정): 사이드바 v1.30·「영상→GIF 만들기」(→ `video-to-gif.buylife.xyz/dashboard`) 확인, `/products/new`에 상품명 `*`와 「저장하려면 1. 대표이미지와 상품명(*)이 필요합니다.」 확인.
+- 남은 것(맥미니 실검수): 휴대폰 폭 하단 버튼 높이, 문구 고치기 창이 버튼 위에 그려지는지, 섹션 아래 GIF 안내 링크(섹션 있는 상품 필요). AI 버튼은 누르지 않음.
+- 비용: Vercel 빌드 1회(승인 범위 안), AI 호출 0회.
