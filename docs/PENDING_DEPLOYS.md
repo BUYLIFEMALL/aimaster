@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `shorts-onestop-studio` (운영 v1.39) | 곡 링크로 들어왔을 때 대본이 여러 개면 「이 대본에 넣기」로 고르게 함 | `b22a5526a` | 2026-10-23 · Claude Code(윈도우) | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, 대본 2개 이상인 회원으로 링크 열어 안내줄·넣기 확인 |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `crm-google-form` | 공용 `solapi-client` 기준 등록(머리 주석만) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `crm-google-form/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
