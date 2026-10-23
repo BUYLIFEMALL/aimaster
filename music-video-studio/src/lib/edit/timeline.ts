@@ -8,7 +8,8 @@ export type EditQuality = "720p" | "1080p";
 export type CaptionPosition = "top" | "middle" | "bottom";
 /** 쇼츠 원스톱 CAPTION_STYLES와 같은 이름 */
 export type CaptionStyle = "band" | "yellow" | "outline" | "pop";
-export type Transition = "none" | "fade";
+/** fade = 검은 화면을 거쳐 바뀜, crossfade = 앞뒤 장면을 겹쳐 바꿈(XFADE_S만큼 전체 길이가 줄어듦) */
+export type Transition = "none" | "fade" | "crossfade";
 export type CaptionSize = "s" | "m" | "l";
 export const CAPTION_SIZE_NAMES: Record<CaptionSize, string> = { s: "작게", m: "보통", l: "크게" };
 export const CAPTION_SIZE_SCALE: Record<CaptionSize, number> = { s: 0.8, m: 1, l: 1.25 };
@@ -35,6 +36,10 @@ export const MAX_TOTAL_S = 180;
 export const MIN_CLIP_S = 0.5;
 export const FADE_S = 0.3;
 export const MUSIC_FADE_S = 1;
+/** 겹쳐 바꾸기에서 앞뒤 장면이 겹치는 초 */
+export const XFADE_S = 0.5;
+/** 장면을 내레이션에 맞출 때 내레이션 끝 뒤에 남기는 여유(초) */
+export const VOICE_PAD_S = 0.3;
 
 export const CAPTION_STYLE_NAMES: Record<CaptionStyle, string> = { band: "기본(어두운 띠)", yellow: "노란 자막", outline: "외곽선", pop: "강조 색" };
 
@@ -57,6 +62,8 @@ export interface EditClip {
   /** 이 장면에서 읽을 내레이션 문장(비우면 내레이션 없음) */
   narration?: string;
   voice?: ClipVoice | null;
+  /** 남은 구간 뒤로 장면을 더 보여 줄 초(내레이션에 맞추기) — 영상은 반복 재생, 사진은 계속 확대 */
+  hold?: number;
 }
 
 export interface EditMusic {
@@ -115,6 +122,9 @@ export interface Segment {
   durationInFrames: number;
   /** 원본에서 건너뛸 프레임(앞 자르기) */
   trimBeforeFrames: number;
+  /** 겹쳐 바꾸기: 앞 장면과 겹치는(서서히 나타나는) 프레임 / 뒤 장면과 겹치는 프레임 */
+  overlapIn: number;
+  overlapOut: number;
 }
 
 export function dimensions(aspect: EditAspect, quality: EditQuality): { width: number; height: number } {
@@ -136,22 +146,48 @@ export function clipSeconds(c: Pick<EditClip, "duration" | "trimStart" | "trimEn
   return d - start - end;
 }
 
-/** 클립을 순서대로 이어 붙인 배치. 장면 전환은 겹치지 않는 「검은 화면으로 페이드」라 길이에 영향이 없다 */
-export function layout(p: Pick<EditProject, "clips">): { segments: Segment[]; totalFrames: number } {
+/** 늘린 초(hold) 정리 — 0~MAX_TOTAL_S */
+function holdOf(c: Pick<EditClip, "hold">): number {
+  const h = Number(c.hold);
+  return Number.isFinite(h) && h > 0 ? Math.min(MAX_TOTAL_S, Math.round(h * 100) / 100) : 0;
+}
+
+/** 결과 영상에서 이 장면이 차지하는 초 = 남은 구간 + 늘린 초 */
+export function sceneSeconds(c: Pick<EditClip, "duration" | "trimStart" | "trimEnd" | "hold">): number {
+  return clipSeconds(c) + holdOf(c);
+}
+
+/** 클립을 순서대로 이어 붙인 배치. fade·none은 겹치지 않고, crossfade는 앞뒤 장면을 XFADE_S(짧은 장면은 절반까지)만큼 겹친다 */
+export function layout(p: Pick<EditProject, "clips"> & { transition?: Transition }): { segments: Segment[]; totalFrames: number } {
   const segments: Segment[] = [];
+  const xf = p.transition === "crossfade" ? Math.round(XFADE_S * FPS) : 0;
   let from = 0;
+  let prev: Segment | null = null;
   for (const clip of p.clips) {
-    const frames = Math.max(1, Math.round(clipSeconds(clip) * FPS));
+    const frames = Math.max(1, Math.round(sceneSeconds(clip) * FPS));
     const d = Number.isFinite(clip.duration) ? clip.duration : 0;
     const trimStart = clamp(Number(clip.trimStart) || 0, 0, Math.max(0, d - MIN_CLIP_S));
-    segments.push({ clip, from, durationInFrames: frames, trimBeforeFrames: Math.round(trimStart * FPS) });
-    from += frames;
+    const overlap = prev ? Math.min(xf, Math.floor(prev.durationInFrames / 2), Math.floor(frames / 2)) : 0;
+    if (prev) prev.overlapOut = overlap;
+    const seg: Segment = { clip, from: from - overlap, durationInFrames: frames, trimBeforeFrames: Math.round(trimStart * FPS), overlapIn: overlap, overlapOut: 0 };
+    segments.push(seg);
+    from = seg.from + frames;
+    prev = seg;
   }
   return { segments, totalFrames: Math.max(1, from) };
 }
 
-export function totalSeconds(p: Pick<EditProject, "clips">): number {
-  return p.clips.reduce((s, c) => s + clipSeconds(c), 0);
+/** 완성 영상 길이(초) — 겹쳐 바꾸기면 겹친 만큼 짧다 */
+export function totalSeconds(p: Pick<EditProject, "clips"> & { transition?: Transition }): number {
+  if (!p.clips.length) return 0;
+  const overlap = p.transition === "crossfade" ? layout(p).segments.reduce((n, s) => n + s.overlapIn, 0) / FPS : 0;
+  return p.clips.reduce((s, c) => s + sceneSeconds(c), 0) - overlap;
+}
+
+/** 장면 안 프레임의 불투명도 — 겹쳐 바꾸기: 앞 장면 위에 overlapIn 동안 서서히 나타남, 그 밖은 fadeOpacity */
+export function segmentOpacity(frameInSegment: number, seg: Pick<Segment, "durationInFrames" | "overlapIn">, transition: Transition): number {
+  if (transition !== "crossfade") return fadeOpacity(frameInSegment, seg.durationInFrames, transition);
+  return seg.overlapIn > 0 ? clamp(frameInSegment / seg.overlapIn, 0, 1) : 1;
 }
 
 /** 장면 안 프레임(0부터)의 불투명도 — 앞뒤 FADE_S 동안 검은 화면에서 나타나고 사라진다 */
@@ -171,7 +207,7 @@ export const DUCK_LEVEL = 0.35;
 export const DUCK_RAMP_S = 0.2;
 
 /** 내레이션이 나오는 구간(프레임, 결과 영상 기준 [시작, 끝)) — 장면보다 긴 내레이션은 장면 끝에서 자른다 */
-export function duckRanges(p: Pick<EditProject, "clips">): [number, number][] {
+export function duckRanges(p: Pick<EditProject, "clips"> & { transition?: Transition }): [number, number][] {
   return layout(p).segments
     .filter((s) => s.clip.voice && s.clip.voice.duration > 0)
     .map((s) => [s.from, s.from + Math.min(s.durationInFrames, Math.round((s.clip.voice as ClipVoice).duration * FPS))] as [number, number]);
@@ -255,11 +291,24 @@ export function sceneCaptions(clip: EditClip, durationInFrames: number): { text:
 /** 내레이션이 장면보다 긴 초(0이면 문제 없음) */
 export function voiceOverflow(clip: EditClip): number {
   if (!clip.voice) return 0;
-  return Math.max(0, Math.round((clip.voice.duration - clipSeconds(clip)) * 10) / 10);
+  return Math.max(0, Math.round((clip.voice.duration - sceneSeconds(clip)) * 10) / 10);
+}
+
+/** 내레이션이 장면보다 길면 장면을 늘려(hold) 내레이션 끝 + VOICE_PAD_S까지 보여 준다. 넘치지 않으면 그대로 */
+export function fitToVoice(clip: EditClip): EditClip {
+  if (!voiceOverflow(clip) || !clip.voice) return clip;
+  const need = Math.ceil((clip.voice.duration + VOICE_PAD_S - clipSeconds(clip)) * 10) / 10;
+  return { ...clip, hold: need };
+}
+
+/** 넘치는 장면을 모두 맞춘다. 맞춘 뒤 최대 길이를 넘으면 null(바꾸지 않음) */
+export function fitAllToVoice<P extends Pick<EditProject, "clips"> & { transition?: Transition }>(p: P, maxTotalS: number = MAX_TOTAL_S): P | null {
+  const next = { ...p, clips: p.clips.map(fitToVoice) };
+  return totalSeconds(next) > maxTotalS ? null : next;
 }
 
 // ── 편집 저장 형식(브라우저 blob 주소는 저장하지 않음) ──
-export interface SavedClip { id: string; name: string; duration: number; trimStart: number; trimEnd: number; caption: string; narration: string; source: ClipSource; voice: { path: string; duration: number; starts: number[] | null; mime: string } | null }
+export interface SavedClip { id: string; name: string; duration: number; trimStart: number; trimEnd: number; hold?: number; caption: string; narration: string; source: ClipSource; voice: { path: string; duration: number; starts: number[] | null; mime: string } | null }
 export interface SavedProject {
   v: 1;
   clips: SavedClip[];
@@ -272,7 +321,7 @@ export function toSaved(p: EditProject, voicePaths: Record<string, string>): Sav
   return {
     v: 1,
     clips: p.clips.map((c) => ({
-      id: c.id, name: c.name.slice(0, 120), duration: c.duration, trimStart: c.trimStart, trimEnd: c.trimEnd, caption: c.caption.slice(0, 200), narration: (c.narration ?? "").slice(0, 1000),
+      id: c.id, name: c.name.slice(0, 120), duration: c.duration, trimStart: c.trimStart, trimEnd: c.trimEnd, hold: holdOf(c), caption: c.caption.slice(0, 200), narration: (c.narration ?? "").slice(0, 1000),
       source: c.source ?? { kind: "local" },
       voice: c.voice && (voicePaths[c.id] || c.voice.path) ? { path: voicePaths[c.id] || (c.voice.path as string), duration: c.voice.duration, starts: c.voice.starts, mime: c.voice.mime } : null,
     })),
@@ -302,7 +351,7 @@ export function sanitizeSaved(raw: unknown, userPrefix: string): SavedProject | 
     const v = c.voice as Record<string, unknown> | null | undefined;
     const voicePath = v && typeof v.path === "string" && v.path.startsWith(userPrefix) && !v.path.includes("..") ? v.path : null;
     clips.push({
-      id: str(c.id, 64) || "clip", name: str(c.name, 120), duration: num(c.duration, 0, 600, 0), trimStart: num(c.trimStart, 0, 600, 0), trimEnd: num(c.trimEnd, 0, 600, 0),
+      id: str(c.id, 64) || "clip", name: str(c.name, 120), duration: num(c.duration, 0, 600, 0), trimStart: num(c.trimStart, 0, 600, 0), trimEnd: num(c.trimEnd, 0, 600, 0), hold: num(c.hold, 0, MAX_TOTAL_S, 0),
       caption: str(c.caption, 200), narration: str(c.narration, 1000), source,
       voice: voicePath && v ? { path: voicePath, duration: num(v.duration, 0, 600, 0), starts: Array.isArray(v.starts) ? (v.starts as unknown[]).filter((x): x is number => typeof x === "number").slice(0, 400) : null, mime: v.mime === "audio/wav" ? "audio/wav" : "audio/mpeg" } : null,
     });
@@ -313,7 +362,7 @@ export function sanitizeSaved(raw: unknown, userPrefix: string): SavedProject | 
     v: 1, clips,
     aspect: (ASPECT_SET.has(r.aspect as string) ? r.aspect : "9:16") as EditAspect,
     quality: (r.quality === "1080p" ? "1080p" : "720p") as EditQuality,
-    transition: (r.transition === "none" ? "none" : "fade") as Transition,
+    transition: (r.transition === "none" || r.transition === "crossfade" ? r.transition : "fade") as Transition,
     captionPosition: (POS_SET.has(r.captionPosition as string) ? r.captionPosition : "bottom") as CaptionPosition,
     captionStyle: (STYLE_SET.has(r.captionStyle as string) ? r.captionStyle : "band") as CaptionStyle,
     captionSize: (SIZE_SET.has(r.captionSize as string) ? r.captionSize : "m") as CaptionSize,

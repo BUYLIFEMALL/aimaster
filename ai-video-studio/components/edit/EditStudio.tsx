@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
 import {
-  CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, clipSeconds, dimensions, layout, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
+  CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, clipSeconds, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
   type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
 } from "@/lib/edit/timeline";
 
@@ -317,7 +317,7 @@ export function EditStudio() {
           const vb = await fetchBlob(vurl);
           voice = { src: URL.createObjectURL(vb), duration: s.voice.duration, starts: s.voice.starts, mime: s.voice.mime, path: s.voice.path };
         }
-        clips.push({ id: s.id, src: URL.createObjectURL(blob), name: s.name, duration: s.duration, trimStart: s.trimStart, trimEnd: s.trimEnd, caption: s.caption, narration: s.narration, source: s.source, voice });
+        clips.push({ id: s.id, src: URL.createObjectURL(blob), name: s.name, duration: s.duration, trimStart: s.trimStart, trimEnd: s.trimEnd, hold: s.hold ?? 0, caption: s.caption, narration: s.narration, source: s.source, voice });
       }
       let music: EditProject["music"] = null;
       if (saved.music && urls.music) {
@@ -402,6 +402,13 @@ export function EditStudio() {
   const previewWidth = project.aspect === "9:16" ? "max-w-[300px]" : project.aspect === "1:1" ? "max-w-[420px]" : "max-w-[640px]";
   const voicesForModel = provider === "elevenlabs" ? (elVoices ?? []).map((v) => ({ id: v.id, name: v.mine ? `★ ${v.name}` : v.name })) : TTS_VOICES[provider];
   const narrated = project.clips.filter((c) => c.narration?.trim() || c.caption.trim()).length;
+  const overflowCount = project.clips.filter((c) => voiceOverflow(c) > 0).length;
+  // 내레이션이 넘치는 장면을 모두 내레이션 길이에 맞춰 늘린다(최대 길이를 넘으면 바꾸지 않고 안내)
+  function fitAll() {
+    const next = fitAllToVoice(project);
+    if (!next) { setError("모든 장면을 늘리면 3분을 넘습니다. 장면을 줄이거나 내레이션 문장을 줄여 주세요."); return; }
+    setError(""); setProject(next);
+  }
 
   return (
     <div className="space-y-6">
@@ -478,6 +485,12 @@ export function EditStudio() {
       {/* 2단계: 순서·자르기·자막·내레이션 */}
       <section className={card}>
         {stepTitle(2, `순서·자르기·자막·내레이션 (${project.clips.length}개 · 총 ${sec(total)})`)}
+        {overflowCount > 1 && (
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+            <p className="text-xs text-amber-100">내레이션이 장면보다 긴 장면이 {overflowCount}개 있습니다.</p>
+            <button type="button" className={smallBtn} disabled={isBusy} onClick={fitAll}>모두 내레이션에 맞추기</button>
+          </div>
+        )}
         {project.clips.length === 0 ? (
           <p className="text-sm text-zinc-500">Step 1에서 영상을 넣으면 여기에 순서대로 놓입니다. 줄을 끌어서 순서를 바꿀 수 있습니다.</p>
         ) : (
@@ -498,7 +511,7 @@ export function EditStudio() {
                     <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-zinc-500" aria-label="끌어서 순서 바꾸기" />
                     <span className="rounded-md bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-300">{i + 1}</span>
                     <p className="min-w-0 flex-1 truncate text-sm text-zinc-200" title={c.name}>{c.name}</p>
-                    <span className="text-[11px] text-zinc-500">{sec(keep)} / 원본 {sec(c.duration)}</span>
+                    <span className="text-[11px] text-zinc-500">{sec(sceneSeconds(c))}{(c.hold ?? 0) > 0 ? ` (늘림 +${sec(c.hold ?? 0)})` : ""} / 원본 {sec(c.duration)}</span>
                     <button type="button" aria-label="앞으로" disabled={isBusy || i === 0} onClick={() => moveClip(c.id, i - 1)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 disabled:opacity-30"><ArrowUp className="h-4 w-4" /></button>
                     <button type="button" aria-label="뒤로" disabled={isBusy || i === project.clips.length - 1} onClick={() => moveClip(c.id, i + 1)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 disabled:opacity-30"><ArrowDown className="h-4 w-4" /></button>
                     <button type="button" aria-label="빼기" disabled={isBusy} onClick={() => removeClip(c.id)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-30"><Trash2 className="h-4 w-4" /></button>
@@ -534,7 +547,17 @@ export function EditStudio() {
                       </>
                     )}
                   </div>
-                  {over > 0 && <p className="text-[11px] text-amber-200">내레이션이 장면보다 {over}초 깁니다 — 넘치는 부분은 잘립니다. 자르기를 줄이거나 문장을 줄여 주세요.</p>}
+                  {over > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-[11px] text-amber-200">내레이션이 장면보다 {over}초 깁니다 — 넘치는 부분은 잘립니다.</p>
+                      <button type="button" className={smallBtn} disabled={isBusy} onClick={() => patchClip(c.id, { hold: fitToVoice(c).hold })}>장면을 내레이션에 맞추기</button>
+                    </div>
+                  )}
+                  {(c.hold ?? 0) > 0 && over === 0 && (
+                    <p className="text-[11px] text-zinc-400">내레이션에 맞춰 {sec(c.hold ?? 0)} 늘렸습니다(영상은 반복 재생).{" "}
+                      <button type="button" disabled={isBusy} onClick={() => patchClip(c.id, { hold: 0 })} className="text-sky-300 underline-offset-2 hover:underline disabled:opacity-40">되돌리기</button>
+                    </p>
+                  )}
                 </li>
               );
             })}
@@ -645,7 +668,7 @@ export function EditStudio() {
           </div>
           <div className="space-y-2">
             <p className="text-xs font-medium text-zinc-300">장면 전환</p>
-            <div className="flex flex-wrap gap-2">{([["fade", "부드럽게(페이드)"], ["none", "바로 넘김"]] as [Transition, string][]).map(([id, label]) => <button key={id} type="button" disabled={isBusy} className={chip(project.transition === id)} onClick={() => patch({ transition: id })}>{label}</button>)}</div>
+            <div className="flex flex-wrap gap-2">{([["fade", "부드럽게(페이드)"], ["crossfade", "겹쳐 바꾸기"], ["none", "바로 넘김"]] as [Transition, string][]).map(([id, label]) => <button key={id} type="button" disabled={isBusy} className={chip(project.transition === id)} onClick={() => patch({ transition: id })}>{label}</button>)}</div>
           </div>
           <div className="space-y-2">
             <p className="text-xs font-medium text-zinc-300">영상 원래 소리</p>

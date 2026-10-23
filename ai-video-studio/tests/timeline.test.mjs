@@ -123,3 +123,49 @@ test("내레이션 구간에서 배경음악을 35%로 줄이고 앞뒤는 부�
   assert.ok(Math.abs(musicVolume(30, 360, 0.8, false, duckRanges(p)) - 0.8 * DUCK_LEVEL) < 1e-9);
   assert.equal(musicVolume(30, 360, 0.8, false), 0.8);
 });
+
+test("v1.07 장면을 내레이션에 맞추기(hold)", async () => {
+  const { sceneSeconds, fitToVoice, fitAllToVoice, voiceOverflow, sanitizeSaved, toSaved } = await import("../lib/edit/timeline.ts");
+  const voice = (duration) => ({ src: "blob:v", duration, starts: null, mime: "audio/mpeg" });
+  const c = { ...clip("a", 5, 1, 0), voice: voice(6.5) }; // 남은 4초, 내레이션 6.5초
+  assert.equal(voiceOverflow(c), 2.5);
+  const f = fitToVoice(c);
+  assert.equal(f.hold, 2.8); // 6.5 + 0.3 - 4
+  assert.ok(Math.abs(sceneSeconds(f) - 6.8) < 1e-9);
+  assert.equal(voiceOverflow(f), 0);
+  const plain = clip("b", 5); assert.equal(fitToVoice(plain), plain); // 넘치지 않으면 그대로
+  // 배치·전체 길이에 늘린 초가 반영된다
+  const p = project([f, clip("b", 3)]);
+  assert.equal(layout(p).segments[1].from, Math.round(6.8 * FPS));
+  assert.ok(Math.abs(totalSeconds(p) - 9.8) < 1e-9);
+  // 모두 맞추기: 최대 길이를 넘으면 null
+  assert.ok(fitAllToVoice(project([c, { ...clip("c", 5), voice: voice(7) }])));
+  assert.equal(fitAllToVoice(project([c]), 6), null);
+  // 저장·불러오기에 hold가 남는다(음수·너무 큰 값은 정리)
+  const saved = toSaved(project([f]), {});
+  assert.equal(saved.clips[0].hold, 2.8);
+  assert.equal(sanitizeSaved({ ...saved, clips: [{ ...saved.clips[0], hold: -3 }] }, "u/").clips[0].hold, 0);
+  assert.equal(sanitizeSaved({ ...saved, clips: [{ ...saved.clips[0], hold: 9999 }] }, "u/").clips[0].hold, 180);
+});
+
+test("v1.07 겹쳐 바꾸기(crossfade): 앞뒤 장면 0.5초 겹침, 짧은 장면은 절반까지", async () => {
+  const { segmentOpacity, sanitizeSaved, toSaved } = await import("../lib/edit/timeline.ts");
+  const p = { ...project([clip("a", 4), clip("b", 4), clip("c", 0.6)]), transition: "crossfade" };
+  const { segments, totalFrames } = layout(p);
+  assert.equal(segments[0].from, 0);
+  assert.equal(segments[1].from, 120 - 15); // 0.5초 겹침
+  assert.equal(segments[1].overlapIn, 15);
+  assert.equal(segments[0].overlapOut, 15);
+  assert.equal(segments[2].overlapIn, 9); // 0.6초(18프레임) 장면은 절반 9프레임까지
+  assert.equal(totalFrames, 120 + 120 + 18 - 15 - 9);
+  assert.ok(Math.abs(totalSeconds(p) - totalFrames / FPS) < 1e-9);
+  // 불투명도: 첫 장면은 바로 보이고, 뒤 장면은 겹치는 동안 0 → 1
+  assert.equal(segmentOpacity(0, segments[0], "crossfade"), 1);
+  assert.equal(segmentOpacity(0, segments[1], "crossfade"), 0);
+  assert.equal(segmentOpacity(15, segments[1], "crossfade"), 1);
+  assert.equal(segmentOpacity(0, segments[1], "fade"), fadeOpacity(0, 120, "fade"));
+  // 기존 전환은 겹치지 않는다
+  assert.equal(layout(project([clip("a", 4), clip("b", 4)])).segments[1].from, 120);
+  // 저장 형식에 crossfade가 남는다
+  assert.equal(sanitizeSaved(toSaved(p, {}), "u/").transition, "crossfade");
+});

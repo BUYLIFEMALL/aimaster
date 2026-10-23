@@ -7,7 +7,7 @@
 import { AbsoluteFill, Img, Sequence, interpolate, useCurrentFrame } from "remotion";
 import { Audio, Video } from "@remotion/media";
 import { loadFont } from "@remotion/google-fonts/NotoSansKR";
-import { CAPTION_SIZE_SCALE, captionMaxChars, dimensions, duckRanges, fadeOpacity, layout, musicVolume, sceneCaptions, wrapCaption, type CaptionStyle, type EditProject, type Segment } from "@/lib/edit/timeline";
+import { CAPTION_SIZE_SCALE, FPS, captionMaxChars, dimensions, duckRanges, layout, musicVolume, sceneCaptions, segmentOpacity, wrapCaption, type CaptionStyle, type EditProject, type Segment } from "@/lib/edit/timeline";
 
 // 굵기 하나만 미리 불러온다(Noto Sans KR은 파일이 많이 나뉘어 있음)
 const { fontFamily } = loadFont("normal", { weights: ["900"], subsets: ["korean", "latin"] });
@@ -43,14 +43,18 @@ function Caption({ text, project, width, height }: { text: string; project: Edit
 function Scene({ seg, project, width, height }: { seg: Segment; project: EditProject; width: number; height: number }) {
   const frame = useCurrentFrame();
   // 내레이션 음성이 있으면 말하는 속도에 맞춘 자막, 없으면 장면 자막 한 줄
-  const caption = sceneCaptions(seg.clip, seg.durationInFrames).find((c) => frame >= c.from && frame < c.to);
+  // 겹쳐 바꾸기에서 뒤 장면과 겹치는 동안에는 이 장면 자막을 숨긴다(자막 두 줄이 겹치지 않게)
+  const caption = frame < seg.durationInFrames - seg.overlapOut ? sceneCaptions(seg.clip, seg.durationInFrames).find((c) => frame >= c.from && frame < c.to) : undefined;
+  // 내레이션에 맞춰 늘린 장면(hold)은 영상을 반복 재생 — 뒤 자르기가 있으면 남은 구간만 반복
+  const held = (seg.clip.hold ?? 0) > 0;
+  const trimAfter = held && seg.clip.trimEnd > 0 ? Math.round((seg.clip.duration - seg.clip.trimEnd) * FPS) : undefined;
   return (
-    <AbsoluteFill style={{ opacity: fadeOpacity(frame, seg.durationInFrames, project.transition) }}>
+    <AbsoluteFill style={{ opacity: segmentOpacity(frame, seg, project.transition) }}>
       {seg.clip.kind === "image" ? (
         // 사진 장면: 장면 동안 1.0 → 1.08배로 천천히 확대
         <Img src={seg.clip.src} style={{ width, height, objectFit: "cover", transform: `scale(${interpolate(frame, [0, seg.durationInFrames], [1, 1.08])})` }} />
       ) : (
-        <Video src={seg.clip.src} trimBefore={seg.trimBeforeFrames || undefined} muted={!project.clipAudio} loop={seg.clip.loop} objectFit="cover" style={{ width, height }} />
+        <Video src={seg.clip.src} trimBefore={seg.trimBeforeFrames || undefined} trimAfter={trimAfter} muted={!project.clipAudio} loop={seg.clip.loop || held} objectFit="cover" style={{ width, height }} />
       )}
       {seg.clip.voice && <Audio src={seg.clip.voice.src} />}
       {caption && <Caption text={caption.text} project={project} width={width} height={height} />}
