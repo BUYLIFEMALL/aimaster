@@ -32,7 +32,7 @@
 | 11 | 네이버 카페 포스팅 자동화 | `naver-cafe-poster` | 네이버 | v1.28 | 운영 | 내 네이버 계정으로 활동 중인 카페에 AI가 쓴 글을 예약·자동 등록하는 카페 포스팅 도구 |
 | 12 | 네이버 블로그 자동화(App) | `naver-blog-auto-poster` | 네이버 | v1.12 | 비활성 | 내 PC에서 AI가 쓴 블로그 글을 내 네이버 계정 글쓰기 화면에 채워 넣는 데스크톱 앱 |
 | 13 | 네이버 블로그 자동화(Web) | `naver-blog-auto-poster-web` | 네이버 | v1.13 | 비활성 | 설치 없이 크롬 사이드패널에서 AI 블로그 글을 네이버 글쓰기 화면에 채우는 확장 |
-| 14 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | 네이버 | v2.13 | 운영 | 검색 전략과 페르소나로 네이버 블로그 초안을 만들고 기존 글·URL을 SEO로 다시 쓰는 스튜디오 |
+| 14 | 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | 네이버 | v2.14 | 운영 | 검색 전략과 페르소나로 네이버 블로그 초안을 만들고 기존 글·URL을 SEO로 다시 쓰는 스튜디오 |
 | 15 | 마크다운 문서 자동화 | `markdown-studio` | 데이터수집|기획 | v1.20 | 운영 | 마크다운 문서를 폴더로 관리하며 편집·미리보기·변환하고 내 Google Drive와 동기화하는 작업실 |
 | 16 | AI 글쓰기 에디터 자동화 | `ai-writing-editor` | 데이터수집|기획 | v1.12 | 운영 | 주제만 적으면 AI가 초안을 쓰고 문장을 드래그해 바로 고치는 범용 서식 글쓰기 에디터 + 🎚️ 문체 바꾸기(페르소나, 2026-10-21 병합 B) |
 | 17 | Website Scraper | `website-scraper` | 데이터수집|기획 | v1.12 | 운영 | 웹사이트 주소로 본문·표·이미지를 모으고 AI로 반복 목록을 표로 정리하는 스크래퍼 |
@@ -107,6 +107,7 @@
 | 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | 마케팅(홍보) | v1.09 | 운영(2026-10-21 신규) | 인스타 댓글·DM·쓰레드·유튜브 댓글의 검토 대기 항목을 한곳에 급한 순으로 모아 고쳐서 바로 승인·게시 |
 | 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.13 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
 | 88 | AI 영상 스튜디오 | `ai-video-studio` | 영상 | v1.13 | 공개(new, 2026-10-23 신규) | Gemini Omni Flash·Kling·Seedance 등 여러 영상 AI를 본인 키로 골라 영상을 만들고 갤러리에 30일 보관 · 영상 연동 레퍼런스 |
+| 89 | AI 업무 워크스페이스 자동화 | `ai-work-workspace` | 업무자동화 | v1.01 | 공개(2026-10-24 신규, 일반 등급 이상) | 회의록·업무 위키·프로젝트 보드를 블록 문서와 데이터베이스(표·보드·캘린더·타임라인 등 12가지 보기)로 한곳에 정리하는 노션형 워크스페이스 |
 
 ## 0. 이 문서를 쓰는 방법
 1. **새 프로그램 기획 전**: §3 분야 묶음에서 비슷한 프로그램을 찾고, §4 카드의 장점·단점을 읽는다. 「기존 A의 장점 + B의 장점 − A·B의 단점」으로 기획안을 쓰고, 보고할 때 어떤 프로그램에서 무엇을 가져왔는지 밝힌다.
@@ -187,7 +188,7 @@
 | 문서·기획 도구 | ai-doc-chatbot · ai-writing-editor · persona-style-studio · markdown-studio · document-translator · ebook-studio · ai-slide-builder · landing-architect · ui-canvas · ai-web-ui · file-merge · web-crawler-saas · website-scraper | 수집(스크래퍼) → 정리(에디터·번역) → 출판(전자책·슬라이드·랜딩)으로 이어지는 문서 파이프라인 |
 | 프롬프트 | ai-prompt-studio(설계) · prompt-template-studio(보관·실행) · reverse-prompt · style-dna-analyzer | 설계한 프롬프트를 템플릿 보관함에 바로 저장·실행 |
 | 성격·재미 | personality-suite(16종·종합) · personality-code · mbti-character · tarot-reading | 무료 유입용(코드·캐릭코드·타로) → 종합 진단으로 이어지는 흐름 |
-| 생활·업무 | ai-task-planner · real-estate-sales | — |
+| 생활·업무 | ai-task-planner · real-estate-sales · ai-work-workspace(문서·업무 DB 워크스페이스) | ai-task-planner 할 일 ↔ ai-work-workspace 업무 보드 주고받기(후보) |
 
 ## 4. 프로그램 카드 (82개)
 각 카드: 차별점(한 줄) · 기능 · 장점(핵심 특징) · 사용 순서 · 단점·한계 · 필요한 키·계정과 주의. 코드 위치는 폴더 기준.
@@ -349,7 +350,7 @@
 - **키·계정·주의**: 회원 본인의 AI API 키를 사용합니다. 확장은 새 버전이 나오면 다시 받아 덮어써야 하며, PC 설치형을 원하면 「네이버 블로그 자동화(App)」를 이용하세요.
 
 #### 네이버 블로그 SEO 스튜디오 (`naver-blog-seo-studio`)
-- 주소·폴더: https://naver-blog-seo-studio.buylife.xyz · `naver-blog-seo-studio/` · v1.80
+- 주소·폴더: https://naver-blog-seo-studio.buylife.xyz · `naver-blog-seo-studio/` · v2.14
 - **v1.74(2026-10-20)**: 외부 앱 「SEO 최적화 도우미 6.5.4」 분석 기능 흡수 — 내 실제 경험 메모·경험 떠올리기 질문(AI는 질문만), 자연스러운 문체·FAQ 옵션, AI 없는 「발행 전 점검」(제목·키워드·분량·긴 문단·[확인 필요]·상투 표현)·많이 쓴 단어·모바일 미리보기. 홈판 스토리·인사이트 엣지 전략 거부 버그 수정. 재사용 부품 후보: `lib/seoQuality.ts`(순수 함수).
 - **차별점**: 검색 노출 전략(C-Rank·ALCON·AEO·홈판)과 글쓰기 페르소나를 골라 네이버 블로그 초안을 만들고, 이미 쓴 글도 SEO 관점으로 다시 써 주는 웹 스튜디오입니다.
 - **기능**: 주제·키워드·전략과 정보형·후기형·초보자 안내형 같은 페르소나를 고르면 제목을 추천받고 소제목 4개의 완성형 초안을 만듭니다. 확인되지 않은 사실은 [확인 필요]로 남깁니다. / 이미 쓴 글은 바로 최적화하거나, 붙여 넣은 글·공개 블로그 주소를 분석해 핵심 주제·키워드·보완점을 뽑고 원문을 베끼지 않는 새 초안으로 다시 씁니다. / 대표 이미지 1장과 본문 핵심 문장 이미지 2~3장을 만들고 크롬 확장으로 네이버 편집기에 입력하며, 생성 기록은 30일간 검색·복제할 수 있습니다.
@@ -1243,6 +1244,17 @@
 - **단점·한계**: 게시 기능 없음 · 배경 이미지는 Gemini 키 필요
 - **키·계정·주의**: 회원 본인의 Gemini·OpenAI·Claude 키를 사용합니다(배경 이미지는 Gemini 키). 게시는 회원이 직접 합니다.
 
+#### AI 업무 워크스페이스 자동화 (`ai-work-workspace`)
+- 주소·폴더: https://ai-work-workspace.buylife.xyz · `ai-work-workspace/` · v1.01 (2026-10-24 신규, 1단계 — 오픈소스 litpage(MIT, © 씨그로) 이식)
+- **차별점**: 블록 문서와 업무 데이터베이스를 한 화면에서 쓰는 노션형 워크스페이스. 회원마다 워크스페이스가 분리되고, 원본 편집기·데이터베이스 기능과 보안 시험(522개)을 그대로 유지합니다.
+- **기능**: 블록 편집기 41종(`/` 메뉴·마크다운 단축키·끌어 옮기기), 데이터베이스 보기 12종(표·보드·목록·갤러리·캘린더·타임라인·차트·대시보드·피드·폼·지도·페이지)·수식·관계·집계·템플릿, 한국어 부분 검색(pg_trgm), 버전 기록, 휴지통(30일), 불러오기(Markdown·CSV·HTML·Word·PDF)·내보내기, 파일 첨부(4MB).
+- **장점**: 완성도 높은 편집기·DB 기능 · 회원별 격리(전용 스키마 `aww` + 워크스페이스 단위 권한) · 별도 서버 비용 없음 · 한국어 화면·서울 시간대
+- **사용 순서**: 1 워크스페이스 만들기 → 2 페이지·블록 작성 → 3 데이터베이스로 업무 정리 → 4 검색·기록·내보내기
+- **활용 용도**: 회의록·위키를 정리하는 팀장 · 프로젝트 일정을 챙기는 1인 사업자 · 흩어진 메모를 모으려는 직장인
+- **단점·한계**: 1단계라 AI·초대/공유·공개 페이지·자동화·API는 닫혀 있음 · 실시간 동시 편집 없음(새로고침 때 반영) · 동기 DB 다리라 한 함수 인스턴스 안 동시 요청은 줄을 섬 · 템플릿 예시 내용 일부 영어
+- **재사용 부품**: SQLite 동기 코드를 Postgres로 옮기는 동기 DB 다리(`src/litpage/server/pg/bridge.ts`·`pgworker.mjs`) + SQL 변환기(`pg/translate.ts`), Vault 비밀번호로 전용 DB 계정 접속
+- **키·계정·주의**: 1단계는 키 없이 사용합니다. 2단계 AI는 회원 본인 OpenAI·Anthropic 키만 쓰며(운영 환경변수 키는 읽지 않음), 이용은 일반 등급 이상 + 사용기간 또는 구독입니다.
+
 ## 5. 갱신 기록
 - 2026-10-16 최초 작성(82개, Claude Code 보조 계정). 원본 데이터: DB programs(description·detail_sections), 단점은 코드·문서 분석.
 - 2026-10-16 맨 앞 「개발 목록 요약 표」(82개) 신설, 카드에 「활용 용도」 추가(DB `detail_sections.audiences`), 카드 버전을 DB 현재 값으로 갱신(74개) — Claude Code 메인 계정. Codex DB 변수 호환 전환 배포 완료 후 반영.
@@ -1269,3 +1281,4 @@
 - 2026-10-22 `shorts-onestop-studio` v1.26 — 본인 목소리 복제(ElevenLabs, 회원 키·동의 확인)로 내레이션: 목록 표 버전 — Claude Code(윈도우). 재사용 부품 후보: `src/app/api/voice/elevenlabs/route.ts`(목소리 목록·복제).
 - 2026-10-22 `shorts-onestop-studio` v1.27 — 단어 단위 자막(ElevenLabs 글자 시각·Whisper 낱말 시각, 자막 글자는 대본 그대로): 목록 표 버전 — Claude Code(윈도우). 재사용 부품 후보: `src/lib/voice.ts` 시각 맞추기 함수.
 - 2026-10-22 `shots` v1.32 — 장면 AI 영상(공용 `ai-video-*` 사본): 목록 표 버전(v1.28 표기 → v1.32)·카드 — Claude Code(윈도우). 재사용 부품: `ai-image-studio/lib/video/`(AI 영상 호출 기준).
+- 2026-10-24 `ai-work-workspace` v1.01 신규 — 목록 표 89번·카드·분야 묶음(생활·업무) 추가, 새 카테고리 「업무자동화」 — Claude Code(윈도우).

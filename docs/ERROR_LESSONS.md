@@ -22,6 +22,12 @@
 - **처리**: 아직 안 고침 — 공용 기준에서 빼고 `--sync` 뒤 사본 프로그램 배포가 필요해 주인님 승인 대기. 상세 `ai-video-studio/docs/IMPROVEMENTS.md`.
 - **다음부터 확인**: 모델 목록을 바꾸지 않아도 업체가 모델을 끝낼 수 있다 — 예시·검수용 실생성 때 모든 모델 결과를 확인하고, 종료 오류(1203·discontinued)가 보이면 바로 이 문서와 공용 기준 문서에 적는다.
 
+## 2026-10-24 — 운영 SQL 편집기에서 Ctrl+Enter로 실행했더니 같은 창의 다른 탭(앱 첫 설정 화면)에 입력이 가서 워크스페이스가 하나 더 생겼다 (ai-work-workspace v1.01, Claude Code 윈도우)
+- 증상: Supabase SQL 편집기 탭에서 `computer` 도구로 Ctrl+Enter를 보냈는데 SQL은 실행되지 않고, 옆 탭에 열려 있던 워크스페이스 첫 설정 화면이 제출돼 테스트 계정에 「바이라이프의 워크스페이스」가 추가로 생성됨.
+- 원인: 키 입력은 화면에서 실제로 초점을 가진 탭으로 간다. 도구가 가리키는 탭과 화면에 앞에 나와 있는 탭이 다르면 단축키가 엉뚱한 화면의 「제출」이 된다.
+- 해결: 운영 SQL은 단축키 대신 **실행 버튼을 JS로 찾아 클릭**(`javascript_tool`로 그 탭 안에서)하고, 실행 뒤 결과 칸을 읽어 확인. 생긴 워크스페이스는 시험 데이터라 그대로 둠.
+- 다음부터: 쓰기·제출이 일어날 수 있는 화면이 같은 창에 열려 있으면 단축키(Ctrl+Enter·Enter)를 보내지 않는다. 운영 DB 작업은 버튼 클릭 + 결과 읽기로 한다.
+
 ## 2026-10-24 04:39 — 새 프로그램 배포 명령이 메인 사이트(`aimaster`) 운영 배포를 만들었다: 커밋 명령과 배포 명령을 동시에 실행 (ai-work-workspace v1.01, Claude Code 윈도우)
 - 증상: `cd ai-work-workspace && vercel deploy --prod --yes --scope buylife`의 결과 주소가 `aimaster-f4wvhvi1o-buylife.vercel.app`(www.buylife.xyz 연결). 새 프로젝트에는 배포 0건. 배포 출처 `cli`, 커밋 메시지는 내 커밋.
 - 원인: 같은 응답 안에서 `cd /d/Antigravity/AIMaster && git commit …`(루트로 이동)과 위 배포 명령을 **동시에(병렬로)** 실행했다. 두 명령이 같은 셸을 써서 배포가 루트(루트 `.vercel/project.json` = aimaster)에서 실행된 것으로 판단.

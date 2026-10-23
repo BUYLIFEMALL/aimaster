@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — 신규 「AI 업무 워크스페이스 자동화」(`ai-work-workspace`) v1.01 1단계 배포
+- 한 일: 노션형 오픈소스 litpage(MIT, © 씨그로)를 Next.js 16 안에 이식. 원본 서버(SQLite 동기 API)를 **동기 DB 다리**(작업 스레드 + `Atomics.wait`, postgres.js)와 SQL 변환기로 공용 DB 전용 스키마 `aww`(전용 계정 `aww_app`, 비밀번호는 Vault)에 연결. 원본 서버 시험 522/522·연결부 13개 통과. AIMaster 권한(일반 등급 이상 + 사용기간/구독), 회원 자동 생성, 한국어 화면·날짜, 좌측 메뉴 규격, 매뉴얼 `/guide`, 썸네일, 새 카테고리 「업무자동화」, 요금제 3단계. 화면 이름 「Litpage」→「Workspace」, 「Litpage AI」→「AIMaster」.
+- 1단계에서 닫은 것: AI·회의록 받아쓰기·에이전트·초대/공유·공개 페이지·API/MCP·자동화(서버 `stagePolicy.ts`에서 차단, 화면 숨김). 운영에서는 환경변수 AI 키를 절대 읽지 않음(원본은 서버 키 하나를 전원이 공유 — 발견해 막음).
+- 검수: 테스트 계정(`buylifemall@naver.com`)으로 크롬 실창 확인(첫 설정·페이지·매뉴얼·좌측 메뉴). 휴대폰 폭은 390px iframe으로만 확인(실창 아님).
+- **미배포 대기**: `5a9d5e564`(휴대폰 본문 여백 16px·블록 메뉴 AI 항목 숨김) — 빌드 승인 범위 3회를 다 써서 주인님 승인 대기(`docs/PENDING_DEPLOYS.md`).
+- 사고: 커밋·배포 명령 동시 실행으로 메인 사이트가 한 번 더 배포됨(피해 없음, `docs/ERROR_LESSONS.md`). SQL 편집기 Ctrl+Enter가 앱 탭으로 가서 시험 워크스페이스 1개 추가 생성(시험 데이터라 둠).
+- 남은 일·다음 첫 단계: `ai-work-workspace/docs/IMPROVEMENT_BACKLOG.md` — 미배포분 배포 → 2단계(회원 본인 AI 키 `withMemberAiKeys()`) → 3단계(초대·Realtime 동시 편집) → 4단계(자동화·회원 cron-job.org). 상세: `ai-work-workspace/AGENTS.md`.
+- 비용: Vercel 빌드 3회(1회는 실수로 메인 사이트), 썸네일 이미지 1회(관리자 본인 키), AI 호출 0회.
+- 프로그램: https://ai-work-workspace.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(맥미니) · `claude-mac-20261023-ecommerce` — 이커머스 담당 세션 마무리 · 인수인계 문서
 - **인수인계 문서**: `video-to-gif/docs/IMPROVEMENT_HANDOFF_20261024.md`(한 일·「내 PC 고속 변환」 구조·판 관리·남은 일·맥미니 환경·배운 점·커밋 35개). `video-to-gif/AGENTS.md` 맨 아래에서 연결.
 - **결과**: `video-to-gif` v1.19(8MiB 초과용 25·20fps 단계)·v1.20(「⚡ 내 PC 고속 변환」 — 확장 + 맥 perl·윈도우 PowerShell 렌더러 + PC ffmpeg, 1080p 10초 157초 → 25~48초)·v1.21(새 버전 알림·최소 판·맥 Homebrew 없을 때 안내·윈도우 경고 설명·엣지 안내·확장 판 자동 맞춤) 배포·윈도우·맥 실검수 완료. WebCodecs·멀티스레드 엔진은 측정·점검 결과 추천 안 함. `shop-detail-page` Phase 표 정리, 이커머스 미배포 목록 정리.
