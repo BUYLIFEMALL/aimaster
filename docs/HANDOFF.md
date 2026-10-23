@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, claude-win-avs-v103) — AI 영상 스튜디오 v1.03 배포 · 1차-나 5종 실생성 완료
+
+- **배포**: v1.03 Ready(`ai-video-studio-mcgdidz4n`), 화면·DB `programs.version`·역량 지도 모두 v1.03. 함께 나간 대기분: 실사 인물 사진 거절 시 쉬운 안내 `96423f5ec`(배포 대기 표 → 내보낸 기록).
+- **실생성(시험 계정 본인 fal 키, 사람 없는 턴테이블 사진, 크롬 실제 화면)**: Veo 3.1 720p 4초 → 4.0초 1280×720 1.6MB(약 2분) · Seedance 2.0 480p 4초 → 4.04초 864×496 1.0MB(약 4분 반). v1.02의 Kling 3.0·MiniMax H3·Wan 3.0과 합쳐 **1차-나 5종 모두 확인 완료**.
+- **커밋**: `112cdd151`(버전) · 결과 문서 3개(AGENTS·IMPROVEMENTS·BACKLOG)는 사고 커밋 `c2e7c4db2`에 섞였다가 복구 커밋 `237741cc3`에 그대로 남음 · 공용 문서 safe-commit.
+- **사고 관련(정직하게 남김)**: 공용 인덱스가 65개로 줄어든 11:18, 제 커밋 재시도 명령 끝의 `git push`가 커밋 실패와 상관없이 실행되도록 묶여 있어 `c2e7c4db2`를 원격에 올렸을 가능성이 큽니다. 다음부터 커밋 실패 시 푸시하지 않고, 푸시 전 `git show --stat HEAD | tail -1`을 확인합니다(루트 최상위 사고 재발 방지 규칙).
+- **남은 일**: 2차 편집·합치기 스튜디오(Remotion+Mediabunny, R1 대책) 개발 플랜 제시 → 주인님 승인 대기. 선택값(오디오 켜기·fal 글만 생성)은 백로그.
+- **비용 리포트**: Vercel 빌드 1회(1차 누적 4회, 승인 3~5회 안) · fal 영상 2회 약 $1.34(Seedance 2.0 $0.54·Veo 3.1 $0.80, 주인님 추가 승인) · 1차 영상 생성 누계 약 $3.06.
+
+https://ai-video-studio.buylife.xyz
+
 ## 2026-10-23 Codex(윈도우, codex-win-guidelines-20261023) — 최상위 지침 분야별 요약·멀티세션 규칙 등록
 
 - 주인님 요청대로 **원문 삭제 없이** 10개 분야 요약을 작성했습니다. 시작은 [분야별 색인](guidelines/README.md), 상세는 [인수인계](IMPROVEMENT_HANDOFF_20261023_GUIDELINES_SUMMARY.md)·[중복/조건 검토표](guidelines/REVIEW_20261023.md)입니다.
