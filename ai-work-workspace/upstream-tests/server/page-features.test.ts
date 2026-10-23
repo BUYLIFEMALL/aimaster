@@ -674,7 +674,7 @@ describe('template gallery numbers: adds, reviews, Purchased', () => {
     expect(b.view_ids.length).toBeGreaterThan(1);
     const c = db.getRecord<any>('collection', r.collectionId)!;
     expect(c.name).toEqual([['Q4 projects']]); // the typed name stays
-    expect(Object.values(c.schema).map((p: any) => p.name)).toContain('Status');
+    expect(Object.values(c.schema).map((p: any) => p.name)).toContain('상태'); // 이식판: 템플릿 한국어화(2026-10-24) — 원본 기대값 'Status'
     expect(db.childrenOf<any>('block', r.collectionId).filter((x) => x.alive && x.parent_table === 'collection').length).toBeGreaterThan(1);
     expect(db.getRecord<any>('collection', col)!.alive).toBe(false);
     expect(db.getRecord<any>('collection_view', view)!.alive).toBe(false);

@@ -233,7 +233,7 @@ export { save as saveRecord };
 // workspace (apps/server/src/api/modules/templates.ts). Re-seeded when TEMPLATE_GALLERY_VERSION changes.
 export const TEMPLATE_SPACE_ID = '00000000-0000-4000-8000-00000000c0de';
 export const TEMPLATE_USER_ID = '00000000-0000-4000-8000-00000000c0df';
-export const TEMPLATE_GALLERY_VERSION = 5;
+export const TEMPLATE_GALLERY_VERSION = 6; // 이식판: 6 = 한국어 템플릿(2026-10-24)
 
 interface GallerySettings {
   version: number;

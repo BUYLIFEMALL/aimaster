@@ -243,13 +243,13 @@ function buildProperty(p: DbPropSpec): PropertySchema {
   if (p.type === 'status') {
     const s = defaultStatusSchema();
     if (p.options?.length) {
-      // custom status options: map onto the three default groups by keyword
+      // custom status options: map onto the three default groups by keyword (이식판: 한국어 선택지 단어 추가)
       const opts: SelectOption[] = p.options.map((o, i) => {
         const value = typeof o === 'string' ? o : o.value;
-        const color = typeof o === 'string' ? (i === 0 ? 'default' : /done|complete|finished|launched|shipped/i.test(value) ? 'green' : 'blue') : o.color ?? 'default';
+        const color = typeof o === 'string' ? (i === 0 ? 'default' : /done|complete|finished|launched|shipped|완료|출시|다 읽음/i.test(value) ? 'green' : 'blue') : o.color ?? 'default';
         return { id: newId(), value, color };
       });
-      const groupOf = (v: string) => (/done|complete|finished|launched|shipped|read$/i.test(v) ? 2 : /progress|doing|reading|active|review|planning|started/i.test(v) && !/not started/i.test(v) ? 1 : 0);
+      const groupOf = (v: string) => (/done|complete|finished|launched|shipped|read$|완료|출시|다 읽음/i.test(v) ? 2 : /progress|doing|reading|active|review|planning|started|진행|기획|검토|읽는 중/i.test(v) && !/not started/i.test(v) ? 1 : 0);
       out.options = opts;
       out.groups = s.groups.map((g, gi) => ({ ...g, optionIds: opts.filter((o) => groupOf(o.value) === gi).map((o) => o.id) }));
       out.defaultOption = opts[0]?.value;
