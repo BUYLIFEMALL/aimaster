@@ -352,9 +352,10 @@ export function CreateStudio({ fromId = null, presetId = null }: { fromId?: stri
             return (
               <button key={m.id} type="button" aria-pressed={on} data-model={m.id} onClick={() => { setModelId(m.id); setConfirming(false); }}
                 onPointerEnter={() => setHoverModel(m.id)} onPointerLeave={() => setHoverModel((h) => (h === m.id ? null : h))}
-                className={`flex flex-col gap-2 rounded-xl border p-3 text-left ${on ? "border-sky-500/60 bg-sky-500/10" : "border-zinc-800 hover:border-zinc-700"}`}>
-                {hasEx && <ModelExample slug={ex} play={on || hoverModel === m.id} />}
-                <span className="flex w-full items-start justify-between gap-2">
+                className={`flex flex-col gap-2 rounded-xl border p-3 text-left md:flex-row md:items-center md:gap-3 ${on ? "border-sky-500/60 bg-sky-500/10" : "border-zinc-800 hover:border-zinc-700"}`}>
+                {/* v1.16: 데스크톱은 왼쪽 작은 썸네일(가로 128px), 휴대폰은 카드 폭 그대로 */}
+                {hasEx && <span className="block w-full md:w-32 md:shrink-0"><ModelExample slug={ex} play={on || hoverModel === m.id} /></span>}
+                <span className="flex w-full min-w-0 items-start justify-between gap-2">
                 <span className="min-w-0">
                   <span className="block text-sm font-bold text-white">{m.name}</span>
                   <span className="block text-[11px] text-zinc-500">{m.note} · 초당 약 ${m.perSec}{m.needsImage ? " · 시작 사진 필요" : " · 글만으로도 생성"}</span>
