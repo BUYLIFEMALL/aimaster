@@ -34,6 +34,7 @@
 | **H** | 주인님 결정 대기 | 주인님 | — | — | — |
 
 ### 묶음 A — 마무리 확인 (배포는 끝남)
+> **A-1 결과(2026-10-24 Claude Code 윈도우 `claude-win-video`)**: ffmpeg Worker 로드·변환 정상(소리 있는 MP4 → `infinite-loop.mp4` 4.5MB). `--webpack` 문제 없음. 대신 **소리 없는 영상은 크롬에서 항상 실패**하는 별개 버그 발견(`infinite-loop-video/docs/IMPROVEMENTS.md`) — 수정은 승인 대기. 좌측 메뉴 계정 위치(`22c6cda35`)도 v1.06에 이미 실려 나감 확인.
 1. **infinite-loop-video(v1.06)** https://infinite-loop-video.buylife.xyz — 크롬에서 짧은 영상 하나로 무한 반복 영상 만들기가 끝까지 되는지(ffmpeg Worker 로드, 콘솔 오류 없음). 안 되면 원인 기록 후 `--webpack` 설정·`next.config`를 확인(고쳐서 다시 배포하면 빌드 1회 — 승인).
 2. (ghost-scraper `/login` 404는 묶음 C로 옮김)
 3. `git push origin master` 한 번 → `git status -sb`가 앞선 커밋 0인지.
