@@ -113,6 +113,8 @@ ai-work-workspace/
 2. **운영 DB 적용 — ✅ 승인(2026-10-24 주인님 지시: 「진행해」)**: 1단계 마이그레이션 SQL(표 8개 + RLS + 저장 함수)은 로컬 PGlite 시험 통과 후 운영 공용 DB(ref `esgxyikcnnvmlhygjkth`)에 적용한다. 적용한 SQL은 `supabase/migrations/`에 파일로 남긴다. 이 승인은 1단계 표 생성 범위만이며, 기존 공용 표 변경이 필요해지면 다시 여쭌다.
 3. **이용 권한·뱃지 — ✅ 확정(2026-10-24 주인님 지시: 「우선 일반 등급 이상 사용자로 해줘」)**: `programs.required_grade_id` = **일반**, FREE 뱃지 없음, 기본 요금제 3단계 등록. 공통 판정 규칙(정지 → 관리자 → 핸드폰 → FREE → 구독 → 등급+사용기간)상 **일반 등급 이상이면서 관리자가 사용기간을 넣어 준 회원 또는 구독 회원**이 사용한다(등급만으로는 열리지 않음). VIP 자동 부여는 「우선」 범위 밖이라 보류(나중에 주인님 지정).
 
+4. **DB 연결 방식 — ✅ A안 확정(2026-10-24 주인님 선택: 「A. 전용 DB 계정 직접 연결 (추천)」)**: 원본 서버가 SQL을 직접 실행하는 구조(104개 파일·455곳)라 `supabase-js`(REST)만으로는 트랜잭션·임의 SQL을 쓸 수 없다. 그래서 ① `aww_*` 표에만 권한이 있는 전용 DB 계정 `aww_app`(+ 권한 판정용 `profiles`·`programs`·`subscriptions`·`user_program_access`·`member_grades`·`user_api_keys` 읽기 전용)을 만들고 ② Vercel 환경변수 `AWW_DATABASE_URL`(Supabase 연결 풀 주소, transaction 모드)로 `postgres`(postgres.js, `prepare:false`) 드라이버를 써서 직접 연결한다. 비밀번호는 SQL 편집기에서 무작위로 만들어 화면·문서·채팅에 남기지 않고 Vercel 환경변수에만 넣는다. 원본 SQL은 Postgres 문법으로 옮기고(`?`→`$n`, `json_extract`→`data->>`, `INSERT OR IGNORE`→`ON CONFLICT DO NOTHING`, FTS5→`pg_trgm`), 서버 코드는 비동기(async)로 바꾼다. 공용 권한 판정(`profiles` 등)은 기존 프로그램과 같은 `createAdminClient()` 방식을 유지한다.
+
 ## 8. 다른 프로그램과의 연계 후보 (4단계 이후, 아이디어 표에 등록 예정)
 
 - 블로그·SNS 프로그램의 원고·발행 기록을 워크스페이스 데이터베이스(콘텐츠 캘린더)로 보내기

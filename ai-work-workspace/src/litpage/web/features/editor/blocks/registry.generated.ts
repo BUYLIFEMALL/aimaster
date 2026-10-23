@@ -1,0 +1,35 @@
+// 자동 생성 파일(scripts/gen-registry.mjs) — 직접 고치지 않는다.
+// 원본의 import.meta.glob('../../**/*.block.tsx') / ('../../**/*.view.tsx')와 같은 목록·순서.
+import '../../agents/AgentChat.block.tsx';
+import '../../ai/AiBlock.block.tsx';
+import '../../aiImage/AiImage.block.tsx';
+import './ai.block.tsx';
+import './bookmark.block.tsx';
+import './breadcrumb.block.tsx';
+import './button.block.tsx';
+import './callout.block.tsx';
+import './code.block.tsx';
+import './columns.block.tsx';
+import './embed.block.tsx';
+import './equation.block.tsx';
+import './html.block.tsx';
+import './media.block.tsx';
+import './pageLink.block.tsx';
+import './synced.block.tsx';
+import './table.block.tsx';
+import './tabs.block.tsx';
+import './toc.block.tsx';
+import '../../meetings/MeetingNotes.block.tsx';
+import '../../database/advanced/integration.view.tsx';
+import '../../database/views/board/BoardView.view.tsx';
+import '../../database/views/calendar/CalendarView.view.tsx';
+import '../../database/views/chart/ChartView.view.tsx';
+import '../../database/views/dashboard/DashboardView.view.tsx';
+import '../../database/views/feed/FeedView.view.tsx';
+import '../../database/views/form/FormView.view.tsx';
+import '../../database/views/gallery/GalleryView.view.tsx';
+import '../../database/views/list/ListView.view.tsx';
+import '../../database/views/map/MapView.view.tsx';
+import '../../database/views/table/TableView.view.tsx';
+import '../../database/views/timeline/TimelineView.view.tsx';
+import '../../page/wikiHome.view.tsx';
