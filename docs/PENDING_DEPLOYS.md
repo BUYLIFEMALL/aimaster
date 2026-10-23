@@ -17,7 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `threads-easy-planner` (운영 v1.48) | 배포판 프로그램 이름 「ALLA AI」(`src/lib/deployment.ts` `APP_NAME` — 독립 모드 전용, 운영 화면 이름 그대로) | `21411983e` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-tep-kit` | `threads-easy-planner/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01(운영 화면 이름이 그대로인지 확인) |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -57,6 +56,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `threads-easy-planner` | v1.49 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-tep-kit`, 주인님 지시 빌드 1회, `threads-easy-planner-a1lwj980x`) | 배포판 이름 ALLA AI `APP_NAME`(독립 모드 전용, 운영 이름 그대로 확인) · 이번 배포 본건: 운영에서 이미지 기능 숨김(`IMAGE_FEATURE`) |
 | `naver-blog-agent` | v2.15 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-agent-chb6zlsgx`) | 확장 팝업 폭 480px·버튼 한 줄 `2666fc309`(올린 세션 `claude-win-20261023-seo-bg`) + 준비 모드 직접 발행 결과 기록(새 기능) |
 | `detail-page-12p` | v1.11 · 2026-10-23 Next.js 보안 업데이트 배포(`claude-win-20261023-next-security`, 커밋 `f9a3fcefe`)에 함께 나감 — 표 정리는 Claude Code(맥미니) `claude-mac-20261023-ecommerce` | 메인 사이트 링크 정정 `486fd5fd3` — `node scripts/check-app-urls.mjs detail-page-12p --live`: 로그인 화면·스크립트 8개에 `www.buylife.xyz` 있음, `aimaster.buylife.xyz`·`/signup` 0개 |
 | `shots` | v1.42 · 2026-10-23 (Claude Code 윈도우 · 세션 `claude-win-20261023-bgm`, 승인 빌드 1회, `shots-4qfznzp6u`) | Lyria·ElevenLabs 배경음악 실제 길이 표시 `35bcd8a03`(크롬 Lyria 1곡 「66초」 확인) · 공용 `ai-video-providers` 선택값 사본 · `ai-video-*` 기준 이전 사본(동작 불변) |
