@@ -3,5 +3,7 @@
 # 트리가 절반 아래로 줄면 푸시를 막는다(루트 CLAUDE.md 최상단). 설치: node scripts/git-hooks/install.mjs
 command -v node >/dev/null 2>&1 || exit 0
 root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+# 2026-10-23 공용 스테이징 블랙박스(축소 원인 추적용, 막지 않음 — 표준 입력은 아래 검사가 읽으므로 빈 입력을 준다)
+[ -f "$root/scripts/index-watch.mjs" ] && { node "$root/scripts/index-watch.mjs" pre-push --quiet </dev/null || true; }
 [ -f "$root/scripts/check-index-health.mjs" ] || exit 0
 node "$root/scripts/check-index-health.mjs" --push

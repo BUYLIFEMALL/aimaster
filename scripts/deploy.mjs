@@ -182,6 +182,12 @@ if (versionOnly && args.includes("--all")) {
     }
   } catch (e) { console.log(`[30일 정리 기록] 확인 실패 — ${e.message}`); }
 
+  // 공용 스테이징 블랙박스 기록(2026-10-23) — 세션 시작마다 index 크기·항목 수 한 줄, 축소면 ⚠와 직전 기록(scripts/index-watch.mjs)
+  {
+    const iw = spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), "session-check"], { cwd: ROOT, encoding: "utf8" });
+    for (const l of `${iw.stdout || ""}${iw.stderr || ""}`.trim().split("\n").filter(Boolean)) console.log(l.startsWith("⚠") || l.startsWith("[") ? l : `  ${l.trim()}`);
+  }
+
   // 커밋·푸시 안전장치 자기 시험(2026-10-23) — pre-commit이 줄 뒤섞임으로 아무 검사 없이 통과하던 고장(04b887892)을 반나절 몰랐던 일 재발 방지.
   // 막혀야 하는 경우를 실제 훅 파일로 흉내 낸다: pre-commit = 빈 임시 스테이징(공용 .git/index는 안 건드림), pre-push = 알려진 대량 삭제 커밋 c2e7c4db2.
   {

@@ -9,6 +9,8 @@ root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 if [ -f "$root/scripts/check-shared-doc-reverts.mjs" ]; then node "$root/scripts/check-shared-doc-reverts.mjs" --block-scripts || exit 1; fi
 # 2026-10-23: 공용 문서(HANDOFF 등)에서 최근 2시간 안 다른 커밋이 넣은 줄을 지우면 경고(커밋은 계속) — docs/PROPOSAL_20261023_SHARED_DOC_OVERWRITE.md 방안 B
 [ -f "$root/scripts/check-shared-doc-reverts.mjs" ] && { node "$root/scripts/check-shared-doc-reverts.mjs" --staged || true; }
+# 2026-10-23 공용 스테이징 블랙박스 — 커밋 때마다 index 크기·항목 수를 .git/aimaster-index-log.txt에 한 줄(축소 원인 추적용, 막지 않음)
+[ -f "$root/scripts/index-watch.mjs" ] && { node "$root/scripts/index-watch.mjs" pre-commit --quiet </dev/null || true; }
 # 2026-10-23 저장소 대량 삭제 사고(c2e7c4db2) 재발 방지 — 파일을 50개 넘게 지우거나 스테이징이 쪼그라들었으면 커밋을 막는다(루트 CLAUDE.md 최상단)
 if [ -f "$root/scripts/check-index-health.mjs" ]; then node "$root/scripts/check-index-health.mjs" --staged || exit 1; fi
 exit 0
