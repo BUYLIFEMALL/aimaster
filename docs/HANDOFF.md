@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ⚠ 커밋 전 검사 훅이 아무 검사도 안 하던 문제 수정 · 맥미니 커밋 스크립트 보강
+- `scripts/git-hooks/pre-commit`이 `04b887892`부터 node가 있으면 첫 줄에서 `exit 0` → 대량 삭제 검사·기존 경고 2개가 돌지 않았다. 원래 순서로 되돌리고 재설치(`.git/hooks/` 공용이라 맥미니도 같이 적용). 빈 임시 인덱스 시험에서 ⛔ 막힘, 정상은 통과. pre-push는 원래 정상(망가진 커밋 흉내 입력에 막힘 확인).
+- `scripts/mac-mini/commit-gate.sh`: pull 전에 공용 스테이징 < HEAD의 절반이면 바로 멈춤(예전엔 1만 줄 「다른 CLI 스테이징」 목록 뒤 5분 대기). bash로 시험, zsh 미시험.
+- **맥미니 세션 확인 요청**: 맥미니 터미널에서 `sh -x .git/hooks/pre-commit` 한 번 — `node` 경로가 잡히는지(없으면 검사가 조용히 건너뜀).
+- 비용 없음. 상세 `docs/ERROR_LESSONS.md` 맨 위.
+
 ## 2026-10-23 Claude Code(윈도우, claude-win-avs-v103) — AI 영상 스튜디오 v1.03 배포 · 1차-나 5종 실생성 완료
 
 - **배포**: v1.03 Ready(`ai-video-studio-mcgdidz4n`), 화면·DB `programs.version`·역량 지도 모두 v1.03. 함께 나간 대기분: 실사 인물 사진 거절 시 쉬운 안내 `96423f5ec`(배포 대기 표 → 내보낸 기록).
