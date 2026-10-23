@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `shorts-onestop-studio/` + `music-video-studio/` + `ai-music-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-bgm` | 2026-10-23 | 곡 번호 링크(`?ams=`) 묶음 배포 3회(주인님 승인) |
