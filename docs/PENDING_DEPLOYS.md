@@ -21,7 +21,6 @@
 | `ai-image-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shorts-onestop-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shots` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
-| `music-video-studio` (운영 v1.18) | 공용 `video-edit-timeline`·`video-edit-composition` 사본 동기화(장면 늘리기 `hold`·겹쳐 바꾸기 — 뮤직비디오는 쓰지 않아 동작 불변) | `179b58ccc` · `fd1f3cb67`(영상 생성 공용 사본: 소리 켜기·글→영상, 동작 불변) | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.07 | 버전 +0.01 |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -80,6 +79,7 @@
 | `tistory-auto-blog` | v1.91 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
 | `naver-blog-allinone` | v1.52 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
 | `blog-workroom` | v1.14 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
+| `music-video-studio` | v1.19 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `music-video-studio-13ii31wh2`) | 장면 전환을 박자에 맞추기 `798ef6126` + 대기분 공용 사본 동기화 `179b58ccc`·`fd1f3cb67`(동작 불변) — 운영 켬/끔 렌더로 전환 1프레임 이동 확인 |
 | `ai-video-studio` | v1.09 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `ai-video-studio-r8r4gseoz`) | 자르기 막대 끌기 `cd696eb2a` — 운영에서 끌기·←→ 키·최소 0.5초 확인 |
 | `ai-video-studio` | v1.08 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `ai-video-studio-223fxl5fq`) | fal 소리 켜기·글만으로 영상 `fd1f3cb67` — 운영 fal 생성 2회(약 $0.50)로 소리·글만으로 확인 |
 | `ai-video-studio` | v1.07 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `ai-video-studio-hhv6cegzq`) | 장면을 내레이션에 맞추기·겹쳐 바꾸기 `179b58ccc` — 운영 렌더로 반복 재생·섞임·내레이션 끝 소리 확인 |
