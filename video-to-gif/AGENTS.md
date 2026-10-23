@@ -362,4 +362,11 @@
 
 ## 2026-10-24 ✅ v1.21 배포 (Claude Code 윈도우 · 세션 `claude-win-sdp`, 맥미니 요청·주인님 승인 빌드 1회)
 - `video-to-as3vkytql` Ready → video-to-gif.buylife.xyz, DB `version`·`extension_version` v1.21, `check-extension-release.mjs` **OK**(LR-W-01 해결). 운영 윈도우 렌더러 ZIP 재설치 정상(`Unblock-File` 오류 없음).
-- 남은 것: 맥미니 크롬(확장 v1.00)에서 「🔔 확장 새 버전 v1.21」 실검수. 윈도우 엣지의 확장은 저장소 폴더를 불러오므로 다시 켜면 v1.21이 되어 이 알림 시험에 맞지 않음.
+- 남은 것: 맥미니 크롬(확장 v1.00)에서 「🔔 확장 새 버전 v1.21」 실검수. 윈도우 엣지의 확장은 저장소 폴더를 불러오므로 다시 켜면 v1.21이 되어 이 알림 시험에 맞지 않음. → 아래 맥미니 실검수로 완료.
+
+## 2026-10-24 ✅ v1.21 맥미니 크롬 실검수 (Claude Code 맥미니 · `claude-mac-20261023-ecommerce`, 시험 계정)
+- 운영 `version.json` extension v1.21·host 1.00·minExtension v1.00·minHost 1.00, 운영 확장 ZIP `version_name` v1.21, `node scripts/check-extension-release.mjs video-to-gif` → **OK**(DB v1.21 / ext v1.21 / zip v1.21).
+- `/dashboard` v1.21: 「⚡ 내 PC 고속 변환 · 사용 중 · ffmpeg 8.1」 아래 **「🔔 확장 새 버전 v1.21이 있습니다(설치됨 v1.00). 확장 ZIP 받기 → 기존 확장 폴더에 덮어쓰기 → chrome://extensions에서 새로고침(↻). 업데이트 방법」** 표시(맥미니 크롬은 아직 확장을 다시 불러오지 않아 v1.00으로 동작). 링크 `gif-renderer-extension-latest.zip`·`/guide#renderer-update`. 렌더러는 1.00 = 최신이라 렌더러 알림 없음(정상), 최소 판 이상이라 PC 변환 그대로.
+- `/guide#mac-ffmpeg`로 바로 이동(구역 맨 위): Homebrew 공식 설치 한 줄·evermeet.cx 링크·`~/Library/Application Support/BuylifeGifRenderer` 안내. `#renderer-update` 「🔔 업데이트 방법」 확장·렌더러 방법. 엣지(`edge://extensions`)·윈도우 경고(메모장으로 확인) 문구 표시.
+- 확인 못 한 것: 「너무 옛 판 → 브라우저 변환」 실제 화면(최소 판을 올려야 재현 — 판단 함수 시험·운영 페이지 판단 확인만), 맥에서 ffmpeg가 없을 때의 작업 화면 연결(이 맥미니에는 ffmpeg가 있음).
+- 비용: 없음.
