@@ -108,3 +108,9 @@ export function encodeArgs(format: OutFormat, hasAudio: boolean): string[] {
   if (format === "webm") return ["-c:v", "libvpx", "-b:v", "2M", "-crf", "10", ...(hasAudio ? ["-c:a", "libvorbis"] : ["-an"])];
   return ["-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p", ...(hasAudio ? ["-c:a", "aac", "-b:a", "128k"] : ["-an"])];
 }
+
+/** v1.07 ffmpeg `-i` 기록에 소리 트랙(`Stream #0:1…: Audio:`)이 있는가 — 크롬은 화면에서 소리 여부를 알 수 없어 파일을 직접 확인한다 */
+export function hasAudioStream(ffmpegLog: string): boolean {
+  // 스트림 번호 바로 뒤(선택: [0x2]·(und))에 오는 종류 칸만 본다 — 제목 등에 「Audio:」 글자가 있어도 오판하지 않게
+  return /Stream #\d+:\d+(?:\[[^\]\n]*\])?(?:\([^)\n]*\))?: Audio:/.test(ffmpegLog);
+}

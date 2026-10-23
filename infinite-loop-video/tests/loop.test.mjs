@@ -58,3 +58,23 @@ test("필터 구성: 소리 유지 / 바운스 / GIF 무음", () => {
   assert.match(buildFilter({ ...base, mode: "bounce" }).filter, /reverse/);
   assert.deepEqual(buildFilter({ ...base, format: "gif" }).map, ["-map", "[vout]"]);
 });
+
+test("v1.07 소리 트랙 확인: ffmpeg -i 기록에 Audio 줄이 있을 때만 true", async () => {
+  const { hasAudioStream } = await import("../src/lib/loop/plan.ts");
+  const withAudio = "Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'input.mp4':\n  Stream #0:0[0x1](und): Video: h264 (High), yuv420p, 1280x720, 24 fps\n  Stream #0:1[0x2](und): Audio: aac (LC), 44100 Hz, stereo, fltp, 128 kb/s (default)\nAt least one output file must be specified";
+  const silent = "Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'input.mp4':\n  Stream #0:0[0x1](und): Video: h264 (High), yuv420p, 480x270, 24 fps\nAt least one output file must be specified";
+  assert.equal(hasAudioStream(withAudio), true);
+  assert.equal(hasAudioStream(silent), false);
+  assert.equal(hasAudioStream(""), false);
+  assert.equal(hasAudioStream("Stream #0:0: Video: h264 ... title: Audio: commentary"), false);
+});
+
+test("v1.07 소리 없는 영상이면 필터·인코딩에 소리 처리가 들어가지 않는다(세 방식 모두)", async () => {
+  const { encodeArgs } = await import("../src/lib/loop/plan.ts");
+  for (const mode of ["smart", "overlap", "bounce"]) {
+    const { filter, map } = buildFilter(normalize({ mode, start: 0, end: 4, crossfade: 0.5, repeat: 3, duration: 4, hasAudio: false, format: "mp4" }));
+    assert.doesNotMatch(filter, /\[0:a\]/, mode);
+    assert.ok(!map.join(" ").includes("aout"), mode);
+  }
+  assert.ok(encodeArgs("mp4", false).includes("-an"));
+});

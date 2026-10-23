@@ -2,7 +2,7 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { extractFeature, FRAME_SIZE, type FrameFeature } from "./analysis";
-import { buildFilter, encodeArgs, normalize, type LoopParams } from "./plan";
+import { buildFilter, encodeArgs, hasAudioStream, normalize, type LoopParams } from "./plan";
 
 function seekTo(video: HTMLVideoElement, t: number): Promise<void> {
   return new Promise((resolve) => {
@@ -60,7 +60,7 @@ export async function renderLoop(
   params: LoopParams,
   onStatus: (message: string, ratio?: number) => void
 ): Promise<RenderResult> {
-  const p = normalize(params);
+  let p = normalize(params);
   onStatus("변환 엔진을 불러오는 중입니다 (처음 한 번만 오래 걸립니다)");
   const ffmpeg = await getFFmpeg();
   const progress = ({ progress }: { progress: number }) => onStatus("렌더링 중", Math.max(0, Math.min(1, progress)));
@@ -70,6 +70,12 @@ export async function renderLoop(
   const mime = p.format === "gif" ? "image/gif" : p.format === "webm" ? "video/webm" : "video/mp4";
   try {
     await ffmpeg.writeFile(inName, await fetchFile(file));
+    // v1.07: 소리 트랙이 정말 있는지 파일에서 확인(크롬은 화면 짐작이 늘 「있음」이라 소리 없는 영상이 실패했음)
+    let probeLog = "";
+    const onLog = ({ message }: { message: string }) => { probeLog += message + "\n"; };
+    ffmpeg.on("log", onLog);
+    try { await ffmpeg.exec(["-hide_banner", "-i", inName]); } finally { ffmpeg.off("log", onLog); }
+    if (probeLog) p = { ...p, hasAudio: hasAudioStream(probeLog) };
     const { filter, map } = buildFilter(p);
     const audio = p.hasAudio && p.format !== "gif";
     const unit = p.format === "webm" ? "unit.webm" : "unit.mp4";
