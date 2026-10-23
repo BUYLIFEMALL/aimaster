@@ -64,6 +64,7 @@
   3. 점검 명령(위쪽 메뉴 코드는 있는데 전환 규칙이 없는 프로그램만 출력, 2026-10-14 기준 0개):
      `for d in */; do p=${d%/}; grep -rqs 'className="mobile-sidebar"' $p/src --include=*.tsx && ! grep -q "mobile-sidebar{display:block" $p/src/app/globals.css && echo $p; done`
   4. **배포 전 점검(무료, 코드 읽기만, 2026-10-23~)**: `node scripts/check-mobile-account.mjs` — 좌측 메뉴가 있는 모든 프로그램에서 「휴대폰 전환(☰) 흔적 없음」·「데스크톱 전용 메뉴에만 로그아웃 1곳(펼침 메뉴에 계정 빠짐)」 후보를 보여 준다(`--all`은 전체 목록). 새 프로그램·뼈대 복사·좌측 메뉴 수정 뒤 후보에 내 폴더가 없어야 한다(2026-10-23 기준 0곳). 코드 판정이라 오판이 있을 수 있으니 후보는 위 1~2번으로 화면 확인. 세션 시작 점검(`node scripts/deploy.mjs --version-only --all`)에도 요약 한 줄이 나오고, 배포 도우미(`node scripts/deploy.mjs <폴더>`)는 그 폴더가 후보면 [2/3] 단계에서 「⚠ 휴대폰 메뉴 확인 필요」를 띄운다(배포는 막지 않음). 한 폴더만: `node scripts/check-mobile-account.mjs <폴더>`.
+  5. **가로 넘침(2026-10-23~)**: 같은 점검이 「⚠ 가로 넘침 의심」도 보여 준다 — 넓은 고정 폭(360px 이상) `absolute`·`fixed` 장식(배경 번짐 등)이 오른쪽 끝 고정만이 아니고 같은 파일에 `overflow-hidden`·`overflow-x-clip` 등이 없을 때. 고칠 때는 감싸는 요소에 `overflow-x-clip`(안쪽 `sticky` 유지) 또는 `overflow-hidden`. **전역 CSS의 `body { overflow-x: hidden }`은 막지 못한다**(music v1.44 실측: 390px에서 창이 114px 밀림). 화면 확인은 내용 폭(`scrollWidth`)이 아니라 실제로 밀리는지 — 390px iframe에서 `window.scrollTo(200,0)` 뒤 `scrollX`가 0인지로 본다.
 
 ## 구현 골격
 
