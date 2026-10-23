@@ -87,6 +87,20 @@ let staged;
 try { staged = git("diff", "--cached", "--name-only").split("\n").filter(Boolean); } catch { process.exit(0); }
 const targets = staged.filter((f) => SHARED.includes(f));
 const scriptTargets = staged.filter(isSharedScript);
+// --block-scripts(2026-10-23, 주인님 승인 제안): 공용 스크립트를 일반 git commit으로 올리면 커밋을 막는다.
+// 일반 커밋은 그 파일의 다른 세션 미커밋 수정까지 통째로 담기 때문(48b3fc4d0 사고). 안전 커밋 도우미는 이 훅을 거치지 않아 막히지 않는다.
+// 혼자 고친 것을 확인한 경우만 AIMASTER_SHARED_SCRIPT_OK=1 로 통과.
+if (process.argv.includes("--block-scripts")) {
+  if (!scriptTargets.length || process.env.AIMASTER_SHARED_SCRIPT_OK === "1") process.exit(0);
+  console.error(`\n⛔ [공용 스크립트 차단] ${scriptTargets.join(", ")} 를 일반 git commit으로 커밋하려 해 멈췄습니다.
+  여러 세션이 고치는 파일이라, 일반 커밋은 그 파일에 있는 다른 세션의 미커밋 수정까지 함께 담습니다(48b3fc4d0 사고).
+  이렇게 하세요:
+    1) 고치기 전에  node scripts/safe-commit.mjs --begin <파일> --as <세션이름>
+    2) 고친 뒤      node scripts/safe-commit.mjs "<메시지>" <파일> --as <세션이름> --push
+  이미 고쳤다면: git diff -- <파일> 로 내가 쓴 줄만 있는지 확인한 뒤에만 AIMASTER_SHARED_SCRIPT_OK=1 git commit ...
+  (docs/CLI_COLLABORATION_RULES.md 9번)\n`);
+  process.exit(1);
+}
 if (scriptTargets.length) console.error(`\nℹ [공용 스크립트] ${scriptTargets.join(", ")} 를 일반 git commit으로 커밋합니다. 다른 세션도 고치는 파일이라, 작업 파일에 남의 미커밋 수정이 있으면 함께 들어갑니다(예: 48b3fc4d0).\n  고치기 전에 node scripts/safe-commit.mjs --begin <파일> --as <세션이름> 로 기준 사본을 떠 두고, 커밋도 safe-commit으로 하세요(docs/CLI_COLLABORATION_RULES.md 9번). 지금 커밋 전이면 git diff -- <파일> 로 내가 쓴 줄만 있는지 확인.`);
 if (!targets.length) process.exit(0);
 // 안전 커밋 도우미(safe-commit.mjs)는 이 훅을 거치지 않음 → 여기 왔다면 공용 문서를 일반 git commit으로 커밋하는 중(2026-10-23)
