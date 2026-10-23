@@ -7,7 +7,7 @@
 //       node scripts/index-watch.mjs commit-gate --stale-only   묵은 스테이징 항목만 확인(있으면 종료 코드 3)
 // 잠금(.git/index.lock)이 5분 넘게 남으면 잠금 하나당 한 번 .git/aimaster-lock-evidence.txt에 그때 프로세스·전후 기록을 남긴다.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { hostname } from "node:os";
 import { join, relative, resolve } from "node:path";
 
@@ -161,6 +161,21 @@ try {
     printEvidence(false);
     // 묵은 스테이징 항목(위 staleEntries 설명)
     try { printStale(staleEntries()); } catch { /* 기록 실패는 무시 */ }
+    // 오래된 기준 사본(2026-10-23): safe-commit --begin 뒤 커밋하지 않고 끝난 세션의 사본(.git/safe-commit/<세션>/*.base)이 24시간 넘게 남음 — 지우지 말고 확인
+    try {
+      const sc = join(gitDir, "safe-commit");
+      if (existsSync(sc)) {
+        // deploy-<폴더> 사본은 deploy.mjs가 배포마다 --force-begin으로 새로 뜨고 3개 중 바뀐 것만 커밋해 남는 게 정상 → 경고에서 빼고 개수만
+        const old = []; let deployLeft = 0;
+        for (const who of readdirSync(sc)) for (const f of readdirSync(join(sc, who))) {
+          const age = Date.now() - statSync(join(sc, who, f)).mtimeMs;
+          if (age <= 24 * 3600_000) continue;
+          if (who.startsWith("deploy-")) { deployLeft++; continue; }
+          old.push(`${who}:${f.replace(/__/g, "/").replace(/\.base$/, "")}(${Math.floor(age / 3600_000)}시간)`);
+        }
+        if (old.length) console.log(`⚠ [오래된 기준 사본] ${old.length}개: ${old.slice(0, 3).join(", ")}${old.length > 3 ? ` 외 ${old.length - 3}개` : ""} — 수정 시작 표시 뒤 커밋 없이 끝난 세션일 수 있음. \`node scripts/safe-commit.mjs --status\`로 보고, 그 세션에 확인 후 정리(내 것이면 커밋하거나 --begin ... --force-begin)${deployLeft ? ` · 배포 스크립트가 남긴 것 ${deployLeft}개는 정상` : ""}`);
+      }
+    } catch { /* 무시 */ }
     // 작업 중 표의 세션 이름(2026-10-23, docs/ACTIVE_WORK.md 사용법 2): 「에이전트(장비)」 칸에 claude-·codex-·agy- 세션 이름이 없는 줄
     try {
       const aw = join(root, "docs", "ACTIVE_WORK.md");
