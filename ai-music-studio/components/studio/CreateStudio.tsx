@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AlertCircle, Check, KeyRound, Loader2, Mic, Music2, Sparkles, Wand2 } from "lucide-react";
 import { MAX_COMPARE, MAX_IMAGES, MODELS, PROVIDERS, clampDuration, validateForModel, type InputImage, type MusicModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
+import type { CreatePreset } from "@/lib/preset";
 import { GenerationCard } from "./GenerationCard";
 import { styleOf } from "@/lib/providerStyle";
 import { usePlayer } from "@/components/player/PlayerProvider";
@@ -88,15 +89,16 @@ function ModelCard({ model, selected, disabledReason, hasKey, onToggle, multi }:
   );
 }
 
-export function CreateStudio({ mode }: { mode: Mode }) {
+export function CreateStudio({ mode, preset = null }: { mode: Mode; preset?: CreatePreset | null }) {
   const multi = mode === "compare";
-  const [selected, setSelected] = useState<string[]>(multi ? ["gemini:lyria-3.5", "elevenlabs:music_v2_5"] : ["gemini:lyria-3.5"]);
-  const [prompt, setPrompt] = useState("");
-  const [title, setTitle] = useState("");
-  const [lyrics, setLyrics] = useState("");
-  const [instrumental, setInstrumental] = useState(false);
-  const [language, setLanguage] = useState("auto");
-  const [durationS, setDurationS] = useState(120);
+  // v1.12 preset = 「이 설정으로 다시 만들기」로 불러온 지난 곡 설정(처음 값만 채움, 자동 생성 없음)
+  const [selected, setSelected] = useState<string[]>(multi ? ["gemini:lyria-3.5", "elevenlabs:music_v2_5"] : [preset?.modelKey ?? "gemini:lyria-3.5"]);
+  const [prompt, setPrompt] = useState(preset?.prompt ?? "");
+  const [title, setTitle] = useState(preset?.title ?? "");
+  const [lyrics, setLyrics] = useState(preset?.lyrics ?? "");
+  const [instrumental, setInstrumental] = useState(preset?.instrumental ?? false);
+  const [language, setLanguage] = useState(preset?.language ?? "auto");
+  const [durationS, setDurationS] = useState(preset?.durationS ?? 120);
   const [registered, setRegistered] = useState<Set<string> | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [writingLyrics, setWritingLyrics] = useState(false);
@@ -104,7 +106,7 @@ export function CreateStudio({ mode }: { mode: Mode }) {
   const [results, setResults] = useState<ClientGeneration[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [images, setImages] = useState<PickedImage[]>([]);
-  const [format, setFormat] = useState<"mp3" | "wav">("mp3");
+  const [format, setFormat] = useState<"mp3" | "wav">(preset?.format ?? "mp3");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const player = usePlayer();
 
@@ -225,6 +227,13 @@ export function CreateStudio({ mode }: { mode: Mode }) {
             : "Google Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 중 하나를 골라 노래나 배경음악을 만듭니다."}
         </p>
       </div>
+
+      {preset && (
+        <p role="status" className="rounded-xl border border-cyan-400/30 bg-cyan-400/5 px-4 py-3 text-sm text-cyan-100">
+          🔁 「{preset.fromTitle || "지난 곡"}」의 설정을 불러왔습니다. 내용을 확인하고 바꾼 뒤 「만들기」를 눌러 주세요(누르기 전에는 만들지 않습니다).
+          {!preset.modelKey && <span className="mt-1 block text-xs text-amber-300">지난 곡의 모델은 지금 쓸 수 없어 기본 모델로 골라 두었습니다.</span>}
+        </p>
+      )}
 
       {/* v1.11 데스크톱 2열 — 왼쪽 입력 단계, 오른쪽 고정 요약(만들기 버튼·비용이 항상 보이게) */}
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start lg:gap-6">

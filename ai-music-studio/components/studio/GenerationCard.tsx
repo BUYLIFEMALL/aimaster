@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AlertCircle, CheckCircle2, Download, FileText, Loader2, StickyNote, Star, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { PROVIDERS } from "@/lib/providers/catalog";
@@ -156,6 +157,9 @@ export function GenerationCard({ gen, onDeleted, onUpdated }: { gen: ClientGener
 
       {gen.outputs.length > 0 && (
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+          {/* v1.12 같은 설정으로 곡 만들기 화면을 미리 채워 연다(자동 생성 없음) */}
+          <Link href={`/create?from=${gen.id}`} title="이 곡의 모델·설명·가사·길이를 곡 만들기 화면에 채워 엽니다. 「만들기」를 눌러야 만들어집니다"
+            className="whitespace-nowrap font-medium text-cyan-300 hover:text-cyan-200">🔁 이 설정으로 다시 만들기 →</Link>
           <a href={MASTERING_URL} target="_blank" rel="noreferrer" title="곡을 내려받은 뒤 마스터링 스튜디오에 넣어 소리를 다듬습니다"
             className="whitespace-nowrap font-medium text-zinc-400 hover:text-violet-200">🎚️ 마스터링 스튜디오 → <span className="text-zinc-500">(내려받은 파일을 넣어 주세요)</span></a>
           {gen.provider === "suno" && (

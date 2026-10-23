@@ -91,3 +91,8 @@
 - 제안 나. 곡 카드 막대 그림이 곡 번호로 만든 장식이었음 → **한 번 재생한 곡만** 브라우저가 곡 파일을 다시 받아(`fetch` → `decodeAudioData`) 구간 36개의 RMS를 막대 높이로 그림. 재생 위치까지는 진하게, 이후는 흐리게(움직임 없음). 결과는 탭 메모리 + `sessionStorage` `ams-peaks:<곡 키>`(서버 저장 없음), 30MB 넘는 파일·실패 시 기존 장식 막대 그대로.
 - `lib/peaks.ts`(`peaksFromChannels`·`peakToHeight`, 시험 `tests/peaks.test.mjs` 4개 — 전체 44개), `components/player/usePeaks.ts`, `Waveform.tsx`(`peaks`·`progress` 선택값), `TrackRow.tsx`.
 - 사전 확인(운영 v1.11 보관함, 크롬): Stable Audio 30초 곡 서명 주소를 브라우저에서 받아 디코딩·막대 계산 0.8초, 끝부분 소리 줄어듦까지 반영 — 저장소 서명 주소는 다른 출처에서도 받아짐. 화면 표시는 배포 뒤 확인.
+
+## 2026-10-23 「이 설정으로 다시 만들기」 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, **미배포 대기** — 배포 때 v1.12에 함께)
+- 제안 다. 곡 카드(보관함·곡 만들기 결과)에 「🔁 이 설정으로 다시 만들기 →」 → `/create?from=<곡 번호>`. 페이지(서버)가 곡 번호 형식 검사 후 **본인 곡만**(`user_id` 조건, 관리자 키) 읽어 모델·제목·곡 설명·가사·보컬/연주곡·언어·길이·WAV 여부를 미리 채움. 안내 띠 「설정을 불러왔습니다… 누르기 전에는 만들지 않습니다」, 쓸 수 없는 모델(숨김 Mureka 등)이면 기본 모델 + 안내. 자동 생성 없음(비용은 회원이 「만들기」를 눌러야). 곡 번호가 바뀌면 화면을 새로 그림(`key`).
+- `lib/preset.ts`(`presetFromRow`·`isGenerationId`, 시험 `tests/preset.test.mjs` 5개 — 전체 49개), `app/(dashboard)/create/page.tsx`, `CreateStudio.tsx`(`preset` 선택값), `GenerationCard.tsx`(링크). 이미지 첨부는 다시 채우지 않음(원본 이미지를 저장하지 않음).
+- 검수: 시험 49개·tsc·build 통과. 화면 확인은 배포 뒤.
