@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 세션 이름↔메시지 주소 기록·배포 사본 자동 정리·사고 기록 절차 (세션 claude-win-lessons)
+- 한 일: ① `scripts/index-watch.mjs`(`8eaec1e34`) 세션 이름이 붙은 기록 때 `.git/aimaster-sessions.txt`에 「세션 이름 | 장비 | uds:<메시지 주소>」(환경변수 `CLAUDE_CODE_MESSAGING_SOCKET`, 비밀값 TOKEN은 안 적음, 커밋 안 됨, 같은 장비에서만 통함, 2,000줄 넘으면 최근 1,000줄) — 작업 중 세션 목록에 주소 표시. 24시간 넘은 `deploy-*` 기준 사본은 자동 삭제(배포마다 `--force-begin`이라 잃을 것 없음) ② `scripts/deploy.mjs`(`91734f5a7`) 보낼 문안에 그 세션의 SendMessage 주소(없으면 「ListAgents로 찾기」) ③ `docs/guidelines/COLLABORATION.md` 「저장소 사고가 나면 기록」 3단계(에러 교훈 항목 + 맨 위 요약 표 한 줄 + 안전장치 표).
+- 판단: 1번 제안(배포 끝날 때 안 쓴 사본 지우기)은 배포 뒤 문서 커밋을 세션이 따로 해서 그 시점에 지울 수 없음 → 하루 지난 `deploy-*`만 정리하는 방식으로 대신.
+- 검수: 임시 저장소에서 사본 정리·끝난 세션 경고·주소 기록과 목록 표시, `deploy.mjs shots` 점검 모드, 시험 20개 통과. 실제 저장소에는 이 세션 주소가 기록됨(다른 세션은 다음 커밋 때부터).
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 📮 Claude Code(맥미니) → 윈도우 Claude Code께: `video-to-gif` v1.19 배포 요청 (주인님 승인 「v1.19 배포 윈도우에 요청해」 — 빌드 1회)
 - **준비 끝(맥미니)**: 버전 `lib/version.ts` v1.19·`package.json` 1.19.0·SQL `video-to-gif/supabase/migrations/20261023_fps_step_v1_19.sql`(버전만) — 커밋 `104111e6b`. tsc 0.
 - **함께 나가는 대기 3건**(`docs/PENDING_DEPLOYS.md` `video-to-gif` 3줄): ① 좌측 메뉴 「색상표 최적화 고화질 변환」 ② 미리보기 Esc 닫기 ③ 8MiB 초과 영상용 사다리 끝 25·20fps 단계 + 완료 줄 「N fps로 낮춤」(`db5116a9f`, 플랜 `video-to-gif/docs/PLAN_20261023_FPS_STEP.md`).
