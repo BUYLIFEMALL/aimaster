@@ -205,8 +205,9 @@ for (const n of readdirSync(GITDIR)) {
 process.on("exit", () => { for (const s of ["", ".lock"]) rmSync(join(GITDIR, `index.safe-commit-${process.pid}${s}`), { force: true }); });
 // 공용 스테이징 블랙박스(2026-10-23): 시작·끝에 index 크기·항목 수를 .git/aimaster-index-log.txt에(축소 원인 추적, 막지 않음)
 const watchIndex = (tag) => { if (!existsSync(join(ROOT, "scripts", "index-watch.mjs"))) return; try { spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), tag, "--quiet"], { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] }); } catch { /* 기록 실패는 무시 */ } };
-watchIndex("safe-commit:start");
-process.on("exit", () => watchIndex("safe-commit:end"));
+// 이름표에 --as 세션 이름(같은 윈도우 장비의 여러 세션을 pid 말고 이름으로 구분, 2026-10-23)
+watchIndex(`safe-commit:start(${as})`);
+process.on("exit", () => watchIndex(`safe-commit:end(${as})`));
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
 // --mine은 작업 파일 전체를 올리므로, 최근 2시간 안 다른 커밋이 같은 파일을 고쳤다면 다른 세션이 작업 파일에 남긴 미커밋 줄도 섞일 수 있다
 // → 그 커밋 목록을 보여 주고 --push가 있어도 푸시는 미룬다(바뀐 줄 미리 보기를 눈으로 확인한 뒤 손으로 푸시, 2026-10-23)
