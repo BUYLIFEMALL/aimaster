@@ -1,5 +1,6 @@
 import "server-only";
 import type { GenerationInput, MusicModel } from "./catalog";
+import { musicProviderError } from "./musicCalls";
 
 /** 공급자가 돌려준 음원 하나 — 바로 받은 바이트(data) 또는 받아 갈 주소(url) */
 export interface AudioFile {
@@ -31,23 +32,8 @@ export interface ProviderAdapter {
   poll?(model: MusicModel, taskId: string, meta: Record<string, unknown>, apiKey: string): Promise<PollResult>;
 }
 
-/** 공급자 오류를 회원이 알아볼 수 있는 한국어 문장으로 바꾼다(원문은 짧게 뒤에 남김, 키 값은 넣지 않음) */
-export function providerError(providerName: string, status: number, body: string): Error {
-  const hint =
-    status === 401 || status === 403
-      ? " API 키를 확인해 주세요(API키등록·플랫폼연동)."
-      : status === 402
-        ? " 크레딧·결제 등록이 필요합니다. 해당 플랫폼에서 충전해 주세요."
-        : status === 429
-          ? " 요청 한도에 걸렸거나 크레딧이 부족합니다. 잠시 뒤 다시 시도하거나 플랫폼에서 확인해 주세요."
-          : status === 422 || status === 400
-            ? " 입력값을 받아들이지 않았습니다(가사·설명 길이나 금지된 표현을 확인해 주세요)."
-            : status >= 500
-              ? " 플랫폼 서버 오류입니다. 잠시 뒤 다시 시도해 주세요."
-              : "";
-  const raw = body.replace(/\s+/g, " ").slice(0, 300);
-  return new Error(`${providerName} 요청이 실패했습니다. (${status})${hint}${raw ? ` 원문: ${raw}` : ""}`);
-}
+/** 공급자 오류 → 한국어 안내(공용 기준 코드 `music-sync-calls`의 함수를 그대로 쓴다 — fal·Replicate·Suno 어댑터도 같은 문구) */
+export const providerError = musicProviderError;
 
 /** 모델에 보낼 설명 문장(가사·길이·언어 포함) — 프롬프트 하나만 받는 모델용 */
 export function composePrompt(input: GenerationInput, opts: { withLyrics: boolean; withDuration: boolean }): string {

@@ -1,13 +1,11 @@
 import "server-only";
-import { composePrompt, providerError, type ProviderAdapter } from "../types";
+import { composePrompt, type ProviderAdapter } from "../types";
 import { buildCompositionPlan, planSeconds } from "../elevenlabsPlan";
+import { callElevenLabsMusic } from "../musicCalls";
 
 // ElevenLabs Eleven Music — 2026-10-23 공식 문서(elevenlabs.io/docs/api-reference/music/compose) 기준.
-// POST /v1/music?output_format=mp3_44100_192 { prompt, music_length_ms(3000~600000), model_id, force_instrumental } → 음원 바이트.
+// 호출 자체는 공용 기준 코드 `music-sync-calls`(../musicCalls.ts, 쇼츠가 사본 사용). 여기서는 요청 본문·비용 문구만.
 // v1.03 가사에 [Verse]·[Chorus] 구간 표시가 있으면 작곡 계획(composition_plan — 구간별 가사·길이 지정)으로, 없으면 설명(prompt) 방식. 자동 재시도 없음(이중 과금 방지).
-const ENDPOINT = "https://api.elevenlabs.io/v1/music?output_format=mp3_44100_192";
-const TIMEOUT_MS = 240_000;
-
 export const elevenlabsAdapter: ProviderAdapter = {
   synchronous: true,
   async start(model, input, apiKey) {
@@ -20,20 +18,11 @@ export const elevenlabsAdapter: ProviderAdapter = {
           model_id: model.model,
           force_instrumental: input.instrumental,
         };
-    const res = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "xi-api-key": apiKey },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-      cache: "no-store",
-    });
-    if (!res.ok) throw providerError("ElevenLabs Music", res.status, await res.text());
-    const buf = new Uint8Array(await res.arrayBuffer());
-    if (buf.byteLength < 1000) throw new Error("ElevenLabs Music가 빈 음원을 돌려주었습니다. 다시 시도해 주세요.");
+    const out = await callElevenLabsMusic(body, apiKey);
     const seconds = plan ? planSeconds(plan) : input.durationS;
     return {
       kind: "done",
-      files: [{ data: buf, contentType: res.headers.get("content-type") || "audio/mpeg", durationS: seconds }],
+      files: [{ data: out.data, contentType: out.contentType, durationS: seconds }],
       actual: `${plan ? `작곡 계획 ${plan.chunks.length}구간 · ` : ""}${seconds}초 × 1분당 $0.15 ≈ $${((seconds / 60) * 0.15).toFixed(2)}`,
     };
   },
