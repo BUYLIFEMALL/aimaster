@@ -44,8 +44,8 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
   },
   {
     title: "🎵 음악 생성",
-    description: "4단계 · Suno 배경음악 생성",
-    providers: ["suno"],
+    description: "4단계 · 배경음악 생성(Suno 기본 · ElevenLabs 선택 · Google Lyria는 위 Gemini 키 사용)",
+    providers: ["suno", "elevenlabs"],
   },
   {
     title: "🎬 영상 렌더링",

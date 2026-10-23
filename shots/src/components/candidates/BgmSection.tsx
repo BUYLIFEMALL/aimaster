@@ -17,6 +17,7 @@ import {
   type DeleteBgmTrackState,
 } from "@/lib/actions/music";
 import type { Database } from "@/types/database.types";
+import { BGM_MODELS, DEFAULT_BGM_MODEL, type BgmModelId } from "@/lib/bgmModels";
 
 type Video = Database["public"]["Tables"]["shorts_videos"]["Row"];
 type BgmTrack = Database["public"]["Tables"]["shorts_bgm_tracks"]["Row"];
@@ -45,6 +46,11 @@ export function BgmSection({ video, tracks }: { video: Video; tracks: BgmTrack[]
   const [bgmPrompt, setBgmPrompt] = useState(video.bgm_prompt ?? "");
   const [bgmStyle, setBgmStyle] = useState(video.bgm_style ?? "");
   const [bgmExclude, setBgmExclude] = useState(video.bgm_exclude ?? "");
+  // v1.40 배경음악 모델 고르기(기본 Suno V6). Lyria·ElevenLabs는 요청 안에서 바로 1곡이 만들어진다(최대 1분 정도)
+  const [bgmModel, setBgmModel] = useState<BgmModelId>(DEFAULT_BGM_MODEL);
+  const picked = BGM_MODELS.find((m) => m.id === bgmModel) ?? BGM_MODELS[0];
+  const syncModel = picked.key !== "suno";
+  const busyLabel = syncModel ? "만드는 중... (최대 1분)" : "요청 중...";
 
   // 생성 중이면 자동으로 주기적으로 상태를 확인한다.
   // (useActionState 디스패처는 완료 시점을 await할 수 없어서, 여기서는 서버 액션을
@@ -69,10 +75,10 @@ export function BgmSection({ video, tracks }: { video: Video; tracks: BgmTrack[]
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <h2 className="mb-1 text-lg font-medium text-neutral-900">배경음악 생성 (Suno)</h2>
+      <h2 className="mb-1 text-lg font-medium text-neutral-900">배경음악 생성</h2>
       <p className="mb-4 text-sm text-neutral-600">
-        아래 BGM 프롬프트로 Suno가 배경음악 2곡을 만듭니다. 마음에 안 들면 프롬프트를 수정하고 다시
-        생성해보세요. 마음에 드는 곡을 골라두면 최종 영상 렌더링에 그 곡이 사용됩니다.
+        아래 BGM 프롬프트로 고른 모델이 배경음악을 만듭니다(Suno는 2곡, Lyria·ElevenLabs는 1곡). 마음에 안 들면
+        프롬프트나 모델을 바꿔 다시 생성해보세요. 마음에 드는 곡을 골라두면 최종 영상 렌더링에 그 곡이 사용됩니다.
       </p>
 
       <form action={saveAction} className="mb-4 space-y-3">
@@ -115,14 +121,33 @@ export function BgmSection({ video, tracks }: { video: Video; tracks: BgmTrack[]
         </div>
       </form>
 
+      {video.bgm_status !== "processing" && (
+        <div className="mb-3">
+          <label className="mb-1 block text-xs text-neutral-500">음악 모델</label>
+          <select
+            value={bgmModel}
+            onChange={(e) => setBgmModel(e.target.value as BgmModelId)}
+            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 sm:w-auto"
+          >
+            {BGM_MODELS.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-neutral-500">{picked.note} — 회원님 본인 키로 생성되며, 키는 설정 &gt; API 키 설정에서 등록합니다.</p>
+        </div>
+      )}
+
       {!video.bgm_status && (
         <form action={requestAction}>
           <input type="hidden" name="videoId" value={video.id} />
           <input type="hidden" name="bgmPrompt" value={bgmPrompt} />
           <input type="hidden" name="bgmStyle" value={bgmStyle} />
           <input type="hidden" name="bgmExclude" value={bgmExclude} />
+          <input type="hidden" name="bgmModel" value={bgmModel} />
           <Button type="submit" disabled={isRequesting || !canGenerate}>
-            {isRequesting ? "요청 중..." : "배경음악 생성하기"}
+            {isRequesting ? busyLabel : "배경음악 생성하기"}
           </Button>
           {requestState.error && <p className="mt-2 text-sm text-red-600">{requestState.error}</p>}
         </form>
@@ -146,8 +171,9 @@ export function BgmSection({ video, tracks }: { video: Video; tracks: BgmTrack[]
             <input type="hidden" name="bgmPrompt" value={bgmPrompt} />
             <input type="hidden" name="bgmStyle" value={bgmStyle} />
             <input type="hidden" name="bgmExclude" value={bgmExclude} />
+          <input type="hidden" name="bgmModel" value={bgmModel} />
             <Button type="submit" disabled={isRequesting}>
-              {isRequesting ? "요청 중..." : "다시 시도"}
+              {isRequesting ? busyLabel : "다시 시도"}
             </Button>
           </form>
         </div>
@@ -214,8 +240,9 @@ export function BgmSection({ video, tracks }: { video: Video; tracks: BgmTrack[]
             <input type="hidden" name="bgmPrompt" value={bgmPrompt} />
             <input type="hidden" name="bgmStyle" value={bgmStyle} />
             <input type="hidden" name="bgmExclude" value={bgmExclude} />
+          <input type="hidden" name="bgmModel" value={bgmModel} />
             <Button type="submit" variant="secondary" disabled={isRequesting}>
-              {isRequesting ? "요청 중..." : "다른 곡 더 생성하기"}
+              {isRequesting ? busyLabel : "다른 곡 더 생성하기"}
             </Button>
           </form>
         </div>

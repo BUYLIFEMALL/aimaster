@@ -13,6 +13,9 @@ import type { ApiKeyProvider } from "@/types/database.types";
 import { listSceneVideos } from "@/lib/video/sceneVideo";
 import { findExpiredSegments } from "@/lib/cleanupLog";
 
+// v1.40 이 화면의 배경음악 요청(Lyria·ElevenLabs)은 서버 액션 안에서 곡이 완성될 때까지 기다린다(보통 20~60초)
+export const maxDuration = 300;
+
 // JSON2Video는 「② 고급 합성」을 고를 때만 필요(2026-10-21 브라우저에서 만들기 기본)
 const REQUIRED_PROVIDERS: ApiKeyProvider[] = ["gemini", "openai", "suno"];
 

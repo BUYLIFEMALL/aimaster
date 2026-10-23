@@ -18,6 +18,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   // v1.32 장면 AI 영상(선택 — 기본은 Gemini 키). 다른 프로그램(AI 쇼츠 원스톱)과 같은 공용 칸
   fal: "fal (장면 AI 영상 · 선택)",
   replicate: "Replicate (장면 AI 영상 · 선택, 가장 저렴)",
+  // v1.40 배경음악 모델 고르기(선택). AI 음악 스튜디오와 같은 공용 칸
+  elevenlabs: "ElevenLabs (배경음악 · 선택)",
 };
 
 // 등록 폼(설정 페이지)에 노출할 프로바이더 목록. PROVIDER_LABELS에서 그대로 뽑아 쓰기 때문에
@@ -25,7 +27,7 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
 export const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as ApiKeyProvider[];
 
 // 설정 페이지에서 그룹으로 나눠 보여주기 위한 목록.
-export const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "suno", "json2video", "fal", "replicate"];
+export const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "suno", "json2video", "fal", "replicate", "elevenlabs"];
 
 export async function getUserApiKey(
   supabase: SupabaseClient<Database>,

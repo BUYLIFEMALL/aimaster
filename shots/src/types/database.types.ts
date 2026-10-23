@@ -12,7 +12,8 @@ export type ApiKeyProvider =
   | "facebook_app_id"
   | "facebook_app_secret"
   | "fal"
-  | "replicate";
+  | "replicate"
+  | "elevenlabs";
 export type ShortsSourceType = "http" | "rss" | "perplexity";
 export type ShortsCandidateStatus = "collected" | "requested";
 export type ShortsVideoStatus = "script_ready" | "images_generating" | "images_ready";

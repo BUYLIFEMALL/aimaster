@@ -5,7 +5,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveApiKey } from "@/lib/apiKeys";
-import { requestBackgroundMusic, checkMusicGenerationStatus } from "@/lib/ai/music";
+import { requestBackgroundMusic, checkMusicGenerationStatus, generateSyncBackgroundMusic, isBgmModel, DEFAULT_BGM_MODEL } from "@/lib/ai/music";
 
 export interface SaveBgmPromptState {
   error?: string;
@@ -44,7 +44,7 @@ export interface RequestBgmState {
 }
 
 /**
- * BGM 프롬프트/스타일/제외요소로 Suno에 음악 생성을 요청한다. 화면에서 수정만 하고 저장을
+ * BGM 프롬프트/스타일/제외요소로 고른 모델(v1.40: Suno V6 계열·Lyria 3.5·ElevenLabs)에 음악 생성을 요청한다. 화면에서 수정만 하고 저장을
  * 누르지 않았어도, 폼에 실려온 최신 값을 먼저 저장한 다음 그 내용으로 요청한다.
  */
 export async function requestBgmGenerationAction(
@@ -80,19 +80,65 @@ export async function requestBgmGenerationAction(
     return { error: "BGM 프롬프트가 없습니다. 스크립트를 다시 생성해주세요." };
   }
 
+  // v1.40 배경음악 모델 고르기 — 값이 없거나 모르는 값이면 기본(Suno V6)
+  const rawModel = String(formData.get("bgmModel") ?? "");
+  const model = isBgmModel(rawModel) ? rawModel : DEFAULT_BGM_MODEL;
+  const input = {
+    title: video.title,
+    bgmPrompt: video.bgm_prompt,
+    style: video.bgm_style,
+    negativeTags: video.bgm_exclude ?? "vocals, singing, lyrics",
+  };
+
+  if (model === "lyria:lyria-3.5" || model === "elevenlabs:music_v2_5") {
+    // 회원 본인 키만(Lyria = Gemini 키, ElevenLabs = ElevenLabs 키). 없으면 등록 안내 — 다른 키로 대신하지 않는다
+    const keyProvider = model === "lyria:lyria-3.5" ? "gemini" : "elevenlabs";
+    const key = await resolveApiKey(supabase, user.id, keyProvider);
+    if (!key) {
+      return { error: `${keyProvider === "gemini" ? "Google Gemini" : "ElevenLabs"} API 키가 없습니다. 설정 > API 키 설정에서 본인 키를 등록해주세요.` };
+    }
+    try {
+      const out = await generateSyncBackgroundMusic(model, input, key);
+      const wav = out.contentType.includes("wav");
+      const path = `${user.id}/${videoId}-${crypto.randomUUID()}.${wav ? "wav" : "mp3"}`;
+      const storage = createAdminClient().storage.from("shots-bgm");
+      const { error: upErr } = await storage.upload(path, Buffer.from(out.data), { contentType: wav ? "audio/wav" : "audio/mpeg", upsert: false });
+      if (upErr) return { error: "배경음악은 만들어졌지만 파일을 보관하지 못했습니다. 잠시 뒤 다시 시도해주세요." };
+      const { data: inserted, error: insErr } = await supabase
+        .from("shorts_bgm_tracks")
+        .insert({
+          video_id: videoId,
+          user_id: user.id,
+          audio_url: storage.getPublicUrl(path).data.publicUrl,
+          image_url: null,
+          title: `${video.title} (${model === "lyria:lyria-3.5" ? "Lyria 3.5" : "ElevenLabs"})`.slice(0, 120),
+          duration_seconds: out.durationSeconds,
+        })
+        .select("id")
+        .single();
+      if (insErr || !inserted) {
+        await storage.remove([path]);
+        return { error: insErr?.message ?? "트랙을 저장하지 못했습니다." };
+      }
+      const { data: current } = await supabase.from("shorts_videos").select("bgm_selected_track_id").eq("id", videoId).single();
+      await supabase
+        .from("shorts_videos")
+        .update({ bgm_status: "ready", bgm_selected_track_id: current?.bgm_selected_track_id ?? inserted.id })
+        .eq("user_id", user.id)
+        .eq("id", videoId);
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : "음악 생성 요청 중 오류가 발생했습니다." };
+    }
+    revalidatePath(`/scripts/${videoId}`);
+    revalidatePath("/music");
+    return { success: true };
+  }
+
   const sunoKey = await resolveApiKey(supabase, user.id, "suno");
 
   let taskId: string;
   try {
-    taskId = await requestBackgroundMusic(
-      {
-        title: video.title,
-        bgmPrompt: video.bgm_prompt,
-        style: video.bgm_style,
-        negativeTags: video.bgm_exclude ?? "vocals, singing, lyrics",
-      },
-      sunoKey ?? "",
-    );
+    taskId = await requestBackgroundMusic(input, sunoKey ?? "", model.slice("suno:".length));
   } catch (err) {
     return { error: err instanceof Error ? err.message : "음악 생성 요청 중 오류가 발생했습니다." };
   }
