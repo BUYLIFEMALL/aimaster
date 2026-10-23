@@ -75,3 +75,6 @@
 
 ## 2026-10-23 v1.09 — Stable Audio 3 Medium(fal) (Claude Code 윈도우)
 - `catalog.ts` 모델 `fal:fal-ai/stable-audio-3/medium/text-to-audio`(연주곡, 10~380초, 약 $0.04), `adapters/fal.ts` 입력 `{prompt, duration, output_format:"mp3"}`. 시험 29개·build, 배포 Ready·DB v1.09, 크롬 시험 회원 30초 생성 성공(추론 4초). 숨김 Mureka 코드 함께 배포. 비용: 빌드 1회 + 약 $0.04.
+
+## 2026-10-23 v1.10 — Lyria RealTime(실험) 서버 녹음 (Claude Code 윈도우)
+- `lib/providers/lyriaRealtime.ts`(웹소켓 setup→weightedPrompts→config→PLAY→PCM 모으기→STOP→WAV, 연결 단계 거절만 v1alpha로 한 번 더), `adapters/gemini.ts`에서 `lyria-realtime-exp` 분기, `catalog.ts` 모델(10~120초). 시험 `tests/lyriaRealtime.test.mjs`(가짜 웹소켓). 크롬 시험 회원 30초 WAV 생성 성공(약 33초). 요금은 실험 모델이라 미공개 — 사용량 페이지로 확인.
