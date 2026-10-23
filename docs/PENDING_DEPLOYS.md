@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `naver-blog-seo-studio` (운영 v2.12) | 원고에 생성 모델 이름 기록(`seo_report.generatedModel`, 화면 「생성 모델」) — 웹만 변경 | `07e08257e` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-seo-bg` | `naver-blog-seo-studio/AGENTS.md` 맨 위 「미배포 대기」 | 버전 +0.01(원칙 10: manifest·ZIP·DB 함께) |
 | `music` (운영 v1.44) | 휴대폰 폭 가로 넘침: 배경 번짐 장식이 390px에서 문서 폭 495px로 넘침 → `<main>`에 `overflow-x-clip` | 이 줄을 넣은 커밋 직전 `music` 커밋 | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포 — 휴대폰 폭 가로 넘침」 | 390px에서 문서 폭 = 화면 폭 |
 | `threads-comment-reply` (운영 v1.27) | 「⏸ 모니터링 중지」 직후 화면이 바로 꺼짐으로 바뀌게(`MonitoringSettingsForm` `stopped` 상태) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `threads-comment-reply/docs/IMPROVEMENTS.md` 「9시간 밀림」 아래 | 버전 +0.01, 중지 → 바로 「▶ 모니터링 시작」 |
 | `youtube-auto-reply` (운영 v1.30) | 위와 같은 수정 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `youtube-auto-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 같은 확인 |
