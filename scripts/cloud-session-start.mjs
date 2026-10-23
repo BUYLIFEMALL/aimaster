@@ -1,9 +1,21 @@
 // Claude Code SessionStart 훅 — 클라우드 세션(Claude Code on the web)일 때만 작업 규칙을 상기시킨다(2026-10-01).
 // 로컬 세션에서는 아무것도 출력하지 않는다. 규칙 원문: docs/CLOUD_SESSION.md
-import { execSync } from 'node:child_process'
+import { execSync, spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 
 const isCloud = process.env.CLAUDE_CODE_REMOTE === 'true'
-if (!isCloud) process.exit(0)
+if (!isCloud) {
+  // 로컬 세션(윈도우·맥미니 공통, 2026-10-23): 공용 스테이징 블랙박스에 한 줄 — 잠금이 5분 넘게 남았으면 「이 장비」의 프로세스를
+  // .git/aimaster-lock-evidence.txt에 남긴다(맥미니에서 생긴 잠금은 윈도우에서 프로세스를 볼 수 없어서). ⚠가 있을 때만 세션에 알린다.
+  if (existsSync('scripts/index-watch.mjs')) {
+    try {
+      const r = spawnSync(process.execPath, ['scripts/index-watch.mjs', 'claude-session-start', '--quiet', '--warn-lock'], { encoding: 'utf8', timeout: 8000 })
+      const warn = `${r.stdout || ''}${r.stderr || ''}`.split('\n').filter((l) => l.startsWith('⚠') || l.startsWith('  정리'))
+      if (warn.length) process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: ['[공용 스테이징 블랙박스 — 커밋·푸시 전에 확인(루트 CLAUDE.md 최상단)]', ...warn].join('\n') } }))
+    } catch { /* 기록 실패는 무시 */ }
+  }
+  process.exit(0)
+}
 
 let branch = ''
 try {

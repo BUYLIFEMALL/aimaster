@@ -206,7 +206,9 @@ process.on("exit", () => { for (const s of ["", ".lock"]) rmSync(join(GITDIR, `i
 // 공용 스테이징 블랙박스(2026-10-23): 시작·끝에 index 크기·항목 수를 .git/aimaster-index-log.txt에(축소 원인 추적, 막지 않음)
 const watchIndex = (tag) => { if (!existsSync(join(ROOT, "scripts", "index-watch.mjs"))) return; try { spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), tag, "--quiet"], { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] }); } catch { /* 기록 실패는 무시 */ } };
 // 이름표에 --as 세션 이름(같은 윈도우 장비의 여러 세션을 pid 말고 이름으로 구분, 2026-10-23)
-watchIndex(`safe-commit:start(${as})`);
+// 시작 기록 때 묵은 스테이징 항목도 확인해 안내만(2026-10-23) — 이 도우미는 임시 스테이징으로 커밋해 섞이지 않지만, 일반 커밋을 하는 세션은 위험
+const noteStale = (tag) => { if (!existsSync(join(ROOT, "scripts", "index-watch.mjs"))) return; try { const r = spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), tag, "--quiet", "--stale-only"], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] }); if (r.status === 3) console.error(`ℹ 안내(이 커밋에는 섞이지 않음, 일반 커밋 전에 정리 권장):\n${(r.stdout || "").trimEnd()}`); } catch { /* 기록 실패는 무시 */ } };
+noteStale(`safe-commit:start(${as})`);
 process.on("exit", () => watchIndex(`safe-commit:end(${as})`));
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
 // --mine은 작업 파일 전체를 올리므로, 최근 2시간 안 다른 커밋이 같은 파일을 고쳤다면 다른 세션이 작업 파일에 남긴 미커밋 줄도 섞일 수 있다

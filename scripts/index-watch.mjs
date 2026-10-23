@@ -75,18 +75,46 @@ try {
       }
     } catch { /* 증거 기록 실패는 무시 */ }
   }
-  // --stale-only(2026-10-23): 맥미니 commit-gate.sh가 커밋 전에 묵은 항목만 확인 — 있으면 종료 코드 3
-  if (process.argv.includes("--stale-only")) {
-    const stale = staleEntries();
-    printStale(stale);
-    process.exit(stale.length ? 3 : 0);
-  }
+  // git 잠금이 5분 넘게 남아 있으면 — 일반 커밋·스테이징 맞추기가 모두 멈춘 상태(지우지 말고 확인)
+  const printLock = () => { if (lockAge !== null && lockAge > 300) console.log(`⚠ [공용 스테이징 잠금 오래 남음] .git/index.lock ${Math.round(lockAge / 60)}분째 — 일반 커밋과 도우미의 스테이징 맞추기가 모두 멈춘 상태. 지우지 말고 git 프로세스(장비 두 곳)를 확인한 뒤 주인님께(루트 CLAUDE.md 최상단). 그때 돌던 프로세스·기록: ${evidencePath}`); };
+  // 마지막 잠금 증거 한 줄 요약(2026-10-23): 잠금 시각·발견 장비·의심 프로세스 1개 — 파일을 열지 않고 판단. 지금 잠금이 있으면 ⚠, 없으면 24시간 안의 것만 참고로
+  const printEvidence = (onlyIfLocked) => {
+    if (!existsSync(evidencePath) || (onlyIfLocked && lockAge === null)) return;
+    const block = readFileSync(evidencePath, "utf8").split("===== ").filter(Boolean).pop() ?? "";
+    const head1 = block.split("\n")[0].trim(); // lock@시각 · 발견 시각 · 장비 · N분째 · 부른 곳
+    const at = head1.match(/^lock@(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)/);
+    if (!at) return;
+    if (lockAge === null && Date.now() - new Date(at[1].replace(" ", "T")).getTime() > 24 * 3600_000) return;
+    const sec = (title) => (block.split(title)[1] ?? "").split("\n-- ")[0].split("\n").slice(1).map((l) => l.trim()).filter((l) => l && !l.startsWith("PID") && !l.startsWith("("));
+    // 윈도우 줄 「pid ppid=N 시작=날짜 시각 명령」은 「명령 (pid, 시작 시각)」으로 바꾸고, 명령줄을 못 읽은 프로세스(빈 명령)는 뺀다
+    const procs = sec("-- 지금 이 장비").filter((l) => !/index-watch/.test(l)).map((l) => {
+      const m = l.match(/^(\d+) ppid=\d+ 시작=\S+ (\S+) ?(.*)$/);
+      return m ? (m[3] ? `${m[3]} (pid ${m[1]}, 시작 ${m[2]})` : "") : l;
+    }).filter(Boolean);
+    const suspect = procs.find((l) => /git(\.exe)?"?\s/.test(l) && !/shell-snapshots/.test(l)) ?? procs.find((l) => !/shell-snapshots/.test(l))
+      ?? sec("-- 잠금 생성").map((l) => l.split(" | ")).filter((p) => p.length > 3).map((p) => `잠금 무렵 기록 ${p[0].slice(11)} ${p[3]} ${p[2]} @${p[1]}`).pop()
+      ?? "(git 프로세스·기록 없음 — 이미 끝난 명령이 남긴 잠금)";
+    console.log(`${lockAge !== null ? "⚠ " : ""}[공용 스테이징 잠금 증거] ${head1.replace(/ · 부른 곳 .*/, "")} · 의심: ${suspect.length > 140 ? `${suspect.slice(0, 140)}…` : suspect} — 전체 ${evidencePath}`);
+  };
   const shrunk = (lastEntries > 200 && entries * 2 < lastEntries) || (head > 200 && entries * 2 < head);
   if (shrunk) {
     console.error(`⚠ [공용 스테이징 축소 감지] 지금 ${entries}개 (HEAD ${head}개, 직전 기록 ${lastEntries}개)`);
     console.error(`  직전 기록: ${last ?? "(없음)"}`);
     console.error(`  기록 전체: ${logPath} — 줄어든 시각(index=…@시각) 앞뒤 줄의 장비·부른 곳으로 원인을 좁힌다. 고치기 전에 주인님께(루트 CLAUDE.md 최상단).`);
   } else if (!quiet) console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
+  // --stale-only(2026-10-23): 커밋 전에 묵은 항목만 확인 — 있으면 종료 코드 3. 맥미니 commit-gate.sh(멈춤)·safe-commit·commit-paths(안내만)가 부른다.
+  // 축소 감지(위, stderr)는 그대로 나온 뒤에 실행한다.
+  if (process.argv.includes("--stale-only")) {
+    const stale = staleEntries();
+    printStale(stale);
+    process.exit(stale.length ? 3 : 0);
+  }
+  // --warn-lock(2026-10-23): 세션 시작 훅(scripts/cloud-session-start.mjs, 윈도우·맥미니 Claude Code 공통)용 — 잠금·증거·묵은 항목 경고만
+  if (process.argv.includes("--warn-lock")) {
+    printLock();
+    printEvidence(true);
+    try { printStale(staleEntries()); } catch { /* 무시 */ }
+  }
   // 세션 시작 점검: 최근 24시간 「축소가 시작된」 순간(정상 → 절반 미만으로 바뀐 기록)과 그 직전 기록을 한 줄로(2026-10-23)
   if (tag === "session-check") {
     const since = Date.now() - 24 * 3600_000;
@@ -100,8 +128,8 @@ try {
     console.log(starts.length
       ? `⚠ [공용 스테이징 축소 이력] 최근 24시간 ${starts.length}번: ${starts.join(" · ")} — 기록 ${logPath}`
       : `[공용 스테이징 축소 이력] 최근 24시간 없음 (기록 ${first ? first.when + "부터" : "없음"})`);
-    // git 잠금이 5분 넘게 남아 있으면 — 일반 커밋·스테이징 맞추기가 모두 멈춘 상태(지우지 말고 확인)
-    if (lockAge !== null && lockAge > 300) console.log(`⚠ [공용 스테이징 잠금 오래 남음] .git/index.lock ${Math.round(lockAge / 60)}분째 — 일반 커밋과 도우미의 스테이징 맞추기가 모두 멈춘 상태. 지우지 말고 git 프로세스(장비 두 곳)를 확인한 뒤 주인님께(루트 CLAUDE.md 최상단). 그때 돌던 프로세스·기록: ${evidencePath}`);
+    printLock();
+    printEvidence(false);
     // 묵은 스테이징 항목(위 staleEntries 설명)
     try { printStale(staleEntries()); } catch { /* 기록 실패는 무시 */ }
     // 세션 트레일러 이행률(2026-10-23): 트레일러 도입(15:20) 이후·최근 7일 커밋 중 `AIMaster-Session:`이 붙은 비율 — 규칙이 지켜지는지 매번 보이게

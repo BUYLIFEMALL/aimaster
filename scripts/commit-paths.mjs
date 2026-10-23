@@ -52,7 +52,9 @@ for (const n of readdirSync(GITDIR)) {
 process.on("exit", () => { for (const s of ["", ".lock"]) rmSync(join(GITDIR, `index.commit-paths-${process.pid}${s}`), { force: true }); });
 // 공용 스테이징 블랙박스: 시작·끝에 한 줄(scripts/index-watch.mjs, 막지 않음)
 const watchIndex = (tag) => { if (!existsSync(join(ROOT, "scripts", "index-watch.mjs"))) return; try { spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), tag, "--quiet"], { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] }); } catch { /* 기록 실패는 무시 */ } };
-watchIndex(as ? `commit-paths:start(${as})` : "commit-paths:start");
+// 시작 기록 때 묵은 스테이징 항목도 확인해 안내만(2026-10-23, safe-commit.mjs와 같은 기준) — 이 도우미는 임시 스테이징이라 섞이지 않음
+const noteStale = (tag) => { if (!existsSync(join(ROOT, "scripts", "index-watch.mjs"))) return; try { const r = spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), tag, "--quiet", "--stale-only"], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] }); if (r.status === 3) console.error(`ℹ 안내(이 커밋에는 섞이지 않음, 일반 커밋 전에 정리 권장):\n${(r.stdout || "").trimEnd()}`); } catch { /* 기록 실패는 무시 */ } };
+noteStale(as ? `commit-paths:start(${as})` : "commit-paths:start");
 process.on("exit", () => watchIndex(as ? `commit-paths:end(${as})` : "commit-paths:end"));
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
 let done = null;
