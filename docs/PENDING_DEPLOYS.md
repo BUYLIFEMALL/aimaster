@@ -24,7 +24,6 @@
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `crm-google-form` | 공용 `solapi-client` 기준 등록(머리 주석만) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `crm-google-form/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `kakao_auto_poster` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) · ⚠ 로컬 빌드가 Next.js 16.4.0 보안 경고로 멈춤 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 맨 아래 | **배포 전에 Next.js 보안 업데이트 필요할 수 있음**(주인님 승인), 버전 +0.01 |
-| `trending-product-finder` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `real_estate_sales` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `music-video-studio` (운영 v1.16) | 최종 뮤직비디오 가사 자막에서 「[Verse 1]」 같은 구간 표시 빼기(`FinalRender.tsx`) | `1b8440ac7` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당) | `music-video-studio/AGENTS.md` v1.16 | 버전 +0.01 |
 | `persona-style-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `persona-style-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
@@ -33,7 +32,6 @@
 | `detail-page-12p` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `detail-page-12p/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `instagram-comment-reply` (운영 v1.36) | 설정 「다음 확인 예정」 시각 · 「실행 방식 바꾸기 ↓」 바로가기 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `instagram-comment-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 설정에서 다음 확인 예정·바로가기 확인 |
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
-| `trending-product-finder` | 생성 데이터 30일 정리(`cleanup-generated`)가 지운 행의 user_id로 회원별 `cleanup_expired`(reports·snapshots·competition) 기록 — 공용 사본 | `af9b2719c` · `05902a01d` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `portrait-photo` | 서버 보관함 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images, 경로 첫 폴더로 회원) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `portrait-photo/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `banana-canvas` | 결과 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=지운 입력·결과 파일 수) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `banana-canvas/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `ai-image-studio` | 생성 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=이미지가 있던 기록 수) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `ai-image-studio/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
@@ -67,6 +65,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `trending-product-finder` | v1.24 · 2026-10-23 14:04 Next.js 보안 업데이트 배포(`claude-win-20261023-next-security`, 커밋 `be7d1fd4a`)에 함께 나감 — 표 정리는 Claude Code(맥미니) `claude-mac-20261023-ecommerce` | 30일 정리 회원별 기록 `af9b2719c`·`05902a01d` · 공용 `solapi-client` 사본 `36d0a4fdc`(세 커밋 모두 배포 커밋의 조상임을 확인). 다음 정리(매일 03:50) 뒤 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 남음 |
 | `cinematic-storyboard-studio`·`ai-prompt-studio`·`allinone-graphic` | 2026-10-23 Next.js 보안 업데이트 배포(`claude-win-20261023-next-security`)에 함께 나감 | 메인 사이트 링크 정정 `486fd5fd3` — 로그인 화면 스크립트에 `www.buylife.xyz`만 있고 옛 주소 없음, AI 프롬프트 스튜디오는 크롬에서 회원가입 링크 `/register` 확인 |
 | `ai-video-studio` | v1.06 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `ai-video-studio-6hf0ame5b`) | 내레이션 덕킹(새 기능) · 기준 코드 보강 `208c80842` |
 | `naver-blog-seo-studio` | v2.13 · 2026-10-23 | 원고 생성 모델 기록 `07e08257e` · 30일 정리 회원별 기록 `6cd2b9783` |
