@@ -10,6 +10,14 @@ const SHARED = [
   "docs/PROGRAM_IDEA_BACKLOG.md", "docs/ERROR_LESSONS.md", "docs/ACTIVE_WORK.md", "docs/VERCEL_COST_REDUCTION_PLAN.md",
   "CLAUDE.md", "AGENTS.md", "GEMINI.md", "DESIGN.md",
 ];
+// 여러 세션이 함께 고치는 공용 스크립트 — 되돌림 감사 대상은 아니고(코드 정리의 줄 삭제가 잦음) 「안전 커밋 도우미를 쓰세요」 알림만(2026-10-23,
+// 다른 세션이 파일 통째로 커밋하며 남의 미커밋 수정이 섞인 48b3fc4d0 등 재발 방지)
+const SHARED_SCRIPTS = [
+  "scripts/deploy.mjs", "scripts/safe-commit.mjs", "scripts/program-info.mjs", "scripts/pending-check.mjs",
+  "scripts/check-shared-doc-reverts.mjs", "scripts/check-shared-modules.mjs", "scripts/check-mobile-account.mjs",
+  "scripts/check-index-health.mjs", "scripts/mac-mini/commit-gate.sh",
+];
+const isSharedScript = (f) => SHARED_SCRIPTS.includes(f) || f.startsWith("scripts/git-hooks/");
 const WINDOW = "2 hours ago";
 // 지운 줄이 「고친 것」인지: 같은 커밋의 새 줄 중 앞 30자가 같거나, 같은 `코드 이름`(표의 slug 등)을 가진 줄이 있으면 고친 것(2026-10-23)
 const codeKey = (l) => (l.match(/`([^`]{3,})`/) || [])[1];
@@ -78,6 +86,8 @@ if (process.argv.includes("--audit")) {
 let staged;
 try { staged = git("diff", "--cached", "--name-only").split("\n").filter(Boolean); } catch { process.exit(0); }
 const targets = staged.filter((f) => SHARED.includes(f));
+const scriptTargets = staged.filter(isSharedScript);
+if (scriptTargets.length) console.error(`\nℹ [공용 스크립트] ${scriptTargets.join(", ")} 를 일반 git commit으로 커밋합니다. 다른 세션도 고치는 파일이라, 작업 파일에 남의 미커밋 수정이 있으면 함께 들어갑니다(예: 48b3fc4d0).\n  고치기 전에 node scripts/safe-commit.mjs --begin <파일> --as <세션이름> 로 기준 사본을 떠 두고, 커밋도 safe-commit으로 하세요(docs/CLI_COLLABORATION_RULES.md 9번). 지금 커밋 전이면 git diff -- <파일> 로 내가 쓴 줄만 있는지 확인.`);
 if (!targets.length) process.exit(0);
 // 안전 커밋 도우미(safe-commit.mjs)는 이 훅을 거치지 않음 → 여기 왔다면 공용 문서를 일반 git commit으로 커밋하는 중(2026-10-23)
 console.error(`\nℹ [공용 문서] ${targets.join(", ")} 를 일반 git commit으로 커밋합니다. 다른 세션 내용을 지키려면 다음부터 안전 커밋 도우미를 쓰세요:\n  node scripts/safe-commit.mjs --begin <파일> --as <세션이름>  →  고침  →  node scripts/safe-commit.mjs "<메시지>" <파일> --as <세션이름> --push  (docs/CLI_COLLABORATION_RULES.md 9번)`);
