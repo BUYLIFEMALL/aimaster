@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — YOUTUBE Shots v1.39: 배경음악 Suno V4_5(지원 종료) → V6 공용 사본 (배경음악 공용화 1단계)
+- 플랜 `docs/analysis-music-studio-20261023/BGM_SHARED_PLAN.md` 1단계(주인님 승인 「여기 모델 최신 모델로 바꿔」). `shots/src/lib/ai/suno.ts` = 공용 `suno-api-client` 사본(기준 `music/lib/ai/suno.ts`, `check-shared-modules.mjs` 등록), `shots/src/lib/ai/music.ts`는 함수 이름·결과 모양 그대로 두고 안쪽만 `requestSunoGeneration`(모델 기본 V6·연주곡·콜백은 예전처럼 메인 사이트)·`checkSunoGenerationStatus`로. `VocalGender` 타입 추가(사본이 씀).
+- 검수: tsc·시험 3개·공용 점검·build, 커밋 `0d7f0520b`, 배포 `shots-5v3mnsanc` Ready, DB v1.39(대기 중이던 `ai-video-providers` 사본도 함께 나감). 크롬(시험 회원) 「배경음악 생성하기」 → 약 1분 안에 2곡 완성·`shots-bgm` 저장(3.3MB·139초, 3.8MB·163초, 200·audio/mpeg).
+- 다음: 2단계 AI 쇼츠 원스톱 「AI 음악 스튜디오 내 곡에서 고르기」, 3단계 뮤직비디오 곡 가져오기·직접 올리기(주인님 지시).
+- 비용: Vercel 빌드 1회, Suno 1회(시험 회원 본인 키, 약 12크레딧·$0.06) — 승인 범위. 프로그램 링크:
+https://shots.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — music 휴대폰 ☰ 메뉴(미배포) · 세션 시작 점검 「⚠ 요약」 · 모바일 점검표에 check-mobile-account
 - **music** `components/layout/Sidebar.tsx`: 767px 이하에서 메뉴가 본문 위에 통째로 쌓이던 것을 머리줄(로고·버전·☰) + 펼침 메뉴(계정·로그아웃 포함, 페이지 이동 시 접힘)로. 데스크톱 그대로. tsc·eslint 통과, `check-mobile-account.mjs` 후보 1곳 → **0곳**. 커밋 `2fcddccb7`. **배포: 미배포 대기**(작은 화면 수정 — `docs/PENDING_DEPLOYS.md`·`music/AGENTS.md` 맨 아래). 다음 music 배포 때 버전 +0.01, 크롬 390px에서 ☰ 펼침·계정 확인.
 - **`scripts/deploy.mjs --version-only --all`**: 점검 출력을 모았다가 맨 위에 `[⚠ 요약] 확인할 것 N건`(항목 이름 + ⚠ 줄)을 먼저, 그 아래 전체를 그대로. 중간 오류 때도 출력이 남게 종료 시점 보호. 커밋 `9f4aeb5a2`. 같은 커밋에서 되돌림 감사의 `3d05ab2c2`(메인 할 일 표 「급함」 칸 — 줄 3개를 새 형식으로 다시 쓰고 내보낸 기록으로 옮김)를 `scripts/reverts-reviewed.txt`에 확인 처리.
