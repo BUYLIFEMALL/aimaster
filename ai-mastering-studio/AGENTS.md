@@ -134,3 +134,6 @@ ai-mastering-studio/
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-23 v1.12 — 좌측 메뉴 계정·로그아웃 위치 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, 음악 담당)
+- 미배포 대기 `22c6cda35`(클래스만)를 배포. 배포 `ai-mastering-studio-560vmpqod` Ready·DB v1.12. 크롬(시험 회원) `/studio`: 데스크톱(창 높이 1214px) 마지막 메뉴 「API키등록·플랫폼연동」 아래 493px → 계정 이메일 522px(예전엔 맨 아래로 밀림). 390px 틀: 좌측 메뉴 숨김·☰ 펼치면 계정이 마지막 메뉴 바로 아래, 가로 넘침 없음(문서 폭 375px). 비용: 빌드 1회(승인).
