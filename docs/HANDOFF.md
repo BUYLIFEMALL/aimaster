@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 49/49 배포 완료 · 남은 일 CLI 분담표 (세션 claude-win-20261023-next-security 종료)
+- 끝난 것: 대상 49개 모두 16.4.2/15.5.28 배포 Ready·DB 버전 맞춤. 동시 빌드 추가 구매 62개 끔(`a165684ea`).
+- **남은 일 → 작업 분담표 [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)에서 묶음을 골라 맡고 표에 이름을 적는다**: A 영상 변환 크롬 확인·푸시 1회 / B 대기 목록 18줄·버전 기록 정리(문서만) / C `/login` 404 3개(webtoon·ebook·ghost-scraper) / D 버전 미증가 2개 / E 제외 10개(블로그 7개는 블로그 세션) / F 14.2.35 19개+메인(플랜 먼저) / G 이전 대기 3건 / H 주인님 결정.
+- 비용: Vercel 빌드 49회(승인 범위 안), AI 0회.
+
 ## 2026-10-23 Claude Code(윈도우) — 쇼츠 v1.42 배포: 배경음악 곡 길이 표시 (세션 claude-win-20261023-bgm, 음악 메인 담당)
 - 한 일: 미배포 대기였던 `35bcd8a03`(Lyria·ElevenLabs 배경음악 트랙에 MP3/WAV 머리글로 실제 길이 표시)과 대기 중인 영상 공용 사본(`ai-video-*`)을 함께 배포. 보안 업데이트 세션 줄의 `shots/`가 주인님 지시로 정리된 뒤 진행.
 - 검수: tsc·시험 9개·공용 사본 점검·로컬 빌드 통과 → 배포 `shots-4qfznzp6u` Ready → DB v1.42 → 크롬(시험 회원) 같은 영상에서 Lyria 3.5 1곡 생성, 새 곡 카드 「66초」(재생 막대 1:05), 이전 Lyria 곡은 길이 없음(고치기 전 저장분이라 그대로).
