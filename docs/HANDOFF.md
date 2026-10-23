@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 세션명 블랙박스 규칙 · 세션 점검 「🚨 저장소 안전」 묶음 · 맥미니 블랙박스 확인
+- `docs/MULTI_AGENT_SESSION_RULES.md` §2-1: 정한 세션명을 커밋 도우미 `--as`, 일반 git은 `AIMASTER_SESSION=<세션명> git …`으로 **매 명령에**(명령마다 셸이 새로 열리는 CLI) — 블랙박스에 세션이 남게.
+- `scripts/deploy.mjs` 세션 시작 점검 맨 위: **`[🚨 저장소 안전] N건`**(공용 스테이징·축소·안전장치·되돌림 ⚠)을 먼저, 그 밖의 ⚠는 그 아래 `[⚠ 요약] 그 밖에 …`. 지금 4건(축소 이력 1·다른 세션 이름 바꾸기 커밋 `7d86d9923` 되돌림 3 — 그 세션 확인 몫). 내 카드 갱신 커밋 `1c795fcf2`는 `scripts/reverts-reviewed.txt`에 확인 처리.
+- 맥미니 플레이북 첫 확인에 「블랙박스 기록 줄의 장비 이름이 맥미니로 남는지」 명령 추가(`AIMASTER_SESSION=<세션명> node scripts/index-watch.mjs mac-first-check && tail -1 .git/aimaster-index-log.txt`).
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 블랙박스 세션 이름 · 축소 원인 관찰 자동 알림 · 안전장치 요약 표
 - **세션 이름**: `scripts/index-watch.mjs`가 환경변수 `AIMASTER_SESSION`을 이름표에 붙임(훅 기록 포함 — `AIMASTER_SESSION=<세션> git commit …`), `scripts/commit-paths.mjs`에 `--as <세션>`.
 - **원인 관찰 자동 알림**: 세션 시작 점검에 `[축소 원인 관찰]` 줄 — 잠금 수정 `a88f09453`(2026-10-23 14:07) 뒤 경과 시간·축소 횟수. **24시간 지나 0번이면 ⚠ [관찰 끝]으로 「원인 확정 정리」를 알림**(그때 `docs/ERROR_LESSONS.md` 14:00 항목에 확정·경고 기준 유지 여부 기록, 그 뒤 이 관찰 코드 삭제). 축소가 다시 생기면 ⚠와 직전 기록. 블랙박스 보관을 2,000줄 → 3만 줄로(하루 약 1만 1천 줄이라 2,000줄로는 24시간 관찰 불가였음).
