@@ -4,6 +4,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SavedThreadPlan, HookVariant } from "@/types/planner";
 import { IMAGE_BUCKET, isOwnImageUrl } from "@/lib/storage/imageBucket";
+import { IMAGE_FEATURE } from "@/lib/deployment";
 
 export interface SavePlanInput {
   topic: string;
@@ -122,7 +123,7 @@ export async function getSavedThreadPlansAction(): Promise<{
     } catch {
       // sweep 오류가 조회 자체를 중단시키지 않도록 방어
     }
-    await sweepExpiredImages(admin, user.id, Date.now() - 30 * 24 * 60 * 60 * 1000);
+    if (IMAGE_FEATURE) await sweepExpiredImages(admin, user.id, Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const { data, error } = await (admin as any)
       .from("tep_saved_plans")

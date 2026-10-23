@@ -16,6 +16,7 @@ import {
   isImageRatio,
   type ImageRatio,
 } from "@/lib/ai/imageModels";
+import { IMAGE_FEATURE } from "@/lib/deployment";
 import type {
   TopicSuggestion,
   ThreadPlanResult,
@@ -545,7 +546,7 @@ export function PlannerApp() {
       setExpandedHookIdx(null);
       setIsSaved(false); // 생성 직후에는 미저장 상태로 시작 (마음에 드는 콘텐츠일 때 사용자가 [보관함에 저장] 클릭)
       setPlanImages([]);
-      if (autoImage) void runImageGeneration(res.data); // 글과 함께 이미지 자동 생성(글은 먼저 보여 주고 이미지는 이어서)
+      if (IMAGE_FEATURE && autoImage) void runImageGeneration(res.data); // 글과 함께 이미지 자동 생성(글은 먼저 보여 주고 이미지는 이어서)
     } catch {
       setErrorMessage("글 생성 중 오류가 발생했습니다.");
     } finally {
@@ -1191,8 +1192,8 @@ export function PlannerApp() {
           </div>
         </div>
 
-        {/* 이미지 자동화 설정 (2026-10-23 v1.48) — 글과 함께 이미지 생성 */}
-        <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-3 md:p-3.5 shadow-2xs space-y-2.5">
+        {/* 이미지 자동화 설정 (2026-10-23 v1.48) — 글과 함께 이미지 생성, 배포판(독립 모드)에서만 */}
+        {IMAGE_FEATURE && (<div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-3 md:p-3.5 shadow-2xs space-y-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <label className="flex items-center gap-2 text-xs font-bold text-neutral-800 cursor-pointer">
               <input
@@ -1245,7 +1246,7 @@ export function PlannerApp() {
               ))}
             </select>
           </div>
-        </div>
+        </div>)}
 
         {/* 2. ★ 핵심 기능: 다양한 상황별 페르소나 원클릭 글 생성 버튼 그리드 (6대 페르소나) */}
         <div className="space-y-3 pt-1">
@@ -1693,7 +1694,7 @@ export function PlannerApp() {
 
           <div className="p-5 md:p-7 space-y-6">
             {/* 0. 글과 함께 만든 이미지 (2026-10-23 v1.48) */}
-            {(planImages.length > 0 || isImagePlanning) ? (
+            {!IMAGE_FEATURE ? null : (planImages.length > 0 || isImagePlanning) ? (
               <div className="rounded-2xl border border-sky-200/80 bg-sky-50/50 p-4 md:p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-bold text-sky-900 flex items-center gap-1.5">

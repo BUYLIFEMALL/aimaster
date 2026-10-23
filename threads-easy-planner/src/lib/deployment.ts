@@ -12,6 +12,12 @@ export const APP_NAME = IS_STANDALONE ? (process.env.NEXT_PUBLIC_APP_NAME ?? "")
 /** 탭 제목·짧은 문장에 쓰는 이름 */
 export const APP_SHORT_NAME = IS_STANDALONE ? APP_NAME : "Threads AI 기획기";
 
+/**
+ * 글과 함께 이미지 만들기(v1.48)는 배포판(독립 모드)에서만 켠다 — 2026-10-23 주인님 지시:
+ * 「운영은 그대로 두고 배포판만 이미지 기능 유지」(AIMaster 운영에는 이미지 생성이 다른 Threads 프로그램에 이미 있음).
+ */
+export const IMAGE_FEATURE = IS_STANDALONE;
+
 /** 화면에 보이는 운영자(브랜드) 이름. 운영은 "AIMaster", 독립 운영은 수강생이 정한 NEXT_PUBLIC_BRAND_NAME(비우면 표시 안 함). */
 export const BRAND_NAME = IS_STANDALONE ? (process.env.NEXT_PUBLIC_BRAND_NAME ?? "").trim() : "AIMaster";
 

@@ -2,7 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveApiKeyAction, deleteApiKeyAction } from "@/lib/actions/settings";
 import type { AIProvider } from "@/lib/apiKeys";
-import { IS_STANDALONE } from "@/lib/deployment";
+import { IMAGE_FEATURE, IS_STANDALONE } from "@/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -51,9 +51,9 @@ export default async function SettingsPage() {
         <p className="mt-1 text-sm text-neutral-500">
           스레드 글 생성을 위해 본인의 AI 키를 등록해주세요. (셋 중 <strong>1개만 등록</strong>해도 바로 사용 가능합니다)
         </p>
-        <p className="mt-1 text-xs text-neutral-500">
+        {IMAGE_FEATURE && (<p className="mt-1 text-xs text-neutral-500">
           🖼 글과 함께 만드는 이미지도 같은 키를 씁니다 — 나노바나나는 <strong>Gemini 키</strong>, GPT Image는 <strong>OpenAI 키</strong>(Claude 키로는 이미지를 만들 수 없습니다).
-        </p>
+        </p>)}
       </div>
 
       <div className="rounded-2xl bg-amber-50/70 border border-amber-200/80 p-4 text-xs text-amber-800 leading-relaxed">

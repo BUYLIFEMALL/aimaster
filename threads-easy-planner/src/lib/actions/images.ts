@@ -9,6 +9,9 @@ import { planImagePromptsAI } from "@/lib/ai/generator";
 import { generateImageBytes } from "@/lib/ai/postImage";
 import { IMAGE_ENGINE_LABELS, findImageModel, isImageRatio, MAX_IMAGE_COUNT } from "@/lib/ai/imageModels";
 import { IMAGE_BUCKET } from "@/lib/storage/imageBucket";
+import { IMAGE_FEATURE } from "@/lib/deployment";
+
+const IMAGE_OFF = "이 사이트에서는 이미지 만들기를 쓰지 않습니다.";
 
 export interface ImageActionResult<T> {
   success: boolean;
@@ -27,6 +30,7 @@ export async function planImagePromptsAction(input: {
 }): Promise<ImageActionResult<string[]>> {
   try {
     const user = await requireProgramAccess();
+    if (!IMAGE_FEATURE) return { success: false, error: IMAGE_OFF };
     const content = String(input.content ?? "").trim().slice(0, 4_000);
     if (!content) return { success: false, error: "이미지로 만들 글이 없습니다. 먼저 글을 생성해 주세요." };
 
@@ -59,6 +63,7 @@ export async function generatePlanImageAction(input: {
 }): Promise<ImageActionResult<{ url: string }>> {
   try {
     const user = await requireProgramAccess();
+    if (!IMAGE_FEATURE) return { success: false, error: IMAGE_OFF };
     const prompt = String(input.prompt ?? "").trim();
     if (!prompt) return { success: false, error: "이미지 프롬프트가 비어 있습니다." };
     if (prompt.length > 1_500) return { success: false, error: "이미지 프롬프트는 1,500자 이하로 줄여 주세요." };
