@@ -139,6 +139,9 @@ function revertedLines(f, headText, newText) {
 }
 
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
+// --mine은 작업 파일 전체를 올리므로, 최근 2시간 안 다른 커밋이 같은 파일을 고쳤다면 다른 세션이 작업 파일에 남긴 미커밋 줄도 섞일 수 있다
+// → 그 커밋 목록을 보여 주고 --push가 있어도 푸시는 미룬다(바뀐 줄 미리 보기를 눈으로 확인한 뒤 손으로 푸시, 2026-10-23)
+const mineRecent = mine ? targets.flatMap((f) => (tryRun(["log", "--since=2 hours ago", "--format=%h %ad %s", "--date=format:%H:%M", "--", f]) ?? "").split("\n").filter(Boolean).map((l) => `${f}: ${l}`)) : [];
 let done = null;
 for (let attempt = 1; attempt <= 5 && !done; attempt++) {
   const oldHead = run(["rev-parse", "HEAD"]).trim();
@@ -231,7 +234,12 @@ console.log(run(["show", "--stat", "--format=", done.commit]).trim());
 const changedLines = run(["show", "-U0", "--format=", done.commit]).split("\n").filter((l) => /^[-+]/.test(l) && !/^(\+\+\+|---) /.test(l));
 console.log(`  바뀐 줄 ${changedLines.length}개${changedLines.length > 16 ? " (앞 16개)" : ""} — 내가 고치지 않은 줄이 있으면 기준 사본 뒤 다른 세션이 고친 것:`);
 for (const l of changedLines.slice(0, 16)) console.log(`    ${l.slice(0, 110)}`);
-if (flag("--push")) {
+if (mineRecent.length) {
+  console.log(`⚠ --mine: 최근 2시간 안 다른 커밋 ${mineRecent.length}개가 같은 파일을 고쳤습니다 — 작업 파일에 다른 세션의 미커밋 줄이 있었다면 위 「바뀐 줄」에 섞였습니다.`);
+  for (const l of mineRecent.slice(0, 5)) console.log(`    ${l.slice(0, 110)}`);
+  if (flag("--push")) console.log(`  푸시는 미뤘습니다. 위 바뀐 줄이 모두 내 것이면: git push origin ${branch}  (아니면 다음 커밋으로 그 줄을 되돌리고 그 세션에 알리기)`);
+}
+if (flag("--push") && !mineRecent.length) {
   const p = tryRun(["push", "-q", "origin", branch], { stdio: ["ignore", "pipe", "pipe"] });
   console.log(p === null ? "✖ 푸시 실패 — `git push origin " + branch + "`로 다시 하세요." : `✔ 푸시 origin/${branch}`);
 }
