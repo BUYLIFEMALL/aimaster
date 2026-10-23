@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 세션 주소 등록·조회 명령·맥미니 메시지 시험 절차 (세션 claude-win-lessons)
+- 한 일(`3e364a230`): `scripts/index-watch.mjs` ① `register <세션명>` — 작업 중 표에 줄을 올릴 때 한 번, 커밋 전이어도 메시지 주소를 `.git/aimaster-sessions.txt`에(주소 없는 Codex·agy는 이름만 블랙박스에) ② `who <세션명>` — 그 세션 주소만 출력(읽기 전용, 이름 빼면 전체) ③ 작업 중 세션 목록은 「주소 있음@장비」만 + 「주소는 who」 안내. `docs/ACTIVE_WORK.md` 사용법 2에 등록 명령, `docs/MAC_MINI_AGENT_PLAYBOOK.md`에 맥미니↔윈도우 메시지 시험 절차.
+- 검수: 임시 저장소에서 등록(주소 있음/없음/이름 없음)·조회(있음/없음)·목록, 시험 20개 통과.
+- 남은 일: 맥미니↔윈도우 메시지 시험(맥미니 세션에서 register → 윈도우에서 who + SendMessage) — 미확인.
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — `video-to-gif` v1.19 배포 완료 (맥미니 요청 처리, 주인님 승인 빌드 1회)
 - 배포 전: 팀 `buylife`에 빌드 중·대기 0건 확인(보안 연속 배포와 겹치지 않음), tsc 0·`npm run build` 통과.
 - 배포: `video-to-kjwuwh5xt` Ready → https://video-to-gif.buylife.xyz , DB 버전 v1.19, 프로그램 비교표 버전 2곳 v1.19.
