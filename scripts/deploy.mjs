@@ -182,6 +182,43 @@ if (versionOnly && args.includes("--all")) {
     }
   } catch (e) { console.log(`[30일 정리 기록] 확인 실패 — ${e.message}`); }
 
+  // 커밋·푸시 안전장치 자기 시험(2026-10-23) — pre-commit이 줄 뒤섞임으로 아무 검사 없이 통과하던 고장(04b887892)을 반나절 몰랐던 일 재발 방지.
+  // 막혀야 하는 경우를 실제 훅 파일로 흉내 낸다: pre-commit = 빈 임시 스테이징(공용 .git/index는 안 건드림), pre-push = 알려진 대량 삭제 커밋 c2e7c4db2.
+  {
+    const { tmpdir } = await import("node:os");
+    const { rmSync } = await import("node:fs");
+    const hookDir = join(ROOT, ".git", "hooks");
+    const execPath = (spawnSync("git", ["--exec-path"], { encoding: "utf8" }).stdout || "").trim();
+    const shCandidates = ["sh", execPath && join(execPath, "..", "..", "..", "usr", "bin", "sh.exe")].filter(Boolean);
+    const sh = shCandidates.find((c) => spawnSync(c, ["-c", "exit 0"]).status === 0);
+    const out = [];
+    if (!sh) out.push("  확인 불가 — sh를 찾지 못함");
+    else {
+      const pc = join(hookDir, "pre-commit");
+      if (!existsSync(pc)) out.push("  ⚠ pre-commit 훅 없음 — node scripts/git-hooks/install.mjs");
+      else {
+        const idx = join(tmpdir(), `aimaster-hooktest-${process.pid}`);
+        const env = { ...process.env, GIT_INDEX_FILE: idx };
+        delete env.AIMASTER_ALLOW_MASS_DELETE;
+        spawnSync("git", ["read-tree", "--empty"], { cwd: ROOT, env });
+        const r = spawnSync(sh, [pc], { cwd: ROOT, env, encoding: "utf8" });
+        try { rmSync(idx, { force: true }); } catch { /* 임시 파일 */ }
+        if (r.status === 0) out.push("  ⚠ pre-commit 고장 — 빈 스테이징(파일 전부 삭제)을 통과시킴. `sh -x .git/hooks/pre-commit`으로 확인, 원본 scripts/git-hooks/pre-commit");
+      }
+      const pp = join(hookDir, "pre-push");
+      const bad = (spawnSync("git", ["rev-parse", "--verify", "-q", "c2e7c4db2^{commit}"], { cwd: ROOT, encoding: "utf8" }).stdout || "").trim();
+      if (!existsSync(pp)) out.push("  ⚠ pre-push 훅 없음 — node scripts/git-hooks/install.mjs");
+      else if (bad) {
+        const parent = (spawnSync("git", ["rev-parse", `${bad}^`], { cwd: ROOT, encoding: "utf8" }).stdout || "").trim();
+        const env = { ...process.env }; delete env.AIMASTER_ALLOW_MASS_DELETE;
+        const r = spawnSync(sh, [pp, "origin", "x"], { cwd: ROOT, env, encoding: "utf8", input: `refs/heads/master ${bad} refs/heads/master ${parent}\n` });
+        if (r.status === 0) out.push("  ⚠ pre-push 고장 — 알려진 대량 삭제 커밋 c2e7c4db2를 통과시킴. `sh -x .git/hooks/pre-push`로 확인");
+      }
+    }
+    console.log(`[커밋·푸시 안전장치 자기 시험] ${out.length ? "문제 있음" : "pre-commit·pre-push 모두 대량 삭제를 막음"}`);
+    for (const l of out) console.log(l);
+  }
+
   // 최근 24시간 공용 문서 되돌림 감사(check-shared-doc-reverts --audit) — 지금 HEAD에서 사라진 줄이 있을 때만 자세히(2026-10-23)
   const au = spawnSync(process.execPath, [join(ROOT, "scripts", "check-shared-doc-reverts.mjs"), "--audit", "24", "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   try {
