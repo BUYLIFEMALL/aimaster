@@ -141,7 +141,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 </span>
                 <div className="flex-1">
                   <div className="font-bold text-gray-300">WASM 8MiB 최적화</div>
-                  <p className="mt-0.5 text-[11px] text-gray-400">2-Pass 고화질 팔레트 인코딩</p>
+                  <p className="mt-0.5 text-[11px] text-gray-400">색상표 최적화 고화질 변환</p>
                 </div>
               </div>
 
