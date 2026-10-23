@@ -11,10 +11,31 @@ export const MAX_REVIEW_TOTAL_BYTES = 12 * 1024 * 1024;
 export const PHOTO_REVIEW_WARNING = "사진 관찰은 AI 해석이며 사실 확인이 아닙니다. 맛·가격·방문일·직접 경험은 본인 메모와 원본을 대조해 검수해 주세요.";
 export const supportsPhotoReview = (provider: string, model: string) => PHOTO_REVIEW_MODELS[provider]?.includes(model) === true;
 
+// 병합 A-3(v2.17 후보, 올인원 → 에이전트): 방문 정보·근거 있는 FAQ. 모두 선택 항목이라 예전 결과도 그대로 열린다.
+export const VISIT_KINDS = ["맛집", "카페", "여행", "체험", "기타"] as const;
+export const visitInfoSchema = z.object({
+  kind: z.enum(VISIT_KINDS).optional(),
+  region: z.string().trim().min(1).max(60).optional(),
+  visitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  companion: z.string().trim().min(1).max(40).optional(),
+  oneLine: z.string().trim().min(1).max(120).optional(),
+});
+export type VisitInfo = z.infer<typeof visitInfoSchema>;
+export const hasVisitInfo = (visit?: VisitInfo) => Boolean(visit && (visit.kind || visit.region || visit.visitDate || visit.companion || visit.oneLine));
+/** 화면 입력에서 빈 칸을 빼고 방문 정보를 만든다(모두 비면 undefined). */
+export function cleanVisitInfo(raw: { kind?: string; region?: string; visitDate?: string; companion?: string; oneLine?: string }): VisitInfo | undefined {
+  const visit: VisitInfo = {};
+  if ((VISIT_KINDS as readonly string[]).includes(raw.kind || "")) visit.kind = raw.kind as VisitInfo["kind"];
+  for (const key of ["region", "visitDate", "companion", "oneLine"] as const) { const value = (raw[key] || "").trim(); if (value) visit[key] = value; }
+  return hasVisitInfo(visit) ? visit : undefined;
+}
+
 export const photoReviewInputSchema = z.object({
   engine: z.object({ provider: z.enum(["openai", "anthropic", "gemini"]), model: z.string().max(100) }),
   place: z.string().trim().min(1).max(120),
   visitNotes: z.string().trim().max(4000),
+  visit: visitInfoSchema.optional(),
+  includeFaq: z.boolean().optional(),
   preferredTone: z.enum(["해요체", "합니다체", "친근한 반말", "한다체"]),
   targetLength: z.number().int().min(500).max(2500),
   coverId: z.string().uuid(),
@@ -38,6 +59,7 @@ export const photoDraftSchema = z.object({
 export const photoReviewResultSchema = photoDraftSchema.extend({
   ...observationsSchema.shape,
   place: z.string().trim().min(1).max(120), visitNotes: z.string().trim().max(4000),
+  visit: visitInfoSchema.optional(), includeFaq: z.boolean().optional(),
   photos: photoReviewInputSchema.shape.photos, coverId: z.string().uuid(),
   engine: photoReviewInputSchema.shape.engine, warning: z.string().max(500),
 }).superRefine((value, ctx) => {
