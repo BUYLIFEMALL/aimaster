@@ -8,11 +8,12 @@ export const maxDuration = 300;
 
 // 회원 생성 파일 30일 자동 삭제(생성일 기준, 회원 생성 데이터 30일 규칙). v1.23 영상만 → v1.24 AI 이미지·내레이션 음성까지.
 // 대상: <user_id>/ 바로 아래 AI 배경 이미지, <user_id>/voice/ 내레이션, <user_id>/video/ AI 영상.
+// v1.38 <user_id>/ams/ — AI 음악 스튜디오에서 고른 곡의 복사본(AI 생성물)도 대상.
 // 제외: <user_id>/bgm/ — 회원이 직접 올린 배경음악(AI 생성물이 아님). 대본(shorts_onestop_items)은 지우지 않으며,
 // 지워진 파일은 화면이 「30일이 지나 삭제됨 — 다시 만들기」로 안내한다(useMedia·useAudio의 gone).
 // Vercel cron(vercel.json, 매일 03:30 KST)이 부른다. 기준: reverse-prompt/src/app/api/cron/cleanup/route.ts.
 const TTL_MS = 30 * 24 * 60 * 60 * 1000;
-const SUBFOLDERS = ["", "voice", "video"] as const;
+const SUBFOLDERS = ["", "voice", "video", "ams"] as const;
 
 export async function GET(request: Request) {
   // 비밀값이 비어 있으면 「Bearer undefined」로 통과되는 사고를 막는다(docs/ERROR_LESSONS.md 2026-10-20).
@@ -20,9 +21,9 @@ export async function GET(request: Request) {
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return json({ error: "unauthorized" }, 401);
   const store = createAdminClient().storage.from(BUCKET);
   const now = Date.now();
-  const removed: Record<string, number> = { image: 0, voice: 0, video: 0 };
+  const removed: Record<string, number> = { image: 0, voice: 0, video: 0, ams: 0 };
   // v1.37 회원별 지운 개수 → usage_logs cleanup_expired(메인 관리자 「30일 자동 정리」 표, docs/PLATFORM_PATTERNS.md §35)
-  const byOwner: Record<string, { images: number; voices: number; videos: number }> = {};
+  const byOwner: Record<string, { images: number; voices: number; videos: number; tracks: number }> = {};
   for (let offset = 0; ; offset += 1000) {
     const { data: folders, error } = await store.list("", { limit: 1000, offset });
     if (error) return json({ error: error.message }, 500);
@@ -38,8 +39,8 @@ export async function GET(request: Request) {
           for (let i = 0; i < stale.length; i += 100) await store.remove(stale.slice(i, i + 100));
           removed[sub || "image"] += stale.length;
           if (stale.length) {
-            const c = (byOwner[f.name] ??= { images: 0, voices: 0, videos: 0 });
-            c[sub === "voice" ? "voices" : sub === "video" ? "videos" : "images"] += stale.length;
+            const c = (byOwner[f.name] ??= { images: 0, voices: 0, videos: 0, tracks: 0 });
+            c[sub === "voice" ? "voices" : sub === "video" ? "videos" : sub === "ams" ? "tracks" : "images"] += stale.length;
           }
           if (stale.length < 1000) break;
         }
@@ -56,7 +57,7 @@ export async function GET(request: Request) {
       for (const [userId, c] of owners) {
         const { error: logErr } = await admin.from("usage_logs").insert({
           user_id: userId, program_id: program.id, action: "cleanup_expired",
-          quantity: c.images + c.voices + c.videos, credits_used: 0, metadata: { ...c },
+          quantity: c.images + c.voices + c.videos + c.tracks, credits_used: 0, metadata: { ...c },
         });
         if (!logErr) loggedOwners += 1;
       }
