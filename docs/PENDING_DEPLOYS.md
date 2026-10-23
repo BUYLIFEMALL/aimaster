@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `naver-blog-agent` (운영 v2.16) | 블로그 병합 A-3: 사진 후기 방문 정보·근거 있는 FAQ | `c73959966`·`2ec46cb31` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | A-4와 함께 v2.17(manifest·ZIP·DB) |
 | `ai-image-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shorts-onestop-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shots` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
