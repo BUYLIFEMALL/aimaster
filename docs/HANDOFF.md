@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 📮 블로그 전담 세션에 인계: 네이버 블로그 에이전트에 다른 세션이 한 변경 3건
+- 이 세션이 담당 확인을 놓치고 블로그 전담 프로그램 `naver-blog-agent`에 변경 3건을 했다: v2.12 이미지 전용 공개 버킷, 미발행 글 23건 이미지 이관(주인님 승인), v2.13 정리 판정. 모두 운영 반영.
+- **확인 필요:** 이관한 23건 중 19건에 검수 기록이 있어 「다시 검수 필요(STALE)」로 보일 수 있음(발행 준비 5건 포함), `cron/cleanup` 수정과 BLC 작업 충돌 여부, 발행 준비 글의 실제 이미지 입력.
+- 전문: `naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261023_OTHER_SESSION_IMAGE_BUCKET.md`(커밋 `8db24b5a3`). 이 세션은 앞으로 블로그 8개 프로그램을 건드리지 않음.
+
 ## 2026-10-23 Claude Code(윈도우) — 프로그램 비교표 카드 11개 내용 갱신 · 모바일 검수 6번(고정 막대)
 - **비교표 카드 갱신**(10단계 이상 뒤처진 카드 14개 중 11개): 각 폴더 `AGENTS.md` 버전 기록을 기준으로 기능·장점·단점·사용 순서·최근 추가·버전을 실제 배포 내용으로 갱신 — `booking-reminder` v1.28 · `auto-threads-posting` v1.32 · `threads-comment-reply` v1.27 · `playlist-channel-studio` v1.27 · `youtube-auto-reply` v1.30 · `emotion-writer` v1.26 · `trending-product-finder` v1.23 · `video-to-gif` v1.18 · `auto-detail-page` v1.21(15p 이동 안내 기준) · `auto-instagram-posting` v1.68 · `instagram-comment-reply` v1.36. 미구현·미배포는 장점에 넣지 않음. 남은 3개(`naver-blog-seo-studio`·`tistory-auto-blog` 블로그 병합 세션, `shop-detail-page` 맥미니 세션)는 각 담당 몫.
 - 발견(참고): `emotion-writer/AGENTS.md` 3절의 「Unsplash·4:5」는 실제 코드(Pixabay·Pexels, 9:16·1:1·3:4)와 다름 — 카드는 코드 기준. `video-to-gif` 사이드바 옛 문구 「2-Pass」 남음(그 폴더 v1.18 기록).
