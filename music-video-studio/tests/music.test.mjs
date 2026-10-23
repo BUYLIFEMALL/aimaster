@@ -297,3 +297,17 @@ test("v1.24 AI 이미지 스튜디오 기록 → 회원 폴더 파일 경로만"
   assert.equal(aisStoragePath(null, uid), null);
   assert.equal(aisStoragePath({ image_path: `${uid}/a.png` }, ""), null);
 });
+
+test("v1.25 곡 파형 값·장면 전환 시각", async () => {
+  const { computePeaks, cutTimes } = await import("../src/lib/music/waveform.ts");
+  const s = new Float32Array([0, 0.1, -0.5, 0.2, 0, 0, 0.25, -0.05]);
+  assert.deepEqual(computePeaks(s, 4), [0.2, 1, 0, 0.5], "칸마다 가장 큰 소리, 가장 큰 칸이 1");
+  assert.deepEqual(computePeaks(new Float32Array(10), 3), [0, 0, 0], "무음");
+  assert.deepEqual(computePeaks([], 2), [0, 0], "빈 곡");
+  assert.equal(computePeaks(new Float32Array(3).fill(0.5), 8).length, 8, "칸이 샘플보다 많아도 길이 유지");
+  assert.ok(computePeaks(Float32Array.from({ length: 1000 }, (_, i) => Math.sin(i)), 160).every((v) => v >= 0 && v <= 1));
+  assert.deepEqual(cutTimes([12, 18, 10]), [12, 30], "첫 시작·끝은 빼고 전환 시각만");
+  assert.deepEqual(cutTimes([5]), []);
+  assert.deepEqual(cutTimes([]), []);
+  assert.deepEqual(cutTimes([1.234, 2]), [1.23]);
+});

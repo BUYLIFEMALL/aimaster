@@ -15,13 +15,15 @@ import { loadLocalSong } from "@/lib/music/localSong";
 import { sceneLengthsFromLyrics, timingLyrics } from "@/lib/music/sceneTiming";
 import { detectBeat, snapLengths, type BeatInfo } from "@/lib/music/beat";
 import { useStudio } from "@/components/studio/ProjectProvider";
+import { Waveform, WAVE_BUCKETS } from "@/components/studio/Waveform";
+import { computePeaks, cutTimes } from "@/lib/music/waveform";
 import { BTN_GHOST, BTN_PRIMARY, Card } from "@/components/studio/ui";
 
 const MAX_TOTAL_S = 420; // 곡 최대 7분
 const FALLBACK_SCENE_S = 5;
 
-/** v1.19 곡 소리를 풀어 박자를 찾는다(회원 브라우저에서, 비용 없음). 못 찾으면 null */
-async function analyzeBeat(blob: Blob): Promise<BeatInfo | null> {
+/** v1.19 곡 소리를 풀어 박자를 찾는다(회원 브라우저에서, 비용 없음). 못 찾으면 null. v1.25 같은 소리로 파형 값도 만든다 */
+async function analyzeBeat(blob: Blob): Promise<{ beat: BeatInfo | null; peaks: number[] | null }> {
   try {
     const buf = await blob.arrayBuffer();
     const audio = await new OfflineAudioContext(1, 1, 22050).decodeAudioData(buf);
@@ -31,9 +33,9 @@ async function analyzeBeat(blob: Blob): Promise<BeatInfo | null> {
       const ch = audio.getChannelData(c);
       for (let i = 0; i < len; i++) mono[i] += ch[i] / audio.numberOfChannels;
     }
-    return detectBeat(mono, audio.sampleRate);
+    return { beat: detectBeat(mono, audio.sampleRate), peaks: computePeaks(mono, WAVE_BUCKETS) };
   } catch {
-    return null;
+    return { beat: null, peaks: null };
   }
 }
 
@@ -55,6 +57,7 @@ export function FinalRender() {
   const [songNote, setSongNote] = useState("");
   const [beat, setBeat] = useState<BeatInfo | null | "busy">(null);
   const [beatSnap, setBeatSnap] = useState(true);
+  const [peaks, setPeaks] = useState<number[] | null>(null);
   const [quality, setQuality] = useState<EditQuality>("720p");
   const [captions, setCaptions] = useState(true);
   const [captionStyle, setCaptionStyle] = useState<CaptionStyle>("yellow");
@@ -78,7 +81,7 @@ export function FinalRender() {
   useEffect(() => {
     let alive = true;
     let made: string | null = null;
-    setSongSrc(null); setSongSec(null); setSongNote(""); setBeat(null);
+    setSongSrc(null); setSongSec(null); setSongNote(""); setBeat(null); setPeaks(null);
     (async () => {
       if (!song) return;
       try {
@@ -99,7 +102,7 @@ export function FinalRender() {
         setSongSrc(made); setSongSec(sec);
         setBeat("busy");
         const b = await analyzeBeat(blob);
-        if (alive) setBeat(b);
+        if (alive) { setBeat(b.beat); setPeaks(b.peaks); }
       } catch (e) {
         if (alive) setSongNote(e instanceof Error ? e.message : "곡을 불러오지 못했습니다.");
       }
@@ -232,6 +235,11 @@ export function FinalRender() {
           </p>
         )}
       </div>
+
+      {/* v1.25 곡 파형 + 장면이 바뀌는 시각 */}
+      {peaks && songSec ? (
+        <Waveform peaks={peaks} duration={songSec} marks={usable.length > 1 ? cutTimes(lengths) : []} label={`곡 파형과 장면 전환 ${Math.max(0, usable.length - 1)}곳`} />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
         {(["720p", "1080p"] as EditQuality[]).map((q) => <button key={q} type="button" disabled={busy} className={chip(quality === q)} onClick={() => setQuality(q)}>{q}{q === "720p" ? " (빠름)" : ""}</button>)}

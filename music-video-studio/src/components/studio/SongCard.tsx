@@ -6,6 +6,7 @@ import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote } from "@/components/studio/ui";
 import { audioDuration, deleteLocalSong, loadLocalSong, saveLocalSong } from "@/lib/music/localSong";
 import type { SongRef } from "@/lib/music/types";
+import { Waveform, decodePeaks } from "@/components/studio/Waveform";
 
 // v1.13 이 뮤직비디오의 곡: ① AI 음악 스튜디오에서 내가 만든 곡 가져오기 ② 내 PC 음악 파일 올리기(이 브라우저에만 보관).
 // 가져온 곡은 제목·스타일·가사를 프로젝트에 채워 다음 단계(스토리보드)가 그 가사로 장면을 나눈다.
@@ -35,6 +36,16 @@ export function SongCard() {
     objectUrl.current = url;
   };
   useEffect(() => () => setObjectUrl(null), []);
+
+  // v1.25 곡 파형 — 듣기 주소가 준비되면 회원 브라우저에서 곡을 풀어 그린다(실패하면 그리지 않음)
+  const [peaks, setPeaks] = useState<number[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    setPeaks(null);
+    if (!src) return;
+    fetch(src).then((r) => r.blob()).then((b) => decodePeaks(b)).then((p) => { if (alive) setPeaks(p); }).catch(() => {});
+    return () => { alive = false; };
+  }, [src]);
 
   // 곡이 바뀌면(또는 프로젝트를 다시 열면) 듣기 주소를 다시 준비한다
   useEffect(() => {
@@ -159,7 +170,7 @@ export function SongCard() {
               <span>곡 빼기</span>
             </button>
           </div>
-          {src ? <audio controls preload="metadata" src={src} className="w-full" /> : srcNote ? <p className="text-xs text-amber-300">⚠️ {srcNote}</p> : <p className="text-xs text-slate-400">곡을 불러오는 중…</p>}
+          {src ? <><audio controls preload="metadata" src={src} className="w-full" />{peaks && <Waveform peaks={peaks} duration={song?.durationS ?? null} label={`${song?.title ?? "곡"} 파형`} />}</> : srcNote ? <p className="text-xs text-amber-300">⚠️ {srcNote}</p> : <p className="text-xs text-slate-400">곡을 불러오는 중…</p>}
           {song.durationS ? (
             <p className="text-[11px] text-slate-300">
               ⏱️ 곡 길이 {mmss(song.durationS)} · 지금 설정한 장면 {project.sceneCount}개 × {project.video.length}초 = {mmss(sceneTotal)}
