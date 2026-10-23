@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) · 블로그 전담 `claude-win-20261023-seo-bg` — 다른 세션으로 이어받기 인수인계
+- **읽을 문서: [`docs/HANDOFF_20261023_BLOG_SESSION.md`](HANDOFF_20261023_BLOG_SESSION.md)** — 오늘 끝낸 일(블로그 6곳 배포·인계 ①~④, 비공개 발행 https://blog.naver.com/buylifemall/224451486747 기록), 남은 일 순서, 주인님 결정 대기, 규칙 요약.
+- **다음 첫 단계**: ① 티스토리 분량 (나) 플랜(`tistory-auto-blog/docs/PLAN_20261023_LENGTH_PROMPT.md`) 주인님 「진행해」 받기 → 구현·GPT-4.1 1회 확인(약 60원) ② 에이전트 「준비 모드 직접 발행 결과 미기록」 개발 플랜 보고 ③ 에이전트 v2.15 배포(**미배포 대기**: 팝업 480px·버튼 한 줄 `2666fc309`, 빌드 1회 승인 필요) ④ BLC-14.
+- 배포: 없음(이 묶음). 비용: 없음.
+
 ## 2026-10-23 ✅ Claude Code(맥미니) · `claude-mac-20261023-ecommerce` — `video-to-gif` v1.19 맥미니 크롬 실검수 완료 (비용 없음)
 - 시험 계정, 화면 안에서 만든 시험 영상 3개: 색 블록 7초(560px)·잔점 2.5초 구간(860px)은 예전처럼 2번 시도·fps 낮춤 없음(6.73·6.95MiB) / **잔점 4초(860px)는 4번 시도(→45%·40fps→25fps→20fps) 끝 6.85MiB, 완료 줄 「· 20fps로 낮춤」, 장면 간격 전부 0.05초**. 미리보기 Esc 닫기, `/guide` FAQ 새 문구 확인. 상세 `video-to-gif/AGENTS.md` 맨 아래, 커밋 `b5c375334`.
 - 함께: 맥미니에서 `node scripts/git-hooks/install.mjs` 실행(주인님 지시) — `pre-commit`·`pre-push`·`commit-msg` 설치·실행 권한 확인.
