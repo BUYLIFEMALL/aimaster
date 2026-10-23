@@ -9,7 +9,7 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { hostname } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 
 // 세션 이름: 이름표에 이미 (이름)이 없으면 환경변수 AIMASTER_SESSION을 붙인다 — 훅은 git이 부를 때 환경변수를 물려받으므로
 // `AIMASTER_SESSION=claude-win-x git commit …`이면 훅 기록에도 세션 이름이 남는다(2026-10-23)
@@ -22,6 +22,7 @@ try {
   const git = (args) => execFileSync("git", args, { encoding: "utf8", env, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
   const root = git(["rev-parse", "--show-toplevel"]).trim();
   const gitDir = resolve(root, git(["rev-parse", "--git-dir"]).trim());
+  const shown = (p) => relative(root, p).replace(/\\/g, "/"); // 안내 문장에는 저장소 기준 짧은 경로(.git/…)로(2026-10-23)
   // 묵은 스테이징 항목(2026-10-23): 스테이징은 HEAD와 다른데(M·D) 작업 파일은 HEAD와 같은 파일 = 옛 판이 스테이징에 남은 것.
   // 누가 일반 커밋에 섞으면 그 파일의 최근 변경이 되돌려진다(예: 루트 지침의 새 최상위 규칙). 새로 추가(A)는 진짜 작업일 수 있어 뺀다.
   const staleEntries = () => git(["diff", "--cached", "--name-status"]).split("\n").filter(Boolean).map((l) => l.split("\t")).filter(([st]) => st === "M" || st === "D")
@@ -72,11 +73,14 @@ try {
         appendFileSync(evidencePath, [`===== ${key} · 발견 ${t(new Date())} · ${hostname()} · ${Math.round(lockAge / 60)}분째 · 부른 곳 ${tag}`,
           "-- 잠금 생성 ±2분의 블랙박스 기록:", ...(near.length ? near : ["(없음 — 기록을 남기지 않는 명령이 만든 잠금)"]),
           `-- 지금 이 장비(${hostname()})의 git·node·셸 프로세스(다른 장비는 그 장비에서 다시 보기):`, procs.trim() || "(없음)", ""].join("\n") + "\n");
+        // 끝없이 커지지 않게(2026-10-23): 잠금 기록이 100개를 넘으면 최근 50개만 남긴다(잠금 1건 = 수십 줄, 한 해 수십 건이면 넉넉함)
+        const blocks = readFileSync(evidencePath, "utf8").split(/(?=^===== )/m);
+        if (blocks.length > 100) writeFileSync(evidencePath, blocks.slice(-50).join(""));
       }
     } catch { /* 증거 기록 실패는 무시 */ }
   }
   // git 잠금이 5분 넘게 남아 있으면 — 일반 커밋·스테이징 맞추기가 모두 멈춘 상태(지우지 말고 확인)
-  const printLock = () => { if (lockAge !== null && lockAge > 300) console.log(`⚠ [공용 스테이징 잠금 오래 남음] .git/index.lock ${Math.round(lockAge / 60)}분째 — 일반 커밋과 도우미의 스테이징 맞추기가 모두 멈춘 상태. 지우지 말고 git 프로세스(장비 두 곳)를 확인한 뒤 주인님께(루트 CLAUDE.md 최상단). 그때 돌던 프로세스·기록: ${evidencePath}`); };
+  const printLock = () => { if (lockAge !== null && lockAge > 300) console.log(`⚠ [공용 스테이징 잠금 오래 남음] .git/index.lock ${Math.round(lockAge / 60)}분째 — 일반 커밋과 도우미의 스테이징 맞추기가 모두 멈춘 상태. 지우지 말고 git 프로세스(장비 두 곳)를 확인한 뒤 주인님께(루트 CLAUDE.md 최상단). 그때 돌던 프로세스·기록: ${shown(evidencePath)}`); };
   // 마지막 잠금 증거 한 줄 요약(2026-10-23): 잠금 시각·발견 장비·의심 프로세스 1개 — 파일을 열지 않고 판단. 지금 잠금이 있으면 ⚠, 없으면 24시간 안의 것만 참고로
   const printEvidence = (onlyIfLocked) => {
     if (!existsSync(evidencePath) || (onlyIfLocked && lockAge === null)) return;
@@ -94,13 +98,13 @@ try {
     const suspect = procs.find((l) => /git(\.exe)?"?\s/.test(l) && !/shell-snapshots/.test(l)) ?? procs.find((l) => !/shell-snapshots/.test(l))
       ?? sec("-- 잠금 생성").map((l) => l.split(" | ")).filter((p) => p.length > 3).map((p) => `잠금 무렵 기록 ${p[0].slice(11)} ${p[3]} ${p[2]} @${p[1]}`).pop()
       ?? "(git 프로세스·기록 없음 — 이미 끝난 명령이 남긴 잠금)";
-    console.log(`${lockAge !== null ? "⚠ " : ""}[공용 스테이징 잠금 증거] ${head1.replace(/ · 부른 곳 .*/, "")} · 의심: ${suspect.length > 140 ? `${suspect.slice(0, 140)}…` : suspect} — 전체 ${evidencePath}`);
+    console.log(`${lockAge !== null ? "⚠ " : ""}[공용 스테이징 잠금 증거] ${head1.replace(/ · 부른 곳 .*/, "")} · 의심: ${suspect.length > 140 ? `${suspect.slice(0, 140)}…` : suspect} — 전체 ${shown(evidencePath)}`);
   };
   const shrunk = (lastEntries > 200 && entries * 2 < lastEntries) || (head > 200 && entries * 2 < head);
   if (shrunk) {
     console.error(`⚠ [공용 스테이징 축소 감지] 지금 ${entries}개 (HEAD ${head}개, 직전 기록 ${lastEntries}개)`);
     console.error(`  직전 기록: ${last ?? "(없음)"}`);
-    console.error(`  기록 전체: ${logPath} — 줄어든 시각(index=…@시각) 앞뒤 줄의 장비·부른 곳으로 원인을 좁힌다. 고치기 전에 주인님께(루트 CLAUDE.md 최상단).`);
+    console.error(`  기록 전체: ${shown(logPath)} — 줄어든 시각(index=…@시각) 앞뒤 줄의 장비·부른 곳으로 원인을 좁힌다. 고치기 전에 주인님께(루트 CLAUDE.md 최상단).`);
   } else if (!quiet) console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
   // --stale-only(2026-10-23): 커밋 전에 묵은 항목만 확인 — 있으면 종료 코드 3. 맥미니 commit-gate.sh(멈춤)·safe-commit·commit-paths(안내만)가 부른다.
   // 축소 감지(위, stderr)는 그대로 나온 뒤에 실행한다.
@@ -126,7 +130,7 @@ try {
     for (let i = 1; i < rows.length; i++) if (rows[i].shrunk && !rows[i - 1].shrunk && rows[i].at.getTime() >= since) starts.push(`${rows[i].when}(${rows[i].n}개, 직전 ${rows[i - 1].when} ${rows[i - 1].tag} pid=${rows[i - 1].pid}${rows[i - 1].host !== rows[i].host ? ` · 장비 ${rows[i - 1].host}→${rows[i].host}` : ""})`);
     const first = rows.find((r) => r.at.getTime() >= since);
     console.log(starts.length
-      ? `⚠ [공용 스테이징 축소 이력] 최근 24시간 ${starts.length}번: ${starts.join(" · ")} — 기록 ${logPath}`
+      ? `⚠ [공용 스테이징 축소 이력] 최근 24시간 ${starts.length}번: ${starts.join(" · ")} — 기록 ${shown(logPath)}`
       : `[공용 스테이징 축소 이력] 최근 24시간 없음 (기록 ${first ? first.when + "부터" : "없음"})`);
     printLock();
     printEvidence(false);
