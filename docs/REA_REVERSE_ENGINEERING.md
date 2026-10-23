@@ -13,7 +13,7 @@
 - **출처를 모르는 EXE는 실행하지 않는다** — 정적 분석(파일 내용)만 한다. 실행 관찰(capture-process 등)이 꼭 필요하면 주인님 승인 후 격리 환경에서.
 - **분석 대상 원본 보관 위치: `D:\PDS\Program_dev`** (2026-10-21 주인님 지시). 주인님이 이 폴더에 넣어 두면 여기서 찾아 쓰고, 원본은 옮기거나 지우지 않는다.
 - 분석 대상 파일은 원본 폴더에서 바로 풀지 말고 **새 빈 폴더**에 복사해 두고, 분석 결과(JSON Evidence)는 크기가 크니 파일로 저장한 뒤 필요한 부분만 읽는다.
-- **분석용 작업 폴더·저장소는 이 저장소(AIMaster) 밖에 둔다(2026-10-23)**: 원본 사본·압축 해제·`git clone`한 참고 저장소·분석용 `git init`은 `D:\PDS\Program_dev\<대상>_work\` 또는 CLI의 임시(scratch) 폴더에. 저장소 안에 두면(예: 2026-10-05 `.analysis-threads-auto/` 별도 `.git`) 커밋 전 검사·블랙박스 보호 밖이고, 정리 기준도 없어 다른 세션이 실수로 커밋·삭제할 수 있다. 저장소에는 분석 **결과**(보고서·재구현 플랜)만 해당 프로그램 `docs/`에. 시험·재현 명령은 cd 직후 `node /d/Antigravity/AIMaster/scripts/assert-scratch-repo.mjs || exit 1`.
+- **분석용 작업 폴더·저장소는 이 저장소(AIMaster) 밖에 둔다(2026-10-23)**: 원본 사본·압축 해제·`git clone`한 참고 저장소·분석용 `git init`은 `D:\PDS\Program_dev\<대상>_work\` 또는 CLI의 임시(scratch) 폴더에. 저장소 안에 두면(예: 2026-10-05 `.analysis-threads-auto/` 별도 `.git` — 2026-10-23 주인님 승인으로 `D:\PDS\Program_dev	hreads-auto_work\`로 옮김) 커밋 전 검사·블랙박스 보호 밖이고, 정리 기준도 없어 다른 세션이 실수로 커밋·삭제할 수 있다. 저장소에는 분석 **결과**(보고서·재구현 플랜)만 해당 프로그램 `docs/`에. 시험·재현 명령은 cd 직후 `node /d/Antigravity/AIMaster/scripts/assert-scratch-repo.mjs || exit 1`.
 - 재구현에도 최상위 규칙(회원 본인 계정·본인 API 키), 흰색 화면, 버전 관리 등 모든 핵심 원칙이 그대로 적용된다.
 
 ## 3. 설치 현황 (2026-10-15, 이 PC)

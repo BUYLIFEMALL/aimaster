@@ -189,4 +189,4 @@ vercel deploy --prod --yes --scope buylife
 - 최신 기능 커밋: `git log --oneline -10 -- threads-content-ops "app/(dashboard)/threads-content-ops"`로 확인하세요(2026-10-08 기준 v1.86). 위 "★ 최신 작업 요약"이 현재 기준입니다.
 - 운영 DB 버전: `programs.slug = 'threads-content-ops'`, `version = 'v1.86'`
 - 실제 서비스 주소는 항상 `https://www.buylife.xyz/threads-content-ops`입니다(루트 AIMaster 프로젝트 배포).
-- 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `.analysis-threads-auto/`, `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.
+- 작업 중인 다른 CLI의 변경을 섞지 않도록 `git add`는 반드시 파일 경로를 지정합니다. 루트의 `scratch/`, `debug.log`, 갱신 스크립트, `threads-content-ops/supabase/.temp/`는 이 기능 커밋에 포함하지 않습니다.
