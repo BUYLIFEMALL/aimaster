@@ -2,6 +2,7 @@
 
 // StudioPage의 상태·처리 함수를 그대로 옮긴 훅 (2026-10-17 파일 나누기, 로직 변경 없음)
 import { useEffect, useState, useRef } from "react";
+import type { DraftRevision } from "@/lib/draftRevisions";
 import { exportFileName, toHtmlDocument, toHtmlFragment, toMarkdown, toPlainText } from "@/lib/draftExport";
 import type { ImageRatio, ImageStyle } from "@/lib/imageOptions";
 import type { ImageRefInput } from "./ImageOptionsPanel";
@@ -797,6 +798,33 @@ export function useStudio() {
     }
   }
 
+  // 병합 B-6: 이전 수정본으로 되돌리기 — 같은 저장 경로(PATCH, reason "restore")로 저장해 지금 글도 이력에 남긴다.
+  // 문단 묶음을 함께 보내 이미지 배치를 지우지 않는다(묶음 없이 본문만 바뀌면 서버가 이미지를 정리함).
+  async function restoreRevision(revision: DraftRevision) {
+    if (!currentDraft || draftSaving) return;
+    const base = baseTextRef.current?.id === currentDraft.id ? baseTextRef.current : null;
+    const unsaved = Boolean(base && (base.title !== currentDraft.title || base.body !== currentDraft.body));
+    if (!window.confirm(`${new Date(revision.at).toLocaleString("ko-KR")} 수정본으로 되돌릴까요?${unsaved ? "\n저장하지 않은 지금 수정 내용은 사라집니다." : ""}\n지금 글은 이력에 남아 다시 되돌릴 수 있습니다.`)) return;
+    setDraftSaving(true);
+    setDraftSaveMessage("이전 수정본으로 되돌리는 중...");
+    try {
+      const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: revision.title, body: revision.body, contentBlocks: reflowBlocks(contentBlocks, revision.body, contentImages), reason: "restore", ...(base ? { baseTitle: base.title, baseBody: base.body } : {}) }) });
+      const result = await response.json() as { draft?: DraftRecord; error?: string };
+      if (!response.ok || !result.draft) throw new Error(result.error || "되돌리지 못했습니다.");
+      setContentImages(getContentImages(result.draft));
+      setContentBlocks(blocksOfDraft(result.draft));
+      setCurrentDraft(withoutContentImages(result.draft));
+      rememberBase(result.draft);
+      setSelectedTitle(result.draft.title);
+      refreshHistory().catch(() => {});
+      setDraftSaveMessage("이전 수정본으로 되돌렸습니다. 되돌리기 전 글은 수정 이력에 남아 있습니다.");
+    } catch (error) {
+      setDraftSaveMessage(error instanceof Error ? error.message : "되돌리지 못했습니다.");
+    } finally {
+      setDraftSaving(false);
+    }
+  }
+
   // 병합 B-5·B-7: 서식 포함 복사(HTML+일반 글자)·TXT/MD/HTML 파일 내보내기. 이미지는 넣지 않는다.
   async function copyDraftFormatted() {
     if (!currentDraft) return;
@@ -1005,6 +1033,7 @@ export function useStudio() {
     saveCurrentDraft,
     copyDraftText,
     copyDraftFormatted,
+    restoreRevision,
     exportDraftFile,
     selectedContentModelLabel,
     completedInputCount,

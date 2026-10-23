@@ -2,6 +2,7 @@ import { draftReport, draftLocked, nextDraftReport, writableDraft } from "@/lib/
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { pushRevision, readRevisions } from "@/lib/draftRevisions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -11,7 +12,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
   const { draftId } = await context.params;
-  const input = await request.json().catch(() => null) as { title?: string; body?: string; contentBlocks?: unknown; baseTitle?: unknown; baseBody?: unknown } | null;
+  const input = await request.json().catch(() => null) as { title?: string; body?: string; contentBlocks?: unknown; baseTitle?: unknown; baseBody?: unknown; reason?: unknown } | null;
   const title = input?.title?.trim() ?? "";
   const body = input?.body?.trim() ?? "";
   if (!title || title.length > 150) return NextResponse.json({ error: "제목을 1~150자로 입력해주세요." }, { status: 400 });
@@ -41,9 +42,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
   // Block-aware edits preserve the user's explicit image placement. Legacy textarea
   // edits retain the established behavior of clearing sentence-matched images.
   const staleImages = bodyChanged && !contentBlocks && Array.isArray(report.contentImages) ? report.contentImages as Array<{ path?: string }> : [];
-  const nextReport = contentBlocks
+  const baseReport = contentBlocks
     ? { ...report, contentBlocks }
     : bodyChanged ? Object.fromEntries(Object.entries(report).filter(([key]) => key !== "contentImages" && key !== "contentBlocks")) : report;
+  // 병합 B-6: 제목·본문이 바뀌면 바뀌기 전 글을 이력에 남긴다(최근 10개, 원고와 함께 30일 뒤 삭제). 되돌리기도 같은 저장 경로를 쓴다.
+  const revisions = pushRevision(readRevisions(report.revisions), { title: original.title, body: original.body }, { title, body }, input?.reason === "restore" ? "되돌리기 전" : "직접 수정");
+  const nextReport = revisions.length ? { ...baseReport, revisions } : baseReport;
   const { data, error } = await writableDraft(supabase.from("naver_blog_seo_drafts")
     .update({ title, body, seo_report: nextDraftReport(nextReport), updated_at: new Date().toISOString() })
     .eq("id", draftId).eq("user_id", access.user.id), report)

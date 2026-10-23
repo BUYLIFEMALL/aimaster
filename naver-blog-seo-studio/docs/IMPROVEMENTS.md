@@ -255,3 +255,7 @@
 - 원고 결과 카드: 「제목·본문 복사」 옆에 「서식 포함 복사」(클립보드에 HTML+일반 글자 — 제목 h2·소제목 h3·문단 p·목록 ul, 지원 안 되면 일반 글자로 대체 안내)·「파일로 내보내기 ▾」(TXT·MD·HTML). 이미지는 넣지 않음(비공개 저장소 주소). AI 호출·DB 변경 없음.
 - 소제목 판별(`lib/draftExport.ts` `isHeadingLine`): 60자 이하 한 줄 + 평서문으로 끝나지 않음, 또는 질문형(「?」 또는 「까요·나요·가요·는지…」로 끝남). **실제 원고 확인(시험 계정 최근 10개, DB 읽기만):** 처음엔 물음표 없는 질문형 소제목 원고 1개에서 0개 → 질문형 어미 규칙 추가 후 10개 모두 3~4개 판별.
 - 바꾼 것: 새 `lib/draftExport.ts` · `components/studio/useStudio.ts`(`copyDraftFormatted`·`exportDraftFile`) · `NewDraftView.tsx`(버튼) · 새 시험 `tests/draft-export.test.mjs`(4). tsc·시험 17종 통과.
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기: 블로그 병합 B-6 수정본 이력·비교·되돌리기 (콘텐츠 메이커 → SEO 스튜디오)
+- 원고 저장(`PATCH /api/drafts/[draftId]`)에서 제목·본문이 실제로 바뀌면 바뀌기 전 글을 `seo_report.revisions`에 최근 10개까지(같은 글 중복 안 함, 원고와 함께 30일 뒤 삭제, **DB 변경 없음**). 새 글 화면 「수정 이력 (N)」 카드: 수정본 고르기 → 지금 글과 문단 단위 비교(추가 초록·삭제 빨강, 「바뀐 문단만 보기」) → 「이 수정본으로 되돌리기」(확인 창, 같은 저장 경로 `reason: "restore"` → 지금 글도 「되돌리기 전」으로 이력에 남음, 문단 묶음을 함께 보내 이미지 배치 유지). 콘텐츠 메이커는 옛 글 보기만 있었음.
+- 바꾼 것: 새 `lib/draftRevisions.ts` · `app/api/drafts/[draftId]/route.ts` · `components/studio/useStudio.ts`(`restoreRevision`) · 새 `components/studio/RevisionsPanel.tsx` · `NewDraftView.tsx` · 새 시험 `tests/draft-revisions.test.mjs`(2) + `tests/auto-publish.test.mjs`(실제 저장 경로로 이력·되돌리기 1, 가짜 의존성에 `@/lib/draftRevisions`). tsc·시험 18종 통과. AI 호출 없음.

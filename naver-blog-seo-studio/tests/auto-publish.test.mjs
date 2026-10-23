@@ -13,6 +13,7 @@ function moduleAt(path, mocks = {}) {
 }
 const guards = moduleAt("../lib/draftWriteGuard.ts");
 const review = moduleAt("../lib/draftReview.ts");
+const revisions = moduleAt("../lib/draftRevisions.ts");
 const fixture = () => ({ id: "draft-1", user_id: "member-1", title: "자동 발행 합성 시험", body: "본인 합성 원고입니다. 실제 추천이나 체험담이 아닙니다.", created_at: new Date().toISOString(), extension_handoff_at: new Date().toISOString(), seo_report: {}, image_path: null });
 const field = (row, column) => column.split(/->>?/).reduce((value, key) => value?.[key], row) ?? null;
 function setup(initial = fixture()) {
@@ -43,6 +44,7 @@ function setup(initial = fixture()) {
     "@/lib/supabase/server": { createClient: async () => db },
     "@/lib/draftWriteGuard": guards,
     "@/lib/draftReview": review,
+    "@/lib/draftRevisions": revisions,
   };
   const route = moduleAt("../app/api/extension/drafts/library/[draftId]/auto-publish/route.ts", mocks);
   const call = (action, values = {}, token = "own") => route.POST(new Request("https://test.invalid", { method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json" }, body: JSON.stringify({ action, ...(action === "claim" ? { fingerprint: guards.publicationFingerprint(store.row) } : {}), ...values }) }), { params: Promise.resolve({ draftId: "draft-1" }) });
@@ -99,6 +101,18 @@ test("uncertain results can reconcile but never re-arm or restart", async () => 
   await s.call("arm", { runId }); await s.call("uncertain", { runId });
   assert.equal((await s.call("arm", { runId })).status, 409);
   assert.equal((await s.call("published", { runId, url: "https://blog.naver.com/my_blog/224123456789" })).status, 200);
+});
+test("merge B-6: saving a changed body keeps the previous text in seo_report.revisions; restore keeps the restored-over text too", async () => {
+  const first = "처음 쓴 합성 원고입니다. ".repeat(12).trim();
+  const s = setup({ ...fixture(), body: first });
+  const { PATCH } = moduleAt("../app/api/drafts/[draftId]/route.ts", s.mocks);
+  const save = (body, extra = {}) => PATCH(new Request("https://test.invalid", { method: "PATCH", body: JSON.stringify({ title: "자동 발행 합성 시험", body, ...extra }) }), { params: Promise.resolve({ draftId: "draft-1" }) });
+  const second = "고친 본문입니다. ".repeat(20).trim();
+  assert.equal((await save(second)).status, 200);
+  assert.equal(s.store.row.seo_report.revisions.length, 1); assert.equal(s.store.row.seo_report.revisions[0].body, first); assert.equal(s.store.row.seo_report.revisions[0].reason, "직접 수정");
+  assert.equal((await save(second)).status, 200); assert.equal(s.store.row.seo_report.revisions.length, 1); // 바뀐 것이 없으면 이력을 늘리지 않음
+  assert.equal((await save(first, { reason: "restore" })).status, 200);
+  assert.equal(s.store.row.body, first); assert.equal(s.store.row.seo_report.revisions[0].body, second); assert.equal(s.store.row.seo_report.revisions[0].reason, "되돌리기 전");
 });
 test("actual save handler preserves a locked original; revision rejects stale writes", async () => {
   const s = setup(); await s.call("claim", { blogId: "my_blog", visibility: "private" });
