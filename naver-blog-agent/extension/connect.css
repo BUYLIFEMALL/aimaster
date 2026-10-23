@@ -4,4 +4,6 @@
 #autoLink{width:100%;margin:10px 0 6px}.manual-pair{margin:6px 0 10px;font-size:13px}.manual-pair summary{cursor:pointer;color:#5b6b80;margin-bottom:6px}
 
 /* 2026-10-23: 확장 아이콘 팝업으로 열면 폭 지정이 없어 약 200px로 줄어 글이 한두 단어씩 줄바꿈됐다 — 팝업에서도 읽히게 최소 폭을 준다(팝업 최대 800px 안). 새 탭으로 열 때는 main 660px 그대로 */
-html,body{min-width:440px}
+html,body{min-width:480px}
+/* 2026-10-23: 준비된 원고 열기·로그인/상태 확인·연결 해제 세 버튼을 한 줄로(팝업 480px 안에 들어가게 글자·여백·간격을 줄임) */
+.actions{flex-wrap:nowrap;gap:8px}.actions button{flex:1 1 auto;padding:10px 12px;font-size:13px;white-space:nowrap}
