@@ -17,9 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `ai-image-studio` | 공용 `ai-video-models`에서 Replicate Kling v2.1 제거 사본 반영(화면에서 이 목록을 쓰지 않아 동작 불변) | `c2b698db4` | 2026-10-24 · Claude Code(윈도우, 영상 담당 `claude-win-video`) | `docs/SHARED_MODULES.md` 미배포 사본 2026-10-24 | 버전 +0.01 |
 | `shop-detail-page` | 30일 자동 정리(`cleanup-generated`)가 지운 상품·파일 수를 회원별 `usage_logs` `cleanup_expired`로 기록(공용 `cleanup-usage-log` 사본, 관리자 「30일 자동 정리」 표) — 정리 동작 자체는 그대로, 유예 2026-11-21까지는 지우는 것이 없어 기록도 없음 | `34094c954` | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 아래 | 운영 v1.30 → v1.31, 2026-11-21 뒤 첫 정리에서 기록 1줄 확인 |
-| `ai-image-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `naver-blog-agent` (운영 v2.18) | 글자 넣은 대표 이미지 카드를 잘리지 않게 전체 표시(`page.tsx` 생성 이미지 카드 `object-contain`, 시각 수정만) | `9ee3cb3d8` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261023-blog2` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -31,12 +29,10 @@
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `portrait-photo` | 서버 보관함 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images, 경로 첫 폴더로 회원) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `portrait-photo/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `banana-canvas` | 결과 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=지운 입력·결과 파일 수) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `banana-canvas/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
-| `ai-image-studio` | 생성 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=이미지가 있던 기록 수) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `ai-image-studio/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `reverse-prompt` | 분석 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(history) 기록 — 공용 `cleanup-usage-log` 사본(1시간 임시 파일은 세지 않음) | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `reverse-prompt/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `four-cut-comics` | 서버 보관함 30일 정리(`/api/cron/cleanup`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 작품 수) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `four-cut-comics/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `infinite-loop-video` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `infinite-loop-video/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
-| `ai-image-studio` | 공용 `ai-video-*` 사본 전환(기준이 ai-video-studio로 이전) — 머리 주석·선택값 추가, **화면에서 안 쓰는 파일이라 동작 불변** | `cea11442a`·`6c02ccf41` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `ai-video-*` | 버전 +0.01 |
 | `naver-cafe-poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `naver-cafe-poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `persona-style-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `persona-style-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `react-ui-showcase` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `react-ui-showcase/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -59,6 +55,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-video-studio` | v1.16 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `ai-video-studio-h82vhy4xa`) | 데스크톱 모델 카드 미리보기 128px 썸네일 `96439b319` — 크롬 1384px 카드 98px·썸네일 128×72, 503px 폭 카드 폭 그대로 |
+| `ai-image-studio` | v1.30 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `ai-image-studio-55iswla9s`) | 대기 4건 — 공용 `ai-video-*` 사본(Kling v2.1 제거 `c2b698db4`·소리/글→영상 선택값 `fd1f3cb67`·기준 이전 주석, 모두 화면 미사용) + 생성 기록 30일 정리 `usage_logs` 기록 — 크롬 대시보드 v1.30 정상 |
 | `auto-detail-page` | **배포 안 함 — 배포 불필요(꺼진 프로그램)** · 2026-10-24 주인님 결정(Claude Code 맥미니 `claude-mac-20261023-ecommerce`) | 좌측 메뉴 계정 위치 `22c6cda35` — 프로그램이 「AI 상세페이지 자동화」에 병합돼 `is_active=false`라 회원이 보지 않는 화면에 빌드 비용만 들어 내보내지 않음. 코드는 저장소에 남아 있어 다시 켜서 배포할 때 함께 나감 |
 | `naver-blog-seo-studio` | v2.15 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-seo-studio-2myivnlgq`) | 「길게」 분량 보강(소제목마다 문단 4개) `ff50a6a91` + 블로그 병합 B-4 이미지 비율·표현 방식·참고 사진(저장 안 함) `7ec2f9029` |
 | `shorts-onestop-studio` | v1.41 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 회원 기능 실패 수정·승인 빌드, `shorts-onestop-studio-r6ntxtshv`) | Kling v2.1 제거 `c2b698db4` + 대기분 공용 사본 동기화 `fd1f3cb67`(동작 불변) — 크롬 `/design` 선택 목록 4개·화면 코드에 kling-v2.1 없음 |

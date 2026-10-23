@@ -21,6 +21,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `ai-image-studio/`·`ai-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-video` (영상 담당) | 2026-10-24 | **연속 배포 중(2개)** — ① AI 이미지 스튜디오 미배포 대기분 내보내기 v1.30 ② AI 영상 스튜디오 데스크톱 모델 카드 미리보기 작게 v1.16 · 빌드 2회 승인 |
 | `infinite-loop-video/`(크롬 확인만) | Claude Code(윈도우) · 세션 `claude-win-20261023-next-security`(종료) | 2026-10-23 | **⚠ 세션 종료 — 배포 49/49 끝남. 남은 일은 `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 분담표(묶음 A~H)에서 맡을 것. 이 줄은 묶음 A·B 끝나면 삭제** Next.js 보안 업데이트(16.4.2·15.5.28) → 하나씩 배포, 플랜 `docs/PLAN_20261023_NEXTJS_SECURITY.md` · 빌드 약 49회 승인 · 2026-10-23 17:4x 주인님 지시로 끝난 45개 폴더를 이 줄에서 뺌(커밋된 Next.js 보안판 + 미커밋 없음 + 코드 버전=DB 운영 버전으로 판정, 링크 정정 세션 `claude-win-20261023-mainsite-url`) |
 | `shop-detail-page/`, `video-to-gif/` | Claude Code(맥미니, 크롬) | 2026-10-23 | ③ 휴대폰·연계 묶음(S-23-04·05·08·09, G-23-06) |

@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 이미지 스튜디오 v1.30 · AI 영상 스튜디오 v1.16 배포, 뮤직비디오 사본 정리 확인
+
+- AI 이미지 스튜디오 v1.30(`ai-image-studio-55iswla9s` Ready, 커밋 `ff9e2c13f`): 미배포 대기 4건 내보냄(공용 영상 사본 3건 — 화면 미사용, 생성 기록 30일 정리 기록). 크롬 대시보드 v1.30·오류 없음. 시험 명령 없음 → build로 확인.
+- AI 영상 스튜디오 v1.16(`ai-video-studio-h82vhy4xa` Ready, 커밋 `96439b319`): 데스크톱(768px 이상) 모델 카드 미리보기를 왼쪽 128px 썸네일로 — 크롬 1384px에서 카드 높이 약 350px → 98px, 503px 폭은 카드 폭 그대로. 시험 44·build.
+- 뮤직비디오: 음악 담당 세션이 요청을 받아 사본 `--sync` 후 v1.24로 배포(`d69beb1c9`, 그 세션 보고). `check-shared-modules` 결과 `ai-video-models` 사본 4개 모두 OK 확인.
+- 비용: 빌드 2회(Kling 제거 승인 최대 5회 중 총 5회 사용). AI 호출 없음.
+- https://ai-video-studio.buylife.xyz · https://ai-image-studio.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.24 AI 이미지 스튜디오 이미지를 참고 이미지로
 - 2단계 참고 이미지 칸에 「AI 이미지 스튜디오에서 가져오기」(내 최근 30일 이미지, 공용 `usage_logs`를 읽기만·회원 폴더 파일만·1시간 서명 주소). DB·AI 이미지 스튜디오 코드 변경 없음.
 - 함께 나감: 영상 담당 세션 요청으로 공용 `ai-video-models` 사본 동기화(Kling 2.1 제거 `c2b698db4`) — `docs/SHARED_MODULES.md` 해당 줄 정리.
