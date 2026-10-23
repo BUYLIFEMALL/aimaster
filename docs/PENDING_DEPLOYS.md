@@ -23,7 +23,7 @@
 | `kakao_auto_poster` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) · ⚠ 로컬 빌드가 Next.js 16.4.0 보안 경고로 멈춤 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 맨 아래 | **배포 전에 Next.js 보안 업데이트 필요할 수 있음**(주인님 승인), 버전 +0.01 |
 | `trending-product-finder` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `real_estate_sales` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
-| `music-video-studio` (운영 v1.15) | **회원 피해 수정(급함)**: 장면 이미지 생성 `/api/music/image` 500 — sharp 리눅스 libvips 누락 → `next.config.ts` `serverExternalPackages`·`outputFileTracingIncludes` | `8f1171788` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당) | `music-video-studio/AGENTS.md` v1.15 | 버전 +0.01(v1.16), 빌드 승인 대기, 배포 뒤 이미지 1장·최종 뮤직비디오 렌더 확인 |
+| `music-video-studio` (운영 v1.16) | 최종 뮤직비디오 가사 자막에서 「[Verse 1]」 같은 구간 표시 빼기(`FinalRender.tsx`) | `1b8440ac7` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당) | `music-video-studio/AGENTS.md` v1.16 | 버전 +0.01 |
 | `ai-video-studio` (운영 v1.05) | 영상 합치기 기준 코드 보강(사진 장면·반복 재생·`splitEvenly`·프로그램별 최대 길이) — **동작 변화 없음**, 공용 `video-edit-*` 기준 | `208c80842` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `video-edit-*` | 다음 배포 때 함께, 버전 +0.01 |
 | `ai-auto-blog` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `ai-auto-blog/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
 | `tistory-auto-blog` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
@@ -74,6 +74,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `music-video-studio` | v1.16 · 2026-10-23 (Claude Code 윈도우, 회원 피해 수정·승인 빌드 1회, `music-video-studio-ocyhgtgjr`) | 장면 이미지 500(sharp libvips) 수정 `8f1171788` — 이미지 2장 생성·최종 뮤직비디오 렌더 운영 확인 |
 | `comment-inbox` | v1.09 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `comment-inbox-o4t2vkqdq`) | 「🤖 자동 수집 상태」 카드 `24562d6aa` · 7일 그래프 글자 크게·문구 선택 항목(공용 사본) |
 | `youtube-auto-reply` | v1.31 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `youtube-auto-reply-dpgbgdpq6`) | 「중지」 즉시 화면 반영 `52b8adb5a` · 다음 확인 예정·실행 방식 바로가기 `24562d6aa` |
 | `threads-comment-reply` | v1.28 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `threads-comment-reply-ku5b09w90`) | 「중지」 즉시 화면 반영 `52b8adb5a` · 다음 확인 예정·실행 방식 바로가기 `24562d6aa` |
