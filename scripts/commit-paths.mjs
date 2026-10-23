@@ -47,6 +47,10 @@ for (const n of readdirSync(GITDIR)) {
   try { if (Date.now() - statSync(join(GITDIR, n)).mtimeMs > 3600_000) rmSync(join(GITDIR, n), { force: true }); } catch { /* 다른 세션이 막 지움 */ }
 }
 process.on("exit", () => { for (const s of ["", ".lock"]) rmSync(join(GITDIR, `index.commit-paths-${process.pid}${s}`), { force: true }); });
+// 공용 스테이징 블랙박스: 시작·끝에 한 줄(scripts/index-watch.mjs, 막지 않음)
+const watchIndex = (tag) => { if (!existsSync(join(ROOT, "scripts", "index-watch.mjs"))) return; try { spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), tag, "--quiet"], { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] }); } catch { /* 기록 실패는 무시 */ } };
+watchIndex("commit-paths:start");
+process.on("exit", () => watchIndex("commit-paths:end"));
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
 let done = null;
 for (let attempt = 1; attempt <= 5 && !done; attempt++) {
