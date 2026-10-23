@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const MEDIA_BUCKET = "ai-image-generations";
+import { MEDIA_BUCKET } from "@/lib/mediaBucket";
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
 export async function POST(req: Request) {

@@ -11,7 +11,7 @@ export const maxDuration = 300;
 // 네이버 블로그 에이전트 생성 콘텐츠(글감, 원고, 이미지) 30일 자동 삭제 Cron 라우트
 // 2026-10-08 주인님 지시: "항목은 글감, 본문, 이미지 등 생성된 콘텐츠 자동 삭제 기능 (30일 보관)"
 // Vercel Cron 또는 관리자 트리거로 실행되며 CRON_SECRET 인증을 검증합니다.
-const MEDIA_BUCKET = "ai-image-generations";
+import { MEDIA_BUCKET, LEGACY_MEDIA_BUCKET } from "@/lib/mediaBucket";
 
 export async function GET(request: NextRequest) {
   try {
@@ -86,9 +86,9 @@ export async function GET(request: NextRequest) {
     // naver_blog_seo_drafts는 다른 프로그램(네이버 블로그 SEO 스튜디오)의 원고 테이블이라 여기서 지우지 않는다.
     // (v1.49 이전에는 nba_posts가 없어 이 에이전트도 그 테이블에 임시 저장했지만, 이제 nba_posts가 생겨 해당 없음)
 
-    // 2. 오래된 AI 이미지 파일 삭제 (ai-image-generations 버킷의 naver-blog-agent/ 폴더 하위)
-    try {
-      const storage = admin.storage.from(MEDIA_BUCKET);
+    // 2. 오래된 AI 이미지 파일 삭제 (전용 버킷 + 옛 공용 버킷의 naver-blog-agent/ 폴더 하위, v2.12)
+    for (const bucket of [MEDIA_BUCKET, LEGACY_MEDIA_BUCKET]) try {
+      const storage = admin.storage.from(bucket);
       // naver-blog-agent 하위 사용자 폴더 탐색
       const { data: userFolders } = await storage.list("naver-blog-agent", { limit: 1000 });
       const imagesToDelete: string[] = [];
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      expiredImagesCount = imagesToDelete.length;
+      expiredImagesCount += imagesToDelete.length;
       if (!dryRun && imagesToDelete.length > 0) {
         for (let i = 0; i < imagesToDelete.length; i += 100) {
           const chunk = imagesToDelete.slice(i, i + 100);
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
         }
       }
     } catch (e) {
-      console.warn("storage images cleanup error:", e);
+      console.warn(`storage images cleanup error (${bucket}):`, e);
     }
 
     // 매일 정리 때 랭킹 글감 주소(네이버 비공식)도 함께 점검한다. 실패해도 정리 결과에는 영향 없음.

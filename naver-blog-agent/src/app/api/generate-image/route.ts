@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const MEDIA_BUCKET = "ai-image-generations";
+import { MEDIA_BUCKET } from "@/lib/mediaBucket";
 
 export async function POST(req: Request) {
   try {
