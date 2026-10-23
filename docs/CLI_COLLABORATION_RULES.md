@@ -29,6 +29,7 @@
    - **표 구조 확인은 운영 DB 칸 목록으로**: `node scripts/program-info.mjs columns <표>` — 행이 0건이어도 실제 칸(user_id 등)을 보여 준다. 첫 마이그레이션 파일만 보고 판단하지 않는다(2026-10-23 착오 사례).
    - **배포 뒤 문서 정리**: `node scripts/deploy.mjs <폴더> --go`가 빌드 전에 `PENDING_DEPLOYS`·HANDOFF·프로그램 비교표 기준 사본을 `--as deploy-<폴더>`로 떠 두고, 배포 뒤 DB 버전이 화면 버전과 같으면 프로그램 비교표의 그 프로그램 한 줄(목록 표 버전 칸·카드 버전)을 자동으로 고친 다음, 끝에 그대로 쓸 커밋 명령(세 파일)을 보여 준다(2026-10-23 — 배포 뒤 지도 버전 어긋남 방지).
    - 잊었을 때: 공용 문서를 일반 `git commit`으로 커밋하면 pre-commit 훅이 「안전 커밋 도우미를 쓰세요」 알림을 띄운다(도우미는 훅을 거치지 않으므로 알림이 뜨면 도우미를 안 쓴 것).
+   - **공용 스크립트도 같은 방식(2026-10-23)**: `scripts/deploy.mjs`·`safe-commit.mjs`·`program-info.mjs`·`pending-check.mjs`·`check-*.mjs`(공유 문서 되돌림·공용 모듈·휴대폰 폭·인덱스 상태)·`scripts/git-hooks/*`·`scripts/mac-mini/commit-gate.sh`는 여러 세션이 함께 고친다. 파일 통째로 일반 커밋하면 남의 미커밋 수정이 섞인다(`48b3fc4d0`). 고치기 **전에** `safe-commit.mjs --begin`, 커밋도 `safe-commit.mjs`. 일반 커밋하면 pre-commit 훅이 「ℹ [공용 스크립트]」로 알린다(막지는 않음, 목록 `scripts/check-shared-doc-reverts.mjs` `SHARED_SCRIPTS`).
    - 되돌림 감사: 세션 시작 `node scripts/deploy.mjs --version-only --all`에 최근 24시간 감사가 함께 나온다(「⚠ 사라짐」만 자세히). 의도한 정리로 확인한 커밋은 `scripts/reverts-reviewed.txt`에 「sha 메모」로 적으면 「✓ 확인됨」으로만 표시.
 
 이번 적용 범위: 최상위 AGENTS.md·CLAUDE.md·GEMINI.md 및 공통 개발 방식/인수인계 정책에 같은 규칙을 연결했습니다. 프로그램 기능·키·DB 스키마를 이 문서 작업에서 변경하지 않습니다. 진행 중인 Playlist 참고 메모 작업에도 기존 다크 디자인과 미디어 제작 로직을 보존하는 기준으로 적용합니다.
