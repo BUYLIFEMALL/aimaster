@@ -62,7 +62,14 @@ try {
     // 누가 일반 커밋에 섞으면 그 파일의 최근 변경이 되돌려진다(예: 루트 지침의 새 최상위 규칙). 새로 추가(A)는 진짜 작업일 수 있어 뺀다.
     try {
       const stale = git(["diff", "--cached", "--name-status"]).split("\n").filter(Boolean).map((l) => l.split("\t")).filter(([st]) => st === "M" || st === "D")
-        .map(([, f]) => f).filter((f) => { try { execFileSync("git", ["diff", "--quiet", "HEAD", "--", f], { env, stdio: "ignore" }); return true; } catch { return false; } });
+        // 작업 파일 내용 해시 = HEAD 내용 해시로 직접 비교(스테이징에 없는 새 파일이 「D」로 보일 때 git diff HEAD는 비교하지 않아 놓쳤음)
+        .map(([, f]) => f).filter((f) => {
+          try {
+            const headBlob = git(["rev-parse", `HEAD:${f}`]).trim();
+            const workBlob = execFileSync("git", ["hash-object", "--", f], { env, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+            return headBlob === workBlob;
+          } catch { return false; } // HEAD에 없거나 작업 파일이 없음 = 진짜 추가·삭제일 수 있음
+        });
       if (stale.length) {
         const q = stale.map((f) => (/\s/.test(f) ? `"${f}"` : f)).join(" ");
         console.log(`⚠ [공용 스테이징 묵은 항목] ${stale.length}개: ${stale.slice(0, 8).join(", ")}${stale.length > 8 ? " …" : ""} — 작업 파일은 HEAD와 같은데 스테이징만 옛 판(일반 커밋에 섞이면 최근 변경이 되돌려짐). 정리(작업 파일은 그대로): git reset -q HEAD -- ${q}`);
