@@ -152,7 +152,12 @@
 - [ ] **미배포 대기**: 저장 직후 뺀 사진이 몇 초 다시 보이던 문제 수정(`DraftComposer.tsx` `editingRef`) — 다음 배포 v2.20.
 - [ ] 작성 탭 PC 업로드(브라우저 직접 업로드 → 새 버킷 정책 `tco_media_insert_own`) 실제 화면 확인.
 
-## 2026-10-23 (Claude Code 윈도우) — v2.19 새 버킷 정책 실제 확인 + 쿠팡 임시 사진 삭제 수정 (**미배포 대기 → v2.20**)
+## 2026-10-23 (Claude Code 윈도우) — v2.19 새 버킷 정책 실제 확인 + 쿠팡 임시 사진 삭제 수정 (**✅ v2.20으로 배포됨**)
 - 확인(크롬, 시험 회원, 비용 없음): 작성 탭 「🖼️ 내 이미지 추가」(`uploadOwn`)와 같은 요청 — 회원 세션으로 `threads-content-ops-media/<본인id>/threads-content-ops/up/…png` 업로드 → **200**, 공개 주소 이미지 표시(100px). 다른 회원 폴더(`0000…/…`) 업로드 → **403 RLS 거부**. 정책 `tco_media_insert_own`이 의도대로 동작. (버튼은 AI 결과 카드 뒤에만 나와, 유료 생성 없이 같은 저장 요청을 화면 안에서 직접 보냄.) 시험 파일은 서버 키로 삭제.
 - 발견: 회원 세션 삭제 요청은 200이지만 **실제로 지워진 파일 0개** — Supabase 저장소 삭제는 조회(SELECT) 권한도 필요한데 새 버킷엔 회원 조회 정책이 없음. 회원 세션으로 지우는 곳은 `web-actions.ts` 쿠팡 수동 등록 실패 시 임시 상품 사진 정리 1곳뿐이라, 파일이 30일 정리 때까지 남는 정도(회원 피해 없음).
 - 수정: 그 정리를 `createServiceClient()`로(서버가 이 회원 폴더에 직접 만든 경로만). DB 정책은 늘리지 않음. 시험 모의에 `createServiceClient` 추가. tsc 0, `npm test` 36 통과.
+
+## 2026-10-23 v2.20 — 모아 둔 수정 배포 (Claude Code 윈도우, 세션 `claude-win-20261023-tco-v220`)
+- 함께 나감: 보관함 초안 저장 직후 뺀 사진이 몇 초 다시 보이던 화면 문제(`editingRef`, `f92acc076`) · 쿠팡 수동 등록 실패 때 임시 상품 사진을 서버 키로 삭제(`6b44abdc8`) · 공용 사본 `member-scheduler`·`openai-request-params`(동작 같음). 버전 커밋 `c790a9539`, SQL `supabase/migrations/20261023260000_tco_v2_20_pending_batch.sql`.
+- 검수: tsc 0, `npm test` 36, 로컬 build, `deploy.mjs --go` 배포 Ready, DB v2.20. 크롬: 메뉴 v2.20 · `/api/threads-content-ops/dispatch-member` 가짜 토큰 → 401 · 시험 회원(buylifemall@naver.com)으로 시험 초안(서버 키로 만든 1px PNG 1장, 새 버킷) → 수정 → ✕ → 저장 → 저장 직후 0.3·1·2·4초 모두 사진 0장(전에는 몇 초 다시 보였음), DB media `[]`. 시험 초안·사진 삭제.
+- 참고: 검수 중 크롬이 관리자 계정으로 바뀌어 있어 주인님이 시험 회원으로 다시 로그인해 주심. 옛 버킷 시절 발행된 글의 보관함 이미지는 대체 글자로 보임(이미 발행됨, 30일 정리 대상).
