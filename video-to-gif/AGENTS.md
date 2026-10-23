@@ -337,3 +337,12 @@
 - 시험(맥미니): 크롬 흉내 도구로 perl·PowerShell 7 렌더러, 맥미니 크롬 실제 연결(운영 페이지 → 확장 → host.pl → ffmpeg 8.1). 1080p 10초: 브라우저 157초 → 렌더러 한 단계씩 60.7초 → **동시 4개 47.6초**(결과 같음). 화면 코드 두 파일은 자바스크립트로 바꿔 운영 페이지에서 실행해 확인(웹 앱 자체 화면은 배포 뒤 확인).
 - 버전 v1.20(`lib/version.ts`·`package.json`·SQL `supabase/migrations/20261024_local_renderer_v1_20.sql` — 버전 + `extension_version` v1.00 + `extension_download_url`). 커밋 `7d741bed3`(1단계)·`07f192e20`·`1f9ffb313`(2단계).
 - **남은 것(윈도우 PC)**: 확장 로드 → `install-windows.bat` 설치(winget ffmpeg) → PowerShell 5.1 렌더러로 변환 → 로컬 build → 배포 → 맥미니 크롬에서 배포된 화면 실검수. 맥 회원용 Homebrew 없는 경우는 안내만 나옴(ffmpeg 직접 설치 필요).
+
+## 2026-10-24 ✅ v1.20 배포·윈도우 시험 (Claude Code 윈도우 · 세션 `claude-win-sdp`, 맥미니 요청·주인님 승인 빌드 1회 · 브라우저: 엣지(주인님 지정))
+- 설치: `install-windows.ps1` → winget `Gyan.FFmpeg` 9.0.2(해시 확인) 설치·`%LOCALAPPDATA%BuylifeGifRenderer` 복사·크롬 연결 키 등록, 종료 0. 경고 창 없이 한글 정상 표시(PowerShell 5.1).
+- **엣지도 크롬 등록 위치(`HKCUSoftwareGoogleChromeNativeMessagingHosts`)를 그대로 읽는다** — 엣지가 `host.bat` → `host.ps1`을 실제로 띄움(부모 프로세스 = 엣지). 엣지 전용 키 추가 불필요. 확장 ID도 고정 키라 엣지에서 같음(`efgimakonmphcdojhiegemjmpbokpcgk`).
+- 연결: 엣지 일반 탭 콘솔 `ping` → `pong`(host `powershell` 1.00, PS 5.1.26100, ffmpeg 9.0.2).
+- 변환(윈도우 렌더러, 엣지와 같은 메시지 순서를 node 시험 도구로): 3초 720p → GIF89a 1,103,096바이트, 변환 1.0초·전체 2.3초, 진행률 메시지·조각 받기·정리 정상.
+- 배포: tsc 0·`npm run build` 통과 → `video-to-gzwcztx49` Ready → video-to-gif.buylife.xyz. DB v1.20 + `extension_version` v1.00 + `extension_download_url`(SQL 파일과 같은 값, `program-info.mjs` rest로). 내려받기 3파일 200.
+- 화면(엣지): 일반 탭 v1.20·「⚡ 내 PC 고속 변환 · 사용 중 · PC의 ffmpeg 9.0.2」 → 렌더러 삭제(등록 키·폴더) 뒤 「다시 확인」 → 「확장은 설치됐지만 PC 렌더러가 없습니다. 렌더러 설치 방법」(브라우저 변환으로 자동 전환). 확장 없는 탭은 「지금은 브라우저에서 변환합니다…」. 시험 뒤 렌더러 다시 설치해 둠.
+- **남은 것**: ① `check-extension-release.mjs`가 「프로그램 버전 v1.20 ≠ 확장 버전 v1.00」으로 실패(핵심 원칙 10 — 확장 `version_name`을 프로그램 버전과 맞추는 규칙). DB·ZIP은 서로 v1.00으로 일치해 회원 영향 없음 → 다음 배포 때 `manifest.json` v1.20 + ZIP 다시 만들기 + DB 확장 버전 맞추기(맥미니 판단) ② 웹 앱 화면으로 실제 긴 영상 변환 시간 측정(윈도우)은 하지 않음 ③ 맥미니 크롬 배포 화면 실검수.
