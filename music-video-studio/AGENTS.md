@@ -120,3 +120,4 @@
 - `MusicProject.song`(`SongRef`: source ams|file·제목·ref·파일 이름·길이·모델) — `sanitizeProject`가 곡 번호 형식·출처를 검사. 서버 `src/lib/music/amsSongs.ts` + `GET /api/music/ams`(목록 / `?ref=` 듣기 주소 1시간). 직접 올린 파일은 `src/lib/music/localSong.ts`(IndexedDB `music_video_studio`/`song`, 서버 전송 없음). 화면 `src/components/studio/SongCard.tsx`(1단계 맨 위).
 - 한계: 직접 올린 파일은 그 브라우저에만 있음(다른 PC·사이트 데이터 삭제 시 다시 올리기 안내). 「새로 시작」은 곡 정보만 비우고 브라우저 보관 파일은 다음 올리기 때 덮어씀. 최종 영상 합치기(곡+장면)는 이 프로그램에 아직 없음 — 다음 후보.
 - 검수·배포: tsc·시험 19개·build, 배포 Ready·DB v1.13, 크롬 직접 올리기·유지·빼기·404 확인. 시험 계정 가져오기 화면은 로그인 후 확인 필요. 비용: 빌드 1회.
+- 2026-10-23 추가 확인(v1.13): 시험 회원으로 「AI 음악 스튜디오에서 가져오기」 목록 14곡·연주곡 가져오기(곡 번호·제목·스타일, 가사 유지)·재생 190초·새로고침 뒤 주소 새로 받음 확인.

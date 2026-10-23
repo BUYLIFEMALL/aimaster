@@ -61,3 +61,6 @@
 
 ## 2026-10-23 공용 기준 코드 `music-sync-calls` 신설 (Claude Code 윈도우, 미배포 대기)
 - `lib/providers/musicCalls.ts`가 기준(사본 `shots/src/lib/ai/musicCalls.ts`) — Lyria·ElevenLabs 호출과 `musicProviderError`. `adapters/gemini.ts`·`adapters/elevenlabs.ts`는 입력·비용 문구만, `types.ts` `providerError` = `musicProviderError`. 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync` 후 쇼츠도 시험.
+
+## 2026-10-23 v1.07 — 곡 카드에 쇼츠 원스톱·뮤직비디오 링크 (Claude Code 윈도우)
+- `components/studio/GenerationCard.tsx` `SHORTS_ONESTOP_URL`(`/render`)·`MUSIC_VIDEO_URL`(`/music`) 링크 2개 — 받는 쪽 고르기 목록을 여는 방식(곡 자동 선택은 제안만). `music-sync-calls` 분리 함께 배포. 검수: 시험 25개·build, 배포 Ready·DB v1.07, 크롬 시험 회원 링크 확인. 비용: 빌드 1회.
