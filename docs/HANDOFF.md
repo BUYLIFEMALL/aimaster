@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — 무한 루프 영상 v1.07 배포 완료 (소리 없는 영상 실패 수정)
+
+- 한 일: 크롬에서 소리 없는 영상이 항상 「루프 만들기에 실패했습니다」가 되던 문제 — 변환 직전 ffmpeg `-i` 기록으로 소리 트랙을 직접 확인(`plan.ts` `hasAudioStream`). 커밋 `2fb360453` · 배포 `infinite-loop-video-q2ezfnuhj` Ready · 화면/DB v1.07.
+- 검수: 시험 17·build. 운영 크롬: 소리 없는 4초 MP4 → 0.8MB 성공, 소리 있는 MP4 → 4.5MB(소리 유지) 성공.
+- 작업 중 표: 종료된 보안 세션(`claude-win-20261023-next-security`) 줄 때문에 배포가 막혀, 주인님 승인으로 그 줄에서 `infinite-loop-video/`만 뺌(줄은 분담표 안내로 남김). 막혔을 때 DB만 v1.07로 바뀐 것을 v1.06으로 되돌렸다가 배포 뒤 v1.07.
+- 비용: 빌드 1회, AI 호출 없음.
+- https://infinite-loop-video.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — 도톨이 AI v1.3 정적 분석·블로그 프로그램 비교 (분석만, 코드·DB·배포 변경 없음)
 - 한 일: `D:\PDS\Program_dev\DotoliAI-1.3-setup.exe`(GitHub v1.3 최신, 해시 일치)를 실행하지 않고 innounp·pyinstxtractor로 풀어 `blog_ai_poc` 229개 모듈의 이름·문구·주소만 분석. 앱 원본 소스는 비공개.
 - 결과: 기능 축이 거의 같은 우리 프로그램은 `blog-workroom`(10-15 도톨이 이전 버전 기능 참고). v1.2~v1.3 새 기능 16개(어조 강도·전개 구조 8종·원클릭 완성 점검+보완 1회·참고 링크/유튜브 자막 읽기·스타일 레이더 코드 점수·벤치마킹 증분·이미지 캔버스 고도화·실제 검색 화면 상위 5 등)를 접목 후보로 표 정리. 보고서: [`docs/analysis-dotori-v13-20261024/REPORT.md`](analysis-dotori-v13-20261024/REPORT.md).

@@ -56,6 +56,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `infinite-loop-video` | v1.07 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 회원 기능 실패 수정·승인 빌드 1회, `infinite-loop-video-q2ezfnuhj`) | 소리 없는 영상 실패 수정 `2fb360453`(대기 줄 없음) |
 | `infinite-loop-video` | v1.06 · 2026-10-23 17:43 (Next.js 보안 배포에 함께 실림 — 2026-10-24 Claude Code 윈도우 `claude-win-video`가 운영 화면으로 확인) | 좌측 메뉴 계정 위치 `22c6cda35`(커밋 00:19, 배포보다 앞섬) |
 | `ai-video-studio` | v1.16 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `ai-video-studio-h82vhy4xa`) | 데스크톱 모델 카드 미리보기 128px 썸네일 `96439b319` — 크롬 1384px 카드 98px·썸네일 128×72, 503px 폭 카드 폭 그대로 |
 | `ai-image-studio` | v1.30 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `ai-image-studio-55iswla9s`) | 대기 4건 — 공용 `ai-video-*` 사본(Kling v2.1 제거 `c2b698db4`·소리/글→영상 선택값 `fd1f3cb67`·기준 이전 주석, 모두 화면 미사용) + 생성 기록 30일 정리 `usage_logs` 기록 — 크롬 대시보드 v1.30 정상 |
