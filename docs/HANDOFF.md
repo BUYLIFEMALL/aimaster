@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 작업 범위 표기·겹침 경고에 파일·배포 차단 시 보낼 문안 (세션 claude-win-lessons)
+- 한 일: ① `scripts/index-watch.mjs`(`aea3bb0dd`) 작업 중 표 폴더 칸 끝 `(범위: a·b/c)`(폴더 안 경로를 `·`로)가 있으면 그 경로를 고친 커밋만 겹침으로 봄, 겹침 경고에 바꾼 파일 1~2개 ② `docs/ACTIVE_WORK.md` 사용법 2에 범위 표기 규칙(선택, 자연어 「잠금 파일만」은 인식 안 함 → 폴더 전체) ③ `scripts/deploy.mjs`(`8db924763`·`ce260dce0`) 점검 단계 [2/3]에 막는 세션마다 「보낼 문안」(그대로 SendMessage로), 차단 시에는 물어볼 세션 이름.
+- 검수: 임시 저장소에서 범위 없음/범위 밖/범위 안 세 경우, `deploy.mjs shots`(막힘 → 문안)·`deploy.mjs music`(줄 없음) 점검 모드 실행(배포 안 함), 시험 18개 통과.
+- 내 실수(기록): `deploy.mjs`를 고친 **뒤** `safe-commit --begin`을 다시 해 기준 사본이 고친 판이 됨 → 「바뀐 내용 없음」으로 커밋 안 됨. 고친 파일 보관 → HEAD 판 복원 → `--begin` → 되돌려 놓고 커밋으로 바로잡음. **`--begin`은 고치기 전에 한 번만.**
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(맥미니) · 세션 `claude-mac-20261023-ecommerce` — GIF 8MiB 초과 대책(미배포 대기) · 상세페이지 Phase 표 정리 (비용 없음)
 - **`video-to-gif` (미배포 대기, 주인님 승인)**: 화질 사다리 끝에 25·20fps 단계 2개(재생 길이 그대로), 완료 줄 「· N fps로 낮춤」, 실패 문구·작업 화면·`/guide` FAQ 2곳 정리. 크게 넘는 영상이 8단계를 건너뛰고 바로 20fps로 떨어지지 않게 `nextCandidateIndex` 대체 값을 「가장 작은 가로 단계의 첫 칸」으로(시험에서 발견). 검수: tsc·eslint 0, 사다리 시험 4개, 기존 함수와 27,300가지 비교 차이 0. 커밋 `db5116a9f`(코드·플랜)·`9ed37edaf`(문서). 플랜 `video-to-gif/docs/PLAN_20261023_FPS_STEP.md`.
 - **다음에 `video-to-gif`를 배포하는 CLI**: 대기 3건(메뉴 문구·Esc 닫기·fps 단계)을 v1.19 한 번으로 — `lib/version.ts`·`package.json`·SQL(버전만) → 배포(빌드 1회, 사전 승인) → 맥미니 크롬에서 화면 안에서 만든 색 블록 영상으로 「fps로 낮춤」·8MiB 이하, 일반 영상 크기 그대로 확인.
