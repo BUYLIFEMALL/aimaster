@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-insta-autocollect`: ✅ INSTA 댓글·DM 자동화 v1.36 — 댓글 자동 수집 회원 선택 + 버그 3개 (빌드 1회 · AI 0회)
+
+- **무엇**: 설정 「⏱ 예약 모니터링」을 켜도 예약이 없어(`crons: []`) 아무 일도 안 일어나던 것을 쓰레드 댓글 v1.26과 같은 방식으로 — 실행 방식 회원 선택(AIMaster 기본 Vercel 5분 / 내 cron-job.org), 회원 실행 주소 `/api/cron/dispatch-member`, 처리 전 이용 권한 재확인, `last_run_at` 조건부 선점. 함께: 시작 시각 9시간 밀림, AI 지시문 「유튜브 채널 운영자」 → 인스타그램, 중지 직후 화면. 함께 나간 대기분: 7일 그래프 글자 크게·좁은 칸 버튼 줄바꿈·그래프 문구 선택 항목.
+- **DB**(운영 `esgxyikcnnvmlhygjkth`): 새 표 `ig_member_scheduler` + `programs.version` v1.36(`instagram-comment-reply/supabase/migrations/20261023240000_ig_member_scheduler_v1_36.sql`). 공용 사본 `member-scheduler`에 인스타·쓰레드 댓글 앱 등록(`scripts/check-shared-modules.mjs`·`docs/SHARED_MODULES.md`).
+- **커밋**: `b4696e1e6`(코드 27개 파일, 파일 삭제 0) · `17878203b`(프로그램 문서) · 공용 문서 안전 커밋. 배포 `instagram-comment-reply-1k2h264nv` Ready.
+- **검수**: tsc·build·공용 점검 통과 / 실행 주소 무인증·`Bearer undefined`·가짜 토큰 401, `/login` 200 / 크롬 설정 v1.36·실행 상태 줄·실행 방식 칸, 대시보드 그래프 제목 16px / **운영 DB에서 배포 직후 Vercel 예약 호출이 실제로 실행됨**(모니터링 켠 유일한 회원 = 관리자, 12시간 주기, `last_run_at` 12:10:37 KST, 새 댓글 0개 → AI 0회).
+- **못 한 것**: 시험 회원으로 시작·중지·방식 바꾸기 실조작(크롬이 관리자 로그인 상태, 관리자가 켜 둔 모니터링은 바꾸지 않음 — 같은 코드는 쓰레드 v1.27에서 확인). 「내 cron-job.org」 실제 작업 생성 미시험(회원 본인 키 필요).
+- **알림(다른 세션께)**: 배포 도우미 안전 커밋에 `docs/PROGRAM_CAPABILITY_MAP.md`의 다른 세션 미커밋 줄 `auto-shorts-posting` v1.38→v1.40이 함께 들어갔습니다(버전 숫자만, 되돌리지 않음). `music-video-studio` v1.13 줄은 들어가지 않았습니다.
+- **다음 첫 단계**: 시험 회원 로그인 크롬에서 설정 → 시작(시각 DB 대조) → 중지 즉시 반영 확인. 다음 제안 3개: `instagram-comment-reply/docs/IMPROVEMENTS.md` 맨 아래. 비용: Vercel 빌드 1회(승인), AI 0회.
+- 링크: https://instagram-comment-reply.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 쓰레드 콘텐츠 운영 v2.20 배포 (세션 `claude-win-20261023-tco-v220`)
 - 모아 둔 수정 배포: 초안 사진 깜박임(`f92acc076`) · 쿠팡 임시 사진 서버 키 삭제(`6b44abdc8`) · 공용 사본 member-scheduler·openai-request-params. 버전 `c790a9539`, 문서 `adc726283`.
 - 검수: tsc 0·시험 36·빌드, `deploy.mjs --go` Ready, DB v2.20, 크롬 메뉴 v2.20·가짜 토큰 401·시험 회원 초안 ✕ 저장 직후 0장 유지(DB `[]`). 시험 데이터 삭제.
