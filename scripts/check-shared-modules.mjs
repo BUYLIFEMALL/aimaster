@@ -326,7 +326,7 @@ const MODULES = [
     // 콜백 주소(SUNO_CALLBACK_ORIGIN)는 음악(SUNO)자동화 주소로 고정 — 사본 프로그램은 콜백 대신 상태 조회로 결과를 받는다.
     id: "suno-api-client",
     source: "music/lib/ai/suno.ts",
-    copies: ["ai-music-studio/lib/ai/suno.ts"],
+    copies: ["ai-music-studio/lib/ai/suno.ts", "shots/src/lib/ai/suno.ts"],
   },
   {
     // Suno 시간 가사(get-timestamped-lyrics의 alignedWords) → 줄 단위 가사 시간표. 2026-10-21 등록 — 가사영상 곡 가져오기·플레이리스트 여러 곡 가져오기

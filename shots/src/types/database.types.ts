@@ -17,6 +17,8 @@ export type ShortsSourceType = "http" | "rss" | "perplexity";
 export type ShortsCandidateStatus = "collected" | "requested";
 export type ShortsVideoStatus = "script_ready" | "images_generating" | "images_ready";
 export type BgmStatus = "processing" | "ready" | "failed";
+// 공용 Suno 사본(src/lib/ai/suno.ts, 기준 music/lib/ai/suno.ts)이 쓰는 보컬 성별 타입 — 쇼츠는 연주곡만 만들어 실제로 쓰지 않는다.
+export type VocalGender = "여성" | "남성" | "혼성";
 export type RenderStatus = "rendering" | "ready" | "failed";
 export type PostStatus = "posting" | "posted" | "failed";
 
