@@ -7,6 +7,7 @@ import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { isApproved, type GroundPoint, type ResearchSource } from "@/lib/grounding";
 import type { DraftGrounding } from "@/lib/ai/groundingPrompt";
+import { readDraftLength } from "@/lib/lengthPlan";
 import { styleEnding, isStyleApproved, type StyleEnding, type StyleProfile } from "@/lib/style";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,10 +21,10 @@ const EXPERIENCE_NOTE_MAX = 1_500;
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown; styleId?: unknown } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown; styleId?: unknown; length?: unknown } | null;
   const experienceNote = typeof input?.experienceNote === "string" ? input.experienceNote.trim() : "";
   if (experienceNote.length > EXPERIENCE_NOTE_MAX) return NextResponse.json({ error: `내 실제 경험은 ${EXPERIENCE_NOTE_MAX.toLocaleString("ko-KR")}자 이내로 입력해주세요.` }, { status: 400 });
-  const options = { experienceNote: experienceNote || undefined, naturalStyle: input?.naturalStyle === true, includeFaq: input?.includeFaq === true };
+  const options = { experienceNote: experienceNote || undefined, naturalStyle: input?.naturalStyle === true, includeFaq: input?.includeFaq === true, length: readDraftLength(input?.length) };
   const topic = input?.topic?.trim() ?? "";
   const strategy = input?.strategy?.trim() ?? "";
   const provider = isContentProvider(input?.provider) ? input.provider : "openai";

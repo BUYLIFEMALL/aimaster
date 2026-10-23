@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lengthPlan } from "@/lib/lengthPlan";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
@@ -33,7 +34,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const { id } = await context.params;
-  const input = await request.json().catch(() => null) as { index?: unknown; provider?: unknown; model?: unknown } | null;
+  const input = await request.json().catch(() => null) as { index?: unknown; provider?: unknown; model?: unknown; length?: unknown } | null;
   const provider = isContentProvider(input?.provider) ? input.provider : "openai";
   const index = Number(input?.index);
   const supabase = await createClient();
@@ -57,7 +58,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   let result: { body: string } | { error: string };
   try {
-    const prompt = sectionPrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style), title: outline.title, sections, index });
+    const prompt = sectionPrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style), title: outline.title, sections, index, size: lengthPlan(input?.length) });
     const raw = await requestDraftJson(apiKey, provider, resolveContentModel(provider, input?.model), [
       { role: "system", content: prompt.system },
       { role: "user", content: prompt.user },

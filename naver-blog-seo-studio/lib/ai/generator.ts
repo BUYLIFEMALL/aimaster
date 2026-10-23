@@ -7,6 +7,7 @@ import type { SeoPersona } from "./personas";
 import { factRule, groundingSection, type DraftGrounding } from "./groundingPrompt";
 import { styleSection } from "./stylePrompt";
 import { endingShare, type StyleEnding, type StyleProfile } from "../style";
+import { bodyRangeText, expandTargetText, headingRule, lengthPlan, type DraftLength } from "../lengthPlan";
 
 export interface SeoDraft { title: string; body: string; seoReport: Record<string, string>; }
 
@@ -34,7 +35,7 @@ const STRATEGY_GUIDE: Record<string, string> = {
 
 export const SEO_STRATEGY_NAMES = Object.keys(STRATEGY_GUIDE);
 
-export interface SeoDraftOptions { experienceNote?: string; naturalStyle?: boolean; includeFaq?: boolean; }
+export interface SeoDraftOptions { experienceNote?: string; naturalStyle?: boolean; includeFaq?: boolean; length?: DraftLength; }
 
 // v1.74: 회원이 고른 선택 사항을 생성 규칙 뒤에 덧붙입니다. 경험은 회원이 직접 적은 내용만 사용합니다.
 function buildOptionRules(options: SeoDraftOptions | undefined, strategy: string) {
@@ -87,6 +88,7 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];
   const model = resolveContentModel(params.provider, params.model);
   const startedAt = Date.now();
+  const plan = lengthPlan(params.options?.length); // 병합 B-3: 분량 3단계(기본 「보통」 = 예전 고정값)
   const messages: OpenAiMessage[] = [
         { role: "system", content: `당신은 한국어 네이버 블로그 콘텐츠 편집자입니다. 오늘은 한국 기준 ${today}입니다. ${STRATEGY_GUIDE[params.strategy] ?? STRATEGY_GUIDE["C-Rank 기본"]}
 
@@ -94,8 +96,8 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
 
 검색 의도를 먼저 추론하고, 독자가 실제로 도움을 얻는 자연스러운 초안을 작성하세요. 제목은 25~40자 안팎으로 핵심 키워드를 한 번만 넣습니다. 본문은 다음 규칙을 반드시 지킵니다.
 1. 첫 문단은 검색 의도에 바로 답하는 3~4문장 요약입니다.
-2. 소제목은 4개를 일반 문장으로 작성하고, 소제목 앞뒤에는 빈 줄을 둡니다. 마크다운 기호(#, *, -, ##)와 HTML은 사용하지 않습니다. 소제목은 자연스러운 질문형 또는 판단 기준형 문장으로 씁니다.
-3. 전체 본문은 공백·줄바꿈을 제외하고 반드시 2,000~3,500자입니다. 각 소제목 아래에는 2개 이상의 문단을 두고, 각 문단은 3~5문장으로 충분히 구체적으로 설명합니다. 짧은 요약문으로 끝내지 마세요.
+2. ${headingRule(plan)}, 소제목 앞뒤에는 빈 줄을 둡니다. 마크다운 기호(#, *, -, ##)와 HTML은 사용하지 않습니다. 소제목은 자연스러운 질문형 또는 판단 기준형 문장으로 씁니다.
+3. 전체 본문은 공백·줄바꿈을 제외하고 반드시 ${bodyRangeText(plan)}입니다. 각 소제목 아래에는 2개 이상의 문단을 두고, 각 문단은 3~5문장으로 충분히 구체적으로 설명합니다. 짧은 요약문으로 끝내지 마세요.
 4. 독자가 실제로 실행할 수 있도록 업무 흐름, 선택 기준, 흔한 실수, 점검 방법을 포함합니다. 주제에 맞는 경우에만 최소 2개의 목록형 문단(• 기호)을 사용합니다. 확인되지 않은 실제 기업명·수치·경험담은 만들지 않습니다.
 5. 핵심 키워드는 제목과 도입부, 관련 소제목에 자연스럽게 반영하며 억지 반복·키워드 나열·해시태그는 금지합니다.
 6. 확인되지 않은 수치, 출처, 체험담을 만들지 말고 필요한 곳은 [확인 필요]라고 표시합니다. AI 탐지 회피를 약속하거나 자동 발행을 유도하지 않습니다.
@@ -110,11 +112,11 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
   let body = normalizeBlogText(parsed.body);
   let compactLength = body.replace(/\s/g, "").length;
   // v1.74: 보강을 최대 2번 하고, 부족한 글자 수를 숫자로 알려 줍니다. 보강본이 더 짧으면 이전 본문을 유지합니다.
-  for (let attempt = 0; attempt < 2 && compactLength < 2_000; attempt += 1) {
-    const shortage = 2_300 - compactLength;
+  for (let attempt = 0; attempt < 2 && compactLength < plan.min; attempt += 1) {
+    const shortage = plan.expandTo - compactLength;
     const expanded = await requestDraftJson(params.apiKey, params.provider, model, [
-      { role: "system", content: `당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 2,000~3,500자의 자연스러운 완성형 본문으로 확장하고, 4개 소제목과 각 소제목 아래 2개 이상의 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}` },
-      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}${groundingSection(params.grounding)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 2,300자 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 1~2개씩 더합니다.` },
+      { role: "system", content: `당신은 한국어 네이버 블로그 전문 편집자입니다. 제공된 초안의 사실·제목·핵심 주제를 유지하면서 짧은 부분을 실무 절차, 선택 기준, 점검 방법, 구체적 예시로 보강합니다. 확인되지 않은 수치·기업 사례·개인 경험은 만들지 말고 [확인 필요]로 표시합니다. 마크다운·HTML·해시태그는 쓰지 않습니다. 반드시 공백 제외 ${bodyRangeText(plan)}의 자연스러운 완성형 본문으로 확장하고, ${plan.headings}개 소제목과 각 소제목 아래 2개 이상의 문단을 유지합니다. JSON만 반환합니다: {\"title\":\"원래 제목\",\"body\":\"확장된 본문\",\"seoReport\":{\"searchIntent\":\"...\",\"strength\":\"...\",\"factCheck\":\"...\"}}` },
+      { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}${buildOptionRules(params.options, params.strategy)}${experienceSection(params.options)}${groundingSection(params.grounding)}\n\n현재 초안(공백 제외 ${compactLength}자):\n${body}\n\n원문 의미를 삭제하거나 다른 주제로 바꾸지 말고, 부족한 설명을 더해 완성형 본문으로 확장하세요. 지금보다 공백 제외 최소 ${shortage}자 이상 늘려 ${expandTargetText(plan)} 안팎으로 만드세요. 기존 문단은 모두 유지하고, 각 소제목 아래에 준비물·순서·주의할 점·선택 기준 같은 실용 문단을 1~2개씩 더합니다.` },
     ]);
     if (!expanded.body) throw new Error("AI가 보강 본문을 반환하지 않았습니다.");
     const expandedBody = normalizeBlogText(expanded.body);
@@ -134,10 +136,12 @@ ${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptio
     styleEnding = fixed.record;
   }
   // v1.74: 1,500자 이상이면 회원 키 요금이 헛되지 않게 저장하고 분량 안내를 붙입니다(2,000자 미만은 발행 전 점검에서도 경고).
-  if (compactLength < 1_500) throw new Error(`AI가 보강 후에도 본문 분량이 너무 짧습니다. (공백 제외 ${compactLength}자 / 최소 1,500자) 다른 모델로 다시 시도해주세요.`);
+  const hardMin = Math.min(1_500, Math.round(plan.min * 0.75)); // 병합 B-3: 「짧게」는 900자, 보통·길게는 예전과 같은 1,500자
+  if (compactLength < hardMin) throw new Error(`AI가 보강 후에도 본문 분량이 너무 짧습니다. (공백 제외 ${compactLength}자 / 최소 ${hardMin.toLocaleString("ko-KR")}자) 다른 모델로 다시 시도해주세요.`);
   const seoReport = normalizeSeoReport(parsed.seoReport, body);
-  if (compactLength < 2_000) seoReport.lengthNotice = `본문이 공백 제외 ${compactLength.toLocaleString("ko-KR")}자로 권장 분량(2,000자)보다 짧습니다. 직접 내용을 보강하거나 더 큰 모델로 다시 만들어 보세요.`;
+  if (compactLength < plan.min) seoReport.lengthNotice = `본문이 공백 제외 ${compactLength.toLocaleString("ko-KR")}자로 「${plan.label}」 권장 분량(${plan.min.toLocaleString("ko-KR")}자)보다 짧습니다. 직접 내용을 보강하거나 더 큰 모델로 다시 만들어 보세요.`;
   if (styleEnding) Object.assign(seoReport, { styleEnding });
+  Object.assign(seoReport, { lengthResult: `「${plan.label}」 목표 ${bodyRangeText(plan)} · 실제 ${compactLength.toLocaleString("ko-KR")}자` });
   return { title, body, seoReport };
 }
 

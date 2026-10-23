@@ -6,10 +6,10 @@ export type SectionStatus = "empty" | "done" | "failed";
 export interface OutlineSection { heading: string; goal: string; body: string; status: SectionStatus; error?: string; updatedAt?: string }
 
 const MIN_SECTIONS = 3;
-const MAX_SECTIONS = 7;
+const MAX_SECTIONS = 9; // 병합 B-3: 「길게」 구성 7~8개(도입 포함)를 담도록 7 → 9
 const text = (value: unknown, max: number) => (typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "");
 
-/** AI 목차 응답 → 제목 후보(최대 3)·구간(3~7, 첫 구간은 도입부 heading ""). 모자라면 null. */
+/** AI 목차 응답 → 제목 후보(최대 3)·구간(3~9, 첫 구간은 도입부 heading ""). 모자라면 null. */
 export function normalizeOutline(raw: unknown): { titles: string[]; sections: OutlineSection[] } | null {
   const value = raw && typeof raw === "object" ? raw as { titles?: unknown; sections?: unknown } : {};
   const titles = (Array.isArray(value.titles) ? value.titles : []).map((t) => text(t, 80)).filter(Boolean).slice(0, 3);

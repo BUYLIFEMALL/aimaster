@@ -15,22 +15,24 @@ ${rules.facts}
 JSON만 반환합니다.`;
 }
 
-export function outlinePrompt(p: { today: string; persona: Persona; rules: SectionRules; keyword: string }): { system: string; user: string } {
+// 병합 B-3: 분량 값(lib/lengthPlan.ts의 outline·intro·section)은 호출하는 쪽이 넘긴다 — 없으면 예전 「보통」 문구(시험이 이 파일을 직접 불러오므로 실행 시점 import를 두지 않음).
+export interface SectionSize { outline?: string; intro?: string; section?: string }
+export function outlinePrompt(p: { today: string; persona: Persona; rules: SectionRules; keyword: string; size?: SectionSize }): { system: string; user: string } {
   return {
     system: common(p.today, p.persona, p.rules),
     user: `검색어 「${p.keyword}」로 쓸 블로그 글의 제목 후보와 구성을 만드세요.
 - 제목 후보 3개: 25~40자, 핵심 키워드를 한 번만 넣습니다.
-- 구성 5~6개: 첫 항목은 도입부(heading은 빈 문자열, 검색 의도에 바로 답하는 요약), 나머지는 소제목(자연스러운 질문형 또는 판단 기준형 문장). 각 항목의 goal에 그 부분에 담을 내용을 승인 근거 기준으로 한 문장으로 적습니다.
+- 구성 ${p.size?.outline ?? "5~6개"}: 첫 항목은 도입부(heading은 빈 문자열, 검색 의도에 바로 답하는 요약), 나머지는 소제목(자연스러운 질문형 또는 판단 기준형 문장). 각 항목의 goal에 그 부분에 담을 내용을 승인 근거 기준으로 한 문장으로 적습니다.
 JSON: {"titles":["제목 후보 3개"],"sections":[{"heading":"","goal":""}]}`,
   };
 }
 
-export function sectionPrompt(p: { today: string; persona: Persona; rules: SectionRules; title: string; sections: OutlineSection[]; index: number }): { system: string; user: string } {
+export function sectionPrompt(p: { today: string; persona: Persona; rules: SectionRules; title: string; sections: OutlineSection[]; index: number; size?: SectionSize }): { system: string; user: string } {
   const outline = p.sections.map((s, i) => `${i === p.index ? "▶ " : ""}${i + 1}. ${s.heading || "(도입)"} — ${s.goal}`).join("\n");
   const before = p.sections.slice(0, p.index).filter((s) => s.body).map((s) => `${s.heading ? `${s.heading}\n` : ""}${s.body}`).join("\n\n").slice(-2500);
   const target = p.sections[p.index];
   // v1.94: gpt-4o-mini 기준 합계가 1,700자대라 상향(5구간 목표 약 2,100~3,000자)
-  const size = p.index === 0 ? "공백 제외 300~450자, 2~3개 문단" : "공백 제외 450~650자, 3개 이상 문단(문단마다 3~5문장, 문단마다 구체적인 예시나 판단 기준 하나)";
+  const size = p.index === 0 ? p.size?.intro ?? "공백 제외 300~450자, 2~3개 문단" : p.size?.section ?? "공백 제외 450~650자, 3개 이상 문단(문단마다 3~5문장, 문단마다 구체적인 예시나 판단 기준 하나)";
   return {
     system: common(p.today, p.persona, p.rules),
     user: `글 제목: ${p.title}

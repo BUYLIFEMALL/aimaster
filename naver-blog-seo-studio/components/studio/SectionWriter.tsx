@@ -17,7 +17,7 @@ async function post(url: string, body: unknown) {
 }
 
 export function SectionWriter({ s, researchId }: { s: Studio; researchId: string }) {
-  const { contentProvider, contentModel, strategy, personaId, customPersona, selectedStyleId, reuseDraft, refreshHistory } = s;
+  const { draftLength, contentProvider, contentModel, strategy, personaId, customPersona, selectedStyleId, reuseDraft, refreshHistory } = s;
   const [outlines, setOutlines] = useState<Outline[]>([]);
   const [outline, setOutline] = useState<Outline | null>(null);
   const [title, setTitle] = useState("");
@@ -36,7 +36,7 @@ export function SectionWriter({ s, researchId }: { s: Studio; researchId: string
     }).catch(() => {});
   }, [researchId]);
 
-  const ai = { provider: contentProvider, model: contentModel };
+  const ai = { provider: contentProvider, model: contentModel, length: draftLength }; // 병합 B-3: 구성 수·구간 분량
   async function createOutline() {
     setBusy("outline"); setNotice("");
     const r = await post("/api/outlines", { researchId, styleId: selectedStyleId || undefined, strategy, personaId, customPersona, ...ai });

@@ -232,3 +232,9 @@
 - 바꾼 것: `lib/style.ts`(`StyleProfile.ending`·`sourceClearedAt` 선택 칸, `styleEnding`·`clearedStyleProfile`) · `lib/draftRetention.ts` `purgeExpiredStyles`(삭제 → 원문 비우기, 정리 기록 `styles` 개수 그대로, 이미 정리한 문체는 건너뜀) · `lib/outlineContext.ts`·`app/api/drafts/generate/route.ts`(끝맺음은 원문 → 없으면 보관값) · `components/studio/StyleView.tsx`(안내 문구·「원문 정리됨」 표시·원문 없으면 다시 분석 잠금) · 새 시험 `tests/style-keep.test.mjs`(3). **DB 변경 없음**(`profile` JSON 안 칸).
 - 검수: tsc, 시험 14종 통과. AI 호출 없음.
 - 남은 것: B-3과 함께 배포 → 운영 cron은 실제로 돌리지 않고 시험 계정 문체로 화면 확인.
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기: 블로그 병합 B-3 분량 선택 (작업실 → SEO 스튜디오)
+- 짧게(소제목 3·1,200~1,800자)·보통(기본, 예전 고정값 그대로: 4·2,000~3,500자)·길게(6·3,800~5,000자). 보강 기준·실패 기준·권장 분량 안내, 구간별 쓰기 구성 수(4 / 5~6 / 7~8)·구간 분량도 함께 바뀜. 선택은 제목 화면 글쓰기 옵션(구간별 쓰기도 같은 값). **DB 변경 없음.**
+- 바꾼 것: 새 `lib/lengthPlan.ts` · `lib/ai/generator.ts` · `lib/ai/sectionPrompt.ts`(`size` 인자) · `lib/sections.ts`(상한 9) · `app/api/drafts/generate`·`app/api/outlines`·`app/api/outlines/[id]/section`(`length` 받기) · `components/studio/useStudio.ts`·`TitleView.tsx`·`SectionWriter.tsx`·`shared.ts`(분량 결과 이름표) · 새 시험 `tests/length-plan.test.mjs`(3).
+- 검수: tsc, 시험 15종 통과. 실제 2회(시험 계정 본인 OpenAI 키, gpt-4o-mini, 저장 안 함, 주제 「초보자를 위한 가을 캠핑 준비물」): 짧게 1,338자 ✅(19초) / **길게 3,086자 — 보강 2회 뒤에도 하한 3,800 미달**(53초, 권장 분량 안내는 정상).
+- **남은 과제:** 저가 모델의 「길게」 미달 — 지금은 상위 모델 권장 안내만. 개선 후보: 소제목별 문단 수 지정(티스토리 v1.92 대기분 방식)·보강 목표 상향 — 추가 실측 비용이 들어 주인님 결정 대기.

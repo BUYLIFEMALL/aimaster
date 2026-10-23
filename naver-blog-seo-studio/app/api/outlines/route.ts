@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lengthPlan } from "@/lib/lengthPlan";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { isContentProvider, resolveContentModel } from "@/lib/ai/contentModels";
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { researchId?: unknown; styleId?: unknown; provider?: unknown; model?: unknown; strategy?: unknown; personaId?: unknown; customPersona?: unknown } | null;
+  const input = await request.json().catch(() => null) as { researchId?: unknown; styleId?: unknown; provider?: unknown; model?: unknown; strategy?: unknown; personaId?: unknown; customPersona?: unknown; length?: unknown } | null;
   const provider = isContentProvider(input?.provider) ? input.provider : "openai";
   const strategy = typeof input?.strategy === "string" && SEO_STRATEGY_NAMES.includes(input.strategy) ? input.strategy : SEO_STRATEGY_NAMES[0];
   const personaId = typeof input?.personaId === "string" ? input.personaId : undefined;
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
 
   let outline;
   try {
-    const prompt = outlinePrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style), keyword: loaded.grounding.keyword });
+    const prompt = outlinePrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style), keyword: loaded.grounding.keyword, size: lengthPlan(input?.length) });
     outline = normalizeOutline(await requestDraftJson(apiKey, provider, resolveContentModel(provider, input?.model), [
       { role: "system", content: prompt.system },
       { role: "user", content: prompt.user },
