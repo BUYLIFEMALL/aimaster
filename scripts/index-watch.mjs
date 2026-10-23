@@ -51,7 +51,10 @@ try {
   // git 잠금(.git/index.lock)이 있으면 몇 초째인지 — 2026-10-23 14:33~15:39 스테이징이 한 시간 멈춰 있던 일(커밋 도우미는 임시 스테이징이라 성공해 아무도 몰랐음)을 다음엔 기록으로 확인
   const lockPath = join(gitDir, "index.lock");
   const lockAge = existsSync(lockPath) ? Math.round((Date.now() - statSync(lockPath).mtimeMs) / 1000) : null;
-  const line = [t(new Date()), hostname(), `pid=${process.ppid}`, tag, `index=${st ? st.size : "없음"}B@${st ? t(st.mtime) : "-"}`, `entries=${entries}`, `head=${head}`, lockAge === null ? "" : `lock=${lockAge}s`, process.env.GIT_INDEX_FILE ? `GIT_INDEX_FILE=${process.env.GIT_INDEX_FILE}` : ""].filter(Boolean).join(" | ");
+  // 어느 CLI가 부른 것인지 추정(2026-10-23, 환경변수 — 훅은 git을 부른 CLI의 환경을 물려받음): 「하루 동안 시작 점검을 안 한 장비·CLI」 알림에 쓴다
+  const envKeys = Object.keys(process.env);
+  const cli = process.env.CLAUDECODE ? "claude" : envKeys.some((k) => k.startsWith("CODEX_")) ? "codex" : envKeys.some((k) => /^(ANTIGRAVITY|AGY|GEMINI_CLI)/.test(k)) ? "agy" : "";
+  const line = [t(new Date()), hostname(), `pid=${process.ppid}`, tag, `index=${st ? st.size : "없음"}B@${st ? t(st.mtime) : "-"}`, `entries=${entries}`, `head=${head}`, lockAge === null ? "" : `lock=${lockAge}s`, cli ? `cli=${cli}` : "", process.env.GIT_INDEX_FILE ? `GIT_INDEX_FILE=${process.env.GIT_INDEX_FILE}` : ""].filter(Boolean).join(" | ");
   const logPath = join(gitDir, "aimaster-index-log.txt");
   const prev = existsSync(logPath) ? readFileSync(logPath, "utf8").trimEnd().split("\n") : [];
   const last = prev[prev.length - 1];
@@ -105,7 +108,7 @@ try {
     console.error(`⚠ [공용 스테이징 축소 감지] 지금 ${entries}개 (HEAD ${head}개, 직전 기록 ${lastEntries}개)`);
     console.error(`  직전 기록: ${last ?? "(없음)"}`);
     console.error(`  기록 전체: ${shown(logPath)} — 줄어든 시각(index=…@시각) 앞뒤 줄의 장비·부른 곳으로 원인을 좁힌다. 고치기 전에 주인님께(루트 CLAUDE.md 최상단).`);
-  } else if (!quiet) console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
+  } else if (!quiet && tag !== "session-check") console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
   // --stale-only(2026-10-23): 커밋 전에 묵은 항목만 확인 — 있으면 종료 코드 3. 맥미니 commit-gate.sh(멈춤)·safe-commit·commit-paths(안내만)가 부른다.
   // 축소 감지(위, stderr)는 그대로 나온 뒤에 실행한다.
   if (process.argv.includes("--stale-only")) {
@@ -121,11 +124,27 @@ try {
   }
   // 세션 시작 점검: 최근 24시간 「축소가 시작된」 순간(정상 → 절반 미만으로 바뀐 기록)과 그 직전 기록을 한 줄로(2026-10-23)
   if (tag === "session-check") {
+    // 출력을 모았다가 ⚠가 없으면 한 줄로 합친다(2026-10-23 — 매번 4~5줄이 나와 정작 경고가 묻힘). ⚠가 있으면 전부 그대로.
+    const out = [], realLog = console.log;
+    console.log = (...a) => out.push(a.join(" "));
+    console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
     const since = Date.now() - 24 * 3600_000;
     const rows = [...prev, line].map((l) => {
       const m = l.match(/^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) \| ([^|]+) \| pid=(\d+) \| ([^|]+) \|.*entries=(\d+) \| head=(\d+)/);
-      return m ? { at: new Date(m[1].replace(" ", "T")), when: m[1].slice(11), host: m[2].trim(), pid: m[3], tag: m[4].trim(), shrunk: Number(m[6]) > 200 && Number(m[5]) * 2 < Number(m[6]), n: m[5] } : null;
+      return m ? { at: new Date(m[1].replace(" ", "T")), when: m[1].slice(11), host: m[2].trim(), pid: m[3], tag: m[4].trim(), shrunk: Number(m[6]) > 200 && Number(m[5]) * 2 < Number(m[6]), n: m[5], cli: (l.match(/\| cli=(\w+)/) ?? [])[1] ?? "" } : null;
     }).filter(Boolean);
+    // 시작 점검 누락(2026-10-23, 루트 AGENTS.md·GEMINI.md 최상위 ⑥): 최근 24시간 기록(커밋 훅·도우미 등)이 있는 장비·CLI 중 시작 점검
+    // (session-check·claude-session-start) 기록이 없는 곳. ⑥ 시행(16:30) 이전 기록은 보지 않는다. CLI는 환경변수 추정이라 모르는 경우 장비만 본다.
+    {
+      const from = Math.max(since, new Date("2026-10-23T16:30:00").getTime());
+      const recent = rows.filter((r) => r.at.getTime() >= from);
+      const isStart = (r) => /^(session-check|claude-session-start)/.test(r.tag);
+      const keys = (r) => [r.host, ...(r.cli ? [`${r.host}/${r.cli}`] : [])];
+      const checked = new Set(recent.filter(isStart).flatMap(keys));
+      const missing = [...new Set(recent.filter((r) => !isStart(r)).flatMap(keys))].filter((k) => !checked.has(k))
+        .filter((k, _, all) => k.includes("/") || !all.some((o) => o.startsWith(`${k}/`))); // 「장비/CLI」가 있으면 장비만 있는 항목은 뺀다
+      if (missing.length) console.log(`⚠ [시작 점검 누락] 최근 24시간 커밋·기록은 있는데 시작 점검이 없는 장비·CLI: ${missing.join(", ")} — 그 CLI 지침 맨 위 ⑥(\`node scripts/index-watch.mjs session-check\`)을 안내(CLI 이름은 환경변수 추정)`);
+    }
     const starts = [];
     for (let i = 1; i < rows.length; i++) if (rows[i].shrunk && !rows[i - 1].shrunk && rows[i].at.getTime() >= since) starts.push(`${rows[i].when}(${rows[i].n}개, 직전 ${rows[i - 1].when} ${rows[i - 1].tag} pid=${rows[i - 1].pid}${rows[i - 1].host !== rows[i].host ? ` · 장비 ${rows[i - 1].host}→${rows[i].host}` : ""})`);
     const first = rows.find((r) => r.at.getTime() >= since);
@@ -153,6 +172,15 @@ try {
       if (after.length) console.log(`⚠ [축소 원인 관찰] ${OBSERVE.what} 뒤에도 축소 ${after.length}번: ${after.join(" · ")} — 원인이 그것만이 아님. 직전 기록을 docs/ERROR_LESSONS.md 14:00 항목에 덧붙이기`);
       else if (hours >= 24) console.log(`⚠ [축소 원인 관찰 끝] ${OBSERVE.what} 뒤 ${Math.floor(hours)}시간 축소 0번${covered ? "" : "(단, 기록이 관찰 시작부터 남아 있지 않음)"} — 원인 확정 정리: docs/ERROR_LESSONS.md 14:00 항목에 「확정」·경고 기준 유지 여부, 그 뒤 이 관찰 코드 삭제`);
       else console.log(`[축소 원인 관찰] ${OBSERVE.what} 뒤 ${hours.toFixed(1)}시간째 · 축소 0번 (24시간 지나면 ⚠로 알림)`);
+    }
+    console.log = realLog;
+    if (out.some((l) => l.startsWith("⚠"))) for (const l of out) console.log(l);
+    else {
+      const pick = (re) => (out.join("\n").match(re) ?? [])[1];
+      const named = pick(/세션 이름 표시\] 최근 커밋 \d+개 중 \d+개\((\d+%)\)/);
+      const obs = pick(/뒤 (\d+\.\d)시간째 · 축소 0번/);
+      const ev = out.some((l) => l.startsWith("[공용 스테이징 잠금 증거]"));
+      console.log(`[공용 스테이징] 이상 없음 — ${entries}개 = HEAD ${head}개 · 24시간 축소 0번 · 잠금·묵은 항목 없음${named ? ` · 세션 이름 ${named}` : ""}${obs ? ` · 원인 관찰 ${obs}시간째` : ""}${ev ? ` · 24시간 안 잠금 증거 있음(${shown(evidencePath)})` : ""}`);
     }
   }
 } catch (e) {
