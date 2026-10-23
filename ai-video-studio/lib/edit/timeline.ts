@@ -1,11 +1,31 @@
 // 2차 영상 합치기 — 편집 구성과 시간 계산(순수 함수, Remotion에 의존하지 않음).
 // 그리기 층(Remotion)을 나중에 다른 엔진으로 바꿔도 이 파일은 그대로 쓴다(루트 docs/PLAN_20261023_FREE_VIDEO_RENDERING.md 8절).
+import { timedCaptionChunks, tokensOf } from "./voice";
 export type EditAspect = "9:16" | "16:9" | "1:1";
 export type EditQuality = "720p" | "1080p";
 export type CaptionPosition = "top" | "middle" | "bottom";
 /** 쇼츠 원스톱 CAPTION_STYLES와 같은 이름 */
 export type CaptionStyle = "band" | "yellow" | "outline" | "pop";
 export type Transition = "none" | "fade";
+export type CaptionSize = "s" | "m" | "l";
+export const CAPTION_SIZE_NAMES: Record<CaptionSize, string> = { s: "작게", m: "보통", l: "크게" };
+export const CAPTION_SIZE_SCALE: Record<CaptionSize, number> = { s: 0.8, m: 1, l: 1.25 };
+
+/** 다시 불러올 수 있는 출처(갤러리 생성 번호·AI 음악 스튜디오 곡 번호). 내 PC 파일은 서버에 올리지 않아 다시 넣어야 한다 */
+export type ClipSource = { kind: "gallery"; id: string } | { kind: "local" };
+export type MusicSource = { kind: "ams"; ref: string } | { kind: "local" };
+
+export interface ClipVoice {
+  /** 브라우저 blob: 주소 또는 서명 주소 */
+  src: string;
+  /** 음성 길이(초) */
+  duration: number;
+  /** 내레이션 낱말마다 음성에서 시작하는 시각(초). 없으면 글자 수 비례로 자막을 나눈다 */
+  starts: number[] | null;
+  mime: string;
+  /** 저장된 편집에서 불러온 경우 저장소 경로 */
+  path?: string;
+}
 
 export const FPS = 30;
 export const MAX_CLIPS = 20;
@@ -27,6 +47,10 @@ export interface EditClip {
   trimStart: number;
   trimEnd: number;
   caption: string;
+  source?: ClipSource;
+  /** 이 장면에서 읽을 내레이션 문장(비우면 내레이션 없음) */
+  narration?: string;
+  voice?: ClipVoice | null;
 }
 
 export interface EditMusic {
@@ -35,6 +59,7 @@ export interface EditMusic {
   /** 0~1 */
   volume: number;
   fadeOut: boolean;
+  source?: MusicSource;
 }
 
 export interface EditProject {
@@ -44,6 +69,7 @@ export interface EditProject {
   transition: Transition;
   captionPosition: CaptionPosition;
   captionStyle: CaptionStyle;
+  captionSize?: CaptionSize;
   /** 넣은 영상의 원래 소리(AI 클립은 대부분 소리 없음) */
   clipAudio: boolean;
   music: EditMusic | null;
@@ -152,4 +178,105 @@ export function validate(p: EditProject): string | null {
 export function outputFileName(now = new Date()): string {
   const p = (n: number) => String(n).padStart(2, "0");
   return `ai-video-edit-${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}-${p(now.getHours())}${p(now.getMinutes())}.mp4`;
+}
+
+/** 장면 안 자막 구간(프레임, 장면 시작 기준). 내레이션 음성이 있으면 말하는 속도에 맞춰 나누고, 없으면 자막 한 줄을 장면 내내 보여 준다 */
+export function sceneCaptions(clip: EditClip, durationInFrames: number): { text: string; from: number; to: number }[] {
+  const narration = (clip.narration ?? "").trim();
+  const voice = clip.voice;
+  if (voice && narration) {
+    const toks = tokensOf(narration);
+    let starts = voice.starts && voice.starts.length === toks.length ? voice.starts : null;
+    if (!starts) {
+      // 받아쓰기 시각이 없으면 글자 수 비례로 나눈다
+      const total = toks.reduce((n, w) => n + w.length, 0) || 1;
+      let acc = 0;
+      starts = toks.map((w) => { const s = (acc / total) * voice.duration; acc += w.length; return s; });
+    }
+    const chunks = timedCaptionChunks(narration, starts) ?? [];
+    const out: { text: string; from: number; to: number }[] = [];
+    chunks.forEach((c, i) => {
+      const from = Math.min(durationInFrames, Math.max(0, Math.round(c.start * FPS)));
+      const next = chunks[i + 1];
+      const end = next ? Math.round(next.start * FPS) : Math.round((voice.duration + 0.3) * FPS);
+      const to = Math.min(durationInFrames, Math.max(from + 1, end));
+      if (from < durationInFrames) out.push({ text: c.text, from, to });
+    });
+    return out;
+  }
+  const caption = clip.caption.trim();
+  return caption ? [{ text: caption, from: 0, to: durationInFrames }] : [];
+}
+
+/** 내레이션이 장면보다 긴 초(0이면 문제 없음) */
+export function voiceOverflow(clip: EditClip): number {
+  if (!clip.voice) return 0;
+  return Math.max(0, Math.round((clip.voice.duration - clipSeconds(clip)) * 10) / 10);
+}
+
+// ── 편집 저장 형식(브라우저 blob 주소는 저장하지 않음) ──
+export interface SavedClip { id: string; name: string; duration: number; trimStart: number; trimEnd: number; caption: string; narration: string; source: ClipSource; voice: { path: string; duration: number; starts: number[] | null; mime: string } | null }
+export interface SavedProject {
+  v: 1;
+  clips: SavedClip[];
+  aspect: EditAspect; quality: EditQuality; transition: Transition; captionPosition: CaptionPosition; captionStyle: CaptionStyle; captionSize: CaptionSize; clipAudio: boolean;
+  music: { name: string; volume: number; fadeOut: boolean; source: MusicSource } | null;
+}
+
+/** 저장용으로 바꾼다. voicePaths: 장면 번호 → 저장소에 올라갈 음성 경로 */
+export function toSaved(p: EditProject, voicePaths: Record<string, string>): SavedProject {
+  return {
+    v: 1,
+    clips: p.clips.map((c) => ({
+      id: c.id, name: c.name.slice(0, 120), duration: c.duration, trimStart: c.trimStart, trimEnd: c.trimEnd, caption: c.caption.slice(0, 200), narration: (c.narration ?? "").slice(0, 1000),
+      source: c.source ?? { kind: "local" },
+      voice: c.voice && (voicePaths[c.id] || c.voice.path) ? { path: voicePaths[c.id] || (c.voice.path as string), duration: c.voice.duration, starts: c.voice.starts, mime: c.voice.mime } : null,
+    })),
+    aspect: p.aspect, quality: p.quality, transition: p.transition, captionPosition: p.captionPosition, captionStyle: p.captionStyle, captionSize: p.captionSize ?? "m", clipAudio: p.clipAudio,
+    music: p.music ? { name: p.music.name.slice(0, 120), volume: p.music.volume, fadeOut: p.music.fadeOut, source: p.music.source ?? { kind: "local" } } : null,
+  };
+}
+
+const ASPECT_SET = new Set(["9:16", "16:9", "1:1"]);
+const POS_SET = new Set(["top", "middle", "bottom"]);
+const STYLE_SET = new Set(["band", "yellow", "outline", "pop"]);
+const SIZE_SET = new Set(["s", "m", "l"]);
+const UUID = /^[0-9a-f-]{36}$/i;
+const num = (v: unknown, lo: number, hi: number, d: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
+const str = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "");
+
+/** 서버에서 저장 전 검사·정리 — 모양이 다르면 null. 음성 경로는 회원 본인 폴더(userPrefix)만 허용 */
+export function sanitizeSaved(raw: unknown, userPrefix: string): SavedProject | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (!Array.isArray(r.clips) || r.clips.length > MAX_CLIPS) return null;
+  const clips: SavedClip[] = [];
+  for (const c of r.clips as Record<string, unknown>[]) {
+    if (!c || typeof c !== "object") return null;
+    const src = c.source as Record<string, unknown> | undefined;
+    const source: ClipSource = src?.kind === "gallery" && typeof src.id === "string" && UUID.test(src.id) ? { kind: "gallery", id: src.id } : { kind: "local" };
+    const v = c.voice as Record<string, unknown> | null | undefined;
+    const voicePath = v && typeof v.path === "string" && v.path.startsWith(userPrefix) && !v.path.includes("..") ? v.path : null;
+    clips.push({
+      id: str(c.id, 64) || "clip", name: str(c.name, 120), duration: num(c.duration, 0, 600, 0), trimStart: num(c.trimStart, 0, 600, 0), trimEnd: num(c.trimEnd, 0, 600, 0),
+      caption: str(c.caption, 200), narration: str(c.narration, 1000), source,
+      voice: voicePath && v ? { path: voicePath, duration: num(v.duration, 0, 600, 0), starts: Array.isArray(v.starts) ? (v.starts as unknown[]).filter((x): x is number => typeof x === "number").slice(0, 400) : null, mime: v.mime === "audio/wav" ? "audio/wav" : "audio/mpeg" } : null,
+    });
+  }
+  const m = r.music as Record<string, unknown> | null | undefined;
+  const ms = m?.source as Record<string, unknown> | undefined;
+  return {
+    v: 1, clips,
+    aspect: (ASPECT_SET.has(r.aspect as string) ? r.aspect : "9:16") as EditAspect,
+    quality: (r.quality === "1080p" ? "1080p" : "720p") as EditQuality,
+    transition: (r.transition === "none" ? "none" : "fade") as Transition,
+    captionPosition: (POS_SET.has(r.captionPosition as string) ? r.captionPosition : "bottom") as CaptionPosition,
+    captionStyle: (STYLE_SET.has(r.captionStyle as string) ? r.captionStyle : "band") as CaptionStyle,
+    captionSize: (SIZE_SET.has(r.captionSize as string) ? r.captionSize : "m") as CaptionSize,
+    clipAudio: r.clipAudio === true,
+    music: m && typeof m === "object" ? {
+      name: str(m.name, 120), volume: num(m.volume, 0, 1, 0.8), fadeOut: m.fadeOut !== false,
+      source: ms?.kind === "ams" && typeof ms.ref === "string" && /^[0-9a-f-]{36}:\d{1,2}$/i.test(ms.ref) ? { kind: "ams", ref: ms.ref } : { kind: "local" },
+    } : null,
+  };
 }

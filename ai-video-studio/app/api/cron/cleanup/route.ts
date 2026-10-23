@@ -40,6 +40,25 @@ export async function GET(request: Request) {
     removed++;
     addCleanupCount(counts, row.user_id, "videos", Math.max(1, paths.length));
   }
+  // v1.05 영상 합치기 편집본(avs_edits): 음성·완성 영상 파일을 먼저 지우고 행을 지운다
+  const { data: edits } = await admin
+    .from("avs_edits")
+    .select("id, user_id, voice_paths, output_path")
+    .lt("created_at", cutoff)
+    .order("created_at", { ascending: true })
+    .limit(200);
+  let removedEdits = 0;
+  for (const e of (edits ?? []) as { id: string; user_id: string; voice_paths: string[] | null; output_path: string | null }[]) {
+    const paths = [...(e.voice_paths ?? []), e.output_path].filter((p): p is string => !!p);
+    if (paths.length) {
+      const { error: re } = await admin.storage.from(BUCKET).remove(paths);
+      if (re) continue;
+    }
+    const { error: de } = await admin.from("avs_edits").delete().eq("id", e.id);
+    if (de) continue;
+    removedEdits++;
+    addCleanupCount(counts, e.user_id, "videos", Math.max(1, paths.length));
+  }
   const loggedUsers = await logCleanupUsage(admin, PROGRAM_SLUG, counts);
-  return NextResponse.json({ ok: true, scanned: rows.length, removed, loggedUsers });
+  return NextResponse.json({ ok: true, scanned: rows.length, removed, removedEdits, loggedUsers });
 }

@@ -7,6 +7,9 @@ import { GUIDE_LINKS } from "@/lib/guides";
 
 const ITEMS = [
   ...Object.values(PROVIDERS).map((p) => ({ provider: p.keyProvider, name: p.keyLabel, desc: p.description, link: p.keyLink, placeholder: p.placeholder })),
+  // v1.05 영상 합치기 내레이션(선택) — 다른 프로그램에 이미 등록한 키가 있으면 그대로 쓴다(공용 user_api_keys)
+  { provider: "openai", name: "OpenAI API 키 (내레이션·자동 자막, 선택)", desc: "영상 합치기 내레이션 음성과 말하는 속도에 맞춘 자동 자막(받아쓰기)에 씁니다. 비용은 본인 OpenAI 계정에 청구됩니다.", link: "https://platform.openai.com/api-keys", placeholder: "sk-..." },
+  { provider: "elevenlabs", name: "ElevenLabs API 키 (내레이션, 선택)", desc: "ElevenLabs 목소리(복제한 내 목소리 포함)로 내레이션을 만듭니다. 비용은 본인 ElevenLabs 계정에 청구됩니다.", link: "https://elevenlabs.io/app/settings/api-keys", placeholder: "sk_..." },
 ];
 
 function openGuide(url: string) {

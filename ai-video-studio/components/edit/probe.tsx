@@ -7,7 +7,8 @@ import { Video } from "@remotion/media";
 import { renderMediaOnWeb } from "@remotion/web-renderer";
 import { ALL_FORMATS, BlobSource, BufferTarget, Conversion, Input, Mp4OutputFormat, Output } from "mediabunny";
 
-const PROBE_TIMEOUT_MS = 12_000;
+// v1.05 12초 → 6초(정상 영상은 1~2초에 통과). 갤러리 영상(업체 서버 인코딩)은 화면에서 시험을 건너뛴다
+const PROBE_TIMEOUT_MS = 6_000;
 
 /** 영상·음악 파일 길이(초) */
 export async function readDuration(blob: Blob): Promise<number> {
@@ -38,7 +39,7 @@ export async function probeClip(src: string): Promise<boolean> {
       frameRange: [0, 9],
       muted: true,
       signal: ctrl.signal,
-      delayRenderTimeoutInMilliseconds: PROBE_TIMEOUT_MS - 2_000,
+      delayRenderTimeoutInMilliseconds: PROBE_TIMEOUT_MS - 1_000,
       logLevel: "error",
     });
     const blob = await result.getBlob();

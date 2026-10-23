@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // 공용 user_api_keys(회원별, 모든 프로그램 공용) — 이 프로그램이 쓰는 이름만 다룬다. 키 값은 화면으로 돌려주지 않는다.
-const ALLOWED = ["gemini", "fal", "replicate"] as const;
+const ALLOWED = ["gemini", "fal", "replicate", "openai", "elevenlabs"] as const;
 type Allowed = (typeof ALLOWED)[number];
 const isAllowed = (v: unknown): v is Allowed => typeof v === "string" && (ALLOWED as readonly string[]).includes(v);
 

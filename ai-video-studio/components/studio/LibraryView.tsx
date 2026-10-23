@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Loader2, RefreshCw } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { GenerationCard } from "./GenerationCard";
+import { EditsSection } from "./EditsSection";
 
 type Filter = "all" | "completed" | "running" | "failed";
 
@@ -64,6 +65,8 @@ export function LibraryView() {
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />} 새로고침
         </button>
       </div>
+
+      <EditsSection />
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="상태 거르기">
         {FILTERS.map((f) => (

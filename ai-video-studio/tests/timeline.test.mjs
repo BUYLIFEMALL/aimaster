@@ -59,3 +59,43 @@ test("자막은 띄어쓰기 기준으로 나누고 최대 3줄", () => {
 test("내려받기 이름은 영문", () => {
   assert.equal(outputFileName(new Date(2026, 9, 23, 9, 5)), "ai-video-edit-20261023-0905.mp4");
 });
+
+test("내레이션 음성이 있으면 낱말 시각에 맞춰 자막을 나눈다", async () => {
+  const { sceneCaptions } = await import("../lib/edit/timeline.ts");
+  const c = { ...clip("a", 6), narration: "오늘은 레코드판을 들으며 하루를 마무리합니다. 편안한 밤 되세요", voice: { src: "blob:v", duration: 5, starts: [0, 0.5, 1.2, 1.8, 2.6, 3.3, 3.9, 4.4], mime: "audio/mpeg" } };
+  const caps = sceneCaptions(c, 180);
+  assert.ok(caps.length >= 2);
+  assert.equal(caps[0].from, 0);
+  assert.ok(caps.every((x, i) => x.to > x.from && (i === 0 || x.from >= caps[i - 1].from)));
+  assert.equal(caps.map((x) => x.text).join(" "), c.narration);
+});
+
+test("낱말 시각이 없으면 글자 수 비례, 음성이 없으면 자막 한 줄을 장면 내내", async () => {
+  const { sceneCaptions } = await import("../lib/edit/timeline.ts");
+  const noStarts = { ...clip("a", 6), narration: "하나 둘 셋 넷 다섯 여섯 일곱 여덟 아홉 열 열하나", voice: { src: "blob:v", duration: 4, starts: null, mime: "audio/mpeg" } };
+  const caps = sceneCaptions(noStarts, 180);
+  assert.ok(caps.length >= 2 && caps[caps.length - 1].from < 4 * 30);
+  assert.deepEqual(sceneCaptions({ ...clip("b", 5, 0, 0, "고정 자막") }, 150), [{ text: "고정 자막", from: 0, to: 150 }]);
+  assert.deepEqual(sceneCaptions(clip("c", 5), 150), []);
+});
+
+test("내레이션이 장면보다 길면 초과 초를 알려 준다", async () => {
+  const { voiceOverflow } = await import("../lib/edit/timeline.ts");
+  assert.equal(voiceOverflow({ ...clip("a", 5, 0, 1), voice: { src: "", duration: 5.5, starts: null, mime: "audio/mpeg" } }), 1.5);
+  assert.equal(voiceOverflow({ ...clip("a", 5), voice: { src: "", duration: 3, starts: null, mime: "audio/mpeg" } }), 0);
+});
+
+test("저장 형식: blob 주소는 빼고, 다른 회원 폴더 음성 경로·잘못된 값은 걸러 낸다", async () => {
+  const { toSaved, sanitizeSaved } = await import("../lib/edit/timeline.ts");
+  const p = { ...project([{ ...clip("a", 5), source: { kind: "gallery", id: "11111111-2222-3333-4444-555555555555" }, narration: "안녕", voice: { src: "blob:x", duration: 1, starts: [0], mime: "audio/mpeg" } }, clip("b", 4)]), music: { src: "blob:m", name: "곡", volume: 0.5, fadeOut: true, source: { kind: "ams", ref: "11111111-2222-3333-4444-555555555555:0" } } };
+  const saved = toSaved(p, { a: "user1/edits/e1/voice-a.mp3" });
+  assert.ok(!JSON.stringify(saved).includes("blob:"));
+  assert.equal(saved.clips[1].source.kind, "local");
+  const ok = sanitizeSaved(saved, "user1/");
+  assert.equal(ok.clips[0].voice.path, "user1/edits/e1/voice-a.mp3");
+  assert.equal(ok.music.source.kind, "ams");
+  const bad = sanitizeSaved({ ...saved, aspect: "4:3", clips: [{ ...saved.clips[0], voice: { ...saved.clips[0].voice, path: "user2/edits/e1/v.mp3" } }] }, "user1/");
+  assert.equal(bad.aspect, "9:16");
+  assert.equal(bad.clips[0].voice, null);
+  assert.equal(sanitizeSaved({ clips: "x" }, "user1/"), null);
+});
