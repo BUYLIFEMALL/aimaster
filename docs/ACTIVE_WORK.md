@@ -18,4 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `instagram-comment-reply/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-insta-autocollect` | 2026-10-23 | 댓글 자동 수집 회원 선택(v1.36, 플랜 `docs/PLAN_20261023_MEMBER_AUTO_COLLECT.md`) · DB `ig_member_scheduler` · 빌드 1회 승인됨 |
 | `naver-blog-seo-studio/` | Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg` | 2026-10-23 | 입력·자동 포스팅 background 이전(`c65d87fbb`, 미배포) → 다음 확인점: 주인님 웨일 실입력 결과 → v2.12 배포(빌드 1회 승인됨, `deploy.mjs`) |
