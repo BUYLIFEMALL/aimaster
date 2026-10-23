@@ -8,7 +8,7 @@ import { PROVIDERS } from "@/lib/providers/catalog";
 export const LYRIC_VIDEO_URL = "https://lyric-video-studio.buylife.xyz/source";
 export const PLAYLIST_URL = "https://playlist-channel-studio.buylife.xyz/video";
 export const MASTERING_URL = "https://ai-mastering-studio.buylife.xyz";
-// v1.07 배경음악 공용화 5단계 — 두 프로그램 모두 「AI 음악 스튜디오 내 곡(에서) 고르기」 목록이 있어 그 화면을 연다
+// v1.07 배경음악 공용화 5단계 — 두 프로그램의 「AI 음악 스튜디오 곡 고르기」 화면. v1.08부터 곡 번호(?ams=<생성 번호>:<곡 순서>)를 실어 그쪽이 바로 넣는다
 export const SHORTS_ONESTOP_URL = "https://shorts-onestop-studio.buylife.xyz/render";
 export const MUSIC_VIDEO_URL = "https://music-video-studio.buylife.xyz/music";
 export const SUNO_STUDIO_URL = "https://music-automation.buylife.xyz/plannings";
@@ -131,6 +131,14 @@ export function GenerationCard({ gen, onDeleted, onUpdated }: { gen: ClientGener
             <a href={`${LYRIC_VIDEO_URL}?ams=${gen.id}&i=${i}`} target="_blank" rel="noreferrer" className="whitespace-nowrap text-xs font-medium text-zinc-400 hover:text-violet-200">
               🎬 가사 영상 →
             </a>
+            <a href={`${SHORTS_ONESTOP_URL}?ams=${gen.id}:${i}`} target="_blank" rel="noreferrer" title="쇼츠 원스톱의 가장 최근 대본에 이 곡을 배경음악으로 넣습니다(다른 대본은 그쪽에서 바꿔 고르세요)"
+              className="whitespace-nowrap text-xs font-medium text-zinc-400 hover:text-violet-200">
+              🎵 쇼츠 원스톱 배경음악 →
+            </a>
+            <a href={`${MUSIC_VIDEO_URL}?ams=${gen.id}:${i}`} target="_blank" rel="noreferrer" title="뮤직비디오 1단계 「이 뮤직비디오의 곡」에 이 곡(제목·스타일·가사)을 넣습니다"
+              className="whitespace-nowrap text-xs font-medium text-zinc-400 hover:text-violet-200">
+              🎥 뮤직비디오 →
+            </a>
           </div>
         </div>
       ))}
@@ -146,10 +154,6 @@ export function GenerationCard({ gen, onDeleted, onUpdated }: { gen: ClientGener
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
           <a href={MASTERING_URL} target="_blank" rel="noreferrer" title="곡을 내려받은 뒤 마스터링 스튜디오에 넣어 소리를 다듬습니다"
             className="whitespace-nowrap font-medium text-zinc-400 hover:text-violet-200">🎚️ 마스터링 스튜디오 → <span className="text-zinc-500">(내려받은 파일을 넣어 주세요)</span></a>
-          <a href={SHORTS_ONESTOP_URL} target="_blank" rel="noreferrer" title="쇼츠 원스톱 ④ 영상 화면의 「🎵 ③ 배경음악」에서 「AI 음악 스튜디오 내 곡에서 고르기」로 이 곡을 고르세요"
-            className="whitespace-nowrap font-medium text-zinc-400 hover:text-violet-200">🎵 쇼츠 원스톱 배경음악 → <span className="text-zinc-500">(「AI 음악 스튜디오 내 곡에서 고르기」)</span></a>
-          <a href={MUSIC_VIDEO_URL} target="_blank" rel="noreferrer" title="뮤직비디오 1단계 「이 뮤직비디오의 곡」에서 「AI 음악 스튜디오에서 가져오기」로 이 곡을 고르세요"
-            className="whitespace-nowrap font-medium text-zinc-400 hover:text-violet-200">🎥 뮤직비디오 → <span className="text-zinc-500">(「AI 음악 스튜디오에서 가져오기」)</span></a>
           {gen.provider === "suno" && (
             <a href={SUNO_STUDIO_URL} target="_blank" rel="noreferrer" className="whitespace-nowrap font-medium text-zinc-400 hover:text-violet-200">
               🔁 곡 연장·구간 다시 만들기는 음악(SUNO)자동화에서 →
