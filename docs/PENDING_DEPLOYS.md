@@ -17,8 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `naver-blog-seo-studio` (운영 v2.11) | 끊긴 자동 포스팅 처리(입력 중 「사이드패널 닫지 마세요」 안내 · 다시 열 때 `writing` 실행 즉시 정리) — 확장 코드 변경 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
-| `naver-blog-seo-studio` (운영 v2.11) | 입력·자동 포스팅을 확장 background로 이전(사이드패널을 닫아도 이어짐) — **배포 전 웨일 실입력 확인 필요**(주인님 확장 새로고침) | `c65d87fbb` | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 끝 | 위 줄과 함께 v2.12(manifest·ZIP·DB) |
 | `music` (운영 v1.44) | 휴대폰 폭 가로 넘침: 배경 번짐 장식이 390px에서 문서 폭 495px로 넘침 → `<main>`에 `overflow-x-clip` | 이 줄을 넣은 커밋 직전 `music` 커밋 | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포 — 휴대폰 폭 가로 넘침」 | 390px에서 문서 폭 = 화면 폭 |
 | `threads-comment-reply` (운영 v1.27) | 「⏸ 모니터링 중지」 직후 화면이 바로 꺼짐으로 바뀌게(`MonitoringSettingsForm` `stopped` 상태) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `threads-comment-reply/docs/IMPROVEMENTS.md` 「9시간 밀림」 아래 | 버전 +0.01, 중지 → 바로 「▶ 모니터링 시작」 |
 | `youtube-auto-reply` (운영 v1.30) | 위와 같은 수정 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `youtube-auto-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 같은 확인 |
@@ -70,6 +68,7 @@
 | `youtube-auto-reply` | v1.30 · 2026-10-23 (같은 9시간 밀림 수정, 승인 빌드 1회) | 댓글 30일 정리 회원별 기록 `af9b2719c`·`05902a01d` · 공용 그래프 `noun`·`labels`·글자 크게 `9479f0bc` 보류분 |
 | `threads-comment-reply` | v1.26 · 2026-10-23 (자동 수집 회원 선택 + AI 지시문 Threads용, 승인 빌드 1회) | 공용 그래프 글자 크게 `9479f0bc` 등 기존 대기분은 v1.25에 이미 나감 |
 | `ai-auto-blog` | v1.79 · 2026-10-23 | 옛 자동 연결 코드 정리 · 소제목 반복 제거 `c9a09ce45` |
+| `naver-blog-seo-studio` | v2.12 · 2026-10-23 | 입력·자동 포스팅 background 실행(사이드패널 닫아도 이어짐) `c65d87fbb` · 입력 중 안내·끊긴 실행 즉시 정리 `19a124d24` · 배포 `1b4950030` |
 | `naver-blog-seo-studio` | v2.11 · 2026-10-23 | 옛 자동 연결 코드 정리 `da9805c6b` |
 | `naver-blog-agent` | v2.11 · 2026-10-23 | 설치 상태 문구 · 기한 지난 미사용 연결 번호 정리 |
 | `.` (메인 사이트) | 빌드 `aimaster-fvef7otna` · 2026-10-23 (Claude Code 윈도우, 승인 빌드) | 메인 사이트 할 일 3개 `9a6a74d74`·`eb79c7843`: 관리자 전용 안내에 「관리자 계정으로 다시 로그인」 버튼 · 휴대폰 폭 관리자 머리줄에 로그인 이메일 · 정리 표 아래 「아직 기록 안 남기는 곳」 목록 · 이름표 `products` 상품 |
