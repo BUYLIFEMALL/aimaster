@@ -1,9 +1,15 @@
 # AIMaster 「내 PC 렌더러」 2.0 플랜 — video-to-gif 렌더러를 영상 프로그램 공용 무료 렌더·생성 기반으로 (2026-10-24)
 
-> 상태: **플랜(주인님 승인 대기)** · 작성 Claude Code 윈도우, 영상 담당 `claude-win-video`
+> 상태: **플랜(주인님 승인 대기, 2026-10-24 음악 담당 로드맵에 맞춰 갱신 — 아래 인용 참고)** · 작성 Claude Code 윈도우, 영상 담당 `claude-win-video`
 > 지시: 「그쪽에선 기본 프로그램을 완성했으니 넌 영상 담당이니 기존 영상 프로그램과 연계한 확장가능한 방향으로 플랜을 짜봐」 · 「무료로 영상을 랜더링·생성 할 수 있으니 다양하게 활용할 여지가 있어」
 > 대상: ① AIMaster 운영. 렌더러 원본 `video-to-gif/local-renderer/`(이커머스 담당이 v1.21까지 완성) → **렌더러 본체(확장·host·설치)는 이후 영상 담당이 맡고**, video-to-gif 화면은 이커머스 담당 그대로.
 > 근거: `video-to-gif/docs/IMPROVEMENT_HANDOFF_20261024.md`, `PLAN_20261023_LOCAL_RENDERER.md`(LR-02), 코드 `local-renderer/host/host.ps1`·`extension/background.js`·`lib/localRenderer.ts`, 분석 `ANALYSIS_20261024_LOCAL_RENDERER_FOR_VIDEO.md`.
+
+> **2026-10-24 갱신 — 음악 담당 로드맵과 맞춤**: 같은 날 음악 담당(`claude-win-20261024-music`)이 공통 기반을 먼저 배포했다(video-to-gif v1.22 `28e5ba230`: 확장 이름 「AIMaster 내 PC 고속 변환」, 연결 허용 `https://*.buylife.xyz`, 실행기 1.10 `pong.capabilities` `["gif","audio"]`, 공용 연결 코드 `pc-renderer-client` 기준 `ai-mastering-studio/src/lib/pcRenderer.ts`). **기준 로드맵은 [`docs/analysis-pc-renderer-20261024/ROADMAP.md`](../../docs/analysis-pc-renderer-20261024/ROADMAP.md)** 이고, 이 문서는 그중 **영상 담당 몫**만 다룬다. 아래 0절의 「확장 이름·허용 사이트·capabilities·공용 연결 코드(`local-renderer-client`)」는 이미 그쪽 방식으로 끝났으므로 새로 만들지 않는다(연결 코드는 `pc-renderer-client` 사본을 쓴다). 렌더러 본체는 두 담당이 함께 고친다 — 명령 하나 = 커밋 하나, 시작 전 작업 중 표에 `video-to-gif/`(범위: local-renderer/), `HOST_VERSION`은 앞 번호 +0.10(다음은 1.20).
+>
+> **영상 담당 몫(로드맵 3-1)**: 명령 `loop`·`normalize`·`scale`·`compress`(+ AI 영상 갤러리 `gif` 연결) / 프로그램 `infinite-loop-video`·`ai-video-studio`·`shots`·`shorts-onestop-studio`. `slideshow`·`audiovis`(아래 1절)는 로드맵 2·3단계(음악 담당 `loop-mux`·`slideshow`)와 겹치므로 그쪽과 조율해 정한다. 로드맵 2단계 `loop-mux`는 영상 `loop`을 넓히는 방향.
+>
+> **영상 담당 다음 단계(갱신)**: A `loop`(실행기 1.20) + 무한 루프 영상 「⚡ 내 PC로 빠르게」 → B `normalize`·`compress` + AI 영상 스튜디오 합치기 → C `scale`·`gif` + AI 영상 갤러리 → D Shots·원스톱 결과 `compress`.
 
 ## 0. 지금 구조와 바꿀 점
 | 부분 | 지금(v1.21) | 2.0 |
