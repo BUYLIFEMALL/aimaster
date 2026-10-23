@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 문서 속 프로그램 주소 점검 스크립트 `check-app-urls.mjs` (세션 `claude-win-20261023-url-check`)
+- 새 스크립트(읽기 전용, 비용 없음): `node scripts/check-app-urls.mjs` = 문서(*.md)의 `*.buylife.xyz` 중 DB `programs.app_url`에 없고 연결도 안 되는 주소를 파일:줄·후보 주소와 보여 줌(종료 코드 1). `<slug>` = 실제 주소만 출력, `--app` = 모든 app_url 응답 확인. 커밋 `a5c7911ef`, 플랜 `docs/PLAN_20261023_APP_URL_CHECK.md`.
+- 한국어 보고 지침(`docs/guidelines/KOREAN.md`)에 「링크 쓰기 전 이 스크립트로 실제 주소 확인」 추가.
+- 첫 실행 결과: 문서 속 호스트 116개 중 연결 안 되는 주소 18개. 가장 많은 곳은 `docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md`(생성기 `scripts/generate_category_template_map.cjs`에 주소가 직접 적혀 있음 — 예: insta-auto-poster·auto-shorts-posting·threads-auto-poster). 그 밖에 `tarot/` 문서 4곳(`tarot.buylife.xyz` → 실제 `tarot-reading.buylife.xyz`), 새 프로그램 제안 이름(IMPROVEMENTS) 몇 곳. **남은 일:** 생성기 주소를 DB `app_url`로 바꾸고 문서 재생성(문서 구조 변경이라 담당 예약 후), tarot 문서 주소 정정은 담당 세션이.
+
 ## 2026-10-23 Claude Code(윈도우, claude-win-avs-edit) — AI 영상 스튜디오 v1.04 「🎞️ 영상 합치기」(2차-가) 배포
 
 - **무엇**: 갤러리 클립·내 PC 영상 + 배경음악(AI 음악 스튜디오 내 곡 연결) + 장면별 한글 자막 → Remotion 미리보기 → **회원 PC 브라우저에서 MP4 렌더**(서버 비용 0). 크롬 하드웨어 인코딩 영상 멈춤(R1)은 넣을 때 앞 10프레임 시험 렌더로 감지 → Mediabunny 소프트웨어 재인코딩. 갤러리 카드 「합치기에 넣기」, 매뉴얼 4단계. 플랜 `ai-video-studio/docs/PLAN_20261023_EDIT_STUDIO.md`.
