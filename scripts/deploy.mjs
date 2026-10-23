@@ -34,8 +34,14 @@ if (versionOnly && args.includes("--all")) {
       if (l.startsWith("[")) section = l.slice(0, l.indexOf("]") + 1);
       else if (l.trimStart().startsWith("⚠") || l.includes("• ⚠")) warns.push(`  ${section} ${l.trim().replace(/^•\s*/, "")}`);
     }
-    realLog(`[⚠ 요약] 확인할 것 ${warns.length}건${warns.length ? "" : " — 모두 정상"}`);
-    for (const w of warns) realLog(w.length > 220 ? `${w.slice(0, 220)}…` : w);
+    // 저장소 안전(공용 스테이징·축소·안전장치·되돌림)은 다른 ⚠에 묻히지 않게 맨 위에 따로(2026-10-23)
+    const SAFETY = /공용 스테이징|축소|안전장치|되돌림/;
+    const safety = warns.filter((w) => SAFETY.test(w)), rest = warns.filter((w) => !SAFETY.test(w));
+    const cut = (w) => (w.length > 220 ? `${w.slice(0, 220)}…` : w);
+    realLog(safety.length ? `[🚨 저장소 안전] ${safety.length}건 — 커밋·푸시 전에 먼저 확인(루트 CLAUDE.md 최상단)` : "[저장소 안전] 이상 없음");
+    for (const w of safety) realLog(cut(w));
+    realLog(`[⚠ 요약] 그 밖에 확인할 것 ${rest.length}건${rest.length ? "" : " — 모두 정상"}`);
+    for (const w of rest) realLog(cut(w));
     realLog("─".repeat(40));
     for (const l of all) realLog(l);
   };
