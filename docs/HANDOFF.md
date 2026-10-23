@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — music 막대 오판 정정 · 비교표 카드 주소 4곳 · 공용 스크립트도 안전 커밋 알림
+- **music**: 「휴대폰 폭에서 선택 막대가 안 붙음」은 스크롤 없이 잰 **오판**이었다 — 막대는 목록 묶음 맨 앞 `sticky`라 목록까지 스크롤하면 390px에서도 화면 아래 16px에 붙음. 코드 변경 없음, `music/docs/IMPROVEMENTS.md` 정정.
+- **프로그램 비교표 카드 주소 4곳 → DB 공식 주소**: `playlist-channel-studio`(→ playlist-maker.buylife.xyz, 그 폴더 AGENTS의 공식 주소), `video-to-gif`·`shop-detail-page`·`auto-detail-page`(옛 vercel.app → buylife.xyz). 옛 주소는 모두 새 주소로 넘어감 확인. 카드 버전 숫자(내용 기준)는 그대로. 세션 점검 「카드 주소 다름」 0개.
+- **공용 스크립트 알림**: `scripts/check-shared-doc-reverts.mjs`에 `SHARED_SCRIPTS`(deploy·safe-commit·program-info·pending-check·check-*·git-hooks·mac commit-gate) — 일반 커밋 때 「ℹ [공용 스크립트] … safe-commit으로」 알림(막지 않음, 되돌림 감사 대상은 아님). `docs/CLI_COLLABORATION_RULES.md` 9번에 한 줄.
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 네이버 블로그 에이전트 v2.13 배포 (세션 `claude-win-20261023-nba-v213`)
 - 30일 정리가 이관 복사본을 파일 이름의 생성 시각으로 판정(`f1aabf2a2`) 배포. 버전 `f9c7bb1cd`, 문서 `d5848040f`. `deploy.mjs --go` Ready, DB·확장·라이브 ZIP v2.13 OK, 크롬 메뉴 v2.13. 복사본 40개 모두 원래 생성일로 판정(가장 이른 파일 11-08부터 삭제 대상).
 - 비용: Vercel 빌드 1회(제안 범위). 링크: https://naver-blog-agent.buylife.xyz
