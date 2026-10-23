@@ -44,6 +44,10 @@ const FAQS: FaqItem[] = [
     a: "네, 전적으로 가능합니다! 이미지 생성은 Gemini 나노바나나 엔진을 통해 저비용/무료 할당량으로 빠르게 확인하실 수 있습니다. 이미지들의 연출과 비주얼 스타일이 마음에 들었을 때 원하는 장면에만 선택적으로 비디오 생성을 실행할 수 있습니다.",
   },
   {
+    q: "장면들을 곡과 합쳐 완성된 뮤직비디오 한 편으로 만들 수 있나요?",
+    a: "네. 4단계 아래 「🎬 최종 뮤직비디오 만들기」에서 장면 영상(없으면 장면 이미지를 천천히 확대)에 이 뮤직비디오의 곡과 장면별 가사 자막을 얹어 MP4로 만듭니다. 곡 길이를 장면 수로 나눠 장면 길이를 정하고, 짧은 영상은 반복 재생합니다. 내 PC 브라우저(크롬·엣지 최신)에서 만들어 비용이 들지 않으며, 휴대폰에서는 미리보기만 됩니다. 완성 영상은 서버에 저장되지 않으니 바로 내려받아 주세요.",
+  },
+  {
     q: "전체 프로젝트 ZIP 파일에는 어떤 파일들이 포함되나요?",
     a: "작성하신 전체 가사(lyrics.txt), Suno 음악 프롬프트(suno-style.txt), 각 장면별 텍스트 프롬프트(storyboard.txt), 생성된 고화질 이미지(scene-01.jpg 등), 그리고 렌더링된 MP4 비디오 클립들이 하나의 압축 파일로 일괄 정리되어 다운로드됩니다.",
   },
@@ -163,7 +167,7 @@ export default function GuidePage() {
             </div>
             <h3 className="text-sm font-bold text-slate-200">AI 비디오 생성</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              생성된 이미지를 기반으로 Google Gemini Omni Flash로 비디오 모션을 만들고, 전체 에셋을 ZIP 패키지로 다운로드합니다.
+              생성된 이미지를 기반으로 Google Gemini Omni Flash로 비디오 모션을 만들고, 「🎬 최종 뮤직비디오 만들기」로 장면·곡·가사 자막을 내 PC에서 MP4 한 편으로 합칩니다(무료). 전체 에셋 ZIP 다운로드도 됩니다.
             </p>
             <div className="rounded-lg bg-slate-950/60 p-2.5 text-[11px] text-slate-400 border border-slate-800/80">
               💡 심리스 루프 On 설정 시 쇼츠 배경용 무한 반복 클립 제작 가능!

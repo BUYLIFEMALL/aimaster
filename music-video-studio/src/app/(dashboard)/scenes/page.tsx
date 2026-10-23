@@ -8,6 +8,7 @@ import { effectiveLength, estimateCost } from "@/lib/music/veo";
 import type { Scene } from "@/lib/music/types";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, NeedStep, SELECT, StepHeader } from "@/components/studio/ui";
+import { FinalRenderLoader } from "@/components/studio/FinalRenderLoader";
 
 const POLL_MS = 8000;
 const MAX_POLLS = 90; // 약 12분
@@ -438,6 +439,9 @@ export default function ScenesPage() {
           );
         })}
       </div>
+
+      {/* v1.15 최종 뮤직비디오 만들기(회원 PC 렌더) */}
+      <FinalRenderLoader />
     </div>
   );
 }

@@ -65,7 +65,8 @@
 
 ## 4. 현재 버전 및 버전별 변경 히스토리
 
-- **v1.12 (2026-10-23, 현재 버전 - Claude Code 윈도우)**: **Veo 3.1 Preview 종료 대응.** Google이 Gemini API의 `veo-3.1-*-generate-preview` 3종을 2026-10-22 종료(공식 문서 확인) → 장면 영상 모델을 **Gemini Omni Flash**(`gemini-omni-1.1-flash`, 초당 약 $0.10, 같은 회원 Gemini 키)로 교체.
+- **v1.15 (2026-10-23, 현재 버전 - Claude Code 윈도우, 세션 `claude-win-avs-v105` · 영상 작업 담당)**: **「🎬 최종 뮤직비디오 만들기」** — 4단계(장면) 아래 `FinalRender`(동적 불러오기 `FinalRenderLoader`, 이 칸에서만 Remotion을 불러옴). 장면 영상(없으면 장면 이미지 = 느린 확대) + 이 뮤직비디오의 곡(`/api/music/ams?ref=` 서명 주소 → blob, 내 파일은 `loadLocalSong`) + 장면별 가사 자막(스타일 4·크기 3) → 곡 길이를 장면 수로 나눔(`splitEvenly`), 짧은 영상은 반복 재생 → 회원 PC 브라우저 렌더 MP4(720p/1080p, 최대 7분, 서버 저장 없음·바로 내려받기). 그리기·시간 계산은 **공용 기준 코드 사본** `src/lib/edit/timeline.ts`·`src/lib/edit/voice.ts`·`src/components/edit/Composition.tsx`(기준 ai-video-studio, 직접 고치지 말고 `check-shared-modules.mjs --sync`). 패키지 `remotion`·`@remotion/*` 4.0.538·`mediabunny` 1.62.0. 기존 ZIP 내려받기는 그대로. 검수 결과는 아래 줄 보완.
+- **v1.12 (2026-10-23 - Claude Code 윈도우)**: **Veo 3.1 Preview 종료 대응.** Google이 Gemini API의 `veo-3.1-*-generate-preview` 3종을 2026-10-22 종료(공식 문서 확인) → 장면 영상 모델을 **Gemini Omni Flash**(`gemini-omni-1.1-flash`, 초당 약 $0.10, 같은 회원 Gemini 키)로 교체.
   - 호출은 공용 기준 코드 `ai-video-models`·`ai-video-parse`·`ai-video-providers` 사본(`src/lib/video/*` — 직접 고치지 말 것, 기준 `ai-image-studio/lib/video/`)으로 통일. 기준에 선택값 `aspectRatio`(16:9 가로)·`startUrl` 생략(글만으로 생성) 추가.
   - `api/music/video/start` → `submitVideoJob`(작업 정보 `job` 응답, 업체가 바로 주면 MP4), `status`(POST `{job}`) → 진행 중 JSON / 완료 시 MP4 바로 응답. `download` API 삭제. `src/lib/music/veo.ts`는 옵션 검사·비용만 남김.
   - 루프: 끝 화면 = 시작 이미지(8초 고정 규칙 없음). 길이 4·6·8초는 프롬프트 안내(Omni는 길이 칸 없음). 저장된 옛 Veo 모델 값은 자동으로 Omni Flash로 바뀜.
@@ -91,7 +92,7 @@
 
 ## 5. 남아 있는 추가 프로그램 및 디자인 작업 대기 내용
 - 상세 내용은 `docs/IMPROVEMENT_BACKLOG.md` 참고.
-  1. 클라이언트단 오디오/비디오 간단 결합 프리뷰어 (WebCodecs 또는 FFmpeg WASM 검토)
+  1. ~~클라이언트단 오디오/비디오 결합~~ ✅ v1.15 「최종 뮤직비디오 만들기」(Remotion 브라우저 렌더, 공용 `video-edit-*`)
   2. Suno 오디오 파일 직접 업로드 후 비트(BPM) 분석을 통한 씬 자동 타이밍 매칭
   3. 씬별 카메라 무빙(팬, 틸트, 줌인/아웃) 프리셋 옵션 추가
 
