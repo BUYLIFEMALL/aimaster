@@ -36,3 +36,7 @@
 ## 4. 참고
 - 이 문제를 찾은 도구: `node scripts/check-app-urls.mjs`(문서·코드 속 연결 안 되는 주소 점검). 세션 시작 점검(`deploy.mjs --version-only --all`)에도 요약 한 줄이 나온다.
 - 비용: 지금까지 0(도메인 추가는 빌드 없음). 승인받았던 빌드 7회는 쓰지 않았다.
+
+## 5. 진행 기록
+- **2026-10-23 15:2x 확인(보안 업데이트 세션 아직 작업 중):** `cinematic-storyboard-studio`·`ai-prompt-studio`·`allinone-graphic` 3곳은 그 세션의 배포로 이미 나갔다. 로그인 없이 받은 로그인 화면 스크립트에 `www.buylife.xyz`만 있고 옛 주소(`aimaster.buylife.xyz`)는 없음. AI 프롬프트 스튜디오는 크롬에서 회원가입 탭의 링크가 `https://www.buylife.xyz/register`인 것까지 확인. `docs/PENDING_DEPLOYS.md`에서 3줄을 「내보낸 기록」으로 옮김. 각 프로그램 폴더의 `docs/IMPROVEMENTS.md` 대기 표시는 그 세션이 폴더를 작업 중이라 아직 고치지 않음.
+- **남은 4곳:** `persona-style-studio`·`playlist-channel-studio`·`prompt-template-studio`·`detail-page-12p` — 그 세션의 배포를 기다린다. 확인 방법: 위 2단계(로그인 없이 `curl -sL <주소>/login`으로 받은 화면의 `/_next/static/…js`에서 `www.buylife.xyz` 있음·`aimaster.buylife.xyz` 없음). 로그인된 크롬은 로그인 화면이 작업 화면으로 넘어가 링크를 볼 수 없다.
