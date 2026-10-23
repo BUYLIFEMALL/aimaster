@@ -556,6 +556,7 @@ const MODULES = [
     id: "gemini-image-client",
     source: "ai-image-studio/lib/providers/geminiImage.ts",
     copies: [
+      "threads-easy-planner/src/lib/ai/geminiImage.ts", // 2026-10-23 Threads AI 기획 자동화 이미지 모듈
       "ai-auto-blog/utils/ai/geminiImage.ts",
       "tistory-auto-blog/utils/ai/geminiImage.ts",
       "naver-blog-seo-studio/lib/ai/geminiImage.ts",
@@ -609,6 +610,7 @@ const MODULES = [
     id: "gemini-image-models",
     source: "ai-image-studio/lib/providers/nanoBananaModels.ts",
     copies: [
+      "threads-easy-planner/src/lib/ai/nanoBananaModels.ts", // 2026-10-23 Threads AI 기획 자동화 이미지 모듈
       "ai-auto-blog/utils/news/nanoBananaConfig.ts",
       "tistory-auto-blog/utils/news/nanoBananaConfig.ts",
       "naver-blog-seo-studio/lib/ai/nanoBananaConfig.ts",
