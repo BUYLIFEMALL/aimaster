@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 일반 커밋 도우미 `commit-paths.mjs` · 축소 원인 추정 정정 · emotion-writer 매뉴얼(미배포) · 임시 스테이징 정리
+- **`node scripts/commit-paths.mjs "<메시지>" <경로>... [--push]`(새, 선택)**: 최신 HEAD에서 시작한 임시 스테이징에 `git add -A -- <경로>`(새 파일·삭제·폴더·이미지 가능)로 담아 커밋 — 공용 스테이징을 읽지 않고, 정상일 때만 내 경로를 맞춤(망가져 있으면 건드리지 않고 경고). 대량 삭제 검사(차단)·OpenAI 모델·되돌림 경고를 직접 실행, 공용 문서는 거부(→ safe-commit). 시험 `scripts/commit-paths.test.mjs` 5개 통과. 최상위 규칙 ①은 그대로(주인님 결정), 협업 규칙 9번에 안내만.
+- **원인 추정 정정**: 시험 결과 경로 지정 커밋은 스테이징을 줄이지 않는다(이미 비어 있을 때 자기 경로만 채움). 「커밋한 파일만 남은」 모양은 먼저 비워진 뒤의 결과 — **처음 비운 원인은 미확정**(`docs/ERROR_LESSONS.md` 13:28 항목 정정). 11:18에 남은 임시 스테이징(66개)은 망가진 HEAD `c2e7c4db2`의 사본(원인 아님) — 목록을 `docs/evidence/index-shrink-20261023-tmpindex-38020.txt`에 보존.
+- **임시 스테이징 정리**: 안전 커밋·일반 커밋 도우미가 끝날 때 항상 자기 임시 파일을 지우고(`process.exit`이 `finally`를 건너뛰어 쌓이던 원인), 시작할 때 1시간 넘은 같은 종류를 지움. 실제 저장소 11개 → 2개(1시간 안 된 것).
+- **emotion-writer 사용 매뉴얼**: 「Unsplash」 7곳 → 「Pixabay·Pexels」, 저작권 안내는 「각 사이트 라이선스, 원본 보기에서 확인」. tsc 통과, **미배포 대기**(`docs/PENDING_DEPLOYS.md`). `AGENTS.md` 1·3절 옛 표기는 아직.
+- 비용 없음.
+
 ## 2026-10-23 — Claude Code(윈도우) · 세션 `claude-win-20261023-solapi-shared`: SOLAPI 발송 코드 공용 기준 코드 `solapi-client` 등록 + 테스트 문자 이름 버그 (미배포 · 비용 없음)
 
 - 주인님 선택 「SOLAPI 공용 등록」, 승인 「진행, 미배포 대기」. 플랜 `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`.
