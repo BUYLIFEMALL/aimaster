@@ -18,5 +18,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `naver-blog-agent/` (블로그 전담) | Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg` | 2026-10-23 | 이미지 이관 인계 ①: 시험 회원 글 10건 검수 지문 재계산(운영 DB, 승인됨) → 다음: 30일 정리 기록 6곳 |
 | `threads-comment-reply/` · `youtube-auto-reply/` · `comment-inbox/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-deploy3` | 2026-10-23 | 미배포 대기 배포(쓰레드 v1.28·유튜브 v1.31·받은편지함 v1.09, 빌드 3회 승인) |
 | `ai-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-avs-v105` | 2026-10-23 | 묶음 A(v1.05 내레이션·자동 자막·편집 저장·갤러리 저장·화면 편의). 묶음 B(뮤직비디오 최종 합치기)는 `claude-win-20261023-bgm` 종료 뒤 따로 예약, 플랜 `ai-video-studio/docs/PLAN_20261023_EDIT_STUDIO.md` 9절, 빌드 2회·운영 DB `avs_edits` 승인 |
