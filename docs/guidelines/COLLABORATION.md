@@ -63,6 +63,8 @@ node scripts/safe-commit.mjs "<메시지>" <파일>... --as <세션이름> [--pu
 
 스테이징이 줄어 있으면(`git ls-files | wc -l`이 HEAD보다 크게 적음) 커밋·푸시를 멈추고 주인님께 먼저 알립니다. 고칠 때는 승인 뒤 「남은 항목이 모두 HEAD와 같은지」 확인하고 `git read-tree HEAD` — 작업 폴더는 건드리지 않습니다.
 
+**저장소 사고가 나면 기록(2026-10-23)**: ① [에러 교훈](../ERROR_LESSONS.md)에 날짜 항목(증상 → 원인 → 해결 → 다음부터)을 쓰고 ② 그 문서 맨 위 「저장소·공용 스테이징 사고 한눈에 보기」 표에 **한 줄**(일어난 일 | 지금 막는 장치)을 더합니다 — 날짜가 바뀌면 표 제목의 날짜를 「~부터」로 넓히고 줄은 지우지 않습니다. ③ 새 장치를 만들었으면 위 안전장치 표에도 한 줄. 증거는 `.git/aimaster-index-log.txt`(블랙박스)·`.git/aimaster-lock-evidence.txt`(잠금)·`git log --format='%h %(trailers:key=AIMaster-Session,valueonly)'`(어느 세션)에서 찾습니다.
+
 ## 브라우저 분담
 
 | CLI | 기본 브라우저 |
