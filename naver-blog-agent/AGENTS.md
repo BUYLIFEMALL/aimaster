@@ -1,5 +1,7 @@
 # 네이버 블로그 에이전트 (naver-blog-agent) — AI 에이전트 인수인계 문서
 
+> **📮 전담 세션 필독(2026-10-23):** 블로그 전담이 아닌 다른 Claude Code 세션이 이 프로그램에 변경 3건(v2.12 이미지 버킷 · 글 23건 이미지 이관 · v2.13 정리 판정)을 했습니다. 경위·확인할 점(이관한 글의 검수 STALE 가능성 등): [`docs/IMPROVEMENT_HANDOFF_20261023_OTHER_SESSION_IMAGE_BUCKET.md`](docs/IMPROVEMENT_HANDOFF_20261023_OTHER_SESSION_IMAGE_BUCKET.md)
+
 > **✅ v2.13 배포(2026-10-23)** — 30일 정리가 옛 버킷에서 옮긴 이미지 복사본을 파일 이름의 생성 시각으로 판정(원래 기한 유지). 상세 `docs/IMPROVEMENTS.md` 맨 아래.
 
 > **✅ v2.12 배포(2026-10-23) — 이미지 전용 공개 버킷:** 옛 공용 버킷 `ai-image-generations`가 10-21 비공개로 바뀌어 생성·업로드 이미지 공개 주소가 400이던 문제. `src/lib/mediaBucket.ts`의 `naver-blog-agent-media`(공개)로 저장, 30일 정리는 두 버킷 모두. 상세 `docs/IMPROVEMENTS.md` 맨 아래.
