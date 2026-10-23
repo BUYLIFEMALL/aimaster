@@ -1,3 +1,7 @@
+<!-- MULTI_SESSION_RULES_20261023 -->
+> **멀티세션 작업 전 필독:** [멀티에이전트·멀티세션 공동 작업 규칙](MULTI_AGENT_SESSION_RULES.md) — 윈도우 메인/맥미니 보조 PC의 세션 식별·공용 자원 예약·공유 Git·DB 수정·배포 인계·충돌 처리 기준(2026-10-23 주인님 요청). 기존 아래 본문은 보존합니다.
+<!-- /MULTI_SESSION_RULES_20261023 -->
+
 # CLI 공동작업·협업작업 규칙
 
 2026-10-17 주인님 지시. Antigravity CLI(agy)·Codex·Claude Code와 모든 후속 CLI에 적용합니다. 본인 계정·본인 API·회원 데이터 격리 최상위 규칙을 유지합니다.
