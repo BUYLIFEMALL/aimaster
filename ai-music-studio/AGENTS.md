@@ -81,3 +81,8 @@
 
 ## 2026-10-23 v1.11 — 디자인 리뉴얼 「사운드 랩 바이올렛 스타일」 (Claude Code 윈도우, 음악 작업 담당)
 - 곡 만들기 2열·고정 요약 패널·휴대폰 하단 만들기 막대, 화면 아래 미니 플레이어(이어 듣기), 곡 카드 파형·공급자 색 띠, 안내 키 발급 3단계·자주 묻는 질문. 동작(생성·저장·링크·키)은 그대로. 상세 `docs/DESIGN_HANDOFF.md` 맨 위. 시험 33개·build·모바일 점검 0곳, 배포 Ready·DB v1.11. 비용: 빌드 1회.
+
+## 2026-10-23 미니 플레이어 반복·무작위 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, **미배포 대기** — 버전은 배포 때 v1.12)
+- 주인님 지시: 제안 가~라를 대기 목록에 올려 순차 진행, 배포는 모아서. 플랜 `docs/PLAN_20261023_PLAYER_REPEAT_SHUFFLE.md`.
+- `lib/playerOrder.ts`(순수 함수 `pickNext`·`pickPrev`·`nextRepeat`) + `tests/playerOrder.test.mjs` 7개(전체 40개). `components/player/PlayerProvider.tsx` 반복(끔→목록→한 곡)·무작위 상태, 들은 곡 기록(무작위 「이전 곡」용, 최근 50곡), 설정은 `localStorage` `ams-player-mode`(try/catch). 한 곡 반복은 곡이 끝났을 때만 — 「다음 곡」 버튼은 다음 곡으로. `MiniPlayer.tsx` 무작위·반복 버튼(켜지면 하늘색, 한 곡 반복은 「1」 아이콘).
+- 검수: 시험 40개·tsc·build 통과. 화면·소리는 배포 뒤 확인(미확인).
