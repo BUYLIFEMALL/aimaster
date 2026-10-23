@@ -289,3 +289,11 @@
 
 ## 2026-10-23 ⏸ 미배포 — 미리보기 창 Esc로 닫기 (G-23-06, Claude Code 맥미니 · ③ 묶음)
 - `components/ConverterWorkspace.tsx`: 미리보기 창이 열려 있을 때만 `keydown` Escape → 닫기(「닫기」 버튼과 같음). tsc 0. 주인님 승인 「GIF는 모아 두기」 — 위 「2-Pass」 정리와 함께 다음 배포 때 내보내고 버전 +0.01. 미배포 표 `docs/PENDING_DEPLOYS.md`.
+
+## 2026-10-23 ⏸ 미배포 — 8MiB 초과 영상: 사다리 끝에 초당 장면 수 낮추는 단계 (Claude Code 맥미니 · 세션 `claude-mac-20261023-ecommerce`, 주인님 승인 「진행해」)
+- 플랜 [`docs/PLAN_20261023_FPS_STEP.md`](docs/PLAN_20261023_FPS_STEP.md). v1.15 실검수에서 매 프레임 색이 바뀌는 영상이 마지막 단계(가로 45%·128색)로도 8MiB를 넘어 실패하던 문제.
+- `lib/gifLadder.ts`: `LadderStep` 타입(`fps?`), `CANDIDATES` 끝에 `{0.45, 128, fps 25}`·`{0.45, 128, fps 20}`. `nextCandidateIndex`의 「아주 크게 넘을 때」 대체 값을 「맨 끝 단계」 → **「가장 작은 가로 단계의 첫 칸」**으로 — 안 바꾸면 크게 넘는 영상이 8단계(45%)를 건너뛰고 바로 20fps로 떨어져 예전 결과가 바뀜(시험에서 발견). fps 단계는 한 칸씩.
+- `components/ConverterWorkspace.tsx`: 시도마다 `stepFps = min(고른 fps, 단계 fps)`로 필터·메모리 어림(`canSinglePass`), 완료 줄에 「· N fps로 낮춤」(`Job.loweredFps`, 마우스를 올리면 이유). 실패 문구에서 「40fps로 낮춘 뒤」 제거(이제 자동으로 20fps까지 내려감), 작업 화면 사다리 안내 한 줄 추가.
+- `app/guide/page.tsx`: FAQ 「왜 8MiB」「줄이지 못했다고 나오면」 문구.
+- 검수(맥미니): tsc 0, eslint(3파일) 0. 사다리 함수 시험 4개 통과(단계 10개·앞 8단계 그대로·건너뛰기 값·fps 단계 한 칸씩), **기존 함수와 8단계 안 이동 27,300가지 비교 차이 0**(기존에 성공하던 영상 결과 그대로). 실제 변환은 배포 뒤 확인.
+- 배포: 미배포 대기 — 위 두 건(메뉴 문구·Esc)과 함께 다음 배포 v1.19(빌드 1회, 윈도우). **다음 배포하는 CLI**: `lib/version.ts`·`package.json` v1.19 + SQL(버전만) → 배포 → 맥미니 크롬에서 화면 안에서 만든 색 블록 영상으로 「fps로 낮춤」·8MiB 이하 확인.

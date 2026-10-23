@@ -51,6 +51,7 @@
 | `competitor-analysis` | 경쟁사 분석 화면 안내 문구 정정(「다른 회원이 조사한 회사 정보 재사용」 → 본인 30일 안 조사만) | `87b773ef2` | 2026-10-23 · Claude Code(윈도우) | `competitor-analysis/AGENTS.md` 2026-10-23 v1.09 절 | 버전 +0.01 |
 | `video-to-gif` (운영 v1.18) | 좌측 메뉴 옛 문구 「2-Pass 고화질 팔레트 인코딩」 → 「색상표 최적화 고화질 변환」(v1.15부터 한 번에 만들기 우선) | 이 줄 직전 `video-to-gif` 커밋 | 2026-10-23 · Claude Code(윈도우) | `video-to-gif/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, 좌측 메뉴 문구 확인 |
 | `video-to-gif` (운영 v1.18) | 미리보기 창 Esc로 닫기(G-23-06) | 이 줄과 같은 `video-to-gif` 커밋(③ 묶음) | 2026-10-23 · Claude Code(맥미니) | `video-to-gif/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01(위 줄과 함께 한 번), 변환 뒤 👁 미리보기 → Esc |
+| `video-to-gif` (운영 v1.18) | 8MiB 초과 영상: 화질 사다리 끝에 25·20fps 단계 추가 + 완료 줄 「N fps로 낮춤」 + 안내 문구 3곳(플랜 `video-to-gif/docs/PLAN_20261023_FPS_STEP.md`) | 이 줄과 같은 `video-to-gif` 커밋 | 2026-10-23 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `video-to-gif/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01(위 두 줄과 함께 한 번 = v1.19), 화면 안에서 만든 색 블록 영상으로 「fps로 낮춤」·8MiB 이하 확인, 일반 영상 크기 그대로 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
