@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, claude-win-avs-v105 · 영상 작업 담당) — AI 영상 스튜디오 v1.05 영상 합치기 2-나(내레이션·자동 자막·편집 저장·갤러리 저장)
+
+- **무엇**: 장면별 내레이션(회원 본인 OpenAI·Gemini·ElevenLabs, 원스톱 `tts.ts`·`voice.ts` 재사용) · 말하는 속도에 맞춘 자동 자막(ElevenLabs 글자 정렬/OpenAI 받아쓰기, 없으면 글자 비례) · 편집 저장·불러오기(새 표 `avs_edits`, 회원 RLS, `/edit?edit=`) · 완성본 갤러리 저장(50MB, 갤러리 「편집본」) · 끌어서 순서·자르기 막대·자막 크기 · R1 빠르게(갤러리 영상 시험 생략, 제한 6초) · 키 설정에 OpenAI·ElevenLabs(공용 키 재사용) · 30일 정리 cron에 편집본.
+- **운영 DB(esgxyikcnnvmlhygjkth)**: 마이그레이션 `ai-video-studio/supabase/migrations/0004_edits.sql` 크롬 SQL 편집기로 적용(표 1·RLS·정책 2·버킷 audio/mpeg·audio/wav 허용 확인).
+- **검수(운영, 메인 크롬, 시험 계정)**: 내레이션 2장면 받아쓰기 시각 맞춤·넘침 안내, 편집 저장→렌더 9초→갤러리 저장→「편집본」 카드→불러오기(영상·음성·곡 복원), 설정 「연동 완료». 상세 `ai-video-studio/AGENTS.md` v1.05.
+- **배포**: v1.05 Ready(`ai-video-studio-li80da2ch`), 화면·DB v1.05. 커밋 `f5f6cc95e`(기능)·문서·검수·역량 지도 `d488dbe4c`.
+- **다음**: 묶음 B(공용화 `video-edit-composer` + 뮤직비디오 최종 합치기 v1.14, 승인됨) — 뮤직비디오 예약이 풀려 이어서 시작.
+- **비용 리포트**: Vercel 빌드 1회(승인 범위) · 시험 계정 OpenAI 음성 2·받아쓰기 2(약 $0.01) · DB 변경 비용 없음.
+
+https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-10-23 — Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-deploy3`: ✅ 모아 둔 댓글 앱 화면 수정 배포 — 쓰레드 댓글 v1.28 · 유튜브 댓글 v1.31 · 받은편지함 v1.09 (빌드 3회 · AI 0회)
 
 - 나간 것: 「중지」 즉시 화면 반영, 설정 「다음 확인 예정」·「실행 방식 바꾸기 ↓」(쓰레드·유튜브), 받은편지함 「🤖 자동 수집 상태」 카드 + 7일 그래프 글자 크게. 버전 커밋 `cff21dc83`, DB 버전 3개를 배포 직전 하나씩 갱신(각 1행).
