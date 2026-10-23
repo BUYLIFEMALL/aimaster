@@ -418,7 +418,7 @@
 - **키·계정·주의**: 회원 본인의 Google Gemini API 키로 동작합니다. 바뀐 글의 사실관계는 원문과 같은지 직접 확인하세요.
 
 #### AI 랜딩페이지 기획 자동화 (`landing-architect`)
-- 주소·폴더: https://landing-architect.buylife.xyz · `landing-architect/` · v1.13
+- 주소·폴더: https://landing-architect.buylife.xyz · `landing-architect/` · v1.14
 - **2026-10-21 v1.13**: UI Canvas로 보낼 때 회원 본인 Unsplash·Pexels·Pixabay 키가 있으면 키워드에 맞는 실제 사진을 넣음.
 - **2026-10-21 v1.12**: UI Canvas로 보낼 때 서브 페이지(각각 별도 프로젝트)와 이미지 에셋(임시 사진)도 함께 배치.
 - **2026-10-21 v1.11**: 기획안을 [🧩 UI Canvas로 보내 다듬기]로 UI Canvas 새 프로젝트에 배치(AI 없이, 회원 본인 공용 표 행). 재사용 부품: 다른 프로그램 → UI Canvas 프로젝트 만들기 패턴 `landing-architect/src/app/api/canvas-export/route.ts`.
