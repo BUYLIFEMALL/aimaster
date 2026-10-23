@@ -2,6 +2,15 @@ const fs = require('fs');
 
 const progs = JSON.parse(fs.readFileSync('scratch_combined_programs.json', 'utf8'));
 
+// 2026-10-23: 프로그램 주소는 운영 DB programs.app_url을 먼저 쓴다(아래 urlMap에 연결 안 되는 주소가 섞여 있었음 — 예: insta-auto-poster). urlMap은 DB에 주소가 없을 때만.
+const { createClient } = require('@supabase/supabase-js');
+const envFile = Object.fromEntries(fs.readFileSync('.env.local', 'utf8').split(/\r?\n/).filter((l) => l.includes('=') && !l.startsWith('#')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
+const dbUrl = {};
+(async () => {
+const { data: dbPrograms, error: dbError } = await createClient(envFile.NEXT_PUBLIC_SUPABASE_URL, envFile.SUPABASE_SECRET_KEY || envFile.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } }).from('programs').select('slug,app_url');
+if (dbError) throw new Error(`programs 조회 실패: ${dbError.message}`);
+for (const r of dbPrograms) if (r.app_url) dbUrl[r.slug] = r.app_url;
+
 // Slug to URL mapping
 const urlMap = {
   'markdown-studio': 'https://markdown-studio.buylife.xyz',
@@ -207,7 +216,7 @@ const catOrder = [
 let md = '# AIMaster 카테고리별 프로그램 디자인 템플릿 총람 및 선정 가이드 (PROGRAM_CATEGORY_TEMPLATE_MAP.md)\n\n';
 md += '> **최초 제정**: 2026-10-19 (주인님 지시)\n';
 md += '> **문서 목적**: AIMaster 전체 84개 프로그램(새로 추가된 `ai-doc-chatbot` 등 포함)을 **공식 14개 카테고리(분야) 기준으로 완전 분류**하고, 각 프로그램에 적용된 **디자인 템플릿 스타일과 그 템플릿을 선정한 명확한 UX/기능적 이유(Why?)**를 체계적으로 정리하여 **모든 AI CLI(Claude Code, Codex, Antigravity 등)가 향후 개발·개선·리뉴얼 시 나침반으로 상호 참조**할 수 있도록 영구 표준 문서로 제공합니다.\n';
-md += '> **연계 문서**: [`DESIGN.md`](../DESIGN.md) (메인 지침), [`docs/DESIGN_TEMPLATE_CATALOG.md`](DESIGN_TEMPLATE_CATALOG.md) (스타일별 카탈로그), [`docs/PROGRAM_CAPABILITY_MAP.md`](PROGRAM_CAPABILITY_MAP.md) (기능 프로그램 비교표)\n\n';
+md += '> **연계 문서**: [`DESIGN.md`](../DESIGN.md) (메인 지침), [`docs/DESIGN_TEMPLATE_CATALOG.md`](DESIGN_TEMPLATE_CATALOG.md) (스타일별 카탈로그), [`docs/PROGRAM_CAPABILITY_MAP.md`](PROGRAM_CAPABILITY_MAP.md) (프로그램 비교표)\n\n';
 
 md += '---\n\n';
 md += '## 📊 카테고리별 총괄 진척 현황 요약\n\n';
@@ -287,7 +296,7 @@ catOrder.forEach((catName, cIdx) => {
   md += `|:---:|---|---|:---:|---|---|---|---|\n`;
 
   list.forEach(p => {
-    const url = urlMap[p.slug] || `https://${p.slug}.buylife.xyz`;
+    const url = dbUrl[p.slug] || urlMap[p.slug] || `https://${p.slug}.buylife.xyz`;
     const reason = reasonMap[p.slug] || '프로그램 고유의 작업 흐름과 가독성을 최적화하기 위해 맞춤 템플릿 채택.';
     const linkStr = `[${url}](${url})`;
     md += `| **${p.no}** | **${p.name}** | \`${p.slug}\` | \`${p.version || 'v1.00'}\` | ${linkStr} | **${p.template}** | ${p.theme} | ${reason} |\n`;
@@ -308,3 +317,4 @@ md += '   - 신규 프로그램이 추가되거나 버전이 변경될 경우, �
 
 fs.writeFileSync('docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md', md, 'utf8');
 console.log('PROGRAM_CATEGORY_TEMPLATE_MAP.md 생성 완료! 파일 크기:', md.length, '자');
+})().catch((e) => { console.error(e.message); process.exit(1); });

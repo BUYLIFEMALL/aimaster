@@ -2,7 +2,7 @@
 
 > **최초 제정**: 2026-10-19 (주인님 지시)
 > **문서 목적**: AIMaster 전체 84개 프로그램(새로 추가된 `ai-doc-chatbot` 등 포함)을 **공식 14개 카테고리(분야) 기준으로 완전 분류**하고, 각 프로그램에 적용된 **디자인 템플릿 스타일과 그 템플릿을 선정한 명확한 UX/기능적 이유(Why?)**를 체계적으로 정리하여 **모든 AI CLI(Claude Code, Codex, Antigravity 등)가 향후 개발·개선·리뉴얼 시 나침반으로 상호 참조**할 수 있도록 영구 표준 문서로 제공합니다.
-> **연계 문서**: [`DESIGN.md`](../DESIGN.md) (메인 지침), [`docs/DESIGN_TEMPLATE_CATALOG.md`](DESIGN_TEMPLATE_CATALOG.md) (스타일별 카탈로그), [`docs/PROGRAM_CAPABILITY_MAP.md`](PROGRAM_CAPABILITY_MAP.md) (기능 역량 지도)
+> **연계 문서**: [`DESIGN.md`](../DESIGN.md) (메인 지침), [`docs/DESIGN_TEMPLATE_CATALOG.md`](DESIGN_TEMPLATE_CATALOG.md) (스타일별 카탈로그), [`docs/PROGRAM_CAPABILITY_MAP.md`](PROGRAM_CAPABILITY_MAP.md) (프로그램 비교표)
 
 ---
 
@@ -73,7 +73,7 @@
 | No | 프로그램명 | slug | 버전 | 서비스 링크 | 적용 디자인 템플릿 | 배경 테마 | 템플릿 선정 이유 및 UX/기능적 근거 (Why?) |
 |:---:|---|---|:---:|---|---|---|---|
 | **1** | **마크다운 문서 자동화** | `markdown-studio` | `v1.20` | [https://markdown-studio.buylife.xyz](https://markdown-studio.buylife.xyz) | **포커스 스튜디오 스타일** | 라이트(크림) | 마크다운 원문 편집과 실시간 렌더링을 좌우 2열로 분할하여 문서 집필의 가독성과 집중도를 극대화하기 위해 포커스 스튜디오 채택. |
-| **7** | **시네마틱 스토리보드 자동화** | `cinematic-storyboard-studio` | `v1.09` | [https://cinematic-storyboard.buylife.xyz](https://cinematic-storyboard.buylife.xyz) | **크리에이티브 아틀리에 스타일 (시네마틱 아틀리에)** | 다크(시네마틱 차콜 `#0b0f17`) | 9컷 시네마틱 장면 구성과 영상 프롬프트 설계를 영화 제작 데스크처럼 조망할 수 있도록 시네마틱 아틀리에 다크 스타일 채택. |
+| **7** | **시네마틱 스토리보드 자동화** | `cinematic-storyboard-studio` | `v1.09` | [https://cinematic-storyboard-studio.buylife.xyz](https://cinematic-storyboard-studio.buylife.xyz) | **크리에이티브 아틀리에 스타일 (시네마틱 아틀리에)** | 다크(시네마틱 차콜 `#0b0f17`) | 9컷 시네마틱 장면 구성과 영상 프롬프트 설계를 영화 제작 데스크처럼 조망할 수 있도록 시네마틱 아틀리에 다크 스타일 채택. |
 | **9** | **AI 프롬프트 템플릿 자동화** | `prompt-template-studio` | `v1.03` | [https://prompt-template.buylife.xyz](https://prompt-template.buylife.xyz) | **포커스 스튜디오 스타일 (프롬프트 템플릿 스튜디오)** | 라이트(클린 슬레이트 `#f8fafc`) | 자주 쓰는 프롬프트 템플릿의 변수 치환과 결과 테스트를 한 화면에서 집중적으로 다루기 위해 클린 슬레이트 포커스 스튜디오 채택. |
 | **10** | **페르소나 문체 자동화** | `persona-style-studio` | `v1.06` | [https://persona-style-studio.buylife.xyz](https://persona-style-studio.buylife.xyz) | **포커스 스튜디오 스타일 (문체 변환 스튜디오)** | 라이트(클린 슬레이트 `#f8fafc`) | 원문과 변환된 페르소나 문체 결과를 좌우로 대조하며 미세 톤 조절 슬라이더를 조작하기 위해 포커스 스튜디오 채택. |
 | **11** | **AI Prompt 자동화** | `ai-prompt-studio` | `v1.04` | [https://ai-prompt.buylife.xyz](https://ai-prompt.buylife.xyz) | **포커스 스튜디오 스타일 (프롬프트 엔지니어링 스튜디오)** | 라이트(클린 슬레이트 `#f8fafc`) | 프롬프트 엔지니어링 구조화, 시스템 메시지 설계, LLM별 파라미터 튜닝을 집중 집필할 수 있도록 포커스 스튜디오 채택. |
@@ -102,13 +102,13 @@
 | No | 프로그램명 | slug | 버전 | 서비스 링크 | 적용 디자인 템플릿 | 배경 테마 | 템플릿 선정 이유 및 UX/기능적 근거 (Why?) |
 |:---:|---|---|:---:|---|---|---|---|
 | **3** | **AI 쇼츠 원스톱 제작 자동화** | `shorts-onestop-studio` | `v1.18` | [https://shorts-onestop-studio.buylife.xyz](https://shorts-onestop-studio.buylife.xyz) | **플로우 위저드 스타일** | 다크/라이트 | 기획 ➔ 대본 ➔ 음성TTS ➔ 영상 렌더링의 4단계 복합 공정을 초보자도 막힘없이 완주하도록 단계별 스텝퍼 제공을 위해 플로우 위저드 채택. |
-| **6** | **플레이리스트 채널 제작** | `playlist-channel-studio` | `v1.14` | [https://playlist-channel-studio.buylife.xyz](https://playlist-channel-studio.buylife.xyz) | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | 플레이리스트 영상 제작, 트랙 배치, 가사 동기화를 암실 스튜디오 환경에서 정밀 제어할 수 있도록 사이버 네온 다크 콘솔 채택. |
+| **6** | **플레이리스트 채널 제작** | `playlist-channel-studio` | `v1.14` | [https://playlist-maker.buylife.xyz](https://playlist-maker.buylife.xyz) | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙 `#060911`) | 플레이리스트 영상 제작, 트랙 배치, 가사 동기화를 암실 스튜디오 환경에서 정밀 제어할 수 있도록 사이버 네온 다크 콘솔 채택. |
 | **22** | **AI 유튜브 썸네일 프로** | `seo-thumbnail-pro` | `v1.11` | [https://seo-thumbnail-pro.buylife.xyz](https://seo-thumbnail-pro.buylife.xyz) | **크리에이티브 아틀리에 스타일 — 프로 썸네일 캔버스 변형** | 다크(미드나잇 다크 `#0c0f17` + 유튜브 레드 `#ff0000`·골드 앰버 `#f59e0b`) | 유튜브 16:9 규격 썸네일 캔버스 배치와 눈에 띄는 후킹 문구 배치를 직관적으로 시각화하기 위해 프로 썸네일 캔버스 아틀리에 채택. |
 | **27** | **YOUTUBE CHANNEL CONSULTANT** | `youtube-channel-consultant` | `v1.09` | [https://youtube-channel-consultant.buylife.xyz](https://youtube-channel-consultant.buylife.xyz) | **유튜브 다크 콘솔 스타일 — 스튜디오 변형 (viral-studio와 동일, Tailwind v4)** | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | 유튜브 채널 벤치마킹, 성장 분석, 소형 고효율 채널 발굴 데이터를 유튜브 공식 테마에서 분석하기 위해 유튜브 다크 콘솔 스튜디오 변형 채택. |
 | **28** | **YOUTUBE VIRAL FINDER** | `youtube-viral-studio` | `v1.18` | [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz) | **유튜브 다크 콘솔 스타일 — 스튜디오 변형 (+ 스마트 매트릭스 구성, Tailwind v4)** | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | 조회수 급상승 영상, 떡상 쇼츠, 황금 채널 발굴 데이터를 지표 매트릭스와 영상 뷰어로 결합 분석하기 위해 유튜브 다크 콘솔 채택. |
 | **31** | **쇼츠 떡상 분석·대본 자동화** | `shorts-viral-studio` | `v1.10` | [https://shorts-viral-studio.buylife.xyz](https://shorts-viral-studio.buylife.xyz) | **플로우 위저드 스타일 (다크 차콜 변형)** | 다크(차콜 `#0d1117` + 서피스 `#161b22` + 쇼츠 레드 `#ef4444`) | 쇼츠 떡상 공식 분해와 60초 대본 작성을 9:16 모바일 프레임과 함께 다크한 환경에서 기획하기 위해 다크 차콜 플로우 위저드 채택. |
 | **48** | **유튜브 댓글자동화** | `youtube-auto-reply` | `v1.09` | [https://youtube-auto-reply.buylife.xyz](https://youtube-auto-reply.buylife.xyz) | **유튜브 다크 콘솔 스타일 — 스튜디오 댓글 콘솔 변형 (+ 스마트 매트릭스 지표 구성)** | 다크(`#0f0f0f` + 유튜브 레드 `#ff0000`) | 유튜브 채널 댓글 관리와 AI 답글 검수를 유튜브 스튜디오 관리자 화면과 일치시키기 위해 유튜브 다크 콘솔 스튜디오 댓글 변형 채택. |
-| **58** | **YOUTUBE Shots 자동화** | `auto-shorts-posting` | `v1.16` | [https://auto-shorts-posting.buylife.xyz](https://auto-shorts-posting.buylife.xyz) | **유튜브 다크 콘솔 스타일 — 쇼츠 스튜디오 에디션** | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | 6장면 스토리보드 기획, AI 이미지 생성, 음원 결합 및 쇼츠 업로드 파이프라인을 유튜브 감성으로 통제하기 위해 쇼츠 스튜디오 유튜브 다크 콘솔 채택. |
+| **58** | **YOUTUBE Shots 자동화** | `auto-shorts-posting` | `v1.16` | [https://shots.buylife.xyz](https://shots.buylife.xyz) | **유튜브 다크 콘솔 스타일 — 쇼츠 스튜디오 에디션** | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | 6장면 스토리보드 기획, AI 이미지 생성, 음원 결합 및 쇼츠 업로드 파이프라인을 유튜브 감성으로 통제하기 위해 쇼츠 스튜디오 유튜브 다크 콘솔 채택. |
 | **76** | **AI 썸네일 마스터 자동화** | `thumbnail-master` | `v1.06` | [https://thumbnail-master.buylife.xyz](https://thumbnail-master.buylife.xyz) | **크리에이티브 아틀리에 스타일 — 썸네일 매거진 변형** | 다크(미드나잇 다크 `#0c0f17` + 썸네일 바이올렛 `#8b5cf6`·코랄 오렌지 `#f97316`) | 유튜브 시청 타겟 맞춤형 A/B 썸네일 전략과 시각적 후킹 구도를 매거진 형태로 디자인하기 위해 썸네일 매거진 크리에이티브 아틀리에 채택. |
 
 ### 4. [이미지] 카테고리 (10개 프로그램)
@@ -131,7 +131,7 @@
 | No | 프로그램명 | slug | 버전 | 서비스 링크 | 적용 디자인 템플릿 | 배경 테마 | 템플릿 선정 이유 및 UX/기능적 근거 (Why?) |
 |:---:|---|---|:---:|---|---|---|---|
 | **12** | **Youtube Playlist 자동화** | `yt-playlist-studio` | `v1.14` | [https://youtube-playlist.buylife.xyz](https://youtube-playlist.buylife.xyz) | **유튜브 다크 콘솔 스타일 (YouTube Dark Console Style)** | 다크(옵시디언 블랙 `#0f0f0f` + 유튜브 레드 `#ff0000`) | 유튜브 16:9 규격 캔버스, 오디오 스펙트럼 10종, WebCodecs GPU 가속 렌더링 콘솔을 유튜브 공식 감성으로 다루기 위해 유튜브 다크 콘솔 채택. |
-| **13** | **LP 턴테이블 자동화** | `vinyl-lp-studio` | `v1.12` | [https://vinyl-lp-studio.buylife.xyz](https://vinyl-lp-studio.buylife.xyz) | **크리에이티브 아틀리에 스타일 (바이닐 다크 레트로 콘솔 변형)** | 다크(옵시디언 `#0c0d12` + 바이닐 골드/앰버 `#f59e0b`) | 회전하는 턴테이블 LP판 앨범 아트 맵핑과 바이닐 스크래치 사운드 제어의 아날로그 감성을 살리기 위해 바이닐 다크 레트로 콘솔 채택. |
+| **13** | **LP 턴테이블 자동화** | `vinyl-lp-studio` | `v1.12` | [https://lp-turntable.buylife.xyz](https://lp-turntable.buylife.xyz) | **크리에이티브 아틀리에 스타일 (바이닐 다크 레트로 콘솔 변형)** | 다크(옵시디언 `#0c0d12` + 바이닐 골드/앰버 `#f59e0b`) | 회전하는 턴테이블 LP판 앨범 아트 맵핑과 바이닐 스크래치 사운드 제어의 아날로그 감성을 살리기 위해 바이닐 다크 레트로 콘솔 채택. |
 | **16** | **뮤직비디오 자동화** | `music-video-studio` | `v1.10` | [https://music-video-studio.buylife.xyz](https://music-video-studio.buylife.xyz) | **사이버 네온 다크 콘솔 스타일 — 뮤직비디오 앰프 데크 에디션** | 다크(딥블랙 `#060911` + 네온 시안 `#00f2fe`·핑크 `#f43f5e`) | 가사, 스토리보드, 비디오 클립 렌더링이 결합된 고난도 MV 제작 공정을 앰프 데크 콘솔처럼 통제하기 위해 사이버 네온 콘솔 채택. |
 | **18** | **Suno 음악기획 자동화** | `suno-music-studio` | `v1.09` | [https://suno-music-studio.buylife.xyz](https://suno-music-studio.buylife.xyz) | **사이버 수노 다크 스튜디오 스타일** | 다크(옵시디언 블랙) | Suno AI 프롬프트 및 가사 작사를 Suno Create 오리지널 분위기와 완벽히 동기화된 환경에서 기획하기 위해 사이버 수노 다크 스튜디오 채택. |
 | **54** | **음악(SUNO)자동화** | `music-automation` | `v1.16` | [https://music-automation.buylife.xyz](https://music-automation.buylife.xyz) | **사이버 수노 다크 스튜디오 스타일** | 다크(딥블랙 `#09090b` + 오렌지 `#f97316`) | 곡 테마 기획부터 Suno AI 실제 보컬/연주곡 생성 및 음원 파일 보관을 위해 사이버 수노 다크 스튜디오 채택. |
@@ -143,7 +143,7 @@
 | No | 프로그램명 | slug | 버전 | 서비스 링크 | 적용 디자인 템플릿 | 배경 테마 | 템플릿 선정 이유 및 UX/기능적 근거 (Why?) |
 |:---:|---|---|:---:|---|---|---|---|
 | **8** | **AI 12단 상세페이지 자동화** | `detail-page-12p` | `v1.09` | [https://detail-12p.buylife.xyz](https://detail-12p.buylife.xyz) | **포커스 스튜디오 스타일 (이커머스 상세페이지)** | 라이트(클린 슬레이트 `#f8fafc`) | 이커머스 12단 상세페이지 카피라이팅과 레이아웃 구조 설계를 서류 기획서처럼 정갈하게 작성할 수 있도록 포커스 스튜디오 채택. |
-| **36** | **상세페이지 GIF 자동화** | `video-to-gif` | `v1.05` | [https://video-to-gif.buylife.xyz](https://video-to-gif.buylife.xyz) | **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션** | 다크(차콜 `#0d1117` + 앰버 골드 `#f59e0b`) | 상세페이지용 비디오를 브라우저 내 WASM으로 8MB 규격 GIF로 고속 변환하고 화질 사다리를 시각화하기 위해 이커머스 GIF 랩 아틀리에 채택. |
+| **36** | **상세페이지 GIF 자동화** | `video-to-gif` | `v1.05` | [https://video-to-gif.buylife.xyz/dashboard](https://video-to-gif.buylife.xyz/dashboard) | **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션** | 다크(차콜 `#0d1117` + 앰버 골드 `#f59e0b`) | 상세페이지용 비디오를 브라우저 내 WASM으로 8MB 규격 GIF로 고속 변환하고 화질 사다리를 시각화하기 위해 이커머스 GIF 랩 아틀리에 채택. |
 | **43** | **상품소싱 자동화** | `trending-product-finder` | `v1.14` | [https://trending-product-finder.buylife.xyz](https://trending-product-finder.buylife.xyz) | **스마트 매트릭스 스타일 (다크 슬레이트, Tailwind v3)** | 다크(차콜 `#0f1115` + 블루 `#2563eb`·앰버 `#f59e0b`) | 쇼핑 트렌드, 키워드 경쟁강도, 마진율 계산 등 이커머스 소싱 지표를 다각도로 비교 분석하기 위해 스마트 매트릭스 다크 슬레이트 채택. |
 | **55** | **상세페이지 자동화(15p)** | `shop-detail-page` | `v1.14` | [https://shop-detail-page.buylife.xyz](https://shop-detail-page.buylife.xyz) | **이커머스 셀러 스튜디오 스타일** | 퓨어 화이트 (`#ffffff` + 블루 `#2563eb`·오렌지 `#f97316`) | 15개 섹션 블록 맵과 스마트스토어/쿠팡 860px 규격 상세페이지 원클릭 병합을 전문적으로 다루기 위해 이커머스 셀러 스튜디오 채택. |
 | **61** | **상세페이지 자동생성기 v1** | `auto-detail-page` | `v1.13` | [https://auto-detail-page.buylife.xyz](https://auto-detail-page.buylife.xyz) | **이커머스 셀러 스튜디오 스타일 — 상세페이지 기획 에디션** | 퓨어 화이트 (로열 블루 `#2563eb` / 셀러 오렌지 `#f97316`) | 상품 핵심 소구점 도출부터 HTML 상세페이지 코드 실시간 프리뷰 및 내보내기를 위해 상세페이지 기획 이커머스 셀러 스튜디오 채택. |
@@ -157,7 +157,7 @@
 | **25** | **AI 웹툰 자동화** | `ai-webtoon-studio` | `v1.13` | [https://ai-webtoon-automation.buylife.xyz](https://ai-webtoon-automation.buylife.xyz) | **크리에이티브 아틀리에 스타일 (웹툰 스튜디오 다크 변형)** | 다크(딥블랙 나이트 `#0a0d14` + 인디고 `#6366f1`·바이올렛 `#8b5cf6`) | 세로 스크롤 컷 만화 콘티와 캐릭터 일관성 유지 프롬프트 생성을 어두운 작업실에서 조망할 수 있도록 웹툰 스튜디오 아틀리에 채택. |
 | **45** | **INSTA DM답변 자동화** | `instagram-dm-reply` | `v1.13` | [https://instagram-dm-reply.buylife.xyz](https://instagram-dm-reply.buylife.xyz) | **스튜디오 댓글 콘솔 — 인스타 라이트 변형 (DM 대화 화면) (47번 이식, Tailwind v3)** | 라이트(`#fafafa` + 인스타 파랑 `#0095f6`·그라데이션 포인트) | 실시간 인스타그램 DM 문의 내역과 자동 응답 규칙을 모바일 채팅 화면과 유사하게 조작하기 위해 인스타 라이트 스튜디오 댓글 콘솔 채택. |
 | **47** | **INSTA 댓글자동화** | `instagram-comment-reply` | `v1.14` | [https://instagram-comment-reply.buylife.xyz](https://instagram-comment-reply.buylife.xyz) | **스튜디오 댓글 콘솔 — 인스타 라이트 변형 (threads v1.10 구성 이식, Tailwind v3)** | 라이트(`#fafafa` + 인스타 파랑 `#0095f6`·그라데이션 포인트) | 인스타 피드 댓글 모니터링과 AI 자동 답글 처리를 인스타 고유의 밝은 피드 감성으로 제어하기 위해 인스타 라이트 스튜디오 댓글 콘솔 채택. |
-| **56** | **INSTA 포스팅 자동화** | `auto-instagram-posting` | `v1.24` | [https://insta-auto-poster.buylife.xyz](https://insta-auto-poster.buylife.xyz) | **플로우 위저드 스타일 (인스타 바이럴 변형)** | 다크(인스타 딥나이트 `#0d0f17` + 로즈/핑크 그라디언트) | 인스타 피드 사진 기획부터 본문 캡션, 해시태그, 예약 포스팅까지의 프로세스를 바이럴 감성으로 완주하기 위해 인스타 바이럴 플로우 위저드 채택. |
+| **56** | **INSTA 포스팅 자동화** | `auto-instagram-posting` | `v1.24` | [https://auto-instagram-posting.buylife.xyz](https://auto-instagram-posting.buylife.xyz) | **플로우 위저드 스타일 (인스타 바이럴 변형)** | 다크(인스타 딥나이트 `#0d0f17` + 로즈/핑크 그라디언트) | 인스타 피드 사진 기획부터 본문 캡션, 해시태그, 예약 포스팅까지의 프로세스를 바이럴 감성으로 완주하기 위해 인스타 바이럴 플로우 위저드 채택. |
 
 ### 8. [쓰레드] 카테고리 (5개 프로그램)
 
@@ -167,7 +167,7 @@
 | **32** | **Threads AI 기획 자동화** | `threads-easy-planner` | `v1.43` | [https://threads-easy-planner.buylife.xyz](https://threads-easy-planner.buylife.xyz) | **스레드 바이럴 스튜디오 스타일 — 기획기 변형** | 라이트(화이트/블랙/앰버) | 초보자도 원클릭으로 Threads 첫 문장 훅과 CTA를 기획할 수 있도록 미니멀하고 가독성 높은 스레드 바이럴 스튜디오 기획기 변형 채택. |
 | **44** | **Threads 쇼핑제휴 자동화** | `threads-affiliate-poster` | `v1.62` | [https://threads-affiliate-poster.buylife.xyz](https://threads-affiliate-poster.buylife.xyz) | **스레드 바이럴 스튜디오 스타일 (쇼핑제휴 변형)** | 다크(모노블랙 `#171717` + 앰버 `#f59e0b`·블루 `#3b82f6`) | 수익형 제휴 링크(쿠팡/알리)가 포함된 쓰레드 글 작성을 모노블랙 환경에서 집중 작성하기 위해 쇼핑제휴 변형 스레드 바이럴 스튜디오 채택. |
 | **46** | **Threads 댓글자동화** | `threads-comment-reply` | `v1.10` | [https://threads-comment-reply.buylife.xyz](https://threads-comment-reply.buylife.xyz) | **스튜디오 댓글 콘솔 — 쓰레드 모노 변형 (youtube-auto-reply 구성 이식, Tailwind v3)** | 다크(`#101010` 흑백 + 흰 알약 버튼) | Threads 게시물 댓글 목록과 AI 링크 추천 답글을 흑백 모노톤으로 직관적으로 검수하기 위해 쓰레드 모노 스튜디오 댓글 콘솔 채택. |
-| **60** | **Threads 포스팅 자동화** | `auto-threads-posting` | `v1.18` | [https://threads-auto-poster.buylife.xyz](https://threads-auto-poster.buylife.xyz) | **스레드 바이럴 스튜디오 스타일** | 다크(모노블랙 `#171717` + 앰버 `#f59e0b`) | 스레드 글감 선택부터 AI 초안 작성, 1~3장 이미지 첨부, 즉시/예약 발행을 일관되게 진행하기 위해 스레드 바이럴 스튜디오 채택. |
+| **60** | **Threads 포스팅 자동화** | `auto-threads-posting` | `v1.18` | [https://auto-threads-posting.buylife.xyz](https://auto-threads-posting.buylife.xyz) | **스레드 바이럴 스튜디오 스타일** | 다크(모노블랙 `#171717` + 앰버 `#f59e0b`) | 스레드 글감 선택부터 AI 초안 작성, 1~3장 이미지 첨부, 즉시/예약 발행을 일관되게 진행하기 위해 스레드 바이럴 스튜디오 채택. |
 
 ### 9. [Tools] 카테고리 (9개 프로그램)
 
