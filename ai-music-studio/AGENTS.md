@@ -78,3 +78,6 @@
 
 ## 2026-10-23 v1.10 — Lyria RealTime(실험) 서버 녹음 (Claude Code 윈도우)
 - `lib/providers/lyriaRealtime.ts`(웹소켓 setup→weightedPrompts→config→PLAY→PCM 모으기→STOP→WAV, 연결 단계 거절만 v1alpha로 한 번 더), `adapters/gemini.ts`에서 `lyria-realtime-exp` 분기, `catalog.ts` 모델(10~120초). 시험 `tests/lyriaRealtime.test.mjs`(가짜 웹소켓). 크롬 시험 회원 30초 WAV 생성 성공(약 33초). 요금은 실험 모델이라 미공개 — 사용량 페이지로 확인.
+
+## 2026-10-23 v1.11 — 디자인 리뉴얼 「사운드 랩 바이올렛 스타일」 (Claude Code 윈도우, 음악 작업 담당)
+- 곡 만들기 2열·고정 요약 패널·휴대폰 하단 만들기 막대, 화면 아래 미니 플레이어(이어 듣기), 곡 카드 파형·공급자 색 띠, 안내 키 발급 3단계·자주 묻는 질문. 동작(생성·저장·링크·키)은 그대로. 상세 `docs/DESIGN_HANDOFF.md` 맨 위. 시험 33개·build·모바일 점검 0곳, 배포 Ready·DB v1.11. 비용: 빌드 1회.
