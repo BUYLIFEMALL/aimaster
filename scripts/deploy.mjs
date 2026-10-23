@@ -46,9 +46,13 @@ if (versionOnly && args.includes("--all")) {
     for (const l of all) realLog(l);
     // 긴 출력 뒤에도 판단이 바로 보이게 맨 끝에 한 줄 결론(2026-10-23)
     realLog("─".repeat(40));
-    realLog(safety.length
-      ? `🚨 결론: 저장소 안전 ${safety.length}건 — 확인 전 커밋·푸시 보류(맨 위 「저장소 안전」 묶음, 루트 CLAUDE.md 최상단)`
-      : `✅ 결론: 저장소 안전 이상 없음 — 커밋·푸시 진행 가능${rest.length ? ` (그 밖 ${rest.length}건은 각 담당 확인)` : ""}`);
+    // 「지금」 위험(스테이징이 지금 줄어 있음·안전장치 고장)만 보류 — 지난 축소 이력·되돌림 의심은 확인 필요일 뿐 모든 세션을 멈추지 않는다
+    const blocking = safety.filter((w) => /축소 감지|고장/.test(w));
+    realLog(blocking.length
+      ? `🚨 결론: 저장소 지금 위험 ${blocking.length}건 — 커밋·푸시 보류하고 주인님께(루트 CLAUDE.md 최상단)`
+      : safety.length
+        ? `✅ 결론: 커밋·푸시 진행 가능 — 저장소 안전 「확인 필요」 ${safety.length}건(지난 축소 이력·되돌림 의심, 자기 세션 커밋이면 확인)${rest.length ? ` · 그 밖 ${rest.length}건은 각 담당` : ""}`
+        : `✅ 결론: 저장소 안전 이상 없음 — 커밋·푸시 진행 가능${rest.length ? ` (그 밖 ${rest.length}건은 각 담당 확인)` : ""}`);
   };
   process.on("exit", () => { if (console.log !== realLog) flushLog(); }); // 중간 오류·조기 종료 때도 모은 출력을 보인다
   const { readdirSync } = await import("node:fs");
