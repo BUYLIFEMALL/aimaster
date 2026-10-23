@@ -5,7 +5,12 @@
 // NEXT_PUBLIC_* 값은 빌드할 때 박혀 들어가므로 화면 코드에서도 안전하게 쓸 수 있다.
 
 // 값 앞뒤 공백·보이지 않는 문자(BOM)는 지우고 비교한다 — 윈도우 마법사가 "﻿true"를 넣어 독립 모드가 꺼진 사례(2026-10-20 리허설)
-export const IS_STANDALONE = (process.env.NEXT_PUBLIC_STANDALONE_MODE ?? "").replace(/^﻿/, "").trim() === "true";
+export const IS_STANDALONE = (process.env.NEXT_PUBLIC_STANDALONE_MODE ?? "").replace(/^\uFEFF/, "").trim() === "true";
+
+/** 화면에 보이는 프로그램 이름. 운영은 기존 이름, 독립 운영(수강생 배포판)은 「ALLA AI」(2026-10-23 주인님 지시) — NEXT_PUBLIC_APP_NAME으로 바꿀 수 있음 */
+export const APP_NAME = IS_STANDALONE ? (process.env.NEXT_PUBLIC_APP_NAME ?? "").trim() || "ALLA AI" : "Threads AI 기획 자동화";
+/** 탭 제목·짧은 문장에 쓰는 이름 */
+export const APP_SHORT_NAME = IS_STANDALONE ? APP_NAME : "Threads AI 기획기";
 
 /** 화면에 보이는 운영자(브랜드) 이름. 운영은 "AIMaster", 독립 운영은 수강생이 정한 NEXT_PUBLIC_BRAND_NAME(비우면 표시 안 함). */
 export const BRAND_NAME = IS_STANDALONE ? (process.env.NEXT_PUBLIC_BRAND_NAME ?? "").trim() : "AIMaster";

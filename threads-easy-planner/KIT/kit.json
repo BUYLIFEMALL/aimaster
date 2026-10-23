@@ -1,7 +1,7 @@
 {
-  "title": "Threads AI 기획 자동화",
+  "title": "ALLA AI",
   "shortName": "threads-planner",
-  "description": "오늘의 주제 추천·5가지 첫 문장(훅) 글 세트 생성·원클릭 다시 쓰기·보관함",
+  "description": "Threads 글 기획 — 오늘의 주제 추천·5가지 첫 문장(훅) 글 세트·원클릭 다시 쓰기·글과 함께 이미지 생성·보관함",
   "authRedirectPath": "/auth/confirm",
   "checkTable": "tep_saved_plans",
   "nextStep": "내 사이트에서 회원가입 → 좌측 [API키 등록·관리]에서 AI 키 1개 저장 → [스레드 기획기]에서 첫 글을 만들어 보세요. 자세한 내용은 KIT\\README.md 3장부터.",

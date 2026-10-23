@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { APP_NAME, APP_SHORT_NAME } from "@/lib/deployment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export const metadata = {
-  title: "사용 매뉴얼 | Threads AI 기획 자동화",
-  description: "Threads AI 기획 자동화를 100% 활용하는 단계별 순서 가이드입니다.",
+  title: `사용 매뉴얼 | ${APP_NAME}`,
+  description: `${APP_NAME} 100% 활용 단계별 순서 가이드입니다.`,
 };
 
 export default function GuidePage() {
@@ -16,7 +17,7 @@ export default function GuidePage() {
         <div className="inline-flex items-center gap-2 mb-2">
           <span className="text-2xl">📖</span>
           <h1 className="text-2xl md:text-3xl font-black text-neutral-900 tracking-tight">
-            Threads AI 기획 자동화 사용 매뉴얼
+            {APP_NAME} 사용 매뉴얼
           </h1>
           <span className="rounded-full bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-0.5 ml-1">
             실전 순서 가이드
@@ -74,7 +75,7 @@ export default function GuidePage() {
             </div>
           </div>
           <p className="text-xs md:text-sm text-neutral-600 leading-relaxed">
-            Threads AI 기획기는 <strong>회원 본인의 API 키(BYOK)</strong>를 사용하여 고성능 AI 글을 무제한 생성합니다. 
+            {APP_SHORT_NAME}는 <strong>회원 본인의 API 키(BYOK)</strong>를 사용하여 고성능 AI 글을 무제한 생성합니다. 
             좌측 메뉴의 <strong>[🔑 API키 등록·관리]</strong>에서 OpenAI(GPT) 또는 Google Gemini 키를 한 번만 등록해 두시면 모든 기능이 즉시 활성화됩니다.
           </p>
           <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200 text-xs text-neutral-700 flex items-center justify-between gap-3">

@@ -375,3 +375,9 @@
 - **배포**: v1.48 Ready(빌드 1회), DB `programs.version` v1.48. 앞의 독립 모드 스위치(미배포 대기분)도 함께 나감.
 - **검수(크롬 실제 창, 시험 계정 buylifemall@naver.com 본인 키)**: GPT-4o-mini + NanoBanana 1K로 「세탁조 클리너」 → 글 생성 직후 이미지 자동 생성(실사·글자 없음·4:5) → 보관함 저장 → 보관함 썸네일, 로컬 캐시 확인 결과 DB id(uuid)·이미지 주소 운영 저장소. 못 한 것: OpenAI GPT Image 실생성, 2장 생성, 휴대폰 폭 화면.
 - **배포판**: `D:\PDS\AIMater_KIT\Threads_AI_Planner_Kit_v1.02.zip`(65개 파일) — `KIT/schema.sql`에 칸·버킷, v1.01 설치자용 `KIT/upgrade-20261023-images.sql`, README·PLATFORMS·PROMPTS(9장 이미지 프롬프트) 갱신. 비밀값·DB 대조(버킷 포함) 통과, 짧은 경로 독립 모드 `npm ci`+`build` 통과.
+
+## 2026-10-23 배포판 이름 「ALLA AI」 — Claude Code 윈도우 · 세션 `claude-win-20261023-tep-kit`
+- 주인님 지시 「프로그램 명은 ALLA AI로 배포판 이름 바꿔줘」. `src/lib/deployment.ts` `APP_NAME`(독립 모드 = `NEXT_PUBLIC_APP_NAME` 또는 기본 「ALLA AI」, 운영 = 「Threads AI 기획 자동화」)·`APP_SHORT_NAME`(운영 「Threads AI 기획기」)을 좌측 메뉴·모바일 메뉴·로그인 화면·탭 제목·보관함/매뉴얼 제목이 사용. 운영 화면 이름은 그대로.
+- 배포판: `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.03.zip`(65개 파일, 번호는 Threads_AI_Planner_Kit v1.02에서 이어감). `kit.json` title 「ALLA AI」, `shortName`(threads-planner)은 그대로 둬 v1.01·v1.02 설치본에서 업데이트 모드가 찾음. 압축 안 폴더 이름은 `threads-easy-planner` 그대로(포장 스크립트가 원본 폴더 이름 사용).
+- 확인: 압축을 풀어 독립 모드 build + `next start` → `/login` 탭 제목 「ALLA AI」, 「ALLA AI」 4건·옛 이름 0건.
+- 운영 배포: 미배포 대기(독립 모드 전용 — 운영 화면 변화 없음, 버전 그대로 v1.48).

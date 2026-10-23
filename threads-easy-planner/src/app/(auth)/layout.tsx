@@ -1,4 +1,4 @@
-import { IS_STANDALONE } from "@/lib/deployment";
+import { APP_NAME, IS_STANDALONE } from "@/lib/deployment";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +14,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-[440px]">
         <div className="mb-8 flex flex-col items-center text-center">
           <h1 className="mb-1 text-3xl font-extrabold tracking-tight text-[#005acc]">
-            Threads AI 기획 자동화
+            {APP_NAME}
           </h1>
           <p className="text-sm font-medium text-zinc-500">
             {IS_STANDALONE ? "이메일·비밀번호로 로그인하거나 회원가입하세요." : "AIMaster 계정(이메일·비밀번호)으로 로그인하세요."}
