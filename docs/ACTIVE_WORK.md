@@ -19,5 +19,4 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `naver-blog-agent/` + 운영 DB(ref `esgxyikcnnvmlhygjkth`) `nba_posts` 미발행 23행 · Storage `ai-image-generations/naver-blog-agent/`→`naver-blog-agent-media` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-nba-oldimg` | 2026-10-23 | 옛 이미지 주소 글 23건 새 버킷으로 이관(주인님 승인) + 정리 작업 파일 이름 시각 기준(미배포) |
-| `music/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-music-v145` | 2026-10-23 | 가로 넘침 수정 배포 v1.45(주인님 승인 빌드 1회) → 다음 확인점: 크롬 390px scrollX 0 |
 | `ai-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-avs-edit` | 2026-10-23 | 2차 영상 합치기 2-0·2-가(v1.04, 플랜 `ai-video-studio/docs/PLAN_20261023_EDIT_STUDIO.md`, 빌드 1회 승인) — 다음 확인점: Remotion 설치·빌드 |
