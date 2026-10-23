@@ -27,12 +27,17 @@
 ## 3. 단계 (한 단계씩, 단계마다 플랜 → 구현 → 윈도우 실물 시험 → 배포 → 크롬 검수 → 인수인계)
 | 단계 | 내용 | 배포 | 상태 |
 |---|---|---|---|
-| **1** | 공통 기반 + 각도 A(`audio`) → 마스터링 「⚡ 내 PC로 저장」(MP3·AAC·FLAC·WAV24, 음량 맞춤) | `video-to-gif` v1.22 · `ai-mastering-studio` v1.14 | **진행 중** — 플랜 `ai-mastering-studio/docs/PLAN_20261024_PC_RENDERER_AUDIO.md` |
+| **1** | 공통 기반 + 각도 A(`audio`) → 마스터링 「⚡ 내 PC로 저장」(MP3·AAC·FLAC·WAV24, 음량 맞춤) | `video-to-gif` v1.22 · `ai-mastering-studio` v1.14 | ✅ **배포 완료(2026-10-24)** — 실행기 1.10(윈도우 실물·맥 perl 1차 시험), 크롬 실물 변환은 크롬에 확장 설치 후 확인 남음. 플랜 `ai-mastering-studio/docs/PLAN_20261024_PC_RENDERER_AUDIO.md` |
 | 2 | 각도 B(`loop-mux`) → 플레이리스트 「빠른 긴 영상」, LP 턴테이블 「한 바퀴 그리고 반복」 | `video-to-gif` · `playlist-channel-studio` · `vinyl-lp-studio` | 대기 |
 | 3 | 각도 C(`slideshow`) → 음악 곡 + 이미지 비주얼라이저(AI 음악 스튜디오), 카드뉴스 → 릴스 | `video-to-gif` · `ai-music-studio` · `insta_auto_poster` | 대기(다른 담당 프로그램은 그 세션과 조율) |
 | 4 | 각도 D(`trim`·`concat`·`compress`) → 뮤직비디오 쇼츠 하이라이트, AI 영상 스튜디오 잇기 | `video-to-gif` · `music-video-studio` · `ai-video-studio` | 대기 |
 | 5 | 각도 A 넓히기 → AI 음악 스튜디오·SUNO 곡 형식 변환, 원스톱 내레이션 음량 | 각 프로그램 | 대기 |
 | 6 | 각도 E(`frames`) → 가사영상 길이 제한 해제 시제품, 효과 측정 후 다른 프로그램 | `lyric-video-studio` 등 | 검토 |
+
+## 3-1. 역할 나눔 (2026-10-24 확인)
+- 영상 담당 세션 `claude-win-video`가 같은 실행기에 영상 명령(`loop`·`normalize`·`scale`·`compress`)을 넣는 계획을 먼저 세워 두었다(아이디어 표 IDEA-VIDEO-LOCAL-01, 분석 `ai-video-studio/docs/ANALYSIS_20261024_LOCAL_RENDERER_FOR_VIDEO.md`). → **영상 명령과 영상 프로그램(무한 루프·AI 영상 스튜디오·Shots·원스톱)은 영상 담당**, **소리 명령과 음악 프로그램(마스터링·AI 음악 스튜디오·SUNO·플레이리스트·LP·가사영상·뮤직비디오)은 음악 담당(이 세션)**.
+- 두 세션이 같은 실행기 파일(`host.ps1`·`host.pl`)을 고치므로 **명령 하나 추가 = 커밋 하나**, 시작 전 작업 중 표에 `video-to-gif/`(범위: local-renderer/) 줄을 올리고, `HOST_VERSION`은 먼저 올린 쪽 다음 번호(+0.10)를 쓴다. 공용 연결 코드는 1단계에서 만든 `pc-renderer-client`(`ai-mastering-studio/src/lib/pcRenderer.ts`)를 함께 쓴다(`detectPcRenderer(need)`·`runPcJob(file, command)`).
+- 로드맵 2단계(`loop-mux`)는 영상 쪽 `loop` 명령과 겹치므로, 영상 담당이 `loop`을 만들면 그것을 플레이리스트·LP에 맞게 넓히는 방향으로 조율한다.
 
 ## 4. 지켜야 할 것
 - 회원 본인 PC·본인 파일만 처리, 서버 저장·AI 호출 없음(필요한 단계만 회원 본인 키). 비용은 배포 빌드뿐 — 단계마다 사전 보고.

@@ -374,3 +374,11 @@
 
 ## 📌 인수인계 (2026-10-24, 이커머스 담당 세션)
 - 이 세션(10-23~10-24)의 전체 정리·남은 일·환경·배운 점: [`docs/IMPROVEMENT_HANDOFF_20261024.md`](docs/IMPROVEMENT_HANDOFF_20261024.md). 다음 CLI는 이 문서부터 읽을 것.
+
+## 2026-10-24 v1.22 — 「내 PC 고속 변환」을 AIMaster 공용으로 (Claude Code 윈도우 · 음악 담당 `claude-win-20261024-music`, 주인님 「완성된 프로그램이니 이제 너가 진행해도 돼」)
+- 확장 이름 「AIMaster 내 PC 고속 변환」, 연결 허용을 `https://*.buylife.xyz`로(`background.js` 정규식 `^https://[a-z0-9-]+\.buylife\.xyz$` — http·다른 주소·흉내 낸 주소 거부 시험). 확장 ID·`key` 그대로 → 기존 설치자는 ZIP 덮어쓰기 + 새로고침.
+- 실행기 1.10(`host.ps1`·`host.pl` 둘 다): `pong.capabilities: ["gif","audio"]`, 새 명령 `audio`(format `mp3|aac|flac|wav`, bitrate 96~320, sampleRate 44100|48000, 선택 lufs 6~30·tp 0~3 → loudnorm 2번 방식, duration은 진행률용) — 명령 문자열 받지 않는 원칙 유지, 결과 `result`에 측정값(inputI·inputTP·inputLRA, 맞춤 시 outputI·outputTP·outputLRA)과 `ext`. GIF 약속은 그대로라 `MIN_HOST`·`MIN_EXTENSION` 그대로. 설치 안내 2곳의 확장 이름 교체(윈도우 ps1 BOM 유지).
+- 시험(이 PC): 윈도우 실행기 — 5초 시험 소리로 MP3(-35.8 → -14.0 LUFS, 2초)·AAC·FLAC·WAV24 모두 정확(ffprobe 44.1kHz 2채널 5초), 잘못된 형식·`320;rm` 거부, 기존 `gif` 명령 회귀 정상. 맥 실행기 — Git Bash perl로 같은 시험(결과 크기 동일). **실제 맥 확인은 맥미니 세션 요청 남음.** 이 PC 설치 실행기를 1.10으로 교체(이전 `%LOCALAPPDATA%\BuylifeGifRenderer\host.ps1.bak-1.00-20261024`).
+- 배포: 커밋 `28e5ba230`, `node scripts/build-local-renderer.mjs`(version.json extension v1.22·host 1.10), DB v1.22 + `extension_version` v1.22(크롬 SQL 편집기), `check-extension-release.mjs video-to-gif` 실패 0.
+- 웹 공용 연결 코드는 `pc-renderer-client`(기준 `ai-mastering-studio/src/lib/pcRenderer.ts`)로 새로 등록 — 이 프로그램의 `lib/localRenderer.ts`는 GIF 동작 불변을 위해 그대로 둠.
+- 로드맵: `docs/analysis-pc-renderer-20261024/ROADMAP.md`(각도 5가지·단계·영상 담당과 역할 나눔). 영상 명령(`loop` 등)은 영상 담당 `claude-win-video`(IDEA-VIDEO-LOCAL-01).

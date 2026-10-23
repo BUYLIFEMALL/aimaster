@@ -7,7 +7,7 @@
 |---|---|
 | 프로그램명 / slug | AI 마스터링 스튜디오 / `ai-mastering-studio` |
 | 카탈로그 번호 | 77번 |
-| 현재 버전 | **v1.10** (`package.json` = `src/lib/version.ts` = Supabase DB `programs.version`) |
+| 현재 버전 | **v1.14** (`package.json` = `src/lib/version.ts` = Supabase DB `programs.version`) |
 | 서비스 라이브 링크 | [AI 마스터링 스튜디오 바로가기](https://ai-mastering-studio.buylife.xyz) |
 | 디자인 콘셉트 | **사이버 네온 다크 콘솔 스타일 — 오디오 마스터링 콘솔 에디션 (Cyber Neon Dark Console Style — Audio Mastering Console Edition)** |
 | 배포 플랫폼 | Vercel (팀 `buylife`, 프로젝트 `ai-mastering-studio`, 배포 ID: `dpl_E6JZSt7m9z33pgdnA1bDV9nDRg9a`) |
@@ -140,3 +140,10 @@ ai-mastering-studio/
 
 ## 2026-10-23 v1.13 — 「연동 & 사용 매뉴얼」 메뉴 한 줄 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm)
 - 아이콘과 겹치던 📖 이모지 제거 + 한 줄 고정(`a33fd63ff`). 배포 `ai-mastering-studio-5yboet05u` Ready·DB v1.13. 크롬: 메뉴 「연동 & 사용 매뉴얼 GUIDE」 높이 58→42px, 글자 잘림 없음. 비용: 빌드 1회(승인).
+
+## 2026-10-24 v1.14 — 「⚡ 내 PC로 저장」 (Claude Code 윈도우 · 음악 담당 `claude-win-20261024-music`)
+- 마스터 결과 아래 「내 PC로 저장 (MP3·AAC·FLAC·WAV24, 무료)」 칸(`src/components/studio/PcExportPanel.tsx`): 형식 고르기 + 「유튜브·스트리밍 기준 음량으로 맞추기(-14 LUFS, 최대 -1 dBTP)」 → 마스터된 WAV를 「AIMaster 내 PC 고속 변환」(크롬 확장 → 회원 PC 실행기 1.10 → ffmpeg)으로 변환 → 파일 내려받기 + 측정값(맞춤 전 → 후). 확장·실행기·ffmpeg가 없거나 옛 실행기면 이유별 안내 + 설치 방법 링크(`video-to-gif.buylife.xyz/guide`), WAV 저장은 그대로. 서버·DB·AI 호출 없음, 파일은 PC 밖으로 나가지 않음.
+- 코드: 공용 기준 코드 `pc-renderer-client` 기준 파일 `src/lib/pcRenderer.ts`(새로 등록, 사본 없음) · 소리 전용 `src/lib/pcAudio.ts`(`buildAudioCommand`·`audioReport`(절댓값 기준 반올림)·`withExt`). 매뉴얼 자주 묻는 질문 한 줄.
+- 함께 나감: GUIDE 배지 띄어쓰기 수정 `b5b875484`(미배포 대기였음).
+- 검수: 시험 22(새 1)·tsc·build · 배포 `ai-mastering-studio-eprfsbanw` Ready·화면/DB v1.14 · 크롬(시험 계정): GUIDE 배지 금색 그라데이션·10px, 3초 시험 소리 업로드·처리 → 「내 PC로 저장」 칸에 확장 없음 안내(크롬에는 확장이 없음) 정상. **크롬에서 실제 MP3 변환 확인은 크롬에 확장 설치 후 남음**(윈도우 실행기 자체는 실물 시험 완료 — `video-to-gif/AGENTS.md` v1.22).
+- 플랜 `docs/PLAN_20261024_PC_RENDERER_AUDIO.md` · 로드맵 `docs/analysis-pc-renderer-20261024/ROADMAP.md`. 커밋 `f69e8f39f`.
