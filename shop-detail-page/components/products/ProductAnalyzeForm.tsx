@@ -211,6 +211,11 @@ export function ProductAnalyzeForm({
       setError("먼저 대표이미지를 업로드해주세요.");
       return;
     }
+    // v1.30(S-23-08): 상품명이 비면 섹션 이미지 문구가 엉뚱해지므로 상품명(또는 관리용 상품명)을 받는다
+    if (!fields.name.trim() && !productLabel.trim()) {
+      setError("상품명을 입력하거나 AI 분석으로 채운 뒤 저장해 주세요.");
+      return;
+    }
     setError(null);
     setIsSaving(true);
     try {
@@ -437,7 +442,9 @@ export function ProductAnalyzeForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">상품명</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              상품명 <span className="text-rose-500" title="필수">*</span>
+            </label>
             <input
               name="name"
               className="input-sm"
@@ -662,6 +669,12 @@ export function ProductAnalyzeForm({
       >
         {isSaving ? "상세페이지 프로젝트 저장 중..." : `✓ 상품정보 저장 후 ${LAYOUT_PRESETS[layoutPreset].short} 상세페이지 만들기`}
       </button>
+      {/* v1.30(S-23-08): 버튼이 꺼진 이유를 보여 준다 */}
+      {!sourceImageUrl && (
+        <p className="-mt-4 text-center text-xs text-slate-500">
+          저장하려면 <b>1. 대표이미지</b>와 <b>상품명</b>(<span className="text-rose-500">*</span>)이 필요합니다.
+        </p>
+      )}
     </form>
   );
 }

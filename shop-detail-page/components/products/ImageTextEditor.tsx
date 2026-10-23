@@ -5,6 +5,7 @@
 // 결과는 기존 「직접 등록」과 같은 길로 새 버전으로 저장된다(원본은 버전 목록에 남음).
 // v1.26: 덮는 색 선택지 — 바깥 색(기본)·안쪽 색·💧 이미지에서 찍기, 자동 색은 가장 많은 색.
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { imageSrc } from "@/lib/imageSrc";
 import { dominantColor } from "@/lib/dominantColor";
 
@@ -237,7 +238,8 @@ export function ImageTextEditor({
   const set = <K extends keyof TextEdit>(key: K, value: TextEdit[K]) =>
     setDraft((prev) => (prev ? { ...prev, [key]: value } : prev));
 
-  return (
+  // v1.30(S-23-05): 문서 맨 위(body)에 그려 하단 고정 내보내기 버튼 등 어떤 겹침 묶음보다 위에 오게 한다
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 p-2 sm:p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl p-4 sm:p-5 space-y-3 my-4">
         <div className="flex items-center justify-between gap-2">
@@ -354,6 +356,7 @@ export function ImageTextEditor({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -398,3 +398,12 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - `/products/new`: 분석 버튼 아래 「회원 본인 Gemini 키로 분석 1회(…소액)」, 모델 아래 금액표가 규격 따라 바뀜(15단 $2.01·$1.52 → 9단 $1.21·$0.91).
 - 500px: 새 상품·목록 가로 넘침 없음(493px), 목록 288px 지점.
 - 미확인: 실패 시 상태(생성해야 재현 — 함수 시험·코드 확인만). 텀블러의 기존 잘못된 「상세페이지 완성」은 다음 생성 때 바로잡힘. 비용: 이번 검수 없음.
+
+## 2026-10-23 v1.30 — 휴대폰·연계 묶음 (Claude Code 맥미니 · 배포 대기, 주인님 승인 「진행해」 — 빌드 1회)
+- 플랜 [`docs/PLAN_20261023_MOBILE_LINK.md`](docs/PLAN_20261023_MOBILE_LINK.md).
+- S-23-04 `SectionImageGrid.tsx`: 하단 고정 내보내기 줄을 휴대폰 폭에서 한 줄(`flex-row`)·작은 버튼(`py-2.5`, `text-xs`), 큰 버튼 문구는 휴대폰에서 「롱 이미지 병합 받기」(전체 문구는 `title`과 넓은 화면). `bottom-2`/`sm:bottom-4`.
+- S-23-05 `ImageTextEditor.tsx`: `createPortal(…, document.body)` — 어떤 겹침 묶음 안에서 열어도 하단 고정 버튼보다 위.
+- S-23-08 `ProductAnalyzeForm.tsx`: 상품명 `*`, 저장 때 상품명·관리용 상품명이 모두 비면 「상품명을 입력하거나 AI 분석으로 채운 뒤 저장해 주세요.」, 대표이미지가 없으면 저장 버튼 아래 조건 안내.
+- S-23-09: 사이드바 「영상→GIF 만들기 ↗」(`GIF_SENDER_ORIGIN/dashboard`, 새 탭), 섹션 목록 아래 「제품 영상을 움직이는 섹션으로 넣으려면 상세페이지 GIF 자동화 ↗에서 변환한 뒤 「🛍 상세페이지로」…」.
+- 버전 v1.30(SQL `supabase/migrations/20261023_mobile_link_v1_30.sql` — 버전만). 검수: tsc 0, eslint(바꾼 4파일) 0. 서버·DB 구조·AI 변경 없음.
+- **윈도우 CLI 다음 첫 단계**: SQL → `shop-detail-page` 배포 1회. 그 뒤 맥미니 크롬 실검수.

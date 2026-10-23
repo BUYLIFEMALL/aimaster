@@ -10,6 +10,7 @@ import {
 import { saveSectionSequenceAction } from "@/lib/actions/products";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ImageTextEditor } from "@/components/products/ImageTextEditor";
+import { GIF_SENDER_ORIGIN } from "@/lib/gifHandoff";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
@@ -630,6 +631,20 @@ export function SectionImageGrid({
         })}
       </div>
 
+      {/* v1.30(S-23-09): 상세페이지 쪽에서도 GIF 자동화로 가는 길 */}
+      <p className="text-[11px] text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+        🎞️ 제품 영상을 움직이는 섹션으로 넣으려면{" "}
+        <a
+          href={`${GIF_SENDER_ORIGIN}/dashboard`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-bold text-indigo-700 underline underline-offset-2 hover:text-indigo-900"
+        >
+          상세페이지 GIF 자동화 ↗
+        </a>
+        에서 변환한 뒤 「🛍 상세페이지로」를 누르면 이 상품의 섹션을 골라 바로 넣을 수 있습니다.
+      </p>
+
       {/* 최종 병합 다운로드 버튼 (하단 고정형 시각화) */}
       {hasAnyImage && hasGif && (
         <p className="text-[11px] text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2">
@@ -637,21 +652,24 @@ export function SectionImageGrid({
         </p>
       )}
       {hasAnyImage && (
-        <div className="sticky bottom-4 z-20 pt-4 flex flex-col sm:flex-row gap-2">
+        // v1.30(S-23-04): 휴대폰 폭에서는 두 버튼을 한 줄에 작게(예전엔 두 줄로 화면 높이 24%를 가림)
+        <div className="sticky bottom-2 sm:bottom-4 z-20 pt-3 sm:pt-4 flex flex-row gap-2">
           <a
             href={`/api/products/${productId}/export`}
-            className="flex flex-1 items-center justify-center gap-2 text-center text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 px-6 py-4 rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-[1.01] active:scale-[0.99]"
+            title={`선택한 이미지로 최종 ${templates.length}단 상세페이지 세로 롱 이미지(860px) 병합 & 다운로드`}
+            className="flex flex-1 min-w-0 items-center justify-center gap-1.5 sm:gap-2 text-center text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 px-3 py-2.5 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-[1.01] active:scale-[0.99]"
           >
-            <span className="text-lg">📥</span>
-            <span>선택한 이미지로 최종 {templates.length}단 상세페이지 세로 롱 이미지(860px) 병합 & 다운로드</span>
+            <span className="text-base sm:text-lg">📥</span>
+            <span className="sm:hidden">롱 이미지 병합 받기</span>
+            <span className="hidden sm:inline">선택한 이미지로 최종 {templates.length}단 상세페이지 세로 롱 이미지(860px) 병합 & 다운로드</span>
           </a>
           {/* v1.21: 섹션마다 가로 860px JPG로 맞춰 번호 순서대로 ZIP 하나에(긴 한 장 대신 여러 장으로 올릴 때) */}
           <a
             href={`/api/products/${productId}/export-zip`}
             title="섹션마다 가로 860px JPG로 맞춰 01, 02… 순서로 ZIP 하나에 담아 받습니다(GIF는 원본 그대로)"
-            className="flex items-center justify-center gap-2 text-center text-sm font-bold text-indigo-700 bg-white hover:bg-indigo-50 border border-indigo-200 px-5 py-4 rounded-2xl shadow-xl shadow-blue-500/10 transition-all whitespace-nowrap shrink-0"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 text-center text-xs sm:text-sm font-bold text-indigo-700 bg-white hover:bg-indigo-50 border border-indigo-200 px-3 py-2.5 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/10 transition-all whitespace-nowrap shrink-0"
           >
-            <span className="text-lg">📦</span>
+            <span className="text-base sm:text-lg">📦</span>
             <span>섹션별 ZIP</span>
           </a>
         </div>

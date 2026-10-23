@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Film,
@@ -148,6 +148,16 @@ export default function ConverterWorkspace() {
   const [dragging, setDragging] = useState(false);
 
   const totalBytes = useMemo(() => jobs.reduce((sum, job) => sum + job.size, 0), [jobs]);
+
+  // G-23-06: 미리보기 창은 Esc로도 닫는다(「닫기」 버튼과 같음)
+  useEffect(() => {
+    if (!previewJob) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPreviewJob(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [previewJob]);
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const loadingRef = useRef<Promise<FFmpeg> | null>(null);
 

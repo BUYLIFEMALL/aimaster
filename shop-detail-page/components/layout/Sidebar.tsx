@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
+import { GIF_SENDER_ORIGIN } from "@/lib/gifHandoff";
 import {
   ScanSearch,
   LayoutGrid,
@@ -15,6 +16,8 @@ import {
   Sparkles,
   Menu,
   X,
+  Film,
+  ExternalLink,
 } from "lucide-react";
 
 const FLOW_STEPS = [
@@ -180,6 +183,18 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 </Link>
               );
             })}
+            {/* v1.30(S-23-09): 영상 → GIF는 상세페이지 GIF 자동화에서(새 탭). 변환 뒤 「상세페이지로」로 섹션에 바로 넣음 */}
+            <a
+              href={`${GIF_SENDER_ORIGIN}/dashboard`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all"
+            >
+              <Film size={16} className="text-violet-600" />
+              <span>영상→GIF 만들기</span>
+              <ExternalLink size={12} className="ml-auto text-slate-400" />
+            </a>
           </div>
 
           {/* 접속 계정 정보 및 로그아웃 (메뉴 바로 아래 바짝 밀착) */}
