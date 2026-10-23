@@ -18,4 +18,3 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `ai-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-avs-edit` | 2026-10-23 | 2차 영상 합치기 2-0·2-가(v1.04, 플랜 `ai-video-studio/docs/PLAN_20261023_EDIT_STUDIO.md`, 빌드 1회 승인) — 다음 확인점: Remotion 설치·빌드 |
