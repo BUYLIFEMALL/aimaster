@@ -16,7 +16,9 @@ test("장면 비용·단가 표시", () => {
   assert.equal(priceLabel(lite), "초당 $0.036 · 5초 약 $0.18");
   assert.equal(priceLabel(findVideoModel(DEFAULT_VIDEO_MODEL)!), "초당 $0.10 · 5초 약 $0.50");
   assert.equal(priceLabel(findVideoModel("fal-ai/kling-video/o3/standard/image-to-video")!), "초당 $0.14 · 5초 약 $0.70");
-  const kling = findVideoModel("kwaivgi/kling-v2.1")!;
+  // 끝 화면 단가가 따로 있는 모델(옛 Kling v2.1 값) — 2026-10-24 업체 종료로 목록에서 빠져 시험용 객체로 규칙만 확인
+  const kling = { ...lite, perSec: 0.05, perSecEnd: 0.09, endFrame: true };
+  assert.equal(findVideoModel("kwaivgi/kling-v2.1"), undefined);
   assert.equal(sceneCost(kling, false), 0.25);
   assert.equal(sceneCost(kling, true), 0.45); // 끝 화면은 pro 단가
   assert.equal(wonLabel(0.5), "약 700원");
@@ -24,7 +26,7 @@ test("장면 비용·단가 표시", () => {
 
 test("v1.25 영상 길이: 장면에 맞춤·고정·모델 제한", () => {
   const gem = findVideoModel(DEFAULT_VIDEO_MODEL)!;
-  const kling21 = findVideoModel("kwaivgi/kling-v2.1")!;
+  const kling21 = { ...gem, durations: [5, 10], perSec: 0.05, perSecEnd: 0.09 }; // 5·10초만·끝 화면 단가 따로(옛 Kling v2.1 값, 시험용)
   assert.equal(pickSeconds(gem, "fit", 4.2), 5);
   assert.equal(pickSeconds(gem, "fit", 5.03), 5); // 0.05초 여유
   assert.equal(pickSeconds(gem, "fit", 6.5), 8);

@@ -19,11 +19,11 @@ test("Gemini와 글→영상 주소가 있는 fal 모델만 글만으로 생성,
 
 test("비율 선택: Gemini·Seedance만, Kling은 사진 비율을 따름", () => {
   assert.deepEqual(findModel("fal-ai/bytedance/seedance/v1.5/pro/image-to-video").aspects, ["16:9", "9:16"]);
-  assert.deepEqual(findModel("kwaivgi/kling-v2.1").aspects, []);
+  assert.deepEqual(findModel("fal-ai/kling-video/o3/standard/image-to-video").aspects, []);
 });
 
 test("길이: 모델이 받는 값만, 아니면 첫 값", () => {
-  const k = findModel("kwaivgi/kling-v2.1");
+  const k = findModel("minimax/h3/image-to-video"); // 5·10초만(2026-10-24 Kling v2.1 업체 종료로 교체)
   assert.equal(clampSeconds(k, 10), 10);
   assert.equal(clampSeconds(k, 8), 5);
   assert.equal(clampSeconds(k, "10"), 5);
@@ -31,8 +31,16 @@ test("길이: 모델이 받는 값만, 아니면 첫 값", () => {
 
 test("예상 비용: 초당 단가 × 길이, 끝 장면 단가 따로", () => {
   assert.equal(estCostUsd(findModel("gemini-omni-1.1-flash"), 5, false), 0.5);
-  assert.equal(estCostUsd(findModel("kwaivgi/kling-v2.1"), 5, true), 0.45);
-  assert.equal(estCostUsd(findModel("kwaivgi/kling-v2.1"), 5, false), 0.25);
+  // 끝 장면 단가가 따로 있는 모델(옛 Kling v2.1 값) — 지금 목록에는 없어 시험용 객체로 규칙만 확인
+  const withEndRate = { ...findModel("fal-ai/kling-video/o3/standard/image-to-video"), perSec: 0.05, perSecEnd: 0.09 };
+  assert.equal(estCostUsd(withEndRate, 5, true), 0.45);
+  assert.equal(estCostUsd(withEndRate, 5, false), 0.25);
+});
+
+test("2026-10-24 Replicate Kling v2.1은 업체 서비스 종료로 목록에 없다(공용·스튜디오 모두)", () => {
+  assert.equal(findModel("kwaivgi/kling-v2.1"), undefined);
+  assert.ok(!VIDEO_MODELS.some((m) => m.id === "kwaivgi/kling-v2.1"));
+  assert.ok(!MODELS.some((m) => m.id === "kwaivgi/kling-v2.1"));
 });
 
 test("모르는 모델은 찾지 않는다", () => {
