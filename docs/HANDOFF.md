@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 ✅ Claude Code(윈도우) · 영상 작업 담당 `claude-win-avs-c12` — AI 영상 스튜디오 v1.08 소리 켜기·글만으로 영상
+- fal 4개 모델(Kling 3.0·Seedance 2.0·Veo 3.1·Wan 3.0)에 「소리도 함께 만들기」(기본 끔, 소리 단가 반영: Kling 3.0 $0.126/초·Veo 3.1 $0.40/초)와 사진 없이 글만으로 생성(fal 글→영상 주소). 공용 `ai-video-models`·`ai-video-providers` 수정, 사본 4곳(AI 이미지 스튜디오·쇼츠 원스톱·shots·뮤직비디오)은 동작 불변이라 미배포 대기. 커밋 `fd1f3cb67`, 시험 25개 통과.
+- 검수(운영, 메인 크롬, 시험 계정 fal 키): 배포 `ai-video-studio-223fxl5fq` Ready·화면/DB v1.08. Wan 3.0 480p 5초로 ① 글만으로+소리 → 5.04초 854×480·스테레오 소리·바닷가 화면 ② 사진으로 시작+소리 → 5.04초·소리 있음.
+- 상세: [`ai-video-studio/AGENTS.md`](../ai-video-studio/AGENTS.md) v1.08 · https://ai-video-studio.buylife.xyz
+- 다음(승인 전 후보): 자르기 막대 끌기(AI 비용 없음) → 뮤직비디오 BPM 장면 전환. 영상 담당 남은 목록은 `ai-video-studio/docs/IMPROVEMENT_BACKLOG.md`.
+- 비용: Vercel 빌드 1회, 시험 계정 fal 영상 2회(약 $0.50), 모두 승인 범위 안.
 ## 2026-10-23 Claude Code(윈도우) — 블로그 병합 묶음 A-1·A-2 → 네이버 블로그 에이전트 v2.16 배포 · 세션 `claude-win-20261023-blog2`
 - A-1 참고 URL(본문을 실제로 읽어 근거로 — BLOG는 주소 글자만 넘겼음)·추가 지시, A-2 주제로 최근 72시간 구글 뉴스 제목 최대 8건 근거(BLOG의 추정 점수 제외). 배포 Ready `naver-blog-agent-5vxc7vkrv`(빌드 1회), DB·확장·ZIP v2.16 OK, 크롬에서 입력칸·체크·v2.16 확인.
 - 실측(gpt-4o-mini 각 1회, 저장 안 함): A-1 위키 본문 근거 반영·없는 주소 실패 처리 OK / A-2 실제 뉴스 8건 반영, 단 제목뿐인 근거라 맥락을 거꾸로 쓴 문장 1개(검수 못 잡음) → 화면에 사실 확인 안내만 추가, 기사 본문 읽기는 개선 후보.
