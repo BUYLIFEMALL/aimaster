@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Check, Clapperboard, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
+import { AlertCircle, Check, Clapperboard, History, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { MODELS, PROVIDERS, clampSeconds, estCostUsd, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
+import { SAFETY } from "@/lib/promptPolish";
+import { reuseFromGeneration } from "@/lib/reuse";
 import { GenerationCard } from "./GenerationCard";
-
-const SAFETY = "If people appear, depict them as Korean. No on-screen text, no subtitles, no logos.";
 
 // 1단계 프리셋 — 영상 설명에 덧붙는 영문 지시(이 프로그램 고유 문구, 다른 프로그램과 공유하지 않음)
 const STYLES = [
@@ -76,7 +76,7 @@ function ImageSlot({ label, value, onChange, required }: { label: string; value:
   );
 }
 
-export function CreateStudio() {
+export function CreateStudio({ fromId = null }: { fromId?: string | null }) {
   const [idea, setIdea] = useState("");
   const [styleId, setStyleId] = useState<string | null>("cinematic");
   const [cameraId, setCameraId] = useState<string | null>("push");
@@ -95,7 +95,9 @@ export function CreateStudio() {
   const [results, setResults] = useState<ClientGeneration[]>([]);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // v1.10 영상 설명 AI 다듬기 — basis: 다듬을 때의 설명·화풍·카메라(바뀌면 「다시 다듬기」 표시)
-  const [polished, setPolished] = useState<{ prompt: string; note: string; basis: string } | null>(null);
+  // options: 다듬기 3안(v1.11) · pick: 고른 안 번호(직접 고치면 그대로 둠)
+  const [polished, setPolished] = useState<{ prompt: string; note: string; basis: string; options: { prompt: string; note: string }[]; pick: number } | null>(null);
+  const [reuseNotice, setReuseNotice] = useState<{ text: string; ok: boolean } | null>(null);
   const [usePolished, setUsePolished] = useState(true);
   const [polishing, setPolishing] = useState(false);
   const [polishError, setPolishError] = useState<{ text: string; keys?: boolean } | null>(null);
@@ -131,7 +133,8 @@ export function CreateStudio() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw Object.assign(new Error(data.error || "설명을 다듬지 못했습니다."), { keys: !!data.needKey });
-      setPolished({ prompt: data.prompt, note: data.note ?? "", basis });
+      const options: { prompt: string; note: string }[] = Array.isArray(data.options) && data.options.length ? data.options : [{ prompt: data.prompt, note: data.note ?? "" }];
+      setPolished({ prompt: options[0].prompt, note: options[0].note, basis, options, pick: 0 });
       setUsePolished(true);
     } catch (e) {
       setPolishError({ text: e instanceof Error ? e.message : "설명을 다듬지 못했습니다.", keys: (e as { keys?: boolean }).keys });
@@ -168,6 +171,35 @@ export function CreateStudio() {
 
   useEffect(() => () => { if (pollRef.current) clearTimeout(pollRef.current); }, []);
 
+  // 갤러리 「이 설정으로 다시 만들기」(v1.11) — 내 기록만 불러온다(서버가 user_id로 거름). 사진은 다시 넣게 한다
+  useEffect(() => {
+    if (!fromId) return;
+    let alive = true;
+    fetch(`/api/generations?ids=${fromId}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!alive) return;
+        const g = (d.generations as ClientGeneration[] | undefined)?.find((x) => x.id === fromId);
+        if (!g) { setReuseNotice({ text: "이전 기록을 찾지 못했습니다(30일이 지나 지워졌을 수 있습니다).", ok: false }); return; }
+        const f = reuseFromGeneration(g);
+        const m = MODELS.find((x) => x.id === f.model);
+        const st = STYLES.some((x) => x.id === f.styleId) ? f.styleId : null;
+        const cam = CAMERAS.some((x) => x.id === f.cameraId) ? f.cameraId : null;
+        setIdea(f.idea);
+        setStyleId(st);
+        setCameraId(cam);
+        if (m) { setProviderId(m.provider); setModelId(m.id); setSeconds(f.seconds); }
+        if (f.aspect === "16:9" || f.aspect === "9:16") setAspect(f.aspect);
+        setResolution(f.resolution);
+        setAudio(f.audio);
+        setPolished(f.polishedPrompt ? { prompt: f.polishedPrompt, note: "이전에 다듬어 쓴 설명입니다.", basis: `${f.idea.trim()}|${st ?? ""}|${cam ?? ""}`, options: [], pick: -1 } : null);
+        setUsePolished(true);
+        setReuseNotice({ text: `「${g.prompt.slice(0, 24)}…」 설정을 불러왔습니다.${m ? "" : " (지금은 없는 모델이라 모델은 다시 골라 주세요)"} 사진은 다시 넣어 주세요.`, ok: true });
+      })
+      .catch(() => alive && setReuseNotice({ text: "이전 기록을 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요.", ok: false }));
+    return () => { alive = false; };
+  }, [fromId]);
+
   function check(): string | null {
     if (idea.trim().length < 2) return "1단계에서 만들 영상을 설명해 주세요.";
     if (model.needsImage && !startImage) return `${model.name}은(는) 시작 장면 사진이 필요합니다.`;
@@ -182,7 +214,10 @@ export function CreateStudio() {
       const res = await fetch("/api/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: model.id, prompt: finalPrompt, seconds: sec, aspectRatio: aspect, resolution: pickedRes, audio: withAudio, startImage, endImage: model.endFrame ? endImage : null }),
+        body: JSON.stringify({
+          model: model.id, prompt: finalPrompt, seconds: sec, aspectRatio: aspect, resolution: pickedRes, audio: withAudio, startImage, endImage: model.endFrame ? endImage : null,
+          reuse: { idea, styleId, cameraId, polishedPrompt: polishedOn && polished ? polished.prompt : undefined },
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw Object.assign(new Error(data.error || "생성을 시작하지 못했습니다."), { keys: !!data.missingKeys });
@@ -212,6 +247,11 @@ export function CreateStudio() {
       {/* 1단계 */}
       <section className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 md:p-5">
         <h2 className="flex items-center gap-2 text-sm font-bold text-zinc-200"><span className="rounded-md bg-sky-500/15 px-2 py-0.5 text-[11px] text-sky-200">Step 1</span> 어떤 영상을 만들까요?</h2>
+        {reuseNotice && (
+          <p role="status" className={`flex items-start gap-2 rounded-xl border p-3 text-xs ${reuseNotice.ok ? "border-sky-500/30 bg-sky-500/5 text-sky-100" : "border-amber-500/30 bg-amber-500/5 text-amber-200"}`}>
+            <History className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" /> {reuseNotice.text}
+          </p>
+        )}
         <textarea id="video-idea" value={idea} onChange={(e) => setIdea(e.target.value)} rows={3} maxLength={1200}
           placeholder="예) 비 오는 서울 밤거리를 우산을 쓰고 천천히 걷는 여성, 네온 불빛이 젖은 바닥에 비친다"
           className="w-full rounded-xl border border-zinc-700 bg-zinc-950/60 p-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-sky-500/60 focus:outline-none" />
@@ -253,9 +293,17 @@ export function CreateStudio() {
                 </label>
                 <button type="button" onClick={() => setPolished(null)} className="text-[11px] text-zinc-400 hover:text-zinc-200">지우기</button>
               </div>
+              {polished.options.length > 1 && (
+                <div className="flex flex-wrap items-center gap-2" role="group" aria-label="다듬은 안 고르기">
+                  <span className="text-[11px] text-zinc-400">다듬은 안:</span>
+                  {polished.options.map((o, i) => (
+                    <button key={i} type="button" aria-pressed={polished.pick === i} onClick={() => setPolished({ ...polished, prompt: o.prompt, note: o.note, pick: i })} className={chip(polished.pick === i)}>안 {i + 1}</button>
+                  ))}
+                </div>
+              )}
               {polished.note && <p className="text-[11px] text-sky-200/80">{polished.note}</p>}
               {polished.basis !== basis && <p className="text-[11px] text-amber-300">설명·화풍·카메라가 바뀌었습니다 — 「AI로 다시 다듬기」를 눌러 맞춰 주세요.</p>}
-              <textarea aria-label="다듬은 영상 설명(영어)" value={polished.prompt} onChange={(e) => setPolished({ ...polished, prompt: e.target.value })} rows={4} maxLength={1200}
+              <textarea aria-label="다듬은 영상 설명(영어)" value={polished.prompt} onChange={(e) => setPolished({ ...polished, prompt: e.target.value, pick: -1, note: "" })} rows={4} maxLength={1200}
                 className="w-full rounded-lg border border-zinc-700 bg-zinc-950/60 p-2.5 text-xs leading-relaxed text-zinc-100 focus:border-sky-500/60 focus:outline-none" />
             </div>
           )}

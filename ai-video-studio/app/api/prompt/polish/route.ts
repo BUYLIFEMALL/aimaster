@@ -8,7 +8,7 @@ export const maxDuration = 60;
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** 영상 설명 AI 다듬기(v1.10) — 회원 본인 Gemini 키로 영어 영상 설명을 만든다. 자동 재시도 없음 */
+/** 영상 설명 AI 다듬기(v1.10, v1.11부터 3안) — 회원 본인 Gemini 키로 영어 영상 설명을 만든다. 자동 재시도 없음 */
 export async function POST(request: Request) {
   const { user, errorResponse } = await checkProgramAccessApi();
   if (errorResponse) return errorResponse;
@@ -38,9 +38,10 @@ export async function POST(request: Request) {
         : "Gemini가 응답하지 않았습니다. 잠시 뒤 다시 시도해 주세요.";
     return NextResponse.json({ error: msg }, { status: res.status === 429 ? 429 : 502 });
   }
-  const result = parsePolishResponse(await res.json().catch(() => null));
-  if (!result) return NextResponse.json({ error: "AI가 다듬은 설명을 돌려주지 않았습니다. 다시 눌러 주세요." }, { status: 502 });
+  const options = parsePolishResponse(await res.json().catch(() => null));
+  if (!options.length) return NextResponse.json({ error: "AI가 다듬은 설명을 돌려주지 않았습니다. 다시 눌러 주세요." }, { status: 502 });
 
-  await logProgramUsage(user.id, "prompt_polish", 1, { model: POLISH_MODEL, chars: idea.length });
-  return NextResponse.json(result, { headers: { "Cache-Control": "private, no-store" } });
+  await logProgramUsage(user.id, "prompt_polish", 1, { model: POLISH_MODEL, chars: idea.length, options: options.length });
+  // options: 다듬은 안 목록(v1.11). prompt·note는 첫 안(예전 화면 호환)
+  return NextResponse.json({ options, prompt: options[0].prompt, note: options[0].note }, { headers: { "Cache-Control": "private, no-store" } });
 }

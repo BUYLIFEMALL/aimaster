@@ -3,6 +3,7 @@ import { checkProgramAccessApi, getUserApiKey, logProgramUsage } from "@/lib/acc
 import { createAdminClient } from "@/lib/supabase/server";
 import { PROVIDERS, clampSeconds, estCostUsd, findModel, pickResolution, type AspectRatio } from "@/lib/providers/catalog";
 import { BUCKET, advance, startJob, toClient, type GenerationRow } from "@/lib/generations";
+import { sanitizeReuse } from "@/lib/reuse";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -137,7 +138,8 @@ export async function POST(request: Request) {
       duration_s: seconds,
       start_image: startPath,
       end_image: endPath,
-      options: { ...(resolution ? { resolution } : {}), ...(audio ? { audio: true } : {}) },
+      // reuse: 「이 설정으로 다시 만들기」용 처음 설명·화풍·카메라·다듬은 설명(v1.11, 업체에는 보내지 않음)
+      options: { ...(resolution ? { resolution } : {}), ...(audio ? { audio: true } : {}), ...sanitizeReuse(body.reuse) },
       est_cost_usd: estCostUsd(model, seconds, withEnd, resolution, audio),
     })
     .select("*")

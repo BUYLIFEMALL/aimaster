@@ -15,6 +15,7 @@ test("요청 본문: 설명·화풍·카메라·길이·사진 여부가 들어�
   assert.equal(b.generationConfig.responseMimeType, "application/json");
   assert.match(b.systemInstruction.parts[0].text, /Korean/);
   assert.match(b.systemInstruction.parts[0].text, /no|Never/);
+  assert.match(b.systemInstruction.parts[0].text, /3 clearly different versions/);
 });
 
 test("요청 본문: 화풍·카메라·사진이 없으면 그 줄을 빼고, 설명은 최대 길이로 자른다", () => {
@@ -24,25 +25,36 @@ test("요청 본문: 화풍·카메라·사진이 없으면 그 줄을 빼고, �
   assert.equal(text.split("\n")[0].length, "Idea (Korean): ".length + POLISH_MAX);
 });
 
-test("응답 해석: 정상 JSON, 코드 블록 감싼 JSON", () => {
-  const ok = parsePolishResponse(reply('{"prompt":"A young Korean woman walks slowly\\n under an umbrella.","note":"빛과 걸음걸이를 보강했습니다."}'));
-  assert.deepEqual(ok, { prompt: "A young Korean woman walks slowly under an umbrella.", note: "빛과 걸음걸이를 보강했습니다." });
-  const fenced = parsePolishResponse(reply('```json\n{"prompt":"Snow falls gently on a hanok courtyard."}\n```'));
-  assert.equal(fenced.prompt, "Snow falls gently on a hanok courtyard.");
-  assert.equal(fenced.note, "");
+test("응답 해석: 3안 형식, 같은 설명은 하나만, 최대 3개", () => {
+  const opts = [
+    { prompt: "Calm version of a hanok courtyard in snow.", note: "차분하게" },
+    { prompt: "Dynamic version with swirling snow and wind.", note: "역동적으로" },
+    { prompt: "Calm version of a hanok courtyard in snow.", note: "중복" },
+    { prompt: "Moody version lit by warm lanterns at dusk.", note: "분위기" },
+    { prompt: "Fourth version that should be dropped here." },
+  ];
+  const r = parsePolishResponse(reply(JSON.stringify({ options: opts })));
+  assert.deepEqual(r.map((x) => x.note), ["차분하게", "역동적으로", "분위기"]);
 });
 
-test("응답 해석: 빈 응답·깨진 JSON·너무 짧은 설명은 null", () => {
-  assert.equal(parsePolishResponse({}), null);
-  assert.equal(parsePolishResponse(reply("")), null);
-  assert.equal(parsePolishResponse(reply("not json")), null);
-  assert.equal(parsePolishResponse(reply('{"prompt":"short"}')), null);
-  assert.equal(parsePolishResponse(reply('{"prompt":123}')), null);
+test("응답 해석: 예전 1안 형식·코드 블록도 받는다", () => {
+  const ok = parsePolishResponse(reply('{"prompt":"A young Korean woman walks slowly\\n under an umbrella.","note":"빛과 걸음걸이를 보강했습니다."}'));
+  assert.deepEqual(ok, [{ prompt: "A young Korean woman walks slowly under an umbrella.", note: "빛과 걸음걸이를 보강했습니다." }]);
+  const fenced = parsePolishResponse(reply('```json\n{"options":[{"prompt":"Snow falls gently on a hanok courtyard."}]}\n```'));
+  assert.deepEqual(fenced, [{ prompt: "Snow falls gently on a hanok courtyard.", note: "" }]);
+});
+
+test("응답 해석: 빈 응답·깨진 JSON·너무 짧은 설명은 빈 목록", () => {
+  assert.deepEqual(parsePolishResponse({}), []);
+  assert.deepEqual(parsePolishResponse(reply("")), []);
+  assert.deepEqual(parsePolishResponse(reply("not json")), []);
+  assert.deepEqual(parsePolishResponse(reply('{"prompt":"short"}')), []);
+  assert.deepEqual(parsePolishResponse(reply('{"options":[{"prompt":123}]}')), []);
 });
 
 test("응답 해석: 긴 설명은 최대 길이로 자른다", () => {
-  const r = parsePolishResponse(reply(JSON.stringify({ prompt: "a".repeat(POLISH_MAX + 100) })));
-  assert.equal(r.prompt.length, POLISH_MAX);
+  const r = parsePolishResponse(reply(JSON.stringify({ options: [{ prompt: "a".repeat(POLISH_MAX + 100) }] })));
+  assert.equal(r[0].prompt.length, POLISH_MAX);
 });
 
 test("오래 걸림 판단: 240초부터", () => {

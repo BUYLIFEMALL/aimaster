@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, CheckCircle2, Download, Layers, Loader2, Trash2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Download, Layers, Loader2, RotateCcw, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { PROVIDERS } from "@/lib/providers/catalog";
 import { isSlow } from "@/lib/promptPolish";
@@ -93,13 +93,20 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
         <p role="alert" className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-xs leading-relaxed text-red-300">{gen.error_message}</p>
       )}
 
-      {video?.downloadUrl && (
+      {(video?.downloadUrl || gen.status === "failed") && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <a href={video.downloadUrl} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
-            <Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기 MP4 ({(video.bytes / 1_048_576).toFixed(1)}MB)
-          </a>
-          <Link href={`/edit?add=${gen.id}`} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
-            <Layers className="h-3.5 w-3.5" aria-hidden="true" /> 합치기에 넣기
+          {video?.downloadUrl && (
+            <>
+              <a href={video.downloadUrl} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
+                <Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기 MP4 ({(video.bytes / 1_048_576).toFixed(1)}MB)
+              </a>
+              <Link href={`/edit?add=${gen.id}`} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
+                <Layers className="h-3.5 w-3.5" aria-hidden="true" /> 합치기에 넣기
+              </Link>
+            </>
+          )}
+          <Link href={`/create?from=${gen.id}`} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> 이 설정으로 다시 만들기
           </Link>
         </div>
       )}

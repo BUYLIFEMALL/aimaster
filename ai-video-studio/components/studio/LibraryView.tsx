@@ -13,6 +13,8 @@ export function LibraryView() {
   const [items, setItems] = useState<ClientGeneration[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  // v1.11 모델별 거르기 — null이면 모든 모델. 상태 거르기와 함께 적용
+  const [modelFilter, setModelFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -39,7 +41,10 @@ export function LibraryView() {
     return () => { if (timer.current) clearTimeout(timer.current); };
   }, [load]);
 
-  const shown = (items ?? []).filter((g) => filter === "all" || g.status === filter);
+  const shown = (items ?? []).filter((g) => (filter === "all" || g.status === filter) && (!modelFilter || g.model === modelFilter));
+  const models = Array.from(
+    (items ?? []).reduce((m, g) => m.set(g.model, { name: g.modelName, count: (m.get(g.model)?.count ?? 0) + 1 }), new Map<string, { name: string; count: number }>()),
+  ).sort((a, b) => b[1].count - a[1].count);
   const counts = {
     all: items?.length ?? 0,
     completed: items?.filter((g) => g.status === "completed").length ?? 0,
@@ -76,15 +81,28 @@ export function LibraryView() {
           </button>
         ))}
       </div>
+      {models.length > 1 && (
+        <div className="-mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="모델 거르기">
+          <span className="text-[11px] text-zinc-500">모델:</span>
+          {[[null, { name: "모든 모델", count: items?.length ?? 0 }] as const, ...models].map(([id, m]) => (
+            <button key={id ?? "all"} type="button" onClick={() => setModelFilter(id)} aria-pressed={modelFilter === id}
+              className={`whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-medium ${modelFilter === id ? "border-sky-500/50 bg-sky-500/15 text-sky-200" : "border-zinc-800 text-zinc-400 hover:text-zinc-200"}`}>
+              {m.name} {m.count}
+            </button>
+          ))}
+        </div>
+      )}
 
 
       {error && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</p>}
       {items === null && !error && <p className="text-sm text-zinc-500">불러오는 중…</p>}
-      {items !== null && shown.length === 0 && (
+      {items !== null && shown.length === 0 && (items.length > 0 ? (
+        <p className="rounded-2xl border border-dashed border-zinc-800 p-6 text-center text-sm text-zinc-400">고른 조건에 맞는 영상이 없습니다. 거르기를 바꿔 보세요.</p>
+      ) : (
         <div className="rounded-2xl border border-dashed border-zinc-800 p-10 text-center text-sm text-zinc-400">
           아직 영상이 없습니다. <Link href="/create" className="font-bold text-sky-300 underline">영상 생성 작업실</Link>에서 첫 영상을 만들어 보세요.
         </div>
-      )}
+      ))}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {shown.map((g) => (
           <div key={g.id} className="flex flex-col gap-1">
