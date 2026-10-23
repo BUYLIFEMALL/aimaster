@@ -9,6 +9,7 @@ import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, rmSy
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertScratchRepo } from "./assert-scratch-repo.mjs"; // 실제 저장소에서 시험이 돌면 즉시 실패(2026-10-23 시험 커밋 사고 재발 방지)
 
 // 다른 판(예: 고치기 전)을 시험하려면 SAFE_COMMIT_HELPER=<파일 경로>
 const HELPER = process.env.SAFE_COMMIT_HELPER || join(dirname(fileURLToPath(import.meta.url)), "safe-commit.mjs");
@@ -19,6 +20,7 @@ function repo() {
   copyFileSync(HELPER, join(dir, "scripts", "safe-commit.mjs"));
   const git = (...a) => execFileSync("git", a, { cwd: dir, encoding: "utf8" });
   git("init", "-q");
+  assertScratchRepo(dir); // git이 보는 최상위가 임시 폴더인지 — 아니면 여기서 멈춤
   git("config", "user.email", "t@t"); git("config", "user.name", "t"); git("config", "core.autocrlf", "false");
   const write = (f, lines) => writeFileSync(join(dir, f), lines.join("\n") + "\n");
   const read = (f) => readFileSync(join(dir, f), "utf8");
