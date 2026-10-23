@@ -251,3 +251,24 @@ test("v1.22 완성본 보관: 크기 검사·제목 정리·경로·남은 날",
   assert.equal(daysLeft("2026-10-23T12:00:00Z", now), 30, "반나절 지나면 올림으로 30");
   assert.equal(daysLeft("2026-09-01T00:00:00Z", now), 0, "지난 것은 0");
 });
+
+test("v1.23 영상 일괄 생성 진행률·남은 시간", async () => {
+  const { summarizeBatch, formatDuration, DEFAULT_SCENE_SEC } = await import("../src/lib/music/batchProgress.ts");
+  // 시작 직후: 4개 대기, 아무것도 안 끝남 → 기본 2분 × 2차례 = 240초, 추정 표시
+  let s = summarizeBatch({ states: ["waiting", "waiting", "waiting", "waiting"], finishedSec: [], runningSec: [], concurrency: 2 });
+  assert.deepEqual([s.total, s.waiting, s.percent, s.etaSec, s.estimated], [4, 4, 0, 2 * DEFAULT_SCENE_SEC, true]);
+  // 2개 진행 중(30초 지남), 2개 대기 → 남은 90초 + 다음 차례 120초 = 210초
+  s = summarizeBatch({ states: ["running", "running", "waiting", "waiting"], finishedSec: [], runningSec: [30, 30], concurrency: 2 });
+  assert.equal(s.etaSec, 210);
+  // 끝난 장면 평균 60초, 1개 진행 중 20초 지남, 1개 대기 → 빈자리에 바로 들어가 60초, 진행 중은 40초 → 60초
+  s = summarizeBatch({ states: ["done", "failed", "running", "waiting"], finishedSec: [50, 70], runningSec: [20], concurrency: 2 });
+  assert.deepEqual([s.done, s.failed, s.running, s.waiting, s.percent, s.etaSec, s.estimated], [1, 1, 1, 1, 50, 60, false]);
+  // 평균을 넘긴 진행 중 장면은 곧 끝난다고 봄(음수 없음), 모두 끝나면 0·100%
+  assert.equal(summarizeBatch({ states: ["running"], finishedSec: [60], runningSec: [300], concurrency: 2 }).etaSec, 0);
+  s = summarizeBatch({ states: ["done", "done"], finishedSec: [60, 80], runningSec: [], concurrency: 2 });
+  assert.deepEqual([s.percent, s.etaSec], [100, 0]);
+  assert.equal(summarizeBatch({ states: [], finishedSec: [], runningSec: [], concurrency: 0 }).percent, 0);
+  assert.equal(formatDuration(45), "45초");
+  assert.equal(formatDuration(185), "3분 05초");
+  assert.equal(formatDuration(-3), "0초");
+});

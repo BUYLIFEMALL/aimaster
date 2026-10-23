@@ -9,9 +9,12 @@ import type { Scene } from "@/lib/music/types";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, NeedStep, SELECT, StepHeader } from "@/components/studio/ui";
 import { FinalRenderLoader } from "@/components/studio/FinalRenderLoader";
+import { formatDuration, summarizeBatch, type BatchSceneState } from "@/lib/music/batchProgress";
 
 const POLL_MS = 8000;
 const MAX_POLLS = 90; // 약 12분
+/** 영상 일괄 생성 때 동시에 만드는 장면 수 */
+const BATCH_CONCURRENCY = 2;
 
 async function runPool<T>(items: T[], size: number, fn: (item: T) => Promise<void>) {
   const queue = [...items];
@@ -35,6 +38,9 @@ export default function ScenesPage() {
   const [confirm, setConfirm] = useState<string | null>(null); // 장면 id 또는 "all"
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [zipping, setZipping] = useState(false);
+  // v1.23 영상 일괄 생성 진행 — 장면마다 시작·끝 시각(ms)
+  const [batch, setBatch] = useState<{ ids: string[]; startedAt: number; starts: Record<string, number>; ends: Record<string, number> } | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const mounted = useRef(true);
   const mediaRef = useRef(media);
   mediaRef.current = media;
@@ -45,6 +51,13 @@ export default function ScenesPage() {
       mounted.current = false;
     };
   }, []);
+
+  const batchActive = !!batch && batch.ids.some((id) => !batch.ends[id]);
+  useEffect(() => {
+    if (!batchActive) return;
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [batchActive]);
 
   if (scenes.length === 0) {
     return (
@@ -136,8 +149,26 @@ export default function ScenesPage() {
   const generateAllVideos = async () => {
     setConfirm(null);
     setError(null);
-    await runPool(scenes.filter((s) => !mediaRef.current[s.id]?.videoBusy), 2, generateVideo);
+    const targets = scenes.filter((s) => !mediaRef.current[s.id]?.videoBusy);
+    const startedAt = Date.now();
+    setNow(startedAt);
+    setBatch({ ids: targets.map((s) => s.id), startedAt, starts: {}, ends: {} });
+    const mark = (key: "starts" | "ends", id: string) => setBatch((b) => (b ? { ...b, [key]: { ...b[key], [id]: Date.now() } } : b));
+    await runPool(targets, BATCH_CONCURRENCY, async (s) => {
+      mark("starts", s.id);
+      try { await generateVideo(s); } finally { mark("ends", s.id); }
+    });
   };
+
+  // v1.23 일괄 진행 요약(완료·진행 중·대기·실패, 남은 예상 시간)
+  const batchSummary = batch
+    ? summarizeBatch({
+        states: batch.ids.map((id): BatchSceneState => (batch.ends[id] ? (media[id]?.error || !media[id]?.videoUrl ? "failed" : "done") : batch.starts[id] ? "running" : "waiting")),
+        finishedSec: batch.ids.filter((id) => batch.ends[id] && batch.starts[id] && media[id]?.videoUrl && !media[id]?.error).map((id) => (batch.ends[id] - batch.starts[id]) / 1000),
+        runningSec: batch.ids.filter((id) => batch.starts[id] && !batch.ends[id]).map((id) => (now - batch.starts[id]) / 1000),
+        concurrency: BATCH_CONCURRENCY,
+      })
+    : null;
 
   const downloadZip = async () => {
     setZipping(true);
@@ -279,6 +310,29 @@ export default function ScenesPage() {
             <span>전체 프로젝트 ZIP 패키지 다운로드</span>
           </button>
         </div>
+
+        {batch && batchSummary && (
+          <div className="space-y-2 rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs text-slate-200" role="status" aria-live="polite">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-bold text-cyan-100">
+                영상 일괄 생성 {batchActive ? "진행 중" : "끝"} · {batchSummary.done + batchSummary.failed}/{batchSummary.total}개 ({batchSummary.percent}%)
+              </p>
+              {!batchActive && (
+                <button type="button" className="text-[11px] text-slate-400 underline hover:text-slate-200" onClick={() => setBatch(null)}>닫기</button>
+              )}
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800" aria-hidden="true">
+              <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 transition-all" style={{ width: `${batchSummary.percent}%` }} />
+            </div>
+            <p className="text-slate-300">
+              완료 <b className="text-emerald-300">{batchSummary.done}</b> · 진행 중 <b className="text-cyan-200">{batchSummary.running}</b> · 대기 <b className="text-white">{batchSummary.waiting}</b>
+              {batchSummary.failed ? <> · 실패 <b className="text-rose-300">{batchSummary.failed}</b></> : null}
+              {" · "}지난 시간 {formatDuration(((batchActive ? now : Math.max(...Object.values(batch.ends), batch.startedAt)) - batch.startedAt) / 1000)}
+              {batchActive && <> · 남은 시간 약 {formatDuration(batchSummary.etaSec)}{batchSummary.estimated ? "(장면당 2분 기준 추정)" : ""}</>}
+            </p>
+            {batchActive && <p className="text-[11px] text-slate-500">한 번에 {BATCH_CONCURRENCY}개씩 만듭니다. 이 탭을 닫으면 확인이 멈춥니다.</p>}
+          </div>
+        )}
 
         {confirm === "all" && (
           <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-4 text-xs text-rose-200">
