@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 커밋 도우미 세션 이름 필수·세션 점검 버그 수정 (세션 claude-win-lessons)
+- 한 일(`54e2a5c29`, 주인님 결정): `safe-commit.mjs`·`commit-paths.mjs`가 `--as`/`AIMASTER_SESSION` 없으면 **커밋 거부**(종료 코드 2, 다시 실행 안내), 이름 첫 단어가 claude-/codex-/agy-가 아니면 안내만. `safe-commit`은 이제 `AIMASTER_SESSION`도 읽고(전에는 장비 이름으로 대신 채움) 이름이 있으면 항상 트레일러. 시험 2개 추가(총 18개 통과). `docs/MULTI_AGENT_SESSION_RULES.md` §2-1에 한 줄.
+- **버그 수정(같은 커밋)**: `index-watch.mjs`가 `AIMASTER_SESSION`을 주면 이름표가 `session-check(이름)`이 돼 **세션 점검 전체를 건너뛰고 있었음** — 방금 Codex·agy에 권한 실행법과 정확히 같은 경우라 판정을 원래 이름표(`rawTag`)로 고침. 요약 줄의 세션 이름 비율은 90% 미만일 때만.
+- 주의: 다른 세션이 이름 없이 도우미를 부르면 이제 한 번 막힌다(안내대로 `--as <CLI>-<장비>-<날짜>-<작업>` 붙이면 됨). `deploy.mjs`는 `--as deploy-<폴더>`를 넘겨 영향 없음.
+- 3번(Codex·agy 시작 점검 실제 기록): 16:50 현재 `.git/aimaster-index-log.txt`에 codex·agy 기록 없음 — 다음 그 CLI 세션 뒤 다시 확인.
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — CLI 구분을 세션 이름 기준으로·안전장치 표 정리·내일 관찰 마감 할 일 (세션 claude-win-lessons)
 - 한 일(`e993bcd69`): `scripts/index-watch.mjs` CLI 구분 1순위를 세션 이름 첫 단어(`claude-`·`codex-`·`agy-`, 멀티세션 규칙 §2)로, 환경변수 추정은 2순위. **`CODEX_HOME`은 이 PC 전체 설정이라 Claude Code 환경에도 있음을 확인해 판단에서 뺌**(그대로 두면 Claude 실행이 codex로 오판). 시작 점검 누락 알림에 「세션 이름 없는 시작 점검 있음」 표시. 실제 기록의 `cli=`는 모두 claude로 오판 없음.
 - `docs/guidelines/COLLABORATION.md` 안전장치 표 보완(블랙박스 경고 4종·잠금 증거·맥미니 `commit-gate.sh`) + 「어떤 도구를 언제 쓰나」 5단계.
