@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 휴대폰 폭 「가로 넘침」 점검 추가
+- `scripts/check-mobile-account.mjs`에 `[휴대폰 폭 가로 넘침]` 항목: 넓은 고정 폭(360px 이상) `absolute`·`fixed` 장식이 오른쪽 끝 고정만이 아니고 같은 파일에 `overflow-hidden/clip`이 없으면 「⚠ 가로 넘침 의심」. 세션 시작 점검·`deploy.mjs <폴더>` 경고에도 그대로 나옴.
+- 결과: 지금 저장소 전체 **0곳**(music은 미배포 수정 `overflow-x-clip`으로 이미 해결). 수정 전 music 레이아웃으로 바꿔 넣으면 `w-[400px]` 후보로 잡힘(시험 뒤 원복).
+- 실측 교훈: 운영 music(수정 전, v1.44)은 `body { overflow-x: hidden }`이 있는데도 390px에서 창이 114px 옆으로 밀렸다 → 전역 body 설정은 제외 조건 아님, 확인은 `scrollTo` 뒤 `scrollX`(`docs/SIDEBAR_LAYOUT_STANDARD.md` 모바일 검수 5번).
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — ✅ 상세페이지 GIF 자동화 video-to-gif v1.18 배포 (맥미니 v1.18 마무리)
 - 맥미니 커밋 `5723ac4e0`(매뉴얼·영상만 받기·끌어 놓기·소개 화면·8MiB 실패 안내): 사본 점검·tsc·build → DB v1.18 → 배포 Ready `video-to-en2jqo2hv` → 메인 크롬에서 소개·매뉴얼·작업 화면 v1.18 문구 확인.
 - 참고: 같은 날 공용 스테이징 축소 사고(`c2e7c4db2`)는 다른 세션이 복구 완료. 이 세션이 만들어 둔 복구 커밋 `e591b5f23`은 올리지 않음(불필요).
