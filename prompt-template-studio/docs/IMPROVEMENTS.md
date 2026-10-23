@@ -29,7 +29,7 @@
 - **발견 근거**: 최상단 지침 7번("미구현 프로그램 발견 시 매뉴얼 메뉴 및 단계별 사용 매뉴얼 추가 기본 의무").
 - **영향**: 처음 접속한 회원도 Gemini API 키 연동부터 `{{변수}}` 문법 작성, 실행까지 즉시 이해하고 사용할 수 있도록 지원.
 
-## 2026-10-23 🟡 미배포 대기 — 메인 사이트 링크 주소 정정 (Claude Code 윈도우, 세션 `claude-win-20261023-mainsite-url`)
+## 2026-10-23 ✅ 배포됨(Next.js 보안 업데이트 배포에 함께 나감, 17:4x `check-app-urls --live` 반영 확인) — 메인 사이트 링크 주소 정정 (Claude Code 윈도우, 세션 `claude-win-20261023-mainsite-url`)
 - 메인 사이트 주소 상수가 연결 안 되는 `https://aimaster.buylife.xyz`였다(권한 없음·정지·핸드폰 안내 이동, 회원가입·비밀번호 찾기·약관 링크가 접속 오류). → `https://www.buylife.xyz`, `/signup`→`/register`, `/legal/privacy`·`/legal/terms`→`/privacy`·`/terms`. 커밋 `486fd5fd3`(prompt-template-studio는 `9c170faf5`). tsc 0.
 - 운영 임시 조치: 메인 Vercel 프로젝트에 `aimaster.buylife.xyz`를 추가해 `www.buylife.xyz`로 308 이동(경로 유지) — 회원가입 `/signup`만 다음 배포 전까지 404.
 - 다음 배포 때: 버전 +0.01, 로그인 화면의 회원가입·비밀번호 찾기 링크와 권한 없는 계정 이동 확인.

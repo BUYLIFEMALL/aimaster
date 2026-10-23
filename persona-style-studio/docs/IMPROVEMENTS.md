@@ -30,7 +30,7 @@
 - **영향**: 처음 접속한 회원도 5대 이퀄라이저 슬라이더의 동작 원리와 페르소나 생성법을 한눈에 파악 가능.
 - **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
 
-## 2026-10-23 🟡 미배포 대기 — 메인 사이트 링크 주소 정정 (Claude Code 윈도우, 세션 `claude-win-20261023-mainsite-url`)
+## 2026-10-23 ✅ 배포됨(Next.js 보안 업데이트 배포에 함께 나감, 17:4x `check-app-urls --live` 반영 확인) — 메인 사이트 링크 주소 정정 (Claude Code 윈도우, 세션 `claude-win-20261023-mainsite-url`)
 - 메인 사이트 주소 상수가 연결 안 되는 `https://aimaster.buylife.xyz`였다(권한 없음·정지·핸드폰 안내 이동, 회원가입·비밀번호 찾기·약관 링크가 접속 오류). → `https://www.buylife.xyz`, `/signup`→`/register`, `/legal/privacy`·`/legal/terms`→`/privacy`·`/terms`. 커밋 `486fd5fd3`(prompt-template-studio는 `9c170faf5`). tsc 0.
 - 운영 임시 조치: 메인 Vercel 프로젝트에 `aimaster.buylife.xyz`를 추가해 `www.buylife.xyz`로 308 이동(경로 유지) — 회원가입 `/signup`만 다음 배포 전까지 404.
 - 다음 배포 때: 버전 +0.01, 로그인 화면의 회원가입·비밀번호 찾기 링크와 권한 없는 계정 이동 확인.
