@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) — 네이버 블로그 SEO 스튜디오 v2.16 배포 (블로그 병합 B-5~B-8, 묶음 B 끝) · 세션 `claude-win-20261023-blog2`
+- 한 일: B-5 서식 포함 복사 + B-7 TXT·MD·HTML 내보내기 `27f5e2324` · B-6 수정본 이력·비교·되돌리기 `de243dd5d` · B-8 SNS 공유 문구(스레드·X·페이스북, 글자 수 상한·발행 주소 덧붙임) `4dfd4a227` · 버전 `639aff080`. 모두 DB 변경 없음(`seo_report` JSON).
+- 검수: tsc·시험 108개·로컬 빌드 통과. 배포 빌드 1회(승인), DB·확장·ZIP v2.16 OK. B-8 실측 1회(시험 계정 OpenAI 키, gpt-4o-mini, 저장 안 함): 109/500·64/140·146/600자, 지어낸 수치 없음. 크롬(시험 계정, 좁은 폭): v2.16 표시, 서식 포함 복사 안내 정상, 본문 한 줄 추가 저장 → 「수정 이력 (1)」·초록 추가 문단 → 되돌리기 → 3,201자 복원·이력 2개, SNS 카드·내보내기 선택 상자 표시(내려받기·문구 생성 클릭은 안 함).
+- 남은 일: 묶음 C(작업실 키워드 → 키워드 프로그램) 플랜부터. 상세: `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 아래.
+- https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — 무한 루프 영상 v1.07 배포 완료 (소리 없는 영상 실패 수정)
 
 - 한 일: 크롬에서 소리 없는 영상이 항상 「루프 만들기에 실패했습니다」가 되던 문제 — 변환 직전 ffmpeg `-i` 기록으로 소리 트랙을 직접 확인(`plan.ts` `hasAudioStream`). 커밋 `2fb360453` · 배포 `infinite-loop-video-q2ezfnuhj` Ready · 화면/DB v1.07.
