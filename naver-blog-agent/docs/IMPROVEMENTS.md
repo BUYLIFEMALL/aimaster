@@ -220,3 +220,6 @@
 
 ## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
 - 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 확장 팝업 폭
+- 주인님 지적 「가로폭을 늘려줘 너무 좁아서 글들이 제대로 안보여」: 확장 아이콘 팝업(`extension/connect.html`)에 폭 지정이 없어 약 200px로 줄어 있었음 → `connect.css`에 `html,body{min-width:440px}`. 새 탭으로 열 때는 그대로. 확장 코드 변경이라 다음 배포 때 버전 +0.01(manifest·ZIP·DB 함께).
