@@ -328,7 +328,9 @@ console.log(`\n[2/3] 작업 중 표(docs/ACTIVE_WORK.md)에서 ${folder}`);
 // 세션 이름은 「에이전트(장비)」 칸에서만 뽑는다(작업 설명 칸에 다른 세션 이름이 적힌 줄이 있음). 폴더가 많은 줄은 이름이 200자 뒤에 있어 잘려 안 보였음(2026-10-23)
 const rowInfo = (l) => { const c = l.split("|").map((x) => x.trim()); const folders = (c[1].match(/`[^`]+`/g) ?? []).length; return { name: (c[2]?.match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1] ?? c[2]?.match(/세션 `([^`]+)`/)?.[1] ?? "", agent: (c[2] ?? "").slice(0, 80), task: (c[4] ?? "").slice(0, 100), folders }; };
 if (active.length) for (const l of active) { const r = rowInfo(l); console.log(`  ⚠ 세션 ${r.name || "(이름 없음)"} · ${r.agent}${r.folders > 1 ? ` · 폴더 ${r.folders}개를 함께 맡음` : ""} · 작업: ${r.task}`); }
-else console.log("  (줄 없음)");
+// 보낼 문안(2026-10-23) — 점검만 할 때도 보이게 여기서. 복사해 그대로 보내면 받는 쪽이 무엇을 해 달라는지 바로 안다(첫 줄이 미리보기). 내 줄이면 무시
+for (const n of [...new Set(active.map((l) => rowInfo(l).name).filter(Boolean))]) console.log(`  보낼 문안(→ ${n}, 내 줄이 아니면): [문의] ${n} 세션이 docs/ACTIVE_WORK.md에 올린 \`${folder}/\` 작업이 끝났으면 그 줄에서 \`${folder}/\`만 빼 주실 수 있을까요? ${folder} 배포를 하려는데 scripts/deploy.mjs가 그 줄 때문에 멈춥니다. 아직 쓰고 계시면 끝날 때까지 기다리겠습니다.`);
+if (!active.length) console.log("  (줄 없음)");
 // 휴대폰 폭 메뉴(check-mobile-account.mjs, 코드 읽기) — 이 폴더가 확인 필요 후보면 경고만(배포는 막지 않음, 2026-10-23)
 {
   const mc = spawnSync(process.execPath, [join(ROOT, "scripts", "check-mobile-account.mjs"), folder], { encoding: "utf8" });
@@ -349,11 +351,7 @@ const ownerArg = args.includes("--owner") ? args[args.indexOf("--owner") + 1] : 
 if (active.some((l) => !(ownerArg && l.includes(ownerArg)))) {
   console.log("\n✖ 다른 세션이 작업 중인 폴더라 배포하지 않습니다. 그 세션이 끝난 뒤 다시 실행하세요(공동작업 규칙).");
   const names = [...new Set(active.map((l) => rowInfo(l).name).filter(Boolean))];
-  if (names.length) {
-    console.log(`  물어볼 세션: ${names.join(", ")} — Claude Code는 ListAgents에서 이 이름을 찾아 SendMessage로(그 세션이 그 폴더를 마쳤는지·표에서 빼 줄지)`);
-    // 보낼 문안(2026-10-23) — 복사해 그대로 보내면 받는 쪽이 무엇을 해 달라는지 바로 안다(첫 줄이 미리보기)
-    for (const n of names) console.log(`  보낼 문안(→ ${n}): [문의] ${n} 세션이 docs/ACTIVE_WORK.md에 올린 \`${folder}/\` 작업이 끝났으면 그 줄에서 \`${folder}/\`만 빼 주실 수 있을까요? ${folder} 배포를 하려는데 scripts/deploy.mjs가 그 줄 때문에 멈춥니다. 아직 쓰고 계시면 끝날 때까지 기다리겠습니다.`);
-  }
+  if (names.length) console.log(`  물어볼 세션: ${names.join(", ")} — Claude Code는 ListAgents에서 이 이름을 찾아 SendMessage로(보낼 문안은 위 [2/3])`);
   console.log("  내 줄이라면: --owner \"<내 세션 이름 또는 내 줄 작업 설명 일부>\"를 붙여 다시 실행");
   process.exit(1);
 }
