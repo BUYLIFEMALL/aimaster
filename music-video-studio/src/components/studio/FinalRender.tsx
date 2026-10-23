@@ -9,6 +9,7 @@ import { Download, Film, Loader2 } from "lucide-react";
 import { EditComposition } from "@/components/edit/Composition";
 import { CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, dimensions, layout, splitEvenly, validate, type CaptionSize, type CaptionStyle, type EditClip, type EditProject, type EditQuality } from "@/lib/edit/timeline";
 import { loadLocalSong } from "@/lib/music/localSong";
+import { sceneLengthsFromLyrics } from "@/lib/music/sceneTiming";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card } from "@/components/studio/ui";
 
@@ -78,7 +79,9 @@ export function FinalRender() {
   }, [song?.source, song?.ref, song?.fileName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const usable = scenes.filter((s) => media[s.id]?.videoUrl || media[s.id]?.imageUrl);
-  const lengths = songSec ? splitEvenly(songSec, usable.length) : usable.map(() => FALLBACK_SCENE_S);
+  // v1.18 곡이 시간 가사(AI 음악 스튜디오 Lyria)면 장면 가사가 나오는 시각에 장면을 바꾸고, 못 맞추면 곡 길이를 고르게 나눈다
+  const timed = songSec ? sceneLengthsFromLyrics(project.lyrics, usable.map((s) => s.lyric), songSec) : null;
+  const lengths = timed ?? (songSec ? splitEvenly(songSec, usable.length) : usable.map(() => FALLBACK_SCENE_S));
 
   const editProject: EditProject = useMemo(() => {
     const clips: EditClip[] = usable.map((s, i) => {
@@ -152,14 +155,14 @@ export function FinalRender() {
         <h2 className="flex items-center gap-2 text-base font-extrabold text-white"><Film className="h-5 w-5 text-cyan-300" aria-hidden="true" /> 🎬 최종 뮤직비디오 만들기</h2>
         <p className="mt-1 text-xs leading-relaxed text-slate-400">
           장면 영상(없으면 장면 이미지)에 이 뮤직비디오의 곡과 가사 자막을 얹어 MP4 한 편으로 만듭니다. 내 PC 브라우저에서 만들어 비용이 들지 않습니다.
-          곡 길이를 장면 수로 나눠 장면 길이를 정하고, 장면보다 짧은 영상은 반복 재생합니다.
+          곡에 시간 가사가 있으면 그 장면의 가사가 나오는 시각에 장면을 바꾸고, 없으면 곡 길이를 장면 수로 고르게 나눕니다. 장면보다 짧은 영상은 반복 재생합니다.
         </p>
       </div>
 
       <div className="grid gap-2 text-xs text-slate-300 sm:grid-cols-3">
         <p>장면 <b className="text-white">{usable.length}</b>/{scenes.length}개 (영상 {videoCount} · 이미지 {usable.length - videoCount})</p>
         <p>곡 {song ? (songSrc ? <b className="text-white">{song.title} · {songSec ? `${Math.round(songSec)}초` : "길이 확인 중"}</b> : songNote ? <span className="text-amber-200">{songNote}</span> : "불러오는 중…") : <span className="text-amber-200">없음 — 3단계에서 곡을 고르면 곡 길이에 맞춰집니다(지금은 장면마다 {FALLBACK_SCENE_S}초)</span>}</p>
-        <p>완성 길이 <b className="text-white">{Math.round(totalFrames / FPS)}초</b> · {width}×{height}</p>
+        <p>완성 길이 <b className="text-white">{Math.round(totalFrames / FPS)}초</b> · {width}×{height}{songSec ? <> · 장면 길이 <b className={timed ? "text-emerald-300" : "text-white"}>{timed ? "가사 시각에 맞춤" : "고르게 나눔"}</b></> : null}</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

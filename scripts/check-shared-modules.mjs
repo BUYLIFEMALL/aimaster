@@ -350,7 +350,7 @@ const MODULES = [
     // AI 음악 스튜디오 곡의 Lyria 시간 가사(「[0.0:3.7] 가사」) → 가사 줄 시간표. 2026-10-23 등록 — 가사영상·플레이리스트의 ?ams= 곡 가져오기
     id: "ams-timed-lyrics",
     source: "lyric-video-studio/src/lib/amsLyrics.ts",
-    copies: ["playlist-channel-studio/src/lib/amsLyrics.ts"],
+    copies: ["playlist-channel-studio/src/lib/amsLyrics.ts", "music-video-studio/src/lib/music/amsLyrics.ts"],
   },
   {
     // sunoapi.org Suno 연동(생성·연장·상태 조회·크레딧 등). 2026-10-23 등록 — AI 음악 스튜디오가 음악(SUNO)자동화 코드를 그대로 씀(주인님 결정).

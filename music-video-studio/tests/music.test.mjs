@@ -127,3 +127,22 @@ test("v1.13 곡 정보: AI 음악 스튜디오 곡 번호·내 파일만 남기�
   const file = sanitizeProject({ song: { source: "file", title: "", fileName: "my.mp3", durationS: -3, ref: "zzz" } }).song;
   assert.deepEqual(file, { source: "file", title: "내 곡", fileName: "my.mp3", durationS: null });
 });
+
+test("장면 길이: 가사 시간표에 맞춤 / 못 맞추면 null", async () => {
+  const { sceneLengthsFromLyrics, normalizeLyric } = await import("../src/lib/music/sceneTiming.ts");
+  const raw = "[0.0:4.0] [Intro] 새벽 공기\n[4.0:8.0] 너를 부르면\n[12.0:16.0] [Chorus] 다시 만나, 우리\n[16.0:20.0] 끝없는 밤\n[30.0:34.0] 다시 만나 우리";
+  // 장면 가사는 시간 표시·구간 표시가 붙어 있어도 맞춘다. 첫 장면은 0초부터, 마지막은 곡 끝까지
+  assert.deepEqual(sceneLengthsFromLyrics(raw, ["[Verse 1] 너를 부르면\n...", "[12.0:16.0] 다시 만나 우리!", "(Chorus) 다시 만나, 우리"], 40), [12, 18, 10]);
+  // 같은 후렴은 순서대로(두 번째 장면이 앞 후렴을 쓰면 세 번째는 뒤 후렴)
+  assert.equal(normalizeLyric("[Chorus] 다시 만나, 우리!"), "다시만나우리");
+  // 못 맞춘 장면이 있으면 null
+  assert.equal(sceneLengthsFromLyrics(raw, ["너를 부르면", "없는 가사"], 40), null);
+  // 순서가 뒤집히면 null(앞으로만 찾음)
+  assert.equal(sceneLengthsFromLyrics(raw, ["끝없는 밤", "너를 부르면"], 40), null);
+  // 시간 가사가 아니면 null
+  assert.equal(sceneLengthsFromLyrics("[Verse 1]\n너를 부르면", ["너를 부르면"], 40), null);
+  // 장면이 1초보다 짧아지면 null(곡 길이가 마지막 시작보다 짧음)
+  assert.equal(sceneLengthsFromLyrics(raw, ["새벽 공기", "끝없는 밤"], 16.5), null);
+  // 짧은 줄(한 글자·긴 장면 가사의 일부)은 포함 비교에 쓰지 않음
+  assert.equal(sceneLengthsFromLyrics("[0.0:2.0] 아\n[2.0:5.0] 노래", ["아름다운 노래"], 10), null);
+});
