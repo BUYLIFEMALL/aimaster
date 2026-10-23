@@ -19,7 +19,6 @@
 |---|---|---|---|---|---|
 | `naver-blog-seo-studio` (운영 v2.11) | 끊긴 자동 포스팅 처리(입력 중 「사이드패널 닫지 마세요」 안내 · 다시 열 때 `writing` 실행 즉시 정리) — 확장 코드 변경 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
 | `naver-blog-seo-studio` (운영 v2.11) | 입력·자동 포스팅을 확장 background로 이전(사이드패널을 닫아도 이어짐) — **배포 전 웨일 실입력 확인 필요**(주인님 확장 새로고침) | `c65d87fbb` | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 끝 | 위 줄과 함께 v2.12(manifest·ZIP·DB) |
-| `threads-content-ops` (운영 v2.19) | 보관함 초안: 저장 직후 뺀 사진이 몇 초 다시 보이던 화면 문제(`editingRef`) · 쿠팡 수동 등록 실패 때 임시 상품 사진을 서버 키로 삭제(새 버킷에 회원 조회 정책 없음) | `f92acc076` · `6b44abdc8` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/docs/IMPROVEMENTS.md` 「v2.19 후속」 | v2.20, 초안 사진 ✕ → 저장 직후 바로 0장 |
 | `music` (운영 v1.44) | 휴대폰 폭 가로 넘침: 배경 번짐 장식이 390px에서 문서 폭 495px로 넘침 → `<main>`에 `overflow-x-clip` | 이 줄을 넣은 커밋 직전 `music` 커밋 | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포 — 휴대폰 폭 가로 넘침」 | 390px에서 문서 폭 = 화면 폭 |
 | `threads-comment-reply` (운영 v1.27) | 「⏸ 모니터링 중지」 직후 화면이 바로 꺼짐으로 바뀌게(`MonitoringSettingsForm` `stopped` 상태) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `threads-comment-reply/docs/IMPROVEMENTS.md` 「9시간 밀림」 아래 | 버전 +0.01, 중지 → 바로 「▶ 모니터링 시작」 |
 | `youtube-auto-reply` (운영 v1.30) | 위와 같은 수정 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `youtube-auto-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 같은 확인 |
@@ -56,6 +55,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `threads-content-ops` | v2.20 · 2026-10-23 (모아 둔 수정, 제안 범위 빌드 1회) | 초안 사진 깜박임 `f92acc076` · 쿠팡 임시 사진 서버 키 삭제 `6b44abdc8` · 공용 사본 member-scheduler·openai-request-params |
 | `ai-video-studio` | v1.03 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `ai-video-studio-mcgdidz4n`) | 실사 인물 사진 거절 시 쉬운 안내 `96423f5ec` |
 | `insta_auto_poster` | v1.68 · 2026-10-23 (모아 둔 수정, 제안 범위 빌드 1회) | 「🔤」 한글일 때만 기억 `4bebfb016` · 「✕ 슬라이드 N 빼기」 `447780d5c` · 공용 사본 member-scheduler·instagram-publish |
 | `music` | v1.44 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `music-36j3lwxcj`) | 공용 Suno `callbackOrigin` `acccf06eb` · 곡 30일 정리 회원별 기록 `4cafe5eb3`(2026-10-29 첫 실제 삭제 뒤 관리자 정리 표 확인) · 휴대폰 ☰ 펼침 메뉴 `2fcddccb7`(크롬 390px 확인) |

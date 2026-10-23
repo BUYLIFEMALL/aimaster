@@ -21,6 +21,5 @@
 | `music/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-music-v145` | 2026-10-23 | 가로 넘침 수정 배포 v1.45(주인님 승인 빌드 1회) → 다음 확인점: 크롬 390px scrollX 0 |
 | `shots/` + `ai-music-studio/` (공용 신설 `music-sync-calls` 기준) | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-bgm` | 2026-10-23 | 배경음악 공용화 4단계 — 쇼츠 배경음악 모델 고르기(Suno V6 계열·Lyria 3.5·ElevenLabs), AI 음악 스튜디오는 호출 코드 분리만(미배포 대기) |
 | `ai-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-avs-edit` | 2026-10-23 | 2차 영상 합치기 2-0·2-가(v1.04, 플랜 `ai-video-studio/docs/PLAN_20261023_EDIT_STUDIO.md`, 빌드 1회 승인) — 다음 확인점: Remotion 설치·빌드 |
-| `threads-content-ops/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-tco-v220` | 2026-10-23 | v2.20 배포(대기 `f92acc076`·`6b44abdc8` + 공용 사본, 빌드 1회 승인) → 다음 확인점: 초안 사진 ✕ 저장 직후 0장·가짜 토큰 401 |
 | `instagram-comment-reply/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-insta-autocollect` | 2026-10-23 | 댓글 자동 수집 회원 선택(v1.36, 플랜 `docs/PLAN_20261023_MEMBER_AUTO_COLLECT.md`) · DB `ig_member_scheduler` · 빌드 1회 승인됨 |
 | `naver-blog-seo-studio/` | Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg` | 2026-10-23 | 입력·자동 포스팅 background 이전(`c65d87fbb`, 미배포) → 다음 확인점: 주인님 웨일 실입력 결과 → v2.12 배포(빌드 1회 승인됨, `deploy.mjs`) |
