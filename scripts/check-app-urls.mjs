@@ -3,6 +3,10 @@
 // 사용: node scripts/check-app-urls.mjs          문서(*.md)의 *.buylife.xyz 중 DB programs.app_url에 없는 호스트를 접속해 보고, 연결 안 되면 파일:줄과 추천 주소를 보여 줌
 //       node scripts/check-app-urls.mjs --app    위에 더해 모든 programs.app_url이 실제로 응답하는지 확인
 //       node scripts/check-app-urls.mjs <slug>   그 프로그램의 실제 주소만 출력(보고에 링크 쓰기 전 확인용)
+//       node scripts/check-app-urls.mjs <slug>... --json   위를 JSON으로(하나면 객체 {slug,name,app_url}, 여럿이면 배열)
+//       node scripts/check-app-urls.mjs <slug>... --live   배포 반영 확인: 로그인 없이 그 프로그램 화면(기본 /login)과 그 화면이 부르는 /_next/static 스크립트를 받아
+//            「있어야 할 글자」(기본 www.buylife.xyz)·「없어야 할 글자」(기본 aimaster.buylife.xyz, /signup) 개수를 센다. --path /x, --find <글자>, --absent <글자>(여러 번 가능)로 바꿈
+//            (2026-10-23 — 다른 세션 배포에 실려 나간 링크 정정을 손으로 curl·grep 하던 것을 한 줄로)
 // 읽기 전용(DB 쓰기·파일 수정 없음). 옛 기록 문서는 고치지 않고 알려 주기만 한다.
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -19,11 +23,48 @@ if (error) { console.error("programs 조회 실패:", error.message); process.ex
 const hostOf = (u) => { try { return new URL(u).host.toLowerCase(); } catch { return ""; } };
 const appHosts = new Map(programs.filter((p) => p.app_url).map((p) => [hostOf(p.app_url), p]));
 
-const slug = args.find((a) => !a.startsWith("--"));
-if (slug) {
-  const p = programs.find((x) => x.slug === slug || x.slug.includes(slug) || x.name?.includes(slug));
-  console.log(p ? `${p.name} (${p.slug}): ${p.app_url ?? "app_url 없음"}` : `프로그램을 찾지 못했습니다: ${slug}`);
-  process.exit(p ? 0 : 1);
+// 값을 받는 옵션(--path·--find·--absent) 바로 뒤 글자는 프로그램 이름으로 보지 않는다
+const VALUE_OPTS = new Set(["--path", "--find", "--absent"]);
+const optAll = (k) => args.flatMap((a, i) => (a === k && args[i + 1] ? [args[i + 1]] : []));
+const slugs = args.filter((a, i) => !a.startsWith("--") && !VALUE_OPTS.has(args[i - 1]));
+// 배포 반영 확인 — 화면 HTML + 그 화면이 부르는 스크립트에서 글자 개수(파일 수)를 센다
+const liveCheck = async (base, path, want, absent) => {
+  const get = async (u) => { try { const r = await fetch(u, { signal: AbortSignal.timeout(20000) }); return r.ok ? await r.text() : ""; } catch { return ""; } };
+  const page = new URL(path, base).href;
+  const html = await get(page);
+  if (!html) return { page, ok: false, error: "화면을 받지 못함" };
+  const scripts = [...new Set([...html.matchAll(/["'](\/_next\/static\/[^"'?]+?\.js(?:\?[^"']*)?)["']/g)].map((m) => m[1]))];
+  const texts = [html, ...(await Promise.all(scripts.map((s) => get(new URL(s, base).href))))];
+  const count = (w) => texts.filter((x) => x.includes(w)).length;
+  const found = Object.fromEntries(want.map((w) => [w, count(w)]));
+  const left = Object.fromEntries(absent.map((w) => [w, count(w)]));
+  return { page, files: texts.length, found, left, ok: want.every((w) => found[w] > 0) && absent.every((w) => left[w] === 0) };
+};
+if (slugs.length) {
+  // 정확히 같은 slug를 먼저(예전엔 부분 일치가 앞선 다른 프로그램을 고를 수 있었음)
+  const pick = (s) => programs.find((x) => x.slug === s) ?? programs.find((x) => x.slug.includes(s) || x.name?.includes(s));
+  const live = args.includes("--live");
+  const path = optAll("--path")[0] ?? "/login";
+  const want = optAll("--find").length ? optAll("--find") : ["www.buylife.xyz"];
+  const absent = optAll("--absent").length ? optAll("--absent") : ["aimaster.buylife.xyz", "/signup"];
+  const out = [];
+  for (const s of slugs) {
+    const p = pick(s);
+    if (!p) { out.push({ query: s, error: "프로그램을 찾지 못함", ok: false }); continue; }
+    const row = { slug: p.slug, name: p.name, app_url: p.app_url ?? null };
+    if (live) Object.assign(row, p.app_url ? await liveCheck(p.app_url, path, want, absent) : { ok: false, error: "app_url 없음" });
+    out.push(row);
+  }
+  if (args.includes("--json")) console.log(JSON.stringify(out.length === 1 ? out[0] : out));
+  else for (const r of out) {
+    if (!r.slug) { console.log(`프로그램을 찾지 못했습니다: ${r.query}`); continue; }
+    console.log(`${r.name} (${r.slug}): ${r.app_url ?? "app_url 없음"}`);
+    if (!live) continue;
+    if (r.error) { console.log(`  ⚠ ${r.page ?? ""} ${r.error}`); continue; }
+    const fmt = (o) => Object.entries(o).map(([w, n]) => `${w} ${n}`).join(", ");
+    console.log(`  ${r.ok ? "✔ 반영됨" : "⚠ 미반영"} · ${r.page} 외 스크립트 ${r.files - 1}개 · 있어야 할 것: ${fmt(r.found)} · 없어야 할 것: ${fmt(r.left)}`);
+  }
+  process.exit(out.some((r) => r.ok === false || r.error) ? 1 : 0);
 }
 
 const reach = async (url) => {

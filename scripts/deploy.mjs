@@ -385,5 +385,23 @@ if (vr && vr.db === vr.ver) fixMapRow(vr.slug, vr.ver);
 // 관리자 첫 화면 숫자(미배포 대기·정리 기록 진행률) 갱신 — 운영 DB site_settings.ops_overview 한 줄(2026-10-23)
 console.log("\n[관리자 화면 숫자 갱신]");
 spawnSync(process.execPath, [join(ROOT, "scripts", "pending-check.mjs"), "--publish"], { stdio: "inherit" });
+// 이 배포로 함께 나간 대기 줄 — docs/PENDING_DEPLOYS.md 「대기 중」 구역에서 이 폴더(또는 DB slug) 줄을 찾아 「내보낸 기록」으로 옮길 대상으로 보여 준다.
+// 다른 세션이 올린 줄도 이 배포에 실려 나가므로 그 세션 이름을 함께 적는다(2026-10-23 — Next.js 보안 배포에 링크 정정이 실려 나간 걸 손으로 찾았음)
+{
+  const pdLines = readFileSync(join(ROOT, "docs", "PENDING_DEPLOYS.md"), "utf8").replace(/\r\n/g, "\n").split("\n");
+  const from = pdLines.findIndex((l) => l.startsWith("## 대기 중"));
+  const to = from < 0 ? -1 : pdLines.findIndex((l, i) => i > from && l.startsWith("## "));
+  const keys = [...new Set([folder, vr?.slug].filter(Boolean))];
+  const rows = from < 0 ? [] : pdLines.slice(from + 1, to < 0 ? undefined : to)
+    .filter((l) => l.startsWith("| `") && keys.some((k) => { const first = l.split("|")[1] ?? ""; return first.includes(`\`${k}\``) || first.includes(`\`${k}/\``); }));
+  console.log(`\n[내보낸 기록으로 옮길 줄] docs/PENDING_DEPLOYS.md 「대기 중」에서 ${keys.join("·")} — ${rows.length}줄`);
+  for (const l of rows) {
+    const c = l.split("|").map((x) => x.trim());
+    const commits = (l.match(/`[0-9a-f]{7,12}`/g) ?? []).join("·") || "커밋 표기 없음";
+    const sess = (l.match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1] ?? "";
+    const mine = sess && ownerArg && sess.includes(ownerArg);
+    console.log(`  · ${c[2].slice(0, 70)} · ${commits}${sess ? ` · 올린 세션 ${sess}${mine ? "(내 줄)" : " — 함께 나갔다고 그 세션에 알리기"}` : ""}`);
+  }
+}
 console.log("이어서 할 일: ① (버전이 다르면) --version-only --set-version ② 위 대기 줄을 docs/PENDING_DEPLOYS.md 「내보낸 기록」으로·폴더 대기 표시 정리 ③ 크롬 화면 확인 ④ 인수인계 문서·비용 리포트");
 console.log(`②·④ 문서 커밋은 일반 git commit 말고 (기준 사본은 이미 떠 둠):\n  node scripts/safe-commit.mjs "<메시지>" docs/PENDING_DEPLOYS.md docs/HANDOFF.md docs/PROGRAM_CAPABILITY_MAP.md --as ${docAs} --push`);
