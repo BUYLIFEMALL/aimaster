@@ -39,7 +39,7 @@ import type { PhotoReviewResult } from "@/lib/photoReview";
 import PrivatePhotoInput from "@/components/PrivatePhotoInput";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import PostReviewGate from "@/components/PostReviewGate";
-import { draftImageList, mergeDraftImage, bodyImageAt, removeImageFromArticle, generatedDraftImages, pendingDraftImages, type DraftImage } from "@/lib/draftImages";
+import { draftImageList, mergeDraftImage, bodyImageAt, removeImageFromArticle, generatedDraftImages, pendingDraftImages, countImageMarkers, moveImageMarker, reorderBodyImages, type DraftImage } from "@/lib/draftImages";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
@@ -729,6 +729,24 @@ export default function MainPage() {
     imagesRef.current=next;setGeneratedImages(generatedDraftImages(next));setImagesEdited(true);
     setResult(previous=>previous?{...previous,images:next,...(changed?{content:content!,reviewStatus:undefined,reviewNote:undefined}:{})}:previous);
     try{await persistImages(currentPostId,next,epoch,changed?content:undefined);}finally{if(imageBusy.current===epoch)imageBusy.current=null;}
+  };
+
+  // 병합 A-5: 본문 이미지를 위/아래 소제목으로 옮긴다(확장이 소제목 단위로 배치하므로). 표시 수와 이미지 수가 다르면 옮기지 않는다.
+  const imageMoveSlot = (idx:number) => {
+    if(!result || generatedImages[idx]?.type!=="body")return null;
+    if(countImageMarkers(result.content)!==generatedImages.filter(image=>image.type==="body").length)return null;
+    return generatedImages.slice(0,idx).filter(image=>image.type==="body").length;
+  };
+
+  const handleMoveGeneratedImage = async (slot:number,direction:"up"|"down") => {
+    if(!result || !currentPostId || imageBusy.current!==null)return;
+    const moved=moveImageMarker(result.content,slot,direction);
+    if(!moved)return;
+    const epoch=sourceEpoch.current;imageBusy.current=epoch;
+    const next=reorderBodyImages(imagesRef.current,moved.from,moved.to);
+    imagesRef.current=next;setGeneratedImages(generatedDraftImages(next));setImagesEdited(true);
+    setResult(previous=>previous?{...previous,images:next,content:moved.content,reviewStatus:undefined,reviewNote:undefined}:previous);
+    try{await persistImages(currentPostId,next,epoch,moved.content);}finally{if(imageBusy.current===epoch)imageBusy.current=null;}
   };
 
   const handlePublishToQueue = async () => {
@@ -2186,6 +2204,22 @@ export default function MainPage() {
                                 <Download className="w-3 h-3" />
                                 <span>다운로드</span>
                               </a>
+                              {(() => {
+                                const slot = imageMoveSlot(idx);
+                                if (slot === null || !result) return null;
+                                return (["up", "down"] as const).map((direction) => (
+                                  <button
+                                    key={direction}
+                                    type="button"
+                                    disabled={!moveImageMarker(result.content, slot, direction)}
+                                    onClick={() => handleMoveGeneratedImage(slot, direction)}
+                                    className="px-1.5 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                    title={direction === "up" ? "위 소제목으로 옮기기" : "아래 소제목으로 옮기기"}
+                                  >
+                                    {direction === "up" ? "▲" : "▼"}
+                                  </button>
+                                ));
+                              })()}
                               <button
                                 type="button"
                                 onClick={() => handleRemoveGeneratedImage(idx)}

@@ -62,3 +62,51 @@ export function removeImageFromArticle(article: string, url: string): string {
     return src && same(src) ? "" : tag;
   }).replace(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/g,(match,src)=>same(src)?"":match);
 }
+
+// 병합 A-5(BLOG → 에이전트): 본문 이미지 위치를 소제목 단위로 옮긴다. 확장(article-plan.js)이 소제목 안의 이미지를 소제목 바로 아래로 모아 발행하므로
+// 문단 단위가 아니라 소제목 단위로 옮겨야 실제 발행 위치가 바뀐다. 표시 줄만 옮기고 본문 줄은 그대로 둔다.
+const IMAGE_MARKER=/^\s*\[IMAGE INSERT\b[^\]]*\]\s*$/i;
+const SECTION_MARKER=/^\s*\[SECTION\s*-/i;
+
+export function countImageMarkers(article: string): number {
+  return article.split(/\r?\n/).filter(line=>IMAGE_MARKER.test(line)).length;
+}
+
+/** slot번째 이미지 표시를 바로 위/아래 소제목 묶음으로 옮긴다. 옮길 수 없으면 null. from→to는 표시 순서 변화(본문 이미지 목록도 같이 옮긴다). */
+export function moveImageMarker(article: string, slot: number, direction: "up" | "down"): { content: string; from: number; to: number } | null {
+  const nl=article.includes("\r\n")?"\r\n":"\n";
+  const lines=article.split(/\r?\n/);
+  const markers=lines.map((line,index)=>IMAGE_MARKER.test(line)?index:-1).filter(index=>index>=0);
+  const at=markers[slot];
+  if(at===undefined)return null;
+  const headers=lines.map((line,index)=>SECTION_MARKER.test(line)?index:-1).filter(index=>index>=0);
+  // 묶음 0 = 첫 소제목 앞(도입부), 묶음 k = k번째 소제목.
+  const group=headers.filter(index=>index<at).length;
+  const target=direction==="up"?group-1:group+1;
+  if(target<0 || target>headers.length)return null;
+  const marker=lines[at];
+  const rest=lines.filter((_,index)=>index!==at);
+  const restHeaders=rest.map((line,index)=>SECTION_MARKER.test(line)?index:-1).filter(index=>index>=0);
+  let insertAt:number;
+  if(target===0)insertAt=restHeaders[0]; // 도입부 끝(첫 소제목 바로 앞)
+  else {
+    insertAt=restHeaders[target-1]+1; // 소제목 바로 아래
+    // 위로 올라온 이미지는 그 소제목 맨 위에 이미 있는 이미지들 뒤에 둔다(읽는 순서 유지).
+    if(direction==="up")while(insertAt<rest.length && IMAGE_MARKER.test(rest[insertAt]))insertAt++;
+  }
+  rest.splice(insertAt,0,marker);
+  const to=rest.slice(0,insertAt).filter(line=>IMAGE_MARKER.test(line)).length;
+  return { content: rest.join(nl), from: slot, to };
+}
+
+/** 생성된 본문 이미지(url 있는 body)만 from→to로 옮긴다. 대표 이미지·아직 안 만든 계획은 자리를 그대로 둔다. */
+export function reorderBodyImages<T extends DraftImage>(images: T[], from: number, to: number): T[] {
+  const positions=images.map((image,index)=>image.type==="body" && image.url?index:-1).filter(index=>index>=0);
+  if(from===to || from<0 || to<0 || from>=positions.length || to>=positions.length)return images;
+  const body=positions.map(index=>images[index]);
+  const [moved]=body.splice(from,1);
+  body.splice(to,0,moved);
+  const next=images.slice();
+  positions.forEach((index,order)=>{next[index]=body[order];});
+  return next;
+}
