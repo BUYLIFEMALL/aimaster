@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.22 완성본 보관
+- 최종 뮤직비디오 MP4를 「보관함에 저장 (30일)」로 회원 비공개 저장소에 올리고(브라우저 직접 업로드, 50MB·회원당 20개), 목록에서 재생·내려받기·지우기. 30일 자동 정리 예약 추가.
+- 운영 DB 변경(승인): 표 `mvs_renders` + 비공개 저장소 `music-video-studio`. Vercel `CRON_SECRET` 새로 등록. 공용 `cleanup-usage-log` 사본 1곳 추가(`docs/SHARED_MODULES.md`).
+- 검수(운영, 메인 크롬, 시험 계정): 배포 `music-video-studio-io3nlg1bp` Ready·화면/DB v1.22, 시험 25. 10초 MP4 보관 → DB 행·파일 확인 → 새로고침 뒤 재생·내려받기 → 지우기 뒤 행·파일 0. 정리 주소·비로그인 401. 커밋 `f33ecf8e6`.
+- 상세: [`music-video-studio/AGENTS.md`](../music-video-studio/AGENTS.md) v1.22 · https://music-video-studio.buylife.xyz
+- 다음: 주인님 지시 순서 2번(장면 영상 일괄 생성 전체 진행률·남은 시간). 비용: 빌드 1회, 이미지 2장(약 $0.08).
+
 ## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 영상 스튜디오 v1.11 배포 완료
 
 - 한 일: 갤러리 **「이 설정으로 다시 만들기」**(생성 기록 `options`에 처음 설명·화풍·카메라·다듬은 설명 저장, DB 표 변경 없음, 옛 기록은 최종 설명에서 안전 문구만 떼어 채움) + **다듬기 3안 고르기**(호출 1회 그대로) + **갤러리 모델별 거르기**. 플랜 `ai-video-studio/docs/PLAN_20261024_REUSE_FILTER.md`.
