@@ -25,7 +25,8 @@ function repo() {
   const write = (f, lines) => writeFileSync(join(dir, f), lines.join("\n") + "\n");
   const read = (f) => readFileSync(join(dir, f), "utf8");
   const head = (f) => git("show", `HEAD:${f}`).trimEnd().split("\n");
-  const helper = (...a) => spawnSync(process.execPath, ["scripts/safe-commit.mjs", ...a], { cwd: dir, encoding: "utf8" });
+  // 세션 이름이 필수라(2026-10-23) 기본으로 시험용 이름을 넣는다(--as를 주면 그쪽이 우선)
+  const helper = (...a) => spawnSync(process.execPath, ["scripts/safe-commit.mjs", ...a], { cwd: dir, encoding: "utf8", env: { ...process.env, AIMASTER_SESSION: "claude-test" } });
   const commit = (f, lines, msg) => { write(f, lines); git("add", f); git("commit", "-qm", msg); };
   return { dir, git, write, read, head, helper, commit, done: () => rmSync(dir, { recursive: true, force: true }) };
 }
@@ -151,7 +152,7 @@ test("⑨ 다른 도우미가 잠금을 잡고 있으면: 커밋은 하고 스�
     const lock = join(r.dir, ".git", "safe-commit-index.lock");
     writeFileSync(lock, "9999 다른 도우미");
     r.write("a.md", ["a", "b"]);
-    const out = spawnSync(process.execPath, ["scripts/safe-commit.mjs", "커밋", "a.md", "--mine"], { cwd: r.dir, encoding: "utf8", env: { ...process.env, SAFE_COMMIT_SYNC_TRIES: "2" } });
+    const out = spawnSync(process.execPath, ["scripts/safe-commit.mjs", "커밋", "a.md", "--mine"], { cwd: r.dir, encoding: "utf8", env: { ...process.env, AIMASTER_SESSION: "claude-test", SAFE_COMMIT_SYNC_TRIES: "2" } });
     assert.equal(out.status, 0, out.stdout + out.stderr);
     assert.match(out.stdout, /공용 스테이징 맞추기를 건너뜁니다/);
     assert.deepEqual(r.head("a.md"), ["a", "b"]);
@@ -187,5 +188,21 @@ test("⑪ 공용 스테이징이 이미 줄어 있으면: 더 쓰지 않고 알�
     assert.equal(out.status, 0, out.stdout + out.stderr);
     assert.match(out.stdout, /이미 줄어 있습니다/);
     assert.equal(r.git("ls-files").trim(), before, "줄어든 스테이징을 건드리지 않음");
+  } finally { r.done(); }
+});
+
+test("세션 이름이 없으면 --begin·커밋 모두 거부(2026-10-23 주인님 결정)", () => {
+  const r = repo();
+  try {
+    r.commit("a.md", ["a"], "c1");
+    const env = { ...process.env }; delete env.AIMASTER_SESSION;
+    const run = (...a) => spawnSync(process.execPath, ["scripts/safe-commit.mjs", ...a], { cwd: r.dir, encoding: "utf8", env });
+    const begin = run("--begin", "a.md");
+    assert.equal(begin.status, 2, begin.stdout + begin.stderr);
+    assert.match(begin.stderr, /세션 이름이 없습니다/);
+    r.write("a.md", ["a", "b"]);
+    const out = run("커밋", "a.md");
+    assert.equal(out.status, 2, out.stdout + out.stderr);
+    assert.deepEqual(r.head("a.md"), ["a"], "커밋되지 않음");
   } finally { r.done(); }
 });

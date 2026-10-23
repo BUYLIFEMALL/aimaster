@@ -34,9 +34,15 @@ const asIdx = args.indexOf("--as");
 const as = ((asIdx >= 0 ? args[asIdx + 1] : process.env.AIMASTER_SESSION) || "").replace(/[^\w.-]/g, "_");
 const [message, ...paths] = args.filter((a, i) => a !== "--push" && a !== "--as" && (asIdx < 0 || i !== asIdx + 1));
 if (!message || !paths.length) {
-  console.log('사용: node scripts/commit-paths.mjs "<커밋 메시지>" <경로>... [--push]');
+  console.log('사용: node scripts/commit-paths.mjs "<커밋 메시지>" <경로>... --as <세션명> [--push]');
   process.exit(2);
 }
+// 세션 이름 필수(2026-10-23 주인님 결정, safe-commit.mjs와 같은 기준) — 없으면 거부, claude-·codex-·agy-로 시작하지 않으면 안내만
+if (!as) {
+  console.error("✖ 세션 이름이 없습니다 — `--as <세션명>`을 붙이거나 환경변수 AIMASTER_SESSION을 설정해 다시 실행하세요.\n  예: node scripts/commit-paths.mjs \"<메시지>\" <경로> --as codex-win-20261023-작업   (형식 <CLI>-<장비>-<날짜>-<작업>, docs/MULTI_AGENT_SESSION_RULES.md §2)");
+  process.exit(2);
+}
+if (!/^(claude|codex|agy)-/.test(as)) console.error(`ℹ 세션 이름 「${as}」이 claude-·codex-·agy-로 시작하지 않아 블랙박스가 CLI를 구분하지 못합니다(커밋은 진행).`);
 const rel = paths.map((p) => p.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/$/, ""));
 const shared = rel.filter((p) => SHARED_DOCS.includes(p));
 if (shared.length) {

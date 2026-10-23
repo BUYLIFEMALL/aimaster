@@ -15,13 +15,20 @@
 // 다른 세션 커밋을 되돌리는 일이 구조적으로 생기지 않는다. 대신 pre-commit 훅은 돌지 않으므로 되돌림 점검을 이 안에서 한다.
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { hostname } from "node:os";
 import { dirname, join } from "node:path";
 
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
 const optVal = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : undefined; };
-const as = (optVal("--as") || hostname()).replace(/[^\w.-]/g, "_");
+// 세션 이름 필수(2026-10-23 주인님 결정): --as 또는 환경변수 AIMASTER_SESSION. 없으면 거부 — 블랙박스의 CLI 구분·시작 점검 누락 알림·되돌림 감사가 세션 이름에 기대므로.
+// 이름 첫 단어가 claude-·codex-·agy-가 아니면 막지 않고 안내만(멀티세션 규칙 §2 「<CLI>-<장비>-<날짜>-<작업>」)
+const sessionName = optVal("--as") || process.env.AIMASTER_SESSION || "";
+if (argv.length && !sessionName) {
+  console.error("✖ 세션 이름이 없습니다 — `--as <세션명>`을 붙이거나 환경변수 AIMASTER_SESSION을 설정해 다시 실행하세요.\n  예: node scripts/safe-commit.mjs \"<메시지>\" <파일> --as codex-win-20261023-작업   (형식 <CLI>-<장비>-<날짜>-<작업>, docs/MULTI_AGENT_SESSION_RULES.md §2)\n  --begin과 커밋에는 같은 이름을 씁니다(기준 사본을 이름으로 찾음).");
+  process.exit(2);
+}
+if (sessionName && !/^(claude|codex|agy)-/.test(sessionName)) console.error(`ℹ 세션 이름 「${sessionName}」이 claude-·codex-·agy-로 시작하지 않아 블랙박스가 CLI를 구분하지 못합니다(커밋은 진행).`);
+const as = sessionName.replace(/[^\w.-]/g, "_");
 const positional = argv.filter((a, i) => !a.startsWith("--") && argv[i - 1] !== "--as");
 
 const run = (args, opts = {}) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 512 * 1024 * 1024, ...opts });
@@ -274,7 +281,7 @@ for (let attempt = 1; attempt <= 5 && !done; attempt++) {
     if (!changed.length) { console.log("바뀐 내용이 없습니다(최신 HEAD와 같음) — 커밋하지 않음."); process.exit(0); }
     const tree = run(["write-tree"], { env }).trim();
     // --as를 직접 줬으면 메시지 끝 단락에 `AIMaster-Session: <이름>` 트레일러 — 되돌림 감사가 「어느 세션의 커밋인지」 보여 준다(2026-10-23)
-    const msgOut = optVal("--as") && !/^AIMaster-Session:/m.test(message) ? `${message.replace(/\s+$/, "")}\nAIMaster-Session: ${as}\n` : (message.endsWith("\n") ? message : message + "\n");
+    const msgOut = as && !/^AIMaster-Session:/m.test(message) ? `${message.replace(/\s+$/, "")}\nAIMaster-Session: ${as}\n` : (message.endsWith("\n") ? message : message + "\n");
     const commit = run(["commit-tree", tree, "-p", oldHead], { input: msgOut }).trim();
     // HEAD가 그대로일 때만 옮김(바뀌었으면 실패 → 최신 HEAD로 다시)
     if (tryRun(["update-ref", "-m", `safe-commit: ${message.split("\n")[0]}`, `refs/heads/${branch}`, commit, oldHead]) === null) {

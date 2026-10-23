@@ -24,9 +24,11 @@ function repo(fileCount = 0) {
   for (let i = 0; i < fileCount; i++) writeFileSync(join(dir, "bulk", `f${i}.txt`), `${i}\n`);
   writeFileSync(join(dir, "keep.txt"), "keep\n");
   git("add", "-A"); git("commit", "-qm", "c1");
-  const helper = (...a) => spawnSync(process.execPath, ["scripts/commit-paths.mjs", ...a], { cwd: dir, encoding: "utf8" });
+  // 세션 이름이 필수라(2026-10-23) 기본으로 시험용 이름을 넣는다. 이름 없는 경우는 helperNoName
+  const helper = (...a) => spawnSync(process.execPath, ["scripts/commit-paths.mjs", ...a], { cwd: dir, encoding: "utf8", env: { ...process.env, AIMASTER_SESSION: "claude-test" } });
+  const helperNoName = (...a) => { const env = { ...process.env }; delete env.AIMASTER_SESSION; return spawnSync(process.execPath, ["scripts/commit-paths.mjs", ...a], { cwd: dir, encoding: "utf8", env }); };
   const tree = (rev = "HEAD") => git("ls-tree", "-r", "--name-only", rev).trim().split("\n").filter(Boolean);
-  return { dir, git, helper, tree, done: () => rmSync(dir, { recursive: true, force: true }) };
+  return { dir, git, helper, helperNoName, tree, done: () => rmSync(dir, { recursive: true, force: true }) };
 }
 
 test("① 새 파일·수정·삭제·바이너리를 폴더 경로 하나로 커밋", () => {
@@ -100,5 +102,20 @@ test("④ 공용 문서는 거부하고 안전 커밋 도우미로 안내", () =
     const out = r.helper("handoff", "docs/HANDOFF.md");
     assert.notEqual(out.status, 0);
     assert.match(out.stdout, /safe-commit/);
+  } finally { r.done(); }
+});
+
+test("⑥ 세션 이름이 없으면 거부하고 아무것도 커밋하지 않는다, --as를 주면 커밋", () => {
+  const r = repo(0);
+  try {
+    writeFileSync(join(r.dir, "n.txt"), "n\n");
+    const before = r.git("rev-parse", "HEAD").trim();
+    const out = r.helperNoName("이름 없음", "n.txt");
+    assert.equal(out.status, 2, out.stdout + out.stderr);
+    assert.match(out.stderr, /세션 이름이 없습니다/);
+    assert.equal(r.git("rev-parse", "HEAD").trim(), before);
+    const ok = r.helperNoName("이름 있음", "n.txt", "--as", "codex-win-test");
+    assert.equal(ok.status, 0, ok.stdout + ok.stderr);
+    assert.match(r.git("log", "-1", "--format=%B"), /AIMaster-Session: codex-win-test/);
   } finally { r.done(); }
 });

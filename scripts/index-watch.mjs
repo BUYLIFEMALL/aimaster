@@ -110,7 +110,7 @@ try {
     console.error(`⚠ [공용 스테이징 축소 감지] 지금 ${entries}개 (HEAD ${head}개, 직전 기록 ${lastEntries}개)`);
     console.error(`  직전 기록: ${last ?? "(없음)"}`);
     console.error(`  기록 전체: ${shown(logPath)} — 줄어든 시각(index=…@시각) 앞뒤 줄의 장비·부른 곳으로 원인을 좁힌다. 고치기 전에 주인님께(루트 CLAUDE.md 최상단).`);
-  } else if (!quiet && tag !== "session-check") console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
+  } else if (!quiet && rawTag !== "session-check") console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
   // --stale-only(2026-10-23): 커밋 전에 묵은 항목만 확인 — 있으면 종료 코드 3. 맥미니 commit-gate.sh(멈춤)·safe-commit·commit-paths(안내만)가 부른다.
   // 축소 감지(위, stderr)는 그대로 나온 뒤에 실행한다.
   if (process.argv.includes("--stale-only")) {
@@ -125,7 +125,7 @@ try {
     try { printStale(staleEntries()); } catch { /* 무시 */ }
   }
   // 세션 시작 점검: 최근 24시간 「축소가 시작된」 순간(정상 → 절반 미만으로 바뀐 기록)과 그 직전 기록을 한 줄로(2026-10-23)
-  if (tag === "session-check") {
+  if (rawTag === "session-check") { // 이름표에 (세션)이 붙어도 점검은 그대로(2026-10-23 — tag로 비교해 AIMASTER_SESSION을 주면 점검 전체가 건너뛰어졌음)
     // 출력을 모았다가 ⚠가 없으면 한 줄로 합친다(2026-10-23 — 매번 4~5줄이 나와 정작 경고가 묻힘). ⚠가 있으면 전부 그대로.
     const out = [], realLog = console.log;
     console.log = (...a) => out.push(a.join(" "));
@@ -185,7 +185,7 @@ try {
       const named = pick(/세션 이름 표시\] 최근 커밋 \d+개 중 \d+개\((\d+%)\)/);
       const obs = pick(/뒤 (\d+\.\d)시간째 · 축소 0번/);
       const ev = out.some((l) => l.startsWith("[공용 스테이징 잠금 증거]"));
-      console.log(`[공용 스테이징] 이상 없음 — ${entries}개 = HEAD ${head}개 · 24시간 축소 0번 · 잠금·묵은 항목 없음${named ? ` · 세션 이름 ${named}` : ""}${obs ? ` · 원인 관찰 ${obs}시간째` : ""}${ev ? ` · 24시간 안 잠금 증거 있음(${shown(evidencePath)})` : ""}`);
+      console.log(`[공용 스테이징] 이상 없음 — ${entries}개 = HEAD ${head}개 · 24시간 축소 0번 · 잠금·묵은 항목 없음${named && parseInt(named, 10) < 90 ? ` · 세션 이름 ${named}(도우미는 2026-10-23부터 이름 필수)` : ""}${obs ? ` · 원인 관찰 ${obs}시간째` : ""}${ev ? ` · 24시간 안 잠금 증거 있음(${shown(evidencePath)})` : ""}`);
     }
   }
 } catch (e) {
