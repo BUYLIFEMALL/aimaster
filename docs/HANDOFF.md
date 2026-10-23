@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — YOUTUBE Shots v1.40: 배경음악 모델 고르기 (배경음악 공용화 4단계)
+- 배경음악 칸에 「음악 모델」 선택: Suno V6(기본·2곡)·V6 Mini·V6 Wild(기존 폴링 그대로) / Google Lyria 3.5(Gemini 키)·ElevenLabs Music(ElevenLabs 키) — 1곡을 서버 액션 안에서 바로 받아 `shots-bgm` 저장·트랙 추가·완료 처리(DB 구조 변경 없음, 페이지 `maxDuration = 300`). 모델 목록 `src/lib/bgmModels.ts`(화면·서버 공용), 설정 「🎵 음악 생성」에 ElevenLabs 키 칸(공용 칸 — AI 음악 스튜디오에서 등록한 키가 그대로 보임).
+- 공용 기준 코드 신설 **`music-sync-calls`** = `ai-music-studio/lib/providers/musicCalls.ts`(Lyria·ElevenLabs 호출·오류 안내), 사본 `shots/src/lib/ai/musicCalls.ts`. AI 음악 스튜디오 어댑터 2개·`providerError`는 이 파일을 쓰도록 분리만(시험 25개·빌드 통과) — **미배포 대기**(5단계 배포 때 함께).
+- 검수: tsc·시험 4개(모델 목록 1개 추가)·공용 점검·build(쇼츠·AI 음악 스튜디오), 커밋 `2696241fa`(경로 지정 12개)·앞 커밋(4개), 배포 `shots-eqcj3uc0r` Ready, DB v1.40. 크롬 시험 회원: 모델 5개 표시, Lyria 3.5 → 26초 만에 저장(MP3 1.4MB·62초), ElevenLabs → 10초(MP3 1.4MB·60초), 오류 없음, 설정 화면 ElevenLabs 칸 등록됨 표시.
+- 특이: 내 `scripts/check-shared-modules.mjs` 수정이 다른 세션 커밋 `b4696e1e6`에 먼저 들어감(내용 맞음, `docs/ERROR_LESSONS.md` 기록).
+- 비용: Vercel 빌드 1회, Lyria 1회 약 $0.08 + ElevenLabs 60초 1회 약 $0.15(시험 회원 본인 키) — 승인 범위($0.3) 안. 프로그램 링크:
+https://shots.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 세션 점검에 「안전장치 자기 시험」 · 30일 정리 기록 남은 7곳 안내(블로그 병합·맥미니)
 - **`deploy.mjs --version-only --all`** 에 `[커밋·푸시 안전장치 자기 시험]`: 실제 훅 파일로 ① 빈 임시 스테이징(`GIT_INDEX_FILE`, 공용 index 안 건드림) → pre-commit이 막는지 ② 알려진 대량 삭제 커밋 `c2e7c4db2` 푸시 흉내 → pre-push가 막는지. 통과시키면 「⚠ … 고장」이 맨 위 요약에. 고장 난 훅(`04b887892` 판)으로 몇 초 바꿔 ⚠ 나오는 것 확인 후 즉시 재설치(설치본 = 원본).
 - **30일 정리 기록 19/26 — 남은 7곳은 모두 다른 세션 담당**:

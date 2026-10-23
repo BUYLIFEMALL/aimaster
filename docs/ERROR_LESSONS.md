@@ -1,6 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-10-23 — 경로를 지정해 커밋했는데도 내 수정 파일이 다른 세션 커밋에 먼저 들어감 (scripts/check-shared-modules.mjs, Claude Code 윈도우)
+- 증상: 공용 모듈 등록(`music-sync-calls`)으로 고친 `scripts/check-shared-modules.mjs`가 내 커밋(파일 5개 지정)에서 빠지고(4개), 그 사이 다른 세션 커밋 `b4696e1e6`(instagram-comment-reply)에 섞여 들어감. 내용은 맞아 되돌리지 않음.
+- 원인: 공용 작업 폴더라 다른 세션이 경로 없이(또는 넓은 경로로) 커밋하면 내 미커밋 파일이 함께 들어간다 — 경로 지정 커밋은 「내 커밋에 남의 것이 섞이는 것」만 막는다.
+- 다음부터: 공용 스크립트·여러 세션이 고치는 파일은 수정 직후 바로 경로 지정 커밋하고, 커밋 뒤 `git show --stat HEAD`로 개수가 맞는지 보고, 빠졌으면 `git log -1 -- <파일>`로 누가 넣었는지 확인해 인수인계에 적는다.
+
 ## 2026-10-23 — 재발 방지 훅을 넣은 커밋에서 pre-commit이 「검사를 하나도 안 하고 통과」하는 상태였다 (scripts/git-hooks, Claude Code 윈도우)
 - 증상: `sh -x .git/hooks/pre-commit` → `command -v node` 다음 바로 `exit 0`. 대량 삭제 검사·OpenAI 모델 경고·공용 문서 되돌림 경고가 모두 돌지 않았다(pre-push는 정상).
 - 원인: `04b887892`가 검사 블록을 넣으며 `command -v node … || exit 0`과 `root=… || exit 0`의 `exit 0` 자리에 주석+블록을 끼워 넣음 → `node 있음 || (블록)`이 되어 블록은 건너뛰고 다음 줄 `exit 0`.
