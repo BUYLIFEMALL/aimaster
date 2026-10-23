@@ -381,3 +381,10 @@
 - 배포판: `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.03.zip`(65개 파일, 번호는 Threads_AI_Planner_Kit v1.02에서 이어감). `kit.json` title 「ALLA AI」, `shortName`(threads-planner)은 그대로 둬 v1.01·v1.02 설치본에서 업데이트 모드가 찾음. 압축 안 폴더 이름은 `threads-easy-planner` 그대로(포장 스크립트가 원본 폴더 이름 사용).
 - 확인: 압축을 풀어 독립 모드 build + `next start` → `/login` 탭 제목 「ALLA AI」, 「ALLA AI」 4건·옛 이름 0건.
 - 운영 배포: 미배포 대기(독립 모드 전용 — 운영 화면 변화 없음, 버전 그대로 v1.48).
+
+## 2026-10-23 v1.49 운영에서 이미지 기능 숨김(배포판만 유지) — Claude Code 윈도우 · 세션 `claude-win-20261023-tep-kit`
+- 주인님 지시 「운영은 그대로 두고 배포판만 이미지 기능 유지」「이미지 만드는 기능은 다른 쓰레드에 이미 있어」「기능은 구현해놓고 보이지 않게만 해둬도 문제 없어」.
+- `src/lib/deployment.ts` `IMAGE_FEATURE = IS_STANDALONE` — 운영: 이미지 설정 칸·결과 이미지 영역·자동 생성·설정 안내 숨김, 서버 기능(`images.ts`)도 「이 사이트에서는 이미지 만들기를 쓰지 않습니다」로 거절, 30일 이미지 정리 생략. 배포판: 그대로 켜짐. 코드는 남겨 둠.
+- 운영 DB의 `tep_saved_plans`(보관함)·버킷 `tep-images`는 그대로(보관함 DB 저장은 운영에서도 계속 사용).
+- 배포 v1.49 Ready(빌드 1회), DB 버전 v1.49. ALLA AI 이름 코드(미배포 대기분)도 함께 나감 — 운영 이름은 그대로. 크롬 확인: 버전 v1.49, 이미지 칸·버튼 없음, 이름 「Threads AI 기획 자동화」.
+- 배포판 `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.04.zip`(동작은 v1.03과 같음, 원본 코드 동기화).
