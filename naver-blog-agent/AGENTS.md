@@ -1,3 +1,4 @@
+> **✅ v2.14로 배포 완료(2026-10-23, Claude Code 윈도우 블로그 전담 `claude-win-20261023-seo-bg`):** 30일 정리 회원별 기록 — 원고·AI 이미지·글감·비공개 사진(`6cd2b9783`). 매일 30일 정리 크론이 실제로 지운 것만 회원별로 `usage_logs` `cleanup_expired`에 기록(관리자 「30일 자동 정리」 표). 배포 Ready·코드/DB 버전 일치·확장/ZIP 검사 OK. 확장 코드 변경 없음(버전만).
 # 네이버 블로그 에이전트 (naver-blog-agent) — AI 에이전트 인수인계 문서
 
 > **📮 전담 세션 필독(2026-10-23):** 블로그 전담이 아닌 다른 Claude Code 세션이 이 프로그램에 변경 3건(v2.12 이미지 버킷 · 글 23건 이미지 이관 · v2.13 정리 판정)을 했습니다. 경위·확인할 점(이관한 글의 검수 STALE 가능성 등): [`docs/IMPROVEMENT_HANDOFF_20261023_OTHER_SESSION_IMAGE_BUCKET.md`](docs/IMPROVEMENT_HANDOFF_20261023_OTHER_SESSION_IMAGE_BUCKET.md)

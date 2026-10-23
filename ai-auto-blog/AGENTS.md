@@ -1,3 +1,4 @@
+> **✅ v1.80로 배포 완료(2026-10-23, Claude Code 윈도우 블로그 전담 `claude-win-20261023-seo-bg`):** 30일 정리 회원별 기록 — 글·이미지·글감(`6cd2b9783`). 매일 30일 정리 크론이 실제로 지운 것만 회원별로 `usage_logs` `cleanup_expired`에 기록(관리자 「30일 자동 정리」 표). 배포 Ready·코드/DB 버전 일치·확장/ZIP 검사 OK. 확장 코드 변경 없음(버전만).
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
