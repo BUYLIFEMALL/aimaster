@@ -10,11 +10,29 @@ import { EditComposition } from "@/components/edit/Composition";
 import { CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, dimensions, layout, splitEvenly, validate, type CaptionSize, type CaptionStyle, type EditClip, type EditProject, type EditQuality } from "@/lib/edit/timeline";
 import { loadLocalSong } from "@/lib/music/localSong";
 import { sceneLengthsFromLyrics } from "@/lib/music/sceneTiming";
+import { detectBeat, snapLengths, type BeatInfo } from "@/lib/music/beat";
 import { useStudio } from "@/components/studio/ProjectProvider";
 import { BTN_GHOST, BTN_PRIMARY, Card } from "@/components/studio/ui";
 
 const MAX_TOTAL_S = 420; // 곡 최대 7분
 const FALLBACK_SCENE_S = 5;
+
+/** v1.19 곡 소리를 풀어 박자를 찾는다(회원 브라우저에서, 비용 없음). 못 찾으면 null */
+async function analyzeBeat(blob: Blob): Promise<BeatInfo | null> {
+  try {
+    const buf = await blob.arrayBuffer();
+    const audio = await new OfflineAudioContext(1, 1, 22050).decodeAudioData(buf);
+    const len = audio.length;
+    const mono = new Float32Array(len);
+    for (let c = 0; c < audio.numberOfChannels; c++) {
+      const ch = audio.getChannelData(c);
+      for (let i = 0; i < len; i++) mono[i] += ch[i] / audio.numberOfChannels;
+    }
+    return detectBeat(mono, audio.sampleRate);
+  } catch {
+    return null;
+  }
+}
 
 function mediaDuration(src: string): Promise<number | null> {
   return new Promise((resolve) => {
@@ -32,6 +50,8 @@ export function FinalRender() {
   const [songSrc, setSongSrc] = useState<string | null>(null);
   const [songSec, setSongSec] = useState<number | null>(null);
   const [songNote, setSongNote] = useState("");
+  const [beat, setBeat] = useState<BeatInfo | null | "busy">(null);
+  const [beatSnap, setBeatSnap] = useState(true);
   const [quality, setQuality] = useState<EditQuality>("720p");
   const [captions, setCaptions] = useState(true);
   const [captionStyle, setCaptionStyle] = useState<CaptionStyle>("yellow");
@@ -52,7 +72,7 @@ export function FinalRender() {
   useEffect(() => {
     let alive = true;
     let made: string | null = null;
-    setSongSrc(null); setSongSec(null); setSongNote("");
+    setSongSrc(null); setSongSec(null); setSongNote(""); setBeat(null);
     (async () => {
       if (!song) return;
       try {
@@ -71,6 +91,9 @@ export function FinalRender() {
         const sec = await mediaDuration(made);
         if (!alive) return;
         setSongSrc(made); setSongSec(sec);
+        setBeat("busy");
+        const b = await analyzeBeat(blob);
+        if (alive) setBeat(b);
       } catch (e) {
         if (alive) setSongNote(e instanceof Error ? e.message : "곡을 불러오지 못했습니다.");
       }
@@ -81,7 +104,10 @@ export function FinalRender() {
   const usable = scenes.filter((s) => media[s.id]?.videoUrl || media[s.id]?.imageUrl);
   // v1.18 곡이 시간 가사(AI 음악 스튜디오 Lyria)면 장면 가사가 나오는 시각에 장면을 바꾸고, 못 맞추면 곡 길이를 고르게 나눈다
   const timed = songSec ? sceneLengthsFromLyrics(project.lyrics, usable.map((s) => s.lyric), songSec) : null;
-  const lengths = timed ?? (songSec ? splitEvenly(songSec, usable.length) : usable.map(() => FALLBACK_SCENE_S));
+  const base = timed ?? (songSec ? splitEvenly(songSec, usable.length) : usable.map(() => FALLBACK_SCENE_S));
+  // v1.19 전환을 박자에 맞춤 — 가사 시각이면 가까운 박(조금만 옮김), 고르게 나눴으면 마디(4박) 시작
+  const beatInfo = beat && beat !== "busy" ? beat : null;
+  const lengths = songSec && beatSnap && beatInfo ? snapLengths(base, beatInfo, timed ? "beat" : "bar") : base;
 
   const editProject: EditProject = useMemo(() => {
     const clips: EditClip[] = usable.map((s, i) => {
@@ -155,7 +181,7 @@ export function FinalRender() {
         <h2 className="flex items-center gap-2 text-base font-extrabold text-white"><Film className="h-5 w-5 text-cyan-300" aria-hidden="true" /> 🎬 최종 뮤직비디오 만들기</h2>
         <p className="mt-1 text-xs leading-relaxed text-slate-400">
           장면 영상(없으면 장면 이미지)에 이 뮤직비디오의 곡과 가사 자막을 얹어 MP4 한 편으로 만듭니다. 내 PC 브라우저에서 만들어 비용이 들지 않습니다.
-          곡에 시간 가사가 있으면 그 장면의 가사가 나오는 시각에 장면을 바꾸고, 없으면 곡 길이를 장면 수로 고르게 나눕니다. 장면보다 짧은 영상은 반복 재생합니다.
+          곡에 시간 가사가 있으면 그 장면의 가사가 나오는 시각에 장면을 바꾸고, 없으면 곡 길이를 장면 수로 고르게 나눕니다. 곡의 박자를 찾으면 전환을 박자에 맞춥니다. 장면보다 짧은 영상은 반복 재생합니다.
         </p>
       </div>
 
@@ -163,6 +189,17 @@ export function FinalRender() {
         <p>장면 <b className="text-white">{usable.length}</b>/{scenes.length}개 (영상 {videoCount} · 이미지 {usable.length - videoCount})</p>
         <p>곡 {song ? (songSrc ? <b className="text-white">{song.title} · {songSec ? `${Math.round(songSec)}초` : "길이 확인 중"}</b> : songNote ? <span className="text-amber-200">{songNote}</span> : "불러오는 중…") : <span className="text-amber-200">없음 — 3단계에서 곡을 고르면 곡 길이에 맞춰집니다(지금은 장면마다 {FALLBACK_SCENE_S}초)</span>}</p>
         <p>완성 길이 <b className="text-white">{Math.round(totalFrames / FPS)}초</b> · {width}×{height}{songSec ? <> · 장면 길이 <b className={timed ? "text-emerald-300" : "text-white"}>{timed ? "가사 시각에 맞춤" : "고르게 나눔"}</b></> : null}</p>
+        {songSrc && (
+          <p className="sm:col-span-3">
+            박자 {beat === "busy" ? "찾는 중…" : beatInfo ? <><b className="text-white">약 {Math.round(beatInfo.bpm)} BPM</b> · </> : <span className="text-slate-400">찾지 못해 장면 전환을 그대로 둡니다 · </span>}
+            {beatInfo && (
+              <label className="inline-flex items-center gap-1.5">
+                <input type="checkbox" checked={beatSnap} disabled={busy} onChange={(e) => setBeatSnap(e.target.checked)} />
+                장면 전환을 박자에 맞추기{timed ? "(가까운 박)" : "(마디 시작)"}
+              </label>
+            )}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

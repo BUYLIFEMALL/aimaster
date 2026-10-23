@@ -146,3 +146,48 @@ test("장면 길이: 가사 시간표에 맞춤 / 못 맞추면 null", async () 
   // 짧은 줄(한 글자·긴 장면 가사의 일부)은 포함 비교에 쓰지 않음
   assert.equal(sceneLengthsFromLyrics("[0.0:2.0] 아\n[2.0:5.0] 노래", ["아름다운 노래"], 10), null);
 });
+
+test("v1.19 박자 찾기: 합성 딸깍 소리의 BPM·첫 박", async () => {
+  const { detectBeat } = await import("../src/lib/music/beat.ts");
+  const sr = 22050;
+  const click = (bpm, first, secs, seed = 1) => {
+    const a = new Float32Array(sr * secs);
+    let r = seed;
+    for (let i = 0; i < a.length; i++) { r = (r * 16807) % 2147483647; a[i] = ((r / 2147483647) - 0.5) * 0.01; } // 약한 잡음
+    for (let t = first; t < secs; t += 60 / bpm) {
+      const o = Math.round(t * sr);
+      for (let j = 0; j < 220 && o + j < a.length; j++) a[o + j] += Math.sin(j * 0.6) * Math.exp(-j / 60);
+    }
+    return a;
+  };
+  for (const [bpm, first] of [[120, 0.3], [90, 0.1], [140, 0.25]]) {
+    const b = detectBeat(click(bpm, first, 20), sr);
+    assert.ok(b, `${bpm} 찾음`);
+    assert.ok(Math.abs(b.bpm - bpm) <= 1.5, `${bpm} → ${b.bpm}`);
+    assert.ok(Math.abs(b.firstBeat - first) <= 0.03, `첫 박 ${first} → ${b.firstBeat}`);
+  }
+  // 잡음만·너무 짧음 → null
+  const noise = new Float32Array(sr * 10); let r = 7; for (let i = 0; i < noise.length; i++) { r = (r * 16807) % 2147483647; noise[i] = ((r / 2147483647) - 0.5) * 0.2; }
+  assert.equal(detectBeat(noise, sr), null);
+  assert.equal(detectBeat(new Float32Array(sr * 2), sr), null);
+  assert.equal(detectBeat(new Float32Array(sr * 10), sr), null);
+});
+
+test("v1.19 장면 전환을 박자에 맞추기", async () => {
+  const { snapLengths } = await import("../src/lib/music/beat.ts");
+  const beat = { period: 0.5, firstBeat: 0.2 }; // 120 BPM, 마디 2초(0.2, 2.2, 4.2 …)
+  // 고르게 나눈 16초 4장면(4,8,12) → 마디 4.2·8.2·12.2로
+  const s = snapLengths([4, 4, 4, 4], beat, "bar");
+  assert.deepEqual(s, [4.2, 4, 4, 3.8]);
+  assert.ok(Math.abs(s.reduce((a, b) => a + b, 0) - 16) < 1e-9);
+  // 박 기준: 5.1 → 5.2
+  assert.deepEqual(snapLengths([5.1, 4.9], beat, "beat"), [5.2, 4.8]);
+  // 마디가 1.5박보다 멀면 가까운 박으로(3.1 → 마디 2.2/4.2 모두 멂 → 박 3.2)
+  assert.deepEqual(snapLengths([3.1, 6.9], beat, "bar"), [3.2, 6.8]);
+  // 장면이 1초보다 짧아지면 옮기지 않음
+  assert.deepEqual(snapLengths([1.2, 5], { period: 0.5, firstBeat: 0 }, "beat", 1.1), [1.2, 5]); // 1.0으로 옮기면 1.1초보다 짧음
+  assert.deepEqual(snapLengths([1.05, 5], { period: 0.5, firstBeat: 0 }, "bar", 1), [1, 5.05]); // 1.0초는 최소 1초를 지킴
+  // 장면 1개·박 없음은 그대로
+  assert.deepEqual(snapLengths([10], beat), [10]);
+  assert.deepEqual(snapLengths([4, 4], { period: 0, firstBeat: 0 }), [4, 4]);
+});
