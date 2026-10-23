@@ -28,7 +28,7 @@ export default function GuidePage() {
         <p className="text-4xl" aria-hidden="true">🎧</p>
         <h1 className="mt-3 text-2xl font-black text-white md:text-3xl">여러 음악 AI를 한곳에서, 나란히 듣고 고르세요</h1>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-zinc-300">
-          AI 음악 스튜디오는 Google Lyria·ElevenLabs·Suno·MiniMax·Stable Audio·ACE-Step을 한 화면에서 쓰는 음악 생성 도구입니다.
+          AI 음악 스튜디오는 Google Lyria(실시간 연주 Lyria RealTime 포함)·ElevenLabs·Suno·MiniMax·Stable Audio 3·ACE-Step을 한 화면에서 쓰는 음악 생성 도구입니다.
           같은 곡 설명으로 여러 모델을 한 번에 돌려 보고, 내 영상·채널에 가장 잘 맞는 소리를 고를 수 있습니다. 음악 생성 비용은 회원 본인 키의 계정에 청구됩니다.
         </p>
       </section>
@@ -97,6 +97,43 @@ export default function GuidePage() {
           <li>「결과를 받지 못했습니다」가 뜨면 바로 다시 누르지 말고, 해당 플랫폼 사용량을 먼저 확인하세요(이미 요금이 나갔을 수 있습니다).</li>
           <li>곡은 30일 뒤 자동 삭제됩니다. 오래 쓸 곡은 내려받아 두세요.</li>
         </ul>
+      </section>
+
+      {/* v1.11 매뉴얼 지침 ④ 단계별 상세 안내 — 공급자별 키 발급 3단계 */}
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">공급자별 키 발급 순서</h2>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          {VISIBLE_PROVIDERS.map((p) => (
+            <div key={p.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+              <p className="text-sm font-bold text-white">{p.name}</p>
+              <ol className="mt-2 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-zinc-300">
+                <li><a href={p.keyLink} target="_blank" rel="noreferrer" className="font-bold text-violet-300 underline">키 발급 화면 열기 ↗</a> — 본인 계정으로 로그인합니다.</li>
+                <li>새 키를 만들고 복사합니다(모양: <code className="rounded bg-zinc-950 px-1 text-zinc-200">{p.placeholder}</code>).</li>
+                <li><Link href="/settings" className="font-bold text-violet-300 underline">API키등록·플랫폼연동</Link>의 「{p.keyLabel}」 칸에 붙여 넣고 저장합니다.</li>
+              </ol>
+              <p className="mt-2 text-[11px] leading-snug text-zinc-500">{p.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* v1.11 자주 묻는 질문 */}
+      <section className="space-y-2">
+        <h2 className="text-lg font-bold text-white">자주 묻는 질문</h2>
+        {[
+          ["한 번에 몇 곡이 나오나요?", "Suno·Mureka는 한 번에 2곡, 나머지 모델은 1곡입니다. 모델 비교를 쓰면 최대 3개 모델 결과를 나란히 받습니다."],
+          ["보관함 곡을 이어서 들을 수 있나요?", "곡 카드의 ▶를 누르면 화면 아래 미니 플레이어로 재생되고, 끝나면 화면에 보이는 다음 곡으로 넘어갑니다."],
+          ["다른 프로그램에서 쓰려면?", "곡 카드의 「가사 영상」「쇼츠 원스톱 배경음악」「뮤직비디오」「플레이리스트」 링크를 누르면 그 프로그램에 곡이 바로 들어갑니다."],
+          ["Lyria RealTime은 무엇인가요?", "구글의 실험 모델로, 실시간 연주를 서버가 정한 길이(10~120초)만큼 녹음해 고음질 WAV로 저장합니다. 연주곡 전용이고 길이만큼 시간이 걸립니다."],
+          ["비용은 어디서 확인하나요?", "곡 카드 아래의 「사용량 확인」 링크가 각 플랫폼 사용량 페이지로 연결됩니다. 이 프로그램은 요금을 받지 않고, 비용은 회원 본인 키 계정에 청구됩니다."],
+        ].map(([q, a]) => (
+          <details key={q} className="group rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 open:border-violet-500/30">
+            <summary className="cursor-pointer list-none text-sm font-bold text-white">
+              <span className="mr-2 text-violet-300 group-open:hidden">＋</span><span className="mr-2 hidden text-violet-300 group-open:inline">－</span>{q}
+            </summary>
+            <p className="mt-2 text-xs leading-relaxed text-zinc-300">{a}</p>
+          </details>
+        ))}
       </section>
 
       <section className="space-y-3">

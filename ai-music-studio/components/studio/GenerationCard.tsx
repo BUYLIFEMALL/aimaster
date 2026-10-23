@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Download, FileText, Loader2, StickyNote, Star, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { PROVIDERS } from "@/lib/providers/catalog";
+import { TrackRow } from "@/components/player/TrackRow";
+import { styleOf } from "@/lib/providerStyle";
 
 export const LYRIC_VIDEO_URL = "https://lyric-video-studio.buylife.xyz/source";
 export const PLAYLIST_URL = "https://playlist-channel-studio.buylife.xyz/video";
@@ -76,11 +78,13 @@ export function GenerationCard({ gen, onDeleted, onUpdated }: { gen: ClientGener
   }
 
   return (
-    <article data-generation={gen.id} className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+    <article data-generation={gen.id} className="relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 pt-5">
+      {/* v1.11 공급자 색 띠 */}
+      <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${styleOf(gen.provider).strip}`} />
       <header className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-white" title={gen.title || gen.prompt}>{gen.title || gen.prompt.slice(0, 40)}</p>
-          <p className="mt-0.5 text-xs text-violet-300">{gen.modelName}</p>
+          <p className={`mt-0.5 text-xs ${styleOf(gen.provider).text}`}>{gen.modelName}</p>
         </div>
         {gen.status === "completed" && (
           <button type="button" onClick={() => patch({ star: !star })} disabled={saving} aria-pressed={star} title={star ? "별 표시 빼기" : "마음에 드는 곡으로 별 표시"}
@@ -120,7 +124,7 @@ export function GenerationCard({ gen, onDeleted, onUpdated }: { gen: ClientGener
       {gen.outputs.map((o, i) => (
         <div key={o.path} className="space-y-1.5">
           {gen.outputs.length > 1 && <p className="text-[11px] font-medium text-zinc-500">{o.title ? `${o.title} · ` : ""}{i + 1}번 곡</p>}
-          {o.url ? <audio controls preload="none" src={o.url} className="w-full" /> : <p className="text-xs text-zinc-500">재생 주소를 만들지 못했습니다.</p>}
+          {o.url ? <TrackRow track={{ key: `${gen.id}:${i}`, url: o.url, title: (gen.outputs.length > 1 ? `${gen.title || gen.prompt.slice(0, 40)} (${i + 1})` : gen.title || gen.prompt.slice(0, 40)), modelName: gen.modelName, provider: gen.provider }} /> : <p className="text-xs text-zinc-500">재생 주소를 만들지 못했습니다.</p>}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             {o.downloadUrl && (
               <a href={o.downloadUrl} className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-medium text-violet-300 hover:underline">

@@ -20,7 +20,7 @@ const UTILITY_ITEMS = [
 
 function BrandMark() {
   return (
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500 text-white shadow-md shadow-violet-500/20">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 text-white shadow-md shadow-violet-500/20">
       <Music size={18} aria-hidden="true" />
     </span>
   );

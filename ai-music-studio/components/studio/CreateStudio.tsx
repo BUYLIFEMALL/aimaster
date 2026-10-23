@@ -6,6 +6,8 @@ import { AlertCircle, Check, KeyRound, Loader2, Mic, Music2, Sparkles, Wand2 } f
 import { MAX_COMPARE, MAX_IMAGES, MODELS, PROVIDERS, clampDuration, validateForModel, type InputImage, type MusicModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { GenerationCard } from "./GenerationCard";
+import { styleOf } from "@/lib/providerStyle";
+import { usePlayer } from "@/components/player/PlayerProvider";
 
 const GENRES = ["K-Pop", "발라드", "R&B", "힙합", "록", "시티팝", "로파이", "EDM", "재즈", "어쿠스틱", "트로트", "시네마틱"];
 const MOODS = ["잔잔한", "신나는", "몽환적인", "슬픈", "희망찬", "긴장감 있는", "따뜻한", "웅장한"];
@@ -54,14 +56,19 @@ function ModelCard({ model, selected, disabledReason, hasKey, onToggle, multi }:
       onClick={onToggle}
       aria-pressed={selected}
       data-model={model.key}
-      className={`flex h-full flex-col gap-2 rounded-2xl border p-3.5 text-left transition-all ${
+      className={`relative flex h-full flex-col gap-2 overflow-hidden rounded-2xl border p-3.5 pt-4 text-left transition-all ${
         selected ? "border-violet-500/60 bg-violet-500/10 ring-1 ring-violet-500/30" : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
       } ${disabledReason ? "opacity-85" : ""}`}
     >
+      {/* v1.11 공급자 색 띠 */}
+      <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${styleOf(model.provider).strip} ${selected ? "opacity-100" : "opacity-50"}`} />
       <span className="flex items-start justify-between gap-2">
         <span className="min-w-0">
           <span className="block text-sm font-bold text-white">{model.name}</span>
-          <span className="block text-xs text-zinc-400">{PROVIDERS[model.provider].name}</span>
+          <span className={`flex items-center gap-1.5 text-xs ${styleOf(model.provider).text}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${styleOf(model.provider).dot}`} aria-hidden="true" />
+            {PROVIDERS[model.provider].name}
+          </span>
         </span>
         <span className={`flex h-5 w-5 shrink-0 items-center justify-center ${multi ? "rounded-md" : "rounded-full"} border ${selected ? "border-violet-400 bg-violet-500 text-white" : "border-zinc-600"}`}>
           {selected && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
@@ -99,6 +106,7 @@ export function CreateStudio({ mode }: { mode: Mode }) {
   const [images, setImages] = useState<PickedImage[]>([]);
   const [format, setFormat] = useState<"mp3" | "wav">("mp3");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const player = usePlayer();
 
   useEffect(() => {
     fetch("/api/keys", { cache: "no-store" })
@@ -218,13 +226,16 @@ export function CreateStudio({ mode }: { mode: Mode }) {
         </p>
       </div>
 
+      {/* v1.11 데스크톱 2열 — 왼쪽 입력 단계, 오른쪽 고정 요약(만들기 버튼·비용이 항상 보이게) */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start lg:gap-6">
+      <div className="min-w-0 space-y-8">
       {/* 1단계 모델 */}
       <section className="space-y-3">
         <h2 className="flex items-center gap-2 text-sm font-bold text-zinc-200">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-500 text-xs text-white">1</span>
           {multi ? `비교할 모델 고르기 (${chosen.length}/${MAX_COMPARE})` : "모델 고르기"}
         </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
           {MODELS.filter((m) => showAll || RECOMMENDED.includes(m.key) || selected.includes(m.key)).map((m) => (
             <ModelCard key={m.key} model={m} multi={multi} selected={selected.includes(m.key)} hasKey={hasKey(m)}
               disabledReason={validateForModel(m, { instrumental, lyrics })} onToggle={() => toggle(m.key)} />
@@ -348,17 +359,36 @@ export function CreateStudio({ mode }: { mode: Mode }) {
         )}
       </section>
 
-      {/* 3단계 만들기 */}
-      <section className="space-y-3">
-        <div className="flex flex-col gap-3 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-xs leading-relaxed text-zinc-300">
-            <p className="font-bold text-white">
-              {chosen.length ? chosen.map((m) => m.name).join(" · ") : "모델을 골라 주세요"}
-            </p>
-            <p>예상 비용 약 <strong className="text-violet-200">${totalCost.toFixed(2)}</strong> — 회원 본인 계정에 청구됩니다(공개 가격 기준 대략값).</p>
+      </div>
+
+      {/* 3단계 만들기 — v1.11 오른쪽 고정 요약 패널(휴대폰은 입력 아래 + 화면 아래 고정 막대) */}
+      <aside className="mt-8 space-y-3 lg:sticky lg:top-6 lg:mt-0" aria-label="만들기 요약">
+        <div className="space-y-4 rounded-2xl border border-violet-500/25 bg-gradient-to-b from-violet-500/10 to-zinc-900/60 p-4 shadow-lg shadow-violet-500/5">
+          <h2 className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-500 text-xs text-white">3</span>
+            {multi ? "비교 생성" : "만들기"}
+          </h2>
+          <div className="space-y-1.5">
+            {chosen.length ? chosen.map((m) => (
+              <p key={m.key} className="flex items-center gap-2 text-sm font-bold text-white">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${styleOf(m.provider).dot}`} aria-hidden="true" />
+                <span className="truncate">{m.name}</span>
+              </p>
+            )) : <p className="text-sm text-zinc-400">모델을 골라 주세요</p>}
+          </div>
+          <dl className="grid grid-cols-2 gap-2 text-xs">
+            <div className="rounded-xl bg-zinc-950/60 p-2"><dt className="text-zinc-500">종류</dt><dd className="mt-0.5 font-bold text-zinc-200">{instrumental ? "🎹 연주곡" : "🎤 보컬곡"}</dd></div>
+            <div className="rounded-xl bg-zinc-950/60 p-2"><dt className="text-zinc-500">길이</dt><dd className="mt-0.5 font-bold text-zinc-200">{anyDuration ? `${Math.floor(durationS / 60)}분 ${durationS % 60}초` : "모델이 정함"}</dd></div>
+            {wavModel && <div className="rounded-xl bg-zinc-950/60 p-2"><dt className="text-zinc-500">형식</dt><dd className="mt-0.5 font-bold text-zinc-200">{format.toUpperCase()}</dd></div>}
+            {imageModel && <div className="rounded-xl bg-zinc-950/60 p-2"><dt className="text-zinc-500">분위기 이미지</dt><dd className="mt-0.5 font-bold text-zinc-200">{images.length}장</dd></div>}
+          </dl>
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-3">
+            <p className="text-[11px] text-zinc-500">예상 비용</p>
+            <p className="text-2xl font-black text-white">${totalCost.toFixed(2)}</p>
+            <p className="mt-1 text-[11px] leading-snug text-zinc-500">회원 본인 계정에 청구됩니다(공개 가격 기준 대략값).</p>
           </div>
           <button type="button" onClick={submit} disabled={submitting}
-            className="flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-violet-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-violet-500/20 hover:bg-violet-400 disabled:opacity-60">
+            className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-violet-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-violet-500/30 hover:bg-violet-400 disabled:opacity-60">
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Sparkles className="h-4 w-4" aria-hidden="true" />}
             {submitting ? "요청 보내는 중…" : multi ? `${chosen.length}개 모델로 비교 생성` : "음악 만들기"}
           </button>
@@ -375,7 +405,23 @@ export function CreateStudio({ mode }: { mode: Mode }) {
             )}
           </div>
         )}
-      </section>
+      </aside>
+      </div>
+
+      {/* v1.11 휴대폰(1024px 미만) 아래 고정 만들기 막대 — 미니 플레이어가 떠 있으면 그 위에 */}
+      <div className={`fixed inset-x-0 z-20 border-t border-zinc-800 bg-[#0c0c10]/95 px-4 py-2.5 backdrop-blur md:left-64 lg:hidden ${player?.current ? "bottom-[57px]" : "bottom-0"}`}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 text-xs">
+            <p className="truncate font-bold text-white">{chosen.length ? chosen.map((m) => m.name).join(" · ") : "모델을 골라 주세요"}</p>
+            <p className="text-zinc-400">예상 <strong className="text-violet-200">${totalCost.toFixed(2)}</strong></p>
+          </div>
+          <button type="button" onClick={submit} disabled={submitting}
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-violet-500 px-4 py-2 text-sm font-bold text-white hover:bg-violet-400 disabled:opacity-60">
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Sparkles className="h-4 w-4" aria-hidden="true" />}
+            {submitting ? "보내는 중…" : multi ? "비교 생성" : "만들기"}
+          </button>
+        </div>
+      </div>
 
       {results.length > 0 && (
         <section id="studio-results" className="space-y-3">

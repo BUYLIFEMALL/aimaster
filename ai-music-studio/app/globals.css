@@ -29,6 +29,11 @@ body {
   box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.15);
 }
 
+/* v1.11 사운드 랩 바이올렛 — 재생 중 파형 막대 움직임(움직임 줄이기 설정이면 멈춤) */
+@keyframes sl-wave { 0%, 100% { transform: scaleY(0.55); } 50% { transform: scaleY(1); } }
+.sl-wave-bar { animation: sl-wave 0.9s ease-in-out infinite; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) { .sl-wave-bar { animation: none; } }
+
 /* 커스텀 스크롤바 */
 ::-webkit-scrollbar {
   width: 6px;
