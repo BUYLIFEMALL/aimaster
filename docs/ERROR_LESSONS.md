@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — Claude 확장이 조작하는 탭에서는 다른 확장의 사이트 연결(`chrome.runtime`)이 아예 안 생겨, 멀쩡한 확장을 「동작 안 함」으로 오판할 뻔했다 (video-to-gif v1.20, Claude Code 윈도우)
+- 증상: 엣지에 GIF 확장(`externally_connectable` = video-to-gif.buylife.xyz)을 올리고 재시작까지 했는데, 자동화 탭에서는 페이지·스크립트 태그 어디서도 `chrome.runtime`이 `undefined`. 확장 카드는 켜짐·오류 없음.
+- 원인: claude-in-chrome이 붙어 있는 탭(탭 그룹)에서는 다른 확장의 웹 연결 통로가 생기지 않음(같은 탭에서 claude.ai는 Claude 자신의 통로라 보임). 주인님 일반 탭 콘솔에서는 `typeof chrome.runtime` = `'object'`, `ping` → `pong` 정상.
+- 해결: 확장↔사이트 연결 검수는 주인님 일반 탭 콘솔(직접 타이핑, 붙여넣기는 `allow pasting` 먼저)로, 자동화 탭은 「확장 없음 → 대체 동작」 확인에 쓴다. 상세: `video-to-gif/docs/IMPROVEMENTS.md` LR-W-03.
+- 다음부터: 확장 연동 기능을 자동화 탭에서 「없음」으로 보면 결론 내기 전에 일반 탭에서 한 번 확인한다. 덤: 엣지는 크롬 Native Messaging 레지스트리 위치를 그대로 읽는다(LR-W-02).
+
 ## 2026-10-23 — 색 이름을 `lib/` 파일에만 적었더니 화면에서 색이 투명했다 (ai-music-studio v1.11~v1.12, Claude Code 윈도우)
 - 증상: 공급자별 색 점·띠(`lib/providerStyle.ts`의 `bg-sky-400` 등)가 화면에서 투명(`rgba(0,0,0,0)`). 빌드·시험은 모두 통과.
 - 원인: Tailwind 3 `tailwind.config.ts`의 `content`가 `pages`·`components`·`app`만 훑어서, `lib/`에만 적힌 클래스는 CSS가 만들어지지 않음(다른 파일에 우연히 같은 클래스가 있으면 보여서 늦게 발견).
