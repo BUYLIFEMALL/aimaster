@@ -14,6 +14,7 @@ import { loadCollected, SourceError } from "@/lib/collectedMaterials";
 import { fetchPublicHtml, extractMainText } from "@/lib/collector";
 import { normalizeReferenceUrls, normalizeExtraInstructions, readReferencePages, mergeReferenceMaterial, ReferenceInputError } from "@/lib/referenceUrls";
 import { topicNewsFeedUrl, parseTopicNews, buildTopicNewsMaterial, type TopicNewsItem } from "@/lib/topicNews";
+import { normalizePersona, normalizeExperience, VoiceInputError, type PersonaInput } from "@/lib/memberVoice";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -55,6 +56,10 @@ export async function POST(req: Request) {
     let referenceUrls:string[], extraInstructions:string;
     try{referenceUrls=normalizeReferenceUrls(body.referenceUrls);extraInstructions=normalizeExtraInstructions(body.extraInstructions);}
     catch(error){if(error instanceof ReferenceInputError)return NextResponse.json({error:error.message},{status:400});throw error;}
+    // 병합 A-4(v2.17 후보): 화자 검사(직접 입력 포함)·본인 경험 메모
+    let checkedPersona:PersonaInput|undefined, experience:string;
+    try{checkedPersona=normalizePersona(persona);experience=normalizeExperience(body.experience);}
+    catch(error){if(error instanceof VoiceInputError)return NextResponse.json({error:error.message},{status:400});throw error;}
 
     if(body.imageCount !== undefined && (!Number.isInteger(body.imageCount) || body.imageCount < 1 || body.imageCount > 5))return NextResponse.json({error:"이미지 장수는 1~5장으로 선택해 주세요."},{status:400});
 
@@ -102,7 +107,8 @@ export async function POST(req: Request) {
       shoppingLinks: shopping.links,
       sourceMaterial: groundingMaterial || undefined,
       extraInstructions,
-      persona,
+      experience,
+      persona: checkedPersona,
       targetLength: typeof targetLength === "number" ? targetLength : undefined,
       imageCount:body.imageCount ?? 2,
       recentTitles:(recent || []).map((post:any)=>post.title).filter((title:unknown)=>typeof title==="string" && title.trim()),

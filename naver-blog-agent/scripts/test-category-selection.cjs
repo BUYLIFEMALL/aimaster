@@ -152,7 +152,7 @@ const categories = [
     assert.deepEqual(state, { ...before, selectedBlogId: account }, "Blog account must not overwrite classification");
   }
   let requested;
-  Object.assign(context, { BLOG_PERSONAS: [], activePersonaId: "none", executeGeneration: async (params) => { requested = params; } });
+  Object.assign(context, { BLOG_PERSONAS: [], activePersonaId: "none", CUSTOM_PERSONA_ID: "custom", customPersonaName: "", customPersonaDesc: "", executeGeneration: async (params) => { requested = params; } });
   await evaluate("handleGenerateForm", context)({ preventDefault() {} });
   assert.equal(requested.overrideCategory, categories[1].name);
   assert.equal(requested.overrideKeywords, "original keywords");

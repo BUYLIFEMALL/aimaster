@@ -55,6 +55,7 @@ import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone
 import { ARTICLE_FORMATS, type ArticleFormat } from "@/lib/ai/articleFormats";
 import { MAX_SHOPPING_LINKS, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
 import { MAX_REFERENCE_URLS, MAX_EXTRA_INSTRUCTIONS } from "@/lib/referenceUrls";
+import { CUSTOM_PERSONA_ID, MAX_CUSTOM_PERSONA_NAME, MAX_CUSTOM_PERSONA_DESC, MAX_EXPERIENCE } from "@/lib/memberVoice";
 import SourceEvidence from "@/components/SourceEvidence";
 import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from "@/lib/ai/openaiRequestParams";
 import {
@@ -89,6 +90,22 @@ export default function MainPage() {
   const [extraInstructions, setExtraInstructions] = useState("");
   // 병합 A-2(v2.16 후보): 주제로 최근 뉴스 근거(기본 꺼짐, 저장하지 않음)
   const [topicNews, setTopicNews] = useState(false);
+  // 병합 A-4(v2.17 후보): 화자 직접 입력·본인 경험 메모·경험 질문
+  const [customPersonaName, setCustomPersonaName] = useState("");
+  const [customPersonaDesc, setCustomPersonaDesc] = useState("");
+  const [experience, setExperience] = useState("");
+  const [experienceQuestions, setExperienceQuestions] = useState<string[]>([]);
+  const [questionsState, setQuestionsState] = useState<{ loading: boolean; error: string }>({ loading: false, error: "" });
+  const requestExperienceQuestions = async () => {
+    setQuestionsState({ loading: true, error: "" });
+    try {
+      const res = await fetch("/api/experience-questions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, keywords: searchKeywords, engine }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "경험 질문을 만들지 못했습니다.");
+      setExperienceQuestions(Array.isArray(data.questions) ? data.questions : []);
+      setQuestionsState({ loading: false, error: "" });
+    } catch (err) { setQuestionsState({ loading: false, error: err instanceof Error ? err.message : "경험 질문을 만들지 못했습니다." }); }
+  };
   const [targetCharCount, setTargetCharCount] = useState<number>(2000);
 
   // AI 엔진 & 이미지 모델 선택 상태 (threads-content-ops와 동일 구조)
@@ -491,7 +508,9 @@ export default function MainPage() {
   // 폼 제출 시 생성
   const handleGenerateForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    const activePersona = BLOG_PERSONAS.find((p) => p.id === activePersonaId);
+    const activePersona = activePersonaId === CUSTOM_PERSONA_ID
+      ? { id: CUSTOM_PERSONA_ID, name: customPersonaName.trim(), badge: "직접 입력", tonePrompt: customPersonaDesc.trim() }
+      : BLOG_PERSONAS.find((p) => p.id === activePersonaId);
     await executeGeneration({
       overrideTopic: topic.trim() || undefined,
       overrideCategory: category,
@@ -509,7 +528,7 @@ export default function MainPage() {
     overrideKeywords?: string;
     overridePurpose?: string;
     overrideTone: string;
-    overridePersona?: BlogPersona;
+    overridePersona?: Pick<BlogPersona, "id" | "name" | "badge" | "tonePrompt">;
   }) => {
     if(imageBusy.current!==null){setError("이미지 생성·저장이 끝난 뒤 새 원고를 생성해 주세요.");return;}
     if (!preferencesLoaded) {
@@ -545,6 +564,7 @@ export default function MainPage() {
           referenceUrls: referenceUrlsInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
           extraInstructions: extraInstructions.trim() || undefined,
           topicNews,
+          experience: experience.trim() || undefined,
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
           persona: params.overridePersona
@@ -1190,6 +1210,18 @@ export default function MainPage() {
               );
             })}
           </div>
+          {/* 병합 A-4: 화자 직접 입력(올인원 → 에이전트) */}
+          <div className={`mt-3 rounded-2xl border p-4 ${activePersonaId === CUSTOM_PERSONA_ID ? "border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-600/20" : "border-dashed border-neutral-300 bg-white"}`}>
+            <p className="text-sm font-bold text-neutral-900">✏️ 화자 직접 입력 <span className="text-xs font-normal text-neutral-500">(위 6가지에 맞는 화자가 없을 때)</span></p>
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[180px_1fr]">
+              <input value={customPersonaName} onChange={(e) => setCustomPersonaName(e.target.value)} maxLength={MAX_CUSTOM_PERSONA_NAME} placeholder="이름 예: 캠핑 7년 차 아빠" aria-label="직접 입력 화자 이름" className="rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+              <input value={customPersonaDesc} onChange={(e) => setCustomPersonaDesc(e.target.value)} maxLength={MAX_CUSTOM_PERSONA_DESC} placeholder="설명 예: 주말마다 아이 둘과 오토캠핑을 다니는 40대 직장인, 담백한 해요체" aria-label="직접 입력 화자 설명" className="rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button type="button" disabled={!customPersonaName.trim() || !customPersonaDesc.trim()} onClick={() => setActivePersonaId(CUSTOM_PERSONA_ID)} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-40">{activePersonaId === CUSTOM_PERSONA_ID ? "이 화자로 선택됨" : "이 화자로 선택"}</button>
+              <span className="text-[11px] text-neutral-500">설명에 적은 시각·말투로 씁니다. 설명에 없는 경력·경험은 지어내지 않습니다. ({customPersonaDesc.length}/{MAX_CUSTOM_PERSONA_DESC}자)</span>
+            </div>
+          </div>
         </div>
 
         {/* 2-2. [🎯 원하는 글자수 생성 설정 (1 ~ 4,000자)] 섹션 */}
@@ -1521,6 +1553,21 @@ export default function MainPage() {
                 onChange={(e) => setExtraInstructions(e.target.value)}
                 placeholder="예: 초보자 눈높이로, 마지막에 체크리스트를 넣어 주세요"
                 className="mt-2 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none" />
+            </div>
+            <div>
+              <label htmlFor="member-experience" className="text-xs font-semibold text-neutral-700">
+                내 실제 경험 <span className="font-normal text-neutral-500">(선택 · {experience.length}/{MAX_EXPERIENCE}자 · 1인칭 경험은 여기 적은 것만 씁니다)</span>
+              </label>
+              <textarea id="member-experience" rows={3} value={experience} maxLength={MAX_EXPERIENCE}
+                onChange={(e) => setExperience(e.target.value)}
+                placeholder="예: 지난달 처음 오토캠핑을 갔는데 타프 없이 비를 맞아 고생했어요. 두 번째부터는 타프를 먼저 쳤어요."
+                className="mt-2 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none" />
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <button type="button" onClick={requestExperienceQuestions} disabled={questionsState.loading || (!topic.trim() && !searchKeywords.trim())} className="rounded-lg border border-neutral-300 px-2.5 py-1 text-[11px] font-semibold text-neutral-700 disabled:opacity-40">{questionsState.loading ? "질문 만드는 중…" : "💡 경험을 떠올릴 질문 받기"}</button>
+                <span className="text-[11px] text-neutral-500">선택한 AI의 본인 키로 짧은 질문 5개만 받습니다(1원 안팎). 답은 직접 적어 주세요.</span>
+              </div>
+              {questionsState.error && <p className="mt-1 text-[11px] text-rose-700">{questionsState.error}</p>}
+              {experienceQuestions.length > 0 && <ul className="mt-2 list-disc space-y-0.5 pl-5 text-[12px] text-neutral-700">{experienceQuestions.map((q, i) => <li key={i}>{q}</li>)}</ul>}
             </div>
           </fieldset>
           <div className="pt-2 flex justify-end border-t border-neutral-100">

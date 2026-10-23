@@ -6,6 +6,7 @@ import { buildFormatResearchRule, buildFormatWriterRule, isArticleFormat, type A
 import { applyShoppingLinks } from "@/lib/shoppingLinks";
 import { applyUnsupported, buildSourceBlock, buildSourceReviewRule, filterUnsupported, normalizeSourceMaterial, readUnsupported } from "./sourceGrounding";
 import { buildExtraInstructionBlock } from "@/lib/referenceUrls";
+import { buildExperienceBlock, buildExperienceReviewRule } from "@/lib/memberVoice";
 import { cleanGeneratedBody } from "./bodyCleanup";
 import type { DraftImage } from "@/lib/draftImages";
 import type { PhotoReviewResult } from "@/lib/photoReview";
@@ -33,6 +34,7 @@ export interface PipelineInput {
   shoppingLinks?: string[]; // 검증된 네이버 쇼핑 커넥트 링크(최대 5개)
   sourceMaterial?: string; // 선택한 글감 전체 내용(사실 근거, 최대 4,000자)
   extraInstructions?: string; // 병합 A-1: 회원 추가 지시(최대 500자)
+  experience?: string; // 병합 A-4: 회원 실제 경험 메모(최대 1,500자)
   recentTitles?: string[]; // 중복 방지용
   imageCount?: number; // 썸네일 포함 1~5장
   targetLength?: number; // 목표 글자수 (1 ~ 4000자, 기본 2000자)
@@ -84,6 +86,8 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
   const sourceMaterial = normalizeSourceMaterial(sanitizeBodyYear(input.sourceMaterial ?? "", currentYear));
   const sourceBlock = buildSourceBlock(sourceMaterial);
   const extraBlock = buildExtraInstructionBlock(String(input.extraInstructions || "").slice(0, 500));
+  const experienceText = String(input.experience || "").slice(0, 1500);
+  const experienceBlock = buildExperienceBlock(experienceText);
 
   // [1단계 안전망: 입력단 과거 연도 자동 정제]
   const cleanTopic = sanitizeYear(input.topic, currentYear);
@@ -122,7 +126,7 @@ ${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 
 - 목표 글자수: 공백 포함 약 ${targetLength}자
 - 최근 발행 글 목록 (소재 중복 절대 금지):
 ${recentTitles.slice(0, 10).map((t) => "- " + t).join("\n") || "(없음)"}
-${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}${sourceBlock}${extraBlock}
+${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}${sourceBlock}${extraBlock}${experienceBlock}
 
 반드시 아래 JSON 형식으로만 응답해:
 {
@@ -210,7 +214,7 @@ ${persona ? `작성자 캐릭터: ${persona.name} (${persona.badge})` : ""}
 ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}: ${s.keyPoints.join(", ")}`).join("\n")}
 
 위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.
-검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.${sourceBlock}${extraBlock}`;
+검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.${sourceBlock}${extraBlock}${experienceBlock}`;
 
   const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}${buildFormatWriterRule(articleFormat)}\n\n${writingStylePrompt}`, writerUserPrompt);
   const draftArticle = sanitizeBodyYear(cleanGeneratedBody(writerRaw), currentYear);
@@ -292,7 +296,7 @@ ${humanizedArticle}
   "reviewStatus": "PASS | WARN | FAIL 중 하나",
   "reviewNote": "검수 의견 (${currentYear}년 최신성, 문체, 키워드 반영 여부 포함)"${sourceMaterial ? `,
   "unsupported": ["근거 자료에 없는 사실 문장(본문 그대로, 없으면 빈 배열)"]` : ""}
-}${buildSourceReviewRule(sourceMaterial)}`;
+}${buildSourceReviewRule(sourceMaterial)}${buildExperienceReviewRule(experienceText)}`;
 
   const reviewerRaw = await callAI(aiConfig, `${reviewerSystemPrompt}\n\n${writingStylePrompt}\n선택된 말끝과 문체의 적용 여부도 검수 의견에 포함한다.`, reviewerUserPrompt);
   // 파싱 실패를 PASS로 간주하지 않는다. 읽지 못하면 UNKNOWN으로 남기고 경고한다.

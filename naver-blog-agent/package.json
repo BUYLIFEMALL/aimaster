@@ -33,7 +33,8 @@
     "test:prepared-publish": "node --test scripts/test-prepared-publish.cjs",
     "test:reference-urls": "node --test scripts/test-reference-urls.cjs",
     "test:topic-news": "node --test scripts/test-topic-news.cjs",
-    "test:photo-visit": "node --test scripts/test-photo-visit-info.cjs"
+    "test:photo-visit": "node --test scripts/test-photo-visit-info.cjs",
+    "test:member-voice": "node --test scripts/test-member-voice.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
