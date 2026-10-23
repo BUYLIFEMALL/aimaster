@@ -74,7 +74,9 @@ for (let attempt = 1; attempt <= 5 && !done; attempt++) {
       if (blocking && r.status !== 0) { console.log("✖ 커밋 전 검사에 걸려 중단(파일·커밋 그대로)."); process.exit(1); }
     }
     const tree = run(["write-tree"], { env }).trim();
-    const commit = run(["commit-tree", tree, "-p", oldHead], { input: message.endsWith("\n") ? message : message + "\n" }).trim();
+    // 세션 이름이 있으면 메시지 끝 단락에 `AIMaster-Session: <이름>` 트레일러(되돌림 감사가 세션을 보여 줌)
+    const msgOut = as && !/^AIMaster-Session:/m.test(message) ? `${message.replace(/\s+$/, "")}\nAIMaster-Session: ${as}\n` : (message.endsWith("\n") ? message : message + "\n");
+    const commit = run(["commit-tree", tree, "-p", oldHead], { input: msgOut }).trim();
     if (tryRun(["update-ref", "-m", `commit-paths: ${message.split("\n")[0]}`, `refs/heads/${branch}`, commit, oldHead]) === null) {
       console.log(`… 그사이 다른 커밋이 들어와 최신 HEAD로 다시 합니다(${attempt}/5)`);
       continue;
