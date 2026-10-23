@@ -6,8 +6,11 @@ import { createClient } from "@/lib/supabase/server";
 import { normalizeUrl } from "@/lib/normalizeUrl";
 import { DEFAULT_REPLY_MODEL, REPLY_MODEL_OPTIONS } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { CRONJOB_PROVIDER, ensureMemberSchedulerRunning, memberSchedulerMode, remainingScheduled, removeMemberScheduler } from "@/lib/schedulerMember/memberScheduler";
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret", "openai", "anthropic", "gemini"];
+const VALID_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret", "openai", "anthropic", "gemini", "cronjob_org_api_key"]; // v1.36: cron-job.org 공용 연동 키
 
 export interface SaveApiKeyState {
   error?: string;
@@ -30,10 +33,17 @@ export async function saveApiKeyAction(formData: FormData): Promise<SaveApiKeySt
     return { error: `앱 시크릿 코드는 영문·숫자 32자입니다(입력 ${apiKey.length}자). Meta 화면의 [표시]를 눌러 전체를 복사해주세요.` };
   }
 
+  // cron-job.org 키를 바꾸면 예전 계정의 회원 작업을 지운다(방식·일시정지 유지, v1.36)
+  const service = createAdminClient() as unknown as SupabaseClient;
+  if (provider === CRONJOB_PROVIDER) await removeMemberScheduler(service, user.id, { keepMode: true });
   const { error } = await supabase
     .from("user_api_keys")
     .upsert({ user_id: user.id, provider, api_key: apiKey }, { onConflict: "user_id,provider" });
   if (error) return { error: error.message };
+  // 「내 cron-job.org」 회원이고 모니터링이 켜져 있으면 새 키 계정에 작업을 다시 켠다
+  if (provider === CRONJOB_PROVIDER && (await memberSchedulerMode(service, user.id)) === "cronjob" && (await remainingScheduled(service, user.id)) > 0) {
+    try { await ensureMemberSchedulerRunning(service, user.id, apiKey); } catch (err) { return { error: `키는 저장했지만 댓글 모니터링 작업을 켜지 못했습니다. ${err instanceof Error ? err.message : ""}`.trim() }; }
+  }
 
   revalidatePath("/settings");
   return {};
@@ -43,6 +53,8 @@ export async function deleteApiKeyAction(formData: FormData) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
   const provider = String(formData.get("provider") ?? "") as ApiKeyProvider;
+  // cron-job.org 키를 지우면 회원 작업·연결도 정리하고 실행 방식을 기본(Vercel)으로 되돌린다(v1.36). 키를 지우기 전에 해야 작업을 찾을 수 있다.
+  if (provider === CRONJOB_PROVIDER) await removeMemberScheduler(createAdminClient() as unknown as SupabaseClient, user.id);
 
   await supabase.from("user_api_keys").delete().eq("user_id", user.id).eq("provider", provider);
   revalidatePath("/settings");

@@ -21,7 +21,7 @@ function describeGeminiError(status: number, errorBody: string): string {
 
 function buildSystemPrompt(link: string | null, customInstructions: string | null): string {
   return [
-    "당신은 유튜브 채널 운영자 본인입니다. 시청자가 남긴 댓글에 채널 운영자로서 직접",
+    "당신은 이 인스타그램 계정의 운영자 본인입니다. 내 인스타그램 게시물에 달린 댓글에 계정 운영자로서 직접",
     "답글을 다는 것처럼, 자연스럽고 사람 같은 말투로 짧게 답하세요.",
     "",
     "규칙:",
@@ -113,15 +113,17 @@ async function generateWithGemini(model: string, systemPrompt: string, userPromp
 }
 
 /**
- * 댓글 하나에 대해 자연스러운 답글 초안을 생성한다. 유튜브 개발자 정책(III.I.2조)이 요구하는
- * "사전의 명시적 동의"는 화면에서 사람이 이 초안을 검토하고 직접 "답변승인"을 눌러야 실제로
- * 올라가는 흐름으로 충족한다 — 여기서는 초안만 만든다.
+ * 댓글 하나에 대해 자연스러운 답글 초안을 생성한다. Meta 개발자 정책(§1.7)이 요구하는
+ * "사전의 명시적 동의"는 화면·텔레그램에서 사람이 이 초안을 검토하고 직접 "답변승인"을 눌러야 실제로
+ * 올라가는 흐름(또는 회원이 동의하고 켠 자동 게시)으로 충족한다 — 여기서는 초안만 만든다.
+ * 2026-10-23 v1.36: 유튜브 댓글 프로그램에서 복사한 채로 남아 있던 「유튜브 채널 운영자·영상 제목」 지시문을 인스타그램용으로 고침.
  *
  * 선택된 모델(OpenAI/Anthropic/Gemini)에 맞는 API를 호출한다 — apiKey는 그 provider의 키여야
  * 한다(어떤 provider인지는 lib/ai/models.ts의 getReplyModelProvider()로 판단).
  */
 export async function generateCommentReply(params: {
-  videoTitle: string;
+  /** 댓글이 달린 내 인스타그램 게시물(캡션 앞부분) */
+  postText: string;
   commentAuthor: string | null;
   commentText: string;
   link: string | null;
@@ -129,12 +131,12 @@ export async function generateCommentReply(params: {
   apiKey: string;
   model?: string;
 }): Promise<string> {
-  const { videoTitle, commentAuthor, commentText, link, customInstructions, apiKey, model: modelInput } = params;
+  const { postText, commentAuthor, commentText, link, customInstructions, apiKey, model: modelInput } = params;
   const model = modelInput || DEFAULT_REPLY_MODEL;
   const provider = getReplyModelProvider(model);
 
   const systemPrompt = buildSystemPrompt(link, customInstructions);
-  const userPrompt = `영상 제목: ${videoTitle}\n댓글 작성자: ${commentAuthor ?? "익명"}\n댓글 내용: ${commentText}`;
+  const userPrompt = `내 인스타그램 게시물: ${postText}\n댓글 작성자: ${commentAuthor ?? "익명"}\n댓글 내용: ${commentText}`;
 
   if (provider === "anthropic") return generateWithAnthropic(model, systemPrompt, userPrompt, apiKey);
   if (provider === "gemini") return generateWithGemini(model, systemPrompt, userPrompt, apiKey);

@@ -1,65 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isMonitoringDue } from "@/lib/schedule";
-import { runCommentSync } from "@/lib/comments/sync";
+import { dispatchDueMonitoring } from "@/lib/schedulerMember/dispatch";
+import { membersExcludedFromPlatform, platformSchedulerEnabled } from "@/lib/schedulerMember/memberScheduler";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 280;
 
-// real_estate_sales/src/app/api/collect/dispatch/route.ts, youtube-auto-reply와 동일한 패턴:
-// Vercel Cron이 5분마다 깨우기만 하고, 실제로 처리할지는 사용자별 monitoring_interval_minutes/
-// last_run_at을 보고 이 라우트 안에서 다시 판단한다. 같은 이유로 CRON_SECRET Bearer 인증도
-// 동일하게 쓴다.
+// real_estate_sales/src/app/api/collect/dispatch/route.ts, youtube-auto-reply와 동일한 패턴: Vercel Cron이
+// 5분마다 깨우기만 하고, 실제로 처리할지는 사용자별 monitoring_interval_minutes/last_run_at을 보고 다시 판단한다
+// (실행 로직은 lib/schedulerMember/dispatch.ts — 회원 cron-job.org 주소와 공용, v1.36).
+// v1.36(2026-10-23): 「내 cron-job.org」를 고른 회원·일시정지한 회원은 건너뛴다. 지침: 루트 docs/SCHEDULER_POLICY.md
 //
-// 예약 모니터링은 "새 댓글 수집 + AI 초안 생성"까지만 자동으로 하고, 실제 게시는 하지 않는다
-// (postReplyAction은 여전히 사람이 검토 화면/텔레그램 버튼에서 직접 승인해야 한다).
+// 예약 모니터링은 "새 댓글 수집 + AI 초안 생성"까지만 자동으로 하고, 실제 게시는 회원이 켠 「자동 게시」 또는
+// 검토 화면/텔레그램 승인으로만 한다(AGENTS.md 사전 승인 5번).
 function isAuthorized(request: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET;
-  // v1.16: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  // v1.12: 비밀값이 비어 있으면 「Bearer undefined」로 통과하던 빈틈을 막는다
+  const secret = process.env.CRON_SECRET?.trim();
   return Boolean(secret) && request.headers.get("authorization") === `Bearer ${secret}`;
-}
-
-async function dispatch() {
-  const admin = createAdminClient();
-  const now = new Date();
-
-  const { data: settingsRows, error } = await admin
-    .from("ig_settings")
-    .select("user_id, monitoring_interval_minutes, monitoring_started_at, last_run_at")
-    .eq("monitoring_enabled", true);
-  if (error) throw new Error(error.message);
-
-  const dueRows = (settingsRows ?? []).filter((row) =>
-    isMonitoringDue(row.last_run_at, row.monitoring_interval_minutes, now),
-  );
-
-  const summary: Array<{ userId: string; newCount?: number; error?: string }> = [];
-
-  // profiles는 이 프로젝트 Database 타입에 없는 루트 공용 테이블이라(lib/access.ts와 동일 이유),
-  // from()의 반환값만 느슨하게 받는다.
-  const adminLike = admin as unknown as { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
-
-  for (const row of dueRows) {
-    // 정지된 계정은 자동 처리 대상에서 제외한다.
-    const { data: profile } = await adminLike.from("profiles").select("is_suspended, is_admin, phone").eq("id", row.user_id).maybeSingle();
-    if (profile?.is_suspended) continue;
-    // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)은 자동 처리에서 제외한다.
-    if (!profile?.is_admin && !/^01[016789]\d{7,8}$/.test(String(profile?.phone ?? "").replace(/[^0-9]/g, ""))) continue; // hasMobilePhone
-
-    await admin.from("ig_settings").update({ last_run_at: now.toISOString() }).eq("user_id", row.user_id);
-
-    const result = await runCommentSync(admin, row.user_id, row.monitoring_started_at);
-    summary.push({ userId: row.user_id, newCount: result.newCount, error: result.error });
-  }
-
-  return { processed: dueRows.length, summary };
 }
 
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const result = await dispatch();
+  const service = createAdminClient() as unknown as SupabaseClient;
+  const result = await dispatchDueMonitoring({
+    excludeUserIds: await membersExcludedFromPlatform(service),
+    skipAll: !platformSchedulerEnabled(),
+  });
   return NextResponse.json({ ok: true, ...result });
 }

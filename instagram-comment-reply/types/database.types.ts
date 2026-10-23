@@ -1,4 +1,4 @@
-export type ApiKeyProvider = "meta_app_id" | "meta_app_secret" | "openai" | "anthropic" | "gemini";
+export type ApiKeyProvider = "meta_app_id" | "meta_app_secret" | "openai" | "anthropic" | "gemini" | "cronjob_org_api_key";
 export type CommentStatus = "pending_review" | "posted" | "skipped" | "failed";
 export type DmMessageStatus = "pending_review" | "posted" | "skipped" | "failed";
 export type DmMessageDirection = "in" | "out";

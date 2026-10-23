@@ -111,7 +111,7 @@ export async function runCommentSync(
         let generatedReply: string | null = null;
         try {
           generatedReply = await generateCommentReply({
-            videoTitle: mediaLabel,
+            postText: mediaLabel,
             commentAuthor: thread.authorUsername,
             commentText: thread.text,
             link,

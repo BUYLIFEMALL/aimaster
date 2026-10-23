@@ -22,6 +22,11 @@ import type { ApiKeyProvider } from "@/types/database.types";
 import { CopyAddress } from "@/components/settings/CopyAddress";
 import { InstagramMetaAddressSummary } from "@/components/settings/InstagramMetaAddressSummary";
 import { INSTAGRAM_REDIRECT_NEW, INSTAGRAM_REDIRECT_OLD, SITE_ORIGIN } from "@/lib/oauthRedirect";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
+import { SchedulerModePicker } from "@/components/settings/SchedulerModePicker";
+import { SchedulePublishingControl } from "@/components/settings/SchedulePublishingControl";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +76,7 @@ export default async function SettingsPage() {
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
+  const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
   const activeModel = settings?.reply_model ?? DEFAULT_REPLY_MODEL;
   const activeModelOption = REPLY_MODEL_OPTIONS.find((o) => o.value === activeModel);
   const activeProvider = getReplyModelProvider(activeModel);
@@ -249,11 +255,33 @@ export default async function SettingsPage() {
 
       <section className="glass-card space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
         <h2 className="text-lg font-bold text-ig-text">⏱ 예약 모니터링</h2>
+        <SchedulePublishingControl initial={scheduler} />
         <MonitoringSettingsForm
           enabled={settings?.monitoring_enabled ?? false}
           intervalMinutes={settings?.monitoring_interval_minutes ?? 60}
           startedAt={settings?.monitoring_started_at ?? null}
           lastRunAt={settings?.last_run_at ?? null}
+        />
+      </section>
+
+      {/* ⏰ 댓글 모니터링 실행 방식(v1.36, 지침 docs/SCHEDULER_POLICY.md) — 모니터링 시작/중지는 위 「예약 모니터링」에서 한다 */}
+      <section id="scheduler-mode" className="glass-card space-y-3 rounded-2xl border border-ig-border bg-ig-surface p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-ig-text">⏰ 예약 실행 방식</h2>
+        <p className="text-sm text-ig-muted">
+          예약 모니터링을 무엇으로 돌릴지 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
+          본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요.
+        </p>
+        <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />
+        <p className="text-xs font-semibold text-ig-text">cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)</p>
+        <ol className="list-decimal space-y-1 pl-4 text-xs text-ig-muted">
+          <li><a className="font-semibold text-ig-link underline" href="https://console.cron-job.org/signup" target="_blank" rel="noopener noreferrer">cron-job.org</a> 무료 가입 → 이메일 인증 → 로그인</li>
+          <li>콘솔 <strong>Settings → API</strong> → <strong>Create API key</strong> → 키 복사 (<strong>IP 제한은 켜지 마세요</strong>)</li>
+          <li>아래에 붙여 넣고 저장 → 위에서 「내 cron-job.org」 선택. 이 키는 예약 기능이 있는 다른 프로그램에서도 그대로 씁니다.</li>
+        </ol>
+        <ApiKeyRow
+          provider="cronjob_org_api_key"
+          label={PROVIDER_LABELS.cronjob_org_api_key}
+          maskedValue={keyMap.has("cronjob_org_api_key") ? maskApiKey(keyMap.get("cronjob_org_api_key")!) : null}
         />
       </section>
 

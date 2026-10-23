@@ -329,6 +329,12 @@ const MODULES = [
     copies: ["ai-music-studio/lib/ai/suno.ts", "shots/src/lib/ai/suno.ts"],
   },
   {
+    // 요청 안에서 바로 음원을 주는 공급자(Google Lyria·ElevenLabs Music) 호출·오류 안내. 2026-10-23 등록 — 쇼츠 배경음악 모델 고르기(배경음악 공용화 4단계)
+    id: "music-sync-calls",
+    source: "ai-music-studio/lib/providers/musicCalls.ts",
+    copies: ["shots/src/lib/ai/musicCalls.ts"],
+  },
+  {
     // Suno 시간 가사(get-timestamped-lyrics의 alignedWords) → 줄 단위 가사 시간표. 2026-10-21 등록 — 가사영상 곡 가져오기·플레이리스트 여러 곡 가져오기
     id: "suno-timed-lyrics",
     source: "lyric-video-studio/src/lib/sunoAlign.ts",
@@ -374,7 +380,7 @@ const MODULES = [
       "threads-content-ops/lib/memberScheduler.ts", "threads/src/lib/posts/memberScheduler.ts", "insta_auto_poster/src/lib/posts/memberScheduler.ts", "threads-affiliate-poster/src/lib/posts/memberScheduler.ts",
       "booking-reminder/lib/schedulerMember/memberScheduler.ts", "crm-google-form/lib/schedulerMember/memberScheduler.ts", "kakao_auto_poster/src/lib/schedulerMember/memberScheduler.ts",
       "naver-cafe-poster/src/lib/scheduledSource/memberScheduler.ts", "stepmail/lib/schedulerMember/memberScheduler.ts", "trending-product-finder/lib/schedulerMember/memberScheduler.ts",
-      "youtube-auto-reply/lib/schedulerMember/memberScheduler.ts", "threads-comment-reply/lib/schedulerMember/memberScheduler.ts",
+      "youtube-auto-reply/lib/schedulerMember/memberScheduler.ts", "threads-comment-reply/lib/schedulerMember/memberScheduler.ts", "instagram-comment-reply/lib/schedulerMember/memberScheduler.ts",
     ],
   },
   {
