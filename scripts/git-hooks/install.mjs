@@ -6,7 +6,8 @@ const root = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "
 const gitDir = path.resolve(root, execFileSync("git", ["rev-parse", "--git-dir"], { cwd: root, encoding: "utf8" }).trim());
 // 2026-10-23: pre-push(대량 삭제 차단)도 함께 설치한다.
 // 머리말 글자로 「우리 훅」인지 알아본다 — 2026-10-23 pre-commit 머리말이 「알림」→「검사」로 바뀌어 둘 다 받는다(옛 글자만 보면 교체를 거부했음)
-for (const [name, marks] of [["pre-commit", ["AIMaster 커밋 직전 검사", "AIMaster 커밋 직전 알림"]], ["pre-push", ["AIMaster 푸시 직전 검사"]]]) {
+// 2026-10-23: commit-msg(AIMASTER_SESSION → 커밋 메시지 세션 트레일러)도 함께 설치한다.
+for (const [name, marks] of [["pre-commit", ["AIMaster 커밋 직전 검사", "AIMaster 커밋 직전 알림"]], ["pre-push", ["AIMaster 푸시 직전 검사"]], ["commit-msg", ["AIMaster 커밋 메시지 세션"]]]) {
   const src = path.join(root, "scripts", "git-hooks", name);
   const dest = path.join(gitDir, "hooks", name);
   if (fs.existsSync(dest) && !marks.some((m) => fs.readFileSync(dest, "utf8").includes(m))) {
