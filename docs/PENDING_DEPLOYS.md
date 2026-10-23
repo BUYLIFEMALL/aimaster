@@ -1,4 +1,5 @@
-# 미배포 대기 목록 (PENDING_DEPLOYS.md)
+# 미배포 대기 목록 (PENDING_DEPL| `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — 실측 65%, (가)/(다) 결정 대기 | `fef7491d6` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
+OYS.md)
 
 > 2026-10-22 신설(Claude Code 윈도우, 주인님 승인 — 추가개선 제안 「미배포 대기 항목을 한곳에」).
 > 근거 지침: 루트 `CLAUDE.md` 최상단 「작은 소스 수정은 모았다가 배포한다」(2026-10-22 23:17) · [`docs/VERCEL_COST_REDUCTION_PLAN.md`](VERCEL_COST_REDUCTION_PLAN.md) 맨 위.
