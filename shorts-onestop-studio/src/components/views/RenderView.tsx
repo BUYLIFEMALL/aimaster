@@ -42,6 +42,8 @@ export function RenderView() {
   const [ams, setAms] = useState<AmsPick[] | null>(null);
   // v1.39 AI 음악 스튜디오 곡 카드 링크(/render?ams=<생성 번호>:<곡 순서>)로 들어오면, 항목이 열린 뒤 그 곡을 배경음악으로 넣는다
   const pendingAms = useRef<string | null>(null);
+  // v1.40 대본이 여러 개일 때 넣을 대본을 고를 때까지 기다리는 곡 번호
+  const [amsWaiting, setAmsWaiting] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0.9);
   const canvas = useRef<HTMLCanvasElement>(null); const tRef = useRef(0.9);
   const [exp, setExp] = useState<ExportProgress | null>(null), [file, setFile] = useState<{ url: string; name: string; mb: number; blob: Blob } | null>(null);
@@ -166,19 +168,27 @@ export function RenderView() {
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
 
-  useEffect(() => {
-    const ref = pendingAms.current;
-    if (!ref || !item || !script) return;
-    pendingAms.current = null;
+  // 링크로 받은 곡을 지금 열린 대본의 배경음악으로 넣는다
+  function applyAms(ref: string) {
+    if (!item || !script) return;
+    setAmsWaiting(null);
     setBusy("AI 음악 스튜디오 곡을 가져오는 중…"); setMsg(null);
     api<{ path: string; name: string }>("/api/ams/import", { body: { ref } })
       .then((r) => {
         setA({ bgm: { path: r.path, name: r.name, volume: normalizeAudio(script.audio).bgm?.volume ?? 0.35 } });
-        setMsg({ text: `「${r.name}」을 「${item.title}」의 배경음악으로 넣었습니다. 다른 대본에 넣으려면 위에서 대본을 바꾼 뒤 「AI 음악 스튜디오 내 곡에서 고르기」를 쓰세요. [저장]을 눌러 주세요.`, ok: true });
+        setMsg({ text: `「${r.name}」을 「${item.title}」의 배경음악으로 넣었습니다. [저장]을 눌러 주세요.`, ok: true });
       })
       .catch((e) => setMsg(toMsg(e)))
       .finally(() => setBusy(""));
-  }, [item?.id, !!script]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
+  // v1.40 대본이 하나면 바로 넣고, 여러 개면 회원이 위 「작업할 대본」에서 고른 뒤 넣게 한다(엉뚱한 대본에 들어가지 않게)
+  useEffect(() => {
+    const ref = pendingAms.current;
+    if (!ref || !item || !script || !list) return;
+    pendingAms.current = null;
+    if (list.length > 1) setAmsWaiting(ref);
+    else applyAms(ref);
+  }, [item?.id, !!script, !!list]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function makeMp4() {
     if (!script || exp) return;
@@ -230,7 +240,13 @@ export function RenderView() {
       <div className="stack">
         <Message msg={msg} />
         {list && list.length === 0 && <div className="empty-state"><span className="emoji">🎙️</span><strong>먼저 대본을 만들어 주세요</strong><a className="button primary" href="/topic">💡 대본 만들러 가기</a></div>}
-        {list && list.length > 0 && <section className="card"><label>작업할 대본<select value={item?.id ?? ""} onChange={(e) => void open(e.target.value)}>{list.map((p) => <option key={p.id} value={p.id}>{p.title} · {timeAgo(p.updated_at)}</option>)}</select></label></section>}
+        {list && list.length > 0 && <section className="card"><label>작업할 대본<select value={item?.id ?? ""} onChange={(e) => void open(e.target.value)}>{list.map((p) => <option key={p.id} value={p.id}>{p.title} · {timeAgo(p.updated_at)}</option>)}</select></label>
+          {amsWaiting && <div className="row" style={{ marginTop: 10, alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <small style={{ flex: "1 1 240px" }}>🎵 AI 음악 스튜디오에서 보낸 곡이 있습니다. 위 「작업할 대본」에서 넣을 대본을 고른 뒤 눌러 주세요. 지금 대본: 「{item?.title}」</small>
+            <button type="button" className="primary" disabled={!!busy || !item} onClick={() => applyAms(amsWaiting)}><Music size={14} />이 대본에 넣기</button>
+            <button type="button" onClick={() => setAmsWaiting(null)}>넣지 않기</button>
+          </div>}
+        </section>}
         {script && tl && (
           <div className="atelier">
             <div className="stack">
