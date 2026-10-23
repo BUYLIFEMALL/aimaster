@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) — 블로그 병합 묶음 A 마무리(A-5·A-6·A-7) → 네이버 블로그 에이전트 v2.18 배포 · 세션 `claude-win-20261023-blog2`
+- A-5 본문 이미지를 위/아래 소제목으로 옮기기(확장이 소제목 단위로 배치해 플랜의 문단 단위에서 변경) / A-6 대표 이미지에 제목 글자 넣기·되돌리기(브라우저 캔버스, AI 비용 없음, 회원 비공개 사진 제외) / A-7 메모·텍스트 파일로 글감 만들기(메모 원문이 사실 근거, DB 변경 없음).
+- 배포 Ready `naver-blog-agent-mejx4uje3`(빌드 1회), DB·확장·ZIP v2.18 OK, 시험 29종 통과. 크롬(시험 계정)에서 이동 2회·제목 글자·되돌리기 확인. 실측 AI 1회(메모 글감, 로컬·저장 안 함).
+- 미배포 대기 1건: 글자 넣은 대표 이미지 카드 전체 표시 `9ee3cb3d8`. **묶음 A 완료** — 다음은 묶음 B(작업실·콘텐츠 → SEO 스튜디오) 플랜. 상세 `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 · https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 영상 스튜디오 v1.10 배포 완료
 
 - 한 일: 영상 설명 **AI 다듬기**(회원 본인 Gemini 키, `gemini-3.5-flash-lite`, 재시도 없음, 새 API `/api/prompt/polish`) + 만드는 중 **4분 넘으면 업체 콘솔 안내**(`PROVIDERS.usageLink`). 매뉴얼 1·2단계 문구 보강. 플랜 `ai-video-studio/docs/PLAN_20261024_PROMPT_POLISH.md`.
