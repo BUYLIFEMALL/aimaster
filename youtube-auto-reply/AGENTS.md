@@ -244,3 +244,7 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 - 함께 나감: 30일 정리 회원별 기록(`af9b2719c`·`05902a01d`), 공용 그래프 `noun`·`labels`·설명 문구·글자 크게(`9479f0bc`).
 - 커밋 `3f8897cd7`, DB v1.30(크롬 SQL Editor), 배포 `youtube-auto-reply-o6rx062y0` Ready, 가짜 토큰 401·`/login` 200, 크롬 대시보드 v1.30·그래프 제목 16px. 시작 시각 실저장은 같은 코드인 쓰레드 앱에서 확인(유튜브는 시험 회원 채널 미연결). 비용: 빌드 1회.
 - 남은 확인: 다음 30일 정리 시각(매일 03:40 KST) 뒤 관리자 「30일 자동 정리」 표에 줄이 생기는지.
+
+## 2026-10-23 v1.31 — 모아 둔 화면 수정 배포 (Claude Code 윈도우 · 세션 `claude-win-20261023-deploy3`)
+- 함께 나감: 「⏸ 모니터링 중지」 즉시 화면 반영(`52b8adb5a`) · 설정 「다음 확인 예정」(`lib/schedule.ts` `nextMonitoringAt`)·「실행 방식 바꾸기 ↓」 바로가기(`24562d6aa`). 버전 커밋 `cff21dc83`.
+- 검수: tsc·로컬 build, 배포 `youtube-auto-reply-dpgbgdpq6` Ready·운영 주소 연결, 화면·DB 버전 v1.31, 실행 주소 가짜 토큰 401·`/login` 200, 크롬(시험 회원) 설정 화면 바로가기 확인. 비용: Vercel 빌드 1회(승인).

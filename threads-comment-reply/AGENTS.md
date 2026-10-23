@@ -245,3 +245,7 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 ## 2026-10-23 v1.27 — 모니터링 시작 시각을 한국 시간으로 읽기 (Claude Code 윈도우)
 - `lib/actions/monitoring.ts`: 화면의 `datetime-local` 값(시간대 없음)에 시간대가 없으면 `+09:00`을 붙여 읽음 — 예전엔 UTC로 읽혀 9시간 늦게 저장돼 켠 뒤 9시간 동안의 댓글을 건너뜀. 같은 수정을 `youtube-auto-reply` v1.30에도 넣음.
 - 커밋 `e6139cd39`·`3f8897cd7`, DB v1.27(크롬 SQL Editor), 배포 `threads-comment-reply-ood6m9vpm` Ready, 가짜 토큰 401·`/login` 200. 크롬(시험 회원): 13:06 시작 → DB `04:06 UTC`(=한국 13:06) 확인 → 바로 중지(꺼짐 복구, 예약 실행 0회). 비용: 빌드 1회.
+
+## 2026-10-23 v1.28 — 모아 둔 화면 수정 배포 (Claude Code 윈도우 · 세션 `claude-win-20261023-deploy3`)
+- 함께 나감: 「⏸ 모니터링 중지」 즉시 화면 반영(`52b8adb5a`) · 설정 「다음 확인 예정」(`lib/schedule.ts` `nextMonitoringAt`)·「실행 방식 바꾸기 ↓」 바로가기(`24562d6aa`). 버전 커밋 `cff21dc83`.
+- 검수: tsc·로컬 build, 배포 `threads-comment-reply-ku5b09w90` Ready·운영 주소 연결, 화면·DB 버전 v1.28, 실행 주소 가짜 토큰 401·`/login` 200, 크롬(시험 회원) 설정 화면 바로가기 확인. 비용: Vercel 빌드 1회(승인).
