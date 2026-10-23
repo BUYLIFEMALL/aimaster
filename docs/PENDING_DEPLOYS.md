@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `music-video-studio` (운영 v1.18) | 공용 `video-edit-timeline`·`video-edit-composition` 사본 동기화(장면 늘리기 `hold`·겹쳐 바꾸기 — 뮤직비디오는 쓰지 않아 동작 불변) | `179b58ccc` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.07 | 버전 +0.01 |
 | `ai-music-studio` (운영 v1.11) | 제안 가. 미니 플레이어 반복(끔→목록→한 곡)·무작위 재생 · 제안 나. 실제 소리 파형 막대(재생한 곡만) | `36abe772a` · `c15faae8e` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-bgm` | `ai-music-studio/AGENTS.md` 맨 아래 · 플랜 `docs/PLAN_20261023_PLAYER_REPEAT_SHUFFLE.md` | 제안 나~라와 모아 빌드 1회(사전 승인) → v1.12, 크롬에서 버튼 동작 + 주인님 소리 확인 |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -72,6 +73,7 @@
 | `tistory-auto-blog` | v1.91 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
 | `naver-blog-allinone` | v1.52 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
 | `blog-workroom` | v1.14 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
+| `ai-video-studio` | v1.07 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `ai-video-studio-hhv6cegzq`) | 장면을 내레이션에 맞추기·겹쳐 바꾸기 `179b58ccc` — 운영 렌더로 반복 재생·섞임·내레이션 끝 소리 확인 |
 | `music-video-studio` | v1.18 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `music-video-studio-3tmbxxbny`) | 장면을 가사 시각에 맞춰 바꾸기 `c67256045` + 대기분 가사 자막 구간 표시 빼기 `1b8440ac7`(이미 v1.17 보안 배포에 실렸음) — 운영 렌더로 24초 전환·자막 확인 |
 | `music-video-studio` | v1.16 · 2026-10-23 (Claude Code 윈도우, 회원 피해 수정·승인 빌드 1회, `music-video-studio-ocyhgtgjr`) | 장면 이미지 500(sharp libvips) 수정 `8f1171788` — 이미지 2장 생성·최종 뮤직비디오 렌더 운영 확인 |
 | `comment-inbox` | v1.09 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `comment-inbox-o4t2vkqdq`) | 「🤖 자동 수집 상태」 카드 `24562d6aa` · 7일 그래프 글자 크게·문구 선택 항목(공용 사본) |

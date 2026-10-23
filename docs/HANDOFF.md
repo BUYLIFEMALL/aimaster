@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 ✅ Claude Code(윈도우) · 영상 작업 담당 `claude-win-avs-c12` — AI 영상 스튜디오 v1.07 장면을 내레이션에 맞추기·겹쳐 바꾸기
+- 내레이션이 장면보다 길면 「장면을 내레이션에 맞추기」(여러 장면이면 「모두 맞추기」)로 장면을 늘림(영상 반복 재생, 사진 계속 확대, 3분 넘으면 안내). 전환에 「겹쳐 바꾸기」(앞뒤 0.5초 겹침) 추가. 공용 `video-edit-timeline`·`video-edit-composition` 수정, 뮤직비디오 사본은 동작 불변이라 미배포 대기. 커밋 `179b58ccc`, 시험 24개 통과.
+- 검수(운영, 메인 크롬, 시험 계정): 배포 `ai-video-studio-hhv6cegzq` Ready·화면/DB v1.07. 저장된 시험 편집에서 장면 1(4초·내레이션 4.8초) 맞추기 → 5.1초, 겹쳐 바꾸기 → 총 9.6초 렌더. 늘린 구간 반복 재생·겹친 구간 섞임·내레이션 끝 소리 확인.
+- 상세: [`ai-video-studio/AGENTS.md`](../ai-video-studio/AGENTS.md) v1.07 · https://ai-video-studio.buylife.xyz
+- 다음: 같은 세션이 ③ 영상 생성 소리 켜기·글만으로 영상 만들기 — 시험 생성 비용이 있어 플랜·비용 승인 먼저.
+- 비용: Vercel 빌드 1회(승인 범위 안). AI 호출 없음.
 ## 2026-10-23 Claude Code(윈도우) — 블로그 BLC-14 기능 동등성·회원 전환 검토(분석만) · 세션 `claude-win-20261023-blog2`
 - 결과 [REPORT BLC-14 절](analysis-blog-consolidation-20261020/REPORT.md#blc14-20261023) · 근거 JSON · HTML 재생성. 코드·DB·권한·배포 변경 없음, 비용 없음(코드·운영 DB 읽기만).
 - 결론: 올인원·BLOG·작업실 모두 아직 BLC-15(신규 개발 중단) 불가. BLOG는 FREE인데 에이전트는 아님 → 권한 차이 41명+FREE 이용자. 작업실 → SEO는 AI 최종 검수·최종본 게이트·문체 영구 보관 없음. 실제 데이터 보유 회원은 올인원 1·BLOG 8·작업실 2명.
