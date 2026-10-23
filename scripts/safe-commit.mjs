@@ -56,8 +56,14 @@ if (flag("--begin")) {
   mkdirSync(SNAP, { recursive: true });
   // 고친 뒤 다시 --begin 하면 기준 사본이 고친 판이 돼 「바뀐 내용 없음」으로 커밋이 안 된다(2026-10-23 실제 사고) —
   // 이 세션의 기준 사본이 이미 있고 작업 파일이 그것과 다르면(=시작 뒤 이미 고침) 막는다. 정말 새로 뜰 때만 --force-begin
+  // 단 기준 사본이 지금 HEAD와 다르면(지난 작업에서 커밋하지 않고 남은 옛 사본, 그사이 다른 세션 커밋이 들어옴) 막지 않고 새로 뜬다 — 그건 「내가 고친 것」이 아님
   if (!flag("--force-begin")) {
-    const edited = positional.map(rel).filter((f) => { const p = join(ROOT, f); return existsSync(snapPath(f)) && existsSync(p) && !readFileSync(snapPath(f)).equals(readFileSync(p)); });
+    const edited = positional.map(rel).filter((f) => {
+      const p = join(ROOT, f);
+      if (!existsSync(snapPath(f)) || !existsSync(p) || readFileSync(snapPath(f)).equals(readFileSync(p))) return false;
+      const h = headBlob("HEAD", f);
+      return h !== null && toLF(h) === toLF(readFileSync(snapPath(f), "utf8"));
+    });
     if (edited.length) {
       console.error(`✖ 이미 고친 파일입니다: ${edited.join(", ")} — 이 세션(${as})의 기준 사본이 있고 작업 파일이 그 뒤 바뀌었습니다.\n  지금 기준 사본을 새로 뜨면 내 수정이 「원래 내용」이 돼 커밋되지 않습니다. 고친 채로 그대로 커밋하세요: node scripts/safe-commit.mjs "<메시지>" ${edited.join(" ")} --as ${as}\n  정말 지금 내용을 새 기준으로 삼으려면(내 수정을 버린 경우 등): --begin ... --force-begin`);
       process.exit(1);

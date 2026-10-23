@@ -226,3 +226,18 @@ test("고친 뒤 다시 --begin 하면 막고(기준 사본 그대로), --force-
     assert.equal(r.helper("--begin", "a.md", "--as", "me", "--force-begin").status, 0);
   } finally { r.done(); }
 });
+
+test("지난 작업에서 남은 옛 기준 사본(HEAD가 그사이 바뀜)은 다시 --begin 해도 막지 않는다(2026-10-23)", () => {
+  const r = repo();
+  try {
+    r.commit("p.md", ["a"], "c1");
+    assert.equal(r.helper("--begin", "p.md", "--as", "me").status, 0); // 시작만 하고 커밋 안 함(옛 사본 남음)
+    r.commit("p.md", ["a", "다른 세션"], "c2"); // 그사이 다른 세션 커밋 → 작업 파일·HEAD가 바뀜
+    const again = r.helper("--begin", "p.md", "--as", "me");
+    assert.equal(again.status, 0, again.stdout + again.stderr);
+    r.write("p.md", ["a", "다른 세션", "내 것"]);
+    const out = r.helper("내 커밋", "p.md", "--as", "me");
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.deepEqual(r.head("p.md"), ["a", "다른 세션", "내 것"]);
+  } finally { r.done(); }
+});
