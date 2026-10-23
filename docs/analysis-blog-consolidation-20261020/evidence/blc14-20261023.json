@@ -1,0 +1,149 @@
+{
+ "task": "BLC-14",
+ "createdBy": "Claude Code(윈도우) claude-win-20261023-blog2",
+ "createdAt": "2026-10-23",
+ "dbRef": "esgxyikcnnvmlhygjkth",
+ "queriedAt": "2026-10-23T09:46:20.333Z",
+ "baseHead": "763de7c9c",
+ "versions": {
+  "naver-blog-agent": "v2.15",
+  "naver-blog-seo-studio": "v2.13",
+  "naver-blog-allinone": "v1.52",
+  "ai-auto-blog": "v1.80",
+  "blog-workroom": "v1.14"
+ },
+ "memberDataRows": {
+  "aio_posts": {
+   "slug": "naver-blog-allinone",
+   "rows": 3,
+   "members": 1,
+   "rows30d": 3,
+   "members30d": 1,
+   "latest": "2026-10-11T17:19:15.351875+00:00"
+  },
+  "blog_posts": {
+   "slug": "ai-auto-blog",
+   "rows": 24,
+   "members": 8,
+   "rows30d": 13,
+   "members30d": 6,
+   "latest": "2026-10-21T13:59:14.621987+00:00"
+  },
+  "blog_candidates": {
+   "slug": "ai-auto-blog",
+   "rows": 47,
+   "members": 5,
+   "rows30d": 32,
+   "members30d": 4,
+   "latest": "2026-10-21T02:05:38.59+00:00"
+  },
+  "blog_workroom_items": {
+   "slug": "blog-workroom",
+   "rows": 12,
+   "members": 2,
+   "rows30d": 12,
+   "members30d": 2,
+   "latest": "2026-10-15T16:40:40.892295+00:00"
+  },
+  "nba_posts": {
+   "slug": "naver-blog-agent",
+   "rows": 29,
+   "members": 3,
+   "rows30d": 29,
+   "members30d": 3,
+   "latest": "2026-10-22T04:22:51.035755+00:00"
+  },
+  "nba_collected_materials": {
+   "slug": "naver-blog-agent",
+   "rows": 12,
+   "members": 3,
+   "rows30d": 12,
+   "members30d": 3,
+   "latest": "2026-10-22T22:51:04.343+00:00"
+  },
+  "naver_blog_seo_drafts": {
+   "slug": "naver-blog-seo-studio",
+   "rows": 40,
+   "members": 2,
+   "rows30d": 38,
+   "members30d": 2,
+   "latest": "2026-10-22T18:34:29.412317+00:00"
+  },
+  "naver_blog_seo_styles": {
+   "slug": "naver-blog-seo-studio",
+   "rows": 2,
+   "members": 1,
+   "rows30d": 2,
+   "members30d": 1,
+   "latest": "2026-10-22T18:31:30.963458+00:00"
+  }
+ },
+ "subscriptionsAndGrantRows": {
+  "naver-blog-agent": {
+   "activeSubscriptions": 0,
+   "accessGrants": 195
+  },
+  "naver-blog-seo-studio": {
+   "activeSubscriptions": 0,
+   "accessGrants": 245
+  },
+  "naver-blog-allinone": {
+   "activeSubscriptions": 0,
+   "accessGrants": 159
+  },
+  "ai-auto-blog": {
+   "activeSubscriptions": 0,
+   "accessGrants": 245
+  },
+  "blog-workroom": {
+   "activeSubscriptions": 0,
+   "accessGrants": 154
+  }
+ },
+ "badges": {
+  "naver-blog-seo-studio": [
+   "best"
+  ],
+  "naver-blog-allinone": [
+   "best",
+   "recommended"
+  ],
+  "blog-workroom": [],
+  "ai-auto-blog": [
+   "free"
+  ],
+  "naver-blog-agent": [
+   "recommended"
+  ]
+ },
+ "validGrantHolders": {
+  "naver-blog-seo-studio": 204,
+  "naver-blog-allinone": 159,
+  "blog-workroom": 154,
+  "ai-auto-blog": 204,
+  "naver-blog-agent": 195
+ },
+ "sourceOnlyNoTargetGrant": {
+  "allinoneToAgent": 0,
+  "blogToAgent": 41,
+  "workroomToSeo": 1
+ },
+ "dataHoldersWithoutTargetGrant": {
+  "naver-blog-allinone": {
+   "withData": 1,
+   "withDataButNoTargetGrant": 0
+  },
+  "ai-auto-blog": {
+   "withData": 8,
+   "withDataButNoTargetGrant": 1
+  },
+  "blog-workroom": {
+   "withData": 2,
+   "withDataButNoTargetGrant": 0
+  }
+ },
+ "usageLogsNote": "scripts/analyze-category.mjs: usage_logs 0건(5개 모두) — 실제 사용은 프로그램 표 행으로 셈. 행은 30일 자동 삭제 뒤 남은 것만.",
+ "codeComparison": "읽기 전용 하위 조사 3건(올인원→에이전트, BLOG→에이전트, 작업실→SEO) — 결과 요약은 REPORT.md BLC-14 절",
+ "privacy": "이메일·키·본문 저장 안 함(숫자만)",
+ "cost": "없음"
+}
