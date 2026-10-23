@@ -94,3 +94,11 @@ tests/loop.test.mjs · access.test.mjs   `npm test` 15개 통과
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-24 v1.07 — 소리 없는 영상이 크롬에서 항상 실패하던 문제 수정 (Claude Code 윈도우, 영상 담당 `claude-win-video`)
+- 원인: `LoopTool.tsx`의 소리 판단(`audioTracks`/`mozHasAudio`, 없으면 `true`)이 크롬에서 늘 「있음」 → 소리 없는 영상에도 `[0:a]` 필터 → ffmpeg 실패(「루프 만들기에 실패했습니다」). AI 영상 모델 결과 대부분이 소리 없음.
+- 수정: `src/lib/loop/browser.ts`가 파일을 쓴 뒤 `ffmpeg -hide_banner -i` 기록을 받아 `plan.ts` `hasAudioStream`(스트림 번호 바로 뒤 종류 칸만 봄)으로 `hasAudio`를 다시 정함. 화면 짐작은 쓰지 않음.
+- 시험: 17개(새 2 — 소리 기록 판단 4경우, 소리 없을 때 세 방식 모두 `[0:a]`·`aout` 없음). 실제 PC ffmpeg 기록으로도 판단 확인.
+- 검수: build(`--webpack`), 배포 `infinite-loop-video-q2ezfnuhj` Ready, DB v1.07, 운영 크롬 소리 없는 4초 MP4 → 0.8MB 성공, 소리 있는 MP4 → 4.5MB(소리 트랙 유지) 성공.
+- 참고: 처음 배포 시도는 작업 중 표의 종료된 보안 세션 줄에 막혔고(그때 DB만 v1.07로 바뀌어 v1.06으로 되돌림), 주인님 승인으로 그 줄에서 이 폴더만 뺀 뒤 배포.
+- 비용: 빌드 1회. 커밋 `2fb360453`.
