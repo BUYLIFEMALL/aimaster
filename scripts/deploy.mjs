@@ -236,7 +236,7 @@ if (versionOnly && args.includes("--all")) {
   try {
     const a = JSON.parse(au.stdout.trim().split("\n").pop());
     console.log(`[공용 문서 되돌림] 최근 ${a.hours}시간 커밋 ${a.commits}개 · 의심 ${a.suspect}건 · 지금 사라진 줄 있는 것 ${a.lost.length}건`);
-    for (const l of a.lost) console.log(`  ⚠ ${l.sha} ${l.file} −${l.lines}줄 | ${l.msg}\n      예: ${l.sample}`);
+    for (const l of a.lost) console.log(`  ⚠ ${l.sha} (세션 ${l.session || "미상 — 커밋 메시지·HANDOFF로 확인"}) ${l.file} −${l.lines}줄 | ${l.msg}\n      예: ${l.sample}`);
     if (a.lost.length) console.log("  원문: node scripts/check-shared-doc-reverts.mjs --audit 24 --lost  (의도한 정리인지 확인 후 필요하면 다음 커밋으로 되살림)");
   } catch { console.log("[공용 문서 되돌림] 감사 실패 — node scripts/check-shared-doc-reverts.mjs --audit 24 로 직접 확인"); }
 

@@ -59,7 +59,9 @@ if (process.argv.includes("--audit")) {
       const shipped = (file === "docs/PENDING_DEPLOYS.md" && /deploy|shipped|v\d+\.\d{2}/i.test(msg.join(" ")))
         || (file === "docs/ACTIVE_WORK.md" && lost.every((l) => l.startsWith("| `")));
       if (shipped) lost = [];
-      found.push({ sha: sha.slice(0, 9), when: new Date(Number(ct) * 1000).toLocaleString("ko-KR"), msg: msg.join(" ").slice(0, 70), file, n: hits.length, lost, shipped, sample: (lost[0] || hits[0]).slice(0, 90) });
+      // 커밋한 세션(도우미 --as가 남긴 `AIMaster-Session:` 트레일러, 없으면 빈 값 = 세션 미상) — 담당이 자기 커밋을 확인하도록(2026-10-23)
+      const session = (git("log", "-1", "--format=%(trailers:key=AIMaster-Session,valueonly)", sha) || "").trim().split("\n")[0];
+      found.push({ sha: sha.slice(0, 9), when: new Date(Number(ct) * 1000).toLocaleString("ko-KR"), msg: msg.join(" ").slice(0, 70), file, n: hits.length, lost, shipped, session, sample: (lost[0] || hits[0]).slice(0, 90) });
     }
   }
   // 확인 목록(scripts/reverts-reviewed.txt, 「sha 메모」 한 줄씩): 사람이 의도한 정리로 확인한 커밋은 「✓ 확인됨」으로만 표시
@@ -72,11 +74,11 @@ if (process.argv.includes("--audit")) {
   const lostAll = found.filter((f) => f.lost.length);
   // --json: 다른 스크립트(deploy.mjs --version-only --all, pending-check --publish)가 읽는 요약
   if (process.argv.includes("--json")) {
-    console.log(JSON.stringify({ hours, commits: commits.length, suspect: found.length, lost: lostAll.map((f) => ({ sha: f.sha, when: f.when, file: f.file, lines: f.lost.length, msg: f.msg, sample: f.sample })) }));
+    console.log(JSON.stringify({ hours, commits: commits.length, suspect: found.length, lost: lostAll.map((f) => ({ sha: f.sha, when: f.when, file: f.file, lines: f.lost.length, msg: f.msg, session: f.session, sample: f.sample })) }));
     process.exit(0);
   }
   console.log(`[되돌림 감사] 최근 ${hours}시간 공용 문서 커밋 ${commits.length}개 중 의심 ${found.length}건 — 지금 HEAD에서 사라진 줄이 있는 것 ${lostAll.length}건`);
-  for (const f of found) console.log(`  ${f.lost.length ? "⚠ 사라짐" : f.reviewed ? `✓ 확인됨(${f.reviewed})` : f.shipped ? (f.file === "docs/ACTIVE_WORK.md" ? "✓ 작업 끝 정리" : "✓ 배포로 정리") : "✓ 복구됨"} ${f.sha} ${f.when} ${f.file} −${f.n}줄${f.lost.length ? `(지금 없음 ${f.lost.length}줄)` : ""} | ${f.msg}\n      예: ${f.sample}`);
+  for (const f of found) console.log(`  ${f.lost.length ? "⚠ 사라짐" : f.reviewed ? `✓ 확인됨(${f.reviewed})` : f.shipped ? (f.file === "docs/ACTIVE_WORK.md" ? "✓ 작업 끝 정리" : "✓ 배포로 정리") : "✓ 복구됨"} ${f.sha}${f.session ? ` (세션 ${f.session})` : ""} ${f.when} ${f.file} −${f.n}줄${f.lost.length ? `(지금 없음 ${f.lost.length}줄)` : ""} | ${f.msg}\n      예: ${f.sample}`);
   // --lost: 사라진 줄 원문 출력(되살릴 때 참고)
   if (process.argv.includes("--lost")) for (const f of lostAll) { console.log(`\n--- ${f.sha} ${f.file} 사라진 줄 ---`); for (const l of f.lost) console.log(l); }
   if (found.length) console.log("  ※ 의도한 정리(줄 옮기기·대기 줄을 내보낸 기록으로 등)도 잡힐 수 있습니다. 지워진 줄이 지금 HEAD에 다른 곳으로 남았는지 확인 후 되살리세요.");

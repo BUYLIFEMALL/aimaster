@@ -271,7 +271,9 @@ for (let attempt = 1; attempt <= 5 && !done; attempt++) {
     const changed = results.filter((r) => !r.same);
     if (!changed.length) { console.log("바뀐 내용이 없습니다(최신 HEAD와 같음) — 커밋하지 않음."); process.exit(0); }
     const tree = run(["write-tree"], { env }).trim();
-    const commit = run(["commit-tree", tree, "-p", oldHead], { input: message.endsWith("\n") ? message : message + "\n" }).trim();
+    // --as를 직접 줬으면 메시지 끝 단락에 `AIMaster-Session: <이름>` 트레일러 — 되돌림 감사가 「어느 세션의 커밋인지」 보여 준다(2026-10-23)
+    const msgOut = optVal("--as") && !/^AIMaster-Session:/m.test(message) ? `${message.replace(/\s+$/, "")}\nAIMaster-Session: ${as}\n` : (message.endsWith("\n") ? message : message + "\n");
+    const commit = run(["commit-tree", tree, "-p", oldHead], { input: msgOut }).trim();
     // HEAD가 그대로일 때만 옮김(바뀌었으면 실패 → 최신 HEAD로 다시)
     if (tryRun(["update-ref", "-m", `safe-commit: ${message.split("\n")[0]}`, `refs/heads/${branch}`, commit, oldHead]) === null) {
       console.log(`… 그사이 다른 커밋이 들어와 다시 병합합니다(${attempt}/5)`);
