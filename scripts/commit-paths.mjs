@@ -4,7 +4,7 @@
 // 배경: 2026-10-23 공용 스테이징이 두 번(65개·11개) 쪼그라들었고, 두 번 다 경로 지정 커밋(git commit -- <경로>) 시각과 겹쳤다
 //       (경로 지정 커밋은 공용 인덱스를 읽어 다시 쓴다 → 교체 순간을 빈 인덱스로 읽으면 내 경로만 남김, docs/ERROR_LESSONS.md).
 //
-// 쓰는 법:  node scripts/commit-paths.mjs "<커밋 메시지>" <경로>... [--push]
+// 쓰는 법:  node scripts/commit-paths.mjs "<커밋 메시지>" <경로>... [--push] [--as <세션이름>]
 //   경로는 파일·폴더 모두 가능. 새 파일·지운 파일·이미지·실행 권한까지 `git add -A -- <경로>`로 담는다.
 //   공용 문서(HANDOFF 등)는 거부 → node scripts/safe-commit.mjs 사용.
 // 하는 일: ① 임시 스테이징 = 최신 HEAD + 내 경로 ② 커밋 전 검사(대량 삭제 차단·OpenAI 모델·공용 문서 되돌림 경고)를 그 임시 스테이징으로 실행
@@ -29,7 +29,10 @@ const sleepMs = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0
 
 const args = process.argv.slice(2);
 const push = args.includes("--push");
-const [message, ...paths] = args.filter((a) => a !== "--push");
+// --as <세션이름>: 블랙박스 기록에 세션 이름(없으면 환경변수 AIMASTER_SESSION, 2026-10-23)
+const asIdx = args.indexOf("--as");
+const as = ((asIdx >= 0 ? args[asIdx + 1] : process.env.AIMASTER_SESSION) || "").replace(/[^\w.-]/g, "_");
+const [message, ...paths] = args.filter((a, i) => a !== "--push" && a !== "--as" && (asIdx < 0 || i !== asIdx + 1));
 if (!message || !paths.length) {
   console.log('사용: node scripts/commit-paths.mjs "<커밋 메시지>" <경로>... [--push]');
   process.exit(2);
@@ -49,8 +52,8 @@ for (const n of readdirSync(GITDIR)) {
 process.on("exit", () => { for (const s of ["", ".lock"]) rmSync(join(GITDIR, `index.commit-paths-${process.pid}${s}`), { force: true }); });
 // 공용 스테이징 블랙박스: 시작·끝에 한 줄(scripts/index-watch.mjs, 막지 않음)
 const watchIndex = (tag) => { if (!existsSync(join(ROOT, "scripts", "index-watch.mjs"))) return; try { spawnSync(process.execPath, [join(ROOT, "scripts", "index-watch.mjs"), tag, "--quiet"], { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] }); } catch { /* 기록 실패는 무시 */ } };
-watchIndex("commit-paths:start");
-process.on("exit", () => watchIndex("commit-paths:end"));
+watchIndex(as ? `commit-paths:start(${as})` : "commit-paths:start");
+process.on("exit", () => watchIndex(as ? `commit-paths:end(${as})` : "commit-paths:end"));
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
 let done = null;
 for (let attempt = 1; attempt <= 5 && !done; attempt++) {

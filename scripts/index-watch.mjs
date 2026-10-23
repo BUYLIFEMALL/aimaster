@@ -9,7 +9,10 @@ import { appendFileSync, existsSync, readFileSync, statSync, writeFileSync } fro
 import { hostname } from "node:os";
 import { join, resolve } from "node:path";
 
-const tag = process.argv[2] || "manual";
+// 세션 이름: 이름표에 이미 (이름)이 없으면 환경변수 AIMASTER_SESSION을 붙인다 — 훅은 git이 부를 때 환경변수를 물려받으므로
+// `AIMASTER_SESSION=claude-win-x git commit …`이면 훅 기록에도 세션 이름이 남는다(2026-10-23)
+const rawTag = process.argv[2] || "manual";
+const tag = !rawTag.includes("(") && process.env.AIMASTER_SESSION ? `${rawTag}(${process.env.AIMASTER_SESSION.replace(/[^\w.-]/g, "_")})` : rawTag;
 const quiet = process.argv.includes("--quiet");
 try {
   const env = { ...process.env };
