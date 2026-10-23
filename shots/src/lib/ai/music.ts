@@ -1,6 +1,7 @@
 import "server-only";
 import { DEFAULT_SUNO_MODEL, checkSunoGenerationStatus, requestSunoGeneration } from "@/lib/ai/suno";
 import { callElevenLabsMusic, callLyria } from "@/lib/ai/musicCalls";
+import { audioDurationSeconds } from "@/lib/audioDuration";
 export { BGM_MODELS, DEFAULT_BGM_MODEL, isBgmModel, type BgmModelId } from "@/lib/bgmModels";
 
 // 2026-10-23 v1.39: 자체 Suno 코드(V4_5 고정 — sunoapi.org에서 V5_5 이하는 지원 종료)를
@@ -91,11 +92,13 @@ export async function generateSyncBackgroundMusic(
 ): Promise<{ data: Uint8Array; contentType: string; durationSeconds: number | null }> {
   if (model === "lyria:lyria-3.5") {
     const out = await callLyria({ model: "lyria-3.5", input: syncPrompt(input) }, apiKey);
-    return { data: out.data, contentType: out.contentType, durationSeconds: null };
+    // v1.42 Lyria는 길이를 알려 주지 않아 파일 머리글로 계산(못 읽으면 null)
+    return { data: out.data, contentType: out.contentType, durationSeconds: audioDurationSeconds(out.data, out.contentType) };
   }
   const out = await callElevenLabsMusic(
     { prompt: syncPrompt(input), music_length_ms: BGM_SECONDS * 1000, model_id: "music_v2_5", force_instrumental: true },
     apiKey,
   );
-  return { data: out.data, contentType: out.contentType, durationSeconds: BGM_SECONDS };
+  // v1.42 요청한 길이 대신 실제 파일 길이(못 읽으면 요청 길이)
+  return { data: out.data, contentType: out.contentType, durationSeconds: audioDurationSeconds(out.data, out.contentType) ?? BGM_SECONDS };
 }
