@@ -373,7 +373,7 @@
 - **키·계정·주의**: AI 키는 필요 없습니다. Google Drive 동기화는 회원 본인이 만든 Google Cloud 앱(OAuth Client ID)과 본인 Google 계정을 연결해 내 Drive 전용 폴더로만 주고받습니다.
 
 #### AI 글쓰기 에디터 자동화 (`ai-writing-editor`)
-- 주소·폴더: https://ai-writing-editor.buylife.xyz · `ai-writing-editor/` · v1.12
+- 주소·폴더: https://ai-writing-editor.buylife.xyz · `ai-writing-editor/` · v1.13
 - 2026-10-21 v1.12: 「📁 내 템플릿 불러오기」 — AI Prompt 자동화 보관함(`ai_prompt_templates`)의 템플릿을 변수만 채워 요청 칸에 넣음(재사용 부품: 회원 템플릿 읽기 전용 API 패턴).
 - 2026-10-21 병합 B: 페르소나 문체 자동화의 슬라이더 5·프리셋 8·페르소나 10·나만의 페르소나를 「🎚️ 문체 바꾸기」 패널로 흡수(선택 부분/글 전체, 미리보기 후 적용). 부품: `src/lib/persona/*`, `components/editor/StylePanel.tsx`.
 - **차별점**: 블로그·이메일·보고서·자기소개서 등 어떤 글이든 AI 초안을 받고, 문장을 드래그해 그 자리에서 고치는 범용 AI 글쓰기 에디터입니다.
