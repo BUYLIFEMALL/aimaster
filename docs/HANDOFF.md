@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우, 웨일) · 블로그 전담 세션 `claude-win-20261023-seo-bg`: 다른 세션 이미지 이관 인계 처리 + 블로그 6곳 30일 정리 기록 (미배포, 비용 없음)
+
+- **블로그 전담 지정(주인님):** 블로그 8개 프로그램은 이 세션이 맡는다. 다른 세션이 손댄 것은 인수인계 문서로 넘겨받아 이어서 처리.
+- **인계 처리**(`naver-blog-agent/docs/IMPROVEMENT_HANDOFF_20261023_OTHER_SESSION_IMAGE_BUCKET.md` 「인수 결과」): ① 이미지 주소만 바뀌어 STALE이 된 시험 회원 글 10건(발행 준비 5·실패 5)의 `research_summary.review.fingerprint`를 새 주소 기준으로 교체(운영 `esgxyikcnnvmlhygjkth` `nba_posts`, 주인님 승인, 조건 소유자+id+updated_at+「옛 주소 지문=저장 지문」, 기대 10/변경 10/재계산 10/10, 웨일 상세 「검수한 내용과 같습니다」·이미지 22/22). 초안 9건은 이관 전부터 어긋나 그대로. ② BLC 충돌 없음 ③ 배포 키트 없음 ④ 발행 준비 글 실제 이미지 입력은 다음 단계.
+- **30일 정리 회원별 기록**(`6cd2b9783`, 21개 파일·삭제 0): ai-auto-blog·티스토리·블로그 작업실·에이전트(비공개 사진 포함)·올인원·SEO 스튜디오 크론이 실제로 지운 것만 회원별로 `usage_logs` `cleanup_expired`에 기록. 공용 `cleanup-usage-log` 사본 6곳 등록·`--sync`. 진행률 25/26(남은 1곳 `shop-detail-page`, 맥미니). 시험: ai-auto-blog 보안 39·생성 8, 티스토리 9·6·3, 작업실 12, 올인원 33, 에이전트 사진 18·회원 데이터, 6곳 tsc 통과. **미배포 대기**(PENDING 6줄, 각 `docs/IMPROVEMENTS.md`).
+- **알림:** 13:29경 공용 스테이징이 15개로 줄었다가 13:33에 정상(10,611) 복구됨 — 그 사이 이 세션은 커밋을 멈췄고 인덱스는 건드리지 않음. 원격 트리는 내내 10,611개로 피해 없음.
+- **다음 첫 단계:** 인계 ④ 실제 비공개 발행 1건 → 미배포 블로그 묶음 배포 → BLC-14 비교표.
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — AI 음악 스튜디오 v1.09: Stable Audio 3 추가 (남은 작업 2번 중 첫 부분)
 - 모델 「Stable Audio 3 (fal)」 — `fal-ai/stable-audio-3/medium/text-to-audio`(연주곡·효과음, 10~380초, fal 가격표 회당 $0.0376, 상업 이용 표기). 회원 본인 fal 키 재사용(새 키 없음). 숨김 Mureka 코드도 함께 배포(화면 변화 없음).
 - 검수: 시험 29개·build, 커밋 `5f0674987`, 배포 `ai-music-studio-qczjztk8h` Ready, DB v1.09. 크롬 시험 회원: 모델 카드 표시·Mureka 안 보임, 30초 연주곡 생성 → fal 추론 4초·MP3 0.70MB·30초 재생.
