@@ -431,7 +431,7 @@
 - **키·계정·주의**: AI 기능은 회원 본인의 Google Gemini API 키로 동작하고, Unsplash·Pexels·Pixabay 이미지는 본인 키를 등록했을 때 씁니다. 실제 서비스 페이지로 쓰기 전 문구와 이미지 권리를 확인하세요.
 
 #### UI Canvas 자동화 (`ui-canvas`)
-- 주소·폴더: https://ui-canvas.buylife.xyz · `ui-canvas/` · v1.13
+- 주소·폴더: https://ui-canvas.buylife.xyz · `ui-canvas/` · v1.14
 - **2026-10-21 v1.13**: 저장한 AI 컴포넌트를 캔버스에 놓으면 코드 내보내기 때 그 자리에 import된다.
 - **2026-10-21 v1.12**: 코드 내보내기 「반응형(flex)」 선택 추가 — 휴대폰은 세로로 쌓이고 넓은 화면은 캔버스 크기.
 - **2026-10-21 병합 D**: 「🧩 컴포넌트 갤러리」(12종 컴포넌트·10종 데모·TSX 코드·AI 컴포넌트 생성) + 편집기 [</> 코드]로 캔버스 → React + Tailwind TSX 내보내기 + AI 컴포넌트를 프로젝트에 보관(재사용 부품: `src/lib/canvas/codegen.ts`, Tailwind 화면 격리 `app/(workspace)/gallery/gallery.css`).
