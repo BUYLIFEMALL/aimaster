@@ -38,6 +38,14 @@
 | IDEA-AWW-02 | `ai-task-planner` 할 일 ↔ 업무 보드 주고받기 | 같은 할 일이 두 곳에 보이도록 상태 색 통일 | — (단순 연동) | 중간 / 두 프로그램 모두 운영 중 / 중간 | 검토 대기 |
 | IDEA-AWW-03 | 동기 DB 다리(`pg/bridge.ts`)를 SQLite 기반 오픈소스 이식용 레퍼런스 모듈 후보로 등록 | — | — | 높음(원본 시험 522개 통과) / 같은 방식 이식 때 / 개발 편의 | 검토 대기 |
 
+## 2026-10-24 「내 PC 고속 변환」 플랫폼 확장 — 음악 연계 (Claude Code 윈도우, 음악 담당 `claude-win-20261024-music`, 주인님 지시) — [로드맵](analysis-pc-renderer-20261024/ROADMAP.md)
+
+| ID | 개발·유지보수 | 디자인 | 신규 자동화 시스템 | 안정성 / 현재 적용 / 편의 | 처리 |
+|---|---|---|---|---|---|
+| IDEA-PCR-AUDIO-01 | 실행기 1.10 `audio` 명령(MP3·AAC·FLAC·WAV24, loudnorm 2번 방식 음량 맞춤, 낱말·숫자만) + `pong.capabilities` + 공용 연결 코드 `pc-renderer-client` | 마스터링 「⚡ 내 PC로 저장」 칸, 확장 없으면 이유별 설치 안내 | 회원 PC로 스트리밍 기준(-14 LUFS·-1 dBTP) 음원 완성 — 서버·AI 비용 0 | 높음(윈도우 실물·맥 perl 시험, GIF 회귀 정상) / 적용: 마스터링 v1.14 / 편의: 확장·ffmpeg 설치 필요(선택) | ✅ **1단계 배포 완료**(`video-to-gif` v1.22·`ai-mastering-studio` v1.14). 크롬 실물 변환 확인 남음 |
+| IDEA-PCR-LOOP-02 | `loop-mux`: 짧은 반복 영상 + 곡 이어 붙이기 → 긴 MP4(다시 압축 없음) | 플레이리스트·LP 「빠른 긴 영상」 | 1시간 플레이리스트를 수 분 안에 | 중간 / 플레이리스트·LP / 높음 | 검토 대기 — 영상 담당 `loop`(IDEA-VIDEO-LOCAL-01)과 조율 |
+| IDEA-PCR-SLIDE-03 | `slideshow`: 이미지 여러 장 + 켄 번즈 + 배경음악 → 세로·가로 MP4 | 이미지 프로그램에 「영상으로 만들기」 버튼 | 카드뉴스·웹툰·상세페이지·AI 이미지가 무료로 릴스·쇼츠를 가짐, 곡 + 이미지 비주얼라이저 | 중간 / 여러 카테고리 / 높음 | 검토 대기 — 담당 세션 조율 |
+
 ## 2026-10-24 로컬 렌더러를 영상 프로그램에 (Claude Code 윈도우, 영상 담당 `claude-win-video`, 주인님 지시) — [분석](../ai-video-studio/docs/ANALYSIS_20261024_LOCAL_RENDERER_FOR_VIDEO.md)
 
 | ID | 개발·유지보수 | 디자인 | 신규 자동화 시스템 | 안정성 / 현재 적용 / 편의 | 처리 |
