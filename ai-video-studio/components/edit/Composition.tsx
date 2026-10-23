@@ -1,8 +1,10 @@
 "use client";
 
-// 2차 영상 합치기 — Remotion 구성(그리기 층). 시간 계산은 lib/edit/timeline.ts(순수 함수)에 두고 여기서는 그리기만 한다.
+// [공용 기준 코드 `video-edit-composition` — 기준: ai-video-studio/components/edit/Composition.tsx, 사본: music-video-studio/src/components/edit/Composition.tsx.
+//  사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 함께 쓰는 기준: `video-edit-timeline`·`video-edit-voice`]
+// 영상 합치기 — Remotion 구성(그리기 층). 시간 계산은 lib/edit/timeline.ts(순수 함수)에 두고 여기서는 그리기만 한다.
 // 브라우저 렌더 제약(A-0 확인): 영상·소리는 @remotion/media의 <Video>·<Audio>, 한글은 SVG <text> + @remotion/google-fonts.
-import { AbsoluteFill, Sequence, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Img, Sequence, interpolate, useCurrentFrame } from "remotion";
 import { Audio, Video } from "@remotion/media";
 import { loadFont } from "@remotion/google-fonts/NotoSansKR";
 import { CAPTION_SIZE_SCALE, captionMaxChars, dimensions, fadeOpacity, layout, musicVolume, sceneCaptions, wrapCaption, type CaptionStyle, type EditProject, type Segment } from "@/lib/edit/timeline";
@@ -44,7 +46,12 @@ function Scene({ seg, project, width, height }: { seg: Segment; project: EditPro
   const caption = sceneCaptions(seg.clip, seg.durationInFrames).find((c) => frame >= c.from && frame < c.to);
   return (
     <AbsoluteFill style={{ opacity: fadeOpacity(frame, seg.durationInFrames, project.transition) }}>
-      <Video src={seg.clip.src} trimBefore={seg.trimBeforeFrames || undefined} muted={!project.clipAudio} objectFit="cover" style={{ width, height }} />
+      {seg.clip.kind === "image" ? (
+        // 사진 장면: 장면 동안 1.0 → 1.08배로 천천히 확대
+        <Img src={seg.clip.src} style={{ width, height, objectFit: "cover", transform: `scale(${interpolate(frame, [0, seg.durationInFrames], [1, 1.08])})` }} />
+      ) : (
+        <Video src={seg.clip.src} trimBefore={seg.trimBeforeFrames || undefined} muted={!project.clipAudio} loop={seg.clip.loop} objectFit="cover" style={{ width, height }} />
+      )}
       {seg.clip.voice && <Audio src={seg.clip.voice.src} />}
       {caption && <Caption text={caption.text} project={project} width={width} height={height} />}
     </AbsoluteFill>

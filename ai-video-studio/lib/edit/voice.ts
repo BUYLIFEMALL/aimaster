@@ -1,3 +1,4 @@
+// [공용 기준 코드 `video-edit-voice` — 기준: ai-video-studio/lib/edit/voice.ts, 사본: music-video-studio/src/lib/edit/voice.ts(사본은 직접 고치지 말고 --sync)]
 // [쇼츠 원스톱 `src/lib/voice.ts`(v1.27)에서 가져옴 — 음성 모델·목소리 목록과 단어 시각 계산(서버·화면 공용, 순수 함수).
 //  AI 영상 스튜디오 v1.05 영상 합치기 내레이션·자동 자막에 쓴다. 원스톱 쪽 오디오 설정(AudioSettings)은 가져오지 않았다]
 export type TtsProvider = "openai" | "gemini" | "elevenlabs";

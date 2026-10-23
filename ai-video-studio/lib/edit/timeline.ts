@@ -1,4 +1,6 @@
-// 2차 영상 합치기 — 편집 구성과 시간 계산(순수 함수, Remotion에 의존하지 않음).
+// [공용 기준 코드 `video-edit-timeline` — 기준: ai-video-studio/lib/edit/timeline.ts, 사본: music-video-studio/src/lib/edit/timeline.ts.
+//  사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`]
+// 영상 합치기 — 편집 구성과 시간 계산(순수 함수, Remotion에 의존하지 않음).
 // 그리기 층(Remotion)을 나중에 다른 엔진으로 바꿔도 이 파일은 그대로 쓴다(루트 docs/PLAN_20261023_FREE_VIDEO_RENDERING.md 8절).
 import { timedCaptionChunks, tokensOf } from "./voice";
 export type EditAspect = "9:16" | "16:9" | "1:1";
@@ -48,6 +50,10 @@ export interface EditClip {
   trimEnd: number;
   caption: string;
   source?: ClipSource;
+  /** 장면 종류 — image면 사진을 느리게 확대해 보여 준다(duration = 보여 줄 초). 기본 video */
+  kind?: "video" | "image";
+  /** 장면이 영상보다 길면 영상을 반복 재생(뮤직비디오: 곡 길이에 맞춘 장면) */
+  loop?: boolean;
   /** 이 장면에서 읽을 내레이션 문장(비우면 내레이션 없음) */
   narration?: string;
   voice?: ClipVoice | null;
@@ -167,11 +173,21 @@ export function musicVolume(frame: number, totalFrames: number, volume: number, 
 }
 
 /** 렌더 전 검사 — 문제가 있으면 쉬운 한국어 안내, 없으면 null */
-export function validate(p: EditProject): string | null {
+/** maxTotalS: 프로그램마다 다른 최대 길이(뮤직비디오는 곡 길이 때문에 더 길게) */
+export function validate(p: EditProject, maxTotalS: number = MAX_TOTAL_S): string | null {
   if (!p.clips.length) return "합칠 영상을 1개 이상 넣어 주세요.";
   if (p.clips.length > MAX_CLIPS) return `영상은 최대 ${MAX_CLIPS}개까지 합칠 수 있습니다.`;
-  if (totalSeconds(p) > MAX_TOTAL_S) return `완성 영상은 최대 ${MAX_TOTAL_S / 60}분까지 만들 수 있습니다. 클립을 줄이거나 잘라 주세요.`;
+  if (totalSeconds(p) > maxTotalS) return `완성 영상은 최대 ${maxTotalS / 60}분까지 만들 수 있습니다. 클립을 줄이거나 잘라 주세요.`;
   return null;
+}
+
+/** 곡 길이를 장면 수로 나눈 장면 길이(초, 0.1초 단위). 마지막 장면이 나머지를 받아 합이 곡 길이와 같다 */
+export function splitEvenly(totalS: number, count: number): number[] {
+  if (count <= 0 || !Number.isFinite(totalS) || totalS <= 0) return [];
+  const each = Math.floor((totalS / count) * 10) / 10;
+  const out = Array.from({ length: count }, () => each);
+  out[count - 1] = Math.round((totalS - each * (count - 1)) * 10) / 10;
+  return out;
 }
 
 /** 내려받기 파일 이름(영문) */

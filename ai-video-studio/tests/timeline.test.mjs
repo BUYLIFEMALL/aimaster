@@ -99,3 +99,14 @@ test("저장 형식: blob 주소는 빼고, 다른 회원 폴더 음성 경로·
   assert.equal(bad.clips[0].voice, null);
   assert.equal(sanitizeSaved({ clips: "x" }, "user1/"), null);
 });
+
+test("곡 길이를 장면 수로 나누고 합은 곡 길이와 같다, 최대 길이는 프로그램마다 정한다", async () => {
+  const { splitEvenly, validate } = await import("../lib/edit/timeline.ts");
+  const parts = splitEvenly(185.5, 6);
+  assert.equal(parts.length, 6);
+  assert.ok(Math.abs(parts.reduce((a, b) => a + b, 0) - 185.5) < 1e-9);
+  assert.deepEqual(splitEvenly(0, 3), []);
+  const long = project(Array.from({ length: 6 }, (_, i) => clip(`c${i}`, 40)));
+  assert.match(validate(long), /최대 3분/);
+  assert.equal(validate(long, 300), null);
+});
