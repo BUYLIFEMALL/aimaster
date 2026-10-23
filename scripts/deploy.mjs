@@ -22,6 +22,24 @@ const setVersion = args.includes("--set-version");
 
 // --version-only --all: 연결된 모든 프로그램의 화면 버전 ↔ DB 버전 비교, 어긋난 곳만 보고(DB는 고치지 않음 — 고칠 때는 폴더 하나씩 --set-version)
 if (versionOnly && args.includes("--all")) {
+  // 점검 출력을 모았다가 끝에 「⚠」 줄만 항목 이름과 함께 맨 위에 요약하고, 그 아래 전체를 그대로 보인다(2026-10-23)
+  const logBuf = [], realLog = console.log;
+  console.log = (...a) => logBuf.push(a.join(" "));
+  const flushLog = () => {
+    console.log = realLog;
+    const all = logBuf.join("\n").split("\n");
+    const warns = [];
+    let section = "";
+    for (const l of all) {
+      if (l.startsWith("[")) section = l.slice(0, l.indexOf("]") + 1);
+      else if (l.trimStart().startsWith("⚠") || l.includes("• ⚠")) warns.push(`  ${section} ${l.trim().replace(/^•\s*/, "")}`);
+    }
+    realLog(`[⚠ 요약] 확인할 것 ${warns.length}건${warns.length ? "" : " — 모두 정상"}`);
+    for (const w of warns) realLog(w.length > 220 ? `${w.slice(0, 220)}…` : w);
+    realLog("─".repeat(40));
+    for (const l of all) realLog(l);
+  };
+  process.on("exit", () => { if (console.log !== realLog) flushLog(); }); // 중간 오류·조기 종료 때도 모은 출력을 보인다
   const { readdirSync } = await import("node:fs");
   const { appVersion, programSlug, rest, slugFromPrograms } = await import("./program-info.mjs");
   const programs = await rest("programs?select=slug,version,app_url,is_active");
@@ -172,6 +190,7 @@ if (versionOnly && args.includes("--all")) {
     for (const l of a.lost) console.log(`  ⚠ ${l.sha} ${l.file} −${l.lines}줄 | ${l.msg}\n      예: ${l.sample}`);
     if (a.lost.length) console.log("  원문: node scripts/check-shared-doc-reverts.mjs --audit 24 --lost  (의도한 정리인지 확인 후 필요하면 다음 커밋으로 되살림)");
   } catch { console.log("[공용 문서 되돌림] 감사 실패 — node scripts/check-shared-doc-reverts.mjs --audit 24 로 직접 확인"); }
+  flushLog();
   process.exit(0);
 }
 
