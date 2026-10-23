@@ -56,8 +56,9 @@ process.stdin.on("end", () => {
     const data = JSON.parse(input || "{}");
     if (data.stop_hook_active) return process.exit(0);
     const path = data.transcript_path;
-    if (!path || !fs.existsSync(path)) return process.exit(0);
-    const entries = fs.readFileSync(path, "utf8").split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    // 대화 기록이 없어도 마지막 답변(last_assistant_message)은 검사한다(2026-10-23 맥미니 설치 시험에서 발견)
+    const raw = path && fs.existsSync(path) ? fs.readFileSync(path, "utf8") : "";
+    const entries = raw.split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
     let start = 0;
     for (let i = entries.length - 1; i >= 0; i--) if (isRealUser(entries[i])) { start = i + 1; break; }
     // 2026-10-23 보강: 대화 기록에는 턴 중간 안내가 검사 시점에 아직 글로 남지 않는 경우가 있어(실측), 훅 입력의 마지막 답변도 함께 본다

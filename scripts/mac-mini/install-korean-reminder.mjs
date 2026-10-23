@@ -15,16 +15,21 @@ const argHome = process.argv.indexOf("--home");
 const HOME = argHome > 0 ? path.resolve(process.argv[argHome + 1]) : os.homedir();
 const here = path.dirname(fileURLToPath(import.meta.url));
 // 3단 장치(2026-10-19): ① 출력 스타일 Korean(기본 지침에 한국어 규칙) ② 질문마다 상기(UserPromptSubmit) ③ 도구 사용마다 상기(PostToolUse)
+// ④ 종료 검사(Stop, 2026-10-23 주인님 「맥미니에도 종료 검사 훅 설치해」): 답변 끝에 영어 문장이 있으면 막고 한국어로 다시 보고하게 한다
+//    (원본 scripts/claude-hooks/korean-stop-check.js — 윈도우와 같은 파일, 실행 기록 ~/.claude/korean-stop-check.log)
 const posix = (p) => p.split(path.sep).join("/");
 const target = path.join(HOME, ".claude", "korean-reminder.js");
 const targetPost = path.join(HOME, ".claude", "korean-reminder-posttool.js");
 const command = `node "${posix(target)}"`;
 const commandPost = `node "${posix(targetPost)}"`;
+const targetStop = path.join(HOME, ".claude", "korean-stop-check.js");
+const commandStop = `node "${posix(targetStop)}"`;
 
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.copyFileSync(path.join(here, "korean-reminder.js"), target);
 fs.copyFileSync(path.join(here, "korean-reminder-posttool.js"), targetPost);
-console.log(`상기 스크립트 복사: ${target}, ${targetPost}`);
+fs.copyFileSync(path.join(here, "..", "claude-hooks", "korean-stop-check.js"), targetStop);
+console.log(`상기·검사 스크립트 복사: ${target}, ${targetPost}, ${targetStop}`);
 
 const dirs = new Set([path.join(HOME, ".claude")]);
 if (argHome < 0 && process.env.CLAUDE_CONFIG_DIR) dirs.add(process.env.CLAUDE_CONFIG_DIR);
@@ -57,6 +62,7 @@ for (const dir of dirs) {
   data.hooks ??= {};
   data.hooks.UserPromptSubmit ??= [];
   data.hooks.PostToolUse ??= [];
+  data.hooks.Stop ??= [];
   const has = (list, name) => list.some((e) => (e.hooks ?? []).some((h) => String(h.command ?? "").includes(name)));
   const changes = [];
   if (!has(data.hooks.UserPromptSubmit, "korean-reminder.js")) {
@@ -66,6 +72,10 @@ for (const dir of dirs) {
   if (!has(data.hooks.PostToolUse, "korean-reminder-posttool.js")) {
     data.hooks.PostToolUse.push({ matcher: "*", hooks: [{ type: "command", command: commandPost, timeout: 5 }] });
     changes.push("도구마다 상기");
+  }
+  if (!has(data.hooks.Stop, "korean-stop-check.js")) {
+    data.hooks.Stop.unshift({ hooks: [{ type: "command", command: commandStop, timeout: 10 }] });
+    changes.push("종료 검사");
   }
   if (data.outputStyle !== "Korean") {
     data.outputStyle = "Korean";
