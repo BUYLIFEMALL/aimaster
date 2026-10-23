@@ -105,7 +105,7 @@
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | Tools | v1.07 | 공개(new) | 내 문서에서 근거를 찾고 최신 정보는 웹까지 검색해 출처와 함께 답하는 나만의 AI 문서 챗봇 |
 | 85 | AI 가사영상 자동화 | `lyric-video-studio` | 음악 | v1.10 | 공개(new) | 음악과 가사만 넣으면 가사가 흐르는 유튜브·쇼츠 영상을 브라우저에서 바로 MP4로 만드는 도구 |
 | 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | 마케팅(홍보) | v1.09 | 운영(2026-10-21 신규) | 인스타 댓글·DM·쓰레드·유튜브 댓글의 검토 대기 항목을 한곳에 급한 순으로 모아 고쳐서 바로 승인·게시 |
-| 88 | AI 영상 스튜디오 | `ai-video-studio` | 영상 | v1.08 | 공개(new, 2026-10-23 신규) | Gemini Omni Flash·Kling·Seedance 등 여러 영상 AI를 본인 키로 골라 영상을 만들고 갤러리에 30일 보관 · 영상 연동 레퍼런스 |
+| 88 | AI 영상 스튜디오 | `ai-video-studio` | 영상 | v1.09 | 공개(new, 2026-10-23 신규) | Gemini Omni Flash·Kling·Seedance 등 여러 영상 AI를 본인 키로 골라 영상을 만들고 갤러리에 30일 보관 · 영상 연동 레퍼런스 |
 | 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.06 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
 
 ## 0. 이 문서를 쓰는 방법
@@ -931,7 +931,7 @@
 - **키·계정·주의**: AI 배경 생성에만 회원 본인의 Gemini API 키를 씁니다. 음악 파일의 저작권은 직접 확인하세요.
 
 #### AI 영상 스튜디오 (`ai-video-studio`)
-- 주소·폴더: https://ai-video-studio.buylife.xyz · `ai-video-studio/` · v1.08 (2026-10-23 신규, 영상 연동 레퍼런스 — 공용 `ai-video-*` 기준)
+- 주소·폴더: https://ai-video-studio.buylife.xyz · `ai-video-studio/` · v1.09 (2026-10-23 신규, 영상 연동 레퍼런스 — 공용 `ai-video-*` 기준)
 - **v1.05**: 영상 합치기에 **내레이션**(회원 본인 OpenAI·Gemini·ElevenLabs 음성) + **말하는 속도에 맞춘 자동 자막** + **편집 저장·불러오기**(`avs_edits`, 30일) + **완성본 갤러리 저장**(「편집본」) + 끌어서 순서·자르기 막대·자막 크기. 갤러리 영상은 R1 시험 생략으로 넣기가 빨라짐.
 - **v1.04**: 「🎞️ 영상 합치기」 — 갤러리 클립·내 PC 영상 + 배경음악(AI 음악 스튜디오 내 곡 연결) + 장면별 한글 자막 → Remotion 미리보기 → **회원 PC 브라우저에서 MP4 렌더**(서버 비용 0, 9:16·16:9·1:1, 720p/1080p). 크롬 하드웨어 인코딩 영상 멈춤(R1)은 넣을 때 자동 감지·소프트웨어 재인코딩. 재사용 부품 후보: `lib/edit/timeline.ts`·`components/edit/{Composition,probe}.tsx`(2-다 공용화 예정).
 - **v1.02**: fal 최신 모델 5종(Kling 3.0·Seedance 2.0·Veo 3.1·MiniMax H3·Wan 3.0, 모델별 입력 칸 규칙) + 해상도 선택·해상도별 비용. Seedance 2.0은 실사 인물 사진을 업체가 거절.

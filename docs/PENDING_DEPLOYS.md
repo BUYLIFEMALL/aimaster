@@ -78,6 +78,7 @@
 | `tistory-auto-blog` | v1.91 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
 | `naver-blog-allinone` | v1.52 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
 | `blog-workroom` | v1.14 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
+| `ai-video-studio` | v1.09 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `ai-video-studio-r8r4gseoz`) | 자르기 막대 끌기 `cd696eb2a` — 운영에서 끌기·←→ 키·최소 0.5초 확인 |
 | `ai-video-studio` | v1.08 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `ai-video-studio-223fxl5fq`) | fal 소리 켜기·글만으로 영상 `fd1f3cb67` — 운영 fal 생성 2회(약 $0.50)로 소리·글만으로 확인 |
 | `ai-video-studio` | v1.07 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `ai-video-studio-hhv6cegzq`) | 장면을 내레이션에 맞추기·겹쳐 바꾸기 `179b58ccc` — 운영 렌더로 반복 재생·섞임·내레이션 끝 소리 확인 |
 | `music-video-studio` | v1.18 · 2026-10-23 (Claude Code 윈도우 `claude-win-avs-c12`, 승인 빌드 1회, `music-video-studio-3tmbxxbny`) | 장면을 가사 시각에 맞춰 바꾸기 `c67256045` + 대기분 가사 자막 구간 표시 빼기 `1b8440ac7`(이미 v1.17 보안 배포에 실렸음) — 운영 렌더로 24초 전환·자막 확인 |

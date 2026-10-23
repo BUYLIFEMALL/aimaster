@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 ✅ Claude Code(윈도우) · 영상 작업 담당 `claude-win-avs-c12` — AI 영상 스튜디오 v1.09 자르기 막대 끌기
+- 영상 합치기의 자르기 막대에 손잡이 2개(끌기·←→ 키 0.1초, 남는 구간 최소 0.5초, 누르는 영역 24px). 순수 함수 `lib/edit/trim.ts`, 컴포넌트 `components/edit/TrimBar.tsx`. 공용 코드 변경 없음. 커밋 `cd696eb2a`, 시험 27개 통과.
+- 검수(운영, 메인 크롬, 시험 계정): 배포 `ai-video-studio-r8r4gseoz` Ready·화면/DB v1.09. 저장된 시험 편집에서 끌기로 앞 자르기 1초·뒤 자르기 1초, 끝 너머로 끌어도 0.5초 남김, ←키로 0.1초씩 확인(저장 안 함).
+- 상세: [`ai-video-studio/AGENTS.md`](../ai-video-studio/AGENTS.md) v1.09 · https://ai-video-studio.buylife.xyz
+- 다음(승인 전 후보): 뮤직비디오 BPM 장면 전환. 영상 담당 남은 목록은 `ai-video-studio/docs/IMPROVEMENT_BACKLOG.md`.
+- 비용: Vercel 빌드 1회(승인), AI 호출 없음.
 ## 2026-10-23 Claude Code(윈도우) — 음악 묶음 배포 2건 (세션 claude-win-20261023-bgm, 음악 메인 담당)
 - AI 음악 스튜디오 v1.13: 공급자 색 점·띠 투명 수정(`tailwind.config.ts` content에 lib) — 크롬 계산값 5색 확인. AI 마스터링 스튜디오 v1.12: 좌측 메뉴 계정 위치 — 크롬 데스크톱·390px 확인. 각 빌드 1회(주인님 승인).
 - 음악(SUNO)자동화 30일 정리 점검: 예약 실행 매일 18:00 UTC 정상(오늘 200, 유예로 건너뜀), 비밀값 없이 401, 첫 실제 삭제 2026-10-29 03:00 KST — 그날 이후 결과 확인.
