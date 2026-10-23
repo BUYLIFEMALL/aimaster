@@ -27,7 +27,7 @@ import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
 import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio, runLadder } from "@/lib/gifLadder";
-import { LocalRendererPool, detectLocalRenderer, localSlots, type RendererStatus } from "@/lib/localRenderer";
+import { LocalRendererPool, checkRendererUpdate, detectLocalRenderer, localSlots, type RendererStatus, type RendererUpdate } from "@/lib/localRenderer";
 import { ACCEPT, pickFiles, skippedNote } from "@/lib/videoFiles";
 import { GIF_INBOX_PATH, GIF_RECEIVER_ORIGIN, MSG_FILE, isReadyMessage } from "@/lib/gifHandoff";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
@@ -170,14 +170,19 @@ export default function ConverterWorkspace() {
   // v1.20: 「⚡ 내 PC 고속 변환」 — 확장·렌더러·ffmpeg가 있으면 PC에서, 없거나 실패하면 지금처럼 브라우저에서 변환
   const [renderer, setRenderer] = useState<RendererStatus | "checking">("checking");
   const [rendererNote, setRendererNote] = useState("");
+  // v1.21: 압축 해제 설치라 자동 업데이트가 없어, 설치된 판이 옛 판이면 화면이 알려 준다(최소 판보다 옛 판이면 PC 변환을 쓰지 않음)
+  const [rendererUpdate, setRendererUpdate] = useState<RendererUpdate | null>(null);
   async function checkRenderer() {
     setRenderer("checking");
-    setRenderer(await detectLocalRenderer());
+    const status = await detectLocalRenderer();
+    setRendererUpdate(await checkRendererUpdate(status));
+    setRenderer(status);
   }
   useEffect(() => {
     void checkRenderer();
   }, []);
-  const rendererReady = renderer !== "checking" && renderer.kind === "ready";
+  const rendererReady = renderer !== "checking" && renderer.kind === "ready" && !rendererUpdate?.blocked;
+  const rendererOs = renderer !== "checking" && "os" in renderer ? renderer.os : "unknown";
 
   function addFiles(files: FileList | null) {
     if (!files) return;
@@ -960,6 +965,10 @@ export default function ConverterWorkspace() {
               </div>
               {renderer === "checking" ? (
                 <span>확인 중입니다…</span>
+              ) : renderer.kind === "ready" && rendererUpdate?.blocked ? (
+                <span>
+                  설치된 확장·렌더러가 너무 옛 판이라 지금은 브라우저에서 변환합니다. 아래 안내대로 업데이트해 주세요.
+                </span>
               ) : renderer.kind === "ready" ? (
                 <span>
                   사용 중 · PC의 ffmpeg {renderer.ffmpegVersion}로 변환합니다(브라우저보다 약 2~3배 빠름, 영상은 PC 밖으로 나가지 않음).
@@ -972,13 +981,39 @@ export default function ConverterWorkspace() {
               ) : renderer.kind === "no-ffmpeg" ? (
                 <span>
                   PC에 ffmpeg가 없습니다. 렌더러 설치를 다시 실행해 주세요.{" "}
-                  <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">설치 방법</Link>
+                  {rendererOs === "mac" ? (
+                    <Link href="/guide#mac-ffmpeg" className="font-bold text-amber-300 underline">맥에 Homebrew가 없을 때 설치 방법</Link>
+                  ) : (
+                    <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">설치 방법</Link>
+                  )}
                 </span>
               ) : (
                 <span>
                   지금은 브라우저에서 변환합니다. 크롬 확장과 PC 렌더러를 한 번 설치하면 약 2~3배 빨라집니다(무료).{" "}
                   <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">설치 방법</Link>
                 </span>
+              )}
+              {rendererUpdate?.ext && (
+                <p className="mt-1.5 text-amber-200">
+                  🔔 확장 새 버전 {rendererUpdate.ext.latest}이 있습니다(설치됨 {rendererUpdate.ext.installed}).{" "}
+                  <a href="/downloads/local-renderer/gif-renderer-extension-latest.zip" className="font-bold underline">확장 ZIP 받기</a> → 기존 확장 폴더에 덮어쓰기 →
+                  chrome://extensions에서 새로고침(↻).{" "}
+                  <Link href="/guide#renderer-update" className="underline">업데이트 방법</Link>
+                </p>
+              )}
+              {rendererUpdate?.host && (
+                <p className="mt-1.5 text-amber-200">
+                  🔔 PC 렌더러 새 버전 {rendererUpdate.host.latest}이 있습니다(설치됨 {rendererUpdate.host.installed}).{" "}
+                  {rendererOs === "mac" ? (
+                    <>터미널 설치 한 줄을 다시 실행해 주세요.</>
+                  ) : (
+                    <>
+                      <a href="/downloads/local-renderer/gif-renderer-windows-latest.zip" className="font-bold underline">윈도우 렌더러 ZIP</a>을 다시 받아
+                      install-windows.bat을 실행해 주세요.
+                    </>
+                  )}{" "}
+                  <Link href="/guide#renderer-update" className="underline">업데이트 방법</Link>
+                </p>
               )}
               {rendererNote && <p className="mt-1.5 text-amber-200">⚠️ {rendererNote}</p>}
             </div>

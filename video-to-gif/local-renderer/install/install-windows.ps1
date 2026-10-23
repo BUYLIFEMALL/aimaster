@@ -13,6 +13,8 @@ Write-Host '▶ GIF 자동화 내 PC 고속 변환 — 설치를 시작합니다
 New-Item -ItemType Directory -Path $Dest -Force | Out-Null
 Copy-Item (Join-Path $Src 'host\host.ps1') $Dest -Force
 Copy-Item (Join-Path $Src 'host\host.bat') $Dest -Force
+# 인터넷에서 받은 ZIP 의 파일에 붙는 「인터넷에서 받음」 표시를 지워, 크롬이 렌더러를 실행할 때 보안 확인 창이 다시 뜨지 않게 한다.
+Get-ChildItem $Dest -File | Unblock-File -ErrorAction SilentlyContinue
 
 function Find-Ffmpeg {
   $cmd = Get-Command ffmpeg -ErrorAction SilentlyContinue

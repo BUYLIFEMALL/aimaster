@@ -308,7 +308,7 @@ export default function GuidePage() {
               <p>
                 크롬 확장과 작은 「PC 렌더러」를 한 번 설치하면, 브라우저 대신 <strong>내 PC의 ffmpeg</strong>로 변환해 약 2~3배 빨라집니다
                 (1080p 10초 영상 기준 157초 → 61초). 영상은 지금처럼 PC 밖으로 나가지 않고, 설치하지 않아도 지금처럼 브라우저에서 변환됩니다.
-                작업 화면 오른쪽 「⚡ 내 PC 고속 변환」 칸에 「사용 중」이 보이면 설치가 끝난 것입니다. 크롬에서만 동작합니다.
+                작업 화면 오른쪽 「⚡ 내 PC 고속 변환」 칸에 「사용 중」이 보이면 설치가 끝난 것입니다. 크롬과 엣지에서 동작합니다(엣지는 주소창에 <code>edge://extensions</code>로 같은 방법으로 확장을 올리면 렌더러는 그대로 쓸 수 있습니다).
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-4 space-y-2">
@@ -322,7 +322,10 @@ export default function GuidePage() {
                       <a href="/downloads/local-renderer/gif-renderer-windows-latest.zip" className="font-bold text-amber-300 underline">윈도우 렌더러 ZIP</a>을 받아 압축을 풀고
                       <code className="text-amber-200"> install-windows.bat</code>을 더블클릭합니다. ffmpeg가 없으면 윈도우 기본 설치 도구(winget)로 함께 설치합니다.
                     </li>
-                    <li>「Windows의 PC 보호」·「알 수 없는 게시자」 창이 뜨면 「추가 정보 → 실행」을 누릅니다(서명하지 않은 무료 설치 파일이라 뜨는 안내입니다).</li>
+                    <li>
+                      「Windows의 PC 보호」·「알 수 없는 게시자」 창이 뜨면 「추가 정보 → 실행」을 누릅니다. 유료 코드 서명 인증서를 쓰지 않는 무료 설치 파일이라 뜨는 안내이며,
+                      ZIP 안의 파일은 모두 글자로 된 스크립트(.bat·.ps1)라 메모장으로 열어 내용을 직접 확인할 수 있습니다. 설치는 내 계정에만 되고 관리자 권한을 쓰지 않습니다.
+                    </li>
                     <li>크롬을 완전히 닫았다 연 뒤 이 화면을 새로고침합니다.</li>
                   </ol>
                 </div>
@@ -331,7 +334,8 @@ export default function GuidePage() {
                   <ol className="list-decimal pl-4 space-y-1.5">
                     <li>윈도우와 같은 방법으로 <a href="/downloads/local-renderer/gif-renderer-extension-latest.zip" className="font-bold text-amber-300 underline">크롬 확장 ZIP</a>을 설치합니다.</li>
                     <li>
-                      「터미널」 앱을 열어 아래 한 줄을 붙여 넣고 Enter를 누릅니다. ffmpeg가 없으면 Homebrew로 함께 설치합니다(Homebrew가 없으면 안내가 나옵니다).
+                      「터미널」 앱을 열어 아래 한 줄을 붙여 넣고 Enter를 누릅니다. ffmpeg가 없으면 Homebrew로 함께 설치합니다(Homebrew가 없으면{" "}
+                      <a href="#mac-ffmpeg" className="font-bold text-amber-300 underline">아래 안내</a>대로).
                       <code className="mt-1.5 block break-all rounded-lg bg-black/60 p-2 text-[11px] text-emerald-300">
                         curl -fsSL https://video-to-gif.buylife.xyz/downloads/local-renderer/install-mac.sh | bash
                       </code>
@@ -340,6 +344,37 @@ export default function GuidePage() {
                   </ol>
                 </div>
               </div>
+              <div id="mac-ffmpeg" className="scroll-mt-6 rounded-xl border border-[#30363d] bg-[#0d1117] p-4 space-y-2">
+                <div className="font-bold text-white">🍎 맥에 Homebrew가 없을 때 (ffmpeg 준비하기)</div>
+                <p>둘 중 편한 방법을 고른 뒤 위 터미널 한 줄을 다시 실행하면 됩니다.</p>
+                <ol className="list-decimal pl-4 space-y-1.5">
+                  <li>
+                    <strong>Homebrew 설치(추천)</strong> — 터미널에 아래 한 줄을 붙여 넣습니다. 맥 로그인 비밀번호를 묻고 5~10분 걸릴 수 있습니다(무료, Homebrew 공식 설치 명령).
+                    <code className="mt-1.5 block break-all rounded-lg bg-black/60 p-2 text-[11px] text-emerald-300">
+                      /bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;
+                    </code>
+                  </li>
+                  <li>
+                    <strong>ffmpeg 파일만 직접 받기</strong> — <a href="https://evermeet.cx/ffmpeg/" target="_blank" rel="noreferrer" className="font-bold text-amber-300 underline">evermeet.cx/ffmpeg</a>에서
+                    ffmpeg 압축 파일(.zip)을 받아 풀고, 안의 <code>ffmpeg</code> 파일을 Finder에서 <code>~/Library/Application Support/BuylifeGifRenderer</code> 폴더로 옮깁니다
+                    (터미널 설치가 실패하면 이 폴더가 자동으로 열립니다). 다시 실행하면 설치 스크립트가 실행 권한과 맥 격리 표시를 정리해 줍니다.
+                  </li>
+                </ol>
+              </div>
+
+              <div id="renderer-update" className="scroll-mt-6 rounded-xl border border-[#30363d] bg-[#0d1117] p-4 space-y-2">
+                <div className="font-bold text-white">🔔 업데이트 방법</div>
+                <p>
+                  압축을 풀어 설치하는 방식이라 자동으로 업데이트되지 않습니다. 새 버전이 나오면 작업 화면 「⚡ 내 PC 고속 변환」 칸에 「🔔 새 버전이 있습니다」가 뜹니다.
+                  너무 옛 판이면 고장 나지 않도록 PC 변환을 잠시 쓰지 않고 브라우저에서 변환합니다.
+                </p>
+                <ul className="list-disc pl-4 space-y-1">
+                  <li>확장: 확장 ZIP을 다시 받아 처음 설치한 폴더에 덮어쓰고, chrome://extensions에서 그 확장의 새로고침(↻)을 누릅니다.</li>
+                  <li>렌더러: 윈도우는 렌더러 ZIP을 다시 받아 <code>install-windows.bat</code> 실행, 맥은 위 터미널 한 줄을 다시 실행합니다.</li>
+                  <li>끝나면 크롬을 완전히 닫았다 열고, 작업 화면에서 「다시 확인」을 누릅니다.</li>
+                </ul>
+              </div>
+
               <p className="text-gray-400">
                 삭제: 윈도우는 ZIP 안의 <code>uninstall-windows.bat</code>, 맥은{" "}
                 <code>curl -fsSL https://video-to-gif.buylife.xyz/downloads/local-renderer/uninstall-mac.sh | bash</code>, 확장은 chrome://extensions에서 삭제합니다(ffmpeg는 남겨 둡니다).

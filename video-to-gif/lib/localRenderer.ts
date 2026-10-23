@@ -20,11 +20,56 @@ function runtime(): ChromeRuntime | null {
   return chromeObj?.runtime?.connect ? chromeObj.runtime : null;
 }
 
+// os: 렌더러 종류로 안다(맥 host.pl = perl, 윈도우 host.ps1 = powershell) — 안내 문구를 운영체제에 맞추는 데 쓴다.
+export type RendererOs = "mac" | "windows" | "unknown";
 export type RendererStatus =
-  | { kind: "ready"; extVersion: string; ffmpegVersion: string }
+  | { kind: "ready"; extVersion: string; hostVersion: string; os: RendererOs; ffmpegVersion: string }
   | { kind: "none" } // 확장 없음(설치 안 함·크롬 아님)
   | { kind: "no-host"; extVersion: string } // 확장은 있는데 렌더러 설치 안 함
-  | { kind: "no-ffmpeg"; extVersion: string };
+  | { kind: "no-ffmpeg"; extVersion: string; hostVersion: string; os: RendererOs };
+
+/** v1.21: 「v1.20」·「1.20」·「1.20.0」을 [1, 20]으로. 못 읽으면 null. */
+export function parseVersion(v: string | undefined | null): [number, number] | null {
+  const m = String(v ?? "").match(/^v?(\d+)\.(\d+)/);
+  return m ? [Number(m[1]), Number(m[2])] : null;
+}
+/** a가 b보다 옛 판이면 음수, 같으면 0, 새 판이면 양수. 못 읽는 값은 0(알림·차단 안 함). */
+export function compareVersions(a: string | undefined | null, b: string | undefined | null): number {
+  const x = parseVersion(a);
+  const y = parseVersion(b);
+  if (!x || !y) return 0;
+  return x[0] - y[0] || x[1] - y[1];
+}
+
+export type RendererUpdate = {
+  ext?: { installed: string; latest: string }; // 확장 새 판 있음
+  host?: { installed: string; latest: string }; // 렌더러 새 판 있음
+  blocked: boolean; // 최소 판보다 옛 판 → PC 변환 안 씀(브라우저로 변환)
+};
+type LatestVersions = { extension?: string; host?: string; minExtension?: string; minHost?: string };
+
+/** v1.21: 설치된 판과 version.json(내려받기 최신 판)을 비교한다. 압축 해제 설치라 자동 업데이트가 없어 화면이 알려 준다. */
+export function rendererUpdateFrom(installed: { ext: string; host?: string }, latest: LatestVersions): RendererUpdate {
+  const out: RendererUpdate = { blocked: false };
+  if (latest.extension && compareVersions(installed.ext, latest.extension) < 0) out.ext = { installed: installed.ext, latest: latest.extension };
+  if (installed.host && latest.host && compareVersions(installed.host, latest.host) < 0) out.host = { installed: installed.host, latest: latest.host };
+  out.blocked =
+    (!!latest.minExtension && compareVersions(installed.ext, latest.minExtension) < 0) ||
+    (!!installed.host && !!latest.minHost && compareVersions(installed.host, latest.minHost) < 0);
+  return out;
+}
+
+export async function checkRendererUpdate(status: RendererStatus): Promise<RendererUpdate | null> {
+  if (status.kind === "none") return null;
+  try {
+    const res = await fetch("/downloads/local-renderer/version.json", { cache: "no-store" });
+    if (!res.ok) return null;
+    const latest = (await res.json()) as LatestVersions;
+    return rendererUpdateFrom({ ext: status.extVersion, host: "hostVersion" in status ? status.hostVersion : undefined }, latest);
+  } catch {
+    return null;
+  }
+}
 
 class RendererError extends Error {}
 
@@ -103,8 +148,10 @@ export async function detectLocalRenderer(): Promise<RendererStatus> {
     port.send({ type: "ping" });
     const pong = await port.wait((m) => m.type === "pong" || m.type === "error", 5000);
     if (pong.type === "error") return { kind: "no-host", extVersion };
-    if (!pong.ffmpeg) return { kind: "no-ffmpeg", extVersion };
-    return { kind: "ready", extVersion, ffmpegVersion: String(pong.ffmpegVersion ?? "").replace(/^ffmpeg version\s+/, "").split(" ")[0] };
+    const hostVersion = String(pong.hostVersion ?? "");
+    const os: RendererOs = pong.host === "perl" ? "mac" : pong.host === "powershell" ? "windows" : "unknown";
+    if (!pong.ffmpeg) return { kind: "no-ffmpeg", extVersion, hostVersion, os };
+    return { kind: "ready", extVersion, hostVersion, os, ffmpegVersion: String(pong.ffmpegVersion ?? "").replace(/^ffmpeg version\s+/, "").split(" ")[0] };
   } catch {
     return { kind: "none" };
   } finally {

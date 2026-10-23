@@ -23,8 +23,13 @@ fi
 chmod 755 "$DEST/host.pl"
 
 FFMPEG=""
-for p in /opt/homebrew/bin/ffmpeg /usr/local/bin/ffmpeg "$(command -v ffmpeg 2>/dev/null || true)"; do
-  if [ -n "$p" ] && [ -x "$p" ]; then FFMPEG="$p"; break; fi
+# Homebrew 없이 직접 받은 ffmpeg는 이 폴더에 두면 쓴다(브라우저로 받은 파일의 맥 격리 표시는 지워 실행되게).
+if [ -f "$DEST/ffmpeg" ]; then
+  chmod 755 "$DEST/ffmpeg"
+  xattr -d com.apple.quarantine "$DEST/ffmpeg" 2>/dev/null || true
+fi
+for p in /opt/homebrew/bin/ffmpeg /usr/local/bin/ffmpeg "$DEST/ffmpeg" "$(command -v ffmpeg 2>/dev/null || true)"; do
+  if [ -n "$p" ] && [ -x "$p" ] && "$p" -hide_banner -version >/dev/null 2>&1; then FFMPEG="$p"; break; fi
 done
 if [ -z "$FFMPEG" ]; then
   BREW="$(command -v brew 2>/dev/null || true)"
@@ -37,7 +42,12 @@ if [ -z "$FFMPEG" ]; then
   fi
 fi
 if [ -z "$FFMPEG" ]; then
-  echo "✖ ffmpeg를 찾지 못했습니다. Homebrew(https://brew.sh)를 설치한 뒤 이 명령을 다시 실행해 주세요."
+  echo "✖ ffmpeg를 찾지 못했습니다. 아래 둘 중 하나를 한 뒤 이 명령을 다시 실행해 주세요."
+  echo "  ① Homebrew 설치(쉬움, 맥 로그인 비밀번호를 물어봄):"
+  echo '     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+  echo "  ② ffmpeg 직접 받기: https://evermeet.cx/ffmpeg/ 에서 ffmpeg 압축 파일을 받아 풀고, 안의 ffmpeg 파일을"
+  echo "     $DEST 폴더에 넣기 (자세히: https://video-to-gif.buylife.xyz/guide#mac-ffmpeg)"
+  open "$DEST" 2>/dev/null || true
   exit 1
 fi
 

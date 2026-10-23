@@ -54,6 +54,21 @@ GIF 자동화 웹(video-to-gif.buylife.xyz) ─chrome.runtime.connect(확장 ID)
 - **실제 화면 코드 시험(맥미니 크롬, 운영 페이지에 두 파일을 자바스크립트로 바꿔 넣음)**: 감지 `ready`(확장 v1.00·ffmpeg 8.1), 동시 4개 — 올리기 1.7초, 7·5·3·0단계 동시 시작, 5단계 25.9초에 이미 끝남 → 0단계(46초) 직후 바로 확정, **전체 47.6초**(한 단계씩 60.7초·브라우저 157초), 결과는 한 단계씩과 같은 5단계·336×189·7.27MiB.
 - tsc 0, eslint 0.
 
+## 3단계 다듬기 (2026-10-24, 맥미니 · 미배포 대기, 주인님 「전부 진행」)
+- **새 버전 알림·최소 판(LR-M-01)**: `lib/localRenderer.ts` `parseVersion`·`compareVersions`·`rendererUpdateFrom`·`checkRendererUpdate`(운영 `version.json`과 설치된 확장 판(`ext-hello`)·렌더러 판(`pong.hostVersion`) 비교). 감지 결과에 `hostVersion`·`os`(perl → 맥, powershell → 윈도우). 작업 화면 「🔔 확장 새 버전…」「🔔 PC 렌더러 새 버전…」(운영체제별 방법), `minExtension`·`minHost`보다 옛 판이면 `rendererReady` false → 브라우저 변환 + 「너무 옛 판」 안내. `version.json`에 `minExtension` v1.00·`minHost` 1.00(생성 스크립트 상수 — **확장·렌더러 메시지 약속을 바꿀 때만 올릴 것**). 판단 시험 2묶음 통과, 운영 페이지에 코드를 넣어 감지(`hostVersion` 1.00·`os` mac)·새 판/너무 옛 판 판단 확인.
+- **맥 Homebrew 없을 때(LR-M-02)**: `install-mac.sh`가 `~/Library/Application Support/BuylifeGifRenderer/ffmpeg`도 찾고(실행 권한·`xattr -d com.apple.quarantine`), 실패하면 Homebrew 공식 설치 한 줄·evermeet.cx 직접 받기 안내 + 폴더 열기. `/guide#mac-ffmpeg`, 작업 화면 「ffmpeg 없음」(맥)에서 연결. 맥미니에서 설치 스크립트 다시 실행해 정상 확인.
+- **윈도우 서명 없음 경고(LR-M-03)**: 설치 때 `Unblock-File`, `/guide`에 이유·스크립트를 메모장으로 확인 가능·관리자 권한 안 씀. (유료 서명 없이 경고 자체를 없애는 방법은 없음)
+- **엣지(LR-W-02)**: `/guide`에 「크롬과 엣지에서 동작, 엣지는 `edge://extensions`」.
+- **업데이트 방법**: `/guide#renderer-update`.
+
+## 다른 영상 프로그램으로 넓히기 (설계안, LR-02 — 회원 반응을 보고 진행)
+| 후보 | 지금 방식 | 적용 난이도 |
+|---|---|---|
+| `infinite-loop-video` | 브라우저 ffmpeg.wasm(`src/lib/loop/browser.ts`: 앞뒤 이어 붙이기 `-filter_complex` → GIF(팔레트) 또는 `-stream_loop` 반복) | **낮음** — 같은 구조. 렌더러에 `loop` 명령(반복 횟수·형식·가로폭 숫자만) 추가 |
+| `ai-video-studio`·`music-video-studio` | Remotion 브라우저 렌더링(`@remotion/web-renderer`, WebCodecs) | 높음 — 장면 조합 방식이 달라 렌더러로 옮기려면 별도 설계 |
+- 공통 원칙: 렌더러는 계속 **명령 문자열을 받지 않고** 명령 종류별로 정해진 숫자만 검사해 ffmpeg 인자를 스스로 만든다. `pong`에 `capabilities`(예: `["gif","loop"]`)를 넣어 화면이 지원 여부를 안다. 확장 `externally_connectable`에 대상 사이트를 추가하고, 이름을 「AIMaster 내 PC 고속 변환」처럼 공용으로 바꾼다(확장 ID는 같은 키라 그대로). 렌더러를 바꾸면 `HOST_VERSION`을 올리고, 약속이 바뀌면 `minHost`도 올린다.
+- 진행하게 되면: 플랜 → 렌더러 `loop` 추가(맥 perl·윈도우 PowerShell) → `infinite-loop-video` 화면 연결 → 맥미니 → 윈도우 시험 → 배포.
+
 ## 열어 둔 점
 - 쇼츠·뮤직비디오 등 다른 영상 프로그램도 같은 렌더러를 쓸 수 있게, 명령 종류를 「gif」로 이름 붙여 나중에 늘릴 수 있게 설계.
 - 맥 정적 ffmpeg 빌드의 출처·라이선스는 1단계에서 확정(LGPL판 우선).

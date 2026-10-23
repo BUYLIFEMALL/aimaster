@@ -58,4 +58,12 @@ write("uninstall-mac.sh", read("install/uninstall-mac.sh"));
 write("host.pl", read("host/host.pl"));
 
 const hostVersion = fs.readFileSync(path.join(src, "host", "host.pl"), "utf8").match(/HOST_VERSION\s*=\s*"([^"]+)"/)?.[1];
-write("version.json", new TextEncoder().encode(JSON.stringify({ extension: manifest.version_name, host: hostVersion }, null, 2) + "\n"));
+// v1.21: 화면이 이 파일로 「새 버전 알림」을 띄운다. min*보다 옛 판은 PC 변환을 쓰지 않는다(확장·렌더러 메시지 약속을 바꿀 때만 올릴 것).
+const MIN_EXTENSION = "v1.00";
+const MIN_HOST = "1.00";
+write(
+  "version.json",
+  new TextEncoder().encode(
+    JSON.stringify({ extension: manifest.version_name, host: hostVersion, minExtension: MIN_EXTENSION, minHost: MIN_HOST }, null, 2) + "\n"
+  )
+);
