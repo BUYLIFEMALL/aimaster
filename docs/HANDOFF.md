@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 이름 없는 커밋 경고·이름 예시 안내·작업 중 표 세션 이름 (세션 claude-win-lessons)
+- 한 일(`bd929b511`): ① `scripts/git-hooks/commit-msg` — 세션 이름 없는 일반 커밋에 **경고만**(막지 않음, 사람 직접 커밋 고려). 이 PC `.git/hooks`에 설치(`install.mjs`), 다른 장비·clone은 같은 명령으로 ② 도우미 거부 안내에 이 세션 이름 예(`claude-win-20261023-<작업>`, CLI는 Claude Code만 자동)와 그대로 다시 실행할 명령 ③ `docs/ACTIVE_WORK.md` 사용법 2에 「에이전트 칸에 세션 이름 필수」, 세션 점검이 이름 빠진 줄을 「⚠ [작업 중 표 세션 이름 없음]」으로.
+- 검수: 훅 임시 파일 시험(이름 없음 → 경고·통과, 있음 → 트레일러), 임시 표에서 이름 빠진 줄만 감지·실제 표 오경고 0, 시험 18개 통과.
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 커밋 도우미 세션 이름 필수·세션 점검 버그 수정 (세션 claude-win-lessons)
 - 한 일(`54e2a5c29`, 주인님 결정): `safe-commit.mjs`·`commit-paths.mjs`가 `--as`/`AIMASTER_SESSION` 없으면 **커밋 거부**(종료 코드 2, 다시 실행 안내), 이름 첫 단어가 claude-/codex-/agy-가 아니면 안내만. `safe-commit`은 이제 `AIMASTER_SESSION`도 읽고(전에는 장비 이름으로 대신 채움) 이름이 있으면 항상 트레일러. 시험 2개 추가(총 18개 통과). `docs/MULTI_AGENT_SESSION_RULES.md` §2-1에 한 줄.
 - **버그 수정(같은 커밋)**: `index-watch.mjs`가 `AIMASTER_SESSION`을 주면 이름표가 `session-check(이름)`이 돼 **세션 점검 전체를 건너뛰고 있었음** — 방금 Codex·agy에 권한 실행법과 정확히 같은 경우라 판정을 원래 이름표(`rawTag`)로 고침. 요약 줄의 세션 이름 비율은 90% 미만일 때만.
