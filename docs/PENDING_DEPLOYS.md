@@ -25,12 +25,7 @@
 | `detail-page-12p` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `detail-page-12p/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `allinone-graphic` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `allinone-graphic/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `naver-blog-seo-studio` (운영 v2.12) | 원고에 생성 모델 이름 기록(`seo_report.generatedModel`, 화면 「생성 모델」) — 웹만 변경 | `07e08257e` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-seo-bg` | `naver-blog-seo-studio/AGENTS.md` 맨 위 「미배포 대기」 | 버전 +0.01(원칙 10: manifest·ZIP·DB 함께) |
-| `threads-comment-reply` (운영 v1.27) | 「⏸ 모니터링 중지」 직후 화면이 바로 꺼짐으로 바뀌게(`MonitoringSettingsForm` `stopped` 상태) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `threads-comment-reply/docs/IMPROVEMENTS.md` 「9시간 밀림」 아래 | 버전 +0.01, 중지 → 바로 「▶ 모니터링 시작」 |
-| `youtube-auto-reply` (운영 v1.30) | 위와 같은 수정 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `youtube-auto-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 같은 확인 |
 | `instagram-comment-reply` (운영 v1.36) | 설정 「다음 확인 예정」 시각 · 「실행 방식 바꾸기 ↓」 바로가기 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `instagram-comment-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 설정에서 다음 확인 예정·바로가기 확인 |
-| `threads-comment-reply` (운영 v1.27) | 위와 같은 수정 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `threads-comment-reply/docs/IMPROVEMENTS.md` 맨 아래 | 같은 확인(「중지 즉시 반영」 줄과 함께) |
-| `youtube-auto-reply` (운영 v1.30) | 위와 같은 수정 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `youtube-auto-reply/docs/IMPROVEMENTS.md` 맨 아래 | 같은 확인(「중지 즉시 반영」 줄과 함께) |
-| `comment-inbox` (운영 v1.08) | 「🤖 자동 수집 상태」 카드(세 댓글 앱 켜짐·주기·마지막·다음 예정, 보기만) | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `comment-inbox/docs/IMPROVEMENTS.md` 맨 아래 | v1.09, 크롬에서 카드(관리자: 인스타 켜짐 12시간) 확인 |
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `trending-product-finder` | 생성 데이터 30일 정리(`cleanup-generated`)가 지운 행의 user_id로 회원별 `cleanup_expired`(reports·snapshots·competition) 기록 — 공용 사본 | `af9b2719c` · `05902a01d` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `portrait-photo` | 서버 보관함 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images, 경로 첫 폴더로 회원) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `portrait-photo/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
@@ -64,6 +59,9 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `comment-inbox` | v1.09 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `comment-inbox-o4t2vkqdq`) | 「🤖 자동 수집 상태」 카드 `24562d6aa` · 7일 그래프 글자 크게·문구 선택 항목(공용 사본) |
+| `youtube-auto-reply` | v1.31 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `youtube-auto-reply-dpgbgdpq6`) | 「중지」 즉시 화면 반영 `52b8adb5a` · 다음 확인 예정·실행 방식 바로가기 `24562d6aa` |
+| `threads-comment-reply` | v1.28 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `threads-comment-reply-ku5b09w90`) | 「중지」 즉시 화면 반영 `52b8adb5a` · 다음 확인 예정·실행 방식 바로가기 `24562d6aa` |
 | `naver-blog-agent` | v2.13 · 2026-10-23 (제안 범위 빌드 1회) | 30일 정리가 이관 복사본을 파일 이름 시각으로 판정 `f1aabf2a2` |
 | `music` | v1.45 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `music-4n6o3dlzo`) | 휴대폰 폭 가로 넘침 `overflow-x-clip`(크롬 390px scrollX 0 확인) |
 | `instagram-comment-reply` | v1.36 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `instagram-comment-reply-1k2h264nv`) | 이번 작업: 댓글 자동 수집 회원 선택 `b4696e1e6` · 함께: 7일 그래프 글자 크게 `9479f0bc` · 좁은 칸 버튼 줄바꿈 `f0871e568` · 그래프 문구 선택 항목 `10835a02` · 공용 사본 member-scheduler |
