@@ -39,7 +39,10 @@ if (!message || !paths.length) {
 }
 // 세션 이름 필수(2026-10-23 주인님 결정, safe-commit.mjs와 같은 기준) — 없으면 거부, claude-·codex-·agy-로 시작하지 않으면 안내만
 if (!as) {
-  console.error("✖ 세션 이름이 없습니다 — `--as <세션명>`을 붙이거나 환경변수 AIMASTER_SESSION을 설정해 다시 실행하세요.\n  예: node scripts/commit-paths.mjs \"<메시지>\" <경로> --as codex-win-20261023-작업   (형식 <CLI>-<장비>-<날짜>-<작업>, docs/MULTI_AGENT_SESSION_RULES.md §2)");
+  // 이 세션이 그대로 쓸 수 있는 이름 예시(2026-10-23, safe-commit.mjs와 같은 방식)
+  const d = new Date(), ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  const suggest = `${process.env.CLAUDECODE ? "claude" : "<claude|codex|agy>"}-${process.platform === "win32" ? "win" : "mac"}-${ymd}-<작업>`;
+  console.error(`✖ 세션 이름이 없습니다 — \`--as <세션명>\`을 붙이거나 환경변수 AIMASTER_SESSION을 설정해 다시 실행하세요.\n  이 세션 이름 예: ${suggest}   (형식 <CLI>-<장비>-<날짜>-<작업>, docs/MULTI_AGENT_SESSION_RULES.md §2)\n  다시 실행: node scripts/commit-paths.mjs ${args.map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(" ")} --as ${suggest}`);
   process.exit(2);
 }
 if (!/^(claude|codex|agy)-/.test(as)) console.error(`ℹ 세션 이름 「${as}」이 claude-·codex-·agy-로 시작하지 않아 블랙박스가 CLI를 구분하지 못합니다(커밋은 진행).`);

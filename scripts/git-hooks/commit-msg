@@ -2,8 +2,12 @@
 # AIMaster 커밋 메시지 세션(2026-10-23) — 환경변수 AIMASTER_SESSION이 있으면 커밋 메시지 끝에 `AIMaster-Session: <세션>` 트레일러를 붙인다.
 # 되돌림 감사·세션 시작 점검이 「어느 세션의 커밋인지」 보여 준다(도우미 safe-commit·commit-paths는 commit-tree라 이 훅을 거치지 않고 스스로 붙임).
 # 사용: AIMASTER_SESSION=claude-win-작업 git commit -m "…" -- <경로>   ·   환경변수가 없으면 아무것도 하지 않는다. 설치: node scripts/git-hooks/install.mjs
-[ -n "$AIMASTER_SESSION" ] || exit 0
 grep -q '^AIMaster-Session:' "$1" 2>/dev/null && exit 0
+# 이름이 없으면 막지 않고 경고만(2026-10-23 — 사람이 직접 하는 커밋도 있어서. 도우미 safe-commit·commit-paths는 이름 필수)
+if [ -z "$AIMASTER_SESSION" ]; then
+  echo "ℹ 세션 이름 없는 커밋입니다 — 되돌림 감사·블랙박스에 「세션 미상」으로 남습니다. 다음부터 AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> git commit … 또는 도우미 --as (docs/MULTI_AGENT_SESSION_RULES.md §2-1)" >&2
+  exit 0
+fi
 s=$(printf '%s' "$AIMASTER_SESSION" | tr -c 'A-Za-z0-9._-' '_')
 git interpret-trailers --in-place --if-exists doNothing --trailer "AIMaster-Session: $s" "$1" 2>/dev/null || true
 exit 0

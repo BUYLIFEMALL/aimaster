@@ -24,7 +24,10 @@ const optVal = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] :
 // 이름 첫 단어가 claude-·codex-·agy-가 아니면 막지 않고 안내만(멀티세션 규칙 §2 「<CLI>-<장비>-<날짜>-<작업>」)
 const sessionName = optVal("--as") || process.env.AIMASTER_SESSION || "";
 if (argv.length && !sessionName) {
-  console.error("✖ 세션 이름이 없습니다 — `--as <세션명>`을 붙이거나 환경변수 AIMASTER_SESSION을 설정해 다시 실행하세요.\n  예: node scripts/safe-commit.mjs \"<메시지>\" <파일> --as codex-win-20261023-작업   (형식 <CLI>-<장비>-<날짜>-<작업>, docs/MULTI_AGENT_SESSION_RULES.md §2)\n  --begin과 커밋에는 같은 이름을 씁니다(기준 사본을 이름으로 찾음).");
+  // 이 세션이 그대로 쓸 수 있는 이름 예시(2026-10-23): CLI(Claude Code만 확인 가능)·장비·오늘 날짜를 채운다
+  const d = new Date(), ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  const suggest = `${process.env.CLAUDECODE ? "claude" : "<claude|codex|agy>"}-${process.platform === "win32" ? "win" : "mac"}-${ymd}-<작업>`;
+  console.error(`✖ 세션 이름이 없습니다 — \`--as <세션명>\`을 붙이거나 환경변수 AIMASTER_SESSION을 설정해 다시 실행하세요.\n  이 세션 이름 예: ${suggest}   (형식 <CLI>-<장비>-<날짜>-<작업>, docs/MULTI_AGENT_SESSION_RULES.md §2)\n  다시 실행: node scripts/safe-commit.mjs ${argv.map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(" ")} --as ${suggest}\n  --begin과 커밋에는 같은 이름을 씁니다(기준 사본을 이름으로 찾음).`);
   process.exit(2);
 }
 if (sessionName && !/^(claude|codex|agy)-/.test(sessionName)) console.error(`ℹ 세션 이름 「${sessionName}」이 claude-·codex-·agy-로 시작하지 않아 블랙박스가 CLI를 구분하지 못합니다(커밋은 진행).`);

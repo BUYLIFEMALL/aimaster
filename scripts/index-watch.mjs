@@ -160,6 +160,17 @@ try {
     printEvidence(false);
     // 묵은 스테이징 항목(위 staleEntries 설명)
     try { printStale(staleEntries()); } catch { /* 기록 실패는 무시 */ }
+    // 작업 중 표의 세션 이름(2026-10-23, docs/ACTIVE_WORK.md 사용법 2): 「에이전트(장비)」 칸에 claude-·codex-·agy- 세션 이름이 없는 줄
+    try {
+      const aw = join(root, "docs", "ACTIVE_WORK.md");
+      if (existsSync(aw)) {
+        const body = readFileSync(aw, "utf8").split(/^## 작업 중\s*$/m)[1] ?? "";
+        const noName = body.split("\n").filter((l) => l.startsWith("|") && !/^\|\s*(폴더|-{3})/.test(l))
+          .map((l) => l.split("|").map((c) => c.trim())).filter((c) => c.length > 3 && !/(claude|codex|agy)-[\w.-]+/.test(c[2]))
+          .map((c) => c[1].replace(/`/g, "").slice(0, 40));
+        if (noName.length) console.log(`⚠ [작업 중 표 세션 이름 없음] ${noName.length}줄: ${noName.slice(0, 3).join(", ")}${noName.length > 3 ? ` 외 ${noName.length - 3}줄` : ""} — 「에이전트(장비)」 칸에 \`세션 <CLI>-<장비>-<날짜>-<작업>\`을 넣어야 다른 세션이 찾아 물을 수 있음(docs/ACTIVE_WORK.md 사용법 2)`);
+      }
+    } catch { /* 읽기 실패는 무시 */ }
     // 세션 트레일러 이행률(2026-10-23): 트레일러 도입(15:20) 이후·최근 7일 커밋 중 `AIMaster-Session:`이 붙은 비율 — 규칙이 지켜지는지 매번 보이게
     try {
       const since = new Date(Math.max(new Date("2026-10-23T15:20:00").getTime(), Date.now() - 7 * 24 * 3600_000)).toISOString();
