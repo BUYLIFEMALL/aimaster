@@ -89,9 +89,9 @@ export default function Sidebar({
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      window.location.href = "https://aimaster.buylife.xyz";
+      window.location.href = "https://www.buylife.xyz";
     } catch {
-      window.location.href = "https://aimaster.buylife.xyz";
+      window.location.href = "https://www.buylife.xyz";
     }
   };
 
@@ -100,7 +100,7 @@ export default function Sidebar({
       {/* 1. 상단 브랜딩 & 다른 프로그램 보기 */}
       <div className="p-4 border-b border-slate-100 flex-shrink-0">
         <a
-          href="https://aimaster.buylife.xyz"
+          href="https://www.buylife.xyz"
           className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors mb-2 group font-medium"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />

@@ -5,4 +5,4 @@ export const APP_VERSION = "v1.17";
 export const APP_NAME = "시네마틱 스토리보드 자동화";
 export const APP_ENG_NAME = "Cinematic Storyboard Studio";
 export const APP_SLUG = "cinematic-storyboard-studio";
-export const MAIN_SITE = "https://aimaster.buylife.xyz";
+export const MAIN_SITE = "https://www.buylife.xyz";

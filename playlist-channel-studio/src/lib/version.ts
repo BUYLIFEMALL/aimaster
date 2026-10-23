@@ -5,4 +5,4 @@ export const APP_VERSION = "v1.27";
 export const APP_NAME = "YOUTUBE 플레이리스트 자동화";
 export const APP_ENG_NAME = "Playlist Channel Studio";
 export const APP_SLUG = "playlist-channel-studio";
-export const MAIN_SITE = "https://aimaster.buylife.xyz";
+export const MAIN_SITE = "https://www.buylife.xyz";

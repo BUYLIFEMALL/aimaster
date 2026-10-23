@@ -5,4 +5,4 @@ export const APP_VERSION = "v1.09";
 export const APP_NAME = "페르소나 문체 자동화";
 export const APP_ENG_NAME = "Persona Style Studio";
 export const APP_SLUG = "persona-style-studio";
-export const MAIN_SITE_URL = "https://aimaster.buylife.xyz";
+export const MAIN_SITE_URL = "https://www.buylife.xyz";

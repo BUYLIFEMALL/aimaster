@@ -6,7 +6,7 @@ import { signInAction } from "@/lib/actions/auth";
 import { ListMusic, Lock, Mail, ArrowRight, ShieldCheck, CheckCircle2, UserPlus, LogIn, ExternalLink } from "lucide-react";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 
-const MAIN_SITE_URL = "https://aimaster.buylife.xyz";
+const MAIN_SITE_URL = "https://www.buylife.xyz";
 
 function LoginCard() {
   const searchParams = useSearchParams();
@@ -205,7 +205,7 @@ function LoginCard() {
             </div>
 
             <a
-              href={`${MAIN_SITE_URL}/signup`}
+              href={`${MAIN_SITE_URL}/register`}
               target="_blank"
               rel="noreferrer"
               className="w-full mt-3 py-3.5 px-4 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"

@@ -181,7 +181,7 @@ export default function GuidePage() {
             </Link>
             <span className="text-slate-700">|</span>
             <a
-              href="https://aimaster.buylife.xyz"
+              href="https://www.buylife.xyz"
               className="text-xs text-slate-400 hover:text-amber-400 transition-colors hidden sm:inline"
             >
               AIMaster 메인
@@ -569,7 +569,7 @@ export default function GuidePage() {
           <span>크리에이티브 아틀리에 템플릿</span>
           <span>•</span>
           <a
-            href="https://aimaster.buylife.xyz"
+            href="https://www.buylife.xyz"
             className="text-amber-500 hover:underline"
           >
             AIMaster 공식 플랫폼
