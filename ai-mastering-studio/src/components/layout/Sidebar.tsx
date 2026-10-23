@@ -95,7 +95,7 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
           {/* 아이콘과 📖 이모지가 겹쳐 두 줄로 꺾이던 것 → 이모지 빼고 한 줄 고정(2026-10-23) */}
           <BookOpen size={16} className="shrink-0" />
           <span className="truncate">연동 & 사용 매뉴얼</span>
-          <span className="ml-auto shrink-0 text-[10px]bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black px-1.5 py-0.5 rounded">
+          <span className="ml-auto shrink-0 text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black px-1.5 py-0.5 rounded">
             GUIDE
           </span>
         </Link>
