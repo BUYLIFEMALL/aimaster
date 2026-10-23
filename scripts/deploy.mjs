@@ -227,6 +227,18 @@ if (versionOnly && args.includes("--all")) {
     for (const l of a.lost) console.log(`  ⚠ ${l.sha} ${l.file} −${l.lines}줄 | ${l.msg}\n      예: ${l.sample}`);
     if (a.lost.length) console.log("  원문: node scripts/check-shared-doc-reverts.mjs --audit 24 --lost  (의도한 정리인지 확인 후 필요하면 다음 커밋으로 되살림)");
   } catch { console.log("[공용 문서 되돌림] 감사 실패 — node scripts/check-shared-doc-reverts.mjs --audit 24 로 직접 확인"); }
+
+  // 문서 속 프로그램 주소 점검(check-app-urls --json) — 연결 안 되는 *.buylife.xyz 주소가 있으면 요약에 한 줄만(2026-10-23)
+  const cu = spawnSync(process.execPath, [join(ROOT, "scripts", "check-app-urls.mjs"), "--json"], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024, timeout: 90000 });
+  try {
+    const u = JSON.parse(cu.stdout.trim().split("\n").pop());
+    if (!u.broken.length) console.log(`[문서 속 프로그램 주소] 호스트 ${u.hosts}개 · 연결 안 되는 주소 없음`);
+    else {
+      console.log(`[문서 속 프로그램 주소] 호스트 ${u.hosts}개`);
+      console.log(`  ⚠ 연결 안 되는 주소 ${u.broken.length}개 — 보고 링크는 node scripts/check-app-urls.mjs <slug>로 실제 주소 확인, 자세히는 인자 없이 실행`);
+      for (const b of u.broken.slice(0, 5)) console.log(`    · https://${b.host} (${b.count}곳, 예: ${b.first})`);
+    }
+  } catch { console.log("[문서 속 프로그램 주소] 확인 실패 — node scripts/check-app-urls.mjs 로 직접 확인"); }
   flushLog();
   process.exit(0);
 }

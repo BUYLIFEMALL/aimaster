@@ -57,9 +57,14 @@ walk(root);
 const OK_HOSTS = new Set(["www.buylife.xyz", "buylife.xyz"]);
 const unknown = [...found.keys()].filter((h) => !appHosts.has(h) && !OK_HOSTS.has(h));
 const broken = [];
-for (const h of unknown) {
-  const status = await reach(`https://${h}/`);
+// 동시에 접속해 본다(세션 시작 점검에서 오래 걸리지 않게)
+for (const [h, status] of await Promise.all(unknown.map(async (h) => [h, await reach(`https://${h}/`)]))) {
   if (typeof status !== "number") broken.push({ h, status });
+}
+// --json: 세션 시작 점검(deploy.mjs --version-only --all)이 읽는 한 줄 결과
+if (args.includes("--json")) {
+  console.log(JSON.stringify({ hosts: found.size, unknown: unknown.length, broken: broken.map((b) => ({ host: b.h, count: found.get(b.h).length, first: found.get(b.h)[0] })) }));
+  process.exit(0);
 }
 // 추천: 호스트 단어의 앞 4글자가 slug·주소·이름에 들어 있는 수로 순위(후보 2개까지 — 확정이 아니라 찾아볼 곳)
 const suggest = (h) => {
