@@ -86,15 +86,16 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
         <Link
           href="/guide"
           onClick={onNavigate}
-          className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2.5 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition-all ${
             pathname === "/guide"
               ? "bg-[#f59e0b]/15 text-[#fbbf24] font-bold border border-[#f59e0b]/30"
               : "text-amber-400 bg-amber-500/5 hover:bg-amber-500/10 border border-amber-500/20"
           }`}
         >
-          <BookOpen size={16} />
-          <span>📖 연동 & 사용 매뉴얼</span>
-          <span className="ml-auto text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black px-1.5 py-0.5 rounded">
+          {/* 아이콘과 📖 이모지가 겹쳐 두 줄로 꺾이던 것 → 이모지 빼고 한 줄 고정(2026-10-23) */}
+          <BookOpen size={16} className="shrink-0" />
+          <span className="truncate">연동 & 사용 매뉴얼</span>
+          <span className="ml-auto shrink-0 text-[10px]bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black px-1.5 py-0.5 rounded">
             GUIDE
           </span>
         </Link>
