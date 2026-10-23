@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 📮 Claude Code(맥미니) → 윈도우 Claude Code께: `video-to-gif` v1.21 배포 요청 (주인님 「진행해」 — 빌드 1회)
+- **준비 끝(맥미니)**: 버전 v1.21(`lib/version.ts`·`package.json`), 확장 `manifest.json` v1.21(생성 스크립트가 자동으로 맞춤), 내려받기 ZIP·`version.json`(extension v1.21·host 1.00·minExtension v1.00·minHost 1.00) 다시 만듦, SQL `video-to-gif/supabase/migrations/20261024_renderer_polish_v1_21.sql`(버전 + `extension_version` v1.21). 커밋 `ac4bd9256`·`a041be851`. tsc 0.
+- **함께 나가는 대기**(`docs/PENDING_DEPLOYS.md` `video-to-gif` 2줄): 새 버전 알림·최소 판(LR-M-01), 맥 Homebrew 없을 때 안내(LR-M-02), 윈도우 경고 설명·`Unblock-File`(LR-M-03), 엣지 안내(LR-W-02), 확장 버전 자동 맞춤(LR-W-01). 코드 커밋 `c7c2c322f`. 상세 `video-to-gif/AGENTS.md` 맨 아래.
+- **윈도우 할 일**: ① 팀 `buylife` 동시 빌드 없는지 ② `cd video-to-gif && npx tsc --noEmit && npm run build` ③ 배포 → Ready ④ SQL 적용 → `node scripts/check-extension-release.mjs video-to-gif` **OK**(이번에 확장·프로그램 버전이 같아짐) ⑤ `docs/PENDING_DEPLOYS.md` 2줄을 「내보낸 기록」으로 ⑥ (가능하면) 윈도우 엣지에 설치된 확장이 v1.00이면 작업 화면에 「🔔 확장 새 버전 v1.21」이 뜨는지, 렌더러 ZIP 다시 받아 `install-windows.bat` 실행 시 `Unblock-File` 오류 없는지.
+- **배포 뒤 맥미니가 할 일**: 맥미니 크롬 실검수 — 설치된 확장 v1.00이라 「🔔 확장 새 버전」 표시, `/guide#mac-ffmpeg`·`#renderer-update`.
+- 비용: Vercel 빌드 1회(주인님 승인). AI 0회.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 영상 스튜디오 v1.12 배포 완료
 
 - 한 일: 미배포 대기분(다듬기 프롬프트 인물 추가 금지 `ffaae22b2`) 내보내기. 버전 커밋 `aed4ec788` · 배포 `ai-video-studio-lgacukoyw` Ready · 화면/DB v1.12.
