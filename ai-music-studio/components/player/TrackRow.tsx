@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { usePeaks } from "./usePeaks";
 import { Pause, Play } from "lucide-react";
 import { usePlayer, type Track } from "./PlayerProvider";
 import { Waveform } from "./Waveform";
@@ -11,8 +12,12 @@ export function TrackRow({ track }: { track: Track }) {
   const p = usePlayer();
   const register = p?.register;
   useEffect(() => (register ? register(track) : undefined), [register, track.key, track.url]); // eslint-disable-line react-hooks/exhaustive-deps
+  const mine = p?.current?.key === track.key;
+  // v1.12 한 번 재생한 곡만 실제 소리 막대를 계산(곡 파일을 한 번 더 받음)
+  const [played, setPlayed] = useState(false);
+  useEffect(() => { if (mine) setPlayed(true); }, [mine]);
+  const peaks = usePeaks(track.key, track.url, played, 36);
   if (!p) return <audio controls preload="none" src={track.url} className="w-full" />;
-  const mine = p.current?.key === track.key;
   const on = mine && p.playing;
   const st = styleOf(track.provider);
   return (
@@ -21,7 +26,8 @@ export function TrackRow({ track }: { track: Track }) {
         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-colors ${on ? "bg-cyan-500 hover:bg-cyan-400" : "bg-violet-500 hover:bg-violet-400"}`}>
         {on ? <Pause className="h-4 w-4" aria-hidden="true" /> : <Play className="ml-0.5 h-4 w-4" aria-hidden="true" />}
       </button>
-      <Waveform seed={track.key} color={on ? "bg-cyan-400" : st.bar} active={on} />
+      <Waveform seed={track.key} color={on ? "bg-cyan-400" : st.bar} active={on} peaks={peaks}
+        progress={mine && p.duration > 0 ? p.time / p.duration : peaks ? 1 : 0} />
     </div>
   );
 }

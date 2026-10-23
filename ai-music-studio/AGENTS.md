@@ -86,3 +86,8 @@
 - 주인님 지시: 제안 가~라를 대기 목록에 올려 순차 진행, 배포는 모아서. 플랜 `docs/PLAN_20261023_PLAYER_REPEAT_SHUFFLE.md`.
 - `lib/playerOrder.ts`(순수 함수 `pickNext`·`pickPrev`·`nextRepeat`) + `tests/playerOrder.test.mjs` 7개(전체 40개). `components/player/PlayerProvider.tsx` 반복(끔→목록→한 곡)·무작위 상태, 들은 곡 기록(무작위 「이전 곡」용, 최근 50곡), 설정은 `localStorage` `ams-player-mode`(try/catch). 한 곡 반복은 곡이 끝났을 때만 — 「다음 곡」 버튼은 다음 곡으로. `MiniPlayer.tsx` 무작위·반복 버튼(켜지면 하늘색, 한 곡 반복은 「1」 아이콘).
 - 검수: 시험 40개·tsc·build 통과. 화면·소리는 배포 뒤 확인(미확인).
+
+## 2026-10-23 실제 소리 파형 막대 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, **미배포 대기** — 배포 때 v1.12에 함께)
+- 제안 나. 곡 카드 막대 그림이 곡 번호로 만든 장식이었음 → **한 번 재생한 곡만** 브라우저가 곡 파일을 다시 받아(`fetch` → `decodeAudioData`) 구간 36개의 RMS를 막대 높이로 그림. 재생 위치까지는 진하게, 이후는 흐리게(움직임 없음). 결과는 탭 메모리 + `sessionStorage` `ams-peaks:<곡 키>`(서버 저장 없음), 30MB 넘는 파일·실패 시 기존 장식 막대 그대로.
+- `lib/peaks.ts`(`peaksFromChannels`·`peakToHeight`, 시험 `tests/peaks.test.mjs` 4개 — 전체 44개), `components/player/usePeaks.ts`, `Waveform.tsx`(`peaks`·`progress` 선택값), `TrackRow.tsx`.
+- 사전 확인(운영 v1.11 보관함, 크롬): Stable Audio 30초 곡 서명 주소를 브라우저에서 받아 디코딩·막대 계산 0.8초, 끝부분 소리 줄어듦까지 반영 — 저장소 서명 주소는 다른 출처에서도 받아짐. 화면 표시는 배포 뒤 확인.
