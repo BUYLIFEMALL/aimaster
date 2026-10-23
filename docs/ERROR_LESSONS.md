@@ -19,7 +19,7 @@
 - **증상**: 시험 계정으로 Kling v2.1(Replicate) 5초를 접수하자 실패 — 업체 오류 `Error code 1203: The model 'kling-v2-1' has been discontinued and is no longer available`. 같은 때 다른 9개 모델은 정상.
 - **원인**: 업체가 모델을 종료했는데 공용 기준 `ai-video-studio/lib/video/videoModels.ts`의 `STUDIO_VIDEO_MODELS`와 다른 프로그램용 `VIDEO_MODELS`(5개) 둘 다에 남아 있음. 사본: `ai-image-studio`·`music-video-studio`·`shorts-onestop-studio`·`shots`.
 - **영향**: 위 프로그램에서 회원이 이 모델을 고르면 매번 실패(자동 재시도 없음). 업체가 거절해 요금은 나가지 않았을 가능성이 큼(미확인).
-- **처리**: 아직 안 고침 — 공용 기준에서 빼고 `--sync` 뒤 사본 프로그램 배포가 필요해 주인님 승인 대기. 상세 `ai-video-studio/docs/IMPROVEMENTS.md`.
+- **처리(같은 날 승인 뒤)**: 공용 기준에서 제거(커밋 `c2b698db4`), 사본 3개 복사 후 AI 영상 스튜디오 v1.15·Shots v1.43·원스톱 v1.41 배포. AI 이미지 스튜디오는 미배포 대기, **뮤직비디오 사본은 그 폴더 작업 세션이 `--sync`로 맞출 차례**(`docs/SHARED_MODULES.md` 미배포 사본). `--sync`는 사본 전체를 덮어써 다른 세션 폴더까지 바꾸므로 이번에는 기준 파일을 사본 3곳에 직접 복사했다.
 - **다음부터 확인**: 모델 목록을 바꾸지 않아도 업체가 모델을 끝낼 수 있다 — 예시·검수용 실생성 때 모든 모델 결과를 확인하고, 종료 오류(1203·discontinued)가 보이면 바로 이 문서와 공용 기준 문서에 적는다.
 
 ## 2026-10-24 — 운영 SQL 편집기에서 Ctrl+Enter로 실행했더니 같은 창의 다른 탭(앱 첫 설정 화면)에 입력이 가서 워크스페이스가 하나 더 생겼다 (ai-work-workspace v1.01, Claude Code 윈도우)

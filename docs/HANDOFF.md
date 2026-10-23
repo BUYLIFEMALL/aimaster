@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — 공용 영상 모델에서 Replicate Kling v2.1 제거 · 3개 프로그램 배포 완료
+
+- 왜: 업체가 모델을 종료(오류 1203 discontinued, v1.13 예시 생성 때 확인) — 목록에 남아 회원이 고르면 항상 실패.
+- 한 일: 기준 `ai-video-studio/lib/video/videoModels.ts`에서 제거(주석으로 기록) → 사본 `ai-image-studio`·`shorts-onestop-studio`·`shots`에 복사(점검 OK). 시험은 지우지 않고 다른 모델·시험용 객체로 바꿈 + 「목록에 없음」 시험 추가. 기본 모델(Gemini)은 그대로, 옛 기록 이름 표시는 대체값으로 안전. 커밋 `c2b698db4`.
+- 배포(한 번에 하나씩, 빌드 3회): AI 영상 스튜디오 v1.15 `ai-video-studio-clewlka18` · Shots v1.43 `shots-lrb2sbwid`(대기분 사본 동기화 함께) · 원스톱 쇼츠 v1.41 `shorts-onestop-studio-r6ntxtshv`(대기분 함께). DB 버전 모두 갱신.
+- 검수(메인 크롬, 시험 계정): AI 영상 스튜디오 Replicate 모델 1개만·페이지에 kling-v2.1 없음 / 원스톱 `/design` 「AI 영상 모델」 4개·화면 코드에 kling-v2.1 없음 / Shots 화면 v1.43(장면 편집 화면은 시험 계정 장면이 없어 화면 확인 못 함 — 같은 사본 파일·빌드 성공으로 판단).
+- **남은 일**: ① `music-video-studio` 사본 아직 안 맞춤 — 그 폴더 작업 세션이 `node scripts/check-shared-modules.mjs --sync` 뒤 다음 배포 때 함께(지금은 뮤직비디오에서 Kling v2.1을 고르면 실패). ② `ai-image-studio` 미배포 대기(동작 불변).
+- 비용: 빌드 3회(승인 최대 5회 안), AI 호출 없음.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.23 장면 타임라인·순서 바꾸기 + 영상 일괄 진행률
 - 3단계 맨 위 가로 타임라인(끌어서 놓기·◀ ▶로 장면 순서 바꾸기, 이미지·영상이 함께 옮겨짐)과 「영상 일괄 렌더링」 진행 칸(완료·진행 중·대기·실패, 지난/남은 시간). 주인님 결정으로 두 작업을 묶어 배포 1회.
 - 검수(운영, 메인 크롬, 시험 계정): 배포 `music-video-studio-7rc77y3l5` Ready·화면/DB v1.23, 시험 27. 영상 2개 일괄 생성 중 진행 칸·끝 표시 확인, ▶·끌어서 놓기로 순서 바뀜·새로고침 뒤 유지, 390px 가로 넘침 없음. 커밋 `0a7f66d7c`·`37d84b05b`.
