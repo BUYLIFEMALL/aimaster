@@ -42,3 +42,6 @@
 
 ## 다른 프로그램 연계 메모 — 2026-10-19 Claude Code(윈도우, ai-doc-chatbot 작업 중 발견)
 - **AI 문서 챗봇(`ai-doc-chatbot`)과 파일로 연계 가능**: 「인쇄/PDF」로 저장한 원고를 https://ai-doc-chatbot.buylife.xyz/documents 에 올리면 원고 내용을 근거로 질문할 수 있다(100쪽 초과 PDF도 챗봇 v1.05 비동기 읽기). 독자용 공개 Q&A 챗봇은 비로그인 공개가 필요해 플랫폼 규칙과 맞지 않아 보류(챗봇 `docs/IMPROVEMENTS.md` C2).
+
+## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 (세션 claude-win-20261023-next-security)
+- v1.12 배포(Next.js 16.4.2 보안 업데이트). **확인 필요: `/login` 404(배포는 Ready) — 실제 로그인 경로·메인 사이트 바로가기 확인(분담표 묶음 C)**. 상세·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](../../docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)

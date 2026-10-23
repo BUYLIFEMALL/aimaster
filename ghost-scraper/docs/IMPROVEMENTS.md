@@ -26,3 +26,6 @@
 | 11 | robots.txt·이용 약관 안내만 있고 확인 기능 없음 | 법적·차단 위험 | 낮음 | 미구현(제안) | `api/crawl` | robots.txt 차단 경로면 경고 칩 표시 |
 | 12 | 이미지 ZIP 동시 요청 최대 100개 | 대상 사이트 부하·실패 | 낮음 | 미구현(제안) | `ScraperTabs.tsx` | 동시 5개로 제한 |
 | 13 | 라이트 테마 전환 없음 | 지침 8.1-4 | 낮음 | 미구현(제안) | `globals.css` | 라이트 토큰 세트 + 전환 버튼 |
+
+## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 (세션 claude-win-20261023-next-security)
+- v1.14 배포(Next.js 16.4.2 보안 업데이트, DB slug `website-scraper`). **확인 필요: `/login` 404(배포는 Ready) — 실제 로그인 경로 확인(분담표 묶음 C)**. 상세·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](../../docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)
