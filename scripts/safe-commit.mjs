@@ -14,7 +14,7 @@
 // 커밋은 `git commit-tree` + `git update-ref <새> <옛>`(HEAD가 그사이 바뀌면 실패 → 최신 HEAD로 다시 병합, 최대 5번)이라
 // 다른 세션 커밋을 되돌리는 일이 구조적으로 생기지 않는다. 대신 pre-commit 훅은 돌지 않으므로 되돌림 점검을 이 안에서 한다.
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { hostname } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -192,6 +192,13 @@ function revertedLines(f, headText, newText) {
   return removed.filter((l) => added.has(l));
 }
 
+// 임시 스테이징 정리(2026-10-23): 끝날 때 항상 내 것을 지운다(process.exit은 아래 finally를 건너뛰어 .git에 11개가 쌓였음)
+// + 시작할 때 1시간 넘은 같은 종류(index.safe-commit-*)를 지운다(보통 몇 초만 존재 — 1시간 넘었으면 끊긴 흔적). 공용 index·index.lock은 건드리지 않음.
+for (const n of readdirSync(GITDIR)) {
+  if (!n.startsWith("index.safe-commit-")) continue;
+  try { if (Date.now() - statSync(join(GITDIR, n)).mtimeMs > 3600_000) rmSync(join(GITDIR, n), { force: true }); } catch { /* 다른 세션이 막 지움 */ }
+}
+process.on("exit", () => { for (const s of ["", ".lock"]) rmSync(join(GITDIR, `index.safe-commit-${process.pid}${s}`), { force: true }); });
 const branch = run(["symbolic-ref", "--short", "HEAD"]).trim();
 // --mine은 작업 파일 전체를 올리므로, 최근 2시간 안 다른 커밋이 같은 파일을 고쳤다면 다른 세션이 작업 파일에 남긴 미커밋 줄도 섞일 수 있다
 // → 그 커밋 목록을 보여 주고 --push가 있어도 푸시는 미룬다(바뀐 줄 미리 보기를 눈으로 확인한 뒤 손으로 푸시, 2026-10-23)
