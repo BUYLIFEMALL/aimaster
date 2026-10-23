@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, rmSync, utimesSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -138,5 +138,52 @@ test("⑧ 이진 파일을 --mine 없이: 거부하고 커밋하지 않는다", 
     const out = r.helper("이진", "x.zip", "--as", "me");
     assert.notEqual(out.status, 0, "이진인데 병합 커밋됨: " + out.stdout);
     assert.equal(r.git("rev-parse", "HEAD").trim(), before);
+  } finally { r.done(); }
+});
+
+// 2026-10-23 14:00 사고 대책: 공용 스테이징 맞추기 단계의 도우미 전용 잠금
+test("⑨ 다른 도우미가 잠금을 잡고 있으면: 커밋은 하고 스테이징 맞추기는 건너뛴다(남의 잠금은 그대로)", () => {
+  const r = repo();
+  try {
+    r.commit("a.md", ["a"], "c1");
+    const lock = join(r.dir, ".git", "safe-commit-index.lock");
+    writeFileSync(lock, "9999 다른 도우미");
+    r.write("a.md", ["a", "b"]);
+    const out = spawnSync(process.execPath, ["scripts/safe-commit.mjs", "커밋", "a.md", "--mine"], { cwd: r.dir, encoding: "utf8", env: { ...process.env, SAFE_COMMIT_SYNC_TRIES: "2" } });
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout, /공용 스테이징 맞추기를 건너뜁니다/);
+    assert.deepEqual(r.head("a.md"), ["a", "b"]);
+    assert.equal(readFileSync(lock, "utf8"), "9999 다른 도우미");
+  } finally { r.done(); }
+});
+
+test("⑩ 2분 넘은 잠금은 치우고 정상으로 맞춘다", () => {
+  const r = repo();
+  try {
+    r.commit("a.md", ["a"], "c1");
+    const lock = join(r.dir, ".git", "safe-commit-index.lock");
+    writeFileSync(lock, "1 끊긴 도우미");
+    const old = new Date(Date.now() - 5 * 60 * 1000); utimesSync(lock, old, old);
+    r.write("a.md", ["a", "c"]);
+    const out = r.helper("커밋", "a.md", "--mine");
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.doesNotMatch(out.stdout, /건너뜁니다/);
+    assert.equal(r.git("show", ":a.md").trimEnd(), "a\nc", "공용 스테이징도 새 내용");
+    assert.equal(existsSync(lock), false);
+  } finally { r.done(); }
+});
+
+test("⑪ 공용 스테이징이 이미 줄어 있으면: 더 쓰지 않고 알린다", () => {
+  const r = repo();
+  try {
+    for (const f of ["a.md", "b.md", "c.md", "d.md"]) r.write(f, [f]);
+    r.git("add", "."); r.git("commit", "-qm", "c1");
+    r.git("rm", "-q", "--cached", "b.md", "c.md", "d.md");   // 스테이징 축소 흉내
+    const before = r.git("ls-files").trim();
+    r.write("a.md", ["a2"]);
+    const out = r.helper("커밋", "a.md", "--mine");
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout, /이미 줄어 있습니다/);
+    assert.equal(r.git("ls-files").trim(), before, "줄어든 스테이징을 건드리지 않음");
   } finally { r.done(); }
 });

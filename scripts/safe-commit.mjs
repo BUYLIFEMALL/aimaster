@@ -294,6 +294,28 @@ const indexOp = (args) => {
   return false;
 };
 const indexFailed = [];
+// 2026-10-23 14:00 사고 대책(주인님 승인): 도우미 두 개가 동시에 이 단계를 돌면 공용 스테이징이 2개로 줄었다(블랙박스 기록).
+// → 도우미 전용 잠금으로 한 번에 하나씩. 20초 안에 못 잡으면 이 단계를 건너뛴다(맞추지 못한 스테이징 < 망가진 스테이징).
+// 2분 넘은 잠금은 끊긴 도우미의 흔적으로 보고 치운다(git의 index.lock은 건드리지 않음). 이미 줄어 있으면 더 쓰지 않는다.
+const SYNC_LOCK = join(GITDIR, "safe-commit-index.lock");
+const takeSyncLock = () => {
+  const tries = Number(process.env.SAFE_COMMIT_SYNC_TRIES) || 40; // 0.5초 × 40 = 20초(시험에서만 줄임)
+  for (let i = 0; i < tries; i++) {
+    try { writeFileSync(SYNC_LOCK, `${process.pid} ${new Date().toISOString()}`, { flag: "wx" }); return true; }
+    catch { try { if (Date.now() - statSync(SYNC_LOCK).mtimeMs > 120000) { rmSync(SYNC_LOCK, { force: true }); continue; } } catch { /* 방금 풀림 */ } }
+    sleepMs(500);
+  }
+  return false;
+};
+const headCount = (tryRun(["ls-tree", "-r", "--name-only", done.commit]) ?? "").split("\n").filter(Boolean).length;
+const indexCount = (tryRun(["ls-files"]) ?? "").split("\n").filter(Boolean).length;
+const syncSkip = indexCount < headCount / 2 ? `공용 스테이징이 이미 줄어 있습니다(${indexCount} / 최신 커밋 ${headCount}) — 더 쓰지 않고 주인님께 알리세요`
+  : !takeSyncLock() ? "다른 도우미가 공용 스테이징을 맞추는 중이라 20초 안에 차례가 오지 않았습니다" : "";
+if (syncSkip) {
+  console.log(`⚠ 공용 스테이징 맞추기를 건너뜁니다: ${syncSkip}.`);
+  console.log(`  커밋은 정상입니다. 잠시 뒤 다른 도우미가 없을 때: git reset -q HEAD -- ${done.changed.map((r) => r.f).join(" ")}`);
+}
+if (!syncSkip) try {
 for (const r of done.changed) {
   // 2026-10-23: 삭제·이진 파일은 공용 스테이징을 새 HEAD에 맞추기만 한다(줄 병합 대상 아님)
   if (r.deleted || r.binary) { if (!indexOp(["reset", "-q", "HEAD", "--", r.f])) indexFailed.push(r.f); continue; }
@@ -312,6 +334,7 @@ for (const r of done.changed) {
   if (indexOp(["update-index", "--cacheinfo", `100644,${sha},${r.f}`])) console.log(`  ${r.f}: 다른 세션 스테이징 내용 위에 내 변경도 반영`);
   else indexFailed.push(r.f);
 }
+} finally { rmSync(SYNC_LOCK, { force: true }); }
 if (indexFailed.length) {
   console.log(`⚠ 공용 스테이징을 맞추지 못했습니다(다른 세션 잠금이 계속됨): ${indexFailed.join(", ")}`);
   console.log(`  잠시 뒤 직접: git reset -q HEAD -- ${indexFailed.join(" ")}  — 그대로 두면 다른 세션 커밋이 이 파일을 옛 내용으로 되돌릴 수 있습니다.`);
