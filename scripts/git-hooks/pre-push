@@ -1,0 +1,7 @@
+#!/bin/sh
+# AIMaster 푸시 직전 검사(2026-10-23) — 저장소 대량 삭제 사고(c2e7c4db2) 재발 방지. 올릴 커밋이 파일을 50개 넘게 지우거나
+# 트리가 절반 아래로 줄면 푸시를 막는다(루트 CLAUDE.md 최상단). 설치: node scripts/git-hooks/install.mjs
+command -v node >/dev/null 2>&1 || exit 0
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$root/scripts/check-index-health.mjs" ] || exit 0
+node "$root/scripts/check-index-health.mjs" --push
