@@ -313,8 +313,12 @@ if [ "$UPDATE_MODE" = "1" ] && [ -n "$OLD_VERSION" ]; then VERSION_LINE="$OLD_VE
   echo "Supabase 프로젝트: https://supabase.com/dashboard/project/$REF"; echo
   echo "다음 단계: $NEXT_STEP"
   echo "  1) 내 사이트 /login 에서 회원가입 → 로그인(관리자 지정은 KIT/README.md 참고)"
-  echo "  2) 플랫폼 앱을 만들고 위 콜백 주소를 등록 → 사이트 설정에 키 저장 → 계정 연결"
-  echo "  3) 예약 게시: 사이트 설정 「⏰ 예약 발행」에 cron-job.org 키 등록"; echo
+  # kit.json resultSteps(선택, 2026-10-23)가 있으면 2)부터 그 문구로 — 플랫폼 앱·예약 게시가 없는 프로그램용
+  STEPS=$(kit x "(k.resultSteps||[]).map(s => '  ' + s).join('\n')")
+  if [ -n "$STEPS" ]; then echo "$STEPS"; else
+    echo "  2) 플랫폼 앱을 만들고 위 콜백 주소를 등록 → 사이트 설정에 키 저장 → 계정 연결"
+    echo "  3) 예약 게시: 사이트 설정 「⏰ 예약 발행」에 cron-job.org 키 등록"
+  fi; echo
   echo "※ 비밀번호·키는 .env.local 과 Vercel에만 있습니다. 이 파일에는 비밀값이 없습니다."
 } > "$PROGRAM_DIR/설치결과.txt"
 

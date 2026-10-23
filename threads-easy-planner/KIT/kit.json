@@ -4,7 +4,7 @@
   "description": "Threads 글 기획 — 오늘의 주제 추천·5가지 첫 문장(훅) 글 세트·원클릭 다시 쓰기·글과 함께 이미지 생성·보관함",
   "authRedirectPath": "/auth/confirm",
   "checkTable": "tep_saved_plans",
-  "nextStep": "내 사이트에서 회원가입 → 좌측 [API키 등록·관리]에서 AI 키 1개 저장 → [스레드 기획기]에서 첫 글을 만들어 보세요. 자세한 내용은 KIT\\README.md 3장부터.",
+  "nextStep": "내 사이트에 가입하고 AI 키 1개를 저장하면 바로 씁니다(자세한 내용은 KIT 폴더 README.md 3장부터).",
   "exclude": [
     "scripts",
     "README.md",
@@ -17,5 +17,9 @@
   "schema": {
     "mode": "static"
   },
-  "extraEnv": []
+  "extraEnv": [],
+  "resultSteps": [
+    "2) 좌측 [🔑 API키 등록·관리]에서 OpenAI·Gemini·Claude 중 키 1개 저장(이미지까지 쓰려면 Gemini 또는 OpenAI 키)",
+    "3) 좌측 [✏️ 스레드 기획기]에서 소재 입력 → [글 생성하기] → 글과 이미지 확인 → [보관함에 저장] (플랫폼 앱·예약 설정은 필요 없음)"
+  ]
 }
