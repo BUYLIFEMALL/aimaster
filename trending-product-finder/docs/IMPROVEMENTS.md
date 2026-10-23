@@ -35,3 +35,8 @@
 ## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
 - 생성 데이터 30일 정리(`cleanup-generated`)가 지운 행의 user_id로 회원별 `cleanup_expired`(reports·snapshots·competition) 기록 — 공용 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
+
+## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 `solapi-client` (Claude Code 윈도우 · 세션 `claude-win-20261023-solapi-shared`)
+- 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
+- 사본으로 맞춤: 주석 정리 + 쓰지 않는 RCS 발송 함수 `sendRcs` 추가(동작 같음). tsc·로컬 build 통과.
+- 배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01.

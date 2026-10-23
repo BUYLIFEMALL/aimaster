@@ -1,6 +1,8 @@
 import "server-only";
 import { SolapiMessageService } from "solapi";
 
+// 공용 기준 코드 `solapi-client`(2026-10-23 등록) — 사본: booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales.
+// 사본은 직접 고치지 말고 이 파일을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`(등록부 docs/SHARED_MODULES.md).
 // SOLAPI 공식 Node.js SDK(solapi 패키지)를 감싼 얇은 래퍼. HMAC-SHA256 서명/인증은
 // SDK가 전부 처리한다 — 우리가 직접 구현하지 않는다(https://solapi.com/developers 참고,
 // 2026-08-18 확인).

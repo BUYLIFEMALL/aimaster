@@ -30,3 +30,8 @@
 
 F-011: Cron 인증 비밀 누락 시 fail-closed 아님 — 제안·미수정. 운영 설정/코드/조건부를 구분한 [분석 인수인계](IMPROVEMENT_HANDOFF_20261019_ANALYSIS.md)와 공통 보고서의 검수/승인 기준을 확인합니다. 이미 구현된 내용은 새 결함으로 되돌리지 않습니다.
 - **✅ 배포됨 v1.27(2026-10-23, 데스크톱 폭 계정 위치 확인) — 이전 「미배포 대기」(커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+
+## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 `solapi-client` (Claude Code 윈도우 · 세션 `claude-win-20261023-solapi-shared`)
+- 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
+- 사본 등록(내용 원래 같음). **버그 수정**: SOLAPI 테스트 문자가 「[구글폼 CRM] …」으로 나가던 것 → 「[대량 메일발송 자동화(Step Mail)] …」(`lib/actions/solapiAccount.ts`). `npm run test:sms` 통과.
+- 배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01.

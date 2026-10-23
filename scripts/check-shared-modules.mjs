@@ -31,6 +31,19 @@ const MODULES = [
     ],
   },
   {
+    // SOLAPI 발송(회원 본인 SOLAPI 계정 — 문자·알림톡·친구톡·RCS·잔액). 2026-10-23 등록 — 6곳이 같은 코드를 손 복사로 쓰고 있었음(3곳은 RCS 함수만 없었음).
+    // 계정 저장·테스트 문자(lib/actions/solapiAccount.ts)는 프로그램마다 기능이 달라 공용 아님. 메인 사이트 lib/sms/solapi.ts는 운영자 발송용이라 대상 아님.
+    id: "solapi-client",
+    source: "crm-google-form/lib/solapi/client.ts",
+    copies: [
+      "booking-reminder/lib/solapi/client.ts",
+      "stepmail/lib/solapi/client.ts",
+      "kakao_auto_poster/src/lib/solapi/client.ts",
+      "trending-product-finder/lib/solapi/client.ts",
+      "real_estate_sales/src/lib/solapi/client.ts",
+    ],
+  },
+  {
     // 대시보드 「검토를 기다리는 ○○」 목록(작성자·시각·배지·본문·글 앞부분·썸네일, 누르면 검토 화면 묶음으로). 2026-10-21 세 댓글 프로그램 통일
     id: "pending-review-list",
     source: "instagram-comment-reply/components/PendingReviewList.tsx",

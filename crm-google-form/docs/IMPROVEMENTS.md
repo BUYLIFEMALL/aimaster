@@ -26,3 +26,8 @@ F-007: CRM 웹훅 재전송이 접수/유료 발송을 중복 실행, F-011: Cro
 - 🆕 2026-10-20 발견(화면, 미수정, 우선순위 낮음): 「구글폼 연결」에서 규칙을 추가·켜서 cron-job.org 작업이 켜져도 맨 위 상태 줄은 새로고침 전까지 「내 cron-job.org 대기」로 남는다(규칙 수만 갱신). 규칙 켜기/끄기 뒤 상태 줄도 서버 상태를 다시 읽게 하면 된다. 관련: `components/sources/` 상태 줄 컴포넌트, `FollowupRulesSection.tsx`.
 
 - ✅ 2026-10-20 위 「상태 줄 새로고침 전까지 대기」는 v1.12에서 수정(`SchedulePublishingControl`이 서버 값 변화를 따라감). 크롬 확인은 관리자 로그인 후 남음.
+
+## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 `solapi-client` (Claude Code 윈도우 · 세션 `claude-win-20261023-solapi-shared`)
+- 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
+- 이 프로그램이 기준: 머리 주석에 공용 기준 코드 안내만 추가(동작 같음).
+- 배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01.

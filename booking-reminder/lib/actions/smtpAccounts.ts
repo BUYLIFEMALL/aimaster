@@ -134,8 +134,8 @@ export async function testSmtpAccountAction(accountId: string): Promise<TestSmtp
     await sendViaSmtpAccount(
       account,
       user.email,
-      `[구글폼 CRM] "${account.label}" 계정 테스트 발송`,
-      `<p>이 메일은 구글폼 CRM 자동화에서 "${account.label}" 이메일 계정 설정이 정상 작동하는지 확인하기 위한 테스트 메일입니다.</p>`,
+      `[예약(취소)방지 리마인드 자동화] "${account.label}" 계정 테스트 발송`,
+      `<p>이 메일은 예약(취소)방지 리마인드 자동화에서 "${account.label}" 이메일 계정 설정이 정상 작동하는지 확인하기 위한 테스트 메일입니다.</p>`,
     );
     return { success: true };
   } catch (err) {

@@ -62,7 +62,7 @@ export async function connectTelegramAction(
     await sendTelegramMessage({
       botToken,
       chatId: chatInfo.chatId,
-      text: "✅ 구글폼 CRM 자동화 알림 연동이 완료됐어요. 앞으로 새 신청이 접수되면 여기로 알려드릴게요.",
+      text: "✅ 예약(취소)방지 리마인드 자동화 알림 연동이 완료됐어요. 앞으로 이 프로그램의 알림을 여기로 보내드릴게요.",
     });
   } catch {
     // 저장은 이미 성공했으니, 테스트 메시지 발송 실패는 치명적이지 않음

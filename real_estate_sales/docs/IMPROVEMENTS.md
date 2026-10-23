@@ -28,3 +28,8 @@
 ## 2026-10-23 정정 — 지역 분위기 캐시는 v1.12부터 회원별 (Claude Code 윈도우)
 - 위 「확인 필요」 항목은 **잘못된 판단**이었다. 처음 표를 만든 SQL(`20260810050751_real_estate_sales_init.sql`)만 보고 user_id가 없다고 봤으나, `supabase/migrations/20261017_district_sentiment_per_user_v1_12.sql`에서 이미 `user_id` 추가·`unique (user_id, sgg_nm, sentiment_date)`·회원 본인 RLS로 바뀌었고, `src/lib/ai/sentiment.ts`도 회원 본인 Perplexity 키로 만들어 본인 행만 읽고 쓴다. **최상위 규칙 위반 없음.** (운영 표가 0행이라 칸을 직접 확인하지 못한 것이 원인)
 - 조치: 정리 코드의 「회원 데이터 아님」 표시를 지우고 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록을 붙임(`61142a909`, 공용 `cleanup-usage-log` 사본). **미배포 대기** — 다음 배포 때 함께, 버전 +0.01.
+
+## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 `solapi-client` (Claude Code 윈도우 · 세션 `claude-win-20261023-solapi-shared`)
+- 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
+- 사본으로 맞춤: 주석 정리 + 쓰지 않는 RCS 발송 함수 `sendRcs` 추가(동작 같음). tsc·로컬 build 통과.
+- 배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01.
