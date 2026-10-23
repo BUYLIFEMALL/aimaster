@@ -28,3 +28,8 @@
    - 되돌림 감사: 세션 시작 `node scripts/deploy.mjs --version-only --all`에 최근 24시간 감사가 함께 나온다(「⚠ 사라짐」만 자세히). 의도한 정리로 확인한 커밋은 `scripts/reverts-reviewed.txt`에 「sha 메모」로 적으면 「✓ 확인됨」으로만 표시.
 
 이번 적용 범위: 최상위 AGENTS.md·CLAUDE.md·GEMINI.md 및 공통 개발 방식/인수인계 정책에 같은 규칙을 연결했습니다. 프로그램 기능·키·DB 스키마를 이 문서 작업에서 변경하지 않습니다. 진행 중인 Playlist 참고 메모 작업에도 기존 다크 디자인과 미디어 제작 로직을 보존하는 기준으로 적용합니다.
+
+## 10. 저장소 대량 삭제 사고 재발 방지 (2026-10-23 주인님 지시)
+
+- 사고: 공용 스테이징(`.git/index`)이 65개 항목으로 쪼그라든 채 3번 커밋·푸시돼 원격 master에서 파일 10,464개가 지워짐(`c2e7c4db2`, 복구 `237741cc3`). 같은 날 공용 스테이징 경합으로 다른 세션 파일이 엉뚱한 커밋에 섞인 일도 여러 번.
+- 규칙(루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 최상단과 같음): ① 경로 지정 커밋만(`git commit -- <경로>`·`safe-commit`), 경로 없는 `git commit`·`-a`·`git add -A`/`.` 금지 ② 커밋 직후 `git show --stat HEAD | tail -1` 확인 ③ pre-commit·pre-push 훅 `scripts/check-index-health.mjs`(50개 넘는 삭제·스테이징 절반 아래면 차단)를 끄지 않음, 새 장비는 `node scripts/git-hooks/install.mjs`, 승인된 대량 삭제만 `AIMASTER_ALLOW_MASS_DELETE=1` ④ 이상하면 멈추고 주인님께 — 인덱스 삭제·`reset --hard`·`checkout .`·`stash`·force-push 금지, 복구는 승인 뒤 임시 인덱스로 위에 얹는 커밋 ⑤ git 명령 중간에 끊지 않기(특히 맥미니 SMB).

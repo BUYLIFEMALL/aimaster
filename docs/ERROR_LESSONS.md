@@ -6,6 +6,7 @@
 - 원인(추정): 잠금이 오래 남은 동안 이 PC에 git 프로세스가 없었다 — 맥미니(SMB) 쪽 git 작업이 중간에 끊기며 잘린 인덱스를 남긴 것으로 보임(확정 못 함). 일반 `git commit`은 인덱스가 곧 트리라 쪼그라든 인덱스를 그대로 커밋한다.
 - 해결: 마지막 정상 커밋 `9f061e6f9`의 전체 트리 + 그 뒤 세 커밋이 실제로 추가·수정한 파일(7개 + `HANDOFF.md`는 작업 폴더본)로 복구 커밋 `237741cc3`을 **위에 얹어** 푸시(이력 다시 쓰기 없음, 주인님 승인). 공용 스테이징은 `git read-tree HEAD` + `git update-index --refresh`로 다시 채움(그 전에 `git diff --cached`로 다른 세션 스테이징 없음 확인). 작업 폴더 파일은 처음부터 멀쩡했다.
 - 다음부터: ① 커밋 직후 `git show --stat HEAD | tail -1`의 삭제 수가 비정상(수백~수천)이면 푸시하지 말 것 ② 이상하면 `git ls-files | wc -l`(정상 약 1만)과 `git ls-tree -r HEAD | wc -l` 비교 ③ 복구는 「정상 커밋 트리 + 이후 커밋의 A/M 파일만」으로, 이후 커밋의 「A」로 들어간 공용 문서는 조각일 수 있으니 줄 수를 정상본과 비교 ④ 안전 커밋 도우미·`deploy.mjs` 세션 점검에 「인덱스 항목 수 급감」 경고를 넣는 것이 좋다(제안).
+- **재발 방지 적용(2026-10-23, Claude Code 윈도우, 주인님 지시)**: 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 최상단에 사고 내용과 규칙 5가지를 고정. 자동 차단 `scripts/check-index-health.mjs` — pre-commit(이번 커밋이 50개 넘게 지우거나 스테이징이 HEAD 절반 아래면 커밋 차단)·pre-push(올릴 커밋 중 50개 넘는 삭제나 트리 절반 감소면 푸시 차단), 승인된 대량 삭제만 `AIMASTER_ALLOW_MASS_DELETE=1`. 설치 `node scripts/git-hooks/install.mjs`(pre-push 추가). 시험: 정상 통과 0.2초, 폴더 하나(263개) 삭제·65개 인덱스·`c2e7c4db2` 푸시 흉내 모두 차단, 승인 변수만 통과.
 
 ## 2026-10-23 — 여러 프로그램이 함께 쓰던 Storage 버킷을 한 프로그램이 비공개로 바꾸자, 공개 주소(`getPublicUrl`)를 쓰던 다른 프로그램의 사진이 모두 400 「Bucket not found」 (threads-content-ops v2.19, Claude Code 윈도우)
 - 증상: 쓰레드 콘텐츠 운영 보관함에 붙인 사진 썸네일이 글자(대체 텍스트)로만 보임. 파일은 저장소에 있는데 공개 주소가 400 `NoSuchBucket`. Threads 발행도 사진 주소를 못 가져가 실패할 상태.
