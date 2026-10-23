@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-10-23 — 재발 방지 훅을 넣은 커밋에서 pre-commit이 「검사를 하나도 안 하고 통과」하는 상태였다 (scripts/git-hooks, Claude Code 윈도우)
+- 증상: `sh -x .git/hooks/pre-commit` → `command -v node` 다음 바로 `exit 0`. 대량 삭제 검사·OpenAI 모델 경고·공용 문서 되돌림 경고가 모두 돌지 않았다(pre-push는 정상).
+- 원인: `04b887892`가 검사 블록을 넣으며 `command -v node … || exit 0`과 `root=… || exit 0`의 `exit 0` 자리에 주석+블록을 끼워 넣음 → `node 있음 || (블록)`이 되어 블록은 건너뛰고 다음 줄 `exit 0`.
+- 해결: 원래 순서로 되돌리고 끝에 검사 블록 한 번(`scripts/git-hooks/pre-commit`), `node scripts/git-hooks/install.mjs` 재설치. 시험: 빈 임시 인덱스(`GIT_INDEX_FILE`)로 실행 → ⛔ 막힘, 정상 인덱스 → 통과. 맥미니 `scripts/mac-mini/commit-gate.sh`도 pull 전에 「스테이징 < HEAD의 절반」이면 바로 멈추게 함.
+- 다음부터: 훅·안전장치를 고치면 **막혀야 하는 경우를 실제로 흉내 내 한 번 막히는지** 확인한다(`sh -x <훅>`, 빈 임시 인덱스). 맥미니는 `node scripts/git-hooks/install.mjs`를 다시 실행할 필요 없음(SMB의 같은 `.git/hooks`) — 단 맥미니 git 훅에서 node가 PATH에 없으면 검사가 조용히 건너뛰어지니, 맥미니 터미널에서 `sh -x .git/hooks/pre-commit`으로 한 번 확인 권장.
+
 ## 2026-10-23 — 공용 스테이징(`.git/index`)이 항목 65개로 쪼그라든 채 커밋·푸시돼 원격 저장소 파일 1만여 개가 지워짐(복구 완료) (music v1.44 배포 중 발견, Claude Code 윈도우)
 - 증상: 11:13:58에 생긴 `.git/index.lock`이 몇 분 남았다 사라진 뒤 `.git/index`가 **항목 65개(7.6KB)**가 됐다(정상 약 10,529개). 그 상태에서 다른 세션들이 일반 `git commit`·안전 커밋으로 3번 커밋·푸시(`c2e7c4db2`·`63283cf07`·`93ce9f27a`)해 원격 `master` 트리가 **파일 66개**가 됐고, 메인 사이트 자동 빌드가 3번 실패(각 7~9초, 운영 화면은 마지막 성공 배포 유지). `93ce9f27a`는 `docs/HANDOFF.md`를 2,748줄 조각(정상 13,628줄)으로 「새 파일」 추가했다.
 - 원인(추정): 잠금이 오래 남은 동안 이 PC에 git 프로세스가 없었다 — 맥미니(SMB) 쪽 git 작업이 중간에 끊기며 잘린 인덱스를 남긴 것으로 보임(확정 못 함). 일반 `git commit`은 인덱스가 곧 트리라 쪼그라든 인덱스를 그대로 커밋한다.
