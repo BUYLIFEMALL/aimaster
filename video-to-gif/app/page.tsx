@@ -18,15 +18,8 @@ export default function LandingPage() {
           <div>
             <p className="mb-5 inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-300">상세페이지·상품 GIF 자동화</p>
             <h1 className="max-w-3xl text-5xl font-black leading-tight tracking-tight sm:text-7xl">영상 하나를<br /><span className="text-amber-400">가벼운 GIF</span>로.</h1>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-slate-300">AI 비용 없이 브라우저 안에서 변환합니다. 원하는 구간만 골라 상세페이지 용량 기준(8MiB)에 맞는 고화질 GIF로 자동으로 맞춰 드립니다.</p>
-            {/* v1.18(G-23-04): 지금 기능 한 줄씩 */}
-            <ul className="mt-5 max-w-xl space-y-1.5 text-sm text-slate-300">
-              <li>✂️ 구간 막대로 원하는 부분만 고르고 장면 보기·구간 재생으로 확인</li>
-              <li>🖼 줄마다 첫 장면 썸네일·영상 길이·진행률 표시</li>
-              <li>📦 여러 영상을 한 번에 넣고 완성본을 ZIP 하나로 받기</li>
-              <li>🛍 완성한 GIF를 AI 상세페이지 섹션으로 바로 보내기</li>
-            </ul>
-            <div className="mt-9 flex flex-wrap gap-3"><Link href="/dashboard" className="rounded-xl bg-amber-400 px-6 py-3 font-bold text-slate-950 hover:bg-amber-300">변환 시작하기</Link><span className="rounded-xl border border-white/15 px-5 py-3 text-sm text-slate-300">로그인 후 이용 · 최대 8MiB · 40/50fps</span></div>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-slate-300">영상 전체 길이는 유지하면서 고화질 팔레트 변환과 용량 최적화를 자동으로 처리합니다. 여러 파일도 한 번에 등록할 수 있습니다.</p>
+            <div className="mt-9 flex flex-wrap gap-3"><Link href="/dashboard" className="rounded-xl bg-amber-400 px-6 py-3 font-bold text-slate-950 hover:bg-amber-300">무료로 변환해보기</Link><span className="rounded-xl border border-white/15 px-5 py-3 text-sm text-slate-300">최대 8MiB · 40/50fps</span></div>
           </div>
           <div className="relative rounded-3xl border border-white/10 bg-slate-900 p-5 shadow-2xl">
             <div className="rounded-2xl bg-slate-950 p-5"><div className="mb-5 flex items-center justify-between text-sm"><span className="font-bold">변환 작업</span><span className="text-emerald-300">3개 완료</span></div><div className="space-y-3">{["product-intro.mp4", "detail-motion.mov", "hero-shot.webm"].map((name, index) => <div key={name} className="rounded-xl border border-white/10 bg-slate-900 p-4"><div className="flex items-center justify-between"><span className="truncate text-sm text-slate-200">{name}</span><span className="text-xs text-amber-300">{["7.22 MB", "6.90 MB", "6.15 MB"][index]}</span></div><div className="mt-3 h-1.5 rounded-full bg-slate-800"><div className="h-full rounded-full bg-emerald-400" style={{ width: "100%" }} /></div></div>)}</div></div>

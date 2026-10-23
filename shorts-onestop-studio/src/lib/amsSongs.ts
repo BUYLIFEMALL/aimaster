@@ -72,6 +72,7 @@ export async function importAmsSong(userId: string, ref: string): Promise<{ path
   const path = `${userId}/ams/${randomUUID()}.${wav ? "wav" : "mp3"}`;
   const { error: upErr } = await admin.storage.from(BUCKET).upload(path, Buffer.from(await file.arrayBuffer()), { contentType, upsert: false });
   if (upErr) throw new Error(upErr.message);
-  const name = `${(o.title || row.title || row.prompt.slice(0, 40) || "AI 음악").slice(0, 60)} (AI 음악 스튜디오)`;
+  const base = (o.title || row.title || row.prompt.slice(0, 40) || "AI 음악").slice(0, 60);
+  const name = `${(row.outputs ?? []).length > 1 ? `${base} (${Number(m[2]) + 1})` : base} (AI 음악 스튜디오)`;
   return { path, name };
 }
