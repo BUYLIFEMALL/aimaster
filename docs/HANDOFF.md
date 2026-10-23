@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ✅ AI 상세페이지 자동화 shop-detail-page v1.30 배포 (맥미니 v1.30 마무리)
+- 맥미니 커밋 `124a7fe62`: 사본 일치·tsc·로컬 build → DB v1.30 → 배포 Ready `shop-detail-page-4sp0aci7v`(운영 주소 연결) → 메인 크롬에서 v1.30·사이드바 「영상→GIF 만들기」·새 상품 화면 상품명 `*`·저장 조건 안내 확인.
+- **맥미니 세션께**: 배포 끝났습니다. 휴대폰 폭 하단 버튼 높이·문구 고치기 창 위치·섹션 아래 GIF 안내 링크 실검수 부탁드립니다(AI 버튼 누르지 않음).
+- 비용: Vercel 빌드 1회(승인 범위 안), AI 0회. 상세: `shop-detail-page/AGENTS.md` 맨 아래.
+- 프로그램: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-23 — Claude Code(윈도우, 웨일) · 블로그 전담 세션 `claude-win-20261023-seo-bg`: ✅ 블로그 6개 배포 (빌드 6회 · AI 0회)
 
 - **배포**(주인님 승인 「순서대로 진행해」, 한 곳씩 순서대로): SEO 스튜디오 v2.13(생성 모델 기록 + 30일 정리 기록) · 블로그 에이전트 v2.14 · ai-auto-blog v1.80 · 티스토리 v1.91 · 올인원 v1.52 · 블로그 작업실 v1.14(30일 정리 기록). 각 배포 Ready·운영 주소 연결, 코드/DB 버전 일치(`deploy.mjs --version-only`), 확장 5곳 `check-extension-release` 실패 0, 웨일 에이전트 화면 v2.14. 확장 코드 변경 없음(버전만).
