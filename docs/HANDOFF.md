@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 배포판 이름 「ALLA AI」(배포판 v1.03) · 세션 `claude-win-20261023-tep-kit`
+- 주인님 지시로 배포판 이름을 `ALLA_AI_Kit`으로, 독립 모드 화면의 프로그램 이름을 「ALLA AI」로(`src/lib/deployment.ts` `APP_NAME`). 운영 사이트 이름은 그대로. 출력 `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.03.zip`(65개 파일, 비밀값·DB 대조 통과, 풀어서 독립 모드 실행 → 탭 제목 「ALLA AI」 확인).
+- 운영 배포: 미배포 대기(`docs/PENDING_DEPLOYS.md`). 남은 일: 수강생 설치 리허설.
+- 프로그램: https://threads-easy-planner.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 v1.48 이미지 자동화 모듈 + 배포판 v1.02 · 세션 `claude-win-20261023-tep-kit`
 - **한 일**: 글 생성 직후 이미지 자동 생성(나노바나나=Gemini 키, GPT Image=OpenAI 키, 4:5/1:1·1~2장, 다운로드·다시 만들기·프롬프트 고치기, 보관함 글+이미지 30일). Threads 콘텐츠 운영 이미지 방식 이식, 공용 `gemini-image-client`·`gemini-image-models` 사본 등록.
 - **운영 DB(ref esgxyikcnnvmlhygjkth, 주인님 승인)**: 보관함 표 `tep_saved_plans`가 운영에 없던 것을 발견해 표·정책 4개·`image_urls`·버킷 `tep-images` 생성(그동안 보관함은 브라우저에만 저장됐음, `docs/ERROR_LESSONS.md`).
