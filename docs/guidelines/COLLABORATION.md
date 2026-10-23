@@ -48,9 +48,18 @@ node scripts/safe-commit.mjs "<메시지>" <파일>... --as <세션이름> [--pu
 | 커밋 전·푸시 전 훅 (`scripts/git-hooks/`, `check-index-health.mjs`) | 파일을 50개 넘게 지우거나 스테이징이 HEAD의 절반 아래면 커밋·푸시를 막음 | 자동. 새 장비는 `node scripts/git-hooks/install.mjs`. 승인된 대량 삭제만 `AIMASTER_ALLOW_MASS_DELETE=1` |
 | 일반 커밋 도우미 `scripts/commit-paths.mjs` | 최신 HEAD에서 시작한 임시 스테이징으로 커밋(공용 스테이징을 읽지 않음, 새 파일·삭제·폴더·이미지 가능), 대량 삭제 검사 직접 실행, 공용 스테이징은 정상일 때만 맞춤 | `node scripts/commit-paths.mjs "<메시지>" <경로>... [--push] [--as <세션>]` — 경로 지정 커밋의 대안 |
 | 안전 커밋 도우미 `scripts/safe-commit.mjs` (공용 문서·공용 스크립트) | 내 변경만 최신 HEAD에 얹음. 겹치면 내 변경 덩어리를 같은 자리에, `--mine`은 최근 다른 커밋이 있으면 푸시 보류, 공용 스테이징 맞추기는 한 번에 한 도우미(잠금) | `--begin` → 고침 → 커밋(협업 원문 9번). 공용 스크립트를 일반 커밋하면 훅이 알림 |
-| 블랙박스 `scripts/index-watch.mjs` → `.git/aimaster-index-log.txt` | 세션 시작·훅·도우미마다 스테이징 크기·항목 수·장비·세션을 한 줄 기록, 줄면 ⚠와 직전 기록 | 자동. 세션 이름은 `--as` 또는 환경변수 `AIMASTER_SESSION`. 세션 시작 점검에 「축소 이력」「원인 관찰」 줄 |
+| 블랙박스 `scripts/index-watch.mjs` → `.git/aimaster-index-log.txt` | 세션 시작·훅·도우미마다 스테이징 크기·항목 수·장비·세션·CLI·잠금 나이를 한 줄 기록, 줄면 ⚠와 직전 기록. 세션 점검에서 ⚠로 알리는 것: 축소 이력·`index.lock` 5분 넘음·**묵은 스테이징 항목**(작업 파일=HEAD인데 스테이징만 옛 판, 정리 명령 함께)·**시작 점검 누락**(24시간 안 기록은 있는데 시작 점검이 없는 장비·CLI). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄 | **작업 시작 때** `AIMASTER_SESSION=<세션명> node scripts/index-watch.mjs session-check`(루트 AGENTS.md·GEMINI.md 최상위 ⑥, Claude Code는 세션 시작 훅이 자동). 세션 이름 첫 단어(`claude-`·`codex-`·`agy-`)로 CLI를 구분 |
+| 잠금 증거 `.git/aimaster-lock-evidence.txt` | 잠금이 5분 넘으면 잠금 하나당 한 번, 생성 ±2분 기록 줄과 **그 장비의** git 관련 프로세스(시작 시각·명령줄)를 남김. 100건 넘으면 최근 50건만 | 자동. 세션 점검에 「[공용 스테이징 잠금 증거]」 한 줄 요약(지금 잠금이면 ⚠). 잠금 파일은 지우지 말고 주인님께 |
+| 맥미니 커밋 스크립트 `scripts/mac-mini/commit-gate.sh` | 공용 스테이징으로 커밋하는 맥미니 절차 — pull 전 축소 확인, pull 뒤 묵은 항목이 있으면 멈추고 정리 명령 안내, 다른 CLI 스테이징·잠금은 최대 5분 대기 | 맥미니 [플레이북](../MAC_MINI_AGENT_PLAYBOOK.md). 윈도우는 `commit-paths.mjs`·`safe-commit.mjs` |
 | 세션 시작 점검 자기 시험 (`deploy.mjs --version-only --all`) | 훅이 실제로 막는지 매번 흉내 내 확인, 고장이면 ⚠ | 자동 |
 | 실제 저장소 시험 차단 `scripts/assert-scratch-repo.mjs` | 지금 폴더가 이 저장소 안이면 즉시 실패 | 셸 재현 명령은 cd 직후 `node <경로>/scripts/assert-scratch-repo.mjs \|\| exit 1`, 시험 파일은 `assertScratchRepo(dir)` |
+
+**어떤 도구를 언제 쓰나(순서)**
+1. 작업 시작: `AIMASTER_SESSION=<세션명> node scripts/index-watch.mjs session-check` — ⚠가 있으면 아래 2~4로 가기 전에 해결(묵은 항목은 안내된 `git reset -q HEAD -- <파일>`만, 축소·잠금은 주인님께).
+2. 공용 문서·공용 스크립트(`docs/HANDOFF.md`·`ERROR_LESSONS.md`·`AGENTS.md` 등, `scripts/safe-commit.mjs`·`commit-paths.mjs`·`index-watch.mjs` 등): 고치기 전 `safe-commit.mjs --begin` → 고침 → `safe-commit.mjs "<메시지>" <파일> --as <세션>`. HANDOFF 항목은 `--handoff <항목.md>`.
+3. 그 밖의 파일(프로그램 코드 등), 윈도우: `commit-paths.mjs "<메시지>" <경로>... --as <세션>`. 맥미니: `commit-gate.sh -m "<메시지>" -- <경로>`.
+4. 커밋 뒤 `git show --stat HEAD | tail -1`로 바뀐 파일 수를 확인하고, 푸시는 작업 단위로 모아서 `--push`(메인 사이트 자동 빌드가 푸시마다 생김).
+5. 재현·시험 명령은 저장소 밖 임시 폴더에서, cd 직후 `assert-scratch-repo.mjs`.
 
 스테이징이 줄어 있으면(`git ls-files | wc -l`이 HEAD보다 크게 적음) 커밋·푸시를 멈추고 주인님께 먼저 알립니다. 고칠 때는 승인 뒤 「남은 항목이 모두 HEAD와 같은지」 확인하고 `git read-tree HEAD` — 작업 폴더는 건드리지 않습니다.
 
