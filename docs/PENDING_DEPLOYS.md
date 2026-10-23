@@ -19,7 +19,6 @@
 |---|---|---|---|---|---|
 | `shots` (운영 v1.41) | Lyria·ElevenLabs 배경음악 트랙에 실제 길이 표시(MP3/WAV 머리글로 계산) | `35bcd8a03` | 2026-10-23 · Claude Code(윈도우) | `shots/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, Lyria 1곡으로 「OO초」 확인 |
 | `naver-blog-agent` (운영 v2.14) | 확장 아이콘 팝업 폭 넓힘(`extension/connect.css` 최소 폭 440px — 주인님 지적 「너무 좁아서 글들이 제대로 안보여」) — 확장 코드 변경 | 이 줄을 넣은 커밋 직전 `fix(naver-blog-agent): widen extension popup` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01(manifest·ZIP·DB 함께) |
-| `shorts-onestop-studio` (운영 v1.39) | 곡 링크로 들어왔을 때 대본이 여러 개면 「이 대본에 넣기」로 고르게 함 | `b22a5526a` | 2026-10-23 · Claude Code(윈도우) | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, 대본 2개 이상인 회원으로 링크 열어 안내줄·넣기 확인 |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `crm-google-form` | 공용 `solapi-client` 기준 등록(머리 주석만) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `crm-google-form/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -86,6 +85,7 @@
 | `insta_auto_poster` | v1.68 · 2026-10-23 (모아 둔 수정, 제안 범위 빌드 1회) | 「🔤」 한글일 때만 기억 `4bebfb016` · 「✕ 슬라이드 N 빼기」 `447780d5c` · 공용 사본 member-scheduler·instagram-publish |
 | `music` | v1.44 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `music-36j3lwxcj`) | 공용 Suno `callbackOrigin` `acccf06eb` · 곡 30일 정리 회원별 기록 `4cafe5eb3`(2026-10-29 첫 실제 삭제 뒤 관리자 정리 표 확인) · 휴대폰 ☰ 펼침 메뉴 `2fcddccb7`(크롬 390px 확인) |
 | `naver-blog-agent` | v2.12 · 2026-10-23 (이미지 전용 공개 버킷, 회원 피해 수정·승인 빌드 1회) | 대기 항목 없음 |
+| `shorts-onestop-studio` | v1.40 · 2026-10-23 (곡 링크로 들어왔을 때 대본이 여러 개면 고르게 함, 승인 빌드 1회) | `b22a5526a` |
 | `ai-music-studio` | v1.10 · 2026-10-23 (Lyria RealTime 서버 녹음, 승인 빌드 1회) | `8386be97f` |
 | `ai-music-studio` | v1.09 · 2026-10-23 (Stable Audio 3 Medium(fal) 추가, 승인 빌드 1회) | Mureka 연동 코드(숨김) `3cdeb201b` |
 | `ai-music-studio` | v1.08 · 2026-10-23 (곡마다 원스톱·뮤직비디오 링크에 곡 번호 `?ams=`, 승인 빌드) | `5991d70bb` |

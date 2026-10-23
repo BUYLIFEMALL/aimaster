@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — 원스톱 v1.40 배포(대본 고르기) · 쇼츠 v1.42 배포 보류
+- 주인님 「3·4번 배포해」. 원스톱 v1.40 배포 `shorts-onestop-studio-pwtwc3h77` Ready·DB v1.40 — 크롬 시험 회원(대본 20개)에서 곡 링크로 들어가니 바로 넣지 않고 「AI 음악 스튜디오에서 보낸 곡이 있습니다… 지금 대본」 안내·「이 대본에 넣기/넣지 않기」 확인.
+- 쇼츠 v1.42(곡 길이 표시 `35bcd8a03`): `deploy.mjs`가 「다른 세션이 작업 중인 폴더」로 막음 — `claude-win-20261023-next-security` 줄에 `shots/`가 남아 있음(그 세션의 쇼츠 보안 업데이트 v1.41은 15:55에 끝남). **배포 안 함**. 잘못 실행한 `--set-version`이 DB를 v1.42로 올렸던 것을 즉시 v1.41로 되돌림(코드 `version.ts`·`package.json`은 v1.42로 커밋됨 — 다음 쇼츠 배포 때 그대로 v1.42).
+- 비용: Vercel 빌드 1회(원스톱), AI 0회.
+https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(맥미니) · 세션 `claude-mac-20261023-ecommerce` — 이커머스 담당: 남은 일 정리 3건 (문서만 · 비용 없음)
 - 담당: 주인님 지정 「이커머스 카테고리」(`shop-detail-page`·`video-to-gif`·`trending-product-finder`, 병합된 `auto-detail-page`·`detail-page-12p`).
 - ① `trending-product-finder`: 미배포 대기 2줄(30일 정리 기록 `af9b2719c`·`05902a01d`, 공용 `solapi-client` 사본 `36d0a4fdc`)은 14:04 보안 업데이트 배포 v1.24(`be7d1fd4a`)에 이미 포함(세 커밋이 배포 커밋의 조상) → `docs/PENDING_DEPLOYS.md` 「내보낸 기록」으로, 프로그램 개선 문서 「배포됨」. 커밋 `e3c359d07`. 남은 확인: 다음 03:50 정리 뒤 관리자 「30일 자동 정리」 표에 줄이 생기는지.
