@@ -1,7 +1,11 @@
 // v1.15: 화질 단계 사다리와 「건너뛰기」 계산(화면과 무관한 순수 함수).
 
 // 원본 해상도부터 시작해서 결과 GIF가 8MiB 밑으로 내려갈 때까지 해상도/색상 수를 단계적으로 낮춘다.
-export const CANDIDATES = [
+// v1.19: 그래도 넘는 아주 복잡한 영상용으로 끝에 초당 장면 수(fps)를 낮추는 단계 2개.
+// 재생 길이는 그대로이고, 25·20fps는 GIF 장면 간격(0.04·0.05초)이 딱 맞는 값이라 재생 속도가 어긋나지 않는다.
+export type LadderStep = { scale: number; colors: number; fps?: number };
+
+export const CANDIDATES: ReadonlyArray<LadderStep> = [
   { scale: 1, colors: 256 },
   { scale: 0.94, colors: 256 },
   { scale: 0.86, colors: 256 },
@@ -10,6 +14,8 @@ export const CANDIDATES = [
   { scale: 0.6, colors: 192 },
   { scale: 0.52, colors: 160 },
   { scale: 0.45, colors: 128 },
+  { scale: 0.45, colors: 128, fps: 25 },
+  { scale: 0.45, colors: 128, fps: 20 },
 ];
 
 export const MAX_OUTPUT_BYTES = 8 * 1024 * 1024;
@@ -33,7 +39,9 @@ export function nextCandidateIndex(
   for (let i = current + 1; i < candidates.length; i++) {
     if (candidates[i].scale <= wanted) return i;
   }
-  return candidates.length - 1;
+  // 아주 크게 넘으면 가장 작은 가로 단계의 첫 칸으로(v1.19: 그 뒤 fps 단계는 한 칸씩 — 맨 끝 20fps로 바로 뛰지 않게)
+  const smallest = Math.min(...candidates.map((c) => c.scale));
+  return candidates.findIndex((c, i) => i > current && c.scale === smallest);
 }
 
 // 한 번에 만들기(split → palettegen → paletteuse)는 색상표가 나올 때까지 프레임(RGBA)을 메모리에 쌓는다.

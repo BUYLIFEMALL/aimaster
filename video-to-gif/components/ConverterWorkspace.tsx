@@ -39,6 +39,8 @@ type Job = {
   status: "ready" | "processing" | "done" | "error";
   progress: number;
   outputSize?: number;
+  // v1.19: 8MiB에 맞추려고 사다리 끝 단계에서 초당 장면 수를 낮췄으면 그 값(완료 줄에 표시)
+  loweredFps?: number;
   error?: string;
   downloadUrl?: string;
   // v1.11: 구간 자르기(초, 빈칸이면 처음·끝). 영상 길이는 파일을 넣을 때 브라우저가 읽는다.
@@ -331,7 +333,9 @@ export default function ConverterWorkspace() {
 
       // v1.16: 진행률 — 시도 안에서 지금 실행이 그릴 구간(두 번 방식은 색상표 앞 절반·GIF 뒤 절반)
       let phase = { from: 0, to: 1 };
-      const filterBase = (w: number) => `fps=${fps},scale=${w}:-1:flags=lanczos`;
+      // v1.19: 단계마다 초당 장면 수가 다를 수 있다(사다리 끝 단계만 고른 값보다 낮음)
+      let stepFps: number = fps;
+      const filterBase = (w: number) => `fps=${stepFps},scale=${w}:-1:flags=lanczos`;
       // 예전 방식: 색상표 만들기 → GIF 만들기(영상을 두 번 해석)
       const twoPass = async (w: number, colors: number) => {
         phase = { from: 0, to: 0.5 };
@@ -362,6 +366,7 @@ export default function ConverterWorkspace() {
       // v1.15: 결과가 8MiB를 넘으면 넘은 비율로 필요한 단계를 어림해 한 번에 건너뛴다(lib/gifLadder.ts).
       for (let index = 0, attempt = 0; index !== -1; attempt++) {
         const candidate = CANDIDATES[index];
+        stepFps = Math.min(fps, candidate.fps ?? fps);
         const base = Math.min(85, 10 + attempt * 25);
         setProgress(base);
         const scaledWidth = Math.max(1, Math.floor(width * candidate.scale));
@@ -379,7 +384,7 @@ export default function ConverterWorkspace() {
         ffmpeg.on("progress", handler);
         try {
           let code: number | null = null;
-          if (canSinglePass(scaledWidth, job.aspect, fps, seconds)) {
+          if (canSinglePass(scaledWidth, job.aspect, stepFps, seconds)) {
             try {
               code = await singlePass(scaledWidth, candidate.colors);
             } catch {
@@ -409,14 +414,14 @@ export default function ConverterWorkspace() {
       await ffmpeg.deleteFile("output.gif").catch(() => {});
 
       if (!outputBytes) throw new Error("변환 결과를 읽지 못했습니다.");
-      if (outputBytes.byteLength > MAX_OUTPUT_BYTES) throw new Error("8MiB 이하로 줄이지 못했습니다. 구간을 짧게 고르거나 가로폭을 줄이거나 40fps로 낮춘 뒤 ↺(재시도)를 눌러 주세요.");
+      if (outputBytes.byteLength > MAX_OUTPUT_BYTES) throw new Error("8MiB 이하로 줄이지 못했습니다(20fps까지 낮춰도 넘음). 구간을 짧게 고르거나 가로폭을 줄인 뒤 ↺(재시도)를 눌러 주세요.");
 
       const blob = new Blob([outputBytes.slice().buffer], { type: "image/gif" });
       const downloadUrl = URL.createObjectURL(blob);
       setJobs((current) =>
         current.map((j) =>
           j.id === job.id
-            ? { ...j, status: "done", progress: 100, outputSize: blob.size, downloadUrl }
+            ? { ...j, status: "done", progress: 100, outputSize: blob.size, downloadUrl, loweredFps: stepFps < fps ? stepFps : undefined }
             : j
         )
       );
@@ -626,6 +631,14 @@ export default function ConverterWorkspace() {
                           ) : (
                             <span className="text-gray-400">{STATUS_LABEL[job.status]}</span>
                           )}
+                          {job.status === "done" && job.loweredFps ? (
+                            <span
+                              className="whitespace-nowrap text-amber-300"
+                              title="8MiB에 맞추려고 초당 장면 수를 낮췄습니다(재생 길이는 그대로). 더 부드럽게 하려면 구간을 짧게 골라 다시 변환하세요."
+                            >
+                              · {job.loweredFps}fps로 낮춤
+                            </span>
+                          ) : null}
                         </div>
                       </div>
 
@@ -844,7 +857,7 @@ export default function ConverterWorkspace() {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>8MiB 지능형 사다리 자동 적용</span>
               </div>
-              결과가 8MiB를 넘으면 고른 구간 길이는 그대로 두고, 넘친 만큼 가로폭과 색상 수를 한 번에 낮춰 다시 만듭니다.
+              결과가 8MiB를 넘으면 고른 구간 길이는 그대로 두고, 넘친 만큼 가로폭과 색상 수를 한 번에 낮춰 다시 만듭니다. 그래도 넘으면 마지막으로 초당 장면 수를 25·20fps로 낮춥니다.
             </div>
 
             {/* 4. 변환 실행 버튼 */}
