@@ -18,7 +18,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `shop-detail-page` | 30일 자동 정리(`cleanup-generated`)가 지운 상품·파일 수를 회원별 `usage_logs` `cleanup_expired`로 기록(공용 `cleanup-usage-log` 사본, 관리자 「30일 자동 정리」 표) — 정리 동작 자체는 그대로, 유예 2026-11-21까지는 지우는 것이 없어 기록도 없음 | `34094c954` | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 아래 | 운영 v1.30 → v1.31, 2026-11-21 뒤 첫 정리에서 기록 1줄 확인 |
-| `music-video-studio` | 장면 영상 일괄 생성 전체 진행률·남은 시간 칸(완료·진행 중·대기·실패, 막대, 지난 시간, 끝난 장면 평균으로 남은 시간) — 화면만 | `0a7f66d7c` | 2026-10-24 · Claude Code(윈도우 · 세션 `claude-win-20261024-music`) | `music-video-studio/AGENTS.md` 맨 위 「미배포 대기」 | 주인님 결정: 백로그 3번(가로 타임라인·끌어서 순서 바꾸기)과 묶어 v1.23으로 1회 배포, 그때 영상 2개 일괄 생성으로 진행 칸 확인 |
 | `ai-image-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shorts-onestop-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shots` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
@@ -63,6 +62,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `music-video-studio` | v1.23 · 2026-10-24 (Claude Code 윈도우 · 세션 `claude-win-20261024-music`, 승인 빌드 1회, `music-video-studio-7rc77y3l5`) | 영상 일괄 생성 진행률·남은 시간 `0a7f66d7c`(장면 타임라인 `37d84b05b`과 함께, 크롬 확인) |
 | `naver-blog-seo-studio` | v2.14 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-seo-studio-ivj7tb442`) | 블로그 병합 B-1 AI 검수 6영역·필수 지적 발행 차단 `f4681176c` + B-2 문체 영구 보관(원문만 30일 정리, 주인님 A안) `a8dfacb26` + B-3 분량 선택 `bb7668dee`(대기 줄에 다른 세션 커밋 `a1c240867`로 잘못 적혔던 것을 바로잡음) |
 | `video-to-gif` | v1.21 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회, `video-to-as3vkytql`) | 내 PC 고속 변환 다듬기(새 버전 알림·최소 판 LR-M-01, 맥 Homebrew 없을 때 안내 LR-M-02, 윈도우 경고·`Unblock-File` LR-M-03, 엣지 안내 LR-W-02) `c7c2c322f` · 확장 버전 자동 맞춤 LR-W-01 — `check-extension-release` OK(DB·확장·ZIP v1.21), 운영 ZIP으로 윈도우 재설치 정상. 맥미니 크롬 「🔔 새 버전」 실검수 남음 |
 | `ai-video-studio` | v1.12 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-lgacukoyw`) | 다듬기 프롬프트 인물 추가 금지 `ffaae22b2` — 운영에서 사람 없는 설명(레코드판 홈 스튜디오) 다듬기 1회 → 3안 모두 인물 없음 확인 |
