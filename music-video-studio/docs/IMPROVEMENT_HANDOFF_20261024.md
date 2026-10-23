@@ -36,3 +36,4 @@ https://music-video-studio.buylife.xyz
 - 운영 검수: Lyria 곡에서 「가사 시각에 맞춤」 표시, 렌더 전환 15.0초(후렴 시작)로 확인. 새 곡 생성은 필요 없었습니다(기존 Lyria 곡 사용).
 - 스테이징 정리: 이 버그 수정은 공용 스테이징을 쓰지 않는 `scripts/commit-paths.mjs`로 커밋해 묵은 항목과 섞이지 않았습니다. 묵은 항목 4개(`FinalRender.tsx`·`beat.ts`·`version.ts`·`tests/music.test.mjs`) 정리는 2026-10-24 주인님 「진행해」 뒤 완료했습니다(3개는 커밋 도우미가 이미 맞춰 두었고, `beat.ts`는 내용이 HEAD와 같음을 확인한 뒤 `git reset -q HEAD -- <경로>`).
 - 남은 일: 위 「그 밖에 남은 일」 그대로(승인 전 후보).
+- 확인(2026-10-24, 영상 담당 세션): 공용 스테이징의 뮤직비디오 묵은 항목 4개는 이미 사라져 있음(`git diff --cached -- music-video-studio` 비어 있음) — 따로 정리할 일 없음. v1.20 중복 작업 안 함.
