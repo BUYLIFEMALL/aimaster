@@ -366,3 +366,12 @@
 - **배포판**: `D:\PDS\AIMater_KIT\Threads_AI_Planner_Kit_v1.01.zip`(58개 파일, 프로그램 v1.47) — 비밀값 검사·DB 대조 통과. 압축을 짧은 경로에 풀어 `npm ci` + 독립 모드 `npm run build` 통과, `next start`로 `/`→`/login`, `/auth/confirm`→`/login?confirmed=1`, `*.vercel.app` 머리글에서 이동 없음, 탭 제목 「Threads AI 기획기 | 홍길동 마케팅」, 로그인 HTML에 AIMaster·buylife 0건, 크롬 실제 창에서 회원가입 폼 확인.
 - **못 한 것**: 실제 수강생 계정(새 Supabase·Vercel)으로 마법사 설치 리허설(지침 §6, 주인님 수강생 역할 필요), 실제 AI 글 생성 1회(비용·키 필요). 클라이언트 번들에 숨긴 링크 문자열(`buylife.xyz/programs`)이 코드로는 남아 있음(화면에는 안 나옴).
 - **운영 배포**: 미배포 대기(독립 모드 전용 변경 — 운영 화면 변화 없음, 버전 올리지 않음, 다음 배포 때 함께). 운영 빌드 로컬 통과.
+
+## 2026-10-23 v1.48 이미지 자동화 모듈 — Claude Code 윈도우 · 세션 `claude-win-20261023-tep-kit`
+- **무엇**: 주인님 지시 「이미지도 함께 생성되는 버전으로, 다른 쓰레드 쪽 이미지 생성 기능을 같이 추가」. Threads 콘텐츠 운영(`threads-content-ops/lib/postImage.ts`)의 나노바나나·GPT Image 생성 방식을 옮겼다(Replicate 제외).
+- **흐름**: 생성 화면 「🖼 글과 함께 이미지 만들기」(기본 켬, 모델·비율 4:5/1:1·1~2장, 브라우저 기억) → 글이 나오면 `planImagePromptsAction`(선택한 글 AI로 영어 사진 프롬프트, 이 프로그램 고유 프롬프트 `generator.ts planImagePromptsAI`) → 장마다 `generatePlanImageAction`(회원 Gemini/OpenAI 키, 1장 110초, 재시도 없음) → 버킷 `tep-images` `<회원 id>/…` 저장 → 결과 카드 이미지 영역(다운로드·이미지 다시 만들기·이 장만 다시·프롬프트 고치기) → 보관함 저장 시 `tep_saved_plans.image_urls`(이 회원 폴더 주소만), 보관함 카드 썸네일. 30일 지난 이미지 파일은 보관함 목록을 열 때 회원별 삭제.
+- **파일**: `src/lib/ai/{imageModels,postImage,geminiImage(사본),nanoBananaModels(사본)}.ts`, `src/lib/actions/images.ts`, `src/lib/storage/imageBucket.ts`, `PlannerApp.tsx`·`SavedPlansClient.tsx`·`savedPlans.ts`(칸 없는 DB면 그 칸 빼고 재저장)·설정 안내. 공용 사본 등록 `scripts/check-shared-modules.mjs`(gemini-image-client·gemini-image-models) — **사본 직접 수정 금지**.
+- **운영 DB(ref esgxyikcnnvmlhygjkth, 주인님 승인)**: ⚠ `tep_saved_plans` 표가 운영에 **없었다**(0001 SQL 미적용 → 그동안 보관함은 브라우저에만 저장). 표·정책 4개·`image_urls`·버킷 `tep-images`(공개 읽기, 12MB, png/jpeg/webp) 생성 — `supabase/migrations/20261023_tep_images_v1_48.sql`.
+- **배포**: v1.48 Ready(빌드 1회), DB `programs.version` v1.48. 앞의 독립 모드 스위치(미배포 대기분)도 함께 나감.
+- **검수(크롬 실제 창, 시험 계정 buylifemall@naver.com 본인 키)**: GPT-4o-mini + NanoBanana 1K로 「세탁조 클리너」 → 글 생성 직후 이미지 자동 생성(실사·글자 없음·4:5) → 보관함 저장 → 보관함 썸네일, 로컬 캐시 확인 결과 DB id(uuid)·이미지 주소 운영 저장소. 못 한 것: OpenAI GPT Image 실생성, 2장 생성, 휴대폰 폭 화면.
+- **배포판**: `D:\PDS\AIMater_KIT\Threads_AI_Planner_Kit_v1.02.zip`(65개 파일) — `KIT/schema.sql`에 칸·버킷, v1.01 설치자용 `KIT/upgrade-20261023-images.sql`, README·PLATFORMS·PROMPTS(9장 이미지 프롬프트) 갱신. 비밀값·DB 대조(버킷 포함) 통과, 짧은 경로 독립 모드 `npm ci`+`build` 통과.
