@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 잠금 증거 파일 크기 제한·짧은 경로·Codex/agy 시작 점검 지침 (세션 claude-win-lessons)
+- 한 일: `scripts/index-watch.mjs`(`72551b09a`) ① `.git/aimaster-lock-evidence.txt` 잠금 기록이 100건을 넘으면 최근 50건만 남김 ② 경고 문장의 경로를 저장소 기준(`.git/…`)으로 짧게. 루트 `AGENTS.md`·`GEMINI.md` 맨 위 저장소 안전 규칙에 ⑥ 「작업 시작 때 `node scripts/index-watch.mjs session-check` 1번」 추가(`2445b3552`, 주인님 승인).
+- 검수: 임시 저장소에서 증거 102건 → 50건(새 증거 포함), 짧은 경로 표시 확인, 기존 시험 16개 통과.
+- 배포: 없음. 비용: 없음. 남은 일: Codex·agy가 실제로 시작 점검을 하는지 다음 세션 기록(`.git/aimaster-index-log.txt`의 `session-check` 줄, 장비별)으로 확인.
+
 ## 2026-10-23 Claude Code(윈도우) — 세션 시작 블랙박스·잠금 증거 요약·도우미 묵은 항목 안내 (세션 claude-win-lessons)
 - 한 일(`c52eec9ab`): ① `scripts/cloud-session-start.mjs`(저장소 공용 SessionStart 훅) 로컬 세션마다 `index-watch.mjs claude-session-start --quiet --warn-lock` — 윈도우·맥미니 Claude Code 모두 그 장비 프로세스가 잠금 증거에 남고, 잠금·증거·묵은 항목 경고가 있으면 세션 첫머리에 표시(없으면 출력 없음) ② 세션 시작 점검에 「[공용 스테이징 잠금 증거]」 한 줄(지금 잠금 있으면 ⚠, 없으면 24시간 안 것만 참고) ③ `safe-commit.mjs`·`commit-paths.mjs` 시작 때 묵은 항목 「ℹ 안내」(막지 않음). `--stale-only`는 축소 감지 뒤로 옮김.
 - 검수: 임시 저장소에서 잠금 8분·묵은 항목 7개로 세 기능 확인, 기존 시험 16개 통과. 맥미니 실제 세션 시작은 미확인(맥미니 Claude Code 새 세션 첫머리에서 확인).
