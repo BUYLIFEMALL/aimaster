@@ -8,6 +8,7 @@ import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync, utimesSync
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertScratchRepo } from "./assert-scratch-repo.mjs"; // 실제 저장소에서 시험이 돌면 즉시 실패(2026-10-23 시험 커밋 사고 재발 방지)
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -17,6 +18,7 @@ function repo(fileCount = 0) {
   for (const f of ["commit-paths.mjs", "check-index-health.mjs"]) copyFileSync(join(HERE, f), join(dir, "scripts", f));
   const git = (...a) => execFileSync("git", a, { cwd: dir, encoding: "utf8" });
   git("init", "-q");
+  assertScratchRepo(dir); // git이 보는 최상위가 임시 폴더인지 — 아니면 여기서 멈춤
   git("config", "user.email", "t@t"); git("config", "user.name", "t"); git("config", "core.autocrlf", "false");
   mkdirSync(join(dir, "bulk"));
   for (let i = 0; i < fileCount; i++) writeFileSync(join(dir, "bulk", `f${i}.txt`), `${i}\n`);
