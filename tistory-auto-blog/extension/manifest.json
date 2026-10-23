@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "티스토리 포스팅 자동화 · AIMaster",
-  "version": "1.90.0",
-  "version_name": "v1.90",
+  "version": "1.91.0",
+  "version_name": "v1.91",
   "description": "본인 원고를 티스토리 새 글에 입력하고, 자동 포스팅 선택 시 마지막 발행과 실제 게시 URL 기록까지 진행합니다. 입력 준비 조작도 지원합니다.",
   "minimum_chrome_version": "120",
   "permissions": [
