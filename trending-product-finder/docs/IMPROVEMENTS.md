@@ -33,7 +33,7 @@
 - ✅ (같은 v1.23 추가) 마진 계산기의 추천판매가를 선택적으로 상세페이지 「정상가」로 넘김(체크칸, 기본 켜짐). 할인가로는 넘기지 않음.
 
 ## 2026-10-23 ✅ 배포됨(v1.24, 2026-10-23 14:04 보안 업데이트 배포에 함께) — 정리 기록 · Claude Code(윈도우), 커밋 `af9b2719c` · `05902a01d`
-- 남은 확인: 다음 정리(매일 03:50 KST) 뒤 관리자 「30일 자동 정리」 표에 이 프로그램 줄이 생기는지.
+- ✅ 확인(2026-10-24, Claude Code 맥미니 — 운영 DB 읽기): 10-24 03:50 KST 정리 실행 뒤 `usage_logs` `cleanup_expired` 기록 1줄(`reports 1·snapshots 4`, 2026-10-23T18:50:19Z) — 관리자 「30일 자동 정리」 표에 나타나는 원본 기록.
 - 생성 데이터 30일 정리(`cleanup-generated`)가 지운 행의 user_id로 회원별 `cleanup_expired`(reports·snapshots·competition) 기록 — 공용 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
 
