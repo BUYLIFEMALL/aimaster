@@ -168,7 +168,8 @@ try {
         const body = readFileSync(aw, "utf8").split(/^## 작업 중\s*$/m)[1] ?? "";
         const tableRows = body.split("\n").filter((l) => l.startsWith("|") && !/^\|\s*(폴더|-{3})/.test(l))
           .map((l) => l.split("|").map((c) => c.trim())).filter((c) => c.length > 3)
-          .map((c) => ({ folders: (c[1].match(/`([^`]+)`/g) ?? []).map((f) => f.replace(/`/g, "").replace(/\/$/, "")), folder: c[1].replace(/`/g, "").split("·")[0].trim().slice(0, 40), name: (c[2].match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1], start: (c[3].match(/\d{4}-\d\d-\d\d/) ?? [])[0] }));
+          // 범위(2026-10-23, docs/ACTIVE_WORK.md 사용법 2): 폴더 칸 끝 「(범위: a·b/c)」 = 폴더 안 경로만 맡음 → 그 밖 파일 수정은 겹침이 아님
+          .map((c) => ({ scope: ((c[1].match(/범위:\s*([^)]*)\)/) ?? [])[1] ?? "").split("·").map((s) => s.replace(/`/g, "").trim().replace(/^\.\//, "").replace(/\/$/, "")).filter(Boolean), folders: (c[1].replace(/\(범위:[^)]*\)/, "").match(/`([^`]+)`/g) ?? []).map((f) => f.replace(/`/g, "").replace(/\/$/, "")), folder: c[1].replace(/`/g, "").split("·")[0].trim().slice(0, 40), name: (c[2].match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1], start: (c[3].match(/\d{4}-\d\d-\d\d/) ?? [])[0] }));
         const noName = tableRows.filter((r) => !r.name).map((r) => r.folder);
         if (noName.length) console.log(`⚠ [작업 중 표 세션 이름 없음] ${noName.length}줄: ${noName.slice(0, 3).join(", ")}${noName.length > 3 ? ` 외 ${noName.length - 3}줄` : ""} — 「에이전트(장비)」 칸에 \`세션 <CLI>-<장비>-<날짜>-<작업>\`을 넣어야 다른 세션이 찾아 물을 수 있음(docs/ACTIVE_WORK.md 사용법 2)`);
         // 끝났는데 줄을 안 지운 듯한 세션(2026-10-23): 시작이 하루 넘게 지났고, 24시간 안에 그 이름의 블랙박스 기록·커밋이 하나도 없음 — 지우지 말고 주인님께(사용법 4)
@@ -188,8 +189,10 @@ try {
           for (const r of tableRows.filter((x) => x.name)) for (const c of commits) {
             if (c.who === r.name) continue;
             // 그 폴더의 docs/(인수인계·개선 목록)만 고친 커밋은 빼고 코드·설정 등만 본다 — 문서 정리는 다른 세션이 자주 함(첫 실측: 맥미니 세션의 IMPROVEMENTS.md 정리)
-            const hit = r.folders.find((f) => c.files.some((p) => (p === f || p.startsWith(`${f}/`)) && !p.startsWith(`${f}/docs/`)));
-            if (hit) clash.push(`${hit}/ ← ${c.who}(${c.hash}, 표의 세션 ${r.name})`);
+            const inScope = (f, p) => !r.scope.length || r.scope.some((s) => p.slice(f.length + 1) === s || p.slice(f.length + 1).startsWith(`${s}/`));
+            const hits = c.files.filter((p) => r.folders.some((f) => (p === f || p.startsWith(`${f}/`)) && !p.startsWith(`${f}/docs/`) && inScope(f, p)));
+            // 바꾼 파일 1~2개를 함께 — 코드인지 설정인지 바로 판단(2026-10-23)
+            if (hits.length) clash.push(`${hits.slice(0, 2).join("·")}${hits.length > 2 ? ` 외 ${hits.length - 2}개` : ""} ← ${c.who}(${c.hash}, 표의 세션 ${r.name}${r.scope.length ? ", 범위 안" : ""})`);
           }
           if (clash.length) console.log(`⚠ [작업 중 폴더를 다른 세션이 고침] ${clash.length}건: ${clash.slice(0, 3).join(" · ")}${clash.length > 3 ? ` 외 ${clash.length - 3}건` : ""} — 같은 폴더 동시 작업인지 두 세션에 확인(주인님 승인으로 넘겨받은 경우면 표의 줄을 고칠 것)`);
         } catch { /* 무시 */ }
