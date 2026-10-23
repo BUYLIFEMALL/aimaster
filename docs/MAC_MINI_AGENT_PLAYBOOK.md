@@ -80,7 +80,7 @@
 여러 CLI가 두 PC에서 **같은 Git 인덱스**를 쓰므로 `git add .`·`git commit -a`·`git stash`·`git reset`·`git checkout -- .` 은 금지. 이 스크립트를 쓴다.
 
 > **권장(2026-10-23~, 윈도우와 같은 방식)**: 일반 파일은 `node scripts/commit-paths.mjs "<메시지>" <경로>... --push`, 공용 문서는 `node scripts/safe-commit.mjs`(→ `docs/CLI_COLLABORATION_RULES.md` 9번). `commit-paths`는 최신 HEAD에서 시작한 **임시 스테이징**으로 커밋해 공용 인덱스를 읽지 않고(새 파일·삭제·폴더·이미지 가능), 대량 삭제 검사를 직접 돌리며, 공용 인덱스가 정상일 때만 내 경로를 맞춘다. 아래 `commit-gate.sh`는 공용 인덱스를 직접 쓰므로 대안으로만. 2026-10-23 공용 스테이징이 두 번 비워졌다(`docs/ERROR_LESSONS.md`) — 모든 도우미·훅이 `.git/aimaster-index-log.txt`에 장비 이름과 함께 기록하므로, 맥미니에서 돈 것도 구분된다.
-> **맥미니 첫 확인(비용 없음, 공유 저장소 안 건드림 — 맥 임시 폴더에서 돌아감)**: `node --test scripts/commit-paths.test.mjs scripts/safe-commit.test.mjs` → `pass 10`이면 맥에서도 정상. 그리고 `sh -x .git/hooks/pre-commit 2>&1 | head -3`으로 훅이 `node`를 찾는지(못 찾으면 검사가 조용히 건너뜀).
+> **맥미니 첫 확인(비용 없음, 공유 저장소 안 건드림 — 맥 임시 폴더에서 돌아감)**: `node --test scripts/commit-paths.test.mjs scripts/safe-commit.test.mjs` → `pass 9`·`fail 0`이면 맥에서도 정상. 그리고 `sh -x .git/hooks/pre-commit 2>&1 | head -3`으로 훅이 `node`를 찾는지(못 찾으면 검사가 조용히 건너뜀).
 
 ```zsh
 # 내 파일만 커밋 + 공용 문서는 「HEAD + 내 변경」만 올림
