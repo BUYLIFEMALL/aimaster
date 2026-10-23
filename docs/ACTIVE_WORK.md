@@ -18,6 +18,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `tistory-auto-blog/` (시험만, 코드 변경 없음) | Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg` | 2026-10-23 | ⑩ GPT-4.1 분량 확인 글 1건 생성(시험 계정 본인 키, 승인됨, 발행 안 함) |
 | `naver-blog-agent/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-nba-v213` | 2026-10-23 | v2.13 배포(대기 `f1aabf2a2`, 빌드 1회 승인) → 다음 확인점: 정리 작업 dry-run에서 복사본이 원래 날짜로 판정 |
 | `ai-music-studio/` + `shorts-onestop-studio/` + `music-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-bgm` | 2026-10-23 | 곡 링크에 곡 번호(`?ams=`) — 받는 쪽 자동 선택(작은 수정, 미배포 대기 → 배포는 주인님 승인 후) |
 | `instagram-comment-reply/` · `threads-comment-reply/` · `youtube-auto-reply/` · `comment-inbox/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-collect-status` | 2026-10-23 | 자동 수집 상태 보기(다음 확인 예정·실행 방식 바로가기·받은편지함 카드), 플랜 `comment-inbox/docs/PLAN_20261023_AUTO_COLLECT_STATUS.md` · 미배포 대기(빌드 없음) |
