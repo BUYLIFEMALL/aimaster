@@ -249,3 +249,4 @@
 - 바꾼 것: 새 `lib/imageOptions.ts` · `lib/ai/nanoBanana.ts` · `app/api/images/generate`·`regenerate-content`(값·참고 사진 검사, 400) · 새 `components/studio/ImageOptionsPanel.tsx` · `useStudio.ts`·`TitleView.tsx` · 새 시험 `tests/image-options.test.mjs`(4).
 - 실측 2회(시험 계정 본인 Gemini 키, gemini-nano-banana-2.1, 저장 안 함 — 결과는 세션 임시 폴더): ① 1:1·정보 카드 → 2048×2048 ✅ 그러나 **실사 사진으로 나옴**(기본 프롬프트의 photorealistic이 우선) → 사진이 아닌 방식(정보 카드·일러스트)은 photorealistic·documentary 문구를 빼고 방식을 맨 앞에 두도록 수정(시험 고정, **재실측은 승인 범위 밖이라 안 함**) ② 참고 사진(시험 계정 옛 대표 이미지: 사무실 회의)+4:3 → 2400×1792 ✅, 얼굴·글자 복제 없음 ✅, 다만 주제가 강해 참고 사진 분위기는 거의 반영 안 됨.
 - 시험 16종 통과.
+- 재실측 1회(2026-10-24, 주인님 「1번 하고 배포해」): 고친 뒤 1:1·정보 카드 → 2048×2048, **평면 정보 카드형 일러스트로 나옴** ✅(체크 아이콘, 읽을 수 있는 글자 없음).
