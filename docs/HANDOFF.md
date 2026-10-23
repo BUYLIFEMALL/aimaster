@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 세션 전체 인수인계: 메인 사이트 링크 정정 6/7·주소 점검 도구·작업 중 표 45개 정리 (세션 claude-win-20261023-mainsite-url)
+- 전체 문서: [`docs/HANDOFF_CLAUDE_SESSION_2026-10-23_MAINSITE_URL.md`](HANDOFF_CLAUDE_SESSION_2026-10-23_MAINSITE_URL.md) — 이어받을 일·오늘 한 일·만든 도구·주의점을 한곳에.
+- **이어받을 일**: `detail-page-12p` 링크 정정 반영 확인 1곳(보안 세션 중간 종료 — 그 배포를 이어받는 세션이 배포하면 `node scripts/check-app-urls.mjs detail-page-12p --live` → PENDING 1줄·IMPROVEMENTS 표시 정리). 맥미니 훅 설치, 블로그 전담 세션 이미지 확인.
+- 도구: `check-app-urls.mjs <slug> --live/--json`(배포 반영 확인), `deploy.mjs` 배포 뒤 「내보낸 기록으로 옮길 줄」 표시(`804ebed90`). 작업 중 표 보안 세션 줄에서 끝난 45개 폴더 뺌(`b01eddb4a`, 주인님 지시).
+- 배포: 이번 마무리 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 45/49 배포·동시 빌드 추가 구매 62개 끄기 (세션 claude-win-20261023-next-security, **중간 종료 — 이어받기 필요**)
 - 한 일: 16.x→`next@16.4.2`, 15.5.27→`15.5.28` 45개 한 번에 하나씩 배포 Ready·DB 버전 맞춤. Vercel 동시 빌드 추가 구매가 **62개 프로젝트에서 켜져 있던 것**을 주인님 승인으로 모두 끔(`a165684ea`·`d9457e6ca`, 백업 `docs/evidence/vercel-odcb-backup-20261023.json`).
 - **이어받을 일**: 남은 4개(detail-page-12p v1.11 — 커밋 `f9a3fcefe`·배포 진행 중이었음 / ebook-studio v1.12·ghost-scraper v1.14·infinite-loop-video v1.06 — 미커밋, 버전 이미 올라가 있음) 확인·배포 → 푸시 한 번 → 문서 마무리. 순서·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY.md`](HANDOFF_20261023_NEXTJS_SECURITY.md) 3번.
