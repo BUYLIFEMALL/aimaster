@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 잠금 증거 기록·묵은 항목 표시 정리·맥미니 검사 연동 (세션 claude-win-lessons)
+- 한 일(`5b6329c9d`): `scripts/index-watch.mjs` ① `.git/index.lock` 5분 초과 시 잠금당 한 번 `.git/aimaster-lock-evidence.txt`에 잠금 생성 ±2분 기록 줄 + 그 장비 git·관련 프로세스(시작 시각·명령줄 300자) ② 묵은 항목 요약은 앞 5개 + 「외 N개」, 정리 명령은 다음 줄에 전체 파일로 ③ `--stale-only` 모드(있으면 종료 코드 3). `scripts/mac-mini/commit-gate.sh`가 pull 뒤 이 검사로 멈추고 정리 명령 안내(자동 정리 안 함).
+- 검수: 저장소 밖 임시 저장소에서 묵은 항목 7개·10분 묵은 잠금을 만들어 감지·증거 1회 기록 확인, 기존 시험 16개 통과, `bash -n` 통과. 맥미니 실제 실행은 미확인(다음 맥미니 커밋 때 확인).
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — 쇼츠 Lyria·ElevenLabs 배경음악 곡 길이 표시(미배포 대기)
 - Lyria는 길이를 주지 않아 트랙에 「OO초」가 없던 문제: `shots/src/lib/audioDuration.ts`(MP3 첫 프레임 비트레이트·Xing 프레임 수, WAV fmt/data 청크로 계산, 못 읽으면 null)를 `generateSyncBackgroundMusic`에 연결(ElevenLabs도 요청 길이 대신 실제 길이). 시험 9개(새 5개)·tsc·build 통과, 커밋 `35bcd8a03`. **배포: 미배포 대기(작은 수정)**. 실제 Lyria 파일로는 다음 배포 때 확인.
 - 비용 없음.
