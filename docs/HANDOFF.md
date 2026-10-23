@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 공용 스크립트 일반 커밋 차단 장치 · 훅 설치 스크립트 정정 (세션 `claude-win-20261023-script-guard`·`…-hook-installer`)
+- pre-commit 훅이 공용 스크립트(`check-shared-doc-reverts.mjs`의 `SHARED_SCRIPTS`: deploy·safe-commit·pending-check·check-* 등)를 일반 `git commit`으로 올리면 막는다(`--block-scripts`). 안전 커밋 도우미는 훅을 거치지 않아 막히지 않음. 혼자 고친 것을 확인한 경우만 `AIMASTER_SHARED_SCRIPT_OK=1`. 커밋 `b9d3d4094`. 시험(임시 인덱스): 공용 스크립트 차단·확인 변수 통과·일반 파일 통과·훅 전체 동작 확인.
+- 설치 스크립트가 pre-commit 머리말 「커밋 직전 검사」(새)·「커밋 직전 알림」(옛)을 모두 알아보게 고침 — 옛 글자만 보다가 교체를 거부했었음. 이 PC 설치본 갱신 완료. **다른 장비(맥미니)는 `node scripts/git-hooks/install.mjs` 한 번 실행 필요.**
+- 알림: 오전 이 세션이 대량 삭제 검사를 넣을 때 훅의 `|| exit 0` 자리에 잘못 끼워 모든 검사가 돌지 않던 버그는 다른 세션이 고쳤음(고마움). 13:28~29 공용 스테이징 축소는 다른 세션이 승인 뒤 복구·기록(`docs/ERROR_LESSONS.md` 맨 위).
+- 비용 없음.
+
 ## 2026-10-23 — Claude Code(윈도우, 웨일) · 블로그 전담 세션 `claude-win-20261023-seo-bg`: 다른 세션 이미지 이관 인계 처리 + 블로그 6곳 30일 정리 기록 (미배포, 비용 없음)
 
 - **블로그 전담 지정(주인님):** 블로그 8개 프로그램은 이 세션이 맡는다. 다른 세션이 손댄 것은 인수인계 문서로 넘겨받아 이어서 처리.
