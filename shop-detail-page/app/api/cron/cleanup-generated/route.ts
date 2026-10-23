@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SHOP_IMAGE_BUCKET, storagePathFromUrl } from "@/lib/imageSrc";
 import { isInRetentionGrace, retentionCutoff, RETENTION_DAYS, RETENTION_GRACE_END } from "@/lib/retention";
+import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -66,6 +67,8 @@ export async function GET(request: NextRequest) {
   let productsDeleted = 0;
   let filesDeleted = 0;
   let orphanFilesDeleted = 0;
+  // v1.31: 회원별 정리 기록(공용 cleanup-usage-log) — 관리자 「30일 자동 정리」 표에 나온다. products=지운 상품, images=지운 파일
+  const counts: CleanupCounts = new Map();
 
   // ① 만료 상품
   const { data: expired, error: expiredError } = await admin
@@ -91,6 +94,8 @@ export async function GET(request: NextRequest) {
       if (error) throw new Error(error.message);
       productsDeleted += 1;
       filesDeleted += paths.size;
+      addCleanupCount(counts, p.user_id, "products");
+      addCleanupCount(counts, p.user_id, "images", paths.size);
     } catch (err) {
       errors.push(err instanceof Error ? err.message : String(err));
     }
@@ -133,12 +138,15 @@ export async function GET(request: NextRequest) {
       }
       await removePaths(admin, stale);
       orphanFilesDeleted += stale.length;
+      for (const path of stale) addCleanupCount(counts, ownerFromPath(path), "images");
     }
   } catch (err) {
     errors.push(err instanceof Error ? err.message : String(err));
   }
 
-  const result = { cutoff, retentionDays: RETENTION_DAYS, productsDeleted, filesDeleted, orphanFilesDeleted };
+  // 기록이 실패해도 정리 결과는 그대로(공용 코드가 오류 로그만 남김)
+  const membersLogged = await logCleanupUsage(admin, "shop-detail-page", counts);
+  const result = { cutoff, retentionDays: RETENTION_DAYS, productsDeleted, filesDeleted, orphanFilesDeleted, membersLogged };
   console.log("[cleanup-generated]", JSON.stringify(result), errors.length ? `errors=${errors.length}` : "");
   if (errors.length) return NextResponse.json({ ...result, errors }, { status: 500 });
   return NextResponse.json(result);

@@ -437,6 +437,8 @@ const MODULES = [
       "trending-product-finder/lib/cleanupUsageLog.ts",
       "youtube-auto-reply/lib/cleanupUsageLog.ts",
       "real_estate_sales/src/lib/cleanupUsageLog.ts",
+      // 2026-10-24 상세페이지 30일 정리(맥미니 이커머스 담당)
+      "shop-detail-page/lib/cleanupUsageLog.ts",
       "threads/src/lib/cleanupUsageLog.ts",
       "ai-music-studio/lib/cleanupUsageLog.ts",
       // 블로그 6곳 — 2026-10-23 블로그 전담 세션(claude-win-20261023-seo-bg)
