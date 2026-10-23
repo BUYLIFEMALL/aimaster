@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 세션 시작 블랙박스·잠금 증거 요약·도우미 묵은 항목 안내 (세션 claude-win-lessons)
+- 한 일(`c52eec9ab`): ① `scripts/cloud-session-start.mjs`(저장소 공용 SessionStart 훅) 로컬 세션마다 `index-watch.mjs claude-session-start --quiet --warn-lock` — 윈도우·맥미니 Claude Code 모두 그 장비 프로세스가 잠금 증거에 남고, 잠금·증거·묵은 항목 경고가 있으면 세션 첫머리에 표시(없으면 출력 없음) ② 세션 시작 점검에 「[공용 스테이징 잠금 증거]」 한 줄(지금 잠금 있으면 ⚠, 없으면 24시간 안 것만 참고) ③ `safe-commit.mjs`·`commit-paths.mjs` 시작 때 묵은 항목 「ℹ 안내」(막지 않음). `--stale-only`는 축소 감지 뒤로 옮김.
+- 검수: 임시 저장소에서 잠금 8분·묵은 항목 7개로 세 기능 확인, 기존 시험 16개 통과. 맥미니 실제 세션 시작은 미확인(맥미니 Claude Code 새 세션 첫머리에서 확인).
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — 원스톱 v1.40 배포(대본 고르기) · 쇼츠 v1.42 배포 보류
 - 주인님 「3·4번 배포해」. 원스톱 v1.40 배포 `shorts-onestop-studio-pwtwc3h77` Ready·DB v1.40 — 크롬 시험 회원(대본 20개)에서 곡 링크로 들어가니 바로 넣지 않고 「AI 음악 스튜디오에서 보낸 곡이 있습니다… 지금 대본」 안내·「이 대본에 넣기/넣지 않기」 확인.
 - 쇼츠 v1.42(곡 길이 표시 `35bcd8a03`): `deploy.mjs`가 「다른 세션이 작업 중인 폴더」로 막음 — `claude-win-20261023-next-security` 줄에 `shots/`가 남아 있음(그 세션의 쇼츠 보안 업데이트 v1.41은 15:55에 끝남). **배포 안 함**. 잘못 실행한 `--set-version`이 DB를 v1.42로 올렸던 것을 즉시 v1.41로 되돌림(코드 `version.ts`·`package.json`은 v1.42로 커밋됨 — 다음 쇼츠 배포 때 그대로 v1.42).
