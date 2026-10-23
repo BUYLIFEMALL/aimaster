@@ -5,7 +5,7 @@
 //       node scripts/deploy.mjs <폴더> --version-only   배포 없이 화면 버전(APP_VERSION)과 DB programs.version 비교만
 //       … --set-version   위 비교에서 다르면 운영 DB programs.version을 화면 버전으로 고침(이 옵션이 있을 때만 DB 쓰기)
 //       node scripts/deploy.mjs --version-only --all   연결된 모든 프로그램 비교, 어긋난 곳만 보고(DB 안 고침) — 세션 시작 때 1회
-//       … --all --fix-map   역량 지도 목록 표의 버전 칸만 DB 운영 버전으로 고침(카드 내용은 안 건드림)
+//       … --all --fix-map   프로그램 비교표 목록 표의 버전 칸만 DB 운영 버전으로 고침(카드 내용은 안 건드림)
 // --go가 끝나면 pending-check --publish로 관리자 첫 화면 숫자(미배포 대기·정리 기록 진행률)도 갱신한다.
 // 배포는 비용이므로 --go는 주인님 승인 범위 안에서만 쓴다(CLAUDE.md 비용 사전 보고). 루트(메인 사이트)는 GitHub 푸시 자동 빌드라 대상이 아니다.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -61,7 +61,7 @@ if (versionOnly && args.includes("--all")) {
   if (off.length) console.log("  맞추기(폴더 하나씩, 그 폴더를 맡은 세션이 없을 때만): node scripts/deploy.mjs <폴더> --version-only --set-version");
   if (skipped.length) console.log(`  건너뜀: ${skipped.join(", ")}`);
 
-  // 역량 지도(docs/PROGRAM_CAPABILITY_MAP.md) 목록 표의 버전 칸 ↔ DB 운영 버전(지도 갱신 누락 찾기)
+  // 프로그램 비교표(docs/PROGRAM_CAPABILITY_MAP.md) 목록 표의 버전 칸 ↔ DB 운영 버전(지도 갱신 누락 찾기)
   const map = readFileSync(join(ROOT, "docs", "PROGRAM_CAPABILITY_MAP.md"), "utf8").replace(/\r\n/g, "\n");
   const mapOff = [];
   let mapRows = 0;
@@ -70,17 +70,17 @@ if (versionOnly && args.includes("--all")) {
     const row = programs.find((p) => p.slug === m[1]);
     if (row && row.version && row.version !== m[2]) mapOff.push(`  ⚠ ${m[1]}: 지도 ${m[2]} · DB ${row.version}`);
   }
-  console.log(`[역량 지도 버전 칸] 목록 ${mapRows}줄 · DB와 다름 ${mapOff.length}개`);
+  console.log(`[프로그램 비교표 버전 칸] 목록 ${mapRows}줄 · DB와 다름 ${mapOff.length}개`);
   for (const l of mapOff) console.log(l);
 
   // 지도 카드(#### 이름 (`slug`)) 「주소·폴더:」의 첫 주소 ↔ DB programs.app_url (옛 vercel.app 주소 찾기, 2026-10-23)
   const addrOff = [];
-  for (const m of map.matchAll(/^#### [^\n]*\(`([^`]+)`\)\n- 주소·폴더: (https?:\/\/[^\s·]+)/gm)) {
+  for (const m of map.matchAll(/^#### [^\n]*\(`([^`]+)`\)\r?\n(?:(?!#### )[^\n]*\r?\n)*?- 주소·폴더: (https?:\/\/[^\s·]+)/gm)) {
     const row = programs.find((p) => p.slug === m[1]);
     const dbUrl = (row?.app_url ?? "").replace(/\/+$/, "");
     if (dbUrl && m[2].replace(/\/+$/, "") !== dbUrl) addrOff.push({ slug: m[1], card: m[2], db: dbUrl });
   }
-  console.log(`[역량 지도 카드 주소] DB app_url과 다름 ${addrOff.length}개`);
+  console.log(`[프로그램 비교표 카드 주소] DB app_url과 다름 ${addrOff.length}개`);
   for (const a of addrOff) console.log(`  ⚠ ${a.slug}: 카드 ${a.card} · DB ${a.db}`);
   // --fix-map: 목록 표의 버전 칸만 DB 운영 버전으로(카드·다른 칸은 그대로). 읽기 → 바꾸기 → 줄 수·길이 확인 → 쓰기
   if (args.includes("--fix-map") && (mapOff.length || addrOff.length)) {
@@ -106,17 +106,17 @@ if (versionOnly && args.includes("--all")) {
       process.exit(1);
     }
     writeFileSync(file, out);
-    console.log(`✔ 역량 지도 버전 칸 ${fixed}개를 DB 운영 버전으로 고침(docs/PROGRAM_CAPABILITY_MAP.md — 커밋은 따로)`);
+    console.log(`✔ 프로그램 비교표 버전 칸 ${fixed}개를 DB 운영 버전으로 고침(docs/PROGRAM_CAPABILITY_MAP.md — 커밋은 따로)`);
   }
 
   // 지도 카드 본문 버전(「주소·폴더: … · `폴더/` · vX.YY」) ↔ 그 폴더 화면 버전 — 5단계 이상 뒤처진 카드는 내용 갱신 필요, 10단계 이상은 ⚠로 맨 위 요약에도(보고만, 글은 안 고침, 2026-10-23)
   const num = (v) => { const m = /^v(\d+)\.(\d{2})$/.exec(v ?? ""); return m ? Number(m[1]) * 100 + Number(m[2]) : null; };
   const stale = [];
-  for (const m of map.matchAll(/^#### [^\n]*\(`([^`]+)`\)\n- 주소·폴더: [^\n]*?`([^`]+?)\/?` · (v\d+\.\d{2})/gm)) {
+  for (const m of map.matchAll(/^#### [^\n]*\(`([^`]+)`\)\r?\n(?:(?!#### )[^\n]*\r?\n)*?- 주소·폴더: [^\n]*?`([^`]+?)\/?` · (v\d+\.\d{2})/gm)) {
     const now = appVersion(m[2]);
     if (num(now) !== null && num(m[3]) !== null && num(now) - num(m[3]) >= 5) stale.push(`  ${num(now) - num(m[3]) >= 10 ? "⚠" : "•"} ${m[1]}: 카드 ${m[3]} · 지금 ${now} (${m[2]}/AGENTS.md 버전 기록 보고 카드의 장점·단점·최근 추가 갱신)`);
   }
-  console.log(`[역량 지도 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개 (10단계 이상 ⚠ ${stale.filter((l) => l.startsWith("  ⚠")).length}개)`);
+  console.log(`[프로그램 비교표 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개 (10단계 이상 ⚠ ${stale.filter((l) => l.startsWith("  ⚠")).length}개)`);
   for (const l of stale) console.log(l);
 
   // 메인 사이트 — 다음 메인 빌드 때 할 일(docs/PENDING_DEPLOYS.md, 코드 미작성) — 메인 빌드 때 한곳에서 보고 묶기(2026-10-23)
@@ -261,24 +261,25 @@ async function syncVersion() {
   return { slug, ver, db: after?.version ?? dbVer };
 }
 
-/** 역량 지도에서 이 프로그램 한 줄만 새 버전으로: 목록 표 버전 칸 + 카드 「주소·폴더: … · vX.YY」(DB가 화면 버전과 같을 때만, 2026-10-23) */
+/** 프로그램 비교표에서 이 프로그램 한 줄만 새 버전으로: 목록 표 버전 칸 + 카드 「주소·폴더: … · vX.YY」(DB가 화면 버전과 같을 때만, 2026-10-23) */
 function fixMapRow(slug, ver) {
   const file = join(ROOT, "docs", "PROGRAM_CAPABILITY_MAP.md");
   const raw = readFileSync(file, "utf8");
   const esc = slug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   let n = 0;
   let out = raw.replace(new RegExp("^(\\| \\d+ \\| [^|]+\\| `" + esc + "` \\|[^|]+\\| )(v\\d+\\.\\d{2})( \\|)", "m"), (all, a, v, b) => (v === ver ? all : (n++, a + ver + b)));
-  out = out.replace(new RegExp("^(#### [^\\n]*\\(`" + esc + "`\\)\\r?\\n- 주소·폴더: [^\\n]*?` · )(v\\d+\\.\\d{2})", "m"), (all, a, v) => (v === ver ? all : (n++, a + ver)));
-  if (!n) { console.log(`  역량 지도 ${slug}: 이미 ${ver}(또는 줄 없음) — 고칠 것 없음`); return; }
-  if (out.split("\n").length !== raw.split("\n").length) { console.log("  ✖ 역량 지도 고치기 중단 — 줄 수가 달라짐(파일 그대로)"); return; }
+  // 제목과 「주소·폴더」 줄 사이에 메모 줄이 끼어 있어도 찾는다(music 카드에서 놓치던 문제, 2026-10-23)
+  out = out.replace(new RegExp("^(#### [^\\n]*\\(`" + esc + "`\\)\\r?\\n(?:(?!#### )[^\\n]*\\r?\\n)*?- 주소·폴더: [^\\n]*?` · )(v\\d+\\.\\d{2})", "m"), (all, a, v) => (v === ver ? all : (n++, a + ver)));
+  if (!n) { console.log(`  프로그램 비교표 ${slug}: 이미 ${ver}(또는 줄 없음) — 고칠 것 없음`); return; }
+  if (out.split("\n").length !== raw.split("\n").length) { console.log("  ✖ 프로그램 비교표 고치기 중단 — 줄 수가 달라짐(파일 그대로)"); return; }
   writeFileSync(file, out);
-  console.log(`  ✔ 역량 지도 ${slug}: ${n}곳을 ${ver}로(목록 표 버전 칸·카드 버전) — 아래 도우미 커밋에 함께`);
+  console.log(`  ✔ 프로그램 비교표 ${slug}: ${n}곳을 ${ver}로(목록 표 버전 칸·카드 버전) — 아래 도우미 커밋에 함께`);
 }
 
 if (versionOnly) {
   console.log(`\n[버전] ${folder}`);
   const vr = await syncVersion();
-  // 배포 뒤 --set-version으로 DB를 맞춘 경우에도 역량 지도 한 줄을 함께 고친다(배포 때는 DB가 아직 옛 버전이라 건너뛰던 빈틈, 2026-10-23)
+  // 배포 뒤 --set-version으로 DB를 맞춘 경우에도 프로그램 비교표 한 줄을 함께 고친다(배포 때는 DB가 아직 옛 버전이라 건너뛰던 빈틈, 2026-10-23)
   if (setVersion && vr && vr.db === vr.ver) fixMapRow(vr.slug, vr.ver);
   process.exit(0);
 }
@@ -335,7 +336,7 @@ else {
 }
 console.log("\n[버전]");
 const vr = await syncVersion();
-// 역량 지도 이 프로그램 한 줄(목록 표·카드 버전) — DB가 화면 버전과 같을 때만(다른 세션이 배포 뒤 지도를 안 고쳐 어긋나던 문제, 2026-10-23)
+// 프로그램 비교표 이 프로그램 한 줄(목록 표·카드 버전) — DB가 화면 버전과 같을 때만(다른 세션이 배포 뒤 지도를 안 고쳐 어긋나던 문제, 2026-10-23)
 if (vr && vr.db === vr.ver) fixMapRow(vr.slug, vr.ver);
 // 관리자 첫 화면 숫자(미배포 대기·정리 기록 진행률) 갱신 — 운영 DB site_settings.ops_overview 한 줄(2026-10-23)
 console.log("\n[관리자 화면 숫자 갱신]");

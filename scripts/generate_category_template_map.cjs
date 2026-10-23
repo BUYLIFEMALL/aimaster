@@ -207,7 +207,7 @@ const catOrder = [
 let md = '# AIMaster 카테고리별 프로그램 디자인 템플릿 총람 및 선정 가이드 (PROGRAM_CATEGORY_TEMPLATE_MAP.md)\n\n';
 md += '> **최초 제정**: 2026-10-19 (주인님 지시)\n';
 md += '> **문서 목적**: AIMaster 전체 84개 프로그램(새로 추가된 `ai-doc-chatbot` 등 포함)을 **공식 14개 카테고리(분야) 기준으로 완전 분류**하고, 각 프로그램에 적용된 **디자인 템플릿 스타일과 그 템플릿을 선정한 명확한 UX/기능적 이유(Why?)**를 체계적으로 정리하여 **모든 AI CLI(Claude Code, Codex, Antigravity 등)가 향후 개발·개선·리뉴얼 시 나침반으로 상호 참조**할 수 있도록 영구 표준 문서로 제공합니다.\n';
-md += '> **연계 문서**: [`DESIGN.md`](../DESIGN.md) (메인 지침), [`docs/DESIGN_TEMPLATE_CATALOG.md`](DESIGN_TEMPLATE_CATALOG.md) (스타일별 카탈로그), [`docs/PROGRAM_CAPABILITY_MAP.md`](PROGRAM_CAPABILITY_MAP.md) (기능 역량 지도)\n\n';
+md += '> **연계 문서**: [`DESIGN.md`](../DESIGN.md) (메인 지침), [`docs/DESIGN_TEMPLATE_CATALOG.md`](DESIGN_TEMPLATE_CATALOG.md) (스타일별 카탈로그), [`docs/PROGRAM_CAPABILITY_MAP.md`](PROGRAM_CAPABILITY_MAP.md) (기능 프로그램 비교표)\n\n';
 
 md += '---\n\n';
 md += '## 📊 카테고리별 총괄 진척 현황 요약\n\n';
