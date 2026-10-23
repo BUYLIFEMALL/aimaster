@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 블로그 BLC-14 기능 동등성·회원 전환 검토(분석만) · 세션 `claude-win-20261023-blog2`
+- 결과 [REPORT BLC-14 절](analysis-blog-consolidation-20261020/REPORT.md#blc14-20261023) · 근거 JSON · HTML 재생성. 코드·DB·권한·배포 변경 없음, 비용 없음(코드·운영 DB 읽기만).
+- 결론: 올인원·BLOG·작업실 모두 아직 BLC-15(신규 개발 중단) 불가. BLOG는 FREE인데 에이전트는 아님 → 권한 차이 41명+FREE 이용자. 작업실 → SEO는 AI 최종 검수·최종본 게이트·문체 영구 보관 없음. 실제 데이터 보유 회원은 올인원 1·BLOG 8·작업실 2명.
+- 다음 첫 단계: 주인님 이용권 방향 결정((가) 에이전트 FREE (나) BLOG 권한자에 에이전트 권한 부여 (다) BLOG를 FREE 입구로 유지).
+
 ## 2026-10-23 Claude Code(윈도우) — 배포판 ALLA AI v1.05 최종본 + 공용 마법사 `resultSteps` · 세션 `claude-win-20261023-tep-kit`
 - `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.05.zip`: 설치 SQL을 Lab DB에서 임시 스키마로 실행·되돌리기 검증(오류 0, 남은 것 0), 풀어서 독립 모드 build·start(탭 제목 ALLA AI) 확인.
 - 공용 마법사(`scripts/kit-template/setup.ps1`·`setup.sh`)에 `kit.json` `resultSteps`(선택) — 설치결과.txt 다음 단계를 프로그램별로. 기존 키트는 문구 그대로(항목 없음). 문법·BOM 검사 통과.
