@@ -12,7 +12,7 @@
 - [x] 화면을 닫아도 대기열형 완료 처리(예약 확인 또는 웹훅) — v1.03 웹훅
 - [x] 실제 비용 기록 — v1.03 실측 가능한 값(부분)
 - [x] Suno V6 Wild 모델 카드 추가 — v1.04 (실제 생성 확인: 2곡 29초, 크레딧 약 12)
-- [ ] Mureka·Stable Audio 3·Lyria RealTime 연동(2차) — Mureka는 2026-10-23 코드 준비(숨김), 충전·키 후 켜기만 남음
+- [ ] Mureka·Stable Audio 3·Lyria RealTime 연동(2차) — Mureka는 2026-10-23 코드 준비(숨김, 충전·키 후 켜기만), Stable Audio 3는 v1.09 완료(fal), Lyria RealTime 남음
 
 ## 외부 연계
 - [x] 가사 영상·플레이리스트 프로그램으로 보내기(`?ams=` 받기 — 양쪽 수정) — v1.02 / 가사영상 v1.10 / 플레이리스트 v1.27

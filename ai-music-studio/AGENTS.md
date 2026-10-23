@@ -72,3 +72,6 @@
 - 주인님 지시 「작업만 해놔 나중에 필요하면 연동해서 사용할께」. `lib/providers/adapters/mureka.ts`(보컬 `/v1/song/generate`·연주곡 `/v1/instrumental/generate` → `/query/{id}` 상태 확인, succeeded/failed·cancelled·timeouted), `catalog.ts` `MUREKA_ENABLED=false`·`MUREKA_MODELS`(`auto`, 2곡)·`VISIBLE_PROVIDERS`(꺼진 공급자는 키 칸·안내에서 뺌), 키 허용 목록에 `mureka`, DB 허용 이름 SQL `supabase/migrations/0004_mureka_provider.sql`(**미적용**). 근거: 공식 MCP 서버 소스 github.com/SkyworkAI/Mureka-mcp.
 - 시험: 가짜 응답으로 요청 주소·본문·상태 해석 3개(전체 28개 통과), tsc·build. 실제 호출 시험 없음(충전 필요).
 - 켜는 법: ① platform.mureka.ai 선불 충전($30~)·키 발급 → 시험 계정 키 등록 ② 운영 DB에 `supabase/migrations/0004_mureka_provider.sql` 실행(주인님 승인) ③ `lib/providers/catalog.ts` `MUREKA_ENABLED = true` ④ 시험 생성 1곡으로 결과 칸(choices·duration)·모델 이름 확인 ⑤ 배포(버전 +0.01).
+
+## 2026-10-23 v1.09 — Stable Audio 3 Medium(fal) (Claude Code 윈도우)
+- `catalog.ts` 모델 `fal:fal-ai/stable-audio-3/medium/text-to-audio`(연주곡, 10~380초, 약 $0.04), `adapters/fal.ts` 입력 `{prompt, duration, output_format:"mp3"}`. 시험 29개·build, 배포 Ready·DB v1.09, 크롬 시험 회원 30초 생성 성공(추론 4초). 숨김 Mureka 코드 함께 배포. 비용: 빌드 1회 + 약 $0.04.

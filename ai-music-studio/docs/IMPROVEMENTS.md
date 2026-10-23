@@ -1,6 +1,6 @@
 # AI 음악 스튜디오 — 개선 제안 (IMPROVEMENTS.md)
 
-> **미배포 대기(2026-10-23, Claude Code 윈도우)**: Mureka 연동 코드 준비(숨김, `MUREKA_ENABLED=false` — 화면·서버에 안 나옴, 커밋 `3cdeb201b`). 다음 배포 때 함께 나가도 동작 변화 없음. 켜는 법: ① platform.mureka.ai 선불 충전($30~)·키 발급 → 시험 계정 키 등록 ② 운영 DB에 `supabase/migrations/0004_mureka_provider.sql` 실행(주인님 승인) ③ `lib/providers/catalog.ts` `MUREKA_ENABLED = true` ④ 시험 생성 1곡으로 결과 칸(choices·duration)·모델 이름 확인 ⑤ 배포(버전 +0.01).
+> **v1.09에 함께 배포(2026-10-23, 숨김 상태)**: Mureka 연동 코드 준비(숨김, `MUREKA_ENABLED=false` — 화면·서버에 안 나옴, 커밋 `3cdeb201b`). 다음 배포 때 함께 나가도 동작 변화 없음. 켜는 법: ① platform.mureka.ai 선불 충전($30~)·키 발급 → 시험 계정 키 등록 ② 운영 DB에 `supabase/migrations/0004_mureka_provider.sql` 실행(주인님 승인) ③ `lib/providers/catalog.ts` `MUREKA_ENABLED = true` ④ 시험 생성 1곡으로 결과 칸(choices·duration)·모델 이름 확인 ⑤ 배포(버전 +0.01).
 
 > ~~미배포 대기~~ ✅ 2026-10-23 배포됨: 곡 카드 링크를 곡마다(가사 영상 옆) 두고 곡 번호 `?ams=<생성 번호>:<곡 순서>`를 실음 — 커밋 `5991d70bb`. 세 프로그램이 함께 배포돼야 동작(AI 음악 스튜디오 → 원스톱·뮤직비디오). 다음 배포 때 함께(버전 +0.01).
 
