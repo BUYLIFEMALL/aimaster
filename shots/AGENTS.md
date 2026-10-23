@@ -184,3 +184,7 @@
 ## 2026-10-23 v1.39 — 배경음악 Suno 모델 V4_5(지원 종료) → V6 (Claude Code 윈도우)
 - `src/lib/ai/suno.ts`는 공용 기준 `suno-api-client` 사본(기준 `music/lib/ai/suno.ts`) — **직접 고치지 말고** 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. `src/lib/ai/music.ts`는 기존 호출부(`lib/actions/music.ts`)용 얇은 감싸기(함수 이름·결과 모양 그대로, 모델 = 공용 기본 V6, 폴링 방식 그대로).
 - 검수: tsc·시험 3개(`node --test tests/*.test.mjs`)·build, 배포 `shots-5v3mnsanc` Ready, DB v1.39, 크롬 시험 회원 배경음악 2곡 완성·저장 확인. 비용: 빌드 1회, Suno 약 $0.06(시험 회원 본인 키).
+
+## 2026-10-23 v1.40 — 배경음악 모델 고르기 (Claude Code 윈도우)
+- 「음악 모델」: Suno V6·V6 Mini·V6 Wild(폴링) / Lyria 3.5·ElevenLabs(서버 액션 안에서 1곡 바로 저장, 60초 연주곡). `src/lib/bgmModels.ts`(목록), `src/lib/ai/music.ts` `generateSyncBackgroundMusic`, `src/lib/ai/musicCalls.ts` = 공용 `music-sync-calls` 사본(**직접 고치지 말 것**, 기준 `ai-music-studio/lib/providers/musicCalls.ts`). 키는 회원 본인 Gemini·ElevenLabs(`elevenlabs` 키 종류 추가). 스크립트 화면 `maxDuration = 300`.
+- 검수: 시험 4개·build, 배포 Ready·DB v1.40, 크롬 시험 회원 Lyria 62초·ElevenLabs 60초 생성·재생 확인. 비용: 빌드 1회, 약 $0.23(시험 회원 키).

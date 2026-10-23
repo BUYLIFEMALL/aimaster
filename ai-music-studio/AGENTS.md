@@ -58,3 +58,6 @@
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
 ## 6. 연계·병합 아이디어 → `docs/IMPROVEMENTS.md` §3
 ## 7. UI/UX 개선안 → `docs/IMPROVEMENTS.md` §2, 디자인: `docs/DESIGN_HANDOFF.md`
+
+## 2026-10-23 공용 기준 코드 `music-sync-calls` 신설 (Claude Code 윈도우, 미배포 대기)
+- `lib/providers/musicCalls.ts`가 기준(사본 `shots/src/lib/ai/musicCalls.ts`) — Lyria·ElevenLabs 호출과 `musicProviderError`. `adapters/gemini.ts`·`adapters/elevenlabs.ts`는 입력·비용 문구만, `types.ts` `providerError` = `musicProviderError`. 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync` 후 쇼츠도 시험.

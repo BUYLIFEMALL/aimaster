@@ -1,5 +1,7 @@
 # AI 음악 스튜디오 — 개선 제안 (IMPROVEMENTS.md)
 
+> **미배포 대기(2026-10-23, Claude Code 윈도우)**: Lyria·ElevenLabs 호출을 공용 기준 `music-sync-calls`(`lib/providers/musicCalls.ts`, 사본 Shots)로 분리 — 동작 같음(시험 25개·빌드 통과). 다음 배포 때 함께(버전 +0.01, 두 모델 1곡씩 확인).
+
 작성: 2026-10-23 Claude Code(윈도우), v1.01 첫 배포 직후. 미구현 제안이며 구현 승인을 뜻하지 않는다.
 
 ## 1. 프로그램 로직·기능 개선
