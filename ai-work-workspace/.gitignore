@@ -5,3 +5,6 @@ node_modules/
 .env
 tsconfig.tsbuildinfo
 test-artifacts/
+
+.vercel
+.env*
