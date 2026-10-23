@@ -1,5 +1,4 @@
-# 미배포 대기 목록 (PENDING_DEPL| `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — 실측 65%, (가)/(다) 결정 대기 | `fef7491d6` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
-OYS.md)
+# 미배포 대기 목록 (PENDING_DEPLOYS.md)
 
 > 2026-10-22 신설(Claude Code 윈도우, 주인님 승인 — 추가개선 제안 「미배포 대기 항목을 한곳에」).
 > 근거 지침: 루트 `CLAUDE.md` 최상단 「작은 소스 수정은 모았다가 배포한다」(2026-10-22 23:17) · [`docs/VERCEL_COST_REDUCTION_PLAN.md`](VERCEL_COST_REDUCTION_PLAN.md) 맨 위.
@@ -18,6 +17,7 @@ OYS.md)
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — 실측 65%, (가)/(다) 결정 대기 | `fef7491d6` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `naver-blog-agent` (운영 v2.14) | 확장 아이콘 팝업 폭 넓힘(`extension/connect.css` 최소 폭 480px — 주인님 지적 「너무 좁아서 글들이 제대로 안보여」) + 준비된 원고 열기·로그인/상태 확인·연결 해제 버튼 한 줄 배치(`2666fc309`, 「1열로 나오게」) — 확장 코드 변경 | 이 줄을 넣은 커밋 직전 `fix(naver-blog-agent): widen extension popup` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01(manifest·ZIP·DB 함께) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
