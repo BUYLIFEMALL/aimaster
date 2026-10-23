@@ -34,7 +34,6 @@
 | `ai-mastering-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `infinite-loop-video` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `infinite-loop-video/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-image-studio` | 공용 `ai-video-*` 사본 전환(기준이 ai-video-studio로 이전) — 머리 주석·선택값 추가, **화면에서 안 쓰는 파일이라 동작 불변** | `cea11442a`·`6c02ccf41` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `ai-video-*` | 버전 +0.01 |
-| `music-video-studio` (운영 v1.12) | 장면 화면 루프 버튼 「On (8s)」→「On」(Omni Flash는 8초 고정 없음) · 공용 `ai-video-*` 사본 머리 주석(기준 이전, 동작 불변) `6c02ccf41` | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, 장면 화면 루프 버튼 문구 확인 |
 | `shorts-onestop-studio` (운영 v1.38) | AI 음악 스튜디오에서 고른 곡 이름에 곡 번호 「(1)」「(2)」 유지 | `b48814471` | 2026-10-23 · Claude Code(윈도우) | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 「미배포 대기」 | 버전 +0.01, 같은 생성의 두 곡을 골라 이름 구분 확인 |
 | `naver-cafe-poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `naver-cafe-poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `persona-style-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `persona-style-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -61,6 +60,7 @@
 | `insta_auto_poster` | v1.68 · 2026-10-23 (모아 둔 수정, 제안 범위 빌드 1회) | 「🔤」 한글일 때만 기억 `4bebfb016` · 「✕ 슬라이드 N 빼기」 `447780d5c` · 공용 사본 member-scheduler·instagram-publish |
 | `music` | v1.44 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `music-36j3lwxcj`) | 공용 Suno `callbackOrigin` `acccf06eb` · 곡 30일 정리 회원별 기록 `4cafe5eb3`(2026-10-29 첫 실제 삭제 뒤 관리자 정리 표 확인) · 휴대폰 ☰ 펼침 메뉴 `2fcddccb7`(크롬 390px 확인) |
 | `naver-blog-agent` | v2.12 · 2026-10-23 (이미지 전용 공개 버킷, 회원 피해 수정·승인 빌드 1회) | 대기 항목 없음 |
+| `music-video-studio` | v1.13 · 2026-10-23 (곡 카드: AI 음악 스튜디오 가져오기 + 내 파일 올리기, 승인 빌드 1회) | 루프 버튼 「On」 · 공용 `ai-video-*` 사본 머리 주석·사진 거절 안내 `6c02ccf41`·`96423f5ec` |
 | `shorts-onestop-studio` | v1.38 · 2026-10-23 (AI 음악 스튜디오 내 곡에서 배경음악 고르기, 승인 빌드 1회) | `ai-video-providers` 사본 동기화 `cea11442a`(동작 불변) |
 | `shots` | v1.39 · 2026-10-23 (배경음악 Suno V4_5 → V6 공용 사본, 승인 빌드 1회) | `ai-video-providers` 사본 동기화 `cea11442a`(동작 불변) |
 | `threads-comment-reply` | v1.27 · 2026-10-23 (모니터링 시작 시각 한국 시간으로 읽기, 승인 빌드 1회) | 9시간 밀림 수정 `e6139cd39`·`3f8897cd7` |
