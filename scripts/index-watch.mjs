@@ -4,6 +4,8 @@
 // 부를 때마다 .git/aimaster-index-log.txt에 한 줄: 시각 · 장비 · pid · 부른 곳 · index 크기·수정 시각 · 항목 수 · HEAD 파일 수.
 // 직전 기록보다 항목 수가 절반 아래로 줄었으면 ⚠와 직전 기록을 보여 준다(막지는 않음). 4만 줄을 넘으면 최근 3만 줄만 유지(약 이틀 이상 — 24시간 관찰이 가능하도록, 2026-10-23 2,000줄에서 늘림). 커밋되지 않는 파일(.git 안).
 // 사용: node scripts/index-watch.mjs <부른 곳> [--quiet]   예: session-check, pre-commit, pre-push, safe-commit:start
+//       node scripts/index-watch.mjs commit-gate --stale-only   묵은 스테이징 항목만 확인(있으면 종료 코드 3)
+// 잠금(.git/index.lock)이 5분 넘게 남으면 잠금 하나당 한 번 .git/aimaster-lock-evidence.txt에 그때 프로세스·전후 기록을 남긴다.
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { hostname } from "node:os";
@@ -20,6 +22,24 @@ try {
   const git = (args) => execFileSync("git", args, { encoding: "utf8", env, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
   const root = git(["rev-parse", "--show-toplevel"]).trim();
   const gitDir = resolve(root, git(["rev-parse", "--git-dir"]).trim());
+  // 묵은 스테이징 항목(2026-10-23): 스테이징은 HEAD와 다른데(M·D) 작업 파일은 HEAD와 같은 파일 = 옛 판이 스테이징에 남은 것.
+  // 누가 일반 커밋에 섞으면 그 파일의 최근 변경이 되돌려진다(예: 루트 지침의 새 최상위 규칙). 새로 추가(A)는 진짜 작업일 수 있어 뺀다.
+  const staleEntries = () => git(["diff", "--cached", "--name-status"]).split("\n").filter(Boolean).map((l) => l.split("\t")).filter(([st]) => st === "M" || st === "D")
+    // 작업 파일 내용 해시 = HEAD 내용 해시로 직접 비교(스테이징에 없는 새 파일이 「D」로 보일 때 git diff HEAD는 비교하지 않아 놓쳤음)
+    .map(([, f]) => f).filter((f) => {
+      try {
+        const headBlob = git(["rev-parse", `HEAD:${f}`]).trim();
+        const workBlob = execFileSync("git", ["hash-object", "--", f], { cwd: root, env, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+        return headBlob === workBlob;
+      } catch { return false; } // HEAD에 없거나 작업 파일이 없음 = 진짜 추가·삭제일 수 있음
+    });
+  // 요약 줄은 앞 5개만(세션 점검 요약 칸이 220자에서 잘림), 정리 명령은 전체 파일로 다음 줄에 따로
+  const printStale = (stale) => {
+    if (!stale.length) return;
+    const q = stale.map((f) => (/\s/.test(f) ? `"${f}"` : f)).join(" ");
+    console.log(`⚠ [공용 스테이징 묵은 항목] ${stale.length}개: ${stale.slice(0, 5).join(", ")}${stale.length > 5 ? ` 외 ${stale.length - 5}개` : ""} — 작업 파일은 HEAD와 같은데 스테이징만 옛 판(일반 커밋에 섞이면 최근 변경이 되돌려짐)`);
+    console.log(`  정리(작업 파일은 그대로, 이 파일들의 스테이징만 HEAD로): git reset -q HEAD -- ${q}`);
+  };
   const indexPath = join(gitDir, "index");
   const st = existsSync(indexPath) ? statSync(indexPath) : null;
   const entries = st ? git(["ls-files"]).split("\n").filter(Boolean).length : 0;
@@ -37,6 +57,30 @@ try {
   const lastEntries = Number((last?.match(/entries=(\d+)/) ?? [])[1] ?? 0);
   appendFileSync(logPath, line + "\n");
   if (prev.length > 40000) writeFileSync(logPath, [...prev.slice(-30000), line].join("\n") + "\n");
+  // 잠금 증거(2026-10-23): 잠금이 5분 넘게 남았으면 잠금 하나당 한 번, 그때 돌던 git 프로세스와 잠금 생성 시각 ±2분의 기록 줄을 남긴다
+  // (14:33 잠금은 만든 명령이 미확인으로 남았음 — 다음엔 이 파일로 좁힌다). 시간이 걸리는 프로세스 조회는 이때만 한다.
+  const evidencePath = join(gitDir, "aimaster-lock-evidence.txt");
+  if (lockAge !== null && lockAge > 300) {
+    try {
+      const lockAt = statSync(lockPath).mtime;
+      const key = `lock@${t(lockAt)}`;
+      if (!(existsSync(evidencePath) && readFileSync(evidencePath, "utf8").includes(key))) {
+        const procs = process.platform === "win32"
+          ? execFileSync("powershell", ["-NoProfile", "-Command", "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_Process -Filter \"Name='git.exe' or Name='node.exe' or Name='sh.exe' or Name='bash.exe'\" | Where-Object { $_.Name -eq 'git.exe' -or $_.CommandLine -match 'git |index-watch|safe-commit|commit-paths' } | ForEach-Object { $c = ([string]$_.CommandLine) -replace '\\s+', ' '; if ($c.Length -gt 300) { $c = $c.Substring(0, 300) + '…' }; '{0} ppid={1} 시작={2:yyyy-MM-dd HH:mm:ss} {3}' -f $_.ProcessId, $_.ParentProcessId, $_.CreationDate, $c }"], { encoding: "utf8", timeout: 15000, stdio: ["ignore", "pipe", "ignore"] })
+          : execFileSync("ps", ["-axo", "pid,ppid,lstart,command"], { encoding: "utf8", timeout: 15000, stdio: ["ignore", "pipe", "ignore"] }).split("\n").filter((l, i) => i === 0 || /\bgit\b|index-watch|safe-commit|commit-paths/.test(l)).join("\n");
+        const near = prev.filter((l) => { const m = l.match(/^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)/); return m && Math.abs(new Date(m[1].replace(" ", "T")).getTime() - lockAt.getTime()) <= 120_000; });
+        appendFileSync(evidencePath, [`===== ${key} · 발견 ${t(new Date())} · ${hostname()} · ${Math.round(lockAge / 60)}분째 · 부른 곳 ${tag}`,
+          "-- 잠금 생성 ±2분의 블랙박스 기록:", ...(near.length ? near : ["(없음 — 기록을 남기지 않는 명령이 만든 잠금)"]),
+          `-- 지금 이 장비(${hostname()})의 git·node·셸 프로세스(다른 장비는 그 장비에서 다시 보기):`, procs.trim() || "(없음)", ""].join("\n") + "\n");
+      }
+    } catch { /* 증거 기록 실패는 무시 */ }
+  }
+  // --stale-only(2026-10-23): 맥미니 commit-gate.sh가 커밋 전에 묵은 항목만 확인 — 있으면 종료 코드 3
+  if (process.argv.includes("--stale-only")) {
+    const stale = staleEntries();
+    printStale(stale);
+    process.exit(stale.length ? 3 : 0);
+  }
   const shrunk = (lastEntries > 200 && entries * 2 < lastEntries) || (head > 200 && entries * 2 < head);
   if (shrunk) {
     console.error(`⚠ [공용 스테이징 축소 감지] 지금 ${entries}개 (HEAD ${head}개, 직전 기록 ${lastEntries}개)`);
@@ -57,24 +101,9 @@ try {
       ? `⚠ [공용 스테이징 축소 이력] 최근 24시간 ${starts.length}번: ${starts.join(" · ")} — 기록 ${logPath}`
       : `[공용 스테이징 축소 이력] 최근 24시간 없음 (기록 ${first ? first.when + "부터" : "없음"})`);
     // git 잠금이 5분 넘게 남아 있으면 — 일반 커밋·스테이징 맞추기가 모두 멈춘 상태(지우지 말고 확인)
-    if (lockAge !== null && lockAge > 300) console.log(`⚠ [공용 스테이징 잠금 오래 남음] .git/index.lock ${Math.round(lockAge / 60)}분째 — 일반 커밋과 도우미의 스테이징 맞추기가 모두 멈춘 상태. 지우지 말고 git 프로세스(장비 두 곳)를 확인한 뒤 주인님께(루트 CLAUDE.md 최상단)`);
-    // 묵은 스테이징 항목(2026-10-23): 스테이징은 HEAD와 다른데(M·D) 작업 파일은 HEAD와 같은 파일 = 옛 판이 스테이징에 남은 것.
-    // 누가 일반 커밋에 섞으면 그 파일의 최근 변경이 되돌려진다(예: 루트 지침의 새 최상위 규칙). 새로 추가(A)는 진짜 작업일 수 있어 뺀다.
-    try {
-      const stale = git(["diff", "--cached", "--name-status"]).split("\n").filter(Boolean).map((l) => l.split("\t")).filter(([st]) => st === "M" || st === "D")
-        // 작업 파일 내용 해시 = HEAD 내용 해시로 직접 비교(스테이징에 없는 새 파일이 「D」로 보일 때 git diff HEAD는 비교하지 않아 놓쳤음)
-        .map(([, f]) => f).filter((f) => {
-          try {
-            const headBlob = git(["rev-parse", `HEAD:${f}`]).trim();
-            const workBlob = execFileSync("git", ["hash-object", "--", f], { env, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-            return headBlob === workBlob;
-          } catch { return false; } // HEAD에 없거나 작업 파일이 없음 = 진짜 추가·삭제일 수 있음
-        });
-      if (stale.length) {
-        const q = stale.map((f) => (/\s/.test(f) ? `"${f}"` : f)).join(" ");
-        console.log(`⚠ [공용 스테이징 묵은 항목] ${stale.length}개: ${stale.slice(0, 8).join(", ")}${stale.length > 8 ? " …" : ""} — 작업 파일은 HEAD와 같은데 스테이징만 옛 판(일반 커밋에 섞이면 최근 변경이 되돌려짐). 정리(작업 파일은 그대로): git reset -q HEAD -- ${q}`);
-      }
-    } catch { /* 기록 실패는 무시 */ }
+    if (lockAge !== null && lockAge > 300) console.log(`⚠ [공용 스테이징 잠금 오래 남음] .git/index.lock ${Math.round(lockAge / 60)}분째 — 일반 커밋과 도우미의 스테이징 맞추기가 모두 멈춘 상태. 지우지 말고 git 프로세스(장비 두 곳)를 확인한 뒤 주인님께(루트 CLAUDE.md 최상단). 그때 돌던 프로세스·기록: ${evidencePath}`);
+    // 묵은 스테이징 항목(위 staleEntries 설명)
+    try { printStale(staleEntries()); } catch { /* 기록 실패는 무시 */ }
     // 세션 트레일러 이행률(2026-10-23): 트레일러 도입(15:20) 이후·최근 7일 커밋 중 `AIMaster-Session:`이 붙은 비율 — 규칙이 지켜지는지 매번 보이게
     try {
       const since = new Date(Math.max(new Date("2026-10-23T15:20:00").getTime(), Date.now() - 7 * 24 * 3600_000)).toISOString();

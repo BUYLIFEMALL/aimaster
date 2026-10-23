@@ -33,6 +33,12 @@ if (( HEADN > 200 && IDX * 2 < HEADN )); then
   exit 1
 fi
 git pull -q --ff-only || { echo "pull 실패 — 원격과 갈라졌는지 확인하세요."; exit 1; }
+# 묵은 스테이징 항목(2026-10-23, 윈도우 세션 점검과 같은 기준 scripts/index-watch.mjs): 작업 파일=HEAD인데 스테이징만 옛 판인 파일이 있으면
+# 아래 「다른 CLI 스테이징」 대기가 5분 헛돌고 남의 작업으로 오해하므로, 먼저 구분해 알리고 멈춘다(자동으로 고치지 않음 — 정리 명령만 안내).
+if [[ -f scripts/index-watch.mjs ]]; then
+  node scripts/index-watch.mjs commit-gate --stale-only; rc=$?
+  if (( rc == 3 )); then echo "⛔ 중단: 위 묵은 항목은 남의 작업이 아닙니다. 안내된 git reset 명령(그 파일들의 스테이징만 HEAD로, 작업 파일은 그대로)으로 정리한 뒤 다시 실행하세요."; exit 1; fi
+fi
 # 작업 폴더의 공용 문서에도 같은 변경을 적용(최신 HEAD 위에)
 for pair in "${SHARED[@]}"; do f="${pair%%:*}"; sc="${pair#*:}"; python3 "$sc" < "$f" > "$f.gate.tmp" && mv "$f.gate.tmp" "$f" || { echo "작업 폴더 변환 실패: $f"; exit 1; }; done
 for i in {1..60}; do
