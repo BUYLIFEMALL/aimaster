@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 세션 표시 비율 · 루트 지침 묵은 스테이징 정리 · 분석 폴더 이동
+- **세션 이름 표시 비율**: 세션 시작 점검에 `[세션 이름 표시] 최근 커밋 N개 중 M개(%)` 줄(트레일러 도입 15:20 이후, 최근 7일). 지금 9개 중 6개(67%).
+- **⚠ 루트 지침 3개(`AGENTS.md`·`CLAUDE.md`·`GEMINI.md`) 묵은 스테이징 정리**: 작업 파일은 HEAD와 같은데 공용 스테이징에 옛 판이 남아 있었고, 그 옛 판에는 주인님의 새 최상위 규칙 「★ 동시 빌드 금지」 줄이 없었다 — 누가 일반 커밋에 섞으면 그 규칙이 지워질 상황. 세 파일의 스테이징 항목만 HEAD로 맞춤(작업 파일 무변경). `docs/ACTIVE_WORK.md`는 작업 파일이 HEAD와 달라(진행 중일 수 있음) 그대로 둠. 바쁜 시간엔 안전 커밋 도우미의 스테이징 맞추기가 잠금 때문에 건너뛰어져 묵은 항목이 남는 일이 있음(이번 REA 문서도 같았고 다음 커밋 때 맞춰짐).
+- **`.analysis-threads-auto/` 이동(주인님 승인)**: 외부 GitHub 저장소(boksajang/threads-auto) 참고 사본 8.6MB를 PDS의 Program_dev 아래 `threads-auto_work` 폴더로 복사 → 파일 125개·커밋·원격 주소 동일 확인 → 저장소 안 원본 삭제. `threads-content-ops/docs/CLAUDE_CONTINUATION.md`·`docs/REA_REVERSE_ENGINEERING.md` 언급 갱신.
+- 실수: 문서에 경로를 넣을 때 파이썬 heredoc에서 역슬래시가 두 번 깨짐(빠짐·탭 문자) → Edit 도구로 고침. 경로가 든 문서 수정은 Edit 도구로(저장소 오류 교훈 그대로).
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 이름 바꾸기 커밋 확인 · commit-msg 세션 트레일러 · 분석 폴더는 저장소 밖
 - **`7d86d9923` 되돌림 의심 해소**: 「역량 지도 → 프로그램 비교표」 이름 바꾸기(주인님 지시)로, 지운 9줄 모두 이름만 바뀐 새 줄로 대체됨을 단어 단위로 대조 → `scripts/reverts-reviewed.txt`에 확인. 세션 시작 점검 저장소 안전 「확인 필요」 4 → 1건(14:00 축소 이력, 24시간 뒤 자동으로 빠짐).
 - **`scripts/git-hooks/commit-msg`(새)**: `AIMASTER_SESSION`이 있으면 일반 `git commit`에도 `AIMaster-Session:` 트레일러(`git interpret-trailers`, 이미 있으면 그대로). `install.mjs`가 함께 설치 — 이 PC 설치 완료. **맥미니·새 clone은 `node scripts/git-hooks/install.mjs` 한 번**. 임시 저장소 시험 3경우 통과(있음·없음·중복 방지).
