@@ -198,7 +198,7 @@ function LoginCard() {
             </div>
 
             <a
-              href={`${MAIN_SITE_URL}/signup`}
+              href={`${MAIN_SITE_URL}/register`}
               target="_blank"
               rel="noreferrer"
               className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:from-indigo-700 active:to-violet-700 text-white font-semibold text-sm transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer text-center"
@@ -243,7 +243,7 @@ function LoginCard() {
       <div className="mt-6 text-center text-[11px] text-slate-400 space-y-1">
         <div className="flex items-center justify-center gap-3">
           <a
-            href={`${MAIN_SITE_URL}/legal/terms`}
+            href={`${MAIN_SITE_URL}/terms`}
             target="_blank"
             rel="noreferrer"
             className="hover:text-slate-600 transition-colors"
@@ -252,7 +252,7 @@ function LoginCard() {
           </a>
           <span>•</span>
           <a
-            href={`${MAIN_SITE_URL}/legal/privacy`}
+            href={`${MAIN_SITE_URL}/privacy`}
             target="_blank"
             rel="noreferrer"
             className="hover:text-slate-600 transition-colors"
