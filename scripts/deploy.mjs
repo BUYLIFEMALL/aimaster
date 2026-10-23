@@ -360,7 +360,7 @@ if (active.some((l) => !(ownerArg && l.includes(ownerArg)))) {
 }
 // 배포 뒤 대기 줄 정리·인수인계를 안전 커밋 도우미로 하도록, 고치기 전 기준 사본을 지금 떠 둠(2026-10-23 — 배포 기록 커밋의 되돌림 방지)
 const docAs = `deploy-${folder.replace(/[^\w.-]/g, "_")}`;
-spawnSync(process.execPath, [join(ROOT, "scripts", "safe-commit.mjs"), "--begin", "docs/PENDING_DEPLOYS.md", "docs/HANDOFF.md", "docs/PROGRAM_CAPABILITY_MAP.md", "--as", docAs], { stdio: "inherit" });
+spawnSync(process.execPath, [join(ROOT, "scripts", "safe-commit.mjs"), "--begin", "docs/PENDING_DEPLOYS.md", "docs/HANDOFF.md", "docs/PROGRAM_CAPABILITY_MAP.md", "--as", docAs, "--force-begin"], { stdio: "inherit" });
 console.log(`\n[3/3] 배포 실행: npx ${cmd.join(" ")}  (빌드 1회)`);
 // 배포 출력에서 이번 배포 주소를 받아 vercel inspect로 상태·운영 주소 연결을 직접 확인(2026-10-23 — 예전엔 vercel ls 표를 읽다 「?」가 자주 나옴)
 const r = spawnSync("npx", cmd, { cwd: dir, encoding: "utf8", shell: process.platform === "win32", maxBuffer: 64 * 1024 * 1024 });
