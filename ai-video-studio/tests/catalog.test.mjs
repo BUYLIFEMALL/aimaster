@@ -111,3 +111,19 @@ test("v1.08 소리 켜기·글만으로 만들기(fal 글→영상 주소)", asy
   // 글→영상 주소가 없는 fal 모델은 여전히 사진이 필요
   await assert.rejects(submitVideoJob({ key: "k", model: findModel("minimax/h3/image-to-video"), prompt: "p", seconds: 5 }), /시작 장면 사진/);
 });
+
+test("v1.13 모델 카드 예시: 목록에 있는 모델은 public/examples에 mp4·jpg가 있고, 목록의 이름은 모두 실제 모델", async () => {
+  const { existsSync, statSync } = await import("node:fs");
+  const { MODEL_EXAMPLES, exampleSlug } = await import("../lib/providers/catalog.ts");
+  const slugs = new Set(MODELS.map((m) => exampleSlug(m.id)));
+  assert.ok(MODEL_EXAMPLES.size >= 1);
+  for (const s of MODEL_EXAMPLES) {
+    assert.ok(slugs.has(s), `모델 목록에 없는 예시: ${s}`);
+    for (const ext of ["mp4", "jpg"]) {
+      const p = new URL(`../public/examples/${s}.${ext}`, import.meta.url);
+      assert.ok(existsSync(p), `파일 없음: ${s}.${ext}`);
+      assert.ok(statSync(p).size < 400_000, `예시가 너무 큼: ${s}.${ext}`);
+    }
+  }
+  assert.equal(exampleSlug("fal-ai/veo3.1/image-to-video"), "fal-ai-veo3-1-image-to-video");
+});

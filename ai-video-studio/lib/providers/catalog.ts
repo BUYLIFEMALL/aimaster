@@ -70,6 +70,23 @@ function studioOf(m: VideoModel): StudioModel {
 
 export const MODELS: StudioModel[] = STUDIO_VIDEO_MODELS.map(studioOf);
 
+/** 모델 카드 예시 영상 파일 이름(v1.13) — public/examples/<이름>.mp4·.jpg. 같은 장면(한옥 마당 첫눈)으로 만든 안내용 파일 */
+export function exampleSlug(id: string): string {
+  return id.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+/** 예시 파일이 실제로 있는 모델 — 2026-10-24 시험 계정으로 생성. Replicate Kling v2.1은 업체 서비스 종료로 생성 실패해 없음 */
+export const MODEL_EXAMPLES = new Set<string>([
+  "alibaba-wan-3-0-image-to-video",
+  "bytedance-seedance-1-lite",
+  "bytedance-seedance-2-0-image-to-video",
+  "fal-ai-bytedance-seedance-v1-5-pro-image-to-video",
+  "fal-ai-kling-video-o3-standard-image-to-video",
+  "fal-ai-kling-video-v3-standard-image-to-video",
+  "fal-ai-veo3-1-image-to-video",
+  "gemini-omni-1-1-flash",
+  "minimax-h3-image-to-video",
+]);
+
 export function findModel(id: unknown): StudioModel | undefined {
   const m = findStudioVideoModel(id);
   return m ? studioOf(m) : undefined;

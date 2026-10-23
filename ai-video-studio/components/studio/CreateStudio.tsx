@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Check, Clapperboard, History, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
-import { MODELS, PROVIDERS, clampSeconds, estCostUsd, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
+import { MODELS, MODEL_EXAMPLES, PROVIDERS, clampSeconds, estCostUsd, exampleSlug, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { SAFETY } from "@/lib/promptPolish";
 import { reuseFromGeneration } from "@/lib/reuse";
@@ -44,6 +44,21 @@ async function shrinkImage(file: File): Promise<string> {
   canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
   return canvas.toDataURL("image/jpeg", 0.9);
+}
+
+/** 모델 카드 예시 영상(v1.13) — 첫 화면 사진만 먼저 보이고, 카드에 마우스를 올리거나 그 모델을 고르면 그때 영상을 불러와 소리 없이 반복 재생 */
+function ModelExample({ slug, play }: { slug: string; play: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    if (play) v.play().catch(() => {});
+    else { v.pause(); v.currentTime = 0; }
+  }, [play]);
+  return (
+    <video ref={ref} src={`/examples/${slug}.mp4`} poster={`/examples/${slug}.jpg`} muted loop playsInline preload="none" aria-hidden="true"
+      className="aspect-video w-full rounded-lg bg-black object-cover" />
+  );
 }
 
 function ImageSlot({ label, value, onChange, required }: { label: string; value: string | null; onChange: (v: string | null) => void; required?: boolean }) {
@@ -98,6 +113,7 @@ export function CreateStudio({ fromId = null }: { fromId?: string | null }) {
   // options: 다듬기 3안(v1.11) · pick: 고른 안 번호(직접 고치면 그대로 둠)
   const [polished, setPolished] = useState<{ prompt: string; note: string; basis: string; options: { prompt: string; note: string }[]; pick: number } | null>(null);
   const [reuseNotice, setReuseNotice] = useState<{ text: string; ok: boolean } | null>(null);
+  const [hoverModel, setHoverModel] = useState<string | null>(null);
   const [usePolished, setUsePolished] = useState(true);
   const [polishing, setPolishing] = useState(false);
   const [polishError, setPolishError] = useState<{ text: string; keys?: boolean } | null>(null);
@@ -334,18 +350,28 @@ export function CreateStudio({ fromId = null }: { fromId?: string | null }) {
         <div className="grid gap-2 sm:grid-cols-2">
           {MODELS.filter((m) => m.provider === providerId).map((m) => {
             const on = modelId === m.id;
+            const ex = exampleSlug(m.id);
+            const hasEx = MODEL_EXAMPLES.has(ex);
             return (
               <button key={m.id} type="button" aria-pressed={on} data-model={m.id} onClick={() => { setModelId(m.id); setConfirming(false); }}
-                className={`flex items-start justify-between gap-2 rounded-xl border p-3 text-left ${on ? "border-sky-500/60 bg-sky-500/10" : "border-zinc-800 hover:border-zinc-700"}`}>
+                onPointerEnter={() => setHoverModel(m.id)} onPointerLeave={() => setHoverModel((h) => (h === m.id ? null : h))}
+                className={`flex flex-col gap-2 rounded-xl border p-3 text-left ${on ? "border-sky-500/60 bg-sky-500/10" : "border-zinc-800 hover:border-zinc-700"}`}>
+                {hasEx && <ModelExample slug={ex} play={on || hoverModel === m.id} />}
+                <span className="flex w-full items-start justify-between gap-2">
                 <span className="min-w-0">
                   <span className="block text-sm font-bold text-white">{m.name}</span>
                   <span className="block text-[11px] text-zinc-500">{m.note} · 초당 약 ${m.perSec}{m.needsImage ? " · 시작 사진 필요" : " · 글만으로도 생성"}</span>
                 </span>
                 <span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${on ? "border-sky-400 bg-sky-500 text-white" : "border-zinc-600"}`}>{on && <Check className="h-3 w-3" aria-hidden="true" />}</span>
+                </span>
               </button>
             );
           })}
         </div>
+
+        {MODELS.some((m) => m.provider === providerId && MODEL_EXAMPLES.has(exampleSlug(m.id))) && (
+          <p className="text-[11px] text-zinc-500">미리보기는 모두 같은 장면(「한옥 마당에 내리는 첫눈」, 가장 짧은 길이·낮은 해상도)으로 만든 예시입니다. 실제 결과는 설명·사진·옵션에 따라 다릅니다.</p>
+        )}
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
