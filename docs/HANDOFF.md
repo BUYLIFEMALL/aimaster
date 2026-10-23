@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — music 휴대폰 ☰ 메뉴(미배포) · 세션 시작 점검 「⚠ 요약」 · 모바일 점검표에 check-mobile-account
+- **music** `components/layout/Sidebar.tsx`: 767px 이하에서 메뉴가 본문 위에 통째로 쌓이던 것을 머리줄(로고·버전·☰) + 펼침 메뉴(계정·로그아웃 포함, 페이지 이동 시 접힘)로. 데스크톱 그대로. tsc·eslint 통과, `check-mobile-account.mjs` 후보 1곳 → **0곳**. 커밋 `2fcddccb7`. **배포: 미배포 대기**(작은 화면 수정 — `docs/PENDING_DEPLOYS.md`·`music/AGENTS.md` 맨 아래). 다음 music 배포 때 버전 +0.01, 크롬 390px에서 ☰ 펼침·계정 확인.
+- **`scripts/deploy.mjs --version-only --all`**: 점검 출력을 모았다가 맨 위에 `[⚠ 요약] 확인할 것 N건`(항목 이름 + ⚠ 줄)을 먼저, 그 아래 전체를 그대로. 중간 오류 때도 출력이 남게 종료 시점 보호. 커밋 `9f4aeb5a2`. 같은 커밋에서 되돌림 감사의 `3d05ab2c2`(메인 할 일 표 「급함」 칸 — 줄 3개를 새 형식으로 다시 쓰고 내보낸 기록으로 옮김)를 `scripts/reverts-reviewed.txt`에 확인 처리.
+- **`docs/SIDEBAR_LAYOUT_STANDARD.md`** 「모바일 레이아웃」 검수 방법 4번과 새 프로그램 점검 목록에 「배포 전 `node scripts/check-mobile-account.mjs` 후보에 내 폴더가 없을 것」.
+- 지금 요약에 남은 것(다른 세션 몫): 역량 지도 버전 칸 6개(다음 배포 때 `deploy.mjs`가 고침)·30일 정리 기록 7일간 없음 5곳(지울 것이 없었을 수 있음).
+- 비용 없음(빌드 0·AI 0). 프로그램 링크(운영 v1.43, 이번 변경 미반영):
+https://music-automation.buylife.xyz
+
 ## 2026-10-23 — Claude Code(윈도우): 댓글 「⏸ 모니터링 중지」 즉시 화면 반영 — Threads 댓글·유튜브 댓글 (미배포)
 
 - 중지 뒤 버튼이 새로고침 전까지 「중지」로 남던 화면 문제(DB는 정상). 두 앱 `components/settings/MonitoringSettingsForm.tsx`에서 중지 성공 즉시 꺼짐 화면을 보이고 서버 값이 바뀌면 다시 따름. `tsc` 두 앱 통과, 유튜브 린트 통과.
