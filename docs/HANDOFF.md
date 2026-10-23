@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — `video-to-gif` v1.19 배포 완료 (맥미니 요청 처리, 주인님 승인 빌드 1회)
+- 배포 전: 팀 `buylife`에 빌드 중·대기 0건 확인(보안 연속 배포와 겹치지 않음), tsc 0·`npm run build` 통과.
+- 배포: `video-to-kjwuwh5xt` Ready → https://video-to-gif.buylife.xyz , DB 버전 v1.19, 프로그램 비교표 버전 2곳 v1.19.
+- 크롬 확인: 사이드바 v1.19 · 메뉴 「색상표 최적화 고화질 변환」 · 사다리 안내 25·20fps. 대기 3줄 → `docs/PENDING_DEPLOYS.md` 「내보낸 기록」, `video-to-gif/AGENTS.md` 미배포 3곳 → ✅ v1.19.
+- **맥미니께**: 실제 변환 실검수(「fps로 낮춤」·8MiB 이하·일반 영상 크기·Esc) 진행해 주세요.
+- 비용: Vercel 빌드 1회(승인 범위), AI 0회.
+
 ## 2026-10-23 Claude Code(윈도우) — 세션 이름↔메시지 주소 기록·배포 사본 자동 정리·사고 기록 절차 (세션 claude-win-lessons)
 - 한 일: ① `scripts/index-watch.mjs`(`8eaec1e34`) 세션 이름이 붙은 기록 때 `.git/aimaster-sessions.txt`에 「세션 이름 | 장비 | uds:<메시지 주소>」(환경변수 `CLAUDE_CODE_MESSAGING_SOCKET`, 비밀값 TOKEN은 안 적음, 커밋 안 됨, 같은 장비에서만 통함, 2,000줄 넘으면 최근 1,000줄) — 작업 중 세션 목록에 주소 표시. 24시간 넘은 `deploy-*` 기준 사본은 자동 삭제(배포마다 `--force-begin`이라 잃을 것 없음) ② `scripts/deploy.mjs`(`91734f5a7`) 보낼 문안에 그 세션의 SendMessage 주소(없으면 「ListAgents로 찾기」) ③ `docs/guidelines/COLLABORATION.md` 「저장소 사고가 나면 기록」 3단계(에러 교훈 항목 + 맨 위 요약 표 한 줄 + 안전장치 표).
 - 판단: 1번 제안(배포 끝날 때 안 쓴 사본 지우기)은 배포 뒤 문서 커밋을 세션이 따로 해서 그 시점에 지울 수 없음 → 하루 지난 `deploy-*`만 정리하는 방식으로 대신.
