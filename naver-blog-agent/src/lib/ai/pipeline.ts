@@ -5,6 +5,7 @@ import { WRITING_STYLES, buildWritingStylePrompt, isWritingTone, isWritingStyle,
 import { buildFormatResearchRule, buildFormatWriterRule, isArticleFormat, type ArticleFormat } from "./articleFormats";
 import { applyShoppingLinks } from "@/lib/shoppingLinks";
 import { applyUnsupported, buildSourceBlock, buildSourceReviewRule, filterUnsupported, normalizeSourceMaterial, readUnsupported } from "./sourceGrounding";
+import { buildExtraInstructionBlock } from "@/lib/referenceUrls";
 import { cleanGeneratedBody } from "./bodyCleanup";
 import type { DraftImage } from "@/lib/draftImages";
 import type { PhotoReviewResult } from "@/lib/photoReview";
@@ -31,6 +32,7 @@ export interface PipelineInput {
   articleFormat?: ArticleFormat; // 기본 standard
   shoppingLinks?: string[]; // 검증된 네이버 쇼핑 커넥트 링크(최대 5개)
   sourceMaterial?: string; // 선택한 글감 전체 내용(사실 근거, 최대 4,000자)
+  extraInstructions?: string; // 병합 A-1: 회원 추가 지시(최대 500자)
   recentTitles?: string[]; // 중복 방지용
   imageCount?: number; // 썸네일 포함 1~5장
   targetLength?: number; // 목표 글자수 (1 ~ 4000자, 기본 2000자)
@@ -81,6 +83,7 @@ export async function runBlogGenerationPipeline(input: PipelineInput): Promise<P
   const articleFormat: ArticleFormat = isArticleFormat(input.articleFormat) ? input.articleFormat : "standard";
   const sourceMaterial = normalizeSourceMaterial(sanitizeBodyYear(input.sourceMaterial ?? "", currentYear));
   const sourceBlock = buildSourceBlock(sourceMaterial);
+  const extraBlock = buildExtraInstructionBlock(String(input.extraInstructions || "").slice(0, 500));
 
   // [1단계 안전망: 입력단 과거 연도 자동 정제]
   const cleanTopic = sanitizeYear(input.topic, currentYear);
@@ -119,7 +122,7 @@ ${persona ? `특히 "${persona.name}" [${persona.badge}] 시각에서 독자가 
 - 목표 글자수: 공백 포함 약 ${targetLength}자
 - 최근 발행 글 목록 (소재 중복 절대 금지):
 ${recentTitles.slice(0, 10).map((t) => "- " + t).join("\n") || "(없음)"}
-${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}${sourceBlock}
+${cleanTopic ? `- 사용자가 지정한 주제: ${cleanTopic}` : ""}${sourceBlock}${extraBlock}
 
 반드시 아래 JSON 형식으로만 응답해:
 {
@@ -207,7 +210,7 @@ ${persona ? `작성자 캐릭터: ${persona.name} (${persona.badge})` : ""}
 ${researchData.subsections.map((s: any, idx: number) => `${idx + 1}. ${s.title}: ${s.keyPoints.join(", ")}`).join("\n")}
 
 위 목차를 바탕으로 스마트에디터 ONE 양식의 전체 본문을 약 ${targetLength}자 분량으로 상세히 작성해줘.
-검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.${sourceBlock}`;
+검색 키워드는 제목·소제목·본문에 억지스럽지 않게 자연스럽게 녹이고, 발행 목적에 맞는 관점과 마무리를 갖춰줘.${sourceBlock}${extraBlock}`;
 
   const writerRaw = await callAI(aiConfig, `${writerSystemPrompt}${buildFormatWriterRule(articleFormat)}\n\n${writingStylePrompt}`, writerUserPrompt);
   const draftArticle = sanitizeBodyYear(cleanGeneratedBody(writerRaw), currentYear);

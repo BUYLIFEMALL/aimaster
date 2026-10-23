@@ -192,7 +192,7 @@ test('image persistence sends only ID/images and reports rejected ACK without fa
 test('generation automatically starts images with the returned server ID instead of the previous render ID',async()=>{
   const result={title:'new',content:'body',tags:[],category:'category',images:rules.buildImagePlan('new','category',[],3)};
   const h=imageEnvironment(async()=>({ok:true,json:async()=>({saved:true,postId:UUID,post:{id:UUID,save_revision:'generated'},result})})),starts=[];
-  Object.assign(h.env,{preferencesLoaded:true,autoGenerateImages:true,setLoading(){},setResult(){},setPreferencesNotice(){},setSavedPostCount(){},cleanCurrentYear:value=>value || '',writingStyle:'default',articleFormat:'standard',shoppingLinksInput:'',targetCharCount:2000,engine:{provider:'openai'},selectedViral:null,document:{},setTimeout(){},generateImagesFor:async(...args)=>starts.push(args),savePostToStorage:async()=>{throw Error('duplicate save');}});
+  Object.assign(h.env,{preferencesLoaded:true,autoGenerateImages:true,setLoading(){},setResult(){},setPreferencesNotice(){},setSavedPostCount(){},cleanCurrentYear:value=>value || '',writingStyle:'default',articleFormat:'standard',shoppingLinksInput:'',referenceUrlsInput:'',extraInstructions:'',targetCharCount:2000,engine:{provider:'openai'},selectedViral:null,document:{},setTimeout(){},generateImagesFor:async(...args)=>starts.push(args),savePostToStorage:async()=>{throw Error('duplicate save');}});
   h.env.currentPostId='old-server-id';h.env.postIdRef.current='old-server-id';
   await handler(main,'executeGeneration',h.env)({overrideCategory:'category'});
   assert.equal(starts.length,1);assert.equal(starts[0][1],UUID);

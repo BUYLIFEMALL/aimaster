@@ -236,3 +236,9 @@
 - 한 일: 확장 자동 감지(읽기만) + 보관함 직접 입력, 서버 규칙 `src/lib/preparedPublish.ts`. DB 칸 추가 없음. 상세는 AGENTS.md 맨 위·플랜.
 - 검수: tsc·로컬 빌드, 시험 22종(새 `test:prepared-publish` 5, `test:extension-tabs` 시나리오 5 추가) 통과. 배포 Ready·DB/확장/ZIP v2.15·`check-extension-release` OK. 크롬(시험 계정): 준비 완료 6건 카드에 버튼, 다른 블로그 주소 입력 시 「이 원고의 블로그(buylifeacademy) 글 주소를 넣어 주세요」 거절(기록 안 됨).
 - 남은 일: ① 실제 자동 감지 확인 — 주인님이 준비 모드 원고 1건을 열린 탭에서 직접 비공개 발행 → 보관함 「발행 완료」+주소 확인 ② 예약 발행은 탭이 글 주소로 바뀌지 않아 자동 감지 대상 아님(발행 뒤 주소 입력) ③ 이미 준비 완료로 남은 옛 원고 6건은 회원이 필요하면 주소로 기록.
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기(v2.16): 블로그 병합 A-1 참고 URL·추가 지시 (BLOG → 에이전트)
+- BLOG(`ai-auto-blog`)는 참고 URL 「주소 글자」만 지시문에 넣어 페이지 내용이 근거로 쓰이지 않았음 → 에이전트에는 **본문을 실제로 읽어 근거로 넣는 방식**으로 개선해 가져옴. 플랜 [docs/PLAN_20261023_MERGE_A1_REFERENCE_URLS.md](PLAN_20261023_MERGE_A1_REFERENCE_URLS.md).
+- 바꾼 것: `src/lib/referenceUrls.ts`(새 — http(s)·최대 3개·중복 제거, 추가 지시 500자, 본문 읽기 실패는 failed로, 글감 자료 먼저+전체 4,000자 합치기, 추가 지시 블록) · `api/generate`(collector `fetchPublicHtml`·`extractMainText`로 읽어 근거에 합침, `research_summary.reference_urls` 기록, 응답 `referenceFailed`) · `lib/ai/pipeline.ts`(기획·작성 지시문에 추가 지시 블록) · 생성 화면 입력칸 2개·읽지 못한 주소 안내.
+- 검수: tsc, 시험 23종(새 `test:reference-urls` 5) 통과 — `test-queue-confirmation.cjs` 생성 함수 시험 환경에 새 상태값 2개만 추가. 실제 생성 1회(gpt-4o-mini, 시험 계정 본인 키, 저장 안 함): 위키백과 본문 1,450자 근거 → 본문에 영국·홀딩·1908 사실 반영, 없는 주소는 failed로 빠지고 생성 계속, 체크리스트 반영(맨 끝이 아니라 마지막 바로 앞 단락 — 지시 위치는 일부만 지킴), 검수 PASS·1,372자.
+- 남은 것: A-2(주제 뉴스 자동 근거)와 함께 v2.16 배포 → 크롬 화면 확인.

@@ -54,6 +54,7 @@ import { CategoryManagementModal } from "@/components/collector/CategoryManageme
 import { WRITING_TONES, WRITING_STYLES, getWritingStyleExample, type WritingTone, type WritingStyle } from "@/lib/ai/writingStyles";
 import { ARTICLE_FORMATS, type ArticleFormat } from "@/lib/ai/articleFormats";
 import { MAX_SHOPPING_LINKS, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
+import { MAX_REFERENCE_URLS, MAX_EXTRA_INSTRUCTIONS } from "@/lib/referenceUrls";
 import SourceEvidence from "@/components/SourceEvidence";
 import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from "@/lib/ai/openaiRequestParams";
 import {
@@ -83,6 +84,9 @@ export default function MainPage() {
   const [writingStyle, setWritingStyle] = useState<WritingStyle>("default");
   const [articleFormat, setArticleFormat] = useState<ArticleFormat>("standard");
   const [shoppingLinksInput, setShoppingLinksInput] = useState("");
+  // 병합 A-1(v2.16 후보): 참고 URL(본문을 읽어 근거로)·추가 지시
+  const [referenceUrlsInput, setReferenceUrlsInput] = useState("");
+  const [extraInstructions, setExtraInstructions] = useState("");
   const [targetCharCount, setTargetCharCount] = useState<number>(2000);
 
   // AI 엔진 & 이미지 모델 선택 상태 (threads-content-ops와 동일 구조)
@@ -536,6 +540,8 @@ export default function MainPage() {
           // 선택한 글감의 전체 내용을 사실 근거로 함께 보낸다(앞 100자만 가던 문제 수정).
           source_id: selectedViral?.id,
           shoppingLinks: shoppingLinksInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
+          referenceUrls: referenceUrlsInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
+          extraInstructions: extraInstructions.trim() || undefined,
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
           persona: params.overridePersona
@@ -571,6 +577,7 @@ export default function MainPage() {
         }catch{/* The server draft remains saved when the optional browser cache fails. */}
       }
       if(data.saveError)setError(data.saveError);
+      else if(Array.isArray(data.referenceFailed) && data.referenceFailed.length)setError(`참고 URL ${data.referenceFailed.length}개는 본문을 읽지 못해 근거에서 뺐습니다: ${data.referenceFailed.join(", ")}`);
 
       // 생성 원고 저장 ACK 뒤에만 사용 표시. 원본/수명은 수정하지 않는다.
       if (selectedViral && data.saved) {
@@ -1482,6 +1489,25 @@ export default function MainPage() {
               <p className="mt-1 text-[11px] text-neutral-500">
                 브랜드커넥트에서 직접 발급한 링크를 넣으면 소제목마다 하나씩 들어가고, 글 맨 앞에 대가성 문구가 자동으로 붙습니다: “{SHOPPING_DISCLOSURE}”
               </p>
+            </div>
+            <div>
+              <label htmlFor="reference-urls" className="text-xs font-semibold text-neutral-700">
+                참고 URL <span className="font-normal text-neutral-500">(선택 · 최대 {MAX_REFERENCE_URLS}개, 한 줄에 하나)</span>
+              </label>
+              <textarea id="reference-urls" rows={2} value={referenceUrlsInput}
+                onChange={(e) => setReferenceUrlsInput(e.target.value)}
+                placeholder="https://news.example.com/article/123"
+                className="mt-2 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none" />
+              <p className="mt-1 text-[11px] text-neutral-500">공개 웹페이지의 본문을 읽어 사실 근거로 씁니다. 읽지 못한 주소는 알려 드리고 빼고 씁니다.</p>
+            </div>
+            <div>
+              <label htmlFor="extra-instructions" className="text-xs font-semibold text-neutral-700">
+                추가 지시 <span className="font-normal text-neutral-500">(선택 · {extraInstructions.length}/{MAX_EXTRA_INSTRUCTIONS}자)</span>
+              </label>
+              <textarea id="extra-instructions" rows={2} value={extraInstructions} maxLength={MAX_EXTRA_INSTRUCTIONS}
+                onChange={(e) => setExtraInstructions(e.target.value)}
+                placeholder="예: 초보자 눈높이로, 마지막에 체크리스트를 넣어 주세요"
+                className="mt-2 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none" />
             </div>
           </fieldset>
           <div className="pt-2 flex justify-end border-t border-neutral-100">

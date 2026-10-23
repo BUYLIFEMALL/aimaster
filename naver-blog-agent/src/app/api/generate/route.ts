@@ -11,6 +11,8 @@ import { reviewFingerprint, withPostReview } from "@/lib/postReview";
 import { savedPost } from "@/lib/postSaveProtocol";
 import { newNaverDraftSummary } from "@/lib/naverPublishing";
 import { loadCollected, SourceError } from "@/lib/collectedMaterials";
+import { fetchPublicHtml, extractMainText } from "@/lib/collector";
+import { normalizeReferenceUrls, normalizeExtraInstructions, readReferencePages, mergeReferenceMaterial, ReferenceInputError } from "@/lib/referenceUrls";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -48,6 +50,11 @@ export async function POST(req: Request) {
     const shopping=normalizeShoppingLinks(body.shoppingLinks);
     if(shopping.rejected.length)return NextResponse.json({error:`네이버 쇼핑 커넥트 링크(https://naver.me/… 등)만 넣을 수 있습니다. 확인할 주소: ${shopping.rejected.slice(0,3).join(", ")}`},{status:400});
 
+    // 병합 A-1(v2.16 후보): 참고 URL 본문을 실제로 읽어 근거에 합치고, 추가 지시를 기획·작성에 반영
+    let referenceUrls:string[], extraInstructions:string;
+    try{referenceUrls=normalizeReferenceUrls(body.referenceUrls);extraInstructions=normalizeExtraInstructions(body.extraInstructions);}
+    catch(error){if(error instanceof ReferenceInputError)return NextResponse.json({error:error.message},{status:400});throw error;}
+
     if(body.imageCount !== undefined && (!Number.isInteger(body.imageCount) || body.imageCount < 1 || body.imageCount > 5))return NextResponse.json({error:"이미지 장수는 1~5장으로 선택해 주세요."},{status:400});
 
     const admin=createAdminClient() as any;
@@ -73,6 +80,9 @@ export async function POST(req: Request) {
     const {data:recent,error:recentError}=await admin.from("nba_posts").select("title").eq("user_id",user.id).eq("blog_id",blogId).order("created_at",{ascending:false}).limit(10);
     if(recentError)return NextResponse.json({error:"최근 원고 제목을 확인하지 못했습니다. 잠시 후 다시 생성해 주세요."},{status:503});
 
+    const references=await readReferencePages(referenceUrls,async(url)=>{const {html}=await fetchPublicHtml(url);return extractMainText(html,4000);});
+    const groundingMaterial=mergeReferenceMaterial(source ? normalizeSourceMaterial(source.material) : undefined,references.pages);
+
     // 2. 5단계 AI 글 생성 파이프라인 실행
     const result = await runBlogGenerationPipeline({
       topic,
@@ -83,7 +93,8 @@ export async function POST(req: Request) {
       writingStyle,
       articleFormat: body.articleFormat,
       shoppingLinks: shopping.links,
-      sourceMaterial: source ? normalizeSourceMaterial(source.material) : undefined,
+      sourceMaterial: groundingMaterial || undefined,
+      extraInstructions,
       persona,
       targetLength: typeof targetLength === "number" ? targetLength : undefined,
       imageCount:body.imageCount ?? 2,
@@ -98,7 +109,7 @@ export async function POST(req: Request) {
     if (source && Date.parse(source.bundle.expiresAt) <= Date.now()) throw new SourceError("생성 중 근거 자료가 만료됐습니다. 원고를 저장하지 않았습니다.", 410);
     if (source) result.sourceBundle = source.bundle;
     const row={user_id:user.id,blog_id:blogId,category_name:result.category,title:result.title,content:result.content,tags:result.tags,images:result.images,status:"draft", ...(source ? {created_at: source.bundle.collectedAt} : {})};
-    const summary=withPostReview({...newNaverDraftSummary(blogId), ...(source ? {source_bundle: source.bundle} : {})},{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
+    const summary=withPostReview({...newNaverDraftSummary(blogId), ...(source ? {source_bundle: source.bundle} : {}), ...(references.pages.length ? {reference_urls: references.pages.map((page)=>page.url)} : {})},{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
     let post:any=null,saveError:unknown=null;
     try {const saved=await admin.from("nba_posts").insert({...row,research_summary:summary}).select("*").single();post=saved.data;saveError=saved.error;}
     catch {saveError=true;}
@@ -109,6 +120,7 @@ export async function POST(req: Request) {
       postId:post?.id || null,
       post:!saveError && post?.id ? savedPost(post) : null,
       saved:!saveError && Boolean(post?.id),
+      ...(references.failed.length?{referenceFailed:references.failed}:{}),
       ...((saveError || !post?.id)?{saveError:"생성한 원고의 서버 저장에 실패했습니다. 화면의 원고를 저장한 뒤 직접 검수해 주세요."}:{}),
     });
   } catch (error: any) {
