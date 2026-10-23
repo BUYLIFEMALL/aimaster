@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — AI 음악 스튜디오 v1.09: Stable Audio 3 추가 (남은 작업 2번 중 첫 부분)
+- 모델 「Stable Audio 3 (fal)」 — `fal-ai/stable-audio-3/medium/text-to-audio`(연주곡·효과음, 10~380초, fal 가격표 회당 $0.0376, 상업 이용 표기). 회원 본인 fal 키 재사용(새 키 없음). 숨김 Mureka 코드도 함께 배포(화면 변화 없음).
+- 검수: 시험 29개·build, 커밋 `5f0674987`, 배포 `ai-music-studio-qczjztk8h` Ready, DB v1.09. 크롬 시험 회원: 모델 카드 표시·Mureka 안 보임, 30초 연주곡 생성 → fal 추론 4초·MP3 0.70MB·30초 재생.
+- 다음: Lyria RealTime(실험 모델, 브라우저 실시간 연결 — 키 처리 방식 결정 필요).
+- 비용: Vercel 빌드 1회, Stable Audio 3 1회 약 $0.04(시험 회원 fal 키). 프로그램 링크:
+https://ai-music-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — ⚠ 공용 스테이징 다시 축소(복구) · 안전 커밋 도우미 자동 시험 · video-to-gif 문서 정정 · 문서-코드 대조 검토
 - **⚠ 13:28 공용 스테이징이 11개로 줄었다**(정상 약 10,611). 망가진 커밋은 없음(pre-commit 대량 삭제 검사가 막음). 주인님 승인 뒤 `git read-tree HEAD`로 복구(남은 항목이 모두 HEAD와 같음을 직전 확인, 작업 폴더 무변경). 원인 추정: 경로 지정 커밋이 인덱스 교체 순간을 「빈 인덱스」로 읽음 — `docs/ERROR_LESSONS.md` 맨 위. **모든 세션: 커밋 전 `git ls-files | wc -l`이 이상하면 멈추고 알리기.** `.git/index.safe-commit-<pid>` 임시 파일 11개가 남아 있음(정리 안 함).
 - `scripts/safe-commit.test.mjs`(새): `node --test`로 임시 저장소 4가지(옆자리 겹침 순서·맨 위 동시 추가·진짜 충돌 중단·`--mine` 푸시 보류). 지금 도우미 4/4 통과, 고치기 전 판(`SAFE_COMMIT_HELPER=`)은 ① 실패 — 결함을 잡아냄 확인.
