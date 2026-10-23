@@ -7,7 +7,7 @@
 //       node scripts/index-watch.mjs commit-gate --stale-only   묵은 스테이징 항목만 확인(있으면 종료 코드 3)
 // 잠금(.git/index.lock)이 5분 넘게 남으면 잠금 하나당 한 번 .git/aimaster-lock-evidence.txt에 그때 프로세스·전후 기록을 남긴다.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { hostname } from "node:os";
 import { join, relative, resolve } from "node:path";
 
@@ -62,6 +62,23 @@ try {
   const last = prev[prev.length - 1];
   const lastEntries = Number((last?.match(/entries=(\d+)/) ?? [])[1] ?? 0);
   appendFileSync(logPath, line + "\n");
+  // 세션 이름 → 메시지 주소(2026-10-23): ListAgents 이름(aimaster-xx)과 우리 세션 이름이 달라 문의 대상을 짐작해야 했음.
+  // 이름표에 (세션)이 있고 Claude Code 메시지 주소가 있으면 .git/aimaster-sessions.txt에 한 번 적는다(커밋 안 됨, 비밀값 TOKEN은 적지 않음, 같은 장비에서만 통함)
+  const sessionsPath = join(gitDir, "aimaster-sessions.txt");
+  const myName = (tag.match(/\(([\w.-]+)\)/) ?? [])[1];
+  if (myName && process.env.CLAUDE_CODE_MESSAGING_SOCKET) {
+    try {
+      const rec = `${myName} | ${hostname()} | uds:${process.env.CLAUDE_CODE_MESSAGING_SOCKET}`;
+      const have = existsSync(sessionsPath) ? readFileSync(sessionsPath, "utf8") : "";
+      if (!have.includes(rec)) {
+        appendFileSync(sessionsPath, `${t(new Date())} | ${rec}\n`);
+        const ls = have.split("\n").filter(Boolean);
+        if (ls.length > 2000) writeFileSync(sessionsPath, [...ls.slice(-1000), `${t(new Date())} | ${rec}`].join("\n") + "\n");
+      }
+    } catch { /* 무시 */ }
+  }
+  // 이름 → 가장 최근 주소(장비 포함)
+  const addressOf = (n) => { try { const ls = readFileSync(sessionsPath, "utf8").trimEnd().split("\n").filter((l) => l.split(" | ")[1] === n); const p = ls.pop()?.split(" | "); return p ? `${p[3]}@${p[2]}` : ""; } catch { return ""; } };
   if (prev.length > 40000) writeFileSync(logPath, [...prev.slice(-30000), line].join("\n") + "\n");
   // 잠금 증거(2026-10-23): 잠금이 5분 넘게 남았으면 잠금 하나당 한 번, 그때 돌던 git 프로세스와 잠금 생성 시각 ±2분의 기록 줄을 남긴다
   // (14:33 잠금은 만든 명령이 미확인으로 남았음 — 다음엔 이 파일로 좁힌다). 시간이 걸리는 프로세스 조회는 이때만 한다.
@@ -170,10 +187,11 @@ try {
         for (const who of readdirSync(sc)) for (const f of readdirSync(join(sc, who))) {
           const age = Date.now() - statSync(join(sc, who, f)).mtimeMs;
           if (age <= 24 * 3600_000) continue;
-          if (who.startsWith("deploy-")) { deployLeft++; continue; }
+          // 하루 지난 배포 세션은 끝났으므로 그 사본은 지운다(배포마다 --force-begin으로 새로 뜨니 잃을 것 없음, 2026-10-23)
+          if (who.startsWith("deploy-")) { try { rmSync(join(sc, who, f), { force: true }); deployLeft++; } catch { /* 무시 */ } continue; }
           old.push(`${who}:${f.replace(/__/g, "/").replace(/\.base$/, "")}(${Math.floor(age / 3600_000)}시간)`);
         }
-        if (old.length) console.log(`⚠ [오래된 기준 사본] ${old.length}개: ${old.slice(0, 3).join(", ")}${old.length > 3 ? ` 외 ${old.length - 3}개` : ""} — 수정 시작 표시 뒤 커밋 없이 끝난 세션일 수 있음. \`node scripts/safe-commit.mjs --status\`로 보고, 그 세션에 확인 후 정리(내 것이면 커밋하거나 --begin ... --force-begin)${deployLeft ? ` · 배포 스크립트가 남긴 것 ${deployLeft}개는 정상` : ""}`);
+        if (old.length) console.log(`⚠ [오래된 기준 사본] ${old.length}개: ${old.slice(0, 3).join(", ")}${old.length > 3 ? ` 외 ${old.length - 3}개` : ""} — 수정 시작 표시 뒤 커밋 없이 끝난 세션일 수 있음. \`node scripts/safe-commit.mjs --status\`로 보고, 그 세션에 확인 후 정리(내 것이면 커밋하거나 --begin ... --force-begin)${deployLeft ? ` · 하루 지난 배포 스크립트 사본 ${deployLeft}개는 지움` : ""}`);
       }
     } catch { /* 무시 */ }
     // 작업 중 표의 세션 이름(2026-10-23, docs/ACTIVE_WORK.md 사용법 2): 「에이전트(장비)」 칸에 claude-·codex-·agy- 세션 이름이 없는 줄
@@ -184,7 +202,7 @@ try {
         const tableRows = body.split("\n").filter((l) => l.startsWith("|") && !/^\|\s*(폴더|-{3})/.test(l))
           .map((l) => l.split("|").map((c) => c.trim())).filter((c) => c.length > 3)
           // 범위(2026-10-23, docs/ACTIVE_WORK.md 사용법 2): 폴더 칸 끝 「(범위: a·b/c)」 = 폴더 안 경로만 맡음 → 그 밖 파일 수정은 겹침이 아님
-          .map((c) => ({ scope: ((c[1].match(/범위:\s*([^)]*)\)/) ?? [])[1] ?? "").split("·").map((s) => s.replace(/`/g, "").trim().replace(/^\.\//, "").replace(/\/$/, "")).filter(Boolean), folders: (c[1].replace(/\(범위:[^)]*\)/, "").match(/`([^`]+)`/g) ?? []).map((f) => f.replace(/`/g, "").replace(/\/$/, "")), folder: c[1].replace(/`/g, "").split("·")[0].trim().slice(0, 40), name: (c[2].match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1], start: (c[3].match(/\d{4}-\d\d-\d\d/) ?? [])[0] }));
+          .map((c) => ({ scope: ((c[1].match(/범위:\s*([^)]*)\)/) ?? [])[1] ?? "").split("·").map((s) => s.replace(/`/g, "").trim().replace(/^\.\//, "").replace(/\/$/, "")).filter(Boolean), folders: (c[1].replace(/\(범위:[^)]*\)/, "").match(/`([^`]+)`/g) ?? []).map((f) => f.replace(/`/g, "").replace(/\/$/, "")), folder: c[1].replace(/\(범위:[^)]*\)/, "").replace(/`/g, "").split("·")[0].trim().slice(0, 40), name: (c[2].match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1], start: (c[3].match(/\d{4}-\d\d-\d\d/) ?? [])[0] }));
         const noName = tableRows.filter((r) => !r.name).map((r) => r.folder);
         if (noName.length) console.log(`⚠ [작업 중 표 세션 이름 없음] ${noName.length}줄: ${noName.slice(0, 3).join(", ")}${noName.length > 3 ? ` 외 ${noName.length - 3}줄` : ""} — 「에이전트(장비)」 칸에 \`세션 <CLI>-<장비>-<날짜>-<작업>\`을 넣어야 다른 세션이 찾아 물을 수 있음(docs/ACTIVE_WORK.md 사용법 2)`);
         // 끝났는데 줄을 안 지운 듯한 세션(2026-10-23): 시작이 하루 넘게 지났고, 24시간 안에 그 이름의 블랙박스 기록·커밋이 하나도 없음 — 지우지 말고 주인님께(사용법 4)
@@ -194,7 +212,7 @@ try {
         const idle = tableRows.filter((r) => r.name && r.start && new Date(`${r.start}T23:59:59`).getTime() < since && !seen(r.name));
         if (idle.length) console.log(`⚠ [작업 중 표 오래된 줄] ${idle.length}줄: ${idle.slice(0, 3).map((r) => `${r.folder}(${r.name}, ${r.start} 시작)`).join(", ")}${idle.length > 3 ? ` 외 ${idle.length - 3}줄` : ""} — 24시간 동안 그 세션의 기록·커밋이 없음. 끝난 세션일 수 있으니 지우지 말고 주인님께 확인(docs/ACTIVE_WORK.md 사용법 4)`);
         // 지금 작업 중인 세션 목록(폴더 → 세션 이름) — 다른 세션에 메시지를 보낼 때 바로 찾게. ⚠가 없어 요약 한 줄이 되어도 따로 보인다
-        if (tableRows.some((r) => r.name)) activeList = `[작업 중 세션] ${tableRows.filter((r) => r.name).map((r) => `${r.folder}${r.folders.length > 1 ? ` 외 ${r.folders.length - 1}개` : ""} → ${r.name}`).join(" · ")}`;
+        if (tableRows.some((r) => r.name)) activeList = `[작업 중 세션] ${tableRows.filter((r) => r.name).map((r) => { const a = addressOf(r.name); return `${r.folder}${r.folders.length > 1 ? ` 외 ${r.folders.length - 1}개` : ""} → ${r.name}${a ? `(메시지 ${a})` : ""}`; }).join(" · ")}`;
         // 표에 없는 세션이 표의 폴더를 고침(2026-10-23): 24시간 안 커밋 중 세션 이름이 붙었고 그 폴더 줄의 세션과 다른 것 — 같은 폴더 동시 작업을 빨리 잡는다
         // (이름 없는 커밋은 판단하지 않음. 주인님 승인으로 다른 세션이 맡는 경우도 있으니 막지 않고 확인만)
         try {
