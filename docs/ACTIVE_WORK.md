@@ -18,6 +18,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `crm-google-form/` · `booking-reminder/` · `stepmail/` · `kakao_auto_poster/` · `trending-product-finder/` · `real_estate_sales/` (`lib/solapi/client.ts`·`lib/actions/solapiAccount.ts`만) | Claude Code(윈도우) · 세션 `claude-win-20261023-solapi-shared` | 2026-10-23 | SOLAPI 발송 코드 공용 기준 코드 등록 + 테스트 문자 이름 수정, 플랜 `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md` · 미배포 대기 |
 | `ai-music-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-bgm` | 2026-10-23 | 남은 음악 작업 순서대로 — ① Mureka 연동 코드(숨김·미배포) ② Stable Audio 3 직접·Lyria RealTime ③ 이후 목록 |
 | `naver-blog-agent/` (블로그 전담) | Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg` | 2026-10-23 | 블로그 전담 진행 중 — ① 검수 지문 10건 완료, 30일 정리 기록 6곳 완료(미배포) → 다음: 인계 ④ 발행 준비 글 실제 이미지 입력(실제 발행, 승인 필요) |
 | `ai-video-studio/` + `music-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-avs-v105` (영상 작업 담당) | 2026-10-23 | 묶음 B: 영상 합치기 공용화(`video-edit-composer`, 기준 ai-video-studio) + 뮤직비디오 「최종 뮤직비디오 만들기」 v1.15 예정(빌드 1회 승인), 플랜 `ai-video-studio/docs/PLAN_20261023_EDIT_STUDIO.md` 9절 |
