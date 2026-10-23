@@ -40,6 +40,7 @@ import PrivatePhotoInput from "@/components/PrivatePhotoInput";
 import NaverPublishSettings from "@/components/NaverPublishSettings";
 import PostReviewGate from "@/components/PostReviewGate";
 import { draftImageList, mergeDraftImage, bodyImageAt, removeImageFromArticle, generatedDraftImages, pendingDraftImages, countImageMarkers, moveImageMarker, reorderBodyImages, type DraftImage } from "@/lib/draftImages";
+import { applyThumbnailUrl, canTitleThumbnail, overlayThumbnailTitle, restoreThumbnailUrl } from "@/lib/thumbnailTitle";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
 import { retentionDaysLeft } from "@/lib/retention";
@@ -137,7 +138,7 @@ export default function MainPage() {
   const preferencesUnchanged = savedPreferences === currentPreferences;
   const [configuredProviders, setConfiguredProviders] = useState<string[]>([]);
   const [generatedImages, setGeneratedImages] = useState<
-    { url: string; type: "thumbnail" | "body"; caption: string; prompt: string }[]
+    (DraftImage & { url: string })[]
   >([]);
   const coverImage=generatedImages.find(image=>image.type==="thumbnail");
   const [imagesEdited, setImagesEdited] = useState(false);
@@ -152,6 +153,7 @@ export default function MainPage() {
   useEffect(() => () => { sourceEpoch.current++; }, []);
   const [imageGenerating, setImageGenerating] = useState<{ done: number; total: number } | null>(null);
   const [singleGeneratingIndex, setSingleGeneratingIndex] = useState<number | null>(null);
+  const [thumbnailTitleBusy, setThumbnailTitleBusy] = useState(false);
   const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -747,6 +749,32 @@ export default function MainPage() {
     imagesRef.current=next;setGeneratedImages(generatedDraftImages(next));setImagesEdited(true);
     setResult(previous=>previous?{...previous,images:next,content:moved.content,reviewStatus:undefined,reviewNote:undefined}:previous);
     try{await persistImages(currentPostId,next,epoch,moved.content);}finally{if(imageBusy.current===epoch)imageBusy.current=null;}
+  };
+
+  // 병합 A-6: 이미 만든 대표 이미지에 원고 제목 글자를 합성한다(다시 만들지 않아 AI 비용 없음). 항상 글자 없는 원본 위에 그린다.
+  const handleThumbnailTitle = async (mode:"apply"|"restore") => {
+    if(!result || !currentPostId || imageBusy.current!==null)return;
+    const thumb=imagesRef.current.find(canTitleThumbnail);
+    if(!thumb?.url)return;
+    const epoch=sourceEpoch.current,targetId=currentPostId;imageBusy.current=epoch;
+    setThumbnailTitleBusy(true);setError(null);
+    try{
+      let next:DraftImage[];
+      if(mode==="restore")next=restoreThumbnailUrl(imagesRef.current);
+      else{
+        const blob=await overlayThumbnailTitle(thumb.originalUrl || thumb.url,result.title);
+        const form=new FormData();form.append("file",new File([blob],"thumbnail-title.jpg",{type:"image/jpeg"}));
+        const res=await fetch("/api/upload-image",{method:"POST",body:form});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok || !data.url)throw new Error(data.error || "제목 글자 넣은 이미지를 저장하지 못했습니다.");
+        if(epoch!==sourceEpoch.current)return;
+        next=applyThumbnailUrl(imagesRef.current,data.url);
+      }
+      imagesRef.current=next;setGeneratedImages(generatedDraftImages(next));setImagesEdited(true);
+      setResult(previous=>previous?{...previous,images:next}:previous);
+      await persistImages(targetId,next,epoch);
+    }catch(err){if(epoch===sourceEpoch.current)setError(err instanceof Error?err.message:"제목 글자를 넣지 못했습니다.");}
+    finally{if(imageBusy.current===epoch)imageBusy.current=null;setThumbnailTitleBusy(false);}
   };
 
   const handlePublishToQueue = async () => {
@@ -2182,7 +2210,7 @@ export default function MainPage() {
                             <div className="text-xs font-medium text-neutral-800 line-clamp-1" title={genImg.caption}>
                               {genImg.caption}
                             </div>
-                            <div className="flex items-center justify-between gap-1 pt-1 border-t border-neutral-100 text-[11px]">
+                            <div className="flex flex-wrap items-center justify-between gap-1 pt-1 border-t border-neutral-100 text-[11px]">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -2204,6 +2232,30 @@ export default function MainPage() {
                                 <Download className="w-3 h-3" />
                                 <span>다운로드</span>
                               </a>
+                              {canTitleThumbnail(genImg) && (
+                                <>
+                                  <button
+                                    type="button"
+                                    disabled={thumbnailTitleBusy}
+                                    onClick={() => handleThumbnailTitle("apply")}
+                                    className="px-2 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium transition-colors disabled:opacity-40"
+                                    title="원고 제목을 대표 이미지 아래쪽에 넣습니다(이미지를 다시 만들지 않음)"
+                                  >
+                                    {thumbnailTitleBusy ? "넣는 중…" : genImg.originalUrl ? "글자 다시" : "제목 글자"}
+                                  </button>
+                                  {genImg.originalUrl && (
+                                    <button
+                                      type="button"
+                                      disabled={thumbnailTitleBusy}
+                                      onClick={() => handleThumbnailTitle("restore")}
+                                      className="px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium transition-colors disabled:opacity-40"
+                                      title="글자 없는 원본으로 되돌립니다"
+                                    >
+                                      원본
+                                    </button>
+                                  )}
+                                </>
+                              )}
                               {(() => {
                                 const slot = imageMoveSlot(idx);
                                 if (slot === null || !result) return null;

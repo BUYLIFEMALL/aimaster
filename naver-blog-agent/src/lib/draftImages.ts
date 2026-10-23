@@ -1,5 +1,5 @@
 export interface DraftImage { url?: string; type: "thumbnail" | "body"; caption: string; prompt: string;
-  id?: string; storagePath?: string; createdAt?: string; expiresAt?: string }
+  id?: string; storagePath?: string; createdAt?: string; expiresAt?: string; originalUrl?: string }
 
 export function generatedDraftImages<T extends DraftImage>(images: T[]): (T & { url: string })[] {
   return images.filter((image): image is T & { url: string } => typeof image.url === "string" && Boolean(image.url));

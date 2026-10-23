@@ -268,3 +268,9 @@
 - 바꾼 것: `src/lib/draftImages.ts`(`countImageMarkers`·`moveImageMarker`·`reorderBodyImages`) · `src/app/(dashboard)/page.tsx`(`imageMoveSlot`·`handleMoveGeneratedImage`·버튼) · 새 시험 `scripts/test-image-move.cjs`(`test:image-move` 4 — 확장 `articlePlan`으로 실제 발행 소제목까지 대조).
 - 검수: tsc, 시험 27종 통과. AI 호출 없음. 남은 것: A-6·A-7과 함께 v2.18 배포 → 크롬에서 시험 계정 원고로 이동·저장 뒤 다시 열기 확인.
 - 한계: 표시 수와 생성 이미지 수가 다른 원고(이미지를 지운 원고 등)는 버튼이 숨겨짐.
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기(v2.18): 블로그 병합 A-6 대표 이미지에 제목 글자 넣기 (올인원 → 에이전트)
+- 올인원 `overlayThumbnailTitle`(어두운 띠·강조 막대·흰 제목 최대 3줄, 브라우저 캔버스)을 가져오되 **자동 합성 대신 버튼**: 생성된 대표 이미지 카드에 「제목 글자」·「글자 다시」·「원본」. 이미 만든 이미지 위에 그려 `/api/upload-image`로 올리고 대표 이미지 주소만 바꿈 — **이미지를 다시 만들지 않아 AI 비용 없음**. 원본 주소는 이미지 항목의 새 선택 칸 `originalUrl`에 처음 한 번만 남김(예전 원고 그대로 열림), 다시 넣을 때도 원본 위에 그림.
+- **보안:** 회원 비공개 사진(`storagePath`)인 대표 이미지는 버튼을 보이지 않음(공개 저장소로 올라가는 것을 막음).
+- 바꾼 것: 새 `src/lib/thumbnailTitle.ts`(`wrapTitle`·`canTitleThumbnail`·`applyThumbnailUrl`·`restoreThumbnailUrl`·`overlayThumbnailTitle`) · `src/lib/draftImages.ts`(`originalUrl?`) · `src/app/(dashboard)/page.tsx`(`handleThumbnailTitle`·버튼·카드 버튼 줄바꿈·생성 이미지 상태 형식을 `DraftImage` 기준으로) · 새 시험 `scripts/test-thumbnail-title.cjs`(`test:thumbnail-title` 3).
+- 검수: tsc, 시험 28종 통과, 저장소 교차 출처 허용 확인. AI 호출 없음. **캔버스 그림 자체는 아직 화면 확인 전** — v2.18 배포 뒤 크롬에서 시험 계정 원고로 글자 넣기·다시 열기 유지·되돌리기 확인.
