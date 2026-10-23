@@ -65,6 +65,6 @@
 ## 2026-10-24 v1.20 윈도우 시험에서 찾은 것 (Claude Code 윈도우, 배포 완료)
 | 번호 | 종류 | 내용 | 영향 | 제안 | 상태 |
 |---|---|---|---|---|---|
-| LR-W-01 | 규칙 | 확장 `version_name` v1.00 ≠ 프로그램 v1.20 → `check-extension-release.mjs` 실패(핵심 원칙 10) | DB·ZIP은 v1.00으로 서로 맞아 회원 영향 없음 | 다음 배포 때 manifest v1.20 + `build-local-renderer.mjs` + DB `extension_version` | 대기 |
+| LR-W-01 | 규칙 | 확장 `version_name` v1.00 ≠ 프로그램 v1.20 → `check-extension-release.mjs` 실패(핵심 원칙 10) | DB·ZIP은 v1.00으로 서로 맞아 회원 영향 없음 | 다음 배포 때 manifest v1.20 + `build-local-renderer.mjs` + DB `extension_version` | 🟡 2026-10-24 맥미니 구현·미배포 대기 — 생성 스크립트가 `lib/version.ts`로 확장 버전을 자동으로 맞춤(지금 v1.20). 다음 배포 때 버전을 올린 뒤 스크립트를 다시 돌리면 확장도 같은 버전 → DB `extension_version` 맞춤 |
 | LR-W-02 | 확인 | 엣지는 크롬 Native Messaging 등록 위치를 그대로 읽음 | 엣지 회원도 같은 설치로 사용 가능 | 설치 안내에 「엣지도 됨」 한 줄 | 제안 |
 | LR-W-03 | 검수 방법 | Claude 확장이 조작하는 자동화 탭에는 다른 확장의 `externally_connectable`(`chrome.runtime`)이 안 생김 → 「사용 중」은 일반 탭에서만 보임 | 자동 검수만으로는 고속 변환 화면을 못 봄 | 검수는 일반 탭 + 콘솔 `ping`, 자동화 탭은 「확장 없음 → 브라우저 변환」 확인용 | 기록 |

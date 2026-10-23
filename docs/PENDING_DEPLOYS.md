@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `video-to-gif` (운영 v1.20) | LR-W-01 확장 버전 맞춤 — `scripts/build-local-renderer.mjs`가 `lib/version.ts`를 읽어 확장 `manifest.json` 버전을 자동으로 맞춤, 지금 v1.20으로 ZIP 다시 만듦 | 이 줄과 같은 `video-to-gif` 커밋 | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `video-to-gif/docs/IMPROVEMENTS.md` LR-W-01 | **버전을 올린 뒤 `node scripts/build-local-renderer.mjs` 다시 실행**(확장도 새 버전으로) → 배포 → DB `extension_version`을 같은 버전으로 → `check-extension-release.mjs video-to-gif` OK |
 | `ai-image-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shorts-onestop-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shots` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
