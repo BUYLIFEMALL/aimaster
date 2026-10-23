@@ -1,7 +1,7 @@
 # 병합 묶음 A-2: 주제로 최근 뉴스 자동 근거 (BLOG → 에이전트) — 개발 플랜 (v2.16 후보, 2026-10-23)
 
 - 작성: Claude Code(윈도우) 블로그 전담 `claude-win-20261023-blog2`
-- 상태: **플랜 보고 — 주인님 승인 대기(코드 미수정)**
+- 상태: **구현·로컬 검수 완료(2026-10-23, 주인님 「진행해」) — A-1과 함께 v2.16 배포**. 체크 상태 저장은 DB 칸이 필요해 이번에 빼둠. 결과: `docs/IMPROVEMENTS.md` 맨 아래
 - 근거: 블로그 병합 묶음 A([REPORT](../../docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge-independent-20261023)), A-1 다음 순서.
 
 ## 원본(BLOG)의 기능

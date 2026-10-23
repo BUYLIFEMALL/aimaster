@@ -31,7 +31,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:prepared-publish": "node --test scripts/test-prepared-publish.cjs",
-    "test:reference-urls": "node --test scripts/test-reference-urls.cjs"
+    "test:reference-urls": "node --test scripts/test-reference-urls.cjs",
+    "test:topic-news": "node --test scripts/test-topic-news.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

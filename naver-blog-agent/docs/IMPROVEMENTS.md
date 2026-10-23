@@ -242,3 +242,10 @@
 - 바꾼 것: `src/lib/referenceUrls.ts`(새 — http(s)·최대 3개·중복 제거, 추가 지시 500자, 본문 읽기 실패는 failed로, 글감 자료 먼저+전체 4,000자 합치기, 추가 지시 블록) · `api/generate`(collector `fetchPublicHtml`·`extractMainText`로 읽어 근거에 합침, `research_summary.reference_urls` 기록, 응답 `referenceFailed`) · `lib/ai/pipeline.ts`(기획·작성 지시문에 추가 지시 블록) · 생성 화면 입력칸 2개·읽지 못한 주소 안내.
 - 검수: tsc, 시험 23종(새 `test:reference-urls` 5) 통과 — `test-queue-confirmation.cjs` 생성 함수 시험 환경에 새 상태값 2개만 추가. 실제 생성 1회(gpt-4o-mini, 시험 계정 본인 키, 저장 안 함): 위키백과 본문 1,450자 근거 → 본문에 영국·홀딩·1908 사실 반영, 없는 주소는 failed로 빠지고 생성 계속, 체크리스트 반영(맨 끝이 아니라 마지막 바로 앞 단락 — 지시 위치는 일부만 지킴), 검수 PASS·1,372자.
 - 남은 것: A-2(주제 뉴스 자동 근거)와 함께 v2.16 배포 → 크롬 화면 확인.
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — 블로그 병합 A-2 주제로 최근 뉴스 근거 (BLOG → 에이전트)
+- BLOG `collect24HourNews`처럼 주제로 구글 뉴스 RSS 검색 → 최근 72시간 기사 제목·언론사·날짜 최대 8건을 근거 자료 끝에 붙임(`src/lib/topicNews.ts`, 글감 → 참고 URL → 뉴스 순서, 뉴스 몫은 잘리지 않게 먼저 비워 둠 — `mergeReferenceMaterial(…, tail)`). BLOG의 언론사 수 추정 점수는 가져오지 않음. 원고 기록 `research_summary.news_sources`, 응답 `topicNewsFailed`·`topicNewsCount`. 화면 체크 「주제로 최근 뉴스 근거 자동 수집」(기본 꺼짐).
+- **플랜과 달라진 점:** 체크 상태는 저장하지 않음 — 생성 설정은 `nba_generation_preferences` 고정 칸이라 저장하려면 DB 칸 추가(별도 승인)가 필요.
+- 검수: tsc, 시험 24종(새 `test:topic-news` 4) 통과. 실제 1회(gpt-4o-mini, 시험 계정 본인 키, 저장 안 함, 주제 「전기차 보조금」): 실제 구글 뉴스 8건(10/22~23) 근거 → 본문에 기사 사실(이언주 발언·생산세액공제·일본 40% 삭감) 반영, 검수 PASS·1,365자.
+- **발견(남은 과제):** 근거가 기사 **제목뿐**이라 AI가 맥락을 거꾸로 쓴 문장이 1개 있었음(「국산차 지원이 강조」 — 기사는 국산차 혜택 제외). 검수도 잡지 못함. 이번에는 화면 안내(「근거가 제목뿐이니 발행 전 사실 확인」)만 추가. 개선 후보: 상위 2~3건 기사 본문을 함께 읽어 근거로(구글 뉴스 링크는 중간 이동 주소라 실제 기사 주소 확인 필요).
+- 언론사 이름이 제목 끝에 두 번 붙는 경우 반복 제거로 수정.

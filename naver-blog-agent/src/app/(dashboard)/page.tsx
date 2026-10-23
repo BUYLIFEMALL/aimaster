@@ -87,6 +87,8 @@ export default function MainPage() {
   // 병합 A-1(v2.16 후보): 참고 URL(본문을 읽어 근거로)·추가 지시
   const [referenceUrlsInput, setReferenceUrlsInput] = useState("");
   const [extraInstructions, setExtraInstructions] = useState("");
+  // 병합 A-2(v2.16 후보): 주제로 최근 뉴스 근거(기본 꺼짐, 저장하지 않음)
+  const [topicNews, setTopicNews] = useState(false);
   const [targetCharCount, setTargetCharCount] = useState<number>(2000);
 
   // AI 엔진 & 이미지 모델 선택 상태 (threads-content-ops와 동일 구조)
@@ -542,6 +544,7 @@ export default function MainPage() {
           shoppingLinks: shoppingLinksInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
           referenceUrls: referenceUrlsInput.split(/\s+/).map((link) => link.trim()).filter(Boolean),
           extraInstructions: extraInstructions.trim() || undefined,
+          topicNews,
           targetLength: targetCharCount,
           engine, // 선택한 AI 글 생성 엔진 & 세부 모델 전달!
           persona: params.overridePersona
@@ -577,7 +580,13 @@ export default function MainPage() {
         }catch{/* The server draft remains saved when the optional browser cache fails. */}
       }
       if(data.saveError)setError(data.saveError);
-      else if(Array.isArray(data.referenceFailed) && data.referenceFailed.length)setError(`참고 URL ${data.referenceFailed.length}개는 본문을 읽지 못해 근거에서 뺐습니다: ${data.referenceFailed.join(", ")}`);
+      else {
+        const notices=[
+          ...(Array.isArray(data.referenceFailed) && data.referenceFailed.length?[`참고 URL ${data.referenceFailed.length}개는 본문을 읽지 못해 근거에서 뺐습니다: ${data.referenceFailed.join(", ")}`]:[]),
+          ...(data.topicNewsFailed?["주제로 찾은 최근 72시간 뉴스가 없거나 읽지 못해 뉴스 근거 없이 썼습니다."]:[]),
+        ];
+        if(notices.length)setError(notices.join(" "));
+      }
 
       // 생성 원고 저장 ACK 뒤에만 사용 표시. 원본/수명은 수정하지 않는다.
       if (selectedViral && data.saved) {
@@ -1500,6 +1509,10 @@ export default function MainPage() {
                 className="mt-2 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none" />
               <p className="mt-1 text-[11px] text-neutral-500">공개 웹페이지의 본문을 읽어 사실 근거로 씁니다. 읽지 못한 주소는 알려 드리고 빼고 씁니다.</p>
             </div>
+            <label className="flex items-start gap-2 text-xs text-neutral-700">
+              <input type="checkbox" checked={topicNews} onChange={(e) => setTopicNews(e.target.checked)} className="mt-0.5" />
+              <span><span className="font-semibold">주제로 최근 뉴스 근거 자동 수집</span> <span className="text-neutral-500">(선택 · 구글 뉴스에서 최근 72시간 기사 제목 최대 8건을 근거로 붙입니다. 주제를 입력했을 때만 동작. 근거가 기사 제목뿐이라 해석이 틀릴 수 있으니 발행 전에 사실을 확인해 주세요)</span></span>
+            </label>
             <div>
               <label htmlFor="extra-instructions" className="text-xs font-semibold text-neutral-700">
                 추가 지시 <span className="font-normal text-neutral-500">(선택 · {extraInstructions.length}/{MAX_EXTRA_INSTRUCTIONS}자)</span>

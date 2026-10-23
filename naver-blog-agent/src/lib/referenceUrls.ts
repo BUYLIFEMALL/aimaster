@@ -52,13 +52,16 @@ export async function readReferencePages(urls: string[], read: (url: string) => 
 }
 
 /** 글감 자료(있으면 먼저)와 참고 URL 본문을 근거 자료 하나로 합친다(전체 4,000자 이내). */
-export function mergeReferenceMaterial(sourceMaterial: string | undefined, pages: ReferencePage[]): string {
+export function mergeReferenceMaterial(sourceMaterial: string | undefined, pages: ReferencePage[], tail = ""): string {
+  // tail(A-2 주제 뉴스)은 끝에 붙이되 잘리지 않게 그 몫을 먼저 비워 둔다.
+  const end = tail.trim() ? `\n\n${tail.trim()}` : "";
+  const limit = Math.max(0, MAX_SOURCE_CHARS - end.length);
   const head = String(sourceMaterial || "").trim();
-  if (!pages.length) return head.slice(0, MAX_SOURCE_CHARS);
-  const room = Math.max(0, MAX_SOURCE_CHARS - head.length - 2);
+  if (!pages.length) return (head.slice(0, limit) + end).trim().slice(0, MAX_SOURCE_CHARS);
+  const room = Math.max(0, limit - head.length - 2);
   const per = Math.max(200, Math.min(PER_PAGE_CHARS, Math.floor(room / pages.length) - 60));
   const refs = pages.map((page, i) => `[참고 URL ${i + 1}] ${page.url}\n${page.text.slice(0, per)}`).join("\n\n");
-  return (head ? `${head}\n\n${refs}` : refs).slice(0, MAX_SOURCE_CHARS);
+  return ((head ? `${head}\n\n${refs}` : refs).slice(0, limit) + end).slice(0, MAX_SOURCE_CHARS);
 }
 
 /** 기획·작성 지시문에 붙이는 회원 추가 지시 블록. 없으면 빈 문자열. */
