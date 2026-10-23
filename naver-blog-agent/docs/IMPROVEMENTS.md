@@ -262,14 +262,14 @@
 - 검수: tsc, 시험 26종(새 `test:member-voice` 4, `test-category-selection`·`test-queue-confirmation` 시험 환경에 새 값만 추가) 통과. 실제(gpt-4o-mini, 시험 계정 본인 키, 저장 안 함): 질문 5개 구체적·지어냄 없음 ✅, 메모의 타프·비 경험이 1인칭으로 반영 ✅, 직접 입력 화자 말투 반영 ✅.
 - **알려진 한계:** 경험 대조 검수는 참고용 — 메모와 맞는 문장을 지어냈다고 잘못 지적(과잉 경고) 1건, 메모에 없는 선호(「따뜻하고 가벼운 제품을 선호」)는 못 잡음 1건. 개선 후보: 경험 문장을 문장 단위로 메모와 대조하는 별도 단계.
 
-## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기(v2.18): 블로그 병합 A-5 본문 이미지를 다른 소제목으로 옮기기 (BLOG → 에이전트)
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ✅ v2.18 배포 완료: 블로그 병합 A-5 본문 이미지를 다른 소제목으로 옮기기 (BLOG → 에이전트)
 - 생성 완료된 본문 이미지 카드에 「▲」「▼」 버튼. 이미지 표시 줄만 위/아래 소제목 맨 위로 옮기고 본문 글자는 그대로, 다른 이미지를 지나치면 본문 이미지 목록 순서도 같이 옮겨 사진이 제 자리를 따라감. 저장은 이미지 지우기와 같은 `persistImages`(본문이 바뀌므로 검수 표시 초기화 = 다시 검수).
 - **발견:** 확장 `articlePlan`이 소제목 안의 이미지를 모두 소제목 바로 아래로 모은다 → 미리보기의 문단 위치와 실제 발행 위치가 다를 수 있음(기존 동작). 그래서 이동 단위를 소제목으로 정함(플랜 문서 「구현 중 바뀐 점」).
 - 바꾼 것: `src/lib/draftImages.ts`(`countImageMarkers`·`moveImageMarker`·`reorderBodyImages`) · `src/app/(dashboard)/page.tsx`(`imageMoveSlot`·`handleMoveGeneratedImage`·버튼) · 새 시험 `scripts/test-image-move.cjs`(`test:image-move` 4 — 확장 `articlePlan`으로 실제 발행 소제목까지 대조).
 - 검수: tsc, 시험 27종 통과. AI 호출 없음. 남은 것: A-6·A-7과 함께 v2.18 배포 → 크롬에서 시험 계정 원고로 이동·저장 뒤 다시 열기 확인.
 - 한계: 표시 수와 생성 이미지 수가 다른 원고(이미지를 지운 원고 등)는 버튼이 숨겨짐.
 
-## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ⏳ 미배포 대기(v2.18): 블로그 병합 A-6 대표 이미지에 제목 글자 넣기 (올인원 → 에이전트)
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — ✅ v2.18 배포 완료: 블로그 병합 A-6 대표 이미지에 제목 글자 넣기 (올인원 → 에이전트)
 - 올인원 `overlayThumbnailTitle`(어두운 띠·강조 막대·흰 제목 최대 3줄, 브라우저 캔버스)을 가져오되 **자동 합성 대신 버튼**: 생성된 대표 이미지 카드에 「제목 글자」·「글자 다시」·「원본」. 이미 만든 이미지 위에 그려 `/api/upload-image`로 올리고 대표 이미지 주소만 바꿈 — **이미지를 다시 만들지 않아 AI 비용 없음**. 원본 주소는 이미지 항목의 새 선택 칸 `originalUrl`에 처음 한 번만 남김(예전 원고 그대로 열림), 다시 넣을 때도 원본 위에 그림.
 - **보안:** 회원 비공개 사진(`storagePath`)인 대표 이미지는 버튼을 보이지 않음(공개 저장소로 올라가는 것을 막음).
 - 바꾼 것: 새 `src/lib/thumbnailTitle.ts`(`wrapTitle`·`canTitleThumbnail`·`applyThumbnailUrl`·`restoreThumbnailUrl`·`overlayThumbnailTitle`) · `src/lib/draftImages.ts`(`originalUrl?`) · `src/app/(dashboard)/page.tsx`(`handleThumbnailTitle`·버튼·카드 버튼 줄바꿈·생성 이미지 상태 형식을 `DraftImage` 기준으로) · 새 시험 `scripts/test-thumbnail-title.cjs`(`test:thumbnail-title` 3).
@@ -279,3 +279,10 @@
 - 올인원 「메모/파일 기반」은 주제 제목만 넘기고 메모를 근거로 쓰지 않았다 → 에이전트는 **메모 원문을 글감 원문(`source_text`)으로 저장해 본문 사실 근거로** 쓴다. 글감 화면 「📝 메모·파일」 탭(메모 최대 8,000자, `.txt`·`.md` 1MB 이하 — 브라우저에서 글자만 읽고 파일은 올리지 않음), 서버 `api/collector` `action: "memo"`(회원 본인 AI 키, 기존 `structureBlogCandidates`로 후보 최대 4개). 글감 `method`/`kind`에 `"memo"` 추가 — 글감은 JSON 저장이라 **DB 변경 없음**, 회원별 30일 자동 삭제 그대로.
 - 바꾼 것: 새 `src/lib/memoSource.ts` · `api/collector/route.ts` · `collectedMaterials.ts`(메모 출처 줄) · `types/collector.ts`·`sourceBundle.ts`(종류) · `collector/page.tsx`(탭·입력·파일) · `dashboard/page.tsx`·`components/SourceEvidence.tsx`(이름표·안내) · 새 시험 `scripts/test-memo-source.cjs`(`test:memo-source` 3).
 - 검수: tsc, 시험 29종 통과. 실제 1회(시험 계정 본인 OpenAI 키, 기본 정리 모델, 저장 안 함, 가평 캠핑 메모 약 200자): 후보 4개 모두 메모 범위 안(지어낸 수치·장소 없음) ✅. 한계: 1건 분류가 「N잡/부업/재테크」로 어긋남(기존 정리 동작 — 수집 전 분류 지정·목록에서 변경 가능), 요약 문장에 가벼운 감정 표현이 붙음(요약은 근거가 아니고 메모 원문만 근거).
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — v2.18 배포·크롬 확인 (A-5·A-6·A-7)
+- 배포: 로컬 빌드 성공 → 팀 대기 없음 확인 → `naver-blog-agent-mejx4uje3` Ready(빌드 1회) → DB `version`·`extension_version` v2.18, `check-extension-release` OK.
+- 크롬(메인, 시험 계정 `buylifemall@naver.com`, 좁은 창 500px): 글감 「📝 메모·파일」 탭 표시 정상(AI 호출은 로컬 1회로 대체, 운영에서 누르지 않음). 원고 「[검수용 v1.78]」(`e933ffeb`, 임시 저장)에서 ① 본문 1 ▼ → 소제목 2 맨 위, 서버 저장·본문 글자 동일 ② 한 번 더 ▼ → 본문 2를 지나 소제목 3, 사진 순서 교환(표시마다 제 사진) ③ 「제목 글자」 → 새 파일(1344×768, 제목 2줄·강조 막대·어두운 띠 정상) 저장, 「원본」 → 원래 파일·`originalUrl` 제거 ④ ▲ 두 번으로 되돌림.
+- **되돌린 뒤 차이(시험 원고):** 본문 1 표시가 처음엔 소제목 1의 첫 문단 뒤였는데 되돌린 뒤엔 소제목 1 맨 위 — 확장이 소제목 안 이미지를 맨 위로 모으므로 실제 발행 결과는 같음(미리보기 위치만 다름). 그대로 둠.
+- **발견·수정(미배포 대기):** 생성 이미지 목록 카드는 정사각형 틀(`aspect-square`+`object-cover`)이라 글자 넣은 대표 이미지의 제목 양끝이 잘려 보임(실제 파일은 정상) → 글자를 넣은 카드(`originalUrl` 있음)만 `object-contain`으로 전체 표시. 다음 배포 때 함께.
+- 남은 테스트 파일: 시험 계정 저장소에 글자 넣은 파일 1개(`attached-1792780853919-fugg2.jpg`) — 30일 정리로 자동 삭제.

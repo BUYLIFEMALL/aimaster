@@ -2185,7 +2185,7 @@ export default function MainPage() {
                             <img
                               src={genImg.url}
                               alt={genImg.caption}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              className={`w-full h-full ${genImg.originalUrl ? "object-contain bg-neutral-900" : "object-cover"} group-hover:scale-105 transition-transform duration-200`}
                             />
                             <div className="absolute top-2 left-2">
                               <span
