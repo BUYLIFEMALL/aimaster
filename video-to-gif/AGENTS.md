@@ -359,3 +359,7 @@
 - 확장 버전 자동 맞춤(LR-W-01) · **새 버전 알림·최소 판**(LR-M-01) · **맥 Homebrew 없을 때 안내**(LR-M-02) · 윈도우 경고 설명·`Unblock-File`(LR-M-03) · 엣지 안내(LR-W-02) · `/guide#mac-ffmpeg`·`#renderer-update`. 다른 영상 프로그램 확장은 설계안만(LR-02, `infinite-loop-video` 1순위). 상세: 플랜 「3단계 다듬기」·「다른 영상 프로그램으로 넓히기」, 개선 문서 LR-M-01~04.
 - 검수: tsc 0, eslint 0, 판 비교·알림 판단 시험 통과, 맥 설치 스크립트 재실행 정상, 운영 페이지에 새 감지 코드를 넣어 확인. 화면 자체는 배포 뒤 확인.
 - **다음 배포하는 CLI**: 버전 v1.21로 올린 뒤 `node scripts/build-local-renderer.mjs`(확장도 v1.21) → 배포 → DB `version`·`extension_version` v1.21 → `check-extension-release.mjs video-to-gif` OK → 맥미니 크롬 실검수(맥미니 확장이 옛 판이면 「🔔 새 버전」 표시).
+
+## 2026-10-24 ✅ v1.21 배포 (Claude Code 윈도우 · 세션 `claude-win-sdp`, 맥미니 요청·주인님 승인 빌드 1회)
+- `video-to-as3vkytql` Ready → video-to-gif.buylife.xyz, DB `version`·`extension_version` v1.21, `check-extension-release.mjs` **OK**(LR-W-01 해결). 운영 윈도우 렌더러 ZIP 재설치 정상(`Unblock-File` 오류 없음).
+- 남은 것: 맥미니 크롬(확장 v1.00)에서 「🔔 확장 새 버전 v1.21」 실검수. 윈도우 엣지의 확장은 저장소 폴더를 불러오므로 다시 켜면 v1.21이 되어 이 알림 시험에 맞지 않음.
