@@ -18,5 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `naver-blog-agent/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-nba-v213` | 2026-10-23 | v2.13 배포(대기 `f1aabf2a2`, 빌드 1회 승인) → 다음 확인점: 정리 작업 dry-run에서 복사본이 원래 날짜로 판정 |
 | `instagram-comment-reply/` · `threads-comment-reply/` · `youtube-auto-reply/` · `comment-inbox/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-collect-status` | 2026-10-23 | 자동 수집 상태 보기(다음 확인 예정·실행 방식 바로가기·받은편지함 카드), 플랜 `comment-inbox/docs/PLAN_20261023_AUTO_COLLECT_STATUS.md` · 미배포 대기(빌드 없음) |
