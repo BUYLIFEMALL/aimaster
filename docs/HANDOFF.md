@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 📮 Claude Code(맥미니) → 윈도우 Claude Code께: `video-to-gif` v1.19 배포 요청 (주인님 승인 「v1.19 배포 윈도우에 요청해」 — 빌드 1회)
+- **준비 끝(맥미니)**: 버전 `lib/version.ts` v1.19·`package.json` 1.19.0·SQL `video-to-gif/supabase/migrations/20261023_fps_step_v1_19.sql`(버전만) — 커밋 `104111e6b`. tsc 0.
+- **함께 나가는 대기 3건**(`docs/PENDING_DEPLOYS.md` `video-to-gif` 3줄): ① 좌측 메뉴 「색상표 최적화 고화질 변환」 ② 미리보기 Esc 닫기 ③ 8MiB 초과 영상용 사다리 끝 25·20fps 단계 + 완료 줄 「N fps로 낮춤」(`db5116a9f`, 플랜 `video-to-gif/docs/PLAN_20261023_FPS_STEP.md`).
+- **윈도우 할 일(순서)**: ① 팀 `buylife`에 빌드 중·대기 배포가 없는지 확인(Next.js 보안 연속 배포 세션과 겹치지 않게) ② `cd video-to-gif && npx tsc --noEmit && npm run build` ③ 배포(`node scripts/deploy.mjs video-to-gif --go` 또는 `vercel deploy --prod --yes`) → Ready ④ DB에 위 SQL(버전만) → `deploy.mjs --version-only`로 화면·DB 버전 일치 ⑤ 크롬에서 `/dashboard` 사이드바 v1.19·메뉴 문구 확인 ⑥ `docs/PENDING_DEPLOYS.md`의 `video-to-gif` 3줄을 「내보낸 기록」(v1.19)으로 옮기고 `video-to-gif/AGENTS.md` 「⏸ 미배포」 2곳을 「✅ v1.19 배포」로.
+- **배포 뒤 맥미니가 할 일**: 크롬에서 화면 안에서 만든 색 블록 영상으로 「fps로 낮춤」·8MiB 이하, 일반 영상 크기 그대로, Esc 닫기 실검수(비용 없음).
+- 비용: Vercel 빌드 1회(주인님 승인 범위), AI 0회.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 오래된 기준 사본 알림·시작 표시 차단 보완 2건·오늘 사고 요약 표 (세션 claude-win-lessons)
 - 한 일: ① `scripts/index-watch.mjs` 세션 점검에 「⚠ [오래된 기준 사본]」(24시간 넘은 `.git/safe-commit/<세션>/*.base`, `deploy-*`는 정상이라 개수만) ② **긴급 보완** `scripts/deploy.mjs`(`1fcf3cb8b`) 시작 표시에 `--force-begin` — 배포 스크립트는 배포마다 문서 3개 시작 표시 후 바뀐 것만 커밋해 `deploy-<폴더>` 사본이 남는데(지금 약 150개), 방금 넣은 재시작 차단이 다음 배포의 시작 표시를 거부할 수 있었음. 차단 장치 뒤 배포 세션 문서 커밋은 0건이라 피해 없음 ③ `scripts/safe-commit.mjs`(`bc1177225`) 차단 조건을 「기준 사본이 HEAD와 같을 때만」으로 — 지난 작업에서 남은 옛 사본 때문에 고치지 않은 파일이 막히지 않게(시험 1개 추가, 20개 통과) ④ `docs/ERROR_LESSONS.md` 맨 위에 오늘 저장소·공용 스테이징 사고 요약 표(일어난 일 → 지금 막는 장치 7줄).
 - 다른 세션 안내: 보안 업데이트 세션으로 추정되는 `aimaster-9e`에 범위 표기 새 형식·끝난 폴더 빼기·세션 이름 필수를 조건부로 보냄(「그 세션이 아니면 무시」). **발견**: ListAgents 이름(`aimaster-xx`)과 우리 세션 이름이 달라 정확한 대상을 고를 수 없음.
