@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 쓰레드 콘텐츠 운영 v2.20 배포 (세션 `claude-win-20261023-tco-v220`)
+- 모아 둔 수정 배포: 초안 사진 깜박임(`f92acc076`) · 쿠팡 임시 사진 서버 키 삭제(`6b44abdc8`) · 공용 사본 member-scheduler·openai-request-params. 버전 `c790a9539`, 문서 `adc726283`.
+- 검수: tsc 0·시험 36·빌드, `deploy.mjs --go` Ready, DB v2.20, 크롬 메뉴 v2.20·가짜 토큰 401·시험 회원 초안 ✕ 저장 직후 0장 유지(DB `[]`). 시험 데이터 삭제.
+- 남은 일: 공용 모듈 표 `member-scheduler` 줄의 콘텐츠 운영 ✅ 표시는 다른 세션이 같은 줄을 고치는 중이라 미반영(그 세션 커밋 뒤 추가). 비용: Vercel 빌드 1회(제안 범위).
+- 링크: https://threads-content-ops.buylife.xyz/threads-content-ops
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — YOUTUBE Shots v1.40: 배경음악 모델 고르기 (배경음악 공용화 4단계)
 - 배경음악 칸에 「음악 모델」 선택: Suno V6(기본·2곡)·V6 Mini·V6 Wild(기존 폴링 그대로) / Google Lyria 3.5(Gemini 키)·ElevenLabs Music(ElevenLabs 키) — 1곡을 서버 액션 안에서 바로 받아 `shots-bgm` 저장·트랙 추가·완료 처리(DB 구조 변경 없음, 페이지 `maxDuration = 300`). 모델 목록 `src/lib/bgmModels.ts`(화면·서버 공용), 설정 「🎵 음악 생성」에 ElevenLabs 키 칸(공용 칸 — AI 음악 스튜디오에서 등록한 키가 그대로 보임).
 - 공용 기준 코드 신설 **`music-sync-calls`** = `ai-music-studio/lib/providers/musicCalls.ts`(Lyria·ElevenLabs 호출·오류 안내), 사본 `shots/src/lib/ai/musicCalls.ts`. AI 음악 스튜디오 어댑터 2개·`providerError`는 이 파일을 쓰도록 분리만(시험 25개·빌드 통과) — **미배포 대기**(5단계 배포 때 함께).
