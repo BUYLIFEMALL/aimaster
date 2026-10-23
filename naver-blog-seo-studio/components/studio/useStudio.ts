@@ -415,7 +415,7 @@ export function useStudio() {
     if (!optimized) return;
     setDraftSaving(true);
     try {
-      const response = await fetch("/api/drafts/save-optimized", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: optimized.title, body: optimized.body, topic: sourceTitle || optimized.title, keywords: optimizationKeywords, strategy }) });
+      const response = await fetch("/api/drafts/save-optimized", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: optimized.title, body: optimized.body, topic: sourceTitle || optimized.title, keywords: optimizationKeywords, strategy, openaiModel: activeOpenAIModel }) });
       const result = await response.json() as { draft?: DraftRecord; error?: string };
       if (!response.ok || !result.draft) throw new Error(result.error || "최적화한 블로그(원문)을 저장하지 못했습니다.");
       setContentImages(getContentImages(result.draft));

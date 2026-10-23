@@ -47,4 +47,9 @@ export function resolveContentModel(provider: ContentProvider, value: unknown) {
   return isContentModelForProvider(provider, value) ? String(value) : getDefaultContentModel(provider);
 }
 
+// 2026-10-23: 원고 기록(seo_report.generatedModel)에 남길 「회사 · 모델」 — 나중에 어떤 모델로 만든 글인지 확인용.
+export function generatedModelRecord(provider: ContentProvider, model: string) {
+  return `${CONTENT_PROVIDER_LABELS[provider]} · ${model}`;
+}
+
 export type { OpenAIContentModel };

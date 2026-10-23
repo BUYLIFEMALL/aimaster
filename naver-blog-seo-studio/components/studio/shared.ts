@@ -133,4 +133,5 @@ export const reportLabels: Record<string, string> = {
   readability: "가독성",
   paragraphCount: "문단 수",
   lengthNotice: "분량 안내",
+  generatedModel: "생성 모델",
 };

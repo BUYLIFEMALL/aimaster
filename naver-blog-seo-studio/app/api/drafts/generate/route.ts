@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateSeoDraft, SEO_STRATEGY_NAMES } from "@/lib/ai/generator";
-import { isContentProvider, resolveContentModel } from "@/lib/ai/contentModels";
+import { generatedModelRecord, isContentProvider, resolveContentModel } from "@/lib/ai/contentModels";
 import { resolveSeoPersona } from "@/lib/ai/personas";
 import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { isApproved, type GroundPoint, type ResearchSource } from "@/lib/grounding";
@@ -71,9 +71,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model: resolveContentModel(provider, input?.model), grounding, style });
+    const model = resolveContentModel(provider, input?.model);
+    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model, grounding, style });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
-    const seoReport = { ...draft.seoReport, ...(groundingRecord ? { grounding: groundingRecord } : {}), ...(styleRecord ? { style: styleRecord } : {}) };
+    const seoReport = { ...draft.seoReport, generatedModel: generatedModelRecord(provider, model), ...(groundingRecord ? { grounding: groundingRecord } : {}), ...(styleRecord ? { style: styleRecord } : {}) };
     const { data: saved, error } = await supabase.from("naver_blog_seo_drafts")
       .insert({ user_id: access.user.id, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: seoReport, status: "ready" })
       .select("id, title, body, seo_report, created_at").single();
