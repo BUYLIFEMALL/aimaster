@@ -40,6 +40,8 @@ export function RenderView() {
   const [script, setScript] = useState<ShortsScript | null>(null);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [dirty, setDirty] = useState(false);
   const [ams, setAms] = useState<AmsPick[] | null>(null);
+  // v1.39 AI 음악 스튜디오 곡 카드 링크(/render?ams=<생성 번호>:<곡 순서>)로 들어오면, 항목이 열린 뒤 그 곡을 배경음악으로 넣는다
+  const pendingAms = useRef<string | null>(null);
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0.9);
   const canvas = useRef<HTMLCanvasElement>(null); const tRef = useRef(0.9);
   const [exp, setExp] = useState<ExportProgress | null>(null), [file, setFile] = useState<{ url: string; name: string; mb: number; blob: Blob } | null>(null);
@@ -66,7 +68,10 @@ export function RenderView() {
   }, []);
   useEffect(() => {
     if (!document.querySelector("link[data-sos-fonts]")) { const l = document.createElement("link"); l.rel = "stylesheet"; l.href = FONT_CSS; l.setAttribute("data-sos-fonts", "1"); document.head.appendChild(l); }
+    const amsRef = new URLSearchParams(window.location.search).get("ams");
+    if (amsRef && /^[0-9a-f-]{36}:\d{1,2}$/i.test(amsRef)) pendingAms.current = amsRef;
     api<{ items: Item<ShortsScript>[] }>("/api/items?kind=project").then(({ items }) => {
+      if (!items.length && pendingAms.current) { pendingAms.current = null; setMsg({ text: "AI 음악 스튜디오 곡을 넣을 대본이 없습니다. 먼저 ① 주제에서 대본을 만든 뒤 다시 보내 주세요." }); }
       setList(items); const id = new URLSearchParams(window.location.search).get("id") ?? items[0]?.id; if (id) void open(id);
     }).catch((e) => setMsg(toMsg(e)));
   }, [open]);
@@ -160,6 +165,20 @@ export function RenderView() {
       setMsg({ text: `「${song.title}」을 배경음악으로 넣었습니다. 목소리가 나올 때는 자동으로 작게 깔립니다.`, ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
+
+  useEffect(() => {
+    const ref = pendingAms.current;
+    if (!ref || !item || !script) return;
+    pendingAms.current = null;
+    setBusy("AI 음악 스튜디오 곡을 가져오는 중…"); setMsg(null);
+    api<{ path: string; name: string }>("/api/ams/import", { body: { ref } })
+      .then((r) => {
+        setA({ bgm: { path: r.path, name: r.name, volume: normalizeAudio(script.audio).bgm?.volume ?? 0.35 } });
+        setMsg({ text: `「${r.name}」을 「${item.title}」의 배경음악으로 넣었습니다. 다른 대본에 넣으려면 위에서 대본을 바꾼 뒤 「AI 음악 스튜디오 내 곡에서 고르기」를 쓰세요. [저장]을 눌러 주세요.`, ok: true });
+      })
+      .catch((e) => setMsg(toMsg(e)))
+      .finally(() => setBusy(""));
+  }, [item?.id, !!script]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function makeMp4() {
     if (!script || exp) return;
