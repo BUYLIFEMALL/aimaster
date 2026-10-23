@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
-import { loadInbox, loadSourceAccess, loadTodayReplied, loadWeekReplied, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
+import { loadInbox, loadMonitoringStatus, loadSourceAccess, loadTodayReplied, loadWeekReplied, PLATFORM_LABEL, SOURCE_PROGRAMS, type InboxPlatform, type SourceKey } from "@/lib/inbox/load";
 import { InboxList } from "@/components/inbox/InboxList";
 import { WeekPanel } from "@/components/inbox/WeekPanel";
+import { MonitoringStatusCard } from "@/components/inbox/MonitoringStatusCard";
 import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ const FILTER_KEYS: InboxPlatform[] = ["ig_dm", "ig_comment", "threads", "youtube
 export default async function InboxPage({ searchParams }: { searchParams: { p?: string } }) {
   const user = await requireProgramAccess();
   const access = await loadSourceAccess(user.id);
-  const [all, today, week] = await Promise.all([loadInbox(user.id, access), loadTodayReplied(user.id, access), loadWeekReplied(user.id, access)]);
+  const [all, today, week, monitoring] = await Promise.all([loadInbox(user.id, access), loadTodayReplied(user.id, access), loadWeekReplied(user.id, access), loadMonitoringStatus(user.id, access)]);
   const filter = FILTER_KEYS.includes(searchParams.p as InboxPlatform) ? (searchParams.p as InboxPlatform) : null;
   const items = filter ? all.filter((i) => i.platform === filter) : all;
   const noAccess = (Object.keys(SOURCE_PROGRAMS) as SourceKey[]).filter((k) => !access[k]);
@@ -55,6 +56,9 @@ export default async function InboxPage({ searchParams }: { searchParams: { p?: 
 
       {/* v1.06: 최근 7일(한국 시간) 응대 건수 — 「오늘 답함」과 같은 기준. v1.07: 플랫폼별 쌓기 + 막대 누르면 그날 목록 */}
       <WeekPanel days={week} />
+
+      {/* 2026-10-23: 세 댓글 프로그램의 자동 수집 상태(보기만) */}
+      <MonitoringStatusCard items={monitoring} />
 
       {noAccess.length > 0 && (
         <div className="rounded-xl border border-ig-border bg-ig-surface p-4 text-xs leading-relaxed text-ig-muted">

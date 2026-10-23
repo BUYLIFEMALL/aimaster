@@ -197,3 +197,31 @@ test("썸네일 주소: 전체 주소·쉼표 여러 주소·저장소 경로·�
   assert.equal(publicImageUrl([], "b"), null);
   process.env.NEXT_PUBLIC_SUPABASE_URL = prev;
 });
+
+test("2026-10-23 자동 수집 상태: 다음 확인 = 마지막 확인 + 주기, 처음이거나 지났으면 null(곧)", async () => {
+  const { monitoringNextAt } = await import("../lib/inbox/load.ts");
+  const last = "2026-10-23T03:10:37.000Z"; // 한국 12:10
+  assert.equal(monitoringNextAt(last, 720, Date.parse("2026-10-23T04:00:00.000Z")), "2026-10-23T15:10:37.000Z"); // 한국 24일 00:10
+  assert.equal(monitoringNextAt(last, 720, Date.parse("2026-10-23T16:00:00.000Z")), null);
+  assert.equal(monitoringNextAt(null, 60), null);
+});
+
+test("2026-10-23 자동 수집 상태: 본인 행만, 권한 있는 프로그램만, 일시정지·실행 방식 반영", async () => {
+  const { loadMonitoringStatus } = await import("../lib/inbox/load.ts");
+  const last = new Date(Date.now() - 60_000).toISOString();
+  tables.ig_settings = [
+    { user_id: USER, monitoring_enabled: true, monitoring_interval_minutes: 720, last_run_at: last },
+    { user_id: "other", monitoring_enabled: false, monitoring_interval_minutes: 5, last_run_at: null },
+  ];
+  tables.ig_member_scheduler = [{ user_id: USER, mode: "cronjob", paused: true }];
+  tables.th_settings = [{ user_id: "other", monitoring_enabled: true, monitoring_interval_minutes: 60, last_run_at: null }];
+  tables.th_member_scheduler = [];
+  tables.ytreply_settings = [{ user_id: USER, monitoring_enabled: true, monitoring_interval_minutes: 60, last_run_at: null }];
+  tables.ytreply_member_scheduler = [];
+  const r = await loadMonitoringStatus(USER, { instagram: true, threads: true, youtube: false });
+  assert.deepEqual(r.map((s) => [s.source, s.enabled, s.paused, s.mode, s.intervalMinutes]), [
+    ["instagram", true, true, "cronjob", 720],
+    ["threads", false, false, "vercel", null],
+  ]);
+  assert.equal(r[0].nextAt, new Date(Date.parse(last) + 720 * 60_000).toISOString());
+});

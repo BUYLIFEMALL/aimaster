@@ -366,3 +366,61 @@ export async function loadDayReplied(userId: string, access: InboxAccess, dayKey
 
   return items.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
 }
+
+// ── 2026-10-23: 세 댓글 프로그램의 자동 수집(예약 모니터링) 상태 — 보기만(쓰기 없음), 회원 본인 행만 ──
+// 원래 프로그램 설정 표(monitoring_*·last_run_at)와 실행 방식 표(<접두어>_member_scheduler: mode·paused)를 읽는다.
+// 계산은 원래 프로그램 lib/schedule.ts `nextMonitoringAt`과 같다(마지막 확인 + 주기, 지났거나 처음이면 null = 곧).
+const MONITORING_TABLES: Record<SourceKey, { settings: string; scheduler: string }> = {
+  instagram: { settings: "ig_settings", scheduler: "ig_member_scheduler" },
+  threads: { settings: "th_settings", scheduler: "th_member_scheduler" },
+  youtube: { settings: "ytreply_settings", scheduler: "ytreply_member_scheduler" },
+};
+
+export type MonitoringStatus = {
+  source: SourceKey;
+  name: string;
+  settingsHref: string;
+  enabled: boolean;
+  paused: boolean;
+  mode: "vercel" | "cronjob";
+  intervalMinutes: number | null;
+  lastRunAt: string | null;
+  /** 다음 확인 예정(ISO). 켜져 있고 일시정지가 아닌데 null이면 「곧(5분 안)」 */
+  nextAt: string | null;
+};
+
+export function monitoringNextAt(lastRunAt: string | null, intervalMinutes: number, now: number = Date.now()): string | null {
+  if (!lastRunAt) return null;
+  const next = new Date(lastRunAt).getTime() + intervalMinutes * 60 * 1000;
+  return next > now ? new Date(next).toISOString() : null;
+}
+
+export async function loadMonitoringStatus(userId: string, access: InboxAccess): Promise<MonitoringStatus[]> {
+  const admin = createAdminClient() as unknown as { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const keys = (Object.keys(SOURCE_PROGRAMS) as SourceKey[]).filter((k) => access[k]);
+  return Promise.all(
+    keys.map(async (k) => {
+      const t = MONITORING_TABLES[k];
+      const [{ data: s }, { data: sch }] = await Promise.all([
+        admin.from(t.settings).select("monitoring_enabled, monitoring_interval_minutes, last_run_at").eq("user_id", userId).maybeSingle(),
+        admin.from(t.scheduler).select("mode, paused").eq("user_id", userId).maybeSingle(),
+      ]);
+      const settings = (s ?? null) as { monitoring_enabled: boolean | null; monitoring_interval_minutes: number | null; last_run_at: string | null } | null;
+      const scheduler = (sch ?? null) as { mode: string | null; paused: boolean | null } | null;
+      const enabled = Boolean(settings?.monitoring_enabled);
+      const intervalMinutes = settings?.monitoring_interval_minutes ?? null;
+      const lastRunAt = settings?.last_run_at ?? null;
+      return {
+        source: k,
+        name: SOURCE_PROGRAMS[k].name,
+        settingsHref: `${SOURCE_PROGRAMS[k].url}/settings`,
+        enabled,
+        paused: Boolean(scheduler?.paused),
+        mode: scheduler?.mode === "cronjob" ? "cronjob" : "vercel",
+        intervalMinutes,
+        lastRunAt,
+        nextAt: enabled && intervalMinutes ? monitoringNextAt(lastRunAt, intervalMinutes) : null,
+      } satisfies MonitoringStatus;
+    }),
+  );
+}

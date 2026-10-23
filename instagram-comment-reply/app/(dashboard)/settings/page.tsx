@@ -257,6 +257,7 @@ export default async function SettingsPage() {
         <h2 className="text-lg font-bold text-ig-text">⏱ 예약 모니터링</h2>
         <SchedulePublishingControl initial={scheduler} />
         <MonitoringSettingsForm
+          runnable={scheduler.state === "platform" || scheduler.state === "running"}
           enabled={settings?.monitoring_enabled ?? false}
           intervalMinutes={settings?.monitoring_interval_minutes ?? 60}
           startedAt={settings?.monitoring_started_at ?? null}

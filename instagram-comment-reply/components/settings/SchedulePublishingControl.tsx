@@ -37,7 +37,7 @@ export function SchedulePublishingControl({ initial }: { initial: MemberSchedule
   return <div className="mb-4 flex flex-col gap-2 rounded-xl border border-ig-border bg-ig-raised p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
     <div>
       <p className="font-semibold text-ig-text">⏰ 실행 상태: <span className={info.tone}>{info.label}</span> <span className="font-normal text-ig-muted">· 모니터링 {initial.scheduled > 0 ? "켜짐" : "꺼짐"}</span></p>
-      <p className="mt-0.5 text-xs text-ig-muted">{info.help}{(state === "no-key" || state === "platform-off") && <> <a className="font-semibold underline" href="#scheduler-mode">아래 ⏰ 예약 실행 방식</a></>}</p>
+      <p className="mt-0.5 text-xs text-ig-muted">{info.help}{/* 2026-10-23: 실행 방식 바로가기는 늘 보인다 */} <a className="font-semibold underline" href="#scheduler-mode">{state === "no-key" || state === "platform-off" ? "아래 ⏰ 예약 실행 방식에서 설정 ↓" : "실행 방식 바꾸기 ↓"}</a></p>
       {message && <p className="mt-1 text-xs text-ig-muted" role="status">{message}</p>}
     </div>
     {(state === "running" || state === "idle" || state === "platform") && <button type="button" disabled={busy} onClick={() => void toggle(true)} className="shrink-0 rounded-lg border border-ig-border bg-ig-surface px-3 py-1.5 text-xs font-semibold text-ig-muted disabled:opacity-40">{busy ? "처리 중…" : "⏸ 댓글 모니터링 일시정지"}</button>}

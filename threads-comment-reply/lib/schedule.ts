@@ -21,3 +21,10 @@ export function isMonitoringDue(lastRunAt: string | null, intervalMinutes: numbe
   const elapsedMs = now.getTime() - new Date(lastRunAt).getTime();
   return elapsedMs >= intervalMinutes * 60 * 1000;
 }
+
+/** 다음 확인 예정 시각(ISO, 2026-10-23). 아직 한 번도 안 돌았거나 이미 지났으면 null — 예약 호출이 5분마다 깨우므로 「곧(5분 안)」. 계산은 isMonitoringDue와 같다. */
+export function nextMonitoringAt(lastRunAt: string | null, intervalMinutes: number, now: Date = new Date()): string | null {
+  if (!lastRunAt) return null;
+  const next = new Date(lastRunAt).getTime() + intervalMinutes * 60 * 1000;
+  return next > now.getTime() ? new Date(next).toISOString() : null;
+}

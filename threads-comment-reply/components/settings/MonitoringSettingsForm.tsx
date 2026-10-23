@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { startMonitoringAction, stopMonitoringAction } from "@/lib/actions/monitoring";
-import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
+import { MONITORING_INTERVAL_OPTIONS, nextMonitoringAt } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
 
 function toDatetimeLocalValue(iso: string | null): string {
@@ -17,11 +17,14 @@ export function MonitoringSettingsForm({
   intervalMinutes,
   startedAt,
   lastRunAt,
+  runnable = true,
 }: {
   enabled: boolean;
   intervalMinutes: number;
   startedAt: string | null;
   lastRunAt: string | null;
+  /** 실행 상태가 「실행 중」인지(일시정지·키 없음·Vercel 꺼짐이면 false) — 다음 확인 예정 표시용 */
+  runnable?: boolean;
 }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
@@ -73,6 +76,15 @@ export function MonitoringSettingsForm({
               <dd className="font-semibold text-th-text">{formatDateTimeKo(lastRunAt)}</dd>
             </div>
           )}
+          {/* 2026-10-23: 다음 확인 예정 — 마지막 확인 + 주기(예약 호출이 5분마다 깨우므로 「약」) */}
+          <div className="flex flex-wrap items-baseline gap-x-1.5">
+            <dt className="shrink-0 text-th-muted">다음 확인 예정</dt>
+            <dd className="font-semibold text-th-text">
+              {!runnable
+                ? "없음 — 위 실행 상태를 확인해 주세요"
+                : (() => { const next = nextMonitoringAt(lastRunAt, intervalMinutes); return next ? `약 ${formatDateTimeKo(next)}` : "곧(5분 안)"; })()}
+            </dd>
+          </div>
         </dl>
         <p className="text-xs text-th-muted">
           자동으로는 답글 초안까지만 만들고, 실제 게시는 "댓글 검토/게시" 화면에서 직접 눌러야 합니다.

@@ -44,3 +44,9 @@
 
 - 쓰레드 댓글 앱 v1.27 검수 중 발견한 문제(중지 직후 버튼이 새로고침 전까지 「중지」로 남음)가 같은 구조라 함께 고침. `components/settings/MonitoringSettingsForm.tsx`가 중지 성공 즉시 꺼짐 화면을 보여 주고, 서버 값이 바뀌면 다시 서버 값을 따른다.
 - 다음 배포 때: 버전 +0.01, 중지 → 바로 「▶ 모니터링 시작」 확인.
+
+## 2026-10-23 미배포 대기 — 자동 수집 상태 보기 (Claude Code 윈도우 · 세션 `claude-win-20261023-collect-status`)
+- 주인님 승인(INSTA v1.36 보고 「추가 개선 제안」 3개, 「진행, 전부 미배포 대기」). 플랜: `comment-inbox/docs/PLAN_20261023_AUTO_COLLECT_STATUS.md`.
+- 설정 「⏱ 예약 모니터링」에 「다음 확인 예정 약 ○월 ○일 ○○:○○」(마지막 확인 + 주기, 처음·지났으면 「곧(5분 안)」, 일시정지·키 없음·Vercel 꺼짐이면 「없음 — 위 실행 상태를 확인해 주세요」) — `lib/schedule.ts` `nextMonitoringAt`, `MonitoringSettingsForm.tsx` `runnable`(설정 화면이 실행 상태로 넘김).
+- 「⏰ 실행 상태」 줄 아래에 늘 「실행 방식 바꾸기 ↓」 바로가기(`SchedulePublishingControl.tsx`, 키 없음·Vercel 꺼짐이면 기존처럼 「아래 … 에서 설정 ↓」).
+- 검수: tsc·로컬 build 통과. **배포: 미배포 대기(작은 화면 수정)** — 다음 배포 때 버전 +0.01과 함께, 크롬에서 표시 확인 후 이 항목을 「배포됨(버전)」으로.
