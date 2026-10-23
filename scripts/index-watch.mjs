@@ -13,6 +13,19 @@ import { join, relative, resolve } from "node:path";
 
 // 세션 이름: 이름표에 이미 (이름)이 없으면 환경변수 AIMASTER_SESSION을 붙인다 — 훅은 git이 부를 때 환경변수를 물려받으므로
 // `AIMASTER_SESSION=claude-win-x git commit …`이면 훅 기록에도 세션 이름이 남는다(2026-10-23)
+// `help`(2026-10-23): 명령 목록과 언제 쓰는지
+if (["help", "--help", "-h"].includes(process.argv[2])) {
+  console.log(`공용 스테이징 블랙박스 scripts/index-watch.mjs — 명령(모두 비용 없음, 기록은 .git 안이라 커밋 안 됨)
+  session-check            작업 시작 때 한 번(앞에 AIMASTER_SESSION=<세션명>). 축소·잠금·묵은 항목·시작 점검 누락·작업 중 표 문제를 ⚠로, 없으면 한 줄 「이상 없음」
+  register <세션명>         작업 중 표에 줄을 올릴 때 한 번 — 메시지 주소 등록(Claude Code만, 커밋 전에도)
+  who [<세션명>]            그 세션의 메시지 주소(이름 빼면 전체). 작업 중 표에 없으면 「지난 기록」 표시
+  <부른 곳> --stale-only     묵은 스테이징 항목만 확인(있으면 종료 코드 3) — 맥미니 commit-gate.sh·커밋 도우미가 씀
+  <부른 곳> --warn-lock      잠금·증거·묵은 항목 경고만 — Claude Code 세션 시작 훅이 씀
+  <부른 곳> [--quiet]        한 줄 기록만(훅·도우미가 자동으로 부름)
+파일: .git/aimaster-index-log.txt(기록) · .git/aimaster-lock-evidence.txt(잠금 증거) · .git/aimaster-sessions.txt(세션 주소)
+⚠가 나오면: 묵은 항목은 안내된 git reset -q HEAD -- <파일>만, 축소·잠금은 커밋하지 말고 주인님께. 도구 순서: docs/guidelines/COLLABORATION.md 안전장치 표`);
+  process.exit(0);
+}
 // `register <세션명>`(2026-10-23): 작업 중 표에 줄을 올릴 때 한 번 — 아직 커밋 전인 세션도 메시지 주소를 남겨 다른 세션이 바로 문의
 const regName = process.argv[2] === "register" ? (process.argv[3] || "").replace(/[^\w.-]/g, "_") : "";
 if (process.argv[2] === "register" && !regName) { console.error("사용: node scripts/index-watch.mjs register <세션명>"); process.exit(2); }
@@ -31,7 +44,9 @@ try {
     const p = join(gitDir, "aimaster-sessions.txt");
     const ls = existsSync(p) ? readFileSync(p, "utf8").trimEnd().split("\n").filter((l) => !n || l.split(" | ")[1] === n) : [];
     if (!ls.length) { console.log(`기록 없음${n ? `: ${n}` : ""} — 그 세션이 \`node scripts/index-watch.mjs register <세션명>\`을 하거나 세션 이름을 붙여 커밋하면 생김. 없으면 ListAgents로 찾기`); process.exit(n ? 1 : 0); }
-    for (const l of (n ? ls.slice(-1) : ls)) { const [at, name, host, addr] = l.split(" | "); console.log(`${name} · ${host} · ${addr} (기록 ${at}) — SendMessage의 to에 주소를 그대로, 같은 장비에서만 통함`); }
+    // 작업 중 표에 그 세션 줄이 없으면 「지난 기록」 — 끝난 세션에 헛되이 보내지 않게(2026-10-23)
+    let aw = ""; try { aw = readFileSync(join(root, "docs", "ACTIVE_WORK.md"), "utf8").split(/^## 작업 중\s*$/m)[1] ?? ""; } catch { /* 무시 */ }
+    for (const l of (n ? ls.slice(-1) : ls)) { const [at, name, host, addr] = l.split(" | "); const live = aw.includes(name); console.log(`${name} · ${host} · ${addr} (기록 ${at})${live ? " · 작업 중 표에 있음" : " · ⚠ 지난 기록(작업 중 표에 없음 — 이미 끝났을 수 있음)"} — SendMessage의 to에 주소를 그대로, 같은 장비에서만 통함`); }
     process.exit(0);
   }
   const shown = (p) => relative(root, p).replace(/\\/g, "/"); // 안내 문장에는 저장소 기준 짧은 경로(.git/…)로(2026-10-23)
