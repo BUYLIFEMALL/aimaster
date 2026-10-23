@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — AI 음악 스튜디오: Mureka 연동 코드 준비(숨김, 미배포 대기)
+- 주인님 지시로 코드만 준비: 어댑터 `lib/providers/adapters/mureka.ts`, `MUREKA_ENABLED=false`(화면·서버에 안 나옴), DB 허용 이름 SQL `0004_mureka_provider.sql` 미적용. 시험 28개·build 통과. 커밋 `3cdeb201b`.
+- 켜는 순서는 `ai-music-studio/docs/IMPROVEMENTS.md` 맨 위. 비용 없음(빌드 0·AI 0).
+
 ## 2026-10-23 Claude Code(맥미니) — ✅ 상세페이지 GIF 자동화 v1.18 실검수 (매뉴얼·안내 묶음 완료)
 - 맥미니 크롬(시험 회원): 소개(새 설명·기능 4줄·「변환 시작하기」), 매뉴얼(v1.18·새 4단계·FAQ 8개, 옛 설명 없음), 작업 화면(머리 문구·사다리 안내) 확인.
 - 영상 아닌 파일·중복은 빼고 넣고 이유를 한 줄로 안내, **끌어 놓기 받음**(끄는 동안 테두리 강조). 500px(iframe 측정) 세 화면 넘침 없음. G-23-05 실패 문구는 코드로만 확인.

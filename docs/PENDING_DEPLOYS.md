@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-music-studio` (운영 v1.08) | Mureka 연동 코드(숨김 `MUREKA_ENABLED=false` — 화면·동작 변화 없음), 켜기 전 DB SQL `0004` 적용 필요 | `3cdeb201b` | 2026-10-23 · Claude Code(윈도우) | `ai-music-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01(켜는 배포는 별도) |
 | `ai-auto-blog` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `ai-auto-blog/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
 | `tistory-auto-blog` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
 | `blog-workroom` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `blog-workroom/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
