@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ⚠ 프로그램 7곳의 메인 사이트 링크가 연결 안 되는 주소였음: 도메인 넘김으로 즉시 해결 + 코드 정정 미배포 대기 (세션 `claude-win-20261023-mainsite-url`)
+- 발견: 시네마틱 스토리보드·AI 프롬프트 스튜디오·페르소나 스타일·플레이리스트 채널·프롬프트 템플릿·상세페이지 12p·올인원 그래픽의 메인 주소 상수가 `https://aimaster.buylife.xyz`(어느 배포에도 연결 안 됨). 권한 없음·정지·핸드폰 등록 안내 이동과 회원가입·비밀번호 찾기·약관 링크가 접속 오류였다. 문서 주소 점검(`check-app-urls.mjs`)으로 찾음.
+- 즉시 조치(주인님 승인, 비용 없음): 메인 Vercel 프로젝트 `aimaster`에 도메인 `aimaster.buylife.xyz` 추가, `www.buylife.xyz`로 308 이동(경로 유지). 확인: `/programs/<slug>?need_access=1` → www로 이동, `/settings?need_phone=1` → 로그인 화면.
+- 코드 정정(미배포 대기): `www.buylife.xyz`, `/signup`→`/register`, `/legal/*`→`/privacy`·`/terms`. 커밋 `486fd5fd3`·`9c170faf5`, 문서 `dd1d94ead`, 7곳 tsc 0. **남은 일:** 다음 배포 때 함께(그 전까지 회원가입 링크 `/signup`만 404). `docs/PENDING_DEPLOYS.md`에 7줄.
+
 ## 2026-10-23 Claude Code(윈도우) — emotion-writer 문서 불일치 기록 · video-to-gif 메뉴 문구(미배포) · 안전 커밋 도우미 겹침 처리
 - `emotion-writer/docs/IMPROVEMENTS.md`: `AGENTS.md` 1·3절의 「Unsplash」「9:16·1:1·4:5」가 코드(Pixabay·Pexels, 편집 비율 9:16·1:1·3:4)와 다름 — 줄 번호와 함께 기록, 다음에 이 폴더 손볼 때 문서만 고침.
 - `video-to-gif`: 좌측 메뉴 「2-Pass 고화질 팔레트 인코딩」 → 「색상표 최적화 고화질 변환」(v1.15부터 한 번에 만들기 우선). tsc 통과, **미배포 대기**(`docs/PENDING_DEPLOYS.md`·폴더 `AGENTS.md`). 같은 문서 42번 줄 기술 설명도 고칠 것.
