@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 45/49 배포·동시 빌드 추가 구매 62개 끄기 (세션 claude-win-20261023-next-security, **중간 종료 — 이어받기 필요**)
+- 한 일: 16.x→`next@16.4.2`, 15.5.27→`15.5.28` 45개 한 번에 하나씩 배포 Ready·DB 버전 맞춤. Vercel 동시 빌드 추가 구매가 **62개 프로젝트에서 켜져 있던 것**을 주인님 승인으로 모두 끔(`a165684ea`·`d9457e6ca`, 백업 `docs/evidence/vercel-odcb-backup-20261023.json`).
+- **이어받을 일**: 남은 4개(detail-page-12p v1.11 — 커밋 `f9a3fcefe`·배포 진행 중이었음 / ebook-studio v1.12·ghost-scraper v1.14·infinite-loop-video v1.06 — 미커밋, 버전 이미 올라가 있음) 확인·배포 → 푸시 한 번 → 문서 마무리. 순서·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY.md`](HANDOFF_20261023_NEXTJS_SECURITY.md) 3번.
+- 확인 필요: ai-webtoon-studio `/login` 404(배포는 Ready, 로그인 경로 확인), ai-influencer·ai-prompt 버전 미증가(다음 배포 때 +0.01), 제외 10개·3단계(14.2.35 21개+메인)는 별도.
+- 비용: Vercel 빌드 45회(+진행분), 승인 범위 약 49회 안. AI 0회. **푸시 아직 안 함**(로컬 커밋만).
+
 ## 2026-10-23 Claude Code(윈도우) — 지난 주소 표시·블랙박스 도움말·세션 문의 임시 기준 (세션 claude-win-lessons)
 - 한 일(`50fa089ad`): `scripts/index-watch.mjs` ① `who`가 작업 중 표에 없는 세션의 주소를 「⚠ 지난 기록(이미 끝났을 수 있음)」으로 ② `help`(명령 6개·파일 3개·⚠ 대응). `docs/guidelines/COLLABORATION.md` 안전장치 표에 「세션 사이 문의 방법」 — **임시 기준**: 같은 장비 Claude Code끼리 = 메시지, 다른 장비·Codex·agy = 작업 중 표·HANDOFF.
 - 남은 일: 맥미니↔윈도우 메시지 시험(플레이북 절차) 뒤 위 줄의 「임시 기준」을 확정으로.
