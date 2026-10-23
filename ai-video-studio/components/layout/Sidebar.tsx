@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Clapperboard, Film, KeyRound, Layers, LogOut, Menu, X } from "lucide-react";
+import { BookOpen, Clapperboard, Film, KeyRound, Layers, LogOut, Menu, X, NotebookPen } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
@@ -12,6 +12,7 @@ const MAIN_ITEMS = [
   { href: "/create", icon: Clapperboard, label: "영상 생성 작업실", description: "플랫폼·모델·옵션을 골라 AI 영상 생성" },
   { href: "/edit", icon: Layers, label: "영상 합치기", description: "클립·음악·자막을 한 편으로 (내 PC 렌더, 무료)" },
   { href: "/library", icon: Film, label: "작업 결과 갤러리", description: "완성 영상 보기·내려받기 (30일 보관)" },
+  { href: "/prompts", icon: NotebookPen, label: "영상 프롬프트 게시판", description: "바로 쓰는 장면 설명 24개 → 생성 작업실로" },
 ];
 const UTILITY_ITEMS = [
   { href: "/guide", icon: BookOpen, label: "연동 & 사용 매뉴얼" },

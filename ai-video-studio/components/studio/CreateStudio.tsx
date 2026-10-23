@@ -6,25 +6,11 @@ import { AlertCircle, Check, Clapperboard, History, ImagePlus, KeyRound, Loader2
 import { MODELS, MODEL_EXAMPLES, PROVIDERS, clampSeconds, estCostUsd, exampleSlug, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { SAFETY } from "@/lib/promptPolish";
+import { CAMERAS, STYLES } from "@/lib/presets";
 import { reuseFromGeneration } from "@/lib/reuse";
+import { findPreset } from "@/lib/promptBoard";
 import { GenerationCard } from "./GenerationCard";
 
-// 1단계 프리셋 — 영상 설명에 덧붙는 영문 지시(이 프로그램 고유 문구, 다른 프로그램과 공유하지 않음)
-const STYLES = [
-  { id: "cinematic", label: "시네마틱 실사", text: "cinematic live-action footage, natural light, shallow depth of field, film grain" },
-  { id: "anime", label: "2D 애니메이션", text: "2D anime style animation, clean line art, vivid colors" },
-  { id: "pixar", label: "3D 애니메이션", text: "3D animated film style, soft global illumination, expressive characters" },
-  { id: "documentary", label: "다큐멘터리", text: "documentary style handheld footage, realistic and candid" },
-  { id: "product", label: "제품 광고", text: "premium product commercial, studio lighting, clean background, slow reveal" },
-  { id: "drone", label: "드론 풍경", text: "aerial drone footage, sweeping landscape, golden hour" },
-];
-const CAMERAS = [
-  { id: "push", label: "천천히 다가가기", text: "slow push-in camera move" },
-  { id: "pan", label: "좌우 팬", text: "smooth horizontal pan" },
-  { id: "orbit", label: "주위 돌기", text: "slow orbit around the subject" },
-  { id: "static", label: "고정 카메라", text: "static locked-off camera" },
-  { id: "tracking", label: "따라가기", text: "tracking shot following the subject" },
-];
 const IDEAS = ["비 오는 서울 밤거리를 걷는 우산 쓴 여성", "한옥 마당에 내리는 첫눈", "바다 위로 떠오르는 일출과 갈매기", "카페 창가에서 김이 오르는 라떼", "벚꽃길을 달리는 자전거"];
 
 function composePrompt(idea: string, styleId: string | null, cameraId: string | null): string {
@@ -91,7 +77,7 @@ function ImageSlot({ label, value, onChange, required }: { label: string; value:
   );
 }
 
-export function CreateStudio({ fromId = null }: { fromId?: string | null }) {
+export function CreateStudio({ fromId = null, presetId = null }: { fromId?: string | null; presetId?: string | null }) {
   const [idea, setIdea] = useState("");
   const [styleId, setStyleId] = useState<string | null>("cinematic");
   const [cameraId, setCameraId] = useState<string | null>("push");
@@ -186,6 +172,17 @@ export function CreateStudio({ fromId = null }: { fromId?: string | null }) {
   }, []);
 
   useEffect(() => () => { if (pollRef.current) clearTimeout(pollRef.current); }, []);
+
+  // 영상 프롬프트 게시판 「이 설명으로 만들기」(v1.14) — 설명·화풍·카메라만 채우고 모델·옵션은 그대로
+  useEffect(() => {
+    if (!presetId || fromId) return;
+    const p = findPreset(presetId);
+    if (!p) { setReuseNotice({ text: "게시판 장면을 찾지 못했습니다. 게시판에서 다시 골라 주세요.", ok: false }); return; }
+    setIdea(p.idea);
+    setStyleId(STYLES.some((s) => s.id === p.styleId) ? p.styleId : null);
+    setCameraId(CAMERAS.some((c) => c.id === p.cameraId) ? p.cameraId : null);
+    setReuseNotice({ text: `게시판의 「${p.title}」 장면을 불러왔습니다.${p.input === "photo" ? " 내 제품 사진을 시작 장면으로 넣으면 더 잘 나옵니다." : ""} 그대로 만들거나 「AI로 설명 다듬기」로 다듬어 보세요.`, ok: true });
+  }, [presetId, fromId]);
 
   // 갤러리 「이 설정으로 다시 만들기」(v1.11) — 내 기록만 불러온다(서버가 user_id로 거름). 사진은 다시 넣게 한다
   useEffect(() => {
