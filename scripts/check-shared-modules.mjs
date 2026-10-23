@@ -446,6 +446,8 @@ const MODULES = [
       "naver-blog-agent/src/lib/cleanupUsageLog.ts",
       "naver-blog-allinone/src/lib/cleanupUsageLog.ts",
       "naver-blog-seo-studio/lib/cleanupUsageLog.ts",
+      // 뮤직비디오 v1.22 완성본 보관 30일 정리 — 2026-10-24 음악 담당(claude-win-20261024-music)
+      "music-video-studio/src/lib/cleanupUsageLog.ts",
     ],
   },
   {

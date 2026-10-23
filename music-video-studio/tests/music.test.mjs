@@ -230,3 +230,24 @@ test("v1.21 장면별 카메라 움직임: 자동은 예전 문장, 고르면 �
   const s = sanitizeProject({ scenes: [{ id: "a", lyric: "l", prompt: "p", camera: "orbit" }, { id: "b", lyric: "l", prompt: "p", camera: "zoom" }, { id: "c", lyric: "l", prompt: "p", camera: "auto" }, { id: "d", lyric: "l", prompt: "p" }] }).scenes;
   assert.deepEqual(s.map((x) => x.camera), ["orbit", undefined, undefined, undefined]);
 });
+
+test("v1.22 완성본 보관: 크기 검사·제목 정리·경로·남은 날", async () => {
+  const { checkRenderSize, cleanTitle, renderPath, daysLeft, isRenderId, MAX_RENDER_BYTES, RETENTION_DAYS } = await import("../src/lib/music/renderArchive.ts");
+  assert.equal(checkRenderSize(1024), null);
+  assert.equal(checkRenderSize(MAX_RENDER_BYTES), null);
+  assert.match(checkRenderSize(MAX_RENDER_BYTES + 1), /50MB/);
+  assert.match(checkRenderSize(0), /올바르지/);
+  assert.match(checkRenderSize("x"), /올바르지/);
+  assert.equal(cleanTitle("  비 오는\n밤\t "), "비 오는 밤");
+  assert.equal(cleanTitle(""), "뮤직비디오");
+  assert.equal(cleanTitle(null, "곡"), "곡");
+  assert.equal(cleanTitle("가".repeat(200)).length, 80);
+  const uid = "526da72d-0000-4000-8000-000000000001", id = "11111111-2222-4333-8444-555555555555";
+  assert.equal(renderPath(uid, id), `${uid}/renders/${id}.mp4`);
+  assert.ok(renderPath(uid, id).startsWith(`${uid}/`), "회원 폴더 안");
+  assert.ok(isRenderId(id) && !isRenderId("../x") && !isRenderId(undefined));
+  const now = Date.parse("2026-10-24T00:00:00Z");
+  assert.equal(daysLeft("2026-10-24T00:00:00Z", now), RETENTION_DAYS);
+  assert.equal(daysLeft("2026-10-23T12:00:00Z", now), 30, "반나절 지나면 올림으로 30");
+  assert.equal(daysLeft("2026-09-01T00:00:00Z", now), 0, "지난 것은 0");
+});

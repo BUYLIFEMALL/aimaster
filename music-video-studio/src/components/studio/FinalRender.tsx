@@ -5,7 +5,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Player } from "@remotion/player";
 import { renderMediaOnWeb } from "@remotion/web-renderer";
-import { Download, Film, Loader2 } from "lucide-react";
+import { Archive, Download, Film, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { RenderArchive } from "@/components/studio/RenderArchive";
+import { checkRenderSize } from "@/lib/music/renderArchive";
 import { EditComposition } from "@/components/edit/Composition";
 import { CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, dimensions, layout, splitEvenly, validate, type CaptionSize, type CaptionStyle, type EditClip, type EditProject, type EditQuality } from "@/lib/edit/timeline";
 import { loadLocalSong } from "@/lib/music/localSong";
@@ -57,7 +60,10 @@ export function FinalRender() {
   const [captionStyle, setCaptionStyle] = useState<CaptionStyle>("yellow");
   const [captionSize, setCaptionSize] = useState<CaptionSize>("m");
   const [render, setRender] = useState<{ progress: number; ctrl: AbortController } | null>(null);
-  const [result, setResult] = useState<{ url: string; mb: number; seconds: number } | null>(null);
+  const [result, setResult] = useState<{ url: string; mb: number; seconds: number; blob: Blob; saved?: boolean } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveNote, setSaveNote] = useState("");
+  const [archiveKey, setArchiveKey] = useState(0);
   const [error, setError] = useState("");
   const [canRender, setCanRender] = useState(true);
 
@@ -163,12 +169,37 @@ export function FinalRender() {
         logLevel: "error",
       });
       const blob = await out.getBlob();
-      setResult({ url: URL.createObjectURL(blob), mb: Math.round(blob.size / 104857.6) / 10, seconds: totalFrames / FPS });
+      setResult({ url: URL.createObjectURL(blob), mb: Math.round(blob.size / 104857.6) / 10, seconds: totalFrames / FPS, blob });
+      setSaveNote("");
     } catch {
       setError(ctrl.signal.aborted ? "렌더를 멈췄습니다." : "뮤직비디오를 만들지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요. 계속되면 720p로 바꿔 주세요.");
     } finally {
       setRender(null);
     }
+  }
+
+  // v1.22 완성본 보관 — 서버가 준 서명 주소로 브라우저가 바로 올리고(본문 4.5MB 제한 회피), 끝나면 확인 요청
+  async function saveToArchive() {
+    if (!result || saving || result.saved) return;
+    const tooBig = checkRenderSize(result.blob.size);
+    if (tooBig) { setSaveNote(tooBig); return; }
+    setSaving(true); setSaveNote("");
+    try {
+      const res = await fetch("/api/music/renders", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: project.title, songTitle: song?.title ?? "", bytes: result.blob.size, seconds: result.seconds, width, height }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "보관을 시작하지 못했습니다.");
+      const { error: upErr } = await createClient().storage.from(d.bucket).uploadToSignedUrl(d.path, d.token, result.blob, { contentType: "video/mp4" });
+      if (upErr) throw new Error("파일을 올리지 못했습니다. 네트워크를 확인한 뒤 다시 저장해 주세요.");
+      const done = await fetch(`/api/music/renders/${d.id}/done`, { method: "POST" });
+      const dd = await done.json().catch(() => ({}));
+      if (!done.ok) throw new Error(dd.error || "보관을 마치지 못했습니다.");
+      setResult((cur) => (cur ? { ...cur, saved: true } : cur));
+      setSaveNote("보관함에 저장했습니다. 30일 동안 아래 「보관한 완성본」에서 다시 볼 수 있습니다.");
+      setArchiveKey((k) => k + 1);
+    } catch (e) { setSaveNote((e as Error).message); } finally { setSaving(false); }
   }
 
   const chip = (on: boolean) =>
@@ -239,10 +270,19 @@ export function FinalRender() {
         <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3">
           <p className="text-sm font-bold text-emerald-200">완성했습니다 · {Math.round(result.seconds)}초 · {result.mb}MB</p>
           <video src={result.url} controls playsInline className={`mx-auto w-full rounded-lg bg-black ${editProject.aspect === "9:16" ? "max-w-[280px]" : "max-w-[640px]"}`} />
-          <a href={result.url} download={`${fileBase}.mp4`} className={BTN_PRIMARY}><Download className="h-4 w-4" aria-hidden="true" /> <span>MP4 내려받기</span></a>
-          <p className="text-[11px] text-slate-500">완성 영상은 서버에 저장되지 않습니다. 이 화면을 닫기 전에 내려받아 주세요.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <a href={result.url} download={`${fileBase}.mp4`} className={BTN_PRIMARY}><Download className="h-4 w-4" aria-hidden="true" /> <span>MP4 내려받기</span></a>
+            <button type="button" className={BTN_GHOST} disabled={saving || result.saved} onClick={() => void saveToArchive()}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Archive className="h-4 w-4" aria-hidden="true" />}
+              <span>{result.saved ? "보관함에 저장됨" : saving ? "저장하는 중…" : "보관함에 저장 (30일)"}</span>
+            </button>
+          </div>
+          {saveNote && <p role="status" className={`text-xs ${result.saved ? "text-emerald-200" : "text-rose-300"}`}>{saveNote}</p>}
+          <p className="text-[11px] text-slate-500">보관함에 저장하지 않으면 이 화면을 닫을 때 사라집니다. 내려받거나 보관해 주세요.</p>
         </div>
       )}
+
+      <RenderArchive reloadKey={archiveKey} />
     </Card>
   );
 }
