@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `naver-blog-agent` (운영 v2.12) | 30일 정리: 옛 버킷에서 옮긴 이미지 복사본을 파일 이름의 생성 시각으로 판정(원래 기한 유지) | `f1aabf2a2` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-nba-oldimg` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | v2.13, 정리 작업 dry-run에서 복사본이 원래 날짜로 판정되는지 |
 | `naver-blog-seo-studio` (운영 v2.12) | 원고에 생성 모델 이름 기록(`seo_report.generatedModel`, 화면 「생성 모델」) — 웹만 변경 | `07e08257e` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-seo-bg` | `naver-blog-seo-studio/AGENTS.md` 맨 위 「미배포 대기」 | 버전 +0.01(원칙 10: manifest·ZIP·DB 함께) |
 | `threads-comment-reply` (운영 v1.27) | 「⏸ 모니터링 중지」 직후 화면이 바로 꺼짐으로 바뀌게(`MonitoringSettingsForm` `stopped` 상태) | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `threads-comment-reply/docs/IMPROVEMENTS.md` 「9시간 밀림」 아래 | 버전 +0.01, 중지 → 바로 「▶ 모니터링 시작」 |
 | `youtube-auto-reply` (운영 v1.30) | 위와 같은 수정 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `youtube-auto-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 같은 확인 |
