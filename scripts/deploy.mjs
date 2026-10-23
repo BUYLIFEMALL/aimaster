@@ -349,7 +349,11 @@ const ownerArg = args.includes("--owner") ? args[args.indexOf("--owner") + 1] : 
 if (active.some((l) => !(ownerArg && l.includes(ownerArg)))) {
   console.log("\n✖ 다른 세션이 작업 중인 폴더라 배포하지 않습니다. 그 세션이 끝난 뒤 다시 실행하세요(공동작업 규칙).");
   const names = [...new Set(active.map((l) => rowInfo(l).name).filter(Boolean))];
-  if (names.length) console.log(`  물어볼 세션: ${names.join(", ")} — Claude Code는 ListAgents에서 이 이름을 찾아 SendMessage로(그 세션이 그 폴더를 마쳤는지·표에서 빼 줄지)`);
+  if (names.length) {
+    console.log(`  물어볼 세션: ${names.join(", ")} — Claude Code는 ListAgents에서 이 이름을 찾아 SendMessage로(그 세션이 그 폴더를 마쳤는지·표에서 빼 줄지)`);
+    // 보낼 문안(2026-10-23) — 복사해 그대로 보내면 받는 쪽이 무엇을 해 달라는지 바로 안다(첫 줄이 미리보기)
+    for (const n of names) console.log(`  보낼 문안(→ ${n}): [문의] ${n} 세션이 docs/ACTIVE_WORK.md에 올린 \`${folder}/\` 작업이 끝났으면 그 줄에서 \`${folder}/\`만 빼 주실 수 있을까요? ${folder} 배포를 하려는데 scripts/deploy.mjs가 그 줄 때문에 멈춥니다. 아직 쓰고 계시면 끝날 때까지 기다리겠습니다.`);
+  }
   console.log("  내 줄이라면: --owner \"<내 세션 이름 또는 내 줄 작업 설명 일부>\"를 붙여 다시 실행");
   process.exit(1);
 }
