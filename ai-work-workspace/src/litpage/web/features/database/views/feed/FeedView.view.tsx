@@ -20,6 +20,7 @@ import { conditionalBg, useConditionalColors } from '../../data.ts';
 import { titleOf } from '../../advanced/index.ts';
 import { SettingsToggle, setFormat, useViewKit, visibleProperties } from '../../advanced/viewKit.tsx';
 import { PostComments, PostReactions, PostViews, useFeedViews, type PostViewInfo } from './FeedSocial.tsx';
+import { getLocale } from '../../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 import './feed.css';
 
 function ago(t: number | undefined): string {
@@ -32,7 +33,7 @@ function ago(t: number | undefined): string {
   if (h < 24) return `${h}h`;
   const d = Math.floor(h / 24);
   if (d < 30) return `${d}d`;
-  return new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(t).toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function Byline({ row }: { row: BlockRecord }) {

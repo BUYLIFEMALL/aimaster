@@ -13,7 +13,7 @@ import { records } from '../../lib/store/records.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { userName } from '../presence/Avatar.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, getLocale } from '../shell/i18n.ts';
 import { pageTitle } from './pageActions.ts';
 
 const lookup = {
@@ -52,7 +52,7 @@ export function unarchivePage(pageId: string, opts: { toast?: boolean } = {}) {
 }
 
 function archivedDate(ms: number): string {
-  return new Date(ms).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  return new Date(ms).toLocaleDateString(getLocale(), { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 /** Yellow banner on archived pages: direct archive with Unarchive, or the

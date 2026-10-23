@@ -12,7 +12,7 @@ import { openPage } from '../../lib/router.ts';
 import { useRecord } from '../../lib/hooks.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { Button, UserAvatar, confirmDialog, openSubDialog } from '../settings/ui.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, getLocale } from '../shell/i18n.ts';
 import {
   EVENT_LABELS, capabilitySummary, createConnection, developersUrl, openDevelopers, useConnections, type Capabilities, type Connection, type ConnectionDetailData,
   type Webhook,
@@ -21,7 +21,7 @@ import { pickPage } from './pagePicker.tsx';
 import '../settings/settings.css';
 import './developer.css';
 
-const fmtDate = (ms: number | null | undefined) => (ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—');
+const fmtDate = (ms: number | null | undefined) => (ms ? new Date(ms).toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', year: 'numeric' }) : '—');
 
 function relative(ms: number): string {
   const d = Date.now() - ms;
@@ -632,7 +632,7 @@ function Failures({ w, close }: { w: Webhook; close: () => void }) {
       <table className="nc-dev-table">
         <tbody>
           {(list ?? []).map((f) => (
-            <tr key={f.id}><td className="primary">{eventLabel(f.eventType)}</td><td>{f.status ? `HTTP ${f.status}` : f.error}</td><td>{new Date(f.time).toLocaleString('en-US')}</td></tr>
+            <tr key={f.id}><td className="primary">{eventLabel(f.eventType)}</td><td>{f.status ? `HTTP ${f.status}` : f.error}</td><td>{new Date(f.time).toLocaleString(getLocale())}</td></tr>
           ))}
         </tbody>
       </table>

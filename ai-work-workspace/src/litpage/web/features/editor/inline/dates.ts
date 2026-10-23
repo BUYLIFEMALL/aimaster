@@ -1,6 +1,7 @@
 // Date mention helpers: display formatting, including relative values, and reminder labels
 // and a small natural-language parser for the "@" menu ("tomorrow", "next friday 3pm", "10/25", "remind me …").
 import type { DateValue } from '#shared/richtext.ts';
+import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -28,7 +29,7 @@ function dayDiff(d: Date, from = new Date()): number {
 
 /** “Oct 20, 2026” date input and default mention display. */
 export function formatMedium(d: Date): string {
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return d.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export function formatTime(t: string | undefined, fmt?: string): string {
@@ -57,7 +58,7 @@ export function formatDateOnly(dateStr: string, format: string | undefined): str
     case 'MMM DD, YYYY':
       return formatMedium(d);
     case 'MMM d':
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return d.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric' });
     case 'full':
     case 'MMMM D, YYYY':
       return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;

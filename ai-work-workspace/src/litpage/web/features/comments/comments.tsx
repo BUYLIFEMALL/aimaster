@@ -28,7 +28,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { RichTextEditable, type LeafApi } from '../editor/RichTextEditable.tsx';
 import { renderRichText } from '../editor/richTextDom.ts';
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, getLocale } from '../shell/i18n.ts';
 import { confirmDialog } from '../page/confirm.tsx';
 import { getCustomEmojis } from '../settings/customEmoji.ts';
 import { canSuggest, commentOnly, isSuggesting, setSuggesting, useSuggest } from './suggest.ts';
@@ -725,7 +725,7 @@ export function commentTime(ms: number): string {
   if (h < 24) return `${h}h`;
   const d = Math.floor(h / 24);
   if (d < 7) return `${d}d`;
-  return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return new Date(ms).toLocaleDateString(getLocale(), { month: 'short', day: 'numeric' });
 }
 
 function blockTypeLabel(blockId: string): string {
@@ -1088,7 +1088,7 @@ function dayLabel(ms: number): string {
   const diff = Math.round((day(now) - day(d)) / 86400000);
   if (diff === 0) return 'Today';
   if (diff === 1) return 'Yesterday';
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+  return d.toLocaleDateString(getLocale(), { month: 'long', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
 }
 
 function notifyBell(pageId: string, anchor: HTMLElement) {

@@ -19,7 +19,7 @@ import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useEditor } from '../editor/editorState.ts';
 import { NoKeyNotice } from '../ai/NoKeyNotice.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, getLocale } from '../shell/i18n.ts';
 import { TranscriptPanel, clock } from './Transcript.tsx';
 import { installCitations } from './citations.tsx';
 import { useInstructions, instructionsLabel, openInstructionsMenu } from './instructions.tsx';
@@ -344,7 +344,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
               }}
             />
             <div className="nc-mtg-sub">
-              <span>{created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · {created.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+              <span>{created.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', year: 'numeric' })} · {created.toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' })}</span>
               {someoneElse && <span dangerouslySetInnerHTML={{ __html: t('lp.meetings.this_meeting_is_being_transcribed_by_f64d', 'This meeting is being transcribed by <bold>{transcriberName}</bold>', { transcriberName: escapeHtml(transcriber?.name || 'Someone') }).replace(/<bold>/g, '<b>').replace(/<\/bold>/g, '</b>') }} />}
               {recordingHere && <span dangerouslySetInnerHTML={{ __html: t('lp.meetings.this_meeting_is_being_transcribed_by_a2ca', 'This meeting is being transcribed by <bold>you</bold>').replace(/<bold>/g, '<b>').replace(/<\/bold>/g, '</b>') }} />}
             </div>

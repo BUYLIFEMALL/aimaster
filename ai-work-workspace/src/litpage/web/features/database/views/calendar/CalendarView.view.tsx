@@ -24,6 +24,7 @@ import { openMenu } from '../../../../components/Menu.tsx';
 import { records } from '../../../../lib/store/records.ts';
 import { PageIcon } from '../../../shell/PageIcon.tsx';
 import { titleOf } from '../../advanced/context.ts';
+import { getLocale } from '../../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 import './calendar.css';
 
 const ROW_HEIGHT = 124;
@@ -55,7 +56,7 @@ function addMonths(n: number, k: number): number {
 }
 
 function timeLabel(ms: number): string {
-  return new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return new Date(ms).toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' });
 }
 
 function layoutWeek(items: { row: BlockRecord; range: DayRange }[], weekStart: number, days: number[]): Placed[] {

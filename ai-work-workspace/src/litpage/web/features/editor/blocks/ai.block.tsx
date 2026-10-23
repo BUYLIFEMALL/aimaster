@@ -10,6 +10,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { createBlockIn, run } from '../../../lib/blocks.ts';
 import { useEditor } from '../editorState.ts';
 import { toast } from './shared.tsx';
+import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 
 type Tab = 'summary' | 'notes' | 'transcript';
 
@@ -32,7 +33,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 600 }}>{title}</div>
-            <div style={{ fontSize: 12, color: 'var(--lp-text-secondary)' }}>{created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {created.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
+            <div style={{ fontSize: 12, color: 'var(--lp-text-secondary)' }}>{created.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', year: 'numeric' })}{getLocale() === 'ko-KR' ? ' ' : ' at '}{created.toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' })}</div>
           </div>
           {!readOnly && (
             <button

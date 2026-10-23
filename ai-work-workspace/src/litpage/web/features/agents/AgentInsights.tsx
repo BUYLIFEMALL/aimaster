@@ -6,7 +6,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../../components/Icon.tsx';
 import { formatDateTime, timeAgo } from '../../lib/format.ts';
-import { t } from '../shell/i18n.ts';
+import { t, getLocale } from '../shell/i18n.ts';
 import { agentApi, toastError, type AgentDetail, type RunJson } from './agentsApi.ts';
 import { runTitle, StatusChip } from './AgentActivity.tsx';
 
@@ -27,7 +27,7 @@ const PERIODS = [7, 30, 90] as const;
 
 function dayLabel(day: string, opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }): string {
   const d = new Date(`${day}T00:00:00Z`);
-  return d.toLocaleDateString('en-US', { ...opts, timeZone: 'UTC' });
+  return d.toLocaleDateString(getLocale(), { ...opts, timeZone: 'UTC' });
 }
 
 function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {

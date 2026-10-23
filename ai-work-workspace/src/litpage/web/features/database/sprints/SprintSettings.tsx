@@ -14,6 +14,7 @@ import { confirmDialog } from '../../page/confirm.tsx';
 import { useDatabaseVersion } from '../data.ts';
 import { VSRow as Row, VSSection as Section, VSToggleRow as ToggleRow, vsPick as pick } from '../chrome/ViewSettings.tsx';
 import { completeSprint, manageSprintFromView, sprintInfo, sprintRows, todayStr, turnOffSprints, turnOnSprints, updateSprintSettings } from './sprints.ts';
+import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 import './sprints.css';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -25,7 +26,7 @@ const INCOMPLETE: { id: SprintSettings['incomplete_tasks']; label: string; short
 
 function fmtDate(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(y, m - 1, d).toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 /** "Next sprint starts in N days (date)" line for the settings panel. */

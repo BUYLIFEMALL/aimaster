@@ -17,6 +17,7 @@ import { automationAccess, automationRuns, deleteAutomation, duplicateAutomation
 import { openAutomationBuilder } from './builder.tsx';
 import './automations.css';
 import { openKeepMenu } from './keepMenu.ts';
+import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 
 export function automationDisplayName(a: AutomationRecord): string {
   if (a.properties?.name) return a.properties.name;
@@ -80,7 +81,7 @@ async function openRuns(anchor: HTMLElement, a: AutomationRecord) {
         {runs.map((r) => (
           <div key={r.id} className={`nc-autorun ${r.status}`}>
             <span className="dot" />
-            <span>{new Date(r.time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+            <span>{new Date(r.time).toLocaleString(getLocale(), { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
             <span style={{ color: r.status === 'error' ? 'var(--lp-red-text-secondary, #c4554d)' : 'var(--lp-text-tertiary)' }}>{r.status === 'success' ? 'Completed' : r.status === 'error' ? r.message ?? 'Failed' : r.message ?? 'Skipped'}</span>
           </div>
         ))}

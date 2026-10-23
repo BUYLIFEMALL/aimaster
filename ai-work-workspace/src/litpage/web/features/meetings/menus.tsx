@@ -10,7 +10,7 @@ import { openMenu, type MenuItemDef, type MenuSectionDef } from '../../component
 import { openOverlay, PopoverSurface } from '../../components/overlay.tsx';
 import { confirmDialog } from '../page/confirm.tsx';
 import { savePref } from '../settings/userSettings.ts';
-import { t } from '../shell/i18n.ts';
+import { t, getLocale } from '../shell/i18n.ts';
 import { LANGUAGES } from './speech.ts';
 import { autoConsentPref, consentEnforced, copyConsent, playConsent } from './consent.ts';
 import { deleteRecordings, downloadRecording, listRecordings } from './localAudio.ts';
@@ -173,7 +173,7 @@ export async function openSettingsMenu(anchor: HTMLElement, block: BlockRecord, 
               items: recordings.map((r) => {
                 const d = new Date(r.created);
                 const name = t('lp.meetings.audio_recording_at', 'Recording from {lastModifiedDate} at {lastModifiedTime}', {
-                  lastModifiedDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), lastModifiedTime: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+                  lastModifiedDate: d.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric' }), lastModifiedTime: d.toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' }),
                 });
                 return {
                   label: name, icon: 'download',

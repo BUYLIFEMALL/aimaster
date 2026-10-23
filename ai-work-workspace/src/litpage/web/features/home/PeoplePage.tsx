@@ -15,7 +15,7 @@ import { TeamIcon } from '../shell/sidebar/TeamIcon.tsx';
 import { pageTitle } from '../page/pageActions.ts';
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
 import { localTime, roleLabel, type PersonProfile } from '../presence/PersonHoverCard.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, getLocale } from '../shell/i18n.ts';
 import './people.css';
 
 export function PeoplePage({ userId }: { userId?: string }) {
@@ -184,7 +184,7 @@ function ProfilePage({ userId }: { userId: string }) {
               <div key={rp.pageId} className="nc-profile-item" role="button" onClick={() => openPage(rp.pageId)}>
                 <PageIcon block={b} size={20} />
                 <span className="nc-ellipsis">{pageTitle(b) || t('lp.home.untitled', 'Untitled')}</span>
-                <span className="nc-profile-time">{new Date(rp.editedTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                <span className="nc-profile-time">{new Date(rp.editedTime).toLocaleDateString(getLocale(), { month: 'short', day: 'numeric' })}</span>
               </div>
             );
           })}

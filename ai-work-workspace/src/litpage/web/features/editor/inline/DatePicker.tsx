@@ -12,6 +12,7 @@ import { run, setTitle, setProperty } from '../../../lib/blocks.ts';
 import { useEditor } from '../editorState.ts';
 import { valueOf } from './format.ts';
 import { weekdayHeaders, weekStartDay } from '../../settings/userSettings.ts';
+import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 import {
   addDays, DATE_FORMATS, dateFormatLabel, formatMedium, formatTime, isoDate, parseIso, parseNaturalDate, reminderLabel, reminderOptions, startOfDay,
 } from './dates.ts';
@@ -125,7 +126,7 @@ export function DateCalendar({ value, onChange, onClear, showReminder = true }: 
       </div>
       <div className="nc-dp-cal">
         <div className="nc-dp-caption">
-          <div className="nc-dp-label">{month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</div>
+          <div className="nc-dp-label">{month.toLocaleDateString(getLocale(), { month: 'short', year: 'numeric' })}</div>
           <div className="nc-dp-nav">
             <div role="button" className="nc-dp-today" onClick={() => setMonth(new Date(today.getFullYear(), today.getMonth(), 1))}>Today</div>
             <div role="button" aria-label="Previous month" className="nc-dp-arrow" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}><Icon name="chevronLeft" size={16} /></div>
