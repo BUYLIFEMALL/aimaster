@@ -429,4 +429,4 @@ POST 콜백을 보낸다. 이 라우트는:
 ## 2026-10-23 v1.45 — 휴대폰 폭 가로 넘침 수정 배포 (Claude Code 윈도우, 세션 `claude-win-music-v145`, 주인님 승인 빌드 1회)
 - `app/(dashboard)/layout.tsx` `<main>`에 `overflow-x-clip`. 배포 `music-4n6o3dlzo` Ready·운영 주소 연결, DB·프로그램 비교표 v1.45.
 - 검수(크롬 시험 회원, 390px iframe): 수정 전 운영에서는 `window.scrollTo(200,0)` 뒤 창이 114px 밀렸고(`body { overflow-x: hidden }`이 있어도), 수정 뒤 `scrollX` 0·문서 폭 382px(화면 387px). 데스크톱 폭에서 기획 목록 아래 고정 막대(`sticky bottom-4`) 정상(창 아래 16px).
-- ⚠ 발견(미처리, 이번 수정과 무관 — `overflow-x-clip` 켜고 꺼도 같음): **휴대폰 폭에서 기획 목록 선택 막대가 화면 아래에 붙지 않고 목록 끝(아래끝 1492px, 창 697px)에 남는다.** 상세·다음 첫 단계: `docs/IMPROVEMENTS.md` 맨 아래.
+- (정정) 휴대폰 폭 선택 막대 「안 붙음」은 스크롤 없이 잰 오판 — 목록까지 스크롤하면 화면 아래에 붙음(정상). 상세·다음 첫 단계: `docs/IMPROVEMENTS.md` 맨 아래.

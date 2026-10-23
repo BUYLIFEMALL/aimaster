@@ -102,7 +102,8 @@
 - 고칠 때: 기준 `markdown-studio`·`four-cut-comics`처럼 휴대폰 머리줄(☰) + 펼침 메뉴(계정 포함)로. 작은 화면 수정이라 미배포 대기로 모았다가 다음 배포 때 함께. 확인: 크롬 390px 폭.
 - **처리(2026-10-23, Claude Code 윈도우, 미배포 대기)**: `Sidebar.tsx`에 휴대폰 머리줄(SUNO·이름·버전·☰ 버튼, `md:hidden`)을 넣고, 메뉴 본문은 767px 이하에서 접었다가 ☰로 펼침(계정·로그아웃 포함 같은 메뉴, 페이지 이동 시 자동 접힘). 데스크톱(`md:` 이상)은 그대로. tsc·eslint 통과, `check-mobile-account.mjs` 후보 0곳. **배포 뒤 크롬 390px 폭에서 ☰ 펼침·계정 표시 확인 필요.**
 
-## 2026-10-23 ⚠ 발견(미처리) — 휴대폰 폭에서 기획 목록 선택 막대(sticky)가 화면 아래에 붙지 않음 (Claude Code 윈도우, v1.45 검수 중)
+## 2026-10-23 ✅ 정상(오판 정정) — 휴대폰 폭에서 기획 목록 선택 막대(sticky)가 화면 아래에 붙지 않음 (Claude Code 윈도우, v1.45 검수 중)
 - 재현: 크롬 390px(iframe)에서 `/plannings` 기획 하나 체크 → 「기획 1개 · 곡 1개 …」 막대(`components/plannings/PlanningListWithPicker.tsx` `sticky bottom-4`)가 목록 맨 끝(아래끝 1492px)에 있고 창(697px) 아래에 붙지 않는다. 데스크톱(1278px)에서는 창 아래 16px에 정상 고정.
 - 원인 미확정: `<main>`의 `overflow-x-clip`을 껐을 때도 같아 v1.45 수정과 무관. 계산값 `body` overflow `hidden/auto`(전역 `body { overflow-x: hidden }` 때문에 y가 auto로 바뀜), 휴대폰 폭에서 좌측 메뉴·본문이 세로로 쌓이는 배치(`flex-col`)와의 관계를 먼저 확인.
 - 다음 첫 단계: 390px에서 `globals.css`의 `body { overflow-x: hidden }`을 화면 안에서만 꺼 보고 막대가 붙는지 확인 → 붙으면 그 줄을 지우고(가로 넘침은 이미 `<main>` `overflow-x-clip`이 막음) 미배포 대기로. 비용 없음(코드), 배포는 다음 music 배포 때.
+- **정정(2026-10-23, 같은 세션)**: 문제 아님. 막대는 목록 묶음(`space-y-3`) 맨 앞에 있어 `sticky`가 그 묶음 안에서만 움직인다. 휴대폰 폭에서는 위쪽 안내가 길어 목록이 1362px부터 시작하므로, 스크롤 0에서는 목록 시작점에 있는 것이 정상. 390px에서 스크롤 1000px → 막대 아래끝 681px(창 697px − 16px)로 화면 아래에 붙음 확인. `body { overflow-x: hidden }`을 꺼도 결과 같음 → 코드 변경 없음. 교훈: sticky 확인은 해당 구역까지 스크롤한 뒤 잰다.
