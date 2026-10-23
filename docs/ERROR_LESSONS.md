@@ -15,6 +15,13 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 04:39 — 새 프로그램 배포 명령이 메인 사이트(`aimaster`) 운영 배포를 만들었다: 커밋 명령과 배포 명령을 동시에 실행 (ai-work-workspace v1.01, Claude Code 윈도우)
+- 증상: `cd ai-work-workspace && vercel deploy --prod --yes --scope buylife`의 결과 주소가 `aimaster-f4wvhvi1o-buylife.vercel.app`(www.buylife.xyz 연결). 새 프로젝트에는 배포 0건. 배포 출처 `cli`, 커밋 메시지는 내 커밋.
+- 원인: 같은 응답 안에서 `cd /d/Antigravity/AIMaster && git commit …`(루트로 이동)과 위 배포 명령을 **동시에(병렬로)** 실행했다. 두 명령이 같은 셸을 써서 배포가 루트(루트 `.vercel/project.json` = aimaster)에서 실행된 것으로 판단.
+- 영향: 메인 사이트가 로컬 루트 파일로 한 번 더 배포됨. 메인 사이트 코드 미커밋 변경 0건·「메인 사이트 할 일」 표도 코드 미작성이라 **화면·회원 피해 없음**(제목·`/programs` 200 확인), 빌드 1회 낭비.
+- 해결: 배포는 다른 명령과 **절대 같이 실행하지 않고 단독으로**, 폴더는 `cd` 대신 `vercel deploy --prod --yes --scope buylife --cwd "D:/Antigravity/AIMaster/<폴더>"`(절대 경로)로 지정 → `ai-work-workspace-kx1az0lyp` Ready, 새 도메인 연결 확인.
+- 다음부터: 배포 결과 주소의 앞부분(`<프로젝트>-…-buylife.vercel.app`)이 배포하려던 프로젝트 이름과 같은지 **바로** 확인한다. 다르면 다음 명령을 멈추고 `vercel inspect`로 출처·연결 주소부터 본다. 덤: Git Bash에서 `vercel api /v9/…`는 경로가 `C:/Program Files/Git/v9/…`로 바뀌므로 `MSYS_NO_PATHCONV=1`을 붙인다(10-23 `vercel crons run` 항목과 같은 원인).
+
 ## 2026-10-24 — Claude 확장이 조작하는 탭에서는 다른 확장의 사이트 연결(`chrome.runtime`)이 아예 안 생겨, 멀쩡한 확장을 「동작 안 함」으로 오판할 뻔했다 (video-to-gif v1.20, Claude Code 윈도우)
 - 증상: 엣지에 GIF 확장(`externally_connectable` = video-to-gif.buylife.xyz)을 올리고 재시작까지 했는데, 자동화 탭에서는 페이지·스크립트 태그 어디서도 `chrome.runtime`이 `undefined`. 확장 카드는 켜짐·오류 없음.
 - 원인: claude-in-chrome이 붙어 있는 탭(탭 그룹)에서는 다른 확장의 웹 연결 통로가 생기지 않음(같은 탭에서 claude.ai는 Claude 자신의 통로라 보임). 주인님 일반 탭 콘솔에서는 `typeof chrome.runtime` = `'object'`, `ping` → `pong` 정상.
