@@ -91,6 +91,8 @@ export async function POST(request: Request) {
   const aspect: AspectRatio | null = model.aspects.length ? (model.aspects.includes(body.aspectRatio as AspectRatio) ? (body.aspectRatio as AspectRatio) : model.aspects[0]) : null;
   const seconds = clampSeconds(model, body.seconds);
   const resolution = pickResolution(model, body.resolution);
+  // 소리 함께 만들기(fal 소리 칸이 있는 모델만, 기본 끔 — 단가가 오르는 모델이 있음)
+  const audio = model.audioOption && body.audio === true;
 
   // 회원 본인 키만 — 없으면 등록 안내(다른 회원·운영자 키로 대신하지 않음)
   const provider = PROVIDERS[model.provider];
@@ -135,8 +137,8 @@ export async function POST(request: Request) {
       duration_s: seconds,
       start_image: startPath,
       end_image: endPath,
-      options: resolution ? { resolution } : {},
-      est_cost_usd: estCostUsd(model, seconds, withEnd, resolution),
+      options: { ...(resolution ? { resolution } : {}), ...(audio ? { audio: true } : {}) },
+      est_cost_usd: estCostUsd(model, seconds, withEnd, resolution, audio),
     })
     .select("*")
     .single();
@@ -146,7 +148,7 @@ export async function POST(request: Request) {
   }
 
   await startJob(admin, created as GenerationRow, apiKey);
-  await logProgramUsage(user.id, "generate_video", 1, { model: model.id, seconds, withEnd, resolution });
+  await logProgramUsage(user.id, "generate_video", 1, { model: model.id, seconds, withEnd, resolution, audio, textOnly: !start });
 
   const { data: fresh } = await admin.from("avs_generations").select("*").eq("id", id);
   return NextResponse.json({ generations: await toClient(admin, (fresh ?? [created]) as GenerationRow[]) }, { headers: { "Cache-Control": "private, no-store" } });

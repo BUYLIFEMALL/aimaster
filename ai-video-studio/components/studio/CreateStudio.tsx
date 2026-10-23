@@ -83,6 +83,7 @@ export function CreateStudio() {
   const [seconds, setSeconds] = useState<number>(5);
   const [aspect, setAspect] = useState<AspectRatio>("16:9");
   const [resolution, setResolution] = useState<string | null>(null);
+  const [audio, setAudio] = useState(false);
   const [startImage, setStartImage] = useState<string | null>(null);
   const [endImage, setEndImage] = useState<string | null>(null);
   const [registered, setRegistered] = useState<Set<string> | null>(null);
@@ -103,7 +104,8 @@ export function CreateStudio() {
   const sec = clampSeconds(model, seconds);
   const withEnd = !!endImage && !!startImage && model.endFrame;
   const pickedRes = pickResolution(model, resolution);
-  const cost = estCostUsd(model, sec, withEnd, pickedRes);
+  const withAudio = model.audioOption && audio;
+  const cost = estCostUsd(model, sec, withEnd, pickedRes, withAudio);
   const hasKey = registered ? registered.has(PROVIDERS[model.provider].keyProvider) : null;
   const finalPrompt = composePrompt(idea, styleId, cameraId);
 
@@ -149,7 +151,7 @@ export function CreateStudio() {
       const res = await fetch("/api/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: model.id, prompt: finalPrompt, seconds: sec, aspectRatio: aspect, resolution: pickedRes, startImage, endImage: model.endFrame ? endImage : null }),
+        body: JSON.stringify({ model: model.id, prompt: finalPrompt, seconds: sec, aspectRatio: aspect, resolution: pickedRes, audio: withAudio, startImage, endImage: model.endFrame ? endImage : null }),
       });
       const data = await res.json();
       if (!res.ok) throw Object.assign(new Error(data.error || "생성을 시작하지 못했습니다."), { keys: !!data.missingKeys });
@@ -251,7 +253,14 @@ export function CreateStudio() {
             <div className="flex flex-wrap gap-2">{model.resolutions.map((r) => <button key={r} type="button" aria-pressed={pickedRes === r} onClick={() => setResolution(r)} className={chip(pickedRes === r)}>{r}{model.perSecByRes?.[r] ? ` · 초당 $${model.perSecByRes[r]}` : ""}</button>)}</div>
           </div>
         )}
+        {model.audioOption && (
+          <label className="flex items-center gap-2 text-xs text-zinc-300">
+            <input type="checkbox" checked={audio} onChange={(e) => setAudio(e.target.checked)} />
+            소리도 함께 만들기{model.perSecAudio ? ` (소리를 켜면 초당 ${model.perSecAudio})` : " (같은 가격)"}
+          </label>
+        )}
         {model.aspects.length === 0 && <p className="text-[11px] text-zinc-500">이 모델은 시작 장면 사진의 비율을 따릅니다.</p>}
+        {model.fal?.t2v && !model.fal.aspect && <p className="text-[11px] text-zinc-500">시작 사진을 넣으면 사진 비율을 따르고, 사진 없이 만들 때는 고른 비율로 만듭니다.</p>}
 
         <div className="flex flex-wrap gap-4">
           <ImageSlot label="시작 장면 사진" value={startImage} onChange={setStartImage} required={model.needsImage} />
@@ -262,7 +271,7 @@ export function CreateStudio() {
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
           <p className="text-sm text-zinc-300">
-            예상 비용 <b className="text-white">약 ${cost.toFixed(2)}</b> <span className="text-zinc-500">(약 {Math.round((cost * 1400) / 10) * 10}원 · {model.name} {sec}초{pickedRes ? ` · ${pickedRes}` : ""}{withEnd ? " · 끝 장면 포함" : ""})</span>
+            예상 비용 <b className="text-white">약 ${cost.toFixed(2)}</b> <span className="text-zinc-500">(약 {Math.round((cost * 1400) / 10) * 10}원 · {model.name} {sec}초{pickedRes ? ` · ${pickedRes}` : ""}{withEnd ? " · 끝 장면 포함" : ""}{withAudio ? " · 소리 포함" : ""}{!startImage ? " · 글만으로" : ""})</span>
           </p>
           {confirming ? (
             <span className="flex items-center gap-2">

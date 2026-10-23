@@ -75,11 +75,12 @@ async function geminiVideoBytes(json: unknown, key: string, maxBytes: number): P
 }
 
 /** 2026-10-23 fal 입력 칸 규칙(FalInputSpec)대로 요청 본문을 만든다 — 모델마다 사진 칸·길이 형식·소리 칸 이름이 다르다 */
-export function falInput(spec: FalInputSpec, prompt: string, startUrl: string, endUrl: string | undefined, seconds: number, aspect: "9:16" | "16:9", resolution?: string): Record<string, unknown> {
-  const input: Record<string, unknown> = { prompt, [spec.image]: startUrl };
+/** startUrl이 없으면 글만으로 만드는 주소(spec.t2v)용 — 사진 칸 대신 비율 칸을 보낸다. audio: 회원이 소리를 켰을 때만 true */
+export function falInput(spec: FalInputSpec, prompt: string, startUrl: string | undefined, endUrl: string | undefined, seconds: number, aspect: "9:16" | "16:9", resolution?: string, audio = false): Record<string, unknown> {
+  const input: Record<string, unknown> = startUrl ? { prompt, [spec.image]: startUrl } : { prompt, aspect_ratio: aspect };
   input.duration = spec.duration === "int" ? seconds : spec.duration === "s" ? `${seconds}s` : String(seconds);
-  if (endUrl) input.end_image_url = endUrl;
-  if (spec.audio) input[spec.audio] = false;
+  if (endUrl && startUrl) input.end_image_url = endUrl;
+  if (spec.audio) input[spec.audio] = audio;
   if (spec.aspect) input.aspect_ratio = aspect;
   if (spec.resolutions?.length) input.resolution = resolution && spec.resolutions.includes(resolution) ? resolution : spec.resolutions[0];
   return input;
@@ -87,15 +88,16 @@ export function falInput(spec: FalInputSpec, prompt: string, startUrl: string, e
 
 // ── 제출 ─────────────────────────────────────────────
 // prompt는 호출하는 쪽이 만든다(videoModels.ts motionPrompt 권장). endUrl은 모델이 끝 화면을 지원할 때만 쓴다.
-// startUrl·endUrl은 https 주소 또는 data:image/...;base64 주소. startUrl 생략(글만으로 생성)은 Gemini만 된다.
+// startUrl·endUrl은 https 주소 또는 data:image/...;base64 주소. startUrl 생략(글만으로 생성)은 Gemini와 글→영상 주소(fal.t2v)가 있는 fal 모델만 된다.
+// audio(2026-10-23): fal 모델에서 소리를 함께 만든다(기본 끔 — 단가가 오르는 모델이 있음, videoModels perSecAudio).
 // aspectRatio는 기본 9:16(세로 쇼츠) — 2026-10-23 뮤직비디오(16:9 가로)용으로 추가, Gemini·fal Seedance에 적용.
-export async function submitVideoJob(o: { key: string; model: VideoModel; prompt: string; startUrl?: string; endUrl?: string; seconds: number; maxBytes?: number; aspectRatio?: "9:16" | "16:9"; resolution?: string }): Promise<SubmitResult> {
+export async function submitVideoJob(o: { key: string; model: VideoModel; prompt: string; startUrl?: string; endUrl?: string; seconds: number; maxBytes?: number; aspectRatio?: "9:16" | "16:9"; resolution?: string; audio?: boolean }): Promise<SubmitResult> {
   const maxBytes = o.maxBytes ?? 30 * 1024 * 1024;
   const withEnd = !!o.startUrl && !!o.endUrl && o.model.endFrame;
   const aspect = o.aspectRatio ?? "9:16";
   const base = { provider: o.model.provider, model: o.model.id, withEnd, startedAt: new Date().toISOString(), seconds: o.seconds };
 
-  if (o.model.provider !== "gemini" && !o.startUrl) throw new VideoGenError(400, "frame", "이 영상 모델은 시작 장면 사진이 필요합니다. 장면 사진을 먼저 만들어 주세요.");
+  if (o.model.provider !== "gemini" && !o.startUrl && !o.model.fal?.t2v) throw new VideoGenError(400, "frame", "이 영상 모델은 시작 장면 사진이 필요합니다. 장면 사진을 먼저 만들어 주세요.");
 
   if (o.model.provider === "gemini") {
     const frames = [...(o.startUrl ? [await fetchFrame(o.startUrl)] : []), ...(withEnd ? [await fetchFrame(o.endUrl!)] : [])];
@@ -124,11 +126,12 @@ export async function submitVideoJob(o: { key: string; model: VideoModel; prompt
   if (o.model.provider === "fal") {
     const spec = o.model.fal;
     const input: Record<string, unknown> = spec
-      ? falInput(spec, o.prompt, o.startUrl!, withEnd ? o.endUrl : undefined, o.seconds, aspect, o.resolution)
+      ? falInput(spec, o.prompt, o.startUrl, withEnd ? o.endUrl : undefined, o.seconds, aspect, o.resolution, o.audio === true)
       : { prompt: o.prompt, image_url: o.startUrl, duration: String(o.seconds), generate_audio: false };
     if (!spec && withEnd) input.end_image_url = o.endUrl;
     if (!spec && o.model.id.includes("seedance")) Object.assign(input, { resolution: "720p", aspect_ratio: aspect });
-    const res = await fetch(`https://queue.fal.run/${o.model.id}`, { method: "POST", headers: { Authorization: `Key ${o.key}`, "Content-Type": "application/json" }, body: JSON.stringify(input), cache: "no-store", signal: AbortSignal.timeout(60_000) });
+    const endpoint = !o.startUrl && spec?.t2v ? spec.t2v : o.model.id;
+    const res = await fetch(`https://queue.fal.run/${endpoint}`, { method: "POST", headers: { Authorization: `Key ${o.key}`, "Content-Type": "application/json" }, body: JSON.stringify(input), cache: "no-store", signal: AbortSignal.timeout(60_000) });
     if (!res.ok) await providerError("fal", res);
     const json = (await res.json()) as { request_id?: string; status_url?: string; response_url?: string };
     if (!isJobId(json.request_id) || !isHost(json.status_url, ["queue.fal.run"]) || !isHost(json.response_url, ["queue.fal.run"])) throw new VideoGenError(502, "provider", "fal이 작업 번호를 돌려주지 않았습니다. 잠시 후 다시 시도해 주세요.");

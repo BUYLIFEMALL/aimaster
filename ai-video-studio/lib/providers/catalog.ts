@@ -47,17 +47,20 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
 };
 
 export interface StudioModel extends VideoModel {
-  /** 시작 장면 사진이 꼭 필요한가(Gemini만 글만으로 생성 가능) */
+  /** 시작 장면 사진이 꼭 필요한가(Gemini와 글→영상 주소가 있는 fal 모델은 글만으로 생성 가능) */
   needsImage: boolean;
   /** 고를 수 있는 화면 비율 — 비어 있으면 시작 사진 비율을 따른다 */
   aspects: AspectRatio[];
   /** 고를 수 있는 해상도(첫 값이 기본) — 비어 있으면 모델이 정함 */
   resolutions: string[];
+  /** 소리를 함께 만들지 고를 수 있는가(fal 소리 칸이 있는 모델 — 기본 끔) */
+  audioOption: boolean;
 }
 
 function studioOf(m: VideoModel): StudioModel {
-  const aspects: AspectRatio[] = m.provider === "gemini" || m.fal?.aspect || (!m.fal && m.id.includes("seedance")) ? ["16:9", "9:16"] : [];
-  return { ...m, needsImage: m.provider !== "gemini", aspects, resolutions: [...(m.fal?.resolutions ?? [])] };
+  // 글→영상 주소가 있으면 사진 없이 만들 때 비율을 고른다(사진이 있으면 Kling 3.0처럼 사진 비율을 따르는 모델도 있음)
+  const aspects: AspectRatio[] = m.provider === "gemini" || m.fal?.aspect || m.fal?.t2v || (!m.fal && m.id.includes("seedance")) ? ["16:9", "9:16"] : [];
+  return { ...m, needsImage: m.provider !== "gemini" && !m.fal?.t2v, aspects, resolutions: [...(m.fal?.resolutions ?? [])], audioOption: !!m.fal?.audio };
 }
 
 export const MODELS: StudioModel[] = STUDIO_VIDEO_MODELS.map(studioOf);
@@ -73,8 +76,8 @@ export function clampSeconds(m: StudioModel, requested: unknown): number {
 }
 
 /** 예상 비용(USD) — 화면에서는 「약」으로 안내하고 실제 청구는 회원 계정 기준 */
-export function estCostUsd(m: StudioModel, seconds: number, withEnd: boolean, resolution?: string | null): number {
-  return Math.round(sceneCost(m, withEnd, seconds, resolution) * 100) / 100;
+export function estCostUsd(m: StudioModel, seconds: number, withEnd: boolean, resolution?: string | null, audio = false): number {
+  return Math.round(sceneCost(m, withEnd, seconds, resolution, audio) * 100) / 100;
 }
 
 /** 고른 해상도가 모델 목록에 있으면 그 값, 아니면 기본(첫 값) — 해상도 칸이 없는 모델은 null */

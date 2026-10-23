@@ -23,19 +23,23 @@ export interface VideoModel {
   fal?: FalInputSpec;
   /** 해상도별 초당 단가(USD) — 있으면 perSec 대신 고른 해상도 단가 */
   perSecByRes?: Readonly<Record<string, number>>;
+  /** 2026-10-23 소리를 켰을 때 초당 단가(USD) — 없으면 소리를 켜도 같은 단가(fal 가격 페이지 확인) */
+  perSecAudio?: number;
 }
 
-/** fal 모델 입력 칸 규칙 — 공식 llms.txt(입력 명세) 기준. 소리는 늘 끈다(비용 절감, 소리는 편집 단계에서) */
+/** fal 모델 입력 칸 규칙 — 공식 llms.txt(입력 명세) 기준. 소리는 기본으로 끈다(비용 절감) — 회원이 고르면 켠다(2026-10-23) */
 export interface FalInputSpec {
   image: "image_url" | "start_image_url";
   /** 길이 형식: "5"(문자) · 5(숫자) · "5s" */
   duration: "string" | "int" | "s";
-  /** 소리 끄는 칸 이름(없으면 보내지 않음) */
+  /** 소리 켜고 끄는 칸 이름(없으면 보내지 않음) */
   audio?: "generate_audio" | "audio";
   /** 비율 칸(aspect_ratio)을 받는 모델 */
   aspect?: boolean;
   /** 해상도 칸(resolution) 값 목록, 첫 값이 기본 */
   resolutions?: readonly string[];
+  /** 2026-10-23 사진 없이 글만으로 만드는 주소(같은 모델의 text-to-video). 길이·소리·해상도 칸은 같고 비율 칸(aspect_ratio)을 받는다 */
+  t2v?: string;
 }
 
 /** 기본 영상 길이(초) — 장면 길이를 모를 때 */
@@ -59,11 +63,11 @@ export const DEFAULT_VIDEO_MODEL = VIDEO_MODELS[0].id;
 /** 2026-10-23 AI 영상 스튜디오 1차-나 — fal 최신 모델(입력 칸 규칙 `fal` 사용). 다른 프로그램 선택 목록(VIDEO_MODELS)에는 넣지 않는다.
  *  단가는 2026-10-23 fal 모델 페이지(소리 끔 기준). Seedance 2.0은 토큰 과금(480p는 계산값). */
 export const STUDIO_EXTRA_MODELS: readonly VideoModel[] = [
-  { id: "fal-ai/kling-video/v3/standard/image-to-video", provider: "fal", name: "Kling 3.0 Standard (fal)", perSec: 0.084, endFrame: true, durations: [5, 10], note: "최신 Kling · 사진 비율 따름", fal: { image: "start_image_url", duration: "string", audio: "generate_audio" } },
-  { id: "bytedance/seedance-2.0/image-to-video", provider: "fal", name: "Seedance 2.0 (fal)", perSec: 0.3034, perSecByRes: { "480p": 0.135, "720p": 0.3034, "1080p": 0.682 }, endFrame: true, durations: [4, 5, 8, 10], note: "최상위 품질 · 비용 큼 · 실사 인물 사진은 업체가 거절", fal: { image: "image_url", duration: "string", audio: "generate_audio", aspect: true, resolutions: ["720p", "480p", "1080p"] } },
-  { id: "fal-ai/veo3.1/image-to-video", provider: "fal", name: "Veo 3.1 (fal)", perSec: 0.2, endFrame: false, durations: [4, 6, 8], note: "Google Veo · 소리 끔", fal: { image: "image_url", duration: "s", audio: "generate_audio", aspect: true, resolutions: ["720p", "1080p"] } },
+  { id: "fal-ai/kling-video/v3/standard/image-to-video", provider: "fal", name: "Kling 3.0 Standard (fal)", perSec: 0.084, endFrame: true, durations: [5, 10], perSecAudio: 0.126, note: "최신 Kling · 사진 비율 따름", fal: { image: "start_image_url", duration: "string", audio: "generate_audio", t2v: "fal-ai/kling-video/v3/standard/text-to-video" } },
+  { id: "bytedance/seedance-2.0/image-to-video", provider: "fal", name: "Seedance 2.0 (fal)", perSec: 0.3034, perSecByRes: { "480p": 0.135, "720p": 0.3034, "1080p": 0.682 }, endFrame: true, durations: [4, 5, 8, 10], note: "최상위 품질 · 비용 큼 · 실사 인물 사진은 업체가 거절", fal: { image: "image_url", duration: "string", audio: "generate_audio", aspect: true, resolutions: ["720p", "480p", "1080p"], t2v: "bytedance/seedance-2.0/text-to-video" } },
+  { id: "fal-ai/veo3.1/image-to-video", provider: "fal", name: "Veo 3.1 (fal)", perSec: 0.2, endFrame: false, durations: [4, 6, 8], perSecAudio: 0.4, note: "Google Veo · 소리를 켜면 초당 $0.40", fal: { image: "image_url", duration: "s", audio: "generate_audio", aspect: true, resolutions: ["720p", "1080p"], t2v: "fal-ai/veo3.1" } },
   { id: "minimax/h3/image-to-video", provider: "fal", name: "MiniMax H3 (fal)", perSec: 0.06, perSecByRes: { "768P": 0.06, "2K": 0.13 }, endFrame: true, durations: [5, 10], note: "구 Hailuo · 저렴 · 사진 비율 따름", fal: { image: "image_url", duration: "int", resolutions: ["768P", "2K"] } },
-  { id: "alibaba/wan-3.0/image-to-video", provider: "fal", name: "Wan 3.0 (fal)", perSec: 0.1, perSecByRes: { "480p": 0.05, "720p": 0.1, "1080p": 0.2 }, endFrame: true, durations: [5, 10], note: "가성비 · 해상도 선택", fal: { image: "start_image_url", duration: "int", audio: "audio", aspect: true, resolutions: ["720p", "480p", "1080p"] } },
+  { id: "alibaba/wan-3.0/image-to-video", provider: "fal", name: "Wan 3.0 (fal)", perSec: 0.1, perSecByRes: { "480p": 0.05, "720p": 0.1, "1080p": 0.2 }, endFrame: true, durations: [5, 10], note: "가성비 · 해상도 선택", fal: { image: "start_image_url", duration: "int", audio: "audio", aspect: true, resolutions: ["720p", "480p", "1080p"], t2v: "alibaba/wan-3.0/text-to-video" } },
 ];
 
 /** AI 영상 스튜디오 전체 목록(기존 + 최신) */
@@ -83,9 +87,9 @@ export function findVideoModel(id: unknown): VideoModel | undefined {
   return VIDEO_MODELS.find((m) => m.id === id);
 }
 
-/** 장면 1개 예상 비용(USD). seconds를 안 주면 기본 5초 */
-export function sceneCost(m: VideoModel, withEnd: boolean, seconds: number = VIDEO_SECONDS, resolution?: string | null): number {
-  const rate = withEnd && m.perSecEnd ? m.perSecEnd : ratePerSec(m, resolution);
+/** 장면 1개 예상 비용(USD). seconds를 안 주면 기본 5초. audio: 소리를 켜면 perSecAudio(있을 때) */
+export function sceneCost(m: VideoModel, withEnd: boolean, seconds: number = VIDEO_SECONDS, resolution?: string | null, audio = false): number {
+  const rate = audio && m.perSecAudio ? m.perSecAudio : withEnd && m.perSecEnd ? m.perSecEnd : ratePerSec(m, resolution);
   return Math.round(rate * seconds * 1000) / 1000;
 }
 
