@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 블로그 전담: 티스토리 긴 글 분량(미배포) · 네이버 블로그 에이전트 v2.15 준비 모드 직접 발행 기록 · 세션 `claude-win-20261023-blog2`
+- **티스토리(미배포 대기, v1.92 때 함께)**: 분량을 단락 개수로 지시(`utils/news/lengthPlan.ts`, 단락≈120자). GPT-4.1 실측(시험 계정 본인 키 2회, 저장 안 함) 2,097자(60%) → 2,276자(65%) → **3,104자(88.7%)**. 커밋 `fef7491d6`·`cf37772ca`.
+- **블로그 에이전트 v2.15 배포(빌드 1회, Ready `naver-blog-agent-chb6zlsgx`)**: 준비 모드로 보낸 글을 회원이 직접 발행하면 ① 확장이 준비 탭이 글 주소로 바뀐 것을 제목까지 확인해 자동 보고(읽기만, 버튼 안 누름, 실패 시 보관 후 재보고) ② 보관함 「직접 발행했어요」에 글 주소 입력 — 둘 다 `src/lib/preparedPublish.ts`(본인·prepared·준비 모드·그 블로그 주소만). 미배포였던 확장 팝업 수정도 함께. DB `version`·`extension_version` v2.15, `check-extension-release` OK. 크롬: 6개 카드 버튼·다른 블로그 주소 거절 문구 확인(기록 안 함). 시험 22종 통과(새 5+5).
+- **남은 일**: 자동 감지 실제 확인 1건(주인님이 준비 모드 원고를 네이버에서 직접 비공개 발행) · 회원은 확장 ZIP 다시 받기→덮어쓰기→새로고침 · BLC-14→13→15. 상세 `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래, `docs/HANDOFF_20261023_BLOG_SESSION.md`.
+- 프로그램: https://naver-blog-agent.buylife.xyz · https://tistory-auto-blog.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 배포판 이름 「ALLA AI」(배포판 v1.03) · 세션 `claude-win-20261023-tep-kit`
 - 주인님 지시로 배포판 이름을 `ALLA_AI_Kit`으로, 독립 모드 화면의 프로그램 이름을 「ALLA AI」로(`src/lib/deployment.ts` `APP_NAME`). 운영 사이트 이름은 그대로. 출력 `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.03.zip`(65개 파일, 비밀값·DB 대조 통과, 풀어서 독립 모드 실행 → 탭 제목 「ALLA AI」 확인).
 - 운영 배포: 미배포 대기(`docs/PENDING_DEPLOYS.md`). 남은 일: 수강생 설치 리허설.
