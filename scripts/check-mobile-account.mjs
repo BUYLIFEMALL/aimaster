@@ -4,12 +4,13 @@
 //   ✓ 함께 보임: 데스크톱 전용 감춤(hidden md:…)이 없음 → 같은 메뉴가 휴대폰에서 펼쳐짐(계정 포함), 또는 로그아웃이 2곳 이상(데스크톱·휴대폰 각각)
 //   ⚠ 확인 필요: 데스크톱 전용 메뉴(hidden md:flex 등)에만 로그아웃이 1곳 있고 휴대폰 메뉴(md:hidden)가 따로 있음 → 펼침 메뉴에 계정이 빠졌을 수 있음
 //   ⚠ 휴대폰 메뉴 없음: md:hidden도, globals.css의 max-width:767px 전환도 없음(docs/SIDEBAR_LAYOUT_STANDARD.md 「모바일 레이아웃」)
-// 오판이 있을 수 있으니 ⚠ 후보는 크롬(390px)에서 펼침 메뉴를 열어 확인한다. 사용: node scripts/check-mobile-account.mjs [--all]
+// 오판이 있을 수 있으니 ⚠ 후보는 크롬(390px)에서 펼침 메뉴를 열어 확인한다. 사용: node scripts/check-mobile-account.mjs [폴더] [--all]  (폴더를 주면 그 폴더만 — deploy.mjs 배포 확인 단계가 씀)
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { ROOT } from "./program-info.mjs";
 
 const showAll = process.argv.includes("--all");
+const only = process.argv.slice(2).find((a) => !a.startsWith("--"));
 function files(dir, out = [], depth = 0) {
   if (depth > 6 || !existsSync(dir)) return out;
   for (const n of readdirSync(dir)) {
@@ -24,6 +25,7 @@ function files(dir, out = [], depth = 0) {
 
 const rows = [];
 for (const folder of readdirSync(ROOT).sort()) {
+  if (only && folder !== only) continue;
   if (!existsSync(join(ROOT, folder, ".vercel", "project.json")) || folder.startsWith(".")) continue;
   const roots = ["src/components", "components", "src/app", "app"].map((d) => join(ROOT, folder, d));
   const all = roots.flatMap((r) => files(r)).filter((f) => !/[\\/](login|register|auth|reset-password)[\\/]/.test(f));

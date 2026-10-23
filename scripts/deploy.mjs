@@ -109,14 +109,14 @@ if (versionOnly && args.includes("--all")) {
     console.log(`✔ 역량 지도 버전 칸 ${fixed}개를 DB 운영 버전으로 고침(docs/PROGRAM_CAPABILITY_MAP.md — 커밋은 따로)`);
   }
 
-  // 지도 카드 본문 버전(「주소·폴더: … · `폴더/` · vX.YY」) ↔ 그 폴더 화면 버전 — 5단계 이상 뒤처진 카드는 내용 갱신 필요(보고만, 글은 안 고침, 2026-10-23)
+  // 지도 카드 본문 버전(「주소·폴더: … · `폴더/` · vX.YY」) ↔ 그 폴더 화면 버전 — 5단계 이상 뒤처진 카드는 내용 갱신 필요, 10단계 이상은 ⚠로 맨 위 요약에도(보고만, 글은 안 고침, 2026-10-23)
   const num = (v) => { const m = /^v(\d+)\.(\d{2})$/.exec(v ?? ""); return m ? Number(m[1]) * 100 + Number(m[2]) : null; };
   const stale = [];
   for (const m of map.matchAll(/^#### [^\n]*\(`([^`]+)`\)\n- 주소·폴더: [^\n]*?`([^`]+?)\/?` · (v\d+\.\d{2})/gm)) {
     const now = appVersion(m[2]);
-    if (num(now) !== null && num(m[3]) !== null && num(now) - num(m[3]) >= 5) stale.push(`  • ${m[1]}: 카드 ${m[3]} · 지금 ${now} (${m[2]}/AGENTS.md 버전 기록 보고 카드의 장점·단점·최근 추가 갱신)`);
+    if (num(now) !== null && num(m[3]) !== null && num(now) - num(m[3]) >= 5) stale.push(`  ${num(now) - num(m[3]) >= 10 ? "⚠" : "•"} ${m[1]}: 카드 ${m[3]} · 지금 ${now} (${m[2]}/AGENTS.md 버전 기록 보고 카드의 장점·단점·최근 추가 갱신)`);
   }
-  console.log(`[역량 지도 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개`);
+  console.log(`[역량 지도 카드 내용] 5단계 이상 뒤처진 카드 ${stale.length}개 (10단계 이상 ⚠ ${stale.filter((l) => l.startsWith("  ⚠")).length}개)`);
   for (const l of stale) console.log(l);
 
   // 메인 사이트 — 다음 메인 빌드 때 할 일(docs/PENDING_DEPLOYS.md, 코드 미작성) — 메인 빌드 때 한곳에서 보고 묶기(2026-10-23)
@@ -254,6 +254,13 @@ const active = readFileSync(join(ROOT, "docs", "ACTIVE_WORK.md"), "utf8").replac
 console.log(`\n[2/3] 작업 중 표(docs/ACTIVE_WORK.md)에서 ${folder}`);
 if (active.length) for (const l of active) console.log(`  ⚠ ${l.slice(0, 200)}`);
 else console.log("  (줄 없음)");
+// 휴대폰 폭 메뉴(check-mobile-account.mjs, 코드 읽기) — 이 폴더가 확인 필요 후보면 경고만(배포는 막지 않음, 2026-10-23)
+{
+  const mc = spawnSync(process.execPath, [join(ROOT, "scripts", "check-mobile-account.mjs"), folder], { encoding: "utf8" });
+  const warn = (mc.stdout || "").split(/\r?\n/).filter((l) => l.startsWith("  ⚠"));
+  if (warn.length) console.log(`  ⚠ 휴대폰 메뉴 확인 필요:${warn[0].slice(3)}\n    → 배포 뒤 크롬 390px에서 ☰ 펼침 메뉴·계정 확인(docs/SIDEBAR_LAYOUT_STANDARD.md 「모바일 레이아웃」)`);
+  else console.log("  휴대폰 메뉴: 확인 필요 후보 아님");
+}
 
 // 3) 배포
 const cmd = ["vercel", "deploy", "--prod", "--yes", "--scope", "buylife"];
