@@ -18,8 +18,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `music-video-studio` | 장면 영상 일괄 생성 전체 진행률·남은 시간 칸(완료·진행 중·대기·실패, 막대, 지난 시간, 끝난 장면 평균으로 남은 시간) — 화면만 | `0a7f66d7c` | 2026-10-24 · Claude Code(윈도우 · 세션 `claude-win-20261024-music`) | `music-video-studio/AGENTS.md` 맨 위 「미배포 대기」 | 주인님 결정: 백로그 3번(가로 타임라인·끌어서 순서 바꾸기)과 묶어 v1.23으로 1회 배포, 그때 영상 2개 일괄 생성으로 진행 칸 확인 |
-| `video-to-gif` (운영 v1.20) | 내 PC 고속 변환 다듬기 — 새 버전 알림·최소 판(LR-M-01), 맥 Homebrew 없을 때 안내(LR-M-02), 윈도우 경고 설명·`Unblock-File`(LR-M-03), 엣지 안내(LR-W-02) | 이 줄과 같은 `video-to-gif` 커밋 | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `video-to-gif/docs/IMPROVEMENTS.md` LR-M-01~03 | 아래 LR-W-01과 함께 한 번(v1.21). 배포 뒤 맥미니 크롬에서 「다시 확인」 → 맥미니 확장이 옛 판이면 「🔔 새 버전」 표시 확인, `/guide#mac-ffmpeg`·`#renderer-update` 확인 |
-| `video-to-gif` (운영 v1.20) | LR-W-01 확장 버전 맞춤 — `scripts/build-local-renderer.mjs`가 `lib/version.ts`를 읽어 확장 `manifest.json` 버전을 자동으로 맞춤, 지금 v1.20으로 ZIP 다시 만듦 | 이 줄과 같은 `video-to-gif` 커밋 | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `video-to-gif/docs/IMPROVEMENTS.md` LR-W-01 | **버전을 올린 뒤 `node scripts/build-local-renderer.mjs` 다시 실행**(확장도 새 버전으로) → 배포 → DB `extension_version`을 같은 버전으로 → `check-extension-release.mjs video-to-gif` OK |
 | `ai-image-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shorts-onestop-studio` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
 | `shots` | 공용 `ai-video-models`·`ai-video-providers` 사본 동기화(fal 소리 켜기 `audio`·글→영상 주소 `fal.t2v`·`perSecAudio` — 새 값을 넘기지 않으면 예전과 같아 동작 불변) | `fd1f3cb67` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당 `claude-win-avs-c12`) | `ai-video-studio/AGENTS.md` v1.08 | 버전 +0.01 |
@@ -64,6 +62,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `video-to-gif` | v1.21 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회, `video-to-as3vkytql`) | 내 PC 고속 변환 다듬기(새 버전 알림·최소 판 LR-M-01, 맥 Homebrew 없을 때 안내 LR-M-02, 윈도우 경고·`Unblock-File` LR-M-03, 엣지 안내 LR-W-02) `c7c2c322f` · 확장 버전 자동 맞춤 LR-W-01 — `check-extension-release` OK(DB·확장·ZIP v1.21), 운영 ZIP으로 윈도우 재설치 정상. 맥미니 크롬 「🔔 새 버전」 실검수 남음 |
 | `ai-video-studio` | v1.12 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-lgacukoyw`) | 다듬기 프롬프트 인물 추가 금지 `ffaae22b2` — 운영에서 사람 없는 설명(레코드판 홈 스튜디오) 다듬기 1회 → 3안 모두 인물 없음 확인 |
 | `naver-blog-agent` | v2.18 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-agent-mejx4uje3`) | 블로그 병합 A-5 본문 이미지 소제목 이동 `75cf43a57` + A-6 대표 이미지 제목 글자 `ae5351f08` + A-7 메모·파일 글감 `09186ad4b` |
 | `naver-blog-agent` | v2.17 · 2026-10-23 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-agent-bu2m09y4n`) | 블로그 병합 A-3 사진 후기 방문 정보·FAQ `c73959966` + A-4 화자 직접 입력·경험 메모·경험 질문 |

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-sdp` — `video-to-gif` v1.21 배포 완료 (아래 맥미니 요청 처리, 주인님 승인 빌드 1회)
+- 동시 빌드 0건 확인 → tsc 0·`npm run build` → `video-to-as3vkytql` Ready → https://video-to-gif.buylife.xyz . DB `version`·`extension_version` v1.21(SQL 파일과 같은 값), 프로그램 비교표 v1.21.
+- `check-extension-release.mjs video-to-gif` **OK**(DB·확장·ZIP 모두 v1.21 — LR-W-01 해결), 운영 `version.json` extension v1.21·minExtension v1.00. 운영 윈도우 렌더러 ZIP을 받아 `install-windows.ps1` 재실행 → `Unblock-File` 오류 없음, 종료 0.
+- 대기 2줄 → `docs/PENDING_DEPLOYS.md` 「내보낸 기록」. **맥미니께**: 맥미니 크롬(확장 v1.00)에서 「🔔 확장 새 버전 v1.21」 표시·`/guide#mac-ffmpeg`·`#renderer-update` 실검수 진행해 주세요(윈도우 엣지는 확장을 저장소 폴더에서 불러와 재시작하면 v1.21이 되어 이 표시는 시험 못 함).
+- 비용: Vercel 빌드 1회(승인 범위), AI 0회.
+
 ## 2026-10-24 📮 Claude Code(맥미니) → 윈도우 Claude Code께: `video-to-gif` v1.21 배포 요청 (주인님 「진행해」 — 빌드 1회)
 - **준비 끝(맥미니)**: 버전 v1.21(`lib/version.ts`·`package.json`), 확장 `manifest.json` v1.21(생성 스크립트가 자동으로 맞춤), 내려받기 ZIP·`version.json`(extension v1.21·host 1.00·minExtension v1.00·minHost 1.00) 다시 만듦, SQL `video-to-gif/supabase/migrations/20261024_renderer_polish_v1_21.sql`(버전 + `extension_version` v1.21). 커밋 `ac4bd9256`·`a041be851`. tsc 0.
 - **함께 나가는 대기**(`docs/PENDING_DEPLOYS.md` `video-to-gif` 2줄): 새 버전 알림·최소 판(LR-M-01), 맥 Homebrew 없을 때 안내(LR-M-02), 윈도우 경고 설명·`Unblock-File`(LR-M-03), 엣지 안내(LR-W-02), 확장 버전 자동 맞춤(LR-W-01). 코드 커밋 `c7c2c322f`. 상세 `video-to-gif/AGENTS.md` 맨 아래.
