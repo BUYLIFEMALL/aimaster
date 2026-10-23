@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 네이버 블로그 에이전트 v2.12: 이미지 전용 공개 버킷 (공개 주소 400 수정)
+- 옛 공용 버킷 `ai-image-generations`(10-21 비공개 전환)에 저장된 이 프로그램 이미지 54장의 공개 주소가 모두 400이었음 → 주인님 선택 「전용 공개 버킷」으로 `naver-blog-agent-media` 생성(운영 DB ref `esgxyikcnnvmlhygjkth`), 업로드·생성이 새 버킷 사용, 30일 정리는 두 버킷 모두.
+- 커밋 `e11bebdd4`(코드·확장 ZIP·SQL)·`3367a9f11`(문서). 배포 Ready, DB·확장·라이브 ZIP v2.12 일치(`check-extension-release` OK). 크롬(시험 회원) 업로드 → 이미지 표시 확인 후 시험 파일 삭제.
+- 남은 일: 옛 버킷 54장은 옮기지 않음(30일 정리로 사라짐). 상세 `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래.
+- 링크: https://naver-blog-agent.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — YOUTUBE Shots v1.39: 배경음악 Suno V4_5(지원 종료) → V6 공용 사본 (배경음악 공용화 1단계)
 - 플랜 `docs/analysis-music-studio-20261023/BGM_SHARED_PLAN.md` 1단계(주인님 승인 「여기 모델 최신 모델로 바꿔」). `shots/src/lib/ai/suno.ts` = 공용 `suno-api-client` 사본(기준 `music/lib/ai/suno.ts`, `check-shared-modules.mjs` 등록), `shots/src/lib/ai/music.ts`는 함수 이름·결과 모양 그대로 두고 안쪽만 `requestSunoGeneration`(모델 기본 V6·연주곡·콜백은 예전처럼 메인 사이트)·`checkSunoGenerationStatus`로. `VocalGender` 타입 추가(사본이 씀).
 - 검수: tsc·시험 3개·공용 점검·build, 커밋 `0d7f0520b`, 배포 `shots-5v3mnsanc` Ready, DB v1.39(대기 중이던 `ai-video-providers` 사본도 함께 나감). 크롬(시험 회원) 「배경음악 생성하기」 → 약 1분 안에 2곡 완성·`shots-bgm` 저장(3.3MB·139초, 3.8MB·163초, 200·audio/mpeg).
