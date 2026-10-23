@@ -27,6 +27,7 @@ import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
 import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio } from "@/lib/gifLadder";
+import { ACCEPT, pickFiles, skippedNote } from "@/lib/videoFiles";
 import { GIF_INBOX_PATH, GIF_RECEIVER_ORIGIN, MSG_FILE, isReadyMessage } from "@/lib/gifHandoff";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
@@ -116,7 +117,6 @@ function trimArgs(job: Job): { args: string[]; error?: string } {
 
 const MAX_FILES = 20;
 const MAX_FILE_BYTES = 200 * 1024 * 1024;
-const ACCEPT = ".mp4,.mkv,.avi,.mov,.webm,.flv,.wmv,.m4v,.ts";
 const STATUS_LABEL: Record<Job["status"], string> = {
   ready: "변환 준비",
   processing: "WASM 인코딩 중",
@@ -143,6 +143,9 @@ export default function ConverterWorkspace() {
   // v1.14: 상세페이지로 보내기 — 줄마다 안내 문구, 이전 보내기의 메시지 대기는 새로 보낼 때 정리
   const [sendNotes, setSendNotes] = useState<Record<string, string>>({});
   const sendCleanupRef = useRef<(() => void) | null>(null);
+  // v1.18(G-23-02·03): 넣지 않은 파일 안내 한 줄, 끌어 놓는 중 표시
+  const [addNote, setAddNote] = useState("");
+  const [dragging, setDragging] = useState(false);
 
   const totalBytes = useMemo(() => jobs.reduce((sum, job) => sum + job.size, 0), [jobs]);
   const ffmpegRef = useRef<FFmpeg | null>(null);
@@ -150,9 +153,10 @@ export default function ConverterWorkspace() {
 
   function addFiles(files: FileList | null) {
     if (!files) return;
-    const incoming = Array.from(files).filter(
-      (file) => file.size <= MAX_FILE_BYTES && !jobs.some((job) => job.name === file.name && job.size === file.size)
-    );
+    // v1.18: 영상 형식만, 200MB 이하, 중복 아님, 20개 안 — 뺀 파일은 이유별로 한 줄 안내
+    const picked = pickFiles(Array.from(files), jobs, MAX_FILE_BYTES, Math.max(0, MAX_FILES - jobs.length));
+    const incoming = picked.accepted;
+    setAddNote(skippedNote(picked, MAX_FILES));
     setJobs((current) => [
       ...current,
       ...incoming.map((file) => ({
@@ -395,7 +399,7 @@ export default function ConverterWorkspace() {
       await ffmpeg.deleteFile("output.gif").catch(() => {});
 
       if (!outputBytes) throw new Error("변환 결과를 읽지 못했습니다.");
-      if (outputBytes.byteLength > MAX_OUTPUT_BYTES) throw new Error("8MiB 이하로 최적화하지 못했습니다.");
+      if (outputBytes.byteLength > MAX_OUTPUT_BYTES) throw new Error("8MiB 이하로 줄이지 못했습니다. 구간을 짧게 고르거나 가로폭을 줄이거나 40fps로 낮춘 뒤 ↺(재시도)를 눌러 주세요.");
 
       const blob = new Blob([outputBytes.slice().buffer], { type: "image/gif" });
       const downloadUrl = URL.createObjectURL(blob);
@@ -453,8 +457,8 @@ export default function ConverterWorkspace() {
               동영상을 <span className="text-amber-400">초고화질 8MiB GIF</span>로 즉시 변환하세요
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-              재생 길이는 100% 온전히 유지하면서 네이버 스마트스토어와 쿠팡의 8MiB 용량 기준에 맞춰 
-              브라우저 WebAssembly로 2-Pass 고화질 팔레트를 자동 생성합니다. (서버 무전송·100% 프라이버시 보호)
+              원하는 구간만 골라 네이버 스마트스토어·쿠팡의 8MiB 용량 기준에 맞는 GIF로 만듭니다.
+              변환은 브라우저 안에서만 이뤄지고(서버로 영상을 보내지 않음), 완성한 GIF는 내려받거나 AI 상세페이지로 바로 보낼 수 있습니다.
             </p>
           </div>
           <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-300 shrink-0">
@@ -472,7 +476,7 @@ export default function ConverterWorkspace() {
           </div>
           <div>
             <div className="text-xs font-bold text-gray-400">엔진 아키텍처</div>
-            <div className="text-sm font-extrabold text-white mt-0.5">WASM 2-Pass 고화질</div>
+            <div className="text-sm font-extrabold text-white mt-0.5">WASM 고화질 색상표</div>
             <div className="text-[11px] text-amber-400 mt-0.5">브라우저 로컬 직접 연산</div>
           </div>
         </div>
@@ -505,7 +509,22 @@ export default function ConverterWorkspace() {
         {/* 좌측: 파일 드롭존 & 큐 리스트 */}
         <div className="space-y-6">
           {/* 드롭존 */}
-          <label className="flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#30363d] bg-[#161b22] p-8 text-center transition-all hover:border-amber-400/60 hover:bg-[#1f2937]/50 group">
+          {/* v1.18(G-23-02): 끌어 놓기를 직접 받는다(없으면 브라우저가 파일을 열어 버림) */}
+          <label
+            onDragOver={(event) => {
+              event.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(event) => {
+              event.preventDefault();
+              setDragging(false);
+              addFiles(event.dataTransfer.files);
+            }}
+            className={`flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed bg-[#161b22] p-8 text-center transition-all hover:border-amber-400/60 hover:bg-[#1f2937]/50 group ${
+              dragging ? "border-amber-400 bg-[#1f2937]/50" : "border-[#30363d]"
+            }`}
+          >
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:scale-105 transition-transform">
               <UploadCloud className="h-7 w-7" />
             </div>
@@ -524,9 +543,17 @@ export default function ConverterWorkspace() {
               type="file"
               accept={ACCEPT}
               multiple
-              onChange={(event) => addFiles(event.target.files)}
+              onChange={(event) => {
+                addFiles(event.target.files);
+                event.target.value = "";
+              }}
             />
           </label>
+          {addNote && (
+            <p role="status" className="-mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-200">
+              ⚠️ {addNote}
+            </p>
+          )}
 
           {/* 등록된 작업 큐 목록 */}
           <div className="rounded-3xl border border-[#30363d] bg-[#161b22] p-6 shadow-xl">
@@ -807,7 +834,7 @@ export default function ConverterWorkspace() {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>8MiB 지능형 사다리 자동 적용</span>
               </div>
-              용량이 8MiB를 초과하면 영상 길이를 임의로 자르지 않고 스케일과 색상 수를 지능적으로 낮춰 안정적으로 통과시킵니다.
+              결과가 8MiB를 넘으면 고른 구간 길이는 그대로 두고, 넘친 만큼 가로폭과 색상 수를 한 번에 낮춰 다시 만듭니다.
             </div>
 
             {/* 4. 변환 실행 버튼 */}

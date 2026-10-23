@@ -19,6 +19,7 @@ import {
   Info
 } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { APP_VERSION } from "@/lib/version";
 
 interface FaqItem {
   q: string;
@@ -28,29 +29,44 @@ interface FaqItem {
 
 const FAQS: FaqItem[] = [
   {
-    q: "영상이 서버로 업로드되어 유출될 위험은 없나요?",
-    a: "전혀 없습니다. 본 서비스는 최신 WebAssembly(WASM) 기술 기반의 FFmpeg 코어를 사용자 브라우저 안에서 직접 구동합니다. 등록하신 원본 동영상과 변환된 GIF 파일은 모두 고객님의 기기 메모리(Blob URL)에서만 처리되며, 서버나 외부 데이터베이스로 단 1바이트도 전송되거나 저장되지 않는 100% 프라이버시 보호 구조입니다.",
+    q: "영상이 서버로 올라가지 않나요?",
+    a: "변환은 회원님 브라우저 안에서 WebAssembly(WASM)로 실행되는 FFmpeg가 처리합니다. 원본 영상과 변환한 GIF는 기기 메모리에만 있고 서버로 보내지 않습니다. 「상세페이지로」를 누른 경우에만 그 GIF 한 장이 같은 브라우저의 AI 상세페이지 창으로 넘어가, 회원님이 고른 상품 섹션에 저장됩니다.",
     badge: "보안·프라이버시"
   },
   {
-    q: "왜 결과물 용량을 8MiB(약 8.3MB) 이하로 자동 제한하나요?",
-    a: "네이버 스마트스토어의 상품 상세페이지 이미지 업로드 권장 용량이 10MB(안정선 8MB)이며, 쿠팡 상세페이지는 10MB 초과 시 모바일 로딩 지연 및 노출 순위 감점 요인이 됩니다. VideoToGIF는 원본 영상 길이를 강제로 자르지 않고, 8단계 화질/팔레트 최적화 사다리(Candidates Ladder)를 거쳐 8MiB 이하를 만족하는 최적의 고화질 GIF를 자동으로 인코딩합니다.",
+    q: "왜 결과를 8MiB(약 8.3MB) 이하로 맞추나요?",
+    a: "스마트스토어·쿠팡 등 상세페이지는 GIF가 너무 크면 등록이 막히거나 휴대폰에서 늦게 열립니다. 결과가 8MiB를 넘으면 고른 구간 길이는 그대로 두고, 넘친 크기만큼 가로폭과 색상 수를 한 번에 낮춰 다시 만듭니다(화질 단계 8개 중 필요한 단계로 건너뜀).",
     badge: "이커머스 규격"
   },
   {
-    q: "지원하는 동영상 포맷과 최대 파일 크기는 어떻게 되나요?",
-    a: "MP4, MOV, WEBM, MKV, AVI, FLV, WMV, M4V, TS 등 거의 모든 주요 영상 포맷을 폭넓게 지원합니다. 한 번에 최대 20개 파일까지 큐에 일괄 등록할 수 있으며, 파일당 최대 200MB까지 브라우저 메모리 한도 내에서 원활하게 처리됩니다.",
-    badge: "포맷 & 용량"
+    q: "영상의 일부 구간만 GIF로 만들 수 있나요?",
+    a: "네. 영상을 넣으면 줄마다 「✂️ 구간」 막대가 생깁니다. 막대의 두 손잡이를 끌거나 시작·끝 초를 직접 적으면 됩니다. 「장면 보기」로 고른 위치의 장면을 확인하고 「구간 재생」으로 고른 구간만 반복해 볼 수 있습니다. 비워 두면 처음부터 끝까지 변환합니다. 짧게 고를수록 화질이 좋아지고 변환도 빨라집니다.",
+    badge: "구간 자르기"
   },
   {
-    q: "40fps와 50fps 옵션 중 어떤 것을 선택해야 하나요?",
-    a: "상세페이지에서 부드러운 제품 사용감, 액체 흐름, 패션 의류 핏을 강조하고 싶을 때는 50fps(초고프레임)를 권장합니다. 용량을 더욱 절약하면서 스마트폰 환경에서 빠르게 로딩되도록 하려면 기본값인 40fps가 가장 이상적인 균형점을 제공합니다.",
+    q: "8MiB 이하로 줄이지 못했다고 나오면 어떻게 하나요?",
+    a: "가장 낮은 화질 단계로도 8MiB를 넘은 경우입니다. 그 줄의 구간을 더 짧게 고르거나, 오른쪽 설정에서 가로폭을 줄이거나(예: 560px), 50fps를 40fps로 낮춘 뒤 ↺(재시도)를 눌러 주세요.",
+    badge: "실패 때 할 일"
+  },
+  {
+    q: "만든 GIF를 AI 상세페이지 자동화에 바로 넣을 수 있나요?",
+    a: "네. 변환이 끝난 줄의 「상세페이지로」를 누르면 AI 상세페이지 자동화의 GIF 받는 화면이 새 창으로 열립니다. 넣을 상품과 섹션을 고르고 「이 섹션에 넣기」를 누르면 그 섹션 이미지가 GIF로 바뀝니다. 내려받았다가 다시 올릴 필요가 없습니다(AI 상세페이지 이용 권한이 필요합니다).",
+    badge: "상세페이지 연계"
+  },
+  {
+    q: "어떤 파일을 넣을 수 있나요?",
+    a: "MP4, MOV, WEBM, MKV, AVI, FLV, WMV, M4V, TS 영상만 넣을 수 있습니다. 한 번에 최대 20개, 파일당 최대 200MB입니다. 영상이 아닌 파일·200MB가 넘는 파일·이미 목록에 있는 파일은 빼고 넣고, 뺀 이유를 한 줄로 알려 드립니다. 여러 개를 다 만들면 「완료된 GIF 전체 ZIP」으로 한 번에 받을 수 있습니다.",
+    badge: "파일·용량"
+  },
+  {
+    q: "40fps와 50fps 중 무엇을 고르나요?",
+    a: "일반 제품은 40fps(추천)가 화질과 용량의 균형이 가장 좋습니다. 옷의 움직임·액체 흐름처럼 부드러운 동작을 강조하고 싶을 때 50fps를 고르세요. 50fps는 용량이 커서 8MiB에 맞추려고 가로폭이 더 줄어들 수 있습니다.",
     badge: "프레임레이트"
   },
   {
-    q: "브라우저에서 첫 변환 시 로딩 시간이 조금 걸리는 이유는 무엇인가요?",
-    a: "첫 1회 변환 시작 시 약 25~30MB 규모의 FFmpeg WASM 코어 바이너리를 CDN에서 브라우저 캐시로 다운로드합니다. 이 과정은 최초 1회만 발생하며, 이후에는 브라우저 내부 캐시를 영구 재활용하므로 인터넷 연결 없이도 즉각 초고속 변환이 실행됩니다.",
-    badge: "WASM 가속"
+    q: "첫 변환을 시작할 때 조금 기다리는 이유는 무엇인가요?",
+    a: "처음 한 번은 약 30MB 크기의 변환 엔진(FFmpeg WASM)을 내려받아 브라우저에 저장합니다. 다음부터는 저장해 둔 엔진을 다시 쓰므로 바로 시작합니다. 변환 중에는 진행률이 줄마다 표시됩니다.",
+    badge: "변환 엔진"
   }
 ];
 
@@ -68,7 +84,7 @@ export default function GuidePage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
                 <Sparkles className="h-3.5 w-3.5" />
-                이커머스 셀러 필독 비주얼 가이드북 v1.10
+                이커머스 셀러 필독 비주얼 가이드북 {APP_VERSION}
               </div>
               <Link
                 href="/dashboard"
@@ -87,8 +103,8 @@ export default function GuidePage() {
               완벽 가이드
             </h1>
             <p className="mt-3 max-w-2xl text-xs sm:text-sm text-gray-300 leading-relaxed">
-              서버 전송 없이 100% 브라우저 메모리 안에서 WebAssembly로 렌더링됩니다.
-              영상 길이는 그대로 유지하면서 네이버 스마트스토어와 쿠팡의 8MiB 용량 제한을 완벽히 통과하는 실전 비법을 확인하세요.
+              서버로 영상을 보내지 않고 브라우저 안에서 WebAssembly로 변환합니다.
+              원하는 구간만 골라 네이버 스마트스토어·쿠팡의 8MiB 기준에 맞는 GIF를 만들고, 내려받거나 AI 상세페이지로 바로 보내는 방법을 확인하세요.
             </p>
           </div>
 
@@ -99,7 +115,7 @@ export default function GuidePage() {
                 1
               </span>
               <h2 className="text-lg sm:text-xl font-bold text-white">
-                4단계 이커머스 GIF 출판 파이프라인
+                4단계 상세페이지 GIF 만들기
               </h2>
             </div>
 
@@ -110,13 +126,13 @@ export default function GuidePage() {
                 </div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                   <Film className="h-4 w-4 text-amber-400" />
-                  동영상 파일 등록
+                  동영상 넣기
                 </h3>
                 <p className="mt-2 text-xs text-gray-400 leading-relaxed">
-                  스마트폰 또는 카메라로 촬영된 MP4, MOV 등 원본 영상을 드래그 앤 드롭합니다. 최대 20개까지 일괄 대기열에 담을 수 있습니다.
+                  MP4·MOV 등 촬영 원본을 끌어 놓거나 눌러서 고릅니다. 줄마다 첫 장면 썸네일과 영상 길이가 표시되고, 영상이 아닌 파일은 빼고 넣습니다.
                 </p>
                 <div className="mt-4 inline-block rounded-md bg-[#0d1117] px-2.5 py-1 text-[11px] text-amber-300 border border-[#30363d]">
-                  최대 200MB / 파일
+                  최대 20개 · 파일당 200MB
                 </div>
               </div>
 
@@ -126,13 +142,13 @@ export default function GuidePage() {
                 </div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                   <Zap className="h-4 w-4 text-cyan-400" />
-                  해상도 & FPS 세팅
+                  구간 고르기
                 </h3>
                 <p className="mt-2 text-xs text-gray-400 leading-relaxed">
-                  상세페이지 최적 너비(560px~860px)와 프레임레이트(40/50fps)를 지정합니다. 화면 밀도에 맞춰 선명함과 로딩 속도를 조율합니다.
+                  「✂️ 구간」 막대의 손잡이를 끌거나 시작·끝 초를 적습니다. 「장면 보기」로 위치를 확인하고 「구간 재생」으로 고른 부분만 돌려 봅니다. 비우면 전체를 변환합니다.
                 </p>
                 <div className="mt-4 inline-block rounded-md bg-[#0d1117] px-2.5 py-1 text-[11px] text-cyan-300 border border-[#30363d]">
-                  40fps (추천) · 50fps (고화질)
+                  짧을수록 고화질 · 빠른 변환
                 </div>
               </div>
 
@@ -142,13 +158,13 @@ export default function GuidePage() {
                 </div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                   <Cpu className="h-4 w-4 text-emerald-400" />
-                  WASM 8단계 사다리 압축
+                  가로폭·FPS 정하고 변환
                 </h3>
                 <p className="mt-2 text-xs text-gray-400 leading-relaxed">
-                  브라우저 안에서 2-Pass 팔레트를 생성하고 결과물이 8MiB 이하가 될 때까지 팔레트 색상과 스케일을 지능형 사다리로 자동 최적화합니다.
+                  오른쪽에서 가로폭(기본 560 · 쿠팡 780 · 스토어 860px)과 40/50fps를 고르고 「변환 시작」을 누릅니다. 8MiB를 넘으면 화질 단계를 자동으로 낮춰 다시 만듭니다.
                 </p>
                 <div className="mt-4 inline-block rounded-md bg-[#0d1117] px-2.5 py-1 text-[11px] text-emerald-300 border border-[#30363d]">
-                  8단계 스마트 사다리
+                  줄마다 진행률 표시
                 </div>
               </div>
 
@@ -158,13 +174,13 @@ export default function GuidePage() {
                 </div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                   <FileCheck className="h-4 w-4 text-purple-400" />
-                  미리보기 & 즉시 삽입
+                  미리보기·받기·보내기
                 </h3>
                 <p className="mt-2 text-xs text-gray-400 leading-relaxed">
-                  생성된 GIF를 인라인에서 즉각 재생해보고 원클릭으로 다운로드하여 네이버 스마트스토어 및 쿠팡 에디터에 그대로 등록합니다.
+                  👁 미리보기로 확인하고 「다운로드」나 「완료된 GIF 전체 ZIP」으로 받습니다. 「상세페이지로」를 누르면 AI 상세페이지의 상품 섹션에 바로 넣을 수 있습니다.
                 </p>
                 <div className="mt-4 inline-block rounded-md bg-[#0d1117] px-2.5 py-1 text-[11px] text-purple-300 border border-[#30363d]">
-                  무손실 Blob 다운로드
+                  다운로드 · ZIP · 상세페이지로
                 </div>
               </div>
             </div>
@@ -231,7 +247,7 @@ export default function GuidePage() {
                     <td className="px-5 py-4 font-semibold text-emerald-400">10MB 이하</td>
                     <td className="px-5 py-4">630px ~ 720px</td>
                     <td className="px-5 py-4">50 fps (역동적 동작 강조)</td>
-                    <td className="px-5 py-4 text-gray-200">너비 630px · 50fps 설정</td>
+                    <td className="px-5 py-4 text-gray-200">너비 640px · 50fps 설정</td>
                   </tr>
                 </tbody>
               </table>
@@ -245,14 +261,14 @@ export default function GuidePage() {
                 3
               </span>
               <h2 className="text-lg sm:text-xl font-bold text-white">
-                지능형 8단계 화질 사다리(Candidates Ladder) 작동 원리
+                8MiB를 넘을 때 — 8단계 화질 사다리
               </h2>
             </div>
 
             <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-6 space-y-4">
               <p className="text-xs text-gray-300 leading-relaxed">
-                일반적인 GIF 변환 프로그램은 용량이 초과되면 동영상 뒷부분을 강제로 잘라버리거나 전체 프레임을 무차별 삭제하여 영상이 뚝뚝 끊기게 만듭니다.
-                <strong> VideoToGIF는 영상의 재생 시간을 100% 보존하면서</strong> 아래 사다리를 1단계부터 차례대로 탐색합니다.
+                먼저 고른 가로폭 그대로(1단계) 만듭니다. 결과가 8MiB를 넘으면 <strong>고른 구간 길이와 fps는 그대로 두고</strong>,
+                넘친 크기를 보고 필요한 단계까지 <strong>한 번에 건너뛰어</strong> 다시 만듭니다(한 단계씩 차례대로 모두 시도하지 않아 빠릅니다).
               </p>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
@@ -274,7 +290,7 @@ export default function GuidePage() {
                 <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3">
                   <div className="font-bold text-emerald-300">7~8단계 (최종)</div>
                   <div className="text-[11px] text-gray-300 mt-1">스케일 52%~45% · 160~128색</div>
-                  <div className="text-[10px] text-emerald-400 mt-1">8MiB 이하 완벽 보장</div>
+                  <div className="text-[10px] text-emerald-400 mt-1">그래도 넘으면 구간·폭·fps 조정 안내</div>
                 </div>
               </div>
             </div>
@@ -291,9 +307,8 @@ export default function GuidePage() {
                   100% 클라이언트 사이드 WASM 구동 · 서버 무저장 원칙
                 </h3>
                 <p className="text-xs text-gray-300 leading-relaxed">
-                  VideoToGIF는 변환 워커나 백엔드 변환 서버를 일체 두지 않습니다. 
-                  모든 영상 처리 연산은 고객님의 PC/노트북 웹 브라우저 안에서 로컬 CPU/메모리로만 수행되므로, 
-                  출시 전 신제품 기밀 동영상이나 브랜드 내부 자료도 외부 유출 걱정 없이 안심하고 변환하실 수 있습니다.
+                  변환 서버를 두지 않고, 모든 영상 처리는 회원님 PC·노트북 브라우저 안에서 기기 CPU·메모리로만 합니다.
+                  출시 전 신제품 영상도 외부로 보내지 않고 변환할 수 있습니다. AI를 쓰지 않으므로 AI 비용도 들지 않습니다.
                 </p>
               </div>
             </div>
@@ -353,7 +368,7 @@ export default function GuidePage() {
               지금 바로 상세페이지용 초고화질 GIF를 만들어보세요
             </h3>
             <p className="text-xs text-gray-400 max-w-md mx-auto">
-              별도의 프로그램 설치 없이 웹 브라우저에서 드래그 한 번으로 8MiB 초고화질 GIF를 즉시 생성할 수 있습니다.
+              프로그램 설치 없이 브라우저에서 영상을 끌어 놓고, 구간을 골라 8MiB 이하 GIF로 만들 수 있습니다.
             </p>
             <Link
               href="/dashboard"
