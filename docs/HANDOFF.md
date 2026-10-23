@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우) · 세션 `claude-win-20261023-revert-audit`: 관리자 「되돌림 의심 41 · 사라짐 4」 확인 — 실제 손실 없음 (읽기만 · 비용 없음)
+
+- `node scripts/check-shared-doc-reverts.mjs --audit 24` 결과(커밋 377개): ✓ 작업 끝 정리 26 · 복구됨 7 · 배포로 정리 3 · 확인됨 1 · ⚠ 사라짐 4.
+- 사라짐 3건(`7d86d9923`, AGENTS.md·CLAUDE.md·PROGRAM_CAPABILITY_MAP.md 각 1줄): 주인님 지시 「역량 지도 → 프로그램 비교표」 이름 바꾸기 — 의도한 수정.
+- 사라짐 1건(`1c795fcf2`, 비교표 카드 11개 새로 고침 −15줄): 지운 줄 대부분은 오전 대량 삭제 사고 커밋 `c2e7c4db2`(11:18)·복구로 「최근에 들어온 줄」처럼 보인 옛 내용이고, 같은 카드의 새 내용으로 바뀜. 12:39 주소 수정(`980fd1b1d`: playlist-maker·video-to-gif·shop-detail-page·auto-detail-page)은 지금 HEAD에 모두 남아 있음 — 되살릴 것 없음.
+- 제안: 감사가 사고 커밋(`c2e7c4db2`·`63283cf07`·`93ce9f27a`)과 복구 커밋(`237741cc3`)이 「넣은 줄」을 최근 추가로 세지 않게 하면 다음 24시간 동안 거짓 경고가 줄어듦(스크립트 담당 세션 판단).
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — AI 음악 스튜디오: Mureka 연동 코드 준비(숨김, 미배포 대기)
 - 주인님 지시로 코드만 준비: 어댑터 `lib/providers/adapters/mureka.ts`, `MUREKA_ENABLED=false`(화면·서버에 안 나옴), DB 허용 이름 SQL `0004_mureka_provider.sql` 미적용. 시험 28개·build 통과. 커밋 `3cdeb201b`.
 - 켜는 순서는 `ai-music-studio/docs/IMPROVEMENTS.md` 맨 위. 비용 없음(빌드 0·AI 0).
