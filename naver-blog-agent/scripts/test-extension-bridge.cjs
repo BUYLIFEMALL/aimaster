@@ -37,6 +37,7 @@ function loadTS(filename) {
     if (id === '@/lib/sourceBundle') return loadTS(path.join(root, 'src/lib/sourceBundle.ts'));
     if (id === '@/lib/privatePhotos') return loadTS(path.join(root, 'src/lib/privatePhotos.ts'));
     if (id === './privatePhotoRules') return loadTS(path.join(root, 'src/lib/privatePhotoRules.ts'));
+    if (id === './cleanupUsageLog') return loadTS(path.join(root, 'src/lib/cleanupUsageLog.ts')); // 2026-10-23 privatePhotos가 정리 기록 공용 사본을 불러옴
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => db };
     if (id === '@/lib/access') return { evaluateProgramAccessForUser: async () => access };
     if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));
