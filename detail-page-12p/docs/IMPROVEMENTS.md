@@ -25,7 +25,7 @@
 - **우선순위**: 중 · **처리 상태**: ✅ 구현 완료(2026-10-18, AGENTS.md 같은 날짜 항목) · **관련 파일**: 이미지 생성 함수·화면
 - **다음 첫 단계**: 실패 원인(`GeminiImageError.code`)을 응답에 함께 내려 화면에 한 줄 안내.
 
-## 2026-10-23 🟡 미배포 대기 — 메인 사이트 링크 주소 정정 (Claude Code 윈도우, 세션 `claude-win-20261023-mainsite-url`)
+## 2026-10-23 ✅ 배포됨(v1.11, 2026-10-23 보안 업데이트 배포 `f9a3fcefe`에 함께 · 운영 로그인 화면 반영 확인 — 맥미니 `check-app-urls --live`) — 메인 사이트 링크 주소 정정 (Claude Code 윈도우, 세션 `claude-win-20261023-mainsite-url`)
 - 메인 사이트 주소 상수가 연결 안 되는 `https://aimaster.buylife.xyz`였다(권한 없음·정지·핸드폰 안내 이동, 회원가입·비밀번호 찾기·약관 링크가 접속 오류). → `https://www.buylife.xyz`, `/signup`→`/register`, `/legal/privacy`·`/legal/terms`→`/privacy`·`/terms`. 커밋 `486fd5fd3`(prompt-template-studio는 `9c170faf5`). tsc 0.
 - 운영 임시 조치: 메인 Vercel 프로젝트에 `aimaster.buylife.xyz`를 추가해 `www.buylife.xyz`로 308 이동(경로 유지) — 회원가입 `/signup`만 다음 배포 전까지 404.
 - 다음 배포 때: 버전 +0.01, 로그인 화면의 회원가입·비밀번호 찾기 링크와 권한 없는 계정 이동 확인.
