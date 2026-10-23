@@ -296,6 +296,57 @@ export default function GuidePage() {
             </div>
           </section>
 
+          {/* v1.20: 내 PC 고속 변환(로컬 렌더러) 설치 안내 */}
+          <section id="local-renderer" className="space-y-5 scroll-mt-6">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-xs border border-emerald-500/30">
+                ⚡
+              </span>
+              <h2 className="text-lg sm:text-xl font-bold text-white">더 빠르게 — 내 PC 고속 변환 (선택, 무료)</h2>
+            </div>
+            <div className="rounded-2xl border border-emerald-500/30 bg-[#161b22] p-6 space-y-4 text-xs text-gray-300 leading-relaxed">
+              <p>
+                크롬 확장과 작은 「PC 렌더러」를 한 번 설치하면, 브라우저 대신 <strong>내 PC의 ffmpeg</strong>로 변환해 약 2~3배 빨라집니다
+                (1080p 10초 영상 기준 157초 → 61초). 영상은 지금처럼 PC 밖으로 나가지 않고, 설치하지 않아도 지금처럼 브라우저에서 변환됩니다.
+                작업 화면 오른쪽 「⚡ 내 PC 고속 변환」 칸에 「사용 중」이 보이면 설치가 끝난 것입니다. 크롬에서만 동작합니다.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-4 space-y-2">
+                  <div className="font-bold text-white">🪟 윈도우</div>
+                  <ol className="list-decimal pl-4 space-y-1.5">
+                    <li>
+                      <a href="/downloads/local-renderer/gif-renderer-extension-latest.zip" className="font-bold text-amber-300 underline">크롬 확장 ZIP</a>을 받아 압축을 풀고,
+                      크롬 주소창에 <code className="text-amber-200">chrome://extensions</code> → 「개발자 모드」 켜기 → 「압축해제된 확장 프로그램 로드」로 푼 폴더를 고릅니다.
+                    </li>
+                    <li>
+                      <a href="/downloads/local-renderer/gif-renderer-windows-latest.zip" className="font-bold text-amber-300 underline">윈도우 렌더러 ZIP</a>을 받아 압축을 풀고
+                      <code className="text-amber-200"> install-windows.bat</code>을 더블클릭합니다. ffmpeg가 없으면 윈도우 기본 설치 도구(winget)로 함께 설치합니다.
+                    </li>
+                    <li>「Windows의 PC 보호」·「알 수 없는 게시자」 창이 뜨면 「추가 정보 → 실행」을 누릅니다(서명하지 않은 무료 설치 파일이라 뜨는 안내입니다).</li>
+                    <li>크롬을 완전히 닫았다 연 뒤 이 화면을 새로고침합니다.</li>
+                  </ol>
+                </div>
+                <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-4 space-y-2">
+                  <div className="font-bold text-white">🍎 맥</div>
+                  <ol className="list-decimal pl-4 space-y-1.5">
+                    <li>윈도우와 같은 방법으로 <a href="/downloads/local-renderer/gif-renderer-extension-latest.zip" className="font-bold text-amber-300 underline">크롬 확장 ZIP</a>을 설치합니다.</li>
+                    <li>
+                      「터미널」 앱을 열어 아래 한 줄을 붙여 넣고 Enter를 누릅니다. ffmpeg가 없으면 Homebrew로 함께 설치합니다(Homebrew가 없으면 안내가 나옵니다).
+                      <code className="mt-1.5 block break-all rounded-lg bg-black/60 p-2 text-[11px] text-emerald-300">
+                        curl -fsSL https://video-to-gif.buylife.xyz/downloads/local-renderer/install-mac.sh | bash
+                      </code>
+                    </li>
+                    <li>크롬을 완전히 닫았다 연 뒤 이 화면을 새로고침합니다.</li>
+                  </ol>
+                </div>
+              </div>
+              <p className="text-gray-400">
+                삭제: 윈도우는 ZIP 안의 <code>uninstall-windows.bat</code>, 맥은{" "}
+                <code>curl -fsSL https://video-to-gif.buylife.xyz/downloads/local-renderer/uninstall-mac.sh | bash</code>, 확장은 chrome://extensions에서 삭제합니다(ffmpeg는 남겨 둡니다).
+              </p>
+            </div>
+          </section>
+
           {/* 4. 100% 브라우저 메모리 프라이버시 보안 배너 */}
           <section className="rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-[#161b22] to-emerald-500/5 p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">

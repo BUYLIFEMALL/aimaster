@@ -44,6 +44,49 @@ export function nextCandidateIndex(
   return candidates.findIndex((c, i) => i > current && c.scale === smallest);
 }
 
+// v1.20: 내 PC 렌더러는 단계 하나에 코어 하나만 쓰므로(색상표·디더링이 한 스레드) 아래 단계를 미리 함께 만든다.
+// 미리 만들 단계 순서 — 가로 45%·60%·76% 순으로 넓게 흩어 첫 결과가 어디로 건너뛰든 이미 만들어져 있을 가능성을 높인다.
+export const SPECULATIVE_ORDER = [7, 5, 3, 6, 4, 8] as const;
+
+/**
+ * v1.20: 순서대로 돌 때(nextCandidateIndex)와 **똑같은 단계를 고른다**. 다만 slots개까지 동시에 만들 수 있으면
+ * 0단계와 함께 SPECULATIVE_ORDER의 단계를 미리 만들어 두어, 건너뛴 단계가 이미 끝났으면 기다리지 않는다.
+ * encodeAt(i)는 i단계 결과의 바이트 수를 준다(같은 i는 한 번만 부른다). 끝까지 넘으면 index -1과 마지막 크기.
+ */
+export async function runLadder(
+  encodeAt: (index: number) => Promise<number>,
+  slots: number,
+  onStep?: (index: number, attempt: number) => void,
+  maxBytes: number = MAX_OUTPUT_BYTES,
+  candidates: ReadonlyArray<{ scale: number }> = CANDIDATES,
+): Promise<{ index: number; bytes: number }> {
+  const started = new Map<number, Promise<number>>();
+  const get = (i: number) => {
+    let p = started.get(i);
+    if (!p) {
+      p = encodeAt(i);
+      started.set(i, p);
+      // 미리 만든 단계가 실패해도 그 단계가 실제로 필요할 때까지는 처리되지 않은 거부로 남기지 않는다.
+      p.catch(() => {});
+    }
+    return p;
+  };
+  get(0);
+  for (const i of SPECULATIVE_ORDER) {
+    if (started.size >= Math.max(1, slots)) break;
+    if (i < candidates.length) get(i);
+  }
+  let current = 0;
+  for (let attempt = 0; ; attempt++) {
+    onStep?.(current, attempt);
+    const bytes = await get(current);
+    if (bytes <= maxBytes) return { index: current, bytes };
+    const next = nextCandidateIndex(current, bytes, maxBytes, candidates);
+    if (next === -1) return { index: -1, bytes };
+    current = next;
+  }
+}
+
 // 한 번에 만들기(split → palettegen → paletteuse)는 색상표가 나올 때까지 프레임(RGBA)을 메모리에 쌓는다.
 export const SINGLE_PASS_MAX_BYTES = 512 * 1024 * 1024;
 

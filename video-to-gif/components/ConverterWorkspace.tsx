@@ -26,7 +26,8 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
-import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio } from "@/lib/gifLadder";
+import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio, runLadder } from "@/lib/gifLadder";
+import { LocalRendererPool, detectLocalRenderer, localSlots, type RendererStatus } from "@/lib/localRenderer";
 import { ACCEPT, pickFiles, skippedNote } from "@/lib/videoFiles";
 import { GIF_INBOX_PATH, GIF_RECEIVER_ORIGIN, MSG_FILE, isReadyMessage } from "@/lib/gifHandoff";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
@@ -125,6 +126,9 @@ const STATUS_LABEL: Record<Job["status"], string> = {
   done: "변환 완료",
   error: "오류 발생"
 };
+const TOO_BIG_MESSAGE = "8MiB 이하로 줄이지 못했습니다(20fps까지 낮춰도 넘음). 구간을 짧게 고르거나 가로폭을 줄인 뒤 ↺(재시도)를 눌러 주세요.";
+// v1.20: 내 PC 변환에서 「너무 큼」은 렌더러 고장이 아니므로 브라우저 변환으로 다시 하지 않는다(같은 결과·긴 시간).
+class TooBigError extends Error {}
 const CORE_VERSION = "0.12.6";
 const CORE_BASE_URL = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${CORE_VERSION}/dist/umd`;
 
@@ -162,6 +166,18 @@ export default function ConverterWorkspace() {
   }, [previewJob]);
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const loadingRef = useRef<Promise<FFmpeg> | null>(null);
+
+  // v1.20: 「⚡ 내 PC 고속 변환」 — 확장·렌더러·ffmpeg가 있으면 PC에서, 없거나 실패하면 지금처럼 브라우저에서 변환
+  const [renderer, setRenderer] = useState<RendererStatus | "checking">("checking");
+  const [rendererNote, setRendererNote] = useState("");
+  async function checkRenderer() {
+    setRenderer("checking");
+    setRenderer(await detectLocalRenderer());
+  }
+  useEffect(() => {
+    void checkRenderer();
+  }, []);
+  const rendererReady = renderer !== "checking" && renderer.kind === "ready";
 
   function addFiles(files: FileList | null) {
     if (!files) return;
@@ -304,6 +320,63 @@ export default function ConverterWorkspace() {
     return loadingRef.current;
   }
 
+  function finishJob(jobId: string, outputBytes: Uint8Array, usedFps: number) {
+    const blob = new Blob([outputBytes.slice().buffer], { type: "image/gif" });
+    const downloadUrl = URL.createObjectURL(blob);
+    setJobs((current) =>
+      current.map((j) =>
+        j.id === jobId
+          ? { ...j, status: "done", progress: 100, outputSize: blob.size, downloadUrl, loweredFps: usedFps < fps ? usedFps : undefined }
+          : j
+      )
+    );
+  }
+
+  /**
+   * v1.20: 내 PC 렌더러로 변환 — 같은 사다리·같은 ffmpeg 필터, 단계를 여러 개 동시에(runLadder) 만든다.
+   * 렌더러 문제면 오류를 던져 브라우저 변환으로 넘어가고, 끝까지 8MiB를 넘으면 TooBigError.
+   */
+  async function convertLocal(job: Job) {
+    const setProgress = (value: number) =>
+      setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, progress: Math.min(99, Math.round(value)) } : j)));
+    const startSec = job.trimStart.trim() === "" ? 0 : Number(job.trimStart);
+    const endSec = job.trimEnd.trim() === "" ? job.duration : Number(job.trimEnd);
+    const seconds = endSec !== undefined ? endSec - startSec : undefined;
+    const pool = await LocalRendererPool.create(job.file!, localSlots(job.file!.size), (r) => setProgress(1 + r * 9));
+    try {
+      const results = new Map<number, Uint8Array>();
+      let chain = { index: 0, attempt: 0 };
+      const { index } = await runLadder(
+        async (i) => {
+          const c = CANDIDATES[i];
+          const out = await pool.encode(
+            {
+              width: Math.max(16, Math.floor(width * c.scale)),
+              fps: Math.min(fps, c.fps ?? fps),
+              colors: c.colors,
+              ...(startSec > 0 ? { start: startSec } : {}),
+              ...(seconds !== undefined && seconds > 0 ? { duration: seconds } : {}),
+            },
+            (ratio) => {
+              if (i === chain.index) setProgress(Math.min(85, 10 + chain.attempt * 25) + ratio * 24);
+            }
+          );
+          results.set(i, out);
+          return out.byteLength;
+        },
+        pool.size,
+        (i, attempt) => {
+          chain = { index: i, attempt };
+          setProgress(Math.min(85, 10 + attempt * 25));
+        }
+      );
+      if (index === -1) throw new TooBigError(TOO_BIG_MESSAGE);
+      finishJob(job.id, results.get(index)!, Math.min(fps, CANDIDATES[index].fps ?? fps));
+    } finally {
+      pool.close();
+    }
+  }
+
   async function convertOne(job: Job) {
     const trim = trimArgs(job);
     if (trim.error) {
@@ -311,6 +384,22 @@ export default function ConverterWorkspace() {
       return;
     }
     setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "processing", progress: 1 } : j)));
+    if (rendererReady) {
+      try {
+        await convertLocal(job);
+        return;
+      } catch (error) {
+        if (error instanceof TooBigError) {
+          setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "error", error: error.message } : j)));
+          return;
+        }
+        console.warn("[local-renderer]", error);
+        setRendererNote(
+          `내 PC 변환에 실패해 이번 영상은 브라우저 변환으로 바꿨습니다. (${error instanceof Error ? error.message : "알 수 없는 오류"})`
+        );
+        setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, progress: 1 } : j)));
+      }
+    }
     try {
       let ffmpeg = await getFFmpeg();
       setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, progress: 5 } : j)));
@@ -414,17 +503,9 @@ export default function ConverterWorkspace() {
       await ffmpeg.deleteFile("output.gif").catch(() => {});
 
       if (!outputBytes) throw new Error("변환 결과를 읽지 못했습니다.");
-      if (outputBytes.byteLength > MAX_OUTPUT_BYTES) throw new Error("8MiB 이하로 줄이지 못했습니다(20fps까지 낮춰도 넘음). 구간을 짧게 고르거나 가로폭을 줄인 뒤 ↺(재시도)를 눌러 주세요.");
+      if (outputBytes.byteLength > MAX_OUTPUT_BYTES) throw new Error(TOO_BIG_MESSAGE);
 
-      const blob = new Blob([outputBytes.slice().buffer], { type: "image/gif" });
-      const downloadUrl = URL.createObjectURL(blob);
-      setJobs((current) =>
-        current.map((j) =>
-          j.id === job.id
-            ? { ...j, status: "done", progress: 100, outputSize: blob.size, downloadUrl, loweredFps: stepFps < fps ? stepFps : undefined }
-            : j
-        )
-      );
+      finishJob(job.id, outputBytes, stepFps);
     } catch (error) {
       setJobs((current) =>
         current.map((j) =>
@@ -860,6 +941,48 @@ export default function ConverterWorkspace() {
               결과가 8MiB를 넘으면 고른 구간 길이는 그대로 두고, 넘친 만큼 가로폭과 색상 수를 한 번에 낮춰 다시 만듭니다. 그래도 넘으면 마지막으로 초당 장면 수를 25·20fps로 낮춥니다.
             </div>
 
+            {/* v1.20: 내 PC 고속 변환 상태 */}
+            <div
+              className={`rounded-2xl border p-3.5 text-xs leading-relaxed ${
+                rendererReady ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" : "border-[#30363d] bg-[#0d1117] text-gray-300"
+              }`}
+            >
+              <div className={`mb-1 flex items-center gap-1.5 font-bold ${rendererReady ? "text-emerald-300" : "text-gray-200"}`}>
+                <Zap className="h-3.5 w-3.5" />
+                <span>⚡ 내 PC 고속 변환</span>
+                <button
+                  type="button"
+                  onClick={() => void checkRenderer()}
+                  className="ml-auto rounded-md border border-[#30363d] px-1.5 py-0.5 text-[10px] font-semibold text-gray-400 hover:text-white"
+                >
+                  다시 확인
+                </button>
+              </div>
+              {renderer === "checking" ? (
+                <span>확인 중입니다…</span>
+              ) : renderer.kind === "ready" ? (
+                <span>
+                  사용 중 · PC의 ffmpeg {renderer.ffmpegVersion}로 변환합니다(브라우저보다 약 2~3배 빠름, 영상은 PC 밖으로 나가지 않음).
+                </span>
+              ) : renderer.kind === "no-host" ? (
+                <span>
+                  확장은 설치됐지만 PC 렌더러가 없습니다.{" "}
+                  <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">렌더러 설치 방법</Link>
+                </span>
+              ) : renderer.kind === "no-ffmpeg" ? (
+                <span>
+                  PC에 ffmpeg가 없습니다. 렌더러 설치를 다시 실행해 주세요.{" "}
+                  <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">설치 방법</Link>
+                </span>
+              ) : (
+                <span>
+                  지금은 브라우저에서 변환합니다. 크롬 확장과 PC 렌더러를 한 번 설치하면 약 2~3배 빨라집니다(무료).{" "}
+                  <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">설치 방법</Link>
+                </span>
+              )}
+              {rendererNote && <p className="mt-1.5 text-amber-200">⚠️ {rendererNote}</p>}
+            </div>
+
             {/* 4. 변환 실행 버튼 */}
             <button
               onClick={start}
@@ -869,7 +992,7 @@ export default function ConverterWorkspace() {
               {isConverting ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
-                  <span>WASM 변환 인코딩 중...</span>
+                  <span>{rendererReady ? "⚡ 내 PC로 변환 중..." : "WASM 변환 인코딩 중..."}</span>
                 </>
               ) : (
                 <>

@@ -45,6 +45,15 @@ GIF 자동화 웹(video-to-gif.buylife.xyz) ─chrome.runtime.connect(확장 ID)
 - **실제 크롬(맥미니, 운영 페이지 → 확장 v1.00 → host.pl → ffmpeg 8.1)**: 같은 1080p 10초 시험 영상(14,933,867바이트), 앱과 같은 사다리 — 전송 1.1초, 시도 1(560px) 41.8초 → 시도 2(336px·192색) 17.8초, **전체 60.7초**(지금 웹 157초, **약 2.6배**), 결과 336×189·7.27MiB·400장·장면 간격 2/3(=40fps). 앞서 「약 5배」는 다른 시험 영상 기준이었고, 이 영상에서는 2.6배.
 - 다음 개선 후보: 렌더러는 PC 코어를 여럿 쓸 수 있으므로 사다리 단계를 **여러 개 동시에** 돌려 맞는 것 중 가장 큰 것을 고르면 전체 ≈ 첫 시도 시간(약 40초)까지 줄일 수 있음(2단계에서 검토).
 
+## 2단계 웹 연결 결과 (2026-10-24, 맥미니 · 미배포)
+- `lib/localRenderer.ts`(새): `detectLocalRenderer()`(확장 없음 `none`·렌더러 없음 `no-host`·ffmpeg 없음 `no-ffmpeg`·`ready`), `LocalRendererPool`(연결 = 렌더러 프로세스 하나, 동시 수만큼 같은 영상을 올림), `localSlots()`(코어−1, 최대 4, 100MB 넘으면 2).
+- `lib/gifLadder.ts` `runLadder(encodeAt, slots, onStep?)`: 순서대로 돌 때와 **같은 단계를 고르되** 0단계와 함께 `SPECULATIVE_ORDER`(7·5·3·6·4·8단계)를 미리 만든다. 시험(저장소 밖) 7개 통과 — 크기 7종 × 동시 1·4에서 순서대로와 결과 같음, 같은 단계 두 번 안 만듦, 미리 만든 단계 실패는 필요할 때만 오류.
+- `components/ConverterWorkspace.tsx`: 렌더러 `ready`면 `convertLocal`(같은 사다리·필터), 렌더러 문제면 안내 한 줄 후 브라우저 변환으로 자동 전환, 「끝까지 8MiB 초과」는 브라우저로 다시 하지 않음(`TooBigError`). 설정 패널 「⚡ 내 PC 고속 변환」 상태·「다시 확인」, 버튼 「⚡ 내 PC로 변환 중...」. 마무리는 `finishJob` 하나로(브라우저 경로도 같이 씀).
+- `/guide#local-renderer`: 윈도우(확장 ZIP + 렌더러 ZIP `install-windows.bat`)·맥(확장 ZIP + 터미널 한 줄) 설치·삭제 안내.
+- 내려받을 파일: `node scripts/build-local-renderer.mjs` → `public/downloads/local-renderer/`(`gif-renderer-extension-latest.zip`·`gif-renderer-windows-latest.zip`·`install-mac.sh`·`uninstall-mac.sh`·`host.pl`·`version.json`). 새 패키지 없이 공용 `lib/zip.ts` 사본 사용.
+- **실제 화면 코드 시험(맥미니 크롬, 운영 페이지에 두 파일을 자바스크립트로 바꿔 넣음)**: 감지 `ready`(확장 v1.00·ffmpeg 8.1), 동시 4개 — 올리기 1.7초, 7·5·3·0단계 동시 시작, 5단계 25.9초에 이미 끝남 → 0단계(46초) 직후 바로 확정, **전체 47.6초**(한 단계씩 60.7초·브라우저 157초), 결과는 한 단계씩과 같은 5단계·336×189·7.27MiB.
+- tsc 0, eslint 0.
+
 ## 열어 둔 점
 - 쇼츠·뮤직비디오 등 다른 영상 프로그램도 같은 렌더러를 쓸 수 있게, 명령 종류를 「gif」로 이름 붙여 나중에 늘릴 수 있게 설계.
 - 맥 정적 ffmpeg 빌드의 출처·라이선스는 1단계에서 확정(LGPL판 우선).
