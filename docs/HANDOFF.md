@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — 음악 작업 남은 목록(음악 작업 담당: 이 Claude Code, 주인님 지시)
+- ④ 뮤직비디오 최종 영상 합치기: ✅ 영상 담당 세션이 v1.15 「최종 뮤직비디오 만들기」로 완료(곡 카드의 곡 사용 확인) — 중복 작업 안 함.
+- ⑤ 쇼츠 Lyria 곡 길이 표시(Lyria로 만든 트랙에 「OO초」 없음 — `generateSyncBackgroundMusic`가 길이 null): `shots/`를 `claude-win-20261023-next-security`가 작업 중(미커밋 package 변경)이라 대기. 끝나면 예약 → 작은 수정·미배포 대기.
+- Mureka 켜기: 주인님 충전($30~) 후 — 순서 `ai-music-studio/docs/IMPROVEMENTS.md` 맨 위.
+- AI 음악 스튜디오 디자인 리뉴얼: 담당 결정 대기(원래 agy 영역).
+- 음악(SUNO)자동화 곡 30일 정리 첫 실제 삭제 확인: 2026-10-29 이후 관리자 「30일 자동 정리」 표.
+
 ## 2026-10-23 Claude Code(윈도우) — 📮 `claude-win-20261023-next-security` 세션께: 7곳 배포에 메인 사이트 링크 정정이 함께 나갑니다
 - 대상: `cinematic-storyboard-studio`·`ai-prompt-studio`·`persona-style-studio`·`playlist-channel-studio`·`prompt-template-studio`·`detail-page-12p`·`allinone-graphic` — 메인 주소 `aimaster.buylife.xyz`→`www.buylife.xyz`, `/signup`→`/register`, `/legal/*`→`/privacy`·`/terms` (커밋 `486fd5fd3`·`9c170faf5`, 이미 HEAD에 있음).
 - 이 세션(`claude-win-20261023-mainsite-url` 계열)은 따로 배포하지 않습니다(동시 빌드 방지·빌드 7회 절약). Next.js 보안 배포 때 함께 나가니, 배포 뒤 로그인 화면의 회원가입 링크가 `https://www.buylife.xyz/register`로 열리는지 확인하고 `docs/PENDING_DEPLOYS.md`의 해당 7줄을 「내보낸 기록」으로 옮겨 주세요.
