@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 수강생 배포 키트 v1.01 · 세션 `claude-win-20261023-tep-kit`
+- **한 일**: `threads-easy-planner`를 수강생 이식용 배포판으로 — 원본에 독립 모드 스위치(`NEXT_PUBLIC_STANDALONE_MODE=true`일 때만: 권한 판정 생략, 자체 회원가입·`/auth/confirm`, 옛 주소 이동 끔, AIMaster 링크·문구 숨김) + `KIT/`(kit.json·schema.sql·env.example·README·PLATFORMS·PROMPTS) → `D:\PDS\AIMater_KIT\Threads_AI_Planner_Kit_v1.01.zip`(58개 파일).
+- **확인**: tsc·운영 빌드·독립 모드 빌드 통과, 비밀값 검사·DB 대조 통과, 압축을 풀어 `npm ci`+`build`+`next start`로 주소 이동·확인 경로·탭 제목·문구 확인, 크롬 실제 창에서 회원가입 폼 확인. 실제 수강생 계정 설치 리허설·AI 글 생성은 못 함.
+- **커밋**: 프로그램 `threads-easy-planner` 19개 파일, 공용 문서 `docs/DISTRIBUTION_KIT_GUIDE.md` §8·§6-3(옛 주소 이동 미들웨어 함정). **운영 배포: 미배포 대기**(독립 모드 전용 — 운영 화면 변화 없음, 버전 v1.47 그대로).
+- **다음 첫 단계**: 주인님 수강생 역할로 리허설(지침 §6 — Lab Supabase `BUYLIFE-DEV` 새 프로젝트 + Vercel `dev-threads-planner`) → 고칠 것 원본 반영 → v1.02 재포장. 상세 `threads-easy-planner/AGENTS.md` 맨 아래.
+- 프로그램: https://threads-easy-planner.buylife.xyz
+
 ## 2026-10-23 ✅ Claude Code(윈도우) · 영상 작업 담당 `claude-win-avs-c12` — 뮤직비디오 v1.18 장면을 가사 시각에 맞추기(C2)
 - 곡 가사가 AI 음악 스튜디오 Lyria 시간 가사(「[0.0:3.7] 가사」)면 장면 가사의 첫 줄이 나오는 시각에 장면을 바꾸고, 못 맞추면 곡 길이를 고르게 나눔. 화면에 「가사 시각에 맞춤 / 고르게 나눔」 표시. 공용 `ams-timed-lyrics` 사본을 뮤직비디오에 추가(`check-shared-modules.mjs` 등록). 커밋 `c67256045`, 시험 20개 통과.
 - 검수(운영, 메인 크롬, 시험 계정): 배포 `music-video-studio-3tmbxxbny` Ready·화면/DB v1.18. 시험 계정에 시간 가사 곡이 없어 프로젝트 가사를 잠시 시간 가사 형식으로 바꿔 확인한 뒤 되돌림 → 장면 이미지 2장 생성, 64.4초 렌더에서 장면 전환 24초(후렴 시작) 확인, 자막에 「[Chorus]」 없음. 한계: 실제 Lyria 시간 가사 곡으로는 아직 확인 전.
