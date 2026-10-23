@@ -18,5 +18,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `insta_auto_poster/` | Claude Code(윈도우, 크롬) | 2026-10-23 | 미배포 2건 + 공용 사본 대기 배포 v1.68 |
 | `ai-video-studio/` (신규) + 공용 `ai-video-*` 기준 이전(`ai-image-studio/lib/video/` → 사본) | Claude Code(윈도우, 크롬) | 2026-10-23 | AI 영상 스튜디오 1차 v1.01(생성 작업실 + 갤러리, 플랜 `ai-video-studio/docs/PLAN_20261023_AI_VIDEO_STUDIO.md`) |
 | `naver-blog-seo-studio/` | Claude Code(윈도우, 웨일 주인님 지정) | 2026-10-23 | 자동 포스팅 background 이전 + v2.12 배포 |
