@@ -23,12 +23,29 @@ function files(dir, out = [], depth = 0) {
   return out;
 }
 
-const rows = [];
+const rows = [], overflowRows = [];
 for (const folder of readdirSync(ROOT).sort()) {
   if (only && folder !== only) continue;
   if (!existsSync(join(ROOT, folder, ".vercel", "project.json")) || folder.startsWith(".")) continue;
   const roots = ["src/components", "components", "src/app", "app"].map((d) => join(ROOT, folder, d));
-  const all = roots.flatMap((r) => files(r)).filter((f) => !/[\\/](login|register|auth|reset-password)[\\/]/.test(f));
+  const everyFile = roots.flatMap((r) => files(r));
+  // 가로 넘침 의심(2026-10-23, music v1.44 검수에서 발견 — 390px에서 창이 114px 옆으로 밀림): 넓은 고정 폭(360px 이상) absolute·fixed 장식이
+  // 오른쪽 끝 고정(right-0 등 양수)만이 아니고, 같은 파일에 가로 잘라내기(overflow-hidden·overflow-x-hidden·overflow-x-clip·overflow-clip)가 없으면 후보.
+  // 전역 CSS의 body { overflow-x: hidden }은 실측상 막지 못해 제외 조건으로 치지 않는다.
+  for (const f of everyFile) {
+    const t = readFileSync(f, "utf8");
+    if (/overflow-(x-)?(hidden|clip)\b/.test(t)) continue;
+    for (const m of t.matchAll(/["`]([^"`]*)["`]/g)) {
+      const cls = ` ${m[1]} `;
+      if (!/\s(absolute|fixed)\s/.test(cls)) continue;
+      const wide = /\s(w-96|w-\[(2[3-9]|[3-9]\d)rem\]|w-\[(3[6-9]\d|[4-9]\d\d|\d{4})px\])\s/.exec(cls);
+      if (!wide) continue;
+      if (/\sright-(\d|\[)/.test(cls) && !/\s-?left-/.test(cls)) continue; // 오른쪽 끝에 붙어 왼쪽으로만 넘침 — 가로 스크롤 없음
+      overflowRows.push({ folder, file: relative(join(ROOT, folder), f).replace(/\\/g, "/"), width: wide[1] });
+      break;
+    }
+  }
+  const all = everyFile.filter((f) => !/[\\/](login|register|auth|reset-password)[\\/]/.test(f));
   const sidebar = all.filter((f) => /로그아웃/.test(readFileSync(f, "utf8")));
   if (!sidebar.length) continue; // 로그인 없는 화면(옛 주소 전달 등)
   // 휴대폰 전환 흔적: CSS 파일의 1024px 이하 max-width 미디어 쿼리, Tailwind 반응형 감춤(sm/md/lg/xl:hidden, max-[..]:), 서랍 메뉴(setOpen/isOpen + translate-x)
@@ -54,3 +71,6 @@ const warn = rows.filter((r) => r.verdict !== "✓ 함께 보임");
 console.log(`[휴대폰 폭 계정 표시] 좌측 메뉴가 있는 프로그램 ${rows.length}곳 · 확인 필요 후보 ${warn.length}곳`);
 for (const r of showAll ? rows : warn) console.log(`  ${r.verdict} ${r.folder}${r.note ? ` — ${r.note}` : ""} (${r.files.slice(0, 2).join(", ")})`);
 if (warn.length) console.log("  → 후보는 크롬 390px 폭에서 ☰ 펼침 메뉴에 계정·로그아웃이 보이는지 확인(코드 읽기 판정이라 오판 가능)");
+console.log(`[휴대폰 폭 가로 넘침] 넓은 고정 폭 장식이 잘리지 않는 곳 ${overflowRows.length}곳`);
+for (const o of overflowRows) console.log(`  ⚠ 가로 넘침 의심 ${o.folder} — ${o.width} absolute/fixed, 같은 파일에 overflow-hidden/clip 없음 (${o.file})`);
+if (overflowRows.length) console.log("  → 감싸는 요소에 overflow-x-clip(sticky 유지)·overflow-hidden을 넣고, 크롬 390px에서 window.scrollTo(200,0) 뒤 scrollX가 0인지 확인");
