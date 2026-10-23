@@ -102,3 +102,7 @@
 - `lib/libraryFilter.ts`(`matches`·`providerCounts`·`isStarred`, 시험 `tests/libraryFilter.test.mjs` 4개 — 전체 53개), `components/studio/LibraryView.tsx`. 공급자 단위라 fal(Stable Audio 등)·Replicate는 각각 한 묶음.
 - 검수: 시험 53개·tsc·build 통과. 화면 확인은 배포 뒤.
 - **제안 가~라 모두 코드 완료** — 다음은 모아서 빌드 1회(사전 승인) v1.12 배포 → 크롬에서 네 기능 확인 + 주인님 소리 확인.
+
+## 2026-10-23 v1.12 배포 + 공급자 색 누락 수정 발견 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm)
+- v1.12 배포 `ai-music-studio-brcpsck8j` Ready·DB v1.12. 크롬(시험 회원) 확인: 버전 v1.12, 공급자 버튼 6개(모든 공급자·fal 3·Lyria 3·Suno 3·ElevenLabs 2·Replicate 2), Suno 누르면 카드 3개·플레이리스트 「완성곡 6개」, 「이 설정으로 다시 만들기」 → Lyria RealTime 모델·연주곡·설명·제목 채움 + 안내 띠, ▶ 뒤 미니 플레이어 버튼 6개(무작위·이전·일시정지·다음·반복·닫기), 재생한 곡 실제 파형 1개 표시.
+- **발견한 문제**: 공급자 색 점이 투명(계산값 `rgba(0,0,0,0)`) — `tailwind.config.ts` `content`에 `./lib/**`가 없어 `lib/providerStyle.ts`에만 있는 색 클래스가 만들어지지 않았음(v1.11 리뉴얼부터, 곡 만들기 모델 색 점·띠도 같은 영향). `content`에 `./lib/**/*.{js,ts,jsx,tsx}` 추가 → 로컬 빌드 CSS에 7종 생성 확인. **미배포(다음 배포 v1.13)**.
