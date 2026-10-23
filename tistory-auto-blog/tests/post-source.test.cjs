@@ -84,8 +84,8 @@ test('dropRepeatedHeading removes only small headings that repeat the section he
 // 2026-10-23 v1.92 후보: 분량을 단락 개수로 지시(글 20번 — GPT-4.1도 글자 수 지시만으론 목표의 60%).
 test('lengthPlan turns word count into paragraph units per section', () => {
   const { lengthPlan } = loadTs('utils/news/lengthPlan.ts');
-  assert.deepEqual({ ...lengthPlan(1000) }, { totalChars: 3500, perSection: 875, unitsPerSection: 4 });
-  assert.deepEqual({ ...lengthPlan(undefined) }, { totalChars: 2000, perSection: 500, unitsPerSection: 2 });
-  assert.deepEqual({ ...lengthPlan(300) }, { totalChars: 2000, perSection: 500, unitsPerSection: 2 });
-  assert.equal(lengthPlan(2000).unitsPerSection, 7);
+  assert.deepEqual({ ...lengthPlan(1000) }, { totalChars: 3500, perSection: 875, unitsPerSection: 7 });
+  assert.deepEqual({ ...lengthPlan(undefined) }, { totalChars: 2000, perSection: 500, unitsPerSection: 4 });
+  assert.deepEqual({ ...lengthPlan(300) }, { totalChars: 2000, perSection: 500, unitsPerSection: 4 });
+  assert.equal(lengthPlan(2000).unitsPerSection, 15);
 });
