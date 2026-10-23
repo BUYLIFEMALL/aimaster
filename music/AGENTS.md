@@ -423,5 +423,10 @@ POST 콜백을 보낸다. 이 라우트는:
 - 배포 `music-36j3lwxcj` Ready·운영 주소 연결, DB `programs.version` v1.44, 역량 지도 목록·카드 v1.44.
 - 검수(크롬 시험 회원 `buylifemall@naver.com`, 같은 주소 390px iframe): 접힌 상태 메뉴 높이 73px·메뉴 본문 숨김 → ☰ 누르면 메뉴·접속 계정 이메일·로그아웃 표시, ✕로 다시 접힘. 화면 버전 v1.44. ①은 Suno 생성(유료)을 하지 않아 실호출 미확인(동작 변화 없는 선택값), ②는 정리 유예가 2026-10-28까지라 **2026-10-29 03:00 KST 첫 실제 삭제 뒤** 관리자 「30일 자동 정리」 표에 `music` 줄이 생기는지 확인.
 
-## 2026-10-23 ⏸ 미배포 — 휴대폰 폭 가로 넘침(배경 장식) (Claude Code 윈도우)
+## 2026-10-23 ✅ 배포됨(v1.45) — 휴대폰 폭 가로 넘침(배경 장식) (Claude Code 윈도우)
 - v1.44 검수 중 발견: 390px 폭에서 문서 폭 495px(가로 넘침). 원인은 이번 메뉴가 아니라 `app/(dashboard)/layout.tsx`의 배경 번짐 장식(`w-[400px]`, `left-1/4`)이 화면 밖으로 나간 것(예전부터). 수정: `<main>`에 `overflow-x-clip`(가로만 잘라냄, 기획 목록 아래 고정 막대 `sticky`는 유지). tsc·build 통과. **다음 배포 때 함께 내보내고 버전 +0.01, 390px에서 가로 넘침 없음(문서 폭 = 화면 폭) 확인.**
+
+## 2026-10-23 v1.45 — 휴대폰 폭 가로 넘침 수정 배포 (Claude Code 윈도우, 세션 `claude-win-music-v145`, 주인님 승인 빌드 1회)
+- `app/(dashboard)/layout.tsx` `<main>`에 `overflow-x-clip`. 배포 `music-4n6o3dlzo` Ready·운영 주소 연결, DB·프로그램 비교표 v1.45.
+- 검수(크롬 시험 회원, 390px iframe): 수정 전 운영에서는 `window.scrollTo(200,0)` 뒤 창이 114px 밀렸고(`body { overflow-x: hidden }`이 있어도), 수정 뒤 `scrollX` 0·문서 폭 382px(화면 387px). 데스크톱 폭에서 기획 목록 아래 고정 막대(`sticky bottom-4`) 정상(창 아래 16px).
+- ⚠ 발견(미처리, 이번 수정과 무관 — `overflow-x-clip` 켜고 꺼도 같음): **휴대폰 폭에서 기획 목록 선택 막대가 화면 아래에 붙지 않고 목록 끝(아래끝 1492px, 창 697px)에 남는다.** 상세·다음 첫 단계: `docs/IMPROVEMENTS.md` 맨 아래.
