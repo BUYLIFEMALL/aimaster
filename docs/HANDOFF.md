@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — music v1.45 배포(휴대폰 폭 가로 넘침) · 비교표 카드 찾기 보완
+- **music v1.45**(세션 `claude-win-music-v145`, 승인 빌드 1회, `music-4n6o3dlzo` Ready): `<main>` `overflow-x-clip`. 크롬 390px: 수정 전 창이 114px 밀림 → 수정 뒤 `scrollX` 0. DB·비교표 v1.45. **발견(미처리)**: 휴대폰 폭에서 기획 목록 선택 막대(sticky)가 화면 아래에 붙지 않음(데스크톱 정상, 이번 수정과 무관) → `music/docs/IMPROVEMENTS.md` 맨 아래.
+- **`deploy.mjs`**: 프로그램 비교표 카드 제목과 「주소·폴더」 줄 사이에 메모 줄이 있으면 카드를 못 찾던 문제 수정(버전 자동 고침·카드 주소/내용 점검 3곳). 그 결과 그동안 숨어 있던 차이가 보임 — **카드 주소가 DB와 다른 4곳**: `video-to-gif`·`shop-detail-page`·`auto-detail-page`(옛 vercel.app 주소), `playlist-channel-studio`(카드 playlist-channel-studio · DB playlist-maker — 어느 쪽이 맞는지 담당 세션 확인 필요). 카드 내용 뒤처짐 20 → 34개(10단계 이상 15개).
+- 참고: 이 정규식 수정 3곳은 다른 세션의 이름 바꾸기 커밋 `48b3fc4d0`(파일 통째 커밋)에 함께 들어갔다 — 내용은 의도대로라 그대로 둠.
+- 비용: Vercel 빌드 1회(music, 승인). 링크:
+https://music-automation.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — AI 음악 스튜디오 v1.07: 곡 카드에 쇼츠 원스톱·뮤직비디오 링크 (배경음악 공용화 5단계, 전체 완료)
 - 곡 카드 아래 링크 줄에 「🎵 쇼츠 원스톱 배경음악 →」(`/render`)·「🎥 뮤직비디오 →」(`/music`), 새 창. 두 프로그램 모두 「AI 음악 스튜디오에서 고르기/가져오기」 목록이 있어 그 화면을 열고 고르는 방법을 함께 적음(받는 쪽 주소로 곡 자동 선택은 두 프로그램 빌드가 더 필요해 개선 제안으로만 기록). 대기 중이던 `music-sync-calls` 분리도 함께 배포.
 - 검수: tsc·시험 25개·build, 커밋 `e5897b7bf`(경로 지정 2개), 배포 `ai-music-studio-hhcx750pb` Ready, DB v1.07. 크롬 시험 회원: 보관함 v1.07, 곡 카드 11개 × 링크 2개(새 창).
