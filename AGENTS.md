@@ -10,6 +10,7 @@
 > ③ **자동 차단 장치를 끄지 않는다** — pre-commit·pre-push 훅(`scripts/check-index-health.mjs`, 원본 `scripts/git-hooks/`)이 **파일을 50개 넘게 지우거나 스테이징 파일 수가 HEAD의 절반 아래면 커밋·푸시를 막는다.** `--no-verify`로 건너뛰지 않는다. 새 장비·새 clone이면 `node scripts/git-hooks/install.mjs`로 설치한다(맥미니는 SMB의 같은 `.git/hooks`를 쓰지만, 실행 권한 경고가 나오면 맥미니 터미널에서 한 번 실행). **주인님이 승인한 실제 대량 삭제(프로그램 폐지 등)만** `AIMASTER_ALLOW_MASS_DELETE=1`을 붙인다.
 > ④ **막혔거나 `git ls-files | wc -l`이 이상하게 적으면(정상 약 1만 개) 커밋·푸시를 멈추고 주인님께 먼저 알린다.** `.git/index`·`index.lock` 삭제, `git reset --hard`, `git checkout .`, `git stash`, force-push로 직접 고치지 않는다(작업 폴더 파일은 멀쩡하므로, 덮어쓰면 다른 세션의 미커밋 작업이 사라진다). 복구는 주인님 승인 뒤 「마지막 정상 커밋 트리 + 그 뒤 커밋이 실제로 바꾼 파일」을 **임시 인덱스(`GIT_INDEX_FILE`)**로 만들어 **위에 얹는 커밋**으로만 한다(이력 다시 쓰기 금지). 다른 세션이 이미 복구 중인지 `git log`·`docs/HANDOFF.md` 맨 위부터 확인한다.
 > ⑤ **git 명령을 중간에 끊지 않는다** — 특히 맥미니(SMB)에서 커밋·add·status 도중 Ctrl+C·창 닫기·시간 초과 강제 종료를 하지 않는다(잘린 인덱스의 추정 원인). `.git/index.lock`이 있으면 지우지 말고 기다린다(기존 규칙).
+> ⑥ **작업을 시작할 때 `node scripts/index-watch.mjs session-check`를 한 번 실행한다(2026-10-23 주인님 승인, Codex·agy 포함 모든 CLI·장비)** — 공용 스테이징 축소·`index.lock` 오래 남음·묵은 스테이징 항목(작업 파일=HEAD인데 스테이징만 옛 판)을 ⚠로 알리고, 잠금이 있으면 그 장비의 프로세스를 `.git/aimaster-lock-evidence.txt`에 남긴다. ⚠가 나오면 안내된 정리 명령(`git reset -q HEAD -- <파일>`, 작업 파일은 그대로)만 쓰거나 주인님께 알리고, 잠금 파일은 지우지 않는다. Claude Code는 저장소 세션 시작 훅이 자동으로 같은 검사를 한다.
 
 <!-- GUIDELINES_SUMMARY_20261023 -->
 > **지침 빠른 찾기:** [분야별 요약 색인](docs/guidelines/README.md) · [멀티에이전트·멀티세션 작업 규칙](docs/MULTI_AGENT_SESSION_RULES.md)
