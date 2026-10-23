@@ -19,6 +19,7 @@
 |---|---|---|---|---|---|
 | `ai-video-studio` (운영 v1.02) | 업체가 실사 인물 사진을 거절하면 원문 JSON 대신 쉬운 안내(공용 `ai-video-providers`) · Seedance 2.0 설명 「실사 인물 사진은 업체가 거절」 | `96423f5ec` | 2026-10-23 · Claude Code(윈도우) | `ai-video-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, Seedance 2.0 거절 안내 문구 확인 |
 | `naver-blog-seo-studio` (운영 v2.11) | 끊긴 자동 포스팅 처리(입력 중 「사이드패널 닫지 마세요」 안내 · 다시 열 때 `writing` 실행 즉시 정리) — 확장 코드 변경 | 이 줄을 넣은 커밋 | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/AGENTS.md` 「미배포 대기」 | 버전 +0.01(manifest·ZIP·DB 함께) |
+| `naver-blog-seo-studio` (운영 v2.11) | 입력·자동 포스팅을 확장 background로 이전(사이드패널을 닫아도 이어짐) — **배포 전 웨일 실입력 확인 필요**(주인님 확장 새로고침) | `c65d87fbb` | 2026-10-23 · Claude Code(윈도우) | `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 끝 | 위 줄과 함께 v2.12(manifest·ZIP·DB) |
 | `threads-content-ops` (운영 v2.19) | 보관함 초안: 저장 직후 뺀 사진이 몇 초 다시 보이던 화면 문제(`editingRef`) | `f92acc076` | 2026-10-23 · Claude Code(윈도우) | `threads-content-ops/docs/IMPROVEMENTS.md` 「v2.19 후속」 | v2.20, 초안 사진 ✕ → 저장 직후 바로 0장 |
 | `music` (운영 v1.43) | 공용 Suno 코드 `callbackOrigin` 선택값(이 앱 동작 변화 없음 — AI 음악 스튜디오 v1.03용) | `acccf06eb` | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, 곡 생성 1회 콜백 정상 확인 |
 | `music` (운영 v1.43) | 휴대폰 폭(767px 이하) 좌측 메뉴 → 머리줄 ☰ 펼침 메뉴(계정·로그아웃 포함, 원칙 19) | `2fcddccb7` | 2026-10-23 · Claude Code(윈도우) | `music/AGENTS.md` 맨 아래 「⏸ 미배포 — 휴대폰 폭」 | 크롬 390px에서 ☰ 펼침·계정 표시 확인 |
