@@ -128,6 +128,7 @@ try {
   if (rawTag === "session-check") { // 이름표에 (세션)이 붙어도 점검은 그대로(2026-10-23 — tag로 비교해 AIMASTER_SESSION을 주면 점검 전체가 건너뛰어졌음)
     // 출력을 모았다가 ⚠가 없으면 한 줄로 합친다(2026-10-23 — 매번 4~5줄이 나와 정작 경고가 묻힘). ⚠가 있으면 전부 그대로.
     const out = [], realLog = console.log;
+    let activeList = ""; // 작업 중 세션 목록 — 요약 여부와 상관없이 맨 끝에 한 줄
     console.log = (...a) => out.push(a.join(" "));
     console.log(`[공용 스테이징 기록] ${entries}개 · HEAD ${head}개 · index 수정 ${st ? t(st.mtime) : "-"}`);
     const since = Date.now() - 24 * 3600_000;
@@ -165,10 +166,19 @@ try {
       const aw = join(root, "docs", "ACTIVE_WORK.md");
       if (existsSync(aw)) {
         const body = readFileSync(aw, "utf8").split(/^## 작업 중\s*$/m)[1] ?? "";
-        const noName = body.split("\n").filter((l) => l.startsWith("|") && !/^\|\s*(폴더|-{3})/.test(l))
-          .map((l) => l.split("|").map((c) => c.trim())).filter((c) => c.length > 3 && !/(claude|codex|agy)-[\w.-]+/.test(c[2]))
-          .map((c) => c[1].replace(/`/g, "").slice(0, 40));
+        const tableRows = body.split("\n").filter((l) => l.startsWith("|") && !/^\|\s*(폴더|-{3})/.test(l))
+          .map((l) => l.split("|").map((c) => c.trim())).filter((c) => c.length > 3)
+          .map((c) => ({ folder: c[1].replace(/`/g, "").split("·")[0].trim().slice(0, 40), name: (c[2].match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1], start: (c[3].match(/\d{4}-\d\d-\d\d/) ?? [])[0] }));
+        const noName = tableRows.filter((r) => !r.name).map((r) => r.folder);
         if (noName.length) console.log(`⚠ [작업 중 표 세션 이름 없음] ${noName.length}줄: ${noName.slice(0, 3).join(", ")}${noName.length > 3 ? ` 외 ${noName.length - 3}줄` : ""} — 「에이전트(장비)」 칸에 \`세션 <CLI>-<장비>-<날짜>-<작업>\`을 넣어야 다른 세션이 찾아 물을 수 있음(docs/ACTIVE_WORK.md 사용법 2)`);
+        // 끝났는데 줄을 안 지운 듯한 세션(2026-10-23): 시작이 하루 넘게 지났고, 24시간 안에 그 이름의 블랙박스 기록·커밋이 하나도 없음 — 지우지 말고 주인님께(사용법 4)
+        let named24 = "";
+        try { named24 = git(["log", `--since=${new Date(since).toISOString()}`, "--format=%(trailers:key=AIMaster-Session,valueonly,separator=%x2C)"]); } catch { /* 무시 */ }
+        const seen = (n) => named24.split(/[\n,]/).some((s) => s.trim() === n) || rows.some((r) => r.at.getTime() >= since && r.tag.includes(`(${n})`));
+        const idle = tableRows.filter((r) => r.name && r.start && new Date(`${r.start}T23:59:59`).getTime() < since && !seen(r.name));
+        if (idle.length) console.log(`⚠ [작업 중 표 오래된 줄] ${idle.length}줄: ${idle.slice(0, 3).map((r) => `${r.folder}(${r.name}, ${r.start} 시작)`).join(", ")}${idle.length > 3 ? ` 외 ${idle.length - 3}줄` : ""} — 24시간 동안 그 세션의 기록·커밋이 없음. 끝난 세션일 수 있으니 지우지 말고 주인님께 확인(docs/ACTIVE_WORK.md 사용법 4)`);
+        // 지금 작업 중인 세션 목록(폴더 → 세션 이름) — 다른 세션에 메시지를 보낼 때 바로 찾게. ⚠가 없어 요약 한 줄이 되어도 따로 보인다
+        if (tableRows.some((r) => r.name)) activeList = `[작업 중 세션] ${tableRows.filter((r) => r.name).map((r) => `${r.folder} → ${r.name}`).join(" · ")}`;
       }
     } catch { /* 읽기 실패는 무시 */ }
     // 세션 트레일러 이행률(2026-10-23): 트레일러 도입(15:20) 이후·최근 7일 커밋 중 `AIMaster-Session:`이 붙은 비율 — 규칙이 지켜지는지 매번 보이게
@@ -198,6 +208,7 @@ try {
       const ev = out.some((l) => l.startsWith("[공용 스테이징 잠금 증거]"));
       console.log(`[공용 스테이징] 이상 없음 — ${entries}개 = HEAD ${head}개 · 24시간 축소 0번 · 잠금·묵은 항목 없음${named && parseInt(named, 10) < 90 ? ` · 세션 이름 ${named}(도우미는 2026-10-23부터 이름 필수)` : ""}${obs ? ` · 원인 관찰 ${obs}시간째` : ""}${ev ? ` · 24시간 안 잠금 증거 있음(${shown(evidencePath)})` : ""}`);
     }
+    if (activeList) console.log(activeList.length > 600 ? `${activeList.slice(0, 600)}… (전체 docs/ACTIVE_WORK.md)` : activeList);
   }
 } catch (e) {
   if (!quiet) console.error(`[공용 스테이징 기록] 실패 — ${e.message.split("\n")[0]}`);
