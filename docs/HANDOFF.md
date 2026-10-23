@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — ✅ 상세페이지 GIF 자동화 video-to-gif v1.18 배포 (맥미니 v1.18 마무리)
+- 맥미니 커밋 `5723ac4e0`(매뉴얼·영상만 받기·끌어 놓기·소개 화면·8MiB 실패 안내): 사본 점검·tsc·build → DB v1.18 → 배포 Ready `video-to-en2jqo2hv` → 메인 크롬에서 소개·매뉴얼·작업 화면 v1.18 문구 확인.
+- 참고: 같은 날 공용 스테이징 축소 사고(`c2e7c4db2`)는 다른 세션이 복구 완료. 이 세션이 만들어 둔 복구 커밋 `e591b5f23`은 올리지 않음(불필요).
+- **맥미니 세션께**: 배포 끝. 왼쪽 메뉴 `Sidebar.tsx:144` 「2-Pass」 문구가 남아 있으니 다음 작은 수정 때 함께 고쳐 주시고, 끌어 놓기·안내 줄·500px는 맥미니 크롬으로 확인 부탁드립니다.
+- 비용: Vercel 빌드 1회(승인 범위), AI 0회. 상세: `video-to-gif/AGENTS.md` 맨 아래.
+- 프로그램: https://video-to-gif.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 관리자 화면 확인 완료(메인 빌드 `aimaster-fvef7otna` 분) · 정리 기록 판정 오판 수정
 - 크롬 관리자 계정으로 확인: ① 「Supabase DB & 미디어 파일 용량」 탭의 30일 정리 표 아래 「아직 기록을 안 남기는 곳」 목록 표시 ② 390px 폭 관리자 머리줄에 로그인 이메일 표시(가로 넘침 없음). 둘 다 정상.
 - 확인 중 발견: 목록에 `auto-threads-posting`(폴더 `threads`)이 들어 있었으나 실제로는 기록 중(표에 「Threads 포스팅 자동화」 줄 있음). 원인은 `scripts/program-info.mjs` `cleanupPrograms()`가 정리 route 파일만 봐서, 기록 호출이 `lib/postImageCleanup.ts`에 있는 경우를 놓친 것 → route가 불러오는 내부 모듈을 한 단계 따라가게 수정. 진행률 18/26 → **19/26**, 관리자 화면 숫자(`ops_overview`) 갱신. 남은 7곳은 블로그 병합 대상 6곳(다른 Claude Code 세션)과 `shop-detail-page`(맥미니).
