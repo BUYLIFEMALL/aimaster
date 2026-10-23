@@ -1244,7 +1244,8 @@
 - 증상: `sharp`를 import하는 라우트가 요청 내용과 무관하게 500 HTML(`__next_error__`)을 돌려줌. 화면에는 `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`. Vercel 로그: `Could not load the "sharp" module using the linux-x64 runtime ... libvips-cpp.so.8.18.7: cannot open shared object file`.
 - 원인: Windows에서 `vercel deploy`한 Next.js 빌드의 함수 묶음에 `@img/sharp-libvips-linux-x64`의 공유 라이브러리가 추적되지 않음(로컬·빌드는 정상이라 배포 전에 안 드러남).
 - 해결: `next.config.ts`에 `serverExternalPackages: ["sharp"]`와 `outputFileTracingIncludes: { "/api/**/*": ["./node_modules/@img/sharp-libvips-linux-x64/**/*", "./node_modules/@img/sharp-linux-x64/**/*"] }`를 넣고 재배포 → 같은 요청이 JSON 400으로 정상 응답.
-- 다음부터 확인: sharp를 쓰는 라우트를 배포하면 **배포 직후 빈/잘못된 본문으로 그 API를 한 번 호출해 JSON 응답(400 등)이 오는지** 본다(500 HTML이면 이 문제). 유료 호출 전에 확인할 수 있다. 같은 증상의 옛 기록(2026-09-30)은 순수 JS 대안만 적어 두었으나 이 설정으로도 해결된다.
+- 다음부터 확인: sharp를 쓰는 라우트를 배포하면 **배포 직후 빈/잘못된 본문으로 그 API를 한 번 호출해 JSON 응답(400 등)이 오는지** 본다(500 HTML이면 이 문제).
+- 재발(2026-10-23, music-video-studio v1.15, Claude Code 윈도우): 장면 이미지 생성 `/api/music/image`가 같은 오류(libvips-cpp.so.8.18.7)로 500 → 같은 설정 추가(`next.config.ts`). sharp를 쓰는 Next 프로그램은 처음 만들 때부터 이 두 설정을 넣는다. 유료 호출 전에 확인할 수 있다. 같은 증상의 옛 기록(2026-09-30)은 순수 JS 대안만 적어 두었으나 이 설정으로도 해결된다.
 
 ## 2026-10-11 — 개발·검증을 화면 없이 JS 호출로만 하면 안 됨 (STYLE DNA ANALYZER)
 
