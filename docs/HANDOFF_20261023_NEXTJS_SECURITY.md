@@ -3,6 +3,8 @@
 > 대상: ① 운영 AIMaster (DB ref `esgxyikcnnvmlhygjkth` — `programs.version`만 갱신). 플랜: [`docs/PLAN_20261023_NEXTJS_SECURITY.md`](PLAN_20261023_NEXTJS_SECURITY.md).
 > **세션은 주인님 지시로 중간에 종료됨**(「동시 작업이 많아서 이 세션 종료」). 마지막 4개 배포 반복이 도는 중에 끝났으므로, 이어받는 CLI는 아래 **3번부터** 확인한다.
 
+> **2026-10-23 추가: 남은 4개도 모두 배포 Ready로 끝남. 남은 일은 CLI별로 나눠 [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)(작업 분담표 A~H)에서 맡는다 — 아래 3번은 기록용.**
+
 ## 1. 한 일 요약
 | 항목 | 결과 |
 |---|---|
