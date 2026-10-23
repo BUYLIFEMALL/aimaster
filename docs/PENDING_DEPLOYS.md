@@ -25,7 +25,6 @@
 | `trending-product-finder` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `trending-product-finder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `real_estate_sales` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `music-video-studio` (운영 v1.16) | 최종 뮤직비디오 가사 자막에서 「[Verse 1]」 같은 구간 표시 빼기(`FinalRender.tsx`) | `1b8440ac7` | 2026-10-23 · Claude Code(윈도우, 영상 작업 담당) | `music-video-studio/AGENTS.md` v1.16 | 버전 +0.01 |
-| `ai-video-studio` (운영 v1.05) | 영상 합치기 기준 코드 보강(사진 장면·반복 재생·`splitEvenly`·프로그램별 최대 길이) — **동작 변화 없음**, 공용 `video-edit-*` 기준 | `208c80842` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `video-edit-*` | 다음 배포 때 함께, 버전 +0.01 |
 | `cinematic-storyboard-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `cinematic-storyboard-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `ai-prompt-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `ai-prompt-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `persona-style-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `persona-style-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
@@ -69,6 +68,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-video-studio` | v1.06 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `ai-video-studio-6hf0ame5b`) | 내레이션 덕킹(새 기능) · 기준 코드 보강 `208c80842` |
 | `naver-blog-seo-studio` | v2.13 · 2026-10-23 | 원고 생성 모델 기록 `07e08257e` · 30일 정리 회원별 기록 `6cd2b9783` |
 | `naver-blog-agent` | v2.14 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
 | `ai-auto-blog` | v1.80 · 2026-10-23 | 30일 정리 회원별 기록 `6cd2b9783` |
