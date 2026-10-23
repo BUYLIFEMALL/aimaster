@@ -1,0 +1,78 @@
+/* AIMaster 공통 좌측 메뉴 요소(AimasterSidebar.tsx). 원본 디자인 값(--lp-*)만 써서 라이트·다크 테마를 따라간다. */
+.aww-sb-top {
+  padding: 10px 14px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.aww-sb-back {
+  font-size: 12px;
+  color: var(--lp-text-tertiary);
+  text-decoration: none;
+  width: fit-content;
+}
+.aww-sb-back:hover {
+  color: var(--lp-text-primary);
+  text-decoration: underline;
+}
+.aww-sb-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+.aww-sb-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lp-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aww-sb-version {
+  font-size: 11px;
+  color: var(--lp-text-tertiary);
+  flex-shrink: 0;
+}
+/* 마지막 메뉴(사이드바 사용자화) 바로 아래에 붙인다 — 계정을 화면 맨 아래로 밀지 않는다 */
+.aww-sb-bottom {
+  margin-top: 4px;
+  padding-bottom: 8px;
+}
+.aww-sb-guide {
+  text-decoration: none;
+  color: inherit;
+}
+.aww-sb-account {
+  margin: 8px 8px 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--lp-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.aww-sb-email {
+  font-size: 12px;
+  color: var(--lp-text-secondary);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aww-sb-logout {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--lp-text-secondary);
+  background: transparent;
+  border: 1px solid var(--lp-border-primary);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.aww-sb-logout:hover {
+  color: var(--lp-text-primary);
+  border-color: var(--lp-border-strong);
+}

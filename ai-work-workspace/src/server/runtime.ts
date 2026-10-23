@@ -10,7 +10,7 @@ import { redactDatabaseRecord } from '@/litpage/server/propaccess.ts';
 import { getRecord, putRecord, withRequestCache } from '@/litpage/server/db.ts';
 import { createUser } from '@/litpage/server/seed.ts';
 import { isSpaceMember } from '#shared/permissions.ts';
-import type { SpaceRecord, UserRecord } from '#shared/records.ts';
+import type { SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import { newId } from '#shared/ids.ts';
 import { stageBlock } from './stagePolicy';
 
@@ -40,6 +40,15 @@ export function ensureMember(member: Member) {
   const existing = getRecord<UserRecord>('lit_user', member.id);
   if (!existing) {
     createUser(member.id, member.email.toLowerCase(), member.name);
+    // AIMaster 회원 기본값: 한국어 화면·서울 시간대(원본은 영어·서버 시간대 — Vercel 서버는 UTC)
+    const settings = getRecord<UserSettingsRecord>('user_settings', member.id);
+    if (settings) {
+      putRecord('user_settings', {
+        ...settings,
+        version: (settings.version ?? 0) + 1,
+        settings: { ...settings.settings, locale: 'ko-KR', time_zone: 'Asia/Seoul' },
+      } as UserSettingsRecord);
+    }
     return;
   }
   const email = member.email.toLowerCase();

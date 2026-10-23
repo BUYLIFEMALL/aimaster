@@ -39,10 +39,18 @@ function workerPath(): string {
   return hit;
 }
 
-export function databaseUrl(): string {
-  const url = process.env.AWW_DATABASE_URL?.trim();
-  if (!url) throw new Error('AWW_DATABASE_URL 환경변수가 설정되지 않았습니다.');
-  return url;
+// 운영 공용 DB(AIMaster, ref esgxyikcnnvmlhygjkth, 서울)의 연결 풀 주소 — 비밀이 아니다(비밀번호는 Vault에서 읽음)
+const DEFAULT_PROJECT_REF = 'esgxyikcnnvmlhygjkth';
+
+function connectionInfo() {
+  const url = process.env.AWW_DATABASE_URL?.trim() || null;
+  if (url) return { url };
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const serviceKey = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const poolerHost = process.env.AWW_DB_POOLER_HOST?.trim();
+  const projectRef = process.env.AWW_DB_PROJECT_REF?.trim() || DEFAULT_PROJECT_REF;
+  if (!supabaseUrl || !serviceKey || !poolerHost) throw new Error('DB 접속 정보(AWW_DATABASE_URL 또는 Supabase 서버 키·연결 풀 주소)가 없습니다.');
+  return { url: null, supabaseUrl, serviceKey, poolerHost, projectRef };
 }
 
 function ensureWorker() {
@@ -52,7 +60,7 @@ function ensureWorker() {
   flag = new Int32Array(signal);
   port = channel.port1;
   worker = new Worker(workerPath(), {
-    workerData: { url: databaseUrl(), signal, port: channel.port2 },
+    workerData: { ...connectionInfo(), signal, port: channel.port2 },
     transferList: [channel.port2],
   });
   // 작업 스레드가 프로세스 종료를 막지 않게 한다

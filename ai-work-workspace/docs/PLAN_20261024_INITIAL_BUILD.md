@@ -115,6 +115,17 @@ ai-work-workspace/
 
 4. **DB 연결 방식 — ✅ A안 확정(2026-10-24 주인님 선택: 「A. 전용 DB 계정 직접 연결 (추천)」)**: 원본 서버가 SQL을 직접 실행하는 구조(104개 파일·455곳)라 `supabase-js`(REST)만으로는 트랜잭션·임의 SQL을 쓸 수 없다. 그래서 ① `aww_*` 표에만 권한이 있는 전용 DB 계정 `aww_app`(+ 권한 판정용 `profiles`·`programs`·`subscriptions`·`user_program_access`·`member_grades`·`user_api_keys` 읽기 전용)을 만들고 ② Vercel 환경변수 `AWW_DATABASE_URL`(Supabase 연결 풀 주소, transaction 모드)로 `postgres`(postgres.js, `prepare:false`) 드라이버를 써서 직접 연결한다. 비밀번호는 SQL 편집기에서 무작위로 만들어 화면·문서·채팅에 남기지 않고 Vercel 환경변수에만 넣는다. 원본 SQL은 Postgres 문법으로 옮기고(`?`→`$n`, `json_extract`→`data->>`, `INSERT OR IGNORE`→`ON CONFLICT DO NOTHING`, FTS5→`pg_trgm`), 서버 코드는 비동기(async)로 바꾼다. 공용 권한 판정(`profiles` 등)은 기존 프로그램과 같은 `createAdminClient()` 방식을 유지한다.
 
+## 7-1. 구현하면서 바뀐 결정 (2026-10-24, 1단계 구현 중 — 범위는 같고 방법만 바뀜)
+
+| 항목 | 플랜 | 실제 구현 | 이유 |
+|---|---|---|---|
+| 서버 DB 계층 | 서버 코드를 비동기로 다시 작성 | **동기 DB 다리**(`src/litpage/server/pg/bridge.ts` + `pgworker.mjs`): 작업 스레드가 postgres.js로 질의하고 본체는 `Atomics.wait`로 결과를 받는다. SQL은 `pg/translate.ts`가 SQLite→Postgres로 바꾼다 | 원본 권한 판정 공용 코드(`shared/permissions.ts`)가 화면·서버 공용 동기 함수라 비동기로 바꾸면 둘로 갈라짐. 다리 방식으로 원본 서버 4만 줄을 거의 그대로 쓰고, **원본 서버 시험 522개가 Postgres에서 모두 통과**(체험 모드 시험만 제외) |
+| 표 이름 | `aww_*` 접두어 | 전용 스키마 `aww` 안에 원본 표 이름 그대로 | 원본 SQL을 고치지 않기 위함. 스키마는 브라우저용 계정(anon·authenticated)이 접근할 수 없다 |
+| 첨부 파일 | Supabase Storage | 같은 DB의 `aww.files.content`(BYTEA), 파일당 4MB | 원본 파일 함수가 동기라 DB 다리로 그대로 처리. Vercel 요청 본문 한도(4.5MB). 용량이 커지면 Storage 이전(IMPROVEMENTS) |
+| DB 비밀번호 | 환경변수 `AWW_DATABASE_URL` | 운영 DB의 Supabase Vault가 무작위로 만들고, 서버가 service role로만 부를 수 있는 함수 `public.aww_db_password()`로 읽음(마이그레이션 `20261024000100`) | 비밀번호가 사람·화면·대화 기록·환경변수 어디에도 남지 않음. 새 비밀 환경변수 없음(비밀 아닌 `AWW_DB_POOLER_HOST`만) |
+| 30일 정리 | — | 하루 1회 Vercel 예약 호출 `/api/cron/jobs`(`CRON_SECRET`) → 원본 `runDueJobs()` | 원본은 서버 안 타이머로 돌렸지만 서버리스에는 없다. SCHEDULER_POLICY상 운영 정리 작업은 운영자 예약 호출 허용 |
+| 운영자 AI 키 | 회원 키로 교체(2단계) | 1단계부터 **환경변수 AI 키를 아예 읽지 않게 막음**(`ai/providers/config.ts`), 회원 키를 넣을 자리 `withMemberAiKeys()`만 둠 | 로컬 검사 중 이 PC의 `OPENAI_API_KEY`로 원본이 OpenAI를 부르는 것을 발견 — 최상위 규칙 위반을 원천 차단 |
+
 ## 8. 다른 프로그램과의 연계 후보 (4단계 이후, 아이디어 표에 등록 예정)
 
 - 블로그·SNS 프로그램의 원고·발행 기록을 워크스페이스 데이터베이스(콘텐츠 캘린더)로 보내기

@@ -30,6 +30,7 @@ import { openWorkspaceMenu } from './sidebar/WorkspaceMenu.tsx';
 import { pageTitle } from '../page/pageActions.ts';
 import { records } from '../../lib/store/records.ts';
 import './sidebar.css';
+import { AimasterSidebarBottom, AimasterSidebarTop } from './AimasterSidebar.tsx';
 
 export { PageTreeItem } from './sidebar/PageTree.tsx';
 
@@ -180,6 +181,7 @@ function SidebarHeader() {
   const newRef = useRef<HTMLDivElement>(null);
   return (
     <div className="nc-sb-top">
+      <AimasterSidebarTop />
       <div className="nc-sb-header">
         <div className="nc-sb-header-left">
           <div
@@ -294,6 +296,7 @@ function SidebarBody() {
                       <div className="nc-sb-row-label">{t('lp.shell.customize_sidebar', 'Customize sidebar')}</div>
                     </div>
                   </div>
+                  <AimasterSidebarBottom />
                 </div>
               )}
             </div>

@@ -25,7 +25,8 @@ function initialLocale(): Locale {
   } catch {
     /* storage unavailable */
   }
-  return 'en-US';
+  // 이식판: AIMaster 회원 기본 언어는 한국어(설정 › 언어에서 영어로 바꿀 수 있음)
+  return 'ko-KR';
 }
 
 let current: Locale = initialLocale();

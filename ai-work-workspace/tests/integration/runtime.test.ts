@@ -33,6 +33,9 @@ describe('처음 들어온 회원', () => {
     expect(Object.keys(rm.user_root ?? {})).toEqual([alice.id]);
     expect(rm.space ?? {}).toEqual({});
     expect(db.getRecord<any>('lit_user', alice.id)?.email).toBe('alice@example.com');
+    const settings = db.getRecord<any>('user_settings', alice.id)?.settings;
+    expect(settings?.locale).toBe('ko-KR');
+    expect(settings?.time_zone).toBe('Asia/Seoul');
   });
 
   it('워크스페이스를 만들면 다음 불러오기에 보인다', async () => {
