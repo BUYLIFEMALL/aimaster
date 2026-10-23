@@ -36,7 +36,7 @@
 | `KIT/setup.ps1` / `KIT/setup.sh` | **패키지 설치마법사 본체**(원본 `scripts/kit-template/` 하나 — 포장 때 항상 최신으로 복사, 프로그램별 사본을 고치지 않는다). 8단계·자동 확인·이어서 하기 — 상세 §2-2 | 같은 폴더(**`.ps1`은 UTF-8 BOM** — 없으면 윈도우 PowerShell 5.1이 한글을 깨뜨림) |
 | `KIT/vercel.json` | **무료(Hobby)에서 배포되는 설정**(하루 1번 이하 `crons`만). 운영용 1분 `crons`가 든 원본 `vercel.json`을 포장 때 이 파일로 바꿔 넣는다 | 같은 폴더 |
 | `KIT/enable-vercel-cron.ps1` / `.sh` | (예약 기능이 있으면) Vercel Pro 수강생이 1분 예약 호출 + `*_PLATFORM_SCHEDULER=on`을 켜고 재배포 | 같은 폴더 |
-| `KIT/kit.json` | **키트의 모든 프로그램별 설정**: `title`·`shortName`·`description`, 설치 끝 안내(`callbackPath`·`callbackLabel`·`nextStep`), **마법사 DB 확인 표 `checkTable`(DB 파일에서 마지막에 만들어지는 표 — 필수)**, (선택) `authRedirectPath`(가입·OAuth 로그인 콜백이 Supabase URL Configuration 등록을 요구하면, 예 `/auth/callback` → 마법사가 배포 뒤 그 화면을 열고 주소를 복사해 줌), 추가 환경변수 질문(`extraEnv`: name·question·default·secret·from=brand/siteUrl), 포장(`exclude`·`overrides`), DB 파일(`schema`: `static` 또는 `generate`+`parts`) | `threads-affiliate-poster/KIT/kit.json`(generate), `threads-content-ops/KIT/kit.json`(static) |
+| `KIT/kit.json` | **키트의 모든 프로그램별 설정**: `title`·`shortName`·`description`, 설치 끝 안내(`callbackPath`·`callbackLabel`·`nextStep`), **마법사 DB 확인 표 `checkTable`(DB 파일에서 마지막에 만들어지는 표 — 필수)**, (선택) `authRedirectPath`(가입·OAuth 로그인 콜백이 Supabase URL Configuration 등록을 요구하면, 예 `/auth/callback` → 마법사가 배포 뒤 그 화면을 열고 주소를 복사해 줌), 추가 환경변수 질문(`extraEnv`: name·question·default·secret·from=brand/siteUrl), (선택) 설치 끝 「다음 단계」 2)부터의 문구 `resultSteps`(문자열 배열 — 플랫폼 앱·예약 게시가 없는 프로그램용, 없으면 기존 「플랫폼 앱 콜백·cron-job.org」 문구, 2026-10-23), 포장(`exclude`·`overrides`), DB 파일(`schema`: `static` 또는 `generate`+`parts`) | `threads-affiliate-poster/KIT/kit.json`(generate), `threads-content-ops/KIT/kit.json`(static) |
 | `KIT/database/*.sql` | (`schema.mode=generate`일 때) DB 파일 앞·뒤 조각 — 가운데는 운영 `supabase/migrations/*`가 자동으로 들어감 → **운영 DB 변경이 키트에 저절로 반영** | `threads-affiliate-poster/KIT/database/` |
 | `KIT/manuals/*.html` | (선택) 캡처형 단계별 매뉴얼 | `threads-affiliate-poster/KIT/manuals/` |
 
@@ -180,13 +180,14 @@
 | `Threads_AI_Planner_Kit` | **v1.02** | 2026-10-23 | 프로그램 v1.48 — 글과 함께 이미지 자동 생성(나노바나나·GPT Image, 버킷 `tep-images`·`image_urls` 칸), v1.01 설치자용 `KIT/upgrade-20261023-images.sql`, PROMPTS 9장. 65개 파일·비밀값·DB 대조(버킷 1) 통과, 짧은 경로 독립 모드 `npm ci`+`build` 통과 | 운영 v1.48 배포·크롬 실생성 1장 확인. 실제 수강생 설치 리허설 대기 |
 | `ALLA_AI_Kit` | **v1.03** | 2026-10-23 | 주인님 지시로 배포판 이름 변경 `Threads_AI_Planner_Kit` → **`ALLA_AI_Kit`**(번호 이어감), 독립 모드 화면 이름 「ALLA AI」(`APP_NAME`, `NEXT_PUBLIC_APP_NAME`로 변경 가능). 기능은 v1.02와 같음. 65개 파일·비밀값·DB 대조 통과, 풀어서 독립 모드 build·start → 탭 제목 「ALLA AI」 확인 | `kit.json` `shortName`은 그대로(이전 설치본 업데이트 모드 유지). 압축 안 폴더는 `threads-easy-planner` |
 | `ALLA_AI_Kit` | **v1.04** | 2026-10-23 | 원본 코드 동기화 — 이미지 기능 스위치 `IMAGE_FEATURE = IS_STANDALONE`(주인님 지시: 운영은 숨기고 배포판만 유지), 프로그램 v1.49. 배포판 동작은 v1.03과 같음. 65개 파일·비밀값·DB 대조 통과 | 운영(AIMaster)은 v1.49에서 이미지 칸 없음 확인 |
+| `ALLA_AI_Kit` | **v1.05 (최종본)** | 2026-10-23 | 다른 계정 설치용 최종본 — `schema.sql`을 Lab DB에서 임시 스키마로 실행·되돌리기 검증(오류 0), 마법사 `resultSteps`로 설치결과 다음 단계를 이 프로그램에 맞춤, 풀어서 독립 모드 build·start 확인. 65개 파일·비밀값·DB 대조 통과 | 실제 수강생 계정 마법사 리허설만 남음 |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
 | `threads-content-ops` (Threads 콘텐츠 운영 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.08` | ✅ 2026-10-19(가입~자동 발행·예약 방식) — 리허설 자원(Lab Supabase `kit-threads`·Vercel `dev-threads-posting`)은 2026-10-20 삭제 | 리허설 수정분 원본 반영 후 2026-10-19 재포장 완료(189개 파일·비밀값 검사 통과·DB 파일에 예약 표/cron-job.org 키 포함 확인) |
 | `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.08` | ✅ 2026-10-20 윈도우 마법사 설치(v1.01)→업데이트(v1.06)·사이트 독립 모드 확인(Meta 연결·게시는 미시험, `REHEARSAL_LOG.md` 2차) | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
-| `threads-easy-planner` (Threads AI 기획 자동화 · 배포판 이름 ALLA AI) | `KIT/` 표준(static DB 파일) | `ALLA_AI_Kit_v1.04` | ⚪ 대기(로컬 독립 모드 빌드·서버 확인만) | 콜백·예약 없음, `authRedirectPath` `/auth/confirm`. 프롬프트 문서는 `scripts/build-kit-prompts.py`로 코드에서 다시 뽑음 |
+| `threads-easy-planner` (Threads AI 기획 자동화 · 배포판 이름 ALLA AI) | `KIT/` 표준(static DB 파일) | `ALLA_AI_Kit_v1.05` | ⚪ 대기(로컬 독립 모드 빌드·서버 확인만) | 콜백·예약 없음, `authRedirectPath` `/auth/confirm`. 프롬프트 문서는 `scripts/build-kit-prompts.py`로 코드에서 다시 뽑음 |
 
 ## 9. 관련 문서
 - 예약 기능: [`SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) · Lab 규칙: [`AIMASTER_DEV_LAB_GUIDELINES.md`](AIMASTER_DEV_LAB_GUIDELINES.md) · 리허설 기록: [`sns-kit-manual/REHEARSAL_LOG.md`](sns-kit-manual/REHEARSAL_LOG.md) · 오류 교훈: [`ERROR_LESSONS.md`](ERROR_LESSONS.md) · 최상위 규칙: [`TOP_RULE_PERSONAL_ACCOUNT_API.md`](TOP_RULE_PERSONAL_ACCOUNT_API.md)
@@ -194,6 +195,7 @@
 ## 10. 변경 이력
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-23 | 마법사 `kit.json` 선택 항목 `resultSteps` 추가(설치결과.txt 「다음 단계」 2)부터 프로그램별 문구 — 이전엔 플랫폼 앱·예약 게시 안내가 모든 키트에 고정). 기존 키트는 항목이 없어 문구 그대로. 설치 SQL 사전 검증법: Lab DB에서 `public.`→임시 스키마로 바꿔 `begin … rollback`(ALLA AI 키트에서 첫 적용). |
 | 2026-10-20 | **배포판 번호 규칙(주인님 지시)**: 메인 넘버링 정책과 같은 `vX.YY`, 다시 포장할 때마다 +0.01, 같은 번호 덮어쓰기 금지(포장 스크립트 `--version` 필수·중복 거부). 첫 번호 `SNS_Auto_Posting_Kit_v1.01`. |
 | 2026-10-19 | **「패키지 설치마법사」 표준 제정(주인님 지시·명명)**: 더블클릭 실행 파일 + 8단계 마법사(화면 자동 열기·클립보드 복사·키/DB/주소 자동 확인·이어서 하기·`설치결과.txt`), `kit.json` `checkTable`(필수)·`authRedirectPath`(선택), 포장에 실행 파일·실행 권한 자동 반영, 세 키트 안내서 2·3장 교체. 계기: 주인님이 새 배포판으로 설치할 때 환경설정 파일을 직접 찾아 넣게 된 일. |
 | 2026-10-19 | **키트 방식 통일(주인님 결정)**: `KIT/` 표준 + clone-kit의 DB 자동 생성·HTML 매뉴얼. 공용 설치 스크립트 템플릿(`scripts/kit-template/`, 키 숨김·GitHub 연결 해제), kit.json 기반 포장(`--name --programs`)·비밀값 자동 검사, 쇼핑제휴 `clone-kit/` → `KIT/` 이전. 이유: 수강생은 스크립트 한 번(환경변수 수동 입력 제거), 운영자는 DB 파일 자동 생성(수동 동기화 제거), 리허설로 검증된 방식, 모든 키트 같은 순서. |
