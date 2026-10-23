@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.23 장면 타임라인·순서 바꾸기 + 영상 일괄 진행률
+- 3단계 맨 위 가로 타임라인(끌어서 놓기·◀ ▶로 장면 순서 바꾸기, 이미지·영상이 함께 옮겨짐)과 「영상 일괄 렌더링」 진행 칸(완료·진행 중·대기·실패, 지난/남은 시간). 주인님 결정으로 두 작업을 묶어 배포 1회.
+- 검수(운영, 메인 크롬, 시험 계정): 배포 `music-video-studio-7rc77y3l5` Ready·화면/DB v1.23, 시험 27. 영상 2개 일괄 생성 중 진행 칸·끝 표시 확인, ▶·끌어서 놓기로 순서 바뀜·새로고침 뒤 유지, 390px 가로 넘침 없음. 커밋 `0a7f66d7c`·`37d84b05b`.
+- 상세: [`music-video-studio/AGENTS.md`](../music-video-studio/AGENTS.md) v1.23 · https://music-video-studio.buylife.xyz
+- 다음: 주인님 지시 순서 4번(AI 이미지 스튜디오 이미지를 참고 이미지로 가져오기) 플랜. 비용: 빌드 1회, 이미지 2장·영상 2개(약 $0.88).
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.02 배포 (미배포 대기분)
 - 한 일: 미배포 대기 `5a9d5e564`(휴대폰 본문 여백 16px·블록 메뉴 AI 항목 숨김)를 v1.02로 배포(`ai-work-workspace-a33mgs4e5` Ready), 운영 DB `programs.version` v1.02(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기 실행 버튼). `docs/PENDING_DEPLOYS.md` 줄 삭제.
 - 검수: 크롬 실창에서 좌측 메뉴 v1.02 표시, 390px 틀에서 본문 여백 약 16px 확인. 블록 메뉴(`/`)는 주인님 페이지를 건드리지 않으려고 직접 열어 보지 않음(코드 확인만).
