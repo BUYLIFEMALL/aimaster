@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 관리자 화면 확인 완료(메인 빌드 `aimaster-fvef7otna` 분) · 정리 기록 판정 오판 수정
+- 크롬 관리자 계정으로 확인: ① 「Supabase DB & 미디어 파일 용량」 탭의 30일 정리 표 아래 「아직 기록을 안 남기는 곳」 목록 표시 ② 390px 폭 관리자 머리줄에 로그인 이메일 표시(가로 넘침 없음). 둘 다 정상.
+- 확인 중 발견: 목록에 `auto-threads-posting`(폴더 `threads`)이 들어 있었으나 실제로는 기록 중(표에 「Threads 포스팅 자동화」 줄 있음). 원인은 `scripts/program-info.mjs` `cleanupPrograms()`가 정리 route 파일만 봐서, 기록 호출이 `lib/postImageCleanup.ts`에 있는 경우를 놓친 것 → route가 불러오는 내부 모듈을 한 단계 따라가게 수정. 진행률 18/26 → **19/26**, 관리자 화면 숫자(`ops_overview`) 갱신. 남은 7곳은 블로그 병합 대상 6곳(다른 Claude Code 세션)과 `shop-detail-page`(맥미니).
+- 비용 없음.
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — 뮤직비디오 자동화 v1.13: 곡 가져오기 + 직접 올리기 (배경음악 공용화 3단계)
 - 1단계 화면 맨 위 「이 뮤직비디오의 곡」(`src/components/studio/SongCard.tsx`): ① 「AI 음악 스튜디오에서 가져오기」 — 내 완성곡 목록(최근 40개 생성, 미리 듣기) → 「이 곡 쓰기」가 제목·스타일(곡 설명)·가사를 프로젝트에 채움(가사가 바뀌면 확인 후 스토리보드 비움), 곡 번호만 기억하고 듣기 주소는 열 때마다 `/api/music/ams?ref=`로 새로 받음 ② 「내 음악 파일 올리기」 — 50MB까지, 서버로 보내지 않고 이 브라우저 IndexedDB에만 보관(`src/lib/music/localSong.ts`). 곡 길이 vs 장면 수×길이 비교 안내. 서버 `src/lib/music/amsSongs.ts`(공용 `ams_generations` 읽기만·본인 `user_id`). DB·저장소 변경 없음.
 - 검수: tsc·시험 19개(곡 정보 검증 1개 추가)·build, 커밋 `e5b27de0f`(경로 지정 커밋, 11개 파일), 배포 `music-video-studio-32j58mq2k` Ready, DB v1.13(대기 중이던 루프 버튼 문구·`ai-video-*` 사본 주석 함께). 크롬(이 프로그램은 관리자 로그인 상태): 직접 올리기(페이지 안에서 만든 3초 시험 음) → 재생·프로젝트 저장·새로고침 후 유지·「곡 빼기」 정리, 관리자 곡 목록 0개(다른 회원 곡 안 보임), 없는 곡 번호·잘못된 값 404.
