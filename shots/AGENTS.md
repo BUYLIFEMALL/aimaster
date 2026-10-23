@@ -180,3 +180,7 @@
 ## 2026-10-22 v1.38 — 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로 (Claude Code 윈도우, 주인님 지시)
 - 원인: `src/components/layout/Sidebar.tsx` 메뉴 영역이 `flex flex-1 …`이라 남는 높이를 다 차지해 계정 블록이 화면 맨 아래(1185px 창에서 1094px)로 밀림 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」 위반. 메뉴를 `min-h-0 shrink`(낮은 화면에서만 줄며 내부 스크롤)로 바꿈.
 - 검수: tsc·build, 커밋 `2236b08ec`, 배포 `shots-8d4yrfu7q` Ready(주인님 「지금 배포」 승인, 빌드 1회), DB v1.38. 크롬(관리자): 데스크톱 계정 652px·마지막 메뉴 아래 16px, 400px 폭 펼침 메뉴도 16px.
+
+## 2026-10-23 v1.39 — 배경음악 Suno 모델 V4_5(지원 종료) → V6 (Claude Code 윈도우)
+- `src/lib/ai/suno.ts`는 공용 기준 `suno-api-client` 사본(기준 `music/lib/ai/suno.ts`) — **직접 고치지 말고** 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. `src/lib/ai/music.ts`는 기존 호출부(`lib/actions/music.ts`)용 얇은 감싸기(함수 이름·결과 모양 그대로, 모델 = 공용 기본 V6, 폴링 방식 그대로).
+- 검수: tsc·시험 3개(`node --test tests/*.test.mjs`)·build, 배포 `shots-5v3mnsanc` Ready, DB v1.39, 크롬 시험 회원 배경음악 2곡 완성·저장 확인. 비용: 빌드 1회, Suno 약 $0.06(시험 회원 본인 키).
