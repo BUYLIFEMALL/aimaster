@@ -2,6 +2,7 @@
 
 // StudioPage의 상태·처리 함수를 그대로 옮긴 훅 (2026-10-17 파일 나누기, 로직 변경 없음)
 import { useEffect, useState, useRef } from "react";
+import { exportFileName, toHtmlDocument, toHtmlFragment, toMarkdown, toPlainText } from "@/lib/draftExport";
 import type { ImageRatio, ImageStyle } from "@/lib/imageOptions";
 import type { ImageRefInput } from "./ImageOptionsPanel";
 import type { DraftLength } from "@/lib/lengthPlan";
@@ -796,6 +797,31 @@ export function useStudio() {
     }
   }
 
+  // 병합 B-5·B-7: 서식 포함 복사(HTML+일반 글자)·TXT/MD/HTML 파일 내보내기. 이미지는 넣지 않는다.
+  async function copyDraftFormatted() {
+    if (!currentDraft) return;
+    const plain = toPlainText(currentDraft.title, currentDraft.body);
+    try {
+      if (typeof ClipboardItem === "undefined" || !navigator.clipboard?.write) { await navigator.clipboard.writeText(plain); setMessage("이 브라우저는 서식 복사를 지원하지 않아 일반 글자로 복사했습니다."); return; }
+      await navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([toHtmlFragment(currentDraft.title, currentDraft.body)], { type: "text/html" }), "text/plain": new Blob([plain], { type: "text/plain" }) })]);
+      setMessage("서식(제목·소제목·목록)을 살려 복사했습니다. 이미지는 따로 넣어 주세요.");
+    } catch {
+      setMessage("복사에 실패했습니다. 브라우저의 클립보드 권한을 확인해주세요.");
+    }
+  }
+
+  function exportDraftFile(ext: "txt" | "md" | "html") {
+    if (!currentDraft) return;
+    const text = ext === "html" ? toHtmlDocument(currentDraft.title, currentDraft.body) : ext === "md" ? toMarkdown(currentDraft.title, currentDraft.body) : toPlainText(currentDraft.title, currentDraft.body);
+    const type = ext === "html" ? "text/html" : ext === "md" ? "text/markdown" : "text/plain";
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: `${type};charset=utf-8` }));
+    a.download = exportFileName(currentDraft.title, ext);
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    setMessage(`${ext.toUpperCase()} 파일로 내보냈습니다. 이미지는 포함되지 않습니다.`);
+  }
+
   async function copyDraftText() {
     if (!currentDraft) return;
     try {
@@ -978,6 +1004,8 @@ export function useStudio() {
     addTextBlock,
     saveCurrentDraft,
     copyDraftText,
+    copyDraftFormatted,
+    exportDraftFile,
     selectedContentModelLabel,
     completedInputCount,
     experienceNote,

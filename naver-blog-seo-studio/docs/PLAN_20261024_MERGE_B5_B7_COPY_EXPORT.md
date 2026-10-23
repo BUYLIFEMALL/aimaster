@@ -1,7 +1,7 @@
 # 병합 묶음 B-5 + B-7: 서식 포함 복사·TXT/MD/HTML 파일 내보내기 (작업실·콘텐츠 → SEO 스튜디오) — 개발 플랜 (2026-10-24)
 
 - 작성: Claude Code(윈도우) 블로그 전담 `claude-win-20261023-blog2`
-- 상태: **플랜 보고 — 주인님 승인 대기(코드 미수정)**
+- 상태: **구현·로컬 검수 완료(2026-10-24, 주인님 「진행해」) — 미배포 대기**. 결과: `docs/IMPROVEMENTS.md` 맨 아래
 - 근거: 블로그 병합 묶음 B([REPORT](../../docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge-independent-20261023) — 작업실 「서식 HTML·TXT 복사」, 콘텐츠 메이커 「MD·HTML 파일 내보내기」). 같은 변환 코드를 쓰므로 둘을 함께 만든다.
 
 ## 원본
