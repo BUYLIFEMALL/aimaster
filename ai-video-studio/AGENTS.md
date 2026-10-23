@@ -1,6 +1,6 @@
 # AI 영상 스튜디오 (`ai-video-studio`) — 에이전트 인수인계
 
-> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.15**(2026-10-24) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
+> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.16**(2026-10-24) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
 > 플랜: `docs/PLAN_20261023_AI_VIDEO_STUDIO.md` · 조사 보고서: `docs/RESEARCH_20261023_PLATFORMS.md` · 무료 렌더 시험: 루트 `docs/PLAN_20261023_FREE_VIDEO_RENDERING.md`
 
 ## 1. 사용목적 및 대상
@@ -22,6 +22,7 @@
 - 한계: 해상도 720p 고정(공용 코드), 오디오 끔(fal), 텍스트→영상은 Gemini만, 모델 목록 1차-가 범위.
 
 ## 4. 버전 히스토리
+- **v1.16 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: 데스크톱(`md` 768px 이상) 모델 카드를 가로 배치 — 예시 미리보기를 왼쪽 가로 128px 썸네일(`md:w-32`)로, 휴대폰은 카드 폭 그대로. 운영 크롬 1384px에서 카드 높이 약 350px → 98px(썸네일 128×72), 503px 폭은 세로 배치 확인. 시험 44·build. 커밋 `96439b319`.
 - **v1.15 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: **공용 영상 모델에서 Replicate Kling v2.1 제거**(업체 서비스 종료, 오류 1203) — 기준 `lib/video/videoModels.ts`에서 빼고 주석으로 기록, 사본 3곳(ai-image-studio·shorts-onestop-studio·shots) 복사(`--sync`는 다른 세션이 작업 중인 뮤직비디오 사본까지 덮어써 쓰지 않음). 시험 `catalog.test.mjs`는 Kling O3(사진 비율)·MiniMax H3(5·10초)·시험용 객체(끝 장면 단가)로 바꾸고 「목록에 없음」 시험 추가(44개). 같은 날 Shots v1.43·원스톱 v1.41도 배포. 뮤직비디오 사본은 그 세션 차례. 검수: 운영 크롬 Replicate 카드 Seedance 1 Lite 1개만·페이지에 kling-v2.1 없음. 커밋 `c2b698db4`, 플랜 `docs/PLAN_20261024_REMOVE_KLING21.md`.
 - **v1.14 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: **영상 프롬프트 게시판**(B안, DB 변경 없음) — 좌측 메뉴 「영상 프롬프트 게시판」 `/prompts`(`components/studio/PromptBoard.tsx`, `(dashboard)` 레이아웃 권한 확인), 이 프로그램 고유 장면 24개 `lib/promptBoard.ts`(풍경·자연/도시·야경/음식·카페/제품 광고/사람·일상(한국인)/동물·판타지 각 4, 제품은 「내 제품 사진을 넣으면 더 좋음」 표시), 분류·검색(`filterPresets`, 띄어쓰기 무시). 「이 설명으로 만들기」 → `/create?preset=<id>` → 설명·화풍·카메라만 채우고 모델·옵션은 그대로 + 안내(갤러리 `?from=`이 있으면 그쪽 우선). 화풍·카메라 목록을 `lib/presets.ts`로 옮김(생성 화면과 공용, 문구 그대로). 매뉴얼 1단계에 게시판 안내. 시험 4개(목록 형식·한국인·연도 없음·거르기·찾기). 검수: 시험 43·build · **운영(메인 크롬, 시험 계정)**: 배포 `ai-video-studio-3dhjbxfad` Ready·화면/DB v1.14, 24개·분류 클릭 4개·검색·만들기 채움 확인. 관리자 편집·「내 프롬프트」 저장은 A안(표 2개)으로 남김. 비용: 빌드 1회. 커밋 `363fc5b6e`.
 - **v1.13 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: **모델 카드 예시 영상** — 같은 장면(「한옥 마당에 내리는 첫눈」 + 시네마틱 실사 + 천천히 다가가기)으로 Gemini Omni Flash 글만 5초를 먼저 만들고 0.3초 장면을 나머지 모델의 시작 사진으로 써서 시험 계정 본인 키로 생성(가장 짧은 길이·낮은 해상도·소리 끔, 재시도 없음). `ffmpeg`로 가로 480·4초·24fps·소리 없음 H.264(58~103KB) + 첫 화면 JPG(약 20KB) → `public/examples/<exampleSlug(id)>.mp4|jpg`, 9개 합계 900KB. `lib/providers/catalog.ts` `exampleSlug`·`MODEL_EXAMPLES`, `CreateStudio.tsx` `ModelExample`(첫 화면 사진만 → 고른 모델 또는 마우스 올린 카드만 `play()`, `preload="none"`) + 「같은 장면 예시」 안내. 시험: 목록의 예시 파일이 실제로 있고 400KB 미만(catalog.test). **Replicate Kling v2.1은 업체 서비스 종료(오류 1203)로 생성 실패 → 예시 없음, 공용 목록에서 빼는 일은 승인 대기**. 검수: 시험 39·build · **운영(메인 크롬, 시험 계정)**: 배포 `ai-video-studio-jcmym8mm8` Ready·화면/DB v1.13, fal 카드 7개 미리보기·첫 화면 사진 200·고른 모델만 재생·나머지 안 불러옴·약 600px 폭 1열. 생성 기록 `options.idea` 저장 확인(v1.11 미확인 항목). 비용: 생성 10회(성공 9 약 $4.91)·빌드 1회. 커밋 `7eb4c2a59`.
