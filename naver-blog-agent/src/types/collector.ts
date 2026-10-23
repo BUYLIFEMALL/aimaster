@@ -2,7 +2,7 @@ import type { SourceBundle } from "@/lib/sourceBundle";
 
 export interface BlogViralCandidate {
   id: string;
-  method: "http" | "rss" | "perplexity" | "shorts";
+  method: "http" | "rss" | "perplexity" | "shorts" | "memo";
   source?: SourceBundle;
   source_urls?: string[];
   revision?: string;

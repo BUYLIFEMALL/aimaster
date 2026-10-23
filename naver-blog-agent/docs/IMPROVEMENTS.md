@@ -274,3 +274,8 @@
 - **보안:** 회원 비공개 사진(`storagePath`)인 대표 이미지는 버튼을 보이지 않음(공개 저장소로 올라가는 것을 막음).
 - 바꾼 것: 새 `src/lib/thumbnailTitle.ts`(`wrapTitle`·`canTitleThumbnail`·`applyThumbnailUrl`·`restoreThumbnailUrl`·`overlayThumbnailTitle`) · `src/lib/draftImages.ts`(`originalUrl?`) · `src/app/(dashboard)/page.tsx`(`handleThumbnailTitle`·버튼·카드 버튼 줄바꿈·생성 이미지 상태 형식을 `DraftImage` 기준으로) · 새 시험 `scripts/test-thumbnail-title.cjs`(`test:thumbnail-title` 3).
 - 검수: tsc, 시험 28종 통과, 저장소 교차 출처 허용 확인. AI 호출 없음. **캔버스 그림 자체는 아직 화면 확인 전** — v2.18 배포 뒤 크롬에서 시험 계정 원고로 글자 넣기·다시 열기 유지·되돌리기 확인.
+
+## 2026-10-24 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-blog2`) — 블로그 병합 A-7 메모·텍스트 파일로 글감 만들기 (올인원 → 에이전트)
+- 올인원 「메모/파일 기반」은 주제 제목만 넘기고 메모를 근거로 쓰지 않았다 → 에이전트는 **메모 원문을 글감 원문(`source_text`)으로 저장해 본문 사실 근거로** 쓴다. 글감 화면 「📝 메모·파일」 탭(메모 최대 8,000자, `.txt`·`.md` 1MB 이하 — 브라우저에서 글자만 읽고 파일은 올리지 않음), 서버 `api/collector` `action: "memo"`(회원 본인 AI 키, 기존 `structureBlogCandidates`로 후보 최대 4개). 글감 `method`/`kind`에 `"memo"` 추가 — 글감은 JSON 저장이라 **DB 변경 없음**, 회원별 30일 자동 삭제 그대로.
+- 바꾼 것: 새 `src/lib/memoSource.ts` · `api/collector/route.ts` · `collectedMaterials.ts`(메모 출처 줄) · `types/collector.ts`·`sourceBundle.ts`(종류) · `collector/page.tsx`(탭·입력·파일) · `dashboard/page.tsx`·`components/SourceEvidence.tsx`(이름표·안내) · 새 시험 `scripts/test-memo-source.cjs`(`test:memo-source` 3).
+- 검수: tsc, 시험 29종 통과. 실제 1회(시험 계정 본인 OpenAI 키, 기본 정리 모델, 저장 안 함, 가평 캠핑 메모 약 200자): 후보 4개 모두 메모 범위 안(지어낸 수치·장소 없음) ✅. 한계: 1건 분류가 「N잡/부업/재테크」로 어긋남(기존 정리 동작 — 수집 전 분류 지정·목록에서 변경 가능), 요약 문장에 가벼운 감정 표현이 붙음(요약은 근거가 아니고 메모 원문만 근거).

@@ -497,6 +497,8 @@ export default function DashboardPage() {
                         ? "⚡ 화제검색"
                         : cand.method === "shorts"
                         ? "🎬 쇼츠분석"
+                        : cand.method === "memo"
+                        ? "📝 내 메모"
                         : "🌐 웹기사"}
                     </span>
                   </div>

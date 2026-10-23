@@ -28,6 +28,7 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import type { BlogViralCandidate, ShortVideo, ShortsOrder, CollectorCategory } from "@/types/collector";
+import { MAX_MEMO, MIN_MEMO } from "@/lib/memoSource";
 import SourceEvidence from "@/components/SourceEvidence";
 import { useContentCategories } from "@/hooks/useContentCategories";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
@@ -82,8 +83,9 @@ export default function CollectorPage() {
   const [bulkMoveCategory, setBulkMoveCategory] = useState<string>("");
 
   // 수집 탭 및 입력값
-  const [activeTab, setActiveTab] = useState<"url" | "rss" | "perplexity" | "shorts">("url");
+  const [activeTab, setActiveTab] = useState<"url" | "rss" | "perplexity" | "shorts" | "memo">("url");
   const [urlInput, setUrlInput] = useState("");
+  const [memoInput, setMemoInput] = useState("");
   const [rssInput, setRssInput] = useState("");
   const editBusy = useRef(false);
   const [topicInput, setTopicInput] = useState("");
@@ -289,6 +291,31 @@ export default function CollectorPage() {
       if (!await persistCandidates([...data.candidates, ...candidates])) return;
       setMessage({type: "success", text: `피드 글감 ${data.count}건을 서버에 저장했습니다. 원문과 출처를 확인해 주세요.`});
     } catch {setMessage({type: "error", text: "피드 수집 결과를 확인하지 못했습니다. 목록을 다시 확인해 주세요."});}
+    finally {setCollecting(false);}
+  };
+
+  // 병합 A-7: 메모·텍스트 파일 → 글감(메모 원문이 사실 근거). 파일은 브라우저에서 글자만 읽고 서버에 올리지 않는다.
+  const handleMemoFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!/\.(txt|md|markdown|text)$/i.test(file.name) || file.size > 1024 * 1024) {setMessage({type: "error", text: "1MB 이하 텍스트 파일(.txt·.md)만 불러올 수 있습니다."}); return;}
+    const text = (await file.text()).replace(/\r\n?/g, "\n").trim();
+    setMemoInput(text.slice(0, MAX_MEMO));
+    setMessage(text.length > MAX_MEMO ? {type: "error", text: `파일이 길어 앞 ${MAX_MEMO.toLocaleString()}자만 불러왔습니다.`} : null);
+  };
+
+  const handleCollectMemo = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (memoInput.trim().length < MIN_MEMO || collecting) return;
+    setCollecting(true); setMessage(null);
+    try {
+      const response = await fetch("/api/collector", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({action: "memo", memo: memoInput, targetCategory: collectCategory || undefined})});
+      const data = await response.json();
+      if (!response.ok) {setMessage({type: "error", text: data.error || "메모 글감 만들기 실패", needKey: data.needKey}); return;}
+      if (!await persistCandidates([...data.candidates, ...candidates])) return;
+      setMessage({type: "success", text: `메모로 글감 ${data.count}건을 만들었습니다. 이 글감으로 글을 쓰면 메모 원문이 사실 근거로 들어갑니다.`});
+    } catch {setMessage({type: "error", text: "메모 글감 결과를 확인하지 못했습니다. 목록을 다시 확인해 주세요."});}
     finally {setCollecting(false);}
   };
 
@@ -759,6 +786,7 @@ export default function CollectorPage() {
         {/* 탭 버튼들 */}
         <div className="flex flex-wrap gap-2 border-b border-neutral-200 pb-3">
           <button type="button" onClick={() => setActiveTab("rss")} aria-pressed={activeTab === "rss"} className={`rounded-lg px-4 py-2 text-sm font-bold ${activeTab === "rss" ? "bg-rose-600 text-white" : "bg-neutral-100 text-neutral-700"}`}>RSS/Atom 피드</button>
+          <button type="button" onClick={() => setActiveTab("memo")} aria-pressed={activeTab === "memo"} className={`rounded-lg px-4 py-2 text-sm font-bold ${activeTab === "memo" ? "bg-rose-600 text-white" : "bg-neutral-100 text-neutral-700"}`}>📝 메모·파일</button>
             <button
             type="button"
             onClick={() => setActiveTab("url")}
@@ -799,6 +827,21 @@ export default function CollectorPage() {
 
         {/* 탭 1: URL 수집 */}
         {activeTab === "rss" && <form onSubmit={handleCollectRss} className="mt-4 space-y-3"><label className="block text-sm font-semibold" htmlFor="public-rss-url">공개 RSS/Atom 피드 주소</label><input id="public-rss-url" type="url" required maxLength={2000} value={rssInput} onChange={event => setRssInput(event.target.value)} placeholder="https://사이트/피드.xml" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"/><p className="text-xs text-neutral-500">본문이 있는 공개 항목 최대 5개를 읽고 본인 AI 키로 정리합니다. 로그인 피드·NewsBlur 계정은 연결하지 않습니다.</p><button disabled={collecting || busy} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">{collecting ? "피드 수집 중…" : "피드 글감 수집"}</button></form>}
+        {activeTab === "memo" && (
+          <form onSubmit={handleCollectMemo} className="mt-4 space-y-3">
+            <label className="block text-sm font-semibold" htmlFor="member-memo">아이디어 메모·초안·강의 노트</label>
+            <textarea id="member-memo" rows={8} maxLength={MAX_MEMO} value={memoInput} onChange={event => setMemoInput(event.target.value)} placeholder="쓰고 싶은 내용, 직접 겪은 일, 정리해 둔 자료를 자유롭게 적어 주세요." className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"/>
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-500">
+              <label className="cursor-pointer rounded-lg bg-neutral-100 px-3 py-1.5 font-semibold text-neutral-700 hover:bg-neutral-200">
+                📄 텍스트 파일 불러오기(.txt·.md)
+                <input type="file" accept=".txt,.md,.markdown,.text,text/plain,text/markdown" onChange={handleMemoFile} className="hidden"/>
+              </label>
+              <span>{memoInput.length.toLocaleString()} / {MAX_MEMO.toLocaleString()}자</span>
+            </div>
+            <p className="text-xs text-neutral-500">본인 AI 키로 메모를 글감 후보 최대 4개로 정리합니다. 이 글감으로 글을 쓰면 메모 원문이 사실 근거로 들어가, 메모에 없는 내용을 지어내면 검수에서 표시됩니다. 파일은 이 브라우저에서 글자만 읽고 서버에 올리지 않습니다.</p>
+            <button disabled={collecting || busy || memoInput.trim().length < MIN_MEMO} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">{collecting ? "글감 만드는 중…" : "메모로 글감 만들기"}</button>
+          </form>
+        )}
 
         {activeTab === "url" && (
           <form onSubmit={handleCollectUrl} className="mt-4 space-y-3">
@@ -1218,6 +1261,8 @@ export default function CollectorPage() {
                           ? "⚡ Perplexity 핫이슈"
                           : item.method === "shorts"
                           ? "🎬 유튜브 쇼츠"
+                          : item.method === "memo"
+                          ? "📝 내 메모"
                           : "🌐 웹 기사"}
                       </span>
 

@@ -3,7 +3,7 @@ import type { BlogViralCandidate } from "@/types/collector";
 export interface SourceBundle {
   id: string;
   ownerId: string;
-  kind: "http" | "rss" | "perplexity" | "shorts";
+  kind: "http" | "rss" | "perplexity" | "shorts" | "memo";
   collectedAt: string;
   expiresAt: string;
   label: string;

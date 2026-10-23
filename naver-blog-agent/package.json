@@ -36,7 +36,8 @@
     "test:photo-visit": "node --test scripts/test-photo-visit-info.cjs",
     "test:member-voice": "node --test scripts/test-member-voice.cjs",
     "test:image-move": "node --test scripts/test-image-move.cjs",
-    "test:thumbnail-title": "node --test scripts/test-thumbnail-title.cjs"
+    "test:thumbnail-title": "node --test scripts/test-thumbnail-title.cjs",
+    "test:memo-source": "node --test scripts/test-memo-source.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

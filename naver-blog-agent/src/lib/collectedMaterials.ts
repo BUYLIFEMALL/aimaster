@@ -31,7 +31,7 @@ export async function loadCollected(admin: any, userId: string, id: unknown) {
   const candidate = publicCandidate(data);
   const bundle = candidate.source!;
   // 회원이 요약을 길게 고쳐도 원문과 출처가 프롬프트에서 밀려나지 않는다.
-  const material = normalizeSourceMaterial(`[수집 시각] ${bundle.collectedAt}\n[출처 주소] ${bundle.urls.join("\n").slice(0, 600) || "주소 확인 불가"}\n[수집 원문 일부]\n${bundle.text.slice(0, 2800)}\n[편집한 글감 요약 — 별도 사실 근거가 아님]\n${candidate.content.slice(0, 400)}`);
+  const material = normalizeSourceMaterial(`[수집 시각] ${bundle.collectedAt}\n[출처 주소] ${bundle.kind === "memo" ? "회원이 직접 준 메모(외부 출처 없음)" : bundle.urls.join("\n").slice(0, 600) || "주소 확인 불가"}\n[수집 원문 일부]\n${bundle.text.slice(0, 2800)}\n[편집한 글감 요약 — 별도 사실 근거가 아님]\n${candidate.content.slice(0, 400)}`);
   return {candidate, bundle, material};
 }
 /** 처음 저장한 출처는 원고를 편집해도 교체하거나 수명을 늘릴 수 없다. */
