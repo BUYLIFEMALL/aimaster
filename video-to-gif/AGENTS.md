@@ -328,3 +328,12 @@
 - **알게 된 것**: 느린 주원인은 원본 해석이 아니라 엔진의 **색상표 만들기·디더링**(단일 스레드)이다 — 1080p 해석은 시도당 약 20~30초, 작은 프레임 처리만 70초·33초. 4K 원본이면 해석 비중이 커져 이득이 늘 수 있음.
 - 다음에 속도를 다시 보려면: ① 멀티스레드 엔진(`core-mt`, COOP 머리글 필요 → 「상세페이지로」 창 연결을 다른 방식으로 바꿔야 함) ② 디더링을 가볍게(화질 저하 검토) ③ JS GIF 인코더로 교체(재작성 수준). 회원 의견이 있을 때 검토.
 - 정리: 측정에 쓴 브라우저 저장소(IndexedDB `bench`) 삭제·탭 닫음. 비용 없음.
+
+## 2026-10-24 v1.20 — 「⚡ 내 PC 고속 변환」 로컬 렌더러 (Claude Code 맥미니 · `claude-mac-20261023-ecommerce`, 주인님 지시 · 윈도우 시험·배포 대기)
+- 플랜·측정·결과: [`docs/PLAN_20261023_LOCAL_RENDERER.md`](docs/PLAN_20261023_LOCAL_RENDERER.md). 아이디어 표 `LR-01`.
+- 구조: 웹 → 크롬 확장(`local-renderer/extension/`, ID `efgimakonmphcdojhiegemjmpbokpcgk` 고정, `externally_connectable` = 이 사이트만) → Native Messaging 렌더러(맥 `host.pl` 기본 perl · 윈도우 `host.ps1`+`host.bat` 기본 PowerShell 5.1) → 회원 PC ffmpeg. 렌더러는 명령 문자열을 받지 않고 숫자만 검사해 인자를 만든다. 없거나 실패하면 지금 브라우저(wasm) 변환으로 자동 전환.
+- 웹: `lib/localRenderer.ts`(감지·영상 올리기·변환 요청·렌더러 묶음), `lib/gifLadder.ts` `runLadder`(순서대로와 같은 단계, 아래 단계 미리 동시 실행), `ConverterWorkspace.tsx`(`convertLocal`·`finishJob`·설정 패널 상태·버튼 문구), `/guide#local-renderer`.
+- 내려받기: `node scripts/build-local-renderer.mjs` → `public/downloads/local-renderer/`(확장 ZIP·윈도우 렌더러 ZIP·맥 설치 스크립트·host.pl·version.json). **렌더러·확장 파일을 고치면 이 스크립트를 다시 돌려 ZIP을 새로 만들 것**(확장 버전은 `extension/manifest.json`, 렌더러는 `HOST_VERSION`).
+- 시험(맥미니): 크롬 흉내 도구로 perl·PowerShell 7 렌더러, 맥미니 크롬 실제 연결(운영 페이지 → 확장 → host.pl → ffmpeg 8.1). 1080p 10초: 브라우저 157초 → 렌더러 한 단계씩 60.7초 → **동시 4개 47.6초**(결과 같음). 화면 코드 두 파일은 자바스크립트로 바꿔 운영 페이지에서 실행해 확인(웹 앱 자체 화면은 배포 뒤 확인).
+- 버전 v1.20(`lib/version.ts`·`package.json`·SQL `supabase/migrations/20261024_local_renderer_v1_20.sql` — 버전 + `extension_version` v1.00 + `extension_download_url`). 커밋 `7d741bed3`(1단계)·`07f192e20`·`1f9ffb313`(2단계).
+- **남은 것(윈도우 PC)**: 확장 로드 → `install-windows.bat` 설치(winget ffmpeg) → PowerShell 5.1 렌더러로 변환 → 로컬 build → 배포 → 맥미니 크롬에서 배포된 화면 실검수. 맥 회원용 Homebrew 없는 경우는 안내만 나옴(ffmpeg 직접 설치 필요).
