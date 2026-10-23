@@ -1,6 +1,6 @@
 # AI 영상 스튜디오 (`ai-video-studio`) — 에이전트 인수인계
 
-> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.03**(2026-10-23) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
+> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.04**(2026-10-23) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
 > 플랜: `docs/PLAN_20261023_AI_VIDEO_STUDIO.md` · 조사 보고서: `docs/RESEARCH_20261023_PLATFORMS.md` · 무료 렌더 시험: 루트 `docs/PLAN_20261023_FREE_VIDEO_RENDERING.md`
 
 ## 1. 사용목적 및 대상
@@ -13,21 +13,23 @@
 - 영상 업체 호출: 공용 기준 코드 **`ai-video-models` / `ai-video-parse` / `ai-video-providers`** — **기준 위치가 이 프로그램 `lib/video/`**(2026-10-23 ai-image-studio에서 이전). 사본: `ai-image-studio/lib/video/`·`shots/src/lib/video/`·`shorts-onestop-studio/src/lib/`·`music-video-studio/src/lib/video/`. **기준만 고치고 `node scripts/check-shared-modules.mjs --sync`.**
 
 ## 3. 핵심 기능·구조·장단점
-- 화면: `/create`(영상 생성 작업실) · `/library`(작업 결과 갤러리) · `/guide`(매뉴얼) · `/settings`(API키등록·플랫폼연동: gemini·fal·replicate).
+- 화면: `/create`(영상 생성 작업실) · `/edit`(영상 합치기, v1.04) · `/library`(작업 결과 갤러리) · `/guide`(매뉴얼) · `/settings`(API키등록·플랫폼연동: gemini·fal·replicate).
 - 흐름: `POST /api/generations` → 시작/끝 장면 사진을 비공개 버킷 `ai-video-studio/{user}/{id}/start.jpg`에 저장 → 1시간 서명 주소로 `submitVideoJob`(재시도 없음) → `provider_meta`에 작업 정보 저장 → 화면이 8초마다 `GET /api/generations?ids=` → `advance()`가 `checkVideoJob` → 완성 MP4를 `{user}/{id}/video.mp4`에 저장 → 서명 주소로 재생·영문 파일명 내려받기.
 - 표 `avs_generations`(RLS 본인 조회·삭제만, 쓰기는 서버) · 동시 4개 · 20분 시간 초과 · 접수 6분 유예(Gemini가 동기 방식으로 바뀌면 최대 270초).
 - 모델(1차-가): Gemini Omni Flash(글만·사진, 16:9/9:16) · fal Seedance 1.5 Pro · fal Kling O3 · Replicate Seedance 1 Lite · Kling v2.1 — 단가·길이는 공용 `VIDEO_MODELS` 한 곳에서.
+- **영상 합치기(v1.04, 2차-가)**: 갤러리 클립(`GET /api/generations`의 서명 주소 → blob)·내 PC 영상(서버로 안 올림) + 배경음악(내 파일 또는 AI 음악 스튜디오 곡 `GET /api/edit/songs`, `ams_generations` 본인 행 읽기만) + 장면별 한 줄 자막 → Remotion Player 미리보기 → `renderMediaOnWeb` MP4(9:16·16:9·1:1, 720p/1080p)를 **회원 PC에서 렌더**(서버 비용 0, 결과는 서버에 저장 안 함 → 바로 내려받기). 파일: `lib/edit/timeline.ts`(시간 계산·자막 줄바꿈, 순수 함수·시험) · `components/edit/Composition.tsx`(그리기, SVG 한글 자막 + Noto Sans KR 900) · `components/edit/probe.tsx`(**R1 대책**: 넣을 때 앞 10프레임 시험 렌더 → 멈추면 Mediabunny `Conversion` 소프트웨어 재인코딩) · `components/edit/EditStudio.tsx`(화면) · `EditLoader.tsx`(이 화면에서만 동적 불러오기, `/edit` 첫 화면 89kB). 제한: 클립 20개·총 3분·영상 200MB, 휴대폰은 미리보기만. Remotion 4.0.538 고정·무료 조건(직원 3명 이하), Player `acknowledgeRemotionLicense`, 브라우저 렌더 사용량 기록(도메인별 렌더 수)이 Remotion으로 전송됨. 시간 계산·R1 처리는 Remotion 밖에 두어 그리기 층만 교체 가능.
 - 장점: 회원 본인 키, 만들기 전 예상 비용·확인 단계, 창을 닫아도 서버가 결과 저장, 30일 자동 정리.
 - 한계: 해상도 720p 고정(공용 코드), 오디오 끔(fal), 텍스트→영상은 Gemini만, 모델 목록 1차-가 범위.
 
 ## 4. 버전 히스토리
+- **v1.04 (2026-10-23, Claude Code 윈도우, 세션 `claude-win-avs-edit`)**: 2차-가 「🎞️ 영상 합치기」 — 위 3절. 갤러리 카드에 「합치기에 넣기」(`/edit?add=<id>`), 매뉴얼에 합치기 4단계. 검수: 시험 16(타임라인 8 포함)·tsc·build, 로컬 시험 앱에서 **실제 파일 그대로 + React 18.3.1**로 하드웨어 인코딩 클립 2개 멈춤 감지(약 8.7초) → 재인코딩(약 2.6초) → 통과, 클립 3개+음악+한글 자막 9:16 720p 렌더 10.7초 → 10.52초 720×1280 소리 있음·자막 화면 확인. 운영 화면 검수는 아래 줄 보완.
 - **v1.03 (2026-10-23, Claude Code 윈도우)**: 업체가 실사 인물 사진을 거절하면 원문 JSON 대신 쉬운 안내(공용 `ai-video-providers`, `96423f5ec`) 배포 · 실생성(시험 계정 본인 fal 키, 사람 없는 턴테이블 사진): **Veo 3.1** 720p 4초 → 4.0초 1280×720 1.6MB(약 2분) · **Seedance 2.0** 480p 4초 → 4.04초 864×496 1.0MB(약 4분 반) 성공. **1차-나 5종 모두 실생성 확인 완료**(Seedance 2.0은 실사 인물 사진만 업체가 거절).
 - **v1.02 (2026-10-23, Claude Code 윈도우)**: 1차-나 — fal 최신 모델 5종(Kling 3.0 Standard·Seedance 2.0·Veo 3.1·MiniMax H3(구 Hailuo)·Wan 3.0)을 공용 기준에 **모델별 입력 칸 규칙(`FalInputSpec`: 사진 칸·길이 형식·소리 칸·비율·해상도)**으로 추가, `STUDIO_VIDEO_MODELS`(스튜디오 전용 — 다른 프로그램 목록 불변), 해상도 선택·해상도별 비용. 실생성: Kling 3.0 5초 → 5.04초 8.4MB · MiniMax H3 768P → 5.18초 6.5MB · Wan 3.0 480p → 5초 2.9MB 성공 / **Seedance 2.0은 실사 인물 사진을 업체가 거절**(「likenesses of real people」) → 쉬운 안내 문구로 바꿈(미배포 대기) / Veo 3.1 실생성 미시험(비용 승인 대기).
 - **v1.01 (2026-10-23, Claude Code 윈도우)**: 1차-가 — 생성 작업실·갤러리·매뉴얼·키 등록, 공용 영상 기준 이전, DB(`avs_generations`·버킷·programs·요금제 3·VIP 자동 부여·시험 계정), 썸네일. 검수: 시험 6, tsc, build, 크롬 시험 계정 실생성 2회 성공(Gemini 글만 5초 16:9 → 5.01초 1280×720 2.0MB / fal Seedance 사진→영상 5초 → 5.04초 6.5MB), 390px(iframe 확인).
 
 ## 5. 남은 작업 → `docs/IMPROVEMENT_BACKLOG.md`
 - ~~1차-나~~ 완료(v1.02~v1.03). 남은 선택값: 오디오 켜기·글만 생성(fal t2v).
-- 2차: 편집·합치기 스튜디오(Remotion + Mediabunny, R1 대책). 3차: 립싱크·업스케일·배경 제거·Runway/Vidu.
+- 2차: ~~2-가 합치기(v1.04)~~ → 2-나(내레이션·자동 자막·편집 저장·완성본 갤러리 저장, 플랜 `docs/PLAN_20261023_EDIT_STUDIO.md`, 별도 승인) → 2-다 공용화(별도 승인). 3차: 립싱크·업스케일·배경 제거·Runway/Vidu.
 - 관찰: 첫 배포에서 fal 생성 요청이 2번 「fal API 키가 없습니다」(400)로 막힘(DB 키는 10-21부터 그대로) → 조회 실패 기록(`[getUserApiKey] 없음`, 값 없음) 추가 후 재배포하자 성공. 재발하면 Vercel 로그에서 이 기록부터 확인.
 
 ## 6. 연계·병합 아이디어

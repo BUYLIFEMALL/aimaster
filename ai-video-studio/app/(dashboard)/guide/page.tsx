@@ -12,6 +12,14 @@ const STEPS = [
   { icon: "🎞️", title: "갤러리에서 보기", desc: "완성 영상을 보고 MP4로 내려받습니다. 30일 뒤 자동 삭제됩니다.", href: "/library" },
 ];
 
+// v1.04 영상 합치기(회원 PC 렌더)
+const EDIT_STEPS = [
+  { icon: "➕", title: "영상 넣기", desc: "갤러리 영상이나 내 PC 영상을 넣습니다. 형식이 맞지 않는 영상은 자동으로 변환해 넣습니다." },
+  { icon: "✂️", title: "순서·자르기·자막", desc: "순서를 바꾸고 앞뒤를 잘라 내고 장면마다 한 줄 자막을 적습니다." },
+  { icon: "🎧", title: "배경음악", desc: "AI 음악 스튜디오에서 만든 내 곡이나 PC 음악 파일을 고르고 음량을 맞춥니다." },
+  { icon: "🎬", title: "미리보기·만들기", desc: "비율·화질을 고르고 미리 본 뒤 「영상 만들기」. 내 PC에서 만들어 비용이 들지 않고, MP4로 내려받습니다." },
+];
+
 export default function GuidePage() {
   return (
     <div className="space-y-8 pb-12">
@@ -45,6 +53,23 @@ export default function GuidePage() {
               <span className="text-sm font-bold text-white">STEP {i + 1}. {s.title}</span>
               <span className="text-xs leading-relaxed text-zinc-400">{s.desc}</span>
               <span className="mt-auto text-[11px] font-bold text-sky-300 group-hover:underline">바로 가기 →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">🎞️ 여러 영상을 한 편으로 — 영상 합치기 4단계</h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {EDIT_STEPS.map((s, i) => (
+            <Link key={s.title} href="/edit" className="group flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 hover:border-sky-500/40">
+              <span className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sky-500 text-xs font-black text-white">{i + 1}</span>
+                <span className="text-2xl" aria-hidden="true">{s.icon}</span>
+              </span>
+              <span className="text-sm font-bold text-white">STEP {i + 1}. {s.title}</span>
+              <span className="text-xs leading-relaxed text-zinc-400">{s.desc}</span>
+              <span className="mt-auto text-[11px] font-bold text-sky-300 group-hover:underline">영상 합치기로 →</span>
             </Link>
           ))}
         </div>
@@ -98,6 +123,8 @@ export default function GuidePage() {
           <li>Gemini 영상은 결제가 연결된 유료 등급 키에서만 됩니다. 무료 키는 오류가 납니다.</li>
           <li>「결과를 받지 못했습니다」가 뜨면 바로 다시 누르지 말고, 해당 플랫폼 사용량을 먼저 확인하세요(이미 요금이 나갔을 수 있습니다).</li>
           <li>영상은 30일 뒤 자동 삭제됩니다. 오래 쓸 영상은 내려받아 두세요.</li>
+          <li>영상 합치기는 PC 크롬·엣지 최신 버전에서 해 주세요. 휴대폰에서는 미리보기만 됩니다. 만드는 동안 탭을 닫지 마세요.</li>
+          <li>합친 영상은 서버에 저장되지 않습니다. 완성되면 바로 MP4로 내려받으세요.</li>
         </ul>
       </section>
 
