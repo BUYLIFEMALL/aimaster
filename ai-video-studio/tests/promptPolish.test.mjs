@@ -16,6 +16,8 @@ test("요청 본문: 설명·화풍·카메라·길이·사진 여부가 들어�
   assert.match(b.systemInstruction.parts[0].text, /Korean/);
   assert.match(b.systemInstruction.parts[0].text, /no|Never/);
   assert.match(b.systemInstruction.parts[0].text, /3 clearly different versions/);
+  // 사람 없는 설명에 인물을 넣지 않는다(2026-10-24 운영 다듬기에서 발견)
+  assert.match(b.systemInstruction.parts[0].text, /never add people/);
 });
 
 test("요청 본문: 화풍·카메라·사진이 없으면 그 줄을 빼고, 설명은 최대 길이로 자른다", () => {
