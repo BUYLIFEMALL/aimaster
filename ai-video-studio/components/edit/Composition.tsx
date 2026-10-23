@@ -7,7 +7,7 @@
 import { AbsoluteFill, Img, Sequence, interpolate, useCurrentFrame } from "remotion";
 import { Audio, Video } from "@remotion/media";
 import { loadFont } from "@remotion/google-fonts/NotoSansKR";
-import { CAPTION_SIZE_SCALE, captionMaxChars, dimensions, fadeOpacity, layout, musicVolume, sceneCaptions, wrapCaption, type CaptionStyle, type EditProject, type Segment } from "@/lib/edit/timeline";
+import { CAPTION_SIZE_SCALE, captionMaxChars, dimensions, duckRanges, fadeOpacity, layout, musicVolume, sceneCaptions, wrapCaption, type CaptionStyle, type EditProject, type Segment } from "@/lib/edit/timeline";
 
 // 굵기 하나만 미리 불러온다(Noto Sans KR은 파일이 많이 나뉘어 있음)
 const { fontFamily } = loadFont("normal", { weights: ["900"], subsets: ["korean", "latin"] });
@@ -61,6 +61,8 @@ function Scene({ seg, project, width, height }: { seg: Segment; project: EditPro
 export function EditComposition({ project }: EditCompositionProps) {
   const { width, height } = dimensions(project.aspect, project.quality);
   const { segments, totalFrames } = layout(project);
+  // 내레이션이 나오는 동안 배경음악을 줄인다(설정에서 끌 수 있음)
+  const ducks = project.music && project.music.duck !== false ? duckRanges(project) : [];
   return (
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {segments.map((seg) => (
@@ -69,7 +71,7 @@ export function EditComposition({ project }: EditCompositionProps) {
         </Sequence>
       ))}
       {project.music && (
-        <Audio src={project.music.src} volume={(f) => musicVolume(f, totalFrames, project.music?.volume ?? 0.8, project.music?.fadeOut ?? true)} />
+        <Audio src={project.music.src} volume={(f) => musicVolume(f, totalFrames, project.music?.volume ?? 0.8, project.music?.fadeOut ?? true, ducks)} />
       )}
     </AbsoluteFill>
   );

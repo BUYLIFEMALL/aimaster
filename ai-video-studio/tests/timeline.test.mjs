@@ -110,3 +110,16 @@ test("곡 길이를 장면 수로 나누고 합은 곡 길이와 같다, 최대 
   assert.match(validate(long), /최대 3분/);
   assert.equal(validate(long, 300), null);
 });
+
+test("내레이션 구간에서 배경음악을 35%로 줄이고 앞뒤는 부드럽게", async () => {
+  const { duckRanges, duckGain, musicVolume, DUCK_LEVEL } = await import("../lib/edit/timeline.ts");
+  const v = (d) => ({ src: "blob:v", duration: d, starts: null, mime: "audio/mpeg" });
+  const p = project([{ ...clip("a", 5), voice: v(2) }, clip("b", 4), { ...clip("c", 3), voice: v(9) }]);
+  assert.deepEqual(duckRanges(p), [[0, 60], [270, 360]]); // 두 번째 내레이션은 장면 끝(3초)에서 자름
+  assert.equal(duckGain(30, duckRanges(p)), DUCK_LEVEL);
+  assert.equal(duckGain(200, duckRanges(p)), 1);
+  const ramp = duckGain(63, duckRanges(p));
+  assert.ok(ramp > DUCK_LEVEL && ramp < 1, "끝난 직후에는 서서히 돌아온다");
+  assert.ok(Math.abs(musicVolume(30, 360, 0.8, false, duckRanges(p)) - 0.8 * DUCK_LEVEL) < 1e-9);
+  assert.equal(musicVolume(30, 360, 0.8, false), 0.8);
+});

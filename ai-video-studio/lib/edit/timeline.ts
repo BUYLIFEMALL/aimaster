@@ -66,6 +66,8 @@ export interface EditMusic {
   volume: number;
   fadeOut: boolean;
   source?: MusicSource;
+  /** 내레이션이 나오는 동안 음악을 줄인다(기본 켬) */
+  duck?: boolean;
 }
 
 export interface EditProject {
@@ -164,8 +166,34 @@ export function fadeOpacity(frameInSegment: number, durationInFrames: number, tr
 }
 
 /** 배경음악 음량 — 끝 MUSIC_FADE_S 동안 0으로 줄인다 */
-export function musicVolume(frame: number, totalFrames: number, volume: number, fadeOut: boolean): number {
-  const v = clamp(volume, 0, 1);
+/** 내레이션이 나오는 동안 배경음악 음량 비율과 앞뒤로 부드럽게 바꾸는 시간 */
+export const DUCK_LEVEL = 0.35;
+export const DUCK_RAMP_S = 0.2;
+
+/** 내레이션이 나오는 구간(프레임, 결과 영상 기준 [시작, 끝)) — 장면보다 긴 내레이션은 장면 끝에서 자른다 */
+export function duckRanges(p: Pick<EditProject, "clips">): [number, number][] {
+  return layout(p).segments
+    .filter((s) => s.clip.voice && s.clip.voice.duration > 0)
+    .map((s) => [s.from, s.from + Math.min(s.durationInFrames, Math.round((s.clip.voice as ClipVoice).duration * FPS))] as [number, number]);
+}
+
+/** 그 프레임의 덕킹 비율(1 = 그대로, DUCK_LEVEL = 내레이션 중) */
+export function duckGain(frame: number, ranges: [number, number][]): number {
+  const ramp = Math.max(1, Math.round(DUCK_RAMP_S * FPS));
+  let g = 1;
+  for (const [a, b] of ranges) {
+    let k = 0; // 0 = 그대로, 1 = 완전히 줄임
+    if (frame >= a && frame < b) k = 1;
+    else if (frame >= a - ramp && frame < a) k = (frame - (a - ramp)) / ramp;
+    else if (frame >= b && frame < b + ramp) k = 1 - (frame - b) / ramp;
+    g = Math.min(g, 1 - k * (1 - DUCK_LEVEL));
+  }
+  return g;
+}
+
+/** 배경음악 음량 — 끝 MUSIC_FADE_S 동안 0으로 줄이고, ranges(내레이션 구간)에서는 DUCK_LEVEL로 줄인다 */
+export function musicVolume(frame: number, totalFrames: number, volume: number, fadeOut: boolean, ranges: [number, number][] = []): number {
+  const v = clamp(volume, 0, 1) * duckGain(frame, ranges);
   if (!fadeOut) return v;
   const f = Math.round(MUSIC_FADE_S * FPS);
   const left = totalFrames - frame;
@@ -236,7 +264,7 @@ export interface SavedProject {
   v: 1;
   clips: SavedClip[];
   aspect: EditAspect; quality: EditQuality; transition: Transition; captionPosition: CaptionPosition; captionStyle: CaptionStyle; captionSize: CaptionSize; clipAudio: boolean;
-  music: { name: string; volume: number; fadeOut: boolean; source: MusicSource } | null;
+  music: { name: string; volume: number; fadeOut: boolean; source: MusicSource; duck?: boolean } | null;
 }
 
 /** 저장용으로 바꾼다. voicePaths: 장면 번호 → 저장소에 올라갈 음성 경로 */
@@ -249,7 +277,7 @@ export function toSaved(p: EditProject, voicePaths: Record<string, string>): Sav
       voice: c.voice && (voicePaths[c.id] || c.voice.path) ? { path: voicePaths[c.id] || (c.voice.path as string), duration: c.voice.duration, starts: c.voice.starts, mime: c.voice.mime } : null,
     })),
     aspect: p.aspect, quality: p.quality, transition: p.transition, captionPosition: p.captionPosition, captionStyle: p.captionStyle, captionSize: p.captionSize ?? "m", clipAudio: p.clipAudio,
-    music: p.music ? { name: p.music.name.slice(0, 120), volume: p.music.volume, fadeOut: p.music.fadeOut, source: p.music.source ?? { kind: "local" } } : null,
+    music: p.music ? { name: p.music.name.slice(0, 120), volume: p.music.volume, fadeOut: p.music.fadeOut, source: p.music.source ?? { kind: "local" }, duck: p.music.duck !== false } : null,
   };
 }
 
@@ -291,7 +319,7 @@ export function sanitizeSaved(raw: unknown, userPrefix: string): SavedProject | 
     captionSize: (SIZE_SET.has(r.captionSize as string) ? r.captionSize : "m") as CaptionSize,
     clipAudio: r.clipAudio === true,
     music: m && typeof m === "object" ? {
-      name: str(m.name, 120), volume: num(m.volume, 0, 1, 0.8), fadeOut: m.fadeOut !== false,
+      name: str(m.name, 120), volume: num(m.volume, 0, 1, 0.8), fadeOut: m.fadeOut !== false, duck: m.duck !== false,
       source: ms?.kind === "ams" && typeof ms.ref === "string" && /^[0-9a-f-]{36}:\d{1,2}$/i.test(ms.ref) ? { kind: "ams", ref: ms.ref } : { kind: "local" },
     } : null,
   };

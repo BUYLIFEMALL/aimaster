@@ -322,7 +322,7 @@ export function EditStudio() {
       let music: EditProject["music"] = null;
       if (saved.music && urls.music) {
         const mb = await fetchBlob(urls.music);
-        music = { src: URL.createObjectURL(mb), name: saved.music.name, volume: saved.music.volume, fadeOut: saved.music.fadeOut, source: saved.music.source };
+        music = { src: URL.createObjectURL(mb), name: saved.music.name, volume: saved.music.volume, fadeOut: saved.music.fadeOut, source: saved.music.source, duck: saved.music.duck !== false };
       } else if (saved.music) missing.push(`배경음악 「${saved.music.name}」`);
       // 이전 화면의 파일 주소 정리
       setProject((cur) => { cur.clips.forEach((c) => { URL.revokeObjectURL(c.src); if (c.voice) URL.revokeObjectURL(c.voice.src); }); if (cur.music) URL.revokeObjectURL(cur.music.src); return cur; });
@@ -591,8 +591,12 @@ export function EditStudio() {
                 <input type="checkbox" checked={project.music.fadeOut} disabled={isBusy} onChange={(e) => project.music && patch({ music: { ...project.music, fadeOut: e.target.checked } })} />
                 끝 1초 서서히 줄이기
               </label>
+              <label className="flex items-center gap-2 text-[11px] text-zinc-400">
+                <input type="checkbox" checked={project.music.duck !== false} disabled={isBusy} onChange={(e) => project.music && patch({ music: { ...project.music, duck: e.target.checked } })} />
+                내레이션 나올 때 음악 줄이기(35%)
+              </label>
             </div>
-            <p className="text-[11px] text-zinc-500">음악이 영상보다 길면 영상 길이에 맞춰 잘립니다. 내레이션이 있으면 음량을 40~60%로 낮추면 목소리가 잘 들립니다.</p>
+            <p className="text-[11px] text-zinc-500">음악이 영상보다 길면 영상 길이에 맞춰 잘립니다. 내레이션이 나오는 동안에는 음악이 자동으로 줄어 목소리가 잘 들립니다.</p>
           </div>
         ) : (
           <div className="space-y-3">
