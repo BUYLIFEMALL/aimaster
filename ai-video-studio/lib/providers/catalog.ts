@@ -12,6 +12,8 @@ export interface ProviderInfo {
   keyProvider: string;
   keyLabel: string;
   keyLink: string;
+  /** 사용량·작업 상태를 보는 업체 콘솔(만드는 중 4분 넘으면 안내, v1.10) */
+  usageLink: string;
   placeholder: string;
   description: string;
 }
@@ -23,6 +25,7 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
     keyProvider: "gemini",
     keyLabel: "Google Gemini API Key",
     keyLink: "https://aistudio.google.com/app/apikey",
+    usageLink: "https://aistudio.google.com/usage",
     placeholder: "AIzaSy...",
     description: "Gemini Omni Flash 영상(글만·사진→영상·시작/끝 장면)과 프롬프트 다듬기에 씁니다. 결제가 연결된(유료 등급) 키가 필요합니다.",
   },
@@ -32,6 +35,7 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
     keyProvider: "fal",
     keyLabel: "fal API Key",
     keyLink: "https://fal.ai/dashboard/keys",
+    usageLink: "https://fal.ai/dashboard/requests",
     placeholder: "xxxxxxxx-xxxx-...:xxxxxxxx",
     description: "Kling·Seedance 등 여러 영상 모델을 키 하나로 씁니다. fal 계정에 크레딧을 충전해야 합니다.",
   },
@@ -41,6 +45,7 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
     keyProvider: "replicate",
     keyLabel: "Replicate API Token",
     keyLink: "https://replicate.com/account/api-tokens",
+    usageLink: "https://replicate.com/predictions",
     placeholder: "r8_...",
     description: "Seedance 1 Lite·Kling v2.1 영상 모델을 씁니다. Replicate 계정에 결제 수단이 등록돼 있어야 합니다.",
   },

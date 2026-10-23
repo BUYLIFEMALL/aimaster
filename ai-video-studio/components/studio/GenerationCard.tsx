@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, Download, Layers, Loader2, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
+import { PROVIDERS } from "@/lib/providers/catalog";
+import { isSlow } from "@/lib/promptPolish";
 
 function elapsed(from: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / 1000));
@@ -77,11 +79,16 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
         <img src={gen.startImageUrl} alt="시작 장면" className={`aspect-video w-full rounded-xl bg-black object-contain ${gen.status === "running" ? "opacity-60" : ""}`} />
       ) : null}
 
-      {gen.status === "running" && (
+      {gen.status === "running" && (isSlow(gen.created_at) ? (
+        <p role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs leading-relaxed text-amber-200">
+          4분이 넘었습니다. 업체가 붐비거나 크레딧이 모자라면 오래 걸릴 수 있습니다. 이 화면을 닫아도 계속 만들어지니,{" "}
+          <a href={PROVIDERS[gen.provider]?.usageLink} target="_blank" rel="noopener noreferrer" className="font-bold text-amber-100 underline">{PROVIDERS[gen.provider]?.name ?? "업체"} 콘솔</a>에서 사용량과 작업 상태를 확인해 보세요.
+        </p>
+      ) : (
         <p className="rounded-xl bg-zinc-950/60 p-3 text-xs leading-relaxed text-zinc-400">
           보통 1~5분 걸립니다. 이 화면을 닫아도 계속 만들어지며, 완성되면 작업 결과 갤러리에 저장됩니다.
         </p>
-      )}
+      ))}
       {gen.status === "failed" && gen.error_message && (
         <p role="alert" className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-xs leading-relaxed text-red-300">{gen.error_message}</p>
       )}

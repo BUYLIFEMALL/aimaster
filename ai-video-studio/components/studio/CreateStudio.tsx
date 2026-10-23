@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Check, Clapperboard, ImagePlus, KeyRound, Loader2, Sparkles, X } from "lucide-react";
+import { AlertCircle, Check, Clapperboard, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { MODELS, PROVIDERS, clampSeconds, estCostUsd, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { GenerationCard } from "./GenerationCard";
+
+const SAFETY = "If people appear, depict them as Korean. No on-screen text, no subtitles, no logos.";
 
 // 1단계 프리셋 — 영상 설명에 덧붙는 영문 지시(이 프로그램 고유 문구, 다른 프로그램과 공유하지 않음)
 const STYLES = [
@@ -29,7 +31,7 @@ function composePrompt(idea: string, styleId: string | null, cameraId: string | 
   const style = STYLES.find((s) => s.id === styleId);
   const camera = CAMERAS.find((c) => c.id === cameraId);
   // 인물은 한국인으로(루트 CLAUDE.md 핵심 원칙 3), 글자·로고는 넣지 않는다
-  return [idea.trim(), style?.text, camera?.text, "If people appear, depict them as Korean. No on-screen text, no subtitles, no logos."].filter(Boolean).join(". ");
+  return [idea.trim(), style?.text, camera?.text, SAFETY].filter(Boolean).join(". ");
 }
 
 /** 사진을 긴 변 1280px JPG로 줄여 data 주소로 만든다(서버 한도 2.5MB 안쪽) */
@@ -92,6 +94,11 @@ export function CreateStudio() {
   const [error, setError] = useState<{ text: string; keys?: boolean } | null>(null);
   const [results, setResults] = useState<ClientGeneration[]>([]);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // v1.10 영상 설명 AI 다듬기 — basis: 다듬을 때의 설명·화풍·카메라(바뀌면 「다시 다듬기」 표시)
+  const [polished, setPolished] = useState<{ prompt: string; note: string; basis: string } | null>(null);
+  const [usePolished, setUsePolished] = useState(true);
+  const [polishing, setPolishing] = useState(false);
+  const [polishError, setPolishError] = useState<{ text: string; keys?: boolean } | null>(null);
 
   useEffect(() => {
     fetch("/api/keys", { cache: "no-store" })
@@ -107,7 +114,31 @@ export function CreateStudio() {
   const withAudio = model.audioOption && audio;
   const cost = estCostUsd(model, sec, withEnd, pickedRes, withAudio);
   const hasKey = registered ? registered.has(PROVIDERS[model.provider].keyProvider) : null;
-  const finalPrompt = composePrompt(idea, styleId, cameraId);
+  const basis = `${idea.trim()}|${styleId ?? ""}|${cameraId ?? ""}`;
+  const polishedOn = !!polished && usePolished && polished.prompt.trim().length > 0;
+  const finalPrompt = polishedOn && polished ? `${polished.prompt.trim().replace(/[.\s]+$/, "")}. ${SAFETY}` : composePrompt(idea, styleId, cameraId);
+  const hasGemini = registered ? registered.has("gemini") : null;
+
+  async function polish() {
+    if (idea.trim().length < 2) { setPolishError({ text: "다듬을 영상 설명을 먼저 입력해 주세요." }); return; }
+    setPolishing(true);
+    setPolishError(null);
+    try {
+      const res = await fetch("/api/prompt/polish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea, style: STYLES.find((s) => s.id === styleId)?.text ?? null, camera: CAMERAS.find((c) => c.id === cameraId)?.text ?? null, seconds: sec, hasImage: !!startImage }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(data.error || "설명을 다듬지 못했습니다."), { keys: !!data.needKey });
+      setPolished({ prompt: data.prompt, note: data.note ?? "", basis });
+      setUsePolished(true);
+    } catch (e) {
+      setPolishError({ text: e instanceof Error ? e.message : "설명을 다듬지 못했습니다.", keys: (e as { keys?: boolean }).keys });
+    } finally {
+      setPolishing(false);
+    }
+  }
 
   function pickProvider(p: ProviderId) {
     setProviderId(p);
@@ -195,6 +226,39 @@ export function CreateStudio() {
         <div className="space-y-2">
           <p className="text-xs font-medium text-zinc-400">카메라 움직임</p>
           <div className="flex flex-wrap gap-2">{CAMERAS.map((c) => <button key={c.id} type="button" aria-pressed={cameraId === c.id} onClick={() => setCameraId(cameraId === c.id ? null : c.id)} className={chip(cameraId === c.id)}>{c.label}</button>)}</div>
+        </div>
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={polish} disabled={polishing || idea.trim().length < 2}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-sky-500/40 bg-sky-500/10 px-3 py-1.5 text-xs font-bold text-sky-100 hover:bg-sky-500/20 disabled:opacity-50">
+              {polishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Wand2 className="h-3.5 w-3.5" aria-hidden="true" />}
+              {polishing ? "다듬는 중…" : polished ? "AI로 다시 다듬기" : "AI로 설명 다듬기"}
+            </button>
+            <span className="text-[11px] text-zinc-500">본인 Gemini 키로 장면·동작·빛을 구체적인 영어 설명으로 바꿉니다(1회 1원 미만, 무료 등급 키도 가능)</span>
+          </div>
+          {hasGemini === false && !polishError && (
+            <p className="text-[11px] text-amber-300">Gemini 키가 없습니다. <Link href="/settings" className="font-bold underline">API키등록·플랫폼연동</Link>에서 등록하면 쓸 수 있습니다.</p>
+          )}
+          {polishError && (
+            <p role="alert" className="text-[11px] text-red-300">
+              {polishError.text} {polishError.keys && <Link href="/settings" className="font-bold text-sky-200 underline">키 등록하러 가기</Link>}
+            </p>
+          )}
+          {polished && (
+            <div className="space-y-2 rounded-xl border border-sky-500/30 bg-sky-500/5 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="flex items-center gap-2 text-xs font-bold text-sky-100">
+                  <input type="checkbox" checked={usePolished} onChange={(e) => setUsePolished(e.target.checked)} />
+                  다듬은 설명으로 만들기
+                </label>
+                <button type="button" onClick={() => setPolished(null)} className="text-[11px] text-zinc-400 hover:text-zinc-200">지우기</button>
+              </div>
+              {polished.note && <p className="text-[11px] text-sky-200/80">{polished.note}</p>}
+              {polished.basis !== basis && <p className="text-[11px] text-amber-300">설명·화풍·카메라가 바뀌었습니다 — 「AI로 다시 다듬기」를 눌러 맞춰 주세요.</p>}
+              <textarea aria-label="다듬은 영상 설명(영어)" value={polished.prompt} onChange={(e) => setPolished({ ...polished, prompt: e.target.value })} rows={4} maxLength={1200}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950/60 p-2.5 text-xs leading-relaxed text-zinc-100 focus:border-sky-500/60 focus:outline-none" />
+            </div>
+          )}
         </div>
         {idea.trim() && <p className="rounded-xl bg-zinc-950/60 p-3 text-[11px] leading-relaxed text-zinc-500"><Sparkles className="mr-1 inline h-3 w-3 text-sky-300" aria-hidden="true" />AI에 보낼 설명: {finalPrompt}</p>}
       </section>
