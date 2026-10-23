@@ -19,3 +19,4 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `ai-video-studio/` (신규) + 공용 `ai-video-*` 기준 이전(`ai-image-studio/lib/video/` → 사본) | Claude Code(윈도우, 크롬) | 2026-10-23 | AI 영상 스튜디오 1차 v1.01(생성 작업실 + 갤러리, 플랜 `ai-video-studio/docs/PLAN_20261023_AI_VIDEO_STUDIO.md`) |
+| `naver-blog-agent/` | Claude Code(윈도우, 크롬) | 2026-10-23 | 이미지 전용 공개 버킷 전환(공개 주소 400 수정) |
