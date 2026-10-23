@@ -1,6 +1,7 @@
 import "server-only";
 import { composePrompt, type ProviderAdapter } from "../types";
 import { callLyria } from "../musicCalls";
+import { recordLyriaRealtime } from "../lyriaRealtime";
 
 // Google Lyria (Gemini API interactions) — 2026-10-23 공식 문서(ai.google.dev/gemini-api/docs/music-generation) 기준.
 // 호출 자체는 공용 기준 코드 `music-sync-calls`(../musicCalls.ts, 쇼츠가 사본 사용). 여기서는 입력 만들기·비용 문구만.
@@ -8,6 +9,11 @@ import { callLyria } from "../musicCalls";
 export const geminiAdapter: ProviderAdapter = {
   synchronous: true,
   async start(model, input, apiKey) {
+    // v1.10 Lyria RealTime(실험) — 서버가 웹소켓으로 정한 길이만큼 녹음해 WAV로 저장(키는 서버에서만)
+    if (model.model === "lyria-realtime-exp") {
+      const r = await recordLyriaRealtime({ prompt: input.prompt.trim(), durationS: input.durationS }, apiKey);
+      return { kind: "done", files: [{ data: r.data, contentType: r.contentType, durationS: r.durationS }], actual: `실시간 녹음 ${r.durationS}초 — 실험 모델(요금은 Google AI Studio 사용량에서 확인)` };
+    }
     const text = composePrompt(input, { withLyrics: true, withDuration: model.durationControl });
     // v1.06 이미지(최대 MAX_IMAGES장)가 있으면 input을 텍스트+이미지 묶음으로, WAV를 고르면 response_format.mime_type(API 참조 AudioResponseFormat)
     const images = model.imageInput ? (input.images ?? []) : [];

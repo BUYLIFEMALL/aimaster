@@ -155,6 +155,26 @@ export const MODELS: MusicModel[] = [
     commercial: "Gemini 유료 API 출력, SynthID 워터마크 포함",
   },
   {
+    // 2026-10-23 v1.10 Lyria RealTime(실험) — 서버 녹음 방식(주인님 선택 「가」). 실시간 생성이라 길이만큼 기다린다(최대 120초)
+    key: "gemini:lyria-realtime-exp",
+    provider: "gemini",
+    model: "lyria-realtime-exp",
+    name: "Google Lyria RealTime (실험)",
+    badge: "실험",
+    description: "실시간 연주 모델을 서버에서 정한 길이만큼 녹음합니다. 연주곡 전용, 고음질 WAV. 길이만큼 시간이 걸립니다.",
+    vocals: false,
+    lyricsRequired: false,
+    durationControl: true,
+    minDurationS: 10,
+    maxDurationS: 120,
+    defaultDurationS: 60,
+    outputs: 1,
+    costNote: "실험 모델 — 요금 미공개, 30초당 약 $0.04로 추정(사용량에서 확인)",
+    // 공식 요금 미공개 — Lyria 3 Clip(30초 $0.04)과 같다고 보고 넉넉히 추정
+    estCostUsd: (d) => Math.max(0.01, Math.round((d / 30) * 0.04 * 100) / 100),
+    commercial: "Gemini API 출력, SynthID 워터마크 포함(실험 모델)",
+  },
+  {
     key: "elevenlabs:music_v2_5",
     provider: "elevenlabs",
     model: "music_v2_5",
