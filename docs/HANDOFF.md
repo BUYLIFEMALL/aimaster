@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 — Claude Code(윈도우) · 세션 `claude-win-20261023-seo-bg`: ⏳ 네이버 블로그 SEO 스튜디오 — 원고에 생성 모델 이름 기록 (미배포, 비용 없음)
+
+- **무엇**: 새 원고 생성·기존 글 최적화 저장 때 실제로 쓴 「회사 · 모델」(예: `OpenAI · gpt-4.1`)을 `seo_report.generatedModel`에 남기고, 원고 화면 「SEO·사실 확인」에 「생성 모델」로 표시. 예전 원고·DB 칸은 그대로.
+- **커밋**: `07e08257e`(9개 파일, 삭제 0). 검수: tsc·eslint·새 시험 `test:model-record` 3·SEO 품질 7·문체 8·근거 5·단락 9·OpenAI 설정 8·확장 화면 26 통과. 실생성 시험은 유료라 안 함.
+- **배포**: 미배포 대기(`docs/PENDING_DEPLOYS.md`, 프로그램 `AGENTS.md` 맨 위). 다음 배포 때 v2.13(manifest·ZIP·DB 함께).
+- **다음 첫 단계**: 다음 배포 뒤 원고 1건 생성 → 「생성 모델」 표시·DB `seo_report->>generatedModel` 확인.
+- 링크: https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-23 — Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg`: ✅ 네이버 블로그 SEO 스튜디오 v2.12 — 사이드패널을 닫아도 입력·자동 포스팅이 이어짐 (빌드 1회)
 
 - **무엇**: 확장의 「네이버 편집기로 입력」·「자동 포스팅 시작」·「발행 결과만 다시 확인」을 사이드패널이 아니라 확장 서비스 워커가 실행(`background.js`가 `sidepanel.js`·`auto-publish-page.js`·`auto-publish.js`를 `importScripts`, 워커 안 `$()`는 `seoRunUiElement`가 받아 `chrome.storage.local` `seo_run_ui_v1`에 저장 → 사이드패널이 비춤). 함께 내보냄: 입력 중 안내, 사이드패널을 다시 열 때 끊긴 `writing` 실행 즉시 정리. 서버 코드 변경 없음.
