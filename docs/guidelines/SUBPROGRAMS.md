@@ -16,7 +16,7 @@
 2. `programs`에 slug·확인한 `app_url`·버전·상세 설명을 함께 등록합니다. 기본 요금제는 `ProgramForm`의 `DEFAULT_PLANS`와 기존 정책을 확인해 같은 작업에서 등록합니다.
 3. 운영 도메인은 `<이름>.buylife.xyz`, SSO 쿠키는 해당 호스트에서만 `.buylife.xyz`를 사용합니다. 기존 OAuth 콜백·옛 도메인은 임의로 삭제하지 않습니다. [도메인·SSO 원문](../DOMAIN_SSO_POLICY.md).
 4. 메뉴·계정·프로그램 목록 돌아가기·API 설정·연동 매뉴얼·모바일 흐름을 확인합니다.
-5. [프로그램 소개 표준](../PROGRAM_DESCRIPTION_STANDARD.md)에 맞춰 한 줄 요약·상세 설명·핵심 특징·사용 순서·대상 정보를 작성하고 [역량 지도](../PROGRAM_CAPABILITY_MAP.md)를 갱신합니다.
+5. [프로그램 소개 표준](../PROGRAM_DESCRIPTION_STANDARD.md)에 맞춰 한 줄 요약·상세 설명·핵심 특징·사용 순서·대상 정보를 작성하고 [프로그램 비교표](../PROGRAM_CAPABILITY_MAP.md)를 갱신합니다.
 
 ## 프로그램 문서와 종료 기록
 

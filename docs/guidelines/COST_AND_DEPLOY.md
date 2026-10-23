@@ -26,7 +26,7 @@
 2. 코드 `APP_VERSION`과 DB `programs.version`을 맞춥니다. 확장이 있으면 같은 릴리스에서 manifest·ZIP·`extension_version`·다운로드 주소까지 맞춥니다. [확장 배포 원문](../EXTENSION_RELEASE_RULES.md).
 3. 로컬 검사와 대상 폴더/ACTIVE_WORK/대기 목록을 재확인한 뒤 `node scripts/deploy.mjs <폴더> --go`를 사용합니다. 본인 작업 행이 있으면 `--owner` 사용법을 확인합니다. 도우미와 DB 버전 동기화 절차는 [협업 원문 9번](../CLI_COLLABORATION_RULES.md)을 따릅니다.
 4. 해당 배포의 Ready·공식 도메인 연결·라이브 버전·인증/회원 동작을 확인합니다. 확장은 `node scripts/check-extension-release.mjs <slug>`로 실제 ZIP과 DB를 비교합니다. 회원 PC 설치본 업데이트는 별도이므로 덮어쓰기·새로고침을 안내합니다.
-5. 프로그램 인수인계·역량 지도·미배포 목록을 실제 배포 결과에 맞추고 결과와 단독 줄 서비스 링크를 보고합니다.
+5. 프로그램 인수인계·프로그램 비교표·미배포 목록을 실제 배포 결과에 맞추고 결과와 단독 줄 서비스 링크를 보고합니다.
 
 ## 비용을 줄이는 운영 조건
 

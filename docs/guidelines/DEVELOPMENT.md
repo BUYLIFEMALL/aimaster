@@ -5,7 +5,7 @@
 ## 작업 전
 
 1. [공통 원칙](COMMON.md)·[CLI 협업](COLLABORATION.md)을 확인하고 대상 프로그램의 최신 문서를 읽습니다.
-2. [공통 아이디어 표](../PROGRAM_IDEA_BACKLOG.md), [역량 지도](../PROGRAM_CAPABILITY_MAP.md), [공용 기능 지도](../SHARED_FEATURE_MAP.md)에서 기존 기능·제안·기준 코드를 찾습니다.
+2. [공통 아이디어 표](../PROGRAM_IDEA_BACKLOG.md), [프로그램 비교표](../PROGRAM_CAPABILITY_MAP.md), [공용 기능 지도](../SHARED_FEATURE_MAP.md)에서 기존 기능·제안·기준 코드를 찾습니다.
 3. 코드 수정 전에 문제·범위·순서·검수 방법·비용·버전/배포·인수인계 산출물을 담은 플랜을 주인님께 보고하고 해당 프로그램 `docs/PLAN_YYYYMMDD_*.md`에 남깁니다. 범위가 바뀌면 플랜도 갱신합니다.
 
 ## 구현 원칙
