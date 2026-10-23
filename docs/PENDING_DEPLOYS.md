@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-work-workspace` | 1단계 화면 보완: 회의록 블록 시작 버튼 → 안내, 템플릿 10개 한국어(갤러리 버전 6 — 배포 뒤 운영 DB에 자동으로 다시 심김), 날짜·시각 화면 언어 | `2f0de2776`·`df7a628d3`·`db77b7a3b` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | v1.03으로 올려 배포 → 크롬으로 템플릿 갤러리·회의록 블록·날짜 확인 |
 | `shop-detail-page` | 30일 자동 정리(`cleanup-generated`)가 지운 상품·파일 수를 회원별 `usage_logs` `cleanup_expired`로 기록(공용 `cleanup-usage-log` 사본, 관리자 「30일 자동 정리」 표) — 정리 동작 자체는 그대로, 유예 2026-11-21까지는 지우는 것이 없어 기록도 없음 | `34094c954` | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 아래 | 운영 v1.30 → v1.31, 2026-11-21 뒤 첫 정리에서 기록 1줄 확인 |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `naver-blog-agent` (운영 v2.18) | 글자 넣은 대표 이미지 카드를 잘리지 않게 전체 표시(`page.tsx` 생성 이미지 카드 `object-contain`, 시각 수정만) | `9ee3cb3d8` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261023-blog2` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
