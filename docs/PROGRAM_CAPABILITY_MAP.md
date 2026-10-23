@@ -455,7 +455,7 @@
 - **키·계정·주의**: OpenAI·Anthropic·Gemini·Perplexity 중 회원 본인의 AI 키로 구조를 분석합니다. 수집한 데이터의 이용 권리와 사이트 약관은 직접 확인하세요.
 
 #### AI Prompt 자동화 (`ai-prompt-studio`)
-- 주소·폴더: https://ai-prompt.buylife.xyz · `ai-prompt-studio/` · v1.08 · FREE
+- 주소·폴더: https://ai-prompt.buylife.xyz · `ai-prompt-studio/` · v1.09 · FREE
 - **2026-10-21 v1.08**: 결과를 템플릿으로 저장할 때 AI가 바뀌는 부분을 찾아 {{변수}}로 바꾸자고 제안(골라서 적용, 본문은 그대로).
 - **2026-10-21 병합 C**: 「📁 내 템플릿 보관함」 추가 — 설계한 프롬프트를 템플릿으로 저장, 카테고리·검색·`{{변수}}` 자동 인식·AI 변수 채우기·바로 실행·.md 받기·백업 파일, 회원 계정(DB)에 저장돼 기기를 바꿔도 유지됩니다.
 - **차별점**: 거친 아이디어 한 줄을 ChatGPT·Claude·Gemini에 바로 붙여 넣는 완성형 프롬프트로 설계해 주는 프롬프트 엔지니어링 스튜디오입니다.
