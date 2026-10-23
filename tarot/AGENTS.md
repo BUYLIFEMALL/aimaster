@@ -55,7 +55,7 @@
 | **프로그램 명칭** | **AIMaster 타로점 (AI Tarot Reading)** |
 | **프로그램 slug** | `tarot-reading` |
 | **현재 버전** | `v1.20` (`package.json`, `lib/version.ts`, Supabase DB 3중 동기화) |
-| **공식 도메인** | `https://tarot-reading.buylife.xyz` (대체 도메인: `https://tarot.buylife.xyz`) |
+| **공식 도메인** | `https://tarot-reading.buylife.xyz` (대체 도메인: `https://tarot-reading.buylife.xyz`) |
 | **적용 템플릿** | **크리에이티브 아틀리에 스타일 — 신비로운 미드나잇 퍼플 랩 에디션** |
 | **테마 및 색상** | 딥 코즈믹 미드나잇 퍼플 (`#090614` + `#120d24`) + 미스틱 퍼플 (`#a855f7`) & 골드 (`#f59e0b`) |
 

@@ -2,7 +2,7 @@
 
 12종 정통 스프레드와 78장 아르카나 덱을 기반으로 AI가 실시간으로 고유 일러스트를 그리고 심층 타로 해석을 제공하는 AIMaster 서브프로젝트입니다.
 
-- **공식 서비스 URL**: https://tarot-reading.buylife.xyz (대체: `https://tarot.buylife.xyz`)
+- **공식 서비스 URL**: https://tarot-reading.buylife.xyz (대체: `https://tarot-reading.buylife.xyz`)
 - **비주얼 가이드북 URL**: https://tarot-reading.buylife.xyz/guide
 - **적용 템플릿**: **크리에이티브 아틀리에 스타일 — 신비로운 미드나잇 퍼플 랩 에디션 (Creative Atelier Style — Mystic Midnight Purple Lab Edition)**
 

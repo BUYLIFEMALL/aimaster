@@ -4,7 +4,7 @@
 > **작성자**: Antigravity CLI (agy, 윈도우)  
 > **적용 버전**: `v1.20`  
 > **공식 서비스 링크**:  
-> https://tarot-reading.buylife.xyz (대체: `https://tarot.buylife.xyz`)  
+> https://tarot-reading.buylife.xyz (대체: `https://tarot-reading.buylife.xyz`)  
 > **독립 비주얼 가이드북 링크**:  
 > https://tarot-reading.buylife.xyz/guide  
 > **적용 공식 템플릿**: **크리에이티브 아틀리에 스타일 — 신비로운 미드나잇 퍼플 랩 에디션 (Creative Atelier Style — Mystic Midnight Purple Lab Edition)**  
