@@ -285,3 +285,15 @@ test("v1.23 장면 순서 바꾸기 moveItem", async () => {
   assert.equal(moveItem(a, 0, 4), a, "범위 밖");
   assert.equal(moveItem(a, 0.5, 2), a, "정수 아님");
 });
+
+test("v1.24 AI 이미지 스튜디오 기록 → 회원 폴더 파일 경로만", async () => {
+  const { aisStoragePath, AIS_BUCKET } = await import("../src/lib/music/aisPath.ts");
+  const uid = "526da72d-0000-4000-8000-000000000001", other = "11111111-2222-4333-8444-555555555555";
+  assert.equal(aisStoragePath({ image_path: `${uid}/a.png` }, uid), `${uid}/a.png`);
+  assert.equal(aisStoragePath({ image_url: `https://x.supabase.co/storage/v1/object/public/${AIS_BUCKET}/${uid}/%ED%95%9C.png?t=1` }, uid), `${uid}/한.png`, "옛 공개 주소에서 경로");
+  assert.equal(aisStoragePath({ image_path: `${other}/a.png` }, uid), null, "다른 회원 파일");
+  assert.equal(aisStoragePath({ image_path: `${uid}/../${other}/a.png` }, uid), null, "상위 폴더 이동");
+  assert.equal(aisStoragePath({ image_url: "https://cdn.example.com/a.png" }, uid), null, "외부 주소");
+  assert.equal(aisStoragePath(null, uid), null);
+  assert.equal(aisStoragePath({ image_path: `${uid}/a.png` }, ""), null);
+});

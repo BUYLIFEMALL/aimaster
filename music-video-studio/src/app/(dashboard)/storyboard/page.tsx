@@ -6,6 +6,7 @@ import { ImagePlus, Loader2, Sparkles, X, Clapperboard, Sliders, Layers } from "
 import { ART_STYLES, SCENE_COUNTS, type ArtStyleId, type SceneCount } from "@/lib/music/presets";
 import { newSceneId } from "@/lib/music/project";
 import { useStudio } from "@/components/studio/ProjectProvider";
+import { AisReferencePicker } from "@/components/studio/AisReferencePicker";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT, NeedStep, SELECT, StepHeader } from "@/components/studio/ui";
 
 export default function StoryboardPage() {
@@ -125,6 +126,8 @@ export default function StoryboardPage() {
               }}
             />
           </div>
+          {/* v1.24 AI 이미지 스튜디오에서 만든 내 이미지 가져오기 */}
+          <AisReferencePicker room={3 - references.length} onPick={(file) => addReferences([file])} />
           <p className="mt-1.5 text-[11px] text-slate-400 leading-normal">
             인물 외형이나 일관된 아트 스타일을 반영하고 싶을 때 업로드하세요. 장면 이미지를 생성할 때 참조되며 서버에 영구 보관되지 않습니다.
           </p>
