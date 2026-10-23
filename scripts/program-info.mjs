@@ -89,15 +89,18 @@ export function cleanupPrograms() {
     const exempt = paths.some((p) => ["src/app", "app"].some((base) => { const f = join(ROOT, folder, base, p.replace(/^\//, ""), "route.ts"); return existsSync(f) && /cleanup-usage-log: 회원 데이터 아님/.test(readFileSync(f, "utf8")); }));
     if (exempt) continue;
     const routes = paths.flatMap((p) => ["src/app", "app"].flatMap((base) => ["route.ts", "route.js"].map((n) => join(ROOT, folder, base, p.replace(/^\//, ""), n)))).filter(existsSync);
-    const logs = paths.some((p) => {
-      const rel = p.replace(/^\//, "");
-      for (const base of ["src/app", "app"]) {
-        for (const name of ["route.ts", "route.js"]) {
-          const f = join(ROOT, folder, base, rel, name);
-          if (existsSync(f) && /cleanup_expired|CLEANUP_ACTION|logCleanupUsage/.test(readFileSync(f, "utf8"))) return true;
-        }
-      }
-      return false;
+    // route가 부르는 내부 모듈(@/… · ./…)도 한 단계 따라가 본다 — threads처럼 기록 호출이 lib 파일 안에 있으면 route만 봐선 「기록 안 함」으로 오판(2026-10-23)
+    const LOG_RE = /cleanup_expired|CLEANUP_ACTION|logCleanupUsage/;
+    const importedFiles = (file) => {
+      const srcRoot = existsSync(join(ROOT, folder, "src")) ? join(ROOT, folder, "src") : join(ROOT, folder);
+      return [...readFileSync(file, "utf8").matchAll(/from\s+["']((?:@\/|\.{1,2}\/)[^"']+)["']/g)].flatMap((m) => {
+        const base = m[1].startsWith("@/") ? join(srcRoot, m[1].slice(2)) : join(file, "..", m[1]);
+        return ["", ".ts", ".tsx", ".js", ".mjs", "/index.ts"].map((ext) => base + ext).filter((f) => existsSync(f) && !statSync(f).isDirectory());
+      });
+    };
+    const logs = routes.some((f) => {
+      const text = readFileSync(f, "utf8");
+      return LOG_RE.test(text) || importedFiles(f).some((g) => LOG_RE.test(readFileSync(g, "utf8")));
     });
     out.push({ folder, slug: programSlug(folder), logs, routes });
   }
