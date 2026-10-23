@@ -35,6 +35,16 @@
 | 1 | 음악(SUNO)자동화 첫 정리 결과를 위 예정치와 대조 — `usage_logs`(program `music-automation`, action `cleanup_expired`)와 남은 곡 수 | 2026-10-29 03:00 KST 이후 | 없음 |
 | 보류 | Mureka 켜기 — 코드 준비 완료(`MUREKA_ENABLED = false`). 주인님 지시 「나중에 필요해지면 충전하고 그때 이후 작업 및 테스트」 → 충전·키 등록(주인님) → `ai-music-studio/supabase/migrations/0004_mureka_provider.sql` 실행(승인) → 켜기·시험 1곡 → 배포 | 주인님이 필요하다고 하실 때 | 그때 사전 승인 |
 
+### 4-1. 2026-10-24 추가 (재부팅 전 마감)
+- **Mureka**: 주인님 「다음에 필요할 때 구독하고 진행하기로 했어 패스」 → 보류 그대로, 먼저 꺼내지 않습니다.
+- **AI 마스터링 스튜디오 GUIDE 배지 수정 — 미배포 대기**: `src/components/layout/Sidebar.tsx` 배지 클래스 띄어쓰기 누락(`text-[10px]bg-gradient-to-r` → `text-[10px] bg-gradient-to-r`), tsc 통과, 커밋 `b5b875484`, `docs/PENDING_DEPLOYS.md`·`ai-mastering-studio/docs/IMPROVEMENTS.md`에 대기 표시, 푸시 완료. **다음 마스터링 배포 때 v1.14로 함께 내보내고(빌드는 주인님 승인 후), 크롬에서 배지 금색 배경 확인 뒤 두 문서의 대기 줄을 지웁니다.**
+- 미커밋 음악 작업 없음, `docs/ACTIVE_WORK.md` 이 세션 예약 없음.
+
+### 4-2. 재부팅 뒤 이어서 할 순서
+1. 이 문서 → `docs/PENDING_DEPLOYS.md`(음악 프로그램 줄) 확인.
+2. 주인님이 「남은 작업」을 물으시면 위 4번 표 + 4-1 미배포 1건을 보고.
+3. 2026-10-29 03:00 KST 이후 첫 정리 결과 대조(4번 표 1번).
+
 ## 5. 이 세션에서 겪은 문제와 교훈
 - **공용 색 클래스 누락**: `lib/`에만 적은 Tailwind 클래스는 `content`에 `lib`가 없으면 CSS가 안 생김 → `docs/ERROR_LESSONS.md` 2026-10-23 항목. 색은 크롬 `getComputedStyle`로 확인.
 - **프로그램 비교표 겹침**: 같은 파일을 여러 세션이 고쳐 안전 커밋 도우미가 「겹침」으로 멈춤 → 내 줄만 HEAD 값으로 잠시 되돌려 `--begin` → 다시 적용 → 커밋하면 내 줄만 들어감(남의 미커밋 줄 보존).
