@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우, claude-win-avs-v105 · 영상 작업 담당) — 영상 합치기 공용화 + 뮤직비디오 「최종 뮤직비디오 만들기」 v1.15~v1.16
+
+- **공용 기준 코드 등록**: `video-edit-timeline`·`video-edit-voice`·`video-edit-composition`(기준 `ai-video-studio`, 사본 `music-video-studio/src/lib/edit/`·`src/components/edit/`, `check-shared-modules.mjs` 일치). 기준 보강: 사진 장면(느린 확대)·영상 반복·`splitEvenly`·프로그램별 최대 길이(시험 21, 시험 앱 실제 렌더로 확인) — AI 영상 스튜디오 동작 변화 없음(미배포 대기 `208c80842`).
+- **뮤직비디오 v1.15**: 4단계 아래 「🎬 최종 뮤직비디오 만들기」(장면 영상/이미지 + 곡 + 가사 자막 → 회원 PC MP4, 무료). **v1.16**: 장면 이미지 생성 500 수정(sharp libvips 누락, `next.config.ts`, 이전부터 있던 문제로 추정, ERROR_LESSONS 재발 기록).
+- **운영 검수(메인 크롬, 시험 계정)**: 빈 요청 JSON 400 → 이미지 2장 생성 16초 → 최종 렌더 약 57초에 64.4초 1280×720 19.7MB, 소리·끝 페이드·장면 2 가사 자막 화면 확인.
+- **미배포 대기**: 뮤직비디오 가사 자막의 「[Verse 1]」 구간 표시 빼기 `1b8440ac7`.
+- **커밋 방식**: 공용 인덱스가 13:29에 다시 15개로 쪼그라들었다가 다른 세션이 복구 — 이후 일반 파일은 `scripts/commit-paths.mjs`, 공용 문서는 safe-commit만 사용. 한 번 `;` 연결로 커밋 실패 뒤 푸시가 실행됨(다른 세션 정상 커밋 1개만 올라감, 피해 없음) → 다음부터 커밋 성공 확인 뒤에만 푸시.
+- **비용 리포트**: Vercel 빌드 3회(AI 영상 스튜디오 v1.05·뮤직비디오 v1.15·v1.16, v1.16은 추가 승인) · OpenAI 음성 2·받아쓰기 2(약 $0.01) · Gemini 장면 이미지 2(약 $0.08) · 실패한 이미지 2회는 Gemini 호출 전 실패라 0원.
+
+https://music-video-studio.buylife.xyz/scenes
+
 ## 2026-10-23 Claude Code(윈도우) — 일반 커밋 도우미 `commit-paths.mjs` · 축소 원인 추정 정정 · emotion-writer 매뉴얼(미배포) · 임시 스테이징 정리
 - **`node scripts/commit-paths.mjs "<메시지>" <경로>... [--push]`(새, 선택)**: 최신 HEAD에서 시작한 임시 스테이징에 `git add -A -- <경로>`(새 파일·삭제·폴더·이미지 가능)로 담아 커밋 — 공용 스테이징을 읽지 않고, 정상일 때만 내 경로를 맞춤(망가져 있으면 건드리지 않고 경고). 대량 삭제 검사(차단)·OpenAI 모델·되돌림 경고를 직접 실행, 공용 문서는 거부(→ safe-commit). 시험 `scripts/commit-paths.test.mjs` 5개 통과. 최상위 규칙 ①은 그대로(주인님 결정), 협업 규칙 9번에 안내만.
 - **원인 추정 정정**: 시험 결과 경로 지정 커밋은 스테이징을 줄이지 않는다(이미 비어 있을 때 자기 경로만 채움). 「커밋한 파일만 남은」 모양은 먼저 비워진 뒤의 결과 — **처음 비운 원인은 미확정**(`docs/ERROR_LESSONS.md` 13:28 항목 정정). 11:18에 남은 임시 스테이징(66개)은 망가진 HEAD `c2e7c4db2`의 사본(원인 아님) — 목록을 `docs/evidence/index-shrink-20261023-tmpindex-38020.txt`에 보존.
