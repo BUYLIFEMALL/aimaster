@@ -18,4 +18,5 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `ai-video-studio/` → 이어서 `music-video-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-avs-v105` | 2026-10-23 | 묶음 A(v1.05 내레이션·자동 자막·편집 저장·갤러리 저장·화면 편의) → 묶음 B(공용화 + 뮤직비디오 최종 합치기 v1.14), 플랜 `ai-video-studio/docs/PLAN_20261023_EDIT_STUDIO.md` 9절, 빌드 2회·운영 DB `avs_edits` 승인 |
 | `shorts-onestop-studio/` + `music-video-studio/` + `ai-music-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-bgm` | 2026-10-23 | 곡 번호 링크(`?ams=`) 묶음 배포 3회(주인님 승인) |
