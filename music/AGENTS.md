@@ -409,11 +409,19 @@ POST 콜백을 보낸다. 이 라우트는:
 - 검수: tsc·lint·테스트 58·build, 배포 `music-q6h59rgx0` Ready, DB v1.43. 크롬 시험 계정 「빗속의 다짐」: 4곡 줄(구간 수정본·연장본 표시), 첫 곡 #2·두 번째 곡 빼기 → 「고른 곡 3개」, 목차 0:00·2:57·5:58, 플레이리스트 링크 3곡. 비용: Vercel 빌드 1회.
 - ⚠️ **같은 폴더 동시 작업**: 이 작업 중 다른 Claude Code(윈도우) 세션이 `docs/ACTIVE_WORK.md`에 「좁은 칸 버튼 줄바꿈/잘림 수정 B안」으로 `music/`를 등록하고 `components/settings/ApiKeyRow.tsx`(CSS 3줄: `gap-3`·`min-w-0`·`shrink-0 whitespace-nowrap`)를 고쳐 둔 상태였고, **이 미커밋 변경이 v1.43 운영 배포에 함께 들어갔다**(화면 배치만 바뀌는 변경이라 되돌리지 않음). 그 파일은 이 커밋에 넣지 않았다 — 그 세션이 자기 커밋으로 올리면 된다(운영에는 이미 반영됨).
 
-## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
+## 2026-10-22 ✅ 배포됨(v1.43에 함께 포함 — 아래 v1.43 항목 참고) — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
 
-## 2026-10-23 ⏸ 미배포 — 공용 Suno 코드에 콜백 주소 선택값 `callbackOrigin` (Claude Code 윈도우, 커밋 acccf06eb)
+## 2026-10-23 ✅ 배포됨(v1.44) — 공용 Suno 코드에 콜백 주소 선택값 `callbackOrigin` (Claude Code 윈도우, 커밋 acccf06eb)
 - `lib/ai/suno.ts`(공용 모듈 `suno-api-client` 기준) `RequestSunoGenerationInput.callbackOrigin?` 추가 — 비우면 지금처럼 이 앱 주소. 사본을 쓰는 AI 음악 스튜디오 v1.03이 자기 웹훅으로 신호를 받으려고 넣음. **이 앱의 동작은 바뀌지 않아 배포하지 않음** — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.
 
-## 2026-10-23 ⏸ 미배포 — 휴대폰 폭 ☰ 펼침 메뉴 (Claude Code 윈도우)
+## 2026-10-23 ✅ 배포됨(v1.44) — 휴대폰 폭 ☰ 펼침 메뉴 (Claude Code 윈도우)
 - `components/layout/Sidebar.tsx`: 767px 이하에서 메뉴가 본문 위에 통째로 쌓이던 것을 머리줄(로고·버전·☰) + 펼침 메뉴로(원칙 19). 데스크톱 그대로. **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 크롬 390px에서 ☰ 펼침·계정 확인 뒤 이 항목을 「배포됨(버전)」으로 바꿀 것.** 상세: `docs/IMPROVEMENTS.md` 맨 아래.
+
+## 2026-10-23 v1.44 — 미배포 3건 묶음 배포 (Claude Code 윈도우, 주인님 승인 빌드 1회)
+- 내보낸 것: ① 공용 Suno 코드 `callbackOrigin` 선택값(`acccf06eb`, 이 앱 동작 변화 없음) ② 곡 30일 정리가 회원별 `usage_logs` `cleanup_expired` 기록(`4cafe5eb3`) ③ 휴대폰 폭 ☰ 펼침 메뉴(`2fcddccb7`).
+- 배포 `music-36j3lwxcj` Ready·운영 주소 연결, DB `programs.version` v1.44, 역량 지도 목록·카드 v1.44.
+- 검수(크롬 시험 회원 `buylifemall@naver.com`, 같은 주소 390px iframe): 접힌 상태 메뉴 높이 73px·메뉴 본문 숨김 → ☰ 누르면 메뉴·접속 계정 이메일·로그아웃 표시, ✕로 다시 접힘. 화면 버전 v1.44. ①은 Suno 생성(유료)을 하지 않아 실호출 미확인(동작 변화 없는 선택값), ②는 정리 유예가 2026-10-28까지라 **2026-10-29 03:00 KST 첫 실제 삭제 뒤** 관리자 「30일 자동 정리」 표에 `music` 줄이 생기는지 확인.
+
+## 2026-10-23 ⏸ 미배포 — 휴대폰 폭 가로 넘침(배경 장식) (Claude Code 윈도우)
+- v1.44 검수 중 발견: 390px 폭에서 문서 폭 495px(가로 넘침). 원인은 이번 메뉴가 아니라 `app/(dashboard)/layout.tsx`의 배경 번짐 장식(`w-[400px]`, `left-1/4`)이 화면 밖으로 나간 것(예전부터). 수정: `<main>`에 `overflow-x-clip`(가로만 잘라냄, 기획 목록 아래 고정 막대 `sticky`는 유지). tsc·build 통과. **다음 배포 때 함께 내보내고 버전 +0.01, 390px에서 가로 넘침 없음(문서 폭 = 화면 폭) 확인.**

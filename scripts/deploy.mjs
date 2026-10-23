@@ -240,7 +240,9 @@ function fixMapRow(slug, ver) {
 
 if (versionOnly) {
   console.log(`\n[버전] ${folder}`);
-  await syncVersion();
+  const vr = await syncVersion();
+  // 배포 뒤 --set-version으로 DB를 맞춘 경우에도 역량 지도 한 줄을 함께 고친다(배포 때는 DB가 아직 옛 버전이라 건너뛰던 빈틈, 2026-10-23)
+  if (setVersion && vr && vr.db === vr.ver) fixMapRow(vr.slug, vr.ver);
   process.exit(0);
 }
 
