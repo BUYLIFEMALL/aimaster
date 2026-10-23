@@ -168,7 +168,7 @@ try {
         const body = readFileSync(aw, "utf8").split(/^## 작업 중\s*$/m)[1] ?? "";
         const tableRows = body.split("\n").filter((l) => l.startsWith("|") && !/^\|\s*(폴더|-{3})/.test(l))
           .map((l) => l.split("|").map((c) => c.trim())).filter((c) => c.length > 3)
-          .map((c) => ({ folder: c[1].replace(/`/g, "").split("·")[0].trim().slice(0, 40), name: (c[2].match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1], start: (c[3].match(/\d{4}-\d\d-\d\d/) ?? [])[0] }));
+          .map((c) => ({ folders: (c[1].match(/`([^`]+)`/g) ?? []).map((f) => f.replace(/`/g, "").replace(/\/$/, "")), folder: c[1].replace(/`/g, "").split("·")[0].trim().slice(0, 40), name: (c[2].match(/((?:claude|codex|agy)-[\w.-]+)/) ?? [])[1], start: (c[3].match(/\d{4}-\d\d-\d\d/) ?? [])[0] }));
         const noName = tableRows.filter((r) => !r.name).map((r) => r.folder);
         if (noName.length) console.log(`⚠ [작업 중 표 세션 이름 없음] ${noName.length}줄: ${noName.slice(0, 3).join(", ")}${noName.length > 3 ? ` 외 ${noName.length - 3}줄` : ""} — 「에이전트(장비)」 칸에 \`세션 <CLI>-<장비>-<날짜>-<작업>\`을 넣어야 다른 세션이 찾아 물을 수 있음(docs/ACTIVE_WORK.md 사용법 2)`);
         // 끝났는데 줄을 안 지운 듯한 세션(2026-10-23): 시작이 하루 넘게 지났고, 24시간 안에 그 이름의 블랙박스 기록·커밋이 하나도 없음 — 지우지 말고 주인님께(사용법 4)
@@ -178,7 +178,21 @@ try {
         const idle = tableRows.filter((r) => r.name && r.start && new Date(`${r.start}T23:59:59`).getTime() < since && !seen(r.name));
         if (idle.length) console.log(`⚠ [작업 중 표 오래된 줄] ${idle.length}줄: ${idle.slice(0, 3).map((r) => `${r.folder}(${r.name}, ${r.start} 시작)`).join(", ")}${idle.length > 3 ? ` 외 ${idle.length - 3}줄` : ""} — 24시간 동안 그 세션의 기록·커밋이 없음. 끝난 세션일 수 있으니 지우지 말고 주인님께 확인(docs/ACTIVE_WORK.md 사용법 4)`);
         // 지금 작업 중인 세션 목록(폴더 → 세션 이름) — 다른 세션에 메시지를 보낼 때 바로 찾게. ⚠가 없어 요약 한 줄이 되어도 따로 보인다
-        if (tableRows.some((r) => r.name)) activeList = `[작업 중 세션] ${tableRows.filter((r) => r.name).map((r) => `${r.folder} → ${r.name}`).join(" · ")}`;
+        if (tableRows.some((r) => r.name)) activeList = `[작업 중 세션] ${tableRows.filter((r) => r.name).map((r) => `${r.folder}${r.folders.length > 1 ? ` 외 ${r.folders.length - 1}개` : ""} → ${r.name}`).join(" · ")}`;
+        // 표에 없는 세션이 표의 폴더를 고침(2026-10-23): 24시간 안 커밋 중 세션 이름이 붙었고 그 폴더 줄의 세션과 다른 것 — 같은 폴더 동시 작업을 빨리 잡는다
+        // (이름 없는 커밋은 판단하지 않음. 주인님 승인으로 다른 세션이 맡는 경우도 있으니 막지 않고 확인만)
+        try {
+          const log = git(["log", `--since=${new Date(since).toISOString()}`, "--name-only", "--format=@@%h|%(trailers:key=AIMaster-Session,valueonly,separator=%x2C)"]);
+          const commits = log.split("@@").filter(Boolean).map((b) => { const [h, ...files] = b.trim().split("\n"); const [hash, who] = h.split("|"); return { hash, who: (who ?? "").trim(), files: files.filter(Boolean) }; }).filter((c) => c.who);
+          const clash = [];
+          for (const r of tableRows.filter((x) => x.name)) for (const c of commits) {
+            if (c.who === r.name) continue;
+            // 그 폴더의 docs/(인수인계·개선 목록)만 고친 커밋은 빼고 코드·설정 등만 본다 — 문서 정리는 다른 세션이 자주 함(첫 실측: 맥미니 세션의 IMPROVEMENTS.md 정리)
+            const hit = r.folders.find((f) => c.files.some((p) => (p === f || p.startsWith(`${f}/`)) && !p.startsWith(`${f}/docs/`)));
+            if (hit) clash.push(`${hit}/ ← ${c.who}(${c.hash}, 표의 세션 ${r.name})`);
+          }
+          if (clash.length) console.log(`⚠ [작업 중 폴더를 다른 세션이 고침] ${clash.length}건: ${clash.slice(0, 3).join(" · ")}${clash.length > 3 ? ` 외 ${clash.length - 3}건` : ""} — 같은 폴더 동시 작업인지 두 세션에 확인(주인님 승인으로 넘겨받은 경우면 표의 줄을 고칠 것)`);
+        } catch { /* 무시 */ }
       }
     } catch { /* 읽기 실패는 무시 */ }
     // 세션 트레일러 이행률(2026-10-23): 트레일러 도입(15:20) 이후·최근 7일 커밋 중 `AIMaster-Session:`이 붙은 비율 — 규칙이 지켜지는지 매번 보이게
