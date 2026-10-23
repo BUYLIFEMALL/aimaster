@@ -240,7 +240,7 @@
 | 84 | AI 문서 챗봇 자동화 | `ai-doc-chatbot` | **포커스 스튜디오 스타일 — 미드나잇 챗 콘솔 변형** | 다크(미드나잇 `#0d0f17` + 인디고→스카이 포인트) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일 — 미드나잇 챗 콘솔 변형) | [`ai-doc-chatbot/docs/DESIGN_HANDOFF.md`](ai-doc-chatbot/docs/DESIGN_HANDOFF.md) |
 | 85 | AI 가사영상 자동화 | `lyric-video-studio` | **플로우 위저드 스타일 — 리릭 스테이지 바이올렛 변형** | 다크(`#0b1020` + 바이올렛 `#7c3aed`) / 라이트 전환 | ✅ 1차 작업완료 (`v1.04`, 플로우 위저드 스타일 — 리릭 스테이지 바이올렛 변형) | [`lyric-video-studio/docs/DESIGN_HANDOFF.md`](lyric-video-studio/docs/DESIGN_HANDOFF.md) |
 | 86 | AI 댓글·DM 통합 받은편지함 | `comment-inbox` | **플로우 위저드 스타일 (인스타 바이럴 변형)** — 받은편지함용 축소(INSTA 댓글·DM v1.24와 같은 팔레트) | 다크(`#0d0f17` + 핑크→보라 그라디언트, `ig-*` 토큰) | ✅ 1차 작업완료 (`v1.01`, 신규 · 크롬 데스크톱·400px 검수 2026-10-21) | [`comment-inbox/docs/DESIGN_HANDOFF.md`](comment-inbox/docs/DESIGN_HANDOFF.md) |
-| 87 | AI 음악 스튜디오 | `ai-music-studio` | AI 이미지 스튜디오 다크 스튜디오 스타일 — 바이올렛 변형(신규, 정식 리뉴얼은 agy) | 다크(`#09090b` + 바이올렛 `#8b5cf6`) | 🔄 작업 중 (Claude Code 윈도우, 디자인 리뉴얼 플랜 작성 중 — 2026-10-23, 이전: ✅ 1차 작업완료 `v1.01` 신규 개발 기본 디자인) | [`ai-music-studio/docs/DESIGN_HANDOFF.md`](ai-music-studio/docs/DESIGN_HANDOFF.md) |
+| 87 | AI 음악 스튜디오 | `ai-music-studio` | **사운드 랩 바이올렛 스타일** (Sound Lab Violet — 그룹 B 오디오 콘솔 변형) | 다크(`#09090b` + 바이올렛 `#8b5cf6` + 시안 `#22d3ee`) | ✅ 1차 작업완료 (`v1.11`, 사운드 랩 바이올렛 스타일 — 2026-10-23 Claude Code 윈도우 리뉴얼) | [`ai-music-studio/docs/DESIGN_HANDOFF.md`](ai-music-studio/docs/DESIGN_HANDOFF.md) |
 
 ---
 
