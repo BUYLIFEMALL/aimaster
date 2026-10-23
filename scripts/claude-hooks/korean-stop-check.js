@@ -57,8 +57,14 @@ process.stdin.on("end", () => {
     const entries = fs.readFileSync(path, "utf8").split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
     let start = 0;
     for (let i = entries.length - 1; i >= 0; i--) if (isRealUser(entries[i])) { start = i + 1; break; }
-    const text = entries.slice(start).filter((e) => e.type === "assistant" && e.message).map((e) => textOf(e.message.content)).join("\n");
+    // 2026-10-23 보강: 대화 기록에는 턴 중간 안내가 검사 시점에 아직 글로 남지 않는 경우가 있어(실측), 훅 입력의 마지막 답변도 함께 본다
+    const last = typeof data.last_assistant_message === "string" ? data.last_assistant_message : "";
+    const text = entries.slice(start).filter((e) => e.type === "assistant" && e.message).map((e) => textOf(e.message.content)).join("\n") + "\n" + last;
     const found = englishLines(text);
+    // 실행 기록(장치가 실제로 도는지 확인용) — 시각·검사한 글자 수·영어 줄 수·막았는지
+    try {
+      fs.appendFileSync(require("path").join(__dirname, "korean-stop-check.log"), JSON.stringify({ at: new Date().toISOString(), chars: text.length, hasLast: !!last, found: found.length, blocked: found.length > 0 }) + "\n");
+    } catch { /* 기록 실패는 무시 */ }
     if (!found.length) return process.exit(0);
     const sample = found.slice(0, 3).map((l) => `「${l}」`).join(", ");
     process.stdout.write(JSON.stringify({
