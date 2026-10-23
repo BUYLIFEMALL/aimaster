@@ -117,3 +117,13 @@ test("프로젝트 정리: 범위·허용 목록·기본값", () => {
   assert.equal(s.scenes.length, 8);
   assert.deepEqual(sanitizeProject(null), d);
 });
+
+test("v1.13 곡 정보: AI 음악 스튜디오 곡 번호·내 파일만 남기고 잘못된 값은 버림", () => {
+  assert.equal(defaultProject().song, null);
+  const ams = sanitizeProject({ song: { source: "ams", ref: "526da72d-0000-4000-8000-000000000001:1", title: "노을", durationS: 61.6, model: "V6" } }).song;
+  assert.deepEqual(ams, { source: "ams", title: "노을", ref: "526da72d-0000-4000-8000-000000000001:1", durationS: 62, model: "V6" });
+  assert.equal(sanitizeProject({ song: { source: "ams", ref: "../x", title: "a" } }).song, null);
+  assert.equal(sanitizeProject({ song: { source: "http", title: "a" } }).song, null);
+  const file = sanitizeProject({ song: { source: "file", title: "", fileName: "my.mp3", durationS: -3, ref: "zzz" } }).song;
+  assert.deepEqual(file, { source: "file", title: "내 곡", fileName: "my.mp3", durationS: null });
+});

@@ -1,6 +1,6 @@
 // 프로젝트 기본값과 검증(브라우저 저장본·불러온 JSON 파일을 허용 목록·범위로 정리한다).
 import { ART_STYLES, ASPECT_RATIOS, GENRES, SCENE_COUNTS, VEO_MODELS, VIDEO_LENGTHS, type SceneCount } from "./presets";
-import type { MusicProject, Scene } from "./types";
+import type { MusicProject, Scene, SongRef } from "./types";
 
 export function newSceneId(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Math.random().toString(36).slice(2, 10)}`;
@@ -19,12 +19,22 @@ export function defaultProject(): MusicProject {
     mood: "",
     scenes: [],
     video: { model: "gemini-omni-1.1-flash", length: 8, loop: false, ratio: "16:9" },
+    song: null,
   };
 }
 
 const rec = (v: unknown): Record<string, unknown> => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
 const str = (v: unknown, max: number, fb = ""): string => (typeof v === "string" ? v.slice(0, max) : fb);
 const oneOf = <T extends string>(v: unknown, list: { value: T }[], fb: T): T => (list.some((o) => o.value === v) ? (v as T) : fb);
+
+function sanitizeSong(v: unknown): SongRef | null {
+  const r = rec(v);
+  if (r.source !== "ams" && r.source !== "file") return null;
+  const ref = str(r.ref, 64);
+  if (r.source === "ams" && !/^[0-9a-f-]{36}:\d{1,2}$/i.test(ref)) return null;
+  const d = typeof r.durationS === "number" && Number.isFinite(r.durationS) && r.durationS > 0 ? Math.round(r.durationS) : null;
+  return { source: r.source, title: str(r.title, 80) || "내 곡", ...(r.source === "ams" ? { ref } : {}), ...(r.fileName ? { fileName: str(r.fileName, 120) } : {}), durationS: d, ...(r.model ? { model: str(r.model, 60) } : {}) };
+}
 
 export function sanitizeProject(raw: unknown): MusicProject {
   const r = rec(raw);
@@ -52,5 +62,6 @@ export function sanitizeProject(raw: unknown): MusicProject {
       loop: typeof video.loop === "boolean" ? video.loop : fb.video.loop,
       ratio: oneOf(video.ratio, ASPECT_RATIOS, fb.video.ratio),
     },
+    song: sanitizeSong(r.song),
   };
 }

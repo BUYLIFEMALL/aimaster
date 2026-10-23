@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, Copy, Download, FileUp, Loader2, Wand2, Music2, Sliders, Sparkles } from "lucide-react";
 import { GENRES } from "@/lib/music/presets";
 import { useStudio } from "@/components/studio/ProjectProvider";
+import { SongCard } from "@/components/studio/SongCard";
 import { BTN_GHOST, BTN_PRIMARY, Card, ErrorNote, Field, INPUT, SELECT, StepHeader, copyText } from "@/components/studio/ui";
 
 function CopyButton({ text, label }: { text: string; label: string }) {
@@ -63,7 +64,9 @@ export default function MusicPage() {
 
   return (
     <div className="space-y-6">
-      <StepHeader step={1} title="음악·가사 기획" desc="주제와 장르로 AI가 가사와 Suno 스타일을 쓰거나, 이미 있는 가사를 직접 붙여 넣습니다." />
+      <StepHeader step={1} title="음악·가사 기획" desc="AI 음악 스튜디오에서 내 곡을 가져오거나 내 음악 파일을 올리고, 주제와 장르로 AI가 가사와 Suno 스타일을 쓰거나 이미 있는 가사를 직접 붙여 넣습니다." />
+
+      <SongCard />
 
       <Card className="space-y-4">
         <div className="flex items-center gap-2 border-b border-[#1e293b] pb-3">
