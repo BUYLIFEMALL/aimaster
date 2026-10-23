@@ -3,6 +3,9 @@
 // 반복돼(같은 날 여러 번 지적) 실제로 막는 장치를 둔다. 영어 줄이 있으면 decision "block" + 한국어로 다시 보고하라는 이유를 돌려준다.
 // 무한 반복 방지: stop_hook_active(이미 한 번 되돌려 다시 쓰는 중)이면 통과시킨다.
 // 되돌리기: settings.json의 Stop 훅에서 이 줄 삭제(백업 ~/.claude/settings.json.before-korean-stop-20261023).
+// 한계(2026-10-23 확인): 이 훅은 대화 기록(transcript)의 「보이는 글」 블록만 읽는다. 같은 날 시험에서, 도구 호출 사이에 쓴 영어 안내 일부가
+// 턴이 끝난 뒤에도 기록에 글로 저장되지 않아(기록에는 명령 안에만 있음) 이 훅이 볼 수 없었다 — 기록에 남는 줄은 막지만, 남지 않는 줄은 막지 못한다.
+// 또 지난 영어 원문을 인용한 표 줄도 위반으로 잡으므로, 영어 원문을 언급할 때는 한국어 설명으로 쓴다.
 const fs = require("fs");
 
 const FUNCTION_WORDS = /\b(the|is|are|was|were|i|i'll|i've|i'm|we|you|it|it's|this|that|these|those|to|and|of|for|with|now|next|let|here|here's|there|done|will|can|should|has|have|be|been|not|no|so|then|before|after|into|from|on|in|at|by|my|our|your)\b/i;
