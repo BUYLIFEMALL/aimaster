@@ -236,3 +236,6 @@
 - 플랜 루트 `docs/analysis-music-studio-20261023/BGM_SHARED_PLAN.md` 2단계(주인님 승인). `src/lib/amsSongs.ts`(목록·복사, 공용 `ams_generations` 읽기만·본인 `user_id`), `/api/ams/songs`(GET)·`/api/ams/import`(POST, 같은 출처), `RenderView` 「🎵 ③ 배경음악」 고르기 목록. 복사본 `<회원>/ams/<uuid>.mp3|wav`(15MB까지) → 기존 `bgm` 모양 그대로라 미리보기·MP4 섞기 코드 변경 없음. 30일 정리 `SUBFOLDERS`에 `ams`(기록 이름 `tracks`).
 - 검수: tsc·시험 27개·build, 배포 Ready·DB v1.38, 크롬 시험 회원 목록 14곡·고르기·복사본 재생 확인. 비용: 빌드 1회.
 - 미배포 대기: 고른 곡 이름 번호 유지 `b48814471`.
+
+## 2026-10-23 v1.39 — `/render?ams=` 링크로 오면 가장 최근 대본에 배경음악 자동으로 넣기(`RenderView` `pendingAms`), 고른 곡 이름 번호 유지. (Claude Code 윈도우)
+- 검수: tsc·시험·build, 배포 Ready·DB 버전 맞춤, 크롬 시험 회원으로 AI 음악 스튜디오 링크 → 곡 들어감 확인. 비용: 빌드 1회.

@@ -64,3 +64,6 @@
 
 ## 2026-10-23 v1.07 — 곡 카드에 쇼츠 원스톱·뮤직비디오 링크 (Claude Code 윈도우)
 - `components/studio/GenerationCard.tsx` `SHORTS_ONESTOP_URL`(`/render`)·`MUSIC_VIDEO_URL`(`/music`) 링크 2개 — 받는 쪽 고르기 목록을 여는 방식(곡 자동 선택은 제안만). `music-sync-calls` 분리 함께 배포. 검수: 시험 25개·build, 배포 Ready·DB v1.07, 크롬 시험 회원 링크 확인. 비용: 빌드 1회.
+
+## 2026-10-23 v1.08 — 곡마다 원스톱·뮤직비디오 링크에 곡 번호 `?ams=`(`components/studio/GenerationCard.tsx`). (Claude Code 윈도우)
+- 검수: tsc·시험·build, 배포 Ready·DB 버전 맞춤, 크롬 시험 회원으로 AI 음악 스튜디오 링크 → 곡 들어감 확인. 비용: 빌드 1회.
