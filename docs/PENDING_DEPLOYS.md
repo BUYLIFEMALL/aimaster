@@ -17,6 +17,12 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-auto-blog` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `ai-auto-blog/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
+| `tistory-auto-blog` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
+| `blog-workroom` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `blog-workroom/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
+| `naver-blog-agent` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
+| `naver-blog-allinone` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `naver-blog-allinone/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
+| `naver-blog-seo-studio` | 30일 정리 회원별 기록(usage_logs `cleanup_expired`, 공용 `cleanup-usage-log` 사본) — 크론 코드만 | `6cd2b9783` | 2026-10-23 · Claude Code(윈도우) 블로그 전담 `claude-win-20261023-seo-bg` | `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 맨 끝 | 버전 +0.01 |
 | `cinematic-storyboard-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `cinematic-storyboard-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `ai-prompt-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `ai-prompt-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
 | `persona-style-studio` | 메인 사이트 링크 주소 정정(aimaster→www, /signup→/register, /legal/*→/privacy·/terms) — 운영은 도메인 308 이동으로 임시 해결, 회원가입 링크만 404 | `486fd5fd3` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-mainsite-url` | `persona-style-studio/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 로그인 화면 회원가입·비밀번호 찾기 링크 확인 |
