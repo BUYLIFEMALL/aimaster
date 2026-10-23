@@ -48,6 +48,7 @@ import type { CollectorCategory } from "@/types/collector";
 import { useContentCategories } from "@/hooks/useContentCategories";
 import { CategoryManagementModal } from "@/components/collector/CategoryManagementModal";
 import ContentRetentionNotice from "@/components/ContentRetentionNotice";
+import PreparedPublishRecord from "@/components/PreparedPublishRecord";
 import { retentionDaysLeft, retentionDeleteAt } from "@/lib/retention";
 
 interface SavedPostItem {
@@ -977,6 +978,7 @@ export default function QueuePage() {
                       {/* 상태 배지 & 카테고리 연계 드롭다운 */}
                       <div className="flex items-center gap-2 flex-wrap">
                         {post.status === "prepared" && <span className="text-xs text-sky-700">발행 전 준비 완료 · 열린 네이버 탭에서 직접 최종 발행</span>}
+                        {post.status === "prepared" && <PreparedPublishRecord id={post.id} blogId={post.blog_id} onRecorded={()=>{fetchPosts(true);}} />}
                         {post.status === "published" && (
                           <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                             <CheckCircle2 className="w-3 h-3" />

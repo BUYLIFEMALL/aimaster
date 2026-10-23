@@ -29,7 +29,8 @@
     "test:homefeed": "node --test scripts/test-homefeed-schedule-links.cjs",
     "test:ranking": "node --test scripts/test-naver-ranking.cjs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:prepared-publish": "node --test scripts/test-prepared-publish.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

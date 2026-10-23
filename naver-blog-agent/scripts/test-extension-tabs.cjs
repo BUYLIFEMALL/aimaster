@@ -383,5 +383,48 @@ const task=stage=>({id:'task',blogId:'myblog',tabId:1,editorResetStarted:true,st
     const ok=await b.send({type:'pairFromWeb',code:'ABCD1234',blogId:'myblog'},{url:'https://naver-blog-agent.buylife.xyz/settings',tab:{id:6}});
     assert.equal(ok.ok,true);await flush();assert.equal(b.tabs.has(6),true);
   });
+  // v2.15: a prepared tab that the member published themselves is detected read-only and reported.
+  const prepared={id:7,taskId:'task-p',blogId:'myblog',title:'준비 제목',preparedAt:1};
+  const postTab=(b,url='https://blog.naver.com/myblog/224451486747')=>b.tabs.set(7,{id:7,windowId:1,status:'complete',url});
+  const preparedNet=(b,status=200,seen=[])=>b.network(async(url,init)=>{seen.push([url,JSON.parse(init.body)]);return status===200
+    ?{ok:true,json:async()=>({success:true,persisted:true,taskId:JSON.parse(init.body).taskId,status:'published'})}
+    :{ok:false,status,json:async()=>({error:'x'})};});
+  await scenario('prepared tab published by member: read-only check, report, then forget the tab',async()=>{
+    const b=await browser({connection,preparedEditorTabs:[prepared]});postTab(b);const seen=[];preparedNet(b,200,seen);
+    b.execute(async({args})=>[{frameId:0,result:args[0]==='published'?{complete:true,url:'https://blog.naver.com/myblog/224451486747'}:{}}]);
+    b.events.updated(7,{status:'complete'},{id:7,url:'https://blog.naver.com/myblog/224451486747'});
+    for(let n=0;n<20;n++)await flush();
+    const sent=seen.filter(([u])=>u.endsWith('/api/extension/prepared-published'));
+    assert.equal(sent.length,1);assert.deepEqual(sent[0][1],{taskId:'task-p',postUrl:'https://blog.naver.com/myblog/224451486747'});
+    assert.deepEqual(b.data.preparedEditorTabs,[]);assert.deepEqual(b.data.preparedReports,[]);
+    assert.ok(b.calls.filter(c=>c[0]==='script').every(c=>c[1]==='published'),'only the read-only published check runs');
+  });
+  await scenario('prepared tab still on the editor or another blog: nothing is checked or reported',async()=>{
+    for(const url of ['https://blog.naver.com/myblog/postwrite','https://blog.naver.com/other/123','https://example.com/myblog/1']){
+      const b=await browser({connection,preparedEditorTabs:[prepared]});postTab(b,url);const seen=[];preparedNet(b,200,seen);
+      await b.sandbox.watchPreparedPublish(7,url);
+      assert.equal(b.calls.filter(c=>c[0]==='script').length,0);assert.equal(seen.length,0);assert.equal(b.data.preparedEditorTabs.length,1);
+    }
+  });
+  await scenario('title mismatch never reports (previous post shown under the new URL)',async()=>{
+    const b=await browser({connection,preparedEditorTabs:[prepared]});postTab(b);const seen=[];preparedNet(b,200,seen);
+    b.execute(async()=>[{frameId:0,result:{complete:false,url:'https://blog.naver.com/myblog/224451486747'}}]);
+    await b.sandbox.watchPreparedPublish(7,'https://blog.naver.com/myblog/224451486747');
+    assert.equal(seen.length,0);assert.equal(b.data.preparedEditorTabs.length,1);assert.equal(b.data.preparedReports,undefined);
+  });
+  await scenario('server unavailable keeps the observed result and retries; 409 is dropped',async()=>{
+    const b=await browser({connection,preparedEditorTabs:[prepared]});postTab(b);preparedNet(b,503);
+    b.execute(async()=>[{frameId:0,result:{complete:true,url:'https://blog.naver.com/myblog/224451486747'}}]);
+    await b.sandbox.watchPreparedPublish(7,'https://blog.naver.com/myblog/224451486747');
+    assert.equal(b.data.preparedReports.length,1);assert.equal(b.data.preparedEditorTabs.length,1);
+    const seen=[];preparedNet(b,200,seen);await b.sandbox.flushPreparedReports();
+    assert.equal(seen.length,1);assert.deepEqual(b.data.preparedReports,[]);assert.deepEqual(b.data.preparedEditorTabs,[]);
+    const c=await browser({connection,preparedEditorTabs:[prepared],preparedReports:[{taskId:'task-p',tabId:7,postUrl:'https://blog.naver.com/myblog/1'}]});
+    preparedNet(c,409);await c.sandbox.flushPreparedReports();assert.deepEqual(c.data.preparedReports,[]);
+  });
+  await scenario('without a connection, stored reports wait and nothing is sent',async()=>{
+    const b=await browser({preparedReports:[{taskId:'task-p',tabId:7,postUrl:'https://blog.naver.com/myblog/1'}]});const seen=[];preparedNet(b,200,seen);
+    await b.sandbox.flushPreparedReports();assert.equal(seen.length,0);assert.equal(b.data.preparedReports.length,1);
+  });
   console.log(`${passed} browser lifecycle regression scenarios passed`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

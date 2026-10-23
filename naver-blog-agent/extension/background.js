@@ -487,10 +487,68 @@ async function pump() {
 }
 runBackground(()=>chrome.alarms.create('connection',{periodInMinutes:.5}));
 runBackground(()=>chrome.alarms.create('update-check',{periodInMinutes:360}));
-chrome.alarms.onAlarm.addListener(alarm=>runBackground(()=>alarm.name==='update-check'?checkUpdate():alarm.name==='connection'?pump():undefined));
+chrome.alarms.onAlarm.addListener(alarm=>runBackground(()=>alarm.name==='update-check'?checkUpdate():alarm.name==='connection'?pump().then(flushPreparedReports):undefined));
 chrome.action.onClicked.addListener(()=>runBackground(()=>chrome.tabs.create({url:chrome.runtime.getURL('connect.html')})));
+// v2.15: a prepared tab only changes to a post view when the member pressed publish.
+// Read-only check (title + URL via the existing 'published' command); never clicks anything.
+const watchingPrepared=new Set();
+function postViewOf(url,blogId){
+  let u;try{u=new URL(url || '');}catch{return false;}
+  if(u.protocol!=='https:' || !['blog.naver.com','m.blog.naver.com'].includes(u.hostname))return false;
+  const direct=u.pathname.split('/')[1]?.toLowerCase()===String(blogId).toLowerCase() && /^\/[^/]+\/\d+\/?$/.test(u.pathname);
+  return direct || (/^\/PostView\.naver$/i.test(u.pathname) && u.searchParams.get('blogId')?.toLowerCase()===String(blogId).toLowerCase());
+}
+async function watchPreparedPublish(tabId,url){
+  if(watchingPrepared.has(tabId))return;
+  const ready=(await stored()).preparedEditorTabs?.find(item=>item.id===tabId);
+  if(!ready || !postViewOf(url,ready.blogId))return;
+  watchingPrepared.add(tabId);
+  try{
+    let refreshed=false;
+    for(let n=0;n<10;n++){
+      await sleep(1000);
+      const results=await frameResults(tabId,'published',{blogId:ready.blogId,title:ready.title}).catch(()=>null);
+      if(!results)return; // tab closed
+      const done=results.find(r=>r.complete);
+      if(done){await queuePreparedReport({taskId:ready.taskId,tabId,postUrl:done.url});return;}
+      const stale=results.find(r=>r.refreshUrl);
+      if(stale && !refreshed){refreshed=true;await chrome.tabs.update(tabId,{url:stale.refreshUrl}).catch(()=>{});}
+    }
+  }finally{watchingPrepared.delete(tabId);}
+}
+async function queuePreparedReport(report){
+  // Keep the observed outcome before the network call so a failed report is retried.
+  await updateTabState(async()=>{
+    const {preparedReports=[]}=await chrome.storage.local.get('preparedReports');
+    await chrome.storage.local.set({preparedReports:[...preparedReports.filter(item=>item.taskId!==report.taskId),{...report,observedAt:Date.now()}]});
+  });
+  await flushPreparedReports();
+}
+async function flushPreparedReports(){
+  const {preparedReports=[],connection}=await chrome.storage.local.get(['preparedReports','connection']);
+  if(!preparedReports.length || !connection?.token)return;
+  for(const report of preparedReports){
+    let drop=false;
+    try{
+      const receipt=await web('/api/extension/prepared-published',{taskId:report.taskId,postUrl:report.postUrl},connection.token);
+      drop=receipt.success===true && receipt.persisted===true && receipt.taskId===report.taskId && receipt.status==='published';
+    }catch(error){
+      // 400/404/409 cannot succeed later (wrong blog, already recorded elsewhere, not prepared).
+      drop=[400,404,409].includes(error.status);
+      if(!drop)continue;
+    }
+    if(drop)await updateTabState(async()=>{
+      const state=await chrome.storage.local.get(['preparedReports','preparedEditorTabs']);
+      await chrome.storage.local.set({
+        preparedReports:(state.preparedReports || []).filter(item=>item.taskId!==report.taskId),
+        preparedEditorTabs:(state.preparedEditorTabs || []).filter(item=>item.taskId!==report.taskId),
+      });
+    });
+  }
+}
 chrome.tabs.onUpdated.addListener((id,change,tab)=>runBackground(async()=>{
   if(change.status!=='complete')return;
+  runBackground(()=>watchPreparedPublish(id,tab?.url));
   const state=await stored();
   if(id===state.editorTab)refreshSession=true;
   // Also receive queued requests promptly when the user's blog first opens.
