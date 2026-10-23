@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 영상 스튜디오 v1.14 배포 완료 (영상 프롬프트 게시판)
+
+- 한 일: 새 메뉴 「영상 프롬프트 게시판」(`/prompts`) — 이 프로그램 고유 장면 예시 24개(6개 분류 × 4, `lib/promptBoard.ts`), 분류·검색(띄어쓰기 무시), 「이 설명으로 만들기」 → `/create?preset=<id>`가 설명·화풍·카메라 채움. 화풍·카메라 목록을 `lib/presets.ts`로 옮겨 생성 화면과 함께 씀. **DB 변경 없음**(B안). 플랜 `ai-video-studio/docs/PLAN_20261024_PROMPT_BOARD.md`.
+- 커밋 `363fc5b6e`(11개 파일) · 배포 `ai-video-studio-3dhjbxfad` Ready · 화면/DB v1.14.
+- 검수: 시험 43(새 4)·build. 메인 크롬·시험 계정: 메뉴 표시·24개·분류 버튼 7개(각 4), 「음식·카페」 클릭 → 4개, 검색 「라 테」 1개·「한강」 2개, 「창가 라테」 만들기 → 설명·시네마틱·천천히 다가가기 채움·안내 표시. AI 호출·영상 생성 없음.
+- 남은 일(승인 대기): Replicate Kling v2.1 공용 목록에서 제거(여러 프로그램), 데스크톱 모델 카드 미리보기 크기 줄이기.
+- 비용: 빌드 1회.
+- https://ai-video-studio.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — 신규 「AI 업무 워크스페이스 자동화」(`ai-work-workspace`) v1.01 1단계 배포
 - 한 일: 노션형 오픈소스 litpage(MIT, © 씨그로)를 Next.js 16 안에 이식. 원본 서버(SQLite 동기 API)를 **동기 DB 다리**(작업 스레드 + `Atomics.wait`, postgres.js)와 SQL 변환기로 공용 DB 전용 스키마 `aww`(전용 계정 `aww_app`, 비밀번호는 Vault)에 연결. 원본 서버 시험 522/522·연결부 13개 통과. AIMaster 권한(일반 등급 이상 + 사용기간/구독), 회원 자동 생성, 한국어 화면·날짜, 좌측 메뉴 규격, 매뉴얼 `/guide`, 썸네일, 새 카테고리 「업무자동화」, 요금제 3단계. 화면 이름 「Litpage」→「Workspace」, 「Litpage AI」→「AIMaster」.
 - 1단계에서 닫은 것: AI·회의록 받아쓰기·에이전트·초대/공유·공개 페이지·API/MCP·자동화(서버 `stagePolicy.ts`에서 차단, 화면 숨김). 운영에서는 환경변수 AI 키를 절대 읽지 않음(원본은 서버 키 하나를 전원이 공유 — 발견해 막음).
