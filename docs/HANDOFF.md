@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 저장소 공동 작업 안전장치 인수인계 문서 (세션 claude-win-lessons, 다른 CLI가 이어받음)
+- **읽을 문서: [`docs/HANDOFF_REPO_SAFETY_20261023.md`](HANDOFF_REPO_SAFETY_20261023.md)** (`443520ba6`) — 목적, 장치 지도(훅·`safe-commit`·`commit-paths`·`index-watch` 블랙박스·세션 시작 훅·`deploy.mjs`·맥미니 `commit-gate.sh`·시험), 기록 파일 4종, 세션 시작 점검 ⚠ 뜻과 할 일, 정해진 규칙(세션 이름 필수·⑥ 시작 점검·작업 중 표 이름/범위/등록·문의 임시 기준), 고칠 때 주의 7가지, 남은 일, 확인 명령. 협업 지침 안전장치 절에서 연결.
+- **다음 첫 단계**: ① 2026-10-24 14:07 이후 「축소 원인 관찰 끝」이면 ERROR_LESSONS 14:00 항목 확정 + `OBSERVE` 코드 삭제(문서 6-1) ② 맥미니 세션에서 플레이북 첫 확인·메시지 시험 → 문의 방법 임시 기준 확정(6-2) ③ Codex·agy 시작 점검 기록 확인(6-3).
+- 주인님 판단 대기: 공용 스크립트도 작업 중 표에 올릴지(이 세션 추천: 올림), help를 협업 지침에 옮길지(6-4).
+- 시험: commit-paths 6 · safe-commit 14 통과, 훅 설치본 일치. 배포: 없음. 비용: 없음(오늘 music v1.44·v1.45 빌드 2회는 사전 승인).
+
 ## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 49/49 배포 완료 · 남은 일 CLI 분담표 (세션 claude-win-20261023-next-security 종료)
 - 끝난 것: 대상 49개 모두 16.4.2/15.5.28 배포 Ready·DB 버전 맞춤. 동시 빌드 추가 구매 62개 끔(`a165684ea`).
 - **남은 일 → 작업 분담표 [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)에서 묶음을 골라 맡고 표에 이름을 적는다**: A 영상 변환 크롬 확인·푸시 1회 / B 대기 목록 18줄·버전 기록 정리(문서만) / C `/login` 404 3개(webtoon·ebook·ghost-scraper) / D 버전 미증가 2개 / E 제외 10개(블로그 7개는 블로그 세션) / F 14.2.35 19개+메인(플랜 먼저) / G 이전 대기 3건 / H 주인님 결정.
