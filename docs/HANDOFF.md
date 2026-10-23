@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 v1.49 운영 이미지 숨김 · 배포판 ALLA AI v1.04 · 세션 `claude-win-20261023-tep-kit`
+- 주인님 지시 「운영은 그대로 두고 배포판만 이미지 기능 유지」(운영 AIMaster는 다른 Threads 프로그램에 이미지 생성이 있음, 코드는 남기고 숨기기만). `IMAGE_FEATURE = IS_STANDALONE`.
+- 운영 v1.49 Ready(빌드 1회), DB 버전 v1.49, 크롬 확인: 이미지 칸·버튼 없음, 이름 그대로. 운영 DB 보관함 표·버킷은 유지.
+- 배포판 `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.04.zip`(이미지 기능·ALLA AI 이름, 비밀값·DB 대조 통과). 남은 일: 수강생 설치 리허설.
+- 프로그램: https://threads-easy-planner.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — 블로그 전담: 티스토리 긴 글 분량(미배포) · 네이버 블로그 에이전트 v2.15 준비 모드 직접 발행 기록 · 세션 `claude-win-20261023-blog2`
 - **티스토리(미배포 대기, v1.92 때 함께)**: 분량을 단락 개수로 지시(`utils/news/lengthPlan.ts`, 단락≈120자). GPT-4.1 실측(시험 계정 본인 키 2회, 저장 안 함) 2,097자(60%) → 2,276자(65%) → **3,104자(88.7%)**. 커밋 `fef7491d6`·`cf37772ca`.
 - **블로그 에이전트 v2.15 배포(빌드 1회, Ready `naver-blog-agent-chb6zlsgx`)**: 준비 모드로 보낸 글을 회원이 직접 발행하면 ① 확장이 준비 탭이 글 주소로 바뀐 것을 제목까지 확인해 자동 보고(읽기만, 버튼 안 누름, 실패 시 보관 후 재보고) ② 보관함 「직접 발행했어요」에 글 주소 입력 — 둘 다 `src/lib/preparedPublish.ts`(본인·prepared·준비 모드·그 블로그 주소만). 미배포였던 확장 팝업 수정도 함께. DB `version`·`extension_version` v2.15, `check-extension-release` OK. 크롬: 6개 카드 버튼·다른 블로그 주소 거절 문구 확인(기록 안 함). 시험 22종 통과(새 5+5).
