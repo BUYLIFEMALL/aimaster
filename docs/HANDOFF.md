@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — AI 음악 스튜디오 제안 가. 미니 플레이어 반복·무작위 (세션 claude-win-20261023-bgm, **미배포**)
+- 주인님 지시로 제안 가~라를 백로그(`ai-music-studio/docs/IMPROVEMENT_BACKLOG.md`)에 올려 순차 진행, 배포는 모아서. 가 완료: 반복(끔→목록→한 곡)·무작위 버튼, 순서 규칙 `lib/playerOrder.ts`(시험 7개, 전체 40개 통과), tsc·build 통과. 커밋 `36abe772a`. 같은 날 AI 음악 스튜디오 소리 재생은 주인님이 직접 확인(정상), Mureka 켜기는 주인님 지시로 보류.
+- 다음 첫 단계: 제안 나(실제 소리 분석 파형). 배포는 나~라까지 모아 빌드 1회(사전 승인).
+- 비용: 없음. 링크: https://ai-music-studio.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우) — Threads AI 기획 자동화 v1.49 운영 이미지 숨김 · 배포판 ALLA AI v1.04 · 세션 `claude-win-20261023-tep-kit`
 - 주인님 지시 「운영은 그대로 두고 배포판만 이미지 기능 유지」(운영 AIMaster는 다른 Threads 프로그램에 이미지 생성이 있음, 코드는 남기고 숨기기만). `IMAGE_FEATURE = IS_STANDALONE`.
 - 운영 v1.49 Ready(빌드 1회), DB 버전 v1.49, 크롬 확인: 이미지 칸·버튼 없음, 이름 그대로. 운영 DB 보관함 표·버킷은 유지.
