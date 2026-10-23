@@ -18,3 +18,4 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `docs/PROGRAM_CATEGORY_TEMPLATE_MAP.md`(재생성) + `scripts/generate_category_template_map.cjs` | Claude Code(윈도우) · 세션 `claude-win-20261023-ctm-url` | 2026-10-23 | 생성기가 DB app_url을 쓰도록 고치고 문서 재생성(주소 칸만 바뀜 확인) |
