@@ -5,7 +5,10 @@ let seoAutoBusy = false;
 const BASE = "https://naver-blog-seo-studio.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const KEY = "seoStudioToken";
 const PUBLISH_SETTINGS_KEY = "seoStudioPublishSettings";
-const $ = (id) => document.getElementById(id);
+// 2026-10-23: background.js도 이 파일을 불러와 입력 엔진을 실행한다. 그때는 화면이 없으므로 seoRunUiElement(background.js)가 대신 받는다.
+const IN_WORKER = typeof importScripts === "function" && typeof document === "undefined";
+const SEO_RUN_UI = "seo_run_ui_v1";
+const $ = (id) => (IN_WORKER ? seoRunUiElement(id) : document.getElementById(id));
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 let webDrafts = [];
@@ -920,8 +923,9 @@ $("autoLink").addEventListener("click", () => {
   chrome.tabs.create({ url: `${BASE}/extension-connect?from=extension` });
   $("status").textContent = "SEO 스튜디오 화면에서 연결 중... (로그인이 필요하면 로그인해 주세요)";
 });
-chrome.storage.onChanged.addListener((changes, area) => {
+if (!IN_WORKER) chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes[KEY]?.newValue) renderStatus();
+  if (area === "local" && changes[SEO_RUN_UI]?.newValue) applySeoRunUi(changes[SEO_RUN_UI].newValue);
 });
 
 $("link").addEventListener("click", async () => {
@@ -1072,7 +1076,46 @@ async function fillDraftIntoNaver(options = {}) {
   }
 }
 
-$("fill").addEventListener("click", fillDraftIntoNaver);
+// 2026-10-23: 입력·자동 포스팅은 background가 실행한다. 사이드패널은 원고를 넘기고 진행 상황만 비춘다.
+const SEO_RUN_STALE_MS = 60 * 1000;
+function applySeoRunUi(state) {
+  if (!state || IN_WORKER) return;
+  for (const [id, props] of Object.entries(state.props || {})) {
+    const element = $(id);
+    if (element) Object.assign(element, props);
+  }
+  // 실행 중이라는데 1분 넘게 소식이 없으면 background가 도중에 멈춘 것이다. 버튼을 다시 풀어 준다.
+  if (state.running && Date.now() - Number(state.aliveAt || 0) > SEO_RUN_STALE_MS) {
+    $("generateStatus").textContent = "입력이 중간에 멈춘 것 같습니다. 네이버 탭의 글을 확인한 뒤 다시 시작하세요.";
+    $("keepPanelOpen").hidden = true;
+    for (const id of ["fill", "previewFill", "autoPublish", "reconcilePublish"]) $(id).disabled = false;
+  }
+}
+
+async function startBackgroundRun(mode) {
+  if (mode !== "reconcile") {
+    if (webDraftLoading) return ($("generateStatus").textContent = "콘텐츠와 이미지를 불러오는 중입니다. 「…불러왔습니다」 안내가 나온 뒤 다시 눌러 주세요.");
+    if (!activeWebDraftId || !activeWebDraftTitle || !activeWebDraftBody) return ($("generateStatus").textContent = "웹에서 전송한 콘텐츠를 먼저 불러오세요.");
+  }
+  const payload = {
+    draft: webDrafts.find((item) => item.id === activeWebDraftId) || null,
+    draftId: activeWebDraftId,
+    title: activeWebDraftTitle,
+    body: activeWebDraftBody,
+    coverDataUrl: activeWebDraftCoverDataUrl,
+    contentImages: activeWebDraftContentImages,
+    blocks: activeWebDraftBlocks,
+    inputs: Object.fromEntries(["publishCategory", "publishTags", "publishBlogId", "publishVisibility"].map((id) => [id, $(id).value])),
+  };
+  try {
+    const result = await chrome.runtime.sendMessage({ type: "seoRun", mode, payload });
+    if (!result?.ok) $("generateStatus").textContent = result?.error || "입력을 시작하지 못했습니다.";
+  } catch (error) {
+    $("generateStatus").textContent = formatBrowserError(error, "입력 시작");
+  }
+}
+
+$("fill").addEventListener("click", () => startBackgroundRun("fill"));
 
 $("refreshWebDrafts").addEventListener("click", () => {
   refreshWebDrafts().catch((error) => {
@@ -1088,7 +1131,7 @@ $("closeWebDraftPreview").addEventListener("click", () => $("webDraftPreview").c
 $("closeWebDraftPreviewFooter").addEventListener("click", () => $("webDraftPreview").close());
 $("previewFill").addEventListener("click", () => {
   $("webDraftPreview").close();
-  fillDraftIntoNaver();
+  startBackgroundRun("fill");
 });
 
 $("webDraftList").addEventListener("change", () => {
@@ -1203,11 +1246,14 @@ $("fillPublishInfo").addEventListener("click", async () => {
   }
 });
 
-chrome.storage.local.get(PUBLISH_SETTINGS_KEY).then((stored) => {
-  const settings = stored[PUBLISH_SETTINGS_KEY] || {};
-  $("publishCategory").value = settings.category || "";
-  $("publishTags").value = settings.tags || "";
-}).catch(() => {});
-
-renderExtensionVersion();
-renderStatus();
+if (!IN_WORKER) {
+  chrome.storage.local.get(PUBLISH_SETTINGS_KEY).then((stored) => {
+    const settings = stored[PUBLISH_SETTINGS_KEY] || {};
+    $("publishCategory").value = settings.category || "";
+    $("publishTags").value = settings.tags || "";
+  }).catch(() => {});
+  // 사이드패널을 다시 열면 background가 진행 중이거나 마지막으로 남긴 상황을 그대로 보여 준다.
+  chrome.storage.local.get(SEO_RUN_UI).then((stored) => applySeoRunUi(stored[SEO_RUN_UI])).catch(() => {});
+  renderExtensionVersion();
+  renderStatus();
+}

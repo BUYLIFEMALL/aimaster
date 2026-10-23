@@ -128,6 +128,8 @@ async function startAutoPublication() {
     for (const id of ["autoPublish", "fill", "previewFill", "webDraftList", "refreshWebDrafts", "publishBlogId", "publishVisibility", "publishCategory", "publishTags"]) $(id).disabled = false;
   }
 }
-$("autoPublish").addEventListener("click", startAutoPublication);
-$("reconcilePublish").addEventListener("click", () => reconcileAutoPublication().catch(error => { $("generateStatus").textContent = error.message; }));
-recoverInterruptedPublication().catch(() => {});
+// 2026-10-23: 자동 포스팅·결과 확인은 background가 실행한다(startBackgroundRun, sidepanel.js). 사이드패널을 닫아도 이어진다.
+$("autoPublish").addEventListener("click", () => startBackgroundRun("auto"));
+$("reconcilePublish").addEventListener("click", () => startBackgroundRun("reconcile"));
+// 끊긴 실행 정리는 사이드패널을 열 때만 한다(background 안에서는 실행 중인 자기 작업을 건드리지 않도록 건너뜀).
+if (typeof importScripts !== "function") recoverInterruptedPublication().catch(() => {});
