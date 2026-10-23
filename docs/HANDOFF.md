@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — CLI 구분을 세션 이름 기준으로·안전장치 표 정리·내일 관찰 마감 할 일 (세션 claude-win-lessons)
+- 한 일(`e993bcd69`): `scripts/index-watch.mjs` CLI 구분 1순위를 세션 이름 첫 단어(`claude-`·`codex-`·`agy-`, 멀티세션 규칙 §2)로, 환경변수 추정은 2순위. **`CODEX_HOME`은 이 PC 전체 설정이라 Claude Code 환경에도 있음을 확인해 판단에서 뺌**(그대로 두면 Claude 실행이 codex로 오판). 시작 점검 누락 알림에 「세션 이름 없는 시작 점검 있음」 표시. 실제 기록의 `cli=`는 모두 claude로 오판 없음.
+- `docs/guidelines/COLLABORATION.md` 안전장치 표 보완(블랙박스 경고 4종·잠금 증거·맥미니 `commit-gate.sh`) + 「어떤 도구를 언제 쓰나」 5단계.
+- Codex·agy가 실제로 붙이는 환경변수는 기록에서 근거를 못 찾아 미확인 — 세션 이름(`AIMASTER_SESSION`/`--as`)으로 구분하는 것이 기준.
+- **남은 일(내일 2026-10-24 14:07 이후)**: 세션 점검에 「⚠ [축소 원인 관찰 끝]」이 나오면 ① `docs/ERROR_LESSONS.md` 2026-10-23 14:00 항목에 「확정: safe-commit 맞추기 경합(a88f09453로 해결), 24시간 축소 0번」 기록 ② `scripts/index-watch.mjs`의 `OBSERVE` 관찰 코드와 요약 줄의 「원인 관찰」 부분 삭제(⚠ [축소 원인 관찰]이 축소를 보고하면 확정하지 말 것).
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 시작 점검 누락 알림·세션 점검 한 줄 요약·맥미니 플레이북 (세션 claude-win-lessons)
 - 한 일(`41d4ca334`): `scripts/index-watch.mjs` ① 기록 줄에 `cli=claude|codex|agy`(환경변수 추정 — `CLAUDECODE`, `CODEX_*`, `ANTIGRAVITY*|AGY*|GEMINI_CLI*`) ② 세션 점검에 「⚠ [시작 점검 누락]」 — 16:30 이후·24시간 안에 커밋·기록은 있는데 `session-check`/`claude-session-start` 기록이 없는 장비·CLI ③ ⚠가 없으면 블랙박스 출력을 「[공용 스테이징] 이상 없음 — …」 한 줄로(⚠가 있으면 전체). `docs/MAC_MINI_AGENT_PLAYBOOK.md`에 「매 작업 시작 점검」 한 줄.
 - 검수: 임시 저장소에서 이상 없음 한 줄·맥미니 Codex 누락 감지·점검 뒤 해제 확인, 기존 시험 16개 통과. 실제 저장소는 오늘 14:00 축소 이력(24시간 안)으로 전체 출력이 정상.
