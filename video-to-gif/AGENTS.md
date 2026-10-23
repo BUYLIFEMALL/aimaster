@@ -354,3 +354,8 @@
 - 렌더러 등록(`NativeMessagingHosts/xyz.buylife.gif_renderer.json`)을 잠시 치우고 「다시 확인」 → 「확장은 설치됐지만 PC 렌더러가 없습니다. 렌더러 설치 방법」, 되돌리고 「다시 확인」 → 「사용 중」.
 - `/guide#local-renderer` 바로 이동(구역 맨 위), 제목 「더 빠르게 — 내 PC 고속 변환 (선택, 무료)」, 링크 2개 200, 맥 터미널 한 줄 표시.
 - 비용: 없음(브라우저·PC 안 변환, AI 0회).
+
+## 2026-10-24 ⏸ 미배포 — 내 PC 고속 변환 다듬기 (Claude Code 맥미니 · `claude-mac-20261023-ecommerce`, 주인님 「전부 진행」)
+- 확장 버전 자동 맞춤(LR-W-01) · **새 버전 알림·최소 판**(LR-M-01) · **맥 Homebrew 없을 때 안내**(LR-M-02) · 윈도우 경고 설명·`Unblock-File`(LR-M-03) · 엣지 안내(LR-W-02) · `/guide#mac-ffmpeg`·`#renderer-update`. 다른 영상 프로그램 확장은 설계안만(LR-02, `infinite-loop-video` 1순위). 상세: 플랜 「3단계 다듬기」·「다른 영상 프로그램으로 넓히기」, 개선 문서 LR-M-01~04.
+- 검수: tsc 0, eslint 0, 판 비교·알림 판단 시험 통과, 맥 설치 스크립트 재실행 정상, 운영 페이지에 새 감지 코드를 넣어 확인. 화면 자체는 배포 뒤 확인.
+- **다음 배포하는 CLI**: 버전 v1.21로 올린 뒤 `node scripts/build-local-renderer.mjs`(확장도 v1.21) → 배포 → DB `version`·`extension_version` v1.21 → `check-extension-release.mjs video-to-gif` OK → 맥미니 크롬 실검수(맥미니 확장이 옛 판이면 「🔔 새 버전」 표시).
