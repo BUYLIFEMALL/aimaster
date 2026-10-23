@@ -18,6 +18,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `scripts/safe-commit.mjs` + `scripts/safe-commit.test.mjs` | Claude Code(윈도우) · 세션 `claude-win-20261023-safecommit-mine` | 2026-10-23 | --mine에 이진 파일·삭제 커밋 지원 추가(일반 파일도 도우미로 커밋하도록) |
 | `crm-google-form/` · `booking-reminder/` · `stepmail/` · `kakao_auto_poster/` · `trending-product-finder/` · `real_estate_sales/` (`lib/solapi/client.ts`·`lib/actions/solapiAccount.ts`만) | Claude Code(윈도우) · 세션 `claude-win-20261023-solapi-shared` | 2026-10-23 | SOLAPI 발송 코드 공용 기준 코드 등록 + 테스트 문자 이름 수정, 플랜 `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md` · 미배포 대기 |
 | `ai-music-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261023-bgm` | 2026-10-23 | 남은 음악 작업 순서대로 — ① Mureka 연동 코드(숨김·미배포) ② Stable Audio 3 직접·Lyria RealTime ③ 이후 목록 |
 | `naver-blog-agent/` (블로그 전담) | Claude Code(윈도우, 웨일 주인님 지정) · 세션 `claude-win-20261023-seo-bg` | 2026-10-23 | 블로그 전담 진행 중 — ① 검수 지문 10건 완료, 30일 정리 기록 6곳 완료(미배포) → 다음: 인계 ④ 발행 준비 글 실제 이미지 입력(실제 발행, 승인 필요) |
