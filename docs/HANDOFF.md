@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(윈도우) — 지난 주소 표시·블랙박스 도움말·세션 문의 임시 기준 (세션 claude-win-lessons)
+- 한 일(`50fa089ad`): `scripts/index-watch.mjs` ① `who`가 작업 중 표에 없는 세션의 주소를 「⚠ 지난 기록(이미 끝났을 수 있음)」으로 ② `help`(명령 6개·파일 3개·⚠ 대응). `docs/guidelines/COLLABORATION.md` 안전장치 표에 「세션 사이 문의 방법」 — **임시 기준**: 같은 장비 Claude Code끼리 = 메시지, 다른 장비·Codex·agy = 작업 중 표·HANDOFF.
+- 남은 일: 맥미니↔윈도우 메시지 시험(플레이북 절차) 뒤 위 줄의 「임시 기준」을 확정으로.
+- 검수: 실제 저장소 `who claude-win-lessons` → 지난 기록 표시, 임시 저장소 표에 있는 세션 → 「작업 중 표에 있음」, 시험 20개 통과.
+- 배포: 없음. 비용: 없음.
+
 ## 2026-10-23 Claude Code(윈도우) — 세션 주소 등록·조회 명령·맥미니 메시지 시험 절차 (세션 claude-win-lessons)
 - 한 일(`3e364a230`): `scripts/index-watch.mjs` ① `register <세션명>` — 작업 중 표에 줄을 올릴 때 한 번, 커밋 전이어도 메시지 주소를 `.git/aimaster-sessions.txt`에(주소 없는 Codex·agy는 이름만 블랙박스에) ② `who <세션명>` — 그 세션 주소만 출력(읽기 전용, 이름 빼면 전체) ③ 작업 중 세션 목록은 「주소 있음@장비」만 + 「주소는 who」 안내. `docs/ACTIVE_WORK.md` 사용법 2에 등록 명령, `docs/MAC_MINI_AGENT_PLAYBOOK.md`에 맥미니↔윈도우 메시지 시험 절차.
 - 검수: 임시 저장소에서 등록(주소 있음/없음/이름 없음)·조회(있음/없음)·목록, 시험 20개 통과.
