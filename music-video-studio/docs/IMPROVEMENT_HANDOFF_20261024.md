@@ -34,5 +34,5 @@ https://music-video-studio.buylife.xyz
 ## ✅ 처리 결과 (2026-10-24, 음악 담당 세션 `claude-win-20261024-music`, 주인님 「뮤직비디오 v1.20 버그 수정 진행해」)
 - 위 v1.20 플랜 1~6을 그대로 진행해 배포했습니다(`music-video-studio-8hb7wv216`, 화면/DB v1.20). 상세·검수 증거는 `AGENTS.md` v1.20.
 - 운영 검수: Lyria 곡에서 「가사 시각에 맞춤」 표시, 렌더 전환 15.0초(후렴 시작)로 확인. 새 곡 생성은 필요 없었습니다(기존 Lyria 곡 사용).
-- 스테이징 정리: 이 버그 수정은 공용 스테이징을 쓰지 않는 `scripts/commit-paths.mjs`로 커밋해 묵은 항목과 섞이지 않았습니다. 묵은 항목 4개(`FinalRender.tsx`·`beat.ts`·`version.ts`·`tests/music.test.mjs`) 정리는 여전히 주인님 허락 대기입니다.
+- 스테이징 정리: 이 버그 수정은 공용 스테이징을 쓰지 않는 `scripts/commit-paths.mjs`로 커밋해 묵은 항목과 섞이지 않았습니다. 묵은 항목 4개(`FinalRender.tsx`·`beat.ts`·`version.ts`·`tests/music.test.mjs`) 정리는 2026-10-24 주인님 「진행해」 뒤 완료했습니다(3개는 커밋 도우미가 이미 맞춰 두었고, `beat.ts`는 내용이 HEAD와 같음을 확인한 뒤 `git reset -q HEAD -- <경로>`).
 - 남은 일: 위 「그 밖에 남은 일」 그대로(승인 전 후보).
