@@ -57,4 +57,4 @@ New-Item -Path $key -Force | Out-Null
 Set-Item -Path $key -Value $manifestPath
 
 Write-Host "✔ 설치했습니다. ffmpeg: $ffmpeg" -ForegroundColor Green
-Write-Host '  이제 크롬에서 「GIF 자동화 · 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요.'
+Write-Host '  이제 크롬에서 「AIMaster 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요.'

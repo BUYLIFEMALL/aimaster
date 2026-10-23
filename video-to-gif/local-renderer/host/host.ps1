@@ -3,7 +3,7 @@
 # Security: never accepts a command string. Only validated numbers (width/fps/colors/trim) are turned into ffmpeg arguments here.
 # Keep this file ASCII-only: Windows PowerShell 5.1 reads BOM-less scripts in the system ANSI code page.
 $ErrorActionPreference = 'Stop'
-$HostVersion = '1.00'
+$HostVersion = '1.10'
 $ChunkBytes = 600 * 1024
 $stdin = [Console]::OpenStandardInput()
 $stdout = [Console]::OpenStandardOutput()
@@ -119,6 +119,103 @@ function Invoke-Encode($m) {
   Send-Msg ([ordered]@{ type = 'result-end'; job = $job; req = $req })
 }
 
+# v1.10 'audio' command (AIMaster music programs): format conversion + optional loudness normalization (loudnorm, 2 passes).
+# Only validated words/numbers are used: format in mp3|aac|flac|wav, bitrate 96..320 kbps, sampleRate 44100|48000,
+# lufs 6..30 (target = -lufs LUFS), tp 0..3 (true peak = -tp dBTP), duration (for progress only).
+function Get-LoudJson([string]$text) {
+  $ms = [regex]::Matches($text, '\{[^{}]*"input_i"[^{}]*\}')
+  if ($ms.Count -eq 0) { return $null }
+  try { return ($ms[$ms.Count - 1].Value | ConvertFrom-Json) } catch { return $null }
+}
+function Invoke-Ff([string]$ffmpeg, $ffArgs, [double]$total, $ids, [double]$from, [double]$span) {
+  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi.FileName = $ffmpeg
+  $psi.Arguments = ($ffArgs | ForEach-Object { if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ } }) -join ' '
+  $psi.UseShellExecute = $false
+  $psi.RedirectStandardOutput = $true
+  $psi.RedirectStandardError = $true
+  $psi.CreateNoWindow = $true
+  $p = [System.Diagnostics.Process]::Start($psi)
+  $errTask = $p.StandardError.ReadToEndAsync()
+  $last = -1
+  while ($null -ne ($line = $p.StandardOutput.ReadLine())) {
+    if ($total -gt 0 -and $line -match '^out_time_us=(\d+)') {
+      $r = [math]::Min(1.0, ([double]$Matches[1] / 1000000) / $total)
+      $pct = [int][math]::Floor(100 * ($from + $span * $r))
+      if ($pct -gt 99) { $pct = 99 }
+      if ($pct -gt $last) { $last = $pct; Send-Msg ([ordered]@{ type = 'progress'; job = $ids.job; req = $ids.req; ratio = $pct / 100 }) }
+    }
+  }
+  $p.WaitForExit()
+  return @{ code = $p.ExitCode; err = $errTask.Result }
+}
+function Send-File([string]$out, $ids, $extra) {
+  $bytes = [IO.File]::ReadAllBytes($out)
+  $chunks = [int][math]::Ceiling($bytes.Length / $ChunkBytes)
+  $res = [ordered]@{ type = 'result'; job = $ids.job; req = $ids.req; size = $bytes.Length; chunks = $chunks }
+  if ($extra) { foreach ($k in $extra.Keys) { $res[$k] = $extra[$k] } }
+  Send-Msg $res
+  for ($seq = 0; $seq -lt $chunks; $seq++) {
+    $off = $seq * $ChunkBytes
+    $len = [math]::Min($ChunkBytes, $bytes.Length - $off)
+    $b64 = [Convert]::ToBase64String($bytes, $off, $len)
+    Send-Raw ('{"type":"result-chunk","job":"' + $ids.job + '","req":' + $ids.req + ',"seq":' + $seq + ',"data":"' + $b64 + '"}')
+  }
+  Remove-Item $out -ErrorAction SilentlyContinue
+  Send-Msg ([ordered]@{ type = 'result-end'; job = $ids.job; req = $ids.req })
+}
+function Invoke-Audio($m) {
+  $job = $m.job
+  $req = 0
+  if ([string]$m.req -match '^\d{1,9}$') { $req = [int]$m.req }
+  $ids = [ordered]@{ job = $job; req = $req }
+  if (-not (Test-Job $job) -or -not $jobs.ContainsKey($job) -or $jobs[$job].fs) { Send-Fail 'job unknown' $ids; return }
+  $formats = @{ mp3 = @('libmp3lame', 'mp3', $true); aac = @('aac', 'm4a', $true); flac = @('flac', 'flac', $false); wav = @('pcm_s24le', 'wav', $false) }
+  $fmt = [string]$m.format
+  $ok = $formats.ContainsKey($fmt) -and (Test-Num $m.sampleRate 44100 48000 $true) -and (([int]$m.sampleRate -eq 44100) -or ([int]$m.sampleRate -eq 48000)) `
+    -and ((-not $formats[$fmt][2]) -or (Test-Num $m.bitrate 96 320 $true)) `
+    -and (($null -eq $m.lufs) -or (Test-Num $m.lufs 6 30 $false)) -and (($null -eq $m.tp) -or (Test-Num $m.tp 0 3 $false)) `
+    -and (($null -eq $m.duration) -or (Test-Num $m.duration 0.05 36000 $false))
+  if (-not $ok) { Send-Fail 'bad params' $ids; return }
+  $ffmpeg = Find-Ffmpeg
+  if (-not $ffmpeg) { $ids['code'] = 'NO_FFMPEG'; Send-Fail 'ffmpeg not found' $ids; return }
+  $total = 0.0
+  if ($null -ne $m.duration) { $total = [double]$m.duration }
+  $in = $jobs[$job].path
+  $I = if ($null -ne $m.lufs) { '-' + (Fmt $m.lufs) } else { '-14' }
+  $TP = if ($null -ne $m.tp) { '-' + (Fmt $m.tp) } else { '-1' }
+  $norm = ($null -ne $m.lufs)
+
+  # Pass 1: measure (always - reports the input loudness)
+  $base = @('-hide_banner', '-nostdin', '-nostats', '-progress', 'pipe:1', '-y')
+  $r1 = Invoke-Ff $ffmpeg ($base + @('-i', $in, '-af', "loudnorm=I=$($I):TP=$($TP):LRA=11:print_format=json", '-f', 'null', 'NUL')) $total $ids 0 0.4
+  $meas = Get-LoudJson $r1.err
+  if ($r1.code -ne 0 -or -not $meas) {
+    $e = $r1.err; if ($e.Length -gt 400) { $e = $e.Substring($e.Length - 400) }
+    Send-Fail ("ffmpeg measure failed ($($r1.code)): " + $e) $ids; return
+  }
+  # Pass 2: encode (with linear loudnorm using the measured values when requested)
+  $out = Join-Path $workdir ("$job-$req." + $formats[$fmt][1])
+  $a2 = $base + @('-i', $in, '-vn', '-map_metadata', '-1')
+  if ($norm) {
+    $af = "loudnorm=I=$($I):TP=$($TP):LRA=11:measured_I=$($meas.input_i):measured_TP=$($meas.input_tp):measured_LRA=$($meas.input_lra):measured_thresh=$($meas.input_thresh):offset=$($meas.target_offset):linear=true:print_format=json"
+    $a2 += @('-af', $af)
+  }
+  $a2 += @('-ar', [string][int]$m.sampleRate, '-c:a', $formats[$fmt][0])
+  if ($formats[$fmt][2]) { $a2 += @('-b:a', ([string][int]$m.bitrate + 'k')) }
+  $a2 += @($out)
+  $r2 = Invoke-Ff $ffmpeg $a2 $total $ids 0.4 0.6
+  if ($r2.code -ne 0 -or -not (Test-Path $out) -or (Get-Item $out).Length -eq 0) {
+    Remove-Item $out -ErrorAction SilentlyContinue
+    $e = $r2.err; if ($e.Length -gt 400) { $e = $e.Substring($e.Length - 400) }
+    Send-Fail ("ffmpeg failed ($($r2.code)): " + $e) $ids; return
+  }
+  $after = if ($norm) { Get-LoudJson $r2.err } else { $null }
+  $extra = [ordered]@{ ext = $formats[$fmt][1]; inputI = [string]$meas.input_i; inputTP = [string]$meas.input_tp; inputLRA = [string]$meas.input_lra }
+  if ($after) { $extra['outputI'] = [string]$after.output_i; $extra['outputTP'] = [string]$after.output_tp; $extra['outputLRA'] = [string]$after.output_lra }
+  Send-File $out $ids $extra
+}
+
 try {
   while ($true) {
     $head = Read-Exact 4
@@ -145,7 +242,7 @@ try {
     switch ([string]$m.type) {
       'ping' {
         $ff = Find-Ffmpeg
-        Send-Msg ([ordered]@{ type = 'pong'; host = 'powershell'; hostVersion = $HostVersion; psVersion = $PSVersionTable.PSVersion.ToString(); ffmpeg = $ff; ffmpegVersion = (Get-FfmpegVersion $ff) })
+        Send-Msg ([ordered]@{ type = 'pong'; host = 'powershell'; hostVersion = $HostVersion; psVersion = $PSVersionTable.PSVersion.ToString(); ffmpeg = $ff; ffmpegVersion = (Get-FfmpegVersion $ff); capabilities = @('gif', 'audio') })
       }
       'begin' {
         if (-not (Test-Job $m.job)) { Send-Fail 'bad job' $null; break }
@@ -160,6 +257,7 @@ try {
         Send-Msg ([ordered]@{ type = 'end-ok'; job = $m.job; bytes = $j.bytes })
       }
       'encode' { Invoke-Encode $m }
+      'audio' { Invoke-Audio $m }
       'release' {
         if ((Test-Job $m.job) -and $jobs.ContainsKey($m.job)) {
           if ($jobs[$m.job].fs) { $jobs[$m.job].fs.Close() }

@@ -11,7 +11,7 @@ use File::Temp qw(tempdir);
 use File::Basename qw(dirname);
 use POSIX qw(:sys_wait_h);
 
-my $HOST_VERSION = "1.00";
+my $HOST_VERSION = "1.10";
 my $CHUNK_BYTES  = 600 * 1024;    # base64로 약 800KB — JSON 포함 1MB 아래
 my $json         = JSON::PP->new->utf8->canonical;
 my $workdir      = tempdir("buylife-gif-XXXXXX", TMPDIR => 1, CLEANUP => 1);
@@ -146,6 +146,111 @@ sub do_encode {
     send_msg({ type => "result-end", %ids });
 }
 
+# v1.10 「audio」 명령(AIMaster 음악 프로그램): 형식 변환 + 선택 음량 맞춤(loudnorm 2번 방식: 측정 → 측정값으로 적용).
+# 정해진 낱말·숫자만 쓴다: format mp3|aac|flac|wav, bitrate 96~320kbps, sampleRate 44100|48000,
+# lufs 6~30(목표 -lufs LUFS), tp 0~3(최대 -tp dBTP), duration(진행률 표시용).
+my %AUDIO_FORMATS = (mp3 => ["libmp3lame", "mp3", 1], aac => ["aac", "m4a", 1], flac => ["flac", "flac", 0], wav => ["pcm_s24le", "wav", 0]);
+
+sub run_ff {
+    my ($cmd, $total, $ids, $from, $span, $errlog) = @_;
+    pipe(my $r, my $w) or return (-1, "pipe failed");
+    my $pid = fork();
+    return (-1, "fork failed") unless defined $pid;
+    if ($pid == 0) {
+        close $r;
+        open STDOUT, ">&", $w;
+        open STDERR, ">", $errlog;
+        open STDIN, "<", "/dev/null";
+        exec { $cmd->[0] } @$cmd;
+        exit 127;
+    }
+    close $w;
+    my $last = -1;
+    while (my $line = <$r>) {
+        next unless $total > 0 && $line =~ /\Aout_time_us=(\d+)/;
+        my $ratio = ($1 / 1_000_000) / $total;
+        $ratio = 1 if $ratio > 1;
+        my $pct = int(100 * ($from + $span * $ratio));
+        $pct = 99 if $pct > 99;
+        if ($pct > $last) { $last = $pct; send_msg({ type => "progress", %$ids, ratio => $pct / 100 }); }
+    }
+    close $r;
+    waitpid($pid, 0);
+    my $code = $? >> 8;
+    my $err = "";
+    if (open my $eh, "<", $errlog) { local $/; $err = <$eh> // ""; }
+    unlink $errlog;
+    return ($code, $err);
+}
+
+sub loud_json {
+    my ($text) = @_;
+    my @all = $text =~ /(\{[^{}]*"input_i"[^{}]*\})/g;
+    return undef unless @all;
+    return eval { JSON::PP->new->decode($all[-1]) };
+}
+
+sub do_audio {
+    my ($m) = @_;
+    my $job = safe_job($m->{job});
+    my $req = defined $m->{req} && $m->{req} =~ /\A\d{1,9}\z/ ? $m->{req} + 0 : 0;
+    my %ids = (job => $job, req => $req);
+    return fail("job unknown", %ids) unless $job && $jobs{$job} && !$jobs{$job}{fh};
+    my $fmt = defined $m->{format} && !ref $m->{format} ? $m->{format} : "";
+    my $f = $AUDIO_FORMATS{$fmt};
+    return fail("bad params", %ids)
+      unless $f
+      && defined $m->{sampleRate} && ($m->{sampleRate} =~ /\A(?:44100|48000)\z/)
+      && (!$f->[2] || (num_in($m->{bitrate}, 96, 320) && $m->{bitrate} == int($m->{bitrate})))
+      && (!defined $m->{lufs} || num_in($m->{lufs}, 6, 30))
+      && (!defined $m->{tp} || num_in($m->{tp}, 0, 3))
+      && (!defined $m->{duration} || num_in($m->{duration}, 0.05, 36000));
+
+    my $ffmpeg = find_ffmpeg() or return fail("ffmpeg not found", %ids, code => "NO_FFMPEG");
+    my $total = defined $m->{duration} ? $m->{duration} : 0;
+    my $in    = $jobs{$job}{path};
+    my $norm  = defined $m->{lufs};
+    my $I     = $norm ? "-$m->{lufs}" : "-14";
+    my $TP    = defined $m->{tp} ? "-$m->{tp}" : "-1";
+    my @base  = ($ffmpeg, "-hide_banner", "-nostdin", "-nostats", "-progress", "pipe:1", "-y");
+    my $errlog = "$workdir/$job-$req.log";
+
+    # 1번: 측정(항상 — 입력 음량을 알려 준다)
+    my ($c1, $e1) = run_ff([@base, "-i", $in, "-af", "loudnorm=I=$I:TP=$TP:LRA=11:print_format=json", "-f", "null", "-"], $total, \%ids, 0, 0.4, $errlog);
+    my $meas = loud_json($e1);
+    return fail("ffmpeg measure failed ($c1): " . substr($e1, -400), %ids) if $c1 != 0 || !$meas;
+
+    # 2번: 저장(음량 맞춤을 고르면 측정값으로 직선 맞춤)
+    my $out = "$workdir/$job-$req.$f->[1]";
+    my @cmd = (@base, "-i", $in, "-vn", "-map_metadata", "-1");
+    if ($norm) {
+        push @cmd, "-af", "loudnorm=I=$I:TP=$TP:LRA=11:measured_I=$meas->{input_i}:measured_TP=$meas->{input_tp}"
+          . ":measured_LRA=$meas->{input_lra}:measured_thresh=$meas->{input_thresh}:offset=$meas->{target_offset}:linear=true:print_format=json";
+    }
+    push @cmd, "-ar", int($m->{sampleRate}), "-c:a", $f->[0];
+    push @cmd, "-b:a", int($m->{bitrate}) . "k" if $f->[2];
+    push @cmd, $out;
+    my ($c2, $e2) = run_ff(\@cmd, $total, \%ids, 0.4, 0.6, $errlog);
+    if ($c2 != 0 || !-s $out) { unlink $out; return fail("ffmpeg failed ($c2): " . substr($e2, -400), %ids); }
+    my $after = $norm ? loud_json($e2) : undef;
+
+    open my $oh, "<:raw", $out or return fail("read failed", %ids);
+    my $size   = -s $out;
+    my $chunks = int(($size + $CHUNK_BYTES - 1) / $CHUNK_BYTES);
+    my %res = (type => "result", %ids, size => $size, chunks => $chunks, ext => $f->[1],
+               inputI => "$meas->{input_i}", inputTP => "$meas->{input_tp}", inputLRA => "$meas->{input_lra}");
+    if ($after) { $res{outputI} = "$after->{output_i}"; $res{outputTP} = "$after->{output_tp}"; $res{outputLRA} = "$after->{output_lra}"; }
+    send_msg(\%res);
+    for my $seq (0 .. $chunks - 1) {
+        read($oh, my $buf, $CHUNK_BYTES);
+        my $msg = sprintf('{"type":"result-chunk","job":"%s","req":%d,"seq":%d,"data":"%s"}', $job, $req, $seq, encode_base64($buf, ""));
+        print STDOUT pack("V", length $msg), $msg;
+    }
+    close $oh;
+    unlink $out;
+    send_msg({ type => "result-end", %ids });
+}
+
 while (defined(my $head = read_exact(4))) {
     my $len  = unpack("V", $head);
     my $body = read_exact($len);
@@ -170,7 +275,7 @@ while (defined(my $head = read_exact(4))) {
     if ($type eq "ping") {
         my $ffmpeg = find_ffmpeg();
         send_msg({ type => "pong", host => "perl", hostVersion => $HOST_VERSION,
-                   ffmpeg => $ffmpeg, ffmpegVersion => ffmpeg_version($ffmpeg) });
+                   ffmpeg => $ffmpeg, ffmpegVersion => ffmpeg_version($ffmpeg), capabilities => ["gif", "audio"] });
     } elsif ($type eq "begin") {
         my $job = safe_job($m->{job}) or do { fail("bad job"); next };
         my $path = "$workdir/$job.in";
@@ -194,6 +299,8 @@ while (defined(my $head = read_exact(4))) {
         send_msg({ type => "end-ok", job => $job, bytes => $j->{bytes} });
     } elsif ($type eq "encode") {
         do_encode($m);
+    } elsif ($type eq "audio") {
+        do_audio($m);
     } elsif ($type eq "release") {
         my $job = safe_job($m->{job});
         if ($job && $jobs{$job}) {

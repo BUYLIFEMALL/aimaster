@@ -63,4 +63,4 @@ cat > "$CHROME_DIR/$HOST_NAME.json" <<JSON
 JSON
 
 echo "✔ 설치했습니다. ffmpeg: $FFMPEG"
-echo "  이제 크롬에서 「GIF 자동화 · 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요."
+echo "  이제 크롬에서 「AIMaster 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요."
