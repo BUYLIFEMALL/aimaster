@@ -145,3 +145,21 @@ test("JSON 추출과 AI 프롬프트(당해 연도)", () => {
   assert.ok(p.user.includes("따뜻한 재즈"));
   assert.ok(p.user.includes("-3 to -0.1"));
 });
+
+test("v1.14 내 PC로 저장: 명령 만들기·측정값·상태 판정", async () => {
+  const { buildAudioCommand, audioReport, withExt } = await import("../src/lib/pcAudio.ts");
+  const { statusFromPong, shortFfmpegVersion } = await import("../src/lib/pcRenderer.ts");
+  assert.deepEqual(buildAudioCommand({ format: "mp3", sampleRate: 48000, normalize: true, duration: 12.345 }), { type: "audio", format: "mp3", sampleRate: 48000, bitrate: 320, lufs: 14, tp: 1, duration: 12.35 });
+  assert.deepEqual(buildAudioCommand({ format: "flac", sampleRate: 22050, normalize: false }), { type: "audio", format: "flac", sampleRate: 44100 }, "무손실은 비트레이트 없음, 이상한 샘플레이트는 44100");
+  assert.equal(buildAudioCommand({ format: "exe", sampleRate: 44100, normalize: false }), null);
+  assert.deepEqual(audioReport({ inputI: "-35.75", inputTP: "-35.05", outputI: "-13.95", outputTP: "-13.25" }), { inputI: -35.8, inputTP: -35.1, outputI: -14, outputTP: -13.3 });
+  assert.deepEqual(audioReport({ inputI: "-inf", inputTP: "" }), { inputI: null, inputTP: null, outputI: null, outputTP: null }, "소리 없음·빈 값");
+  assert.equal(withExt("곡_mastered.wav", "mp3"), "곡_mastered.mp3");
+  assert.equal(withExt("noext", "flac"), "noext.flac");
+  const pong = { type: "pong", host: "powershell", hostVersion: "1.10", ffmpeg: "C:/ffmpeg.exe", ffmpegVersion: "ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright", capabilities: ["gif", "audio"] };
+  assert.deepEqual(statusFromPong(pong, "v1.22", "audio"), { kind: "ready", extVersion: "v1.22", hostVersion: "1.10", os: "windows", ffmpegVersion: "9.0.2-full_build-www.gyan.dev", capabilities: ["gif", "audio"] });
+  assert.equal(statusFromPong({ ...pong, capabilities: undefined, hostVersion: "1.00", host: "perl" }, "v1.21", "audio").kind, "old", "1.00 실행기 = GIF만");
+  assert.equal(statusFromPong({ ...pong, ffmpeg: null }, "v1.22", "audio").kind, "no-ffmpeg");
+  assert.equal(statusFromPong({ type: "error", code: "NO_HOST" }, "v1.22", "audio").kind, "no-host");
+  assert.equal(shortFfmpegVersion("ffmpeg version 7.1 Copyright"), "7.1");
+});

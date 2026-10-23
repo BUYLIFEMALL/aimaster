@@ -7,6 +7,7 @@ import JSZip from "jszip";
 import { DEFAULT_PARAMS, PRESETS, clampParams, type MasteringParams, type Preset } from "@/lib/mastering/params";
 import { DEFAULT_TEXT_MODEL, TEXT_MODELS } from "@/lib/mastering/models";
 import { encodeWav16, masteredFileName, measure, uniqueNames, type Levels } from "@/lib/mastering/dsp";
+import { PcExportPanel } from "@/components/studio/PcExportPanel";
 import { bufferChannels, masterAudio, toAudioBuffer } from "@/lib/mastering/engine";
 import { Rack } from "./Rack";
 import { Waveform } from "./Waveform";
@@ -329,6 +330,11 @@ export function MasteringStudio() {
             </div>
           )}
         </section>
+      )}
+
+      {/* v1.14 내 PC로 저장(MP3·AAC·FLAC·WAV24 + 스트리밍 기준 음량) — AIMaster 내 PC 고속 변환 */}
+      {active?.masteredBlob && (
+        <PcExportPanel blob={active.masteredBlob} fileName={masteredFileName(active.file.name)} duration={active.mastered?.duration} sampleRate={active.mastered?.sampleRate} disabled={busy || stale} />
       )}
 
       {/* ② 사운드 프로필 */}
