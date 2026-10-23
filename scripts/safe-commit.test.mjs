@@ -206,3 +206,23 @@ test("세션 이름이 없으면 --begin·커밋 모두 거부(2026-10-23 주인
     assert.deepEqual(r.head("a.md"), ["a"], "커밋되지 않음");
   } finally { r.done(); }
 });
+
+test("고친 뒤 다시 --begin 하면 막고(기준 사본 그대로), --force-begin만 새로 뜬다(2026-10-23)", () => {
+  const r = repo();
+  try {
+    r.commit("a.md", ["a"], "c1");
+    assert.equal(r.helper("--begin", "a.md", "--as", "me").status, 0);
+    r.write("a.md", ["a", "내 수정"]);
+    const again = r.helper("--begin", "a.md", "--as", "me");
+    assert.equal(again.status, 1, again.stdout + again.stderr);
+    assert.match(again.stderr, /이미 고친 파일입니다/);
+    const out = r.helper("내 커밋", "a.md", "--as", "me");
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.deepEqual(r.head("a.md"), ["a", "내 수정"], "막힌 덕분에 내 수정이 커밋됨");
+    // 커밋 뒤에는 기준 사본이 지워져 다음 작업의 --begin은 그대로 됨, 고치기 전 다시 --begin도 됨
+    assert.equal(r.helper("--begin", "a.md", "--as", "me").status, 0);
+    assert.equal(r.helper("--begin", "a.md", "--as", "me").status, 0);
+    r.write("a.md", ["a", "내 수정", "또"]);
+    assert.equal(r.helper("--begin", "a.md", "--as", "me", "--force-begin").status, 0);
+  } finally { r.done(); }
+});
