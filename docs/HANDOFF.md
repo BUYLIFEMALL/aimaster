@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — AI 영상 스튜디오 다듬기 인물 추가 금지 (미배포 대기)
+
+- 한 일: v1.11 운영 다듬기에서 사람 없는 설명에 「젊은 한국인」이 들어간 문제 → `lib/promptPolish.ts` 시스템 문구에 「설명에 사람이 없으면 사람·손·캐릭터를 넣지 않는다」 추가, 시험 보강(38개 통과·tsc). 커밋 `ffaae22b2`.
+- 배포: **미배포 대기**(작은 수정, `docs/PENDING_DEPLOYS.md`). 운영 다듬기로만 확인할 수 있어 아직 실제 결과는 미확인 — 다음 배포 때 버전 +0.01·같은 설명으로 다듬기 1회 확인.
+- 비용: 없음.
+- https://ai-video-studio.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.22 완성본 보관
 - 최종 뮤직비디오 MP4를 「보관함에 저장 (30일)」로 회원 비공개 저장소에 올리고(브라우저 직접 업로드, 50MB·회원당 20개), 목록에서 재생·내려받기·지우기. 30일 자동 정리 예약 추가.
 - 운영 DB 변경(승인): 표 `mvs_renders` + 비공개 저장소 `music-video-studio`. Vercel `CRON_SECRET` 새로 등록. 공용 `cleanup-usage-log` 사본 1곳 추가(`docs/SHARED_MODULES.md`).
