@@ -13,7 +13,8 @@
 - 휴대폰 ☰ 메뉴는 이미 있음(`Sidebar.tsx` 118행) — 리뉴얼 때 유지.
 | 6 | 2026-10-17 | ② UI·편의성 | 루프 방식 도식이 막대 그림뿐 — 방식별 실제 짧은 예시 영상(GIF)을 넣으면 더 직관적 | `src/components/ui/LoopModeDiagram.tsx` | 낮음 | 제안 |
 | 7 | 2026-10-17 | ① 로직·기능 | 로그인 화면이 별도 틀(`(auth)/layout`) 없이 단독 — 다른 프로그램의 2탭(로그인·회원가입 안내) 표준과 다름 | `src/app/(auth)/login/page.tsx` | 낮음 | 제안 |
-- **미배포 대기(2026-10-23, 커밋 `22c6cda35`)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+- ~~미배포 대기(2026-10-23, 커밋 `22c6cda35`) 좌측 메뉴 계정 위치~~ ✅ v1.06(2026-10-23 17:43 보안 배포)에 이미 실려 나감 — 2026-10-24 운영 크롬에서 메뉴 클래스 `min-h-0 shrink overflow-y-auto`·계정이 마지막 메뉴 아래 25px(화면 765px 맨 아래 아님) 확인.
 
 ## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 (세션 claude-win-20261023-next-security)
-- v1.06 배포(Next.js 16.4.2 보안 업데이트, 빌드 명령 `next build --webpack` — Turbopack이 `@ffmpeg/ffmpeg` Worker를 못 풂). **남은 일: 크롬에서 영상 변환이 끝까지 되는지 실제 확인(분담표 묶음 A)**. 상세·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](../../docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)
+- v1.06 배포(Next.js 16.4.2 보안 업데이트, 빌드 명령 `next build --webpack` — Turbopack이 `@ffmpeg/ffmpeg` Worker를 못 풂). ~~남은 일: 크롬 변환 확인~~ ✅ 2026-10-24 — ffmpeg Worker 정상(소리 있는 영상 변환·다운로드 성공). 대신 아래 소리 없는 영상 실패 버그 발견. 상세·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](../../docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)
+- **소리 없는 영상은 크롬에서 항상 실패(2026-10-24 운영 확인, 미수정·플랜 승인 대기)** — `src/components/tool/LoopTool.tsx` 82행 `anyV.audioTracks ? … : anyV.mozHasAudio ?? true`가 크롬(둘 다 없음)에서 늘 `true` → 소리 없는 영상에도 `[0:a]atrim…` 필터(`src/lib/loop/plan.ts`)를 붙여 ffmpeg 실패, 화면 「루프 만들기에 실패했습니다…」. 근거: 소리 없는 4초 MP4(AI 영상 스튜디오 예시) 실패 2회, 소리 있는 MiniMax H3 원본(aac)은 같은 화면에서 성공(`infinite-loop.mp4` 4.5MB). AI 영상 모델 결과 8개 중 7개가 소리 없음 → 회원 피해 큼. 다음 첫 단계: `src/lib/loop/browser.ts`에서 ffmpeg로 입력의 소리 트랙을 직접 확인(`-i` 로그의 `Audio:`)해 `hasAudio`를 정하고, 시험 추가 → 배포(회원 기능 실패라 바로 배포 예외).
