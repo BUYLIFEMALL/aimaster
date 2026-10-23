@@ -28,11 +28,11 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     q: "생성된 글귀 이미지는 상업적/SNS에 자유롭게 사용할 수 있나요?",
-    a: "네! 회원님께서 생성하신 글귀와 이미지는 인스타그램 피드, 릴스, 유튜브 쇼츠, 카카오톡 프로필, 블로그 등에 자유롭게 업로드하고 사용하실 수 있습니다. Unsplash 배경 이미지는 Unsplash License에 따라 상업적/비상업적 무료 이용이 가능하며, AI 나노바나나 이미지는 회원님 본인의 Gemini API 키로 생성되어 온전히 회원님께 귀속됩니다.",
+    a: "네! 회원님께서 생성하신 글귀와 이미지는 인스타그램 피드, 릴스, 유튜브 쇼츠, 카카오톡 프로필, 블로그 등에 자유롭게 업로드하고 사용하실 수 있습니다. Pixabay·Pexels 배경 사진은 각 사이트의 라이선스에 따라 무료로 쓸 수 있으며(사진의 「원본 보기」에서 조건을 확인해 주세요), AI 나노바나나 이미지는 회원님 본인의 Gemini API 키로 생성되어 온전히 회원님께 귀속됩니다.",
   },
   {
-    q: "AI 나노바나나 이미지와 Unsplash 무료 사진의 차이는 무엇인가요?",
-    a: "Unsplash 사진은 전 세계 전문 사진작가들이 촬영한 실사 풍경, 카페, 노을, 바다 등 고해상도 실사 이미지를 즉시 검색·적용할 수 있습니다. 반면 AI 나노바나나(`gemini-nano-banana-2.1`)는 선택하신 감성 글귀의 시적 분위기에 맞추어 세상에 단 하나뿐인 독창적인 감성 일러스트 및 배경을 즉석에서 직접 그려냅니다.",
+    q: "AI 나노바나나 이미지와 Pixabay·Pexels 무료 사진의 차이는 무엇인가요?",
+    a: "Pixabay·Pexels 사진은 전 세계 전문 사진작가들이 촬영한 실사 풍경, 카페, 노을, 바다 등 고해상도 실사 이미지를 즉시 검색·적용할 수 있습니다. 반면 AI 나노바나나(`gemini-nano-banana-2.1`)는 선택하신 감성 글귀의 시적 분위기에 맞추어 세상에 단 하나뿐인 독창적인 감성 일러스트 및 배경을 즉석에서 직접 그려냅니다.",
   },
   {
     q: "인스타그램 릴스나 틱톡에 올리려면 어떤 비율이 좋은가요?",
@@ -71,7 +71,7 @@ export default function GuidePage() {
             </span>
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-            주제 선택부터 AI 감성 카피라이팅, Unsplash 및 나노바나나 배경 매칭, 그리고 브라우저 온디바이스 캘리그라피 캔버스 렌더링까지 이어지는 5단계 제작 노하우를 안내합니다.
+            주제 선택부터 AI 감성 카피라이팅, Pixabay·Pexels 및 나노바나나 배경 매칭, 그리고 브라우저 온디바이스 캘리그라피 캔버스 렌더링까지 이어지는 5단계 제작 노하우를 안내합니다.
           </p>
           <div className="flex flex-wrap gap-2.5 pt-2">
             <Link
@@ -125,7 +125,7 @@ export default function GuidePage() {
             </div>
             <h3 className="text-sm font-bold text-stone-900">배경 소스 지정</h3>
             <p className="text-xs text-stone-600 leading-relaxed">
-              AI 나노바나나 독창 일러스트 또는 Unsplash 무료 고해상도 감성 사진 중 선택합니다.
+              AI 나노바나나 독창 일러스트 또는 Pixabay·Pexels 무료 고해상도 감성 사진 중 선택합니다.
             </p>
           </div>
 
@@ -218,7 +218,7 @@ export default function GuidePage() {
         <div className="rounded-2xl border border-[#e7e0d3] bg-white p-6 space-y-4 shadow-2xs">
           <div className="flex items-center gap-2 text-stone-900">
             <Camera className="h-5 w-5 text-rose-600" />
-            <h3 className="text-sm font-bold">Unsplash vs 나노바나나 배경 활용 노하우</h3>
+            <h3 className="text-sm font-bold">무료 사진(Pixabay·Pexels) vs 나노바나나 배경 활용 노하우</h3>
           </div>
           <div className="space-y-3 text-xs text-stone-600 leading-relaxed">
             <ul className="space-y-2.5">
@@ -231,7 +231,7 @@ export default function GuidePage() {
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>
-                  <strong>Unsplash 실사 감성:</strong> 노을, 바다, 잔잔한 호수, 창가의 커피 등 서정적인 실사 분위기를 원할 때 강력 추천합니다.
+                  <strong>무료 실사 사진(Pixabay·Pexels):</strong> 노을, 바다, 잔잔한 호수, 창가의 커피 등 서정적인 실사 분위기를 원할 때 강력 추천합니다.
                 </span>
               </li>
               <li className="flex items-start gap-2">

@@ -176,3 +176,6 @@
 - 검수: 공용 코드 일치, tsc 0, `npm test` 35, 로컬 build, 배포 `emotion-writer-qg9gjgkjq` Ready, DB v1.26. 크롬: 메뉴 v1.26, 「아침 커피」→ morning coffee, 버튼 위치 확인(실제 검색은 안 함).
 - 비용: Vercel 빌드 1회(제안 범위).
 
+
+## 2026-10-23 ⏸ 미배포 — 사용 매뉴얼의 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 (Claude Code 윈도우)
+- `src/app/(studio)/guide/page.tsx` 7곳(자주 묻는 질문 2개, 소개, 3단계, 팁 제목·본문, 저작권 안내). 저작권 안내는 「각 사이트 라이선스에 따라 무료, 사진의 원본 보기에서 조건 확인」으로(옛 「Unsplash License」 문구 삭제). tsc 통과. **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 매뉴얼 화면 확인 뒤 이 항목을 「배포됨(버전)」으로.** 이 문서 1·3절의 같은 옛 표기(8·31·44·47·77번 줄)는 아직 그대로 — `docs/IMPROVEMENTS.md` 2026-10-23 항목.
