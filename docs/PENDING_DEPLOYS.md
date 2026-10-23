@@ -35,10 +35,6 @@
 | `ai-mastering-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `infinite-loop-video` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `infinite-loop-video/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-image-studio` | 공용 `ai-video-*` 사본 전환(기준이 ai-video-studio로 이전) — 머리 주석·선택값 추가, **화면에서 안 쓰는 파일이라 동작 불변** | `cea11442a`·`6c02ccf41` | 2026-10-23 · Claude Code(윈도우) | `docs/SHARED_MODULES.md` `ai-video-*` | 버전 +0.01 |
-| `ai-music-studio` (운영 v1.07) | 곡 카드 링크에 곡 번호 `?ams=` — 원스톱·뮤직비디오가 바로 넣음(**세 프로그램 함께 배포해야 동작**) | `5991d70bb` | 2026-10-23 · Claude Code(윈도우) | `ai-music-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01, 링크로 두 프로그램 열어 곡이 들어가는지 확인 |
-| `shorts-onestop-studio` (운영 v1.38) | `/render?ams=` 링크로 오면 가장 최근 대본에 그 곡을 배경음악으로 자동으로 넣음 | `8da387b28` | 2026-10-23 · Claude Code(윈도우) | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | (위 줄과 함께) |
-| `music-video-studio` (운영 v1.13) | `/music?ams=` 링크로 오면 그 곡을 자동으로 가져옴 | `5b9dba1af` | 2026-10-23 · Claude Code(윈도우) | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 버전 +0.01 |
-| `shorts-onestop-studio` (운영 v1.38) | AI 음악 스튜디오에서 고른 곡 이름에 곡 번호 「(1)」「(2)」 유지 | `b48814471` | 2026-10-23 · Claude Code(윈도우) | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 「미배포 대기」 | 버전 +0.01, 같은 생성의 두 곡을 골라 이름 구분 확인 |
 | `naver-cafe-poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `naver-cafe-poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `persona-style-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `persona-style-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `react-ui-showcase` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `react-ui-showcase/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -68,6 +64,9 @@
 | `insta_auto_poster` | v1.68 · 2026-10-23 (모아 둔 수정, 제안 범위 빌드 1회) | 「🔤」 한글일 때만 기억 `4bebfb016` · 「✕ 슬라이드 N 빼기」 `447780d5c` · 공용 사본 member-scheduler·instagram-publish |
 | `music` | v1.44 · 2026-10-23 (Claude Code 윈도우, 승인 빌드 1회, `music-36j3lwxcj`) | 공용 Suno `callbackOrigin` `acccf06eb` · 곡 30일 정리 회원별 기록 `4cafe5eb3`(2026-10-29 첫 실제 삭제 뒤 관리자 정리 표 확인) · 휴대폰 ☰ 펼침 메뉴 `2fcddccb7`(크롬 390px 확인) |
 | `naver-blog-agent` | v2.12 · 2026-10-23 (이미지 전용 공개 버킷, 회원 피해 수정·승인 빌드 1회) | 대기 항목 없음 |
+| `ai-music-studio` | v1.08 · 2026-10-23 (곡마다 원스톱·뮤직비디오 링크에 곡 번호 `?ams=`, 승인 빌드) | `5991d70bb` |
+| `music-video-studio` | v1.14 · 2026-10-23 (`/music?ams=` 곡 자동으로 가져오기, 승인 빌드) | `5b9dba1af` |
+| `shorts-onestop-studio` | v1.39 · 2026-10-23 (`/render?ams=` 배경음악 자동으로 넣기, 승인 빌드) | `8da387b28` · 고른 곡 이름 번호 유지 `b48814471` |
 | `ai-music-studio` | v1.07 · 2026-10-23 (곡 카드에 쇼츠 원스톱·뮤직비디오 링크, 승인 빌드 1회) | 공용 `music-sync-calls` 분리(동작 같음) |
 | `shots` | v1.40 · 2026-10-23 (배경음악 모델 고르기 Suno V6·Mini·Wild·Lyria 3.5·ElevenLabs, 승인 빌드 1회) | 공용 `music-sync-calls` 사본 첫 배포 |
 | `music-video-studio` | v1.13 · 2026-10-23 (곡 카드: AI 음악 스튜디오 가져오기 + 내 파일 올리기, 승인 빌드 1회) | 루프 버튼 「On」 · 공용 `ai-video-*` 사본 머리 주석·사진 거절 안내 `6c02ccf41`·`96423f5ec` |
