@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-23 Claude Code(맥미니) — AI 상세페이지 자동화 v1.30: 휴대폰·연계 묶음 (미배포 — 윈도우 배포 요청) · GIF Esc 닫기(미배포 대기)
+- 주인님 승인 ③ 묶음(빌드 1회): S-23-04 휴대폰에서 하단 내보내기 버튼 한 줄·작게, S-23-05 문구 고치기 창을 `createPortal`로 맨 위, S-23-08 상품명 `*`·저장 조건 안내, S-23-09 사이드바 「영상→GIF 만들기 ↗」·섹션 아래 GIF 자동화 안내 링크. 커밋 `124a7fe62`. 검수: tsc·eslint 0.
+- GIF G-23-06 Esc 닫기는 주인님 선택으로 **미배포 대기**(`docs/PENDING_DEPLOYS.md`, 사이드바 「2-Pass」 정리와 함께 다음 GIF 배포 때).
+- **윈도우 할 일**: SQL `shop-detail-page/supabase/migrations/20261023_mobile_link_v1_30.sql`(버전만) → `shop-detail-page` 배포 1회. 그 뒤 맥미니 크롬 실검수(AI 버튼 누르지 않음). 플랜 `shop-detail-page/docs/PLAN_20261023_MOBILE_LINK.md`.
+- 참고: 13:31경 공용 스테이징이 다시 17개로 줄어 있어 주인님 승인 뒤 `git read-tree HEAD`로 다시 채움(남은 항목이 HEAD와 같음 확인, 백업 있음) — 윈도우 기록 `docs/ERROR_LESSONS.md` 맨 위와 같은 사고.
+- 링크: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-23 Claude Code(윈도우, 세션 claude-win-20261023-bgm) — 남은 음악 작업 ⑥ 원스톱 대본 고르기(미배포 대기) · ④⑤ 대기
 - 원스톱 `RenderView`: `/render?ams=`로 들어왔을 때 대본이 하나면 바로 넣고, 여러 개면 「작업할 대본」 아래에 「이 대본에 넣기 / 넣지 않기」 안내줄(엉뚱한 대본에 들어가지 않게). tsc·시험 27개 통과, 커밋 `b22a5526a`. **배포: 미배포 대기(작은 수정)**.
 - ④ 뮤직비디오 최종 영상 합치기·⑤ 쇼츠 Lyria 곡 길이: `music-video-studio/`·`shots/`를 세션 `claude-win-20261023-next-security`(Next.js 보안 업데이트)가 예약 중이라 그 세션이 끝난 뒤 시작.
