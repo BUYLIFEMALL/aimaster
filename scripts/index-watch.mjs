@@ -53,7 +53,9 @@ try {
   const lockAge = existsSync(lockPath) ? Math.round((Date.now() - statSync(lockPath).mtimeMs) / 1000) : null;
   // 어느 CLI가 부른 것인지 추정(2026-10-23, 환경변수 — 훅은 git을 부른 CLI의 환경을 물려받음): 「하루 동안 시작 점검을 안 한 장비·CLI」 알림에 쓴다
   const envKeys = Object.keys(process.env);
-  const cli = process.env.CLAUDECODE ? "claude" : envKeys.some((k) => k.startsWith("CODEX_")) ? "codex" : envKeys.some((k) => /^(ANTIGRAVITY|AGY|GEMINI_CLI)/.test(k)) ? "agy" : "";
+  // (CODEX_HOME은 이 PC 전체 설정이라 Claude Code 환경에도 있음 — 2026-10-23 확인, 판단에서 뺀다) 1순위: 세션 이름 첫 단어(멀티세션 규칙 §2 「<CLI>-<장비>-<날짜>-<작업>」, 예 codex-win-…) — 이름표의 (세션) 또는 AIMASTER_SESSION. 2순위: 환경변수(CLAUDECODE는 확인, 나머지는 추정)
+  const cliOf = (s) => (String(s ?? "").match(/(?:^|\()(claude|codex|agy)-/) ?? [])[1] ?? "";
+  const cli = cliOf(tag) || cliOf(process.env.AIMASTER_SESSION) || (process.env.CLAUDECODE ? "claude" : envKeys.some((k) => k.startsWith("CODEX_") && k !== "CODEX_HOME") ? "codex" : envKeys.some((k) => /^(ANTIGRAVITY|AGY|GEMINI_CLI)/.test(k)) ? "agy" : "");
   const line = [t(new Date()), hostname(), `pid=${process.ppid}`, tag, `index=${st ? st.size : "없음"}B@${st ? t(st.mtime) : "-"}`, `entries=${entries}`, `head=${head}`, lockAge === null ? "" : `lock=${lockAge}s`, cli ? `cli=${cli}` : "", process.env.GIT_INDEX_FILE ? `GIT_INDEX_FILE=${process.env.GIT_INDEX_FILE}` : ""].filter(Boolean).join(" | ");
   const logPath = join(gitDir, "aimaster-index-log.txt");
   const prev = existsSync(logPath) ? readFileSync(logPath, "utf8").trimEnd().split("\n") : [];
@@ -131,7 +133,7 @@ try {
     const since = Date.now() - 24 * 3600_000;
     const rows = [...prev, line].map((l) => {
       const m = l.match(/^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) \| ([^|]+) \| pid=(\d+) \| ([^|]+) \|.*entries=(\d+) \| head=(\d+)/);
-      return m ? { at: new Date(m[1].replace(" ", "T")), when: m[1].slice(11), host: m[2].trim(), pid: m[3], tag: m[4].trim(), shrunk: Number(m[6]) > 200 && Number(m[5]) * 2 < Number(m[6]), n: m[5], cli: (l.match(/\| cli=(\w+)/) ?? [])[1] ?? "" } : null;
+      return m ? { at: new Date(m[1].replace(" ", "T")), when: m[1].slice(11), host: m[2].trim(), pid: m[3], tag: m[4].trim(), shrunk: Number(m[6]) > 200 && Number(m[5]) * 2 < Number(m[6]), n: m[5], cli: (l.match(/\| cli=(\w+)/) ?? [])[1] ?? cliOf(m[4]) } : null; // cli= 칸이 없던 옛 기록은 이름표의 세션 이름으로
     }).filter(Boolean);
     // 시작 점검 누락(2026-10-23, 루트 AGENTS.md·GEMINI.md 최상위 ⑥): 최근 24시간 기록(커밋 훅·도우미 등)이 있는 장비·CLI 중 시작 점검
     // (session-check·claude-session-start) 기록이 없는 곳. ⑥ 시행(16:30) 이전 기록은 보지 않는다. CLI는 환경변수 추정이라 모르는 경우 장비만 본다.
@@ -143,7 +145,10 @@ try {
       const checked = new Set(recent.filter(isStart).flatMap(keys));
       const missing = [...new Set(recent.filter((r) => !isStart(r)).flatMap(keys))].filter((k) => !checked.has(k))
         .filter((k, _, all) => k.includes("/") || !all.some((o) => o.startsWith(`${k}/`))); // 「장비/CLI」가 있으면 장비만 있는 항목은 뺀다
-      if (missing.length) console.log(`⚠ [시작 점검 누락] 최근 24시간 커밋·기록은 있는데 시작 점검이 없는 장비·CLI: ${missing.join(", ")} — 그 CLI 지침 맨 위 ⑥(\`node scripts/index-watch.mjs session-check\`)을 안내(CLI 이름은 환경변수 추정)`);
+      // 세션 이름 없이(=CLI를 모르게) 시작 점검한 장비는 「누락」이 오판일 수 있어 함께 적는다
+      const unnamed = new Set(recent.filter((r) => isStart(r) && !r.cli).map((r) => r.host));
+      const note = missing.map((k) => (k.includes("/") && unnamed.has(k.split("/")[0]) ? `${k}(이 장비에 세션 이름 없는 시작 점검 있음 — 그것일 수 있음)` : k));
+      if (missing.length) console.log(`⚠ [시작 점검 누락] 최근 24시간 커밋·기록은 있는데 시작 점검이 없는 장비·CLI: ${note.join(", ")} — 그 CLI 지침 맨 위 ⑥ 안내. CLI 구분은 세션 이름 첫 단어 기준이니 \`AIMASTER_SESSION=<세션명> node scripts/index-watch.mjs session-check\`로 실행`);
     }
     const starts = [];
     for (let i = 1; i < rows.length; i++) if (rows[i].shrunk && !rows[i - 1].shrunk && rows[i].at.getTime() >= since) starts.push(`${rows[i].when}(${rows[i].n}개, 직전 ${rows[i - 1].when} ${rows[i - 1].tag} pid=${rows[i - 1].pid}${rows[i - 1].host !== rows[i].host ? ` · 장비 ${rows[i - 1].host}→${rows[i].host}` : ""})`);
