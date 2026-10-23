@@ -23,3 +23,6 @@
 
 ## 2026-10-23 (Claude Code 윈도우) — 30일 자동 정리 첫 실행 확인
 - Vercel Cron이 03:20:21(한국 시간) `GET /api/cron/cleanup` 호출, 응답 200(`vercel logs --json` `responseStatusCode`). DB 확인: 설정·내 블로그를 뺀 생성물 중 30일 지난 행 0건(남은 전체 12행, 가장 오래된 생성물 2026-10-15 이미지 작업). 비용 없음.
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
+- 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).

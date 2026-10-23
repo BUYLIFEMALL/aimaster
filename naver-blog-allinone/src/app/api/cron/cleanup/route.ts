@@ -3,6 +3,7 @@ import { BUCKET, imagePaths } from "@/lib/blog/sanitize";
 import { expiredOrphanFiles, retentionCutoff, RETENTION_DAYS } from "@/lib/blog/retention";
 import type { ImageSlot } from "@/lib/blog/types";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -26,11 +27,14 @@ export async function GET(request: NextRequest) {
   if (expiredError) return NextResponse.json({ error: expiredError.message }, { status: 500 });
   const expiredFiles = (expired ?? []).flatMap((p) => imagePaths((p.images as ImageSlot[]) ?? [], SUPA(), p.user_id as string));
   let deletedPosts = 0;
+  // 2026-10-23: 실제로 지운 것만 회원별로 세어 usage_logs(cleanup_expired)에 남긴다(관리자 「30일 자동 정리」 표). 미리 보기(dry)는 기록 안 함
+  const counts: CleanupCounts = new Map();
   if (!dryRun && expired?.length) {
     const { error, count } = await admin.from("aio_posts").delete({ count: "exact" }).in("id", expired.map((p) => p.id));
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     deletedPosts = count ?? 0;
-    if (expiredFiles.length) await storage.remove(expiredFiles);
+    for (const p of expired) addCleanupCount(counts, p.user_id as string, "posts");
+    if (expiredFiles.length && !(await storage.remove(expiredFiles)).error) for (const path of expiredFiles) addCleanupCount(counts, ownerFromPath(path), "images");
   }
 
   const { data: live, error: liveError } = await admin.from("aio_posts").select("user_id, images").gt("created_at", cutoff).limit(20000);
@@ -46,7 +50,8 @@ export async function GET(request: NextRequest) {
     if (!targets.length) continue;
     if (dryRun) { orphanFiles += targets.length; continue; }
     const { error } = await storage.remove(targets);
-    if (!error) orphanFiles += targets.length;
+    if (!error) { orphanFiles += targets.length; addCleanupCount(counts, owner.name, "images", targets.length); }
   }
+  if (!dryRun) await logCleanupUsage(admin, "naver-blog-allinone", counts);
   return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff, dryRun, expiredPosts: expired?.length ?? 0, deletedPosts, expiredPostFiles: expiredFiles.length, orphanFiles });
 }

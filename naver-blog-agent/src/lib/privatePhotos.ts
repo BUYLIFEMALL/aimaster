@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import type { createAdminClient } from "@/lib/supabase/admin";
+import { addCleanupCount, ownerFromPath, type CleanupCounts } from "./cleanupUsageLog";
 import { MAX_PHOTO_BYTES, MAX_REVIEW_PHOTOS } from "./privatePhotoRules";
 export { MAX_PHOTO_BYTES, MAX_REVIEW_PHOTOS } from "./privatePhotoRules";
 
@@ -109,7 +110,8 @@ export async function resolvePrivatePostPhotos<T extends { images?: unknown }>(a
 }
 
 /** 전체 페이지를 먼저 읽고 삭제해 offset 변화로 인한 누락을 방지한다. */
-export async function cleanupPrivatePhotos(admin: PhotoAdmin, dryRun: boolean, now = Date.now()) {
+// counts(2026-10-23, 선택): 실제로 지운 사진을 회원별로 센다(cron/cleanup의 usage_logs 정리 기록용)
+export async function cleanupPrivatePhotos(admin: PhotoAdmin, dryRun: boolean, now = Date.now(), counts?: CleanupCounts) {
   if (!await requirePrivatePhotoBucket(admin, true)) return { configured: false, expired: 0, removed: 0 };
   const storage = admin.storage.from(PRIVATE_PHOTO_BUCKET);
   const folders: string[] = [];
@@ -142,6 +144,7 @@ export async function cleanupPrivatePhotos(admin: PhotoAdmin, dryRun: boolean, n
     const { error } = await storage.remove(batch);
     if (error) throw new PrivatePhotoError("만료 사진 삭제를 완료하지 못했습니다. 다음 정리에서 다시 확인합니다.", 503);
     removed += batch.length;
+    if (counts) for (const path of batch) addCleanupCount(counts, ownerFromPath(path), "photos");
   }
   return { configured: true, expired: expired.length, removed };
 }

@@ -217,3 +217,6 @@
 - 함께 나감: 30일 정리가 옛 버킷에서 옮긴 이미지 복사본을 파일 이름의 생성 시각으로 판정(`f1aabf2a2`). 버전 커밋 `f9c7bb1cd`(확장 manifest·ZIP v2.13, SQL `supabase/migrations/20261023270000_nba_cleanup_name_time_v213.sql`).
 - 검수: tsc 0, `test:member-data`·`test:publishing`·`test:extension` 통과, 빌드, `deploy.mjs --go` Ready, DB·확장·라이브 ZIP v2.13(`check-extension-release` OK), 크롬(시험 회원) 메뉴 v2.13. 같은 판정 규칙으로 새 버킷 복사본 40개 계산 → 40개 모두 원래 생성일로 판정(최대 14일 앞당김), 가장 이른 파일은 11-22가 아니라 11-08부터 삭제 대상.
 - 회원 안내: 확장은 버전만 바뀜(코드 변경 없음).
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
+- 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { KEEP_KINDS, orphanJobFolders, retentionCutoff, RETENTION_DAYS } from "@/lib/retention";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -21,16 +22,19 @@ export async function GET(request: NextRequest) {
 
   const { data: expired, error: expiredError } = await admin
     .from("blog_workroom_items")
-    .select("id")
+    .select("id, user_id, kind")
     .not("kind", "in", `(${KEEP_KINDS.join(",")})`)
     .lte("created_at", cutoff)
     .limit(5000);
   if (expiredError) return NextResponse.json({ error: expiredError.message }, { status: 500 });
   let deletedRows = 0;
+  // 2026-10-23: 실제로 지운 것만 회원별로 세어 usage_logs(cleanup_expired)에 남긴다(관리자 「30일 자동 정리」 표). 미리 보기(dry)는 기록 안 함
+  const counts: CleanupCounts = new Map();
   if (!dryRun && expired?.length) {
     const { error, count } = await admin.from("blog_workroom_items").delete({ count: "exact" }).in("id", expired.map((r) => r.id));
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     deletedRows = count ?? 0;
+    for (const row of expired) addCleanupCount(counts, row.user_id as string, row.kind === "image_job" ? "imageJobs" : "items");
   }
 
   const { data: jobs, error: jobsError } = await admin.from("blog_workroom_items").select("id").eq("kind", "image_job").limit(20000);
@@ -52,8 +56,9 @@ export async function GET(request: NextRequest) {
       if (!paths.length) continue;
       if (dryRun) { removedFiles += paths.length; continue; }
       const { error } = await storage.remove(paths);
-      if (!error) removedFiles += paths.length;
+      if (!error) { removedFiles += paths.length; addCleanupCount(counts, owner.name, "images", paths.length); }
     }
   }
+  if (!dryRun) await logCleanupUsage(admin, "blog-workroom", counts);
   return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff, dryRun, expiredRows: expired?.length ?? 0, deletedRows, orphanFolders, removedFiles });
 }

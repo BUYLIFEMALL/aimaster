@@ -216,3 +216,6 @@
 
 ## 2026-10-23 (Claude Code 윈도우) — ⏳ 미배포 대기: 원고에 생성 모델 이름 기록 (⑦, 위 2026-10-23 「남은 점」 해소)
 - 생성: `resolveContentModel` 결과를 `generateSeoDraft`와 기록에 같이 사용 → `seo_report.generatedModel = "OpenAI · gpt-4.1"` 등. 최적화 저장: 화면 `activeOpenAIModel`을 보내고 서버가 `getUserOpenAIContentModel`(최적화 API와 같은 규칙)로 확정. 화면 「SEO·사실 확인」 칸에 「생성 모델」. 한계: 최적화 뒤 저장 전에 모델을 바꾸면 저장 때 모델이 기록됨(최적화 API가 쓴 모델과 다를 수 있음 — 드묾). 실생성 시험은 유료라 하지 않음(코드 검사 시험 3개).
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
+- 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).

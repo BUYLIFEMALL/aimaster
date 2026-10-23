@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { RETENTION_DAYS, retentionCutoff } from "@/lib/retention";
 import { checkRankingHealth } from "@/lib/naverRanking";
 import { cleanupPrivatePhotos, PrivatePhotoError } from "@/lib/privatePhotos";
+import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -32,9 +33,11 @@ export async function GET(request: NextRequest) {
     const dryRun = request.nextUrl.searchParams.get("dry") === "1";
     const cutoff = retentionCutoff();
     const admin = createAdminClient() as any;
+    // 2026-10-23: 실제로 지운 것만 회원별로 세어 usage_logs(cleanup_expired)에 남긴다(관리자 「30일 자동 정리」 표). 미리 보기(dry)는 기록 안 함
+    const counts: CleanupCounts = new Map();
     // 새 사진은 옛 콘텐츠 유예와 관계없이 원래 업로드일부터 30일을 적용한다.
     let privatePhotos: Awaited<ReturnType<typeof cleanupPrivatePhotos>> | { error: string };
-    try { privatePhotos = await cleanupPrivatePhotos(admin, dryRun); }
+    try { privatePhotos = await cleanupPrivatePhotos(admin, dryRun, Date.now(), counts); }
     catch (error) {
       // 새 버킷 장애가 기존 원고·이미지 정리까지 막지는 않지만 실패 상태는 드러낸다.
       privatePhotos = { error: error instanceof PrivatePhotoError ? error.message : "비공개 사진 정리를 완료하지 못했습니다." };
@@ -43,12 +46,14 @@ export async function GET(request: NextRequest) {
     // 새 자료는 보관 여부와 관계없이 원래 수집일부터 만료. DB count/delete 오류도 실패로 표시한다.
     const sourceNow = new Date().toISOString();
     const sourceQuery = dryRun ? admin.from("nba_collected_materials").select("id", {count: "exact", head: true}).lte("expires_at", sourceNow)
-      : admin.from("nba_collected_materials").delete({count: "exact"}).lte("expires_at", sourceNow);
-    const {count: sourceCount, error: sourceError} = await sourceQuery;
+      : admin.from("nba_collected_materials").delete({count: "exact"}).lte("expires_at", sourceNow).select("user_id");
+    const {data: sourceRows, count: sourceCount, error: sourceError} = await sourceQuery;
+    if (!dryRun && !sourceError) for (const row of sourceRows ?? []) addCleanupCount(counts, row.user_id, "ideas");
     const sourceMaterials = sourceError ? {error: "만료 글감 정리를 완료하지 못했습니다."} : {count: sourceCount || 0, dryRun};
     const cleanupFailed = privatePhotosFailed || Boolean(sourceError);
 
     if (!cutoff) {
+      if (!dryRun) await logCleanupUsage(admin, "naver-blog-agent", counts);
       return NextResponse.json({
         success: !cleanupFailed,
         retentionDays: RETENTION_DAYS,
@@ -68,7 +73,7 @@ export async function GET(request: NextRequest) {
     try {
       const { data: oldNbaPosts, error: nbaErr } = await admin
         .from("nba_posts")
-        .select("id")
+        .select("id, user_id")
         .lt("created_at", cutoff.toISOString());
 
       if (!nbaErr && oldNbaPosts && oldNbaPosts.length > 0) {
@@ -76,7 +81,7 @@ export async function GET(request: NextRequest) {
         if (!dryRun) {
           const ids = oldNbaPosts.map((p: any) => p.id);
           const { error: delErr } = await admin.from("nba_posts").delete().in("id", ids);
-          if (!delErr) removedPostsCount += ids.length;
+          if (!delErr) { removedPostsCount += ids.length; for (const p of oldNbaPosts) addCleanupCount(counts, p.user_id, "posts"); }
         }
       }
     } catch (e) {
@@ -116,12 +121,15 @@ export async function GET(request: NextRequest) {
         for (let i = 0; i < imagesToDelete.length; i += 100) {
           const chunk = imagesToDelete.slice(i, i + 100);
           const { error: delImgErr } = await storage.remove(chunk);
-          if (!delImgErr) removedImagesCount += chunk.length;
+          // 경로 「naver-blog-agent/<회원 id>/파일」의 둘째 폴더가 회원
+          if (!delImgErr) { removedImagesCount += chunk.length; for (const path of chunk) addCleanupCount(counts, path.split("/")[1], "images"); }
         }
       }
     } catch (e) {
       console.warn(`storage images cleanup error (${bucket}):`, e);
     }
+
+    if (!dryRun) await logCleanupUsage(admin, "naver-blog-agent", counts);
 
     // 매일 정리 때 랭킹 글감 주소(네이버 비공식)도 함께 점검한다. 실패해도 정리 결과에는 영향 없음.
     const rankingHealth = await checkRankingHealth().catch(() => []);

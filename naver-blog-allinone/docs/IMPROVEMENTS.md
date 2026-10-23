@@ -49,3 +49,6 @@
 - **처리:** AGENTS.md 맨 위 「미배포 대기」 항목. 운영 `CRON_SECRET` 추가(주인님 승인, Sensitive라 값은 다시 받을 수 없음 — 배포 뒤 확인은 Vercel 대시보드 Cron Jobs 「Run」으로).
 - **검수:** 시험 33 통과(보관 규칙 2 새로), tsc·로컬 빌드 통과. 운영 배포·화면·Cron 실행은 다음 배포 때.
 - **참고(BLC-13 후보):** 이 프로그램에도 `src/lib/blog/yearPolicy.ts`가 따로 있음 — 2026-10-22 등록한 공용 기준 `year-policy`(naver-blog-agent)와 같은지 비교해 사본으로 맞출 후보.
+
+## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
+- 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).

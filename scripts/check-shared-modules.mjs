@@ -408,6 +408,13 @@ const MODULES = [
       "real_estate_sales/src/lib/cleanupUsageLog.ts",
       "threads/src/lib/cleanupUsageLog.ts",
       "ai-music-studio/lib/cleanupUsageLog.ts",
+      // 블로그 6곳 — 2026-10-23 블로그 전담 세션(claude-win-20261023-seo-bg)
+      "ai-auto-blog/utils/cleanupUsageLog.ts",
+      "tistory-auto-blog/utils/cleanupUsageLog.ts",
+      "blog-workroom/src/lib/cleanupUsageLog.ts",
+      "naver-blog-agent/src/lib/cleanupUsageLog.ts",
+      "naver-blog-allinone/src/lib/cleanupUsageLog.ts",
+      "naver-blog-seo-studio/lib/cleanupUsageLog.ts",
     ],
   },
   {

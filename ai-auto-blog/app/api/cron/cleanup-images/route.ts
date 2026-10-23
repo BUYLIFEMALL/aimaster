@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { POST_IMAGES_BUCKET } from '@/blog/utils/imageStorage'
 import { RETENTION_DAYS, retentionCutoff } from '@/blog/utils/imageRetention'
+import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from '@/blog/utils/cleanupUsageLog'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
   // 1) 오래된 글
   const { data: oldPosts, error: postsError } = await supabase
     .from('blog_posts')
-    .select('id, content')
+    .select('id, content, user_id')
     .lt('published_at', cutoff.toISOString())
   if (postsError) return NextResponse.json({ error: postsError.message }, { status: 500 })
   for (const post of oldPosts ?? []) {
@@ -70,10 +71,12 @@ export async function GET(request: NextRequest) {
   }
 
   // 3) 오래된 글감 수집 결과
-  const { count: expiredCandidates, error: candError } = await supabase
+  // 2026-10-23: 회원별 정리 기록(usage_logs cleanup_expired)용으로 개수와 함께 소유자도 읽는다
+  const { data: candidateRows, count: expiredCandidates, error: candError } = await supabase
     .from('blog_candidates')
-    .select('id', { count: 'exact', head: true })
+    .select('user_id', { count: 'exact' })
     .lt('created_at', cutoff.toISOString())
+    .range(0, 9999)
   if (candError) return NextResponse.json({ error: candError.message }, { status: 500 })
 
   const postIds = (oldPosts ?? []).map((post) => post.id)
@@ -81,23 +84,28 @@ export async function GET(request: NextRequest) {
   let removedImages = 0
   let removedPosts = 0
   let removedCandidates = 0
+  const counts: CleanupCounts = new Map()
   if (!dryRun) {
     for (let i = 0; i < imagePaths.length; i += 100) {
       const batch = imagePaths.slice(i, i + 100)
       const { error } = await storage.remove(batch)
       if (error) return NextResponse.json({ error: error.message, removedImages }, { status: 500 })
       removedImages += batch.length
+      for (const path of batch) addCleanupCount(counts, ownerFromPath(path), 'images')
     }
     if (postIds.length > 0) {
       const { error } = await supabase.from('blog_posts').delete().in('id', postIds)
       if (error) return NextResponse.json({ error: error.message, removedImages }, { status: 500 })
       removedPosts = postIds.length
+      for (const post of oldPosts ?? []) addCleanupCount(counts, post.user_id, 'posts')
     }
     if ((expiredCandidates ?? 0) > 0) {
       const { error } = await supabase.from('blog_candidates').delete().lt('created_at', cutoff.toISOString())
       if (error) return NextResponse.json({ error: error.message, removedImages, removedPosts }, { status: 500 })
       removedCandidates = expiredCandidates ?? 0
+      for (const row of candidateRows ?? []) addCleanupCount(counts, row.user_id, 'ideas')
     }
+    await logCleanupUsage(supabase, 'ai-auto-blog', counts)
   }
 
   console.log(
