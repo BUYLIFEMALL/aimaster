@@ -92,7 +92,7 @@ function fixture(options = {}) {
   const db = { auth: { getUser: async () => ({ data: { user: options.loggedOut ? null : { id: userId } } }) }, from: t => new Query(t), storage: { from: () => storage } };
   const actions = load('threads-content-ops/app/threads-content-ops/web-actions.ts', new Proxy({
     'next/cache': { revalidatePath: () => state.revalidated++ },
-    '@/lib/supabase/server': { createClient: async () => db },
+    '@/lib/supabase/server': { createClient: async () => db, createServiceClient: () => db },
     '@/lib/access/checkProgramAccess': { checkProgramAccess: async () => ({ allowed: !options.noAccess }) },
     '@/lib/apiKeys': { resolveApiKey: async () => { state.keyCalls++; throw new Error('API key should not be requested'); } },
     '@/threads-content-ops/lib/affiliate-clients/coupangLinks': links,

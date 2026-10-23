@@ -687,7 +687,8 @@ export async function registerCoupangManualSource(input: {
     return { ok: true, warning };
   } catch (error) {
     if (uploadedPath && db) {
-      try { await db.storage.from(MEDIA_BUCKET).remove([uploadedPath]); } catch { /* Own temporary upload only. */ }
+      // v2.20: 서버가 이 회원 폴더에 직접 만든 경로만 서버 키로 지운다(새 버킷엔 회원 조회 정책이 없어 회원 세션 삭제는 0개로 끝남).
+      try { await createServiceClient().storage.from(MEDIA_BUCKET).remove([uploadedPath]); } catch { /* Own temporary upload only. */ }
     }
     return sourceFailure(error, "상품을 등록하지 못했습니다.");
   }
