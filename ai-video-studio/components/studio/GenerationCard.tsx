@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Download, Loader2, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { AlertCircle, CheckCircle2, Download, Layers, Loader2, Trash2 } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 
 function elapsed(from: string) {
@@ -86,9 +87,14 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
       )}
 
       {video?.downloadUrl && (
-        <a href={video.downloadUrl} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
-          <Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기 MP4 ({(video.bytes / 1_048_576).toFixed(1)}MB)
-        </a>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <a href={video.downloadUrl} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
+            <Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기 MP4 ({(video.bytes / 1_048_576).toFixed(1)}MB)
+          </a>
+          <Link href={`/edit?add=${gen.id}`} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
+            <Layers className="h-3.5 w-3.5" aria-hidden="true" /> 합치기에 넣기
+          </Link>
+        </div>
       )}
 
       <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800/80 pt-3 text-[11px] text-zinc-500">
