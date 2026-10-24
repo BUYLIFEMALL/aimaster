@@ -1,4 +1,5 @@
 import "server-only";
+import { withYearRule } from "./yearRule";
 
 export interface OpportunityInput {
   keyword: string;
@@ -182,5 +183,5 @@ export async function generateReasons(
   items: OpportunityResult[],
   keys: { openai?: string | null; gemini?: string | null },
 ): Promise<Map<string, string>> {
-  return runReasonPrompt(buildPrompt(items), keys);
+  return runReasonPrompt(withYearRule(buildPrompt(items)), keys);
 }
