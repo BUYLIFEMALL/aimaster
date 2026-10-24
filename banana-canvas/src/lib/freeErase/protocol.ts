@@ -160,8 +160,9 @@ export function probToBoxes(prob: ArrayLike<number>, w: number, h: number, thres
   return boxes;
 }
 
-/** 맵 좌표 상자 → 원본 좌표로 늘리고 둘레를 넓힌다. 이 모델은 글자보다 줄어든 영역을 내므로(원래 쓰는 곳은 1.5~2배로 넓힘) 높이의 절반씩 넓혀 테두리·그림자까지 덮는다 */
-export function scaleBoxes(boxes: Box[], fromW: number, fromH: number, toW: number, toH: number, grow = 0.5): Box[] {
+/** 맵 좌표 상자 → 원본 좌표로 늘리고 둘레를 넓힌다. 이 모델은 글자보다 줄어든 영역을 내므로(RapidOCR은 넓이·둘레 비율 1.6배로 넓힘 ≈ 높이의 0.8배씩) 높이의 0.9배씩 넓혀 굵은 글자 획·테두리까지 덮는다.
+ *  0.5배였을 때 큰 굵은 제목(1792×2400 배너)에 글자 조각이 남음 → 0.9배에서 깨끗함(2026-10-24 운영 화면 비교) */
+export function scaleBoxes(boxes: Box[], fromW: number, fromH: number, toW: number, toH: number, grow = 0.9): Box[] {
   const sx = toW / fromW, sy = toH / fromH;
   return boxes.map((b) => {
     const g = Math.max(4, Math.round(b.h * sy * grow));
