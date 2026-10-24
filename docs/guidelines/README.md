@@ -21,6 +21,7 @@
 |---|---|---|---|
 | 최상위 공통 원칙 | [공통 원칙](COMMON.md) | 모든 작업, 운영/Lab 판별, 계정·데이터·권한 | [본인 계정·API](../TOP_RULE_PERSONAL_ACCOUNT_API.md), [Lab](../AIMASTER_DEV_LAB_GUIDELINES.md) |
 | 개발 관련 지침 | [개발](DEVELOPMENT.md) | 기능 개발·수정·분석·공용 부품 | [공통 개발 방식](../AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) |
+| 신규·외부 프로그램 분석·플랜 | [분석·개발 플랜 지침](../PROGRAM_ANALYSIS_PLANNING_GUIDE.md) | 외부 EXE·앱·사이트 분석, 새 프로그램 기획, 개발 플랜, 담당 인계 | [REA](../REA_REVERSE_ENGINEERING.md), [분석 도구](../ANALYSIS_TOOLKIT.md) |
 | 디자인 관련 지침 | [디자인](DESIGN.md) | 화면·레이아웃·사용 흐름·모바일 개선 | [디자인 메인](../../DESIGN.md), [프로그램 디자인 표준](../PROGRAM_DESIGN_STANDARD.md) |
 | 디자인 템플릿 지침 | [템플릿·매뉴얼](DESIGN_TEMPLATES.md) | 테마 선택·재사용·연동/사용 매뉴얼 | [템플릿 카탈로그](../DESIGN_TEMPLATE_CATALOG.md), [매뉴얼 규격](../MANUAL_AND_INTEGRATION_GUIDELINES.md) |
 | 서브프로그램 개발 및 운영 | [서브프로그램](SUBPROGRAMS.md) | 신규 등록·회원 연동·운영·인수인계 | [DB 연동](../DATABASE_CONNECTION_POLICY.md), [회원 연동](../MEMBER_INTEGRATIONS.md) |

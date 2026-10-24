@@ -86,8 +86,9 @@
 
 | 이름 | 언제 | 주소 / 설치 |
 |---|---|---|
-| innoextract | Inno Setup 형식 설치 파일 | https://constexpr.org/innoextract · `winget search innoextract` |
-| pyinstxtractor | Python(PyInstaller)으로 묶은 EXE | https://github.com/extremecoders-re/pyinstxtractor (스크립트 1개, Python 있음) |
+| innounp (권장) | Inno Setup 형식 설치 파일 — **Inno 6.7 확인됨**(2026-10-24 도톨이 v1.3) | https://github.com/jrathlev/InnoUnpacker-Windows-GUI 릴리스 `innounp-2.zip`(설치 없음) · `innounp.exe -v <파일>` 목록 → `-x -y -d<폴더> <파일> "{app}\…"` |
+| innoextract | Inno Setup 형식 설치 파일(옛 버전) — 1.9는 **Inno 6.7을 못 품**(「Could not determine setup data version」) | https://constexpr.org/innoextract · `winget search innoextract` |
+| pyinstxtractor | Python(PyInstaller)으로 묶은 EXE — **원본과 같은 파이썬 버전으로 실행해야 PYZ까지 풀림**(다르면 「Skipping pyz extraction」) | https://github.com/extremecoders-re/pyinstxtractor (스크립트 1개) · 버전 맞추기: `uv run --no-project --python 3.12 python -I pyinstxtractor.py <exe>` |
 | Electron asar | Electron 앱의 `resources\app.asar` 풀기 | 설치 불필요: `npx @electron/asar extract app.asar <새 빈 폴더>` (REA `analyze_javascript_application`도 가능) |
 | mitmproxy | 프로그램이 서버와 주고받는 내용 관찰(실행 필요 → 샌드박스와 함께) | https://mitmproxy.org · `winget install mitmproxy.mitmproxy` |
 | jadx · apktool | 안드로이드 APK | https://github.com/skylot/jadx · https://apktool.org (Java 21 있음) |
@@ -109,3 +110,4 @@
 2. `diec.exe`로 종류 판별 → 설치 파일이면 `7z x`로 꺼내서 다시 판별.
 3. 종류별: .NET → `ilspycmd` + REA `inspect_managed_artifact` / C·C++ → REA + Ghidra / Electron → REA `analyze_javascript_application` / Python → pyinstxtractor / 웹 → Claude in Chrome + REA `analyze-web-bundle`.
 4. 결과(화면·기능·서버 통신·설정값)를 정리해 **재구현 계획을 먼저 주인님께 보고** → 승인 후 `AIMaster/<프로그램>/`에 우리 방식으로 개발.
+5. 분석 → 우리 프로그램 비교 → 배치 → 개발 플랜 → 담당 인계 전체 순서는 [신규·외부 프로그램 분석·개발 플랜 지침](PROGRAM_ANALYSIS_PLANNING_GUIDE.md)(2026-10-24).
