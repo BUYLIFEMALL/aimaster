@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — ClearPic 1.3.0 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
+- 대상 `D:\PDS\Program_dev\ClearPic-1.3.0-setup.exe`(Electron, GPT PARK, 실행 안 함). 브라우저 엔진(`onnxruntime-web`)으로 내 PC 안에서 **LaMa 지우기(Apache-2.0, 208MB) + PP-OCRv4 글자 위치 찾기(Apache-2.0, 4.7MB)** — 브러시·문구 자동 찾기·제미나이 ✦ 워터마크 자동 찾기·마스크 여러 장 복사·최대 300장 일괄·ZIP.
+- 우리 쪽: `banana-canvas` 브러시 부분 삭제는 Gemini(유료 키·한 장씩). 의견: 독립 개발 안 함 → **공용 「브라우저 무료 지우기」 엔진 + 글자 자동 찾기**를 만들어 `banana-canvas` 「무료 지우기」 화면(일괄·ZIP)에 병합, 상세페이지·썸네일에 사본. **제미나이 워터마크 자동 제거는 넣지 않기 권장**(AI 생성물 표시 의무·정책). 결정 대기: 범위, 워터마크 기능 제외 확정, 구현 담당. [보고서](analysis-clearpic-20261024/REPORT.md). 비용 없음.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 블로그 담당 `claude-win-20261024-blog3` — 네이버 블로그 에이전트 v2.19 배포 (E-3 간편 모드)
 - 한 일: 좌측 메뉴 맨 위 「간편 모드」(`/quick`) — 주제 입력 → AI가 핵심 키워드·보조 키워드·카테고리·글 목적·화자 추천(AI 1회, `/api/quick/suggest`) → 고친 뒤 「글과 이미지 만들기」 → 기존 작성 화면이 넘겨받아 같은 생성 흐름(기획·작성·윤문 → 이미지 → 보관함 저장)을 자동 실행. 새 생성 엔진 없음. 커밋 `b6592d9b3`(기능)·`52d5bdab0`(버전·확장 ZIP). 대기였던 `9ee3cb3d8`도 함께 나감.
 - 배포: 승인 빌드 1회 `naver-blog-agent-i29myxlki` Ready, DB `version`·`extension_version` v2.19, 확장 실물 검증 OK(확장 코드 변경 없음, 버전만).
