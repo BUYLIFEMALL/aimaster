@@ -214,6 +214,21 @@ function TopbarActions({ pageId }: { pageId: string }) {
   const fav = !!sv?.bookmarked_pages?.includes(pageId);
   return (
     <div className="lit-topbar-action-buttons">
+      {/* 스마트 프로 인디고 상단 퀵 액션 바 (AI키 연동, 3분 매뉴얼, 저장 상태) */}
+      <div className="aww-topbar-smart-group">
+        <a href="/settings/keys" className="aww-topbar-pill aww-topbar-pill-ai" title="AI API 키 설정">
+          <span className="aww-topbar-dot" aria-hidden>●</span>
+          <span>🔑 AI 비서 연동</span>
+        </a>
+        <a href="/guide" className="aww-topbar-pill aww-topbar-pill-guide" title="3분 사용 매뉴얼 열기">
+          <span>📖 사용 가이드</span>
+        </a>
+        <div className="aww-topbar-saved-badge" title="클라우드 동기화 완료">
+          <span className="aww-topbar-saved-dot" aria-hidden>●</span>
+          <span>저장됨</span>
+        </div>
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <div className="nc-topbar-edited" data-tooltip={editor?.name ? `Edited by ${editor.name}` : undefined}>{relativeEdited(page.last_edited_time)}</div>
         <TranslatePill pageId={pageId} />

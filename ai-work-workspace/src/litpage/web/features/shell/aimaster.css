@@ -1,61 +1,154 @@
-/* AIMaster 공통 좌측 메뉴 요소(AimasterSidebar.tsx). 원본 디자인 값(--lp-*)만 써서 라이트·다크 테마를 따라간다. */
+/* AIMaster 공통 좌측 메뉴 및 상단 툴바 스타일 — 스마트 프로 인디고 워크스페이스 스타일 */
+
+/* 1. 사이드바 상단 헤더 */
 .aww-sb-top {
-  padding: 10px 14px 6px;
+  padding: 12px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   flex-shrink: 0;
+  border-bottom: 1px solid var(--lp-border-secondary);
 }
 .aww-sb-back {
-  font-size: 12px;
+  font-size: 11.5px;
+  font-weight: 500;
   color: var(--lp-text-tertiary);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   width: fit-content;
+  transition: all 0.15s ease;
+}
+.aww-sb-back-arrow {
+  font-size: 13px;
+  transition: transform 0.15s ease;
 }
 .aww-sb-back:hover {
-  color: var(--lp-text-primary);
-  text-decoration: underline;
+  color: #4f46e5;
+}
+.aww-sb-back:hover .aww-sb-back-arrow {
+  transform: translateX(-2px);
+}
+
+.aww-sb-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.aww-sb-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.15));
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
 }
 .aww-sb-title {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 6px;
   min-width: 0;
 }
 .aww-sb-name {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 700;
   color: var(--lp-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 }
-.aww-sb-version {
-  font-size: 11px;
-  color: var(--lp-text-tertiary);
+.aww-sb-badge-indigo {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.12);
+  color: #4f46e5;
+  border: 1px solid rgba(79, 70, 229, 0.25);
   flex-shrink: 0;
 }
-/* 마지막 메뉴(사이드바 사용자화) 바로 아래에 붙인다 — 계정을 화면 맨 아래로 밀지 않는다 */
+
+/* 2. 사이드바 하단 유틸리티 카드 */
 .aww-sb-bottom {
-  margin-top: 4px;
-  padding-bottom: 8px;
+  margin-top: 8px;
+  padding: 0 8px 12px;
 }
-.aww-sb-guide {
+.aww-sb-nav-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--lp-bg-secondary);
+  border: 1px solid var(--lp-border-primary);
+}
+.aww-sb-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 8px;
+  border-radius: 6px;
   text-decoration: none;
-  color: inherit;
+  color: var(--lp-text-primary);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
+.aww-sb-item:hover {
+  background: var(--lp-bg-elevated);
+  color: #4f46e5;
+}
+.aww-sb-item-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.aww-sb-item-icon {
+  font-size: 14px;
+}
+.aww-sb-item-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--lp-bg-tertiary);
+  color: var(--lp-text-tertiary);
+}
+.aww-sb-item:hover .aww-sb-item-chip {
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+}
+
 .aww-sb-account {
-  margin: 8px 8px 0;
-  padding-top: 10px;
-  border-top: 1px solid var(--lp-border-primary);
+  margin-top: 8px;
+  padding: 8px 6px 0;
+  border-top: 1px solid var(--lp-border-secondary);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   flex-shrink: 0;
 }
+.aww-sb-user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.aww-sb-user-dot {
+  font-size: 8px;
+  color: #10b981;
+}
 .aww-sb-email {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--lp-text-secondary);
   min-width: 0;
   white-space: nowrap;
@@ -64,15 +157,81 @@
 }
 .aww-sb-logout {
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--lp-text-secondary);
   background: transparent;
   border: 1px solid var(--lp-border-primary);
   border-radius: 6px;
   padding: 3px 8px;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 .aww-sb-logout:hover {
   color: var(--lp-text-primary);
-  border-color: var(--lp-border-strong);
+  border-color: #6366f1;
+  background: rgba(79, 70, 229, 0.05);
+}
+
+/* 3. 상단 툴바 퀵 액션 그룹 (스마트 프로 인디고) */
+.aww-topbar-smart-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+@media (max-width: 768px) {
+  .aww-topbar-smart-group {
+    display: none;
+  }
+}
+.aww-topbar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--lp-border-primary);
+  background: var(--lp-bg-secondary);
+  color: var(--lp-text-primary);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.aww-topbar-pill:hover {
+  transform: translateY(-1px);
+  border-color: #6366f1;
+  background: var(--lp-bg-elevated);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12);
+}
+.aww-topbar-pill-ai {
+  border-color: rgba(79, 70, 229, 0.25);
+  background: rgba(79, 70, 229, 0.05);
+  color: #4f46e5;
+}
+.aww-topbar-pill-ai:hover {
+  background: rgba(79, 70, 229, 0.1);
+  border-color: #4f46e5;
+}
+.aww-topbar-dot {
+  font-size: 8px;
+  color: #10b981;
+}
+.aww-topbar-saved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #059669;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.aww-topbar-saved-dot {
+  font-size: 7px;
+  color: #10b981;
 }

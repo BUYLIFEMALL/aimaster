@@ -109,6 +109,111 @@
 }
 .nc-chip.icon { width: 32px; height: 32px; padding: 0; justify-content: center; color: var(--lp-icon-secondary); }
 
+/* 스마트 프로 인디고 웰컴 퀵스타트 허브 */
+.aww-hub-container {
+  top: calc(100vh - 380px) !important;
+}
+.aww-hub-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+.aww-hub-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+.aww-hub-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lp-text-secondary);
+}
+.aww-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 4px;
+}
+@media (max-width: 680px) {
+  .aww-hub-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.aww-hub-card {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--lp-bg-secondary);
+  border: 1px solid var(--lp-border-primary);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.aww-hub-card:hover {
+  transform: translateY(-2px);
+  border-color: #6366f1;
+  background: var(--lp-bg-elevated);
+  box-shadow: 0 6px 16px -2px rgba(79, 70, 229, 0.12);
+}
+.aww-hub-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.aww-hub-card-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--lp-bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.aww-hub-icon-indigo { color: #4f46e5; }
+.aww-hub-icon-violet { color: #8b5cf6; }
+.aww-hub-icon-emerald { color: #10b981; }
+.aww-hub-icon-amber { color: #f59e0b; }
+.aww-hub-card-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--lp-text-tertiary);
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--lp-bg-tertiary);
+}
+.aww-hub-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lp-text-primary);
+  margin-bottom: 2px;
+}
+.aww-hub-card-desc {
+  font-size: 11px;
+  color: var(--lp-text-tertiary);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aww-hub-chips {
+  margin-top: 6px;
+}
+.aww-hub-chip {
+  border: 1px solid var(--lp-border-primary);
+  transition: all 0.15s ease;
+}
+.aww-hub-chip:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
 /* floating table of contents */
 /* the floating TOC hides when the frame is narrow (e.g. with the Updates/Comments panel open) */
 @container frame (max-width: 900px) { .nc-toc-margin { display: none; } }

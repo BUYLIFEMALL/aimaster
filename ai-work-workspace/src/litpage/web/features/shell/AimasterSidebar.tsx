@@ -1,23 +1,28 @@
-// AIMaster 공통 좌측 메뉴 규격(docs/SIDEBAR_LAYOUT_STANDARD.md)을 원본 litpage 좌측 메뉴에 넣는 부분.
-//  - 맨 위: ← 다른 프로그램 보기(메인 사이트 카탈로그 고정) + 프로그램 이름·버전
-//  - 메뉴 목록 끝(마지막 메뉴 바로 아래): 🔑 API키등록·플랫폼연동, 📖 연동 & 사용 매뉴얼, 계정 이메일, 로그아웃
+// AIMaster 공통 좌측 메뉴 규격(docs/SIDEBAR_LAYOUT_STANDARD.md)
+// 스마트 프로 인디고 워크스페이스 스타일 적용
 import { useSession } from '../../lib/store/session.ts';
 import { useCurrentUser } from '../../lib/hooks.ts';
 import './aimaster.css';
 
 const PROGRAMS_URL = 'https://www.buylife.xyz/programs';
-export const AIMASTER_APP_NAME = 'AI 업무 워크스페이스 자동화';
-export const AIMASTER_APP_VERSION = 'v1.07';
+export const AIMASTER_APP_NAME = 'AI 업무 워크스페이스';
+export const AIMASTER_APP_VERSION = 'v1.10';
 
 export function AimasterSidebarTop() {
   return (
     <div className="aww-sb-top">
-      <a className="aww-sb-back" href={PROGRAMS_URL}>
-        ← 다른 프로그램 보기
+      <a className="aww-sb-back" href={PROGRAMS_URL} title="메인 사이트로 이동">
+        <span className="aww-sb-back-arrow" aria-hidden>←</span>
+        <span>다른 프로그램 보기</span>
       </a>
-      <div className="aww-sb-title">
-        <span className="aww-sb-name">{AIMASTER_APP_NAME}</span>
-        <span className="aww-sb-version">{AIMASTER_APP_VERSION}</span>
+      <div className="aww-sb-brand-row">
+        <div className="aww-sb-icon-box" aria-hidden>
+          🏢
+        </div>
+        <div className="aww-sb-title">
+          <span className="aww-sb-name">{AIMASTER_APP_NAME}</span>
+          <span className="aww-sb-badge-indigo">{AIMASTER_APP_VERSION}</span>
+        </div>
       </div>
     </div>
   );
@@ -28,28 +33,37 @@ export function AimasterSidebarBottom() {
   const email = user?.email || (typeof document !== 'undefined' ? document.getElementById('lit-app')?.dataset.memberEmail : '') || '';
   return (
     <div className="aww-sb-bottom">
-      {/* U3: AIMaster 표준 메뉴 — 회원 본인 AI 키 등록(/settings/keys) */}
-      <a className="nc-sb-row aww-sb-guide" href="/settings/keys">
-        <div className="nc-sb-row-inner">
-          <div className="nc-sb-row-icon" aria-hidden>
-            🔑
+      {/* AIMaster 표준 메뉴: API 키 등록 & 매뉴얼 */}
+      <div className="aww-sb-nav-card">
+        <a className="aww-sb-item" href="/settings/keys">
+          <div className="aww-sb-item-inner">
+            <span className="aww-sb-item-icon">🔑</span>
+            <span className="aww-sb-item-label">API키등록·AI연동</span>
           </div>
-          <div className="nc-sb-row-label">API키등록·플랫폼연동</div>
-        </div>
-      </a>
-      <a className="nc-sb-row aww-sb-guide" href="/guide">
-        <div className="nc-sb-row-inner">
-          <div className="nc-sb-row-icon" aria-hidden>
-            📖
+          <span className="aww-sb-item-chip">연동</span>
+        </a>
+        <a className="aww-sb-item" href="/guide">
+          <div className="aww-sb-item-inner">
+            <span className="aww-sb-item-icon">📖</span>
+            <span className="aww-sb-item-label">연동 & 사용 매뉴얼</span>
           </div>
-          <div className="nc-sb-row-label">연동 & 사용 매뉴얼</div>
-        </div>
-      </a>
+          <span className="aww-sb-item-chip">가이드</span>
+        </a>
+      </div>
+
       <div className="aww-sb-account">
-        <span className="aww-sb-email" title={email}>
-          {email}
-        </span>
-        <button type="button" className="aww-sb-logout" onClick={() => void useSession.getState().logout()}>
+        <div className="aww-sb-user-info">
+          <span className="aww-sb-user-dot" aria-hidden>●</span>
+          <span className="aww-sb-email" title={email}>
+            {email || '회원 로그인 중'}
+          </span>
+        </div>
+        <button
+          type="button"
+          className="aww-sb-logout"
+          title="로그아웃"
+          onClick={() => void useSession.getState().logout()}
+        >
           로그아웃
         </button>
       </div>

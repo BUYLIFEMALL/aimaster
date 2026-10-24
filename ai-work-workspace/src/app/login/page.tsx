@@ -10,7 +10,6 @@ function safeRedirect(value: string | undefined): string {
   return value && /^\/(?![/\\])/.test(value) && !value.startsWith("/login") ? value : "/";
 }
 
-// AIMaster 공식 표준 로그인/회원가입 화면(DESIGN.md 14번) — 머리말 + 2탭 카드(components/LoginForm.tsx)
 export default async function Page({ searchParams }: { searchParams: Promise<{ redirect?: string }> }) {
   const next = safeRedirect((await searchParams).redirect);
   if (await getUser()) redirect(next);
@@ -18,9 +17,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
     <main className="aww-login">
       <div className="aww-login-wrap">
         <header className="aww-login-head">
-          <span className="emoji" aria-hidden>
-            🗂️
-          </span>
+          <div className="aww-login-badge-icon" aria-hidden>
+            🏢
+          </div>
+          <span className="aww-login-eyebrow">AIMaster Smart Office</span>
           <h1>{APP_NAME}</h1>
           <p>AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
         </header>
