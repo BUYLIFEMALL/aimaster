@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 🔧 [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 「AI 부동산 매물 알림 자동화」 `realty-listing-alert` v1.01 뼈대 + 0단계 사전 검증 완료 (미배포)
+- 주인님 지정: 부동산 담당(새 역할 `realty`, `docs/roles/realty.md`). 기준 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`.
+- 만든 것: `realty-listing-alert/` 웹 뼈대(기준 `naver-blog-seo-studio`, 권한·핸드폰·767px 메뉴·/guide·확장 연결·대시보드 다운로드 센터·whoami·공개 version API) + `extension/`(manifest 1.1.0/v1.01, 사전 검증 메뉴) + `prebuild` ZIP(`public/downloads/realty-listing-alert-extension-latest.zip`). tsc·eslint·로컬 build 통과. 운영 DB·Vercel 손대지 않음.
+- 0단계 결과: `PREVALIDATION_20261024.md` — 가격 칸 `dealOrWarrantPrc`(글자), 거래 코드 A1 매매·B1 전세, `isMoreData`, 응답 읽기 방식 동작(직접 부르기는 인증 머리글 없으면 401), 지역 `cortarNo`+`single-markers`, 창 최소화 중 `chrome.alarms` 동작. 중개사 상호에 전화번호가 섞여 오는 경우 발견 → 지워서 쓰기.
+- 지침 보강: `docs/EXTENSION_RELEASE_RULES.md` §4 맨 위 주인님 지시(확장 폴더 + 프로그램 내 다운로드 항상 동시에), `docs/ERROR_LESSONS.md` 2026-10-24 항목.
+- 다음 첫 단계: 주인님 승인 뒤 1단계 등록 — 운영 DB `programs` 등록·요금제 3단계 SQL(크롬 SQL 편집기, Run은 주인님), Vercel 프로젝트·도메인·빌드 1회.
+
 ## 2026-10-24 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 새 프로그램 「AI 블로그 이웃 소통 자동화」 `blog-neighbor-care` → [역할: blog] `claude-win-20261024-blog3` 인계
 - 주인님 지정: 구현 담당은 블로그 담당. 결정(절대 지시): 맞는 블로그만 골라 이웃 신청이 먼저 → 수락된 이웃 새 글 정기 공감 → 정독 분석 → 사람 같은 댓글 · AI 모델 회원 선택 · 하루 상한 최대이자 기본 신청 20·공감 100·댓글 30(회원이 그 안에서) · 이웃당 댓글 하루 1개 · 제한 안내 시 즉시 멈춤 · 비밀번호 저장·링크 댓글 금지 · 등록 방식 회원 선택(가입 후 14일 확인 후 등록) · 기본 프로그램.
 - 인수인계: `docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md`(결정 표·네이버 블로그 주소·DB 초안·기준 코드 위치·0~5단계·검수 13개·비용) · 전달 프롬프트 `PROMPT_20261024_BLOG_OWNER.md` · 플랜 2판 · 원본 분석.
