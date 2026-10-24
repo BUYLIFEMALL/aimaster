@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 카테고리 2개 신설 + 프로그램 12개 이동(운영 DB) · 카테고리 지침 지도 · 정리 점검 도구
+- 주인님 지시: 「메인 카테고리 기준으로 분류하고 없으면 기능·성격에 맞게 추가해서 분류」 → 「너가 프로그램 성격에 맞게 카테고리를 만들고 해당 프로그램을 이동시켜줘」.
+- 운영 DB(`esgxyikcnnvmlhygjkth`):
+  - 카테고리 신설: `ai-prompt` 「AI 프롬프트」, `personality-fortune` 「성격·운세」
+  - 이동: `music-player`→음악, `ai-video-studio`→영상, `reverse-prompt`·`ai-prompt-studio`→AI 프롬프트, `ai-writing-editor`·`markdown-studio`·`ai-slide-builder`→업무자동화, `ui-canvas`→디자인, 성격 4종→성격·운세
+  - SQL: `supabase/migrations/0042_categories_ai_prompt_personality.sql`, 주인님 크롬 SQL 편집기에서 실행. 실행 전 백업은 [카테고리 지침 지도](CATEGORY_GUIDE_MAP.md) 맨 위에 있다.
+- 확인: 공개 목록 17개 카테고리·72개 프로그램, 크롬으로 「성격·운세」 페이지에 4개가 나오는 것을 확인했다. 코드 변경·빌드 없음(카테고리 슬러그를 직접 쓰는 코드 없음 확인).
+- 함께 끝낸 것:
+  - [카테고리 지침 지도](CATEGORY_GUIDE_MAP.md): 실제 16개 + 신설 2개 기준, 카테고리마다 메인 지침·분석·기준 프로그램·담당·보강할 것
+  - 정리 점검 도구 `node scripts/check-role-status.mjs`
+  - 작업 중 표에서 끝난 보안 세션 줄 정리(주인님 「정리해」)
+- 발견: 카테고리 메뉴(필터 칩)에 프로그램이 없는 「Tools」·「주식」·「부업」 칸이 보인다 — 정리 여부는 주인님 판단. `DESIGN.md` 17번 규칙·프로그램 비교표 분야 칸·개발분석표는 아직 옛 카테고리 이름이다(개발분석표는 다음 단계에서 맞춤).
+- 다음 첫 단계: 개발분석표 §1에 판단·핵심 기능 칸 추가 + 카테고리를 이 지도 기준으로 맞춤.
+- 비용: 없음(빌드 0, AI 0).
+- 확인 주소: https://www.buylife.xyz/programs
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.06: Gemini 연결·AI 채팅 기록 30일 삭제(U4) + 로그인 화면 표준화
 - 한 일(U4, 플랜 `ai-work-workspace/docs/PLAN_20261024_U4_GEMINI_RETENTION.md`): 회원 본인 Gemini 키 어댑터(`providers/gemini.ts`·`geminiTranslate.ts`, 키는 `x-goog-api-key` 머리글만, 도구 호출·생각 서명·웹 페이지 읽기, 한국어 오류), 회원 키별 모델 목록(`geminiModels.ts`, 기본 최신 정식 Flash·빠른 작업 Flash-Lite, 실패 시 공식 별칭), 회원이 키를 가진 모든 회사 모델을 채팅 목록에 함께 보이고 고른 모델의 회사 키 사용(자동은 Claude→OpenAI→Gemini), 키 화면 Gemini 칸(새 키 형식 `AQ.`도 허용), AI 채팅 기록 30일 자동 삭제(`src/server/aiRetention.ts`, 매일 `/api/cron/jobs`), 슬래시 「AI 이미지」 숨김 함께 배포. 커밋 `60316a2d7`·`304f2ccb1`·`8dd6398e5`·`fcacdde40`·`8c269894a`.
 - 로그인 화면(주인님 지적 「회원가입 폼을 메인과 안 맞췄다」): 지침 `DESIGN.md` 14번·`docs/PROGRAM_DESIGN_STANDARD.md` 12번 표준 2탭(모눈 배경·440px 카드·로그인/회원가입 알약 탭·아이콘·비밀번호 찾기·약관 푸터, 기준 `threads-comment-reply`)으로 교체. 회원가입 버튼이 `buylife.xyz/signup`(404)으로 가던 버그를 `/register`로, 비밀번호 찾기는 메인 `/forgot-password`로. 원본 로그인·회원가입 화면은 더 이상 그리지 않고 서버 오류 때는 「다시 시도」 안내. 커밋 `4e717d888` → 주인님 「배포해」로 **v1.07 배포 완료**(`ai-work-workspace-kyrubh4hb` Ready, 버전 커밋 `72ad69198`, 운영 DB v1.07). 운영 `/login` 화면 코드에 2탭·안내 문구·비밀번호 찾기·약관이 들어 있고 `/signup` 링크가 사라진 것을 확인(크롬은 시험 계정 로그인 상태라 운영 로그인 화면 자체는 눈으로 못 봄 — 같은 코드를 로컬 크롬에서 확인). 로컬 개발 서버 + 크롬으로 로그인·회원가입 탭·링크 주소 확인.
