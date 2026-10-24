@@ -79,9 +79,10 @@
 | WA-W7 | `ai-work-workspace` | U6 AI 회의록 → U7 업무 받은편지함(DB 변경 승인 필요) → U8~U12 | 앞 단계 운영 확인 뒤 | 로드맵 §5 |
 | WA-C1 | `ai-doc-chatbot` | G-1 여러 답변 공급자·회원 공용 키·중단 | **미배포**, 새 공급자 키는 주인님이 나중에 등록 | `2d56a117b`, `docs/PENDING_DEPLOYS.md` |
 | WA-C2 | `ai-doc-chatbot` | G-2 회원별 봇·방 선택·당시 답변 설정 보존 — 일반 회원 Edge 봇 CRUD/재열기/선택/삭제된 봇·키 미등록 안내 확인·시험 봇 정리 | **미배포**, 실제 방/답변/당시 설정·좁은 화면 검수 남음 | `07795803c`, [G-3 후속](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G3.md) |
-| WA-C3 | `ai-doc-chatbot` | G-3 역할·입력/자료 경계·과거 날짜 보존·기본 번역/요약 자동 검색 생략. 기존 혼합 검색 보존(새 G-3 검색이 아님) | **미배포**, 93개 시험·타입·로컬 빌드 통과, 실제 AI는 본인 키 준비 후. 다음 G-4 여러 문서/분류/미리보기/PDF 경고 | `d7dd0d367`, [플랜](../ai-doc-chatbot/docs/PLAN_20261025_G3_ROLE_BOUNDARIES.md) |
+| WA-C3 | `ai-doc-chatbot` | G-3 역할·입력/자료 경계·과거 날짜 보존·기본 번역/요약 자동 검색 생략. 기존 혼합 검색 보존 | **미배포**, G-4와 함께107개 시험·타입·로컬 빌드 통과. 실제 AI는 본인 키 준비 후 | `d7dd0d367`, [G-4 후속](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md) |
 | WA-C4 | `ai-doc-chatbot`·`ai-prompt-studio` | G-5 로컬 Ollama | 보류 / 사전 검증 페이지 / 정식 결정 | 담당 플랜 |
 | WA-C5 | (관리자 요청함) | 결과·필요 요청을 `report`/`ask`와 채팅 양쪽에 기록 | 2026-10-24 23:55부터 정상 조회·등록 확인, 로그인도 확인됨 | 역할 파일·[당시 결과](HANDOFF.md) |
+| WA-C6 | `ai-doc-chatbot` | G-4 여러 문서/분류/미리보기/PDF 경고, 운영 DB/RLS·일반 회원 무료 조작 확인 | **미배포** `952417454`, 107개 검사·타입·로컬 빌드. 실제 AI/업로드·파싱·좁은 화면 검수 후 묶음 배포 | [인수인계](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md) |
 
 ## 대기·후속 (담당 없는 프로그램, 다음에 할 일 후보)
 

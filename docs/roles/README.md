@@ -25,7 +25,7 @@
 | 음악 | [music.md](music.md) | Claude Code(윈도우) `claude-win-20261024-music` | 음악 프로그램·배경음악 공용화 | 음악 |
 | 영상 | [video.md](video.md) | Claude Code(윈도우) `claude-win-video` | 영상 스튜디오·공용 영상 코드·내 PC 렌더 영상 쪽 | 유튜브·멀티미디어 |
 | 이커머스·이미지 | [ecommerce-image.md](ecommerce-image.md) | Claude Code(윈도우) `claude-win-sdp` | 바나나 캔버스·상세페이지·이미지 스튜디오 | 이커머스·이미지 |
-| 문서 챗봇·AI Prompt | [docbot-prompt.md](docbot-prompt.md) | Codex(윈도우) `codex-win-20261025-docbot-g3` | 문서 챗봇·AI Prompt·공용 공급자(디자인은 agy) | 업무자동화·AI 프롬프트 |
+| 문서 챗봇·AI Prompt | [docbot-prompt.md](docbot-prompt.md) | Codex(윈도우) `codex-win-20261025-docbot-g4` | 문서 챗봇·AI Prompt·공용 공급자(디자인은 agy) | 업무자동화·AI 프롬프트 |
 | AI 업무 워크스페이스 | [workspace.md](workspace.md) | Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace` | Tools |
 | 검수 | [review.md](review.md) | Claude Code(윈도우) — 세션 이름 확인 필요 | 다른 CLI 작업 검수 | 전체 |
 | 디자인 | [design.md](design.md) | Antigravity(`agy`) | 디자인 리뉴얼·매뉴얼 시각화 | 전체 |
@@ -72,7 +72,7 @@
 | `music` | `claude-win-20261024-music` | — |
 | `video` | `claude-win-video` | — |
 | `ecommerce-image` | `claude-win-sdp` | `claude-mac-20261023-ecommerce`(맥미니 이커머스, 마무리됨) |
-| `docbot-prompt` | `codex-win-20261025-docbot-g3` | `codex-win-20261024-docbot-g2`, `codex-win-20261024-docbot-g1`, `codex-win-20261024-docbot-prompt` |
+| `docbot-prompt` | `codex-win-20261025-docbot-g4` | `codex-win-20261025-docbot-g3`,  `codex-win-20261024-docbot-g2`, `codex-win-20261024-docbot-g1`, `codex-win-20261024-docbot-prompt` |
 | `workspace` | `claude-win-20261024-workspace` | — |
 | `review` | 확인 필요 | — |
 | `design` | `agy-win-20261024-videorender`(최근) | — |
