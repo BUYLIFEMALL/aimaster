@@ -4,6 +4,16 @@
 - 대상 `D:\PDS\Program_dev\AutoGemmaStarter-Setup-2.0.0.exe`(Inno 6.7 → PyInstaller·PySide6, GPT PARK 정회원 전용, 실행 안 함). 내 PC에 Ollama 자동 설치·사양별 모델 추천 + 내장 채팅(커스텀 봇 12종·프롬프트 25종·지식 도서관 RAG·웹 검색·로컬/클라우드 공급자 Groq·OpenRouter·NVIDIA·Cloudflare).
 - 의견: 독립 개발 안 함(로컬 설치는 데스크톱 전용) → 좋은 기능만 `ai-doc-chatbot`·`ai-prompt-studio`에 병합. 후보 G1 OpenAI 호환 공급자 묶음(공용, 두 프로그램의 「한 공급자」 단점 해소) · G2·G3 커스텀 봇 · G5 문서 RAG 보강 · G4 회원 PC 로컬 Ollama 연결(시제품 뒤). 결정 대기: 범위, 봇 위치, 로컬 AI 여부, 구현 담당. [보고서](analysis-autogemma-starter-20261024/REPORT.md). 비용 없음.
 
+## 2026-10-24 ✅ Antigravity(윈도우) · 세션 `agy-win-20261024-videorender` — 초고속 영상 렌더링 & GIF 스튜디오 v1.25 명칭 개편 & 표준 매뉴얼 리뉴얼
+- 한 일:
+  - **프로그램 명칭 및 정체성 개편**: 단순 상세페이지 이커머스 툴 탈피 ➔ **「초고속 영상 렌더링 & GIF 스튜디오 (VideoRender Studio)」**로 공식 명칭 개편.
+  - UI 쇄신: 사이드바, 헤더, 모바일 드로어, 대시보드 히어로 배너, 랜딩(`app/page.tsx`), 메타데이터(`app/layout.tsx`), 프리셋 버튼(스탠다드 560px·HD 780px·와이드 860px) 전면 정비.
+  - **표준 연동 & 사용 매뉴얼 리뉴얼 (`app/guide/page.tsx`)**: `docs/MANUAL_AND_INTEGRATION_GUIDELINES.md` 7대 핵심 컴포넌트 탑재(① 상단 메타데이터 바 ② 개요 히어로 카드 ③ 4단계 시각 카드 뷰어 ④ 단계별 상세 안내 + 윈도우/맥 내 PC 가속 렌더러 원클릭/1초 복사 설치 ⑤ 💡 전문가 실전 팁 배너 ⑥ ⚠️ 주의사항 배너 ⑦ 작업실 직링크 액션 버튼 + FAQ 8종 아코디언).
+  - 로컬 렌더러 확장 manifest v1.25 및 ZIP/version.json 빌드 완료 (`build-local-renderer.mjs`).
+  - 프로그램 비교표(`docs/PROGRAM_CAPABILITY_MAP.md`) 94번 및 1106번 항목 갱신.
+- 검수: `npm run typecheck` 통과, Next.js 프로덕션 빌드(`npm run build`) 8개 라우트 100% 성공.
+- 남은 일: Vercel 배포(승인 대기) 및 네이버 웨일 브라우저 실세션 검수, DB `programs` name/version SQL 적용 (`20261024_rename_video_render_studio_v1_25.sql`).
+- 프로그램: https://video-to-gif.buylife.xyz (slug: `video-to-gif`)
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Lyricbi 1.9.0 재확인 (읽기 전용, 변경 없음)
 - 요청 파일이 **2026-10-21에 이미 분석한 같은 파일**(해시 일치) → 그 결과물 `lyric-video-studio`(v1.10)와 대조만 함. 남은 것: R1 노래방 로마자 · R2 LP판 · R3 플레이리스트(→ `playlist-channel-studio`가 담당) · R4 Pexels 배경 · R5 로고·프레임(대부분 이미 백로그) + 프리셋·강조·스펙트럼·글꼴 수 확장, 환경 진단. 추천 순서 R1 → R2 → R4. **음악 담당에게 인계(주인님 지시)** — 플랜 초안 L-1 노래방 로마자 · L-2 LP판 · L-3 무료 사진 배경(공용 `free-photo-search`) · L-4 꾸밈 확장 · L-5 렌더 진단, 범위·순서·비용(AI 0·빌드 2회) 승인 전. 음악 담당 대기 묶음 3개(Spectrum P·무료 음성·이 L) 순서도 함께 여쭙기. [인계](../lyric-video-studio/docs/IMPROVEMENT_HANDOFF_20261024_LYRICBI_RECHECK.md) · [플랜](../lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md) · [재확인 기록](analysis-lyricbi-20261021/RECHECK_20261024.md). 비용 없음.
@@ -671,10 +681,6 @@ https://shorts-onestop-studio.buylife.xyz
 - 비용: Vercel 빌드 1회, AI 0회(그림 없음). 프로그램 링크:
 https://ai-music-studio.buylife.xyz
 
-## 2026-10-23 Claude Code(맥미니) — ✅ AI 상세페이지 자동화 v1.30 실검수 (③ 휴대폰·연계 묶음 완료)
-- 맥미니 크롬(시험 회원, AI 버튼 누르지 않음): 휴대폰 폭(500px) 하단 버튼 줄 58px·화면 8.3%(예전 24%)·한 줄, 문구 고치기 창이 하단 버튼 위(어두운 배경 뒤로 가림), 새 상품 화면 상품명 `*`·저장 조건 안내, 사이드바·섹션 아래 GIF 자동화 링크(새 탭). 500px 넘침 없음.
-- S-23-04·05·08·09 ✅. 미확인: 상품명 빈 채 저장 안내(사진 업로드 필요, 코드 확인). GIF G-23-06 Esc는 미배포 대기(다음 GIF 배포 때).
-- 비용: 검수 없음(AI 0회). 링크: https://shop-detail-page.buylife.xyz
 ## 2026-10-23 Claude Code(윈도우) — 세션명 블랙박스 규칙 · 세션 점검 「🚨 저장소 안전」 묶음 · 맥미니 블랙박스 확인
 - `docs/MULTI_AGENT_SESSION_RULES.md` §2-1: 정한 세션명을 커밋 도우미 `--as`, 일반 git은 `AIMASTER_SESSION=<세션명> git …`으로 **매 명령에**(명령마다 셸이 새로 열리는 CLI) — 블랙박스에 세션이 남게.
 - `scripts/deploy.mjs` 세션 시작 점검 맨 위: **`[🚨 저장소 안전] N건`**(공용 스테이징·축소·안전장치·되돌림 ⚠)을 먼저, 그 밖의 ⚠는 그 아래 `[⚠ 요약] 그 밖에 …`. 지금 4건(축소 이력 1·다른 세션 이름 바꾸기 커밋 `7d86d9923` 되돌림 3 — 그 세션 확인 몫). 내 카드 갱신 커밋 `1c795fcf2`는 `scripts/reverts-reviewed.txt`에 확인 처리.
