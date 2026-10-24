@@ -40,6 +40,7 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
 | `naver-blog-seo-studio` | `naver-blog-seo-studio/extension` | 사이트 포함형(빌드 스크립트) | `https://naver-blog-seo-studio.vercel.app/downloads/naver-blog-seo-studio-extension-latest.zip` (**메인 도메인 buylife.xyz 아래가 아니라 자체 Vercel 주소**. 고정 주소 `-latest.zip`) | `scripts/build-extension-archive.mjs` |
 | `tistory-auto-blog` | `tistory-auto-blog/extension` | 사이트 포함형(빌드 스크립트) | `https://tistory-auto-blog-pearl.vercel.app/downloads/tistory-auto-blog-extension-latest.zip` (고정 주소 `-latest.zip`) | `scripts/build-extension-archive.mjs` |
 | `naver-blog-auto-poster-web` | `naver-blog-auto-poster_web/extension` | 사이트 포함형(루트 `public/downloads`) | `https://www.buylife.xyz/downloads/naver-blog-auto-poster-web-extension-latest.zip` | `node naver-blog-auto-poster_web/scripts/build-extension-archive.mjs`(저장소 루트에서, manifest `version_name`과 `lib/naverBlogAutoPosterWebExtension.ts` 버전이 같아야 함) → 루트 앱 배포(`vercel deploy --prod --yes`). 2026-10-09 v1.03에서 GitHub 릴리스를 대체(저장소 비공개 전환 대비). 절차: 그 폴더 `AGENTS.md` §9-2 |
+| `realty-listing-alert` | `realty-listing-alert/extension` | 사이트 포함형(빌드 스크립트 `prebuild`, 2026-10-24 v1.01) | `https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip` (고정 주소) | `scripts/build-extension-archive.mjs`가 `lib/version.ts` → manifest 동기화 |
 
 ### 알려진 예외·미해결 (다음 CLI가 이어받을 것)
 
