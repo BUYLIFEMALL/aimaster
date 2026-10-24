@@ -10,7 +10,7 @@
 // model) with the effort picked per task (autoEffort); quick one-shot tasks, chat titles, database autofill, and the
 // formula assistant (low effort, ≤ 16k output tokens), run on the fast model (NC_AI_FAST_MODEL; with OpenAI else
 // the newest listed model described as fast / affordable / efficient; else the default).
-import { availableProviders, modelFamily, providerForModel, providerId, type ProviderId } from './providers/config.ts';
+import { availableProviders, memberKeyTag, modelFamily, providerForModel, providerId, type ProviderId } from './providers/config.ts';
 import { cachedOpenAIModels, openaiModelsVersion, refreshOpenAIModels, type OpenAIModel } from './providers/openaiModels.ts';
 import {
   cachedGeminiModels, geminiModelsVersion, GEMINI_FLASH_ALIAS, GEMINI_FLASH_LITE_ALIAS, pickGemini, warmGeminiModels, type GeminiModel,
@@ -130,7 +130,7 @@ export function syncModels(): void {
   const providers: Exclude<ProviderId, 'none'>[] = avail.length ? avail : ['anthropic'];
   const key = providers
     .map((p) => (p === 'openai' ? `openai:${openaiModelsVersion()}:${cachedOpenAIModels() ? 1 : 0}` : p === 'gemini' ? `gemini:${geminiModelsVersion()}:${cachedGeminiModels() ? 1 : 0}` : p))
-    .join('|') + `|${envModel}`;
+    .join('|') + `|${envModel}|${memberKeyTag()}`; // 회원이 바뀌면 다시 계산(다른 회원 목록이 남지 않게)
   if (key === syncedKey) return;
   syncedKey = key;
   const all: ModelInfo[] = [];

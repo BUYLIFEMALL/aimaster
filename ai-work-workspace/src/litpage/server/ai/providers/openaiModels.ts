@@ -2,6 +2,7 @@
 // shape or a richer list with display names, visibility, reasoning levels and input modalities. Fetched in the
 // background and cached
 // (10 minutes; 1 minute after a failure, keeping the last good list) so model lookups stay synchronous.
+import { createHash } from 'node:crypto';
 import { openaiConfig, scrub, type OpenAIConfig } from './config.ts';
 import { isDemoMode } from '../../demo.ts';
 
@@ -21,9 +22,22 @@ export interface OpenAIModel {
 const TTL_MS = 10 * 60_000;
 const RETRY_MS = 60_000;
 
-let cache: { base: string; at: number; models: OpenAIModel[] } | null = null;
-let failedAt = 0;
-let inflight: Promise<OpenAIModel[] | null> | null = null;
+// 이식판(U4 후속): 원본은 주소(base) 하나로 캐시해 모든 회원이 한 목록을 같이 썼다. 회원 본인 키마다 따로 둔다
+// (키 원문 대신 해시를 열쇠로, 최대 200개). 한 회원의 키로 받은 모델 이름이 다른 회원 목록에 보이지 않게 한다.
+type Entry = { at: number; models: OpenAIModel[] | null; failedAt: number; inflight: Promise<OpenAIModel[] | null> | null };
+const cache = new Map<string, Entry>();
+const MAX_KEYS = 200;
+const cacheKey = (cfg: OpenAIConfig) => `${cfg.baseUrl}\n${createHash('sha256').update(cfg.apiKey).digest('hex').slice(0, 32)}`;
+function entryFor(cfg: OpenAIConfig): Entry {
+  const k = cacheKey(cfg);
+  let e = cache.get(k);
+  if (!e) {
+    if (cache.size >= MAX_KEYS) cache.delete(cache.keys().next().value as string);
+    e = { at: 0, models: null, failedAt: 0, inflight: null };
+    cache.set(k, e);
+  }
+  return e;
+}
 let version = 0;
 let fetchImpl: typeof fetch = (...a) => fetch(...a);
 const DEFAULT_EFFORTS = ['low', 'medium', 'high'];
@@ -31,9 +45,7 @@ const DEFAULT_EFFORTS = ['low', 'medium', 'high'];
 /** Test seam: replace fetch (null restores it) and drop the cache. */
 export function setOpenAIModelsFetch(f: typeof fetch | null) {
   fetchImpl = f ?? ((...a) => fetch(...a));
-  cache = null;
-  failedAt = 0;
-  inflight = null;
+  cache.clear();
   version++;
 }
 
@@ -78,23 +90,25 @@ export async function fetchOpenAIModels(cfg: OpenAIConfig, signal?: AbortSignal)
 export function refreshOpenAIModels(): Promise<OpenAIModel[] | null> {
   const cfg = openaiConfig();
   if (!cfg) return Promise.resolve(null);
-  if (inflight) return inflight;
-  inflight = fetchOpenAIModels(cfg)
+  const e = entryFor(cfg);
+  if (e.inflight) return e.inflight;
+  e.inflight = fetchOpenAIModels(cfg)
     .then((models) => {
-      cache = { base: cfg.baseUrl, at: Date.now(), models };
-      failedAt = 0;
+      e.models = models;
+      e.at = Date.now();
+      e.failedAt = 0;
       version++;
       return models;
     })
-    .catch((e) => {
-      failedAt = Date.now();
-      console.warn(`[ai] openai model list unavailable: ${scrub(String((e as Error)?.message ?? e)).slice(0, 200)}`);
-      return cache?.base === cfg.baseUrl ? cache.models : null;
+    .catch((err) => {
+      e.failedAt = Date.now();
+      console.warn(`[ai] openai model list unavailable: ${scrub(String((err as Error)?.message ?? err)).slice(0, 200)}`);
+      return e.models;
     })
     .finally(() => {
-      inflight = null;
+      e.inflight = null;
     });
-  return inflight;
+  return e.inflight;
 }
 
 /** The cached list for the configured endpoint (null until loaded); starts a background refresh when stale. */
@@ -102,8 +116,8 @@ export function cachedOpenAIModels(): OpenAIModel[] | null {
   if (isDemoMode()) return null;
   const cfg = openaiConfig();
   if (!cfg) return null;
-  const fresh = cache && cache.base === cfg.baseUrl;
-  const stale = !fresh || Date.now() - cache!.at > TTL_MS;
-  if (stale && !inflight && Date.now() - failedAt > RETRY_MS) void refreshOpenAIModels();
-  return fresh ? cache!.models : null;
+  const e = entryFor(cfg);
+  const stale = !e.models || Date.now() - e.at > TTL_MS;
+  if (stale && !e.inflight && Date.now() - e.failedAt > RETRY_MS) void refreshOpenAIModels();
+  return e.models;
 }

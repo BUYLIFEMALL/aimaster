@@ -19,6 +19,7 @@ export interface OpenAIConfig {
 // 키는 요청마다 그 회원 본인의 키(user_api_keys)만 memberAiKeys에 넣어 쓴다(2단계에서 연결). 없으면 AI는 꺼진 상태.
 // AWW_TEST_ENV_AI_KEYS=1은 원본 시험(가짜 키 + 로컬 가짜 서버) 전용이며 운영·개발 서버에는 설정하지 않는다.
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { createHash } from 'node:crypto';
 
 export interface MemberAiKeys {
   provider?: 'openai' | 'anthropic' | 'gemini';
@@ -28,6 +29,13 @@ export interface MemberAiKeys {
   geminiKey?: string;
 }
 const memberKeys = new AsyncLocalStorage<MemberAiKeys>();
+
+/** 지금 요청의 회원 키 묶음을 가리키는 짧은 표식(키 원문 대신 해시) — 회원이 바뀌면 모델 목록을 다시 계산하는 데 쓴다. */
+export function memberKeyTag(): string {
+  const k = memberKeys.getStore();
+  if (!k) return '';
+  return createHash('sha256').update(`${k.anthropicKey ?? ''}|${k.openaiKey ?? ''}|${k.geminiKey ?? ''}`).digest('hex').slice(0, 16);
+}
 
 /** 이 요청을 보낸 회원 본인의 AI 키로 fn을 실행한다(서버 라우트에서 회원 키를 읽은 뒤 호출). */
 export function withMemberAiKeys<T>(keys: MemberAiKeys, fn: () => T): T {

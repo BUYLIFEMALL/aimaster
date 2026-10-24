@@ -204,6 +204,26 @@ describe('Gemini 모델 목록과 제공자 선택(U4)', () => {
     });
   });
 
+  it('회원마다 본인 키로 받은 모델 목록만 보인다(다른 회원 목록이 남지 않음)', async () => {
+    const A = 'AIzaSyMember-A-own-key-0000000000000';
+    const B = 'AIzaSyMember-B-own-key-1111111111111';
+    setGeminiModelsFetch((async (_url: string, init: RequestInit) => {
+      const key = (init.headers as Record<string, string>)['x-goog-api-key'];
+      const only = key === A ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite';
+      return new Response(JSON.stringify({ models: LIST.models.filter((m) => m.name === `models/${only}`) }), { status: 200 });
+    }) as unknown as typeof fetch);
+    await withMemberAiKeys({ geminiKey: A, provider: 'gemini' }, () => warmGeminiModels());
+    await withMemberAiKeys({ geminiKey: B, provider: 'gemini' }, () => warmGeminiModels());
+    const idsA = withMemberAiKeys({ geminiKey: A, provider: 'gemini' }, () => models.offeredModels(false).map((m) => m.id));
+    const idsB = withMemberAiKeys({ geminiKey: B, provider: 'gemini' }, () => models.offeredModels(false).map((m) => m.id));
+    const idsA2 = withMemberAiKeys({ geminiKey: A, provider: 'gemini' }, () => models.offeredModels(false).map((m) => m.id));
+    expect(idsA).toContain('gemini-2.5-flash');
+    expect(idsA).not.toContain('gemini-2.5-flash-lite');
+    expect(idsB).toContain('gemini-2.5-flash-lite');
+    expect(idsB).not.toContain('gemini-2.5-flash');
+    expect(idsA2).toEqual(idsA);
+  });
+
   it('목록을 못 받으면 Google 공식 별칭으로 진행한다', async () => {
     setGeminiModelsFetch((async () => new Response('{}', { status: 500 })) as unknown as typeof fetch);
     await withMemberAiKeys({ geminiKey: 'AIzaSyOther-member-key-000000000000', provider: 'gemini' }, async () => {
