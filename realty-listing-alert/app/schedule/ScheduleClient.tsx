@@ -4,12 +4,15 @@
 import { useRef, useState, useTransition } from "react";
 import { saveScheduleAction } from "@/lib/actions/settings";
 import { COLLECT_INTERVAL_OPTIONS } from "@/lib/schedule";
+import { MAX_COMPLEXES_PER_RUN, MAX_PAGES_PER_DAY, estimateLoad } from "@/lib/limits";
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
 
 type Initial = { enabled: boolean; intervalMinutes: number; startHour: number | null; endHour: number | null };
 
-export default function ScheduleClient({ initial }: { initial: Initial }) {
+type TargetLite = { target_type: string | null; region_max_complexes: number | null; enabled: boolean };
+
+export default function ScheduleClient({ initial, targets }: { initial: Initial; targets: TargetLite[] }) {
   const [enabled, setEnabled] = useState(initial.enabled);
   const [interval, setIntervalMinutes] = useState(initial.intervalMinutes);
   const [hoursRestricted, setHoursRestricted] = useState(initial.startHour !== null && initial.endHour !== null);
@@ -83,6 +86,18 @@ export default function ScheduleClient({ initial }: { initial: Initial }) {
       </div>
 
       <p className="card-caption">💡 간격은 1시간부터 고를 수 있어요(너무 자주 살펴보면 네이버 확인 화면이 뜰 수 있어서). 보통은 2~3시간을 권해요.</p>
+      {(() => {
+        // 📊 예상 수집량(2026-10-25 주인님 지시 — 상한선과 함께 사용자에게 보이기)
+        const load = estimateLoad(targets, interval, hoursRestricted ? startHour : null, hoursRestricted ? endHour : null);
+        return (
+          <div className={`load-box ${load.overRun || load.overDay ? "warn" : ""}`}>
+            <strong>📊 예상 수집량</strong>
+            <span>한 회차 단지 {load.perRun}곳{load.overRun ? ` (전체 ${load.complexes}곳 — 회차마다 ${MAX_COMPLEXES_PER_RUN}곳씩 돌아가며)` : ""} · 약 {load.pagesPerRun}페이지</span>
+            <span>하루 약 {load.runsPerDay}회 · 약 {load.pagesPerDay}페이지{load.overDay ? ` (하루 상한 ${MAX_PAGES_PER_DAY}페이지에 닿으면 그날은 쉬어요)` : ""}</span>
+            {(load.overRun || load.overDay) && <small>⚠️ 양이 많아요. 간격을 늘리거나 감시 단지·지역 수를 줄이면 네이버 이용 제한 위험이 줄어요.</small>}
+          </div>
+        );
+      })()}
       {hoursRestricted && startHour > endHour && <p className="card-caption">🌙 자정을 넘겨 {startHour}시부터 다음 날 {endHour}시까지 동작해요.</p>}
       {message && <p className={`ra-msg ${message.kind === "ok" ? "ra-ok" : "ra-err"}`} role="status">{message.text}</p>}
     </section>

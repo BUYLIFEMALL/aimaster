@@ -37,14 +37,35 @@ export function isCollectDue(lastRunAt, intervalMinutes, now = Date.now()) {
   return now - new Date(lastRunAt).getTime() >= intervalMinutes * 60 * 1000;
 }
 
-/** 예약 회차를 돌릴지(전체 켜기·시간대·그날 중지·차례). 밀린 회차는 몰아서 하지 않고 1번만(마지막 시각 기준). */
-export function shouldRunScheduled({ schedule, lastRunAt, stoppedDate, now = Date.now() }) {
+/**
+ * 예약 회차를 돌릴지(전체 켜기·시간대·그날 멈춤·오늘 한도·차례). 밀린 회차는 몰아서 하지 않고 1번만(마지막 시각 기준).
+ * nextDueAt: 지난 회차가 정한 다음 예정 시각(간격 ±10% 흔듦, 2026-10-25). 없으면 마지막 시각 + 간격.
+ */
+export function shouldRunScheduled({ schedule, lastRunAt, stoppedDate, limitDate, nextDueAt, now = Date.now() }) {
   if (!schedule?.enabled) return { run: false, why: "예약 꺼짐" };
   if (stoppedDate && stoppedDate === kstDate(now)) return { run: false, why: "오늘은 멈춤(확인 화면)" };
+  if (limitDate && limitDate === kstDate(now)) return { run: false, why: "오늘 수집 한도 도달" };
   if (!isWithinActiveHours(kstHour(now), schedule.startHour, schedule.endHour)) return { run: false, why: "동작 시간대 밖" };
+  if (nextDueAt && lastRunAt) return now >= new Date(nextDueAt).getTime() ? { run: true } : { run: false, why: "아직 차례 아님" };
   // 1시간 미만 간격은 받지 않는다(2026-10-25 주인님 지시) — 혹시 그런 값이 와도 1시간으로 올려 쓴다
   if (!isCollectDue(lastRunAt, Math.max(60, Number(schedule.intervalMinutes) || 180), now)) return { run: false, why: "아직 차례 아님" };
   return { run: true };
+}
+
+/** 다음 예정 시각 = 이번 시각 + 간격 × (1 ± jitter). 간격은 최소 1시간, 흔들어도 55분보다 짧아지지 않는다. */
+export function computeNextDue(ranAtMs, intervalMinutes, jitter = 0.1, random = Math.random) {
+  const base = Math.max(60, Number(intervalMinutes) || 180) * 60 * 1000;
+  const j = Math.max(0, Math.min(0.3, Number(jitter) || 0));
+  const ms = Math.max(55 * 60 * 1000, base * (1 + (random() * 2 - 1) * j));
+  return new Date(ranAtMs + ms).toISOString();
+}
+
+/** 한 회차에 읽을 단지 고르기: 상한을 넘으면 지난번 다음부터 돌아가며(모든 단지가 차례로 읽히게). */
+export function pickRunSlice(list, cap, cursor = 0) {
+  if (!Array.isArray(list) || list.length <= cap) return { slice: list || [], nextCursor: 0 };
+  const start = ((cursor % list.length) + list.length) % list.length;
+  const slice = Array.from({ length: cap }, (_, i) => list[(start + i) % list.length]);
+  return { slice, nextCursor: (start + cap) % list.length };
 }
 
 export function nextRunAt(lastRunAt, intervalMinutes) {

@@ -4,7 +4,7 @@
 import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/collector.js";
 import { complexNoFromUrl, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
-import { kstDate, shouldRunScheduled } from "./lib/guard.js";
+import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
 
@@ -18,6 +18,9 @@ const DEFAULT_RULES = {
   scrollWaitMs: [2000, 5000],
   betweenTargetsMs: [10000, 30000],
   firstLoadWaitMs: 8000,
+  maxComplexesPerRun: 20,
+  maxPagesPerDay: 300,
+  scheduleJitter: 0.1,
   region: {
     pageUrl: "https://new.land.naver.com/complexes",
     listUrl: "https://new.land.naver.com/api/regions/complexes?cortarNo={cortarNo}&realEstateType=APT%3AABYG%3AJGC&order=",
@@ -87,6 +90,19 @@ async function reportStatus(result, count, error) {
 
 let busy = false;
 
+// 하루 목록 페이지 수(한국 날짜 기준) — 상한을 넘으면 그날 쉰다(2026-10-25 주인님 지시 「문제 안 되게 상한선」)
+async function pagesToday() {
+  const { pagesDay } = await get("pagesDay");
+  return pagesDay?.date === kstDate() ? pagesDay.count : 0;
+}
+async function addPages(n) {
+  const today = kstDate();
+  const { pagesDay } = await get("pagesDay");
+  const count = (pagesDay?.date === today ? pagesDay.count : 0) + n;
+  await set({ pagesDay: { date: today, count } });
+  return count;
+}
+
 /** 수집 1회: 감시 대상 → 수집 → 거르기 → 비교 → 파일 → 텔레그램 → 상태 보고. trigger: "schedule" | "manual" */
 async function runCollection(trigger) {
   if (busy) return { ok: false, error: "이미 수집 중이에요. 끝날 때까지 기다려 주세요." };
@@ -111,6 +127,7 @@ async function runCollection(trigger) {
     let total = 0;
     let result = "ok";
     let errMsg = null;
+    let limitHit = false; // 하루 페이지 한도에 닿음
 
     // 지역 대상은 그 동에서 매물 많은 단지 N곳으로 펼친다(2026-10-25). 단지 대상과 겹치는 단지는 한 번만 읽는다.
     const work = [];
@@ -120,7 +137,9 @@ async function runCollection(trigger) {
         if (t.complex_no && !seenNo.has(t.complex_no)) { seenNo.add(t.complex_no); work.push(t); }
         continue;
       }
+      if ((await pagesToday()) >= (rules.maxPagesPerDay || 300)) { limitHit = true; break; }
       const rg = await collectRegionComplexes(t.cortar_no, t.region_max_complexes || 5, rules, pickTopComplexes, addLog);
+      await addPages(1);
       if (rg.status === "blocked") {
         result = "blocked";
         errMsg = rg.error;
@@ -140,7 +159,16 @@ async function runCollection(trigger) {
       const [a, b] = rules.betweenTargetsMs || [10000, 30000];
       await sleep(rand(a, b));
     }
-    if (result === "blocked") work.length = 0; // 확인 화면이면 아무 단지도 읽지 않음
+    if (result === "blocked" || limitHit) work.length = 0; // 확인 화면·하루 한도면 아무 단지도 읽지 않음
+    // 한 회차 단지 수 상한 — 넘으면 지난번 다음부터 돌아가며 읽어 모든 단지가 차례로 읽히게
+    const cap = rules.maxComplexesPerRun || 20;
+    if (work.length > cap) {
+      const { runCursor = 0 } = await get("runCursor");
+      const { slice, nextCursor } = pickRunSlice(work, cap, runCursor);
+      await addLog(`이번 회차는 ${cap}곳만 읽어요(전체 ${work.length}곳 — 나머지는 다음 회차에 차례로)`);
+      work.splice(0, work.length, ...slice);
+      await set({ runCursor: nextCursor });
+    }
     await set({ running: { startedAt, trigger, done: 0, total: work.length } });
 
     for (let i = 0; i < work.length; i++) {
@@ -149,7 +177,9 @@ async function runCollection(trigger) {
         const [a, b] = rules.betweenTargetsMs || [10000, 30000];
         await sleep(rand(a, b));
       }
+      if ((await pagesToday()) >= (rules.maxPagesPerDay || 300)) { limitHit = true; await addLog(`오늘 수집 한도(${rules.maxPagesPerDay || 300}페이지)에 닿아 나머지는 쉬어요`); break; }
       const r = await collectComplex(t.complex_no, rules, addLog);
+      await addPages(Math.max(1, r.bodies?.length || 0));
       await set({ running: { startedAt, trigger, done: i + 1, total: work.length } });
       if (r.status === "blocked") {
         result = "blocked";
@@ -187,9 +217,12 @@ async function runCollection(trigger) {
     }
 
     const table = toTable(fileRows);
+    if (limitHit) await set({ limitDate: kstDate() });
+    const iv = settings.schedule?.intervalMinutes || 180;
+    await set({ nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, rules.scheduleJitter ?? 0.1) });
     await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })) } });
 
-    await deliver({ settings, perTarget, table, result, errMsg, trigger });
+    await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });
     await reportStatus(result, total, errMsg);
     await addLog(`수집 끝 · ${result === "ok" ? "정상" : result} · 매물 ${total}건 · 알림 ${perTarget.reduce((n, p) => n + p.events.length, 0)}건`);
     return { ok: result === "ok", result, total, error: errMsg };
@@ -204,16 +237,23 @@ async function runCollection(trigger) {
 }
 
 /** 텔레그램 보내기 — 변동이 있거나, 첫 수집이거나, 「지금 수집」이면 보낸다. 실패하면 다음 회차에 알리고 같은 알림을 반복해 보내지 않는다. */
-async function deliver({ settings, perTarget, table, result, errMsg, trigger }) {
+async function deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit = false, maxPages = 300 }) {
   const tg = settings.telegram;
   if (!tg) { await addLog("텔레그램 봇이 연결되지 않아 보내지 않았어요(웹 📨 받는 방법)."); return; }
   const d = settings.delivery || {};
   const { telegramFailed = false } = await get("telegramFailed");
   try {
     if (result === "blocked") {
-      await sendMessage(tg.botToken, tg.chatId, `🏠 [매물 알림] ⛔ 네이버 확인 화면 때문에 수집을 멈췄어요.\n${errMsg || ""}\n네이버 부동산을 직접 한 번 열어 확인해 주세요. 오늘 예약 수집은 쉬고 내일 다시 시작해요.`);
+      await sendMessage(tg.botToken, tg.chatId, `🏠 [매물 알림] ⛔ 네이버가 잠시 이용을 제한해 수집을 멈췄어요.\n${errMsg || ""}\n\n이렇게 해 주세요:\n1) 네이버 부동산을 직접 열어 보안 문자·본인 확인이 나오면 풀어 주세요.\n2) 제한은 보통 몇 시간~하루 지나면 풀려요. 오늘 예약 수집은 쉬고 내일 다시 시작해요.\n3) 자주 걸리면 예약 간격을 길게(2~3시간 이상), 감시 단지 수를 줄여 주세요.`);
       await set({ telegramFailed: false });
       return;
+    }
+    if (limitHit) {
+      const { limitNoticeDate } = await get("limitNoticeDate");
+      if (limitNoticeDate !== kstDate()) {
+        await sendMessage(tg.botToken, tg.chatId, `🏠 [매물 알림] ⏸ 오늘 수집 한도(${maxPages}페이지)에 닿아 오늘은 더 수집하지 않아요. 네이버 이용 제한을 피하려는 안전장치예요. 내일 다시 시작해요.`).catch(() => {});
+        await set({ limitNoticeDate: kstDate() });
+      }
     }
     const changed = perTarget.some((t) => t.events.length || t.firstRun);
     if (!changed && trigger !== "manual") return;
@@ -238,11 +278,11 @@ chrome.runtime.onInstalled.addListener(ensureAlarm);
 chrome.runtime.onStartup.addListener(ensureAlarm);
 chrome.alarms.onAlarm.addListener(async (a) => {
   if (a.name !== "tick" || busy) return;
-  const { extToken, consentAt, lastRunAt, stoppedDate } = await get(["extToken", "consentAt", "lastRunAt", "stoppedDate"]);
+  const { extToken, consentAt, lastRunAt, stoppedDate, limitDate, nextDueAt } = await get(["extToken", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt"]);
   if (!extToken || !consentAt) return;
   let settings;
   try { settings = await loadSettings(); } catch { return; }
-  if (!shouldRunScheduled({ schedule: settings.schedule, lastRunAt, stoppedDate }).run) return;
+  if (!shouldRunScheduled({ schedule: settings.schedule, lastRunAt, stoppedDate, limitDate, nextDueAt }).run) return;
   await runCollection("schedule");
 });
 ensureAlarm();
@@ -303,7 +343,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         return reply({ ok: true });
       }
       if (msg.type === "state") {
-        const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "running", "lastResult", "settingsCache", "log", "telegramFailed"]);
+        const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "log", "telegramFailed"]);
         return reply({
           connected: !!s.extToken,
           connectedAt: s.connectedAt || null,
@@ -311,6 +351,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           consent: !!s.consentAt,
           lastRunAt: s.lastRunAt || null,
           stoppedToday: s.stoppedDate === kstDate(),
+          limitToday: s.limitDate === kstDate(),
+          pagesToday: s.pagesDay?.date === kstDate() ? s.pagesDay.count : 0,
+          nextDueAt: s.nextDueAt || null,
           running: s.running || null,
           lastResult: s.lastResult ? { at: s.lastResult.at, result: s.lastResult.result, error: s.lastResult.error, perTarget: s.lastResult.perTarget } : null,
           schedule: s.settingsCache?.schedule || null,

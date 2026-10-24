@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import { DEFAULT_INTERVAL_MINUTES } from "@/lib/schedule";
 import ScheduleClient from "./ScheduleClient";
+import LimitNotice from "@/components/LimitNotice";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -11,11 +12,15 @@ export const fetchCache = "force-no-store";
 export default async function SchedulePage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("realty_alert_settings")
-    .select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [{ data }, { data: targets }] = await Promise.all([
+    supabase
+      .from("realty_alert_settings")
+      .select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    // 예상 수집량 계산용(단지·지역 수만)
+    supabase.from("realty_alert_targets").select("target_type, region_max_complexes, enabled").eq("user_id", user.id),
+  ]);
 
   return (
     <div className="studio-shell">
@@ -29,6 +34,7 @@ export default async function SchedulePage() {
           </div>
         </div>
         <ScheduleClient
+          targets={targets ?? []}
           initial={{
             enabled: data?.schedule_enabled ?? false,
             intervalMinutes: data?.interval_minutes ?? DEFAULT_INTERVAL_MINUTES,
@@ -36,6 +42,7 @@ export default async function SchedulePage() {
             endHour: data?.active_hour_end ?? null,
           }}
         />
+        <LimitNotice />
       </main>
     </div>
   );

@@ -50,7 +50,11 @@ function stateLine(s) {
 
 /** 연결된 계정을 상태 줄 아래에 작게 보여 준다(웹 로그인 계정과 다르면 혼동하므로) */
 function accountText(s) {
-  return s.connected ? (s.connectedEmail ? `🔗 연결 계정: ${s.connectedEmail}` : "🔗 웹과 연결됨") : "";
+  if (!s.connected) return "";
+  const who = s.connectedEmail ? `🔗 연결 계정: ${s.connectedEmail}` : "🔗 웹과 연결됨";
+  // 오늘 읽은 양(하루 300페이지 상한) · 다음 예정 시각
+  const next = s.nextDueAt && s.schedule?.enabled ? ` · 다음 수집 ${kstTime(s.nextDueAt)}쯤` : "";
+  return `${who} · 오늘 ${s.pagesToday ?? 0}/300페이지${next}`;
 }
 
 async function refresh() {
@@ -58,6 +62,7 @@ async function refresh() {
   if (!s) return;
   $("consentBox").hidden = s.consent;
   $("stopped").hidden = !s.stoppedToday;
+  $("limited").hidden = !s.limitToday;
 
   const [kind, text, goLabel, path] = stateLine(s);
   $("stateLine").className = `state-line ${kind}`;

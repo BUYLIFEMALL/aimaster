@@ -1,6 +1,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import { APP_VERSION } from "@/lib/version";
+import LimitNotice from "@/components/LimitNotice";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -20,7 +21,8 @@ const FAQ = [
   { q: "제 PC가 꺼져 있어도 알림이 오나요?", a: "아니요. 수집은 회원님 PC의 크롬 확장이 회원님 계정으로 합니다. 크롬이 꺼져 있던 동안 밀린 회차는 다시 켜졌을 때 한 번만 수집합니다." },
   { q: "매물 정보가 서버에 저장되나요?", a: "아니요. 매물 정보는 회원님 PC 안에만 저장되고, 회원님 텔레그램으로 바로 보내집니다. 이 사이트에는 설정과 마지막 수집 시각·건수 같은 숫자만 남습니다." },
   { q: "중개사 전화번호는 왜 없나요?", a: "개인 정보는 모으지 않아요. 알림·엑셀의 「네이버 매물 주소」 링크를 누르면 네이버에서 전화번호를 바로 볼 수 있어요." },
-  { q: "네이버 확인 화면이 떴다고 알림이 왔어요.", a: "확장은 확인 화면·보안 문자가 나오면 그 자리에서 멈추고 그날 자동 수집을 쉽니다. 네이버 부동산을 직접 한 번 열어 확인한 뒤, 수집 간격을 길게 바꿔 주세요." },
+  { q: "네이버가 이용을 제한했다고(확인 화면) 알림이 왔어요.", a: "확장은 그 자리에서 멈추고 그날 자동 수집을 쉽니다(우회하지 않아요). 네이버 부동산을 직접 열어 보안 문자·본인 확인을 풀어 주세요. 제한은 보통 몇 시간~하루 지나면 풀리니 그 뒤에 다시 쓰시면 되고, 다음 날 예약 수집은 자동으로 다시 시작해요. 자주 걸리면 간격을 늘리고 감시 단지·지역 수를 줄여 주세요." },
+  { q: "「오늘 수집 한도에 닿았다」는 알림은 뭔가요?", a: "네이버 이용 제한을 피하려고 하루에 읽는 목록 페이지를 300페이지까지로 정해 두었어요. 닿으면 그날은 더 읽지 않고 다음 날 다시 시작해요. 감시 대상이 많으면 한 회차에 20곳씩 차례로 돌아가며 읽어요." },
   { q: "새 버전이 나왔다고 나와요.", a: "ZIP을 다시 받아 기존 폴더에 덮어쓰고 chrome://extensions에서 새로고침 버튼을 눌러 주세요. 설치된 확장은 자동으로 바뀌지 않습니다." },
 ];
 
@@ -85,6 +87,8 @@ export default async function GuidePage() {
             </ul>
           </section>
         </div>
+
+        <LimitNotice />
 
         <section className="card">
           <h2 className="card-title">❓ 자주 묻는 질문</h2>
