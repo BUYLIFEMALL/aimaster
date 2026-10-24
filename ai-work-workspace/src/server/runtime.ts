@@ -15,6 +15,7 @@ import type { SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/record
 import { newId } from '#shared/ids.ts';
 import { stageBlock } from './stagePolicy';
 import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
+import { workInboxHandlers } from './workInbox';
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 
@@ -70,6 +71,8 @@ const OVERRIDES: Record<string, Handler> = {
     const { space } = createWorkspace(ctx.userId, String(name || '내 워크스페이스').slice(0, 200), icon, { welcome: KOREAN_WELCOME, team: KOREAN_TEAM });
     return { spaceId: space.id, recordMap: new RecordMapBuilder(ctx.userId).map };
   },
+  // U7 업무 받은편지함(src/server/workInbox.ts)
+  ...workInboxHandlers,
 };
 
 /** U3: AI 스트림 라우트용 — 초기화와 회원 레코드 준비(RPC와 같은 순서). */

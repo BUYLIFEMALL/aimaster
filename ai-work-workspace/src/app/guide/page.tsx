@@ -271,6 +271,36 @@ export default async function GuidePage() {
           </aside>
         </section>
 
+        {/* v1.18 받은 업무(U7) */}
+        <section className="aww-meeting" id="inbox" aria-label="받은 업무 사용법">
+          <div className="aww-section-head">
+            <span className="aww-badge aww-badge-indigo">📨 받은 업무</span>
+            <h2>📨 다른 자동화 프로그램 결과를 한곳에 — 받은 업무</h2>
+            <p>AIMaster의 다른 자동화 프로그램에서 「업무 워크스페이스로 보내기」를 누르면 결과가 왼쪽 메뉴 「📨 받은 업무」에 모입니다. 보낸 항목은 30일 동안 보관됩니다.</p>
+          </div>
+          <div className="aww-guide-steps">
+            {[
+              { no: 1, icon: "📨", title: "받은 업무 열기", desc: "왼쪽 메뉴 아래쪽 「📨 받은 업무」를 누르세요. 숫자는 아직 가져가지 않은 새 항목 수입니다." },
+              { no: 2, icon: "👀", title: "내용 확인", desc: "목록에서 항목을 고르면 오른쪽에 본문과 보낸 프로그램, 원본 결과 화면 링크가 보입니다." },
+              { no: 3, icon: "📄", title: "페이지로 만들기", desc: "파란 버튼을 누르면 「내 페이지」 맨 위에 새 페이지가 생기고 본문이 그대로 들어갑니다." },
+              { no: 4, icon: "📊", title: "표에 행으로 넣기", desc: "초록 버튼을 누르면 「📨 받은 업무 표」(처음 한 번 자동 생성)에 한 줄이 추가됩니다." },
+            ].map((s) => (
+              <article key={s.no} className="aww-step-card">
+                <div className="aww-step-card-header">
+                  <span className="aww-step-num">STEP 0{s.no}</span>
+                </div>
+                <div className="aww-step-icon-wrap" aria-hidden>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+          <div className="aww-meeting-buttons">
+            <a className="aww-3d blue" href="/inbox">📨 받은 업무 열기</a>
+            <span className="aww-meeting-buttons-note">다른 프로그램과의 연결(할 일 플래너·음성 분석·문서 번역 등)은 차례로 열립니다.</span>
+          </div>
+        </section>
+
         {/* ④ 하이테크 키캡 단축키 치트시트 */}
         <section className="aww-shortcuts-section">
           <div className="aww-shortcuts-header">

@@ -2,11 +2,12 @@
 // 스마트 프로 인디고 워크스페이스 스타일 적용
 import { useSession } from '../../lib/store/session.ts';
 import { useCurrentUser } from '../../lib/hooks.ts';
+import { useEffect, useState } from 'react';
 import './aimaster.css';
 
 const PROGRAMS_URL = 'https://www.buylife.xyz/programs';
 export const AIMASTER_APP_NAME = 'AI 업무 워크스페이스';
-export const AIMASTER_APP_VERSION = 'v1.17';
+export const AIMASTER_APP_VERSION = 'v1.18';
 
 export function AimasterSidebarTop() {
   return (
@@ -28,6 +29,20 @@ export function AimasterSidebarTop() {
   );
 }
 
+/** U7: 안 가져간 받은 업무 수(없으면 「모음」) */
+function InboxCount() {
+  const [n, setN] = useState<number | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/rpc/workInboxList', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (alive && j && typeof j.unread === 'number') setN(j.unread); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  return n ? <span className="aww-sb-item-chip aww-sb-item-chip-new">{n}</span> : <span className="aww-sb-item-chip">모음</span>;
+}
+
 export function AimasterSidebarBottom() {
   const user = useCurrentUser() as { email?: string } | undefined;
   const email = user?.email || (typeof document !== 'undefined' ? document.getElementById('lit-app')?.dataset.memberEmail : '') || '';
@@ -35,6 +50,14 @@ export function AimasterSidebarBottom() {
     <div className="aww-sb-bottom">
       {/* AIMaster 표준 메뉴: API 키 등록 & 매뉴얼 */}
       <div className="aww-sb-nav-card">
+        {/* U7: 다른 프로그램 결과가 모이는 받은 업무함(/inbox) */}
+        <a className="aww-sb-item" href="/inbox">
+          <div className="aww-sb-item-inner">
+            <span className="aww-sb-item-icon">📨</span>
+            <span className="aww-sb-item-label">받은 업무</span>
+          </div>
+          <InboxCount />
+        </a>
         <a className="aww-sb-item" href="/settings/keys">
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">🔑</span>

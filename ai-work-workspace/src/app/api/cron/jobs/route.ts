@@ -8,6 +8,7 @@ import { withRequestCache } from "@/litpage/server/db.ts";
 import "@/litpage/server/retention.ts";
 import "@/server/runtime";
 import { runAiRetention } from "@/server/aiRetention";
+import { runWorkInboxRetention } from "@/server/workInbox";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -27,5 +28,13 @@ export async function GET(request: NextRequest) {
     console.error(`[cron] ai retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
     ai = { error: "failed" };
   }
-  return NextResponse.json({ ran, ai });
+  // U7: 업무 받은편지함 30일 자동 삭제
+  let inbox: unknown = null;
+  try {
+    inbox = await runWorkInboxRetention();
+  } catch (e) {
+    console.error(`[cron] work inbox retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+    inbox = { error: "failed" };
+  }
+  return NextResponse.json({ ran, ai, inbox });
 }
