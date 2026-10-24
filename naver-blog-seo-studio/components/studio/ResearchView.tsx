@@ -11,7 +11,7 @@ import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
 
 type Research = { id: string; keyword: string; sources: ResearchSource[]; points: GroundPoint[]; angle: string | null; approved_at: string | null; approval_hash: string | null; approval_valid?: boolean; created_at: string };
-const KIND_LABEL: Record<string, string> = { blog: "블로그", news: "뉴스", url: "직접 URL", memo: "내 메모" };
+const KIND_LABEL: Record<string, string> = { blog: "블로그", news: "뉴스", url: "직접 URL", memo: "내 메모", pdf: "PDF", video: "유튜브 · AI가 영상을 보고 정리", paste: "붙여 넣은 원문 · 사이트 직접 확인 아님" };
 
 async function post(url: string, body: unknown) {
   const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -27,6 +27,8 @@ export function ResearchView({ s }: { s: Studio }) {
   const [keyword, setKeyword] = useState(() => s.researchSeed); // BLC-11: 「자료 검색어로 쓰기」로 넘어오면 미리 채운다
   const [urlText, setUrlText] = useState("");
   const [memo, setMemo] = useState("");
+  const [paste, setPaste] = useState(""); // D-4: 읽기 실패 대비 원문 붙여넣기
+  const [pasteLink, setPasteLink] = useState("");
   const [research, setResearch] = useState<Research | null>(null);
   const [keep, setKeep] = useState<Set<number>>(new Set());
   const [recent, setRecent] = useState<Research[]>([]);
@@ -56,7 +58,7 @@ export function ResearchView({ s }: { s: Studio }) {
   }
   const collect = () => run("collect", async () => {
     const urls = urlText.split(/\s+/).filter(Boolean);
-    const result = await post("/api/research", { keyword, urls, memo });
+    const result = await post("/api/research", { keyword, urls, memo, paste, pasteLink });
     load(result.research!); setRecent((list) => [result.research!, ...list.filter((r) => r.id !== result.research!.id)]);
     setNotice(`자료 ${result.research!.sources.length}건을 모았습니다.${result.warnings?.length ? ` (${result.warnings.join(" / ")})` : ""}`);
   });
@@ -89,7 +91,12 @@ export function ResearchView({ s }: { s: Studio }) {
 
       <KeywordHandoffCard s={s} onResearch={(evidence) => setKeyword(evidence.keyword)} />
       <div className="field"><label htmlFor="research-keyword">① 검색어</label><input id="research-keyword" value={keyword} maxLength={60} onChange={(e) => setKeyword(e.target.value)} placeholder="예: 가을 캠핑 준비물" /></div>
-      <div className="field"><label htmlFor="research-urls">직접 넣을 공개 URL (선택, 최대 3개 · 띄어쓰기나 줄바꿈으로 구분)</label><textarea id="research-urls" rows={2} value={urlText} onChange={(e) => setUrlText(e.target.value)} placeholder="https://..." /></div>
+      <div className="field"><label htmlFor="research-urls">직접 넣을 공개 URL (선택, 최대 3개 · 띄어쓰기나 줄바꿈으로 구분)</label><textarea id="research-urls" rows={2} value={urlText} onChange={(e) => setUrlText(e.target.value)} placeholder="https://..." /><small>웹 글·텍스트 PDF(3MB 이하)·유튜브 영상 주소를 넣을 수 있습니다. 유튜브는 본인 Gemini 키로 영상을 1회 읽어 정리하므로 영상 길이에 따라 Gemini 요금이 듭니다(비공개·연령 제한 영상은 읽을 수 없음).</small></div>
+      <details className="field"><summary>원문 붙여넣기 (선택 · 주소를 읽지 못했을 때)</summary>
+        <label htmlFor="research-paste-link">출처 주소 (선택)</label><input id="research-paste-link" value={pasteLink} maxLength={500} onChange={(e) => setPasteLink(e.target.value)} placeholder="https://..." />
+        <label htmlFor="research-paste">원문 (100~20,000자, 앞 5,000자를 자료로 씀)</label><textarea id="research-paste" rows={4} maxLength={20000} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder="읽지 못한 페이지·영상 자막의 내용을 붙여 넣으세요" />
+        <small>붙여 넣은 원문은 「사이트 직접 확인 아님」으로 표시됩니다. 직접 확인한 내용만 넣어 주세요. {paste.trim() ? `${paste.trim().length.toLocaleString("ko-KR")}자` : ""}</small>
+      </details>
       <div className="field"><label htmlFor="research-memo">내 메모 (선택, 2,000자 이내)</label><textarea id="research-memo" rows={3} maxLength={2000} value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="내가 직접 확인한 사실·경험" /></div>
       <button type="button" className="primary" disabled={!keyword.trim() || Boolean(busy)} onClick={collect}>{busy === "collect" ? "자료를 모으는 중..." : "자료 모으기"}</button>
 

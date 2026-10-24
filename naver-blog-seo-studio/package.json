@@ -30,7 +30,8 @@
     "test:social-copy": "node --test tests/social-copy.test.mjs",
     "test:style-strength": "node --test tests/style-strength.test.mjs",
     "test:narrative-structure": "node --test tests/narrative-structure.test.mjs",
-    "test:review-apply": "node --test tests/review-apply.test.mjs"
+    "test:review-apply": "node --test tests/review-apply.test.mjs",
+    "test:source-url": "node --test tests/source-url.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -38,7 +39,9 @@
     "lucide-react": "^0.563.0",
     "next": "^16.3.5",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "undici": "7.30.0",
+    "unpdf": "^1.8.1"
   },
   "devDependencies": {
     "@types/node": "^20",

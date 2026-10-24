@@ -519,7 +519,7 @@ const MODULES = [
     // 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(리디렉트마다 재검사, DNS 바꿔치기 방지) — 2026-10-19 기준 등록
     id: "safe-fetch",
     source: "ghost-scraper/src/lib/safeFetch.ts",
-    copies: ["insta_auto_poster/src/lib/cardnews/safeFetch.ts", "tistory-auto-blog/utils/safeFetch.ts"], // 2026-10-22 BLC-12: 티스토리 글감 URL 수집
+    copies: ["insta_auto_poster/src/lib/cardnews/safeFetch.ts", "tistory-auto-blog/utils/safeFetch.ts", "naver-blog-seo-studio/lib/sharedSafeFetch.ts"], // 2026-10-22 BLC-12: 티스토리 글감 URL 수집 · 2026-10-24 D-4: SEO 스튜디오 PDF·유튜브 자료 읽기(기존 lib/safeFetch.ts 자체 코드는 그대로)
   },
   {
     // 글 생성 결과의 과거 연도 보정(제목·태그는 올해로, 본문은 최신 정보 표기만). 2026-10-22 BLC-12 등록 — 기준은 블로그 에이전트(v2.09 검증)

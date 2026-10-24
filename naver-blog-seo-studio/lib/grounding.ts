@@ -3,7 +3,8 @@
 // 인용 확인은 "그 구절이 실제 자료에 있는가"만 본다 — 전체 사실 확인이나 표절 판정이 아니다.
 import { createHash } from "node:crypto";
 
-export type ResearchSourceKind = "blog" | "news" | "url" | "memo";
+// D-4: pdf(텍스트 PDF), video(회원 Gemini가 유튜브 영상을 보고 정리), paste(회원이 붙여 넣은 원문 — 사이트 직접 확인 아님)
+export type ResearchSourceKind = "blog" | "news" | "url" | "memo" | "pdf" | "video" | "paste";
 export interface ResearchSource { n: number; kind: ResearchSourceKind; title: string; link: string; text: string; ok: boolean }
 export interface GroundPoint { text: string; source: number; quote: string; kept: boolean }
 
