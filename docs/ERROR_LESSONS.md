@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — 브라우저 무료 음성: `onnxruntime-web`을 작업자(worker)에 import하면 Turbopack이 묶음에 합쳐, 여러 줄 계산용 하위 작업자가 뜨지 않고 아무 오류 없이 멈췄다 (shorts-onestop-studio v1.42, Claude Code 윈도우 음악 담당)
+- 증상: 로컬 빌드에서 작업자 묶음 파일을 띄우자 진행률·오류가 하나도 오지 않음. 빌드 결과에 `new Worker(new URL(__TURBOPACK__import$2e$meta__.url),{type:"module",name:"em-pthread"})`가 들어 있었다.
+- 원인: 라이브러리가 하위 작업자를 「자기 파일 주소(import.meta.url)」로 띄우는데, 묶인 뒤에는 그 주소가 Turbopack 실행 준비 코드 없는 묶음 조각이라 하위 작업자가 시작하지 못함. 또 Turbopack은 `new Worker(new URL("./worker.ts", import.meta.url))`를 `turbopack-worker` 준비 파일로 띄우므로, 묶음 조각 주소로 직접 띄워 시험하면 아무 일도 안 일어난다(시험 방법도 틀림).
+- 해결: 계산 라이브러리는 묶지 않고 빌드 전에 `public/ort/`로 복사(`scripts/copy-ort.mjs`: `ort.wasm.min.mjs`·`ort-wasm-simd-threaded.mjs/.wasm`, `predev`·`prebuild`), 작업자에서 `await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ `${origin}/ort/ort.wasm.min.mjs`)`로 불러오고 타입만 `import type`. 엔진 파일은 `useOrt()`로 받는다(`src/lib/freeTts/`).
+- 다음부터: wasm·여러 줄 계산 라이브러리(onnxruntime·ffmpeg.wasm 등)를 작업자에서 쓸 땐 묶지 말고 같은 주소 정적 파일로 불러온다. 시험은 실제 화면 경로(엔진의 `new Worker`)로 — 로그인 없는 로컬이면 임시 연결을 잠깐 넣었다 지운다. 여러 줄 계산은 COOP `same-origin` + COEP `credentialless`가 있어야 켜진다(`self.crossOriginIsolated`).
+
 ## 2026-10-24 — 다른 세션 폴더에 버전 SQL 파일을 새로 쓴다고 생각했는데, 36분 전 그 세션이 같은 이름으로 커밋한 파일을 덮어썼다 (ai-work-workspace v1.10, Claude Code 윈도우 `claude-win-dotori`)
 - 증상: `ai-work-workspace/supabase/migrations/20261024000900_bump_version_v1_10.sql`을 셸 `cat >`로 만들어 커밋했더니 「삭제 2줄」이 나옴 — 워크스페이스 세션이 18:18 `91430ed52`로 먼저 커밋한 파일(배포 커밋 번호까지 적힌 기록)을 18:54에 덮어씀.
 - 원인: 폴더 목록을 본 시점과 파일을 쓴 시점 사이가 길었고(보조 작업자 보고 처리 중), 쓰기 직전에 다시 보지 않았다. `cat >`는 있는 파일도 말없이 덮어쓴다.

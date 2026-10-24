@@ -151,6 +151,7 @@
 | 텍스트 인코딩 자동 판별(CP949/UTF-8)·문장 경계 나누기 | `file-merge/src/lib/files/text.ts` | |
 | 브라우저 영상 처리(ffmpeg.wasm) | `video-to-gif`, `infinite-loop-video` | 서버 전송 없음 |
 | 브라우저 MP4 렌더링(WebCodecs+mp4-muxer) | `playlist-channel-studio`(`src/lib/render/`, 2026-10-20 yt-playlist-studio에서 이동), `vinyl-lp-studio`, 공용 `browser-mp4-encoder` 사본: `shots`·`lyric-video-studio` | |
+| 브라우저 무료 음성 합성(Supertone supertonic-3, 키·서버 없음) | 공용 `browser-free-tts` 기준 `shorts-onestop-studio/src/lib/freeTts/`(2026-10-24 v1.42, 사본 아직 없음 — 다음 후보 ai-video-studio·auto-shorts-posting·music-video-studio·shots) | 같은 출처 `/ort/` 계산 파일 + COOP/COEP 필요 |
 | 브라우저 오디오 처리(Web Audio) | `ai-mastering-studio`, `music-player` | |
 | PPTX 생성 | `ai-slide-builder`(pptxgenjs) | |
 | DOCX·EPUB·PDF·HTML 내보내기 | `document-translator`(DOCX), `ebook-studio`(EPUB·PDF·HTML), `markdown-studio`(PDF·DOCX·ZIP) | |
@@ -848,6 +849,7 @@
 #### AI 쇼츠 원스톱 제작 자동화 (`shorts-onestop-studio`)
 - 주소·폴더: https://shorts-onestop-studio.buylife.xyz · `shorts-onestop-studio/` · v1.42 (2026-10-21 MP4 인코더를 공용 `browser-mp4-encoder` 기준으로 분리 — Shots와 함께 사용)
 - **2026-10-22 v1.23 AI 동영상 장면**: 장면 사진을 첫 화면으로 5초 AI 영상(다음 장면 사진을 끝 화면으로 이어 붙이기). 기본 Gemini Omni Flash(회원 Gemini 키, 결제 연결 필요), 선택 Replicate(Seedance 1 Lite·Kling v2.1)·fal(Seedance 1.5 Pro·Kling O3), 모델 선택·버튼에 장면당 예상 단가. 제출→15초마다 확인(새로고침 뒤에도), 만드는 중 장면 잠금, 영상 30일 자동 삭제. AIMaster 최초의 「움직이는 AI 장면」 생성.
+- **2026-10-24 v1.42 무료 음성(내 브라우저)**: 음성 모델에 「무료 음성(내 브라우저) · Supertone」 추가 — API 키·운영자 비용 없이 회원 브라우저가 Supertone `supertonic-3`(OpenRAIL-M, 상업 이용 가능)로 목소리 10개(여성·남성 각 5)를 만듦. 처음 한 번 약 400MB 내려받기(진행률·와이파이 안내), 두 번째부터 약 2초 시작, 여러 줄 계산으로 재생보다 빠름. 자막 시각은 문장별 길이로 계산(받아쓰기 요금 없음), 처음 고를 때 사용 조건 확인, 유튜브 설명란에 합성음 표기 한 줄 자동, 「다음 영상부터 이 음성으로 시작」. 기본값은 그대로 OpenAI. 공용 기준 코드 `browser-free-tts`.
 - **차별점**: 주제 한 줄에서 완성 MP4까지 한 프로그램에서 끝내는 정보 카드형 쇼츠 제작 도구. 영상 합성을 회원 브라우저에서 해 합성 비용이 없다(계획).
 - **기능**: (완료) 권한·본인 AI 키 등록(연결 확인은 요금 없는 모델 목록 조회)·사용할 AI/모델 선택, 분야 14종 → AI 주제 8개 추천(당해 연도), 주제 문구로 구성·카드 수 자동 설정, AI 대본(톤 5×구성 5, 카드 3~8장, 참고 자료 txt·md, 분야별 내 지침), 내 대본 한 줄=한 장면, 대본 편집·보관함 저장, 다크/라이트 화면, 장면 편집(1080×1920 캔버스 미리보기·테마 8·레이아웃 6·글꼴 5·세이프에어리어), 배경(AI 장면 설명→Pixabay·Pexels 스톡 검색/모두 채우기·AI 이미지 화풍 7·같은 인물, 비공개 버킷+서명 주소, Pixabay 임시 주소 자동 갱신), 음성(본인 OpenAI·Gemini TTS, 장면 길이=실제 목소리 길이)·자막 4스타일·배경음악 업로드+자동 볼륨, 소리 있는 미리보기, 브라우저 MP4(1080×1920·30fps, 목소리·자막·배경음악 포함, 서버 비용 없음), 업로드 문구(제목 후보 5·설명·해시태그·검색 태그), 발행 계획(채널 단계 6·분야별 추천 시간대·지난 시각 자동 미루기·일정 고치기/빼기)·대본→배경→음성→MP4 일괄 제작, 목표 길이 30·45·60초, 스톡 내용 맞춤 선택, MP4 영상 길이의 약 0.5배 시간. (2026-10-16 v1.09 정식 공개, VIP 자동 부여). (지난 계획) SEO·발행 계획·일괄 제작. (최초 계획) 주제 추천·AI 대본(톤 5×형식 5, 카드 3~8장)·스톡/AI 이미지 배경·화풍·캐릭터 일관성·음성 길이 맞춤·단어 자막·BGM·브라우저 MP4·SEO·발행 계획·일괄 제작.
 - **장점**: 원스톱(대본~MP4~유튜브 업로드) · 서버 렌더 비용 없음 · 본인 키 한 곳 등록 · 유튜브는 다른 유튜브 프로그램에서 한 번 연결한 채널 그대로(v1.19, 브라우저→유튜브 직접 업로드·예약 공개)
@@ -1288,5 +1290,6 @@
 - 2026-10-22 `shorts-onestop-studio` v1.26 — 본인 목소리 복제(ElevenLabs, 회원 키·동의 확인)로 내레이션: 목록 표 버전 — Claude Code(윈도우). 재사용 부품 후보: `src/app/api/voice/elevenlabs/route.ts`(목소리 목록·복제).
 - 2026-10-22 `shorts-onestop-studio` v1.27 — 단어 단위 자막(ElevenLabs 글자 시각·Whisper 낱말 시각, 자막 글자는 대본 그대로): 목록 표 버전 — Claude Code(윈도우). 재사용 부품 후보: `src/lib/voice.ts` 시각 맞추기 함수.
 - 2026-10-22 `shots` v1.32 — 장면 AI 영상(공용 `ai-video-*` 사본): 목록 표 버전(v1.28 표기 → v1.32)·카드 — Claude Code(윈도우). 재사용 부품: `ai-image-studio/lib/video/`(AI 영상 호출 기준).
+- 2026-10-24 `shorts-onestop-studio` v1.42 — 카드에 무료 음성(내 브라우저) 줄, 재사용 부품에 `browser-free-tts` — Claude Code(윈도우) `music`.
 - 2026-10-24 `ai-work-workspace` v1.06~v1.10 — 목록 표 버전·카드(Gemini·30일 삭제·로그인 표준·디자인 리뉴얼, 재사용 부품 Gemini 어댑터, 단점 갱신) — Claude Code(윈도우) `workspace`.
 - 2026-10-24 `ai-work-workspace` v1.01 신규 — 목록 표 89번·카드·분야 묶음(생활·업무) 추가, 새 카테고리 「업무자동화」 — Claude Code(윈도우).
