@@ -30,6 +30,11 @@
 3. 성공하면 「업무 워크스페이스 『받은 업무』로 보냈습니다」 안내와 https://ai-work-workspace.buylife.xyz/inbox 링크를 보여 줍니다.
 4. **다른 회원 id로 보내지 않습니다.** 회원 본인 계정·키 최상위 규칙과 같습니다.
 
+## 3-1. 연결된 프로그램
+| 프로그램 | 버전 | 보내는 것 | 코드 |
+|---|---|---|---|
+| `ai-task-planner` | v1.11 (2026-10-25) | 할 일 하나(`task`, 표 행 데이터: 예정일·우선순위·분류·상태·예상 시간(분)·집중 시간(분)) · 하루 성과 보고(`document`) | `ai-task-planner/src/app/api/work-inbox/route.ts`, 내용 `src/lib/planner/inbox.ts` |
+
 ## 4. 주의
 - 본문에 비밀 키·다른 회원 정보를 넣지 않습니다.
 - 워크스페이스 화면의 보낸 프로그램 이름 표(`ai-work-workspace/src/app/inbox/InboxBoard.tsx`의 `SOURCE`)에 새 slug를 추가하면 이름이 한국어로 보입니다(없으면 slug 그대로).

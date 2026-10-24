@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 할 일·성과 관리 v1.11: U8-A 업무 워크스페이스로 보내기
+- 주인님 승인: U8-A 플랜(빌드 1회), U8-B는 「나중에 공용 표에 열 추가」.
+- 한 일: U8-A 업무 워크스페이스 「📨 받은 업무」로 보내기 — 할 일 카드 📨 버튼(분류·우선순위·예정일·예상/집중 시간을 표 행 데이터로), 성과 노트 아래 「📨 오늘 성과를 워크스페이스로」(완료율·집중 시간·완료/남은 할 일·저장한 노트를 보고서 한 장으로), 서버 라우트 `POST /api/work-inbox`(회원 본인 기록에서 서버가 내용 생성), 공용 기준 코드 사본 `src/lib/workInbox.ts`(`work-inbox-client`), 매뉴얼 구역. 워크스페이스는 코드 수정 없음(보낸 프로그램 이름표에 이미 있음) → 배포 안 함.
+- 커밋: 플랜 `596e7cac4`, 코드 `5fc8d02d2`, 공용 모듈 등록(`docs/SHARED_MODULES.md`·`scripts/check-shared-modules.mjs`). 배포 `ai-task-planner-7t3wm8vxu`, 운영 DB v1.11(ref `esgxyikcnnvmlhygjkth`).
+- 검수: 단위 26/26·브라우저 30/30·tsc·빌드, 크롬(시험 계정)에서 할 일·오늘 성과 보내기 → 받은 업무 도착 → 페이지로 만들기·표에 행으로 넣기(속성 확인) → 받은편지함 시험 항목 SQL 삭제.
+- 발견: 표 「받은 날」이 하루 전(10월 24일)으로 들어감 — 미배포 `c6d4ca3ba`가 고침(다음 워크스페이스 배포). 표 행 「OPEN」 영어 남음.
+- 다음: 회의록 자동 요약 1회 확인(주인님 30초 녹음) → U8-B 상세 플랜(공용 표 열 추가, DB 승인) 보고.
+- 비용: Vercel 빌드 1회(승인 범위), 유료 AI 호출 0회.
+- 프로그램: https://ai-task-planner.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 자동화 v1.02: 2단계(DB·설정 화면)
 - 한 일: 운영 DB 표 3개(`realty_alert_*`, RLS 본인만, 10개 상한 트리거) · 🎯 감시 대상 · ⏰ 예약 설정 · 📨 받는 방법(본인 텔레그램 봇 + 「기존 부동산 봇 가져오기」) · 대시보드 「내 설정」 실제 값 · 미배포 대기였던 메뉴 밑줄 제거 함께. 확장 manifest 1.2.0/v1.02.
 - 검수: 시험 5개·tsc·build, 시험 계정으로 11번째 대상 화면·서버·DB 3곳 거절, 375px 3화면, 운영 배포 `realty-listing-alert-21s4msgob` Ready, `check-extension-release` OK(DB/ext/zip v1.02), 운영 3화면 클릭 확인.
