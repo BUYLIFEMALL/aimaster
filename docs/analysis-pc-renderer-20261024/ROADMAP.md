@@ -27,7 +27,7 @@
 ## 3. 단계 (한 단계씩, 단계마다 플랜 → 구현 → 윈도우 실물 시험 → 배포 → 크롬 검수 → 인수인계)
 | 단계 | 내용 | 배포 | 상태 |
 |---|---|---|---|
-| **1** | 공통 기반 + 각도 A(`audio`) → 마스터링 「⚡ 내 PC로 저장」(MP3·AAC·FLAC·WAV24, 음량 맞춤) | `video-to-gif` v1.22 · `ai-mastering-studio` v1.14 | ✅ **배포 완료(2026-10-24)** — 실행기 1.10(윈도우 실물·맥 perl 1차 시험), 크롬 실물 변환은 크롬에 확장 설치 후 확인 남음. 플랜 `ai-mastering-studio/docs/PLAN_20261024_PC_RENDERER_AUDIO.md` |
+| **1** | 공통 기반 + 각도 A(`audio`) → 마스터링 「⚡ 내 PC로 저장」(MP3·AAC·FLAC·WAV24, 음량 맞춤) | `video-to-gif` v1.22 · `ai-mastering-studio` v1.14 | ✅ **배포 완료(2026-10-24)** — 실행기 1.10(윈도우 실물·맥 perl 1차 시험), 크롬 실물 변환도 확인(MP3, -4.2 → -13.9 LUFS). 플랜 `ai-mastering-studio/docs/PLAN_20261024_PC_RENDERER_AUDIO.md` |
 | 2 | 각도 B(`loop-mux`) → 플레이리스트 「빠른 긴 영상」, LP 턴테이블 「한 바퀴 그리고 반복」 | `video-to-gif` · `playlist-channel-studio` · `vinyl-lp-studio` | 대기 |
 | 3 | 각도 C(`slideshow`) → 음악 곡 + 이미지 비주얼라이저(AI 음악 스튜디오), 카드뉴스 → 릴스 | `video-to-gif` · `ai-music-studio` · `insta_auto_poster` | 대기(다른 담당 프로그램은 그 세션과 조율) |
 | 4 | 각도 D(`trim`·`concat`·`compress`) → 뮤직비디오 쇼츠 하이라이트, AI 영상 스튜디오 잇기 | `video-to-gif` · `music-video-studio` · `ai-video-studio` | 대기 |
