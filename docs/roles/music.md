@@ -9,12 +9,11 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `lyric-video-studio` | Lyricbi L-1~L-5(빌드 2회 승인) | 2026-10-24 | 시작 전 |
+| `lyric-video-studio` v1.10 | Lyricbi L-1~L-5(빌드 2회 승인, 플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`) | 2026-10-24 | 시작 전 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `lyric-video-studio` v1.10 | Lyricbi L-1~L-5(대기 2번) | 플랜·빌드 2회 승인 | `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md` |
 | `shorts-onestop-studio` v1.42 | 미배포 대기 `a95613743`(안내 그림문자) | 다음 배포 때 함께 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
 | `ai-audio-analyzer` | 미배포 대기 `22c6cda35`(메뉴 계정 위치) | 다음 배포 때 함께 | `docs/PENDING_DEPLOYS.md` |
