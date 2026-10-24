@@ -1,5 +1,5 @@
 // PDF 만들기·합치기·나누기·추출·서명 찍기(pdf-lib, 브라우저·시험 공용). 파일은 서버로 보내지 않는다.
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, degrees } from "pdf-lib";
 
 export const A4_PT = { w: 595.28, h: 841.89 } as const;
 
@@ -94,6 +94,31 @@ export async function splitEvery(bytes: Uint8Array, n: number): Promise<Uint8Arr
     parts.push(await pickPages(bytes, idx));
   }
   return parts;
+}
+
+export interface PagePick {
+  /** sources 배열의 몇 번째 PDF인지 */
+  src: number;
+  /** 그 PDF의 몇 번째 페이지인지(0부터) */
+  page: number;
+  /** 추가로 돌릴 각도(0·90·180·270) */
+  rotate?: number;
+}
+
+/** 여러 PDF에서 고른 페이지를 고른 순서·회전으로 새 PDF 하나로 만든다(합치기·순서 바꾸기·추출·삭제·회전을 한 번에). */
+export async function buildFromPages(sources: Uint8Array[], picks: PagePick[]): Promise<Uint8Array> {
+  if (!picks.length) throw new Error("남길 페이지가 없습니다.");
+  const docs = await Promise.all(sources.map((b) => PDFDocument.load(b)));
+  const out = await PDFDocument.create();
+  for (const pick of picks) {
+    const src = docs[pick.src];
+    if (!src || pick.page < 0 || pick.page >= src.getPageCount()) throw new Error("없는 페이지를 골랐습니다.");
+    const [page] = await out.copyPages(src, [pick.page]);
+    const extra = (((pick.rotate ?? 0) % 360) + 360) % 360;
+    if (extra) page.setRotation(degrees((page.getRotation().angle + extra) % 360));
+    out.addPage(page);
+  }
+  return out.save();
 }
 
 export async function pageCountOf(bytes: Uint8Array): Promise<number> {

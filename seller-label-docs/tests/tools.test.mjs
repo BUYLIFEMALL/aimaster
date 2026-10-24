@@ -127,3 +127,14 @@ test("EUC-KR CSV와 예시 엑셀 왕복", () => {
   const xlsx = sampleWorkbook(["상품명", "가격"], [["배", "2000"]]);
   assert.deepEqual(readSheetBytes(xlsx, "a.xlsx").rows, [{ 상품명: "배", 가격: "2000" }]);
 });
+
+test("여러 PDF에서 골라 회전해 새로 만든다", async () => {
+  const { buildFromPages } = await import("../src/lib/pdf/ops.ts");
+  const a = await makePdf(2);
+  const b = await makePdf(3);
+  const out = await PDFDocument.load(await buildFromPages([a, b], [{ src: 1, page: 2 }, { src: 0, page: 0, rotate: 90 }]));
+  assert.equal(out.getPageCount(), 2);
+  assert.equal(Math.round(out.getPage(0).getWidth()), 102);
+  assert.equal(out.getPage(1).getRotation().angle, 90);
+  await assert.rejects(buildFromPages([a], [{ src: 0, page: 5 }]), /없는 페이지/);
+});
