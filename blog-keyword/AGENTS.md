@@ -65,3 +65,12 @@
 
 [세부 개선안·필요 이유·근거·시험 조건](docs/DETAILED_REVIEW_20261019.md) · [전체 83개 분석](../docs/program-reviews-20261019/INDEX.md) · [공통 아이디어 표](../docs/PROGRAM_IDEA_BACKLOG.md). 이 프로그램 3개 검토 항목입니다. 코드·DB·환경변수·배포는 바꾸지 않았습니다. 작업 전 최신 개선 원장·ACTIVE_WORK와 대조하고 이미 해결된 기능은 보존합니다. 후속 작업 후 처리 ID·증거·미완료·새 인사이트·프로그램 링크를 기록합니다.
 <!-- /DETAILED_PROGRAM_REVIEW_20261019 -->
+
+## 2026-10-24 v1.08 — 블로그 병합 묶음 C: 키워드 등급 탐색·급상승 검증·블로그 벤치마킹 (Claude Code 윈도우 블로그 담당 `claude-win-20261024-blog3`)
+- 작업실(`blog-workroom`)의 키워드 기능 3가지를 이 프로그램 흐름(분석 1번 = 기록 1건)으로 옮김. 플랜 [docs/PLAN_20261024_MERGE_C_KEYWORD.md](docs/PLAN_20261024_MERGE_C_KEYWORD.md).
+- 파일: `src/lib/kw/grade.ts`(등급·급상승·새 글 고르기·주제 나누기, 순수 함수) · `mergeFeatures.ts`(서버: runDiscover·runSurge·runBenchmarkFind·runBenchmarkAnalyze·setBenchmarkWatch) · `metrics.ts`·`blogFeed.ts`·`blogParse.ts`(작업실에서 옮김) · `src/components/kw/MergeResults.tsx`(결과 화면) · `naver.ts`에 `webkr`·`bloggerlink` · `reports.ts` `recentResults` · 시험 `tests/merge-c.test.mjs`.
+- 도톨이 v1.3 기능 참고(코드·지시문 미사용): N9 연관어는 수치 조회 전에 AI가 주제 판정, 같은 주제는 6시간 재사용(최근 discover 기록의 `judged`) · N8 최근 7일 관련 글 쓴 블로그 우선, 관심 블로그(`watch`)는 다음 분석 때 지난번 이후 새 글만(`seenLogNos`, 새 글이 없으면 AI 호출 없음).
+- 키: 등급 탐색은 검색광고 키 필수(없으면 안내·실행 막힘), 급상승·벤치마킹은 검색광고 키가 없으면 검색량·등급만 생략. 검색어 직접 입력·블로그 찾기·관심 표시는 Gemini 키 불필요.
+- DB: `0006` feature 허용 값 추가(운영 적용 완료), 버전 `0007`. SEO 스튜디오는 새 3종 기록을 아직 넘겨받지 못해(422) 새 3종 결과에서는 「SEO 스튜디오로 보내기」를 숨김 — 표의 검색어 → 경쟁력 분석 결과로 보내기.
+- Next.js 16.4.0 → 16.4.2(보안, 16.4.0은 빌드가 `SecurityFatalError`로 멈춤).
+- **미배포 대기:** `133d140ea` 벤치마킹 새 글만 분석 멈춤 기준(실검수 버그) · 급상승 이유 문구 인용 번호.

@@ -290,3 +290,7 @@
 ## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 제안·플랜: Maepsi NP 참고 묶음 E-1~E-5 (블로그 담당 이어받기)
 - 외부 앱 Maepsi NP 1.0.11 분석 결과 독립 개발 대신 에이전트에 병합(주인님 결정). E-1 입력 검증 강화 · E-2 회원 선택 빠른 입력(붙여넣기) · E-3 간편 모드 · E-4 간편 모드 무료 입구(BLOG FREE 권한) · E-5 발행 방식 회원 선택(직접 발행/자동 임시저장/자동 발행).
 - 상태: 플랜만, **구현·비용 승인 전**. 지침 개정(§20 ①·④, 블로그 자동화 완성 기준) 완료. [인수인계](IMPROVEMENT_HANDOFF_20261024_MAEPSI.md) · [플랜](PLAN_20261024_MAEPSI_E1_E4.md)
+
+## 2026-10-24 (Claude Code 윈도우 블로그 담당 `claude-win-20261024-blog3`) — 매퍼시 참고 E-1·E-2 코드 대조
+- E-1 입력 검증 강화: **이미 구현돼 있음** — 빈 편집기 확인(`background.js` session.hasContent), 제목·문단·이미지 입력마다 확인과 덮어쓰기 금지(`editor.js`), 최종 대조(`verify`·`finalMatch` BLC-07), 결과 판정(`published`·`reserved`, 불확실하면 `PUBLISH_UNCERTAIN`·자동 재발행 안 함), 이어하기(`authoringCheckpoint`). 임시저장 판정만 없음 → E-5.
+- E-2 빠른 입력: 지금 `insertText`가 이미 문단 전체를 한 번에 넣어 문단별 붙여넣기는 효과가 거의 없음. 여러 문단 한 번 붙여넣기는 문단별 확인·체크포인트·BLC-07과 다시 맞춰야 하고 실제 편집기 시제품이 필요(Claude 브라우저 도구로 `blog.naver.com` 열 수 없음) → **주인님 결정으로 보류**.
