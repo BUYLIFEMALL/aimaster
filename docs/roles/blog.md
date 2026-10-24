@@ -4,12 +4,12 @@
 - 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-24 `claude-win-20261024-blog3` (SEO v2.19 예약 포스팅 배포 뒤)
+- 마지막 갱신: 2026-10-24 `claude-win-20261024-blog3` (실제 입력 시험 3회 실패 기록, 이웃 소통 신규 개발 대기 등록)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `naver-blog-agent` v2.21 | ② 간편 모드 실제 네이버 입력 시험(비공개 1건, 「발행 전까지」 방식) | 2026-10-24 | 크롬이 시험 계정으로 로그인됨 — 확장 연결·네이버 로그인 확인 후 시작 |
+| `naver-blog-agent` v2.21 | ② 간편 모드 실제 네이버 입력 시험(비공개 1건, 「발행 전까지」 방식, 원고 `48f06db1` 캠핑) | 2026-10-24 | 3번 실패(11:44·12:52 `EDITOR_PREPARATION_FAILED`, 12:05 `EDITOR_TAB_CLOSED`) — 확장(연결 기록 「Chrome」, 2026-10-21 연결)이 어느 브라우저에 있는지 확인 후 재시도. Claude 조작 브라우저가 Aside일 가능성 확인 중 |
 | `naver-blog-seo-studio` v2.19 | 예약 포스팅 실제 네이버 시험 | 2026-10-24 | 주인님 직접 시험 대기(Claude 브라우저 도구로 blog.naver.com 불가) |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
@@ -22,6 +22,8 @@
 | `naver-blog-agent` | E-2 회원 선택 빠른 입력(보류) | 재개 결정 | 같은 플랜 |
 | `naver-blog-seo-studio` | 도톨이 2차(이전 글 비교·스타일 점수·이미지 노드), N7·N13 | 결정 | `naver-blog-seo-studio/docs/PLAN_20261024_DOTORI_D1_D4.md` |
 | 워드프레스·블로그스팟 | 같은 기준으로 기존 프로그램 있는지 점검 | 아래 여쭐 것 답 | 루트 핵심 지침 |
+| `blog-neighbor-care`(신규) | **AI 블로그 이웃 소통 자동화 신규 개발**(주인님 지정 2026-10-24, 분석·플랜 `claude-win-dotori`) — 0단계 사전 검증(임시 확장, 주인님 설치·실행) → 1~5단계. 주인님 결정 D1~D9는 절대 지시 | 지금 시험(②·SEO 예약) 마친 뒤 착수 시점을 주인님께 여쭘 · 빌드 4~5회·AI 시험 비용 사전 승인 | `docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md`(인수인계)·`PLAN_…`·`REPORT.md` |
+| `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
@@ -38,8 +40,9 @@
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-1. ② 에이전트 실제 입력 시험(간편 모드 원고 → 「발행 전까지」 → 확장 입력 결과 확인, 발행은 하지 않음) — 크롬 시험 계정 로그인 확인됨, 확장 연결·네이버 로그인 확인부터
+1. Claude가 조작하는 브라우저 확인(`list_connected_browsers`) → 에이전트 확장이 그 브라우저에 있는지 확인 → ② 같은 원고 `48f06db1`로 재시도(AI 비용 없음, 보이는 창에서)
 2. 그다음 ③-2 콘텐츠 메이커 포스팅 플랜을 주인님께 보여 드림
+3. `blog-neighbor-care` 착수 시점을 주인님께 여쭘(0단계는 주인님 크롬 설치·실행 필요)
 3. 관리자 「수정 요청함」 0044가 적용되면 E-3~E-5 결과를 `dev-requests.mjs report`로, 아래 여쭐 것을 `ask`로 올림(지금은 DB 칸 없음)
 
 ## 주인님께 여쭐 것
