@@ -43,6 +43,7 @@ import {
 } from "@/lib/render/canvas-visualizer";
 import { ParticleSystem } from "@/lib/render/particle-system";
 import { drawCover, drawLyricsLayer } from "@/lib/render/lyrics-layer";
+import { drawTitleLayer, trackTitle, type TitleInfo } from "@/lib/render/title-layer";
 import { timeline, type LyricLine } from "@/lib/lyrics";
 
 interface EditorStudioProps {
@@ -90,6 +91,9 @@ export function EditorStudio({
   // v1.17 지금 곡의 가사 시간표(그리기 반복문이 매 장면 읽는다)
   const lyricsRef = useRef<LyricLine[]>([]);
   lyricsRef.current = currentTrack?.lyrics?.length ? timeline(currentTrack.lyrics, currentTrack.duration || Infinity) : [];
+  // P-1 곡 제목 층(지금 곡) — 그리기 반복 안에서 읽는다
+  const titleRef = useRef<TitleInfo | null>(null);
+  titleRef.current = currentTrack ? { title: trackTitle(currentTrack.name), artist: currentTrack.artist, index: currentTrackIndex, total: tracks.length } : null;
 
   // Background and logo images cache
   const bgImgRef = useRef<HTMLImageElement | null>(null);
@@ -295,6 +299,9 @@ export function EditorStudio({
 
       // 7-1. v1.17 가사(지금 곡, 재생 위치 기준 — 내보내기와 같은 함수)
       drawLyricsLayer(ctx, width, height, lyricsRef.current, audioRef.current?.currentTime ?? 0, settings);
+
+      // 7-2. P-1 곡 제목(곡 시작부터 몇 초 — 내보내기와 같은 함수)
+      drawTitleLayer(ctx, width, height, titleRef.current, audioRef.current?.currentTime ?? 0, settings);
 
       // 8. Channel Logo
       if (logoImgRef.current) {
@@ -698,6 +705,44 @@ export function EditorStudio({
               <label className="space-y-1">강조 색<input type="color" value={settings.lyricsAccent} onChange={(e) => setSettings((p) => ({ ...p, lyricsAccent: e.target.value }))} className="block w-full h-7 rounded bg-transparent" /></label>
             </div>
             <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.lyricsNext} onChange={(e) => setSettings((p) => ({ ...p, lyricsNext: e.target.checked }))} />다음 줄도 흐리게 보여 주기</label>
+          </div>
+
+          {/* P-1 곡 제목 표시 */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-[#aaaaaa]">곡 제목 표시</h4>
+              <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.titleEnabled} onChange={(e) => setSettings((p) => ({ ...p, titleEnabled: e.target.checked }))} />켜기</label>
+            </div>
+            <p className="text-[10px] text-[#777777] leading-relaxed">곡이 바뀔 때마다 곡 이름(파일 이름에서 확장자를 뺀 것)과 가수를 잠깐 보여 줍니다. 곡 시작 부분을 재생하면 미리 볼 수 있습니다.</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {([["card", "카드"], ["neon", "네온"], ["minimal", "미니멀"], ["outline", "외곽선"], ["tag", "태그"]] as const).map(([v, label]) => (
+                <button key={v} onClick={() => setSettings((p) => ({ ...p, titleStyle: v }))} className={`py-1.5 text-[11px] font-bold rounded-lg border ${settings.titleStyle === v ? "bg-[#ff0000] text-white border-[#ff0000]" : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:text-white"}`}>{label}</button>
+              ))}
+            </div>
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold text-[#aaaaaa]">위치</span>
+              <div className="grid grid-cols-3 gap-1 w-24" role="radiogroup" aria-label="곡 제목 위치">
+                {(["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"] as const).map((v) => (
+                  <button key={v} role="radio" aria-checked={settings.titlePos === v} aria-label={`${{ t: "위", m: "가운데", b: "아래" }[v[0] as "t" | "m" | "b"]} ${{ l: "왼쪽", c: "가운데", r: "오른쪽" }[v[1] as "l" | "c" | "r"]}`} title={`${{ t: "위", m: "가운데", b: "아래" }[v[0] as "t" | "m" | "b"]} ${{ l: "왼쪽", c: "가운데", r: "오른쪽" }[v[1] as "l" | "c" | "r"]}`} onClick={() => setSettings((p) => ({ ...p, titlePos: v }))} className={`h-6 rounded border ${settings.titlePos === v ? "bg-[#ff0000] border-[#ff0000]" : "bg-[#212121] border-[#272727] hover:border-[#555]"}`} />
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-[11px] font-bold text-[#aaaaaa]">
+              <div className="space-y-1">
+                <div className="flex justify-between"><span>표시 시간</span><span className="text-white font-mono">{settings.titleSeconds}초</span></div>
+                <input type="range" min={2} max={15} value={settings.titleSeconds} onChange={(e) => setSettings((p) => ({ ...p, titleSeconds: Number(e.target.value) }))} className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between"><span>글자 크기</span><span className="text-white font-mono">{settings.titleSize}</span></div>
+                <input type="range" min={24} max={96} value={settings.titleSize} onChange={(e) => setSettings((p) => ({ ...p, titleSize: Number(e.target.value) }))} className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]" />
+              </div>
+              <label className="space-y-1">글자 색<input type="color" value={settings.titleColor} onChange={(e) => setSettings((p) => ({ ...p, titleColor: e.target.value }))} className="block w-full h-7 rounded bg-transparent" /></label>
+              <label className="space-y-1">강조 색<input type="color" value={settings.titleAccent} onChange={(e) => setSettings((p) => ({ ...p, titleAccent: e.target.value }))} className="block w-full h-7 rounded bg-transparent" /></label>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+              <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.titleGlow} onChange={(e) => setSettings((p) => ({ ...p, titleGlow: e.target.checked }))} />글로우·그림자</label>
+              <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.titleNumber} onChange={(e) => setSettings((p) => ({ ...p, titleNumber: e.target.checked }))} />곡 번호(03 / 12)</label>
+            </div>
           </div>
 
           {/* 채널 로고 배치 */}

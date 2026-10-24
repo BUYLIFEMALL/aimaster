@@ -49,8 +49,24 @@ export interface ParticleItem {
 }
 
 export type LyricsMode = 'color' | 'karaoke';
+/** P-1 곡 제목 표시 스타일 */
+export type TitleStyle = 'card' | 'neon' | 'minimal' | 'outline' | 'tag';
+/** P-1 화면 9칸 위치(t·m·b = 위·가운데·아래, l·c·r = 왼쪽·가운데·오른쪽) */
+export type TitlePos = 'tl' | 'tc' | 'tr' | 'ml' | 'mc' | 'mr' | 'bl' | 'bc' | 'br';
 
 export interface StudioSettings {
+  // P-1 곡이 바뀔 때 곡 제목을 잠깐 보여 준다
+  titleEnabled: boolean;
+  titleStyle: TitleStyle;
+  titlePos: TitlePos;
+  titleSeconds: number; // 2~15초
+  titleSize: number; // 1080 기준 글자 크기(px)
+  titleColor: string;
+  titleAccent: string;
+  titleGlow: boolean;
+  titleNumber: boolean; // 「03 / 12」 곡 번호
+
+
   // v1.17 가사 표시(곡별 가사가 있을 때)
   lyricsEnabled: boolean;
   lyricsSize: number; // 1080 기준 글자 크기(px)

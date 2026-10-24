@@ -74,6 +74,15 @@ export const EFFECT_COLOR_PRESETS = [
 ];
 
 export const DEFAULT_SETTINGS: StudioSettings = {
+  titleEnabled: true,
+  titleStyle: 'card',
+  titlePos: 'bl',
+  titleSeconds: 6,
+  titleSize: 46,
+  titleColor: '#ffffff',
+  titleAccent: '#ff4e45',
+  titleGlow: true,
+  titleNumber: true,
   lyricsEnabled: true,
   lyricsSize: 56,
   lyricsY: 80,

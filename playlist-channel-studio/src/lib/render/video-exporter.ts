@@ -9,6 +9,7 @@ import {
 } from './canvas-visualizer';
 import { ParticleSystem } from './particle-system';
 import { drawCover, drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
+import { drawTitleLayer, trackTitle } from './title-layer';
 import { bassLevelOf, createSpectrumReader } from './audio-spectrum';
 import { loadGifSticker } from './gif-frames';
 
@@ -271,6 +272,11 @@ export async function exportVideoMp4(
     if (hasLyrics) {
       const [ti, lt] = locate(trackDurations, currentTimeSec);
       if (ti >= 0) drawLyricsLayer(ctx, width, height, lyricTimelines[ti], lt, settings);
+    }
+    // P-1 곡 제목(곡 시작부터 몇 초 — 미리보기와 같은 함수, 가사 유무와 상관없음)
+    if (settings.titleEnabled) {
+      const [ti, lt] = locate(trackDurations, currentTimeSec);
+      if (ti >= 0) drawTitleLayer(ctx, width, height, { title: trackTitle(tracks[ti].name), artist: tracks[ti].artist, index: ti, total: tracks.length }, lt, settings);
     }
 
     // Channel Logo
