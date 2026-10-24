@@ -67,6 +67,21 @@ export default async function ListingDetailPage({
         <p className="mt-1 text-sm text-mx-muted">
           계약일 {listing.contract_date ?? "-"} · 전용 {listing.exclusive_area ?? "-"}㎡ · {listing.floor ?? "-"}층 · 건축 {listing.building_year ?? "-"}년
         </p>
+        {listing.bldg_nm && (
+          // 같은 단지의 지금 올라온 네이버 매물(호가)을 「AI 부동산 매물 알림 자동화」 감시 대상으로 보낸다.
+          // 실거래 자료에는 네이버 단지 번호가 없어 이름·지역만 넘기고, 단지 주소는 회원이 그 화면에서 붙여 넣는다.
+          <a
+            href={`https://realty-listing-alert.buylife.xyz/targets?${new URLSearchParams({
+              name: listing.bldg_nm,
+              region: [listing.sgg_nm, listing.stdg_nm].filter(Boolean).join(" "),
+            }).toString()}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mx-btn-ghost mt-3"
+          >
+            🔔 이 단지 새 매물 알림 받기 ↗
+          </a>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
