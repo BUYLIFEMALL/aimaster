@@ -17,8 +17,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `naver-blog-agent` (운영 v2.21) | 다른 포스팅 방식에서 「발행 전까지」로 바꾸면 「예약 시각도 미리 넣어 두기」를 끔(화면 동작만) | `89d135c4b` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-blog3` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `ai-video-studio` (운영 v1.19) | 프롬프트 게시판 관리자 숨기기·다시 공개·저장, 내 프롬프트 삭제에 진행 중 배지(도는 아이콘) + 누른 카드 바로 갱신(전에는 약 3.9초 표시 없음) | `5b2c589b5` | 2026-10-24 · Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 게시판 A안 항목 | v1.20으로 함께 배포 |
-| `naver-blog-agent` (운영 v2.20) | 간편 결과 화면 미리보기가 [SECTION - …] 표시 기호를 소제목으로 보여 줌(화면 표시만) | `7ec53853f` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-blog3` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `ai-work-workspace` | 슬래시 메뉴 「AI 이미지」 항목 숨김(U3 시험 중 발견) | `768bf908d` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | U4와 함께 배포 → 슬래시 메뉴에 「AI 이미지」 없음 확인 |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
 | `shop-detail-page` | 30일 자동 정리(`cleanup-generated`)가 지운 상품·파일 수를 회원별 `usage_logs` `cleanup_expired`로 기록(공용 `cleanup-usage-log` 사본, 관리자 「30일 자동 정리」 표) — 정리 동작 자체는 그대로, 유예 2026-11-21까지는 지우는 것이 없어 기록도 없음 | `34094c954` | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 아래 | 운영 v1.30 → v1.31, 2026-11-21 뒤 첫 정리에서 기록 1줄 확인 |
@@ -82,6 +82,7 @@
 | `naver-blog-seo-studio` | v2.14 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-seo-studio-ivj7tb442`) | 블로그 병합 B-1 AI 검수 6영역·필수 지적 발행 차단 `f4681176c` + B-2 문체 영구 보관(원문만 30일 정리, 주인님 A안) `a8dfacb26` + B-3 분량 선택 `bb7668dee`(대기 줄에 다른 세션 커밋 `a1c240867`로 잘못 적혔던 것을 바로잡음) |
 | `video-to-gif` | v1.21 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회, `video-to-as3vkytql`) | 내 PC 고속 변환 다듬기(새 버전 알림·최소 판 LR-M-01, 맥 Homebrew 없을 때 안내 LR-M-02, 윈도우 경고·`Unblock-File` LR-M-03, 엣지 안내 LR-W-02) `c7c2c322f` · 확장 버전 자동 맞춤 LR-W-01 — `check-extension-release` OK(DB·확장·ZIP v1.21), 운영 ZIP으로 윈도우 재설치 정상. 맥미니 크롬 「🔔 새 버전」 실검수 남음 |
 | `ai-video-studio` | v1.12 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-lgacukoyw`) | 다듬기 프롬프트 인물 추가 금지 `ffaae22b2` — 운영에서 사람 없는 설명(레코드판 홈 스튜디오) 다듬기 1회 → 3안 모두 인물 없음 확인 |
+| `naver-blog-agent` | v2.21 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261024-blog3`, 승인 빌드 1회, `naver-blog-agent-nmd0jyu99`) | E-5 세 가지 포스팅 방식 한 줄 선택·전송 버튼 옆 안내·간편 4단계 안내 `b94be856e`(플랜)·`6e6c3d60b`(기능)·`fae322367`(버전·확장 ZIP) + 대기였던 `7ec53853f` |
 | `naver-blog-agent` | v2.20 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261024-blog3`, 승인 빌드 1회, `naver-blog-agent-rlfpej3tb`) | E-4 간편 모드 무료 입구(전체/간편 권한 범위·간편 원고만·간편 결과 화면) `a687ab28d`(플랜)·`00b1b1a36`(기능)·`272d70a41`(버전·확장 ZIP) |
 | `naver-blog-agent` | v2.19 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261024-blog3`, 승인 빌드 1회, `naver-blog-agent-i29myxlki`) | E-3 간편 모드 `/quick` `b6592d9b3`(기능)·`52d5bdab0`(버전·확장 ZIP) + 대기였던 대표 이미지 카드 전체 표시 `9ee3cb3d8`(올린 세션 `claude-win-20261023-blog2`) |
 | `naver-blog-agent` | v2.18 · 2026-10-24 (Claude Code 윈도우 `claude-win-20261023-blog2`, 승인 빌드 1회, `naver-blog-agent-mejx4uje3`) | 블로그 병합 A-5 본문 이미지 소제목 이동 `75cf43a57` + A-6 대표 이미지 제목 글자 `ae5351f08` + A-7 메모·파일 글감 `09186ad4b` |
