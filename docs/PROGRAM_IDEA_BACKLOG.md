@@ -37,6 +37,7 @@
 | IDEA-AWW-01 | 블로그·SNS 프로그램의 원고·발행 기록을 워크스페이스 「콘텐츠 캘린더」 데이터베이스로 보내기(4단계 회원 개인 토큰 REST API) | 캘린더·보드 보기로 발행 일정 한눈에 | 여러 자동화 프로그램의 결과물을 회원 한 곳에서 관리하는 「콘텐츠 운영 보드」(기존 AIMaster에 없음) | 중간 / API가 아직 닫혀 있어 4단계 뒤 / 높음 | 검토 대기 |
 | IDEA-AWW-02 | `ai-task-planner` 할 일 ↔ 업무 보드 주고받기 | 같은 할 일이 두 곳에 보이도록 상태 색 통일 | — (단순 연동) | 중간 / 두 프로그램 모두 운영 중 / 중간 | 검토 대기 |
 | IDEA-AWW-03 | 동기 DB 다리(`pg/bridge.ts`)를 SQLite 기반 오픈소스 이식용 레퍼런스 모듈 후보로 등록 | — | — | 높음(원본 시험 522개 통과) / 같은 방식 이식 때 / 개발 편의 | 검토 대기 |
+| IDEA-AWW-04 | **Gemini 글 생성 어댑터 공용화 후보**(2026-10-24 U4, `ai-work-workspace/src/litpage/server/ai/providers/gemini.ts`·`geminiTranslate.ts`·`geminiModels.ts`): Anthropic 형식 요청·도구 호출을 Gemini 스트림으로 바꾸고, 키는 머리글로만, 회원 키별 모델 목록(기본 Flash·빠른 작업 Flash-Lite·공식 별칭 대체)·가짜 서버 시험 13개. 다른 프로그램에서 Gemini 모델 이름이 `gemini-2.0-flash`~`3.1-pro-preview`로 제각각인 문제를 목록 기반 선택으로 정리 | 모델 선택 창에 회원이 키를 가진 회사 모델을 함께 표시(고른 모델의 회사 키 사용) | 회원이 가진 아무 회사 키로나 같은 AI 기능이 동작하는 「여러 회사 키 자동 선택」(Gemini 키만 가진 회원 다수 — 코드 조사상 제공자 이름 `gemini` 83곳) | 높음(시험 13개·원본 522/522, 운영 유료 시험 전) / Gemini 글 생성이 필요한 프로그램(블로그·SNS 원고 등)에 사본으로 / 높음 | 검토 대기 — 유료 시험 통과 뒤 `docs/SHARED_MODULES.md` 등록 검토 |
 
 ## 2026-10-24 「내 PC 고속 변환」 플랫폼 확장 — 음악 연계 (Claude Code 윈도우, 음악 담당 `claude-win-20261024-music`, 주인님 지시) — [로드맵](analysis-pc-renderer-20261024/ROADMAP.md)
 
