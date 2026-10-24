@@ -31,20 +31,20 @@ export async function createHtmlWithAi(blockId: string, kind: string, prompt?: s
     return;
   }
   const what = prompt?.trim() || KIND_PROMPTS[kind] || `a ${kind}`;
-  useUI.getState().toast('AIMaster is creating your HTML…');
+  useUI.getState().toast('AI 비서 is creating your HTML…');
   try {
     const done = await streamAi({ kind: 'writer', pageId: pageIdOfBlock(blockId) ?? getBlock(blockId)?.parent_id, skill: 'html', prompt: what }, {});
     if (done.status !== 'complete') {
-      useUI.getState().toast(done.error?.message ?? 'AIMaster couldn’t create the HTML.');
+      useUI.getState().toast(done.error?.message ?? 'AI 비서 couldn’t create the HTML.');
       return;
     }
     const html = extractHtml(done.text);
     if (!/<html[\s>]|<!doctype html/i.test(html)) {
-      useUI.getState().toast('AIMaster couldn’t create the HTML. Try again.');
+      useUI.getState().toast('AI 비서 couldn’t create the HTML. Try again.');
       return;
     }
     await saveHtml(blockId, html, `${kind || 'page'}.html`);
   } catch (e) {
-    useUI.getState().toast(isNoKeyError(e) ? NO_KEY_MESSAGE : (e as Error)?.message || 'AIMaster couldn’t create the HTML.');
+    useUI.getState().toast(isNoKeyError(e) ? NO_KEY_MESSAGE : (e as Error)?.message || 'AI 비서 couldn’t create the HTML.');
   }
 }

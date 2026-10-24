@@ -174,7 +174,7 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
       return;
     }
     if (useUI.getState().connection === 'offline') {
-      setError({ code: 'offline', message: 'AIMaster isn’t available offline. Reconnect and try again.' });
+      setError({ code: 'offline', message: 'AI 비서 isn’t available offline. Reconnect and try again.' });
       setPhase('error');
       return;
     }
@@ -560,7 +560,7 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
           {sub && <span className="nc-ai-writer-chip">{sub === 'tone' ? 'Change tone' : 'Translate'}</span>}
           {phase === 'running' && (
             <div className="nc-ai-writer-running">
-              <span className="nc-ai-shimmer">AIMaster is writing</span>
+              <span className="nc-ai-shimmer">AI 비서 is writing</span>
               <span className="nc-ai-dots"><i /><i /><i /></span>
             </div>
           )}
@@ -571,7 +571,7 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
             value={query}
             readOnly={phase === 'running'}
             placeholder={placeholder}
-            aria-label={phase === 'running' ? 'AIMaster is writing' : placeholder}
+            aria-label={phase === 'running' ? 'AI 비서 is writing' : placeholder}
             onChange={(e) => {
               setQuery(e.target.value);
               setConfirmDiscard(false);

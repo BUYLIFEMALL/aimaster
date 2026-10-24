@@ -6,7 +6,7 @@ import { openPage } from '../../lib/router.ts';
 import { createSseParser } from './sse.ts';
 
 
-export const NO_KEY_MESSAGE = 'Connect an AI provider to use AIMaster';
+export const NO_KEY_MESSAGE = '본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다';
 
 export interface AiModelOption {
   id: string;
@@ -57,7 +57,9 @@ const DEFAULT_POLICY: AiPolicy = { enabled: true, webSearch: true, webConfirm: f
 
 
 /** 이식판: 2단계(회원 본인 AI 키 연결)에서 true로 연다. 서버도 같은 기준으로 AI 명령을 막는다(src/server/stagePolicy.ts). */
-export const AI_STAGE_OPEN = false;
+export const AI_STAGE_OPEN = true; // U3: 회원 본인 키로 AI 열림
+/** AI 회의록(받아쓰기·요약): U6에서 엶 — 그 전까지 회의록 블록은 직접 메모 안내 */
+export const MEETINGS_AI_OPEN = false;
 
 export function policyFromSpaceSettings(settings: Record<string, unknown> | null | undefined): AiPolicy {
   const s = settings ?? {};
@@ -234,7 +236,7 @@ export async function streamAi(body: Record<string, unknown>, h: StreamHandlers,
     });
   } catch (e) {
     if (signal?.aborted) return { status: 'stopped', text: '' };
-    throw new AiRequestError(0, 'network', 'Couldn’t connect to AIMaster. Check your connection.');
+    throw new AiRequestError(0, 'network', 'Couldn’t connect to AI 비서. Check your connection.');
   }
   if (!res.ok) {
     let j: any = {};
@@ -275,10 +277,10 @@ export async function streamAi(body: Record<string, unknown>, h: StreamHandlers,
     parser.end();
   } catch (e) {
     if (signal?.aborted) return { status: 'stopped', text };
-    return { status: 'error', text, error: { code: 'network', message: 'The connection to AIMaster was interrupted.' } };
+    return { status: 'error', text, error: { code: 'network', message: 'The connection to AI 비서 was interrupted.' } };
   }
   if (signal?.aborted && !done) return { status: 'stopped', text };
-  return done ?? { status: 'error', text, error: { code: 'network', message: 'AIMaster ended before completing the task.' } };
+  return done ?? { status: 'error', text, error: { code: 'network', message: 'AI 비서 ended before completing the task.' } };
 }
 
 // ---------------------------------------------------------------------------------------------

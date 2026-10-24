@@ -98,7 +98,7 @@ export function settingsIndex(): SettingsHit[] {
     { section: 'content-search', label: t('lp.settings.content_search', 'Content search'), keywords: ['find pages', 'retained pages'] },
     // Features
     { section: 'import', label: t('lp.settings.import', 'Import'), keywords: ['csv', 'markdown', 'word', 'excel', 'html', 'zip'] },
-    { section: 'lit-ai', label: t('lp.settings.litpage_ai', 'AIMaster'), keywords: ['ai', 'instructions', 'personalize', 'web search', 'models', 'agents'] },
+    { section: 'lit-ai', label: t('lp.settings.litpage_ai', 'AI 비서'), keywords: ['ai', 'instructions', 'personalize', 'web search', 'models', 'agents'] },
     { section: 'meeting-notes', label: t('lp.settings.meeting_notes', 'Meeting notes'), keywords: ['transcript', 'consent'] },
     { section: 'connections', label: t('lp.settings.connections', 'Connections'), keywords: ['integrations', 'webhooks', 'custom mcp', 'access tokens'] },
     { section: 'connections', tab: 'manage', id: 'all-connections', owner: true, label: t('lp.settings.all_connections', 'All connections'), description: t('lp.settings.apps_that_workspace_members_have_connect', 'Apps that workspace members have connected') },

@@ -1191,7 +1191,7 @@ export function RequestsSection() {
             <tbody>
               {upgradeReqs.map((r) => (
                 <tr key={r.id}>
-                  <td className="primary">{r.plan === 'lit_ai' ? t('lp.settings.litpage_ai', 'AIMaster') : r.plan === 'business' ? t('lp.settings.business', 'Business') : r.plan === 'enterprise' ? t('lp.settings.enterprise', 'Enterprise') : r.plan.charAt(0).toUpperCase() + r.plan.slice(1)}</td>
+                  <td className="primary">{r.plan === 'lit_ai' ? t('lp.settings.litpage_ai', 'AI 비서') : r.plan === 'business' ? t('lp.settings.business', 'Business') : r.plan === 'enterprise' ? t('lp.settings.enterprise', 'Enterprise') : r.plan.charAt(0).toUpperCase() + r.plan.slice(1)}</td>
                   <td>{userName(r.requested_by)}</td>
                   <td>{fmtDate(r.created_time)}</td>
                   <td>{r.note || '—'}</td>

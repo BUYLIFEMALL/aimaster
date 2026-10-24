@@ -98,7 +98,7 @@ function gettingStartedContent(): BlockSpec[] {
     { type: 'to_do', title: [['Hover over this line, then use the '], ['⋮⋮', [['c']]], [' drag handle to reorder it.']] },
     { type: 'to_do', title: t('Add a database, add a few rows, and switch between its table, board, and calendar views') },
     { type: 'to_do', title: t('Share a page with a teammate and choose whether they can edit, comment, or read') },
-    { type: 'to_do', title: t('Ask AIMaster to summarize a page or turn a rough idea into a first draft') },
+    { type: 'to_do', title: t('Ask AI 비서 to summarize a page or turn a rough idea into a first draft') },
     { type: 'to_do', title: [['Try '], ['⌘/Ctrl + P', [['c']]], [' to find a page, and '], ['⌘/Ctrl + K', [['c']]], [' to open quick actions.']] },
     {
       type: 'toggle', title: t('More shortcuts and ideas'),

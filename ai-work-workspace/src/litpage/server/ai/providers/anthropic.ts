@@ -31,17 +31,17 @@ export function cleanApiMessage(e: APIError): string {
 export function mapAnthropicError(e: unknown, model: string): AiError | null {
   if (e instanceof APIUserAbortError) return new AiError('aborted', 'Stopped.', 499);
   if (e instanceof AuthenticationError) {
-    return new AiError('invalid_key', `The AI provider rejected the API key. Check ${keyVariable('anthropic')} on the server and restart it.`, 400);
+    return new AiError('invalid_key', '등록한 Claude API 키가 거절됐습니다. 「API키등록·플랫폼연동」에서 본인 키를 확인해 주세요.', 400);
   }
   if (e instanceof PermissionDeniedError) return new AiError('permission', 'This API key isn’t allowed to use the configured model.', 403);
   if (e instanceof NotFoundError) return new AiError('not_found', `The model "${model}" isn’t available from the AI provider.`, 400);
-  if (e instanceof RateLimitError) return new AiError('rate_limited', 'AIMaster is receiving too many requests. Try again in a moment.', 429);
-  if (e instanceof InternalServerError) return new AiError('overloaded', 'AIMaster is temporarily unavailable. Try again in a moment.', 503);
-  if (e instanceof BadRequestError) return new AiError('bad_request', `AIMaster couldn’t process this request. ${scrub(cleanApiMessage(e))}`.trim(), 400);
+  if (e instanceof RateLimitError) return new AiError('rate_limited', 'AI 비서에 요청이 몰리고 있습니다. 잠시 후 다시 시도해 주세요.', 429);
+  if (e instanceof InternalServerError) return new AiError('overloaded', 'AI 비서를 잠시 쓸 수 없습니다. 잠시 후 다시 시도해 주세요.', 503);
+  if (e instanceof BadRequestError) return new AiError('bad_request', `AI 비서가 이 요청을 처리하지 못했습니다. ${scrub(cleanApiMessage(e))}`.trim(), 400);
   if (e instanceof APIConnectionError) return new AiError('network', 'Couldn’t reach the AI provider. Check the server’s network connection.', 502);
   if (e instanceof APIError) {
-    if (e.status === 529) return new AiError('overloaded', 'AIMaster is temporarily overloaded. Try again in a moment.', 503);
-    return new AiError('unknown', 'Something went wrong with AIMaster. Try again.', 502);
+    if (e.status === 529) return new AiError('overloaded', 'AI 비서 사용량이 많아 잠시 쓸 수 없습니다. 잠시 후 다시 시도해 주세요.', 503);
+    return new AiError('unknown', 'AI 비서에 문제가 생겼습니다. 다시 시도해 주세요.', 502);
   }
   return null;
 }

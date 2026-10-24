@@ -14,6 +14,7 @@ import { isSpaceMember } from '#shared/permissions.ts';
 import type { SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import { newId } from '#shared/ids.ts';
 import { stageBlock } from './stagePolicy';
+import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 
@@ -21,6 +22,7 @@ let ready = false;
 function init() {
   if (ready) return;
   Object.assign(handlers, extraHandlers);
+  installAutofillHook(); // U3: 원본은 AI 라우트 등록 때 켰음 — 데이터베이스 AI 자동 채우기(회원 본인 키로만 동작)
   realtime.setRoleResolver((table, rec, userId) => recordRole(table, rec, userId));
   realtime.setAccess({
     page: (pageId, userId) => blockRole(pageId, userId) !== 'none',
@@ -69,6 +71,14 @@ const OVERRIDES: Record<string, Handler> = {
     return { spaceId: space.id, recordMap: new RecordMapBuilder(ctx.userId).map };
   },
 };
+
+/** U3: AI 스트림 라우트용 — 초기화와 회원 레코드 준비(RPC와 같은 순서). */
+export async function readyMember(member: Member): Promise<Member> {
+  init();
+  if (member.resolveName && !getRecord<UserRecord>('lit_user', member.id)) member = { ...member, name: await member.resolveName() };
+  ensureMember(member);
+  return member;
+}
 
 export interface RpcResult {
   status: number;

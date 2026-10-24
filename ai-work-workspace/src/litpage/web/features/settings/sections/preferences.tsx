@@ -138,7 +138,7 @@ export function PreferencesSection() {
     { value: 'last_visited', label: t('lp.settings.last_opened_page', 'Last opened page') },
     { value: 'top_page', label: t('lp.settings.first_sidebar_page', 'First sidebar page') },
     { value: 'library', label: t('lp.settings.library', 'Library') },
-    { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'AIMaster') },
+    { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'AI 비서') },
   ];
   const langOpts: Option[] = LANGUAGES.map((l) => ({ value: l.id, label: l.native, description: l.english }));
   const curLang = LANGUAGES.find((l) => l.id === localeId) ?? LANGUAGES.find((l) => l.id === 'en-US')!;

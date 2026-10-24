@@ -65,7 +65,7 @@ beforeAll(async () => {
 
 describe('formula assistant', () => {
   it('needs a key (connect-a-key state)', async () => {
-    await expect(mod.handlers.aiFormula({ userId, setCookie: () => {} } as any, { collectionId: 'colfx', prompt: 'days until due' })).rejects.toThrow('Connect an AI provider to use AIMaster');
+    await expect(mod.handlers.aiFormula({ userId, setCookie: () => {} } as any, { collectionId: 'colfx', prompt: 'days until due' })).rejects.toThrow('본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다') /* 이식판 U3 */;
   });
 
   it('sends the schema, related databases, formula, error and automation values; returns formula + explanation', async () => {

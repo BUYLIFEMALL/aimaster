@@ -101,9 +101,18 @@ describe('1단계 정책', () => {
     expect((r.body as any).message).toContain('AIMaster');
   });
 
-  it('AI 명령은 회원 키 연결(2단계) 전까지 닫혀 있다', async () => {
-    const r = await runtime.runRpc('aiChat', {}, alice);
-    expect(r.status).toBe(403);
+  // U3(2026-10-24): AI 명령은 열렸다. 외부 연결·MCP·채팅 공유·AI 그림은 계속 닫혀 있다.
+  it('U3 이후에도 외부 연결·채팅 공유·AI 그림 명령은 닫혀 있다', async () => {
+    for (const name of ['aiListConnections', 'aiShareThread', 'aiGenerateImage']) {
+      const r = await runtime.runRpc(name, {}, alice);
+      expect(r.status, name).toBe(403);
+    }
+  });
+
+  it('열린 AI 명령도 회원 키가 없으면 AI는 꺼진 상태로 응답한다', async () => {
+    const r = await runtime.runRpc('aiStatus', {}, alice);
+    expect(r.status).not.toBe(403);
+    expect(JSON.stringify(r.body)).not.toContain('sk-');
   });
 
   it('없는 명령은 404', async () => {

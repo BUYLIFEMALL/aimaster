@@ -16,7 +16,7 @@ import { DEFAULT_MODEL, modelConfigurationError, modelInfo, requestModel } from 
 
 export { AiError, ProviderError, scrub, type AiErrorCode, type ClaudeLike };
 
-export const NO_KEY_MESSAGE = 'Connect an AI provider to use AIMaster';
+export const NO_KEY_MESSAGE = '본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다';
 
 /** Server-side refusal fallback ("default" routes by refusal category). Anthropic only. */
 const FALLBACK_BETA = 'server-side-fallback-2026-07-01';
@@ -59,7 +59,7 @@ export function mapError(e: unknown): AiError {
   const sdk = mapAnthropicError(e, DEFAULT_MODEL);
   if (sdk) return sdk;
   if ((e as any)?.name === 'AbortError') return new AiError('aborted', 'Stopped.', 499);
-  return new AiError('unknown', 'Something went wrong with AIMaster. Try again.', 500);
+  return new AiError('unknown', 'AI 비서에 문제가 생겼습니다. 다시 시도해 주세요.', 500);
 }
 
 export function logAiError(where: string, e: unknown) {

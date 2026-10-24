@@ -1,0 +1,14 @@
+/* U3: API키등록·플랫폼연동 — 매뉴얼 화면(guide.css)과 같은 디자인 값(--lp-*)을 쓴다 */
+.aww-keys { display: grid; gap: 16px; margin: 24px 0; }
+.aww-key-card { border: 1px solid var(--lp-border-primary, rgba(127, 127, 127, 0.25)); border-radius: 12px; padding: 16px; background: var(--lp-bg-elevated-primary, transparent); }
+.aww-key-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.aww-key-state { font-size: 13px; color: var(--lp-text-secondary, #888); }
+.aww-key-state.on { color: var(--lp-green-text, #2e9e5b); }
+.aww-key-desc { margin: 6px 0 12px; font-size: 13px; color: var(--lp-text-secondary, #888); }
+.aww-key-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.aww-key-row input { flex: 1 1 220px; min-width: 0; height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--lp-border-primary, rgba(127, 127, 127, 0.35)); background: transparent; color: inherit; font: inherit; }
+.aww-key-msg { margin: 8px 0 0; font-size: 13px; }
+.aww-key-guides { margin: 8px 0 24px; padding: 16px; border-radius: 12px; border: 1px dashed var(--lp-border-primary, rgba(127, 127, 127, 0.35)); }
+.aww-key-guides h2 { margin: 0 0 6px; font-size: 16px; }
+.aww-key-guides p { margin: 0 0 12px; font-size: 13px; color: var(--lp-text-secondary, #888); }
+.aww-key-guide-buttons { display: flex; gap: 8px; flex-wrap: wrap; }

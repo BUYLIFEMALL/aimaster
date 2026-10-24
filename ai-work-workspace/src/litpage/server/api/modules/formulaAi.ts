@@ -3,7 +3,7 @@
 // the assistant does not remember earlier prompts, it sees the database (property names, types, options and the
 // properties of related databases), the current formula and its error. The answer is a formula in plain
 // `prop("Name")` form (the client turns names back into property tokens) plus a short explanation; a formula that
-// doesn't parse gets one repair round ("Repairing"). No provider → 400 "Connect an AI provider to use AIMaster".
+// doesn't parse gets one repair round ("Repairing"). No provider → 400 "본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다".
 //
 //   aiFormula { collectionId, prompt, formula?, error?, targetType?, context?: [{ label, type }] }
 //     → { formula, explanation, repaired? }
@@ -178,7 +178,7 @@ export const handlers = {
       throw e;
     }
     const prompt = str(body?.prompt, MAX_PROMPT).trim();
-    if (!prompt) throw new ApiError('Tell AIMaster what to write.', 400);
+    if (!prompt) throw new ApiError('AI 비서에게 쓸 내용을 알려 주세요.', 400);
     if (!aiAllowed(userId)) throw new ApiError(AI_RATE_MESSAGE, 429);
     const context = Array.isArray(body?.context)
       ? (body.context as unknown[]).slice(0, 40).map((c: any) => ({ label: str(c?.label, 80), type: str(c?.type, 40) || undefined })).filter((c) => c.label)

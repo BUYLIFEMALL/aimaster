@@ -307,13 +307,13 @@ export const TOOL_DEFS: ToolDef[] = [
   {
     name: 'update_memory',
     access: 'write',
-    description: 'Remember something about the user for future chats by adding it to their instructions page (Settings → AIMaster → Instructions). Use when the user says "remember…" or states a lasting preference.',
+    description: 'Remember something about the user for future chats by adding it to their instructions page (Settings → AI 비서 → Instructions). Use when the user says "remember…" or states a lasting preference.',
     input_schema: { type: 'object', properties: { memory: str('What to remember, as one short sentence.') }, required: ['memory'], additionalProperties: false },
   },
   {
     name: 'create_skill',
     access: 'write',
-    description: 'Save a reusable skill for the user: a page with instructions AIMaster follows when the skill is used ("/" in chat or automatically when relevant).',
+    description: 'Save a reusable skill for the user: a page with instructions AI 비서 follows when the skill is used ("/" in chat or automatically when relevant).',
     input_schema: {
       type: 'object',
       properties: { title: str('Skill name.'), description: str('One sentence: when to use it.'), instructions: str('The skill’s instructions as Markdown.') },
@@ -325,7 +325,7 @@ export const TOOL_DEFS: ToolDef[] = [
     // SVG illustration made by Claude (ai/image.ts provider)
     name: 'generate_image',
     access: 'write',
-    description: 'Create an image (illustration, diagram, infographic, chart, slide, mockup, sketch, cartoon, comic, pattern) with AIMaster image generation. Use when the user asks for an image or visual. Set use_current_page (or about_page_id) when it should depict a page. Set insert_into_page_id only when the user wants the image on a page. Show the result with the Markdown image the tool returns.',
+    description: 'Create an image (illustration, diagram, infographic, chart, slide, mockup, sketch, cartoon, comic, pattern) with AI 비서 image generation. Use when the user asks for an image or visual. Set use_current_page (or about_page_id) when it should depict a page. Set insert_into_page_id only when the user wants the image on a page. Show the result with the Markdown image the tool returns.',
     input_schema: {
       type: 'object',
       properties: {

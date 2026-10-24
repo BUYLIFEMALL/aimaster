@@ -662,7 +662,7 @@ function userSettingsOp(env: AgentEnv, patch: Record<string, unknown>): Operatio
 }
 
 export const updateMemory: ToolRun = async (env, input, stepId) => {
-  if (!env.memories) throw new AiError('forbidden', 'Memories are turned off in this workspace (Settings → AIMaster).', 403);
+  if (!env.memories) throw new AiError('forbidden', '이 워크스페이스에서 기억 기능이 꺼져 있습니다(설정 → AI 비서).', 403);
   const memory = String(input.memory).replace(/\s+/g, ' ').trim().slice(0, 500);
   const pageId = typeof settingsOf(env.userId).ai_instructions_page === 'string' ? (settingsOf(env.userId).ai_instructions_page as string) : '';
   const existing = pageId ? getRecord<BlockRecord>('block', pageId) : undefined;
@@ -717,7 +717,7 @@ export const createSkill: ToolRun = async (env, input, stepId) => {
     done: 'Created skill',
     declined: 'Create skill',
     detail: title,
-    result: () => `Created the skill “${title}” (page_id: ${id}). It is enabled for the user: they can run it with "/" in chat, and AIMaster uses it when relevant.`,
+    result: () => `Created the skill “${title}” (page_id: ${id}). It is enabled for the user: they can run it with "/" in chat, and AI 비서 uses it when relevant.`,
   });
 };
 

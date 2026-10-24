@@ -74,7 +74,7 @@ export class ImageError extends Error {
   }
 }
 
-export const SVG_SYSTEM = `You draw illustrations as SVG for AIMaster image generation.
+export const SVG_SYSTEM = `You draw illustrations as SVG for AI 비서 image generation.
 Answer with exactly one complete, self-contained SVG document and nothing else — no prose, no code fences.
 - Start with <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 W H" ...> (1200×800 unless the style needs another shape).
 - Use shapes, paths, gradients, patterns, clip paths and filters; keep text short and large enough to read.
@@ -161,7 +161,7 @@ export function imagesPerDay(): number {
 export function assertImageAllowed(spaceId: string, userId: string, opts: { client?: ClaudeLike } = {}) {
   if (!isMember(spaceId, userId)) throw new ImageError('forbidden', 'This workspace is not available to you.', 403);
   const p = imagePolicy(spaceId);
-  if (!p.aiEnabled) throw new ImageError('ai_disabled', 'Turn on AIMaster before generating images.', 403);
+  if (!p.aiEnabled) throw new ImageError('ai_disabled', '이미지를 만들려면 먼저 AI 비서를 켜 주세요.', 403);
   if (!p.planIncluded) throw new ImageError('plan', 'AI image generation is available on the Business and Enterprise plans.', 403);
   if (!p.enabled) throw new ImageError('disabled', 'Image generation is turned off for this workspace.', 403);
   if (!opts.client && !p.configured) throw new ImageError('no_key', NO_KEY_MESSAGE, 400);
@@ -278,7 +278,7 @@ export async function editBlockImage(input: { userId: string; blockId: unknown; 
   const provider = imageProvider();
   const src = meta ? readStoredFile(meta.file_id, null, { anyUser: true }) : null;
   if (!meta || !src || !provider.canEdit(src.mime)) {
-    throw new ImageError('unavailable', 'Edit with AI is only available for images created with AIMaster.', 400);
+    throw new ImageError('unavailable', 'AI로 편집은 AI 비서로 만든 이미지에서만 쓸 수 있습니다.', 400);
   }
   assertImageAllowed(b.space_id, input.userId, { client: input.client });
   rateCheck(input.userId);

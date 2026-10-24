@@ -318,7 +318,7 @@ function FloatingButton({ hidden }: { hidden: boolean }) {
         aria-label="ai"
         aria-expanded={open}
         aria-haspopup="dialog"
-        data-tooltip={open ? undefined : 'AIMaster'}
+        data-tooltip={open ? undefined : 'AI 비서'}
         className="lit-ai-button nc-ai-button"
         onClick={() => {
           ensureAiStatus();
@@ -432,7 +432,7 @@ function FloatingPanel({ pageId }: { pageId: string | null }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
   return (
-    <div className="nc-ai-panel floating" role="dialog" aria-label="AIMaster">
+    <div className="nc-ai-panel floating" role="dialog" aria-label="AI 비서">
       <PanelChat pageId={pageId} />
     </div>
   );

@@ -6,7 +6,6 @@
 export const TRIM_SETTINGS = new Set<string>([
   'mail-calendar', // 메일·캘린더: 운영자 메일 서버 필요(알림은 U11에서 회원 본인 계정으로)
   'identity', // SSO: AIMaster 통합 계정이 맡음
-  'lit-ai', // AI 비서: U3에서 회원 본인 키로 다시 엶
   'meeting-notes', // AI 회의록: U6에서 다시 엶
   'connections', // 슬랙·구글·깃허브 연결: 운영자 앱이 필요해 최상위 규칙 위반
   'lit-mcp', // MCP: U14 이후 판단

@@ -229,7 +229,7 @@ export function openMediaPicker(block: BlockRecord, anchor: HTMLElement, opts?: 
   return openOverlay((close) => <MediaPicker blockId={block.id} close={close} replace={opts?.replace} />, { anchor, placement: 'bottom', offset: 0 });
 }
 
-const TAB_LABEL: Record<Tab, string> = { upload: 'Upload', link: 'Link', unsplash: 'Unsplash', giphy: 'GIPHY', embed: 'Embed link', add: 'Add', ai: 'AIMaster' };
+const TAB_LABEL: Record<Tab, string> = { upload: 'Upload', link: 'Link', unsplash: 'Unsplash', giphy: 'GIPHY', embed: 'Embed link', add: 'Add', ai: 'AI 비서' };
 
 export function PickerTabs({ tabs: allTabs, tab, setTab, right }: { tabs: Tab[]; tab: Tab; setTab: (t: Tab) => void; right?: ReactNode }) {
   // 이식판(U2): AI 그림·가짜 사진 탭을 숨기고, 사진 고르기에는 AI 이미지 자동화 링크를 둔다

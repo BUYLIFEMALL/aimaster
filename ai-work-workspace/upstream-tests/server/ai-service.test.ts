@@ -145,19 +145,19 @@ describe('Settings → AIMaster personalization', () => {
       await svc.executeChatTurn(prep, {}, undefined, fake([say('안녕하세요')], seen) as any);
       const sys = seen[0].system as any[];
       expect(sys[0].cache_control).toEqual({ type: 'ephemeral' });
-      expect(sys[1].text).toContain('The user has named you "Nori".');
-      expect(sys[1].text).toContain('<user_instructions>\n- Always answer in Korean.\n</user_instructions>');
-      expect(sys[1].text).not.toContain('# AI instructions');
+      expect(sys[2].text).toContain('The user has named you "Nori".');
+      expect(sys[2].text).toContain('<user_instructions>\n- Always answer in Korean.\n</user_instructions>');
+      expect(sys[2].text).not.toContain('# AI instructions');
 
       const qaSeen: any[] = [];
       await svc.runQuery({ userId, spaceId, query: 'toggles' }, fake([say('ok')], qaSeen) as any);
-      expect(qaSeen[0].system[1].text).toContain('Always answer in Korean.');
+      expect(qaSeen[0].system[2].text).toContain('Always answer in Korean.');
 
       // an instructions page the user can no longer read is ignored
       db.putRecord('block', { ...db.getRecord<any>('block', 'instr'), alive: false } as any);
       const seen2: any[] = [];
       await svc.executeChatTurn(svc.prepareChatTurn({ userId, spaceId, text: 'again' }), {}, undefined, fake([say('ok')], seen2) as any);
-      expect(seen2[0].system[1].text).not.toContain('user_instructions');
+      expect(JSON.stringify(seen2[0].system)).not.toContain('user_instructions');
     } finally {
       db.putRecord('user_settings', (prev ?? { id: userId, version: 1, settings: {} }) as any);
     }
@@ -189,7 +189,7 @@ describe('writer, block, autofill', () => {
         err = e;
       }
       expect(err?.status).toBe(400);
-      expect(err?.message).toBe('Connect an AI provider to use AIMaster');
+      expect(err?.message).toBe('본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다' /* 이식판 U3 */);
     } finally {
       process.env.ANTHROPIC_API_KEY = key;
     }

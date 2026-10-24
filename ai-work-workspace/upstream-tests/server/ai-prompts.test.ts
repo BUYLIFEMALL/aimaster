@@ -5,8 +5,7 @@ import {
   autofillValue, buildAutofillRequest, buildBlockRequest, buildChatRequest, buildQaRequest, buildWriterRequest, chatTitleFrom,
   CHAT_SYSTEM, cleanPersonaName, extractSearchTerms, pageToMarkdown, personaSystemText, QA_SYSTEM, resolveSkill, rowToMarkdown,
   validateToolInput, WRITER_SYSTEM,
-  type MdBlock, type MdSource, type StoredMessage,
-} from '../../src/litpage/server/ai/prompts.ts';
+  type MdBlock, type MdSource, type StoredMessage, aimasterContextText } from '../../src/litpage/server/ai/prompts.ts';
 import { runStream, type ClaudeLike } from '../../src/litpage/server/ai/client.ts';
 
 // ---------------------------------------------------------------------------------------------
@@ -114,7 +113,8 @@ describe('prompt assembly', () => {
 
   it('writer: frozen system prompt, cached page context first, task last', () => {
     const req = buildWriterRequest({ skill: 'improve', selection: 'we ship it friday', page: ctx });
-    expect(req.system).toEqual([{ type: 'text', text: WRITER_SYSTEM, cache_control: { type: 'ephemeral' } }]);
+    // 이식판 U3: 캐시되는 원래 지시문 뒤에 AIMaster 기준 문장(당해 연도·답변 언어) 블록이 붙는다
+    expect(req.system).toEqual([{ type: 'text', text: WRITER_SYSTEM, cache_control: { type: 'ephemeral' } }, { type: 'text', text: aimasterContextText() }]);
     expect(req.effort).toBe('low');
     const content = req.messages[0].content as any[];
     expect(content[0].cache_control).toEqual({ type: 'ephemeral' });
@@ -192,14 +192,15 @@ describe('prompt assembly', () => {
   it('chat / qa: Settings → AIMaster name and instructions follow the cached system prompt', () => {
     const persona = { name: 'Nori', instructions: '- Answer in Korean.\n- Use tables for comparisons.' };
     const req = buildChatRequest([{ role: 'user', text: 'hi' }], persona);
-    expect(req.system).toHaveLength(2);
+    expect(req.system).toHaveLength(3); // 이식판 U3: [원래 지시문, AIMaster 기준 문장, 회원 맞춤]
     expect(req.system[0]).toEqual({ type: 'text', text: CHAT_SYSTEM, cache_control: { type: 'ephemeral' } });
-    expect(req.system[1].cache_control).toBeUndefined();
-    expect(req.system[1].text).toContain('The user has named you "Nori".');
-    expect(req.system[1].text).toContain('<user_instructions>\n- Answer in Korean.\n- Use tables for comparisons.\n</user_instructions>');
+    expect(req.system[1].text).toBe(aimasterContextText());
+    expect(req.system[2].cache_control).toBeUndefined();
+    expect(req.system[2].text).toContain('The user has named you "Nori".');
+    expect(req.system[2].text).toContain('<user_instructions>\n- Answer in Korean.\n- Use tables for comparisons.\n</user_instructions>');
     const qa = buildQaRequest('x', [], { instructions: 'Be brief.', instructionsTruncated: true });
     expect(qa.system[0].text).toBe(QA_SYSTEM);
-    expect(qa.system[1].text).toContain('Be brief.\n[Instructions truncated.]');
+    expect(qa.system[2].text).toContain('Be brief.\n[Instructions truncated.]');
     // no personalization → the frozen system prompt alone (identical bytes)
     expect(buildChatRequest([{ role: 'user', text: 'hi' }], null).system).toEqual(buildChatRequest([{ role: 'user', text: 'hi' }]).system);
     expect(personaSystemText({ name: 'AIMaster' })).toBeNull();
@@ -314,7 +315,7 @@ describe('runStream', () => {
     expect(r.text).toBe('Hello world');
     expect(deltas.join('')).toBe('Hello world');
     expect(thinking).toBe(1);
-    expect(seen[0].model).toBe('claude-opus-5-5');
+    expect(seen[0].model).toBe('claude-sonnet-5-5'); // 이식판 U3: 기본 모델 Sonnet
     expect(seen[0].thinking).toEqual({ type: 'adaptive' });
     expect(seen[0].output_config).toEqual({ effort: 'low' });
     expect(seen[0].fallbacks).toBe('default');

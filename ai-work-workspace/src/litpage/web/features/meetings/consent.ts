@@ -10,13 +10,13 @@ import { useUI } from '../../lib/store/ui.ts';
 import { t } from '../shell/i18n.ts';
 
 export function consentSpokenMessage(): string {
-  return t('lp.meetings.this_meeting_is_being_transcribed_by', 'This meeting is being transcribed by AIMaster so it can take notes.');
+  return t('lp.meetings.this_meeting_is_being_transcribed_by', 'This meeting is being transcribed by AI 비서 so it can take notes.');
 }
 
 export function consentCopyMessage(localRecordings = false): string {
   return localRecordings
-    ? t('lp.meetings.litpage_ai_is_recording_and_transcribing', 'AIMaster is recording and transcribing this meeting for me, and it will write up notes.')
-    : t('lp.meetings.i_have_litpage_ai_transcribing_this', 'I have AIMaster transcribing this meeting, and it will produce notes.');
+    ? t('lp.meetings.litpage_ai_is_recording_and_transcribing', 'AI 비서 is recording and transcribing this meeting for me, and it will write up notes.')
+    : t('lp.meetings.i_have_litpage_ai_transcribing_this', 'I have AI 비서 transcribing this meeting, and it will produce notes.');
 }
 
 export function audioSupported(): boolean {

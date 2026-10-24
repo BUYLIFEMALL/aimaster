@@ -1,7 +1,7 @@
 // AI streaming endpoint: POST /api/ai/stream (Server-Sent Events), and MCP server endpoint
 // POST /api/mcp (JSON-RPC, see ai/litMcp.ts).
 // Body: { kind: 'chat' | 'writer' | 'block', ...params }. Validation errors (including the missing
-// API key: 400 "Connect an AI provider to use AIMaster") are plain JSON responses before
+// API key: 400 "본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다") are plain JSON responses before
 // the stream opens. Stream events:
 //   meta    { threadId?, userMessageId?, title?, truncated[], turnId? }
 //   status  { phase: 'thinking'|'searching'|'reading'|'writing', detail? }

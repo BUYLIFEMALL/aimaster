@@ -96,13 +96,14 @@ export function LitAISection() {
   };
 
   return (
-    <SectionPage title={t('lp.settings.litpage_ai', 'AIMaster')} subtitle={t('lp.settings.configure_ai_features_to_suit_you', 'Configure AI features to suit you and manage connectors')}>
+    <SectionPage title={t('lp.settings.litpage_ai', 'AI 비서')} subtitle={t('lp.settings.configure_ai_features_to_suit_you', 'Configure AI features to suit you and manage connectors')}>
       {/* tab pills, then the tab body 44px below */}
       <div className="nc-set-ai-sec">
+      {/* 이식판(U3): 「일반」만 연다 — AI 연결(U14)·에이전트(U12)·스킬은 아직 닫힘 */}
       <Pills
         value={tab}
         onChange={setTab}
-        items={[
+        items={([
           { value: 'general', label: t('lp.settings.general', 'General') },
           {
             value: 'connectors',
@@ -117,7 +118,7 @@ export function LitAISection() {
           },
           { value: 'agents', label: t('lp.settings.agents', 'Agents') },
           { value: 'skills', label: t('lp.settings.skills', 'Skills') },
-        ]}
+        ] as const).filter((it) => it.value === 'general')}
       />
       {tab === 'agents' && <AgentsAdmin />}
       {tab === 'general' && (
@@ -126,7 +127,7 @@ export function LitAISection() {
           <div className="nc-set-ai-personal">
             <div className="col">
               <div className="ttl">{t('lp.settings.personalization', 'Personalization')}</div>
-              <div className="desc">{t('lp.settings.choose_a_name_for_your_litpage', 'Choose a name for your AIMaster')}</div>
+              <div className="desc">{t('lp.settings.choose_a_name_for_your_litpage', 'Choose a name for your AI 비서')}</div>
               <div style={{ marginTop: 6 }}>
                 <Button icon="pencilSmall" onClick={() => openSubDialog((close) => <PersonalizeBody close={close} prefs={prefs} />)}>{t('lp.settings.personalize', 'Personalize')}</Button>
               </div>

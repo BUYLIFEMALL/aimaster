@@ -314,7 +314,7 @@ describe('chat turn', () => {
     const names = seen[0].tools.map((t: any) => t.name);
     expect(names).toContain('search_workspace');
     expect(names).not.toContain('create_pages');
-    expect(seen[0].system[1].text).toMatch(/Ask mode is on/);
+    expect(seen[0].system[2].text).toMatch(/Ask mode is on/);
   });
 });
 

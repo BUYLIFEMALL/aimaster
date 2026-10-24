@@ -226,7 +226,7 @@ describe('summary', () => {
   it('without an API key the block shows the connect-a-key error; viewers can’t summarize', async () => {
     const r = await call(ids.owner, 'meetingSummarize', { blockId: ids.m });
     expect(r.status).toBe('error');
-    expect(state(ids.m)).toMatchObject({ state: 'error', error: { code: 'no_key', message: 'Connect an AI provider to use AIMaster' } });
+    expect(state(ids.m)).toMatchObject({ state: 'error', error: { code: 'no_key', message: '본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다' /* 이식판 U3 */ } });
     expect(await status(() => call(ids.viewer, 'meetingSummarize', { blockId: ids.m }))).toBe(403);
   });
 

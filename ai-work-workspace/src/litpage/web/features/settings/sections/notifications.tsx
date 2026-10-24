@@ -170,7 +170,7 @@ export function MailCalendarSection() {
       <Group plain medium title={t('lp.settings.connected_emails', 'Connected emails')} description={t('lp.settings.hand_off_drafting_and_sorting_mail', 'Hand off drafting and sorting mail to custom agents, file threads in Workspace databases, and more.')}>
         <ConnectBanner
           title={t('lp.settings.link_an_email_account_with_litpage', 'Link an email account with Workspace')}
-          description={t('lp.settings.keep_every_email_detail_together_use', 'Keep every email detail together. Use AIMaster to search, write drafts, and get answers, or sync messages straight to your databases.')}
+          description={t('lp.settings.keep_every_email_detail_together_use', 'Keep every email detail together. Use AI 비서 to search, write drafts, and get answers, or sync messages straight to your databases.')}
           logos={<><Logo bg="#ea4335" label="M" /><Logo bg="#0a64c8" label="O" /></>}
         />
       </Group>
@@ -182,7 +182,7 @@ export function MailCalendarSection() {
       >
         <ConnectBanner
           title={t('lp.settings.link_a_calendar_with_litpage', 'Link a calendar with Workspace')}
-          description={t('lp.settings.keep_your_whole_schedule_in_one', 'Keep your whole schedule in one spot. Line up meetings, fine-tune your week, and show up ready for every call with help from AIMaster.')}
+          description={t('lp.settings.keep_your_whole_schedule_in_one', 'Keep your whole schedule in one spot. Line up meetings, fine-tune your week, and show up ready for every call with help from AI 비서.')}
           logos={<><Logo bg="#1a73e8" label="31" /><Logo bg="#0a64c8" label="O" /><Logo bg="#1d1d1f" label="" /><Logo bg="#fff" fg="#111" label="31" /></>}
         />
       </Group>

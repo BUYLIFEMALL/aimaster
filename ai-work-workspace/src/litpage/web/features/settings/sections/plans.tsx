@@ -37,7 +37,7 @@ function plans(): PlanInfo[] {
       tagline: t('lp.settings.more_control_for_growing_organizations', 'More control for growing organizations'),
       features: [
         t('lp.settings.everything_in_pro', 'Everything in Pro'),
-        t('lp.settings.litpage_ai_and_custom_agents', 'AIMaster and custom agents'),
+        t('lp.settings.litpage_ai_and_custom_agents', 'AI 비서 and custom agents'),
         t('lp.settings.ai_meeting_notes', 'AI meeting notes'),
         t('lp.settings.pdf_and_member_exports', 'PDF and member exports'),
         t('lp.settings.image_generation', 'Image generation'),
@@ -112,7 +112,7 @@ export function PlansSection() {
           </div>
           <div className="nc-set-plan-ai">
             <div className="txt">
-              <div className="ttl"><span className="ai-face"><Icon name="aiFace" size={14} /></span>{t('lp.settings.litpage_ai', 'AIMaster')}</div>
+              <div className="ttl"><span className="ai-face"><Icon name="aiFace" size={14} /></span>{t('lp.settings.litpage_ai', 'AI 비서')}</div>
               <div className="desc">{t('lp.settings.ai_search_meeting_notes_and_image', 'AI search, meeting notes, and image generation are available at the Business level')}</div>
             </div>
             {PLAN_RANK[plan] >= PLAN_RANK.business ? (

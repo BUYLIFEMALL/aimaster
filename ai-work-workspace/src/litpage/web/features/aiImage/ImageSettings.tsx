@@ -16,7 +16,7 @@ function ImageGroup({ space, admin, included }: { space: SpaceRecord; admin: boo
   const aiOn = spaceSetting<boolean>(space, 'ai_enabled', true) !== false;
   const on = spaceSetting<boolean>(space, 'ai_image_generation', true) !== false;
   const tip = !aiOn
-    ? t('lp.aiimage.turn_on_litpage_ai_before_generating', 'Turn on AIMaster before generating images.')
+    ? t('lp.aiimage.turn_on_litpage_ai_before_generating', '이미지를 만들려면 먼저 AI 비서를 켜 주세요.')
     : !admin ? t('lp.aiimage.to_change_this_reach_out_to', 'To change this, reach out to your workspace admin') : undefined;
   return (
     <Group plain title={t('lp.aiimage.image_generation', 'Image generation')}>
@@ -25,7 +25,7 @@ function ImageGroup({ space, admin, included }: { space: SpaceRecord; admin: boo
         label={t('lp.aiimage.turn_on_image_generation', 'Turn on image generation')}
         description={included
           ? t('lp.aiimage.let_people_in_this_workspace_create', 'Let people in this workspace create images with AI')
-          : <Upsell text={t('lp.aiimage.upgrade_to_business_to_create_and', '<highlight>Upgrade to Business</highlight> to create and edit images with AIMaster.')} />}
+          : <Upsell text={t('lp.aiimage.upgrade_to_business_to_create_and', '<highlight>Upgrade to Business</highlight> to create and edit images with AI 비서.')} />}
         control={(
           <span data-tooltip={tip}>
             <Switch

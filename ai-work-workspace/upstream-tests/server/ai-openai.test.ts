@@ -410,7 +410,7 @@ describe('openai adapter: errors and abort', () => {
     let f = fakeFetch([http(401, { error: { message: `Invalid API key ${KEY}`, type: 'authentication_error', code: 'invalid_api_key' } })]);
     let e = await run(f);
     expect(e).toMatchObject({ code: 'invalid_key', status: 400 });
-    expect(e!.message).toContain('OPENAI_API_KEY');
+    expect(e!.message).toContain('API키등록·플랫폼연동'); // 이식판 U3: 서버 환경변수 대신 회원 키 등록 화면 안내
     expect(e!.message).not.toContain(KEY);
     expect((e as any).detail).not.toContain(KEY);
     expect(f).toHaveBeenCalledTimes(1);
@@ -473,7 +473,7 @@ describe('openai adapter: errors and abort', () => {
     const f = fakeFetch([(_s, signal) => new Response(bodyOf(sseText([created()]), 9, signal, 30), { status: 200 })]);
     const e = await client.runStream(req('x'), {}, { client: adapter(f, { idleMs: 60, retryDelays: [] }) }).then(() => null, (err) => client.mapError(err));
     expect(e).toMatchObject({ code: 'overloaded' });
-    expect(e!.message).toMatch(/too long/);
+    expect(e!.message).toMatch(/너무 오래/); // 이식판 U3: 한국어 문구
   });
 });
 
@@ -499,7 +499,7 @@ describe('provider selection, models and Auto', () => {
     expect(config.providerId()).toBe('none');
     expect(client.aiConfigured()).toBe(false);
     expect(() => client.requireConfigured()).toThrow(client.NO_KEY_MESSAGE);
-    expect(client.NO_KEY_MESSAGE).toBe('Connect an AI provider to use AIMaster');
+    expect(client.NO_KEY_MESSAGE).toBe('본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다' /* 이식판 U3 */);
     set({ NC_AI_PROVIDER: 'openai' });
     expect(client.aiConfigured()).toBe(false);
     set({ OPENAI_API_KEY: KEY, ANTHROPIC_API_KEY: 'sk-ant-test-0000000000', NC_AI_PROVIDER: 'anthropic' });
@@ -602,9 +602,9 @@ describe('provider selection, models and Auto', () => {
     process.env.ANTHROPIC_API_KEY = 'sk-ant-test-0000000000';
     delete process.env.NC_AI_MODEL;
     expect(models.offeredModels(false).map((m) => m.id)).toEqual(['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5', 'claude-opus-5']);
-    expect(models.DEFAULT_MODEL).toBe('claude-opus-5-5');
-    expect(models.requestModel({ effort: 'low', maxTokens: 2_000 })).toBe('claude-opus-5-5');
-    expect(models.requestModel({ model: 'gpt-test-astra', effort: 'low', maxTokens: 2_000 })).toBe('claude-opus-5-5');
+    expect(models.DEFAULT_MODEL).toBe('claude-sonnet-5-5'); // 이식판 U3: 기본 모델 Sonnet
+    expect(models.requestModel({ effort: 'low', maxTokens: 2_000 })).toBe('claude-sonnet-5-5');
+    expect(models.requestModel({ model: 'gpt-test-astra', effort: 'low', maxTokens: 2_000 })).toBe('claude-sonnet-5-5');
     expect(models.modelLabel('claude-opus-5-5')).toBe('Opus 5.5');
   });
 });

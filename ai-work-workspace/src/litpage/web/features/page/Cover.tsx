@@ -214,7 +214,7 @@ function CoverPicker({ page, close }: { page: BlockRecord; close: () => void }) 
     ['link', t('lp.page.link', 'Link')],
     ['unsplash', 'Unsplash'],
     // AIMaster: a generated cover, where the workspace can generate images (plan + Settings › AIMaster)
-    ...aiImageTabs(page).map((k): [CoverTab, string] => [k, t('lp.page.litpage_ai', 'AIMaster')]),
+    ...aiImageTabs(page).map((k): [CoverTab, string] => [k, t('lp.page.litpage_ai', 'AI 비서')]),
   ].filter(([k]) => !TRIM_MEDIA_TABS.has(k)) as [CoverTab, string][]; // 이식판: U2 Unsplash(운영자 키 필요)·AI 그림 탭 숨김
   return (
     <PopoverSurface width={540} maxHeight={485} className="nc-cover-picker lit-media-menu" style={{ height: 485 }}>

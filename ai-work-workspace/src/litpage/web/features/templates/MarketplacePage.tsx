@@ -576,7 +576,7 @@ const LISTINGS: Record<'agents' | 'consultants' | 'skills' | 'connections', { ti
     ],
   },
   skills: {
-    title: 'Skills', desc: 'Reusable instructions for AIMaster.',
+    title: 'Skills', desc: 'Reusable instructions for AI 비서.',
     items: [
       { icon: '✍️', name: 'Write a project brief', desc: 'Drafts a brief from a few bullet points.' },
       { icon: '🔎', name: 'Research summary', desc: 'Summarizes sources into key findings.' },

@@ -183,7 +183,7 @@ export function AgentsAdmin() {
           <Row
             id="agent-fable"
             label={t('lp.agents.claude_fable_5', 'Claude Fable 5')}
-            description={t('lp.agents.let_litpage_ai_and_custom_agents', 'Let AIMaster and Custom agents use Claude Fable 5 for the hardest, longest work. Anthropic keeps prompts and responses for this model for a period.')}
+            description={t('lp.agents.let_litpage_ai_and_custom_agents', 'Let AI 비서 and Custom agents use Claude Fable 5 for the hardest, longest work. Anthropic keeps prompts and responses for this model for a period.')}
             control={<Switch label={t('lp.agents.claude_fable_5', 'Claude Fable 5')} checked={fable} disabled={!owner} onChange={(v) => save({ ai_fable_enabled: v })} />}
           />
         )}

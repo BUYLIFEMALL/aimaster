@@ -64,7 +64,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
               let id = '';
               run('meetingNotes.addNote', (tx) => { id = createBlockIn(tx, { type: 'text', parentId: block.id, parentTable: 'block' }); });
               useEditor.getState().requestFocus(id, 0);
-            }}>AIMaster will turn notes and transcript into a summary</div>
+            }}>AI 비서 will turn notes and transcript into a summary</div>
           ))}
           {tab === 'summary' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>Write the summary here…</div>}
           {tab === 'transcript' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>The transcript will appear here…</div>}
@@ -91,7 +91,7 @@ function AiBlock({ block, readOnly }: BlockProps) {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && prompt.trim() && !e.nativeEvent.isComposing) {
                   e.preventDefault();
-                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast('AIMaster is not connected in this workspace.');
+                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast('AI 비서 is not connected in this workspace.');
                   setPrompt('');
                 }
               }}

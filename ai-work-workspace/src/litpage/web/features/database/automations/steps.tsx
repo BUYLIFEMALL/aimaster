@@ -536,7 +536,7 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       };
     case 'agent':
       return {
-        title: <><b>Send message to:</b><span className="nc-auto-pill static"><Icon name="aiFace" size={14} /><span>AIMaster</span></span></>,
+        title: <><b>Send message to:</b><span className="nc-auto-pill static"><Icon name="aiFace" size={14} /><span>AI 비서</span></span></>,
         body: (
           <>
             <div className="nc-auto-field-label">Message</div>

@@ -13,7 +13,8 @@
 import { providerId } from './providers/config.ts';
 import { cachedOpenAIModels, openaiModelsVersion, type OpenAIModel } from './providers/openaiModels.ts';
 
-const ANTHROPIC_DEFAULT = 'claude-opus-5-5';
+// 이식판(U3): 회원 본인 키로 청구되므로 기본은 Sonnet(가장 비싼 Opus는 회원이 직접 고를 때만). 원본 기본값은 claude-opus-5-5.
+const ANTHROPIC_DEFAULT = 'claude-sonnet-5-5';
 export const OPENAI_MODEL_CONFIG_ERROR = 'Set NC_AI_MODEL to a model ID because the OpenAI /models list could not be loaded.';
 
 export interface ModelInfo {

@@ -79,9 +79,9 @@ function Usage({ spaceId }: { spaceId: string }) {
     void api('aiUsage', { spaceId }).then(setData).catch((e) => setError((e as Error)?.message ?? 'Usage couldn’t be loaded'));
   }, [spaceId]);
   return (
-    <Group plain title="AIMaster usage in your workspace" description="Chats, messages and agent edits by member over the last 30 days.">
+    <Group plain title="AI 비서 usage in your workspace" description="Chats, messages and agent edits by member over the last 30 days.">
       {error ? <div className="nc-set-row-desc">{error}</div> : !data ? <div className="nc-set-row-desc">Loading…</div> : !data.members.length ? (
-        <div className="nc-set-row-desc">Use cases appear once people in your workspace try AIMaster.</div>
+        <div className="nc-set-row-desc">Use cases appear once people in your workspace try AI 비서.</div>
       ) : (
         <table className="nc-set-table nc-ai-usage-table">
           <thead><tr><th>Member</th><th>Chats</th><th>Messages</th><th>Agent edits</th><th>Last used</th></tr></thead>
@@ -114,7 +114,7 @@ function ConnectionRow({ c }: { c: McpConnection }) {
         <Switch label={`Use ${c.name}`} checked={c.enabled} onChange={(v) => void update({ enabled: v })} />
         <Button small onClick={async () => { await api('aiRefreshConnection', { id: c.id }).catch(() => {}); await useConnections.getState().load(true); }}>Refresh</Button>
         <Button small variant="danger" onClick={async () => {
-          if (!(await confirmDialog({ title: `Disconnect ${c.name}?`, description: 'AIMaster will no longer be able to use this server’s tools.', confirmLabel: 'Disconnect', danger: true }))) return;
+          if (!(await confirmDialog({ title: `Disconnect ${c.name}?`, description: 'AI 비서 will no longer be able to use this server’s tools.', confirmLabel: 'Disconnect', danger: true }))) return;
           await api('aiRemoveConnection', { id: c.id });
           await useConnections.getState().load(true);
         }}>Disconnect</Button>
@@ -195,12 +195,12 @@ export function AiWorkspaceControls() {
   if (!space) return null;
   const webOn = spaceSetting<boolean>(space, 'ai_web_search', true);
   const rows: { k: string; fallback: boolean; label: string; description: ReactNode; disabled?: boolean }[] = [
-    { k: 'ai_enabled', fallback: true, label: 'Turn on AIMaster', description: 'Enable AI for all members of your workspace.' },
+    { k: 'ai_enabled', fallback: true, label: 'Turn on AI 비서', description: 'Enable AI for all members of your workspace.' },
     { k: 'ai_web_search', fallback: true, label: 'Allow web search for this workspace', description: 'Let AI search the web for current information when it answers.' },
     { k: 'ai_web_confirm', fallback: false, label: 'Ask before making web requests', description: 'The agent may open external pages when search is not enough. Require approval before viewing any web page.', disabled: !webOn },
     { k: 'ai_skip_approvals', fallback: true, label: 'Allow actions without approval', description: 'Let agents act without asking you first' },
     { k: 'ai_custom_mcp', fallback: true, label: 'Allow custom MCP servers', description: 'Allow members to connect agents to custom MCP servers that Workspace hasn’t reviewed. Connected agents can share content externally, access external data, and take external actions.' },
-    { k: 'ai_memories', fallback: true, label: 'Enable Memories', description: 'Let AIMaster create and use personal memories for workspace members.' },
+    { k: 'ai_memories', fallback: true, label: 'Enable Memories', description: 'Let AI 비서 create and use personal memories for workspace members.' },
     { k: 'ai_mcp_skills', fallback: true, label: 'Allow skills over MCP', description: 'Let MCP clients use Workspace skills automatically.' },
     { k: 'ai_local_skills', fallback: true, label: 'Allow skill downloads on local devices', description: 'Let members download skills for local agent use' },
   ];
@@ -213,7 +213,7 @@ export function AiWorkspaceControls() {
         {owner && <McpAllowlist space={space} />}
       </Group>
       <ModelControls space={space} admin={owner} />
-      <Group plain title="My MCP connections" description="Remote MCP servers AIMaster can use in your chats (+ → Connections).">
+      <Group plain title="My MCP connections" description="Remote MCP servers AI 비서 can use in your chats (+ → Connections).">
         {conns.list.map((c) => <ConnectionRow key={c.id} c={c} />)}
         <div>
           <Button icon="plusSmall" disabled={!conns.customMcp} title={conns.customMcp ? undefined : 'External MCP endpoints are off in this workspace. Ask an owner to enable them.'} onClick={() => void openMcpConnectDialog()}>Add Connections</Button>

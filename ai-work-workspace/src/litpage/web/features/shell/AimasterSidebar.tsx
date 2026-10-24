@@ -1,6 +1,6 @@
 // AIMaster 공통 좌측 메뉴 규격(docs/SIDEBAR_LAYOUT_STANDARD.md)을 원본 litpage 좌측 메뉴에 넣는 부분.
 //  - 맨 위: ← 다른 프로그램 보기(메인 사이트 카탈로그 고정) + 프로그램 이름·버전
-//  - 메뉴 목록 끝(마지막 메뉴 바로 아래): 📖 연동 & 사용 매뉴얼, 계정 이메일, 로그아웃
+//  - 메뉴 목록 끝(마지막 메뉴 바로 아래): 🔑 API키등록·플랫폼연동, 📖 연동 & 사용 매뉴얼, 계정 이메일, 로그아웃
 import { useSession } from '../../lib/store/session.ts';
 import { useCurrentUser } from '../../lib/hooks.ts';
 import './aimaster.css';
@@ -28,6 +28,15 @@ export function AimasterSidebarBottom() {
   const email = user?.email || (typeof document !== 'undefined' ? document.getElementById('lit-app')?.dataset.memberEmail : '') || '';
   return (
     <div className="aww-sb-bottom">
+      {/* U3: AIMaster 표준 메뉴 — 회원 본인 AI 키 등록(/settings/keys) */}
+      <a className="nc-sb-row aww-sb-guide" href="/settings/keys">
+        <div className="nc-sb-row-inner">
+          <div className="nc-sb-row-icon" aria-hidden>
+            🔑
+          </div>
+          <div className="nc-sb-row-label">API키등록·플랫폼연동</div>
+        </div>
+      </a>
       <a className="nc-sb-row aww-sb-guide" href="/guide">
         <div className="nc-sb-row-inner">
           <div className="nc-sb-row-icon" aria-hidden>

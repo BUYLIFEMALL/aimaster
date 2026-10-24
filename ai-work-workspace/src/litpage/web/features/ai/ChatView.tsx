@@ -173,7 +173,7 @@ export function ChatView(props: ChatViewProps) {
             useChatThreads.getState().upsert({ id: m.threadId });
           }
           if (m.userMessageId && userLocalId) setMessages((ms) => ms.map((x) => (x.id === userLocalId ? { ...x, id: m.userMessageId! } : x)));
-          if (m.truncated?.length) useUI.getState().toast(`Only part of “${m.truncated[0]}” was sent to AIMaster because the page is very long.`);
+          if (m.truncated?.length) useUI.getState().toast(`Only part of “${m.truncated[0]}” was sent to AI 비서 because the page is very long.`);
         },
         onStatus: (s) => {
           st.status = s;
@@ -369,7 +369,7 @@ export function ChatView(props: ChatViewProps) {
   const empty = messages.length === 0 && !loadError;
   const canInsert = true;
   const insertLabel = props.contextPageId ? 'Add to this page' : 'Save among private pages';
-  const placeholder = props.placeholder ?? 'Send a question to AIMaster';
+  const placeholder = props.placeholder ?? 'Send a question to AI 비서';
 
   const composer = (
     <ChatComposer

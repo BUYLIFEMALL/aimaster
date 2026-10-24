@@ -95,11 +95,11 @@ describe('availability', () => {
     const s = db.getRecord<any>('space', ids.space)!;
     db.putRecord('space', { ...s, plan_type: 'business' });
     expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).not.toThrow();
-    expect(() => image.assertImageAllowed(ids.space, ids.owner)).toThrow(/Connect an AI provider/);
+    expect(() => image.assertImageAllowed(ids.space, ids.owner)).toThrow(/본인 AI 키/) /* 이식판 U3 */;
     db.putRecord('space', { ...db.getRecord<any>('space', ids.space)!, settings: { ...s.settings, ai_image_generation: false } });
     expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).toThrow(/turned off/);
     db.putRecord('space', { ...db.getRecord<any>('space', ids.space)!, settings: { ...s.settings, ai_enabled: false } });
-    expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).toThrow(/Turn on AIMaster/);
+    expect(() => image.assertImageAllowed(ids.space, ids.owner, { client: fake('') as any })).toThrow(/AI 비서를 켜/ /* 이식판 U3 */);
     db.putRecord('space', { ...db.getRecord<any>('space', ids.space)!, settings: { ...s.settings } });
   });
 });
@@ -137,7 +137,7 @@ describe('image block', () => {
     const plain = newId();
     const now = Date.now();
     db.putRecord('block', { id: plain, version: 1, type: 'image', parent_id: ids.page, parent_table: 'block', space_id: ids.space, alive: true, created_time: now, created_by_id: ids.owner, properties: { source: [['https://example.com/a.png']] } } as any);
-    await expect(image.editBlockImage({ userId: ids.owner, blockId: plain, instruction: 'x', client: fake('') as any })).rejects.toThrow(/only available for images created with AIMaster/);
+    await expect(image.editBlockImage({ userId: ids.owner, blockId: plain, instruction: 'x', client: fake('') as any })).rejects.toThrow(/AI 비서로 만든 이미지/) /* 이식판 U3 */;
   });
 
   it('daily limit', async () => {

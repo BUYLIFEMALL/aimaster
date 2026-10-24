@@ -26,8 +26,12 @@ const LATER_RPCS = new Set([
   'getPublicForm', 'submitFormResponse', 'emailFormResponse', 'setSiteSettings', 'getSite', 'getSiteHome', 'searchSite',
   // 4단계: 자동화(웹훅 등 바깥 호출 포함)
   'saveAutomation', 'setAutomationStatus', 'deleteAutomation', 'duplicateAutomation', 'runButtonServerSteps',
-  // 2·4단계: AI·에이전트·회의록 (회원 본인 키 연결 전까지 닫음)
+  // 회의록 AI: U6에서 엶
   'meetingStop', 'meetingSummarize', 'meetingUploadAudio', 'meetingRetryTranscription',
+  // U3 이후에도 닫음: 외부 연결·MCP(U14), AI 채팅 공유(협업 단계), AI 그림(U2 숨김 → ai-image-studio)
+  'aiListConnections', 'aiUpdateConnection', 'aiRemoveConnection', 'aiDisconnectAllConnections', 'aiUpdateMcpAllowlist',
+  'aiShareThread', 'aiSharedThreads',
+  'aiImageStatus', 'aiGenerateImageBlock', 'aiEditImageBlock', 'aiImageInfo', 'aiGenerateImage',
   // ③ 회원끼리 섞임: 템플릿 후기는 다른 모든 회원에게 보인다
   'reviewTemplate',
   // 원본 시험 전용
@@ -38,7 +42,6 @@ function laterByPrefix(name: string): boolean {
   return (
     /^dev[A-Z]/.test(name) || // 개발자 API·웹훅 (4단계)
     /^mcp[A-Z]/.test(name) || // MCP 연결 (4단계)
-    /^ai[A-Z]/.test(name) || // AI (2단계)
     /Agent/.test(name) || // 맞춤 에이전트 (4단계)
     /^admin[A-Z]/.test(name) // 워크스페이스 관리자 고급 기능(다른 회원 관련)
   );

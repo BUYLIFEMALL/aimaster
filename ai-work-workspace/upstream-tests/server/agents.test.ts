@@ -316,7 +316,7 @@ describe('runs act as the agent', () => {
     try {
       const run = runs.enqueueRun({ agent: a, kind: 'manual', label: 'Run agent', actorId: ids.A });
       await runs.drainRuns();
-      expect(runs.getRun(run.id)).toMatchObject({ status: 'failed', error: 'Connect an AI provider to use AIMaster' });
+      expect(runs.getRun(run.id)).toMatchObject({ status: 'failed', error: '본인 AI 키를 등록하면 AI 비서를 쓸 수 있습니다' /* 이식판 U3 */ });
     } finally {
       process.env.ANTHROPIC_API_KEY = key;
     }

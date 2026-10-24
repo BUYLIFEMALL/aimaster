@@ -81,8 +81,8 @@ function EditPopover({ blockId, close }: { blockId: string; close: () => void })
           <div className="nc-aiimg-note" role="status">
             <Icon name="info" size={16} style={{ color: 'var(--lp-icon-secondary)', flexShrink: 0, marginTop: 1 }} />
             <div>
-              <div>{t('lp.aiimage.edit_with_ai_is_only_available', 'Polish with AI is only available for images created with AIMaster.')}</div>
-              <div className="sub">{t('lp.aiimage.uploaded_and_linked_images_can_t', 'Uploaded and linked images can’t be changed with AI. Generate a new image from the image block’s AIMaster tab instead.')}</div>
+              <div>{t('lp.aiimage.edit_with_ai_is_only_available', 'Polish with AI is only available for images created with AI 비서.')}</div>
+              <div className="sub">{t('lp.aiimage.uploaded_and_linked_images_can_t', 'Uploaded and linked images can’t be changed with AI. Generate a new image from the image block’s AI 비서 tab instead.')}</div>
             </div>
           </div>
         ) : (
@@ -110,7 +110,7 @@ function EditPopover({ blockId, close }: { blockId: string; close: () => void })
             <div className="nc-aiimg-row">
               {busy
                 ? <span className="nc-aiimg-busy grow" role="status"><span className="nc-aiimg-spinner" />{t('lp.aiimage.updating_image', 'Updating image…')}</span>
-                : <span className="nc-aiimg-caption grow">{rounds ? t('lp.aiimage.image_updated_describe_another_change_or', 'Image updated. Describe another change or close.') : t('lp.aiimage.litpage_ai_redraws_this_image_with', 'AIMaster redraws this image with your changes.')}</span>}
+                : <span className="nc-aiimg-caption grow">{rounds ? t('lp.aiimage.image_updated_describe_another_change_or', 'Image updated. Describe another change or close.') : t('lp.aiimage.litpage_ai_redraws_this_image_with', 'AI 비서 redraws this image with your changes.')}</span>}
               <button type="button" className="nc-blk-btn" onClick={close}>{t('lp.aiimage.done', 'Done')}</button>
               <button type="button" className="nc-blk-btn primary" disabled={busy || !text.trim() || configured === false} onClick={() => void submit()}>
                 {t('lp.aiimage.apply', 'Apply')}

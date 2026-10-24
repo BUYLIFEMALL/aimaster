@@ -63,4 +63,4 @@ export function aiAllowed(userId: string): boolean {
   return hit(`ai:user-day:${userId}`, perDay, 86_400_000);
 }
 
-export const AI_RATE_MESSAGE = 'You’ve reached the AIMaster request limit. Try again in a moment.';
+export const AI_RATE_MESSAGE = 'AI 비서 요청 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.';

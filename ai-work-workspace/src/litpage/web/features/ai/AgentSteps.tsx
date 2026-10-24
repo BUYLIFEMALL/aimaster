@@ -190,7 +190,7 @@ export function ChangesCard({ changes, onUndo }: { changes: TurnChanges; onUndo?
     setBusy(true);
     try {
       const r = await onUndo();
-      if (r && r.conflicts) setNote('Some changes were edited after AIMaster made them and were kept.');
+      if (r && r.conflicts) setNote('Some changes were edited after AI 비서 made them and were kept.');
     } catch (e) {
       setNote((e as Error)?.message || 'That turn could not be undone. Try again.');
     } finally {

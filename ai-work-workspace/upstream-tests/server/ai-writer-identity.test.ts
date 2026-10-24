@@ -51,7 +51,7 @@ describe('inline writer identity', () => {
 
   it('a foreign workspace or a missing context is refused', async () => {
     expect(() => svc.prepareWriter({ userId: ids.mallory, spaceId: ids.aliceSpace, prompt: 'hi' })).toThrow(/cannot access this workspace/);
-    expect(() => svc.prepareWriter({ userId: ids.mallory, prompt: 'hi' })).toThrow(/Open a page/);
+    expect(() => svc.prepareWriter({ userId: ids.mallory, prompt: 'hi' })).toThrow(/페이지를 열어/) /* 이식판 U3 */;
     // a page of someone else's private section
     expect(() => svc.prepareWriter({ userId: ids.mallory, pageId: ids.alicePage, skill: 'Summarize' })).toThrow(/access to this page/);
   });
