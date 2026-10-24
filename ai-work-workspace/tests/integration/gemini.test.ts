@@ -140,6 +140,8 @@ describe('Gemini 스트림(U4)', () => {
   it('오류 코드 매핑: 한도 초과·모델 없음', () => {
     expect(geminiError(429, { error: { status: 'RESOURCE_EXHAUSTED', message: 'quota' } }).code).toBe('rate_limited');
     expect(geminiError(404, { error: { status: 'NOT_FOUND', message: 'model' } }, { model: 'gemini-x' }).code).toBe('not_found');
+    const old = geminiError(404, { error: { status: 'NOT_FOUND', message: 'This model models/gemini-2.5-flash-lite is no longer available to new users.' } }, { model: 'gemini-2.5-flash-lite' });
+    expect(old.message).toContain('새 사용자에게 더 이상 제공하지 않습니다');
   });
 
   it('기록에 남는 글에서 Gemini 키 모양을 가린다', () => {
@@ -224,13 +226,13 @@ describe('Gemini 모델 목록과 제공자 선택(U4)', () => {
     expect(idsA2).toEqual(idsA);
   });
 
-  it('더 새로운 Flash-Lite가 있어도 기본은 가장 저렴한 2.5 Flash-Lite', async () => {
+  it('더 새로운 정식 Flash-Lite가 있으면 그것이 기본(2.5 Flash-Lite는 새 사용자에게 막힘)', async () => {
     const withNewer = { models: [...LIST.models, { name: 'models/gemini-3.5-flash-lite', displayName: 'Gemini 3.5 Flash Lite', supportedGenerationMethods: ['generateContent'] }] };
     setGeminiModelsFetch((async () => new Response(JSON.stringify(withNewer), { status: 200 })) as unknown as typeof fetch);
     await withMemberAiKeys({ geminiKey: 'AIzaSyNewer-lite-member-key-00000000', provider: 'gemini' }, async () => {
       await warmGeminiModels();
-      expect(models.autoModel()).toBe('gemini-2.5-flash-lite');
-      expect(models.offeredModels(false).map((m) => m.id)).toContain('gemini-3.5-flash-lite');
+      expect(models.autoModel()).toBe('gemini-3.5-flash-lite');
+      expect(models.offeredModels(false).map((m) => m.id)).toContain('gemini-2.5-flash-lite');
     });
   });
 

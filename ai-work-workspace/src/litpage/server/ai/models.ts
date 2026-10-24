@@ -90,13 +90,11 @@ function geminiInfo(m: GeminiModel, recommended: boolean): ModelInfo {
  */
 function geminiModels(): { listed: ModelInfo[]; def: string; fast: string } {
   const list = cachedGeminiModels() ?? [];
-  const cheapestModel = list.find((m) => m.slug === GEMINI_CHEAPEST);
-  const picks = [...(cheapestModel ? [cheapestModel] : []), ...(['flash-lite', 'flash', 'pro'] as const).map((t) => pickGemini(list, t))].filter((m, i, a): m is GeminiModel => !!m && a.findIndex((x) => x?.slug === m.slug) === i);
+  const picks = (['flash-lite', 'flash', 'pro'] as const).map((t) => pickGemini(list, t)).filter((m): m is GeminiModel => !!m);
   const ids = new Set(picks.map((m) => m.slug));
   const listed = [...picks.map((m) => geminiInfo(m, true)), ...list.filter((m) => !ids.has(m.slug) && !m.preview).map((m) => geminiInfo(m, false))];
-  // 최신 Flash-Lite가 늘 가장 싸지는 않다(2026-10 기준 3.5 Flash-Lite는 2.5 Flash-Lite의 3~6배) → 가장 저렴한 2.5 Flash-Lite 우선
-  const cheapest = list.find((m) => m.slug === GEMINI_CHEAPEST);
-  const def = (cheapest ?? pickGemini(list, 'flash-lite') ?? pickGemini(list, 'flash'))?.slug ?? GEMINI_FLASH_LITE_ALIAS;
+  // 2026-10-24 운영 시험: 2.5 Flash-Lite는 목록에 보여도 「새 사용자에게 더 이상 제공하지 않음」(404) → 쓸 수 있는 최신 정식 Flash-Lite(지금 3.5)
+  const def = (pickGemini(list, 'flash-lite') ?? pickGemini(list, 'flash'))?.slug ?? GEMINI_FLASH_LITE_ALIAS;
   const fast = def;
   if (!listed.some((m) => m.id === def)) {
     const lite = def === GEMINI_FLASH_LITE_ALIAS;
@@ -106,8 +104,6 @@ function geminiModels(): { listed: ModelInfo[]; def: string; fast: string } {
 }
 
 let geminiFast = '';
-/** 이식판(U6-A 시험 중 결정): 「자동」 Gemini 기본 — Google 가격표상 가장 저렴한 글 생성 모델(없으면 최신 Flash-Lite) */
-const GEMINI_CHEAPEST = 'gemini-2.5-flash-lite';
 
 /**
  * 이식판(U6-A 시험 중 발견): 회원 본인 OpenAI 키로 받은 표준 /models 목록에는 음성·검열·실시간·이미지·날짜 붙은 옛 판까지

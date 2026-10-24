@@ -51,6 +51,10 @@ export function geminiError(httpStatus: number | undefined, payload: unknown, me
   if (st === 429 || status === 'RESOURCE_EXHAUSTED') {
     return new ProviderError('rate_limited', 'Gemini 사용 한도에 도달했습니다(무료 등급 키는 분당·일일 한도가 있습니다). 잠시 후 다시 시도해 주세요.', 429, extra);
   }
+  if (/no longer available to new users/i.test(detail)) {
+    // 2026-10-24 운영 시험: 목록에 보여도 새 사용자에게는 막힌 옛 모델(예: gemini-2.5-flash-lite)
+    return new ProviderError('not_found', `Gemini 모델 ${meta.model ? `"${meta.model}"` : ''}은(는) Google이 새 사용자에게 더 이상 제공하지 않습니다. 모델 목록에서 다른 Gemini 모델(예: 최신 Flash-Lite)을 골라 주세요.`, 400, extra);
+  }
   if (st === 404 || status === 'NOT_FOUND') {
     return new ProviderError('not_found', `Gemini 모델 ${meta.model ? `"${meta.model}"` : ''}을(를) 쓸 수 없습니다. 다른 모델을 골라 주세요.`, 400, extra);
   }
