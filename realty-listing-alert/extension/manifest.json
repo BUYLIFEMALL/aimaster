@@ -31,6 +31,16 @@
         "web-bridge.js"
       ],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://new.land.naver.com/*",
+        "https://fin.land.naver.com/*"
+      ],
+      "js": [
+        "naver-button.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "action": {

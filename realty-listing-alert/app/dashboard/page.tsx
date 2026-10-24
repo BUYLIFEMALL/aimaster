@@ -4,6 +4,7 @@ import ExtensionDownloadCard from "@/app/settings/ExtensionDownloadCard";
 import { createClient } from "@/lib/supabase/server";
 import { COLLECT_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { MAX_TARGETS } from "@/lib/targets";
+import StartChecklist from "./StartChecklist";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,7 +20,7 @@ const INSTALL = [
 export default async function DashboardPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const [{ data: targets }, { data: settings }, { data: telegram }, { data: device }] = await Promise.all([
+  const [{ data: targets }, { data: settings }, { data: telegram }, { data: device }, { count: tokenCount }] = await Promise.all([
     supabase.from("realty_alert_targets").select("enabled").eq("user_id", user.id),
     supabase.from("realty_alert_settings").select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end").eq("user_id", user.id).maybeSingle(),
     supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).eq("program_slug", "realty-listing-alert").maybeSingle(),
@@ -31,6 +32,7 @@ export default async function DashboardPage() {
       .order("last_run_at", { ascending: false, nullsFirst: false })
       .limit(1)
       .maybeSingle(),
+    supabase.from("personal_access_tokens").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("program_slug", "realty-listing-alert").is("revoked_at", null),
   ]);
   const total = targets?.length ?? 0;
   const active = targets?.filter((t) => t.enabled).length ?? 0;
@@ -68,6 +70,8 @@ export default async function DashboardPage() {
             <p className="lede">수집은 회원님 PC의 크롬이 회원님 계정으로 합니다. 매물 정보는 이 사이트로 오지 않습니다.</p>
           </div>
         </div>
+
+        <StartChecklist facts={{ hasToken: (tokenCount ?? 0) > 0, telegram: !!telegram, targetCount: total, scheduleOn: !!settings?.schedule_enabled }} />
 
         <section className="card" aria-labelledby="install-title">
           <h2 className="card-title" id="install-title">🖥 원클릭 다운로드 센터</h2>

@@ -11,7 +11,9 @@
     if (message.type !== "ping" && message.type !== "connect") return;
     let result;
     if (message.type === "ping") {
-      result = { ok: true, version: chrome.runtime.getManifest().version_name || "" };
+      // connected: 이 확장에 연결 코드가 저장돼 있는지만(코드 자체는 알려 주지 않음) — 웹 「시작하기」 체크리스트용
+      const { extToken } = await chrome.storage.local.get("extToken").catch(() => ({}));
+      result = { ok: true, version: chrome.runtime.getManifest().version_name || "", connected: !!extToken };
     } else {
       try { result = await chrome.runtime.sendMessage({ type: "connect", token: String(message.token || ""), closeTab: message.closeTab === true }); }
       catch { result = { ok: false, error: "확장 프로그램을 새로고침하고 이 화면도 새로고침해 주세요." }; }

@@ -627,3 +627,24 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-naver-go .card-caption { flex: 1 1 260px; margin: 0; }
 .ra-naver-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border: 1px solid #008a44; border-radius: 12px; background: linear-gradient(180deg, #08c963, #009b4d); color: #fff; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 4px 0 #007338; white-space: nowrap; }
 .ra-naver-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #007338; }
+/* 🚀 시작하기 체크리스트(UX 리뉴얼 A, 2026-10-25) */
+.start-card { border: 2px solid #bfe6cf; background: linear-gradient(180deg, #f6fdf9 0%, #fff 60%); }
+.start-head { display: grid; gap: 10px; }
+.start-bar { height: 8px; border-radius: 999px; background: #e3e8ee; overflow: hidden; }
+.start-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-bright)); transition: width .3s; }
+.start-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.start-steps li { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: #fff; opacity: .7; }
+.start-steps li.done { opacity: 1; border-color: #bfe6cf; background: var(--accent-soft); }
+.start-steps li.now { opacity: 1; border: 2px solid var(--accent); box-shadow: 0 6px 18px rgba(0,155,77,.15); }
+.start-num { flex: 0 0 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #e6eaf0; color: #475063; font-weight: 800; font-size: 13px; }
+.start-steps li.done .start-num, .start-steps li.now .start-num { background: var(--accent); color: #fff; }
+.start-text { display: grid; gap: 3px; }
+.start-text strong { font-size: 14px; }
+.start-text small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.start-next { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: #fff; border: 1px dashed #9ad9b5; }
+.start-next > span { font-size: 15px; }
+.start-next small { flex-basis: 100%; color: var(--muted); font-size: 13px; }
+.start-next-btn { display: inline-flex; align-items: center; padding: 12px 20px; border: 1px solid #008a44; border-radius: 12px; background: linear-gradient(180deg, #08c963, #009b4d); color: #fff; font-weight: 800; font-size: 15px; text-decoration: none; box-shadow: 0 4px 0 #007338; }
+.start-next-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #007338; }
+.start-done { border: 1px solid #bfe6cf; background: var(--accent-soft); color: #14532d; font-size: 15px; }
+@media (max-width: 920px) { .start-steps { grid-template-columns: 1fr; } }

@@ -237,7 +237,15 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         if (!no) return reply({ ok: false, error: "네이버 부동산 단지 화면에서 눌러 주세요." });
         const r = await api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: no, complexName: msg.name || "" }) });
         await addLog(`감시 대상 추가: 단지 ${no} (${r.count}/10)`);
+        loadSettings().catch(() => {}); // 다음 확인·수집에 바로 반영
         return reply({ ok: true, count: r.count, complexNo: no });
+      }
+      if (msg.type === "isWatched") {
+        // 네이버 화면 버튼용 — 웹 설정(1분 안이면 저장해 둔 값)에 그 단지가 있는지만 본다
+        const { settingsCache, settingsAt } = await get(["settingsCache", "settingsAt"]);
+        let s = settingsCache;
+        if (!s || !settingsAt || Date.now() - new Date(settingsAt).getTime() > 60000) s = await loadSettings().catch(() => settingsCache);
+        return reply({ watched: !!s?.targets?.some((t) => t.complex_no === String(msg.complexNo)) });
       }
       if (msg.type === "openResults") {
         await chrome.tabs.create({ url: chrome.runtime.getURL("result.html") });
