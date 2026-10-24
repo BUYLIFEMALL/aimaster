@@ -66,3 +66,10 @@
 - **맥미니 측정(무료)**: 기본(미리 받기) 1회 + `?render=remote,verbose` 1회. 미리 받기로 빨라지면 ⓐ 확정·끝. 그대로면 ⓑ → 3단계 후보: 맥은 「⚡ 내 PC 렌더러」로 안내하거나 원본을 내 PC 렌더러로 「형식 맞추기」(`normalize`, 1.30에 있음) 뒤 렌더.
 - **검수**: 시험·`tsc`·eslint·build(로컬, 무료) → 배포 → 윈도우 크롬에서 기본·`?render=remote` 둘 다 5초 영상 완성·속도 비교 → 맥미니 측정 요청.
 - **비용**: Vercel 빌드 1회(사전 승인 필요). AI 호출 0회, 브라우저 렌더는 무료.
+
+### 8-1. 진행 중 바꾼 점과 결과 (2026-10-25, 주인님 승인 「진행해」 뒤)
+- **1번 「원본 미리 받기」는 뺐다**: 코드를 보니 갤러리·내 파일 클립은 넣을 때 이미 통째로 받아 `blob:` 주소로 쓴다(`EditStudio.tsx` `addVideo`) → 렌더 중 인터넷 대기 없음, 후보 ⓐ 탈락.
+- **대신 ⓑ(디코더) 대책을 넣었다**: `@remotion/media` 4.0.538은 `new VideoSampleSink(videoTrack)`로 디코더 옵션을 넘기지 않아, 렌더하는 동안만 `VideoDecoder.prototype.configure`를 감싸 `prefer-software`를 요청(`lib/edit/softDecode.ts`). **맥은 기본으로 켜짐**, `?render=hwdecode`로 예전 방식 비교.
+- 2·3·4번은 플랜대로. v1.22 배포(빌드 1회, 승인 범위 안), 커밋 `40f8c8a99`.
+- **윈도우 운영 확인**(크롬, 시험 계정, Wan 3.0 5초): 기본 `decode: default` 5.0초 / `?render=softdecode,verbose` 5.1초·34ms/장·디코더 설정 `prefer-software` 확인 / 멈추기 1.2초에 중단·「렌더를 멈췄습니다」.
+- **맥미니 재측정 절차**: ① `https://ai-video-studio.buylife.xyz/edit` 에서 갤러리 「Wan 3.0 · 5초」 1개 → 「영상 만들기」 → 걸린 시간과 진단 줄(`decode`가 `software`인지, `msPerFrame`) ② `?render=hwdecode,verbose` 로 같은 일(3분 넘으면 「멈추기」 — 「멈추는 중…」이 바로 뜨는지도) ③ 결과를 이 문서 §9에 적고 커밋. 기본 주소가 빨라지면 원인 ⓑ 확정·끝.
