@@ -14,7 +14,7 @@ export const PROVIDERS = [
 export const ACTIVE_PROVIDERS = PROVIDERS.filter((p) => p.enabled);
 export const KEY_FIELDS = [
   ...ACTIVE_PROVIDERS.map((p) => ({ key: p.key, label: `${p.name} API 키`, purpose: "대화·번역·요약에 사용", console: p.console, linkLabel: "API 키 생성·등록" })),
-  { key: "cloudflare_account_id", label: "Cloudflare 계정 ID", purpose: "Cloudflare 연결 계정 식별에 사용", console: "https://dash.cloudflare.com/", linkLabel: "계정 ID 확인" },
+  { key: "cloudflare_account_id", label: "Cloudflare 계정 식별번호(Account ID)", purpose: "Cloudflare AI 연결에 사용", console: "https://dash.cloudflare.com/?to=/:account/workers-and-pages", linkLabel: "계정 식별번호 확인" },
 ];
 
 export class CompatibleChatError extends Error {
@@ -37,7 +37,7 @@ export function credentialValue(provider: unknown, value: unknown): { provider: 
     throw new CompatibleChatError("공백이나 줄바꿈 없이 본인 키 값을 입력해 주세요.");
   }
   const cleaned = value.trim();
-  if (provider === "cloudflare_account_id" && !/^[a-f0-9]{32}$/i.test(cleaned)) throw new CompatibleChatError("Cloudflare 계정 ID는 대시보드에서 확인한 32자리 영문·숫자 값을 입력해 주세요.");
+  if (provider === "cloudflare_account_id" && !/^[a-f0-9]{32}$/i.test(cleaned)) throw new CompatibleChatError("Cloudflare 계정 식별번호(Account ID)는 로그인 이메일이 아닙니다. Workers & Pages의 Account Details에서 복사한 32자리 영문·숫자 값을 입력해 주세요.");
   return { provider, value: cleaned };
 }
 
