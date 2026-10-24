@@ -40,6 +40,7 @@ export default function ScenesPage() {
   const { scenes, video, artStyle } = project;
   // v1.26 화풍이 「참고 이미지 화풍」일 때만 분석 결과를 함께 보낸다
   const styleProfile = artStyle === "reference" ? project.styleProfile : null;
+  const keepStyle = references.length > 0 || !!styleProfile;
   const [confirm, setConfirm] = useState<string | null>(null); // 장면 id 또는 "all"
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [zipping, setZipping] = useState(false);
@@ -108,8 +109,9 @@ export default function ScenesPage() {
 
   const generateVideo = async (scene: Scene) => {
     let image = mediaRef.current[scene.id]?.imageUrl;
-    // v1.26 참고 이미지가 있는데 장면 이미지가 없으면, 글만으로 만들면 화풍이 사라지므로(실사로 나옴) 그 화풍으로 장면 이미지를 먼저 만든다
-    if (!image && references.length > 0) {
+    // v1.26 참고 이미지(또는 저장된 화풍 분석 결과)가 있는데 장면 이미지가 없으면, 글만으로 만들면 화풍이 사라지므로(실사로 나옴)
+    // 그 화풍으로 장면 이미지를 먼저 만든다 — 참고 이미지는 새로 고치면 사라지지만 분석 결과는 프로젝트에 남는다
+    if (!image && keepStyle) {
       setMedia(scene.id, { videoBusy: true, videoNote: "참고 이미지 화풍을 지키려고 장면 이미지를 먼저 만드는 중…", error: undefined });
       image = await generateImage(scene);
       if (!image) {
@@ -296,7 +298,7 @@ export default function ScenesPage() {
             영상 1개당 약 ${perSceneCost(true).usd} (약 {perSceneCost(true).krw.toLocaleString()}원), 전체 {scenes.length}개 장면 일괄 렌더링 시 약 ${totalCost.usd} (약 {totalCost.krw.toLocaleString()}원).
             회원님 본인 Gemini API 계정으로만 청구되며, 이미지만 생성할 경우 무료/저비용으로 기획안을 확인할 수 있습니다.
           </p>
-          {references.length > 0 && scenes.length - imageCount > 0 && (
+          {keepStyle && scenes.length - imageCount > 0 && (
             <p className="mt-1 leading-relaxed text-amber-200/90">
               🎨 참고 이미지 화풍을 지키려고, 장면 이미지가 없는 장면({scenes.length - imageCount}개)은 영상을 만들기 전에 그 화풍으로 이미지를 먼저 만듭니다(장면당 이미지 1장 비용 추가).
             </p>
