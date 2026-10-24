@@ -8,3 +8,5 @@ function Loading() {
 }
 
 export const LabelToolLoader = dynamic(() => import("@/components/label/LabelTool"), { ssr: false, loading: Loading });
+export const QrToolLoader = dynamic(() => import("@/components/qr/QrTool"), { ssr: false, loading: Loading });
+export const RenameToolLoader = dynamic(() => import("@/components/rename/RenameTool"), { ssr: false, loading: Loading });
