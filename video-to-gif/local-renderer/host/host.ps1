@@ -3,7 +3,7 @@
 # Security: never accepts a command string. Only validated numbers (width/fps/colors/trim) are turned into ffmpeg arguments here.
 # Keep this file ASCII-only: Windows PowerShell 5.1 reads BOM-less scripts in the system ANSI code page.
 $ErrorActionPreference = 'Stop'
-$HostVersion = '1.20'
+$HostVersion = '1.30'
 $ChunkBytes = 600 * 1024
 $stdin = [Console]::OpenStandardInput()
 $stdout = [Console]::OpenStandardOutput()
@@ -313,6 +313,80 @@ function Invoke-Loop($m) {
   Send-File $out $ids ([ordered]@{ ext = $ext; hasAudio = [bool]$aud; unitSeconds = [math]::Round($unitLen, 3); filter = $fl })
 }
 
+# v1.30 'normalize' / 'compress' commands (AIMaster video programs, ai-video-studio edit).
+# normalize: H.264 yuv420p, constant fps, even size, long side <= maxSide, AAC 48k stereo if the file has audio, faststart.
+#   values: fps 24..60 (int), maxSide 360..3840 (int), duration 0.05..36000 (progress only).
+# compress: H.264 re-encode with quality word high|balanced|small (crf 20/23/27), optional maxSide 360..3840, AAC 128k if audio, faststart.
+function Test-HasAudio([string]$ffmpeg, [string]$in, $ids) {
+  $probe = Invoke-Ff $ffmpeg @('-hide_banner', '-nostdin', '-i', $in) 0 $ids 0 0
+  return [bool]($probe.err -match 'Stream #\d+:\d+(?:\[[^\]\r\n]*\])?(?:\([^)\r\n]*\))?: Audio:')
+}
+function Get-ScaleFilter([int]$maxSide) {
+  return "scale='if(gt(iw,ih),trunc(min($($maxSide),iw)/2)*2,-2)':'if(gt(iw,ih),-2,trunc(min($($maxSide),ih)/2)*2)':flags=lanczos,setsar=1"
+}
+function Get-Ids($m) {
+  $req = 0
+  if ([string]$m.req -match '^\d{1,9}$') { $req = [int]$m.req }
+  return [ordered]@{ job = $m.job; req = $req }
+}
+function Invoke-Normalize($m) {
+  $ids = Get-Ids $m
+  $job = $m.job
+  if (-not (Test-Job $job) -or -not $jobs.ContainsKey($job) -or $jobs[$job].fs) { Send-Fail 'job unknown' $ids; return }
+  $ok = (Test-Num $m.fps 24 60 $true) -and (Test-Num $m.maxSide 360 3840 $true) -and (($null -eq $m.duration) -or (Test-Num $m.duration 0.05 36000 $false))
+  if (-not $ok) { Send-Fail 'bad params' $ids; return }
+  $ffmpeg = Find-Ffmpeg
+  if (-not $ffmpeg) { $ids['code'] = 'NO_FFMPEG'; Send-Fail 'ffmpeg not found' $ids; return }
+  $in = $jobs[$job].path
+  $aud = Test-HasAudio $ffmpeg $in $ids
+  $fpsN = [int]$m.fps
+  $vf = "fps=$($fpsN)," + (Get-ScaleFilter ([int]$m.maxSide)) + ",format=yuv420p"
+  $total = 0.0; if ($null -ne $m.duration) { $total = [double]$m.duration }
+  $out = Join-Path $workdir ("$job-$($ids.req)-norm.mp4")
+  $a = @('-hide_banner', '-nostdin', '-loglevel', 'error', '-nostats', '-progress', 'pipe:1', '-y', '-i', $in, '-map', '0:v:0')
+  if ($aud) { $a += @('-map', '0:a:0') }
+  $a += @('-vf', $vf, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-g', [string]($fpsN * 2))
+  if ($aud) { $a += @('-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2') } else { $a += '-an' }
+  $a += @('-movflags', '+faststart', $out)
+  $r = Invoke-Ff $ffmpeg $a $total $ids 0 1
+  if ($r.code -ne 0 -or -not (Test-Path $out) -or (Get-Item $out).Length -eq 0) {
+    Remove-Item $out -ErrorAction SilentlyContinue
+    $err = $r.err; if ($err.Length -gt 400) { $err = $err.Substring($err.Length - 400) }
+    Send-Fail ("ffmpeg normalize failed ($($r.code)): " + $err) $ids; return
+  }
+  Send-File $out $ids ([ordered]@{ ext = 'mp4'; hasAudio = $aud })
+}
+function Invoke-Compress($m) {
+  $ids = Get-Ids $m
+  $job = $m.job
+  if (-not (Test-Job $job) -or -not $jobs.ContainsKey($job) -or $jobs[$job].fs) { Send-Fail 'job unknown' $ids; return }
+  $crfs = @{ high = '20'; balanced = '23'; small = '27' }
+  $q = [string]$m.quality
+  $ok = $crfs.ContainsKey($q) -and (($null -eq $m.maxSide) -or (Test-Num $m.maxSide 360 3840 $true)) -and (($null -eq $m.duration) -or (Test-Num $m.duration 0.05 36000 $false))
+  if (-not $ok) { Send-Fail 'bad params' $ids; return }
+  $ffmpeg = Find-Ffmpeg
+  if (-not $ffmpeg) { $ids['code'] = 'NO_FFMPEG'; Send-Fail 'ffmpeg not found' $ids; return }
+  $in = $jobs[$job].path
+  $inSize = (Get-Item $in).Length
+  $aud = Test-HasAudio $ffmpeg $in $ids
+  $total = 0.0; if ($null -ne $m.duration) { $total = [double]$m.duration }
+  $out = Join-Path $workdir ("$job-$($ids.req)-small.mp4")
+  $a = @('-hide_banner', '-nostdin', '-loglevel', 'error', '-nostats', '-progress', 'pipe:1', '-y', '-i', $in, '-map', '0:v:0')
+  if ($aud) { $a += @('-map', '0:a:0') }
+  $vf = 'format=yuv420p'
+  if ($null -ne $m.maxSide) { $vf = (Get-ScaleFilter ([int]$m.maxSide)) + ',format=yuv420p' }
+  $a += @('-vf', $vf, '-c:v', 'libx264', '-preset', 'medium', '-crf', $crfs[$q], '-pix_fmt', 'yuv420p')
+  if ($aud) { $a += @('-c:a', 'aac', '-b:a', '128k') } else { $a += '-an' }
+  $a += @('-movflags', '+faststart', $out)
+  $r = Invoke-Ff $ffmpeg $a $total $ids 0 1
+  if ($r.code -ne 0 -or -not (Test-Path $out) -or (Get-Item $out).Length -eq 0) {
+    Remove-Item $out -ErrorAction SilentlyContinue
+    $err = $r.err; if ($err.Length -gt 400) { $err = $err.Substring($err.Length - 400) }
+    Send-Fail ("ffmpeg compress failed ($($r.code)): " + $err) $ids; return
+  }
+  Send-File $out $ids ([ordered]@{ ext = 'mp4'; hasAudio = $aud; inSize = $inSize })
+}
+
 try {
   while ($true) {
     $head = Read-Exact 4
@@ -339,7 +413,7 @@ try {
     switch ([string]$m.type) {
       'ping' {
         $ff = Find-Ffmpeg
-        Send-Msg ([ordered]@{ type = 'pong'; host = 'powershell'; hostVersion = $HostVersion; psVersion = $PSVersionTable.PSVersion.ToString(); ffmpeg = $ff; ffmpegVersion = (Get-FfmpegVersion $ff); capabilities = @('gif', 'audio', 'loop') })
+        Send-Msg ([ordered]@{ type = 'pong'; host = 'powershell'; hostVersion = $HostVersion; psVersion = $PSVersionTable.PSVersion.ToString(); ffmpeg = $ff; ffmpegVersion = (Get-FfmpegVersion $ff); capabilities = @('gif', 'audio', 'loop', 'normalize', 'compress') })
       }
       'begin' {
         if (-not (Test-Job $m.job)) { Send-Fail 'bad job' $null; break }
@@ -356,6 +430,8 @@ try {
       'encode' { Invoke-Encode $m }
       'audio' { Invoke-Audio $m }
       'loop' { Invoke-Loop $m }
+      'normalize' { Invoke-Normalize $m }
+      'compress' { Invoke-Compress $m }
       'release' {
         if ((Test-Job $m.job) -and $jobs.ContainsKey($m.job)) {
           if ($jobs[$m.job].fs) { $jobs[$m.job].fs.Close() }

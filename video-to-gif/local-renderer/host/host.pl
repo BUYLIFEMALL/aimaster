@@ -11,7 +11,7 @@ use File::Temp qw(tempdir);
 use File::Basename qw(dirname);
 use POSIX qw(:sys_wait_h);
 
-my $HOST_VERSION = "1.20";
+my $HOST_VERSION = "1.30";
 my $CHUNK_BYTES  = 600 * 1024;    # base64로 약 800KB — JSON 포함 1MB 아래
 my $json         = JSON::PP->new->utf8->canonical;
 my $workdir      = tempdir("buylife-gif-XXXXXX", TMPDIR => 1, CLEANUP => 1);
@@ -365,6 +365,83 @@ sub do_loop {
               unitSeconds => sprintf("%.3f", $unit_len) + 0, filter => $fl);
 }
 
+
+# v1.30 「normalize」·「compress」 명령(AIMaster 영상 프로그램, AI 영상 스튜디오 영상 합치기) — 윈도우 host.ps1과 같은 규칙.
+# normalize: H.264 yuv420p·고정 fps·짝수 크기·긴 변 maxSide 이하, 소리가 있으면 AAC 48k 스테레오, faststart.
+#   값: fps 24~60(정수), maxSide 360~3840(정수), duration 0.05~36000(진행률용, 생략 가능).
+# compress: 품질 낱말 high|balanced|small(crf 20/23/27)로 H.264 다시 인코딩, maxSide 360~3840(생략 가능), 소리 있으면 AAC 128k, faststart.
+sub has_audio_in {
+    my ($ffmpeg, $in, $ids, $errlog) = @_;
+    my (undef, $probe) = run_ff([$ffmpeg, "-hide_banner", "-nostdin", "-i", $in], 0, $ids, 0, 0, $errlog);
+    return $probe =~ /Stream #\d+:\d+(?:\[[^\]\n]*\])?(?:\([^)\n]*\))?: Audio:/ ? 1 : 0;
+}
+sub scale_filter {
+    my ($max) = @_;
+    return "scale='if(gt(iw,ih),trunc(min($max,iw)/2)*2,-2)':'if(gt(iw,ih),-2,trunc(min($max,ih)/2)*2)':flags=lanczos,setsar=1";
+}
+sub video_job_ids {
+    my ($m) = @_;
+    my $job = safe_job($m->{job});
+    my $req = defined $m->{req} && $m->{req} =~ /\A\d{1,9}\z/ ? $m->{req} + 0 : 0;
+    return ($job, (job => $job, req => $req));
+}
+
+sub do_normalize {
+    my ($m) = @_;
+    my ($job, %ids) = video_job_ids($m);
+    return fail("job unknown", %ids) unless $job && $jobs{$job} && !$jobs{$job}{fh};
+    return fail("bad params", %ids)
+      unless num_in($m->{fps}, 24, 60) && $m->{fps} == int($m->{fps})
+      && num_in($m->{maxSide}, 360, 3840) && $m->{maxSide} == int($m->{maxSide})
+      && (!defined $m->{duration} || num_in($m->{duration}, 0.05, 36000));
+    my $ffmpeg = find_ffmpeg() or return fail("ffmpeg not found", %ids, code => "NO_FFMPEG");
+    my $in = $jobs{$job}{path};
+    my $req = $ids{req};
+    my $errlog = "$workdir/$job-$req.log";
+    my $aud = has_audio_in($ffmpeg, $in, \%ids, $errlog);
+    my $fps = int($m->{fps});
+    my $vf = "fps=$fps," . scale_filter(int($m->{maxSide})) . ",format=yuv420p";
+    my $total = defined $m->{duration} ? $m->{duration} + 0 : 0;
+    my $out = "$workdir/$job-$req-norm.mp4";
+    my @cmd = ($ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-progress", "pipe:1", "-y", "-i", $in, "-map", "0:v:0",
+               ($aud ? ("-map", "0:a:0") : ()),
+               "-vf", $vf, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-g", $fps * 2,
+               ($aud ? ("-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2") : ("-an")),
+               "-movflags", "+faststart", $out);
+    my ($c, $e) = run_ff(\@cmd, $total, \%ids, 0, 1, $errlog);
+    if ($c != 0 || !-s $out) { unlink $out; return fail("ffmpeg normalize failed ($c): " . substr($e, -400), %ids); }
+    send_file($out, \%ids, ext => "mp4", hasAudio => ($aud ? JSON::PP::true : JSON::PP::false));
+}
+
+sub do_compress {
+    my ($m) = @_;
+    my ($job, %ids) = video_job_ids($m);
+    return fail("job unknown", %ids) unless $job && $jobs{$job} && !$jobs{$job}{fh};
+    my %crfs = (high => 20, balanced => 23, small => 27);
+    my $q = defined $m->{quality} && !ref $m->{quality} ? $m->{quality} : "";
+    return fail("bad params", %ids)
+      unless exists $crfs{$q}
+      && (!defined $m->{maxSide} || (num_in($m->{maxSide}, 360, 3840) && $m->{maxSide} == int($m->{maxSide})))
+      && (!defined $m->{duration} || num_in($m->{duration}, 0.05, 36000));
+    my $ffmpeg = find_ffmpeg() or return fail("ffmpeg not found", %ids, code => "NO_FFMPEG");
+    my $in = $jobs{$job}{path};
+    my $in_size = -s $in;
+    my $req = $ids{req};
+    my $errlog = "$workdir/$job-$req.log";
+    my $aud = has_audio_in($ffmpeg, $in, \%ids, $errlog);
+    my $vf = defined $m->{maxSide} ? scale_filter(int($m->{maxSide})) . ",format=yuv420p" : "format=yuv420p";
+    my $total = defined $m->{duration} ? $m->{duration} + 0 : 0;
+    my $out = "$workdir/$job-$req-small.mp4";
+    my @cmd = ($ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-progress", "pipe:1", "-y", "-i", $in, "-map", "0:v:0",
+               ($aud ? ("-map", "0:a:0") : ()),
+               "-vf", $vf, "-c:v", "libx264", "-preset", "medium", "-crf", $crfs{$q}, "-pix_fmt", "yuv420p",
+               ($aud ? ("-c:a", "aac", "-b:a", "128k") : ("-an")),
+               "-movflags", "+faststart", $out);
+    my ($c, $e) = run_ff(\@cmd, $total, \%ids, 0, 1, $errlog);
+    if ($c != 0 || !-s $out) { unlink $out; return fail("ffmpeg compress failed ($c): " . substr($e, -400), %ids); }
+    send_file($out, \%ids, ext => "mp4", hasAudio => ($aud ? JSON::PP::true : JSON::PP::false), inSize => $in_size + 0);
+}
+
 while (defined(my $head = read_exact(4))) {
     my $len  = unpack("V", $head);
     my $body = read_exact($len);
@@ -389,7 +466,7 @@ while (defined(my $head = read_exact(4))) {
     if ($type eq "ping") {
         my $ffmpeg = find_ffmpeg();
         send_msg({ type => "pong", host => "perl", hostVersion => $HOST_VERSION,
-                   ffmpeg => $ffmpeg, ffmpegVersion => ffmpeg_version($ffmpeg), capabilities => ["gif", "audio", "loop"] });
+                   ffmpeg => $ffmpeg, ffmpegVersion => ffmpeg_version($ffmpeg), capabilities => ["gif", "audio", "loop", "normalize", "compress"] });
     } elsif ($type eq "begin") {
         my $job = safe_job($m->{job}) or do { fail("bad job"); next };
         my $path = "$workdir/$job.in";
@@ -417,6 +494,10 @@ while (defined(my $head = read_exact(4))) {
         do_audio($m);
     } elsif ($type eq "loop") {
         do_loop($m);
+    } elsif ($type eq "normalize") {
+        do_normalize($m);
+    } elsif ($type eq "compress") {
+        do_compress($m);
     } elsif ($type eq "release") {
         my $job = safe_job($m->{job});
         if ($job && $jobs{$job}) {
