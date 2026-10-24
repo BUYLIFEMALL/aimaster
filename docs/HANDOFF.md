@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 블로그 담당 `claude-win-20261024-blog3` — 블로그 기능 상세 비교표(기준 문서) 작성 + 도톨이 D-1~D-4 검토 (분석·문서만)
+- 한 일: 8개 블로그 프로그램 현재 코드(에이전트 v2.18·SEO v2.16·BLOG v1.80·올인원 v1.52·작업실 v1.14·키워드 v1.07·티스토리 v1.91·콘텐츠 v1.11)를 다시 확인해 **[`docs/BLOG_FEATURE_MATRIX.md`](BLOG_FEATURE_MATRIX.md)** 기준 문서를 만듦 — 프로그램 정의·장단점, 기능 표 7개 영역(○·△·×, 묶음 A·B 반영), 고유 기능, 기능별 기준 코드 위치 18개, 병합 방향, 확장 로드맵·미배포 대기, 갱신 규칙. CLAUDE.md·AGENTS.md·GEMINI.md 블로그 완성 기준 아래와 `BLOG_CONSOLIDATION_TASKS.md`에 안내 줄 추가. 보고서 [2026-10-24 절](analysis-blog-consolidation-20261020/REPORT.md#blog-compare-20261024) `6b861f6ce`, D 플랜 검토 `b26bfcfd7`.
+- 새로 확인한 것: ① 작업실 검수 「제안 반영」이 B-1 이관 때 SEO로 빠짐(→ D-3에 포함) ② BLOG·티스토리가 유튜브를 회원 Gemini로 직접 읽음(→ D-4 유튜브는 이 방식) ③ 에이전트 참고 URL 읽기가 공용 `safe-fetch` 미사용.
+- 코드·DB·배포 변경 없음. 비용 없음(AI 0회·빌드 0회). 작업 브라우저: 메인 크롬(주인님 지시로 웨일 → 크롬).
+- 남은 일: D-1~D-4 수정안·비용 주인님 승인 대기 → 승인 뒤 D-1부터. 인수인계: [`docs/HANDOFF_20261024_BLOG_SESSION.md`](HANDOFF_20261024_BLOG_SESSION.md) §10.
+- https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.03 배포
 - 한 일: 미배포 대기였던 1단계 화면 보완(`2f0de2776` 회의록 블록 안내 · `df7a628d3` 템플릿 10개 한국어 · `db77b7a3b` 날짜·시각 화면 언어)을 v1.03으로 배포. 버전 3곳(코드 2곳·SQL `20261024000400_bump_version_v1_03.sql`) 커밋 `082550811`, 운영 DB `programs.version`=v1.03(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기).
 - 배포: `ai-work-workspace-l322zllr7` Ready(배포 전 팀 빌드 중·대기 0건 확인, 단독 실행). `docs/PENDING_DEPLOYS.md` 줄 삭제.
