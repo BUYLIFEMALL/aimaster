@@ -1,3 +1,5 @@
+> **📋 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — AutoGemmaStarter 2.0.0 참고 묶음:** G-1 여러 공급자(답변·라우터만, 임베딩은 Upstage 유지) · G-2·G-3 커스텀 봇 · G-4 문서 근거 보강 · G-5 로컬 Ollama(시제품). 분석·플랜 초안만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md) · [분석](../docs/analysis-autogemma-starter-20261024/REPORT.md)
+
 # AI 문서 챗봇 자동화 (`ai-doc-chatbot`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`/`AGENTS.md`(최상위 규칙: 회원 본인 계정·본인 API 키, 생성 데이터 30일 자동 삭제)를 먼저 읽는다.

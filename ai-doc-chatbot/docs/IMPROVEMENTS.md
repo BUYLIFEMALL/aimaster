@@ -42,3 +42,7 @@
 
 ## 타 프로그램 탐색 중 발견
 - 메인 상세 페이지의 공통 FAQ 「API 키 연동」 답변이 OpenAI·Gemini·Claude·Threads·YouTube만 예로 들어, Upstage·Tavily 같은 새 키는 언급이 없음 — 프로그램별 FAQ가 생기면 반영 검토(메인 사이트 작업, 대기). → **2026-10-19 확인: 코드 변경 불필요.** 문구는 「등」 예시이고 연결된 `/guides` 목록(DB)에 「Upstage API 키 발급받기」(LLM AI)·「Tavily 웹 검색 API 키 발급받기」(정보수집)가 공개 표시됨(크롬 확인). 메인 사이트 빌드 비용을 아끼려고 문구는 그대로 둠.
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 플랜 초안: AutoGemmaStarter 참고 묶음 (담당 이어받기)
+- G-1 여러 공급자(답변·라우터만, 임베딩은 Upstage 유지) · G-2·G-3 커스텀 봇 · G-4 문서 근거 보강 · G-5 로컬 Ollama(시제품).
+- 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 공용 연동 항목 추가는 운영 DB 쓰기라 별도 승인. [인수인계](../../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md)

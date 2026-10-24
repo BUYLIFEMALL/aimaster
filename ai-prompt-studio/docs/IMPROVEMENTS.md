@@ -38,3 +38,7 @@
 
 ## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 (세션 claude-win-20261023-next-security)
 - Next.js 16.4.2 보안 업데이트 배포 — **버전 파일이 작은따옴표라 버전이 v1.09 그대로 나감. 다음 배포 때 +0.01(코드+DB)(분담표 묶음 D)**. 상세·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](../../docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 플랜 초안: AutoGemmaStarter 참고 묶음 (담당 이어받기)
+- G-1 실행 공급자 선택(Groq·OpenRouter·NVIDIA·Cloudflare, 공용 모듈) · G-5 로컬 Ollama(시제품).
+- 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 공용 연동 항목 추가는 운영 DB 쓰기라 별도 승인. [인수인계](../../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md)

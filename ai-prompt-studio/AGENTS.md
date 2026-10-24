@@ -1,3 +1,5 @@
+> **📋 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — AutoGemmaStarter 2.0.0 참고 묶음:** G-1 실행 공급자 선택(Groq·OpenRouter·NVIDIA·Cloudflare, 공용 모듈) · G-5 로컬 Ollama(시제품). 분석·플랜 초안만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md) · [분석](../docs/analysis-autogemma-starter-20261024/REPORT.md)
+
 # AI
 ## 2026-10-21 Claude Code(윈도우) — 내 템플릿 저장 때 {{변수}} 자동 제안 (v1.08)
 - **무엇**: 결과 화면 「📁 내 템플릿으로 저장」으로 저장 창이 열리고 본문에 변수가 0개이면, AI가 한 번 「쓸 때마다 바뀌는 부분」(최대 8개)을 찾아 `{{변수명}} ← "원래 문구"` 체크 목록으로 제안합니다. 고른 것만 바꾸고, 본문 옆 「🪄 변수 찾기」로 언제든 다시 받을 수 있습니다. 플랜: [docs/PLAN_20261021_TEMPLATE_VARIABLE_SUGGEST.md](docs/PLAN_20261021_TEMPLATE_VARIABLE_SUGGEST.md).
