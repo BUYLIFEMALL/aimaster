@@ -2,7 +2,7 @@
 
 - 담당: [역할: workspace] `claude-win-20261024-workspace` · 대상: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`)
 - 근거: `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md` §3-2·§5(U8), U7 결과 `docs/WORK_INBOX.md`
-- 상태: **주인님 승인 대기**
+- 상태: ✅ U8-A 완료(2026-10-25, v1.11, 배포 `ai-task-planner-7t3wm8vxu`) · U8-B는 「나중에 공용 표에 열 추가」로 결정(주인님)
 
 ## 1. 문제와 목표
 로드맵 U8은 「워크스페이스 업무 보드 ↔ 오늘 할 일」 양방향입니다. 그런데 프로그램끼리 서로의 API를 부르지 않는 규칙 때문에, 지금 있는 길은 U7 공용 표 `public.work_inbox`(다른 프로그램 → 워크스페이스 한 방향)뿐입니다. 그래서 두 단계로 나눕니다.

@@ -1,5 +1,13 @@
 # AI 할 일·성과 관리 — 인수인계
 
+## 2026-10-25 v1.11 — U8-A 업무 워크스페이스로 보내기 (Claude Code 윈도우, [역할: workspace])
+- **한 일**: U8-A 업무 워크스페이스 「📨 받은 업무」로 보내기 — 할 일 카드 📨 버튼(분류·우선순위·예정일·예상/집중 시간을 표 행 데이터로), 성과 노트 아래 「📨 오늘 성과를 워크스페이스로」(완료율·집중 시간·완료/남은 할 일·저장한 노트를 보고서 한 장으로), 서버 라우트 `POST /api/work-inbox`(회원 본인 기록에서 서버가 내용 생성), 공용 기준 코드 사본 `src/lib/workInbox.ts`(`work-inbox-client`), 매뉴얼 구역. 플랜 `docs/PLAN_20261025_U8_WORK_INBOX.md`(주인님 승인, 빌드 1회).
+- **구조**: `src/lib/planner/inbox.ts`(순수 함수 `taskInboxContent`·`dayInboxContent`, 시험 `tests/workInbox.test.mjs`) → `src/app/api/work-inbox/route.ts`(출처 확인 + `authorizePlanner()` + 회원 기록 읽기 → `sendToWorkInbox`). 브라우저는 `{type:"task",taskId}`·`{type:"day",date,categoryId,query}`만 보내고 본문은 서버가 만든다. 하루 보고는 **저장된 노트만** 넣으므로 저장 안 한 노트가 있으면 화면이 먼저 저장을 안내한다.
+- **사본 주의**: `src/lib/workInbox.ts`는 `ai-work-workspace/src/lib/workInbox.ts` 사본이다 — 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --module work-inbox-client --sync`. `server-only`를 불러오므로 단위 시험에서는 이 파일 대신 `inbox.ts`를 시험한다.
+- **검수**: 단위 26/26(이번 4개 추가), 브라우저 30/30, tsc, 로컬 빌드, 배포 `ai-task-planner-7t3wm8vxu` Ready, 운영 DB v1.11(ref `esgxyikcnnvmlhygjkth`), 비로그인 `/api/work-inbox` 401. 크롬(시험 계정 `buylifemall@naver.com`): 시험 할 일 추가 → 📨 보내기 → 오늘 성과 보내기 → 워크스페이스 받은 업무에 두 항목 「AI 할 일 플래너」로 도착 → 보고서 「페이지로 만들기」·할 일 「표에 행으로 넣기」(예정일·우선순위·분류·상태·예상/집중 시간 속성 확인) → 받은편지함 시험 항목 SQL 삭제. 시험 할 일·만든 페이지·표 행은 시험 계정에 남김. 유료 AI 호출 0회.
+- **남은 일**: U8-B 반대 방향(워크스페이스 → 플래너)은 공용 표에 받는 곳 열 추가로 하기로 함(주인님 결정, 상세 플랜 따로 보고). 같은 항목 중복 보내기 막기는 없음(안내만).
+
+
 ## 2026-10-19 v1.08 — 리뉴얼 뒤 깨진 브라우저 테스트 판정·화면 회귀 2건 수정 (Claude Code 윈도우)
 - **발단**: 플랫폼 일괄 점검에서 `npm run test:browser`가 실패. 하나씩 판정하니 3건.
   1. **테스트 기대값 낡음**: v1.07 리뉴얼에서 입력 패널 제목이 「새 할 일」→「할 일 추가」로 의도적으로 바뀜 → `tests/browser.mjs` 기대값만 갱신.
