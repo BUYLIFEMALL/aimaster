@@ -88,3 +88,8 @@
 ## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `8ad8ea2e5` · `f53021369`
 - 결과 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=지운 입력·결과 파일 수) 기록 — 공용 `cleanup-usage-log` 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 메인 관리자 「운영 상태」 정리 기록 진행률에 들어감. 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 플랜 초안: 「무료 지우기(내 브라우저)」 C-1~C-5 (담당 이어받기)
+- ClearPic 1.3.0 분석 결과: 무료·키 없는 브라우저 지우기(LaMa)·글자 자동 찾기(PP-OCRv4)·마스크 여러 장 복사·일괄·ZIP을 이 프로그램에 병합. 기존 Gemini 「부분 삭제」는 「AI로 다시 그리기」로 유지.
+- **제미나이 ✦ 워터마크 자동 제거: 제외 확정(2026-10-24 주인님)** — AI 생성물 표시 의무·플랫폼 정책 위험.
+- 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 시제품 먼저(COOP/COEP·첫 208MB·속도). [인수인계](IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · [플랜](PLAN_20261024_CLEARPIC_C1_C5.md)
