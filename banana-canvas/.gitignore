@@ -10,3 +10,6 @@ public/fonts/
 
 .vercel
 .env*
+
+# 무료 지우기 계산 파일(scripts/copy-ort.mjs가 predev·prebuild에서 복사)
+public/ort/
