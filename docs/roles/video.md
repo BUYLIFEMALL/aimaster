@@ -15,7 +15,7 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-video-studio` | 영상 만들기 맥 느림 2단계 — 맥미니 측정(기본·`?render=software`) 결과 보고 결정 | 맥미니 측정(절차 PLAN §6) | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` |
-| `ai-video-studio` | 남은 시간 계산 수정 `d8c0aed57` 미배포 대기 | 다음 배포 때(또는 빌드 1회 승인) | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 |
+| `ai-video-studio` | 남은 시간 계산 수정 `d8c0aed57` 미배포 대기 | 맥 2단계 배포 때 함께(주인님 결정) | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 |
 | Shots·원스톱 쇼츠 | 영상 D — 완성본에 내 PC 「용량 줄이기」 | 빌드 2회 승인 | `docs/analysis-pc-renderer-20261024/ROADMAP.md` 3-0 |
 
 ## 최근 완료 (최근 10개)
@@ -40,6 +40,5 @@
 2. 영상 D(빌드 2회 승인 뒤)
 
 ## 주인님께 여쭐 것
-- 남은 시간 계산 수정(`d8c0aed57`)을 지금 빌드 1회로 내보낼지, 다음 배포 때 묶을지
 - 서버 지역(`regions`)을 DB 가까이 옮기는 전체 프로그램 공통 제안 검토 여부
 - 영상 D(Shots·원스톱 용량 줄이기) 빌드 2회 승인 여부
