@@ -21,6 +21,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `playlist-channel-studio/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` (음악 담당) | 2026-10-24 | Spectrum 묶음 P-0(원본 파생 렌더 2파일 새로 쓰기)→P-1~P-5. 플랜 `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md`·권리 점검 `docs/analysis-spectrum-studio-pro-20261024/RIGHTS_CHECK_20261024.md` · 빌드 2회 승인 |
 | `naver-blog-agent/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` (블로그 담당) | 2026-10-24 | 주인님 승인 순서: E-1(이미 구현)·E-2(보류) → 키워드 묶음 C ✅ v1.08 → **다음: 에이전트 E-3 간편 모드·E-4 무료 입구·E-5 발행 방식**. 플랜 `naver-blog-agent/docs/PLAN_20261024_MAEPSI_E1_E4.md` |
 | (폴더 없음 — 분담표 참고, 2026-10-24 주인님 승인으로 `infinite-loop-video/` 뺌: 묶음 A-1 크롬 확인은 영상 담당 `claude-win-video`가 끝냄) | Claude Code(윈도우) · 세션 `claude-win-20261023-next-security`(종료) | 2026-10-23 | **⚠ 세션 종료 — 배포 49/49 끝남. 남은 일은 `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 분담표(묶음 A~H)에서 맡을 것. 이 줄은 묶음 A·B 끝나면 삭제** Next.js 보안 업데이트(16.4.2·15.5.28) → 하나씩 배포, 플랜 `docs/PLAN_20261023_NEXTJS_SECURITY.md` · 빌드 약 49회 승인 · 2026-10-23 17:4x 주인님 지시로 끝난 45개 폴더를 이 줄에서 뺌(커밋된 Next.js 보안판 + 미커밋 없음 + 코드 버전=DB 운영 버전으로 판정, 링크 정정 세션 `claude-win-20261023-mainsite-url`) |
 | `shop-detail-page/`, `video-to-gif/` | Claude Code(맥미니, 크롬) | 2026-10-23 | ③ 휴대폰·연계 묶음(S-23-04·05·08·09, G-23-06) |
