@@ -17,6 +17,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `banana-canvas` | 무료 지우기 글자 상자 넓히기 0.5→0.9배(큰 굵은 제목 글자 조각 남던 문제, 운영 배너로 깨끗함 확인) — 공용 `browser-free-erase` 기준 | `1304e3fda` | 2026-10-24 · Claude Code(윈도우) `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md` §9 | 배포 v1.36, `/erase` 문구 찾기→지우기 |
+| `shop-detail-page` | 같은 수정의 사본(문구 고치기 「글자 모두 지우기」 큰 제목 품질) | `1304e3fda` | 2026-10-24 · Claude Code(윈도우) `claude-win-sdp` | 같은 문서 §9 | 배포 v1.33, 프로모션 배너로 확인 |
 | `ai-video-studio` (운영 v1.20) | 갤러리 「작게 줄이기(720)」 화질 「작게」→「균형」(주인님 결정, 코드 1줄) | `4e1776da0` | 2026-10-24 · [역할: video] Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 | 갤러리 목록 속도(5.7초) 개선과 묶어 빌드 1회(승인 필요), 버전 v1.21 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공용 공급자·키·중단 + G-2 회원별 봇/방 선택/당시 설정 보존. 운영 DB 준비·83개 시험/타입/로컬 빌드 통과, 임베딩·파싱 유지 | `2d56a117b` · `07795803c` | 2026-10-24 · [역할: docbot-prompt] Codex `codex-win-20261024-docbot-g2` | [G-2 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261024_G2.md) | 일반 시험 회원 Edge 로그인/본인 키 검수 → G-3·G-4 후 묶음, 버전 +0.01·DB·프로그램 비교표 일치 |

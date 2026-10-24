@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ⏳ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 무료 지우기 큰 글자 품질: 1차 배포(바나나 v1.35·상세 v1.32) + 근본 수정 미배포
+- 1차(주인님 승인 「진행해」 빌드 2회): 공용 `workRegion` 여유 0.5→0.3배, 칠한 덩어리 16px 격자 + 384px 조각 나누기(시험 55/55) → 바나나 캔버스 v1.35(`banana-canvas-p35mmpuk8`, 미배포 `db31e8684` 함께)·상세페이지 v1.32(`shop-detail-page-ej0iwdeb1`) Ready, DB 반영. 운영 배너 재확인: 조각은 줄었으나 글자 윤곽 남음.
+- 원인 확정(운영 화면에서 같은 그림으로 비교, 저장 안 함): 글자 찾기 상자가 굵은 글자 획보다 좁음 — 높이 0.9배 넓히면 큰 제목·초록 배지 글자·어두운 띠 글자까지 깨끗함. 수정 `1304e3fda`(`scaleBoxes` 0.5→0.9, 사본 동기화) — **미배포**, 빌드 2회 추가 승인 대기.
+- 비용: Vercel 빌드 2회(승인 범위), AI 0회.
+
 ## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 상품소싱 v1.25 당해 연도 규칙 먼저 배포 + 주인님 결정 4개 기록
 - 한 일: `trending-product-finder/lib/ai/opportunity.ts` 추천 사유 프롬프트에 `withYearRule()`(사본 `lib/ai/yearRule.ts` ← `threads-content-ops/lib/yearRule.ts`). 연도 누락 7곳 중 1번(플랜 `docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §3).
 - 검수: `tsc` 0, `test:trend` 11·`test:permissions` 통과, 규칙 문자열 「2026년 10월」 확인(유료 AI 호출 없음). 배포 Ready(`trending-product-finder-dt86buzti`), DB `programs.version` v1.25, 크롬 대시보드 v1.25. 함께 나감: 공용 사본 telegram `linkButton`.
