@@ -1,15 +1,15 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
-body{font:15px/1.5 sans-serif;width:400px;padding:12px;margin:0}
-button{width:100%;margin:5px 0;padding:11px;cursor:pointer;font-size:16px;font-weight:700}
+body{font:15px/1.5 sans-serif;width:520px;padding:12px;margin:0}
+button{width:100%;white-space:nowrap;margin:5px 0;padding:11px;cursor:pointer;font-size:16px;font-weight:700}
 #log{white-space:pre-wrap;background:#f4f4f4;padding:10px;max-height:300px;overflow:auto;font-size:14px;line-height:1.6;border-radius:6px}
 input{width:100%;box-sizing:border-box;margin:3px 0;padding:6px;font-size:14px}small{color:#555;font-size:13px}
 summary{font-size:15px;cursor:pointer}
 </style></head><body>
-<b>부동산 매물 알림 <span id="ver"></span></b> — 사전 검증 메뉴<br><small>네이버 부동산 단지 화면(매물 목록이 보이는 상태)을 연 탭에서 누르세요.</small>
-<button id="capture">① 응답 읽기 시험 (자동 스크롤 최대 3페이지 + 45초 기록)</button>
-<button id="direct">② 같은 주소 직접 부르기 시험 (1·2페이지)</button>
-<button id="alarm">③ 예약 타이머 시험 시작 (5분, 시작 후 창 최소화)</button>
-<details><summary>④ 텔레그램 파일 보내기 시험(선택)</summary>
+<b>부동산 매물 알림 <span id="ver"></span></b> — 사전 검증 메뉴<br><small>매물 목록이 보이는 단지 탭에서 누르세요.</small>
+<button id="capture">① 응답 읽기 (3페이지 · 약 1분)</button>
+<button id="direct">② 직접 부르기 (1·2페이지 · 약 20초)</button>
+<button id="alarm">③ 예약 타이머 (창 최소화 · 5분)</button>
+<details><summary>④ 텔레그램 파일 보내기 (선택)</summary>
 <input id="tok" placeholder="시험용 봇 토큰"><input id="chat" placeholder="chat id">
 <button id="tg">시험 파일 1개 보내기</button></details>
 <button id="save">결과 보기·파일로 받기</button>

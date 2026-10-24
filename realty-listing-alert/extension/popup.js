@@ -5,7 +5,7 @@ async function send(type, extra = {}) {
   const r = await chrome.runtime.sendMessage({ type, tabId: tab?.id, tabUrl: tab?.url, ...extra });
   if (r && r.ok === false && r.error) log(`⚠ ${r.error}`);
 }
-document.getElementById("capture").onclick = () => { log("① 시작합니다… (약 1분, 팝업을 닫아도 계속 진행됩니다)"); send("capture"); };
+document.getElementById("capture").onclick = () => { log("① 시작합니다… (약 1분, 팝업을 닫아도 계속됩니다)"); send("capture"); };
 document.getElementById("direct").onclick = () => { log("② 시작합니다… (약 20초)"); send("direct"); };
 document.getElementById("alarm").onclick = () => { log("③ 시작했습니다. 크롬 창을 최소화하고 5분 기다려 주세요."); send("alarm"); };
 document.getElementById("tg").onclick = () => send("telegram", { token: document.getElementById("tok").value.trim(), chat: document.getElementById("chat").value.trim() });
