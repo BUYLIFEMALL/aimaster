@@ -28,7 +28,7 @@
 
 ## 4. 작업 대기 — 「무료 지우기(내 브라우저)」 묶음 C-0~C-5 (2026-10-24 등록, 주인님 승인 전)
 > 담당: Claude Code(윈도우) `claude-win-sdp`(이커머스·이미지) · 근거: [인수인계 §6](IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · [플랜](PLAN_20261024_CLEARPIC_C1_C5.md) · 비용 AI 0·빌드 1~2회 · **제미나이 워터마크 자동 제거 제외 확정**
-- [ ] **C-0 시제품**: COOP/COEP 경로 한정 적용·로그인/외부 이미지 영향, LaMa 208MB 첫 내려받기·캐시, 입출력 측정, WebGPU 없는 PC 속도, 한국어 글자 검출
+- [ ] **C-0 사전 검증 페이지**(저장소 밖·내 PC 주소, 필요 시 Lab): COOP/COEP 멀티스레드·외부 이미지 영향, LaMa 208MB 첫 내려받기·캐시, 입출력 측정, WebGPU 없는 PC 속도, 한국어 글자 검출
 - [ ] **C-1 공용 브라우저 지우기 엔진**(LaMa ONNX, 캐시·진행률·취소, WebGPU→WASM, 작업자) + `SHARED_MODULES.md`·`SHARED_FEATURE_MAP.md` 등록
 - [ ] **C-2 글자 자동 찾기**(PP-OCRv4 위치 → 마스크)
 - [ ] **C-3 「무료 지우기」 화면**(여러 장 목록 + `MaskEditor` 확장: 지우개·되돌리기·확대·원본으로)
