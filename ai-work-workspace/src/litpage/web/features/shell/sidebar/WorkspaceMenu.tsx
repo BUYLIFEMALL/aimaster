@@ -12,6 +12,7 @@ import { t } from '../i18n.ts';
 import { WorkspaceIcon } from '../Sidebar.tsx';
 import { markOpen, memberCount, openAccountOptionsMenu, planLabel, switchWorkspace, userSpaces } from './menus.tsx';
 import { openCreateWorkspaceDialog } from './WorkspaceDialogs.tsx';
+import { SHOW_MULTI_ACCOUNT, SHOW_PLAN_UPSELL } from '../trimPolicy.ts';
 import { openAddAccount, logoutAllAccounts, removeAccount, switchAccount, useOtherAccounts, type AccountInfo } from '../accounts.tsx';
 import { openMenu } from '../../../components/Menu.tsx';
 import { tRich } from '../tRich.tsx';
@@ -61,14 +62,14 @@ function WorkspaceMenu({ close }: { close: () => void }) {
           <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             <div className="nc-ws-menu-name nc-ellipsis notranslate">{space?.name}</div>
             <div className="nc-ws-menu-plan nc-ellipsis">
-              {planLabel(space)} · {n === 1 ? t('lp.shell.1_member', '1 member') : t('lp.shell.members_93ee', '{count} members', { count: n })}
+              {SHOW_PLAN_UPSELL ? <>{planLabel(space)} · </> : null}{n === 1 ? t('lp.shell.1_member', '1 member') : t('lp.shell.members_93ee', '{count} members', { count: n })}
             </div>
           </div>
         </div>
         <div className="nc-ws-menu-sepwrap first"><div role="separator" className="nc-ws-menu-sep" /></div>
         {row('settings', t('lp.shell.settings', 'Settings'), 'gear', () => useUI.getState().openSettings())}
         {row('invite', t('lp.shell.invite_members', 'Invite members'), 'people', () => useUI.getState().openSettings('members'))}
-        {row('add-account', t('lp.shell.add_account', 'Add account'), 'personCropCircleBadgePlus', () => openAddAccountModal())}
+        {SHOW_MULTI_ACCOUNT && row('add-account', t('lp.shell.add_account', 'Add account'), 'personCropCircleBadgePlus', () => openAddAccountModal())}{/* 이식판: U2 */}
         <div className="nc-ws-menu-sepwrap"><div role="separator" className="nc-ws-menu-sep" /></div>
         <div ref={listRef} className={`nc-ws-menu-list lit-scroller vertical ${overflow ? 'overflow' : ''}`}>
           <div className="nc-ws-menu-account">
@@ -120,7 +121,7 @@ function WorkspaceMenu({ close }: { close: () => void }) {
               <div className="nc-ws-row-label"><div className="nc-ellipsis">{t('lp.shell.add_workspace', 'Add workspace')}</div></div>
             </div>
           </div>
-          {others.map((acc) => <OtherAccount key={acc.userId} acc={acc} close={close} active={active} setActive={setActive} />)}
+          {SHOW_MULTI_ACCOUNT && others.map((acc) => <OtherAccount key={acc.userId} acc={acc} close={close} active={active} setActive={setActive} />)}
         </div>
         <div className="nc-ws-menu-sepwrap"><div role="separator" className="nc-ws-menu-sep" /></div>
         <div

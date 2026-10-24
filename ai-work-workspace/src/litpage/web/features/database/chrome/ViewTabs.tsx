@@ -12,6 +12,7 @@ import { compactId } from '#shared/ids.ts';
 import { useUI } from '../../../lib/store/ui.ts';
 import { addView, deleteView, duplicateView, renameView, reorderViews, updateViewFormat } from '../actions.ts';
 import { confirmDialog } from '../../page/confirm.tsx';
+import { TRIM_VIEW_TYPES } from '../../shell/trimPolicy.ts';
 
 export function viewIcon(type: string): string {
   return viewTypeMeta(type).icon;
@@ -26,7 +27,7 @@ export function viewLink(block: BlockRecord, viewId: string): string {
 function AddViewGrid({ opts, close }: { opts: { block: BlockRecord; collection?: CollectionRecord; onCreated: (viewId: string, type: ViewType) => void; linked?: boolean }; close: () => void }) {
   // forms only collect into a data source the database owns 
   const linked = opts.linked ?? (!!opts.collection && opts.collection.parent_id !== opts.block.id);
-  const types = VIEW_TYPES.filter((v) => v.addMenu && !(linked && v.type === 'form'));
+  const types = VIEW_TYPES.filter((v) => v.addMenu && !(linked && v.type === 'form') && !TRIM_VIEW_TYPES.has(v.type)); // 이식판: U2 지도 보기 제외
   // keyboard highlight (starts on the first cell; the pointer only adds a hover background — add-view-menu
   // keeps "Table" highlighted after the pointer crossed "Timeline")
   const [active, setActive] = useState(0);

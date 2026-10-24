@@ -12,6 +12,8 @@ import { uploadFile } from '../../lib/api.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { t } from '../shell/i18n.ts';
 import { AiImageTab, aiImageTabs } from '../aiImage/AiImageTab.tsx';
+import { TRIM_MEDIA_TABS } from '../shell/trimPolicy.ts';
+import { AiImageStudioLink } from '../editor/blocks/media/MediaPicker.tsx';
 import { generateCover } from '../aiImage/api.ts';
 import './pickers.css';
 
@@ -213,7 +215,7 @@ function CoverPicker({ page, close }: { page: BlockRecord; close: () => void }) 
     ['unsplash', 'Unsplash'],
     // AIMaster: a generated cover, where the workspace can generate images (plan + Settings › AIMaster)
     ...aiImageTabs(page).map((k): [CoverTab, string] => [k, t('lp.page.litpage_ai', 'AIMaster')]),
-  ];
+  ].filter(([k]) => !TRIM_MEDIA_TABS.has(k)) as [CoverTab, string][]; // 이식판: U2 Unsplash(운영자 키 필요)·AI 그림 탭 숨김
   return (
     <PopoverSurface width={540} maxHeight={485} className="nc-cover-picker lit-media-menu" style={{ height: 485 }}>
       <div className="nc-tabs-row" role="tablist" aria-label={t('lp.page.page_cover', 'Page cover')}>
@@ -226,6 +228,7 @@ function CoverPicker({ page, close }: { page: BlockRecord; close: () => void }) 
           </div>
         ))}
         <div style={{ flex: 1 }} />
+        <AiImageStudioLink />
         <div role="button" className="nc-tab nc-tab-action" onClick={() => set(null)}>{t('lp.page.remove', 'Remove')}</div>
       </div>
       <div className="lit-scroller vertical nc-tab-panel">

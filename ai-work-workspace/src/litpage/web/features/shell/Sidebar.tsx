@@ -31,6 +31,7 @@ import { pageTitle } from '../page/pageActions.ts';
 import { records } from '../../lib/store/records.ts';
 import './sidebar.css';
 import { AimasterSidebarBottom, AimasterSidebarTop } from './AimasterSidebar.tsx';
+import { SHOW_MARKETPLACE } from './trimPolicy.ts';
 
 export { PageTreeItem } from './sidebar/PageTree.tsx';
 
@@ -430,6 +431,7 @@ function runShortcut(s: SidebarShortcut) {
     case 'lit_calendar':
       return HELP_URL ? window.open(HELP_URL!, '_blank') : undefined;
     case 'marketplace':
+      if (!SHOW_MARKETPLACE) return useUI.getState().set({ templatesOpen: true }); // 이식판: U2
       return navigate(`/${domain}/marketplace`);
   }
 }

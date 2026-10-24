@@ -28,6 +28,7 @@ import { confirmDialog } from './confirm.tsx';
 import { Toggle } from './ExportDialog.tsx';
 import { openEmbedCode, openSiteSettings, siteSettingsOf } from './SiteSettings.tsx';
 import { getPref, setPref } from '../editor/prefs.ts';
+import { SHOW_PUBLISH_TAB } from '../shell/trimPolicy.ts';
 import './share.css';
 
 type PageRole = 'editor' | 'read_and_write' | 'content_only_editor' | 'comment_only' | 'reader';
@@ -173,7 +174,7 @@ function setPermissions(pageId: string, next: Permission[], action: string) {
 
 function ShareMenu({ pageId, close, initialTab }: { pageId: string; close: () => void; initialTab: 'share' | 'publish' }) {
   const page = useBlock(pageId);
-  const [tab, setTab] = useState<'share' | 'publish'>(initialTab);
+  const [tab, setTab] = useState<'share' | 'publish'>(SHOW_PUBLISH_TAB ? initialTab : 'share'); // 이식판: U2 게시 탭 숨김
   const [model, setModel] = useState<SharingModel | null>(null);
   const [error, setError] = useState('');
   const refresh = useCallback(async () => {
@@ -198,7 +199,7 @@ function ShareMenu({ pageId, close, initialTab }: { pageId: string; close: () =>
     <PopoverSurface width={456} maxHeight="90vh" className="lit-share-menu nc-share-menu" style={{ borderRadius: 12 }}>
       <div className="nc-share-head">
         <div className="hide-scrollbar nc-share-tabs" role="tablist">
-          {(['share', 'publish'] as const).map((k) => (
+          {(SHOW_PUBLISH_TAB ? (['share', 'publish'] as const) : (['share'] as const)).map((k) => (
             <div key={k} className={`nc-share-tab ${tab === k ? 'active' : ''}`}>
               <div role="tab" aria-selected={tab === k} className={`nc-tab ${k === 'publish' ? 'lit-share-menu-publish-tab' : ''}`} onClick={() => setTab(k)}>
                 {k === 'share' ? t('lp.page.share', 'Share') : t('lp.page.publish', 'Publish')}

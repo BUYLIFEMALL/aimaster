@@ -15,11 +15,31 @@ import {
   loadAccountSecurity, openManageEmails, openManageTwoStep, openRemovePassword, openTwoStepSetup, startDeleteAccount, type AccountSecurity,
 } from './accountSecurity.tsx';
 import { addPasskeyFlow, loadPasskeys, openManagePasskeys, type PasskeyInfo } from '../passkeys.tsx';
+import { AIMASTER_HOME_URL } from '../../shell/trimPolicy.ts';
 
 function saveUser(patch: Partial<UserRecord>) {
   const id = useSession.getState().userId;
   if (!id) return;
   run('updateUser', (tx) => tx.update('lit_user', id, [], patch), { skipHistory: true });
+}
+
+// 이식판(U2): 로그인·비밀번호·2단계 인증·기기·탈퇴는 AIMaster 통합 계정이 맡는다(서버 명령도 stagePolicy가 차단).
+// 원본 AccountSection은 지우지 않고 남겨 두며, 설정 창은 이 안내 화면을 보여 준다.
+export function AimasterAccountSection() {
+  const user = useCurrentUser();
+  return (
+    <SectionPage title={t('aww.account.title', '내 계정')} subtitle={t('aww.account.subtitle', '계정은 AIMaster 메인 사이트에서 관리합니다.')}>
+      <Group>
+        <Row label={t('aww.account.name', '이름')} description={user?.name || '-'} />
+        <Row label={t('aww.account.email', '이메일')} description={user?.email || '-'} />
+        <Row
+          label={t('aww.account.manage', '계정 관리')}
+          description={t('aww.account.manage_desc', '로그인·비밀번호·핸드폰 번호·탈퇴는 AIMaster 메인 사이트의 내 계정에서 바꿀 수 있습니다.')}
+          control={<Button onClick={() => window.open(AIMASTER_HOME_URL, '_blank', 'noopener')}>{t('aww.account.open_main', 'AIMaster 열기')}</Button>}
+        />
+      </Group>
+    </SectionPage>
+  );
 }
 
 export function AccountSection() {

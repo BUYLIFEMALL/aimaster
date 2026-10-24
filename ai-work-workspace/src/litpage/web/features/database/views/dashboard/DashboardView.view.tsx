@@ -26,6 +26,7 @@ import { viewIcon } from '../../chrome/ViewTabs.tsx';
 import { openViewSettings } from '../../chrome/ViewSettings.tsx';
 import { useViewKit } from '../../advanced/viewKit.tsx';
 import { setDashboardMode, useDashboardMode, useEffectiveView, withExtraFilters } from '../../viewState.ts';
+import { TRIM_VIEW_TYPES } from '../../../shell/trimPolicy.ts';
 import './dashboard.css';
 
 export interface DashboardWidget { id: string; view_id: string; /** relative width in its row (default 1) */ width?: number }
@@ -35,7 +36,7 @@ export interface DashboardLayout { rows: DashboardRow[] }
 const MAX_PER_ROW = 4;
 const MAX_WIDGETS = 12; //: 4 per row, 12 per dashboard
 const DEFAULT_HEIGHT = 460;
-const WIDGET_TYPES: ViewType[] = ['chart', 'table', 'board', 'list', 'gallery', 'calendar', 'timeline', 'feed', 'map'] as ViewType[];
+const WIDGET_TYPES: ViewType[] = (['chart', 'table', 'board', 'list', 'gallery', 'calendar', 'timeline', 'feed', 'map'] as ViewType[]).filter((v) => !TRIM_VIEW_TYPES.has(v)); // 이식판: U2 지도 위젯 제외
 
 function layoutOf(view: CollectionViewRecord): DashboardLayout {
   const l = (view.format as Record<string, unknown> | undefined)?.dashboard_layout as DashboardLayout | undefined;

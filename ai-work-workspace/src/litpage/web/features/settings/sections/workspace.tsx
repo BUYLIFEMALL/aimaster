@@ -428,7 +428,7 @@ function ExportWorkspaceBody({ space, close }: { space: SpaceRecord; close: () =
             options={[
               { value: 'markdown', label: t('lp.settings.markdown_csv', 'Markdown & CSV') },
               { value: 'html', label: t('lp.settings.html', 'HTML') },
-              { value: 'pdf', label: t('lp.settings.pdf', 'PDF'), disabled: !pdfOk, description: pdfOk ? undefined : t('lp.settings.upgrade_to_the_business_plan_to', 'Upgrade to the Business plan to export your workspace as PDF') },
+              { value: 'pdf', label: t('lp.settings.pdf', 'PDF'), disabled: !pdfOk, description: pdfOk ? undefined : t('aww.settings.pdf_export_unavailable', '이 프로그램에서는 워크스페이스 전체 PDF 내보내기를 지원하지 않습니다') }, // 이식판: U2 업그레이드 문구 대신
             ]}
             onChange={setFormat}
           />

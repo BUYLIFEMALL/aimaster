@@ -20,6 +20,7 @@ import { auditEventCatalog, categoryLabel, describeAuditEvent, eventLabel, nameA
 import { requestUpgrade } from './features.tsx';
 import { AgentAnalytics, SharedWithAgentFilter } from '../../agents/AgentsAdmin.tsx';
 import '../admin.css';
+import { SHOW_PLAN_UPSELL } from '../../shell/trimPolicy.ts';
 
 const DAY = 86_400_000;
 
@@ -57,6 +58,7 @@ function download(url: string, filename?: string) {
 
 /** Enterprise upsell card shown in place of an admin tool (owners upgrade, members request). */
 function EnterpriseUpsell({ title, description, points }: { title: string; description: string; points?: string[] }) {
+  if (!SHOW_PLAN_UPSELL) return null; // 이식판: U2 (이 탭들은 TRIM_SETTINGS로도 숨김)
   const { space, owner } = useSpaceAccess();
   return (
     <div className="nc-set-ent-upsell">

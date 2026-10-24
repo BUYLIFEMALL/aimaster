@@ -29,6 +29,7 @@ import { acceptPendingInvite, pendingInvite, rememberInvite } from './invite.ts'
 import { clearAddAccountFlag } from './accounts.tsx';
 import { getUserPrefs, savePrefs } from '../settings/userSettings.ts';
 import { DeveloperBar } from '../settings/DeveloperBar.tsx';
+import { SHOW_MARKETPLACE } from './trimPolicy.ts';
 import { DeveloperTools } from '../developer/DeveloperTools.tsx';
 import { t } from './i18n.ts';
 import './shell.css';
@@ -109,7 +110,7 @@ export function Workspace() {
       case 'library':
         return <LibraryPage />;
       case 'marketplace':
-        return <MarketplacePage tab={route.tab} />;
+        return SHOW_MARKETPLACE ? <MarketplacePage tab={route.tab} /> : <MarketplaceOff />; // 이식판: U2 마켓플레이스 숨김
       case 'people':
         return <PeoplePage userId={route.userId} />;
       case 'tasks':
@@ -194,6 +195,16 @@ export function topSidebarPage(spaceId: string): string | null {
   const teamPages = (sv?.joined_teams ?? []).flatMap((id) => records.get<TeamRecord>('team', id)?.team_pages ?? []);
   const candidates = [...(sv?.bookmarked_pages ?? []), ...(sv?.private_pages ?? []), ...teamPages, ...(space?.pages ?? [])];
   return candidates.find(alivePage) ?? null;
+}
+
+/** 이식판(U2): 마켓플레이스 주소로 들어오면 템플릿 창을 열고 시작 페이지로 보낸다. */
+function MarketplaceOff() {
+  useEffect(() => {
+    useUI.getState().set({ templatesOpen: true });
+    const sid = useSession.getState().spaceId;
+    if (sid) openStartPage(sid);
+  }, []);
+  return null;
 }
 
 export function openStartPage(spaceId: string) {

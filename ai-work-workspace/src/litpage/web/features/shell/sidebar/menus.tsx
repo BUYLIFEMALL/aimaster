@@ -29,6 +29,7 @@ import { canCreateTeamspace, policyTooltip } from '../../settings/spaceSettings.
 import { litPresets, presetById, presetConfig, presetTab, workspaceSidebarPresets, type SidebarPreset } from '../../settings/sidebarPresets.ts';
 import { confirmDialog } from '../../page/confirm.tsx';
 import { canTurnIntoWiki, isWikiPage, turnIntoWiki, undoWiki } from '../../page/wiki.tsx';
+import { SHOW_MARKETPLACE } from '../trimPolicy.ts';
 
 const me = () => useSession.getState().userId ?? '';
 
@@ -467,7 +468,9 @@ export function openAppsMenu(anchor: Anchor) {
         { label: t('lp.shell.ai_meeting_notes', 'AI meeting notes'), icon: 'libPaperMic', onSelect: () => navigate(`/${domain}/library/meetings`) },
         { label: t('lp.shell.skills', 'Skills'), icon: 'libPaperSkill', onSelect: () => navigate(`/${domain}/library/skills`) },
         { label: t('lp.shell.my_tasks', 'My Tasks'), icon: 'checkmarkSquare', onSelect: () => openMyTasks() },
-        { label: t('lp.shell.marketplace', 'Marketplace'), icon: 'templates', onSelect: () => navigate(`/${domain}/marketplace`) },
+        SHOW_MARKETPLACE
+          ? { label: t('lp.shell.marketplace', 'Marketplace'), icon: 'templates', onSelect: () => navigate(`/${domain}/marketplace`) }
+          : { label: t('lp.shell.templates', 'Templates'), icon: 'templates', onSelect: () => useUI.getState().set({ templatesOpen: true }) }, // 이식판: U2 마켓플레이스 대신 템플릿 창
         { label: t('lp.shell.trash', 'Trash'), icon: 'trash', onSelect: () => useUI.getState().set({ trashOpen: true }) },
       ],
     }],

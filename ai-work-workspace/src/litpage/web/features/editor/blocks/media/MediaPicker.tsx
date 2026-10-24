@@ -13,6 +13,8 @@ import { useSession } from '../../../../lib/store/session.ts';
 import { fileSizeLabel, isValidUrl, normalizeUrl, containerWidthOf, toast } from '../shared.tsx';
 import { isAudioFile, isImageFile, isPdfFile, isVideoFile, providerByName, providerForType, providerForUrl, resolveEmbed, videoEmbedUrl } from './embedProviders.ts';
 import { AiImageTab, aiImageTabs } from '../../../aiImage/AiImageTab.tsx';
+import { t as tr } from '../../../shell/i18n.ts';
+import { AI_IMAGE_STUDIO_URL, TRIM_MEDIA_TABS } from '../../../shell/trimPolicy.ts';
 
 type Tab = 'upload' | 'link' | 'unsplash' | 'giphy' | 'embed' | 'add' | 'ai';
 
@@ -229,7 +231,10 @@ export function openMediaPicker(block: BlockRecord, anchor: HTMLElement, opts?: 
 
 const TAB_LABEL: Record<Tab, string> = { upload: 'Upload', link: 'Link', unsplash: 'Unsplash', giphy: 'GIPHY', embed: 'Embed link', add: 'Add', ai: 'AIMaster' };
 
-export function PickerTabs({ tabs, tab, setTab, right }: { tabs: Tab[]; tab: Tab; setTab: (t: Tab) => void; right?: ReactNode }) {
+export function PickerTabs({ tabs: allTabs, tab, setTab, right }: { tabs: Tab[]; tab: Tab; setTab: (t: Tab) => void; right?: ReactNode }) {
+  // 이식판(U2): AI 그림·가짜 사진 탭을 숨기고, 사진 고르기에는 AI 이미지 자동화 링크를 둔다
+  const tabs = allTabs.filter((k) => !TRIM_MEDIA_TABS.has(k));
+  const imageLink = allTabs.some((k) => k === 'unsplash' || k === 'ai');
   return (
     <div className="nc-media-tabs hide-scrollbar" role="tablist">
       {tabs.map((t) => (
@@ -243,15 +248,25 @@ export function PickerTabs({ tabs, tab, setTab, right }: { tabs: Tab[]; tab: Tab
         </div>
       ))}
       <div style={{ flex: 1 }} />
+      {imageLink && <AiImageStudioLink />}
       {right}
     </div>
+  );
+}
+
+/** 이식판(U2): 이미지 기준 프로그램(ai-image-studio)으로 가는 링크 */
+export function AiImageStudioLink() {
+  return (
+    <a className="nc-media-tab" href={AI_IMAGE_STUDIO_URL} target="_blank" rel="noreferrer" style={{ whiteSpace: 'nowrap', textDecoration: 'none' }}>
+      {tr('aww.media.ai_image_studio', 'AI 이미지 자동화에서 만들기 ↗')}
+    </a>
   );
 }
 
 function MediaPicker({ blockId, close, replace }: { blockId: string; close: () => void; replace?: boolean }) {
   const block = getBlock(blockId)!;
   const cfg = useMemo(() => configFor(block), [block]);
-  const [tab, setTab] = useState<Tab>(cfg.tabs[0] ?? 'link');
+  const [tab, setTab] = useState<Tab>(cfg.tabs.find((k) => !TRIM_MEDIA_TABS.has(k)) ?? 'link'); // 이식판: U2
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);

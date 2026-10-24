@@ -14,7 +14,7 @@ import { UserAvatar } from './ui.tsx';
 import { searchSettings, useSettingsFocus, type SettingsHit } from './searchIndex.ts';
 import './icons.ts';
 import './settings.css';
-import { AccountSection } from './sections/account.tsx';
+import { AimasterAccountSection } from './sections/account.tsx';
 import { PreferencesSection } from './sections/preferences.tsx';
 import { NotificationsSection, MailCalendarSection } from './sections/notifications.tsx';
 import { GeneralSection, TeamspacesSection, SecuritySection, IdentitySection, RequestsSection } from './sections/workspace.tsx';
@@ -25,6 +25,7 @@ import { EmojiSection } from './sections/emoji.tsx';
 import { PlansSection, BillingSection } from './sections/plans.tsx';
 import { AnalyticsSection, AuditLogSection, ContentSearchSection } from './sections/admin.tsx';
 import { SidebarPresetsSection } from './sections/sidebarPresets.tsx';
+import { TRIM_SETTINGS } from '../shell/trimPolicy.ts';
 
 export type SettingsKey =
   | 'account' | 'preferences' | 'notifications' | 'mail-calendar'
@@ -110,6 +111,7 @@ const ADMIN_FALLBACK: Partial<Record<SettingsKey, SettingsKey>> = {
 export interface NavAccess { admin: boolean; owner: boolean; enterprise: boolean }
 
 function visible(it: NavItem, a: NavAccess): boolean {
+  if (TRIM_SETTINGS.has(it.key)) return false; // 이식판: U2 숨김 목록
   if (it.owner) return a.owner;
   if (it.admin) return a.admin || (!!it.enterpriseMembers && a.enterprise);
   return true;
@@ -206,7 +208,7 @@ export function SettingsModal() {
 
   let body: ReactNode;
   switch (section) {
-    case 'account': body = <AccountSection />; break;
+    case 'account': body = <AimasterAccountSection />; break; // 이식판: 계정은 AIMaster 메인 사이트가 관리
     case 'preferences': body = <PreferencesSection />; break;
     case 'notifications': body = <NotificationsSection />; break;
     case 'mail-calendar': body = <MailCalendarSection />; break;

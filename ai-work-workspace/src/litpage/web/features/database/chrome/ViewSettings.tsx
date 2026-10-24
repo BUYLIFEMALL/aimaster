@@ -41,6 +41,7 @@ import { useEffectiveView } from '../viewState.ts';
 import { SettingsSaveControl } from './SaveControl.tsx';
 import { ManageDataSourcesPage } from '../sources/ManageSources.tsx';
 import { SourceRow } from '../sources/SourceRow.tsx';
+import { TRIM_VIEW_TYPES } from '../../shell/trimPolicy.ts';
 
 interface VSState {
   openFor: string | null;
@@ -224,7 +225,7 @@ function LayoutGrid({ view, collection, readOnly }: { view: CollectionViewRecord
   const linked = collection.parent_id !== view.parent_id;
   return (
     <div className="nc-vs-layout-grid">
-      {LAYOUT_PICKER_ORDER.filter((t) => !(linked && t === 'form' && view.type !== 'form')).map((t) => {
+      {LAYOUT_PICKER_ORDER.filter((t) => !(linked && t === 'form' && view.type !== 'form') && (!TRIM_VIEW_TYPES.has(t) || view.type === t)).map((t) => { /* 이식판: U2 지도 보기 제외(이미 지도면 유지) */
         const meta = viewTypeMeta(t);
         return (
           <div key={t} role="button" className={`nc-vs-layout-cell ${view.type === t ? 'selected' : ''}`} onClick={() => !readOnly && changeViewLayout(view, collection.id, t as ViewType)}>

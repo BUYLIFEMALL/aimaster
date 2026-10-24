@@ -8,6 +8,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { useUI } from '../../lib/store/ui.ts';
 import { getLocale, t } from '../shell/i18n.ts';
 import koBundle from '../shell/i18n.ko-KR.json';
+import { SHOW_PLAN_UPSELL } from '../shell/trimPolicy.ts';
 
 /** Raw localized message that keeps rich-text tags like <bold> and <inlinelink>; pair with rich(). */
 export function msg(id: string, defaultMessage: string): string {
@@ -256,6 +257,7 @@ export function Pills<V extends string>({ value, items, onChange, big }: { value
 
 /** Plan-gated hint ("<highlight>Upgrade</highlight> to …"), an upsell row: opens Explore plans. */
 export function Upsell({ text, onClick }: { text: string; onClick?: () => void }) {
+  if (!SHOW_PLAN_UPSELL) return null; // 이식판: U2 원본 요금제 업그레이드 문구 숨김
   return (
     <div
       role="button"

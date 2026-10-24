@@ -12,6 +12,7 @@ import { t } from '../shell/i18n.ts';
 import { newPage } from '../page/pageActions.ts';
 import { createPrivateDatabase } from '../shell/sidebar/menus.tsx';
 import { toggleDarkMode } from '../shell/shortcuts.ts';
+import { SHOW_MARKETPLACE } from '../shell/trimPolicy.ts';
 
 interface QuickNavRow {
   id: string;
@@ -36,7 +37,7 @@ function shortcuts(): Shortcut[] {
     { id: 'home', label: t('lp.search.home', 'Home'), aliases: ['start'], icon: 'home', run: () => navigate(`/${domain()}`) },
     { id: 'settings', label: t('lp.search.settings', 'Settings'), aliases: ['preferences'], caption: t('lp.search.adjust_account_details_and_preferences', 'Adjust account details and preferences'), icon: 'gear', run: () => useUI.getState().openSettings() },
     { id: 'import', label: t('lp.search.import_data', 'Import data'), aliases: ['import'], caption: t('lp.search.bring_content_into_litpage_from_files', 'Bring content into Workspace from files or other tools.'), icon: 'import', run: () => useUI.getState().set({ importOpen: true }) },
-    { id: 'templates', label: t('lp.search.templates', 'Templates'), aliases: [t('lp.search.gallery', 'gallery'), 'marketplace'], caption: t('lp.search.browse_litpage_community_templates', 'Browse Workspace community templates'), icon: 'templates', run: () => navigate(`/${domain()}/marketplace`) },
+    { id: 'templates', label: t('lp.search.templates', 'Templates'), aliases: [t('lp.search.gallery', 'gallery'), 'marketplace'], caption: t('lp.search.browse_litpage_community_templates', 'Browse Workspace community templates'), icon: 'templates', run: () => (SHOW_MARKETPLACE ? navigate(`/${domain()}/marketplace`) : useUI.getState().set({ templatesOpen: true })) }, // 이식판: U2
     { id: 'library', label: t('lp.search.library', 'Library'), aliases: [t('lp.search.library_0029', 'library')], caption: t('lp.search.browse_every_page_connected_to_you', 'Browse every page connected to you'), icon: 'library', run: () => navigate(`/${domain()}/library`) },
     { id: 'inbox', label: t('lp.search.inbox', 'Inbox'), aliases: [t('lp.search.updates', 'updates'), t('lp.search.notifications', 'notifications')], icon: 'inbox', run: () => useUI.getState().set({ inboxOpen: true }) },
     { id: 'theme', label: t('lp.search.toggle_theme', 'Toggle theme'), aliases: [t('lp.search.dark_mode', 'Dark mode'), t('lp.search.light_mode', 'Light mode'), t('lp.search.theme', 'Theme')], caption: dark ? t('lp.search.use_the_light_appearance', 'Use the light appearance.') : t('lp.search.use_the_dark_appearance', 'Use the dark appearance.'), icon: dark ? 'sun' : 'moon', run: () => toggleDarkMode() },

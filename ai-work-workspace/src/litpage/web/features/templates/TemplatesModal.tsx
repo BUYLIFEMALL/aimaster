@@ -15,6 +15,7 @@ import { addTemplate, applyTemplate, categoryLabel, CATEGORY_ORDER, useTemplates
 import { TemplatePreview } from './TemplatePreview.tsx';
 import { CATEGORY_ICON } from './MarketplacePage.tsx';
 import './icons.tsx';
+import { SHOW_MARKETPLACE } from '../shell/trimPolicy.ts';
 import './templates.css';
 
 type Group = 'suggested' | TemplateCategory;
@@ -114,6 +115,7 @@ export function TemplatesModal() {
           <div
             role="button"
             className="nc-tmodal-more"
+            hidden={!SHOW_MARKETPLACE} // 이식판: U2 마켓플레이스 숨김
             onClick={() => {
               close();
               navigate(`/${domain}/marketplace/templates`);

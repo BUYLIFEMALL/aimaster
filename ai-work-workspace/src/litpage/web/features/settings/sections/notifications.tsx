@@ -7,6 +7,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { t } from '../../shell/i18n.ts';
 import { Button, Group, Row, SectionPage, Switch, msg, rich } from '../ui.tsx';
 import { prefValue, savePref, saveSpaceViewFields, usePrefs } from '../userSettings.ts';
+import { SHOW_EMAIL_NOTIFICATIONS, TRIM_SETTINGS } from '../../shell/trimPolicy.ts';
 
 function connectStub(app: string) {
   useUI.getState().toast(t('lp.settings.connecting_isn_t_available_in_this', 'Connecting {app} isn’t available in this build', { app }));
@@ -32,7 +33,7 @@ export function NotificationsSection() {
         />
       </Group>
 
-      <Group title={t('lp.settings.connected_apps', 'Connected apps')}>
+      {!TRIM_SETTINGS.has('connections') && /* 이식판: U2 연결 앱 숨김(빈 버튼) */ <Group title={t('lp.settings.connected_apps', 'Connected apps')}>
         <Row
           leading={<AppTile name="Slack" />}
           label={t('lp.settings.slack', 'Slack')}
@@ -51,9 +52,9 @@ export function NotificationsSection() {
           description={t('lp.settings.have_microsoft_teams_alert_you_to', 'Have Microsoft Teams alert you to what’s happening across your Workspace workspace')}
           control={<Button onClick={() => connectStub('Microsoft Teams')}>{t('lp.settings.connect', 'Connect')}</Button>}
         />
-      </Group>
+      </Group>}
 
-      <Group title={t('lp.settings.email_notifications', 'Email notifications')}>
+      {SHOW_EMAIL_NOTIFICATIONS && /* 이식판: U2 이메일 알림 숨김(운영자 메일 서버 필요) */ <Group title={t('lp.settings.email_notifications', 'Email notifications')}>
         <Row
           label={t('lp.settings.my_workspace_activity', 'My workspace activity')}
           description={t('lp.settings.receive_email_for_new_comments_and', 'Receive email for new comments and mentions, page invitations, reminders, requests for access, and changes to database properties')}
@@ -81,7 +82,7 @@ export function NotificationsSection() {
           description={t('lp.settings.occasionally_email_me_about_new_litpage', 'Occasionally email me about new Workspace features')}
           control={HELP_URL ? <Button icon="arrowDiagonalUpRightSmall" onClick={() => window.open(HELP_URL!, '_blank')}>{t('lp.settings.manage_settings', 'Manage settings')}</Button> : null}
         />
-      </Group>
+      </Group>}
       {HELP_URL && <a className="nc-set-help-link" href={HELP_URL} target="_blank" rel="noreferrer">
         <Icon name="questionMarkCircleSmall" size={16} />
         {t('lp.settings.notification_guide', 'Notification guide')}
