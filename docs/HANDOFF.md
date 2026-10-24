@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 갤러리 「작게 줄이기(720)」 화질을 「균형」으로(주인님 결정, 미배포 대기)
+- 주인님 결정 「균형으로 해」(비교 파일 `D:\PDS\영상화질비교_20261024`). `ai-video-studio/lib/edit/pcVideo.ts` `gallerySmallCommand`가 `compress` 품질 `balanced`(crf 23)를 보냄 — 긴 변 720·버튼 이름·파일 이름은 그대로. 시험 55·tsc 통과. 커밋 `4e1776da0`.
+- 배포: **미배포 대기**(`docs/PENDING_DEPLOYS.md`) — 갤러리 목록 속도 개선과 묶어 빌드 1회(승인 필요). 회원 PC 렌더러는 바꿀 것 없음.
+- 요청함 「해 주실 일」의 화질 결정 줄은 주인님 화면에서 ✔ 처리하시면 됩니다. 비용 없음. 링크:
+https://ai-video-studio.buylife.xyz/gallery
+
 ## 2026-10-24 🔶 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 상세페이지 v1.31 문구 고치기 「🧽 무료 지우기」 배포, 큰 제목 품질 보완 필요
 - 한 일: 공용 `browser-free-erase` 사본(`shop-detail-page/lib/freeErase/`) + `onnxruntime-web@1.23.0` `/ort/` — 편집기에 「이미지 속 글자 모두 지우기(무료)」, 사각형마다 「단색으로 덮기 / 🧽 주변에 맞춰 지우기」, 되돌리기가 바탕까지 복구, FAQ 보강. 머리글(COOP/COEP)은 넣지 않음(WebGPU는 머리글 없이 동작). 배포 `shop-detail-page-ert7y0vcg` Ready, DB v1.31, 함께 나간 대기: 30일 정리 기록 `34094c954`.
 - 검수: tsc·로컬 빌드, 로컬 운영 빌드(임시 페이지, 삭제함)에서 사진 위 글자 2곳 깨끗이 지움·사각형 지우기+새 문구·되돌리기 2회 원복. 운영(시험 계정 상품 `82deeddc…` 프로모션 배너, 저장 안 함): 글자 8곳 찾음·지움(그래픽 가속).

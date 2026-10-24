@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-video-studio` (운영 v1.20) | 갤러리 「작게 줄이기(720)」 화질 「작게」→「균형」(주인님 결정, 코드 1줄) | `4e1776da0` | 2026-10-24 · [역할: video] Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 | 갤러리 목록 속도(5.7초) 개선과 묶어 빌드 1회(승인 필요), 버전 v1.21 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공용 공급자·키·중단 + G-2 회원별 봇/방 선택/당시 설정 보존. 운영 DB 준비·83개 시험/타입/로컬 빌드 통과, 임베딩·파싱 유지 | `2d56a117b` · `07795803c` | 2026-10-24 · [역할: docbot-prompt] Codex `codex-win-20261024-docbot-g2` | [G-2 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261024_G2.md) | 일반 시험 회원 Edge 로그인/본인 키 검수 → G-3·G-4 후 묶음, 버전 +0.01·DB·프로그램 비교표 일치 |
 | `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
