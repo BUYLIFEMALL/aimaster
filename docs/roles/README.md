@@ -5,6 +5,7 @@
 
 ## 쓰는 법
 - **작업 전**: 내 역할 파일을 읽는다(지금 하는 일·대기·주인님께 여쭐 것).
+- **요청·건의**: 주인님께 여쭐 것·요청·건의·개선 제안은 「## 주인님께 여쭐 것」 칸에 한 줄씩 남긴다. 관리자 화면 「한눈에 보기」 맨 위 「📮 관리자에게 온 요청·건의」에 모여 보인다. 처리되면 그 줄을 지우고 「최근 완료」로 옮긴다.
 - **작업 후**: 내 역할 파일의 「지금 하는 일 / 대기 중 / 최근 완료 / 다음 첫 단계 / 주인님께 여쭐 것 / 마지막 갱신」을 고친다.
   - 「최근 완료」는 최근 10개만 남기고 오래된 줄은 지운다. 상세 기록은 루트 [`HANDOFF.md`](../HANDOFF.md)에 그대로 남긴다.
   - 역할 파일 = 한눈에 보는 요약 현황, HANDOFF = 상세 기록이다.
@@ -29,6 +30,7 @@
 | 검수 | [review.md](review.md) | Claude Code(윈도우) — 세션 이름 확인 필요 | 다른 CLI 작업 검수 | 전체 |
 | 디자인 | [design.md](design.md) | Antigravity(`agy`) | 디자인 리뉴얼·매뉴얼 시각화 | 전체 |
 | 맥미니 | [mac-mini.md](mac-mini.md) | Claude Code(맥미니) | 맥용 프로그램 개발·실물 테스트 | 맥용 |
+| (전담 없음) | [unassigned.md](unassigned.md) | 전담 역할이 없는 모든 세션 | 역할 없는 작업의 요약·요청·건의 공용 칸(여러 세션이 쓰므로 안전 커밋 도우미) | 전체 |
 
 > 전담 세션이 없는 카테고리(예: 쓰레드·인스타·CRM·부동산)의 프로그램을 작업하는 세션은 루트 HANDOFF에 기록한다. 주인님이 담당을 정하면 이 표에 줄을 추가한다.
 
@@ -52,7 +54,7 @@
 
 세션 이름은 자주 바뀐다(예: `claude-win-20261023-blog2` → `claude-win-20261024-blog3`, `codex-win-20261024-docbot-prompt` → `codex-win-20261024-docbot-g1`). 그래서 기록에는 **바뀌지 않는 역할 ID를 함께** 쓴다. 관리자 「개발 현황·지침 센터」와 점검 도구가 이 표시로 역할별 기록을 모은다.
 
-- **역할 ID = 이 폴더의 역할 파일 이름**(확장자 뺀 것): `analysis-planning` · `blog` · `music` · `video` · `ecommerce-image` · `docbot-prompt` · `workspace` · `review` · `design` · `mac-mini`
+- **역할 ID = 이 폴더의 역할 파일 이름**(확장자 뺀 것): `analysis-planning` · `blog` · `music` · `video` · `ecommerce-image` · `docbot-prompt` · `workspace` · `review` · `design` · `mac-mini` · `unassigned`(전담 없음)
 - 전담 역할이 없는 작업은 `[역할: 미지정]`이라고 쓴다. 주인님이 담당을 정하면 새 역할 ID를 이 표에 추가한다.
 - **어디에 쓰나**
   1. 루트 `docs/HANDOFF.md` 항목 제목: 날짜·상태 표시 바로 뒤에 넣는다.
