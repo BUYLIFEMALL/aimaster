@@ -1,5 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-blogkey` — AI 블로그 키워드 v1.10: 3대 API키 생성/가입 2단 퀵 버튼 탑재 & 📖 럭셔리 매뉴얼 스마트 매트릭스 리뉴얼 (배포 완료)
+- **주인님 지시**: "각 프로그램별로 API키 등록|플랫폼 메뉴에 해당 플랫폼의 API키 생성주소를 버튼형태로 사용자가 필요한 API키를 생성할수 있도록 버튼을 달고 해당 플랫폼 API키 생성 주소 링크를 걸어줘. 플랫폼 가입을 해야 하는 경우 해당 플랫폼 가입주소도 버튼형태로 링크를 걸어주고, 사용자 매뉴얼도 같이 업데이트 하고 럭셔리하고 고급진 느낌이 나도록 해줘"
+- **2단계 blog-keyword 구현 내역**:
+  - **3대 플랫폼 API키등록 2단 퀵 액션 버튼 탑재 (`KeyManager.tsx`, `globals.css`)**:
+    - 1. **Google Gemini**: `[ 🔗 Google AI Studio API 키 발급/생성하기 ↗ ]` (블루 엠보싱 럭셔리 버튼, `https://aistudio.google.com/apikey`) + `[ 👤 Google AI Studio 회원가입 / 시작 ↗ ]` (`https://aistudio.google.com/`)
+    - 2. **네이버 검색 API**: `[ 🔗 네이버 개발자센터 API 등록/신청하기 ↗ ]` (`https://developers.naver.com/apps/#/register`) + `[ 👤 네이버 개발자센터 바로가기 ↗ ]` (`https://developers.naver.com/`)
+    - 3. **네이버 검색광고 API**: `[ 🔗 네이버 검색광고 API 라이선스 발급 ↗ ]` (`https://searchad.naver.com/`) + `[ 👤 네이버 검색광고 로그인 / 가입 ↗ ]` (`https://searchad.naver.com/`)
+    - `key-badge` 등록 상태 뱃지 (`등록 완료` / `일부 등록` / `미등록`) 스마트 매트릭스 테마 적용.
+  - **📖 럭셔리 & 프리미엄 매뉴얼 스마트 매트릭스 전면 리뉴얼 (`/guide`)**:
+    - `PRO v1.09 Matrix Guide` 엠블럼 및 럭셔리 히어로 배너 (`.luxury-hero`).
+    - 6대 섹션 3D 럭셔리 네비게이션 칩 목차 (`.luxury-toc-chip`).
+    - 3단계 키워드 공략 파이프라인 입체 카드 (`.luxury-flow-card`).
+    - 6대 핵심 분석 도구 럭셔리 카드 그리드 (`.luxury-tool-card`).
+    - 4대 핵심 지표(AI 기회 점수·실측 검색수·콘텐츠 갭·데이터랩 추이) 설명 표.
+    - 인터랙티브 럭셔리 아코디언 FAQ (`.luxury-accordion`).
+- **검수 및 배포**:
+  - `npm run build` TypeScript 0 에러 및 정적 페이지 최적화 완료.
+  - Vercel 프로덕션 1회 순차 배포 (`https://blog-keyword-ki2zsn40z-buylife.vercel.app`, Aliased `https://blog-keyword.buylife.xyz`, v1.10 Ready).
+  - 네이버 웨일 브라우저(포그라운드) 실세션 검수 및 `/settings`, `/guide` 새 번들(`17rsyvfjpl-jd.css`) 서빙 확인.
+- **비용**: Vercel 프로덕션 빌드 1회, 유료 AI 호출 0회.
+- **다음 첫 단계**: 3단계 KeyManager 계열 대상인 `four-cut-comics` (AI 4컷 만화 자동화) 순차 적용.
+
 ## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E6 새 프로그램 「셀러 라벨·QR·서류 자동화」 v1.01 → v1.02 공개
 - 한 일: 쇼핑몰 묶음 E6 플랜 승인 뒤 새 프로그램 `seller-label-docs/` 구현·공개. 도구 5개(🏷 A4 라벨 — 규격 16종 추정값+직접 입력·엑셀/붙여넣기 `{열 이름}`·Code128/EAN-13/QR/데이터매트릭스·식품 표시 틀·시작 칸·위치 보정, 🔳 꾸민 QR·대비 판정, 🗂 파일명 순번 ZIP, 📄 사진→PDF·여러 PDF 페이지 정리, ✍ 서명 그림 넣기) + 매뉴얼. 모두 브라우저 안에서만 처리, DB 표 없음.
 - 운영 등록: DB(① 운영) programs·요금제 3단계·VIP 등급 표(자동 부여 143명)·시험 계정 30일, Vercel 새 프로젝트(framework nextjs PATCH)·환경변수 4개·도메인, 썸네일 1장(관리자 Gemini 키).
