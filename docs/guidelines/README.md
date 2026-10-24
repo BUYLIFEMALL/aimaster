@@ -23,6 +23,7 @@
 | 개발 관련 지침 | [개발](DEVELOPMENT.md) | 기능 개발·수정·분석·공용 부품 | [공통 개발 방식](../AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md) |
 | 신규·외부 프로그램 분석·플랜 | [분석·개발 플랜 지침](../PROGRAM_ANALYSIS_PLANNING_GUIDE.md) | 외부 EXE·앱·사이트 분석, 새 프로그램 기획, 개발 플랜, 담당 인계 | [REA](../REA_REVERSE_ENGINEERING.md), [분석 도구](../ANALYSIS_TOOLKIT.md) |
 | 외부 프로그램 분석 결과 모음 | [외부 프로그램 개발분석표](../EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md) | 분석한 외부 원본·참고 앱 37건(카테고리별 카드·기능 묶음 지도·하지 않을 것·남은 결정), 병합·확장 기획 | [분석 지침](../PROGRAM_ANALYSIS_PLANNING_GUIDE.md), [프로그램 비교표](../PROGRAM_CAPABILITY_MAP.md) |
+| 카테고리별 지침 지도 | [카테고리 지침 지도](../CATEGORY_GUIDE_MAP.md) | 14개 카테고리마다 메인 지침·비교표·기준 프로그램·담당 역할·보강 필요 표시, 카테고리 메인 지침 양식 | [역할별 현황](../roles/README.md), [블로그 완성 기준](../BLOG_AUTOMATION_COMPLETION_POLICY.md) |
 | 디자인 관련 지침 | [디자인](DESIGN.md) | 화면·레이아웃·사용 흐름·모바일 개선 | [디자인 메인](../../DESIGN.md), [프로그램 디자인 표준](../PROGRAM_DESIGN_STANDARD.md) |
 | 디자인 템플릿 지침 | [템플릿·매뉴얼](DESIGN_TEMPLATES.md) | 테마 선택·재사용·연동/사용 매뉴얼 | [템플릿 카탈로그](../DESIGN_TEMPLATE_CATALOG.md), [매뉴얼 규격](../MANUAL_AND_INTEGRATION_GUIDELINES.md) |
 | 서브프로그램 개발 및 운영 | [서브프로그램](SUBPROGRAMS.md) | 신규 등록·회원 연동·운영·인수인계 | [DB 연동](../DATABASE_CONNECTION_POLICY.md), [회원 연동](../MEMBER_INTEGRATIONS.md) |
