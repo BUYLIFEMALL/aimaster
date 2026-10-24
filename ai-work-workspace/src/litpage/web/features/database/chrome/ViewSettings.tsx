@@ -166,7 +166,7 @@ function MainPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
         <LayoutGrid view={view} collection={collection} readOnly={ro} />
       ) : null}
       {MainOverride ? <MainOverride block={ctx.block} view={view} collection={collection} readOnly={ro} go={(p) => go(p as Page)} close={close} /> : <Section className={ctx.newView ? undefined : 'nc-vs-sec first'}>
-        {!ctx.newView && <Row icon={viewIcon(view.type)} label={tx('Layout')} value={viewTypeMeta(view.type).label} onClick={() => go('layout')} />}
+        {!ctx.newView && <Row icon={viewIcon(view.type)} label={tx('Layout')} value={tx(viewTypeMeta(view.type).label)} onClick={() => go('layout')} />}
         <Row icon="dbEye" label={tx('Property visibility')} value={shown} onClick={() => go('visibility')} />
         <Row icon="dbFilter" label={tx('Filter')} value={filters || undefined} onClick={() => go('filter')} />
         <Row icon="arrowUpDownSmall" label={tx('Sort')} value={sorts || undefined} onClick={() => go('sort')} />
@@ -231,7 +231,7 @@ function LayoutGrid({ view, collection, readOnly }: { view: CollectionViewRecord
         return (
           <div key={t} role="button" className={`nc-vs-layout-cell ${view.type === t ? 'selected' : ''}`} onClick={() => !readOnly && changeViewLayout(view, collection.id, t as ViewType)}>
             <Icon name={meta.icon} size={20} />
-            <span>{meta.label}</span>
+            <span>{tx(meta.label)}</span>
           </div>
         );
       })}

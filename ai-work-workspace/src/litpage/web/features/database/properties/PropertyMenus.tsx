@@ -135,7 +135,7 @@ export function changeTypeMenuDef(collectionId: string, propId: string, prop: Pr
         const meta = propertyTypeMeta(t);
         return {
           id: t,
-          label: meta.label,
+          label: tx(meta.label),
           icon: <PropertyIcon prop={{ type: t }} size={16} style={{ color: 'var(--lp-icon-primary)' }} />,
           checked: prop.type === t,
           disabled: t === 'auto_increment_id' && prop.type !== t,
@@ -897,7 +897,7 @@ function AddPropertyMenu({ opts, close }: { opts: AddPropertyOptions; close: () 
                     return (
                       <div key={t} role="gridcell" className={`nc-add-prop-cell ${idx === active ? 'active' : ''}`} onMouseMove={() => setActive(idx)} onClick={() => choose(t)}>
                         <span className="nc-add-prop-cell-icon"><PropertyIcon prop={{ type: t }} size={16} /></span>
-                        <span className="nc-add-prop-cell-label">{meta.label}</span>
+                        <span className="nc-add-prop-cell-label">{tx(meta.label)}</span>
                         <span role="button" className="nc-add-prop-help" data-tooltip={meta.tooltip} onClick={(e) => e.stopPropagation()}><Icon name="questionMarkCircleSmall" size={14} /></span>
                       </div>
                     );

@@ -84,7 +84,7 @@ function AddViewGrid({ opts, close }: { opts: { block: BlockRecord; collection?:
                 onClick={() => create(v.type as ViewType)}
               >
                 <Icon name={v.icon} size={22} />
-                <span className="nc-add-view-label">{v.label}</span>
+                <span className="nc-add-view-label">{tx(v.label)}</span>
               </div>
             ))}
           </div>
@@ -230,7 +230,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
             aria-haspopup="dialog"
             className={`lit-collection-view-tab ${active ? 'active' : ''}`}
             data-tooltip={measuring ? undefined : v.name}
-            data-tooltip-sub={measuring ? undefined : (v.format as any)?.description || `${viewTypeMeta(v.type).label} view of ${toPlainText(collection?.name as any) || tx('Untitled')}`}
+            data-tooltip-sub={measuring ? undefined : (v.format as any)?.description || `${tx(viewTypeMeta(v.type).label)} view of ${toPlainText(collection?.name as any) || tx('Untitled')}`}
             onClick={(e) => {
               if (measuring) return;
               if (active) openViewMenu(e.currentTarget, { block, view: v, collection, readOnly, onEdit: onEditView, onSelect, display, setDisplay });
@@ -238,7 +238,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
             }}
           >
             {display !== 'text' && <Icon name={viewIcon(v.type)} size={20} className="nc-view-tab-icon" />}
-            {display !== 'icon' && <span className="nc-view-tab-name">{v.name || viewTypeMeta(v.type).label}</span>}
+            {display !== 'icon' && <span className="nc-view-tab-name">{v.name || tx(viewTypeMeta(v.type).label)}</span>}
           </div>
         </div>
       </div>

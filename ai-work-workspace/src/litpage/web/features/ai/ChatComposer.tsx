@@ -244,10 +244,10 @@ function spaceMembers(spaceId: string | null): UserRecord[] {
 }
 
 function scopeLabel(sc: SourceScope): string {
-  if (sc.kind === 'workspace') return 'Workspace';
-  if (sc.kind === 'web') return 'Web';
+  if (sc.kind === 'workspace') return tx('Workspace');
+  if (sc.kind === 'web') return tx('Web');
   if (sc.kind === 'page' || sc.kind === 'teamspace') return sc.title || tx('Untitled');
-  return 'All sources';
+  return tx('All sources');
 }
 
 

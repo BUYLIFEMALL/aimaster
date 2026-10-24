@@ -78,7 +78,7 @@ export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; c
       if (props.noTriggerPage) continue;
       const editable = editablePropsOf(props.collectionId);
       items.push({
-        id: type, label: meta.label, icon: meta.icon,
+        id: type, label: tx(meta.label), icon: meta.icon,
         submenu: () => ({ width: 240, search: 'Search properties…', sections: [{ items: editable.map(([pid, p]) => ({ id: pid, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => props.onPick(newStep('edit_property', { propId: pid, prop: p })) })) }] }),
       });
       continue;
@@ -86,7 +86,7 @@ export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; c
     const webhookCount = props.steps.filter((s) => s.type === 'webhook').length;
     const disabled = type === 'mail' || type === 'slack' || (type === 'webhook' && (props.webhooksAllowed === false || webhookCount >= LIMITS.webhookActions));
     items.push({
-      id: type, label: meta.label, icon: meta.icon, badge: type === 'mail' ? 'New' : undefined, disabled,
+      id: type, label: tx(meta.label), icon: meta.icon, badge: type === 'mail' ? 'New' : undefined, disabled,
       description: type === 'mail' ? tx('Connect a Gmail account to send mail') : type === 'slack' ? tx('Connect Slack to use this action') : type === 'webhook' && props.webhooksAllowed === false ? tx('This feature is disabled in your workspace') : type === 'webhook' && webhookCount >= LIMITS.webhookActions ? `Up to ${LIMITS.webhookActions} webhook actions` : undefined,
       onSelect: () => props.onPick(newStep(type, { collectionId: props.collectionId })),
     });

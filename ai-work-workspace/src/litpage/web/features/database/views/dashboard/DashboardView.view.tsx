@@ -76,7 +76,7 @@ function addWidgetMenu(anchor: HTMLElement, dashboard: CollectionViewRecord, blo
   openMenu(anchor, {
     width: 240,
     header: <div className="nc-dash-menu-head">{tx('Add charts, tables, or lists')}</div>,
-    sections: [{ items: WIDGET_TYPES.map((t) => ({ id: t, label: viewTypeMeta(t).label, icon: viewIcon(t), onSelect: () => { const id = addWidget(dashboard, blockId, collectionId, t, place); if (id) after?.(id); } })) }],
+    sections: [{ items: WIDGET_TYPES.map((t) => ({ id: t, label: tx(viewTypeMeta(t).label), icon: viewIcon(t), onSelect: () => { const id = addWidget(dashboard, blockId, collectionId, t, place); if (id) after?.(id); } })) }],
   }, { placement: 'bottom-start' });
 }
 
@@ -159,7 +159,7 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
         data-tooltip={editing ? tx('Drag to reposition') : undefined}
       >
         <Icon name={viewIcon(wv.type)} size={16} color="var(--lp-icon-secondary)" />
-        <span className="nc-dash-widget-title">{wv.name || viewTypeMeta(wv.type).label}</span>
+        <span className="nc-dash-widget-title">{wv.name || tx(viewTypeMeta(wv.type).label)}</span>
         {!props.readOnly && <div role="button" className="nc-dash-widget-more" aria-label={tx('Widget options')} data-tooltip={tx('Widget options')} onClick={menu}><Icon name="ellipsis" size={16} /></div>}
       </div>
       <div className="nc-dash-widget-body lit-scroller vertical">
