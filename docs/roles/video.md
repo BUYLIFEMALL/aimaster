@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-10-25 `claude-win-video` (v1.23 배포)
+- 마지막 갱신: 2026-10-25 `claude-win-video` (v1.24 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,12 +14,13 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | 영상 만들기 맥 막힘 — v1.23 trace로 멈춘 단계 확인 | 맥미니 재측정(절차 PLAN §10-1) | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` |
+| `ai-video-studio` | 영상 만들기 맥 인코더 35초 대기 — v1.24 software·realtime 비교 | 맥미니 재측정(절차 PLAN §12-1) | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` |
 | Shots·원스톱 쇼츠 | 영상 D — 완성본에 내 PC 「용량 줄이기」 | 빌드 2회 승인 | `docs/analysis-pc-renderer-20261024/ROADMAP.md` 3-0 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-25 | `ai-video-studio` v1.24 | 맥 인코더 35초 대기 대책: `?render=realtime`·인코더 대기열 trace·막힘 안내 15초·정리 새로고침 안내 | 배포 |
 | 2026-10-25 | `ai-video-studio` v1.23 | 맥 렌더 3단계: `?render=trace|nopace|htmlcanvas`·멈추기 3초 보장·30초 막힘 안내(맥미니 v1.22 재측정 반영) | 배포 |
 | 2026-10-25 | `ai-video-studio` v1.22 | 맥 렌더 2단계: 맥 소프트웨어 디코딩 기본·`?render=` 스위치·`msPerFrame` 진단·「멈추는 중…」·남은 시간 수정 | 배포 |
 | 2026-10-24 | `ai-video-studio` v1.21 | 영상 만들기 진단 1단계·갤러리 서명 한 번에·화질 균형 | 배포 |
@@ -37,7 +38,7 @@
 | 2026-10-24 | `infinite-loop-video` v1.07 | 소리 없는 영상 실패 수정 | 배포 |
 
 ## 다음 첫 단계
-1. 맥미니 v1.23 재측정(PLAN §10-1)을 받으면 멈춘 단계로 4단계 플랜(원인 우회 또는 맥은 다른 렌더 길)
+1. 맥미니 v1.24 재측정(PLAN §12-1)을 받으면 빠른 쪽(software/realtime)을 v1.25 맥 기본값으로 하는 플랜(빌드 승인)
 2. 영상 D(빌드 2회 승인 뒤)
 
 ## 주인님께 여쭐 것
