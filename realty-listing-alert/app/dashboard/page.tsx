@@ -34,13 +34,15 @@ export default async function DashboardPage() {
 
         <section className="card" aria-labelledby="install-title">
           <h2 className="card-title" id="install-title">🖥 원클릭 다운로드 센터</h2>
-          <ol className="guide-steps">
+          <ol className="guide-steps three">
             {INSTALL.map((step, index) => (
               <li key={step.title}>
-                <span className="guide-step-head"><span className="nav-number">{index + 1}</span></span>
-                <span className="guide-step-icon">{step.icon}</span>
-                <strong>{step.title}</strong>
-                <small>{step.desc}</small>
+                <div className="step-box">
+                  <span className="guide-step-head"><span className="nav-number">{index + 1}</span></span>
+                  <span className="guide-step-icon">{step.icon}</span>
+                  <strong>{step.title}</strong>
+                  <small>{step.desc}</small>
+                </div>
               </li>
             ))}
           </ol>
@@ -49,7 +51,7 @@ export default async function DashboardPage() {
 
         <section className="card">
           <h2 className="card-title">📋 내 설정</h2>
-          <ol className="guide-steps">
+          <ol className="guide-steps three">
             {CARDS.map((card) => (
               <li key={card.title}>
                 <a href={card.href}>

@@ -46,7 +46,7 @@ export default async function GuidePage() {
 
         <section className="card">
           <h2 className="card-title">🧭 사용 순서</h2>
-          <ol className="guide-steps">
+          <ol className="guide-steps four">
             {STEPS.map((step, index) => (
               <li key={step.title}>
                 <a href={step.href}>

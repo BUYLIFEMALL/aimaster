@@ -466,9 +466,11 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .guide-avatar { display: grid; place-items: center; flex: 0 0 48px; height: 48px; border-radius: 50%; background: var(--accent-bright); font-size: 24px; }
 .guide-bubble p { margin: 0; border: 1px solid var(--line); border-radius: 4px 18px 18px 18px; background: #fff; padding: 14px 16px; color: var(--ink); font-size: 14px; line-height: 1.7; }
 .guide-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 16px 0 0; padding: 0; list-style: none; }
-.guide-steps a { display: grid; gap: 8px; height: 100%; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); padding: 14px; color: var(--ink); text-decoration: none; }
+.guide-steps a, .guide-steps .step-box { display: grid; gap: 8px; height: 100%; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); padding: 14px; color: var(--ink); text-decoration: none; }
 .guide-steps a:hover { border-color: var(--accent); }
 .guide-steps .nav-number { background: var(--accent); color: #fff; }
+.guide-steps.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.guide-steps.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .guide-step-head { display: flex; align-items: center; justify-content: space-between; }
 .guide-time { border-radius: 999px; background: #fff; padding: 3px 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
 .guide-step-icon { font-size: 28px; }
@@ -489,8 +491,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .guide-faq details { border-radius: 12px; background: var(--paper); padding: 12px 14px; }
 .guide-faq summary { cursor: pointer; font-size: 14px; font-weight: 700; }
 .guide-faq p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
-@media (max-width: 920px) { .guide-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 680px) { .guide-steps, .guide-two { grid-template-columns: 1fr; } }
+@media (max-width: 920px) { .guide-steps, .guide-steps.three, .guide-steps.four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .guide-steps, .guide-steps.three, .guide-steps.four, .guide-two { grid-template-columns: 1fr; } }
 
 /* v1.74 글쓰기 선택 사항·발행 전 점검 (스마트 매트릭스 라이트 토큰 사용) */
 .writing-options { display: grid; gap: 10px; margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 14px; }
