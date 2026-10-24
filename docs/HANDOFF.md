@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 플레이리스트 v1.30 Spectrum 묶음 끝(P-3·P-4·P-5)
+- P-3 배경 이미지 여러 장(최대 10장) 곡마다·N초마다 전환(페이드·디졸브·슬라이드·줌·랜덤), P-4 AI 없는 움직이는 배경 5종·색 묶음 4종(배경 없이 음악만으로 진행 가능), P-5 내 설정(장르 프리셋 6종·이름 저장·파일 내보내기/가져오기·시작값).
+- 검수(운영, 크롬 시험 계정): 배경 없이 EDM 프리셋 미리보기, 설정 저장 확인 뒤 삭제, 배경 3장 세로 9:16 MP4(1080×1920, 전환·곡 제목). 배포 `playlist-channel-studio-o6zpjt8s3` Ready·DB v1.30. 시험 28 통과.
+- 비용: 이 묶음 빌드 2회(v1.29·v1.30, 승인 범위), AI 호출 없음.
+- 다음(대기 목록 `docs/MUSIC_OWNER_QUEUE_20261024.md`): Lyricbi L-1~L-5(승인 전) → 무료 음성 엔진(질문 3개) → P-6 → 영상 배경 문제 조사.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — ClearPic 1.3.0 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\ClearPic-1.3.0-setup.exe`(Electron, GPT PARK, 실행 안 함). 브라우저 엔진(`onnxruntime-web`)으로 내 PC 안에서 **LaMa 지우기(Apache-2.0, 208MB) + PP-OCRv4 글자 위치 찾기(Apache-2.0, 4.7MB)** — 브러시·문구 자동 찾기·제미나이 ✦ 워터마크 자동 찾기·마스크 여러 장 복사·최대 300장 일괄·ZIP.
 - 우리 쪽: `banana-canvas` 브러시 부분 삭제는 Gemini(유료 키·한 장씩). 의견: 독립 개발 안 함 → **공용 「브라우저 무료 지우기」 엔진 + 글자 자동 찾기**를 만들어 `banana-canvas` 「무료 지우기」 화면(일괄·ZIP)에 병합, 상세페이지·썸네일에 사본. **제미나이 워터마크 자동 제거는 넣지 않기 권장**(AI 생성물 표시 의무·정책). **주인님 결정: 제미나이 워터마크 자동 제거 제외 확정 · 바나나 캔버스 담당에게 인계.** 플랜 초안 C-1~C-5(시제품 → 공용 엔진·글자 찾기 → 무료 지우기 화면 → 일괄·ZIP), 범위·순서·비용(AI 0·빌드 1~2회) 승인 전. COOP/COEP 시제품은 음악 담당 무료 음성 엔진과 결과 공유. [인계](../banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · [플랜](../banana-canvas/docs/PLAN_20261024_CLEARPIC_C1_C5.md) · [보고서](analysis-clearpic-20261024/REPORT.md). 비용 없음.
