@@ -1,5 +1,6 @@
 import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
 import { GEMINI_GUIDE_URL } from "@/lib/guides";
+import { Sparkles, KeyRound, ExternalLink, ShieldCheck, Zap, Layers, Image as ImageIcon, Sliders, Palette, HelpCircle, CheckCircle2 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -8,190 +9,399 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   return (
     <li className="gd-step">
       <span className="gd-num">{n}</span>
-      <div><strong>{title}</strong><p>{children}</p></div>
+      <div>
+        <strong>{title}</strong>
+        <p>{children}</p>
+      </div>
     </li>
   );
 }
 
 const STYLES_LIST = [
-  "피규어", "지브리 애니메이션", "신카이 마코토", "한국 수묵화", "사이버펑크",
-  "레트로 픽셀아트", "클레이메이션", "유화 (인상주의)", "수채화 일러스트", "3D 픽사 스타일",
-  "흑백 느와르", "팝아트", "스테인드글라스", "종이공예(페이퍼아트)", "보태니컬 아트",
-  "미니멀리즘 벡터", "네온 글로우", "빈티지 코믹스", "다크 판타지", "사이버 메카닉"
+  { name: "피규어", category: "3D/입체" },
+  { name: "3D 픽사 스타일", category: "3D/입체" },
+  { name: "클레이메이션", category: "3D/입체" },
+  { name: "지브리 애니메이션", category: "애니" },
+  { name: "신카이 마코토", category: "애니" },
+  { name: "한국 수묵화", category: "전통 회화" },
+  { name: "유화 (인상주의)", category: "전통 회화" },
+  { name: "수채화 일러스트", category: "전통 회화" },
+  { name: "보태니컬 아트", category: "전통 회화" },
+  { name: "사이버펑크", category: "SF/컨셉" },
+  { name: "사이버 메카닉", category: "SF/컨셉" },
+  { name: "다크 판타지", category: "SF/컨셉" },
+  { name: "레트로 픽셀아트", category: "디지털" },
+  { name: "미니멀리즘 벡터", category: "디지털" },
+  { name: "네온 글로우", category: "디지털" },
+  { name: "팝아트", category: "모던 아트" },
+  { name: "빈티지 코믹스", category: "모던 아트" },
+  { name: "흑백 느와르", category: "시네마틱" },
+  { name: "스테인드글라스", category: "공예" },
+  { name: "종이공예(페이퍼아트)", category: "공예" },
 ];
 
 export default function GuidePage() {
   return (
-    <>
+    <div className="luxury-guide">
+      {/* 헤더 */}
       <div className="page-heading">
-        <p className="eyebrow">비주얼 사용 설명서</p>
+        <p className="eyebrow">NANO BANANA STUDIO MASTER GUIDEBOOK</p>
         <h1>📖 연동 & 사용 매뉴얼</h1>
-        <p>사진 한 장으로 복원·스타일 변환·합성·배경 제거·증명사진·인생 앨범·만화·스토리까지 만드는 이미지 도구함입니다. ①~②만 따라 해도 충분합니다.</p>
+        <p>사진 한 장으로 복원·스타일 변환·합성·배경 제거·증명사진·8컷 스토리까지 완성하는 나노바나나 아틀리에 공식 가이드입니다.</p>
       </div>
 
-      <div className="gd">
-        {/* 상단 바나나 히어로 배너 */}
-        <section className="gd-hero">
-          <div className="gd-mascot">🍌</div>
-          <div className="gd-bubble">
-            <strong>반갑습니다! AI 바나나 캔버스 아틀리에입니다.</strong>
-            단 한 장의 사진만으로도 전문가급 리터칭, 스타일 변환, 5장 이미지 합성, 증명사진 및 8컷 연속 스토리 제작까지 브라우저에서 바로 실현할 수 있습니다. 아래 3단계 작업 흐름과 가이드를 확인해보세요!
+      {/* 1. 럭셔리 히어로 배너 */}
+      <section className="luxury-hero">
+        <div className="luxury-mascot-box">🍌</div>
+        <div className="luxury-hero-text">
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
+            <span className="brand-3d-badge">PRO v1.38 Master Guide</span>
+            <span className="nav-badge-free">⚡ 0원 초고속 WebGPU 탑재</span>
           </div>
-        </section>
+          <h2>나노바나나 크리에이티브 아틀리에에 오신 것을 환영합니다!</h2>
+          <p>
+            전문가 수준의 고화질 이미지 복원, 20종 프리미엄 스타일 변환, 5장 멀티 합성, 상업용 템플릿 제작 및 8컷 시네마틱 스토리까지 
+            브라우저에서 바로 실현할 수 있습니다. 1~2단계만 숙지하셔도 모든 핵심 기능을 자유자재로 활용하실 수 있습니다.
+          </p>
+        </div>
+      </section>
 
-        {/* 3단계 핵심 파이프라인 */}
-        <section className="card">
-          <h2>🍌 3단계 스마트 워크플로우</h2>
-          <ul className="gd-flow">
-            <li>
-              <em>STEP 01</em>
-              <b>🖼️</b>
-              <strong>원본 이미지 준비</strong>
-              <small>JPG·PNG·WEBP 업로드 (이미지 없이 만들기 가능)</small>
-            </li>
-            <li>
-              <em>STEP 02</em>
-              <b>✨</b>
-              <strong>도구 선택 및 실행</strong>
-              <small>생성·편집·합성·빠른작업·스페셜 작업 실행</small>
-            </li>
-            <li>
-              <em>STEP 03</em>
-              <b>🌟</b>
-              <strong>다운로드 & 계속 편집</strong>
-              <small>고해상도 저장 또는 결과를 새 원본으로 연결</small>
-            </li>
-          </ul>
-        </section>
-
-        {/* 바로가기 목차 */}
-        <nav className="gd-toc card" aria-label="목차">
-          <strong>바로가기</strong>
-          <a href="#key">① 키 등록(최초 1회)</a>
-          <a href="#quick">② 5분 시작하기</a>
-          <a href="#tools">③ 작업별 설명</a>
-          <a href="#styles">④ 20종 스타일 프리셋</a>
-          <a href="#tips">⑤ 잘 나오는 요령</a>
-          <a href="#privacy">⑥ 개인정보·사용 주의</a>
-          <a href="#faq">⑦ 막힐 때(FAQ)</a>
-        </nav>
-
-        {/* 1. API 키 등록 */}
-        <section id="key" className="card">
-          <h2>① Gemini API 키 등록 (최초 1회)</h2>
-          <p className="gd-lead">이미지 생성·편집은 <b>회원님 본인의 Google Gemini API 키</b>로 동작합니다. 키가 없으면 작업 버튼을 눌렀을 때 등록 안내가 나옵니다.</p>
-          <ol className="gd-steps">
-            <Step n={1} title="키 만들기"><code>aistudio.google.com/apikey</code>에서 본인 Google 계정으로 로그인 → [Create API key] → <code>AIza…</code>로 시작하는 키를 복사합니다.</Step>
-            <Step n={2} title="이 프로그램에 등록">왼쪽 메뉴 [API키등록·플랫폼연동]에서 붙여 넣고 [키 등록]을 누릅니다.</Step>
-            <Step n={3} title="확인">“등록됨”과 키 일부가 보이면 끝입니다. 언제든 삭제·교체할 수 있습니다.</Step>
-          </ol>
-          {GEMINI_GUIDE_URL && <div className="actions" style={{ marginTop: 14 }}><GuideLinkButton url={GEMINI_GUIDE_URL} label="Gemini 키 발급 상세 매뉴얼 (그림 포함, 팝업)" /></div>}
-          <p className="gd-warn">⚠️ 이미지 생성·편집은 Gemini 이미지 모델을 쓰며, 계정에 따라 결제(유료) 설정이 되어 있어야 동작할 수 있습니다. 작업 1회가 이미지 생성 1건이고, 연속 스토리·이미지 레시피는 6~8건이 본인 키 사용량으로 계산됩니다.</p>
-        </section>
-
-        {/* 2. 5분 시작하기 */}
-        <section id="quick" className="card">
-          <h2>② 5분 시작하기</h2>
-          <ol className="gd-steps">
-            <Step n={1} title="원본 이미지를 올립니다">[원본 이미지]에 JPG·PNG·WEBP(15MB 이하)를 올립니다. 이미지가 없어도 [만들기]나 [스페셜]의 스토리·레시피는 바로 쓸 수 있습니다.</Step>
-            <Step n={2} title="작업을 고릅니다">[만들기] 새 이미지, [템플릿 그래픽] 123종 상업 템플릿, [옛 사진 복원] 구도 유지 복원·컬러화·확대, [편집] 복원·스타일, [합성] 여러 장 합치기, [빠른 작업] 배경 제거·부분 삭제·증명사진·평면도 3D, [스페셜] 인생 앨범·만화·스토리·레시피.</Step>
-            <Step n={3} title="[프롬프트 제안]을 활용합니다">요청을 어떻게 쓸지 막막하면 [프롬프트 제안]을 눌러 AI가 쓴 문장을 받아 고쳐 쓰세요.</Step>
-            <Step n={4} title="결과를 저장하거나 이어서 편집합니다">[다운로드]로 저장하고, [이 결과로 계속 편집]을 누르면 결과를 새 원본으로 다시 작업할 수 있습니다. 결과는 [내 결과 기록]에 최근 30건까지 보관되고, 만든 날부터 30일 뒤 자동 삭제됩니다(즐겨찾기 포함). 「형식 바꾸기」로 이미지 변환 스튜디오에서 WebP·PNG·JPG로 바꿀 수 있습니다.</Step>
-          </ol>
-        </section>
-
-        {/* 3. 작업별 설명 */}
-        <section id="tools" className="card">
-          <h2>③ 작업별 설명</h2>
-          <div className="gd-cards">
-            <article><h3>🎨 만들기</h3><p>아이디어를 입력하고 카테고리(실사·음식·건축·판타지·수채화·3D·벡터·스티커·로고·미니멀)와 종횡비를 고르면 이미지를 만듭니다.</p></article>
-            <article><h3>✨ 편집</h3><p>복원·컬러화·채색(스케치 전용)·업스케일(2x/4x)을 복수 선택하고, 스타일 20종(피규어·유화·한국수묵화 등)과 추가 요청을 더할 수 있습니다.</p></article>
-            <article><h3>📐 템플릿 그래픽</h3><p>19개 직군 123종 상업 템플릿(배너·포스터·명함·메뉴판·UI 등)을 고르고 빈칸만 채우면 그래픽을 만듭니다. 메모나 기획서(.txt·.md·.json)를 넣으면 AI가 칸을 채워 주고, 화풍 11종·글자 언어·해상도(정밀 모델 2K·4K)를 고를 수 있습니다. 원본 이미지가 있으면 참고 이미지로 씁니다. (예전 「AI 올인원 그래픽」 기능이 이곳으로 옮겨 왔습니다.)</p></article>
-            <article><h3>↔️ 비율 확장 · 부분 수정</h3><p>빠른 작업의 「비율 확장」은 원본을 그대로 두고 주변을 그려 16:9·9:16 등으로 넓힙니다. 「부분 수정 지시」를 적고 브러시로 칠하면 그 자리만 바꾸거나 새 물건을 넣고, 비워 두면 칠한 곳을 지웁니다.</p></article>
-            <article><h3>🕰️ 옛 사진 복원</h3><p>원래 구도·얼굴·시대를 지키며 긁힘·빛바램을 고치고 흑백에 자연스러운 색을 입힙니다. 실제 2배·4배 확대(긴 변 최대 8,192px)를 고를 수 있고, 결과는 원본과 슬라이더로 비교합니다. (예전 「AI 포토 리메이크」 기능이 이곳으로 옮겨 왔습니다.)</p></article>
-            <article><h3>🧩 합성</h3><p>원본에 소스 이미지(최대 5장)의 요소를 합칩니다. 소스마다 「오른손에 들기」처럼 지시를 따로 적을 수 있고, 배경을 유지할지 바꿀지 고릅니다. 원본 인물의 얼굴은 그대로 유지하도록 지시합니다. 결과 종횡비를 바꾸면 장면을 확장합니다.</p></article>
-            <article><h3>✂️ 배경 제거</h3><p>AI가 배경을 단색으로 바꾼 뒤 서버에서 투명 배경 PNG로 만듭니다. 피사체와 비슷한 색의 배경이면 가장자리가 거칠 수 있습니다.</p></article>
-            <article><h3>🖌️ 부분 삭제 (AI로 다시 그리기)</h3><p>브러시로 칠한 영역을 Gemini가 주변과 어울리게 다시 그립니다. 넓은 영역·복잡한 배경에 강하고 본인 키로 유료입니다. 글자·작은 물체만 지울 때는 아래 ⑦ 「무료 지우기(내 PC)」가 키 없이 됩니다.</p></article>
-            <article><h3>🧼 AI 매직 지우개 (0원 초고속)</h3><p>왼쪽 메뉴 [🧼 AI 매직 지우개]에서 엽니다. 여러 장을 올려 브러시로 칠하거나 「문구 찾기」로 글자를 자동 감지해 1초 만에 지우고, 일괄 ZIP으로 내려받습니다. 내 브라우저(WebGPU)에서 직접 계산하므로 외부 키·비용이 0원이며 이미지가 외부 서버로 전송되지 않습니다.</p></article>
-            <article><h3>📸 증명사진 · 평면도 3D</h3><p>증명사진은 정장·흰 배경·3:4로 변환합니다. 평면도는 45도 컷어웨이 3D 렌더로 바꿉니다.</p></article>
-            <article><h3>📚 인생 앨범 · 만화 패널</h3><p>인생 앨범은 현재 나이를 입력하면 유아~70대 콜라주를 만듭니다. 만화 패널은 느와르·웹툰·미국 코믹스 중에서 대사를 넣어 만듭니다.</p></article>
-            <article><h3>📖 연속 스토리 · 이미지 레시피</h3><p>스토리는 AI가 8개 장면을 먼저 기획한 뒤 컷마다 이전 컷을 참고해 그립니다(글자 없음). 레시피는 한국어 단계 설명과 단계별 이미지를 만듭니다.</p></article>
+      {/* 2. 3단계 스마트 파이프라인 */}
+      <section className="card">
+        <h2>🍌 3단계 스마트 워크플로우</h2>
+        <div className="luxury-flow">
+          <div className="luxury-flow-card">
+            <em>STEP 01</em>
+            <b>🖼️</b>
+            <strong>원본 이미지 준비</strong>
+            <small>JPG·PNG·WEBP 업로드 (이미지 없이 만들기 가능)</small>
           </div>
-        </section>
+          <div className="luxury-flow-card">
+            <em>STEP 02</em>
+            <b>🪄</b>
+            <strong>도구 선택 및 AI 실행</strong>
+            <small>복원·합성·스타일·지우개·만화·스토리 실행</small>
+          </div>
+          <div className="luxury-flow-card">
+            <em>STEP 03</em>
+            <b>✨</b>
+            <strong>다운로드 & 계속 편집</strong>
+            <small>고해상도 저장 또는 결과를 새 원본으로 연결</small>
+          </div>
+        </div>
+      </section>
 
-        {/* 4. 20종 스타일 프리셋 시각화 */}
-        <section id="styles" className="card">
-          <h2>④ 20종 프리미엄 스타일 프리셋</h2>
-          <p className="gd-lead">원하는 분위기의 스타일을 클릭하여 프롬프트에 자동으로 주입하고, 색다른 질감의 아트워크를 제작해 보세요.</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
-            {STYLES_LIST.map((style, i) => (
-              <span key={i} style={{
-                padding: "6px 12px",
+      {/* 3. 3D 목차 그리드 */}
+      <nav className="card" aria-label="목차">
+        <h2>🧭 퀵 가이드 목차</h2>
+        <div className="luxury-toc">
+          <a href="#key" className="luxury-toc-chip">🔑 ① API 키 등록 & 가입</a>
+          <a href="#quick" className="luxury-toc-chip">⚡ ② 5분 시작하기</a>
+          <a href="#tools" className="luxury-toc-chip">💎 ③ 12대 작업별 설명</a>
+          <a href="#free-erase" className="luxury-toc-chip">🧼 ④ AI 매직 지우개 (0원)</a>
+          <a href="#styles" className="luxury-toc-chip">🎨 ⑤ 20종 스타일 프리셋</a>
+          <a href="#tips" className="luxury-toc-chip">💡 ⑥ 고화질 제작 요령</a>
+          <a href="#privacy" className="luxury-toc-chip">🛡️ ⑦ 프라이버시 보호 규정</a>
+          <a href="#faq" className="luxury-toc-chip">❓ ⑧ 막힐 때 (FAQ)</a>
+        </div>
+      </nav>
+
+      {/* 4. API 키 등록 (생성 & 가입 버튼 제공) */}
+      <section id="key" className="card">
+        <h2>🔑 ① Google Gemini API 키 등록 (최초 1회)</h2>
+        <p className="gd-lead">
+          나노바나나 고화질 생성·복원·스타일 변환은 <b>회원님 본인의 Google Gemini API 키</b>로 동작합니다.
+        </p>
+
+        {/* 퀵 액션 버튼 세트 */}
+        <div className="platform-link-group" style={{ margin: "14px 0" }}>
+          <a
+            href="https://aistudio.google.com/apikey"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-create-key"
+          >
+            <KeyRound size={14} />
+            <span>Google AI Studio API 키 발급/생성하기</span>
+            <ExternalLink size={12} style={{ opacity: 0.8 }} />
+          </a>
+          <a
+            href="https://aistudio.google.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-platform-signup"
+          >
+            <span>Google AI Studio 회원가입 / 시작</span>
+            <ExternalLink size={12} style={{ opacity: 0.8 }} />
+          </a>
+        </div>
+
+        <ol className="gd-steps">
+          <Step n={1} title="API 키 만들기">
+            위의 <b>[Google AI Studio API 키 발급/생성하기]</b> 버튼을 눌러 본인 Google 계정으로 로그인한 뒤, <code>[Create API key]</code>를 눌러 <code>AIza…</code>로 시작하는 키를 복사합니다.
+          </Step>
+          <Step n={2} title="프로그램에 등록">
+            왼쪽 사이드바 메뉴 <b>[API키등록·플랫폼연동]</b>에서 키를 붙여 넣고 <code>[키 등록]</code>을 누릅니다.
+          </Step>
+          <Step n={3} title="등록 완료 확인">
+            초록색 <code>등록 완료</code> 뱃지와 마스킹된 키가 표시되면 즉시 모든 AI 도구를 사용하실 수 있습니다.
+          </Step>
+        </ol>
+
+        {GEMINI_GUIDE_URL && (
+          <div className="actions" style={{ marginTop: 14 }}>
+            <GuideLinkButton url={GEMINI_GUIDE_URL} label="Gemini 키 발급 상세 매뉴얼 (그림 포함 팝업)" />
+          </div>
+        )}
+
+        <div className="gd-tip" style={{ marginTop: 14 }}>
+          💡 <b>0원 무료 도구 안내:</b> <code>[🧼 AI 매직 지우개]</code>는 내 브라우저(WebGPU)에서 100% 로컬 연산되므로 API 키 없이도 평생 0원으로 무제한 이용하실 수 있습니다.
+        </div>
+      </section>
+
+      {/* 5. 5분 시작하기 */}
+      <section id="quick" className="card">
+        <h2>⚡ ② 5분 시작하기</h2>
+        <ol className="gd-steps">
+          <Step n={1} title="원본 사진을 올립니다">
+            <b>[🖼️ 1. 원본 준비]</b> 칸에 JPG, PNG, WEBP 사진(15MB 이하)을 드래그하여 올립니다. 사진 없이 새로 만들 때는 <b>[만들기]</b>를 바로 선택하세요.
+          </Step>
+          <Step n={2} title="원하는 AI 도구를 선택합니다">
+            스튜디오 상단의 3D 바로가기 칩 또는 사이드바 메뉴에서 [옛 사진 복원], [편집], [합성], [4컷 만화], [8컷 스토리] 등 원하는 도구를 고릅니다.
+          </Step>
+          <Step n={3} title="[프롬프트 제안]을 활용합니다">
+            어떤 문장을 적어야 할지 막막할 때는 <b>[프롬프트 제안]</b> 버튼을 누르면 AI가 전문적인 아트워크 묘사 프롬프트를 자동으로 채워줍니다.
+          </Step>
+          <Step n={4} title="결과를 저장하거나 이어서 편집합니다">
+            <b>[다운로드]</b>로 저장하거나, <b>[이 결과로 계속 편집]</b>을 누르면 완성된 이미지가 즉시 새 원본으로 지정되어 2차, 3차 연속 리터칭이 가능합니다.
+          </Step>
+        </ol>
+      </section>
+
+      {/* 6. 12대 핵심 기능 럭셔리 카드 그리드 */}
+      <section id="tools" className="card">
+        <h2>💎 ③ 12대 작업별 상세 설명</h2>
+        <div className="luxury-tool-grid">
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🎨 만들기</h3>
+              <span className="luxury-tool-badge">창작 생성</span>
+            </div>
+            <p>상상 속 아이디어를 입력하고 카테고리(실사·음식·건축·3D·벡터 등)와 종횡비를 선택하여 완전히 새로운 이미지를 생성합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>✨ 1클릭 복원 & 편집</h3>
+              <span className="luxury-tool-badge">고화질 업스케일</span>
+            </div>
+            <p>빛바랜 사진 복원, 흑백 컬러화, 스케치 채색, 최대 4배(긴 변 8192px) 초고해상도 업스케일을 1클릭으로 실행합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🧼 AI 매직 지우개</h3>
+              <span className="luxury-tool-badge free">0원 초고속 WebGPU</span>
+            </div>
+            <p>브라우저 로컬 하드웨어 가속(WebGPU)으로 이미지 내 불필요한 글자와 잡티를 1초 만에 흔적 없이 지웁니다. 외부 키 0원, 프라이버시 100% 보장.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🧩 5장 멀티 합성</h3>
+              <span className="luxury-tool-badge">인물/배경 보존</span>
+            </div>
+            <p>원본 인물의 얼굴을 그대로 지키면서 최대 5장의 소스 이미지 요소(소품, 배경, 의상)를 자연스럽게 결합합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🎩 인물 증명사진</h3>
+              <span className="luxury-tool-badge">규격 자동 변환</span>
+            </div>
+            <p>일상 스냅사진을 단정한 정장 차림과 깨끗한 흰색 스튜디오 배경의 3:4 표준 여권/증명사진으로 즉각 변환합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>✂️ 정밀 배경 제거 (누끼)</h3>
+              <span className="luxury-tool-badge">투명 PNG</span>
+            </div>
+            <p>피사체의 외곽선을 정밀하게 분리하여 상품 상세페이지나 썸네일에 바로 쓸 수 있는 고품질 투명 배경 PNG를 제작합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🔮 정밀 인페인트</h3>
+              <span className="luxury-tool-badge">AI 리터칭</span>
+            </div>
+            <p>브러시로 칠한 특정 영역만 Gemini AI가 주변 맥락을 분석하여 감쪽같이 새로운 물체로 대체하거나 다시 그립니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>📐 123종 상업 템플릿</h3>
+              <span className="luxury-tool-badge">디자인 완성</span>
+            </div>
+            <p>19개 직군 123종 배너·포스터·카드뉴스 템플릿에 기획서 텍스트만 넣으면 전문 디자이너 수준의 완성 그래픽을 출력합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🎭 20종 화풍 변환</h3>
+              <span className="luxury-tool-badge">아트 프리셋</span>
+            </div>
+            <p>사진을 피규어, 지브리, 신카이 마코토, 수묵화, 사이버펑크, 3D 픽사 스타일 등 독보적인 예술 작품으로 재해석합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>☕ 사진 요리책 레시피</h3>
+              <span className="luxury-tool-badge">비주얼 요약</span>
+            </div>
+            <p>음식 사진 한 장으로 재료 목록과 조리 순서별 비주얼 요리책 카드를 자동으로 생성합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🎨 감성 4컷 만화</h3>
+              <span className="luxury-tool-badge">말풍선 & 연출</span>
+            </div>
+            <p>사진의 등장인물과 상황을 웹툰, 아메리칸 코믹스, 흑백 느와르 만화 프레임에 대사와 함께 감성적으로 재구성합니다.</p>
+          </div>
+
+          <div className="luxury-tool-card">
+            <div className="luxury-tool-card-head">
+              <h3>🎬 8컷 시네마틱 스토리</h3>
+              <span className="luxury-tool-badge">스토리보드</span>
+            </div>
+            <p>단 하나의 아이디어로 기승전결이 이어지는 8개 연속 장면을 일관된 캐릭터와 화풍으로 자동 기획 및 렌더링합니다.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. AI 매직 지우개 0원 가이드 */}
+      <section id="free-erase" className="card">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+          <h2>🧼 ④ AI 매직 지우개 (초고속 0원 WebGPU)</h2>
+          <span className="nav-badge-free">100% 브라우저 로컬 연산 · 완전한 프라이버시</span>
+        </div>
+        <p className="bc-hint">
+          ⏱ <b>프로그램 별도 설치 불필요!</b> 최초 1회 브라우저에 AI 가속 모델(LaMa Inpainting & RapidOCR)이 자동 캐싱된 후, 장당 1~2초 만에 초고속 연산됩니다. 크롬·엣지·웨일 최신 브라우저를 권장합니다.
+        </p>
+
+        <ol className="gd-steps">
+          <Step n={1} title="사진을 추가합니다">
+            사이드바의 <b>[🧼 AI 매직 지우개]</b> 메뉴를 클릭한 뒤, 사진을 드래그하거나 [사진 추가]로 최대 50장을 한 번에 등록합니다. 사진 데이터는 절대 외부 서버로 전송되지 않습니다.
+          </Step>
+          <Step n={2} title="지울 영역을 감지하거나 칠합니다">
+            <b>[문구 찾기]</b>를 누르면 AI가 이미지 속 글자를 자동으로 찾아 핑크색 마스크로 지정합니다. 글자가 아닌 잡티나 로고는 <b>[칠하기]</b> 브러시로 넉넉하게 칠합니다.
+          </Step>
+          <Step n={3} title="1초 만에 깔끔하게 지웁니다">
+            <b>[지우기]</b>를 누르면 주변 배경 텍스처를 자연스럽게 이어붙여 1초 만에 삭제합니다.
+          </Step>
+          <Step n={4} title="일괄 ZIP으로 내려받습니다">
+            여러 장을 동일한 위치로 지울 때는 <b>[선택 사진 모두 지우기]</b>를 누르고, 완료 후 <b>[선택 결과 ZIP 내려받기]</b>로 한 번에 다운로드합니다.
+          </Step>
+        </ol>
+      </section>
+
+      {/* 8. 20종 스타일 프리셋 시각화 */}
+      <section id="styles" className="card">
+        <h2>🎨 ⑤ 20종 프리미엄 스타일 팔레트</h2>
+        <p className="gd-lead">원하는 스타일을 선택하시면 프롬프트에 질감과 조명 세팅이 자동으로 최적화 주입됩니다.</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "9px", marginTop: "14px" }}>
+          {STYLES_LIST.map((style, i) => (
+            <span
+              key={i}
+              style={{
+                padding: "7px 14px",
                 borderRadius: "999px",
-                background: "var(--card2)",
-                border: "1px solid var(--line)",
-                color: "var(--foreground)",
-                fontSize: "12px",
-                fontWeight: 600,
+                background: "#ffffff",
+                border: "1px solid rgba(245, 158, 11, 0.25)",
+                color: "#1c1917",
+                fontSize: "12.5px",
+                fontWeight: 700,
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px"
-              }}>
-                <span style={{ color: "var(--brand-text)" }}>●</span> {style}
+                gap: "6px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+              }}
+            >
+              <span style={{ fontSize: "10px", color: "#d97706", background: "#fef3c7", padding: "2px 6px", borderRadius: "6px" }}>
+                {style.category}
               </span>
-            ))}
-          </div>
-        </section>
+              <span>{style.name}</span>
+            </span>
+          ))}
+        </div>
+      </section>
 
-        {/* 5. 결과가 잘 나오는 요령 */}
-        <section id="tips" className="card">
-          <h2>⑤ 결과가 잘 나오는 요령</h2>
-          <ul className="gd-list">
-            <li>원본은 <b>해상도가 충분하고 피사체가 선명한</b> 사진이 좋습니다. 너무 작거나 흐린 사진은 업스케일해도 한계가 있습니다.</li>
-            <li>요청은 <b>한 번에 한 가지</b>를 구체적으로 쓰세요. 여러 변환이 필요하면 결과를 [계속 편집]으로 이어 가는 편이 안정적입니다.</li>
-            <li>스타일 변환은 [프롬프트 제안]을 쓰면 재질·질감 설명이 더해져 결과가 좋아집니다.</li>
-            <li>업스케일은 AI 선명화와 서버 확대를 함께 쓰며, 긴 변 8192px까지 확대됩니다. 새로운 디테일을 완전히 복원하는 기능은 아닙니다.</li>
-          </ul>
-        </section>
+      {/* 9. 퀄리티 팁 & 주의사항 */}
+      <section id="tips" className="card">
+        <h2>💡 ⑥ 고화질 제작을 위한 전문가 팁</h2>
+        <ul className="gd-list" style={{ lineHeight: 1.75 }}>
+          <li><b>피사체의 해상도:</b> 원본 사진의 주요 피사체가 또렷할수록 복원 및 스타일 변환의 디테일이 비약적으로 향상됩니다.</li>
+          <li><b>단계적 접근:</b> 여러 가지 변환이 필요할 때는 한 번에 많은 지시를 내리기보다, 1차 작업 후 <b>[이 결과로 계속 편집]</b>을 눌러 단계별로 적용하는 것이 가장 자연스럽습니다.</li>
+          <li><b>프롬프트 제안 활용:</b> <code>[프롬프트 제안]</code> 버튼을 누르면 인물의 표정, 배경 조명, 카메라 렌즈 화각까지 최적의 영문/한글 키워드가 구성됩니다.</li>
+        </ul>
+      </section>
 
-        {/* 6. 개인정보 · 사용 주의 */}
-        <section id="privacy" className="card">
-          <h2>⑥ 개인정보 · 사용 주의</h2>
-          <ul className="gd-list">
-            <li>올린 이미지는 작업에만 쓰이며 비공개 임시 저장소에서 <b>1시간 안에 자동 삭제</b>됩니다. 결과 이미지는 [내 결과 기록]에서 삭제할 수 있습니다.</li>
-            <li>이미지는 회원님의 Gemini 키로 Google에 전송되어 처리됩니다.</li>
-            <li><b>본인 사진 또는 사용 동의를 받은 사진만</b> 올려 주세요. 타인의 얼굴 사진을 동의 없이 변환·합성하거나 타인을 사칭하는 용도로 쓰는 것은 금지됩니다.</li>
-          </ul>
-        </section>
+      {/* 10. 프라이버시 보호 규정 */}
+      <section id="privacy" className="card">
+        <h2>🛡️ ⑦ 개인정보 및 프라이버시 보호 규정</h2>
+        <ul className="gd-list" style={{ lineHeight: 1.75 }}>
+          <li><b>1시간 자동 영구 삭제:</b> 업로드하신 원본 사진은 AI 작업 즉시 임시 저장소에서 1시간 이내에 자동 영구 파기됩니다.</li>
+          <li><b>회원 본인 키 격리:</b> 등록하신 Gemini API 키는 암호화되어 본인 계정 생성 요청 시에만 서버 간 직접 통신으로 사용되며 타인과 공유되지 않습니다.</li>
+          <li><b>권리 준수:</b> 본인이 직접 촬영하였거나 정당한 사용 권리를 가진 이미지만 업로드해 주시기 바랍니다.</li>
+        </ul>
+      </section>
 
-        {/* 7. 막힐 때 (자주 묻는 질문) */}
-        <section id="free-erase" className="card">
-          <h2>⑦ 🧼 AI 매직 지우개 (초고속 무료) — 브라우저 로컬 연산으로 글자·잡티 1초 삭제</h2>
-          <p className="bc-hint">⏱ 프로그램 설치 불필요! 최초 1회 브라우저 AI 가속 모델 자동 캐싱 후 장당 1~3초 소요 · 사용자 브라우저(WebGPU / WASM)에서 100% 로컬 연산되어 서버 비용 0원 & 완전한 프라이버시 보호 · 크롬·엣지·웨일 최신판 권장</p>
-          <ol className="gd-steps">
-            <Step n={1} title="사진을 올립니다">왼쪽 메뉴 [🧽 무료 지우기(내 PC)] → 사진을 끌어 놓거나 [사진 추가](여러 장, 최대 50장). 사진은 서버로 올라가지 않습니다.</Step>
-            <Step n={2} title="지울 곳을 고릅니다">[문구 찾기]를 누르면 글자 자리를 분홍색으로 칠해 줍니다. 남길 글자는 [지우개]로 걷어내고, 글자가 아닌 물체는 [칠하기] 붓으로 칠합니다. 실수는 [되돌리기].</Step>
-            <Step n={3} title="지웁니다">[지우기]를 누르면 칠한 곳을 주변에 맞춰 채웁니다. 마음에 안 들면 [원본으로]나 다시 칠해 한 번 더 지웁니다. [원본 보기]로 비교할 수 있습니다.</Step>
-            <Step n={4} title="여러 장을 한 번에 끝냅니다">같은 위치의 글자는 [지금 칠한 곳을 같은 비율 사진에 복사] → [선택 사진 모두 지우기]. 글자 위치가 다르면 [선택 사진 문구 찾기]부터. 끝나면 형식(PNG·JPG)·가로 크기를 골라 [선택 결과 ZIP 내려받기].</Step>
-          </ol>
-          <p className="notice">💡 팁: 글자 테두리·그림자까지 조금 넉넉하게 칠할수록 깨끗합니다. 넓은 배경을 새로 그려야 하면 스튜디오의 「부분 삭제(AI로 다시 그리기)」가 더 자연스럽습니다.</p>
-          <p className="notice warning">⚠️ 본인이 권리를 가진 이미지에만 쓰세요. 워터마크·로고를 무단으로 지우면 저작권·상표 문제가 될 수 있고, AI로 만든 이미지를 공개할 때는 AI 생성임을 밝혀야 합니다. 이 기능에는 워터마크를 자동으로 찾아 지우는 기능이 없습니다.</p>
-        </section>
+      {/* 11. 인터랙티브 럭셔리 아코디언 FAQ */}
+      <section id="faq" className="card">
+        <h2>❓ ⑧ 자주 묻는 질문 (FAQ)</h2>
+        <div className="luxury-accordion">
+          <details open>
+            <summary>API 키는 어디서 발급받고 어떻게 등록하나요?</summary>
+            <p>
+              페이지 상단의 <b>[Google AI Studio API 키 발급/생성하기]</b> 버튼을 누르면 구글 공식 콘솔로 즉시 이동합니다.
+              로그인 후 키를 복사하여 좌측 <b>[API키등록·플랫폼연동]</b> 메뉴에 붙여 넣으시면 1초 만에 등록됩니다.
+            </p>
+          </details>
 
-        <section id="faq" className="card">
-          <h2>⑧ 막힐 때 (자주 묻는 질문)</h2>
-          <div className="gd-faq">
-            <details><summary>“API 키 등록이 필요합니다”라고 나와요.</summary><p>①의 순서대로 본인 키를 등록하세요. 키는 다른 회원이나 운영자와 공유되지 않습니다.</p></details>
-            <details><summary>“키가 올바르지 않거나 권한이 없습니다”라고 나와요.</summary><p>키를 다시 확인하고, Google AI Studio에서 해당 키의 결제(유료) 설정이 되어 있는지 확인하세요.</p></details>
-            <details><summary>“이미지가 만들어지지 않았습니다”라고 나와요.</summary><p>같은 버튼을 한 번 더 누르세요. 계속되면 요청을 더 구체적으로 쓰거나 다른 사진으로 시도해 보세요.</p></details>
-            <details><summary>“AI 안전 정책으로 만들지 못했습니다”라고 나와요.</summary><p>인물 사진이나 요청이 안전 기준에 걸린 경우입니다. 다른 사진·표현으로 바꿔 시도해 주세요.</p></details>
-            <details><summary>업로드한 이미지를 찾을 수 없다고 나와요.</summary><p>임시 보관 시간(1시간)이 지난 경우입니다. 이미지를 다시 올려 주세요.</p></details>
-            <details><summary>무료 지우기에서 “AI 계산용 모델 파일을 받지 못했습니다”라고 나와요.</summary><p>처음 한 번 AI 계산용 모델 파일(설치 없음, 약 200MB)을 공개 모델 저장소 허깅페이스(huggingface.co)에서 자동으로 받아 브라우저에 저장합니다(<a href="https://huggingface.co/Carve/LaMa-ONNX" target="_blank" rel="noopener noreferrer">지우기 모델 ↗</a> · <a href="https://huggingface.co/SWHL/RapidOCR" target="_blank" rel="noopener noreferrer">글자 찾기 모델 ↗</a>, 따로 받을 필요 없음). 인터넷 연결을 확인하고 다시 누르세요. 회사·학교 망에서 huggingface.co가 막혀 있으면 받을 수 없습니다.</p></details>
-            <details><summary>무료 지우기가 느려요 / 「CPU 계산」이라고 나와요.</summary><p>그래픽 가속(WebGPU)을 못 쓰는 PC·브라우저입니다. 크롬·엣지를 최신으로 올리면 빨라질 수 있습니다. 여러 장은 한 장씩 차례로 처리하며, [중단]해도 끝난 결과는 남습니다.</p></details>
-            <details><summary>스토리가 8컷보다 적게 나왔어요.</summary><p>시간 제한이나 일부 컷의 생성 실패 때문입니다. 안내 문구에 만들어진 컷 수가 표시되며, 같은 아이디어로 다시 실행하면 새로 만듭니다.</p></details>
-          </div>
-        </section>
-      </div>
-    </>
+          <details>
+            <summary>AI 매직 지우개는 정말 비용이 전혀 안 드나요?</summary>
+            <p>
+              네! <code>[🧼 AI 매직 지우개]</code>는 사용자의 PC 브라우저(WebGPU / WASM) 하드웨어 자원을 직접 활용하여 연산하므로,
+              외부 유료 API 호출이 발생하지 않아 평생 100% 무료(0원)이며 사진이 외부로 유출되지 않습니다.
+            </p>
+          </details>
+
+          <details>
+            <summary>무료 지우기에서 모델 다운로드 안내가 나와요.</summary>
+            <p>
+              최초 1회 실행 시 브라우저가 오픈소스 이미지 복원 AI 모델(LaMa 약 200MB)을 안전한 공개 저장소(huggingface.co)에서 자동으로 받아 브라우저 캐시에 저장합니다.
+              이 작업은 PC당 최초 1회만 진행되며, 이후에는 다운로드 없이 즉시 실행됩니다.
+            </p>
+          </details>
+
+          <details>
+            <summary>이미지 생성 중 "AI 안전 정책" 오류가 나타납니다.</summary>
+            <p>
+              Google의 생성형 AI 콘텐츠 안전 가이드라인에 저촉되는 민감한 인물 묘사나 프롬프트가 포함된 경우 발생합니다.
+              프롬프트를 보다 부드럽고 일상적인 묘사로 수정하시거나 다른 사진으로 시도해 주세요.
+            </p>
+          </details>
+
+          <details>
+            <summary>연속 스토리 생성이 8컷 미만으로 완성되었어요.</summary>
+            <p>
+              네트워크 순각 지연이나 특정 컷의 일시적 처리 지연으로 일부 컷이 누락될 수 있습니다.
+              이 경우 [스토리 다시 생성]을 누르시면 동일한 시놉시스로 전체 8컷을 다시 렌더링합니다.
+            </p>
+          </details>
+        </div>
+      </section>
+    </div>
   );
 }

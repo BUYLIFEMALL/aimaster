@@ -954,3 +954,348 @@ button[aria-pressed=true] {
   .fe-list{max-height:none}
   .fe-tools button,.fe-batch button{min-height:36px}
 }
+
+/* ==========================================================================
+   7. 🔑 API 키 등록 / 플랫폼 연동 퀵 버튼 공식 표준 (2026-10-25 주인님 지시)
+   ========================================================================== */
+.key-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.key-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
+}
+.key-badge.active {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
+}
+.key-badge.none {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+.key-badge.pending {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.platform-link-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-create-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 750;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1c1917 !important;
+  border: 1px solid #d97706;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.btn-create-key:hover {
+  transform: translateY(-1.5px);
+  background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border-color: #b45309;
+}
+.btn-create-key:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+}
+
+.btn-platform-signup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8.5px 14px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: #ffffff;
+  color: #78350f !important;
+  border: 1.5px solid #fcd34d;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.btn-platform-signup:hover {
+  transform: translateY(-1px);
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #92400e !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.18);
+}
+
+/* ==========================================================================
+   8. 📖 럭셔리 & 프리미엄 3D 비주얼 매뉴얼 (.luxury-guide)
+   ========================================================================== */
+.luxury-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.luxury-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(255, 255, 255, 0.95) 55%, rgba(253, 230, 138, 0.3) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 16px 36px -12px rgba(245, 158, 11, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.luxury-mascot-box {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #fffbeb, #fef08a);
+  border: 2px solid #fbbf24;
+  box-shadow: 0 12px 28px -6px rgba(245, 158, 11, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  display: grid;
+  place-items: center;
+  font-size: 52px;
+}
+.luxury-hero-text h2 {
+  font-size: 22px;
+  font-weight: 850;
+  color: #1c1917;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px 0;
+}
+.luxury-hero-text p {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #451a03;
+  margin: 0;
+}
+
+.luxury-toc {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.luxury-toc-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  font-size: 13px;
+  font-weight: 700;
+  color: #78350f;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+.luxury-toc-chip:hover {
+  transform: translateY(-2px);
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #92400e;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.15);
+}
+
+.luxury-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.luxury-flow-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 18px;
+  padding: 22px 18px;
+  text-align: center;
+  box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+.luxury-flow-card:hover {
+  transform: translateY(-3px);
+  border-color: #f59e0b;
+  box-shadow: 0 12px 28px -6px rgba(245, 158, 11, 0.2);
+}
+.luxury-flow-card em {
+  display: inline-block;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  color: #d97706;
+  background: #fffbeb;
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+  border: 1px solid #fef3c7;
+}
+.luxury-flow-card b {
+  display: block;
+  font-size: 38px;
+  margin: 6px 0 10px;
+}
+.luxury-flow-card strong {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #1c1917;
+  margin-bottom: 6px;
+}
+.luxury-flow-card small {
+  font-size: 12.5px;
+  color: #78716c;
+  line-height: 1.5;
+}
+
+.luxury-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.luxury-tool-card {
+  background: #ffffff;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.18s ease;
+}
+.luxury-tool-card:hover {
+  border-color: #f59e0b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.12);
+}
+.luxury-tool-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.luxury-tool-card h3 {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #1c1917;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.luxury-tool-badge {
+  font-size: 11px;
+  font-weight: 750;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  white-space: nowrap;
+}
+.luxury-tool-badge.free {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+.luxury-tool-card p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #57534e;
+  margin: 0;
+}
+
+.luxury-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.luxury-accordion details {
+  background: #ffffff;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.18s ease;
+}
+.luxury-accordion details[open] {
+  border-color: #f59e0b;
+  background: #fffdf5;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.1);
+}
+.luxury-accordion summary {
+  font-size: 14px;
+  font-weight: 750;
+  color: #1c1917;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
+}
+.luxury-accordion summary::-webkit-details-marker {
+  display: none;
+}
+.luxury-accordion summary::after {
+  content: "▾";
+  font-size: 16px;
+  color: #d97706;
+  transition: transform 0.2s ease;
+}
+.luxury-accordion details[open] summary::after {
+  transform: rotate(180deg);
+}
+.luxury-accordion details p {
+  margin: 12px 0 0 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #57534e;
+  border-top: 1px dashed rgba(245, 158, 11, 0.25);
+  padding-top: 10px;
+}
+
+@media (max-width: 767px) {
+  .luxury-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .luxury-mascot-box {
+    margin: 0 auto;
+  }
+  .luxury-flow {
+    grid-template-columns: 1fr;
+  }
+}
