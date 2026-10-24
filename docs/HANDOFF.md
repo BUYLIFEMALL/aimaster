@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 자동화 v1.02: 2단계(DB·설정 화면)
+- 한 일: 운영 DB 표 3개(`realty_alert_*`, RLS 본인만, 10개 상한 트리거) · 🎯 감시 대상 · ⏰ 예약 설정 · 📨 받는 방법(본인 텔레그램 봇 + 「기존 부동산 봇 가져오기」) · 대시보드 「내 설정」 실제 값 · 미배포 대기였던 메뉴 밑줄 제거 함께. 확장 manifest 1.2.0/v1.02.
+- 검수: 시험 5개·tsc·build, 시험 계정으로 11번째 대상 화면·서버·DB 3곳 거절, 375px 3화면, 운영 배포 `realty-listing-alert-21s4msgob` Ready, `check-extension-release` OK(DB/ext/zip v1.02), 운영 3화면 클릭 확인.
+- 커밋 `fb173239e`(릴리스)·`7667280b7`(문서) 외 2단계 커밋들. 남은 일: 봇 가져오기·RLS 실제 시험(계정 필요), 3단계 플랜. 상세 `realty-listing-alert/docs/IMPROVEMENT_HANDOFF_20261025.md`.
+- 링크: https://realty-listing-alert.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 상품소싱 v1.26: E0 수수료 참고표 재확인 (승인 빌드 1회)
 
 - G마켓·옥션을 ESM PLUS 공식 표 값으로 교체(대부분 13%, 예전 6.5~10%로 마진이 높게 보였음). 쿠팡·11번가·스마트스토어는 공식 표가 판매자 로그인 뒤라 「⚠ 공식 표 미확인 · 참고치」+확인 경로, 11번가 카테고리 숫자 삭제, 스마트스토어 범위·부가세 표기. 모든 표에 확인일·부가세·출처. 상세 `trending-product-finder/AGENTS.md` v1.26.
