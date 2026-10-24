@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ⏳ Claude Code(윈도우) · 세션 `claude-win-sdp`(이커머스·이미지 담당) — 바나나 캔버스 「무료 지우기(내 브라우저)」 C-0~C-5 이어받음·작업 대기 (문서만, 코드·DB·배포 변경 없음)
+- 한 일: `claude-win-dotori`의 ClearPic 분석·플랜을 받아 실제 코드와 대조(v1.33, COOP/COEP 없음, `onnxruntime-web` 미설치, `MaskEditor.tsx` 재사용 가능)하고, 시제품 통과 기준 5개·C-1~C-5·비용(AI 0회·빌드 1~2회)을 주인님께 보고. 제미나이 워터마크 자동 제거는 제외 확정이라 범위에 넣지 않음.
+- 상태: **주인님 승인 전 작업 대기** — 대기 목록 `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` §4, 상세 [인수인계 §6](../banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md). ACTIVE_WORK 줄은 승인 뒤 시작할 때 넣음.
+- 다음 첫 단계(승인 뒤): ACTIVE_WORK 줄 → 로컬 시제품(캐시·입출력 측정·속도·한국어 글자) → 머리글 운영 확인(필요 시 빌드 1회, 사전 보고) → 음악 담당과 COOP/COEP 결과 공유 → C-1.
+- 커밋: banana-canvas 문서 4개(경로 지정), 이 항목. 푸시는 작업 단위로 모아서(아직 안 함).
+- 비용: 없음.
+- 프로그램: https://banana-canvas.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.05: 회원 본인 AI 키로 AI 비서 열기 (U3)
 - 한 일: U3 회원 본인 OpenAI·Claude 키로 AI 비서 열기 — 키는 공용 표 `user_api_keys`(`anthropic` 우선, 없으면 `openai`, 회원별 60초 캐시 `src/server/memberAiKeys.ts`), Next 스트림 라우트 `/api/ai/stream`, 「🔑 API키등록·플랫폼연동」 화면 `/settings/keys` + `/api/keys`(좌측 메뉴, 📖 연동 매뉴얼 팝업), 키 없음 안내 한국어, 서버 오류 문구·AI 지시문의 AI 이름 「AI 비서」, 기본 모델 Sonnet(빠른 작업 Haiku), 당해 연도·답변 언어 기준 블록, 회의록 AI는 별도 스위치로 계속 닫힘, 외부 연결·MCP·채팅 공유·AI 그림·에이전트 계속 닫힘. 플랜 `ai-work-workspace/docs/PLAN_20261024_U3_MEMBER_AI_KEYS.md`.
 - 배포 중 발견·해결: 이식판에 원본 웹소켓(`/ws`)이 없어 늘 「오프라인」 → AI 입력 칸 잠김. 웹소켓을 끄고 브라우저 연결 상태로 판단(`6be13d77c`, 재배포). `docs/ERROR_LESSONS.md` 2026-10-24 항목.
