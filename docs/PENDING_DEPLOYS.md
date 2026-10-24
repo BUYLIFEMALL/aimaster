@@ -52,11 +52,13 @@
 
 | 할 일 | 급함 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
 |---|---|---|---|---|
+| 공개 프로그램이 없는 카테고리(지금 Tools·주식·부업)를 카테고리 메뉴·목록에서 숨기기(`programs.is_active=true`가 0개인 상위 카테고리 제외, 관리자 화면은 그대로) | 보통 | `app/(main)/programs/page.tsx` `getCategories()`, `app/(main)/page.tsx` 52행, 카테고리 메뉴 컴포넌트 | 주인님 결정 「숨기기」 2026-10-24(`docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §0). 카테고리 표에 숨김 칸이 없어 코드에서 거른다 — 카테고리 상세 주소는 그대로 열림 | 2026-10-24 · Claude Code(윈도우) `claude-win-dotori` |
 
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `trending-product-finder` | v1.25 · 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`, 승인 빌드 1회 `trending-product-finder-dt86buzti`) | 공용 사본 telegram-bot-client `linkButton` (본 작업: 추천 사유 프롬프트 당해 연도 규칙) |
 | `shop-detail-page` | v1.31 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-ert7y0vcg`) | 30일 정리 `usage_logs` 기록 `34094c954` (본 작업: 문구 고치기 무료 지우기) |
 | `banana-canvas` | v1.34 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 2회 `banana-canvas-r7tq6xjlt`·`-9os1p5zzy`) | 결과 30일 정리 `usage_logs` 기록 `8ad8ea2e5`·`f53021369` (본 작업: 「🧽 무료 지우기(내 PC)」) |
 | `ai-video-studio` | v1.20 · 2026-10-24 (디자인 담당 `agy-win-20261024-videostudio` 리뉴얼 배포 `ai-video-studio-9eovaet1l`에 함께 실림 — 영상 담당 `claude-win-video`가 운영 확인) | 프롬프트 게시판 진행 중 배지 + 누른 카드 바로 갱신 `5b2c589b5`(대기 줄 옮김) — 운영 관리자 계정: 「숨기는 중…」 0.06초에 표시, 카드 바뀜 2.4초(전 3.9초·표시 없음), 되돌림 |
