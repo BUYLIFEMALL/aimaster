@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `realty-listing-alert` (운영 v1.03) | 「🏠 네이버 부동산 열기」 버튼(확장 팝업·웹 감시 대상) | `e851a4927` | 2026-10-25 · [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 v1.04(지역 고르기 때 함께) — 확장 ZIP·DB 버전도 |
 | `shop-detail-page` | 같은 내용(문구 고치기 안내·진행 표시, 공용 사본 오류 문구, 컴퓨터 사양 안내) | `2cc9edc75`·`9cfb40fb1`·`c5fb22b4d` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1~G-4 공용 공급자·봇·역할 경계·다중 문서/분류/미리보기/PDF 경고. 108개 검사·타입·로컬 빌드·운영 DB/RLS·일반 회원 무료 조작 통과 | `2d56a117b` · `07795803c` · `d7dd0d367` · `952417454` | 2026-10-25 · [역할: docbot-prompt] Codex `codex-win-20261025-docbot-g4` | [G-4 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md) | 본인 키 실제 AI/업로드·파싱/방/당시 답변·좁은 화면 검수 후 묶음. 버전+0.01·DB·프로그램 비교표 일치, 디자인 agy 담당 |
