@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 맥미니 렌더러 1.30 확인 통과 반영 + 영상 합치기 맥 25분 조사·플랜
+- 맥미니 확인(`7e4591cc9`·`526f112b8`) 통과 → `docs/analysis-pc-renderer-20261024/ROADMAP.md` 영상 A·B의 「실제 맥 확인 남음」을 ✅로(`ff666c271`). 요청함 「맥미니 크롬 확장 연결」 완료 처리.
+- 맥미니 발견 「영상 만들기 5초 영상 25분」: 윈도우 메인 크롬 같은 조건 **5.3초**(맥만의 문제). 글꼴 121건은 첫 화면에서 이미 다 받음(렌더 원인 아님), 숨은 탭은 라이브러리가 워커 타이머로 처리. 유력 원인 = 맥 크롬 하드웨어 인코딩 대기(맥에서 재야 확정).
+- 플랜 `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md`(`259ffd248`): 1단계(남은 시간 안내·진단 기록·`?render=software` 시험)를 v1.21에 묶음 → 맥미니 측정 → 2단계 결정. **주인님 승인 대기, 코드 수정 없음.** 비용 없음. 링크:
+https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-10-24 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 부동산 역할 인계 요청 → [역할: realty] `claude-win-20261024-realty`
 - 정리: 같은 시각에 역할이 두 개(`real-estate`=제가 만든 빈 역할, `realty`=실제 담당)로 등록돼, **`realty`로 하나로 합침** — `docs/roles/real-estate.md` 삭제, 역할 표·카테고리 지도·시작 프롬프트 연결을 `realty`로.
 - realty 담당께 인계(역할 파일에 「배정 시」로 남겨 두신 기존 부동산 일, 주인님 배정 뒤 「대기 중」으로 옮겨 주세요):
