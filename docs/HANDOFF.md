@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 남은 작업 묶음: 카테고리 이름·작업 중 표·카테고리 지침 초안 15개·비교표 버전·개발분석표 §6
+- 카테고리 이름 「데이터수집|기획」→「데이터수집」: 주인님 승인 → 크롬 SQL 편집기(주인님 Run) 운영 DB `esgxyikcnnvmlhygjkth` 반영 확인, `supabase/migrations/0045_category_rename_scraping.sql`(slug 유지).
+- 작업 중 표: blog·mac-mini 줄에 역할 표시 추가. docbot-g2 줄은 `ai-doc-chatbot/` 미커밋 작업이 있어 실제 작업 중 → 그대로 둠.
+- 카테고리 메인 지침 초안 15개(`docs/{INSTAGRAM,THREADS,ECOMMERCE,MARKETING,SCRAPING}_{COMPLETION_POLICY,FEATURE_MATRIX,CONSOLIDATION_TASKS}.md`), 보조 작업자 5명이 코드 근거로 작성, 맨 위 「초안 — 담당 확인 전」. 카테고리 지침 지도 5줄 연결. 회원 영향 발견 5건은 `docs/roles/analysis-planning.md` 「주인님께 여쭐 것」.
+- 운영 DB 조회(읽기)로 프로그램 비교표 목록 표 분야·버전과 카드 버전 50칸을 맞춤(`ai-work-workspace` 제외 — 코드 v1.10/DB v1.07). `website-scraper`는 `is_active=false`(백업) 비공개 확인. `DESIGN.md` 17번·루트 지침 ⑭의 「14개 카테고리」를 운영 기준 17개로.
+- 외부 프로그램 개발분석표 §6 빈칸 7카드 보강.
+- 남은 일: 2차 카테고리(디자인·CRM·업무자동화·AI 프롬프트·성격·운세·부동산·유튜브·영상·이미지·네이버) 지침 초안, 담당 세션별 초안 확정. 비용 없음.
+https://www.buylife.xyz/admin/dev-docs/guidelines
+
 ## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 새 지침 다시 읽고 상태 정리: 게시판 진행 표시 v1.20 운영 확인, 역할 파일 갱신
 - 새 지침(개발 문서 확인·역할 파일·관리자 지시·요청함) 다시 읽음. `dev-requests list --role video` 대기 0.
 - 게시판 진행 표시(`5b2c589b5`)는 디자인 담당의 v1.20 리뉴얼 배포(`ai-video-studio-9eovaet1l`)에 함께 실림(리뉴얼 뒤에도 코드 유지 확인). 운영 관리자 계정: 「숨기는 중…」 0.06초, 카드 바뀜 2.4초(전 3.9초·표시 없음), 「공개하는 중…」도 같음, 시험 뒤 숨긴 예시 0개로 되돌림. 배포 대기 줄은 「내보낸 기록」으로 옮김.

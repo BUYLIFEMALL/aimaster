@@ -286,7 +286,10 @@
 |---|---|
 | 원본 | NSIS 3.04 + Electron, 월 인증 코드 방식 · 원본 이름은 쓰지 않기로 함 |
 | 분석 | 2026-10-16 · Claude Code(메인 계정·윈도우) · Detect It Easy → 7-Zip → asar 추출 → 정적 읽기, 내장 설명서 21장 추출 |
-| 원본 기능·가져온 것·못 옮긴 것 | 근거 문서 §1~§3에 있음(이 문서를 처음 만들 때는 요약하지 못함 — **다음에 이 카드를 쓰는 CLI가 채운다**) |
+| 원본 기능 | 주제 하나 → AI 대본(인트로·카드 3~8장·아웃트로) → 배경(스톡 영상·이미지 / AI 이미지 / 움직이는 배경 12종) → 내레이션·단어 단위 자막 → 배경음악 → 1080×1920·30fps MP4(20~60초) · 카테고리 22종·톤 5×포맷 5 · 텍스트 AI 8곳 한도 초과 시 자동 전환 · 테마 색 15·카드 레이아웃 약 21종 · 캐릭터 일관성 · 음성 길이에 장면 길이 자동 맞춤 · 렌더 큐 · SEO 메타 자동 · 발행 계획(채널 6단계×날짜별 일정) · 일괄 생성 |
+| 가져온 것 | 기능 흐름(주제→대본→배경→음성·자막→음악→렌더), 단어 단위 자막 싱크·음성 길이 맞춤, 공급자 자동 전환, 발행 계획+일괄 생성, 캐릭터 일관성, 카테고리별 사용자 지침 |
+| 보강한 점 | 윈도우 설치형 → 웹(어디서나 로그인) · PC에만 두던 키 → 공용 `user_api_keys` · 로컬 폴더 결과 → 회원별 보관함 · 비공식 무료 음성 → 공식 API 우선 |
+| 못 옮긴 것·하지 않은 것 | 월 인증 코드, 로컬 파이썬 음성 엔진 자동 설치, 비공식 무료 음성(기본값), 원본 묶음 글꼴(공식 배포처에서 따로 받음), 자극형 카테고리는 주인님 결정 사항(근거 문서 §7) |
 | 우리 대상 | `shorts-onestop-studio` v1.41 |
 | 하지 않기로 한 것 | 원본 코드·디자인·문구·이름(핵심 원칙 21) |
 | 관련 문서 | `docs/CARD_SHORTS_REFERENCE_ANALYSIS.md` |
@@ -351,7 +354,8 @@
 #### EXT-MUS-04 AI Playlist Creator
 | 항목 | 내용 |
 |---|---|
-| 원본 | 웹앱 `ai-playlist-creator-bice.vercel.app` · 날짜·CLI 확인 못 함 |
+| 원본 | 웹앱 `ai-playlist-creator-bice.vercel.app` |
+| 분석 | 2026-10-13 · Claude Code(Sonnet 5.5, 첫 커밋 공동 작성자 기준) — 신규 구축 커밋 v1.02, 같은 날 v1.03에서 장르 23개(+Pop·Study·Workout·Meditation)로 확장 |
 | 원본 기능 | 장르 → 제목 10개 → Suno 프롬프트·가사·유튜브 메타·썸네일 |
 | 우리 대상 | `playlist-channel-studio` 코드 v1.31(AGENTS.md 표는 v1.26) |
 | 가져온 것 | 흐름·옵션, 장르(Pop·Study·Workout·Meditation, v1.03) |
@@ -373,10 +377,11 @@
 | 항목 | 내용 |
 |---|---|
 | 원본 | 웹앱 `gpt-park-mastering-studio-99gg.vercel.app` · GPT PARK로 추정 · 출처 기록은 옛 배포 사본 `.vercel/compat-deploy/fa57714d/ai-mastering-studio/.../AGENTS.md`에 있고 현재 AGENTS.md에서는 확인 못 함 |
-| 분석 | 번들 전체 분석(처리 순서·프리셋 12종 값·AI 스키마 참고) · 날짜·CLI 확인 못 함 |
+| 분석 | 2026-10-13 · Claude Code(Sonnet 5.5, 첫 커밋 공동 작성자 기준) · 번들 전체 분석(처리 순서·프리셋 12종 값·AI 스키마 참고) |
+| 원본 기능 | WAV/MP3 일괄 업로드 → 브라우저에서 EQ·새추레이션·컴프레서·스테레오 폭·룩어헤드 리미터 체인으로 마스터링 · 사운드 프로필 12종(범용·스트리밍 -14 LUFS·클럽 펀치·선명한 보컬·팟캐스트·빈티지·테이프·어쿠스틱·와이드·시네마틱·락 등) · 자연어로 파라미터를 제안하는 AI 로직 생성기 · 일괄 처리·ZIP(우리 `ai-mastering-studio/AGENTS.md` §2 기능과 대조) |
 | 우리 대상 | **`ai-mastering-studio` v1.14 새로 만듦** |
 | 하지 않기로 한 것 | 문구·구현 복제(새로 씀), 제작자 크레딧, 브라우저 base64 키 저장 |
-| 남은 일 | 이 카드의 원본 기능 목록 보강(다음 CLI) |
+| 보강한 점 | 회원 본인 Gemini/OpenAI/Claude 키(원본은 브라우저 base64 저장), LUFS·True Peak 미터, 내 PC 저장(MP3·AAC·FLAC·WAV24, v1.14) |
 
 #### EXT-MUS-07 외부 음악 생성 플랫폼 조사 (상용 프로그램 분석 아님)
 | 항목 | 내용 |
@@ -432,7 +437,7 @@
 | 원본 | AI Studio 앱 `a9e74780-5e2f-41b7-9870-6c64b8fe36fc`, 소스 41개 파일 약 200KB · 2026-10-14 정독 |
 | 원본 기능 | 촬영 목적 5종 프리셋, 조명·배경·포즈·의상·피부·필름 옵션 · 스튜디오 보정 4종 · 순백 배경 정리, 413×531 JPEG 규격 · `gemini-2.5-flash-image`, `gemini-3-pro-image-preview` |
 | 우리 대상 | `portrait-photo` v1.43 |
-| 보강한 점 | 원본에 없는 id를 참조해 목적을 바꿔도 옵션이 안 바뀌던 버그 수정(나머지는 플랜 §1-4 이후) |
+| 보강한 점 | ① 없는 id를 참조해 목적을 바꿔도 옵션이 안 바뀌던 버그 수정 ② 데이터엔 있는데 고를 수 없던 카메라 옵션 4종을 화면에 노출 ③ 순백 클린업의 머리·옷 번짐·큰 이미지 멈춤 → 작업 크기 제한·분할 처리 ④ 「정부24 100% 통과」 단정 문구 → 통과 보장 아님·제출 기관 규정 안내 ⑤ 얼굴 사진 서버 저장 금지(브라우저 보관)·본인/동의 확인 ⑥ base64 원본 전송 → 긴 변 1,600px JPEG로 줄여 전송(Vercel 4.5MB 한도) ⑦ 다크·영어·개발자 홍보 → 흰색·한국어·크레딧 없음 (`portrait-photo/docs/DEVELOPMENT_PLAN.md` §1-4) |
 | 하지 않기로 한 것 | 코드·문구·브랜드(크레딧·유튜브 링크) |
 | 관련 문서 | `portrait-photo/docs/DEVELOPMENT_PLAN.md` |
 
@@ -506,7 +511,8 @@
 #### EXT-MM-02 Seamless Loop Studio
 | 항목 | 내용 |
 |---|---|
-| 원본 | 웹앱 `seamless-loop-studio.vercel.app` · 날짜·CLI 확인 못 함 |
+| 원본 | 웹앱 `seamless-loop-studio.vercel.app` |
+| 분석 | 2026-10-12 · Claude Code(Sonnet 5.5, 첫 커밋 공동 작성자 기준) — 신규 구축 v1.02, 같은 날 v1.03 업로드 영역 개편 |
 | 원본 기능 | 시작과 끝이 가장 닮은 구간을 찾아 MP4·WebM·GIF 무한 루프 생성, 브라우저 ffmpeg.wasm |
 | 우리 대상 | **`infinite-loop-video` 새로 만듦**, 코드 v1.08(AGENTS.md 표는 v1.01) |
 | 가져온 것 | 구조·알고리즘만(코드·문구 복제 안 함) |
@@ -514,7 +520,8 @@
 #### EXT-MM-03 Cinematic Storyboard AI
 | 항목 | 내용 |
 |---|---|
-| 원본 | 웹앱 `cinematic-storyboard-ai.vercel.app` · HTML·번들 전체 분석 · 날짜·CLI 확인 못 함 |
+| 원본 | 웹앱 `cinematic-storyboard-ai.vercel.app` |
+| 분석 | 2026-10-13 · Claude Code(Sonnet 5.5, 첫 커밋 공동 작성자 기준) · HTML·번들 전체 분석 — 신규 구축 v1.03, 같은 날 사용 매뉴얼 추가 |
 | 원본 기능 | 레퍼런스 이미지 1장 → 키프레임 9개 분석 → 9컷 콘택트 시트 → 3×3 자르기·ZIP → 영상 프롬프트 |
 | 우리 대상 | **`cinematic-storyboard-studio` 새로 만듦**, 코드 v1.18(AGENTS.md 표는 v1.07) |
 | 하지 않기로 한 것 | 프롬프트·문구 복제(새로 씀), 원작자 크레딧, 가짜 「4K」 표기 |
@@ -619,7 +626,8 @@
 #### EXT-TL-07 Prompt Equalizer
 | 항목 | 내용 |
 |---|---|
-| 원본 | 웹앱 `prompt-equalizer.vercel.app` · 날짜·CLI 확인 못 함 |
+| 원본 | 웹앱 `prompt-equalizer.vercel.app` |
+| 분석 | 2026-10-13 · Claude Code(Sonnet 5.5, 첫 커밋 공동 작성자 기준) — `persona-style-studio` 신규 구축 v1.02 |
 | 원본 기능 | 슬라이더 5개(프리셋 8종) + 캐릭터 페르소나로 문체 다시쓰기 |
 | 우리 대상 | `persona-style-studio` v1.10 새로 만듦 → **2026-10-21 병합 B로 사용 종료, 기능은 `ai-writing-editor` 「문체 바꾸기」로** |
 | 하지 않기로 한 것 | 기본 페르소나·샘플·프리셋 문구 복제(새로 씀) |
@@ -690,11 +698,11 @@
 | §2 A 묶음 | COOP/COEP 시제품을 누가 먼저 하고 결과를 공유할지 | 음악·이미지 담당 |
 
 ## 6. 이 문서를 처음 만들 때 채우지 못한 칸 (다음 CLI가 보강)
-- EXT-YT-02 카드형 쇼츠: 원본 기능·가져온 것·못 옮긴 것(`docs/CARD_SHORTS_REFERENCE_ANALYSIS.md` §1~§3에서 요약).
-- EXT-MUS-04·06, EXT-MM-02·03, EXT-TL-07: 분석 날짜·CLI·원본 세부 기능(각 프로그램 `AGENTS.md`·`DEVELOPMENT_PLAN.md`에서 확인).
-- EXT-IMG-03 증명·프로필 사진: 보강한 점 세부(`portrait-photo/docs/DEVELOPMENT_PLAN.md` §1-4 이후).
-- 비교표·AGENTS.md 버전이 코드와 다른 곳(비교표 담당이 정리): `real_estate_sales`(v1.11 → v1.18), `music-player`(v1.07 → v1.09), `cinematic-storyboard-studio`(v1.07 → v1.18), `infinite-loop-video`(v1.01 → v1.08), `playlist-channel-studio`(v1.26 → v1.31), `blog-workroom` 본문 v1.06 표기.
+- ✅ 2026-10-24 모두 채움(`claude-win-dotori` [역할: analysis-planning]): EXT-YT-02 원본 기능·가져온 것·보강·못 옮긴 것(`docs/CARD_SHORTS_REFERENCE_ANALYSIS.md` §1~§3·§6), EXT-MUS-04·06·MM-02·03·TL-07 분석 날짜·CLI(각 프로그램 첫 커밋 날짜·공동 작성자), EXT-MUS-06 원본 기능·보강한 점, EXT-IMG-03 보강한 점 7가지(플랜 §1-4).
+- ✅ 2026-10-24 프로그램 비교표 버전·분야를 운영 DB 기준으로 맞춤(50칸). 카드 안 「(AGENTS.md 표는 v…)」 메모는 각 프로그램 `AGENTS.md`가 아직 고쳐지지 않았다는 뜻이라 그대로 둔다(그 프로그램 담당이 고친다).
+- 분석 CLI는 커밋 공동 작성자 기준이라 장비(윈도우·맥미니)는 확인하지 못했다.
 
 ## 변경 기록
+- 2026-10-24 §6 빈칸 7개 카드 보강(카드형 쇼츠 원본 기능, 분석 날짜·CLI 5건, 마스터링 원본 기능, 증명사진 보강 7가지)(`claude-win-dotori`).
 - 2026-10-24 처음 작성 — 외부 원본·참고 자료 37건, 14개 카테고리 중 9개 분류, 기능 묶음 12개(A~L), 공통 제외 패턴, 남은 결정 모음(Claude Code 윈도우 `claude-win-dotori`, 저장소 문서 대조, 코드·DB·배포 변경 없음).
 - 2026-10-24 §1 총괄표에 「핵심 기능」·「판단」 칸 추가, 카테고리를 실제 사이트 기준(+신설 2개)으로 다시 묶음, 건수 표에 판단 합계(독립 27·병합 9·보류 1)(`claude-win-dotori`).
