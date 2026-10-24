@@ -324,7 +324,7 @@ export function FreeEraseBoard() {
 
         <section className="card fe-editor">
           {!cur ? (
-            <div className="fe-empty">왼쪽에서 사진을 올리고 고르면 여기에서 지울 곳을 칠합니다.</div>
+            <div className="fe-empty">사진 목록(넓은 화면은 왼쪽, 휴대폰은 위)에서 사진을 올리고 고르면 여기에서 지울 곳을 칠합니다.</div>
           ) : (
             <>
               <div className="actions fe-tools">
