@@ -686,3 +686,18 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .limit-block ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; line-height: 1.6; }
 @media (max-width: 920px) { .limit-notice .limit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 680px) { .limit-notice .limit-grid { grid-template-columns: 1fr; } }
+/* ✏️ 주소 붙여 넣기 칸(2026-10-25) */
+.ra-addr { display: grid; gap: 8px; }
+.ra-addr-steps { list-style: none; margin: 0 0 4px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ra-addr-steps li { display: flex; gap: 8px; align-items: flex-start; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.ra-addr-steps li > span { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #009b4d; color: #fff; font-weight: 800; font-size: 13px; }
+.ra-addr-steps li div { display: grid; gap: 4px; font-size: 13.5px; }
+.ra-addr-steps li a { color: #009b4d; font-weight: 700; font-size: 13px; }
+.ra-addr-steps small { color: var(--muted); }
+.ra-addr kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: #f7f7f7; font-size: 12px; }
+.ra-addr input.ok { border-color: #03c75a; background: #f2fbf6; }
+.ra-addr input.bad { border-color: #e5a3a3; background: #fdf3f3; }
+.ra-addr-hint { color: var(--muted); }
+.ra-addr-ok { color: #047a3d; font-weight: 700; }
+.ra-addr-bad { color: #b91c1c; font-weight: 700; }
+@media (max-width: 680px) { .ra-addr-steps { grid-template-columns: 1fr; } }

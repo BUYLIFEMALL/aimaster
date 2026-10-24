@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import { addTargetAction, deleteTargetAction, toggleTargetAction, updateTargetAction, type TargetActionState } from "@/lib/actions/targets";
-import { MAX_TARGETS, TRADE_TYPES } from "@/lib/targets";
+import { MAX_TARGETS, TRADE_TYPES, parseComplexNo } from "@/lib/targets";
 import RegionPicker from "./RegionPicker";
 
 export type TargetRow = {
@@ -117,6 +117,27 @@ function PrefillGuide({ prefill }: { prefill: NonNullable<Prefill> }) {
   );
 }
 
+// ✏️ 주소 붙여 넣기 칸(2026-10-25 주인님 지시 「더 직관적이고 쉽게」) — 3단계 그림 안내 + 붙여 넣는 즉시 맞는 주소인지 표시
+function AddressInput() {
+  const [value, setValue] = useState("");
+  const no = value.trim() ? parseComplexNo(value) : null;
+  return (
+    <div className="ra-addr">
+      <ol className="ra-addr-steps">
+        <li><span>1</span><div><b>네이버 부동산에서 내 아파트 열기</b><small>검색창에 아파트 이름 입력 → 목록에서 아파트 이름 클릭</small><a href="https://new.land.naver.com/" target="_blank" rel="noopener noreferrer">🏠 네이버 부동산 열기 ↗</a></div></li>
+        <li><span>2</span><div><b>화면 맨 위 인터넷 주소 복사</b><small><b>https://</b>로 시작하는 맨 위 글자 클릭 → <kbd>Ctrl</kbd>+<kbd>C</kbd></small></div></li>
+        <li><span>3</span><div><b>이 화면으로 돌아와 아래 칸에 붙여 넣기</b><small>칸 클릭 → <kbd>Ctrl</kbd>+<kbd>V</kbd></small></div></li>
+      </ol>
+      <label htmlFor="complex">📋 복사한 인터넷 주소 붙여 넣기</label>
+      <input id="complex" name="complex" required autoComplete="off" value={value} onChange={(e) => setValue(e.target.value)}
+        placeholder="예: https://new.land.naver.com/complexes/2936" className={value.trim() ? (no ? "ok" : "bad") : ""} />
+      {!value.trim() && <small className="ra-addr-hint">아파트를 연 화면의 맨 위 칸에 있는 <b>https://new.land.naver.com/complexes/숫자</b> 모양 글자예요. 💡 더 쉬운 방법: 네이버 부동산 화면 오른쪽 아래 초록 「➕ 매물 알림에 추가」 버튼을 누르면 복사 없이 바로 추가돼요.</small>}
+      {value.trim() && no && <small className="ra-addr-ok">✅ 아파트를 찾았어요(번호 <b>{no}</b>). 아래 「감시 대상에 추가」를 누르세요.</small>}
+      {value.trim() && !no && <small className="ra-addr-bad">⚠️ 아파트 화면의 주소가 아니에요. 네이버 부동산에서 <b>아파트 이름을 눌러 그 아파트 매물 목록이 보이는 화면</b>에서 맨 위 주소를 복사해 주세요(첫 화면·지도만 보이는 화면 주소는 안 돼요).</small>}
+    </div>
+  );
+}
+
 export default function TargetsClient({ initialTargets, prefill = null }: { initialTargets: TargetRow[]; prefill?: Prefill }) {
   const [state, action, adding] = useActionState(addTargetAction, {});
   const full = initialTargets.length >= MAX_TARGETS;
@@ -144,10 +165,10 @@ export default function TargetsClient({ initialTargets, prefill = null }: { init
               <RegionPicker disabled={full} />
             </details>
             <details className="ra-manual" open={!!prefill}>
-              <summary>✏️ 주소로 직접 추가하기</summary>
+              <summary>✏️ 인터넷 주소를 복사해서 추가하기</summary>
               <form action={action} key={initialTargets.length}>
                 <div className="ra-grid">
-                  <div className="field"><label htmlFor="complex">네이버 부동산 단지 주소</label><input id="complex" name="complex" required placeholder="단지 화면 주소를 붙여 넣으세요" /></div>
+                  <div className="field"><AddressInput /></div>
                   <div className="field"><label htmlFor="complexName">알아보기 쉬운 이름(선택)</label><input id="complexName" name="complexName" maxLength={100} placeholder="예: 백송건영" defaultValue={prefill?.name ?? ""} /></div>
                 </div>
                 <details className="ra-more">
