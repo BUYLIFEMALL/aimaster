@@ -18,6 +18,13 @@
 > - 실제 카테고리·소속은 공개 목록 https://www.buylife.xyz/programs 를 같은 날 읽어 확인했다(16개 카테고리, 공개 프로그램 72개, 읽기만).
 > - 비공개·병합된 프로그램은 [프로그램 비교표](PROGRAM_CAPABILITY_MAP.md) 목록 표 기준이다.
 
+> **✅ 2026-10-24 반영 완료 (주인님 지시: 「너가 프로그램 성격에 맞게 카테고리를 만들고 해당 프로그램을 이동시켜줘」):**
+> - 운영 DB `esgxyikcnnvmlhygjkth`에서 카테고리 2개를 신설하고(`ai-prompt` 「AI 프롬프트」 순서 19, `personality-fortune` 「성격·운세」 순서 20), §1-3의 12개 프로그램을 옮겼다.
+> - SQL은 [`supabase/migrations/0042_categories_ai_prompt_personality.sql`](../supabase/migrations/0042_categories_ai_prompt_personality.sql)에 있고, 주인님 크롬의 Supabase SQL 편집기에서 실행했다.
+> - 실행 전 백업(옮기기 전 소속): `ai-prompt-studio`·`ai-slide-builder`·`ai-writing-editor`·`markdown-studio`·`ui-canvas` = 데이터수집|기획(`scraping&plan`), `mbti-character`·`personality-code`·`personality-suite`·`tarot-reading` = Tools(`tools`), `music-player`·`reverse-prompt` = 영상(`video`), `ai-video-studio` = 유튜브(`youtube`).
+> - 공개 목록에서 17개 카테고리·72개 프로그램을 확인했다(프로그램이 없는 카테고리는 목록 본문에 나오지 않음). 크롬으로 「성격·운세」 카테고리 페이지에 4개가 나오는 것도 확인했다.
+> - 아래 §1-2·§1-3의 「제안」은 이제 「반영됨」이다. §3 표는 반영 뒤 모습 그대로다.
+
 ## 0. 표시
 | 표시 | 뜻 |
 |---|---|
@@ -119,4 +126,5 @@
 - 파일 이름은 `docs/<카테고리 영문 slug 대문자>_COMPLETION_POLICY.md`·`_FEATURE_MATRIX.md`·`_CONSOLIDATION_TASKS.md`로 맞춘다(예: `MUSIC_FEATURE_MATRIX.md`). 만들면 이 지도의 그 줄 상태를 고친다.
 
 ## 변경 기록
+- 2026-10-24 운영 DB 반영 완료(카테고리 2개 신설·프로그램 12개 이동, 마이그레이션 0042).
 - 2026-10-24 처음 작성(14개 기준, ✅1·△8·⚠5) → 같은 날 주인님 지시로 **실제 사이트 16개 기준으로 다시 분류**: 기능 기준 옮기기 제안 12개 프로그램, 신설 제안 2개(AI 프롬프트·성격·운세), 상태 ✅1·△8·⚠8·기타 1(Tools), 공개 프로그램 72개 모두 배치 확인(Claude Code 윈도우 `claude-win-dotori`).
