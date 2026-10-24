@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 U2 불필요한 기능 숨기기 (미배포 대기)
+- 한 일: `04d6601b9` — U2 불필요한 기능 숨기기 — 공유 메뉴 「게시」 탭, 템플릿 마켓플레이스(대신 템플릿 창), 계정 화면(AIMaster 안내로), 이메일·연결 앱 알림, AI 그림·가짜 Unsplash/GIPHY 탭(→ 「AI 이미지 자동화에서 만들기 ↗」), 지도 보기(추가·레이아웃·위젯 목록), 원본 요금제 업그레이드 문구와 요금제 전용 설정 탭. 숨김 목록은 `web/features/shell/trimPolicy.ts` 한 곳. 플랜 `ai-work-workspace/docs/PLAN_20261024_U2_TRIM.md`.
+- 발견: 사진 고르기의 「Unsplash」·「GIPHY」 탭은 가짜 사진(색 그림 + 가짜 작가 이름)이었음 → 숨김.
+- 검수: 타입 검사·로컬 빌드 통과, 원본 서버 시험 522/522, 연결부 13/13. 화면 확인은 배포 뒤.
+- 배포: 미배포 대기 — U1(`1771f446f`)과 묶어 v1.04 배포(빌드 1회, 주인님 승인 대기).
+- 남은 일·다음 첫 단계: 승인 시 v1.04 배포 → 크롬 확인(설정 탭·공유 메뉴·사진 고르기·보기 추가·좌측 메뉴·390px) → U3(회원 본인 AI 키) 상세 플랜.
+- 비용: 없음(빌드 0회, AI 0회).
+- 프로그램: https://ai-work-workspace.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Spectrum Studio PRO 3.0.0 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\Spectrum Studio PRO-Setup-3.0.0.exe`(Electron 유튜브 플레이리스트 비주얼라이저, 월간 인증 코드, 실행 안 함). **같은 원본 웹 버전을 2026-10-13 `yt-playlist-studio`로 만들었고 2026-10-20 `playlist-channel-studio`로 병합됨.**
 - 의견: 독립 개발 안 함 → `playlist-channel-studio` 「영상 만들기」에 병합. 새 후보 S1 곡 제목 자동 표시 · S2 인코딩 안정화(하드웨어 가속 시험·품질 프로파일, 공용 `browser-mp4-encoder`) · S3 장르 완성형 프리셋 · S4·S5 스펙트럼·파티클 확장 · S6 애니메이션 배경·트랜지션 · S7 성능 자동 모드. 결정 대기: 범위·순서, 구현 담당(음악 담당 제안), **2026-10-13 「번들 수식 100% 추출 이식」 기록의 권리 재확인 여부**. [보고서](analysis-spectrum-studio-pro-20261024/REPORT.md). 비용 없음.
