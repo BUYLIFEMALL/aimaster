@@ -270,7 +270,7 @@
 #### EXT-BLOG-07 서이추&스댓공 Ai자동화 Ver3.5(공개용)
 | 항목 | 내용 |
 |---|---|
-| 원본 | 크롬 확장 MV3 소스(압축 한 줄) — `background.js` 20KB·`content.js` 42KB·`popup.js` 68KB·`popup.html` 64KB 외 · `D:\PDS\Program_dev) 서이추&스댓공 Ai자동화_Ver3.5(공개용)\` · EXT-RE-01·02와 같은 제작자·같은 Google Apps Script(`mode=sdaetgong`) · manifest가 부르는 `content2.js`·`comment-scraper.js`는 공개본에 없음 |
+| 원본 | 크롬 확장 MV3 소스(압축 한 줄) — `background.js` 20KB·`content.js` 42KB·`popup.js` 68KB·`popup.html` 64KB 외 · `D:\PDS\Program_dev\7) 서이추&스댓공 Ai자동화_Ver3.5(공개용)\` · EXT-RE-01·02와 같은 제작자·같은 Google Apps Script(`mode=sdaetgong`) · manifest가 부르는 `content2.js`·`comment-scraper.js`는 공개본에 없음 |
 | 분석 | 2026-10-24 · `claude-win-dotori` · 화면 글자 추출 + 외부 주소·크롬 API 목록 + 핵심 함수 정적 읽기(설치·실행 안 함) · 권리: 기능만 |
 | 원본 기능 | 네이버 자동 로그인(아이디·비밀번호 저장, 여러 계정) · 서로이웃 자동 신청(키워드 검색·최대 수·메시지, `BuddyAddForm.naver` 팝업) · 스댓공(이웃 새글 피드·주소·키워드·ID 목록·답방 — 공감·AI 댓글) · 댓글 ID 수집 · 대댓글(AI 문맥, 비밀) · 이웃 그룹·「나만 추가한 이웃」 정리 · 예약(`chrome.alarms` HH:MM) · 선택자 직접 지정 · 체류 기본 600초(유료 해제) · Gemini 여러 키 돌려쓰기 |
 | 숨은 동작 | **무료판 월 1회 제작자가 정한 게시물에 회원 계정으로 공감·댓글 강제** · 회원 IP·사용 허가 패스워드를 제작자 서버로 전송(`log_visit`) · 네이버 비밀번호 저장·스크립트 입력 · 응답 XOR 열쇠 코드 노출 · IP 차단 |
