@@ -138,3 +138,16 @@ test("여러 PDF에서 골라 회전해 새로 만든다", async () => {
   assert.equal(out.getPage(1).getRotation().angle, 90);
   await assert.rejects(buildFromPages([a], [{ src: 0, page: 5 }]), /없는 페이지/);
 });
+
+// ── 서명 그림 ──
+import { whiteToTransparent, opaqueBounds, clampPlace } from "../src/lib/sign/alpha.ts";
+
+test("흰 바탕 투명화·여백 범위·상자 가두기", () => {
+  // 3×1: 흰, 검정, 흰
+  const px = Uint8ClampedArray.from([255, 255, 255, 255, 0, 0, 0, 255, 250, 250, 250, 255]);
+  const t = whiteToTransparent(px);
+  assert.deepEqual([t[3], t[7], t[11]], [0, 255, 0]);
+  assert.deepEqual(opaqueBounds(t, 3, 1, 0), { x: 1, y: 0, w: 1, h: 1 });
+  assert.equal(opaqueBounds(new Uint8ClampedArray(12), 3, 1), null);
+  assert.deepEqual(clampPlace({ x: 0.9, y: -0.2, w: 0.3, h: 0.1 }), { w: 0.3, h: 0.1, x: 0.7, y: 0 });
+});

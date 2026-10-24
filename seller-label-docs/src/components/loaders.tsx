@@ -11,3 +11,4 @@ export const LabelToolLoader = dynamic(() => import("@/components/label/LabelToo
 export const QrToolLoader = dynamic(() => import("@/components/qr/QrTool"), { ssr: false, loading: Loading });
 export const RenameToolLoader = dynamic(() => import("@/components/rename/RenameTool"), { ssr: false, loading: Loading });
 export const PdfToolLoader = dynamic(() => import("@/components/pdf/PdfTool"), { ssr: false, loading: Loading });
+export const SignToolLoader = dynamic(() => import("@/components/sign/SignTool"), { ssr: false, loading: Loading });
