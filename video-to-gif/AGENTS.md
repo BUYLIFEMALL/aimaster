@@ -431,6 +431,10 @@
 - **0) 설치 ✅**: `install-mac.sh`·`host.pl`을 먼저 받아 읽은 뒤 실행(새 명령도 정해진 낱말·숫자 범위만 받음 확인). 설치 결과 `HOST_VERSION 1.30`, 저장소 `host/host.pl`과 설치본이 같은 파일(`cmp` 동일). 실행기 기능 목록 `gif, audio, loop, normalize, compress`(윈도우와 같음).
 - **1) 터미널 시험 ✅ 모두 통과**: `node video-matrix.mjs samples/silent.mp4 samples/with-audio.mp4 pl`(`PL_FFMPEG` 없이 — 맥 ffmpeg를 스스로 찾음) → normalize 30fps·긴 변 640(소리 없음) 579ms 3,870,016B→379,828B · normalize 24fps·긴 변 1280(소리 있음) 751ms →2,097,452B · compress small(소리 없음) 1,042ms →1,090,914B · compress balanced·긴 변 480(소리 있음) 648ms →233,868B · 거절 4건(fps 10·maxSide 소수·quality 낱말 아님·명령 문자열 끼워넣기) 모두 거절, 「모두 통과」(전체 5.8초).
   - loop 한 건: `host-harness.mjs pl samples/with-audio.mp4 '{"type":"loop","mode":"smart","start":0,"end":4,"crossfade":0.5,"repeat":2,"format":"mp4","duration":5}' /tmp/loop.mp4` → `ok:true`, 1,151ms, 2,335,331B, `ffprobe` 길이 7.021초, video·audio 둘 다.
-- **2) 크롬 화면 3곳 ⏸ 남음**: 무한 루프 `/studio`·AI 영상 스튜디오 `/edit`·`/library` 미확인. 실패가 아니라 환경 문제 — 맥미니 크롬이 다시 켜지면서 Claude가 조종하는 크롬 프로필이 바뀌었고(장비 식별 `40dc5629…` → `59d08695…`), 그 프로필에는 「AIMaster 내 PC 고속 변환」 확장이 없고(페이지에 `chrome.runtime` 없음) 시험 계정 로그인도 풀려 있다. 무한 루프 화면은 시험 영상을 올린 상태에서 「확장을 설치하면…」 안내가 나왔다(확장이 없을 때의 정상 동작).
-  - 이어서 할 일: 그 프로필에서 확장을 「압축해제된 확장 프로그램 로드」로 불러오고(`video-to-gif/local-renderer/extension`, ID `efgimakonmphcdojhiegemjmpbokpcgk`) 시험 계정으로 로그인한 뒤 `MAC_CHECK.md` §2 표대로 3곳 확인.
+- **2) 크롬 화면 3곳 ✅ 모두 통과**(2026-10-24 21:15~21:52, 맥미니 크롬 · 시험 계정 `buylifemall@naver.com` · 확장 연결 표시 「맥 · ffmpeg 8.1」):
+  - 무한 루프 `/studio`(v1.08): `samples/with-audio.mp4` · 스마트 루프 · MP4 5회 · 「⚡ 내 PC로 빠르게」 → 「⚡ 내 PC에서 만들었습니다 · 2.5초」, 결과 22.1초·1280×720·6.9MB, 재생 시 영상·소리 데이터 모두 풀림, 오류 없음.
+  - AI 영상 스튜디오 `/edit`(v1.20): 갤러리 영상 1개(Wan 3.0, 5초) → 「영상 만들기」 1.6MB → 「내 PC로 용량 줄이기」(균형) 「1.6MB → 0.8MB로 줄였습니다」(8초 안), 줄인 영상 5.1초·720×1280 재생 정상.
+  - AI 영상 스튜디오 `/library`: MiniMax H3 카드(2.4MB) 「GIF 만들기(앞 6초)」 → 「GIF 내려받기 (3.4MB)」, 「작게 줄이기(720)」 → 「작은 MP4 내려받기 (0.3MB)」, 둘 다 10초 안.
+  - ⚠ 발견(렌더러와 무관, 윈도우 영상 담당 참고): `/edit` 「영상 만들기」(브라우저 안 렌더)가 맥미니(인텔 i7-8700B)에서 5초 영상 하나에 약 25분 걸렸다(21:20 시작 → 21:25 8% → 21:49 완성). 콘솔 오류 없음, 크롬 CPU 약 25%만 사용, 같은 영상을 반복해서 받지는 않음(서명 주소 44건·고유 18). 콘솔에 「Noto Sans KR 글꼴 요청 121건」 경고. 진행이 매우 느리다는 안내나 「내 PC 렌더러로 만들기」 대안 검토 필요.
+  - 요금 드는 버튼(음성 만들기·이 설정으로 다시 만들기)은 누르지 않음 — 코드(`components/edit/EditStudio.tsx`)로 「영상 만들기」가 음성을 자동 생성하지 않음을 먼저 확인.
 - 참고(같은 날 확인 중 발견): 맥에서 확장을 SMB 폴더로 불러온 경우 폴더가 끊겼다 다시 붙으면 옛 작동 코드가 남을 수 있다 — ↻를 다시 누를 것(v1.22 맥 확인 항목). 커밋 중 한 번 「index file corrupt」가 떴으나 다른 세션이 같은 순간 커밋 중이던 일시 현상이었고, 바로 뒤 확인에서 스테이징 11,866개·잠금 없음 정상이었다(아무것도 고치지 않음).
