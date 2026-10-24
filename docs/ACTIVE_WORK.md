@@ -22,6 +22,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-workspace` | 2026-10-24 20:00 | U6 AI 회의록 상세 플랜 작성 → 주인님 승인 대기(승인 뒤 구현) |
 | `shorts-onestop-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | v1.42 무료 음성 **배포 완료**(2026-10-24) — 남은 것: 시험 계정(`buylifemall@naver.com`) 로그인 후 실제 음성 만들기·MP4 확인. 이어서 `lyric-video-studio/` Lyricbi 시작 예정 |
 | 메인 사이트 `app/admin/dev-docs/` · `app/api/admin/dev-docs/` · `components/admin/devdocs/` · `lib/devDocs/` · `scripts/dev-requests.mjs` · `supabase/migrations/0044_*` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-24 | (배포 완료 c7f7b1ae2 · **DB 0044 주인님 실행 대기 → 시험 후 해제**) 수정 요청함에 「작업 결과」·「주인님이 해 줄 일(카테고리별)」 추가 — 플랜 `docs/PLAN_20261024_ADMIN_REQUEST_RESULTS.md`, 빌드 1~2회·DB 0044(주인님 실행) 승인 |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` | 2026-10-24 | E-3 v2.19 · E-4 v2.20 · E-5 v2.21 배포 완료 → **② 간편 모드 실제 네이버 입력 시험(비공개 1건) — 크롬 시험 계정 로그인 대기** → ③ SEO 예약·콘텐츠 메이커 포스팅 → ④ 묶음 E. 미배포 대기 `89d135c4b`. 현황 `docs/roles/blog.md` |
