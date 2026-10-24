@@ -120,7 +120,13 @@ const SCROLL_ONE = `(() => {
   return { tag: target.tagName, id: target.id || "", cls: String(target.className || "").slice(0, 80), scrollHeight: target.scrollHeight };
 })()`;
 
+let busy = false; // ①·②가 겹쳐 돌면 두 번째가 첫 번째의 디버거 연결을 끊는다(첫 시험의 「not attached」 원인) — 한 번에 하나만.
 async function runCapture(tabId, tabUrl) {
+  if (busy) return { ok: false, error: "이미 시험이 진행 중입니다. 끝날 때까지 기다려 주세요." };
+  busy = true;
+  try { return await runCaptureInner(tabId, tabUrl); } finally { busy = false; }
+}
+async function runCaptureInner(tabId, tabUrl) {
   const t0 = Date.now();
   const out = { tabUrl: urlKey(tabUrl), requests: [], articlePages: [], otherJson: [], statusProblems: [], blocked: false, scrollTargets: [], authHeaderSeen: false };
   const pending = new Map();
@@ -188,6 +194,11 @@ async function runCapture(tabId, tabUrl) {
 }
 
 async function runDirect(tabId) {
+  if (busy) return { ok: false, error: "이미 시험이 진행 중입니다. 끝날 때까지 기다려 주세요." };
+  busy = true;
+  try { return await runDirectInner(tabId); } finally { busy = false; }
+}
+async function runDirectInner(tabId) {
   const r = await getReport();
   const tpl = r.capture?.articlePages?.[0];
   if (!tpl) return { ok: false, error: "먼저 ① 응답 읽기 시험을 해 주세요(주소 형식이 필요)." };
