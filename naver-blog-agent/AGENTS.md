@@ -174,3 +174,9 @@ flowchart TD
 - 화면: `src/app/(quick)/layout.tsx`(두 줄 포함) · `(quick)/quick/page.tsx`(추천→생성→이미지→저장을 직접, 작성 화면으로 넘기지 않음) · `(quick)/quick/settings/page.tsx`(기존 설정 컴포넌트 재사용) · `src/components/quick/QuickResult.tsx` · 메뉴 `Sidebar`/`DashboardShell`에 `scope`(간편이면 간편 모드·키 등록·「전체 기능 보기」만).
 - 시험 주의: 여러 시험이 `@/lib/access`를 가짜 모듈로 바꿔 끼운다 — 권한 함수를 새로 쓰면 각 시험 가짜 모듈에도 넣어야 한다(이번에 `withScope` 도우미 추가). `test-post-save`는 `test-post-review.cjs`의 일부 글을 잘라 실행하므로 그 파일에는 파일 끝 도우미를 쓰지 말고 그 줄 안에서 감쌀 것.
 - 커밋 `a687ab28d`(플랜)·`00b1b1a36`(기능)·`272d70a41`(버전·확장 ZIP), 배포 `naver-blog-agent-rlfpej3tb`. **미배포 대기**: `7ec53853f` 간편 결과 미리보기 소제목 표시.
+
+## 2026-10-24 v2.21 — E-5 세 가지 포스팅 방식 (Claude Code 윈도우 블로그 담당 `claude-win-20261024-blog3`)
+- 루트 「🧭 블로그 작업 최우선 핵심 지침」 기준. `NaverPublishSettings.tsx`: 포스팅 방식 카드 3개(ⓐ 발행 전까지 ⓑ 실제 포스팅 ⓒ 예약 포스팅, `role=radiogroup`). 변환은 `src/lib/publishChoice.ts`(`choiceOf`·`applyChoice`·`choiceSummary`) — 저장 값 `executionMode` × 예약은 그대로라 서버·확장·DB 변경 없음. ⓐ 안 「예약 시각도 미리 넣어 두기」는 예전 「준비+예약」 조합 보존용. `onSummary`로 저장된 방식을 전송 버튼 옆(작성 화면·`QuickResult`)에 「전송하면: …」로 표시.
+- 새 원고 기본값은 그대로 ⓐ(`newNaverDraftSummary`). 자동 임시저장(`draft`)은 주인님 결정으로 넣지 않음.
+- 간편 화면에 4단계 사용 안내(`details`) — 간편 회원은 `/guide`를 못 봄.
+- 커밋 `b94be856e`(플랜)·`6e6c3d60b`(기능)·`fae322367`(버전·확장 ZIP) + 대기였던 `7ec53853f`, 배포 `naver-blog-agent-nmd0jyu99`. **미배포 대기**: `89d135c4b`.
