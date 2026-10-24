@@ -18,6 +18,8 @@ import { YoutubeUploadCard } from "./YoutubeUploadCard";
 interface ExportStudioProps {
   tracks: Track[];
   bgMedia: { type: 'image' | 'video'; url: string } | null;
+  /** P-3 추가 배경 이미지 주소 */
+  extraBgs: string[];
   logoUrl: string | null;
   gifUrl: string | null;
   settings: StudioSettings;
@@ -33,6 +35,7 @@ interface ExportStudioProps {
 export function ExportStudio({
   tracks,
   bgMedia,
+  extraBgs,
   logoUrl,
   gifUrl,
   settings,
@@ -94,7 +97,8 @@ export function ExportStudio({
           setExportProgress(p.progress);
           setStatusText(p.status);
         },
-        gifUrl
+        gifUrl,
+        extraBgs
       );
 
       setLastBlob(blob);

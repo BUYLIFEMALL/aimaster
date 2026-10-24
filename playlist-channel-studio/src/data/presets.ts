@@ -74,6 +74,10 @@ export const EFFECT_COLOR_PRESETS = [
 ];
 
 export const DEFAULT_SETTINGS: StudioSettings = {
+  bgSlideMode: 'track',
+  bgSlideSeconds: 30,
+  bgTransition: 'fade',
+  bgTransitionSeconds: 1.5,
   titleEnabled: true,
   titleStyle: 'card',
   titlePos: 'bl',

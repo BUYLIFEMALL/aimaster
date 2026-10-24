@@ -42,13 +42,16 @@ import {
   getFilterString
 } from "@/lib/render/canvas-visualizer";
 import { ParticleSystem } from "@/lib/render/particle-system";
-import { drawCover, drawLyricsLayer } from "@/lib/render/lyrics-layer";
+import { drawLyricsLayer } from "@/lib/render/lyrics-layer";
 import { drawTitleLayer, trackTitle, type TitleInfo } from "@/lib/render/title-layer";
+import { drawBackgroundSlides, slideState } from "@/lib/render/background-layer";
 import { timeline, type LyricLine } from "@/lib/lyrics";
 
 interface EditorStudioProps {
   tracks: Track[];
   bgMedia: { type: 'image' | 'video'; url: string } | null;
+  /** P-3 추가 배경 이미지 주소 */
+  extraBgs: string[];
   logoUrl: string | null;
   gifUrl: string | null;
   settings: StudioSettings;
@@ -64,6 +67,7 @@ interface EditorStudioProps {
 export function EditorStudio({
   tracks,
   bgMedia,
+  extraBgs,
   logoUrl,
   gifUrl,
   settings,
@@ -88,6 +92,8 @@ export function EditorStudio({
   const [duration, setDuration] = useState(0);
 
   const currentTrack = tracks[currentTrackIndex] || null;
+  const currentTrackIndexRef = useRef(0);
+  currentTrackIndexRef.current = currentTrackIndex;
   // v1.17 지금 곡의 가사 시간표(그리기 반복문이 매 장면 읽는다)
   const lyricsRef = useRef<LyricLine[]>([]);
   lyricsRef.current = currentTrack?.lyrics?.length ? timeline(currentTrack.lyrics, currentTrack.duration || Infinity) : [];
@@ -101,17 +107,31 @@ export function EditorStudio({
   const gifImgRef = useRef<HTMLImageElement | null>(null);
   const particleSystemRef = useRef<ParticleSystem>(new ParticleSystem());
 
-  // Load Background Image
+  // Load Background Image(s) — P-3 이미지 배경 + 추가 배경을 순서대로
+  const bgImgsRef = useRef<HTMLImageElement[]>([]);
+  const extraKey = extraBgs.join('|');
   useEffect(() => {
+    let alive = true;
     if (bgMedia && bgMedia.type === 'image') {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = bgMedia.url;
-      img.onload = () => { bgImgRef.current = img; };
+      const urls = [bgMedia.url, ...extraBgs];
+      Promise.all(urls.map((u) => new Promise<HTMLImageElement | null>((res) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => res(img);
+        img.onerror = () => res(null);
+        img.src = u;
+      }))).then((imgs) => {
+        if (!alive) return;
+        bgImgsRef.current = imgs.filter((x): x is HTMLImageElement => !!x);
+        bgImgRef.current = bgImgsRef.current[0] ?? null;
+      });
     } else {
+      bgImgsRef.current = [];
       bgImgRef.current = null;
     }
-  }, [bgMedia]);
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bgMedia, extraKey]);
 
   // Load Logo Image
   useEffect(() => {
@@ -269,7 +289,10 @@ export function EditorStudio({
         const filterStr = getFilterString(settings.filterType, settings.filterIntensity, bassLevel);
         const brightStr = `brightness(${settings.brightness}%)`;
         ctx.filter = `${brightStr} ${filterStr}`.trim();
-        if (portrait) drawCover(ctx, bgImgRef.current, width, height); else ctx.drawImage(bgImgRef.current, 0, 0, width, height);
+        // P-3 배경 여러 장 전환(내보내기와 같은 함수) — 전체 시각 = 앞 곡 길이 합 + 지금 재생 위치
+        const nowT = audioRef.current?.currentTime ?? 0;
+        const passT = tracks.slice(0, currentTrackIndexRef.current).reduce((a, t) => a + (t.duration || 0), 0) + nowT;
+        drawBackgroundSlides(ctx, bgImgsRef.current, width, height, portrait, slideState(bgImgsRef.current.length, settings, passT, currentTrackIndexRef.current, nowT));
         ctx.restore();
       }
 
@@ -705,6 +728,37 @@ export function EditorStudio({
               <label className="space-y-1">강조 색<input type="color" value={settings.lyricsAccent} onChange={(e) => setSettings((p) => ({ ...p, lyricsAccent: e.target.value }))} className="block w-full h-7 rounded bg-transparent" /></label>
             </div>
             <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.lyricsNext} onChange={(e) => setSettings((p) => ({ ...p, lyricsNext: e.target.checked }))} />다음 줄도 흐리게 보여 주기</label>
+          </div>
+
+          {/* P-3 배경 전환 */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-[#aaaaaa]">배경 전환 <span className="font-normal text-[#777777]">(배경 {bgMedia?.type === 'image' ? 1 + extraBgs.length : 0}장)</span></h4>
+            {bgMedia?.type === 'image' && extraBgs.length > 0 ? (
+              <>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([["off", "끔"], ["track", "곡마다"], ["interval", "시간마다"]] as const).map(([v, label]) => (
+                    <button key={v} onClick={() => setSettings((p) => ({ ...p, bgSlideMode: v }))} className={`py-1.5 text-[11px] font-bold rounded-lg border ${settings.bgSlideMode === v ? "bg-[#ff0000] text-white border-[#ff0000]" : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:text-white"}`}>{label}</button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([["fade", "페이드"], ["dissolve", "디졸브"], ["slide", "슬라이드"], ["zoom", "줌"], ["random", "랜덤"]] as const).map(([v, label]) => (
+                    <button key={v} onClick={() => setSettings((p) => ({ ...p, bgTransition: v }))} className={`py-1.5 text-[11px] font-bold rounded-lg border ${settings.bgTransition === v ? "bg-[#ff0000] text-white border-[#ff0000]" : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:text-white"}`}>{label}</button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-[11px] font-bold text-[#aaaaaa]">
+                  <div className="space-y-1">
+                    <div className="flex justify-between"><span>바뀌는 간격</span><span className="text-white font-mono">{settings.bgSlideSeconds}초</span></div>
+                    <input type="range" min={10} max={180} step={5} disabled={settings.bgSlideMode !== "interval"} value={settings.bgSlideSeconds} onChange={(e) => setSettings((p) => ({ ...p, bgSlideSeconds: Number(e.target.value) }))} className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000] disabled:opacity-40" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between"><span>전환 시간</span><span className="text-white font-mono">{settings.bgTransitionSeconds}초</span></div>
+                    <input type="range" min={0.5} max={4} step={0.5} value={settings.bgTransitionSeconds} onChange={(e) => setSettings((p) => ({ ...p, bgTransitionSeconds: Number(e.target.value) }))} className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]" />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-[10px] text-[#777777] leading-relaxed">「① 음악·배경 넣기」에서 이미지 배경 아래 「추가 배경」을 넣으면 곡마다 또는 정한 시간마다 배경이 바뀝니다.</p>
+            )}
           </div>
 
           {/* P-1 곡 제목 표시 */}

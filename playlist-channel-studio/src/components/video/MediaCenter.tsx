@@ -40,6 +40,9 @@ interface MediaCenterProps {
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
   bgMedia: { type: 'image' | 'video'; url: string; name?: string } | null;
   setBgMedia: (media: { type: 'image' | 'video'; url: string; name?: string } | null) => void;
+  /** P-3 추가 배경 이미지 */
+  extraBgs: { url: string; name: string }[];
+  setExtraBgs: React.Dispatch<React.SetStateAction<{ url: string; name: string }[]>>;
   logoUrl: string | null;
   setLogoUrl: (url: string | null) => void;
   gifUrl: string | null;
@@ -49,12 +52,16 @@ interface MediaCenterProps {
   onEnterStudio: () => void;
 }
 
+import { MAX_BG_IMAGES } from '@/lib/render/background-layer';
+
 export function MediaCenter({
   userId,
   tracks,
   setTracks,
   bgMedia,
   setBgMedia,
+  extraBgs,
+  setExtraBgs,
   logoUrl,
   setLogoUrl,
   gifUrl,
@@ -473,6 +480,35 @@ export function MediaCenter({
                 </div>
               )}
             </div>
+            {/* P-3 배경 여러 장 — 이미지 배경일 때 추가 배경을 넣으면 ② 편집의 「배경 전환」 설정대로 돌아가며 바뀝니다 */}
+            {bgMedia?.type === 'image' && (
+              <div className="mt-2 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[#aaaaaa]">추가 배경 {extraBgs.length}장 (최대 {MAX_BG_IMAGES - 1}장)</span>
+                  {extraBgs.length > 0 && <button type="button" onClick={() => setExtraBgs([])} className="text-[10px] text-[#777777] hover:text-red-400">모두 빼기</button>}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {extraBgs.map((b, i) => (
+                    <div key={b.url} className="relative h-10 w-16 overflow-hidden rounded border border-[#272727]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={b.url} alt={`추가 배경 ${i + 1}`} className="h-full w-full object-cover" />
+                      <button type="button" aria-label="추가 배경 빼기" onClick={() => setExtraBgs((xs) => xs.filter((x) => x.url !== b.url))} className="absolute right-0 top-0 bg-black/70 px-1 text-[10px] text-white hover:bg-red-600">×</button>
+                    </div>
+                  ))}
+                  {extraBgs.length < MAX_BG_IMAGES - 1 && (
+                    <label className="flex h-10 w-16 cursor-pointer items-center justify-center rounded border border-dashed border-[#3a3a3a] text-[10px] text-[#aaaaaa] hover:border-[#ff0000] hover:text-white">
+                      + 추가
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => {
+                        const files = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith('image/'));
+                        e.target.value = '';
+                        setExtraBgs((xs) => [...xs, ...files.map((f) => ({ url: URL.createObjectURL(f), name: f.name }))].slice(0, MAX_BG_IMAGES - 1));
+                      }} />
+                    </label>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#777777]">여러 장을 넣으면 곡마다(또는 정한 시간마다) 배경이 바뀝니다. 전환 효과는 ② 편집에서 고릅니다.</p>
+              </div>
+            )}
           </div>
 
           {/* 2. 채널 로고 & GIF 스티커 2열 카드 (정사각형 박스) */}

@@ -31,6 +31,8 @@ export function VideoStudio({ userId }: { userId: string }) {
 
   const [tracks, setTracks] = useState<Track[]>([]);
   const [bgMedia, setBgMedia] = useState<{ type: "image" | "video"; url: string; name?: string } | null>(null);
+  // P-3 추가 배경 이미지(이미지 배경일 때 돌아가며 바뀜)
+  const [extraBgs, setExtraBgs] = useState<{ url: string; name: string }[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [gifUrl, setGifUrl] = useState<string | null>(null);
   const [settings, setSettings] = useState<StudioSettings>(DEFAULT_SETTINGS);
@@ -72,6 +74,8 @@ export function VideoStudio({ userId }: { userId: string }) {
             setTracks={setTracks}
             bgMedia={bgMedia}
             setBgMedia={setBgMedia}
+            extraBgs={extraBgs}
+            setExtraBgs={setExtraBgs}
             logoUrl={logoUrl}
             setLogoUrl={setLogoUrl}
             gifUrl={gifUrl}
@@ -85,6 +89,7 @@ export function VideoStudio({ userId }: { userId: string }) {
           <EditorStudio
             tracks={tracks}
             bgMedia={bgMedia}
+            extraBgs={extraBgs.map((b) => b.url)}
             logoUrl={logoUrl}
             gifUrl={gifUrl}
             settings={settings}
@@ -100,6 +105,7 @@ export function VideoStudio({ userId }: { userId: string }) {
           <ExportStudio
             tracks={tracks}
             bgMedia={bgMedia}
+            extraBgs={extraBgs.map((b) => b.url)}
             logoUrl={logoUrl}
             gifUrl={gifUrl}
             settings={settings}

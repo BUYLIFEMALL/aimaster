@@ -54,7 +54,17 @@ export type TitleStyle = 'card' | 'neon' | 'minimal' | 'outline' | 'tag';
 /** P-1 화면 9칸 위치(t·m·b = 위·가운데·아래, l·c·r = 왼쪽·가운데·오른쪽) */
 export type TitlePos = 'tl' | 'tc' | 'tr' | 'ml' | 'mc' | 'mr' | 'bl' | 'bc' | 'br';
 
+/** P-3 배경 전환 효과 */
+export type BgTransition = 'fade' | 'dissolve' | 'slide' | 'zoom';
+export type BgSlideMode = 'off' | 'track' | 'interval';
+
 export interface StudioSettings {
+  // P-3 배경 이미지 여러 장 전환(① 준비에서 이미지 배경에 추가 배경을 넣었을 때)
+  bgSlideMode: BgSlideMode; // 끔·곡마다·N초마다
+  bgSlideSeconds: number; // N초마다일 때 간격(10~180)
+  bgTransition: BgTransition | 'random';
+  bgTransitionSeconds: number; // 전환 시간(0.5~4)
+
   // P-1 곡이 바뀔 때 곡 제목을 잠깐 보여 준다
   titleEnabled: boolean;
   titleStyle: TitleStyle;

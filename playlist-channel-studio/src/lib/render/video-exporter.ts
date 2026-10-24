@@ -8,8 +8,9 @@ import {
   getFilterString
 } from './canvas-visualizer';
 import { ParticleSystem } from './particle-system';
-import { drawCover, drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
+import { drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
 import { drawTitleLayer, trackTitle } from './title-layer';
+import { drawBackgroundSlides, slideState } from './background-layer';
 import { bassLevelOf, createSpectrumReader } from './audio-spectrum';
 import { loadGifSticker } from './gif-frames';
 
@@ -87,7 +88,8 @@ async function renderVideoMp4(
   settings: StudioSettings,
   exportSettings: ExportSettings,
   onProgress: (p: RenderProgress) => void,
-  gifUrl: string | null = null // v1.21 GIF 스티커(미리보기에만 있던 것)
+  gifUrl: string | null = null, // v1.21 GIF 스티커(미리보기에만 있던 것)
+  extraBgs: string[] = [] // P-3 추가 배경 이미지(이미지 배경일 때만)
 ): Promise<Blob | null> {
   if (tracks.length === 0) {
     throw new Error('렌더링할 오디오 트랙이 없습니다.');
@@ -139,16 +141,17 @@ async function renderVideoMp4(
   const hasLyrics = lyricTimelines.some((l) => l.length > 0);
 
   // 3. Prepare background image if any
-  let bgImg: HTMLImageElement | null = null;
+  // P-3 이미지 배경 + 추가 배경을 순서대로(못 읽은 그림은 뺌)
+  const bgImgs: HTMLImageElement[] = [];
   if (bgMedia && bgMedia.type === 'image') {
-    bgImg = new Image();
-    bgImg.crossOrigin = 'anonymous';
-    bgImg.src = bgMedia.url;
-    await new Promise((resolve) => {
-      bgImg!.onload = resolve;
-      bgImg!.onerror = resolve;
-    });
+    for (const u of [bgMedia.url, ...extraBgs]) {
+      const im = new Image();
+      im.crossOrigin = 'anonymous';
+      const ok = await new Promise<boolean>((resolve) => { im.onload = () => resolve(true); im.onerror = () => resolve(false); im.src = u; });
+      if (ok) bgImgs.push(im);
+    }
   }
+  const bgImg: HTMLImageElement | null = bgImgs[0] ?? null;
 
   // 4. File save target setup
   let fileHandle: any = null;
@@ -298,7 +301,9 @@ async function renderVideoMp4(
       ctx.save();
       const filterStr = getFilterString(settings.filterType, settings.filterIntensity, bassLevel);
       ctx.filter = `brightness(${settings.brightness}%) ${filterStr}`.trim();
-      if (portrait) drawCover(ctx, bgImg, width, height); else ctx.drawImage(bgImg, 0, 0, width, height);
+      // P-3 배경 여러 장 전환(미리보기와 같은 함수)
+      const [bti, btt] = locate(trackDurations, currentTimeSec);
+      drawBackgroundSlides(ctx, bgImgs, width, height, portrait, slideState(bgImgs.length, settings, currentTimeSec, bti, btt));
       ctx.restore();
     }
 
