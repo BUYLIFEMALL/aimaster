@@ -598,3 +598,6 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-import p { margin: 0; font-size: 14px; line-height: 1.7; }
 .ra-import small { color: var(--muted); }
 .ra-import .primary { margin-top: 12px; }
+.ra-import { margin-bottom: 14px; }
+.ra-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ra-actions a.secondary { display: inline-flex; align-items: center; text-decoration: none; }

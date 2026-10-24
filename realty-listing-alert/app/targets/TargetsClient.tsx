@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { addTargetAction, deleteTargetAction, toggleTargetAction, updateTargetAction, type TargetActionState } from "@/lib/actions/targets";
 import { MAX_TARGETS, TRADE_TYPES } from "@/lib/targets";
 
@@ -79,7 +79,35 @@ function TargetItem({ target }: { target: TargetRow }) {
   );
 }
 
-export default function TargetsClient({ initialTargets }: { initialTargets: TargetRow[] }) {
+type Prefill = { name: string; region: string } | null;
+
+// 실거래 프로그램에서 넘어온 단지 — 네이버 부동산에서 그 단지를 열어 주소를 복사하도록 안내
+function PrefillGuide({ prefill }: { prefill: NonNullable<Prefill> }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(prefill.name);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
+  return (
+    <div className="ra-import">
+      <p>
+        <b>🏢 부동산 실거래 투자분석</b>에서 고른 단지 <b>「{prefill.name}」</b>{prefill.region ? ` (${prefill.region})` : ""}를 감시하려고 해요.
+        <br />
+        <small>네이버 부동산에서 이 단지를 검색해 단지 화면을 연 뒤, 주소창의 주소를 복사해 아래 첫 칸에 붙여 넣어 주세요.</small>
+      </p>
+      <div className="ra-actions">
+        <button type="button" className="secondary" onClick={copy}>{copied ? "✅ 단지명 복사됨" : "단지명 복사"}</button>
+        <a className="secondary" href="https://new.land.naver.com/" target="_blank" rel="noopener noreferrer">네이버 부동산 열기 ↗</a>
+      </div>
+    </div>
+  );
+}
+
+export default function TargetsClient({ initialTargets, prefill = null }: { initialTargets: TargetRow[]; prefill?: Prefill }) {
   const [state, action, adding] = useActionState(addTargetAction, {});
   const full = initialTargets.length >= MAX_TARGETS;
   return (
@@ -90,9 +118,10 @@ export default function TargetsClient({ initialTargets }: { initialTargets: Targ
           <p className="ra-msg ra-warn">감시 대상이 {MAX_TARGETS}개로 가득 찼어요. 새 단지를 넣으려면 아래에서 하나를 지워 주세요.</p>
         ) : (
           <form action={action} key={initialTargets.length}>
+            {prefill && <PrefillGuide prefill={prefill} />}
             <div className="ra-grid">
               <div className="field"><label htmlFor="complex">단지 화면 주소 또는 단지 번호</label><input id="complex" name="complex" required placeholder="https://new.land.naver.com/complexes/10981" /></div>
-              <div className="field"><label htmlFor="complexName">알아보기 쉬운 이름(선택)</label><input id="complexName" name="complexName" maxLength={100} placeholder="예: 백송건영" /></div>
+              <div className="field"><label htmlFor="complexName">알아보기 쉬운 이름(선택)</label><input id="complexName" name="complexName" maxLength={100} placeholder="예: 백송건영" defaultValue={prefill?.name ?? ""} /></div>
             </div>
             <Conditions />
             <button className="primary" type="submit" disabled={adding}>{adding ? "추가 중..." : "감시 대상에 추가"}</button>
