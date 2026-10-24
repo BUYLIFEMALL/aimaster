@@ -64,7 +64,7 @@
 | ai-auto-blog · tistory-auto-blog | 16.2.10 | 블로그 담당·확장 동기화 필요 | 블로그 담당 세션 |
 | naver-blog-agent · naver-blog-allinone | 16.2.11 | 〃 (agent는 다른 세션 작업 중이었음) | 〃 |
 | naver-blog-seo-studio | 16.3.5 | 〃 | 〃 |
-| blog-keyword | 16.4.0 | 〃 (16.4.0은 빌드 끝에 `SecurityFatalError`로 멈춤) | 〃 |
+| blog-keyword | ~~16.4.0~~ → **16.4.2 완료** | 2026-10-24 블로그 담당 `claude-win-20261024-blog3` — 묶음 C v1.08 배포와 같은 빌드(`blog-keyword-b4vt26i3f`, `8c0e67c11`) | ✅ |
 | cardnews-studio · seo-thumbnail-pro · youtube-channel-consultant | 16.2.11 | 버전 파일 없는 옛 구조 | 윈도우 CLI 아무나 |
 | web-crawler | — | 미커밋 변경(`web-crawler/AGENTS.md`) 있음 | 그 변경 주인 세션 |
 - 방법은 상세 인수인계 1번(폴더마다 `npm install next@16.4.2`(+`eslint-config-next`) → `tsc` → build → 경로 커밋 → 배포 → DB 버전 → 로그인 확인). 확장이 있는 블로그 프로그램은 manifest·ZIP·DB 확장 버전도 함께(핵심 원칙 10).
