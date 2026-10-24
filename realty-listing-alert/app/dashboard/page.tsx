@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const [{ data: targets }, { data: settings }, { data: telegram }, { data: device }, { count: tokenCount }] = await Promise.all([
     supabase.from("realty_alert_targets").select("enabled").eq("user_id", user.id),
-    supabase.from("realty_alert_settings").select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end").eq("user_id", user.id).maybeSingle(),
+    supabase.from("realty_alert_settings").select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end, notify_kakao, notify_email").eq("user_id", user.id).maybeSingle(),
     supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).eq("program_slug", "realty-listing-alert").maybeSingle(),
     // 확장이 보고한 숫자 상태(마지막 수집·결과·건수)만 — 매물 내용은 서버에 없다.
     supabase
@@ -34,6 +34,8 @@ export default async function DashboardPage() {
       .maybeSingle(),
     supabase.from("personal_access_tokens").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("program_slug", "realty-listing-alert").is("revoked_at", null),
   ]);
+  // 받는 곳: 텔레그램·카톡·이메일 중 하나라도(2026-10-25)
+  const hasChannel = !!telegram || !!settings?.notify_kakao || !!settings?.notify_email;
   const total = targets?.length ?? 0;
   const active = targets?.filter((t) => t.enabled).length ?? 0;
   const intervalLabel = COLLECT_INTERVAL_OPTIONS.find((o) => o.value === settings?.interval_minutes)?.label ?? "3시간";
@@ -48,7 +50,7 @@ export default async function DashboardPage() {
   const cards = [
     { icon: "🎯", title: "감시 대상", value: `${total} / ${MAX_TARGETS}`, href: "/targets", note: total ? `${active}개 감시 중` : "단지를 추가하세요" },
     { icon: "⏰", title: "예약", value: settings?.schedule_enabled ? "켜짐" : "꺼짐", href: "/schedule", note: settings?.schedule_enabled ? `${intervalLabel}마다${hours}` : "간격·시간대를 정하고 켜 주세요" },
-    { icon: "📨", title: "받는 방법", value: telegram ? "연결됨" : "미연결", href: "/delivery", note: telegram ? `@${telegram.bot_username ?? "봇"}` : "텔레그램을 연결하세요" },
+    { icon: "📨", title: "받는 방법", value: hasChannel ? "연결됨" : "미연결", href: "/delivery", note: hasChannel ? [telegram ? "텔레그램" : "", settings?.notify_kakao ? "카톡" : "", settings?.notify_email ? "이메일" : ""].filter(Boolean).join(" · ") : "텔레그램·카톡·이메일 중 하나를 연결하세요" },
     {
       icon: "🖥",
       title: "내 PC 수집",
@@ -71,7 +73,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <StartChecklist facts={{ email: user.email ?? "", hasToken: (tokenCount ?? 0) > 0, telegram: !!telegram, targetCount: total, scheduleOn: !!settings?.schedule_enabled }} />
+        <StartChecklist facts={{ email: user.email ?? "", hasToken: (tokenCount ?? 0) > 0, telegram: hasChannel, targetCount: total, scheduleOn: !!settings?.schedule_enabled }} />
 
         <section className="card" aria-labelledby="install-title">
           <h2 className="card-title" id="install-title">🖥 원클릭 다운로드 센터</h2>

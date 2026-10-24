@@ -7,6 +7,7 @@ import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
+import { buildKakaoText, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
 const DEFAULT_RULES = {
@@ -238,35 +239,55 @@ async function runCollection(trigger) {
 
 /** 텔레그램 보내기 — 변동이 있거나, 첫 수집이거나, 「지금 수집」이면 보낸다. 실패하면 다음 회차에 알리고 같은 알림을 반복해 보내지 않는다. */
 async function deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit = false, maxPages = 300 }) {
+  // 채널별로 따로 보낸다(2026-10-25 카톡·이메일 추가) — 한 채널이 실패해도 다른 채널은 보낸다.
   const tg = settings.telegram;
-  if (!tg) { await addLog("텔레그램 봇이 연결되지 않아 보내지 않았어요(웹 📨 받는 방법)."); return; }
+  const kakao = settings.kakao?.accessToken ? settings.kakao : null;
+  const email = settings.email?.apiKey ? settings.email : null;
+  if (settings.kakao?.error) await addLog(`카톡 받기: ${settings.kakao.error}`);
+  if (settings.email?.error) await addLog(`이메일 받기: ${settings.email.error}`);
+  if (!tg && !kakao && !email) { await addLog("받는 곳(텔레그램·카톡·이메일)이 연결되지 않아 보내지 않았어요(웹 📨 받는 방법)."); return; }
   const d = settings.delivery || {};
   const { telegramFailed = false } = await get("telegramFailed");
-  try {
-    if (result === "blocked") {
-      await sendMessage(tg.botToken, tg.chatId, `🏠 [매물 알림] ⛔ 네이버가 잠시 이용을 제한해 수집을 멈췄어요.\n${errMsg || ""}\n\n이렇게 해 주세요:\n1) 네이버 부동산을 직접 열어 보안 문자·본인 확인이 나오면 풀어 주세요.\n2) 제한은 보통 몇 시간~하루 지나면 풀려요. 오늘 예약 수집은 쉬고 내일 다시 시작해요.\n3) 자주 걸리면 예약 간격을 길게(2~3시간 이상), 감시 단지 수를 줄여 주세요.`);
+
+  // 짧은 안내(차단·하루 한도)는 텔레그램·카톡으로
+  async function notice(text) {
+    if (tg) await sendMessage(tg.botToken, tg.chatId, text).catch((e) => addLog(`텔레그램 보내기 실패: ${e.message}`));
+    if (kakao) await sendKakaoMemo(kakao.accessToken, text.slice(0, 200)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
+  }
+  if (result === "blocked") { await notice(`🏠 [매물 알림] ⛔ 네이버가 잠시 이용을 제한해 수집을 멈췄어요.\n${errMsg || ""}\n\n이렇게 해 주세요:\n1) 네이버 부동산을 직접 열어 보안 문자·본인 확인이 나오면 풀어 주세요.\n2) 제한은 보통 몇 시간~하루 지나면 풀려요. 오늘 예약 수집은 쉬고 내일 다시 시작해요.\n3) 자주 걸리면 예약 간격을 길게(2~3시간 이상), 감시 단지 수를 줄여 주세요.`); return; }
+  if (limitHit) {
+    const { limitNoticeDate } = await get("limitNoticeDate");
+    if (limitNoticeDate !== kstDate()) {
+      await notice(`🏠 [매물 알림] ⏸ 오늘 수집 한도(${maxPages}페이지)에 닿아 오늘은 더 수집하지 않아요. 네이버 이용 제한을 피하려는 안전장치예요. 내일 다시 시작해요.`);
+      await set({ limitNoticeDate: kstDate() });
+    }
+  }
+  const changed = perTarget.some((t) => t.events.length || t.firstRun);
+  if (!changed && trigger !== "manual") return;
+
+  const summary = buildSummary(perTarget, { failedBefore: telegramFailed });
+  let file = null;
+  if (d.deliverFile !== false && table.length) {
+    const stamp = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace(/[-:T]/g, "").replace(/^(\d{8})(\d{4})$/, "$1_$2");
+    file = d.fileFormat === "csv"
+      ? { bytes: new TextEncoder().encode(toCsv(table)), filename: `매물알림_${stamp}.csv`, mime: "text/csv" }
+      : { bytes: toXlsx(table), filename: `매물알림_${stamp}.xlsx`, mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+  }
+
+  if (tg) {
+    try {
+      if (d.deliverTelegram !== false) await sendMessage(tg.botToken, tg.chatId, summary);
+      if (file) await sendDocument(tg.botToken, tg.chatId, file.bytes, file.filename, file.mime, "🏠 [매물 알림] 정리 파일");
       await set({ telegramFailed: false });
-      return;
+    } catch (e) {
+      await set({ telegramFailed: true });
+      await addLog(`텔레그램 보내기 실패: ${e.message}`);
     }
-    if (limitHit) {
-      const { limitNoticeDate } = await get("limitNoticeDate");
-      if (limitNoticeDate !== kstDate()) {
-        await sendMessage(tg.botToken, tg.chatId, `🏠 [매물 알림] ⏸ 오늘 수집 한도(${maxPages}페이지)에 닿아 오늘은 더 수집하지 않아요. 네이버 이용 제한을 피하려는 안전장치예요. 내일 다시 시작해요.`).catch(() => {});
-        await set({ limitNoticeDate: kstDate() });
-      }
-    }
-    const changed = perTarget.some((t) => t.events.length || t.firstRun);
-    if (!changed && trigger !== "manual") return;
-    if (d.deliverTelegram !== false) await sendMessage(tg.botToken, tg.chatId, buildSummary(perTarget, { failedBefore: telegramFailed }));
-    if (d.deliverFile !== false && table.length) {
-      const stamp = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace(/[-:T]/g, "").replace(/^(\d{8})(\d{4})$/, "$1_$2");
-      if (d.fileFormat === "csv") await sendDocument(tg.botToken, tg.chatId, new TextEncoder().encode(toCsv(table)), `매물알림_${stamp}.csv`, "text/csv", "🏠 [매물 알림] 정리 파일");
-      else await sendDocument(tg.botToken, tg.chatId, toXlsx(table), `매물알림_${stamp}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "🏠 [매물 알림] 정리 파일");
-    }
-    await set({ telegramFailed: false });
-  } catch (e) {
-    await set({ telegramFailed: true });
-    await addLog(`텔레그램 보내기 실패: ${e.message}`);
+  }
+  if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
+  if (email) {
+    await sendResendMail(email.apiKey, { to: email.to, subject: summary.split("\n")[0], text: summary, file })
+      .catch((e) => addLog(`이메일 보내기 실패: ${e.message}`));
   }
 }
 

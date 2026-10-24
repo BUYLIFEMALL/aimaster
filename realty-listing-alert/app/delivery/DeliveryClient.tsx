@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
 import { saveDeliveryAction } from "@/lib/actions/settings";
+import { deleteResendKeyAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction } from "@/lib/actions/notify";
 
 type Delivery = {
   notifyNew: boolean;
@@ -13,7 +14,12 @@ type Delivery = {
   deliverTelegram: boolean;
   deliverFile: boolean;
   fileFormat: "xlsx" | "csv";
+  notifyKakao: boolean;
+  notifyEmail: boolean;
+  emailTo: string;
 };
+export type KakaoInfo = { ok: true; nickname: string | null } | { ok: false; message: string; connectUrl: string };
+export type EmailInfo = { hasKey: boolean; loginEmail: string };
 export type Telegram = { botUsername: string | null; linkedAt: string | null } | null;
 type Msg = { kind: "ok" | "err"; text: string } | null;
 
@@ -121,7 +127,104 @@ export function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; 
   );
 }
 
-export default function DeliveryClient({ telegram, realEstateBot, initial }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery }) {
+function useTest(action: () => Promise<{ error?: string; success?: string }>) {
+  const [msg, setMsg] = useState<Msg>(null);
+  const [pending, start] = useTransition();
+  return {
+    msg,
+    pending,
+    run: () =>
+      start(async () => {
+        setMsg(null);
+        const r = await action();
+        setMsg(r.error ? { kind: "err", text: r.error } : { kind: "ok", text: r.success ?? "보냈어요." });
+      }),
+  };
+}
+
+// 💬 카톡 받기 — 「카카오 자동화」에서 연결한 공용 카카오 계정을 그대로 쓴다(요약만, 파일은 못 보냄)
+function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: boolean; onToggle: (v: boolean) => void; disabled: boolean }) {
+  const test = useTest(sendTestKakaoAction);
+  return (
+    <section className="card">
+      <div className="ra-card-head">
+        <h2 className="card-title">💬 카카오톡으로 받기</h2>
+        <span className={`ra-status ${kakao.ok ? "on" : "off"}`}>{kakao.ok ? `✅ 연결됨${kakao.nickname ? ` (${kakao.nickname})` : ""}` : "⚪ 연결 전"}</span>
+      </div>
+      <p className="card-caption">카카오톡 「나와의 채팅」으로 <b>요약</b>을 보내 드려요(새 매물·가격 변동 건수 + 결과 보기 버튼). 카톡으로는 파일을 보낼 수 없어서 엑셀은 텔레그램·이메일로 받아 주세요.</p>
+      {kakao.ok ? (
+        <>
+          <label className="ra-chip big">
+            <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
+            <span><strong>카톡 요약 받기</strong><small>{on ? "켜짐 — 수집할 때마다 보내요" : "꺼짐"}</small></span>
+          </label>
+          <div className="ra-row-actions">
+            <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "💬 시험 메시지 보내기"}</button>
+          </div>
+        </>
+      ) : (
+        <div className="ra-import">
+          <p>{kakao.message}<br /><small>「카카오 자동화」에서 한 번 연결하면 이 프로그램도 그대로 써요(카카오 앱을 또 만들 필요 없음).</small></p>
+          <a className="primary" href={kakao.connectUrl} target="_blank" rel="noopener noreferrer">💬 카카오 자동화에서 연결하기 ↗</a>
+        </div>
+      )}
+      <Message msg={test.msg} />
+    </section>
+  );
+}
+
+// ✉️ 이메일 받기 — 회원 본인 Resend 키(공용 user_api_keys resend_api_key), 확장이 회원 PC에서 요약 + 엑셀 첨부로 보낸다
+function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { email: EmailInfo; on: boolean; emailTo: string; onToggle: (v: boolean) => void; onEmailTo: (v: string) => void; disabled: boolean }) {
+  const [saveState, saveAction, saving] = useActionState(saveResendKeyAction, {});
+  const [del, startDel] = useTransition();
+  const test = useTest(sendTestEmailAction);
+  const [to, setTo] = useState(emailTo);
+  return (
+    <section className="card">
+      <div className="ra-card-head">
+        <h2 className="card-title">✉️ 이메일로 받기</h2>
+        <span className={`ra-status ${email.hasKey ? "on" : "off"}`}>{email.hasKey ? "✅ 키 등록됨" : "⚪ 키 등록 전"}</span>
+      </div>
+      <p className="card-caption">요약과 <b>엑셀 파일</b>을 메일로 보내 드려요. 메일은 회원님 본인 <b>Resend</b>(무료 메일 발송 서비스) 계정으로 보내요 — 무료로 하루 100통, 가입한 본인 메일 주소로만 받을 수 있어요.</p>
+      {!email.hasKey ? (
+        <>
+          <ol className="ra-addr-steps">
+            <li><span>1</span><div><b>Resend 가입</b><small>구글 계정으로 바로 가입돼요. 가입한 메일이 받는 주소가 돼요.</small><a href="https://resend.com/signup" target="_blank" rel="noopener noreferrer">✉️ resend.com 가입 ↗</a></div></li>
+            <li><span>2</span><div><b>API 키 만들기</b><small>API Keys → Create API Key → 권한 <b>Sending access</b> → <code>re_</code>로 시작하는 키 복사</small><a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer">🔑 API Keys 열기 ↗</a></div></li>
+            <li><span>3</span><div><b>아래 칸에 붙여 넣고 저장</b><small>칸 클릭 → <kbd>Ctrl</kbd>+<kbd>V</kbd> → 「키 저장」</small></div></li>
+          </ol>
+          <form action={saveAction} className="ra-inline-form">
+            <div className="field"><label htmlFor="resendKey">🔑 Resend API 키</label><input id="resendKey" name="resendKey" required autoComplete="off" placeholder="re_로 시작하는 키" /></div>
+            <button className="primary" type="submit" disabled={saving}>{saving ? "저장 중..." : "키 저장"}</button>
+          </form>
+          {saveState.error && <p className="ra-msg ra-err">{saveState.error}</p>}
+        </>
+      ) : (
+        <>
+          <label className="ra-chip big">
+            <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
+            <span><strong>이메일 받기</strong><small>{on ? "켜짐 — 수집할 때마다 요약 + 엑셀" : "꺼짐"}</small></span>
+          </label>
+          <div className="ra-inline-form">
+            <div className="field">
+              <label htmlFor="emailTo">📮 받는 메일 주소(Resend에 가입한 주소)</label>
+              <input id="emailTo" type="email" value={to} placeholder={email.loginEmail || "예: me@gmail.com"} onChange={(e) => setTo(e.target.value)} />
+            </div>
+            <button type="button" className="secondary" disabled={disabled || to.trim() === emailTo} onClick={() => onEmailTo(to.trim())}>주소 저장</button>
+          </div>
+          <div className="ra-row-actions">
+            <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "✉️ 시험 메일 보내기"}</button>
+            <button type="button" className="secondary" disabled={del} onClick={() => startDel(async () => { await deleteResendKeyAction(); })}>키 지우기</button>
+          </div>
+        </>
+      )}
+      {saveState.success && <p className="ra-msg ra-ok">{saveState.success}</p>}
+      <Message msg={test.msg} />
+    </section>
+  );
+}
+
+export default function DeliveryClient({ telegram, realEstateBot, initial, kakao, email }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery; kakao: KakaoInfo; email: EmailInfo }) {
   const [value, setValue] = useState<Delivery>(initial);
   // 빠르게 여러 칸을 연달아 바꿔도 앞의 변경을 잃지 않도록 마지막 값을 ref로 들고 간다(2026-10-25 시험에서 발견).
   const latest = useRef<Delivery>(initial);
@@ -151,6 +254,8 @@ export default function DeliveryClient({ telegram, realEstateBot, initial }: { t
   return (
     <>
       <TelegramCard telegram={telegram} realEstateBot={realEstateBot} />
+      <KakaoCard kakao={kakao} on={value.notifyKakao} disabled={pending} onToggle={(v) => update({ notifyKakao: v })} />
+      <EmailCard email={email} on={value.notifyEmail} emailTo={value.emailTo} disabled={pending} onToggle={(v) => update({ notifyEmail: v })} onEmailTo={(v) => update({ emailTo: v })} />
       <section className="card">
         <h2 className="card-title">🔔 어떤 때 알려 드릴까요?</h2>
         <div className="ra-chips">
@@ -182,7 +287,7 @@ export default function DeliveryClient({ telegram, realEstateBot, initial }: { t
             <option value="csv">CSV</option>
           </select>
         </div>
-        <p className="card-caption">📧 이메일로 받기는 다음 업데이트에서 열립니다. 중개사 전화번호 같은 개인 정보는 파일에 넣지 않아요.</p>
+        <p className="card-caption">파일은 텔레그램·이메일에 함께 붙어요. 중개사 전화번호 같은 개인 정보는 파일에 넣지 않아요.</p>
         <Message msg={msg} />
       </section>
     </>

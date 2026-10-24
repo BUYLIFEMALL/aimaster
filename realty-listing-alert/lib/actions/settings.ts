@@ -45,11 +45,16 @@ type DeliveryInput = {
   deliverTelegram: boolean;
   deliverFile: boolean;
   fileFormat: "xlsx" | "csv";
+  notifyKakao: boolean;
+  notifyEmail: boolean;
+  emailTo: string;
 };
 
 export async function saveDeliveryAction(input: DeliveryInput): Promise<{ error?: string }> {
   const user = await requireProgramAccess();
   if (input.fileFormat !== "xlsx" && input.fileFormat !== "csv") return { error: "파일 형식 값이 올바르지 않습니다." };
+  const emailTo = input.emailTo.trim();
+  if (emailTo && (emailTo.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailTo))) return { error: "받는 메일 주소 모양이 올바르지 않아요." };
   if (!input.notifyNew && !input.notifyPriceDrop && !input.notifyPriceChange && !input.notifyGone) return { error: "알림 기준을 하나 이상 골라 주세요." };
   const supabase = await createClient();
   const { error } = await supabase.from("realty_alert_settings").upsert(
@@ -62,6 +67,9 @@ export async function saveDeliveryAction(input: DeliveryInput): Promise<{ error?
       deliver_telegram: input.deliverTelegram,
       deliver_file: input.deliverFile,
       file_format: input.fileFormat,
+      notify_kakao: input.notifyKakao,
+      notify_email: input.notifyEmail,
+      email_to: emailTo || null,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" },

@@ -715,3 +715,9 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-addr label { font-size: 15px; font-weight: 800; }
 .ra-addr small { font-size: 13.5px; line-height: 1.6; }
 @media (max-width: 680px) { .ra-grid.ra-grid-top { grid-template-columns: 1fr; } }
+/* 💬 카톡·✉️ 이메일 받기 카드(2026-10-25) */
+.ra-inline-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end; margin-top: 12px; }
+.ra-inline-form .field { margin: 0; }
+.ra-row-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.card .ra-addr-steps kbd, .card .ra-addr-steps code { font-size: 12px; }
+@media (max-width: 680px) { .ra-inline-form { grid-template-columns: 1fr; } }

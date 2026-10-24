@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { COLLECT_RULES } from "@/lib/collectRules";
 import { DEFAULT_INTERVAL_MINUTES } from "@/lib/schedule";
 import { APP_VERSION } from "@/lib/version";
+import { getKakaoState, getResendKey } from "@/lib/notifyChannels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,6 +30,9 @@ export async function GET(request: Request) {
       .eq("program_slug", "realty-listing-alert")
       .maybeSingle(),
   ]);
+  // 카톡·이메일(2026-10-25): 켠 채널만 회원 본인 토큰·키를 내려준다 — 확장이 회원 PC에서 직접 보낸다(매물은 서버를 거치지 않음)
+  const kakaoState = s?.notify_kakao ? await getKakaoState(supabase, user.userId) : null;
+  const resendKey = s?.notify_email ? await getResendKey(supabase, user.userId) : null;
   return NextResponse.json({
     latestVersion: APP_VERSION,
     rulesVersion: COLLECT_RULES.version,
@@ -49,5 +53,7 @@ export async function GET(request: Request) {
       fileFormat: s?.file_format === "csv" ? "csv" : "xlsx",
     },
     telegram: tg?.bot_token && tg.chat_id ? { botToken: tg.bot_token, chatId: tg.chat_id } : null,
+    kakao: kakaoState ? (kakaoState.status === "ok" ? { accessToken: kakaoState.accessToken } : { error: kakaoState.message }) : null,
+    email: s?.notify_email ? (resendKey && (s?.email_to || user.email) ? { apiKey: resendKey, to: s?.email_to || user.email } : { error: "이메일 받기를 켰지만 Resend 키나 받는 주소가 없어요. 「받는 방법」 화면에서 확인해 주세요." }) : null,
   });
 }
