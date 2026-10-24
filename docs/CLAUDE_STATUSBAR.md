@@ -62,3 +62,8 @@ for d in "$HOME/Library/Application Support/orca/claude-profiles/"*/home; do ech
 node ~/.claude/statusline-extra.js < "${TMPDIR}claude-statusline-last-input.json"; echo
 cmp ~/.claude/statusline-extra.js ~/.claude/statusline-extra.js.good && echo same
 ```
+
+## 6. 명령·설정은 정상인데 이 세션에서만 상태바가 안 보일 때 (2026-10-24, 윈도우)
+- 원인으로 본 것: `~/.claude/settings.json`이 세션 도중 바뀐 뒤(11:39) Claude Code가 상태바 호출을 멈춤. 명령을 직접 돌리면 0.2초에 정상 출력.
+- 확인: `%TEMP%/last-agy-statusline.json`은 **agy와 함께 쓰는 파일**이라 시각만 보지 말고 `model.display_name`·`session_id`가 이 세션인지 본다.
+- 해결: 설정 JSON 형식 확인 → `touch ~/.claude/settings.json`(내용 그대로, 수정 시각만) → 몇 초 뒤 기록 파일의 모델·세션 id가 이 세션으로 바뀌면 복구. 그래도 안 되면 Claude Code 재시작. 상세: `docs/ERROR_LESSONS.md` 2026-10-24.
