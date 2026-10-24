@@ -1,5 +1,32 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-apikeybtn` — 바나나 캔버스 v1.39: API키 생성/가입 2단 퀵 액션 버튼 탑재 & 📖 럭셔리 3D 비주얼 매뉴얼 전면 리뉴얼 (배포 완료)
+- **주인님 지시**:
+  1. "각 프로그램별로 API키 등록|플랫폼 메뉴에 해당 플랫폼의 API키 생성주소를 버튼형태로 사용자가 필요한 API키를 생성할수 있도록 버튼을 달고 해당 플랫폼 API키 생성 주소 링크를 걸어줘"
+  2. "플랫폼 가입을 해야 하는 경우 해당 플랫폼 가입주소도 버튼형태로 링크를 걸어주고"
+  3. "사용자 매뉴얼도 같이 업데이트 하고 럭셔리하고 고급진 느낌이 나도록 해줘"
+- **전체 프로그램 전수 조사**:
+  - 90개 앱 중 68개 프로그램의 키/플랫폼 설정 구조 분석 완료 (`scripts/apps_api_keys_report.json`, `detailed_key_pages_analysis.json`).
+  - 주요 22개 연동 플랫폼별 공식 API 키 발급 URL 및 회원가입 URL 매핑 표 정리.
+- **1단계 banana-canvas 구현 내역**:
+  - **API키등록·플랫폼연동 2단 퀵 액션 버튼 탑재 (`KeyManager.tsx`, `globals.css`)**:
+    - `[ 🔗 Google AI Studio API 키 발급/생성하기 ↗ ]` (골드 엠보싱 럭셔리 버튼, 새 창 `https://aistudio.google.com/apikey`)
+    - `[ 👤 Google AI Studio 회원가입 / 시작 ↗ ]` (아웃라인 버튼, 새 창 `https://aistudio.google.com/`)
+    - `key-badge` 등록 상태 뱃지 (`등록 완료 · 마스킹키` / `미등록` / `확인 중`) 도입.
+  - **📖 럭셔리 & 프리미엄 3D 비주얼 매뉴얼 전면 리뉴얼 (`/guide`)**:
+    - `PRO v1.38 Master Guide` 골드 메탈릭 뱃지 및 소프트 크림 아틀리에 히어로 배너 (`.luxury-hero`).
+    - 8대 섹션 3D 럭셔리 네비게이션 칩 목차 (`.luxury-toc-chip`).
+    - 3단계 스마트 파이프라인 입체 카드 (`.luxury-flow-card`).
+    - 12대 핵심 기능 럭셔리 카드 그리드 (`.luxury-tool-card`) 및 기능 특성 뱃지(`0원 초고속 WebGPU`, `초정밀 4K`, `멀티 컷`, `인물/배경 보존` 등).
+    - 20종 프리미엄 화풍 프리셋 3D 칩 카테고리 태깅.
+    - 인터랙티브 럭셔리 아코디언 FAQ (`.luxury-accordion`).
+- **검수 및 배포**:
+  - `npm run build` TypeScript 0 에러 및 정적 페이지 최적화 완료.
+  - Vercel 프로덕션 1회 순차 배포 (`https://banana-canvas-4ch2wl9ok-buylife.vercel.app`, Aliased `https://banana-canvas.buylife.xyz`, v1.38/v1.39 Ready).
+  - 네이버 웨일 브라우저(포그라운드) 실세션 검수 및 `/settings`, `/guide` 새 번들(`37qjzccze3ryd.css`) 서빙 확인.
+- **비용**: Vercel 프로덕션 빌드 1회, 유료 AI 호출 0회.
+- **다음 첫 단계**: KeyManager 공통 계열(`blog-keyword`, `four-cut-comics`, `portrait-photo` 등) 및 블로그 계열 프로그램 순차 적용.
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.03 3단계(확장 수집 엔진) + 실거래 v1.19
 - 한 일: 확장 수집 엔진(배경 탭에서 페이지가 불러온 목록 응답만 읽기, 사람처럼 스크롤, 차단·확인 화면이면 그날 멈춤) · 비교(신규·가격 내림/오름·사라짐, 첫 수집은 기준만) · 엑셀/CSV 직접 생성 · 텔레그램 요약+파일 · 팝업(지금 수집·이 단지 추가·최근 결과·동의) · 확장 API 4개(설정·규칙·숫자 상태·단지 추가) · 대시보드 「🖥 내 PC 수집」 · 설정 화면 텔레그램 카드·직접 토큰 발급 제거 · 다운로드 3D 버튼. 실거래 상세 「🔔 새 매물 알림 받기」 → 매물 알림 감시 대상 미리 채우기.
 - 검수: 시험 18개·tsc·eslint·로컬 build, 엑셀 파일 형식 확인, 운영 배포 Ready(매물 `realty-listing-alert-p8uw7n6g2`, 실거래 `real-estate-sales-4k3sn3n8x`), DB v1.03/v1.19, `check-extension-release` OK. **첫 실물 수집**(관리자 계정, 1단지): 대시보드 「✅ 정상 · 매물 13건」. 기존 부동산 봇 가져오기 실제 동작.
