@@ -93,7 +93,7 @@
 - 캡처(맥미니 로컬): `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1792864133166-2.jpg`(1회차 20초 안내), `…-1792864305528-3.png`(1회차 멈추기 직후), `…-1792864717225-4.jpg`(2회차 멈추는 중), `…-1792865100315-5.png`(2회차 6분 뒤에도 「멈추는 중…」).
 - 다음: 윈도우 영상 담당이 ③⑤를 코드로 좁힌다(예: 장면마다 단계별 시각을 진단 줄에 남기는 `?render=trace`). 당장 회원 대책은 맥에서 「⚡ 내 PC 렌더러로 만들기」 안내 또는 막힘 감지(장면 하나가 30초 넘게 안 오르면 안내) 쪽이 현실적.
 
-## 10. 3단계 플랜 — 막힌 곳 좁히기 + 멈추기 보장 (2026-10-25, [역할: video] Claude Code(윈도우) `claude-win-video`, 승인 대기)
+## 10. 3단계 플랜 — 막힌 곳 좁히기 + 멈추기 보장 (2026-10-25, [역할: video] Claude Code(윈도우) `claude-win-video`, 주인님 승인 → v1.23 배포)
 - **코드로 좁힌 결과**(라이브러리 `@remotion/web-renderer`·`@remotion/media` 4.0.538 원문 확인, 비용 없음)
   - 맥미니 로그의 「Extracting frame at time … 1~68ms」는 장면 대기가 **풀릴 때**(`continueRender`) 찍히는 값이다 → 장면 꺼내기는 정말 빠르다.
   - 렌더 반복 한 바퀴 순서: ① 시간 옮기기 → ② 장면 대기(`waitForReady`, 중단 신호 확인함) → ③ **화면 합성**(`createLayer`, DOM을 캔버스로 그림, **중단 신호 확인 없음**) → 「그린 수」+1 → ④ 인코더 넘기기(+소리) → 「넘긴 수」+1.
@@ -108,3 +108,12 @@
   - 기본 동작(윈도우 34ms/장)은 바꾸지 않는다. 시험·`tsc`·eslint·build 뒤 배포, 운영 윈도우 크롬에서 trace·멈추기 확인.
 - **맥미니 재측정(v1.23 뒤)**: 같은 클립으로 ① `?render=trace,verbose` ② `?render=trace,nopace` ③ `?render=trace,htmlcanvas` 각 3분 — 느린 장면의 단계·멈추기 3초 확인. 결과로 4단계(원인 줄 우회 또는 맥은 다른 렌더 길) 결정.
 - 비용: Vercel 빌드 1회(주인님 승인 필요), AI 호출 0회.
+
+### 10-1. v1.23 결과와 맥미니 재측정 절차
+- 배포 v1.23(커밋 `cbfe705af`, DB v1.23). 운영 윈도우 크롬: `?render=trace` 3.9초·`phases` 대기 2494·합성 885·넘기기 449ms, `?render=trace,nopace,htmlcanvas` 2.7초. 윈도우는 너무 빨라 「3초 강제 되돌림」은 재현 못 함.
+- **주의**: 크롬 156에는 `drawElementImage`가 기본으로 없다(윈도우 확인 `undefined`) → `htmlcanvas`는 플래그 `chrome://flags/#canvas-draw-element`를 켠 뒤에만 의미가 있다(플래그 없이 켜면 예전 방식 그대로). 플래그 변경은 맥미니 크롬 설정 변경이라 주인님 허락 뒤에.
+- **맥미니 절차**(같은 갤러리 「Wan 3.0 · 5초」 1개, 720p·9:16, 각 3분, 콘솔 `[avs-` 줄 모두 받기):
+  1. `/edit?render=trace,verbose` — `[avs-trace] slow`(느린 장면의 waitMs·composeMs·encodeMs)와 `[avs-trace] waiting`(멈춘 단계 이름)을 적는다. 3분 뒤 「멈추기」 → 3초 안에 화면이 「렌더를 멈췄습니다」로 돌아오는지, 버튼이 「이전 렌더 정리 중…」으로 바뀌는지, 30초 막힘 안내가 떴는지.
+  2. `/edit?render=trace,nopace` — 같은 기록. 1과 비교해 빨라지는지.
+  3. (주인님 허락 시) 크롬 플래그 `canvas-draw-element` 켜고 다시 시작 → `/edit?render=trace,htmlcanvas`. 끝나면 플래그 원래대로.
+  - 결과는 이 문서 §11에 적고 커밋. 비용 없음.
