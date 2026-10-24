@@ -4,13 +4,22 @@
 // 고칠 부분을 사각형으로 지정 → 주변 색으로 덮기 → 새 문구 쓰기. 여러 곳을 차례로 고칠 수 있고,
 // 결과는 기존 「직접 등록」과 같은 길로 새 버전으로 저장된다(원본은 버전 목록에 남음).
 // v1.26: 덮는 색 선택지 — 바깥 색(기본)·안쪽 색·💧 이미지에서 찍기, 자동 색은 가장 많은 색.
+// v1.31: 무료 지우기(공용 기준 코드 browser-free-erase 사본, 회원 브라우저 계산·키·비용 없음) —
+//        사각형마다 「🧽 주변에 맞춰 지우기」, 「이미지 속 글자 모두 지우기」. 지우면 바탕 그림이 바뀌고, 되돌리기는 바탕까지 되돌린다.
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { imageSrc } from "@/lib/imageSrc";
 import { dominantColor } from "@/lib/dominantColor";
+import { detectTextBoxes, eraseRegion, freeEraseBackend, loadFreeErase, type FreeEraseProgress } from "@/lib/freeErase/engine";
+import { fillBoxes } from "@/lib/freeErase/protocol";
 
 type Rect = { x: number; y: number; w: number; h: number };
+type Base = ImageBitmap | HTMLCanvasElement;
 type TextEdit = Rect & {
+  /** fill: 단색으로 덮기 · erase: 🧽 주변에 맞춰 지우기(무료) */
+  mode: "fill" | "erase";
+  /** 지우기로 바탕을 바꾼 수정만 — 되돌릴 때 이 바탕으로 */
+  prevBase?: Base;
   fill: string;
   text: string;
   size: number;
@@ -53,8 +62,11 @@ function pickColorAt(ctx: CanvasRenderingContext2D, x: number, y: number): strin
 }
 
 function drawEdit(ctx: CanvasRenderingContext2D, e: TextEdit) {
-  ctx.fillStyle = e.fill;
-  ctx.fillRect(e.x, e.y, e.w, e.h);
+  // 지우기는 이미 바탕 그림에 반영돼 있으므로 덮지 않고 새 문구만 쓴다
+  if (e.mode === "fill") {
+    ctx.fillStyle = e.fill;
+    ctx.fillRect(e.x, e.y, e.w, e.h);
+  }
   if (!e.text.trim()) return;
   ctx.fillStyle = e.color;
   ctx.font = `${e.bold ? 800 : 500} ${e.size}px ${FONT_FAMILY}`;
@@ -79,7 +91,7 @@ export function ImageTextEditor({
   onSave: (file: File) => Promise<void>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const baseRef = useRef<ImageBitmap | null>(null);
+  const baseRef = useRef<Base | null>(null);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const dragMoved = useRef(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -89,6 +101,56 @@ export function ImageTextEditor({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
   const baseCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const [baseVer, setBaseVer] = useState(0);
+  const [erasing, setErasing] = useState<string | null>(null);
+  const [eraseNote, setEraseNote] = useState<string | null>(null);
+  const [progress, setProgress] = useState<FreeEraseProgress | null>(null);
+
+  /** 바탕 그림 바꾸기(지우기 결과·되돌리기) — 덮는 색을 고르는 임시 캔버스도 새로 만든다 */
+  function setBase(b: Base) {
+    baseRef.current = b;
+    baseCtxRef.current = null;
+    setBaseVer((v) => v + 1);
+  }
+
+  /** 지정한 영역을 무료로 지운 새 바탕 그림 */
+  async function eraseBoxes(boxes: Rect[]): Promise<HTMLCanvasElement> {
+    const base = baseRef.current!;
+    const w = base.width, h = base.height;
+    await loadFreeErase("lama", (p) => setProgress(p));
+    setProgress(null);
+    return eraseRegion(base, fillBoxes(new Uint8Array(w * h), w, h, boxes), w, h);
+  }
+
+  async function runErase(label: string, fn: () => Promise<void>) {
+    setErasing(label);
+    setEraseNote(null);
+    try {
+      await fn();
+    } catch (err) {
+      console.warn("[free-erase]", (err as { raw?: string })?.raw ?? err);
+      setEraseNote(err instanceof Error ? err.message : "무료 지우기에 실패했습니다.");
+    } finally {
+      setErasing(null);
+      setProgress(null);
+    }
+  }
+
+  // 「이미지 속 글자 모두 지우기」 — 글자 자리를 찾아 한 번에 지운 바탕을 만든다(문구 없는 수정 1곳으로 기록 → 되돌리기 가능)
+  const eraseAllText = () =>
+    runErase("글자 찾는 중…", async () => {
+      const base = baseRef.current!;
+      const boxes = await detectTextBoxes(base, base.width, base.height);
+      if (!boxes.length) {
+        setEraseNote("찾은 글자가 없습니다. 고칠 부분을 직접 끌어 지정한 뒤 「🧽 주변에 맞춰 지우기」를 써 보세요.");
+        return;
+      }
+      setErasing(`글자 ${boxes.length}곳 지우는 중…`);
+      const out = await eraseBoxes(boxes);
+      setEdits((prev) => [...prev, { x: 0, y: 0, w: 0, h: 0, mode: "erase", prevBase: base, fill: "", text: "", size: 12, color: "#111111", bold: true, align: "center" }]);
+      setBase(out);
+      setEraseNote(`글자 ${boxes.length}곳을 지웠습니다(${freeEraseBackend() === "webgpu" ? "그래픽 가속" : "CPU 계산"}). 남길 글자까지 지워졌다면 「↶ 마지막 수정 되돌리기」.`);
+    });
 
   // 덮기 색은 원본 이미지에서 고른다(이미 적용한 수정과 섞이지 않게 원본만 그린 임시 캔버스, 한 번 만들어 재사용)
   function baseContext() {
@@ -114,6 +176,7 @@ export function ImageTextEditor({
         const bitmap = await createImageBitmap(await res.blob());
         if (cancelled) return;
         baseRef.current = bitmap;
+        setBaseVer((v) => v + 1);
         const canvas = canvasRef.current!;
         canvas.width = bitmap.width;
         canvas.height = bitmap.height;
@@ -144,7 +207,7 @@ export function ImageTextEditor({
       ctx.strokeRect(draft.x, draft.y, draft.w, draft.h);
       ctx.restore();
     }
-  }, [edits, draft]);
+  }, [edits, draft, baseVer]);
 
   function toImagePoint(e: React.PointerEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current!;
@@ -156,7 +219,7 @@ export function ImageTextEditor({
   }
 
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
-    if (!baseRef.current || isSaving) return;
+    if (!baseRef.current || isSaving || erasing) return;
     if (picking && draft) {
       // 💧 찍기 중에는 영역을 새로 잡지 않고 그 자리 색만 덮는 색으로
       const p = toImagePoint(e);
@@ -182,6 +245,7 @@ export function ImageTextEditor({
     };
     setDraft((prev) => ({
       ...rect,
+      mode: prev?.mode ?? "fill",
       fill: prev?.fill ?? "#ffffff",
       text: prev?.text ?? "",
       size: Math.max(12, Math.round(rect.h * 0.6)),
@@ -206,9 +270,28 @@ export function ImageTextEditor({
 
   function applyDraft() {
     if (!draft) return;
+    if (draft.mode === "erase") {
+      const d = draft;
+      void runErase("지우는 중…", async () => {
+        const base = baseRef.current!;
+        const out = await eraseBoxes([d]);
+        setEdits((prev) => [...prev, { ...d, prevBase: base }]);
+        setBase(out);
+        setDraft(null);
+        setPicking(false);
+      });
+      return;
+    }
     setEdits((prev) => [...prev, draft]);
     setDraft(null);
     setPicking(false);
+  }
+
+  function undoLast() {
+    const last = edits[edits.length - 1];
+    if (!last) return;
+    if (last.prevBase) setBase(last.prevBase);
+    setEdits((prev) => prev.slice(0, -1));
   }
 
   async function save() {
@@ -251,7 +334,26 @@ export function ImageTextEditor({
         <p className="text-xs text-slate-500 leading-relaxed">
           ① 이미지에서 고칠 글자 위를 끌어 사각형으로 지정 → ② 새 문구·크기·색을 정하고 「이 부분 적용」 → 여러 곳을 반복한 뒤 「새 버전으로 저장」.
           덮는 색은 사각형 바깥에서 가장 많은 색으로 자동으로 고르며, 「안쪽 색」이나 「💧 찍기」(이미지에서 색을 직접 찍기)로 바꿀 수 있습니다. 둥근 배지 모양까지 살리려면 배지 <b>안쪽 글자 부분만</b> 지정하세요(배지보다 넓게 지정하면 모서리가 각지게 덮입니다). 원래 이미지는 버전 목록에 그대로 남습니다.
+          <br />🧽 <b>무료 지우기</b>: 배경이 복잡하면 「주변에 맞춰 지우기」를 고르거나, 위 「이미지 속 글자 모두 지우기」로 글자를 한 번에 지운 뒤 새 문구를 쓰세요. 내 브라우저에서 계산해 키·비용이 없고, 처음 한 번 모델(약 200MB)을 받습니다. 본인이 권리를 가진 이미지에만 쓰세요.
         </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={eraseAllText}
+            disabled={Boolean(erasing) || isSaving || Boolean(draft) || Boolean(loadError) || !baseRef.current}
+            className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 disabled:opacity-40"
+            title={draft ? "작성 중인 부분을 먼저 적용하거나 취소해 주세요" : "글자 자리를 자동으로 찾아 주변에 맞춰 지웁니다(무료)"}
+          >
+            🧽 이미지 속 글자 모두 지우기(무료)
+          </button>
+          {erasing && <span className="text-xs font-semibold text-emerald-700">{erasing}</span>}
+          {progress && (
+            <span className="text-xs text-slate-500">
+              {progress.model === "lama" ? "지우기" : "글자 찾기"} 모델 받는 중 {Math.round(progress.loaded / 1048576)}/{Math.round(progress.total / 1048576)}MB
+            </span>
+          )}
+        </div>
+        {eraseNote && <p className="text-xs font-semibold text-slate-700 bg-slate-50 rounded-lg p-2 border border-slate-200">{eraseNote}</p>}
 
         {loadError ? (
           <p className="text-xs font-semibold text-rose-700 bg-rose-50 rounded-lg p-3 border border-rose-200">{loadError}</p>
@@ -277,6 +379,14 @@ export function ImageTextEditor({
                       className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm font-normal"
                     />
                   </label>
+                  <div className="grid grid-cols-2 gap-1" role="group" aria-label="원래 글자 처리">
+                    <button type="button" aria-pressed={draft.mode === "fill"} onClick={() => set("mode", "fill")} className={`rounded-lg border py-1.5 font-bold ${draft.mode === "fill" ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                      단색으로 덮기
+                    </button>
+                    <button type="button" aria-pressed={draft.mode === "erase"} onClick={() => { set("mode", "erase"); setPicking(false); }} className={`rounded-lg border py-1.5 font-bold ${draft.mode === "erase" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`} title="배경이 복잡할 때 — 주변에 맞춰 자연스럽게 지웁니다(무료)">
+                      🧽 주변에 맞춰 지우기
+                    </button>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <label className="font-bold text-slate-700">
                       글자 크기
@@ -294,11 +404,14 @@ export function ImageTextEditor({
                       글자 색
                       <input type="color" value={draft.color} onChange={(e) => set("color", e.target.value)} className="mt-1 block w-full h-8 rounded border border-slate-200" />
                     </label>
-                    <label className="font-bold text-slate-700">
-                      덮는 색
-                      <input type="color" value={draft.fill} onChange={(e) => set("fill", e.target.value)} className="mt-1 block w-full h-8 rounded border border-slate-200" />
-                    </label>
+                    {draft.mode === "fill" && (
+                      <label className="font-bold text-slate-700">
+                        덮는 색
+                        <input type="color" value={draft.fill} onChange={(e) => set("fill", e.target.value)} className="mt-1 block w-full h-8 rounded border border-slate-200" />
+                      </label>
+                    )}
                   </div>
+                  {draft.mode === "fill" && (
                   <div className="grid grid-cols-3 gap-1">
                     <button type="button" onClick={() => set("fill", sampleEdgeColor(baseContext(), draft, "outside"))} className="rounded-lg border border-slate-200 py-1.5 font-bold text-slate-600 hover:bg-slate-50" title="사각형 바로 바깥에서 가장 많은 색">
                       바깥 색
@@ -310,6 +423,7 @@ export function ImageTextEditor({
                       💧 찍기
                     </button>
                   </div>
+                  )}
                   {picking && (
                     <p className="rounded-lg bg-amber-50 border border-amber-200 p-2 font-semibold text-amber-800">이미지에서 덮을 색이 있는 곳을 한 번 눌러 주세요(예: 배지 안쪽).</p>
                   )}
@@ -318,8 +432,8 @@ export function ImageTextEditor({
                     굵게
                   </label>
                   <div className="flex gap-2">
-                    <button type="button" onClick={applyDraft} className="flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold py-2">
-                      이 부분 적용
+                    <button type="button" onClick={applyDraft} disabled={Boolean(erasing)} className="flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 disabled:opacity-40">
+                      {erasing ? erasing : draft.mode === "erase" ? "🧽 지우고 적용" : "이 부분 적용"}
                     </button>
                     <button type="button" onClick={() => { setDraft(null); setPicking(false); }} className="rounded-lg border border-slate-200 px-3 font-bold text-slate-600">
                       취소
@@ -335,8 +449,8 @@ export function ImageTextEditor({
                 <span>적용한 수정 {edits.length}곳</span>
                 <button
                   type="button"
-                  onClick={() => setEdits((prev) => prev.slice(0, -1))}
-                  disabled={edits.length === 0 || isSaving}
+                  onClick={undoLast}
+                  disabled={edits.length === 0 || isSaving || Boolean(erasing)}
                   className="font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40"
                 >
                   ↶ 마지막 수정 되돌리기
@@ -345,7 +459,7 @@ export function ImageTextEditor({
               <button
                 type="button"
                 onClick={() => void save()}
-                disabled={edits.length === 0 || isSaving || Boolean(draft)}
+                disabled={edits.length === 0 || isSaving || Boolean(draft) || Boolean(erasing)}
                 title={draft ? "작성 중인 부분을 먼저 적용하거나 취소해 주세요" : undefined}
                 className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-2.5 disabled:opacity-40"
               >
