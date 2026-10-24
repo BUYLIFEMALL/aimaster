@@ -78,7 +78,10 @@ function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; realEst
 
   return (
     <section className="card">
-      <h2 className="card-title">🤖 내 텔레그램 봇 연결</h2>
+      <div className="ra-card-head">
+        <h2 className="card-title">🤖 내 텔레그램 봇 연결</h2>
+        <span className={`ra-status ${telegram ? "on" : "off"}`}>{telegram ? "✅ 연결됨" : "⚪ 연결 전"}</span>
+      </div>
       {telegram ? (
         <>
           <p className="ra-msg ra-ok">
