@@ -66,3 +66,12 @@ https://naver-blog-agent.buylife.xyz
 - B-1 AI 검수 6영역·필수 지적 발행 차단 / B-2 문체 영구 보관(주인님 A안) / B-3 분량 선택 → v2.14. 「길게」 보강 + B-4 이미지 비율·표현 방식·참고 사진 → v2.15. 상세: `naver-blog-seo-studio/AGENTS.md` 맨 위.
 - **다음 첫 단계:** 묶음 B-5(서식 포함 HTML·TXT 복사, 작업실) 플랜 → 이후 B-6 수정본 이력·비교, B-7 MD·HTML 내보내기, B-8 SNS 문구(콘텐츠 메이커).
 - 남은 판단: 「길게」는 저가 모델 한계(3,200~3,300자) — 상위 모델 확인(A안)·목표 조정(B안)은 주인님 지시 대기. 이 세션 하단 상태바가 안 보임(Orca 세션이 상태바 명령을 부르지 않음 — `/exit` 후 `claude --resume f46f5aa0-319c-44c3-9fa0-d7bf2a06aa16`로 다시 열면 해결 예상).
+
+## 10. 2026-10-24 갱신 — 블로그 기능 상세 비교표(기준 문서) · 도톨이 D-1~D-4 검토 (세션 `claude-win-20261024-blog3`)
+- 재부팅 뒤 이어받은 세션. 작업 브라우저는 **메인 크롬**(deviceId `3208dd7d-d933-4487-a96f-61fbf8cf69dd`) — 주인님 지시로 웨일 대신 크롬.
+- **기준 문서:** [`docs/BLOG_FEATURE_MATRIX.md`](BLOG_FEATURE_MATRIX.md) — 블로그 개발·확장 전에 먼저 읽는다. 기능을 배포하면 같은 커밋에서 해당 칸·변경 이력을 고친다(§0 쓰는 법). CLAUDE.md·AGENTS.md·GEMINI.md 블로그 완성 기준 아래에 안내 줄이 있다.
+- 비교 분석 보고서: [REPORT 2026-10-24 절](analysis-blog-consolidation-20261020/REPORT.md#blog-compare-20261024) `6b861f6ce`. D 플랜 검토·확장표: `naver-blog-seo-studio/docs/PLAN_20261024_DOTORI_D1_D4.md` 끝 `b26bfcfd7`.
+- D 플랜 수정안(승인 대기): ① D-3에 작업실 「제안 반영」 이관 누락분(지적별 버튼)과 검수 2영역 포함 ② D-4 유튜브는 회원 Gemini 영상 읽기(`ai-auto-blog/utils/ai/shortsAnalysis.ts` 방식), 실패 시 붙여넣기 ③ 링크 읽기를 공용 기준 코드 후보 구조로(`safe-fetch` 사본) ④ v2.17에는 D만 ⑤ 비용: 시험 AI 4~6회(약 50~150원) + 유튜브 Gemini 1회(약 10~30원), 빌드 1회.
+- **다음 첫 단계:** 주인님 「진행해」 → `docs/ACTIVE_WORK.md`의 `naver-blog-agent/` 줄을 이 세션 이름·`naver-blog-seo-studio/`로 고침 → D-1(어조 강도)부터.
+- 주인님 결정 대기: 묶음 C 시작 시점, 경계 2건·BLC-15, 경험 창작형(보류 추천), 올인원 컬러 테마·인터랙티브 요소, 이전 §5 항목.
+- 푸시 대기 커밋: `b26bfcfd7`·`6b861f6ce`·이번 기준 문서 커밋(작업 단위로 모아서 푸시).
