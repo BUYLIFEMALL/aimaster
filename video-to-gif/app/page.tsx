@@ -42,7 +42,7 @@ export default function LandingPage() {
               <Film className="h-4 w-4" />
             </div>
             <span>
-              Video<span className="text-amber-400">Render</span> <span className="text-xs font-semibold text-gray-400">Studio</span>
+              AI 영상렌더 <span className="text-amber-400">스튜디오</span>
             </span>
           </Link>
 
@@ -61,7 +61,7 @@ export default function LandingPage() {
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-300 shadow-sm">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>초고속 영상 렌더링 & 고화질 GIF 스튜디오</span>
+              <span>AI 영상렌더 스튜디오 (VideoRender Studio)</span>
             </div>
 
             <h1 className="max-w-2xl text-4xl font-black leading-[1.15] tracking-tight sm:text-6xl text-white">

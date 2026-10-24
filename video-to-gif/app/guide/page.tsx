@@ -146,7 +146,7 @@ export default function GuidePage() {
             <h1 className="mt-5 text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-snug">
               더 이상 단순한 상세페이지 툴이 아닙니다.<br className="hidden sm:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-200">
-                영상 전문 초고속 변환·스마트 렌더링 스튜디오
+                AI 영상렌더 스튜디오 (VideoRender Studio)
               </span>
             </h1>
             <p className="mt-3 max-w-3xl text-xs sm:text-sm text-gray-300 leading-relaxed">
@@ -667,7 +667,7 @@ export default function GuidePage() {
             </div>
             <div className="space-y-2 max-w-xl mx-auto">
               <h2 className="text-xl sm:text-2xl font-black text-white">
-                지금 바로 초고속 영상 렌더링을 시작하세요
+                지금 바로 AI 영상렌더 스튜디오를 가동하세요
               </h2>
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
                 복잡한 설치 없이 브라우저에서 즉시 변환하거나, 내 PC 가속으로 3배 빠르게 인코딩할 수 있습니다.

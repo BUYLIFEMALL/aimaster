@@ -36,7 +36,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
             <Film className="h-4 w-4" />
           </span>
-          <span className="truncate">영상 렌더링 & GIF 스튜디오</span>
+          <span className="truncate">AI 영상렌더 스튜디오</span>
           <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400 border border-amber-500/20">
             {APP_VERSION}
           </span>
@@ -76,8 +76,8 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 <Film className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-extrabold text-white">VideoRender Studio</span>
-                <span className="text-[11px] font-medium text-amber-400">초고속 영상 렌더링 & GIF</span>
+                <span className="text-sm font-extrabold text-white">AI 영상렌더 스튜디오</span>
+                <span className="text-[11px] font-medium text-amber-400">VideoRender Studio</span>
               </div>
             </Link>
             <div className="flex items-center gap-1.5">

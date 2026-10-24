@@ -13,7 +13,7 @@
 | 항목 | 내용 |
 |---|---|
 | **프로그램 번호** | **36번** |
-| **프로그램 명칭** | **초고속 영상 렌더링 & GIF 스튜디오 (VideoRender Studio)** |
+| **프로그램 명칭** | **AI 영상렌더 스튜디오 (AI VideoRender Studio)** |
 | **프로그램 slug** | `video-to-gif` |
 | **현재 버전** | `v1.25` (2026-10-24 배포 준비, `package.json`, `lib/version.ts`, Supabase DB 동기화) |
 | **공식 도메인** | `https://video-to-gif.buylife.xyz` (대시보드: `/dashboard`) |
@@ -401,7 +401,7 @@
 - 남은 확인: **실제 맥에서 `loop`·`normalize`·`compress`** — msys perl로는 통과, 맥미니 실검수 부탁 필요. 회원 PC 설치본은 자동으로 바뀌지 않는다 — 새 명령을 쓰려면 렌더러 다시 설치(옛 판은 화면에 「업데이트 안내」).
 
 ## 2026-10-24 v1.25 — 영상 전문 렌더링 스튜디오 명칭 개편 & 표준 연동·사용 매뉴얼 전면 리뉴얼 (Antigravity 윈도우 · 세션 `agy-win-20261024-videorender`, 주인님 지시)
-- **명칭 개편**: 단순 상세페이지 이커머스용 툴 탈피 ➔ **「초고속 영상 렌더링 & GIF 스튜디오 (VideoRender Studio)」**로 공식 명칭 및 브랜드 정체성 전면 개편.
+- **명칭 개편**: 단순 상세페이지 이커머스용 툴 탈피 ➔ **「AI 영상렌더 스튜디오 (AI VideoRender Studio)」**로 공식 명칭 및 브랜드 정체성 전면 개편.
   - 사이드바, 헤더, 모바일 드로어, 대시보드 히어로 배너, 랜딩 페이지(`app/page.tsx`), 메타데이터(`app/layout.tsx`), 프리셋 버튼(스탠다드 560px·HD 780px·와이드 860px) 일괄 쇄신.
 - **표준 연동 & 사용 매뉴얼 리뉴얼 (`app/guide/page.tsx`)**:
   - [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](../docs/MANUAL_AND_INTEGRATION_GUIDELINES.md)의 7대 핵심 컴포넌트 표준 규격 전면 적용.

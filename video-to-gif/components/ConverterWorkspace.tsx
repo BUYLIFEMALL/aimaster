@@ -561,7 +561,7 @@ export default function ConverterWorkspace() {
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
             <Sparkles className="h-3.5 w-3.5" />
-            초고속 영상 렌더링 & GIF 스튜디오 {APP_VERSION}
+            AI 영상렌더 스튜디오 {APP_VERSION}
           </div>
           <div className="flex items-center gap-2">
             <Link
