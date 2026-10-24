@@ -96,3 +96,6 @@
 
 ## 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`) — 📋 「무료 지우기」 C-1~C-5 담당 이어받음·작업 대기 등록
 - 플랜과 코드 대조 완료(v1.33, COOP/COEP 없음, `onnxruntime-web` 미설치, `MaskEditor.tsx` 재사용 가능), 사전 검증 페이지 통과 기준 5개·비용(AI 0·빌드 1~2회) 주인님께 보고. **승인 전 — 코드 변경 없음.** 대기 목록: `IMPROVEMENT_BACKLOG.md` §4, 상세: [인수인계 §6](IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md).
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`) — ✅ C-0 사전 검증 페이지 완료
+- 주인님 승인 → 저장소 밖 내 PC 서버로 확인 후 삭제. 핵심: LaMa 출력 0~255 확정, **마스크는 `>0`+넓히기**(127 기준이면 테두리가 남아 어두운 형체), `onnxruntime-web@1.23.0`에서 WebGPU 3.1초/장(1.20.1은 실패), 머리글 없는 WASM 16초/장, 캐시 재사용 0.25초, 한국어 문구 4/4 검출. 상세 [인수인계 §7](IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md). 다음 C-1.
