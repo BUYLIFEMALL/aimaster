@@ -183,7 +183,7 @@ export function fillBoxes(mask: Uint8Array, w: number, h: number, boxes: Box[]):
 
 /** 작업자 오류 → 회원에게 보여 줄 한국어 안내 */
 export function freeEraseErrorText(message: string): string {
-  if (/^download:|Failed to fetch|NetworkError|network/i.test(message)) return "무료 지우기 모델을 받지 못했습니다. 인터넷 연결을 확인하고 다시 시도하거나, 「AI로 다시 그리기」를 이용해 주세요.";
+  if (/^download:|Failed to fetch|NetworkError|network/i.test(message)) return "무료 지우기에 쓰는 AI 계산용 모델 파일을 받지 못했습니다. 인터넷 연결을 확인하고 다시 시도하거나, 「AI로 다시 그리기」를 이용해 주세요.";
   if (/QuotaExceeded|quota/i.test(message)) return "브라우저 저장 공간이 부족해 모델을 저장하지 못했습니다. 이번에는 그대로 진행하지만 다음에 다시 받게 됩니다.";
   if (/memory|RangeError|Aborted|OOM|allocation/i.test(message)) return "이 기기의 메모리가 부족해 지우지 못했습니다. 다른 탭을 닫고 다시 시도하거나, 「AI로 다시 그리기」를 이용해 주세요.";
   return "무료 지우기에 실패했습니다. 다시 시도하거나, 「AI로 다시 그리기」를 이용해 주세요.";

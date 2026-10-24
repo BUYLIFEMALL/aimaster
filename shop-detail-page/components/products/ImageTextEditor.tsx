@@ -334,7 +334,7 @@ export function ImageTextEditor({
         <p className="text-xs text-slate-500 leading-relaxed">
           ① 이미지에서 고칠 글자 위를 끌어 사각형으로 지정 → ② 새 문구·크기·색을 정하고 「이 부분 적용」 → 여러 곳을 반복한 뒤 「새 버전으로 저장」.
           덮는 색은 사각형 바깥에서 가장 많은 색으로 자동으로 고르며, 「안쪽 색」이나 「💧 찍기」(이미지에서 색을 직접 찍기)로 바꿀 수 있습니다. 둥근 배지 모양까지 살리려면 배지 <b>안쪽 글자 부분만</b> 지정하세요(배지보다 넓게 지정하면 모서리가 각지게 덮입니다). 원래 이미지는 버전 목록에 그대로 남습니다.
-          <br />🧽 <b>무료 지우기</b>: 배경이 복잡하면 「주변에 맞춰 지우기」를 고르거나, 위 「이미지 속 글자 모두 지우기」로 글자를 한 번에 지운 뒤 새 문구를 쓰세요. 내 브라우저에서 계산해 키·비용이 없고, 처음 한 번 모델(약 200MB)을 공개 모델 저장소 허깅페이스(<a href={FREE_ERASE_MODELS.lama.page} target="_blank" rel="noopener noreferrer" className="underline">huggingface.co ↗</a>)에서 자동으로 받아 브라우저에 저장합니다(따로 받을 필요 없음). 본인이 권리를 가진 이미지에만 쓰세요.
+          <br />🧽 <b>무료 지우기</b>: 배경이 복잡하면 「주변에 맞춰 지우기」를 고르거나, 위 「이미지 속 글자 모두 지우기」로 글자를 한 번에 지운 뒤 새 문구를 쓰세요. 내 브라우저에서 계산해 키·비용이 없고, 처음 한 번 AI 계산용 모델 파일(설치 없음, 약 200MB)을 공개 모델 저장소 허깅페이스(<a href={FREE_ERASE_MODELS.lama.page} target="_blank" rel="noopener noreferrer" className="underline">huggingface.co ↗</a>)에서 자동으로 받아 브라우저에 저장합니다(따로 받을 필요 없음). 본인이 권리를 가진 이미지에만 쓰세요.
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -349,7 +349,7 @@ export function ImageTextEditor({
           {erasing && <span className="text-xs font-semibold text-emerald-700">{erasing}</span>}
           {progress && (
             <span className="text-xs text-slate-500">
-              {progress.model === "lama" ? "지우기" : "글자 찾기"} 모델 받는 중 {Math.round(progress.loaded / 1048576)}/{Math.round(progress.total / 1048576)}MB
+              AI 계산용 모델 파일({progress.model === "lama" ? "지우기" : "글자 찾기"}) 받는 중 {Math.round(progress.loaded / 1048576)}/{Math.round(progress.total / 1048576)}MB
             </span>
           )}
         </div>

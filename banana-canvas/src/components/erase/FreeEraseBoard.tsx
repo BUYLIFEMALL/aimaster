@@ -273,11 +273,11 @@ export function FreeEraseBoard() {
           <span className="fe-badge soft">사진이 서버로 올라가지 않음</span>
           {backend && <span className="fe-badge leaf">{backend === "webgpu" ? "⚡ 그래픽 가속(WebGPU)" : "🧮 CPU 계산"}</span>}
         </div>
-        <p className="bc-hint">처음 한 번 지우기 모델(약 {mb(FREE_ERASE_MODELS.lama.bytes)}MB)을 공개 모델 저장소 허깅페이스(huggingface.co)에서 자동으로 내려받아 브라우저에 저장합니다 — 따로 받을 필요는 없습니다. 두 번째부터는 바로 시작합니다. 크롬·엣지 최신판을 권장합니다.
+        <p className="bc-hint">처음 한 번 AI 계산용 모델 파일(설치 없음, 약 {mb(FREE_ERASE_MODELS.lama.bytes)}MB)을 공개 모델 저장소 허깅페이스(huggingface.co)에서 자동으로 내려받아 브라우저에 저장합니다 — 따로 받을 필요는 없습니다. 두 번째부터는 바로 시작합니다. 크롬·엣지 최신판을 권장합니다.
           {" "}모델 출처: <a href={FREE_ERASE_MODELS.lama.page} target="_blank" rel="noopener noreferrer">지우기(LaMa) ↗</a> · <a href={FREE_ERASE_MODELS.det.page} target="_blank" rel="noopener noreferrer">글자 찾기(RapidOCR) ↗</a></p>
         {progress && (
           <div className="fe-progress" role="status">
-            <span>{progress.model === "lama" ? "지우기 모델" : "글자 찾기 모델"} 받는 중 {mb(progress.loaded)}/{mb(progress.total)}MB</span>
+            <span>AI 계산용 모델 파일({progress.model === "lama" ? "지우기" : "글자 찾기"}) 받는 중 {mb(progress.loaded)}/{mb(progress.total)}MB</span>
             <progress max={progress.total} value={progress.loaded} />
           </div>
         )}
