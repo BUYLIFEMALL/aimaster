@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.06 수집 상한·제한 안내·주소 칸
+- 한 일: 예약 간격 1~24시간(10~50분 삭제) · 수집 상한(한 회차 20곳·하루 300페이지·예약 시각 ±10%) · 예약 화면 예상 수집량 · 수집 한도·네이버 이용 제한 안내(예약·매뉴얼, 제한 시 본인 확인 → 몇 시간~하루 뒤 재사용) · 주소 붙여 넣기 칸 쉬운 말(3단계 안내·예시 주소·즉시 확인). 숫자는 `lib/limits.ts` 한 곳(확장은 수집 규칙 파일로 받음), 확장 `background.js`·`lib/guard.js`(`computeNextDue`·`pickRunSlice`·`limitDate`), 공지 `components/LimitNotice.tsx`. 확장 1.6.0/v1.06.
+- 검수: 시험 25개(한도 5개 추가)·tsc·eslint·build, 배포 `realty-listing-alert-b66t3ii5s` Ready. DB SQL(간격 시간 단위 규칙 + v1.06)은 SQL 편집기 새 탭에 입력, 주인님 Run 대기. 실물 화면 확인은 다음 단계.
+- 남은 일: 카톡 받기(요약만)·이메일 받기(방식 A, 회원 본인 메일 발송 키). 전화번호 A/B는 주인님 답 대기.
+- 링크: https://realty-listing-alert.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.05 지역(시·구·동) 감시
 - 한 일: 국토교통부 「전국 법정동」(2026-06-30)으로 지역 목록(`public/regions.json`, `scripts/build-regions.mjs`) · DB 칸 4개(`20261025000500_region_targets.sql`, 주인님 Run) · 감시 대상 「🏙 지역으로 추가」 버튼 3단계(`RegionPicker`) · 확장이 동별 단지 목록 → 매물 많은 순 상위 N곳 수집(`collectRegionComplexes`, 주소는 수집 규칙 파일). 함께: 다음 페이지 읽기 수정(겹친 페이지 버림), 연결 계정 대조·표시.
 - 검수: 시험 20개·tsc·build, 배포 `realty-listing-alert-37enwad0p` Ready, `regions.json` 200. 실물: 백송대림 다음 페이지 읽기(진단 기록), 월세 「1억 3,000 / 30」. 지역 단지 목록 주소는 실물 미확인(첫 수집 진단 기록으로 확인 예정).
