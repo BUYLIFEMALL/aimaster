@@ -124,6 +124,17 @@ export default function QuickModePage() {
         <p className="text-xs text-neutral-500 mt-0.5">AI가 키워드와 화자를 추천하고, 에이전트와 같은 단계(기획·작성·윤문 → 이미지)로 원고를 만든 뒤 최종 확인을 거쳐 네이버에 입력합니다.</p>
       </div>
 
+      {/* 간편 회원은 매뉴얼(/guide, 전체 기능 전용)을 볼 수 없어 여기서 4단계만 안내한다. */}
+      <details className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-700">
+        <summary className="cursor-pointer font-bold text-neutral-900">처음 쓰시나요? 4단계 사용 안내</summary>
+        <ol className="mt-2 list-decimal space-y-1 pl-5">
+          <li><Link href="/quick/settings" className="font-bold text-emerald-700 underline">API키등록·플랫폼연동</Link>에서 본인 AI 키(OpenAI·Gemini·Claude 중 하나)와 발행할 네이버 블로그 ID를 등록합니다.</li>
+          <li>크롬 확장을 <a href="/downloads/naver-blog-agent-extension-latest.zip" className="font-bold text-emerald-700 underline">내려받아</a> 압축을 풀고 <code>chrome://extensions</code>에서 「압축해제된 확장 프로그램 로드」로 설치한 뒤 <Link href="/extension-connect" className="font-bold text-emerald-700 underline">확장 연결</Link>을 누릅니다.</li>
+          <li>주제를 적고 키워드·화자를 추천받아 「글과 이미지 만들기」를 누릅니다(1~2분).</li>
+          <li>결과 화면에서 포스팅 방식(발행 전까지·실제 포스팅·예약 포스팅)을 고르고 저장한 뒤, 최종 원고를 직접 확인하고 「작업 대기에 전송」을 누릅니다. 크롬에 네이버가 로그인돼 있어야 합니다.</li>
+        </ol>
+      </details>
+
       <div className="grid gap-2 sm:grid-cols-3">
         <StatusCard label="발행할 블로그" ok={(status.accounts ?? 0) > 0} loading={status.accounts === null} okText={`${status.accounts}개 등록`} failText="블로그 등록 필요" href="/quick/settings" />
         <StatusCard label="AI 본인 키" ok={Boolean(hasAiKey)} loading={status.keys === null} okText="등록됨" failText="키 등록 필요" href="/quick/settings" />

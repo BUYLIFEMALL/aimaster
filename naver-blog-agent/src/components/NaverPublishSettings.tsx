@@ -5,13 +5,14 @@ import { useEffect, useId, useRef, useState } from "react";
 import { fetchNaverCategories } from "@/lib/naverExtensionClient";
 import { normalizeNaverTags, type NaverCategory, type NaverExecutionMode } from "@/lib/naverPublishing";
 import { PostSaveClient } from "@/lib/postSaveClient";
+import { PUBLISH_CHOICES, applyChoice, choiceOf, choiceSummary } from "@/lib/publishChoice";
 
-type Props = { postId: string | null; saveRevision?: string; onSaved?: (tags: string[], post:any, expected:string|undefined) => void; onBlockingChange?: (blocked: boolean) => void };
+type Props = { postId: string | null; saveRevision?: string; onSaved?: (tags: string[], post:any, expected:string|undefined) => void; onBlockingChange?: (blocked: boolean) => void; onSummary?: (summary: string) => void };
 export default function NaverPublishSettings(props: Props) {
   return <SettingsForm key={props.postId || "unsaved"} {...props} />;
 }
 
-function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props) {
+function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange, onSummary }: Props) {
   const validId = Boolean(postId && /^[\da-f-]{36}$/i.test(postId));
   const id = useId();
   const mounted = useRef(true);
@@ -35,6 +36,13 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
   const [savedForm, setSavedForm] = useState<string | null>(null);
   const form = JSON.stringify({category,tags,setDefault,executionMode,reserved,reserveAt:reserved?reserveAt:""});
   const dirty = savedForm !== null && form !== savedForm;
+  const choice = choiceOf(executionMode, reserved);
+  // 저장된 방식을 부모(전송 버튼 옆)에 한 줄로 알린다. 저장 전 변경은 반영하지 않는다.
+  useEffect(() => {
+    if (!savedForm) { onSummary?.(""); return; }
+    const saved = JSON.parse(savedForm) as { executionMode: NaverExecutionMode; reserved: boolean; reserveAt: string };
+    onSummary?.(choiceSummary(saved.executionMode, saved.reserved, saved.reserveAt));
+  }, [savedForm, onSummary]);
   const pendingTag = Boolean(tagInput.trim());
   useEffect(() => {
     onBlockingChange?.(Boolean(busy) || Boolean(error) || dirty || pendingTag || (validId && !identity));
@@ -114,18 +122,14 @@ function SettingsForm({ postId, saveRevision, onSaved, onBlockingChange }: Props
     </div>
     {!validId ? <p className="text-xs text-neutral-600">원고를 보관함에 저장한 뒤 카테고리와 태그를 설정할 수 있습니다.</p> : <>
       <p className="text-xs text-neutral-500">{identity?.blogId || "블로그 확인 중"} · 글감 분류와 별도로 네이버에 등록된 카테고리를 선택합니다.</p>
-      <label htmlFor={`${id}-mode`} className="block text-xs font-semibold text-neutral-700">확장 진행 방식</label>
-      <select id={`${id}-mode`} value={executionMode} disabled={Boolean(busy)} onChange={event=>{setExecutionMode(event.target.value as NaverExecutionMode);setMessage("");}} className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">
-        <option value="prepare">발행 전 준비까지만 · 최종 버튼은 직접 누름</option>
-        <option value="publish">최종 발행까지 자동 진행</option>
-      </select>
-      <p className="text-xs text-neutral-600">{executionMode==="prepare" ? "본문·이미지·카테고리·태그·공개 범위·예약 설정까지 준비한 뒤 멈춥니다. 최신 확장이 필요합니다. 열린 원고를 확인하고 직접 최종 발행해 주세요." : "기존 자동 발행 방식입니다. 전송하면 확장이 최종 발행 버튼까지 누릅니다."}</p>
-      <p className="text-xs font-semibold text-neutral-700">발행 시각</p>
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="발행 시각">
-        <label className="flex items-center gap-1 text-xs text-neutral-700"><input type="radio" name={`${id}-when`} checked={!reserved} disabled={Boolean(busy)} onChange={()=>{setReserved(false);setMessage("");}} />바로 발행</label>
-        <label className="flex items-center gap-1 text-xs text-neutral-700"><input type="radio" name={`${id}-when`} checked={reserved} disabled={Boolean(busy)} onChange={()=>{setReserved(true);setMessage("");}} />예약 발행</label>
-        {reserved && <input type="datetime-local" step={600} aria-label="예약 날짜와 시각" value={reserveAt} disabled={Boolean(busy)} onChange={event=>{setReserveAt(event.target.value);setMessage("");}} className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900" />}
+      {/* E-5: 블로그 핵심 지침의 세 가지 포스팅 방식을 한 줄에서 고른다(저장 값은 executionMode × 예약 그대로). */}
+      <p className="text-xs font-semibold text-neutral-700">포스팅 방식</p>
+      <div className="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="포스팅 방식">
+        {PUBLISH_CHOICES.map(option=>{const active=choice===option.value;return <button type="button" role="radio" aria-checked={active} key={option.value} disabled={Boolean(busy)} onClick={()=>{const next=applyChoice(option.value,reserved);setExecutionMode(next.executionMode);setReserved(next.reserved);setMessage("");}} className={`rounded-lg border px-3 py-2 text-left transition-colors disabled:opacity-50 ${active?"border-blue-600 bg-blue-50 ring-1 ring-blue-600":"border-neutral-300 bg-white hover:bg-neutral-50"}`}><span className="block text-sm font-bold text-neutral-900">{active?"● ":"○ "}{option.title}</span><span className="mt-0.5 block text-[11px] leading-4 text-neutral-600">{option.desc}</span></button>;})}
       </div>
+      {choice==="prepare" && <label className="flex items-center gap-2 text-xs text-neutral-600"><input type="checkbox" checked={reserved} disabled={Boolean(busy)} onChange={event=>{setReserved(event.target.checked);setMessage("");}} />예약 시각도 미리 넣어 두기(발행 버튼은 직접 누름)</label>}
+      {choice==="prepare" && <p className="text-xs text-neutral-500">최신 확장이 필요합니다. 입력이 끝나면 열린 원고를 확인하고 직접 발행해 주세요.</p>}
+      {reserved && <input type="datetime-local" step={600} aria-label="예약 날짜와 시각" value={reserveAt} disabled={Boolean(busy)} onChange={event=>{setReserveAt(event.target.value);setMessage("");}} className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900" />}
       {reserved && <p className="text-xs text-neutral-500">네이버 예약은 10분 단위이며 지금부터 20분 이후로 정해 주세요(예: 14:10, 14:20).</p>}
       <label htmlFor={`${id}-category`} className="block text-xs font-semibold text-neutral-700">네이버 발행 카테고리</label>
       <select id={`${id}-category`} value={category?.id || ""} disabled={Boolean(busy)} onChange={event => { setCategory(categories.find(c=>c.id===event.target.value) || null); setSetDefault(false); setMessage(""); }} className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900">

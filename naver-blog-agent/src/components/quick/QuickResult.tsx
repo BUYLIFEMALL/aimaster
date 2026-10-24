@@ -14,6 +14,7 @@ export interface QuickPost { id: string; blog_id: string; category_name: string;
 export default function QuickResult({ post, saver, onChange }: { post: QuickPost; saver: PostSaveClient; onChange: (post: QuickPost) => void }) {
   const [publishingBlocked, setPublishingBlocked] = useState(true);
   const [reviewBlocked, setReviewBlocked] = useState(true);
+  const [publishSummary, setPublishSummary] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const shown = generatedDraftImages(post.images);
@@ -64,14 +65,17 @@ export default function QuickResult({ post, saver, onChange }: { post: QuickPost
         <p className="mt-3 text-[11px] text-neutral-500">문장·이미지를 하나씩 고치려면 에이전트 전체 기능(콘텐츠 생성 화면)을 이용하세요.</p>
       </div>
 
-      <NaverPublishSettings postId={post.id} saveRevision={post.save_revision} onBlockingChange={setPublishingBlocked} onSaved={(tags, saved, expected) => {
+      <NaverPublishSettings postId={post.id} saveRevision={post.save_revision} onBlockingChange={setPublishingBlocked} onSummary={setPublishSummary} onSaved={(tags, saved, expected) => {
         saver.adopt(saved, expected);
         onChange({ ...post, tags, save_revision: saved.save_revision });
       }} />
       <PostReviewGate key={post.id} postId={post.id} snapshot={postReviewSnapshot(post)} onBlockingChange={setReviewBlocked} />
 
       <div className="flex flex-col gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-4 sm:flex-row sm:items-center">
-        <p className="text-xs text-neutral-600">발행 설정을 저장하고 최종 원고를 직접 확인하면 네이버 입력을 시작할 수 있습니다.</p>
+        <div className="text-xs text-neutral-600">
+          <p>위에서 포스팅 방식을 고르고 저장한 뒤 최종 원고를 직접 확인하면 네이버 입력을 시작할 수 있습니다.</p>
+          {publishSummary && <p className="mt-1 font-semibold text-emerald-700">전송하면: {publishSummary}</p>}
+        </div>
         <button type="button" onClick={queue} disabled={busy || reviewBlocked || publishingBlocked}
           className="sm:ml-auto inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-40">
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} ⑥ 네이버 확장 작업 대기에 전송

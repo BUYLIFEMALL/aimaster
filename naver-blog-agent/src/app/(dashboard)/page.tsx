@@ -166,6 +166,7 @@ export default function MainPage() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [currentPostId, setCurrentPostId] = useState<string | null>(null);
   const [publishingBlocked, setPublishingBlocked] = useState(false);
+  const [publishSummary, setPublishSummary] = useState("");
   const [reviewBlocked,setReviewBlocked]=useState(true);
   const [historyPosts, setHistoryPosts] = useState<any[]>([]);
   const [savedPostCount, setSavedPostCount] = useState<number>(0);
@@ -1961,8 +1962,9 @@ export default function MainPage() {
                 </button>
               </div>
             </div>
+            {publishSummary && <p className="-mt-2 text-right text-xs font-semibold text-emerald-700">전송하면: {publishSummary}</p>}
 
-            <NaverPublishSettings postId={currentPostId} saveRevision={saveRevision} onBlockingChange={setPublishingBlocked} onSaved={(tags,post,expected) => {
+            <NaverPublishSettings postId={currentPostId} saveRevision={saveRevision} onBlockingChange={setPublishingBlocked} onSummary={setPublishSummary} onSaved={(tags,post,expected) => {
               const saver=postSaveRef.current;
               if(post.id!==postIdRef.current || !saver || saver.revision!==expected){setError("화면 원고와 저장본이 다릅니다. 편집 내용을 보관한 뒤 최신 원고를 다시 열어 주세요.");return;}
               saver.adopt(post,expected);setSaveRevision(post.save_revision);
