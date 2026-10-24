@@ -1,3 +1,5 @@
+> **추가 AI 설정 안내 보강(미배포)**: 2026-10-25 추가 AI 설정 안내: `9ab4f36e0` — Groq·OpenRouter·Cloudflare 제목 옆 「대화·번역·요약에 사용」, Cloudflare 계정 ID는 「연결 계정 식별에 사용」. 공식 콘솔의 「API 키 생성·등록」/「계정 ID 확인」 버튼과 발급 후 이 화면에 저장하는 안내를 추가했습니다. 공용 기준·AI Prompt 사본 일치, 두 앱 타입 검사·문서 챗봇108개 시험·로컬 빌드1회 통과. Edge 일반 회원 localhost:4311/settings에서 4개 용도/링크와 실제 표시 확인. Prompt 화면·좁은 화면·새 공급자 실호출은 미검수. API0·수동 배포0, 문서 챗봇v1.07/Promptv1.09 미배포 대기. 기존 본인 키 실검수·G-1~G-4 묶음 배포 계획 유지. 개발은 안내 정확성, 디자인은 기존 테마의 제목/버튼만, 신규 자동화는 추가하지 않았습니다.
+
 > **현재 G-1 상태(2026-10-24, Codex `codex-win-20261024-docbot-g1`): 템플릿 실행 공급자·공용 키 구현/로컬 검사·운영 DB 준비 완료, 미배포(v1.09). Edge 재시도로 관리자 공용 키 모달 확인. 일반 회원·키 재사용·실제 실행·좁은 화면 검수 남음. 설계/자동 채우기는 Gemini 유지, G-5 별도 선택 대기.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_G1.md). 아래 담당 이어받기 대기는 구현 전 기록입니다.
 
 > **📋 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — AutoGemmaStarter 2.0.0 참고 묶음:** G-1 실행 공급자 선택(Groq·OpenRouter·NVIDIA·Cloudflare, 공용 모듈) · G-5 로컬 Ollama(시제품). 분석·플랜 초안만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md) · [분석](../docs/analysis-autogemma-starter-20261024/REPORT.md)
