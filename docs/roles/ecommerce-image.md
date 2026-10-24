@@ -1,31 +1,34 @@
 # 이커머스·이미지
 
-- 담당: Claude Code(윈도우) `claude-win-sdp`
-- 맡은 폴더: `banana-canvas/` `shop-detail-page/` `ai-image-studio/`(이미지 연동 기준) · 썸네일 등 이미지 프로그램 · 맥미니 이커머스 작업 마무리(배포·확인)
+- 담당: Claude Code(윈도우) `claude-win-sdp` (2026-10-24 주인님 지정 「넌 이커머스와 이미지관련 작업 담당이야」)
+- 맡은 폴더: `banana-canvas/` `shop-detail-page/` `ai-image-studio/`(이미지 연동 기준) · `trending-product-finder/` · 썸네일 등 이미지 프로그램(카테고리 지도 「이미지」·「이커머스」 줄) · 맥미니 이커머스 작업 마무리(배포·확인)
 - 카테고리: 이커머스·이미지
 - 주력 업무: 이커머스·이미지 프로그램 개발·배포, 맥미니 요청 처리
-- 마지막 갱신: 2026-10-24 (초안: `claude-win-dotori`, 루트 HANDOFF·작업 중 표에서 옮김 — 담당 세션이 다음 작업 때 확인·수정)
+- 마지막 갱신: 2026-10-24 18:10 (`claude-win-sdp` — 초안 확인·확정)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 없음 | — | — |
+| 메인 사이트 `app/admin/dev-docs` | 「수정 요청함」에 📬 작업 결과·🙋 내가 해 줄 일(분류별) 추가 — 주인님 지시로 맡음 | 2026-10-24 | 배포 완료(`c7f7b1ae2`, `aimaster-77ikz6nhn`), DB 0044 주인님 실행 대기 → 실행 뒤 `ask`·`report` 시험 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `banana-canvas` v1.33 | ClearPic 「무료 지우기(내 브라우저)」 C-0~C-5 | 주인님 승인(빌드 1~2회) | `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md` §6 |
+| `banana-canvas` v1.33 | ClearPic 참고 「무료 지우기(내 브라우저)」 C-0(사전 검증 페이지)~C-5 | 주인님 범위·비용 승인(AI 0, 빌드 1~2회) | `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md` §6 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-10-24 | 문서 | ClearPic C-0~C-5 이어받음·플랜·비용 보고 | 없음 |
+| 2026-10-24 | 메인 사이트 관리자 | 수정 요청함 3칸(해 줄 일·작업 결과·기존 기록)·`dev-requests.mjs` report/ask/asks·지침 3곳 | 배포(빌드 1회) |
+| 2026-10-24 | 문서 | ClearPic C-0~C-5 이어받음·코드 대조·플랜·비용 보고·대기 등록, 용어 「사전 검증 페이지」로 정정 | 없음 |
 | 2026-10-24 | `video-to-gif` v1.21 | 맥미니 요청 배포(빌드 1회) | 배포 |
 | 2026-10-24 | `video-to-gif` v1.20 | 「⚡ 내 PC 고속 변환」 윈도우 시험·배포 | 배포 |
 
 ## 다음 첫 단계
-1. 승인 뒤 ACTIVE_WORK 줄 → 로컬 시제품(C-0)
+1. 0044 실행 확인 → `ask`로 바나나 캔버스 승인 요청 올리기 → `report`로 오늘 결과 남기기 → 화면 표시·✔완료 확인 → 작업 중 줄 해제
+2. 바나나 캔버스 승인 뒤: 작업 중 줄 → 사전 검증 페이지(저장소 밖·내 PC 주소) → C-1
 
 ## 주인님께 여쭐 것
-- C-0~C-5 범위·비용 승인
-- 여러 장 상한(50~100장)
+- DB 0044 실행(크롬 Supabase SQL 편집기, 운영 `esgxyikcnnvmlhygjkth`) — 파일 `supabase/migrations/0044_admin_dev_requests_results_owner_actions.sql`
+- 바나나 캔버스 「무료 지우기」 C-0~C-5 범위·비용 승인
+- 무료 지우기 여러 장 상한(50~100장 중)
