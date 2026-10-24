@@ -129,3 +129,7 @@ ai-prompt-studio/
 
 ## 2026-10-22 v1.09 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우)
 - **v1.09 (2026-10-22, Claude Code 윈도우) — 좁은 칸 버튼 줄바꿈/잘림 수정**: 결과 액션 바(설정 수정·MD 저장·복사)가 768~1024px에서 꺾이던 것 수정 — 가로 배치를 `lg`부터, 버튼 묶음 `shrink-0 flex-wrap whitespace-nowrap`(`src/components/ResultSection.tsx`), 템플릿 만들기 모달의 본문 머리 버튼 줄도 휴대폰에서 다음 줄로 내려가게(`src/components/templates/PromptFormModal.tsx`). 기능·문구 변경 없음. 근거·전체 목록: 루트 `docs/UI_WRAP_AUDIT_20261022.md`, 규칙 `DESIGN.md` 원칙 19.
+
+## Cloudflare 계정 식별번호 안내 정정 (미배포)
+
+2026-10-25 `d2b05913b`: Cloudflare 항목을 「계정 식별번호(Account ID)」로 정정. 로그인 이메일·비밀번호와 다르고 32자리임을 제목 아래·입력 예시·오류 안내에 명시. 번호 입력은 확인 가능한 일반 텍스트, API 키는 비밀번호 입력 유지. 확인 버튼은 공식 Workers & Pages 직링크(`https://dash.cloudflare.com/?to=/:account/workers-and-pages`), Account Details → Account ID/Ctrl+K 복사 절차와 공식 찾기 안내 링크 추가. 기준/Prompt 사본 동기화, 양쪽 타입·공용7개 일치·문서 챗봇108개 검사/로컬 빌드1회 통과. 키/계정/DB 스키마 변경·AI 호출 없음. 미배포 대기(v1.07/v1.09), 기존 묶음 배포 때 포함.

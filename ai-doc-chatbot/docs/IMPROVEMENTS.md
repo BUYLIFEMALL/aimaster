@@ -78,3 +78,7 @@
 ## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 플랜 초안: AutoGemmaStarter 참고 묶음 (담당 이어받기)
 - G-1 여러 공급자(답변·라우터만, 임베딩은 Upstage 유지) · G-2·G-3 커스텀 봇 · G-4 문서 근거 보강 · G-5 로컬 Ollama(시제품).
 - 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 공용 연동 항목 추가는 운영 DB 쓰기라 별도 승인. [인수인계](../../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md)
+
+## Cloudflare 계정 식별번호 안내 정정 (미배포)
+
+2026-10-25 `d2b05913b`: Cloudflare 항목을 「계정 식별번호(Account ID)」로 정정. 로그인 이메일·비밀번호와 다르고 32자리임을 제목 아래·입력 예시·오류 안내에 명시. 번호 입력은 확인 가능한 일반 텍스트, API 키는 비밀번호 입력 유지. 확인 버튼은 공식 Workers & Pages 직링크(`https://dash.cloudflare.com/?to=/:account/workers-and-pages`), Account Details → Account ID/Ctrl+K 복사 절차와 공식 찾기 안내 링크 추가. 기준/Prompt 사본 동기화, 양쪽 타입·공용7개 일치·문서 챗봇108개 검사/로컬 빌드1회 통과. 키/계정/DB 스키마 변경·AI 호출 없음. 미배포 대기(v1.07/v1.09), 기존 묶음 배포 때 포함.

@@ -92,3 +92,7 @@
 - 디자인: `docs/DESIGN_HANDOFF.md`
 - **핵심 요약(먼저 읽기)**: `docs/HANDOFF_SUMMARY_20261019.md` — 현재 상태·구조·운영 적용·검수 증거·남은 일
 - 작업 인수인계(날짜순 상세): `docs/IMPROVEMENT_HANDOFF_20261019.md`
+
+## Cloudflare 계정 식별번호 안내 정정 (미배포)
+
+2026-10-25 `d2b05913b`: Cloudflare 항목을 「계정 식별번호(Account ID)」로 정정. 로그인 이메일·비밀번호와 다르고 32자리임을 제목 아래·입력 예시·오류 안내에 명시. 번호 입력은 확인 가능한 일반 텍스트, API 키는 비밀번호 입력 유지. 확인 버튼은 공식 Workers & Pages 직링크(`https://dash.cloudflare.com/?to=/:account/workers-and-pages`), Account Details → Account ID/Ctrl+K 복사 절차와 공식 찾기 안내 링크 추가. 기준/Prompt 사본 동기화, 양쪽 타입·공용7개 일치·문서 챗봇108개 검사/로컬 빌드1회 통과. 키/계정/DB 스키마 변경·AI 호출 없음. 미배포 대기(v1.07/v1.09), 기존 묶음 배포 때 포함.
