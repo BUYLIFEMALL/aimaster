@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.04 배포 (U1+U2)
+- 한 일: 미배포였던 U1 이름 바꾸기(`1771f446f`)와 U2 불필요한 기능 숨기기(`04d6601b9`)를 v1.04로 배포. 버전 3곳 커밋 `67147c45c`, 운영 DB `programs.version`=v1.04(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기). `docs/PENDING_DEPLOYS.md` 줄 삭제.
+- 배포: `ai-work-workspace-9esamryua` Ready. 배포 직전 다른 세션 푸시로 시작된 메인 사이트 자동 빌드가 진행 중이어서 끝날(건너뛰기) 때까지 기다린 뒤 단독 실행.
+- 운영 크롬 확인: 좌측 v1.04·메뉴 이름(AI 회의록·보관함·최근 본 페이지·팀 공간·내 페이지), 설정 창 탭 11개(숨긴 14개 없음)·「내 계정」 AIMaster 안내, 공유 메뉴 「공유」 탭만, 워크스페이스 메뉴에 요금제 이름·계정 추가 없음, 휴대폰 폭 386px에서 좌측 메뉴 접힘. 못 한 것: 사진·표지 고르기와 보기 추가 메뉴(시험 계정에 이미지 블록·데이터베이스가 있는 페이지가 없어 새로 만들어야 해서 화면 대신 코드로 확인).
+- 발견(U5용, agy): 좌측 메뉴 접힘 기준 폭이 767px보다 작음(657px에서 펼쳐짐) — `ai-work-workspace/docs/IMPROVEMENTS.md` 「남은 메모」.
+- 남은 일·다음 첫 단계: U3(회원 본인 AI 키 연결) 상세 플랜을 주인님께 보여 드림. agy 디자인(U5)은 이 세션 U1~U4 뒤 시작 권장.
+- 비용: Vercel 빌드 1회(주인님 승인), AI 호출 0회.
+- 프로그램: https://ai-work-workspace.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 「내 PC 고속 변환」 5단계: AI 음악 스튜디오 v1.14 · 음악(SUNO)자동화 v1.46 「⚡ 내 PC로 저장」
 - 곡마다 「내 PC로 저장(MP3·FLAC)」 → 회원 PC ffmpeg로 MP3·AAC·FLAC·WAV24 + -14 LUFS 맞춤. 공용 `pc-renderer-client` 사본 2곳 + 새 공용 `pc-audio-command`(기준 마스터링). 공용 연결 코드의 쓰지 않는 변수 정리로 사본 4곳 동기화(무한 반복 영상 사본은 영상 담당 세션 작업 중이라 그쪽 커밋에 맡김).
 - 검수(운영, 크롬 시험 계정): AI 음악 스튜디오 30초 곡 -16.2 → -14.0 LUFS, SUNO 207초 곡 -13.3 → -14.0 LUFS, 둘 다 진짜 MP3. 배포 `ai-music-studio-aif3nqs2q`·`music-8xq1thby3` Ready, DB v1.14·v1.46. 커밋 `3e625741c`.
