@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.07 주소 추가 칸 여유 배치
+- 한 일: 주소 추가 칸 여유 배치(3단계 안내 전체 폭·주소 2:이름 1·높이 맞춤, 주인님 「우측에 여유가 있는데」). 확장 1.7.0/v1.07(내용 변경 없음, 버전 맞춤). v1.06 DB SQL은 주인님 실행 확인(v1.06·간격 규칙).
+- 검수: 배포 `realty-listing-alert-1ejwpzrcw` Ready, 크롬 운영 화면에서 넓은 배치·주소 붙여 넣기 즉시 확인(✅ 번호 2936) 확인, 예약 화면 예상 수집량(하루 2회·약 42페이지) 확인. v1.07 DB SQL은 SQL 편집기 새 탭에 입력, 주인님 Run 대기.
+- 링크: https://realty-listing-alert.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.06 수집 상한·제한 안내·주소 칸
 - 한 일: 예약 간격 1~24시간(10~50분 삭제) · 수집 상한(한 회차 20곳·하루 300페이지·예약 시각 ±10%) · 예약 화면 예상 수집량 · 수집 한도·네이버 이용 제한 안내(예약·매뉴얼, 제한 시 본인 확인 → 몇 시간~하루 뒤 재사용) · 주소 붙여 넣기 칸 쉬운 말(3단계 안내·예시 주소·즉시 확인). 숫자는 `lib/limits.ts` 한 곳(확장은 수집 규칙 파일로 받음), 확장 `background.js`·`lib/guard.js`(`computeNextDue`·`pickRunSlice`·`limitDate`), 공지 `components/LimitNotice.tsx`. 확장 1.6.0/v1.06.
 - 검수: 시험 25개(한도 5개 추가)·tsc·eslint·build, 배포 `realty-listing-alert-b66t3ii5s` Ready. DB SQL(간격 시간 단위 규칙 + v1.06)은 SQL 편집기 새 탭에 입력, 주인님 Run 대기. 실물 화면 확인은 다음 단계.
