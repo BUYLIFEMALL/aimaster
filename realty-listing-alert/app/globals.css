@@ -694,10 +694,24 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-addr-steps li div { display: grid; gap: 4px; font-size: 13.5px; }
 .ra-addr-steps li a { color: #009b4d; font-weight: 700; font-size: 13px; }
 .ra-addr-steps small { color: var(--muted); }
-.ra-addr kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: #f7f7f7; font-size: 12px; }
+.ra-addr kbd, .ra-addr-steps kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: #f7f7f7; font-size: 12px; }
 .ra-addr input.ok { border-color: #03c75a; background: #f2fbf6; }
 .ra-addr input.bad { border-color: #e5a3a3; background: #fdf3f3; }
 .ra-addr-hint { color: var(--muted); }
 .ra-addr-ok { color: #047a3d; font-weight: 700; }
 .ra-addr-bad { color: #b91c1c; font-weight: 700; }
 @media (max-width: 680px) { .ra-addr-steps { grid-template-columns: 1fr; } }
+.ra-grid-top { align-items: start; }
+.ra-addr-steps { margin-bottom: 14px; }
+/* 주소 추가 여유 배치(2026-10-25 주인님 「우측에 여유가 있는데」「여유있게 UI를 배치해」) */
+.ra-addr-steps { gap: 14px; margin-bottom: 18px; }
+.ra-addr-steps li { padding: 16px 18px; gap: 12px; border-radius: 16px; background: #f7fbf8; }
+.ra-addr-steps li > span { width: 30px; height: 30px; font-size: 15px; }
+.ra-addr-steps li div { gap: 6px; font-size: 15px; line-height: 1.5; }
+.ra-addr-steps small { font-size: 13.5px; line-height: 1.6; }
+.ra-addr-steps li a { font-size: 14px; }
+.ra-grid.ra-grid-top { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 18px; }
+.ra-addr input { height: 50px; font-size: 16px; }
+.ra-addr label { font-size: 15px; font-weight: 800; }
+.ra-addr small { font-size: 13.5px; line-height: 1.6; }
+@media (max-width: 680px) { .ra-grid.ra-grid-top { grid-template-columns: 1fr; } }

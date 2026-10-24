@@ -118,16 +118,21 @@ function PrefillGuide({ prefill }: { prefill: NonNullable<Prefill> }) {
 }
 
 // ✏️ 주소 붙여 넣기 칸(2026-10-25 주인님 지시 「더 직관적이고 쉽게」) — 3단계 그림 안내 + 붙여 넣는 즉시 맞는 주소인지 표시
+function AddressSteps() {
+  return (
+    <ol className="ra-addr-steps">
+        <li><span>1</span><div><b>네이버 부동산에서 내 아파트 열기</b><small>검색창에 아파트 이름 입력 → 목록에서 아파트 이름 클릭</small><a href="https://new.land.naver.com/" target="_blank" rel="noopener noreferrer">🏠 네이버 부동산 열기 ↗</a></div></li>
+        <li><span>2</span><div><b>화면 맨 위 인터넷 주소 복사</b><small><b>https://</b>로 시작하는 맨 위 글자 클릭 → <kbd>Ctrl</kbd>+<kbd>C</kbd></small></div></li>
+        <li><span>3</span><div><b>이 화면으로 돌아와 아래 칸에 붙여 넣기</b><small>칸 클릭 → <kbd>Ctrl</kbd>+<kbd>V</kbd></small></div></li>
+    </ol>
+  );
+}
+
 function AddressInput() {
   const [value, setValue] = useState("");
   const no = value.trim() ? parseComplexNo(value) : null;
   return (
     <div className="ra-addr">
-      <ol className="ra-addr-steps">
-        <li><span>1</span><div><b>네이버 부동산에서 내 아파트 열기</b><small>검색창에 아파트 이름 입력 → 목록에서 아파트 이름 클릭</small><a href="https://new.land.naver.com/" target="_blank" rel="noopener noreferrer">🏠 네이버 부동산 열기 ↗</a></div></li>
-        <li><span>2</span><div><b>화면 맨 위 인터넷 주소 복사</b><small><b>https://</b>로 시작하는 맨 위 글자 클릭 → <kbd>Ctrl</kbd>+<kbd>C</kbd></small></div></li>
-        <li><span>3</span><div><b>이 화면으로 돌아와 아래 칸에 붙여 넣기</b><small>칸 클릭 → <kbd>Ctrl</kbd>+<kbd>V</kbd></small></div></li>
-      </ol>
       <label htmlFor="complex">📋 복사한 인터넷 주소 붙여 넣기</label>
       <input id="complex" name="complex" required autoComplete="off" value={value} onChange={(e) => setValue(e.target.value)}
         placeholder="예: https://new.land.naver.com/complexes/2936" className={value.trim() ? (no ? "ok" : "bad") : ""} />
@@ -167,9 +172,10 @@ export default function TargetsClient({ initialTargets, prefill = null }: { init
             <details className="ra-manual" open={!!prefill}>
               <summary>✏️ 인터넷 주소를 복사해서 추가하기</summary>
               <form action={action} key={initialTargets.length}>
-                <div className="ra-grid">
+                <AddressSteps />
+                <div className="ra-grid ra-grid-top">
                   <div className="field"><AddressInput /></div>
-                  <div className="field"><label htmlFor="complexName">알아보기 쉬운 이름(선택)</label><input id="complexName" name="complexName" maxLength={100} placeholder="예: 백송건영" defaultValue={prefill?.name ?? ""} /></div>
+                  <div className="field ra-addr"><label htmlFor="complexName">알아보기 쉬운 이름(선택)</label><input id="complexName" name="complexName" maxLength={100} placeholder="예: 백송건영" defaultValue={prefill?.name ?? ""} /></div>
                 </div>
                 <details className="ra-more">
                   <summary>⚙️ 조건 더 정하기(선택) — 거래 종류·가격·면적</summary>
