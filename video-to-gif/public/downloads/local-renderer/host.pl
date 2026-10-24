@@ -11,7 +11,7 @@ use File::Temp qw(tempdir);
 use File::Basename qw(dirname);
 use POSIX qw(:sys_wait_h);
 
-my $HOST_VERSION = "1.10";
+my $HOST_VERSION = "1.20";
 my $CHUNK_BYTES  = 600 * 1024;    # base64로 약 800KB — JSON 포함 1MB 아래
 my $json         = JSON::PP->new->utf8->canonical;
 my $workdir      = tempdir("buylife-gif-XXXXXX", TMPDIR => 1, CLEANUP => 1);
@@ -251,6 +251,120 @@ sub do_audio {
     send_msg({ type => "result-end", %ids });
 }
 
+
+# v1.20 「loop」 명령(AIMaster 영상 프로그램, 무한 루프 영상): 끊김 없는 루프 1회분 + 반복.
+# 무한 루프 영상 src/lib/loop/plan.ts normalize()·buildFilter()·encodeArgs()와 같은 규칙 — 함께 맞출 것(윈도우 host.ps1도 같음).
+# 정해진 낱말·숫자만: mode smart|overlap|bounce, format mp4|webm|gif, start·end 0~36000초, crossfade 0~2초,
+# repeat 1~200, duration(원본 길이) 0.1~36000초. 소리 트랙은 여기서 ffmpeg -i 기록으로 직접 확인한다.
+sub clampf { my ($v, $lo, $hi) = @_; return $v < $lo ? $lo : $v > $hi ? $hi : $v; }
+sub f3 { return sprintf("%.3f", $_[0]); }
+
+sub send_file {
+    my ($out, $ids, %extra) = @_;
+    open my $oh, "<:raw", $out or return fail("read failed", %$ids);
+    my $size   = -s $out;
+    my $chunks = int(($size + $CHUNK_BYTES - 1) / $CHUNK_BYTES);
+    send_msg({ type => "result", %$ids, size => $size, chunks => $chunks, %extra });
+    for my $seq (0 .. $chunks - 1) {
+        read($oh, my $buf, $CHUNK_BYTES);
+        my $msg = sprintf('{"type":"result-chunk","job":"%s","req":%d,"seq":%d,"data":"%s"}', $ids->{job}, $ids->{req}, $seq, encode_base64($buf, ""));
+        print STDOUT pack("V", length $msg), $msg;
+    }
+    close $oh;
+    unlink $out;
+    send_msg({ type => "result-end", %$ids });
+}
+
+sub do_loop {
+    my ($m) = @_;
+    my $job = safe_job($m->{job});
+    my $req = defined $m->{req} && $m->{req} =~ /\A\d{1,9}\z/ ? $m->{req} + 0 : 0;
+    my %ids = (job => $job, req => $req);
+    return fail("job unknown", %ids) unless $job && $jobs{$job} && !$jobs{$job}{fh};
+    my $mode = defined $m->{mode} && !ref $m->{mode} ? $m->{mode} : "";
+    my $fmt  = defined $m->{format} && !ref $m->{format} ? $m->{format} : "";
+    return fail("bad params", %ids)
+      unless $mode =~ /\A(?:smart|overlap|bounce)\z/ && $fmt =~ /\A(?:mp4|webm|gif)\z/
+      && num_in($m->{start}, 0, 36000) && num_in($m->{end}, 0, 36000) && num_in($m->{crossfade}, 0, 2)
+      && num_in($m->{repeat}, 1, 200) && $m->{repeat} == int($m->{repeat}) && num_in($m->{duration}, 0.1, 36000);
+    my $ffmpeg = find_ffmpeg() or return fail("ffmpeg not found", %ids, code => "NO_FFMPEG");
+
+    # normalize (plan.ts)
+    my $dur = $m->{duration} > 0.1 ? $m->{duration} + 0 : 0.1;
+    my $s = clampf($m->{start} + 0, 0, $dur);
+    my $e = clampf($m->{end} + 0, 0, $dur);
+    if ($mode eq "overlap") { $s = 0; $e = $dur; }
+    $e = ($s + 0.1 < $dur ? $s + 0.1 : $dur) if $e - $s < 0.1;
+    $s = ($e - 0.1 > 0 ? $e - 0.1 : 0) if $e - $s < 0.1;
+    my $len = $e - $s;
+    my $cf = $mode eq "overlap" ? 1 : clampf($m->{crossfade} + 0, 0.1, 2);
+    $cf = 0 if $mode eq "bounce";
+    my $cap = $len / 2 - 0.01; $cap = 0 if $cap < 0;
+    $cf = $cap if $cf > $cap;
+    $cf = sprintf("%.3f", $cf) + 0;
+    my $repeat = int($m->{repeat});
+    my $unit_len = $mode eq "bounce" ? $len * 2 : $len - $cf;
+
+    # 소리 트랙(크롬은 화면에서 알 수 없어 파일에서 직접 읽는다)
+    my $in = $jobs{$job}{path};
+    my $errlog = "$workdir/$job-$req.log";
+    my (undef, $probe) = run_ff([$ffmpeg, "-hide_banner", "-nostdin", "-i", $in], 0, \%ids, 0, 0, $errlog);
+    my $has_audio = $fmt ne "gif" && $probe =~ /Stream #\d+:\d+(?:\[[^\]\n]*\])?(?:\([^)\n]*\))?: Audio:/ ? 1 : 0;
+
+    # 필터 (plan.ts buildFilter)
+    my ($S, $E, $CF) = (f3($s), f3($e), f3($cf));
+    my @map = ("-map", "[vout]");
+    my $fl;
+    if ($mode eq "bounce") {
+        $fl = "[0:v]trim=$S:$E,setpts=PTS-STARTPTS,split[v1][v2];[v2]reverse[vr];[v1][vr]concat=n=2:v=1:a=0[vout]";
+        if ($has_audio) { $fl .= ";[0:a]atrim=$S:$E,asetpts=PTS-STARTPTS,asplit[a1][a2];[a2]areverse[ar];[a1][ar]concat=n=2:v=0:a=1[aout]"; push @map, "-map", "[aout]"; }
+    } elsif ($cf <= 0) {
+        $fl = "[0:v]trim=$S:$E,setpts=PTS-STARTPTS[vout]";
+        if ($has_audio) { $fl .= ";[0:a]atrim=$S:$E,asetpts=PTS-STARTPTS[aout]"; push @map, "-map", "[aout]"; }
+    } else {
+        my $mid = $e - $s - 2 * $cf;
+        my ($T0, $H1) = (f3($e - $cf), f3($s + $cf));
+        my @parts = ("[0:v]trim=$T0:$E,setpts=PTS-STARTPTS[tail]", "[0:v]trim=$S:$H1,setpts=PTS-STARTPTS[head]", "[tail][head]xfade=transition=fade:duration=$CF:offset=0[blend]");
+        my ($vcat, $vn) = ("[blend]", 1);
+        if ($mid > 0.001) { push @parts, "[0:v]trim=$H1:$T0,setpts=PTS-STARTPTS[mid]"; ($vcat, $vn) = ("[blend][mid]", 2); }
+        push @parts, "${vcat}concat=n=$vn:v=1:a=0[vout]";
+        if ($has_audio) {
+            push @parts, "[0:a]atrim=$T0:$E,asetpts=PTS-STARTPTS[atail]", "[0:a]atrim=$S:$H1,asetpts=PTS-STARTPTS[ahead]", "[atail][ahead]acrossfade=d=$CF\[ablend]";
+            my ($acat, $an) = ("[ablend]", 1);
+            if ($mid > 0.001) { push @parts, "[0:a]atrim=$H1:$T0,asetpts=PTS-STARTPTS[amid]"; ($acat, $an) = ("[ablend][amid]", 2); }
+            push @parts, "${acat}concat=n=$an:v=0:a=1[aout]";
+            push @map, "-map", "[aout]";
+        }
+        $fl = join(";", @parts);
+    }
+
+    # 인코딩 (plan.ts encodeArgs) — GIF는 mp4 1회분을 먼저 만든다
+    my $unit_ext = $fmt eq "webm" ? "webm" : "mp4";
+    my $aud = $has_audio && $fmt ne "gif";
+    my @enc = $unit_ext eq "webm"
+      ? ("-c:v", "libvpx", "-b:v", "2M", "-crf", "10", $aud ? ("-c:a", "libvorbis") : ("-an"))
+      : ("-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p", $aud ? ("-c:a", "aac", "-b:a", "128k") : ("-an"));
+    my @base = ($ffmpeg, "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-progress", "pipe:1", "-y");
+    my $unit = "$workdir/$job-$req-unit.$unit_ext";
+    my $span1 = $fmt eq "gif" ? 0.7 : $repeat > 1 ? 0.9 : 1;
+    my ($c1, $e1) = run_ff([@base, "-i", $in, "-filter_complex", $fl, @map, @enc, $unit], $unit_len, \%ids, 0, $span1, $errlog);
+    if ($c1 != 0 || !-s $unit) { unlink $unit; return fail("ffmpeg loop failed ($c1): " . substr($e1, -400), %ids); }
+    my $out = $unit;
+    if ($fmt eq "gif") {
+        $out = "$workdir/$job-$req.gif";
+        my ($c2) = run_ff([@base, "-i", $unit, "-vf", "fps=15,scale='min(480,iw)':-2:flags=lanczos,split[a][b];[a]palettegen[pl];[b][pl]paletteuse", "-loop", "0", $out], $unit_len, \%ids, 0.7, 0.3, $errlog);
+        unlink $unit;
+        if ($c2 != 0 || !-s $out) { unlink $out; return fail("ffmpeg gif failed ($c2)", %ids); }
+    } elsif ($repeat > 1) {
+        $out = "$workdir/$job-$req.$unit_ext";
+        my ($c2) = run_ff([@base, "-stream_loop", $repeat - 1, "-i", $unit, "-c", "copy", $out], 0, \%ids, 0.9, 0.1, $errlog);
+        unlink $unit;
+        if ($c2 != 0 || !-s $out) { unlink $out; return fail("ffmpeg repeat failed ($c2)", %ids); }
+    }
+    send_file($out, \%ids, ext => ($fmt eq "gif" ? "gif" : $unit_ext), hasAudio => ($aud ? JSON::PP::true : JSON::PP::false),
+              unitSeconds => sprintf("%.3f", $unit_len) + 0, filter => $fl);
+}
+
 while (defined(my $head = read_exact(4))) {
     my $len  = unpack("V", $head);
     my $body = read_exact($len);
@@ -275,7 +389,7 @@ while (defined(my $head = read_exact(4))) {
     if ($type eq "ping") {
         my $ffmpeg = find_ffmpeg();
         send_msg({ type => "pong", host => "perl", hostVersion => $HOST_VERSION,
-                   ffmpeg => $ffmpeg, ffmpegVersion => ffmpeg_version($ffmpeg), capabilities => ["gif", "audio"] });
+                   ffmpeg => $ffmpeg, ffmpegVersion => ffmpeg_version($ffmpeg), capabilities => ["gif", "audio", "loop"] });
     } elsif ($type eq "begin") {
         my $job = safe_job($m->{job}) or do { fail("bad job"); next };
         my $path = "$workdir/$job.in";
@@ -301,6 +415,8 @@ while (defined(my $head = read_exact(4))) {
         do_encode($m);
     } elsif ($type eq "audio") {
         do_audio($m);
+    } elsif ($type eq "loop") {
+        do_loop($m);
     } elsif ($type eq "release") {
         my $job = safe_job($m->{job});
         if ($job && $jobs{$job}) {
