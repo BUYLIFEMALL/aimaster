@@ -807,6 +807,29 @@ export function useStudio() {
 
   // 병합 B-6: 이전 수정본으로 되돌리기 — 같은 저장 경로(PATCH, reason "restore")로 저장해 지금 글도 이력에 남긴다.
   // 문단 묶음을 함께 보내 이미지 배치를 지우지 않는다(묶음 없이 본문만 바뀌면 서버가 이미지를 정리함).
+  // D-3: 검수 지적을 반영한 본문 저장 — 되돌리기와 같은 저장 경로(이미지 배치 유지, 바꾸기 전 글은 「검수 반영 전」으로 이력 보관).
+  async function saveReviewFix(body: string): Promise<{ draft?: DraftRecord; error?: string }> {
+    if (!currentDraft || draftSaving) return { error: "다른 저장이 진행 중입니다. 잠시 뒤 다시 눌러 주세요." };
+    const base = baseTextRef.current?.id === currentDraft.id ? baseTextRef.current : null;
+    if (base && (base.title !== currentDraft.title || base.body !== currentDraft.body)) return { error: "저장하지 않은 수정 내용이 있습니다. 먼저 저장한 뒤 다시 검수·반영해 주세요." };
+    setDraftSaving(true);
+    try {
+      const response = await fetch(`/api/drafts/${encodeURIComponent(currentDraft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: currentDraft.title, body, contentBlocks: reflowBlocks(contentBlocks, body, contentImages), reason: "review-apply", ...(base ? { baseTitle: base.title, baseBody: base.body } : {}) }) });
+      const result = await response.json() as { draft?: DraftRecord; error?: string };
+      if (!response.ok || !result.draft) return { error: result.error || "고친 글을 저장하지 못했습니다." };
+      setContentImages(getContentImages(result.draft));
+      setContentBlocks(blocksOfDraft(result.draft));
+      setCurrentDraft(withoutContentImages(result.draft));
+      rememberBase(result.draft);
+      refreshHistory().catch(() => {});
+      return { draft: result.draft };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : "고친 글을 저장하지 못했습니다." };
+    } finally {
+      setDraftSaving(false);
+    }
+  }
+
   async function restoreRevision(revision: DraftRevision) {
     if (!currentDraft || draftSaving) return;
     const base = baseTextRef.current?.id === currentDraft.id ? baseTextRef.current : null;
@@ -1041,6 +1064,7 @@ export function useStudio() {
     copyDraftText,
     copyDraftFormatted,
     restoreRevision,
+    saveReviewFix,
     exportDraftFile,
     selectedContentModelLabel,
     completedInputCount,

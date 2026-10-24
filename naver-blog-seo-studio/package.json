@@ -29,7 +29,8 @@
     "test:draft-revisions": "node --test tests/draft-revisions.test.mjs",
     "test:social-copy": "node --test tests/social-copy.test.mjs",
     "test:style-strength": "node --test tests/style-strength.test.mjs",
-    "test:narrative-structure": "node --test tests/narrative-structure.test.mjs"
+    "test:narrative-structure": "node --test tests/narrative-structure.test.mjs",
+    "test:review-apply": "node --test tests/review-apply.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

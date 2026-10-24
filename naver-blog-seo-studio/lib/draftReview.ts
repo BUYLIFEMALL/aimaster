@@ -1,6 +1,7 @@
 // 병합 B-1(작업실 → SEO 스튜디오, blog-workroom/src/lib/actions/write.ts review·finalize, src/lib/prompts.ts reviewPrompt):
 // 원고 AI 검수 6영역과 발행 전 확정. 외부 호출·실행 시점 import 없는 순수 함수(화면·서버·시험 공용).
-export const REVIEW_AREAS = ["내 블로그 스타일", "작성 원칙", "사실·출처", "경험 표현", "자료 유사 표현", "민감·과장 표현"] as const;
+// D-3 (2026-10-24): 「검색 의도」「답변 명료성」 2영역 추가(도톨이 v1.3 SEO·GEO 점검 참고, 기준은 우리 말로). 예전 6영역 결과도 그대로 읽힌다.
+export const REVIEW_AREAS = ["내 블로그 스타일", "작성 원칙", "사실·출처", "경험 표현", "자료 유사 표현", "민감·과장 표현", "검색 의도", "답변 명료성"] as const;
 export type ReviewArea = typeof REVIEW_AREAS[number];
 export interface ReviewIssue { area: ReviewArea; level: "필수" | "권장"; quote: string; reason: string; suggestion: string }
 export interface DraftReview { issues: ReviewIssue[]; summary: string; at: string; bodyHash: string; model?: string }
@@ -65,7 +66,8 @@ ${facts}
 검수할 글 — 제목: ${input.title}
 ${input.body}
 
-위 글을 6개 영역에서 점검하세요: ${REVIEW_AREAS.map((a) => `「${a}」`).join("")}.
+위 글을 ${REVIEW_AREAS.length}개 영역에서 점검하세요: ${REVIEW_AREAS.map((a) => `「${a}」`).join("")}.
+「검색 의도」: 첫 문단이 독자가 이 제목으로 검색한 질문에 바로 답하지 않고 배경 설명만 하면 지적합니다(첫 문단 첫 문장을 인용하고, 바로 답하는 문장으로 고쳐 씁니다). 「답변 명료성」: 소제목이 묻는 내용에 짧고 분명하게 답하는 문장이 그 아래에 없으면 지적합니다(그 소제목 아래 첫 문장을 인용하고, 한두 문장으로 분명히 답하는 문장으로 고쳐 씁니다). 이 두 영역은 「권장」으로 둡니다.
 각 문제는 글 속 문장을 그대로 짧게 인용(quote, 원문 그대로 10~60자)하고, 이유(reason)와 고친 문장(suggestion)을 적으세요. suggestion은 quote 자리에 그대로 바꿔 넣을 완성된 본문 문장이어야 합니다(「삭제하세요」 같은 지시문 금지). 문장을 지워야 하면 suggestion을 빈 문자열로 두세요. 반드시 고쳐야 하는 것(사실과 다름, 지어낸 경험·수치, 과장·민감 표현)은 level을 「필수」, 나머지는 「권장」으로 하세요. [확인 필요] 표시가 붙은 문장은 이미 확인 대상이므로 지적하지 않습니다. 문제가 없으면 issues를 빈 배열로 두세요.
 JSON: {"summary":"전체 평가 2~3문장","issues":[{"area":"영역","level":"필수","quote":"","reason":"","suggestion":""}]}`;
   return { system, user };
@@ -95,4 +97,31 @@ export function parseReview(raw: unknown, body: string, checks: ReviewChecks, so
     }
   }
   return { issues: issues.slice(0, 40), summary: str(obj.summary, 800) };
+}
+
+// D-3 (2026-10-24): 검수 지적 반영(작업실 「제안 반영」 이관 + 개선). AI 호출 없음.
+// 인용은 띄어쓰기 차이만 허용해 본문에서 찾고, 「딱 한 곳」일 때만 바꾼다(여러 곳이면 엉뚱한 곳을 바꿀 수 있어 건너뜀).
+// 고친 문장이 빈 값이면 그 문장을 지운다. 앞에서 바꾼 자리와 겹쳐 더 이상 찾을 수 없으면 건너뜀.
+export interface ReviewFixResult { body: string; applied: number[]; skipped: { index: number; reason: string }[] }
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function quotePattern(quote: string): RegExp | null {
+  const chars = [...quote.replace(/\s+/g, "")];
+  if (chars.length < 4) return null;
+  return new RegExp(chars.map(escapeRe).join("\\s*"), "g");
+}
+export function applyReviewFixes(body: string, issues: ReviewIssue[], indexes: number[]): ReviewFixResult {
+  let text = body;
+  const applied: number[] = [], skipped: { index: number; reason: string }[] = [];
+  for (const index of [...new Set(indexes)].sort((a, b) => a - b)) {
+    const issue = issues[index];
+    if (!issue) continue;
+    const re = quotePattern(issue.quote);
+    const hits = re ? [...text.matchAll(re)] : [];
+    if (hits.length !== 1) { skipped.push({ index, reason: hits.length ? "같은 문장이 여러 곳에 있어 직접 고쳐 주세요." : "본문에서 해당 문장을 찾지 못했습니다(이미 고쳤거나 앞의 반영과 겹침)." }); continue; }
+    const start = hits[0].index ?? 0, end = start + hits[0][0].length;
+    text = text.slice(0, start) + issue.suggestion + text.slice(end);
+    applied.push(index);
+  }
+  if (applied.some((i) => !issues[i].suggestion)) text = text.replace(/[ \t]{2,}/g, " ").replace(/ +\n/g, "\n").replace(/\n[ \t]+/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  return { body: text, applied, skipped };
 }

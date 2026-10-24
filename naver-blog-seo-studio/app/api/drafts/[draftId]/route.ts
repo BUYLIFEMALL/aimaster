@@ -46,7 +46,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ draft
     ? { ...report, contentBlocks }
     : bodyChanged ? Object.fromEntries(Object.entries(report).filter(([key]) => key !== "contentImages" && key !== "contentBlocks")) : report;
   // 병합 B-6: 제목·본문이 바뀌면 바뀌기 전 글을 이력에 남긴다(최근 10개, 원고와 함께 30일 뒤 삭제). 되돌리기도 같은 저장 경로를 쓴다.
-  const revisions = pushRevision(readRevisions(report.revisions), { title: original.title, body: original.body }, { title, body }, input?.reason === "restore" ? "되돌리기 전" : "직접 수정");
+  const revisions = pushRevision(readRevisions(report.revisions), { title: original.title, body: original.body }, { title, body }, input?.reason === "restore" ? "되돌리기 전" : input?.reason === "review-apply" ? "검수 반영 전" : "직접 수정"); // D-3: 검수 지적 반영
   const nextReport = revisions.length ? { ...baseReport, revisions } : baseReport;
   const { data, error } = await writableDraft(supabase.from("naver_blog_seo_drafts")
     .update({ title, body, seo_report: nextDraftReport(nextReport), updated_at: new Date().toISOString() })
