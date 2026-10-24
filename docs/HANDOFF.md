@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 「내 PC 고속 변환」 5단계: AI 음악 스튜디오 v1.14 · 음악(SUNO)자동화 v1.46 「⚡ 내 PC로 저장」
+- 곡마다 「내 PC로 저장(MP3·FLAC)」 → 회원 PC ffmpeg로 MP3·AAC·FLAC·WAV24 + -14 LUFS 맞춤. 공용 `pc-renderer-client` 사본 2곳 + 새 공용 `pc-audio-command`(기준 마스터링). 공용 연결 코드의 쓰지 않는 변수 정리로 사본 4곳 동기화(무한 반복 영상 사본은 영상 담당 세션 작업 중이라 그쪽 커밋에 맡김).
+- 검수(운영, 크롬 시험 계정): AI 음악 스튜디오 30초 곡 -16.2 → -14.0 LUFS, SUNO 207초 곡 -13.3 → -14.0 LUFS, 둘 다 진짜 MP3. 배포 `ai-music-studio-aif3nqs2q`·`music-8xq1thby3` Ready, DB v1.14·v1.46. 커밋 `3e625741c`.
+- **작업 대기(다음 순서, 주인님 요청)**: 뮤직비디오 — 참고 이미지(그림체) 화풍을 정확히 분석해 그 화풍으로 영상 만들기(지금은 실사로 나옴). 등록: `music-video-studio/docs/IMPROVEMENT_BACKLOG.md` 맨 위.
+- 비용: 빌드 2회, AI 호출 없음.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 U2 불필요한 기능 숨기기 (미배포 대기)
 - 한 일: `04d6601b9` — U2 불필요한 기능 숨기기 — 공유 메뉴 「게시」 탭, 템플릿 마켓플레이스(대신 템플릿 창), 계정 화면(AIMaster 안내로), 이메일·연결 앱 알림, AI 그림·가짜 Unsplash/GIPHY 탭(→ 「AI 이미지 자동화에서 만들기 ↗」), 지도 보기(추가·레이아웃·위젯 목록), 원본 요금제 업그레이드 문구와 요금제 전용 설정 탭. 숨김 목록은 `web/features/shell/trimPolicy.ts` 한 곳. 플랜 `ai-work-workspace/docs/PLAN_20261024_U2_TRIM.md`.
 - 발견: 사진 고르기의 「Unsplash」·「GIPHY」 탭은 가짜 사진(색 그림 + 가짜 작가 이름)이었음 → 숨김.
