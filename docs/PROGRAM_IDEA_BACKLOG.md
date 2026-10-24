@@ -438,6 +438,10 @@
 
 ## 2026-10-24 AutoGemmaStarter 2.0.0 분석에서 나온 후보 (Claude Code 윈도우, `claude-win-dotori`) — [분석](analysis-autogemma-starter-20261024/REPORT.md)
 
+<!-- GEMMA_DOCBOT_PROMPT_REVIEW_20261024 -->
+**2026-10-24 담당 검토 이력(Codex 윈도우 `codex-win-20261024-docbot-prompt`):** [공식 공급자 확인](analysis-autogemma-starter-20261024/OFFICIAL_PROVIDERS_20261024.md)·[G-1~G-5 개발 플랜/비용](analysis-autogemma-starter-20261024/PLAN_G1_G5_20261024.md) 작성, 구현/DB/비용 승인 대기. IDEA-GEMMA-01은 NVIDIA 운영 이용 조건과 Groq 실제 무료 한도 확인을 선결 조건으로 보완(안정성), 두 앱의 공용 키/호출 재사용에 적용(적용성), 재등록·유료 자동 전환을 방지(편의). IDEA-GEMMA-02는 회원별 봇/역할 검수와 위치 선택 대기. IDEA-GEMMA-03은 HTTPS→localhost의 CORS/LNA 시제품·회원 PC 설정 난이도 때문에 G-5 별도 선택 대기. IDEA-GEMMA-04는 기존 단일 문서 선택/출처 보기를 재사용하고 다중 선택의 검색 전 범위 적용·문서 분류/미리보기·PDF 경고를 G-4로 보강하는 안. 디자인/개발/신규성의 기존 표 구분은 유지하며 신규 기능 구현 완료로 표시하지 않습니다. 실제 API 0·빌드 0·비용 없음.
+<!-- /GEMMA_DOCBOT_PROMPT_REVIEW_20261024 -->
+
 | ID | 개발·유지보수 | 디자인 | 신규 자동화 시스템 | 안정성 / 현재 적용 / 편의 | 처리 |
 |---|---|---|---|---|---|
 | IDEA-GEMMA-01 | OpenAI 호환 공급자 묶음(Groq·OpenRouter·NVIDIA·Cloudflare Workers AI, 회원 본인 키) — 공용 연동 항목 + 공용 호출 모듈 | 공급자·모델 고르기 칸 | 아님(공급자 확장) | 높음 / `ai-doc-chatbot`·`ai-prompt-studio` / 높음 | 플랜 초안 · 문서 챗봇·AI Prompt 담당 인계 · 승인 대기 |
