@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.06: Gemini 연결·AI 채팅 기록 30일 삭제(U4) + 로그인 화면 표준화
+- 한 일(U4, 플랜 `ai-work-workspace/docs/PLAN_20261024_U4_GEMINI_RETENTION.md`): 회원 본인 Gemini 키 어댑터(`providers/gemini.ts`·`geminiTranslate.ts`, 키는 `x-goog-api-key` 머리글만, 도구 호출·생각 서명·웹 페이지 읽기, 한국어 오류), 회원 키별 모델 목록(`geminiModels.ts`, 기본 최신 정식 Flash·빠른 작업 Flash-Lite, 실패 시 공식 별칭), 회원이 키를 가진 모든 회사 모델을 채팅 목록에 함께 보이고 고른 모델의 회사 키 사용(자동은 Claude→OpenAI→Gemini), 키 화면 Gemini 칸(새 키 형식 `AQ.`도 허용), AI 채팅 기록 30일 자동 삭제(`src/server/aiRetention.ts`, 매일 `/api/cron/jobs`), 슬래시 「AI 이미지」 숨김 함께 배포. 커밋 `60316a2d7`·`304f2ccb1`·`8dd6398e5`·`fcacdde40`·`8c269894a`.
+- 로그인 화면(주인님 지적 「회원가입 폼을 메인과 안 맞췄다」): 지침 `DESIGN.md` 14번·`docs/PROGRAM_DESIGN_STANDARD.md` 12번 표준 2탭(모눈 배경·440px 카드·로그인/회원가입 알약 탭·아이콘·비밀번호 찾기·약관 푸터, 기준 `threads-comment-reply`)으로 교체. 회원가입 버튼이 `buylife.xyz/signup`(404)으로 가던 버그를 `/register`로, 비밀번호 찾기는 메인 `/forgot-password`로. 원본 로그인·회원가입 화면은 더 이상 그리지 않고 서버 오류 때는 「다시 시도」 안내. 커밋 `4e717d888`(**미배포 대기** — `docs/PENDING_DEPLOYS.md`). 로컬 개발 서버 + 크롬으로 로그인·회원가입 탭·링크 주소 확인.
+- 검수: 타입 검사·로컬 빌드 통과, 원본 서버 시험 522/522, 연결부 시험 31/31(Gemini 가짜 서버 12개·30일 삭제 2개 포함). 크롬에서 키 화면 v1.06·Gemini 칸 확인.
+- 배포: `ai-work-workspace-3l3mq5okd` → 키 형식 수정 재배포 `ai-work-workspace-3ndt12k9l` Ready, 운영 DB `programs.version`=v1.06(ref `esgxyikcnnvmlhygjkth`).
+- 못 한 것: 시험 계정 Gemini 유료 시험(크롬이 관리자 계정으로 로그인돼 있어 대기 — 시험 계정 로그인 후 진행), 폴더 안 인수인계 문서(AGENTS·README·IMPROVEMENTS·BACKLOG) U4 반영 — **agy가 이 폴더 디자인 리뉴얼을 작업 중으로 등록해 폴더 문서를 건드리지 않았다.** agy 작업이 끝난 뒤 이어서 반영.
+- 다음 배포 담당(agy 포함)에게: 버전은 v1.06 다음 v1.07. 미배포 `4e717d888` 함께 내보내기. 로그인 화면은 표준 구조를 유지하고 색만 테마에 맞추기. OpenAI 모델 목록 캐시가 회원별로 나뉘지 않은 점(원본 그대로)은 다음 작업으로 남김.
+- 비용: Vercel 빌드 2회(승인 범위 안), 유료 AI 호출 0회.
+- 프로그램: https://ai-work-workspace.buylife.xyz
+
 ## 2026-10-24 Codex(윈도우·엣지) `codex-win-20261024-docbot-g1` — G-1 소스·로컬 검사·운영 DB 준비, 미배포·실회원 검수 대기
 
 - 종료 보완: 코드 `2d56a117b`·공용 등록/인계 `1d3c28f60` 원격 반영. 관리자 미배포 현황(`site_settings.ops_overview`, 운영 ref `esgxyikcnnvmlhygjkth`) 저장 성공. 해당 묶음 푸시의 메인 Git 연동은 `dpl_HjpoejHJoMvHXuTK43751zpYLEtz` **CANCELED 1건**(배포 한도/빌드 자리 사용 포함), 실제 앱 배포는 없음. 취소 건의 청구 금액은 별도 확인 대상이며, 아래 $0은 외부 AI/수동 배포 실행 기준입니다. 이 종료 메모는 다음 작업 푸시에 묶습니다.
