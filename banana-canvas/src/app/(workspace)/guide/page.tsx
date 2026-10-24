@@ -186,7 +186,7 @@ export default function GuidePage() {
             <details><summary>“이미지가 만들어지지 않았습니다”라고 나와요.</summary><p>같은 버튼을 한 번 더 누르세요. 계속되면 요청을 더 구체적으로 쓰거나 다른 사진으로 시도해 보세요.</p></details>
             <details><summary>“AI 안전 정책으로 만들지 못했습니다”라고 나와요.</summary><p>인물 사진이나 요청이 안전 기준에 걸린 경우입니다. 다른 사진·표현으로 바꿔 시도해 주세요.</p></details>
             <details><summary>업로드한 이미지를 찾을 수 없다고 나와요.</summary><p>임시 보관 시간(1시간)이 지난 경우입니다. 이미지를 다시 올려 주세요.</p></details>
-            <details><summary>무료 지우기에서 “모델을 받지 못했습니다”라고 나와요.</summary><p>처음 한 번 약 200MB를 받습니다. 인터넷 연결을 확인하고 다시 누르세요. 회사·학교 망에서 허깅페이스(huggingface.co)가 막혀 있으면 받을 수 없습니다.</p></details>
+            <details><summary>무료 지우기에서 “모델을 받지 못했습니다”라고 나와요.</summary><p>처음 한 번 약 200MB를 공개 모델 저장소 허깅페이스(huggingface.co)에서 자동으로 받습니다(<a href="https://huggingface.co/Carve/LaMa-ONNX" target="_blank" rel="noopener noreferrer">지우기 모델 ↗</a> · <a href="https://huggingface.co/SWHL/RapidOCR" target="_blank" rel="noopener noreferrer">글자 찾기 모델 ↗</a>, 따로 받을 필요 없음). 인터넷 연결을 확인하고 다시 누르세요. 회사·학교 망에서 huggingface.co가 막혀 있으면 받을 수 없습니다.</p></details>
             <details><summary>무료 지우기가 느려요 / 「CPU 계산」이라고 나와요.</summary><p>그래픽 가속(WebGPU)을 못 쓰는 PC·브라우저입니다. 크롬·엣지를 최신으로 올리면 빨라질 수 있습니다. 여러 장은 한 장씩 차례로 처리하며, [중단]해도 끝난 결과는 남습니다.</p></details>
             <details><summary>스토리가 8컷보다 적게 나왔어요.</summary><p>시간 제한이나 일부 컷의 생성 실패 때문입니다. 안내 문구에 만들어진 컷 수가 표시되며, 같은 아이디어로 다시 실행하면 새로 만듭니다.</p></details>
           </div>
