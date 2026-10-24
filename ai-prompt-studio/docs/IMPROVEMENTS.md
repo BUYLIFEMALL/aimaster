@@ -42,3 +42,9 @@
 ## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 플랜 초안: AutoGemmaStarter 참고 묶음 (담당 이어받기)
 - G-1 실행 공급자 선택(Groq·OpenRouter·NVIDIA·Cloudflare, 공용 모듈) · G-5 로컬 Ollama(시제품).
 - 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 공용 연동 항목 추가는 운영 DB 쓰기라 별도 승인. [인수인계](../../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md)
+# 2026-10-24 G-1 — 미배포 대기
+
+- 내 템플릿 실행 공급자·모델 선택 및 같은 회원 공용 키 등록/조회 부품 연결. 프롬프트 설계·변수 제안·자동 채우기는 Gemini 유지.
+- 65개 공통 시험, 양쪽 타입·순차 로컬 빌드·비로그인 401 검사 통과. 실회원 키 재사용·공급자 실행·Edge UI 미검수. AI 0회·Vercel 빌드 0회, 버전 v1.09 유지.
+- 커밋은 루트 미배포 대기 표에서 확인. [인수인계](IMPROVEMENT_HANDOFF_20261024_G1.md). 배포는 기존 G-1~G-4 묶음에 포함하고 그때 버전을 올립니다.
+

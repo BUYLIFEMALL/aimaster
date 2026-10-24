@@ -29,9 +29,10 @@ async function upstageError(res: Response): Promise<Error> {
 }
 
 /** 답변을 한 번에 받는다(라우터 판단 등 짧은 호출용) */
-export async function chatOnce(apiKey: string, model: string, messages: ChatMessage[], maxTokens = 300): Promise<string> {
+export async function chatOnce(apiKey: string, model: string, messages: ChatMessage[], maxTokens = 300, signal?: AbortSignal): Promise<string> {
   const res = await fetch(`${BASE}/chat/completions`, {
     method: "POST",
+    signal,
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0 }),
   });
@@ -41,9 +42,10 @@ export async function chatOnce(apiKey: string, model: string, messages: ChatMess
 }
 
 /** 답변을 조금씩 받아 onDelta로 넘긴다(SSE). 끝나면 전체 답변을 돌려준다 */
-export async function chatStream(apiKey: string, messages: ChatMessage[], onDelta: (text: string) => void): Promise<string> {
+export async function chatStream(apiKey: string, messages: ChatMessage[], onDelta: (text: string) => void, signal?: AbortSignal): Promise<string> {
   const res = await fetch(`${BASE}/chat/completions`, {
     method: "POST",
+    signal,
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({ model: ANSWER_MODEL, messages, stream: true, temperature: 0.3 }),
   });

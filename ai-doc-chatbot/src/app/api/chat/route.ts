@@ -5,6 +5,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { chatOnce, chatStream, embed, ROUTER_MODEL, type ChatMessage } from "@/lib/chat/upstage";
 import { webSearch, type WebResult } from "@/lib/chat/tavily";
 import { buildRouterPrompt, buildSources, buildSystemPrompt, extractKeywords, isSummaryQuestion, mergeHybrid, parseRouteDecision, pickDocHits, roomTitleFrom, todayKst, type ChunkHit, type DocHit } from "@/lib/chat/core";
+import { compatibleCredentials } from "@/lib/compatibleChat/keyStore";
+import { compatibleChat } from "@/lib/compatibleChat/transport";
+import { CompatibleChatError } from "@/lib/compatibleChat/config";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,19 +22,29 @@ export async function POST(request: Request) {
   const gate = await authorize();
   if (!gate.ok) return gate.response;
   const userId = gate.auth.user.id;
-  const body = (await request.json().catch(() => ({}))) as { roomId?: unknown; message?: unknown; useDocs?: unknown; web?: unknown; documentId?: unknown; regenerate?: unknown };
+  const body = (await request.json().catch(() => ({}))) as { roomId?: unknown; message?: unknown; useDocs?: unknown; web?: unknown; documentId?: unknown; regenerate?: unknown; provider?: unknown; model?: unknown };
   const question = typeof body.message === "string" ? body.message.trim().slice(0, MAX_QUESTION) : "";
   if (!question) return NextResponse.json({ error: "질문을 입력해 주세요." }, { status: 400 });
   const useDocs = body.useDocs !== false;
   const webMode = body.web === "off" ? "off" : "auto";
   const regenerate = body.regenerate === true;
 
-  const up = await requireOwnKey(userId, "upstage");
-  if (!up.ok) return up.response;
-  const upstageKey = up.apiKey;
+  const legacy = body.provider === undefined || body.provider === "upstage";
+  if (legacy && body.model !== undefined && body.model !== "solar-pro4") return NextResponse.json({ error: "기존 Solar 답변 모델을 다시 선택해 주세요." }, { status: 400 });
+  let upstageKey: string | undefined;
+  if (legacy || useDocs) {
+    const up = await requireOwnKey(userId, "upstage");
+    if (!up.ok) return up.response;
+    upstageKey = up.apiKey;
+  }
   const tavilyKey = webMode === "auto" ? await getUserApiKey(userId, "tavily") : null;
 
   const admin = createAdminClient();
+  let credentials: Awaited<ReturnType<typeof compatibleCredentials>> | null = null;
+  if (!legacy) {
+    try { credentials = await compatibleCredentials(admin, userId, body.provider, body.model); }
+    catch (error) { return NextResponse.json({ error: error instanceof CompatibleChatError ? error.message : "AI 연결 정보를 확인하지 못했습니다.", needApiKey: error instanceof CompatibleChatError && error.needApiKey }, { status: error instanceof CompatibleChatError ? error.status : 500 }); }
+  }
 
   // 채팅방: 내 방이 맞는지 확인하거나 새로 만든다
   let roomId = typeof body.roomId === "string" && UUID.test(body.roomId) ? body.roomId : null;
@@ -74,12 +87,15 @@ export async function POST(request: Request) {
 
   const today = todayKst();
   const encoder = new TextEncoder();
+  const cancel = new AbortController();
+  const signal = AbortSignal.any([request.signal, cancel.signal]);
   const stream = new ReadableStream({
     async start(controller) {
-      const send = (obj: unknown) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
+      const send = (obj: unknown) => { if (!signal.aborted) controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n")); };
       try {
         // 1) 내 문서에서 관련 내용 찾기
-        const docs: DocHit[] = useDocs ? await findDocHits(admin, userId, upstageKey, question, onlyDocumentId) : [];
+        const docs: DocHit[] = useDocs ? await findDocHits(admin, userId, upstageKey!, question, onlyDocumentId) : [];
+        signal.throwIfAborted();
 
         // 2) 웹 검색이 필요한지 판단 → 필요하면 Tavily(MCP) 검색
         let web: WebResult[] = [];
@@ -90,7 +106,11 @@ export async function POST(request: Request) {
             webNote = "no_key";
           } else {
             // 문서에서 찾은 내용을 함께 보여 주어, 문서로 답할 수 있으면 웹 검색을 건너뛴다(L9)
-            const decision = parseRouteDecision(await chatOnce(upstageKey, ROUTER_MODEL, [{ role: "user", content: buildRouterPrompt(question, today, docs) }], 160), question);
+            const routerMessages: ChatMessage[] = [{ role: "user", content: buildRouterPrompt(question, today, docs) }];
+            const raw = credentials
+              ? (await compatibleChat({ ...credentials, messages: routerMessages, temperature: 0, maxTokens: 512, timeoutMs: 15_000, signal })).text
+              : await chatOnce(upstageKey!, ROUTER_MODEL, routerMessages, 160, signal);
+            const decision = parseRouteDecision(raw, question);
             if (decision.web) {
               try {
                 const outcome = await webSearch(tavilyKey, decision.query, 5, { topic: decision.topic, timeRange: decision.timeRange });
@@ -109,7 +129,12 @@ export async function POST(request: Request) {
 
         // 3) 답변(실시간으로 흘려보냄)
         const messages: ChatMessage[] = [{ role: "system", content: buildSystemPrompt(today, docs, web) }, ...history, { role: "user", content: question }];
-        const answer = await chatStream(upstageKey, messages, (text) => send({ type: "delta", text }));
+        signal.throwIfAborted();
+        const result = credentials
+          ? await compatibleChat({ ...credentials, messages, signal, onDelta: (text) => send({ type: "delta", text }) })
+          : { text: await chatStream(upstageKey!, messages, (text) => send({ type: "delta", text }), signal), model: "solar-pro4" };
+        const answer = result.text;
+        signal.throwIfAborted();
 
         const { data: saved } = await admin
           .from("dcb_messages")
@@ -117,13 +142,14 @@ export async function POST(request: Request) {
           .select("id, created_at")
           .single();
         await admin.from("dcb_rooms").update({ updated_at: new Date().toISOString() }).eq("id", roomId).eq("user_id", userId);
-        send({ type: "done", messageId: saved?.id ?? null, createdAt: saved?.created_at ?? null });
+        send({ type: "done", messageId: saved?.id ?? null, createdAt: saved?.created_at ?? null, model: result.model, provider: credentials?.provider ?? "upstage" });
       } catch (err) {
-        send({ type: "error", roomId, error: (err as Error).message || "답변을 만들지 못했습니다." });
+        send({ type: "error", roomId, error: (err as Error).message || "답변을 만들지 못했습니다.", needApiKey: err instanceof CompatibleChatError && err.needApiKey });
       } finally {
-        controller.close();
+        if (!signal.aborted) controller.close();
       }
     },
+    cancel() { cancel.abort(); },
   });
 
   return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });

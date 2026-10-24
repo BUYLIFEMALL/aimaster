@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Key, Shield, ExternalLink, Check, AlertCircle } from "lucide-react";
+import { ProviderKeys } from "@/lib/compatibleChat/ProviderKeys";
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -49,7 +50,7 @@ export function ApiKeyModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl">
         {/* 모달 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-2">
@@ -58,7 +59,7 @@ export function ApiKeyModal({
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm md:text-base">
-                Google Gemini API 키 연동
+                API키등록·플랫폼연동
               </h3>
               <p className="text-[11px] text-slate-500">본인 계정의 키로 독립 운영됩니다</p>
             </div>
@@ -73,6 +74,7 @@ export function ApiKeyModal({
 
         {/* 모달 본문 */}
         <div className="p-6 space-y-5">
+          <p className="text-xs text-slate-500">Gemini는 프롬프트 설계·AI 자동 채우기에 사용합니다. 템플릿 실행은 아래 추가 AI도 선택할 수 있습니다.</p>
           {/* 현재 등록 상태 */}
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -141,7 +143,7 @@ export function ApiKeyModal({
             <div className="flex items-start gap-2 text-[11px] text-slate-500">
               <Shield className="w-3.5 h-3.5 text-violet-500 shrink-0 mt-0.5" />
               <p>
-                등록하신 API 키는 암호화되어 안전하게 보관되며, 본인의 프롬프트 생성 요청에만 사용됩니다.
+                등록한 키는 회원 본인에게 연결해 저장하고, 같은 키를 쓰는 AIMaster 프로그램에서 함께 사용합니다. 화면에는 마스킹한 등록 상태만 표시합니다.
               </p>
             </div>
             <a
@@ -154,6 +156,7 @@ export function ApiKeyModal({
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
+          <ProviderKeys />
         </div>
       </div>
     </div>

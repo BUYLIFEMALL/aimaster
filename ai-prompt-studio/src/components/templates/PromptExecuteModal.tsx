@@ -16,12 +16,14 @@ import {
   FileText,
 } from "lucide-react";
 import { PromptTemplate, substituteVariables } from "@/types/template";
+import { ProviderSelect } from "@/lib/compatibleChat/ProviderSelect";
+import type { ChatSelection } from "@/lib/compatibleChat/config";
 
 interface PromptExecuteModalProps {
   isOpen: boolean;
   onClose: () => void;
   prompt: PromptTemplate | null;
-  onExecute: (substitutedPrompt: string) => Promise<string>;
+  onExecute: (substitutedPrompt: string, selection?: ChatSelection) => Promise<string>;
   onAutoFill: (title: string, description: string, variables: string[]) => Promise<Record<string, string>>;
 }
 
@@ -39,6 +41,7 @@ export function PromptExecuteModal({
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [selection, setSelection] = useState<ChatSelection>({ provider: "gemini", model: "gemini-2.5-flash" });
 
   if (!isOpen || !prompt) return null;
 
@@ -73,7 +76,7 @@ export function PromptExecuteModal({
     try {
       setIsExecuting(true);
       setError(null);
-      const result = await onExecute(substitutedPrompt);
+      const result = await onExecute(substitutedPrompt, selection);
       setExecutionResult(result);
     } catch (err: any) {
       setError(err.message || "프롬프트 실행 중 오류가 발생했습니다.");
@@ -143,6 +146,8 @@ export function PromptExecuteModal({
         <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 좌측: 변수 입력 폼 */}
           <div className="space-y-4">
+            <ProviderSelect value={selection} onChange={setSelection} legacy="gemini" disabled={isExecuting || isAutoFilling} />
+            <p className="text-xs text-slate-500">추가 AI 키는 API키등록·플랫폼연동에서 저장합니다. 입력 내용은 선택한 공급자에게 전달됩니다. AI 자동 채우기는 기존 Gemini를 사용합니다.</p>
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
                 <span className="w-1.5 h-4 bg-blue-600 rounded-full" />

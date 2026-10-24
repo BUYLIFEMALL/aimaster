@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Key, CheckCircle2, AlertCircle, Trash2, ShieldCheck } from "lucide-react";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { ProviderKeys } from "@/lib/compatibleChat/ProviderKeys";
 
 type KeyState = Record<string, { registered: boolean; maskedKey?: string }>;
 
@@ -192,8 +193,7 @@ export default function SettingsPage() {
       <KeyCard
         provider="upstage"
         title="Upstage API 키"
-        required
-        description="답변 생성(Solar), 문서 임베딩, PDF·문서 읽기에 꼭 필요합니다."
+        description="기존 Solar 답변·문서 임베딩·PDF 읽기에 사용합니다. 문서 참고를 끄고 다른 답변 AI를 선택하면 그 공급자 키만으로 대화할 수 있습니다."
         placeholder="up_... 로 시작하는 Upstage API 키"
         {...common}
       />
@@ -206,6 +206,7 @@ export default function SettingsPage() {
       </div>
 
       <KeyCard provider="tavily" title="Tavily API 키" description="최신 정보 웹 검색용 (선택)" placeholder="tvly-... 로 시작하는 Tavily API 키" {...common} />
+      <ProviderKeys dark />
       {webStats && webStats.searches > 0 && (
         <p className="-mt-3 rounded-xl border border-[#262c3d] bg-[#11141c] px-4 py-2.5 text-xs text-slate-400">
           🌐 최근 30일 웹 검색 <b className="text-slate-200">{webStats.searches}회</b>

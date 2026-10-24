@@ -170,7 +170,7 @@ export function TemplatesView({
         isOpen={executeModalOpen}
         onClose={() => setExecuteModalOpen(false)}
         prompt={executingPrompt}
-        onExecute={(promptText) => post<{ text: string }>("/api/templates/execute", { promptText }).then((d) => d.text)}
+        onExecute={(promptText, selection) => post<{ text: string }>("/api/templates/execute", { promptText, ...selection }).then((d) => d.text)}
         onAutoFill={(title, description, variables) => post<{ values: Record<string, string> }>("/api/templates/auto-fill", { title, description, variables }).then((d) => d.values)}
       />
       <BackupModal

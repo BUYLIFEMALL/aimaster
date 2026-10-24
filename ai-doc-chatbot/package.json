@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import tsx --test tests/access.test.mjs tests/chat.test.mjs tests/markdown.test.mjs"
+    "test": "node --import tsx --test tests/access.test.mjs tests/chat.test.mjs tests/markdown.test.mjs tests/compatible-chat.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.0",

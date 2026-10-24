@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Bot, Check, Copy, FileText, Globe, Loader2, MessageSquarePlus, PanelLeft, Pencil, Pin, PinOff, RotateCcw, Search, Send, Trash2, User, X } from "lucide-react";
 import { ErrorNote, INPUT } from "@/components/studio/ui";
 import { Markdown } from "@/components/chat/Markdown";
+import { ProviderSelect } from "@/lib/compatibleChat/ProviderSelect";
+import type { ChatSelection } from "@/lib/compatibleChat/config";
 
 interface Source {
   type: "doc" | "web";
@@ -43,6 +45,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [useDocs, setUseDocs] = useState(true);
   const [webAuto, setWebAuto] = useState(true);
+  const [selection, setSelection] = useState<ChatSelection>({ provider: "upstage", model: "solar-pro4" });
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<{ text: string; needKey?: boolean } | null>(null);
@@ -55,6 +58,9 @@ export default function ChatPage() {
   const [editing, setEditing] = useState<{ id: string; title: string } | null>(null);
   const [onlyDoc, setOnlyDoc] = useState<{ id: string; name: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const requestRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => requestRef.current?.abort(), []);
 
   const loadRooms = useCallback(async () => {
     const r = await fetch("/api/rooms", { cache: "no-store" }).then((x) => x.json()).catch(() => ({}));
@@ -154,11 +160,14 @@ export default function ChatPage() {
     setStage(useDocs && docCount ? "내 문서에서 찾는 중…" : webAuto ? "웹 검색이 필요한지 판단하는 중…" : "답변을 만드는 중…");
     setMessages((m) => [...m, { role: "user", content: question, created_at: new Date().toISOString() }, { role: "assistant", content: "", pending: true }]);
 
+    const controller = new AbortController();
+    requestRef.current = controller;
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off", documentId: useDocs ? onlyDoc?.id : undefined, regenerate: isRegenerate }),
+        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off", documentId: useDocs ? onlyDoc?.id : undefined, regenerate: isRegenerate, ...selection }),
+        signal: controller.signal,
       });
       if (!res.ok || !res.body) {
         const d = await res.json().catch(() => ({}));
@@ -178,7 +187,7 @@ export default function ChatPage() {
         buffer = lines.pop() ?? "";
         for (const line of lines) {
           if (!line.trim()) continue;
-          const ev = JSON.parse(line) as { type: string; roomId?: string; sources?: Source[]; webNote?: string | null; text?: string; error?: string; createdAt?: string };
+          const ev = JSON.parse(line) as { type: string; roomId?: string; sources?: Source[]; webNote?: string | null; text?: string; error?: string; needApiKey?: boolean; createdAt?: string };
           if (ev.type === "meta") {
             if (ev.roomId) setRoomId(ev.roomId);
             patchLast((msg) => ({ ...msg, sources: ev.sources ?? [] }));
@@ -192,13 +201,15 @@ export default function ChatPage() {
           } else if (ev.type === "error") {
             if (ev.roomId) setRoomId(ev.roomId);
             patchLast((msg) => ({ ...msg, pending: false }));
-            setError({ text: ev.error ?? "답변을 만들지 못했습니다." });
+            setError({ text: ev.error ?? "답변을 만들지 못했습니다.", needKey: ev.needApiKey });
           }
         }
       }
     } catch {
-      setError({ text: "연결이 끊겼습니다. 잠시 뒤 다시 시도해 주세요." });
+      if (controller.signal.aborted) setNotice("답변 생성을 중단했습니다. 이미 완료된 답변을 제외하고, 중단한 답변은 저장하지 않습니다.");
+      else setError({ text: "연결이 끊겼습니다. 잠시 뒤 다시 시도해 주세요." });
     } finally {
+      if (requestRef.current === controller) requestRef.current = null;
       setMessages((m) => m.filter((x) => !(x.pending && !x.content)).map((x) => ({ ...x, pending: false })));
       setBusy(false);
       setStage(null);
@@ -381,6 +392,8 @@ export default function ChatPage() {
 
         <div className="border-t border-[#1f2433] px-4 py-3">
           <div className="mx-auto max-w-3xl space-y-2">
+            <ProviderSelect dark legacy="upstage" value={selection} onChange={setSelection} disabled={busy} />
+            {selection.provider !== "upstage" && <p className="text-xs text-slate-400">질문·대화 이력과 참고 문서 내용이 선택한 AI에 전달됩니다. 문서 참고를 끄면 답변에 Upstage 키가 필요하지 않습니다.</p>}
             {error && <ErrorNote message={error.text} needKey={error.needKey} />}
             {notice && <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-200">{notice}</p>}
             {onlyDoc && (
@@ -407,8 +420,8 @@ export default function ChatPage() {
                   }
                 }}
               />
-              <button type="button" aria-label="보내기" onClick={() => void send()} disabled={busy || !input.trim()} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-40">
-                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+              <button type="button" aria-label={busy ? "답변 중단" : "보내기"} onClick={() => busy ? requestRef.current?.abort() : void send()} disabled={!busy && !input.trim()} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-40">
+                {busy ? <X className="h-5 w-5" /> : <Send className="h-5 w-5" />}
               </button>
             </div>
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
