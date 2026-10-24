@@ -1,6 +1,6 @@
 # 개발 플랜 — 공용 「무료 음성 엔진」 + 쇼츠 원스톱 「무료 음성(내 브라우저)」 (2026-10-24)
 
-- 작성: Claude Code(윈도우) 음악 담당 `claude-win-20261024-music` · 상태: **주인님 승인 대기**
+- 작성: Claude Code(윈도우) 음악 담당 `claude-win-20261024-music` · 상태: **승인(2026-10-24, 빌드 1~2회) → v1.42 배포 완료** · 기본 음성은 사용자가 고름(OpenAI 기본 유지, 「다음 영상부터 이 음성으로 시작」 추가) · 설계 변경 1건: 계산 라이브러리는 jsdelivr가 아니라 같은 주소 `/ort/`(Turbopack 묶음 문제)
 - 근거: 인수인계 `../../docs/analysis-supertonic-tts-20261024/HANDOFF_20261024_MUSIC_OWNER.md` · 결정·사전 검증 결과 `../../docs/MUSIC_OWNER_QUEUE_20261024.md` §5·§6
 - 대상: AIMaster 운영 · DB ref `esgxyikcnnvmlhygjkth`(DB 구조 변경 없음) · https://shorts-onestop-studio.buylife.xyz · 현재 v1.41
 

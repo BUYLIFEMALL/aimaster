@@ -248,3 +248,12 @@
 - 함께 나간 것: 대기분 공용 사본 동기화 `fd1f3cb67`(동작 불변).
 - 검수: tsc·시험·build, 배포 `shorts-onestop-studio-r6ntxtshv` Ready, DB v1.41, 크롬 `/design` 「AI 영상 모델」 선택 목록 4개(Gemini·Seedance 1 Lite·Seedance 1.5 Pro·Kling O3), 화면 코드에 kling-v2.1 없음.
 - 비용: 빌드 1회.
+
+## 2026-10-24 v1.42 — 무료 음성(내 브라우저) + 공용 엔진 `browser-free-tts` (Claude Code 윈도우, 음악 담당 `claude-win-20261024-music`)
+- 음성 모델에 「무료 음성(내 브라우저) · Supertone」(`provider: "browser"`, 모델 `supertonic-3`, 목소리 F1~F5·M1~M5, 빠르기 0.9~1.5). 기본값은 OpenAI 그대로(주인님: 사용자가 고르게).
+- 흐름: `src/lib/freeVoice.ts` `sceneVoice()` — 무료면 `freeTts/engine.ts` `speak()`(작업자 계산) → `/api/media/voice-upload`(본인 `voice/` 폴더, WAV 10MB) → 서명 주소 → 자막 시각 `sentenceWords`+`startsFromWords`(받아쓰기 없음). 유료면 지금처럼 `/api/ai/tts`. 렌더 화면 `makeVoice`·일괄 제작 `makeVoices` 둘 다 이 함수.
+- 화면: 처음 고를 때 사용 조건(OpenRAIL-M) 확인 체크, 첫 내려받기 진행률(약 400MB·와이파이), 실패 시 「유료 음성으로 바꾸기」, 「다음 영상부터 이 음성으로 시작」(`src/lib/voicePref.ts`, 이 브라우저 localStorage). 음성에 `free: true` 표시 → 유튜브 설명란에 `FREE_VOICE_NOTE` 한 줄(`script.ts` `usesFreeVoice`).
+- 머리글: `next.config.ts` COOP `same-origin` + COEP `credentialless`(여러 줄 계산). 문제가 생기면 이 두 줄만 빼면 한 줄 계산으로 계속 동작.
+- 계산 라이브러리는 묶지 않음: `scripts/copy-ort.mjs`(predev·prebuild)가 `public/ort/`로 복사(.gitignore), 작업자가 실행 때 불러옴 — 이유는 `docs/ERROR_LESSONS.md` 2026-10-24.
+- 검수: tsc·시험 33개(새 `tests/freeTts.test.ts` 6개)·로컬 빌드, 로컬 크롬 실제 계산(처음 45.7초·두 번째 약 2초 준비, 8.36초 음성 6.9초 생성), 운영 머리글·`/ort/` 200·렌더 화면 선택지/안내(관리자 계정, 저장 안 함). **남은 것: 시험 계정으로 운영 실제 음성 만들기·MP4 확인.**
+- 커밋 `fa77fc06e`, 배포 `shorts-onestop-studio-d5tdeydn1` Ready, DB v1.42. 미배포 대기: 안내 그림문자 `a95613743`. 비용: 빌드 1회.
