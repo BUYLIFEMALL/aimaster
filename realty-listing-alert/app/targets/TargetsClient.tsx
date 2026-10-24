@@ -3,11 +3,16 @@
 import { useActionState, useState, useTransition } from "react";
 import { addTargetAction, deleteTargetAction, toggleTargetAction, updateTargetAction, type TargetActionState } from "@/lib/actions/targets";
 import { MAX_TARGETS, TRADE_TYPES } from "@/lib/targets";
+import RegionPicker from "./RegionPicker";
 
 export type TargetRow = {
   id: string;
-  complex_no: string;
+  complex_no: string | null;
   complex_name: string | null;
+  target_type: string;
+  cortar_no: string | null;
+  region_name: string | null;
+  region_max_complexes: number;
   trade_types: string[];
   price_min: number | null;
   price_max: number | null;
@@ -49,13 +54,18 @@ function Message({ state }: { state: TargetActionState }) {
 function TargetItem({ target }: { target: TargetRow }) {
   const [state, action, saving] = useActionState(updateTargetAction, {});
   const [pending, startTransition] = useTransition();
-  const name = target.complex_name || `단지 ${target.complex_no}`;
+  const isRegion = target.target_type === "region";
+  const name = isRegion ? `🏙 ${target.region_name ?? target.cortar_no}` : target.complex_name || `단지 ${target.complex_no}`;
   return (
     <li className={`ra-item ${target.enabled ? "" : "off"}`}>
       <div className="ra-item-head">
         <div>
           <strong>{name}</strong>
-          <a href={`https://new.land.naver.com/complexes/${target.complex_no}`} target="_blank" rel="noreferrer">네이버 부동산에서 보기 ↗</a>
+          {isRegion ? (
+            <small className="ra-region-note">이 동에서 매물 많은 단지 {target.region_max_complexes}곳을 살펴봐요</small>
+          ) : (
+            <a href={`https://new.land.naver.com/complexes/${target.complex_no}`} target="_blank" rel="noreferrer">네이버 부동산에서 보기 ↗</a>
+          )}
         </div>
         <div className="ra-item-actions">
           <button type="button" className={`ra-toggle ${target.enabled ? "on" : ""}`} disabled={pending} onClick={() => startTransition(() => toggleTargetAction(target.id, !target.enabled))}>
@@ -129,6 +139,10 @@ export default function TargetsClient({ initialTargets, prefill = null }: { init
               </ol>
               <p className="card-caption">💡 추가한 뒤 이 화면을 새로고침하면 아래 목록에 보여요. 버튼이 안 보이면 크롬 확장이 설치·연결됐는지 대시보드 「🚀 시작하기」를 확인하세요.</p>
             </div>
+            <details className="ra-manual" open>
+              <summary>🏙 지역(시·구·동)으로 추가하기</summary>
+              <RegionPicker disabled={full} />
+            </details>
             <details className="ra-manual" open={!!prefill}>
               <summary>✏️ 주소로 직접 추가하기</summary>
               <form action={action} key={initialTargets.length}>

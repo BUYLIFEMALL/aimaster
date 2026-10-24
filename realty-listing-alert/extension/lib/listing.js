@@ -83,3 +83,21 @@ export function isGenericName(name) {
   const s = String(name || "").trim();
   return !s || /네이버|부동산$|^n\s*pay/i.test(s);
 }
+
+/**
+ * 지역(동) 단지 목록에서 매물 많은 순으로 상위 N곳을 고른다(2026-10-25 지역 감시).
+ * 매물 수 칸이 없으면 네이버가 준 순서 그대로. 반환: [{ complexNo, complexName, count }]
+ */
+export function pickTopComplexes(list, fields, n) {
+  const f = { no: "complexNo", name: "complexName", counts: ["dealCount", "leaseCount", "rentCount"], ...(fields || {}) };
+  const rows = (Array.isArray(list) ? list : [])
+    .map((c, i) => ({
+      complexNo: String(c?.[f.no] ?? ""),
+      complexName: String(c?.[f.name] ?? ""),
+      count: f.counts.reduce((sum, k) => sum + (Number(c?.[k]) || 0), 0),
+      i,
+    }))
+    .filter((c) => /^\d{1,12}$/.test(c.complexNo));
+  rows.sort((a, b) => b.count - a.count || a.i - b.i);
+  return rows.slice(0, Math.max(1, Math.min(10, n || 5))).map(({ complexNo, complexName, count }) => ({ complexNo, complexName, count }));
+}

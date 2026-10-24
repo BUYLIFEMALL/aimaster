@@ -156,3 +156,50 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
   await log(`단지 ${complexNo} 진단: ${diag.join(" / ").slice(0, 400)}`);
   return { status: "ok", bodies, complete: !lastMore };
 }
+
+/**
+ * 지역(동) → 매물 많은 단지 상위 N곳 (2026-10-25 지역 감시).
+ * 네이버 부동산 화면을 배경 탭으로 열어 페이지가 보내는 인증 머리글을 잡은 뒤, 같은 탭 안에서 그 동의 단지 목록을 부른다.
+ * 차단·확인 화면이면 멈춘다. 서버는 관여하지 않는다(회원 PC·회원 계정).
+ * @returns {Promise<{status: "ok"|"blocked"|"rule_mismatch"|"error", complexes: {complexNo:string, complexName:string, count:number}[], error?: string}>}
+ */
+export async function collectRegionComplexes(cortarNo, maxN, rules, pick, log = async () => {}) {
+  const r = rules.region;
+  if (!r) return { status: "rule_mismatch", complexes: [], error: "수집 규칙에 지역 설정이 없어요." };
+  let auth = null;
+  let blockedStatus = null;
+  let result = null;
+  const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
+  const tab = await chrome.tabs.create({ url: "about:blank", active: false, ...(win?.id ? { windowId: win.id } : {}) });
+  const tabId = tab.id;
+  const onEvent = (src, method, params) => {
+    if (src.tabId !== tabId || method !== "Network.requestWillBeSent") return;
+    const h = params.request?.headers || {};
+    if (/land\.naver\.com\/api\//.test(params.request?.url || "") && (h.authorization || h.Authorization)) auth = h.authorization || h.Authorization;
+  };
+  chrome.debugger.onEvent.addListener(onEvent);
+  try {
+    await chrome.debugger.attach({ tabId }, "1.3");
+    await chrome.debugger.sendCommand({ tabId }, "Network.enable");
+    await chrome.debugger.sendCommand({ tabId }, "Page.navigate", { url: r.pageUrl });
+    await sleep(rules.firstLoadWaitMs || 8000);
+    const page = await evalInPage(tabId, PAGE_CHECK);
+    if (page && (page.blocked || !/land\.naver\.com$/.test(page.host))) blockedStatus = "page";
+    else {
+      const url = String(r.listUrl).replace("{cortarNo}", encodeURIComponent(cortarNo));
+      result = await evalInPage(tabId, `fetch(${JSON.stringify(url)}, { credentials: "include", headers: ${JSON.stringify(auth ? { authorization: auth } : {})} }).then(async (x) => ({ status: x.status, body: x.ok ? await x.json().catch(() => null) : null })).catch(() => ({ status: 0, body: null }))`);
+      if (isBlockedStatus(result?.status)) blockedStatus = result.status;
+    }
+  } catch (e) {
+    result = { status: 0, body: null, error: String(e).slice(0, 120) };
+  } finally {
+    chrome.debugger.onEvent.removeListener(onEvent);
+    try { await chrome.debugger.detach({ tabId }); } catch {}
+    try { await chrome.tabs.remove(tabId); } catch {}
+  }
+  const list = result?.body?.[r.fields?.list || "complexList"];
+  await log(`지역 ${cortarNo} 진단: 인증${auth ? "있음" : "없음"} / 응답코드 ${result?.status ?? "-"} / 단지 ${Array.isArray(list) ? list.length : "목록 칸 없음"}${result?.body && !Array.isArray(list) ? ` / 칸: ${Object.keys(result.body).slice(0, 8).join(",")}` : ""}`);
+  if (blockedStatus) return { status: "blocked", complexes: [], error: blockedStatus === "page" ? "네이버 확인 화면(보안 문자·로그인)이 나타났어요." : `네이버가 ${blockedStatus} 응답(접근 제한)을 보냈어요.` };
+  if (!Array.isArray(list)) return { status: result?.status === 200 ? "rule_mismatch" : "error", complexes: [], error: result?.error || `지역 단지 목록을 받지 못했어요(응답 ${result?.status ?? "-"}).` };
+  return { status: "ok", complexes: pick(list, r.fields, maxN) };
+}

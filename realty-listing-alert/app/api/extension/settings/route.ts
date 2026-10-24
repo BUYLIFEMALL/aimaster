@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const [{ data: targets }, { data: s }, { data: tg }] = await Promise.all([
     supabase
       .from("realty_alert_targets")
-      .select("complex_no, complex_name, trade_types, price_min, price_max, area_min, area_max")
+      .select("complex_no, complex_name, target_type, cortar_no, region_name, region_max_complexes, trade_types, price_min, price_max, area_min, area_max")
       .eq("user_id", user.userId)
       .eq("enabled", true)
       .order("created_at", { ascending: true }),

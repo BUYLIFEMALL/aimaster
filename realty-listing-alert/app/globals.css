@@ -662,3 +662,15 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-more { margin: 4px 0 12px; }
 .ra-more[open] > summary { margin-bottom: 8px; }
 @media (max-width: 680px) { .ra-easy-steps { grid-template-columns: 1fr; } }
+/* 🏙 지역 고르기(2026-10-25) — 실거래 프로그램 자치구 버튼처럼 격자, 고른 버튼은 초록 */
+.ra-region { display: grid; gap: 8px; margin-top: 6px; }
+.ra-region-step { margin: 6px 0 0; font-size: 13px; font-weight: 800; color: #334155; }
+.ra-region-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 260px; overflow: auto; padding: 2px; }
+.ra-region-btn { padding: 10px 8px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #1f2937; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 0 #dfe4ec; }
+.ra-region-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ra-region-btn.on { border-color: #008a44; background: linear-gradient(180deg, #08c963, #009b4d); color: #fff; box-shadow: 0 3px 0 #007338; }
+.ra-region-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; padding: 12px 14px; border: 2px solid #bfe6cf; border-radius: 14px; background: var(--accent-soft); }
+.ra-region-confirm select { margin: 0 6px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+.ra-region-confirm .primary { width: auto; margin: 0; }
+.ra-region-confirm small { flex-basis: 100%; color: var(--muted); font-size: 12.5px; }
+.ra-region-note { display: block; color: var(--muted); font-size: 12px; }

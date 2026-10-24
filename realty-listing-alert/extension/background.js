@@ -1,8 +1,8 @@
 // AIMaster 부동산 매물 알림 확장 — 수집 엔진(3단계, v1.03).
 // 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
 // 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
-import { collectComplex, rand, sleep } from "./lib/collector.js";
-import { complexNoFromUrl, isGenericName, matchesTarget, normalizeArticle } from "./lib/listing.js";
+import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/collector.js";
+import { complexNoFromUrl, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
 import { kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
@@ -18,6 +18,11 @@ const DEFAULT_RULES = {
   scrollWaitMs: [2000, 5000],
   betweenTargetsMs: [10000, 30000],
   firstLoadWaitMs: 8000,
+  region: {
+    pageUrl: "https://new.land.naver.com/complexes",
+    listUrl: "https://new.land.naver.com/api/regions/complexes?cortarNo={cortarNo}&realEstateType=APT%3AABYG%3AJGC&order=",
+    fields: { list: "complexList", no: "complexNo", name: "complexName", counts: ["dealCount", "leaseCount", "rentCount"] },
+  },
 };
 const version = () => chrome.runtime.getManifest().version_name || "";
 const get = (keys) => chrome.storage.local.get(keys);
@@ -107,14 +112,45 @@ async function runCollection(trigger) {
     let result = "ok";
     let errMsg = null;
 
-    for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
+    // 지역 대상은 그 동에서 매물 많은 단지 N곳으로 펼친다(2026-10-25). 단지 대상과 겹치는 단지는 한 번만 읽는다.
+    const work = [];
+    const seenNo = new Set();
+    for (const t of targets) {
+      if (t.target_type !== "region") {
+        if (t.complex_no && !seenNo.has(t.complex_no)) { seenNo.add(t.complex_no); work.push(t); }
+        continue;
+      }
+      const rg = await collectRegionComplexes(t.cortar_no, t.region_max_complexes || 5, rules, pickTopComplexes, addLog);
+      if (rg.status === "blocked") {
+        result = "blocked";
+        errMsg = rg.error;
+        await set({ stoppedDate: kstDate() });
+        break;
+      }
+      if (rg.status !== "ok") {
+        if (result === "ok") { result = rg.status; errMsg = rg.error; }
+        continue;
+      }
+      await addLog(`지역 ${t.region_name}: 단지 ${rg.complexes.length}곳 — ${rg.complexes.map((c) => `${c.complexName}(${c.count})`).join(", ")}`.slice(0, 300));
+      for (const c of rg.complexes) {
+        if (seenNo.has(c.complexNo)) continue;
+        seenNo.add(c.complexNo);
+        work.push({ ...t, target_type: "complex", complex_no: c.complexNo, complex_name: c.complexName, fromRegion: t.region_name });
+      }
+      const [a, b] = rules.betweenTargetsMs || [10000, 30000];
+      await sleep(rand(a, b));
+    }
+    if (result === "blocked") work.length = 0; // 확인 화면이면 아무 단지도 읽지 않음
+    await set({ running: { startedAt, trigger, done: 0, total: work.length } });
+
+    for (let i = 0; i < work.length; i++) {
+      const t = work[i];
       if (i > 0) {
         const [a, b] = rules.betweenTargetsMs || [10000, 30000];
         await sleep(rand(a, b));
       }
       const r = await collectComplex(t.complex_no, rules, addLog);
-      await set({ running: { startedAt, trigger, done: i + 1, total: targets.length } });
+      await set({ running: { startedAt, trigger, done: i + 1, total: work.length } });
       if (r.status === "blocked") {
         result = "blocked";
         errMsg = r.error;

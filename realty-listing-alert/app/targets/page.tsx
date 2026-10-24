@@ -21,7 +21,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   const supabase = await createClient();
   const { data } = await supabase
     .from("realty_alert_targets")
-    .select("id, complex_no, complex_name, trade_types, price_min, price_max, area_min, area_max, enabled, created_at")
+    .select("id, complex_no, complex_name, target_type, cortar_no, region_name, region_max_complexes, trade_types, price_min, price_max, area_min, area_max, enabled, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
