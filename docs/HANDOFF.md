@@ -22,6 +22,7 @@
   - **프로그램 명칭 및 정체성 개편**: 단순 상세페이지 이커머스 툴 탈피 ➔ **「초고속 영상 렌더링 & GIF 스튜디오 (VideoRender Studio)」**로 공식 명칭 개편.
   - UI 쇄신: 사이드바, 헤더, 모바일 드로어, 대시보드 히어로 배너, 랜딩(`app/page.tsx`), 메타데이터(`app/layout.tsx`), 프리셋 버튼(스탠다드 560px·HD 780px·와이드 860px) 전면 정비.
   - **표준 연동 & 사용 매뉴얼 리뉴얼 (`app/guide/page.tsx`)**: `docs/MANUAL_AND_INTEGRATION_GUIDELINES.md` 7대 핵심 컴포넌트 탑재(① 상단 메타데이터 바 ② 개요 히어로 카드 ③ 4단계 시각 카드 뷰어 ④ 단계별 상세 안내 + 윈도우/맥 내 PC 가속 렌더러 원클릭/1초 복사 설치 ⑤ 💡 전문가 실전 팁 배너 ⑥ ⚠️ 주의사항 배너 ⑦ 작업실 직링크 액션 버튼 + FAQ 8종 아코디언).
+  - **비주얼·이미지 UI 리뉴얼 보강**: 뷰파인더 코너 브래킷, REC 타임코드 인디케이터, 7대 비디오 포맷 칩, 필름 스트립 썸네일, NLE 에디터 타임라인 트랙 콘솔 목업(랜딩), 10단계 지능형 사다리 5열 컬러 인포그래픽(가이드).
   - 로컬 렌더러 확장 manifest v1.25 및 ZIP/version.json 빌드 완료 (`build-local-renderer.mjs`).
   - 프로그램 비교표(`docs/PROGRAM_CAPABILITY_MAP.md`) 94번 및 1106번 항목 갱신.
 - 검수: `npm run typecheck` 통과, Next.js 프로덕션 빌드(`npm run build`) 8개 라우트 100% 성공.
