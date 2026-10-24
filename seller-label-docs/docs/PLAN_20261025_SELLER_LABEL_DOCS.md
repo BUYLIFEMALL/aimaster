@@ -3,7 +3,7 @@
 작성: 2026-10-25 Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image]
 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`) — 새 서브프로그램
 근거: [쇼핑몰 묶음 인계](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md) §5, 원본 분석 [05](../../docs/analysis-ecommerce-bundle-20261024/05_KDP_WORK_TOOLS.md) §2·9·11·12, [02](../../docs/analysis-ecommerce-bundle-20261024/02_KDP_IMAGE_SIGNATURE.md) §2
-상태: **주인님 승인 대기** (코드 없음)
+상태: ✅ 승인(2026-10-25) → v1.01·v1.02 운영 공개 완료. 결과는 `../AGENTS.md`
 
 ## 1. 무엇을 만드나
 쇼핑몰 판매자가 출고·입점·홍보 때 반복하는 서류·라벨 작업 5가지를 **브라우저 안에서만** 처리하는 도구함입니다. 파일을 서버로 보내지 않으므로 운영자 비용이 없고(기본 프로그램, 프리미엄 아님), AI·API 키도 필요 없습니다.
