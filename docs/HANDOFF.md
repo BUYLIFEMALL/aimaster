@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 수정 요청함 「작업 결과·내가 해 줄 일」 완료 (DB 0044 실행·실사용 시험)
+- 주인님 「진행」으로 운영 DB(`esgxyikcnnvmlhygjkth`)에 0044를 크롬 SQL 편집기에서 실행 → 새 칸 6개 확인. `report` 3건(수정 요청함·바나나 캔버스 인계·video-to-gif v1.21), `ask` 시험 1건(DB 분류) → 중복 방지 확인, 세션용 `list`에 섞이지 않음 확인 → 관리자 화면 표시·✔ 완료(→「처리한 일」) 동작 확인.
+- 남은 일: 없음. 이후 모든 세션은 지침대로 `report`/`ask` 사용. 바나나 캔버스 「무료 지우기」 승인받아 이어서 시작(작업 중 표 줄 교체).
+- 비용: 추가 없음(DB 실행·시험만).
+- 화면: https://www.buylife.xyz/admin/dev-docs/requests
+
 ## 2026-10-24 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — AI 쇼츠 원스톱 v1.42 무료 음성(내 브라우저) + 공용 엔진 `browser-free-tts`
 - 한 일: 음성 모델에 「무료 음성(내 브라우저) · Supertone」 추가(목소리 10개, 빠르기 0.9~1.5, 기본값은 OpenAI 그대로). 회원 브라우저 작업자에서 계산 → 새 API `/api/media/voice-upload`로 본인 `voice/` 폴더에 바로 올림(30일 자동 정리) → 자막 시각은 문장별 길이로(받아쓰기 요금 없음). 처음 고를 때 사용 조건 확인, 첫 내려받기 진행률(약 400MB·와이파이 안내), 실패하면 「유료 음성으로 바꾸기」, 「다음 영상부터 이 음성으로 시작」(이 브라우저에 기억), 유튜브 설명란 합성음 표기 한 줄. COOP/COEP 머리글로 여러 줄 계산.
 - 중요한 발견: Turbopack이 `onnxruntime-web`을 작업자 묶음에 합치면 여러 줄 계산용 하위 작업자가 실행 준비 코드 없는 묶음 파일을 띄워 멈춤 → 계산 라이브러리는 묶지 않고 같은 주소 `/ort/ort.wasm.min.mjs`를 실행 때 불러오게 함(`scripts/copy-ort.mjs`가 빌드 전 복사). `docs/ERROR_LESSONS.md` 참고.
