@@ -6,13 +6,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Player } from "@remotion/player";
 import { renderMediaOnWeb } from "@remotion/web-renderer";
-import { ArrowDown, ArrowUp, Download, Film, FolderOpen, GripVertical, ImagePlus, Layers, Loader2, Mic, Music, Save, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, Download, Film, FolderOpen, GripVertical, ImagePlus, Layers, Loader2, Mic, Music, Save, Trash2, Upload, Zap } from "lucide-react";
 import { TrimBar } from "./TrimBar";
 import { EditComposition } from "@/components/edit/Composition";
 import { probeClip, readDuration, reencodeSoftware } from "@/components/edit/probe";
 import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
+import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb, type ShrinkQuality } from "@/lib/edit/pcVideo";
+import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
   type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
@@ -57,7 +59,11 @@ export function EditStudio() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [render, setRender] = useState<RenderState>(null);
-  const [result, setResult] = useState<{ url: string; mb: number; seconds: number } | null>(null);
+  const [result, setResult] = useState<{ url: string; mb: number; seconds: number; beforeMb?: number } | null>(null);
+  // v1.17 「AIMaster 내 PC 고속 변환」(실행기 1.30 이상) — 넣는 영상 형식 맞추기·완성본 용량 줄이기를 회원 PC ffmpeg로
+  const [pc, setPc] = useState<PcRendererStatus | null>(null);
+  const pcRef = useRef<PcRendererStatus | null>(null);
+  const [shrinkQ, setShrinkQ] = useState<ShrinkQuality>("balanced");
   const [canRender, setCanRender] = useState(true);
   const [dragId, setDragId] = useState<string | null>(null);
   const [voiceSet, setVoiceSet] = useState<VoiceSettings>({ model: TTS_MODELS[0].id, voice: TTS_VOICES.openai[0].id, speed: 1 });
@@ -83,6 +89,10 @@ export function EditStudio() {
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
+    detectPcRenderer("normalize").then((s) => { pcRef.current = s; setPc(s); }).catch(() => { pcRef.current = { kind: "none" }; setPc({ kind: "none" }); });
   }, []);
 
   useEffect(() => {
@@ -113,8 +123,22 @@ export function EditStudio() {
         if (!(await probeClip(url))) {
           URL.revokeObjectURL(url);
           url = "";
-          setBusy({ name, msg: "형식 맞추는 중 0%" });
-          blob = await reencodeSoftware(blob, (p) => setBusy({ name, msg: `형식 맞추는 중 ${Math.round(p * 100)}%` }));
+          // 내 PC 고속 변환이 있으면 회원 PC ffmpeg로 먼저(빠름), 안 되면 브라우저 소프트웨어 인코딩
+          let fixed: Blob | null = null;
+          if (pcRef.current?.kind === "ready") {
+            try {
+              setBusy({ name, msg: "내 PC로 넘기는 중 0%" });
+              const r = await runPcJob(blob, normalizeCommand(duration), {
+                onUploaded: (ra) => setBusy({ name, msg: `내 PC로 넘기는 중 ${Math.round(ra * 100)}%` }),
+                onProgress: (ra) => setBusy({ name, msg: `⚡ 내 PC로 형식 맞추는 중 ${Math.round(ra * 100)}%` }),
+              });
+              fixed = new Blob([r.bytes as BlobPart], { type: "video/mp4" });
+            } catch {
+              fixed = null;
+            }
+          }
+          if (!fixed) setBusy({ name, msg: "형식 맞추는 중 0%" });
+          blob = fixed ?? await reencodeSoftware(blob, (p) => setBusy({ name, msg: `형식 맞추는 중 ${Math.round(p * 100)}%` }));
           url = URL.createObjectURL(blob);
           if (!(await probeClip(url))) throw new Error("이 영상은 형식을 맞춰도 합치기에 쓸 수 없습니다. 다른 영상을 넣어 주세요.");
         }
@@ -386,6 +410,32 @@ export function EditStudio() {
       else setError("렌더하지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요. 계속되면 클립 수를 줄이거나 720p로 바꿔 주세요.");
     } finally {
       setRender(null);
+    }
+  }
+
+  /** 완성 MP4를 회원 PC ffmpeg로 다시 인코딩해 용량을 줄인다(원본보다 크면 원본 유지) */
+  async function shrinkResult() {
+    const src = resultBlob.current;
+    if (!src || !result) return;
+    setError(""); setNotice("");
+    const name = "완성 영상";
+    setBusy({ name, msg: "내 PC로 넘기는 중 0%" });
+    try {
+      const r = await runPcJob(src, compressCommand(shrinkQ, result.seconds), {
+        onUploaded: (ra) => setBusy({ name, msg: `내 PC로 넘기는 중 ${Math.round(ra * 100)}%` }),
+        onProgress: (ra) => setBusy({ name, msg: `⚡ 내 PC로 용량 줄이는 중 ${Math.round(ra * 100)}%` }),
+      });
+      const blob = new Blob([r.bytes as BlobPart], { type: "video/mp4" });
+      if (blob.size >= src.size) { setNotice("이미 충분히 작아 더 줄어들지 않았습니다. 원래 영상을 그대로 둡니다."); return; }
+      URL.revokeObjectURL(result.url);
+      resultBlob.current = blob;
+      const beforeMb = result.beforeMb ?? result.mb;
+      setResult({ url: URL.createObjectURL(blob), mb: toMb(blob.size), seconds: result.seconds, beforeMb });
+      setNotice(`용량을 ${toMb(src.size)}MB → ${toMb(blob.size)}MB로 줄였습니다.`);
+    } catch (e) {
+      setError(`내 PC로 용량을 줄이지 못했습니다(${e instanceof Error ? e.message : "알 수 없는 오류"}). 원래 영상은 그대로입니다.`);
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -711,7 +761,7 @@ export function EditStudio() {
 
         {result && (
           <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
-            <p className="text-sm font-bold text-emerald-200">완성했습니다 · {sec(result.seconds)} · {result.mb}MB</p>
+            <p className="text-sm font-bold text-emerald-200">완성했습니다 · {sec(result.seconds)} · {result.beforeMb ? `${result.beforeMb}MB → ` : ""}{result.mb}MB</p>
             <video src={result.url} controls playsInline className={`mx-auto w-full ${previewWidth} rounded-lg bg-black`} />
             <div className="flex flex-wrap items-center gap-2">
               <a href={result.url} download={outputFileName()} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/40 px-3 py-2 text-sm text-emerald-100 hover:bg-emerald-500/10">
@@ -723,6 +773,26 @@ export function EditStudio() {
               </button>
             </div>
             <p className="text-[11px] text-zinc-500">「갤러리에 저장」을 누르면 편집 내용과 함께 작업 결과 갤러리 「편집본」에 30일 보관됩니다(50MB까지).</p>
+            {pc?.kind === "ready" ? (
+              <div className="flex flex-wrap items-center gap-2 border-t border-emerald-500/20 pt-2">
+                <select value={shrinkQ} onChange={(e) => setShrinkQ(e.target.value as ShrinkQuality)} disabled={isBusy} aria-label="줄이는 정도"
+                  className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-100">
+                  {SHRINK_QUALITIES.map((q) => <option key={q.id} value={q.id}>{q.label}</option>)}
+                </select>
+                <button type="button" disabled={isBusy || !resultBlob.current} onClick={() => void shrinkResult()}
+                  className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 px-3 py-2 text-sm text-amber-100 hover:bg-amber-400/10 disabled:opacity-40">
+                  <Zap className="h-4 w-4" aria-hidden="true" /> 내 PC로 용량 줄이기
+                </button>
+                {busy?.name === "완성 영상" && <span className="flex items-center gap-1.5 text-xs text-amber-100"><Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> {busy.msg}</span>}
+                {result.mb > 50 && !busy && <span className="text-xs text-amber-200">50MB가 넘어 갤러리에 저장하려면 용량을 줄여 주세요.</span>}
+              </div>
+            ) : pc ? (
+              <p className="border-t border-emerald-500/20 pt-2 text-[11px] text-zinc-400">
+                <Zap className="mr-1 inline h-3 w-3 text-amber-300" aria-hidden="true" />
+                {pc.kind === "old" ? "용량 줄이기를 쓰려면 「내 PC 고속 변환」 실행기를 새 판으로 업데이트해 주세요." : pc.kind === "none" ? "「AIMaster 내 PC 고속 변환」(무료, 크롬·엣지 PC)을 설치하면 완성 영상 용량 줄이기와 넣는 영상 형식 맞추기를 내 PC에서 빠르게 할 수 있습니다." : `확장은 있는데 ${pc.kind === "no-ffmpeg" ? "ffmpeg" : "실행기"}가 없습니다.`}{" "}
+                <a href={PC_RENDERER_GUIDE_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-sky-300 underline">{pc.kind === "old" ? "업데이트 안내" : "설치 안내"}</a>
+              </p>
+            ) : null}
           </div>
         )}
       </section>
