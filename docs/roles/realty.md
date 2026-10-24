@@ -9,21 +9,22 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `realty-listing-alert` | 0단계 사전 검증(저장소 밖 임시 확장, 주인님 크롬, 단지 1곳·2~3페이지) | 2026-10-24 | 플랜 승인 대기 |
+| `realty-listing-alert` | 1단계 등록·뼈대 (뼈대 코드 완료, 등록·배포 남음) | 2026-10-24 | 주인님 승인 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `realty-listing-alert` | 0단계 사전 검증 | 진행 승인·검증할 단지 1곳 지정·크롬 네이버 로그인 | 인수인계 §6-0 |
-| `realty-listing-alert` | 1단계 등록·뼈대 | 운영 DB `programs` 등록 SQL 승인, Vercel 프로젝트·빌드 1회 승인 | 인수인계 §6-1·§8 |
+| `realty-listing-alert` | 1단계 등록 | 운영 DB `programs` 등록·요금제 3단계 SQL 승인, Vercel 프로젝트·도메인·빌드 1회 승인 | 인수인계 §6-1·§8 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-24 | `realty-listing-alert` v1.01 | 0단계 사전 검증 완료 — [`PREVALIDATION_20261024.md`](../analysis-naver-realty-collector-20261024/PREVALIDATION_20261024.md) | 없음 |
+| 2026-10-24 | `realty-listing-alert` v1.01 | 웹 뼈대 + `extension/` + 프로그램 내 ZIP 다운로드(prebuild) | 미배포 |
 | 2026-10-24 | — | 부동산 역할 등록(주인님 지정) | — |
 
 ## 다음 첫 단계
-1. 주인님 승인 뒤 0단계 사전 검증: 임시 확장(저장소 밖) → 크롬에서 단지 1곳 스크롤 → 결과 `PREVALIDATION_20261024.md` → 임시 확장 삭제
+1. 주인님 승인 뒤 1단계 등록: 운영 DB `programs` 등록·요금제 3단계·VIP 확인(크롬 SQL 편집기, Run은 주인님) → Vercel 프로젝트·`realty-listing-alert.buylife.xyz` → 빌드 1회 → 크롬 데스크톱·375px 검수 → `check-extension-release.mjs` 목록 추가
 
 ## 주인님께 여쭐 것
-- 0단계 사전 검증 진행 승인과 검증할 단지 1곳(없으면 제가 서울 대단지 1곳을 고릅니다)
+- 1단계 등록 승인: 운영 DB `programs` 등록·요금제 3단계 SQL, Vercel 프로젝트·도메인·빌드 1회
