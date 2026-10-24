@@ -30,6 +30,21 @@ export function renderVerboseFromParam(value: string | null | undefined): boolea
   return renderSwitches(value).includes("verbose");
 }
 
+/** v1.23 시험 스위치(PLAN §10): trace = 단계별 시간, nopace = 쉬어가기 끄기, htmlcanvas = 크롬 새 그리기 방식 */
+export function renderTestSwitches(value: string | null | undefined) {
+  const sw = renderSwitches(value);
+  return { trace: sw.includes("trace"), noPace: sw.includes("nopace"), htmlCanvas: sw.includes("htmlcanvas") };
+}
+
+/** 「멈추기」를 누르고 이만큼 지나도 안 끝나면 화면을 먼저 되돌린다(라이브러리 합성 단계는 중단 신호를 안 봄) */
+export const STOP_GRACE_MS = 3000;
+/** 장면이 이만큼 하나도 안 오르면 막힘 안내 */
+export const STALL_MS = 30_000;
+
+export function isStalled(nowMs: number, lastAdvanceAtMs: number): boolean {
+  return nowMs - lastAdvanceAtMs >= STALL_MS;
+}
+
 /** 남은 시간(ms) → 「약 2분 5초」「약 40초」. 값이 없거나 아직 예측 전이면 빈 글자 */
 export function formatEta(ms: number): string {
   if (!Number.isFinite(ms) || ms <= 0) return "";
@@ -56,12 +71,14 @@ export function isSlowRender(elapsedMs: number, etaMs: number): boolean {
 }
 
 /** 진단 한 줄(콘솔) — 그리기(rendered)와 인코딩(encoded) 중 어디가 막히는지 구분용 */
-export function renderDiagnostics(d: { outcome: "done" | "error" | "aborted"; hw: RenderHw; decode: RenderDecode; elapsedMs: number; totalFrames: number; renderedFrames: number; encodedFrames: number; userAgent: string; cores: number }) {
+export function renderDiagnostics(d: { outcome: "done" | "error" | "aborted"; hw: RenderHw; decode: RenderDecode; elapsedMs: number; totalFrames: number; renderedFrames: number; encodedFrames: number; userAgent: string; cores: number; switches?: string; phases?: { waitMs: number; composeMs: number; encodeMs: number; slowFrames: number } }) {
   const sec = Math.round(d.elapsedMs / 100) / 10;
   return {
     outcome: d.outcome,
     hw: d.hw,
     decode: d.decode,
+    ...(d.switches ? { switches: d.switches } : {}),
+    ...(d.phases ? { phases: d.phases } : {}),
     msPerFrame: d.renderedFrames > 0 ? Math.round(d.elapsedMs / d.renderedFrames) : 0,
     seconds: sec,
     frames: `${d.renderedFrames}/${d.encodedFrames}/${d.totalFrames}`,

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { etaFromProgress, formatEta, isMacDesktop, isSlowRender, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderVerboseFromParam } from "../lib/edit/renderInfo.ts";
+import { etaFromProgress, formatEta, isMacDesktop, isSlowRender, isStalled, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderTestSwitches, renderVerboseFromParam } from "../lib/edit/renderInfo.ts";
 
 test("?render=software만 소프트웨어 인코딩", () => {
   assert.equal(renderHwFromParam("software"), "prefer-software");
@@ -64,4 +64,15 @@ test("스위치 여러 개를 쉼표로", () => {
   assert.equal(renderVerboseFromParam("hwdecode, verbose"), true);
   assert.equal(renderVerboseFromParam("software"), false);
   assert.equal(renderVerboseFromParam(null), false);
+});
+
+test("v1.23 시험 스위치와 막힘 판정", () => {
+  assert.deepEqual(renderTestSwitches("trace,nopace"), { trace: true, noPace: true, htmlCanvas: false });
+  assert.deepEqual(renderTestSwitches(null), { trace: false, noPace: false, htmlCanvas: false });
+  assert.equal(renderTestSwitches("htmlcanvas, verbose").htmlCanvas, true);
+  assert.equal(isStalled(29_999, 0), false);
+  assert.equal(isStalled(30_000, 0), true);
+  const d = renderDiagnostics({ outcome: "aborted", hw: "no-preference", decode: "default", elapsedMs: 1000, totalFrames: 10, renderedFrames: 1, encodedFrames: 1, userAgent: "x", cores: 4, switches: "trace", phases: { waitMs: 1, composeMs: 2, encodeMs: 3, slowFrames: 0 } });
+  assert.equal(d.switches, "trace");
+  assert.equal(d.phases.composeMs, 2);
 });

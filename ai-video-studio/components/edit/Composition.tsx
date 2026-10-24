@@ -4,9 +4,11 @@
 //  사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 함께 쓰는 기준: `video-edit-timeline`·`video-edit-voice`]
 // 영상 합치기 — Remotion 구성(그리기 층). 시간 계산은 lib/edit/timeline.ts(순수 함수)에 두고 여기서는 그리기만 한다.
 // 브라우저 렌더 제약(A-0 확인): 영상·소리는 @remotion/media의 <Video>·<Audio>, 한글은 SVG <text> + @remotion/google-fonts.
+import { useLayoutEffect } from "react";
 import { AbsoluteFill, Img, Sequence, interpolate, useCurrentFrame } from "remotion";
 import { Audio, Video } from "@remotion/media";
 import { loadFont } from "@remotion/google-fonts/NotoSansKR";
+import { markFrameStart } from "@/lib/edit/renderTrace";
 import { CAPTION_SIZE_SCALE, FPS, captionMaxChars, dimensions, duckRanges, layout, musicVolume, sceneCaptions, segmentOpacity, wrapCaption, type CaptionStyle, type EditProject, type Segment } from "@/lib/edit/timeline";
 
 // 굵기 하나만 미리 불러온다(Noto Sans KR은 파일이 많이 나뉘어 있음)
@@ -67,6 +69,9 @@ export function EditComposition({ project }: EditCompositionProps) {
   const { segments, totalFrames } = layout(project);
   // 내레이션이 나오는 동안 배경음악을 줄인다(설정에서 끌 수 있음)
   const ducks = project.music && project.music.duck !== false ? duckRanges(project) : [];
+  // v1.23 ?render=trace: 장면이 바뀐 시각(렌더 중 trace일 때만 기록, 그 밖에는 아무 일 안 함)
+  const frame = useCurrentFrame();
+  useLayoutEffect(() => markFrameStart(frame), [frame]);
   return (
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {segments.map((seg) => (
