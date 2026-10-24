@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-video-studio` (운영 v1.19) | 프롬프트 게시판 관리자 숨기기·다시 공개·저장, 내 프롬프트 삭제에 진행 중 배지(도는 아이콘) + 누른 카드 바로 갱신(전에는 약 3.9초 표시 없음) | `5b2c589b5` | 2026-10-24 · Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 게시판 A안 항목 | v1.20으로 함께 배포 |
 | `naver-blog-agent` (운영 v2.20) | 간편 결과 화면 미리보기가 [SECTION - …] 표시 기호를 소제목으로 보여 줌(화면 표시만) | `7ec53853f` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-blog3` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `ai-work-workspace` | 슬래시 메뉴 「AI 이미지」 항목 숨김(U3 시험 중 발견) | `768bf908d` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | U4와 함께 배포 → 슬래시 메뉴에 「AI 이미지」 없음 확인 |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
