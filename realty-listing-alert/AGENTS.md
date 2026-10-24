@@ -3,8 +3,8 @@
 - 주소: https://realty-listing-alert.buylife.xyz (Vercel 프로젝트 `realty-listing-alert`, 팀 `buylife`) · 운영 DB ① AIMaster `esgxyikcnnvmlhygjkth`
 - 담당: [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` — 역할 파일 [`docs/roles/realty.md`](../docs/roles/realty.md)
 - 기준 인수인계(설계·결정의 원본): [`docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) · 0단계 결과 [`PREVALIDATION_20261024.md`](../docs/analysis-naver-realty-collector-20261024/PREVALIDATION_20261024.md)
-- 지금 상태: **v1.01 1단계(등록·뼈대) 운영 배포 완료, 「준비중」 배지, 공개 전.** 시험 계정 `buylifemall@naver.com`에만 개별 권한 30일(2026-10-24). **정식 공개는 테스트에서 정상 동작이 확인된 뒤 주인님이 정한다**(그때 배지 떼기 + VIP 자동 부여).
-- 미배포 대기: 좌측 메뉴 링크 밑줄 제거(`fe323f5e9`) — 2단계 배포 때 함께(주인님 결정 2026-10-25).
+- 지금 상태: **v1.02 2단계(DB 표 3개 + 감시 대상·예약·받는 방법 화면) 운영 배포 완료(2026-10-25), 「준비중」 배지, 공개 전.** 시험 계정 `buylifemall@naver.com`에만 개별 권한 30일(2026-10-24). **정식 공개는 테스트에서 정상 동작이 확인된 뒤 주인님이 정한다**(그때 배지 떼기 + VIP 자동 부여).
+- 미배포 대기: 없음(메뉴 밑줄 제거 `fe323f5e9`는 v1.02에 함께 배포).
 
 ## 🚨 절대 원칙 (주인님 결정, 인수인계 §0 — 바꾸지 않는다)
 1. 네이버 부동산 접속·조회·스크롤은 **100% 회원 PC에서 회원 본인 로그인**으로. 텔레그램·이메일·AI 키도 회원 본인 것.
@@ -40,9 +40,10 @@
 | 버전 | 날짜 | 내용 |
 |---|---|---|
 | v1.01 | 2026-10-24 | 등록(준비중)·뼈대·확장 v1.01·ZIP 다운로드·표준 로그인·0단계 사전 검증. 배포 3회(첫 배포, framework 수정, 로그인·화면 정리) |
+| v1.02 | 2026-10-25 | 2단계: 표 3개(`realty_alert_targets`·`_settings`·`_device_status`, RLS 본인만, 10개 상한 트리거) · 🎯 감시 대상 · ⏰ 예약 설정(10~50분 경고, 자정 넘김 시간대) · 📨 받는 방법(본인 텔레그램 봇 연결 + 「기존 부동산 봇 가져오기」) · 대시보드 「내 설정」 실제 값 · 메뉴 밑줄 제거. 확장 manifest 1.2.0 / v1.02. 배포 1회 |
 
 ## 5) 남은 작업
-[`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) — 다음은 2단계(DB 표 3개 + 감시 대상·예약·받는 방법 화면).
+[`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) — 다음은 3단계(확장 수집 엔진 — 설정 받기·예약 타이머·수집·비교·텔레그램 보내기). 남은 2단계 시험: 기존 부동산 봇 가져오기 실제 동작, 두 번째 계정으로 남의 설정 안 보이는지(RLS).
 
 ## 6) 연계·병합 아이디어
 - `real_estate_sales`의 공공 실거래가 평균을 엑셀 「실거래 평균」 열로(5단계, 회원 기기에서 합침).
