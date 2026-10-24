@@ -37,8 +37,8 @@
 ## 3-0. 영상 담당 진행 (2026-10-24, `claude-win-video`)
 | 단계 | 내용 | 배포 | 상태 |
 |---|---|---|---|
-| 영상 A | 실행기 1.20 `loop`(무한 루프 영상 규칙, 소리 트랙 실행기가 확인) → 무한 루프 영상 「⚡ 내 PC로 빠르게」 | `video-to-gif` v1.23 · `infinite-loop-video` v1.08 | ✅ 배포 완료 — 윈도우 실물·msys perl 10/10, 운영 크롬 720p 4.2배. 시험 도구 `video-to-gif/local-renderer/test/`. **실제 맥 확인 남음** |
-| 영상 B | 실행기 1.30 `normalize`·`compress` → AI 영상 스튜디오 영상 합치기(넣는 영상 형식 맞추기 PC 우선·「⚡ 내 PC로 용량 줄이기」) | `video-to-gif` v1.24 · `ai-video-studio` v1.17 | ✅ 배포 완료 — 두 판 16/16·loop 회귀 10/10, 운영 크롬 용량 1.7→0.9MB·normalize 2.0초. 시험 `video-matrix.mjs`. **실제 맥 확인 남음** |
+| 영상 A | 실행기 1.20 `loop`(무한 루프 영상 규칙, 소리 트랙 실행기가 확인) → 무한 루프 영상 「⚡ 내 PC로 빠르게」 | `video-to-gif` v1.23 · `infinite-loop-video` v1.08 | ✅ 배포 완료 — 윈도우 실물·msys perl 10/10, 운영 크롬 720p 4.2배. 시험 도구 `video-to-gif/local-renderer/test/`. **실제 맥 확인 ✅**(2026-10-24 맥미니 `claude-mac-20261024-maccheck`: 터미널 8경우+loop 7.02초, 크롬 화면 2.5초 생성 — `video-to-gif/AGENTS.md` 「v1.24 맥 실물 확인」, `7e4591cc9`) |
+| 영상 B | 실행기 1.30 `normalize`·`compress` → AI 영상 스튜디오 영상 합치기(넣는 영상 형식 맞추기 PC 우선·「⚡ 내 PC로 용량 줄이기」) | `video-to-gif` v1.24 · `ai-video-studio` v1.17 | ✅ 배포 완료 — 두 판 16/16·loop 회귀 10/10, 운영 크롬 용량 1.7→0.9MB·normalize 2.0초. 시험 `video-matrix.mjs`. **실제 맥 확인 ✅**(2026-10-24 맥미니: `video-matrix` 8경우 통과, 크롬 영상 합치기 1.6→0.8MB·갤러리 GIF 3.4MB·작은 MP4 0.3MB — `video-to-gif/AGENTS.md` 「v1.24 맥 실물 확인」, `7e4591cc9`) |
 | 영상 C | 갤러리 카드 「⚡ 내 PC로」 GIF 만들기(`encode`)·작게 줄이기(`compress`+`maxSide`) — 새 명령 없이 기존 명령으로 | `ai-video-studio` v1.18(렌더러 변경 없음) | ✅ 배포 완료 — 운영 크롬 7.3MB → GIF 3.9MB·MP4 0.3MB |
 | 영상 D | Shots·원스톱 결과 `compress` | 각 프로그램 | 대기 |
 - `loop-mux`(플레이리스트·LP)는 실행기 `loop`을 넓히는 방향 — 지금 `loop`은 입력 1개 + 낱말·숫자만(소리 합치기 없음). 다음 실행기 번호는 1.30.
@@ -51,4 +51,4 @@
 ## 4. 지켜야 할 것
 - 회원 본인 PC·본인 파일만 처리, 서버 저장·AI 호출 없음(필요한 단계만 회원 본인 키). 비용은 배포 빌드뿐 — 단계마다 사전 보고.
 - 다른 세션 담당 프로그램(인스타·웹툰·상세페이지·AI 영상 등)은 작업 중 표 확인·담당 세션과 조율 후 진행.
-- 맥 실행기는 이 PC의 Git Bash perl로 1차 시험, 실제 맥 확인은 맥미니 세션 요청(남는 확인으로 기록).
+- 맥 실행기는 이 PC의 Git Bash perl로 1차 시험, 실제 맥 확인은 맥미니 세션 요청 — 2026-10-24 영상 A·B 모두 통과.
