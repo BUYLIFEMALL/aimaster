@@ -12,7 +12,7 @@
 - 주인님 지시: 무료 영상·렌더 기능(GIF 변환 「⚡ 내 PC 고속 변환」)을 다양한 각도로 기존 프로그램과 연계 → 로드맵 [`docs/analysis-pc-renderer-20261024/ROADMAP.md`](analysis-pc-renderer-20261024/ROADMAP.md)(각도 5가지: 소리 처리·짧게 그리고 길게 붙이기·이미지→영상·자르기/잇기/줄이기·브라우저 렌더 가속, 6단계).
 - 1단계 완료: 확장 이름 「AIMaster 내 PC 고속 변환」·`*.buylife.xyz` 허용, 실행기 1.10 `audio` 명령(MP3·AAC·FLAC·WAV24 + -14 LUFS 맞춤)·`capabilities`, 공용 기준 코드 `pc-renderer-client` 등록, 마스터링 「⚡ 내 PC로 저장」. 배포 `video-to-gif` v1.22(확장 검증 OK)·`ai-mastering-studio` v1.14(GUIDE 배지 대기분 함께). 커밋 `28e5ba230`·`f69e8f39f`.
 - **역할 나눔**: 영상 명령(`loop`·`normalize`·`scale`·`compress`)은 영상 담당 `claude-win-video`(IDEA-VIDEO-LOCAL-01) — 실행기 1.10 위에 이어서, `HOST_VERSION`은 다음 번호. 음악 명령은 이 세션.
-- 남은 확인: ① 크롬에 확장을 설치한 뒤 마스터링에서 실제 MP3 변환(윈도우 실행기는 실물 시험 완료) ② 맥 실행기 실제 맥 확인(맥미니 세션).
+- 남은 확인: ~~① 크롬 실제 MP3 변환~~ ✅ 2026-10-24 확인(-4.2 → -13.9 LUFS, ID3 MP3 3초) ② 맥 실행기 실제 맥 확인(맥미니 세션).
 - 비용: 빌드 2회(GIF 변환·마스터링), AI 호출 없음.
 
 ## 2026-10-24 ✅ Claude Code(윈도우) — 네이버 블로그 SEO 스튜디오 v2.16 배포 (블로그 병합 B-5~B-8, 묶음 B 끝) · 세션 `claude-win-20261023-blog2`
