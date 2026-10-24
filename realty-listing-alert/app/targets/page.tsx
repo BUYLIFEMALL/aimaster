@@ -33,7 +33,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
           <div>
             <div className="eyebrow">Step 1 · 감시 대상</div>
             <h1>🎯 감시할 단지를 정해 주세요</h1>
-            <p className="lede">네이버 부동산 단지 화면 주소를 붙여 넣으면 단지 번호를 알아서 꺼냅니다. 최대 10개까지 등록하고, 대상마다 켜고 끌 수 있어요.</p>
+            <p className="lede">네이버 부동산에서 단지를 열고 초록 버튼 한 번만 누르면 추가돼요. 최대 10곳까지 등록하고, 단지마다 켜고 끌 수 있어요.</p>
           </div>
         </div>
         <TargetsClient initialTargets={(data ?? []) as TargetRow[]} prefill={prefill} />

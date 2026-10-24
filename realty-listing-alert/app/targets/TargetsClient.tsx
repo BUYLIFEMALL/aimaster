@@ -117,22 +117,35 @@ export default function TargetsClient({ initialTargets, prefill = null }: { init
         {full ? (
           <p className="ra-msg ra-warn">감시 대상이 {MAX_TARGETS}개로 가득 찼어요. 새 단지를 넣으려면 아래에서 하나를 지워 주세요.</p>
         ) : (
-          <form action={action} key={initialTargets.length}>
+          <>
             {prefill && <PrefillGuide prefill={prefill} />}
-            <div className="ra-grid">
-              <div className="field"><label htmlFor="complex">단지 화면 주소 또는 단지 번호</label><input id="complex" name="complex" required placeholder="https://new.land.naver.com/complexes/10981" /></div>
-              <div className="field"><label htmlFor="complexName">알아보기 쉬운 이름(선택)</label><input id="complexName" name="complexName" maxLength={100} placeholder="예: 백송건영" defaultValue={prefill?.name ?? ""} /></div>
+            {/* 가장 쉬운 방법(UX 리뉴얼 C, 2026-10-25): 네이버 단지 화면 위 확장 버튼으로 추가 */}
+            <div className="ra-easy">
+              <a className="ra-naver-btn big" href="https://new.land.naver.com/" target="_blank" rel="noopener noreferrer">🏠 네이버 부동산에서 단지 찾기 ↗</a>
+              <ol className="ra-easy-steps">
+                <li><span className="ra-easy-ico">🔍</span><strong>1. 단지 검색</strong><small>열린 네이버 부동산 검색창에 단지 이름을 넣어요</small></li>
+                <li><span className="ra-easy-ico">👆</span><strong>2. 단지 누르기</strong><small>목록·지도에서 단지를 눌러 매물 목록을 열어요</small></li>
+                <li><span className="ra-easy-ico">➕</span><strong>3. 초록 버튼</strong><small>화면 오른쪽 아래 「➕ 매물 알림에 추가」를 누르면 끝!</small></li>
+              </ol>
+              <p className="card-caption">💡 추가한 뒤 이 화면을 새로고침하면 아래 목록에 보여요. 버튼이 안 보이면 크롬 확장이 설치·연결됐는지 대시보드 「🚀 시작하기」를 확인하세요.</p>
             </div>
-            <Conditions />
-            <button className="primary" type="submit" disabled={adding}>{adding ? "추가 중..." : "감시 대상에 추가"}</button>
-          </form>
+            <details className="ra-manual" open={!!prefill}>
+              <summary>✏️ 주소로 직접 추가하기</summary>
+              <form action={action} key={initialTargets.length}>
+                <div className="ra-grid">
+                  <div className="field"><label htmlFor="complex">네이버 부동산 단지 주소</label><input id="complex" name="complex" required placeholder="단지 화면 주소를 붙여 넣으세요" /></div>
+                  <div className="field"><label htmlFor="complexName">알아보기 쉬운 이름(선택)</label><input id="complexName" name="complexName" maxLength={100} placeholder="예: 백송건영" defaultValue={prefill?.name ?? ""} /></div>
+                </div>
+                <details className="ra-more">
+                  <summary>⚙️ 조건 더 정하기(선택) — 거래 종류·가격·면적</summary>
+                  <Conditions />
+                </details>
+                <button className="primary" type="submit" disabled={adding}>{adding ? "추가 중..." : "감시 대상에 추가"}</button>
+              </form>
+            </details>
+          </>
         )}
         <Message state={state} />
-        {/* 네이버 부동산 바로가기(2026-10-25 주인님 요청) — 회원 브라우저 새 탭으로만 연다 */}
-        <div className="ra-naver-go">
-          <a className="ra-naver-btn" href="https://new.land.naver.com/" target="_blank" rel="noopener noreferrer">🏠 네이버 부동산 열기 ↗</a>
-          <p className="card-caption">💡 네이버 부동산에서 단지를 검색해 단지 화면을 연 뒤, 확장 팝업의 <b>「➕ 이 단지 감시 추가」</b>를 누르면 주소를 붙여 넣지 않아도 바로 추가돼요.</p>
-        </div>
       </section>
 
       <section className="card">

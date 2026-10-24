@@ -42,6 +42,13 @@
   .progress { height: 8px; border-radius: 999px; background: #e3e8ee; overflow: hidden; }
   .progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-bright)); transition: width .3s; }
   .links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .state-line { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; font-size: 15px; font-weight: 700; border: 1px solid var(--line); background: #fff; }
+  .state-line.ok { border-color: #bfe6cf; background: var(--accent-soft); color: var(--accent); }
+  .state-line.todo { border-color: #f3d9a8; background: var(--warn-soft); color: var(--warn); }
+  .state-line span { flex: 1; }
+  .state-go { flex: 0 0 auto; padding: 8px 12px; border: 1px solid #008a44; border-radius: 10px; background: linear-gradient(180deg, #08c963, #009b4d); color: #fff; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 #007338; }
+  .tool.big2 { border: 2px solid #bfe6cf; }
+  .hint { margin: 0; color: var(--muted); font-size: 13px; }
   .link { padding: 10px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .link:hover { border-color: var(--accent); color: var(--accent); }
   .msg { min-height: 20px; margin: 0; font-size: 14px; font-weight: 700; color: var(--accent); }
@@ -71,26 +78,23 @@
       <label><input type="checkbox" id="consent"> 위 내용을 확인했어요</label>
     </div>
 
-    <div class="status">
-      <div class="stat" id="connBox"><small>🔗 웹 연결</small><b id="conn">확인 중…</b></div>
-      <div class="stat" id="schedBox"><small>⏰ 예약 수집</small><b id="sched">-</b></div>
-      <div class="stat"><small>🕒 마지막 수집</small><b id="last">아직 없음</b></div>
-      <div class="stat" id="tgBox"><small>📨 텔레그램</small><b id="tg">-</b></div>
-    </div>
+    <!-- 한 줄 상태(UX 리뉴얼 D): 준비 완료인지, 아니면 무엇을 하면 되는지 + 바로가기 -->
+    <div class="state-line" id="stateLine"><span id="stateText">확인 중…</span><button class="state-go" id="stateGo" hidden></button></div>
 
     <div class="actions">
       <button class="tool primary" id="collect"><span class="ico">🔍</span><span><b>지금 수집</b><small id="collectSub">켜진 감시 대상을 지금 한 번 살펴봐요</small></span></button>
       <div class="progress" id="progress" hidden><i id="bar"></i></div>
-      <button class="tool" id="openNaver"><span class="ico">🏠</span><span><b>네이버 부동산 열기</b><small>새 탭에서 단지를 검색해 연 뒤, 아래 「이 단지 감시 추가」를 눌러요</small></span></button>
-      <button class="tool" id="add"><span class="ico">➕</span><span><b>이 단지 감시 추가</b><small id="addSub">네이버 부동산 단지 화면에서 눌러 주세요</small></span></button>
-      <button class="tool" id="results"><span class="ico">📄</span><span><b>최근 결과 보기</b><small>표로 보고 엑셀·CSV로 받기</small></span></button>
+      <button class="tool" id="add" hidden><span class="ico">➕</span><span><b>이 단지 감시 추가</b><small id="addSub"></small></span></button>
+      <button class="tool big2" id="openNaver"><span class="ico">🏠</span><span><b>네이버 부동산에서 단지 찾기</b><small>단지를 열면 화면 오른쪽 아래 초록 「➕ 매물 알림에 추가」 버튼이 떠요</small></span></button>
+      <p class="hint" id="addHint" hidden></p>
     </div>
     <p class="msg" id="msg"></p>
 
     <div class="links">
+      <button class="link" id="results">📄 최근 결과</button>
       <button class="link" data-path="/targets">🎯 감시 대상</button>
       <button class="link" data-path="/schedule">⏰ 예약 설정</button>
-      <button class="link" data-path="/delivery">📨 받는 방법</button>
+
     </div>
 
     <section class="log-box">

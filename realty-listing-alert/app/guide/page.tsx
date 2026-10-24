@@ -7,15 +7,19 @@ export const fetchCache = "force-no-store";
 
 // 연동 & 사용 매뉴얼(기준: naver-blog-seo-studio app/guide). 인수인계 §3-5: Step 1~4 + 팁·주의 + FAQ.
 const STEPS = [
-  { icon: "🧩", title: "확장 설치·연결", desc: "확장 ZIP을 받아 압축 해제 → chrome://extensions 개발자 모드 → 압축해제된 확장 프로그램을 로드 → 「API키등록·플랫폼연동」에서 「바로 연결」", href: "/settings", time: "5분" },
-  { icon: "🤖", title: "텔레그램 봇 만들기", desc: "텔레그램 @BotFather에서 본인 봇을 만들고 토큰을 「받는 방법」에 넣은 뒤, 봇에게 아무 말이나 보내고 「연결 시험」을 누릅니다.", href: "/delivery", time: "3분" },
-  { icon: "🎯", title: "감시 대상 추가", desc: "네이버 부동산에서 단지 화면 주소를 붙여 넣거나, 단지 화면에서 확장의 「이 단지 감시 추가」를 누릅니다(최대 10개).", href: "/targets", time: "1분" },
-  { icon: "⏰", title: "예약 켜기", desc: "수집 간격(10분~24시간)과 동작 시간대를 고르고 예약을 켭니다. 크롬이 켜져 있는 동안 확장이 회원님 PC에서 수집합니다.", href: "/schedule", time: "1분" },
+  { icon: "🧩", title: "확장 설치", desc: "「⬇ 확장 받기」로 ZIP을 받아 압축을 풀고 → chrome://extensions → 개발자 모드 → 「압축해제된 확장 프로그램을 로드」로 그 폴더를 고릅니다.", href: "/dashboard", time: "3분" },
+  { icon: "🔗", title: "웹과 연결", desc: "「API키등록·플랫폼연동」에서 「확장 프로그램 바로 연결」 버튼을 한 번 누릅니다.", href: "/settings", time: "10초" },
+  { icon: "📨", title: "텔레그램 연결", desc: "텔레그램 @BotFather에서 내 봇을 만들어 토큰을 넣고 「연결 시험」. 부동산 실거래 프로그램에 봇이 있으면 「기존 부동산 봇 가져오기」 한 번이면 끝.", href: "/delivery", time: "3분" },
+  { icon: "🏠", title: "단지 추가", desc: "네이버 부동산에서 단지를 눌러 열면 화면 오른쪽 아래에 초록 「➕ 매물 알림에 추가」 버튼이 떠요. 누르면 끝(최대 10곳).", href: "/targets", time: "1분" },
+  { icon: "⏰", title: "예약 켜기", desc: "얼마나 자주(10분~24시간)·몇 시부터 몇 시까지 살펴볼지 정하고 켭니다. 크롬이 켜져 있는 동안 내 PC가 수집해요.", href: "/schedule", time: "1분" },
 ];
 
 const FAQ = [
+  { q: "네이버 부동산에 초록 「➕ 매물 알림에 추가」 버튼이 안 보여요.", a: "지도나 검색 목록 상태에서는 버튼이 흐리게 「단지를 눌러 열면…」으로 보여요. 목록·지도에서 단지 이름이나 가격 상자를 눌러 매물 목록이 열리면 켜집니다. 아예 안 보이면 확장이 설치·새로고침됐는지(chrome://extensions) 확인해 주세요." },
+  { q: "어디까지 했는지 모르겠어요.", a: "대시보드 맨 위 「🚀 시작하기」에 5단계가 표시되고, 다음에 할 일 버튼이 크게 나와요. 다 끝나면 「✅ 준비 완료」로 바뀝니다." },
   { q: "제 PC가 꺼져 있어도 알림이 오나요?", a: "아니요. 수집은 회원님 PC의 크롬 확장이 회원님 계정으로 합니다. 크롬이 꺼져 있던 동안 밀린 회차는 다시 켜졌을 때 한 번만 수집합니다." },
   { q: "매물 정보가 서버에 저장되나요?", a: "아니요. 매물 정보는 회원님 PC 안에만 저장되고, 회원님 텔레그램으로 바로 보내집니다. 이 사이트에는 설정과 마지막 수집 시각·건수 같은 숫자만 남습니다." },
+  { q: "중개사 전화번호는 왜 없나요?", a: "개인 정보는 모으지 않아요. 알림·엑셀의 「네이버 매물 주소」 링크를 누르면 네이버에서 전화번호를 바로 볼 수 있어요." },
   { q: "네이버 확인 화면이 떴다고 알림이 왔어요.", a: "확장은 확인 화면·보안 문자가 나오면 그 자리에서 멈추고 그날 자동 수집을 쉽니다. 네이버 부동산을 직접 한 번 열어 확인한 뒤, 수집 간격을 길게 바꿔 주세요." },
   { q: "새 버전이 나왔다고 나와요.", a: "ZIP을 다시 받아 기존 폴더에 덮어쓰고 chrome://extensions에서 새로고침 버튼을 눌러 주세요. 설치된 확장은 자동으로 바뀌지 않습니다." },
 ];
@@ -30,7 +34,7 @@ export default async function GuidePage() {
         <div className="topline">
           <div>
             <div className="eyebrow">Guide · {APP_VERSION}</div>
-            <h1>4단계로 끝내는<br />네이버 부동산 새 매물 알림</h1>
+            <h1>5단계로 끝내는<br />네이버 부동산 새 매물 알림</h1>
             <p className="lede">확장 설치와 텔레그램 연결은 처음 한 번만 하면 됩니다.</p>
           </div>
           <a className="guide-cta" href="/downloads/realty-listing-alert-extension-latest.zip" download>⬇ 확장 프로그램 받기</a>
@@ -46,7 +50,7 @@ export default async function GuidePage() {
 
         <section className="card">
           <h2 className="card-title">🧭 사용 순서</h2>
-          <ol className="guide-steps four">
+          <ol className="guide-steps">
             {STEPS.map((step, index) => (
               <li key={step.title}>
                 <a href={step.href}>

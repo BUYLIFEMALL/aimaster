@@ -26,7 +26,7 @@ function readConditions(formData: FormData) {
 export async function addTargetAction(_prev: TargetActionState, formData: FormData): Promise<TargetActionState> {
   const user = await requireProgramAccess();
   const complexNo = parseComplexNo(String(formData.get("complex") ?? ""));
-  if (!complexNo) return { error: "네이버 부동산 단지 화면 주소(…land.naver.com/complexes/숫자)나 단지 번호를 넣어 주세요." };
+  if (!complexNo) return { error: "네이버 부동산에서 단지를 눌러 연 뒤 그 화면의 주소를 복사해 넣어 주세요. 더 쉬운 방법: 위 「🏠 네이버 부동산에서 단지 찾기」로 단지를 열고 초록 「➕ 매물 알림에 추가」 버튼을 누르세요." };
   const name = String(formData.get("complexName") ?? "").trim().slice(0, 100) || null;
   const conditions = readConditions(formData);
   if ("error" in conditions) return { error: conditions.error };

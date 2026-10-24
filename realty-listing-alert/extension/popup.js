@@ -22,40 +22,44 @@ let activeTab = null;
 chrome.tabs.query({ active: true, currentWindow: true }).then(([t]) => {
   activeTab = t || null;
   const no = complexNoFromUrl(t?.url);
-  $("add").disabled = !no;
-  if (no) $("addSub").textContent = `지금 보고 있는 단지(번호 ${no})를 감시 대상에 넣어요`;
+  // 단지 화면일 때만 「이 단지 감시 추가」를 보여 준다(UX 리뉴얼 D)
+  $("add").hidden = !no;
+  if (no) $("addSub").textContent = `지금 보고 있는 단지를 감시 대상에 넣어요`;
   else if (/land\.naver\.com/.test(String(t?.url || ""))) {
-    // 네이버 부동산인데 단지 번호를 못 찾음 — 원인을 바로 알 수 있게 주소를 보여 준다
-    $("addSub").textContent = `검색 목록에서 단지를 눌러 단지 화면을 연 뒤 팝업을 다시 열어 주세요 (지금 주소: ${String(t.url).slice(0, 70)}…)`;
-  } else $("addSub").textContent = "네이버 부동산 단지 화면에서 눌러 주세요";
+    $("addHint").hidden = false;
+    $("addHint").textContent = "👆 지도나 목록에서 단지를 눌러 매물 목록을 열면, 화면 오른쪽 아래에 초록 「➕ 매물 알림에 추가」 버튼이 떠요.";
+  }
 });
 
-function setBox(box, ok) {
-  $(box).classList.remove("ok", "no");
-  $(box).classList.add(ok ? "ok" : "no");
+const WEB_PATH = { settings: "/settings", delivery: "/delivery", targets: "/targets", schedule: "/schedule" };
+let goPath = null;
+$("stateGo").onclick = () => goPath && chrome.tabs.create({ url: WEB + goPath });
+
+/** 한 줄 상태: 빠진 것이 있으면 가장 먼저 할 일 하나와 바로가기, 다 됐으면 준비 완료 요약 */
+function stateLine(s) {
+  if (!s.connected) return ["todo", "⚠ 웹과 연결이 필요해요", "🔗 연결하기", "settings"];
+  if (s.telegramLinked === false) return ["todo", "⚠ 텔레그램을 연결해야 알림을 받아요", "📨 연결하기", "delivery"];
+  if (s.telegramFailed) return ["todo", "⚠ 지난 알림 보내기에 실패했어요 — 텔레그램 연결을 확인해 주세요", "📨 확인", "delivery"];
+  if (s.targetCount === 0) return ["todo", "⚠ 감시할 단지를 추가해 주세요", "🎯 추가하기", "targets"];
+  if (s.schedule && !s.schedule.enabled) return ["todo", `✅ ${s.targetCount}곳 감시 준비 · 예약은 꺼져 있어요`, "⏰ 예약 켜기", "schedule"];
+  const lr = s.lastResult;
+  const last = lr ? ` · 마지막 ${kstTime(lr.at)} ${RESULT[lr.result] || ""}` : "";
+  const every = s.schedule ? ` · ${intervalText(s.schedule.intervalMinutes)}마다` : "";
+  return ["ok", `✅ 준비 완료 · ${s.targetCount ?? 0}곳 감시 중${every}${last}`, null, null];
 }
 
 async function refresh() {
   const s = await send("state").catch(() => null);
   if (!s) return;
-  setBox("connBox", s.connected);
-  $("conn").textContent = s.connected ? "연결됨 ✅" : "연결 전 ⚠";
   $("consentBox").hidden = s.consent;
   $("stopped").hidden = !s.stoppedToday;
 
-  if (s.schedule) {
-    setBox("schedBox", s.schedule.enabled);
-    const hours = s.schedule.startHour != null && s.schedule.endHour != null ? ` · ${s.schedule.startHour}~${s.schedule.endHour}시` : "";
-    $("sched").textContent = s.schedule.enabled ? `켜짐 · ${intervalText(s.schedule.intervalMinutes)}마다${hours}` : "꺼짐";
-  } else $("sched").textContent = "웹 설정 받기 전";
-
-  if (s.telegramLinked !== null) {
-    setBox("tgBox", s.telegramLinked && !s.telegramFailed);
-    $("tg").textContent = !s.telegramLinked ? "연결 전 ⚠" : s.telegramFailed ? "지난번 실패 ⚠" : "연결됨 ✅";
-  }
-
-  const lr = s.lastResult;
-  $("last").textContent = lr ? `${kstTime(lr.at)} ${RESULT[lr.result] || ""}` : "아직 없음";
+  const [kind, text, goLabel, path] = stateLine(s);
+  $("stateLine").className = `state-line ${kind}`;
+  $("stateText").textContent = text;
+  goPath = path ? WEB_PATH[path] : null;
+  $("stateGo").hidden = !goLabel;
+  if (goLabel) $("stateGo").textContent = goLabel;
 
   if (s.latestVersion && older(myVersion, s.latestVersion)) {
     $("update").hidden = false;
@@ -106,7 +110,7 @@ $("add").onclick = async () => {
 $("results").onclick = () => send("openResults");
 // 네이버 부동산 바로가기(2026-10-25 주인님 요청) — 회원 브라우저에서 새 탭으로만 연다(서버는 네이버에 요청하지 않음).
 $("openNaver").onclick = () => chrome.tabs.create({ url: "https://new.land.naver.com/" });
-document.querySelectorAll(".link").forEach((b) => (b.onclick = () => chrome.tabs.create({ url: WEB + b.dataset.path })));
+document.querySelectorAll(".link[data-path]").forEach((b) => (b.onclick = () => chrome.tabs.create({ url: WEB + b.dataset.path })));
 
 refresh();
 send("refreshSettings").then(refresh).catch(() => {});
