@@ -15,7 +15,7 @@
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — AutoGemmaStarter 2.0.0 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\AutoGemmaStarter-Setup-2.0.0.exe`(Inno 6.7 → PyInstaller·PySide6, GPT PARK 정회원 전용, 실행 안 함). 내 PC에 Ollama 자동 설치·사양별 모델 추천 + 내장 채팅(커스텀 봇 12종·프롬프트 25종·지식 도서관 RAG·웹 검색·로컬/클라우드 공급자 Groq·OpenRouter·NVIDIA·Cloudflare).
-- 의견: 독립 개발 안 함(로컬 설치는 데스크톱 전용) → 좋은 기능만 `ai-doc-chatbot`·`ai-prompt-studio`에 병합. 후보 G1 OpenAI 호환 공급자 묶음(공용, 두 프로그램의 「한 공급자」 단점 해소) · G2·G3 커스텀 봇 · G5 문서 RAG 보강 · G4 회원 PC 로컬 Ollama 연결(시제품 뒤). 결정 대기: 범위, 봇 위치, 로컬 AI 여부, 구현 담당. [보고서](analysis-autogemma-starter-20261024/REPORT.md). 비용 없음.
+- 의견: 독립 개발 안 함(로컬 설치는 데스크톱 전용) → 좋은 기능만 `ai-doc-chatbot`·`ai-prompt-studio`에 병합. 후보 G1 OpenAI 호환 공급자 묶음(공용, 두 프로그램의 「한 공급자」 단점 해소) · G2·G3 커스텀 봇 · G5 문서 RAG 보강 · G4 회원 PC 로컬 Ollama 연결(시제품 뒤). **문서 챗봇·AI Prompt 담당 세션에 인계(주인님 지시)** — 플랜 초안 G-1 공용 OpenAI 호환 공급자(문서 챗봇은 답변·라우터만, 임베딩 Upstage 유지) · G-2·G-3 커스텀 봇 · G-4 문서 보강 · G-5 로컬 Ollama(시제품). 범위·순서·비용·봇 위치·로컬 AI 여부 승인 전, `integration_catalog` 추가는 DB 쓰기 승인 필요. [인계](analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md) · [보고서](analysis-autogemma-starter-20261024/REPORT.md). 비용 없음.
 
 ## 2026-10-24 ✅ Antigravity(윈도우) · 세션 `agy-win-20261024-videorender` — 초고속 영상 렌더링 & GIF 스튜디오 v1.25 명칭 개편 & 표준 매뉴얼 리뉴얼
 - 한 일:
