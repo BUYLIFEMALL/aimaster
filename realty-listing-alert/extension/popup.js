@@ -48,6 +48,11 @@ function stateLine(s) {
   return ["ok", `✅ 준비 완료 · ${s.targetCount ?? 0}곳 감시 중${every}${last}`, null, null];
 }
 
+/** 연결된 계정을 상태 줄 아래에 작게 보여 준다(웹 로그인 계정과 다르면 혼동하므로) */
+function accountText(s) {
+  return s.connected ? (s.connectedEmail ? `🔗 연결 계정: ${s.connectedEmail}` : "🔗 웹과 연결됨") : "";
+}
+
 async function refresh() {
   const s = await send("state").catch(() => null);
   if (!s) return;
@@ -57,6 +62,7 @@ async function refresh() {
   const [kind, text, goLabel, path] = stateLine(s);
   $("stateLine").className = `state-line ${kind}`;
   $("stateText").textContent = text;
+  $("account").textContent = accountText(s);
   goPath = path ? WEB_PATH[path] : null;
   $("stateGo").hidden = !goLabel;
   if (goLabel) $("stateGo").textContent = goLabel;

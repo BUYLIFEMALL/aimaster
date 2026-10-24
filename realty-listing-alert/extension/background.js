@@ -240,7 +240,13 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         const r = await api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: no, complexName: msg.name || "" }) });
         await addLog(`감시 대상 추가: 단지 ${no} (${r.count}/10)`);
         loadSettings().catch(() => {}); // 다음 확인·수집에 바로 반영
-        return reply({ ok: true, count: r.count, complexNo: no });
+        // 어느 계정 목록에 넣었는지 함께 알려 준다(2026-10-25: 웹은 다른 계정으로 로그인돼 있어 안 보인다는 혼동)
+        let { connectedEmail } = await get("connectedEmail");
+        if (!connectedEmail) {
+          connectedEmail = (await api("/api/extension/whoami").catch(() => null))?.email || null;
+          if (connectedEmail) await set({ connectedEmail });
+        }
+        return reply({ ok: true, count: r.count, complexNo: no, email: connectedEmail });
       }
       if (msg.type === "whoami") {
         const { connectedEmail } = await get("connectedEmail");
@@ -261,10 +267,11 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         return reply({ ok: true });
       }
       if (msg.type === "state") {
-        const s = await get(["extToken", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "running", "lastResult", "settingsCache", "log", "telegramFailed"]);
+        const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "running", "lastResult", "settingsCache", "log", "telegramFailed"]);
         return reply({
           connected: !!s.extToken,
           connectedAt: s.connectedAt || null,
+          connectedEmail: s.connectedEmail || null,
           consent: !!s.consentAt,
           lastRunAt: s.lastRunAt || null,
           stoppedToday: s.stoppedDate === kstDate(),
