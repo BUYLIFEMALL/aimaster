@@ -216,12 +216,9 @@ async function sendTelegram(token, chat) {
 }
 
 async function saveReport() {
-  const r = await getReport();
-  r.savedAt = new Date().toISOString();
-  r.userAgent = navigator.userAgent;
-  const url = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(r, null, 2));
-  const id = await chrome.downloads.download({ url, filename: `realty-prevalidation/report-${Date.now()}.json`, saveAs: false });
-  return { ok: true, downloadId: id };
+  // 결과 화면(확장 안 HTML)을 새 탭으로 연다 — 거기서 파일로 받기·복사(서비스 워커의 data: 다운로드는 조용히 실패할 수 있었다).
+  await chrome.tabs.create({ url: chrome.runtime.getURL("result.html") });
+  return { ok: true, note: "결과 화면을 열었습니다." };
 }
 
 chrome.runtime.onMessage.addListener((msg, _s, reply) => {
