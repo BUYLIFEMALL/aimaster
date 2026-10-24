@@ -1,3 +1,5 @@
+> **📋 블로그 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — 도톨이 AI v1.3 참고 묶음 D-1~D-4(어조 강도·전개 구조 8가지·검수 지적 한 번에 고치기·유튜브 자막/PDF/붙여넣기 자료 읽기):** 분석·플랜만 완료, 코드 변경 없음. **플랜·비용은 주인님 승인 전.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_DOTORI.md) · [플랜](docs/PLAN_20261024_DOTORI_D1_D4.md) · [분석](../docs/analysis-dotori-v13-20261024/REPORT.md)
+
 > **✅ v2.16로 배포 완료(2026-10-24, Claude Code 윈도우 블로그 전담 `claude-win-20261023-blog2`, 빌드 1회) — 블로그 병합 B-5~B-8:** 서식 포함 복사·TXT/MD/HTML 내보내기(`lib/draftExport.ts`), 수정본 이력·문단 비교·되돌리기(`lib/draftRevisions.ts`, `seo_report.revisions` 최근 10개), SNS 공유 문구(`lib/socialCopy.ts`, `POST /api/drafts/[draftId]/social`, `seo_report.social`). DB 구조 변경 없음. 상세: `docs/IMPROVEMENTS.md` 맨 아래.
 
 > **✅ v2.15로 배포 완료(2026-10-24, Claude Code 윈도우 블로그 전담 `claude-win-20261023-blog2`, 빌드 1회 `naver-blog-seo-studio-2myivnlgq`):** ① 「길게」 분량 보강(`lib/lengthPlan.ts` 소제목마다 문단 4개 — gpt-4o-mini는 여전히 3,200~3,300자대, 상위 모델 권장 안내 유지) ② 블로그 병합 B-4 이미지 비율·표현 방식·참고 사진(`lib/imageOptions.ts`, `components/studio/ImageOptionsPanel.tsx`, 참고 사진은 요청에만·저장 안 함, 공용 `geminiImage.ts` 변경 없음). 시험 16종, DB·확장·ZIP v2.15 OK. 플랜 `docs/PLAN_20261024_MERGE_B4_IMAGE_OPTIONS.md`.

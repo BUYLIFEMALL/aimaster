@@ -266,3 +266,8 @@
 - 바꾼 것: 새 `lib/socialCopy.ts` · 새 `app/api/drafts/[draftId]/social/route.ts` · 새 `components/studio/SocialCopyPanel.tsx` · `NewDraftView.tsx` · 새 시험 `tests/social-copy.test.mjs`(4) + `package.json` `test:social-copy`. tsc·전체 시험 108개 통과.
 - 실측 1회(시험 계정 본인 OpenAI 키, gpt-4o-mini, 저장 안 함, 원고 「가을 캠핑 준비…」 3,201자): 스레드 109자·X 64자·페이스북 146자 — 모두 상한 안, 원고 내용(보온·장비 점검·캠핑장 선택)만 사용, 지어낸 수치 없음 ✅. 다만 분량이 상한보다 꽤 짧음(지시문의 「2~4문장」 영향) — 필요하면 다음에 조정.
 - 범위 밖: SNS 직접 올리기(스레드·인스타 자동화 프로그램과의 연계 후보).
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 제안·플랜: 도톨이 AI v1.3 참고 묶음 D-1~D-4 (블로그 담당 이어받기)
+- 도톨이 v1.3 정적 분석 결과 우리 블로그 6개에 없는 기능 중 글쓰기 4개를 SEO 스튜디오에 넣기로 배치 결정(주인님 「진행해」): D-1 어조 강도 3단계 · D-2 전개 구조 8가지 · D-3 검수 지적 반영(AI 없이 `quote`→`suggestion`) + 재검수 비교 · D-4 유튜브 공개 자막·텍스트 PDF·원문 붙여넣기(새 읽기 경로는 공용 `safe-fetch` 사본).
+- 상태: 플랜만, **구현·주인님 비용 승인 전**. 다음 첫 단계: 블로그 담당이 ACTIVE_WORK 등록 → 플랜 승인. [인수인계](IMPROVEMENT_HANDOFF_20261024_DOTORI.md) · [플랜](PLAN_20261024_DOTORI_D1_D4.md)
+- 발견: `lib/safeFetch.ts`는 자체 코드(공용 `safe-fetch`의 리디렉트 재검사·DNS 고정 없음) — 보안 보강 후보.
