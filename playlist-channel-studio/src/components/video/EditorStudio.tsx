@@ -45,6 +45,7 @@ import { ParticleSystem } from "@/lib/render/particle-system";
 import { drawLyricsLayer } from "@/lib/render/lyrics-layer";
 import { drawTitleLayer, trackTitle, type TitleInfo } from "@/lib/render/title-layer";
 import { drawBackgroundSlides, slideState } from "@/lib/render/background-layer";
+import { ANIMATED_BGS, BG_PALETTES, drawAnimatedBackground } from "@/lib/render/animated-bg";
 import { timeline, type LyricLine } from "@/lib/lyrics";
 
 interface EditorStudioProps {
@@ -284,6 +285,13 @@ export function EditorStudio({
       ctx.fillRect(0, 0, width, height);
 
       // 3. Draw Background with Filters & Brightness
+      // P-4 배경 이미지가 없으면 움직이는 무료 배경(내보내기와 같은 함수)
+      if (!bgImgRef.current && settings.bgAnimated !== 'none') {
+        ctx.save();
+        ctx.filter = `brightness(${settings.brightness}%) ${getFilterString(settings.filterType, settings.filterIntensity, bassLevel)}`.trim();
+        drawAnimatedBackground(ctx, width, height, settings, timeMs, bassLevel);
+        ctx.restore();
+      }
       if (bgImgRef.current) {
         ctx.save();
         const filterStr = getFilterString(settings.filterType, settings.filterIntensity, bassLevel);
@@ -728,6 +736,28 @@ export function EditorStudio({
               <label className="space-y-1">강조 색<input type="color" value={settings.lyricsAccent} onChange={(e) => setSettings((p) => ({ ...p, lyricsAccent: e.target.value }))} className="block w-full h-7 rounded bg-transparent" /></label>
             </div>
             <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#aaaaaa]"><input type="checkbox" checked={settings.lyricsNext} onChange={(e) => setSettings((p) => ({ ...p, lyricsNext: e.target.checked }))} />다음 줄도 흐리게 보여 주기</label>
+          </div>
+
+          {/* P-4 움직이는 무료 배경 */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-[#aaaaaa]">움직이는 무료 배경 <span className="font-normal text-[#777777]">(배경 이미지가 없을 때)</span></h4>
+            {bgMedia?.type === 'image' && <p className="text-[10px] text-[#777777]">지금은 배경 이미지를 쓰고 있습니다. 「① 음악·배경 넣기」에서 배경을 빼면 이 배경이 나옵니다.</p>}
+            <div className="grid grid-cols-3 gap-1.5">
+              {ANIMATED_BGS.map((b) => (
+                <button key={b.value} onClick={() => setSettings((p) => ({ ...p, bgAnimated: b.value }))} className={`py-1.5 text-[11px] font-bold rounded-lg border ${settings.bgAnimated === b.value ? "bg-[#ff0000] text-white border-[#ff0000]" : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:text-white"}`}>{b.label}</button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {BG_PALETTES.map((p) => (
+                <button key={p.value} onClick={() => setSettings((s) => ({ ...s, bgAnimPalette: p.value }))} className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold ${settings.bgAnimPalette === p.value ? "border-[#ff0000] text-white" : "border-[#272727] text-[#aaaaaa] hover:text-white"}`}>
+                  <span className="flex">{p.colors.map((c) => <span key={c} className="h-3 w-3 rounded-full" style={{ background: c }} />)}</span>{p.label}
+                </button>
+              ))}
+            </div>
+            <div className="space-y-1 text-[11px] font-bold text-[#aaaaaa]">
+              <div className="flex justify-between"><span>움직임 속도</span><span className="text-white font-mono">{settings.bgAnimSpeed}%</span></div>
+              <input type="range" min={25} max={200} step={25} value={settings.bgAnimSpeed} onChange={(e) => setSettings((p) => ({ ...p, bgAnimSpeed: Number(e.target.value) }))} className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]" />
+            </div>
           </div>
 
           {/* P-3 배경 전환 */}

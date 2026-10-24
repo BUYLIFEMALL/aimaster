@@ -11,6 +11,7 @@ import { ParticleSystem } from './particle-system';
 import { drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
 import { drawTitleLayer, trackTitle } from './title-layer';
 import { drawBackgroundSlides, slideState } from './background-layer';
+import { drawAnimatedBackground } from './animated-bg';
 import { bassLevelOf, createSpectrumReader } from './audio-spectrum';
 import { loadGifSticker } from './gif-frames';
 
@@ -296,6 +297,13 @@ async function renderVideoMp4(
     ctx.fillStyle = '#0f172a';
     ctx.fillRect(0, 0, width, height);
 
+    // P-4 배경 이미지가 없으면 움직이는 무료 배경(미리보기와 같은 함수)
+    if (!bgImg && settings.bgAnimated !== 'none') {
+      ctx.save();
+      ctx.filter = `brightness(${settings.brightness}%) ${getFilterString(settings.filterType, settings.filterIntensity, bassLevel)}`.trim();
+      drawAnimatedBackground(ctx, width, height, settings, timeMs, bassLevel);
+      ctx.restore();
+    }
     // Draw background (밝기 + 저음에 반응하는 필터)
     if (bgImg) {
       ctx.save();

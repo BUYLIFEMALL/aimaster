@@ -58,7 +58,16 @@ export type TitlePos = 'tl' | 'tc' | 'tr' | 'ml' | 'mc' | 'mr' | 'bl' | 'bc' | '
 export type BgTransition = 'fade' | 'dissolve' | 'slide' | 'zoom';
 export type BgSlideMode = 'off' | 'track' | 'interval';
 
+/** P-4 AI 없이 움직이는 배경(배경 이미지가 없을 때) */
+export type AnimatedBg = 'none' | 'orbs' | 'aurora' | 'stars' | 'grid' | 'gradient';
+export type BgAnimPalette = 'night' | 'sunset' | 'forest' | 'mono';
+
 export interface StudioSettings {
+  // P-4 움직이는 무료 배경
+  bgAnimated: AnimatedBg;
+  bgAnimPalette: BgAnimPalette;
+  bgAnimSpeed: number; // 25~200 %
+
   // P-3 배경 이미지 여러 장 전환(① 준비에서 이미지 배경에 추가 배경을 넣었을 때)
   bgSlideMode: BgSlideMode; // 끔·곡마다·N초마다
   bgSlideSeconds: number; // N초마다일 때 간격(10~180)

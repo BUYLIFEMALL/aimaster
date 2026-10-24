@@ -74,6 +74,9 @@ export const EFFECT_COLOR_PRESETS = [
 ];
 
 export const DEFAULT_SETTINGS: StudioSettings = {
+  bgAnimated: 'aurora',
+  bgAnimPalette: 'night',
+  bgAnimSpeed: 100,
   bgSlideMode: 'track',
   bgSlideSeconds: 30,
   bgTransition: 'fade',

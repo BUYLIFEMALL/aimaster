@@ -231,7 +231,8 @@ export function MediaCenter({
     }
   };
 
-  const isReady = tracks.length > 0 && bgMedia !== null;
+  // P-4 배경을 넣지 않으면 ② 편집에서 고른 움직이는 무료 배경을 쓴다 — 음악만 있으면 진행
+  const isReady = tracks.length > 0;
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#0f0f0f] text-[#f1f1f1] p-6 md:p-10 space-y-8 custom-scrollbar">
@@ -689,7 +690,7 @@ export function MediaCenter({
           </button>
           {!isReady && (
             <p className="text-center text-[11px] text-[#777777]">
-              * 최소 1개 이상의 음악 파일과 배경 미디어를 등록해주세요.
+              * 음악 파일을 1개 이상 넣어 주세요. 배경을 넣지 않으면 ② 편집에서 고른 움직이는 무료 배경을 씁니다.
             </p>
           )}
         </div>
