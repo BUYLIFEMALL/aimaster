@@ -9,13 +9,13 @@ describe("work inbox", () => {
       title: '보고서, "초안"',
       source_slug: "ai-task-planner",
       kind: "task",
-      created_at: "2026-10-24T13:00:00.000Z",
+      created_at: "2026-10-24T16:00:00.000Z",
       source_url: "https://ai-task-planner.buylife.xyz/x",
       data: { 마감일: "2026-10-30", 담당: ["나", "팀"], 무시: { a: 1 } },
     });
     const [head, row] = csv.trim().split("\n");
     expect(head).toBe("이름,보낸 프로그램,종류,받은 날,원본 링크,마감일,담당");
-    expect(row).toBe('"보고서, ""초안""",ai-task-planner,할 일,2026-10-24,https://ai-task-planner.buylife.xyz/x,2026-10-30,"나, 팀"');
+    expect(row).toBe('"보고서, ""초안""",ai-task-planner,할 일,2026-10-25,https://ai-task-planner.buylife.xyz/x,2026-10-30,"나, 팀"');
   });
 
   it("validates items before sending", () => {
