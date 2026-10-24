@@ -151,7 +151,7 @@ export function judgePrompt(topics: string[], candidates: string[], now?: Date) 
 
 /** 급상승 검증: 최신 뉴스·웹 자료 요약 + 자료에 실제로 나온 새 용어(최대 10) */
 export function surgeTermsPrompt(topic: string, sources: { kind: string; title: string; summary: string }[], now?: Date) {
-  const system = `${yearGuard(now)}\n${PERSONA}\n최신 뉴스·웹 자료를 읽고 블로그 작성자 관점에서 요약하고, 자료에 실제로 나온 새 용어·화제 중 사람들이 검색할 만한 검색어를 고릅니다. summary는 자료에 있는 내용만 5~8문장, terms는 최대 10개이며 자료에 없는 용어는 넣지 않습니다. why에는 어느 자료에서 나왔고 왜 뜰 만한지 적습니다.\n${JSON_ONLY}`;
+  const system = `${yearGuard(now)}\n${PERSONA}\n최신 뉴스·웹 자료를 읽고 블로그 작성자 관점에서 요약하고, 자료에 실제로 나온 새 용어·화제 중 사람들이 검색할 만한 검색어를 고릅니다. summary는 자료에 있는 내용만 5~8문장, terms는 최대 10개이며 자료에 없는 용어는 넣지 않습니다. why에는 어느 매체·글에서 나왔고 왜 뜰 만한지 적습니다(자료 번호 [1] 같은 표기는 쓰지 않습니다).\n${JSON_ONLY}`;
   const user = `관측 주제: ${topic}\n자료:\n${sources.map((s, i) => `[${i + 1}] (${s.kind}) ${s.title} — ${s.summary.slice(0, 200)}`).join("\n")}`;
   const schema = obj({ summary: S, terms: arr(obj({ term: S, why: S })) });
   return { system, user, schema };

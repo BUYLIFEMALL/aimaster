@@ -67,10 +67,14 @@ export function postedWithinDays(postdate: string | undefined, days = 7, now = n
   return kstToday - t <= days * 86_400_000 && kstToday - t >= 0;
 }
 
-/** N8: 지난번 분석한 글 번호를 빼고 새 글만(최신순 유지, 최대 max). */
+/** N8: 새 글만(최신순 목록에서 지난번에 본 글이 나오기 전까지, 최대 max). 처음이면 최근 max개.
+ *  v1.08 실검수: 본 글을 「빼기만」 하면 RSS의 더 오래된 글을 새 글로 잘못 골랐다 → 본 글을 만나면 멈춘다. */
 export function pickNewPosts<T extends { logNo: string }>(posts: T[], seen: string[] | undefined, max = 10): T[] {
   const s = new Set(seen ?? []);
-  return posts.filter((p) => !s.has(p.logNo)).slice(0, max);
+  if (!s.size) return posts.slice(0, max);
+  const out: T[] = [];
+  for (const p of posts) { if (s.has(p.logNo)) break; out.push(p); }
+  return out.slice(0, max);
 }
 
 /** 주제 입력 「캠핑, 차박」 → 최대 3개(중복·빈 값 제외) */

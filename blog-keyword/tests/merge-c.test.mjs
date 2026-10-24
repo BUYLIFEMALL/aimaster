@@ -53,6 +53,11 @@ test("C N8: 최근 7일 활동·새 글만 고르기", () => {
   assert.deepEqual(pickNewPosts(posts, ["4", "3"]).map((p) => p.logNo), ["5"]);
   assert.deepEqual(pickNewPosts(posts, undefined, 2).map((p) => p.logNo), ["5", "4"]);
   assert.deepEqual(pickNewPosts(posts, ["5", "4", "3"]), []);
+  // v1.08 실검수: 최근 글 10개를 본 뒤 다시 분석하면 더 오래된 글이 아니라 「새 글 없음」이어야 한다
+  const feed = Array.from({ length: 30 }, (_, i) => ({ logNo: String(100 - i) }));
+  const firstSeen = pickNewPosts(feed, undefined).map((p) => p.logNo);
+  assert.deepEqual(pickNewPosts(feed, firstSeen), []);
+  assert.deepEqual(pickNewPosts([{ logNo: "101" }, ...feed], firstSeen).map((p) => p.logNo), ["101"]);
   assert.deepEqual(splitTopics("캠핑, 차박 ,캠핑,  , 글램핑, 낚시"), ["캠핑", "차박", "글램핑"]);
 });
 
