@@ -14,6 +14,8 @@ import { AiSettings, GeminiGuide } from "./AiSettings";
 import { BackupImport } from "./BackupImport";
 import { TaskPlannerGuideView } from "./TaskPlannerGuideView";
 import { tasksCsv } from "@/lib/planner/csv";
+import type { ReceivedRow } from "@/lib/planner/received";
+import { ReceivedTasks } from "./ReceivedTasks";
 
 const snapshotSchema = z.object({ workspace: workspaceSchema, revision: z.number().int().min(0), userId: z.string(), serverNow: z.number() });
 type Snapshot = z.infer<typeof snapshotSchema>;
@@ -26,6 +28,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
   const [editing, setEditing] = useState<Task | undefined>(), [editorKey, setEditorKey] = useState(0), [categoryName, setCategoryName] = useState("");
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({}), [tick, setTick] = useState(0);
   const [inboxNotice, setInboxNotice] = useState<{ text: string; url: string } | null>(null);
+  const [received, setReceived] = useState<ReceivedRow[]>([]);
   const lock = useRef(false), currentRecord = useRef<Snapshot | null>(null), clockBase = useRef({ server: Date.now(), monotonic: 0 });
   const pendingRequest = useRef<{ fingerprint: string; body: { commandId: string; revision: number; command: Command } } | null>(null);
   const finished = useRef<string | null>(null);
@@ -57,6 +60,16 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
   useEffect(() => { void refresh(); const handler = () => void refresh(true); window.addEventListener("focus", handler); return () => window.removeEventListener("focus", handler); }, [refresh]);
+  // U8-B: 업무 워크스페이스에서 보낸 할 일 — 실패해도 화면 나머지는 그대로 둔다
+  const loadReceived = useCallback(async () => {
+    try {
+      const response = await fetch("/api/work-inbox/received", { cache: "no-store", credentials: "same-origin" });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (Array.isArray(data.items)) setReceived(data.items);
+    } catch { /* 받은 할 일은 보조 기능 */ }
+  }, []);
+  useEffect(() => { void loadReceived(); const handler = () => void loadReceived(); window.addEventListener("focus", handler); return () => window.removeEventListener("focus", handler); }, [loadReceived]);
   useEffect(() => { const timer = window.setInterval(() => setTick(t => t + 1), 500); return () => clearInterval(timer); }, []);
   useEffect(() => { const handler = () => setScreen(window.location.pathname.slice(1) || "dashboard"); window.addEventListener("popstate", handler); return () => window.removeEventListener("popstate", handler); }, []);
   useEffect(() => { const handler = (e: BeforeUnloadEvent) => { const w = currentRecord.current?.workspace; if (lock.current || Object.entries(noteDrafts).some(([day, draft]) => draft !== (w?.notes[day] ?? ""))) { e.preventDefault(); } }; window.addEventListener("beforeunload", handler); return () => window.removeEventListener("beforeunload", handler); }, [noteDrafts]);
@@ -91,6 +104,19 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
       setInboxNotice({ text: `「${data.title}」을(를) 업무 워크스페이스 『받은 업무』로 보냈습니다.`, url: data.inboxUrl });
       setStatus("받은 업무로 보냄");
     } catch (e) { setError(message(e)); setStatus("보내기 실패"); }
+    finally { lock.current = false; setBusy(false); }
+  }
+  async function handleReceived(action: "add" | "discard", id: string) {
+    if (lock.current || !currentRecord.current || denied) return;
+    lock.current = true; setBusy(true); setError(""); setStatus(action === "add" ? "받은 할 일 추가 중…" : "받은 할 일 버리는 중…");
+    try {
+      const body = action === "add" ? { action, id, date, revision: currentRecord.current.revision } : { action, id };
+      const response = await fetch("/api/work-inbox/received", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body) });
+      const data = await response.json();
+      if (!response.ok) { if (response.status === 401 || response.status === 403) clearMember(); throw new Error(data.error || "받은 할 일을 처리하지 못했습니다."); }
+      if (action === "add") { accept(data); setStatus("받은 할 일을 추가했습니다"); } else setStatus("받은 할 일을 버렸습니다");
+      setReceived(r => r.filter(i => i.id !== id));
+    } catch (e) { setError(message(e)); setStatus("처리 실패"); void loadReceived(); }
     finally { lock.current = false; setBusy(false); }
   }
   const w = record?.workspace, serverNow = now(), active = w ? activeSession(w) : undefined;
@@ -249,6 +275,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
     {!w ? <section className="card"><h2>{denied ? "로그인·이용 권한 확인이 필요합니다" : "회원 기록을 불러오고 있습니다"}</h2><p>기록을 확인한 뒤 할 일과 집중시간이 표시됩니다.</p>{denied && <a href="/login" className="button">로그인</a>}</section> : <>
       {!["settings", "guide"].includes(screen) && <div className="filters"><label>기록 날짜<input type="date" value={date} onChange={e => { if (e.target.value) { setDate(e.target.value); setEditing(undefined); setEditorKey(k => k + 1); } }}/></label><label>분류<select value={categoryId} onChange={e => setCategoryId(e.target.value)}><option value="">전체</option>{w.categories.filter(c => !c.archived).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>할 일 검색<input value={query} onChange={e => setQuery(e.target.value)} placeholder="제목에서 검색"/></label><label>정렬<select value={sort} onChange={e => setSort(e.target.value)}><option value="plan">계획 순서</option><option value="priority">우선순위</option><option value="newest">최근 작성</option></select></label></div>}
       {screen === "results" && summary && <SummaryPanel summary={summary} scope={scope}/>}
+      {screen === "dashboard" && <ReceivedTasks items={received} busy={busy} add={id => void handleReceived("add", id)} discard={id => void handleReceived("discard", id)}/>}
       {screen === "dashboard" && summary && <Overview workspace={w} tasks={list} summary={summary} scope={scope} categoryId={categoryId} chooseCategory={setCategoryId} active={active} remaining={active ? clock(remainingMs(active, serverNow) / 1000) : "00:00"} busy={busy} command={send} backup={backup} exportCsv={exportCsv} revision={record!.revision} query={query} manage={() => navigate("plan")} editor={editor()} taskCard={taskCard} note={note} savedNote={w.notes[date] ?? ""} changeNote={changeNote} saveNote={saveNote} date={date} sendDay={sendDay}/>}
       {screen === "plan" && <div className="plan-grid"><div className="stack">{editor()}<section className="card"><h2>분류 관리</h2><form className="actions" onSubmit={async e => { e.preventDefault(); if (await send({ type: "category.add", name: categoryName })) setCategoryName(""); }}><input aria-label="새 분류 이름" value={categoryName} onChange={e => setCategoryName(e.target.value)} maxLength={30} required placeholder="새 분류 이름"/><button disabled={busy}>분류 추가</button></form><div className="chips">{w.categories.filter(c => !c.archived).map(c => <span key={c.id}>{c.name}<button disabled={busy} aria-label={`${c.name} 분류 보관`} onClick={() => send({ type: "category.archive", id: c.id })}>×</button></span>)}</div><p className="muted">전체는 필터 전용입니다. 기록에 사용 중인 분류는 보관할 수 없습니다.</p></section></div><section className="card"><h2>선택 날짜의 할 일 <small>{list.length}개</small></h2>{list.length ? list.map(t => taskCard(t)) : <p className="empty">등록한 할 일이 여기에 표시됩니다.</p>}</section></div>}
       {screen === "focus" && <section className="card timer-card"><p className="eyebrow">{active ? MODE_LABELS[active.mode] : "집중할 준비가 됐나요?"}</p><h2>{active?.taskId ? w.tasks.find(t => t.id === active.taskId)?.title : active ? "잠깐 쉬어가세요" : "할 일을 선택해 시작해주세요"}</h2><div className="timer" aria-label="남은 시간">{active ? clock(remainingMs(active, serverNow) / 1000) : clock(w.settings.durations.focus * 60)}</div><p>{active?.state === "paused" ? "일시정지 · 남은 시간과 집중 기록이 유지됩니다" : active ? "실행 중 · 종료 시각까지만 기록합니다" : "타이머 실행에 AI 키는 필요하지 않습니다"}</p><div className="actions centered">{active ? <><button className="primary" disabled={busy} onClick={() => send({ type: active.state === "paused" ? "timer.resume" : "timer.pause", sessionId: active.id })}>{active.state === "paused" ? "재개" : "일시정지"}</button><button disabled={busy} onClick={() => send({ type: "timer.end", sessionId: active.id })}>현재 타이머 종료</button>{remainingMs(active, serverNow) === 0 && <button disabled={busy} onClick={() => send({ type: "timer.finish", sessionId: active.id })}>종료 기록 다시 저장</button>}</> : <>{(["short", "long"] as Mode[]).map(mode => <button key={mode} disabled={busy} onClick={() => send({ type: "timer.start", mode, taskId: null })}>{MODE_LABELS[mode]} 시작</button>)}<button onClick={() => navigate("plan")}>할 일 선택</button></>}</div><p className="muted">작업 완료·휴지통 이동 시 실행 중인 시간을 정산하고 종료합니다. 다음 모드는 직접 선택합니다.</p></section>}

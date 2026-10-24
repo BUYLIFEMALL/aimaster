@@ -664,3 +664,51 @@ p {
   color: #67e8f9;
   font-weight: 700;
 }
+
+/* U8-B 받은 할 일 (v1.12) */
+.received-tasks {
+  margin-bottom: 18px;
+  border-color: #0e7490;
+}
+.received-tasks .section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.received-hint {
+  font-size: 12px;
+}
+.received-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.received-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid #253046;
+  border-radius: 9px;
+  background: #161d2b;
+}
+.received-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.received-text small {
+  color: #94a3b8;
+}
+.received-actions {
+  display: flex;
+  gap: 6px;
+}

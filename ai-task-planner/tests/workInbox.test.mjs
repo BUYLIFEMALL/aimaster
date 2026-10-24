@@ -44,3 +44,16 @@ test("empty day is refused and input schema is strict", () => {
   assert.equal(inboxInputSchema.safeParse({ type: "day", date: day, categoryId: "", query: "", userId: "다른 회원" }).success, false);
   assert.equal(inboxInputSchema.safeParse({ type: "day", date: day, categoryId: "", query: "" }).success, true);
 });
+
+// U8-B 워크스페이스에서 받은 할 일 → 할 일 입력
+import { receivedTaskInput, receivedActionSchema } from "../src/lib/planner/received.ts";
+test("received row becomes a task input with safe date, priority and default category", () => {
+  const w = emptyWorkspace();
+  const row = (data) => ({ id: crypto.randomUUID(), source_slug: "ai-work-workspace", title: "  기획서\n마무리 ", data, created_at: new Date(now).toISOString() });
+  assert.deepEqual(receivedTaskInput(row({ 예정일: "2026-10-30", 우선순위: "높음" }), w, day), { title: "기획서 마무리", categoryId: w.settings.defaultCategoryId, priority: "high", estimatedMinutes: 0, plannedDate: "2026-10-30" });
+  const loose = receivedTaskInput(row({ 예정일: "2026-02-31", 우선순위: "급함" }), w, day);
+  assert.equal(loose.plannedDate, day); assert.equal(loose.priority, "normal");
+  assert.equal(receivedTaskInput(row(null), w, day).priority, "normal");
+  assert.equal(receivedActionSchema.safeParse({ action: "add", id: crypto.randomUUID(), date: day, revision: 3 }).success, true);
+  assert.equal(receivedActionSchema.safeParse({ action: "add", id: crypto.randomUUID(), date: day, revision: 3, userId: "다른 회원" }).success, false);
+});
