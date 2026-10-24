@@ -1,7 +1,7 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Lyricbi 1.9.0 재확인 (읽기 전용, 변경 없음)
-- 요청 파일이 **2026-10-21에 이미 분석한 같은 파일**(해시 일치) → 그 결과물 `lyric-video-studio`(v1.10)와 대조만 함. 남은 것: R1 노래방 로마자 · R2 LP판 · R3 플레이리스트(→ `playlist-channel-studio`가 담당) · R4 Pexels 배경 · R5 로고·프레임(대부분 이미 백로그) + 프리셋·강조·스펙트럼·글꼴 수 확장, 환경 진단. 추천 순서 R1 → R2 → R4. [재확인 기록](analysis-lyricbi-20261021/RECHECK_20261024.md). 비용 없음.
+- 요청 파일이 **2026-10-21에 이미 분석한 같은 파일**(해시 일치) → 그 결과물 `lyric-video-studio`(v1.10)와 대조만 함. 남은 것: R1 노래방 로마자 · R2 LP판 · R3 플레이리스트(→ `playlist-channel-studio`가 담당) · R4 Pexels 배경 · R5 로고·프레임(대부분 이미 백로그) + 프리셋·강조·스펙트럼·글꼴 수 확장, 환경 진단. 추천 순서 R1 → R2 → R4. **음악 담당에게 인계(주인님 지시)** — 플랜 초안 L-1 노래방 로마자 · L-2 LP판 · L-3 무료 사진 배경(공용 `free-photo-search`) · L-4 꾸밈 확장 · L-5 렌더 진단, 범위·순서·비용(AI 0·빌드 2회) 승인 전. 음악 담당 대기 묶음 3개(Spectrum P·무료 음성·이 L) 순서도 함께 여쭙기. [인계](../lyric-video-studio/docs/IMPROVEMENT_HANDOFF_20261024_LYRICBI_RECHECK.md) · [플랜](../lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md) · [재확인 기록](analysis-lyricbi-20261021/RECHECK_20261024.md). 비용 없음.
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 블로그 담당 `claude-win-20261024-blog3` — AI 블로그 키워드 자동화 v1.09 배포 (v1.08 실검수 수정)
 - 한 일: 벤치마킹 「새 글만 분석」이 지난번에 본 글을 만나면 멈추게(더 오래된 글을 새 글로 골라 AI를 한 번 더 부르던 문제) · 급상승 이유 문구 인용 번호 `133d140ea`. 빌드 1회(승인) `blog-keyword-k7skfpyk1` Ready, DB v1.09.
