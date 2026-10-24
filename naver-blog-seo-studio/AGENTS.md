@@ -217,3 +217,11 @@
 - 확장: 코드 변경 없음, manifest 1.74.0/v1.74·ZIP 재생성, DB `version`/`extension_version` v1.74(ref `esgxyikcnnvmlhygjkth`, 마이그레이션 `20261020120000_bump_version_v1_74.sql`), `check-extension-release` OK. 회원 확장은 다시 받을 필요 없음(동작 같음).
 - 검수: tsc 0 · eslint 새 경고 0 · 테스트 seo-quality 6 · categories 2 · update-banner 3 · browser 26(1 건너뜀) · build · 배포 4회(마지막 `naver-blog-seo-studio-aydgzlfis` Ready). 크롬(관리자 세션, 이미지 요청은 시험 탭에서 차단): 제목 추천 → 경험 질문 5개 → 메모 추가 → 홈판 스토리 생성 성공(공백 제외 2,052자, 메모 경험 반영) → 점검 5/10·단어 빈도·모바일 미리보기 확인, 400px iframe에서 점검표 1열 전환(창 최대화로 실제 창 폭은 못 줄임).
 - **다음 CLI 주의**: ① GPT-5 계열(`gpt-5.6-luna`)은 생성 요청이 OpenAI 400으로 실패 — 온도(`temperature`) 지정을 받지 않는 것으로 추정, 이번에 미수정(개선 원장 #14). ② 저렴한 모델은 메모 경험을 조금 부풀릴 수 있음(「신나게 뛰어놀았다」) — 발행 전 직접 확인 안내 유지.
+
+## 2026-10-24 v2.19 — 예약 포스팅 (Claude Code 윈도우 블로그 담당 `claude-win-20261024-blog3`)
+- 루트 「🧭 블로그 작업 최우선 핵심 지침」 ③ⓒ 보강. 플랜 [docs/PLAN_20261024_RESERVE_POSTING.md](docs/PLAN_20261024_RESERVE_POSTING.md).
+- 서버 `app/api/extension/drafts/library/[draftId]/auto-publish/route.ts`: `claim`의 `scheduleAt` → `checkReserveTime`(`lib/reserveTime.ts`) → `seo_report.autoPublish.mode="reserve"`·`scheduledAt`. 새 동작 `reserved`(arm 뒤 `publishing`/`uncertain`에서만, 시각 일치, 반복 보고는 그대로). 예약 실행은 `published` 기록 불가, `reserved`는 불확실로 안 되돌림.
+- 확장: `auto-publish-page.js` `settings`(예약 켜기·날짜·시·분·반영 확인)·`final`(예약 실행은 예약이 켜져야만, 즉시 실행은 켜져 있으면 멈춤)·`reserved`(예약 목록 제목·시각 1건). 예약 도우미는 **함수 안**(`chrome.scripting.executeScript`가 `seoAutoPublishPage` 하나만 탭에 넣음). `auto-publish.js` `startAutoPublication(reserve)`·`reconcileReservation`, `background.js` `mode==="reserve"`, 사이드패널 `reservePublish` 버튼·`publishScheduleAt` 칸.
+- 예약 코드 출처: `naver-blog-agent/extension/editor.js`(공용화 후보 `naver-reserve`, `docs/SHARED_FEATURE_MAP.md`) — 네이버 화면이 바뀌면 두 곳을 같이 고칠 것.
+- 시험: `tests/auto-publish.test.mjs`(예약 2)·`tests/browser/auto-publish-page.test.mjs`(예약 2). 화면 시험은 `EDGE_PATH`에 Playwright 시험 전용 크로미움 경로를 넣어 실행(엣지는 Codex 전용).
+- 커밋 `f8a33efbf`(플랜)·`bbd6d771a`(기능)·`92fb0bb7a`(버전·확장 ZIP), 배포 `naver-blog-seo-studio-pzqq11f3j`. **실제 네이버 예약 시험은 주인님 대기**(Claude 브라우저 도구로 blog.naver.com 불가).
