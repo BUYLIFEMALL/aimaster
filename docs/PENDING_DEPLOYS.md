@@ -19,7 +19,6 @@
 |---|---|---|---|---|---|
 | `realty-listing-alert` (운영 v1.01) | 좌측 메뉴 링크 밑줄 제거(`.nav-link` `text-decoration: none`) | `fe323f5e9` | 2026-10-25 · [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert/docs/IMPROVEMENTS.md` 맨 위 | 2단계 배포 때 함께(주인님 결정), v1.02 |
 | `shop-detail-page` | 같은 내용(문구 고치기 안내·진행 표시, 공용 사본 오류 문구, 컴퓨터 사양 안내) | `2cc9edc75`·`9cfb40fb1`·`c5fb22b4d` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
-| `ai-video-studio` (운영 v1.21) | 영상 만들기 남은 시간을 전체 진행률로 계산(라이브러리 값은 그리기만 봐서 인코딩에서 막히면 짧게 나옴, 느림 안내 안 뜸) | `d8c0aed57` | 2026-10-24 · [역할: video] Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 | 다음 배포 때 함께(맥미니 측정 결과로 2단계 할 때), 버전 v1.22 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공급자·공용 키 + G-2 봇/방 선택/당시 설정 + G-3 역할/자료 경계・과거 날짜 보존·번역/요약 검색 생략. 93개 시험·타입·로컬 빌드, 일반 회원 봇 CRUD/선택/삭제된 봇·키 미등록 안내 확인 | `2d56a117b` · `07795803c` · `d7dd0d367` | 2026-10-25 · [역할: docbot-prompt] Codex `codex-win-20261025-docbot-g3` | [G-3 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G3.md) | G-4 후 묶음, 본인 키 실제 AI/방/당시 답변·좁은 화면 검수, 버전 +0.01·DB·프로그램 비교표 일치. 디자인 agy 담당 |
 | `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
@@ -59,6 +58,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-video-studio` | v1.22 · 2026-10-25 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회) | 남은 시간 전체 진행률 계산 `d8c0aed57`(대기 줄 옮김) + 맥 렌더 2단계 `40f8c8a99` |
 | `banana-canvas` | v1.38 · 2026-10-25 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-822ffb1o1`) | 무료 지우기 「⬇ AI 계산용 모델 파일 받기」 상자·저장됨 표시·좌측 메뉴·컴퓨터 사양 안내 `c5fb22b4d`·`c41c58f75` — 운영 크롬에서 「✅ 저장됨」·안내·메뉴 확인 |
 | `banana-canvas` | v1.37 · 2026-10-25 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-24uc9d6tb`) | 무료 지우기 모델 받는 곳(허깅페이스)·출처 링크·「AI 계산용 모델 파일(설치 없음)」 이름 `2cc9edc75`·`9cfb40fb1` |
 | `shop-detail-page` | v1.33 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 추가 승인 빌드 1회 `shop-detail-page-lxt19gt29`) | 무료 지우기 글자 상자 넓히기 0.9배 사본 `1304e3fda` — 운영 프로모션 배너 「글자 모두 지우기」 8곳(그래픽 가속), 글자 모양 사라짐·회색 얼룩 1곳 남음(저장 안 함) |

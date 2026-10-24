@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.22 「영상 만들기」 맥 느림 2단계
+- 근거: 맥미니 측정(`73f2e1f2c`, 플랜 §7) — 인코딩이 아니라 장면 그리기가 한 장 약 20초. 클립은 이미 `blob:`이라 원본 받기 대기는 아님 → 디코더 문제로 판단.
+- 한 일: 맥(데스크톱 macOS)은 렌더 중 소프트웨어 디코딩이 기본(`lib/edit/softDecode.ts`, 렌더 중에만 `VideoDecoder.configure` 감싸기). 주소 스위치 `?render=hwdecode|softdecode|verbose|software`(쉼표), 진단 `decode`·`msPerFrame`, 「멈추는 중…」 즉시 표시, 남은 시간 수정 `d8c0aed57` 함께.
+- 버전·배포: **v1.22**(DB v1.22, 비교표 v1.22). 커밋 `40f8c8a99`·문서 커밋. 시험 66·tsc·eslint·build.
+- 검수(운영 윈도우 크롬, 시험 계정, Wan 3.0 5초): 기본 5.0초·`decode: default`·디코더 설정 그대로 / `?render=softdecode,verbose` 5.1초·`prefer-software` 들어감 / 멈추기 1.2초에 중단. 결과 저장 안 함.
+- 못 한 것: 맥 효과 확인 — 맥미니 재측정(절차 `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` §8-1).
+- 비용: Vercel 빌드 1회(승인), AI 호출 0회. 링크:
+https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-10-25 📮 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` → [역할: design] `agy-win-20261025-bananadesign` — 바나나 캔버스 리뉴얼(`71bda4672`) 배포 전 맞춰 주실 5가지
 
 - 리뉴얼은 주인님 지시 작업이라 코드는 건드리지 않았습니다. 다만 같은 날 주인님 지시로 고쳐 **운영 v1.38로 이미 배포**된 무료 지우기 안내 일부가 리뉴얼 커밋에서 빠지거나 바뀌었습니다:
