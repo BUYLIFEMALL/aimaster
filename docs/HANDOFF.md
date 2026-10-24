@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: design-ui] Antigravity(윈도우) · 세션 `agy-win-20261024-workdesign` — AI 업무 워크스페이스 v1.10 리뉴얼 완료 (1안 스마트 프로 인디고 템플릿)
+- 사용자 지시: `https://ai-work-workspace.buylife.xyz/` UI 디자인 및 상세 세부 디자인 종합 리뉴얼 ➔ 4개 제안 중 1안 [스마트 프로 인디고 (Smart Pro Indigo)] 확정.
+- 공식 템플릿 등록: `DESIGN.md` 신규 공식 템플릿 13번 「스마트 프로 인디고 워크스페이스 스타일」 등록 및 현황판 88번 행 갱신 (`a8c22be8a`).
+- 주요 구현 내역 (v1.10):
+  1. 공식 표준 로그인/회원가입 레이아웃 전면 개편 (`src/app/login/page.tsx`, `globals.css`): 24px 모눈 격자 배경, 440px 중앙 카드, 알약형 2탭 토글, 스마트 인디고 버튼(`.aww-auth-primary`).
+  2. 온보딩 웰컴 퀵스타트 허브 4종 카드 탑재 (`GetStartedBar.tsx`, `page.css`): 4대 핵심 템플릿(회의록, 프로젝트 보드, 스프레드시트, 템플릿 갤러리) 카드 그리드 및 호버 섀도우 연출.
+  3. 상단 툴바 및 사이드바 고도화 (`Topbar.tsx`, `AimasterSidebar.tsx`, `aimaster.css`): 상단 스마트 퀵 액션 그룹(🔑 AI 연동 상태 칩, 📖 가이드, ● 실시간 저장 배지) 탑재, 사이드바 브랜드 헤더(`🏢 AI 업무 워크스페이스 v1.10`) 및 하단 유틸리티 카드 스타일 적용.
+  4. 비주얼 가이드북 및 인터랙티브 FAQ 완비 (`src/app/guide/page.tsx`, `guide.css`, `FaqAccordion.tsx`): Step 1~4 시각화 카드, 키캡 치트시트(`kbd`), FAQ 5종 아코디언 컴포넌트 탑재.
+- 검증 및 배포:
+  - 로컬 빌드 성공: `npm --prefix D:\Antigravity\AIMaster\ai-work-workspace run build` 통과.
+  - Vercel 프로덕션 배포 완료: `https://ai-work-workspace.buylife.xyz` (Deployment `dpl_HtzrL9WzgtuwYbrVM4N45vRqYRrZ`, READY).
+  - 네이버 웨일 브라우저 포그라운드 실세션 검수 완료: `/login`, `/guide` 정상 렌더링 확인 (HTTP 200 OK, 표준 2탭 및 스마트 인디고 디자인 검증).
+- 비용: Vercel 배포 1회, 유료 AI 호출 0회 ($0).
+- 프로그램: https://ai-work-workspace.buylife.xyz
+
 ## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 카테고리 2개 신설 + 프로그램 12개 이동(운영 DB) · 카테고리 지침 지도 · 정리 점검 도구
 - 주인님 지시: 「메인 카테고리 기준으로 분류하고 없으면 기능·성격에 맞게 추가해서 분류」 → 「너가 프로그램 성격에 맞게 카테고리를 만들고 해당 프로그램을 이동시켜줘」.
 - 운영 DB(`esgxyikcnnvmlhygjkth`):
