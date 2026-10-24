@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 쇼츠 원스톱 v1.42 무료 음성 시험 계정 운영 검수 완료
+- 시험 계정(`buylifemall@naver.com`) 운영 검수 완료(2026-10-24): 무료 음성 선택 → 사용 조건 체크 → 인트로 「다시」 → 모델 4개 내려받아 Cache API 저장(격리 켜짐) → `/api/media/voice-upload` → 본인 `voice/` 폴더 WAV(7.06초·44.1kHz·소리 크기 0.052) → 서명 주소. MP4 만들기 24초(1080×1920·56.28초·25.7MB), 인트로 구간 소리 정상, 3.5초 지점 자막이 대본 중간 구절과 맞음. 유튜브 설명란 표기는 실제 업로드(외부 공개)를 하지 않아 시험(`usesFreeVoice`)으로만 확인.
+- 시험 계정 영상 「물 마시는 습관…」의 인트로 음성이 무료 음성으로 바뀌어 있음(시험용 데이터).
+- 남은 것: 휴대폰 속도 확인(주인님 휴대폰), 미배포 대기 `a95613743`(그림문자). 다음 첫 단계: Lyricbi L-1~L-5.
+- 링크: https://shorts-onestop-studio.buylife.xyz/render
+- 비용: 없음(브라우저 계산·브라우저 MP4, AI 호출 0, 빌드 0).
+
 ## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 갤러리 「작게 줄이기(720)」 화질을 「균형」으로(주인님 결정, 미배포 대기)
 - 주인님 결정 「균형으로 해」(비교 파일 `D:\PDS\영상화질비교_20261024`). `ai-video-studio/lib/edit/pcVideo.ts` `gallerySmallCommand`가 `compress` 품질 `balanced`(crf 23)를 보냄 — 긴 변 720·버튼 이름·파일 이름은 그대로. 시험 55·tsc 통과. 커밋 `4e1776da0`.
 - 배포: **미배포 대기**(`docs/PENDING_DEPLOYS.md`) — 갤러리 목록 속도 개선과 묶어 빌드 1회(승인 필요). 회원 PC 렌더러는 바꿀 것 없음.
