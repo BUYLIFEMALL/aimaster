@@ -234,6 +234,24 @@ function Overview({ roles, activeWork, registry, requests, setDialog, roleNoteCo
         ))}
       </div>
 
+      {/* 각 세션이 역할 파일 「주인님께 여쭐 것」에 남긴 요청·건의를 한곳에 모은다(2026-10-24 주인님 지시) */}
+      <GlassCard className="border border-rose-400/30 p-4">
+        <h3 className="mb-3 text-sm font-bold text-white">📮 관리자에게 온 요청·건의 <span className="font-normal text-subtext">{roles.reduce((n, r) => n + r.asks.length, 0)}</span></h3>
+        {roles.every((r) => r.asks.length === 0) ? (
+          <p className="text-sm text-subtext">지금 남겨진 요청·건의가 없습니다.</p>
+        ) : (
+          <div className="grid gap-2 md:grid-cols-2">
+            {roles.filter((r) => r.asks.length).map((r) => (
+              <div key={r.id} className="cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10" onClick={() => setDialog({ type: "view", path: r.path })}>
+                <p className="text-sm font-semibold text-rose-200">{r.title}</p>
+                <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-white/85">{r.asks.map((a, i) => <li key={i}>{plain(a)}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="mt-2 text-xs text-subtext">답이나 지시는 역할 카드의 📝 「이 역할에 메모」로 남기면 그 세션이 다음 작업 때 따릅니다.</p>
+      </GlassCard>
+
       <div className="grid gap-4 lg:grid-cols-3">
         {cols.map((c) => (
           <GlassCard key={c.title} className={`border p-4 ${c.tone}`}>
@@ -272,7 +290,7 @@ function Overview({ roles, activeWork, registry, requests, setDialog, roleNoteCo
                   <span className="rounded bg-sky-400/15 px-1.5 py-0.5 text-sky-200">진행 {r.now.length}</span>
                   <span className="rounded bg-amber-400/15 px-1.5 py-0.5 text-amber-200">대기 {r.waiting.length}</span>
                   <span className="rounded bg-emerald-400/15 px-1.5 py-0.5 text-emerald-200">예정 {r.next.length}</span>
-                  {r.asks.length > 0 && <span className="rounded bg-rose-400/15 px-1.5 py-0.5 text-rose-200">여쭐 것 {r.asks.length}</span>}
+                  {r.asks.length > 0 && <span className="rounded bg-rose-400/15 px-1.5 py-0.5 text-rose-200">요청·건의 {r.asks.length}</span>}
                   {roleNoteCount(r.id) > 0 && <span className="rounded bg-gold/20 px-1.5 py-0.5 text-gold">메모 대기 {roleNoteCount(r.id)}</span>}
                   {r.isDraft && <span className="rounded bg-white/10 px-1.5 py-0.5 text-subtext">초안</span>}
                   {stale && <span className="rounded bg-white/10 px-1.5 py-0.5 text-subtext">갱신 필요</span>}
