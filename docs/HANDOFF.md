@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.38: 무료 지우기 「⬇ AI 계산용 모델 파일 받기」 상자 (승인 빌드 1회)
+
+- 주인님 지적 「이걸 다운로드 받는 건지 알 수가 없잖아」+ 부동산 매물 알림 「⬇ 확장 프로그램 받기」 예시 → `/erase` 맨 위에 받기 버튼(약 203MB, 지우기+글자 찾기)·저장 상태(브라우저 저장 공간 `FREE_ERASE_CACHE` 확인 → 「✅ 저장됨」)·안내 4줄(받는 것·저장 위치·한 번만·컴퓨터 사양에 따라 작업 시간 차이)·설명 페이지 링크(파일 받기 아님), 좌측 메뉴 「⬇ AI 모델 파일 받기 (무료 지우기용)」→ `/erase#model`. 파일 `banana-canvas/src/components/erase/FreeEraseBoard.tsx`·`components/layout/Sidebar.tsx`·`app/globals.css`.
+- 배포 `banana-canvas-822ffb1o1` Ready, DB v1.38. 운영 크롬 확인: 이미 받은 크롬이라 「✅ 저장됨」 표시 정상·메뉴·안내 보임. **「아직 받지 않음」 상태는 운영에서 못 봄**(저장된 모델을 지우면 주인님 크롬이 다시 받아야 해서 지우지 않음) — 새 브라우저·프로필에서 첫 확인 남음.
+- 미배포 대기: 상세페이지 문구 3건(받는 곳·이름·사양 안내, 다음 v1.34).
+- 링크: https://banana-canvas.buylife.xyz/erase
+
 ## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.37: 무료 지우기 모델 받는 곳·이름 안내 (승인 빌드 1회)
 
 - 주인님 지적 「어디서 받는지 명시가 안 되어 있어」 → 안내에 「AI 계산용 모델 파일(설치 없음)을 허깅페이스(huggingface.co)에서 자동으로 받아 브라우저에 저장, 따로 받을 필요 없음」 + 모델 소개 페이지 링크 2개, 진행 표시·오류 문구·매뉴얼도 같은 이름(`2cc9edc75`·`9cfb40fb1`). 배포 `banana-canvas-24uc9d6tb` Ready, DB v1.37.

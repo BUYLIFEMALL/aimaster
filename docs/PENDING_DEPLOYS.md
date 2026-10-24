@@ -17,7 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `banana-canvas` | 무료 지우기 「⬇ AI 계산용 모델 파일 받기」 상자(받기 버튼·저장됨 표시·받는 것·저장 위치·한 번만·컴퓨터 사양 안내, 설명 페이지 링크) + 좌측 메뉴 「⬇ AI 모델 파일 받기」, `/guide` 사양 안내 | `c5fb22b4d`·`c41c58f75` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 주인님 지시 | 다음 배포 v1.38 |
 | `shop-detail-page` | 같은 내용(문구 고치기 안내·진행 표시, 공용 사본 오류 문구, 컴퓨터 사양 안내) | `2cc9edc75`·`9cfb40fb1`·`c5fb22b4d` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
 | `ai-video-studio` (운영 v1.21) | 영상 만들기 남은 시간을 전체 진행률로 계산(라이브러리 값은 그리기만 봐서 인코딩에서 막히면 짧게 나옴, 느림 안내 안 뜸) | `d8c0aed57` | 2026-10-24 · [역할: video] Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 | 다음 배포 때 함께(맥미니 측정 결과로 2단계 할 때), 버전 v1.22 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
@@ -59,6 +58,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `banana-canvas` | v1.38 · 2026-10-25 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-822ffb1o1`) | 무료 지우기 「⬇ AI 계산용 모델 파일 받기」 상자·저장됨 표시·좌측 메뉴·컴퓨터 사양 안내 `c5fb22b4d`·`c41c58f75` — 운영 크롬에서 「✅ 저장됨」·안내·메뉴 확인 |
 | `banana-canvas` | v1.37 · 2026-10-25 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-24uc9d6tb`) | 무료 지우기 모델 받는 곳(허깅페이스)·출처 링크·「AI 계산용 모델 파일(설치 없음)」 이름 `2cc9edc75`·`9cfb40fb1` |
 | `shop-detail-page` | v1.33 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 추가 승인 빌드 1회 `shop-detail-page-lxt19gt29`) | 무료 지우기 글자 상자 넓히기 0.9배 사본 `1304e3fda` — 운영 프로모션 배너 「글자 모두 지우기」 8곳(그래픽 가속), 글자 모양 사라짐·회색 얼룩 1곳 남음(저장 안 함) |
 | `banana-canvas` | v1.36 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 추가 승인 빌드 1회 `banana-canvas-kw70ex2rb`) | 무료 지우기 글자 상자 넓히기 0.9배 기준 `1304e3fda` + 매뉴얼 절 번호·빈 화면 문구 `db31e8684`(v1.35 때 이미 나갔으나 대기 줄이 남아 있어 함께 정리) |
