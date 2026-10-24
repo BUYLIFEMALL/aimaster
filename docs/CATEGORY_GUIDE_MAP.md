@@ -108,7 +108,7 @@
 | **🆕 AI 프롬프트** | △ 초안 3종(담당 확인 전) | `ai-prompt-studio` `reverse-prompt`(➡ 각각 데이터수집\|기획·영상에서) / 병합됨: `prompt-template-studio` | [완성 기준](AI_PROMPT_COMPLETION_POLICY.md) · [기능 비교표](AI_PROMPT_FEATURE_MATRIX.md) · [통합 작업표](AI_PROMPT_CONSOLIDATION_TASKS.md) — 2026-10-24 초안 | 없음 | 없음 | `docbot-prompt`(`ai-prompt-studio`) | EXT-TL-09 | 프롬프트 템플릿 형식·당해 연도 규칙·생성 AI별 내보내기 규칙 |
 | **🆕 성격·운세** | △ 초안 3종(담당 확인 전) | `personality-suite` `personality-code` `mbti-character` `tarot-reading`(➡ Tools에서) | [완성 기준](PERSONALITY_FORTUNE_COMPLETION_POLICY.md) · [기능 비교표](PERSONALITY_FORTUNE_FEATURE_MATRIX.md) · [통합 작업표](PERSONALITY_FORTUNE_CONSOLIDATION_TASKS.md) — 2026-10-24 초안 | 없음 | 없음 | 없음 | EXT-TL-08 | 상표명 사용 금지·위기 상담 안내·결과 저장 범위 등 안전 규칙 메인 지침 |
 | **데이터수집** | △ 초안 3종(담당 확인 전) | `web-crawler-saas` · (비공개·백업, `is_active=false` 2026-10-24 DB 확인) `website-scraper` | [완성 기준](SCRAPING_COMPLETION_POLICY.md) · [기능 비교표](SCRAPING_FEATURE_MATRIX.md) · [통합 작업표](SCRAPING_CONSOLIDATION_TASKS.md) — 2026-10-24 초안 | [스크래핑 통합 분석](analysis-scraping-consolidation-20261021/REPORT.md)(비교 분석 매뉴얼의 기준 사례) | 없음 | 없음 | — | 수집 범위(robots·약관)·회원 수집 결과 30일 보관 규칙 메인 지침 |
-| **부동산** | △ 초안 3종(담당 확인 전) | `real-estate-sales`(폴더 `real_estate_sales`) | [완성 기준](REAL_ESTATE_COMPLETION_POLICY.md) · [기능 비교표](REAL_ESTATE_FEATURE_MATRIX.md) · [통합 작업표](REAL_ESTATE_CONSOLIDATION_TASKS.md) — 2026-10-24 초안 · 기존: ⚠ 없음(공공 데이터 키 예외는 [최상위 규칙 문서](TOP_RULE_PERSONAL_ACCOUNT_API.md) §8) | 없음 | `real-estate-sales` | 없음 | EXT-RE-01 | 공공 데이터 키 예외·비공식 데이터 수집 금지(EXT-RE-01 판단) 메인 지침, 담당 역할 |
+| **부동산** | △ 초안 3종(담당 확인 전) | `real-estate-sales`(폴더 `real_estate_sales`) | [완성 기준](REAL_ESTATE_COMPLETION_POLICY.md) · [기능 비교표](REAL_ESTATE_FEATURE_MATRIX.md) · [통합 작업표](REAL_ESTATE_CONSOLIDATION_TASKS.md) — 2026-10-24 초안 · 기존: ⚠ 없음(공공 데이터 키 예외는 [최상위 규칙 문서](TOP_RULE_PERSONAL_ACCOUNT_API.md) §8) | 없음 | `real-estate-sales` | 없음 | EXT-RE-01·EXT-RE-02 | 공공 데이터 키 예외 · **네이버 매물은 회원 PC에서만 수집, 우리 서버 요청·보관 금지(2026-10-24 주인님 결정, 새 프로그램 `realty-listing-alert` 인수인계)** · 담당 역할 [real-estate](roles/real-estate.md)(2026-10-24 지정) |
 | **Tools** | — | (➡ 옮기면 비게 됨 — 「기타」로 유지 추천) | — | — | — | — | — | — |
 
 ## 4. 정리하면서 발견한 것 (주인님·담당 확인 필요)
@@ -119,7 +119,7 @@
 - **전용 메인 지침을 갖춘 카테고리는 블로그 하나다.**
   - 블로그는 「완성 기준 + 기능 비교표 + 통합 작업표」 세 가지를 갖춘 덕분에, 담당이 바뀌어도 바로 이어서 병합·배포할 수 있었다(2026-10-24 SEO 스튜디오·에이전트·키워드 연속 배포).
   - 다른 카테고리도 같은 세 가지를 갖추는 것이 보강 목표다.
-- **담당 역할이 없는 카테고리**: 유튜브(일부)·디자인·인스타·쓰레드·마케팅·CRM·업무자동화(일부)·AI 프롬프트(일부)·성격·운세·데이터수집\|기획·부동산. 주인님이 담당을 지정하면 [`roles/README.md`](roles/README.md)와 이 표의 「담당 역할」 칸을 고친다.
+- **담당 역할이 없는 카테고리**: 유튜브(일부)·디자인·인스타·쓰레드·마케팅·CRM·업무자동화(일부)·AI 프롬프트(일부)·성격·운세·데이터수집\|기획(부동산은 2026-10-24 `real-estate` 지정). 주인님이 담당을 지정하면 [`roles/README.md`](roles/README.md)와 이 표의 「담당 역할」 칸을 고친다.
 
 ## 5. 카테고리 메인 지침을 만들 때의 양식 (블로그 기준)
 1. **완성 기준**(예: [블로그 완성 기준](BLOG_AUTOMATION_COMPLETION_POLICY.md)): 그 카테고리 프로그램이 「끝났다」고 말할 수 있는 조건, 회원이 고르는 항목, 하지 않을 것.
