@@ -18,7 +18,7 @@
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Supertonic TTS 0.3.0 분석·개발 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\Supertonic TTS-0.3.0-x64.exe`(Electron + Next 내장 서버, 실행 안 함). Supertone 공개 TTS 모델 `supertonic-3`(31개 언어, ONNX 약 398MB, **코드 MIT·가중치 OpenRAIL**)을 회원 PC에서 무료로 돌리는 비공식 앱 — 로컬 파이썬 엔진 / 브라우저(WASM) 두 방식, 한 개·여러 줄·**대화(여러 화자)** 합성, WAV/MP3, SRT, 표현 태그.
-- 우리 쪽: 음성 전용 프로그램 없음, 나레이션은 영상 프로그램 안에서 회원 유료 키로만. 의견: ① 공용 「브라우저 무료 음성 합성」 엔진(공식 오픈소스 기반) → `shorts-onestop-studio` 등 나레이션에 「무료 음성」 선택지 ② 독립 「AI 음성 합성 자동화」(가칭 `ai-voice-studio`) 조건부 추천(입출력 고유, 운영자 비용 0 → FREE 입구 후보). 결정 대기: 방향, **OpenRAIL 상업 이용 조건 확인**, 구현 담당. [보고서](analysis-supertonic-tts-20261024/REPORT.md). 비용 없음.
+- 우리 쪽: 음성 전용 프로그램 없음, 나레이션은 영상 프로그램 안에서 회원 유료 키로만. 의견: ① 공용 「브라우저 무료 음성 합성」 엔진(공식 오픈소스 기반) → `shorts-onestop-studio` 등 나레이션에 「무료 음성」 선택지 ② 독립 「AI 음성 합성 자동화」(가칭 `ai-voice-studio`) 조건부 추천(입출력 고유, 운영자 비용 0 → FREE 입구 후보). **주인님 결정: ① 먼저 진행(공용 무료 음성 엔진 → `shorts-onestop-studio` 「무료 음성」 선택지), 구현은 음악 담당.** 플랜·비용 승인 전, OpenRAIL 상업 이용 조건은 확인 대기. 다음 첫 단계: ACTIVE_WORK 등록 → 공식 `web/` 예제 읽기 → 플랜(시제품: COOP/COEP·첫 400MB·한국어 음질) 승인. [인계](analysis-supertonic-tts-20261024/HANDOFF_20261024_MUSIC_OWNER.md) · [보고서](analysis-supertonic-tts-20261024/REPORT.md). 비용 없음.
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 영상 담당 `claude-win-video` — 「내 PC 고속 변환」 영상 C: AI 영상 스튜디오 v1.18 갤러리 카드 「⚡ 내 PC로」
 - 한 일: 작업 결과 갤러리 완성 카드에 「GIF 만들기(앞 6초)」(렌더러 `encode`, 가로 480·10fps)·「작게 줄이기(720)」(렌더러 `compress` small + `maxSide` 720) 버튼 → 카드 아래 바로 내려받기. 렌더러가 없으면 줄을 숨기고, 1.30보다 옛 판이면 작게 줄이기 자리에 업데이트 안내. **렌더러는 고치지 않음** — 계획한 `scale`·`gif` 새 명령 대신 기존 명령으로 충분해 video-to-gif 배포를 뺌(빌드 2회 승인 → 1회 사용).
