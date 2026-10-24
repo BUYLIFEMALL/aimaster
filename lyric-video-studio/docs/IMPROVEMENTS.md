@@ -35,3 +35,7 @@
 
 ## 2026-10-22 Claude Code(윈도우) — 대기: 음악(SUNO) 리믹스 결과 받기 (다음 빌드 때 함께)
 - [ ] `?remix=<리믹스 변주 id>`로 음악(SUNO) 리믹스 결과(`music_track_remix_variants`, 회원 본인 것만)를 읽기. **주인님 지시: 따로 배포하지 않고, 이 프로그램을 다음에 다른 작업으로 빌드할 때 함께 넣고 시험한다.** 상세 플랜·시험용 리믹스 번호: [`music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`](../../music/docs/PLAN_20261022_REMIX_SHORTCUTS.md). 음악(SUNO) 리믹스 카드 링크는 두 프로그램 배포 뒤에 켠다.
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 플랜: Lyricbi 남은 기능 L-1~L-5 (음악 담당 이어받기)
+- 재확인(같은 파일, 2026-10-21 분석) 결과 남은 것: L-1 노래방 로마자(L4 항목) · L-2 LP판 · L-3 무료 사진 배경(공용 `free-photo-search`) · L-4 꾸밈 확장 · L-5 렌더 진단. 플레이리스트 모드는 `playlist-channel-studio`에 맡김.
+- 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 대기 중인 `?remix=`는 배포 1에 함께. [인수인계](IMPROVEMENT_HANDOFF_20261024_LYRICBI_RECHECK.md) · [플랜](PLAN_20261024_LYRICBI_L1_L5.md)

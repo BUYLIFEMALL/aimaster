@@ -1,3 +1,5 @@
+> **📋 음악 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — Lyricbi 1.9.0 남은 기능 묶음 L-1~L-5(노래방 로마자 · LP판 · 무료 사진 배경 · 꾸밈 확장 · 렌더 진단):** 같은 파일을 2026-10-21에 이미 분석 → 현재 코드와 대조해 남은 것만 추림. 문서만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_LYRICBI_RECHECK.md) · [플랜](docs/PLAN_20261024_LYRICBI_L1_L5.md) · [재확인](../docs/analysis-lyricbi-20261021/RECHECK_20261024.md)
+
 # AI 가사영상 자동화 (`lyric-video-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`를 먼저 읽는다. 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
