@@ -28,7 +28,7 @@ button { cursor: pointer; }
 .nav-overview:hover, .nav-utility:hover { background: var(--accent-soft); color: var(--accent); }
 .nav-overview.active { background: var(--accent-soft); color: var(--accent); }
 .nav-flow { display: grid; gap: 4px; margin-top: 2px; }
-.nav-link { width: 100%; border: 0; background: transparent; text-align: left; border-radius: 12px; color: #475063; padding: 8px 10px; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+.nav-link { width: 100%; border: 0; background: transparent; text-align: left; border-radius: 12px; color: #475063; padding: 8px 10px; font-size: 14px; display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .nav-number { display: grid; place-items: center; flex: 0 0 32px; height: 32px; border-radius: 50%; background: #eef1f5; color: #6b7486; font-size: 13px; font-weight: 800; }
 .nav-link > span:last-child { display: grid; gap: 3px; }
 .nav-link strong { font-size: 13px; }
