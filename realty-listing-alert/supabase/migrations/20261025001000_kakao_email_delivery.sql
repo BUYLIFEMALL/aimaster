@@ -20,11 +20,11 @@ begin
   if def is null then
     raise exception 'user_api_keys_provider_check 제약을 찾지 못했습니다';
   end if;
-  if position('''resend_api_key''' in def) > 0 then
+  if position('resend_api_key' in def) > 0 then
     return; -- 이미 있음
   end if;
-  select array_agg(m[1]) into vals from regexp_matches(def, '''([^'']+)''', 'g') as m;
-  vals := vals || 'resend_api_key';
+  select array_agg(m[1]) into vals from regexp_matches(def, chr(39) || '([^' || chr(39) || ']+)' || chr(39), 'g') as m;
+  vals := array_append(vals, 'resend_api_key');
   execute 'alter table public.user_api_keys drop constraint user_api_keys_provider_check';
   execute format('alter table public.user_api_keys add constraint user_api_keys_provider_check check (provider = any (%L::text[]))', vals);
 end $$;
