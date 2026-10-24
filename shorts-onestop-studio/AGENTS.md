@@ -1,3 +1,5 @@
+> **📋 음악 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — 「무료 음성(내 브라우저)」 나레이션 선택지:** Supertone 공식 오픈소스 TTS(`supertonic-3`, 코드 MIT·가중치 OpenRAIL)로 공용 브라우저 음성 엔진을 만들어 이 프로그램에 먼저 적용(주인님 결정). 분석·조사만, 코드 변경 없음, **플랜·비용 승인 전.** [인수인계](../docs/analysis-supertonic-tts-20261024/HANDOFF_20261024_MUSIC_OWNER.md) · [분석](../docs/analysis-supertonic-tts-20261024/REPORT.md)
+
 # AI 쇼츠 원스톱 제작 자동화 (`shorts-onestop-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`(최상단 필독: 계정 고정·동시 작업 금지·비용 최소화·DB 연동)와 `docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 먼저 읽는다.
