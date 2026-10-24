@@ -1,4 +1,5 @@
 > **📋 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — ClearPic 1.3.0 참고 「무료 지우기(내 브라우저)」 묶음 C-1~C-5:** 공용 브라우저 지우기 엔진(LaMa·PP-OCRv4, Apache-2.0) · 글자 자동 찾기 · 여러 장 일괄·ZIP. **제미나이 워터마크 자동 제거는 제외 확정(주인님).** 분석·플랜만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · [플랜](docs/PLAN_20261024_CLEARPIC_C1_C5.md) · [분석](../docs/analysis-clearpic-20261024/REPORT.md)
+> **⏳ 작업 대기(2026-10-24, Claude Code 윈도우 `claude-win-sdp` 이어받음)** — 「무료 지우기」 C-0~C-5 플랜·비용 보고 완료, 주인님 승인 전. [인수인계 §6](docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · 대기 목록 `docs/IMPROVEMENT_BACKLOG.md` §4
 
 # AI 바나나 캔버스 자동화 (`banana-canvas`) — AI 에이전트 인수인계 지침
 

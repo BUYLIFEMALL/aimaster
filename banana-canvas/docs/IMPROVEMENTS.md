@@ -93,3 +93,6 @@
 - ClearPic 1.3.0 분석 결과: 무료·키 없는 브라우저 지우기(LaMa)·글자 자동 찾기(PP-OCRv4)·마스크 여러 장 복사·일괄·ZIP을 이 프로그램에 병합. 기존 Gemini 「부분 삭제」는 「AI로 다시 그리기」로 유지.
 - **제미나이 ✦ 워터마크 자동 제거: 제외 확정(2026-10-24 주인님)** — AI 생성물 표시 의무·플랫폼 정책 위험.
 - 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 시제품 먼저(COOP/COEP·첫 208MB·속도). [인수인계](IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · [플랜](PLAN_20261024_CLEARPIC_C1_C5.md)
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`) — 📋 「무료 지우기」 C-1~C-5 담당 이어받음·작업 대기 등록
+- 플랜과 코드 대조 완료(v1.33, COOP/COEP 없음, `onnxruntime-web` 미설치, `MaskEditor.tsx` 재사용 가능), 시제품 통과 기준 5개·비용(AI 0·빌드 1~2회) 주인님께 보고. **승인 전 — 코드 변경 없음.** 대기 목록: `IMPROVEMENT_BACKLOG.md` §4, 상세: [인수인계 §6](IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md).
