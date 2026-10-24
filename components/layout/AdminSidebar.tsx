@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import { cn } from "@/lib/utils/cn";
-import { ADMIN_NAV_ITEMS as NAV_ITEMS } from "@/components/layout/adminNavItems";
+import { ADMIN_NAV_ITEMS as NAV_ITEMS, ADMIN_DEV_NAV_ITEMS as DEV_NAV_ITEMS, ADMIN_DEV_NAV_TITLE } from "@/components/layout/adminNavItems";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AdminSidebar() {
@@ -59,7 +59,7 @@ export default function AdminSidebar() {
 
   // 여러 항목이 겹치는 경로(예: /admin/programs, /admin/programs/new)일 때
   // 가장 구체적인(긴) href 하나만 활성 표시되도록 계산
-  const activeHref = NAV_ITEMS
+  const activeHref = [...NAV_ITEMS, ...DEV_NAV_ITEMS]
     .filter(({ href }) => href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(href + "/"))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
@@ -87,6 +87,26 @@ export default function AdminSidebar() {
 
       <nav className="p-3 flex-1 overflow-y-auto">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            onClick={() => setOpen(false)}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1",
+              href === activeHref
+                ? "text-gold bg-gold/10"
+                : "text-subtext hover:text-white hover:bg-white/5"
+            )}
+          >
+            <Icon size={16} />
+            {label}
+          </Link>
+        ))}
+
+        {/* 구분선 + 묶음 제목 + 개발 문서 관리 메뉴 */}
+        <div className="mx-3 my-3 border-t border-gold/20" />
+        <div className="px-3 pb-1.5 text-[11px] font-bold tracking-wider text-gold/70">{ADMIN_DEV_NAV_TITLE}</div>
+        {DEV_NAV_ITEMS.map(({ href, icon: Icon, label }) => (
           <Link
             key={href}
             href={href}
