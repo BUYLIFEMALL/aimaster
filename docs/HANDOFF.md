@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 무료 지우기 글자 상자 넓히기 배포: 바나나 캔버스 v1.36 · 상세페이지 v1.33 (추가 승인 빌드 2회)
+
+- 한 일: 공용 기준 코드 `browser-free-erase`의 글자 상자 넓히기 0.5→0.9배(`1304e3fda`)를 두 프로그램에 배포. 버전 커밋 `374812681`(바나나 v1.36)·`d3d6dc0c2`(상세 v1.33, SQL `shop-detail-page/supabase/migrations/20261024_free_erase_grow_v1_33.sql`). 배포 `banana-canvas-kw70ex2rb`·`shop-detail-page-lxt19gt29` 모두 Ready, DB `programs.version` 둘 다 반영(`deploy.mjs --set-version`).
+- 확인(운영 크롬, 시험 상품 `82deeddc-…` 프로모션 배너, 저장 안 함): 「이미지 속 글자 모두 지우기」 → 8곳·그래픽 가속. 큰 제목·배지·어두운 띠 글자 **모양은 모두 사라짐**. 다만 셋째 문단(「데일리 텀블러」) 자리에 **회색 얼룩 1곳**과 조각 경계가 희미하게 남음 — 사전 비교 때보다 약간 거침(상자 조각 나눔 영향 추정). 캡처: 로컬 `screenshot-1792853698627-0.png`.
+- 남은 일: ① 회색 얼룩 — 넓은 글자 줄을 384px 조각으로 나눌 때 조각 경계에서 생기는지 확인(조각 겹침 여유 추가 후보, 미착수) ② 썸네일·카드뉴스 적용(다른 담당 폴더 협의) ③ 쇼핑몰 묶음 인계 E0~E9 착수(위 analysis-planning 항목).
+- 링크: https://banana-canvas.buylife.xyz/erase · https://shop-detail-page.buylife.xyz
+
 ## 2026-10-24 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 쇼핑몰 비즈니스 묶음 인계 → [역할: ecommerce-image] `claude-win-sdp` · [역할: video] `claude-win-video`
 - 주인님 결정(절대 지시): **흐름 구조** — 「전체적인 흐름으로 가지만 각각 독립적으로, 필요할 때 필요한 프로그램은 각각 사용할 수 있어야 되고, 상호 유기적으로 업무 효율화를 올릴 수 있도록」 · **새 프로그램 2개 이름 확정**: 「셀러 라벨·QR·서류 자동화」(`seller-label-docs`) · 「AI 쇼핑몰 주문·매출 리포트 자동화」(`shop-order-report`) · **「이것부터 시작해보자」 — 새 프로그램 2개부터, 작업은 이커머스·쇼핑몰 담당** · 영상은 영상 담당.
 - → **[역할: ecommerce-image]** 인수인계 `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md`(E6 → E7·E8 먼저, 이어서 E1·E9·E2~E5, 끝에 전달 프롬프트). ⚠️ E0 수수료 참고표 재확인(회원 마진 오류 위험)은 작은 수정 — 처리 시점을 주인님께 여쭙고 함께.

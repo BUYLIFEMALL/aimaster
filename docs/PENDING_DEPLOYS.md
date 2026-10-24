@@ -18,8 +18,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `ai-video-studio` (운영 v1.21) | 영상 만들기 남은 시간을 전체 진행률로 계산(라이브러리 값은 그리기만 봐서 인코딩에서 막히면 짧게 나옴, 느림 안내 안 뜸) | `d8c0aed57` | 2026-10-24 · [역할: video] Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 | 다음 배포 때 함께(맥미니 측정 결과로 2단계 할 때), 버전 v1.22 |
-| `banana-canvas` | 무료 지우기 글자 상자 넓히기 0.5→0.9배(큰 굵은 제목 글자 조각 남던 문제, 운영 배너로 깨끗함 확인) — 공용 `browser-free-erase` 기준 | `1304e3fda` | 2026-10-24 · Claude Code(윈도우) `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md` §9 | 배포 v1.36, `/erase` 문구 찾기→지우기 |
-| `shop-detail-page` | 같은 수정의 사본(문구 고치기 「글자 모두 지우기」 큰 제목 품질) | `1304e3fda` | 2026-10-24 · Claude Code(윈도우) `claude-win-sdp` | 같은 문서 §9 | 배포 v1.33, 프로모션 배너로 확인 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공용 공급자·키·중단 + G-2 회원별 봇/방 선택/당시 설정 보존. 운영 DB 준비·83개 시험/타입/로컬 빌드 통과, 임베딩·파싱 유지 | `2d56a117b` · `07795803c` | 2026-10-24 · [역할: docbot-prompt] Codex `codex-win-20261024-docbot-g2` | [G-2 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261024_G2.md) | 일반 시험 회원 Edge 로그인/본인 키 검수 → G-3·G-4 후 묶음, 버전 +0.01·DB·프로그램 비교표 일치 |
 | `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
@@ -34,7 +32,6 @@
 | `instagram-comment-reply` (운영 v1.36) | 설정 「다음 확인 예정」 시각 · 「실행 방식 바꾸기 ↓」 바로가기 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `instagram-comment-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 설정에서 다음 확인 예정·바로가기 확인 |
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `portrait-photo` | 서버 보관함 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images, 경로 첫 폴더로 회원) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `portrait-photo/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
-| `banana-canvas` | 매뉴얼 절 번호(⑦ 무료 지우기·⑧ 자주 묻는 질문), 「무료 지우기」 빈 화면 문구(휴대폰은 위) | `db31e8684` | 2026-10-24 · Claude Code(윈도우) `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENTS.md` 「v1.34」 | 다음 배포 v1.35, `/guide` 절 번호·`/erase` 빈 화면 확인 |
 | `reverse-prompt` | 분석 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(history) 기록 — 공용 `cleanup-usage-log` 사본(1시간 임시 파일은 세지 않음) | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `reverse-prompt/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `four-cut-comics` | 서버 보관함 30일 정리(`/api/cron/cleanup`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 작품 수) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `four-cut-comics/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -60,6 +57,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `shop-detail-page` | v1.33 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 추가 승인 빌드 1회 `shop-detail-page-lxt19gt29`) | 무료 지우기 글자 상자 넓히기 0.9배 사본 `1304e3fda` — 운영 프로모션 배너 「글자 모두 지우기」 8곳(그래픽 가속), 글자 모양 사라짐·회색 얼룩 1곳 남음(저장 안 함) |
+| `banana-canvas` | v1.36 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 추가 승인 빌드 1회 `banana-canvas-kw70ex2rb`) | 무료 지우기 글자 상자 넓히기 0.9배 기준 `1304e3fda` + 매뉴얼 절 번호·빈 화면 문구 `db31e8684`(v1.35 때 이미 나갔으나 대기 줄이 남아 있어 함께 정리) |
 | `ai-video-studio` | v1.21 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회) | 영상 만들기 진단 1단계(남은 시간·느림 안내·`[avs-render]` 진단·`?render=software`) + 갤러리 목록 서명 한 번에 `10f736e9e` + 화질 「균형」 `4e1776da0`(대기 줄 옮김) — 운영 크롬: v1.21, 영상 18개 재생·내려받기 주소 정상, 소프트웨어 렌더 진단 `300/300/300` |
 | `trending-product-finder` | v1.25 · 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`, 승인 빌드 1회 `trending-product-finder-dt86buzti`) | 공용 사본 telegram-bot-client `linkButton` (본 작업: 추천 사유 프롬프트 당해 연도 규칙) |
 | `shop-detail-page` | v1.31 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-ert7y0vcg`) | 30일 정리 `usage_logs` 기록 `34094c954` (본 작업: 문구 고치기 무료 지우기) |
