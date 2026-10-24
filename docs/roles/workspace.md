@@ -16,7 +16,7 @@
 |---|---|---|---|
 | `ai-work-workspace` | AI 화면 원본 영어 문구 한국어화(AI 블록 설정 창·채팅 첫 화면) | 디자인 역할과 조율 | `docs/roles/design.md` |
 | `ai-work-workspace` | U6-A 실제 시험(시험 계정·마이크 허용 → 받아쓰기·요약 3회) | 크롬 시험 계정 로그인 | `ai-work-workspace/docs/PLAN_20261024_U6_MEETING_NOTES.md` §3 |
-| `ai-work-workspace` | U6-B 음성 파일 받아쓰기(회원 Gemini 우선·OpenAI 보조) → v1.13 | U6-A 운영 확인 | 같은 플랜 §2 |
+| `ai-work-workspace` | U6-B 음성 파일 받아쓰기(회원 Gemini 우선·OpenAI 보조) → v1.15 | U6-A 운영 확인 | 같은 플랜 §2 |
 | `ai-work-workspace` | U7 업무 받은편지함(DB 변경 승인 필요) → U8~U12 연계·자동화 | U6 운영 확인 뒤 | 로드맵 §5 |
 
 ## 최근 완료 (최근 10개)
