@@ -1,5 +1,4 @@
-> **📋 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — ClearPic 1.3.0 참고 「무료 지우기(내 브라우저)」 묶음 C-1~C-5:** 공용 브라우저 지우기 엔진(LaMa·PP-OCRv4, Apache-2.0) · 글자 자동 찾기 · 여러 장 일괄·ZIP. **제미나이 워터마크 자동 제거는 제외 확정(주인님).** 분석·플랜만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · [플랜](docs/PLAN_20261024_CLEARPIC_C1_C5.md) · [분석](../docs/analysis-clearpic-20261024/REPORT.md)
-> **⏳ 작업 대기(2026-10-24, Claude Code 윈도우 `claude-win-sdp` 이어받음)** — 「무료 지우기」 C-0~C-5 플랜·비용 보고 완료, 주인님 승인 전. [인수인계 §6](docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md) · 대기 목록 `docs/IMPROVEMENT_BACKLOG.md` §4
+> **✅ v1.34 (2026-10-24, Claude Code 윈도우 `claude-win-sdp`) — 「🧽 무료 지우기(내 PC)」 배포:** ClearPic 참고 C-0~C-5 완료. 공용 기준 코드 `browser-free-erase`(`src/lib/freeErase/`, LaMa·PP-OCRv4 Apache-2.0, `onnxruntime-web@1.23.0` `/ort/`) · 화면 `/erase` · COOP/COEP는 `/erase`만(+작업자·계산 파일 COEP). 제미나이 워터마크 자동 제거는 제외. 미배포 대기 `db31e8684`(매뉴얼 절 번호·빈 화면 문구). [인수인계 §7·§8](docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md)
 
 # AI 바나나 캔버스 자동화 (`banana-canvas`) — AI 에이전트 인수인계 지침
 
@@ -64,6 +63,7 @@
 
 ## 4. 현재 버전 및 변경 히스토리
 
+- **v1.34 (2026-10-24, Claude Code 윈도우 `claude-win-sdp`)** — 「🧽 무료 지우기(내 PC)」: 여러 장 칠하기·문구 찾기·지우기·같은 비율 복사·일괄·ZIP, 회원 브라우저 계산(키·비용·서버 업로드 없음). 공용 기준 코드 `browser-free-erase` 첫 적용. 스튜디오 안내·매뉴얼 새 절. 함께 나간 대기: 결과 30일 정리 `usage_logs` 기록. 배포 `banana-canvas-9os1p5zzy`, DB v1.34. 상세 `docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md` §7·§8.
 - **v1.11 (2026-10-19, Claude Code 윈도우)** — 깨진 사진을 서버에 올리기 전에 막음:
   - 공용 부품 `image-file-check` 사본 `src/lib/imageFileCheck.ts`(+ `tests/imageFileCheck.test.mjs`) — **직접 고치지 말 것**, 기준 `portrait-photo/src/lib/imageFileCheck.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`.
   - `uploadFile`이 서명 주소 요청 전에 `checkImageFile` → 깨졌으면 「사진을 읽지 못했어요…」, 서버 업로드 0회(전에는 올린 뒤 AI 단계에서야 실패). 원본·합성 소스·마스크 모두 같은 함수.
