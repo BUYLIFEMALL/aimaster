@@ -78,3 +78,24 @@ test("v1.07 소리 없는 영상이면 필터·인코딩에 소리 처리가 들
   }
   assert.ok(encodeArgs("mp4", false).includes("-an"));
 });
+
+test("v1.08 내 PC 렌더러: loop 명령을 아는 실행기만 사용, 옛 판(1.10)은 업데이트 안내", async () => {
+  const { statusFromPong } = await import("../src/lib/pcRenderer.ts");
+  const base = { type: "pong", host: "powershell", ffmpeg: "C:/ffmpeg.exe", ffmpegVersion: "ffmpeg version 9.0.2-full_build" };
+  assert.equal(statusFromPong({ ...base, hostVersion: "1.10", capabilities: ["gif", "audio"] }, "v1.22", "loop").kind, "old");
+  assert.equal(statusFromPong({ ...base, hostVersion: "1.20", capabilities: ["gif", "audio", "loop"] }, "v1.23", "loop").kind, "ready");
+  assert.equal(statusFromPong({ ...base, hostVersion: "1.00" }, "v1.21", "loop").kind, "old");
+  assert.equal(statusFromPong({ type: "error" }, "v1.23", "loop").kind, "no-host");
+});
+
+test("v1.08 실행기로 보내는 숫자는 실행기 검사 형식(^\d+(\.\d+)?$, 지수 표기 없음)을 통과한다", () => {
+  const ok = (v) => /^\d+(\.\d+)?$/.test(String(v));
+  for (const p of [
+    { mode: "smart", start: 0, end: 4.37, crossfade: 0.6, repeat: 5, duration: 4.371, hasAudio: false, format: "mp4" },
+    { mode: "overlap", start: 1, end: 2, crossfade: 0.6, repeat: 1, duration: 12.0333333, hasAudio: true, format: "webm" },
+    { mode: "bounce", start: 0.000001, end: 3, crossfade: 1, repeat: 200, duration: 3.5, hasAudio: true, format: "gif" },
+  ]) {
+    const n = normalize(p);
+    for (const k of ["start", "end", "crossfade", "repeat", "duration"]) assert.ok(ok(n[k]), `${p.mode} ${k}=${n[k]}`);
+  }
+});

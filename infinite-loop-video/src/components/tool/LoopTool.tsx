@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CircleHelp, Download, Loader2, Repeat, Scissors, UploadCloud, Wand2 } from "lucide-react";
+import { CircleHelp, Download, Loader2, Repeat, Scissors, UploadCloud, Wand2, Zap } from "lucide-react";
 import { buildMatrix, findLoops, qualityLabel, refinePair, type LoopCandidate } from "@/lib/loop/analysis";
 import { extractFeatures, renderLoop } from "@/lib/loop/browser";
 import { MAX_CROSSFADE, MIN_CROSSFADE, normalize, totalLength, type LoopMode, type OutFormat } from "@/lib/loop/plan";
+import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 
 const SAMPLE_FPS = 8;
 const MAX_ANALYZE_SEC = 60;
@@ -17,6 +18,8 @@ const MODES: { id: LoopMode; name: string; desc: string }[] = [
 ];
 const LEVEL_COLOR = { excellent: "text-lv-success", good: "text-lv-success", fair: "text-lv-warn", poor: "text-lv-danger" } as const;
 const fmt = (s: number) => `${s.toFixed(2)}초`;
+// 실행기는 「숫자.숫자」 형식만 받는다(지수 표기 1e-7 등 거절) — 소수 셋째 자리로 반올림해 보낸다
+const r3 = (v: number) => Math.round(v * 1000) / 1000;
 
 export function LoopTool() {
   const [file, setFile] = useState<File | null>(null);
@@ -37,13 +40,18 @@ export function LoopTool() {
   const [cands, setCands] = useState<LoopCandidate[]>([]);
   const [score, setScore] = useState<number | null>(null);
   const [curve, setCurve] = useState<number[]>([]);
-  const [result, setResult] = useState<{ url: string; size: number; ext: string } | null>(null);
+  const [result, setResult] = useState<{ url: string; size: number; ext: string; engine: "pc" | "browser"; seconds: number } | null>(null);
+  // v1.08 「⚡ 내 PC로 빠르게」 — AIMaster 내 PC 고속 변환(확장 + 실행기 1.20 이상의 loop 명령)이 있으면 회원 PC ffmpeg로 만든다
+  const [pc, setPc] = useState<PcRendererStatus | null>(null);
+  const [usePc, setUsePc] = useState(true);
+  const [notice, setNotice] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const matrixRef = useRef<Float32Array[] | null>(null);
   const cancelRef = useRef(false);
 
   useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
   useEffect(() => () => { if (result) URL.revokeObjectURL(result.url); }, [result]);
+  useEffect(() => { detectPcRenderer("loop").then(setPc).catch(() => setPc({ kind: "none" })); }, []);
 
   const params = useMemo(
     () => ({ mode, start, end, crossfade, repeat, duration, hasAudio, format }),
@@ -135,10 +143,29 @@ export function LoopTool() {
 
   async function onRender() {
     if (!file) return;
-    setBusy(true); setError(""); setResult(null);
+    setBusy(true); setError(""); setResult(null); setNotice("");
+    const t0 = performance.now();
+    const secs = () => Math.round((performance.now() - t0) / 100) / 10;
     try {
+      if (pc?.kind === "ready" && usePc) {
+        try {
+          const n = normalize(params);
+          setStatus("내 PC로 영상 넘기는 중"); setRatio(0);
+          const r = await runPcJob(file, { type: "loop", mode: n.mode, start: r3(n.start), end: r3(n.end), crossfade: r3(n.crossfade), repeat: n.repeat, format: n.format, duration: r3(n.duration) }, {
+            onUploaded: (ra) => setRatio(ra),
+            onProgress: (ra) => { setStatus("내 PC에서 만드는 중"); setRatio(ra); },
+          });
+          const ext = String(r.info.ext ?? n.format);
+          const mime = ext === "gif" ? "image/gif" : ext === "webm" ? "video/webm" : "video/mp4";
+          const blob = new Blob([r.bytes as BlobPart], { type: mime });
+          setResult({ url: URL.createObjectURL(blob), size: blob.size, ext, engine: "pc", seconds: secs() });
+          return;
+        } catch (e) {
+          setNotice(`내 PC 변환이 안 돼 브라우저로 만듭니다(${(e as Error).message || "알 수 없는 오류"}).`);
+        }
+      }
       const r = await renderLoop(file, params, (msg, ra) => { setStatus(msg); setRatio(ra); });
-      setResult({ url: URL.createObjectURL(r.blob), size: r.blob.size, ext: r.ext });
+      setResult({ url: URL.createObjectURL(r.blob), size: r.blob.size, ext: r.ext, engine: "browser", seconds: secs() });
     } catch (e) {
       setError((e as Error).message || "렌더링에 실패했습니다.");
     } finally { setBusy(false); setStatus(""); setRatio(undefined); }
@@ -288,6 +315,22 @@ export function LoopTool() {
               {busy ? <Loader2 size={16} className="animate-spin" /> : <Repeat size={16} />} 무한루프 만들기
             </button>
           </div>
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            {pc?.kind === "ready" ? (
+              <label className="inline-flex items-center gap-1.5 font-medium text-lv-text">
+                <input type="checkbox" checked={usePc} onChange={(e) => setUsePc(e.target.checked)} />
+                <Zap size={13} className="text-lv-pink" aria-hidden="true" /> 내 PC로 빠르게 만들기
+                <span className="text-lv-muted">({pc.os === "mac" ? "맥" : pc.os === "windows" ? "윈도우" : "PC"} · ffmpeg {pc.ffmpegVersion})</span>
+              </label>
+            ) : pc?.kind === "old" ? (
+              <span className="text-lv-muted"><Zap size={13} className="inline text-lv-warn" aria-hidden="true" /> 내 PC 고속 변환을 쓰려면 실행기를 새 판으로 업데이트해 주세요. <a href={PC_RENDERER_GUIDE_URL} target="_blank" rel="noopener noreferrer" className="font-bold underline">업데이트 안내</a></span>
+            ) : pc?.kind === "no-host" || pc?.kind === "no-ffmpeg" ? (
+              <span className="text-lv-muted"><Zap size={13} className="inline text-lv-warn" aria-hidden="true" /> 확장은 있는데 {pc.kind === "no-ffmpeg" ? "ffmpeg" : "실행기"}가 없습니다. <a href={PC_RENDERER_GUIDE_URL} target="_blank" rel="noopener noreferrer" className="font-bold underline">설치 안내</a></span>
+            ) : pc?.kind === "none" ? (
+              <span className="text-lv-muted"><Zap size={13} className="inline" aria-hidden="true" /> 긴·고화질 영상은 「AIMaster 내 PC 고속 변환」을 설치하면 내 PC에서 훨씬 빠르게 만들 수 있습니다(무료, 크롬·엣지 PC). <a href={PC_RENDERER_GUIDE_URL} target="_blank" rel="noopener noreferrer" className="font-bold underline">설치 안내</a></span>
+            ) : null}
+          </div>
+          {notice && <p role="status" className="mt-2 text-xs text-lv-warn">{notice}</p>}
           {busy && status && (
             <div className="mt-4">
               <p className="text-sm text-lv-text">{status}{ratio !== undefined ? ` ${Math.round(ratio * 100)}%` : "…"}</p>
@@ -302,6 +345,7 @@ export function LoopTool() {
               <a href={result.url} download={`infinite-loop.${result.ext}`} className="inline-flex items-center gap-2 rounded-lg lv-gradient px-4 py-2 text-sm font-bold text-white hover:brightness-110">
                 <Download size={16} /> 다운로드 ({(result.size / 1024 / 1024).toFixed(1)}MB)
               </a>
+              <p className="text-xs text-lv-muted">{result.engine === "pc" ? "⚡ 내 PC에서 만들었습니다" : "브라우저에서 만들었습니다"} · {result.seconds}초</p>
             </div>
           )}
         </section>
