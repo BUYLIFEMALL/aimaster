@@ -17,8 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `realty-listing-alert` (운영 v1.02) | 중개사 상호 전화번호 지우기 함수+시험(3단계용) · 봇 연결 상태 배지 · 실거래에서 넘어온 단지 이름 미리 채우기 | `3a3e231ab`·`c623becf5` | 2026-10-25 · [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포(v1.03, 3단계 때 함께 가능) |
-| `real_estate_sales` (운영 v1.18) | 실거래 상세 「🔔 이 단지 새 매물 알림 받기」 버튼(매물 알림 감시 대상으로 연결) | `154e7386b` | 2026-10-25 · [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 다음 배포 v1.19 — 매물 알림 `c623becf5`와 함께 나가야 안내가 보임 |
 | `shop-detail-page` | 같은 내용(문구 고치기 안내·진행 표시, 공용 사본 오류 문구, 컴퓨터 사양 안내) | `2cc9edc75`·`9cfb40fb1`·`c5fb22b4d` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공급자·공용 키 + G-2 봇/방 선택/당시 설정 + G-3 역할/자료 경계・과거 날짜 보존·번역/요약 검색 생략. 93개 시험·타입·로컬 빌드, 일반 회원 봇 CRUD/선택/삭제된 봇·키 미등록 안내 확인 | `2d56a117b` · `07795803c` · `d7dd0d367` | 2026-10-25 · [역할: docbot-prompt] Codex `codex-win-20261025-docbot-g3` | [G-3 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G3.md) | G-4 후 묶음, 본인 키 실제 AI/방/당시 답변·좁은 화면 검수, 버전 +0.01·DB·프로그램 비교표 일치. 디자인 agy 담당 |
@@ -30,9 +28,7 @@
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `crm-google-form` | 공용 `solapi-client` 기준 등록(머리 주석만) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `crm-google-form/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `kakao_auto_poster` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) · ⚠ 로컬 빌드가 Next.js 16.4.0 보안 경고로 멈춤 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 맨 아래 | **배포 전에 Next.js 보안 업데이트 필요할 수 있음**(주인님 승인), 버전 +0.01 |
-| `real_estate_sales` | 공용 `solapi-client` 사본(주석·쓰지 않는 `sendRcs`) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `instagram-comment-reply` (운영 v1.36) | 설정 「다음 확인 예정」 시각 · 「실행 방식 바꾸기 ↓」 바로가기 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `instagram-comment-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 설정에서 다음 확인 예정·바로가기 확인 |
-| `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `portrait-photo` | 서버 보관함 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images, 경로 첫 폴더로 회원) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `portrait-photo/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `reverse-prompt` | 분석 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(history) 기록 — 공용 `cleanup-usage-log` 사본(1시간 임시 파일은 세지 않음) | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `reverse-prompt/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `four-cut-comics` | 서버 보관함 30일 정리(`/api/cron/cleanup`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 작품 수) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `four-cut-comics/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
@@ -59,6 +55,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `realty-listing-alert` | v1.03 · 2026-10-25 ([역할: realty] Claude Code 윈도우 `claude-win-20261024-realty`, 승인 빌드 2회) | 전화번호 지우기·봇 상태 배지 `3a3e231ab` · 실거래에서 넘어온 단지 미리 채우기 `c623becf5` + 3단계 수집 엔진 |
+| `real_estate_sales` | v1.19 · 2026-10-25 (같은 세션, 승인 빌드 1회) | 「🔔 이 단지 새 매물 알림 받기」 `154e7386b` · 공용 `solapi-client` 사본 `36d0a4fdc` · 30일 정리 회원별 기록 `82a76d9f2`(다음 정리 시각에 관리자 「30일 자동 정리」 표 확인 필요) · `telegram-bot-client` `linkButton` 사본 |
 | `ai-video-studio` | v1.22 · 2026-10-25 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회) | 남은 시간 전체 진행률 계산 `d8c0aed57`(대기 줄 옮김) + 맥 렌더 2단계 `40f8c8a99` |
 | `banana-canvas` | v1.38 · 2026-10-25 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-822ffb1o1`) | 무료 지우기 「⬇ AI 계산용 모델 파일 받기」 상자·저장됨 표시·좌측 메뉴·컴퓨터 사양 안내 `c5fb22b4d`·`c41c58f75` — 운영 크롬에서 「✅ 저장됨」·안내·메뉴 확인 |
 | `banana-canvas` | v1.37 · 2026-10-25 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-24uc9d6tb`) | 무료 지우기 모델 받는 곳(허깅페이스)·출처 링크·「AI 계산용 모델 파일(설치 없음)」 이름 `2cc9edc75`·`9cfb40fb1` |
