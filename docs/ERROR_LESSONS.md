@@ -15,6 +15,16 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — PowerShell 변수는 대소문자를 구분하지 않아 `$S = F3 $s`가 숫자 `$s`를 글자로 덮어썼다 (내 PC 렌더러 1.20 `loop`, Claude Code 윈도우 영상 담당)
+- **증상(작성 중 발견)**: 구간 숫자 `$s`·`$e`·`$cf`를 소수 셋째 자리 글자로 만들려고 `$S`·`$E`·`$CF`에 넣었더니 같은 변수라 숫자가 글자가 됨 → 뒤의 `$e - $cf`는 우연히 맞지만 `$cf -le 0`은 글자 비교(`"0.000" -le 0` → false)라 경계값에서 틀린 분기.
+- **해결**: 글자용 변수는 다른 이름(`$tS`·`$tE`·`$tCF`·`$tT0`·`$tH1`). `video-to-gif/local-renderer/host/host.ps1` `Invoke-Loop`.
+- **다음부터 확인**: host.ps1에 변수를 새로 만들 때 기존 변수와 **대소문자만 다른 이름을 쓰지 않는다**. 시험은 `video-to-gif/local-renderer/test/loop-matrix.mjs`처럼 웹 쪽 순수 함수 결과와 글자 단위로 비교한다.
+
+## 2026-10-24 — Claude Code 하단 상태바가 11:39 설정 파일 변경 뒤 이 세션에서만 안 나왔다(명령·설정은 정상) (Claude Code 윈도우)
+- **증상**: 상태바 명령을 직접 돌리면 0.2초에 정상 출력, `~/.claude/settings.json`의 `statusLine`도 정상인데 화면에 안 나옴. 기록 파일 `%TEMP%/last-agy-statusline.json`이 13:02에 「Gemini 3.8 Flash」로 바뀌어 있었음 — **이 파일은 agy와 함께 쓰므로 시각만 보고 이 세션이 부른 것으로 착각하면 안 됨**. 이 세션(Opus) 마지막 호출은 11:41, 설정 파일 수정 시각은 11:39.
+- **해결**: JSON 형식 확인 후 `touch ~/.claude/settings.json`(내용 그대로, 수정 시각만) → 13:04 이 세션이 다시 호출(기록 파일 모델 Opus·세션 id 일치).
+- **다음부터 확인**: 상태바가 사라지면 ① 기록 파일의 `model`·`session_id`가 이 세션인지 ② 설정 파일 수정 시각과 마지막 호출 시각 비교 ③ 형식 확인 뒤 `touch`로 다시 읽게 하기 → 그래도 안 되면 재시작. (`docs/CLAUDE_STATUSBAR.md`에 같은 내용 덧붙일 것)
+
 ## 2026-10-24 — 외부 설치 파일 분석: innoextract가 Inno 6.7을 못 풀고, pyinstxtractor가 파이썬 버전이 달라 코드 묶음을 건너뜀 (도톨이 AI v1.3 분석, Claude Code 윈도우)
 - 증상: `innoextract` 1.9 「Could not determine setup data version」, 7-Zip도 못 엶 / `pyinstxtractor`를 파이썬 3.14로 실행하니 「Skipping pyz extraction」(앱 코드가 안 풀림).
 - 원인: innoextract가 최신 Inno Setup 6.7 형식을 지원하지 않음 / PyInstaller 묶음(PYZ)은 만든 파이썬 버전(3.12)의 marshal 형식이라 같은 버전이 필요.

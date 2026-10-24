@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — 내 PC 렌더러 단계 A 완료: 실행기 1.20 `loop` + 무한 루프 영상 「⚡ 내 PC로 빠르게」
+
+- **실행기 1.20**(video-to-gif v1.23, `video-to-4fjavywr6` Ready): 영상 명령 `loop` — 무한 루프 영상 `plan.ts`와 같은 필터 규칙, 소리 트랙은 실행기가 `ffmpeg -i`로 확인, 낱말·숫자만 받음. 윈도우 PowerShell·맥 perl 둘 다. 시험 도구 `video-to-gif/local-renderer/test/`(harness·loop-matrix) — **두 판 × 5경우 10/10**(필터가 `buildFilter`와 글자 단위 같음·길이·소리 트랙), 기존 GIF·audio 회귀 정상, 잘못된 값 거절. DB v1.23·`extension_version` v1.23, 확장 배포 검증 OK.
+- **무한 루프 영상 v1.08**(`infinite-loop-video-i96qqi0d6` Ready): 공용 `pc-renderer-client` 첫 사본. 실행기 있으면 「⚡ 내 PC로 빠르게」(기본 켬), 옛 판이면 업데이트 안내, 없으면 설치 안내, 실패 시 브라우저로 자동 전환. 운영 크롬: 720p 5초 **PC 3.2초 · 브라우저 13.5초(약 4.2배)**.
+- 이 PC 설치 실행기를 1.10 → 1.20으로 교체(`%LOCALAPPDATA%\BuylifeGifRenderer\host.ps1`, 옛 판 `host.ps1.bak-before-1.20` 백업, 레지스트리 그대로).
+- 공용 스테이징: commit-paths 커밋 뒤 렌더러·시험 4개 파일이 옛 판으로 남아 있어 그 4개만 `git reset -q HEAD --`로 맞춤(작업 파일 그대로, 전체 11,709개 정상).
+- **남은 일**: 실제 맥에서 `loop` 확인(맥미니 세션 부탁), 단계 B(`normalize`·`compress` → AI 영상 스튜디오 합치기). 상태바 멈춤 해결(ERROR_LESSONS 2026-10-24).
+- 비용: 빌드 2회(승인 범위), AI 호출 없음.
+- https://infinite-loop-video.buylife.xyz · https://video-to-gif.buylife.xyz
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Maepsi NP 1.0.11 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\Maepsi-NP-Setup-1.0.11-x64.exe`(Electron 네이버 자동 포스팅 앱, Gemini 키 1개, 실행 안 함). 기능 대부분이 이미 에이전트·SEO에 있음. 강점: 한 화면 간편 모드(주제만 → 키워드·페르소나 자동), 구간마다 입력 확인, 발행 결과 판정, **클립보드 붙여넣기 입력**(플랫폼 지침 §20 ① 타이핑 원칙과 충돌).
 - 의견: **독립 개발 안 함 → 좋은 기능만 `naver-blog-agent`(묶음 A 기준)에 병합**. 결정 대기: 붙여넣기 입력 허용 범위(추천: 표·이미지만), 간편 모드를 BLOG(FREE) 무료 입구로 쓸지. 결정 뒤 플랜 작성 → 블로그 담당 인계. [보고서](analysis-maepsi-np-20261024/REPORT.md). 비용 없음.

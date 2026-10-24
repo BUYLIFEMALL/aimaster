@@ -54,6 +54,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `infinite-loop-video` | v1.08 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `infinite-loop-video-i96qqi0d6`) | 「⚡ 내 PC로 빠르게」(실행기 `loop`) `997fec0bb`(대기 줄 없음) |
+| `video-to-gif` | v1.23 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `video-to-4fjavywr6`) | 내 PC 렌더러 1.20 `loop` 배포 묶음 `e14e958cd`·`e5e9c3441`(대기 줄 없음), DB `extension_version` v1.23 |
 | `ai-mastering-studio` | v1.14 · 2026-10-24 (Claude Code 윈도우 · 세션 `claude-win-20261024-music`, 승인 빌드 1회, `ai-mastering-studio-eprfsbanw`) | GUIDE 배지 띄어쓰기 수정 `b5b875484`(크롬 금색 그라데이션·10px 확인, 「⚡ 내 PC로 저장」과 함께) |
 | `infinite-loop-video` | v1.07 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 회원 기능 실패 수정·승인 빌드 1회, `infinite-loop-video-q2ezfnuhj`) | 소리 없는 영상 실패 수정 `2fb360453`(대기 줄 없음) |
 | `infinite-loop-video` | v1.06 · 2026-10-23 17:43 (Next.js 보안 배포에 함께 실림 — 2026-10-24 Claude Code 윈도우 `claude-win-video`가 운영 화면으로 확인) | 좌측 메뉴 계정 위치 `22c6cda35`(커밋 00:19, 배포보다 앞섬) |
