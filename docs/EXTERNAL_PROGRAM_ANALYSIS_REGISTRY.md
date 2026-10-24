@@ -98,7 +98,7 @@
 | EXT-MUS-06 | GPT PARK 마스터링 스튜디오 | 웹앱 | 확인 못 함 | 음원 마스터링 처리 순서·프리셋 12종·AI 분석 | 🆕 독립 새 프로그램 | `ai-mastering-studio` v1.14 | ✅ |
 | EXT-MUS-07 | 외부 음악 생성 플랫폼 조사(10곳) | 플랫폼·API 조사 | 10-23 | Lyria·ElevenLabs·fal·Replicate·Suno(중계) 등 공식 API·상업 이용 조건·단가 비교 | 🆕 독립 새 프로그램(음악 연동 기준) | `ai-music-studio` v1.14 | ✅ |
 | **이미지** | | | | | | | |
-| EXT-IMG-01 | ClearPic 1.3.0 | NSIS + Electron + ONNX | 10-24 | 키 없는 브라우저 지우기(LaMa)·글자 자동 찾기(PP-OCRv4)·여러 장 일괄·ZIP | 🔗 기존 병합 → `banana-canvas`(제미나이 워터마크 제거는 ❌ 제외) | `banana-canvas` v1.33 | ⏳ |
+| EXT-IMG-01 | ClearPic 1.3.0 | NSIS + Electron + ONNX | 10-24 | 키 없는 브라우저 지우기(LaMa)·글자 자동 찾기(PP-OCRv4)·여러 장 일괄·ZIP | 🔗 기존 병합 → `banana-canvas`(제미나이 워터마크 제거는 ❌ 제외) | `banana-canvas` v1.34 | 🔶 |
 | EXT-IMG-02 | AI Studio 「Banana Canvas」 | AI Studio 앱 | 10-14 | 생성·편집·합성·배경 제거·부분 삭제·증명사진·스토리 8컷·레시피 | 🆕 독립 새 프로그램 | `banana-canvas` v1.33 | ✅ |
 | EXT-IMG-03 | Cinematic Portrait Studio 2(PureGlow v2.4) | AI Studio 앱 | 10-14 | 촬영 목적 5종 프리셋 인물 사진 재생성·스튜디오 보정·여권 규격 | 🆕 독립 새 프로그램 | `portrait-photo` v1.43 | ✅ |
 | EXT-IMG-04 | LookStudio AI(가상 피팅) | AI Studio 앱 | 10-13 | TPO 의상 추천·가상 피팅·내 옷장·메이크업 | 🆕 독립 새 프로그램 | `fashion-style` v1.13 | ✅ |
@@ -418,8 +418,8 @@
 | 뽑아낸 기능 | 분석 C1 공용 엔진(상) · C2 글자 찾기(상) · C3 일괄·ZIP(상) · C4 다른 프로그램 사본(`shop-detail-page`·`thumbnail-master`·카드뉴스, 중) · C5 원본 보존(중) · **플랜** C-0 시제품(① COOP/COEP ② 208MB 캐시 ③ 입출력 측정, 출력 0~255 ④ WebGPU 없는 PC 속도 ⑤ 한국어 글자 검출) · C-1 공용 엔진 `browser-inpaint` · C-2 글자 찾기 · C-3 「무료 지우기」 화면 · C-4 일괄·ZIP · C-5 「AI로 다시 그리기(Gemini)」와 나란히 고르기 · IDEA-CLEARPIC-01~03 |
 | 하지 않기로 한 것 | **제미나이 ✦ 워터마크 자동 제거 — 제외 확정**(AI 생성물 표시 의무·플랫폼 정책 위험, IDEA-CLEARPIC-04) · 남의 워터마크 제거 홍보 · Electron·앱 코드 |
 | 결정 | 2026-10-24 주인님: 바나나 캔버스에 병합, 워터마크 제외 확정, 바나나 캔버스 담당 인계 |
-| 진행 상태 | 이커머스·이미지 담당 `claude-win-sdp`가 이어받아 코드 대조·플랜·비용 보고 완료 · **작업 대기(승인 전)** · 배포 예정 v1.34 · 비용: AI 0, 빌드 1~2회, 회원은 첫 모델 약 213MB 내려받기 |
-| 남은 결정 | C-0~C-5 범위·비용, 여러 장 상한(50~100장 예시), C-4 다른 프로그램 적용(그 담당과 협의), COOP/COEP 결과를 음성 엔진과 공유(§2 A 묶음) |
+| 진행 상태 | 🔶 **바나나 캔버스 v1.34 운영(2026-10-24, `claude-win-sdp`)** — 「🧽 무료 지우기(내 PC)」 C-0~C-5 완료, 공용 기준 코드 `browser-free-erase` 등록. 남은 묶음: 다른 프로그램 사본(C4) · 상세 `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md` §7·§8 |
+| 남은 결정 | C4 사본 적용 대상·시기(`shop-detail-page`·`thumbnail-master`·카드뉴스, 그 담당과 협의) · 여러 장 상한은 50장으로 시작(필요 시 조정) |
 | 관련 문서 | `docs/analysis-clearpic-20261024/REPORT.md`, `banana-canvas/docs/PLAN_20261024_CLEARPIC_C1_C5.md`, `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md`(§6 받는 쪽 검토), IDEA-CLEARPIC-01~04 |
 
 #### EXT-IMG-02 AI Studio 「Banana Canvas」
