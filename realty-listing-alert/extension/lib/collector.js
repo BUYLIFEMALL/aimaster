@@ -57,6 +57,18 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
   let error = null;
   let listUrl = null; // 페이지가 부른 목록 주소(다음 페이지를 부를 때 page만 바꿈)
   let listAuth = null; // 페이지가 보낸 인증 머리글 — 이 수집 동안 메모리에만, 저장하지 않음
+  // 같은 페이지가 두 번 잡히면(늦게 도착한 응답 등) 버린다 — 첫 매물 번호로 구분(2026-10-25: 3페이지를 건너뛴 원인)
+  const pageKeys = new Set();
+  const addBody = (body, how) => {
+    const list = body?.[listKey];
+    const key = Array.isArray(list) && list.length ? String(list[0]?.articleNo) : "빈쪽";
+    if (pageKeys.has(key)) { diag.push(`겹친 응답 버림${how}`); return false; }
+    pageKeys.add(key);
+    bodies.push(body);
+    lastMore = body?.[moreKey] === true;
+    diag.push(`응답${bodies.length}: ${list?.length ?? "?"}건·더있음=${String(body?.[moreKey])}${how}`);
+    return true;
+  };
   const diag = []; // 진단 기록(2026-10-25: 2페이지가 안 읽히는 원인 찾기) — 숫자·상태만, 매물 내용 없음
 
   const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
@@ -79,9 +91,7 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
       pending.delete(params.requestId);
       try {
         const body = decodeBody(await chrome.debugger.sendCommand({ tabId }, "Network.getResponseBody", { requestId: params.requestId }));
-        bodies.push(body);
-        lastMore = body?.[moreKey] === true;
-        diag.push(`응답${bodies.length}: ${body?.[listKey]?.length ?? "?"}건·더있음=${String(body?.[moreKey])}`);
+        addBody(body, "");
       } catch (e) {
         error = `응답 읽기 실패: ${String(e).slice(0, 80)}`;
       }
@@ -118,11 +128,7 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
           const status = res?.status ?? 0;
           diag.push(`응답코드 ${status}`);
           if (isBlockedStatus(status)) { blockedStatus = status; break; }
-          if (status === 200 && res?.body && Array.isArray(res.body[listKey]) && bodies.length === before) {
-            bodies.push(res.body);
-            lastMore = res.body[moreKey] === true;
-            diag.push(`응답${bodies.length}: ${res.body[listKey].length}건·더있음=${String(res.body[moreKey])}(직접)`);
-          }
+          if (status === 200 && res?.body && Array.isArray(res.body[listKey])) addBody(res.body, "(직접)");
           if (bodies.length > before) { stale = 0; await sleep(rand(a, b)); continue; }
         }
         stale += 1;
