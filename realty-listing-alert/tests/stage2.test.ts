@@ -1,14 +1,14 @@
 // 2단계 판정 함수 시험 — node --test tests/stage2.test.ts (Node 24 타입 제거 실행)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { COLLECT_INTERVAL_OPTIONS, isCollectDue, isShortInterval, isValidInterval, isWithinActiveHours } from "../lib/schedule.ts";
+import { COLLECT_INTERVAL_OPTIONS, isCollectDue, isValidInterval, isWithinActiveHours } from "../lib/schedule.ts";
 import { optionalNumber, parseComplexNo } from "../lib/targets.ts";
 
-test("수집 간격 목록: 10~50분 5개 + 1~24시간 24개", () => {
-  assert.equal(COLLECT_INTERVAL_OPTIONS.length, 29);
-  assert.ok([10, 20, 30, 40, 50, 60, 180, 1440].every(isValidInterval));
+test("수집 간격 목록: 1~24시간 24개(10~50분 없음)", () => {
+  assert.equal(COLLECT_INTERVAL_OPTIONS.length, 24);
+  assert.ok([60, 180, 1440].every(isValidInterval));
   assert.ok(![0, 15, 90, 1500].some(isValidInterval));
-  assert.ok(isShortInterval(50) && !isShortInterval(60));
+  assert.ok(![10, 20, 30, 40, 50].some(isValidInterval));
 });
 
 test("동작 시간대: 종일·낮·자정 넘김", () => {

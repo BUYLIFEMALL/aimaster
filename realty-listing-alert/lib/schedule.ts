@@ -1,22 +1,15 @@
 // 수집 간격·동작 시간대 판정(한국 시간) — 기준: real_estate_sales/src/lib/publicdata/schedule.ts 함수 그대로.
-// 간격 목록만 주인님 결정(인수인계 D7)대로: 10·20·30·40·50분, 1~24시간. 3단계 확장 타이머도 같은 판정을 쓴다.
+// 간격 목록: 1~24시간(2026-10-25 주인님 지시로 10~50분 선택을 없앰 — 네이버 확인 화면·계정 제한 위험을 줄이려고.
+// 원래 인수인계 D7은 10·20·30·40·50분 포함이었다). 확장 타이머도 같은 판정을 쓰고, 1시간 미만 값이 오면 1시간으로 올려 쓴다.
 
-export const SHORT_INTERVALS = [10, 20, 30, 40, 50] as const;
+export const MIN_INTERVAL_MINUTES = 60;
 
-export const COLLECT_INTERVAL_OPTIONS: { value: number; label: string }[] = [
-  ...SHORT_INTERVALS.map((m) => ({ value: m, label: `${m}분` })),
-  ...Array.from({ length: 24 }, (_, i) => ({ value: (i + 1) * 60, label: `${i + 1}시간` })),
-];
+export const COLLECT_INTERVAL_OPTIONS: { value: number; label: string }[] = Array.from({ length: 24 }, (_, i) => ({ value: (i + 1) * 60, label: `${i + 1}시간` }));
 
 export const DEFAULT_INTERVAL_MINUTES = 180;
 
 export function isValidInterval(minutes: number): boolean {
   return COLLECT_INTERVAL_OPTIONS.some((o) => o.value === minutes);
-}
-
-/** 10~50분은 네이버 확인 화면·계정 일시 제한 위험 경고 대상(D7). */
-export function isShortInterval(minutes: number): boolean {
-  return minutes < 60;
 }
 
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;

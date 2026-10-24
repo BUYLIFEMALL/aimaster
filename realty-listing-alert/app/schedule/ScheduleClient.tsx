@@ -3,7 +3,7 @@
 // 기준: real_estate_sales/src/components/districts/MonitoringSettings.tsx — 켜기/끄기·주기·시간대, 바꾸면 바로 저장.
 import { useRef, useState, useTransition } from "react";
 import { saveScheduleAction } from "@/lib/actions/settings";
-import { COLLECT_INTERVAL_OPTIONS, isShortInterval } from "@/lib/schedule";
+import { COLLECT_INTERVAL_OPTIONS } from "@/lib/schedule";
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
 
@@ -82,11 +82,7 @@ export default function ScheduleClient({ initial }: { initial: Initial }) {
         </div>
       </div>
 
-      {isShortInterval(interval) && (
-        <p className="ra-msg ra-warn" role="alert">
-          ⚠️ 짧은 간격({interval}분)은 네이버 확인 화면이 뜨거나 계정이 일시 제한될 수 있어요. 확인 화면이 나오면 확장이 그날 수집을 자동으로 멈춥니다. 보통은 1~3시간을 권해요.
-        </p>
-      )}
+      <p className="card-caption">💡 간격은 1시간부터 고를 수 있어요(너무 자주 살펴보면 네이버 확인 화면이 뜰 수 있어서). 보통은 2~3시간을 권해요.</p>
       {hoursRestricted && startHour > endHour && <p className="card-caption">🌙 자정을 넘겨 {startHour}시부터 다음 날 {endHour}시까지 동작해요.</p>}
       {message && <p className={`ra-msg ${message.kind === "ok" ? "ra-ok" : "ra-err"}`} role="status">{message.text}</p>}
     </section>

@@ -42,7 +42,8 @@ export function shouldRunScheduled({ schedule, lastRunAt, stoppedDate, now = Dat
   if (!schedule?.enabled) return { run: false, why: "예약 꺼짐" };
   if (stoppedDate && stoppedDate === kstDate(now)) return { run: false, why: "오늘은 멈춤(확인 화면)" };
   if (!isWithinActiveHours(kstHour(now), schedule.startHour, schedule.endHour)) return { run: false, why: "동작 시간대 밖" };
-  if (!isCollectDue(lastRunAt, schedule.intervalMinutes, now)) return { run: false, why: "아직 차례 아님" };
+  // 1시간 미만 간격은 받지 않는다(2026-10-25 주인님 지시) — 혹시 그런 값이 와도 1시간으로 올려 쓴다
+  if (!isCollectDue(lastRunAt, Math.max(60, Number(schedule.intervalMinutes) || 180), now)) return { run: false, why: "아직 차례 아님" };
   return { run: true };
 }
 
