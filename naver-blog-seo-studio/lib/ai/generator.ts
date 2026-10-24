@@ -7,6 +7,7 @@ import type { SeoPersona } from "./personas";
 import { factRule, groundingSection, type DraftGrounding } from "./groundingPrompt";
 import { styleSection } from "./stylePrompt";
 import type { StyleStrength } from "../styleStrength";
+import { structureRule, type NarrativeStructure } from "../narrativeStructure";
 import { endingShare, type StyleEnding, type StyleProfile } from "../style";
 import { bodyRangeText, expandTargetText, headingRule, lengthPlan, type DraftLength } from "../lengthPlan";
 
@@ -83,7 +84,7 @@ export async function requestDraftJson(apiKey: string, provider: ContentProvider
   return JSON.parse(raw) as Partial<SeoDraft>;
 }
 
-export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions; grounding?: DraftGrounding; style?: { name: string; profile: StyleProfile; ending?: StyleEnding | null }; styleStrength?: StyleStrength }): Promise<SeoDraft> {
+export async function generateSeoDraft(params: { apiKey: string; provider: ContentProvider; topic: string; keywords: string[]; strategy: string; persona: SeoPersona; model?: string; sourceContext?: string; options?: SeoDraftOptions; grounding?: DraftGrounding; style?: { name: string; profile: StyleProfile; ending?: StyleEnding | null }; styleStrength?: StyleStrength; structure?: NarrativeStructure }): Promise<SeoDraft> {
   if (!/^[\x00-\xFF]*$/.test(params.apiKey)) throw new Error("등록된 OpenAI API 키 형식이 올바르지 않습니다.");
   const today = getKoreaToday();
   const explicitYears = [...getExplicitYears(params.topic, ...params.keywords)];
@@ -102,7 +103,7 @@ export async function generateSeoDraft(params: { apiKey: string; provider: Conte
 4. 독자가 실제로 실행할 수 있도록 업무 흐름, 선택 기준, 흔한 실수, 점검 방법을 포함합니다. 주제에 맞는 경우에만 최소 2개의 목록형 문단(• 기호)을 사용합니다. 확인되지 않은 실제 기업명·수치·경험담은 만들지 않습니다.
 5. 핵심 키워드는 제목과 도입부, 관련 소제목에 자연스럽게 반영하며 억지 반복·키워드 나열·해시태그는 금지합니다.
 6. 확인되지 않은 수치, 출처, 체험담을 만들지 말고 필요한 곳은 [확인 필요]라고 표시합니다. AI 탐지 회피를 약속하거나 자동 발행을 유도하지 않습니다.
-${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptionRules(params.options, params.strategy)}
+${factRule(explicitYears, Boolean(params.grounding?.points.length))}${buildOptionRules(params.options, params.strategy)}${structureRule(params.structure)}
 
 제목과 본문은 JSON으로만 응답하세요. 형식: {"title":"...","body":"...","seoReport":{"searchIntent":"...","strength":"...","factCheck":"..."}}` },
         { role: "user", content: `주제: ${params.topic}\n핵심 키워드: ${params.keywords.join(", ") || "없음"}\n전략: ${params.strategy}\n페르소나: ${params.persona.name}${experienceSection(params.options)}${params.sourceContext ? `\n\n기존 글에서 확인한 핵심 내용(새 글의 관점과 구조를 잡는 참고 자료이며 문장을 복제하지 마세요):\n${params.sourceContext}` : ""}${groundingSection(params.grounding)}\n\n독자가 이 주제를 검색하는 구체적인 질문에 답하고, 실제 사용자가 자신의 경험과 사실을 덧붙일 수 있는 초안으로 작성하세요.` },

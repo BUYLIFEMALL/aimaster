@@ -10,6 +10,7 @@ import { outlinePrompt } from "@/lib/ai/sectionPrompt";
 import { purgeExpiredOutlines } from "@/lib/draftRetention";
 import { isFail, loadGrounding, loadStyle, OUTLINE_COLUMNS, sectionRules } from "@/lib/outlineContext";
 import { readStyleStrength } from "@/lib/styleStrength";
+import { structureOutlineLine } from "@/lib/narrativeStructure";
 import { normalizeOutline } from "@/lib/sections";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { researchId?: unknown; styleId?: unknown; provider?: unknown; model?: unknown; strategy?: unknown; personaId?: unknown; customPersona?: unknown; length?: unknown; styleStrength?: unknown } | null;
+  const input = await request.json().catch(() => null) as { researchId?: unknown; styleId?: unknown; provider?: unknown; model?: unknown; strategy?: unknown; personaId?: unknown; customPersona?: unknown; length?: unknown; styleStrength?: unknown; structure?: unknown } | null;
   const provider = isContentProvider(input?.provider) ? input.provider : "openai";
   const strategy = typeof input?.strategy === "string" && SEO_STRATEGY_NAMES.includes(input.strategy) ? input.strategy : SEO_STRATEGY_NAMES[0];
   const personaId = typeof input?.personaId === "string" ? input.personaId : undefined;
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
 
   let outline;
   try {
-    const prompt = outlinePrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style, readStyleStrength(input?.styleStrength)), keyword: loaded.grounding.keyword, size: lengthPlan(input?.length) });
+    const prompt = outlinePrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style, readStyleStrength(input?.styleStrength)), keyword: loaded.grounding.keyword, size: lengthPlan(input?.length), structureLine: structureOutlineLine(input?.structure) });
     outline = normalizeOutline(await requestDraftJson(apiKey, provider, resolveContentModel(provider, input?.model), [
       { role: "system", content: prompt.system },
       { role: "user", content: prompt.user },

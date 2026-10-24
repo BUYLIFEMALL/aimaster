@@ -2,6 +2,7 @@
 
 // StudioPage에서 옮긴 「title」 화면 (2026-10-17 파일 나누기, 화면·동작 변경 없음)
 import { DRAFT_LENGTHS, LENGTH_PLANS, type DraftLength } from "@/lib/lengthPlan";
+import { NARRATIVE_STRUCTURES, type NarrativeStructure } from "@/lib/narrativeStructure";
 import { ImageOptionsPanel } from "./ImageOptionsPanel";
 import { SEO_PERSONAS } from "@/lib/ai/personas";
 import { KeywordHandoffCard } from "./KeywordHandoffCard";
@@ -13,7 +14,7 @@ import { StyleSelect } from "./StyleSelect";
 import type { Studio } from "./useStudio";
 
 export function TitleView({ s }: { s: Studio }) {
-  const { imageRatio, setImageRatio, imageStyle, setImageStyle, imageRefs, setImageRefs, draftLength, setDraftLength, strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, openAIFeatureModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq } = s;
+  const { imageRatio, setImageRatio, imageStyle, setImageStyle, imageRefs, setImageRefs, draftLength, setDraftLength, strategy, setStrategy, topic, setTopic, keywords, setKeywords, pending, titlePending, recommendedTitles, setRecommendedTitles, titleRecommendationId, setTitleRecommendationId, titleRecommendations, selectedTitle, setSelectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateImageWithDraft, setGenerateImageWithDraft, imageModel, setImageModel, contentProvider, setContentProvider, contentModel, setContentModel, openAIFeatureModel, contentImageCount, setContentImageCount, editingTitleIndex, setEditingTitleIndex, titleEditValue, setTitleEditValue, imagePending, loadTitleRecommendation, deleteTitleRecommendation, startTitleEdit, selectRecommendedTitle, saveTitleEdit, deleteRecommendedTitle, recommendTitles, createDraftFromSelectedTitle, selectedContentModelLabel, experienceNote, setExperienceNote, experienceQuestions, experienceQuestionPending, experienceQuestionMessage, requestExperienceQuestions, appendExperienceQuestion, naturalStyle, setNaturalStyle, includeFaq, setIncludeFaq, narrativeStructure, setNarrativeStructure } = s;
   return (
     <section className="title-recommendation" id="title">
           <KeywordHandoffCard s={s} />
@@ -60,6 +61,7 @@ export function TitleView({ s }: { s: Studio }) {
       {experienceQuestions.length > 0 && <div className="experience-question-list">{experienceQuestions.map((question) => <button type="button" key={question} className="experience-question" onClick={() => appendExperienceQuestion(question)}>+ {question}</button>)}</div>}
     </div>
     <div className="field"><label htmlFor="draft-length">글 분량</label><select id="draft-length" value={draftLength} onChange={(event) => setDraftLength(event.target.value as DraftLength)}>{DRAFT_LENGTHS.map((key) => <option key={key} value={key}>{LENGTH_PLANS[key].label}</option>)}</select><small>짧게 소제목 3개 · 보통 4개 · 길게 6개. 구간별로 쓰기에도 같은 분량이 적용됩니다. 길수록 AI 호출 비용이 조금 늘어납니다.{draftLength === "long" ? " 「길게」는 GPT-4o 이상 상위 모델을 권장합니다 — 가장 저렴한 모델은 보강해도 3,000자대에서 멈출 수 있습니다." : ""}</small></div>
+    <div className="field"><label htmlFor="narrative-structure">글 전개 구조</label><select id="narrative-structure" value={narrativeStructure} onChange={(event) => setNarrativeStructure(event.target.value as NarrativeStructure)}>{NARRATIVE_STRUCTURES.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}</select><small>{NARRATIVE_STRUCTURES.find((x) => x.key === narrativeStructure)?.hint} 글쓰기 전략은 그대로 두고 풀어 가는 순서만 바꿉니다. 구간별로 쓰기에도 같은 구조가 적용됩니다.</small></div>
     <label className="writing-option-check"><input type="checkbox" checked={naturalStyle} onChange={(event) => setNaturalStyle(event.target.checked)} /> <span><strong>자연스러운 문체로 다듬기</strong><small>문장 길이를 섞고 「결론적으로」 같은 상투 표현을 줄입니다. 읽기 좋은 글을 위한 옵션이며 AI 탐지 회피를 약속하지 않습니다.</small></span></label>
     <label className="writing-option-check"><input type="checkbox" checked={includeFaq || strategy === "AEO"} disabled={strategy === "AEO"} onChange={(event) => setIncludeFaq(event.target.checked)} /> <span><strong>글 끝에 자주 묻는 질문(FAQ) 넣기</strong><small>{strategy === "AEO" ? "AEO 전략은 FAQ가 항상 들어갑니다." : "독자가 물을 만한 질문 3~5개를 Q./A. 형식으로 덧붙입니다."}</small></span></label>
   </section>

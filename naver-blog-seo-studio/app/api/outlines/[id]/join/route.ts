@@ -6,6 +6,7 @@ import { fixStyleEnding, normalizeSeoReport, type StyleEndingRecord } from "@/li
 import { isFail, loadGrounding, loadStyle, OUTLINE_COLUMNS } from "@/lib/outlineContext";
 import { endingShare } from "@/lib/style";
 import { readStyleStrength } from "@/lib/styleStrength";
+import { readNarrativeStructure } from "@/lib/narrativeStructure";
 import { joinSections, sectionsHash, type OutlineSection } from "@/lib/sections";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,7 +22,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const { id } = await context.params;
-  const input = await request.json().catch(() => null) as { title?: unknown; provider?: unknown; model?: unknown; styleStrength?: unknown } | null;
+  const input = await request.json().catch(() => null) as { title?: unknown; provider?: unknown; model?: unknown; styleStrength?: unknown; structure?: unknown } | null;
   const provider = isContentProvider(input?.provider) ? input.provider : "openai";
   const supabase = await createClient();
   const { data: outline } = await supabase.from("naver_blog_seo_outlines").select(OUTLINE_COLUMNS).eq("id", id).eq("user_id", access.user.id).maybeSingle();
@@ -69,6 +70,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     ...normalizeSeoReport({ searchIntent: loaded.grounding.angle ?? "" }, body),
     grounding: loaded.record,
     ...(styled.record ? { style: { ...styled.record, strength: readStyleStrength(input?.styleStrength) } } : {}),
+    ...(readNarrativeStructure(input?.structure) !== "default" ? { structure: readNarrativeStructure(input?.structure) } : {}),
     ...(styleEnding ? { styleEnding } : {}),
     sections: { outlineId: outline.id, hash, count: sections.length },
   };

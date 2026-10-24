@@ -17,12 +17,13 @@ JSON만 반환합니다.`;
 
 // 병합 B-3: 분량 값(lib/lengthPlan.ts의 outline·intro·section)은 호출하는 쪽이 넘긴다 — 없으면 예전 「보통」 문구(시험이 이 파일을 직접 불러오므로 실행 시점 import를 두지 않음).
 export interface SectionSize { outline?: string; intro?: string; section?: string }
-export function outlinePrompt(p: { today: string; persona: Persona; rules: SectionRules; keyword: string; size?: SectionSize }): { system: string; user: string } {
+// D-2: structureLine은 lib/narrativeStructure.ts structureOutlineLine 결과(기본이면 빈 문자열 → 지시문 변화 없음).
+export function outlinePrompt(p: { today: string; persona: Persona; rules: SectionRules; keyword: string; size?: SectionSize; structureLine?: string }): { system: string; user: string } {
   return {
     system: common(p.today, p.persona, p.rules),
     user: `검색어 「${p.keyword}」로 쓸 블로그 글의 제목 후보와 구성을 만드세요.
 - 제목 후보 3개: 25~40자, 핵심 키워드를 한 번만 넣습니다.
-- 구성 ${p.size?.outline ?? "5~6개"}: 첫 항목은 도입부(heading은 빈 문자열, 검색 의도에 바로 답하는 요약), 나머지는 소제목(자연스러운 질문형 또는 판단 기준형 문장). 각 항목의 goal에 그 부분에 담을 내용을 승인 근거 기준으로 한 문장으로 적습니다.
+- 구성 ${p.size?.outline ?? "5~6개"}: 첫 항목은 도입부(heading은 빈 문자열, 검색 의도에 바로 답하는 요약), 나머지는 소제목(자연스러운 질문형 또는 판단 기준형 문장). 각 항목의 goal에 그 부분에 담을 내용을 승인 근거 기준으로 한 문장으로 적습니다.${p.structureLine ?? ""}
 JSON: {"titles":["제목 후보 3개"],"sections":[{"heading":"","goal":""}]}`,
   };
 }

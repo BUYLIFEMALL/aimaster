@@ -9,6 +9,7 @@ import { isApproved, type GroundPoint, type ResearchSource } from "@/lib/groundi
 import type { DraftGrounding } from "@/lib/ai/groundingPrompt";
 import { readDraftLength } from "@/lib/lengthPlan";
 import { readStyleStrength } from "@/lib/styleStrength";
+import { readNarrativeStructure } from "@/lib/narrativeStructure";
 import { styleEnding, isStyleApproved, type StyleEnding, type StyleProfile } from "@/lib/style";
 import { createClient } from "@/lib/supabase/server";
 
@@ -22,7 +23,7 @@ const EXPERIENCE_NOTE_MAX = 1_500;
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown; styleId?: unknown; length?: unknown; styleStrength?: unknown } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown; styleId?: unknown; length?: unknown; styleStrength?: unknown; structure?: unknown } | null;
   const experienceNote = typeof input?.experienceNote === "string" ? input.experienceNote.trim() : "";
   if (experienceNote.length > EXPERIENCE_NOTE_MAX) return NextResponse.json({ error: `내 실제 경험은 ${EXPERIENCE_NOTE_MAX.toLocaleString("ko-KR")}자 이내로 입력해주세요.` }, { status: 400 });
   const options = { experienceNote: experienceNote || undefined, naturalStyle: input?.naturalStyle === true, includeFaq: input?.includeFaq === true, length: readDraftLength(input?.length) };
@@ -55,6 +56,7 @@ export async function POST(request: Request) {
   }
   // BLC-08b: 본인 문체 — styleId가 있을 때만. 승인·지문이 맞는 본인 문체만 쓴다(없으면 기존 경로 그대로).
   const styleStrength = readStyleStrength(input?.styleStrength); // D-1: 문체가 있을 때만 쓰임
+  const structure = readNarrativeStructure(input?.structure); // D-2: 기본이면 지시문 변화 없음
   let style: { name: string; profile: StyleProfile; ending: StyleEnding | null } | undefined;
   let styleRecord: Record<string, unknown> | undefined;
   if (input?.styleId !== undefined) {
@@ -75,9 +77,9 @@ export async function POST(request: Request) {
 
   try {
     const model = resolveContentModel(provider, input?.model);
-    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model, grounding, style, styleStrength });
+    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model, grounding, style, styleStrength, structure });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
-    const seoReport = { ...draft.seoReport, generatedModel: generatedModelRecord(provider, model), ...(groundingRecord ? { grounding: groundingRecord } : {}), ...(styleRecord ? { style: styleRecord } : {}) };
+    const seoReport = { ...draft.seoReport, generatedModel: generatedModelRecord(provider, model), ...(groundingRecord ? { grounding: groundingRecord } : {}), ...(styleRecord ? { style: styleRecord } : {}), ...(structure !== "default" ? { structure } : {}) };
     const { data: saved, error } = await supabase.from("naver_blog_seo_drafts")
       .insert({ user_id: access.user.id, topic, keywords, strategy, title: draft.title, body: draft.body, seo_report: seoReport, status: "ready" })
       .select("id, title, body, seo_report, created_at").single();
