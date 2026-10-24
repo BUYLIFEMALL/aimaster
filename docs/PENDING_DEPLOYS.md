@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `realty-listing-alert` (운영 v1.01) | 좌측 메뉴 링크 밑줄 제거(`.nav-link` `text-decoration: none`) | `fe323f5e9` | 2026-10-25 · [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert/docs/IMPROVEMENTS.md` 맨 위 | 2단계 배포 때 함께(주인님 결정), v1.02 |
 | `shop-detail-page` | 같은 내용(문구 고치기 안내·진행 표시, 공용 사본 오류 문구, 컴퓨터 사양 안내) | `2cc9edc75`·`9cfb40fb1`·`c5fb22b4d` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
 | `ai-video-studio` (운영 v1.21) | 영상 만들기 남은 시간을 전체 진행률로 계산(라이브러리 값은 그리기만 봐서 인코딩에서 막히면 짧게 나옴, 느림 안내 안 뜸) | `d8c0aed57` | 2026-10-24 · [역할: video] Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 | 다음 배포 때 함께(맥미니 측정 결과로 2단계 할 때), 버전 v1.22 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
