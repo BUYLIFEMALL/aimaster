@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 「AI 부동산 매물 알림 자동화」 v1.01 1단계 완료(운영 배포, 준비중·공개 전)
+- 운영: https://realty-listing-alert.buylife.xyz · DB 등록(준비중 배지·요금제 3단계) · 시험 계정 `buylifemall@naver.com`에만 30일 권한(주인님 승인, VIP 부여는 공개 때) · Vercel 빌드 3회(첫 배포 → `vercel.json` framework 수정 → 표준 로그인·화면 정리).
+- 검수: tsc·build, `check-extension-release` OK, 시험 계정 데스크톱·375px, 확장 설치 실시간 감지·바로 연결, 서버 코드 `land.naver` 0건.
+- 미배포 대기: 메뉴 링크 밑줄 제거 `fe323f5e9`(2단계 배포 때). 정식 공개는 테스트 정상 확인 뒤 주인님 결정.
+- 문서: `realty-listing-alert/AGENTS.md`(7대 항목)·`docs/IMPROVEMENT_HANDOFF_20261025.md`·`docs/IMPROVEMENT_BACKLOG.md` · 공용: 프로그램 비교표 90번·카드, 카테고리 지도, 외부 분석표 EXT-RE-01 🔧, DESIGN 현황판 57-1, 미배포 대기 표.
+- 다음 첫 단계: 2단계 플랜(DB 표 3개 + 감시 대상·예약·받는 방법 화면) 보고·승인.
+
 ## 2026-10-25 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-bananadesign` — 바나나 캔버스 v1.38: 프리미엄 3D 나노바나나 스튜디오 전면 리뉴얼 & 사이드바 확장 다운로드 표준 수립 (배포 완료)
 - **주인님 지시**:
   1. "디자인이 구려 너의 UI디자인 실력을 발휘해서 나노바나나 컨셉의 고급진 UI와 디자인 3D이모티콘 등 사용자 편의성에 맞춘 디자인으로 리뉴얼 해줘"
