@@ -194,7 +194,8 @@ export async function runPcJob(
     }
     await port.wait((m) => mine(m) && m.type === "result-end", 60_000);
     if (off !== out.length) throw new PcRendererError("내 PC 변환 결과가 잘렸습니다.");
-    const { type: _t, job: _j, req: _r, size: _s, chunks: _c, ...info } = result;
+    const info: Record<string, unknown> = { ...result };
+    for (const k of ["type", "job", "req", "size", "chunks"]) delete info[k];
     return { bytes: out, info };
   } finally {
     try { port.send({ type: "release", job }); } catch { /* 이미 끊김 */ }
