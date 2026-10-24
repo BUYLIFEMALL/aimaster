@@ -280,7 +280,7 @@ export function RenderView() {
                 </div>
                 {a.provider === "browser" && (
                   <div className="notice" style={{ display: "grid", gap: 8 }}>
-                    <strong>🆓 무료 음성(내 브라우저)</strong>
+                    <strong>🎙️ 무료 음성(내 브라우저)</strong>
                     <small className="muted">API 키 없이 이 브라우저가 직접 목소리를 만듭니다. 처음 한 번 음성 모델(약 400MB)을 내려받으니 와이파이에서 시작해 주세요. 두 번째부터는 브라우저에 저장된 모델로 바로 시작하고, 자막 시각도 추가 요금 없이 맞춥니다. 휴대폰·오래된 PC에서는 느릴 수 있어요.</small>
                     {agreed
                       ? <small className="muted">✅ 사용 조건 확인됨 · 영상을 공개할 때 AI 합성 음성임을 밝혀 주세요(유튜브 업로드 때 설명란에 자동으로 한 줄 넣어 드립니다) · <a href={FREE_TTS_LICENSE_URL} target="_blank" rel="noreferrer">라이선스 원문</a></small>
