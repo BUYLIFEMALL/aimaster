@@ -1,289 +1,270 @@
-// AIMaster 부동산 매물 알림 확장 v1.01 — 지금은 0단계 사전 검증 기능만 들어 있다(3단계에서 수집 엔진으로 교체).
-// 매물 개인 정보(전화·주소·대표자)는 기록하지 않고, 매물 데이터는 우리 서버로 보내지 않는다.
-// 기다리는 동안에도 10초마다 확장 API를 불러 서비스 워커가 잠들지 않게 한다(30초 쉬면 크롬이 멈춤 — 첫 시험에서 기록이 0건이었던 원인).
-async function sleep(ms) {
-  const end = Date.now() + ms;
-  while (Date.now() < end) {
-    await new Promise((r) => setTimeout(r, Math.min(10000, end - Date.now())));
-    await chrome.runtime.getPlatformInfo();
-  }
-}
-const rand = (a, b) => a + Math.floor(Math.random() * (b - a));
-const PERSONAL = /phone|tel|cellPhone|realtorAddress|representative|address|addr|email/i;
-const MAX_ARTICLE_PAGES = 3;
-let lastAuth = null; // 페이지가 보낸 authorization 머리글 — 메모리에만, 저장하지 않음
+// AIMaster 부동산 매물 알림 확장 — 수집 엔진(3단계, v1.03).
+// 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
+// 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
+import { collectComplex, rand, sleep } from "./lib/collector.js";
+import { matchesTarget, normalizeArticle } from "./lib/listing.js";
+import { compareComplex, filterEvents } from "./lib/compare.js";
+import { kstDate, shouldRunScheduled } from "./lib/guard.js";
+import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
+import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
 
-async function getReport() {
-  const { report } = await chrome.storage.local.get("report");
-  return report || { startedAt: new Date().toISOString(), capture: null, direct: null, alarm: null, telegram: null };
-}
-async function patch(key, value) {
-  const r = await getReport();
-  r[key] = value;
-  await chrome.storage.local.set({ report: r });
-  return r;
-}
-// 진행 기록: 단계·오류를 바로 저장한다(팝업이 닫혀도 남도록).
+const WEB = "https://realty-listing-alert.buylife.xyz";
+const DEFAULT_RULES = {
+  version: "builtin",
+  complexUrl: "https://new.land.naver.com/complexes/{complexNo}",
+  listPathIncludes: "/api/articles/complex/",
+  fields: { list: "articleList", more: "isMoreData", price: "dealOrWarrantPrc", rent: "rentPrc" },
+  maxPagesPerTarget: 10,
+  scrollWaitMs: [2000, 5000],
+  betweenTargetsMs: [10000, 30000],
+  firstLoadWaitMs: 8000,
+};
+const version = () => chrome.runtime.getManifest().version_name || "";
+const get = (keys) => chrome.storage.local.get(keys);
+const set = (obj) => chrome.storage.local.set(obj);
+
 async function addLog(text) {
-  const r = await getReport();
-  r.log = [...(r.log || []), `${new Date().toISOString()} ${text}`].slice(-200);
-  await chrome.storage.local.set({ report: r });
+  const { log = [] } = await get("log");
+  await set({ log: [...log, `${new Date().toISOString()} ${text}`].slice(-100) });
 }
 
-function shape(v, depth = 0) {
-  if (v === null) return "null";
-  if (Array.isArray(v)) return v.length ? [`len=${v.length}`, depth < 3 ? shape(v[0], depth + 1) : "…"] : ["len=0"];
-  if (typeof v === "object") {
-    if (depth >= 3) return "{…}";
-    const o = {};
-    for (const k of Object.keys(v)) o[k] = PERSONAL.test(k) ? "(개인정보 칸 — 값 생략)" : shape(v[k], depth + 1);
-    return o;
-  }
-  return typeof v;
+async function deviceId() {
+  const { deviceId: id } = await get("deviceId");
+  if (id) return id;
+  const fresh = crypto.randomUUID().replace(/-/g, "");
+  await set({ deviceId: fresh });
+  return fresh;
 }
-function scrub(obj) {
-  const o = {};
-  for (const [k, v] of Object.entries(obj || {})) {
-    if (PERSONAL.test(k)) continue;
-    o[k] = typeof v === "object" && v !== null ? "(객체)" : v;
-  }
-  return o;
+
+async function api(path, init = {}) {
+  const { extToken } = await get("extToken");
+  if (!extToken) throw new Error("웹과 연결되지 않았어요. 웹 대시보드에서 「바로 연결」을 눌러 주세요.");
+  const res = await fetch(WEB + path, { ...init, headers: { ...(init.headers || {}), authorization: `Bearer ${extToken}`, "content-type": "application/json" } });
+  const j = await res.json().catch(() => ({}));
+  if (res.status === 401) throw new Error("웹 연결이 끊겼거나 이용 권한이 없어요. 웹 대시보드에서 다시 연결해 주세요.");
+  if (!res.ok) throw new Error(j.error || `웹 응답 오류(${res.status})`);
+  return j;
 }
-function findArticleArray(body) {
-  if (!body || typeof body !== "object") return null;
-  if (Array.isArray(body.articleList)) return body.articleList;
-  for (const v of Object.values(body)) {
-    if (Array.isArray(v) && v[0] && typeof v[0] === "object" && "articleNo" in v[0]) return v;
-    if (v && typeof v === "object" && !Array.isArray(v)) {
-      const inner = findArticleArray(v);
-      if (inner) return inner;
-    }
-  }
-  return null;
-}
-function summarizeArticles(body) {
-  const list = findArticleArray(body) || [];
-  const first = list[0] || {};
-  const priceKeys = Object.keys(first).filter((k) => /prc|price|deal|rent|warrant/i.test(k));
-  const tradeTypes = {};
-  const estateTypes = {};
-  for (const a of list) {
-    if (a.tradeTypeCode || a.tradeTypeName) tradeTypes[a.tradeTypeCode ?? "?"] = a.tradeTypeName ?? "?";
-    if (a.realEstateTypeCode || a.realEstateTypeName) estateTypes[a.realEstateTypeCode ?? "?"] = a.realEstateTypeName ?? "?";
-  }
-  return {
-    count: list.length,
-    isMoreData: body?.isMoreData,
-    topKeys: Object.keys(body || {}),
-    itemKeys: Object.keys(first),
-    priceKeys,
-    priceSamples: list.slice(0, 5).map((a) => Object.fromEntries(priceKeys.map((k) => [k, a[k]]))),
-    tradeTypes,
-    estateTypes,
-    sample: list.slice(0, 2).map(scrub),
-  };
-}
-function urlKey(u) {
+
+/** 회원 설정(웹) — 실패하면 마지막으로 받은 값으로. */
+async function loadSettings() {
   try {
-    const x = new URL(u);
-    const q = {};
-    x.searchParams.forEach((v, k) => (q[k] = v));
-    return { host: x.host, path: x.pathname, query: q };
-  } catch { return { raw: String(u).slice(0, 200) }; }
-}
-
-async function evalInPage(tabId, expression) {
-  const r = await chrome.debugger.sendCommand({ tabId }, "Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-  return r?.result?.value;
-}
-async function withDebugger(tabId, fn) {
-  try { await chrome.debugger.attach({ tabId }, "1.3"); }
-  catch {
-    try { await chrome.debugger.detach({ tabId }); } catch {}
-    await chrome.debugger.attach({ tabId }, "1.3");
+    const s = await api("/api/extension/settings");
+    await set({ settingsCache: s, settingsAt: new Date().toISOString() });
+    return s;
+  } catch (e) {
+    const { settingsCache } = await get("settingsCache");
+    if (settingsCache) return settingsCache;
+    throw e;
   }
-  try { return await fn(); }
-  finally { try { await chrome.debugger.detach({ tabId }); } catch {} }
 }
-
-const BLOCK_CHECK = `(() => { const t = (document.body && document.body.innerText) || ""; return /보안문자|자동입력 방지|자동 입력 방지|captcha|비정상적인 접근|로그인이 필요/i.test(t); })()`;
-const SCROLL_ONE = `(() => {
-  let best = null, gap = 0;
-  for (const el of document.querySelectorAll("*")) {
-    const s = getComputedStyle(el);
-    if (!/(auto|scroll)/.test(s.overflowY)) continue;
-    const g = el.scrollHeight - el.clientHeight;
-    if (g > gap && el.clientHeight > 150) { gap = g; best = el; }
-  }
-  const target = best || document.scrollingElement;
-  target.scrollTop = target.scrollHeight;
-  return { tag: target.tagName, id: target.id || "", cls: String(target.className || "").slice(0, 80), scrollHeight: target.scrollHeight };
-})()`;
-
-let busy = false; // ①·②가 겹쳐 돌면 두 번째가 첫 번째의 디버거 연결을 끊는다(첫 시험의 「not attached」 원인) — 한 번에 하나만.
-async function runCapture(tabId, tabUrl) {
-  if (busy) return { ok: false, error: "이미 시험이 진행 중입니다. 끝날 때까지 기다려 주세요." };
-  busy = true;
-  try { return await runCaptureInner(tabId, tabUrl); } finally { busy = false; }
-}
-async function runCaptureInner(tabId, tabUrl) {
-  const t0 = Date.now();
-  const out = { tabUrl: urlKey(tabUrl), requests: [], articlePages: [], otherJson: [], statusProblems: [], blocked: false, scrollTargets: [], authHeaderSeen: false };
-  const pending = new Map();
-  let saveTimer = null;
-  const saveSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => patch("capture", { ...out, running: true }), 500); };
-  await addLog(`① 시작: ${tabUrl}`);
-  await patch("capture", { ...out, running: true });
-  const onEvent = async (src, method, params) => {
-    if (src.tabId !== tabId) return;
-    if (method === "Network.requestWillBeSent") {
-      const u = params.request.url;
-      if (!/land\.naver\.com/.test(u)) return;
-      const h = params.request.headers || {};
-      const auth = h.authorization || h.Authorization;
-      if (auth) { lastAuth = auth; out.authHeaderSeen = true; }
-      pending.set(params.requestId, u);
-      out.requests.push({ ...urlKey(u), method: params.request.method, hasAuth: !!auth, type: params.type });
-    } else if (method === "Network.responseReceived") {
-      const u = pending.get(params.requestId);
-      if (u && params.response.status >= 400) out.statusProblems.push({ ...urlKey(u), status: params.response.status });
-    } else if (method === "Network.loadingFinished") {
-      const u = pending.get(params.requestId);
-      if (!u || !/\/api\//.test(u)) return;
-      try {
-        const b = await chrome.debugger.sendCommand({ tabId }, "Network.getResponseBody", { requestId: params.requestId });
-        const body = JSON.parse(b.base64Encoded ? new TextDecoder().decode(Uint8Array.from(atob(b.body), (c) => c.charCodeAt(0))) : b.body);
-        saveSoon();
-        if (findArticleArray(body)) out.articlePages.push({ ...urlKey(u), at: Date.now() - t0, ...summarizeArticles(body) });
-        else if (out.otherJson.length < 25) out.otherJson.push({ ...urlKey(u), shape: shape(body) });
-      } catch (e) { out.otherJson.push({ ...urlKey(u), error: String(e).slice(0, 120) }); }
-    }
-  };
-  chrome.debugger.onEvent.addListener(onEvent);
+async function loadRules() {
   try {
-    await withDebugger(tabId, async () => {
-      await addLog("① 디버거 연결됨");
-      await chrome.debugger.sendCommand({ tabId }, "Network.enable");
-      await chrome.debugger.sendCommand({ tabId }, "Page.reload", {}); // 1페이지도 기록하려고 한 번 새로 고침
-      await sleep(6000);
-      for (let i = 0; i < 6 && out.articlePages.length < MAX_ARTICLE_PAGES; i++) {
-        if (await evalInPage(tabId, BLOCK_CHECK)) { out.blocked = true; break; }
-        out.scrollTargets.push(await evalInPage(tabId, SCROLL_ONE));
-        await addLog(`① 스크롤 ${i + 1}회 · 매물 목록 응답 ${out.articlePages.length}개`);
-        saveSoon();
-        await sleep(rand(2000, 5000));
-      }
-      // 남은 시간은 주인님이 지역(시·구·동) 선택을 눌러 보시는 동안 응답만 기록
-      await addLog("① 지역 선택을 눌러 보실 시간(최대 45초) 기록 중");
-      if (Date.now() - t0 < 45000) await sleep(45000 - (Date.now() - t0));
-      out.blocked = out.blocked || (await evalInPage(tabId, BLOCK_CHECK));
+    const r = await api("/api/extension/collect-rules");
+    await set({ rulesCache: r });
+    return r;
+  } catch {
+    const { rulesCache } = await get("rulesCache");
+    return rulesCache || DEFAULT_RULES;
+  }
+}
+
+async function reportStatus(result, count, error) {
+  try {
+    await api("/api/extension/status", {
+      method: "POST",
+      body: JSON.stringify({ deviceId: await deviceId(), extVersion: version(), result, count, error: error || undefined, ranAt: new Date().toISOString() }),
     });
   } catch (e) {
-    out.error = String(e);
-    // 같은 탭을 다른 확장(예: Claude 크롬 제어)이 디버거로 쓰고 있으면 붙지 않는다 — 회원에게 쉬운 말로 남긴다.
-    const hint = /not attached|Another debugger|Cannot attach/i.test(out.error) ? " → 다른 확장이 이 탭을 조작 중일 수 있어요. 새 창(Ctrl+N)의 일반 탭에서 다시 해 주세요." : "";
-    await addLog(`① 오류: ${e}${hint}`);
-  } finally {
-    clearTimeout(saveTimer);
-    chrome.debugger.onEvent.removeListener(onEvent);
+    await addLog(`상태 보고 실패: ${e.message}`);
   }
-  await addLog(`① 끝: 매물 목록 응답 ${out.articlePages.length}개, 기타 응답 ${out.otherJson.length}개, 멈춤 ${out.blocked}`);
-  out.seconds = Math.round((Date.now() - t0) / 1000);
-  await patch("capture", out);
-  return { ok: true, articlePages: out.articlePages.length, otherJson: out.otherJson.length, blocked: out.blocked, statusProblems: out.statusProblems.length, authHeaderSeen: out.authHeaderSeen };
 }
 
-async function runDirect(tabId) {
-  if (busy) return { ok: false, error: "이미 시험이 진행 중입니다. 끝날 때까지 기다려 주세요." };
+let busy = false;
+
+/** 수집 1회: 감시 대상 → 수집 → 거르기 → 비교 → 파일 → 텔레그램 → 상태 보고. trigger: "schedule" | "manual" */
+async function runCollection(trigger) {
+  if (busy) return { ok: false, error: "이미 수집 중이에요. 끝날 때까지 기다려 주세요." };
   busy = true;
-  try { return await runDirectInner(tabId); } finally { busy = false; }
-}
-async function runDirectInner(tabId) {
-  const r = await getReport();
-  const tpl = r.capture?.articlePages?.[0];
-  if (!tpl) return { ok: false, error: "먼저 ① 응답 읽기 시험을 해 주세요(주소 형식이 필요)." };
-  const base = new URL(`https://${tpl.host}${tpl.path}`);
-  for (const [k, v] of Object.entries(tpl.query)) base.searchParams.set(k, v);
-  const results = [];
-  await addLog("② 시작");
-  await withDebugger(tabId, async () => {
-    for (const withAuth of [false, true]) {
-      for (const page of [1, 2]) {
-        if (withAuth && !lastAuth) { results.push({ withAuth, page, skipped: "페이지 인증 머리글 없음(확장 재시작으로 지워졌을 수 있음)" }); continue; }
-        base.searchParams.set("page", String(page));
-        const expr = `(async () => { try {
-          const res = await fetch(${JSON.stringify(base.toString())}, { credentials: "include", headers: ${withAuth ? JSON.stringify({ authorization: lastAuth }) : "{}"} });
-          const txt = await res.text(); let j = null; try { j = JSON.parse(txt); } catch {}
-          return { status: res.status, json: j, head: j ? null : txt.slice(0, 160) };
-        } catch (e) { return { error: String(e) }; } })()`;
-        const v = await evalInPage(tabId, expr);
-        results.push({ withAuth, page, status: v?.status, error: v?.error, head: v?.head, ...(v?.json && findArticleArray(v.json) ? summarizeArticles(v.json) : { shape: v?.json ? shape(v.json) : null }) });
-        await sleep(rand(3000, 5000));
-      }
+  const startedAt = new Date().toISOString();
+  await set({ running: { startedAt, trigger, done: 0, total: 0 } });
+  try {
+    const settings = await loadSettings();
+    const rules = await loadRules();
+    const targets = settings.targets || [];
+    await addLog(`${trigger === "manual" ? "지금 수집" : "예약 수집"} 시작 · 감시 대상 ${targets.length}곳`);
+    if (!targets.length) {
+      await set({ lastRunAt: startedAt });
+      return { ok: false, error: "켜진 감시 대상이 없어요. 웹 🎯 감시 대상에서 단지를 추가해 주세요." };
     }
-  });
-  const out = { url: urlKey(base.toString()), results };
-  await addLog(`② 끝: ${results.map((x) => `${x.withAuth ? "인증" : "무인증"}${x.page}p=${x.status ?? x.skipped ?? x.error}`).join(", ")}`);
-  await patch("direct", out);
-  return { ok: true, results: results.map((x) => ({ withAuth: x.withAuth, page: x.page, status: x.status, count: x.count, isMoreData: x.isMoreData, skipped: x.skipped, error: x.error })) };
+    await set({ running: { startedAt, trigger, done: 0, total: targets.length } });
+
+    const listKey = rules.fields?.list || "articleList";
+    const { states = {} } = await get("states");
+    const perTarget = [];
+    const fileRows = [];
+    let total = 0;
+    let result = "ok";
+    let errMsg = null;
+
+    for (let i = 0; i < targets.length; i++) {
+      const t = targets[i];
+      if (i > 0) {
+        const [a, b] = rules.betweenTargetsMs || [10000, 30000];
+        await sleep(rand(a, b));
+      }
+      const r = await collectComplex(t.complex_no, rules, addLog);
+      await set({ running: { startedAt, trigger, done: i + 1, total: targets.length } });
+      if (r.status === "blocked") {
+        result = "blocked";
+        errMsg = r.error;
+        await set({ stoppedDate: kstDate() });
+        break; // 그날 자동 수집 중지, 남은 대상도 읽지 않음
+      }
+      if (r.status !== "ok") {
+        if (result === "ok") { result = r.status; errMsg = r.error; }
+        await addLog(`단지 ${t.complex_no}: ${r.error}`);
+        continue;
+      }
+      const seen = new Set();
+      const items = r.bodies
+        .flatMap((b) => b[listKey] || [])
+        .map((a) => normalizeArticle(a, t.complex_no, t.complex_name, rules.fields))
+        .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no))
+        .filter((it) => matchesTarget(it, t));
+      const name = t.complex_name || items[0]?.complexName || `단지 ${t.complex_no}`;
+      const cmp = compareComplex(states[t.complex_no], items, { complete: r.complete });
+      states[t.complex_no] = cmp.state;
+      const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
+      for (const it of items) {
+        const e = statusOf.get(it.no);
+        fileRows.push({ item: { ...it, complexName: name }, status: e ? e.type : "same", prevPriceText: e?.prevPriceText, firstSeen: cmp.state.items[it.no]?.firstSeen });
+      }
+      for (const e of cmp.events.filter((x) => x.type === "gone")) fileRows.push({ item: { ...e.item, complexName: name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen });
+      perTarget.push({ name, total: items.length, events: filterEvents(cmp.events, settings.delivery), firstRun: cmp.firstRun, complete: r.complete });
+      total += items.length;
+    }
+
+    const table = toTable(fileRows);
+    await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })) } });
+
+    await deliver({ settings, perTarget, table, result, errMsg, trigger });
+    await reportStatus(result, total, errMsg);
+    await addLog(`수집 끝 · ${result === "ok" ? "정상" : result} · 매물 ${total}건 · 알림 ${perTarget.reduce((n, p) => n + p.events.length, 0)}건`);
+    return { ok: result === "ok", result, total, error: errMsg };
+  } catch (e) {
+    await addLog(`수집 오류: ${e.message || e}`);
+    await reportStatus("error", 0, String(e.message || e)).catch(() => {});
+    return { ok: false, error: String(e.message || e) };
+  } finally {
+    busy = false;
+    await set({ running: null });
+  }
 }
 
-async function startAlarm() {
-  await chrome.alarms.clear("pv");
-  await patch("alarm", { startedAt: new Date().toISOString(), fires: [] });
-  chrome.alarms.create("pv", { delayInMinutes: 1, periodInMinutes: 1 });
-  await addLog("③ 예약 타이머 시작(1분마다 5회)");
-  return { ok: true, note: "지금 크롬 창을 최소화해 두세요. 5분 뒤 결과 파일 저장을 눌러 주세요." };
+/** 텔레그램 보내기 — 변동이 있거나, 첫 수집이거나, 「지금 수집」이면 보낸다. 실패하면 다음 회차에 알리고 같은 알림을 반복해 보내지 않는다. */
+async function deliver({ settings, perTarget, table, result, errMsg, trigger }) {
+  const tg = settings.telegram;
+  if (!tg) { await addLog("텔레그램 봇이 연결되지 않아 보내지 않았어요(웹 📨 받는 방법)."); return; }
+  const d = settings.delivery || {};
+  const { telegramFailed = false } = await get("telegramFailed");
+  try {
+    if (result === "blocked") {
+      await sendMessage(tg.botToken, tg.chatId, `🏠 [매물 알림] ⛔ 네이버 확인 화면 때문에 수집을 멈췄어요.\n${errMsg || ""}\n네이버 부동산을 직접 한 번 열어 확인해 주세요. 오늘 예약 수집은 쉬고 내일 다시 시작해요.`);
+      await set({ telegramFailed: false });
+      return;
+    }
+    const changed = perTarget.some((t) => t.events.length || t.firstRun);
+    if (!changed && trigger !== "manual") return;
+    if (d.deliverTelegram !== false) await sendMessage(tg.botToken, tg.chatId, buildSummary(perTarget, { failedBefore: telegramFailed }));
+    if (d.deliverFile !== false && table.length) {
+      const stamp = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace(/[-:T]/g, "").replace(/^(\d{8})(\d{4})$/, "$1_$2");
+      if (d.fileFormat === "csv") await sendDocument(tg.botToken, tg.chatId, new TextEncoder().encode(toCsv(table)), `매물알림_${stamp}.csv`, "text/csv", "🏠 [매물 알림] 정리 파일");
+      else await sendDocument(tg.botToken, tg.chatId, toXlsx(table), `매물알림_${stamp}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "🏠 [매물 알림] 정리 파일");
+    }
+    await set({ telegramFailed: false });
+  } catch (e) {
+    await set({ telegramFailed: true });
+    await addLog(`텔레그램 보내기 실패: ${e.message}`);
+  }
 }
+
+// ── 예약: 1분마다 깨어나 차례인지 본다(밀린 회차는 몰아서 하지 않고 1번만) ──
+function ensureAlarm() {
+  chrome.alarms.get("tick", (a) => { if (!a) chrome.alarms.create("tick", { periodInMinutes: 1 }); });
+}
+chrome.runtime.onInstalled.addListener(ensureAlarm);
+chrome.runtime.onStartup.addListener(ensureAlarm);
 chrome.alarms.onAlarm.addListener(async (a) => {
-  if (a.name !== "pv") return;
-  const wins = await chrome.windows.getAll();
-  const r = await getReport();
-  const al = r.alarm || { fires: [] };
-  al.fires.push({ at: new Date().toISOString(), windowStates: wins.map((w) => w.state) });
-  if (al.fires.length >= 5) chrome.alarms.clear("pv");
-  await patch("alarm", al);
+  if (a.name !== "tick" || busy) return;
+  const { extToken, consentAt, lastRunAt, stoppedDate } = await get(["extToken", "consentAt", "lastRunAt", "stoppedDate"]);
+  if (!extToken || !consentAt) return;
+  let settings;
+  try { settings = await loadSettings(); } catch { return; }
+  if (!shouldRunScheduled({ schedule: settings.schedule, lastRunAt, stoppedDate }).run) return;
+  await runCollection("schedule");
 });
+ensureAlarm();
 
-async function sendTelegram(token, chat) {
-  if (!token || !chat) return { ok: false, error: "봇 토큰과 chat id를 넣어 주세요." };
-  const fd = new FormData();
-  fd.append("chat_id", chat);
-  fd.append("caption", "부동산 매물 알림 사전 검증 — 파일 보내기 시험");
-  fd.append("document", new Blob(["﻿단지,거래,가격\n시험 단지,매매,0\n"], { type: "text/csv" }), "realty-test.csv");
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, { method: "POST", body: fd });
-  const j = await res.json().catch(() => ({}));
-  const out = { status: res.status, ok: j.ok, description: j.description || null, at: new Date().toISOString() };
-  await patch("telegram", out); // 토큰·chat id는 저장하지 않음
-  return out;
-}
-
-async function saveReport() {
-  // 결과 화면(확장 안 HTML)을 새 탭으로 연다 — 거기서 파일로 받기·복사(서비스 워커의 data: 다운로드는 조용히 실패할 수 있었다).
-  await chrome.tabs.create({ url: chrome.runtime.getURL("result.html") });
-  return { ok: true, note: "결과 화면을 열었습니다." };
-}
-
-chrome.runtime.onMessage.addListener((msg, _s, reply) => {
+// ── 팝업·웹 다리 메시지 ──
+chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   (async () => {
     try {
       if (msg.type === "connect") {
         // 웹 「바로 연결」: 연결 코드를 이 기기(chrome.storage.local)에만 저장한다.
         if (!/^pat_[0-9a-f]{64}$/.test(msg.token || "")) return reply({ ok: false, error: "연결 코드 형식이 올바르지 않습니다." });
-        await chrome.storage.local.set({ extToken: msg.token, connectedAt: new Date().toISOString() });
-        if (msg.closeTab && _s?.tab?.id) chrome.tabs.remove(_s.tab.id).catch(() => {});
+        await set({ extToken: msg.token, connectedAt: new Date().toISOString() });
+        if (msg.closeTab && sender?.tab?.id) chrome.tabs.remove(sender.tab.id).catch(() => {});
         return reply({ ok: true });
       }
-      if (msg.type === "capture") return reply(await runCapture(msg.tabId, msg.tabUrl));
-      if (msg.type === "direct") return reply(await runDirect(msg.tabId));
-      if (msg.type === "alarm") return reply(await startAlarm());
-      if (msg.type === "telegram") return reply(await sendTelegram(msg.token, msg.chat));
-      if (msg.type === "save") return reply(await saveReport());
-      if (msg.type === "summary") {
-        const r = await getReport();
-        return reply({ capture: r.capture ? { running: !!r.capture.running, articlePages: r.capture.articlePages.length, blocked: r.capture.blocked, error: r.capture.error } : null, direct: !!r.direct, alarmFires: r.alarm?.fires?.length ?? 0, telegram: r.telegram, recent: (r.log || []).slice(-5) });
+      if (msg.type === "consent") {
+        await set({ consentAt: new Date().toISOString() });
+        return reply({ ok: true });
       }
-    } catch (e) { await addLog(`오류(${msg.type}): ${e}`); reply({ ok: false, error: String(e) }); }
+      if (msg.type === "collectNow") {
+        const { consentAt } = await get("consentAt");
+        if (!consentAt) return reply({ ok: false, error: "먼저 안내에 동의해 주세요." });
+        runCollection("manual"); // 팝업을 닫아도 계속된다
+        return reply({ ok: true });
+      }
+      if (msg.type === "addComplex") {
+        const m = String(msg.tabUrl || "").match(/new\.land\.naver\.com\/complexes\/(\d{1,12})/);
+        if (!m) return reply({ ok: false, error: "네이버 부동산 단지 화면에서 눌러 주세요." });
+        const r = await api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: m[1], complexName: msg.name || "" }) });
+        await addLog(`감시 대상 추가: 단지 ${m[1]} (${r.count}/10)`);
+        return reply({ ok: true, count: r.count, complexNo: m[1] });
+      }
+      if (msg.type === "openResults") {
+        await chrome.tabs.create({ url: chrome.runtime.getURL("result.html") });
+        return reply({ ok: true });
+      }
+      if (msg.type === "state") {
+        const s = await get(["extToken", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "running", "lastResult", "settingsCache", "log", "telegramFailed"]);
+        return reply({
+          connected: !!s.extToken,
+          connectedAt: s.connectedAt || null,
+          consent: !!s.consentAt,
+          lastRunAt: s.lastRunAt || null,
+          stoppedToday: s.stoppedDate === kstDate(),
+          running: s.running || null,
+          lastResult: s.lastResult ? { at: s.lastResult.at, result: s.lastResult.result, error: s.lastResult.error, perTarget: s.lastResult.perTarget } : null,
+          schedule: s.settingsCache?.schedule || null,
+          targetCount: s.settingsCache?.targets?.length ?? null,
+          telegramLinked: s.settingsCache ? !!s.settingsCache.telegram : null,
+          latestVersion: s.settingsCache?.latestVersion || null,
+          telegramFailed: !!s.telegramFailed,
+          recent: (s.log || []).slice(-6),
+        });
+      }
+      if (msg.type === "refreshSettings") {
+        const s = await loadSettings();
+        return reply({ ok: true, targets: s.targets.length });
+      }
+      reply({ ok: false, error: "알 수 없는 요청" });
+    } catch (e) {
+      await addLog(`오류(${msg.type}): ${e.message || e}`);
+      reply({ ok: false, error: String(e.message || e) });
+    }
   })();
   return true;
 });

@@ -1,9 +1,46 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>부동산 매물 알림 — 사전 검증 결과</title><style>
-body{font:14px sans-serif;max-width:900px;margin:24px auto;padding:0 16px}button{padding:8px 14px;margin-right:6px;cursor:pointer}
-pre{white-space:pre-wrap;background:#f4f4f4;padding:12px;font-size:12px;max-height:70vh;overflow:auto}
-</style></head><body>
-<h2>사전 검증 결과</h2>
-<p>개인 정보 칸(전화·주소·대표자)은 빠져 있습니다. 아래 두 버튼 중 하나를 눌러 주세요.</p>
-<button id="dl">파일로 받기</button><button id="copy">전체 복사</button><span id="msg"></span>
-<pre id="out">불러오는 중…</pre>
-<script src="result.js"></script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>최근 결과 — 부동산 매물 알림</title>
+<style>
+  :root { --ink:#0f172a; --muted:#5b6475; --line:#e2e6ee; --paper:#f6f7f9; --panel:#fff; --accent:#009b4d; --accent-bright:#03c75a; --accent-soft:#e8f8ef; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  header { padding: 20px 28px; background: linear-gradient(135deg, var(--accent), var(--accent-bright)); color: #fff; }
+  header h1 { margin: 0; font-size: 22px; }
+  header p { margin: 6px 0 0; opacity: .95; }
+  main { padding: 20px 28px 40px; display: grid; gap: 16px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  button { padding: 10px 16px; border: 1px solid #008a44; border-radius: 12px; background: linear-gradient(180deg, #08c963, #009b4d); color: #fff; font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #007338; }
+  button.ghost { border-color: var(--line); background: #fff; color: var(--ink); box-shadow: 0 3px 0 #d3d9e2; }
+  button:active { transform: translateY(3px); box-shadow: 0 1px 0 #007338; }
+  .cards { display: flex; flex-wrap: wrap; gap: 10px; }
+  .card { padding: 12px 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; min-width: 180px; }
+  .card small { color: var(--muted); }
+  .card b { display: block; font-size: 16px; }
+  .wrap { overflow: auto; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  th { position: sticky; top: 0; background: var(--accent-soft); color: #14532d; }
+  td.feat { white-space: normal; min-width: 220px; }
+  a { color: var(--accent); }
+  .empty { padding: 30px; text-align: center; color: var(--muted); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>📄 최근 수집 결과</h1>
+    <p id="sub">이 PC에만 저장된 결과예요. 우리 서버로 보내지 않아요.</p>
+  </header>
+  <main>
+    <div class="cards" id="cards"></div>
+    <div class="bar">
+      <button id="xlsx">⬇ 엑셀(xlsx)로 받기</button>
+      <button class="ghost" id="csv">⬇ CSV로 받기</button>
+    </div>
+    <div class="wrap" id="wrap"></div>
+  </main>
+  <script type="module" src="result.js"></script>
+</body>
+</html>

@@ -19,20 +19,43 @@ const INSTALL = [
 export default async function DashboardPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const [{ data: targets }, { data: settings }, { data: telegram }] = await Promise.all([
+  const [{ data: targets }, { data: settings }, { data: telegram }, { data: device }] = await Promise.all([
     supabase.from("realty_alert_targets").select("enabled").eq("user_id", user.id),
     supabase.from("realty_alert_settings").select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end").eq("user_id", user.id).maybeSingle(),
     supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).eq("program_slug", "realty-listing-alert").maybeSingle(),
+    // 확장이 보고한 숫자 상태(마지막 수집·결과·건수)만 — 매물 내용은 서버에 없다.
+    supabase
+      .from("realty_alert_device_status")
+      .select("last_run_at, last_result, last_count, ext_version")
+      .eq("user_id", user.id)
+      .order("last_run_at", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
   const total = targets?.length ?? 0;
   const active = targets?.filter((t) => t.enabled).length ?? 0;
   const intervalLabel = COLLECT_INTERVAL_OPTIONS.find((o) => o.value === settings?.interval_minutes)?.label ?? "3시간";
   const hours = settings?.active_hour_start != null && settings?.active_hour_end != null ? ` · ${settings.active_hour_start}~${settings.active_hour_end}시` : " · 종일";
-  // 「내 설정」 카드 — 실제 저장값(2단계). 마지막 수집 시각은 3단계 확장 보고 뒤에 붙인다.
+  const kst = (iso: string) => new Date(iso).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
+  const RESULT: Record<string, string> = { ok: "✅ 정상", blocked: "⛔ 확인 화면 멈춤", rule_mismatch: "⚠ 규칙 확인", error: "⚠ 오류" };
+  const nextAt =
+    device?.last_run_at && settings?.schedule_enabled
+      ? kst(new Date(new Date(device.last_run_at).getTime() + (settings.interval_minutes ?? 180) * 60000).toISOString())
+      : null;
+  // 「내 설정」 카드 — 실제 저장값 + 확장 상태 보고(3단계).
   const cards = [
     { icon: "🎯", title: "감시 대상", value: `${total} / ${MAX_TARGETS}`, href: "/targets", note: total ? `${active}개 감시 중` : "단지를 추가하세요" },
     { icon: "⏰", title: "예약", value: settings?.schedule_enabled ? "켜짐" : "꺼짐", href: "/schedule", note: settings?.schedule_enabled ? `${intervalLabel}마다${hours}` : "간격·시간대를 정하고 켜 주세요" },
     { icon: "📨", title: "받는 방법", value: telegram ? "연결됨" : "미연결", href: "/delivery", note: telegram ? `@${telegram.bot_username ?? "봇"}` : "텔레그램을 연결하세요" },
+    {
+      icon: "🖥",
+      title: "내 PC 수집",
+      value: device?.last_run_at ? RESULT[device.last_result ?? ""] ?? "기록 있음" : "아직 없음",
+      href: "/guide",
+      note: device?.last_run_at
+        ? `마지막 ${kst(device.last_run_at)} · 매물 ${device.last_count ?? 0}건${nextAt ? ` · 다음 ${nextAt}쯤` : ""}`
+        : "확장 팝업에서 「🔍 지금 수집」을 눌러 보세요",
+    },
   ];
   return (
     <div className="studio-shell">
@@ -65,7 +88,7 @@ export default async function DashboardPage() {
 
         <section className="card">
           <h2 className="card-title">📋 내 설정</h2>
-          <ol className="guide-steps three">
+          <ol className="guide-steps four">
             {cards.map((card) => (
               <li key={card.title}>
                 <a href={card.href}>
