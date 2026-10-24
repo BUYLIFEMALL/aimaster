@@ -26,7 +26,7 @@
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Spectrum Studio PRO 3.0.0 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\Spectrum Studio PRO-Setup-3.0.0.exe`(Electron 유튜브 플레이리스트 비주얼라이저, 월간 인증 코드, 실행 안 함). **같은 원본 웹 버전을 2026-10-13 `yt-playlist-studio`로 만들었고 2026-10-20 `playlist-channel-studio`로 병합됨.**
-- 의견: 독립 개발 안 함 → `playlist-channel-studio` 「영상 만들기」에 병합. 새 후보 S1 곡 제목 자동 표시 · S2 인코딩 안정화(하드웨어 가속 시험·품질 프로파일, 공용 `browser-mp4-encoder`) · S3 장르 완성형 프리셋 · S4·S5 스펙트럼·파티클 확장 · S6 애니메이션 배경·트랜지션 · S7 성능 자동 모드. 결정 대기: 범위·순서, 구현 담당(음악 담당 제안), **2026-10-13 「번들 수식 100% 추출 이식」 기록의 권리 재확인 여부**. [보고서](analysis-spectrum-studio-pro-20261024/REPORT.md). 비용 없음.
+- 의견: 독립 개발 안 함 → `playlist-channel-studio` 「영상 만들기」에 병합. 새 후보 S1 곡 제목 자동 표시 · S2 인코딩 안정화(하드웨어 가속 시험·품질 프로파일, 공용 `browser-mp4-encoder`) · S3 장르 완성형 프리셋 · S4·S5 스펙트럼·파티클 확장 · S6 애니메이션 배경·트랜지션 · S7 성능 자동 모드. 코드(`src/data/presets.ts`) 대조로 남은 기능 확정(배경 전환은 「일부」가 아니라 없음으로 정정). **음악 담당 세션이 이어받음(주인님 지시)** — 플랜 초안 P-1 곡 제목 · P-2 인코딩 안정화 · P-3 배경 전환 · P-4 합성 배경 · P-5 설정 저장/프리셋 · P-6 효과 확장, **범위·순서·비용(AI 0·빌드 2회) 승인 전**. 다음 첫 단계: ACTIVE_WORK 등록 → 플랜 승인. 권리 재확인(2026-10-13 「번들 수식 100% 추출 이식」 기록)은 주인님 결정 대기. [인계](../playlist-channel-studio/docs/IMPROVEMENT_HANDOFF_20261024_SPECTRUM.md) · [플랜](../playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md) · [보고서](analysis-spectrum-studio-pro-20261024/REPORT.md). 비용 없음.
 
 ## 2026-10-24 Claude Code(윈도우) · 세션 `claude-win-video`(영상 담당) — 내 PC 렌더러 단계 A 완료: 실행기 1.20 `loop` + 무한 루프 영상 「⚡ 내 PC로 빠르게」
 
