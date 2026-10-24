@@ -50,10 +50,8 @@ export default async function DeliveryPage() {
             deliverTelegram: settings?.deliver_telegram ?? true,
             deliverFile: settings?.deliver_file ?? true,
             fileFormat: settings?.file_format === "csv" ? "csv" : "xlsx",
-            notifyKakao: settings?.notify_kakao ?? false,
-            notifyEmail: settings?.notify_email ?? false,
-            emailTo: settings?.email_to ?? "",
           }}
+          channel={{ notifyKakao: settings?.notify_kakao ?? false, notifyEmail: settings?.notify_email ?? false, emailTo: settings?.email_to ?? "" }}
           kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
         />

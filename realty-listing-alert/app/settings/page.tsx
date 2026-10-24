@@ -4,7 +4,9 @@ import ExtensionTokenManager from "./ExtensionTokenManager";
 import ExtensionConnectButton from "./ExtensionConnectButton";
 import ExtensionDownloadCard from "./ExtensionDownloadCard";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
-import { TelegramCard } from "@/app/delivery/DeliveryClient";
+import { ChannelCards, TelegramCard } from "@/app/delivery/DeliveryClient";
+import { createServiceClient } from "@/lib/supabase/service";
+import { KAKAO_CONNECT_URL, getKakaoState, getResendKey } from "@/lib/notifyChannels";
 import { REAL_ESTATE_SALES_SLUG } from "@/lib/delivery";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +20,12 @@ export default async function SettingsPage() {
     supabase.from("user_telegram_links").select("bot_username, linked_at").eq("user_id", user.id).eq("program_slug", PROGRAM_SLUG).maybeSingle(),
     supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).eq("program_slug", REAL_ESTATE_SALES_SLUG).maybeSingle(),
   ]);
+  const service = createServiceClient();
+  const [kakao, resendKey, { data: ch }] = await Promise.all([
+    getKakaoState(service, user.id, false),
+    getResendKey(service, user.id),
+    supabase.from("realty_alert_settings").select("notify_kakao, notify_email, email_to").eq("user_id", user.id).maybeSingle(),
+  ]);
   const { data: tokens } = await supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", PROGRAM_SLUG).is("revoked_at", null).order("created_at", { ascending: false });
 
   return (
@@ -26,13 +34,21 @@ export default async function SettingsPage() {
       <section className="settings-card">
         <div className="eyebrow">Settings</div>
         <h1>API키등록·플랫폼연동</h1>
-        <p className="lede">이 프로그램은 AI 키 없이 동작합니다. ① 텔레그램 봇 ② 크롬 확장, 두 가지만 연결하면 됩니다.</p>
+        <p className="lede">이 프로그램은 AI 키 없이 동작합니다. ① 알림 받을 곳(텔레그램·카카오톡·이메일 중 하나 이상) ② 크롬 확장, 두 가지만 연결하면 됩니다.</p>
         <div className="settings-divider" />
         <h2>📨 텔레그램 연동</h2>
         <p className="lede">새 매물 알림과 정리 파일을 받을 회원님 본인 텔레그램 봇입니다. 「받는 방법」 화면과 같은 연결이에요.</p>
         <TelegramCard
           telegram={link ? { botUsername: link.bot_username ?? null, linkedAt: link.linked_at ?? null } : null}
           realEstateBot={realEstateBot ? { botUsername: realEstateBot.bot_username ?? null } : null}
+        />
+        <div className="settings-divider" />
+        <h2>💬 카카오톡 · ✉️ 이메일(Resend) 연동</h2>
+        <p className="lede">카카오톡은 요약만, 이메일은 요약 + 엑셀 파일을 받아요. 「받는 방법」 화면과 같은 설정이에요.</p>
+        <ChannelCards
+          kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL }}
+          email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
+          initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "" }}
         />
         <div className="settings-divider" />
         <h2>Chrome 확장 연결</h2>
@@ -44,7 +60,7 @@ export default async function SettingsPage() {
           <ExtensionTokenManager initialTokens={tokens ?? []} />
         </details>
         <ExtensionDownloadCard />
-        <div className="guide-box"><strong>📖 연동 매뉴얼</strong><p>확장 설치·텔레그램 봇 만들기·감시 대상·예약 순서는 매뉴얼에 그림과 함께 정리돼 있습니다.</p><div className="guide-links"><a href="/guide">연동 & 사용 매뉴얼 열기</a><a href="https://core.telegram.org/bots/tutorial" target="_blank" rel="noreferrer">텔레그램 봇 공식 안내</a></div></div>
+        <div className="guide-box"><strong>📖 연동 매뉴얼</strong><p>확장 설치·텔레그램 봇 만들기·감시 대상·예약 순서는 매뉴얼에 그림과 함께 정리돼 있습니다.</p><div className="guide-links"><a href="/guide">연동 & 사용 매뉴얼 열기</a><a href="https://core.telegram.org/bots/tutorial" target="_blank" rel="noreferrer">텔레그램 봇 공식 안내</a><a href="https://resend.com/docs/dashboard/api-keys/introduction" target="_blank" rel="noreferrer">Resend API 키 공식 안내</a></div></div>
       </section>
     </main>
   );

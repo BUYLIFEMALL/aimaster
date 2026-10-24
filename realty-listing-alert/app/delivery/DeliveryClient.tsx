@@ -3,7 +3,7 @@
 import { useActionState, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
-import { saveDeliveryAction } from "@/lib/actions/settings";
+import { saveChannelAction, saveDeliveryAction } from "@/lib/actions/settings";
 import { deleteResendKeyAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction } from "@/lib/actions/notify";
 
 type Delivery = {
@@ -14,10 +14,8 @@ type Delivery = {
   deliverTelegram: boolean;
   deliverFile: boolean;
   fileFormat: "xlsx" | "csv";
-  notifyKakao: boolean;
-  notifyEmail: boolean;
-  emailTo: string;
 };
+export type ChannelInitial = { notifyKakao: boolean; notifyEmail: boolean; emailTo: string };
 export type KakaoInfo = { ok: true; nickname: string | null } | { ok: false; message: string; connectUrl: string };
 export type EmailInfo = { hasKey: boolean; loginEmail: string };
 export type Telegram = { botUsername: string | null; linkedAt: string | null } | null;
@@ -175,7 +173,12 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
 
 // ✉️ 이메일 받기 — 회원 본인 Resend 키(공용 user_api_keys resend_api_key), 확장이 회원 PC에서 요약 + 엑셀 첨부로 보낸다
 function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { email: EmailInfo; on: boolean; emailTo: string; onToggle: (v: boolean) => void; onEmailTo: (v: string) => void; disabled: boolean }) {
-  const [saveState, saveAction, saving] = useActionState(saveResendKeyAction, {});
+  const router = useRouter();
+  const [saveState, saveAction, saving] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
+    const r = await saveResendKeyAction(prev, fd);
+    if (r.success) router.refresh();
+    return r;
+  }, {});
   const [del, startDel] = useTransition();
   const test = useTest(sendTestEmailAction);
   const [to, setTo] = useState(emailTo);
@@ -214,7 +217,7 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
           </div>
           <div className="ra-row-actions">
             <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "✉️ 시험 메일 보내기"}</button>
-            <button type="button" className="secondary" disabled={del} onClick={() => startDel(async () => { await deleteResendKeyAction(); })}>키 지우기</button>
+            <button type="button" className="secondary" disabled={del} onClick={() => startDel(async () => { await deleteResendKeyAction(); router.refresh(); })}>키 지우기</button>
           </div>
         </>
       )}
@@ -224,7 +227,36 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
   );
 }
 
-export default function DeliveryClient({ telegram, realEstateBot, initial, kakao, email }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery; kakao: KakaoInfo; email: EmailInfo }) {
+// 💬 카톡 + ✉️ 이메일 카드 묶음 — 「받는 방법」·「API키등록·플랫폼연동」 두 화면이 같이 쓴다(같은 저장값)
+export function ChannelCards({ kakao, email, initial }: { kakao: KakaoInfo; email: EmailInfo; initial: ChannelInitial }) {
+  const router = useRouter();
+  const [value, setValue] = useState<ChannelInitial>(initial);
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState<Msg>(null);
+  function save(next: Partial<ChannelInitial>) {
+    const before = value;
+    setValue({ ...value, ...next });
+    start(async () => {
+      const r = await saveChannelAction(next);
+      if (r.error) {
+        setValue(before);
+        setMsg({ kind: "err", text: r.error });
+      } else {
+        setMsg({ kind: "ok", text: "저장됐어요." });
+        router.refresh();
+      }
+    });
+  }
+  return (
+    <>
+      <KakaoCard kakao={kakao} on={value.notifyKakao} disabled={pending} onToggle={(v) => save({ notifyKakao: v })} />
+      <EmailCard email={email} on={value.notifyEmail} emailTo={value.emailTo} disabled={pending} onToggle={(v) => save({ notifyEmail: v })} onEmailTo={(v) => save({ emailTo: v })} />
+      <Message msg={msg} />
+    </>
+  );
+}
+
+export default function DeliveryClient({ telegram, realEstateBot, initial, kakao, email, channel }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery; kakao: KakaoInfo; email: EmailInfo; channel: ChannelInitial }) {
   const [value, setValue] = useState<Delivery>(initial);
   // 빠르게 여러 칸을 연달아 바꿔도 앞의 변경을 잃지 않도록 마지막 값을 ref로 들고 간다(2026-10-25 시험에서 발견).
   const latest = useRef<Delivery>(initial);
@@ -254,8 +286,7 @@ export default function DeliveryClient({ telegram, realEstateBot, initial, kakao
   return (
     <>
       <TelegramCard telegram={telegram} realEstateBot={realEstateBot} />
-      <KakaoCard kakao={kakao} on={value.notifyKakao} disabled={pending} onToggle={(v) => update({ notifyKakao: v })} />
-      <EmailCard email={email} on={value.notifyEmail} emailTo={value.emailTo} disabled={pending} onToggle={(v) => update({ notifyEmail: v })} onEmailTo={(v) => update({ emailTo: v })} />
+      <ChannelCards kakao={kakao} email={email} initial={channel} />
       <section className="card">
         <h2 className="card-title">🔔 어떤 때 알려 드릴까요?</h2>
         <div className="ra-chips">
