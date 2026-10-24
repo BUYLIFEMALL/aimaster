@@ -22,6 +22,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-workspace` | 2026-10-24 21:20 | 시험 계정 유료 시험(Gemini AI 비서·U6-A 회의록 요약) |
 | `shop-detail-page/` (+ 공용 `browser-free-erase` 사본 등록 `scripts/check-shared-modules.mjs`) | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-24 | 문구 고치기 편집기에 무료 지우기(글자 모두 지우기·주변에 맞춰 지우기) — 주인님 승인 「1번으로 진행」(빌드 1회), v1.31 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` | 2026-10-24 | ③-1 SEO 예약 포스팅 ✅ v2.19(실제 네이버 예약은 주인님 시험 대기) → **다음: 에이전트 ② 간편 모드 실제 입력 시험(크롬 시험 계정 로그인 확인됨)** → ③-2 콘텐츠 메이커 포스팅 → ④ 묶음 E. 미배포 `89d135c4b` |
