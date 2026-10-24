@@ -33,7 +33,8 @@ export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "a
 export interface Backdrop { mode: "theme" | "global" | "scene"; global?: Bg; dim: number; style: string; character: string; provider?: "pexels" | "pixabay"; media?: "image" | "video"; hints?: { query: string; prompt: string }[] }
 /** 장면 내레이션 음성(P5): 저장소 경로·재생 길이(초)·만들 때의 내레이션(바뀌면 다시 만들어야 함) */
 /** words(v1.27): 대본 낱말(공백 기준)마다 음성 속 시작 시각(초) — 있으면 자막을 말하는 순간에 맞춘다 */
-export interface Voice { path: string; dur: number; text: string; words?: number[] }
+/** free(v1.42): 무료 음성(브라우저 Supertone)으로 만든 음성 — 유튜브 설명란에 합성음 표기를 넣는다 */
+export interface Voice { path: string; dur: number; text: string; words?: number[]; free?: boolean }
 export interface Scene { title: string; desc: string; narration: string; tag?: string; bg?: Bg; voice?: Voice }
 export interface ShortsScript {
   topic: string;
@@ -155,3 +156,7 @@ export function sceneVoices(s: ShortsScript): { text: string; voice?: Voice }[] 
   const all = [{ text: s.intro.narration, voice: s.intro.voice }, ...s.cards.map((c) => ({ text: c.narration, voice: c.voice })), { text: s.outro.narration, voice: s.outro.voice }];
   return all.map((x) => ({ text: x.text, voice: x.voice && x.voice.text === x.text && x.voice.dur > 0 ? x.voice : undefined }));
 }
+
+// v1.42 무료 음성(Supertone, OpenRAIL-M) 사용 조건: 공개할 때 합성음임을 밝힌다 — 유튜브 설명란에 자동으로 넣는 한 줄
+export const FREE_VOICE_NOTE = "🔊 이 영상은 AI 합성 음성(Supertone)을 사용했습니다.";
+export const usesFreeVoice = (s: ShortsScript) => sceneVoices(s).some((v) => v.voice?.free);

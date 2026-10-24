@@ -1,7 +1,7 @@
 // v1.21 브라우저 → 유튜브 업로드(렌더 화면 ⑥·발행 계획 일괄 제작 공용). 서버는 업로드 주소만 만들고(/api/youtube/upload-session),
 // 영상은 이 브라우저가 유튜브로 바로 보낸다. 유튜브 API 한도: 회원 Google 앱 하루 10,000단위, 업로드 1회 1,600단위 → 하루 약 6편.
 import { api } from "@/components/ui/api";
-import type { ShortsScript, YoutubeUpload } from "@/lib/script";
+import { FREE_VOICE_NOTE, usesFreeVoice, type ShortsScript, type YoutubeUpload } from "@/lib/script";
 
 export const DAILY_UPLOAD_LIMIT = 6;
 const MIN_LEAD_MS = 15 * 60_000;
@@ -11,7 +11,7 @@ export function uploadDefaults(s: ShortsScript) {
   const tags = [...new Set([...(s.seo?.hashtags ?? []), "#Shorts"])];
   return {
     title: (s.seo?.titles?.[0] ?? s.intro.title).slice(0, 100),
-    description: [s.seo?.description ?? "", tags.join(" ")].filter(Boolean).join("\n\n").slice(0, 5000),
+    description: [s.seo?.description ?? "", usesFreeVoice(s) ? FREE_VOICE_NOTE : "", tags.join(" ")].filter(Boolean).join("\n\n").slice(0, 5000),
     tags: (s.seo?.tags ?? []).join(", "),
   };
 }

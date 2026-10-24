@@ -7,8 +7,12 @@ import { api, timeAgo, toMsg, type Item, type Msg } from "@/components/ui/api";
 import { useMedia } from "@/components/ui/useMedia";
 import { useAudio } from "@/components/ui/useAudio";
 import { createClient } from "@/lib/supabase/client";
+import { sceneVoice } from "@/lib/freeVoice";
+import { FreeTtsError, loadFreeTts } from "@/lib/freeTts/engine";
+import { FREE_TTS_LICENSE_URL } from "@/lib/freeTts/protocol";
+import { freeTtsAgreed, loadVoicePref, samePref, saveVoicePref, setFreeTtsAgreed, withVoicePref, type VoicePref } from "@/lib/voicePref";
 import { sceneVoices, type ShortsScript, type Voice } from "@/lib/script";
-import { CAPTION_STYLES, TTS_MODELS, TTS_VOICES, normalizeAudio, type AudioSettings } from "@/lib/voice";
+import { CAPTION_STYLES, DEFAULT_TTS, TTS_MODELS, TTS_VOICES, normalizeAudio, speedRange, type AudioSettings } from "@/lib/voice";
 import { FONT_CSS, H, W, loadFontsFor, normalizeDesign, renderFrame, timeline } from "@/lib/render/scene";
 import { exportMp4, type ExportProgress } from "@/lib/render/export";
 import { measureAudio as measure } from "@/lib/pipeline";
@@ -53,6 +57,9 @@ export function RenderView() {
   const tl = useMemo(() => (script ? timeline(script) : null), [script]);
   // v1.26 ElevenLabs 목소리(회원 계정 목록, 복제한 내 목소리가 앞) + 내 목소리 복제
   const [elVoices, setElVoices] = useState<{ id: string; name: string; mine: boolean }[] | null>(null);
+  // v1.42 무료 음성: 사용 조건 확인(처음 한 번), 「다음 영상부터 이 음성으로 시작」 기억, 실패하면 유료 음성으로 바꾸기 단추
+  const [agreed, setAgreed] = useState(false), [pref, setPref] = useState<VoicePref | null>(null), [freeFail, setFreeFail] = useState(false);
+  useEffect(() => { setAgreed(freeTtsAgreed()); setPref(loadVoicePref()); }, []);
   const [clone, setClone] = useState<{ name: string; file: File | null; consent: boolean }>({ name: "내 목소리", file: null, consent: false });
   const loadElVoices = useCallback(async () => {
     try { setElVoices((await api<{ voices: { id: string; name: string; mine: boolean }[] }>("/api/voice/elevenlabs")).voices); }
@@ -64,7 +71,7 @@ export function RenderView() {
     try {
       const { item } = await api<{ item: Item<ShortsScript> }>(`/api/items?id=${id}`);
       setFile((f) => { if (f) URL.revokeObjectURL(f.url); return null; });
-      setItem(item); setScript(item.data); setDirty(false); setPlaying(false); tRef.current = 0.9; setT(0.9);
+      setItem(item); setScript(withVoicePref(item.data)); setDirty(false); setPlaying(false); tRef.current = 0.9; setT(0.9);
       window.history.replaceState(null, "", `/render?id=${id}`);
     } catch (e) { setMsg(toMsg(e)); }
   }, []);
@@ -118,23 +125,35 @@ export function RenderView() {
 
   async function makeVoice(i: number, s: ShortsScript): Promise<ShortsScript> {
     const text = sceneVoices(s)[i].text;
-    const r = await api<{ path: string; src: string; words?: number[] | null }>("/api/ai/tts", { body: { text, settings: normalizeAudio(s.audio) } });
+    const r = await sceneVoice(text, normalizeAudio(s.audio)); // v1.42 무료 음성이면 브라우저에서
     const dur = await measure(r.src);
-    return setVoice(s, i, { path: r.path, dur, text, ...(r.words?.length ? { words: r.words } : {}) }); // v1.27 낱말 시각 → 말하는 순간에 자막
+    return setVoice(s, i, { path: r.path, dur, text, ...(r.words?.length ? { words: r.words } : {}), ...(r.free ? { free: true } : {}) }); // v1.27 낱말 시각 → 말하는 순간에 자막
   }
+  /** 무료 음성이면 사용 조건 확인 후 모델을 준비한다(처음 약 400MB, 두 번째부터 브라우저 저장분) */
+  async function prepareFree(): Promise<boolean> {
+    if (a.provider !== "browser") return true;
+    if (!agreed) { setMsg({ text: "무료 음성 사용 조건을 먼저 확인해 주세요(음성 설정 아래 체크)." }); return false; }
+    await loadFreeTts((p) => setBusy(`무료 음성 모델을 준비하는 중… ${Math.round(p.mb)}MB / 약 400MB (처음 한 번만, 와이파이 권장)`));
+    return true;
+  }
+  const voiceMsg = (e: unknown): Msg => { if (e instanceof FreeTtsError) { setFreeFail(true); return { text: e.message }; } return toMsg(e); };
   async function makeAll(onlyMissing: boolean) {
     if (!script) return;
     let next = script; const vs = sceneVoices(next); const idx = vs.map((v, i) => i).filter((i) => !onlyMissing || !vs[i].voice || audio.gone.has(vs[i].voice!.path)); // v1.24: 30일 정리로 지워진 음성도 다시 만든다
     if (!idx.length) { setMsg({ text: "모든 장면에 지금 내레이션과 같은 음성이 있습니다.", ok: true }); return; }
-    setMsg(null); setPlaying(false);
+    setMsg(null); setPlaying(false); setFreeFail(false);
     try {
+      if (!(await prepareFree())) return;
       for (let k = 0; k < idx.length; k++) { setBusy(`음성을 만드는 중… (${k + 1}/${idx.length})`); next = await makeVoice(idx[k], next); setScript(next); setDirty(true); }
       setMsg({ text: `음성 ${idx.length}개를 만들었습니다. 장면 길이가 실제 목소리 길이에 맞춰졌어요. [저장]을 눌러 주세요.`, ok: true });
-    } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
+    } catch (e) { setMsg(voiceMsg(e)); } finally { setBusy(""); }
   }
   async function remake(i: number) {
-    if (!script) return; setBusy(`${label(script, i)} 음성을 만드는 중…`); setMsg(null);
-    try { setScript(await makeVoice(i, script)); setDirty(true); } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
+    if (!script) return; setMsg(null); setFreeFail(false);
+    try {
+      if (!(await prepareFree())) return;
+      setBusy(`${label(script, i)} 음성을 만드는 중…`); setScript(await makeVoice(i, script)); setDirty(true);
+    } catch (e) { setMsg(voiceMsg(e)); } finally { setBusy(""); }
   }
   function playOne(v?: Voice) {
     if (!v) return; const src = audio.urls[v.path];
@@ -257,8 +276,22 @@ export function RenderView() {
                   {a.provider === "elevenlabs"
                     ? <label>목소리(내 ElevenLabs 계정)<select value={a.voice} onChange={(e) => setA({ voice: e.target.value })}><option value="">{elVoices === null ? "불러오는 중…" : elVoices.length ? "목소리를 골라 주세요" : "목소리 없음 — 아래에서 복제하세요"}</option>{(elVoices ?? []).map((v) => <option key={v.id} value={v.id}>{v.mine ? "🎙️ " : ""}{v.name}</option>)}</select></label>
                     : <label>목소리<select value={a.voice} onChange={(e) => setA({ voice: e.target.value })}>{TTS_VOICES[a.provider].map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>}
-                  <label>말 빠르기 ({a.speed.toFixed(2)}배){a.provider === "openai" ? <input type="range" min={0.8} max={1.4} step={0.05} value={a.speed} onChange={(e) => setA({ speed: Number(e.target.value) })} /> : a.provider === "elevenlabs" ? <input type="range" min={0.7} max={1.2} step={0.05} value={a.speed} onChange={(e) => setA({ speed: Number(e.target.value) })} /> : <small className="muted" style={{ display: "block", marginTop: 8 }}>Gemini는 말투 지시로 조절</small>}</label>
+                  <label>말 빠르기 ({a.speed.toFixed(2)}배){a.provider === "openai" ? <input type="range" min={0.8} max={1.4} step={0.05} value={a.speed} onChange={(e) => setA({ speed: Number(e.target.value) })} /> : a.provider === "elevenlabs" || a.provider === "browser" ? <input type="range" min={speedRange(a.provider).min} max={speedRange(a.provider).max} step={0.05} value={a.speed} onChange={(e) => setA({ speed: Number(e.target.value) })} /> : <small className="muted" style={{ display: "block", marginTop: 8 }}>Gemini는 말투 지시로 조절</small>}</label>
                 </div>
+                {a.provider === "browser" && (
+                  <div className="notice" style={{ display: "grid", gap: 8 }}>
+                    <strong>🆓 무료 음성(내 브라우저)</strong>
+                    <small className="muted">API 키 없이 이 브라우저가 직접 목소리를 만듭니다. 처음 한 번 음성 모델(약 400MB)을 내려받으니 와이파이에서 시작해 주세요. 두 번째부터는 브라우저에 저장된 모델로 바로 시작하고, 자막 시각도 추가 요금 없이 맞춥니다. 휴대폰·오래된 PC에서는 느릴 수 있어요.</small>
+                    {agreed
+                      ? <small className="muted">✅ 사용 조건 확인됨 · 영상을 공개할 때 AI 합성 음성임을 밝혀 주세요(유튜브 업로드 때 설명란에 자동으로 한 줄 넣어 드립니다) · <a href={FREE_TTS_LICENSE_URL} target="_blank" rel="noreferrer">라이선스 원문</a></small>
+                      : <>
+                        <small>사용 조건(Supertone OpenRAIL-M, 상업 이용 가능): 실존 인물 흉내·사칭, 허락 없는 딥페이크, 남을 속이거나 해치는 용도로 쓰지 않습니다. 영상을 공개할 때는 AI 합성 음성임을 밝힙니다. <a href={FREE_TTS_LICENSE_URL} target="_blank" rel="noreferrer">라이선스 원문</a></small>
+                        <label className="row" style={{ gap: 8, fontWeight: 500 }}><input type="checkbox" checked={agreed} onChange={(e) => { if (e.target.checked) { setFreeTtsAgreed(); setAgreed(true); } }} />위 사용 조건을 확인했고 지키겠습니다</label>
+                      </>}
+                  </div>
+                )}
+                {freeFail && a.provider === "browser" && <div className="actions"><button type="button" onClick={() => { setA({ ...DEFAULT_TTS, speed: 1.05 }); setFreeFail(false); setMsg({ text: "유료 음성(OpenAI)으로 바꿨습니다. 본인 OpenAI 키로 다시 만들어 주세요.", ok: true }); }}>유료 음성으로 바꾸기</button></div>}
+                <label className="row" style={{ gap: 8, fontWeight: 500 }}><input type="checkbox" checked={samePref(pref, a)} onChange={(e) => { const p = e.target.checked ? { provider: a.provider, model: a.model, voice: a.voice, speed: a.speed, tone: a.tone } : null; saveVoicePref(p); setPref(p); }} />다음 영상부터 이 음성으로 시작<small className="muted">(이 브라우저에 기억)</small></label>
                 {a.provider === "elevenlabs" && (
                   <div className="notice" style={{ display: "grid", gap: 8 }}>
                     <strong>🎙️ 내 목소리 복제하기 (ElevenLabs)</strong>
@@ -271,13 +304,13 @@ export function RenderView() {
                     <div className="actions"><button disabled={!!busy || !clone.file || !clone.consent} onClick={() => void cloneVoice()}><Mic size={14} />내 목소리 복제하기</button><button type="button" disabled={!!busy} onClick={() => void loadElVoices()}><RotateCcw size={14} />목소리 목록 새로 불러오기</button></div>
                   </div>
                 )}
-                {a.model !== "tts-1" && a.provider !== "elevenlabs" && <label>말투 지시(선택)<input value={a.tone} maxLength={200} onChange={(e) => setA({ tone: e.target.value })} placeholder="예: 차분하고 신뢰감 있게, 끝을 또렷하게" /></label>}
+                {a.model !== "tts-1" && a.provider !== "elevenlabs" && a.provider !== "browser" && <label>말투 지시(선택)<input value={a.tone} maxLength={200} onChange={(e) => setA({ tone: e.target.value })} placeholder="예: 차분하고 신뢰감 있게, 끝을 또렷하게" /></label>}
                 <div className="actions">
                   <button className="primary" disabled={!!busy} onClick={() => void makeAll(true)}><Mic size={14} />음성 없는 장면 모두 만들기</button>
                   <button disabled={!!busy} onClick={() => void makeAll(false)}><RotateCcw size={14} />전부 다시 만들기</button>
                   <Busy on={!!busy && !busy.startsWith("업로드")} label={busy} />
                 </div>
-                <small className="muted">장면마다 짧은 요청 1회씩(본인 키 요금, 가벼운 모델 기준 소액). 내레이션을 고치면 그 장면은 「다시 만들기」가 필요해요.</small>
+                <small className="muted">{a.provider === "browser" ? "무료 음성은 요금이 없습니다(이 브라우저가 계산)." : "장면마다 짧은 요청 1회씩(본인 키 요금, 가벼운 모델 기준 소액)."} 내레이션을 고치면 그 장면은 「다시 만들기」가 필요해요.</small>
                 <div className="list">{vs.map((v, i) => (
                   <div key={i} className="list-item">
                     <div style={{ minWidth: 0 }}><strong>{label(script, i)}</strong><small style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.text}</small></div>

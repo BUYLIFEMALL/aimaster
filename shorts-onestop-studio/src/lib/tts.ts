@@ -77,6 +77,14 @@ export async function bgmUploadUrl(userId: string, fileName: string): Promise<{ 
   return { path, token: data.token };
 }
 
+/** v1.42 무료 음성(브라우저에서 만든 WAV) 업로드용 일회용 주소 — 본인 폴더 <user_id>/voice/(30일 자동 정리 대상) */
+export async function voiceUploadUrl(userId: string): Promise<{ path: string; token: string }> {
+  const path = `${userId}/voice/${randomUUID()}.wav`;
+  const { data, error } = await createAdminClient().storage.from(BUCKET).createSignedUploadUrl(path);
+  if (error || !data) throw new UserError(500, "업로드 주소를 만들지 못했습니다.");
+  return { path, token: data.token };
+}
+
 /** v1.27 OpenAI·Gemini 음성의 낱말 시각: 회원 본인 OpenAI 키로 Whisper(whisper-1, 낱말 시각) 받아쓰기 → 대본 낱말에 맞춤.
  *  1분에 약 $0.006. 실패하면 null(자막은 기존 글자 수 비율 방식) — 음성 만들기 자체는 실패시키지 않는다 */
 export async function wordStarts(key: string, audio: { bytes: Buffer; mime: string }, text: string): Promise<number[] | null> {

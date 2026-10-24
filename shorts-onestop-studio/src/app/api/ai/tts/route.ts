@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     const text = String(g.body.text ?? "").trim();
     if (text.length < 2) throw new UserError(400, "읽을 내레이션이 없습니다.");
     const a = normalizeAudio(g.body.settings as never);
+    if (a.provider === "browser") throw new UserError(400, "무료 음성은 서버가 아니라 회원님 브라우저에서 만듭니다. 화면을 새로고침한 뒤 다시 시도해 주세요.");
     const key = (await getUserApiKeys(g.userId, [a.provider]))[a.provider];
     if (!key) throw new UserError(400, `${a.provider === "openai" ? "OpenAI" : a.provider === "elevenlabs" ? "ElevenLabs" : "Gemini"} API 키가 없습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 음성 모델을 골라 주세요.`, { needKey: true });
     const audio = await synthesize({ provider: a.provider, key, model: a.model, voice: a.voice, text, speed: a.speed, tone: a.tone });

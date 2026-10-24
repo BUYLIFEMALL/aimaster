@@ -1,5 +1,5 @@
 // 음성(TTS)·자막·배경음악 선택지(서버·화면 공용). 모델 ID: OpenAI 안정 모델, Gemini는 Preview라 기본값으로 쓰지 않는다(AI_MODEL_INTEGRATION_STANDARD).
-export type TtsProvider = "openai" | "gemini" | "elevenlabs";
+export type TtsProvider = "openai" | "gemini" | "elevenlabs" | "browser";
 export const TTS_MODELS: { provider: TtsProvider; id: string; name: string }[] = [
   { provider: "openai", id: "gpt-4o-mini-tts", name: "OpenAI GPT-4o mini TTS · 말투 지시 가능 (기본)" },
   { provider: "openai", id: "tts-1", name: "OpenAI TTS-1 · 빠른 기본형" },
@@ -7,6 +7,8 @@ export const TTS_MODELS: { provider: TtsProvider; id: string; name: string }[] =
   // v1.26 본인 목소리 복제: 목소리는 회원 ElevenLabs 계정에서 불러온다(/api/voice/elevenlabs). 한국어 지원 다국어 모델
   { provider: "elevenlabs", id: "eleven_multilingual_v2", name: "ElevenLabs 다국어 v2 · 내 목소리(복제) 사용 가능" },
   { provider: "elevenlabs", id: "eleven_flash_v2_5", name: "ElevenLabs Flash v2.5 · 빠르고 저렴" },
+  // v1.42 무료 음성: 회원 브라우저에서 Supertone supertonic-3(OpenRAIL-M)로 만든다 — API 키·운영자 비용 없음
+  { provider: "browser", id: "supertonic-3", name: "무료 음성(내 브라우저) · Supertone · 키 필요 없음" },
 ];
 export const TTS_VOICES: Record<TtsProvider, { id: string; name: string }[]> = {
   openai: [
@@ -15,6 +17,8 @@ export const TTS_VOICES: Record<TtsProvider, { id: string; name: string }[]> = {
   ],
   gemini: [{ id: "Kore", name: "Kore · 단정한" }, { id: "Aoede", name: "Aoede · 밝은" }, { id: "Puck", name: "Puck · 경쾌한" }, { id: "Charon", name: "Charon · 차분한" }],
   elevenlabs: [], // 회원 계정 목록을 화면에서 불러옴(복제한 내 목소리 포함)
+  // 무료 음성 목소리(모델 제공 F1~F5·M1~M5) — 시험에서 바로 읽히도록 공용 엔진(freeTts/protocol)을 불러오지 않고 여기 적는다
+  browser: [..."FM"].flatMap((g) => [1, 2, 3, 4, 5].map((n) => ({ id: `${g}${n}`, name: `${g === "F" ? "여성" : "남성"} ${n}` }))),
 };
 /** ElevenLabs voice_id 모양(영문·숫자 20자 안팎) */
 export const isElevenVoiceId = (v: unknown): v is string => typeof v === "string" && /^[A-Za-z0-9]{10,40}$/.test(v);
@@ -30,6 +34,10 @@ export interface AudioSettings {
 }
 export const DEFAULT_AUDIO: AudioSettings = { ...DEFAULT_TTS, speed: 1.05, tone: "밝고 친근한 한국어 쇼츠 내레이션. 또렷하고 리듬감 있게.", captions: { on: true, style: "band", y: 380, size: 1, voiceOnly: true } };
 
+// 말 빠르기 허용 범위(ElevenLabs 0.7~1.2, 무료 음성 0.9~1.5)
+const SPEED: Record<TtsProvider, { min: number; max: number }> = { openai: { min: 0.8, max: 1.5 }, gemini: { min: 0.8, max: 1.5 }, elevenlabs: { min: 0.7, max: 1.2 }, browser: { min: 0.9, max: 1.5 } };
+export const speedRange = (p: TtsProvider) => SPEED[p];
+
 export function normalizeAudio(a: Partial<AudioSettings> | undefined): AudioSettings {
   const model = TTS_MODELS.find((m) => m.id === a?.model) ?? TTS_MODELS[0];
   const voices = TTS_VOICES[model.provider];
@@ -38,7 +46,7 @@ export function normalizeAudio(a: Partial<AudioSettings> | undefined): AudioSett
     provider: model.provider, model: model.id,
     voice: model.provider === "elevenlabs" ? (isElevenVoiceId(a?.voice) ? a!.voice! : "") : voices.some((v) => v.id === a?.voice) ? a!.voice! : voices[0].id,
     // ElevenLabs 말 빠르기 허용 범위는 0.7~1.2
-    speed: typeof a?.speed === "number" ? Math.min(model.provider === "elevenlabs" ? 1.2 : 1.5, Math.max(model.provider === "elevenlabs" ? 0.7 : 0.8, a.speed)) : model.provider === "elevenlabs" ? 1 : DEFAULT_AUDIO.speed,
+    speed: typeof a?.speed === "number" ? Math.min(SPEED[model.provider].max, Math.max(SPEED[model.provider].min, a.speed)) : model.provider === "elevenlabs" ? 1 : DEFAULT_AUDIO.speed,
     tone: typeof a?.tone === "string" ? a.tone.slice(0, 200) : DEFAULT_AUDIO.tone,
     captions: { on: c.on !== false, style: c.style && c.style in CAPTION_STYLES ? c.style : "band", y: typeof c.y === "number" ? Math.min(1500, Math.max(160, c.y)) : 380, size: typeof c.size === "number" ? Math.min(1.6, Math.max(0.7, c.size)) : 1, voiceOnly: c.voiceOnly !== false },
     bgm: a?.bgm?.path ? { path: a.bgm.path, name: String(a.bgm.name ?? "배경음악").slice(0, 80), volume: typeof a.bgm.volume === "number" ? Math.min(1, Math.max(0, a.bgm.volume)) : 0.35 } : undefined,

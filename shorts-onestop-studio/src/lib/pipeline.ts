@@ -3,6 +3,9 @@ import { api } from "@/components/ui/api";
 import { allBgs } from "@/components/ui/useMedia";
 import { normalizeBackdrop, sceneVoices, type Bg, type ShortsScript, type Voice } from "@/lib/script";
 import { normalizeAudio } from "@/lib/voice";
+import { sceneVoice } from "@/lib/freeVoice";
+import { FreeTtsError } from "@/lib/freeTts/engine";
+import { freeTtsAgreed, withVoicePref } from "@/lib/voicePref";
 
 // 화면 없이(훅 없이) 쓰는 제작 단계 — 발행 계획의 일괄 제작에서 대본 다음 단계(배경·음성·MP4)를 순서대로 처리한다.
 // 각 단계는 화면에서 하는 것과 같은 서버 API를 같은 순서로 부른다(DesignView 모두 채우기·RenderView 음성 만들기와 같은 규칙).
@@ -73,12 +76,15 @@ export async function fillBackgrounds(s: ShortsScript): Promise<ShortsScript> {
 
 /** 음성: 음성이 없거나 내레이션이 바뀐 장면만 본인 키 TTS로 만든다(장면마다 1회) */
 export async function makeVoices(s: ShortsScript, onScene?: (k: number, total: number) => void): Promise<ShortsScript> {
-  let next = s; const vs = sceneVoices(s); const todo = vs.map((v, i) => (v.voice || !v.text.trim() ? -1 : i)).filter((i) => i >= 0);
+  // v1.42 새 대본은 기억해 둔 음성으로 시작, 무료 음성은 사용 조건을 렌더 화면에서 먼저 확인해야 한다
+  let next = withVoicePref(s);
+  if (normalizeAudio(next.audio).provider === "browser" && !freeTtsAgreed()) throw new FreeTtsError("무료 음성은 「렌더·음성」 화면에서 사용 조건을 한 번 확인한 뒤 쓸 수 있습니다.", "not-agreed");
+  const vs = sceneVoices(next); const todo = vs.map((v, i) => (v.voice || !v.text.trim() ? -1 : i)).filter((i) => i >= 0);
   for (let k = 0; k < todo.length; k++) {
     onScene?.(k + 1, todo.length);
     const text = vs[todo[k]].text;
-    const r = await api<{ path: string; src: string; words?: number[] | null }>("/api/ai/tts", { body: { text, settings: normalizeAudio(next.audio) } });
-    next = withVoice(next, todo[k], { path: r.path, dur: await measureAudio(r.src), text, ...(r.words?.length ? { words: r.words } : {}) });
+    const r = await sceneVoice(text, normalizeAudio(next.audio));
+    next = withVoice(next, todo[k], { path: r.path, dur: await measureAudio(r.src), text, ...(r.words?.length ? { words: r.words } : {}), ...(r.free ? { free: true } : {}) });
   }
   return next;
 }

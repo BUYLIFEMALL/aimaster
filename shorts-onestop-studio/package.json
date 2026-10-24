@@ -6,7 +6,9 @@
     "dev": "next dev -p 3066",
     "build": "next build",
     "start": "next start",
-    "test": "node --test tests/video.test.ts tests/reference.test.ts tests/refBlocks.test.ts"
+    "test": "node --test tests/video.test.ts tests/reference.test.ts tests/refBlocks.test.ts tests/freeTts.test.ts",
+    "predev": "node scripts/copy-ort.mjs",
+    "prebuild": "node scripts/copy-ort.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -14,6 +16,7 @@
     "lucide-react": "1.48.0",
     "mp4-muxer": "^5.2.2",
     "next": "16.4.1",
+    "onnxruntime-web": "1.20.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "0.0.1"
