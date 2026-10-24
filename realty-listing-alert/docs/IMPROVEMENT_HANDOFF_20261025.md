@@ -45,3 +45,27 @@
 
 ## 다음 첫 단계
 3단계(확장 수집 엔진) 플랜을 주인님께 보여 드리고 승인받기 — `docs/IMPROVEMENT_BACKLOG.md` 3단계.
+
+
+---
+
+# 인수인계 — 3단계 완료 v1.03 (2026-10-25, [역할: realty] `claude-win-20261024-realty`)
+
+## 완료
+- 확장 수집 엔진 `extension/lib/`: `collector.js`(배경 새 탭 → 디버거 → `Page.navigate` → 목록 응답 읽기·스크롤 → 탭 닫기, 401/403/429·확인 화면·로그인 화면이면 멈춤) · `listing.js`(정리·조건, 가격 글자→만 원) · `compare.js`(첫 수집 기준만, 신규·가격 내림/오름·사라짐, 끝까지 못 읽으면 사라짐 보류) · `guard.js`(멈춤·예약 판정) · `sheet.js`(xlsx 직접 생성·CSV) · `telegram.js`(요약·파일) · `privacy.js`. `background.js`는 ES 모듈, 1분 알람으로 예약 판정, 밀린 회차 1번.
+- 팝업(상태 4칸·지금 수집 진행 막대·이 단지 감시 추가·최근 결과·동의·새 버전 안내), `result.html`(표·xlsx/CSV 받기).
+- 웹: `/api/extension/settings`(본인 설정·본인 봇 토큰) · `collect-rules`(`lib/collectRules.ts`) · `status`(숫자만, 다른 칸 거절) · `targets`(단지 번호·이름만). 대시보드 「🖥 내 PC 수집」, 설정 화면 텔레그램 카드(받는 방법과 같은 부품), 직접 토큰 발급 제거(팝업에 붙여 넣는 칸이 없음), 다운로드 메뉴만 3D.
+
+## 검수 증거
+- 시험 18개(`npm test`) · tsc · eslint · 로컬 build · 엑셀 파일을 openpyxl로 열어 칸·값·첫 줄 고정 확인
+- 운영: 버전 API v1.03, 새 API 무토큰 401, ZIP 28KB, `check-extension-release` OK(DB/ext/zip v1.03)
+- **첫 실물 수집**(관리자 계정, 백송건영 1단지, 주인님 「지금 수집」): 대시보드 「✅ 정상 · 매물 13건 · 다음 04:24쯤」. 기존 부동산 봇 가져오기 → 「✅ 연결됨 @buylife_real_estate_bot」
+
+## 못 한 것·주의
+- 텔레그램 요약·엑셀 파일 도착은 주인님 확인 필요(텔레그램은 볼 수 없음). 확장 결과 화면은 도구가 확장 주소를 열 수 없어 직접 확인 못 함
+- 월세 칸 `rentPrc`·`B2`, 20건 넘는 단지 2페이지, 예약 연속 동작, 차단 화면 실물은 아직
+- 관리자 계정·시험 계정은 감시 대상이 따로다(시험 계정에는 백송건영 1개)
+- 릴리스 커밋에서 지운 ZIP을 올리려고 `git add -A -- <경로>`를 썼다(지침 위반, 결과는 지정 파일만) — 다음부터 `git rm --cached -- <경로>`
+
+## 다음 첫 단계
+지역(구→동 버튼) 고르기·카톡 「나에게 보내기」 플랜 승인 — `docs/PLAN_20261025_STAGE3.md` §7, `docs/IMPROVEMENT_BACKLOG.md`.

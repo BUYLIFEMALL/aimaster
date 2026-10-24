@@ -57,3 +57,6 @@
 
 ## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - src/components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+## 2026-10-25 v1.19 — 「🔔 이 단지 새 매물 알림 받기」 버튼 ([역할: realty] Claude Code 윈도우)
+- 실거래 상세 → `https://realty-listing-alert.buylife.xyz/targets?name=&region=`(매물 알림 감시 대상 미리 채우기). 미배포였던 공용 사본(`solapi-client`·`telegram-bot-client` `linkButton`)·30일 정리 회원별 기록 함께 배포. DB v1.19. 배포 `real-estate-sales-4k3sn3n8x`.
