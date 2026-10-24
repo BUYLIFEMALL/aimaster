@@ -3,11 +3,17 @@
 > 확장 로드맵(단위 U1~U14, 2026-10-24): [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) — 승인 대기
 
 ## 배포 대기
+- [ ] U1 이름 바꾸기 `1771f446f` + U2 묶어 배포(v1.04, 빌드 1회 — 그때 승인)
 - [x] 1단계 화면 보완 배포 — v1.03(2026-10-24, `ai-work-workspace-l322zllr7`)
 - [x] 미배포 커밋 `5a9d5e564` 배포 — v1.02(2026-10-24)
 
 ## 1단계 보완
 - [x] 이미 만든 「AI 회의록」 블록의 「받아쓰기 시작」 버튼 숨김(1단계 동안) — `2f0de2776`, v1.03 배포
+
+## 확장 로드맵 U1~U14 (PLAN_20261024_EXPANSION_ROADMAP.md)
+- [x] U1 이름 바꾸기(AI 이름·메뉴 이름) — `1771f446f`, 미배포
+- [ ] U2 불필요한 기능 숨기기(공개 사이트·템플릿 구매·후기·계정 화면·메일 요약·AI 그림 → ai-image-studio 링크·지도 보기·요금제 문구)
+- [ ] U3 서버 영어 오류 문구·AI 지시문의 「AIMaster」 정리(U1 후속)
 
 ## 2단계 — AI (회원 본인 키)
 - [ ] RPC·AI 스트림 요청마다 회원 `user_api_keys`(openai/anthropic) 읽어 `withMemberAiKeys()`

@@ -4,6 +4,14 @@
 - 대상: ① AIMaster 운영 · 현재 v1.03 · **DB 변경 없음 · 회원이 만든 페이지는 건드리지 않음**
 - 배포: 작은 문구 수정이라 **미배포 대기** → U2(불필요한 기능 숨기기)와 묶어 한 번에 배포(빌드 1회, 그때 승인)
 
+## 0. 주인님 수정 (2026-10-24)
+
+- **구현 완료(미배포)**: `1771f446f` — 번역 파일 36줄(AI 이름 18 + 메뉴 키 18: `lp.shell.inbox/meetings/library/private/recents/team/teams`, `lp.home.meetings/library/private/recents/teams`, `lp.search.inbox/meetings/library/library_0029/team`, `lp.page.private`). 설정 화면의 「비공개」(공개 범위)·「팀」(요금제 등) 키와 템플릿 분류 「회의」는 뜻이 달라 그대로 둠. 타입 검사 통과, 원본 서버 시험 522/522, 연결부 13/13.
+- 남은 것: 서버 영어 오류 문구·AI 지시문의 「AIMaster」는 U3에서 정리.
+
+- **원본 이름 「Workspace」는 바꾸지 않는다**(주인님: 「원본 이름 「Workspace」(124곳) → 「업무 워크스페이스」 이건 바꾸지마」). 같은 이름이 들어간 탭 제목(`documentTitle.ts`·`LoginPage.tsx`), 템플릿 만든 사람(`catalog.ts` `creator`), 내보내기 대체 이름(`export.ts`), 시작 페이지 문구(`koreanSeed.ts`)도 그대로 둔다. 아래 §2 표의 해당 줄과 §3의 「Workspace」 바꾸기는 **취소**.
+- U1에 남는 일: AI 이름 「AIMaster」 → 「AI 비서」(18곳), 메뉴 이름 6개(받은편지함 → 알림함, 회의 → AI 회의록, 라이브러리 → 보관함, 비공개 → 내 페이지, 최근 항목 → 최근 본 페이지, 팀 → 팀 공간).
+
 ## 1. 조사 결과 (2026-10-24, 코드 기준)
 
 | 찾은 것 | 개수·위치 | 문제 |
