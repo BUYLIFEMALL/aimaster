@@ -65,6 +65,17 @@ JSON: {"title":"영상 제목(모르면 빈 문자열)","summary":"요점 8~15�
   try { parsed = JSON.parse(raw); } catch { /* 아래에서 실패 처리 */ }
   const summary = typeof parsed.summary === "string" ? parsed.summary.trim() : Array.isArray(parsed.summary) ? parsed.summary.map(String).join("\n") : "";
   if (summary.replace(/\s/g, "").length < 50) throw new Error("유튜브 영상 내용을 정리하지 못했습니다. 자막이나 내용을 아래 「원문 붙여넣기」에 넣어 주세요.");
-  const title = typeof parsed.title === "string" && parsed.title.trim() ? parsed.title.trim().slice(0, 120) : "유튜브 영상";
+  // v2.17 실검수: Gemini가 제목을 비워 「유튜브 영상」으로만 나옴 → 유튜브 공개 oEmbed(AI 호출 없음)에서 제목을 먼저 가져온다.
+  const official = await youtubeTitle(videoId);
+  const title = official || (typeof parsed.title === "string" && parsed.title.trim() ? parsed.title.trim().slice(0, 120) : "유튜브 영상");
   return { title, link: `https://www.youtube.com/watch?v=${videoId}`, text: summary };
+}
+
+async function youtubeTitle(videoId: string): Promise<string> {
+  try {
+    const { response } = await safeFetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`, { signal: AbortSignal.timeout(5_000) });
+    if (!response.ok) return "";
+    const data = await response.json() as { title?: unknown };
+    return typeof data.title === "string" ? data.title.trim().slice(0, 120) : "";
+  } catch { return ""; }
 }

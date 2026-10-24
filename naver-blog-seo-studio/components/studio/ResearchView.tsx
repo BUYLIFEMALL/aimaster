@@ -92,10 +92,12 @@ export function ResearchView({ s }: { s: Studio }) {
       <KeywordHandoffCard s={s} onResearch={(evidence) => setKeyword(evidence.keyword)} />
       <div className="field"><label htmlFor="research-keyword">① 검색어</label><input id="research-keyword" value={keyword} maxLength={60} onChange={(e) => setKeyword(e.target.value)} placeholder="예: 가을 캠핑 준비물" /></div>
       <div className="field"><label htmlFor="research-urls">직접 넣을 공개 URL (선택, 최대 3개 · 띄어쓰기나 줄바꿈으로 구분)</label><textarea id="research-urls" rows={2} value={urlText} onChange={(e) => setUrlText(e.target.value)} placeholder="https://..." /><small>웹 글·텍스트 PDF(3MB 이하)·유튜브 영상 주소를 넣을 수 있습니다. 유튜브는 본인 Gemini 키로 영상을 1회 읽어 정리하므로 영상 길이에 따라 Gemini 요금이 듭니다(비공개·연령 제한 영상은 읽을 수 없음).</small></div>
-      <details className="field"><summary>원문 붙여넣기 (선택 · 주소를 읽지 못했을 때)</summary>
-        <label htmlFor="research-paste-link">출처 주소 (선택)</label><input id="research-paste-link" value={pasteLink} maxLength={500} onChange={(e) => setPasteLink(e.target.value)} placeholder="https://..." />
-        <label htmlFor="research-paste">원문 (100~20,000자, 앞 5,000자를 자료로 씀)</label><textarea id="research-paste" rows={4} maxLength={20000} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder="읽지 못한 페이지·영상 자막의 내용을 붙여 넣으세요" />
-        <small>붙여 넣은 원문은 「사이트 직접 확인 아님」으로 표시됩니다. 직접 확인한 내용만 넣어 주세요. {paste.trim() ? `${paste.trim().length.toLocaleString("ko-KR")}자` : ""}</small>
+      <details style={{ marginTop: 16 }}><summary>원문 붙여넣기 (선택 · 주소를 읽지 못했을 때)</summary>
+        <div className="field" style={{ marginTop: 8 }}>
+          <label htmlFor="research-paste-link">출처 주소 (선택)</label><input id="research-paste-link" value={pasteLink} maxLength={500} onChange={(e) => setPasteLink(e.target.value)} placeholder="https://..." />
+          <label htmlFor="research-paste">원문 (100~20,000자, 앞 5,000자를 자료로 씀)</label><textarea id="research-paste" rows={4} maxLength={20000} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder="읽지 못한 페이지·영상 자막의 내용을 붙여 넣으세요" />
+          <small>붙여 넣은 원문은 「사이트 직접 확인 아님」으로 표시됩니다. 직접 확인한 내용만 넣어 주세요. {paste.trim() ? `${paste.trim().length.toLocaleString("ko-KR")}자` : ""}</small>
+        </div>
       </details>
       <div className="field"><label htmlFor="research-memo">내 메모 (선택, 2,000자 이내)</label><textarea id="research-memo" rows={3} maxLength={2000} value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="내가 직접 확인한 사실·경험" /></div>
       <button type="button" className="primary" disabled={!keyword.trim() || Boolean(busy)} onClick={collect}>{busy === "collect" ? "자료를 모으는 중..." : "자료 모으기"}</button>
