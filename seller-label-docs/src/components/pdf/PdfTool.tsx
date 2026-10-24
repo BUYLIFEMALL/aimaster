@@ -45,7 +45,7 @@ function ImagesToPdf() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
       <section className="slw-card space-y-3 p-4 lg:self-start">
         <Dropzone accept={ACCEPT_IMAGES} label="사진을 끌어 놓거나 눌러서 고르세요" hint="JPG·PNG·WEBP · 넣은 순서가 페이지 순서" onFiles={add} />
         <label className="block">
@@ -175,7 +175,7 @@ function PdfPages() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
       <section className="slw-card space-y-3 p-4 lg:self-start">
         <Dropzone accept="application/pdf,.pdf" label="PDF를 끌어 놓거나 눌러서 고르세요" hint="여러 개를 넣으면 넣은 순서대로 이어집니다" onFiles={(f) => void add(f)} />
         <p className="text-[12px] text-slate-600">불러온 파일: {sources.map((s) => s.name).join(", ") || "없음"}</p>
@@ -215,7 +215,7 @@ function PdfPages() {
                 <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-md bg-slate-50">
                   {t.thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={t.thumb} alt="" className="max-h-full max-w-full object-contain transition-transform" style={{ transform: `rotate(${t.rotate ?? 0}deg)` }} />
+                    <img src={t.thumb} alt="" className="max-h-full max-w-full object-contain transition-transform" style={{ transform: `rotate(${t.rotate ?? 0}deg) scale(${(t.rotate ?? 0) % 180 ? 0.72 : 1})` }} />
                   ) : (
                     <span className="text-[12px] text-slate-500">그리는 중…</span>
                   )}

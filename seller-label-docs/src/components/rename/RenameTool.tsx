@@ -76,7 +76,7 @@ export default function RenameTool() {
   return (
     <div>
       <PageHeader emoji="🗂" title="파일명 일괄 변경" description="여러 파일의 이름을 「공통 이름 + 순번」으로 한 번에 바꿔 ZIP으로 저장합니다." />
-      <div className="grid gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
         <section className="slw-card space-y-3 p-4 lg:self-start">
           <Dropzone accept="*/*" label="파일을 끌어 놓거나 눌러서 고르세요" hint={`사진·문서 무엇이든 · 최대 ${MAX_FILES}개`} onFiles={addFiles} />
           <label className="block">

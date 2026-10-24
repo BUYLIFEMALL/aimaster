@@ -121,7 +121,7 @@ export default function QrTool() {
   return (
     <div>
       <PageHeader emoji="🔳" title="QR 만들기" description="스토어·리뷰·채널 주소를 QR로 만들고 색과 모양을 꾸밉니다. 한 번 만든 QR은 바뀌지 않는 정적 QR입니다." />
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="space-y-4">
           <section className="slw-card space-y-3 p-4">
             <label className="block">

@@ -190,7 +190,7 @@ export default function LabelTool() {
     <div>
       <PageHeader emoji="🏷" title="라벨 인쇄" description="A4 라벨지 칸마다 상품명·주소·바코드·QR·식품 표시사항을 채워 인쇄합니다." />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="space-y-4">
           <Section step={1} title="라벨지 규격">
             <label className="block">
@@ -263,7 +263,17 @@ export default function LabelTool() {
                 </label>
                 <label className="block">
                   <span className="slw-label">바코드·QR</span>
-                  <select className="slw-field" value={s.template.code} onChange={(e) => setT({ code: e.target.value as LabelTemplate["code"] })}>
+                  <select
+                    className="slw-field"
+                    value={s.template.code}
+                    onChange={(e) => {
+                      const code = e.target.value as LabelTemplate["code"];
+                      // 1차원 바코드는 글자 아래·높이 12mm(가로는 칸 너비), 2차원 코드는 글자 오른쪽·16mm 정사각형이 읽기 좋다
+                      if (code === "code128" || code === "ean13") setT({ code, codePos: "bottom", codeSizeMm: 12 });
+                      else if (code === "qrcode" || code === "datamatrix") setT({ code, codePos: "right", codeSizeMm: 16 });
+                      else setT({ code });
+                    }}
+                  >
                     {CODE_TYPES.map((c) => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
@@ -282,8 +292,11 @@ export default function LabelTool() {
                         <option value="bottom">글자 아래</option>
                       </select>
                     </label>
-                    <NumberField label="코드 크기(mm)" value={s.template.codeSizeMm} step={1} min={5} onChange={(n) => setT({ codeSizeMm: Math.max(5, n) })} />
+                    <NumberField label={s.template.code === "qrcode" || s.template.code === "datamatrix" ? "코드 크기(mm)" : s.template.codePos === "bottom" ? "바코드 높이(mm)" : "바코드 너비(mm)"} value={s.template.codeSizeMm} step={1} min={5} onChange={(n) => setT({ codeSizeMm: Math.max(5, n) })} />
                   </div>
+                )}
+                {(s.template.code === "ean13" || s.template.code === "code128") && s.template.codePos === "right" && (
+                  <p className="text-[12px] text-amber-800">⚠ 바코드를 글자 오른쪽에 두면 작아져 스캐너가 못 읽을 수 있습니다. 가로 30mm 이상이 되도록 「글자 아래」를 권장합니다.</p>
                 )}
                 {s.template.code === "ean13" && (
                   <p className="text-[12px] text-slate-600">EAN-13 번호는 GS1(대한상공회의소 유통물류진흥원)에서 발급받은 번호를 넣어 주세요. 여기서는 자릿수·검증 숫자만 확인합니다.</p>

@@ -161,7 +161,7 @@ export default function SignTool() {
           ⚠ 이 기능은 문서에 서명 <b>그림</b>을 얹는 것으로, <b>법적 효력이 있는 전자서명(공동·금융인증서 등)이 아닙니다.</b> 계약 효력이 필요한 문서는 상대방이 정한 전자서명 서비스를 이용하세요.
         </Notice>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
         <div className="space-y-4">
           <section className="slw-card space-y-3 p-4">
             <h2 className="text-sm font-extrabold text-slate-900">① 문서 넣기</h2>
