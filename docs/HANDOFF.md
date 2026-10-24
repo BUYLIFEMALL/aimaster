@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.37: 무료 지우기 모델 받는 곳·이름 안내 (승인 빌드 1회)
+
+- 주인님 지적 「어디서 받는지 명시가 안 되어 있어」 → 안내에 「AI 계산용 모델 파일(설치 없음)을 허깅페이스(huggingface.co)에서 자동으로 받아 브라우저에 저장, 따로 받을 필요 없음」 + 모델 소개 페이지 링크 2개, 진행 표시·오류 문구·매뉴얼도 같은 이름(`2cc9edc75`·`9cfb40fb1`). 배포 `banana-canvas-24uc9d6tb` Ready, DB v1.37.
+- 미배포 대기: 「컴퓨터 사양에 따라 작업 시간이 다를 수 있음」 안내 `c5fb22b4d`(바나나 다음 v1.38) · 상세페이지는 위 문구 3건 모두 대기(다음 v1.34).
+- 링크: https://banana-canvas.buylife.xyz/erase
+
 ## 2026-10-25 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.18: U7 업무 받은편지함
 - 주인님 승인: 공용 DB 표 `public.work_inbox` 추가, 받은편지함 줄은 모두 30일 뒤 삭제(만든 페이지는 남음), 빌드 1회.
 - 한 일: v1.18 — U7 업무 받은편지함: 공용 표 `public.work_inbox`(주인님 승인, RLS 본인만, insert는 각 프로그램 서버만, 30일 자동 삭제를 운영 정리 작업에 추가) + 「📨 받은 업무」 화면 `/inbox`(좌측 메뉴·새 항목 수, 목록·미리보기, 3D 버튼 「페이지로 만들기」(원본 importFiles 재사용)·「표에 행으로 넣기」(처음 「📨 받은 업무 표」 자동 생성 후 mergeCsv로 추가, 표 위치는 회원 설정에 저장)·「삭제」) + 보내기 기준 코드 `src/lib/workInbox.ts`·안내 `docs/WORK_INBOX.md` + 매뉴얼 구역 — `2697c16ba`, 배포 `ai-work-workspace-lvwfm67rq`.
