@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 🔶 Claude Code(윈도우) · 세션 `claude-win-sdp` — 관리자 「수정 요청함」에 「📬 작업 결과」·「🙋 내가 해 줄 일(분류별)」 추가 (배포 완료, DB 0044 주인님 실행 대기)
+- 주인님 지시: 「여기엔 내가 작업요청한 내용에 대한 결과를 받아 볼수 있도록 해놔 지침에 추가하고」「내가 해줘야할 요청사항도 따로 카테고리별로 여기 모아서 볼수 있게 해줘」(agent가 요청한 내용) · 「그냥 니가 처리해」. 화면 폴더는 `claude-win-dotori`가 작업 중 줄을 지운 뒤(17:36) 이어받음.
+- 한 일: 마이그레이션 `supabase/migrations/0044_admin_dev_requests_results_owner_actions.sql`(종류 `work_result`·`owner_action`, 칸 category·title·from_session·parent_id·link·cost, 분류 8개) · `scripts/dev-requests.mjs`에 `report`·`ask`·`asks`(같은 제목 중복 방지, `list`는 관리자→세션 요청만) · API `PATCH action=done|dismiss|cancel` · 화면 「수정 요청함」 3칸(해 줄 일 분류별 접기+✔완료/✖필요 없음/처리한 일, 작업 결과 카드+연결 요청, 기존 기록 접기) · 「한눈에 보기」 「🙋 내가 해 줄 일」 숫자 카드 · **0044 실행 전에도 깨지지 않게** 칸 없음(42703)이면 기본 칸으로 다시 읽음 · 지침: 루트 `CLAUDE.md`·`AGENTS.md` 「📬 작업 결과·주인님께 드릴 요청은 관리자 수정 요청함에 남긴다」 + `docs/MULTI_AGENT_SESSION_RULES.md` 점검표 1줄 · 문서 목록 다시 만듦.
+- 커밋: `d4a976b9e`(플랜) `341f97739`(0044) `5943df24a`(작업 중 표) 화면·도구 6파일 · `bbf450fb7`(지침) `c7f7b1ae2`(목록) — 푸시 완료.
+- 검수: `tsc` 해당 파일 오류 없음, 메인 사이트 `npm run build` 통과, 도구 도움말·`list`·0044 전 `asks` 안내 확인. 배포 `aimaster-77ikz6nhn` READY, 크롬(메인) 관리자 화면에서 새 3칸 표시·기존 기록 정상 확인.
+- **남은 일·다음 첫 단계**: ① 주인님이 크롬 Supabase SQL 편집기(운영 `esgxyikcnnvmlhygjkth`)에서 0044 실행 → ② `ask`·`report` 시험 1건씩 → 화면 표시·✔완료 동작 확인 → ③ 첫 실제 요청으로 바나나 캔버스 「무료 지우기」 승인(`approval`) 올리기 → ④ 작업 중 표 줄 해제.
+- 비용: 메인 사이트 Vercel 빌드 1회(승인 범위 1~2회 안). AI 0.
+- 화면: https://www.buylife.xyz/admin/dev-docs/requests
+
 ## 2026-10-24 [역할: docbot-prompt] Codex(윈도우) · 세션 `codex-win-20261024-docbot-g1` — 새 공급자 키는 나중에 등록
 
 - 주인님 「Groq 또는 OpenRouter API는 아직 없어 나중에 등록」: G-1 새 공급자 실제 호출·키 재사용 검수는 등록 후 진행. 기존 Upstage/Gemini를 계속 쓰며, 새 키 등록을 지금 요구하지 않습니다. 구현 취소/삭제 지시로 해석하지 않습니다.
