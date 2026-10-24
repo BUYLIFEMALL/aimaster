@@ -16,9 +16,9 @@ export function choiceOf(mode: Mode, reserved: boolean): PublishChoice {
   return reserved ? "schedule" : "publish";
 }
 
-/** 화면 선택 → 저장 값. ⓐ는 지금의 「예약 시각도 미리 넣기」 선택을 그대로 둔다. */
-export function applyChoice(choice: PublishChoice, reserved: boolean): { executionMode: Mode; reserved: boolean } {
-  if (choice === "prepare") return { executionMode: "prepare", reserved };
+/** 화면 선택 → 저장 값. ⓐ 안에서는 「예약 시각도 미리 넣기」를 그대로 두고, 다른 방식에서 ⓐ로 넘어오면 끈다. */
+export function applyChoice(choice: PublishChoice, reserved: boolean, from: PublishChoice = choice): { executionMode: Mode; reserved: boolean } {
+  if (choice === "prepare") return { executionMode: "prepare", reserved: from === "prepare" ? reserved : false };
   return { executionMode: "publish", reserved: choice === "schedule" };
 }
 

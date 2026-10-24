@@ -20,6 +20,8 @@ test('choices map back to saved values; prepare keeps the prefill-reservation op
   assert.deepEqual(c.applyChoice('schedule', false), { executionMode: 'publish', reserved: true });
   assert.deepEqual(c.applyChoice('prepare', true), { executionMode: 'prepare', reserved: true });
   assert.deepEqual(c.applyChoice('prepare', false), { executionMode: 'prepare', reserved: false });
+  assert.deepEqual(c.applyChoice('prepare', true, 'schedule'), { executionMode: 'prepare', reserved: false });
+  assert.deepEqual(c.applyChoice('prepare', true, 'prepare'), { executionMode: 'prepare', reserved: true });
   for (const v of ['prepare', 'publish', 'schedule']) { const s = c.applyChoice(v, v === 'schedule'); assert.equal(c.choiceOf(s.executionMode, s.reserved), v); }
 });
 test('summary line states what the extension will do', () => {
