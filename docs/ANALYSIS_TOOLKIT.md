@@ -90,6 +90,10 @@
 | innoextract | Inno Setup 형식 설치 파일(옛 버전) — 1.9는 **Inno 6.7을 못 품**(「Could not determine setup data version」) | https://constexpr.org/innoextract · `winget search innoextract` |
 | pyinstxtractor | Python(PyInstaller)으로 묶은 EXE — **원본과 같은 파이썬 버전으로 실행해야 PYZ까지 풀림**(다르면 「Skipping pyz extraction」) | https://github.com/extremecoders-re/pyinstxtractor (스크립트 1개) · 버전 맞추기: `uv run --no-project --python 3.12 python -I pyinstxtractor.py <exe>` |
 | Electron asar | Electron 앱의 `resources\app.asar` 풀기 | 설치 불필요: `npx @electron/asar extract app.asar <새 빈 폴더>` (REA `analyze_javascript_application`도 가능) |
+| pyinstxtractor-ng | PyInstaller EXE를 **파이썬 버전 맞추지 않고** 풀기(`xdis` 사용, 단독 실행 파일 있음) | https://github.com/pyinstxtractor/pyinstxtractor-ng |
+| pycdas · pycdc (Decompyle++) | `.pyc` 바이트코드 목록·디컴파일 — 로직 이해용으로만, 결과 코드 보관 금지. 온라인 디컴파일 서비스에 남의 파일 올리지 않음 | https://github.com/zrax/pycdc (직접 빌드) |
+| webcrack · wakaru | JS 묶음 난독화 풀기·webpack 모듈 나누기(webcrack) → 줄여 쓴 코드 되돌리기(wakaru) | https://github.com/j4k0xb/webcrack · https://github.com/pionxzh/wakaru (`npx`) |
+| capa · FLOSS | 네이티브 EXE의 동작 목록(capa)·숨겨진 문자열(FLOSS) — Ghidra 전 한 장 요약 | https://github.com/mandiant/capa · https://github.com/mandiant/flare-floss (릴리스 단독 실행 파일) |
 | mitmproxy | 프로그램이 서버와 주고받는 내용 관찰(실행 필요 → 샌드박스와 함께) | https://mitmproxy.org · `winget install mitmproxy.mitmproxy` |
 | jadx · apktool | 안드로이드 APK | https://github.com/skylot/jadx · https://apktool.org (Java 21 있음) |
 | Windows 샌드박스 | 출처 모르는 EXE를 실행해 봐야 할 때(일회용 격리 창) | **주인님이 직접**: 시작 → "Windows 기능 켜기/끄기" → Windows Sandbox 체크 → 재부팅. 2026-10-15 현재 꺼져 있음 |
