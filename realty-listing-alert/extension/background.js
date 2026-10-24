@@ -1,6 +1,13 @@
 // AIMaster 부동산 매물 알림 확장 v1.01 — 지금은 0단계 사전 검증 기능만 들어 있다(3단계에서 수집 엔진으로 교체).
 // 매물 개인 정보(전화·주소·대표자)는 기록하지 않고, 매물 데이터는 우리 서버로 보내지 않는다.
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 기다리는 동안에도 10초마다 확장 API를 불러 서비스 워커가 잠들지 않게 한다(30초 쉬면 크롬이 멈춤 — 첫 시험에서 기록이 0건이었던 원인).
+async function sleep(ms) {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    await new Promise((r) => setTimeout(r, Math.min(10000, end - Date.now())));
+    await chrome.runtime.getPlatformInfo();
+  }
+}
 const rand = (a, b) => a + Math.floor(Math.random() * (b - a));
 const PERSONAL = /phone|tel|cellPhone|realtorAddress|representative|address|addr|email/i;
 const MAX_ARTICLE_PAGES = 3;
@@ -15,6 +22,12 @@ async function patch(key, value) {
   r[key] = value;
   await chrome.storage.local.set({ report: r });
   return r;
+}
+// 진행 기록: 단계·오류를 바로 저장한다(팝업이 닫혀도 남도록).
+async function addLog(text) {
+  const r = await getReport();
+  r.log = [...(r.log || []), `${new Date().toISOString()} ${text}`].slice(-200);
+  await chrome.storage.local.set({ report: r });
 }
 
 function shape(v, depth = 0) {
@@ -111,6 +124,10 @@ async function runCapture(tabId, tabUrl) {
   const t0 = Date.now();
   const out = { tabUrl: urlKey(tabUrl), requests: [], articlePages: [], otherJson: [], statusProblems: [], blocked: false, scrollTargets: [], authHeaderSeen: false };
   const pending = new Map();
+  let saveTimer = null;
+  const saveSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => patch("capture", { ...out, running: true }), 500); };
+  await addLog(`① 시작: ${tabUrl}`);
+  await patch("capture", { ...out, running: true });
   const onEvent = async (src, method, params) => {
     if (src.tabId !== tabId) return;
     if (method === "Network.requestWillBeSent") {
@@ -130,6 +147,7 @@ async function runCapture(tabId, tabUrl) {
       try {
         const b = await chrome.debugger.sendCommand({ tabId }, "Network.getResponseBody", { requestId: params.requestId });
         const body = JSON.parse(b.base64Encoded ? new TextDecoder().decode(Uint8Array.from(atob(b.body), (c) => c.charCodeAt(0))) : b.body);
+        saveSoon();
         if (findArticleArray(body)) out.articlePages.push({ ...urlKey(u), at: Date.now() - t0, ...summarizeArticles(body) });
         else if (out.otherJson.length < 25) out.otherJson.push({ ...urlKey(u), shape: shape(body) });
       } catch (e) { out.otherJson.push({ ...urlKey(u), error: String(e).slice(0, 120) }); }
@@ -138,21 +156,30 @@ async function runCapture(tabId, tabUrl) {
   chrome.debugger.onEvent.addListener(onEvent);
   try {
     await withDebugger(tabId, async () => {
+      await addLog("① 디버거 연결됨");
       await chrome.debugger.sendCommand({ tabId }, "Network.enable");
       await chrome.debugger.sendCommand({ tabId }, "Page.reload", {}); // 1페이지도 기록하려고 한 번 새로 고침
       await sleep(6000);
       for (let i = 0; i < 6 && out.articlePages.length < MAX_ARTICLE_PAGES; i++) {
         if (await evalInPage(tabId, BLOCK_CHECK)) { out.blocked = true; break; }
         out.scrollTargets.push(await evalInPage(tabId, SCROLL_ONE));
+        await addLog(`① 스크롤 ${i + 1}회 · 매물 목록 응답 ${out.articlePages.length}개`);
+        saveSoon();
         await sleep(rand(2000, 5000));
       }
       // 남은 시간은 주인님이 지역(시·구·동) 선택을 눌러 보시는 동안 응답만 기록
-      while (Date.now() - t0 < 60000) await sleep(1000);
+      await addLog("① 지역 선택을 눌러 보실 시간(최대 45초) 기록 중");
+      if (Date.now() - t0 < 45000) await sleep(45000 - (Date.now() - t0));
       out.blocked = out.blocked || (await evalInPage(tabId, BLOCK_CHECK));
     });
+  } catch (e) {
+    out.error = String(e);
+    await addLog(`① 오류: ${e}`);
   } finally {
+    clearTimeout(saveTimer);
     chrome.debugger.onEvent.removeListener(onEvent);
   }
+  await addLog(`① 끝: 매물 목록 응답 ${out.articlePages.length}개, 기타 응답 ${out.otherJson.length}개, 멈춤 ${out.blocked}`);
   out.seconds = Math.round((Date.now() - t0) / 1000);
   await patch("capture", out);
   return { ok: true, articlePages: out.articlePages.length, otherJson: out.otherJson.length, blocked: out.blocked, statusProblems: out.statusProblems.length, authHeaderSeen: out.authHeaderSeen };
@@ -165,6 +192,7 @@ async function runDirect(tabId) {
   const base = new URL(`https://${tpl.host}${tpl.path}`);
   for (const [k, v] of Object.entries(tpl.query)) base.searchParams.set(k, v);
   const results = [];
+  await addLog("② 시작");
   await withDebugger(tabId, async () => {
     for (const withAuth of [false, true]) {
       for (const page of [1, 2]) {
@@ -182,6 +210,7 @@ async function runDirect(tabId) {
     }
   });
   const out = { url: urlKey(base.toString()), results };
+  await addLog(`② 끝: ${results.map((x) => `${x.withAuth ? "인증" : "무인증"}${x.page}p=${x.status ?? x.skipped ?? x.error}`).join(", ")}`);
   await patch("direct", out);
   return { ok: true, results: results.map((x) => ({ withAuth: x.withAuth, page: x.page, status: x.status, count: x.count, isMoreData: x.isMoreData, skipped: x.skipped, error: x.error })) };
 }
@@ -190,6 +219,7 @@ async function startAlarm() {
   await chrome.alarms.clear("pv");
   await patch("alarm", { startedAt: new Date().toISOString(), fires: [] });
   chrome.alarms.create("pv", { delayInMinutes: 1, periodInMinutes: 1 });
+  await addLog("③ 예약 타이머 시작(1분마다 5회)");
   return { ok: true, note: "지금 크롬 창을 최소화해 두세요. 5분 뒤 결과 파일 저장을 눌러 주세요." };
 }
 chrome.alarms.onAlarm.addListener(async (a) => {
@@ -238,9 +268,9 @@ chrome.runtime.onMessage.addListener((msg, _s, reply) => {
       if (msg.type === "save") return reply(await saveReport());
       if (msg.type === "summary") {
         const r = await getReport();
-        return reply({ capture: r.capture ? { articlePages: r.capture.articlePages.length, blocked: r.capture.blocked } : null, direct: !!r.direct, alarmFires: r.alarm?.fires?.length ?? 0, telegram: r.telegram });
+        return reply({ capture: r.capture ? { running: !!r.capture.running, articlePages: r.capture.articlePages.length, blocked: r.capture.blocked, error: r.capture.error } : null, direct: !!r.direct, alarmFires: r.alarm?.fires?.length ?? 0, telegram: r.telegram, recent: (r.log || []).slice(-5) });
       }
-    } catch (e) { reply({ ok: false, error: String(e) }); }
+    } catch (e) { await addLog(`오류(${msg.type}): ${e}`); reply({ ok: false, error: String(e) }); }
   })();
   return true;
 });
