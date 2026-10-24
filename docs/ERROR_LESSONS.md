@@ -15,6 +15,13 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-25 — Tailwind 격자 `grid lg:grid-cols-[...]`가 좁은 화면에서 한 칸이 될 때 긴 선택 목록 글자 때문에 가로로 넘쳤다 + 다른 프로그램 `.env.local`을 복사해도 Supabase 값이 없었다 (seller-label-docs v1.01→v1.02, Claude Code 윈도우 [역할: ecommerce-image])
+- 증상: 휴대폰 폭(390px 틀)에서 라벨 화면만 가로 스크롤(문서 폭 439 > 371). 다른 6개 화면은 정상.
+- 원인: `grid`에 열 지정이 없으면 암시적 칸 너비가 「내용 최소 너비」라 `<select>`의 긴 옵션 글자(「1칸 · 199.6×289.1mm(전면)」)만큼 넓어진다.
+- 해결: 모든 도구 격자에 `grid-cols-1`(= `minmax(0,1fr)`)을 같이 쓴다. 점검: iframe 390px에 띄워 `documentElement.scrollWidth`와 `clientWidth` 비교, 넘치는 요소는 `getBoundingClientRect().right > clientWidth`로 찾는다.
+- 함께: 뼈대를 복사한 프로그램의 `.env.local`은 `vercel env pull`로 받은 Vercel 토큰뿐일 수 있다 — 새 Vercel 프로젝트 환경변수는 루트 `.env.local`을 읽는 등록 스크립트로 넣고, `vercel link`가 `.env.local`을 덮어쓴다는 점을 기억한다.
+- 다음부터: 새 화면 격자는 처음부터 `grid grid-cols-1 lg:grid-cols-…`로 쓴다.
+
 ## 2026-10-25 — 앞에 보이는 탭은 SQL 편집기인데 뒤에 숨은 탭에서 시험해, 주인님 화면에 진행이 안 보였다 (realty-listing-alert 2단계, Claude Code 윈도우 [역할: realty])
 - **증상**: 주인님 「포그라운드로 작업해」를 두 번 들었다. 작업 창의 선택된 탭(`tabs_context_mcp`의 `selectedTabId`)은 SQL 편집기였고, 시험은 다른 탭에서 페이지 안 스크립트(`javascript_tool`로 입력·`requestSubmit`·`click`)로 진행했다.
 - **원인**: `navigate`·`javascript_tool`·`computer`는 대상 탭을 앞으로 가져오지 않는다. 탭을 두 개 만들어 번갈아 쓰면서 앞 탭을 확인하지 않았다.

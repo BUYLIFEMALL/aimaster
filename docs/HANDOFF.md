@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E6 새 프로그램 「셀러 라벨·QR·서류 자동화」 v1.01 → v1.02 공개
+- 한 일: 쇼핑몰 묶음 E6 플랜 승인 뒤 새 프로그램 `seller-label-docs/` 구현·공개. 도구 5개(🏷 A4 라벨 — 규격 16종 추정값+직접 입력·엑셀/붙여넣기 `{열 이름}`·Code128/EAN-13/QR/데이터매트릭스·식품 표시 틀·시작 칸·위치 보정, 🔳 꾸민 QR·대비 판정, 🗂 파일명 순번 ZIP, 📄 사진→PDF·여러 PDF 페이지 정리, ✍ 서명 그림 넣기) + 매뉴얼. 모두 브라우저 안에서만 처리, DB 표 없음.
+- 운영 등록: DB(① 운영) programs·요금제 3단계·VIP 등급 표(자동 부여 143명)·시험 계정 30일, Vercel 새 프로젝트(framework nextjs PATCH)·환경변수 4개·도메인, 썸네일 1장(관리자 Gemini 키).
+- 검수: 시험 24개·tsc·로컬 빌드, 크롬 시험 계정으로 5개 도구 실제 조작(라벨 바코드·QR·PDF 2개 합치기/돌리기/빼기·서명 그리기/손글씨 이름·파일명 정렬), 400px 틀에서 7개 화면 가로 넘침 측정 → 라벨 화면 넘침 발견해 v1.02에서 수정(371=371). 못 한 것: 인쇄 창·실물 라벨지 인쇄(주인님 확인 대기), 결과 파일 내려받기(자동 시험으로 대신).
+- 커밋: 코드 여러 개(`seller-label-docs` 경로), 배포 `seller-label-docs-ke0dx1rvc`(v1.01)·`seller-label-docs-ok99z0cps`(v1.02) Ready, DB v1.02.
+- 다음 첫 단계: 주인님 실물 라벨지 시험 인쇄 결과 반영 → E7 「AI 쇼핑몰 주문·매출 리포트 자동화」 플랜 보고. 상세 [`seller-label-docs/AGENTS.md`](../seller-label-docs/AGENTS.md)
+- 비용: Vercel 빌드 2회(승인 범위 최대 2회 안), 이미지 생성 1회(관리자 키), AI 시험 호출 0회.
+- https://seller-label-docs.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — U8-B 워크스페이스 → 할 일 플래너 (워크스페이스 v1.19 · 플래너 v1.12)
 - 주인님 승인: 공용 표 `work_inbox`에 받는 곳 열 `target_slug` 추가 + 빌드 2회. 운영 DB(ref `esgxyikcnnvmlhygjkth`) 적용, 파일 `ai-work-workspace/supabase/migrations/20261025000100_work_inbox_target.sql`.
 - 워크스페이스: U8-B 할 일 플래너로 보내기: 페이지 「⋯」 → 「📨 할 일 플래너로 보내기」(체크 안 된 할 일 항목 최대 30개 / 이 페이지를 할 일 하나로 — 표 행이면 마감일·우선순위), 서버 명령 `workInboxSendToPlanner`(회원 본인 공간 페이지만), 공용 표 `work_inbox.target_slug` 열 추가(주인님 승인, 운영 적용 `20261025000100`), 받은 업무는 받는 곳이 워크스페이스인 줄만, 기준 코드 `targetSlug` 선택값, 표 「받은 날」 한국 날짜(`c6d4ca3ba`), 표 행 「OPEN」→「열기」, 매뉴얼 카드 — `b121bdfde`, 배포 `ai-work-workspace-ho0fq9vle`.

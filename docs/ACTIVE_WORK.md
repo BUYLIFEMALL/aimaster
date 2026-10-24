@@ -24,7 +24,6 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `blog-keyword/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-blogkey` | 2026-10-25 | API키 생성/가입 2단 퀵 버튼 탑재 및 럭셔리 매뉴얼 리뉴얼 |
-| `seller-label-docs/` (새 폴더) | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-25 | E6 새 프로그램 「셀러 라벨·QR·서류 자동화」 v1.01 구현(플랜 `seller-label-docs/docs/PLAN_20261025_SELLER_LABEL_DOCS.md`, 빌드 최대 2회 승인) |
 | `ai-doc-chatbot/` (범위: src/lib/chat·src/app/api/documents·src/app/api/chat·src/app/(dashboard)/chat·src/app/(dashboard)/documents·tests·supabase/migrations·docs·AGENTS.md·README.md·package.json) | [역할: docbot-prompt] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-docbot-g4` | 2026-10-25 | G-4 여러 문서/분류/저장 본문 미리보기/PDF 추출 경고, 운영 dcb_ 추가 메타데이터/검색 함수. 기능용 선택/미리보기만, 로그인·CSS·테마는 agy 담당 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
 | `realty-listing-alert/` (새 폴더) | [역할: realty] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-realty` | 2026-10-24 | 새 프로그램 「AI 부동산 매물 알림 자동화」 구현 — 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`. 0~3단계 ✅(v1.03 운영, 준비중). 지금: 지역 고르기·카톡 받기 플랜 |

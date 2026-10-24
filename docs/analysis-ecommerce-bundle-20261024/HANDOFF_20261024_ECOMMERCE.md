@@ -56,6 +56,7 @@
 - DB 변경 없음. 2차(회원 상품 카드 공유 표)는 승인 뒤.
 
 ## 5. E6 — 🆕 셀러 라벨·QR·서류 자동화 (`seller-label-docs`, 이름 확정)
+- ✅ **처리됨 2026-10-25 (`claude-win-sdp`, v1.01→v1.02 운영 공개)**: 도구 5개 모두 구현·배포, https://seller-label-docs.buylife.xyz · 상세 [`seller-label-docs/AGENTS.md`](../../seller-label-docs/AGENTS.md). 남은 것: 주인님 실물 라벨지 시험 인쇄. 라벨 규격은 원본 표를 옮기지 않고 가운데 정렬 추정값+직접 입력(제조사 공식 여백은 PDF 규격표 안에만 있어 미확인).
 - **모두 브라우저 안에서 처리**(파일을 서버로 보내지 않음, 운영 비용 0 → 기본 프로그램). 근거 [05](05_KDP_WORK_TOOLS.md) §2·9·11·12, [02](02_KDP_IMAGE_SIGNATURE.md) §2.
 | 도구 | 기능 | 참고 라이브러리(원본에서 확인) |
 |---|---|---|
