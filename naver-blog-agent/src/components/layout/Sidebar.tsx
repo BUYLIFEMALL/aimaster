@@ -14,6 +14,7 @@ import {
   Sparkles,
   X,
   ExternalLink,
+  Zap,
 } from "lucide-react";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
@@ -124,6 +125,23 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
           >
             <LayoutDashboard className={`h-4 w-4 ${pathname === "/dashboard" ? "text-emerald-600" : "text-slate-500"}`} />
             <span>대시보드 메인</span>
+          </Link>
+
+          {/* E-3 간편 모드: 주제 하나로 원고·이미지까지 */}
+          <Link
+            href="/quick"
+            onClick={() => {
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-black transition-all ${
+              pathname === "/quick"
+                ? "bg-amber-50 text-amber-800 border border-amber-200"
+                : "text-slate-700 hover:bg-amber-50/60"
+            }`}
+          >
+            <Zap className="h-4 w-4 text-amber-500" />
+            <span>간편 모드</span>
+            <span className="ml-auto text-[10px] font-bold text-amber-600">주제만 입력</span>
           </Link>
 
           {/* 스텝퍼 섹션 라벨 */}
