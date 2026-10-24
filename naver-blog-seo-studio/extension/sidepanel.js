@@ -1088,7 +1088,7 @@ function applySeoRunUi(state) {
   if (state.running && Date.now() - Number(state.aliveAt || 0) > SEO_RUN_STALE_MS) {
     $("generateStatus").textContent = "입력이 중간에 멈춘 것 같습니다. 네이버 탭의 글을 확인한 뒤 다시 시작하세요.";
     $("keepPanelOpen").hidden = true;
-    for (const id of ["fill", "previewFill", "autoPublish", "reconcilePublish"]) $(id).disabled = false;
+    for (const id of ["fill", "previewFill", "autoPublish", "reservePublish", "reconcilePublish"]) $(id).disabled = false;
   }
 }
 
@@ -1105,7 +1105,7 @@ async function startBackgroundRun(mode) {
     coverDataUrl: activeWebDraftCoverDataUrl,
     contentImages: activeWebDraftContentImages,
     blocks: activeWebDraftBlocks,
-    inputs: Object.fromEntries(["publishCategory", "publishTags", "publishBlogId", "publishVisibility"].map((id) => [id, $(id).value])),
+    inputs: Object.fromEntries(["publishCategory", "publishTags", "publishBlogId", "publishVisibility", "publishScheduleAt"].map((id) => [id, $(id).value])),
   };
   try {
     const result = await chrome.runtime.sendMessage({ type: "seoRun", mode, payload });

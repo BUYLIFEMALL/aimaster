@@ -98,7 +98,7 @@ function seoRunUiElement(id) {
   seoRunElements.set(id, element);
   return element;
 }
-const SEO_RUN_BUTTONS = ["fill", "previewFill", "autoPublish", "reconcilePublish"];
+const SEO_RUN_BUTTONS = ["fill", "previewFill", "autoPublish", "reservePublish", "reconcilePublish"];
 async function runSeoJob(mode, payload) {
   seoRunActive = true;
   seoRunUi = { running: true, mode, startedAt: Date.now(), props: {} };
@@ -118,6 +118,7 @@ async function runSeoJob(mode, payload) {
   try {
     if (mode === "fill") await fillDraftIntoNaver();
     else if (mode === "auto") await startAutoPublication();
+    else if (mode === "reserve") await startAutoPublication(true);
     else await reconcileAutoPublication();
   } catch (error) {
     $("generateStatus").textContent = mode === "fill" ? formatBrowserError(error, "네이버 편집기 입력") : (error instanceof Error ? error.message : String(error));

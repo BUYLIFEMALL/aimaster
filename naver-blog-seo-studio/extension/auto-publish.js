@@ -45,7 +45,7 @@ async function publicationPage(command, details = {}) {
   const tab = await chrome.tabs.get(run.tabId);
   if (!/^https:\/\/blog\.naver\.com\//.test(tab.url || "")) throw new Error("자동 발행 전용 탭이 다른 사이트로 이동했습니다.");
   const results = await chrome.scripting.executeScript({ target: { tabId: run.tabId, allFrames: true }, func: seoAutoPublishPage,
-    args: [command, { blogId: run.blogId, visibility: run.visibility, title: run.title, runId: run.runId, ...details }] });
+    args: [command, { blogId: run.blogId, visibility: run.visibility, title: run.title, runId: run.runId, scheduledAt: run.mode === "reserve" ? run.scheduledAt : "", ...details }] });
   return results.map(item => item.result).find(item => item?.ok || item?.complete) || { ok: false };
 }
 function autoExpectedContent() {
@@ -63,7 +63,8 @@ async function finishAutoPublication() {
   if (!(await publicationPage("verify", expected)).ok) throw new Error("제목·전체 본문·사진 수가 원고와 다릅니다. 자동 발행을 중지했습니다.");
   await openNaverPublishSettings(seoPublication.tabId);
   if ($("publishCategory").value.trim() || activeDraftNaverCategory() || $("publishTags").value.trim()) await fillPublishInfoIntoNaver();
-  if (!(await publicationPage("settings")).ok) throw new Error("공개 범위와 즉시 발행 설정을 확인하지 못했습니다.");
+  const settings = await publicationPage("settings");
+  if (!settings.ok) throw new Error(seoPublication.mode === "reserve" ? `공개 범위와 예약 설정을 확인하지 못했습니다. ${settings.reason || ""}`.trim() : "공개 범위와 즉시 발행 설정을 확인하지 못했습니다.");
   // A successful ACK is required before the only final click. A lost response
   // deliberately leaves the server lock intact instead of retrying arm/click.
   await publicationApi("arm");
@@ -76,6 +77,8 @@ async function reconcileAutoPublication() {
   if (!seoPublication) seoPublication = (await chrome.storage.local.get(SEO_PUBLISH_OUTBOX))[SEO_PUBLISH_OUTBOX];
   if (!seoPublication) throw new Error("확인할 자동 발행 실행이 없습니다.");
   const state = await publicationApi("status");
+  // 2026-10-24 예약 포스팅: 예약 실행은 게시 주소 대신 네이버 예약 목록에서 제목·시각 1건을 확인해 「예약 완료」로 기록한다.
+  if (state.mode === "reserve") return reconcileReservation(state);
   if (state.state === "published") {
     $("generateStatus").textContent = `발행 완료 · ${state.url}`;
     $("publishResultLink").href = state.url; $("publishResultLink").hidden = false;
@@ -96,18 +99,49 @@ async function reconcileAutoPublication() {
   await publicationApi("uncertain", { error: "게시 URL/제목 확인이 지연됐습니다. 자동 재발행하지 않습니다." });
   throw new Error("발행 결과가 불확실합니다. 네이버 게시글을 확인한 뒤 결과 확인만 다시 실행하세요.");
 }
-async function startAutoPublication() {
+function reserveLabel(at) {
+  const d = new Date(at);
+  return Number.isFinite(d.getTime()) ? d.toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+}
+async function reconcileReservation(state) {
+  if (state.state === "reserved") {
+    $("generateStatus").textContent = `예약 완료 · ${reserveLabel(state.scheduledAt)}`;
+    return;
+  }
+  if (!["publishing", "uncertain"].includes(state.state)) throw new Error("예약 발행을 시작한 실행이 아닙니다. 원고를 확인하세요.");
+  let last = "";
+  for (let attempt = 0; attempt < 45; attempt++) {
+    await sleep(1000);
+    const result = await publicationPage("reserved").catch(() => null);
+    if (result?.complete) {
+      await publicationApi("reserved", { scheduledAt: result.scheduledAt });
+      $("generateStatus").textContent = `예약 완료 · ${reserveLabel(seoPublication.scheduledAt)}`;
+      $("publishStatus").textContent = "네이버 예약 목록에서 제목과 예약 시각을 확인하고 서버에 기록했습니다.";
+      return;
+    }
+    if (result?.reason) last = result.reason;
+  }
+  await publicationApi("uncertain", { error: `예약 목록 확인이 지연됐습니다(${last || "확인 실패"}). 자동으로 다시 예약하지 않습니다.` });
+  throw new Error("예약 결과가 불확실합니다. 네이버 「예약 발행 글」 목록을 확인한 뒤 결과 확인만 다시 실행하세요.");
+}
+async function startAutoPublication(reserve = false) {
   if (seoAutoBusy) return;
   seoAutoBusy = true;
-  for (const id of ["autoPublish", "fill", "previewFill", "webDraftList", "refreshWebDrafts", "publishBlogId", "publishVisibility", "publishCategory", "publishTags"]) $(id).disabled = true;
+  for (const id of ["autoPublish", "reservePublish", "fill", "previewFill", "webDraftList", "refreshWebDrafts", "publishBlogId", "publishVisibility", "publishCategory", "publishTags", "publishScheduleAt"]) $(id).disabled = true;
   const alive = setInterval(() => { if (seoPublication?.runId) persistPublication().catch(() => {}); }, 15 * 1000);
   try {
     if (!activeWebDraftId || !activeWebDraftTitle || !activeWebDraftBody) throw new Error("웹 원고를 먼저 선택하고 미리보기를 확인해 주세요.");
     const blogId = $("publishBlogId").value.trim(), visibility = $("publishVisibility").value;
     if (!/^[A-Za-z0-9_-]{2,40}$/.test(blogId)) throw new Error("실제 블로그 주소의 ID를 입력해 주세요.");
     autoExpectedContent();
+    let scheduleAt;
+    if (reserve) {
+      const picked = new Date($("publishScheduleAt").value);
+      if (!$("publishScheduleAt").value || !Number.isFinite(picked.getTime())) throw new Error("예약 날짜와 시각을 먼저 골라 주세요(10분 단위, 지금부터 20분 이후).");
+      scheduleAt = picked.toISOString();
+    }
     seoPublication = { draftId: activeWebDraftId, title: plainText(activeWebDraftTitle), blogId, visibility };
-    await publicationApi("claim", { blogId, visibility, fingerprint: webDrafts.find(item => item.id === activeWebDraftId)?.publication_fingerprint });
+    await publicationApi("claim", { blogId, visibility, fingerprint: webDrafts.find(item => item.id === activeWebDraftId)?.publication_fingerprint, ...(scheduleAt ? { scheduleAt } : {}) });
     const tab = await chrome.tabs.create({ url: `https://blog.naver.com/${encodeURIComponent(blogId)}/postwrite`, active: true });
     seoPublication.tabId = tab.id;
     await persistPublication();
@@ -125,11 +159,12 @@ async function startAutoPublication() {
   } finally {
     clearInterval(alive);
     seoAutoBusy = false;
-    for (const id of ["autoPublish", "fill", "previewFill", "webDraftList", "refreshWebDrafts", "publishBlogId", "publishVisibility", "publishCategory", "publishTags"]) $(id).disabled = false;
+    for (const id of ["autoPublish", "reservePublish", "fill", "previewFill", "webDraftList", "refreshWebDrafts", "publishBlogId", "publishVisibility", "publishCategory", "publishTags", "publishScheduleAt"]) $(id).disabled = false;
   }
 }
 // 2026-10-23: 자동 포스팅·결과 확인은 background가 실행한다(startBackgroundRun, sidepanel.js). 사이드패널을 닫아도 이어진다.
 $("autoPublish").addEventListener("click", () => startBackgroundRun("auto"));
+$("reservePublish").addEventListener("click", () => startBackgroundRun("reserve"));
 $("reconcilePublish").addEventListener("click", () => startBackgroundRun("reconcile"));
 // 끊긴 실행 정리는 사이드패널을 열 때만 한다(background 안에서는 실행 중인 자기 작업을 건드리지 않도록 건너뜀).
 if (typeof importScripts !== "function") recoverInterruptedPublication().catch(() => {});

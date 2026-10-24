@@ -4,6 +4,7 @@ import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { draftReport, matchDraftRevision, nextDraftReport, publicationFingerprint, naverPostUrl, staleWritingRun, writableDraft } from "@/lib/draftWriteGuard";
 import { reviewBlockMessage } from "@/lib/draftReview";
+import { checkReserveTime } from "@/lib/reserveTime";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -14,7 +15,7 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   const user = await verifyExtensionToken(request);
   if (!user) return fail("유효한 본인 확장 연결이 필요합니다.", 401);
   const input = await request.json().catch(() => null);
-  if (!input || !["claim", "arm", "published", "uncertain", "failed", "status"].includes(input.action)) return fail("지원하지 않는 발행 요청입니다.", 400);
+  if (!input || !["claim", "arm", "published", "reserved", "uncertain", "failed", "status"].includes(input.action)) return fail("지원하지 않는 발행 요청입니다.", 400);
   const { draftId } = await context.params;
   const db = createServiceClient();
   const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
@@ -38,10 +39,25 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
     if (!row.title?.trim() || !row.body?.trim()) return fail("제목과 본문을 먼저 저장해 주세요.", 400);
     const reviewBlocked = reviewBlockMessage(report, row.title, row.body); // 병합 B-1: 필수 검수 지적이 남으면 자동 포스팅을 시작하지 않음
     if (reviewBlocked) return fail(reviewBlocked);
-    publication = { runId: randomUUID(), state: "writing", blogId, visibility: input.visibility, fingerprint: publicationFingerprint(row), startedAt: now };
+    // 2026-10-24 예약 포스팅(블로그 핵심 지침 ③ⓒ): 예약 시각이 오면 이 실행은 예약 실행이다. 결과는 「예약 완료」로만 기록한다.
+    let reserve: { mode: "reserve"; scheduledAt: string } | null = null;
+    if (input.scheduleAt !== undefined && input.scheduleAt !== null) {
+      const checked = checkReserveTime(input.scheduleAt);
+      if (!checked.ok) return fail(checked.error, 400);
+      reserve = { mode: "reserve", scheduledAt: checked.at };
+    }
+    publication = { runId: randomUUID(), state: "writing", blogId, visibility: input.visibility, fingerprint: publicationFingerprint(row), startedAt: now, ...(reserve || {}) };
   } else {
     if (typeof input.runId !== "string" || current.runId !== input.runId) return fail("현재 원고의 발행 실행이 아닙니다.");
-    if (input.action === "published") {
+    if (input.action === "reserved") {
+      if (current.mode !== "reserve") return fail("예약 실행이 아닙니다.");
+      const at = typeof input.scheduledAt === "string" ? new Date(input.scheduledAt).getTime() : NaN;
+      if (!Number.isFinite(at) || at !== new Date(String(current.scheduledAt)).getTime()) return fail("예약 목록의 시각이 요청한 예약 시각과 다릅니다.", 400);
+      if (current.state === "reserved") return json({ publication: current, title: row.title });
+      if (!["publishing", "uncertain"].includes(String(current.state))) return fail("예약 발행을 시작한 실행만 예약 결과를 기록할 수 있습니다.");
+      publication = { ...current, state: "reserved", reservedAt: now, verification: "reservation-list", error: null };
+    } else if (input.action === "published") {
+      if (current.mode === "reserve") return fail("예약 실행은 예약 목록 확인 결과로만 기록합니다.");
       const url = naverPostUrl(input.url, String(current.blogId));
       if (!url) return fail("대상 블로그의 실제 게시 URL을 확인하지 못했습니다.", 400);
       if (current.state === "published") return current.url === url ? json({ publication: current, title: row.title }) : fail("이미 기록한 발행 URL과 다릅니다.");
@@ -52,7 +68,7 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
       if (current.state !== "writing" || publicationFingerprint(row) !== current.fingerprint) return fail("원고가 변경됐거나 이미 발행 단계입니다. 최종 버튼을 누르지 않습니다.");
       publication = { ...current, state: "publishing", armedAt: now };
     } else {
-      if (current.state === "published") return json({ publication: current, title: row.title });
+      if (current.state === "published" || current.state === "reserved") return json({ publication: current, title: row.title });
       if (!["writing", "publishing", "uncertain"].includes(String(current.state))) return fail("이미 종료한 발행 실행입니다.");
       const state = current.state === "writing" && input.action === "failed" ? "failed" : "uncertain";
       publication = { ...current, state, error: String(input.error || "발행 결과를 확인해 주세요.").slice(0, 500), checkedAt: now };

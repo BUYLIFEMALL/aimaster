@@ -45,6 +45,7 @@ function setup(initial = fixture()) {
     "@/lib/draftWriteGuard": guards,
     "@/lib/draftReview": review,
     "@/lib/draftRevisions": revisions,
+    "@/lib/reserveTime": moduleAt("../lib/reserveTime.ts"),
   };
   const route = moduleAt("../app/api/extension/drafts/library/[draftId]/auto-publish/route.ts", mocks);
   const call = (action, values = {}, token = "own") => route.POST(new Request("https://test.invalid", { method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json" }, body: JSON.stringify({ action, ...(action === "claim" ? { fingerprint: guards.publicationFingerprint(store.row) } : {}), ...values }) }), { params: Promise.resolve({ draftId: "draft-1" }) });
@@ -94,6 +95,33 @@ test("published URL must be this blog, confirmed only after arm, receipt is idem
   assert.equal((await s.call("published", { runId, url: "https://blog.naver.com/my_blog/224123456789" })).status, 200);
   assert.equal(s.store.row.seo_report.autoPublish.state, "published");
   assert.equal((await s.call("claim", { blogId: "my_blog", visibility: "private" })).status, 409);
+});
+// 2026-10-24 예약 포스팅(블로그 핵심 지침 ③ⓒ)
+const reserveAt = (minutes) => new Date(Math.ceil((Date.now() + minutes * 60000) / 600000) * 600000).toISOString();
+test("reserve: claim checks 10-minute steps and 20-minute lead; a reserve run records only a matching reservation", async () => {
+  const bad = setup();
+  assert.equal((await bad.call("claim", { blogId: "my_blog", visibility: "private", scheduleAt: reserveAt(5) })).status, 400);
+  assert.equal((await bad.call("claim", { blogId: "my_blog", visibility: "private", scheduleAt: new Date(Date.parse(reserveAt(60)) + 60000).toISOString() })).status, 400);
+  assert.equal((await bad.call("claim", { blogId: "my_blog", visibility: "private", scheduleAt: "not-a-date" })).status, 400);
+  assert.equal(bad.store.updates, 0);
+  const s = setup(); const at = reserveAt(60);
+  assert.equal((await s.call("claim", { blogId: "my_blog", visibility: "private", scheduleAt: at })).status, 200);
+  const run = s.store.row.seo_report.autoPublish;
+  assert.equal(run.mode, "reserve"); assert.equal(run.scheduledAt, at);
+  assert.equal((await s.call("reserved", { runId: run.runId, scheduledAt: at })).status, 409); // arm 전에는 기록 불가
+  await s.call("arm", { runId: run.runId });
+  assert.equal((await s.call("published", { runId: run.runId, url: "https://blog.naver.com/my_blog/224123456789" })).status, 409);
+  assert.equal((await s.call("reserved", { runId: run.runId, scheduledAt: reserveAt(120) })).status, 400);
+  assert.equal((await s.call("reserved", { runId: run.runId, scheduledAt: at })).status, 200);
+  assert.equal(s.store.row.seo_report.autoPublish.state, "reserved");
+  assert.equal((await s.call("reserved", { runId: run.runId, scheduledAt: at })).status, 200); // 같은 결과 다시 보고는 그대로
+  assert.equal((await s.call("uncertain", { runId: run.runId })).status, 200);
+  assert.equal(s.store.row.seo_report.autoPublish.state, "reserved"); // 예약 완료는 불확실로 되돌리지 않음
+});
+test("reserve: an immediate run cannot be recorded as a reservation", async () => {
+  const s = setup(); await s.call("claim", { blogId: "my_blog", visibility: "private" });
+  const runId = s.store.row.seo_report.autoPublish.runId; await s.call("arm", { runId });
+  assert.equal((await s.call("reserved", { runId, scheduledAt: reserveAt(60) })).status, 409);
 });
 test("uncertain results can reconcile but never re-arm or restart", async () => {
   const s = setup(); await s.call("claim", { blogId: "my_blog", visibility: "private" });

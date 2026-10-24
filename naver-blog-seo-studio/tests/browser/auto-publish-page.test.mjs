@@ -70,3 +70,30 @@ test("real Naver detached input editor is recognized with title plus toolbar/con
   assert.equal((await command(viewer, 'published', { title: '시험' })).complete, true);
   await viewer.close();
 });
+
+// 2026-10-24 예약 포스팅: 예약 시각을 넣고 반영을 확인해야만 최종 버튼을 누르고, 즉시 실행은 예약이 켜져 있으면 멈춘다.
+const reserveSettings = `<label for="private">비공개</label><input id="private" type="radio" name="v"><label for="now">현재</label><input id="now" type="radio" name="w" checked><label for="reserve">예약</label><input id="reserve" type="radio" name="w">
+  <input class="input_date" type="date"><select class="hour">${Array.from({ length: 24 }, (_, h) => `<option value="${String(h).padStart(2, "0")}">${h}</option>`).join("")}</select><select class="minute">${["00", "10", "20", "30", "40", "50"].map(m => `<option value="${m}">${m}</option>`).join("")}</select>
+  <button data-testid="seOnePublishBtn" onclick="window.finalClicks=(window.finalClicks||0)+1">발행</button>`;
+test("reserve: settings fills date/hour/minute and final requires the reservation; immediate run refuses a reservation", async () => {
+  const at = new Date(Math.ceil((Date.now() + 90 * 60000) / 600000) * 600000);
+  const page = await pageWith(editor("시험", "본문") + reserveSettings);
+  const args = { title: "시험", body: "본문", imageCount: 0, visibility: "private", runId: "run1", scheduledAt: at.toISOString() };
+  assert.equal((await command(page, "settings", args)).ok, true);
+  const filled = await page.evaluate(() => ({ date: document.querySelector(".input_date").value, hour: document.querySelector(".hour").value, minute: document.querySelector(".minute").value, reserve: document.getElementById("reserve").checked }));
+  const pad = n => String(n).padStart(2, "0");
+  assert.deepEqual(filled, { date: `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}`, hour: pad(at.getHours()), minute: pad(at.getMinutes()), reserve: true });
+  assert.equal((await command(page, "final", { ...args, scheduledAt: "" })).ok, false); // 즉시 실행인데 예약이 켜져 있으면 누르지 않음
+  assert.equal((await command(page, "final", args)).clicked, true);
+  assert.equal(await page.evaluate(() => window.finalClicks), 1); await page.close();
+});
+test("reserve: the reservation list must hold exactly one post with the same title and time", async () => {
+  const at = new Date(Math.ceil((Date.now() + 90 * 60000) / 600000) * 600000);
+  const pad = n => String(n).padStart(2, "0");
+  const stamp = `${at.getFullYear()}. ${at.getMonth() + 1}. ${at.getDate()} ${at.getHours()}:${pad(at.getMinutes())}`;
+  const row = (title, when) => `<button data-click-area="tpb*t.schedulelist"><strong>${title}</strong><span class="date">${when}</span></button>`;
+  for (const [rows, expected] of [[row("시험", stamp), true], [row("다른 글", stamp), false], [row("시험", stamp) + row("시험", stamp), false], ["", false]]) {
+    const page = await pageWith(editor() + rows);
+    assert.equal((await command(page, "reserved", { title: "시험", scheduledAt: at.toISOString() })).complete, expected); await page.close();
+  }
+});
