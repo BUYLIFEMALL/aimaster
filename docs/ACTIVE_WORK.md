@@ -24,5 +24,4 @@
 |---|---|---|---|
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-workspace` | 2026-10-24 18:10 | 운영 DB 버전 v1.10 맞추기 → Gemini 유료 시험 → 디자인 리뉴얼 화면 검수 → 폴더 인수인계 문서 정리 → OpenAI 모델 목록 회원별 캐시 |
 | 메인 사이트 `app/admin/dev-docs/` · `app/api/admin/dev-docs/` · `components/admin/devdocs/` · `lib/devDocs/` · `scripts/dev-requests.mjs` · `supabase/migrations/0044_*` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-24 | (배포 완료 c7f7b1ae2 · **DB 0044 주인님 실행 대기 → 시험 후 해제**) 수정 요청함에 「작업 결과」·「주인님이 해 줄 일(카테고리별)」 추가 — 플랜 `docs/PLAN_20261024_ADMIN_REQUEST_RESULTS.md`, 빌드 1~2회·DB 0044(주인님 실행) 승인 |
-| (확인만, 코드 수정 없음) `video-to-gif/local-renderer/test/`·`video-to-gif/AGENTS.md` 기록 | [역할: mac-mini] Claude Code(맥미니, 크롬) · 세션 `claude-mac-20261024-maccheck` | 2026-10-24 | 윈도우 영상 담당 요청: 내 PC 렌더러 1.30 맥판 loop·normalize·compress 맥 실물 확인(터미널 + 크롬 3화면) |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` | 2026-10-24 | E-3 v2.19 · E-4 v2.20 · E-5 v2.21 배포 완료 → **② 간편 모드 실제 네이버 입력 시험(비공개 1건) — 크롬 시험 계정 로그인 대기** → ③ SEO 예약·콘텐츠 메이커 포스팅 → ④ 묶음 E. 미배포 대기 `89d135c4b`. 현황 `docs/roles/blog.md` |

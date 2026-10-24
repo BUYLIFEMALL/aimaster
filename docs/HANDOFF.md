@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 🟡 [역할: mac-mini] Claude Code(맥미니) · 세션 `claude-mac-20261024-maccheck` — 내 PC 렌더러 1.30 맥 실물 확인: 터미널 통과, 크롬 화면 3곳 남음 (윈도우 영상 담당 요청)
+- 확인만(코드 수정 없음), 절차 `video-to-gif/local-renderer/test/MAC_CHECK.md`. 결과 상세: `video-to-gif/AGENTS.md` 맨 아래 「v1.24 맥 실물 확인」.
+- ✅ 설치 1.30(저장소판=설치판), ✅ `video-matrix.mjs` 8경우 모두 통과(`PL_FFMPEG` 없이 맥 ffmpeg 8.1 스스로 찾음), ✅ loop 1건 7.02초·영상+소리. 실패 0 → 윈도우가 고칠 것 없음.
+- ⏸ 크롬 화면 3곳(무한 루프·AI 영상 스튜디오 합치기·갤러리): Claude가 조종하는 맥미니 크롬 프로필에 「AIMaster 내 PC 고속 변환」 확장과 시험 계정 로그인이 없어 미확인. 주인님이 그 프로필에 확장을 불러오고 로그인하면 맥미니 세션이 이어서 확인.
+- **맥미니 Claude 크레딧 소진 → 다른 CLI가 이어받음. 인수인계: `docs/MAC_MINI_HANDOFF_20261024.md`**(역할·남은 일·환경 메모).
+- 비용 없음.
+https://infinite-loop-video.buylife.xyz/studio
+
 ## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 남은 작업 묶음: 카테고리 이름·작업 중 표·카테고리 지침 초안 15개·비교표 버전·개발분석표 §6
 - 카테고리 이름 「데이터수집|기획」→「데이터수집」: 주인님 승인 → 크롬 SQL 편집기(주인님 Run) 운영 DB `esgxyikcnnvmlhygjkth` 반영 확인, `supabase/migrations/0045_category_rename_scraping.sql`(slug 유지).
 - 작업 중 표: blog·mac-mini 줄에 역할 표시 추가. docbot-g2 줄은 `ai-doc-chatbot/` 미커밋 작업이 있어 실제 작업 중 → 그대로 둠.
