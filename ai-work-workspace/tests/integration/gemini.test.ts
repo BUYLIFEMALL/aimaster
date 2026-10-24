@@ -224,6 +224,28 @@ describe('Gemini 모델 목록과 제공자 선택(U4)', () => {
     expect(idsA2).toEqual(idsA);
   });
 
+  it('더 새로운 Flash-Lite가 있어도 기본은 가장 저렴한 2.5 Flash-Lite', async () => {
+    const withNewer = { models: [...LIST.models, { name: 'models/gemini-3.5-flash-lite', displayName: 'Gemini 3.5 Flash Lite', supportedGenerationMethods: ['generateContent'] }] };
+    setGeminiModelsFetch((async () => new Response(JSON.stringify(withNewer), { status: 200 })) as unknown as typeof fetch);
+    await withMemberAiKeys({ geminiKey: 'AIzaSyNewer-lite-member-key-00000000', provider: 'gemini' }, async () => {
+      await warmGeminiModels();
+      expect(models.autoModel()).toBe('gemini-2.5-flash-lite');
+      expect(models.offeredModels(false).map((m) => m.id)).toContain('gemini-3.5-flash-lite');
+    });
+  });
+
+  it('회원 OpenAI 키 목록에서는 채팅 모델만 남기고 추천은 3개', async () => {
+    const { setOpenAIModelsFetch } = await import('@/litpage/server/ai/providers/openaiModels.ts');
+    setOpenAIModelsFetch((async () => new Response(JSON.stringify({ data: ['tts-1', 'omni-moderation-latest', 'gpt-realtime', 'gpt-4o-transcribe', 'gpt-5.4-2026-03-05', 'text-embedding-3-small', 'gpt-5-mini', 'gpt-5.6', 'gpt-4.1', 'o4-mini', 'gpt-image-1'].map((id) => ({ id, object: 'model' })) }), { status: 200 })) as unknown as typeof fetch);
+    await withMemberAiKeys({ openaiKey: 'sk-member-own-openai-key-0000000000', provider: 'openai' }, async () => {
+      await models.warmModelLists();
+      const offered = models.offeredModels(false);
+      expect(offered.map((m) => m.id).sort()).toEqual(['gpt-4.1', 'gpt-5-mini', 'gpt-5.6', 'o4-mini']);
+      expect(offered.filter((m) => m.group === 'recommended')).toHaveLength(3);
+    });
+    setOpenAIModelsFetch(null);
+  });
+
   it('목록을 못 받으면 Google 공식 별칭으로 진행한다', async () => {
     setGeminiModelsFetch((async () => new Response('{}', { status: 500 })) as unknown as typeof fetch);
     await withMemberAiKeys({ geminiKey: 'AIzaSyOther-member-key-000000000000', provider: 'gemini' }, async () => {

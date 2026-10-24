@@ -90,10 +90,13 @@ function geminiInfo(m: GeminiModel, recommended: boolean): ModelInfo {
  */
 function geminiModels(): { listed: ModelInfo[]; def: string; fast: string } {
   const list = cachedGeminiModels() ?? [];
-  const picks = (['flash-lite', 'flash', 'pro'] as const).map((t) => pickGemini(list, t)).filter((m): m is GeminiModel => !!m);
+  const cheapestModel = list.find((m) => m.slug === GEMINI_CHEAPEST);
+  const picks = [...(cheapestModel ? [cheapestModel] : []), ...(['flash-lite', 'flash', 'pro'] as const).map((t) => pickGemini(list, t))].filter((m, i, a): m is GeminiModel => !!m && a.findIndex((x) => x?.slug === m.slug) === i);
   const ids = new Set(picks.map((m) => m.slug));
   const listed = [...picks.map((m) => geminiInfo(m, true)), ...list.filter((m) => !ids.has(m.slug) && !m.preview).map((m) => geminiInfo(m, false))];
-  const def = (pickGemini(list, 'flash-lite') ?? pickGemini(list, 'flash'))?.slug ?? GEMINI_FLASH_LITE_ALIAS;
+  // 최신 Flash-Lite가 늘 가장 싸지는 않다(2026-10 기준 3.5 Flash-Lite는 2.5 Flash-Lite의 3~6배) → 가장 저렴한 2.5 Flash-Lite 우선
+  const cheapest = list.find((m) => m.slug === GEMINI_CHEAPEST);
+  const def = (cheapest ?? pickGemini(list, 'flash-lite') ?? pickGemini(list, 'flash'))?.slug ?? GEMINI_FLASH_LITE_ALIAS;
   const fast = def;
   if (!listed.some((m) => m.id === def)) {
     const lite = def === GEMINI_FLASH_LITE_ALIAS;
@@ -103,6 +106,23 @@ function geminiModels(): { listed: ModelInfo[]; def: string; fast: string } {
 }
 
 let geminiFast = '';
+/** 이식판(U6-A 시험 중 결정): 「자동」 Gemini 기본 — Google 가격표상 가장 저렴한 글 생성 모델(없으면 최신 Flash-Lite) */
+const GEMINI_CHEAPEST = 'gemini-2.5-flash-lite';
+
+/**
+ * 이식판(U6-A 시험 중 발견): 회원 본인 OpenAI 키로 받은 표준 /models 목록에는 음성·검열·실시간·이미지·날짜 붙은 옛 판까지
+ * 100개 넘게 설명 없이 들어와 전부 「추천」으로 보였다. 회원 키 목록에서만 채팅 모델(gpt-·o숫자·chatgpt-)을 남기고,
+ * 추천은 최신 세대 3개로 줄인다. (원본 시험·호환 업체 주소는 회원 키가 아니라 그대로)
+ */
+const OPENAI_NON_CHAT = /(tts|whisper|transcribe|audio|realtime|moderation|embedding|image|dall-e|search|instruct|davinci|babbage|live|computer-use|codex|-\d{4}-\d{2}-\d{2}$|-\d{4}$)/i;
+function memberOpenAIChatModels(listed: ModelInfo[]): ModelInfo[] {
+  if (!memberKeyTag() || listed.some((m) => m.description)) return listed;
+  const gen = (id: string) => Number(/^gpt-(\d+(?:\.\d+)?)/i.exec(id)?.[1] ?? 0);
+  const chat = listed
+    .filter((m) => /^(gpt-|o\d|chatgpt-)/i.test(m.id) && !OPENAI_NON_CHAT.test(m.id))
+    .sort((a, b) => gen(b.id) - gen(a.id) || a.id.length - b.id.length || a.id.localeCompare(b.id));
+  return chat.map((m, i) => ({ ...m, group: i < 3 ? 'recommended' : 'other' }));
+}
 
 /** 한 제공자의 모델(목록·숨김·기본값). envModel은 「자동」 제공자에만 적용. */
 function providerModels(p: Exclude<ProviderId, 'none'>, envModel: string): { listed: ModelInfo[]; hidden: ModelInfo[]; def: string } {
@@ -113,7 +133,7 @@ function providerModels(p: Exclude<ProviderId, 'none'>, envModel: string): { lis
   }
   if (p === 'openai') {
     const list = cachedOpenAIModels();
-    const listed = (list ?? []).filter((m) => m.visibility !== 'hide').map(openaiInfo);
+    const listed = memberOpenAIChatModels((list ?? []).filter((m) => m.visibility !== 'hide').map(openaiInfo));
     const hidden = (list ?? []).filter((m) => m.visibility === 'hide').map(openaiInfo);
     if (listed.length && !listed.some((m) => m.group === 'recommended')) listed.slice(0, 3).forEach((m) => (m.group = 'recommended'));
     const def = envModel || listed.find((m) => /^gpt-/i.test(m.id))?.id || listed[0]?.id || '';
