@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 새 지침 다시 읽고 상태 정리: 게시판 진행 표시 v1.20 운영 확인, 역할 파일 갱신
+- 새 지침(개발 문서 확인·역할 파일·관리자 지시·요청함) 다시 읽음. `dev-requests list --role video` 대기 0.
+- 게시판 진행 표시(`5b2c589b5`)는 디자인 담당의 v1.20 리뉴얼 배포(`ai-video-studio-9eovaet1l`)에 함께 실림(리뉴얼 뒤에도 코드 유지 확인). 운영 관리자 계정: 「숨기는 중…」 0.06초, 카드 바뀜 2.4초(전 3.9초·표시 없음), 「공개하는 중…」도 같음, 시험 뒤 숨긴 예시 0개로 되돌림. 배포 대기 줄은 「내보낸 기록」으로 옮김.
+- 맥미니 중간 결과(맥미니 세션 기록 전): 1.30 재설치·`video-matrix.mjs` 8경우 통과(맥 ffmpeg 8.1 스스로 찾음)·loop 7.02초 영상+소리 — 크롬 화면 3곳은 맥미니 크롬 확장 연결 끊김으로 대기.
+- 역할 파일 `docs/roles/video.md` 초안을 실제 상태로 고침(대기·최근 완료·주인님께 여쭐 것). 요청함 `report`·`ask`는 DB 칸(0044) 미적용이라 아직 못 씀 — 역할 파일에 남김.
+- 비용 없음. 링크:
+https://ai-video-studio.buylife.xyz/prompts
+
 ## 2026-10-24 🔶 Claude Code(윈도우) · 세션 `claude-win-sdp` — 관리자 「수정 요청함」에 「📬 작업 결과」·「🙋 내가 해 줄 일(분류별)」 추가 (배포 완료, DB 0044 주인님 실행 대기)
 - 주인님 지시: 「여기엔 내가 작업요청한 내용에 대한 결과를 받아 볼수 있도록 해놔 지침에 추가하고」「내가 해줘야할 요청사항도 따로 카테고리별로 여기 모아서 볼수 있게 해줘」(agent가 요청한 내용) · 「그냥 니가 처리해」. 화면 폴더는 `claude-win-dotori`가 작업 중 줄을 지운 뒤(17:36) 이어받음.
 - 한 일: 마이그레이션 `supabase/migrations/0044_admin_dev_requests_results_owner_actions.sql`(종류 `work_result`·`owner_action`, 칸 category·title·from_session·parent_id·link·cost, 분류 8개) · `scripts/dev-requests.mjs`에 `report`·`ask`·`asks`(같은 제목 중복 방지, `list`는 관리자→세션 요청만) · API `PATCH action=done|dismiss|cancel` · 화면 「수정 요청함」 3칸(해 줄 일 분류별 접기+✔완료/✖필요 없음/처리한 일, 작업 결과 카드+연결 요청, 기존 기록 접기) · 「한눈에 보기」 「🙋 내가 해 줄 일」 숫자 카드 · **0044 실행 전에도 깨지지 않게** 칸 없음(42703)이면 기본 칸으로 다시 읽음 · 지침: 루트 `CLAUDE.md`·`AGENTS.md` 「📬 작업 결과·주인님께 드릴 요청은 관리자 수정 요청함에 남긴다」 + `docs/MULTI_AGENT_SESSION_RULES.md` 점검표 1줄 · 문서 목록 다시 만듦.

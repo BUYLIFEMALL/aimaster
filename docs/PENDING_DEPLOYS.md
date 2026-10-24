@@ -20,7 +20,6 @@
 | `ai-doc-chatbot` (운영 v1.07) | G-1 답변 공급자/모델·회원 공용 키·중단. DB provider/카탈로그 준비 적용, 임베딩·파싱 유지 | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | [G-1 결과](analysis-autogemma-starter-20261024/G1_IMPLEMENTATION_20261024.md) | 실회원/Edge 검수 후 G-1~G-4 묶음, 버전 +0.01·DB·프로그램 비교표 일치 |
 | `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
 | `naver-blog-agent` (운영 v2.21) | 다른 포스팅 방식에서 「발행 전까지」로 바꾸면 「예약 시각도 미리 넣어 두기」를 끔(화면 동작만) | `89d135c4b` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-blog3` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
-| `ai-video-studio` (운영 v1.19) | 프롬프트 게시판 관리자 숨기기·다시 공개·저장, 내 프롬프트 삭제에 진행 중 배지(도는 아이콘) + 누른 카드 바로 갱신(전에는 약 3.9초 표시 없음) | `5b2c589b5` | 2026-10-24 · Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 게시판 A안 항목 | v1.20으로 함께 배포 |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
 | `shop-detail-page` | 30일 자동 정리(`cleanup-generated`)가 지운 상품·파일 수를 회원별 `usage_logs` `cleanup_expired`로 기록(공용 `cleanup-usage-log` 사본, 관리자 「30일 자동 정리」 표) — 정리 동작 자체는 그대로, 유예 2026-11-21까지는 지우는 것이 없어 기록도 없음 | `34094c954` | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 아래 | 운영 v1.30 → v1.31, 2026-11-21 뒤 첫 정리에서 기록 1줄 확인 |
 | `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
@@ -57,6 +56,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-video-studio` | v1.20 · 2026-10-24 (디자인 담당 `agy-win-20261024-videostudio` 리뉴얼 배포 `ai-video-studio-9eovaet1l`에 함께 실림 — 영상 담당 `claude-win-video`가 운영 확인) | 프롬프트 게시판 진행 중 배지 + 누른 카드 바로 갱신 `5b2c589b5`(대기 줄 옮김) — 운영 관리자 계정: 「숨기는 중…」 0.06초에 표시, 카드 바뀜 2.4초(전 3.9초·표시 없음), 되돌림 |
 | `ai-video-studio` | v1.19 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-2snzpcyw2`) | 프롬프트 게시판 A안(관리자 편집 + 내 프롬프트 저장, 운영 DB 표 2개) `79d6aed00`(대기 줄 없음) |
 | `playlist-channel-studio` | 영상(MP4) 배경 그리기(`c40641d57`) | v1.31 · 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` — 운영 크롬 확인 |
 | `ai-video-studio` | v1.18 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-6b8vhdn18`) | 갤러리 카드 「⚡ 내 PC로」 GIF·작은 MP4 `a354d4c56`(대기 줄 없음) |
