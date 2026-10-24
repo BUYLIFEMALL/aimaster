@@ -117,12 +117,13 @@
 | 비동기 문서 처리 | ○ `src/app/api/documents/async/route.ts` |
 | 800자 조각·Upstage 임베딩 | ○ `src/lib/chat/ingest.ts`, `upstage.ts` |
 | 관련 조각 검색(벡터) | ○ `src/lib/chat/core.ts` |
-| 키워드 혼합 검색 | × (G-3 대기) |
+| 키워드 혼합 검색 | ○ 기존 v1.05 `src/app/api/chat/route.ts` `findDocHits`·`src/lib/chat/core.ts` `mergeHybrid`. G-3은 역할 유지이며 새 검색 구현이 아님(2026-10-25 담당 확인) |
 | 웹 검색 필요 판단 + Tavily | ○ `src/lib/chat/tavily.ts`, `core.ts` |
 | 답변 스트리밍·출처 표시 | ○ `src/app/api/chat/route.ts`, `src/components/chat/Markdown.tsx` |
 | 채팅방 저장·고정 | ○ `src/app/api/rooms/route.ts`, 마이그레이션 `0007_rooms_pinned.sql` |
 | 여러 답변 공급자(G-1) | △ **미배포** `src/lib/compatibleChat/`(`2d56a117b`) |
 | 회원별 봇·방별 봇 선택·당시 설정 보존(G-2) | △ **미배포** `src/lib/bots/`, `src/app/api/bots/route.ts`, 마이그레이션 `20261024085152_g2_member_bots.sql`(`07795803c`, 운영 DB 적용은 역할 파일 기록) |
+| 역할·입력·문서/웹 자료 경계(G-3) | △ **미배포** `src/lib/chat/prompts.ts`, `bots/core.ts`(`d7dd0d367`), 93개 시험·타입·로컬 빌드. 일반 회원 봇 CRUD/재열기/선택/삭제된 봇·키 미등록 안내 확인. 실제 모델 품질·방/당시 답변·좁은 화면 미검수 |
 | 로컬 AI(Ollama, G-5) | × (보류) |
 | 웹 검색 사용량 보기 | ○ `src/app/api/settings/web-stats/route.ts` |
 
@@ -182,7 +183,7 @@
 | 묶음 | 합칠 프로그램 → 기준 | 가져온 기능 | 상태 |
 |---|---|---|---|
 | 병합 B | `persona-style-studio` → `ai-writing-editor` | 문체 바꾸기·페르소나 | ✅ 2026-10-21 (`85020e791`, 글쓰기 v1.11·페르소나 이동 안내) |
-| G-1~G-5 | 외부 EXT-TL-01 AutoGemma → `ai-doc-chatbot`·`ai-prompt-studio` | 여러 공급자·봇·문서 근거·로컬 AI | G-1·G-2 미배포, G-3~G-5 대기(담당 `docbot-prompt`) |
+| G-1~G-5 | 외부 EXT-TL-01 AutoGemma → `ai-doc-chatbot`·`ai-prompt-studio` | 여러 공급자·봇·문서 근거·로컬 AI | G-1~G-3 미배포, G-4 다음·G-5 별도 결정(담당 `docbot-prompt`) |
 | 독립 | 나머지 8개 | – | 개발분석표 J 묶음: 「문서 워크스페이스로 묶을지는 미검토」 |
 
 원칙: 「병합」은 좋은 기능만 기준 프로그램에 더하는 것이다. 원본은 비공개·이동 안내로 두고 주소는 지우지 않는다.
@@ -196,7 +197,7 @@
 | 1차 | 워크스페이스 운영 DB 버전 v1.10 맞추기 | 워크 | 역할 파일 | DB 1회 | 담당 대기(주인님 결정) |
 | 1차 | 챗봇 G-1·G-2 배포·화면 검수 | 챗봇 | 역할 파일 | 빌드 1 | 담당 대기 |
 | 2차 | 전자책 구형 모델 선택지(1.5) 정리 | 전자책 | `SettingsModal.tsx` | 없음 | 확인 필요 |
-| 2차 | 챗봇 키워드 혼합 검색(G-3)·문서 근거 강화(G-4) | 챗봇 | 담당 플랜 | 회원 키 | 대기 |
+| 2차 | 챗봇 G-3 역할 유지(기존 혼합 검색 보존)·G-4 여러 문서/분류/미리보기/PDF 경고 | 챗봇 | [G-3 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G3.md) | 회원 키 | G-3 코드/검사 완료·미배포/실제 AI 미검수, G-4 다음 |
 | 2차 | 워크스페이스 AI 회의록(U6)·업무 받은편지함(U7) | 워크 | 로드맵 | DB 변경 승인 | 대기 |
 | 3차 | 번역·글쓰기·슬라이드 여러 AI 공급자 | 각 | G-1 공용 키 | – | 후보 |
 | 3차 | 「문서 워크스페이스」로 묶기 검토 | – | 개발분석표 J | – | 미검토 |
@@ -207,10 +208,12 @@
 |---|---|---|
 | 챗봇 | G-1 답변 공급자/모델·회원 공용 키·중단 | `2d56a117b`, `docs/PENDING_DEPLOYS.md` |
 | 챗봇 | G-2 회원별 봇·방 선택·답변 설정 보존 | `07795803c`, 역할 파일 |
+| 챗봇 | G-3 역할/자료 경계·과거 날짜 보존·번역/요약 자동 검색 생략, 93개 검사·일반 회원 설정 검수 | `d7dd0d367`, [인수인계](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G3.md) |
 | 슬라이드 | 좌측 메뉴 계정·로그아웃 위치(클래스만) | `22c6cda35`, `docs/PENDING_DEPLOYS.md` |
 
 ## 7. 변경 이력
 
 | 날짜 | 바뀐 것 | 작성 |
 |---|---|---|
+| 2026-10-25 | docbot-prompt 담당이 챗봇 G-2 일반 회원 검수·G-3 미배포 상태 갱신, 기존 혼합 검색을 새 G-3로 적은 초안 오류 정정. 다른 프로그램 칸은 초안 유지 | Codex `codex-win-20261025-docbot-g3` |
 | 2026-10-24 | 문서 처음 작성(초안) — 9개 운영 + 병합 1개 코드 기준, 성격별 4묶음 | Claude Code(윈도우) `claude-win-dotori` [역할: analysis-planning] |

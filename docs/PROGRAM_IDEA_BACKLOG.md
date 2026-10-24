@@ -439,6 +439,8 @@
 
 ## 2026-10-24 AutoGemmaStarter 2.0.0 분석에서 나온 후보 (Claude Code 윈도우, `claude-win-dotori`) — [분석](analysis-autogemma-starter-20261024/REPORT.md)
 
+**2026-10-25 G-3 검토 이력(`[역할: docbot-prompt]`, `d7dd0d367`):** IDEA-GEMMA-02는 역할/입력/자료 메시지 분리·과거 날짜 보존·기본 번역/요약의 불필요한 자동 검색 생략까지 구현, 93개 시험·타입·로컬 빌드 통과·미배포입니다. 안정성: 자료 속 역할/언어 변경·내부 필드 제외·JSON 라우터/기존 저장 계약 검사. 적용성: 문서 챗봇만 보강, Prompt G-1 사본 유지. 편의: 일반 회원 봇 생성/수정/재열기/선택/삭제·삭제된 봇/키 미등록 안내 실제 확인, 시험 봇 정리. 개발 관점은 역할 경계 보강, 디자인은 기존 UI 동작 검수만(변경은 agy 담당), 신규성은 기존 기능 안정화입니다. 실제 모델 품질·방/당시 답변·좁은 화면은 미검수. IDEA-GEMMA-04/G-4는 다음, G-5 별도 결정. AI0·Vercel배포0. [인수인계](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G3.md).
+
 <!-- GEMMA_DOCBOT_PROMPT_REVIEW_20261024 -->
 **2026-10-24 담당 검토 이력(Codex 윈도우 `codex-win-20261024-docbot-prompt`):** [공식 공급자 확인](analysis-autogemma-starter-20261024/OFFICIAL_PROVIDERS_20261024.md)·[G-1~G-5 개발 플랜/비용](analysis-autogemma-starter-20261024/PLAN_G1_G5_20261024.md) 작성, 구현/DB/비용 승인 대기. IDEA-GEMMA-01은 NVIDIA 운영 이용 조건과 Groq 실제 무료 한도 확인을 선결 조건으로 보완(안정성), 두 앱의 공용 키/호출 재사용에 적용(적용성), 재등록·유료 자동 전환을 방지(편의). IDEA-GEMMA-02는 회원별 봇/역할 검수와 위치 선택 대기. IDEA-GEMMA-03은 HTTPS→localhost의 CORS/LNA 시제품·회원 PC 설정 난이도 때문에 G-5 별도 선택 대기. IDEA-GEMMA-04는 기존 단일 문서 선택/출처 보기를 재사용하고 다중 선택의 검색 전 범위 적용·문서 분류/미리보기·PDF 경고를 G-4로 보강하는 안. 디자인/개발/신규성의 기존 표 구분은 유지하며 신규 기능 구현 완료로 표시하지 않습니다. 실제 API 0·빌드 0·비용 없음.
 <!-- /GEMMA_DOCBOT_PROMPT_REVIEW_20261024 -->
