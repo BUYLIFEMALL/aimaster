@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 요청함 마이그레이션 0044 운영 DB 실행(주인님 승인) → `dev-requests report·ask` 사용 가능
+- 배경: 이커머스·이미지 담당(`claude-win-sdp`) 항목의 「DB 0044 주인님 실행 대기」. 주인님이 한 번 실행하셨다고 했으나 운영 DB(`esgxyikcnnvmlhygjkth`) 칸 조회(information_schema) 결과 0044 칸이 없었음 → 주인님 승인으로 제가 크롬 SQL 편집기에서 실행.
+- 실행: `supabase/migrations/0044_admin_dev_requests_results_owner_actions.sql`의 주석을 뺀 SQL(영문 1,746자, 지문 `d6639a140a20` — 파일과 일치 확인) → 「Success. No rows returned」. 칸 6개(`category`·`title`·`from_session`·`parent_id`·`link`·`cost`) 생성 확인, `dev-requests asks` 정상.
+- 영상 역할 작업 결과 4건·주인님께 해 줄 일 3건(화질 결정·맥미니 확장 연결·영상 D 빌드 승인)을 요청함에 올림.
+- 비용 없음. 확인 주소: https://www.buylife.xyz/admin/dev-docs/requests
+
 ## 2026-10-24 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 수정 요청함 「작업 결과·내가 해 줄 일」 완료 (DB 0044 실행·실사용 시험)
 - 주인님 「진행」으로 운영 DB(`esgxyikcnnvmlhygjkth`)에 0044를 크롬 SQL 편집기에서 실행 → 새 칸 6개 확인. `report` 3건(수정 요청함·바나나 캔버스 인계·video-to-gif v1.21), `ask` 시험 1건(DB 분류) → 중복 방지 확인, 세션용 `list`에 섞이지 않음 확인 → 관리자 화면 표시·✔ 완료(→「처리한 일」) 동작 확인.
 - 남은 일: 없음. 이후 모든 세션은 지침대로 `report`/`ask` 사용. 바나나 캔버스 「무료 지우기」 승인받아 이어서 시작(작업 중 표 줄 교체).
