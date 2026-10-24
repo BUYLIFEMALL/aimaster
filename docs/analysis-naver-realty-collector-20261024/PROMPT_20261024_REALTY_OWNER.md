@@ -1,16 +1,16 @@
 # 부동산 담당 시작 프롬프트 — `realty-listing-alert` (2026-10-24)
 
-작성: `claude-win-dotori` [역할: analysis-planning]. 부동산 담당 세션(역할 ID `real-estate`)에 아래 코드 블록을 그대로 붙여 넣는다.
+작성: `claude-win-dotori` [역할: analysis-planning]. 부동산 담당 세션(역할 ID `realty`)에 아래 코드 블록을 그대로 붙여 넣는다.
 
 ```
-너는 AIMaster 저장소(D:\Antigravity\AIMaster)의 부동산 담당이다(역할 ID real-estate, 역할 파일 docs/roles/real-estate.md). 첫 일은 새 프로그램 「AI 부동산 매물 알림 자동화」(slug realty-listing-alert, 폴더 realty-listing-alert/)를 처음부터 만드는 것이다. 대상은 ① AIMaster 운영(DB ref esgxyikcnnvmlhygjkth). 모든 진행 안내·보고는 한국어 존댓말로 쓴다.
+너는 AIMaster 저장소(D:\Antigravity\AIMaster)의 부동산 담당이다(역할 ID realty, 역할 파일 docs/roles/realty.md). 첫 일은 새 프로그램 「AI 부동산 매물 알림 자동화」(slug realty-listing-alert, 폴더 realty-listing-alert/)를 처음부터 만드는 것이다. 대상은 ① AIMaster 운영(DB ref esgxyikcnnvmlhygjkth). 모든 진행 안내·보고는 한국어 존댓말로 쓴다.
 
 [시작하자마자]
-- docs/roles/real-estate.md 맨 위 「담당」과 docs/roles/README.md 역할 표 부동산 줄에 내 세션 이름을 적는다(node scripts/safe-commit.mjs).
+- (2026-10-24 담당 `claude-win-20261024-realty`가 역할 파일·역할 표 등록 완료)
 
 [작업 전 반드시 읽기 — 이 순서대로]
-1. node scripts/dev-requests.mjs list --role real-estate — 관리자 지시는 절대 지시
-2. docs/roles/real-estate.md
+1. node scripts/dev-requests.mjs list --role realty — 관리자 지시는 절대 지시
+2. docs/roles/realty.md
 3. 인수인계(가장 중요, 기준 문서): docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md
 4. 같은 폴더 PLAN_20261024_LIVE_LISTINGS.md(플랜 3판), REPORT.md(원본 분석)
 5. 루트 CLAUDE.md(새 프로그램 체크리스트·최상위 규칙), docs/ERROR_LESSONS.md, docs/HANDOFF.md 맨 위, docs/ACTIVE_WORK.md, docs/CATEGORY_GUIDE_MAP.md 부동산 줄
@@ -26,7 +26,7 @@
 이와 부딪히는 구현이 필요해 보이면 만들지 말고 주인님께 먼저 여쭌다.
 
 [진행 순서]
-- 시작할 때 docs/ACTIVE_WORK.md에 realty-listing-alert/ 줄([역할: real-estate])을 넣는다.
+- 시작할 때 docs/ACTIVE_WORK.md에 realty-listing-alert/ 줄([역할: realty])을 넣는다.
 - 코드를 고치기 전에 인수인계 §6 기준으로 이번 단계 개발 플랜(범위·순서·검수·비용)을 주인님께 먼저 보여 드린다.
 - 0단계 사전 검증부터: 저장소 밖 임시 폴더의 작은 확장으로, 주인님 크롬(Claude Code는 크롬 기본 프로필 실제 창만)에서 단지 1곳 목록 2~3페이지만 읽어 ①페이지가 불러온 응답 읽기 ②같은 주소 직접 부르기를 비교하고, 가격 칸 이름·거래 종류 코드·isMoreData·지역 화면 응답·창 최소화 때 chrome.alarms 동작·텔레그램 sendDocument 파일 전송을 확인한다. 결과는 같은 폴더 PREVALIDATION_YYYYMMDD.md에 남기고 임시 확장은 지운다. (주인님 승인 뒤 시작)
 - 그다음 §6의 1~6단계를 순서대로. 한 단계가 끝나면 커밋하고 다음으로.
@@ -39,11 +39,11 @@
 - 버전 v1.01 시작, lib/version.ts·programs.version·manifest version_name 함께.
 - 시험은 buylifemall@naver.com(일반 회원 시험 계정) 실제 로그인으로. 비밀번호는 입력하지 않는다.
 
-[함께 맡은 기존 일 — docs/roles/real-estate.md 「대기 중」]
+[함께 맡을 기존 일 — 루트 docs/HANDOFF.md 2026-10-24 「부동산 역할 인계 요청」 항목, 주인님 배정 시 역할 파일 「대기 중」으로 옮김]
 - real_estate_sales: N1 네이버 부동산 바로가기·N2 실거래 엑셀, 매물 분석 프롬프트 당해 연도 규칙, AI 분석 30일 정리, 카테고리 지침 초안 3종 확정, 비교표 카드 버전 v1.18.
 
 [완료 기준]
 - 인수인계 §7 검수 12개 모두 ✅(특히 서버 코드 land.naver.com 호출 0건·서버 DB 매물 데이터 0건), 크롬 데스크톱·375px 검수, node scripts/check-extension-release.mjs realty-listing-alert OK.
-- 문서: 프로그램 폴더 인수인계 6종(AGENTS.md·README.md·docs/IMPROVEMENTS.md·IMPROVEMENT_BACKLOG.md·DESIGN_HANDOFF.md·PLAN_*.md), 프로그램 비교표 카드, 카테고리 지침 지도 부동산 줄, 외부 개발분석표 EXT-RE-01 진행 상태, docs/SCHEDULER_POLICY.md 「확장 안 예약」 절, 역할 파일, 루트 HANDOFF([역할: real-estate]), ACTIVE_WORK 줄 삭제.
+- 문서: 프로그램 폴더 인수인계 6종(AGENTS.md·README.md·docs/IMPROVEMENTS.md·IMPROVEMENT_BACKLOG.md·DESIGN_HANDOFF.md·PLAN_*.md), 프로그램 비교표 카드, 카테고리 지침 지도 부동산 줄, 외부 개발분석표 EXT-RE-01 진행 상태, docs/SCHEDULER_POLICY.md 「확장 안 예약」 절, 역할 파일, 루트 HANDOFF([역할: realty]), ACTIVE_WORK 줄 삭제.
 - 작업 결과는 node scripts/dev-requests.mjs report로 관리자 화면에 남기고, 결과 보고에 프로그램 링크를 단독 줄로: https://realty-listing-alert.buylife.xyz
 ```
