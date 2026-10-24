@@ -3,7 +3,7 @@
 - 주소: https://realty-listing-alert.buylife.xyz (Vercel 프로젝트 `realty-listing-alert`, 팀 `buylife`) · 운영 DB ① AIMaster `esgxyikcnnvmlhygjkth`
 - 담당: [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` — 역할 파일 [`docs/roles/realty.md`](../docs/roles/realty.md)
 - 기준 인수인계(설계·결정의 원본): [`docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) · 0단계 결과 [`PREVALIDATION_20261024.md`](../docs/analysis-naver-realty-collector-20261024/PREVALIDATION_20261024.md)
-- 지금 상태: **v1.07(주소 칸 여유 배치) · v1.06 수집 상한·제한 안내 운영 배포(2026-10-25), 「준비중」 배지, 공개 전.** 시험 계정 `buylifemall@naver.com`에만 개별 권한 30일(2026-10-24). **정식 공개는 테스트에서 정상 동작이 확인된 뒤 주인님이 정한다**(그때 배지 떼기 + VIP 자동 부여).
+- 지금 상태: **v1.08(카톡·이메일 받기) · v1.07 주소 칸 · v1.06 수집 상한 운영 배포(2026-10-25), 「준비중」 배지, 공개 전.** 시험 계정 `buylifemall@naver.com`에만 개별 권한 30일(2026-10-24). **정식 공개는 테스트에서 정상 동작이 확인된 뒤 주인님이 정한다**(그때 배지 떼기 + VIP 자동 부여).
 - 미배포 대기: 없음(메뉴 밑줄 제거 `fe323f5e9`는 v1.02에 함께 배포).
 
 ## 🚨 절대 원칙 (주인님 결정, 인수인계 §0 — 바꾸지 않는다)
@@ -40,6 +40,7 @@
 | 버전 | 날짜 | 내용 |
 |---|---|---|
 | v1.01 | 2026-10-24 | 등록(준비중)·뼈대·확장 v1.01·ZIP 다운로드·표준 로그인·0단계 사전 검증. 배포 3회(첫 배포, framework 수정, 로그인·화면 정리) |
+| v1.08 | 2026-10-25 | 카톡 받기(요약 200자 + 결과 보기 버튼, 「카카오 자동화」에서 연결한 공용 카카오 계정 재사용)·이메일 받기(회원 본인 Resend 키 `resend_api_key`, 요약 + 엑셀 첨부) — 확장이 회원 PC에서 직접 보냄(매물은 서버를 거치지 않음), 채널별 따로 보내기, 받는 방법·API키등록 두 화면에 같은 카드(`ChannelCards`), 시험 보내기. 확장 1.8.0/v1.08. 배포 1회 |
 | v1.07 | 2026-10-25 | 주소 추가 칸 여유 배치(3단계 안내 전체 폭·주소 2:이름 1·높이 맞춤, 주인님 「우측에 여유가 있는데」). 확장 1.7.0/v1.07. 배포 1회 |
 | v1.06 | 2026-10-25 | 예약 간격 1~24시간(10~50분 삭제) · 수집 상한(한 회차 20곳·하루 300페이지·예약 시각 ±10%) · 예약 화면 예상 수집량 · 수집 한도·네이버 이용 제한 안내(예약·매뉴얼, 제한 시 본인 확인 → 몇 시간~하루 뒤 재사용) · 주소 붙여 넣기 칸 쉬운 말(3단계 안내·예시 주소·즉시 확인). 숫자 `lib/limits.ts`, 확장 `computeNextDue`·`pickRunSlice`·`limitDate`·`pagesDay`, 팝업 「오늘 n/300페이지 · 다음 수집 …쯤」, 차단·한도 텔레그램 안내. 확장 1.6.0/v1.06. 배포 1회 |
 | v1.05 | 2026-10-25 | 지역 감시: 법정동 목록(`public/regions.json`, 국토교통부 2026-06-30) · DB `target_type`·`cortar_no`·`region_name`·`region_max_complexes` · 감시 대상 「🏙 지역으로 추가」 버튼 3단계 · 확장 `collectRegionComplexes`(동별 단지 목록 → 매물 많은 순 상위 N곳, 단지 대상과 겹치면 한 번) · 다음 페이지 읽기 수정(탭 안 요청 본문 직접 사용 + 겹친 페이지 버림) · 연결 계정 대조·표시. 확장 1.5.0/v1.05. 배포 1회 |
