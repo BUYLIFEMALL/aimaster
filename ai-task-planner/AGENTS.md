@@ -1,5 +1,13 @@
 # AI 할 일·성과 관리 — 인수인계
 
+## 2026-10-25 v1.12 — U8-B 업무 워크스페이스에서 받기 (Claude Code 윈도우, [역할: workspace])
+- **한 일**: U8-B 워크스페이스에서 받기: 대시보드 「📥 받은 할 일」 칸(있을 때만) — 「➕ 할 일로 추가」(예정일 받은 값 또는 선택 날짜, 우선순위 받은 값 또는 보통, 기본 분류)·「버리기」, `GET/POST /api/work-inbox/received`(받는 곳 ai-task-planner·회원 본인 줄만, 먼저 「가져감」 표시 후 추가해 두 번 추가 막음, 실패하면 표시 되돌림), 매뉴얼 카드 — `9757e2966`, 배포 `ai-task-planner-fva6qqy1q`. 플랜 `ai-work-workspace/docs/PLAN_20261025_U8B_TO_PLANNER.md`(주인님 승인: 공용 표 열 추가 + 빌드 2회).
+- **구조**: 순수 함수 `src/lib/planner/received.ts`(`receivedTaskInput`·`receivedActionSchema`, 시험 `tests/workInbox.test.mjs`), 라우트 `src/app/api/work-inbox/received/route.ts`, 화면 `src/components/ReceivedTasks.tsx`(Planner가 처음·창 포커스 때 목록을 불러옴, 실패해도 나머지 화면은 그대로). 추가 응답은 `/api/workspace`와 같은 기록 묶음이라 화면이 바로 갱신된다.
+- **사본**: `src/lib/workInbox.ts`가 기준 변경(`targetSlug`)으로 다시 동기화됐다.
+- **검수**: 단위 27/27, 브라우저 30/30, tsc, 빌드, 배포 `ai-task-planner-fva6qqy1q` Ready, 운영 DB v1.12. 크롬(시험 계정): 워크스페이스에서 보낸 2개가 「📥 받은 할 일 2개」로 보임 → 추가 1(목록에 생김, DB 가져감·할 일 id 기록) → 버리기 1(칸 사라짐, 줄 삭제) → 시험 줄 SQL 정리.
+- **남은 일**: 받은 할 일을 한꺼번에 추가하기, 분류 고르기(지금은 기본 분류).
+
+
 ## 2026-10-25 v1.11 — U8-A 업무 워크스페이스로 보내기 (Claude Code 윈도우, [역할: workspace])
 - **한 일**: U8-A 업무 워크스페이스 「📨 받은 업무」로 보내기 — 할 일 카드 📨 버튼(분류·우선순위·예정일·예상/집중 시간을 표 행 데이터로), 성과 노트 아래 「📨 오늘 성과를 워크스페이스로」(완료율·집중 시간·완료/남은 할 일·저장한 노트를 보고서 한 장으로), 서버 라우트 `POST /api/work-inbox`(회원 본인 기록에서 서버가 내용 생성), 공용 기준 코드 사본 `src/lib/workInbox.ts`(`work-inbox-client`), 매뉴얼 구역. 플랜 `docs/PLAN_20261025_U8_WORK_INBOX.md`(주인님 승인, 빌드 1회).
 - **구조**: `src/lib/planner/inbox.ts`(순수 함수 `taskInboxContent`·`dayInboxContent`, 시험 `tests/workInbox.test.mjs`) → `src/app/api/work-inbox/route.ts`(출처 확인 + `authorizePlanner()` + 회원 기록 읽기 → `sendToWorkInbox`). 브라우저는 `{type:"task",taskId}`·`{type:"day",date,categoryId,query}`만 보내고 본문은 서버가 만든다. 하루 보고는 **저장된 노트만** 넣으므로 저장 안 한 노트가 있으면 화면이 먼저 저장을 안내한다.

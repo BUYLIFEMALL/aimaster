@@ -2,7 +2,7 @@
 
 - 주소: https://ai-work-workspace.buylife.xyz · 메인 상세: https://www.buylife.xyz/programs/ai-work-workspace
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
-- 현재 버전: **v1.18** (13번 스마트 프로 인디고 워크스페이스 스타일) · 버전 SQL은 v1.18까지(v1.08~v1.09 건너뜀)
+- 현재 버전: **v1.19** (13번 스마트 프로 인디고 워크스페이스 스타일) · 버전 SQL은 v1.19까지(v1.08~v1.09 건너뜀)
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
 - 개발 플랜·결정 기록: [`docs/PLAN_20261024_INITIAL_BUILD.md`](docs/PLAN_20261024_INITIAL_BUILD.md)(§7 주인님 결정, §7-1 구현 중 바뀐 결정)
 
@@ -28,6 +28,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.19 | 2026-10-25 | v1.19 — U8-B 할 일 플래너로 보내기: 페이지 「⋯」 → 「📨 할 일 플래너로 보내기」(체크 안 된 할 일 항목 최대 30개 / 이 페이지를 할 일 하나로 — 표 행이면 마감일·우선순위), 서버 명령 `workInboxSendToPlanner`(회원 본인 공간 페이지만), 공용 표 `work_inbox.target_slug` 열 추가(주인님 승인, 운영 적용 `20261025000100`), 받은 업무는 받는 곳이 워크스페이스인 줄만, 기준 코드 `targetSlug` 선택값, 표 「받은 날」 한국 날짜(`c6d4ca3ba`), 표 행 「OPEN」→「열기」, 매뉴얼 카드 — `b121bdfde`, 배포 `ai-work-workspace-ho0fq9vle`. 미배포: `94719d8da`(표 행 페이지의 글자형 우선순위·날짜 칸 읽기) |
 | v1.18 | 2026-10-25 | v1.18 — U7 업무 받은편지함: 공용 표 `public.work_inbox`(주인님 승인, RLS 본인만, insert는 각 프로그램 서버만, 30일 자동 삭제를 운영 정리 작업에 추가) + 「📨 받은 업무」 화면 `/inbox`(좌측 메뉴·새 항목 수, 목록·미리보기, 3D 버튼 「페이지로 만들기」(원본 importFiles 재사용)·「표에 행으로 넣기」(처음 「📨 받은 업무 표」 자동 생성 후 mergeCsv로 추가, 표 위치는 회원 설정에 저장)·「삭제」) + 보내기 기준 코드 `src/lib/workInbox.ts`·안내 `docs/WORK_INBOX.md` + 매뉴얼 구역 — `2697c16ba`, 배포 `ai-work-workspace-lvwfm67rq` |
 | v1.17 | 2026-10-24 | v1.17 — 보기·속성·자동화 종류 메뉴 이름(공용 엔진 이름을 화면 표시 지점에서만 `tx()`), AI 채팅 검색 범위·통화·날짜 형식 이름 한국어 — `fe3e8e33f`(주인님 승인 추가 빌드) |
 | v1.16 | 2026-10-24 | v1.16 — 한국어화 2~4차(AI 편집·기술 메뉴, 알림 70여 개, 조건부·대체 문구, 슬래시 메뉴 이름 한국어 + 영어/한국어 검색어, 보기 기본 이름) + 문맥 틀린 짧은 번역 수정(Empty→비어 있음 등) — `f0bf0d429`, 배포 `ai-work-workspace-7nxsyg7ao`(주인님 승인 추가 빌드) |
