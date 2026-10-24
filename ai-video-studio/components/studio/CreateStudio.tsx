@@ -281,7 +281,7 @@ export function CreateStudio({ fromId = null, presetId = null, mineId = null }: 
   }
 
   const chip = (on: boolean) =>
-    `whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${on ? "border-sky-500/50 bg-sky-500/15 text-sky-100" : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"}`;
+    `whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${on ? "border-pink-500/50 bg-gradient-to-r from-pink-500/20 to-purple-600/20 text-white shadow-md shadow-pink-500/10" : "border-slate-700/80 bg-slate-900/60 text-slate-300 hover:border-slate-600 hover:text-white"}`;
 
   return (
     <div className="space-y-6">
@@ -291,8 +291,8 @@ export function CreateStudio({ fromId = null, presetId = null, mineId = null }: 
       </header>
 
       {/* 1단계 */}
-      <section className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 md:p-5">
-        <h2 className="flex items-center gap-2 text-sm font-bold text-zinc-200"><span className="rounded-md bg-sky-500/15 px-2 py-0.5 text-[11px] text-sky-200">Step 1</span> 어떤 영상을 만들까요?</h2>
+      <section className="space-y-4 rounded-2xl glass-cyber-card p-5 md:p-6">
+        <h2 className="flex items-center gap-2 text-sm font-bold text-zinc-200"><span className="rounded-md border border-pink-500/40 bg-pink-500/15 px-2.5 py-0.5 text-[11px] font-bold text-pink-300">Step 1</span> 어떤 영상을 만들까요?</h2>
         {reuseNotice && (
           <p role="status" className={`flex items-start gap-2 rounded-xl border p-3 text-xs ${reuseNotice.ok ? "border-sky-500/30 bg-sky-500/5 text-sky-100" : "border-amber-500/30 bg-amber-500/5 text-amber-200"}`}>
             <History className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" /> {reuseNotice.text}

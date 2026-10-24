@@ -3,30 +3,92 @@
 @tailwind utilities;
 
 :root {
-  --background: #09090b;
-  --foreground: #f4f4f5;
-  --primary: #8b5cf6;
-  --primary-hover: #7c3aed;
+  --background: #0b0d1b;
+  --foreground: #ffffff;
+  --cyber-surface: #13182e;
+  --cyber-pink: #f43f5e;
+  --cyber-pink-hover: #e11d48;
+  --cyber-cyan: #06b6d4;
+  --cyber-cyan-hover: #0891b2;
+  --cyber-glow-pink: rgba(244, 63, 94, 0.35);
+  --cyber-glow-cyan: rgba(6, 182, 212, 0.35);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", Helvetica, Arial, sans-serif;
   overflow-x: hidden;
 }
 
-/* 24px 은은한 다크 바이올렛 격자 모눈 배경 */
-.bg-grid-sky-pattern {
-  background-size: 24px 24px;
+/* 헐리우드 네온 사이버 스튜디오 앰비언트 배경 */
+.bg-cyber-studio-pattern {
+  background-color: #0b0d1b;
   background-image: 
-    linear-gradient(to right, rgba(14, 165, 233, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(14, 165, 233, 0.04) 1px, transparent 1px);
+    radial-gradient(circle at 15% 15%, rgba(244, 63, 94, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 45%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
 }
 
-/* 크리에이티브 아틀리에 바이올렛 글로우 */
-.glow-violet {
-  box-shadow: 0 0 25px -5px rgba(14, 165, 233, 0.15);
+/* 사이버 글래스모피즘 카드 */
+.glass-cyber-card {
+  background: rgba(19, 24, 46, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-cyber-card:hover {
+  background: rgba(26, 32, 60, 0.85);
+  border-color: rgba(244, 63, 94, 0.35);
+  box-shadow: 0 12px 40px 0 rgba(244, 63, 94, 0.15), 0 0 15px -2px rgba(6, 182, 212, 0.2);
+  transform: translateY(-2px);
+}
+
+/* 화려한 네온 시네마 버튼 */
+.btn-cyber-primary {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-cyber-primary:hover {
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
+  box-shadow: 0 6px 22px rgba(244, 63, 94, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-cyber-cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-cyber-cyan:hover {
+  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+  box-shadow: 0 6px 22px rgba(6, 182, 212, 0.6);
+  transform: translateY(-1px);
+}
+
+/* REC 라이브 램프 펄스 */
+.pulse-rec {
+  animation: pulse-rec-glow 2s infinite;
+}
+
+@keyframes pulse-rec-glow {
+  0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(244, 63, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
 }
 
 /* 커스텀 스크롤바 */
@@ -35,12 +97,12 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #0b0d1b;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #1f2747;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #f43f5e;
 }

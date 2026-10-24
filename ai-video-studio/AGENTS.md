@@ -1,6 +1,6 @@
 # AI 영상 스튜디오 (`ai-video-studio`) — 에이전트 인수인계
 
-> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.19**(2026-10-24) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
+> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.20**(2026-10-24) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
 > 플랜: `docs/PLAN_20261023_AI_VIDEO_STUDIO.md` · 조사 보고서: `docs/RESEARCH_20261023_PLATFORMS.md` · 무료 렌더 시험: 루트 `docs/PLAN_20261023_FREE_VIDEO_RENDERING.md`
 
 ## 1. 사용목적 및 대상

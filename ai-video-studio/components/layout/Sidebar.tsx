@@ -3,32 +3,78 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Clapperboard, Film, KeyRound, Layers, LogOut, Menu, X, NotebookPen } from "lucide-react";
+import { BookOpen, Clapperboard, Film, KeyRound, Layers, LogOut, Menu, X, Sparkles } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
-// AI 이미지·음악 스튜디오 사이드바와 같은 구조(주인님 지시: 「ai-image-studio처럼」), 강조색만 하늘색(sky).
+// 헐리우드 네온 사이버 스튜디오 스타일 네비게이션 아이템
 const MAIN_ITEMS = [
-  { href: "/create", icon: Clapperboard, label: "영상 생성 작업실", description: "플랫폼·모델·옵션을 골라 AI 영상 생성" },
-  { href: "/edit", icon: Layers, label: "영상 합치기", description: "클립·음악·자막을 한 편으로 (내 PC 렌더, 무료)" },
-  { href: "/library", icon: Film, label: "작업 결과 갤러리", description: "완성 영상 보기·내려받기 (30일 보관)" },
-  { href: "/prompts", icon: NotebookPen, label: "영상 프롬프트 게시판", description: "바로 쓰는 장면 설명 24개 → 생성 작업실로" },
+  { 
+    href: "/create", 
+    icon: Clapperboard, 
+    badgeIcon: "🎬",
+    label: "영상 생성 작업실", 
+    description: "텍스트·사진 한 장으로 고화질 AI 영상 렌더링",
+    badge: "3초 완성",
+    badgeColor: "border-pink-500/40 bg-pink-500/10 text-pink-300"
+  },
+  { 
+    href: "/edit", 
+    icon: Layers, 
+    badgeIcon: "✂️",
+    label: "영상 합치기 & 믹싱", 
+    description: "클립·배경음악·자막 원클릭 믹싱 (내 PC 무료)",
+    badge: "무제한",
+    badgeColor: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
+  },
+  { 
+    href: "/library", 
+    icon: Film, 
+    badgeIcon: "🏆",
+    label: "작업 결과 갤러리", 
+    description: "완성 비디오 감상 및 4K 고화질 다운로드",
+    badge: "30일 보관",
+    badgeColor: "border-amber-500/40 bg-amber-500/10 text-amber-300"
+  },
+  { 
+    href: "/prompts", 
+    icon: Sparkles, 
+    badgeIcon: "💡",
+    label: "영상 프롬프트 게시판", 
+    description: "바로 쓰는 헐리우드 시네마 명장면 24선",
+    badge: "원클릭 복사",
+    badgeColor: "border-rose-500/40 bg-rose-500/10 text-rose-300"
+  },
 ];
+
 const UTILITY_ITEMS = [
-  { href: "/guide", icon: BookOpen, label: "연동 & 사용 매뉴얼" },
-  { href: "/settings", icon: KeyRound, label: "API키등록·플랫폼연동" },
+  { href: "/guide", icon: BookOpen, badgeIcon: "📖", label: "3분 비주얼 매뉴얼" },
+  { href: "/settings", icon: KeyRound, badgeIcon: "🔑", label: "API키 & 플랫폼 연동" },
 ];
 
 function BrandMark() {
   return (
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-white shadow-md shadow-sky-500/20">
-      <Clapperboard size={18} aria-hidden="true" />
+    <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 via-rose-600 to-cyan-500 text-white shadow-lg shadow-pink-500/30">
+      <Clapperboard size={20} className="drop-shadow" aria-hidden="true" />
+      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-black text-slate-950 shadow">
+        AI
+      </span>
     </span>
   );
 }
 
 function Version() {
-  return <span className="mt-0.5 inline-flex rounded-full border border-sky-500/20 bg-sky-500/10 px-1.5 text-[10px] font-medium text-sky-300">{APP_VERSION}</span>;
+  return (
+    <div className="mt-1 flex items-center gap-1.5">
+      <span className="inline-flex items-center gap-1 rounded-full border border-pink-500/30 bg-pink-500/10 px-2 py-0.5 text-[10px] font-bold text-pink-300">
+        <span className="h-1.5 w-1.5 rounded-full bg-pink-400 pulse-rec" />
+        {APP_VERSION}
+      </span>
+      <span className="inline-flex rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">
+        CYBER STUDIO
+      </span>
+    </div>
+  );
 }
 
 function NavBody({ userEmail, onNavigate }: { userEmail: string; onNavigate?: () => void }) {
@@ -36,38 +82,97 @@ function NavBody({ userEmail, onNavigate }: { userEmail: string; onNavigate?: ()
   const active = (href: string) => pathname === href || pathname?.startsWith(`${href}/`);
 
   return (
-    <div className="min-h-0 overflow-y-auto p-3">
-      <nav aria-label="영상 스튜디오 메뉴">
-        <p className="mb-2 px-2 text-[11px] font-medium tracking-wider text-zinc-500">영상 작업</p>
-        <div className="space-y-1">
-          {MAIN_ITEMS.map(({ href, icon: Icon, label, description }) => (
-            <Link key={href} href={href} onClick={onNavigate} aria-current={active(href) ? "page" : undefined}
-              className={`block rounded-xl border px-3 py-2.5 transition-colors ${active(href) ? "border-sky-500/30 bg-sky-500/10" : "border-transparent hover:bg-zinc-900"}`}>
-              <p className={`flex items-center gap-2 text-sm font-bold ${active(href) ? "text-sky-200" : "text-zinc-300"}`}>
-                <Icon size={15} className={`shrink-0 ${active(href) ? "text-sky-300" : "text-zinc-400"}`} aria-hidden="true" />
-                {label}
-              </p>
-              <p className="mt-0.5 pl-6 text-[11px] leading-snug text-zinc-500">{description}</p>
-            </Link>
-          ))}
+    <div className="min-h-0 flex-1 overflow-y-auto p-3">
+      <nav aria-label="사이버 영상 스튜디오 메뉴">
+        <div className="mb-2 flex items-center justify-between px-2">
+          <p className="text-[11px] font-bold tracking-wider uppercase text-slate-400">
+            🎬 STUDIO WORKSPACE
+          </p>
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-400">
+            <span className="h-2 w-2 rounded-full bg-rose-500 pulse-rec" />
+            LIVE
+          </span>
         </div>
-        <div className="mt-3 space-y-1 border-t border-zinc-800/80 pt-3">
-          <p className="mb-1.5 px-2 text-[11px] font-medium tracking-wider text-zinc-500">도움말 & 설정</p>
-          {UTILITY_ITEMS.map(({ href, icon: Icon, label }) => (
-            <Link key={href} href={href} onClick={onNavigate} aria-current={active(href) ? "page" : undefined}
-              className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${active(href) ? "border-sky-500/30 bg-sky-500/10 text-sky-200" : "border-transparent text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"}`}>
-              <Icon size={16} className="shrink-0" aria-hidden="true" />
-              <span className="whitespace-nowrap">{label}</span>
-            </Link>
-          ))}
+
+        <div className="space-y-1.5">
+          {MAIN_ITEMS.map(({ href, label, description, badge, badgeColor }) => {
+            const isActive = active(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={onNavigate}
+                aria-current={isActive ? "page" : undefined}
+                className={`group block rounded-xl border p-2.5 transition-all duration-200 ${
+                  isActive
+                    ? "border-pink-500/50 bg-gradient-to-r from-pink-500/20 via-purple-500/10 to-cyan-500/10 shadow-lg shadow-pink-500/10"
+                    : "border-transparent bg-slate-900/40 hover:border-slate-700/60 hover:bg-slate-800/60"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <p className={`flex items-center gap-2 text-sm font-bold ${isActive ? "text-white" : "text-slate-200 group-hover:text-white"}`}>
+                    <span className="text-base" aria-hidden="true">
+                      {href === "/create" ? "🎬" : href === "/edit" ? "✂️" : href === "/library" ? "🏆" : "💡"}
+                    </span>
+                    {label}
+                  </p>
+                  <span className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-bold ${badgeColor}`}>
+                    {badge}
+                  </span>
+                </div>
+                <p className="mt-1 pl-6 text-[11px] leading-snug text-slate-400 group-hover:text-slate-300">
+                  {description}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 space-y-1 border-t border-slate-800/80 pt-3">
+          <p className="mb-2 px-2 text-[11px] font-bold tracking-wider uppercase text-slate-400">
+            ⚡ SUPPORT & TOOLS
+          </p>
+          {UTILITY_ITEMS.map(({ href, badgeIcon, label }) => {
+            const isActive = active(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={onNavigate}
+                aria-current={isActive ? "page" : undefined}
+                className={`flex items-center gap-2.5 rounded-xl border px-3 py-2 text-xs font-bold transition-all ${
+                  isActive
+                    ? "border-cyan-500/40 bg-cyan-500/15 text-cyan-200 shadow-md shadow-cyan-500/10"
+                    : "border-transparent text-slate-300 hover:border-slate-700/60 hover:bg-slate-800/50 hover:text-white"
+                }`}
+              >
+                <span className="text-sm">{badgeIcon}</span>
+                <span className="whitespace-nowrap">{label}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
-      {/* 계정은 마지막 메뉴 바로 아래에 두고 화면 맨 아래로 밀지 않습니다. */}
-      <div className="mt-3 space-y-1 border-t border-zinc-800/80 pt-3">
-        <p className="truncate px-3 py-1.5 text-xs text-zinc-500" title={userEmail}>{userEmail || "로그인 계정"}</p>
-        <form action={signOutAction}>
-          <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-200">
-            <LogOut size={16} aria-hidden="true" />
+
+      {/* 계정 정보 카드 */}
+      <div className="mt-4 rounded-xl border border-slate-800/80 bg-slate-900/60 p-2.5">
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-pink-500/20 text-xs font-bold text-pink-300 border border-pink-500/30">
+            👤
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold text-slate-400">스튜디오 크리에이터</p>
+            <p className="truncate text-xs font-bold text-slate-200" title={userEmail}>
+              {userEmail || "로그인 계정"}
+            </p>
+          </div>
+        </div>
+        <form action={signOutAction} className="mt-2 pt-2 border-t border-slate-800/80">
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-800/60 py-1.5 text-xs font-bold text-slate-400 transition-colors hover:bg-rose-500/20 hover:text-rose-300"
+          >
+            <LogOut size={13} aria-hidden="true" />
             <span>로그아웃</span>
           </button>
         </form>
@@ -83,35 +188,61 @@ export function Sidebar({ userEmail = "" }: { userEmail?: string }) {
 
   return (
     <>
-      <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-zinc-800/80 bg-[#09090b] md:sticky md:top-0 md:flex">
-        <div className="shrink-0 border-b border-zinc-800/80 p-5">
+      <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-800/80 bg-[#0b0d1b]/95 backdrop-blur-md md:sticky md:top-0 md:flex">
+        <div className="shrink-0 border-b border-slate-800/80 p-4">
           <Link href="/create" className="flex items-center gap-3">
             <BrandMark />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold leading-snug text-white">AI 영상 스튜디오</p>
+              <p className="text-sm font-black tracking-tight text-white flex items-center gap-1.5">
+                AI 영상 스튜디오
+              </p>
               <Version />
             </div>
           </Link>
-          <a href="https://www.buylife.xyz/programs" className="mt-2.5 block text-xs text-zinc-400 transition-colors hover:text-zinc-200">← 다른 프로그램 보기</a>
+          <a
+            href="https://www.buylife.xyz/programs"
+            className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 transition-colors hover:text-cyan-300"
+          >
+            <span>←</span> AIMaster 프로그램 전체보기
+          </a>
         </div>
         <NavBody userEmail={userEmail} />
       </aside>
 
-      <div className="sticky top-0 z-40 border-b border-zinc-800/80 bg-[#09090b] md:hidden"
-        onKeyDown={(event) => { if (event.key === "Escape" && open) { close(); toggle.current?.focus(); } }}>
+      {/* 모바일 상단 바 */}
+      <div
+        className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#0b0d1b]/95 backdrop-blur-md md:hidden"
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && open) {
+            close();
+            toggle.current?.focus();
+          }
+        }}
+      >
         <div className="flex h-14 items-center justify-between gap-2 px-4">
           <Link href="/create" onClick={close} className="flex min-w-0 items-center gap-2">
             <BrandMark />
-            <span className="truncate text-sm font-bold text-white">AI 영상 스튜디오</span>
+            <span className="truncate text-sm font-black text-white">AI 영상 스튜디오</span>
             <Version />
           </Link>
-          <button ref={toggle} type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open} aria-controls="music-studio-mobile-menu"
-            onClick={() => setOpen(value => !value)} className="shrink-0 rounded-lg p-2 text-zinc-300 hover:bg-zinc-900">
+          <button
+            ref={toggle}
+            type="button"
+            aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+            aria-expanded={open}
+            onClick={() => setOpen((value) => !value)}
+            className="shrink-0 rounded-lg p-2 text-slate-300 hover:bg-slate-800"
+          >
             {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
           </button>
         </div>
-        <div id="music-studio-mobile-menu" hidden={!open} className="max-h-[calc(100dvh-56px)] overflow-y-auto">
-          <a href="https://www.buylife.xyz/programs" className="mx-5 mt-3 block text-xs text-zinc-400 hover:text-zinc-200">← 다른 프로그램 보기</a>
+        <div id="cyber-studio-mobile-menu" hidden={!open} className="max-h-[calc(100dvh-56px)] overflow-y-auto">
+          <a
+            href="https://www.buylife.xyz/programs"
+            className="mx-5 mt-3 block text-xs font-bold text-slate-400 hover:text-cyan-300"
+          >
+            ← AIMaster 프로그램 전체보기
+          </a>
           <NavBody userEmail={userEmail} onNavigate={close} />
         </div>
       </div>
