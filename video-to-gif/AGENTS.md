@@ -392,3 +392,10 @@
 - 시험 도구(새): `local-renderer/test/host-harness.mjs`(크롬 없이 Native Messaging 약속으로 실행기와 주고받기, 맥판은 `PL_FFMPEG=<ffmpeg 경로>`로 임시 폴더 + config.json), `local-renderer/test/loop-matrix.mjs`(윈도우·맥 × 5경우: 필터가 `buildFilter`와 글자 하나까지 같음·길이·소리 트랙). 결과 **10/10 통과**, 두 판 결과 파일 크기 바이트 단위 동일. 기존 `encode`(GIF)·`audio`(MP3) 두 판 회귀 정상, 잘못된 값 4종 두 판 모두 거절.
 - 배포: `video-to-4fjavywr6` Ready(도우미가 Ready를 놓쳐 `vercel ls`로 확인), DB v1.23 + `extension_version` v1.23, `check-extension-release` OK, 운영 `version.json` host 1.20, 운영 윈도우 ZIP·`host.pl` 1.20 확인. 커밋 `e14e958cd`(실행기·시험)·`e5e9c3441`(배포 묶음·SQL).
 - 남은 확인: **실제 맥에서 `loop`** — 이 PC의 msys perl로는 통과, 맥미니 실검수 부탁 필요.
+
+## 2026-10-24 ✅ v1.24 — 실행기 1.30 영상 명령 「normalize」·「compress」 (Claude Code 윈도우 · 세션 `claude-win-video` 영상 담당, 주인님 승인 빌드 2회 중 1회)
+- 실행기 `host.ps1`·`host.pl` 1.30: 새 메시지 `type: "normalize"`(값 `fps` 24~60 정수·`maxSide` 360~3840 정수·`duration` 0.05~36000 선택) — H.264 yuv420p·고정 fps·짝수 크기·긴 변 제한·소리가 있으면 AAC 160k 48kHz 2채널·faststart. `type: "compress"`(값 `quality` high|balanced|small = crf 20/23/27, `maxSide` 선택) — H.264 다시 인코딩, 소리 있으면 AAC 128k, 결과에 `inSize`. 소리 트랙은 실행기가 `ffmpeg -i` 기록으로 직접 확인(1.20 loop와 같은 정규식). `pong.capabilities`에 두 낱말 추가, 최소 판(minHost 1.00·minExtension v1.00) 그대로(GIF·audio·loop 약속 불변 — 차이로 확인한 지운 줄은 버전·capabilities 4줄뿐).
+- 시험(새): `local-renderer/test/video-matrix.mjs` — 두 판 × (normalize 2경우·compress 2경우·잘못된 값 4경우) 16/16 통과(코덱·fps·짝수·긴 변·소리·길이·용량 감소·거절). 회귀: `loop-matrix.mjs` 10/10, GIF 명령 두 판 정상.
+- 배포: 커밋 `0492b0cbb`(실행기)·`72bfaa11f`(v1.24 묶음: manifest v1.24·ZIP·host.pl·version.json·SQL `supabase/migrations/20261024_pc_renderer_video_v1_24.sql`). `video-to-9rhaboikt` Ready(도우미가 주소를 놓쳐 `vercel ls`로 확인), DB v1.24 + `extension_version` v1.24, `check-extension-release` OK, 운영 `version.json` host 1.30. 이 PC 설치본도 1.30으로 교체(백업 `host.ps1.bak-before-1.30`).
+- 운영 크롬(AI 영상 스튜디오 화면에서 실제 확장으로): pong 1.30·capabilities 5개, `normalize` 0.9MB 5초 영상 2.0초(소리 유지), `compress` balanced 1.7MB → 0.9MB.
+- 남은 확인: **실제 맥에서 `loop`·`normalize`·`compress`** — msys perl로는 통과, 맥미니 실검수 부탁 필요. 회원 PC 설치본은 자동으로 바뀌지 않는다 — 새 명령을 쓰려면 렌더러 다시 설치(옛 판은 화면에 「업데이트 안내」).
