@@ -38,7 +38,7 @@ export function AimasterSidebarBottom() {
         <a className="aww-sb-item" href="/settings/keys">
           <div className="aww-sb-item-inner">
             <span className="aww-sb-item-icon">🔑</span>
-            <span className="aww-sb-item-label">API키등록·AI연동</span>
+            <span className="aww-sb-item-label">API키등록·플랫폼연동</span>
           </div>
           <span className="aww-sb-item-chip">연동</span>
         </a>

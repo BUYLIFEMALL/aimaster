@@ -37,7 +37,8 @@ export { PageTreeItem } from './sidebar/PageTree.tsx';
 
 export const SIDEBAR_MIN = 270;
 export const SIDEBAR_MAX = 600;
-export const MOBILE_BREAKPOINT = 600;
+// 이식판: AIMaster 모바일 지침(767px 이하는 좌측 메뉴를 접고 위쪽 메뉴 버튼으로, CLAUDE.md 원칙 19) — 원본은 600
+export const MOBILE_BREAKPOINT = 768;
 
 function useIsMobile() {
   const [m, setM] = useState(() => window.innerWidth < MOBILE_BREAKPOINT);

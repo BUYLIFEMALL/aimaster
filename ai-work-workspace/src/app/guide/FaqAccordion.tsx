@@ -14,7 +14,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "AI 비서 기능은 어떤 API 키를 사용하며 어떻게 연동하나요?",
-    a: "AIMaster의 최상위 원칙에 따라 회원의 본인 API 키(Anthropic Claude, OpenAI, Google Gemini)를 사용합니다. 좌측 메뉴 또는 상단 툴바의 [🔑 API키등록·AI연동] 메뉴에서 키를 한 번만 등록하시면 모든 AI 비서 및 글쓰기 기능을 즉시 사용하실 수 있습니다.",
+    a: "AIMaster의 최상위 원칙에 따라 회원의 본인 API 키(Anthropic Claude, OpenAI, Google Gemini)를 사용합니다. 좌측 메뉴 또는 상단 툴바의 [🔑 API키등록·플랫폼연동] 메뉴에서 키를 한 번만 등록하시면 모든 AI 비서 및 글쓰기 기능을 즉시 사용하실 수 있습니다.",
   },
   {
     q: "노션(Notion)이나 마크다운(Markdown) 문서를 가져올 수 있나요?",

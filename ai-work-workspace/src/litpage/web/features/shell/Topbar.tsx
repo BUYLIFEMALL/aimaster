@@ -173,7 +173,7 @@ function Breadcrumb({ pageId }: { pageId: string }) {
         >
           {/* lockFill 16, "Private" in tertiary text with margin-inline 4/5, chevron 11 */}
           <Icon name="lockFill" size={16} style={{ color: 'var(--lp-icon-tertiary)' }} />
-          <span style={{ color: 'var(--lp-text-tertiary)', margin: '0 5px 0 4px' }}>Private</span>
+          <span style={{ color: 'var(--lp-text-tertiary)', margin: '0 5px 0 4px' }}>{t('lp.shell.private', 'Private')}</span>
           <Icon name="arrowChevronSingleDownFill" size={11} style={{ color: 'var(--lp-icon-tertiary)' }} />
         </div>
       )}
