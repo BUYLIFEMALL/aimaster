@@ -338,3 +338,7 @@ AI가 참고 자료(레퍼런스 쇼츠 받아쓰기·떡상 게시물 캡션·�
 | 메인 사이트 `lib/sms/solapi.ts` | ✗ | 운영자 비밀번호 찾기 문자, 구조 다름 |
 
 새 프로그램에서 문자·카카오 발송이 필요하면 이 사본을 가져다 쓰고, 회원 계정은 공용 표 `user_solapi_accounts`를 그대로 쓴다(최상위 규칙: 회원 본인 SOLAPI 계정만).
+
+## 2026-10-24 네이버 블로그 예약 입력·예약 목록 확인 — 공용화 후보 (`naver-reserve`)
+- 같은 코드가 두 곳: 기준 후보 `naver-blog-agent/extension/editor.js`(예약 입력 498~540행·`reserved` 명령, 실사용) · 사본 `naver-blog-seo-studio/extension/auto-publish-page.js`(`seoSetNaverReservation`·`reserved`, v2.19에서 옮김 — executeScript가 함수 하나만 넣으므로 함수 안에 둠). 서버 시각 규칙도 둘: `naver-blog-agent/src/lib/scheduleSlots.ts` `validateReservation` · `naver-blog-seo-studio/lib/reserveTime.ts`(같은 규칙: 10분 단위·20분 이후).
+- 지금은 등록하지 않음(사본 대조 도구 대상 아님). 네이버 화면이 바뀌어 한쪽을 고치면 **다른 쪽도 같이 고칠 것**. 세 번째 프로그램(콘텐츠 메이커 등)이 예약을 쓰게 되면 `docs/SHARED_MODULES.md`에 정식 등록 검토. 기록: [역할: blog] `claude-win-20261024-blog3`.

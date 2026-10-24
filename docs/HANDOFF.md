@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-20261024-blog3` — 네이버 블로그 SEO 스튜디오 v2.19 배포 (예약 포스팅)
+- 기준: 루트 「🧭 블로그 작업 최우선 핵심 지침」 ③ⓒ — SEO 스튜디오는 예약이 없었고 오히려 「예약 설정이 남아 있으면 즉시 발행하지 않음」으로 막혀 있었음. 주인님 결정: 구현 후 바로 정식 배포.
+- 한 일: 서버 `auto-publish/route.ts` — `claim`에 `scheduleAt`(10분 단위·20분 이후, `lib/reserveTime.ts`) → 실행 기록 `mode:"reserve"`·`scheduledAt`, 새 결과 `reserved`(예약 목록 시각 일치·arm 뒤에만·예약 실행은 `published` 기록 불가·완료 후 불확실로 안 되돌림). 확장 `auto-publish-page.js` — `settings`에서 예약 켜기·날짜·시·분 입력·반영 확인, `final`은 예약 실행이면 예약이 켜져야만 누름(즉시 실행은 예전처럼 예약이 켜져 있으면 멈춤), 새 `reserved` 명령(예약 목록 제목·시각 1건). 예약 코드는 `naver-blog-agent/extension/editor.js`에서 옮김(executeScript가 함수 하나만 넣으므로 도우미를 함수 안에 둠). `auto-publish.js`·`background.js`·`sidepanel.*` — 「예약 포스팅 시작」 버튼·날짜 칸·예약 결과 확인. 웹 `PublicationResult`(예약 완료·예약 시각)·자동 포스팅 안내·FAQ. 커밋 `f8a33efbf`(플랜)·`bbd6d771a`(기능)·`92fb0bb7a`(버전·확장 ZIP).
+- 검수: 서버 시험 14(예약 2 추가)·가짜 편집기 9(예약 2 추가)·컨트롤러/백그라운드 9·확장 회귀 26·전체 시험·tsc·빌드. 가짜 편집기 시험은 엣지(Codex 전용) 대신 Playwright 시험 전용 크로미움(`EDGE_PATH`)으로 실행. 크롬: 안내 화면 v2.19·「포스팅 방식 고르기」·FAQ·ZIP 200.
+- 배포: 승인 빌드 1회 `naver-blog-seo-studio-pzqq11f3j` Ready, DB `version`·`extension_version` v2.19, `check-extension-release` OK. **회원은 확장 ZIP을 다시 받아 덮어쓰고 `chrome://extensions` 새로고침 필요.**
+- **못 한 것**: 실제 네이버 예약 시험 — Claude 브라우저 도구로 `blog.naver.com`을 열 수 없음. 주인님이 시험 계정으로 비공개 예약 1건(30분 뒤) → 프로그램 「예약 완료」 확인 → 네이버에서 예약 취소 필요. 실패하면 오류 메시지와 「발행 결과만 다시 확인」 결과를 알려 주시면 고침.
+- 다음: 에이전트 ② 실제 입력 시험(크롬이 지금 시험 계정으로 로그인됨) → ③-2 콘텐츠 메이커 포스팅 플랜.
+- https://naver-blog-seo-studio.buylife.xyz
+
 ## 2026-10-24 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.34 「🧽 무료 지우기(내 PC)」 (ClearPic 참고 C-0~C-5)
 - 한 일: C-0 사전 검증 페이지(저장소 밖, 결과 인수인계 §7) → C-1 공용 기준 코드 `browser-free-erase`(`banana-canvas/src/lib/freeErase/`, `onnxruntime-web@1.23.0` `/ort/`, WebGPU→WASM, 마스크 `>0`+넓히기, 덩어리별 512 계산, 공용 등록) → C-2 글자 찾기 → C-3 `/erase` 화면 → C-4 같은 비율 복사·일괄·중단·ZIP → C-5 스튜디오 안내·매뉴얼 새 절·질문. 제미나이 워터마크 자동 제거는 만들지 않음(권리·AI 생성 고지).
 - 발견·해결: ① 격리 페이지의 작업자 스크립트에도 COEP 필요 — 운영은 `/_next/static/immutable/chunks/`라 `/_next/static/:path*`·`/ort/:path*`에 COEP(페이지 COOP/COEP는 `/erase`만, 로그인 정상) ② Turbopack 개발 서버는 작업자 준비 파일 503 → 로컬 운영 빌드로 시험 ③ `next dev`가 `AGENTS.md`에 영어 안내 추가 → `agentRules: false` ④ LaMa 마스크 `>127` 잔상(교훈 `ERROR_LESSONS`).
