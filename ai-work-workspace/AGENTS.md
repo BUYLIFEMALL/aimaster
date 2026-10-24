@@ -2,7 +2,7 @@
 
 - 주소: https://ai-work-workspace.buylife.xyz · 메인 상세: https://www.buylife.xyz/programs/ai-work-workspace
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
-- 현재 버전: **v1.03** (1단계) · 대상 프로젝트: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`, 전용 스키마 `aww`)
+- 현재 버전: **v1.04** (1단계) · 대상 프로젝트: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`, 전용 스키마 `aww`)
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
 - 개발 플랜·결정 기록: [`docs/PLAN_20261024_INITIAL_BUILD.md`](docs/PLAN_20261024_INITIAL_BUILD.md)(§7 주인님 결정, §7-1 구현 중 바뀐 결정)
 
@@ -28,8 +28,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
-| (미배포) | 2026-10-24 | U2 불필요한 기능 숨기기 — 공유 메뉴 「게시」 탭, 템플릿 마켓플레이스(대신 템플릿 창), 계정 화면(AIMaster 안내로), 이메일·연결 앱 알림, AI 그림·가짜 Unsplash/GIPHY 탭(→ 「AI 이미지 자동화에서 만들기 ↗」), 지도 보기(추가·레이아웃·위젯 목록), 원본 요금제 업그레이드 문구와 요금제 전용 설정 탭. 숨김 목록은 `web/features/shell/trimPolicy.ts` 한 곳 — `04d6601b9`, 다음 배포 때 v1.04 |
-| (미배포) | 2026-10-24 | U1 이름 바꾸기 — AI 이름 「AIMaster」 → 「AI 비서」(번역 18곳), 메뉴 이름(받은편지함 → 알림함, 회의 → AI 회의록, 라이브러리 → 보관함, 비공개 → 내 페이지, 최근 항목 → 최근 본 페이지, 팀 → 팀 공간, 번역 18곳). 원본 이름 「Workspace」는 주인님 지시로 그대로 둠 — `1771f446f`, 다음 배포 때 v1.04 |
+| v1.04 | 2026-10-24 | U1 이름 바꾸기(AI 이름 「AIMaster」 → 「AI 비서」, 메뉴 이름 6종) + U2 불필요한 기능 숨기기(게시 탭·마켓플레이스·계정 화면·메일 알림·AI 그림/가짜 사진 탭·지도 보기·요금제 문구, 숨김 목록 `trimPolicy.ts`) — `1771f446f`·`04d6601b9`, 배포(`ai-work-workspace-9esamryua`) |
 | v1.03 | 2026-10-24 | 1단계 화면 보완 `2f0de2776`·`df7a628d3`·`db77b7a3b`: 회의록 블록 안내, 템플릿 10개 한국어(갤러리 버전 6), 날짜·시각 화면 언어 — 배포(`ai-work-workspace-l322zllr7`) |
 | v1.02 | 2026-10-24 | 휴대폰 폭 문서 본문 여백 16px, 블록 메뉴 AI 항목 숨김(`5a9d5e564`) 배포(`ai-work-workspace-a33mgs4e5`) |
 | v1.01 | 2026-10-24 | 1단계 첫 배포(`ai-work-workspace-kx1az0lyp` → 재배포 `nnv2yd6v0`). 이식·권한·매뉴얼·썸네일·카테고리 신설. 미배포 대기: 휴대폰 본문 여백 16px·블록 메뉴 AI 항목 숨김(`5a9d5e564`) |
