@@ -533,6 +533,83 @@ export default function GuidePage() {
           </section>
 
           {/* ========================================================= */}
+          {/* 10단계 지능형 용량 사다리 인포그래픽 시각화 다이어그램 */}
+          {/* ========================================================= */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 font-black text-xs border border-amber-500/30">
+                📉
+              </span>
+              <h2 className="text-lg sm:text-xl font-bold text-white">
+                10단계 지능형 용량 사다리 최적화 인포그래픽
+              </h2>
+            </div>
+
+            <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-6 space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#30363d] pb-3 text-xs">
+                <span className="text-gray-300">
+                  결과가 8MiB를 초과하면 <strong>고른 구간과 길이는 그대로 유지</strong>하고, 넘친 비율만큼 한 번에 필요한 단계로 점프하여 초고속으로 재인코딩합니다.
+                </span>
+                <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300 border border-emerald-500/20 shrink-0">
+                  단일 패스 자동 건너뛰기
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-center text-xs">
+                <div className="rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-transparent p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="font-extrabold text-amber-300 text-sm">1단계 (기준)</div>
+                    <div className="text-xs text-gray-200 mt-1 font-semibold">스케일 100% · 256색</div>
+                  </div>
+                  <div className="mt-3 text-[10px] text-amber-400 bg-black/40 py-1 rounded border border-amber-500/20">
+                    초고화질 원본
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-cyan-500/40 bg-gradient-to-b from-cyan-500/15 to-transparent p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="font-extrabold text-cyan-300 text-sm">2~4단계</div>
+                    <div className="text-xs text-gray-200 mt-1 font-semibold">스케일 94%~76%</div>
+                  </div>
+                  <div className="mt-3 text-[10px] text-cyan-400 bg-black/40 py-1 rounded border border-cyan-500/20">
+                    256색 미세 리사이징
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-blue-500/40 bg-gradient-to-b from-blue-500/15 to-transparent p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="font-extrabold text-blue-300 text-sm">5~6단계</div>
+                    <div className="text-xs text-gray-200 mt-1 font-semibold">스케일 68%~60%</div>
+                  </div>
+                  <div className="mt-3 text-[10px] text-blue-400 bg-black/40 py-1 rounded border border-blue-500/20">
+                    팔레트 최적화 (224~192색)
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-purple-500/40 bg-gradient-to-b from-purple-500/15 to-transparent p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="font-extrabold text-purple-300 text-sm">7~8단계</div>
+                    <div className="text-xs text-gray-200 mt-1 font-semibold">스케일 52%~45%</div>
+                  </div>
+                  <div className="mt-3 text-[10px] text-purple-400 bg-black/40 py-1 rounded border border-purple-500/20">
+                    고밀도 압축 (160~128색)
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-b from-emerald-500/15 to-transparent p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="font-extrabold text-emerald-300 text-sm">9~10단계 (방어선)</div>
+                    <div className="text-xs text-gray-200 mt-1 font-semibold">25fps ➔ 20fps</div>
+                  </div>
+                  <div className="mt-3 text-[10px] text-emerald-400 bg-black/40 py-1 rounded border border-emerald-500/20">
+                    모션 감속으로 8MiB 보장
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ========================================================= */}
           {/* 자주 묻는 질문 FAQ 8종 아코디언 */}
           {/* ========================================================= */}
           <section className="space-y-4">

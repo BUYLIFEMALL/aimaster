@@ -534,9 +534,31 @@ export default function ConverterWorkspace() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-8 space-y-8 text-[#f0f6fc]">
-      {/* 1. 상단 히어로 스튜디오 배너 */}
-      <div className="studio-hero rounded-3xl p-6 sm:p-8 border border-amber-500/30">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* 1. 상단 히어로 스튜디오 배너 (시네마틱 뷰파인더 프레임 적용) */}
+      <div className="studio-hero rounded-3xl p-6 sm:p-8 border border-amber-500/30 relative overflow-hidden">
+        {/* 뷰파인더 코너 브래킷 */}
+        <div className="viewfinder-corner-tl" />
+        <div className="viewfinder-corner-tr" />
+        <div className="viewfinder-corner-bl" />
+        <div className="viewfinder-corner-br" />
+
+        {/* 상단 시네마틱 타임코드 & 상태 바 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#30363d]/60 pb-3 font-mono text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="font-bold text-red-400">REC STANDBY</span>
+            <span className="text-gray-400">00:00:00:00</span>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-4 text-gray-400">
+            <span className="text-amber-400 font-bold">4K/FHD DUAL-ENGINE</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="text-cyan-400 font-semibold">10-STEP LADDER</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="text-emerald-400 font-semibold">100% PRIVATE WASM</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
             <Sparkles className="h-3.5 w-3.5" />
             초고속 영상 렌더링 & GIF 스튜디오 {APP_VERSION}
@@ -544,7 +566,7 @@ export default function ConverterWorkspace() {
           <div className="flex items-center gap-2">
             <Link
               href="/guide"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-colors shadow-sm"
             >
               <BookOpen className="h-3.5 w-3.5" />
               <span>📖 연동 & 사용 매뉴얼 보기</span>
@@ -622,21 +644,37 @@ export default function ConverterWorkspace() {
               setDragging(false);
               addFiles(event.dataTransfer.files);
             }}
-            className={`flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed bg-[#161b22] p-8 text-center transition-all hover:border-amber-400/60 hover:bg-[#1f2937]/50 group ${
-              dragging ? "border-amber-400 bg-[#1f2937]/50" : "border-[#30363d]"
+            className={`relative flex min-h-60 cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed bg-[#161b22] p-8 text-center transition-all hover:border-amber-400/70 hover:bg-[#1f2937]/50 group overflow-hidden ${
+              dragging ? "border-amber-400 bg-amber-500/10 scale-[1.01]" : "border-[#30363d]"
             }`}
           >
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:scale-105 transition-transform">
-              <UploadCloud className="h-7 w-7" />
+            {/* 드롭존 뷰파인더 코너 */}
+            <div className="viewfinder-corner-tl" />
+            <div className="viewfinder-corner-tr" />
+            <div className="viewfinder-corner-bl" />
+            <div className="viewfinder-corner-br" />
+
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-700/10 text-amber-400 border border-amber-500/30 group-hover:scale-110 transition-transform shadow-lg shadow-amber-500/10">
+              <UploadCloud className="h-8 w-8" />
             </div>
-            <span className="text-base font-bold text-gray-100 group-hover:text-amber-300 transition-colors">
+            <span className="text-base sm:text-lg font-extrabold text-white group-hover:text-amber-300 transition-colors">
               동영상 파일을 여기에 끌어놓거나 클릭하세요
             </span>
-            <span className="mt-2 text-xs text-gray-400">
-              MP4, MOV, WEBM, MKV, AVI 등 · 파일당 최대 200MB · 최대 20개 일괄 등록
+            <span className="mt-1.5 text-xs text-gray-400">
+              파일당 최대 200MB · 최대 20개 일괄 큐 등록 · 100% 로컬 무저장
             </span>
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0d1117] px-3.5 py-1 text-[11px] font-semibold text-gray-400 border border-[#30363d]">
-              <Film className="h-3 w-3 text-amber-400" />
+
+            {/* 지원 포맷 마이크로 태그 뱃지 */}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-mono font-bold">
+              {["MP4", "MOV", "WEBM", "MKV", "AVI", "TS", "FLV"].map((fmt) => (
+                <span key={fmt} className="rounded-md bg-[#0d1117] px-2 py-0.5 text-gray-400 border border-[#30363d] group-hover:border-amber-500/30 transition-colors">
+                  {fmt}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#0d1117] px-3.5 py-1 text-[11px] font-semibold text-amber-400 border border-amber-500/20">
+              <Film className="h-3 w-3" />
               <span>촬영 원본 그대로 드래그하세요</span>
             </div>
             <input
@@ -683,15 +721,20 @@ export default function ConverterWorkspace() {
                     {/* v1.14: 좁은 화면에서는 버튼 묶음이 아래 줄로 내려가고 크기 글자는 끊지 않는다 */}
                     <div className="flex flex-wrap items-center gap-3">
                       {job.thumbnail ? (
-                        <span className="relative w-16 shrink-0 overflow-hidden rounded-lg border border-[#30363d] bg-black">
+                        <span className="relative w-20 shrink-0 overflow-hidden rounded-xl border border-[#30363d] bg-black shadow-md">
                           {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저에서 만든 data: 썸네일 */}
                           <img src={job.thumbnail} alt={`${job.name} 첫 장면`} className="block h-auto max-h-16 w-full object-cover" />
-                          <span className="absolute left-0.5 top-0.5 rounded bg-black/70 px-1 text-[10px] font-black leading-4 text-gray-200">
+                          <span className="absolute left-1 top-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-mono font-bold leading-none text-amber-300 border border-amber-500/30">
                             {String(index + 1).padStart(2, "0")}
                           </span>
+                          {job.duration !== undefined && (
+                            <span className="absolute right-1 bottom-1 rounded bg-black/80 px-1 py-0.5 text-[9px] font-mono leading-none text-gray-300">
+                              {job.duration.toFixed(1)}s
+                            </span>
+                          )}
                         </span>
                       ) : (
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#161b22] text-xs font-black text-gray-400 border border-[#30363d]">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#161b22] text-xs font-mono font-bold text-gray-400 border border-[#30363d]">
                           {String(index + 1).padStart(2, "0")}
                         </span>
                       )}
@@ -830,12 +873,19 @@ export default function ConverterWorkspace() {
                       </div>
                     )}
 
-                    {/* 진행률 바 */}
+                    {/* 진행률 바 (시네마틱 네온 글로우 렌더링 게이지) */}
                     {job.status === "processing" && (
-                      <div className="mt-3">
-                        <div className="h-2 overflow-hidden rounded-full bg-[#161b22] border border-[#30363d]">
+                      <div className="mt-3.5 space-y-1">
+                        <div className="flex items-center justify-between text-[11px] font-mono">
+                          <span className="text-amber-400 flex items-center gap-1.5 font-bold">
+                            <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+                            <span>초고속 렌더링 인코딩 중...</span>
+                          </span>
+                          <span className="text-amber-300 font-extrabold">{job.progress}%</span>
+                        </div>
+                        <div className="h-2.5 overflow-hidden rounded-full bg-[#161b22] border border-amber-500/30 p-[1px]">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-300"
+                            className="h-full rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-emerald-400 transition-all duration-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]"
                             style={{ width: `${job.progress}%` }}
                           />
                         </div>

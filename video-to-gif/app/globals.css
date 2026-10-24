@@ -13,6 +13,7 @@
   --brand-gold: #fbbf24;
   --brand-emerald: #10b981;
   --brand-cyan: #38bdf8;
+  --brand-purple: #a855f7;
 }
 
 * {
@@ -49,21 +50,24 @@ button, input, select, textarea {
 
 /* Hero Studio Banner */
 .studio-hero {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(22, 27, 34, 0.95) 50%, rgba(56, 189, 248, 0.08) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.6), 0 0 24px -6px rgba(245, 158, 11, 0.15);
+  background: radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+              linear-gradient(135deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.95) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.8), 0 0 32px -8px rgba(245, 158, 11, 0.2);
 }
 
 /* KPI Card */
 .kpi-card {
   background: rgba(22, 27, 34, 0.85);
   border: 1px solid #30363d;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(8px);
 }
 .kpi-card:hover {
-  border-color: rgba(245, 158, 11, 0.45);
+  border-color: rgba(245, 158, 11, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 28px -10px rgba(245, 158, 11, 0.25);
 }
 
 /* Focus Card */
@@ -71,4 +75,73 @@ button, input, select, textarea {
   background: #161b22;
   border: 1px solid #30363d;
   border-radius: 1rem;
+}
+
+/* Viewfinder Brackets */
+.viewfinder-corner-tl {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid rgba(245, 158, 11, 0.6);
+  border-left: 2px solid rgba(245, 158, 11, 0.6);
+}
+.viewfinder-corner-tr {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid rgba(245, 158, 11, 0.6);
+  border-right: 2px solid rgba(245, 158, 11, 0.6);
+}
+.viewfinder-corner-bl {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  border-bottom: 2px solid rgba(245, 158, 11, 0.6);
+  border-left: 2px solid rgba(245, 158, 11, 0.6);
+}
+.viewfinder-corner-br {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  border-bottom: 2px solid rgba(245, 158, 11, 0.6);
+  border-right: 2px solid rgba(245, 158, 11, 0.6);
+}
+
+/* Film Perforation Texture (상하단 필름 구멍 효과) */
+.film-perforations-top {
+  background-image: radial-gradient(#30363d 35%, transparent 36%);
+  background-size: 16px 8px;
+  background-repeat: repeat-x;
+  height: 8px;
+  width: 100%;
+}
+
+/* Scanning Light Animation for Rendering */
+@keyframes laser-sweep {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(400%); opacity: 0; }
+}
+
+.animate-laser {
+  animation: laser-sweep 2.5s ease-in-out infinite;
+}
+
+/* Neon Glow Accents */
+.glow-amber {
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
+}
+.glow-cyan {
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+}
+.glow-emerald {
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4));
 }
