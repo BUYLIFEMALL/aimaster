@@ -81,7 +81,7 @@ function ViewDialog({ path, setDialog, requests, onClose }: { path: string; setD
           {!doc.loading && !doc.error && <span className="text-xs text-subtext">{Math.round(doc.size / 1024)}KB{!doc.editable && " · 크기가 커서 보기 전용"}</span>}
         </div>
         {open.length > 0 && (
-          <div className="mb-4 rounded-xl border border-amber-400/30 bg-amber-400/5 p-3 text-xs">
+          <div className="mb-4 rounded-xl border border-amber-400/30 bg-amber-400/5 p-3 text-sm">
             <p className="mb-2 font-bold text-amber-300">반영 대기 중 {open.length}건 — 담당 세션이 다음 작업 때 이 문서에 반영합니다</p>
             <ul className="space-y-1">
               {open.map((r) => (
@@ -124,7 +124,7 @@ function EditDialog({ path, onClose, onSaved, setDialog }: { path: string; onClo
   return (
     <Modal isOpen onClose={onClose} title={`직접 수정 — ${path}`} size="xl" className="max-w-6xl">
       <div className="p-6 space-y-3">
-        <p className="text-xs text-subtext">저장하면 바로 문서가 바뀌지 않고 <b className="text-amber-300">「반영 대기」</b>로 남습니다. 담당 세션이 다음 작업 때 그사이 바뀐 내용과 합쳐 문서에 반영하고, 반영되면 「수정 요청함」에 커밋 번호가 표시됩니다.</p>
+        <p className="text-sm text-subtext">저장하면 바로 문서가 바뀌지 않고 <b className="text-amber-300">「반영 대기」</b>로 남습니다. 담당 세션이 다음 작업 때 그사이 바뀐 내용과 합쳐 문서에 반영하고, 반영되면 「수정 요청함」에 커밋 번호가 표시됩니다.</p>
         {doc.loading && <p className="text-subtext text-sm">원문을 불러오는 중…</p>}
         {doc.error && <p className="text-rose-300 text-sm">{doc.error}</p>}
         {!doc.loading && !doc.error && !doc.editable && <p className="text-rose-300 text-sm">문서가 너무 커서 화면에서 고칠 수 없습니다. 「관리자 지시 달기」로 고칠 내용을 남겨 주세요.</p>}
@@ -141,7 +141,7 @@ function EditDialog({ path, onClose, onSaved, setDialog }: { path: string; onClo
                 value={value}
                 onChange={(e) => setText(e.target.value)}
                 spellCheck={false}
-                className="h-[60vh] w-full rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs leading-relaxed text-white/90 focus:border-gold/50 focus:outline-none"
+                className="h-[65vh] w-full rounded-xl border border-white/10 bg-black/40 p-5 font-mono text-[15px] leading-7 text-white/90 focus:border-gold/50 focus:outline-none"
               />
             )}
             <input
@@ -180,7 +180,7 @@ function NoteDialog({ kind, target, title, onClose, onSaved }: { kind: "doc_comm
   return (
     <Modal isOpen onClose={onClose} title={kind === "doc_comment" ? `관리자 지시 — ${title}` : `역할 메모 — ${title}`} size="lg">
       <div className="p-6 space-y-3">
-        <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 text-xs text-white/85">
+        <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 text-sm text-white/85">
           {kind === "doc_comment" ? (
             <>이 지시는 <b className="text-gold">관리자의 절대 지시</b>로 저장됩니다. 담당 세션이 다음 작업 때 이 문서 맨 위 「🗣 주인님(관리자) 지시」 칸에 옮겨 적고, 그 문서를 읽는 모든 CLI는 문서 내용보다 이 지시를 먼저 따릅니다.</>
           ) : (
@@ -198,7 +198,7 @@ function NoteDialog({ kind, target, title, onClose, onSaved }: { kind: "doc_comm
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={kind === "doc_comment" ? "예) 이 지침의 3번 규칙은 이번 주부터 적용하지 말 것. 대신 …" : "예) 다음 작업은 E-5보다 블로그 정리를 먼저 할 것"}
-              className="h-48 w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white placeholder:text-subtext focus:border-gold/50 focus:outline-none"
+              className="h-56 w-full rounded-xl border border-white/10 bg-black/40 p-4 text-base leading-7 text-white placeholder:text-subtext focus:border-gold/50 focus:outline-none"
             />
             {error && <p className="text-rose-300 text-sm">{error}</p>}
             <div className="flex gap-2">

@@ -106,7 +106,7 @@ export default function DevDocsBoard(props: {
           <Section title="🗓 역할별 「다음 첫 단계」" count={roles.reduce((n, r) => n + r.next.length, 0)}>
             {roles.filter((r) => r.next.length).map((r) => (
               <Row key={r.id} title={r.title} sub={`${plain(r.owner)} · 마지막 갱신 ${r.updated.slice(0, 16)}`} right={docActions(r.path)}>
-                <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-xs text-white/80">{r.next.map((n, i) => <li key={i}>{plain(n)}</li>)}</ol>
+                <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-sm text-white/80">{r.next.map((n, i) => <li key={i}>{plain(n)}</li>)}</ol>
               </Row>
             ))}
           </Section>
@@ -178,7 +178,7 @@ function RoleTableSection({ title, roles, pick, cols, docActions }: { title: str
       {withRows.length === 0 ? <Empty>해당 항목이 없습니다.</Empty> : withRows.map((r) => (
         <Row key={r.id} title={r.title} sub={`${plain(r.owner)} · 마지막 갱신 ${r.updated.slice(0, 16)}${r.isDraft ? " · 초안(담당 확인 전)" : ""}`} right={docActions(r.path)}>
           <div className="mt-2 overflow-x-auto">
-            <table className="w-full text-xs">
+            <table className="w-full text-sm">
               <thead><tr>{cols.map((c) => <th key={c} className="border-b border-white/10 px-2 py-1 text-left font-medium text-subtext">{c}</th>)}</tr></thead>
               <tbody>{pick(r).map((row, i) => <tr key={i}>{cols.map((_, j) => <td key={j} className="border-b border-white/5 px-2 py-1 align-top text-white/85">{plain(row[j] ?? "")}</td>)}</tr>)}</tbody>
             </table>
@@ -196,7 +196,7 @@ function RegistrySection({ title, rows, registry, setDialog, docActions }: { tit
         <Row key={r.id} badge={`${r.id} · ${r.category}`} title={plain(r.origin)} sub={`${DECISION_LABEL[r.decisionType]} — ${plain(r.decision).replace(/^[🆕🔗⏸❌]\s*/u, "")}`}
           onClick={() => registry?.cards[r.id] && setDialog({ type: "markdown", title: `${r.id} ${plain(r.origin)}`, markdown: registry.cards[r.id], path: REGISTRY })}
           right={<span className="shrink-0 text-lg" title="상태">{r.status}</span>}>
-          <p className="mt-1 text-xs text-white/75">{plain(r.feature)}</p>
+          <p className="mt-1 text-sm text-white/80">{plain(r.feature)}</p>
           <p className="mt-1 text-xs text-subtext">우리 대상: {plain(r.target)}</p>
         </Row>
       ))}
@@ -241,7 +241,7 @@ function Overview({ roles, activeWork, registry, requests, setDialog, roleNoteCo
             <ul className="max-h-[480px] space-y-2 overflow-y-auto pr-1">
               {c.items.length === 0 && <li className="text-xs text-subtext">없음</li>}
               {c.items.map((it, i) => (
-                <li key={i} className="cursor-pointer rounded-lg bg-white/5 p-2 text-xs hover:bg-white/10" onClick={() => it.src.endsWith(".md") && setDialog({ type: "view", path: it.src })}>
+                <li key={i} className="cursor-pointer rounded-lg bg-white/5 p-2.5 text-sm hover:bg-white/10" onClick={() => it.src.endsWith(".md") && setDialog({ type: "view", path: it.src })}>
                   <p className="font-semibold text-gold/90">{it.who}</p>
                   <p className="mt-0.5 text-white/85">{it.text}</p>
                 </li>
