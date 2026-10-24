@@ -1,3 +1,5 @@
+> **📋 음악 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — Spectrum Studio PRO 3.0.0 참고 묶음 P-1~P-6(곡 제목 자동 표시 · 인코딩 안정화 · 배경 여러 장 전환 · AI 없는 합성 배경 · 내 설정 저장/프리셋 · 효과 확장):** 분석·플랜만, 코드 변경 없음. **범위·순서·비용 승인 전.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_SPECTRUM.md) · [플랜](docs/PLAN_20261024_SPECTRUM_P1_P6.md) · [분석](../docs/analysis-spectrum-studio-pro-20261024/REPORT.md)
+
 # 플레이리스트 채널 제작 자동화 — 인수인계 (AGENTS.md)
 
 > 다른 CLI가 대화 없이 이어서 작업할 수 있도록 쓴 문서입니다. 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`를 먼저 읽습니다. 작업 기록은 아래 "작업 기록"에 **추가만** 합니다.

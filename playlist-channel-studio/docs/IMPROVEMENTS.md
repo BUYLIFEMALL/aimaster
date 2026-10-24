@@ -54,3 +54,7 @@
 - 메인 사이트 주소 상수가 연결 안 되는 `https://aimaster.buylife.xyz`였다(권한 없음·정지·핸드폰 안내 이동, 회원가입·비밀번호 찾기·약관 링크가 접속 오류). → `https://www.buylife.xyz`, `/signup`→`/register`, `/legal/privacy`·`/legal/terms`→`/privacy`·`/terms`. 커밋 `486fd5fd3`(prompt-template-studio는 `9c170faf5`). tsc 0.
 - 운영 임시 조치: 메인 Vercel 프로젝트에 `aimaster.buylife.xyz`를 추가해 `www.buylife.xyz`로 308 이동(경로 유지) — 회원가입 `/signup`만 다음 배포 전까지 404.
 - 다음 배포 때: 버전 +0.01, 로그인 화면의 회원가입·비밀번호 찾기 링크와 권한 없는 계정 이동 확인.
+
+## 2026-10-24 (Claude Code 윈도우 `claude-win-dotori`) — 📋 제안·플랜: Spectrum Studio PRO 3.0.0 참고 묶음 P-1~P-6 (음악 담당 이어받기)
+- 같은 원본 웹 버전은 2026-10-13 `yt-playlist-studio`로 가져와 2026-10-20 이 프로그램에 병합됨. 3.0.0 데스크톱판에서 새로 생긴 기능만 코드(`src/data/presets.ts`)로 대조해 추림: P-1 곡 제목 자동 표시 · P-2 인코딩 안정화(하드웨어 가속 시험·품질 프로파일) · P-3 배경 여러 장 전환 · P-4 AI 없는 합성 배경 · P-5 내 설정 저장·장르 프리셋 · P-6 효과 확장.
+- 상태: 플랜 초안만, **범위·순서·비용 승인 전**. 권리 재확인(2026-10-13 「번들 수식 100% 추출 이식」 기록) 주인님 결정 대기. [인수인계](IMPROVEMENT_HANDOFF_20261024_SPECTRUM.md) · [플랜](PLAN_20261024_SPECTRUM_P1_P6.md)
