@@ -4,6 +4,8 @@
 
 대상은 **AIMaster 운영**이다. 공통 DB ref `esgxyikcnnvmlhygjkth`. 이 문서 작성으로 운영 코드·DB·권한·버전·배포는 바뀌지 않았다.
 
+> **🗣 주인님(관리자) 지시 — 2026-10-24, 절대 지시: 중복 발송·게시를 막는 작업을 작업 목록에 올린다.** 이 문서의 INC-D1(게시 엔진이 시간 초과 때 `media_publish` 최대 2회 재시도 — INSTA·인플루언서·웹툰·4컷 사본 공통)는 「중복 방지 묶음(DUP)」으로 우선 처리한다. 완료 기준: ① 결과가 불확실(시간 초과·게이트웨이 오류)하면 자동으로 다시 보내지 않고 「확인 필요」로 남긴다 ② 서버에서 상태를 먼저 잡고(조건부 update `where status in (...)` 또는 고유 제약) 이미 보냈거나 보내는 중이면 거절한다 — 화면 버튼 잠금만으로 끝내지 않는다 ③ 같은 대상 재발송은 회원 확인 창을 거친다 ④ 시험은 실제 발송 없이 모의로 하고, 실발송 시험은 주인님 승인 뒤 1건. 담당: 주인님이 나중에 지정.
+
 ## 읽는 순서
 
 [인스타 자동화 완성 기준](INSTAGRAM_COMPLETION_POLICY.md) → [인스타 기능 상세 비교표](INSTAGRAM_FEATURE_MATRIX.md) → 이 작업목록 → [ACTIVE_WORK](ACTIVE_WORK.md)·[HANDOFF](HANDOFF.md) 맨 위 → 대상 프로그램 `AGENTS.md`·`docs/IMPROVEMENTS.md`·최신 플랜.
