@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 뮤직비디오 v1.26 참고 이미지 화풍 분석 → 그 화풍으로 장면 이미지·영상
+- 문제(주인님): 그림체 참고 이미지를 넣어도 영상이 실사로 나옴. 원인: 스토리보드 API가 참고 이미지를 「없음」으로 고정, 영상엔 참고 이미지 미전달, 장면 이미지 없이 일괄 렌더링하면 글만으로 + Cinematic 문구.
+- 고친 것: 새 API `/api/music/style`(본인 Gemini 키로 화풍 분석) · 화풍 「참고 이미지 화풍(분석 결과)」 · 분석 결과 프로젝트 저장 · 스토리보드/이미지/영상 프롬프트에 분석 화풍 우선·실사 금지 · 참고 이미지 있는데 장면 이미지 없으면 이미지 먼저.
+- 검수(운영, 크롬 시험 계정): `아트이미지.png` → 자동 분석 「그림」 정확 → 스토리보드 2장면 일러스트 묘사 → 일괄 렌더링 → 이미지 먼저 2장 → 4초 영상 2개 같은 그림체. 배포 `music-video-studio-pmtmcf8sq` Ready·DB v1.26.
+- **미배포 대기**: `fde4c94bf`(분석 결과만 있어도 이미지 먼저) → v1.27. 상세 `music-video-studio/AGENTS.md`.
+- 비용: 빌드 1회 · 시험 계정 본인 Gemini 키 화풍 분석 2·스토리보드 1·이미지 2·4초 영상 2(약 0.8달러).
+- 다음(대기 목록): 플레이리스트 스펙트럼 검토 `playlist-channel-studio/docs/IMPROVEMENT_HANDOFF_20261024_SPECTRUM.md` P-1~P-6 플랜(주인님 요청).
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Supertonic TTS 0.3.0 분석·개발 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\Supertonic TTS-0.3.0-x64.exe`(Electron + Next 내장 서버, 실행 안 함). Supertone 공개 TTS 모델 `supertonic-3`(31개 언어, ONNX 약 398MB, **코드 MIT·가중치 OpenRAIL**)을 회원 PC에서 무료로 돌리는 비공식 앱 — 로컬 파이썬 엔진 / 브라우저(WASM) 두 방식, 한 개·여러 줄·**대화(여러 화자)** 합성, WAV/MP3, SRT, 표현 태그.
 - 우리 쪽: 음성 전용 프로그램 없음, 나레이션은 영상 프로그램 안에서 회원 유료 키로만. 의견: ① 공용 「브라우저 무료 음성 합성」 엔진(공식 오픈소스 기반) → `shorts-onestop-studio` 등 나레이션에 「무료 음성」 선택지 ② 독립 「AI 음성 합성 자동화」(가칭 `ai-voice-studio`) 조건부 추천(입출력 고유, 운영자 비용 0 → FREE 입구 후보). 결정 대기: 방향, **OpenRAIL 상업 이용 조건 확인**, 구현 담당. [보고서](analysis-supertonic-tts-20261024/REPORT.md). 비용 없음.
