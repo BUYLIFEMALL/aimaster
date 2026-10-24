@@ -6,6 +6,8 @@ import { FileText, Loader2, MessageSquare, Trash2, UploadCloud } from "lucide-re
 import { BTN_PRIMARY, Card, ErrorNote } from "@/components/studio/ui";
 import { estimateRemainingSec, MAX_CHUNKS_PER_DOC, UPLOAD_STAGE_LABELS } from "@/lib/chat/core";
 import { createClient } from "@/lib/supabase/client";
+import { EXTRACTION_WARNING_TEXT } from "@/lib/chat/documentRules";
+import { DocumentPreview } from "@/components/chat/DocumentPreview";
 
 interface Doc {
   id: string;
@@ -14,6 +16,9 @@ interface Doc {
   chunk_count: number;
   created_at: string;
   last_used_at?: string | null;
+  category: string;
+  processing_status: "processing" | "ready";
+  extraction_warning?: string | null;
 }
 
 const ACCEPT = ".txt,.md,.markdown,.csv,.pdf,.docx,.pptx,.xlsx,.hwp,.hwpx,.png,.jpg,.jpeg";
@@ -102,6 +107,10 @@ export default function DocumentsPage() {
   const [error, setError] = useState<{ text: string; needKey?: boolean } | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingParse[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [previewDocumentId, setPreviewDocumentId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [savingCategory, setSavingCategory] = useState<string | null>(null);
   const [limits, setLimits] = useState({ direct: 4 * 1024 * 1024, max: 50 * 1024 * 1024 });
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -201,8 +210,21 @@ export default function DocumentsPage() {
 
   async function remove(id: string, name: string) {
     if (!confirm(`「${name}」을 삭제할까요? 이 문서로 답하지 않게 됩니다.`)) return;
-    await fetch(`/api/documents?id=${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/documents?id=${id}`, { method: "DELETE" });
+    if (!response.ok) { const body = await response.json().catch(() => ({})); setError({ text: body.error || "문서를 삭제하지 못했습니다." }); return; }
+    setSelectedIds((ids) => ids.filter((value) => value !== id));
     await load();
+  }
+
+  async function saveCategory(id: string, value: FormDataEntryValue | null) {
+    setSavingCategory(id); setError(null);
+    try {
+      const response = await fetch(`/api/documents/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: value }) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "분류를 저장하지 못했습니다.");
+      await load(); setDone("문서 분류를 저장했습니다. 보관 기간은 원래 생성일 기준을 유지합니다.");
+    } catch (e) { setError({ text: (e as Error).message }); }
+    finally { setSavingCategory(null); }
   }
 
   return (
@@ -253,17 +275,29 @@ export default function DocumentsPage() {
 
       <Card>
         <h2 className="mb-3 text-sm font-bold text-slate-200">올린 문서 {docs.length}개</h2>
+        <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-slate-300">
+          <label>분류 필터 <select aria-label="문서 분류 필터" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="rounded-lg border border-[#2d3448] bg-[#11141c] px-2 py-1"><option value="">모든 분류</option>{[...new Set(docs.map((doc) => doc.category).filter(Boolean))].map((category) => <option key={category}>{category}</option>)}</select></label>
+          {!!selectedIds.length && <Link href={`/chat?docs=${selectedIds.join(",")}`} className="text-indigo-300 underline">선택한 {selectedIds.length}개 문서로 질문</Link>}
+        </div>
         {docs.length === 0 ? (
           <p className="text-xs text-slate-500">아직 올린 문서가 없습니다. 회사 소개서·매뉴얼·강의 자료처럼 자주 묻는 내용이 담긴 문서를 올려 보세요.</p>
         ) : (
           <ul className="divide-y divide-[#262c3d]">
-            {docs.map((d) => (
-              <li key={d.id} className="flex items-center gap-3 py-2.5">
+            {docs.filter((doc) => !categoryFilter || doc.category === categoryFilter).map((d) => (
+              <li key={d.id} className="flex flex-wrap items-center gap-3 py-2.5">
+                <input type="checkbox" aria-label={`${d.name} 참고 문서로 선택`} disabled={d.processing_status !== "ready"} checked={selectedIds.includes(d.id)} onChange={(e) => setSelectedIds((ids) => e.target.checked ? [...ids, d.id] : ids.filter((id) => id !== d.id))} />
                 <FileText className="h-5 w-5 shrink-0 text-emerald-300" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-slate-200">{d.name}</p>
                   <p className="text-[11px] text-slate-500">{sizeLabel(d.size_bytes)} · 조각 {d.chunk_count}개 · <span className={d.last_used_at ? "" : "text-amber-300/80"}>{usedLabel(d.last_used_at)}</span> · {daysLeft(d.created_at)}일 뒤 자동 삭제</p>
+                  {d.processing_status !== "ready" && <p className="text-xs text-amber-200">문서 저장 처리 중 · 완료 후 참고할 수 있습니다.</p>}
+                  {d.extraction_warning && <p className="mt-1 text-xs text-amber-200">{EXTRACTION_WARNING_TEXT}</p>}
+                  <form className="mt-2 flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); void saveCategory(d.id, new FormData(e.currentTarget).get("category")); }}>
+                    <input key={d.category} name="category" aria-label={`${d.name} 분류`} defaultValue={d.category} maxLength={40} placeholder="분류 (선택)" disabled={savingCategory === d.id || d.processing_status !== "ready"} className="min-w-0 rounded-lg border border-[#2d3448] bg-[#11141c] px-2 py-1 text-xs text-slate-200" />
+                    <button type="submit" aria-label={`${d.name} 분류 저장`} disabled={savingCategory === d.id || d.processing_status !== "ready"} className="text-xs text-indigo-300 underline">분류 저장</button>
+                  </form>
                 </div>
+                <button type="button" disabled={d.processing_status !== "ready"} onClick={() => setPreviewDocumentId(d.id)} aria-label={`${d.name} 미리보기`} className="shrink-0 text-xs text-indigo-300 underline">미리보기</button>
                 <Link href={`/chat?doc=${d.id}`} className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-200 hover:bg-indigo-500/20">
                   <MessageSquare className="h-3.5 w-3.5" /> 이 문서로 질문
                 </Link>
@@ -275,6 +309,7 @@ export default function DocumentsPage() {
           </ul>
         )}
       </Card>
+      {previewDocumentId && <DocumentPreview key={previewDocumentId} id={previewDocumentId} onClose={() => setPreviewDocumentId(null)} />}
     </div>
   );
 }

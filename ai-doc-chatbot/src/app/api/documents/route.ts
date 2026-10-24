@@ -5,6 +5,8 @@ import { DIRECT_UPLOAD_MAX, lastUsedByDoc, STORAGE_UPLOAD_MAX, type Source } fro
 import { checkDocLimits, MAX_DOCS, validateUpload } from "@/lib/chat/uploadChecks";
 import { IngestError, ingestStream, processFile, type IngestStage } from "@/lib/chat/ingest";
 import { UPLOAD_BUCKET, removeUpload } from "@/lib/chat/uploads";
+import { documentCutoff } from "@/lib/chat/documentRules";
+import { DOCUMENT_COLUMNS } from "@/lib/chat/documents";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,10 +19,10 @@ export async function GET() {
   if (!gate.ok) return gate.response;
   const admin = createAdminClient();
   const userId = gate.auth.user.id;
-  const { data, error } = await admin.from("dcb_documents").select("id, name, size_bytes, chunk_count, created_at").eq("user_id", userId).order("created_at", { ascending: false });
+  const { data, error } = await admin.from("dcb_documents").select(DOCUMENT_COLUMNS).eq("user_id", userId).gt("created_at", documentCutoff()).order("created_at", { ascending: false });
   if (error) return NextResponse.json({ error: "문서 목록을 불러오지 못했습니다." }, { status: 500 });
   // 문서별 마지막으로 근거로 쓰인 시각 — 30일 보관 답변의 출처에서 계산
-  const { data: answers } = await admin.from("dcb_messages").select("created_at, sources").eq("user_id", userId).eq("role", "assistant").order("created_at", { ascending: false }).limit(1000);
+  const { data: answers } = await admin.from("dcb_messages").select("created_at, sources").eq("user_id", userId).eq("role", "assistant").gt("created_at", documentCutoff()).order("created_at", { ascending: false }).limit(1000);
   const lastUsed = lastUsedByDoc(data ?? [], (answers ?? []) as { created_at: string; sources: Source[] }[]);
   const documents = (data ?? []).map((d) => ({ ...d, last_used_at: lastUsed[d.id] ?? null }));
   return NextResponse.json({ documents, maxDocs: MAX_DOCS, maxBytes: STORAGE_UPLOAD_MAX, directMaxBytes: DIRECT_UPLOAD_MAX });

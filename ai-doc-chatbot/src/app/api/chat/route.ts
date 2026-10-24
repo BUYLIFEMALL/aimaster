@@ -4,7 +4,10 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { chatOnce, chatStream, embed, ROUTER_MODEL, type ChatMessage } from "@/lib/chat/upstage";
 import { webSearch, type WebResult } from "@/lib/chat/tavily";
-import { buildSources, extractKeywords, isSummaryQuestion, mergeHybrid, parseRouteDecision, pickDocHits, roomTitleFrom, todayKst, type ChunkHit, type DocHit } from "@/lib/chat/core";
+import { buildSources, parseRouteDecision, roomTitleFrom, todayKst, type DocHit } from "@/lib/chat/core";
+import { documentSelection } from "@/lib/chat/documentRules";
+import { resolveDocumentScope } from "@/lib/chat/documents";
+import { findDocumentHits } from "@/lib/chat/documentSearch";
 import { buildAnswerMessages, buildRouterMessages, needsWebDecision } from "@/lib/chat/prompts";
 import { compatibleCredentials } from "@/lib/compatibleChat/keyStore";
 import { compatibleChat } from "@/lib/compatibleChat/transport";
@@ -34,6 +37,14 @@ export async function POST(request: Request) {
   const regenerate = body.regenerate === true;
 
   const admin = createAdminClient();
+  let selectedDocumentIds: string[] | null = null;
+  let documentIds: string[] = [];
+  try {
+    if (useDocs) {
+      selectedDocumentIds = documentSelection(body);
+      documentIds = await resolveDocumentScope(admin, userId, selectedDocumentIds);
+    }
+  } catch (e) { return NextResponse.json({ error: e instanceof CompatibleChatError ? e.message : "참고 문서를 확인하지 못했습니다." }, { status: e instanceof CompatibleChatError ? e.status : 500 }); }
   let roomId: string | null = null;
   let savedBotRef: string | null = null;
   if (body.roomId !== undefined && body.roomId !== null) {
@@ -78,14 +89,6 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: "채팅방의 봇 선택을 저장하지 못했습니다." }, { status: 500 });
   }
 
-  // 「이 문서만 참고」(U4): 내 문서가 맞을 때만
-  let onlyDocumentId: string | null = null;
-  if (useDocs && typeof body.documentId === "string" && UUID.test(body.documentId)) {
-    const { data } = await admin.from("dcb_documents").select("id").eq("id", body.documentId).eq("user_id", userId).maybeSingle();
-    if (!data) return NextResponse.json({ error: "선택한 문서를 찾지 못했습니다. 내 문서에서 다시 선택해 주세요." }, { status: 404 });
-    onlyDocumentId = data.id as string;
-  }
-
   // 다시 생성(U3): 마지막 질문·답변이 같은 질문이면 지우고 새로 답한다
   if (regenerate) {
     const { data: last } = await admin.from("dcb_messages").select("id, role, content").eq("room_id", roomId).eq("user_id", userId).order("created_at", { ascending: false }).limit(2);
@@ -115,7 +118,7 @@ export async function POST(request: Request) {
       const send = (obj: unknown) => { if (!signal.aborted) controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n")); };
       try {
         // 1) 내 문서에서 관련 내용 찾기
-        const docs: DocHit[] = useDocs ? await findDocHits(admin, userId, upstageKey!, question, onlyDocumentId) : [];
+        const docs: DocHit[] = documentIds.length ? await findDocumentHits(admin, userId, (await embed(upstageKey!, [question], "query"))[0], question, documentIds, selectedDocumentIds !== null) : [];
         signal.throwIfAborted();
 
         // 2) 웹 검색이 필요한지 판단 → 필요하면 Tavily(MCP) 검색
@@ -176,52 +179,4 @@ export async function POST(request: Request) {
   });
 
   return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });
-}
-
-type Admin = ReturnType<typeof createAdminClient>;
-
-/** 문서 앞부분 조각(요약·「이 문서만」 질문에서 관련도가 낮게 나올 때의 근거) */
-async function firstChunks(admin: Admin, userId: string, documentId: string): Promise<DocHit[]> {
-  const { data } = await admin.from("dcb_chunks").select("content, dcb_documents(name)").eq("document_id", documentId).eq("user_id", userId).order("chunk_index").limit(5);
-  return (data ?? []).map((c) => ({ document_id: documentId, document_name: (c.dcb_documents as unknown as { name: string } | null)?.name ?? "문서", content: c.content as string, similarity: 0 }));
-}
-
-/** 내 문서에서 근거 찾기 — 벡터 + 키워드 혼합(L4), 「이 문서만」(U4), 요약 질문(L12) */
-async function findDocHits(admin: Admin, userId: string, upstageKey: string, question: string, onlyDocumentId: string | null): Promise<DocHit[]> {
-  const { count } = await admin.from("dcb_chunks").select("id", { count: "exact", head: true }).eq("user_id", userId);
-  if (!count) return [];
-
-  const [qv] = await embed(upstageKey, [question], "query");
-  const { data: hits } = await admin.rpc("dcb_match_chunks", { p_user_id: userId, p_embedding: JSON.stringify(qv), p_count: onlyDocumentId ? 20 : 10 });
-  const vectorHits = (hits ?? []) as ChunkHit[];
-
-  if (onlyDocumentId) {
-    const picked = pickDocHits(vectorHits, onlyDocumentId);
-    return picked.length ? picked : firstChunks(admin, userId, onlyDocumentId);
-  }
-
-  // 키워드가 그대로 들어 있는 조각(이름·숫자·고유명사 보강)
-  const keywords = extractKeywords(question);
-  let keywordHits: ChunkHit[] = [];
-  if (keywords.length) {
-    const { data } = await admin
-      .from("dcb_chunks")
-      .select("id, document_id, content, dcb_documents(name)")
-      .eq("user_id", userId)
-      .or(keywords.map((k) => `content.ilike.%${k}%`).join(","))
-      .limit(30);
-    keywordHits = (data ?? []).map((c) => ({
-      id: c.id as string,
-      document_id: c.document_id as string,
-      document_name: (c.dcb_documents as unknown as { name: string } | null)?.name ?? "문서",
-      content: c.content as string,
-      similarity: vectorHits.find((v) => v.id === c.id)?.similarity ?? 0,
-    }));
-  }
-  const merged = mergeHybrid(vectorHits, keywordHits, keywords);
-  if (merged.length) return merged;
-
-  // 요약 질문인데 근거가 없으면 가장 가까운 문서의 앞부분으로 답한다
-  if (isSummaryQuestion(question) && vectorHits[0]?.document_id) return firstChunks(admin, userId, vectorHits[0].document_id);
-  return [];
 }

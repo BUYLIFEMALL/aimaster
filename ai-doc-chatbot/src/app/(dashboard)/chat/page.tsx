@@ -8,6 +8,8 @@ import { Markdown } from "@/components/chat/Markdown";
 import { ProviderSelect } from "@/lib/compatibleChat/ProviderSelect";
 import type { ChatSelection } from "@/lib/compatibleChat/config";
 import type { BotDefinition, GenerationContext } from "@/lib/bots/core";
+import type { DocumentInfo } from "@/lib/chat/documentRules";
+import { DocumentPreview } from "@/components/chat/DocumentPreview";
 
 interface Source {
   type: "doc" | "web";
@@ -15,6 +17,7 @@ interface Source {
   url?: string;
   snippet?: string;
   published?: string;
+  docId?: string;
 }
 interface Msg {
   id?: string;
@@ -61,7 +64,11 @@ export default function ChatPage() {
   const [copied, setCopied] = useState<number | null>(null);
   const [roomQuery, setRoomQuery] = useState("");
   const [editing, setEditing] = useState<{ id: string; title: string } | null>(null);
-  const [onlyDoc, setOnlyDoc] = useState<{ id: string; name: string } | null>(null);
+  const [documents, setDocuments] = useState<DocumentInfo[]>([]);
+  const [documentIds, setDocumentIds] = useState<string[] | null>(null);
+  const [documentCategory, setDocumentCategory] = useState("");
+  const [documentsLoaded, setDocumentsLoaded] = useState(false);
+  const [previewDocumentId, setPreviewDocumentId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<AbortController | null>(null);
   const selectedBot = bots.find((bot) => bot.id === botRef);
@@ -94,17 +101,22 @@ export default function ChatPage() {
 
   useEffect(() => {
     void loadRooms();
-    const wantDoc = new URLSearchParams(window.location.search).get("doc");
-    fetch("/api/documents", { cache: "no-store" })
-      .then((x) => x.json())
-      .then((d) => {
-        const list = (d.documents ?? []) as { id: string; name: string }[];
-        setDocCount(list.length);
-        // 「이 문서로 질문」(U4): 내 문서에서 넘어온 경우 그 문서만 참고
-        const picked = wantDoc ? list.find((x) => x.id === wantDoc) : undefined;
-        if (picked) setOnlyDoc({ id: picked.id, name: picked.name });
-      })
-      .catch(() => setDocCount(0));
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.get("docs") ?? params.get("doc");
+    // 없는/만료된 ID도 선택 의도를 남긴다. 전체 검색으로 조용히 넓히지 않는다.
+    if (wanted !== null) setDocumentIds(wanted.split(",").map((id) => id.toLowerCase()));
+    const abort = new AbortController();
+    const reload = () => {
+      void fetch("/api/documents", { cache: "no-store", signal: abort.signal }).then(async (response) => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "문서 목록을 확인하지 못했습니다.");
+        if (abort.signal.aborted) return;
+        const list = body.documents as DocumentInfo[];
+        setDocuments(list); setDocCount(list.filter((doc) => doc.processing_status === "ready").length); setDocumentsLoaded(true);
+      }).catch((e: Error) => { if (!abort.signal.aborted) { setDocumentsLoaded(false); setError({ text: e.message }); } });
+    };
+    reload(); window.addEventListener("focus", reload);
+    return () => { abort.abort(); window.removeEventListener("focus", reload); };
   }, [loadRooms]);
 
   useEffect(() => {
@@ -199,6 +211,7 @@ export default function ChatPage() {
     const question = (text ?? input).trim();
     if (!question || locked) return;
     if (unavailableBot) { setError({ text: "삭제됐거나 사용할 수 없는 봇입니다. 봇을 해제하거나 다시 선택해 주세요." }); return; }
+    if (useDocs && (!documentsLoaded || (documentIds !== null && (!documentIds.length || documentIds.some((id) => !documents.some((doc) => doc.id === id && doc.processing_status === "ready")))))) { setError({ text: "참고 문서를 다시 확인해 주세요. 문서를 선택하거나 전체 문서로 바꾸고, 목록 조회에 실패했다면 화면을 새로 고쳐 주세요." }); return; }
     if (!isRegenerate) setInput("");
     setError(null);
     setNotice(null);
@@ -212,7 +225,7 @@ export default function ChatPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off", documentId: useDocs ? onlyDoc?.id : undefined, regenerate: isRegenerate, ...selection, botRef, botRevision: selectedBot?.revision }),
+        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off", documentIds: useDocs ? documentIds : undefined, regenerate: isRegenerate, ...selection, botRef, botRevision: selectedBot?.revision }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
@@ -415,6 +428,7 @@ export default function ChatPage() {
                             </button>
                           </p>
                           <p className="whitespace-pre-wrap">{s.snippet || "이 답변은 근거 내용 미리보기가 저장되기 전(v1.04 이전)에 만들어졌습니다."}</p>
+                          {s.docId && <button type="button" onClick={() => setPreviewDocumentId(s.docId!)} className="mt-2 text-indigo-300 underline">저장 본문 미리보기</button>}
                         </div>
                       ) : null
                     )}
@@ -459,15 +473,21 @@ export default function ChatPage() {
             {(selectedBot?.provider ?? selection.provider) !== "upstage" && <p className="text-xs text-slate-400">질문·대화 이력과 참고 문서 내용이 선택한 AI에 전달됩니다. 문서 참고를 끄면 답변에 Upstage 키가 필요하지 않습니다.</p>}
             {error && <ErrorNote message={error.text} needKey={error.needKey} />}
             {notice && <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-200">{notice}</p>}
-            {onlyDoc && (
-              <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-200">
-                <FileText className="h-3.5 w-3.5 shrink-0" />
-                <span className="min-w-0 truncate">「{onlyDoc.name}」만 참고해서 답합니다</span>
-                <button type="button" aria-label="모든 문서 참고로 돌아가기" onClick={() => setOnlyDoc(null)} className="ml-auto inline-flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] text-emerald-300 hover:bg-emerald-500/20">
-                  <X className="h-3 w-3" /> 전체 문서로
-                </button>
-              </div>
-            )}
+            {useDocs && <details className="rounded-lg border border-[#262c3d] p-2 text-xs text-slate-300">
+              <summary className="cursor-pointer">참고 문서 선택 · {documentIds === null ? "전체 내 문서" : `${documentIds.length}개 선택`}</summary>
+              <fieldset disabled={locked} className="mt-2 space-y-2">
+                <label className="flex items-center gap-2"><input type="checkbox" checked={documentIds === null} onChange={(e) => setDocumentIds(e.target.checked ? null : [])} /> 전체 내 문서</label>
+                <label className="block">목록 분류 필터<select aria-label="참고 문서 목록 분류 필터" value={documentCategory} onChange={(e) => setDocumentCategory(e.target.value)} className={`${INPUT} mt-1 text-xs`}><option value="">모든 분류</option>{[...new Set(documents.map((doc) => doc.category).filter(Boolean))].map((category) => <option key={category}>{category}</option>)}</select></label>
+                <div className="max-h-32 space-y-1 overflow-auto">{documents.filter((doc) => !documentCategory || doc.category === documentCategory).map((doc) => <div key={doc.id} className="flex items-center gap-2">
+                  <label className="flex min-w-0 flex-1 items-center gap-2"><input type="checkbox" disabled={doc.processing_status !== "ready"} checked={documentIds?.includes(doc.id) ?? false} onChange={(e) => setDocumentIds((ids) => e.target.checked ? [...(ids ?? []), doc.id] : (ids ?? []).filter((id) => id !== doc.id))} /><span className="truncate">{doc.name}{doc.processing_status !== "ready" ? " (처리 중)" : ""}</span></label>
+                  <button type="button" disabled={doc.processing_status !== "ready"} aria-label={`${doc.name} 미리보기`} onClick={() => setPreviewDocumentId(doc.id)} className="shrink-0 text-indigo-300 underline">미리보기</button>
+                </div>)}</div>
+                {documentsLoaded && !documents.length && <p>저장된 문서가 없습니다. 내 문서에서 먼저 올려 주세요.</p>}
+                {!documentsLoaded && <p role="status">문서 목록 확인이 필요합니다.</p>}
+                {documentIds !== null && (!documentIds.length || documentIds.some((id) => !documents.some((doc) => doc.id === id && doc.processing_status === "ready"))) && <p role="alert" className="text-amber-200">선택 문서가 없거나 삭제·만료·처리 중입니다. 다시 선택하거나 전체 내 문서로 바꿔 주세요.</p>}
+                <p className="text-slate-400">선택은 다음 답변에 적용됩니다. 한 번에 관련 근거 최대 5조각을 사용하며 이전 답변 출처는 유지됩니다. 분류 필터는 목록만 바꿉니다.</p>
+              </fieldset>
+            </details>}
             <div className="flex items-end gap-2">
               <textarea
                 className={`${INPUT} max-h-40 min-h-[48px] resize-none`}
@@ -500,6 +520,7 @@ export default function ChatPage() {
           </div>
         </div>
       </section>
+      {previewDocumentId && <DocumentPreview key={previewDocumentId} id={previewDocumentId} onClose={() => setPreviewDocumentId(null)} />}
     </div>
   );
 }

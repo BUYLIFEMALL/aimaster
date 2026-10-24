@@ -140,7 +140,7 @@ export function buildSystemPrompt(today: string, docs: DocHit[], web: { title: s
     `[기준 날짜 엄수: 오늘은 ${today}(한국 시간)이고 현재 연도는 ${year}년입니다. 현재 정보·시기 판단은 ${year}년(당해 연도)을 기준으로 하세요. 단, 번역·요약·인용하는 원문 속 과거 날짜와 역사적 사실은 현재 연도로 바꾸지 마세요. 현재 날짜를 알고 있다는 이유로 최신 사실을 안다고 단정하지 마세요.]`,
   ];
   if (docs.length) {
-    lines.push(`\n[사용자가 올린 문서에서 찾은 내용] — 질문과 관련 있으면 이 내용을 우선 근거로 쓰고, 문서에 없는 내용을 문서에 있는 것처럼 말하지 마세요.`);
+    lines.push(`\n[사용자가 올린 문서에서 찾은 내용] — 질문과 관련 있으면 현재 reference_data.documents만 문서 근거로 쓰고, 없는 내용을 문서에 있는 것처럼 말하지 마세요. 과거 대화에 나와도 현재 제공되지 않은 다른 문서의 내용으로 근거를 넓히지 마세요.`);
   }
   if (web.length) {
     lines.push(
@@ -158,7 +158,8 @@ export function buildSources(docs: DocHit[], web: { title: string; url: string; 
   const seenDocs = new Map<string, Source>();
   for (const d of docs) {
     const score = Math.round(d.similarity * 100) / 100;
-    const prev = seenDocs.get(d.document_name);
+    const key = d.document_id ?? d.document_name;
+    const prev = seenDocs.get(key);
     if (prev) {
       if (score > (prev.score ?? 0)) {
         prev.score = score;
@@ -167,7 +168,7 @@ export function buildSources(docs: DocHit[], web: { title: string; url: string; 
       continue;
     }
     const src: Source = { type: "doc", title: d.document_name, score, snippet: snippetOf(d.content), ...(d.document_id ? { docId: d.document_id } : {}) };
-    seenDocs.set(d.document_name, src);
+    seenDocs.set(key, src);
     out.push(src);
   }
   const seenUrls = new Set<string>();

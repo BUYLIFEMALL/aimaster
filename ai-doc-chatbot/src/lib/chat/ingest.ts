@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { embed, NeedsAsyncParseError, parseDocument, submitAsyncParse } from "./upstage";
 import { chunkText, fileKind, MAX_CHUNKS_PER_USER, wasTruncated } from "./core";
+import { EXTRACTION_WARNING_TEXT, pdfExtractionWarning } from "./documentRules";
 
 // 문서 저장 과정(공용): 글 읽기 → 조각 나누기 → 임베딩 → 저장. 원본 파일은 보관하지 않는다.
 // onStage로 진행 단계를 알려 화면이 「읽는 중 → 조각 → 임베딩 → 저장」을 보여 준다(U2).
@@ -17,6 +18,7 @@ export interface IngestedDoc {
   /** 문서당 조각 한도에 걸려 앞부분만 저장됐으면 true(DB 칸 아님, 응답에만) */
   truncated?: boolean;
   created_at: string;
+  extraction_warning?: string | null;
 }
 
 export type UploadOutcome = { kind: "done"; document: IngestedDoc } | { kind: "async"; requestId: string };
@@ -38,10 +40,11 @@ export async function ingestText(opts: {
   onStage?: (stage: IngestStage) => void;
 }): Promise<IngestedDoc> {
   const { admin, userId, apiKey, name, sizeBytes, text, onStage } = opts;
+  const extractionWarning = pdfExtractionWarning(name, text);
 
   onStage?.("chunk");
   const chunks = chunkText(text);
-  if (!chunks.length) throw new IngestError("문서에서 읽을 수 있는 글을 찾지 못했습니다.", 400);
+  if (!chunks.length || (extractionWarning && !/[\p{L}\p{N}]/u.test(text))) throw new IngestError(extractionWarning ? `PDF에서 읽을 수 있는 글을 찾지 못했습니다. ${EXTRACTION_WARNING_TEXT}` : "문서에서 읽을 수 있는 글을 찾지 못했습니다.", 400);
   const truncated = wasTruncated(text, chunks);
 
   // 회원 전체 조각 한도(L14) — 공용 DB 용량 보호
@@ -62,8 +65,8 @@ export async function ingestText(opts: {
   onStage?.("save");
   const { data: doc, error: docErr } = await admin
     .from("dcb_documents")
-    .insert({ user_id: userId, name, size_bytes: sizeBytes, chunk_count: chunks.length })
-    .select("id, name, size_bytes, chunk_count, created_at")
+    .insert({ user_id: userId, name, size_bytes: sizeBytes, chunk_count: chunks.length, processing_status: "processing", extraction_warning: extractionWarning })
+    .select("id, name, size_bytes, chunk_count, created_at, extraction_warning")
     .single();
   if (docErr || !doc) throw new IngestError("문서를 저장하지 못했습니다.", 500);
 
@@ -74,6 +77,11 @@ export async function ingestText(opts: {
       await admin.from("dcb_documents").delete().eq("id", doc.id).eq("user_id", userId);
       throw new IngestError("문서 조각을 저장하지 못했습니다. 다시 시도해 주세요.", 500);
     }
+  }
+  const { data: readyDoc, error: readyError } = await admin.from("dcb_documents").update({ processing_status: "ready" }).eq("id", doc.id).eq("user_id", userId).select("id").maybeSingle();
+  if (readyError || !readyDoc) {
+    await admin.from("dcb_documents").delete().eq("id", doc.id).eq("user_id", userId);
+    throw new IngestError("문서 저장 완료 상태를 확인하지 못했습니다. 자동으로 다시 처리하지 않았습니다.", 500);
   }
   return { ...(doc as IngestedDoc), ...(truncated ? { truncated: true } : {}) };
 }
