@@ -41,7 +41,7 @@ export function CsvMapping({ preview, fileName, onImport, onCancel, merge }: {
   return (
     <div className="nc-csv-mapping" role="group" aria-label={t('lp.import.map_columns', 'Map columns')}>
       <div className="nc-csv-mapping-head">
-        <div className="nc-csv-mapping-title">{merge ? t('lp.import.merge_into', 'Merge “{file}” into {database}', { file: fileName, database: preview.target?.name || 'Untitled' }) : fileName}</div>
+        <div className="nc-csv-mapping-title">{merge ? t('lp.import.merge_into', 'Merge “{file}” into {database}', { file: fileName, database: preview.target?.name || tx('Untitled') }) : fileName}</div>
         <div className="nc-csv-mapping-sub">
           {t('lp.import.count_plural_one_other_c1d7', '{count, plural, one {# record} other {# records}}', { count: preview.rows })} · {merge ? t('lp.import.choose_the_property_each_column_fills', 'Choose the property each column fills. New rows are added; existing rows stay as they are.') : t('lp.import.choose_a_property_type_for_each', 'Choose a property type for each column.')}
         </div>

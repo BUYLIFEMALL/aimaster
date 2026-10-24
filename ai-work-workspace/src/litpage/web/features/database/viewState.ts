@@ -13,6 +13,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { run } from '../../lib/blocks.ts';
 import { databaseAccessOf } from './access.ts';
+import { tx } from '../shell/i18n.ts';
 
 export interface PropertyFilterEntry {
   id: string;
@@ -286,7 +287,7 @@ export function saveForEveryone(viewId: string, scope: SaveScope = 'all') {
     if (touched) tx.set('collection_view', viewId, ['query2'], q);
   });
   resetPersonal(viewId, scope);
-  useUI.getState().toast('Everyone can now see the saved changes.');
+  useUI.getState().toast(tx('Everyone can now see the saved changes.'));
 }
 
 /** "Save as new view": a copy of the view with the personal filters / sorts; the original view is reset. */

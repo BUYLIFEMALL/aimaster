@@ -4,9 +4,10 @@ import type { CSSProperties } from 'react';
 import type { UserRecord } from '#shared/records.ts';
 import { useUser } from '../../lib/hooks.ts';
 import { colorToken } from '../../lib/colorToken.ts';
+import { tx } from '../shell/i18n.ts';
 
 export function userName(u: UserRecord | undefined | null): string {
-  return u?.name || u?.email || 'Unknown user';
+  return u?.name || u?.email || tx('Unknown user');
 }
 
 /** Deterministic presence color (cursor, selection, avatar ring) for a user/client. */

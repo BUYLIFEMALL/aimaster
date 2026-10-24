@@ -183,7 +183,7 @@ function ShareMenu({ pageId, close, initialTab }: { pageId: string; close: () =>
       records.mergeRecordMap(res.recordMap);
       setModel(res);
     } catch (e: any) {
-      setError(e?.message ?? 'Failed to load sharing settings');
+      setError(e?.message ?? tx('Failed to load sharing settings'));
     }
   }, [pageId]);
   // reload whenever the page's permissions change (own edits, other clients)
@@ -307,7 +307,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
       </div>
     ) }] as MenuItemDef[] });
     sections.push({
-      title: opts?.current ? 'User access' : undefined,
+      title: opts?.current ? tx('User access') : undefined,
       items: (opts?.allowed ?? (rolesForPage(page) as PageRole[])).map((r) => ({ label: ROLE_LABEL[r], description: ROLE_CAPTION[r] || undefined, checked: r === cur, onSelect: () => onPick(r) })) as MenuItemDef[],
     });
     if (opts?.extra) sections.push(...opts.extra);
@@ -410,7 +410,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
                 role="button"
                 className={`nc-share-role ${model.canManage ? '' : 'disabled'}`}
                 onClick={(e) => model.canManage && roleMenu(e.currentTarget, u.role, (r) => (u.inherited && u.userId !== uid ? void changeInheritedAccess(pageId, { userId: u.userId }, r) : changeUserRole(u.userId, r)), {
-                  remove: !u.inherited || canRemoveInherited(u.userId), current: `via <b>${via} on ${escapeHtml(u.sourceTitle || 'Untitled')}</b>`, extra: u.inherited ? undefined : dbRoleExtras(page, { type: 'user', userId: u.userId }),
+                  remove: !u.inherited || canRemoveInherited(u.userId), current: `via <b>${via} on ${escapeHtml(u.sourceTitle || tx('Untitled'))}</b>`, extra: u.inherited ? undefined : dbRoleExtras(page, { type: 'user', userId: u.userId }),
                 })}
               >
                 <span className="nc-ellipsis">{(!u.inherited && dbRoleLabel(page, { type: 'user', userId: u.userId })) || ROLE_LABEL[u.role]}</span>
@@ -443,7 +443,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
               <span>{ga.kind === 'team' ? t('lp.page.people_in', 'People in {teamName}', { teamName: ga.teamName ?? '' }) : gaCur.label}</span>
               <Icon name="chevronDown" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
             </div>
-            {gaInheritedFrom && <div className="email">From {pageTitle(gaInheritedFrom) || 'Untitled'}</div>}
+            {gaInheritedFrom && <div className="email">From {pageTitle(gaInheritedFrom) || tx('Untitled')}</div>}
             {ga.kind === 'public' && <div className="email">{t('lp.page.whoever_has_the_link_sees_the', 'Whoever has the link sees the content along with contributor names.')}</div>}
           </div>
           {gaKind !== 'private' && ga.kind !== 'team' && (
@@ -458,7 +458,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
           <div className="nc-share-row sub">
             <div className="label">{t('lp.page.link_expires', 'Link expires')}{plan === 'free' && <span className="nc-plan-badge">{tx('Plus')}</span>}</div>
             <div role="button" className={`nc-share-role ${model.canManage && plan !== 'free' ? '' : 'disabled'}`}
-              data-tooltip={plan === 'free' ? 'Upgrade to Plus to set link expiration' : undefined}
+              data-tooltip={plan === 'free' ? tx('Upgrade to Plus to set link expiration') : undefined}
               onClick={(e) => model.canManage && plan !== 'free' && expiryMenu(e.currentTarget, setLinkExpiry)}>
               <span>{expiryLabel}</span>
               <Icon name="chevronDown" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
@@ -579,7 +579,7 @@ function updatePublished(pageId: string, patch: Partial<Permission>) {
 
 function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | undefined }) {
   const pageId = model.pageId;
-  const title = pageTitle(page) || 'Untitled';
+  const title = pageTitle(page) || tx('Untitled');
   const pub = model.published;
   const creator = useRecord<UserRecord>('lit_user', page?.created_by_id);
   void creator;
@@ -649,12 +649,12 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
   const plan = (records.get<SpaceRecord>('space', model.space.id)?.plan_type ?? 'plus') as string;
   return (
     <div className="nc-publish-body">
-      {pub.inherited && <div className="nc-publish-inherited">{t('lp.page.sharing_and_publishing_here_are_managed', 'Sharing and publishing here are managed on {pageTitle}.', { pageTitle: pub.sourceTitle || 'Untitled' })}</div>}
+      {pub.inherited && <div className="nc-publish-inherited">{t('lp.page.sharing_and_publishing_here_are_managed', 'Sharing and publishing here are managed on {pageTitle}.', { pageTitle: pub.sourceTitle || tx('Untitled') })}</div>}
       <div className="nc-publish-url">
         <Icon name="globe" size={16} style={{ color: 'var(--lp-icon-secondary)', flexShrink: 0 }} />
         <a className="nc-ellipsis" href={url} target="_blank" rel="noreferrer">{url.replace(/^https?:\/\//, '')}</a>
         <div role="button" className="nc-icon-btn" aria-label={t('lp.page.copy_the_site_link', 'Copy the site link')} data-tooltip={t('lp.page.copy_the_site_link', 'Copy the site link')}
-          onClick={() => { void navigator.clipboard?.writeText(url); useUI.getState().toast('Link copied'); }}>
+          onClick={() => { void navigator.clipboard?.writeText(url); useUI.getState().toast(tx('Link copied')); }}>
           <Icon name="link" size={16} />
         </div>
       </div>

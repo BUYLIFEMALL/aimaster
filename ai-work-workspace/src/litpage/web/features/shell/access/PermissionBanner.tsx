@@ -6,7 +6,7 @@ import type { BlockRecord } from '#shared/records.ts';
 import { Icon } from '../../../components/Icon.tsx';
 import { useRole } from '../../../lib/hooks.ts';
 import { useUI } from '../../../lib/store/ui.ts';
-import { t } from '../i18n.ts';
+import { t, tx } from '../i18n.ts';
 import { getPageAccessState, requestPageAccess, useMyRequests } from './access.ts';
 import { GuestBanner } from './GuestBanner.tsx';
 import './access.css';
@@ -53,7 +53,7 @@ function LimitedAccessBanner({ page }: { page: BlockRecord }) {
       if (e?.status === 429) setState('limited');
       else {
         setState('idle');
-        useUI.getState().toast(e?.message || 'We hit a problem');
+        useUI.getState().toast(e?.message || tx('We hit a problem'));
       }
     }
   };

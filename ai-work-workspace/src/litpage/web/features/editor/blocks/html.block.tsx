@@ -59,7 +59,7 @@ export async function saveHtml(blockId: string, html: string, name = 'index.html
       setFormat(tx, blockId, { embed_variant: 'html_artifact', block_height: (getBlock(blockId)?.format?.block_height as number | undefined) ?? 480 });
     });
   } catch (e) {
-    toast((e as Error).message || 'Upload failed');
+    toast((e as Error).message || tx('Upload failed'));
   } finally {
     useUploads.getState().set(blockId, null);
   }
@@ -82,7 +82,7 @@ function starter(kind: string, prompt?: string): string {
 </head>
 <body>
   <h1>${esc}</h1>
-  <p>${kind === 'game' ? 'Click the button to score points.' : 'Edit this HTML to build your ' + kind + '.'}</p>
+  <p>${kind === 'game' ? tx('Click the button to score points.') : tx('Edit this HTML to build your ') + kind + '.'}</p>
   <div class="card">
     <button id="b">{tx('Click me')}</button> <span id="n">0</span>
   </div>
@@ -107,7 +107,7 @@ function HtmlPicker({ blockId, close }: { blockId: string; close: () => void }) 
   const onFile = async (f: File | undefined) => {
     if (!f) return;
     if (!/\.html?$/i.test(f.name) && f.type !== 'text/html') {
-      toast('Please upload an .html file');
+      toast(tx('Please upload an .html file'));
       return;
     }
     close();
@@ -241,7 +241,7 @@ export function HtmlBlock({ block, readOnly }: BlockProps) {
           block={block}
           readOnly={readOnly || !!uploading}
           icon={uploading ? <div className="nc-spinner" /> : 'codeAngle'}
-          label={uploading ? `Uploading ${uploading.name}…` : 'Create or upload HTML content'}
+          label={uploading ? `Uploading ${uploading.name}…` : tx('Create or upload HTML content')}
           onOpen={(el) => openHtmlPicker(block.id, el)}
         />
       </div>

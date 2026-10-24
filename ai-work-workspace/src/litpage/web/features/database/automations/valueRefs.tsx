@@ -61,7 +61,7 @@ export function refLabel(ref: ValueRef, c: EditorCtx): { label: string; icon?: s
     case 'text': return { label: ref.text };
     case 'option': return { label: ref.name };
     case 'user': return { label: userName(ref.id), icon: 'person' };
-    case 'page': return { label: pageTitle(records.get<BlockRecord>('block', ref.id)) || 'Untitled', icon: 'page' };
+    case 'page': return { label: pageTitle(records.get<BlockRecord>('block', ref.id)) || tx('Untitled'), icon: 'page' };
     case 'date': return { label: formatDateValue(ref.date), icon: 'date' };
     case 'checkbox': return { label: ref.checked ? 'Checked' : 'Unchecked', icon: 'checkboxChecked' };
     case 'context': return { label: contextLabel(ref.key, ctxSurface(c)), icon: ref.key === 'page' ? 'page' : ref.key === 'actor' || ref.key === 'page_creator' ? 'person' : 'clock' };
@@ -85,7 +85,7 @@ export function refLabel(ref: ValueRef, c: EditorCtx): { label: string; icon?: s
       const v = s?.type === 'define_variables' ? s.variables.find((x) => x.id === ref.variable) : undefined;
       return { label: v?.name || 'Variable', icon: 'formula' };
     }
-    case 'formula': return { label: ref.name || 'My value' };
+    case 'formula': return { label: ref.name || tx('My value') };
   }
 }
 
@@ -163,7 +163,7 @@ function MentionMenu({ c, onPick, close, kinds }: { c: EditorCtx; onPick: Mentio
     section(`${contextLabel('page', ctxSurface(c))} properties`, props.filter(([, p]) => match(p.name)).slice(0, 30).map(([id, p]) => opt(`p-${id}`, <PropertyIcon prop={p} size={16} />, p.name, { type: 'property', property: id })));
   }
   if (want('people')) section('People', workspaceMembers().filter((u) => match(`${u.name ?? ''} ${u.email ?? ''}`)).slice(0, 8).map((u) => opt(`u-${u.id}`, <UserAvatar userId={u.id} size={20} />, u.name || u.email, { type: 'user', id: u.id })));
-  if (want('pages')) section('Pages', pages.map((id) => opt(`g-${id}`, <PageIcon block={records.get<BlockRecord>('block', id)} size={18} />, pageTitle(records.get<BlockRecord>('block', id)) || 'Untitled', { type: 'page', id })));
+  if (want('pages')) section('Pages', pages.map((id) => opt(`g-${id}`, <PageIcon block={records.get<BlockRecord>('block', id)} size={18} />, pageTitle(records.get<BlockRecord>('block', id)) || tx('Untitled'), { type: 'page', id })));
   if (want('dates')) {
     const today = new Date();
     const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -421,7 +421,7 @@ function ValuePicker({ c, prop, collectionId, edit, onChange, close }: { c: Edit
       ...(sameDb ? [opt('page', <Icon name="page" size={18} />, contextLabel('page', ctxSurface(c)), { type: 'context', key: 'page' })] : []),
       ...out.pages.map((r, i) => opt(`st${i}`, <Icon name="page" size={18} />, refLabel(r, c).label, r)),
     ]);
-    sec('Pages', pages.slice(0, 50).map((p) => opt(p.id, <PageIcon block={p} size={18} />, toPlainText(p.properties?.title) || 'Untitled', { type: 'page', id: p.id })));
+    sec('Pages', pages.slice(0, 50).map((p) => opt(p.id, <PageIcon block={p} size={18} />, toPlainText(p.properties?.title) || tx('Untitled'), { type: 'page', id: p.id })));
   } else if (t === 'checkbox') {
     sec('Value', [
       opt('on', <Icon name="checkboxChecked" size={18} />, 'Checked', { type: 'checkbox', checked: true }),
@@ -450,7 +450,7 @@ function ValuePicker({ c, prop, collectionId, edit, onChange, close }: { c: Edit
         <div className="nc-auto-pop-tabs" role="tablist">
           {ops.map((op) => (
             <span key={op} role="tab" aria-selected={e.op === op} className={`nc-auto-pop-tab ${e.op === op ? 'on' : ''}`} onClick={() => update({ ...e, op, values: op === 'clear' || (op === 'toggle' && t === 'checkbox') ? [] : e.values })}>
-              {op === 'set' && !multi ? 'Set to' : OP_LABELS[op]}
+              {op === 'set' && !multi ? tx('Set to') : OP_LABELS[op]}
             </span>
           ))}
         </div>

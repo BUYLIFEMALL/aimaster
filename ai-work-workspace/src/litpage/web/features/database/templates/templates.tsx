@@ -26,15 +26,15 @@ import { userTimeZone } from '../advanced/context.ts';
 import './templates.css';
 import { tx } from '../../shell/i18n.ts';
 
-const nameOf = (b: BlockRecord | undefined) => toPlainText(b?.properties?.title) || 'Untitled';
-const collectionName = (c: CollectionRecord | undefined) => toPlainText(c?.name as any) || 'Untitled';
+const nameOf = (b: BlockRecord | undefined) => toPlainText(b?.properties?.title) || tx('Untitled');
+const collectionName = (c: CollectionRecord | undefined) => toPlainText(c?.name as any) || tx('Untitled');
 
 async function setRepeat(templateId: string, rec: Recurrence | null) {
   try {
     await setTemplateRecurrence(templateId, rec);
     if (rec) useUI.getState().toast(`${duplicateCaption(rec)} · ${recurrenceLabel(rec)}`);
   } catch (e) {
-    useUI.getState().toast((e as Error)?.message || 'This template cannot repeat.');
+    useUI.getState().toast((e as Error)?.message || tx('This template cannot repeat.'));
   }
 }
 
@@ -67,7 +67,7 @@ export function openSetDefaultDialog(t: BlockRecord, collection: CollectionRecor
           if (view && (view.format as any)?.collection_view_default_template) setDefaultTemplate(view, collection.id, null);
           close();
         }}>For all views in “{collectionName(collection)}”</button>
-        {view && <button className="nc-dialog-btn outline" onClick={() => { setDefaultTemplate(view, collection.id, t.id); close(); }}>Only on “{view.name || 'Untitled'}” view</button>}
+        {view && <button className="nc-dialog-btn outline" onClick={() => { setDefaultTemplate(view, collection.id, t.id); close(); }}>Only on “{view.name || tx('Untitled')}” view</button>}
         <button className="nc-dialog-btn outline" onClick={close}>{tx('Cancel')}</button>
       </div>
     </div>
@@ -127,7 +127,7 @@ export function TemplateBanner({ page, collection, readOnly }: { page: BlockReco
             openMenu(el, { width: 180, sections: [{ items: repeatItems(page.id, () => el) }] }, { placement: 'bottom-start', backdrop: 'transparent', onClose: () => setOpen(false) });
           }}
         >
-          {rec ? duplicateCaption(rec) : 'Duplicate every…'}
+          {rec ? duplicateCaption(rec) : tx('Duplicate every…')}
           <Icon name="arrowChevronSingleDownSmall" size={14} />
         </span>
       )}

@@ -8,6 +8,7 @@ import {
 import { run } from '../../lib/blocks.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { changePropertyType, newPropertyId, nullify } from './actions.ts';
+import { tx } from '../shell/i18n.ts';
 
 export function isTaskDatabase(c: CollectionRecord | undefined): boolean {
   return isTaskDb(c);
@@ -55,7 +56,7 @@ export function turnIntoTaskDatabase(c: CollectionRecord, choice: { status: Role
     if (dep) Object.assign(map, { [TASK_ROLES.blocking]: dep.blocking, ...(dep.blockedBy ? { [TASK_ROLES.blockedBy]: dep.blockedBy } : {}) });
     tx.update('collection', c.id, ['format'], { app_config_uri: TASKS_COLLECTION_URI, app_uri_map: { ...((c.format?.app_uri_map as Record<string, string>) ?? {}), ...map } });
   });
-  useUI.getState().toast('Turned into task database · Add to Home to see your assigned tasks in My Tasks');
+  useUI.getState().toast(tx('Turned into task database · Add to Home to see your assigned tasks in My Tasks'));
 }
 
 export function undoTaskDatabase(c: CollectionRecord) {

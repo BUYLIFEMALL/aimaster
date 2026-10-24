@@ -411,7 +411,7 @@ function ExportWorkspaceBody({ space, close }: { space: SpaceRecord; close: () =
         useUI.getState().toast(t('lp.settings.workspace_export_isn_t_available_on', 'Workspace export isn’t available on this server'));
         return;
       }
-      setErr(e?.message ?? 'Export failed');
+      setErr(e?.message ?? tx('Export failed'));
       setBusy(false);
     }
   };

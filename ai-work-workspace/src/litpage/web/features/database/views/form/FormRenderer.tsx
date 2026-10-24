@@ -69,10 +69,10 @@ function EmailCopy({ form, pageId }: { form: PublicForm; pageId: string }) {
     try {
       const r = await api<{ to: string }>('emailFormResponse', { viewId: form.viewId, pageId, email: form.submitAs ? undefined : email.trim() });
       setState('sent');
-      setMsg(form.submitAs ? `Email sent to ${r.to}` : 'Email sent!');
+      setMsg(form.submitAs ? `Email sent to ${r.to}` : tx('Email sent!'));
     } catch (e) {
       setState('error');
-      setMsg((e as Error).message || 'Something went wrong while processing that request. Please try again later.');
+      setMsg((e as Error).message || tx('Something went wrong while processing that request. Please try again later.'));
     }
   };
   if (state === 'sent') return <div className="nc-form-done-sub" data-testid="form-email-sent">{msg}</div>;
@@ -260,7 +260,7 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
         onDone?.(res.pageId);
       }
     } catch (e) {
-      setFailure((e as Error).message || 'The form could not be submitted. Try again, or reach out to the form owner.');
+      setFailure((e as Error).message || tx('The form could not be submitted. Try again, or reach out to the form owner.'));
     } finally {
       setBusy(false);
     }
@@ -280,8 +280,8 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
       <div className="nc-form-r nc-form-done" data-testid="form-confirmation">
         <div className="nc-form-done-icon"><Icon name="check" size={28} /></div>
         {/* Form settings › Submit › Confirmation title / body defaults */}
-        <div className="nc-form-done-title">{ss.confirmationTitle?.trim() || (publicCopy ? 'Your submission is recorded.' : 'Thank you!')}</div>
-        <div className="nc-form-done-sub">{ss.confirmationBody?.trim() || (publicCopy ? 'Thanks for filling out this form.' : 'Your submission was sent successfully.')}</div>
+        <div className="nc-form-done-title">{ss.confirmationTitle?.trim() || (publicCopy ? tx('Your submission is recorded.') : tx('Thank you!'))}</div>
+        <div className="nc-form-done-sub">{ss.confirmationBody?.trim() || (publicCopy ? tx('Thanks for filling out this form.') : tx('Your submission was sent successfully.'))}</div>
         <div className="nc-form-done-actions">
           {ss.allowSubmitAnotherResponse !== false && (
             <div role="button" className="nc-form-btn secondary" onClick={() => { setAnswers({}); setErrors({}); setDone(null); }}>{tx('Submit another')}</div>
@@ -317,7 +317,7 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
         ))}
         {failure && <div className="nc-form-error big" role="alert">Something went wrong while processing that request. {failure}</div>}
         <div className="nc-form-r-submit">
-          <div role="button" className={`nc-form-btn primary ${busy ? 'busy' : ''}`} data-testid="form-submit" style={{ background: submitColor(form.submitScreen.submitButtonColor) }} onClick={() => !busy && void submit()}>{busy ? 'Submitting…' : form.submitScreen.submitButtonText?.trim() || 'Submit'}</div>
+          <div role="button" className={`nc-form-btn primary ${busy ? 'busy' : ''}`} data-testid="form-submit" style={{ background: submitColor(form.submitScreen.submitButtonColor) }} onClick={() => !busy && void submit()}>{busy ? tx('Submitting…') : form.submitScreen.submitButtonText?.trim() || 'Submit'}</div>
         </div>
       </div>
     </div>

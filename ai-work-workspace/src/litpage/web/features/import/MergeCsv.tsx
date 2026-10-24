@@ -6,7 +6,7 @@ import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { openOverlay } from '../../components/overlay.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { CsvMapping, type CsvPreview } from './CsvMapping.tsx';
 import './import.css';
 
@@ -45,13 +45,13 @@ async function mergeFile(blockId: string, file: File) {
               records.mergeRecordMap(res.recordMap);
               useUI.getState().toast(t('lp.import.added_count_plural_one_other', 'Added {count, plural, one {# record} other {# records}}', { count: res.added }));
             } catch (e: any) {
-              useUI.getState().toast(e?.message ?? 'Merge failed');
+              useUI.getState().toast(e?.message ?? tx('Merge failed'));
             }
           }}
         />
       </div>
     ), { placement: 'middle', backdrop: 'dim' });
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Merge failed');
+    useUI.getState().toast(e?.message ?? tx('Merge failed'));
   }
 }

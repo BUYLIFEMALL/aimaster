@@ -53,7 +53,7 @@ export function PersonChip({ userId, showName = true, size = 20 }: { userId: str
   return (
     <span className="nc-person-chip">
       <UserAvatar userId={userId} size={size} />
-      {showName && <span className="nc-person-name">{u?.name || u?.email || 'Unknown user'}</span>}
+      {showName && <span className="nc-person-name">{u?.name || u?.email || tx('Unknown user')}</span>}
     </span>
   );
 }
@@ -62,7 +62,7 @@ export function PersonChip({ userId, showName = true, size = 20 }: { userId: str
 export function GroupChip({ groupId, spaceId, size = 20 }: { groupId: string; spaceId?: string; size?: number }) {
   const space = useRecord<SpaceRecord>('space', spaceId ?? useSession.getState().spaceId ?? undefined);
   const g = ((space?.settings?.groups ?? []) as { id: string; name?: string }[]).find((x) => x?.id === groupId);
-  const name = g?.name || 'Deleted group';
+  const name = g?.name || tx('Deleted group');
   return (
     <span className="nc-person-chip nc-group-chip" data-group-id={groupId}>
       <span className="nc-group-avatar" style={{ width: size, height: size }} aria-hidden>{name.trim()[0]?.toUpperCase() ?? <Icon name="users" size={Math.round(size * 0.55)} />}</span>
@@ -73,7 +73,7 @@ export function GroupChip({ groupId, spaceId, size = 20 }: { groupId: string; sp
 
 export function PageChip({ pageId }: { pageId: string }) {
   const b = useBlock(pageId);
-  const title = b ? ((b.properties?.title as RichText | undefined)?.map((d) => d[0]).join('') || 'Untitled') : 'Untitled';
+  const title = b ? ((b.properties?.title as RichText | undefined)?.map((d) => d[0]).join('') || tx('Untitled')) : tx('Untitled');
   return (
     <span className="nc-page-chip">
       {b && <span className="nc-page-chip-icon"><PageIcon block={b} size={16} fallback={b.content?.length ? 'page' : 'pageEmpty'} /></span>}
@@ -185,8 +185,8 @@ function CopyValueButton({ text, kind }: { text: string; kind: string }) {
       onClick={(e) => {
         e.stopPropagation();
         navigator.clipboard.writeText(text).then(
-          () => useUI.getState().toast(kind === 'email' ? 'Copied email to clipboard' : 'Copied to clipboard'),
-          () => useUI.getState().toast('Failed to copy'),
+          () => useUI.getState().toast(kind === 'email' ? tx('Copied email to clipboard') : tx('Copied to clipboard')),
+          () => useUI.getState().toast(tx('Failed to copy')),
         );
       }}
     >

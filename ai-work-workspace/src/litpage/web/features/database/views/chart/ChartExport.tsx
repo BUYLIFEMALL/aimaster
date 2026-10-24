@@ -112,10 +112,10 @@ function ChartExport({ svg, name, close }: { svg: SVGSVGElement; name: string; c
     try {
       const blob = await pngBlob(out.text, out.width, out.height);
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      toast('Copied to clipboard');
+      toast(tx('Copied to clipboard'));
       close();
     } catch {
-      toast('Couldn’t copy the chart. Try downloading it instead.');
+      toast(tx('Couldn’t copy the chart. Try downloading it instead.'));
     }
   };
   const downloadPng = async () => {
@@ -123,7 +123,7 @@ function ChartExport({ svg, name, close }: { svg: SVGSVGElement; name: string; c
       download(await pngBlob(out.text, out.width, out.height), `${name}.png`);
       close();
     } catch {
-      toast('Couldn’t export the chart');
+      toast(tx('Couldn’t export the chart'));
     }
   };
   const downloadSvg = () => {

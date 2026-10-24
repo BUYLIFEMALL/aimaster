@@ -68,7 +68,7 @@ function SourceRow({ r, active, onHover, onClick }: { r: Result; active: boolean
         <span className="nc-link-source-icon">{host?.format?.page_icon ? <PageIcon block={host} size={20} /> : <Icon name="collection" size={20} />}</span>
         <div className="nc-menu-label">
           <div className="nc-ellipsis">{r.name}</div>
-          {parent && <div className="nc-link-source-path">{toPlainText(parent.properties?.title) || 'Untitled'}</div>}
+          {parent && <div className="nc-link-source-path">{toPlainText(parent.properties?.title) || tx('Untitled')}</div>}
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@ export function ViewStep({ source, onChoose, onBack, close }: { source: Collecti
   const all = useMemo(() => viewsOfSource(source), [source]);
   const list = all.filter((v) => !q || (v.name || viewTypeMeta(v.type).label).toLowerCase().includes(q.toLowerCase()));
   const shown = q || more ? list : list.slice(0, 7);
-  const name = toPlainText(source.name as never) || 'Untitled';
+  const name = toPlainText(source.name as never) || tx('Untitled');
   return (
     <>
       <div className="nc-vs-header link">
@@ -168,7 +168,7 @@ function Picker({ opts, close }: { opts: LinkedPickerOptions; close: () => void 
         {opts.onCreate && !q && (
           <div className="nc-menu-section">
             <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => create('')}>
-              <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">{opts.createLabel ?? 'New blank dataset'}</div></div>
+              <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">{opts.createLabel ?? tx('New blank dataset')}</div></div>
             </div>
           </div>
         )}

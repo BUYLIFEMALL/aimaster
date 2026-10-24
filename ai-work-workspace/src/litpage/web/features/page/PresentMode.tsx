@@ -109,7 +109,7 @@ function Presentation({ pageId, close, fromBlockId }: { pageId: string; close: (
         {i === 0 ? (
           <div className="nc-present-title-slide">
             {page.format?.page_icon && <PageIcon block={page} size={96} />}
-            <h1>{toPlainText(page.properties?.title) || 'Untitled'}</h1>
+            <h1>{toPlainText(page.properties?.title) || tx('Untitled')}</h1>
           </div>
         ) : (
           <div className="nc-present-slide lit-page-content">

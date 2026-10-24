@@ -229,7 +229,7 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
     width: 300,
     search: 'Search pages…',
     emptyText: tx('No results.'),
-    sections: [{ title: tx('Choose entry to preview'), items: rows.map((r) => ({ id: r.id, label: toPlainText(r.properties?.title) || 'Untitled', icon: <PageIcon block={r} size={16} fallback="page" />, checked: r.id === row?.id, onSelect: () => setPreviewId(r.id) })) }],
+    sections: [{ title: tx('Choose entry to preview'), items: rows.map((r) => ({ id: r.id, label: toPlainText(r.properties?.title) || tx('Untitled'), icon: <PageIcon block={r} size={16} fallback="page" />, checked: r.id === row?.id, onSelect: () => setPreviewId(r.id) })) }],
   }, { placement: 'bottom' as never });
 
   const saveOptions = (anchor: HTMLElement) => openMenu(anchor, {
@@ -253,7 +253,7 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
           <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} label={tx('Heading')} hoverLabel>
             <div className="nc-lb-heading">
               {row && <PageIcon block={row} size={30} fallback={null} />}
-              <div className="nc-lb-heading-title">{toPlainText(row?.properties?.title) || 'Untitled'}</div>
+              <div className="nc-lb-heading-title">{toPlainText(row?.properties?.title) || tx('Untitled')}</div>
             </div>
             {m.pinned.length > 0 && (
               <div className="nc-lb-pinned">
@@ -343,7 +343,7 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
     <div className="nc-lb" role="dialog" aria-label={tx('Customize layout')} onClick={() => setSel({ kind: 'page' })}>
       <header className="nc-lb-header" onClick={(e) => e.stopPropagation()}>
         <div className="nc-lb-header-center">
-          <div className="nc-lb-dbname">{col.icon ? <span className="nc-lb-dbicon">{String(col.icon)}</span> : <Icon name="collection" size={18} />}<span>{toPlainText(col.name as never) || 'Untitled'}</span></div>
+          <div className="nc-lb-dbname">{col.icon ? <span className="nc-lb-dbicon">{String(col.icon)}</span> : <Icon name="collection" size={18} />}<span>{toPlainText(col.name as never) || tx('Untitled')}</span></div>
           <div role="button" className="nc-lb-preview" aria-haspopup="dialog" onClick={(e) => pickPreview(e.currentTarget)}>
             <span className="nc-lb-preview-prefix">{tx('Preview:')}</span><span className="nc-lb-preview-title">{toPlainText(row?.properties?.title) || 'Untitled'}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
           </div>
@@ -470,7 +470,7 @@ function HeadingSettings({ m, col, edit }: { m: TitleModule; col: CollectionReco
           role="button"
           className={`nc-lb-pin ${pinned ? 'on' : ''} ${!pinned && full ? 'disabled' : ''}`}
           aria-label={pinned ? `Do not display ${p.name} as pinned` : `Display ${p.name} as pinned`}
-          data-tooltip={!pinned && full ? 'Maximum number of pinned properties reached. Unpin a property to pin another.' : undefined}
+          data-tooltip={!pinned && full ? tx('Maximum number of pinned properties reached. Unpin a property to pin another.') : undefined}
           onClick={() => (pinned || !full) && edit((l) => {
             const t = l.modules.page_main[0] as TitleModule;
             if (pinned) {
@@ -492,7 +492,7 @@ function HeadingSettings({ m, col, edit }: { m: TitleModule; col: CollectionReco
       <div className="nc-lb-side-title">{tx('Heading')}</div>
       <div className="nc-lb-side-heading">{tx('Pinned properties')}</div>
       {m.pinned.length ? m.pinned.map((pid) => row(pid, true)) : <div className="nc-lb-side-caption">Pin up to {MAX_PINNED_PROPERTIES} properties to show them under the title.</div>}
-      <div role="button" className={`nc-lb-side-row ${full ? 'disabled' : ''}`} data-tooltip={full ? 'Maximum number of pinned properties reached. Unpin a property to create a new pinned property.' : undefined} onClick={(e) => !full && openMenu(e.currentTarget, {
+      <div role="button" className={`nc-lb-side-row ${full ? 'disabled' : ''}`} data-tooltip={full ? tx('Maximum number of pinned properties reached. Unpin a property to create a new pinned property.') : undefined} onClick={(e) => !full && openMenu(e.currentTarget, {
         width: 240, search: 'Search…',
         sections: [{ items: PICKER_SECTIONS.flatMap((s) => s.types).map((t) => ({ id: t, label: propertyTypeMeta(t).label, icon: <PropertyIcon prop={{ type: t }} size={16} />, onSelect: () => {
           const pid = addProperty(col.id, t as PropertyType, { action: 'layout.createPinnedProperty' });
@@ -502,9 +502,9 @@ function HeadingSettings({ m, col, edit }: { m: TitleModule; col: CollectionReco
       <div className="nc-lb-side-heading">{tx('Unpinned properties')}</div>
       {unpinned.map((pid) => row(pid, false))}
       <div className="nc-lb-side-heading">{tx('Options')}</div>
-      <div role="button" className="nc-lb-switch-row" onClick={(e) => openMenu(e.currentTarget, { width: 200, sections: [{ items: (['show', 'hover', 'off'] as const).map((k) => ({ id: k, label: k === 'show' ? 'Always show' : k === 'hover' ? 'Show on hover' : 'Off', checked: (m.backlinks ?? 'show') === k, onSelect: () => edit((l) => { (l.modules.page_main[0] as TitleModule).backlinks = k; }) })) }] }, { placement: 'bottom-end' })}>
+      <div role="button" className="nc-lb-switch-row" onClick={(e) => openMenu(e.currentTarget, { width: 200, sections: [{ items: (['show', 'hover', 'off'] as const).map((k) => ({ id: k, label: k === 'show' ? tx('Always show') : k === 'hover' ? tx('Show on hover') : 'Off', checked: (m.backlinks ?? 'show') === k, onSelect: () => edit((l) => { (l.modules.page_main[0] as TitleModule).backlinks = k; }) })) }] }, { placement: 'bottom-end' })}>
         <span className="nc-lb-switch-label">{tx('Backlinks')}</span>
-        <span className="nc-lb-value">{m.backlinks === 'hover' ? 'Show on hover' : m.backlinks === 'off' ? tx('Off') : tx('Always show')}<Icon name="arrowChevronSingleRightSmall" size={14} /></span>
+        <span className="nc-lb-value">{m.backlinks === 'hover' ? tx('Show on hover') : m.backlinks === 'off' ? tx('Off') : tx('Always show')}<Icon name="arrowChevronSingleRightSmall" size={14} /></span>
       </div>
     </div>
   );

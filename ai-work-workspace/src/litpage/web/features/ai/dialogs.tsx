@@ -73,7 +73,7 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
       onDone(r.connection);
       close();
     } catch (e) {
-      setError((e as Error)?.message || 'Failed to connect');
+      setError((e as Error)?.message || tx('Failed to connect'));
     } finally {
       setBusy(false);
     }
@@ -102,7 +102,7 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
       )}
       {preset ? (
         <>
-          <div className="nc-ai-dialog-desc">{preset.description || 'Shared with this workspace by an owner.'}</div>
+          <div className="nc-ai-dialog-desc">{preset.description || tx('Shared with this workspace by an owner.')}</div>
           {preset.auth === 'token' && (
             <label className="nc-ai-field">
               <span>{tx('Your access token')}</span>

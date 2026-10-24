@@ -20,7 +20,7 @@ export async function createNewSkill() {
     void useSkills.getState().load(true);
     openPage(r.pageId);
   } catch (e) {
-    useUI.getState().toast((e as Error)?.message || 'Could not create skill');
+    useUI.getState().toast((e as Error)?.message || tx('Could not create skill'));
   }
 }
 
@@ -36,7 +36,7 @@ export async function editSkill(name?: string, skillId?: string) {
     void useSkills.getState().load(true);
     openPage(r.pageId);
   } catch (e) {
-    useUI.getState().toast((e as Error)?.message || 'Couldn’t open this skill');
+    useUI.getState().toast((e as Error)?.message || tx('Couldn’t open this skill'));
   }
 }
 
@@ -51,7 +51,7 @@ async function downloadSkill(s: SkillInfo) {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     useUI.getState().toast(`Downloaded ${r.filename}`);
   } catch (e) {
-    useUI.getState().toast((e as Error)?.message || 'Skill download failed');
+    useUI.getState().toast((e as Error)?.message || tx('Skill download failed'));
   }
 }
 
@@ -62,9 +62,9 @@ function SkillRow({ s, tab }: { s: SkillInfo; tab: 'enabled' | 'discover' }) {
     setBusy(true);
     try {
       await setSkillEnabled(s, on);
-      if (on) useUI.getState().toast('Skill enabled. Your Agent can now use this skill. Type / in chat to use it.');
+      if (on) useUI.getState().toast(tx('Skill enabled. Your Agent can now use this skill. Type / in chat to use it.'));
     } catch (e) {
-      useUI.getState().toast((e as Error)?.message || 'Loading failed unexpectedly');
+      useUI.getState().toast((e as Error)?.message || tx('Loading failed unexpectedly'));
     } finally {
       setBusy(false);
     }
@@ -76,7 +76,7 @@ function SkillRow({ s, tab }: { s: SkillInfo; tab: 'enabled' | 'discover' }) {
         ...(s.pageId ? [{ label: tx('Show skill'), icon: 'page', onSelect: () => openPage(s.pageId!) }] : []),
         ...(localSkills ? [{ label: tx('Download for local agent use'), icon: 'download', onSelect: () => { void downloadSkill(s); } }] : []),
         ...(s.pageId && s.mine ? [
-          { label: tx('Remove skill from this page'), icon: 'close', onSelect: () => { void unsetSkill(s.pageId!).then(() => useUI.getState().toast('This page is no longer a skill')); } },
+          { label: tx('Remove skill from this page'), icon: 'close', onSelect: () => { void unsetSkill(s.pageId!).then(() => useUI.getState().toast(tx('This page is no longer a skill'))); } },
           { label: tx('Send to trash'), icon: 'trash', danger: true, onSelect: () => { run('ai.skill.trash', (tx) => deleteBlocksIn(tx, [s.pageId!])); setTimeout(() => void useSkills.getState().load(true), 300); } },
         ] : []),
       ],
@@ -87,11 +87,11 @@ function SkillRow({ s, tab }: { s: SkillInfo; tab: 'enabled' | 'discover' }) {
       <div className="nc-ai-skill-icon">{s.icon ? <span>{s.icon}</span> : <Icon name={s.builtin ? 'aiFace' : 'aiStepSkill'} size={18} />}</div>
       <div className="nc-ai-skill-main" role={s.pageId ? 'link' : undefined} onClick={() => s.pageId && openPage(s.pageId)}>
         <div className="nc-ai-skill-name">
-          <span className="nc-ellipsis">{s.name || 'Untitled'}</span>
+          <span className="nc-ellipsis">{s.name || tx('Untitled')}</span>
           {s.builtin && <span className="nc-badge gray">{tx('Default')}</span>}
         </div>
         <div className="nc-ai-skill-desc nc-ellipsis" data-tooltip={s.description ? undefined : 'AI 비서 uses this description to choose when the skill applies. Edit the opening of the page to change it.'}>
-          {s.description || 'No description'}
+          {s.description || tx('No description')}
         </div>
         <div className="nc-ai-skill-where">
           {s.inChat && <span>{tx('In chat')}</span>}
@@ -145,7 +145,7 @@ export function SkillsTab({ seg, setSeg }: { seg: 'enabled' | 'discover'; setSeg
           <div className="nc-lib-empty-icon"><Icon name="libPaperSkill" size={32} /></div>
           <div className="nc-lib-empty-text">
             {seg === 'enabled'
-              ? 'Type ‘/’ in chat to use enabled skills, or let the agent choose them when useful. Create your first skill to begin, or find skills others have created in the Discover tab.'
+              ? tx('Type ‘/’ in chat to use enabled skills, or let the agent choose them when useful. Create your first skill to begin, or find skills others have created in the Discover tab.')
               : 'Skills your teammates create will appear here.'}
           </div>
           {seg === 'enabled' && (

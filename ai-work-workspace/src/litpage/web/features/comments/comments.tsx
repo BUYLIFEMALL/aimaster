@@ -818,7 +818,7 @@ function CommentItem({ comment, discussion, first, canComment, canManage, contex
     if (mine && !isSuggestion) items.push({ label: t('lp.comments.edit', 'Edit'), icon: 'edit', onSelect: act(() => setEditing(true)) });
     items.push({
       label: first ? t('lp.comments.copy_link', 'Copy link') : t('lp.comments.copy_discussion_link', 'Copy discussion link'),
-      icon: 'link', onSelect: act(() => { void navigator.clipboard?.writeText(discussionLink(discussion)); useUI.getState().toast('Link copied'); }),
+      icon: 'link', onSelect: act(() => { void navigator.clipboard?.writeText(discussionLink(discussion)); useUI.getState().toast(tx('Link copied')); }),
     });
     items.push(unread
       ? { label: t('lp.comments.mark_read', 'Mark read'), icon: 'commentRead', onSelect: act(() => markDiscussionRead(discussion.id)) }

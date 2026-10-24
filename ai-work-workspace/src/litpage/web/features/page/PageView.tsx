@@ -249,7 +249,7 @@ function PageHeader({ page, readOnly, publicView, backlinks }: { page: BlockReco
         <div className={`nc-page-icon-wrap ${hasCover ? 'with-cover' : ''}`}>
           <div
             role="button"
-            aria-label={`${icon.startsWith('lit-icon') || /^(https?:|\/)/.test(icon) ? 'Page icon' : icon} Change page icon`}
+            aria-label={`${icon.startsWith('lit-icon') || /^(https?:|\/)/.test(icon) ? tx('Page icon') : icon} Change page icon`}
             className="lit-record-icon nc-page-icon"
             onClick={(e) => !readOnly && openPageIconPicker(page.id, e.currentTarget)}
           >
@@ -348,7 +348,7 @@ function TrashBanner({ page }: { page: BlockRecord }) {
           await api('deleteBlocksPermanently', { blockIds: [page.id] }).catch(() => {});
           if (page.parent_table === 'block' && getBlock(page.parent_id)?.alive) openPage(page.parent_id);
           else navigate(`/${spaceDomain(page.space_id)}`);
-          useUI.getState().toast('Page deleted permanently');
+          useUI.getState().toast(tx('Page deleted permanently'));
         }}
       >
         <Icon name="trash" size={14} />{t('lp.page.permanently_delete', 'Permanently delete')}

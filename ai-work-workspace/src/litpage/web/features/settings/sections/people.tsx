@@ -869,7 +869,7 @@ function AddMembersBody({ space, admin, owner, close }: { space: SpaceRecord; ad
       }
       close();
     } catch (e: any) {
-      setErr(e?.message ?? 'We hit a problem while processing that request.');
+      setErr(e?.message ?? tx('We hit a problem while processing that request.'));
       setBusy(false);
     }
   };

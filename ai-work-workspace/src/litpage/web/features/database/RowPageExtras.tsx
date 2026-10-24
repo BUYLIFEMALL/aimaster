@@ -27,7 +27,7 @@ export function RowComments({ pageId, canComment }: { pageId: string; canComment
   const rootRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const box = rootRef.current?.querySelector<HTMLElement>('.nc-comment-composer [role="textbox"]');
-    if (box && !box.getAttribute('aria-label')) box.setAttribute('aria-label', box.getAttribute('placeholder') ?? 'Add a comment…');
+    if (box && !box.getAttribute('aria-label')) box.setAttribute('aria-label', box.getAttribute('placeholder') ?? tx('Add a comment…'));
   });
   return (
     <div ref={rootRef} className="layout-content nc-row-comments">
@@ -54,7 +54,7 @@ export function EmptyRowHint({ page }: { page: BlockRecord }) {
   return (
     <div className="nc-empty-row-hint">
       <span className="nc-empty-row-continue" onMouseDown={(e) => { e.preventDefault(); appendToPage(page.id); }}>
-        {canCreateTemplate ? <>Press ‘enter’ to continue with an empty page, or{' '}</> : 'Press ‘enter’ to continue with an empty page'}
+        {canCreateTemplate ? <>Press ‘enter’ to continue with an empty page, or{' '}</> : tx('Press ‘enter’ to continue with an empty page')}
       </span>
       {canCreateTemplate && <span
         role="button"

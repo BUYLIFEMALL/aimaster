@@ -46,7 +46,7 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
   const { collection, view } = opts;
   const templates = collectionTemplates(collection);
   const defId = defaultTemplateId(collection, view);
-  const name = toPlainText(collection.name as any) || 'Untitled';
+  const name = toPlainText(collection.name as any) || tx('Untitled');
   // templates are part of the database's structure: locked databases / Can edit content only use them
   const access = collectionAccess(collection.id);
   const templateMenu = (t: BlockRecord) => (e: React.MouseEvent) => {
@@ -79,7 +79,7 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
         items: [
           ...templates.map((t) => ({
             id: t.id,
-            label: toPlainText(t.properties?.title) || 'Untitled',
+            label: toPlainText(t.properties?.title) || tx('Untitled'),
             icon: <PageIcon block={t} size={20} />,
             badge: defId === t.id ? 'Default' : undefined,
             description: templateCaption(t.id),
@@ -93,7 +93,7 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
     ],
     footer: (
       <div className="nc-templates-foot">
-        <div role="button" className="nc-menu-item nc-templates-shortcut" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); useUI.getState().toast('Sidebar shortcuts for templates are not available yet'); }}>
+        <div role="button" className="nc-menu-item nc-templates-shortcut" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); useUI.getState().toast(tx('Sidebar shortcuts for templates are not available yet')); }}>
           <div className="nc-menu-item-inner nc-mi">
             <div className="nc-menu-icon"><Icon name="sidebarLeft" size={20} /></div>
             <div className="nc-menu-label">{tx('Create shortcut to sidebar')}</div>

@@ -208,7 +208,7 @@ function CalendarView(props: ViewProps) {
   const lane = LANE + visibleProps.length * 20 + (wrapTitles ? 20 : 0) + (cardSubitems ? 20 : 0);
   const openSubitems = (anchor: HTMLElement, row: BlockRecord) => {
     const kids = sub ? childIdsOf(row, sub).map((id) => records.get<BlockRecord>('block', id)).filter((b): b is BlockRecord => !!b && b.alive !== false) : [];
-    openMenu(anchor, { width: 240, sections: [{ items: kids.map((k) => ({ id: k.id, label: titleOf(k) || 'Untitled', icon: <PageIcon block={k} size={16} fallback="page" />, onSelect: () => kit.openRow(k.id) })) }] }, { placement: 'bottom-start' });
+    openMenu(anchor, { width: 240, sections: [{ items: kids.map((k) => ({ id: k.id, label: titleOf(k) || tx('Untitled'), icon: <PageIcon block={k} size={16} fallback="page" />, onSelect: () => kit.openRow(k.id) })) }] }, { placement: 'bottom-start' });
   };
 
   const addDateProperty = () => {
@@ -301,7 +301,7 @@ function CalendarView(props: ViewProps) {
       <div className="nc-cal-header">
         <div className="nc-cal-title">{monthTitle}</div>
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-cal-manage" data-tooltip={tx('Calendar sync is not available')} onClick={() => useUI.getState().toast('Calendar sync is not available')}>
+        <div role="button" className="nc-cal-manage" data-tooltip={tx('Calendar sync is not available')} onClick={() => useUI.getState().toast(tx('Calendar sync is not available'))}>
           <Icon name="calendar" size={16} />
           <span>{tx('Manage in Calendar')}</span>
         </div>
@@ -375,7 +375,7 @@ function CalendarView(props: ViewProps) {
                       >
                         <div className={`nc-cal-card-title ${wrapTitles ? 'wrap' : ''}`}>
                           {startLbl && <div className="nc-cal-time">{startLbl}{endLbl && <span> → {endLbl}</span>}</div>}
-                          <div className="nc-cal-card-name notranslate">{(p.row.properties?.title ?? []).map((x) => x[0]).join('') || 'Untitled'}</div>
+                          <div className="nc-cal-card-name notranslate">{(p.row.properties?.title ?? []).map((x) => x[0]).join('') || tx('Untitled')}</div>
                         </div>
                         {visibleProps.length > 0 && (
                           <div className="nc-cal-card-props">

@@ -1,5 +1,5 @@
 // 이식판: 날짜·시각 문구를 화면 언어(기본 ko-KR)에 맞춘다 — 원본은 'en-US' 고정.
-import { getLocale } from '../features/shell/i18n.ts';
+import { getLocale, tx } from '../features/shell/i18n.ts';
 
 const ko = () => getLocale() === 'ko-KR';
 
@@ -7,7 +7,7 @@ export function relativeEdited(t: number | undefined): string {
   if (!t) return '';
   const diff = Date.now() - t;
   const m = Math.floor(diff / 60000);
-  if (m < 1) return ko() ? '방금 수정' : 'Edited just now';
+  if (m < 1) return ko() ? '방금 수정' : tx('Edited just now');
   if (m < 60) return ko() ? `${m}분 전 수정` : `Edited ${m}m ago`;
   const h = Math.floor(m / 60);
   if (h < 24) return ko() ? `${h}시간 전 수정` : `Edited ${h}h ago`;
@@ -35,7 +35,7 @@ export function formatShortDate(t: number): string {
 
 export function timeAgo(t: number): string {
   const s = Math.floor((Date.now() - t) / 1000);
-  if (s < 60) return ko() ? '방금' : 'Just now';
+  if (s < 60) return ko() ? '방금' : tx('Just now');
   const m = Math.floor(s / 60);
   if (m < 60) return ko() ? `${m}분 전` : `${m}m ago`;
   const h = Math.floor(m / 60);

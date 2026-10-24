@@ -57,7 +57,7 @@ function RefChip({ r }: { r: StepRef }) {
   return (
     <span role="link" className="nc-ai-ref" onClick={() => r.pageId && openPage(r.pageId)}>
       <PageIcon block={getBlock(r.pageId)} size={14} />
-      <span className="nc-ellipsis">{r.title || 'Untitled'}</span>
+      <span className="nc-ellipsis">{r.title || tx('Untitled')}</span>
     </span>
   );
 }
@@ -70,7 +70,7 @@ function McpDetails({ mcp }: { mcp: NonNullable<AgentStep['mcp']> }) {
         <span role="tab" aria-selected={tab === 'input'} className={tab === 'input' ? 'active' : ''} onClick={() => setTab('input')}>{tx('Input')}</span>
         <span role="tab" aria-selected={tab === 'response'} className={tab === 'response' ? 'active' : ''} onClick={() => setTab('response')}>{tx('Response')}</span>
       </div>
-      <pre className="nc-ai-mcp-body">{tab === 'input' ? mcp.input || '{}' : mcp.output ?? 'Waiting on a reply…'}</pre>
+      <pre className="nc-ai-mcp-body">{tab === 'input' ? mcp.input || '{}' : mcp.output ?? tx('Waiting on a reply…')}</pre>
     </div>
   );
 }
@@ -153,7 +153,7 @@ export function ApprovalCard({ a, onAnswer }: { a: ApprovalPayload; onAnswer: (a
           ) : null}
           {a.markdown?.trim() ? <div className="nc-ai-approval-added"><AiMarkdown text={a.markdown} sources={[]} /></div> : null}
           {!a.markdown && !a.plan && (a.pages?.length ?? 0) > 1 && (
-            <ul className="nc-ai-approval-pages">{a.pages!.map((p, i) => <li key={i}>{p.title || 'Untitled'}</li>)}</ul>
+            <ul className="nc-ai-approval-pages">{a.pages!.map((p, i) => <li key={i}>{p.title || tx('Untitled')}</li>)}</ul>
           )}
         </div>
       )}
@@ -185,7 +185,7 @@ export function ChangesCard({ changes, onUndo }: { changes: TurnChanges; onUndo?
   const [note, setNote] = useState<string | null>(null);
   const pages = changes.pages;
   const real = pages.filter((p) => p.pageId);
-  const title = real.length === 1 ? `Updated ${real[0].title || 'Untitled'}` : real.length > 1 ? `Changes made to ${real.length} pages` : 'Changes made';
+  const title = real.length === 1 ? `Updated ${real[0].title || tx('Untitled')}` : real.length > 1 ? `Changes made to ${real.length} pages` : tx('Changes made');
   const undo = async () => {
     if (!onUndo || busy) return;
     setBusy(true);
@@ -193,7 +193,7 @@ export function ChangesCard({ changes, onUndo }: { changes: TurnChanges; onUndo?
       const r = await onUndo();
       if (r && r.conflicts) setNote('Some changes were edited after AI 비서 made them and were kept.');
     } catch (e) {
-      setNote((e as Error)?.message || 'That turn could not be undone. Try again.');
+      setNote((e as Error)?.message || tx('That turn could not be undone. Try again.'));
     } finally {
       setBusy(false);
       setConfirm(false);
@@ -203,7 +203,7 @@ export function ChangesCard({ changes, onUndo }: { changes: TurnChanges; onUndo?
     <div className={`nc-ai-changes ${changes.undone ? 'reverted' : ''}`} data-testid="ai-changes-card">
       <div className="nc-ai-changes-head">
         <span className="nc-ai-changes-icon"><Icon name={changes.undone ? 'undo' : 'aiStepEdit'} size={16} /></span>
-        <span className="nc-ai-changes-title nc-ellipsis">{changes.undone ? 'Changes reverted' : title}</span>
+        <span className="nc-ai-changes-title nc-ellipsis">{changes.undone ? tx('Changes reverted') : title}</span>
         <div className="nc-ai-changes-actions">
           {pages.length > 0 && (
             <div role="button" className="nc-ai-changes-btn" onClick={() => setShow(!show)}>{show ? tx('Hide changes') : tx('Show changes')}</div>
@@ -230,7 +230,7 @@ export function ChangesCard({ changes, onUndo }: { changes: TurnChanges; onUndo?
               {p.pageId ? (
                 <span role="link" className="nc-ai-ref" onClick={() => openPage(p.pageId)}>
                   <PageIcon block={getBlock(p.pageId)} size={14} />
-                  <span className="nc-ellipsis">{p.title || 'Untitled'}</span>
+                  <span className="nc-ellipsis">{p.title || tx('Untitled')}</span>
                 </span>
               ) : <span className="nc-ai-changes-plain">{p.title}</span>}
               {p.pageId && p.action !== 'deleted' && !changes.undone && (

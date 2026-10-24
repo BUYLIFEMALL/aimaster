@@ -76,7 +76,7 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
   const overrideName = (o: PropertyPermissionOverride): { name: string; sub?: string; icon: React.ReactNode } => {
     if (o.type === 'user_permission') {
       const u = records.get<UserRecord>('lit_user', o.user_id ?? '');
-      return { name: (u?.name || u?.email || 'Unknown person') + (o.user_id === me ? ' (You)' : ''), sub: u?.email, icon: <UserAvatar userId={o.user_id} size={24} /> };
+      return { name: (u?.name || u?.email || tx('Unknown person')) + (o.user_id === me ? ' (You)' : ''), sub: u?.email, icon: <UserAvatar userId={o.user_id} size={24} /> };
     }
     if (o.type === 'group_permission') {
       const g = groups.find((x) => x.id === o.group_id);
@@ -86,7 +86,7 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
     const info = o.property_info;
     if (info?.type === 'created_by') return { name: 'Page creator', icon: <span className="nc-pa-avatar"><Icon name="personCircle" size={16} /></span> };
     const p = info ? c.schema[info.property_id] : undefined;
-    return { name: p?.name ?? 'Person property', sub: 'From this table', icon: <span className="nc-pa-avatar">{p ? <PropertyIcon prop={p} size={16} /> : <Icon name="person" size={16} />}</span> };
+    return { name: p?.name ?? tx('Person property'), sub: tx('From this table'), icon: <span className="nc-pa-avatar">{p ? <PropertyIcon prop={p} size={16} /> : <Icon name="person" size={16} />}</span> };
   };
 
   const roleMenu = (anchor: HTMLElement, o: PropertyPermissionOverride) => {
@@ -202,7 +202,7 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
             <div className="who"><span>{tx('Preview as')}</span></div>
             <div role="button" className="nc-pa-select" onClick={(e) => pickPreview(e.currentTarget)}><UserAvatar userId={previewUser} size={18} /><span>{previewName}</span><Icon name="chevronDown" size={14} /></div>
           </div>
-          <div className="nc-pa-preview-result">{previewInfo.role === 'none' ? 'Can’t see field' : propertyRoleLabel(previewInfo.role)}</div>
+          <div className="nc-pa-preview-result">{previewInfo.role === 'none' ? tx('Can’t see field') : propertyRoleLabel(previewInfo.role)}</div>
           <div>{previewInfo.via}</div>
           {previewInfo.conditional.map((x) => <div key={x.label}>{x.label}: {propertyRoleLabel(x.role)}</div>)}
           {previewInfo.conditional.length > 0 && <div className="nc-pa-note">{tx('If more than one of these applies to the same entry, the highest access wins.')}</div>}

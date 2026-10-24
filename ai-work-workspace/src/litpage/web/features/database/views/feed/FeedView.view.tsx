@@ -61,7 +61,7 @@ function FeedCard({ row, props, showByline, wrap, onOpen, bg, views }: { row: Bl
       <div className="nc-feed-body">
         <div role="link" className="nc-feed-title" onClick={onOpen}>
           <PageIcon block={row} size={26} fallback={null} className="nc-feed-icon" />
-          <span>{titleOf(row) || 'Untitled'}</span>
+          <span>{titleOf(row) || tx('Untitled')}</span>
         </div>
         {props.ids.length > 0 && (
           <div className={`nc-feed-props ${wrap ? 'wrap' : ''}`}>

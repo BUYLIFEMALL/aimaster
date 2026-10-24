@@ -54,7 +54,7 @@ export function addWidget(dashboard: CollectionViewRecord, blockId: string, coll
   const layout = layoutOf(dashboard);
   const total = layout.rows.reduce((a, r) => a + r.widgets.length, 0);
   if (total >= MAX_WIDGETS) {
-    useUI.getState().toast('Dashboard full — delete a view to add a new one');
+    useUI.getState().toast(tx('Dashboard full — delete a view to add a new one'));
     return '';
   }
   let vid = '';
@@ -156,7 +156,7 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
         draggable={editing}
         onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', widget.id); onDragStart(); }}
         onDragEnd={onDragEnd}
-        data-tooltip={editing ? 'Drag to reposition' : undefined}
+        data-tooltip={editing ? tx('Drag to reposition') : undefined}
       >
         <Icon name={viewIcon(wv.type)} size={16} color="var(--lp-icon-secondary)" />
         <span className="nc-dash-widget-title">{wv.name || viewTypeMeta(wv.type).label}</span>
@@ -211,7 +211,7 @@ function DashboardView(props: ViewProps) {
     const w = rows[from].widgets.find((x) => x.id === widgetId)!;
     if (target.kind === 'widget') {
       const dest = rows[target.ri];
-      if (!dest || (target.ri !== from && dest.widgets.length >= MAX_PER_ROW)) return useUI.getState().toast('A row holds up to 4 views');
+      if (!dest || (target.ri !== from && dest.widgets.length >= MAX_PER_ROW)) return useUI.getState().toast(tx('A row holds up to 4 views'));
       if (dest.widgets[target.wi]?.id === widgetId) return;
     }
     mutate((rs) => {
@@ -284,7 +284,7 @@ function DashboardView(props: ViewProps) {
   const duplicate = (ri: number, wi: number, newRow: boolean) => {
     const src = byId.get(rows[ri].widgets[wi].view_id);
     if (!src) return;
-    if (ids.length >= MAX_WIDGETS) return useUI.getState().toast('Dashboard full — delete a view to duplicate');
+    if (ids.length >= MAX_WIDGETS) return useUI.getState().toast(tx('Dashboard full — delete a view to duplicate'));
     run('DashboardWidgetMoreMenu.duplicateView', (tx) => {
       const nid = newId();
       const { version: _v, ...rest } = src as CollectionViewRecord & { version?: number };
@@ -339,7 +339,7 @@ function DashboardView(props: ViewProps) {
           <div className="nc-dash-empty-title">{tx('Start using your dashboard')}</div>
           <div className="nc-dash-empty-sub">{tx('Combine charts, tables, and lists of this data source in one place.')}</div>
           <div className="nc-dash-cards">
-            <div className="nc-dash-card disabled" onClick={() => useUI.getState().toast('AI 비서 is not available in this workspace')}><div>Ask AI 비서 to build<br />your dashboard</div><Icon name="aiFace" size={28} color="var(--lp-icon-tertiary)" /></div>
+            <div className="nc-dash-card disabled" onClick={() => useUI.getState().toast(tx('AI 비서 is not available in this workspace'))}><div>Ask AI 비서 to build<br />your dashboard</div><Icon name="aiFace" size={28} color="var(--lp-icon-tertiary)" /></div>
             <div role="button" className="nc-dash-card" onClick={(e) => !readOnly && addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><div>{tx('Add charts, tables, or lists to')}<br />your dashboard</div><div className="nc-dash-card-art"><span><Icon name="plus" size={16} /></span><span><Icon name="donutChart" size={16} /></span><span><Icon name="chartBarXAxis" size={16} /></span></div></div>
             <div className="nc-dash-card disabled"><div>{tx('Learn about filters across')}<br />multiple data sources</div><Icon name="filter" size={24} color="var(--lp-icon-tertiary)" /></div>
           </div>

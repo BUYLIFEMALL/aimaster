@@ -10,7 +10,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { getBlock } from '../../lib/blocks.ts';
 import { records } from '../../lib/store/records.ts';
 import { useUI } from '../../lib/store/ui.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { exportPage, type ExportFormat, type ExportOptions } from './exportPage.ts';
 import './pageIcons.tsx';
 import './dialogs.css';
@@ -59,9 +59,9 @@ function ExportDialog({ pageId, close }: { pageId: string; close: () => void }) 
     try {
       const name = await exportPage(pageId, pdfSubpagesLocked ? { ...opts, includeSubpages: false } : opts);
       close();
-      if (opts.format !== 'pdf') useUI.getState().toast(name ? `Exported ${name}` : 'Export complete');
+      if (opts.format !== 'pdf') useUI.getState().toast(name ? `Exported ${name}` : tx('Export complete'));
     } catch (e: any) {
-      setErr(e?.message ?? 'Export failed');
+      setErr(e?.message ?? tx('Export failed'));
       setBusy(false);
     }
   };

@@ -6,6 +6,7 @@ import type { AutomationAction, AutomationRecord, AutomationRun, AutomationTrigg
 import { api } from '../../../lib/api.ts';
 import { records } from '../../../lib/store/records.ts';
 import { useTableVersion } from '../../../lib/hooks.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export interface AutomationAccess {
   canEdit: boolean;
@@ -106,5 +107,5 @@ export function templateRepeat(templateId: string): AutomationRecord | undefined
 }
 
 export function collectionName(c: CollectionRecord | undefined): string {
-  return (c?.name ?? []).map((d) => d[0]).join('') || 'Untitled';
+  return (c?.name ?? []).map((d) => d[0]).join('') || tx('Untitled');
 }

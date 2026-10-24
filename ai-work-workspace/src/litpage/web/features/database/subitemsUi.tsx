@@ -97,7 +97,7 @@ export function CardSubitems({ row, view, collection, openRow }: { row: BlockRec
       {open && kids.map((k) => (
         <div key={k.id} role="link" className="nc-card-subitem" onClick={() => openRow(k.id)}>
           <PageIcon block={k} size={14} fallback="page" />
-          <span className="nc-card-subitem-title">{titleOf(k) || 'Untitled'}</span>
+          <span className="nc-card-subitem-title">{titleOf(k) || tx('Untitled')}</span>
         </div>
       ))}
     </div>

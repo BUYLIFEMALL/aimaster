@@ -365,7 +365,7 @@ registerBlockMenu(['image'], ({ block }) => mediaItems(block, [
   ...(sourceOf(block) ? [
     { label: tx('Crop image'), icon: 'crop', onSelect: () => setTimeout(() => openImageEditor(block.id), 0) },
     {
-      label: block.format?.image_hyperlink ? 'Change image link' : 'Add image link', icon: 'link',
+      label: block.format?.image_hyperlink ? tx('Change image link') : tx('Add image link'), icon: 'link',
       onSelect: () => setTimeout(() => { const el = blockElement(block.id)?.querySelector('.nc-media-frame') as HTMLElement | null; openImageLinkPopover(block.id, el ?? new DOMRect(window.innerWidth / 2, 200, 0, 0)); }, 0),
     },
   ] : []),

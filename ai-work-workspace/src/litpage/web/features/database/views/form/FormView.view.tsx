@@ -54,7 +54,7 @@ function openMaxSelection(anchor: HTMLElement, q: FormQuestion, set: (n: number 
           if (e.key !== 'Enter') return;
           const n = Number((e.target as HTMLInputElement).value);
           if (!Number.isInteger(n) || n < 1) {
-            useUI.getState().toast('Enter a number.');
+            useUI.getState().toast(tx('Enter a number.'));
             return;
           }
           set(n);
@@ -271,7 +271,7 @@ function QuestionOptions({ viewId, collectionId, questionId, close }: { viewId: 
         }, { placement: 'right-start' })} />
         {/* Max selection: multi-select, person and relation questions */}
         {prop && (prop.type === 'multi_select' || prop.type === 'person' || prop.type === 'relation') && (
-          <SettingsRow icon="number" label={tx('Max selection')} value={q.config.maxSelection ? String(q.config.maxSelection) : 'No limit'} disabled={prop.type === 'relation' && (prop as { limit?: number }).limit === 1} onClick={(e) => openMaxSelection(e.currentTarget, q, (n) => updateQuestion(q.id, { maxSelection: n }))} />
+          <SettingsRow icon="number" label={tx('Max selection')} value={q.config.maxSelection ? String(q.config.maxSelection) : tx('No limit')} disabled={prop.type === 'relation' && (prop as { limit?: number }).limit === 1} onClick={(e) => openMaxSelection(e.currentTarget, q, (n) => updateQuestion(q.id, { maxSelection: n }))} />
         )}
         {prop && (prop.type === 'select' || prop.type === 'multi_select') && (
           <SettingsRow icon="listDash" label={tx('Display options as')} value={q.config.displayMode === 'dropdown' ? tx('Dropdown') : tx('List view')} onClick={(e) => openNestedMenu(e.currentTarget, {
@@ -333,7 +333,7 @@ function ShareMenu({ viewId, collectionId }: { viewId: string; collectionId: str
   const copy = () => {
     void navigator.clipboard?.writeText(formLink(viewId));
     setCopied(true);
-    useUI.getState().toast('Form link copied');
+    useUI.getState().toast(tx('Form link copied'));
   };
   return (
     <div className="nc-form-share" data-testid="form-share-menu">
@@ -342,11 +342,11 @@ function ShareMenu({ viewId, collectionId }: { viewId: string; collectionId: str
         <SettingsRow icon={perm === 'public' ? 'ncGlobe' : 'ncLock'} label={tx('Who can submit')} value={<span className="nc-form-share-val">{permLabel[perm]}{perm === 'public' && <span className="nc-form-badge">{tx('Public')}</span>}{perm === 'closed' && <span className="nc-form-badge gray">{tx('Closed')}</span>}</span>} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 300, sections: [{ items: (['space', 'public', 'closed'] as FormPermission[]).map((p) => ({
             id: p, label: permLabel[p], checked: perm === p,
-            description: p === 'space' ? 'Team members with the link can open and submit.' : p === 'public' ? 'Anyone with the link can open and submit without signing in.' : 'No one can open or submit this form.',
+            description: p === 'space' ? tx('Team members with the link can open and submit.') : p === 'public' ? tx('Anyone with the link can open and submit without signing in.') : tx('No one can open or submit this form.'),
             onSelect: () => save({ ...cfg, permission: p, anonymous: p === 'public' ? true : cfg.anonymous }, 'FormShareMenu.setPermission'),
           })) }],
         }, { placement: 'bottom-end' })} />
-        <SettingsRow icon="userPlus" label={tx('Submission access')} value={perm === 'public' || cfg.anonymous ? 'No access' : accessLabel[cfg.submissionAccess ?? 'none']} disabled={perm === 'public' || !!cfg.anonymous} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <SettingsRow icon="userPlus" label={tx('Submission access')} value={perm === 'public' || cfg.anonymous ? tx('No access') : accessLabel[cfg.submissionAccess ?? 'none']} disabled={perm === 'public' || !!cfg.anonymous} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 260, sections: [{ items: (['none', 'reader', 'comment_only', 'read_and_write', 'editor'] as SubmissionAccess[]).map((a) => ({ id: a, label: accessLabel[a], checked: (cfg.submissionAccess ?? 'none') === a, onSelect: () => save({ ...cfg, submissionAccess: a }, 'FormShareMenu.setSubmissionAccess') })) }],
         }, { placement: 'bottom-end' })} />
         <SettingsRow icon="user" label={tx('Anonymous submissions')} chevron={false} disabled={perm === 'public'} right={<Toggle on={perm === 'public' || !!cfg.anonymous} disabled={perm === 'public'} onChange={(v) => save({ ...cfg, anonymous: v }, 'FormShareMenu.setAnonymous')} />} onClick={() => perm !== 'public' && save({ ...cfg, anonymous: !cfg.anonymous }, 'FormShareMenu.setAnonymous')} />
@@ -371,7 +371,7 @@ function PreviewModal({ viewId, close }: { viewId: string; close: () => void }) 
     <div className="nc-form-preview" role="dialog" aria-label={tx('Form preview')} data-testid="form-preview">
       <div className="nc-form-preview-actions">
         <span role="button" aria-label={tx('Edit form')} data-tooltip={tx('Edit form')} onClick={close}><Icon name="pencil" size={16} /></span>
-        <span role="button" aria-label={tx('Copy the form link')} data-tooltip={tx('Copy the form link')} onClick={() => { void navigator.clipboard?.writeText(formLink(viewId)); useUI.getState().toast('Form link copied'); }}><Icon name="link" size={16} /></span>
+        <span role="button" aria-label={tx('Copy the form link')} data-tooltip={tx('Copy the form link')} onClick={() => { void navigator.clipboard?.writeText(formLink(viewId)); useUI.getState().toast(tx('Form link copied')); }}><Icon name="link" size={16} /></span>
         <span role="button" aria-label={tx('Open form')} data-tooltip={tx('Open form')} onClick={() => { close(); window.open(formLink(viewId), '_blank', 'noopener'); }}><Icon name="arrowDiagonalUpRight" size={16} /></span>
       </div>
       <div className="nc-form-preview-scroll lit-scroller vertical">
@@ -391,7 +391,7 @@ function AutoCreateDialog({ count, onAll, onScratch }: { count: number; onAll: (
       <div className="nc-form-autocreate-art"><Icon name="viewTable" size={36} color="var(--lp-icon-secondary)" /><Icon name="arrowRight" size={22} color="var(--lp-icon-secondary)" /><Icon name="inlineBlockDouble" size={36} color="var(--lp-icon-secondary)" /></div>
       <div className="nc-form-autocreate-title">{tx('Create form questions from existing fields?')}</div>
       <div className="nc-form-autocreate-sub">{tx('Only supported field types create questions.')}</div>
-      <div role="button" className="nc-form-btn primary wide" onClick={onAll}>{count === 1 ? 'Create 1 question' : `Create ${count} questions`}</div>
+      <div role="button" className="nc-form-btn primary wide" onClick={onAll}>{count === 1 ? tx('Create 1 question') : `Create ${count} questions`}</div>
       <div role="button" className="nc-form-autocreate-scratch" onClick={onScratch}>{tx('Start with a blank form')}</div>
     </div>
   );
@@ -434,8 +434,8 @@ function FormView(props: ViewProps) {
   const addQuestion = (e: React.MouseEvent<HTMLElement>) => openAddQuestionMenu(e.currentTarget, view.id, collection.id, setSelected);
 
   const perm: FormPermission = cfg.permission ?? 'space';
-  const banner = perm === 'public' ? 'This form is open. Anyone with the link can send a submission.'
-    : perm === 'closed' ? 'This form is closed. New submissions are blocked.' : `Only ${spaceName()} members can submit this form.`;
+  const banner = perm === 'public' ? tx('This form is open. Anyone with the link can send a submission.')
+    : perm === 'closed' ? tx('This form is closed. New submissions are blocked.') : `Only ${spaceName()} members can submit this form.`;
 
   return (
     <div className="nc-form-b lit-form-view" style={{ paddingInlineStart: bleed.left, paddingInlineEnd: bleed.right }} onPointerDown={(e) => { if (!(e.target as HTMLElement).closest('.nc-form-b-q, .nc-overlay')) setSelected(null); }}>
@@ -655,7 +655,7 @@ function FormSettingsMain({ block, view, collection, readOnly, close }: ViewSett
 }
 
 function toTitle(b: BlockRecord): string {
-  return (b.properties?.title ?? []).map((d) => String(d[0])).join('') || 'Untitled';
+  return (b.properties?.title ?? []).map((d) => String(d[0])).join('') || tx('Untitled');
 }
 
 registerView('form', FormView);

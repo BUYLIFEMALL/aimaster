@@ -66,7 +66,7 @@ function AddSourceMenu({ block, close, onCreated, fileInput }: { block: BlockRec
         const out = await api<{ rows: number }>('importCsvToCollection', { collectionId: res.collectionId, csv: await f.text() });
         useUI.getState().toast(`Imported ${out.rows} rows`);
       } catch (err) {
-        useUI.getState().toast(err instanceof Error ? err.message : 'Import failed');
+        useUI.getState().toast(err instanceof Error ? err.message : tx('Import failed'));
       }
       onCreated(res);
     };
@@ -83,7 +83,7 @@ function AddSourceMenu({ block, close, onCreated, fileInput }: { block: BlockRec
       <div className="lit-scroller vertical nc-menu-scroll">
         <div className="nc-menu-section">
           <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { close(); onCreated(addDataSource(block, { name: q.trim() || undefined })); }}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">{q.trim() ? `New “${q.trim()}” dataset` : 'New blank dataset'}</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">{q.trim() ? `New “${q.trim()}” dataset` : tx('New blank dataset')}</div></div>
           </div>
           {!q && (
             <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={importCsv}>
@@ -132,7 +132,7 @@ export function linkExisting(anchor: HTMLElement, block: BlockRecord, onDone?: (
 }
 
 function sourceMenu(anchor: HTMLElement, block: BlockRecord, c: CollectionRecord, viewCount: number, canDelete: boolean) {
-  const name = sourceName(c) || 'Untitled';
+  const name = sourceName(c) || tx('Untitled');
   openMenu(anchor, {
     width: 240,
     sections: [
@@ -141,9 +141,9 @@ function sourceMenu(anchor: HTMLElement, block: BlockRecord, c: CollectionRecord
           setTimeout(() => openDatabasePicker(anchor, { exclude: [block.id], title: tx('Send dataset to…'), onPick: async (to) => {
             const how = viewCount > 0 ? await choiceDialog({
               message: `Sending dataset ${name}`,
-              description: viewCount === 1 ? 'This database has 1 view based on this data source.' : `This database has ${viewCount} views based on this data source.`,
+              description: viewCount === 1 ? tx('This database has 1 view based on this data source.') : `This database has ${viewCount} views based on this data source.`,
               choices: [
-                { key: 'views', label: viewCount === 1 ? 'Move data source and 1 view' : `Move data source and ${viewCount} views`, primary: true },
+                { key: 'views', label: viewCount === 1 ? tx('Move data source and 1 view') : `Move data source and ${viewCount} views`, primary: true },
                 { key: 'only', label: tx('Send dataset only') },
               ],
             }) : 'views';
@@ -185,7 +185,7 @@ export function ManageDataSourcesPage({ block: blockIn, readOnly, onBack, close 
       <div key={c.id} role="menuitem" className="nc-menu-item nc-vs-row nc-source-row" data-testid="data-source-row" onClick={() => openFirst(c)}>
         <div className="nc-menu-item-inner">
           <div className="nc-menu-icon"><Icon name="collection" size={20} /></div>
-          <div className="nc-menu-label nc-ellipsis">{sourceName(c) || 'Untitled'}</div>
+          <div className="nc-menu-label nc-ellipsis">{sourceName(c) || tx('Untitled')}</div>
           <span className="nc-menu-value">{nViews(n)}</span>
           {!readOnly && kind === 'owned' && (
             <span role="button" className="nc-source-more" aria-label={tx('Dataset actions')} onClick={(e) => { e.stopPropagation(); sourceMenu(e.currentTarget, block, c, n, total > 1); }}>
@@ -193,7 +193,7 @@ export function ManageDataSourcesPage({ block: blockIn, readOnly, onBack, close 
             </span>
           )}
           {!readOnly && kind === 'linked' && total > 1 && (
-            <span role="button" className="nc-source-more" aria-label={tx('Remove linked layouts')} data-tooltip={n === 1 ? 'Delete linked view' : `Delete ${n} linked views`} onClick={(e) => { e.stopPropagation(); removeLinkedSource(block, c.id); }}>
+            <span role="button" className="nc-source-more" aria-label={tx('Remove linked layouts')} data-tooltip={n === 1 ? tx('Delete linked view') : `Delete ${n} linked views`} onClick={(e) => { e.stopPropagation(); removeLinkedSource(block, c.id); }}>
               <Icon name="trash" size={16} />
             </span>
           )}

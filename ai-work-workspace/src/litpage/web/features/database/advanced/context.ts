@@ -3,6 +3,7 @@ import type { BlockRecord, CollectionRecord, PropertySchema, UserRecord, UserSet
 import { systemZoneName, type FormulaContext } from '#shared/formula/index.ts';
 import { records } from '../../../lib/store/records.ts';
 import { useSession } from '../../../lib/store/session.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export function userTimeZone(): string {
   const userId = useSession.getState().userId;
@@ -53,5 +54,5 @@ export function titleOf(b: BlockRecord | undefined): string {
 
 /** Name of a data source (collection.name rich text). */
 export function collectionName(c: CollectionRecord | undefined): string {
-  return (c?.name ?? []).map((d) => d[0]).join('') || 'Untitled';
+  return (c?.name ?? []).map((d) => d[0]).join('') || tx('Untitled');
 }

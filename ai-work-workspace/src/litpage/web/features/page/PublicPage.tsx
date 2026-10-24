@@ -136,7 +136,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
   // <head>: title, description, social preview, robots, favicon
   const page = pageId ? records.get<BlockRecord>('block', pageId) : undefined;
   const root = site?.rootId ? records.get<BlockRecord>('block', site.rootId) : undefined;
-  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || 'Untitled') : 'Workspace';
+  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || tx('Untitled')) : 'Workspace';
   useEffect(() => {
     document.title = docTitle;
   });
@@ -199,11 +199,11 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
     }
     try {
       const res = await api('duplicatePublicPage', { pageId, spaceId: useSession.getState().spaceId });
-      useUI.getState().toast('Duplicated to your Private pages');
+      useUI.getState().toast(tx('Duplicated to your Private pages'));
       await useSession.getState().load();
       if (res.blockId) navigate(`/${spaceDomain(res.spaceId)}/${compactId(res.blockId)}`);
     } catch (e: any) {
-      useUI.getState().toast(e?.message ?? 'Couldn’t duplicate this page');
+      useUI.getState().toast(e?.message ?? tx('Couldn’t duplicate this page'));
     }
   };
 
@@ -241,7 +241,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
             <span key={c.id} style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
               <div role="button" className="nc-crumb" onClick={() => c.id !== pageId && navigate(`/public/${c.id === site?.rootId && settings?.slug ? settings.slug : c.id.replace(/-/g, '')}`)}>
                 {c.icon && <PageIcon icon={c.icon} size={18} />}
-                <span className="nc-ellipsis" style={{ maxWidth: 240, marginInlineStart: c.icon ? 6 : 0 }}>{c.title || 'Untitled'}</span>
+                <span className="nc-ellipsis" style={{ maxWidth: 240, marginInlineStart: c.icon ? 6 : 0 }}>{c.title || tx('Untitled')}</span>
               </div>
               {i < arr.length - 1 && <span className="sep">/</span>}
             </span>
@@ -252,7 +252,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
             {links.map((b) => (
               <div key={b.id} role="link" className={`nc-public-nav-link ${b.id === pageId ? 'current' : ''}`} onClick={() => navigate(`/public/${b.id === site?.rootId && settings?.slug ? settings.slug : b.id.replace(/-/g, '')}`)}>
                 <PageIcon block={b} size={16} />
-                <span className="nc-ellipsis">{pageTitle(b) || 'Untitled'}</span>
+                <span className="nc-ellipsis">{pageTitle(b) || tx('Untitled')}</span>
               </div>
             ))}
           </nav>
@@ -260,7 +260,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
         {header?.search !== false && site?.published && <SiteSearch pageId={pageId} rootSlug={settings?.slug} rootId={site?.rootId ?? null} />}
         {header?.share && (
           <div role="button" className="nc-icon-btn" aria-label={t('lp.page.share', 'Share')} data-tooltip={t('lp.page.let_visitors_share_your_site', 'Let visitors share your site')}
-            onClick={() => { void navigator.clipboard?.writeText(location.href); useUI.getState().toast('Link copied'); }}>
+            onClick={() => { void navigator.clipboard?.writeText(location.href); useUI.getState().toast(tx('Link copied')); }}>
             <Icon name="link" size={16} />
           </div>
         )}

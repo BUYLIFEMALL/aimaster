@@ -13,7 +13,7 @@ import { pageTitle } from './pageActions.ts';
 import { PageIcon } from '../shell/PageIcon.tsx';
 import { Icon } from '../../components/Icon.tsx';
 import { rowLayoutOptions } from '../database/layout/model.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { shareStateOf } from './ShareMenu.tsx';
 
 export type BacklinksMode = 'section' | 'popover' | 'off';
@@ -56,7 +56,7 @@ function Row({ id, onOpen }: { id: string; onOpen?: () => void }) {
   return (
     <div role="button" className="nc-backlink" onClick={() => { onOpen?.(); openPage(id); }}>
       <PageIcon block={b} size={18} />
-      <span className="nc-ellipsis">{pageTitle(b) || 'New page'}</span>
+      <span className="nc-ellipsis">{pageTitle(b) || tx('New page')}</span>
       {priv && <span className="nc-backlink-private" data-tooltip={t('lp.page.only_you_can_see_this_backlink', 'Only you can see this backlink')}>{t('lp.page.private', 'Private')}</span>}
     </div>
   );

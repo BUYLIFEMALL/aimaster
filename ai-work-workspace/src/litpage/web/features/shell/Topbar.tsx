@@ -182,7 +182,7 @@ function Breadcrumb({ pageId }: { pageId: string }) {
 }
 
 function Crumb({ block, current }: { block: BlockRecord; current?: boolean }) {
-  const title = pageTitle(block) || 'New page';
+  const title = pageTitle(block) || tx('New page');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   return (
     <div

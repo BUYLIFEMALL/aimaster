@@ -18,7 +18,7 @@ import { api } from '../../lib/api.ts';
 import { confirmDialog } from '../page/confirm.tsx';
 import { run } from '../../lib/blocks.ts';
 import { openIconPicker } from '../page/IconPicker.tsx';
-import { t } from './i18n.ts';
+import { t, tx } from './i18n.ts';
 import { TeamIcon } from './sidebar/TeamIcon.tsx';
 import { canCreateTeamspace, policyTooltip } from '../settings/spaceSettings.ts';
 import { msg, rich } from '../settings/ui.tsx';
@@ -379,7 +379,7 @@ async function copyTeamInviteLink(teamId: string) {
     await navigator.clipboard?.writeText(`${location.origin}${r.path}`).catch(() => undefined);
     useUI.getState().toast(t('lp.shell.the_link_is_on_your_clipboard', 'The link is on your clipboard'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message || 'Couldn’t copy the invite link');
+    useUI.getState().toast(e?.message || tx('Couldn’t copy the invite link'));
   }
 }
 
@@ -700,6 +700,6 @@ export async function turnIntoTeamspace(pageId: string): Promise<void> {
     navigate(pageUrl(pageId));
     void r.teamId;
   } catch (e: any) {
-    useUI.getState().toast(e?.message || 'We hit a problem');
+    useUI.getState().toast(e?.message || tx('We hit a problem'));
   }
 }

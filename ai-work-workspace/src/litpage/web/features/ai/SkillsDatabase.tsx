@@ -47,7 +47,7 @@ function TurnIntoSkills({ collectionId, close }: { collectionId: string; close: 
       tx.set('collection', c.id, ['format', 'ai_skills_description'], pid);
     });
     if (enable) savePrefs({ ai_skills_dbs_enabled: [...new Set([...enabledDbs(), c.id])] });
-    useUI.getState().toast('Every page in this database is now a skill');
+    useUI.getState().toast(tx('Every page in this database is now a skill'));
     close();
   };
   return (

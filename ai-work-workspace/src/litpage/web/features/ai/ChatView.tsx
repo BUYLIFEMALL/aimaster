@@ -124,7 +124,7 @@ export function ChatView(props: ChatViewProps) {
         markChatRead(id);
       })
       .catch((e) => {
-        if (alive) setLoadError(e?.status === 404 ? 'You cannot open this chat' : 'Couldn’t load this chat.');
+        if (alive) setLoadError(e?.status === 404 ? tx('You cannot open this chat') : tx('Couldn’t load this chat.'));
       });
     return () => {
       alive = false;
@@ -296,7 +296,7 @@ export function ChatView(props: ChatViewProps) {
     try {
       await answerApproval(approvalId, decision);
     } catch (e) {
-      useUI.getState().toast((e as Error)?.message || 'This request is no longer waiting for approval.');
+      useUI.getState().toast((e as Error)?.message || tx('This request is no longer waiting for approval.'));
       throw e;
     }
   };
@@ -304,14 +304,14 @@ export function ChatView(props: ChatViewProps) {
   const onUndo = async (messageId: string) => {
     const r = (props.undo ? await props.undo(messageId) : await undoAgentChanges(messageId)) as { conflicts: number; changes?: ChatMessage['changes'] };
     setMessages((ms) => ms.map((m) => (m.id === messageId ? { ...m, changes: r.changes ?? (m.changes ? { ...m.changes, undone: true } : null) } : m)));
-    useUI.getState().toast('Changes reverted');
+    useUI.getState().toast(tx('Changes reverted'));
     return { conflicts: r.conflicts };
   };
 
   const onFeedback = (messageId: string, rating: 'positive' | 'negative' | null, comment?: string) => {
     setMessages((ms) => ms.map((m) => (m.id === messageId ? { ...m, feedback: rating ? { rating, comment } : null } : m)));
     void sendFeedback(messageId, rating, comment).catch(() => {});
-    if (rating && !comment) useUI.getState().toast('Thanks for your feedback');
+    if (rating && !comment) useUI.getState().toast(tx('Thanks for your feedback'));
   };
 
   const stop = () => abortRef.current?.abort();
@@ -343,7 +343,7 @@ export function ChatView(props: ChatViewProps) {
 
   const copy = (text: string) => {
     void navigator.clipboard?.writeText(text).catch(() => {});
-    useUI.getState().toast('Response copied');
+    useUI.getState().toast(tx('Response copied'));
   };
 
   const insert = (text: string, sources: SourceRef[]) => {
@@ -352,7 +352,7 @@ export function ChatView(props: ChatViewProps) {
       const focused = useEditor.getState().focused?.blockId;
       if (focused && pageIdOfBlock(focused) === pageId) insertMarkdownAfter(focused, text, { sources, action: 'ai.insertIntoPage' });
       else appendMarkdown(pageId, text, { sources, action: 'ai.insertIntoPage' });
-      useUI.getState().toast('Added to the page');
+      useUI.getState().toast(tx('Added to the page'));
       return;
     }
     // full-page chat: save the answer as a new private page
@@ -364,13 +364,13 @@ export function ChatView(props: ChatViewProps) {
       id = createPageIn(tx, { kind: 'private' }, { title: pageTitle as any });
       createPlannedInto(tx, plan, id);
     });
-    useUI.getState().toast('Saved to private pages', { label: tx('Open'), run: () => openPage(id) });
+    useUI.getState().toast(tx('Saved to private pages'), { label: tx('Open'), run: () => openPage(id) });
   };
 
   const empty = messages.length === 0 && !loadError;
   const canInsert = true;
-  const insertLabel = props.contextPageId ? 'Add to this page' : 'Save among private pages';
-  const placeholder = props.placeholder ?? 'Send a question to AI 비서';
+  const insertLabel = props.contextPageId ? tx('Add to this page') : tx('Save among private pages');
+  const placeholder = props.placeholder ?? tx('Send a question to AI 비서');
 
   const composer = (
     <ChatComposer

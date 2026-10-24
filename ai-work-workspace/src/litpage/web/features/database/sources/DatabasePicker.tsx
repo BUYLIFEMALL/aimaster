@@ -27,7 +27,7 @@ function Picker({ title, exclude, onPick, close }: { title: string; exclude: str
       <div className="lit-scroller vertical nc-menu-scroll">
         <div className="nc-menu-section">
           {blocks.map((b) => {
-            const title = results.find((r) => r.blockId === b.id)?.name ?? 'Untitled';
+            const title = results.find((r) => r.blockId === b.id)?.name ?? tx('Untitled');
             return (
               <div key={b.id} role="menuitem" className="nc-menu-item nc-link-source-row" onClick={() => { close(); onPick(b); }}>
                 <div className="nc-menu-item-inner">

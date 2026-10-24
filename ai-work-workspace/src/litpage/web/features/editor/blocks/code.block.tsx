@@ -26,7 +26,7 @@ import { tx } from '../../shell/i18n.ts';
 type PreviewFormat = 'code' | 'preview' | 'split_view';
 
 function languageOf(b: BlockRecord): string {
-  return b.properties?.language?.[0]?.[0] ?? 'Plain Text';
+  return b.properties?.language?.[0]?.[0] ?? tx('Plain Text');
 }
 
 export function setLanguage(ids: string[], lang: string) {
@@ -68,7 +68,7 @@ export function formatCode(blockId: string) {
     out = null;
   }
   if (out == null) {
-    toast(lang === 'json' ? 'Could not format: invalid JSON' : `Format code isn’t available for ${languageOf(b)}`);
+    toast(lang === 'json' ? tx('Could not format: invalid JSON') : `Format code isn’t available for ${languageOf(b)}`);
     return;
   }
   if (out !== text) run('formatCode', (tx) => setProperty(tx, blockId, 'title', out ? [[out]] : []));
@@ -179,9 +179,9 @@ function CodeBlock({ block, readOnly }: BlockProps) {
                 }} />
                 <ActionButton icon="download" tooltip="Download image" label={tx('Download diagram image')} onClick={() => {
                   void renderMermaid(text).then(async (r) => {
-                    if (!r.svg) return toast('The diagram has errors');
+                    if (!r.svg) return toast(tx('The diagram has errors'));
                     const blob = await svgToJpeg(r.svg);
-                    if (!blob) return toast('Could not export the diagram');
+                    if (!blob) return toast(tx('Could not export the diagram'));
                     const url = URL.createObjectURL(blob);
                     downloadUrl(url, 'diagram.jpeg');
                     setTimeout(() => URL.revokeObjectURL(url), 5000);

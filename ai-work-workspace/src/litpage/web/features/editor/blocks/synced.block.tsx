@@ -93,7 +93,7 @@ export async function copySyncedBlock(blockId: string) {
     document.execCommand('copy');
   }
   lastCopied = c.id;
-  toast('Copied. Paste into any page to mirror it.');
+  toast(tx('Copied. Paste into any page to mirror it.'));
 }
 
 let lastCopied: string | null = null;
@@ -107,7 +107,7 @@ export function pasteSyncedReference(srcId: string, atBlockId: string) {
   let cur: BlockRecord | undefined = at;
   for (let i = 0; i < 50 && cur; i++) {
     if (cur.id === srcId) {
-      toast('Can’t paste a synced block inside itself');
+      toast(tx('Can’t paste a synced block inside itself'));
       return;
     }
     cur = cur.parent_table === 'block' ? getBlock(cur.parent_id) : undefined;
@@ -237,7 +237,7 @@ function BacklinksButton({ containerId, refs, currentPage }: { containerId: stri
     for (const r of refs) if (r.pageId !== currentPage) pages.add(r.pageId);
     return Array.from(pages);
   }, [refs, origPage, currentPage]);
-  const label = others.length === 0 ? 'Editing original' : `Synced to ${pagesLabel(others.length)}`;
+  const label = others.length === 0 ? tx('Editing original') : `Synced to ${pagesLabel(others.length)}`;
   return (
     <div
       role="button"
@@ -254,7 +254,7 @@ function BacklinksButton({ containerId, refs, currentPage }: { containerId: stri
           sections: [{
             title: tx('Synced to'),
             items: all.map((p) => ({
-              id: p, label: pageTitle(getBlock(p)) || 'New page', icon: <PageIcon block={getBlock(p)} size={20} />,
+              id: p, label: pageTitle(getBlock(p)) || tx('New page'), icon: <PageIcon block={getBlock(p)} size={20} />,
               right: p === origPage ? <span className="nc-menu-badge">{tx('Original')}</span> : p === currentPage ? <span className="nc-menu-shortcut">{tx('Current')}</span> : undefined,
               onSelect: () => { if (p !== currentPage) openPage(p); },
             })),

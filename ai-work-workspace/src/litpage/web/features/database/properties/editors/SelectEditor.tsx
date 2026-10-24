@@ -181,7 +181,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
         <input
           ref={inputRef}
           value={query}
-          placeholder={selected.length ? '' : 'Find an option…'}
+          placeholder={selected.length ? '' : tx('Find an option…')}
           onChange={(e) => {
             setQuery(e.target.value);
             setActive(0);

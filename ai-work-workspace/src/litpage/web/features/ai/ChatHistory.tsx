@@ -70,9 +70,9 @@ export async function shareChatLink(t: ChatThread) {
   try {
     if (!t.shared) await shareChat(t.id, true);
     void navigator.clipboard?.writeText(location.origin + chatUrl(t.id)).catch(() => {});
-    useUI.getState().toast('Link copied. People in this workspace can view this chat.');
+    useUI.getState().toast(tx('Link copied. People in this workspace can view this chat.'));
   } catch (e) {
-    useUI.getState().toast((e as Error)?.message || 'Couldn’t share this chat');
+    useUI.getState().toast((e as Error)?.message || tx('Couldn’t share this chat'));
   }
 }
 
@@ -83,8 +83,8 @@ function threadMenu(t: ChatThread, anchor: HTMLElement, onDeleted?: () => void) 
         { label: t.pinned ? 'Unpin' : 'Pin', icon: 'pin', onSelect: () => { void pinChat(t.id, !t.pinned); } },
         { label: tx('Rename'), icon: 'edit', onSelect: () => { setTimeout(() => openRenameChat(anchor, t), 0); } },
         { label: tx('Change icon'), icon: 'emojiFace', onSelect: () => { setTimeout(() => openChatIconPicker(anchor, t), 0); } },
-        { label: t.shared ? 'Copy link to shared chat' : 'Share chat', icon: 'link', description: t.shared ? 'Anyone in the workspace with the link can view' : undefined, onSelect: () => { void shareChatLink(t); } },
-        ...(t.shared ? [{ label: tx('Stop sharing'), icon: 'lock', onSelect: () => { void shareChat(t.id, false).then(() => useUI.getState().toast('This chat is private again')); } }] : []),
+        { label: t.shared ? tx('Copy link to shared chat') : tx('Share chat'), icon: 'link', description: t.shared ? tx('Anyone in the workspace with the link can view') : undefined, onSelect: () => { void shareChatLink(t); } },
+        ...(t.shared ? [{ label: tx('Stop sharing'), icon: 'lock', onSelect: () => { void shareChat(t.id, false).then(() => useUI.getState().toast(tx('This chat is private again'))); } }] : []),
         { label: tx('Open in another tab'), icon: 'arrowDiagonalUpRightSmall', onSelect: () => window.open(chatUrl(t.id), '_blank') },
         {
           label: tx('Delete'), icon: 'trash', danger: true,

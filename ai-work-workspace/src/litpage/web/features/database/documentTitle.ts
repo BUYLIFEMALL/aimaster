@@ -4,9 +4,10 @@
 // unread count when there is one: “(9+) <page title> | ”.
 import { useEffect } from 'react';
 import { useUI } from '../../lib/store/ui.ts';
+import { tx } from '../shell/i18n.ts';
 
 export function databaseDocumentTitle(dbName: string, viewName: string | undefined, multipleViews: boolean): string {
-  let t = dbName.trim() || 'New database';
+  let t = dbName.trim() || tx('New database');
   if (multipleViews && viewName) t = `${t} | ${viewName}`;
   return `${t.slice(0, 100)} | Workspace`;
 }

@@ -31,8 +31,8 @@ function caption(a: AutomationRecord): string {
     collectionId: a.parent_id,
     schema: col?.schema ?? {},
     user: (id) => records.get<UserRecord>('lit_user', id)?.name ?? '',
-    page: (id) => ((records.get<BlockRecord>('block', id)?.properties?.title ?? []) as string[][]).map((d) => d[0]).join('') || 'Untitled',
-    collection: (id) => ((records.get<CollectionRecord>('collection', id)?.name ?? []) as string[][]).map((d) => d[0]).join('') || 'Untitled',
+    page: (id) => ((records.get<BlockRecord>('block', id)?.properties?.title ?? []) as string[][]).map((d) => d[0]).join('') || tx('Untitled'),
+    collection: (id) => ((records.get<CollectionRecord>('collection', id)?.name ?? []) as string[][]).map((d) => d[0]).join('') || tx('Untitled'),
   });
 }
 
@@ -54,14 +54,14 @@ function cardMenu(anchor: HTMLElement, a: AutomationRecord, canEdit: boolean, on
         right: <Toggle on={active} decorative />,
         onSelect: () => {
           setAutomationStatus(a.id, active ? 'paused' : 'active').then(() => {
-            if (!active && a.last_error) useUI.getState().toast('Workflow restarted successfully');
-          }).catch((e) => useUI.getState().toast(e?.message || 'Fix any errors or remove failing steps to enable this workflow'));
+            if (!active && a.last_error) useUI.getState().toast(tx('Workflow restarted successfully'));
+          }).catch((e) => useUI.getState().toast(e?.message || tx('Fix any errors or remove failing steps to enable this workflow')));
         },
       }] }] : []),
       { items: [
         { id: 'edit', label: canEdit ? 'Edit' : 'View', icon: 'pencilLine', onSelect: () => openAutomationBuilder(a.parent_id, a.id) },
         ...(canEdit ? [
-          { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => void duplicateAutomation(a.id).catch((e) => useUI.getState().toast(e?.message || 'Could not duplicate')) },
+          { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => void duplicateAutomation(a.id).catch((e) => useUI.getState().toast(e?.message || tx('Could not duplicate'))) },
           { id: 'del', label: tx('Delete'), icon: 'trash', onSelect: async () => { if (await confirmDialog({ message: `Delete ${automationDisplayName(a)}?`, confirmLabel: 'Delete' })) await deleteAutomation(a.id); } },
         ] : []),
       ] },
@@ -120,7 +120,7 @@ export function AutomationsList({ collectionId, onNew, header }: { collectionId:
       {list.length > 5 && <div className="nc-autolist-search" data-menu-keys="ignore"><div className="nc-input"><input placeholder={tx('Search automations…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>}
       {list.length === 0 ? (
         <div className="nc-autolist-empty">
-          <span>{access && !access.canEdit ? (access.role === 'read_and_write' || access.role === 'content_only_editor' ? 'You can edit entries, but full access is required to create workflows.' : access.editProblem === 'Join this workspace before editing automations' ? access.editProblem : 'View-only users cannot create workflows.') : 'Update fields, create entries, send notices, and more'}</span>
+          <span>{access && !access.canEdit ? (access.role === 'read_and_write' || access.role === 'content_only_editor' ? tx('You can edit entries, but full access is required to create workflows.') : access.editProblem === 'Join this workspace before editing automations' ? access.editProblem : tx('View-only users cannot create workflows.')) : tx('Update fields, create entries, send notices, and more')}</span>
         </div>
       ) : (
         <div className="nc-autolist-items">

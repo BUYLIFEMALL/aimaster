@@ -6,7 +6,7 @@ import { api } from '../../lib/api.ts';
 import { getBlock } from '../../lib/blocks.ts';
 import { records } from '../../lib/store/records.ts';
 import { useUI } from '../../lib/store/ui.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { confirmDialog } from './confirm.tsx';
 import { pageTitle } from './pageActions.ts';
 
@@ -32,7 +32,7 @@ export async function turnIntoWiki(pageId: string) {
     records.mergeRecordMap(res.recordMap);
     useUI.getState().toast(t('lp.page.your_new_wiki_is_ready', 'Your new wiki is ready!'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not turn this page into a wiki');
+    useUI.getState().toast(e?.message ?? tx('Could not turn this page into a wiki'));
   }
 }
 
@@ -48,6 +48,6 @@ export async function undoWiki(pageId: string) {
     const res = await api<{ recordMap: any }>('undoWiki', { pageId });
     records.mergeRecordMap(res.recordMap);
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not undo the wiki');
+    useUI.getState().toast(e?.message ?? tx('Could not undo the wiki'));
   }
 }

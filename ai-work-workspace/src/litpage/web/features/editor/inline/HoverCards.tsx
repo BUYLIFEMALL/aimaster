@@ -52,8 +52,8 @@ export function PageMentionCard() {
       <div style={{ height: 36 }} />
       <div className="nc-page-hover-icon"><PageIcon block={page} size={26} /></div>
       <div className="nc-page-hover-body">
-        {parent && <div className="nc-page-hover-parent nc-ellipsis">{pageTitle(parent) || 'Untitled'}</div>}
-        <div className="nc-page-hover-title">{page ? pageTitle(page) || 'New page' : 'No access'}</div>
+        {parent && <div className="nc-page-hover-parent nc-ellipsis">{pageTitle(parent) || tx('Untitled')}</div>}
+        <div className="nc-page-hover-title">{page ? pageTitle(page) || tx('New page') : tx('No access')}</div>
         <div style={{ height: 24 }} />
       </div>
     </div>
@@ -105,7 +105,7 @@ export function LinkMentionCard() {
         <div className="nc-lm-hover-url nc-ellipsis">{v.href}</div>
       </div>
       <div className="nc-lm-hover-actions">
-        <div role="button" className="nc-lm-hover-btn" aria-label={tx('Copy link')} onClick={() => { void navigator.clipboard?.writeText(v.href); useUI.getState().toast('Link copied'); close(); }}>
+        <div role="button" className="nc-lm-hover-btn" aria-label={tx('Copy link')} onClick={() => { void navigator.clipboard?.writeText(v.href); useUI.getState().toast(tx('Link copied')); close(); }}>
           <Icon name="docOnDoc" size={14} />Copy link
         </div>
         {hover.editable && (
@@ -134,7 +134,7 @@ export function GroupMentionCard() {
   return (
     <div role="dialog" className="nc-group-hover-card" style={{ position: 'fixed', left: hover.rect.left, top: hover.rect.bottom + 6, zIndex: 998 }} onMouseEnter={cancelGroup} onMouseLeave={hideGroupSoon}>
       <div className="nc-group-hover-head">
-        <div className="nc-group-hover-name nc-ellipsis">{g?.name || 'Deleted group'}</div>
+        <div className="nc-group-hover-name nc-ellipsis">{g?.name || tx('Deleted group')}</div>
         <div className="nc-group-hover-count">{n === 1 ? '1 member' : `${n} members`}</div>
       </div>
       {members.slice(0, 10).map((u) => (

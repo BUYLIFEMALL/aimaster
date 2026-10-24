@@ -89,7 +89,7 @@ export function groupFilterNodes(propId: string, prop: PropertySchema | undefine
 function saveAsView(o: DrilldownOptions, pageId: string, nodes: FilterNode[]): boolean {
   const page = records.get<BlockRecord>('block', pageId);
   if (!page || !roleAtLeast(records.role('block', pageId), 'read_and_write')) {
-    useUI.getState().toast('You don’t have permission to edit that page');
+    useUI.getState().toast(tx('You don’t have permission to edit that page'));
     return false;
   }
   const v = effectiveView(o.view);
@@ -110,7 +110,7 @@ function saveAsView(o: DrilldownOptions, pageId: string, nodes: FilterNode[]): b
     });
     tx.listAfter('block', blockId, ['view_ids'], viewId);
   });
-  useUI.getState().toast(`Saved view in ${toPlainText(page.properties?.title as never) || 'Untitled'}`);
+  useUI.getState().toast(`Saved view in ${toPlainText(page.properties?.title as never) || tx('Untitled')}`);
   return true;
 }
 
@@ -123,7 +123,7 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
   const schema = collection.schema;
   const cols = drilldownColumns(cfg, schema);
   const rows = point.rows.slice(0, MAX_ROWS);
-  const dbName = toPlainText(collection.name as never) || 'Untitled';
+  const dbName = toPlainText(collection.name as never) || tx('Untitled');
   const xProp = cfg.dataConfig.type === 'groups_reducer' ? cfg.dataConfig.groupBy.property : undefined;
   const nodes = xProp ? groupFilterNodes(xProp, schema[xProp], point) : null;
   const more = (anchor: HTMLElement) => openMenu(anchor, {
@@ -160,7 +160,7 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
               {c === 'title' ? (
                 <span role="link" className="nc-chart-drill-open" onClick={() => { close(); o.openRow(r.id); }}>
                   <PageIcon block={r} size={16} fallback="page" />
-                  <span className="nc-chart-drill-name">{titleOf(r) || 'Untitled'}</span>
+                  <span className="nc-chart-drill-name">{titleOf(r) || tx('Untitled')}</span>
                 </span>
               ) : (
                 <PropertyCell row={r} schema={schema} propId={c} readOnly noEdit />

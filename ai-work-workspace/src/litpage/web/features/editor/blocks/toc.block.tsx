@@ -69,7 +69,7 @@ function TableOfContents({ block }: BlockProps) {
               scrollToBlock(h.id);
             }}
           >
-            <span className="t">{toPlainText(h.properties?.title) || 'Untitled'}</span>
+            <span className="t">{toPlainText(h.properties?.title) || tx('Untitled')}</span>
           </a>
         ))}
       </div>

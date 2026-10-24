@@ -203,7 +203,7 @@ function BlockBody({ block: b, index, siblings, depth, ctx }: { block: BlockReco
       );
     }
     case 'code': {
-      const language = (b.properties?.language as RichText | undefined)?.[0]?.[0] ?? 'Plain Text';
+      const language = (b.properties?.language as RichText | undefined)?.[0]?.[0] ?? tx('Plain Text');
       return (
         <div className="nc-bpad">
           <div className="nc-code-box" role="figure" aria-label={tx('Code block')}>
@@ -227,7 +227,7 @@ function BlockBody({ block: b, index, siblings, depth, ctx }: { block: BlockReco
         <div className="nc-pad">
           <div className="nc-row nc-snap-pagelink">
             <PageIcon block={target} size={20} />
-            <span>{toPlainText(target.properties?.title) || 'Untitled'}</span>
+            <span>{toPlainText(target.properties?.title) || tx('Untitled')}</span>
           </div>
         </div>
       );
@@ -320,7 +320,7 @@ export function SnapshotPage({ rootId, blocks, changed }: { rootId: string; bloc
       )}
       <div className={`nc-snapshot-content ${cover ? 'with-cover' : ''} ${icon ? 'with-icon' : ''}`}>
         {icon && <div className="nc-snapshot-icon"><PageIcon icon={icon} size={78} /></div>}
-        <h1 className={`nc-snapshot-title ${ctx.changed.has(rootId) ? 'nc-vh-changed' : ''}`}>{toPlainText(root.properties?.title) || 'Untitled'}</h1>
+        <h1 className={`nc-snapshot-title ${ctx.changed.has(rootId) ? 'nc-vh-changed' : ''}`}>{toPlainText(root.properties?.title) || tx('Untitled')}</h1>
         <div className="nc-snapshot-body">
           <List ids={root.content} depth={0} ctx={ctx} />
         </div>

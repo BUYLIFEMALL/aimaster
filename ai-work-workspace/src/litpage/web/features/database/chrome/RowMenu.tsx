@@ -49,7 +49,7 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
   const editor = records.get<UserRecord>('lit_user', first.last_edited_by_id);
   const fav = isFavorite(first.id);
   const pageItems: MenuItemDef[] = [
-    ...(!multi ? [{ id: 'fav', label: fav ? 'Remove from favorites' : 'Add to favorites', icon: fav ? 'starFilled' : 'star', onSelect: () => toggleFavorite(first.id) }] : []),
+    ...(!multi ? [{ id: 'fav', label: fav ? tx('Remove from favorites') : tx('Add to favorites'), icon: fav ? 'starFilled' : 'star', onSelect: () => toggleFavorite(first.id) }] : []),
     { id: 'icon', label: tx('Edit icon'), icon: 'emojiFace', onSelect: () => { openIconPicker(anchor, { current: first.format?.page_icon as string | undefined, onPick: (v) => run('setRowIcons', (tx) => rows.forEach((r) => setFormat(tx, r.id, { page_icon: (v ?? null) as any }))) }); } },
     {
       id: 'edit', label: tx('Edit property'), icon: 'bulletedList',
@@ -76,7 +76,7 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
     ] : []),
   ];
   const manage: MenuItemDef[] = [
-    ...(!multi ? [{ id: 'link', label: tx('Copy link'), icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast('Link copied'); } }] : []),
+    ...(!multi ? [{ id: 'link', label: tx('Copy link'), icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast(tx('Link copied')); } }] : []),
     { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D', onSelect: () => { void duplicateRows(rowIds); opts.onDone?.(); } },
     { id: 'move', label: tx('Move to'), icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(rowIds, anchor) },
     { id: 'trash', label: tx('Send to trash'), icon: 'trash', shortcut: 'Del', onSelect: () => { deleteRows(rowIds); opts.onDone?.(); } },

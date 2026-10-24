@@ -51,7 +51,7 @@ function NoDatePopup({ kind, view, collection, close, onOpen }: { kind: Kind; vi
   const rows = useMemo(() => emptyRows(result.rows, prop), [result.rows, prop]);
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => setLimit(PAGE), [q]);
-  const prompt = kind === 'calendar' ? 'Click or drag an item onto the calendar to set a date.' : 'Click to place it on the timeline';
+  const prompt = kind === 'calendar' ? tx('Click or drag an item onto the calendar to set a date.') : tx('Click to place it on the timeline');
   return (
     <PopoverSurface width={320} className="nc-nodate-popup" maxHeight="min(480px, 70vh)">
       <div className="nc-vs-search" data-menu-keys="ignore">
@@ -83,7 +83,7 @@ function NoDatePopup({ kind, view, collection, close, onOpen }: { kind: Kind; vi
             >
               <div className="nc-menu-item-inner">
                 <span className="nc-nodate-icon"><PageIcon block={r} size={20} fallback="page" /></span>
-                <div className="nc-menu-label nc-ellipsis">{titleOf(r) || 'Untitled'}</div>
+                <div className="nc-menu-label nc-ellipsis">{titleOf(r) || tx('Untitled')}</div>
                 <span role="button" className="nc-nodate-open" onClick={(e) => { e.stopPropagation(); close(); onOpen(r.id); }}>{tx('Open')}</span>
               </div>
             </div>

@@ -125,11 +125,11 @@ function FeedbackForm({ rating, payload, close }: { rating: 'positive' | 'negati
             setBusy(true);
             try {
               await api('aiFormulaFeedback', { rating, comment, ...payload });
-              useUI.getState().toast('Thanks, your feedback is recorded.');
+              useUI.getState().toast(tx('Thanks, your feedback is recorded.'));
               close();
             } catch {
               setBusy(false);
-              useUI.getState().toast('No response was generated. Try again.');
+              useUI.getState().toast(tx('No response was generated. Try again.'));
             }
           }}
         >
@@ -181,7 +181,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
     const fixing = !!error && FIX_RE.test(prompt);
     setFailure(null);
     setPhase('running');
-    setLabel(fixing ? 'Reading errors' : 'Thinking');
+    setLabel(fixing ? tx('Reading errors') : 'Thinking');
     timers.current.push(window.setTimeout(() => setLabel(fixing ? 'Fixing' : 'Writing'), 1200));
     const ac = new AbortController();
     abortRef.current = ac;
@@ -195,7 +195,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
       const changes = !!res.formula && normalize(res.formula) !== normalize(plain) && !(EXPLAIN_RE.test(prompt) && !FIX_RE.test(prompt));
       const next = changes ? plainToFormula(res.formula, collectionId, context) : null;
       if (next !== null) onApply(next);
-      setAnswer({ prompt, explanation: res.explanation || (next !== null ? '' : 'No changes needed.'), previous: next !== null ? src : null, applied: next });
+      setAnswer({ prompt, explanation: res.explanation || (next !== null ? '' : tx('No changes needed.')), previous: next !== null ? src : null, applied: next });
       setText('');
       requestAnimationFrame(autosize);
     } catch (e) {
@@ -203,7 +203,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
       if (isNoKeyError(e)) {
         useAiStatus.getState().markUnconfigured();
         setFailure(NO_KEY_MESSAGE);
-      } else setFailure((e as Error)?.message && (e as any).status !== 500 && (e as any).status !== 502 ? (e as Error).message : 'No response was generated. Try again.');
+      } else setFailure((e as Error)?.message && (e as any).status !== 500 && (e as any).status !== 502 ? (e as Error).message : tx('No response was generated. Try again.'));
     } finally {
       if (abortRef.current === ac) abortRef.current = null;
       timers.current.forEach((t) => clearTimeout(t));

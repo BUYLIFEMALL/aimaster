@@ -253,7 +253,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
         // connections that reach this page, add / disconnect one (features/developer/PageConnections.tsx)
         connectionsMenuItem(pageId, item),
       ] },
-      { items: [item(t('lp.page.switch_to_the_mac_app', 'Switch to the Mac app'), 'litLogo', { onSelect: () => useUI.getState().toast('The desktop app isn’t installed') })] },
+      { items: [item(t('lp.page.switch_to_the_mac_app', 'Switch to the Mac app'), 'litLogo', { onSelect: () => useUI.getState().toast(tx('The desktop app isn’t installed')) })] },
     ],
   });
 
@@ -266,7 +266,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     sections: [
       { items: [
         item(t('lp.page.copy_link', 'Copy link'), 'link', { shortcut: '⌘⌥L', onSelect: () => copyPageLink(pageId) }),
-        item(t('lp.page.copy_the_page_content', 'Copy the page content'), 'clipboard', { onSelect: () => { void navigator.clipboard?.writeText(pageToMarkdown(pageId)); useUI.getState().toast('Page contents copied'); } }),
+        item(t('lp.page.copy_the_page_content', 'Copy the page content'), 'clipboard', { onSelect: () => { void navigator.clipboard?.writeText(pageToMarkdown(pageId)); useUI.getState().toast(tx('Page contents copied')); } }),
         // databases: Duplicate with content / without content (schema and views only)
         isDb
           ? item(t('lp.page.duplicate', 'Duplicate'), 'duplicate', { shortcut: '⌘D', submenu: () => ({ width: 240, role: 'menu', className: 'nc-page-submenu', sections: [{ items: [
@@ -333,9 +333,9 @@ async function duplicateDatabase(pageId: string, withContent: boolean) {
   try {
     const res = await api<{ blockId: string; recordMap: any }>('duplicateDatabase', { blockId: pageId, withContent });
     records.mergeRecordMap(res.recordMap);
-    useUI.getState().toast('Duplicated');
+    useUI.getState().toast(tx('Duplicated'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not duplicate');
+    useUI.getState().toast(e?.message ?? tx('Could not duplicate'));
   }
 }
 

@@ -7,7 +7,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { useCurrentUser } from '../../../lib/hooks.ts';
 import { useSession } from '../../../lib/store/session.ts';
 import { useUI } from '../../../lib/store/ui.ts';
-import { t } from '../i18n.ts';
+import { t, tx } from '../i18n.ts';
 import { tRich } from '../tRich.tsx';
 import { openStartPage } from '../Workspace.tsx';
 import { openAddAccount } from '../accounts.tsx';
@@ -91,7 +91,7 @@ export function NoAccessPage({ pageId, onAccess }: { pageId: string; onAccess?: 
       await requestPageAccess(pageId, { message });
       setSent(true);
     } catch (e: any) {
-      useUI.getState().toast(e?.status === 429 ? t('lp.shell.your_request_for_access_to_this', 'Your request for access to this page went out recently.') : (e?.message || 'We hit a problem'));
+      useUI.getState().toast(e?.status === 429 ? t('lp.shell.your_request_for_access_to_this', 'Your request for access to this page went out recently.') : (e?.message || tx('We hit a problem')));
     } finally {
       setSending(false);
     }

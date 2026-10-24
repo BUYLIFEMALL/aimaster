@@ -33,7 +33,7 @@ registerIcons({ arrowSquareLeftRight: L.Repeat2, cursorClick: L.MousePointerClic
 function names() {
   return {
     user: (id: string) => records.get<any>('lit_user', id)?.name ?? 'Unknown',
-    page: (id: string) => toPlainText(records.get<BlockRecord>('block', id)?.properties?.title) || 'Untitled',
+    page: (id: string) => toPlainText(records.get<BlockRecord>('block', id)?.properties?.title) || tx('Untitled'),
   };
 }
 
@@ -87,7 +87,7 @@ function ConditionEditor({ prop, cond, onChange, close }: { prop: PropertySchema
       ...workspaceMembers().filter((u) => !ql || `${u.name} ${u.email}`.toLowerCase().includes(ql)).map((u) => row(u.id, <><UserAvatar userId={u.id} size={20} /><span className="grow">{u.name || u.email}</span></>, vals.includes(u.id), () => toggle(u.id)))];
   } else if (prop.type === 'relation') {
     list = [row('any', <span className="grow">{tx('Any page')}</span>, !vals.length, () => update({ ...c, values: [] })),
-      ...pages.filter((p) => !ql || (toPlainText(p.properties?.title) || 'Untitled').toLowerCase().includes(ql)).slice(0, 50).map((p) => row(p.id, <><PageIcon block={p} size={18} /><span className="grow">{toPlainText(p.properties?.title) || 'Untitled'}</span></>, vals.includes(p.id), () => toggle(p.id)))];
+      ...pages.filter((p) => !ql || (toPlainText(p.properties?.title) || tx('Untitled')).toLowerCase().includes(ql)).slice(0, 50).map((p) => row(p.id, <><PageIcon block={p} size={18} /><span className="grow">{toPlainText(p.properties?.title) || tx('Untitled')}</span></>, vals.includes(p.id), () => toggle(p.id)))];
   } else if (prop.type === 'checkbox') {
     list = [row('checked', <span className="grow">{tx('Checked')}</span>, vals[0] === 'checked', () => toggle('checked', true)), row('unchecked', <span className="grow">{tx('Unchecked')}</span>, vals[0] === 'unchecked', () => toggle('unchecked', true))];
   }

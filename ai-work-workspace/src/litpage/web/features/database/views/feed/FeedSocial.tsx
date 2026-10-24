@@ -163,7 +163,7 @@ export function useFeedViews(pageIds: string[]): Record<string, PostViewInfo> {
 function openViewers(anchor: HTMLElement, info: PostViewInfo) {
   openOverlay(() => (
     <PopoverSurface width={260} className="nc-feed-viewers" maxHeight={320}>
-      <div className="nc-feed-viewers-head">{info.count === 1 ? 'Viewed by 1 person' : `Viewed by ${info.count} people`}</div>
+      <div className="nc-feed-viewers-head">{info.count === 1 ? tx('Viewed by 1 person') : `Viewed by ${info.count} people`}</div>
       {info.viewers.map((v) => (
         <div key={v.userId} className="nc-feed-viewer">
           <UserAvatar userId={v.userId} size={20} />

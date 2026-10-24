@@ -37,7 +37,7 @@ const NUMERIC_RESULT = new Set<Aggregator>(['count', 'count_values', 'unique', '
 export function aggregationLabel(spec: AggregationSpec | undefined): string {
   const a = aggregatorName(spec);
   if (typeof spec === 'object') return `${AGGREGATION_LABEL[a]} (${spec.groupName})`;
-  return AGGREGATION_LABEL[a] ?? 'Show original';
+  return AGGREGATION_LABEL[a] ?? tx('Show original');
 }
 
 
@@ -93,12 +93,12 @@ export function RollupConfigBody({ collectionId, propertyId }: { collectionId: s
         width: 280,
         sections: [{ items: relations.length ? relations.map(([id, p]) => ({ label: p.name, icon: 'relation', checked: id === relId, onSelect: () => set({ relation_property: id, target_property: 'title', target_property_type: 'title', aggregation: 'show_original' }) })) : [{ label: tx('No relations in this data source'), disabled: true }] }],
       })} />
-      <ConfigRow icon="rollup" label={tx('Property')} value={tps?.name ?? (targetPropId === 'title' && target ? target.schema.title?.name ?? 'Name' : 'Select')} disabled={!rel} tooltip={rel ? undefined : 'Choose a link first.'} onClick={(e) => target && menu(e, {
+      <ConfigRow icon="rollup" label={tx('Property')} value={tps?.name ?? (targetPropId === 'title' && target ? target.schema.title?.name ?? 'Name' : 'Select')} disabled={!rel} tooltip={rel ? undefined : tx('Choose a link first.')} onClick={(e) => target && menu(e, {
         width: 280, search: 'Find a field…',
         
         sections: [{ items: Object.entries(target.schema).map(([id, p]) => ({ label: p.name, icon: propertyIconFor(p.type), checked: id === targetPropId, disabled: p.type === 'rollup' && id !== targetPropId, onSelect: () => set({ target_property: id, target_property_type: p.type, aggregation: 'show_original' }) })) }],
       })} />
-      <ConfigRow icon="formula" label={tx('Calculate')} value={aggregationLabel(spec)} disabled={!rel || !targetPropId} tooltip={rel && targetPropId ? undefined : 'Choose a link and field first.'} onClick={(e) => menu(e, {
+      <ConfigRow icon="formula" label={tx('Calculate')} value={aggregationLabel(spec)} disabled={!rel || !targetPropId} tooltip={rel && targetPropId ? undefined : tx('Choose a link and field first.')} onClick={(e) => menu(e, {
         width: 200,
         sections: [{ items: calculateMenu(tps?.type ?? (targetPropId === 'title' ? 'title' : undefined), spec, (s) => set({ aggregation: s as unknown as string }), tps?.type === 'status' ? (tps.groups ?? []).map((g) => g.name) : undefined) }],
       })} />

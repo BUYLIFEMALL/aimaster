@@ -1,3 +1,4 @@
+import { tx } from '../../shell/i18n.ts';
 export type ConnectionType = 'mcp_server' | 'ai_connector' | 'link_preview' | 'automation_action';
 export interface ConnectionCard { name: string; litpage: boolean; desc: string; action: 'Connect' | 'Request' }
 export interface ConnectionCategory { key: string; title: string; cards: ConnectionCard[] }
@@ -5,7 +6,7 @@ export interface ConnectionOption { key: string; title: string }
 
 export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
   {
-    key: 'featured', title: 'Recommended connections',
+    key: 'featured', title: tx('Recommended connections'),
     cards: [
       { name: 'Google Drive', litpage: true, desc: 'Browse shared files and bring documents into your Workspace pages.', action: 'Connect' },
       { name: 'Slack', litpage: true, desc: 'Search conversations and send selected updates to a Slack channel.', action: 'Connect' },
@@ -13,7 +14,7 @@ export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
     ],
   },
   {
-    key: 'communication', title: 'Communication',
+    key: 'communication', title: tx('Communication'),
     cards: [
       { name: 'Gmail', litpage: false, desc: 'Find messages and draft replies from your Gmail account.', action: 'Connect' },
       { name: 'Microsoft Teams', litpage: false, desc: 'Search team chats and channels when you need conversation context.', action: 'Connect' },
@@ -21,7 +22,7 @@ export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
     ],
   },
   {
-    key: 'projects', title: 'Projects and tasks',
+    key: 'projects', title: tx('Projects and tasks'),
     cards: [
       { name: 'Linear', litpage: true, desc: 'Search issues and projects while planning work in Workspace.', action: 'Connect' },
       { name: 'Asana', litpage: false, desc: 'Review tasks and project updates alongside your workspace notes.', action: 'Connect' },
@@ -29,7 +30,7 @@ export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
     ],
   },
   {
-    key: 'files', title: 'Files and automation',
+    key: 'files', title: tx('Files and automation'),
     cards: [
       { name: 'Dropbox', litpage: false, desc: 'Search and open files from shared Dropbox folders.', action: 'Connect' },
       { name: 'Zapier', litpage: false, desc: 'Trigger Workspace workflows from events in the services you use.', action: 'Connect' },
@@ -40,8 +41,8 @@ export const CONNECTION_CATEGORIES: ConnectionCategory[] = [
 
 export const CATEGORY_OPTIONS: ConnectionOption[] = CONNECTION_CATEGORIES.map(({ key, title }) => ({ key, title }));
 export const TYPE_OPTIONS: ConnectionOption[] = [
-  { key: 'mcp_server', title: 'MCP server' },
-  { key: 'ai_connector', title: 'AI connector' },
-  { key: 'link_preview', title: 'Link preview' },
-  { key: 'automation_action', title: 'Automation action' },
+  { key: 'mcp_server', title: tx('MCP server') },
+  { key: 'ai_connector', title: tx('AI connector') },
+  { key: 'link_preview', title: tx('Link preview') },
+  { key: 'automation_action', title: tx('Automation action') },
 ];

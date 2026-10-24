@@ -67,7 +67,7 @@ export async function runAutofillNow(collectionId: string, propId: string, view?
   let ids = rowsFor(collectionId, view);
   if (opts.onlyEmpty) ids = ids.filter((id) => !((records.get<any>('block', id)?.properties?.[propId] ?? []) as unknown[]).length);
   if (!ids.length) {
-    useUI.getState().toast('No pages are ready for autofill');
+    useUI.getState().toast(tx('No pages are ready for autofill'));
     return;
   }
   useUI.getState().toast(`Autofilling ${ids.length} ${ids.length === 1 ? 'page' : 'pages'}…`);
@@ -90,7 +90,7 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
   const kinds = textLike ? KINDS : KINDS.filter((k) => k.id === 'custom' || k.id === 'keywords');
   const save = (andRun: boolean) => {
     if (kind === 'custom' && !prompt.trim()) {
-      useUI.getState().toast('Add instructions for the custom autofill.');
+      useUI.getState().toast(tx('Add instructions for the custom autofill.'));
       return;
     }
     const cfg: AutofillConfig = { kind, auto_update: auto, ...(prompt.trim() ? { prompt: prompt.trim() } : {}), ...(kind === 'translation' ? { language } : {}) };
@@ -128,7 +128,7 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
           value={prompt}
           rows={3}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder={kind === 'custom' ? 'Describe what to generate. Use ‘@’ for people, pages, or dates' : 'e.g. Keep it under 20 words'}
+          placeholder={kind === 'custom' ? tx('Describe what to generate. Use ‘@’ for people, pages, or dates') : 'e.g. Keep it under 20 words'}
           aria-label={tx('Instructions')}
         />
       </label>
@@ -138,7 +138,7 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
       </div>
       <div className="nc-ai-autofill-actions">
         {cur && (
-          <button type="button" className="nc-btn danger" onClick={() => { updateProperty(collectionId, propId, { ai_autofill: undefined } as Partial<PropertySchema>, 'aiAutofill.delete'); close(); useUI.getState().toast('Autofill removed'); }}>
+          <button type="button" className="nc-btn danger" onClick={() => { updateProperty(collectionId, propId, { ai_autofill: undefined } as Partial<PropertySchema>, 'aiAutofill.delete'); close(); useUI.getState().toast(tx('Autofill removed')); }}>
             Delete autofill
           </button>
         )}
@@ -166,7 +166,7 @@ export function autofillMenuItems(collectionId: string, propId: string, view?: C
   const cfg = autofillConfigOf(prop);
   const items: MenuItemDef[] = [{
     id: 'basic', label: tx('Basic'), icon: 'magicWand',
-    description: ok ? 'Uses a fast model to fill properties based on info in the current row.' : 'Unavailable for this property type',
+    description: ok ? tx('Uses a fast model to fill properties based on info in the current row.') : tx('Unavailable for this property type'),
     disabled: !ok,
     right: cfg ? <span className="nc-menu-value">{tx('On')}</span> : undefined,
     onSelect: () => { if (ok) setTimeout(() => openAutofillConfig(anchor ?? { x: window.innerWidth / 2 - 180, y: 120 }, collectionId, propId, view), 0); },
@@ -180,8 +180,8 @@ export function createAutofillProperty(collectionId: string, preset: 'sum' | 'tr
   const c = col(collectionId);
   if (!c) return '';
   const cfg: AutofillConfig = preset === 'sum'
-    ? { kind: 'summary', auto_update: true, prompt: option === 'Bullets' ? 'Write the summary as 3 short bullet points.' : option === 'One-liner' ? 'Write a one-line summary.' : 'Write the summary as one short paragraph.'}
-    : { kind: 'translation', auto_update: true, language: option === 'Chinese Simplified' ? 'Chinese, Simplified' : option === 'Chinese Traditional' ? 'Chinese, Traditional' : option };
+    ? { kind: 'summary', auto_update: true, prompt: option === 'Bullets' ? tx('Write the summary as 3 short bullet points.') : option === 'One-liner' ? tx('Write a one-line summary.') : tx('Write the summary as one short paragraph.')}
+    : { kind: 'translation', auto_update: true, language: option === 'Chinese Simplified' ? tx('Chinese, Simplified') : option === 'Chinese Traditional' ? tx('Chinese, Traditional') : option };
   const name = preset === 'sum' ? 'Summary' : `Translation (${option})`;
   const pid = addProperty(collectionId, 'text' as PropertyType, { name, view: view ?? undefined, ...pos, extra: { ai_autofill: cfg } as Partial<PropertySchema>, action: 'aiAutofill.create' });
   if (pid) setTimeout(() => void runAutofillNow(collectionId, pid, view), 80);
@@ -197,7 +197,7 @@ export function openToolbarAutofillMenu(anchor: HTMLElement, collectionId: strin
     id: pid,
     label: p.name,
     icon: 'magicWandSparkle',
-    description: `${KINDS.find((k) => k.id === autofillConfigOf(p)!.kind)?.label ?? 'Custom autofill'}${autofillConfigOf(p)!.auto_update ? ' · When the page changes' : ''}`,
+    description: `${KINDS.find((k) => k.id === autofillConfigOf(p)!.kind)?.label ?? tx('Custom autofill')}${autofillConfigOf(p)!.auto_update ? ' · When the page changes' : ''}`,
     submenu: () => ({
       width: 260,
       sections: [{ items: [

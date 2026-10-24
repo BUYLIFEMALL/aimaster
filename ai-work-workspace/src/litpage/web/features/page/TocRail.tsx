@@ -102,7 +102,7 @@ export function TableOfContentsRail({ pageId, scroller }: { pageId: string; scro
                   style={{ paddingInlineStart: 10 + 12 * level(h.type) }}
                   onClick={() => go(h.id)}
                 >
-                  {toPlainText(h.properties?.title) || 'Untitled'}
+                  {toPlainText(h.properties?.title) || tx('Untitled')}
                 </div>
               ))}
               </div>

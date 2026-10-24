@@ -7,6 +7,7 @@ import { records } from '../../../lib/store/records.ts';
 import { useSession } from '../../../lib/store/session.ts';
 import { ancestorsOf } from '../../../lib/blocks.ts';
 import { pageTitle } from '../../page/pageActions.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export interface PageHits {
   ids: string[];
@@ -45,7 +46,7 @@ export function usePageSearch(q: string, opts?: { limit?: number; exclude?: stri
 
 /** “Parent / … / Grandparent” breadcrumb shown under a page result. */
 export function breadcrumbOf(pageId: string): string {
-  const anc = ancestorsOf(pageId).map((b: BlockRecord) => pageTitle(b) || 'Untitled');
+  const anc = ancestorsOf(pageId).map((b: BlockRecord) => pageTitle(b) || tx('Untitled'));
   if (!anc.length) return '';
   if (anc.length <= 2) return anc.join(' / ');
   return `${anc[0]} / … / ${anc[anc.length - 1]}`;

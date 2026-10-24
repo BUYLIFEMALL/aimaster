@@ -677,7 +677,7 @@ export function PublicPagesSection() {
           {tile('site', t('lp.settings.published_sites', 'Published sites'), of('site'), t('lp.settings.no_sites_published', 'No sites published'))}
           {tile('form', t('lp.settings.public_forms', 'Public forms'), of('form'), t('lp.settings.no_public_forms_yet', 'No public forms yet'))}
           {tile('link', t('lp.settings.anyone_who_has_the_link', 'Anyone who has the link'), of('link'), t('lp.settings.no_links_shared_publicly', 'No links shared publicly'))}
-          {tile('chats', t('lp.settings.ai_chats_shared', 'AI chats shared'), (sharedChats ?? []).map((c) => ({ blockId: c.id, kind: 'link' as const, title: c.title || 'Untitled chat' })), t('lp.settings.no_chats_are_shared', 'No chats are shared'))}
+          {tile('chats', t('lp.settings.ai_chats_shared', 'AI chats shared'), (sharedChats ?? []).map((c) => ({ blockId: c.id, kind: 'link' as const, title: c.title || tx('Untitled chat') })), t('lp.settings.no_chats_are_shared', 'No chats are shared'))}
         </div>
         {open === 'chats' && sharedChats && sharedChats.length > 0 && <SharedChatsTable chats={sharedChats} onClose={closeSettings} />}
         {open && open !== 'chats' && rows.length > 0 && (

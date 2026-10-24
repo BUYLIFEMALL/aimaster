@@ -160,7 +160,7 @@ export function DatabaseShareSection({ page, canManage }: { page: BlockRecord | 
         return (
           <div key={r.id} className="nc-share-row nc-perm-rule" data-rule={r.id}>
             <div className="nc-share-ga-icon"><PropertyIcon prop={prop} size={18} /></div>
-            <div className="who"><div className="name nc-ellipsis">Anyone in {prop?.name ?? 'Untitled property'}</div></div>
+            <div className="who"><div className="name nc-ellipsis">Anyone in {prop?.name ?? tx('Untitled property')}</div></div>
             <div role="button" className={`nc-share-role ${canManage ? '' : 'disabled'}`} onClick={(e) => canManage && roleMenu(e.currentTarget, r)}>
               <span>{RULE_ROLE_LABEL[r.role] ?? r.role}</span>
               <Icon name="chevronDown" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />

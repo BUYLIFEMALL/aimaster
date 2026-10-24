@@ -47,16 +47,16 @@ function iconHtml(name: string): string {
 function chipFor(tok: FormulaToken, schema: Record<string, PropertySchema>, custom?: CustomFormula): ChipInfo {
   if (tok.type === 'context') {
     const item = custom?.contextItems.find((c) => c.key === tok.key);
-    return { label: item?.label ?? custom?.contextLabel?.(tok.key) ?? 'Unknown value', icon: item?.icon ?? 'formula' };
+    return { label: item?.label ?? custom?.contextLabel?.(tok.key) ?? tx('Unknown value'), icon: item?.icon ?? 'formula' };
   }
   if (tok.type === 'block_property') {
     const own = schema[tok.property];
     const other = tok.collection ? records.get<CollectionRecord>('collection', tok.collection.id)?.schema?.[tok.property] : undefined;
     const p = other ?? own;
-    if (!p) return { label: tok.property === 'title' ? 'Name' : 'Unknown property', icon: 'textProp' };
+    if (!p) return { label: tok.property === 'title' ? 'Name' : tx('Unknown property'), icon: 'textProp' };
     return { label: p.name, icon: propertyIconFor(p.type) };
   }
-  if (tok.type === 'block') return { label: titleOf(records.get<BlockRecord>('block', tok.blockId)) || 'Untitled', icon: 'page' };
+  if (tok.type === 'block') return { label: titleOf(records.get<BlockRecord>('block', tok.blockId)) || tx('Untitled'), icon: 'page' };
   if (tok.type === 'person') return { label: records.get('lit_user', tok.userId)?.name ?? 'Unknown', icon: 'person' };
   if (tok.type === 'checkbox') return { label: tok.checked ? 'Checked' : 'Unchecked', icon: 'checkboxChecked' };
   return { label: tok.date.start_date, icon: 'date' };
@@ -137,7 +137,7 @@ function DocPanel({ item }: { item: CompletionItem | null }) {
   let description = '';
   let examples: { input: string; output: string | null }[] = [];
   if (item.kind === 'property' && item.prop) {
-    description = PROPERTY_DESCRIPTIONS[item.prop.type] ?? 'Database property.';
+    description = PROPERTY_DESCRIPTIONS[item.prop.type] ?? tx('Database property.');
     examples = propertyExamples(item.prop).map((input) => ({ input, output: null }));
   } else if (item.kind === 'function') {
     const d = FUNCTION_DOCS[item.label];
@@ -150,7 +150,7 @@ function DocPanel({ item }: { item: CompletionItem | null }) {
   } else if (item.kind === 'context') {
     description = item.description ?? '';
   } else if (item.kind === 'variable') {
-    description = item.label === 'current' ? 'Value of the current item in the list.' : item.label === 'index' ? 'Position of the current item in the list, starting at 0.' : 'Variable defined by the user.';
+    description = item.label === 'current' ? tx('Value of the current item in the list.') : item.label === 'index' ? tx('Position of the current item in the list, starting at 0.') : tx('Variable defined by the user.');
   }
   if (item.kind === 'function') title = <>{item.label}<span className="nc-fx-paren">()</span></>;
   return (
@@ -247,7 +247,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
     const ctxItems: CompletionItem[] = caretCtx.mode === 'operand'
       ? custom.contextItems.filter((c) => !ql || c.label.toLowerCase().includes(ql)).map((c) => ({ kind: 'context', key: `ctx:${c.key}`, label: c.label, section: 'From this workflow', icon: c.icon, insert: encodeToken({ type: 'context', key: c.key }), description: c.description }))
       : [];
-    const props = base.filter((i) => i.kind === 'property').map((i) => ({ ...i, section: custom.contextLabel?.('page') ?? 'Trigger page', insert: custom.propertyInsert?.(i.propId!) }));
+    const props = base.filter((i) => i.kind === 'property').map((i) => ({ ...i, section: custom.contextLabel?.('page') ?? tx('Trigger page'), insert: custom.propertyInsert?.(i.propId!) }));
     return [...ctxItems, ...props, ...base.filter((i) => i.kind !== 'property')];
   }, [caretCtx, schema, propertyId, custom]);
   useEffect(() => setActive(0), [caretCtx.prefix, caretCtx.mode]);
@@ -366,7 +366,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
       search: 'Search',
       width: 280,
       sections: [{
-        items: rowsOfCollection(collectionId).map((r) => ({ id: r.id, label: titleOf(r) || 'Untitled', icon: 'page', checked: r.id === previewId, onSelect: () => setPreviewId(r.id) })),
+        items: rowsOfCollection(collectionId).map((r) => ({ id: r.id, label: titleOf(r) || tx('Untitled'), icon: 'page', checked: r.id === previewId, onSelect: () => setPreviewId(r.id) })),
       }],
       emptyText: tx('No results'),
     });
@@ -389,7 +389,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
   return (
     <div className="nc-fx-dialog" role="dialog" aria-label={tx('Edit formula')} onMouseDown={(e) => e.stopPropagation()}>
       <div className="nc-fx-head">
-        <div className="nc-fx-title">{custom?.title ?? 'Edit formula'}</div>
+        <div className="nc-fx-title">{custom?.title ?? tx('Edit formula')}</div>
         {HELP_URL && (<a className="nc-fx-help" role="link" aria-label={tx('Explore formula help')} href={HELP_URL} target="_blank" rel="noopener noreferrer"><Icon name="questionMark" size={16} /></a>)}
         <div style={{ flex: 1 }} />
         {dirty && <div role="button" className="nc-fx-discard" title={tx('Restores the formula from when this editor opened.')} onClick={() => { setSrc(state.original); setCaretState(state.original.length); }}>{tx('Drop all edits')}</div>}
@@ -455,7 +455,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
             <span className="nc-fx-label">{tx('Preview with')}</span>
             <div role="button" className="nc-fx-preview-page" aria-haspopup="dialog" onClick={previewMenu}>
               <Icon name="page" size={14} color="var(--lp-icon-secondary)" />
-              <span className="nc-fx-preview-title">{row ? titleOf(row) || 'Untitled' : 'Select a page'}</span>
+              <span className="nc-fx-preview-title">{row ? titleOf(row) || tx('Untitled') : tx('Select a page')}</span>
               <Icon name="chevronDown" size={12} color="var(--lp-icon-secondary)" />
             </div>
           </div>

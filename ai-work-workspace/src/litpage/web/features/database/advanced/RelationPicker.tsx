@@ -67,7 +67,7 @@ function PageRow({ page, selected, active, onClick, onRemove, target, shown = []
   return (
     <div role="button" className={`nc-relpick-row ${active ? 'active' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={onClick}>
       <span className="nc-relpick-icon">{icon && !/^(https?:|\/)/.test(icon) && !icon.includes(':') ? icon : <Icon name="page" size={18} color="var(--lp-icon-secondary)" />}</span>
-      <span className="nc-relpick-title">{titleOf(page) || 'Untitled'}</span>
+      <span className="nc-relpick-title">{titleOf(page) || tx('Untitled')}</span>
       {target && <ShownValues page={page} target={target} shown={shown} />}
       {selected && onRemove && (
         <span role="button" className="nc-relpick-remove" aria-label={tx('Remove')} onClick={(e) => { e.stopPropagation(); onRemove(); }}><Icon name="dashLong" size={14} /></span>

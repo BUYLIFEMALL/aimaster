@@ -18,7 +18,7 @@ export function SourceRow({ block: blockIn, view, collection, readOnly, allowLin
   const { owned, linked } = blockSources(block);
   const choices = [...owned, ...linked].filter((c) => view.type !== 'form' || c.parent_id === block.id);
   const enabled = !readOnly && (choices.length > 1 || !!allowLink) && view.type !== 'form';
-  const name = sourceName(collection) || 'Untitled';
+  const name = sourceName(collection) || tx('Untitled');
   if (!enabled) return <Row icon="pathRoundEnds" label={tx('Source')} value={name} chevron={false} disabled />;
   const current = sourceIdOfView(view, block);
   return (
@@ -32,7 +32,7 @@ export function SourceRow({ block: blockIn, view, collection, readOnly, allowLin
         openMenu(anchor, {
           width: 260,
           sections: [
-            { title: tx('Data sources'), items: choices.map((c) => ({ id: c.id, label: sourceName(c) || 'Untitled', icon: 'collection', checked: c.id === current, onSelect: () => setViewSource(view, records.get<BlockRecord>('block', block.id) ?? block, c) })) },
+            { title: tx('Data sources'), items: choices.map((c) => ({ id: c.id, label: sourceName(c) || tx('Untitled'), icon: 'collection', checked: c.id === current, onSelect: () => setViewSource(view, records.get<BlockRecord>('block', block.id) ?? block, c) })) },
             { items: [{ id: 'link', label: tx('Link an existing dataset'), icon: <Icon name="arrowDiagonalUpRight" size={16} />, onSelect: () => {
               setTimeout(() => openLinkedSourcePicker(anchor, {
                 skipViewStep: true,

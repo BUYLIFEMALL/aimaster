@@ -3,11 +3,12 @@
 // ("Unlock this table to adjust its layout.").
 import { useUI } from '../../../lib/store/ui.ts';
 import { collectionAccess } from '../access.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export function openLayoutBuilder(collectionId: string) {
   const access = collectionAccess(collectionId);
   if (access.locked) {
-    useUI.getState().toast('Unlock this table to adjust its layout.');
+    useUI.getState().toast(tx('Unlock this table to adjust its layout.'));
     return;
   }
   if (!access.canEditStructure) return;

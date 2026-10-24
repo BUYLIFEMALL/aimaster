@@ -21,6 +21,7 @@ import { useEditor } from './editorState.ts';
 import { titleOf } from './commands.ts';
 import { commitText } from './textHandlers.ts';
 import { formatDateValue } from './inline/dates.ts';
+import { tx } from '../shell/i18n.ts';
 
 export const BLOCKS_MIME = 'application/x-nc-blocks';
 
@@ -122,7 +123,7 @@ function codeLanguage(lang: string): string {
     rb: 'Ruby', ruby: 'Ruby', php: 'PHP', swift: 'Swift', kotlin: 'Kotlin', yaml: 'YAML', yml: 'YAML', md: 'Markdown', markdown: 'Markdown', mermaid: 'Mermaid',
     jsx: 'JavaScript', tsx: 'TypeScript', xml: 'XML', diff: 'Diff', docker: 'Docker', dockerfile: 'Docker', graphql: 'GraphQL', scala: 'Scala',
   };
-  return map[l] ?? (lang ? lang : 'Plain Text');
+  return map[l] ?? (lang ? lang : tx('Plain Text'));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -300,7 +301,7 @@ function atomText(a: Annotation): string {
   switch (a[0]) {
     case 'p': {
       const b = records.get<BlockRecord>('block', a[1] as string);
-      return toPlainText(b?.properties?.title) || 'Untitled';
+      return toPlainText(b?.properties?.title) || tx('Untitled');
     }
     case 'u': {
       const u = records.get<any>('lit_user', a[1] as string);
@@ -309,7 +310,7 @@ function atomText(a: Annotation): string {
     case 'g': {
       const space = records.get<any>('space', (a[2] as string | undefined) ?? '');
       const g = ((space?.settings?.groups ?? []) as { id: string; name?: string }[]).find((x) => x.id === a[1]);
-      return `@${g?.name || 'Deleted group'}`;
+      return `@${g?.name || tx('Deleted group')}`;
     }
     case 'd':
       return `@${formatDateValue(a[1] as DateValue)}`;
@@ -522,9 +523,9 @@ function offerPasteAndSync(srcIds: string[], pastedIds: string[]) {
       const close = openMenu(new DOMRect(r.left, r.bottom, 0, 0), {
         width: 240,
  initialActive: -1, // nothing highlighted: Enter / typing go on as usual until an action is picked
-        sections: [{ title: 'Suggested actions', items: [
-          { label: 'Paste and mirror', icon: 'blockSync', onSelect: () => pasteAndSync(srcIds, pastedIds) },
-          { label: 'Dismiss', icon: 'close', onSelect: () => undefined },
+        sections: [{ title: tx('Suggested actions'), items: [
+          { label: tx('Paste and mirror'), icon: 'blockSync', onSelect: () => pasteAndSync(srcIds, pastedIds) },
+          { label: tx('Dismiss'), icon: 'close', onSelect: () => undefined },
         ] }],
       }, { placement: 'bottom-start', offset: 4, backdrop: 'none', onClose: () => off() });
       const onDown = (e: Event) => { if (!(e.target as HTMLElement | null)?.closest?.('.lit-overlay-container')) close(); };

@@ -36,10 +36,10 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
   const n = name.trim().toLowerCase().replace(/\s+/g, '-');
   const taken = getCustomEmojis(spaceId).some((e) => e.name === n);
   const nameErr = !n ? '' : n.length >= 50
-    ? 'Name must be under 50 characters'
+    ? tx('Name must be under 50 characters')
     : !NAME_RE.test(n)
-      ? 'Use lowercase letters, numbers, hyphens, or underscores only'
-      : taken ? 'That name is already in use' : '';
+      ? tx('Use lowercase letters, numbers, hyphens, or underscores only')
+      : taken ? tx('That name is already in use') : '';
 
   const takeFile = async (f: File | Blob | null | undefined, fileName = 'emoji.png') => {
     if (!f) return;
@@ -55,7 +55,7 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
       if (!name) setName(suggestName((f as File).name ?? fileName));
       setStep('name');
     } catch (e: any) {
-      setErr(e?.message ?? 'Emoji save failed. Try again.');
+      setErr(e?.message ?? tx('Emoji save failed. Try again.'));
     } finally {
       setBusy(false);
     }
@@ -114,7 +114,7 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
       close();
       if (res?.emoji) onAdded?.(res.emoji);
     } catch (e: any) {
-      setErr(e?.message ?? 'Emoji save failed. Try again.');
+      setErr(e?.message ?? tx('Emoji save failed. Try again.'));
       setBusy(false);
     }
   };

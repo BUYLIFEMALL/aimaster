@@ -57,7 +57,7 @@ export function filterValueText(leaf: PropertyFilterLeaf, prop: PropertySchema |
       const u = records.get<UserRecord>('lit_user', String(v.value));
       return u?.name || u?.email || 'Unknown';
     }
-    if (prop?.type === 'relation') return toPlainText(records.get<BlockRecord>('block', String(v.value))?.properties?.title) || 'Untitled';
+    if (prop?.type === 'relation') return toPlainText(records.get<BlockRecord>('block', String(v.value))?.properties?.title) || tx('Untitled');
     if (prop?.type === 'checkbox' || leaf.filter.operator.startsWith('checkbox')) return v.value === true || v.value === 'true' ? 'Checked' : 'Unchecked';
     const raw = v.value;
     if (raw && typeof raw === 'object' && raw.start_date) return raw.end_date ? `${formatDay(ymdToMs(raw.start_date), 'MMM DD, YYYY')} → ${formatDay(ymdToMs(raw.end_date), 'MMM DD, YYYY')}` : formatDay(ymdToMs(raw.start_date), 'MMM DD, YYYY');
@@ -201,7 +201,7 @@ function RelationValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
         {pages.map((p) => (
           <div key={p.id} role="option" className="nc-filter-option" onClick={() => { const next = has(p.id) ? vals.filter((v) => v.value !== p.id) : [...vals, { type: 'exact' as const, value: p.id }]; onChange(next.length ? next : undefined); }}>
             <span className={`nc-prop-checkbox ${has(p.id) ? 'checked' : ''}`}>{has(p.id) && <Icon name="checkmarkSmall" size={12} strokeWidth={2.6} />}</span>
-            <span>{toPlainText(p.properties?.title) || 'Untitled'}{p.is_template && <span className="nc-filter-option-badge"> {tx('Template')}</span>}</span>
+            <span>{toPlainText(p.properties?.title) || tx('Untitled')}{p.is_template && <span className="nc-filter-option-badge"> {tx('Template')}</span>}</span>
           </div>
         ))}
         {!pages.length && <div className="nc-select-editor-empty">{tx('No results')}</div>}
@@ -645,9 +645,9 @@ export function sortDirectionLabel(prop: PropertySchema | undefined, dir: 'ascen
   const asc = dir === 'ascending';
   if (!t) return asc ? 'Ascending' : 'Descending';
   if (['title', 'text', 'url', 'email', 'phone_number'].includes(t)) return asc ? 'A → Z' : 'Z → A';
-  if (['number', 'auto_increment_id'].includes(t)) return asc ? 'Low → high' : 'High → low';
-  if (['date', 'created_time', 'last_edited_time', 'last_visited_time'].includes(t)) return asc ? 'Old → new' : 'New → old';
-  if (t === 'checkbox') return asc ? 'Unchecked → checked' : 'Checked → unchecked';
+  if (['number', 'auto_increment_id'].includes(t)) return asc ? tx('Low → high') : tx('High → low');
+  if (['date', 'created_time', 'last_edited_time', 'last_visited_time'].includes(t)) return asc ? tx('Old → new') : tx('New → old');
+  if (t === 'checkbox') return asc ? tx('Unchecked → checked') : tx('Checked → unchecked');
   return asc ? 'Ascending' : 'Descending';
 }
 

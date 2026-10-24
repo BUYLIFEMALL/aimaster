@@ -30,7 +30,7 @@ function pathOf(c: CollectionRecord): string {
   let cur: BlockRecord | undefined = host.parent_table === 'block' ? records.get<BlockRecord>('block', host.parent_id) : undefined;
   const parts: string[] = [];
   for (let i = 0; i < 3 && cur; i++) {
-    if (cur.type === 'page' || cur.type === 'collection_view_page') parts.unshift(titleOf(cur) || 'Untitled');
+    if (cur.type === 'page' || cur.type === 'collection_view_page') parts.unshift(titleOf(cur) || tx('Untitled'));
     cur = cur.parent_table === 'block' ? records.get<BlockRecord>('block', cur.parent_id) : undefined;
   }
   return parts.join(' / ');
@@ -56,7 +56,7 @@ function useDataSources(query: string): DataSourceItem[] {
           setRemote((res.results ?? []).map((r) => {
             const id = r.collectionId ?? r.id ?? '';
             const c = records.get<CollectionRecord>('collection', id);
-            return { id, name: r.name || (c ? collectionName(c) : 'Untitled'), path: c ? pathOf(c) : '' };
+            return { id, name: r.name || (c ? collectionName(c) : tx('Untitled')), path: c ? pathOf(c) : '' };
           }).filter((r) => r.id));
         })
         .catch(() => undefined);
@@ -150,7 +150,7 @@ function NewRelation({ collectionId, targetId, view, afterPropId, close, onCreat
         <div role="menuitem" className="nc-rel-row" onClick={onBack}>
           <Icon name="collectionArrow" size={18} color="var(--lp-icon-primary)" />
           <span className="label">{tx('Related to')}</span>
-          <span className="value"><Icon name="databaseEmbed" size={14} color="var(--lp-icon-tertiary)" /><span className="v">{self ? 'This data source' : target ? collectionName(target) : ''}</span><Icon name="chevronRight" size={14} /></span>
+          <span className="value"><Icon name="databaseEmbed" size={14} color="var(--lp-icon-tertiary)" /><span className="v">{self ? tx('This data source') : target ? collectionName(target) : ''}</span><Icon name="chevronRight" size={14} /></span>
         </div>
         <div role="menuitem" className="nc-rel-row" onClick={(e) => LimitMenu(e.currentTarget, limit, setLimit)}>
           <Icon name="numberProp" size={18} color="var(--lp-icon-primary)" />
@@ -159,7 +159,7 @@ function NewRelation({ collectionId, targetId, view, afterPropId, close, onCreat
         </div>
         <div role="menuitemcheckbox" aria-checked={twoWay} className="nc-rel-row" onClick={() => setTwoWay(!twoWay)}>
           <Icon name="fullWidth" size={18} color="var(--lp-icon-primary)" />
-          <span className="label">{tx('Bidirectional link')} <span data-tooltip={self ? 'Creates a second property in this data source that shows the reverse relation.' : `Show this relation on ${target ? collectionName(target) : 'the related data source'}.`} style={{ color: 'var(--lp-icon-tertiary)', verticalAlign: 'middle', display: 'inline-flex' }}><Icon name="questionMark" size={14} /></span></span>
+          <span className="label">{tx('Bidirectional link')} <span data-tooltip={self ? tx('Creates a second property in this data source that shows the reverse relation.') : `Show this relation on ${target ? collectionName(target) : 'the related data source'}.`} style={{ color: 'var(--lp-icon-tertiary)', verticalAlign: 'middle', display: 'inline-flex' }}><Icon name="questionMark" size={14} /></span></span>
           <span className={`nc-adv-toggle ${twoWay ? 'on' : ''}`}><span /></span>
         </div>
       </div>

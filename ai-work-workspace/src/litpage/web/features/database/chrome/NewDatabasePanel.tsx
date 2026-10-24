@@ -147,7 +147,7 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
               useUI.getState().toast(`Imported ${res.rows} rows`);
               onClose();
             } catch (err) {
-              useUI.getState().toast(err instanceof Error ? err.message : 'Import failed');
+              useUI.getState().toast(err instanceof Error ? err.message : tx('Import failed'));
             }
           }} />
         </div>

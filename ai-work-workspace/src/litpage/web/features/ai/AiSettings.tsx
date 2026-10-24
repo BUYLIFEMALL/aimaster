@@ -43,7 +43,7 @@ function ModelControls({ space, admin }: { space: SpaceRecord; admin: boolean })
     const cur = allowed.length ? allowed : models.map((m) => m.id);
     const next = v ? [...new Set([...cur, id])] : cur.filter((x) => x !== id);
     if (!next.length) {
-      useUI.getState().toast('Keep at least one model enabled before turning this off.');
+      useUI.getState().toast(tx('Keep at least one model enabled before turning this off.'));
       return;
     }
     saveSpaceSettings(space.id, { ai_allowed_models: next.length === models.length ? [] : next });
@@ -76,7 +76,7 @@ function Usage({ spaceId }: { spaceId: string }) {
   const [data, setData] = useState<{ members: UsageRow[]; totals: { chats: number; messages: number; edits: number } } | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    void api('aiUsage', { spaceId }).then(setData).catch((e) => setError((e as Error)?.message ?? 'Usage couldn’t be loaded'));
+    void api('aiUsage', { spaceId }).then(setData).catch((e) => setError((e as Error)?.message ?? tx('Usage couldn’t be loaded')));
   }, [spaceId]);
   return (
     <Group plain title="AI 비서 usage in your workspace" description="Chats, messages and agent edits by member over the last 30 days.">
@@ -216,7 +216,7 @@ export function AiWorkspaceControls() {
       <Group plain title={tx('My MCP connections')} description="Remote MCP servers AI 비서 can use in your chats (+ → Connections).">
         {conns.list.map((c) => <ConnectionRow key={c.id} c={c} />)}
         <div>
-          <Button icon="plusSmall" disabled={!conns.customMcp} title={conns.customMcp ? undefined : 'External MCP endpoints are off in this workspace. Ask an owner to enable them.'} onClick={() => void openMcpConnectDialog()}>{tx('Add Connections')}</Button>
+          <Button icon="plusSmall" disabled={!conns.customMcp} title={conns.customMcp ? undefined : tx('External MCP endpoints are off in this workspace. Ask an owner to enable them.')} onClick={() => void openMcpConnectDialog()}>{tx('Add Connections')}</Button>
           {owner && (
             <Button variant="danger" onClick={async () => {
               if (!(await confirmDialog({ title: tx('Disconnect all custom MCP servers?'), description: tx('Every member’s custom MCP connections in this workspace will be removed.'), confirmLabel: 'Disconnect all', danger: true }))) return;
@@ -267,7 +267,7 @@ export function LitMcpAccess() {
       setName('');
       void load();
     } catch (e) {
-      useUI.getState().toast((e as Error)?.message || 'Couldn’t create a token');
+      useUI.getState().toast((e as Error)?.message || tx('Couldn’t create a token'));
     }
   };
   const revoke = async (t: TokenInfo) => {
@@ -278,7 +278,7 @@ export function LitMcpAccess() {
   return (
     <div className="nc-ai-set" data-testid="lit-mcp-access">
       <Group plain title={tx('Connect with an access token')} description="Any MCP client can use this workspace through the Workspace MCP server with a personal access token. Tools act as you, with your permissions.">
-        <Row label={tx('Server URL')} description={<code className="nc-ai-set-code">{serverUrl}</code>} control={<Button small onClick={() => { void navigator.clipboard?.writeText(serverUrl).catch(() => {}); useUI.getState().toast('Copied'); }}>{tx('Copy')}</Button>} />
+        <Row label={tx('Server URL')} description={<code className="nc-ai-set-code">{serverUrl}</code>} control={<Button small onClick={() => { void navigator.clipboard?.writeText(serverUrl).catch(() => {}); useUI.getState().toast(tx('Copied')); }}>{tx('Copy')}</Button>} />
         {owner && (
           <Row
             id="lit-mcp-enabled"
@@ -292,7 +292,7 @@ export function LitMcpAccess() {
             <div>{tx('Copy your token now — it won’t be shown again.')}</div>
             <code className="nc-ai-set-code" data-testid="mcp-token-value">{fresh}</code>
             <div className="nc-ai-set-snippet">{`Authorization: Bearer ${fresh.slice(0, 12)}…`}</div>
-            <Button small onClick={() => { void navigator.clipboard?.writeText(fresh).catch(() => {}); useUI.getState().toast('Copied'); }}>{tx('Copy token')}</Button>
+            <Button small onClick={() => { void navigator.clipboard?.writeText(fresh).catch(() => {}); useUI.getState().toast(tx('Copied')); }}>{tx('Copy token')}</Button>
           </div>
         )}
         <div className="nc-ai-set-token-new">
@@ -367,10 +367,10 @@ export function SharedChatsTable({ chats, onClose }: { chats: SharedChat[]; onCl
       <tbody>
         {chats.map((c) => (
           <tr key={c.id}>
-            <td><span className="nc-ai-set-chatlink" role="link" onClick={() => { onClose?.(); navigate(chatUrl(c.id)); }}><Icon name="chatBubble" size={14} /> {c.title || 'Untitled chat'}</span></td>
+            <td><span className="nc-ai-set-chatlink" role="link" onClick={() => { onClose?.(); navigate(chatUrl(c.id)); }}><Icon name="chatBubble" size={14} /> {c.title || tx('Untitled chat')}</span></td>
             <td>{c.ownerName}</td>
             <td>{fmtTime(c.updatedTime)}</td>
-            <td>{c.ownerId === useSession.getState().userId && <Button small onClick={() => void shareChat(c.id, false).then(() => useUI.getState().toast('Stopped sharing'), (e) => useUI.getState().toast((e as Error)?.message || 'Couldn’t stop sharing'))}>{tx('Stop sharing')}</Button>}</td>
+            <td>{c.ownerId === useSession.getState().userId && <Button small onClick={() => void shareChat(c.id, false).then(() => useUI.getState().toast(tx('Stopped sharing')), (e) => useUI.getState().toast((e as Error)?.message || tx('Couldn’t stop sharing')))}>{tx('Stop sharing')}</Button>}</td>
           </tr>
         ))}
       </tbody>

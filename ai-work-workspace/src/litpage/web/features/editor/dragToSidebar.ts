@@ -7,6 +7,7 @@ import { records } from '../../lib/store/records.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { pageTitle } from '../page/pageActions.ts';
 import { useEditor } from './editorState.ts';
+import { tx } from '../shell/i18n.ts';
 
 let lit: HTMLElement | null = null;
 
@@ -59,5 +60,5 @@ export function moveBlocksToPage(ids: string[], pageId: string) {
     for (const id of ids) if (getBlock(id)?.type === 'collection_view') tx.update('block', id, [], { type: 'collection_view_page' });
   });
   useEditor.getState().clearBlockSelection();
-  useUI.getState().toast(`Moved to ${pageTitle(p) || 'New page'}`);
+  useUI.getState().toast(`Moved to ${pageTitle(p) || tx('New page')}`);
 }

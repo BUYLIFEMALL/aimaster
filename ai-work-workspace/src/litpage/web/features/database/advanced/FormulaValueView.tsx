@@ -9,6 +9,7 @@ import { openPeek } from '../../../lib/router.ts';
 import { Icon } from '../../../components/Icon.tsx';
 import { userTimeZone } from './context.ts';
 import { colorToken } from '../../../lib/colorToken.ts';
+import { tx } from '../../shell/i18n.ts';
 
 function runStyle(anns: Annotation[]): { className: string; style: React.CSSProperties; href?: string } {
   const cls: string[] = [];
@@ -35,7 +36,7 @@ function runStyle(anns: Annotation[]): { className: string; style: React.CSSProp
 
 function pageTitle(id: string): string {
   const b = records.get<BlockRecord>('block', id);
-  return (b?.properties?.title ?? []).map((d) => d[0]).join('') || 'Untitled';
+  return (b?.properties?.title ?? []).map((d) => d[0]).join('') || tx('Untitled');
 }
 
 function userName(id: string): string {

@@ -52,7 +52,7 @@ function confirmPopup(step: Extract<AutomationAction, { type: 'confirm' }>, anch
     openOverlay((close) => (
       <PopoverSurface width={260}>
         <div className="nc-auto-confirm" role="alertdialog" aria-label={tx('Confirmation')}>
-          <div>{step.message || 'Continue with this action?'}</div>
+          <div>{step.message || tx('Continue with this action?')}</div>
           <div className="nc-auto-confirm-btns">
             <button className="nc-btn primary" autoFocus onClick={() => { answered = true; close(); resolve(true); }}>{step.continue_label || 'Continue'}</button>
             <button className="nc-btn outline" onClick={() => { answered = true; close(); resolve(false); }}>{step.cancel_label || 'Cancel'}</button>
@@ -99,7 +99,7 @@ function openTarget(step: Extract<AutomationAction, { type: 'open' }>, planner: 
 export async function runButtonSteps(r: ButtonRun): Promise<void> {
   const toast = (m: string, action?: { label: string; run: () => void }) => useUI.getState().toast(m, action);
   if (!r.steps.length) {
-    toast('This button has nothing to run');
+    toast(tx('This button has nothing to run'));
     return;
   }
   const issues = validateSteps(r.steps, { type: 'button' }, lookups(r.surface, r.collectionId));
@@ -147,7 +147,7 @@ export async function runButtonSteps(r: ButtonRun): Promise<void> {
         case 'notify': case 'webhook': serverSteps.push(step.id); break;
         case 'open': later.push(() => openTarget(step, planner, r)); break;
         case 'agent': later.push(() => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId: r.page?.id, prompt: step.message } }))); break;
-        default: throw new AutomationError(step.type === 'mail' ? 'Connect a Gmail account to send mail' : 'Slack notification needs authentication.');
+        default: throw new AutomationError(step.type === 'mail' ? tx('Connect a Gmail account to send mail') : tx('Slack notification needs authentication.'));
       }
     }
   } catch (e) {
@@ -158,12 +158,12 @@ export async function runButtonSteps(r: ButtonRun): Promise<void> {
   flush();
   if (planner.templates.length || serverSteps.length) {
     const saved = await afterSave();
-    if (!saved) { toast('The button could not run'); return; }
+    if (!saved) { toast(tx('The button could not run')); return; }
   }
   for (const t of planner.templates) {
     await api<{ recordMap?: any }>('applyDatabaseTemplate', { rowId: t.rowId, templateId: t.templateId, override: true })
       .then((res) => records.mergeRecordMap(res?.recordMap))
-      .catch(() => toast('The add-page template is invalid'));
+      .catch(() => toast(tx('The add-page template is invalid')));
   }
   if (serverSteps.length) {
     const source = r.surface === 'button_block' ? { blockId: r.block?.id } : { rowId: r.page?.id, propertyId: r.propertyId };
@@ -180,7 +180,7 @@ export async function runButtonSteps(r: ButtonRun): Promise<void> {
   const edited = planner.edited.size;
   if (created === 1 && planner.created[0]) {
     const id = planner.created[0];
-    toast('Created 1 page', { label: tx('Open'), run: () => openPeek(id, 'side_peek') });
+    toast(tx('Created 1 page'), { label: tx('Open'), run: () => openPeek(id, 'side_peek') });
   } else if (created > 1) toast(`Created ${created} pages`, { label: tx('Undo'), run: () => transactions.undo() });
   else if (edited > 0 && r.surface === 'button_block' ? edited > 0 && !r.steps.some((s) => s.type === 'insert_blocks') : edited > 0) {
     toast(`Edited ${edited} ${edited === 1 ? 'page' : 'pages'}`, { label: tx('Undo'), run: () => transactions.undo() });

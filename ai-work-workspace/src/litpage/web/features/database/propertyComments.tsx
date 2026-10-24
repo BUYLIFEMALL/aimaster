@@ -11,6 +11,7 @@ import { useRole, useTableVersion } from '../../lib/hooks.ts';
 import { records } from '../../lib/store/records.ts';
 import { CommentComposer, addComment, openDiscussionPopover } from '../comments/comments.tsx';
 import { propertyAccessFor } from './access.ts';
+import { tx } from '../shell/i18n.ts';
 
 /** Open (unresolved) discussions on `propId` of `page`. */
 export function propertyDiscussions(page: BlockRecord, propId: string): DiscussionRecord[] {
@@ -38,7 +39,7 @@ export function PropertyCommentButton({ page, col, propId }: { page: BlockRecord
   if (!count && !roleAtLeast(role, 'comment_only')) return null;
   // a value hidden from this person (Property access) takes no comments from them: its threads aren't theirs to see
   if (!propertyAccessFor(col.id, propId, page).canSeeValues) return null;
-  const label = count > 0 ? 'Open discussion' : 'Comment';
+  const label = count > 0 ? tx('Open discussion') : 'Comment';
   return (
     <span
       role="button"

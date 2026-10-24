@@ -79,12 +79,12 @@ export function SprintSettingsBody({ collection, view, readOnly, closePanel }: {
       </Section>
       <Section divider>
         <Row label={tx('Manage this layout’s sprint')} chevron={false} disabled={readOnly || (view.format as Record<string, unknown>)?.sprint_view === 'current'} onClick={async () => {
-          const ok = await confirmDialog({ message: 'Manage this layout’s sprint?', description: s.automated ? 'The layout will be updated with filters for the current sprint.' : 'The layout will be updated with filters for the current sprint and a button to complete sprints will be displayed.', confirmLabel: 'Update view', danger: false });
+          const ok = await confirmDialog({ message: 'Manage this layout’s sprint?', description: s.automated ? tx('The layout will be updated with filters for the current sprint.') : tx('The layout will be updated with filters for the current sprint and a button to complete sprints will be displayed.'), confirmLabel: 'Update view', danger: false });
           if (ok) manageSprintFromView(view, c);
         }} />
         {HELP_URL && <Row icon="questionMarkCircle" label={tx('Explore sprints')} chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
         <Row icon="trash" label={tx('Disable sprints')} chevron={false} disabled={readOnly} testid="turn-off-sprints" onClick={async () => {
-          const ok = await confirmDialog({ message: 'Disable sprints?', description: 'This removes your sprint board(s), sprint table, and linked layouts.', confirmLabel: 'Disable and remove' });
+          const ok = await confirmDialog({ message: 'Disable sprints?', description: tx('This removes your sprint board(s), sprint table, and linked layouts.'), confirmLabel: 'Disable and remove' });
           if (ok) {
             turnOffSprints(c);
             closePanel();
@@ -139,7 +139,7 @@ function CompleteSprintModal({ tasksId, close }: { tasksId: string; close: () =>
       )}
       <div className="nc-sprint-modal-row">
         <div className="nc-sprint-modal-label">{tx('Dates for the next sprint')}</div>
-        <div className="nc-sprint-modal-dates">{nextDates ? `${fmtDate(nextDates.start)} → ${fmtDate(nextDates.end)}` : 'Select dates'}</div>
+        <div className="nc-sprint-modal-dates">{nextDates ? `${fmtDate(nextDates.start)} → ${fmtDate(nextDates.end)}` : tx('Select dates')}</div>
       </div>
       <div className="nc-sprint-modal-foot">
         <div role="button" className="nc-btn outline" onClick={close}>{tx('Cancel')}</div>

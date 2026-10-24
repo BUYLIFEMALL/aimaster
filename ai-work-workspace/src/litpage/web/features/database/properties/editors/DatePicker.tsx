@@ -208,7 +208,7 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
     }, { placement: 'right-start', backdrop: 'transparent' });
   };
 
-  const fmtLabel = DATE_FORMATS.find((f) => f.id === (df ?? 'll'))?.label ?? 'Full date';
+  const fmtLabel = DATE_FORMATS.find((f) => f.id === (df ?? 'll'))?.label ?? tx('Full date');
   const tfLabel = TIME_FORMATS.find((f) => f.id === timeFormatId(tf))?.label ?? '12 hour';
   return (
     <div className="nc-date-picker">

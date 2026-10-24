@@ -10,7 +10,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { openMenu } from '../../components/Menu.tsx';
-import { getLocale, LOCALES, setLocale, t } from '../shell/i18n.ts';
+import { getLocale, LOCALES, setLocale, t, tx } from '../shell/i18n.ts';
 import koCatalog from '../shell/i18n.ko-KR.json';
 import { AddAccountBar } from '../shell/accounts.tsx';
 import { signInWithPasskey } from '../settings/passkeys.tsx';
@@ -72,7 +72,7 @@ export function openLanguageMenu(anchor: HTMLElement) {
 
 function currentLanguageName() {
   const cur = getLocale();
-  return LANGUAGE_OPTIONS.find((l) => l.id === cur)?.native ?? 'English (US)';
+  return LANGUAGE_OPTIONS.find((l) => l.id === cur)?.native ?? tx('English (US)');
 }
 
 function openHelpMenu(anchor: HTMLElement) {

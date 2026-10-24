@@ -19,7 +19,7 @@ import { pageTitle } from '../../page/pageActions.ts';
 import { addComment, CommentComposer, resolveDiscussion, RichTextView } from '../../comments/comments.tsx';
 import { useRecord } from '../../../lib/hooks.ts';
 import { PersonHover } from '../../presence/PersonHoverCard.tsx';
-import { getLocale, t } from '../i18n.ts';
+import { getLocale, t, tx } from '../i18n.ts';
 import { decideAccessRequest } from '../access/access.ts';
 import { actorsOf, type FeedItem } from './grouping.ts';
 
@@ -42,7 +42,7 @@ export function rich(id: string, def: string, parts: Record<string, ReactNode>, 
 export function itemDate(ts: number): string {
   const ko = getLocale() === 'ko-KR';
   const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return ko ? '방금' : 'Just now';
+  if (s < 60) return ko ? '방금' : tx('Just now');
   const m = Math.floor(s / 60);
   if (m < 60) return ko ? `${m}분 전` : `${m}m ago`;
   const d = new Date(ts);

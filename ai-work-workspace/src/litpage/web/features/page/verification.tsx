@@ -88,7 +88,7 @@ async function verify(pageId: string, expiry: number | null) {
     records.mergeRecordMap(res.recordMap);
     useUI.getState().toast(expiry ? `Verified until ${fmtDate(expiry)}` : t('lp.page.verified', 'Verified'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not verify this page');
+    useUI.getState().toast(e?.message ?? tx('Could not verify this page'));
   }
 }
 
@@ -96,9 +96,9 @@ export async function removeVerification(pageId: string) {
   try {
     const res = await api<{ recordMap: any }>('setPageVerification', { pageId, verified: false });
     records.mergeRecordMap(res.recordMap);
-    useUI.getState().toast('Verification removed');
+    useUI.getState().toast(tx('Verification removed'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not remove verification');
+    useUI.getState().toast(e?.message ?? tx('Could not remove verification'));
   }
 }
 
@@ -112,7 +112,7 @@ function endOfDay(d: Date): number {
 export function openVerifyMenu(anchor: Anchor, pageId: string, opts: { reverify?: boolean } = {}) {
   const access = verifyAccess(pageId);
   if (!access.ok) {
-    useUI.getState().toast(access.reason ?? 'You can’t verify this page');
+    useUI.getState().toast(access.reason ?? tx('You can’t verify this page'));
     return;
   }
   const items: MenuItemDef[] = VERIFICATION_PRESETS.map((days) => {
@@ -220,7 +220,7 @@ function VerificationPopover({ pageId, close, readOnly }: { pageId: string; clos
       const res = await api<{ recordMap: any }>('setPageOwners', { pageId, owners: ids });
       records.mergeRecordMap(res.recordMap);
     } catch (e: any) {
-      useUI.getState().toast(e?.message ?? 'Could not change owners');
+      useUI.getState().toast(e?.message ?? tx('Could not change owners'));
     }
   };
   const addOwner = (anchor: HTMLElement) => {

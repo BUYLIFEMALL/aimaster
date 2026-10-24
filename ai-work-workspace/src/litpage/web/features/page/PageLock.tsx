@@ -9,7 +9,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { run, setFormat } from '../../lib/blocks.ts';
 import { useBlock, useRecord, useRole } from '../../lib/hooks.ts';
 import { userName } from '../presence/Avatar.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 
 export const useLockOverride = create<{ unlocked: Record<string, boolean>; set: (pageId: string, v: boolean) => void }>((set, get) => ({
   unlocked: {},
@@ -44,7 +44,7 @@ export function PageLockIndicator({ pageId }: { pageId: string }) {
       className="nc-crumb nc-lock-indicator"
       aria-label={t('lp.page.locked', 'Locked')}
       data-tooltip={`Locked by ${userName(locker)} to prevent accidental editing.`}
-      data-tooltip-sub={canUnlock ? 'Click to unlock' : undefined}
+      data-tooltip-sub={canUnlock ? tx('Click to unlock') : undefined}
       onClick={(e) => canUnlock && openMenu(e.currentTarget, {
         width: 220,
         // a locked database is enforced by the server (views/properties), so there is no "Unlock for me" for it

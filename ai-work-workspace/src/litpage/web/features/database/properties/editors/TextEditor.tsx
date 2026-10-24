@@ -95,7 +95,7 @@ function PlainCellEditor({ rowIds, prop, propId, close, minWidth, minHeight }: {
         className="nc-cell-editor-input"
         value={text}
         inputMode={prop.type === 'number' ? 'decimal' : prop.type === 'phone_number' ? 'tel' : undefined}
-        placeholder={prop.type === 'url' ? 'Type or paste in a link…' : prop.type === 'email' ? 'Enter an email…' : prop.type === 'phone_number' ? 'Type a phone number…' : prop.type === 'number' ? '' : ''}
+        placeholder={prop.type === 'url' ? tx('Type or paste in a link…') : prop.type === 'email' ? tx('Enter an email…') : prop.type === 'phone_number' ? tx('Type a phone number…') : prop.type === 'number' ? '' : ''}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.nativeEvent.isComposing) return;
@@ -106,7 +106,7 @@ function PlainCellEditor({ rowIds, prop, propId, close, minWidth, minHeight }: {
         }}
       />
       {isLink && text.trim() && (
-        <a className="nc-cell-editor-open" href={href} target="_blank" rel="noreferrer" data-tooltip={prop.type === 'email' ? 'Send email' : prop.type === 'phone_number' ? tx('Call') : tx('Open link')}>
+        <a className="nc-cell-editor-open" href={href} target="_blank" rel="noreferrer" data-tooltip={prop.type === 'email' ? tx('Send email') : prop.type === 'phone_number' ? tx('Call') : tx('Open link')}>
           <Icon name={prop.type === 'email' ? 'mail' : prop.type === 'phone_number' ? 'phone' : 'arrowDiagonalUpRightSmall'} size={14} />
         </a>
       )}

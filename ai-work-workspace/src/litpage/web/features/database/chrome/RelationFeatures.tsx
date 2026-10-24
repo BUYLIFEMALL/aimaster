@@ -124,12 +124,12 @@ const SCOPE_LABEL: Record<SubitemFilterScope, string> = { parents: 'Parents only
 function subitemsPreview(mode: SubitemDisplayMode, scope: SubitemFilterScope, nested: boolean): string {
   if (mode === 'disabled') return 'Every item is treated as top-level.';
   if (mode === 'flattened') {
-    return scope === 'parents' ? 'Matching parents appear with a count of nested items.'
-      : scope === 'subitems' ? 'Only matching nested items appear.' : 'Matching parents and nested items appear together.';
+    return scope === 'parents' ? tx('Matching parents appear with a count of nested items.')
+      : scope === 'subitems' ? tx('Only matching nested items appear.') : tx('Matching parents and nested items appear together.');
   }
   if (!nested) return 'Matching parents appear with nested items on each card.';
-  return scope === 'parents' ? 'Any parents that match the filters will display up, with their sub-items nested.'
-    : scope === 'subitems' ? 'Only parents with matching nested items appear.' : 'All matching parents and nested items appear.';
+  return scope === 'parents' ? tx('Any parents that match the filters will display up, with their sub-items nested.')
+    : scope === 'subitems' ? tx('Only parents with matching nested items appear.') : tx('All matching parents and nested items appear.');
 }
 
 export function SubitemsPage({ ctx, view: v0, collection: c0, go, close }: PageProps) {
@@ -155,7 +155,7 @@ export function SubitemsPage({ ctx, view: v0, collection: c0, go, close }: PageP
   const settings = subitemSettingsOf(view, c);
   const mode: SubitemDisplayMode = (f.subitem_display_mode as SubitemDisplayMode | undefined) ?? (view.type === 'chart' ? 'flattened' : 'show');
   const scope: SubitemFilterScope = settings?.scope ?? 'parents';
-  const showLabel = nested ? 'Nested under a toggle' : 'Card property';
+  const showLabel = nested ? tx('Nested under a toggle') : tx('Card property');
   const scopes: SubitemFilterScope[] = mode === 'show' && !nested ? ['parents'] : ['parents', 'parents_and_subitems', 'subitems'];
   return (
     <>

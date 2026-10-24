@@ -33,7 +33,7 @@ function PagePicker({ placeholder, exclude, onPick, close }: PagePickerOpts & { 
         <div className="nc-input focused">
           <input
             autoFocus
-            placeholder={placeholder ?? 'Find a page…'}
+            placeholder={placeholder ?? tx('Find a page…')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => {
@@ -55,7 +55,7 @@ function PagePicker({ placeholder, exclude, onPick, close }: PagePickerOpts & { 
                 <div className="nc-menu-item-inner">
                   <div className="nc-menu-icon"><PageIcon block={b} size={20} /></div>
                   <div className="nc-menu-label">
-                    <div className="nc-ellipsis">{pageTitle(b) || 'New page'}</div>
+                    <div className="nc-ellipsis">{pageTitle(b) || tx('New page')}</div>
                     {crumb && <div className="nc-menu-desc nc-ellipsis">{crumb}</div>}
                   </div>
                 </div>

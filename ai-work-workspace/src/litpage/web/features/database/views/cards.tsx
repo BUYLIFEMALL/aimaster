@@ -174,7 +174,7 @@ export function CardBody({ row, view, collection, props, showTitle, readOnly, ed
               }}
             />
           ) : (
-            <div className={`nc-card-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : 'Untitled'}</div>
+            <div className={`nc-card-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : tx('Untitled')}</div>
           )}
         </div>
       )}

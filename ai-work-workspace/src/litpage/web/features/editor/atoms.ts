@@ -17,6 +17,7 @@ import { setAtomRenderer } from './richTextDom.ts';
 import { formatDateValue, reminderTime } from './inline/dates.ts';
 import { getCustomEmojis } from '../settings/customEmoji.ts';
 import { TEMPLATE_ME } from '#shared/automation/templateVars.ts';
+import { tx } from '../shell/i18n.ts';
 
 export function formatDateMention(v: DateValue): string {
   return formatDateValue(v);
@@ -119,10 +120,10 @@ function renderBlockMention(b: BlockRecord): HTMLElement {
   a.appendChild(iconSpan(page?.format?.page_icon as string | undefined, false));
   const t = document.createElement('span');
   t.className = 'lit-page-mention-token__title';
-  const text = blockMentionText(b) || 'Untitled';
+  const text = blockMentionText(b) || tx('Untitled');
   const loc = getLocation();
   const here = (loc.route.name === 'page' && loc.route.pageId === pageId) || loc.peek?.pageId === pageId;
-  const pageTitle = (page?.properties?.title ?? []).map((d: any) => (d[0] === '‣' ? '' : d[0])).join('') || 'New page';
+  const pageTitle = (page?.properties?.title ?? []).map((d: any) => (d[0] === '‣' ? '' : d[0])).join('') || tx('New page');
   t.textContent = here ? text : `${pageTitle} - ${text}`;
   a.appendChild(t);
   return a;
@@ -139,7 +140,7 @@ function renderPage(pageId: string, link: boolean): HTMLElement {
   const t = document.createElement('span');
   t.className = 'lit-page-mention-token__title';
   const title = (b?.properties?.title ?? []).map((d: any) => (d[0] === '‣' ? '' : d[0])).join('');
-  t.textContent = b ? title || 'New page' : 'No access';
+  t.textContent = b ? title || tx('New page') : tx('No access');
   a.appendChild(t);
   if (b && b.alive === false) {
     const badge = document.createElement('span');
@@ -171,7 +172,7 @@ function renderGroup(groupId: string, spaceId?: string): HTMLElement {
   const g = groupOf(groupId, spaceId);
   const el = mentionShell('lit-group-mention-token');
   const inner = document.createElement('span');
-  inner.append(at(), document.createTextNode(g?.name || 'Deleted group'));
+  inner.append(at(), document.createTextNode(g?.name || tx('Deleted group')));
   el.append(document.createElement('span'), inner, document.createElement('span'));
   el.dataset.groupId = groupId;
   if (spaceId) el.dataset.spaceId = spaceId;
@@ -183,7 +184,7 @@ function renderUser(userId: string): HTMLElement {
   const el = mentionShell('lit-user-mention-token');
   const inner = document.createElement('span');
   // template variable "@Me — Person who duplicated page" (database templates, button content)
-  inner.append(at(), document.createTextNode(userId === TEMPLATE_ME ? 'Me' : u?.name || u?.email || 'Unknown user'));
+  inner.append(at(), document.createTextNode(userId === TEMPLATE_ME ? 'Me' : u?.name || u?.email || tx('Unknown user')));
   el.append(document.createElement('span'), inner, document.createElement('span'));
   el.dataset.userId = userId;
   return el;

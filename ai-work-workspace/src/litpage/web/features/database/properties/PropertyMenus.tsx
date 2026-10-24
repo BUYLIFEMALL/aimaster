@@ -186,7 +186,7 @@ function DateFlyout({ collectionId, propId, prop, timeOnly }: { collectionId: st
   const reminder = prop.default_reminder as any;
   return (
     <div className="nc-menu-section">
-      <FlyRow icon="viewCalendar" label={tx('Date format')} value={DATE_FORMATS.find((f) => f.id === df)?.label ?? 'Full date'} onClick={(e) => dropdown(e.currentTarget, DATE_FORMATS.map((f) => ({ id: f.id, label: f.label, checked: df === f.id, onSelect: () => updateProperty(collectionId, propId, { date_format: f.id }) })))} />
+      <FlyRow icon="viewCalendar" label={tx('Date format')} value={DATE_FORMATS.find((f) => f.id === df)?.label ?? tx('Full date')} onClick={(e) => dropdown(e.currentTarget, DATE_FORMATS.map((f) => ({ id: f.id, label: f.label, checked: df === f.id, onSelect: () => updateProperty(collectionId, propId, { date_format: f.id }) })))} />
       <FlyRow icon="clock" label={tx('Time format')} value={TIME_FORMATS.find((f) => f.id === timeFormatId(tf))?.label} onClick={(e) => dropdown(e.currentTarget, TIME_FORMATS.map((f) => ({ id: f.id, label: f.label, checked: timeFormatId(tf) === f.id, onSelect: () => updateProperty(collectionId, propId, { time_format: f.stored }) })))} />
       {!timeOnly && (
         <FlyRow icon="alarm" label={tx('Notifications')} value={reminderLabel(reminder, false)} onClick={(e) => dropdown(e.currentTarget, REMINDER_OPTIONS_DATE.map((o, i) => ({ id: String(i), label: reminderLabel(o as any, false), checked: JSON.stringify(o) === JSON.stringify(reminder ?? { unit: 'none' }), onSelect: () => updateProperty(collectionId, propId, { default_reminder: o.unit === 'none' ? undefined : o }) })))} />
@@ -200,7 +200,7 @@ function NumberFlyout({ collectionId, propId, prop }: { collectionId: string; pr
   const prec = (prop.number_precision as string | undefined) ?? 'precision_uncapped';
   const showAs = (prop.show_as as { type?: string; color?: string; maxValue?: number; showValue?: boolean } | undefined) ?? undefined;
   const mode = showAs?.type ?? 'number';
-  const fmtLabel = (f: (typeof NUMBER_FORMATS)[number]) => (f.currency && f.id !== 'bitcoin' ? `${f.label} (${f.currency})` : f.id === 'bitcoin' ? 'Bitcoin (BTC)' : f.id === 'number_with_commas' ? 'Number with separators' : f.label);
+  const fmtLabel = (f: (typeof NUMBER_FORMATS)[number]) => (f.currency && f.id !== 'bitcoin' ? `${f.label} (${f.currency})` : f.id === 'bitcoin' ? tx('Bitcoin (BTC)') : f.id === 'number_with_commas' ? tx('Number with separators') : f.label);
   const setShow = (patch: Record<string, unknown>) => updateProperty(collectionId, propId, { show_as: { type: mode, color: 'green', maxValue: 100, showValue: true, ...(showAs ?? {}), ...patch } });
   return (
     <>
@@ -449,7 +449,7 @@ function LimitFlyout({ collectionId, propId, prop, kind }: { collectionId: strin
             { id: 'none', label: tx('No default'), checked: prop.default !== 'created_by', onSelect: () => updateProperty(collectionId, propId, { default: undefined }) },
             { id: 'cb', label: tx('Created by'), checked: prop.default === 'created_by', onSelect: () => updateProperty(collectionId, propId, { default: 'created_by' }) },
           ])} />
-          <FlyRow icon="bell" label={tx('Notifications')} value={NOTIFY_LABEL[(prop.notification_mode as string | undefined) ?? 'users'] ?? 'Users only'} onClick={(e) => dropdown(e.currentTarget, (['users_and_groups', 'users', 'none'] as const).map((m) => ({
+          <FlyRow icon="bell" label={tx('Notifications')} value={NOTIFY_LABEL[(prop.notification_mode as string | undefined) ?? 'users'] ?? tx('Users only')} onClick={(e) => dropdown(e.currentTarget, (['users_and_groups', 'users', 'none'] as const).map((m) => ({
             id: m, label: NOTIFY_LABEL[m], checked: ((prop.notification_mode as string | undefined) ?? 'users') === m, onSelect: () => updateProperty(collectionId, propId, { notification_mode: m === 'users' ? undefined : m }),
           })))} />
         </>
@@ -466,7 +466,7 @@ function ComputedFallbackFlyout({ collectionId, propId, prop }: { collectionId: 
     const all = records.all<CollectionRecord>('collection').filter((x) => x.alive !== false);
     return (
       <div className="nc-menu-section">
-        <FlyRow icon="arrowDiagonalUpRight" label={tx('Related to')} value={target ? toPlainText(target.name as any) || 'Untitled' : 'Select'} onClick={(e) => dropdown(e.currentTarget, all.map((x) => ({ id: x.id, label: toPlainText(x.name as any) || 'Untitled', checked: x.id === target?.id, onSelect: () => updateProperty(collectionId, propId, { collection_id: x.id, collection_pointer: { id: x.id, table: 'collection', spaceId: x.space_id } }) })), { width: 280, search: 'Search datasets…' })} />
+        <FlyRow icon="arrowDiagonalUpRight" label={tx('Related to')} value={target ? toPlainText(target.name as any) || tx('Untitled') : 'Select'} onClick={(e) => dropdown(e.currentTarget, all.map((x) => ({ id: x.id, label: toPlainText(x.name as any) || tx('Untitled'), checked: x.id === target?.id, onSelect: () => updateProperty(collectionId, propId, { collection_id: x.id, collection_pointer: { id: x.id, table: 'collection', spaceId: x.space_id } }) })), { width: 280, search: 'Search datasets…' })} />
         <FlyRow icon="numbers123" label={tx('Limit')} value={prop.limit === 1 ? tx('1 page') : tx('No limit')} onClick={(e) => dropdown(e.currentTarget, [
           { id: 'none', label: tx('No limit'), checked: prop.limit !== 1, onSelect: () => updateProperty(collectionId, propId, { limit: undefined }) },
           { id: 'one', label: tx('1 page'), checked: prop.limit === 1, onSelect: () => updateProperty(collectionId, propId, { limit: 1 }) },
@@ -484,7 +484,7 @@ function ComputedFallbackFlyout({ collectionId, propId, prop }: { collectionId: 
       <div className="nc-menu-section">
         <FlyRow icon="arrowDiagonalUpRight" label={tx('Relation')} value={rel?.name ?? 'Select'} onClick={(e) => dropdown(e.currentTarget, rels.map(([id, p]) => ({ id, label: p.name, checked: id === prop.relation_property, onSelect: () => updateProperty(collectionId, propId, { relation_property: id }) })), { width: 280 })} />
         <FlyRow icon="pathRoundEnds" label={tx('Property')} value={targetProp?.name ?? 'Select'} onClick={(e) => target && dropdown(e.currentTarget, Object.entries(target.schema).map(([id, p]) => ({ id, label: p.name, checked: id === prop.target_property, onSelect: () => updateProperty(collectionId, propId, { target_property: id, target_property_type: p.type }) })), { width: 280 })} />
-        <FlyRow icon="sum" label={tx('Calculate')} value={agg === 'show_original' ? 'Show original' : AGGREGATION_LABELS[agg]?.full ?? agg} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <FlyRow icon="sum" label={tx('Calculate')} value={agg === 'show_original' ? tx('Show original') : AGGREGATION_LABELS[agg]?.full ?? agg} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 200,
           sections: [{ items: [
             { id: 'orig', label: tx('Show original'), checked: agg === 'show_original', onSelect: () => updateProperty(collectionId, propId, { aggregation: 'show_original' }) },
@@ -660,7 +660,7 @@ function PropertyNameHeader({ collectionId, propId, autoFocus }: { collectionId:
             role="button"
             className="nc-prop-desc-btn"
             aria-label={prop.description ? tx('Edit field description') : tx('Create field description')}
-            data-tooltip={prop.description ? String(prop.description) : 'Create field description'}
+            data-tooltip={prop.description ? String(prop.description) : tx('Create field description')}
             onClick={(e) => openDescriptionPopover(e.currentTarget, collectionId, propId)}
           >
             <Icon name="infoCircleFill" size={20} />
@@ -740,12 +740,12 @@ export function openPropertyHeaderMenu(anchor: HTMLElement, ctx: PropMenuContext
   }
   if (view?.type === 'table') {
     s3.push(frozenHere
-      ? { id: 'unfreeze', label: frozenIdx > 0 ? 'Unfreeze columns' : 'Unfreeze column', icon: 'pinSlash', onSelect: () => updateViewFormat(view.id, { table_frozen_column_index: -1 }) }
+      ? { id: 'unfreeze', label: frozenIdx > 0 ? tx('Unfreeze columns') : tx('Unfreeze column'), icon: 'pinSlash', onSelect: () => updateViewFormat(view.id, { table_frozen_column_index: -1 }) }
       : { id: 'freeze', label: tx('Freeze'), icon: 'dbPin', onSelect: () => updateViewFormat(view.id, { table_frozen_column_index: Math.max(0, myIdx) }) });
   }
   if (view && !isTitle) s3.push({ id: 'hide', label: tx('Hide'), icon: 'dbEyeSlash', onSelect: () => setPropertyVisible(view, c.schema, propId, false) });
   if (view && type !== 'checkbox' && type !== 'button') {
-    s3.push({ id: 'wrap', label: wrapped ? 'Unwrap content' : 'Wrap content', icon: wrapped ? 'arrowLineRight' : 'arrowUTurnDownLeft', onSelect: () => updateViewProperty(view, c.schema, propId, { wrap: !wrapped }, wrapped ? 'unwrapColumn' : 'wrapColumn') });
+    s3.push({ id: 'wrap', label: wrapped ? tx('Unwrap content') : tx('Wrap content'), icon: wrapped ? 'arrowLineRight' : 'arrowUTurnDownLeft', onSelect: () => updateViewProperty(view, c.schema, propId, { wrap: !wrapped }, wrapped ? 'unwrapColumn' : 'wrapColumn') });
   }
   if (view && type === 'status') {
     const showAs = (entry?.statusShowAs as string | undefined) ?? 'select';

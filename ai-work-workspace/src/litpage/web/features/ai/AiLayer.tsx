@@ -341,7 +341,7 @@ function PanelHeader({ threadId, title, onNew, onClose }: { threadId: string | n
   const threadTitle = useChatThreads((s) => s.threads.find((t) => t.id === threadId)?.title);
   const thread = useChatThreads((s) => s.threads.find((t) => t.id === threadId));
   const mode = useAiLayer((s) => s.panelMode);
-  const shown = threadId ? threadTitle || title || UNTITLED_CHAT : 'Fresh AI conversation';
+  const shown = threadId ? threadTitle || title || UNTITLED_CHAT : tx('Fresh AI conversation');
   const history = (anchor: HTMLElement) => void openChatHistory(anchor, { currentId: threadId, onOpen: (id) => useAiLayer.getState().setPanelThread(id), onNew });
   const switchMode = (anchor: HTMLElement) => openMenu(anchor, {
     width: 220,
@@ -355,8 +355,8 @@ function PanelHeader({ threadId, title, onNew, onClose }: { threadId: string | n
     width: 240,
     sections: [
       { items: [
-        { label: tx('Copy link'), icon: 'link', disabled: !threadId, onSelect: () => { void navigator.clipboard?.writeText(location.origin + chatUrl(threadId)).catch(() => {}); useUI.getState().toast('Link copied'); } },
-        { label: thread?.shared ? 'Copy link to shared chat' : 'Share chat', icon: 'share', disabled: !thread, onSelect: () => { if (thread) void shareChatLink(thread); } },
+        { label: tx('Copy link'), icon: 'link', disabled: !threadId, onSelect: () => { void navigator.clipboard?.writeText(location.origin + chatUrl(threadId)).catch(() => {}); useUI.getState().toast(tx('Link copied')); } },
+        { label: thread?.shared ? tx('Copy link to shared chat') : tx('Share chat'), icon: 'share', disabled: !thread, onSelect: () => { if (thread) void shareChatLink(thread); } },
         { label: thread?.pinned ? 'Unpin' : 'Pin', icon: 'pin', disabled: !thread, onSelect: () => { if (thread) void pinChat(thread.id, !thread.pinned); } },
         { label: tx('Open as a full page'), icon: 'arrowDiagonalUpRightSmall', onSelect: () => { onClose(); navigate(chatUrl(threadId)); } },
         { label: tx('Rename'), icon: 'edit', disabled: !thread, onSelect: () => { if (thread) setTimeout(() => openRenameChat(anchor, thread), 0); } },

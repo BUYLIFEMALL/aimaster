@@ -1,7 +1,7 @@
 // Date mention helpers: display formatting, including relative values, and reminder labels
 // and a small natural-language parser for the "@" menu ("tomorrow", "next friday 3pm", "10/25", "remind me …").
 import type { DateValue } from '#shared/richtext.ts';
-import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
+import { getLocale, tx } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -116,24 +116,24 @@ export function reminderTime(v: DateValue): number | null {
 export function reminderOptions(withTime: boolean): { label: string; value: DateValue['reminder'] | null }[] {
   if (!withTime) {
     return [
-      { label: 'None', value: null },
-      { label: 'On day of event (9:00 AM)', value: { unit: 'day', value: 0, time: '09:00' } },
-      { label: '1 day before (9:00 AM)', value: { unit: 'day', value: 1, time: '09:00' } },
-      { label: '2 days before (9:00 AM)', value: { unit: 'day', value: 2, time: '09:00' } },
-      { label: '1 week before (9:00 AM)', value: { unit: 'week', value: 1, time: '09:00' } },
+      { label: tx('None'), value: null },
+      { label: tx('On day of event (9:00 AM)'), value: { unit: 'day', value: 0, time: '09:00' } },
+      { label: tx('1 day before (9:00 AM)'), value: { unit: 'day', value: 1, time: '09:00' } },
+      { label: tx('2 days before (9:00 AM)'), value: { unit: 'day', value: 2, time: '09:00' } },
+      { label: tx('1 week before (9:00 AM)'), value: { unit: 'week', value: 1, time: '09:00' } },
     ];
   }
   return [
-    { label: 'None', value: null },
-    { label: 'When the event starts', value: { unit: 'minute', value: 0 } },
-    { label: '5 minutes before', value: { unit: 'minute', value: 5 } },
-    { label: '10 minutes before', value: { unit: 'minute', value: 10 } },
-    { label: '15 minutes before', value: { unit: 'minute', value: 15 } },
-    { label: '30 minutes before', value: { unit: 'minute', value: 30 } },
-    { label: '1 hour before', value: { unit: 'hour', value: 1 } },
-    { label: '2 hours before', value: { unit: 'hour', value: 2 } },
-    { label: '1 day before (9:00 AM)', value: { unit: 'day', value: 1, time: '09:00' } },
-    { label: '2 days before (9:00 AM)', value: { unit: 'day', value: 2, time: '09:00' } },
+    { label: tx('None'), value: null },
+    { label: tx('When the event starts'), value: { unit: 'minute', value: 0 } },
+    { label: tx('5 minutes before'), value: { unit: 'minute', value: 5 } },
+    { label: tx('10 minutes before'), value: { unit: 'minute', value: 10 } },
+    { label: tx('15 minutes before'), value: { unit: 'minute', value: 15 } },
+    { label: tx('30 minutes before'), value: { unit: 'minute', value: 30 } },
+    { label: tx('1 hour before'), value: { unit: 'hour', value: 1 } },
+    { label: tx('2 hours before'), value: { unit: 'hour', value: 2 } },
+    { label: tx('1 day before (9:00 AM)'), value: { unit: 'day', value: 1, time: '09:00' } },
+    { label: tx('2 days before (9:00 AM)'), value: { unit: 'day', value: 2, time: '09:00' } },
   ];
 }
 
@@ -146,12 +146,12 @@ export function reminderLabel(v: DateValue): string {
 }
 
 export const DATE_FORMATS: { label: string; value: string }[] = [
-  { label: 'Full date', value: 'full' },
-  { label: 'Short date', value: 'MMM d' },
-  { label: 'Month, day, year', value: 'MM/DD/YYYY' },
-  { label: 'Day, month, year', value: 'DD/MM/YYYY' },
-  { label: 'Year, month, day', value: 'YYYY/MM/DD' },
-  { label: 'Relative', value: 'relative' },
+  { label: tx('Full date'), value: 'full' },
+  { label: tx('Short date'), value: 'MMM d' },
+  { label: tx('Month, day, year'), value: 'MM/DD/YYYY' },
+  { label: tx('Day, month, year'), value: 'DD/MM/YYYY' },
+  { label: tx('Year, month, day'), value: 'YYYY/MM/DD' },
+  { label: tx('Relative'), value: 'relative' },
 ];
 
 export function dateFormatLabel(f: string | undefined): string {

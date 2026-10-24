@@ -79,7 +79,7 @@ function VersionHistory({ pageId, close, initial }: { pageId: string; close: () 
       setBookmarks(res.bookmarks ?? {});
       setSelected((s) => s ?? res.versions[0]?.id ?? null);
     } catch (e: any) {
-      setError(e?.status === 403 ? 'You need edit access to view version history.' : t('lp.page.couldn_t_load_version_history', 'Couldn’t load version history.'));
+      setError(e?.status === 403 ? tx('You need edit access to view version history.') : t('lp.page.couldn_t_load_version_history', 'Couldn’t load version history.'));
     }
   }, [pageId]);
 

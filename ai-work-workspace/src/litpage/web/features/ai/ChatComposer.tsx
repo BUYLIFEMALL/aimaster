@@ -187,7 +187,7 @@ function mentionToken(kind: OptionKind, id: string, title: string): HTMLElement 
   const at = document.createElement('span');
   at.className = 'nc-ai-mention-at';
   at.textContent = '@';
-  span.append(at, document.createTextNode(title || 'Untitled'));
+  span.append(at, document.createTextNode(title || tx('Untitled')));
   return span;
 }
 
@@ -232,8 +232,8 @@ interface MenuOption {
 function pageOption(id: string): MenuOption | null {
   const b = getBlock(id);
   if (!b || !b.alive) return null;
-  const path = ancestorsOf(id).map((a) => pageTitle(a) || 'Untitled').slice(-2).join(' / ');
-  return { kind: 'page', id, title: pageTitle(b) || 'Untitled', path };
+  const path = ancestorsOf(id).map((a) => pageTitle(a) || tx('Untitled')).slice(-2).join(' / ');
+  return { kind: 'page', id, title: pageTitle(b) || tx('Untitled'), path };
 }
 
 function spaceMembers(spaceId: string | null): UserRecord[] {
@@ -246,7 +246,7 @@ function spaceMembers(spaceId: string | null): UserRecord[] {
 function scopeLabel(sc: SourceScope): string {
   if (sc.kind === 'workspace') return 'Workspace';
   if (sc.kind === 'web') return 'Web';
-  if (sc.kind === 'page' || sc.kind === 'teamspace') return sc.title || 'Untitled';
+  if (sc.kind === 'page' || sc.kind === 'teamspace') return sc.title || tx('Untitled');
   return 'All sources';
 }
 
@@ -319,7 +319,7 @@ function TriggerMenu({ state, onPick, active, setActive, sections, total }: { st
 function ContextChip({ pageId, included, onToggle }: { pageId: string; included: boolean; onToggle: (v: boolean) => void }) {
   const block = useBlock(pageId);
   if (!block) return null;
-  const title = pageTitle(block) || 'Untitled';
+  const title = pageTitle(block) || tx('Untitled');
   if (!included) {
     return (
       <div role="button" className="nc-ai-context-chip ghost" data-tooltip="Add context so AI 비서 can tailor its response" onClick={() => onToggle(true)}>
@@ -570,7 +570,7 @@ export function ChatComposer(p: Props) {
     const el = inputRef.current;
     if (!el || p.streaming) return;
     if (uploading) {
-      useUI.getState().toast('Wait for the uploads to complete');
+      useUI.getState().toast(tx('Wait for the uploads to complete'));
       return;
     }
     const { text, mentions, people, teamspaces } = serialize(el);
@@ -653,7 +653,7 @@ export function ChatComposer(p: Props) {
 
   const toggleWeb = async (on: boolean) => {
     if (on && !status.policy.webSearch) {
-      useUI.getState().toast('Web browsing is disabled by your workspace admin.');
+      useUI.getState().toast(tx('Web browsing is disabled by your workspace admin.'));
       return;
     }
     if (on && readPref<string>('nc:ai:webWarned', '0') !== '1') {
@@ -684,7 +684,7 @@ export function ChatComposer(p: Props) {
             { id: 'src-litpage', label: tx('Workspace'), icon: 'aiFace', description: tx('Only pages in this workspace'), checked: scope.kind === 'workspace', onSelect: () => setScope({ kind: 'workspace' }) },
             {
               id: 'src-web', label: tx('Web'), icon: 'globe', checked: scope.kind === 'web', disabled: !status.policy.webSearch,
-              description: status.policy.webSearch ? 'Only the web' : 'Web browsing is disabled by your workspace admin.', onSelect: () => setScope({ kind: 'web' }),
+              description: status.policy.webSearch ? tx('Only the web') : tx('Web browsing is disabled by your workspace admin.'), onSelect: () => setScope({ kind: 'web' }),
             },
           ],
         },
@@ -720,7 +720,7 @@ export function ChatComposer(p: Props) {
       sectionsDef.push({
         title: tx('Context'),
         items: [{
-          id: 'current-page', label: tx('Current page'), text: 'Current page', icon: 'page', description: pageTitle(pageCtx) || 'Untitled', checked: !!p.includePage,
+          id: 'current-page', label: tx('Current page'), text: 'Current page', icon: 'page', description: pageTitle(pageCtx) || tx('Untitled'), checked: !!p.includePage,
           onSelect: () => { p.onIncludePage?.(!p.includePage); },
         }],
       });
@@ -755,7 +755,7 @@ export function ChatComposer(p: Props) {
         label: c.name,
         text: c.name,
         icon: 'aiStepPlug',
-        description: c.error ? 'Couldn’t connect' : `${c.tools.length} tool${c.tools.length === 1 ? '' : 's'}`,
+        description: c.error ? tx('Couldn’t connect') : `${c.tools.length} tool${c.tools.length === 1 ? '' : 's'}`,
         disabled: !c.enabled,
         right: <span className={`nc-ai-switch ${c.enabled && !cs.off.has(c.id) ? 'on' : ''}`} aria-hidden><span /></span>,
         onSelect: () => {
@@ -777,7 +777,7 @@ export function ChatComposer(p: Props) {
         { label: tx('Skills'), icon: 'paperBolt', submenu: skillsSub },
         {
           label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{tx('Web')} <span className="nc-menu-badge">{tx('Beta')}</span></span>, text: 'Web', icon: 'globe',
-          description: status.policy.webSearch ? 'Enables web browsing and unrestricted internet access for the agent.' : 'Web browsing is disabled by your workspace admin.',
+          description: status.policy.webSearch ? tx('Enables web browsing and unrestricted internet access for the agent.') : tx('Web browsing is disabled by your workspace admin.'),
           disabled: !status.policy.webSearch,
           right: <span className={`nc-ai-switch ${web ? 'on' : ''}`} aria-hidden><span /></span>,
           // after the menu closes (selecting a row closes every overlay, the confirm included)
@@ -839,7 +839,7 @@ export function ChatComposer(p: Props) {
   const chooseModel = (id: string) => {
     setModel(id);
     if (!p.agentChat) writePref('nc:ai:model', id);
-    if (p.threadId) void api('aiSetThreadModel', { threadId: p.threadId, model: id }).catch((e) => useUI.getState().toast((e as Error)?.message || 'Couldn’t change the model'));
+    if (p.threadId) void api('aiSetThreadModel', { threadId: p.threadId, model: id }).catch((e) => useUI.getState().toast((e as Error)?.message || tx('Couldn’t change the model')));
   };
 
   const openModelMenu = (anchor: HTMLElement) => {
@@ -903,7 +903,7 @@ export function ChatComposer(p: Props) {
     }
   };
 
-  const approvalLabel = approval === 'always_ask' ? 'Always ask' : approval === 'skip_all' ? 'No approval prompts' : 'Review risky actions';
+  const approvalLabel = approval === 'always_ask' ? tx('Always ask') : approval === 'skip_all' ? tx('No approval prompts') : tx('Review risky actions');
   const noticeText = offline ? '인터넷 연결이 끊겨 AI 비서를 쓸 수 없습니다. 다시 연결해 주세요' : status.policy.enabled === false ? '이 워크스페이스에서 AI 비서가 꺼져 있습니다' : NO_KEY_MESSAGE;
 
   return (
@@ -969,7 +969,7 @@ export function ChatComposer(p: Props) {
           role="textbox"
           aria-multiline="true"
           aria-label={p.placeholder}
-          data-placeholder={mode === 'plan' && empty ? 'Tell AI what to plan…' : p.placeholder}
+          data-placeholder={mode === 'plan' && empty ? tx('Tell AI what to plan…') : p.placeholder}
           data-empty={empty || undefined}
           spellCheck
           onInput={refresh}
@@ -1051,7 +1051,7 @@ export function ChatComposer(p: Props) {
                 aria-disabled={!hasContent || disabled || uploading}
                 data-testid="agent-chat-send-button"
                 className={`nc-ai-send ${!hasContent || disabled || uploading ? '' : 'ready'}`}
-                data-tooltip={uploading ? 'Wait for the uploads to complete' : undefined}
+                data-tooltip={uploading ? tx('Wait for the uploads to complete') : undefined}
                 onClick={() => { if (hasContent && !disabled) submit(); }}
               >
                 <Icon name="arrowUp" size={16} strokeWidth={2.2} />

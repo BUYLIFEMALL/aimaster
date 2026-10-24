@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import { parseInline, parseMarkdown, type MdNode, type Seg } from './md.ts';
 import { openSource, type SourceRef } from './aiApi.ts';
 import { AiTable } from './AiTable.tsx';
+import { tx } from '../shell/i18n.ts';
 
 function Inline({ text, sources }: { text: string; sources?: SourceRef[] }) {
   const segs = parseInline(text);
@@ -18,7 +19,7 @@ function InlineSeg({ s, sources }: { s: Seg; sources?: SourceRef[] }) {
       <span
         role={ref ? 'link' : undefined}
         className={`nc-ai-cite ${ref ? 'linked' : ''}`}
-        data-tooltip={ref ? ref.title || ref.url || 'Untitled' : undefined}
+        data-tooltip={ref ? ref.title || ref.url || tx('Untitled') : undefined}
         onClick={ref ? (e) => { e.preventDefault(); openSource(ref); } : undefined}
       >
         {s.cite}

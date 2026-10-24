@@ -95,7 +95,7 @@ function RelationSection({ propId, page, col, readOnly, structureRO, icons }: { 
         {pages.map((b) => (
           <div key={b.id} role="button" className="nc-layout-relation-row" onClick={() => openPeek(b.id, 'side_peek')}>
             <PageIcon block={b} size={18} />
-            <span className="nc-layout-relation-title nc-ellipsis">{toPlainText(b.properties?.title) || 'Untitled'}</span>
+            <span className="nc-layout-relation-title nc-ellipsis">{toPlainText(b.properties?.title) || tx('Untitled')}</span>
             {target && shown.map((sp) => <PropertyCell key={sp} row={b} schema={target.schema} propId={sp} readOnly noEdit className="nc-layout-relation-prop" />)}
           </div>
         ))}
@@ -182,7 +182,7 @@ function RelatedTab({ page, tab }: { page: BlockRecord; tab: NonNullable<PageLay
       {rows.map((r) => (
         <div key={r.id} role="link" className="nc-layout-tab-row" onClick={() => openPeek(r.id, 'side_peek')}>
           <PageIcon block={r} size={16} fallback="page" />
-          <span className="nc-layout-tab-row-title">{toPlainText(r.properties?.title) || 'Untitled'}</span>
+          <span className="nc-layout-tab-row-title">{toPlainText(r.properties?.title) || tx('Untitled')}</span>
         </div>
       ))}
       {!rows.length && <div className="nc-layout-tab-empty">{tx('No related pages')}</div>}

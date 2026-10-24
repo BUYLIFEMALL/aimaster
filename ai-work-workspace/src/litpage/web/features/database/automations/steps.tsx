@@ -87,7 +87,7 @@ export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; c
     const disabled = type === 'mail' || type === 'slack' || (type === 'webhook' && (props.webhooksAllowed === false || webhookCount >= LIMITS.webhookActions));
     items.push({
       id: type, label: meta.label, icon: meta.icon, badge: type === 'mail' ? 'New' : undefined, disabled,
-      description: type === 'mail' ? 'Connect a Gmail account to send mail' : type === 'slack' ? 'Connect Slack to use this action' : type === 'webhook' && props.webhooksAllowed === false ? 'This feature is disabled in your workspace' : type === 'webhook' && webhookCount >= LIMITS.webhookActions ? `Up to ${LIMITS.webhookActions} webhook actions` : undefined,
+      description: type === 'mail' ? tx('Connect a Gmail account to send mail') : type === 'slack' ? tx('Connect Slack to use this action') : type === 'webhook' && props.webhooksAllowed === false ? tx('This feature is disabled in your workspace') : type === 'webhook' && webhookCount >= LIMITS.webhookActions ? `Up to ${LIMITS.webhookActions} webhook actions` : undefined,
       onSelect: () => props.onPick(newStep(type, { collectionId: props.collectionId })),
     });
   }
@@ -136,7 +136,7 @@ function DataSourcePill({ collectionId, onPick, readOnly, extra, label }: { coll
   return (
     <Pill title={tx('Choose a dataset')} placeholder={!col && !label} disabled={readOnly} onClick={(e) => openDataSourcePicker(e.currentTarget, { current: collectionId, extra, onPick })}>
       {col ? <PageIcon block={records.get<BlockRecord>('block', col.parent_id)} size={16} /> : null}
-      <span>{label ?? (col ? collectionName(col) : 'Choose a dataset')}</span>
+      <span>{label ?? (col ? collectionName(col) : tx('Choose a dataset'))}</span>
     </Pill>
   );
 }
@@ -157,10 +157,10 @@ function EditRows({ c, collectionId, edits, onChange, readOnly, addLabel }: { c:
         const textual = prop && ['title', 'text', 'url', 'email', 'phone_number', 'number'].includes(prop.type) && e.op === 'set';
         return (
           <div key={`${e.property}-${i}`} className="nc-auto-row">
-            <div className="nc-auto-row-label">{prop ? <PropertyIcon prop={prop} size={16} /> : <Icon name="warning" size={16} />}<span>{prop?.name ?? 'Deleted property'}</span></div>
+            <div className="nc-auto-row-label">{prop ? <PropertyIcon prop={prop} size={16} /> : <Icon name="warning" size={16} />}<span>{prop?.name ?? tx('Deleted property')}</span></div>
             <div className="nc-auto-row-value">
               {textual ? (
-                <RefsField c={c} value={e.values} onChange={(v) => set(i, { ...e, values: v })} placeholder={prop.type === 'title' ? 'Untitled' : prop.type === 'number' ? tx('Number') : tx('Empty')} ariaLabel={`${prop.name} value`} multiline={prop.type === 'text'} />
+                <RefsField c={c} value={e.values} onChange={(v) => set(i, { ...e, values: v })} placeholder={prop.type === 'title' ? tx('Untitled') : prop.type === 'number' ? tx('Number') : tx('Empty')} ariaLabel={`${prop.name} value`} multiline={prop.type === 'text'} />
               ) : (
                 <span role="button" className="nc-auto-pill" style={{ height: 'auto', minHeight: 24, flexWrap: 'wrap', whiteSpace: 'normal' }} onClick={(ev) => !readOnly && prop && collectionId && openValuePicker(ev.currentTarget, { c, prop, collectionId, edit: e, onChange: (next) => set(i, next) })}>
                   <span style={{ color: 'var(--lp-text-secondary)' }}>{s.before}</span>
@@ -178,7 +178,7 @@ function EditRows({ c, collectionId, edits, onChange, readOnly, addLabel }: { c:
           width: 240, search: 'Search properties…',
           sections: [{ items: editable.map(([pid, p]) => ({ id: pid, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => onChange([...edits, defaultEditFor(pid, p)]) })) }],
         }, { placement: 'bottom-start', parent: overlayIdOf(ev.currentTarget), backdrop: 'transparent' })}>
-          <Icon name="plusSmall" size={16} />{addLabel ?? (edits.length ? 'Edit another property' : 'Edit a property')}
+          <Icon name="plusSmall" size={16} />{addLabel ?? (edits.length ? tx('Edit another property') : tx('Edit a property'))}
         </span>
       )}
     </>
@@ -281,7 +281,7 @@ function OpenTargetPicker({ c, current, onChange, close }: { c: EditorCtx; curre
         ))}
         {ids.length > 0 && <div className="nc-auto-pop-section">{tx('Pages')}</div>}
         {ids.map((id) => (
-          <div key={id} role="option" className="nc-auto-opt" onClick={() => pick({ type: 'page', page_id: id })}><PageIcon block={records.get<BlockRecord>('block', id)} size={18} /><span className="grow">{pageTitle(records.get<BlockRecord>('block', id)) || 'Untitled'}</span></div>
+          <div key={id} role="option" className="nc-auto-opt" onClick={() => pick({ type: 'page', page_id: id })}><PageIcon block={records.get<BlockRecord>('block', id)} size={18} /><span className="grow">{pageTitle(records.get<BlockRecord>('block', id)) || tx('Untitled')}</span></div>
         ))}
       </div>
     </PopoverSurface>
@@ -295,7 +295,7 @@ function openTargetMenu(anchor: HTMLElement, c: EditorCtx, current: Extract<Auto
 function openTargetLabel(t: Extract<AutomationAction, { type: 'open' }>['target'], c: EditorCtx): string {
   if (!t) return 'Choose an entry, form, or URL';
   switch (t.type) {
-    case 'page': return pageTitle(records.get<BlockRecord>('block', t.page_id)) || 'Untitled';
+    case 'page': return pageTitle(records.get<BlockRecord>('block', t.page_id)) || tx('Untitled');
     case 'url': return t.url;
     case 'step': return refLabel({ type: 'step', step: t.step }, c).label;
     case 'context': return contextLabel('page', ctxSurface(c));
@@ -336,9 +336,9 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
                 <span>as</span>
                 <Pill title={tx('Select template')} disabled={readOnly} placeholder={!tpl} onClick={(e) => openKeepMenu(e.currentTarget, { width: 260, sections: [{ title: tx('Select template'), items: [
                   { id: 'empty', label: tx('Empty'), icon: 'pageEmpty', checked: !step.template_id, onSelect: () => onChange({ ...step, template_id: null }) },
-                  ...templates.map((t) => ({ id: t.id, label: toPlainText(t.properties?.title) || 'Untitled', icon: <PageIcon block={t} size={18} />, checked: t.id === step.template_id, onSelect: () => onChange({ ...step, template_id: t.id }) })),
+                  ...templates.map((t) => ({ id: t.id, label: toPlainText(t.properties?.title) || tx('Untitled'), icon: <PageIcon block={t} size={18} />, checked: t.id === step.template_id, onSelect: () => onChange({ ...step, template_id: t.id }) })),
                 ] }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-                  <span>{tpl ? toPlainText(tpl.properties?.title) || 'Untitled' : 'Empty'}</span>
+                  <span>{tpl ? toPlainText(tpl.properties?.title) || tx('Untitled') : 'Empty'}</span>
                 </Pill>
               </>
             )}
@@ -409,7 +409,7 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
               <div className="nc-auto-row">
                 <div className="nc-auto-row-value">
                   <Pill disabled={readOnly} placeholder={!t.property} onClick={(e) => openKeepMenu(e.currentTarget, { width: 220, sections: [{ items: people.map(([pid, p]) => ({ id: pid, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: pid === t.property, onSelect: () => onChange({ ...step, target: { type: 'property', property: pid } }) })) }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-                    <span>{t.property && people.find(([pid]) => pid === t.property)?.[1].name || 'Select a property'}</span>
+                    <span>{t.property && people.find(([pid]) => pid === t.property)?.[1].name || tx('Select a property')}</span>
                   </Pill>
                 </div>
               </div>
@@ -441,7 +441,7 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
                     { items: sendable.map(([pid, p]) => ({ id: pid, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: selected.includes(pid), onSelect: () => { const next = selected.includes(pid) ? selected.filter((x) => x !== pid) : [...selected, pid]; onChange({ ...step, properties: next }); return false; } })) },
                   ],
                 }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-                  <span>{all ? 'All properties' : selected.length ? `${selected.length} ${selected.length === 1 ? 'property' : 'properties'}` : 'No properties'}</span>
+                  <span>{all ? tx('All properties') : selected.length ? `${selected.length} ${selected.length === 1 ? 'property' : 'properties'}` : 'No properties'}</span>
                   <Icon name="arrowChevronSingleDownSmall" size={14} />
                 </span>
               </>
@@ -671,7 +671,7 @@ function HeaderValueInput({ value, readOnly, onChange }: { value: string; readOn
       placeholder={tx('Value')}
       value={shown}
       readOnly={readOnly}
-      title={masked ? 'The saved value is hidden. Type to replace it.' : undefined}
+      title={masked ? tx('The saved value is hidden. Type to replace it.') : undefined}
       onFocus={(e) => { setDraft(value); if (value === WEBHOOK_SECRET_MASK) e.currentTarget.select(); }}
       onBlur={() => setDraft(null)}
       onChange={(e) => {

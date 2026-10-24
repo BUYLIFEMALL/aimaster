@@ -21,7 +21,7 @@ function emit(name: string, detail: Record<string, unknown>): boolean {
 
 function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
   const [tab, setTab] = useState<Tab>('notes');
-  const title = toPlainText(block.properties?.title) || 'Meeting notes';
+  const title = toPlainText(block.properties?.title) || tx('Meeting notes');
   const created = new Date(block.created_time || Date.now());
   const state = (block.format?.transcription_state as string | undefined) ?? 'transcription_not_started';
   return (
@@ -39,7 +39,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
             <button
               className="nc-blk-btn primary"
               onClick={() => {
-                if (!emit('nc:meeting-notes', { blockId: block.id, action: state === 'transcription_in_progress' ? 'stop' : 'start' })) toast('AI meeting notes needs the Workspace desktop app or a connected AI service.');
+                if (!emit('nc:meeting-notes', { blockId: block.id, action: state === 'transcription_in_progress' ? 'stop' : 'start' })) toast(tx('AI meeting notes needs the Workspace desktop app or a connected AI service.'));
               }}
             >
               <Icon name="mic" size={14} />
@@ -91,7 +91,7 @@ function AiBlock({ block, readOnly }: BlockProps) {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && prompt.trim() && !e.nativeEvent.isComposing) {
                   e.preventDefault();
-                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast('AI 비서 is not connected in this workspace.');
+                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast(tx('AI 비서 is not connected in this workspace.'));
                   setPrompt('');
                 }
               }}

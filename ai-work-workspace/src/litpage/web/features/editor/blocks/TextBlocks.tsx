@@ -143,7 +143,7 @@ export function EmptyToggle({ blockId, readOnly, heading, label }: { blockId: st
           useEditor.getState().requestFocus(id, 0);
         }}
       >
-        {label ?? 'Empty toggle. Click or drop blocks here.'}
+        {label ?? tx('Empty toggle. Click or drop blocks here.')}
       </div>
     </div>
   );

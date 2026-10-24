@@ -242,7 +242,7 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
       });
       close();
     } catch {
-      useUI.getState().toast('Image crop failed.');
+      useUI.getState().toast(tx('Image crop failed.'));
       setSaving(false);
     }
   };
@@ -343,7 +343,7 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
     if (isUrl) out.push({ key: 'url', label: q.trim(), sub: 'Web page link', href: normalizeUrl(q) });
     else for (const id of hits.ids) {
       const p = pageOrNull(id);
-      if (p) out.push({ key: id, label: pageTitle(p) || 'Untitled', sub: breadcrumbOf(id), pageId: id, href: pageUrl(id) });
+      if (p) out.push({ key: id, label: pageTitle(p) || tx('Untitled'), sub: breadcrumbOf(id), pageId: id, href: pageUrl(id) });
     }
     return out;
   }, [isUrl, q, hits.ids]);

@@ -5,6 +5,7 @@ import type { BlockType } from '#shared/records.ts';
 import { concat, type Annotation, type RichText } from '#shared/richtext.ts';
 import { CODE_LANGUAGES } from '../editor/blocks/codeLanguages.ts';
 import { parseInline, parseMarkdown, type MdNode, type Seg } from './md.ts';
+import { tx } from '../shell/i18n.ts';
 
 export interface SourceLike {
   n: number;
@@ -24,7 +25,7 @@ const LANG_ALIASES: Record<string, string> = {
 export function codeLanguage(lang: string): string {
   const l = lang.trim().toLowerCase();
   if (LANG_ALIASES[l]) return LANG_ALIASES[l];
-  return CODE_LANGUAGES.find((x) => x.toLowerCase() === l) ?? 'Plain Text';
+  return CODE_LANGUAGES.find((x) => x.toLowerCase() === l) ?? tx('Plain Text');
 }
 
 

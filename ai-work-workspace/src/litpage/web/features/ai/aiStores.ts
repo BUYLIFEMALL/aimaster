@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { api } from '../../lib/api.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
+import { tx } from '../shell/i18n.ts';
 
 export interface SkillInfo {
   id: string;
@@ -56,7 +57,7 @@ export const useSkills = create<SkillsState>((set, get) => ({
           set({ enabled: r.enabled, discover: r.discover, loadedFor: spaceId, error: null });
         }
       } catch (e) {
-        set({ error: (e as Error)?.message || 'Could not load skills.' });
+        set({ error: (e as Error)?.message || tx('Could not load skills.') });
       } finally {
         set({ loading: false });
         if (skillsInflight === entry) skillsInflight = null;
@@ -84,9 +85,9 @@ export async function useAsSkill(pageId: string) {
   try {
     await api('aiRegisterSkill', { pageId });
     void useSkills.getState().load(true);
-    useUI.getState().toast('Skill enabled. Your Agent can now use this skill. Type / in chat to use it.');
+    useUI.getState().toast(tx('Skill enabled. Your Agent can now use this skill. Type / in chat to use it.'));
   } catch (e) {
-    useUI.getState().toast((e as Error)?.message || 'Could not create skill');
+    useUI.getState().toast((e as Error)?.message || tx('Could not create skill'));
   }
 }
 

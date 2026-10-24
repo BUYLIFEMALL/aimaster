@@ -134,14 +134,14 @@ export function openViewMenu(anchor: HTMLElement, opts: { block: BlockRecord; vi
           { id: 'i', label: tx('Icon only'), checked: opts.display === 'icon', onSelect: () => opts.setDisplay('icon') },
         ] }] }) },
         { id: 'edit', label: tx('Edit view'), icon: 'sliders', onSelect: () => opts.onEdit() },
-        { id: 'source', label: tx('Database'), icon: 'pathRoundEnds', right: <span className="nc-menu-value">{toPlainText(opts.collection?.name as any) || 'Untitled'}</span>, disabled: true },
+        { id: 'source', label: tx('Database'), icon: 'pathRoundEnds', right: <span className="nc-menu-value">{toPlainText(opts.collection?.name as any) || tx('Untitled')}</span>, disabled: true },
       ] },
       { items: [
-        { id: 'link', label: tx('Copy link to layout'), icon: 'dbLink', onSelect: () => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('Copied link to view'); } },
+        { id: 'link', label: tx('Copy link to layout'), icon: 'dbLink', onSelect: () => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast(tx('Copied link to view')); } },
 // a sidebar section listing this view’s rows; lazy import avoids a cycle
         { id: 'sidebar', label: tx('Add layout to sidebar'), icon: 'sidebarLeft', onSelect: () => { void import('../../shell/sidebar/Customize.tsx').then((m) => m.addDatabaseViewToSidebar(block.id, view.id)); } },
         { id: 'full', label: tx('Launch as full entry'), icon: 'arrowDiagonalUpRight', onSelect: () => openPage(block.id) },
-        { id: 'title', label: showTitle ? 'Conceal dataset title' : 'Display dataset title', icon: 'eye', disabled: opts.readOnly, onSelect: () => updateViewFormat(view.id, { hide_linked_collection_name: showTitle }) },
+        { id: 'title', label: showTitle ? tx('Conceal dataset title') : tx('Display dataset title'), icon: 'eye', disabled: opts.readOnly, onSelect: () => updateViewFormat(view.id, { hide_linked_collection_name: showTitle }) },
       ] },
       ...(opts.readOnly ? [] : [{ items: [
         { id: 'dup', label: tx('Duplicate view'), icon: 'duplicate', onSelect: () => { const id = duplicateView(block, view.id); if (id) opts.onSelect(id); } },
@@ -230,7 +230,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
             aria-haspopup="dialog"
             className={`lit-collection-view-tab ${active ? 'active' : ''}`}
             data-tooltip={measuring ? undefined : v.name}
-            data-tooltip-sub={measuring ? undefined : (v.format as any)?.description || `${viewTypeMeta(v.type).label} view of ${toPlainText(collection?.name as any) || 'Untitled'}`}
+            data-tooltip-sub={measuring ? undefined : (v.format as any)?.description || `${viewTypeMeta(v.type).label} view of ${toPlainText(collection?.name as any) || tx('Untitled')}`}
             onClick={(e) => {
               if (measuring) return;
               if (active) openViewMenu(e.currentTarget, { block, view: v, collection, readOnly, onEdit: onEditView, onSelect, display, setDisplay });

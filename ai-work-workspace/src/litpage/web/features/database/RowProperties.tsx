@@ -88,7 +88,7 @@ export function openLabelMenu(anchor: HTMLElement, c: CollectionRecord, propId: 
       ] },
       { items: [{
         id: 'layout', label: tx('Customize layout'), icon: 'layout', disabled: !access.canEditStructure,
-        description: access.locked ? 'Unlock this table to adjust its layout.' : undefined,
+        description: access.locked ? tx('Unlock this table to adjust its layout.') : undefined,
         onSelect: () => openLayoutBuilder(c.id),
       }] },
     ],

@@ -220,7 +220,7 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
         setPhase(text ? 'done' : 'input');
       })
       .catch((e) => {
-        setError({ code: e?.code ?? 'error', message: e?.message ?? 'Something went wrong while loading while processing that request. Please try again later.' });
+        setError({ code: e?.code ?? 'error', message: e?.message ?? tx('Something went wrong while loading while processing that request. Please try again later.') });
         setPhase('error');
       })
       .finally(() => {
@@ -308,27 +308,27 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
   });
 
   const items: { title?: string; items: Item[] }[] = useMemo(() => {
-    if (phase === 'running') return [{ items: [{ kind: 'action', id: 'stop', label: tx('Stop'), icon: 'stop', hint: 'Esc' }] }];
+    if (phase === 'running') return [{ items: [{ kind: 'action', id: 'stop', label: tx('Stop'), icon: 'stop', hint: tx('Esc') }] }];
     if (phase === 'done') {
       const out: { title?: string; items: Item[] }[] = [{
         items: [
           { kind: 'action', id: 'accept', label: tx('Accept'), icon: 'check', hint: '↵' },
           ...(hasSelection || target.mode === 'below' ? [{ kind: 'action', id: 'below', label: tx('Insert below'), icon: 'arrowTurnUpRight' } as Item] : []),
           { kind: 'action', id: 'retry', label: tx('Try again'), icon: 'refresh' },
-          { kind: 'action', id: 'discard', label: tx('Discard'), icon: 'trash', hint: 'Esc' },
+          { kind: 'action', id: 'discard', label: tx('Discard'), icon: 'trash', hint: tx('Esc') },
         ],
       }];
       const refine: Item[] = (['longer', 'shorter', 'simplify'] as SkillId[]).map((id) => ({ kind: 'skill', id, label: SKILL[id].label, icon: SKILL[id].icon }));
       out.push({ title: tx('Edit'), items: refine.filter((i) => !query || i.label.toLowerCase().includes(query.toLowerCase())) });
       return out.filter((s) => s.items.length);
     }
-    if (phase === 'error') return [{ items: [{ kind: 'action', id: 'retry', label: tx('Try again'), icon: 'refresh' }, { kind: 'action', id: 'discard', label: tx('Discard'), icon: 'trash', hint: 'Esc' }] }];
+    if (phase === 'error') return [{ items: [{ kind: 'action', id: 'retry', label: tx('Try again'), icon: 'refresh' }, { kind: 'action', id: 'discard', label: tx('Discard'), icon: 'trash', hint: tx('Esc') }] }];
     if (pending) return [];
     if (sub) {
       const list = sub === 'tone' ? TONES : LANGUAGES;
       const q = query.trim().toLowerCase();
       return [{
-        title: sub === 'tone' ? 'Change tone' : 'Translate',
+        title: sub === 'tone' ? tx('Change tone') : 'Translate',
         items: [
           { kind: 'back', label: tx('Back'), icon: 'arrowLeft' } as Item,
           ...list.filter((v) => !q || v.toLowerCase().includes(q)).map((v): Item => ({ kind: 'option', value: v, label: v, icon: sub === 'tone' ? 'sliders' : 'translate' })),
@@ -337,7 +337,7 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
     }
     const at = /(?:^|\s)@([^@]{0,40})$/.exec(query);
     if (at) {
-      return [{ title: tx('Reference a page'), items: refHits.map((h): Item => ({ kind: 'ref', id: h.id, label: h.title || 'Untitled', icon: 'page' })) }];
+      return [{ title: tx('Reference a page'), items: refHits.map((h): Item => ({ kind: 'ref', id: h.id, label: h.title || tx('Untitled'), icon: 'page' })) }];
     }
     const q = query.trim().toLowerCase();
     const mine: Item[] = userSkills.filter((k) => !q || k.name.toLowerCase().includes(q)).map((k) => ({ kind: 'userSkill', id: k.id, label: k.name, icon: 'aiStepSkill' }));
@@ -493,10 +493,10 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
 
   if (!rect) return null;
   const placeholder = pending
-    ? SKILL[pending].topic ?? 'Tell AI what to write…'
+    ? SKILL[pending].topic ?? tx('Tell AI what to write…')
     : phase === 'done' || phase === 'error'
-      ? 'Tell AI what to do next…'
-      : hasSelection ? 'Polish with AI' : 'Ask AI a question…';
+      ? tx('Tell AI what to do next…')
+      : hasSelection ? tx('Polish with AI') : tx('Ask AI a question…');
   const showPreview = (phase === 'running' || phase === 'done' || (phase === 'error' && result)) && !!result.trim();
   const menuBelow = rect.top + 360 < window.innerHeight;
   let idx = -1;
@@ -554,7 +554,7 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
           {pending && <span className="nc-ai-writer-chip">{SKILL[pending].label}</span>}
           {refs.map((r) => (
             <span key={r.id} className="nc-ai-writer-chip ref" data-testid="ai-writer-ref">
-              @{r.title || 'Untitled'}
+              @{r.title || tx('Untitled')}
               <span role="button" aria-label={tx('Remove reference')} className="nc-ai-context-chip-x" onMouseDown={(e) => e.preventDefault()} onClick={() => setRefs((cur) => cur.filter((x) => x.id !== r.id))}><Icon name="close" size={10} /></span>
             </span>
           ))}

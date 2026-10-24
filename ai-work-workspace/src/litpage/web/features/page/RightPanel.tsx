@@ -331,7 +331,7 @@ function UpdateDiff({ pageId, item: it }: { pageId: string; item: UpdateItem }) 
             ) : p.key === 'cover' ? (
               <>{p.before ? <img className="cover" src={String(p.before)} alt="" /> : <span className="none">{tx('Empty')}</span>}<Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />{p.after ? <img className="cover" src={String(p.after)} alt="" /> : <span className="none">{tx('Empty')}</span>}</>
             ) : (
-              <><span className="removed-text">{String(p.before || 'Untitled')}</span><Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} /><span className="added-text">{String(p.after || 'Untitled')}</span></>
+              <><span className="removed-text">{String(p.before || tx('Untitled'))}</span><Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} /><span className="added-text">{String(p.after || tx('Untitled'))}</span></>
             )}
           </div>
         </div>
@@ -451,7 +451,7 @@ function Analytics({ pageId }: { pageId: string }) {
         <div role="button" className="nc-dialog-btn outline small nc-analytics-allow"
           onClick={(e) => openMenu(e.currentTarget, { width: 180, sections: [{ items: [
             { label: tx('Allow'), checked: data.showViewHistory !== false, onSelect: () => setHistory(true) },
-            { label: "Don't allow", checked: data.showViewHistory === false, onSelect: () => setHistory(false) },
+            { label: tx('Don\'t allow'), checked: data.showViewHistory === false, onSelect: () => setHistory(false) },
           ] }] }, { placement: 'bottom-end' })}>
           <span>{data.showViewHistory === false ? "Don't allow" : 'Allow'}</span>
           <Icon name="chevronDown" size={12} />

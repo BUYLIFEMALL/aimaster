@@ -72,8 +72,8 @@ function sortLabel(ms: MainSort | undefined, xProp: PropertySchema | undefined, 
   const date = !!xProp && DATE_KINDS.includes(xProp.type);
   const num = !!xProp && (xProp.type === 'number' || isNumericProperty(xProp));
   switch (ms ?? 'manual') {
-    case 'x-ascending': return date ? 'Old → New' : num ? `${name} Ascending` : `${name} A → Z`;
-    case 'x-descending': return date ? 'New → Old' : num ? `${name} Descending` : `${name} Z → A`;
+    case 'x-ascending': return date ? tx('Old → New') : num ? `${name} Ascending` : `${name} A → Z`;
+    case 'x-descending': return date ? tx('New → Old') : num ? `${name} Descending` : `${name} Z → A`;
     case 'y-ascending': return `${yName} Low → High`;
     case 'y-descending': return `${yName} High → Low`;
     default: return 'Manual';
@@ -165,7 +165,7 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
       const p = schema[id];
       out.push({
         id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: agg.property === id,
-        submenu: () => ({ width: 220, sections: [{ items: aggregationsFor(p).map((a) => ({ id: a, label: a === 'unique' ? 'Distinct values' : AGG_LABEL[a] ?? a, checked: agg.property === id && agg.aggregator === a, onSelect: () => onPick({ aggregator: a, property: id }) })) }] }),
+        submenu: () => ({ width: 220, sections: [{ items: aggregationsFor(p).map((a) => ({ id: a, label: a === 'unique' ? tx('Distinct values') : AGG_LABEL[a] ?? a, checked: agg.property === id && agg.aggregator === a, onSelect: () => onPick({ aggregator: a, property: id }) })) }] }),
       });
     }
     return out;
@@ -264,7 +264,7 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
 
   const exportChart = () => {
     const svg = document.querySelector(`[data-chart-view-id="${view.id}"] svg.nc-chart-svg`) as SVGSVGElement | null;
-    if (!svg) return useUI.getState().toast('Nothing to export');
+    if (!svg) return useUI.getState().toast(tx('Nothing to export'));
     openChartExport(svg, view.name || 'chart');
   };
 
@@ -296,7 +296,7 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
                 onSelect: () => setAgg({ aggregator: aggregationsFor(schema[id])[0], property: id }),
               })),
             ], 260, 'Search properties...')} />
-            <SettingsRow icon="ncChartCalc" label={tx('Calculate')} value={!agg.property ? 'Count all' : AGG_LABEL[String(agg.aggregator)] ?? String(agg.aggregator)} chevron={!!agg.property} disabled={ro || !agg.property} onClick={(e) => agg.property && sub(e.currentTarget, aggregationsFor(schema[agg.property]).map((a) => ({ id: a, label: a === 'unique' ? 'Distinct values' : AGG_LABEL[a] ?? a, checked: agg.aggregator === a, onSelect: () => setAgg({ aggregator: a, property: agg.property }) })))} />
+            <SettingsRow icon="ncChartCalc" label={tx('Calculate')} value={!agg.property ? tx('Count all') : AGG_LABEL[String(agg.aggregator)] ?? String(agg.aggregator)} chevron={!!agg.property} disabled={ro || !agg.property} onClick={(e) => agg.property && sub(e.currentTarget, aggregationsFor(schema[agg.property]).map((a) => ({ id: a, label: a === 'unique' ? tx('Distinct values') : AGG_LABEL[a] ?? a, checked: agg.aggregator === a, onSelect: () => setAgg({ aggregator: a, property: agg.property }) })))} />
             <SettingsRow icon="sliders" label={tx('Format')} value={fmt.numberFormatOverride ? NUMBER_FORMAT_LABEL[fmt.numberFormatOverride] ?? fmt.numberFormatOverride : 'Inherit'} disabled={ro} onClick={(e) => sub(e.currentTarget, [
               { id: 'inherit', label: tx('Inherit'), checked: !fmt.numberFormatOverride, onSelect: () => setFmt({ numberFormatOverride: undefined }) },
               {
@@ -344,7 +344,7 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
         {cfg.type !== 'number' && (
           <SettingsRow icon="download" label={tx('Store chart as…')} chevron={false} onClick={() => exportChart()} />
         )}
-        <SettingsRow icon="link" label={tx('Copy link to layout')} chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('Copied link to view'); }} />
+        <SettingsRow icon="link" label={tx('Copy link to layout')} chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast(tx('Copied link to view')); }} />
       </Section>
       <Section divider>
         {HELP_URL && <SettingsRow icon="questionMarkCircle" label={tx('Explore charts')} chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}

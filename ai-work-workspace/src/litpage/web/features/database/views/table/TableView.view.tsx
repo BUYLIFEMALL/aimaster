@@ -392,7 +392,7 @@ function NewRowButton({ onClick, label = 'New page' }: { onClick: () => void; la
     <div className="nc-table-add-row-wrap">
       <div role="button" className="lit-table-view-add-row" onClick={onClick}>
         <Icon name="plusSmall" size={16} style={{ color: 'var(--lp-icon-tertiary)' }} />
-        <span>{label}</span>
+        <span>{tx(label)}</span>
       </div>
     </div>
   );
@@ -596,7 +596,7 @@ function TitleCell({ row, view, collection, readOnly, wrap, showIcon, editing, w
             <div
               role="button"
               className="nc-open-button"
-              aria-label={peeking ? 'Close side preview' : peekMode === 'center_peek' ? 'Open in center preview' : peekMode === 'full_page' ? tx('Open as entry') : tx('Open in side preview')}
+              aria-label={peeking ? tx('Close side preview') : peekMode === 'center_peek' ? tx('Open in center preview') : peekMode === 'full_page' ? tx('Open as entry') : tx('Open in side preview')}
               onClick={(e) => {
                 e.stopPropagation();
                 db?.openRow(row.id);

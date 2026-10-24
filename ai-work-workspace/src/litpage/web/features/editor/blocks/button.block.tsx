@@ -62,7 +62,7 @@ export async function runButton(blockId: string, anchor: HTMLElement | null) {
     return;
   }
   const page = getBlock(pageIdOfBlock(blockId));
-  await runButtonSteps({ surface: 'button_block', steps, block: b, page, anchor, label: nameOf(b) || 'New button' });
+  await runButtonSteps({ surface: 'button_block', steps, block: b, page, anchor, label: nameOf(b) || tx('New button') });
 }
 
 /* ------------------------------------------------------------------ config panel */
@@ -134,7 +134,7 @@ function ButtonBlock({ block, readOnly }: BlockProps) {
   const [running, setRunning] = useState(false);
   const btnRef = useRef<HTMLDivElement>(null);
   const configured = stepsOf(block).length > 0;
-  const label = nameOf(block) || 'New button';
+  const label = nameOf(block) || tx('New button');
   const icon = block.format?.page_icon as string | undefined;
   const color = block.format?.block_color as string | undefined;
   const style = useMemo<React.CSSProperties>(() => {
@@ -168,7 +168,7 @@ function ButtonBlock({ block, readOnly }: BlockProps) {
           onClick={async () => {
             // buttons are for people who can edit the page; the server checks every write again
             if (readOnly) {
-              if (configured) toast('You need edit access to use this button');
+              if (configured) toast(tx('You need edit access to use this button'));
               return;
             }
             if (!configured) return openButtonConfig(block.id);

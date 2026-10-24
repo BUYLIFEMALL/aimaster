@@ -16,7 +16,7 @@ import { ancestorsOf } from '../../lib/blocks.ts';
 import { useTableVersion } from '../../lib/hooks.ts';
 import { PageIcon } from '../shell/PageIcon.tsx';
 import { pageTitle } from '../page/pageActions.ts';
-import { getLocale, t } from '../shell/i18n.ts';
+import { getLocale, t, tx } from '../shell/i18n.ts';
 import { HighlightPane } from './HighlightPane.tsx';
 import {
   contentStatusLabel, contentStatusMenuDef, dateKindLabel, dateMenuDef, dateRangeLabel, openAddFilterMenu, openCreatedByMenu, openInPageMenu,
@@ -71,7 +71,7 @@ function bucketLabel(b: Bucket) {
 export function relativeTime(ts: number): string {
   const ko = getLocale() === 'ko-KR';
   const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return ko ? '지금' : 'Just now';
+  if (s < 60) return ko ? '지금' : tx('Just now');
   const m = Math.floor(s / 60);
   if (m < 60) return ko ? `${m}분 전` : `${m}m ago`;
   const h = Math.floor(m / 60);

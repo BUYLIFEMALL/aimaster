@@ -246,7 +246,7 @@ function CoverPicker({ page, close }: { page: BlockRecord; close: () => void }) 
         ))}
         {tab === 'upload' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 4 }}>
-            <div role="button" className="nc-dialog-btn outline nc-upload-btn" style={{ maxWidth: 300 }} onClick={() => fileRef.current?.click()}>{busy ? 'Uploading…' : t('lp.page.upload_file', 'Upload file')}</div>
+            <div role="button" className="nc-dialog-btn outline nc-upload-btn" style={{ maxWidth: 300 }} onClick={() => fileRef.current?.click()}>{busy ? tx('Uploading…') : t('lp.page.upload_file', 'Upload file')}</div>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
             <div className="nc-picker-hint" style={{ marginTop: 8 }}>{t('lp.page.or_paste_from_the_clipboard_with', 'or paste from the clipboard with {keyboardShortcut}', { keyboardShortcut: '⌘+V' })}</div>
             <div className="nc-picker-hint" style={{ marginTop: 4 }}>{t('lp.page.for_best_results_use_images_over', 'For best results, use images over {idealImageWidth} pixels wide.', { idealImageWidth: 1500 })}</div>

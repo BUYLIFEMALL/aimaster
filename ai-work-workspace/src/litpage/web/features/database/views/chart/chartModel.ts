@@ -3,6 +3,7 @@
 // transactions in + -*.json.
 import type { BlockRecord, PropertySchema } from '#shared/records.ts';
 import { aggregateRows, computeGroups, type GroupBy, type GroupResult, type GroupValue, type QueryContext, type SavedGroup, type Schema } from '#shared/database/index.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 export type ChartType = 'column' | 'bar' | 'line' | 'donut' | 'number';
 export type MainSort = 'manual' | 'results-advanced' | 'x-ascending' | 'x-descending' | 'y-ascending' | 'y-descending';
@@ -250,7 +251,7 @@ export function aggregationCaption(agg: ChartAggregation, schema: Schema): strin
 export function aggregationLabel(agg: ChartAggregation, schema: Schema): string {
   const a = typeof agg.aggregator === 'string' ? agg.aggregator : agg.aggregator.operator;
   if (a === 'count' && !agg.property) return 'Count';
-  const name = agg.property ? schema[agg.property]?.name ?? 'Deleted property' : '';
+  const name = agg.property ? schema[agg.property]?.name ?? tx('Deleted property') : '';
   return name ? `${name} (${AGG_LABEL[a] ?? a})` : AGG_LABEL[a] ?? a;
 }
 

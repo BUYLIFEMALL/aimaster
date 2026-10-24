@@ -19,7 +19,7 @@ import { run } from '../../lib/blocks.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { openMenu } from '../../components/Menu.tsx';
 import { openOverlay, PopoverSurface } from '../../components/overlay.tsx';
-import { t } from './i18n.ts';
+import { t, tx } from './i18n.ts';
 import { pageTitle } from '../page/pageActions.ts';
 import { ALL_TYPES, INBOX_MAX_WIDTH, INBOX_MIN_WIDTH, useInboxState, type InboxStatus, type InboxType } from './inbox/inboxState.ts';
 import { notifyLevelItems, isDatabaseRow } from './inbox/notifyLevels.ts';
@@ -281,7 +281,7 @@ function prioritizeWithAi() {
       const a = (n.activity ?? {}) as { page_id?: string; text?: string; message?: string };
       const page = records.get<BlockRecord>('block', a.page_id ?? n.navigable_block_id);
       const quote = a.text || a.message;
-      return `- ${n.type.replace(/_/g, ' ')} from ${actor?.name || actor?.email || 'someone'}${page ? ` in “${pageTitle(page) || 'Untitled'}”` : ''}${quote ? `: ${String(quote).slice(0, 160)}` : ''}`;
+      return `- ${n.type.replace(/_/g, ' ')} from ${actor?.name || actor?.email || 'someone'}${page ? ` in “${pageTitle(page) || tx('Untitled')}”` : ''}${quote ? `: ${String(quote).slice(0, 160)}` : ''}`;
     });
   const query = `${t('lp.shell.which_of_my_unread_notifications_should', 'Which of my unread notifications should I handle first?')}${unread.length ? `\n\n${unread.join('\n')}` : ''}`;
   window.dispatchEvent(new CustomEvent('nc:ai-open', { detail: { query } }));

@@ -111,7 +111,7 @@ function StaticBlock({ block: b, get, depth, index }: { block: BlockRecord; get:
       return wrap(
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, textDecoration: 'underline', textDecorationColor: 'var(--lp-border-primary-transparent)' }}>
           <PageIcon block={b} size={20} />
-          <span>{toPlainText(b.properties?.title) || 'Untitled'}</span>
+          <span>{toPlainText(b.properties?.title) || tx('Untitled')}</span>
         </div>,
       );
     case 'column_list':
@@ -177,7 +177,7 @@ export function StaticPage({ rootId, blocks, changed }: { rootId: string; blocks
       )}
       <div className={`nc-static-content ${root.format?.page_full_width ? 'wide' : ''}`}>
         {icon && <div className="nc-static-icon" style={{ marginTop: cover ? -42 : 64 }}><PageIcon icon={icon} size={78} /></div>}
-        <h1 className={`nc-static-title ${changedSet.has(rootId) ? 'nc-vh-changed' : ''}`} style={{ marginTop: icon ? 8 : cover ? 24 : 80 }}>{toPlainText(root.properties?.title) || 'Untitled'}</h1>
+        <h1 className={`nc-static-title ${changedSet.has(rootId) ? 'nc-vh-changed' : ''}`} style={{ marginTop: icon ? 8 : cover ? 24 : 80 }}>{toPlainText(root.properties?.title) || tx('Untitled')}</h1>
         <div className="lit-page-content" style={{ paddingTop: 8 }}>
           <Children ids={root.content} get={get} depth={0} />
         </div>

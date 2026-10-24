@@ -152,7 +152,7 @@ function MainPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
             onChange={(e) => { setName(e.target.value); renameView(view.id, e.target.value || defaultName); }}
             onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
           />
-          <span role="button" className="nc-prop-desc-btn" aria-label={tx('Create layout description')} data-tooltip={(view.format as any)?.description || 'Create layout description'} onClick={(e) => {
+          <span role="button" className="nc-prop-desc-btn" aria-label={tx('Create layout description')} data-tooltip={(view.format as any)?.description || tx('Create layout description')} onClick={(e) => {
             if (ro) return;
             const cur = String((view.format as any)?.description ?? '');
             let text = cur;
@@ -173,7 +173,7 @@ function MainPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
         {!['calendar', 'map', 'chart', 'form', 'feed', 'dashboard'].includes(view.type) && <Row icon={view.type === 'board' ? 'viewBoard' : 'dbGroup'} label={tx('Group')} value={gb ? collection.schema[gb.property]?.name : undefined} onClick={() => go('group')} />}
         {view.type === 'board' && <Row icon="dbGroup" label={tx('Sub-group')} value={sub ? collection.schema[sub.property]?.name : undefined} onClick={() => go('subgroup')} />}
         {['table', 'board', 'list', 'gallery', 'calendar', 'timeline', 'feed'].includes(view.type) && <Row icon="paintRoller" label={tx('Conditional color')} value={rules || undefined} onClick={() => go('color')} />}
-        <Row icon="dbLink" label={tx('Copy link to layout')} chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(ctx.block, view.id)); useUI.getState().toast('Copied link to view'); }} />
+        <Row icon="dbLink" label={tx('Copy link to layout')} chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(ctx.block, view.id)); useUI.getState().toast(tx('Copied link to view')); }} />
       </Section>}
       {ctx.newView && (
         <Section divider>
@@ -215,7 +215,7 @@ function LockRow({ block }: { block: BlockRecord }) {
   const access = useDatabaseAccess(block.id);
   const locked = isDatabaseLocked(live);
   return (
-    <div data-tooltip={locked ? 'Unlock layouts and datasets in this table' : undefined}>
+    <div data-tooltip={locked ? tx('Unlock layouts and datasets in this table') : undefined}>
       <Row icon="lockKeyhole" label={locked ? tx('Unlock database') : tx('Lock database')} chevron={false} disabled={!access.canToggleLock} testid="lock-database" onClick={() => setDatabaseLocked(live, !locked)} />
     </div>
   );
@@ -250,7 +250,7 @@ function LayoutPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Coll
   const aspectKey = view.type === 'board' ? 'board_cover_aspect' : 'gallery_cover_aspect';
   const cover = fmt[coverKey] as { type?: string; property?: string } | undefined;
   const fileProps = Object.entries(collection.schema).filter(([, p]) => p.type === 'file');
-  const coverLabel = !cover || cover.type === 'none' ? 'None' : cover.type === 'page_cover' ? 'Page cover' : cover.type === 'page_content' || cover.type === 'page_content_first' ? 'Page content' : collection.schema[cover.property ?? '']?.name ?? 'Property';
+  const coverLabel = !cover || cover.type === 'none' ? 'None' : cover.type === 'page_cover' ? tx('Page cover') : cover.type === 'page_content' || cover.type === 'page_content_first' ? tx('Page content') : collection.schema[cover.property ?? '']?.name ?? 'Property';
   const ro = ctx.readOnly;
   const LayoutExtra = layoutSettingsRegistry[view.type];
   return (
@@ -581,7 +581,7 @@ function ColorPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Colle
               </span>
               <span role="button" className="nc-sort-remove" aria-label={tx('Delete conditional color rule')} onClick={() => set(rules.filter((_, j) => j !== i))}><Icon name="trash" size={14} /></span>
             </div>
-            <div className="nc-cc-rule-cond">{l.rest || 'Any value'}</div>
+            <div className="nc-cc-rule-cond">{l.rest || tx('Any value')}</div>
             {p && <FilterValueEditor leaf={leaf} prop={p} onChange={(n) => set(rules.map((x, j) => (j === i ? { ...x, filter: n.filter, ...(x.color_auto !== false && inheritedColor(p, n.filter) ? { color: inheritedColor(p, n.filter)! } : {}) } : x)))} />}
             {view.type === 'table' && (
               <Row label={tx('Apply to')} value={r.apply_to === 'property' ? p?.name ?? tx('Property') : tx('Row')} onClick={(e) => pick(e.currentTarget, [

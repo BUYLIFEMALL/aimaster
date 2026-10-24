@@ -52,7 +52,7 @@ export function openSlashMenu(blockId: string, property: string, start: number, 
   const p = TRIGGER_PLACEMENT[trigger] ?? TRIGGER_PLACEMENT['/'];
   useEditor.setState({ slash: { blockId, property, start, trigger, query: '' } });
   useQuery.setState({ q: '', full: !!opts?.full });
-  useTriggerUI.setState({ ghost: trigger === '/' ? 'Search by typing' : '' });
+  useTriggerUI.setState({ ghost: trigger === '/' ? tx('Search by typing') : '' });
  // inline menus lock the page scroller while keeping the gutter visible
   document.body.classList.add('nc-scroll-locked');
   const close = openOverlay(() => <TriggerMenu />, {
@@ -86,7 +86,7 @@ export function updateSlashQuery(q: string) {
   }
   useEditor.setState({ slash: { ...s, query: q } });
   useQuery.setState({ q });
-  if (s.trigger === '/') useTriggerUI.setState({ ghost: q ? '' : 'Search by typing' });
+  if (s.trigger === '/') useTriggerUI.setState({ ghost: q ? '' : tx('Search by typing') });
 }
 
 export function closeSlashMenu() {

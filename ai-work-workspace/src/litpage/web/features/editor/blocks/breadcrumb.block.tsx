@@ -24,7 +24,7 @@ function Breadcrumb({ block }: BlockProps) {
           <span key={p.id} style={{ display: 'inline-flex', alignItems: 'center' }}>
             <span role="button" tabIndex={0} className="nc-crumb" onMouseDown={(e) => e.preventDefault()} onClick={() => openPage(p.id)}>
               {p.format?.page_icon ? <PageIcon block={p} size={18} fallback={null} /> : null}
-              <span>{pageTitle(p) || (p.type === 'collection_view_page' ? 'Untitled' : 'New page')}</span>
+              <span>{pageTitle(p) || (p.type === 'collection_view_page' ? tx('Untitled') : tx('New page'))}</span>
             </span>
             {i < chain.length - 1 && <span className="nc-crumb-sep">/</span>}
           </span>

@@ -169,11 +169,11 @@ export async function uploadInto(block: BlockRecord, file: File) {
   const spaceId = useSession.getState().spaceId ?? undefined;
   const limit = 50 * 1024 * 1024;
   if (file.size > limit) {
-    toast('The maximum size per file is 50 MB.');
+    toast(tx('The maximum size per file is 50 MB.'));
     return;
   }
   if (block.type === 'image' && !file.type.startsWith('image/') && !isImageFile(file.name)) {
-    toast('This file type isn’t supported.');
+    toast(tx('This file type isn’t supported.'));
     return;
   }
   useUploads.getState().set(block.id, { name: file.name, progress: 0 });
@@ -181,7 +181,7 @@ export async function uploadInto(block: BlockRecord, file: File) {
     const res = await uploadFile(file, file.name, spaceId, block.id);
     await setMediaSource(block.id, res.url, { name: res.name, size: res.size, id: res.id, mime: res.mime });
   } catch (e) {
-    toast((e as Error).message || 'Upload failed');
+    toast((e as Error).message || tx('Upload failed'));
   } finally {
     useUploads.getState().set(block.id, null);
   }
@@ -220,7 +220,7 @@ function configFor(b: BlockRecord): PickerConfig {
       if (provider && provider.type === 'embed') return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: `Works with ${provider.name} links` };
       return { width: 300, tabs: ['link', 'upload'], uploadLabel: 'Choose a file', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: 'Supports PDF, Drive, Maps, CodePen, and more' };
     default:
-      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: provider ? `Works with ${provider.name} links` : 'Supports PDF, Drive, Maps, CodePen, and more' };
+      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: provider ? `Works with ${provider.name} links` : tx('Supports PDF, Drive, Maps, CodePen, and more') };
   }
 }
 
@@ -274,7 +274,7 @@ function MediaPicker({ blockId, close, replace }: { blockId: string; close: () =
   const submitLink = () => {
     const v = url.trim();
     if (!v || !isValidUrl(v)) {
-      setError(block.type === 'bookmark' ? 'Enter a valid URL' : 'Enter a valid URL.');
+      setError(block.type === 'bookmark' ? tx('Enter a valid URL') : tx('Enter a valid URL.'));
       return;
     }
     close();

@@ -49,7 +49,7 @@ function TurnIntoTasks({ collectionId, close }: { collectionId: string; close: (
               }, { placement: 'bottom-start' })}
             >
               {prop ? <PropertyIcon prop={prop} size={16} /> : <Icon name="plus" size={16} />}
-              <span className="nc-tt-select-label">{prop ? prop.name : cur === 'new' ? `Create new · ${r.newName}` : 'Select…'}</span>
+              <span className="nc-tt-select-label">{prop ? prop.name : cur === 'new' ? `Create new · ${r.newName}` : tx('Select…')}</span>
               <Icon name="chevronDown" size={14} />
             </div>
             {r.id === 'status' && prop && prop.type !== 'status' && <div className="nc-tt-note">{tx('This field will be converted to a Status field type.')}</div>}

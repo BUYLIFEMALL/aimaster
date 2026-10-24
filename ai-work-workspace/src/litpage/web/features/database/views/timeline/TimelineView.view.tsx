@@ -524,7 +524,7 @@ function TimelineView(props: ViewProps) {
                       ? (
                         <span className="nc-tl-title-wrap">
                           {v.info && <SubitemToggle info={v.info} />}
-                          <span role="link" className="nc-tl-title-cell" onClick={() => kit.openRow(it.row.id)}>{showIcon && <PageIcon block={it.row} size={18} fallback="page" />}<span className="nc-tl-title-text">{titleOf(it.row) || 'Untitled'}</span></span>
+                          <span role="link" className="nc-tl-title-cell" onClick={() => kit.openRow(it.row.id)}>{showIcon && <PageIcon block={it.row} size={18} fallback="page" />}<span className="nc-tl-title-text">{titleOf(it.row) || tx('Untitled')}</span></span>
                           {v.count > 0 && <SubitemCount count={v.count} />}
                         </span>
                       )
@@ -577,7 +577,7 @@ function TimelineView(props: ViewProps) {
                   const has = !!it.range;
                   const left = has ? x(it.startMs) + 2 : 0;
                   const w = has ? Math.max(10, x(it.endMs) - x(it.startMs) - 3) : 0;
-                  const title = titleOf(it.row) || 'Untitled';
+                  const title = titleOf(it.row) || tx('Untitled');
                   const ghost = !has && hover?.rowId === it.row.id ? { left: x(hover.ms) + 2, w: Math.max(10, x(placeholderEnd(hover.ms)) - x(hover.ms) - 3), ms: hover.ms } : null;
                   return (
                     <div
@@ -660,7 +660,7 @@ function TimelineView(props: ViewProps) {
           <div className="nc-tl-head-right">
             <div className="nc-tl-fade right" />
             <div className="nc-tl-controls">
-              <div role="button" className="nc-tl-manage" onClick={() => useUI.getState().toast('Calendar sync is not available')}><Icon name="calendar" size={16} /><span>{tx('Manage in Calendar')}</span></div>
+              <div role="button" className="nc-tl-manage" onClick={() => useUI.getState().toast(tx('Calendar sync is not available'))}><Icon name="calendar" size={16} /><span>{tx('Manage in Calendar')}</span></div>
               <div role="button" className="nc-tl-zoom" aria-haspopup="dialog" onClick={zoomMenu}>{ZOOM_LABEL[zoom]}<Icon name="chevronDown" size={14} /></div>
             </div>
             <div role="button" className="nc-tl-nav" aria-label={tx('Previous')} onClick={() => step(-1)} style={{ marginInlineStart: 4 }}><Icon name="chevronLeft" size={16} /></div>

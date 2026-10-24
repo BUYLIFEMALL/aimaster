@@ -631,7 +631,7 @@
 }
 
 /* ───── v1.15 처음 쓰는 회원 안내: 화면 구성·AI 회의록·마이크 연결 ───── */
-.aww-section-head { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.aww-section-head { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 16px; }
 .aww-section-head h2 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
 .aww-section-head p { margin: 0; font-size: 14px; color: var(--lp-text-secondary); line-height: 1.6; }
 .aww-tour, .aww-meeting, .aww-mic {

@@ -94,7 +94,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
     if (o.kind === 'user') add(o.id);
     else addGroup(o.id);
   };
-  const groupName = (id: string) => spaceGroups.find((g) => g.id === id)?.name || 'Deleted group';
+  const groupName = (id: string) => spaceGroups.find((g) => g.id === id)?.name || tx('Deleted group');
   return (
     <PopoverSurface width={300} className="nc-select-editor">
       <div className="nc-select-editor-field">
@@ -133,7 +133,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
       </div>
       </div>
       <div className="lit-scroller vertical nc-select-editor-scroll">
-        <div className="nc-select-editor-hint">{spaceGroups.length ? (limit === 1 ? 'Select one' : 'Choose any number of options') : limit === 1 ? tx('Select a person') : tx('Select as many people as you like')}</div>
+        <div className="nc-select-editor-hint">{spaceGroups.length ? (limit === 1 ? tx('Select one') : tx('Choose any number of options')) : limit === 1 ? tx('Select a person') : tx('Select as many people as you like')}</div>
         {/* database templates: "Me — Person who duplicated entry" */}
         {getBlock(opts.rowIds[0])?.is_template && !ids.includes(TEMPLATE_ME) && (!q || 'me'.includes(q.trim().toLowerCase())) && (
           <div role="option" aria-selected={false} className="nc-select-option" onMouseDown={(e) => e.preventDefault()} onClick={() => add(TEMPLATE_ME)}>
@@ -152,7 +152,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
             <div key={g.id} role="option" aria-selected={i === active} data-group-id={g.id} className={`nc-select-option ${i === active ? 'active' : ''}`} onMouseMove={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={() => addGroup(g.id)}>
               <span className="nc-person-chip">
                 <span className="nc-group-avatar" style={{ width: 20, height: 20 }} aria-hidden>{(g.name ?? '').trim()[0]?.toUpperCase()}</span>
-                <span className="nc-person-name">{g.name || 'Untitled'}</span>
+                <span className="nc-person-name">{g.name || tx('Untitled')}</span>
                 <span className="nc-select-editor-hint" style={{ padding: 0, marginInlineStart: 8 }}>{(g.member_ids?.length ?? 0) === 1 ? '1 person' : `${g.member_ids?.length ?? 0} people`}</span>
               </span>
             </div>
@@ -172,7 +172,7 @@ export async function uploadFileValues(list: File[]): Promise<FileValue[]> {
   const out: FileValue[] = [];
   for (const f of list) {
     if (f.size > 5 * 1024 * 1024) {
-      useUI.getState().toast('The maximum size per file is 5 MB.');
+      useUI.getState().toast(tx('The maximum size per file is 5 MB.'));
       continue;
     }
     try {
@@ -180,7 +180,7 @@ export async function uploadFileValues(list: File[]): Promise<FileValue[]> {
       out.push({ name: res.name || f.name, url: res.url });
     } catch (err) {
       console.error(err);
-      useUI.getState().toast('Upload failed.');
+      useUI.getState().toast(tx('Upload failed.'));
     }
   }
   return out;
@@ -364,7 +364,7 @@ function PlaceEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
         setBusy(false);
         const lat = Math.round(pos.coords.latitude * 1e6) / 1e6;
         const lon = Math.round(pos.coords.longitude * 1e6) / 1e6;
-        set({ name: name.trim() || 'Current Location', address: `${lat}, ${lon}`, lat, lon });
+        set({ name: name.trim() || tx('Current Location'), address: `${lat}, ${lon}`, lat, lon });
         close();
       },
       () => { setBusy(false); setGeoError(true); },
@@ -380,7 +380,7 @@ function PlaceEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
         </div>
       </div>
       <div className="nc-place-results">
-        <div role="button" className={`nc-menu-item ${geoError ? 'disabled' : ''}`} data-testid="place-current" data-tooltip={geoError ? 'Location access is unavailable' : undefined} onClick={() => !geoError && !busy && useCurrent()}>
+        <div role="button" className={`nc-menu-item ${geoError ? 'disabled' : ''}`} data-testid="place-current" data-tooltip={geoError ? tx('Location access is unavailable') : undefined} onClick={() => !geoError && !busy && useCurrent()}>
           <div className="nc-menu-item-inner"><Icon name="crosshair" size={16} /><div className="nc-menu-label">{busy ? tx('Current Location…') : tx('Current Location')}</div></div>
         </div>
         {needle && (
@@ -424,7 +424,7 @@ function RelationEditor({ opts, close }: { opts: CellEditorOptions; close: () =>
   });
   const [q, setQ] = useState('');
   const pages = useMemo(() => (target ? collectionRows(target.id) : []), [target]);
-  const title = (b: BlockRecord) => toPlainText(b.properties?.title) || 'Untitled';
+  const title = (b: BlockRecord) => toPlainText(b.properties?.title) || tx('Untitled');
   const set = (next: string[]) => {
     setIds(next);
     write(opts, encodeRelation(next, c?.space_id));

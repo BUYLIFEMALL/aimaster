@@ -28,7 +28,7 @@ type Output = 'custom' | 'page_summary' | 'key_points' | 'action_items';
 
 function titleOf(id: string): string {
   const b = records.get<BlockRecord>('block', id);
-  return ((b?.properties?.title as [string][] | undefined) ?? []).map((d) => d[0]).join('') || 'Untitled';
+  return ((b?.properties?.title as [string][] | undefined) ?? []).map((d) => d[0]).join('') || tx('Untitled');
 }
 
 type Sources = 'page' | 'specified' | 'search';
@@ -110,7 +110,7 @@ export async function generateAiBlock(block: BlockRecord, override?: { prompt?: 
     if (text) setChildrenFromMarkdown(block.id, text, { ai_last_generated: Date.now(), ai_last_generated_by: me() });
     setGen(block.id, { running: false, text: '', abort: null });
   } catch (e: any) {
-    setGen(block.id, { running: false, error: { code: e?.code ?? 'error', message: e?.code === 'no_key' ? NO_KEY_MESSAGE : e?.message ?? 'Generation failed. Try again in a moment.' } });
+    setGen(block.id, { running: false, error: { code: e?.code ?? 'error', message: e?.code === 'no_key' ? NO_KEY_MESSAGE : e?.message ?? tx('Generation failed. Try again in a moment.') } });
   }
 }
 
@@ -275,7 +275,7 @@ function AiBlock({ block, depth, readOnly }: BlockProps) {
             onClick={() => { if (!readOnly && ref.current) openConfig(block, ref.current); }}
           >
             <span className="nc-ai-block-empty-icon"><FaceGlyph size={18} /></span>
-            <span>{fmt.ai_prompt ? String(fmt.ai_prompt) : 'Generated content will appear here. Click to configure.'}</span>
+            <span>{fmt.ai_prompt ? String(fmt.ai_prompt) : tx('Generated content will appear here. Click to configure.')}</span>
             {!readOnly && !!fmt.ai_prompt && (
               <span role="button" className="nc-ai-block-generate" onClick={(e) => { e.stopPropagation(); void generateAiBlock(block); }}>{tx('Generate')}</span>
             )}
@@ -283,7 +283,7 @@ function AiBlock({ block, depth, readOnly }: BlockProps) {
         )}
         {gen.error && !gen.running && (
           gen.error.code === 'no_key' ? <NoKeyNotice compact /> : (
-            <div className="nc-ai-error" role="alert"><Icon name="warning" size={14} /><span>{gen.error.message || 'Generation failed. Try again in a moment.'}</span></div>
+            <div className="nc-ai-error" role="alert"><Icon name="warning" size={14} /><span>{gen.error.message || tx('Generation failed. Try again in a moment.')}</span></div>
           )
         )}
         {configured === false && !gen.error && !hasContent && !readOnly && <NoKeyNotice compact />}

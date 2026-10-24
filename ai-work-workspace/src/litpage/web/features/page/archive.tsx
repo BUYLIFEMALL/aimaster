@@ -13,7 +13,7 @@ import { records } from '../../lib/store/records.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { userName } from '../presence/Avatar.tsx';
-import { t, getLocale } from '../shell/i18n.ts';
+import { t, getLocale, tx } from '../shell/i18n.ts';
 import { pageTitle } from './pageActions.ts';
 
 const lookup = {
@@ -68,7 +68,7 @@ export function ArchivedBanner({ page }: { page: BlockRecord }) {
     return (
       <div className="nc-archived-banner" role="status">
         <Icon name="archive" size={16} />
-        <span>{t('lp.page.the_team_is_archived_so_this', 'The team {teamspaceName} is archived, so this page is archived too', { teamspaceName: state.team.name || 'Untitled' })}</span>
+        <span>{t('lp.page.the_team_is_archived_so_this', 'The team {teamspaceName} is archived, so this page is archived too', { teamspaceName: state.team.name || tx('Untitled') })}</span>
       </div>
     );
   }
@@ -79,7 +79,7 @@ export function ArchivedBanner({ page }: { page: BlockRecord }) {
         <Icon name="archive" size={16} />
         <span>
           {t('lp.page.this_page_sits_inside_so_it', 'This page sits inside {pageLink}, so it’s archived too', { pageLink: '\u0000' }).split('\u0000').map((part, i) => (
-            i === 0 ? <span key={i}>{part}</span> : <span key={i}><a role="link" className="nc-archived-banner-link" onClick={() => openPage(root.id)}>{pageTitle(root) || 'Untitled'}</a>{part}</span>
+            i === 0 ? <span key={i}>{part}</span> : <span key={i}><a role="link" className="nc-archived-banner-link" onClick={() => openPage(root.id)}>{pageTitle(root) || tx('Untitled')}</a>{part}</span>
           ))}
         </span>
       </div>

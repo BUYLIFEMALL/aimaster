@@ -339,7 +339,7 @@ function Resources({ a, enterprise, close, onChanged }: { a: Pick<AdminAgent, 'i
               <div className="nc-agent-row-icon"><Icon name="page" size={16} /></div>
               <div className="nc-agent-row-main">
                 <div className="nc-agent-row-title">{g.title}</div>
-                <div className="nc-agent-row-sub">{g.role === 'editor' ? 'Full access' : g.role === 'read_and_write' ? 'Can edit' : g.role === 'comment_only' ? tx('Can comment') : tx('Can view')}{g.addedBy ? ` · ${t('lp.agents.added_by', 'Added by {name}', { name: g.addedBy })}` : ''}</div>
+                <div className="nc-agent-row-sub">{g.role === 'editor' ? tx('Full access') : g.role === 'read_and_write' ? tx('Can edit') : g.role === 'comment_only' ? tx('Can comment') : tx('Can view')}{g.addedBy ? ` · ${t('lp.agents.added_by', 'Added by {name}', { name: g.addedBy })}` : ''}</div>
               </div>
               {enterprise && <Button small variant="danger" onClick={() => revoke(g.blockId)}>{t('lp.agents.remove', 'Remove')}</Button>}
             </div>

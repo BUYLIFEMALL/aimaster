@@ -16,6 +16,7 @@ import { useUI } from '../../../lib/store/ui.ts';
 import { createViewIn, newPropertyId, nullify } from '../actions.ts';
 import { createDatabaseIn } from '../createDatabase.ts';
 import { collectionRows } from '../data.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export function sprintInfo(tasks: CollectionRecord | undefined): SprintInfo | null {
   return sprintInfoOf(tasks, (id) => records.get<CollectionRecord>('collection', id));
@@ -123,7 +124,7 @@ export function turnOnSprints(tasks: CollectionRecord, settings: Partial<SprintS
     for (const v of [current, planning, backlog]) tx.listAfter('block', linkedId, ['view_ids'], v);
     out = { sprintsCollectionId: sc, boardId };
   });
-  if (out) useUI.getState().toast('Sprints turned on · Sprint board and Sprints database added');
+  if (out) useUI.getState().toast(tx('Sprints turned on · Sprint board and Sprints database added'));
   return out;
 }
 

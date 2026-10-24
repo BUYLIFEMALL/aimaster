@@ -89,7 +89,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
       state.dirty = false;
       close();
     } catch (e) {
-      useUI.getState().toast((e as Error)?.message || 'We couldn’t save those workflow changes. Please try again.');
+      useUI.getState().toast((e as Error)?.message || tx('We couldn’t save those workflow changes. Please try again.'));
     } finally {
       setSaving(false);
     }
@@ -105,7 +105,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
       { items: [{ id: 'all', label: collectionName(col), icon: 'collection', description: tx('Whole dataset'), checked: draft.scope?.type !== 'view', onSelect: () => update({ scope: { type: 'collection' } }) }] },
       { title: tx('Views'), items: viewsOf(collectionId).filter((v) => !['form', 'dashboard', 'chart'].includes(v.type)).map((v) => {
         const n = countActive(combinedFilter(v) ?? null, col?.schema);
-        return { id: v.id, label: v.name || 'Untitled view', icon: viewIcon(v.type), description: n ? `${n} ${n === 1 ? 'filter' : 'filters'}` : 'Every entry in this layout', checked: draft.scope?.type === 'view' && draft.scope.view_id === v.id, onSelect: () => update({ scope: { type: 'view', view_id: v.id } }) };
+        return { id: v.id, label: v.name || tx('Untitled view'), icon: viewIcon(v.type), description: n ? `${n} ${n === 1 ? 'filter' : 'filters'}` : 'Every entry in this layout', checked: draft.scope?.type === 'view' && draft.scope.view_id === v.id, onSelect: () => update({ scope: { type: 'view', view_id: v.id } }) };
       }) },
     ],
   }, { placement: 'bottom-start', parent: overlayIdOf(anchor), backdrop: 'transparent' });
@@ -121,7 +121,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
             <span>{draft.scope?.type === 'view' ? tx('For entries in') : tx('For every entry in')}</span>
             <span role="button" className={`nc-auto-scope-btn ${readOnly ? 'static' : ''}`} aria-haspopup="dialog" onClick={(e) => !readOnly && scopeMenu(e.currentTarget)}>
               {scopeView && <Icon name={viewIcon(scopeView.type)} size={16} />}
-              <span>{scopeView ? scopeView.name || 'Untitled view' : collectionName(col)}</span>
+              <span>{scopeView ? scopeView.name || tx('Untitled view') : collectionName(col)}</span>
               {!readOnly && <Icon name="arrowChevronSingleDownSmall" size={14} />}
             </span>
           </div>

@@ -65,7 +65,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
   const [err, setErr] = useState('');
   const set = (p: Partial<SiteSettingsValue>) => setS((x) => ({ ...x, ...p }));
   const setHeader = (p: Partial<NonNullable<SiteSettingsValue['header']>>) => setS((x) => ({ ...x, header: { ...(x.header ?? {}), ...p } }));
-  const title = pageTitle(root) || 'Untitled';
+  const title = pageTitle(root) || tx('Untitled');
   const url = `${location.origin}/public/${s.slug || ''}`;
 
   useEffect(() => {
@@ -114,7 +114,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
       search: t('lp.page.choose_a_page', 'Choose a page'),
       sections: [{
         items: pages.length
-          ? pages.slice(0, 200).map((b) => ({ label: pageTitle(b) || 'Untitled', icon: <PageIcon block={b} size={20} />, onSelect: () => { setHeader({ links: [...(s.header?.links ?? []), { pageId: b.id }] }); closeMenu(); return false; } }))
+          ? pages.slice(0, 200).map((b) => ({ label: pageTitle(b) || tx('Untitled'), icon: <PageIcon block={b} size={20} />, onSelect: () => { setHeader({ links: [...(s.header?.links ?? []), { pageId: b.id }] }); closeMenu(); return false; } }))
           : [{ label: t('lp.page.your_site_s_other_published_pages', 'Your site’s other published pages will show up here'), disabled: true }],
       }],
     }, { placement: 'bottom-start' });
@@ -221,7 +221,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
             return (
               <div key={l.pageId} className="nc-site-link-row">
                 {b && <PageIcon block={b} size={18} />}
-                <span className="nc-ellipsis">{pageTitle(b) || 'Untitled'}</span>
+                <span className="nc-ellipsis">{pageTitle(b) || tx('Untitled')}</span>
                 <span role="button" className="nc-icon-btn small" aria-label={t('lp.page.unlink_page', 'Unlink page')} onClick={() => setHeader({ links: links.filter((x) => x.pageId !== l.pageId) })}>
                   <Icon name="close" size={12} />
                 </span>

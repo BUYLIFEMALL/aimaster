@@ -65,7 +65,7 @@ function RecurrenceEditor({ value, onSave, onDelete, close, deleteLabel }: { val
               ...Array.from({ length: 31 }, (_, i) => ({ id: String(i + 1), label: `Day ${i + 1}`, checked: r.month_day === i + 1, onSelect: () => set({ month_day: i + 1 }) })),
               { id: 'last', label: tx('Last'), checked: r.month_day === 'last', onSelect: () => set({ month_day: 'last' }) },
             ] }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-              <span>{r.month_day === 'last' ? 'Last day' : `Day ${r.month_day ?? 1}`}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
+              <span>{r.month_day === 'last' ? tx('Last day') : `Day ${r.month_day ?? 1}`}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
             </span>
           </div>
         )}
@@ -89,7 +89,7 @@ function RecurrenceEditor({ value, onSave, onDelete, close, deleteLabel }: { val
             { id: 'count', label: tx('Run count'), checked: r.end?.type === 'count', onSelect: () => set({ end: { type: 'count', count: 10 } }) },
             { id: 'date', label: tx('Specific date'), checked: r.end?.type === 'date', onSelect: () => set({ end: { type: 'date', date: r.start } }) },
           ] }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-            <span>{r.end?.type === 'count' ? 'Run count' : r.end?.type === 'date' ? tx('Specific date') : tx('Never')}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
+            <span>{r.end?.type === 'count' ? tx('Run count') : r.end?.type === 'date' ? tx('Specific date') : tx('Never')}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
           </span>
           {r.end?.type === 'count' && <input type="number" min={1} aria-label={tx('Run count')} value={r.end.count} onChange={(e) => set({ end: { type: 'count', count: Math.max(1, Number(e.target.value) || 1) } })} />}
           {r.end?.type === 'date' && <input type="date" aria-label={tx('End date')} value={r.end.date} onChange={(e) => e.target.value && set({ end: { type: 'date', date: e.target.value } })} />}
@@ -101,10 +101,10 @@ function RecurrenceEditor({ value, onSave, onDelete, close, deleteLabel }: { val
           </span>
         </div>
         <div className={`nc-rec-next ${next === null ? 'bad' : ''}`} aria-live="polite">
-          {!valid ? 'Some required fields are missing' : next === null ? 'This workflow is set never to run' : <>Next occurrence: {formatOccurrence(next, r.time_zone)}</>}
+          {!valid ? tx('Some required fields are missing') : next === null ? tx('This workflow is set never to run') : <>Next occurrence: {formatOccurrence(next, r.time_zone)}</>}
         </div>
         <div className="nc-rec-foot">
-          {onDelete ? <span role="button" className="nc-btn outline" onClick={() => { onDelete(); close(); }}>{deleteLabel ?? 'Cancel recurrence'}</span> : <span />}
+          {onDelete ? <span role="button" className="nc-btn outline" onClick={() => { onDelete(); close(); }}>{deleteLabel ?? tx('Cancel recurrence')}</span> : <span />}
           <span role="button" aria-disabled={!valid} className={`nc-btn primary ${valid ? '' : 'disabled'}`} onClick={() => { if (!valid) return; onSave(r); close(); }}>{tx('Save')}</span>
         </div>
       </div>

@@ -20,6 +20,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { collectionRows, makeQueryContext } from './data.ts';
 import { canWriteNewRowValue, collectionAccess } from './access.ts';
 import { effectiveView, writePersonal } from './viewState.ts';
+import { tx } from '../shell/i18n.ts';
 
 // ---------- ids ----------
 
@@ -167,7 +168,7 @@ export function addProperty(collectionId: string, type: PropertyType, opts: { na
   if (!c) return '';
   if (Object.keys(c.schema).length >= 500) {
     
-    useUI.getState().toast('This database has reached its property limit. Delete one before adding another.');
+    useUI.getState().toast(tx('This database has reached its property limit. Delete one before adding another.'));
     return '';
   }
   const pid = newPropertyId(c.schema);
@@ -214,7 +215,7 @@ export function deleteProperty(collectionId: string, propId: string) {
     tx.set('collection', collectionId, ['deleted_schema', propId], { ...c.schema[propId], deleted_time: Date.now() });
     tx.set('collection', collectionId, ['schema', propId], undefined);
   });
-  useUI.getState().toast('Property deleted', { label: 'Undo', run: () => restoreProperty(collectionId, propId) });
+  useUI.getState().toast(tx('Property deleted'), { label: tx('Undo'), run: () => restoreProperty(collectionId, propId) });
 }
 
 export function restoreProperty(collectionId: string, propId: string) {
@@ -233,7 +234,7 @@ export function deleteIdProperty(collectionId: string, propId: string) {
   const c = col(collectionId);
   if (!c || !c.schema[propId]) return;
   run('deleteProperty', (tx) => tx.set('collection', collectionId, ['schema', propId], undefined));
-  useUI.getState().toast('Property deleted');
+  useUI.getState().toast(tx('Property deleted'));
 }
 
 export function permanentlyDeleteProperty(collectionId: string, propId: string) {
@@ -573,7 +574,7 @@ export async function deleteRows(ids: string[]) {
       // menus close every overlay after onSelect: open the dialog on the next tick
       await new Promise((r) => setTimeout(r, 0));
       const ok = await confirmDialog({
-        message: one ? 'Are you sure you want to move this item to Trash?' : 'Are you sure you want to move these items to Trash?',
+        message: one ? tx('Are you sure you want to move this item to Trash?') : tx('Are you sure you want to move these items to Trash?'),
         description: `This will also move ${extra.length} ${extra.length === 1 ? 'sub-item' : 'sub-items'} to Trash`,
         confirmLabel: 'Delete',
       });
@@ -582,7 +583,7 @@ export async function deleteRows(ids: string[]) {
     }
   }
   run('deleteRows', (tx) => deleteBlocksIn(tx, all));
-  useUI.getState().toast(all.length === 1 ? 'Sent to trash' : `${all.length} entries sent to trash`);
+  useUI.getState().toast(all.length === 1 ? tx('Sent to trash') : `${all.length} entries sent to trash`);
 }
 
 
@@ -594,7 +595,7 @@ export async function duplicateRows(ids: string[]): Promise<string[]> {
     return res.rowIds;
   } catch (e) {
     console.error(e);
-    useUI.getState().toast((e as Error).message || 'Couldn’t duplicate');
+    useUI.getState().toast((e as Error).message || tx('Couldn’t duplicate'));
     return [];
   }
 }
@@ -756,9 +757,11 @@ export function defaultViewFormat(type: ViewType, schema: Record<string, Propert
 }
 
 export const VIEW_DEFAULT_NAMES: Record<string, string> = {
-  table: 'Table', board: 'Board', gallery: 'Gallery', list: 'List', calendar: 'Calendar', timeline: 'Timeline', feed: 'Feed', map: 'Map',
-  chart: 'Chart', dashboard: 'Dashboard', form: 'Form',
+  // 이식판(v1.15): 화면 표시·새 보기 기본 이름을 한국어로(비교에 쓰지 않음)
+  table: tx('Table'), board: tx('Board'), gallery: tx('Gallery'), list: tx('List'), calendar: tx('Calendar'), timeline: tx('Timeline'), feed: tx('Feed'), map: tx('Map'),
+  chart: tx('Chart'), dashboard: tx('Dashboard'), form: tx('Form'),
 };
+const VIEW_FALLBACK_NAME = tx('View');
 
 
 export function createViewIn(tx: Tx, blockId: string, type: ViewType, collectionId: string, opts: { name?: string; id?: string; extraFormat?: Record<string, unknown>; extraQuery?: Record<string, unknown>; linkedCollection?: boolean; pageSort?: string[] } = {}): string {
@@ -769,7 +772,7 @@ export function createViewIn(tx: Tx, blockId: string, type: ViewType, collection
   if (d.schemaPatch) for (const [pid, p] of Object.entries(d.schemaPatch)) tx.set('collection', collectionId, ['schema', pid], p);
   const format = { ...d.format, ...(opts.extraFormat ?? {}), ...(opts.linkedCollection ? { collection_pointer: { id: collectionId, table: 'collection', spaceId: tx.spaceId } } : {}) };
   tx.set('collection_view', id, [], {
-    id, type, name: opts.name ?? VIEW_DEFAULT_NAMES[type] ?? 'View', format, query2: { ...d.query2, ...(opts.extraQuery ?? {}) },
+    id, type, name: opts.name ?? VIEW_DEFAULT_NAMES[type] ?? VIEW_FALLBACK_NAME, format, query2: { ...d.query2, ...(opts.extraQuery ?? {}) },
     parent_id: blockId, parent_table: 'block', alive: true, space_id: tx.spaceId, page_sort: opts.pageSort ? [...opts.pageSort] : [],
   });
   return id;

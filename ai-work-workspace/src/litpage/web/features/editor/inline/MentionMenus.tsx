@@ -50,7 +50,7 @@ function spaceMembers(spaceId: string | null | undefined): UserRecord[] {
 function pageItem(id: string, onSelect: () => void): MenuItemDef {
   const b = pageOrNull(id) as BlockRecord | undefined;
   const crumb = breadcrumbOf(id);
-  return { id, label: pageTitle(b) || 'New page', text: pageTitle(b), icon: <PageIcon block={b} size={20} />, description: crumb || undefined, onSelect };
+  return { id, label: pageTitle(b) || tx('New page'), text: pageTitle(b), icon: <PageIcon block={b} size={20} />, description: crumb || undefined, onSelect };
 }
 
 /** Text block containing the trigger: new sub-pages "@"/"[[" are parented to it (not listed in content). */
@@ -104,14 +104,14 @@ function newPageSection(q: string, link: boolean): MenuSectionDef {
     items: [
       {
         id: 'new-subpage',
-        label: q ? <span>New “{q}” sub-page</span> : 'Add a child page',
+        label: q ? <span>New “{q}” sub-page</span> : tx('Add a child page'),
         text: 'add child page',
         icon: 'plus',
         onSelect: () => insertPage(createSubpage(q), link),
       },
       {
         id: 'new-page-in',
-        label: q ? <span>New “{q}” page in…</span> : 'Add a page in…',
+        label: q ? <span>New “{q}” page in…</span> : tx('Add a page in…'),
         text: 'add a page in',
         icon: 'arrowDiagonalUpRight',
         onSelect: () => { addPageIn(q, link); return false; },
@@ -131,8 +131,8 @@ function useGhost(first: MenuItemDef | undefined, q: string) {
 function SearchFeedback() {
   return (
     <div className="nc-mention-feedback">
-      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('Thanks for your feedback')}><Icon name="thumbsUp" size={16} /></div>
-      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('Thanks for your feedback')}><Icon name="thumbsDown" size={16} /></div>
+      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast(tx('Thanks for your feedback'))}><Icon name="thumbsUp" size={16} /></div>
+      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast(tx('Thanks for your feedback'))}><Icon name="thumbsDown" size={16} /></div>
       <span>{tx('Share search feedback')}</span>
     </div>
   );
@@ -236,7 +236,7 @@ export function MentionMenu({ q }: { q: string }) {
         title: tx('Groups'),
         items: groups.slice(0, 4).map((g) => ({
           id: `group:${g.id}`,
-          label: g.name || 'Untitled',
+          label: g.name || tx('Untitled'),
           icon: <span className="nc-mention-group-icon"><Icon name="team" size={14} /></span>,
           right: <span className="nc-mention-group-caption">{(g.member_ids?.length ?? 0) === 1 ? '1 member' : `${g.member_ids?.length ?? 0} members`}</span>,
           onSelect: () => {

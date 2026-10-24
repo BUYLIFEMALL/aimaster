@@ -55,7 +55,7 @@ function PageLinkBlock({ block, readOnly }: BlockProps) {
       </div>
     );
   }
-  const title = pageTitle(target) || (target.type === 'collection_view_page' ? 'Untitled database' : 'New page');
+  const title = pageTitle(target) || (target.type === 'collection_view_page' ? tx('Untitled database') : tx('New page'));
   return (
     <div className="nc-pad">
       <a
@@ -103,7 +103,7 @@ interface PickerResult {
 function parentPath(b: BlockRecord | undefined): string {
   if (!b) return '';
   const chain = ancestorsOf(b.id);
-  return chain.map((p) => pageTitle(p) || 'New page').join(' / ');
+  return chain.map((p) => pageTitle(p) || tx('New page')).join(' / ');
 }
 
 function usePageSearch(q: string) {
@@ -181,7 +181,7 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
         label: (
           <div className="nc-link-picker-item">
             <div style={{ minWidth: 0 }}>
-              <div className="nc-ellipsis">{pageTitle(p) || 'New page'}</div>
+              <div className="nc-ellipsis">{pageTitle(p) || tx('New page')}</div>
               {path && <div className="sub">{path}</div>}
             </div>
           </div>
@@ -193,7 +193,7 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
     ...(total > pages.length && pages.length >= 5 ? [{ id: 'more', label: `${total - pages.length} more results`, icon: 'ellipsis', disabled: true } as MenuItemDef] : []),
   ];
   const actions: MenuItemDef[] = [
-    { id: 'new', label: q ? `Add new “${q}” sub-page` : 'Add a child page', icon: 'plus', onSelect: createSub },
+    { id: 'new', label: q ? `Add new “${q}” sub-page` : tx('Add a child page'), icon: 'plus', onSelect: createSub },
   ];
   const flat = [...items.filter((i) => !i.disabled), ...actions];
   useEffect(() => setActive(0), [q, ids.length]);

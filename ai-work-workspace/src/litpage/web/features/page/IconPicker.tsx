@@ -300,7 +300,7 @@ async function addToEmojiLibrary(url: string, fileName: string, spaceId: string 
     records.mergeRecordMap(res.recordMap);
     useUI.getState().toast(`Added :${name}: to the workspace emoji library`);
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not add the emoji');
+    useUI.getState().toast(e?.message ?? tx('Could not add the emoji'));
   }
 }
 
@@ -314,7 +314,7 @@ function UploadPanel({ onPick }: { onPick: (v: string) => void }) {
   useEffect(() => setErr(''), [url]);
   return (
     <div className="nc-upload-panel">
-      <div role="button" className="nc-dialog-btn outline nc-upload-btn" onClick={() => fileRef.current?.click()}>{busy ? 'Uploading…' : t('lp.page.upload_file', 'Upload file')}</div>
+      <div role="button" className="nc-dialog-btn outline nc-upload-btn" onClick={() => fileRef.current?.click()}>{busy ? tx('Uploading…') : t('lp.page.upload_file', 'Upload file')}</div>
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={async (e) => {
         const f = e.target.files?.[0];
         if (!f) return;
@@ -325,7 +325,7 @@ function UploadPanel({ onPick }: { onPick: (v: string) => void }) {
           if (toLibrary) void addToEmojiLibrary(res.url, f.name, spaceId);
           onPick(res.url);
         } catch (er: any) {
-          setErr(er?.message ?? 'Upload failed');
+          setErr(er?.message ?? tx('Upload failed'));
         } finally {
           setBusy(false);
         }

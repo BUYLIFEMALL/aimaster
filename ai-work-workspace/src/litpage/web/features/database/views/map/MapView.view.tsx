@@ -182,17 +182,17 @@ function MapView(props: ViewProps) {
           const y = p.y - tl.y;
           if (x < -40 || y < -40 || x > width + 40 || y > height + 40) return null;
           return (
-            <div key={row.id} className={`nc-map-pin ${hover === row.id ? 'hover' : ''}`} style={{ left: x, top: y }} data-block-id={row.id} role="button" aria-label={titleOf(row) || 'Untitled'}
+            <div key={row.id} className={`nc-map-pin ${hover === row.id ? 'hover' : ''}`} style={{ left: x, top: y }} data-block-id={row.id} role="button" aria-label={titleOf(row) || tx('Untitled')}
               onPointerEnter={() => setHover(row.id)} onPointerLeave={() => setHover(null)} onClick={() => kit.openRow(row.id)}>
               <svg width="26" height="34" viewBox="0 0 26 34" aria-hidden><path d="M13 33s11-11.4 11-19.5C24 6.6 19.1 2 13 2S2 6.6 2 13.5C2 21.6 13 33 13 33z" fill="var(--lp-blue-bg-accent)" stroke="var(--lp-bg-primary)" strokeWidth="2" /><circle cx="13" cy="13.5" r="4" fill="var(--lp-bg-primary)" /></svg>
-              {hover === row.id && <div className="nc-map-pin-label">{titleOf(row) || 'Untitled'}{place.address && place.address !== place.name ? <span>{place.address}</span> : place.name ? <span>{place.name}</span> : null}</div>}
+              {hover === row.id && <div className="nc-map-pin-label">{titleOf(row) || tx('Untitled')}{place.address && place.address !== place.name ? <span>{place.address}</span> : place.name ? <span>{place.name}</span> : null}</div>}
             </div>
           );
         })}
         <div className="nc-map-ui nc-map-toolbar">
           <div role="button" className="nc-map-btn" data-testid="map-no-location" onClick={(e) => openMenu(e.currentTarget, {
             width: 280, header: <div className="nc-map-menu-head">No location ({missing.length})</div>,
-            sections: [{ items: missing.length ? missing.slice(0, 100).map((r) => ({ id: r.id, label: titleOf(r) || 'Untitled', icon: 'page', description: readOnly ? undefined : 'Click the map to place this page', onSelect: () => { if (!readOnly) setPinMode({ rowId: r.id }); else kit.openRow(r.id); } })) : [{ id: 'none', label: tx('Every page has a location'), disabled: true }] }],
+            sections: [{ items: missing.length ? missing.slice(0, 100).map((r) => ({ id: r.id, label: titleOf(r) || tx('Untitled'), icon: 'page', description: readOnly ? undefined : tx('Click the map to place this page'), onSelect: () => { if (!readOnly) setPinMode({ rowId: r.id }); else kit.openRow(r.id); } })) : [{ id: 'none', label: tx('Every page has a location'), disabled: true }] }],
           }, { placement: 'bottom-start' })}>No location ({missing.length})</div>
           {!readOnly && (
             <div role="button" className={`nc-map-btn icon ${pinMode && !pinMode.rowId ? 'on' : ''}`} aria-label={pinMode ? tx('Disable add-pin mode') : tx('Enable pin placement')} data-tooltip={pinMode ? tx('Disable add-pin mode') : tx('Enable pin placement')} onClick={() => setPinMode(pinMode ? null : { rowId: null })}>
@@ -200,7 +200,7 @@ function MapView(props: ViewProps) {
             </div>
           )}
         </div>
-        {pinMode && <div className="nc-map-ui nc-map-hint">{pinMode.rowId ? `Click the map to place “${titleOf(kit.rows.find((r) => r.id === pinMode.rowId)) || 'Untitled'}”` : 'Click the map to add a page with a pin'}<span role="button" onClick={() => setPinMode(null)}>{tx('Cancel')}</span></div>}
+        {pinMode && <div className="nc-map-ui nc-map-hint">{pinMode.rowId ? `Click the map to place “${titleOf(kit.rows.find((r) => r.id === pinMode.rowId)) || tx('Untitled')}”` : tx('Click the map to add a page with a pin')}<span role="button" onClick={() => setPinMode(null)}>{tx('Cancel')}</span></div>}
         <div className="nc-map-ui nc-map-zoom">
           <div role="button" aria-label={tx('Zoom in')} onClick={() => setZoom(z + 1)}><Icon name="plus" size={16} /></div>
           <div role="button" aria-label={tx('Zoom out')} onClick={() => setZoom(z - 1)}><Icon name="dashLong" size={16} /></div>

@@ -136,7 +136,7 @@ function LinkPopup({ r, close }: { r: TextRange; close: () => void }) {
     if (!isUrl) {
       for (const id of hits.ids) {
         const b = pageOrNull(id) as BlockRecord | undefined;
-        out.push({ key: id, icon: <PageIcon block={b} size={20} />, title: pageTitle(b) || 'New page', sub: breadcrumbOf(id) || undefined, run: () => done(pageUrl(id)) });
+        out.push({ key: id, icon: <PageIcon block={b} size={20} />, title: pageTitle(b) || tx('New page'), sub: breadcrumbOf(id) || undefined, run: () => done(pageUrl(id)) });
       }
     }
     return out;
@@ -279,7 +279,7 @@ function LinkEdit({ r, href, close }: { r: TextRange; href: string; close: () =>
               const b = pageOrNull(id) as BlockRecord | undefined;
               return (
                 <div key={id} className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={() => apply(pageUrl(id))}>
-                  <div className="nc-menu-item-inner"><div className="nc-menu-icon"><PageIcon block={b} size={20} /></div><div className="nc-menu-label nc-ellipsis">{pageTitle(b) || 'New page'}</div></div>
+                  <div className="nc-menu-item-inner"><div className="nc-menu-icon"><PageIcon block={b} size={20} /></div><div className="nc-menu-label nc-ellipsis">{pageTitle(b) || tx('New page')}</div></div>
                 </div>
               );
             })}
@@ -382,7 +382,7 @@ export function LinkHoverPill() {
         data-tooltip={tx('Copy link')}
         onClick={() => {
           void navigator.clipboard?.writeText(pid ? new URL(hover.href, location.origin).href : hover.href);
-          useUI.getState().toast('Link copied');
+          useUI.getState().toast(tx('Link copied'));
         }}
       >
         <Icon name="docOnDoc" size={16} />

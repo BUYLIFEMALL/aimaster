@@ -41,7 +41,7 @@ export function WorkspaceSharedMcps({ space }: { space: SpaceRecord }) {
       setAdding(false);
       setForm({ name: '', description: '', url: '', auth: 'token' });
     } catch (e) {
-      setError((e as Error)?.message || 'Couldn’t add this MCP server');
+      setError((e as Error)?.message || tx('Couldn’t add this MCP server'));
     } finally {
       setBusy(false);
     }

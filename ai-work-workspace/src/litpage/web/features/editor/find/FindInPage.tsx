@@ -383,7 +383,7 @@ export function replaceCurrent() {
   if (!b) return;
   const suggesting = suggestingOn(st.pageId);
   if (!editable(m, suggesting)) {
-    useUI.getState().toast(suggesting ? 'Suggestions can only be made in text, to-do, heading and list blocks' : "You don't have permission to edit this.");
+    useUI.getState().toast(suggesting ? tx('Suggestions can only be made in text, to-do, heading and list blocks') : "You don't have permission to edit this.");
     return;
   }
   const cur = ((b.properties as Record<string, RichText> | undefined)?.[m.property]) ?? [];

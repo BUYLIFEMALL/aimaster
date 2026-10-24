@@ -4,6 +4,7 @@ import { api } from '../../lib/api.ts';
 import { navigate } from '../../lib/router.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
+import { tx } from './i18n.ts';
 
 const KEY = 'nc:pendingInvite';
 
@@ -38,7 +39,7 @@ export async function acceptPendingInvite(): Promise<boolean> {
     navigate(`/${res.domain}`, { replace: true });
     return true;
   } catch (e) {
-    useUI.getState().toast((e as Error).message || 'This invite link is invalid.');
+    useUI.getState().toast((e as Error).message || tx('This invite link is invalid.'));
     if (useSession.getState().status === 'ready') navigate('/', { replace: true });
     return false;
   } finally {

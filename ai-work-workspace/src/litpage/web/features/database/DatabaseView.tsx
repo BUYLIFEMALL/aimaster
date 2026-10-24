@@ -127,7 +127,7 @@ function DbTitle({ collection, block, readOnly, className, linked }: { collectio
     return (
       <div className={`${className} linked`} role="link" onClick={() => host && openPage(host.id)}>
         <span className="nc-db-title-linked-icon">{host ? <PageIcon block={host} size={20} /> : <Icon name="viewTable" size={20} />}</span>
-        <span className="nc-db-title-linked-text">{name.map((d) => d[0]).join('') || 'Untitled'}</span>
+        <span className="nc-db-title-linked-text">{name.map((d) => d[0]).join('') || tx('Untitled')}</span>
       </div>
     );
   }

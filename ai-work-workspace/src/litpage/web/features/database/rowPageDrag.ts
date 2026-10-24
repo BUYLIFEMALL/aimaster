@@ -16,6 +16,7 @@ import { records } from '../../lib/store/records.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { externalBlockDropTargets } from '../editor/dragToSidebar.ts';
 import { collectionAccess } from './access.ts';
+import { tx } from '../shell/i18n.ts';
 
 // ---------------------------------------------------------------- pages → database items
 
@@ -85,7 +86,7 @@ export function movePagesIntoDatabase(ids: string[], collectionId: string, viewI
     const v = viewId ? records.get<CollectionViewRecord>('collection_view', viewId) : undefined;
     if (v && (v.page_sort ?? []).length) tx.set('collection_view', v.id, ['page_sort'], [...(v.page_sort ?? []).filter((x) => !ids.includes(x)), ...ids]);
   });
-  useUI.getState().toast(`Moved to ${toPlainText(c.name as never) || 'Untitled'}`);
+  useUI.getState().toast(`Moved to ${toPlainText(c.name as never) || tx('Untitled')}`);
 }
 
 externalBlockDropTargets.push((x, y, ids) => {
@@ -166,7 +167,7 @@ export function moveRowsToPage(rowIds: string[], target: { pageId: string; ancho
   run('dragRowsOutOfDatabase', (tx) => {
     moveBlocksIn(tx, rows.map((r) => r.id), { parentId: page.id, parentTable: 'block', ...(target.where === 'before' && anchor ? { before: anchor } : { after: anchor }) });
   });
-  useUI.getState().toast(rows.length === 1 ? 'Moved out of the database' : `Moved ${rows.length} pages out of the database`);
+  useUI.getState().toast(rows.length === 1 ? tx('Moved out of the database') : `Moved ${rows.length} pages out of the database`);
 }
 
 document.addEventListener('dragover', (e) => {

@@ -5,6 +5,7 @@ import { useUI } from '../../lib/store/ui.ts';
 import { pageIdOfBlock } from '../editor/commands.ts';
 import { saveHtml } from '../editor/blocks/html.block.tsx';
 import { isNoKeyError, NO_KEY_MESSAGE, streamAi, useAiStatus } from './aiApi.ts';
+import { tx } from '../shell/i18n.ts';
 
 const KIND_PROMPTS: Record<string, string> = {
   slides: 'a slide deck with keyboard navigation (one slide per screen) about the page',
@@ -31,7 +32,7 @@ export async function createHtmlWithAi(blockId: string, kind: string, prompt?: s
     return;
   }
   const what = prompt?.trim() || KIND_PROMPTS[kind] || `a ${kind}`;
-  useUI.getState().toast('AI 비서 is creating your HTML…');
+  useUI.getState().toast(tx('AI 비서 is creating your HTML…'));
   try {
     const done = await streamAi({ kind: 'writer', pageId: pageIdOfBlock(blockId) ?? getBlock(blockId)?.parent_id, skill: 'html', prompt: what }, {});
     if (done.status !== 'complete') {
@@ -40,7 +41,7 @@ export async function createHtmlWithAi(blockId: string, kind: string, prompt?: s
     }
     const html = extractHtml(done.text);
     if (!/<html[\s>]|<!doctype html/i.test(html)) {
-      useUI.getState().toast('AI 비서 couldn’t create the HTML. Try again.');
+      useUI.getState().toast(tx('AI 비서 couldn’t create the HTML. Try again.'));
       return;
     }
     await saveHtml(blockId, html, `${kind || 'page'}.html`);

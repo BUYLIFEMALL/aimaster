@@ -11,6 +11,7 @@ import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { loadPage } from './usePageLoader.ts';
+import { tx } from '../shell/i18n.ts';
 
 export type ExportFormat = 'markdown' | 'html' | 'pdf';
 export interface ExportOptions {
@@ -29,7 +30,7 @@ const PAGE = new Set(['page', 'collection_view_page']);
 // ------------------------------------------------------------------ rich text
 
 function atomText(a: Annotation): string {
-  if (a[0] === 'p') return pageTitle(getBlock(a[1] as string)) || 'Untitled';
+  if (a[0] === 'p') return pageTitle(getBlock(a[1] as string)) || tx('Untitled');
   if (a[0] === 'u') {
     const u = records.get<UserRecord>('lit_user', a[1] as string);
     return `@${u?.name || u?.email || 'Unknown'}`;
@@ -65,7 +66,7 @@ export function richToMarkdown(rt: RichText | undefined): string {
     }
     const link = anns.find((a) => a[0] === 'a');
     if (link) s = `[${s}](${link[1]})`;
-    else if (atom?.[0] === 'p') s = `[${s}](${encodeURI(pageTitle(getBlock(atom[1] as string)) || 'Untitled')}.md)`;
+    else if (atom?.[0] === 'p') s = `[${s}](${encodeURI(pageTitle(getBlock(atom[1] as string)) || tx('Untitled'))}.md)`;
     out += s;
   }
   return out;
@@ -136,15 +137,15 @@ function blockMd(b: BlockRecord, depth: number, ctx: Ctx, num: number): string {
     case 'video': case 'audio': case 'file': case 'pdf': case 'embed': case 'bookmark':
       line = ctx.opts.includeContents === 'no_files' && b.type !== 'bookmark' && b.type !== 'embed' ? '' : `[${toPlainText(b.properties?.title) || src(b)}](${src(b)})`; break;
     case 'page': case 'collection_view_page': {
-      const title = pageTitle(b) || 'Untitled';
+      const title = pageTitle(b) || tx('Untitled');
       if (ctx.opts.includeSubpages && !ctx.seen.has(b.id)) writePage(b, ctx);
-      line = `[${title}](${encodeURI(ctx.opts.createFolders ? `${safe(pageTitle(getBlock(b.parent_id)) || 'Untitled')}/${safe(title)}.md` : `${safe(title)}.md`)})`;
+      line = `[${title}](${encodeURI(ctx.opts.createFolders ? `${safe(pageTitle(getBlock(b.parent_id)) || tx('Untitled'))}/${safe(title)}.md` : `${safe(title)}.md`)})`;
       return pad + line;
     }
     case 'collection_view': {
       line = `${pageTitle(b)}`;
-      if (ctx.opts.includeSubpages || true) ctx.files.set(`${ctx.dir}${safe(pageTitle(b) || 'Untitled')}.csv`, collectionCsv(b, ctx.opts));
-      line = `[${pageTitle(b) || 'Untitled'}](${encodeURI(`${safe(pageTitle(b) || 'Untitled')}.csv`)})`;
+      if (ctx.opts.includeSubpages || true) ctx.files.set(`${ctx.dir}${safe(pageTitle(b) || tx('Untitled'))}.csv`, collectionCsv(b, ctx.opts));
+      line = `[${pageTitle(b) || tx('Untitled')}](${encodeURI(`${safe(pageTitle(b) || tx('Untitled'))}.csv`)})`;
       break;
     }
     case 'table': {
@@ -175,7 +176,7 @@ function blocksMd(ids: string[] | undefined, ctx: Ctx): string {
 }
 
 function safe(s: string): string {
-  return s.replace(/[\\/:*?"<>|#%]+/g, ' ').trim().slice(0, 80) || 'Untitled';
+  return s.replace(/[\\/:*?"<>|#%]+/g, ' ').trim().slice(0, 80) || tx('Untitled');
 }
 
 function cellText(v: any, schema: any): string {
@@ -212,7 +213,7 @@ export function collectionCsv(b: BlockRecord, opts: Pick<ExportOptions, 'databas
 
 function writePage(page: BlockRecord, ctx: Ctx) {
   ctx.seen.add(page.id);
-  const title = pageTitle(page) || 'Untitled';
+  const title = pageTitle(page) || tx('Untitled');
   const parentDir = ctx.dir;
   const name = safe(title);
   if (page.type === 'collection_view_page') {
@@ -230,7 +231,7 @@ export function pageToMarkdown(pageId: string): string {
   const page = getBlock(pageId);
   if (!page) return '';
   const ctx: Ctx = { opts: { format: 'markdown', includeContents: 'everything', includeSubpages: false, createFolders: false, databaseView: 'currentView' }, files: new Map(), dir: '', seen: new Set([pageId]) };
-  return `# ${pageTitle(page) || 'Untitled'}\n\n${blocksMd(page.content, ctx)}\n`;
+  return `# ${pageTitle(page) || tx('Untitled')}\n\n${blocksMd(page.content, ctx)}\n`;
 }
 
 // ------------------------------------------------------------------ HTML
@@ -259,9 +260,9 @@ function blockHtml(b: BlockRecord, ctx: Ctx): string {
     case 'video': case 'audio': case 'file': case 'pdf': case 'embed': case 'bookmark':
       return `<figure>${safeHref(src(b)) ? `<a href="${esc(safeHref(src(b))!)}">` : '<span>'}${esc(toPlainText(b.properties?.title) || src(b))}${safeHref(src(b)) ? '</a>' : '</span>'}</figure>`;
     case 'page': case 'collection_view_page': {
-      const title = pageTitle(b) || 'Untitled';
+      const title = pageTitle(b) || tx('Untitled');
       if (ctx.opts.includeSubpages && !ctx.seen.has(b.id)) writeHtmlPage(b, ctx);
-      return `<figure class="link-to-page"><a href="${encodeURI(`${ctx.opts.createFolders ? `${safe(pageTitle(getBlock(b.parent_id)) || 'Untitled')}/` : ''}${safe(title)}.html`)}">${esc(title)}</a></figure>`;
+      return `<figure class="link-to-page"><a href="${encodeURI(`${ctx.opts.createFolders ? `${safe(pageTitle(getBlock(b.parent_id)) || tx('Untitled'))}/` : ''}${safe(title)}.html`)}">${esc(title)}</a></figure>`;
     }
     case 'collection_view': {
       const csv = collectionCsv(b, ctx.opts).split('\n').map((l) => l.split(','));
@@ -306,7 +307,7 @@ mark{background:transparent}.page-cover-image{width:100%;max-height:30vh;object-
 @media print{body{margin:0;max-width:none}}`;
 
 function htmlDoc(page: BlockRecord, body: string, opts: ExportOptions): string {
-  const title = pageTitle(page) || 'Untitled';
+  const title = pageTitle(page) || tx('Untitled');
   const cover = page.format?.page_cover as string | undefined;
   const icon = typeof page.format?.page_icon === 'string' && !page.format.page_icon.startsWith('lit-icon') && !/^(https?:|\/)/.test(page.format.page_icon) ? page.format.page_icon : '';
   const font = page.format?.page_font === 'serif' ? 'font-family:Georgia,serif;' : page.format?.page_font === 'mono' ? 'font-family:Menlo,Courier,monospace;' : '';
@@ -318,7 +319,7 @@ function htmlDoc(page: BlockRecord, body: string, opts: ExportOptions): string {
 
 function writeHtmlPage(page: BlockRecord, ctx: Ctx) {
   ctx.seen.add(page.id);
-  const name = safe(pageTitle(page) || 'Untitled');
+  const name = safe(pageTitle(page) || tx('Untitled'));
   const childCtx: Ctx = { ...ctx, dir: ctx.opts.createFolders ? `${ctx.dir}${name}/` : ctx.dir };
   const body = page.type === 'collection_view_page' ? blockHtml({ ...page, type: 'collection_view' } as BlockRecord, childCtx) : groupLists((page.content ?? []).map((id) => getBlock(id)).filter((b): b is BlockRecord => !!b && b.alive), childCtx);
   ctx.files.set(`${ctx.dir}${name}.html`, htmlDoc(page, body, ctx.opts));
@@ -423,7 +424,7 @@ export async function exportLocally(pageId: string, opts: ExportOptions): Promis
   else await loadPage(pageId);
   const page = getBlock(pageId);
   if (!page) throw new Error('Page could not be found');
-  const title = safe(pageTitle(page) || 'Untitled');
+  const title = safe(pageTitle(page) || tx('Untitled'));
   if (opts.format === 'pdf') {
     const w = window.open('', '_blank');
     if (!w) throw new Error('Allow pop-ups to export as PDF');
@@ -467,7 +468,7 @@ export function currentDatabaseViews(): Record<string, string> {
 function openPrintView(url: string) {
   const w = window.open(url, '_blank');
   if (w) w.opener = null;
-  else useUI.getState().toast('Allow pop-ups to export as PDF', { label: 'Open', run: () => { window.open(url, '_blank'); } });
+  else useUI.getState().toast(tx('Allow pop-ups to export as PDF'), { label: tx('Open'), run: () => { window.open(url, '_blank'); } });
 }
 
 /** Export through the server (`startPageExport`) when available, else locally. */
@@ -491,7 +492,7 @@ export async function exportPage(pageId: string, opts: ExportOptions = { format:
     }
     // very large exports arrive in the Inbox
     if (res?.deferred) {
-      useUI.getState().toast(res.message ?? 'This export is still processing because of its size. We’ll email you a download link when it is ready.');
+      useUI.getState().toast(res.message ?? tx('This export is still processing because of its size. We’ll email you a download link when it is ready.'));
       return '';
     }
     const url = res?.exportURL ?? res?.url ?? res?.status?.exportURL;
@@ -514,7 +515,7 @@ export async function exportPage(pageId: string, opts: ExportOptions = { format:
           window.location.assign(u);
           return u.split('/').pop();
         }
-        if (task?.state === 'failure') throw new Error(task?.error ?? 'Export failed');
+        if (task?.state === 'failure') throw new Error(task?.error ?? tx('Export failed'));
       }
     }
     if (res?.content && res?.fileName) {

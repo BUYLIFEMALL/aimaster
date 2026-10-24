@@ -13,6 +13,7 @@ import type { Tx } from '../../../lib/store/transactions.ts';
 import { createViewIn, defaultViewFormat, viewCreationHooks, VIEW_DEFAULT_NAMES } from '../actions.ts';
 import { viewsOfBlock } from '../duplicate.ts';
 import { copyName } from '../viewState.ts';
+import { tx } from '../../shell/i18n.ts';
 
 /** per-database limits (transactionErrors.collection_view_block_exceeds_max_collections). */
 export const MAX_DATA_SOURCES = 50;
@@ -76,7 +77,7 @@ function syncPointers(tx: Tx, blockId: string) {
 export function addDataSource(block: BlockRecord, opts: { name?: string; schema?: Record<string, PropertySchema>; views?: { type: ViewType; name?: string; groupBy?: string }[] } = {}): { collectionId: string; viewId: string } | null {
   const { owned } = blockSources(block);
   if (owned.length >= MAX_DATA_SOURCES) {
-    useUI.getState().toast('You are at the maximum number of datasets for this table.');
+    useUI.getState().toast(tx('You are at the maximum number of datasets for this table.'));
     return null;
   }
   const collectionId = newId();
@@ -162,7 +163,7 @@ export function trashDataSource(block: BlockRecord, collectionId: string): boole
     }
     syncPointers(tx, block.id);
   });
-  useUI.getState().toast(`Sent ${sourceName(c) || 'Untitled'} to trash`);
+  useUI.getState().toast(`Sent ${sourceName(c) || tx('Untitled')} to trash`);
   return true;
 }
 
@@ -217,7 +218,7 @@ export function moveDataSource(from: BlockRecord, collectionId: string, to: Bloc
     syncPointers(tx, from.id);
     syncPointers(tx, to.id);
   });
-  useUI.getState().toast(`Moved ${sourceName(c) || 'Untitled'}`);
+  useUI.getState().toast(`Moved ${sourceName(c) || tx('Untitled')}`);
   return true;
 }
 

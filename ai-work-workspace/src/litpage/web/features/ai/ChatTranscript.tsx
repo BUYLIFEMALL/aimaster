@@ -34,7 +34,7 @@ export interface TranscriptHandlers {
 
 function StatusStep({ status }: { status: AiStatusEvent | null }) {
   const label = !status || status.phase === 'thinking' || status.phase === 'writing'
-    ? 'Thinking…'
+    ? tx('Thinking…')
     : status.phase === 'searching'
       ? `Searching ${status.detail ? `for “${status.detail}”` : 'your workspace'}…`
       : `Reading ${status.detail ? `“${status.detail}”` : 'page'}…`;
@@ -69,10 +69,10 @@ function SourcesRow({ sources, text }: { sources: SourceRef[]; text: string }) {
             <span className="nc-ellipsis">{s.title || hostOf(s.url)}</span>
           </a>
         ) : (
-          <div key={s.n} role="link" className="nc-ai-source" onClick={() => openSource(s)} data-tooltip={s.title || 'Untitled'}>
+          <div key={s.n} role="link" className="nc-ai-source" onClick={() => openSource(s)} data-tooltip={s.title || tx('Untitled')}>
             <span className="nc-ai-source-n">{s.n}</span>
             <PageIcon block={getBlock(s.pageId)} size={14} />
-            <span className="nc-ellipsis">{s.title || 'Untitled'}</span>
+            <span className="nc-ellipsis">{s.title || tx('Untitled')}</span>
           </div>
         )))}
       </div>
@@ -97,7 +97,7 @@ function UserRow({ m }: { m: ChatMessage }) {
           {chips.map((c) => (
             <div key={c.pageId} className="nc-ai-context-chip static" role="link" onClick={() => openPage(c.pageId)}>
               <PageIcon block={getBlock(c.pageId)} size={14} />
-              <span className="nc-ellipsis">{c.title || (getBlock(c.pageId)?.properties?.title as any)?.[0]?.[0] || 'Untitled'}</span>
+              <span className="nc-ellipsis">{c.title || (getBlock(c.pageId)?.properties?.title as any)?.[0]?.[0] || tx('Untitled')}</span>
             </div>
           ))}
         </div>
@@ -221,7 +221,7 @@ function AssistantRow({ m, streaming, sources, last, canInsert, insertLabel, rea
       {!live && (m.status === 'error' || m.status === 'refused') && (
         <div className="nc-ai-error" role="alert">
           <Icon name="warning" size={14} />
-          <span>{m.error?.message ?? 'Something went wrong while loading while processing that request. Please try again later.'}</span>
+          <span>{m.error?.message ?? tx('Something went wrong while loading while processing that request. Please try again later.')}</span>
           {m.error?.code === 'no_key' && <span role="button" className="nc-ai-banner-link" onClick={(e) => openKeyHelp(e.currentTarget)}>등록 방법</span>}
         </div>
       )}

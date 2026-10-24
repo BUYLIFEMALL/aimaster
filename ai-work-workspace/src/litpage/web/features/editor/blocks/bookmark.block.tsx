@@ -33,7 +33,7 @@ function BookmarkBlock({ block, readOnly }: BlockProps) {
       <div className="nc-blk-hoverable" style={{ position: 'relative' }}>
         <a className={`nc-bookmark ${loading ? 'loading' : ''}`} href={url} target="_blank" rel="noreferrer noopener" role="link" draggable={false}>
           <div className="nc-bookmark-text">
-            <div className="nc-bookmark-title">{title || (loading ? 'Fetching preview…' : url)}</div>
+            <div className="nc-bookmark-title">{title || (loading ? tx('Fetching preview…') : url)}</div>
             {desc && <div className="nc-bookmark-desc">{desc}</div>}
             <div className="nc-bookmark-url">
               {icon ? <img src={icon} alt="" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} /> : null}

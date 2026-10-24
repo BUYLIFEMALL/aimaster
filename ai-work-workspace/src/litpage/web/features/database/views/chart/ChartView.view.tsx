@@ -452,7 +452,7 @@ function NumberChart({ data, cfg, height }: { data: ChartData; cfg: ChartConfig;
   return (
     <div className="nc-chart-number" style={{ height }}>
       {!fmt.hideTitle && <div className="nc-chart-number-title">{title}</div>}
-      <div className="nc-chart-number-value" style={{ fontSize: size, color: fmt.numberColor ? NUMBER_COLOR[fmt.numberColor] : undefined }}>{num?.value === null || !num ? 'No data' : num.display}</div>
+      <div className="nc-chart-number-value" style={{ fontSize: size, color: fmt.numberColor ? NUMBER_COLOR[fmt.numberColor] : undefined }}>{num?.value === null || !num ? tx('No data') : num.display}</div>
       {fmt.showCaption && fmt.caption && <div className="nc-chart-number-caption">{fmt.caption}</div>}
     </div>
   );

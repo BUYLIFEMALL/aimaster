@@ -39,7 +39,7 @@ export function customFormulaFor(c: EditorCtx, onSave: (src: string) => void): C
   for (const r of out.pages) {
     const key = refKey(r)!;
     const step = c.steps.find((s) => s.id === (r as { step: string }).step);
-    items.push({ key, label: refLabel(r, c).label, icon: 'page', description: step?.type === 'edit_pages' ? 'The pages edited by this step' : 'The entry created by the add-entry action', type: step?.type === 'edit_pages' ? 'list' : 'block' });
+    items.push({ key, label: refLabel(r, c).label, icon: 'page', description: step?.type === 'edit_pages' ? tx('The pages edited by this step') : tx('The entry created by the add-entry action'), type: step?.type === 'edit_pages' ? 'list' : 'block' });
   }
   for (const r of out.variables) items.push({ key: refKey(r)!, label: refLabel(r, c).label, icon: 'formula', description: tx('A variable defined earlier in this automation.') });
   const col = records.get<CollectionRecord>('collection', c.collectionId);

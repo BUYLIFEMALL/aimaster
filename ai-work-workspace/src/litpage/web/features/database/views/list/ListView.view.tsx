@@ -89,7 +89,7 @@ function ListRow({ row, view, collection, props, readOnly, selected, color, subi
             />
           ) : (
             <>
-              <div className={`nc-list-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : 'Untitled'}</div>
+              <div className={`nc-list-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : tx('Untitled')}</div>
               {subitemCount > 0 && <SubitemCount count={subitemCount} />}
             </>
           )}

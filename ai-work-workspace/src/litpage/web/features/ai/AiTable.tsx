@@ -53,7 +53,7 @@ export function AiTable({ header, rows, streaming, render }: { header: string[];
   };
   const copy = () => {
     void navigator.clipboard?.writeText(csv([header.map(plain), ...order.map((i) => plainRows[i])])).catch(() => {});
-    useUI.getState().toast('Copied table as CSV');
+    useUI.getState().toast(tx('Copied table as CSV'));
   };
   const save = async () => {
     const spaceId = useSession.getState().spaceId;
@@ -63,7 +63,7 @@ export function AiTable({ header, rows, streaming, render }: { header: string[];
       const r = await api<{ pageId: string; rows: number }>('aiTableToDatabase', { spaceId, header: header.map(plain), rows: order.map((i) => plainRows[i]) });
       useUI.getState().toast(`Saved as a database with ${r.rows} row${r.rows === 1 ? '' : 's'}`, { label: tx('Open'), run: () => openPage(r.pageId) });
     } catch (e) {
-      useUI.getState().toast((e as Error)?.message || 'Couldn’t save the table.');
+      useUI.getState().toast((e as Error)?.message || tx('Couldn’t save the table.'));
     } finally {
       setBusy(false);
     }

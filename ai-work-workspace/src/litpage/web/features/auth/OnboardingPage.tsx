@@ -13,7 +13,7 @@ import { useUI } from '../../lib/store/ui.ts';
 import { useRecord } from '../../lib/hooks.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { openIconPicker } from '../page/IconPicker.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import './icons.tsx';
 import './auth.css';
 
@@ -152,7 +152,7 @@ export function OnboardingPage() {
       const up = await uploadFile(f, f.name);
       transactions.run('', 'onboarding.setPhoto', (tx) => tx.update('lit_user', userId, [], { profile_photo: up.url }));
     } catch (e: any) {
-      useUI.getState().toast(e?.message ?? 'Upload failed');
+      useUI.getState().toast(e?.message ?? tx('Upload failed'));
     }
   };
 
