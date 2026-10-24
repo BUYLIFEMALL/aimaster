@@ -301,7 +301,8 @@ export function slashCatalog(): SlashItem[] {
   const all = applySlashOverrides([...items, ...extraSlashItems()]);
   // 이식판 1단계: AI(회의록 받아쓰기·AI 블록·AI에게 묻기·스킬·AI 이미지·에이전트)는 회원 본인 키 연결(2단계) 전까지 메뉴에서 뺀다
   // U3: AI 항목은 열고, 맞춤 에이전트 항목은 U12 전까지 숨김
-  return all.filter((it) => !(AI_STAGE_OPEN ? /^agent/i : /^(ai-|ask-ai|agent)/i).test(String((it as { id?: string }).id ?? '')));
+  // U3 시험 중 발견: AI 그림(ai-image)은 U2에서 숨겼으므로(서버도 차단) 슬래시 메뉴에서도 뺀다 → ai-image-studio
+  return all.filter((it) => !(AI_STAGE_OPEN ? /^(agent|ai-image)/i : /^(ai-|ask-ai|agent)/i).test(String((it as { id?: string }).id ?? '')));
 }
 
 /** Compact aliases of a Turn into target: "Bulleted list" → turnbullet, turnintobulletedlist … (…078). */
