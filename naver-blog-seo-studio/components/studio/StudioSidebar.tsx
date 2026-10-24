@@ -66,6 +66,10 @@ export function StudioSidebar({
           ))}
         </div>
         <div className="nav-divider" />
+        {/* 디자인 원칙 20 & SIDEBAR_LAYOUT_STANDARD: 3D 확장 프로그램 다운로드 메뉴 상시 노출 */}
+        <a className="nav-utility nav-download" href="/downloads/naver-blog-seo-studio-extension-latest.zip" download>
+          ⬇ 확장 프로그램 받기 ({APP_VERSION})
+        </a>
         <a className={`nav-utility ${active === "settings" ? "active" : ""}`} href="/settings#api-key">🔑 API키등록·플랫폼연동</a>
         <a className={`nav-utility ${active === "guide" ? "active" : ""}`} href="/guide">📖 연동 & 사용 매뉴얼</a>
       </nav>

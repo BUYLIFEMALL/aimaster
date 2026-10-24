@@ -37,10 +37,31 @@ const FAQ = [
   },
 ];
 
-const KEY_GUIDES = [
-  { id: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키" },
-  { id: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키" },
-  { id: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키" },
+const KEY_PLATFORMS = [
+  {
+    name: "OpenAI (GPT-4o)",
+    icon: "⚡",
+    desc: "고품질 블로그 원고 작성 및 SEO 본문 생성에 사용됩니다.",
+    createUrl: "https://platform.openai.com/api-keys",
+    signupUrl: "https://platform.openai.com/signup",
+    guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
+  },
+  {
+    name: "Anthropic Claude",
+    icon: "🧠",
+    desc: "자연스러운 문체와 감성적 스토리텔링 원고 생성에 사용됩니다.",
+    createUrl: "https://console.anthropic.com/settings/keys",
+    signupUrl: "https://console.anthropic.com/",
+    guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a",
+  },
+  {
+    name: "Google Gemini",
+    icon: "💎",
+    desc: "블로그 대표/본문 이미지 생성 및 무료/초고속 원고 생성에 필수입니다.",
+    createUrl: "https://aistudio.google.com/app/apikey",
+    signupUrl: "https://aistudio.google.com/",
+    guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
+  },
 ];
 
 export default async function GuidePage() {
@@ -66,6 +87,37 @@ export default async function GuidePage() {
             드려요. 크롬 확장이 <b>네이버 글쓰기 화면에 그대로 입력</b>해 드리니, 확인하고 발행만 눌러 주세요.
           </p>
         </div>
+
+        {/* 럭셔리 크롬 확장 프로그램 3D 엠보싱 퀵 다운로드 카드 */}
+        <section className="card card-download-banner">
+          <div className="download-banner-inner">
+            <div className="download-banner-text">
+              <span className="download-tag">🚀 Chrome Extension</span>
+              <h2>네이버 블로그 자동 포스팅 크롬 확장 프로그램</h2>
+              <p>
+                웹에서 완성된 원고와 이미지를 네이버 스마트에디터에 <b>원클릭 자동 입력 및 실제 포스팅</b>해 드립니다.
+                <br />
+                입력만 하기 · 바로 발행 · 예약 포스팅 3가지 방식을 자유롭게 선택하세요!
+              </p>
+            </div>
+            <div className="download-banner-action">
+              <a
+                className="guide-3d-download-btn"
+                href="/downloads/naver-blog-seo-studio-extension-latest.zip"
+                download
+              >
+                <span className="btn-icon">⬇</span>
+                <span className="btn-text">
+                  <strong>확장 프로그램 다운로드</strong>
+                  <small>최신 버전 (ZIP 압축파일)</small>
+                </span>
+              </a>
+              <a className="guide-settings-link" href="/settings#platform">
+                설치 및 토큰 등록 방법 ↗
+              </a>
+            </div>
+          </div>
+        </section>
 
         <AutoPublishGuide />
           <section className="card">
@@ -109,12 +161,50 @@ export default async function GuidePage() {
         </div>
 
         <section className="card">
-          <h2 className="card-title">🔑 키 발급 매뉴얼</h2>
-          <div className="guide-links">
-            {KEY_GUIDES.map((guide) => (
-              <a key={guide.id} href={`https://www.buylife.xyz/guides/${guide.id}`} target="_blank" rel="noreferrer">
-                {guide.label}
-              </a>
+          <div className="card-head">
+            <h2 className="card-title">🔑 AI 플랫폼 키 발급 & 계정 등록</h2>
+            <a href="/settings#api-key">내 API 키 설정 열기 ↗</a>
+          </div>
+          <p className="card-desc" style={{ marginBottom: "16px", color: "var(--text-sub, #4b5563)", fontSize: "0.92rem" }}>
+            본 프로그램은 사용자 본인의 API 키로 안전하게 구동됩니다. 키가 없으시다면 각 플랫폼 공식 콘솔에서 바로 발급받으실 수 있습니다.
+          </p>
+          <div className="guide-platforms-grid">
+            {KEY_PLATFORMS.map((platform) => (
+              <div key={platform.name} className="guide-platform-card">
+                <div className="platform-card-header">
+                  <span className="platform-icon">{platform.icon}</span>
+                  <div>
+                    <h3 className="platform-title">{platform.name}</h3>
+                    <p className="platform-desc">{platform.desc}</p>
+                  </div>
+                </div>
+                <div className="platform-quick-actions">
+                  <a
+                    href={platform.createUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-create-key"
+                  >
+                    🔗 API 키 발급/생성하기 ↗
+                  </a>
+                  <a
+                    href={platform.signupUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-platform-signup"
+                  >
+                    👤 회원가입 / 콘솔 ↗
+                  </a>
+                </div>
+                <a
+                  href={`https://www.buylife.xyz/guides/${platform.guideId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="platform-manual-link"
+                >
+                  📖 상세 발급 매뉴얼 보기 ↗
+                </a>
+              </div>
             ))}
           </div>
         </section>

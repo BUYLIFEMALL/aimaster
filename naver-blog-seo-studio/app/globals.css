@@ -80,9 +80,34 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .strategy strong { display: block; font-size: 13px; }
 .strategy span { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
 .strategy.selected { border-color: var(--accent); background: var(--accent-soft); }
-.primary { border: 0; width: 100%; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; padding: 14px; margin-top: 22px; }
-.primary:disabled { opacity: .6; cursor: wait; }
-.primary:hover { filter: brightness(.96); }
+.primary {
+  border: 1px solid #008a44;
+  width: 100%;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #08c963 0%, #009b4d 100%);
+  color: #fff;
+  font-weight: 800;
+  padding: 14px;
+  margin-top: 22px;
+  box-shadow: 0 4.5px 0 #007338, 0 8px 16px rgba(0, 155, 77, 0.25);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  cursor: pointer;
+}
+.primary:disabled {
+  opacity: .6;
+  cursor: wait;
+  transform: none !important;
+  box-shadow: 0 2px 0 #007338 !important;
+}
+.primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #0bd46a 0%, #00a352 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 0 #007338, 0 12px 20px rgba(0, 155, 77, 0.35);
+}
+.primary:active:not(:disabled) {
+  transform: translateY(3.5px);
+  box-shadow: 0 1px 0 #007338, 0 2px 6px rgba(0, 155, 77, 0.2);
+}
 .title-recommendation { margin-top: 20px; }
 .freshness-note { margin: -1px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.55; }
 .section-description { margin: -8px 0 20px; color: var(--muted); font-size: 13px; line-height: 1.65; }
@@ -439,7 +464,29 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 }
 
 /* ── 2026-10-17 📖 매뉴얼(/guide) ── */
-.guide-cta { flex-shrink: 0; border-radius: 999px; background: var(--accent); color: #fff; padding: 11px 18px; font-size: 13px; font-weight: 800; text-decoration: none; }
+.guide-cta {
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #08c963 0%, #009b4d 100%);
+  border: 1px solid #008a44;
+  color: #fff !important;
+  padding: 11px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 0 #007338, 0 6px 14px rgba(0, 155, 77, 0.28);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  display: inline-block;
+}
+.guide-cta:hover {
+  background: linear-gradient(180deg, #0bd46a 0%, #00a352 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 5.5px 0 #007338, 0 10px 18px rgba(0, 155, 77, 0.38);
+}
+.guide-cta:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #007338, 0 2px 4px rgba(0, 155, 77, 0.2);
+}
 .guide-bubble { display: flex; align-items: flex-start; gap: 12px; margin: 24px 0; }
 .guide-avatar { display: grid; place-items: center; flex: 0 0 48px; height: 48px; border-radius: 50%; background: var(--accent-bright); font-size: 24px; }
 .guide-bubble p { margin: 0; border: 1px solid var(--line); border-radius: 4px 18px 18px 18px; background: #fff; padding: 14px 16px; color: var(--ink); font-size: 14px; line-height: 1.7; }
@@ -532,3 +579,260 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .handoff-chips span { border-radius: 999px; background: #fff; border: 1px solid #dbe4ef; padding: 4px 9px; font-size: 11px; color: #3b4659; }
 .keyword-handoff-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 @media (max-width: 767px) { .keyword-handoff-head { flex-direction: column; } .keyword-handoff-actions > button { flex: 1 1 100%; } }
+
+/* ==========================================================================
+   ⬇ 사이드바 3D 확장 프로그램 다운로드 버튼 (.nav-download) (2026-10-25)
+   ========================================================================== */
+.nav-download {
+  margin: 6px 0 8px;
+  padding: 12px 14px;
+  border: 1px solid #008a44;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #08c963 0%, #009b4d 100%);
+  color: #ffffff !important;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 5px 0 #007338, 0 9px 18px rgba(0, 155, 77, 0.28);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  display: block;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+.nav-download:hover {
+  color: #ffffff !important;
+  background: linear-gradient(180deg, #0bd46a 0%, #00a352 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6.5px 0 #007338, 0 12px 22px rgba(0, 155, 77, 0.35);
+}
+.nav-download:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #007338, 0 3px 8px rgba(0, 155, 77, 0.25);
+}
+
+/* ==========================================================================
+   🔑 API 키 등록 / 플랫폼 연동 퀵 버튼 공식 표준 (2026-10-25 주인님 지시)
+   ========================================================================== */
+.platform-link-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.btn-create-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #08c963 0%, #009b4d 100%);
+  color: #ffffff !important;
+  border: 1px solid #008a44;
+  box-shadow: 0 4px 12px rgba(0, 155, 77, 0.25);
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.btn-create-key:hover {
+  transform: translateY(-1.5px);
+  background: linear-gradient(135deg, #0bd46a 0%, #00a352 100%);
+  box-shadow: 0 6px 16px rgba(0, 155, 77, 0.35);
+}
+.btn-platform-signup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7.5px 13px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 650;
+  background: #ffffff;
+  color: #1f5f3b !important;
+  border: 1.5px solid #a7f3d0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.btn-platform-signup:hover {
+  transform: translateY(-1px);
+  background: #f0fdf4;
+  border-color: #009b4d;
+}
+
+/* ==========================================================================
+   📖 가이드 페이지 럭셔리 3D 다운로드 배너 & 키 플랫폼 카드 (2026-10-25)
+   ========================================================================== */
+.card-download-banner {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  color: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 24px 28px !important;
+  box-shadow: 0 12px 32px rgba(6, 78, 59, 0.25) !important;
+  margin-bottom: 24px;
+}
+.download-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.download-banner-text {
+  flex: 1 1 450px;
+}
+.download-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(110, 231, 183, 0.4);
+  color: #a7f3d0;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.download-banner-text h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff !important;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+.download-banner-text p {
+  margin: 0;
+  color: #d1fae5;
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+.download-banner-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.guide-3d-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border: 1px solid #34d399;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  box-shadow: 0 6px 0 #047857, 0 12px 24px rgba(5, 150, 105, 0.45);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  cursor: pointer;
+}
+.guide-3d-download-btn:hover {
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #047857, 0 16px 28px rgba(5, 150, 105, 0.55);
+}
+.guide-3d-download-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #047857, 0 4px 10px rgba(5, 150, 105, 0.35);
+}
+.guide-3d-download-btn .btn-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.guide-3d-download-btn .btn-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.guide-3d-download-btn .btn-text strong {
+  font-size: 14.5px;
+  font-weight: 800;
+}
+.guide-3d-download-btn .btn-text small {
+  font-size: 11.5px;
+  color: #d1fae5;
+  font-weight: 500;
+}
+.guide-settings-link {
+  font-size: 12.5px;
+  color: #a7f3d0 !important;
+  text-decoration: underline !important;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+.guide-settings-link:hover {
+  color: #ffffff !important;
+}
+
+/* 플랫폼 카드 그리드 */
+.guide-platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+.guide-platform-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.guide-platform-card:hover {
+  transform: translateY(-2px);
+  border-color: #10b981;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.1);
+}
+.platform-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.platform-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  background: #f0fdf4;
+  border: 1px solid #d1fae5;
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.platform-title {
+  font-size: 15px;
+  font-weight: 750;
+  color: #111827;
+  margin: 0 0 4px;
+}
+.platform-desc {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.45;
+  margin: 0;
+}
+.platform-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 12px 0 10px;
+}
+.platform-manual-link {
+  font-size: 11.5px;
+  color: #059669 !important;
+  text-decoration: none !important;
+  font-weight: 600;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+.platform-manual-link:hover {
+  text-decoration: underline !important;
+}
