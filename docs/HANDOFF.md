@@ -88,9 +88,9 @@
 - 프로그램: https://real-estate-sales.buylife.xyz
 
 ## 2026-10-24 ⏳ Claude Code(윈도우) · 세션 `claude-win-sdp`(이커머스·이미지 담당) — 바나나 캔버스 「무료 지우기(내 브라우저)」 C-0~C-5 이어받음·작업 대기 (문서만, 코드·DB·배포 변경 없음)
-- 한 일: `claude-win-dotori`의 ClearPic 분석·플랜을 받아 실제 코드와 대조(v1.33, COOP/COEP 없음, `onnxruntime-web` 미설치, `MaskEditor.tsx` 재사용 가능)하고, 시제품 통과 기준 5개·C-1~C-5·비용(AI 0회·빌드 1~2회)을 주인님께 보고. 제미나이 워터마크 자동 제거는 제외 확정이라 범위에 넣지 않음.
+- 한 일: `claude-win-dotori`의 ClearPic 분석·플랜을 받아 실제 코드와 대조(v1.33, COOP/COEP 없음, `onnxruntime-web` 미설치, `MaskEditor.tsx` 재사용 가능)하고, 사전 검증 페이지 통과 기준 5개·C-1~C-5·비용(AI 0회·빌드 1~2회)을 주인님께 보고. 제미나이 워터마크 자동 제거는 제외 확정이라 범위에 넣지 않음.
 - 상태: **주인님 승인 전 작업 대기** — 대기 목록 `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` §4, 상세 [인수인계 §6](../banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md). ACTIVE_WORK 줄은 승인 뒤 시작할 때 넣음.
-- 다음 첫 단계(승인 뒤): ACTIVE_WORK 줄 → 로컬 시제품(캐시·입출력 측정·속도·한국어 글자) → 머리글 운영 확인(필요 시 빌드 1회, 사전 보고) → 음악 담당과 COOP/COEP 결과 공유 → C-1.
+- 다음 첫 단계(승인 뒤): ACTIVE_WORK 줄 → 사전 검증 페이지(저장소 밖·내 PC 주소: 머리글·캐시·입출력 측정·속도·한국어 글자, 배포 환경 확인이 꼭 필요할 때만 Lab 빌드 1회·사전 승인) → 음악 담당과 COOP/COEP 결과 공유 → C-1.
 - 커밋: banana-canvas 문서 4개(경로 지정), 이 항목. 푸시는 작업 단위로 모아서(아직 안 함).
 - 비용: 없음.
 - 프로그램: https://banana-canvas.buylife.xyz
