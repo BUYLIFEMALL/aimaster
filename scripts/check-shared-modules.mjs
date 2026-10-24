@@ -700,6 +700,12 @@ const MODULES = [
     ],
   },
   {
+    id: "work-inbox-client",
+    // 2026-10-25 U8: 업무 워크스페이스 「받은 업무」(공용 표 work_inbox)로 보내기. 사용 안내 docs/WORK_INBOX.md
+    source: "ai-work-workspace/src/lib/workInbox.ts",
+    copies: ["ai-task-planner/src/lib/workInbox.ts"],
+  },
+  {
     id: "youtube-golden-engine-test",
     source: "youtube-viral-studio/tests/goldenEngine.test.mjs", // 2026-10-20 병합 C로 기준 이동
     copies: [],
