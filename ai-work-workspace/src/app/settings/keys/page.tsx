@@ -1,5 +1,5 @@
 // U3: 🔑 API키등록·플랫폼연동 — AIMaster 표준 메뉴 이름(CLAUDE.md 「API키등록·플랫폼연동 페이지 표준」).
-// 회원 본인 OpenAI·Claude 키를 공용 표 user_api_keys에 등록한다. 맨 아래 「📖 연동 매뉴얼」 상자(platform_guides 팝업).
+// 회원 본인 OpenAI·Claude·Gemini 키를 공용 표 user_api_keys에 등록한다. 맨 아래 「📖 연동 매뉴얼」 상자(platform_guides 팝업).
 import { requireProgramAccess } from "@/lib/access";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 import { KeysForm } from "./KeysForm";
@@ -39,7 +39,7 @@ export default async function KeysPage() {
         </header>
 
         <section className="aww-tip">
-          💡 AI 비서(AI 질문·글쓰기·AI 블록·자동 채우기)는 <b>회원 본인의 OpenAI 또는 Claude API 키</b>로만 동작합니다. 사용료는 본인 키로 청구되며, 다른 AIMaster 프로그램이나 메인 사이트 「API 설정」에서 이미 등록한 키가 있으면 그대로 쓰입니다. 두 키가 모두 있으면 Claude를 먼저 씁니다.
+          💡 AI 비서(AI 질문·글쓰기·AI 블록·자동 채우기)는 <b>회원 본인의 Claude·OpenAI·Gemini API 키 중 하나</b>로만 동작합니다. 사용료는 본인 키로 청구되며, 다른 AIMaster 프로그램이나 메인 사이트 「API 설정」에서 이미 등록한 키가 있으면 그대로 쓰입니다. 여러 키가 있으면 「자동」은 Claude → OpenAI → Gemini 순서로 쓰고, 채팅의 모델 목록에서 원하는 회사 모델을 직접 고를 수도 있습니다. AI 채팅 기록은 30일이 지나면 자동으로 지워집니다(내가 쓴 페이지·데이터베이스는 그대로).
         </section>
 
         <KeysForm />

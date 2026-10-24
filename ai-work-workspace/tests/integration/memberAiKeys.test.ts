@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const ROWS = [
   { user_id: 'alice', provider: 'anthropic', api_key: 'sk-ant-alice-own-key-0000000000' },
-  { user_id: 'alice', provider: 'gemini', api_key: 'AIza-alice-gemini' },
+  { user_id: 'alice', provider: 'gemini', api_key: 'AIzaSyAlice-gemini-own-key-00000' },
   { user_id: 'bob', provider: 'openai', api_key: 'sk-bob-own-key-000000000000000' },
 ];
 const queries: { user: string; providers: string[] }[] = [];
@@ -37,10 +37,10 @@ describe('회원 본인 AI 키 읽기(U3)', () => {
     mod.forgetMemberAiKeys('carol');
   });
 
-  it('요청한 회원의 OpenAI·Claude 줄만 읽고 Claude를 우선한다', async () => {
+  it('요청한 회원의 OpenAI·Claude·Gemini 줄만 읽고 Claude를 우선한다', async () => {
     const k = await mod.loadMemberAiKeys('alice');
-    expect(k).toEqual({ anthropicKey: 'sk-ant-alice-own-key-0000000000', provider: 'anthropic' });
-    expect(queries).toEqual([{ user: 'alice', providers: ['anthropic', 'openai'] }]);
+    expect(k).toEqual({ anthropicKey: 'sk-ant-alice-own-key-0000000000', geminiKey: 'AIzaSyAlice-gemini-own-key-00000', provider: 'anthropic' });
+    expect(queries).toEqual([{ user: 'alice', providers: ['anthropic', 'openai', 'gemini'] }]);
   });
 
   it('다른 회원의 키를 대신 쓰지 않는다(키 없는 회원은 빈 값)', async () => {

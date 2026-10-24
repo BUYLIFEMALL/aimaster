@@ -17,7 +17,7 @@ function KeyHelp({ close }: { close: () => void }) {
     <PopoverSurface width={340}>
       <div className="nc-ai-keyhelp">
         <div className="nc-ai-keyhelp-title">{t('aww.ai.key_title', 'AI 비서를 쓰려면 본인 API 키가 필요합니다')}</div>
-        <p>{t('aww.ai.key_desc', 'OpenAI 또는 Claude(Anthropic) API 키를 「API키등록·플랫폼연동」에 한 번 등록하면 AI 질문·글쓰기·AI 블록을 쓸 수 있습니다. 사용료는 본인 키로 청구됩니다.')}</p>
+        <p>{t('aww.ai.key_desc', 'Claude·OpenAI·Gemini 중 하나의 API 키를 「API키등록·플랫폼연동」에 한 번 등록하면 AI 질문·글쓰기·AI 블록을 쓸 수 있습니다. 사용료는 본인 키로 청구됩니다.')}</p>
         <p className="nc-ai-keyhelp-sub">{t('aww.ai.key_shared', '다른 AIMaster 프로그램에서 이미 등록한 키가 있으면 그대로 쓰입니다.')}</p>
         <div className="nc-ai-keyhelp-actions">
           {configured && <span className="nc-ai-keyhelp-ok"><Icon name="check" size={14} /> {t('aww.ai.key_connected', '연결됨')}</span>}
@@ -37,7 +37,7 @@ export function NoKeyNotice({ compact }: { compact?: boolean }) {
   return (
     <div className={`nc-ai-nokey ${compact ? 'compact' : ''}`} role="status">
       <Icon name="info" size={14} style={{ color: 'var(--lp-blue-icon-accent)', flexShrink: 0 }} />
-      <span>{t('aww.ai.no_key', '본인 OpenAI 또는 Claude API 키를 등록하면 AI 비서를 쓸 수 있습니다.')}</span>
+      <span>{t('aww.ai.no_key', '본인 Claude·OpenAI·Gemini API 키 중 하나를 등록하면 AI 비서를 쓸 수 있습니다.')}</span>
       <span role="button" className="nc-ai-banner-link" onMouseDown={(e) => e.preventDefault()} onClick={(e) => openKeyHelp(e.currentTarget)}>{t('aww.ai.how_to_connect', '등록 방법')}</span>
     </div>
   );
