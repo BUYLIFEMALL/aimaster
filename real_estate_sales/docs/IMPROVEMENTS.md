@@ -33,3 +33,7 @@
 - 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
 - 사본으로 맞춤: 주석 정리 + 쓰지 않는 RCS 발송 함수 `sendRcs` 추가(동작 같음). tsc·로컬 build 통과.
 - 배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01.
+
+## 2026-10-25 미배포 대기 — 「🔔 이 단지 새 매물 알림 받기」 버튼 ([역할: realty] Claude Code 윈도우 · 세션 `claude-win-20261024-realty`)
+- 주인님 제안 채택: 실거래 상세(`src/app/(dashboard)/listings/[id]/page.tsx`) 단지 제목 아래 버튼 → `https://realty-listing-alert.buylife.xyz/targets?name=<bldg_nm>&region=<자치구 동>` 새 탭. 실거래 자료에는 네이버 단지 번호가 없어(우리 서버는 네이버에 요청하지 않음) 이름·지역만 넘기고, 매물 알림 쪽 화면이 이름을 미리 채운 뒤 회원이 네이버 단지 주소를 붙여 넣게 안내한다.
+- 커밋 `154e7386b`. tsc·eslint 통과. **미배포** — 다음 배포 때 함께, 버전 +0.01. 매물 알림 쪽 미리 채우기(`c623becf5`)도 배포돼야 안내가 보인다(먼저 배포되면 빈 추가 화면만 열림 — 해는 없음).
