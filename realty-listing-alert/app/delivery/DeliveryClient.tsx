@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { connectTelegramAction, disconnectTelegramAction } from "@/lib/actions/telegram";
+import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
 import { saveDeliveryAction } from "@/lib/actions/settings";
 
 type Delivery = {
@@ -30,7 +30,7 @@ function Message({ msg }: { msg: Msg }) {
 }
 
 // 텔레그램 연결 — 기준: booking-reminder/components/settings/TelegramConnectForm.tsx
-function TelegramCard({ telegram }: { telegram: Telegram }) {
+function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null }) {
   const router = useRouter();
   const [msg, setMsg] = useState<Msg>(null);
   const [pending, setPending] = useState(false);
@@ -41,6 +41,21 @@ function TelegramCard({ telegram }: { telegram: Telegram }) {
     setPending(true);
     try {
       const result = await connectTelegramAction({}, new FormData(e.currentTarget));
+      if (result.error) setMsg({ kind: "err", text: result.error });
+      else {
+        setMsg({ kind: "ok", text: result.success ?? "연결됐어요." });
+        router.refresh();
+      }
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function importBot() {
+    setMsg(null);
+    setPending(true);
+    try {
+      const result = await importRealEstateBotAction();
       if (result.error) setMsg({ kind: "err", text: result.error });
       else {
         setMsg({ kind: "ok", text: result.success ?? "연결됐어요." });
@@ -73,6 +88,17 @@ function TelegramCard({ telegram }: { telegram: Telegram }) {
         </>
       ) : (
         <>
+          {realEstateBot && (
+            <div className="ra-import">
+              <p>
+                <b>🏢 부동산 실거래 투자분석 자동화</b>에 연결해 둔 봇(@{realEstateBot.botUsername ?? "봇"})이 있어요. 같은 봇으로 받으면 새로 만들 필요가 없어요.
+                <br />
+                <small>두 프로그램 알림이 한 대화방에 오고, 이 프로그램 알림에는 「🏠 [매물 알림]」이 붙어요.</small>
+              </p>
+              <button type="button" className="primary" disabled={pending} onClick={importBot}>{pending ? "연결 중..." : "기존 부동산 봇 가져오기"}</button>
+              <p className="card-caption">또는 아래에서 다른 봇을 새로 연결할 수 있어요.</p>
+            </div>
+          )}
           <ol className="ra-steps">
             <li>텔레그램에서 <b>@BotFather</b>를 열고 <code>/newbot</code>으로 내 봇을 만든 뒤 <b>봇 토큰</b>을 복사합니다.</li>
             <li>방금 만든 내 봇을 열고 아무 말이나 한 번 보냅니다(이 메시지로 받을 대화방을 찾아요).</li>
@@ -92,7 +118,7 @@ function TelegramCard({ telegram }: { telegram: Telegram }) {
   );
 }
 
-export default function DeliveryClient({ telegram, initial }: { telegram: Telegram; initial: Delivery }) {
+export default function DeliveryClient({ telegram, realEstateBot, initial }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery }) {
   const [value, setValue] = useState<Delivery>(initial);
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<Msg>(null);
@@ -114,7 +140,7 @@ export default function DeliveryClient({ telegram, initial }: { telegram: Telegr
 
   return (
     <>
-      <TelegramCard telegram={telegram} />
+      <TelegramCard telegram={telegram} realEstateBot={realEstateBot} />
       <section className="card">
         <h2 className="card-title">🔔 어떤 때 알려 드릴까요?</h2>
         <div className="ra-chips">

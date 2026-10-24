@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import DeliveryClient from "./DeliveryClient";
+import { REAL_ESTATE_SALES_SLUG } from "@/lib/delivery";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -11,13 +12,15 @@ export const fetchCache = "force-no-store";
 export default async function DeliveryPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const [{ data: link }, { data: settings }] = await Promise.all([
+  const [{ data: link }, { data: settings }, { data: realEstateBot }] = await Promise.all([
     supabase.from("user_telegram_links").select("bot_username, linked_at").eq("user_id", user.id).eq("program_slug", "realty-listing-alert").maybeSingle(),
     supabase
       .from("realty_alert_settings")
       .select("notify_new, notify_price_drop, notify_price_change, notify_gone, deliver_telegram, deliver_file, file_format")
       .eq("user_id", user.id)
       .maybeSingle(),
+    // 기존 부동산 실거래 프로그램에 연결한 본인 봇(있으면 「가져오기」 버튼). 토큰은 읽지 않고 봇 이름만.
+    supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).eq("program_slug", REAL_ESTATE_SALES_SLUG).maybeSingle(),
   ]);
 
   return (
@@ -33,6 +36,7 @@ export default async function DeliveryPage() {
         </div>
         <DeliveryClient
           telegram={link ? { botUsername: link.bot_username ?? null, linkedAt: link.linked_at ?? null } : null}
+          realEstateBot={realEstateBot ? { botUsername: realEstateBot.bot_username ?? null } : null}
           initial={{
             notifyNew: settings?.notify_new ?? true,
             notifyPriceDrop: settings?.notify_price_drop ?? true,
