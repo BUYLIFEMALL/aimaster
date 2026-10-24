@@ -27,8 +27,10 @@
 | 이커머스·이미지 | [ecommerce-image.md](ecommerce-image.md) | Claude Code(윈도우) `claude-win-sdp` | 바나나 캔버스·상세페이지·이미지 스튜디오 | 이커머스·이미지 |
 | 문서 챗봇·AI Prompt | [docbot-prompt.md](docbot-prompt.md) | Codex(윈도우) `codex-win-20261024-docbot-g2` | 문서 챗봇·AI Prompt·공용 공급자 | 업무자동화·AI 프롬프트 |
 | AI 업무 워크스페이스 | [workspace.md](workspace.md) | Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace` | Tools |
+| 부동산 | [real-estate.md](real-estate.md) | Claude Code(윈도우) — 세션 이름은 담당이 처음 시작할 때 적음(2026-10-24 주인님 지정) | `real_estate_sales/`·새 `realty-listing-alert/` | 부동산 |
 | 검수 | [review.md](review.md) | Claude Code(윈도우) — 세션 이름 확인 필요 | 다른 CLI 작업 검수 | 전체 |
 | 디자인 | [design.md](design.md) | Antigravity(`agy`) | 디자인 리뉴얼·매뉴얼 시각화 | 전체 |
+| 부동산 | [realty.md](realty.md) | Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert`(새 프로그램 구현)·부동산 프로그램 | 부동산 |
 | 맥미니 | [mac-mini.md](mac-mini.md) | Claude Code(맥미니) | 맥용 프로그램 개발·실물 테스트 | 맥용 |
 | (전담 없음) | [unassigned.md](unassigned.md) | 전담 역할이 없는 모든 세션 | 역할 없는 작업의 요약·요청·건의 공용 칸(여러 세션이 쓰므로 안전 커밋 도우미) | 전체 |
 
@@ -54,7 +56,7 @@
 
 세션 이름은 자주 바뀐다(예: `claude-win-20261023-blog2` → `claude-win-20261024-blog3`, `codex-win-20261024-docbot-prompt` → `codex-win-20261024-docbot-g1`). 그래서 기록에는 **바뀌지 않는 역할 ID를 함께** 쓴다. 관리자 「개발 현황·지침 센터」와 점검 도구가 이 표시로 역할별 기록을 모은다.
 
-- **역할 ID = 이 폴더의 역할 파일 이름**(확장자 뺀 것): `analysis-planning` · `blog` · `music` · `video` · `ecommerce-image` · `docbot-prompt` · `workspace` · `review` · `design` · `mac-mini` · `unassigned`(전담 없음)
+- **역할 ID = 이 폴더의 역할 파일 이름**(확장자 뺀 것): `analysis-planning` · `blog` · `music` · `video` · `ecommerce-image` · `docbot-prompt` · `workspace` · `review` · `design` · `mac-mini` · `realty` · `unassigned`(전담 없음)
 - 전담 역할이 없는 작업은 `[역할: 미지정]`이라고 쓴다. 주인님이 담당을 정하면 새 역할 ID를 이 표에 추가한다.
 - **어디에 쓰나**
   1. 루트 `docs/HANDOFF.md` 항목 제목: 날짜·상태 표시 바로 뒤에 넣는다.
