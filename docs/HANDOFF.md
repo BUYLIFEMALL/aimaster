@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 상품소싱 v1.26: E0 수수료 참고표 재확인 (승인 빌드 1회)
+
+- G마켓·옥션을 ESM PLUS 공식 표 값으로 교체(대부분 13%, 예전 6.5~10%로 마진이 높게 보였음). 쿠팡·11번가·스마트스토어는 공식 표가 판매자 로그인 뒤라 「⚠ 공식 표 미확인 · 참고치」+확인 경로, 11번가 카테고리 숫자 삭제, 스마트스토어 범위·부가세 표기. 모든 표에 확인일·부가세·출처. 상세 `trending-product-finder/AGENTS.md` v1.26.
+- 커밋 `861260d60`, 배포 `trending-product-finder-ac8udmn5c` Ready, DB v1.26, 크롬 `/fees` 확인. 남은 일: 판매자 센터 3곳 공식 값 대조(주인님 확인 요청).
+- 링크: https://trending-product-finder.buylife.xyz/fees
+
 ## 2026-10-25 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.22 「영상 만들기」 맥 느림 2단계
 - 근거: 맥미니 측정(`73f2e1f2c`, 플랜 §7) — 인코딩이 아니라 장면 그리기가 한 장 약 20초. 클립은 이미 `blob:`이라 원본 받기 대기는 아님 → 디코더 문제로 판단.
 - 한 일: 맥(데스크톱 macOS)은 렌더 중 소프트웨어 디코딩이 기본(`lib/edit/softDecode.ts`, 렌더 중에만 `VideoDecoder.configure` 감싸기). 주소 스위치 `?render=hwdecode|softdecode|verbose|software`(쉼표), 진단 `decode`·`msPerFrame`, 「멈추는 중…」 즉시 표시, 남은 시간 수정 `d8c0aed57` 함께.
