@@ -23,7 +23,7 @@
 | 🔁 DUP-3 `naver-cafe-poster` | 시간 초과 재게시·정기 게시 실패 시 5분마다 재생성·즉시 게시 서버 상태 확인(NV-P1·P2·P6) | 담당 지정 | `docs/NAVER_CONSOLIDATION_TASKS.md` |
 | 🔁 DUP-4 `shots`(Shots) | 유튜브·인스타 업로드 중복 방지 서버 조건(YT-U7) | 담당 지정 | `docs/YOUTUBE_CONSOLIDATION_TASKS.md` |
 | 🔁 DUP-5 `insta_auto_poster` + 사본(인플루언서·웹툰·4컷) | 게시 엔진 시간 초과 재시도(`postGraphWithRetry`) 중단 — 공용 사본이라 기준 코드 1곳 수정 후 사본 동기화(INC-D1) | 담당 지정 | `docs/INSTAGRAM_CONSOLIDATION_TASKS.md` |
-| 🏠 새 프로그램 후보 `realty-listing-alert` | **네이버 부동산 매물 무인 수집·정리·알림** — 회원 PC(1단계 크롬 확장 → 2단계 PC 프로그램)에서만 네이버 접속, 우리 서버 요청 0·데이터 미보관, 텔레그램(엑셀 첨부)·이메일·파일 · 쿠키 추출기(EXT-RE-02) 함께 검토 · N1·N2는 `real_estate_sales` | 플랜 3판 §10 결정 5개 | `docs/analysis-naver-realty-collector-20261024/PLAN_20261024_LIVE_LISTINGS.md` |
+| 🏠 새 프로그램 `realty-listing-alert`(구조·이름·간격 결정 완료, 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`) | **네이버 부동산 매물 무인 수집·정리·알림** — 회원 PC(1단계 크롬 확장 → 2단계 PC 프로그램)에서만 네이버 접속, 우리 서버 요청 0·데이터 미보관, 텔레그램(엑셀 첨부)·이메일·파일 · 쿠키 추출기(EXT-RE-02) 함께 검토 · N1·N2는 `real_estate_sales` | 남은 결정: 0단계 사전 검증 승인·구현 담당 지정 | `docs/analysis-naver-realty-collector-20261024/PLAN_20261024_LIVE_LISTINGS.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
