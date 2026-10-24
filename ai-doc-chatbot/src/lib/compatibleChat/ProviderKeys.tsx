@@ -42,9 +42,15 @@ export function ProviderKeys({ dark = false }: { dark?: boolean }) {
   return <section className={`space-y-3 rounded-xl border p-4 ${card}`} aria-label="추가 AI 공용 키 등록">
     <h2 className="text-sm font-bold">추가 AI · 회원 공용 키</h2>
     <p className="text-xs leading-relaxed">같은 본인 키를 문서 챗봇과 AI Prompt가 함께 사용합니다. 운영자나 다른 회원 키로 대신 처리하지 않습니다. Gemini 설계·문서 임베딩은 기존 연결을 사용합니다.</p>
+    <p className="text-xs leading-relaxed">옆 버튼에서 공식 서비스에 가입·로그인해 키를 생성한 뒤, 아래 입력란에 붙여 넣고 저장하세요. Cloudflare는 API 키와 계정 ID를 모두 등록합니다.</p>
     {notice && <p role="status" className="rounded-lg border border-indigo-400/30 bg-indigo-500/10 p-2 text-xs">{notice}</p>}
     {KEY_FIELDS.map((field) => <form key={field.key} onSubmit={(e) => { e.preventDefault(); void change(field.key); }} className={`space-y-2 rounded-lg border p-3 ${card}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2"><label htmlFor={`compatible-${field.key}`} className="text-xs font-semibold">{field.label}</label><a href={field.console} target="_blank" rel="noopener noreferrer" className="text-xs underline">발급/확인 ↗</a></div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <label htmlFor={`compatible-${field.key}`} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold">
+          <span>{field.label}</span><span aria-hidden="true">|</span><span className="font-normal">{field.purpose}</span>
+        </label>
+        <a href={field.console} target="_blank" rel="noopener noreferrer" aria-label={`${field.label} ${field.linkLabel} (새 창)`} className="shrink-0 rounded-lg border border-indigo-400/40 px-3 py-1.5 text-xs font-semibold hover:bg-indigo-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">{field.linkLabel} ↗</a>
+      </div>
       {keys[field.key]?.registered && <p className="break-all text-xs">등록됨 · {keys[field.key].maskedKey}</p>}
       <div className="flex flex-wrap gap-2"><input id={`compatible-${field.key}`} type="password" autoComplete="off" value={values[field.key] ?? ""} onChange={(e) => setValues((old) => ({ ...old, [field.key]: e.target.value }))} className={`min-w-0 flex-1 rounded-lg border p-2 text-xs ${card}`} placeholder={keys[field.key]?.registered ? "변경할 본인 값" : "본인 값 입력"} disabled={busy} />
         <button type="submit" disabled={busy || !values[field.key]?.trim()} className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">저장</button>

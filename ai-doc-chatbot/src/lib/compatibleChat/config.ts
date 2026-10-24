@@ -13,8 +13,8 @@ export const PROVIDERS = [
 
 export const ACTIVE_PROVIDERS = PROVIDERS.filter((p) => p.enabled);
 export const KEY_FIELDS = [
-  ...ACTIVE_PROVIDERS.map((p) => ({ key: p.key, label: `${p.name} API 키`, console: p.console })),
-  { key: "cloudflare_account_id", label: "Cloudflare 계정 ID", console: "https://dash.cloudflare.com/" },
+  ...ACTIVE_PROVIDERS.map((p) => ({ key: p.key, label: `${p.name} API 키`, purpose: "대화·번역·요약에 사용", console: p.console, linkLabel: "API 키 생성·등록" })),
+  { key: "cloudflare_account_id", label: "Cloudflare 계정 ID", purpose: "Cloudflare 연결 계정 식별에 사용", console: "https://dash.cloudflare.com/", linkLabel: "계정 ID 확인" },
 ];
 
 export class CompatibleChatError extends Error {
