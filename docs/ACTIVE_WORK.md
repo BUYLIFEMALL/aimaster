@@ -22,7 +22,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| 메인 사이트 `app/admin/dev-docs/` · `app/api/admin/dev-docs/` · `components/admin/devdocs/` · `lib/devDocs/` (범위: `components/layout/AdminSidebar.tsx`·`package.json`·`package-lock.json`·`supabase/migrations/0043_*`·`scripts/dev-requests.mjs`·`scripts/build-dev-docs-manifest.mjs`) | [역할: analysis-planning] Claude Code(윈도우, 크롬) · 세션 `claude-win-dotori` | 2026-10-24 | 관리자 「개발 문서 관리」 메뉴(보기·수정안) — 플랜 `docs/PLAN_20261024_ADMIN_DEV_DOCS_CENTER.md`, 빌드 1~2회·DB 표 1개 승인 |
 | `ai-video-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261024-videostudio` | 2026-10-24 | 2안 헐리우드 네온 사이버 스튜디오 스타일 전면 리뉴얼 (배경 #0b0d1b, 3D 영상 아이콘, /prompts 및 전체 UI 가독성/초보자 개편) |
 | (확인만, 코드 수정 없음) `video-to-gif/local-renderer/test/`·`video-to-gif/AGENTS.md` 기록 | Claude Code(맥미니, 크롬) · 세션 `claude-mac-20261024-maccheck` | 2026-10-24 | 윈도우 영상 담당 요청: 내 PC 렌더러 1.30 맥판 loop·normalize·compress 맥 실물 확인(터미널 + 크롬 3화면) |
 | `naver-blog-agent/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` (블로그 담당) | 2026-10-24 | E-3 ✅ v2.19 · E-4 ✅ v2.20 · E-5 ✅ v2.21 → **다음: ② 간편 모드 실제 네이버 입력 시험(비공개 1건, 크롬 시험 계정 로그인 필요)** → ③ SEO 예약·콘텐츠 메이커 포스팅 → ④ 묶음 E. 미배포 대기 `89d135c4b` |
