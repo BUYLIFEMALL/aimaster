@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — AutoGemmaStarter 2.0.0 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
+- 대상 `D:\PDS\Program_dev\AutoGemmaStarter-Setup-2.0.0.exe`(Inno 6.7 → PyInstaller·PySide6, GPT PARK 정회원 전용, 실행 안 함). 내 PC에 Ollama 자동 설치·사양별 모델 추천 + 내장 채팅(커스텀 봇 12종·프롬프트 25종·지식 도서관 RAG·웹 검색·로컬/클라우드 공급자 Groq·OpenRouter·NVIDIA·Cloudflare).
+- 의견: 독립 개발 안 함(로컬 설치는 데스크톱 전용) → 좋은 기능만 `ai-doc-chatbot`·`ai-prompt-studio`에 병합. 후보 G1 OpenAI 호환 공급자 묶음(공용, 두 프로그램의 「한 공급자」 단점 해소) · G2·G3 커스텀 봇 · G5 문서 RAG 보강 · G4 회원 PC 로컬 Ollama 연결(시제품 뒤). 결정 대기: 범위, 봇 위치, 로컬 AI 여부, 구현 담당. [보고서](analysis-autogemma-starter-20261024/REPORT.md). 비용 없음.
+
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Lyricbi 1.9.0 재확인 (읽기 전용, 변경 없음)
 - 요청 파일이 **2026-10-21에 이미 분석한 같은 파일**(해시 일치) → 그 결과물 `lyric-video-studio`(v1.10)와 대조만 함. 남은 것: R1 노래방 로마자 · R2 LP판 · R3 플레이리스트(→ `playlist-channel-studio`가 담당) · R4 Pexels 배경 · R5 로고·프레임(대부분 이미 백로그) + 프리셋·강조·스펙트럼·글꼴 수 확장, 환경 진단. 추천 순서 R1 → R2 → R4. **음악 담당에게 인계(주인님 지시)** — 플랜 초안 L-1 노래방 로마자 · L-2 LP판 · L-3 무료 사진 배경(공용 `free-photo-search`) · L-4 꾸밈 확장 · L-5 렌더 진단, 범위·순서·비용(AI 0·빌드 2회) 승인 전. 음악 담당 대기 묶음 3개(Spectrum P·무료 음성·이 L) 순서도 함께 여쭙기. [인계](../lyric-video-studio/docs/IMPROVEMENT_HANDOFF_20261024_LYRICBI_RECHECK.md) · [플랜](../lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md) · [재확인 기록](analysis-lyricbi-20261021/RECHECK_20261024.md). 비용 없음.
 
