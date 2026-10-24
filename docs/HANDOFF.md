@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: design-ui] Antigravity(윈도우) · 세션 `agy-win-20261024-videostudio` — AI 영상 스튜디오 v1.20 배포 (2안 헐리우드 네온 사이버 스튜디오 전면 리뉴얼)
+- 사용자 지시: `https://ai-video-studio.buylife.xyz/` 및 `/prompts` 가독성 개선, 배경 검정색 탈피, 3D 스타일 이모티콘/오브젝트, 유튜브 크리에이터 감성의 화려한 영상 스튜디오 UI 리뉴얼 ➔ 3개 제안 중 **2안 [헐리우드 네온 사이버 스튜디오]** 확정.
+- 공식 템플릿 신설: `DESIGN.md` 신규 공식 템플릿 제14호 「헐리우드 네온 사이버 스튜디오 스타일」 등록 및 현황판 89번 행 등록 완료 (`6f4d1d6f5`).
+- 주요 구현 내역 (v1.20):
+  1. 전역 스타일 및 사이버 룸 레이아웃 (`globals.css`, `layout.tsx`): 딥 바이올렛 스페이스 (`#0b0d1b`) 배경, 네온 앰비언트 글로우(`.bg-cyber-studio-pattern`), 글래스모피즘 카드(`.glass-cyber-card`).
+  2. 3D 스튜디오 사이드바 (`Sidebar.tsx`): 3D 슬레이트 로고 + `🔴 LIVE STUDIO` 펄스 램프 뱃지, 기능별 3D 직관 아이콘(🎬, ✂️, 🏆, 💡) 및 초보자 친화 캡션/뱃지 완비.
+  3. 영상 프롬프트 게시판 전면 개편 (`PromptBoard.tsx`): 썸네일형 시네마틱 카드 레이아웃, 고대비 스노우 화이트/슬레이트 실버 폰트 적용(가독성 100% 개선), 3D 카테고리 필터 칩, 초보자용 가이드 태그(`⏱️ 3초 완성`, `💡 추천 화풍`, `✍️ 글만으로 완성`), 유튜브 재생 감성의 일렉트릭 핫핑크 액션 버튼(`▶ 이 장면으로 영상 만들기`).
+  4. 영상 생성 작업실 스텝 카드 및 칩 스타일 통일 (`CreateStudio.tsx`).
+- 검증 및 배포:
+  - 로컬 빌드 성공: `npm --prefix D:\Antigravity\AIMaster\ai-video-studio run build` 정상 통과.
+  - Vercel 프로덕션 배포 완료: `https://ai-video-studio.buylife.xyz` (Deployment `dpl_9LvWt183JmimurQUjr27nhiEWcHp`, READY).
+  - DB 버전 동기화: `programs.version` = `v1.20` 갱신 완료.
+  - 네이버 웨일 브라우저 포그라운드 실세션 검수 완료: `/prompts`, `/login` 정상 렌더링 확인.
+- 비용: Vercel 프로덕션 배포 1회, 유료 AI 호출 0회 ($0).
+- 프로그램: https://ai-video-studio.buylife.xyz
+
 ## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 관리자 「개발 문서 관리」 메뉴 배포 + 최상위 지침(작업 전·후 문서 확인·갱신, 관리자 요청·건의)
 - 화면: https://www.buylife.xyz/admin/dev-docs — 사이드바 「사이트 설정」 아래 구분선 → 「개발 문서 관리」 메뉴 8개.
   - 메뉴: 한눈에 보기(진행 중·대기 중·예정 세 칸 + 📮 관리자에게 온 요청·건의 + 역할 카드) · 개발 진행 중 · 개발 대기 중 · 개발 예정 · 분석 완료·판단(37건, 핵심 기능·병합/독립) · 지침 관리 · 프로그램별 지침(93개) · 수정 요청함
