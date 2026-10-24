@@ -16,7 +16,13 @@ import {
   X,
   LogOut,
   Sparkles,
-  Zap
+  Zap,
+  Laptop,
+  Puzzle,
+  Terminal,
+  Copy,
+  Check,
+  Cpu
 } from "lucide-react";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
@@ -24,6 +30,15 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buyl
 export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [copiedMac, setCopiedMac] = useState(false);
+
+  const copyMacCommand = () => {
+    const cmd = "curl -fsSL https://video-to-gif.buylife.xyz/downloads/local-renderer/install-mac.sh | bash";
+    navigator.clipboard.writeText(cmd);
+    setCopiedMac(true);
+    setTimeout(() => setCopiedMac(false), 2000);
+  };
 
   const isDashboard = pathname === "/dashboard" || pathname === "/";
   const isGuide = pathname === "/guide";
@@ -41,13 +56,22 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             {APP_VERSION}
           </span>
         </Link>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#30363d] bg-[#0d1117] text-gray-300 hover:text-white"
-          aria-label="메뉴 열기"
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDownloadModalOpen(true)}
+            className="flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[11px] font-bold text-amber-300"
+          >
+            <Download className="h-3 w-3" />
+            <span>설치</span>
+          </button>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#30363d] bg-[#0d1117] text-gray-300 hover:text-white"
+            aria-label="메뉴 열기"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </header>
 
       {/* 모바일 드로어 백드롭 */}
@@ -184,6 +208,29 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 GUIDE
               </span>
             </Link>
+
+            {/* 내 PC 로컬 렌더러 프로그램 다운로드 카드 */}
+            <button
+              type="button"
+              onClick={() => {
+                setDownloadModalOpen(true);
+                setMobileOpen(false);
+              }}
+              className="mt-2 w-full group flex items-center justify-between rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-[#161b22] to-amber-500/10 p-2.5 text-left hover:border-amber-500/50 transition-all shadow-sm"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-slate-950 font-black">
+                  <Download className="h-4 w-4" />
+                </span>
+                <div>
+                  <div className="text-xs font-black text-white flex items-center gap-1">
+                    <span>로컬 렌더러 받기</span>
+                    <span className="rounded bg-amber-400/20 px-1 text-[9px] font-bold text-amber-300">최신 v1.25</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">내 PC 가속 렌더러 & 확장 ZIP</div>
+                </div>
+              </div>
+            </button>
           </div>
 
           {/* AIMaster 패밀리 메뉴 */}
@@ -232,6 +279,134 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           </div>
         </div>
       </aside>
+
+      {/* 로컬 렌더러 & 확장 프로그램 다운로드 팝업 모달 */}
+      {downloadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0"
+            onClick={() => setDownloadModalOpen(false)}
+          />
+          <div className="relative w-full max-w-2xl rounded-3xl border border-amber-500/40 bg-[#0d1117] p-6 sm:p-7 shadow-2xl z-10 max-h-[90vh] overflow-y-auto">
+            {/* 상단 닫기 & 타이틀 */}
+            <div className="flex items-start justify-between pb-4 border-b border-[#30363d]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-300">
+                    <Cpu className="h-3 w-3" />
+                    내 PC 하드웨어 가속
+                  </span>
+                  <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300 border border-cyan-500/20">
+                    최신 공식판 v1.25
+                  </span>
+                </div>
+                <h3 className="mt-2 text-xl font-extrabold text-white flex items-center gap-2">
+                  <span>로컬 렌더러 프로그램 다운로드 센터</span>
+                </h3>
+                <p className="mt-1 text-xs text-gray-300">
+                  내 컴퓨터의 GPU/CPU 성능으로 3~4배 빠르게 고화질 영상을 변환하세요.
+                </p>
+              </div>
+              <button
+                onClick={() => setDownloadModalOpen(false)}
+                className="rounded-lg border border-[#30363d] p-1.5 text-gray-400 hover:text-white hover:bg-[#161b22]"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* 다운로드 3대 카드 */}
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* Windows 렌더러 */}
+              <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-4 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 font-bold">
+                      <Laptop className="h-4 w-4" />
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      Windows 10/11
+                    </span>
+                  </div>
+                  <h4 className="mt-3 text-sm font-bold text-white">Windows 렌더러 프로그램</h4>
+                  <p className="mt-1 text-[11px] text-gray-400">
+                    압축 해제 후 install-windows.bat 실행 (관리자 권한 불필요, 1초 등록)
+                  </p>
+                </div>
+                <a
+                  href="/downloads/local-renderer/gif-renderer-windows-latest.zip"
+                  className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3.5 py-2 text-xs font-black text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/20"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Windows 렌더러 ZIP 받기</span>
+                </a>
+              </div>
+
+              {/* 브라우저 확장 */}
+              <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-4 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-400 font-bold">
+                      <Puzzle className="h-4 w-4" />
+                    </span>
+                    <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                      Chrome / Whale / Edge
+                    </span>
+                  </div>
+                  <h4 className="mt-3 text-sm font-bold text-white">브라우저 확장프로그램</h4>
+                  <p className="mt-1 text-[11px] text-gray-400">
+                    압축 해제 후 chrome://extensions에서 [압축해제된 확장 로드] 선택
+                  </p>
+                </div>
+                <a
+                  href="/downloads/local-renderer/gif-renderer-extension-latest.zip"
+                  className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/15 px-3.5 py-2 text-xs font-bold text-cyan-300 hover:bg-cyan-500/25 transition-all shadow-md shadow-cyan-500/10"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>확장프로그램 ZIP 받기</span>
+                </a>
+              </div>
+
+              {/* Mac 터미널 원클릭 */}
+              <div className="sm:col-span-2 rounded-2xl border border-[#30363d] bg-[#161b22] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Terminal className="h-4 w-4 text-purple-400" />
+                    <span className="text-sm font-bold text-white">Mac (macOS) 터미널 1초 설치</span>
+                    <span className="text-[10px] text-purple-300 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-500/20">
+                      터미널에 붙여넣기
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-gray-400 bg-black/40 px-2.5 py-1.5 rounded-lg border border-white/5 break-all">
+                    curl -fsSL https://video-to-gif.buylife.xyz/downloads/local-renderer/install-mac.sh | bash
+                  </div>
+                </div>
+                <button
+                  onClick={copyMacCommand}
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-purple-500/40 bg-purple-500/15 px-4 py-2 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition-all shadow-md shadow-purple-500/10"
+                >
+                  {copiedMac ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span>{copiedMac ? "복사 완료!" : "명령어 1초 복사"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 하단 설치 안내 링크 */}
+            <div className="mt-5 pt-4 border-t border-[#30363d] flex flex-wrap items-center justify-between gap-3 text-xs">
+              <span className="text-gray-400">
+                💡 1회만 설치해 두시면 접속 시 자동으로 최신 가속 엔진이 연동됩니다.
+              </span>
+              <Link
+                href="/guide#local-renderer"
+                onClick={() => setDownloadModalOpen(false)}
+                className="text-amber-400 hover:text-amber-300 font-bold underline"
+              >
+                상세 캡처 매뉴얼 보기 ➔
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

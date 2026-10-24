@@ -12,8 +12,10 @@ import {
   Play,
   Monitor,
   Activity,
-  Maximize2
+  Maximize2,
+  Download
 } from "lucide-react";
+import LocalRendererHub from "@/components/LocalRendererHub";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
 
@@ -46,13 +48,22 @@ export default function LandingPage() {
             </span>
           </Link>
 
-          <Link
-            href="/dashboard"
-            className="justify-self-end rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-extrabold text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/20 flex items-center gap-1.5"
-          >
-            <span>스튜디오 가동</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="justify-self-end flex items-center gap-2">
+            <a
+              href="#download-center"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-all shadow-sm"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span>로컬 프로그램 받기</span>
+            </a>
+            <Link
+              href="/dashboard"
+              className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-extrabold text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/20 flex items-center gap-1.5"
+            >
+              <span>스튜디오 가동</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </header>
 
         {/* 메인 히어로 섹션 */}
@@ -128,6 +139,13 @@ export default function LandingPage() {
                 <Play className="h-4 w-4 fill-slate-950" />
                 <span>스튜디오 시작하기</span>
               </Link>
+              <a
+                href="#download-center"
+                className="rounded-xl border border-amber-500/40 bg-amber-500/15 px-5 py-3.5 text-sm font-extrabold text-amber-300 hover:bg-amber-500/25 transition-all shadow-lg shadow-amber-500/10 flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>📥 로컬 프로그램 다운로드</span>
+              </a>
               <Link
                 href="/guide"
                 className="rounded-xl border border-[#30363d] bg-[#161b22] px-5 py-3.5 text-sm font-bold text-gray-300 hover:border-amber-500/40 hover:text-white transition-all flex items-center gap-2"
@@ -264,6 +282,11 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* 로컬 렌더러 다운로드 센터 & 실시간 최신 버전 점검 허브 */}
+        <section id="download-center" className="pb-16 pt-4 scroll-mt-6">
+          <LocalRendererHub />
         </section>
       </div>
     </main>

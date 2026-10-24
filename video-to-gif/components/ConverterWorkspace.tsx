@@ -1038,10 +1038,28 @@ export default function ConverterWorkspace() {
                   )}
                 </span>
               ) : (
-                <span>
-                  지금은 브라우저에서 변환합니다. 크롬 확장과 PC 렌더러를 한 번 설치하면 약 2~3배 빨라집니다(무료).{" "}
-                  <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">설치 방법</Link>
-                </span>
+                <div className="space-y-2">
+                  <span>
+                    지금은 브라우저에서 변환합니다. 크롬 확장과 PC 렌더러를 한 번 설치하면 약 2~3배 빨라집니다(무료).{" "}
+                    <Link href="/guide#local-renderer" className="font-bold text-amber-300 underline">설치 방법</Link>
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    <a
+                      href="/downloads/local-renderer/gif-renderer-windows-latest.zip"
+                      className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 border border-amber-500/30 px-2 py-1 text-[11px] font-bold text-amber-300 hover:bg-amber-500/30"
+                    >
+                      <Download className="h-3 w-3" />
+                      <span>윈도우 렌더러 받기</span>
+                    </a>
+                    <a
+                      href="/downloads/local-renderer/gif-renderer-extension-latest.zip"
+                      className="inline-flex items-center gap-1 rounded-md bg-cyan-500/20 border border-cyan-500/30 px-2 py-1 text-[11px] font-bold text-cyan-300 hover:bg-cyan-500/30"
+                    >
+                      <Download className="h-3 w-3" />
+                      <span>확장 ZIP 받기</span>
+                    </a>
+                  </div>
+                </div>
               )}
               {rendererUpdate?.ext && (
                 <p className="mt-1.5 text-amber-200">
