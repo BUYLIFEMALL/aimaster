@@ -4,11 +4,12 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { chatOnce, chatStream, embed, ROUTER_MODEL, type ChatMessage } from "@/lib/chat/upstage";
 import { webSearch, type WebResult } from "@/lib/chat/tavily";
-import { buildRouterPrompt, buildSources, buildSystemPrompt, extractKeywords, isSummaryQuestion, mergeHybrid, parseRouteDecision, pickDocHits, roomTitleFrom, todayKst, type ChunkHit, type DocHit } from "@/lib/chat/core";
+import { buildSources, extractKeywords, isSummaryQuestion, mergeHybrid, parseRouteDecision, pickDocHits, roomTitleFrom, todayKst, type ChunkHit, type DocHit } from "@/lib/chat/core";
+import { buildAnswerMessages, buildRouterMessages, needsWebDecision } from "@/lib/chat/prompts";
 import { compatibleCredentials } from "@/lib/compatibleChat/keyStore";
 import { compatibleChat } from "@/lib/compatibleChat/transport";
 import { CompatibleChatError } from "@/lib/compatibleChat/config";
-import { generationContext, UUID, withBotInstructions } from "@/lib/bots/core";
+import { generationContext, UUID } from "@/lib/bots/core";
 import { resolveBot } from "@/lib/bots/store";
 
 export const dynamic = "force-dynamic";
@@ -121,12 +122,12 @@ export async function POST(request: Request) {
         let web: WebResult[] = [];
         let webNote: string | null = null;
         let webVia: "mcp" | "rest" | undefined;
-        if (webMode === "auto") {
+        if (webMode === "auto" && needsWebDecision(bot)) {
           if (!tavilyKey) {
             webNote = "no_key";
           } else {
             // 문서에서 찾은 내용을 함께 보여 주어, 문서로 답할 수 있으면 웹 검색을 건너뛴다(L9)
-            const routerMessages: ChatMessage[] = [{ role: "user", content: buildRouterPrompt(question, today, docs) }];
+            const routerMessages = buildRouterMessages(question, today, docs, bot);
             const raw = credentials
               ? (await compatibleChat({ ...credentials, messages: routerMessages, temperature: 0, maxTokens: 512, timeoutMs: 15_000, signal })).text
               : await chatOnce(upstageKey!, ROUTER_MODEL, routerMessages, 160, signal);
@@ -148,7 +149,7 @@ export async function POST(request: Request) {
         send({ type: "meta", roomId, sources, webNote, botRef, generationContext: context });
 
         // 3) 답변(실시간으로 흘려보냄)
-        const messages: ChatMessage[] = [{ role: "system", content: withBotInstructions(buildSystemPrompt(today, docs, web), bot) }, ...history, { role: "user", content: question }];
+        const messages = buildAnswerMessages(today, docs, web, bot, history, question);
         signal.throwIfAborted();
         const result = credentials
           ? await compatibleChat({ ...credentials, messages, temperature: selection.temperature, signal, onDelta: (text) => send({ type: "delta", text }) })

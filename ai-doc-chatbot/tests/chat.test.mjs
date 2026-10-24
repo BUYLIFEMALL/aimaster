@@ -21,7 +21,7 @@ test("웹 검색 판단 해석: JSON만 믿고, 깨지면 검색 안 함", () =>
   assert.deepEqual(parseRouteDecision('설명... {"web": false} 끝', "원래 질문"), { web: false, query: "원래 질문", ...off });
   assert.deepEqual(parseRouteDecision("모르겠어요", "q"), { web: false, query: "q", ...off });
   assert.deepEqual(parseRouteDecision('{"web": "yes"}', "q"), { web: false, query: "q", ...off });
-  assert.match(buildRouterPrompt("오늘 날씨", "2026-10-19(월)"), /오늘은 2026-10-19\(월\)/);
+  assert.match(buildRouterPrompt("2026-10-19(월)"), /오늘은 2026-10-19\(월\)/);
 });
 
 test("웹 검색 판단: 뉴스·기간 조건 해석(L8), 이상한 값은 버림", () => {
@@ -30,10 +30,10 @@ test("웹 검색 판단: 뉴스·기간 조건 해석(L8), 이상한 값은 버�
 });
 
 test("웹 검색 판단 지시문: 찾은 문서 내용을 보여 주어 문서로 답할 수 있으면 검색 생략(L9)", () => {
-  const p = buildRouterPrompt("국내 출장 일비는?", "2026-10-19(월)", [{ document_name: "규정.txt", content: "국내 출장 일비는\n하루 4만 5천 원", similarity: 0.6 }]);
-  assert.match(p, /규정\.txt\) 국내 출장 일비는 하루 4만 5천 원/);
+  const p = buildRouterPrompt("2026-10-19(월)", true);
+  assert.match(p, /documents에 있습니다/);
   assert.match(p, /web=false/);
-  assert.doesNotMatch(buildRouterPrompt("q", "2026-10-19(월)"), /사용자가 올린 문서/);
+  assert.doesNotMatch(buildRouterPrompt("2026-10-19(월)"), /사용자가 올린 문서/);
 });
 
 test("오늘 날짜: 한국 시간 기준(L8)", () => {
@@ -45,12 +45,12 @@ test("문서 관련도 기준은 0.3보다 높게(L10)", () => {
   assert.ok(MIN_DOC_SIMILARITY > 0.3);
 });
 
-test("답변 지시문: 오늘 날짜·당해 연도·문서·웹 근거·발행일 포함", () => {
+test("답변 지시문: 현재 날짜·근거 정책만 포함하고 실제 문서·웹 원문은 분리", () => {
   const p = buildSystemPrompt("2026-10-19(월)", [{ document_name: "회사소개.pdf", content: "우리는 교육 회사", similarity: 0.8 }], [{ title: "뉴스", url: "https://ex.com", content: "최신", published: "2026-10-18" }]);
   assert.match(p, /오늘은 2026-10-19\(월\)/);
   assert.match(p, /현재 연도는 2026년/);
-  assert.match(p, /회사소개\.pdf/);
-  assert.match(p, /https:\/\/ex\.com — 발행일 2026-10-18/);
+  assert.doesNotMatch(p, /회사소개\.pdf|우리는 교육 회사|https:\/\/ex\.com/);
+  assert.match(p, /발행일|결과의 날짜/);
   assert.match(p, /해당 기간의 소식을 찾지 못했습니다/);
   assert.doesNotMatch(buildSystemPrompt("2026-10-19(월)", [], []), /자료에서 찾지 못했습니다/);
 });
