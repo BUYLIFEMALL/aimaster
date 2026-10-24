@@ -71,7 +71,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <StartChecklist facts={{ hasToken: (tokenCount ?? 0) > 0, telegram: !!telegram, targetCount: total, scheduleOn: !!settings?.schedule_enabled }} />
+        <StartChecklist facts={{ email: user.email ?? "", hasToken: (tokenCount ?? 0) > 0, telegram: !!telegram, targetCount: total, scheduleOn: !!settings?.schedule_enabled }} />
 
         <section className="card" aria-labelledby="install-title">
           <h2 className="card-title" id="install-title">🖥 원클릭 다운로드 센터</h2>

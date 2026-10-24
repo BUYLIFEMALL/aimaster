@@ -5,25 +5,28 @@
 import { useEffect, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 
-type Facts = { hasToken: boolean; telegram: boolean; targetCount: number; scheduleOn: boolean };
+type Facts = { hasToken: boolean; telegram: boolean; targetCount: number; scheduleOn: boolean; email: string };
 type Step = { key: string; icon: string; title: string; desc: string; done: boolean; action: { label: string; href: string; external?: boolean; download?: boolean } };
 
 export default function StartChecklist({ facts }: { facts: Facts }) {
-  const [ext, setExt] = useState<{ installed: boolean; connected: boolean } | null>(null);
+  const [ext, setExt] = useState<{ installed: boolean; connected: boolean; otherEmail: string | null } | null>(null);
 
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; connected?: boolean }>("ping", 1500).then((p) => {
+    void askExtension<{ ok?: boolean; connected?: boolean; email?: string | null }>("ping", 2500).then((p) => {
       if (!alive) return;
       // 예전 확장(연결 여부를 안 알려 줌)이면 서버의 연결 코드 기록으로 대신 판단
-      setExt({ installed: !!p?.ok, connected: p?.ok ? (p.connected ?? facts.hasToken) : false });
+      const linked = p?.ok ? (p.connected ?? facts.hasToken) : false;
+      // 확장이 다른 계정에 연결돼 있으면 이 계정 기준으로는 「연결 전」(2026-10-25 시험에서 발견)
+      const other = linked && p?.email && p.email.toLowerCase() !== facts.email.toLowerCase() ? p.email : null;
+      setExt({ installed: !!p?.ok, connected: linked && !other, otherEmail: other });
     });
     return () => { alive = false; };
-  }, [facts.hasToken]);
+  }, [facts.hasToken, facts.email]);
 
   const steps: Step[] = [
     { key: "install", icon: "🧩", title: "확장 설치", desc: "크롬에 매물 알림 확장을 설치해요(1번만).", done: !!ext?.installed, action: { label: "⬇ 확장 받기", href: "/downloads/realty-listing-alert-extension-latest.zip", download: true } },
-    { key: "connect", icon: "🔗", title: "웹과 연결", desc: "버튼 한 번으로 이 계정과 확장을 연결해요.", done: !!ext?.connected, action: { label: "🔗 바로 연결하러 가기", href: "/settings" } },
+    { key: "connect", icon: "🔗", title: "웹과 연결", desc: ext?.otherEmail ? `지금 확장은 다른 계정(${ext.otherEmail})에 연결돼 있어요. 이 계정으로 다시 연결해 주세요.` : "버튼 한 번으로 이 계정과 확장을 연결해요.", done: !!ext?.connected, action: { label: "🔗 바로 연결하러 가기", href: "/settings" } },
     { key: "telegram", icon: "📨", title: "텔레그램 연결", desc: "알림을 받을 내 텔레그램 봇을 연결해요.", done: facts.telegram, action: { label: "📨 텔레그램 연결하기", href: "/delivery" } },
     { key: "target", icon: "🏠", title: "단지 추가", desc: "네이버 부동산에서 단지를 열고 초록 「➕ 매물 알림에 추가」를 눌러요.", done: facts.targetCount > 0, action: { label: "🏠 네이버 부동산에서 단지 찾기", href: "https://new.land.naver.com/", external: true } },
     { key: "schedule", icon: "⏰", title: "예약 켜기", desc: "얼마나 자주 살펴볼지 정하고 켜요.", done: facts.scheduleOn, action: { label: "⏰ 예약 켜기", href: "/schedule" } },

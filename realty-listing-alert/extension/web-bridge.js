@@ -13,7 +13,9 @@
     if (message.type === "ping") {
       // connected: 이 확장에 연결 코드가 저장돼 있는지만(코드 자체는 알려 주지 않음) — 웹 「시작하기」 체크리스트용
       const { extToken } = await chrome.storage.local.get("extToken").catch(() => ({}));
-      result = { ok: true, version: chrome.runtime.getManifest().version_name || "", connected: !!extToken };
+      // email: 확장이 연결된 계정(로그인 계정과 다르면 웹이 「다시 연결」을 안내)
+      const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;
+      result = { ok: true, version: chrome.runtime.getManifest().version_name || "", connected: !!extToken, email: who?.email || null };
     } else {
       try { result = await chrome.runtime.sendMessage({ type: "connect", token: String(message.token || ""), closeTab: message.closeTab === true }); }
       catch { result = { ok: false, error: "확장 프로그램을 새로고침하고 이 화면도 새로고침해 주세요." }; }

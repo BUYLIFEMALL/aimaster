@@ -218,7 +218,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       if (msg.type === "connect") {
         // 웹 「바로 연결」: 연결 코드를 이 기기(chrome.storage.local)에만 저장한다.
         if (!/^pat_[0-9a-f]{64}$/.test(msg.token || "")) return reply({ ok: false, error: "연결 코드 형식이 올바르지 않습니다." });
-        await set({ extToken: msg.token, connectedAt: new Date().toISOString() });
+        await set({ extToken: msg.token, connectedAt: new Date().toISOString(), connectedEmail: null });
+        // 어느 계정에 연결됐는지 기억(웹 「시작하기」가 로그인 계정과 대조) — 이메일만
+        api("/api/extension/whoami").then((w) => set({ connectedEmail: w.email || null })).catch(() => {});
         if (msg.closeTab && sender?.tab?.id) chrome.tabs.remove(sender.tab.id).catch(() => {});
         return reply({ ok: true });
       }
@@ -239,6 +241,13 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         await addLog(`감시 대상 추가: 단지 ${no} (${r.count}/10)`);
         loadSettings().catch(() => {}); // 다음 확인·수집에 바로 반영
         return reply({ ok: true, count: r.count, complexNo: no });
+      }
+      if (msg.type === "whoami") {
+        const { connectedEmail } = await get("connectedEmail");
+        if (connectedEmail) return reply({ email: connectedEmail });
+        const w = await api("/api/extension/whoami").catch(() => null);
+        if (w?.email) await set({ connectedEmail: w.email });
+        return reply({ email: w?.email || null });
       }
       if (msg.type === "isWatched") {
         // 네이버 화면 버튼용 — 웹 설정(1분 안이면 저장해 둔 값)에 그 단지가 있는지만 본다
