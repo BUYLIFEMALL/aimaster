@@ -1,25 +1,32 @@
-/* v1.20 나노바나나 크림 팝 스타일 (Nano Banana Cream Pop Style) — 토큰·규칙은 DESIGN.md 카탈로그 11번과 docs/DESIGN_HANDOFF.md
-   연한 바나나 크림 바탕 + 바나나 반점 갈색 먹선 + 잎 초록 포인트, 스티커처럼 톡톡 튀는 팝 버튼. 가독성: 본문 15px·보조 글자 대비 7:1 이상 */
+/* v1.38 프리미엄 3D 나노바나나 스튜디오 스타일 (Premium 3D Nano Banana Studio) — DESIGN.md 카탈로그 11번 고도화
+   밝고 맑은 럭셔리 소프트 크림 글래스 + 바나나 골드 엠보싱 3D 버튼 + 트로피컬 에메랄드 리프 포인트. 가독성 7:1 이상 */
 :root {
-  --background: #fff8d6;   /* 연한 바나나 크림(모든 페이지 바탕) */
-  --foreground: #2b2410;   /* 바나나 반점 갈색 먹선(본문 글자) */
-  --brand: #ffd43b;        /* 바나나 옐로(버튼·활성 바탕) */
-  --brand-deep: #f2b705;   /* 진한 바나나(눌림·강조 테두리) */
-  --brand-ink: #2b2410;    /* 노란 바탕 위 글자 */
-  --brand-text: #7a5200;   /* 크림 바탕 위 노랑 계열 글자(대비 확보) */
-  --leaf: #2f8a3b;         /* 잎 초록(성공·보조 포인트) */
-  --leaf-soft: #dff3d6;
-  --leaf-ink: #1b4f22;
-  --card: #fffdf3;         /* 밀크 크림 카드 */
-  --card2: #fff3b8;        /* 안쪽 칸·칩 */
-  --stage: #fffbe8;        /* 결과 무대 */
-  --line: #ecd27a;
-  --line-strong: #c9a63a;
-  --muted: #5f5028;        /* 보조 글자(크림 바탕 대비 약 7:1) */
-  --warn: #b03a06;
-  --danger: #b42318;
-  --ok: #2f8a3b;
-  --pop: 2px 2px 0 #2b2410; /* 스티커 팝 그림자 */
+  --background: #fbf9f2;   /* 맑고 화사한 소프트 크림 글래스 바탕 */
+  --foreground: #1c1917;   /* 깊은 에스프레소 잉크(선명한 고대비 본문) */
+  --brand: #fbbf24;        /* 리치 바나나 골드 옐로 */
+  --brand-deep: #f59e0b;   /* 딥 앰버 골드 (입체 엠보싱) */
+  --brand-ink: #1c1917;    /* 골드 바탕 위 잉크 글자 */
+  --brand-text: #854d0e;   /* 크림 바탕 위 골드브라운 (대비 확보) */
+  --leaf: #10b981;         /* 프레시 트로피컬 에메랄드 */
+  --leaf-soft: #ecfdf5;
+  --leaf-ink: #065f46;
+  --card: #ffffff;         /* 퓨어 화이트 글래스 카드 */
+  --card2: #fefaf0;        /* 부드러운 밀크 앰비언트 칸·칩 */
+  --stage: #fdfaf3;        /* 프리미엄 결과 무대 */
+  --line: #f1e4b8;         /* 은은한 샴페인 골드 테두리 */
+  --line-strong: #d9b85c;
+  --muted: #57534e;        /* 부드럽고 선명한 보조 텍스트 (대비 7:1 이상) */
+  --warn: #d97706;
+  --danger: #dc2626;
+  --ok: #10b981;
+  --pop: 0 4px 16px -2px rgba(217, 119, 6, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.04); /* 프리미엄 3D 소프트 섀도우 */
+  --grad-banana: linear-gradient(135deg, #fef08a 0%, #fcd34d 45%, #f59e0b 100%);
+  --grad-leaf: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+  --grad-coral: linear-gradient(135deg, #fca5a5 0%, #f87171 50%, #ef4444 100%);
+  --grad-mint: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
+  --grad-cream: linear-gradient(135deg, #ffffff 0%, #fefcf3 100%);
+  --grad-ink: linear-gradient(135deg, #292524 0%, #1c1917 100%);
+  --hl: inset 0 1px 0 rgba(255, 255, 255, 0.6);
   color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -643,35 +650,222 @@ button[aria-pressed=true] {
   box-shadow: var(--hl), 0 10px 22px rgba(255, 106, 61, 0.45);
 }
 
-/* 빠른 작업 타일: 카드형 그라데이션 */
+/* 빠른 작업 타일: 3D 글래스 카드형 그라데이션 */
 .bc-quick button {
   border-radius: 16px;
-  background: linear-gradient(160deg, #ffffff 0%, #fff4c6 100%);
-  border: 1px solid #ecd27a;
+  background: linear-gradient(160deg, #ffffff 0%, #fffbeb 100%);
+  border: 1px solid #f1e4b8;
   font-size: 14px;
+  font-weight: 750;
+  color: #1c1917;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.06);
+  transition: all 0.2s ease;
 }
-.bc-quick button small { color: #5f5028; font-size: 12px; }
-.bc-quick button:hover:not(:disabled) { background: linear-gradient(160deg, #fffdf0 0%, #ffe680 100%); }
-
-/* 바로가기 칩 */
-.bc-nav-chips { background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 249, 220, 0.85) 100%); backdrop-filter: blur(6px); }
-.bc-nav-chips a { background: var(--grad-cream); border: 1px solid #e3c766; box-shadow: var(--hl); }
-.bc-nav-chips a:hover { background: var(--grad-banana); border-color: #e0a000; box-shadow: var(--hl), 0 4px 12px rgba(255, 166, 0, 0.3); transform: translateY(-1px); }
-
-/* 사이드바: 선택 메뉴 바나나 그라데이션, 로고는 어두운 바탕 */
-.nav-item[aria-current=page] { background: var(--grad-banana); color: #2b1d00; box-shadow: var(--hl), 0 4px 12px rgba(255, 166, 0, 0.28); }
-.flow-item[aria-current=page] .step-number { background: var(--grad-banana); border-color: #e0a000; color: #2b1d00; }
-.brand-icon, .gd-mascot {
-  background: var(--grad-ink);
-  border: 1px solid #1a1405;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(43, 36, 16, 0.35);
-  filter: none;
+.bc-quick button small { color: #78716c; font-size: 12px; font-weight: 500; }
+.bc-quick button:hover:not(:disabled) {
+  background: linear-gradient(160deg, #fffef7 0%, #fef3c7 100%);
+  border-color: #f59e0b;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.2);
+  transform: translateY(-2px);
 }
-.brand-icon { border-radius: 12px; text-shadow: 0 0 10px rgba(255, 212, 59, 0.55); }
-.gd-mascot { text-shadow: 0 0 16px rgba(255, 212, 59, 0.6); }
 
-/* 카드 위 띠를 더 선명한 그라데이션으로 */
-.bc-card::before { height: 5px; background: linear-gradient(90deg, #fff27a 0%, #ffcf2e 35%, #ffb000 60%, #8fd16a 100%); }
+.primary {
+  background: var(--grad-banana) !important;
+  color: #1c1917 !important;
+  border: 1px solid #d97706 !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  font-weight: 850 !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fef08a 0%, #fbbf24 45%, #ea580c 100%) !important;
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+/* 바로가기 칩: 3D 글래스 필터 캡슐 */
+.bc-nav-chips {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 250, 240, 0.9) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid #f1e4b8;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px -2px rgba(217, 119, 6, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  padding: 8px 12px;
+}
+.bc-nav-chips a {
+  background: #ffffff;
+  border: 1px solid #eedda6;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #44403c;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bc-nav-chips a:hover {
+  background: linear-gradient(135deg, #fef08a 0%, #fcd34d 100%);
+  border-color: #f59e0b;
+  color: #78350f;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+  transform: translateY(-2px);
+}
+
+/* 3D 사이드바 & 엠블럼 */
+.desktop-sidebar {
+  background: linear-gradient(180deg, #ffffff 0%, #fefcf5 100%);
+  border-right: 1px solid #f1e4b8;
+}
+.brand-icon-3d {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fef08a 0%, #fcd34d 40%, #f59e0b 100%);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid #fde047;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.brand-3d-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
+  color: #78350f;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.22);
+  border: 1px solid #fcd34d;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 12px;
+  color: #44403c;
+  border: 1px solid transparent;
+  transition: all 0.18s ease;
+}
+.nav-item:hover {
+  background: rgba(254, 243, 199, 0.45);
+  color: #78350f;
+  border-color: #fde68a;
+  transform: translateX(2px);
+}
+.nav-item[aria-current=page] {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #78350f;
+  font-weight: 850;
+  border: 1px solid #fcd34d;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.16), inset 0 1px 0 #ffffff;
+}
+.nav-badge-free {
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  letter-spacing: 0.02em;
+}
+.nav-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ebdcaa, transparent);
+  margin: 12px 6px;
+}
+.sidebar-account-email {
+  font-size: 11px;
+  font-weight: 600;
+  color: #57534e;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+  padding: 2px 4px;
+}
+.sidebar-logout-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  border: 1px solid #fecdd3;
+  background: #fff1f2;
+  color: #e11d48;
+  font-size: 12px;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.sidebar-logout-btn:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
+  color: #be123c;
+  transform: translateY(-1px);
+}
+.flow-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 8px;
+  margin-bottom: 5px;
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+.flow-item:hover {
+  background: rgba(254, 243, 199, 0.4);
+  border-color: #fde68a;
+}
+.flow-item .step-number {
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f5f5f4 0%, #e7e5e4 100%);
+  color: #78716c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12px;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0,0,0,0.04);
+  border: 1px solid #d6d3d1;
+}
+.flow-item[aria-current=page] {
+  background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
+  border: 1px solid #fde047;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.12);
+}
+.flow-item[aria-current=page] .step-number {
+  background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
+  border-color: #d97706;
+  color: #451a03;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+/* 카드 상단 3D 바나나 그라데이션 라인 */
+.bc-card {
+  border: 1px solid #f1e4b8;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 6px 24px -4px rgba(217, 119, 6, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+}
+.bc-card::before {
+  height: 5px;
+  background: linear-gradient(90deg, #fde047 0%, #f59e0b 45%, #10b981 100%);
+  border-radius: 20px 20px 0 0;
+}
 
 /* 공식 로그인 레이아웃(DESIGN.md 원칙 14) — 격자 바탕·중앙 440px·탭 토글 */
 .auth-page {

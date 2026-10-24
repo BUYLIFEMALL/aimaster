@@ -100,11 +100,11 @@ function Compare({ before, after, w, h }: { before: string; after: string; w: nu
 function Card({ icon, title, hint, needsImage, locked, children, id }: { icon: string; title: string; hint: string; needsImage?: boolean; locked?: boolean; children: React.ReactNode; id?: string }) {
   return (
     <section className={`card bc-card${locked ? " locked" : ""}`} id={id}>
-      <header>
-        <h2><span aria-hidden>{icon}</span> {title}</h2>
-        {needsImage && <span className={`bc-need${locked ? " on" : ""}`}>{locked ? "원본 이미지 필요" : "원본 이미지 사용"}</span>}
+      <header className="flex items-center justify-between pb-2 mb-1 border-b border-amber-100/70">
+        <h2 className="flex items-center gap-2 font-black text-stone-900 text-[15px]"><span aria-hidden className="text-lg">{icon}</span> {title}</h2>
+        {needsImage && <span className={`bc-need${locked ? " on" : ""}`}>{locked ? "🔒 원본 이미지 필요" : "✅ 원본 이미지 연결됨"}</span>}
       </header>
-      <p className="bc-hint">{hint}</p>
+      <p className="bc-hint text-[12px] text-stone-500 leading-relaxed">{hint}</p>
       {children}
     </section>
   );
@@ -335,34 +335,38 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
       )}
 
       <nav className="bc-nav-chips" aria-label="작업 바로가기">
-        {/* v1.14: 카드가 많아져 「만들기 / 고치기 / 스페셜」로 묶음 */}
-        <span className="bc-nav-group"><b>만들기</b>
-          <a href="#card-generate">✨ 생성</a>
+        <span className="bc-nav-group"><b>✨ 만들기</b>
+          <a href="#card-generate">🎨 이미지 생성</a>
           <a href="#card-graphic">📐 템플릿 그래픽</a>
           <a href="#card-story">🎞️ 스토리·레시피</a>
         </span>
-        <span className="bc-nav-group"><b>고치기</b>
-          <a href="#source">🖼️ 원본</a>
+        <span className="bc-nav-group"><b>🛠️ 고치기</b>
+          <a href="#source">🖼️ 원본 이미지</a>
           <a href="#card-restore">🕰️ 옛 사진 복원</a>
-          <a href="#card-edit">🛠️ 편집</a>
-          <a href="#card-composite">🧩 합성</a>
+          <a href="#card-edit">🪄 정밀 편집</a>
+          <a href="#card-composite">🧩 멀티 합성</a>
           <a href="#card-quick">⚡ 빠른 작업</a>
         </span>
-        <span className="bc-nav-group"><b>스페셜</b>
+        <span className="bc-nav-group"><b>🌟 스페셜</b>
           <a href="#card-album">📖 인생 앨범</a>
           <a href="#card-comic">💬 만화 패널</a>
         </span>
-        <a href="#result" style={{ background: "var(--brand)", borderColor: "var(--foreground)", color: "var(--brand-ink)", fontWeight: 800 }}>🌟 결과 보기</a>
+        <a href="#result" style={{ background: "linear-gradient(135deg, #fde047 0%, #f59e0b 100%)", borderColor: "#d97706", color: "#451a03", fontWeight: 850 }}>🌟 결과 프리뷰</a>
       </nav>
 
       <div className="bc-board">
         {/* ───── 1열: 원본 · 생성 · 빠른 작업 · 스토리/레시피 ───── */}
         <div className="bc-col">
           <section className="card bc-card" id="source">
-            <header><h2><span aria-hidden>🖼️</span> 원본 이미지</h2><span className="bc-need on">모든 작업의 출발점</span></header>
+            <header className="flex items-center justify-between pb-2 mb-1 border-b border-amber-100/70">
+              <h2 className="flex items-center gap-2 font-black text-stone-900 text-[16px]">
+                <span aria-hidden className="text-xl">🖼️</span> 원본 이미지
+              </h2>
+              <span className="bc-need on">모든 작업의 출발점</span>
+            </header>
             {maskMode && base ? (
               <>
-                <p className="bc-hint">💡 글자·작은 물체만 지울 거라면 키·비용 없이 <a href="/erase">🧽 무료 지우기(내 PC)</a>로도 됩니다. 여기 「부분 삭제」는 Gemini가 다시 그려 넓은 곳·복잡한 배경에 강합니다(본인 키·유료).</p>
+                <p className="bc-hint">💡 글자·작은 물체만 지울 거라면 키·비용 없이 <a href="/erase" className="font-bold underline text-amber-800">🧼 AI 매직 지우개 (초고속 무료)</a>로도 됩니다. 여기 「부분 삭제」는 Gemini가 다시 그려 넓은 곳·복잡한 배경에 강합니다(본인 키·유료).</p>
                 <MaskEditor src={base.url} busy={busy === "inpaint" || busy === "upload"} onApply={(m) => void runInpaint(m)} onCancel={() => setMaskMode(false)} />
               </>
             ) : !base ? (
