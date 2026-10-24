@@ -13,11 +13,14 @@
 ## 확장 로드맵 U1~U14 (PLAN_20261024_EXPANSION_ROADMAP.md)
 - [x] U1 이름 바꾸기(AI 이름·메뉴 이름) — `1771f446f`, v1.04 배포
 - [x] U2 불필요한 기능 숨기기 — `04d6601b9`, v1.04 배포 (플랜 docs/PLAN_20261024_U2_TRIM.md)
-- [ ] U3 서버 영어 오류 문구·AI 지시문의 「AIMaster」 정리(U1 후속)
+- [x] U3 회원 본인 AI 키로 AI 열기 + 서버 문구·AI 지시문 「AI 비서」 정리 — v1.05(2026-10-24)
+- [ ] U4 Gemini 연결 + AI 채팅 기록 30일 자동 삭제
+- [ ] AI 화면 원본 영어 문구 한국어화(AI 블록 설정 창·채팅 첫 화면 등)
+- [ ] 슬래시 「AI 이미지」 숨김 배포(`768bf908d`, 미배포)
 
 ## 2단계 — AI (회원 본인 키)
-- [ ] RPC·AI 스트림 요청마다 회원 `user_api_keys`(openai/anthropic) 읽어 `withMemberAiKeys()`
-- [ ] `AI_STAGE_OPEN=true`, `stagePolicy`의 `ai*`·회의록 줄 열기, 키 없으면 등록 안내 팝업 + 「API키등록·플랫폼연동」 설정 화면(연동 매뉴얼 상자)
+- [x] RPC·AI 스트림 요청마다 회원 `user_api_keys`(openai/anthropic) 읽어 `withMemberAiKeys()` — v1.05
+- [x] `AI_STAGE_OPEN=true`, `stagePolicy`의 `ai*` 열기(회의록은 U6), 키 없으면 등록 안내 + 「API키등록·플랫폼연동」 화면(연동 매뉴얼 상자) — v1.05
 - [ ] AI 채팅 기록 30일 자동 삭제(주인님 결정 §7-1) — `ai_threads`·`ai_messages` 정리 작업
 - [ ] 유료 시험 호출은 시험 계정 본인 키·저가 모델 10~20회(사전 보고)
 

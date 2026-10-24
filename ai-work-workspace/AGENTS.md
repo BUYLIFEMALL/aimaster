@@ -2,7 +2,7 @@
 
 - 주소: https://ai-work-workspace.buylife.xyz · 메인 상세: https://www.buylife.xyz/programs/ai-work-workspace
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
-- 현재 버전: **v1.04** (1단계) · 대상 프로젝트: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`, 전용 스키마 `aww`)
+- 현재 버전: **v1.05** (1단계) · 대상 프로젝트: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`, 전용 스키마 `aww`)
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
 - 개발 플랜·결정 기록: [`docs/PLAN_20261024_INITIAL_BUILD.md`](docs/PLAN_20261024_INITIAL_BUILD.md)(§7 주인님 결정, §7-1 구현 중 바뀐 결정)
 
@@ -28,6 +28,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.05 | 2026-10-24 | U3 회원 본인 OpenAI·Claude 키로 AI 비서 열기 — 키는 공용 표 `user_api_keys`(`anthropic` 우선, 없으면 `openai`, 회원별 60초 캐시 `src/server/memberAiKeys.ts`), Next 스트림 라우트 `/api/ai/stream`, 「🔑 API키등록·플랫폼연동」 화면 `/settings/keys` + `/api/keys`(좌측 메뉴, 📖 연동 매뉴얼 팝업), 키 없음 안내 한국어, 서버 오류 문구·AI 지시문의 AI 이름 「AI 비서」, 기본 모델 Sonnet(빠른 작업 Haiku), 당해 연도·답변 언어 기준 블록, 회의록 AI는 별도 스위치로 계속 닫힘, 외부 연결·MCP·채팅 공유·AI 그림·에이전트 계속 닫힘 — `24c8602ba`·`6be13d77c`, 배포(`ai-work-workspace-hzp7uowv1` → 수정 재배포 `ai-work-workspace-fk4ffx35l`) |
 | v1.04 | 2026-10-24 | U1 이름 바꾸기(AI 이름 「AIMaster」 → 「AI 비서」, 메뉴 이름 6종) + U2 불필요한 기능 숨기기(게시 탭·마켓플레이스·계정 화면·메일 알림·AI 그림/가짜 사진 탭·지도 보기·요금제 문구, 숨김 목록 `trimPolicy.ts`) — `1771f446f`·`04d6601b9`, 배포(`ai-work-workspace-9esamryua`) |
 | v1.03 | 2026-10-24 | 1단계 화면 보완 `2f0de2776`·`df7a628d3`·`db77b7a3b`: 회의록 블록 안내, 템플릿 10개 한국어(갤러리 버전 6), 날짜·시각 화면 언어 — 배포(`ai-work-workspace-l322zllr7`) |
 | v1.02 | 2026-10-24 | 휴대폰 폭 문서 본문 여백 16px, 블록 메뉴 AI 항목 숨김(`5a9d5e564`) 배포(`ai-work-workspace-a33mgs4e5`) |

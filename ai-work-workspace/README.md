@@ -3,7 +3,7 @@
 문서와 업무 데이터베이스를 한곳에 모아 보드·캘린더·타임라인으로 정리하는 업무 워크스페이스입니다.
 
 - 주소: https://ai-work-workspace.buylife.xyz
-- 버전: v1.04 (1단계) · 카테고리: 업무자동화 · 이용: 일반 등급 이상 + 사용기간(또는 구독)
+- 버전: v1.05 (AI 비서 열림 — 회원 본인 OpenAI·Claude 키) · 카테고리: 업무자동화 · 이용: 일반 등급 이상 + 사용기간(또는 구독)
 - 원본: [litpage](https://github.com/litmers-dev/litpage) (MIT, 저작권 표시 `LICENSE`·`THIRD_PARTY_NOTICES.md`)
 
 ## 사용 목적·대상
