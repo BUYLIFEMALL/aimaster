@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import JSZip from "jszip";
 import { Brush, Copy, Download, Eraser, Eye, ImagePlus, RotateCcw, ScanText, Sparkles, Square, Trash2, Undo2 } from "lucide-react";
 import { detectTextBoxes, eraseRegion, freeEraseBackend, loadFreeErase, maskFromImage, type FreeEraseProgress } from "@/lib/freeErase/engine";
-import { FREE_ERASE_MODELS, fillBoxes } from "@/lib/freeErase/protocol";
+import { FREE_ERASE_CACHE, FREE_ERASE_MODELS, fillBoxes } from "@/lib/freeErase/protocol";
 
 const MAX_ITEMS = 50;
 const PAINT = "rgb(236,72,153)";
@@ -37,6 +37,12 @@ export function FreeEraseBoard() {
   const [notice, setNotice] = useState("");
   const [progress, setProgress] = useState<FreeEraseProgress | null>(null);
   const [backend, setBackend] = useState<string | null>(null);
+  /** AI 계산용 모델 파일이 이 브라우저에 저장돼 있는지(null: 아직 모름) */
+  const [saved, setSaved] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (typeof caches === "undefined") return;
+    caches.open(FREE_ERASE_CACHE).then((c) => c.match(FREE_ERASE_MODELS.lama.url)).then((r) => setSaved(Boolean(r))).catch(() => setSaved(null));
+  }, []);
   const [batch, setBatch] = useState<{ done: number; total: number; label: string } | null>(null);
   const [fmt, setFmt] = useState<"png" | "jpg90" | "jpg85" | "jpg95">("png");
   const [width, setWidth] = useState<"orig" | "1000" | "860">("orig");
@@ -54,7 +60,7 @@ export function FreeEraseBoard() {
   async function ensureModel(kind: "lama" | "det") {
     const b = await loadFreeErase(kind, (p) => setProgress(p));
     setProgress(null);
-    if (kind === "lama") setBackend(b);
+    if (kind === "lama") { setBackend(b); setSaved(true); }
     return b;
   }
 
@@ -273,8 +279,21 @@ export function FreeEraseBoard() {
           <span className="fe-badge soft">사진이 서버로 올라가지 않음</span>
           {backend && <span className="fe-badge leaf">{backend === "webgpu" ? "⚡ 그래픽 가속(WebGPU)" : "🧮 CPU 계산"}</span>}
         </div>
-        <p className="bc-hint">처음 한 번 AI 계산용 모델 파일(설치 없음, 약 {mb(FREE_ERASE_MODELS.lama.bytes)}MB)을 공개 모델 저장소 허깅페이스(huggingface.co)에서 자동으로 내려받아 브라우저에 저장합니다 — 따로 받을 필요는 없습니다. 두 번째부터는 바로 시작합니다. 계산은 지금 쓰는 PC의 그래픽카드·CPU로 하므로 <b>컴퓨터 사양에 따라 작업 시간이 다를 수 있습니다</b>. 크롬·엣지 최신판을 권장합니다.
-          {" "}모델 출처: <a href={FREE_ERASE_MODELS.lama.page} target="_blank" rel="noopener noreferrer">지우기(LaMa) ↗</a> · <a href={FREE_ERASE_MODELS.det.page} target="_blank" rel="noopener noreferrer">글자 찾기(RapidOCR) ↗</a></p>
+        <div className="fe-model" id="model">
+          <button type="button" className="fe-model-btn" disabled={Boolean(busy) || saved === true}
+            onClick={() => void run("AI 계산용 모델 파일 받는 중…", async () => { await ensureModel("lama"); await ensureModel("det"); setNotice("AI 계산용 모델 파일을 이 브라우저에 저장했습니다. 이제 바로 지울 수 있습니다."); })}>
+            {saved ? "✅ AI 계산용 모델 파일 저장됨" : `⬇ AI 계산용 모델 파일 받기 (약 ${mb(FREE_ERASE_MODELS.lama.bytes + FREE_ERASE_MODELS.det.bytes)}MB)`}
+          </button>
+          <span className={saved ? "fe-model-state ok" : "fe-model-state"}>
+            {saved ? "이 PC·이 브라우저에 저장돼 있어 바로 사용할 수 있습니다." : "아직 받지 않았습니다. 이 버튼을 누르거나, 처음 「지우기」를 누를 때 자동으로 받습니다(처음 한 번만)."}
+          </span>
+        </div>
+        <ul className="fe-model-notes">
+          <li>⬇ <b>받는 것</b>: 프로그램 설치가 아니라 <b>AI 계산용 모델 파일</b>입니다. 공개 모델 저장소 허깅페이스(huggingface.co)에서 받아 <b>브라우저 안에 저장</b>합니다 — 다운로드 폴더에 파일이 생기지 않습니다.</li>
+          <li>🔁 같은 PC·같은 브라우저에서는 한 번만 받습니다. 다른 브라우저·다른 PC, 사이트 데이터를 지운 뒤에는 다시 받습니다.</li>
+          <li>⏱ 계산은 지금 쓰는 PC의 그래픽카드·CPU로 하므로 <b>컴퓨터 사양에 따라 작업 시간이 다를 수 있습니다</b>. 크롬·엣지 최신판을 권장합니다.</li>
+          <li>ℹ 모델 설명 페이지(파일 받기 아님): <a href={FREE_ERASE_MODELS.lama.page} target="_blank" rel="noopener noreferrer">지우기 LaMa ↗</a> · <a href={FREE_ERASE_MODELS.det.page} target="_blank" rel="noopener noreferrer">글자 찾기 RapidOCR ↗</a></li>
+        </ul>
         {progress && (
           <div className="fe-progress" role="status">
             <span>AI 계산용 모델 파일({progress.model === "lama" ? "지우기" : "글자 찾기"}) 받는 중 {mb(progress.loaded)}/{mb(progress.total)}MB</span>
