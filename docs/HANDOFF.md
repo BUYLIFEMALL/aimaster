@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 영상 담당 `claude-win-video` — 「내 PC 고속 변환」 영상 B: 실행기 1.30 `normalize`·`compress` + AI 영상 스튜디오 v1.17 영상 합치기 연결
+- 한 일: 실행기 `host.ps1`·`host.pl` 1.30에 영상 명령 2개 — `normalize`(넣는 영상을 H.264·고정 fps·짝수 크기·긴 변 제한·AAC로 맞춤)·`compress`(완성 MP4 용량 줄이기, 품질 낱말 high/balanced/small). 정해진 낱말·숫자만 받고 소리 트랙은 실행기가 확인. 최소 판 그대로라 옛 프로그램 영향 없음. AI 영상 스튜디오 영상 합치기: 내 PC 영상이 형식 시험을 못 넘으면 회원 PC ffmpeg로 먼저 맞추고(실패 시 기존 브라우저 인코딩), 완성본 아래 「⚡ 내 PC로 용량 줄이기」(원본보다 크면 원본 유지, 50MB 넘으면 갤러리 저장 안내), 실행기가 없으면 설치 안내.
+- 버전·배포: video-to-gif **v1.24**(`video-to-9rhaboikt`, DB·extension v1.24, 확장 검증 OK, 운영 `version.json` host 1.30) → ai-video-studio **v1.17**(`ai-video-studio-kdamezmak`, DB v1.17). 커밋 `0492b0cbb`·`72bfaa11f`·`3b94adc78`·문서 커밋. 공용 사본 `pc-renderer-client` → `ai-video-studio/lib/pcRenderer.ts` 등록.
+- 검수: 실행기 두 판 묶음 시험 `video-to-gif/local-renderer/test/video-matrix.mjs` 16/16(거절 4경우 포함), loop 회귀 10/10, GIF 두 판 정상, AI 영상 스튜디오 시험 48·tsc·build. 운영 크롬(시험 계정): 갤러리 영상 1개 렌더 → 용량 줄이기 1.7MB → 0.9MB(재생 정상), 실제 확장으로 normalize 2.0초. 이 PC 설치본 실행기 1.30으로 교체(백업 `host.ps1.bak-before-1.30`).
+- 못 한 것: **실제 맥에서 loop·normalize·compress 확인**(msys perl로만 통과 — 맥미니 세션 부탁 필요), 「형식 시험을 못 넘는 영상」을 화면으로 넣어 보는 확인(그런 시험 파일이 없어 명령을 직접 불러 확인함).
+- 다음 첫 단계: 영상 C — 실행기 `scale`·`gif` → AI 영상 갤러리(로드맵 `docs/analysis-pc-renderer-20261024/ROADMAP.md` 3-0). 링크:
+https://ai-video-studio.buylife.xyz/edit
+https://video-to-gif.buylife.xyz/guide
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.04 배포 (U1+U2)
 - 한 일: 미배포였던 U1 이름 바꾸기(`1771f446f`)와 U2 불필요한 기능 숨기기(`04d6601b9`)를 v1.04로 배포. 버전 3곳 커밋 `67147c45c`, 운영 DB `programs.version`=v1.04(ref `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기). `docs/PENDING_DEPLOYS.md` 줄 삭제.
 - 배포: `ai-work-workspace-9esamryua` Ready. 배포 직전 다른 세션 푸시로 시작된 메인 사이트 자동 빌드가 진행 중이어서 끝날(건너뛰기) 때까지 기다린 뒤 단독 실행.

@@ -53,6 +53,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `video-to-gif` | v1.24 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 2회 중 1, `video-to-9rhaboikt`) | 내 PC 렌더러 1.30 `normalize`·`compress` 묶음 `0492b0cbb`·`72bfaa11f`(대기 줄 없음), DB `extension_version` v1.24, check-extension-release OK |
+| `ai-video-studio` | v1.17 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 2회 중 2, `ai-video-studio-kdamezmak`) | 영상 합치기 「⚡ 내 PC로 용량 줄이기」·넣는 영상 PC 형식 맞추기 `3b94adc78`(대기 줄 없음) |
 | `infinite-loop-video` | v1.08 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `infinite-loop-video-i96qqi0d6`) | 「⚡ 내 PC로 빠르게」(실행기 `loop`) `997fec0bb`(대기 줄 없음) |
 | `video-to-gif` | v1.23 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드, `video-to-4fjavywr6`) | 내 PC 렌더러 1.20 `loop` 배포 묶음 `e14e958cd`·`e5e9c3441`(대기 줄 없음), DB `extension_version` v1.23 |
 | `ai-mastering-studio` | v1.14 · 2026-10-24 (Claude Code 윈도우 · 세션 `claude-win-20261024-music`, 승인 빌드 1회, `ai-mastering-studio-eprfsbanw`) | GUIDE 배지 띄어쓰기 수정 `b5b875484`(크롬 금색 그라데이션·10px 확인, 「⚡ 내 PC로 저장」과 함께) |
