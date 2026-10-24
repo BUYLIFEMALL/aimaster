@@ -98,6 +98,8 @@ $("add").onclick = async () => {
 };
 
 $("results").onclick = () => send("openResults");
+// 네이버 부동산 바로가기(2026-10-25 주인님 요청) — 회원 브라우저에서 새 탭으로만 연다(서버는 네이버에 요청하지 않음).
+$("openNaver").onclick = () => chrome.tabs.create({ url: "https://new.land.naver.com/" });
 document.querySelectorAll(".link").forEach((b) => (b.onclick = () => chrome.tabs.create({ url: WEB + b.dataset.path })));
 
 refresh();

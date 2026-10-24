@@ -128,7 +128,11 @@ export default function TargetsClient({ initialTargets, prefill = null }: { init
           </form>
         )}
         <Message state={state} />
-        <p className="card-caption">💡 단지 화면을 연 채로 확장 팝업의 「이 단지 감시 추가」를 누르는 방법은 다음 업데이트(확장 수집 기능)에서 열립니다.</p>
+        {/* 네이버 부동산 바로가기(2026-10-25 주인님 요청) — 회원 브라우저 새 탭으로만 연다 */}
+        <div className="ra-naver-go">
+          <a className="ra-naver-btn" href="https://new.land.naver.com/" target="_blank" rel="noopener noreferrer">🏠 네이버 부동산 열기 ↗</a>
+          <p className="card-caption">💡 네이버 부동산에서 단지를 검색해 단지 화면을 연 뒤, 확장 팝업의 <b>「➕ 이 단지 감시 추가」</b>를 누르면 주소를 붙여 넣지 않아도 바로 추가돼요.</p>
+        </div>
       </section>
 
       <section className="card">
