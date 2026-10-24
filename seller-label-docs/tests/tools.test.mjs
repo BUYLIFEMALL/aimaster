@@ -110,3 +110,20 @@ test("서명 위치를 PDF 좌표로 바꾸고 찍는다", async () => {
   const out = await stampPng(await makePdf(3), png, { x: 0.1, y: 0.1, w: 0.2, h: 0.1 });
   assert.equal(await pageCountOf(out), 3);
 });
+
+// ── 표 읽기 ──
+import { parsePasted, aoaToSheet, decodeCsv, readSheetBytes, sampleWorkbook } from "../src/lib/sheet.ts";
+
+test("붙여 넣은 표·빈 열 이름·같은 이름", () => {
+  const s = parsePasted("상품명\t가격\t\t가격\n사과\t3000\tx\t1\n\n");
+  assert.deepEqual(s.headers, ["상품명", "가격", "열3", "가격2"]);
+  assert.deepEqual(s.rows, [{ 상품명: "사과", 가격: "3000", 열3: "x", 가격2: "1" }]);
+  assert.deepEqual(aoaToSheet([]).rows, []);
+});
+
+test("EUC-KR CSV와 예시 엑셀 왕복", () => {
+  const euc = Uint8Array.from([0xbb, 0xe7, 0xb0, 0xfa, 0x2c, 0x31]); // "사과,1"
+  assert.equal(decodeCsv(euc), "사과,1");
+  const xlsx = sampleWorkbook(["상품명", "가격"], [["배", "2000"]]);
+  assert.deepEqual(readSheetBytes(xlsx, "a.xlsx").rows, [{ 상품명: "배", 가격: "2000" }]);
+});
