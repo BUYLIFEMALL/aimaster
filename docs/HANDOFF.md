@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 카테고리 메인 지침 초안 2차 30개 + 담당별 확정 요청
+- 2차 초안 30개: `docs/{DESIGN_CATEGORY,WORK_AUTOMATION,AI_PROMPT,PERSONALITY_FORTUNE,CRM,REAL_ESTATE,YOUTUBE,VIDEO,IMAGE,NAVER}_{COMPLETION_POLICY,FEATURE_MATRIX,CONSOLIDATION_TASKS}.md`. 1차 15개(인스타·쓰레드·이커머스·마케팅·데이터수집)와 합쳐 15개 카테고리 45개. 모두 「초안 — 담당 세션 확인 전」, 코드 근거 없는 칸은 「미확인」.
+- **확정 요청(각 역할 세션은 작업 전에 읽고, 자기 카테고리 문서를 코드·운영 상태와 대조해 확정 → 맨 위 「상태」를 「확정(날짜, 세션)」으로 바꾸고 카테고리 지도 그 줄 상태를 ✅로)**:
+  - [역할: ecommerce-image] `ECOMMERCE_*`·`IMAGE_*` (이미지 작업표 IM-U1: 감성 글귀가 인스타 게시용으로 올린 공개 파일이 정리 대상 아님 — 인스타 쪽과 조율)
+  - [역할: video] `VIDEO_*` (VD-U1: 「진행 중」에 멈춘 생성 행이 30일 정리에서 빠질 수 있음)
+  - [역할: workspace] `WORK_AUTOMATION_*`의 `ai-work-workspace` 칸 · [역할: docbot-prompt] `WORK_AUTOMATION_*`의 `ai-doc-chatbot` 칸과 `AI_PROMPT_*`
+  - [역할: music] 음악 카테고리는 아직 메인 지침 3종이 없음 — 같은 양식으로 만들지 검토(`playlist-channel-studio`는 `YOUTUBE_*`에도 있음)
+  - 담당 없는 카테고리(인스타·쓰레드·마케팅·데이터수집·디자인·CRM·부동산·유튜브·네이버·성격·운세)는 주인님 담당 지정 대기.
+- 회원 영향 발견은 각 작업표 맨 위 「우선 처리」와 `docs/roles/analysis-planning.md` 「주인님께 여쭐 것」에 정리(전자책 API 권한 누락, 타로 링크 공개, 카카오·구글폼 중복 발송, 카페·Shots 중복 게시, 공개 버킷, 30일 정리 누락, MBTI 상표명 등). 코드는 고치지 않음.
+- 작업 중 공용 스테이징에 문서 챗봇 G-2 파일이 「삭제」로 잡혔다는 보고가 있었으나, 확인 시점엔 G-2가 `07795803c`로 커밋돼 있었고 스테이징 삭제 0건(정상).
+- 비용 없음(빌드 0, 유료 AI 0, DB 쓰기 0).
+https://www.buylife.xyz/admin/dev-docs/guidelines
+
 ## 2026-10-24 🔶 [역할: docbot-prompt] Codex(윈도우) · 세션 `codex-win-20261024-docbot-g2` — 개정 지침 재독·G-2 구현 저장, 일반 회원 검수 대기
 
 - 주인님 요청으로 루트 4종·분야별 요약 전체·협업/DB/연동/관리자 정책/비용/매뉴얼/디자인/분석/Lab/플랫폼 패턴 상세·담당 두 앱 지침을 다시 읽음. 에러 점검/최신 관련 교훈과 재독 중 추가된 카테고리 정정 `46afa0ed9` 확인. 지침 원문 삭제/재구성 없음.

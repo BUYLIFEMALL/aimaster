@@ -514,7 +514,7 @@
 | 원본 | 웹앱 `seamless-loop-studio.vercel.app` |
 | 분석 | 2026-10-12 · Claude Code(Sonnet 5.5, 첫 커밋 공동 작성자 기준) — 신규 구축 v1.02, 같은 날 v1.03 업로드 영역 개편 |
 | 원본 기능 | 시작과 끝이 가장 닮은 구간을 찾아 MP4·WebM·GIF 무한 루프 생성, 브라우저 ffmpeg.wasm |
-| 우리 대상 | **`infinite-loop-video` 새로 만듦**, 코드 v1.08(AGENTS.md 표는 v1.01) |
+| 우리 대상 | **`infinite-loop-video` 새로 만듦**, 코드 v1.08(AGENTS.md 1절 표는 v1.03·카테고리 「멀티미디어」로 남아 있음 — 2026-10-24 영상 초안 작업 때 확인) |
 | 가져온 것 | 구조·알고리즘만(코드·문구 복제 안 함) |
 
 #### EXT-MM-03 Cinematic Storyboard AI
