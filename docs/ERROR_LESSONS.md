@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — 새 프로그램 확장을 저장소 밖 임시 폴더에 만들고 웹 뼈대·ZIP 다운로드 없이 시작했다 (realty-listing-alert v1.01, Claude Code 윈도우 [역할: realty])
+- **증상**: 0단계 사전 검증용 확장을 scratchpad(저장소 밖)에 `version 0.0.1`로 만들었다. 주인님 지적: 「서브프로그램 생성 지침과 확장프로그램 생성 지침 확인하고」「있는데 왜 안했어」.
+- **원인**: 인수인계 §6-0의 「저장소 밖 임시 폴더」와 「사전 검증 페이지는 저장소 밖」 규칙만 보고, 작업 지시문에 적힌 `EXTENSION_RELEASE_RULES.md`·서브프로그램 지침(`docs/guidelines/SUBPROGRAMS.md`)을 작업 전에 읽지 않았다.
+- **해결**: `realty-listing-alert/` 폴더에 기준 뼈대(`naver-blog-seo-studio`) + `extension/`(manifest `1.1.0`/`v1.01`) + `scripts/build-extension-archive.mjs` `prebuild` → `public/downloads/realty-listing-alert-extension-latest.zip`, 대시보드 다운로드 센터·좌측 메뉴 받기 버튼. 규칙 문서 §4 맨 위에 주인님 지시(「항상 두 가지 동시에」) 추가.
+- **다음부터 확인**: 확장이 있는 새 프로그램은 사전 검증 확장이라도 **처음부터 `<slug>/extension/`**에 만들고, 같은 작업에서 프로그램 사이트 다운로드(ZIP)까지 연결한다. 지시문·인수인계가 「읽을 지침」으로 적은 문서는 코드·파일을 만들기 전에 모두 읽는다.
+
 ## 2026-10-24 — Gemini 모델 목록에 보이는 모델이 「새 사용자에게 더 이상 제공하지 않음」(404)일 수 있다 + OpenAI 표준 모델 목록은 채팅용이 아닌 모델투성이 (ai-work-workspace v1.13→v1.14, Claude Code 윈도우 [역할: workspace])
 - **증상**: 기본 Gemini 모델을 가격표상 가장 싼 `gemini-2.5-flash-lite`로 바꿨더니(v1.13) 운영에서 「모델을 쓸 수 없습니다」(404). Google 응답: 「This model … is no longer available to new users. Please update your code to use models/gemini-3.5-flash-lite」. 같은 날 회원 OpenAI 키의 모델 고르기에 `tts-1`·`omni-moderation`·`gpt-realtime`·날짜 붙은 옛 판 등 100개 넘게 「추천」으로 보였다.
 - **원인**: ① Gemini `/v1beta/models` 목록은 「새 사용자 차단」 모델도 그대로 돌려준다 — 목록·가격표만으로는 쓸 수 있는지 알 수 없다. ② OpenAI 표준 `/models`는 설명·용도 정보 없이 음성·검열·임베딩·이미지 모델까지 섞어 준다(원본 코드는 설명 있는 「풍부한 목록」을 가정).
