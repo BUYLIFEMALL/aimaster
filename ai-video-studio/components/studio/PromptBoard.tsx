@@ -19,6 +19,8 @@ export function PromptBoard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [editing, setEditing] = useState<BoardPresetRow | null>(null);
   const [saving, setSaving] = useState(false);
+  // 진행 중 표시 — 누른 카드(id)와 무엇을 하는 중인지. 응답이 오면 그 카드만 바로 바꾸고 목록은 뒤에서 다시 읽는다
+  const [busy, setBusy] = useState<{ id: string; label: string } | null>(null);
   const [error, setError] = useState("");
 
   async function load() {
@@ -45,28 +47,41 @@ export function PromptBoard() {
   const chip = (on: boolean) =>
     `whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-bold ${on ? "border-sky-500/50 bg-sky-500/15 text-sky-200" : "border-zinc-800 text-zinc-400 hover:text-zinc-200"}`;
 
-  async function savePreset(p: BoardPresetRow) {
-    setSaving(true); setError("");
+  async function savePreset(p: BoardPresetRow, label = "저장하는 중") {
+    setSaving(true); setError(""); setBusy({ id: p.id, label });
     try {
       const res = await fetch("/api/prompts/presets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error ?? "예시를 저장하지 못했습니다.");
+      const saved = (j.preset ?? p) as BoardPresetRow;
+      setPresets((cur) => (cur.some((x) => x.id === saved.id) ? cur.map((x) => (x.id === saved.id ? saved : x)) : [...cur, saved]));
       setEditing(null);
-      await load();
+      void load(); // 순서 등 서버 기준으로 맞추기(뒤에서)
     } catch (e) {
       setError(e instanceof Error ? e.message : "예시를 저장하지 못했습니다.");
     } finally {
-      setSaving(false);
+      setSaving(false); setBusy(null);
     }
   }
 
   async function removeMine(id: string) {
-    setError("");
-    const res = await fetch(`/api/prompts/mine?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-    const j = await res.json().catch(() => ({}));
-    if (!res.ok) { setError(j.error ?? "지우지 못했습니다."); return; }
-    setMine((cur) => (cur ?? []).filter((m) => m.id !== id));
+    setError(""); setBusy({ id, label: "지우는 중" });
+    try {
+      const res = await fetch(`/api/prompts/mine?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(j.error ?? "지우지 못했습니다."); return; }
+      setMine((cur) => (cur ?? []).filter((m) => m.id !== id));
+    } finally {
+      setBusy(null);
+    }
   }
+
+  const busyBadge = (id: string) =>
+    busy?.id === id && (
+      <span role="status" className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-xs font-bold text-amber-100">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> {busy.label}…
+      </span>
+    );
 
   const input = "w-full rounded-lg border border-zinc-700 bg-zinc-950/60 px-2 py-1.5 text-xs text-zinc-100 focus:border-sky-500/60 focus:outline-none";
   const editor = editing && (
@@ -87,7 +102,7 @@ export function PromptBoard() {
       </div>
       <div className="flex gap-2">
         <button type="button" disabled={saving} onClick={() => void savePreset(editing)} className="inline-flex items-center gap-1 rounded-xl bg-amber-400 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-amber-300 disabled:opacity-50">
-          {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />} 저장
+          {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />} {saving ? "저장하는 중…" : "저장"}
         </button>
         <button type="button" disabled={saving} onClick={() => setEditing(null)} className="text-xs text-zinc-400 hover:text-zinc-200">취소</button>
       </div>
@@ -158,12 +173,12 @@ export function PromptBoard() {
                     <Link href={`/create?preset=${p.id}`} className="inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-xl bg-sky-500 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-sky-400">
                       <Clapperboard className="h-3.5 w-3.5" aria-hidden="true" /> 이 설명으로 만들기
                     </Link>
-                    {isAdmin && (
+                    {isAdmin && (busy?.id === p.id ? busyBadge(p.id) : (
                       <>
-                        <button type="button" onClick={() => { setEditing(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="inline-flex items-center gap-1 text-xs text-amber-200 hover:underline"><Pencil className="h-3 w-3" aria-hidden="true" /> 편집</button>
-                        <button type="button" disabled={saving} onClick={() => void savePreset({ ...p, published: !p.published })} className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200"><EyeOff className="h-3 w-3" aria-hidden="true" /> {p.published ? "숨기기" : "다시 공개"}</button>
+                        <button type="button" disabled={saving} onClick={() => { setEditing(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="inline-flex items-center gap-1 text-xs text-amber-200 hover:underline disabled:opacity-40"><Pencil className="h-3 w-3" aria-hidden="true" /> 편집</button>
+                        <button type="button" disabled={saving} onClick={() => void savePreset({ ...p, published: !p.published }, p.published ? "숨기는 중" : "공개하는 중")} className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200 disabled:opacity-40"><EyeOff className="h-3 w-3" aria-hidden="true" /> {p.published ? "숨기기" : "다시 공개"}</button>
                       </>
-                    )}
+                    ))}
                   </div>
                 </article>
               );
@@ -193,7 +208,9 @@ export function PromptBoard() {
                 <Link href={`/create?mine=${m.id}`} className="inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-xl bg-sky-500 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-sky-400">
                   <Clapperboard className="h-3.5 w-3.5" aria-hidden="true" /> 이 설명으로 만들기
                 </Link>
-                <button type="button" onClick={() => void removeMine(m.id)} className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-red-300"><Trash2 className="h-3 w-3" aria-hidden="true" /> 삭제</button>
+                {busy?.id === m.id ? busyBadge(m.id) : (
+                  <button type="button" disabled={!!busy} onClick={() => void removeMine(m.id)} className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-red-300 disabled:opacity-40"><Trash2 className="h-3 w-3" aria-hidden="true" /> 삭제</button>
+                )}
               </div>
             </article>
           ))}
