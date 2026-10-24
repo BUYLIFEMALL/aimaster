@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VideoToGIF | 상세페이지 GIF 자동화",
-  description: "영상을 고화질 GIF로 변환하고 용량까지 자동 최적화합니다.",
+  title: "VideoRender Studio | 초고속 영상 렌더링 & GIF 스튜디오",
+  description: "AI 영상 전문 고속 변환 및 스마트 렌더링 엔진. 프레임 정밀 편집과 고화질 용량 최적화를 지원합니다.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

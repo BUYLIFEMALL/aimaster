@@ -13,11 +13,11 @@
 | 항목 | 내용 |
 |---|---|
 | **프로그램 번호** | **36번** |
-| **프로그램 명칭** | **상세페이지 GIF 자동화 (VideoToGIF)** |
+| **프로그램 명칭** | **초고속 영상 렌더링 & GIF 스튜디오 (VideoRender Studio)** |
 | **프로그램 slug** | `video-to-gif` |
-| **현재 버전** | `v1.11` (2026-10-22 배포·크롬 확인, `package.json`, `lib/version.ts`, Supabase DB 3중 동기화) |
+| **현재 버전** | `v1.25` (2026-10-24 배포 준비, `package.json`, `lib/version.ts`, Supabase DB 동기화) |
 | **공식 도메인** | `https://video-to-gif.buylife.xyz` (대시보드: `/dashboard`) |
-| **적용 템플릿** | **크리에이티브 아틀리에 스타일 — 이커머스 GIF 랩 에디션** |
+| **적용 템플릿** | **크리에이티브 아틀리에 스타일 — 비디오 렌더 스튜디오 에디션** |
 | **테마 및 색상** | 다크 차콜 (`#0d1117` + `#161b22`) + 이커머스 앰버 골드 (`#f59e0b`) |
 
 ---
@@ -399,3 +399,17 @@
 - 배포: 커밋 `0492b0cbb`(실행기)·`72bfaa11f`(v1.24 묶음: manifest v1.24·ZIP·host.pl·version.json·SQL `supabase/migrations/20261024_pc_renderer_video_v1_24.sql`). `video-to-9rhaboikt` Ready(도우미가 주소를 놓쳐 `vercel ls`로 확인), DB v1.24 + `extension_version` v1.24, `check-extension-release` OK, 운영 `version.json` host 1.30. 이 PC 설치본도 1.30으로 교체(백업 `host.ps1.bak-before-1.30`).
 - 운영 크롬(AI 영상 스튜디오 화면에서 실제 확장으로): pong 1.30·capabilities 5개, `normalize` 0.9MB 5초 영상 2.0초(소리 유지), `compress` balanced 1.7MB → 0.9MB.
 - 남은 확인: **실제 맥에서 `loop`·`normalize`·`compress`** — msys perl로는 통과, 맥미니 실검수 부탁 필요. 회원 PC 설치본은 자동으로 바뀌지 않는다 — 새 명령을 쓰려면 렌더러 다시 설치(옛 판은 화면에 「업데이트 안내」).
+
+## 2026-10-24 v1.25 — 영상 전문 렌더링 스튜디오 명칭 개편 & 표준 연동·사용 매뉴얼 전면 리뉴얼 (Antigravity 윈도우 · 세션 `agy-win-20261024-videorender`, 주인님 지시)
+- **명칭 개편**: 단순 상세페이지 이커머스용 툴 탈피 ➔ **「초고속 영상 렌더링 & GIF 스튜디오 (VideoRender Studio)」**로 공식 명칭 및 브랜드 정체성 전면 개편.
+  - 사이드바, 헤더, 모바일 드로어, 대시보드 히어로 배너, 랜딩 페이지(`app/page.tsx`), 메타데이터(`app/layout.tsx`), 프리셋 버튼(스탠다드 560px·HD 780px·와이드 860px) 일괄 쇄신.
+- **표준 연동 & 사용 매뉴얼 리뉴얼 (`app/guide/page.tsx`)**:
+  - [`docs/MANUAL_AND_INTEGRATION_GUIDELINES.md`](../docs/MANUAL_AND_INTEGRATION_GUIDELINES.md)의 7대 핵심 컴포넌트 표준 규격 전면 적용.
+  - ① 상단 헤더 메타데이터 바 (아이콘, 뱃지, 소요시간 "즉시 / 1분", 작업실 직링크)
+  - ② 개요 히어로 카드 (글래스모피즘, 100% 클라이언트 무저장 프라이버시 & 무설치 WASM vs 내 PC 3배 가속 2-Track 안내)
+  - ③ 핵심 4단계 시각 카드 뷰어 (Step 1 등록 ➔ Step 2 타임라인 정밀 설정 ➔ Step 3 초고속 렌더링 ➔ Step 4 다운로드/연계)
+  - ④ 단계별 상세 안내 블록 + 윈도우/맥 내 PC 가속 렌더러 원클릭/1초 복사 설치 매뉴얼
+  - ⑤ 💡 전문가 실전 팁 배너 (구간 자르기 마법, 단일 패스 속도, 사다리 끝 초당 장면 수 제어)
+  - ⑥ ⚠️ 핵심 주의사항 / 함정 방지 배너 (브라우저 백그라운드 탭 절전 방지, 윈도우 SmartScreen 안내, 모바일 메모리 한계)
+  - ⑦ 작업실 직링크 액션 버튼 및 자주 묻는 질문 FAQ 8종 아코디언 인터랙션.
+- **검수**: tsc 0, `npm run build` 통과, 확장 manifest 및 로컬 렌더러 ZIP/version.json 갱신 완료.

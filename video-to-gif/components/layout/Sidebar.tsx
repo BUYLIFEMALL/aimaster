@@ -36,7 +36,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
             <Film className="h-4 w-4" />
           </span>
-          <span className="truncate">상세페이지 GIF 자동화</span>
+          <span className="truncate">영상 렌더링 & GIF 스튜디오</span>
           <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400 border border-amber-500/20">
             {APP_VERSION}
           </span>
@@ -76,14 +76,14 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 <Film className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-extrabold text-white">VideoToGIF</span>
-                <span className="text-[11px] font-medium text-amber-400">상세페이지 GIF 자동화</span>
+                <span className="text-sm font-extrabold text-white">VideoRender Studio</span>
+                <span className="text-[11px] font-medium text-amber-400">초고속 영상 렌더링 & GIF</span>
               </div>
             </Link>
             <div className="flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-300">
                 <Sparkles className="h-2.5 w-2.5" />
-                {APP_VERSION} LAB
+                {APP_VERSION} STUDIO
               </span>
               <button
                 onClick={() => setMobileOpen(false)}
@@ -94,7 +94,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             </div>
           </div>
           <p className="mt-2 text-[11px] text-gray-400">
-            WASM 로컬 무손실 · 8MiB 상세페이지 압축
+            WASM & 내 PC 가속 렌더링 · 스마트 압축 최적화
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           {/* 작업 파이프라인 메뉴 (1-2-3 단계) */}
           <div>
             <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-              GIF 생성 파이프라인
+              영상 렌더링 파이프라인
             </div>
             <nav className="space-y-1">
               <Link
@@ -140,8 +140,8 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                   2
                 </span>
                 <div className="flex-1">
-                  <div className="font-bold text-gray-300">WASM 8MiB 최적화</div>
-                  <p className="mt-0.5 text-[11px] text-gray-400">색상표 최적화 고화질 변환</p>
+                  <div className="font-bold text-gray-300">고속 렌더링 & 최적화</div>
+                  <p className="mt-0.5 text-[11px] text-gray-400">WASM & PC 가속 스마트 사다리</p>
                 </div>
               </div>
 
@@ -150,8 +150,8 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                   3
                 </span>
                 <div className="flex-1">
-                  <div className="font-bold text-gray-300">고화질 GIF 다운로드</div>
-                  <p className="mt-0.5 text-[11px] text-gray-400">쇼핑몰 상세페이지 즉시 삽입</p>
+                  <div className="font-bold text-gray-300">고화질 결과물 다운로드</div>
+                  <p className="mt-0.5 text-[11px] text-gray-400">초고화질 GIF · 일괄 ZIP 패키징</p>
                 </div>
               </div>
             </nav>
@@ -177,7 +177,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 </span>
                 <div>
                   <div className="font-bold text-amber-200">📖 연동 & 사용 매뉴얼</div>
-                  <div className="text-[10px] text-gray-400 font-normal">플랫폼별 규격 & 8MiB 비법</div>
+                  <div className="text-[10px] text-gray-400 font-normal">WASM & 내 PC 가속 렌더링 가이드</div>
                 </div>
               </div>
               <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">

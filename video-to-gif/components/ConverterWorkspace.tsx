@@ -539,7 +539,7 @@ export default function ConverterWorkspace() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
             <Sparkles className="h-3.5 w-3.5" />
-            이커머스 상세페이지 GIF 랩 {APP_VERSION}
+            초고속 영상 렌더링 & GIF 스튜디오 {APP_VERSION}
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -547,7 +547,7 @@ export default function ConverterWorkspace() {
               className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-colors"
             >
               <BookOpen className="h-3.5 w-3.5" />
-              <span>📖 사용 매뉴얼 보기</span>
+              <span>📖 연동 & 사용 매뉴얼 보기</span>
             </Link>
           </div>
         </div>
@@ -555,16 +555,16 @@ export default function ConverterWorkspace() {
         <div className="mt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-snug">
-              동영상을 <span className="text-amber-400">초고화질 8MiB GIF</span>로 즉시 변환하세요
+              영상을 <span className="text-amber-400">초고속 고화질 렌더링</span>으로 즉시 변환하세요
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-              원하는 구간만 골라 네이버 스마트스토어·쿠팡의 8MiB 용량 기준에 맞는 GIF로 만듭니다.
-              변환은 브라우저 안에서만 이뤄지고(서버로 영상을 보내지 않음), 완성한 GIF는 내려받거나 AI 상세페이지로 바로 보낼 수 있습니다.
+              무설치 브라우저 WASM 엔진부터 3배 빠른 내 PC 하드웨어 가속까지 완벽 지원합니다.
+              타임라인 정밀 구간 자르기와 10단계 지능형 사다리 최적화로 선명하고 가벼운 결과물을 완성하세요. (서버 무저장 프라이버시 보장)
             </p>
           </div>
           <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-300 shrink-0">
             <ShieldCheck className="h-4 w-4" />
-            <span>100% Client-Side WASM</span>
+            <span>100% Client-Side Engine</span>
           </div>
         </div>
       </div>
@@ -577,8 +577,8 @@ export default function ConverterWorkspace() {
           </div>
           <div>
             <div className="text-xs font-bold text-gray-400">엔진 아키텍처</div>
-            <div className="text-sm font-extrabold text-white mt-0.5">WASM 고화질 색상표</div>
-            <div className="text-[11px] text-amber-400 mt-0.5">브라우저 로컬 직접 연산</div>
+            <div className="text-sm font-extrabold text-white mt-0.5">WASM & PC 가속 듀얼 엔진</div>
+            <div className="text-[11px] text-amber-400 mt-0.5">브라우저 로컬 & 하드웨어 직접 연산</div>
           </div>
         </div>
 
@@ -588,8 +588,8 @@ export default function ConverterWorkspace() {
           </div>
           <div>
             <div className="text-xs font-bold text-gray-400">용량 최적화</div>
-            <div className="text-sm font-extrabold text-white mt-0.5">8MiB 지능형 사다리</div>
-            <div className="text-[11px] text-emerald-400 mt-0.5">스마트스토어·쿠팡 규격 완벽 대응</div>
+            <div className="text-sm font-extrabold text-white mt-0.5">10단계 지능형 사다리</div>
+            <div className="text-[11px] text-emerald-400 mt-0.5">무손실 팔레트 & 고화질 자동 탐색</div>
           </div>
         </div>
 
@@ -598,9 +598,9 @@ export default function ConverterWorkspace() {
             <Layers className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-xs font-bold text-gray-400">일괄 대기열</div>
+            <div className="text-xs font-bold text-gray-400">일괄 렌더링 큐</div>
             <div className="text-sm font-extrabold text-white mt-0.5">최대 20개 동시 큐</div>
-            <div className="text-[11px] text-cyan-400 mt-0.5">파일당 200MB까지 폭넓게 수용</div>
+            <div className="text-[11px] text-cyan-400 mt-0.5">4K·FHD 대용량 원본 폭넓게 수용</div>
           </div>
         </div>
       </div>
@@ -910,7 +910,7 @@ export default function ConverterWorkspace() {
                       : "border-[#30363d] bg-[#0d1117] text-gray-400 hover:text-gray-200"
                   }`}
                 >
-                  기본 560px
+                  스탠다드 560px
                 </button>
                 <button
                   type="button"
@@ -921,7 +921,7 @@ export default function ConverterWorkspace() {
                       : "border-[#30363d] bg-[#0d1117] text-gray-400 hover:text-gray-200"
                   }`}
                 >
-                  쿠팡 780px
+                  HD 780px
                 </button>
                 <button
                   type="button"
@@ -932,7 +932,7 @@ export default function ConverterWorkspace() {
                       : "border-[#30363d] bg-[#0d1117] text-gray-400 hover:text-gray-200"
                   }`}
                 >
-                  스토어 860px
+                  와이드 860px
                 </button>
               </div>
             </div>
