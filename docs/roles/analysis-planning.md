@@ -23,7 +23,7 @@
 | 🔁 DUP-3 `naver-cafe-poster` | 시간 초과 재게시·정기 게시 실패 시 5분마다 재생성·즉시 게시 서버 상태 확인(NV-P1·P2·P6) | 담당 지정 | `docs/NAVER_CONSOLIDATION_TASKS.md` |
 | 🔁 DUP-4 `shots`(Shots) | 유튜브·인스타 업로드 중복 방지 서버 조건(YT-U7) | 담당 지정 | `docs/YOUTUBE_CONSOLIDATION_TASKS.md` |
 | 🔁 DUP-5 `insta_auto_poster` + 사본(인플루언서·웹툰·4컷) | 게시 엔진 시간 초과 재시도(`postGraphWithRetry`) 중단 — 공용 사본이라 기준 코드 1곳 수정 후 사본 동기화(INC-D1) | 담당 지정 | `docs/INSTAGRAM_CONSOLIDATION_TASKS.md` |
-| `real_estate_sales` | **실시간 매물 정리·알림**(회원 본인 크롬 확장 소량 수집 → 웹 표·변동·텔레그램·엑셀) + N1 바로가기·N2 엑셀 | 주인님 결정 4개(약관 위험 감수·담는 곳·자동 수집 범위·담당) | `docs/analysis-naver-realty-collector-20261024/PLAN_20261024_LIVE_LISTINGS.md` |
+| 🏠 새 프로그램 후보 `realty-listing-alert` | **네이버 부동산 매물 무인 수집·정리·알림** — 회원 PC(1단계 크롬 확장 → 2단계 PC 프로그램)에서만 네이버 접속, 우리 서버 요청 0·데이터 미보관, 텔레그램(엑셀 첨부)·이메일·파일 · 쿠키 추출기(EXT-RE-02) 함께 검토 · N1·N2는 `real_estate_sales` | 플랜 3판 §10 결정 5개 | `docs/analysis-naver-realty-collector-20261024/PLAN_20261024_LIVE_LISTINGS.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
