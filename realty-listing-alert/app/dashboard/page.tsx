@@ -1,6 +1,9 @@
 import { requireProgramAccess } from "@/lib/access";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import ExtensionDownloadCard from "@/app/settings/ExtensionDownloadCard";
+import { createClient } from "@/lib/supabase/server";
+import { COLLECT_INTERVAL_OPTIONS } from "@/lib/schedule";
+import { MAX_TARGETS } from "@/lib/targets";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -12,14 +15,25 @@ const INSTALL = [
   { icon: "🔗", title: "바로 연결", desc: "「API키등록·플랫폼연동」에서 「바로 연결」을 누릅니다." },
 ];
 
-const CARDS = [
-  { icon: "🎯", title: "감시 대상", value: "0 / 10", href: "/targets", note: "단지를 추가하세요" },
-  { icon: "⏰", title: "예약", value: "꺼짐", href: "/schedule", note: "간격·시간대를 정하세요" },
-  { icon: "📨", title: "받는 방법", value: "미연결", href: "/delivery", note: "텔레그램을 연결하세요" },
-];
 
 export default async function DashboardPage() {
   const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const [{ data: targets }, { data: settings }, { data: telegram }] = await Promise.all([
+    supabase.from("realty_alert_targets").select("enabled").eq("user_id", user.id),
+    supabase.from("realty_alert_settings").select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end").eq("user_id", user.id).maybeSingle(),
+    supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).eq("program_slug", "realty-listing-alert").maybeSingle(),
+  ]);
+  const total = targets?.length ?? 0;
+  const active = targets?.filter((t) => t.enabled).length ?? 0;
+  const intervalLabel = COLLECT_INTERVAL_OPTIONS.find((o) => o.value === settings?.interval_minutes)?.label ?? "3시간";
+  const hours = settings?.active_hour_start != null && settings?.active_hour_end != null ? ` · ${settings.active_hour_start}~${settings.active_hour_end}시` : " · 종일";
+  // 「내 설정」 카드 — 실제 저장값(2단계). 마지막 수집 시각은 3단계 확장 보고 뒤에 붙인다.
+  const cards = [
+    { icon: "🎯", title: "감시 대상", value: `${total} / ${MAX_TARGETS}`, href: "/targets", note: total ? `${active}개 감시 중` : "단지를 추가하세요" },
+    { icon: "⏰", title: "예약", value: settings?.schedule_enabled ? "켜짐" : "꺼짐", href: "/schedule", note: settings?.schedule_enabled ? `${intervalLabel}마다${hours}` : "간격·시간대를 정하고 켜 주세요" },
+    { icon: "📨", title: "받는 방법", value: telegram ? "연결됨" : "미연결", href: "/delivery", note: telegram ? `@${telegram.bot_username ?? "봇"}` : "텔레그램을 연결하세요" },
+  ];
   return (
     <div className="studio-shell">
       <StudioSidebar email={user.email ?? ""} active="dashboard" />
@@ -52,7 +66,7 @@ export default async function DashboardPage() {
         <section className="card">
           <h2 className="card-title">📋 내 설정</h2>
           <ol className="guide-steps three">
-            {CARDS.map((card) => (
+            {cards.map((card) => (
               <li key={card.title}>
                 <a href={card.href}>
                   <span className="guide-step-icon">{card.icon}</span>
