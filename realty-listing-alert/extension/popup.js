@@ -1,3 +1,5 @@
+import { complexNoFromUrl, isGenericName } from "./lib/listing.js";
+
 // 팝업 — 상태 보기·지금 수집·이 단지 추가·최근 결과. 수집은 백그라운드가 하므로 팝업을 닫아도 계속된다.
 const WEB = "https://realty-listing-alert.buylife.xyz";
 const $ = (id) => document.getElementById(id);
@@ -19,9 +21,13 @@ const older = (a, b) => {
 let activeTab = null;
 chrome.tabs.query({ active: true, currentWindow: true }).then(([t]) => {
   activeTab = t || null;
-  const m = String(t?.url || "").match(/new\.land\.naver\.com\/complexes\/(\d+)/);
-  $("add").disabled = !m;
-  $("addSub").textContent = m ? `지금 보고 있는 단지(번호 ${m[1]})를 감시 대상에 넣어요` : "네이버 부동산 단지 화면에서 눌러 주세요";
+  const no = complexNoFromUrl(t?.url);
+  $("add").disabled = !no;
+  if (no) $("addSub").textContent = `지금 보고 있는 단지(번호 ${no})를 감시 대상에 넣어요`;
+  else if (/land\.naver\.com/.test(String(t?.url || ""))) {
+    // 네이버 부동산인데 단지 번호를 못 찾음 — 원인을 바로 알 수 있게 주소를 보여 준다
+    $("addSub").textContent = `검색 목록에서 단지를 눌러 단지 화면을 연 뒤 팝업을 다시 열어 주세요 (지금 주소: ${String(t.url).slice(0, 70)}…)`;
+  } else $("addSub").textContent = "네이버 부동산 단지 화면에서 눌러 주세요";
 });
 
 function setBox(box, ok) {
@@ -91,7 +97,7 @@ $("collect").onclick = async () => {
 
 $("add").onclick = async () => {
   const name = (activeTab?.title || "").replace(/\s*[:|-]\s*네이버\s*부동산.*$/, "").trim();
-  const r = await send("addComplex", { tabUrl: activeTab?.url, name: name && !/네이버\s*부동산/.test(name) ? name : "" });
+  const r = await send("addComplex", { tabUrl: activeTab?.url, name: isGenericName(name) ? "" : name });
   if (r?.ok) say(`➕ 감시 대상에 넣었어요 (${r.count}/10). 웹 🎯 감시 대상에서 조건을 바꿀 수 있어요.`);
   else say(r?.error || "추가하지 못했어요.", true);
   send("refreshSettings").catch(() => {});

@@ -13,7 +13,9 @@ export type TradeCode = (typeof TRADE_TYPES)[number]["code"];
 export function parseComplexNo(input: string): string | null {
   const text = input.trim();
   if (/^\d{1,12}$/.test(text)) return text;
-  const m = text.match(/^(?:https?:\/\/)?(?:new|fin|m)\.land\.naver\.com\/complexes\/(\d{1,12})(?:[/?#].*)?$/i);
+  if (!/^(?:https?:\/\/)?(?:new|fin|m)\.land\.naver\.com\//i.test(text)) return null;
+  // 「N pay 부동산」 화면은 주소 형식이 여러 가지다(2026-10-25) — /complexes/숫자 또는 complexNo=숫자. 확장 lib/listing.js complexNoFromUrl과 같은 규칙.
+  const m = text.match(/\/complexes\/(\d{1,12})(?:[/?#]|$)/i) || text.match(/[?&#]complexNo=(\d{1,12})(?:&|$)/i);
   return m ? m[1] : null;
 }
 

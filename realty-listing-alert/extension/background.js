@@ -2,7 +2,7 @@
 // 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
 // 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectComplex, rand, sleep } from "./lib/collector.js";
-import { matchesTarget, normalizeArticle } from "./lib/listing.js";
+import { complexNoFromUrl, isGenericName, matchesTarget, normalizeArticle } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
 import { kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
@@ -129,10 +129,15 @@ async function runCollection(trigger) {
       const seen = new Set();
       const items = r.bodies
         .flatMap((b) => b[listKey] || [])
-        .map((a) => normalizeArticle(a, t.complex_no, t.complex_name, rules.fields))
+        .map((a) => normalizeArticle(a, t.complex_no, isGenericName(t.complex_name) ? "" : t.complex_name, rules.fields))
         .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no))
         .filter((it) => matchesTarget(it, t));
-      const name = t.complex_name || items[0]?.complexName || `단지 ${t.complex_no}`;
+      const realName = r.bodies.flatMap((b) => b[listKey] || []).find((a) => a.articleName)?.articleName || "";
+      const name = (!isGenericName(t.complex_name) && t.complex_name) || realName || `단지 ${t.complex_no}`;
+      // 이름이 비었거나 탭 제목 같은 일반 이름이면 웹 감시 대상 이름을 실제 단지명으로 고친다(단지 번호·이름만 보냄)
+      if (isGenericName(t.complex_name) && realName) {
+        api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: t.complex_no, complexName: realName, rename: true }) }).catch(() => {});
+      }
       const cmp = compareComplex(states[t.complex_no], items, { complete: r.complete });
       states[t.complex_no] = cmp.state;
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
@@ -228,11 +233,11 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         return reply({ ok: true });
       }
       if (msg.type === "addComplex") {
-        const m = String(msg.tabUrl || "").match(/new\.land\.naver\.com\/complexes\/(\d{1,12})/);
-        if (!m) return reply({ ok: false, error: "네이버 부동산 단지 화면에서 눌러 주세요." });
-        const r = await api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: m[1], complexName: msg.name || "" }) });
-        await addLog(`감시 대상 추가: 단지 ${m[1]} (${r.count}/10)`);
-        return reply({ ok: true, count: r.count, complexNo: m[1] });
+        const no = complexNoFromUrl(msg.tabUrl);
+        if (!no) return reply({ ok: false, error: "네이버 부동산 단지 화면에서 눌러 주세요." });
+        const r = await api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: no, complexName: msg.name || "" }) });
+        await addLog(`감시 대상 추가: 단지 ${no} (${r.count}/10)`);
+        return reply({ ok: true, count: r.count, complexNo: no });
       }
       if (msg.type === "openResults") {
         await chrome.tabs.create({ url: chrome.runtime.getURL("result.html") });

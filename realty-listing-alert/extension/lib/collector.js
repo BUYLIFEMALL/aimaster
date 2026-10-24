@@ -55,6 +55,8 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
   let blockedText = false;
   let lastMore = true;
   let error = null;
+  let listUrl = null; // 페이지가 부른 목록 주소(다음 페이지를 부를 때 page만 바꿈)
+  let listAuth = null; // 페이지가 보낸 인증 머리글 — 이 수집 동안 메모리에만, 저장하지 않음
 
   const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
   const tab = await chrome.tabs.create({ url: "about:blank", active: false, ...(win?.id ? { windowId: win.id } : {}) });
@@ -62,6 +64,12 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
 
   const onEvent = async (src, method, params) => {
     if (src.tabId !== tabId) return;
+    if (method === "Network.requestWillBeSent" && String(params.request?.url || "").includes(rules.listPathIncludes)) {
+      listUrl = params.request.url;
+      const h = params.request.headers || {};
+      if (h.authorization || h.Authorization) listAuth = h.authorization || h.Authorization;
+      return;
+    }
     if (method === "Network.responseReceived") {
       if (!String(params.response?.url || "").includes(rules.listPathIncludes)) return;
       if (isBlockedStatus(params.response.status)) blockedStatus = params.response.status;
@@ -97,6 +105,16 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
       const [a, b] = rules.scrollWaitMs || [2000, 5000];
       await sleep(rand(a, b));
       if (bodies.length === before) {
+        // 스크롤로 다음 페이지가 안 오면(2026-10-25 헬리오시티 1페이지만 읽힘) 탭 안에서 페이지가 쓰던 같은 주소에 page만 바꿔 부른다.
+        // 0단계: 페이지 인증 머리글을 붙이면 2페이지도 200(인수인계 §2-2 2순위). 응답은 위 onEvent가 똑같이 읽는다.
+        if (lastMore && listUrl) {
+          const next = new URL(listUrl);
+          next.searchParams.set("page", String(bodies.length + 1));
+          const status = await evalInPage(tabId, `fetch(${JSON.stringify(next.toString())}, { credentials: "include", headers: ${JSON.stringify(listAuth ? { authorization: listAuth } : {})} }).then((r) => r.status).catch(() => 0)`);
+          await sleep(1500);
+          if (isBlockedStatus(status)) { blockedStatus = status; break; }
+          if (bodies.length > before) { stale = 0; await sleep(rand(a, b)); continue; }
+        }
         stale += 1;
         if (stale >= 2) break;
       } else stale = 0;

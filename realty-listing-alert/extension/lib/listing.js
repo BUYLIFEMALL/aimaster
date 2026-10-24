@@ -66,3 +66,20 @@ export function matchesTarget(item, target) {
 export function articleUrl(complexNo, no) {
   return `https://new.land.naver.com/complexes/${complexNo}?articleNo=${no}`;
 }
+
+/**
+ * 네이버 부동산 주소에서 단지 번호를 찾는다(2026-10-25: 「N pay 부동산」 화면은 주소 형식이 여러 가지라 넓게 찾음).
+ * new/fin/m.land.naver.com 의 `/complexes/숫자` 또는 `complexNo=숫자`. 못 찾으면 null.
+ */
+export function complexNoFromUrl(url) {
+  const s = String(url || "");
+  if (!/^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(s)) return null;
+  const m = s.match(/\/complexes\/(\d{1,12})(?:[/?#]|$)/) || s.match(/[?&#]complexNo=(\d{1,12})(?:&|$)/);
+  return m ? m[1] : null;
+}
+
+/** 탭 제목 같은 일반 이름(「네이버페이 부동산」 등)인지 — 단지 이름으로 쓰지 않는다(2026-10-25 시험에서 발견). */
+export function isGenericName(name) {
+  const s = String(name || "").trim();
+  return !s || /네이버|부동산$|^n\s*pay/i.test(s);
+}
