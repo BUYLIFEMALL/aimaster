@@ -174,7 +174,9 @@ async function runCapture(tabId, tabUrl) {
     });
   } catch (e) {
     out.error = String(e);
-    await addLog(`① 오류: ${e}`);
+    // 같은 탭을 다른 확장(예: Claude 크롬 제어)이 디버거로 쓰고 있으면 붙지 않는다 — 회원에게 쉬운 말로 남긴다.
+    const hint = /not attached|Another debugger|Cannot attach/i.test(out.error) ? " → 다른 확장이 이 탭을 조작 중일 수 있어요. 새 창(Ctrl+N)의 일반 탭에서 다시 해 주세요." : "";
+    await addLog(`① 오류: ${e}${hint}`);
   } finally {
     clearTimeout(saveTimer);
     chrome.debugger.onEvent.removeListener(onEvent);
