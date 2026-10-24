@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.04 UX 리뉴얼
+- 한 일: 대시보드 🚀 시작하기 5단계(자동 판정·다음 할 일 버튼), 네이버 단지 화면 위 「➕ 매물 알림에 추가」(확장 `naver-button.js`), 감시 대상·팝업 단순화, 쉬운 말, 매뉴얼 5단계. 시험에서 나온 2페이지(탭 안 다음 페이지 부르기)·단지 이름(탭 제목 대신 실제 단지명)·주소 판별 수정.
+- 검수: 시험 18개·tsc·build, 배포 `realty-listing-alert-4zdi1ijp9` Ready, DB v1.04, `check-extension-release` OK, 운영 화면(시작하기 4/5·감시 대상), 주인님 크롬 네이버 화면에 「✅ 감시 중」. 미배포: 계정 대조 `3f0db7161`.
+- 주의: Supabase `/sql/new`가 다른 세션 초안을 열 수 있음(ERROR_LESSONS). 남은 일: 헬리오시티 2페이지·월세 실물, 지역 고르기.
+- 링크: https://realty-listing-alert.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: docbot-prompt] Codex(윈도우·엣지) · 세션 `codex-win-20261025-docbot-g4` — 추가 AI 키별 용도·공식 생성/등록 버튼 (미배포)
 - 주인님 화면 요청: Groq·OpenRouter·Cloudflare 제목 옆 「대화·번역·요약에 사용」, Cloudflare 계정 ID 옆 「연결 계정 식별에 사용」. 공식 콘솔 「API 키 생성·등록」/「계정 ID 확인」 버튼과 발급 후 이 화면에 저장하는 안내. 코드 `9ab4f36e0`.
 - 공용 기준 2개를 수정해 AI Prompt 사본도 동기화. 양쪽 타입·공용7개 일치·문서 챗봇108개 검사/로컬 빌드1회 통과. Edge 일반 회원 localhost:4311/settings의 실제 문구/4개 링크/표시 확인. 키 생성·저장·삭제·AI 호출은 하지 않음. Prompt 실제 화면·좁은 화면·새 공급자 실호출 미검수.
