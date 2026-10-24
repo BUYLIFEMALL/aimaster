@@ -36,6 +36,10 @@ describe("work inbox", () => {
     const row = B("r", "page", { parent_table: "collection", properties: { title: [["기획서 마무리"]], x: [["‣", [["d", { type: "date", start_date: "2026-10-01" }]]]], y: [["‣", [["d", { type: "date", start_date: "2026-10-30" }]]]], z: [["높음"]] } });
     expect(pageAsTask(row, coll)).toEqual({ title: "기획서 마무리", data: { 예정일: "2026-10-30", 우선순위: "높음" } });
     expect(pageAsTask(B("q", "page", { properties: {} }))).toEqual({ title: "제목 없는 페이지", data: {} });
+    // CSV로 만든 표: 우선순위·예정일이 글자 칸, 「받은 날」 날짜 칸은 이름이 맞지 않아 쓰지 않음
+    const csvColl = { schema: { a: { name: "받은 날", type: "date" }, b: { name: "예정일", type: "text" }, c: { name: "우선순위", type: "text" }, d: { name: "메모", type: "text" } } } as any;
+    const csvRow = B("r2", "page", { parent_table: "collection", properties: { title: [["보고"]], a: [["‣", [["d", { type: "date", start_date: "2026-10-24" }]]]], b: [["2026-11-02"]], c: [["낮음"]], d: [["2026-01-01"]] } });
+    expect(pageAsTask(csvRow, csvColl)).toEqual({ title: "보고", data: { 예정일: "2026-11-02", 우선순위: "낮음" } });
   });
 
   it("validates items before sending", () => {

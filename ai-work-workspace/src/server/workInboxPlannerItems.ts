@@ -45,14 +45,21 @@ export function pageAsTask(page: BlockRecord, collection?: CollectionRecord): Pl
   const data: Record<string, string> = {};
   if (collection && page.parent_table === "collection") {
     const entries = Object.entries(collection.schema ?? {});
-    const dates = entries.filter(([, s]) => s.type === "date");
-    const ordered = [...dates.filter(([, s]) => DATE_NAME.test(s.name)), ...dates.filter(([, s]) => !DATE_NAME.test(s.name))];
-    for (const [id] of ordered) {
-      const d = dateOf(page.properties?.[id] as RichText | undefined);
+    // 예정일 찾는 순서: ① 이름이 맞는 날짜 칸 ② 이름이 맞는 글자 칸(CSV로 만든 표는 「2026-10-30」이 글자로 들어 있음) ③ 다른 날짜 칸
+    const named = entries.filter(([, s]) => DATE_NAME.test(s.name));
+    const candidates: [string, "date" | "text"][] = [
+      ...named.filter(([, s]) => s.type === "date").map(([id]) => [id, "date"] as [string, "date"]),
+      ...named.filter(([, s]) => s.type === "text").map(([id]) => [id, "text"] as [string, "text"]),
+      ...entries.filter(([, s]) => s.type === "date" && !DATE_NAME.test(s.name)).map(([id]) => [id, "date"] as [string, "date"]),
+    ];
+    for (const [id, kind] of candidates) {
+      const rt = page.properties?.[id] as RichText | undefined;
+      const d = kind === "date" ? dateOf(rt) : /^\d{4}-\d{2}-\d{2}$/.test(oneLine(rt)) ? oneLine(rt) : null;
       if (d) { data["예정일"] = d; break; }
     }
+    // 우선순위는 선택·상태 칸뿐 아니라 글자 칸(CSV로 만든 표)도 읽는다
     for (const [id, s] of entries) {
-      if (s.type !== "select" && s.type !== "status") continue;
+      if (s.type !== "select" && s.type !== "status" && s.type !== "text") continue;
       const v = oneLine(page.properties?.[id] as RichText | undefined);
       if (PRIORITY.has(v)) { data["우선순위"] = v; break; }
     }
