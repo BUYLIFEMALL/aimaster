@@ -52,20 +52,22 @@ export default function Modal({
   if (!isOpen) return null;
 
   return (
-    <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
-      }}
-    >
+    <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
 
+      {/* 내용이 화면보다 길면 이 바깥 영역이 스크롤된다(2026-10-24 — 긴 가이드 수정 창이 아래로 내려가지 않던 문제) */}
+      <div
+        ref={overlayRef}
+        className="relative flex min-h-full items-center justify-center p-4"
+        onClick={(e) => {
+          if (e.target === overlayRef.current) onClose();
+        }}
+      >
       {/* Modal */}
       <div
         className={cn(
-          "relative w-full glass-card rounded-2xl",
+          "relative w-full glass-card rounded-2xl my-4",
           sizeClasses[size],
           className
         )}
@@ -90,6 +92,7 @@ export default function Modal({
           </button>
         )}
         <div className={cn(!title && "pt-2")}>{children}</div>
+      </div>
       </div>
     </div>
   );
