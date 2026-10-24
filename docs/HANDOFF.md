@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.13·v1.14: Gemini 유료 시험 통과 + 모델 목록 정리 + 기본 모델 회귀 수정
+- 유료 시험: 시험 계정 본인 Gemini 키 유료 시험 2회(`gemini-3.5-flash-lite`): 질문 → 「올해는 2026년」+한국어 답변, 채팅으로 「Gemini 시험 페이지」 만들기(도구 호출·체크리스트) 정상. 첫 시도 1회는 2.5 Flash-Lite 404 거절(과금 없음).
+- v1.13: 회원 OpenAI 키 모델 목록을 채팅 모델만(음성·검열·실시간·받아쓰기·임베딩·이미지·날짜 붙은 옛 판 제외, 추천 3개) + Gemini 기본을 2.5 Flash-Lite로 바꿈(⚠ 회귀 — v1.14에서 되돌림) — `d9b099292`, 배포 `ai-work-workspace-i2klvx4og`.
+- v1.14: Gemini 기본을 「쓸 수 있는 최신 정식 Flash-Lite」(지금 `gemini-3.5-flash-lite`)로 되돌림 — 운영 시험에서 `gemini-2.5-flash-lite`는 목록에 보여도 「새 사용자에게 더 이상 제공하지 않음」(404)이라 Gemini 키만 있는 회원의 「자동」이 실패하던 v1.13 회귀 수정, 차단 모델 한국어 안내 — `fc6dc321c`, 배포 `ai-work-workspace-14c4dj6e8`(주인님 승인 빌드).
+- 교훈: `docs/ERROR_LESSONS.md` 2026-10-24 「Gemini 목록에 보여도 새 사용자 차단」 — Gemini 모델 이름을 박아 둔 다른 프로그램도 확인 필요.
+- 검수: 연결부 37/37, 원본 522/522, 로컬 빌드. 운영 크롬: 모델 목록 정리(Claude 3·OpenAI 3·Gemini 4), v1.14 표시. 운영 DB v1.14(ref `esgxyikcnnvmlhygjkth`).
+- 못 한 것: U6-A 회의록 실제 시험(마이크 말소리·크롬 마이크 허용 필요 — 주인님 도움). 시험 페이지 「Gemini 시험 페이지」(시험 계정 workspace6525)는 그 시험 뒤 휴지통으로.
+- 다음 배포는 **v1.15**(U6-B 음성 파일 받아쓰기는 A 운영 확인 뒤).
+- 비용: Vercel 빌드 2회(v1.13 U6 플랜 수정분 1회 + v1.14 주인님 승인 1회), 유료 AI 호출 2회(시험 계정 본인 Gemini 키, 3.5 Flash-Lite — 1원 미만) + 거절 1회(과금 없음).
+- 프로그램: https://ai-work-workspace.buylife.xyz
+
 ## 2026-10-24 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.12: U6-A AI 회의록(실시간 받아쓰기 + AI 요약)
 - 플랜 `ai-work-workspace/docs/PLAN_20261024_U6_MEETING_NOTES.md`, 주인님 결정: A 먼저, B는 A 운영 확인 뒤.
 - 한 일: U6-A AI 회의록 열기 — 브라우저 실시간 받아쓰기(크롬·엣지·사파리, 비용 없음) + 정지 뒤 회원 본인 키 AI 요약(요점·할 일·받아쓴 줄 인용), 받아쓰기 「자동」 언어 = 한국어·언어 이름 한국어, 요약 지시문에 당해 연도·한국어 기준 블록, 미지원 브라우저·참석자 알림 안내 문구 정리, 음성 파일 업로드 버튼·메뉴는 U6-B까지 숨김(서버도 단계 정책으로 닫음) — `b7a377b6d`, 배포 `ai-work-workspace-35j95l5vr`.

@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — Gemini 모델 목록에 보이는 모델이 「새 사용자에게 더 이상 제공하지 않음」(404)일 수 있다 + OpenAI 표준 모델 목록은 채팅용이 아닌 모델투성이 (ai-work-workspace v1.13→v1.14, Claude Code 윈도우 [역할: workspace])
+- **증상**: 기본 Gemini 모델을 가격표상 가장 싼 `gemini-2.5-flash-lite`로 바꿨더니(v1.13) 운영에서 「모델을 쓸 수 없습니다」(404). Google 응답: 「This model … is no longer available to new users. Please update your code to use models/gemini-3.5-flash-lite」. 같은 날 회원 OpenAI 키의 모델 고르기에 `tts-1`·`omni-moderation`·`gpt-realtime`·날짜 붙은 옛 판 등 100개 넘게 「추천」으로 보였다.
+- **원인**: ① Gemini `/v1beta/models` 목록은 「새 사용자 차단」 모델도 그대로 돌려준다 — 목록·가격표만으로는 쓸 수 있는지 알 수 없다. ② OpenAI 표준 `/models`는 설명·용도 정보 없이 음성·검열·임베딩·이미지 모델까지 섞어 준다(원본 코드는 설명 있는 「풍부한 목록」을 가정).
+- **해결**: `ai-work-workspace/src/litpage/server/ai/models.ts` — Gemini 기본 = 최신 정식 Flash-Lite(지금 3.5), 404 「no longer available to new users」는 한국어 안내(`providers/gemini.ts`). 회원 키 OpenAI 목록은 `gpt-·o숫자·chatgpt-` 채팅 모델만, 추천 3개(`memberOpenAIChatModels`).
+- **다음부터 확인**: 기본 모델을 바꿀 때는 가격표·목록만 보지 말고 **새로 만든(또는 시험 계정의) 키로 실제 1회 호출**해 본다. Gemini 모델 이름을 코드에 박아 둔 다른 프로그램(`gemini-2.0-flash`·`2.5-flash` 등)도 새 회원에게는 막혀 있을 수 있다 — 오류가 나면 이 항목부터 본다.
+
 ## 2026-10-24 — 브라우저 무료 지우기(LaMa): 마스크를 `>127`로 자르면 지운 자리에 사람 모양 어두운 형체가 다시 그려졌다 (banana-canvas C-0 사전 검증 페이지, Claude Code 윈도우 이커머스·이미지 담당)
 - 증상: 인물 마스크로 지웠는데 그 자리가 배경이 아니라 흐릿한 어두운 실루엣으로 채워짐(모델 저장소 기준 결과와 마스크 안 평균 차이 44.6). WASM·WebGPU 결과가 똑같아 계산 오류가 아니었다.
 - 원인: 512로 줄인 마스크의 흐린 가장자리를 `>127`로 잘라 인물 윤곽 1~2픽셀이 「남길 곳」으로 남음 → LaMa가 그 윤곽을 이어 형체를 그림. 제작자 데모는 `(mask > 0) * 1`.
