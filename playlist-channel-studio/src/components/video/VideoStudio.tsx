@@ -3,6 +3,7 @@
 // 2026-10-20 병합 E: Youtube Playlist 자동화(yt-playlist-studio)의 PlaylistStudioApp을 이 앱 안 「영상 만들기」 화면으로 옮긴 것.
 // 자체 사이드바·키 입력창은 빼고(기준 앱 좌측 메뉴·[API키등록·플랫폼연동] 사용) 위쪽 탭으로 음악·배경 → 편집 → 내보내기 → 사용법을 오간다.
 // 렌더는 그대로 브라우저(GPU)에서 하며 서버에는 AI 배경 생성(/api/generate-bg, 회원 본인 Gemini 키)만 간다.
+import { loadStartSettings } from "@/lib/settings-store";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MediaCenter } from "./MediaCenter";
@@ -36,6 +37,11 @@ export function VideoStudio({ userId }: { userId: string }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [gifUrl, setGifUrl] = useState<string | null>(null);
   const [settings, setSettings] = useState<StudioSettings>(DEFAULT_SETTINGS);
+  // P-5 「시작값으로 저장」한 설정이 있으면 처음 열 때 적용
+  useEffect(() => {
+    const start = loadStartSettings(userId);
+    if (start) setSettings((p) => ({ ...p, ...start }));
+  }, [userId]);
   const [exportSettings, setExportSettings] = useState<ExportSettings>(DEFAULT_EXPORT_SETTINGS);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
@@ -87,6 +93,7 @@ export function VideoStudio({ userId }: { userId: string }) {
         )}
         {tab === "editor" && (
           <EditorStudio
+            userId={userId}
             tracks={tracks}
             bgMedia={bgMedia}
             extraBgs={extraBgs.map((b) => b.url)}

@@ -46,9 +46,12 @@ import { drawLyricsLayer } from "@/lib/render/lyrics-layer";
 import { drawTitleLayer, trackTitle, type TitleInfo } from "@/lib/render/title-layer";
 import { drawBackgroundSlides, slideState } from "@/lib/render/background-layer";
 import { ANIMATED_BGS, BG_PALETTES, drawAnimatedBackground } from "@/lib/render/animated-bg";
+import { SettingsPresets } from "./SettingsPresets";
 import { timeline, type LyricLine } from "@/lib/lyrics";
 
 interface EditorStudioProps {
+  /** P-5 내 설정 저장 칸(회원별) */
+  userId?: string | null;
   tracks: Track[];
   bgMedia: { type: 'image' | 'video'; url: string } | null;
   /** P-3 추가 배경 이미지 주소 */
@@ -66,6 +69,7 @@ interface EditorStudioProps {
 }
 
 export function EditorStudio({
+  userId,
   tracks,
   bgMedia,
   extraBgs,
@@ -702,6 +706,9 @@ export function EditorStudio({
             <Settings2 className="w-3.5 h-3.5 text-[#ff0000]" />
             레이아웃 조정
           </h3>
+
+          {/* P-5 내 설정 · 장르 프리셋 */}
+          <SettingsPresets userId={userId} settings={settings} setSettings={setSettings} />
 
           {/* v1.17 화면 모양 · 가사 표시 */}
           <div className="space-y-2">
