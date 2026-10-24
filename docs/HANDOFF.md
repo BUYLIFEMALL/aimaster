@@ -12,6 +12,14 @@
 - 대상 `D:\PDS\Program_dev\Supertonic TTS-0.3.0-x64.exe`(Electron + Next 내장 서버, 실행 안 함). Supertone 공개 TTS 모델 `supertonic-3`(31개 언어, ONNX 약 398MB, **코드 MIT·가중치 OpenRAIL**)을 회원 PC에서 무료로 돌리는 비공식 앱 — 로컬 파이썬 엔진 / 브라우저(WASM) 두 방식, 한 개·여러 줄·**대화(여러 화자)** 합성, WAV/MP3, SRT, 표현 태그.
 - 우리 쪽: 음성 전용 프로그램 없음, 나레이션은 영상 프로그램 안에서 회원 유료 키로만. 의견: ① 공용 「브라우저 무료 음성 합성」 엔진(공식 오픈소스 기반) → `shorts-onestop-studio` 등 나레이션에 「무료 음성」 선택지 ② 독립 「AI 음성 합성 자동화」(가칭 `ai-voice-studio`) 조건부 추천(입출력 고유, 운영자 비용 0 → FREE 입구 후보). 결정 대기: 방향, **OpenRAIL 상업 이용 조건 확인**, 구현 담당. [보고서](analysis-supertonic-tts-20261024/REPORT.md). 비용 없음.
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 영상 담당 `claude-win-video` — 「내 PC 고속 변환」 영상 C: AI 영상 스튜디오 v1.18 갤러리 카드 「⚡ 내 PC로」
+- 한 일: 작업 결과 갤러리 완성 카드에 「GIF 만들기(앞 6초)」(렌더러 `encode`, 가로 480·10fps)·「작게 줄이기(720)」(렌더러 `compress` small + `maxSide` 720) 버튼 → 카드 아래 바로 내려받기. 렌더러가 없으면 줄을 숨기고, 1.30보다 옛 판이면 작게 줄이기 자리에 업데이트 안내. **렌더러는 고치지 않음** — 계획한 `scale`·`gif` 새 명령 대신 기존 명령으로 충분해 video-to-gif 배포를 뺌(빌드 2회 승인 → 1회 사용).
+- 버전·배포: ai-video-studio **v1.18**(`ai-video-studio-6b8vhdn18`, DB v1.18). 커밋 `a354d4c56`·문서 커밋.
+- 검수: 시험 51(새 3개)·tsc·eslint·build. 렌더러 실물(갤러리 값): GIF 5초 12fps가 4.8MB라 6초·10fps로 낮춤. 운영 크롬(시험 계정) 갤러리: 완성 카드 18장에 두 버튼, 원본 7.3MB → GIF 3.9MB(`image/gif`)·작은 MP4 0.3MB(`video/mp4`) 내려받기 링크 확인.
+- 못 한 것: 실제 맥 확인(기존 명령이라 1.30 맥판 확인과 함께), 렌더러 없는 브라우저에서 줄이 숨는 것은 코드로만 확인(이 PC는 렌더러가 있음).
+- 다음 첫 단계: 영상 D — Shots·원스톱 쇼츠 완성본에 `compress` 연결(로드맵 `docs/analysis-pc-renderer-20261024/ROADMAP.md` 3-0). 링크:
+https://ai-video-studio.buylife.xyz/library
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 영상 담당 `claude-win-video` — 「내 PC 고속 변환」 영상 B: 실행기 1.30 `normalize`·`compress` + AI 영상 스튜디오 v1.17 영상 합치기 연결
 - 한 일: 실행기 `host.ps1`·`host.pl` 1.30에 영상 명령 2개 — `normalize`(넣는 영상을 H.264·고정 fps·짝수 크기·긴 변 제한·AAC로 맞춤)·`compress`(완성 MP4 용량 줄이기, 품질 낱말 high/balanced/small). 정해진 낱말·숫자만 받고 소리 트랙은 실행기가 확인. 최소 판 그대로라 옛 프로그램 영향 없음. AI 영상 스튜디오 영상 합치기: 내 PC 영상이 형식 시험을 못 넘으면 회원 PC ffmpeg로 먼저 맞추고(실패 시 기존 브라우저 인코딩), 완성본 아래 「⚡ 내 PC로 용량 줄이기」(원본보다 크면 원본 유지, 50MB 넘으면 갤러리 저장 안내), 실행기가 없으면 설치 안내.
 - 버전·배포: video-to-gif **v1.24**(`video-to-9rhaboikt`, DB·extension v1.24, 확장 검증 OK, 운영 `version.json` host 1.30) → ai-video-studio **v1.17**(`ai-video-studio-kdamezmak`, DB v1.17). 커밋 `0492b0cbb`·`72bfaa11f`·`3b94adc78`·문서 커밋. 공용 사본 `pc-renderer-client` → `ai-video-studio/lib/pcRenderer.ts` 등록.
