@@ -7,6 +7,8 @@ import { exportFileName, toHtmlDocument, toHtmlFragment, toMarkdown, toPlainText
 import type { ImageRatio, ImageStyle } from "@/lib/imageOptions";
 import type { ImageRefInput } from "./ImageOptionsPanel";
 import type { DraftLength } from "@/lib/lengthPlan";
+import { readStyleStrength, type StyleStrength } from "@/lib/styleStrength";
+const STYLE_STRENGTH_KEY = "naver-blog-seo-studio.style-strength";
 import { useCategories } from "@/components/categories/useCategories";
 import { DEFAULT_SEO_PERSONA_ID, SEO_PERSONAS } from "@/lib/ai/personas";
 import { DEFAULT_GEMINI_IMAGE_MODEL, type GeminiImageModel } from "@/lib/ai/geminiModels";
@@ -90,6 +92,9 @@ export function useStudio() {
   const [experienceQuestionMessage, setExperienceQuestionMessage] = useState("");
   const [naturalStyle, setNaturalStyle] = useState(false);
   const [selectedStyleId, setSelectedStyleId] = useState(""); // BLC-08b: 승인한 내 문체(빈 값 = 적용 안 함)
+  const [styleStrength, setStyleStrengthState] = useState<StyleStrength>("balanced"); // D-1: 문체 반영 세기(이 브라우저에 기억)
+  useEffect(() => { try { setStyleStrengthState(readStyleStrength(window.localStorage.getItem(STYLE_STRENGTH_KEY))); } catch { /* 저장소를 못 쓰면 기본값 */ } }, []);
+  function setStyleStrength(value: StyleStrength) { setStyleStrengthState(value); try { window.localStorage.setItem(STYLE_STRENGTH_KEY, value); } catch { /* 무시 */ } }
   const [includeFaq, setIncludeFaq] = useState(false);
   const [draftLength, setDraftLength] = useState<DraftLength>("normal"); // 병합 B-3: 분량(한 번에 쓰기·구간별 쓰기 공용)
   const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
@@ -479,7 +484,7 @@ export function useStudio() {
     setPending(true);
     setMessage("AI가 블로그(원문)을 준비하고 있습니다. 잠시만 기다려주세요.");
     try {
-      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel, experienceNote, naturalStyle, length: draftLength, includeFaq, researchId: overrides?.researchId, styleId: selectedStyleId || undefined }) });
+      const response = await fetch("/api/drafts/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic: draftTopic, keywords: draftKeywords, strategy, selectedTitle: draftTitle, personaId, customPersona, sourceContext: overrides?.sourceContext, provider: contentProvider, model: contentModel, experienceNote, naturalStyle, length: draftLength, includeFaq, researchId: overrides?.researchId, styleId: selectedStyleId || undefined, styleStrength }) });
       const result = await response.json() as { draft?: { id: string; title: string; body: string; seo_report?: Record<string, string> | null; created_at?: string }; error?: string };
       if (!response.ok) throw new Error(result.error || "블로그(원문) 생성에 실패했습니다.");
       const draft = result.draft;
@@ -1052,6 +1057,8 @@ export function useStudio() {
     setDraftLength,
     selectedStyleId,
     setSelectedStyleId,
+    styleStrength,
+    setStyleStrength,
   };
 }
 

@@ -4,6 +4,7 @@ import { factRule, groundingSection, type DraftGrounding } from "./ai/groundingP
 import { getExplicitYears } from "./ai/freshness";
 import type { SectionRules } from "./ai/sectionPrompt";
 import { styleSection } from "./ai/stylePrompt";
+import type { StyleStrength } from "./styleStrength";
 import { isApproved, type GroundPoint, type ResearchSource } from "./grounding";
 import { styleEnding, isStyleApproved, type StyleEnding, type StyleProfile } from "./style";
 
@@ -42,6 +43,6 @@ export async function loadStyle(supabase: SupabaseClient, userId: string, styleI
 export const isFail = (value: object): value is Fail => "error" in value;
 
 /** 구간별 쓰기 프롬프트 규칙 — 문체는 말투·구성만(끝맺음 필수 규칙 없음, v1.91 교훈), 사실은 승인 근거만. */
-export function sectionRules(grounding: DraftGrounding, style: { name: string; profile: StyleProfile } | undefined): SectionRules {
-  return { style: styleSection(style && { name: style.name, profile: style.profile }), facts: `${factRule([...getExplicitYears(grounding.keyword)], true)}${groundingSection(grounding)}` };
+export function sectionRules(grounding: DraftGrounding, style: { name: string; profile: StyleProfile } | undefined, strength?: StyleStrength): SectionRules {
+  return { style: styleSection(style && { name: style.name, profile: style.profile }, strength), facts: `${factRule([...getExplicitYears(grounding.keyword)], true)}${groundingSection(grounding)}` };
 }

@@ -9,6 +9,7 @@ import { requestDraftJson } from "@/lib/ai/generator";
 import { resolveSeoPersona } from "@/lib/ai/personas";
 import { sectionPrompt } from "@/lib/ai/sectionPrompt";
 import { isFail, loadGrounding, loadStyle, OUTLINE_COLUMNS, sectionRules } from "@/lib/outlineContext";
+import { readStyleStrength } from "@/lib/styleStrength";
 import { applySection, cleanSectionBody, outlineStatus, type OutlineSection } from "@/lib/sections";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,7 +35,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const { id } = await context.params;
-  const input = await request.json().catch(() => null) as { index?: unknown; provider?: unknown; model?: unknown; length?: unknown } | null;
+  const input = await request.json().catch(() => null) as { index?: unknown; provider?: unknown; model?: unknown; length?: unknown; styleStrength?: unknown } | null;
   const provider = isContentProvider(input?.provider) ? input.provider : "openai";
   const index = Number(input?.index);
   const supabase = await createClient();
@@ -58,7 +59,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   let result: { body: string } | { error: string };
   try {
-    const prompt = sectionPrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style), title: outline.title, sections, index, size: lengthPlan(input?.length) });
+    const prompt = sectionPrompt({ today: getKoreaToday(), persona, rules: sectionRules(loaded.grounding, styled.style, readStyleStrength(input?.styleStrength)), title: outline.title, sections, index, size: lengthPlan(input?.length) });
     const raw = await requestDraftJson(apiKey, provider, resolveContentModel(provider, input?.model), [
       { role: "system", content: prompt.system },
       { role: "user", content: prompt.user },

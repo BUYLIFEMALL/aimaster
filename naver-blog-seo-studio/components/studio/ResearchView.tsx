@@ -125,7 +125,7 @@ export function ResearchView({ s }: { s: Studio }) {
         </>}
 
         {approved && <div className="field"><p className="section-description">④ 승인한 근거만 사실로 사용해 「{research.keyword}」 글을 만듭니다. 생성 AI·페르소나·전략은 「새 글 만들기」 설정을 따릅니다. 대표·본문 이미지는 만들지 않으니 필요하면 다음 화면에서 만드세요.</p>
-          <StyleSelect value={s.selectedStyleId} onChange={s.setSelectedStyleId} onManage={() => openMenu("my-style")} />
+          <StyleSelect value={s.selectedStyleId} onChange={s.setSelectedStyleId} strength={s.styleStrength} onStrengthChange={s.setStyleStrength} onManage={() => openMenu("my-style")} />
           <button type="button" className="primary" disabled={Boolean(busy) || pending} onClick={write}>{busy === "write" || pending ? "글을 만드는 중..." : "이 근거로 글 만들기"}</button></div>}
         {approved && <SectionWriter key={research.id} s={s} researchId={research.id} />}
       </>}

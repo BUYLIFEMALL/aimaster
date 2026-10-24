@@ -27,7 +27,8 @@
     "test:image-options": "node --test tests/image-options.test.mjs",
     "test:draft-export": "node --test tests/draft-export.test.mjs",
     "test:draft-revisions": "node --test tests/draft-revisions.test.mjs",
-    "test:social-copy": "node --test tests/social-copy.test.mjs"
+    "test:social-copy": "node --test tests/social-copy.test.mjs",
+    "test:style-strength": "node --test tests/style-strength.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

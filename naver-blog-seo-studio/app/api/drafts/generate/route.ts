@@ -8,6 +8,7 @@ import { purgeExpiredDrafts } from "@/lib/draftRetention";
 import { isApproved, type GroundPoint, type ResearchSource } from "@/lib/grounding";
 import type { DraftGrounding } from "@/lib/ai/groundingPrompt";
 import { readDraftLength } from "@/lib/lengthPlan";
+import { readStyleStrength } from "@/lib/styleStrength";
 import { styleEnding, isStyleApproved, type StyleEnding, type StyleProfile } from "@/lib/style";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,7 +22,7 @@ const EXPERIENCE_NOTE_MAX = 1_500;
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown; styleId?: unknown; length?: unknown } | null;
+  const input = await request.json().catch(() => null) as { topic?: string; keywords?: string; strategy?: string; selectedTitle?: string; personaId?: string; customPersona?: string; sourceContext?: string; provider?: unknown; model?: unknown; experienceNote?: unknown; naturalStyle?: unknown; includeFaq?: unknown; researchId?: unknown; styleId?: unknown; length?: unknown; styleStrength?: unknown } | null;
   const experienceNote = typeof input?.experienceNote === "string" ? input.experienceNote.trim() : "";
   if (experienceNote.length > EXPERIENCE_NOTE_MAX) return NextResponse.json({ error: `내 실제 경험은 ${EXPERIENCE_NOTE_MAX.toLocaleString("ko-KR")}자 이내로 입력해주세요.` }, { status: 400 });
   const options = { experienceNote: experienceNote || undefined, naturalStyle: input?.naturalStyle === true, includeFaq: input?.includeFaq === true, length: readDraftLength(input?.length) };
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
     groundingRecord = { researchId: research.id, keyword: research.keyword, approvalHash: research.approval_hash, approvedAt: research.approved_at, points };
   }
   // BLC-08b: 본인 문체 — styleId가 있을 때만. 승인·지문이 맞는 본인 문체만 쓴다(없으면 기존 경로 그대로).
+  const styleStrength = readStyleStrength(input?.styleStrength); // D-1: 문체가 있을 때만 쓰임
   let style: { name: string; profile: StyleProfile; ending: StyleEnding | null } | undefined;
   let styleRecord: Record<string, unknown> | undefined;
   if (input?.styleId !== undefined) {
@@ -63,7 +65,7 @@ export async function POST(request: Request) {
     if (!isStyleApproved(row)) return NextResponse.json({ code: "STYLE_NOT_APPROVED", error: "내 문체를 승인한 뒤 바뀌었거나 아직 승인하지 않았습니다. 「내 문체」에서 다시 승인해주세요." }, { status: 409 });
     const ending = styleEnding(row);
     style = { name: row.name, profile: row.profile as StyleProfile, ending };
-    styleRecord = { styleId: row.id, name: row.name, approvalHash: row.approval_hash, ending };
+    styleRecord = { styleId: row.id, name: row.name, approvalHash: row.approval_hash, ending, strength: styleStrength };
   }
   const apiKey = await resolveApiKey(supabase, access.user.id, provider);
   if (!apiKey) {
@@ -73,7 +75,7 @@ export async function POST(request: Request) {
 
   try {
     const model = resolveContentModel(provider, input?.model);
-    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model, grounding, style });
+    const draft = await generateSeoDraft({ apiKey, provider, topic, keywords, strategy, persona, sourceContext, options, model, grounding, style, styleStrength });
     if (input?.selectedTitle?.trim()) draft.title = input.selectedTitle.trim().slice(0, 150);
     const seoReport = { ...draft.seoReport, generatedModel: generatedModelRecord(provider, model), ...(groundingRecord ? { grounding: groundingRecord } : {}), ...(styleRecord ? { style: styleRecord } : {}) };
     const { data: saved, error } = await supabase.from("naver_blog_seo_drafts")

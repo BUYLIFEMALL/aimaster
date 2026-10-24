@@ -1,6 +1,7 @@
 // BLC-08b (2026-10-22): 본인 문체 프롬프트 — 순수 함수. blog-workroom src/lib/prompts.ts의 stylePrompt·styleBrief 기반.
 // 문체가 없으면 styleSection은 빈 문자열이라 생성 프롬프트가 v1.84와 같다.
 import type { StyleEnding, StyleProfile, StylePost } from "../style";
+import type { StyleStrength } from "../styleStrength";
 
 // v1.87: 표본에서 센 끝맺음을 구체적인 규칙으로(v1.86 실검수에서 추상적인 어조 설명만으로는 말투가 안 바뀜)
 const ENDING_RULE: Record<StyleEnding, string> = {
@@ -17,8 +18,19 @@ export function stylePrompt(name: string, posts: StylePost[], samples: string[])
   };
 }
 
-export function styleSection(style: { name: string; profile: StyleProfile; ending?: StyleEnding | null } | undefined): string {
+// D-1: strength — 「balanced」(기본)는 v2.16까지와 글자까지 같은 지시문. 사실·경험은 어느 단계에서도 지어내지 않는다.
+export function styleSection(style: { name: string; profile: StyleProfile; ending?: StyleEnding | null } | undefined, strength: StyleStrength = "balanced"): string {
   if (!style) return "";
+  const s = style.profile;
+  if (strength === "subtle") {
+    return `\n\n사용자가 승인한 「${style.name}」 문체를 은은하게만 반영하세요(사실·경험은 지어내지 말 것). 말투의 존댓말·친근함 정도와 쓰지 않는 표현만 지키고, 문장·구성은 위 페르소나와 글쓰기 전략을 따릅니다. 작성자가 자주 쓰는 표현은 일부러 넣지 마세요:\n어조: ${s.tone}${s.avoid.length ? `\n쓰지 않는 표현: ${s.avoid.join(", ")}` : ""}${style.ending ? ENDING_RULE[style.ending] : ""}`;
+  }
+  const base = balancedSection(style);
+  if (strength !== "strong") return base;
+  return `${base}\n문체 반영 세기(뚜렷하게): 위 특징을 적극적으로 살리세요. 자주 쓰는 표현은 글 전체에 고르게 2~4번 자연스럽게 넣고, 문장 길이·리듬과 독자에게 말 거는 방식을 작성자처럼 맞춥니다. 같은 표현을 한 문단에 두 번 넣지 말고, 사실·경험·수치는 여전히 지어내지 않습니다.`;
+}
+
+function balancedSection(style: { name: string; profile: StyleProfile; ending?: StyleEnding | null }): string {
   const s = style.profile;
   return `\n\n사용자가 승인한 「${style.name}」 문체를 따르세요(사실·경험은 지어내지 말고 말투·문장·구성 습관만 따름). 말투·문장 끝맺음(예: ~요/~습니다)은 위 페르소나 톤보다 이 문체를 우선하고, 페르소나는 관점과 내용 구성에만 반영합니다. 자주 쓰는 표현에 보이는 끝맺음을 본문 전체에 일관되게 씁니다:\n어조: ${s.tone}\n문장: ${s.sentence}\n구성: ${s.structure}\n독자: ${s.reader}${s.expressions.length ? `\n자주 쓰는 표현(자연스러울 때만): ${s.expressions.join(", ")}` : ""}${s.avoid.length ? `\n쓰지 않는 표현: ${s.avoid.join(", ")}` : ""}${style.ending ? ENDING_RULE[style.ending] : ""}`;
 }
