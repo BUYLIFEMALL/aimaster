@@ -95,13 +95,15 @@ export function NotePanel({
   savedNote,
   busy,
   change,
-  save
+  save,
+  sendDay
 }: {
   note: string;
   savedNote: string;
   busy: boolean;
   change: (note: string) => void;
   save: () => void;
+  sendDay?: () => void;
 }) {
   return (
     <section className="card note-panel">
@@ -121,9 +123,16 @@ export function NotePanel({
           <p className={`note-status-text ${note === savedNote ? "saved" : "dirty"}`}>
             {note === savedNote ? "현재 저장된 내용입니다." : "변경한 내용은 아직 저장하지 않았습니다."}
           </p>
-          <button className="primary note-save-btn" disabled={busy} onClick={save}>
-            노트 저장
-          </button>
+          <div className="note-footer-actions">
+            {sendDay && (
+              <button className="note-inbox-btn" disabled={busy} onClick={sendDay} title="오늘의 성과·완료한 할 일·저장한 노트를 업무 워크스페이스 『받은 업무』로 보냅니다">
+                📨 오늘 성과를 워크스페이스로
+              </button>
+            )}
+            <button className="primary note-save-btn" disabled={busy} onClick={save}>
+              노트 저장
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -306,7 +315,8 @@ export function Overview({
   saveNote,
   revision,
   query,
-  date
+  date,
+  sendDay
 }: {
   workspace: Workspace;
   tasks: Task[];
@@ -330,6 +340,7 @@ export function Overview({
   revision: number;
   query: string;
   date?: string;
+  sendDay?: () => void;
 }) {
   const pending = tasks.filter(t => t.status !== "done");
   const completed = tasks.filter(t => t.status === "done");
@@ -408,7 +419,7 @@ export function Overview({
         <div className="overview-insights stack">
           <ChartPanel bins={summary.bins} />
           <AnalysisPanel key={`${date}-${categoryId}-${query}-${revision}`} date={date!} categoryId={categoryId} query={query} revision={revision} completedCount={completed.length} scope={scope} busy={busy}/>
-          <NotePanel note={note} savedNote={savedNote} busy={busy} change={changeNote} save={saveNote} />
+          <NotePanel note={note} savedNote={savedNote} busy={busy} change={changeNote} save={saveNote} sendDay={sendDay} />
         </div>
       </div>
     </div>

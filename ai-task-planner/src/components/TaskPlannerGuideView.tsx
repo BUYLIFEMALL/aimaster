@@ -403,6 +403,33 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
         </div>
       </div>
 
+      {/* 3-1. 업무 워크스페이스로 보내기 (U8, v1.11) */}
+      <div style={{ marginBottom: "36px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>
+          <span style={{ fontSize: "20px" }}>📨</span>
+          <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff", margin: 0 }}>
+            업무 워크스페이스로 보내기
+          </h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
+          {[
+            { icon: "1️⃣", title: "할 일 하나 보내기", body: "할 일 카드의 📨 버튼을 누르면 분류·우선순위·예정일·예상 시간·집중한 시간이 함께 보내집니다." },
+            { icon: "2️⃣", title: "오늘 성과 보내기", body: "성과 노트 아래 「📨 오늘 성과를 워크스페이스로」를 누르면 완료율·집중 시간·완료/남은 할 일·저장한 노트가 보고서 한 장으로 보내집니다. 노트는 먼저 「노트 저장」을 눌러 주세요." },
+            { icon: "3️⃣", title: "받은 업무에서 정리", body: "AI 업무 워크스페이스 좌측 「📨 받은 업무」에서 「페이지로 만들기」 또는 「표에 행으로 넣기」를 누르면 회의록·업무 보드와 함께 정리됩니다." },
+            { icon: "⚠️", title: "알아 두세요", body: "같은 항목을 다시 보내면 새 항목이 하나 더 생깁니다. 받은 업무함에서 가져가지 않은 항목은 30일 뒤 자동으로 지워집니다(만든 페이지·표는 남음)." }
+          ].map(card => (
+            <div key={card.title} style={{ background: "#161d2b", border: "1px solid #253046", borderRadius: "12px", padding: "18px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)" }}>
+              <span style={{ fontSize: "20px", display: "block", marginBottom: "8px" }}>{card.icon}</span>
+              <strong style={{ fontSize: "14px", color: "#ffffff", display: "block", marginBottom: "6px" }}>{card.title}</strong>
+              <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>{card.body}</p>
+            </div>
+          ))}
+        </div>
+        <a href="https://ai-work-workspace.buylife.xyz/inbox" target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: "14px", color: "#67e8f9", fontWeight: 700, fontSize: "13px" }}>
+          AI 업무 워크스페이스 「받은 업무」 열기 ↗
+        </a>
+      </div>
+
       {/* 4. 자주 묻는 질문 (FAQ) 아코디언 */}
       <div style={{ marginBottom: "36px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>

@@ -906,3 +906,34 @@
     min-height: auto;
   }
 }
+
+/* U8 업무 워크스페이스로 보내기 (v1.11) */
+.row-action-btn.inbox-btn {
+  background: rgba(14, 165, 233, 0.14);
+  color: #7dd3fc;
+  border-color: rgba(14, 165, 233, 0.32);
+}
+.row-action-btn.inbox-btn:hover {
+  background: rgba(14, 165, 233, 0.26);
+}
+.note-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.note-inbox-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  min-height: 28px;
+  border-radius: 7px;
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  background: rgba(14, 165, 233, 0.14);
+  color: #bae6fd;
+  font-weight: 700;
+  cursor: pointer;
+}
+.note-inbox-btn:hover:not(:disabled) {
+  background: rgba(14, 165, 233, 0.26);
+}

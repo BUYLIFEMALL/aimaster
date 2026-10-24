@@ -25,6 +25,7 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [status, setStatus] = useState("불러오는 중…"), [denied, setDenied] = useState(false);
   const [editing, setEditing] = useState<Task | undefined>(), [editorKey, setEditorKey] = useState(0), [categoryName, setCategoryName] = useState("");
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({}), [tick, setTick] = useState(0);
+  const [inboxNotice, setInboxNotice] = useState<{ text: string; url: string } | null>(null);
   const lock = useRef(false), currentRecord = useRef<Snapshot | null>(null), clockBase = useRef({ server: Date.now(), monotonic: 0 });
   const pendingRequest = useRef<{ fingerprint: string; body: { commandId: string; revision: number; command: Command } } | null>(null);
   const finished = useRef<string | null>(null);
@@ -77,6 +78,19 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
       }
       accept(data); pendingRequest.current = null; setStatus("서버 저장 완료"); return true;
     } catch (e) { setError(message(e)); setStatus("저장 실패 · 재시도 필요"); return false; }
+    finally { lock.current = false; setBusy(false); }
+  }
+  // U8: 업무 워크스페이스 「받은 업무」로 보내기(서버가 회원 본인 기록에서 내용을 만듦)
+  async function sendToInbox(body: { type: "task"; taskId: string } | { type: "day"; date: string; categoryId: string; query: string }) {
+    if (lock.current || !currentRecord.current || denied) return;
+    lock.current = true; setBusy(true); setError(""); setInboxNotice(null); setStatus("업무 워크스페이스로 보내는 중…");
+    try {
+      const response = await fetch("/api/work-inbox", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body) });
+      const data = await response.json();
+      if (!response.ok) { if (response.status === 401 || response.status === 403) clearMember(); throw new Error(data.error || "업무 워크스페이스로 보내지 못했습니다."); }
+      setInboxNotice({ text: `「${data.title}」을(를) 업무 워크스페이스 『받은 업무』로 보냈습니다.`, url: data.inboxUrl });
+      setStatus("받은 업무로 보냄");
+    } catch (e) { setError(message(e)); setStatus("보내기 실패"); }
     finally { lock.current = false; setBusy(false); }
   }
   const w = record?.workspace, serverNow = now(), active = w ? activeSession(w) : undefined;
@@ -163,6 +177,15 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
                     ✏
                   </button>
                   <button
+                    className="row-action-btn inbox-btn"
+                    disabled={busy}
+                    onClick={() => void sendToInbox({ type: "task", taskId: task.id })}
+                    title="업무 워크스페이스 『받은 업무』로 보내기"
+                    aria-label="워크스페이스로 보내기"
+                  >
+                    📨
+                  </button>
+                  <button
                     className="row-action-btn delete-btn"
                     disabled={busy}
                     onClick={() => action(task, "task.trash")}
@@ -200,6 +223,10 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
   const note = noteDrafts[date] ?? w?.notes[date] ?? "";
   const changeNote = (value: string) => setNoteDrafts(d => ({ ...d, [date]: value }));
   const saveNote = () => { void send({ type: "note.save", date, note }); };
+  const sendDay = () => {
+    if (note !== (w?.notes[date] ?? "")) { setInboxNotice(null); setError("성과 노트에 저장하지 않은 내용이 있습니다. 「노트 저장」을 누른 뒤 다시 보내주세요."); return; }
+    void sendToInbox({ type: "day", date, categoryId, query });
+  };
   function editor() { if (!w) return null; return <TaskEditor key={editing?.id ?? `${editorKey}-${w.settings.defaultCategoryId}`} workspace={w} date={date} editing={editing} busy={busy} save={async input => { const ok = await send(editing ? { type: "task.edit", id: editing.id, input } : { type: "task.add", input }); if (ok) { setEditing(undefined); setEditorKey(k => k + 1); } return ok; }} cancel={() => setEditing(undefined)}/>; }
   function backup() {
     if (!w) return;
@@ -218,13 +245,14 @@ export function Planner({ userId, email, initialScreen = "dashboard", children }
   return <div className="app-shell"><Sidebar email={email} screen={screen} navigate={navigate} busy={busy}/><main className={`main ${screen === "dashboard" ? "overview-main" : ""}`}>
     <header className="page-heading"><div><p className="eyebrow">나의 계획과 집중 기록</p><h1>{label}</h1><p>작은 계획을 실행하고, 기록으로 다음 하루를 준비합니다.</p></div><div className="save-status" role="status">{status}</div></header>
     {error && <div role="alert" className="error-banner"><p>{error}</p><button disabled={busy} onClick={() => void refresh()}>최신 기록 불러오기</button></div>}
+    {inboxNotice && <div className="inbox-notice" aria-live="polite"><p>📨 {inboxNotice.text} 같은 항목을 다시 보내면 새 항목이 하나 더 생깁니다.</p><div className="inbox-notice-actions"><a href={inboxNotice.url} target="_blank" rel="noopener noreferrer">받은 업무 열기 ↗</a><button onClick={() => setInboxNotice(null)}>닫기</button></div></div>}
     {!w ? <section className="card"><h2>{denied ? "로그인·이용 권한 확인이 필요합니다" : "회원 기록을 불러오고 있습니다"}</h2><p>기록을 확인한 뒤 할 일과 집중시간이 표시됩니다.</p>{denied && <a href="/login" className="button">로그인</a>}</section> : <>
       {!["settings", "guide"].includes(screen) && <div className="filters"><label>기록 날짜<input type="date" value={date} onChange={e => { if (e.target.value) { setDate(e.target.value); setEditing(undefined); setEditorKey(k => k + 1); } }}/></label><label>분류<select value={categoryId} onChange={e => setCategoryId(e.target.value)}><option value="">전체</option>{w.categories.filter(c => !c.archived).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>할 일 검색<input value={query} onChange={e => setQuery(e.target.value)} placeholder="제목에서 검색"/></label><label>정렬<select value={sort} onChange={e => setSort(e.target.value)}><option value="plan">계획 순서</option><option value="priority">우선순위</option><option value="newest">최근 작성</option></select></label></div>}
       {screen === "results" && summary && <SummaryPanel summary={summary} scope={scope}/>}
-      {screen === "dashboard" && summary && <Overview workspace={w} tasks={list} summary={summary} scope={scope} categoryId={categoryId} chooseCategory={setCategoryId} active={active} remaining={active ? clock(remainingMs(active, serverNow) / 1000) : "00:00"} busy={busy} command={send} backup={backup} exportCsv={exportCsv} revision={record!.revision} query={query} manage={() => navigate("plan")} editor={editor()} taskCard={taskCard} note={note} savedNote={w.notes[date] ?? ""} changeNote={changeNote} saveNote={saveNote} date={date}/>}
+      {screen === "dashboard" && summary && <Overview workspace={w} tasks={list} summary={summary} scope={scope} categoryId={categoryId} chooseCategory={setCategoryId} active={active} remaining={active ? clock(remainingMs(active, serverNow) / 1000) : "00:00"} busy={busy} command={send} backup={backup} exportCsv={exportCsv} revision={record!.revision} query={query} manage={() => navigate("plan")} editor={editor()} taskCard={taskCard} note={note} savedNote={w.notes[date] ?? ""} changeNote={changeNote} saveNote={saveNote} date={date} sendDay={sendDay}/>}
       {screen === "plan" && <div className="plan-grid"><div className="stack">{editor()}<section className="card"><h2>분류 관리</h2><form className="actions" onSubmit={async e => { e.preventDefault(); if (await send({ type: "category.add", name: categoryName })) setCategoryName(""); }}><input aria-label="새 분류 이름" value={categoryName} onChange={e => setCategoryName(e.target.value)} maxLength={30} required placeholder="새 분류 이름"/><button disabled={busy}>분류 추가</button></form><div className="chips">{w.categories.filter(c => !c.archived).map(c => <span key={c.id}>{c.name}<button disabled={busy} aria-label={`${c.name} 분류 보관`} onClick={() => send({ type: "category.archive", id: c.id })}>×</button></span>)}</div><p className="muted">전체는 필터 전용입니다. 기록에 사용 중인 분류는 보관할 수 없습니다.</p></section></div><section className="card"><h2>선택 날짜의 할 일 <small>{list.length}개</small></h2>{list.length ? list.map(t => taskCard(t)) : <p className="empty">등록한 할 일이 여기에 표시됩니다.</p>}</section></div>}
       {screen === "focus" && <section className="card timer-card"><p className="eyebrow">{active ? MODE_LABELS[active.mode] : "집중할 준비가 됐나요?"}</p><h2>{active?.taskId ? w.tasks.find(t => t.id === active.taskId)?.title : active ? "잠깐 쉬어가세요" : "할 일을 선택해 시작해주세요"}</h2><div className="timer" aria-label="남은 시간">{active ? clock(remainingMs(active, serverNow) / 1000) : clock(w.settings.durations.focus * 60)}</div><p>{active?.state === "paused" ? "일시정지 · 남은 시간과 집중 기록이 유지됩니다" : active ? "실행 중 · 종료 시각까지만 기록합니다" : "타이머 실행에 AI 키는 필요하지 않습니다"}</p><div className="actions centered">{active ? <><button className="primary" disabled={busy} onClick={() => send({ type: active.state === "paused" ? "timer.resume" : "timer.pause", sessionId: active.id })}>{active.state === "paused" ? "재개" : "일시정지"}</button><button disabled={busy} onClick={() => send({ type: "timer.end", sessionId: active.id })}>현재 타이머 종료</button>{remainingMs(active, serverNow) === 0 && <button disabled={busy} onClick={() => send({ type: "timer.finish", sessionId: active.id })}>종료 기록 다시 저장</button>}</> : <>{(["short", "long"] as Mode[]).map(mode => <button key={mode} disabled={busy} onClick={() => send({ type: "timer.start", mode, taskId: null })}>{MODE_LABELS[mode]} 시작</button>)}<button onClick={() => navigate("plan")}>할 일 선택</button></>}</div><p className="muted">작업 완료·휴지통 이동 시 실행 중인 시간을 정산하고 종료합니다. 다음 모드는 직접 선택합니다.</p></section>}
-      {screen === "results" && summary && <div className="plan-grid"><ChartPanel bins={summary.bins}/><NotePanel note={note} savedNote={w.notes[date] ?? ""} busy={busy} change={changeNote} save={saveNote}/>{analysis}</div>}
+      {screen === "results" && summary && <div className="plan-grid"><ChartPanel bins={summary.bins}/><NotePanel note={note} savedNote={w.notes[date] ?? ""} busy={busy} change={changeNote} save={saveNote} sendDay={sendDay}/>{analysis}</div>}
       {screen === "records" && <><section className="card"><h2>전체 기록 백업</h2><p>할 일·분류·집중 세션·설정·노트를 JSON 파일로 내려받습니다. 로그인 정보와 API 키는 포함하지 않습니다.</p><button disabled={busy} onClick={backup}>JSON 백업 다운로드</button><button disabled={busy} onClick={exportCsv}>선택 범위 CSV 다운로드</button><p className="muted">CSV 범위: {scope}. 작업별 집중초는 전체 기간 누적이며 미측정 여부를 구분합니다. 실행 세션은 JSON 백업 안에서 정지 상태로 기록됩니다.</p></section><BackupImport workspace={w} revision={record!.revision} busy={busy} hasDrafts={hasDrafts} command={send}/><section className="card"><h2>휴지통</h2>{w.tasks.filter(t => t.deletedAt !== null).map(t => taskCard(t, true))}{!w.tasks.some(t => t.deletedAt !== null) && <p className="empty">휴지통이 비어 있습니다.</p>}</section></>}
       {screen === "settings" && <div className="stack"><AiSettings workspace={w} busy={busy} command={send}/><section className="card"><h2>타이머 설정</h2><form className="stack" onSubmit={async e => { e.preventDefault(); const f = new FormData(e.currentTarget); await send({ type: "settings.save", settings: { ...w.settings, durations: { focus: Number(f.get("focus")), short: Number(f.get("short")), long: Number(f.get("long")) } } }); }}><div className="form-grid">{(["focus", "short", "long"] as Mode[]).map(mode => <label key={mode}>{MODE_LABELS[mode]} (분)<input type="number" name={mode} min={1} max={mode === "focus" ? 180 : mode === "short" ? 60 : 120} step={1} defaultValue={w.settings.durations[mode]} required/></label>)}</div><p className="muted">실행 중 변경한 시간은 다음 세션부터 적용됩니다. 기록 시간대는 한국(Asia/Seoul)입니다.</p><button className="primary" disabled={busy}>타이머 설정 저장</button></form></section><GeminiGuide/></div>}
       {screen === "guide" && <TaskPlannerGuideView onStartPlanning={() => navigate("dashboard")} />}
