@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.24 맥 인코더 35초 대기 대책(realtime 스위치)
+- 배경: 맥미니 v1.23 trace(`be78fa78f`) — 막힘은 화면 합성이 아니라 **인코더 넘기기**(장면마다 35초, 3번 장면부터). §10의 「합성 유력」 판단은 틀렸고 §12에 정정.
+- 원인(코드): mediabunny 1.62.0 `media-source.js` — 인코더 대기열 4개면 `dequeue`까지 기다림, 웹 렌더러가 `latencyMode: "quality"` 고정 → 맥 하드웨어 인코더가 35초에 하나씩 가져감. 플랜 §12 `c0cae989c`.
+- v1.24(주인님 승인 빌드 1회, `ai-video-studio-5paj2jco8`, DB v1.24): `?render=realtime`(`lib/edit/encoderTweak.ts`, 렌더 중에만 전역 `VideoEncoder` 감싸기), 진단·trace에 `encoder` 대기열, 막힘 안내 15초, 정리 20초 넘으면 새로고침 안내. 커밋 `5ac5dfe08`.
+- 검수: 시험 70·tsc·eslint·build. 운영 윈도우 크롬 `?render=trace,realtime` 5.0초·`latencyMode: realtime`·출력 150.
+- 다음 첫 단계: 맥미니 `trace,software`·`trace,realtime` 재측정(§12-1) → 빠른 쪽을 v1.25 맥 기본값으로(빌드 별도 승인). 비용: 빌드 1회(승인 범위), AI 0회. 링크:
+https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-10-25 ✅ [역할: docbot-prompt] Codex(윈도우·엣지) · 세션 `codex-win-20261025-docbot-g4` — Cloudflare 계정 식별번호·확인 직링크 정정 (미배포)
 - 주인님 「확인 링크·로그인 계정과 구분」 요청: `d2b05913b` — Cloudflare 계정 식별번호(Account ID), 로그인 이메일·비밀번호가 아닌 32자리 번호 안내/입력 예시/오류 안내. 확인 버튼은 공식 Workers & Pages `https://dash.cloudflare.com/?to=/:account/workers-and-pages`, Account Details → Account ID 복사 및 Ctrl+K 대안·공식 찾기 안내. API 키 마스킹 유지, 식별번호 입력은 글자 확인 가능.
 - 공용 기준2개·AI Prompt 사본 일치, 양쪽 타입·문서 챗봇108개 시험·로컬 빌드1회 통과. Edge 일반 회원 localhost:4311/settings의 번호 명칭/설명/입력/두 링크 주소 및 실제 표시 확인. 공식 외부 페이지의 로그인 후 실제 번호 복사는 주인님 진행 사항, 번호 등록/키 생성/유료 호출 없음. Prompt 실제 화면·좁은 화면은 미검수.

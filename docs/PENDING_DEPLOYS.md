@@ -56,6 +56,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-video-studio` | v1.24 · 2026-10-25 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-5paj2jco8`) | 맥 인코더 35초 대기 대책 `?render=realtime`·인코더 대기열 trace·막힘 안내 15초·정리 새로고침 안내 `5ac5dfe08`(대기 줄 없음) |
 | `realty-listing-alert` | v1.04 · 2026-10-25 ([역할: realty] `claude-win-20261024-realty`, 승인 빌드 1회) | 네이버 부동산 열기 버튼 `e851a4927` + UX 리뉴얼 A~F·2페이지·단지 이름 수정 |
 | `ai-video-studio` | v1.23 · 2026-10-25 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-94rs4c5ko`) | 맥 렌더 3단계 `?render=trace|nopace|htmlcanvas`·멈추기 3초 보장·막힘 안내 `cbfe705af`(대기 줄 없음) |
 | `realty-listing-alert` | v1.03 · 2026-10-25 ([역할: realty] Claude Code 윈도우 `claude-win-20261024-realty`, 승인 빌드 2회) | 전화번호 지우기·봇 상태 배지 `3a3e231ab` · 실거래에서 넘어온 단지 미리 채우기 `c623becf5` + 3단계 수집 엔진 |
