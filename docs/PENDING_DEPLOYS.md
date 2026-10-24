@@ -56,6 +56,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-video-studio` | v1.23 · 2026-10-25 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-94rs4c5ko`) | 맥 렌더 3단계 `?render=trace|nopace|htmlcanvas`·멈추기 3초 보장·막힘 안내 `cbfe705af`(대기 줄 없음) |
 | `realty-listing-alert` | v1.03 · 2026-10-25 ([역할: realty] Claude Code 윈도우 `claude-win-20261024-realty`, 승인 빌드 2회) | 전화번호 지우기·봇 상태 배지 `3a3e231ab` · 실거래에서 넘어온 단지 미리 채우기 `c623becf5` + 3단계 수집 엔진 |
 | `real_estate_sales` | v1.19 · 2026-10-25 (같은 세션, 승인 빌드 1회) | 「🔔 이 단지 새 매물 알림 받기」 `154e7386b` · 공용 `solapi-client` 사본 `36d0a4fdc` · 30일 정리 회원별 기록 `82a76d9f2`(다음 정리 시각에 관리자 「30일 자동 정리」 표 확인 필요) · `telegram-bot-client` `linkButton` 사본 |
 | `ai-video-studio` | v1.22 · 2026-10-25 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회) | 남은 시간 전체 진행률 계산 `d8c0aed57`(대기 줄 옮김) + 맥 렌더 2단계 `40f8c8a99` |
