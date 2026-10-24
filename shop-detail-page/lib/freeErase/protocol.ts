@@ -23,6 +23,8 @@ export const FREE_ERASE_CACHE = `free-erase-${LAMA_COMMIT.slice(0, 7)}-${OCR_COM
 export const LAMA_SIZE = 512;
 /** 마스크 넓히기 기본값(512 기준 픽셀) — 가장자리가 남으면 LaMa가 형체를 다시 그린다(§7 ③-1) */
 export const MASK_DILATE = 3;
+/** 한 번에 계산할 칠한 덩어리의 최대 변(원본 픽셀) — 여유 0.3배를 더해도 작업 영역이 약 600px로 512에 가깝다 */
+export const MAX_PIECE = 384;
 /** 글자 확률맵에서 글자로 보는 기준·너무 작은 덩어리 제외·상자 넓히기(원본 픽셀) */
 export const DET_THRESHOLD = 0.3;
 export const DET_MIN_AREA = 20;
@@ -82,7 +84,8 @@ export function maskBounds(mask: Uint8Array, w: number, h: number): Box | null {
  * 주변 배경을 충분히 봐야 자연스럽게 채우므로 범위의 절반(최소 32px)만큼 넓히고, 그림 밖으로는 나가지 않게 맞춘다.
  */
 export function workRegion(b: Box, imgW: number, imgH: number): Box {
-  const pad = Math.max(32, Math.round(Math.max(b.w, b.h) * 0.5));
+  // 여유를 크게 잡으면 큰 덩어리일 때 작업 영역이 그림 전체가 되어 512로 크게 줄어든다(큰 제목 잔상, 2026-10-24 운영 확인) → 0.3배
+  const pad = Math.max(24, Math.round(Math.max(b.w, b.h) * 0.3));
   let side = Math.max(b.w, b.h) + pad * 2;
   side = Math.min(side, Math.max(imgW, imgH));
   const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
@@ -96,7 +99,7 @@ export function workRegion(b: Box, imgW: number, imgH: number): Box {
  * 칠한 곳을 떨어진 덩어리로 나눈다(cell 픽셀 격자로 줄여 8방향으로 이어 붙임) — 덩어리마다 따로 512로 계산해야
  * 멀리 떨어진 글자 여러 곳을 한 번에 줄여 계산할 때보다 해상도가 덜 떨어진다
  */
-export function maskClusters(mask: Uint8Array, w: number, h: number, cell = 24): Box[] {
+export function maskClusters(mask: Uint8Array, w: number, h: number, cell = 16, maxPiece = MAX_PIECE): Box[] {
   const gw = Math.ceil(w / cell), gh = Math.ceil(h / cell), grid = new Uint8Array(gw * gh);
   for (let y = 0; y < h; y++) { const row = y * w, gy = ((y / cell) | 0) * gw; for (let x = 0; x < w; x++) if (mask[row + x]) grid[gy + ((x / cell) | 0)] = 1; }
   const seen = new Uint8Array(gw * gh), out: Box[] = [], st: number[] = [];
@@ -112,7 +115,20 @@ export function maskClusters(mask: Uint8Array, w: number, h: number, cell = 24):
       }
     }
     const bx = x0 * cell, by = y0 * cell;
-    out.push({ x: bx, y: by, w: Math.min(w, (x1 + 1) * cell) - bx, h: Math.min(h, (y1 + 1) * cell) - by });
+    out.push(...splitBox({ x: bx, y: by, w: Math.min(w, (x1 + 1) * cell) - bx, h: Math.min(h, (y1 + 1) * cell) - by }, maxPiece));
+  }
+  return out;
+}
+
+/** 긴 덩어리를 maxPiece 이하 조각으로 나눈다(가로·세로 각각 같은 크기로) — 조각마다 512에 가깝게 계산해 해상도를 지킨다 */
+export function splitBox(b: Box, maxPiece = MAX_PIECE): Box[] {
+  const nx = Math.max(1, Math.ceil(b.w / maxPiece)), ny = Math.max(1, Math.ceil(b.h / maxPiece));
+  if (nx === 1 && ny === 1) return [b];
+  const out: Box[] = [];
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const x0 = b.x + Math.round((b.w * i) / nx), x1 = b.x + Math.round((b.w * (i + 1)) / nx);
+    const y0 = b.y + Math.round((b.h * j) / ny), y1 = b.y + Math.round((b.h * (j + 1)) / ny);
+    out.push({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
   }
   return out;
 }

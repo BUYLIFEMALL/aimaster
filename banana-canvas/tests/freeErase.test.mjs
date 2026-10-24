@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  FREE_ERASE_CACHE, FREE_ERASE_MODELS, binarizeMask, detInputSize, dilateMask, fillBoxes, freeEraseErrorText, maskBounds, maskClusters, probToBoxes, scaleBoxes, workRegion,
+  FREE_ERASE_CACHE, FREE_ERASE_MODELS, binarizeMask, detInputSize, dilateMask, fillBoxes, freeEraseErrorText, maskBounds, maskClusters, splitBox, probToBoxes, scaleBoxes, workRegion,
 } from "../src/lib/freeErase/protocol.ts";
 
 test("모델 주소는 커밋 고정·Apache-2.0, 캐시 이름에 커밋이 들어간다", () => {
@@ -35,7 +35,7 @@ test("마스크 범위와 작업 영역(주변 여유·그림 안·정사각형�
   assert.deepEqual(b, { x: 400, y: 100, w: 100, h: 50 });
   assert.equal(maskBounds(new Uint8Array(4), 2, 2), null);
   const r = workRegion(b, w, h);
-  assert.equal(r.w, 200); assert.equal(r.h, 200);
+  assert.equal(r.w, 160); assert.equal(r.h, 160);
   assert.ok(r.x <= 400 && r.x + r.w >= 500 && r.y <= 100 && r.y + r.h >= 150);
   const corner = workRegion({ x: 0, y: 0, w: 10, h: 10 }, w, h);
   assert.deepEqual([corner.x, corner.y], [0, 0]);
@@ -84,4 +84,18 @@ test("떨어진 칠한 곳은 덩어리마다 따로(해상도 손실 줄이기)
   assert.ok(c[0].x <= 10 && c[0].x + c[0].w >= 150 && c[0].y <= 10);
   assert.ok(c[1].x <= 400 && c[1].x + c[1].w <= w && c[1].y + c[1].h <= h);
   assert.equal(maskClusters(new Uint8Array(w * h), w, h).length, 0);
+});
+
+test("긴 덩어리는 384px 이하 조각으로 나눠 작업 영역이 그림 전체가 되지 않게(큰 제목 잔상 방지)", () => {
+  const pieces = splitBox({ x: 60, y: 270, w: 1150, h: 90 });
+  assert.equal(pieces.length, 3);
+  assert.ok(pieces.every((p) => p.w <= 384 && p.h === 90));
+  assert.equal(pieces[0].x, 60); assert.equal(pieces.at(-1).x + pieces.at(-1).w, 1210);
+  assert.deepEqual(splitBox({ x: 0, y: 0, w: 100, h: 50 }), [{ x: 0, y: 0, w: 100, h: 50 }]);
+  const w = 1792, h = 2400, m = new Uint8Array(w * h);
+  for (let y = 270; y < 360; y++) for (let x = 60; x < 1210; x++) m[y * w + x] = 1;
+  for (let y = 400; y < 490; y++) for (let x = 60; x < 1000; x++) m[y * w + x] = 1;
+  const c = maskClusters(m, w, h);
+  assert.ok(c.length >= 6, "두 줄이 따로, 각 줄이 여러 조각으로");
+  for (const b of c) { const r = workRegion(b, w, h); assert.ok(Math.max(r.w, r.h) <= 640, "작업 영역이 512에 가깝다"); }
 });
