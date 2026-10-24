@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 
@@ -26,26 +27,40 @@ const COUPANG_FEES: FeeRow[] = [
   { category: "쥬얼리(순금/골드바)", values: ["4.0%"] },
 ];
 
-const NAVERPAY_FEES: FeeRow[] = [
-  { category: "영세 — 연매출 3억원 미만", values: ["1.87%"] },
-  { category: "중소1 — 연매출 3억~5억원", values: ["2.53%"] },
-  { category: "중소2 — 연매출 5억~10억원", values: ["2.695%"] },
-  { category: "중소3 — 연매출 10억~30억원", values: ["2.97%"] },
-  { category: "일반 — 연매출 30억원 이상", values: ["3.74%"] },
+// 2026-10-25 재확인: G마켓·옥션은 ESM PLUS 공식 「서비스 이용료 안내」 표의 대분류 「전체」 값을 그대로 옮겼다(중분류는 다를 수 있음).
+// 예전 표(옥션·G마켓 6.5~10%, 「ESM 통합이라 동일」)는 공식 값(대부분 13%)보다 낮아 마진이 높게 보였다.
+const ESM_HEADERS = ["대분류(ESM 공식 이름)", "G마켓", "옥션", "중분류 예외(예)"];
+const ESM_FEES: FeeRow[] = [
+  { category: "여성의류·남성의류·브랜드 의류", values: ["13%", "13%", "—"] },
+  { category: "가방/잡화 · 신발", values: ["13%", "13%", "—"] },
+  { category: "화장품/향수", values: ["13%", "13%", "—"] },
+  { category: "바디/헤어", values: ["11%", "11%", "—"] },
+  { category: "생활용품 · 주방용품", values: ["13%", "13%", "—"] },
+  { category: "생필품", values: ["11%", "11%", "화장지/물티슈·생리대 9%"] },
+  { category: "가구/DIY · 조명/인테리어 · 침구/커튼", values: ["13%", "13%", "—"] },
+  { category: "가공식품 · 건강식품 · 커피/음료", values: ["13%", "13%", "옥션 수산가공식품 12%"] },
+  { category: "신선식품", values: ["12%", "12%", "쌀·잡곡/혼합곡 7%"] },
+  { category: "출산/육아 · 장난감/완구", values: ["13%", "13%", "기저귀·분유 7%"] },
+  { category: "반려동물용품 · 문구/사무용품", values: ["13%", "13%", "—"] },
+  { category: "스포츠의류 · 등산/아웃도어 · 캠핑/낚시", values: ["13%", "13%", "—"] },
+  { category: "자동차용품", values: ["13%", "13%", "블랙박스 등 9%"] },
+  { category: "생활/미용가전 · 계절가전 · 영상가전", values: ["9%", "9%", "TV·에어컨 7%, 사무가전·재봉틀 12%"] },
+  { category: "PC주변기기 · 저장장치 · 음향기기 · 카메라", values: ["9%", "9%", "디지털카메라 7%"] },
+  { category: "모바일/태블릿", values: ["9%", "9%", "태블릿 7%"] },
+  { category: "노트북/데스크탑", values: ["7%", "7%", "노트북용품 9%"] },
+  { category: "모니터/프린터", values: ["9%", "7%", "G마켓 모니터·프린터 7%"] },
+  { category: "쥬얼리/시계", values: ["13%", "13%", "순금/돌반지 7%"] },
+  { category: "도서·음반·교육", values: ["15%", "15%", "—"] },
 ];
 
-const OPENMARKET_HEADERS = ["카테고리", "11번가", "옥션", "G마켓"];
-const OPENMARKET_FEES: FeeRow[] = [
-  { category: "패션·의류·잡화", values: ["11%", "10%", "10%"] },
-  { category: "생활·주방·인테리어", values: ["9%", "8%", "8%"] },
-  { category: "식품·건강", values: ["9%", "9%", "9%"] },
-  { category: "디지털·가전", values: ["7%", "6.5%", "6.5%"] },
-  { category: "뷰티·화장품", values: ["10%", "9%", "9%"] },
-  { category: "스포츠·레저", values: ["10%", "9%", "9%"] },
-  { category: "도서·음반", values: ["7%", "7%", "7%"] },
-  { category: "유아동·완구", values: ["10%", "9%", "9%"] },
-  { category: "자동차용품", values: ["8%", "7%", "7%"] },
-];
+/** 표마다 붙이는 확인 정보 — 확인일·부가세·출처, 공식 표 확인 여부 */
+function SourceNote({ verified, children }: { verified: boolean; children: ReactNode }) {
+  return (
+    <p className={`rounded-lg border px-3 py-2 text-[11px] leading-relaxed ${verified ? "border-mx-success/30 bg-mx-success/10 text-[#a7f3d0]" : "border-amber-400/40 bg-amber-400/10 text-[#fde68a]"}`}>
+      <span className="font-bold">{verified ? "✅ 공식 표 확인 · 2026-10-25" : "⚠ 공식 표 미확인 · 참고치 · 2026-10-25 기준"}</span> — {children}
+    </p>
+  );
+}
 
 function FeeTable({ headers, rows }: { headers: string[]; rows: FeeRow[] }) {
   return (
@@ -85,28 +100,48 @@ export default async function FeesPage() {
       <PageHero
         badge="🧾 참고표"
         title="플랫폼·카테고리별 판매수수료"
-        description="마진계산기의 「판매 플랫폼 수수료율」을 실제 판매 플랫폼·카테고리에 맞게 조정할 때 참고하는 표입니다. 2026년 9월 기준 조사 자료라 실제 수수료와 다를 수 있으니, 판매 전 각 플랫폼 판매자 센터에서 최신 값을 꼭 확인해 주세요."
+        description="마진계산기의 「판매 플랫폼 수수료율」을 실제 판매 플랫폼·카테고리에 맞게 조정할 때 참고하는 표입니다. 표마다 확인일·부가세 포함 여부·출처를 적었습니다. 「⚠ 공식 표 미확인」 표는 판매자 로그인 화면에서만 보이는 값이라 참고치이니, 판매 전 각 판매자 센터에서 내 카테고리 값을 꼭 확인해 주세요."
       />
+
+      <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
+        <div>
+          <h2 className="text-base font-extrabold text-mx-text">🏪 G마켓 · 옥션 (ESM)</h2>
+          <p className="text-xs text-mx-muted">
+            서비스 이용료 = (판매가 + 주문옵션·추가구성 금액) × 카테고리별 요율 + 선결제 배송비 × 3.3%(무료배송·착불은 해당 없음).
+            옥션은 전월 판매대금 500만원 이상이면 서버 이용료 월 55,000원이 붙습니다. 두 마켓은 대분류 요율이 대부분 같지만 일부 대분류·중분류가 다릅니다.
+          </p>
+        </div>
+        <FeeTable headers={ESM_HEADERS} rows={ESM_FEES} />
+        <SourceNote verified>
+          출처: ESM PLUS 공식 「
+          <a href="https://item.esmplus.com/gmarket-service-fee.html" target="_blank" rel="noopener noreferrer" className="underline">G마켓 서비스 이용료 안내 ↗</a>」·「
+          <a href="https://item.esmplus.com/auction-service-fee.html" target="_blank" rel="noopener noreferrer" className="underline">옥션 서비스 이용료 안내 ↗</a>」(대분류 「전체」 값, 위 표는 그중 주요 대분류만). 부가세 포함 여부는 공식 안내에 표기되지 않았습니다. 중분류별 전체 요율은 링크에서 확인하세요.
+        </SourceNote>
+      </section>
 
       <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
         <div>
           <h2 className="text-base font-extrabold text-mx-text">🛒 쿠팡</h2>
           <p className="text-xs text-mx-muted">
-            카테고리 판매수수료(아래 표) + 월 매출 100만원 이상이면 서비스 이용료(월 5.5만원 별도)
+            카테고리 판매수수료(아래 표, 최종 결제금액 기준) + 월 매출 100만원 이상이면 서비스 이용료(월 5.5만원 별도)
           </p>
         </div>
         <FeeTable headers={["카테고리", "수수료율"]} rows={COUPANG_FEES} />
+        <SourceNote verified={false}>
+          쿠팡 공식 카테고리 수수료표는 판매자 센터(쿠팡 WING) 로그인 뒤에만 보여 직접 대조하지 못했습니다. 위 값은 여러 판매자 안내 자료와 일치하는 참고치이며 부가세 별도로 안내되는 경우가 많습니다. 내 카테고리 값은 WING의 상품 등록 화면 「카테고리 수수료」에서 확인하세요.
+        </SourceNote>
       </section>
 
       <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
         <div>
-          <h2 className="text-base font-extrabold text-mx-text">🏪 11번가 · 옥션 · G마켓</h2>
+          <h2 className="text-base font-extrabold text-mx-text">🏬 11번가</h2>
           <p className="text-xs text-mx-muted">
-            결제수수료(신용카드 기준 3.74%, 실시간 이체 시 2.0%)는 별도이며, 아래는 카테고리
-            판매수수료입니다. 옥션·G마켓은 ESM 통합 판매관리라 수수료가 동일합니다.
+            서비스 이용료 = (판매가 × 카테고리 요율) − (추가 할인 × 90%). 판매자 안내 자료 기준 카테고리별 대략 <span className="font-semibold">7~13%</span>입니다.
           </p>
         </div>
-        <FeeTable headers={OPENMARKET_HEADERS} rows={OPENMARKET_FEES} />
+        <SourceNote verified={false}>
+          11번가 카테고리별 요율표는 판매자 센터(셀러오피스) 로그인 뒤 「상품관리 › 상품등록 › 카테고리별 서비스이용료 안내」에서만 보여, 예전에 적어 둔 카테고리별 숫자는 근거를 확인할 수 없어 뺐습니다. 내 카테고리 값을 그 화면에서 확인해 마진계산기에 넣어 주세요(신규 판매자 할인 등 조건에 따라 달라질 수 있음).
+        </SourceNote>
       </section>
 
       <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
@@ -114,34 +149,44 @@ export default async function FeesPage() {
         <p className="text-xs leading-relaxed text-mx-muted">
           다른 오픈마켓과 달리 카테고리별로 수수료가 나뉘어 있지 않고, <span className="font-semibold">결제수단·유입경로</span> 기준으로 정해집니다.
           <br />
-          <span className="font-semibold">결제수수료 + 판매수수료</span>가 각각 별도로 붙습니다(둘 다 부가세 포함 표기).
+          <span className="font-semibold">주문관리(결제) 수수료 + 판매수수료</span>가 각각 별도로 붙습니다.
         </p>
 
         <div>
           <p className="mb-1 text-xs font-semibold text-mx-text">
-            ① 결제수수료 — 직전연도 매출 등급에 따라 5단계로 다릅니다
+            ① 주문관리(결제) 수수료 — 국세청 신고 매출 등급(영세·중소1~3·일반)에 따라 다릅니다
           </p>
-          <FeeTable headers={["매출 등급", "결제수수료"]} rows={NAVERPAY_FEES} />
-        </div>
-
-        <div>
-          <p className="mb-1 mt-2 text-xs font-semibold text-mx-text">② 판매수수료 — 유입경로 기준(매출 등급 무관, 정액)</p>
           <FeeTable
-            headers={["유입경로", "판매수수료"]}
+            headers={["매출 등급", "주문관리 수수료(부가세 포함)"]}
             rows={[
-              { category: "일반 유입(네이버쇼핑 검색 등)", values: ["2.73%"] },
-              { category: "마케팅 링크 유입", values: ["0.91%"] },
+              { category: "영세 — 연매출 3억원 미만", values: ["약 1.98%"] },
+              { category: "중소1~3 — 연매출 3억~30억원", values: ["등급별로 그 사이"] },
+              { category: "일반 — 연매출 30억원 이상", values: ["약 3.63%"] },
             ]}
           />
         </div>
+
+        <div>
+          <p className="mb-1 mt-2 text-xs font-semibold text-mx-text">② 판매수수료 — 유입경로 기준(매출 등급 무관, 2025-06 개편, 부가세 별도)</p>
+          <FeeTable
+            headers={["유입경로", "스마트스토어", "브랜드스토어"]}
+            rows={[
+              { category: "일반 유입(네이버 검색·쇼핑 등)", values: ["2.73%", "3.64%"] },
+              { category: "마케팅 링크 유입", values: ["0.91%", "1.82%"] },
+            ]}
+          />
+        </div>
+        <SourceNote verified={false}>
+          스마트스토어 수수료 안내는 판매자 센터 로그인 화면이라 직접 대조하지 못했습니다. 판매자 안내 자료 다수가 일치하는 값이며, 예전 표의 등급별 값(1.87~3.74%)은 근거가 엇갈려 범위로 바꿨습니다. 내 등급 요율은 스마트스토어센터 「정산관리 › 수수료 안내」 또는 공지에서 확인하세요.
+        </SourceNote>
         <div className="rounded-lg border border-mx-success/30 bg-mx-success/10 p-3 text-xs leading-relaxed text-[#a7f3d0]">
           <p className="font-bold">💡 마케팅 링크를 쓰면 수수료가 더 낮아집니다</p>
           <p className="mt-1">
             판매자센터에서 스토어홈·카테고리·상품상세·쇼핑스토리 페이지별로 &quot;마케팅
             링크&quot;를 발급받아, 그 링크로 블로그·SNS·검색광고 등 <span className="font-semibold">직접 마케팅</span>을 통해 고객이 들어오면 판매수수료가 2.73% →{" "}
             <span className="font-semibold">0.91%</span>로 낮아집니다. 예를 들어 &quot;일반&quot;
-            등급(결제수수료 3.74%)이라면, 총 부담이 일반 유입 6.47% → 마케팅 링크 유입 4.65%로
-            줄어듭니다(본인 매출 등급의 결제수수료를 위 표에서 확인해 판매수수료와 더하면 됩니다).
+            등급(주문관리 수수료 약 3.63%)이라면, 총 부담이 일반 유입 약 6.4% → 마케팅 링크 유입 약 4.5%로
+            줄어듭니다(본인 등급의 주문관리 수수료와 판매수수료를 더하면 됩니다. 판매수수료는 부가세 별도라 실제 부담은 조금 더 큽니다).
             유입 후 스토어를 이탈하지 않고 다른 상품을 구매해도 똑같이 적용되지만,
             네이버플러스스토어·가격비교 등 다른 경로로 이탈하면 적용되지 않습니다.
           </p>
@@ -157,8 +202,8 @@ export default async function FeesPage() {
           의 &quot;판매 플랫폼 수수료율&quot; 입력창에, 위 표를 참고하여 판매하실 플랫폼/카테고리에
           해당하는 값을 입력 후 사용하시면 됩니다.
           <br />
-          프로모션(할인) 판매시 쿠팡은 최종 결제금액 기준, 11번가/옥션/G마켓은 할인 전 가격
-          기준으로 수수료가 책정됩니다.
+          프로모션(할인) 판매 시 쿠팡은 최종 결제금액 기준, G마켓·옥션은 판매가(옵션·추가구성 금액 포함) 기준,
+          11번가는 판매가 기준 요율에서 추가 할인의 90%를 뺀 금액으로 수수료가 정해집니다.
         </p>
       </section>
     </div>
