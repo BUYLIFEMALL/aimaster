@@ -4,6 +4,7 @@ import { findModel, type StudioModel } from "@/lib/providers/catalog";
 import type { VideoJob } from "@/lib/video/videoModels";
 import { checkVideoJob, submitVideoJob, VideoGenError } from "@/lib/video/videoProviders";
 import type { ClientGeneration, ClientOutput, GenerationRow, OutputFile } from "@/lib/generationTypes";
+import { uniquePaths, urlMap, withDownload } from "@/lib/signedUrls";
 
 export type { GenerationRow } from "@/lib/generationTypes";
 
@@ -143,27 +144,29 @@ export async function advance(admin: Admin, row: GenerationRow, apiKey: string |
   }
 }
 
-/** 화면에 넘길 모양 — 저장소 경로를 1시간짜리 서명 주소로 바꾸고 내부 값(잠금·업체 작업 정보)은 뺀다 */
+/** 화면에 넘길 모양 — 저장소 경로를 1시간짜리 서명 주소로 바꾸고 내부 값(잠금·업체 작업 정보)은 뺀다.
+ *  v1.21: 목록 전체 경로를 한 번에 서명(예전엔 영상마다 재생·내려받기·시작 사진을 따로 — 60행이면 최대 180번 요청) */
 export async function toClient(admin: Admin, rows: GenerationRow[]): Promise<ClientGeneration[]> {
-  return Promise.all(
-    rows.map(async (r) => {
-      const outputs: ClientOutput[] = await Promise.all(
-        (r.outputs ?? []).map(async (o) => {
-          const { data: play } = await admin.storage.from(BUCKET).createSignedUrl(o.path, 3600);
-          // 한글 파일 이름은 서명 주소에서 깨지므로 영문 이름으로 내려받게 한다(docs/ERROR_LESSONS.md 2026-10-22)
-          const { data: dl } = await admin.storage.from(BUCKET).createSignedUrl(o.path, 3600, { download: `ai-video-${r.id.slice(0, 8)}.mp4` });
-          return { ...o, url: play?.signedUrl ?? null, downloadUrl: dl?.signedUrl ?? null };
-        }),
-      );
-      const { outputs: _o, locked_until: _l, provider_meta: _m, user_id: _u, provider_task_id: _t, start_image, end_image: _e, ...rest } = r;
-      void _o; void _l; void _m; void _u; void _t; void _e;
-      return {
-        ...rest,
-        outputs,
-        modelName: modelOf(r)?.name ?? r.model,
-        expiresAt: new Date(new Date(r.created_at).getTime() + RETENTION_DAYS * 86_400_000).toISOString(),
-        startImageUrl: (await signed(admin, start_image)) ?? null,
-      };
-    }),
-  );
+  const paths = uniquePaths(rows.flatMap((r) => [...(r.outputs ?? []).map((o) => o.path), r.start_image]));
+  let urls = new Map<string, string>();
+  if (paths.length) {
+    const { data } = await admin.storage.from(BUCKET).createSignedUrls(paths, 3600);
+    urls = urlMap(data);
+  }
+  return rows.map((r) => {
+    const outputs: ClientOutput[] = (r.outputs ?? []).map((o) => {
+      const url = urls.get(o.path) ?? null;
+      // 한글 파일 이름은 서명 주소에서 깨지므로 영문 이름으로 내려받게 한다(docs/ERROR_LESSONS.md 2026-10-22)
+      return { ...o, url, downloadUrl: withDownload(url, `ai-video-${r.id.slice(0, 8)}.mp4`) };
+    });
+    const { outputs: _o, locked_until: _l, provider_meta: _m, user_id: _u, provider_task_id: _t, start_image, end_image: _e, ...rest } = r;
+    void _o; void _l; void _m; void _u; void _t; void _e;
+    return {
+      ...rest,
+      outputs,
+      modelName: modelOf(r)?.name ?? r.model,
+      expiresAt: new Date(new Date(r.created_at).getTime() + RETENTION_DAYS * 86_400_000).toISOString(),
+      startImageUrl: (start_image && urls.get(start_image)) || null,
+    };
+  });
 }

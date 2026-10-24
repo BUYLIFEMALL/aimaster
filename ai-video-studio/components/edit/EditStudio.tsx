@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
 import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb, type ShrinkQuality } from "@/lib/edit/pcVideo";
+import { formatEta, isSlowRender, renderDiagnostics, renderHwFromParam } from "@/lib/edit/renderInfo";
 import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
@@ -22,7 +23,7 @@ import {
 
 type Song = { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; url: string | null; tooBig: boolean };
 type Busy = { name: string; msg: string } | null;
-type RenderState = { progress: number; ctrl: AbortController } | null;
+type RenderState = { progress: number; ctrl: AbortController; startedAt: number; etaMs: number; elapsedMs: number } | null;
 type EditItem = { id: string; title: string; clips: number; updatedAt: string };
 type VoiceSettings = { model: string; voice: string; speed: number };
 
@@ -387,24 +388,38 @@ export function EditStudio() {
     setResult(null);
     resultBlob.current = null;
     const ctrl = new AbortController();
-    setRender({ progress: 0, ctrl });
+    const startedAt = Date.now();
+    setRender({ progress: 0, ctrl, startedAt, etaMs: 0, elapsedMs: 0 });
+    // v1.21 진단: 그리기·인코딩 프레임 수를 남겨 맥처럼 느린 PC에서 어디가 막히는지 구분(PLAN_20261024_EDIT_RENDER_SPEED.md)
+    const hw = renderHwFromParam(params.get("render"));
+    const frames = { total: 0, rendered: 0, encoded: 0 };
+    const logDiag = (outcome: "done" | "error" | "aborted") =>
+      console.info("[avs-render]", JSON.stringify(renderDiagnostics({ outcome, hw, elapsedMs: Date.now() - startedAt, totalFrames: frames.total, renderedFrames: frames.rendered, encodedFrames: frames.encoded, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 0 })));
     try {
       const { width, height } = dimensions(project.aspect, project.quality);
       const { totalFrames } = layout(project);
+      frames.total = totalFrames;
       const out = await renderMediaOnWeb({
         composition: { component: EditComposition, id: "ai-video-edit", width, height, fps: FPS, durationInFrames: totalFrames, defaultProps: { project } },
         inputProps: { project },
         signal: ctrl.signal,
-        onProgress: (p) => setRender((cur) => (cur ? { ...cur, progress: p.progress } : cur)),
+        onProgress: (p) => {
+          frames.rendered = p.renderedFrames;
+          frames.encoded = p.encodedFrames;
+          setRender((cur) => (cur ? { ...cur, progress: p.progress, etaMs: p.renderEstimatedTime, elapsedMs: Date.now() - cur.startedAt } : cur));
+        },
         videoBitrate: "high",
+        hardwareAcceleration: hw,
         delayRenderTimeoutInMilliseconds: 60_000,
         logLevel: "error",
       });
       const blob = await out.getBlob();
+      logDiag("done");
       resultBlob.current = blob;
       setResult({ url: URL.createObjectURL(blob), mb: Math.round(blob.size / 104857.6) / 10, seconds: totalFrames / FPS });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
+      logDiag(ctrl.signal.aborted ? "aborted" : "error");
       if (ctrl.signal.aborted) setError("렌더를 멈췄습니다.");
       else if (/delayRender|timeout|Extracting frame/i.test(msg)) setError("영상 한 개의 형식 때문에 렌더가 멈췄습니다. 그 영상을 빼고 다시 넣은 뒤(형식 자동 맞추기) 다시 시도해 주세요.");
       else setError("렌더하지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요. 계속되면 클립 수를 줄이거나 720p로 바꿔 주세요.");
@@ -747,7 +762,7 @@ export function EditStudio() {
             <p className="text-xs text-amber-200">렌더는 PC(크롬·엣지 최신 버전)에서 해 주세요. 휴대폰에서는 미리보기만 됩니다.</p>
           ) : render ? (
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2 text-sm text-sky-100"><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> 만드는 중 {Math.round(render.progress * 100)}%</span>
+              <span className="flex items-center gap-2 text-sm text-sky-100"><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> 만드는 중 {Math.round(render.progress * 100)}%{formatEta(render.etaMs) && <span className="text-sky-200/70">· 남은 시간 {formatEta(render.etaMs)}</span>}</span>
               <button type="button" onClick={() => render.ctrl.abort()} className="text-sm text-zinc-400 hover:text-zinc-200">멈추기</button>
             </div>
           ) : (
@@ -758,6 +773,9 @@ export function EditStudio() {
           )}
         </div>
         {render && <p className="text-[11px] text-zinc-500">렌더하는 동안 이 탭을 닫거나 다른 탭으로 오래 옮기지 마세요. 영상 길이와 PC 성능에 따라 수십 초~몇 분 걸립니다.</p>}
+        {render && isSlowRender(render.elapsedMs, render.etaMs) && (
+          <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">⏳ 이 PC에서는 {formatEta(render.etaMs)} 더 걸릴 것 같습니다. 기다리기 어렵다면 「멈추기」를 누르고 720p로 바꾸거나 다른 PC(윈도우 크롬 등)에서 만들어 주세요.</p>
+        )}
 
         {result && (
           <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
