@@ -1,5 +1,7 @@
 # AI 업무 워크스페이스 자동화 — 작업 대기 목록
 
+> 확장 로드맵(단위 U1~U14, 2026-10-24): [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) — 승인 대기
+
 ## 배포 대기
 - [x] 1단계 화면 보완 배포 — v1.03(2026-10-24, `ai-work-workspace-l322zllr7`)
 - [x] 미배포 커밋 `5a9d5e564` 배포 — v1.02(2026-10-24)
