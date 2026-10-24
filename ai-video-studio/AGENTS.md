@@ -1,6 +1,6 @@
 # AI 영상 스튜디오 (`ai-video-studio`) — 에이전트 인수인계
 
-> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.17**(2026-10-24) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
+> 주소: https://ai-video-studio.buylife.xyz · 현재 **v1.18**(2026-10-24) · 운영 DB `esgxyikcnnvmlhygjkth` · Vercel 프로젝트 `ai-video-studio`(팀 buylife)
 > 플랜: `docs/PLAN_20261023_AI_VIDEO_STUDIO.md` · 조사 보고서: `docs/RESEARCH_20261023_PLATFORMS.md` · 무료 렌더 시험: 루트 `docs/PLAN_20261023_FREE_VIDEO_RENDERING.md`
 
 ## 1. 사용목적 및 대상
@@ -22,6 +22,7 @@
 - 한계: 해상도 720p 고정(공용 코드), 오디오 끔(fal), 텍스트→영상은 Gemini만, 모델 목록 1차-가 범위.
 
 ## 4. 버전 히스토리
+- **v1.18 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: **작업 결과 갤러리 카드 「⚡ 내 PC로」** — 완성 영상을 회원 PC ffmpeg로 ① **GIF 만들기(앞 6초)**(렌더러 `encode`, 가로 480·10fps·128색 — 1.00 실행기부터) ② **작게 줄이기(720)**(렌더러 `compress` small + `maxSide` 720 — 1.30부터, 옛 판이면 업데이트 안내) → 카드 아래 바로 내려받기(크기 표시, 파일 이름 `ai-video-<id 8자>.gif`·`-small.mp4`). 렌더러가 없으면 줄 자체를 숨김(설치 안내는 영상 합치기). 렌더러 확인은 카드가 여러 장이어도 한 번만. **렌더러는 고치지 않음** — 처음 계획한 `scale`·`gif` 새 명령 대신 이미 있는 `encode`·`compress`(`maxSide`)로 충분해 video-to-gif 배포를 뺌(빌드 2회 → 1회). GIF 값은 실물 시험에서 5초 12fps가 4.8MB(10초면 8MB 초과)라 6초·10fps로 낮춤. 컴포넌트 `components/studio/PcQuickTools.tsx`, 명령 `lib/edit/pcVideo.ts`(시험 3개 추가, 전체 51). 운영 크롬 갤러리: 완성 카드 18장에 두 버튼, 원본 7.3MB → GIF 3.9MB(`image/gif`)·작은 MP4 0.3MB(`video/mp4`). 커밋 `a354d4c56`.
 - **v1.17 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: **영상 합치기 ↔ 「AIMaster 내 PC 고속 변환」(실행기 1.30 이상)** — ① 내 PC 영상이 앞부분 시험 렌더(R1)를 통과하지 못하면 회원 PC ffmpeg `normalize`(30fps·긴 변 1920·H.264·AAC)로 먼저 맞추고, 실패하면 기존 브라우저 소프트웨어 인코딩으로 ② 완성본 아래 「⚡ 내 PC로 용량 줄이기」(균형·고화질 유지·작게 = 실행기 `compress`, 원본보다 크면 원본 유지, 「1.7MB → 0.9MB」 표시, 50MB 넘으면 갤러리 저장 안내) ③ 실행기가 없거나 옛 판이면 설치·업데이트 안내 한 줄. 공용 사본 `pc-renderer-client` → `lib/pcRenderer.ts` 등록, 명령 만들기 `lib/edit/pcVideo.ts`(시험 `tests/pcVideo.test.mjs` 4개, 전체 48). 운영 크롬: 갤러리 영상 1개 렌더 → 용량 줄이기 1.7MB → 0.9MB(5초·720×1280 재생 정상), 실제 확장으로 normalize 2.0초. 커밋 `3b94adc78`, 실행기는 video-to-gif v1.24.
 - **v1.16 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: 데스크톱(`md` 768px 이상) 모델 카드를 가로 배치 — 예시 미리보기를 왼쪽 가로 128px 썸네일(`md:w-32`)로, 휴대폰은 카드 폭 그대로. 운영 크롬 1384px에서 카드 높이 약 350px → 98px(썸네일 128×72), 503px 폭은 세로 배치 확인. 시험 44·build. 커밋 `96439b319`.
 - **v1.15 (2026-10-24, Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당)**: **공용 영상 모델에서 Replicate Kling v2.1 제거**(업체 서비스 종료, 오류 1203) — 기준 `lib/video/videoModels.ts`에서 빼고 주석으로 기록, 사본 3곳(ai-image-studio·shorts-onestop-studio·shots) 복사(`--sync`는 다른 세션이 작업 중인 뮤직비디오 사본까지 덮어써 쓰지 않음). 시험 `catalog.test.mjs`는 Kling O3(사진 비율)·MiniMax H3(5·10초)·시험용 객체(끝 장면 단가)로 바꾸고 「목록에 없음」 시험 추가(44개). 같은 날 Shots v1.43·원스톱 v1.41도 배포. 뮤직비디오 사본은 그 세션 차례. 검수: 운영 크롬 Replicate 카드 Seedance 1 Lite 1개만·페이지에 kling-v2.1 없음. 커밋 `c2b698db4`, 플랜 `docs/PLAN_20261024_REMOVE_KLING21.md`.
