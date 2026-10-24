@@ -60,6 +60,9 @@ DB 칸(`programs.extension_download_url`, `extension_version`)은 `naver-blog-ag
 
 ## 4. 새 확장 프로그램을 만들 때
 
+> **2026-10-24 주인님 지시 — 항상 두 가지를 동시에:** 「모든 자동화 프로그램은 각각 프로그램 이름에 맞는 프로그램 폴더를 생성해서 작업한다」 「확장프로그램이 있는 프로그램은 extension 폴더를 만들고 거기에 확장프로그램을 항상 만들어 올리며 해당 프로그램에서 다운로드 받을 수 있도록 한다」 「항상 이 두 가지는 동시에 진행된다」.
+> ① 확장은 `<프로그램 slug>/extension/`에만 만든다(저장소 밖·루트·임시 폴더에 따로 만들지 않는다, 사전 검증용 확장도 이 폴더에서 시작). ② 같은 작업에서 그 프로그램 사이트의 `public/downloads/<slug>-extension-latest.zip`으로 내려받게 하고(빌드 스크립트 `prebuild`), 대시보드 다운로드 센터·좌측 메뉴에 받기 버튼을 둔다. 둘 중 하나만 하면 끝난 것이 아니다. (첫 적용: `realty-listing-alert`)
+
 1. 확장 소스를 `<프로그램>/extension/`에 둔다. 루트 폴더나 다른 위치에 복제본을 만들지 않는다.
 2. `naver-blog-agent/scripts/build-extension-archive.mjs`를 복사해 `prebuild`로 연결한다(버전 동기화 + ZIP 생성 + 이전 버전 ZIP 정리). 고정 `-latest.zip`도 함께 만든다.
 3. `programs` 등록 때 `version = 'v1.01'`, `extension_version`, `extension_download_url`을 함께 채운다.
