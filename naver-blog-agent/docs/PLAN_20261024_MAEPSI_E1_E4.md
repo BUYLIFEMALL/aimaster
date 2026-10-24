@@ -98,3 +98,27 @@
 **주인님 결정(2026-10-24): E-2는 보류**(「E-2 보류, 묶음 C로」). E-1은 이미 구현돼 새 코드 없음 — 임시저장 결과 판정만 E-5에서. 다음 순서: 묶음 C(✅ 키워드 v1.08) → E-3~E-5.
 
 **E-3 완료(2026-10-24, v2.19)**: 주인님 결정 「E-3 먼저, E-4·E-5 별도」. 커밋 `b6592d9b3`(기능)·`52d5bdab0`(버전·확장 ZIP), 배포 `naver-blog-agent-i29myxlki`. 이미지 0장은 기존 생성 규칙(1~5장)상 허용하지 않음.
+
+## E-4 상세 플랜 (2026-10-24, Claude Code 윈도우 블로그 담당 `claude-win-20261024-blog3`, 주인님 확인 전 — 코드 미수정)
+
+**확인한 사실**: BLOG(`ai-auto-blog`)는 운영 DB에서 `badges=['free']`(개별 부여 245명), 에이전트는 `['recommended']`(개별 부여 195명). 따라서 「에이전트 또는 BLOG 권한」 = **핸드폰이 등록된 가입 회원 전원**에게 간편 모드가 열린다. 비용은 회원 본인 키라 운영자 AI 비용 없음(서버 함수 사용량만 늘어남).
+
+**문제**: E-3 간편 모드는 결과를 기존 작성 화면(`/`, 대시보드 묶음)으로 넘겨 만든다. 무료 회원에게 그 화면을 열면 전체 기능이 다 열리므로, 무료 회원용 흐름은 간편 모드 안에서 끝나야 한다.
+
+| 단계 | 할 일 | 파일(예상) |
+|---|---|---|
+| 1 권한 | `access.ts`에 `evaluateAccessScope(userId)` → `full`(지금 판정 그대로) / `quick`(에이전트 권한 없음 + BLOG 판정 통과) / 거부. 기존 함수·순서는 그대로 | `src/lib/access.ts` + 시험 |
+| 2 화면 묶음 | `/quick`을 새 묶음 `src/app/(quick)/`로 옮기고 자기 레이아웃(두 줄 필수). 전체 회원은 지금 메뉴 그대로, 간편 회원은 짧은 메뉴(간편 모드·키·블로그 등록·확장 연결·매뉴얼·「전체 기능 보기」 안내) | `(quick)/layout.tsx`, `QuickSidebar.tsx` |
+| 3 간편 회원 생성 흐름 | 간편 화면 안에서 생성 → 이미지 → 저장 → 결과(미리보기·최종 확인·발행 설정·네이버 입력)까지. 전체 회원은 지금처럼 작성 화면으로 넘어가도 되고, 같은 간편 결과 화면을 써도 됨 → **두 회원 모두 간편 결과 화면으로 통일**(유지보수 하나) | `(quick)/quick/page.tsx`, `QuickResult.tsx`(기존 `PostReviewGate`·`NaverPublishSettings` 재사용) |
+| 4 설정 | 간편 회원용 `/quick/settings`(기존 `NaverAccountManager`·키 등록 컴포넌트 재사용) | `(quick)/quick/settings/page.tsx` |
+| 5 원고 표시 | `/api/generate`가 `mode:"quick"`이면 `research_summary.mode="quick"` 저장 | `api/generate/route.ts` |
+| 6 API 권한 | 간편 회원 허용: quick/suggest·keys·accounts·generation-preferences·generate(간편 원고만)·generate-image·upload-image·posts(간편 원고만 보기·수정)·posts/[id]/publishing·review·recovery·prepared-published·확장 auth/task/finish/prepared-published(간편 원고만 과제로 줌)·extension-connect. **그대로 막음**: collector 전체·photo-review·photos·experience-questions·대시보드 화면 전부 | 약 15개 route |
+| 7 시험 | 권한 범위 시험(전체/간편/거부), 간편 회원이 다른 원고 id로 부르면 403, 확장 과제가 전체 원고를 주지 않음 | `scripts/test-quick-scope.cjs` |
+
+**하지 않는 것**: BLOG 프로그램·배지·카탈로그 변경(별도 작업), 새 DB 표·컬럼(없음), E-5.
+
+**검수**: 시험 계정은 에이전트 권한이 있어 「전체」로만 보임 → 간편 회원 화면 확인에는 ① 시험 계정의 에이전트 개별 부여를 검수 동안만 잠시 해제했다가 되돌리거나(DB 쓰기 2회) ② 에이전트 권한 없는 다른 시험 계정이 필요.
+
+**위험**: 작성 화면(2,600줄)의 미리보기·편집 부분은 화면 안에 섞여 있어, 간편 결과 화면은 미리보기를 단순 버전(제목·본문·이미지·최종 확인·발행 설정·입력 버튼)으로 새로 만든다. 세부 편집은 「전체 기능」으로 안내.
+
+**비용**: 빌드 1회, 시험 AI 추천 1회·원고 1편·이미지 1장(시험 계정 본인 키, 약 100~200원), 확장 실제 입력 시험은 비공개 1건(주인님 확인 시). 버전 v2.20.
