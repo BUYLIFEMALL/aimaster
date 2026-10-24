@@ -67,11 +67,13 @@ test("스위치 여러 개를 쉼표로", () => {
 });
 
 test("v1.23 시험 스위치와 막힘 판정", () => {
-  assert.deepEqual(renderTestSwitches("trace,nopace"), { trace: true, noPace: true, htmlCanvas: false });
-  assert.deepEqual(renderTestSwitches(null), { trace: false, noPace: false, htmlCanvas: false });
+  assert.deepEqual(renderTestSwitches("trace,nopace"), { trace: true, noPace: true, htmlCanvas: false, realtime: false });
+  assert.deepEqual(renderTestSwitches(null), { trace: false, noPace: false, htmlCanvas: false, realtime: false });
+  assert.equal(renderTestSwitches("trace, realtime").realtime, true);
   assert.equal(renderTestSwitches("htmlcanvas, verbose").htmlCanvas, true);
-  assert.equal(isStalled(29_999, 0), false);
-  assert.equal(isStalled(30_000, 0), true);
+  // v1.24 15초(맥 장면마다 35초 사례)
+  assert.equal(isStalled(14_999, 0), false);
+  assert.equal(isStalled(15_000, 0), true);
   const d = renderDiagnostics({ outcome: "aborted", hw: "no-preference", decode: "default", elapsedMs: 1000, totalFrames: 10, renderedFrames: 1, encodedFrames: 1, userAgent: "x", cores: 4, switches: "trace", phases: { waitMs: 1, composeMs: 2, encodeMs: 3, slowFrames: 0 } });
   assert.equal(d.switches, "trace");
   assert.equal(d.phases.composeMs, 2);

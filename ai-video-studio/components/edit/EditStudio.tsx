@@ -14,8 +14,9 @@ import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
 import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb, type ShrinkQuality } from "@/lib/edit/pcVideo";
-import { STOP_GRACE_MS, etaFromProgress, formatEta, isSlowRender, isStalled, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderTestSwitches, renderVerboseFromParam } from "@/lib/edit/renderInfo";
+import { CLEANING_HINT_MS, STALL_MS, STOP_GRACE_MS, etaFromProgress, formatEta, isSlowRender, isStalled, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderTestSwitches, renderVerboseFromParam } from "@/lib/edit/renderInfo";
 import { PHASE_NAMES, RenderTrace, TRACE_WATCH_MS, setActiveTrace } from "@/lib/edit/renderTrace";
+import { tweakVideoEncoder } from "@/lib/edit/encoderTweak";
 import { preferSoftwareDecoding } from "@/lib/edit/softDecode";
 import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 import {
@@ -25,7 +26,7 @@ import {
 
 type Song = { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; url: string | null; tooBig: boolean };
 type Busy = { name: string; msg: string } | null;
-type RenderState = { progress: number; ctrl: AbortController; startedAt: number; etaMs: number; elapsedMs: number; lastAdvanceAt: number; stopping?: boolean } | null;
+type RenderState = { progress: number; ctrl: AbortController; startedAt: number; etaMs: number; elapsedMs: number; lastAdvanceAt: number; slowSeen?: boolean; stopping?: boolean } | null;
 type EditItem = { id: string; title: string; clips: number; updatedAt: string };
 type VoiceSettings = { model: string; voice: string; speed: number };
 
@@ -63,15 +64,16 @@ export function EditStudio() {
   const [notice, setNotice] = useState("");
   const [render, setRender] = useState<RenderState>(null);
   const [cleaning, setCleaning] = useState(false);
+  const [cleaningSince, setCleaningSince] = useState(0);
   const renderRun = useRef<{ forced: boolean } | null>(null);
   // v1.23 막힘 안내용 시계(렌더 중 5초마다) — 진행 알림이 안 오면 화면이 다시 그려지지 않으므로
   const [, setClock] = useState(0);
   const rendering = render !== null;
   useEffect(() => {
-    if (!rendering) return;
+    if (!rendering && !cleaning) return;
     const t = window.setInterval(() => setClock((c) => c + 1), 5000);
     return () => window.clearInterval(t);
-  }, [rendering]);
+  }, [rendering, cleaning]);
   const [result, setResult] = useState<{ url: string; mb: number; seconds: number; beforeMb?: number } | null>(null);
   // v1.17 「AIMaster 내 PC 고속 변환」(실행기 1.30 이상) — 넣는 영상 형식 맞추기·완성본 용량 줄이기를 회원 PC ffmpeg로
   const [pc, setPc] = useState<PcRendererStatus | null>(null);
@@ -415,7 +417,9 @@ export function EditStudio() {
     // v1.23 시험 스위치(PLAN §10): trace·nopace·htmlcanvas
     const test = renderTestSwitches(renderParam);
     const restoreDecoding = decode === "software" ? preferSoftwareDecoding() : () => {};
-    const trace = test.trace ? new RenderTrace(performance.now(), (t) => console.info("[avs-trace] slow", JSON.stringify(t))) : null;
+    // v1.24 인코더 감싸기(PLAN §12): realtime이면 latencyMode "realtime", trace면 대기열·출력 수 기록. 기본 주소에서는 건드리지 않는다
+    const enc = test.trace || test.realtime ? tweakVideoEncoder({ realtime: test.realtime }) : null;
+    const trace = test.trace ? new RenderTrace(performance.now(), (t) => console.info("[avs-trace] slow", JSON.stringify({ ...t, encoder: enc?.stats() }))) : null;
     setActiveTrace(trace);
     let lastWatchLog = 0;
     const traceTimer = trace ? window.setInterval(() => {
@@ -426,13 +430,13 @@ export function EditStudio() {
       if (stuck && now - lastWatchLog >= TRACE_WATCH_MS) {
         lastWatchLog = now;
         const labels = Object.values(w.remotion_delayRenderTimeouts ?? {}).map((d) => d.label ?? "?");
-        console.info("[avs-trace] waiting", JSON.stringify({ ...stuck, phaseName: PHASE_NAMES[stuck.phase], ready: w.remotion_renderReady === true, labels }));
+        console.info("[avs-trace] waiting", JSON.stringify({ ...stuck, phaseName: PHASE_NAMES[stuck.phase], ready: w.remotion_renderReady === true, labels, encoder: enc?.stats() }));
       }
     }, 50) : 0;
     const frames = { total: 0, rendered: 0, encoded: 0 };
-    const switches = [test.trace && "trace", test.noPace && "nopace", test.htmlCanvas && "htmlcanvas"].filter(Boolean).join(",");
+    const switches = [test.trace && "trace", test.noPace && "nopace", test.htmlCanvas && "htmlcanvas", test.realtime && "realtime"].filter(Boolean).join(",");
     const logDiag = (outcome: "done" | "error" | "aborted") =>
-      console.info("[avs-render]", JSON.stringify(renderDiagnostics({ outcome, hw, decode, elapsedMs: Date.now() - startedAt, totalFrames: frames.total, renderedFrames: frames.rendered, encodedFrames: frames.encoded, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 0, switches, phases: trace?.totals })));
+      console.info("[avs-render]", JSON.stringify(renderDiagnostics({ outcome, hw, decode, elapsedMs: Date.now() - startedAt, totalFrames: frames.total, renderedFrames: frames.rendered, encodedFrames: frames.encoded, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 0, switches, phases: trace?.totals, encoder: enc?.stats() })));
     try {
       const { width, height } = dimensions(project.aspect, project.quality);
       const { totalFrames } = layout(project);
@@ -449,7 +453,10 @@ export function EditStudio() {
           setRender((cur) => {
             if (!cur) return cur;
             const elapsedMs = Date.now() - cur.startedAt;
-            return { ...cur, progress: p.progress, etaMs: etaFromProgress(elapsedMs, p.progress), elapsedMs, lastAdvanceAt: advanced ? Date.now() : cur.lastAdvanceAt };
+            const now = Date.now();
+            // v1.24 장면 하나가 15초 넘게 걸린 적이 있으면 막힘 안내를 계속 보인다(맥은 장면마다 35초라 안내가 깜빡이지 않게)
+            const slowSeen = cur.slowSeen || (advanced && now - cur.lastAdvanceAt >= STALL_MS);
+            return { ...cur, progress: p.progress, etaMs: etaFromProgress(elapsedMs, p.progress), elapsedMs, lastAdvanceAt: advanced ? now : cur.lastAdvanceAt, slowSeen };
           });
         },
         // 합성 끝 시각(trace만). 받은 장면을 그대로 돌려줘야 한다(없으면 라이브러리 오류)
@@ -477,6 +484,7 @@ export function EditStudio() {
     } finally {
       if (traceTimer) window.clearInterval(traceTimer);
       setActiveTrace(null);
+      enc?.restore();
       restoreDecoding();
       if (renderRun.current === run) renderRun.current = null;
       if (run.forced) setCleaning(false);
@@ -496,6 +504,7 @@ export function EditStudio() {
       console.info("[avs-render]", JSON.stringify({ outcome: "stop-forced", afterMs: STOP_GRACE_MS }));
       setRender(null);
       setCleaning(true);
+      setCleaningSince(Date.now());
       setError("렌더를 멈췄습니다. 이 PC에서는 남은 정리가 조금 더 걸려, 끝나면 다시 만들 수 있습니다(급하면 화면을 새로고침해 주세요).");
     }, STOP_GRACE_MS);
   }
@@ -846,8 +855,14 @@ export function EditStudio() {
           )}
         </div>
         {render && <p className="text-[11px] text-zinc-500">렌더하는 동안 이 탭을 닫거나 다른 탭으로 오래 옮기지 마세요. 영상 길이와 PC 성능에 따라 수십 초~몇 분 걸립니다.</p>}
-        {render && !render.stopping && isStalled(Date.now(), render.lastAdvanceAt) && (
-          <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">⚠️ 30초 넘게 장면이 하나도 만들어지지 않았습니다. 이 PC 브라우저에서는 렌더가 매우 느립니다. 「멈추기」를 누르고 윈도우 PC에서 만들거나 클립 수를 줄여 주세요.</p>
+        {render && !render.stopping && (render.slowSeen || isStalled(Date.now(), render.lastAdvanceAt)) && (
+          <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">⚠️ 장면 하나를 만드는 데 15초 넘게 걸리고 있습니다. 이 PC 브라우저에서는 렌더가 매우 느립니다. 「멈추기」를 누르고 윈도우 PC에서 만들거나 클립 수를 줄여 주세요.</p>
+        )}
+        {cleaning && cleaningSince > 0 && Date.now() - cleaningSince >= CLEANING_HINT_MS && (
+          <p className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+            ⏳ 이전 렌더 정리가 오래 걸리고 있습니다. 화면을 새로고침하면 바로 다시 만들 수 있습니다(새로고침하면 올린 영상은 다시 넣어야 합니다).
+            <button type="button" onClick={() => window.location.reload()} className="rounded-md border border-amber-400/50 px-2 py-0.5 text-amber-50 hover:bg-amber-500/20">새로고침</button>
+          </p>
         )}
         {render && isSlowRender(render.elapsedMs, render.etaMs) && (
           <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">⏳ 이 PC에서는 {formatEta(render.etaMs)} 더 걸릴 것 같습니다. 기다리기 어렵다면 「멈추기」를 누르고 720p로 바꾸거나 다른 PC(윈도우 크롬 등)에서 만들어 주세요.</p>
