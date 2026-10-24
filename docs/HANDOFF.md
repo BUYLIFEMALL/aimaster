@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.18: U7 업무 받은편지함
+- 주인님 승인: 공용 DB 표 `public.work_inbox` 추가, 받은편지함 줄은 모두 30일 뒤 삭제(만든 페이지는 남음), 빌드 1회.
+- 한 일: v1.18 — U7 업무 받은편지함: 공용 표 `public.work_inbox`(주인님 승인, RLS 본인만, insert는 각 프로그램 서버만, 30일 자동 삭제를 운영 정리 작업에 추가) + 「📨 받은 업무」 화면 `/inbox`(좌측 메뉴·새 항목 수, 목록·미리보기, 3D 버튼 「페이지로 만들기」(원본 importFiles 재사용)·「표에 행으로 넣기」(처음 「📨 받은 업무 표」 자동 생성 후 mergeCsv로 추가, 표 위치는 회원 설정에 저장)·「삭제」) + 보내기 기준 코드 `src/lib/workInbox.ts`·안내 `docs/WORK_INBOX.md` + 매뉴얼 구역 — `2697c16ba`, 배포 `ai-work-workspace-lvwfm67rq`.
+- 다른 프로그램이 보내는 법: `docs/WORK_INBOX.md`(기준 코드 `ai-work-workspace/src/lib/workInbox.ts` 사본 → 서버에서 로그인 회원 확인 뒤 `sendToWorkInbox()`). 운영 DB: 표 생성 SQL `ai-work-workspace/supabase/migrations/20261024001700_work_inbox.sql` 적용, 버전 v1.18(ref `esgxyikcnnvmlhygjkth`).
+- 검수: 타입 검사·로컬 빌드, 연결부 39/39, 크롬(시험 계정) 시험 항목 2개로 페이지 만들기·표 행 넣기(새 표 생성 → 같은 표 추가) 확인 후 시험 항목 SQL 삭제.
+- 미배포: `c6d4ca3ba` 표 「받은 날」 한국 날짜.
+- 다음: 회의록 자동 요약 1회 확인(주인님 30초 녹음) → U8 `ai-task-planner` 보내기 버튼(두 프로그램, 빌드 2회 — 착수 전 플랜·비용 보고).
+- 비용: Vercel 빌드 1회(승인 범위), 유료 AI 호출 0회.
+- 프로그램: https://ai-work-workspace.buylife.xyz/inbox
+
 ## 2026-10-24 📖 [역할: docbot-prompt] Codex(윈도우·엣지) · 세션 `codex-win-20261024-docbot-g2` — 추가 개정 지침 재확인
 - 주인님 「먼저 바뀐 지침들 먼저 읽고 시작해」에 따라 이전 재독 이후 루트 변경·분야별 요약·역할·최신 인수인계와 업무자동화/AI 프롬프트 카테고리 새 초안 6종을 읽었습니다. 포그라운드 작업, 관리자 요청함+채팅 동시 보고, 본인 키·회원 격리·30일 보관·묶음 순차 배포를 적용합니다.
 - 초안은 담당 검증 전 참고 상태를 유지합니다. 초안의 챗봇 G-3 검색 표기는 원래 플랜과 다르므로 기존 승인 플랜(G-3 역할 유지, G-4 문서 검색)을 기준으로 대조합니다. 다른 프로그램의 과거 현황을 현재 완료로 간주하지 않습니다.

@@ -22,7 +22,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-workspace` | 2026-10-24 | U7 업무 받은편지함(공용 표 public.work_inbox + 「받은 업무」 화면) — 주인님 승인, 빌드 1회, v1.18 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
 | `realty-listing-alert/` (새 폴더) | [역할: realty] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-realty` | 2026-10-24 | 새 프로그램 「AI 부동산 매물 알림 자동화」 구현 — 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`. 0단계 사전 검증 ✅, v1.01 뼈대 커밋(미배포). 지금: 1단계 등록(DB·Vercel) 승인 대기 |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` | 2026-10-24 | ③-1 SEO 예약 포스팅 ✅ v2.19(실제 네이버 예약은 주인님 시험 대기) → **다음: 에이전트 ② 간편 모드 실제 입력 시험(크롬 시험 계정 로그인 확인됨)** → ③-2 콘텐츠 메이커 포스팅 → ④ 묶음 E. 미배포 `89d135c4b` |
