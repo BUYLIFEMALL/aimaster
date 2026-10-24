@@ -385,3 +385,10 @@
   - 참고: GIF 화면에 「PC 렌더러 새 버전 1.20이 있습니다(설치됨 1.10)」 알림 — 확인 중 다른 세션이 실행기 1.20을 낸 것으로 보임. 이번 확인은 요청대로 1.10 기준.
 - 웹 공용 연결 코드는 `pc-renderer-client`(기준 `ai-mastering-studio/src/lib/pcRenderer.ts`)로 새로 등록 — 이 프로그램의 `lib/localRenderer.ts`는 GIF 동작 불변을 위해 그대로 둠.
 - 로드맵: `docs/analysis-pc-renderer-20261024/ROADMAP.md`(각도 5가지·단계·영상 담당과 역할 나눔). 영상 명령(`loop` 등)은 영상 담당 `claude-win-video`(IDEA-VIDEO-LOCAL-01).
+
+## 2026-10-24 v1.23 — 내 PC 렌더러 1.20: 영상 명령 「loop」 추가 (Claude Code 윈도우, 영상 담당 `claude-win-video`, 로드맵 3-1 영상 몫)
+- 실행기 `host.ps1`·`host.pl` 1.20: 새 메시지 `type: "loop"` — 무한 루프 영상 `src/lib/loop/plan.ts`의 `normalize()`·`buildFilter()`·`encodeArgs()`와 같은 규칙(스마트·오버랩·바운스, 크로스페이드, 반복 1~200, mp4·webm·gif). 받는 값은 낱말(mode·format)·숫자(start·end·crossfade·repeat·duration)만, 범위 밖·글자는 `bad params`. **소리 트랙은 실행기가 `ffmpeg -i` 기록으로 직접 확인**(크롬 화면 짐작 금지 — 무한 루프 v1.07 교훈). `pong.capabilities`에 `loop` 추가. GIF·audio 약속은 그대로라 `MIN_HOST`·`MIN_EXTENSION` 그대로.
+- 주의: PowerShell 변수는 대소문자를 구분하지 않는다 — `$S = F3 $s`처럼 쓰면 숫자 변수를 글자로 덮어쓴다(글자용은 `$tS` 등 다른 이름).
+- 시험 도구(새): `local-renderer/test/host-harness.mjs`(크롬 없이 Native Messaging 약속으로 실행기와 주고받기, 맥판은 `PL_FFMPEG=<ffmpeg 경로>`로 임시 폴더 + config.json), `local-renderer/test/loop-matrix.mjs`(윈도우·맥 × 5경우: 필터가 `buildFilter`와 글자 하나까지 같음·길이·소리 트랙). 결과 **10/10 통과**, 두 판 결과 파일 크기 바이트 단위 동일. 기존 `encode`(GIF)·`audio`(MP3) 두 판 회귀 정상, 잘못된 값 4종 두 판 모두 거절.
+- 배포: `video-to-4fjavywr6` Ready(도우미가 Ready를 놓쳐 `vercel ls`로 확인), DB v1.23 + `extension_version` v1.23, `check-extension-release` OK, 운영 `version.json` host 1.20, 운영 윈도우 ZIP·`host.pl` 1.20 확인. 커밋 `e14e958cd`(실행기·시험)·`e5e9c3441`(배포 묶음·SQL).
+- 남은 확인: **실제 맥에서 `loop`** — 이 PC의 msys perl로는 통과, 맥미니 실검수 부탁 필요.

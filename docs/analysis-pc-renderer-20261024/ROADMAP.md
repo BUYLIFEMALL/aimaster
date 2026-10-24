@@ -34,6 +34,15 @@
 | 5 | 각도 A 넓히기 → AI 음악 스튜디오·SUNO 곡 형식 변환, 원스톱 내레이션 음량 | 각 프로그램 | 대기 |
 | 6 | 각도 E(`frames`) → 가사영상 길이 제한 해제 시제품, 효과 측정 후 다른 프로그램 | `lyric-video-studio` 등 | 검토 |
 
+## 3-0. 영상 담당 진행 (2026-10-24, `claude-win-video`)
+| 단계 | 내용 | 배포 | 상태 |
+|---|---|---|---|
+| 영상 A | 실행기 1.20 `loop`(무한 루프 영상 규칙, 소리 트랙 실행기가 확인) → 무한 루프 영상 「⚡ 내 PC로 빠르게」 | `video-to-gif` v1.23 · `infinite-loop-video` v1.08 | ✅ 배포 완료 — 윈도우 실물·msys perl 10/10, 운영 크롬 720p 4.2배. 시험 도구 `video-to-gif/local-renderer/test/`. **실제 맥 확인 남음** |
+| 영상 B | `normalize`·`compress` → AI 영상 스튜디오 영상 합치기 | `video-to-gif` · `ai-video-studio` | 대기 |
+| 영상 C | `scale`·`gif` → AI 영상 갤러리 | `video-to-gif` · `ai-video-studio` | 대기 |
+| 영상 D | Shots·원스톱 결과 `compress` | 각 프로그램 | 대기 |
+- `loop-mux`(플레이리스트·LP)는 실행기 `loop`을 넓히는 방향 — 지금 `loop`은 입력 1개 + 낱말·숫자만(소리 합치기 없음). 다음 실행기 번호는 1.30.
+
 ## 3-1. 역할 나눔 (2026-10-24 확인)
 - 영상 담당 세션 `claude-win-video`가 같은 실행기에 영상 명령(`loop`·`normalize`·`scale`·`compress`)을 넣는 계획을 먼저 세워 두었다(아이디어 표 IDEA-VIDEO-LOCAL-01, 분석 `ai-video-studio/docs/ANALYSIS_20261024_LOCAL_RENDERER_FOR_VIDEO.md`). → **영상 명령과 영상 프로그램(무한 루프·AI 영상 스튜디오·Shots·원스톱)은 영상 담당**, **소리 명령과 음악 프로그램(마스터링·AI 음악 스튜디오·SUNO·플레이리스트·LP·가사영상·뮤직비디오)은 음악 담당(이 세션)**.
 - 두 세션이 같은 실행기 파일(`host.ps1`·`host.pl`)을 고치므로 **명령 하나 추가 = 커밋 하나**, 시작 전 작업 중 표에 `video-to-gif/`(범위: local-renderer/) 줄을 올리고, `HOST_VERSION`은 먼저 올린 쪽 다음 번호(+0.10)를 쓴다. 공용 연결 코드는 1단계에서 만든 `pc-renderer-client`(`ai-mastering-studio/src/lib/pcRenderer.ts`)를 함께 쓴다(`detectPcRenderer(need)`·`runPcJob(file, command)`).

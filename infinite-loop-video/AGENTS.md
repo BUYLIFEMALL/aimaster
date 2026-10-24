@@ -102,3 +102,10 @@ tests/loop.test.mjs · access.test.mjs   `npm test` 15개 통과
 - 검수: build(`--webpack`), 배포 `infinite-loop-video-q2ezfnuhj` Ready, DB v1.07, 운영 크롬 소리 없는 4초 MP4 → 0.8MB 성공, 소리 있는 MP4 → 4.5MB(소리 트랙 유지) 성공.
 - 참고: 처음 배포 시도는 작업 중 표의 종료된 보안 세션 줄에 막혔고(그때 DB만 v1.07로 바뀌어 v1.06으로 되돌림), 주인님 승인으로 그 줄에서 이 폴더만 뺀 뒤 배포.
 - 비용: 빌드 1회. 커밋 `2fb360453`.
+
+## 2026-10-24 v1.08 — 「⚡ 내 PC로 빠르게」 (Claude Code 윈도우, 영상 담당 `claude-win-video`)
+- 화면을 열면 `detectPcRenderer("loop")`(공용 `pc-renderer-client` 사본 `src/lib/pcRenderer.ts`)로 내 PC 렌더러 상태 확인 → 내보내기 칸에: 사용 가능하면 「⚡ 내 PC로 빠르게 만들기」(기본 켬, OS·ffmpeg 판 표시) / 실행기가 옛 판이면 업데이트 안내 / 확장만 있으면 실행기·ffmpeg 설치 안내 / 없으면 「설치하면 더 빠름」 안내(링크 `video-to-gif.buylife.xyz/guide`).
+- 켜져 있으면 `runPcJob(file, {type:"loop", mode, start, end, crossfade, repeat, format, duration})`(값은 `normalize` 후 소수 셋째 자리 반올림 — 실행기는 지수 표기 거절). 실패하면 안내 후 브라우저 ffmpeg.wasm으로 자동 전환. 결과 아래 「⚡ 내 PC에서 만들었습니다 / 브라우저에서 만들었습니다 · N초」.
+- 시험 19개(새 2: 실행기 판단 — 1.10은 old·1.20은 ready, 보내는 숫자 형식). build.
+- 운영 크롬(시험 계정): 처음엔 이 PC 실행기가 1.10이라 「업데이트 안내」 표시(판단 정상) → 실행기 1.20으로 바꾼 뒤 「⚡ 내 PC로 빠르게」 표시·기본 켬. 4초 480p: PC 1.7초·브라우저 2.1초, **720p 5초(7.5MB): PC 3.2초·브라우저 13.5초(약 4.2배)**, 결과 같은 크기(4.4MB).
+- 배포 `infinite-loop-video-i96qqi0d6` Ready, DB v1.08. 커밋 `997fec0bb`.
