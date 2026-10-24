@@ -14,12 +14,14 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
+| `realty-listing-alert`·`real_estate_sales` | 미배포 대기 | 전화번호 지우기·봇 상태 배지·실거래 「새 매물 알림 받기」 연계(`3a3e231ab`·`c623becf5`·`154e7386b`) — 다음 배포 때 | [`PENDING_DEPLOYS.md`](../PENDING_DEPLOYS.md) |
 | `realty-listing-alert` | 2단계 남은 시험 | 「기존 부동산 봇 가져오기」·RLS 시험용 계정(주인님 답) | [`IMPROVEMENT_BACKLOG.md`](../../realty-listing-alert/docs/IMPROVEMENT_BACKLOG.md) |
 | `realty-listing-alert` | 정식 공개 | 테스트 정상 확인 뒤 주인님 결정(그때 준비중 배지 떼기·VIP 부여·썸네일) | 주인님 지시 2026-10-24 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-25 | `realty-listing-alert`·`real_estate_sales` | 주인님 채택 개선 3개: 전화번호 지우기(L-1)·봇 연결 상태 배지·실거래 → 감시 대상 연계(내 PC 화면 확인) | 미배포 대기 |
 | 2026-10-25 | `realty-listing-alert` v1.02 | 2단계: 표 3개·RLS·10개 상한, 감시 대상·예약·받는 방법 화면, 기존 부동산 봇 가져오기, 메뉴 밑줄 제거, 확장 1.2.0, DB·ZIP 버전 일치(`check-extension-release` OK) | 운영 배포 1회 |
 | 2026-10-25 | `realty-listing-alert` v1.01 | 1단계 마무리 문서(인수인계 7종, 비교표·카테고리 지도·외부 분석표·DESIGN 현황판·미배포 대기) | — |
 | 2026-10-25 | `realty-listing-alert` v1.01 | 표준 2탭 로그인, 대시보드·매뉴얼 카드 정리, 시험 계정 데스크톱·375px 검수, 확장 바로 연결 확인 | 운영 3회째 배포 |

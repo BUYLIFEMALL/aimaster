@@ -17,6 +17,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `realty-listing-alert` (운영 v1.02) | 중개사 상호 전화번호 지우기 함수+시험(3단계용) · 봇 연결 상태 배지 · 실거래에서 넘어온 단지 이름 미리 채우기 | `3a3e231ab`·`c623becf5` | 2026-10-25 · [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포(v1.03, 3단계 때 함께 가능) |
+| `real_estate_sales` (운영 v1.18) | 실거래 상세 「🔔 이 단지 새 매물 알림 받기」 버튼(매물 알림 감시 대상으로 연결) | `154e7386b` | 2026-10-25 · [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` | `real_estate_sales/docs/IMPROVEMENTS.md` 맨 아래 | 다음 배포 v1.19 — 매물 알림 `c623becf5`와 함께 나가야 안내가 보임 |
 | `shop-detail-page` | 같은 내용(문구 고치기 안내·진행 표시, 공용 사본 오류 문구, 컴퓨터 사양 안내) | `2cc9edc75`·`9cfb40fb1`·`c5fb22b4d` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공급자·공용 키 + G-2 봇/방 선택/당시 설정 + G-3 역할/자료 경계・과거 날짜 보존·번역/요약 검색 생략. 93개 시험·타입·로컬 빌드, 일반 회원 봇 CRUD/선택/삭제된 봇·키 미등록 안내 확인 | `2d56a117b` · `07795803c` · `d7dd0d367` | 2026-10-25 · [역할: docbot-prompt] Codex `codex-win-20261025-docbot-g3` | [G-3 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G3.md) | G-4 후 묶음, 본인 키 실제 AI/방/당시 답변·좁은 화면 검수, 버전 +0.01·DB·프로그램 비교표 일치. 디자인 agy 담당 |
