@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
 import { saveDeliveryAction } from "@/lib/actions/settings";
@@ -120,16 +120,23 @@ function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; realEst
 
 export default function DeliveryClient({ telegram, realEstateBot, initial }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery }) {
   const [value, setValue] = useState<Delivery>(initial);
+  // 빠르게 여러 칸을 연달아 바꿔도 앞의 변경을 잃지 않도록 마지막 값을 ref로 들고 간다(2026-10-25 시험에서 발견).
+  const latest = useRef<Delivery>(initial);
+  const queue = useRef<Promise<unknown>>(Promise.resolve()); // 저장 요청을 차례대로(늦게 끝난 앞 요청이 최신 값을 덮지 않게)
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<Msg>(null);
 
   function update(next: Partial<Delivery>) {
-    const before = value;
-    const merged = { ...value, ...next };
+    const before = latest.current;
+    const merged = { ...latest.current, ...next };
+    latest.current = merged;
     setValue(merged);
     startTransition(async () => {
-      const result = await saveDeliveryAction(merged);
+      const run = queue.current.then(() => saveDeliveryAction(merged));
+      queue.current = run.catch(() => undefined);
+      const result = await run;
       if (result.error) {
+        latest.current = before;
         setValue(before);
         setMsg({ kind: "err", text: result.error });
       } else {

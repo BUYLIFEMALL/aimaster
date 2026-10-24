@@ -1,7 +1,7 @@
 "use client";
 
 // 기준: real_estate_sales/src/components/districts/MonitoringSettings.tsx — 켜기/끄기·주기·시간대, 바꾸면 바로 저장.
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { saveScheduleAction } from "@/lib/actions/settings";
 import { COLLECT_INTERVAL_OPTIONS, isShortInterval } from "@/lib/schedule";
 
@@ -17,17 +17,24 @@ export default function ScheduleClient({ initial }: { initial: Initial }) {
   const [endHour, setEndHour] = useState(initial.endHour ?? 22);
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  // 연달아 바꿀 때 앞의 변경을 잃지 않도록 마지막 값을 ref로 들고 간다(받는 방법 화면과 같은 수정, 2026-10-25).
+  const latest = useRef({ enabled, interval, hoursRestricted, startHour, endHour });
+  const queue = useRef<Promise<unknown>>(Promise.resolve()); // 저장 요청을 차례대로
 
   function save(next: Partial<{ enabled: boolean; interval: number; hoursRestricted: boolean; startHour: number; endHour: number }>) {
-    const merged = { enabled, interval, hoursRestricted, startHour, endHour, ...next };
+    const merged = { ...latest.current, ...next };
+    latest.current = merged;
     startTransition(async () => {
-      const result = await saveScheduleAction({
+      const payload = {
         enabled: merged.enabled,
         intervalMinutes: merged.interval,
         hoursRestricted: merged.hoursRestricted,
         startHour: merged.startHour,
         endHour: merged.endHour,
-      });
+      };
+      const run = queue.current.then(() => saveScheduleAction(payload));
+      queue.current = run.catch(() => undefined);
+      const result = await run;
       setMessage(result.error ? { kind: "err", text: result.error } : { kind: "ok", text: "저장됐어요." });
     });
   }
