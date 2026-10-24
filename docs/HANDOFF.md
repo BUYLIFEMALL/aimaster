@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 플레이리스트 v1.31 영상(MP4) 배경이 그려지지 않던 문제 수정
+- 원인: 배경으로 MP4를 받기만 하고 미리보기·MP4 저장 모두 이미지 배경만 그렸음(처음부터 그리기 코드 없음). 수정: 새 `src/lib/render/video-bg.ts`(쇼츠 원스톱의 2배속 재생 맞추기 방식, 꽉 채우기, 짧으면 반복), 미리보기 반복 재생·재생/일시정지 연동.
+- 확인: 로컬(실제 저장 함수) + 운영 크롬 시험 계정 — 미리보기 영상 재생, 720p MP4에서 영상 반복 장면·스펙트럼·곡 제목. 배포 `playlist-channel-studio-3yaxwo670` Ready·DB v1.31.
+- 비용: 빌드 1회(승인), AI 호출 없음. 다음: 대기 목록 `docs/MUSIC_OWNER_QUEUE_20261024.md`(가사영상 L-1~L-5 승인 전, 무료 음성 질문 3개, P-6).
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — 네이버 부동산 아파트 매물 수집기 Ver1.3 분석·의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\네이버 부동산 아파트 매물 수집기_Ver1.3.exe`(PyInstaller·Python 3.10·tkinter, 실행 안 함). 제작자 서버 패스워드 확인 → 회원이 붙여 넣은 네이버 쿠키·curl로 **비공식 내부 주소**(`new.land.naver.com/api/articles/complex/…`)를 반복 호출해 단지 매물·중개사·입주일 수집 → 엑셀, 1분 자동 반복.
 - 비교: `real_estate_sales`(코드 v1.18)는 공공 실거래만, 현재 매물·엑셀 내보내기·네이버 부동산 바로가기 없음.

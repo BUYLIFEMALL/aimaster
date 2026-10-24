@@ -17,7 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `playlist-channel-studio` (운영 v1.30) | 영상(MP4) 배경을 미리보기·MP4에 그리기(받기만 하고 그리지 않던 문제, 새 `src/lib/render/video-bg.ts`) — 회원 기능 고장이라 승인 나면 바로 배포 권장 | `c40641d57` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `playlist-channel-studio/AGENTS.md` 맨 아래 | v1.31 |
 | `ai-work-workspace` | 슬래시 메뉴 「AI 이미지」 항목 숨김(U3 시험 중 발견) | `768bf908d` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | U4와 함께 배포 → 슬래시 메뉴에 「AI 이미지」 없음 확인 |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
 | `shop-detail-page` | 30일 자동 정리(`cleanup-generated`)가 지운 상품·파일 수를 회원별 `usage_logs` `cleanup_expired`로 기록(공용 `cleanup-usage-log` 사본, 관리자 「30일 자동 정리」 표) — 정리 동작 자체는 그대로, 유예 2026-11-21까지는 지우는 것이 없어 기록도 없음 | `34094c954` | 2026-10-24 · Claude Code(맥미니) `claude-mac-20261023-ecommerce` | `shop-detail-page/docs/IMPROVEMENTS.md` 맨 아래 | 운영 v1.30 → v1.31, 2026-11-21 뒤 첫 정리에서 기록 1줄 확인 |
@@ -55,6 +54,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `playlist-channel-studio` | 영상(MP4) 배경 그리기(`c40641d57`) | v1.31 · 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` — 운영 크롬 확인 |
 | `ai-video-studio` | v1.18 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-6b8vhdn18`) | 갤러리 카드 「⚡ 내 PC로」 GIF·작은 MP4 `a354d4c56`(대기 줄 없음) |
 | `video-to-gif` | v1.24 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 2회 중 1, `video-to-9rhaboikt`) | 내 PC 렌더러 1.30 `normalize`·`compress` 묶음 `0492b0cbb`·`72bfaa11f`(대기 줄 없음), DB `extension_version` v1.24, check-extension-release OK |
 | `ai-video-studio` | v1.17 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 2회 중 2, `ai-video-studio-kdamezmak`) | 영상 합치기 「⚡ 내 PC로 용량 줄이기」·넣는 영상 PC 형식 맞추기 `3b94adc78`(대기 줄 없음) |
