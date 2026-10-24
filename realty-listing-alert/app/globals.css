@@ -601,3 +601,46 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-import { margin-bottom: 14px; }
 .ra-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .ra-actions a.secondary { display: inline-flex; align-items: center; text-decoration: none; }
+
+/* ── 좌측 메뉴 3D 버튼 (2026-10-25 주인님 지시 「3d버튼 형태로」) — 메뉴(.nav) 안에서만 적용, 매뉴얼 단계 번호는 그대로 ── */
+.nav { gap: 10px; }
+.nav-flow { gap: 10px; }
+.nav .nav-overview, .nav .nav-utility, .nav .nav-link {
+  border: 1px solid #dfe4ec;
+  background: linear-gradient(180deg, #ffffff 0%, #f3f5f8 100%);
+  color: #334155;
+  box-shadow: 0 4px 0 #d3d9e2, 0 6px 14px rgba(15, 23, 42, 0.07);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.15s ease;
+}
+.nav .nav-link { padding: 10px 12px; }
+.nav .nav-overview:hover, .nav .nav-utility:hover, .nav .nav-link:hover {
+  border-color: #bfe6cf;
+  background: linear-gradient(180deg, #ffffff 0%, #eefaf3 100%);
+  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #c6e5d3, 0 9px 18px rgba(0, 155, 77, 0.12);
+}
+.nav .nav-overview:active, .nav .nav-utility:active, .nav .nav-link:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #d3d9e2, 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+.nav .nav-overview.active, .nav .nav-utility.active, .nav .nav-link.active {
+  border-color: #008a44;
+  background: linear-gradient(180deg, #08c963 0%, #009b4d 100%);
+  color: #fff;
+  box-shadow: 0 4px 0 #007338, 0 8px 18px rgba(0, 155, 77, 0.28);
+}
+.nav .nav-link.active small { color: rgba(255, 255, 255, 0.88); }
+.nav .nav-number {
+  background: linear-gradient(180deg, #ffffff 0%, #e6eaf0 100%);
+  color: #475063;
+  box-shadow: inset 0 -2px 0 #cfd6e0, 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+.nav .nav-link.active .nav-number {
+  background: #fff;
+  color: var(--accent);
+  box-shadow: inset 0 -2px 0 #cfe9da, 0 2px 4px rgba(0, 80, 40, 0.25);
+}
+.nav .nav-download { border-color: #bfe6cf; background: linear-gradient(180deg, #f4fcf7 0%, #e3f6eb 100%); color: var(--accent); box-shadow: 0 4px 0 #bcdfca, 0 6px 14px rgba(0, 155, 77, 0.1); }
+.sidebar-logout { box-shadow: 0 3px 0 #d3d9e2; transition: transform 0.08s ease, box-shadow 0.08s ease; }
+.sidebar-logout:active { transform: translateY(2px); box-shadow: 0 1px 0 #d3d9e2; }
