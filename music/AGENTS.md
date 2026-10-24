@@ -430,3 +430,8 @@ POST 콜백을 보낸다. 이 라우트는:
 - `app/(dashboard)/layout.tsx` `<main>`에 `overflow-x-clip`. 배포 `music-4n6o3dlzo` Ready·운영 주소 연결, DB·프로그램 비교표 v1.45.
 - 검수(크롬 시험 회원, 390px iframe): 수정 전 운영에서는 `window.scrollTo(200,0)` 뒤 창이 114px 밀렸고(`body { overflow-x: hidden }`이 있어도), 수정 뒤 `scrollX` 0·문서 폭 382px(화면 387px). 데스크톱 폭에서 기획 목록 아래 고정 막대(`sticky bottom-4`) 정상(창 아래 16px).
 - (정정) 휴대폰 폭 선택 막대 「안 붙음」은 스크롤 없이 잰 오판 — 목록까지 스크롤하면 화면 아래에 붙음(정상). 상세·다음 첫 단계: `docs/IMPROVEMENTS.md` 맨 아래.
+
+## 2026-10-24 v1.46 — 곡 변주마다 「⚡ 내 PC로 저장」 (Claude Code 윈도우 · 음악 담당 `claude-win-20261024-music`)
+- 로드맵 5단계(`../docs/analysis-pc-renderer-20261024/ROADMAP.md`). 곡 카드(`TrackCard.tsx`) 변주 재생기 아래 「내 PC로 저장(MP3·FLAC)」(`components/plannings/PcSaveButton.tsx`, AI 음악 스튜디오와 같은 동작·주황 색) — 서명 주소 곡을 브라우저가 받아 회원 PC 실행기로 MP3·AAC·FLAC·WAV24 + -14 LUFS 맞춤. 곡 파일을 못 받으면(만료된 Suno 임시 주소 등) 「먼저 저장소에 저장」 안내.
+- 공용 기준 코드 사본: `lib/pcRenderer.ts`·`lib/pcAudio.ts`(기준 `ai-mastering-studio`). 직접 고치지 말 것.
+- 검수: 시험 58·tsc·build · 배포 `music-8xq1thby3` Ready·DB v1.46 · 크롬 시험 계정 「빗속의 다짐」 단추 2개, 첫 곡(207초) → MP3(ID3, 8.3MB), 음량 -13.3 → -14.0 LUFS·최대 -1.4 dBTP. 커밋 `3e625741c`. 플랜 `../ai-music-studio/docs/PLAN_20261024_PC_SAVE.md`.

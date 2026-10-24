@@ -108,3 +108,8 @@
 - **발견한 문제**: 공급자 색 점이 투명(계산값 `rgba(0,0,0,0)`) — `tailwind.config.ts` `content`에 `./lib/**`가 없어 `lib/providerStyle.ts`에만 있는 색 클래스가 만들어지지 않았음(v1.11 리뉴얼부터, 곡 만들기 모델 색 점·띠도 같은 영향). `content`에 `./lib/**/*.{js,ts,jsx,tsx}` 추가 → 로컬 빌드 CSS에 7종 생성 확인. **미배포(다음 배포 v1.13)**.
 - ✅ 주인님 직접 확인(2026-10-23): v1.12 미니 플레이어 반복·무작위 버튼 동작 정상(「동작 되는건 확인」).
 - ✅ v1.13 배포(2026-10-23) `ai-music-studio-pwose5nlf` Ready·DB v1.13 — 공급자 색 수정 `39f7471d3` 내보냄. 크롬 계산값: fal rgb(232,121,249)·Lyria rgb(56,189,248)·Suno rgb(251,191,36)·ElevenLabs rgb(228,228,231)·Replicate rgb(52,211,153)(예전 모두 투명). 비용: 빌드 1회.
+
+## 2026-10-24 v1.14 — 곡마다 「⚡ 내 PC로 저장」 (Claude Code 윈도우 · 음악 담당 `claude-win-20261024-music`)
+- 로드맵 5단계(`../docs/analysis-pc-renderer-20261024/ROADMAP.md`). 곡 카드(`GenerationCard`) 내려받기 옆 「내 PC로 저장(MP3·FLAC)」(`components/studio/PcSaveButton.tsx`) → 펼치면 실행기 확인 → MP3 320k·AAC·FLAC·WAV24 + 스트리밍 기준 음량(-14 LUFS·-1 dBTP) → 곡 파일(1시간 서명 주소)을 브라우저가 받아 회원 PC 실행기로 변환 → 파일 내려받기 + 음량 전·후. 확장·실행기 없으면 설치 안내.
+- 공용 기준 코드 사본: `lib/pcRenderer.ts`(`pc-renderer-client`)·`lib/pcAudio.ts`(`pc-audio-command`, 기준 `ai-mastering-studio`). 직접 고치지 말 것.
+- 검수: 시험 53·tsc·build · 배포 `ai-music-studio-aif3nqs2q` Ready·DB v1.14 · 크롬 시험 계정 보관함 곡 16개에 단추, 「Lyria RealTime 시험」(30초) → MP3(ID3, 1.2MB), 음량 -16.2 → -14.0 LUFS·최대 -1.1 dBTP. 커밋 `3e625741c`. 플랜 `docs/PLAN_20261024_PC_SAVE.md`.

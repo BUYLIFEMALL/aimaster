@@ -31,7 +31,7 @@
 | 2 | 각도 B(`loop-mux`) → 플레이리스트 「빠른 긴 영상」, LP 턴테이블 「한 바퀴 그리고 반복」 | `video-to-gif` · `playlist-channel-studio` · `vinyl-lp-studio` | 대기 |
 | 3 | 각도 C(`slideshow`) → 음악 곡 + 이미지 비주얼라이저(AI 음악 스튜디오), 카드뉴스 → 릴스 | `video-to-gif` · `ai-music-studio` · `insta_auto_poster` | 대기(다른 담당 프로그램은 그 세션과 조율) |
 | 4 | 각도 D(`trim`·`concat`·`compress`) → 뮤직비디오 쇼츠 하이라이트, AI 영상 스튜디오 잇기 | `video-to-gif` · `music-video-studio` · `ai-video-studio` | 대기 |
-| 5 | 각도 A 넓히기 → AI 음악 스튜디오·SUNO 곡 형식 변환, 원스톱 내레이션 음량 | 각 프로그램 | 대기 |
+| 5 | 각도 A 넓히기 → AI 음악 스튜디오·SUNO 곡 형식 변환, 원스톱 내레이션 음량 | 각 프로그램 | ✅ **AI 음악 스튜디오 v1.14·SUNO v1.46 완료(2026-10-24, 크롬 실물 확인)** — 원스톱 내레이션은 영상 담당 쪽 남음 |
 | 6 | 각도 E(`frames`) → 가사영상 길이 제한 해제 시제품, 효과 측정 후 다른 프로그램 | `lyric-video-studio` 등 | 검토 |
 
 ## 3-0. 영상 담당 진행 (2026-10-24, `claude-win-video`)
