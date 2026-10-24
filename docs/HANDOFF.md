@@ -1,6 +1,7 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — 새 지침: 신규·외부 프로그램 분석·개발 플랜 지침 (문서만)
+- **세션 전체 인수인계(도톨이 분석 → 블로그 담당 인계 → 새 지침, 결정 대기·다음 할 일):** [`HANDOFF_20261024_ANALYSIS_PLANNING_SESSION.md`](HANDOFF_20261024_ANALYSIS_PLANNING_SESSION.md)
 - 주인님 지시로 [`docs/PROGRAM_ANALYSIS_PLANNING_GUIDE.md`](PROGRAM_ANALYSIS_PLANNING_GUIDE.md) 작성 — ① 권리·원본 확인 → ② 정적 분석(종류별 도구·확인된 함정) → ③ 우리 프로그램 비교(겹침·새 기능, 코드 검색 증거) → ④ 배치 → ⑤ 개발 플랜 필수 항목 → ⑥ 담당 세션 인계(받는 쪽·승인 상태·다음 첫 단계, 비용 승인은 구현 담당) → ⑦ 공용 기록 점검표. 기존 지침은 대체하지 않고 연결만. 기준 사례: 도톨이 v1.3.
 - 함께: `ANALYSIS_TOOLKIT.md`(innounp 추가·innoextract 6.7 실패·pyinstxtractor 버전 주의), `guidelines/DEVELOPMENT.md`·`guidelines/README.md` 연결, `ERROR_LESSONS.md` 항목. 역할: 이 세션 줄은 새 프로그램 분석·플랜 담당(2026-10-24 주인님 지정). 비용 없음.
 
