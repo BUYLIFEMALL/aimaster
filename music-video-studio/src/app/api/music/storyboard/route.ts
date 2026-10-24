@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authorize, requireGeminiKey, rec, errorJson } from "@/lib/apiGuard";
 import { callLlm, LlmError } from "@/lib/ai/llm";
 import { buildStoryboardPrompt, parseStoryboard } from "@/lib/music/prompts";
+import { sanitizeStyleProfile } from "@/lib/music/project";
 import { ART_STYLES, SCENE_COUNTS, TEXT_MODEL, type ArtStyleId } from "@/lib/music/presets";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,8 @@ export async function POST(request: Request) {
       sceneCount,
       extra: typeof body.extra === "string" ? body.extra : "",
       artStyle,
-      hasReferenceImages: false,
+      hasReferenceImages: body.hasReferenceImages === true,
+      styleProfile: sanitizeStyleProfile(body.styleProfile),
     });
     const text = await callLlm({ provider: "gemini", model: TEXT_MODEL, apiKey: key.apiKey, system: prompt.system, user: prompt.user, json: true });
     const parsed = parseStoryboard(text, sceneCount);

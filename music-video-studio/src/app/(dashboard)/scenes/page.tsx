@@ -38,6 +38,8 @@ function saveUrl(url: string, name: string) {
 export default function ScenesPage() {
   const { project, update, media, setMedia, references } = useStudio();
   const { scenes, video, artStyle } = project;
+  // v1.26 화풍이 「참고 이미지 화풍」일 때만 분석 결과를 함께 보낸다
+  const styleProfile = artStyle === "reference" ? project.styleProfile : null;
   const [confirm, setConfirm] = useState<string | null>(null); // 장면 id 또는 "all"
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const [zipping, setZipping] = useState(false);
@@ -76,7 +78,8 @@ export default function ScenesPage() {
   const perSceneCost = (hasImage: boolean) => estimateCost(video.model, effectiveLength(video.length, video.loop, hasImage));
   const modelInfo = VEO_MODELS.find((m) => m.value === video.model)!;
 
-  const generateImage = async (scene: Scene) => {
+  /** 장면 이미지 1장을 만들고 성공하면 그 이미지 주소를 돌려준다(v1.26 영상 전에 먼저 만들 때 사용) */
+  const generateImage = async (scene: Scene): Promise<string | undefined> => {
     setMedia(scene.id, { imageBusy: true, error: undefined });
     try {
       const res = await fetch("/api/music/image", {
@@ -86,6 +89,7 @@ export default function ScenesPage() {
           prompt: scene.prompt,
           artStyle,
           ratio: video.ratio,
+          styleProfile,
           references: references.map((r) => ({ mimeType: "image/jpeg", data: r.dataUrl.split(",")[1] })),
         }),
       });
@@ -96,19 +100,29 @@ export default function ScenesPage() {
         return;
       }
       setMedia(scene.id, { imageBusy: false, imageUrl: data.image });
+      return data.image as string;
     } catch {
       setMedia(scene.id, { imageBusy: false, error: "네트워크 오류로 이미지를 만들지 못했습니다." });
     }
   };
 
   const generateVideo = async (scene: Scene) => {
-    const image = mediaRef.current[scene.id]?.imageUrl;
+    let image = mediaRef.current[scene.id]?.imageUrl;
+    // v1.26 참고 이미지가 있는데 장면 이미지가 없으면, 글만으로 만들면 화풍이 사라지므로(실사로 나옴) 그 화풍으로 장면 이미지를 먼저 만든다
+    if (!image && references.length > 0) {
+      setMedia(scene.id, { videoBusy: true, videoNote: "참고 이미지 화풍을 지키려고 장면 이미지를 먼저 만드는 중…", error: undefined });
+      image = await generateImage(scene);
+      if (!image) {
+        setMedia(scene.id, { videoBusy: false, videoNote: undefined });
+        return;
+      }
+    }
     setMedia(scene.id, { videoBusy: true, videoNote: "영상 생성을 시작하는 중…", error: undefined });
     try {
       const start = await fetch("/api/music/video/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: scene.prompt, model: video.model, length: video.length, loop: video.loop, ratio: video.ratio, artStyle, image, camera: scene.camera ?? "auto" }),
+        body: JSON.stringify({ prompt: scene.prompt, model: video.model, length: video.length, loop: video.loop, ratio: video.ratio, artStyle, styleProfile, image, camera: scene.camera ?? "auto" }),
       });
       // 영상(MP4)이 응답되면 완성 — 시작 때 바로 올 수도, 상태 확인 중에 올 수도 있다
       const showVideo = async (res: Response) => {
@@ -146,7 +160,7 @@ export default function ScenesPage() {
 
   const generateAllImages = async () => {
     setError(null);
-    await runPool(scenes.filter((s) => !mediaRef.current[s.id]?.imageUrl), 2, generateImage);
+    await runPool(scenes.filter((s) => !mediaRef.current[s.id]?.imageUrl), 2, async (s) => { await generateImage(s); });
   };
 
   const generateAllVideos = async () => {
@@ -282,6 +296,11 @@ export default function ScenesPage() {
             영상 1개당 약 ${perSceneCost(true).usd} (약 {perSceneCost(true).krw.toLocaleString()}원), 전체 {scenes.length}개 장면 일괄 렌더링 시 약 ${totalCost.usd} (약 {totalCost.krw.toLocaleString()}원).
             회원님 본인 Gemini API 계정으로만 청구되며, 이미지만 생성할 경우 무료/저비용으로 기획안을 확인할 수 있습니다.
           </p>
+          {references.length > 0 && scenes.length - imageCount > 0 && (
+            <p className="mt-1 leading-relaxed text-amber-200/90">
+              🎨 참고 이미지 화풍을 지키려고, 장면 이미지가 없는 장면({scenes.length - imageCount}개)은 영상을 만들기 전에 그 화풍으로 이미지를 먼저 만듭니다(장면당 이미지 1장 비용 추가).
+            </p>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 pt-1">

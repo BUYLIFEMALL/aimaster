@@ -1,10 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildLyricsPrompt, parseLyrics, buildStoryboardPrompt, parseStoryboard, buildImagePrompt, buildVideoPrompt, extractJson } from "../src/lib/music/prompts.ts";
+import { buildLyricsPrompt, parseLyrics, buildStoryboardPrompt, parseStoryboard, buildImagePrompt, buildVideoPrompt, extractJson, buildStyleAnalysisPrompt, parseStyleProfile } from "../src/lib/music/prompts.ts";
 import { effectiveLength, estimateCost, isVeoModel, isVideoLength } from "../src/lib/music/veo.ts";
 import { findVideoModel } from "../src/lib/video/videoModels.ts";
 import { submitVideoJob, checkVideoJob, VideoGenError } from "../src/lib/video/videoProviders.ts";
-import { defaultProject, sanitizeProject } from "../src/lib/music/project.ts";
+import { defaultProject, sanitizeProject, sanitizeStyleProfile } from "../src/lib/music/project.ts";
 import { VEO_MODELS, GENRES } from "../src/lib/music/presets.ts";
 
 test("가사 프롬프트: 연도 지침·데이터 격리·입력 정리", () => {
@@ -310,4 +310,56 @@ test("v1.25 곡 파형 값·장면 전환 시각", async () => {
   assert.deepEqual(cutTimes([5]), []);
   assert.deepEqual(cutTimes([]), []);
   assert.deepEqual(cutTimes([1.234, 2]), [1.23]);
+});
+
+// v1.26 참고 이미지 화풍 분석 → 스토리보드·장면 이미지·영상 프롬프트 반영
+const DRAWN = { summary: "흑백 선화 인물과 컬러 수채 배경", prompt: "black ink line art figures over a colored watercolor autumn background, not photorealistic", photographic: false, characters: "a young woman with long straight hair" };
+
+test("화풍 분석 프롬프트·응답 정리", () => {
+  const p = buildStyleAnalysisPrompt(2, 2026);
+  assert.match(p.system, /photographic/);
+  assert.match(p.user, /2장/);
+  const prof = parseStyleProfile('{"photographic":false,"prompt":"ink <b>line</b> art","summary":"선화","characters":""}');
+  assert.equal(prof.photographic, false);
+  assert.ok(!prof.prompt.includes("<"), "꺾쇠 제거");
+  assert.equal(parseStyleProfile('{"prompt":""}'), null);
+  assert.equal(sanitizeStyleProfile({ prompt: "  " }), null);
+  assert.equal(sanitizeStyleProfile({ prompt: "x", photographic: "yes" }).photographic, false, "참일 때만 사진");
+});
+
+test("참고 이미지 화풍(그림): 스토리보드는 사진 표현 금지·인물 외형 반영", () => {
+  const req = { title: "가을", sunoStyle: "Ballad", lyrics: "[Verse]\n가사", sceneCount: 2, extra: "", artStyle: "reference", hasReferenceImages: false, styleProfile: DRAWN };
+  const p = buildStoryboardPrompt(req, 2026);
+  assert.match(p.system, /An illustration in the reference art style/);
+  assert.match(p.system, /photorealistic, cinematic film still/, "금지 목록 안내");
+  assert.match(p.system, /black ink line art/);
+  assert.match(p.system, /long straight hair/);
+  assert.ok(!p.system.includes("한국인(동아시아인)"), "참고 인물 외형이 있으면 한국인 고정 문구 대신 사용");
+  assert.match(p.user, /참고 이미지: 있음/);
+  // 다른 화풍을 고르면 분석 결과는 쓰지 않는다
+  const cine = buildStoryboardPrompt({ ...req, artStyle: "cinematic" }, 2026);
+  assert.ok(!cine.system.includes("black ink line art"));
+});
+
+test("참고 이미지 화풍(그림): 장면 이미지·영상 프롬프트는 화풍이 먼저, 실사 금지, 시네마틱 문구 없음", () => {
+  const img = buildImagePrompt({ prompt: "a girl on a bench" }, "reference", "16:9", true, DRAWN);
+  assert.ok(img.indexOf("ART STYLE") < img.indexOf("Scene:"), "화풍 지시가 장면보다 앞");
+  assert.match(img, /not photorealistic/);
+  assert.ok(!/cinematic film still|anamorphic/.test(img));
+  const vid = buildVideoPrompt({ prompt: "a girl on a bench" }, "reference", false, "auto", DRAWN);
+  assert.ok(vid.startsWith("Animate in this exact art style"));
+  assert.match(vid, /not live action/);
+  assert.ok(!/Visual style:/.test(vid));
+  // 사진 화풍이면 실사 금지 문구를 넣지 않는다
+  const photo = buildVideoPrompt({ prompt: "x" }, "reference", false, "auto", { ...DRAWN, photographic: true });
+  assert.ok(!/not live action/.test(photo));
+  // 분석 결과 없이 참고 이미지 화풍이면 기본 지시로 참고 이미지를 따르게 한다
+  assert.match(buildImagePrompt({ prompt: "x" }, "reference", "16:9", true, null), /same medium, linework/);
+});
+
+test("화풍 분석 결과는 프로젝트에 저장·복원된다", () => {
+  assert.equal(defaultProject().styleProfile, null);
+  const restored = sanitizeProject({ ...defaultProject(), artStyle: "reference", styleProfile: DRAWN });
+  assert.equal(restored.artStyle, "reference");
+  assert.equal(restored.styleProfile.prompt, DRAWN.prompt);
 });

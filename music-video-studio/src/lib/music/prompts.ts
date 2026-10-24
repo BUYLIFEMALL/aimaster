@@ -1,7 +1,7 @@
 // 가사·스토리보드·이미지 프롬프트와 AI 응답 파서(순수 함수). 연도는 매번 현재 연도를 넣는다(루트 CLAUDE.md 핵심 원칙 8).
 // 사용자 입력은 <data> 태그 안의 "데이터"로만 취급하게 하고(지시문 무시), 인물은 기본적으로 한국인으로 묘사한다(핵심 원칙 3).
 import { ART_STYLES, CAMERA_MOTIONS, type ArtStyleId, type CameraMotionId } from "./presets";
-import type { Scene } from "./types";
+import type { Scene, StyleProfile } from "./types";
 
 const clean = (text: string, max: number): string => text.replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
 const cleanMultiline = (text: string, max: number): string => text.replace(/[<>]/g, "").replace(/\r/g, "").trim().slice(0, max);
@@ -53,6 +53,40 @@ export function parseLyrics(text: string): { title: string; sunoStyle: string; l
   return title && lyrics ? { title, sunoStyle, lyrics } : null;
 }
 
+// ── v1.26 참고 이미지 화풍 분석(2단계 참고 이미지 → 화풍 설명)
+export function buildStyleAnalysisPrompt(imageCount: number, year = new Date().getFullYear()): { system: string; user: string } {
+  const system = [
+    baseSystem(year, "그림체·화풍 분석 전문가(아트 디렉터)"),
+    "첨부한 참고 이미지들의 시각적 화풍을 분석해, 이미지·영상 생성 AI가 같은 화풍을 그대로 재현할 수 있게 설명합니다. 내용(무엇이 그려졌는지)보다 그리는 방식을 설명하세요.",
+    "규칙:",
+    "- photographic: 참고 이미지가 사진·실사 촬영물이면 true, 손그림·일러스트·만화·회화·3D 렌더 같은 그림이면 false.",
+    "- prompt: 영어 한 덩어리(60~110단어). 매체(예: ink line art, watercolor, cel-shaded anime), 선(굵기·질감·윤곽선 유무), 채색 방식(흑백 여부, 부분 채색, 평면/그라데이션), 명암, 질감(종이·붓 자국·스크린톤), 색감 팔레트, 배경 처리 방식, 사람과 배경의 표현 차이가 있으면 그 차이까지 구체적으로 씁니다. 그림이면 'not photorealistic'을 포함합니다. 특정 작가·작품·브랜드 이름은 쓰지 마세요.",
+    "- summary: 한국어 2~3문장 요약(회원이 읽는 설명).",
+    "- characters: 인물이 있으면 외형 특징(나이대·머리 모양·옷차림·체형)을 영어 한 문장으로, 없으면 빈 문자열.",
+    '- 출력 형식: {"photographic":false,"prompt":"...","summary":"...","characters":"..."}',
+  ].join("\n");
+  const user = `참고 이미지 ${imageCount}장의 화풍을 분석해 JSON으로 답하세요.`;
+  return { system, user };
+}
+
+export function parseStyleProfile(text: string): StyleProfile | null {
+  const data = extractJson(text) as { photographic?: unknown; prompt?: unknown; summary?: unknown; characters?: unknown } | null;
+  if (!data || typeof data.prompt !== "string" || !data.prompt.trim()) return null;
+  return {
+    photographic: data.photographic === true,
+    prompt: clean(data.prompt, 600),
+    summary: typeof data.summary === "string" ? clean(data.summary, 300) : "",
+    characters: typeof data.characters === "string" ? clean(data.characters, 300) : "",
+  };
+}
+
+/** 이 화풍이 「참고 이미지 화풍(분석 결과)」으로 쓰이는가 — 분석 결과가 있어야 참 */
+function referenceStyle(artStyle: ArtStyleId, profile?: StyleProfile | null): StyleProfile | null {
+  return artStyle === "reference" && profile?.prompt ? profile : null;
+}
+
+const NOT_PHOTO = "It must stay a hand-made illustration in that exact style: not a photograph, not photorealistic, not live action, no camera-lens or film look.";
+
 // ── 2단계: 스토리보드
 export interface StoryboardRequest {
   title: string;
@@ -62,23 +96,33 @@ export interface StoryboardRequest {
   extra: string;
   artStyle: ArtStyleId;
   hasReferenceImages: boolean;
+  /** v1.26 화풍이 「참고 이미지 화풍」일 때 분석 결과 */
+  styleProfile?: StyleProfile | null;
 }
 
 export function buildStoryboardPrompt(req: StoryboardRequest, year = new Date().getFullYear()): { system: string; user: string } {
   const n = req.sceneCount;
   const style = ART_STYLES.find((s) => s.value === req.artStyle) ?? ART_STYLES[0];
+  const ref = referenceStyle(req.artStyle, req.styleProfile);
+  const drawn = ref ? !ref.photographic : false;
   const system = [
     baseSystem(year, "뮤직비디오 감독 겸 스토리보드 작가"),
     "규칙:",
     `- 가사 전체의 흐름을 ${n}개 장면으로 나눕니다. 장면은 가사 순서를 따르고, 각 장면의 lyric에는 그 장면에 해당하는 가사 1~2줄을 그대로 옮깁니다(구조 태그 포함 가능).`,
-    "- prompt: 그 장면의 영문 촬영 묘사 2~3문장. 카메라 샷·움직임·피사체·배경·빛·분위기를 구체적으로 쓰고, 글자·자막·로고·워터마크는 넣지 마세요.",
-    "- 인물이 나오면 별다른 지시가 없는 한 한국인(동아시아인) 외모로 묘사하세요. 특정 실존 인물·유명인은 묘사하지 마세요.",
-    `- 모든 장면은 하나의 이야기처럼 이어지고, 같은 화풍(${style.label})을 유지합니다.`,
+    drawn
+      ? "- prompt: 그 장면의 영문 묘사 2~3문장. 이 뮤직비디오는 사진이 아니라 그림(일러스트)입니다. 'An illustration in the reference art style:'로 시작하고, 구도(클로즈업·와이드 등)·피사체·배경·빛·분위기를 그 그림 매체의 말로 쓰세요. 렌즈·필름·사진·실사 표현(photorealistic, cinematic film still, 35mm, anamorphic lens, bokeh, depth of field 등)은 쓰지 마세요. 글자·자막·로고·워터마크는 넣지 마세요."
+      : "- prompt: 그 장면의 영문 촬영 묘사 2~3문장. 카메라 샷·움직임·피사체·배경·빛·분위기를 구체적으로 쓰고, 글자·자막·로고·워터마크는 넣지 마세요.",
+    ref?.characters
+      ? `- 인물이 나오면 참고 이미지 인물의 외형을 따르세요: ${ref.characters} 특정 실존 인물·유명인은 묘사하지 마세요.`
+      : "- 인물이 나오면 별다른 지시가 없는 한 한국인(동아시아인) 외모로 묘사하세요. 특정 실존 인물·유명인은 묘사하지 마세요.",
+    ref
+      ? `- 모든 장면은 하나의 이야기처럼 이어지고, 참고 이미지에서 분석한 같은 화풍을 유지합니다: ${ref.prompt}`
+      : `- 모든 장면은 하나의 이야기처럼 이어지고, 같은 화풍(${style.label})을 유지합니다.`,
     "- mood: 이 곡 전체의 분위기를 한국어 한 문장으로 요약.",
     '- 출력 형식: {"mood":"...","scenes":[{"lyric":"...","prompt":"..."}, ...]} 이며 scenes의 길이는 정확히 ' + n + "입니다.",
   ].join("\n");
   const user = [
-    `<data>제목: ${clean(req.title, 60)}\n음악 스타일: ${clean(req.sunoStyle, 200)}\n가사:\n${cleanMultiline(req.lyrics, 3000)}\n추가 묘사: ${clean(req.extra, 300) || "없음"}${req.hasReferenceImages ? "\n참고 이미지: 있음(분위기·인물 외형을 참고)" : ""}</data>`,
+    `<data>제목: ${clean(req.title, 60)}\n음악 스타일: ${clean(req.sunoStyle, 200)}\n가사:\n${cleanMultiline(req.lyrics, 3000)}\n추가 묘사: ${clean(req.extra, 300) || "없음"}${req.hasReferenceImages || ref ? "\n참고 이미지: 있음(분위기·인물 외형을 참고)" : ""}</data>`,
     `위 곡의 뮤직비디오 스토리보드를 ${n}개 장면 JSON으로 작성하세요.`,
   ].join("\n");
   return { system, user };
@@ -96,8 +140,24 @@ export function parseStoryboard(text: string, sceneCount: number): { mood: strin
 }
 
 // ── 3단계: 이미지·영상 프롬프트
-export function buildImagePrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyleId, ratio: string, hasReferenceImages: boolean): string {
+export function buildImagePrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyleId, ratio: string, hasReferenceImages: boolean, styleProfile?: StyleProfile | null): string {
   const style = ART_STYLES.find((s) => s.value === artStyle) ?? ART_STYLES[0];
+  // v1.26 참고 이미지 화풍 — 화풍 지시를 장면 묘사보다 앞에 두고, 그림이면 실사로 바꾸지 않게 한다
+  const ref = referenceStyle(artStyle, styleProfile);
+  if (ref || artStyle === "reference") {
+    return [
+      `Music video keyframe, ${ratio} composition.`,
+      hasReferenceImages ? "ART STYLE (highest priority): reproduce the exact art style of the provided reference images - the same medium, linework, coloring, shading, texture and color palette." : "",
+      `Art style: ${ref ? ref.prompt : style.prompt}.`,
+      ref && !ref.photographic ? NOT_PHOTO : "",
+      `Scene: ${scene.prompt}`,
+      ref?.characters ? `People look like this: ${ref.characters}` : "If people appear, depict them as Korean (East Asian) unless the scene says otherwise.",
+      hasReferenceImages ? "Use the reference images for the art style and the people's appearance; do not copy their exact composition." : "",
+      "No text, no subtitles, no logos, no watermark.",
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
   return [
     `Music video keyframe, ${ratio} composition.`,
     scene.prompt,
@@ -110,13 +170,17 @@ export function buildImagePrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyl
     .join(" ");
 }
 
-export function buildVideoPrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyleId, loop: boolean, camera: CameraMotionId = "auto"): string {
+export function buildVideoPrompt(scene: Pick<Scene, "prompt">, artStyle: ArtStyleId, loop: boolean, camera: CameraMotionId = "auto", styleProfile?: StyleProfile | null): string {
   const style = ART_STYLES.find((s) => s.value === artStyle) ?? ART_STYLES[0];
+  const ref = referenceStyle(artStyle, styleProfile);
   // v1.21 장면별 카메라 움직임 — 고르면 고정 문구 대신 그 지시를 넣고, 장면 묘사의 카메라 표현보다 우선하게 한다
   const motion = CAMERA_MOTIONS.find((c) => c.value === camera && c.value !== "auto");
   return [
+    // v1.26 참고 이미지 화풍이면 화풍 지시를 맨 앞에 두고 그림을 실사 영상으로 바꾸지 않게 한다
+    ref ? `Animate in this exact art style: ${ref.prompt}.` : "",
+    ref && !ref.photographic ? `${NOT_PHOTO} Keep the starting image's drawing style in every frame.` : "",
     scene.prompt,
-    `Visual style: ${style.prompt}.`,
+    ref ? "" : `Visual style: ${style.prompt}.`,
     motion
       ? `Camera movement: ${motion.prompt} Follow this camera movement even if the scene description mentions a different one. No text, no subtitles, no logos.`
       : "Smooth, gentle camera motion suited to a music video. No text, no subtitles, no logos.",

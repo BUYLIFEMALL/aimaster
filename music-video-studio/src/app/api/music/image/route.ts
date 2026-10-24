@@ -3,22 +3,12 @@ import { authorize, requireGeminiKey, rec, errorJson } from "@/lib/apiGuard";
 import { generateSceneImage } from "@/lib/ai/gemini";
 import { buildImagePrompt } from "@/lib/music/prompts";
 import { ART_STYLES, ASPECT_RATIOS, type ArtStyleId, type AspectRatioId } from "@/lib/music/presets";
-import type { VeoImage } from "@/lib/music/veo";
+import { cleanRefs } from "@/lib/music/refs";
+import { sanitizeStyleProfile } from "@/lib/music/project";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 120;
-
-const MAX_REF_BASE64 = 1_400_000;
-
-function cleanRefs(v: unknown): VeoImage[] {
-  if (!Array.isArray(v)) return [];
-  return v
-    .slice(0, 3)
-    .map((r) => rec(r))
-    .filter((r) => (r.mimeType === "image/jpeg" || r.mimeType === "image/png") && typeof r.data === "string" && r.data.length < MAX_REF_BASE64 && /^[A-Za-z0-9+/=]+$/.test(r.data))
-    .map((r) => ({ mimeType: r.mimeType as string, data: r.data as string }));
-}
 
 /** 장면 키프레임 이미지 1장(회원 본인 Gemini 키, 유료 호출 1건). */
 export async function POST(request: Request) {
@@ -34,7 +24,7 @@ export async function POST(request: Request) {
     const key = await requireGeminiKey(gate.auth.user.id);
     if (!key.ok) return key.response;
 
-    const prompt = buildImagePrompt({ prompt: scenePrompt }, artStyle, ratio, references.length > 0);
+    const prompt = buildImagePrompt({ prompt: scenePrompt }, artStyle, ratio, references.length > 0, sanitizeStyleProfile(body.styleProfile));
     const image = await generateSceneImage({ apiKey: key.apiKey, prompt, ratio, references });
     return NextResponse.json({ image: `data:${image.mimeType};base64,${image.data}` });
   } catch (err) {

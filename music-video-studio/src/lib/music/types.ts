@@ -10,6 +10,18 @@ export interface Scene {
   camera?: CameraMotionId;
 }
 
+/** v1.26 참고 이미지에서 분석한 화풍(화풍 「참고 이미지 화풍」일 때 스토리보드·장면 이미지·영상 프롬프트에 넣는다) */
+export interface StyleProfile {
+  /** 화면에 보여 줄 한국어 요약 */
+  summary: string;
+  /** 프롬프트에 넣는 영문 화풍 지시(매체·선·채색·명암·질감·색감) — 회원이 고칠 수 있다 */
+  prompt: string;
+  /** 참고 이미지가 사진(실사)인가 — false면 그림이므로 실사로 바꾸지 않게 지시한다 */
+  photographic: boolean;
+  /** 인물 외형 특징(영문, 없으면 빈 문자열) */
+  characters: string;
+}
+
 export interface VideoSettings {
   model: VeoModelId;
   length: VideoLength;
@@ -40,6 +52,8 @@ export interface MusicProject {
   sceneCount: SceneCount;
   extra: string;
   artStyle: ArtStyleId;
+  /** v1.26 참고 이미지 화풍 분석 결과(없으면 null) */
+  styleProfile: StyleProfile | null;
   mood: string;
   scenes: Scene[];
   video: VideoSettings;

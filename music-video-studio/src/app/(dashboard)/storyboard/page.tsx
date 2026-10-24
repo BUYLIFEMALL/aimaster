@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ImagePlus, Loader2, Sparkles, X, Clapperboard, Sliders, Layers } from "lucide-react";
+import { ImagePlus, Loader2, Sparkles, X, Clapperboard, Sliders, Layers, Palette } from "lucide-react";
 import { ART_STYLES, SCENE_COUNTS, type ArtStyleId, type SceneCount } from "@/lib/music/presets";
 import { newSceneId } from "@/lib/music/project";
 import { useStudio } from "@/components/studio/ProjectProvider";
@@ -15,6 +15,41 @@ export default function StoryboardPage() {
   const [confirm, setConfirm] = useState(false);
   const [error, setError] = useState<{ message: string; needKey?: boolean } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  // v1.26 참고 이미지 화풍 분석 — 참고 이미지가 바뀌면 자동으로 한 번 분석한다(회원 본인 Gemini 키, 텍스트 호출 1건)
+  const [analyzing, setAnalyzing] = useState(false);
+  const [styleError, setStyleError] = useState<{ message: string; needKey?: boolean } | null>(null);
+  const refKey = references.map((r) => r.id).join(",");
+  // 다른 화면에 다녀와도 같은 참고 이미지를 다시 분석하지 않는다(이미 결과가 있으면 그 이미지로 분석한 것으로 본다)
+  const analyzedFor = useRef(project.styleProfile ? refKey : "");
+
+  const analyzeStyle = async () => {
+    if (references.length === 0) return;
+    analyzedFor.current = refKey;
+    setAnalyzing(true);
+    setStyleError(null);
+    try {
+      const res = await fetch("/api/music/style", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ references: references.map((r) => ({ mimeType: "image/jpeg", data: r.dataUrl.split(",")[1] })) }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setStyleError({ message: data.error || "화풍을 분석하지 못했습니다.", needKey: data.needApiKey });
+        return;
+      }
+      update((p) => ({ ...p, styleProfile: data.profile, artStyle: "reference" }));
+    } catch {
+      setStyleError({ message: "네트워크 오류로 화풍을 분석하지 못했습니다. 잠시 뒤 다시 시도해주세요." });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (references.length > 0 && refKey !== analyzedFor.current && !analyzing) void analyzeStyle();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refKey]);
 
   if (!project.lyrics.trim()) {
     return (
@@ -39,6 +74,8 @@ export default function StoryboardPage() {
           sceneCount: project.sceneCount,
           extra: project.extra,
           artStyle: project.artStyle,
+          hasReferenceImages: references.length > 0,
+          styleProfile: project.artStyle === "reference" ? project.styleProfile : null,
         }),
       });
       const data = await res.json();
@@ -129,9 +166,51 @@ export default function StoryboardPage() {
           {/* v1.24 AI 이미지 스튜디오에서 만든 내 이미지 가져오기 */}
           <AisReferencePicker room={3 - references.length} onPick={(file) => addReferences([file])} />
           <p className="mt-1.5 text-[11px] text-slate-400 leading-normal">
-            인물 외형이나 일관된 아트 스타일을 반영하고 싶을 때 업로드하세요. 장면 이미지를 생성할 때 참조되며 서버에 영구 보관되지 않습니다.
+            인물 외형이나 일관된 아트 스타일을 반영하고 싶을 때 업로드하세요. 넣으면 화풍을 자동으로 분석해 스토리보드·장면 이미지·영상에 그대로 반영합니다. 서버에 영구 보관되지 않습니다.
           </p>
         </div>
+
+        {/* v1.26 참고 이미지 화풍 분석 결과 */}
+        {(references.length > 0 || project.styleProfile) && (
+          <div className="space-y-2 rounded-xl border border-fuchsia-500/25 bg-fuchsia-950/20 p-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-fuchsia-200">
+                <Palette className="h-4 w-4" /> 참고 이미지 화풍 분석
+                {project.styleProfile && <span className="rounded-md bg-fuchsia-500/20 px-1.5 py-0.5 text-[10px] font-semibold">{project.styleProfile.photographic ? "사진(실사)" : "그림(일러스트)"}</span>}
+              </span>
+              {references.length > 0 && (
+                <button type="button" disabled={analyzing} onClick={() => void analyzeStyle()} className={BTN_GHOST}>
+                  {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Palette className="h-3.5 w-3.5" />}
+                  <span>{analyzing ? "분석하는 중…" : project.styleProfile ? "다시 분석" : "화풍 분석"}</span>
+                </button>
+              )}
+            </div>
+            {project.styleProfile ? (
+              <>
+                {project.styleProfile.summary && <p className="text-xs leading-relaxed text-slate-200">{project.styleProfile.summary}</p>}
+                <details className="text-[11px] text-slate-400">
+                  <summary className="cursor-pointer select-none">생성 AI에 넣는 화풍 지시(영문) 보기·고치기</summary>
+                  <textarea
+                    className={`${INPUT} mt-1.5 min-h-24 font-mono text-[11px] leading-relaxed`}
+                    value={project.styleProfile.prompt}
+                    maxLength={600}
+                    onChange={(e) => update((p) => (p.styleProfile ? { ...p, styleProfile: { ...p.styleProfile, prompt: e.target.value } } : p))}
+                  />
+                </details>
+                {project.artStyle !== "reference" && (
+                  <p className="text-[11px] text-amber-300">
+                    지금은 「{ART_STYLES.find((x) => x.value === project.artStyle)?.label}」 화풍이 선택돼 있어 분석 결과를 쓰지 않습니다.{" "}
+                    <button type="button" className="underline" onClick={() => update((p) => ({ ...p, artStyle: "reference" }))}>참고 이미지 화풍으로 바꾸기</button>
+                  </p>
+                )}
+                {references.length === 0 && <p className="text-[11px] text-slate-500">참고 이미지는 이 화면을 새로 열면 사라지지만, 분석한 화풍은 프로젝트에 남아 계속 쓰입니다.</p>}
+              </>
+            ) : (
+              !analyzing && <p className="text-[11px] text-slate-400">「화풍 분석」을 누르면 선·채색·질감·색감을 분석해 같은 화풍으로 만들도록 합니다.</p>
+            )}
+            {styleError && <ErrorNote message={styleError.message} needKey={styleError.needKey} />}
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <button type="button" disabled={loading} onClick={() => (hasScenes ? setConfirm(true) : void generate())} className={BTN_PRIMARY}>
@@ -177,7 +256,7 @@ export default function StoryboardPage() {
                 <Field label="매칭 가사 구절">
                   <textarea className={`${INPUT} min-h-16 text-xs`} value={s.lyric} maxLength={300} onChange={(e) => setScene(s.id, { lyric: e.target.value })} />
                 </Field>
-                <Field label="시네마틱 촬영 묘사 (영문 — 이미지 및 영상 생성 프롬프트)">
+                <Field label="장면 묘사 (영문 — 이미지 및 영상 생성 프롬프트)">
                   <textarea className={`${INPUT} min-h-24 text-xs font-mono text-cyan-200 leading-relaxed`} value={s.prompt} maxLength={900} onChange={(e) => setScene(s.id, { prompt: e.target.value })} />
                 </Field>
               </Card>

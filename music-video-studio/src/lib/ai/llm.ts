@@ -11,6 +11,8 @@ export interface LlmRequest {
   user: string;
   /** Gemini만: 공개 YouTube 주소를 넘기면 모델이 영상을 직접 본다 */
   videoUrl?: string;
+  /** Gemini만: 함께 보낼 이미지(base64) — v1.26 참고 이미지 화풍 분석 */
+  images?: { mimeType: string; data: string }[];
   /** JSON 응답을 요청한다(Gemini responseMimeType, OpenAI json_object). 프롬프트에 JSON이라는 말이 있어야 한다. */
   json?: boolean;
 }
@@ -46,7 +48,7 @@ function mapError(provider: LlmProvider, status: number, apiMessage: string, api
 }
 
 export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch): Promise<string> {
-  const { provider, model, apiKey, system, user, videoUrl, json } = req;
+  const { provider, model, apiKey, system, user, videoUrl, images, json } = req;
 
   let url: string;
   let headers: Record<string, string>;
@@ -57,6 +59,7 @@ export async function callLlm(req: LlmRequest, fetchImpl: typeof fetch = fetch):
     headers = { "Content-Type": "application/json", "x-goog-api-key": apiKey };
     const parts: unknown[] = [];
     if (videoUrl) parts.push({ fileData: { fileUri: videoUrl } });
+    for (const img of images ?? []) parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
     parts.push({ text: user });
     body = {
       systemInstruction: { parts: [{ text: system }] },

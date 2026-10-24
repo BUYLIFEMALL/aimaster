@@ -1,6 +1,6 @@
 // 프로젝트 기본값과 검증(브라우저 저장본·불러온 JSON 파일을 허용 목록·범위로 정리한다).
 import { ART_STYLES, ASPECT_RATIOS, GENRES, isCameraMotion, SCENE_COUNTS, VEO_MODELS, VIDEO_LENGTHS, type SceneCount } from "./presets";
-import type { MusicProject, Scene, SongRef } from "./types";
+import type { MusicProject, Scene, SongRef, StyleProfile } from "./types";
 
 export function newSceneId(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Math.random().toString(36).slice(2, 10)}`;
@@ -17,6 +17,7 @@ export function defaultProject(): MusicProject {
     sceneCount: 4,
     extra: "",
     artStyle: "cinematic",
+    styleProfile: null,
     mood: "",
     scenes: [],
     video: { model: "gemini-omni-1.1-flash", length: 8, loop: false, ratio: "16:9" },
@@ -35,6 +36,14 @@ function sanitizeSong(v: unknown): SongRef | null {
   if (r.source === "ams" && !/^[0-9a-f-]{36}:\d{1,2}$/i.test(ref)) return null;
   const d = typeof r.durationS === "number" && Number.isFinite(r.durationS) && r.durationS > 0 ? Math.round(r.durationS) : null;
   return { source: r.source, title: str(r.title, 80) || "내 곡", ...(r.source === "ams" ? { ref } : {}), ...(r.fileName ? { fileName: str(r.fileName, 120) } : {}), durationS: d, ...(r.model ? { model: str(r.model, 60) } : {}) };
+}
+
+/** v1.26 화풍 분석 결과 정리(브라우저 저장본·API 요청 본문 공용) — 영문 지시가 비면 null */
+export function sanitizeStyleProfile(v: unknown): StyleProfile | null {
+  const r = rec(v);
+  const prompt = str(r.prompt, 600).replace(/[<>]/g, "").trim();
+  if (!prompt) return null;
+  return { summary: str(r.summary, 300).trim(), prompt, photographic: r.photographic === true, characters: str(r.characters, 300).replace(/[<>]/g, "").trim() };
 }
 
 export function sanitizeProject(raw: unknown): MusicProject {
@@ -56,6 +65,7 @@ export function sanitizeProject(raw: unknown): MusicProject {
     sceneCount: count,
     extra: str(r.extra, 300),
     artStyle: oneOf(r.artStyle, ART_STYLES, fb.artStyle),
+    styleProfile: sanitizeStyleProfile(r.styleProfile),
     mood: str(r.mood, 200),
     scenes,
     video: {

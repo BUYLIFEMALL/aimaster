@@ -23,8 +23,10 @@ export const GENRES: Option[] = [
   { value: "컨트리", label: "컨트리" },
 ];
 
-export type ArtStyleId = "cinematic" | "anime" | "oil" | "watercolor" | "cyberpunk" | "realistic" | "vintage" | "fantasy";
+export type ArtStyleId = "reference" | "cinematic" | "anime" | "oil" | "watercolor" | "cyberpunk" | "realistic" | "vintage" | "fantasy";
 export const ART_STYLES: (Option<ArtStyleId> & { prompt: string })[] = [
+  // v1.26 참고 이미지에서 분석한 화풍을 그대로 쓴다(분석 결과가 없을 때만 아래 prompt를 쓴다)
+  { value: "reference", label: "참고 이미지 화풍 (분석 결과)", prompt: "exactly the same art style as the provided reference images (same medium, linework, coloring, shading, texture and color palette)" },
   { value: "cinematic", label: "Cinematic", prompt: "cinematic film still, anamorphic lens, dramatic lighting, rich color grading, shallow depth of field" },
   { value: "anime", label: "Anime", prompt: "high quality Japanese anime illustration, clean line art, painterly background, soft cel shading" },
   { value: "oil", label: "Oil Painting", prompt: "expressive oil painting, visible brush strokes, rich impasto texture, warm gallery lighting" },

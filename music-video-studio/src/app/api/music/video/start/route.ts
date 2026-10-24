@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authorize, requireGeminiKey, rec, errorJson } from "@/lib/apiGuard";
 import { buildVideoPrompt } from "@/lib/music/prompts";
+import { sanitizeStyleProfile } from "@/lib/music/project";
 import { isVeoModel, isVideoLength } from "@/lib/music/veo";
 import { ART_STYLES, ASPECT_RATIOS, isCameraMotion, type ArtStyleId, type AspectRatioId } from "@/lib/music/presets";
 import { findVideoModel } from "@/lib/video/videoModels";
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     const result = await submitVideoJob({
       key: key.apiKey,
       model,
-      prompt: buildVideoPrompt({ prompt: scenePrompt }, artStyle, loop, camera),
+      prompt: buildVideoPrompt({ prompt: scenePrompt }, artStyle, loop, camera, sanitizeStyleProfile(body.styleProfile)),
       startUrl: image,
       endUrl: loop ? image : undefined,
       seconds: body.length,
