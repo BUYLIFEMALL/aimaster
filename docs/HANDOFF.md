@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 쇼핑몰 비즈니스 묶음 인계 → [역할: ecommerce-image] `claude-win-sdp` · [역할: video] `claude-win-video`
+- 주인님 결정(절대 지시): **흐름 구조** — 「전체적인 흐름으로 가지만 각각 독립적으로, 필요할 때 필요한 프로그램은 각각 사용할 수 있어야 되고, 상호 유기적으로 업무 효율화를 올릴 수 있도록」 · **새 프로그램 2개 이름 확정**: 「셀러 라벨·QR·서류 자동화」(`seller-label-docs`) · 「AI 쇼핑몰 주문·매출 리포트 자동화」(`shop-order-report`) · **「이것부터 시작해보자」 — 새 프로그램 2개부터, 작업은 이커머스·쇼핑몰 담당** · 영상은 영상 담당.
+- → **[역할: ecommerce-image]** 인수인계 `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md`(E6 → E7·E8 먼저, 이어서 E1·E9·E2~E5, 끝에 전달 프롬프트). ⚠️ E0 수수료 참고표 재확인(회원 마진 오류 위험)은 작은 수정 — 처리 시점을 주인님께 여쭙고 함께.
+- → **[역할: video]** 인수인계 `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md`(V1 긴 영상 → 쇼츠 · V2 내 소재 다시 편집(본인 사용) · V3 상품 홍보 쇼츠 · V4 화면 녹화 GIF · V5 내 로고 지우기(본인 사용) · V7 백로그, 끝에 전달 프롬프트). V3 넘기기 값 형식은 이커머스 담당과 맞춤.
+- 근거: 최종 분류표 `00C_FINAL_TABLE.md` · 흐름 플랜 `PLAN_20261024_SHOP_BUSINESS_FLOW.md` · 원본 분석 01~13. 코드·DB·배포 변경 없음.
+
 ## 2026-10-24 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 쇼핑몰 비즈니스 흐름 플랜 + 「본인 사용 한정」 기능 3건 승인 → 담당별 인계
 - 플랜: `docs/analysis-ecommerce-bundle-20261024/PLAN_20261024_SHOP_BUSINESS_FLOW.md`(소싱 → 상품 준비 → 등록·가격 → 홍보 → 판매 후, 단계별 프로그램 + 「다음 단계로」 버튼, 새 프로그램 2개 후보, 진행 순서 0~7 — 흐름 구조·이름·순서·담당은 주인님 결정 대기).
 - 주인님 승인(절대 지시) — 본인 사용 한정(권리 확인 체크·회원 본인 파일만·실행 기록·고지 필수, 플랜 §7-1):
