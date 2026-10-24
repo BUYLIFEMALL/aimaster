@@ -140,6 +140,7 @@ export function scrub(text: string): string {
   for (const k of providerSecrets()) out = out.split(k).join('[redacted]');
   return out
     .replace(/AIza[0-9A-Za-z_-]{20,}/g, 'AIza[redacted]')
+    .replace(/\bAQ\.[0-9A-Za-z_.-]{20,}/g, 'AQ.[redacted]')
     .replace(/sk-ant-[A-Za-z0-9_-]{8,}/g, 'sk-ant-[redacted]')
     .replace(/sk-proj-[A-Za-z0-9_-]{8,}/g, 'sk-proj-[redacted]')
     .replace(/sk-(?!ant-|proj-)[A-Za-z0-9_-]{8,}/g, 'sk-[redacted]')

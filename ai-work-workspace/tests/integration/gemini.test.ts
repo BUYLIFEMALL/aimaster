@@ -144,6 +144,7 @@ describe('Gemini 스트림(U4)', () => {
 
   it('기록에 남는 글에서 Gemini 키 모양을 가린다', () => {
     expect(scrub('key AIzaSyAbcdefghijklmnopqrstuvwxyz012')).toBe('key AIza[redacted]');
+    expect(scrub('new AQ.Ab8RN6abcdefghijklmnopqrstu end')).toBe('new AQ.[redacted] end');
   });
 });
 

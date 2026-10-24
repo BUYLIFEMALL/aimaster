@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
   if (!isProvider(provider)) return NextResponse.json({ message: "지원하지 않는 키 종류입니다." }, { status: 400, headers: NO_STORE });
   if (apiKey.length < 20 || apiKey.length > 300 || /\s/.test(apiKey)) return NextResponse.json({ message: "API 키 형식이 올바르지 않습니다. 복사한 키 전체를 붙여 넣어 주세요." }, { status: 400, headers: NO_STORE });
   if (provider === "anthropic" && !apiKey.startsWith("sk-ant-")) return NextResponse.json({ message: "Claude API 키는 sk-ant- 로 시작합니다." }, { status: 400, headers: NO_STORE });
-  if (provider === "gemini" && !apiKey.startsWith("AIza")) return NextResponse.json({ message: "Gemini API 키는 AIza 로 시작합니다(Google AI Studio에서 발급)." }, { status: 400, headers: NO_STORE });
+  // Gemini 키는 AIza… 와 새 형식 AQ.… 이 함께 쓰이므로 앞부분은 검사하지 않는다(OpenAI·Claude 키 오입력만 막음)
+  if (provider === "gemini" && /^sk-/.test(apiKey)) return NextResponse.json({ message: "OpenAI·Claude 키가 아니라 Google AI Studio에서 받은 Gemini 키를 붙여 넣어 주세요." }, { status: 400, headers: NO_STORE });
   if (provider === "openai" && !apiKey.startsWith("sk-")) return NextResponse.json({ message: "OpenAI API 키는 sk- 로 시작합니다." }, { status: 400, headers: NO_STORE });
   const { error } = await createAdminClient().from("user_api_keys").upsert({ user_id: access.user.id, provider, api_key: apiKey }, { onConflict: "user_id,provider" });
   if (error) return NextResponse.json({ message: "저장하지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 503, headers: NO_STORE });
