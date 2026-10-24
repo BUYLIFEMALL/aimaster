@@ -424,3 +424,13 @@
     - 내 PC 렌더러 연결 상태(확장/호스트/FFmpeg) 실시간 자동 진단 및 공식 최신판(v1.25, Host 1.30) 비교 배지 노출.
     - Windows 렌더러 ZIP, Chrome/Whale/Edge 확장 ZIP, Mac 터미널 원클릭 복사 설치 카드 제공.
     - 사이드바(`Sidebar.tsx`) 및 대시보드 옵션 패널에 원클릭 다운로드 모달 및 버튼 연동.
+
+## 2026-10-24 v1.24 맥 실물 확인 — 실행기 1.30 영상 명령(loop·normalize·compress) (Claude Code 맥미니 · `[역할: mac-mini]` 세션 `claude-mac-20261024-maccheck`, 윈도우 영상 담당 `claude-win-video` 요청, 비용 없음)
+- 절차: `local-renderer/test/MAC_CHECK.md` 그대로. 확인만 했고 코드는 고치지 않았다.
+- 맥 환경: macOS 맥미니, `ffmpeg 8.1`(`/usr/local/bin/ffmpeg`, `ffprobe` 같은 폴더), `perl 5.34.1`(`/usr/bin/perl`), `node 24`.
+- **0) 설치 ✅**: `install-mac.sh`·`host.pl`을 먼저 받아 읽은 뒤 실행(새 명령도 정해진 낱말·숫자 범위만 받음 확인). 설치 결과 `HOST_VERSION 1.30`, 저장소 `host/host.pl`과 설치본이 같은 파일(`cmp` 동일). 실행기 기능 목록 `gif, audio, loop, normalize, compress`(윈도우와 같음).
+- **1) 터미널 시험 ✅ 모두 통과**: `node video-matrix.mjs samples/silent.mp4 samples/with-audio.mp4 pl`(`PL_FFMPEG` 없이 — 맥 ffmpeg를 스스로 찾음) → normalize 30fps·긴 변 640(소리 없음) 579ms 3,870,016B→379,828B · normalize 24fps·긴 변 1280(소리 있음) 751ms →2,097,452B · compress small(소리 없음) 1,042ms →1,090,914B · compress balanced·긴 변 480(소리 있음) 648ms →233,868B · 거절 4건(fps 10·maxSide 소수·quality 낱말 아님·명령 문자열 끼워넣기) 모두 거절, 「모두 통과」(전체 5.8초).
+  - loop 한 건: `host-harness.mjs pl samples/with-audio.mp4 '{"type":"loop","mode":"smart","start":0,"end":4,"crossfade":0.5,"repeat":2,"format":"mp4","duration":5}' /tmp/loop.mp4` → `ok:true`, 1,151ms, 2,335,331B, `ffprobe` 길이 7.021초, video·audio 둘 다.
+- **2) 크롬 화면 3곳 ⏸ 남음**: 무한 루프 `/studio`·AI 영상 스튜디오 `/edit`·`/library` 미확인. 실패가 아니라 환경 문제 — 맥미니 크롬이 다시 켜지면서 Claude가 조종하는 크롬 프로필이 바뀌었고(장비 식별 `40dc5629…` → `59d08695…`), 그 프로필에는 「AIMaster 내 PC 고속 변환」 확장이 없고(페이지에 `chrome.runtime` 없음) 시험 계정 로그인도 풀려 있다. 무한 루프 화면은 시험 영상을 올린 상태에서 「확장을 설치하면…」 안내가 나왔다(확장이 없을 때의 정상 동작).
+  - 이어서 할 일: 그 프로필에서 확장을 「압축해제된 확장 프로그램 로드」로 불러오고(`video-to-gif/local-renderer/extension`, ID `efgimakonmphcdojhiegemjmpbokpcgk`) 시험 계정으로 로그인한 뒤 `MAC_CHECK.md` §2 표대로 3곳 확인.
+- 참고(같은 날 확인 중 발견): 맥에서 확장을 SMB 폴더로 불러온 경우 폴더가 끊겼다 다시 붙으면 옛 작동 코드가 남을 수 있다 — ↻를 다시 누를 것(v1.22 맥 확인 항목). 커밋 중 한 번 「index file corrupt」가 떴으나 다른 세션이 같은 순간 커밋 중이던 일시 현상이었고, 바로 뒤 확인에서 스테이징 11,866개·잠금 없음 정상이었다(아무것도 고치지 않음).

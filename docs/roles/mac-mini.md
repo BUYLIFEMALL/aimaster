@@ -9,7 +9,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `video-to-gif` 내 PC 렌더러 1.30(맥판) | 영상 명령 loop·normalize·compress 맥 실물 확인(윈도우 영상 담당 요청, 절차 `video-to-gif/local-renderer/test/MAC_CHECK.md`) — 터미널 시험 통과, 크롬 화면 3곳 남음 | 2026-10-24 | 크롬 프로필·확장·로그인 맞추기 대기 |
+| `video-to-gif` 내 PC 렌더러 1.30(맥판) | 영상 명령 loop·normalize·compress 맥 실물 확인(윈도우 영상 담당 요청, 절차 `video-to-gif/local-renderer/test/MAC_CHECK.md`) — 터미널 시험 통과·기록 완료, 크롬 화면 3곳만 남음 | 2026-10-24 | 주인님이 Claude 조종 크롬 프로필에 확장 불러오기·시험 계정 로그인 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
