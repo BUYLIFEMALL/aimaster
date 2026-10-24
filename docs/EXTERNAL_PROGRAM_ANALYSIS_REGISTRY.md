@@ -36,6 +36,7 @@
 - 이 문서는 여러 세션이 함께 고치므로 [안전 커밋 도우미](CLI_COLLABORATION_RULES.md) 9번 절차로 커밋한다.
   - 고치기 전: `node scripts/safe-commit.mjs --begin docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md --as <세션>`
   - 고친 뒤: `node scripts/safe-commit.mjs "<메시지>" docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md --as <세션>`
+- **§1 총괄표의 「핵심 기능」·「판단」 칸은 필수**다(2026-10-24). 판단은 🆕 독립 / 🔗 병합 → 대상 / ⏸ 보류 / ❌ 제외 중 하나로 쓰고, 카테고리는 [카테고리 지침 지도](CATEGORY_GUIDE_MAP.md) 기준으로 넣는다.
 - 근거가 없는 내용은 쓰지 않는다. 문서에서 확인하지 못한 칸은 「문서에 없음」 또는 「확인 못 함」으로 둔다.
 
 ### 0-3. 카드 양식 (새 카드는 이 순서 그대로)
@@ -63,69 +64,82 @@
 
 상태 표기: ✅ 우리 프로그램에 반영·운영 중 · 🔶 일부 반영, 남은 묶음 있음 · ⏳ 플랜·인계까지, 승인 대기 · 📝 분석만, 주인님 결정 대기 · ⏸ 보류 · 🔀 우리 쪽 프로그램이 다른 프로그램에 병합됨
 
-| 번호 | 원본 | 형식 | 분석일 | 우리 대상(현재 버전) | 상태 |
-|---|---|---|---|---|---|
-| **블로그** | | | | | |
-| EXT-BLOG-01 | 도톨이 AI v1.2 | Inno 6.7 + PyInstaller 설치형 | 10-15 | `blog-workroom` v1.14(새로 만듦, SEO 스튜디오로 이관 예정) | ✅ |
-| EXT-BLOG-02 | 도톨이 AI v1.3 | Inno 6.7 + PyInstaller 설치형 | 10-24 | `naver-blog-seo-studio` v2.18 · `blog-keyword` v1.09 | 🔶 |
-| EXT-BLOG-03 | 블로그 원고 제작 설치형 앱 6.5.4(이름 비공개) | NSIS + Electron | 10-15 | `blog-content-maker` v1.11(새로 만듦) · SEO 스튜디오 v1.74 흡수 | ✅ |
-| EXT-BLOG-04 | Maepsi NP 1.0.11 | NSIS + Electron | 10-24 | `naver-blog-agent` v2.20 | 🔶 |
-| EXT-BLOG-05 | 키워드 파이터 for Gemini(네이버 API 버전) = 앱 A | AI Studio 앱 + Express | 10-14 | `blog-keyword` v1.09(새로 만듦) | ✅ |
-| EXT-BLOG-06 | 키워드 파이터 for Gemini = 앱 B | AI Studio 앱 | 10-14 | `blog-keyword` v1.09(앱 A와 합쳐 만듦) | ✅ |
-| **유튜브** | | | | | |
-| EXT-YT-01 | GitHub `nam-ai-trend/shorts-auto` 0.1.0 | Python + React 로컬 도구 | 10-22 | `shorts-onestop-studio` v1.41(기능 흡수) | ✅ |
-| EXT-YT-02 | 제3자 상용 「카드형 쇼츠」 설치 프로그램(이름 비공개) | NSIS 3.04 + Electron | 10-16 | `shorts-onestop-studio` v1.41 | ✅ |
-| EXT-YT-03 | 썸네일 마스터 AI Pro | 웹앱 | 10-14 | `thumbnail-master` v1.20(새로 만듦) | ✅ |
-| **음악** | | | | | |
-| EXT-MUS-01 | Spectrum Studio PRO(웹판 → 설치형 3.0.0) | 웹 번들 / NSIS + Electron | 10-13 · 10-24 | `playlist-channel-studio` v1.31(`yt-playlist-studio` 병합) | 🔶 |
-| EXT-MUS-02 | Lyricbi 1.9.0 | NSIS + Electron + Remotion | 10-21 · 10-24 재확인 | `lyric-video-studio` v1.10(새로 만듦) | 🔶 |
-| EXT-MUS-03 | SU-Note(Suno 프롬프트 관리) v3.6 | 웹앱 | 10-12 | `suno-music-studio` v1.13 → `music-automation` 병합 | 🔀 |
-| EXT-MUS-04 | AI Playlist Creator | 웹앱 | 확인 못 함 | `playlist-channel-studio` v1.31 | ✅ |
-| EXT-MUS-05 | GPT PARK MUSIC PLAYER | AI Studio 앱 | 10-13 | `music-player` v1.09(새로 만듦) | ✅ |
-| EXT-MUS-06 | GPT PARK 마스터링 스튜디오 | 웹앱 | 확인 못 함 | `ai-mastering-studio` v1.14(새로 만듦) | ✅ |
-| EXT-MUS-07 | 외부 음악 생성 플랫폼 조사(Lyria·ElevenLabs·fal 등 10곳) | 플랫폼·API 조사 | 10-23 | `ai-music-studio` v1.14(새로 만듦, 음악 연동 기준) | ✅ |
-| **이미지** | | | | | |
-| EXT-IMG-01 | ClearPic 1.3.0 | NSIS + Electron + ONNX | 10-24 | `banana-canvas` v1.33 | ⏳ |
-| EXT-IMG-02 | AI Studio 「Banana Canvas」 | AI Studio 앱 | 10-14 | `banana-canvas` v1.33(새로 만듦) | ✅ |
-| EXT-IMG-03 | Cinematic Portrait Studio 2(내부 PureGlow v2.4) | AI Studio 앱 | 10-14 | `portrait-photo` v1.43 | ✅ |
-| EXT-IMG-04 | LookStudio AI(가상 피팅) | AI Studio 앱 | 10-13 | `fashion-style` v1.13(새로 만듦) | ✅ |
-| EXT-IMG-05 | 4컷 만능 만화 생성기 PRO | Vite React 웹앱 | 10-14 | `four-cut-comics` v1.36(새로 만듦) | ✅ |
-| **인스타** | | | | | |
-| EXT-INS-01 | GitHub `nam-ai-trend/15_cardnews` | Node/Express 로컬 도구 | 10-19 · 10-22 | `insta_auto_poster` v1.69(카드뉴스 병합) | ✅ |
-| **마케팅** | | | | | |
-| EXT-MKT-01 | AI Landing Page Architect Enhance | AI Studio 앱 | 10-13 | `landing-architect` v1.14(새로 만듦) | ✅ |
-| **멀티미디어** | | | | | |
-| EXT-MM-01 | Supertonic TTS 0.3.0(비공식 앱) | NSIS + Electron + ONNX | 10-24 | 공용 「브라우저 무료 음성」 엔진(예정) → `shorts-onestop-studio` | ⏳ |
-| EXT-MM-02 | Seamless Loop Studio | 웹앱 | 확인 못 함 | `infinite-loop-video` v1.08(새로 만듦) | ✅ |
-| EXT-MM-03 | Cinematic Storyboard AI | 웹앱 | 확인 못 함 | `cinematic-storyboard-studio` v1.18(새로 만듦) | ✅ |
-| **부동산** | | | | | |
-| EXT-RE-01 | 네이버 부동산 아파트 매물 수집기 Ver1.3 | PyInstaller 단일 EXE | 10-24 | `real_estate_sales` v1.18 | 📝 |
-| **Tools** | | | | | |
-| EXT-TL-01 | AutoGemmaStarter 2.0.0 | Inno 6.7 + PyInstaller | 10-24 | `ai-doc-chatbot` v1.07 · `ai-prompt-studio` v1.09 | ⏳ |
-| EXT-TL-02 | 오늘의 할 일 & 성과 | AI Studio 앱 | 10-13 | `ai-task-planner` v1.10(새로 만듦) | ✅ |
-| EXT-TL-03 | 번역의 정석 | AI Studio 앱 | 10-14 | `document-translator` v1.22(새로 만듦) | ✅ |
-| EXT-TL-04 | Playful File Helper | Vite React 웹앱 | 10-14 | `file-merge` v1.08(새로 만듦) | ✅ |
-| EXT-TL-05 | Markdown Studio | 웹앱 | 10-13 | `markdown-studio` v1.21(새로 만듦) | ✅ |
-| EXT-TL-06 | 매직 에디터(Magic Editor) | AI Studio 앱 | 10-14 | `ai-writing-editor` v1.13(새로 만듦) | ✅ |
-| EXT-TL-07 | Prompt Equalizer | 웹앱 | 확인 못 함 | `persona-style-studio` v1.10 → `ai-writing-editor` 병합 | 🔀 |
-| EXT-TL-08 | 다기능 종합 성격 진단기(배포용) | AI Studio 앱 | 10-14 | `personality-suite` v1.28(새로 만듦) | ✅ |
-| EXT-TL-09 | Reverse Prompt Architect | 웹앱 | 10-13 | `reverse-prompt` v1.14(새로 만듦) | ✅ |
-| EXT-TL-10 | GPT PARK의 UI 캔버스 Pro | AI Studio 앱 | 10-13 | `ui-canvas` v1.14(새로 만듦) | ✅ |
+판단 표기(2026-10-24 추가, 주인님 지시 「분석이 끝난 프로그램의 기능 및 병합·독립 프로그램 판단」):
+- 🆕 **독립 새 프로그램**: 원본을 참고해 우리 쪽에 새 프로그램을 만듦(또는 만들기로 함)
+- 🔗 **기존 병합 → 대상**: 좋은 기능만 기존 프로그램에 넣음
+- ⏸ **보류**: 주인님 결정·법률 확인 전
+- ❌ **제외**: 하지 않기로 확정
+- 「→ 이후 병합」은 처음엔 독립으로 만들었다가 나중에 다른 프로그램에 합친 경우다.
+
+카테고리는 [카테고리 지침 지도](CATEGORY_GUIDE_MAP.md) 기준(실제 사이트 카테고리 + 2026-10-24 신설 「AI 프롬프트」·「성격·운세」)으로 묶었다. 카드 번호(`EXT-…`)의 앞부분은 처음 붙인 옛 분류라서 카테고리와 다를 수 있다(번호는 바꾸지 않는 규칙).
+
+| 번호 | 원본 | 형식 | 분석일 | 핵심 기능(원본) | 판단 | 우리 대상(현재 버전) | 상태 |
+|---|---|---|---|---|---|---|---|
+| **블로그** | | | | | | | |
+| EXT-BLOG-01 | 도톨이 AI v1.2 | Inno 6.7 + PyInstaller 설치형 | 10-15 | 내 블로그 문체 진단·골드키워드 탐색·트렌드·벤치마킹·상위 5개 근거 확인·구간별 초안·최종 검수 | 🆕 독립 새 프로그램 → 이후 SEO 스튜디오로 이관 예정 | `blog-workroom` v1.14 | ✅ |
+| EXT-BLOG-02 | 도톨이 AI v1.3 | Inno 6.7 + PyInstaller 설치형 | 10-24 | 스타일 레이더(코드 점수·근거 일치)·어조 강도·전개 구조 8종·원클릭 완성 점검·참고 링크(웹·PDF·자막)·벤치마킹 새 글만 | 🔗 기존 병합 → `naver-blog-seo-studio`·`blog-keyword` | `naver-blog-seo-studio` v2.18 · `blog-keyword` v1.09 | 🔶 |
+| EXT-BLOG-03 | 블로그 원고 제작 설치형 앱 6.5.4(이름 비공개) | NSIS + Electron | 10-15 | 주제 원고·기존 글 다듬기·제목 추천, 작성 방식 5종, 점검 비율, 이미지 1~10장, 네이버 편집기 입력 | 🆕 독립 새 프로그램 + 🔗 SEO 스튜디오 흡수 | `blog-content-maker` v1.11 · SEO 스튜디오 v1.74 | ✅ |
+| EXT-BLOG-04 | Maepsi NP 1.0.11 | NSIS + Electron | 10-24 | 주제만 넣으면 키워드·페르소나 자동, Gemini 검색 근거 원고, 클립보드 붙여넣기 입력·구간 확인·임시저장 결과 판정 | 🔗 기존 병합 → `naver-blog-agent` | `naver-blog-agent` v2.20 | 🔶 |
+| EXT-BLOG-05 | 키워드 파이터 for Gemini(네이버 API 버전) = 앱 A | AI Studio 앱 + Express | 10-14 | 자동완성(ㄱ~ㅎ)·PAA·콘텐츠 갭·상위 블로그 공략·경쟁력 점수·뉴스 전략·프롬프트 50개 | 🆕 독립 새 프로그램(앱 B와 합침) | `blog-keyword` v1.09 | ✅ |
+| EXT-BLOG-06 | 키워드 파이터 for Gemini = 앱 B | AI Studio 앱 | 10-14 | 같은 기능 7종, 네이버 키 없이 대부분 사용 | 🆕 독립 새 프로그램(앱 A와 합침) | `blog-keyword` v1.09 | ✅ |
+| **유튜브** | | | | | | | |
+| EXT-YT-01 | GitHub `nam-ai-trend/shorts-auto` 0.1.0 | Python + React 로컬 도구 | 10-22 | 레퍼런스 찾기·후킹/텐션 분석·대본 A/B·목소리 복제·단어 자막·장면 AI 영상 이어 붙이기 | 🔗 기존 병합 → `shorts-onestop-studio`(카드뉴스 부분은 인스타) | `shorts-onestop-studio` v1.41 | ✅ |
+| EXT-YT-02 | 제3자 상용 「카드형 쇼츠」 설치 프로그램(이름 비공개) | NSIS 3.04 + Electron | 10-16 | 카드형 쇼츠 제작(세부는 카드 §3 — 보강 필요) | 🔗 기존 병합 → `shorts-onestop-studio` | `shorts-onestop-studio` v1.41 | ✅ |
+| EXT-YT-03 | 썸네일 마스터 AI Pro | 웹앱 | 10-14 | A안(직관)/B안(호기심) 문구가 박힌 16:9 썸네일 2종 + 문장으로 수정 | 🆕 독립 새 프로그램 | `thumbnail-master` v1.20 | ✅ |
+| **영상** | | | | | | | |
+| EXT-MM-01 | Supertonic TTS 0.3.0(비공식 앱) | NSIS + Electron + ONNX | 10-24 | 키 없는 브라우저 음성 합성(31개 언어·목소리 10종)·여러 줄 ZIP·대화 합성·SRT | 🔗 기존 병합(공용 엔진) → `shorts-onestop-studio` 먼저 · 독립 여부 보류 | 공용 「브라우저 무료 음성」 엔진(예정) | ⏳ |
+| EXT-MM-02 | Seamless Loop Studio | 웹앱 | 확인 못 함 | 시작·끝이 가장 닮은 구간을 찾아 MP4·WebM·GIF 무한 루프 | 🆕 독립 새 프로그램 | `infinite-loop-video` v1.08 | ✅ |
+| **음악** | | | | | | | |
+| EXT-MUS-01 | Spectrum Studio PRO(웹판 → 설치형 3.0.0) | 웹 번들 / NSIS + Electron | 10-13 · 10-24 | 플레이리스트 음악 영상: 스펙트럼 15·파티클 20·곡 제목 16스타일·배경 전환·프리셋·WebCodecs 1080p | 🆕 독립 새(`yt-playlist-studio`) → 🔗 이후 `playlist-channel-studio`에 병합 | `playlist-channel-studio` v1.31 | 🔶 |
+| EXT-MUS-02 | Lyricbi 1.9.0 | NSIS + Electron + Remotion | 10-21 · 10-24 | 가사 영상: 너그러운 .srt·강조 10·노래방 로마자·LP·커버·스펙트럼 9·프리셋 51 | 🆕 독립 새 프로그램 | `lyric-video-studio` v1.10 | 🔶 |
+| EXT-MUS-03 | SU-Note(Suno 프롬프트 관리) v3.6 | 웹앱 | 10-12 | Suno Style·가사 빌더, 비율·보컬·랩·편곡, 프리셋 461·댄스 200, 앨범 기획 | 🆕 독립 새(`suno-music-studio`) → 🔗 이후 `music-automation`에 병합 | `music-automation` v1.46 | 🔀 |
+| EXT-MUS-04 | AI Playlist Creator | 웹앱 | 확인 못 함 | 장르 → 제목 10개 → Suno 프롬프트·가사·유튜브 메타·썸네일 | 🔗 기존 병합 → `playlist-channel-studio` | `playlist-channel-studio` v1.31 | ✅ |
+| EXT-MUS-05 | GPT PARK MUSIC PLAYER | AI Studio 앱 | 10-13 | 음악 파일 재생·반복·셔플·시각화 5모드·8밴드 EQ | 🆕 독립 새 프로그램 | `music-player` v1.09 | ✅ |
+| EXT-MUS-06 | GPT PARK 마스터링 스튜디오 | 웹앱 | 확인 못 함 | 음원 마스터링 처리 순서·프리셋 12종·AI 분석 | 🆕 독립 새 프로그램 | `ai-mastering-studio` v1.14 | ✅ |
+| EXT-MUS-07 | 외부 음악 생성 플랫폼 조사(10곳) | 플랫폼·API 조사 | 10-23 | Lyria·ElevenLabs·fal·Replicate·Suno(중계) 등 공식 API·상업 이용 조건·단가 비교 | 🆕 독립 새 프로그램(음악 연동 기준) | `ai-music-studio` v1.14 | ✅ |
+| **이미지** | | | | | | | |
+| EXT-IMG-01 | ClearPic 1.3.0 | NSIS + Electron + ONNX | 10-24 | 키 없는 브라우저 지우기(LaMa)·글자 자동 찾기(PP-OCRv4)·여러 장 일괄·ZIP | 🔗 기존 병합 → `banana-canvas`(제미나이 워터마크 제거는 ❌ 제외) | `banana-canvas` v1.33 | ⏳ |
+| EXT-IMG-02 | AI Studio 「Banana Canvas」 | AI Studio 앱 | 10-14 | 생성·편집·합성·배경 제거·부분 삭제·증명사진·스토리 8컷·레시피 | 🆕 독립 새 프로그램 | `banana-canvas` v1.33 | ✅ |
+| EXT-IMG-03 | Cinematic Portrait Studio 2(PureGlow v2.4) | AI Studio 앱 | 10-14 | 촬영 목적 5종 프리셋 인물 사진 재생성·스튜디오 보정·여권 규격 | 🆕 독립 새 프로그램 | `portrait-photo` v1.43 | ✅ |
+| EXT-IMG-04 | LookStudio AI(가상 피팅) | AI Studio 앱 | 10-13 | TPO 의상 추천·가상 피팅·내 옷장·메이크업 | 🆕 독립 새 프로그램 | `fashion-style` v1.13 | ✅ |
+| EXT-IMG-05 | 4컷 만능 만화 생성기 PRO | Vite React 웹앱 | 10-14 | 주제 → 대본 → 캐릭터 시트 → 4컷, AI 말풍선 배치·편집, 저장 4종 | 🆕 독립 새 프로그램 | `four-cut-comics` v1.36 | ✅ |
+| **디자인** | | | | | | | |
+| EXT-MKT-01 | AI Landing Page Architect Enhance | AI Studio 앱 | 10-13 | 주제·타겟·목표 → 템플릿 20 → 기획안 JSON → 단일 HTML 프로토타입 | 🆕 독립 새 프로그램 | `landing-architect` v1.14 | ✅ |
+| EXT-MM-03 | Cinematic Storyboard AI | 웹앱 | 확인 못 함 | 이미지 1장 → 키프레임 9 → 9컷 콘택트 시트 → 영상 프롬프트 | 🆕 독립 새 프로그램 | `cinematic-storyboard-studio` v1.18 | ✅ |
+| EXT-TL-10 | GPT PARK의 UI 캔버스 Pro | AI Studio 앱 | 10-13 | 컴포넌트 25종 캔버스 에디터·레이어·이미지/JSON 내보내기 | 🆕 독립 새 프로그램 | `ui-canvas` v1.14 | ✅ |
+| **인스타** | | | | | | | |
+| EXT-INS-01 | GitHub `nam-ai-trend/15_cardnews` | Node/Express 로컬 도구 | 10-19 · 10-22 | 릴스 수집·반응도 BEST 5·받아쓰기·7대 떡상 관점 TOP 3·4~10장 가변 카드뉴스 | 🔗 기존 병합 → `cardnews-studio` → 이후 `insta_auto_poster` | `insta_auto_poster` v1.69 | ✅ |
+| **업무자동화** | | | | | | | |
+| EXT-TL-01 | AutoGemmaStarter 2.0.0 | Inno 6.7 + PyInstaller | 10-24 | 로컬 Gemma 설치 마법사·여러 공급자(Groq·OpenRouter 등)·커스텀 봇·RAG·프롬프트 25종 | 🔗 기존 병합 → `ai-doc-chatbot`·`ai-prompt-studio` | `ai-doc-chatbot` v1.07 · `ai-prompt-studio` v1.09 | ⏳ |
+| EXT-TL-02 | 오늘의 할 일 & 성과 | AI Studio 앱 | 10-13 | 할 일·집중 타이머·성과 점수·시간대 차트·AI 분석 | 🆕 독립 새 프로그램 | `ai-task-planner` v1.10 | ✅ |
+| EXT-TL-03 | 번역의 정석 | AI Studio 앱 | 10-14 | 10개 언어 번역·분야/격식/어조·용어 분석·역번역·DOCX/PDF 가져오기 | 🆕 독립 새 프로그램 | `document-translator` v1.22 | ✅ |
+| EXT-TL-04 | Playful File Helper | Vite React 웹앱 | 10-14 | 엑셀 합치기·시트별 모으기·나누기, 텍스트 합치기·나누기 | 🆕 독립 새 프로그램 | `file-merge` v1.08 | ✅ |
+| EXT-TL-05 | Markdown Studio | 웹앱 | 10-13 | 폴더 트리·마크다운 편집·미리보기·PDF/DOCX 내보내기·Drive 저장 | 🆕 독립 새 프로그램 | `markdown-studio` v1.21 | ✅ |
+| EXT-TL-06 | 매직 에디터(Magic Editor) | AI Studio 앱 | 10-14 | 새 글 생성·드래그 툴바 부분 수정·전체 분석 제안 사이드바 | 🆕 독립 새 프로그램 | `ai-writing-editor` v1.13 | ✅ |
+| EXT-TL-07 | Prompt Equalizer | 웹앱 | 확인 못 함 | 슬라이더 5개 + 페르소나로 문체 다시쓰기 | 🆕 독립 새(`persona-style-studio`) → 🔗 이후 `ai-writing-editor`에 병합 | `ai-writing-editor` v1.13 | 🔀 |
+| **AI 프롬프트** | | | | | | | |
+| EXT-TL-09 | Reverse Prompt Architect | 웹앱 | 10-13 | 이미지·영상·오디오 → Midjourney·Sora·Suno용 프롬프트 역설계 | 🆕 독립 새 프로그램 | `reverse-prompt` v1.14 | ✅ |
+| **성격·운세** | | | | | | | |
+| EXT-TL-08 | 다기능 종합 성격 진단기(배포용) | AI Studio 앱 | 10-14 | 16유형 상황별 10종 + 심리검사 6종, 로컬 점수 + AI 해석 | 🆕 독립 새 프로그램 | `personality-suite` v1.28 | ✅ |
+| **부동산** | | | | | | | |
+| EXT-RE-01 | 네이버 부동산 아파트 매물 수집기 Ver1.3 | PyInstaller 단일 EXE | 10-24 | 네이버 부동산 비공식 주소로 단지 매물·중개사 수집 → 엑셀, 1분 반복 | ⏸ 독립 안 함 · 안전한 기능만(N1 바로가기·N2 엑셀) `real_estate_sales` 병합 제안 · 비공식 수집 ❌ 제외 | `real_estate_sales` v1.18 | 📝 |
 
 **카테고리별 건수**
-| 카테고리 | 건수 |
-|---|---|
-| Tools | 10 |
-| 음악 | 7 |
-| 블로그 | 6 |
-| 이미지 | 5 |
-| 유튜브 | 3 |
-| 멀티미디어 | 3 |
-| 인스타 | 1 |
-| 마케팅 | 1 |
-| 부동산 | 1 |
-| 데이터수집·기획, 쓰레드, 이커머스, 네이버, CRM | 0 |
-| **합계** | **37** |
+| 카테고리 | 건수 | 판단 |
+|---|---|---|
+| 블로그 | 6 | 독립 4 · 병합 2 |
+| 음악 | 7 | 독립 5(2개는 이후 병합) · 병합 1 · 조사 1(독립) |
+| 이미지 | 5 | 독립 4 · 병합 1 |
+| 업무자동화 | 7 | 독립 6(1개는 이후 병합) · 병합 1 |
+| 유튜브 | 3 | 독립 1 · 병합 2 |
+| 디자인 | 3 | 독립 3 |
+| 영상 | 2 | 독립 1 · 병합(공용 엔진) 1 |
+| 인스타 | 1 | 병합 1 |
+| AI 프롬프트 | 1 | 독립 1 |
+| 성격·운세 | 1 | 독립 1 |
+| 부동산 | 1 | 보류(독립 안 함) |
+| 쓰레드·네이버·CRM·마케팅·이커머스·데이터수집\|기획 | 0 | — |
+| **합계** | **37** | 독립 27 · 병합 9 · 보류 1 |
 
 **제작자 계열 메모(병합·중복 판단용)**
 - **GPT PARK(`gptparkai.com`, 유튜브 「AIFACT-GPTPARK」) 계열이 가장 많다.** Supertonic·AutoGemma·ClearPic·성격 진단기·키워드 파이터 A/B·뮤직 플레이어·Playful File Helper·LookStudio·랜딩 아키텍트·Reverse Prompt·썸네일 마스터·UI 캔버스·마스터링(추정)이 여기에 속한다. 이 계열은 대부분 「브라우저에 키 저장 + Gemini 직접 호출 + 월간 인증 코드」 구조라서, 우리는 늘 「서버 경유 + 회원 본인 키 + 회원 권한」으로 바꿔 만들었다.
@@ -157,6 +171,8 @@
 ---
 
 ## 3. 카테고리별 상세 카드
+
+> 아래 절 제목(3-1~3-9)은 처음 작성 때의 분류다. 2026-10-24 카테고리 정리 뒤의 소속은 §1 총괄표를 따른다(멀티미디어 → 영상·디자인, Tools → 업무자동화·디자인·AI 프롬프트·성격·운세, 마케팅의 랜딩 → 디자인).
 
 ### 3-1. 블로그
 
@@ -681,3 +697,4 @@
 
 ## 변경 기록
 - 2026-10-24 처음 작성 — 외부 원본·참고 자료 37건, 14개 카테고리 중 9개 분류, 기능 묶음 12개(A~L), 공통 제외 패턴, 남은 결정 모음(Claude Code 윈도우 `claude-win-dotori`, 저장소 문서 대조, 코드·DB·배포 변경 없음).
+- 2026-10-24 §1 총괄표에 「핵심 기능」·「판단」 칸 추가, 카테고리를 실제 사이트 기준(+신설 2개)으로 다시 묶음, 건수 표에 판단 합계(독립 27·병합 9·보류 1)(`claude-win-dotori`).
