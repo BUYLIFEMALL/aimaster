@@ -170,7 +170,7 @@ describe('Gemini 모델 목록과 제공자 선택(U4)', () => {
     expect(pickGemini(list, 'flash-lite')?.slug).toBe('gemini-2.5-flash-lite');
   });
 
-  it('Gemini 키만 있으면 기본 = Flash, 빠른 작업 = Flash-Lite, 목록 요청에 키는 머리글로만', async () => {
+  it('Gemini 키만 있으면 기본·빠른 작업 = 가장 저렴한 Flash-Lite, 목록 요청에 키는 머리글로만', async () => {
     const seen: { url: string; key: string }[] = [];
     setGeminiModelsFetch((async (url: string, init: RequestInit) => {
       seen.push({ url: String(url), key: (init.headers as Record<string, string>)['x-goog-api-key'] });
@@ -178,10 +178,10 @@ describe('Gemini 모델 목록과 제공자 선택(U4)', () => {
     }) as unknown as typeof fetch);
     await withMemberAiKeys({ geminiKey: KEY, provider: 'gemini' }, async () => {
       await warmGeminiModels();
-      expect(models.autoModel()).toBe('gemini-2.5-flash');
+      expect(models.autoModel()).toBe('gemini-2.5-flash-lite');
       expect(models.fastModel()).toBe('gemini-2.5-flash-lite');
-      expect(models.offeredModels(false).filter((m) => m.group === 'recommended').map((m) => m.id)).toEqual(['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro']);
-      expect(models.requestModel({ model: 'claude-sonnet-5-5' })).toBe('gemini-2.5-flash'); // Claude 키가 없으면 Claude 모델을 쓰지 않음
+      expect(models.offeredModels(false).filter((m) => m.group === 'recommended').map((m) => m.id)).toEqual(['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro']);
+      expect(models.requestModel({ model: 'claude-sonnet-5-5' })).toBe('gemini-2.5-flash-lite'); // Claude 키가 없으면 Claude 모델을 쓰지 않음
     });
     expect(seen).toHaveLength(1);
     expect(seen[0].url).not.toContain(KEY);
@@ -228,7 +228,7 @@ describe('Gemini 모델 목록과 제공자 선택(U4)', () => {
     setGeminiModelsFetch((async () => new Response('{}', { status: 500 })) as unknown as typeof fetch);
     await withMemberAiKeys({ geminiKey: 'AIzaSyOther-member-key-000000000000', provider: 'gemini' }, async () => {
       await warmGeminiModels();
-      expect(models.autoModel()).toBe('gemini-flash-latest');
+      expect(models.autoModel()).toBe('gemini-flash-lite-latest');
       expect(models.fastModel()).toBe('gemini-flash-lite-latest');
     });
   });

@@ -1,7 +1,7 @@
 // 이식판(U4): Gemini 모델 목록 — GET https://generativelanguage.googleapis.com/v1beta/models (키는 x-goog-api-key 머리글).
 // 회원 키마다 따로(키 해시 기준) 10분 캐시하고, 실패하면 1분 뒤 다시 시도하며 마지막 성공 목록을 유지한다.
 // 글 생성(generateContent)이 되는 gemini- 모델만 남기고 이미지·음성·임베딩·실시간 전용 모델은 뺀다.
-// 기본 = 가장 최신 Flash, 빠른 작업 = 가장 최신 Flash-Lite(Pro는 회원이 직접 고를 때만).
+// 기본·빠른 작업 = 가장 최신 정식 Flash-Lite(회원 사용료 절감, 2026-10-24 주인님 결정). Flash·Pro는 회원이 직접 고를 때만.
 import { createHash } from 'node:crypto';
 import { geminiKey, scrub } from './config.ts';
 import { isDemoMode } from '../../demo.ts';

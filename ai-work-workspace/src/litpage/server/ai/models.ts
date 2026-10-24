@@ -13,7 +13,7 @@
 import { availableProviders, memberKeyTag, modelFamily, providerForModel, providerId, type ProviderId } from './providers/config.ts';
 import { cachedOpenAIModels, openaiModelsVersion, refreshOpenAIModels, type OpenAIModel } from './providers/openaiModels.ts';
 import {
-  cachedGeminiModels, geminiModelsVersion, GEMINI_FLASH_ALIAS, GEMINI_FLASH_LITE_ALIAS, pickGemini, warmGeminiModels, type GeminiModel,
+  cachedGeminiModels, geminiModelsVersion, GEMINI_FLASH_LITE_ALIAS, pickGemini, warmGeminiModels, type GeminiModel,
 } from './providers/geminiModels.ts';
 
 // 이식판(U3): 회원 본인 키로 청구되므로 기본은 Sonnet(가장 비싼 Opus는 회원이 직접 고를 때만). 원본 기본값은 claude-opus-5-5.
@@ -83,15 +83,22 @@ function geminiInfo(m: GeminiModel, recommended: boolean): ModelInfo {
   };
 }
 
-/** 이식판(U4): Gemini 키의 모델 목록 → 추천 3개(최신 Flash·Flash-Lite·Pro 정식판) + 나머지 정식판. 기본 = Flash, 빠른 작업 = Flash-Lite. */
+/**
+ * 이식판(U4): Gemini 키의 모델 목록 → 추천 3개(Flash-Lite·Flash·Pro 정식판) + 나머지 정식판.
+ * 기본·빠른 작업 = 가장 저렴한 Flash-Lite 계열(2026-10-24 주인님 결정 — 회원 본인 키 사용료 절감; 최신 Flash는
+ * 2.5 Flash-Lite보다 7~9배 비쌈). Flash·Pro는 회원이 모델 목록에서 직접 고를 때만.
+ */
 function geminiModels(): { listed: ModelInfo[]; def: string; fast: string } {
   const list = cachedGeminiModels() ?? [];
-  const picks = (['flash', 'flash-lite', 'pro'] as const).map((t) => pickGemini(list, t)).filter((m): m is GeminiModel => !!m);
+  const picks = (['flash-lite', 'flash', 'pro'] as const).map((t) => pickGemini(list, t)).filter((m): m is GeminiModel => !!m);
   const ids = new Set(picks.map((m) => m.slug));
   const listed = [...picks.map((m) => geminiInfo(m, true)), ...list.filter((m) => !ids.has(m.slug) && !m.preview).map((m) => geminiInfo(m, false))];
-  const def = pickGemini(list, 'flash')?.slug ?? GEMINI_FLASH_ALIAS;
-  const fast = pickGemini(list, 'flash-lite')?.slug ?? (list.length ? def : GEMINI_FLASH_LITE_ALIAS);
-  if (!listed.some((m) => m.id === def)) listed.unshift({ id: def, name: 'Gemini Flash', version: '', group: 'recommended', description: GEMINI_TIER_LABEL.flash, fallback: false, dynamicWebTools: false, images: true });
+  const def = (pickGemini(list, 'flash-lite') ?? pickGemini(list, 'flash'))?.slug ?? GEMINI_FLASH_LITE_ALIAS;
+  const fast = def;
+  if (!listed.some((m) => m.id === def)) {
+    const lite = def === GEMINI_FLASH_LITE_ALIAS;
+    listed.unshift({ id: def, name: lite ? 'Gemini Flash-Lite' : 'Gemini Flash', version: '', group: 'recommended', description: GEMINI_TIER_LABEL[lite ? 'flash-lite' : 'flash'], fallback: false, dynamicWebTools: false, images: true });
+  }
   return { listed, def, fast };
 }
 

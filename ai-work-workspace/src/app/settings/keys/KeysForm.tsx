@@ -6,7 +6,7 @@ type Provider = "anthropic" | "openai" | "gemini";
 const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId: string }[] = [
   { provider: "anthropic", name: "Claude (Anthropic)", placeholder: "sk-ant-…", desc: "AI 비서 기본 엔진(Claude Sonnet). 빠른 작업은 Haiku를 씁니다.", guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a" },
   { provider: "openai", name: "OpenAI (GPT)", placeholder: "sk-…", desc: "Claude 키가 없을 때 「자동」이 쓰는 엔진입니다.", guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a" },
-  { provider: "gemini", name: "Google Gemini", placeholder: "AIza… 또는 AQ.…", desc: "Gemini Flash가 기본, 빠른 작업은 Flash-Lite. 무료 등급 키도 한도 안에서 쓸 수 있습니다.", guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" },
+  { provider: "gemini", name: "Google Gemini", placeholder: "AIza… 또는 AQ.…", desc: "사용료가 가장 저렴한 Gemini Flash-Lite가 기본이고, 채팅 모델 목록에서 Flash·Pro를 직접 고를 수 있습니다. 무료 등급 키도 한도 안에서 쓸 수 있습니다.", guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" },
 ];
 const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
 const openGuide = (id: string) => window.open(GUIDE_URL(id), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
