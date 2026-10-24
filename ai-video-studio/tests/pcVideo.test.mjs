@@ -36,7 +36,7 @@ test("v1.18 갤러리 GIF는 실행기 encode 범위(가로 16~4096·fps 1~60·�
 });
 
 test("v1.18 갤러리 작게 줄이기는 compress small + 긴 변 720", () => {
-  assert.deepEqual(gallerySmallCommand(8), { type: "compress", quality: "small", duration: 8, maxSide: 720 });
+  assert.deepEqual(gallerySmallCommand(8), { type: "compress", quality: "balanced", duration: 8, maxSide: 720 });
 });
 
 test("v1.18 내려받을 파일 이름은 영문·숫자만", () => {

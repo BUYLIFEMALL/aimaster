@@ -38,9 +38,9 @@ export function galleryGifCommand(seconds: number) {
   return { type: "encode", width: GALLERY_GIF.width, fps: GALLERY_GIF.fps, colors: GALLERY_GIF.colors, start: 0, duration: durationValue(len) };
 }
 
-/** 갤러리 영상 → 긴 변 720·「작게」 품질 MP4 */
+/** 갤러리 영상 → 긴 변 720·「균형」 품질 MP4(2026-10-24 주인님 결정: 「작게」보다 화질 우선) */
 export function gallerySmallCommand(seconds: number) {
-  return { ...compressCommand("small", seconds), maxSide: GALLERY_SMALL_SIDE };
+  return { ...compressCommand("balanced", seconds), maxSide: GALLERY_SMALL_SIDE };
 }
 
 /** 내려받을 파일 이름: ai-video-<생성 id 앞 8자>-<붙임말>.<확장자> */
