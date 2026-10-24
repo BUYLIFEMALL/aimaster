@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.05 지역(시·구·동) 감시
+- 한 일: 국토교통부 「전국 법정동」(2026-06-30)으로 지역 목록(`public/regions.json`, `scripts/build-regions.mjs`) · DB 칸 4개(`20261025000500_region_targets.sql`, 주인님 Run) · 감시 대상 「🏙 지역으로 추가」 버튼 3단계(`RegionPicker`) · 확장이 동별 단지 목록 → 매물 많은 순 상위 N곳 수집(`collectRegionComplexes`, 주소는 수집 규칙 파일). 함께: 다음 페이지 읽기 수정(겹친 페이지 버림), 연결 계정 대조·표시.
+- 검수: 시험 20개·tsc·build, 배포 `realty-listing-alert-37enwad0p` Ready, `regions.json` 200. 실물: 백송대림 다음 페이지 읽기(진단 기록), 월세 「1억 3,000 / 30」. 지역 단지 목록 주소는 실물 미확인(첫 수집 진단 기록으로 확인 예정).
+- 링크: https://realty-listing-alert.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.24 맥 인코더 35초 대기 대책(realtime 스위치)
 - 배경: 맥미니 v1.23 trace(`be78fa78f`) — 막힘은 화면 합성이 아니라 **인코더 넘기기**(장면마다 35초, 3번 장면부터). §10의 「합성 유력」 판단은 틀렸고 §12에 정정.
 - 원인(코드): mediabunny 1.62.0 `media-source.js` — 인코더 대기열 4개면 `dequeue`까지 기다림, 웹 렌더러가 `latencyMode: "quality"` 고정 → 맥 하드웨어 인코더가 35초에 하나씩 가져감. 플랜 §12 `c0cae989c`.

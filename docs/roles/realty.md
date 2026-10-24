@@ -1,7 +1,7 @@
 # 부동산
 
 - 담당: Claude Code(윈도우) `claude-win-20261024-realty`
-- 맡은 폴더: `realty-listing-alert/`(v1.04 운영, 준비중) · 부동산 카테고리 프로그램(`real_estate_sales/` 등은 배정 시)
+- 맡은 폴더: `realty-listing-alert/`(v1.05 운영, 준비중) · 부동산 카테고리 프로그램(`real_estate_sales/` 등은 배정 시)
 - 카테고리: 부동산
 - 주력 업무: 새 프로그램 「AI 부동산 매물 알림 자동화」(`realty-listing-alert`) 구현 — 인수인계 [`HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) 기준
 - 마지막 갱신: 2026-10-25 (claude-win-20261024-realty)
@@ -20,6 +20,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-25 | `realty-listing-alert` v1.05 | 지역(시·구·동) 감시(버튼 3단계·동별 매물 많은 단지 N곳), 다음 페이지 읽기 실물 수정(백송대림 1→5페이지, 겹친 페이지 버림), 월세 「보증금/월세」 실물 확인, 연결 계정 대조·표시 | 운영 배포 1회 |
 | 2026-10-25 | `realty-listing-alert` v1.04 | UX 리뉴얼(시작하기 체크리스트·네이버 단지 화면 추가 버튼·감시 대상/팝업 단순화·매뉴얼 5단계) + 헬리오시티 시험에서 나온 2페이지·단지 이름 수정. 실물: 네이버 백송건영에 「✅ 감시 중」 | 운영 배포 1회 |
 | 2026-10-25 | `realty-listing-alert` v1.03 · `real-estate-sales` v1.19 | 3단계 확장 수집 엔진·팝업·결과 화면·확장 API 4개·대시보드 내 PC 상태, 설정 화면 텔레그램 카드, 다운로드 3D 버튼. **첫 실물 수집 성공**(관리자 계정, 1단지 13건, 상태 ✅), 기존 부동산 봇 가져오기 실제 동작, `check-extension-release` OK | 운영 배포 3회(매물 2·실거래 1) |
 | 2026-10-25 | `realty-listing-alert`·`real_estate_sales` | 주인님 채택 개선 3개: 전화번호 지우기(L-1)·봇 연결 상태 배지·실거래 → 감시 대상 연계(내 PC 화면 확인) | 미배포 대기 |
