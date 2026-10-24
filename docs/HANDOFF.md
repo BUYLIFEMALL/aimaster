@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 📖 [역할: docbot-prompt] Codex(윈도우·엣지) · 세션 `codex-win-20261024-docbot-g2` — 추가 개정 지침 재확인
+- 주인님 「먼저 바뀐 지침들 먼저 읽고 시작해」에 따라 이전 재독 이후 루트 변경·분야별 요약·역할·최신 인수인계와 업무자동화/AI 프롬프트 카테고리 새 초안 6종을 읽었습니다. 포그라운드 작업, 관리자 요청함+채팅 동시 보고, 본인 키·회원 격리·30일 보관·묶음 순차 배포를 적용합니다.
+- 초안은 담당 검증 전 참고 상태를 유지합니다. 초안의 챗봇 G-3 검색 표기는 원래 플랜과 다르므로 기존 승인 플랜(G-3 역할 유지, G-4 문서 검색)을 기준으로 대조합니다. 다른 프로그램의 과거 현황을 현재 완료로 간주하지 않습니다.
+- 역할 요청 0건. 관리자 `asks` 정상 조회를 확인해 역할 파일의 이전 0044 대기 표시를 갱신했습니다. 역할 현황 커밋 `87b649ce0`, 제품 코드·DB 변경/실제 AI/배포 없음. 문서 푸시는 다음 작업에 묶습니다.
+- Edge 실제 창 제어 응답은 정상이나 설정의 파일 선택 대화상자가 열려 있어 기존 작업을 보존했습니다. 별도 보이는 검수 창 실행은 자동 승인 검토에서 `blocked by policy`로 거부. 우회 재시도하지 않았습니다.
+- 다음 첫 단계: 기존 Edge 창 작업 종료 후 localhost:4311/bots의 일반 시험 회원(buylifemall@naver.com) 로그인 확인 → G-2 봇 설정 검수 → G-3·G-4 순차 진행. 새 Groq/OpenRouter 키 등록은 나중이라는 결정 유지. 상세: `ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261024_G2.md`, 현재 현황: `docs/roles/docbot-prompt.md`.
+- 비용: 이번 재확인에서 유료 AI 0회·빌드/배포 0회. 배포: 없음(문서만).
+
 ## 2026-10-24 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 무료 지우기 글자 상자 넓히기 배포: 바나나 캔버스 v1.36 · 상세페이지 v1.33 (추가 승인 빌드 2회)
 
 - 한 일: 공용 기준 코드 `browser-free-erase`의 글자 상자 넓히기 0.5→0.9배(`1304e3fda`)를 두 프로그램에 배포. 버전 커밋 `374812681`(바나나 v1.36)·`d3d6dc0c2`(상세 v1.33, SQL `shop-detail-page/supabase/migrations/20261024_free_erase_grow_v1_33.sql`). 배포 `banana-canvas-kw70ex2rb`·`shop-detail-page-lxt19gt29` 모두 Ready, DB `programs.version` 둘 다 반영(`deploy.mjs --set-version`).
