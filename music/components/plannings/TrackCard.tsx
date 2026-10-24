@@ -25,6 +25,7 @@ import {
 } from "@/lib/constants";
 import type { TrackMode, TrackStatus, VocalGender, MrStatus, WavStatus } from "@/types/database.types";
 import { RetentionBadge } from "@/components/RetentionBadge";
+import { PcSaveButton } from "@/components/plannings/PcSaveButton";
 import { TimedLyricsButton } from "./TimedLyricsButton";
 import { PersonaButton } from "./PersonaButton";
 import { ReplaceSectionButton } from "./ReplaceSectionButton";
@@ -389,6 +390,8 @@ export function TrackCard({
                   )}
                   <audio id={`audio-${variant.id}`} controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
                   <TemporaryStorageNotice kind="variant" id={variant.id} urls={[variant.audio_url, variant.image_url]} />
+                  {/* v1.46 내 PC로 저장(MP3·FLAC + 스트리밍 기준 음량) — AIMaster 내 PC 고속 변환 */}
+                  {variant.audio_url && <PcSaveButton url={variant.audio_url} title={`${track.title}${index > 0 ? ` (${index + 1})` : ""}`} />}
                   {variant.suno_audio_id && (
                     <div className="flex flex-wrap gap-2 pt-1">
                       <button

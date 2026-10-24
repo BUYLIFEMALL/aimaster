@@ -457,7 +457,13 @@ const MODULES = [
     // 확장·실행기는 video-to-gif/local-renderer. 사본은 로드맵 2단계(플레이리스트·LP)부터 추가(docs/analysis-pc-renderer-20261024/ROADMAP.md).
     id: "pc-renderer-client",
     source: "ai-mastering-studio/src/lib/pcRenderer.ts",
-    copies: ["infinite-loop-video/src/lib/pcRenderer.ts"],
+    copies: ["infinite-loop-video/src/lib/pcRenderer.ts", "ai-music-studio/lib/pcRenderer.ts", "music/lib/pcRenderer.ts"],
+  },
+  {
+    // 「내 PC 고속 변환」 소리 명령 만들기(형식·음량 맞춤 값, 측정값 해석, 확장자 바꾸기) — 2026-10-24 등록(음악 담당 claude-win-20261024-music). 로드맵 5단계.
+    id: "pc-audio-command",
+    source: "ai-mastering-studio/src/lib/pcAudio.ts",
+    copies: ["ai-music-studio/lib/pcAudio.ts", "music/lib/pcAudio.ts"],
   },
   {
     // 성격·운세 4개 「이어서 보기」 링크(타로점·캐릭코드·성격코드 주소, 넘어온 곳 이름) — 2026-10-20 등록

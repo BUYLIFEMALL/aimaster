@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, Download, FileText, Loader2, StickyNote, Sta
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { PROVIDERS } from "@/lib/providers/catalog";
 import { TrackRow } from "@/components/player/TrackRow";
+import { PcSaveButton } from "@/components/studio/PcSaveButton";
 import { styleOf } from "@/lib/providerStyle";
 
 export const LYRIC_VIDEO_URL = "https://lyric-video-studio.buylife.xyz/source";
@@ -132,6 +133,8 @@ export function GenerationCard({ gen, onDeleted, onUpdated }: { gen: ClientGener
                 <Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기 ({(o.bytes / 1_048_576).toFixed(1)}MB)
               </a>
             )}
+            {/* v1.14 내 PC로 저장(MP3·FLAC + 스트리밍 기준 음량) — AIMaster 내 PC 고속 변환 */}
+            {o.url && <PcSaveButton url={o.url} title={gen.outputs.length > 1 ? `${gen.title || gen.prompt.slice(0, 40)} (${i + 1})` : gen.title || gen.prompt.slice(0, 40)} />}
             {/* 다른 프로그램으로 보내기 — 그쪽이 회원 본인 행만 읽어 음악·제목·가사(Lyria 시간 가사 포함)를 넣는다 */}
             <a href={`${LYRIC_VIDEO_URL}?ams=${gen.id}&i=${i}`} target="_blank" rel="noreferrer" className="whitespace-nowrap text-xs font-medium text-zinc-400 hover:text-violet-200">
               🎬 가사 영상 →
