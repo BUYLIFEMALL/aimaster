@@ -2,6 +2,7 @@
 
 ## 2026-10-24 Codex(윈도우·엣지) `codex-win-20261024-docbot-g1` — G-1 소스·로컬 검사·운영 DB 준비, 미배포·실회원 검수 대기
 
+- 종료 보완: 코드 `2d56a117b`·공용 등록/인계 `1d3c28f60` 원격 반영. 관리자 미배포 현황(`site_settings.ops_overview`, 운영 ref `esgxyikcnnvmlhygjkth`) 저장 성공. 해당 묶음 푸시의 메인 Git 연동은 `dpl_HjpoejHJoMvHXuTK43751zpYLEtz` **CANCELED 1건**(배포 한도/빌드 자리 사용 포함), 실제 앱 배포는 없음. 취소 건의 청구 금액은 별도 확인 대상이며, 아래 $0은 외부 AI/수동 배포 실행 기준입니다. 이 종료 메모는 다음 작업 푸시에 묶습니다.
 - 주인님 「순서대로 한스텝 한스텝 진행」에 따라 G-1만 구현했습니다. 코드 `2d56a117b`, **문서 챗봇 v1.07·AI Prompt v1.09 유지**, G-2~G-5 미착수. [현재 결과·근거·다음 단계](analysis-autogemma-starter-20261024/G1_IMPLEMENTATION_20261024.md).
 - Groq·고정 무료 OpenRouter·Cloudflare, 회원 공용 키/매뉴얼/선택 UI를 두 앱에 연결. NVIDIA는 운영 조건 확인 전 비활성. Prompt FREE 회원이 유료 챗봇 권한 없이 같은 공용 키를 등록하도록 같은 부품을 기존 두 설정에 배치. 문서 파싱·1024차원 임베딩·기존 자료/권한 유지.
 - 운영 DB ref **`esgxyikcnnvmlhygjkth`**: 기존 provider CHECK 식을 보존해 새 4값 OR 확장, 카탈로그 4행(3활성/1비활성), migration `20261024065908_g1_compatible_chat_keys` 적용/검증. 회원 키 행 쓰기 없음, Lab 변경 없음.
