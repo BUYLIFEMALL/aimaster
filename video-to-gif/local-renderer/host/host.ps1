@@ -3,7 +3,7 @@
 # Security: never accepts a command string. Only validated numbers (width/fps/colors/trim) are turned into ffmpeg arguments here.
 # Keep this file ASCII-only: Windows PowerShell 5.1 reads BOM-less scripts in the system ANSI code page.
 $ErrorActionPreference = 'Stop'
-$HostVersion = '1.10'
+$HostVersion = '1.20'
 $ChunkBytes = 600 * 1024
 $stdin = [Console]::OpenStandardInput()
 $stdout = [Console]::OpenStandardOutput()
@@ -216,6 +216,103 @@ function Invoke-Audio($m) {
   Send-File $out $ids $extra
 }
 
+# v1.20 'loop' command (AIMaster video programs, infinite-loop-video): seamless loop unit + repeat.
+# Same rules as infinite-loop-video src/lib/loop/plan.ts normalize()/buildFilter()/encodeArgs() - keep them in sync.
+# Only validated words/numbers: mode smart|overlap|bounce, format mp4|webm|gif, start/end 0..36000 s,
+# crossfade 0..2 s, repeat 1..200, duration (source length) 0.1..36000 s. Audio is detected here from ffmpeg -i output.
+function Clamp([double]$v, [double]$lo, [double]$hi) { return [math]::Min($hi, [math]::Max($lo, $v)) }
+function F3([double]$v) { return $v.ToString('0.000', [Globalization.CultureInfo]::InvariantCulture) }
+function Invoke-Loop($m) {
+  $job = $m.job
+  $req = 0
+  if ([string]$m.req -match '^\d{1,9}$') { $req = [int]$m.req }
+  $ids = [ordered]@{ job = $job; req = $req }
+  if (-not (Test-Job $job) -or -not $jobs.ContainsKey($job) -or $jobs[$job].fs) { Send-Fail 'job unknown' $ids; return }
+  $mode = [string]$m.mode
+  $fmt = [string]$m.format
+  $ok = (@('smart', 'overlap', 'bounce') -contains $mode) -and (@('mp4', 'webm', 'gif') -contains $fmt) `
+    -and (Test-Num $m.start 0 36000 $false) -and (Test-Num $m.end 0 36000 $false) -and (Test-Num $m.crossfade 0 2 $false) `
+    -and (Test-Num $m.repeat 1 200 $true) -and (Test-Num $m.duration 0.1 36000 $false)
+  if (-not $ok) { Send-Fail 'bad params' $ids; return }
+  $ffmpeg = Find-Ffmpeg
+  if (-not $ffmpeg) { $ids['code'] = 'NO_FFMPEG'; Send-Fail 'ffmpeg not found' $ids; return }
+
+  # normalize (plan.ts)
+  $dur = [math]::Max(0.1, [double]$m.duration)
+  $s = Clamp ([double]$m.start) 0 $dur
+  $e = Clamp ([double]$m.end) 0 $dur
+  if ($mode -eq 'overlap') { $s = 0.0; $e = $dur }
+  if ($e - $s -lt 0.1) { $e = [math]::Min($dur, $s + 0.1) }
+  if ($e - $s -lt 0.1) { $s = [math]::Max(0.0, $e - 0.1) }
+  $len = $e - $s
+  $cf = if ($mode -eq 'overlap') { 1.0 } else { Clamp ([double]$m.crossfade) 0.1 2 }
+  if ($mode -eq 'bounce') { $cf = 0.0 }
+  $cf = [math]::Min($cf, [math]::Max(0.0, $len / 2 - 0.01))
+  $cf = [math]::Round($cf, 3)
+  $repeat = [int]$m.repeat
+  $unitLen = if ($mode -eq 'bounce') { $len * 2 } else { $len - $cf }
+
+  # audio track? (Chrome cannot tell; read it from the file)
+  $in = $jobs[$job].path
+  $probe = Invoke-Ff $ffmpeg @('-hide_banner', '-nostdin', '-i', $in) 0 $ids 0 0
+  $hasAudio = ($fmt -ne 'gif') -and ($probe.err -match 'Stream #\d+:\d+(?:\[[^\]\r\n]*\])?(?:\([^)\r\n]*\))?: Audio:')
+
+  # filter (plan.ts buildFilter)
+  $tS = F3 $s; $tE = F3 $e; $tCF = F3 $cf
+  $map = @('-map', '[vout]')
+  if ($mode -eq 'bounce') {
+    $fl = "[0:v]trim=$($tS):$($tE),setpts=PTS-STARTPTS,split[v1][v2];[v2]reverse[vr];[v1][vr]concat=n=2:v=1:a=0[vout]"
+    if ($hasAudio) { $fl += ";[0:a]atrim=$($tS):$($tE),asetpts=PTS-STARTPTS,asplit[a1][a2];[a2]areverse[ar];[a1][ar]concat=n=2:v=0:a=1[aout]"; $map += @('-map', '[aout]') }
+  } elseif ($cf -le 0) {
+    $fl = "[0:v]trim=$($tS):$($tE),setpts=PTS-STARTPTS[vout]"
+    if ($hasAudio) { $fl += ";[0:a]atrim=$($tS):$($tE),asetpts=PTS-STARTPTS[aout]"; $map += @('-map', '[aout]') }
+  } else {
+    $mid = $e - $s - 2 * $cf
+    $tT0 = F3 ($e - $cf); $tH1 = F3 ($s + $cf)
+    $parts = @("[0:v]trim=$($tT0):$($tE),setpts=PTS-STARTPTS[tail]", "[0:v]trim=$($tS):$($tH1),setpts=PTS-STARTPTS[head]", "[tail][head]xfade=transition=fade:duration=$($tCF):offset=0[blend]")
+    $vcat = '[blend]'; $vn = 1
+    if ($mid -gt 0.001) { $parts += "[0:v]trim=$($tH1):$($tT0),setpts=PTS-STARTPTS[mid]"; $vcat = '[blend][mid]'; $vn = 2 }
+    $parts += "$($vcat)concat=n=$($vn):v=1:a=0[vout]"
+    if ($hasAudio) {
+      $parts += @("[0:a]atrim=$($tT0):$($tE),asetpts=PTS-STARTPTS[atail]", "[0:a]atrim=$($tS):$($tH1),asetpts=PTS-STARTPTS[ahead]", "[atail][ahead]acrossfade=d=$($tCF)[ablend]")
+      $acat = '[ablend]'; $an = 1
+      if ($mid -gt 0.001) { $parts += "[0:a]atrim=$($tH1):$($tT0),asetpts=PTS-STARTPTS[amid]"; $acat = '[ablend][amid]'; $an = 2 }
+      $parts += "$($acat)concat=n=$($an):v=0:a=1[aout]"
+      $map += @('-map', '[aout]')
+    }
+    $fl = $parts -join ';'
+  }
+
+  # encode (plan.ts encodeArgs) - gif makes an mp4 unit first
+  $unitExt = if ($fmt -eq 'webm') { 'webm' } else { 'mp4' }
+  $aud = $hasAudio -and ($fmt -ne 'gif')
+  if ($unitExt -eq 'webm') { $enc = @('-c:v', 'libvpx', '-b:v', '2M', '-crf', '10'); if ($aud) { $enc += @('-c:a', 'libvorbis') } else { $enc += '-an' } }
+  else { $enc = @('-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-pix_fmt', 'yuv420p'); if ($aud) { $enc += @('-c:a', 'aac', '-b:a', '128k') } else { $enc += '-an' } }
+  $base = @('-hide_banner', '-nostdin', '-loglevel', 'error', '-nostats', '-progress', 'pipe:1', '-y')
+  $unit = Join-Path $workdir ("$job-$req-unit.$unitExt")
+  $span1 = if ($fmt -eq 'gif') { 0.7 } elseif ($repeat -gt 1) { 0.9 } else { 1.0 }
+  $r1 = Invoke-Ff $ffmpeg ($base + @('-i', $in, '-filter_complex', $fl) + $map + $enc + @($unit)) $unitLen $ids 0 $span1
+  if ($r1.code -ne 0 -or -not (Test-Path $unit) -or (Get-Item $unit).Length -eq 0) {
+    Remove-Item $unit -ErrorAction SilentlyContinue
+    $err = $r1.err; if ($err.Length -gt 400) { $err = $err.Substring($err.Length - 400) }
+    Send-Fail ("ffmpeg loop failed ($($r1.code)): " + $err) $ids; return
+  }
+  $out = $unit
+  if ($fmt -eq 'gif') {
+    $out = Join-Path $workdir ("$job-$req.gif")
+    $r2 = Invoke-Ff $ffmpeg ($base + @('-i', $unit, '-vf', "fps=15,scale='min(480,iw)':-2:flags=lanczos,split[a][b];[a]palettegen[pl];[b][pl]paletteuse", '-loop', '0', $out)) $unitLen $ids 0.7 0.3
+    Remove-Item $unit -ErrorAction SilentlyContinue
+    if ($r2.code -ne 0 -or -not (Test-Path $out)) { Remove-Item $out -ErrorAction SilentlyContinue; Send-Fail ("ffmpeg gif failed ($($r2.code))") $ids; return }
+  } elseif ($repeat -gt 1) {
+    $out = Join-Path $workdir ("$job-$req.$unitExt")
+    $r2 = Invoke-Ff $ffmpeg ($base + @('-stream_loop', [string]($repeat - 1), '-i', $unit, '-c', 'copy', $out)) 0 $ids 0.9 0.1
+    Remove-Item $unit -ErrorAction SilentlyContinue
+    if ($r2.code -ne 0 -or -not (Test-Path $out)) { Remove-Item $out -ErrorAction SilentlyContinue; Send-Fail ("ffmpeg repeat failed ($($r2.code))") $ids; return }
+  }
+  $ext = if ($fmt -eq 'gif') { 'gif' } else { $unitExt }
+  Send-File $out $ids ([ordered]@{ ext = $ext; hasAudio = [bool]$aud; unitSeconds = [math]::Round($unitLen, 3); filter = $fl })
+}
+
 try {
   while ($true) {
     $head = Read-Exact 4
@@ -242,7 +339,7 @@ try {
     switch ([string]$m.type) {
       'ping' {
         $ff = Find-Ffmpeg
-        Send-Msg ([ordered]@{ type = 'pong'; host = 'powershell'; hostVersion = $HostVersion; psVersion = $PSVersionTable.PSVersion.ToString(); ffmpeg = $ff; ffmpegVersion = (Get-FfmpegVersion $ff); capabilities = @('gif', 'audio') })
+        Send-Msg ([ordered]@{ type = 'pong'; host = 'powershell'; hostVersion = $HostVersion; psVersion = $PSVersionTable.PSVersion.ToString(); ffmpeg = $ff; ffmpegVersion = (Get-FfmpegVersion $ff); capabilities = @('gif', 'audio', 'loop') })
       }
       'begin' {
         if (-not (Test-Job $m.job)) { Send-Fail 'bad job' $null; break }
@@ -258,6 +355,7 @@ try {
       }
       'encode' { Invoke-Encode $m }
       'audio' { Invoke-Audio $m }
+      'loop' { Invoke-Loop $m }
       'release' {
         if ((Test-Job $m.job) -and $jobs.ContainsKey($m.job)) {
           if ($jobs[$m.job].fs) { $jobs[$m.job].fs.Close() }
