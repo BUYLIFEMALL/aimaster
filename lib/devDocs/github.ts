@@ -26,7 +26,7 @@ export async function fetchRepoText(path: string, revalidate = 300): Promise<str
   }
 }
 
-export type ManifestEntry = { path: string; size: number; editable: boolean };
+export type ManifestEntry = { path: string; size: number; editable: boolean; title?: string };
 export type DevDocsManifest = {
   generatedAt: string;
   editLimit: number;

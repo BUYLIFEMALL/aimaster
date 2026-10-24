@@ -3,7 +3,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import DevDocsBoard, { type DevDocsTab } from "@/components/admin/devdocs/DevDocsBoard";
 import { fetchManifest, fetchRepoText } from "@/lib/devDocs/github";
-import { parseActiveWork, parseRegistry, parseRoleFile, type RoleStatus } from "@/lib/devDocs/parse";
+import { parseActiveWork, parseCategoryMap, parseRegistry, parseRoleFile, type RoleStatus } from "@/lib/devDocs/parse";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "default-no-store";
@@ -34,10 +34,11 @@ export default async function AdminDevDocsPage({ params }: { params: { tab?: str
 
   const service = createServiceClient();
   const loadErrors: string[] = [];
-  const [manifest, activeMd, registryMd, reqRes, progRes] = await Promise.all([
+  const [manifest, activeMd, registryMd, categoryMd, reqRes, progRes] = await Promise.all([
     fetchManifest(),
     fetchRepoText("docs/ACTIVE_WORK.md", 120),
     fetchRepoText("docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md", 300),
+    fetchRepoText("docs/CATEGORY_GUIDE_MAP.md", 300),
     service.from("admin_dev_requests").select("id, kind, target_path, target_role, note, status, handled_by, commit_sha, reject_reason, handled_at, created_at").order("created_at", { ascending: false }).limit(200),
     service.from("programs").select("slug, name, version, app_url"),
   ]);
@@ -71,6 +72,7 @@ export default async function AdminDevDocsPage({ params }: { params: { tab?: str
         roles={roles}
         activeWork={activeMd ? parseActiveWork(activeMd) : []}
         registry={registryMd ? parseRegistry(registryMd) : null}
+        categoryMap={categoryMd ? parseCategoryMap(categoryMd) : null}
         manifest={manifest}
         programs={progRes.data ?? []}
         initialRequests={(reqRes.data ?? []) as never}

@@ -4,7 +4,7 @@
 // 결과: docs/dev-docs/manifest.json (git이 추적하는 .md만, 큰 파일은 보기 전용 표시)
 // 사용: node scripts/build-dev-docs-manifest.mjs   — 새 문서를 추가·삭제한 커밋에서 같이 돌리고 결과 파일도 커밋한다.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -15,10 +15,19 @@ const files = execFileSync("git", ["ls-files", "-z", "--", "*.md"], { cwd: ROOT,
   .split("\0").filter(Boolean)
   .filter((p) => !/(^|\/)(node_modules|\.next|\.vercel|dist)\//.test(p));
 
+// 문서 첫 제목(# …)을 화면 표시용 한국어 제목으로 담는다(없으면 파일 이름)
+const titleOf = (p) => {
+  try {
+    const head = readFileSync(join(ROOT, p), "utf8").slice(0, 4000);
+    const m = head.match(/^#\s+(.+)$/m);
+    if (m) return m[1].replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[`*]/g, "").trim().slice(0, 120);
+  } catch { /* 지운 파일 */ }
+  return p.split("/").pop();
+};
 const entry = (p) => {
   let size = 0;
   try { size = statSync(join(ROOT, p)).size; } catch { /* 지운 파일 */ }
-  return { path: p, size, editable: size <= EDIT_LIMIT };
+  return { path: p, size, editable: size <= EDIT_LIMIT, title: titleOf(p) };
 };
 
 const root = ["CLAUDE.md", "AGENTS.md", "GEMINI.md", "DESIGN.md"].filter((p) => files.includes(p)).map(entry);

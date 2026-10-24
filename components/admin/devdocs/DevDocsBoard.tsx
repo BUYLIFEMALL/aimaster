@@ -5,7 +5,7 @@ import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, Che
 import GlassCard from "@/components/ui/GlassCard";
 import DocDialogs, { type Dialog } from "./DocDialogs";
 import type { DevRequest } from "./types";
-import type { ActiveWorkRow, RegistryData, RoleStatus, TableRow } from "@/lib/devDocs/parse";
+import type { ActiveWorkRow, CategoryMapData, RegistryData, RoleStatus, TableRow } from "@/lib/devDocs/parse";
 import type { DevDocsManifest, ManifestEntry } from "@/lib/devDocs/github";
 
 export type DevDocsTab = "overview" | "in-progress" | "waiting" | "planned" | "analyzed" | "guidelines" | "programs" | "requests";
@@ -43,6 +43,7 @@ export default function DevDocsBoard(props: {
   roles: RoleStatus[];
   activeWork: ActiveWorkRow[];
   registry: RegistryData | null;
+  categoryMap: CategoryMapData | null;
   manifest: DevDocsManifest | null;
   programs: ProgramMeta[];
   initialRequests: DevRequest[];
@@ -116,7 +117,7 @@ export default function DevDocsBoard(props: {
 
       {tab === "analyzed" && <Analyzed registry={registry} setDialog={setDialog} docActions={docActions} />}
 
-      {tab === "guidelines" && <Guidelines manifest={manifest} roles={roles} docActions={docActions} />}
+      {tab === "guidelines" && <Guidelines manifest={manifest} roles={roles} categoryMap={props.categoryMap} docActions={docActions} />}
 
       {tab === "programs" && <Programs manifest={manifest} programs={programs} docActions={docActions} />}
 
@@ -333,52 +334,132 @@ function Analyzed({ registry, setDialog, docActions }: { registry: RegistryData 
   );
 }
 
-function DocList({ title, entries, titles, docActions, initialOpen = true }: { title: string; entries: ManifestEntry[]; titles?: Record<string, string>; docActions: (p: string, editable?: boolean) => React.ReactNode; initialOpen?: boolean }) {
-  const [open, setOpen] = useState(initialOpen);
+/** 한 줄짜리 문서 목록 항목 — 한국어 제목 + 작은 회색 경로 + 오른쪽 버튼 */
+function DocRow({ title, path, size, editable = true, docActions }: { title: string; path: string; size?: number; editable?: boolean; docActions: (p: string, editable?: boolean) => React.ReactNode }) {
   return (
-    <div>
-      <button className="mb-3 flex items-center gap-1 text-sm font-bold text-gold" onClick={() => setOpen(!open)}>
-        {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}{title}<span className="ml-1 font-normal text-subtext">{entries.length}</span>
-      </button>
-      {open && (
-        <div className="space-y-2">
-          {entries.map((e) => (
-            <Row key={e.path} title={titles?.[e.path] ?? e.path.split("/").pop()!} sub={`${e.path} · ${fmtSize(e.size)}${e.editable ? "" : " · 보기 전용"}`} right={docActions(e.path, e.editable)} />
-          ))}
-        </div>
-      )}
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-white/5 bg-white/[0.03] px-3 py-1.5 hover:border-gold/20 hover:bg-white/[0.06]">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm text-white" title={title}>{title}</p>
+        <p className="truncate text-[11px] text-subtext/70">{path}{size ? ` · ${fmtSize(size)}` : ""}{editable ? "" : " · 보기 전용"}</p>
+      </div>
+      {docActions(path, editable)}
     </div>
   );
 }
 
-function Guidelines({ manifest, roles, docActions }: { manifest: DevDocsManifest | null; roles: RoleStatus[]; docActions: (p: string, editable?: boolean) => React.ReactNode }) {
+/** 접고 펴는 묶음 */
+function Fold({ title, count, badge, defaultOpen = false, tone = "text-gold", children }: { title: string; count?: number; badge?: string; defaultOpen?: boolean; tone?: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.02]">
+      <button className="flex w-full items-center gap-2 px-4 py-3 text-left" onClick={() => setOpen(!open)}>
+        {open ? <ChevronDown size={16} className="text-subtext" /> : <ChevronRight size={16} className="text-subtext" />}
+        <span className={`text-sm font-bold ${tone}`}>{title}</span>
+        {count != null && <span className="text-xs text-subtext">{count}</span>}
+        {badge && <span className="ml-auto rounded bg-white/10 px-2 py-0.5 text-[11px] text-subtext">{badge}</span>}
+      </button>
+      {open && <div className="space-y-1.5 px-4 pb-4">{children}</div>}
+    </div>
+  );
+}
+
+const DOC_GROUPS: { title: string; test: (p: string) => boolean }[] = [
+  { title: "인수인계 기록(HANDOFF)", test: (p) => /\/HANDOFF/i.test(p) },
+  { title: "개발 플랜(PLAN)", test: (p) => /\/PLAN_/i.test(p) },
+  { title: "분석·검토 문서", test: (p) => /\/(ANALYSIS|.*REVIEW|.*AUDIT|.*REFERENCE)/i.test(p) },
+  { title: "정책·지침·표준", test: (p) => /(POLICY|GUIDE|RULES|STANDARD|PATTERNS|LESSONS|WORKFLOW|MAP|MATRIX|BACKLOG|REGISTRY|TOOLKIT|MANUAL)/i.test(p) },
+];
+
+function Guidelines({ manifest, roles, categoryMap, docActions }: { manifest: DevDocsManifest | null; roles: RoleStatus[]; categoryMap: CategoryMapData | null; docActions: (p: string, editable?: boolean) => React.ReactNode }) {
   const [q, setQ] = useState("");
   if (!manifest) return <Empty>문서 목록(docs/dev-docs/manifest.json)을 읽지 못했습니다.</Empty>;
-  const all = [...manifest.root, ...manifest.guidelines, ...manifest.docs];
-  const byPath = Object.fromEntries([...all, ...manifest.roles].map((e) => [e.path, e]));
-  const key = KEY_DOCS.map((k) => byPath[k.path] ?? { path: k.path, size: 0, editable: true });
-  const keyTitles = Object.fromEntries(KEY_DOCS.map((k) => [k.path, k.title]));
-  const roleTitles = Object.fromEntries(roles.map((r) => [r.path, `역할 — ${r.title}`]));
+  const allEntries = [...manifest.root, ...manifest.guidelines, ...manifest.roles, ...manifest.docs, ...manifest.analyses];
+  const byPath = Object.fromEntries(allEntries.map((e) => [e.path, e]));
+  const row = (path: string, fallbackTitle?: string) => {
+    const e = byPath[path];
+    return <DocRow key={path} title={e?.title || fallbackTitle || path.split("/").pop()!} path={path} size={e?.size} editable={e ? e.editable : true} docActions={docActions} />;
+  };
+
+  // ① 최상위 지침 = 루트 메인 지침 + 개발 현황 기준 문서 + 카테고리 공통 지침(중복 제거)
+  const topPaths: string[] = [];
+  const pushTop = (p: string) => { if (!topPaths.includes(p)) topPaths.push(p); };
+  manifest.root.forEach((e) => pushTop(e.path));
+  pushTop("docs/guidelines/README.md");
+  KEY_DOCS.forEach((k) => pushTop(k.path));
+  categoryMap?.common.forEach((c) => c.docs.forEach((d) => pushTop(d.path)));
+  const topTitle = (p: string) => ROOT_TITLES[p] ?? KEY_DOCS.find((k) => k.path === p)?.title;
+
+  // ④ 그 밖의 문서 = 위에 나오지 않은 docs/*.md
+  const shown = new Set<string>([...topPaths, ...manifest.guidelines.map((e) => e.path), "docs/roles/README.md", ...manifest.roles.map((e) => e.path), ...(categoryMap?.categories.flatMap((c) => c.docs.map((d) => d.path)) ?? [])]);
   const term = q.trim().toLowerCase();
-  const filteredDocs = term ? manifest.docs.filter((d) => d.path.toLowerCase().includes(term)) : manifest.docs;
+  const rest = manifest.docs.filter((d) => !shown.has(d.path)).filter((d) => !term || d.path.toLowerCase().includes(term) || (d.title ?? "").toLowerCase().includes(term));
+  const grouped = DOC_GROUPS.map((g) => ({ title: g.title, items: rest.filter((d) => g.test(d.path)) }));
+  const used = new Set(grouped.flatMap((g) => g.items.map((d) => d.path)));
+  grouped.push({ title: "기타", items: rest.filter((d) => !used.has(d.path)) });
+
   return (
-    <Sections>
-      <GlassCard className="border border-gold/30 p-4 text-xs text-white/85">
-        문서마다 <b className="text-white">👁 보기 · ✏️ 직접 수정 · ⚠ 관리자 지시</b>를 쓸 수 있습니다. 수정·지시는 「반영 대기」로 저장되고, 담당 세션이 다음 작업 때 문서에 반영합니다. <b className="text-gold">관리자 지시는 문서 맨 위에 옮겨 적히며 모든 CLI가 문서 내용보다 먼저 따르는 절대 지시입니다.</b>
+    <div className="space-y-4">
+      <GlassCard className="border border-gold/30 p-4 text-sm text-white/85">
+        문서마다 <b className="text-white">👁 보기 · ✏️ 직접 수정 · ⚠ 관리자 지시</b>를 쓸 수 있습니다. 수정·지시는 「반영 대기」로 저장되고 담당 세션이 다음 작업 때 반영합니다. <b className="text-gold">관리자 지시는 문서 맨 위에 옮겨 적혀 모든 CLI가 먼저 따르는 절대 지시입니다.</b>
       </GlassCard>
-      <DocList title="📌 메인 지침 (루트)" entries={manifest.root} titles={ROOT_TITLES} docActions={docActions} />
-      <DocList title="⭐ 개발 현황·비교 기준 문서" entries={key} titles={keyTitles} docActions={docActions} />
-      <DocList title="📚 분야별 지침 (docs/guidelines)" entries={manifest.guidelines} docActions={docActions} />
-      <DocList title="🧭 역할 파일 (docs/roles)" entries={manifest.roles} titles={roleTitles} docActions={docActions} />
+
+      <Fold title="① 최상위 지침 — 모든 CLI·모든 세션 공통" count={topPaths.length} defaultOpen>
+        {topPaths.map((p) => row(p, topTitle(p)))}
+      </Fold>
+
+      <Fold title="② 역할별 지침 — 담당 세션의 현황·규칙" count={manifest.roles.length + 1} defaultOpen>
+        {row("docs/roles/README.md", "역할 목록·규칙(작업 전·후, 역할 ID, 관리자 요청 처리)")}
+        {manifest.roles.map((e) => {
+          const r = roles.find((x) => x.path === e.path);
+          return <DocRow key={e.path} title={`${r?.title ?? e.title}${r ? ` — ${plain(r.owner).slice(0, 60)}` : ""}`} path={e.path} size={e.size} editable={e.editable} docActions={docActions} />;
+        })}
+      </Fold>
+
       <div>
-        <div className="mb-3 flex items-center gap-2">
-          <Search size={15} className="text-subtext" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="docs 문서 이름 검색 (예: SCHEDULER, ERROR)" className="w-full max-w-md rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-subtext focus:border-gold/50 focus:outline-none" />
-        </div>
-        <DocList title="🗂 docs 문서 전체" entries={filteredDocs} docActions={docActions} initialOpen={!!term} />
+        <h3 className="mb-2 mt-6 text-sm font-bold text-gold">③ 카테고리별 지침 <span className="font-normal text-subtext">— 누르면 그 카테고리의 메인 지침·비교표·분석 보고서가 펼쳐집니다</span></h3>
+        {!categoryMap ? <Empty>카테고리 지침 지도를 읽지 못했습니다.</Empty> : (
+          <div className="grid gap-2 lg:grid-cols-2">
+            {categoryMap.categories.map((c) => (
+              <Fold key={c.name} title={c.name} count={c.docs.length} badge={c.status} tone={c.status.startsWith("✅") ? "text-emerald-300" : c.status.startsWith("△") ? "text-amber-200" : "text-white"}>
+                {c.docs.length === 0 ? (
+                  <p className="text-sm text-rose-200/80">⚠ 이 카테고리 전용 지침이 아직 없습니다 — 보강 필요{c.extra ? `: ${c.extra}` : ""}</p>
+                ) : (
+                  <>
+                    {c.docs.map((d) => row(d.path, d.title))}
+                    {c.extra && c.extra !== "—" && <p className="pt-1 text-xs text-subtext">보강할 것: {c.extra}</p>}
+                  </>
+                )}
+              </Fold>
+            ))}
+          </div>
+        )}
       </div>
-      <DocList title="🔎 분석 보고서 (docs/analysis-*)" entries={manifest.analyses} docActions={docActions} initialOpen={false} />
-    </Sections>
+
+      <div>
+        <h3 className="mb-2 mt-6 text-sm font-bold text-gold">④ 분야별 요약 지침 (docs/guidelines)</h3>
+        <Fold title="분야별 요약 지침" count={manifest.guidelines.length}>
+          {manifest.guidelines.map((e) => row(e.path))}
+        </Fold>
+      </div>
+
+      <div>
+        <h3 className="mb-2 mt-6 text-sm font-bold text-gold">⑤ 그 밖의 문서</h3>
+        <div className="mb-2 flex items-center gap-2">
+          <Search size={15} className="text-subtext" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="제목·파일 이름 검색 (예: 예약, SCHEDULER, 에러)" className="w-full max-w-md rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-subtext focus:border-gold/50 focus:outline-none" />
+        </div>
+        <div className="space-y-2">
+          {grouped.filter((g) => g.items.length).map((g) => (
+            <Fold key={g.title + term} title={g.title} count={g.items.length} defaultOpen={!!term}>
+              {g.items.map((d) => row(d.path))}
+            </Fold>
+          ))}
+          <Fold title="분석 보고서 (docs/analysis-*)" count={manifest.analyses.length}>
+            {manifest.analyses.map((e) => row(e.path))}
+          </Fold>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -406,7 +487,7 @@ function Programs({ manifest, programs, docActions }: { manifest: DevDocsManifes
                 right={<button className="rounded-lg p-2 text-subtext hover:bg-white/10 hover:text-white" onClick={() => setOpenFolder(isOpen ? null : p.folder)} aria-label="문서 목록 열기">{isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button>} />
               {isOpen && (
                 <div className="ml-4 mt-2 space-y-2 border-l border-white/10 pl-3">
-                  {p.files.map((f) => <Row key={f.path} title={f.path.slice(p.folder.length + 1)} sub={`${fmtSize(f.size)}${f.editable ? "" : " · 보기 전용"}`} right={docActions(f.path, f.editable)} />)}
+                  {p.files.map((f) => <DocRow key={f.path} title={f.title || f.path.slice(p.folder.length + 1)} path={f.path} size={f.size} editable={f.editable} docActions={docActions} />)}
                 </div>
               )}
             </div>

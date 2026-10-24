@@ -157,3 +157,38 @@ export function parseRegistry(md: string): RegistryData {
 export function plain(s: string): string {
   return s.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/[`*]/g, "").trim();
 }
+
+export type DocLink = { title: string; path: string };
+export type CategoryGuide = { name: string; status: string; docs: DocLink[]; extra: string };
+export type CategoryMapData = { common: { topic: string; docs: DocLink[] }[]; categories: CategoryGuide[] };
+
+/** docs/CATEGORY_GUIDE_MAP.md 기준 상대 링크 → 저장소 경로 (.md만) */
+function docLinks(cell: string, base = "docs/"): DocLink[] {
+  const out: DocLink[] = [];
+  for (const m of cell.matchAll(/\[([^\]]+)\]\(([^)#]+)(?:#[^)]*)?\)/g)) {
+    const href = m[2].trim();
+    if (/^[a-z]+:/i.test(href) || !/\.md$/i.test(href)) continue;
+    const parts = base.split("/").filter(Boolean);
+    for (const seg of href.split("/")) {
+      if (seg === "..") parts.pop();
+      else if (seg && seg !== ".") parts.push(seg);
+    }
+    const path = parts.join("/");
+    if (!out.some((d) => d.path === path)) out.push({ title: m[1].replace(/[`*]/g, "").trim(), path });
+  }
+  return out;
+}
+
+/** 카테고리 지침 지도 §2 공통 지침 표 + §3 카테고리별 표 */
+export function parseCategoryMap(md: string): CategoryMapData {
+  const common = tableUnder(md, /^## 2\. 모든 카테고리 공통 지침/).map((c) => ({ topic: plain(c[0] ?? ""), docs: docLinks(c[1] ?? "") }));
+  const categories = tableUnder(md, /^## 3\. 카테고리별 지도/)
+    .filter((c) => /^\*\*/.test(c[0] ?? ""))
+    .map((c) => ({
+      name: plain(c[0]).replace(/^🆕\s*/u, ""),
+      status: plain(c[1] ?? ""),
+      docs: [...docLinks(c[3] ?? ""), ...docLinks(c[4] ?? "")].filter((d, i, a) => a.findIndex((x) => x.path === d.path) === i),
+      extra: plain(c[8] ?? ""),
+    }));
+  return { common, categories };
+}
