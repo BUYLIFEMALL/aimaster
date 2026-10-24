@@ -1,6 +1,7 @@
 // AI Meeting Notes block menus: the settings menu (slider icon: Pause / Resume /
 // Stop recording and summarize, Upload audio, Retry summary / transcription, Delete transcript / audio, Language, Consent,
 // Audio recordings) and the first-use consent choice ("Choose how you notify others").
+import { MEETINGS_AUDIO_OPEN } from '../ai/aiApi.ts';
 import type { BlockRecord } from '#shared/records.ts';
 import { api, uploadFile } from '../../lib/api.ts';
 import { records } from '../../lib/store/records.ts';
@@ -121,7 +122,8 @@ export async function openSettingsMenu(anchor: HTMLElement, block: BlockRecord, 
     if (!recording && !paused && st.state !== 'summarizing') {
       if ((st.elapsed_ms ?? 0) > 0) actions.push({ label: t('lp.meetings.resume_transcription', 'Resume transcription'), icon: 'mic', onSelect: () => void startMeeting(block.id, { resume: true }) });
       // no speech-to-text service on this server: shown, but off with the reason
-      actions.push(stt
+      // 이식판: U6-B(회원 키 음성 파일 받아쓰기) 전까지 메뉴에서 숨김
+      if (MEETINGS_AUDIO_OPEN) actions.push(stt
         ? { label: t('lp.meetings.upload_audio', 'Upload audio'), icon: 'upload', onSelect: () => pickAudio(block.id) }
         : { label: t('lp.meetings.upload_audio', 'Upload audio'), icon: 'upload', disabled: true, description: noSttReason() });
       if (ctx.hasContent) actions.push({ label: t('lp.meetings.retry_summary', 'Retry summary'), icon: 'refresh', onSelect: () => void retrySummary(block.id) });

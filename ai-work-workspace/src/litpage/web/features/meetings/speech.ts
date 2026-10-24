@@ -156,35 +156,36 @@ export class LiveRecognizer {
   }
 }
 
-/** BCP-47 tags for the Language menu. */
+/** BCP-47 tags for the Language menu. 이식판(U6): 언어 이름은 한국어로(번역 키가 없어 이 이름이 화면에 그대로 나옴) */
 export const LANGUAGES: { key: string; label: string; tag: string }[] = [
-  { key: 'auto', label: 'Auto detect', tag: '' },
-  { key: 'arabic', label: 'Arabic', tag: 'ar-SA' },
-  { key: 'simplified_chinese', label: 'Chinese (Simplified)', tag: 'zh-CN' },
-  { key: 'traditional_chinese', label: 'Chinese (Traditional)', tag: 'zh-TW' },
-  { key: 'danish', label: 'Danish', tag: 'da-DK' },
-  { key: 'dutch', label: 'Dutch', tag: 'nl-NL' },
-  { key: 'english', label: 'English', tag: 'en-US' },
-  { key: 'finnish', label: 'Finnish', tag: 'fi-FI' },
-  { key: 'french', label: 'French', tag: 'fr-FR' },
-  { key: 'german', label: 'German', tag: 'de-DE' },
-  { key: 'hebrew', label: 'Hebrew', tag: 'he-IL' },
-  { key: 'indonesian', label: 'Indonesian', tag: 'id-ID' },
-  { key: 'italian', label: 'Italian', tag: 'it-IT' },
-  { key: 'japanese', label: 'Japanese', tag: 'ja-JP' },
-  { key: 'korean', label: 'Korean', tag: 'ko-KR' },
-  { key: 'norwegian', label: 'Norwegian', tag: 'nb-NO' },
-  { key: 'polish', label: 'Polish', tag: 'pl-PL' },
-  { key: 'portuguese', label: 'Portuguese', tag: 'pt-BR' },
-  { key: 'russian', label: 'Russian', tag: 'ru-RU' },
-  { key: 'spanish', label: 'Spanish', tag: 'es-ES' },
-  { key: 'swedish', label: 'Swedish', tag: 'sv-SE' },
-  { key: 'thai', label: 'Thai', tag: 'th-TH' },
-  { key: 'vietnamese', label: 'Vietnamese', tag: 'vi-VN' },
+  { key: 'auto', label: '자동(한국어)', tag: '' },
+  { key: 'arabic', label: '아랍어', tag: 'ar-SA' },
+  { key: 'simplified_chinese', label: '중국어(간체)', tag: 'zh-CN' },
+  { key: 'traditional_chinese', label: '중국어(번체)', tag: 'zh-TW' },
+  { key: 'danish', label: '덴마크어', tag: 'da-DK' },
+  { key: 'dutch', label: '네덜란드어', tag: 'nl-NL' },
+  { key: 'english', label: '영어', tag: 'en-US' },
+  { key: 'finnish', label: '핀란드어', tag: 'fi-FI' },
+  { key: 'french', label: '프랑스어', tag: 'fr-FR' },
+  { key: 'german', label: '독일어', tag: 'de-DE' },
+  { key: 'hebrew', label: '히브리어', tag: 'he-IL' },
+  { key: 'indonesian', label: '인도네시아어', tag: 'id-ID' },
+  { key: 'italian', label: '이탈리아어', tag: 'it-IT' },
+  { key: 'japanese', label: '일본어', tag: 'ja-JP' },
+  { key: 'korean', label: '한국어', tag: 'ko-KR' },
+  { key: 'norwegian', label: '노르웨이어', tag: 'nb-NO' },
+  { key: 'polish', label: '폴란드어', tag: 'pl-PL' },
+  { key: 'portuguese', label: '포르투갈어', tag: 'pt-BR' },
+  { key: 'russian', label: '러시아어', tag: 'ru-RU' },
+  { key: 'spanish', label: '스페인어', tag: 'es-ES' },
+  { key: 'swedish', label: '스웨덴어', tag: 'sv-SE' },
+  { key: 'thai', label: '태국어', tag: 'th-TH' },
+  { key: 'vietnamese', label: '베트남어', tag: 'vi-VN' },
 ];
 
 export function languageTag(key: string | undefined): string {
   const hit = LANGUAGES.find((l) => l.key === key || l.tag === key);
   if (hit?.tag) return hit.tag;
-  return typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
+  // 이식판(U6): 「자동」이면 브라우저 언어 대신 한국어로 받아쓴다(AIMaster 회원 기준). 다른 언어는 회의록 메뉴에서 고른다
+  return 'ko-KR';
 }

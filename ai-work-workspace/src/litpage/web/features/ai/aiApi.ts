@@ -59,7 +59,9 @@ const DEFAULT_POLICY: AiPolicy = { enabled: true, webSearch: true, webConfirm: f
 /** 이식판: 2단계(회원 본인 AI 키 연결)에서 true로 연다. 서버도 같은 기준으로 AI 명령을 막는다(src/server/stagePolicy.ts). */
 export const AI_STAGE_OPEN = true; // U3: 회원 본인 키로 AI 열림
 /** AI 회의록(받아쓰기·요약): U6에서 엶 — 그 전까지 회의록 블록은 직접 메모 안내 */
-export const MEETINGS_AI_OPEN = false;
+/** 이식판 U6-B 전까지 회의록 「오디오 업로드」 버튼·메뉴를 숨긴다(음성 파일 받아쓰기 제공자 없음 — 서버도 단계 정책으로 닫음) */
+export const MEETINGS_AUDIO_OPEN = false;
+export const MEETINGS_AI_OPEN = true; // 이식판 U6-A(2026-10-24): 실시간 받아쓰기 + AI 요약 열림. 음성 파일 받아쓰기는 U6-B
 
 export function policyFromSpaceSettings(settings: Record<string, unknown> | null | undefined): AiPolicy {
   const s = settings ?? {};

@@ -26,8 +26,8 @@ const LATER_RPCS = new Set([
   'getPublicForm', 'submitFormResponse', 'emailFormResponse', 'setSiteSettings', 'getSite', 'getSiteHome', 'searchSite',
   // 4단계: 자동화(웹훅 등 바깥 호출 포함)
   'saveAutomation', 'setAutomationStatus', 'deleteAutomation', 'duplicateAutomation', 'runButtonServerSteps',
-  // 회의록 AI: U6에서 엶
-  'meetingStop', 'meetingSummarize', 'meetingUploadAudio', 'meetingRetryTranscription',
+  // 회의록: U6-A(2026-10-24)에서 정지·요약은 엶. 음성 파일 받아쓰기는 U6-B(회원 Gemini·OpenAI 키 제공자)까지 닫음
+  'meetingUploadAudio', 'meetingRetryTranscription',
   // U3 이후에도 닫음: 외부 연결·MCP(U14), AI 채팅 공유(협업 단계), AI 그림(U2 숨김 → ai-image-studio)
   'aiListConnections', 'aiUpdateConnection', 'aiRemoveConnection', 'aiDisconnectAllConnections', 'aiUpdateMcpAllowlist',
   'aiShareThread', 'aiSharedThreads',

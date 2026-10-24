@@ -28,7 +28,7 @@ import { noSttReason, useSttProvider } from './capabilities.ts';
 import { autoConsentPref, consentEnforced, consentPlays, copyConsent, playConsent } from './consent.ts';
 import { isRecordingHere, meetingState, startMeeting, pauseMeeting, stopMeeting, useLiveState, type MeetingStateValue } from './session.ts';
 import { speechSupported } from './speech.ts';
-import { MEETINGS_AI_OPEN } from '../ai/aiApi.ts';
+import { MEETINGS_AI_OPEN, MEETINGS_AUDIO_OPEN } from '../ai/aiApi.ts';
 import { meetingsEnabled } from './entry.ts';
 import { hideSlashItemWhen, overrideSlashItem } from '../editor/blocks/registry.ts';
 import { place, type SlashContext } from '../editor/slashItems.ts';
@@ -394,7 +394,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
           <span className="grow" />
           {canEdit && enabled && <span role="button" className="nc-mtg-iconbtn" aria-label={t('lp.meetings.play_a_spoken_consent_notice', 'Play a spoken consent notice')} data-tooltip={t('lp.meetings.play_a_spoken_consent_notice', 'Play a spoken consent notice')} onClick={() => void playConsent()}><Icon name="volumeOn" size={16} /></span>}
           {canEdit && enabled && <span role="button" className="nc-mtg-iconbtn" aria-label={t('lp.meetings.copy_the_consent_message', 'Copy the consent message')} data-tooltip={t('lp.meetings.copy_the_consent_message', 'Copy the consent message')} onClick={() => void copyConsent(storeLocally)}><Icon name="copy" size={16} /></span>}
-          {MEETINGS_AI_OPEN && canEdit && enabled && !startedBefore && !recordingHere && (
+          {MEETINGS_AI_OPEN && MEETINGS_AUDIO_OPEN && canEdit && enabled && !startedBefore && !recordingHere && (
             <span
               role="button"
               className={`nc-mtg-iconbtn ${stt === null ? 'disabled' : ''}`}

@@ -12,7 +12,7 @@ import { aiAllowed, AI_RATE_MESSAGE } from '../ratelimit.ts';
 import { OpsBuilder, type Spec } from '../content/spec.ts';
 import { markdownToSpecs, insertSpecs } from '../ai/edit.ts';
 import { mdSource } from '../ai/context.ts';
-import { pageToMarkdown, type ModelRequest } from '../ai/prompts.ts';
+import { aimasterContextText, pageToMarkdown, type ModelRequest } from '../ai/prompts.ts';
 import { executeSimple, assertAiAllowed } from '../ai/service.ts';
 import { aiConfigured, NO_KEY_MESSAGE, type ClaudeLike } from '../ai/client.ts';
 import { pageIdOf } from '../search.ts';
@@ -73,7 +73,8 @@ export function buildSummaryRequest(input: SummaryInput): ModelRequest {
     'Write the meeting summary now.',
   ].join('\n\n');
   return {
-    system: [{ type: 'text', text: SUMMARY_SYSTEM, cache_control: { type: 'ephemeral' } }],
+    // 이식판(U6-A): 당해 연도·한국어 답변 기준 블록(AI 비서 지시문과 같은 것)
+    system: [{ type: 'text', text: SUMMARY_SYSTEM, cache_control: { type: 'ephemeral' } }, { type: 'text', text: aimasterContextText() }],
     messages: [{ role: 'user', content: user }],
     effort: 'medium',
     maxTokens: 6000,
