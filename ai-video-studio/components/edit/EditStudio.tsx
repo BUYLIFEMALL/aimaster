@@ -14,7 +14,8 @@ import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
 import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb, type ShrinkQuality } from "@/lib/edit/pcVideo";
-import { etaFromProgress, formatEta, isSlowRender, renderDiagnostics, renderHwFromParam } from "@/lib/edit/renderInfo";
+import { etaFromProgress, formatEta, isSlowRender, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderVerboseFromParam } from "@/lib/edit/renderInfo";
+import { preferSoftwareDecoding } from "@/lib/edit/softDecode";
 import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
@@ -23,7 +24,7 @@ import {
 
 type Song = { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; url: string | null; tooBig: boolean };
 type Busy = { name: string; msg: string } | null;
-type RenderState = { progress: number; ctrl: AbortController; startedAt: number; etaMs: number; elapsedMs: number } | null;
+type RenderState = { progress: number; ctrl: AbortController; startedAt: number; etaMs: number; elapsedMs: number; stopping?: boolean } | null;
 type EditItem = { id: string; title: string; clips: number; updatedAt: string };
 type VoiceSettings = { model: string; voice: string; speed: number };
 
@@ -392,9 +393,13 @@ export function EditStudio() {
     setRender({ progress: 0, ctrl, startedAt, etaMs: 0, elapsedMs: 0 });
     // v1.21 진단: 그리기·인코딩 프레임 수를 남겨 맥처럼 느린 PC에서 어디가 막히는지 구분(PLAN_20261024_EDIT_RENDER_SPEED.md)
     const hw = renderHwFromParam(params.get("render"));
+    // v1.22 맥은 소프트웨어 디코딩이 기본(PLAN §8). ?render=hwdecode는 예전 방식, ?render=verbose는 자세한 로그
+    const decode = renderDecodeFromParam(params.get("render"), navigator.userAgent);
+    const verbose = renderVerboseFromParam(params.get("render"));
+    const restoreDecoding = decode === "software" ? preferSoftwareDecoding() : () => {};
     const frames = { total: 0, rendered: 0, encoded: 0 };
     const logDiag = (outcome: "done" | "error" | "aborted") =>
-      console.info("[avs-render]", JSON.stringify(renderDiagnostics({ outcome, hw, elapsedMs: Date.now() - startedAt, totalFrames: frames.total, renderedFrames: frames.rendered, encodedFrames: frames.encoded, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 0 })));
+      console.info("[avs-render]", JSON.stringify(renderDiagnostics({ outcome, hw, decode, elapsedMs: Date.now() - startedAt, totalFrames: frames.total, renderedFrames: frames.rendered, encodedFrames: frames.encoded, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 0 })));
     try {
       const { width, height } = dimensions(project.aspect, project.quality);
       const { totalFrames } = layout(project);
@@ -415,7 +420,7 @@ export function EditStudio() {
         videoBitrate: "high",
         hardwareAcceleration: hw,
         delayRenderTimeoutInMilliseconds: 60_000,
-        logLevel: "error",
+        logLevel: verbose ? "verbose" : "error",
       });
       const blob = await out.getBlob();
       logDiag("done");
@@ -428,6 +433,7 @@ export function EditStudio() {
       else if (/delayRender|timeout|Extracting frame/i.test(msg)) setError("영상 한 개의 형식 때문에 렌더가 멈췄습니다. 그 영상을 빼고 다시 넣은 뒤(형식 자동 맞추기) 다시 시도해 주세요.");
       else setError("렌더하지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요. 계속되면 클립 수를 줄이거나 720p로 바꿔 주세요.");
     } finally {
+      restoreDecoding();
       setRender(null);
     }
   }
@@ -767,7 +773,8 @@ export function EditStudio() {
           ) : render ? (
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-2 text-sm text-sky-100"><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> 만드는 중 {Math.round(render.progress * 100)}%{formatEta(render.etaMs) && <span className="text-sky-200/70">· 남은 시간 {formatEta(render.etaMs)}</span>}</span>
-              <button type="button" onClick={() => render.ctrl.abort()} className="text-sm text-zinc-400 hover:text-zinc-200">멈추기</button>
+              {/* v1.22 중단은 장면 하나가 끝나야 적용돼(맥 30초~2분) 누르는 즉시 「멈추는 중…」으로 바꾼다 */}
+              <button type="button" disabled={render.stopping} onClick={() => { setRender((cur) => (cur ? { ...cur, stopping: true } : cur)); render.ctrl.abort(); }} className="text-sm text-zinc-400 hover:text-zinc-200 disabled:cursor-wait disabled:text-amber-200">{render.stopping ? "멈추는 중…" : "멈추기"}</button>
             </div>
           ) : (
             <button type="button" disabled={isBusy || project.clips.length === 0} onClick={() => void startRender()}

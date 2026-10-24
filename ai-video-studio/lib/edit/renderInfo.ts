@@ -2,9 +2,32 @@
 
 export type RenderHw = "no-preference" | "prefer-software";
 
-/** 주소 `?render=software`면 소프트웨어 인코딩(시험 스위치), 그 밖에는 기본값 */
+const renderSwitches = (value: string | null | undefined) => (value ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+
+/** 주소 `?render=software`(쉼표로 여러 개 가능)면 소프트웨어 인코딩(시험 스위치), 그 밖에는 기본값 */
 export function renderHwFromParam(value: string | null | undefined): RenderHw {
-  return value === "software" ? "prefer-software" : "no-preference";
+  return renderSwitches(value).includes("software") ? "prefer-software" : "no-preference";
+}
+
+/** 맥(데스크톱 macOS) 크롬인가 — 아이폰·아이패드는 제외 */
+export function isMacDesktop(userAgent: string): boolean {
+  return /Macintosh|Mac OS X/.test(userAgent) && !/iPhone|iPad|iPod/.test(userAgent);
+}
+
+export type RenderDecode = "software" | "default";
+
+/** v1.22 영상 디코딩 방식 — 맥 측정(PLAN §7)에서 장면 그리기가 한 장에 약 20초 걸려 맥은 소프트웨어 디코딩이 기본.
+ *  `?render=hwdecode`는 예전 방식(비교용), `?render=softdecode`는 맥이 아니어도 소프트웨어 */
+export function renderDecodeFromParam(value: string | null | undefined, userAgent: string): RenderDecode {
+  const sw = renderSwitches(value);
+  if (sw.includes("hwdecode")) return "default";
+  if (sw.includes("softdecode")) return "software";
+  return isMacDesktop(userAgent) ? "software" : "default";
+}
+
+/** `?render=verbose`면 렌더 라이브러리 자세한 로그(장면 추출·키프레임) */
+export function renderVerboseFromParam(value: string | null | undefined): boolean {
+  return renderSwitches(value).includes("verbose");
 }
 
 /** 남은 시간(ms) → 「약 2분 5초」「약 40초」. 값이 없거나 아직 예측 전이면 빈 글자 */
@@ -33,11 +56,13 @@ export function isSlowRender(elapsedMs: number, etaMs: number): boolean {
 }
 
 /** 진단 한 줄(콘솔) — 그리기(rendered)와 인코딩(encoded) 중 어디가 막히는지 구분용 */
-export function renderDiagnostics(d: { outcome: "done" | "error" | "aborted"; hw: RenderHw; elapsedMs: number; totalFrames: number; renderedFrames: number; encodedFrames: number; userAgent: string; cores: number }) {
+export function renderDiagnostics(d: { outcome: "done" | "error" | "aborted"; hw: RenderHw; decode: RenderDecode; elapsedMs: number; totalFrames: number; renderedFrames: number; encodedFrames: number; userAgent: string; cores: number }) {
   const sec = Math.round(d.elapsedMs / 100) / 10;
   return {
     outcome: d.outcome,
     hw: d.hw,
+    decode: d.decode,
+    msPerFrame: d.renderedFrames > 0 ? Math.round(d.elapsedMs / d.renderedFrames) : 0,
     seconds: sec,
     frames: `${d.renderedFrames}/${d.encodedFrames}/${d.totalFrames}`,
     fps: sec > 0 ? Math.round((d.encodedFrames / sec) * 10) / 10 : 0,
