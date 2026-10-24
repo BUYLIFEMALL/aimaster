@@ -216,3 +216,13 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - `/video?ams=<생성 번호>:<곡 순서>,…`(최대 20곡)로 들어오면 미디어 센터 맨 위 「🎧 AI 음악 스튜디오에서 보낸 곡」 패널(`src/components/video/AmsImportPanel.tsx`)이 곡 목록을 보여 주고, 회원이 「곡 N개 추가」를 누르면 목록 끝에 넣는다. 서버 `src/lib/amsTracks.ts` + `GET /api/ams/songs?refs=` — 회원 본인 행만, 비공개 저장소 서명 주소. Lyria 시간 가사는 `src/lib/amsLyrics.ts`(공용 모듈 `ams-timed-lyrics` 사본, 기준 lyric-video-studio)로 곡 가사 층에 연결. 외부 AI 호출 없음.
 - 함께 내보낸 대기: 좌측 메뉴 계정·로그아웃 위치(`22c6cda35`).
 - 검수: 시험 23·tsc·build, 배포 `playlist-channel-studio-pa8ct6t4x` Ready·DB v1.27, 크롬 시험 계정 — 완성곡 6개로 들어가 「곡 6개 추가」 → 목록 6곡·시간 가사 1곡 확인. 계정 위치는 화면 캡처상 마지막 메뉴 바로 아래. 비용: Vercel 빌드 1회.
+
+## 2026-10-24 v1.29 — Spectrum 묶음 1차: P-0 렌더 새로 쓰기 · P-1 곡 제목 · P-2 저장 안정화 (Claude Code 윈도우 · 음악 담당 `claude-win-20261024-music`)
+- 근거: 인수인계 `docs/IMPROVEMENT_HANDOFF_20261024_SPECTRUM.md`, 플랜 `docs/PLAN_20261024_SPECTRUM_P1_P6.md`, 권리 점검 `../docs/analysis-spectrum-studio-pro-20261024/RIGHTS_CHECK_20261024.md`. 주인님 승인: P-0 먼저 → P-1~P-5, 빌드 2회.
+- **P-0** 원본(외부 상용 프로그램 번들)에서 옮겨 온 `src/lib/render/canvas-visualizer.ts`·`particle-system.ts`를 효과 이름만 남기고 새로 씀. 스펙트럼: 로그 구간 세기(`bandLevels`)·9종 새 그리기·필터 값 새로·필름 노이즈 4장 재사용 / 파티클: `KINDS` 표 하나, **흐른 시간 기준**(미리보기·MP4 속도 같음), 짧은 변 1080 단위, 새 모양(물방울·네 갈래 별·번짐·번개·레이저·사이버 선). 원본 대비 일치율 40.7%→18.7%, 28.2%→7.7%(기준선 10~22%).
+- **P-1** `src/lib/render/title-layer.ts` — 곡이 바뀔 때 제목·가수·「03 / 12」를 2~15초(기본 6초) 표시, 스타일 5종(카드·네온·미니멀·외곽선·태그)·9칸 위치·글로우, 미리보기와 MP4 같은 함수(가사 유무와 상관없음). 오른쪽 패널 「곡 제목 표시」.
+- **P-2** `video-exporter.ts` — 저장 품질 3단계(품질·균형·속도, `ExportSettings.quality`), `VideoEncoder.isConfigSupported`로 하드웨어 가속 → 소프트웨어 → 호환 모드 자동 선택, 인코더 대기열 12 넘으면 기다림, 화면 꺼짐 방지(`navigator.wakeLock`, 바깥 `exportVideoMp4`가 감쌈), 진행 문구에 인코더 종류·남은 시간. 출력 화면 「저장 품질」.
+- 검수: tsc·build · 로컬 시험 페이지로 스펙트럼 9종·파티클 14종·제목 5종 눈 확인 · 배포 `playlist-channel-studio-pzehju79y` Ready·DB v1.29 · 크롬 시험 계정 운영: 짧은 곡 2개 → 미리보기에 곡 제목·눈·막대 → 1080p MP4 저장 「하드웨어 가속 · 남은 시간」 표시, 24초·1920×1080·8.7MB, 곡마다 제목(01/02·02/02). 세로 9:16 저장은 이번에 확인 안 함.
+- 비용: 빌드 1회(승인 2회 중), AI 호출 없음.
+- **다음**: P-3 배경 여러 장 전환 → P-4 AI 없는 움직이는 배경 → P-5 내 설정 저장·장르 프리셋 → 2차 배포. P-6은 나중에 따로.
+
