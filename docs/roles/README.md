@@ -27,7 +27,6 @@
 | 이커머스·이미지 | [ecommerce-image.md](ecommerce-image.md) | Claude Code(윈도우) `claude-win-sdp` | 바나나 캔버스·상세페이지·이미지 스튜디오 | 이커머스·이미지 |
 | 문서 챗봇·AI Prompt | [docbot-prompt.md](docbot-prompt.md) | Codex(윈도우) `codex-win-20261024-docbot-g2` | 문서 챗봇·AI Prompt·공용 공급자 | 업무자동화·AI 프롬프트 |
 | AI 업무 워크스페이스 | [workspace.md](workspace.md) | Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace` | Tools |
-| 부동산 | [real-estate.md](real-estate.md) | Claude Code(윈도우) — 세션 이름은 담당이 처음 시작할 때 적음(2026-10-24 주인님 지정) | `real_estate_sales/`·새 `realty-listing-alert/` | 부동산 |
 | 검수 | [review.md](review.md) | Claude Code(윈도우) — 세션 이름 확인 필요 | 다른 CLI 작업 검수 | 전체 |
 | 디자인 | [design.md](design.md) | Antigravity(`agy`) | 디자인 리뉴얼·매뉴얼 시각화 | 전체 |
 | 부동산 | [realty.md](realty.md) | Claude Code(윈도우) `claude-win-20261024-realty` | `realty-listing-alert`(새 프로그램 구현)·부동산 프로그램 | 부동산 |

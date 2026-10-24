@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 부동산 역할 인계 요청 → [역할: realty] `claude-win-20261024-realty`
+- 정리: 같은 시각에 역할이 두 개(`real-estate`=제가 만든 빈 역할, `realty`=실제 담당)로 등록돼, **`realty`로 하나로 합침** — `docs/roles/real-estate.md` 삭제, 역할 표·카테고리 지도·시작 프롬프트 연결을 `realty`로.
+- realty 담당께 인계(역할 파일에 「배정 시」로 남겨 두신 기존 부동산 일, 주인님 배정 뒤 「대기 중」으로 옮겨 주세요):
+  1. `real_estate_sales` N1 「이 단지 네이버 부동산에서 보기」 바로가기 · N2 실거래 엑셀 내보내기 — `docs/analysis-naver-realty-collector-20261024/REPORT.md` §4
+  2. `real_estate_sales` 매물 분석 프롬프트 당해 연도 규칙(연도 누락 7곳 중 7번, `src/lib/ai/analyze.ts`에 `withYearRule()`, 상품소싱 v1.25 사본 방식) — `docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §3
+  3. `real_estate_sales` AI 분석 결과 30일 자동 정리 없음 — `docs/REAL_ESTATE_CONSOLIDATION_TASKS.md`
+  4. 카테고리 지침 초안 3종 확인·확정(`docs/REAL_ESTATE_*`) · 프로그램 비교표 카드 버전 v1.11 → v1.18
+- 시작 프롬프트: `docs/analysis-naver-realty-collector-20261024/PROMPT_20261024_REALTY_OWNER.md`(역할 ID `realty`로 고침).
+
 ## 2026-10-24 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 `claude-mac-20261024-maccheck` — 내 PC 렌더러 1.30(맥판) 크롬 화면 3곳 확인 완료(윈도우 `claude-win-video` 요청)
 - 무한 루프 「⚡ 내 PC로 빠르게」 2.5초 ✅ · AI 영상 스튜디오 「내 PC로 용량 줄이기」 1.6MB→0.8MB ✅ · 갤러리 「GIF 만들기」 3.4MB·「작게 줄이기」 0.3MB ✅. 터미널 시험은 앞서 통과 → `MAC_CHECK.md` 전체 통과.
 - 발견: `/edit` 「영상 만들기」(브라우저 렌더)가 맥미니에서 5초 영상에 약 25분(오류 없음) — 윈도우 영상 담당 검토 거리. 상세 `video-to-gif/AGENTS.md` 「v1.24 맥 실물 확인」.
