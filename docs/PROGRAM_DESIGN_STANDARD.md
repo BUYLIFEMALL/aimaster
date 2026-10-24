@@ -256,6 +256,20 @@ box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0
 - **한 줄에 문구와 버튼 묶음을 같이 둘 때**: 부모 `flex flex-wrap gap-y-3`, 버튼 묶음 `ml-auto` → 공간이 모자라면 버튼 묶음 전체가 다음 줄 오른쪽으로 내려감(글자를 눌러 자르지 않음)
 - **검수**: 회원 상태별 버튼 중 가장 긴 조합으로, 데스크톱 최소 열 폭(약 330px)과 휴대폰 폭(375~390px)에서 확인하고, 잘림·넘침(`scrollWidth > clientWidth`)이 0개인지 봅니다. 기준 구현: `components/programs/ProgramCard.tsx` 하단 가격·버튼 줄.
 
+### 6.6 주요 링크·실행 버튼·상세페이지 핵심 CTA 3D 엠보싱 버튼 표준 (2026-10-25 주인님 지시)
+모든 웹 스튜디오, 상세페이지 UI, 사이드바, 가이드 화면에서 **주요 링크나 핵심 실행 버튼은 누르는 손맛과 주목도가 뛰어난 3D 엠보싱 버튼으로 탑재**합니다:
+1. **적용 대상**:
+   - **주요 링크**: 사이드바 크롬 확장 다운로드(`.nav-download`), 히어로 가이드 다운로드 배너(`.guide-3d-download-btn`), 공식 콘솔 API 키 발급 바로가기(`.btn-create-key`)
+   - **실행 버튼**: 원고 생성, 자동 포스팅 시작, 영상 렌더링, 키워드 분석, 음원 변환 등 프로그램 핵심 결과를 호출하는 Primary 액션 버튼
+   - **상세페이지 UI 핵심 CTA**: 프로그램 소개/상세 화면의 「프로그램 시작하기」, 「무료 체험하기」, 이커머스 상세페이지의 「바로 구매」, 「옵션 선택」, 「12P 상세페이지 자동 완성」 버튼
+2. **스타일 규격**:
+   - `background`: 테마에 맞춘 선명한 2단 세로 그라데이션 (`linear-gradient(180deg, [밝은톤] 0%, [진한톤] 100%)`)
+   - `border`: 상단/측면 미세 하이라이트 경계선 (`1px solid rgba(255, 255, 255, 0.25)` 또는 보색 테두리)
+   - `box-shadow`: 입체 하단 엠보싱 (`0 5px 0 [더 진한 테마색], 0 9px 18px rgba([테마RGB], 0.3)`)
+   - `:hover`: `transform: translateY(-1.5px~-2px)` + 그림자 확장 (`0 7px 0 ..., 0 14px 24px ...`)
+   - `:active`: `transform: translateY(4px)` + 그림자 밀착 (`0 1px 0 ..., 0 3px 8px ...`) — 물리적 키캡 푸시 피드백
+3. **기준 구현**: [`naver-blog-seo-studio/app/globals.css`](../naver-blog-seo-studio/app/globals.css), [`realty-listing-alert/app/globals.css`](../realty-listing-alert/app/globals.css)
+
 ---
 
 ## 7. 향후 개편 및 확장 절차 (Roadmap & Maintenance)

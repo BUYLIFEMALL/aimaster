@@ -131,7 +131,28 @@
       4. **모바일 동기화**: 767px 이하 모바일 ☰ 펼침 메뉴에도 데스크톱과 완전히 동일한 위치·기능으로 포함.
       5. **기준 레퍼런스 구현체**: [`realty-listing-alert/components/studio/StudioSidebar.tsx`](realty-listing-alert/components/studio/StudioSidebar.tsx).
 
-
+21. **★★★ 주요 링크·실행 버튼·상세페이지 액션의 3D 엠보싱 버튼 규격화 지침 (2026-10-25 주인님 지시: 「주요한 링크나 버튼 실행버튼은 3D버튼으로 달아줘 지침에 추가해 디자인 UI/상세페이지 UI에 지침으로 넣어」, 모든 CLI·모든 에이전트 공통 필독)**:
+    - **적용 배경**: 평면적이고 밋밋한 플랫 버튼은 사용자가 무엇을 먼저 눌러야 할지, 어떤 것이 실제 구동되는 핵심 실행 버튼인지 직관적으로 인지하기 어렵습니다. 시각적으로 도드라지고 누르는 손맛(클릭감)이 살아있는 **3D 엠보싱 버튼(입체 그라데이션 + 뚜렷한 하단 입체 그림자 + 클릭 시 눌림 모션)**을 핵심 액션에 전면 적용하여 사용자 편의성과 전환율을 극대화합니다.
+    - **3D 버튼 필수 적용 대상**:
+      1. **좌측 사이드바 및 히어로의 주요 링크**: 크롬 확장프로그램 다운로드 버튼(`.nav-download`, `.guide-3d-download-btn`), 로컬 호스트 설치 다운로드, 외부 플랫폼 키 생성 바로가기(`.btn-create-key`) 등.
+      2. **작업 스튜디오/대시보드의 주요 실행 버튼**: 「원고 생성하기」, 「자동 포스팅 시작」, 「렌더링 실행」, 「키워드 분석 시작」, 「동영상 변환하기」 등 프로그램의 핵심 결과를 만들어내는 Primary 액션 버튼.
+      3. **상세페이지 UI(프로그램 소개/상세 화면 및 이커머스 상세페이지)의 핵심 CTA**: 「프로그램 시작하기」, 「무료 체험하기」, 「장바구니 담기 / 바로 구매」, 「옵션 선택」, 「12P 상세페이지 자동 완성」 등 사용자의 결정적 행동을 유도하는 메인 전환 버튼.
+    - **공식 표준 3D 버튼 스타일 규격**:
+      - **기본 상태 (`normal`)**:
+        - `background`: 테마에 맞는 고채도 2단 수직 그라데이션 (예: 에메랄드 `linear-gradient(180deg, #08c963 0%, #009b4d 100%)`, 인디고 `linear-gradient(180deg, #6366f1 0%, #4338ca 100%)`, 앰버골드 `linear-gradient(180deg, #f59e0b 0%, #d97706 100%)`).
+        - `border`: 상단/측면 미세 하이라이트 보더 (`1px solid rgba(255, 255, 255, 0.25)` 또는 진한 테두리).
+        - `box-shadow`: **2단 3D 엠보싱 그림자** (`0 5px 0 [더 진한 베이스 테마색], 0 9px 18px rgba([테마RGB], 0.3)`).
+        - `font-weight`: 750~800 (도톰하고 명확한 서체).
+      - **호버 상태 (`:hover`)**:
+        - `transform: translateY(-1.5px~-2px)` (살짝 위로 떠오르는 입체감).
+        - `box-shadow: 0 6.5px~7px 0 [더 진한 베이스 테마색], 0 12px 22px rgba([테마RGB], 0.4)` (더 짙어지는 입체 그림자).
+      - **클릭/액티브 상태 (`:active`)**:
+        - `transform: translateY(4px)` (실제 물리적 키캡이 쑥 눌려 들어가는 3D 클릭감).
+        - `box-shadow: 0 1px 0 [더 진한 베이스 테마색], 0 3px 8px rgba([테마RGB], 0.25)` (하단 엠보싱 그림자가 바닥에 밀착).
+    - **기준 레퍼런스 구현체**:
+      - 좌측 사이드바 3D 다운로드: [`realty-listing-alert/app/globals.css`](realty-listing-alert/app/globals.css) `.nav-download` 및 [`naver-blog-seo-studio/app/globals.css`](naver-blog-seo-studio/app/globals.css) `.nav-download`
+      - 가이드 3D 다운로드 배너: [`naver-blog-seo-studio/app/globals.css`](naver-blog-seo-studio/app/globals.css) `.guide-3d-download-btn`
+      - API 키 생성 3D 버튼: [`banana-canvas/app/globals.css`](banana-canvas/app/globals.css) `.btn-create-key`
 
 ---
 
