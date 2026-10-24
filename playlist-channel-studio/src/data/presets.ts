@@ -197,4 +197,5 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   audioBitrate: 192000,
   repeatCount: 1,
   aspect: '16:9',
+  quality: 'balanced',
 };

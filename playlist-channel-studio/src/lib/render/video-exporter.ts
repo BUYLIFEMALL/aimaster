@@ -1,4 +1,4 @@
-import { Track, StudioSettings, ExportSettings } from '@/types/playlist';
+import { Track, StudioSettings, ExportSettings, ExportQuality } from '@/types/playlist';
 import { Muxer, ArrayBufferTarget, FileSystemWritableFileStreamTarget } from 'mp4-muxer';
 import {
   drawSpectrumVisualizer,
@@ -18,9 +18,69 @@ export interface RenderProgress {
   currentSecond: number;
   totalSeconds: number;
   status: string;
+  /** P-2 남은 예상 시간(초) — 프레임 그리기가 시작된 뒤부터 */
+  etaSeconds?: number;
+  /** P-2 실제로 쓴 인코더(「하드웨어 가속」/「소프트웨어」) */
+  encoder?: string;
 }
 
-export async function exportVideoMp4(
+// P-2 품질 단계별 영상 비트레이트(1080p 기준, 720p는 화소 수 비율로) — 우리 값
+const VIDEO_BITRATE: Record<ExportQuality, number> = { quality: 14_000_000, balanced: 9_000_000, speed: 6_000_000 };
+const MAX_ENCODE_QUEUE = 12; // 인코더 대기열이 이보다 길면 잠깐 기다린다(메모리 넘침 방지)
+
+/** 하드웨어 가속을 먼저 확인하고 안 되면 소프트웨어로 — 지원되는 첫 설정을 돌려준다 */
+async function pickVideoConfig(width: number, height: number, fps: number, quality: ExportQuality): Promise<{ config: VideoEncoderConfig; label: string }> {
+  const pixels = (width * height) / (1920 * 1080);
+  const base: VideoEncoderConfig = {
+    codec: 'avc1.4d002a',
+    width,
+    height,
+    bitrate: Math.round(VIDEO_BITRATE[quality] * Math.max(0.45, pixels) * (fps > 30 ? 1.4 : 1)),
+    framerate: fps,
+    latencyMode: quality === 'speed' ? 'realtime' : 'quality',
+  };
+  const tries: [VideoEncoderConfig, string][] = [
+    [{ ...base, hardwareAcceleration: 'prefer-hardware' }, '하드웨어 가속'],
+    [{ ...base, hardwareAcceleration: 'prefer-software' }, '소프트웨어'],
+    [{ ...base, codec: 'avc1.42002a', hardwareAcceleration: 'no-preference' }, '기본(호환 모드)'],
+  ];
+  for (const [config, label] of tries) {
+    try {
+      const r = await VideoEncoder.isConfigSupported(config);
+      if (r.supported) return { config: r.config ?? config, label };
+    } catch { /* 다음 설정 시도 */ }
+  }
+  return { config: base, label: '기본' };
+}
+
+/** 인코더 대기열이 줄어들 때까지 기다린다 */
+async function drainEncoder(enc: VideoEncoder) {
+  while (enc.encodeQueueSize > MAX_ENCODE_QUEUE) {
+    await new Promise<void>((resolve) => {
+      const done = () => { clearTimeout(t); resolve(); };
+      const t = setTimeout(done, 20);
+      enc.addEventListener('dequeue', done, { once: true });
+    });
+  }
+}
+
+const fmtEta = (s: number) => (s >= 3600 ? `${Math.floor(s / 3600)}시간 ${Math.floor((s % 3600) / 60)}분` : s >= 60 ? `${Math.floor(s / 60)}분 ${Math.round(s % 60)}초` : `${Math.max(1, Math.round(s))}초`);
+
+/** P-2 저장하는 동안 화면이 꺼지지 않게(지원하는 브라우저만) 감싼다 */
+export async function exportVideoMp4(...args: Parameters<typeof renderVideoMp4>): Promise<Blob | null> {
+  let lock: { release: () => Promise<void> } | null = null;
+  try {
+    const wl = (navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<{ release: () => Promise<void> }> } }).wakeLock;
+    if (wl && document.visibilityState === 'visible') lock = await wl.request('screen');
+  } catch { /* 화면 꺼짐 방지를 못 해도 저장은 계속 */ }
+  try {
+    return await renderVideoMp4(...args);
+  } finally {
+    lock?.release().catch(() => {});
+  }
+}
+
+async function renderVideoMp4(
   tracks: Track[],
   bgMedia: { type: 'image' | 'video'; url: string } | null,
   logoImg: HTMLImageElement | null,
@@ -140,13 +200,9 @@ export async function exportVideoMp4(
     }
   });
 
-  videoEncoder.configure({
-    codec: 'avc1.4d002a',
-    width,
-    height,
-    bitrate: 10_000_000,
-    framerate: fps
-  });
+  // P-2 하드웨어 가속 → 소프트웨어 순으로 지원되는 설정을 골라 쓴다
+  const picked = await pickVideoConfig(width, height, fps, exportSettings.quality ?? 'balanced');
+  videoEncoder.configure(picked.config);
 
   // 7. Initialize AudioEncoder
   const audioEncoder = new AudioEncoder({
@@ -206,8 +262,10 @@ export async function exportVideoMp4(
   // v1.21 (IMP-PLS-008) GIF 스티커 — 장면을 미리 나눠 두고 시각에 맞춰 그린다(미리보기와 같은 위치·크기·투명도·그림자)
   const gif = gifUrl ? await loadGifSticker(gifUrl).catch(() => null) : null;
   const unit = Math.min(width, height) / 1080; // 미리보기 캔버스가 1080p 기준이라 720p는 비율로 줄인다
+  const renderStart = performance.now();
   for (let frameIdx = 0; frameIdx < totalVideoFrames; frameIdx++) {
     if (encoderError) throw encoderError;
+    if (videoEncoder.encodeQueueSize > MAX_ENCODE_QUEUE) await drainEncoder(videoEncoder);
 
     const currentTimeSec = frameIdx / fps;
     const timeMs = currentTimeSec * 1000;
@@ -318,11 +376,16 @@ export async function exportVideoMp4(
     // Progress update every 15 frames
     if (frameIdx % 15 === 0 || frameIdx === totalVideoFrames - 1) {
       const pct = Math.round(25 + (frameIdx / totalVideoFrames) * 70);
+      // P-2 남은 시간: 지금까지 프레임당 걸린 시간으로 추정(처음 2초는 추정하지 않음)
+      const spent = (performance.now() - renderStart) / 1000;
+      const eta = frameIdx > 0 && spent > 2 ? (spent / (frameIdx + 1)) * (totalVideoFrames - frameIdx - 1) : undefined;
       onProgress({
         progress: pct,
         currentSecond: Math.round(currentTimeSec),
         totalSeconds: Math.round(totalDuration),
-        status: `MP4 렌더링 중... ${pct}% (${Math.round(currentTimeSec)}초 / ${Math.round(totalDuration)}초)`
+        etaSeconds: eta,
+        encoder: picked.label,
+        status: `MP4 렌더링 중... ${pct}% (${Math.round(currentTimeSec)}초 / ${Math.round(totalDuration)}초) · ${picked.label}${eta !== undefined ? ` · 남은 시간 약 ${fmtEta(eta)}` : ''}`
       });
     }
   }

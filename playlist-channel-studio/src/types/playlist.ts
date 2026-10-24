@@ -191,4 +191,8 @@ export interface ExportSettings {
   audioBitrate: number; // 96000, 128000, 192000, 320000
   repeatCount: number; // 1, 2, 3, 5
   aspect: '16:9' | '9:16'; // v1.17 세로(쇼츠) 영상
+  quality: ExportQuality; // P-2 품질 단계
 }
+
+/** P-2 품질 단계 — 품질(큰 파일)·균형(기본)·속도(빠른 저장) */
+export type ExportQuality = 'quality' | 'balanced' | 'speed';

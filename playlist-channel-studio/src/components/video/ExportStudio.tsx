@@ -167,6 +167,28 @@ export function ExportStudio({
             </div>
           </div>
 
+          {/* P-2 품질 단계 */}
+          <div className="space-y-1.5 pt-2 border-t border-[#272727]">
+            <label className="text-xs font-bold text-[#aaaaaa]">저장 품질</label>
+            <div className="grid grid-cols-3 gap-2">
+              {([["quality", "품질 우선", "파일이 큼"], ["balanced", "균형", "추천"], ["speed", "속도 우선", "빠른 저장"]] as const).map(([q, label, hint]) => (
+                <button
+                  key={q}
+                  disabled={isExporting}
+                  onClick={() => setExportSettings((p) => ({ ...p, quality: q }))}
+                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                    (exportSettings.quality ?? "balanced") === q
+                      ? "bg-[#ff0000] text-white border-[#ff0000] shadow-md shadow-red-950"
+                      : "bg-[#212121] text-[#aaaaaa] border-[#272727] hover:bg-[#272727] hover:text-white"
+                  }`}
+                >
+                  {label}<span className="block text-[10px] font-medium opacity-75">{hint}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-[#777777] leading-relaxed">저장할 때 이 PC의 하드웨어 가속을 먼저 쓰고, 안 되면 자동으로 일반 방식으로 바꿉니다. 저장하는 동안 화면이 꺼지지 않게 해 두며, 이 탭은 열어 두세요.</p>
+          </div>
+
           {/* 옵션 설정 */}
           <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[#272727]">
             <div className="space-y-1.5">
