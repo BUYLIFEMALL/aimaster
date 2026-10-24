@@ -7,11 +7,12 @@ import type {
 } from '@anthropic-ai/sdk/resources/beta/messages/messages';
 import { validateToolInput, type ModelRequest } from './prompts.ts';
 import { AiError, ProviderError, type AiErrorCode } from './providers/errors.ts';
-import { anthropicKey, openaiConfig, providerConfigured, providerId, scrub } from './providers/config.ts';
+import { anthropicKey, geminiKey, openaiConfig, providerConfigured, providerForModel, providerId, scrub } from './providers/config.ts';
 import {
   anthropicClient, anthropicErrorMeta, APIUserAbortError, BadRequestError, cleanApiMessage, mapAnthropicError, type ClaudeLike,
 } from './providers/anthropic.ts';
 import { openaiClient } from './providers/openai.ts';
+import { geminiClient } from './providers/gemini.ts';
 import { DEFAULT_MODEL, modelConfigurationError, modelInfo, requestModel } from './models.ts';
 
 export { AiError, ProviderError, scrub, type AiErrorCode, type ClaudeLike };
@@ -32,11 +33,21 @@ export function requireConfigured() {
 }
 
 let openaiCached: { key: string; client: ClaudeLike } | null = null;
+let geminiCached: { key: string; client: ClaudeLike } | null = null;
 
-/** The active provider's client (Anthropic SDK, or the openai adapter with the same surface). */
-export function getClient(): ClaudeLike {
-  const p = providerId();
-  if (p === 'openai') {
+/**
+ * The active provider's client (Anthropic SDK, or the openai adapter with the same surface).
+ * 이식판(U4): model을 주면 그 모델을 만든 회사의 회원 키로 고른다(예: Claude·Gemini 키가 둘 다 있고 Gemini 모델을 고른 경우).
+ */
+export function getClient(model?: string): ClaudeLike {
+  const p = model ? (providerForModel(model) ?? providerId()) : providerId();
+  if (p === 'gemini') {
+    const key = geminiKey();
+    if (key) {
+      if (!geminiCached || geminiCached.key !== key) geminiCached = { key, client: geminiClient(key) };
+      return geminiCached.client;
+    }
+  } else if (p === 'openai') {
     const modelError = modelConfigurationError();
     if (modelError) throw new AiError('bad_request', modelError, 400);
     const cfg = openaiConfig();
@@ -164,12 +175,12 @@ function webResults(block: any): { results: WebCitation[]; error?: string } {
  * model follow Auto (models.ts requestModel: the default model, or the fast model for quick one-shot tasks).
  */
 export async function runStream(req: ModelRequest, cb: StreamCallbacks = {}, opts: RunOptions = {}): Promise<RunResult> {
-  const client = opts.client ?? getClient();
+  const reqModel = requestModel(req);
+  const client = opts.client ?? getClient(reqModel);
   const messages: BetaMessageParam[] = [...req.messages];
   const usage: Usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const maxRounds = opts.maxToolRounds ?? 6;
-  const reqModel = requestModel(req);
-  const useFallback = fallbacksSupported && (req.fallback ?? true);
+  const useFallback = fallbacksSupported && (req.fallback ?? true) && providerForModel(reqModel) !== 'gemini';
   let text = '';
   let model = reqModel;
   let continuations = 0;

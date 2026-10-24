@@ -7,6 +7,7 @@ import { memberFromUser } from "@/server/member";
 import { readyMember } from "@/server/runtime";
 import { hasMemberAiKey, loadMemberAiKeys } from "@/server/memberAiKeys";
 import { withMemberAiKeys } from "@/litpage/server/ai/providers/config.ts";
+import { warmModelLists } from "@/litpage/server/ai/models.ts";
 import { withRequestCache } from "@/litpage/server/db.ts";
 import { mapError, NO_KEY_MESSAGE } from "@/litpage/server/ai/client.ts";
 import { executeChatTurn, executeSimple, parseChatParams, prepareAiBlock, prepareChatTurn, prepareWriter, type TurnEvents } from "@/litpage/server/ai/service.ts";
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
 
   const kind = String(body?.kind ?? "");
   if (kind === "agent") return NextResponse.json({ name: "PermissionError", message: STAGE_MESSAGE }, { status: 403, headers: NO_STORE });
+  await withMemberAiKeys(keys, () => warmModelLists()).catch(() => {});
 
   // 준비 단계(권한 확인·대화 만들기)는 요청 캐시 안에서, 오래 걸리는 생성은 캐시 밖에서(오래된 값을 읽지 않게)
   let job: Job;

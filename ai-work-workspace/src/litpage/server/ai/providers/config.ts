@@ -6,7 +6,7 @@
 // `pnpm dev` (apps/server) loads apps/server/.env.local (gitignored) with `node --env-file-if-exists`; variables already
 // set in the environment win over the file.
 
-export type ProviderId = 'openai' | 'anthropic' | 'none';
+export type ProviderId = 'openai' | 'anthropic' | 'gemini' | 'none';
 
 export interface OpenAIConfig {
   /** e.g. https://api.openai.com/v1 (no trailing slash) */
@@ -21,9 +21,11 @@ export interface OpenAIConfig {
 import { AsyncLocalStorage } from 'node:async_hooks';
 
 export interface MemberAiKeys {
-  provider?: 'openai' | 'anthropic';
+  provider?: 'openai' | 'anthropic' | 'gemini';
   openaiKey?: string;
   anthropicKey?: string;
+  /** U4: 회원 본인 Gemini 키(user_api_keys provider 'gemini') */
+  geminiKey?: string;
 }
 const memberKeys = new AsyncLocalStorage<MemberAiKeys>();
 
@@ -44,6 +46,11 @@ export function anthropicKey(): string | null {
   return env('ANTHROPIC_API_KEY') || null;
 }
 
+/** U4: 회원 본인 Gemini 키만(환경변수는 시험에서도 읽지 않음 — 개발 PC에 있는 다른 키가 섞이지 않게) */
+export function geminiKey(): string | null {
+  return memberKeys.getStore()?.geminiKey?.trim() || null;
+}
+
 export function openaiConfig(): OpenAIConfig | null {
   const member = memberKeys.getStore()?.openaiKey?.trim();
   if (member) return { baseUrl: 'https://api.openai.com/v1', apiKey: member };
@@ -58,10 +65,12 @@ export function providerId(): ProviderId {
   const keys = memberKeys.getStore();
   if (keys?.provider === 'openai' && keys.openaiKey) return 'openai';
   if (keys?.provider === 'anthropic' && keys.anthropicKey) return 'anthropic';
+  if (keys?.provider === 'gemini' && keys.geminiKey) return 'gemini';
   const raw = env('NC_AI_PROVIDER').toLowerCase();
   if (raw) {
     if (raw === 'openai' || raw === 'openai-compatible') return 'openai';
     if (raw === 'anthropic' || raw === 'claude') return 'anthropic';
+    if (raw === 'gemini' || raw === 'google') return 'gemini';
     if (raw !== 'none' && raw !== 'off' && warnedValue !== raw) {
       warnedValue = raw;
       console.warn(`[ai] unknown NC_AI_PROVIDER "${raw.slice(0, 40)}": AIMaster is off (use openai, anthropic or none)`);
@@ -70,25 +79,59 @@ export function providerId(): ProviderId {
   }
   if (openaiConfig()) return 'openai';
   if (anthropicKey()) return 'anthropic';
+  if (geminiKey()) return 'gemini';
   return 'none';
+}
+
+/** 모델 이름으로 그 모델을 만든 회사(제공자)를 고른다 — 이름만으로 알 수 없으면 null */
+export function modelFamily(model: string): Exclude<ProviderId, 'none'> | null {
+  const id = model.trim().replace(/^models\//, '');
+  if (/^claude-/i.test(id)) return 'anthropic';
+  if (/^gemini-/i.test(id)) return 'gemini';
+  if (/^(gpt-|o\d|openai-|chatgpt-)/i.test(id)) return 'openai';
+  return null;
+}
+
+/** U4: 회원(또는 시험 환경)이 키를 가진 제공자 목록. 첫 번째가 providerId()(「자동」이 쓰는 제공자). */
+export function availableProviders(): Exclude<ProviderId, 'none'>[] {
+  const first = providerId();
+  if (first === 'none') return [];
+  const keys = memberKeys.getStore();
+  if (!keys) return [first];
+  const all: Exclude<ProviderId, 'none'>[] = [];
+  if (keys.anthropicKey) all.push('anthropic');
+  if (keys.openaiKey) all.push('openai');
+  if (keys.geminiKey) all.push('gemini');
+  return [first, ...all.filter((p) => p !== first)];
+}
+
+/** 이 모델을 돌릴 제공자: 이름의 회사 키가 있으면 그 회사, 이름만으로 모르면 「자동」 제공자, 키가 없으면 null */
+export function providerForModel(model: string | undefined): Exclude<ProviderId, 'none'> | null {
+  const fam = model ? modelFamily(model) : null;
+  if (!fam) {
+    const p = providerId();
+    return p === 'none' ? null : p;
+  }
+  return availableProviders().includes(fam) ? fam : null;
 }
 
 /** The selected provider has everything it needs to make calls. */
 export function providerConfigured(p: ProviderId = providerId()): boolean {
   if (p === 'openai') return openaiConfig() !== null;
   if (p === 'anthropic') return anthropicKey() !== null;
+  if (p === 'gemini') return geminiKey() !== null;
   return false;
 }
 
 /** Environment variable holding the selected provider's key (named in admin-facing error messages). */
 export function keyVariable(p: ProviderId = providerId()): string {
-  return p === 'openai' ? 'OPENAI_API_KEY' : 'ANTHROPIC_API_KEY';
+  return p === 'openai' ? 'OPENAI_API_KEY' : p === 'gemini' ? 'GEMINI_API_KEY' : 'ANTHROPIC_API_KEY';
 }
 
 /** Every configured secret value, whichever provider is active (scrubbed from logs and error texts). */
 export function providerSecrets(): string[] {
   const keys = memberKeys.getStore();
-  return [env('ANTHROPIC_API_KEY'), env('OPENAI_API_KEY'), env('ANTHROPIC_AUTH_TOKEN'), keys?.openaiKey ?? '', keys?.anthropicKey ?? ''].filter((k) => k.length >= 8);
+  return [env('ANTHROPIC_API_KEY'), env('OPENAI_API_KEY'), env('ANTHROPIC_AUTH_TOKEN'), keys?.openaiKey ?? '', keys?.anthropicKey ?? '', keys?.geminiKey ?? ''].filter((k) => k.length >= 8);
 }
 
 /** Remove anything key-like from text before it is logged or returned (configured keys, OpenAI and Anthropic keys, bearer tokens). */
@@ -96,6 +139,7 @@ export function scrub(text: string): string {
   let out = text;
   for (const k of providerSecrets()) out = out.split(k).join('[redacted]');
   return out
+    .replace(/AIza[0-9A-Za-z_-]{20,}/g, 'AIza[redacted]')
     .replace(/sk-ant-[A-Za-z0-9_-]{8,}/g, 'sk-ant-[redacted]')
     .replace(/sk-proj-[A-Za-z0-9_-]{8,}/g, 'sk-proj-[redacted]')
     .replace(/sk-(?!ant-|proj-)[A-Za-z0-9_-]{8,}/g, 'sk-[redacted]')
