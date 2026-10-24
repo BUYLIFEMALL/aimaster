@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 역할별 현황 파일 + 역할 ID 기록 규칙 (문서만, 코드·DB·배포 변경 없음)
+- 플랜: [개발 현황·지침 센터](PLAN_20261024_ADMIN_DEV_DOCS_CENTER.md) 1단계(주인님 「하나씩 순서대로」).
+- 만든 것: [`docs/roles/`](roles/README.md) — 역할 목록·양식·역할 파일 10개(analysis-planning·blog·music·video·ecommerce-image·docbot-prompt·workspace·review·design·mac-mini). 칸: 지금 하는 일 / 대기 중 / 최근 완료 / 다음 첫 단계 / 주인님께 여쭐 것 / 마지막 갱신. 내용은 HANDOFF·작업 중 표에서 확인된 사실만 옮긴 초안 — **각 담당 세션은 다음 작업 때 자기 파일을 확인·수정해 주세요.**
+- 새 규칙(주인님 승인): HANDOFF 제목과 ACTIVE_WORK 「에이전트(장비)」 칸에 `[역할: <역할 ID>]`를 함께 쓴다. 역할 ID·이전 세션 이름 표는 `docs/roles/README.md`. 반영: CLAUDE.md·AGENTS.md·GEMINI.md 맨 위 한 줄, ACTIVE_WORK 사용법 2번.
+- 다음: 점검 도구 `scripts/check-role-status.mjs`(주인님 승인) → 카테고리 지침 지도 → 개발분석표 판단 칸 → 작업 규칙 마무리. 전담 없는 카테고리(쓰레드·인스타·CRM·부동산) 담당은 주인님이 지정 예정.
+- 비용: 없음.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — 외부 프로그램 개발분석표 새로 작성 (문서만, 코드·DB·배포 변경 없음)
 - 주인님 지시: 분석 결과·자료·관련 프로그램을 카테고리별 개발분석표로 남겨, 이후 기능을 병합·개선·묶어 새 프로그램이나 기존 프로그램 병합 개발에 쓰고, 다른 CLI도 언제든 참고할 수 있게 자세히 자료화.
 - 새 문서 [외부 프로그램 개발분석표](EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md): 외부 원본·참고 앱·사이트·플랫폼 조사 **37건**을 공식 카테고리 9개(블로그 6·유튜브 3·음악 7·이미지 5·인스타 1·마케팅 1·멀티미디어 3·부동산 1·Tools 10)로 분류.

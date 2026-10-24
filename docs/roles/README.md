@@ -31,5 +31,34 @@
 
 > 전담 세션이 없는 카테고리(예: 쓰레드·인스타·CRM·부동산)의 프로그램을 작업하는 세션은 루트 HANDOFF에 기록한다. 주인님이 담당을 정하면 이 표에 줄을 추가한다.
 
+## 역할 이름으로 기록하기 (2026-10-24 주인님 승인: 「세션 이름 대신 역할 이름으로 기록하기 … 진행해」)
+
+세션 이름은 자주 바뀐다(예: `claude-win-20261023-blog2` → `claude-win-20261024-blog3`, `codex-win-20261024-docbot-prompt` → `codex-win-20261024-docbot-g1`). 그래서 기록에는 **바뀌지 않는 역할 ID를 함께** 쓴다. 관리자 「개발 현황·지침 센터」와 점검 도구가 이 표시로 역할별 기록을 모은다.
+
+- **역할 ID = 이 폴더의 역할 파일 이름**(확장자 뺀 것): `analysis-planning` · `blog` · `music` · `video` · `ecommerce-image` · `docbot-prompt` · `workspace` · `review` · `design` · `mac-mini`
+- 전담 역할이 없는 작업은 `[역할: 미지정]`이라고 쓴다. 주인님이 담당을 정하면 새 역할 ID를 이 표에 추가한다.
+- **어디에 쓰나**
+  1. 루트 `docs/HANDOFF.md` 항목 제목: 날짜·상태 표시 바로 뒤에 넣는다.
+     ``## 2026-10-24 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-20261024-blog3` — 제목``
+  2. `docs/ACTIVE_WORK.md` 「에이전트(장비)」 칸 맨 앞: ``[역할: music] Claude Code(윈도우, 크롬) · 세션 `…` ``
+  3. 커밋 메시지는 지금처럼 쓰고(영어), 안전 커밋 도우미 `--as`에는 세션 이름을 그대로 넣는다(역할 ID는 넣지 않아도 됨).
+- 하나의 작업이 두 역할에 걸치면 주된 역할 하나만 쓴다(예: 이커머스 담당이 맥미니 요청을 배포 → `[역할: ecommerce-image]`).
+- 이전 기록은 고쳐 쓰지 않는다. 대신 아래 「이전 세션 이름」으로 옛 기록을 역할에 연결한다.
+
+| 역할 ID | 지금 세션 | 이전 세션 이름(옛 기록 연결용) |
+|---|---|---|
+| `analysis-planning` | `claude-win-dotori` | — |
+| `blog` | `claude-win-20261024-blog3` | `claude-win-20261023-blog2`, `claude-win-20261023-seo-bg` |
+| `music` | `claude-win-20261024-music` | — |
+| `video` | `claude-win-video` | — |
+| `ecommerce-image` | `claude-win-sdp` | `claude-mac-20261023-ecommerce`(맥미니 이커머스, 마무리됨) |
+| `docbot-prompt` | `codex-win-20261024-docbot-g1` | `codex-win-20261024-docbot-prompt` |
+| `workspace` | `claude-win-20261024-workspace` | — |
+| `review` | 확인 필요 | — |
+| `design` | `agy-win-20261024-videorender`(최근) | — |
+| `mac-mini` | 확인 필요 | — |
+
+세션이 바뀌면 이어받은 세션이 이 표의 「지금 세션」을 고치고, 옛 이름을 「이전 세션 이름」으로 옮긴다.
+
 ## 처음 작성
 - 2026-10-24 `claude-win-dotori`가 루트 HANDOFF·작업 중 표·세션 기록에서 확인된 사실만 옮겨 초안을 만들었다. **각 담당 세션은 다음 작업 때 자기 파일을 확인하고 고쳐 확정한다.**
