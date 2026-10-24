@@ -2,7 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { embed, NeedsAsyncParseError, parseDocument, submitAsyncParse } from "./upstage";
 import { chunkText, fileKind, MAX_CHUNKS_PER_USER, wasTruncated } from "./core";
-import { EXTRACTION_WARNING_TEXT, pdfExtractionWarning } from "./documentRules";
+import { documentCutoff, EXTRACTION_WARNING_TEXT, pdfExtractionWarning } from "./documentRules";
 
 // 문서 저장 과정(공용): 글 읽기 → 조각 나누기 → 임베딩 → 저장. 원본 파일은 보관하지 않는다.
 // onStage로 진행 단계를 알려 화면이 「읽는 중 → 조각 → 임베딩 → 저장」을 보여 준다(U2).
@@ -48,7 +48,8 @@ export async function ingestText(opts: {
   const truncated = wasTruncated(text, chunks);
 
   // 회원 전체 조각 한도(L14) — 공용 DB 용량 보호
-  const { data: counts } = await admin.from("dcb_documents").select("chunk_count").eq("user_id", userId);
+  const { data: counts, error: countError } = await admin.from("dcb_documents").select("chunk_count").eq("user_id", userId).gt("created_at", documentCutoff());
+  if (countError) throw new IngestError("문서 저장 한도를 확인하지 못했습니다. 자동으로 다시 처리하지 않았습니다.", 500);
   const used = (counts ?? []).reduce((sum, d) => sum + ((d.chunk_count as number) ?? 0), 0);
   if (used + chunks.length > MAX_CHUNKS_PER_USER) {
     throw new IngestError(`저장 공간이 부족합니다(지금 ${used.toLocaleString()}조각, 이 문서 ${chunks.length.toLocaleString()}조각, 회원당 최대 ${MAX_CHUNKS_PER_USER.toLocaleString()}조각). 안 쓰는 문서를 지운 뒤 다시 올려 주세요.`, 400);

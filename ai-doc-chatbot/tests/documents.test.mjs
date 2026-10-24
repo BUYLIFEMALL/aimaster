@@ -10,6 +10,7 @@ const now = new Date().toISOString(), expired = new Date(Date.now() - 31 * 86400
 const doc = (id = D1, extra = {}) => ({ id, user_id: A, name: "같은 이름.pdf", created_at: now, processing_status: "ready", category: "", extraction_warning: null, chunk_count: 1, size_bytes: 10, ...extra });
 const chunk = (document_id = D1, extra = {}) => ({ id: "chunk-" + document_id, document_id, user_id: A, chunk_index: 0, created_at: now, content: "출장 일비는 45000원", similarity: 0.8, ...extra });
 const chat = await route("app/api/chat/route.ts"), documentApi = await route("app/api/documents/[id]/route.ts"), listApi = await route("app/api/documents/route.ts"), ingest = await route("lib/chat/ingest.ts");
+const uploadChecks = await route("lib/chat/uploadChecks.ts");
 const ctx = (id = D1) => ({ params: Promise.resolve({ id }) });
 const events = async (response) => (await response.text()).trim().split("\n").map(JSON.parse);
 
@@ -138,4 +139,15 @@ test("저장 완료 전 실패는 ready로 남기지 않고 본인 임시 문서
     await assert.rejects(ingest.ingestText({admin:c.db,userId:A,apiKey:"own",name:"a.txt",sizeBytes:10,text:"저장할 정상 문서"}),{status:500});
     assert.deepEqual(c.db.tables.dcb_documents.map((d)=>d.id),[D2]);
   }
+});
+
+test("목록에서 제외된 만료 문서는 중복/개수/조각 한도를 막지 않고, DB 실패는 한도 우회하지 않음", async () => {
+  let c=context({dcb_documents:Array.from({length:30},(_,i)=>doc(D1+"-"+i,{created_at:expired,chunk_count:1000,name:"같은문서.txt"}))});
+  assert.equal(await uploadChecks.checkDocLimits(c.db,A,"같은문서.txt",10),null);
+  await ingest.ingestText({admin:c.db,userId:A,apiKey:"own",name:"같은문서.txt",sizeBytes:10,text:"새로 올린 문서"});
+  assert.equal(c.embeddings.length,1);
+  c=context(); c.db.fail=(table,mode)=>table==="dcb_documents"&&mode==="select";
+  assert.equal((await uploadChecks.checkDocLimits(c.db,A,"a.txt",10)).status,500);
+  await assert.rejects(ingest.ingestText({admin:c.db,userId:A,apiKey:"own",name:"a.txt",sizeBytes:10,text:"본문"}),{status:500});
+  assert.equal(c.embeddings.length,0);
 });
