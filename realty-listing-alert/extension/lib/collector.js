@@ -57,6 +57,7 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
   let error = null;
   let listUrl = null; // 페이지가 부른 목록 주소(다음 페이지를 부를 때 page만 바꿈)
   let listAuth = null; // 페이지가 보낸 인증 머리글 — 이 수집 동안 메모리에만, 저장하지 않음
+  const diag = []; // 진단 기록(2026-10-25: 2페이지가 안 읽히는 원인 찾기) — 숫자·상태만, 매물 내용 없음
 
   const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
   const tab = await chrome.tabs.create({ url: "about:blank", active: false, ...(win?.id ? { windowId: win.id } : {}) });
@@ -80,6 +81,7 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
         const body = decodeBody(await chrome.debugger.sendCommand({ tabId }, "Network.getResponseBody", { requestId: params.requestId }));
         bodies.push(body);
         lastMore = body?.[moreKey] === true;
+        diag.push(`응답${bodies.length}: ${body?.[listKey]?.length ?? "?"}건·더있음=${String(body?.[moreKey])}`);
       } catch (e) {
         error = `응답 읽기 실패: ${String(e).slice(0, 80)}`;
       }
@@ -110,12 +112,15 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
         if (lastMore && listUrl) {
           const next = new URL(listUrl);
           next.searchParams.set("page", String(bodies.length + 1));
+          diag.push(`다음쪽 요청 page=${bodies.length + 1}${listAuth ? "(인증)" : "(인증없음)"}`);
           const status = await evalInPage(tabId, `fetch(${JSON.stringify(next.toString())}, { credentials: "include", headers: ${JSON.stringify(listAuth ? { authorization: listAuth } : {})} }).then((r) => r.status).catch(() => 0)`);
           await sleep(1500);
+          diag.push(`응답코드 ${status}`);
           if (isBlockedStatus(status)) { blockedStatus = status; break; }
           if (bodies.length > before) { stale = 0; await sleep(rand(a, b)); continue; }
         }
         stale += 1;
+        diag.push(`스크롤 뒤 새 응답 없음(${stale})${listUrl ? "" : "·목록주소 못 잡음"}`);
         if (stale >= 2) break;
       } else stale = 0;
     }
@@ -136,5 +141,6 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
   if (!bodies.length) return { status: error ? "error" : "rule_mismatch", bodies, complete: false, error: error || "매물 목록 응답을 찾지 못했어요(네이버 화면이 바뀌었을 수 있어요)." };
   if (bodies.some((b) => isRuleMismatch(b, rules))) return { status: "rule_mismatch", bodies: [], complete: false, error: "매물 목록 모양이 수집 규칙과 달라요." };
   await log(`단지 ${complexNo}: 목록 ${bodies.length}페이지 · 매물 ${bodies.reduce((n, b) => n + (b[listKey]?.length || 0), 0)}건`);
+  await log(`단지 ${complexNo} 진단: ${diag.join(" / ").slice(0, 400)}`);
   return { status: "ok", bodies, complete: !lastMore };
 }
