@@ -113,10 +113,16 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
           const next = new URL(listUrl);
           next.searchParams.set("page", String(bodies.length + 1));
           diag.push(`다음쪽 요청 page=${bodies.length + 1}${listAuth ? "(인증)" : "(인증없음)"}`);
-          const status = await evalInPage(tabId, `fetch(${JSON.stringify(next.toString())}, { credentials: "include", headers: ${JSON.stringify(listAuth ? { authorization: listAuth } : {})} }).then((r) => r.status).catch(() => 0)`);
-          await sleep(1500);
+          // 응답 본문을 그 자리에서 돌려받는다(2026-10-25 진단: 200인데 디버거 쪽에서 응답을 놓침)
+          const res = await evalInPage(tabId, `fetch(${JSON.stringify(next.toString())}, { credentials: "include", headers: ${JSON.stringify(listAuth ? { authorization: listAuth } : {})} }).then(async (r) => ({ status: r.status, body: r.ok ? await r.json().catch(() => null) : null })).catch(() => ({ status: 0, body: null }))`);
+          const status = res?.status ?? 0;
           diag.push(`응답코드 ${status}`);
           if (isBlockedStatus(status)) { blockedStatus = status; break; }
+          if (status === 200 && res?.body && Array.isArray(res.body[listKey]) && bodies.length === before) {
+            bodies.push(res.body);
+            lastMore = res.body[moreKey] === true;
+            diag.push(`응답${bodies.length}: ${res.body[listKey].length}건·더있음=${String(res.body[moreKey])}(직접)`);
+          }
           if (bodies.length > before) { stale = 0; await sleep(rand(a, b)); continue; }
         }
         stale += 1;
