@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 🔄 Claude Code(윈도우) · 음악 담당 `claude-win-20261024-music` — 플레이리스트 v1.29 Spectrum 1차(P-0·P-1·P-2) 배포, P-3~P-5 진행 중
+- P-0: 권리 점검에서 원본 파생으로 나온 렌더 2파일(`canvas-visualizer.ts`·`particle-system.ts`)을 효과 이름만 남기고 새로 씀(일치율 기준선 안으로). P-1 곡 제목 자동 표시(5스타일·9위치). P-2 저장 품질 3단계·하드웨어 가속 자동 선택·과부하 조절·화면 꺼짐 방지·남은 시간.
+- 검수(운영, 크롬 시험 계정): 미리보기 곡 제목·눈·스펙트럼, 1080p MP4 「하드웨어 가속」으로 24초 영상 약 10초에 저장, 곡마다 제목. 배포 `playlist-channel-studio-pzehju79y` Ready·DB v1.29. 상세 `playlist-channel-studio/AGENTS.md`.
+- 작업 대기 목록(인계 묶음 3개 검토·순서 추천): `docs/MUSIC_OWNER_QUEUE_20261024.md` — Lyricbi L-1~L-5·무료 음성 엔진은 승인 전.
+- 비용: 빌드 1회(승인 2회 중), AI 호출 없음.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — AutoGemmaStarter 2.0.0 분석·병합 의견 (분석만, 코드·DB·배포 변경 없음)
 - 대상 `D:\PDS\Program_dev\AutoGemmaStarter-Setup-2.0.0.exe`(Inno 6.7 → PyInstaller·PySide6, GPT PARK 정회원 전용, 실행 안 함). 내 PC에 Ollama 자동 설치·사양별 모델 추천 + 내장 채팅(커스텀 봇 12종·프롬프트 25종·지식 도서관 RAG·웹 검색·로컬/클라우드 공급자 Groq·OpenRouter·NVIDIA·Cloudflare).
 - 의견: 독립 개발 안 함(로컬 설치는 데스크톱 전용) → 좋은 기능만 `ai-doc-chatbot`·`ai-prompt-studio`에 병합. 후보 G1 OpenAI 호환 공급자 묶음(공용, 두 프로그램의 「한 공급자」 단점 해소) · G2·G3 커스텀 봇 · G5 문서 RAG 보강 · G4 회원 PC 로컬 Ollama 연결(시제품 뒤). 결정 대기: 범위, 봇 위치, 로컬 AI 여부, 구현 담당. [보고서](analysis-autogemma-starter-20261024/REPORT.md). 비용 없음.
