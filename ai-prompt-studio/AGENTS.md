@@ -1,4 +1,4 @@
-> **현재 G-1 상태(2026-10-24, Codex `codex-win-20261024-docbot-g1`): 템플릿 실행 공급자·공용 키 구현/로컬 검사·운영 DB 준비 완료, 미배포(v1.09). 실회원 연결·Edge 화면·실제 실행 검수 남음. 설계/자동 채우기는 Gemini 유지, G-5 별도 선택 대기.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_G1.md). 아래 담당 이어받기 대기는 구현 전 기록입니다.
+> **현재 G-1 상태(2026-10-24, Codex `codex-win-20261024-docbot-g1`): 템플릿 실행 공급자·공용 키 구현/로컬 검사·운영 DB 준비 완료, 미배포(v1.09). Edge 재시도로 관리자 공용 키 모달 확인. 일반 회원·키 재사용·실제 실행·좁은 화면 검수 남음. 설계/자동 채우기는 Gemini 유지, G-5 별도 선택 대기.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_G1.md). 아래 담당 이어받기 대기는 구현 전 기록입니다.
 
 > **📋 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — AutoGemmaStarter 2.0.0 참고 묶음:** G-1 실행 공급자 선택(Groq·OpenRouter·NVIDIA·Cloudflare, 공용 모듈) · G-5 로컬 Ollama(시제품). 분석·플랜 초안만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md) · [분석](../docs/analysis-autogemma-starter-20261024/REPORT.md)
 
