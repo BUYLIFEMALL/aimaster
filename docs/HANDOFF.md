@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 상품소싱 v1.25 당해 연도 규칙 먼저 배포 + 주인님 결정 4개 기록
+- 한 일: `trending-product-finder/lib/ai/opportunity.ts` 추천 사유 프롬프트에 `withYearRule()`(사본 `lib/ai/yearRule.ts` ← `threads-content-ops/lib/yearRule.ts`). 연도 누락 7곳 중 1번(플랜 `docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §3).
+- 검수: `tsc` 0, `test:trend` 11·`test:permissions` 통과, 규칙 문자열 「2026년 10월」 확인(유료 AI 호출 없음). 배포 Ready(`trending-product-finder-dt86buzti`), DB `programs.version` v1.25, 크롬 대시보드 v1.25. 함께 나감: 공용 사본 telegram `linkButton`.
+- 결정 기록(절대 지시): 타로 기존 결과 **배포일부터 30일 유예 뒤 삭제**(공개 저장소 공통 기준) · CRM **수신 동의 기록은 꼭, 광고 표시는 발송 문구에만**(`docs/CRM_CONSOLIDATION_TASKS.md` CRM-P6) · **빈 카테고리(Tools·주식·부업) 메뉴에서 숨기기** → `docs/PENDING_DEPLOYS.md` 「메인 사이트 — 다음 메인 빌드 때 할 일」에 등록(코드 미작성).
+- 남은 일: 연도 2~7번·전자책·타로·DUP-1~5는 담당 지정 뒤. 다음 첫 단계: 담당이 정해지면 플랜 §3-2 2번(쓰레드 포스팅)부터.
+- 프로그램 링크:
+
+https://trending-product-finder.buylife.xyz
+
 ## 2026-10-24 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — AI 업무 워크스페이스 자동화 v1.13·v1.14: Gemini 유료 시험 통과 + 모델 목록 정리 + 기본 모델 회귀 수정
 - 유료 시험: 시험 계정 본인 Gemini 키 유료 시험 2회(`gemini-3.5-flash-lite`): 질문 → 「올해는 2026년」+한국어 답변, 채팅으로 「Gemini 시험 페이지」 만들기(도구 호출·체크리스트) 정상. 첫 시도 1회는 2.5 Flash-Lite 404 거절(과금 없음).
 - v1.13: 회원 OpenAI 키 모델 목록을 채팅 모델만(음성·검열·실시간·받아쓰기·임베딩·이미지·날짜 붙은 옛 판 제외, 추천 3개) + Gemini 기본을 2.5 Flash-Lite로 바꿈(⚠ 회귀 — v1.14에서 되돌림) — `d9b099292`, 배포 `ai-work-workspace-i2klvx4og`.
