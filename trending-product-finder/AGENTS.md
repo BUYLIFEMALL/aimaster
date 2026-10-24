@@ -330,3 +330,9 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 상세페이지 v1.19 → 상품소싱 v1.23 → 쓰레드 쇼핑제휴 v1.81 순서로 배포(각 READY). DB `programs.version` v1.23. tsc·로컬 build 통과.
 - 크롬(시험 계정 `buylifemall@naver.com`, 생성·게시 버튼은 누르지 않음): ① 상세페이지 v1.19, 완료 섹션(쿠팡 12단 `cp_promotion`)의 「🧵 쓰레드 홍보글」 → 새 창 쓰레드 쇼핑제휴 `/posts/new` v1.81에 공개 저장소 `post-images/<회원id>/from-shop-detail/<해시>.jpg` 이미지 1장(정상 표시)·초안(상품명+특징 3줄, 할인가 없어 가격 줄 없음)·초록 안내 ② 새로고침해도 이미지 1장·같은 파일 이름(복사본 늘지 않음) ③ 주소의 회원 ID를 다른 값으로 바꾸면 빨간 「⚠️ 본인이 만든 상세페이지 이미지만 가져올 수 있습니다.」·이미지 0장. 상품소싱 `/sourcing` v1.23 오류 없이 열림(「📄 상세페이지」 버튼은 소싱 결과가 있어야 보여 미확인 — 검색 비용).
 - 비용: Vercel 빌드 3회(주인님이 붙여 주신 순서대로), AI 호출 0회.
+
+## 2026-10-24 v1.25 — 소싱 추천 사유 프롬프트에 당해 연도 규칙 (Claude Code 윈도우 `claude-win-dotori`)
+- 주인님 지시 「먼저 배포」(연도 누락 7곳 중 1번, `docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §3). AI가 지난 연도를 현재처럼 쓰지 않게 `lib/ai/opportunity.ts`의 추천 사유 프롬프트에 `withYearRule()`을 붙였다(한국 시간 기준 연·월, 계절 착오 방지 포함).
+- 규칙 코드는 `lib/ai/yearRule.ts` — `threads-content-ops/lib/yearRule.ts` 사본(공용 등록 전, 원본을 고치면 함께 맞춤). `translateKeyword.ts`는 번역만이라 넣지 않았다.
+- 검수: `tsc` 오류 0, `test:trend` 11개·`test:permissions` 통과, 규칙 문자열이 「2026년 10월」로 나오는지 확인. 유료 AI 호출 시험은 하지 않음(문자열만 확인).
+- 배포: 승인 빌드 1회 Ready, DB `programs.version` v1.25, 크롬에서 대시보드 버전 v1.25 확인. 함께 나감: 공용 사본 telegram `linkButton`.
