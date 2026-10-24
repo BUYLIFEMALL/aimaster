@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — 네이버 부동산 아파트 매물 수집기 Ver1.3 분석·의견 (분석만, 코드·DB·배포 변경 없음)
+- 대상 `D:\PDS\Program_dev\네이버 부동산 아파트 매물 수집기_Ver1.3.exe`(PyInstaller·Python 3.10·tkinter, 실행 안 함). 제작자 서버 패스워드 확인 → 회원이 붙여 넣은 네이버 쿠키·curl로 **비공식 내부 주소**(`new.land.naver.com/api/articles/complex/…`)를 반복 호출해 단지 매물·중개사·입주일 수집 → 엑셀, 1분 자동 반복.
+- 비교: `real_estate_sales`(코드 v1.18)는 공공 실거래만, 현재 매물·엑셀 내보내기·네이버 부동산 바로가기 없음.
+- 의견: **독립 프로그램 만들지 않음**(비공식 주소·약관·데이터베이스 권리·차단 위험, 플랫폼 지침 §20과 충돌). `real_estate_sales`에 위험 없는 N1 단지 바로가기·N2 엑셀 내보내기만 추천, 현재 매물 읽기(N3)는 주인님·법률 확인 전 보류.
+- 주인님 결정 대기: N1·N2 진행 여부, N3 검토 여부, 구현 담당.
+- 문서: [분석 보고서](analysis-naver-realty-collector-20261024/REPORT.md) · 아이디어 표 IDEA-REALTY-01~03
+- 비용: 없음.
+- 프로그램: https://real-estate-sales.buylife.xyz
+
 ## 2026-10-24 ⏳ Claude Code(윈도우) · 세션 `claude-win-sdp`(이커머스·이미지 담당) — 바나나 캔버스 「무료 지우기(내 브라우저)」 C-0~C-5 이어받음·작업 대기 (문서만, 코드·DB·배포 변경 없음)
 - 한 일: `claude-win-dotori`의 ClearPic 분석·플랜을 받아 실제 코드와 대조(v1.33, COOP/COEP 없음, `onnxruntime-web` 미설치, `MaskEditor.tsx` 재사용 가능)하고, 시제품 통과 기준 5개·C-1~C-5·비용(AI 0회·빌드 1~2회)을 주인님께 보고. 제미나이 워터마크 자동 제거는 제외 확정이라 범위에 넣지 않음.
 - 상태: **주인님 승인 전 작업 대기** — 대기 목록 `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` §4, 상세 [인수인계 §6](../banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md). ACTIVE_WORK 줄은 승인 뒤 시작할 때 넣음.
