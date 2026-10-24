@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — 오픈소스 이식판이 원본 실시간 웹소켓(`/ws`) 없이 돌아 화면이 늘 「오프라인」 → AI 입력 칸이 잠겼다 (ai-work-workspace v1.05, Claude Code 윈도우)
+- **증상**: 회원 키로 AI를 열었는데 채팅 입력 칸 위에 「오프라인이라 AI를 쓸 수 없다」 띠가 뜨고 입력이 막혔다. 인터넷은 정상.
+- **원인**: 원본(litpage)은 실시간 동기화 웹소켓(`/ws`) 연결이 끊기면 `connection='offline'`으로 판단하고 AI·글쓰기를 잠근다. Vercel(Next 라우트)로 옮긴 이식판에는 이 웹소켓 서버가 없어 연결이 항상 실패 → 늘 오프라인 + 재연결 무한 시도. 1단계에는 AI가 닫혀 있어 드러나지 않았다.
+- **해결**: `ai-work-workspace/src/litpage/web/lib/store/sync.ts` — `REALTIME_SOCKET=false`면 웹소켓을 열지 않고 `navigator.onLine`·online/offline 이벤트로 판단(`6be13d77c`). 실시간은 협업 단계에서 Supabase Realtime으로.
+- **다음부터 확인**: 서버형 오픈소스를 Vercel로 이식할 때 원본이 웹소켓·서버 타이머·디스크 같은 「상시 서버」 기능에 의존하는지 먼저 목록화하고, 그 기능이 실패할 때 화면이 어떤 상태(오프라인·잠금)로 바뀌는지 확인한다.
+
 ## 2026-10-24 — PowerShell 변수는 대소문자를 구분하지 않아 `$S = F3 $s`가 숫자 `$s`를 글자로 덮어썼다 (내 PC 렌더러 1.20 `loop`, Claude Code 윈도우 영상 담당)
 - **증상(작성 중 발견)**: 구간 숫자 `$s`·`$e`·`$cf`를 소수 셋째 자리 글자로 만들려고 `$S`·`$E`·`$CF`에 넣었더니 같은 변수라 숫자가 글자가 됨 → 뒤의 `$e - $cf`는 우연히 맞지만 `$cf -le 0`은 글자 비교(`"0.000" -le 0` → false)라 경계값에서 틀린 분기.
 - **해결**: 글자용 변수는 다른 이름(`$tS`·`$tE`·`$tCF`·`$tT0`·`$tH1`). `video-to-gif/local-renderer/host/host.ps1` `Invoke-Loop`.
