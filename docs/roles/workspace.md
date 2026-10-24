@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-10-25 03:10 (담당 세션)
+- 마지막 갱신: 2026-10-25 04:10 (담당 세션)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,12 +16,13 @@
 |---|---|---|---|
 | `ai-work-workspace` | U6-A 자동 요약 실제 1회(30초 이상 녹음) | 주인님 녹음 | `ai-work-workspace/docs/PLAN_20261024_U6_MEETING_NOTES.md` §3 |
 | `ai-work-workspace` | U6-B 음성 파일 받아쓰기(회원 Gemini 우선·OpenAI 보조) → v1.18 | U6-A 운영 확인 | 같은 플랜 §2 |
-| `ai-work-workspace`·`ai-task-planner` | U8-B 워크스페이스 → 할 일 플래너(공용 표 `work_inbox`에 받는 곳 열 추가) → U9~U12 | 상세 플랜·DB 변경 승인 | `ai-task-planner/docs/PLAN_20261025_U8_WORK_INBOX.md` §5 |
-| `ai-work-workspace` | 미배포 `c6d4ca3ba`(받은 날 한국 날짜, 운영에서 재현됨) | 다음 워크스페이스 배포 | `ai-work-workspace/docs/IMPROVEMENTS.md` |
+| `ai-work-workspace` | U9 연계(음성 분석·문서 챗봇·번역·슬라이드 보내기 버튼) | 착수 전 플랜·비용 보고 | 로드맵 §5, `docs/WORK_INBOX.md` |
+| `ai-work-workspace` | 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기) | 다음 워크스페이스 배포(빌드 1회) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-25 | `ai-work-workspace` v1.19 · `ai-task-planner` v1.12 | U8-B 워크스페이스 페이지 할 일 → 플래너 「📥 받은 할 일」(공용 표 받는 곳 열 추가) | 배포 2회 |
 | 2026-10-25 | `ai-task-planner` v1.11 | U8-A 할 일·오늘 성과를 워크스페이스 「📨 받은 업무」로 보내기(공용 기준 코드 `work-inbox-client` 첫 사본) | 배포 |
 | 2026-10-25 | `ai-work-workspace` v1.18 | U7 업무 받은편지함 — 공용 표 `public.work_inbox` + 「📨 받은 업무」 화면(페이지로 만들기·표에 행으로 넣기) | 배포 |
 | 2026-10-24 | `ai-work-workspace` v1.15~v1.17 | 화면 전체 한국어화(약 2,000종)·회의록 정지 시 문장 손실 수정·짧은 녹취 「요약 만들기」·3D 버튼·매뉴얼(화면 구성·회의록·마이크) | 배포 3회 |
@@ -31,11 +32,10 @@
 | 2026-10-24 | `ai-work-workspace` v1.11 | Gemini 기본 Flash-Lite(주인님 결정) + 리뉴얼 검수 수정 3건(태블릿 메뉴 접기·표준 메뉴 이름·「내 페이지」) + 모델 목록 회원 키별 | 배포 |
 | 2026-10-24 | `ai-work-workspace` v1.10 | 운영 DB 버전 v1.07 → v1.10 맞춤 + SQL 파일 | DB만 |
 | 2026-10-24 | `ai-work-workspace` v1.07 | 로그인·회원가입 화면을 공식 표준 2탭으로 교체 + 회원가입 버튼 404 수정(`/signup` → `/register`) | 배포 |
-| 2026-10-24 | `ai-work-workspace` v1.06 | U4 회원 본인 Gemini 키 연결(모델 목록·여러 회사 모델 함께 고르기) + AI 채팅 기록 30일 자동 삭제 + Gemini 새 키 형식 `AQ.` 허용 | 배포 |
 
 ## 다음 첫 단계
 1. 회의록에서 30초 이상 말한 뒤 정지 → 자동 요약 1회 확인(주인님 녹음)
-2. U8-B 워크스페이스 → 할 일 플래너: 공용 표 `work_inbox`에 받는 곳 열 추가 상세 플랜·DB 승인 요청
+2. U9 연계 상세 플랜·비용 보고(음성 분석·문서 챗봇·번역·슬라이드)
 
 ## 주인님께 여쭐 것
 - 회의록 자동 요약 확인: 회의록에서 30초 이상 말씀하신 뒤 「정지」를 눌러 주시면 요약이 나오는지 확인하겠습니다(시험 계정 Gemini 1회, 1원 안팎).

@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261024-workspace` — U8-B 워크스페이스 → 할 일 플래너 (워크스페이스 v1.19 · 플래너 v1.12)
+- 주인님 승인: 공용 표 `work_inbox`에 받는 곳 열 `target_slug` 추가 + 빌드 2회. 운영 DB(ref `esgxyikcnnvmlhygjkth`) 적용, 파일 `ai-work-workspace/supabase/migrations/20261025000100_work_inbox_target.sql`.
+- 워크스페이스: U8-B 할 일 플래너로 보내기: 페이지 「⋯」 → 「📨 할 일 플래너로 보내기」(체크 안 된 할 일 항목 최대 30개 / 이 페이지를 할 일 하나로 — 표 행이면 마감일·우선순위), 서버 명령 `workInboxSendToPlanner`(회원 본인 공간 페이지만), 공용 표 `work_inbox.target_slug` 열 추가(주인님 승인, 운영 적용 `20261025000100`), 받은 업무는 받는 곳이 워크스페이스인 줄만, 기준 코드 `targetSlug` 선택값, 표 「받은 날」 한국 날짜(`c6d4ca3ba`), 표 행 「OPEN」→「열기」, 매뉴얼 카드 — `b121bdfde`, 배포 `ai-work-workspace-ho0fq9vle`.
+- 플래너: U8-B 워크스페이스에서 받기: 대시보드 「📥 받은 할 일」 칸(있을 때만) — 「➕ 할 일로 추가」(예정일 받은 값 또는 선택 날짜, 우선순위 받은 값 또는 보통, 기본 분류)·「버리기」, `GET/POST /api/work-inbox/received`(받는 곳 ai-task-planner·회원 본인 줄만, 먼저 「가져감」 표시 후 추가해 두 번 추가 막음, 실패하면 표시 되돌림), 매뉴얼 카드 — `9757e2966`, 배포 `ai-task-planner-fva6qqy1q`.
+- 검수: 워크스페이스 연결부 40/40·빌드, 플래너 단위 27/27·브라우저 30/30·빌드, 두 배포 Ready·DB 버전 맞춤. 크롬(시험 계정): 보내기 2건 → 워크스페이스 받은 업무에 안 보임 → 플래너 받은 할 일 2개 → 추가·버리기 → DB 확인 → 시험 줄 정리.
+- 미배포: `94719d8da` 표 행의 글자형 우선순위·날짜 칸 읽기(운영 시험에서 발견, 승인 빌드 2회를 넘겨 다음 워크스페이스 배포 때).
+- 다음: 회의록 자동 요약 1회 확인(주인님 30초 녹음) → U9 연계(음성 분석·문서 챗봇·번역·슬라이드) 플랜.
+- 비용: Vercel 빌드 2회(승인 범위), 유료 AI 호출 0회.
+- 프로그램: https://ai-work-workspace.buylife.xyz · https://ai-task-planner.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 음악 카테고리 기본 지침 1판
 - 한 일: 지난 대화 기록에서 주인님 음악 관련 메시지 66건(2026-10-12~10-25)과 통합 분석·AI 음악 스튜디오 플랜·배경음악 공용화 플랜을 모아 `docs/MUSIC_AUTOMATION_POLICY.md` 작성 — 프로그램별 역할, 음악 생성 연동(Suno=sunoapi.org·V6·공용 `suno-api-client`, 다른 모델은 AI 음악 스튜디오 기준), 곡 넘기기, 본인 키·30일 정리, 비용·시험, 완료 조건, 하지 않을 것.
 - 카테고리 지도 음악 줄 「⚠ 전용 메인 지침 없음」 → 새 지침 링크. 역할 파일에 메인 지침 줄 추가. 문서 목록 갱신.
