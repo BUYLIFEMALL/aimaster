@@ -14,7 +14,7 @@ type Delivery = {
   deliverFile: boolean;
   fileFormat: "xlsx" | "csv";
 };
-type Telegram = { botUsername: string | null; linkedAt: string | null } | null;
+export type Telegram = { botUsername: string | null; linkedAt: string | null } | null;
 type Msg = { kind: "ok" | "err"; text: string } | null;
 
 const NOTIFY: { key: "notifyNew" | "notifyPriceDrop" | "notifyPriceChange" | "notifyGone"; label: string; desc: string }[] = [
@@ -30,7 +30,7 @@ function Message({ msg }: { msg: Msg }) {
 }
 
 // 텔레그램 연결 — 기준: booking-reminder/components/settings/TelegramConnectForm.tsx
-function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null }) {
+export function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null }) {
   const router = useRouter();
   const [msg, setMsg] = useState<Msg>(null);
   const [pending, setPending] = useState(false);

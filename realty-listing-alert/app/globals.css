@@ -617,3 +617,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 }
 .nav .nav-download:hover { color: #fff; background: linear-gradient(180deg, #0bd46a 0%, #00a352 100%); transform: translateY(-1px); box-shadow: 0 6px 0 #007338, 0 12px 22px rgba(0, 155, 77, 0.32); }
 .nav .nav-download:active { transform: translateY(4px); box-shadow: 0 1px 0 #007338, 0 3px 8px rgba(0, 155, 77, 0.25); }
+/* 연결된 확장 관리(접는 칸) — 2026-10-25 */
+.token-advanced { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: #fbfcfd; }
+.token-advanced summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--muted); }
+.token-advanced[open] summary { margin-bottom: 4px; }
+.token-manual-empty { margin: 8px 0 0; font-size: 13px; color: var(--muted); }

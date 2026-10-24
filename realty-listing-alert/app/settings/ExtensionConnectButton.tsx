@@ -23,7 +23,7 @@ export default function ExtensionConnectButton({ auto = false }: { auto?: boolea
     if (!result) return setState({ kind: "error", message: "확장이 응답하지 않았습니다. 확장을 최신 버전으로 업데이트한 뒤 다시 시도해 주세요." });
     if (!result.ok) return setState({ kind: "error", message: result.error || "확장 연결에 실패했습니다." });
     void retireStaleAutoTokens(issued.id).catch(() => undefined); // 연결 성공 뒤에만, 안 쓰이는 옛 자동 연결 코드 정리
-    setState({ kind: "done", message: `확장 연결 완료: ${result.email ?? ""}${auto ? " · 이 탭은 곧 닫힙니다." : ""}` });
+    setState({ kind: "done", message: `✅ 확장 연결 완료${result.email ? ` · ${result.email}` : ""}${auto ? " · 이 탭은 곧 닫힙니다." : ""}` });
   }
 
   useEffect(() => {
