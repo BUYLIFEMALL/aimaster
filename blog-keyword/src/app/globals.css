@@ -127,3 +127,321 @@ small{font-size:11px}
   .workspace-content{padding:23px 14px}
   .card{padding:18px}
 }
+
+/* ==========================================================================
+   🔑 API 키 등록 / 플랫폼 연동 퀵 버튼 공식 표준 (2026-10-25 주인님 지시)
+   ========================================================================== */
+.key-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.key-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
+}
+.key-badge.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+.key-badge.none {
+  background: rgba(244, 63, 94, 0.12);
+  color: #fda4af;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+.key-badge.pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.platform-link-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-create-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff !important;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.btn-create-key:hover {
+  transform: translateY(-1.5px);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+}
+.btn-create-key:active {
+  transform: translateY(0);
+}
+
+.btn-platform-signup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7.5px 13px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 650;
+  background: var(--mx-raised);
+  color: var(--mx-link) !important;
+  border: 1px solid var(--mx-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.btn-platform-signup:hover {
+  transform: translateY(-1px);
+  background: var(--mx-border);
+  color: #ffffff !important;
+  border-color: var(--mx-link);
+}
+
+/* ==========================================================================
+   📖 럭셔리 매뉴얼 스마트 매트릭스 테마 (.luxury-guide)
+   ========================================================================== */
+.luxury-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.luxury-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(23, 26, 33, 0.95) 60%, rgba(245, 158, 11, 0.08) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: center;
+}
+.luxury-mascot-box {
+  width: 84px;
+  height: 84px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 2px solid #3b82f6;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+  display: grid;
+  place-items: center;
+  font-size: 42px;
+}
+.luxury-hero-text h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px 0;
+}
+.luxury-hero-text p {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--mx-muted);
+  margin: 0;
+}
+
+.luxury-toc {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.luxury-toc-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--mx-raised);
+  border: 1px solid var(--mx-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--mx-text);
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+.luxury-toc-chip:hover {
+  transform: translateY(-2px);
+  background: var(--mx-border);
+  border-color: var(--mx-primary);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+}
+
+.luxury-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.luxury-flow-card {
+  background: var(--mx-surface);
+  border: 1px solid var(--mx-border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+.luxury-flow-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--mx-primary);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+}
+.luxury-flow-card em {
+  display: inline-block;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--mx-accent);
+  background: rgba(245, 158, 11, 0.15);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.luxury-flow-card b {
+  display: block;
+  font-size: 34px;
+  margin: 4px 0 8px;
+}
+.luxury-flow-card strong {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 750;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+.luxury-flow-card small {
+  font-size: 12px;
+  color: var(--mx-muted);
+  line-height: 1.5;
+}
+
+.luxury-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.luxury-tool-card {
+  background: var(--mx-surface);
+  border: 1px solid var(--mx-border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.18s ease;
+}
+.luxury-tool-card:hover {
+  border-color: var(--mx-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.2);
+}
+.luxury-tool-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.luxury-tool-card h3 {
+  font-size: 14.5px;
+  font-weight: 750;
+  color: #ffffff;
+  margin: 0;
+}
+.luxury-tool-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.15);
+  color: #93c5fd;
+  border: 1px solid rgba(37, 99, 235, 0.3);
+}
+.luxury-tool-card p {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--mx-muted);
+  margin: 0;
+}
+
+.luxury-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.luxury-accordion details {
+  background: var(--mx-surface);
+  border: 1px solid var(--mx-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.18s ease;
+}
+.luxury-accordion details[open] {
+  border-color: var(--mx-primary);
+  background: var(--mx-raised);
+}
+.luxury-accordion summary {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
+}
+.luxury-accordion summary::-webkit-details-marker {
+  display: none;
+}
+.luxury-accordion summary::after {
+  content: "▾";
+  font-size: 15px;
+  color: var(--mx-accent);
+  transition: transform 0.2s ease;
+}
+.luxury-accordion details[open] summary::after {
+  transform: rotate(180deg);
+}
+.luxury-accordion details p {
+  margin: 10px 0 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--mx-muted);
+  border-top: 1px dashed var(--mx-border);
+  padding-top: 8px;
+}

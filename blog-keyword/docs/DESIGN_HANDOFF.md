@@ -1,4 +1,21 @@
-# 디자인 개발완료 인수인계 — AI 블로그 키워드 자동화 (v1.05)
+# 디자인 개발완료 인수인계 — AI 블로그 키워드 자동화 (v1.10)
+
+## ★ v1.10 갱신 (2026-10-25 주인님 지시: 「각 프로그램별로 API키 등록|플랫폼 메뉴에 해당 플랫폼의 API키 생성주소를 버튼형태로 생성할 수 있도록 버튼을 달고 링크를 걸어줘. 플랫폼 가입도 버튼형태로 링크 걸고, 사용자 매뉴얼도 같이 업데이트하고 럭셔리하고 고급진 느낌이 나도록 해줘」)
+- **API키등록·플랫폼연동 2단 퀵 액션 버튼 세트 탑재**:
+  - `Google AI Studio` (`https://aistudio.google.com/apikey`, `https://aistudio.google.com/`)
+  - `네이버 개발자센터` (`https://developers.naver.com/apps/#/register`, `https://developers.naver.com/`)
+  - `네이버 검색광고` (`https://searchad.naver.com/`, `https://searchad.naver.com/`)
+  - `btn-create-key`(블루 그라데이션 럭셔리 버튼) 및 `btn-platform-signup`(아웃라인 버튼) 2단 퀵 링크 탑재.
+  - `key-badge` 등록 상태 뱃지 (`등록 완료` / `일부 등록` / `미등록`) 도입.
+- **📖 럭셔리 매뉴얼 스마트 매트릭스 테마 전면 리뉴얼 (`/guide`)**:
+  - `PRO v1.09 Matrix Guide` 엠블럼 및 럭셔리 히어로 배너 (`.luxury-hero`).
+  - 6대 섹션 3D 럭셔리 네비게이션 칩 목차 (`.luxury-toc-chip`).
+  - 3단계 키워드 공략 파이프라인 입체 카드 (`.luxury-flow-card`).
+  - 6대 핵심 분석 도구 럭셔리 카드 그리드 (`.luxury-tool-card`).
+  - 인터랙티브 럭셔리 아코디언 FAQ (`.luxury-accordion`).
+- **실서비스 배포**: Vercel 프로덕션 배포 완료 (`https://blog-keyword.buylife.xyz`, Ready).
+
+## (이전 버전 기록) v1.05
 
 - **적용 디자인 템플릿**: **스마트 매트릭스 스타일** — 루트 `DESIGN.md` 템플릿 4번. 세 번째 적용(기준 `longtail-keyword-expander` Tailwind v3, `ghost-scraper` Tailwind v4, **이 프로그램은 일반 CSS**)
 - **작업**: Claude Code(맥미니), 2026-10-16 · 플랜 [PLAN_20261016_DESIGN_RENEWAL.md](PLAN_20261016_DESIGN_RENEWAL.md)
