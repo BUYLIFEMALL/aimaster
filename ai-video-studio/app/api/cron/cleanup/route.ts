@@ -59,6 +59,21 @@ export async function GET(request: Request) {
     removedEdits++;
     addCleanupCount(counts, e.user_id, "videos", Math.max(1, paths.length));
   }
+  // v1.19 내 프롬프트(avs_user_prompts): 만료(저장 30일)된 줄만 지운다. 표가 아직 없으면 건너뛴다
+  const { data: prompts } = await admin
+    .from("avs_user_prompts")
+    .select("id, user_id")
+    .lt("expires_at", new Date().toISOString())
+    .limit(1000);
+  let removedPrompts = 0;
+  const promptRows = (prompts ?? []) as { id: string; user_id: string }[];
+  if (promptRows.length) {
+    const { error: dp } = await admin.from("avs_user_prompts").delete().in("id", promptRows.map((p) => p.id));
+    if (!dp) {
+      removedPrompts = promptRows.length;
+      for (const p of promptRows) addCleanupCount(counts, p.user_id, "prompts");
+    }
+  }
   const loggedUsers = await logCleanupUsage(admin, PROGRAM_SLUG, counts);
-  return NextResponse.json({ ok: true, scanned: rows.length, removed, removedEdits, loggedUsers });
+  return NextResponse.json({ ok: true, scanned: rows.length, removed, removedEdits, removedPrompts, loggedUsers });
 }

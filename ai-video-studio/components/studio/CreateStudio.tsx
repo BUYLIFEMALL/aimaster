@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Check, Clapperboard, History, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
+import { AlertCircle, BookmarkPlus, Check, Clapperboard, History, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { MODELS, MODEL_EXAMPLES, PROVIDERS, clampSeconds, estCostUsd, exampleSlug, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { SAFETY } from "@/lib/promptPolish";
 import { CAMERAS, STYLES } from "@/lib/presets";
 import { reuseFromGeneration } from "@/lib/reuse";
-import { findPreset } from "@/lib/promptBoard";
+import { findPreset, type BoardPreset, type MinePrompt } from "@/lib/promptBoard";
 import { GenerationCard } from "./GenerationCard";
 
 const IDEAS = ["비 오는 서울 밤거리를 걷는 우산 쓴 여성", "한옥 마당에 내리는 첫눈", "바다 위로 떠오르는 일출과 갈매기", "카페 창가에서 김이 오르는 라떼", "벚꽃길을 달리는 자전거"];
@@ -77,8 +77,10 @@ function ImageSlot({ label, value, onChange, required }: { label: string; value:
   );
 }
 
-export function CreateStudio({ fromId = null, presetId = null }: { fromId?: string | null; presetId?: string | null }) {
+export function CreateStudio({ fromId = null, presetId = null, mineId = null }: { fromId?: string | null; presetId?: string | null; mineId?: string | null }) {
   const [idea, setIdea] = useState("");
+  // v1.19 「내 프롬프트로 저장」(본인만·30일) — 저장 상태 표시
+  const [saveMine, setSaveMine] = useState<{ busy: boolean; text: string; ok: boolean } | null>(null);
   const [styleId, setStyleId] = useState<string | null>("cinematic");
   const [cameraId, setCameraId] = useState<string | null>("push");
   const [providerId, setProviderId] = useState<ProviderId>("gemini");
@@ -174,15 +176,46 @@ export function CreateStudio({ fromId = null, presetId = null }: { fromId?: stri
   useEffect(() => () => { if (pollRef.current) clearTimeout(pollRef.current); }, []);
 
   // 영상 프롬프트 게시판 「이 설명으로 만들기」(v1.14) — 설명·화풍·카메라만 채우고 모델·옵션은 그대로
+  // v1.19 예시는 DB(관리자 편집)에서 먼저 찾고, 못 읽으면 코드 속 예비 목록. ?mine=은 내 프롬프트(본인만)
   useEffect(() => {
-    if (!presetId || fromId) return;
-    const p = findPreset(presetId);
-    if (!p) { setReuseNotice({ text: "게시판 장면을 찾지 못했습니다. 게시판에서 다시 골라 주세요.", ok: false }); return; }
-    setIdea(p.idea);
-    setStyleId(STYLES.some((s) => s.id === p.styleId) ? p.styleId : null);
-    setCameraId(CAMERAS.some((c) => c.id === p.cameraId) ? p.cameraId : null);
-    setReuseNotice({ text: `게시판의 「${p.title}」 장면을 불러왔습니다.${p.input === "photo" ? " 내 제품 사진을 시작 장면으로 넣으면 더 잘 나옵니다." : ""} 그대로 만들거나 「AI로 설명 다듬기」로 다듬어 보세요.`, ok: true });
-  }, [presetId, fromId]);
+    if ((!presetId && !mineId) || fromId) return;
+    let alive = true;
+    const apply = (p: { title: string; idea: string; styleId: string | null; cameraId: string | null }, label: string, photo: boolean) => {
+      setIdea(p.idea);
+      setStyleId(p.styleId && STYLES.some((s) => s.id === p.styleId) ? p.styleId : null);
+      setCameraId(p.cameraId && CAMERAS.some((c) => c.id === p.cameraId) ? p.cameraId : null);
+      setReuseNotice({ text: `${label} 「${p.title}」을(를) 불러왔습니다.${photo ? " 내 제품 사진을 시작 장면으로 넣으면 더 잘 나옵니다." : ""} 그대로 만들거나 「AI로 설명 다듬기」로 다듬어 보세요.`, ok: true });
+    };
+    fetch("/api/prompts", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null)
+      .then((j: { presets?: BoardPreset[]; mine?: MinePrompt[] } | null) => {
+        if (!alive) return;
+        if (mineId) {
+          const m = j?.mine?.find((x) => x.id === mineId);
+          if (m) apply(m, "내 프롬프트", false);
+          else setReuseNotice({ text: "내 프롬프트를 찾지 못했습니다(30일이 지나 지워졌을 수 있습니다). 게시판에서 다시 골라 주세요.", ok: false });
+          return;
+        }
+        const p = j?.presets?.find((x) => x.id === presetId) ?? findPreset(presetId);
+        if (p) apply(p, "게시판 장면", p.input === "photo");
+        else setReuseNotice({ text: "게시판 장면을 찾지 못했습니다. 게시판에서 다시 골라 주세요.", ok: false });
+      });
+    return () => { alive = false; };
+  }, [presetId, mineId, fromId]);
+
+  async function saveToMine() {
+    if (idea.trim().length < 2) { setSaveMine({ busy: false, text: "저장할 영상 설명을 먼저 입력해 주세요.", ok: false }); return; }
+    setSaveMine({ busy: true, text: "", ok: true });
+    try {
+      const res = await fetch("/api/prompts/mine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ idea, styleId, cameraId }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error ?? "저장하지 못했습니다.");
+      setSaveMine({ busy: false, text: "내 프롬프트에 저장했습니다(30일 보관, 나만 보임).", ok: true });
+    } catch (e) {
+      setSaveMine({ busy: false, text: e instanceof Error ? e.message : "저장하지 못했습니다.", ok: false });
+    }
+  }
 
   // 갤러리 「이 설정으로 다시 만들기」(v1.11) — 내 기록만 불러온다(서버가 user_id로 거름). 사진은 다시 넣게 한다
   useEffect(() => {
@@ -268,6 +301,13 @@ export function CreateStudio({ fromId = null, presetId = null }: { fromId?: stri
         <textarea id="video-idea" value={idea} onChange={(e) => setIdea(e.target.value)} rows={3} maxLength={1200}
           placeholder="예) 비 오는 서울 밤거리를 우산을 쓰고 천천히 걷는 여성, 네온 불빛이 젖은 바닥에 비친다"
           className="w-full rounded-xl border border-zinc-700 bg-zinc-950/60 p-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-sky-500/60 focus:outline-none" />
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => void saveToMine()} disabled={saveMine?.busy || idea.trim().length < 2}
+            className="inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-zinc-700 px-2 py-1 text-[11px] font-medium text-zinc-200 hover:border-sky-500/50 disabled:opacity-40">
+            {saveMine?.busy ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : <BookmarkPlus className="h-3 w-3" aria-hidden="true" />} 내 프롬프트로 저장
+          </button>
+          {saveMine?.text && <span role="status" className={`text-[11px] ${saveMine.ok ? "text-emerald-300" : "text-amber-300"}`}>{saveMine.text}{saveMine.ok && <> · <Link href="/prompts" className="underline">게시판에서 보기</Link></>}</span>}
+        </div>
         <div className="flex flex-wrap gap-2">
           <span className="text-[11px] text-zinc-500">추천:</span>
           {IDEAS.map((t) => <button key={t} type="button" onClick={() => setIdea(t)} className="text-[11px] text-sky-300 hover:underline">#{t}</button>)}

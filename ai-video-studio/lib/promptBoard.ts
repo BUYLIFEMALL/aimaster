@@ -1,5 +1,6 @@
 // 영상 프롬프트 게시판(v1.14) — 이 프로그램 고유의 장면 예시 목록(다른 프로그램과 공유하지 않음, docs/IMAGE_PROMPT_RULES.md).
 // 「이 설명으로 만들기」 → /create?preset=<id>가 설명·화풍·카메라를 채운다. 사람 장면은 한국인, 브랜드·실존 인물·연도 없음.
+import { CAMERAS, STYLES } from "@/lib/presets";
 
 export type BoardCategory = "nature" | "city" | "food" | "product" | "people" | "fantasy";
 
@@ -62,7 +63,69 @@ export function findPreset(id: unknown): BoardPreset | undefined {
 }
 
 /** 검색·분류 거르기(제목·설명에서 찾음, 띄어쓰기 무시) */
-export function filterPresets(list: BoardPreset[], category: BoardCategory | "all", query: string): BoardPreset[] {
+export function filterPresets<T extends BoardPreset>(list: T[], category: BoardCategory | "all", query: string): T[] {
   const q = query.replace(/\s+/g, "").toLowerCase();
   return list.filter((p) => (category === "all" || p.category === category) && (!q || `${p.title}${p.idea}`.replace(/\s+/g, "").toLowerCase().includes(q)));
+}
+
+// ── v1.19 게시판 A안: 관리자 편집(avs_preset_prompts) + 내 프롬프트 저장(avs_user_prompts, 본인만·30일) ──
+// 위 BOARD_PRESETS는 DB가 비었거나 읽지 못할 때 쓰는 예비 목록으로 남긴다(게시판이 빈 화면이 되지 않게).
+
+export const PRESET_ID_RE = /^[a-z0-9-]{3,60}$/;
+export const MAX_MINE = 100;
+export const MINE_DAYS = 30;
+
+/** 관리자가 보는 예시(숨김·순서 포함) */
+export interface BoardPresetRow extends BoardPreset { sortOrder: number; published: boolean }
+
+/** 내 프롬프트(본인만) */
+export interface MinePrompt { id: string; title: string; idea: string; styleId: string | null; cameraId: string | null; createdAt: string; expiresAt: string }
+
+type Result<T> = { ok: true; value: T } | { ok: false; error: string };
+const text = (v: unknown) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim() : "");
+const isStyle = (v: unknown): v is string => typeof v === "string" && STYLES.some((s) => s.id === v);
+const isCamera = (v: unknown): v is string => typeof v === "string" && CAMERAS.some((c) => c.id === v);
+
+/** 관리자 예시 저장 값 검사(추가·고치기·숨기기·순서) */
+export function sanitizePresetInput(raw: unknown): Result<BoardPresetRow> {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const id = text(r.id);
+  if (!PRESET_ID_RE.test(id)) return { ok: false, error: "예시 id는 영문 소문자·숫자·하이픈 3~60자로 적어 주세요(예: city-night-rain)." };
+  if (!BOARD_CATEGORIES.some((c) => c.id === r.category)) return { ok: false, error: "분류를 골라 주세요." };
+  const title = text(r.title);
+  if (title.length < 1 || title.length > 40) return { ok: false, error: "제목은 1~40자로 적어 주세요." };
+  const idea = text(r.idea);
+  if (idea.length < 2 || idea.length > 1200) return { ok: false, error: "장면 설명은 2~1200자로 적어 주세요." };
+  if (!isStyle(r.styleId)) return { ok: false, error: "화풍을 골라 주세요." };
+  if (!isCamera(r.cameraId)) return { ok: false, error: "카메라를 골라 주세요." };
+  const input = r.input === "photo" ? "photo" : "text";
+  const order = Number(r.sortOrder);
+  const sortOrder = Number.isInteger(order) && order >= 0 && order <= 9999 ? order : 0;
+  return { ok: true, value: { id, category: r.category as BoardCategory, title, idea, styleId: r.styleId, cameraId: r.cameraId, input, sortOrder, published: r.published !== false } };
+}
+
+/** 내 프롬프트 저장 값 검사 — 제목이 없으면 설명 앞부분 */
+export function sanitizeMineInput(raw: unknown): Result<{ title: string; idea: string; styleId: string | null; cameraId: string | null }> {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const idea = text(r.idea);
+  if (idea.length < 2 || idea.length > 1200) return { ok: false, error: "저장할 영상 설명을 2~1200자로 적어 주세요." };
+  const title = (text(r.title) || idea).slice(0, 40);
+  return { ok: true, value: { title, idea, styleId: isStyle(r.styleId) ? r.styleId : null, cameraId: isCamera(r.cameraId) ? r.cameraId : null } };
+}
+
+/** DB 줄 → 화면 값. 화풍·카메라·분류가 지금 목록에 없는 줄은 뺀다 */
+export function rowToPreset(row: Record<string, unknown>): BoardPresetRow | null {
+  const v = sanitizePresetInput({ id: row.id, category: row.category, title: row.title, idea: row.idea, styleId: row.style_id, cameraId: row.camera_id, input: row.input, sortOrder: row.sort_order, published: row.is_published });
+  return v.ok ? v.value : null;
+}
+
+/** 화면 값 → DB 줄 */
+export function presetToRow(p: BoardPresetRow) {
+  return { id: p.id, category: p.category, title: p.title, idea: p.idea, style_id: p.styleId, camera_id: p.cameraId, input: p.input, sort_order: p.sortOrder, is_published: p.published };
+}
+
+/** DB 목록이 비면(표가 아직 없거나 읽기 실패) 코드 속 예비 목록, 있으면 순서대로 */
+export function boardFromRows(rows: BoardPresetRow[] | null | undefined): { presets: BoardPresetRow[]; source: "db" | "code" } {
+  if (!rows || rows.length === 0) return { presets: BOARD_PRESETS.map((p, i) => ({ ...p, sortOrder: (i + 1) * 10, published: true })), source: "code" };
+  return { presets: [...rows].sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id)), source: "db" };
 }
