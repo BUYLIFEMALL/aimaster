@@ -32,7 +32,7 @@
 | `instagram-comment-reply` (운영 v1.36) | 설정 「다음 확인 예정」 시각 · 「실행 방식 바꾸기 ↓」 바로가기 | `24562d6aa` | 2026-10-23 · Claude Code(윈도우) | `instagram-comment-reply/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01, 설정에서 다음 확인 예정·바로가기 확인 |
 | `real_estate_sales` | 지역 분위기 30일 정리(`cleanup-sentiment`)가 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록 — 공용 `cleanup-usage-log` 사본 | `82a76d9f2` | 2026-10-23 · Claude Code(윈도우) | `real_estate_sales/docs/IMPROVEMENTS.md` 「정정」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `portrait-photo` | 서버 보관함 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images, 경로 첫 폴더로 회원) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `portrait-photo/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
-| `banana-canvas` | 결과 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=지운 입력·결과 파일 수) 기록 — 공용 `cleanup-usage-log` 사본 | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `banana-canvas/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
+| `banana-canvas` | 매뉴얼 절 번호(⑦ 무료 지우기·⑧ 자주 묻는 질문), 「무료 지우기」 빈 화면 문구(휴대폰은 위) | `db31e8684` | 2026-10-24 · Claude Code(윈도우) `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENTS.md` 「v1.34」 | 다음 배포 v1.35, `/guide` 절 번호·`/erase` 빈 화면 확인 |
 | `reverse-prompt` | 분석 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(history) 기록 — 공용 `cleanup-usage-log` 사본(1시간 임시 파일은 세지 않음) | `8ad8ea2e5` · `f53021369` | 2026-10-23 · Claude Code(윈도우) | `reverse-prompt/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `four-cut-comics` | 서버 보관함 30일 정리(`/api/cron/cleanup`)가 회원별 `usage_logs` `cleanup_expired`(images=지운 작품 수) 기록 | `4cafe5eb3` | 2026-10-23 · Claude Code(윈도우) | `four-cut-comics/docs/IMPROVEMENTS.md` 「미배포 대기(정리 기록)」 | 배포 뒤 다음 정리 시각에 관리자 「30일 자동 정리」 표에 줄이 생기는지 확인 |
 | `allinone-graphic` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `allinone-graphic/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -57,6 +57,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `banana-canvas` | v1.34 · 2026-10-24 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 2회 `banana-canvas-r7tq6xjlt`·`-9os1p5zzy`) | 결과 30일 정리 `usage_logs` 기록 `8ad8ea2e5`·`f53021369` (본 작업: 「🧽 무료 지우기(내 PC)」) |
 | `ai-video-studio` | v1.20 · 2026-10-24 (디자인 담당 `agy-win-20261024-videostudio` 리뉴얼 배포 `ai-video-studio-9eovaet1l`에 함께 실림 — 영상 담당 `claude-win-video`가 운영 확인) | 프롬프트 게시판 진행 중 배지 + 누른 카드 바로 갱신 `5b2c589b5`(대기 줄 옮김) — 운영 관리자 계정: 「숨기는 중…」 0.06초에 표시, 카드 바뀜 2.4초(전 3.9초·표시 없음), 되돌림 |
 | `ai-video-studio` | v1.19 · 2026-10-24 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회, `ai-video-studio-2snzpcyw2`) | 프롬프트 게시판 A안(관리자 편집 + 내 프롬프트 저장, 운영 DB 표 2개) `79d6aed00`(대기 줄 없음) |
 | `playlist-channel-studio` | 영상(MP4) 배경 그리기(`c40641d57`) | v1.31 · 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` — 운영 크롬 확인 |

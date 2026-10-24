@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.34 「🧽 무료 지우기(내 PC)」 (ClearPic 참고 C-0~C-5)
+- 한 일: C-0 사전 검증 페이지(저장소 밖, 결과 인수인계 §7) → C-1 공용 기준 코드 `browser-free-erase`(`banana-canvas/src/lib/freeErase/`, `onnxruntime-web@1.23.0` `/ort/`, WebGPU→WASM, 마스크 `>0`+넓히기, 덩어리별 512 계산, 공용 등록) → C-2 글자 찾기 → C-3 `/erase` 화면 → C-4 같은 비율 복사·일괄·중단·ZIP → C-5 스튜디오 안내·매뉴얼 새 절·질문. 제미나이 워터마크 자동 제거는 만들지 않음(권리·AI 생성 고지).
+- 발견·해결: ① 격리 페이지의 작업자 스크립트에도 COEP 필요 — 운영은 `/_next/static/immutable/chunks/`라 `/_next/static/:path*`·`/ort/:path*`에 COEP(페이지 COOP/COEP는 `/erase`만, 로그인 정상) ② Turbopack 개발 서버는 작업자 준비 파일 503 → 로컬 운영 빌드로 시험 ③ `next dev`가 `AGENTS.md`에 영어 안내 추가 → `agentRules: false` ④ LaMa 마스크 `>127` 잔상(교훈 `ERROR_LESSONS`).
+- 검수: 단위 54/54·tsc·로컬 빌드, 로컬 운영 빌드 3장 문구 찾기·일괄 지우기·ZIP, 운영 크롬(관리자) 2장 문구 찾기→지우기 ✅·진행률·매뉴얼·390px iframe. 못 한 것: 일반 회원 계정 화면, WebGPU 없는 PC 실측.
+- 배포: `banana-canvas-r7tq6xjlt` → `banana-canvas-9os1p5zzy`(COEP 경로) Ready, DB v1.34(`esgxyikcnnvmlhygjkth`), 함께 나간 대기: 결과 30일 정리 기록. 미배포 대기 `db31e8684`(매뉴얼 절 번호·빈 화면 문구).
+- 다음: 공용 엔진 사본을 `shop-detail-page`·썸네일·카드뉴스에(담당 협의), 스튜디오 결과 → 무료 지우기 보내기. 음악 담당과 공유: 작업자 스크립트 COEP·Vercel `immutable` 경로.
+- 비용: Vercel 빌드 2회(승인 범위 1~2회 안). AI 0회. 모델은 회원 브라우저가 허깅페이스에서 직접 받음.
+- 프로그램: https://banana-canvas.buylife.xyz/erase
+
 ## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 요청함 마이그레이션 0044 운영 DB 실행(주인님 승인) → `dev-requests report·ask` 사용 가능
 - 배경: 이커머스·이미지 담당(`claude-win-sdp`) 항목의 「DB 0044 주인님 실행 대기」. 주인님이 한 번 실행하셨다고 했으나 운영 DB(`esgxyikcnnvmlhygjkth`) 칸 조회(information_schema) 결과 0044 칸이 없었음 → 주인님 승인으로 제가 크롬 SQL 편집기에서 실행.
 - 실행: `supabase/migrations/0044_admin_dev_requests_results_owner_actions.sql`의 주석을 뺀 SQL(영문 1,746자, 지문 `d6639a140a20` — 파일과 일치 확인) → 「Success. No rows returned」. 칸 6개(`category`·`title`·`from_session`·`parent_id`·`link`·`cost`) 생성 확인, `dev-requests asks` 정상.
