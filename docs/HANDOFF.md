@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — 새 지침: 신규·외부 프로그램 분석·개발 플랜 지침 (문서만)
+- 주인님 지시로 [`docs/PROGRAM_ANALYSIS_PLANNING_GUIDE.md`](PROGRAM_ANALYSIS_PLANNING_GUIDE.md) 작성 — ① 권리·원본 확인 → ② 정적 분석(종류별 도구·확인된 함정) → ③ 우리 프로그램 비교(겹침·새 기능, 코드 검색 증거) → ④ 배치 → ⑤ 개발 플랜 필수 항목 → ⑥ 담당 세션 인계(받는 쪽·승인 상태·다음 첫 단계, 비용 승인은 구현 담당) → ⑦ 공용 기록 점검표. 기존 지침은 대체하지 않고 연결만. 기준 사례: 도톨이 v1.3.
+- 함께: `ANALYSIS_TOOLKIT.md`(innounp 추가·innoextract 6.7 실패·pyinstxtractor 버전 주의), `guidelines/DEVELOPMENT.md`·`guidelines/README.md` 연결, `ERROR_LESSONS.md` 항목. 역할: 이 세션 줄은 새 프로그램 분석·플랜 담당(2026-10-24 주인님 지정). 비용 없음.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 블로그 담당 `claude-win-20261024-blog3` — 블로그 기능 상세 비교표(기준 문서) 작성 + 도톨이 D-1~D-4 검토 (분석·문서만)
 - 한 일: 8개 블로그 프로그램 현재 코드(에이전트 v2.18·SEO v2.16·BLOG v1.80·올인원 v1.52·작업실 v1.14·키워드 v1.07·티스토리 v1.91·콘텐츠 v1.11)를 다시 확인해 **[`docs/BLOG_FEATURE_MATRIX.md`](BLOG_FEATURE_MATRIX.md)** 기준 문서를 만듦 — 프로그램 정의·장단점, 기능 표 7개 영역(○·△·×, 묶음 A·B 반영), 고유 기능, 기능별 기준 코드 위치 18개, 병합 방향, 확장 로드맵·미배포 대기, 갱신 규칙. CLAUDE.md·AGENTS.md·GEMINI.md 블로그 완성 기준 아래와 `BLOG_CONSOLIDATION_TASKS.md`에 안내 줄 추가. 보고서 [2026-10-24 절](analysis-blog-consolidation-20261020/REPORT.md#blog-compare-20261024) `6b861f6ce`, D 플랜 검토 `b26bfcfd7`.
 - 새로 확인한 것: ① 작업실 검수 「제안 반영」이 B-1 이관 때 SEO로 빠짐(→ D-3에 포함) ② BLOG·티스토리가 유튜브를 회원 Gemini로 직접 읽음(→ D-4 유튜브는 이 방식) ③ 에이전트 참고 URL 읽기가 공용 `safe-fetch` 미사용.

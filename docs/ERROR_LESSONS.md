@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — 외부 설치 파일 분석: innoextract가 Inno 6.7을 못 풀고, pyinstxtractor가 파이썬 버전이 달라 코드 묶음을 건너뜀 (도톨이 AI v1.3 분석, Claude Code 윈도우)
+- 증상: `innoextract` 1.9 「Could not determine setup data version」, 7-Zip도 못 엶 / `pyinstxtractor`를 파이썬 3.14로 실행하니 「Skipping pyz extraction」(앱 코드가 안 풀림).
+- 원인: innoextract가 최신 Inno Setup 6.7 형식을 지원하지 않음 / PyInstaller 묶음(PYZ)은 만든 파이썬 버전(3.12)의 marshal 형식이라 같은 버전이 필요.
+- 해결: `innounp` 2.71(GitHub `jrathlev/InnoUnpacker-Windows-GUI`의 `innounp-2.zip`, 설치 없음) · `uv run --no-project --python 3.12 python -I pyinstxtractor.py <exe>`.
+- 다음부터: [신규·외부 프로그램 분석·개발 플랜 지침](PROGRAM_ANALYSIS_PLANNING_GUIDE.md) §2-2 표를 먼저 본다. 빌드 결과물(`.next`) 검색 결과는 원본 소스로 다시 확인한다.
+
 ## 2026-10-24 — Replicate `kwaivgi/kling-v2.1`이 업체에서 서비스 종료돼 생성이 실패한다(공용 `ai-video-models` 목록에 남아 있음) (ai-video-studio v1.13 예시 생성 중, Claude Code 윈도우)
 - **증상**: 시험 계정으로 Kling v2.1(Replicate) 5초를 접수하자 실패 — 업체 오류 `Error code 1203: The model 'kling-v2-1' has been discontinued and is no longer available`. 같은 때 다른 9개 모델은 정상.
 - **원인**: 업체가 모델을 종료했는데 공용 기준 `ai-video-studio/lib/video/videoModels.ts`의 `STUDIO_VIDEO_MODELS`와 다른 프로그램용 `VIDEO_MODELS`(5개) 둘 다에 남아 있음. 사본: `ai-image-studio`·`music-video-studio`·`shorts-onestop-studio`·`shots`.
