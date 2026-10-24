@@ -17,8 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `ai-work-workspace` | v1.10 리뉴얼 검수 수정: 767px 이하 좌측 메뉴 접기(태블릿 657px에서 메뉴가 본문을 가리던 것), 좌측 메뉴 이름 표준 「API키등록·플랫폼연동」 복구, 도구줄 「Private」 → 「내 페이지」 | `59959ec28` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` [역할: workspace] | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | v1.11 배포 → 657px에서 메뉴 접힘·메뉴 이름 확인 |
-| `ai-work-workspace` | 모델 목록을 회원 키별로(OpenAI 목록 캐시 키 해시 기준, 회원이 바뀌면 모델 목록 다시 계산 — 다른 회원 목록이 남지 않게) | `404c1ee85` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` [역할: workspace] | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | v1.11 배포 → 시험 계정·관리자 계정 모델 목록이 각자 키 기준인지 확인 |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공용 공급자·키·중단 + G-2 회원별 봇/방 선택/당시 설정 보존. 운영 DB 준비·83개 시험/타입/로컬 빌드 통과, 임베딩·파싱 유지 | `2d56a117b` · `07795803c` | 2026-10-24 · [역할: docbot-prompt] Codex `codex-win-20261024-docbot-g2` | [G-2 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261024_G2.md) | 일반 시험 회원 Edge 로그인/본인 키 검수 → G-3·G-4 후 묶음, 버전 +0.01·DB·프로그램 비교표 일치 |
 | `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
 | `naver-blog-agent` (운영 v2.21) | 다른 포스팅 방식에서 「발행 전까지」로 바꾸면 「예약 시각도 미리 넣어 두기」를 끔(화면 동작만) | `89d135c4b` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-blog3` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
