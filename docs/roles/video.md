@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | 영상 만들기 맥 느림 2단계 — 맥미니 측정(기본·`?render=software`) 결과 보고 결정 | 맥미니 측정(절차 PLAN §6) | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` |
+| `ai-video-studio` | 영상 만들기 맥 느림 2단계 v1.22 — 원본 미리 받기·자세한 진단·「멈추는 중…」(맥미니 측정 결과: 장면 그리기가 느림, 커밋 `73f2e1f2c`) | 주인님 승인(빌드 1회, PLAN §8) | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` |
 | `ai-video-studio` | 남은 시간 계산 수정 `d8c0aed57` 미배포 대기 | 맥 2단계 배포 때 함께(주인님 결정) | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 |
 | Shots·원스톱 쇼츠 | 영상 D — 완성본에 내 PC 「용량 줄이기」 | 빌드 2회 승인 | `docs/analysis-pc-renderer-20261024/ROADMAP.md` 3-0 |
 
@@ -36,7 +36,7 @@
 | 2026-10-24 | `infinite-loop-video` v1.07 | 소리 없는 영상 실패 수정 | 배포 |
 
 ## 다음 첫 단계
-1. 맥미니 측정 결과(PLAN §6)를 받으면 2단계 플랜 보고
+1. 2단계(PLAN §8) 승인을 받으면 v1.22 구현·배포(`d8c0aed57` 함께) → 맥미니 재측정 요청
 2. 영상 D(빌드 2회 승인 뒤)
 
 ## 주인님께 여쭐 것
