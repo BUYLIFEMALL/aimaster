@@ -1,5 +1,3 @@
--- ai-work-workspace v1.10 (2026-10-24): 운영 DB 버전 표시를 실제 배포 버전에 맞춤
--- 코드(src/lib/version.ts)는 디자인 리뉴얼 배포로 v1.10인데 programs.version이 v1.07에 멈춰 있었음(v1.08·v1.09 SQL 파일 없음).
--- 주인님 승인(2026-10-24), 크롬 SQL 편집기로 적용.
-update public.programs set version = 'v1.10', updated_at = now() where slug = 'ai-work-workspace' and version = 'v1.07';
-select slug, version, updated_at from public.programs where slug = 'ai-work-workspace';
+-- ai-work-workspace v1.10 (2026-10-24): 디자인 역할(agy) 스마트 프로 인디고 워크스페이스 스타일 리뉴얼 배포분(코드 v1.10, 커밋 d9b975c95). v1.08~v1.09는 건너뜀 — DB만 v1.07로 남아 있던 것을 맞춤
+update public.programs set version = 'v1.10', updated_at = now() where slug = 'ai-work-workspace';
+-- 2026-10-24 운영 적용 확인: 주인님 승인 후 크롬 SQL 편집기에서 실행(주인님 Run), 결과 v1.10 · updated_at 09:18 UTC (claude-win-dotori [역할: analysis-planning])
