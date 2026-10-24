@@ -3,7 +3,7 @@
 - 주소: https://realty-listing-alert.buylife.xyz (Vercel 프로젝트 `realty-listing-alert`, 팀 `buylife`) · 운영 DB ① AIMaster `esgxyikcnnvmlhygjkth`
 - 담당: [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` — 역할 파일 [`docs/roles/realty.md`](../docs/roles/realty.md)
 - 기준 인수인계(설계·결정의 원본): [`docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) · 0단계 결과 [`PREVALIDATION_20261024.md`](../docs/analysis-naver-realty-collector-20261024/PREVALIDATION_20261024.md)
-- 지금 상태: **v1.05 지역(시·구·동) 감시 운영 배포(2026-10-25), 「준비중」 배지, 공개 전.** 시험 계정 `buylifemall@naver.com`에만 개별 권한 30일(2026-10-24). **정식 공개는 테스트에서 정상 동작이 확인된 뒤 주인님이 정한다**(그때 배지 떼기 + VIP 자동 부여).
+- 지금 상태: **v1.06 수집 상한·제한 안내 운영 배포(2026-10-25), 「준비중」 배지, 공개 전.** 시험 계정 `buylifemall@naver.com`에만 개별 권한 30일(2026-10-24). **정식 공개는 테스트에서 정상 동작이 확인된 뒤 주인님이 정한다**(그때 배지 떼기 + VIP 자동 부여).
 - 미배포 대기: 없음(메뉴 밑줄 제거 `fe323f5e9`는 v1.02에 함께 배포).
 
 ## 🚨 절대 원칙 (주인님 결정, 인수인계 §0 — 바꾸지 않는다)
@@ -40,6 +40,7 @@
 | 버전 | 날짜 | 내용 |
 |---|---|---|
 | v1.01 | 2026-10-24 | 등록(준비중)·뼈대·확장 v1.01·ZIP 다운로드·표준 로그인·0단계 사전 검증. 배포 3회(첫 배포, framework 수정, 로그인·화면 정리) |
+| v1.06 | 2026-10-25 | 예약 간격 1~24시간(10~50분 삭제) · 수집 상한(한 회차 20곳·하루 300페이지·예약 시각 ±10%) · 예약 화면 예상 수집량 · 수집 한도·네이버 이용 제한 안내(예약·매뉴얼, 제한 시 본인 확인 → 몇 시간~하루 뒤 재사용) · 주소 붙여 넣기 칸 쉬운 말(3단계 안내·예시 주소·즉시 확인). 숫자 `lib/limits.ts`, 확장 `computeNextDue`·`pickRunSlice`·`limitDate`·`pagesDay`, 팝업 「오늘 n/300페이지 · 다음 수집 …쯤」, 차단·한도 텔레그램 안내. 확장 1.6.0/v1.06. 배포 1회 |
 | v1.05 | 2026-10-25 | 지역 감시: 법정동 목록(`public/regions.json`, 국토교통부 2026-06-30) · DB `target_type`·`cortar_no`·`region_name`·`region_max_complexes` · 감시 대상 「🏙 지역으로 추가」 버튼 3단계 · 확장 `collectRegionComplexes`(동별 단지 목록 → 매물 많은 순 상위 N곳, 단지 대상과 겹치면 한 번) · 다음 페이지 읽기 수정(탭 안 요청 본문 직접 사용 + 겹친 페이지 버림) · 연결 계정 대조·표시. 확장 1.5.0/v1.05. 배포 1회 |
 | v1.04 | 2026-10-25 | UX 리뉴얼(`docs/PLAN_20261025_UX_RENEWAL.md`): 대시보드 🚀 시작하기 5단계(자동 판정·다음 할 일 버튼) · 네이버 단지 화면 오른쪽 아래 「➕ 매물 알림에 추가」(`extension/naver-button.js`, 주소의 단지 번호만) · 감시 대상 화면 단순화(큰 「네이버에서 단지 찾기」+그림 3단계, 직접 입력·조건 접기) · 팝업 한 줄 상태 · 쉬운 말 · 매뉴얼 5단계+FAQ · 다음 페이지를 탭 안에서 부르기(스크롤 멈춤 대비) · 실제 단지명 · 주소 판별 넓히기 · 네이버 바로가기. 확장 1.4.0/v1.04. 배포 1회 |
 | v1.03 | 2026-10-25 | 3단계: 확장 수집 엔진(`extension/lib/` collector·listing·compare·guard·sheet·telegram·privacy, background ES 모듈) · 팝업·결과 화면 · 확장 API 4개(`/api/extension/settings`·`collect-rules`·`status`·`targets`) · 대시보드 내 PC 수집 · 설정 화면 텔레그램 카드 · 직접 토큰 발급 제거 · 다운로드 3D 버튼 · 실거래 연계 미리 채우기 · 봇 상태 배지. 확장 1.3.0/v1.03. 배포 2회. 첫 실물 수집 1단지 13건 |
