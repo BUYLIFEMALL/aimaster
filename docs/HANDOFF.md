@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Supertonic TTS 0.3.0 분석·개발 의견 (분석만, 코드·DB·배포 변경 없음)
+- 대상 `D:\PDS\Program_dev\Supertonic TTS-0.3.0-x64.exe`(Electron + Next 내장 서버, 실행 안 함). Supertone 공개 TTS 모델 `supertonic-3`(31개 언어, ONNX 약 398MB, **코드 MIT·가중치 OpenRAIL**)을 회원 PC에서 무료로 돌리는 비공식 앱 — 로컬 파이썬 엔진 / 브라우저(WASM) 두 방식, 한 개·여러 줄·**대화(여러 화자)** 합성, WAV/MP3, SRT, 표현 태그.
+- 우리 쪽: 음성 전용 프로그램 없음, 나레이션은 영상 프로그램 안에서 회원 유료 키로만. 의견: ① 공용 「브라우저 무료 음성 합성」 엔진(공식 오픈소스 기반) → `shorts-onestop-studio` 등 나레이션에 「무료 음성」 선택지 ② 독립 「AI 음성 합성 자동화」(가칭 `ai-voice-studio`) 조건부 추천(입출력 고유, 운영자 비용 0 → FREE 입구 후보). 결정 대기: 방향, **OpenRAIL 상업 이용 조건 확인**, 구현 담당. [보고서](analysis-supertonic-tts-20261024/REPORT.md). 비용 없음.
+
 ## 2026-10-24 ✅ Claude Code(윈도우) · 영상 담당 `claude-win-video` — 「내 PC 고속 변환」 영상 B: 실행기 1.30 `normalize`·`compress` + AI 영상 스튜디오 v1.17 영상 합치기 연결
 - 한 일: 실행기 `host.ps1`·`host.pl` 1.30에 영상 명령 2개 — `normalize`(넣는 영상을 H.264·고정 fps·짝수 크기·긴 변 제한·AAC로 맞춤)·`compress`(완성 MP4 용량 줄이기, 품질 낱말 high/balanced/small). 정해진 낱말·숫자만 받고 소리 트랙은 실행기가 확인. 최소 판 그대로라 옛 프로그램 영향 없음. AI 영상 스튜디오 영상 합치기: 내 PC 영상이 형식 시험을 못 넘으면 회원 PC ffmpeg로 먼저 맞추고(실패 시 기존 브라우저 인코딩), 완성본 아래 「⚡ 내 PC로 용량 줄이기」(원본보다 크면 원본 유지, 50MB 넘으면 갤러리 저장 안내), 실행기가 없으면 설치 안내.
 - 버전·배포: video-to-gif **v1.24**(`video-to-9rhaboikt`, DB·extension v1.24, 확장 검증 OK, 운영 `version.json` host 1.30) → ai-video-studio **v1.17**(`ai-video-studio-kdamezmak`, DB v1.17). 커밋 `0492b0cbb`·`72bfaa11f`·`3b94adc78`·문서 커밋. 공용 사본 `pc-renderer-client` → `ai-video-studio/lib/pcRenderer.ts` 등록.
