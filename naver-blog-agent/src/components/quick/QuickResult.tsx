@@ -18,8 +18,26 @@ export default function QuickResult({ post, saver, onChange }: { post: QuickPost
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const shown = generatedDraftImages(post.images);
   const thumb = shown.find((image) => image.type === "thumbnail");
+  // 작성 화면 미리보기와 같은 표시 기호 두 가지: [SECTION - 소제목], [IMAGE INSERT - 설명](본문 이미지 자리)
   let slot = 0;
-  const parts = post.content.split(/(\[IMAGE INSERT\s*-\s*[^\]]+\])/g);
+  const blocks: React.ReactNode[] = [];
+  post.content.split(/\n{2,}/).forEach((chunk, i) => {
+    const lines = chunk.split("\n");
+    let text: string[] = [];
+    const flush = (k: string) => { if (text.join("").trim()) blocks.push(<p key={k} className="whitespace-pre-wrap">{text.join("\n").trim()}</p>); text = []; };
+    lines.forEach((line, j) => {
+      const t = line.trim();
+      if (/^\[SECTION/.test(t) && t.endsWith("]")) { flush(`${i}-${j}t`); blocks.push(<h3 key={`${i}-${j}`} className="pt-2 text-base font-bold text-neutral-900">{t.replace(/^\[SECTION\s*-\s*/, "").replace(/\]$/, "")}</h3>); return; }
+      if (/^\[IMAGE INSERT/.test(t) && t.endsWith("]")) {
+        flush(`${i}-${j}t`);
+        const image = bodyImageAt(shown, slot++);
+        if (image) blocks.push(<img key={`${i}-${j}`} src={image.url} alt={image.caption} className="w-full rounded-xl border border-neutral-200 object-contain" />);
+        return;
+      }
+      text.push(line);
+    });
+    flush(`${i}-end`);
+  });
 
   const queue = async () => {
     if (busy || reviewBlocked || publishingBlocked) return;
@@ -41,15 +59,7 @@ export default function QuickResult({ post, saver, onChange }: { post: QuickPost
         <p className="text-[11px] font-bold text-emerald-700">⑤ 완성 원고 미리보기 · 보관함에 저장됨</p>
         <h2 className="mt-1 text-xl font-bold text-neutral-900">{post.title}</h2>
         {thumb && <img src={thumb.url} alt={thumb.caption} className="mt-3 w-full rounded-xl border border-neutral-200 object-contain" />}
-        <div className="mt-4 space-y-3 text-sm leading-7 text-neutral-800">
-          {parts.map((part, i) => {
-            if (/^\[IMAGE INSERT/.test(part)) {
-              const image = bodyImageAt(shown, slot++);
-              return image ? <img key={i} src={image.url} alt={image.caption} className="w-full rounded-xl border border-neutral-200 object-contain" /> : null;
-            }
-            return part.trim() ? <p key={i} className="whitespace-pre-wrap">{part.trim()}</p> : null;
-          })}
-        </div>
+        <div className="mt-4 space-y-3 text-sm leading-7 text-neutral-800">{blocks}</div>
         {post.tags.length > 0 && <p className="mt-3 text-xs text-emerald-700">{post.tags.map((tag) => `#${tag}`).join(" ")}</p>}
         <p className="mt-3 text-[11px] text-neutral-500">문장·이미지를 하나씩 고치려면 에이전트 전체 기능(콘텐츠 생성 화면)을 이용하세요.</p>
       </div>
