@@ -3,8 +3,9 @@
 - 담당: Claude Code(윈도우) `claude-win-20261024-music`
 - 맡은 폴더: `ai-music-studio/` `music/` `lyric-video-studio/` `playlist-channel-studio/` `music-video-studio/` `ai-mastering-studio/` 등(쇼츠·shots의 음악 부분 포함)
 - 카테고리: 음악
+- 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-10-24 밤 (`claude-win-20261024-music` — 쇼츠 원스톱 v1.42 무료 음성 시험 계정 운영 검수 완료)
+- 마지막 갱신: 2026-10-25 (`claude-win-20261024-music` — 음악 카테고리 기본 지침 1판 `docs/MUSIC_AUTOMATION_POLICY.md` 작성, 휴대폰 무료 음성 속도 기록)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -22,6 +23,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-25 | 음악 카테고리 | 기본 지침 1판 `docs/MUSIC_AUTOMATION_POLICY.md`(대화 기록 66건 분석) · 쇼츠 무료 음성 휴대폰 속도 20초/20초 기록 | 없음(문서) |
 | 2026-10-24 | `shorts-onestop-studio` v1.42 | 무료 음성(내 브라우저) + 공용 엔진 `browser-free-tts` — 시험 계정 운영 검수 완료(음성·업로드·MP4) | 배포 |
 | 2026-10-24 | 무료 음성 엔진 | 사전 검증 페이지(내 PC): 첫 내려받기 40~54초·두 번째 2.1초, 여러 줄 계산 0.66~0.99배, 외부 그림 정상, 음질 주인님 통과 → 개발 플랜 작성 | 없음(비용 없음) |
 | 2026-10-24 | `playlist-channel-studio` v1.31 | 영상(MP4) 배경 미표시 수정 | 배포 |
@@ -31,7 +33,6 @@
 | 2026-10-24 | `music-video-studio` v1.25 | 곡 파형 | 배포 |
 | 2026-10-24 | `music-video-studio` v1.24 | AI 이미지 스튜디오 이미지를 참고로 | 배포 |
 | 2026-10-24 | `music-video-studio` v1.23 | 장면 타임라인·순서 바꾸기 | 배포 |
-| 2026-10-24 | `music-video-studio` v1.22 | 완성본 보관 | 배포 |
 
 ## 다음 첫 단계
 1. Lyricbi L-1~L-5 시작(승인됨, 빌드 2회) — 작업 중 표 등록 → L-1 → L-2 → 배포 1 → L-3~L-5 → 배포 2
