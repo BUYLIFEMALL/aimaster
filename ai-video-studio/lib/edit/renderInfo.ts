@@ -17,6 +17,13 @@ export function formatEta(ms: number): string {
   return r ? `약 ${m}분 ${r}초` : `약 ${m}분`;
 }
 
+/** 남은 시간(ms) — 전체 진행률(그리기 70%·인코딩 30%)과 지난 시간으로 계산.
+ *  라이브러리 renderEstimatedTime은 그리기 속도만 보므로 인코딩에서 막히는 PC(맥 사례)에선 크게 짧게 나온다. 진행 3% 전엔 0(예측 안 함) */
+export function etaFromProgress(elapsedMs: number, progress: number): number {
+  if (!Number.isFinite(elapsedMs) || !Number.isFinite(progress) || progress < 0.03 || progress >= 1) return 0;
+  return Math.round((elapsedMs * (1 - progress)) / progress);
+}
+
 export const SLOW_AFTER_MS = 20_000;
 export const SLOW_ETA_MS = 180_000;
 

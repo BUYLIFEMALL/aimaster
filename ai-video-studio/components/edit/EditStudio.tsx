@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
 import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb, type ShrinkQuality } from "@/lib/edit/pcVideo";
-import { formatEta, isSlowRender, renderDiagnostics, renderHwFromParam } from "@/lib/edit/renderInfo";
+import { etaFromProgress, formatEta, isSlowRender, renderDiagnostics, renderHwFromParam } from "@/lib/edit/renderInfo";
 import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
@@ -406,7 +406,11 @@ export function EditStudio() {
         onProgress: (p) => {
           frames.rendered = p.renderedFrames;
           frames.encoded = p.encodedFrames;
-          setRender((cur) => (cur ? { ...cur, progress: p.progress, etaMs: p.renderEstimatedTime, elapsedMs: Date.now() - cur.startedAt } : cur));
+          setRender((cur) => {
+            if (!cur) return cur;
+            const elapsedMs = Date.now() - cur.startedAt;
+            return { ...cur, progress: p.progress, etaMs: etaFromProgress(elapsedMs, p.progress), elapsedMs };
+          });
         },
         videoBitrate: "high",
         hardwareAcceleration: hw,

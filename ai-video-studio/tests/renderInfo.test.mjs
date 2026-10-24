@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { formatEta, isSlowRender, renderDiagnostics, renderHwFromParam } from "../lib/edit/renderInfo.ts";
+import { etaFromProgress, formatEta, isSlowRender, renderDiagnostics, renderHwFromParam } from "../lib/edit/renderInfo.ts";
 
 test("?render=software만 소프트웨어 인코딩", () => {
   assert.equal(renderHwFromParam("software"), "prefer-software");
@@ -29,4 +29,12 @@ test("진단 줄: 프레임·속도·밀림", () => {
   assert.equal(d.frames, "150/150/150");
   assert.equal(d.fps, 28.3);
   assert.equal(d.lag, 0);
+});
+
+test("남은 시간은 전체 진행률로 계산(인코딩에서 막혀도 맞게)", () => {
+  assert.equal(etaFromProgress(1000, 0.01), 0);
+  assert.equal(etaFromProgress(10_000, 1), 0);
+  assert.equal(etaFromProgress(10_000, 0.5), 10_000);
+  // 맥 사례: 5분에 8% → 남은 약 57분, 20초 뒤부터 느림 안내 대상
+  assert.equal(etaFromProgress(300_000, 0.08), 3_450_000);
 });
