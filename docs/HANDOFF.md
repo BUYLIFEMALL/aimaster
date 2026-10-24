@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 🔶 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 상세페이지 v1.31 문구 고치기 「🧽 무료 지우기」 배포, 큰 제목 품질 보완 필요
+- 한 일: 공용 `browser-free-erase` 사본(`shop-detail-page/lib/freeErase/`) + `onnxruntime-web@1.23.0` `/ort/` — 편집기에 「이미지 속 글자 모두 지우기(무료)」, 사각형마다 「단색으로 덮기 / 🧽 주변에 맞춰 지우기」, 되돌리기가 바탕까지 복구, FAQ 보강. 머리글(COOP/COEP)은 넣지 않음(WebGPU는 머리글 없이 동작). 배포 `shop-detail-page-ert7y0vcg` Ready, DB v1.31, 함께 나간 대기: 30일 정리 기록 `34094c954`.
+- 검수: tsc·로컬 빌드, 로컬 운영 빌드(임시 페이지, 삭제함)에서 사진 위 글자 2곳 깨끗이 지움·사각형 지우기+새 문구·되돌리기 2회 원복. 운영(시험 계정 상품 `82deeddc…` 프로모션 배너, 저장 안 함): 글자 8곳 찾음·지움(그래픽 가속).
+- **발견(미해결)**: 큰 굵은 제목은 검은 글자 조각이 남음. 원인 실험: 제목 덩어리가 커서 작업 영역이 그림 거의 전체(1792×2200)가 되어 512로 약 1/4 축소 → 같은 마스크로 제목 주변만 좁게 잘라 계산하면 깨끗함(브라우저 비교 확인). 고칠 곳: 공용 기준 `banana-canvas/src/lib/freeErase/protocol.ts` `workRegion` 여유 축소·큰 덩어리 나누기 → `--sync` → 바나나 캔버스·상세페이지 재배포(빌드 2회, 주인님 승인 대기).
+- 비용: Vercel 빌드 1회(승인 범위), AI 0회.
+- 프로그램: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-24 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-20261024-blog3` — 네이버 블로그 SEO 스튜디오 v2.19 배포 (예약 포스팅)
 - 기준: 루트 「🧭 블로그 작업 최우선 핵심 지침」 ③ⓒ — SEO 스튜디오는 예약이 없었고 오히려 「예약 설정이 남아 있으면 즉시 발행하지 않음」으로 막혀 있었음. 주인님 결정: 구현 후 바로 정식 배포.
 - 한 일: 서버 `auto-publish/route.ts` — `claim`에 `scheduleAt`(10분 단위·20분 이후, `lib/reserveTime.ts`) → 실행 기록 `mode:"reserve"`·`scheduledAt`, 새 결과 `reserved`(예약 목록 시각 일치·arm 뒤에만·예약 실행은 `published` 기록 불가·완료 후 불확실로 안 되돌림). 확장 `auto-publish-page.js` — `settings`에서 예약 켜기·날짜·시·분 입력·반영 확인, `final`은 예약 실행이면 예약이 켜져야만 누름(즉시 실행은 예전처럼 예약이 켜져 있으면 멈춤), 새 `reserved` 명령(예약 목록 제목·시각 1건). 예약 코드는 `naver-blog-agent/extension/editor.js`에서 옮김(executeScript가 함수 하나만 넣으므로 도우미를 함수 안에 둠). `auto-publish.js`·`background.js`·`sidepanel.*` — 「예약 포스팅 시작」 버튼·날짜 칸·예약 결과 확인. 웹 `PublicationResult`(예약 완료·예약 시각)·자동 포스팅 안내·FAQ. 커밋 `f8a33efbf`(플랜)·`bbd6d771a`(기능)·`92fb0bb7a`(버전·확장 ZIP).
