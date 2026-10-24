@@ -22,7 +22,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `ai-video-studio/` | [역할: video] Claude Code(윈도우, 크롬) · 세션 `claude-win-video` | 2026-10-24 | v1.21 묶음: 영상 만들기 진단 1단계(남은 시간·진단 기록·`?render=software`) + 갤러리 목록 속도 + 화질 균형 배포(빌드 1회 승인) |
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-workspace` | 2026-10-24 | 4번 한국어화 + 회의록 수정(정지 시 마지막 문장 손실·요약 after()·짧은 녹취 안내·자동 요약 100자) → v1.15, 빌드 1회 승인 |
 | `shop-detail-page/` (+ 공용 `browser-free-erase` 사본 등록 `scripts/check-shared-modules.mjs`) | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-24 | 문구 고치기 편집기에 무료 지우기(글자 모두 지우기·주변에 맞춰 지우기) — 주인님 승인 「1번으로 진행」(빌드 1회), v1.31 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |

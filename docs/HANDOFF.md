@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.21: 영상 만들기 진단 1단계 + 갤러리 목록 서명 한 번에 + 화질 균형(주인님 승인 빌드 1회)
+- 한 일: ① 영상 만들기 진행 막대 「남은 시간」·20초 뒤 3분 초과면 느림 안내·콘솔 `[avs-render]` 진단 줄·`?render=software` 시험 스위치(`lib/edit/renderInfo.ts`) ② 갤러리 목록 서명을 `createSignedUrls` 1번으로(예전 최대 180번, `lib/signedUrls.ts`) ③ 「작게 줄이기(720)」 화질 「균형」. 커밋 `10f736e9e`·`4e1776da0`, DB v1.21.
+- 검수(운영 메인 크롬, 시험 계정): 화면 v1.21 · 목록 20행·영상 18개 재생·내려받기 주소 정상(영상 받기 206) · `?render=software` 10초 영상 9.5초, 진단 `{"hw":"prefer-software","frames":"300/300/300","fps":31.6}`.
+- 발견 ①: 목록 응답 약 2.7초 중 약 1.8초는 모든 API 공통 권한 확인(`/api/prompts`도 같음) — 서버 지역 미지정(미국 동부 추정). 전체 프로그램 공통 제안으로 `ai-video-studio/docs/IMPROVEMENTS.md`에 남김(미착수).
+- 발견 ②: 라이브러리 남은 시간은 그리기 속도만 봐서 「약 1초」로 짧게 나옴 → 전체 진행률로 계산하도록 고침 `d8c0aed57` **미배포 대기**.
+- 다음: 맥미니 측정(절차 `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` §6) → 2단계 플랜. 맥미니 요청함 건(bcbb7aae) 완료 처리. 비용: Vercel 빌드 1회(승인 범위). 링크:
+https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-10-24 🔧 [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 「AI 부동산 매물 알림 자동화」 `realty-listing-alert` v1.01 뼈대 + 0단계 사전 검증 완료 (미배포)
 - 주인님 지정: 부동산 담당(새 역할 `realty`, `docs/roles/realty.md`). 기준 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`.
 - 만든 것: `realty-listing-alert/` 웹 뼈대(기준 `naver-blog-seo-studio`, 권한·핸드폰·767px 메뉴·/guide·확장 연결·대시보드 다운로드 센터·whoami·공개 version API) + `extension/`(manifest 1.1.0/v1.01, 사전 검증 메뉴) + `prebuild` ZIP(`public/downloads/realty-listing-alert-extension-latest.zip`). tsc·eslint·로컬 build 통과. 운영 DB·Vercel 손대지 않음.
