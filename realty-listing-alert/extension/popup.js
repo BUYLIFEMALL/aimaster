@@ -1,3 +1,4 @@
+document.getElementById("ver").textContent = chrome.runtime.getManifest().version_name || "";
 const log = (t) => (document.getElementById("log").textContent = t);
 async function send(type, extra = {}) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

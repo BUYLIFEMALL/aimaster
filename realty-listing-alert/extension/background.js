@@ -1,4 +1,5 @@
-// 0단계 사전 검증용 임시 확장 — 매물 개인 정보(전화·주소·대표자)는 기록하지 않는다.
+// AIMaster 부동산 매물 알림 확장 v1.01 — 지금은 0단계 사전 검증 기능만 들어 있다(3단계에서 수집 엔진으로 교체).
+// 매물 개인 정보(전화·주소·대표자)는 기록하지 않고, 매물 데이터는 우리 서버로 보내지 않는다.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const rand = (a, b) => a + Math.floor(Math.random() * (b - a));
 const PERSONAL = /phone|tel|cellPhone|realtorAddress|representative|address|addr|email/i;
@@ -84,7 +85,7 @@ async function evalInPage(tabId, expression) {
 }
 async function withDebugger(tabId, fn) {
   try { await chrome.debugger.attach({ tabId }, "1.3"); }
-  catch (e) {
+  catch {
     try { await chrome.debugger.detach({ tabId }); } catch {}
     await chrome.debugger.attach({ tabId }, "1.3");
   }
@@ -226,6 +227,13 @@ async function saveReport() {
 chrome.runtime.onMessage.addListener((msg, _s, reply) => {
   (async () => {
     try {
+      if (msg.type === "connect") {
+        // 웹 「바로 연결」: 연결 코드를 이 기기(chrome.storage.local)에만 저장한다.
+        if (!/^pat_[0-9a-f]{64}$/.test(msg.token || "")) return reply({ ok: false, error: "연결 코드 형식이 올바르지 않습니다." });
+        await chrome.storage.local.set({ extToken: msg.token, connectedAt: new Date().toISOString() });
+        if (msg.closeTab && _s?.tab?.id) chrome.tabs.remove(_s.tab.id).catch(() => {});
+        return reply({ ok: true });
+      }
       if (msg.type === "capture") return reply(await runCapture(msg.tabId, msg.tabUrl));
       if (msg.type === "direct") return reply(await runDirect(msg.tabId));
       if (msg.type === "alarm") return reply(await startAlarm());

@@ -1,10 +1,40 @@
 {
   "manifest_version": 3,
-  "name": "부동산 사전 검증(임시)",
-  "version": "0.0.1",
-  "description": "realty-listing-alert 0단계 사전 검증용 임시 확장. 검증 뒤 삭제.",
-  "permissions": ["debugger", "alarms", "storage", "downloads"],
-  "host_permissions": ["https://new.land.naver.com/*", "https://fin.land.naver.com/*", "https://m.land.naver.com/*", "https://api.telegram.org/*"],
-  "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html", "default_title": "부동산 사전 검증" }
+  "name": "AIMaster 부동산 매물 알림",
+  "version": "1.1.0",
+  "version_name": "v1.01",
+  "description": "회원 PC에서 회원 본인 계정으로 네이버 부동산 매물을 읽어 정리하고 본인 텔레그램으로 알려 주는 확장 프로그램",
+  "permissions": [
+    "debugger",
+    "alarms",
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://new.land.naver.com/*",
+    "https://fin.land.naver.com/*",
+    "https://m.land.naver.com/*",
+    "https://api.telegram.org/*",
+    "https://realty-listing-alert.vercel.app/*",
+    "https://realty-listing-alert.buylife.xyz/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://realty-listing-alert.vercel.app/*",
+        "https://realty-listing-alert.buylife.xyz/*"
+      ],
+      "js": [
+        "web-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "부동산 매물 알림"
+  }
 }
