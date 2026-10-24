@@ -1,51 +1,74 @@
-/* 로그인 화면 전용 최소 스타일. 워크스페이스 화면은 원본 litpage 디자인 토큰(--lp-*, litpage/web/styles)을 쓴다. */
+/* 로그인 화면 전용 스타일 — AIMaster 공식 표준 2탭 레이아웃(DESIGN.md 14번: 24px 모눈 배경·440px 카드·알약 탭·약관 푸터).
+   워크스페이스 화면과 같은 흰색·검정 두 테마(원본 litpage 토큰 --lp-*가 있으면 따름). */
 .aww-login {
+  --aww-bg: var(--lp-bg, #ffffff);
+  --aww-surface: #ffffff;
+  --aww-raised: #f4f4f5;
+  --aww-border: #e4e4e7;
+  --aww-text: #18181b;
+  --aww-muted: #71717a;
+  --aww-primary: #18181b;
+  --aww-on-primary: #ffffff;
+  --aww-link: #4f46e5;
+  --aww-grid: rgba(24, 24, 27, 0.05);
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px 16px;
-  background: var(--lp-bg, #ffffff);
-  color: var(--lp-text, #18181b);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-}
-.aww-login-card {
-  width: 100%;
-  max-width: 380px;
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: var(--aww-text);
+  background-color: var(--aww-bg);
+  background-image: linear-gradient(var(--aww-grid) 1px, transparent 1px), linear-gradient(90deg, var(--aww-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
-.aww-login-card .eyebrow { font-size: 13px; color: #71717a; margin: 0; }
-.aww-login-card h1 { font-size: 24px; margin: 0; }
-.aww-login-card p { margin: 0; color: #52525b; line-height: 1.6; }
-.aww-login-card form { display: flex; flex-direction: column; gap: 10px; }
-.aww-login-card label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
-.aww-login-card input {
-  height: 40px;
-  border: 1px solid #d4d4d8;
-  border-radius: 8px;
-  padding: 0 12px;
-  font-size: 15px;
-  background: #fff;
-  color: #18181b;
-}
-.aww-login-card button {
-  height: 42px;
-  border: 0;
-  border-radius: 8px;
-  background: #18181b;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.aww-login-card button:disabled { opacity: 0.6; cursor: default; }
-.aww-login-card .error { color: #dc2626; font-size: 14px; }
-.aww-login-card a { color: #4f46e5; font-size: 14px; }
 @media (prefers-color-scheme: dark) {
-  .aww-login { background: #18181b; color: #f4f4f5; }
-  .aww-login-card p, .aww-login-card .eyebrow { color: #a1a1aa; }
-  .aww-login-card input { background: #27272a; border-color: #3f3f46; color: #f4f4f5; }
-  .aww-login-card button { background: #f4f4f5; color: #18181b; }
-  .aww-login-card a { color: #a5b4fc; }
+  .aww-login {
+    --aww-bg: #18181b;
+    --aww-surface: #202023;
+    --aww-raised: #27272a;
+    --aww-border: #3f3f46;
+    --aww-text: #f4f4f5;
+    --aww-muted: #a1a1aa;
+    --aww-primary: #f4f4f5;
+    --aww-on-primary: #18181b;
+    --aww-link: #a5b4fc;
+    --aww-grid: rgba(255, 255, 255, 0.05);
+  }
+}
+.aww-login-wrap { width: 100%; max-width: 440px; }
+.aww-login-head { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 32px; }
+.aww-login-head .emoji { font-size: 40px; line-height: 1; }
+.aww-login-head h1 { margin: 16px 0 4px; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+.aww-login-head p { margin: 0; font-size: 14px; font-weight: 500; color: var(--aww-muted); }
+
+.aww-auth-card { border: 1px solid var(--aww-border); border-radius: 16px; background: var(--aww-surface); padding: 32px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04); }
+.aww-auth-tabs { display: flex; padding: 4px; margin-bottom: 24px; border-radius: 999px; background: var(--aww-raised); }
+.aww-auth-tabs button { flex: 1; padding: 10px 0; border: 0; border-radius: 999px; background: transparent; color: var(--aww-muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.aww-auth-tabs button:hover { color: var(--aww-text); }
+.aww-auth-tabs button.active { background: var(--aww-primary); color: var(--aww-on-primary); }
+.aww-auth-error { margin: 0 0 16px; padding: 12px; border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 10px; background: rgba(220, 38, 38, 0.08); color: #dc2626; font-size: 13px; font-weight: 500; text-align: center; }
+
+.aww-auth-form { display: flex; flex-direction: column; gap: 20px; }
+.aww-auth-form label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.aww-auth-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.aww-auth-row label { margin: 0; }
+.aww-auth-row a { color: var(--aww-link); font-size: 13px; font-weight: 600; text-decoration: none; }
+.aww-auth-row a:hover { text-decoration: underline; }
+.aww-auth-field { position: relative; }
+.aww-auth-field svg { position: absolute; left: 14px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); color: var(--aww-muted); pointer-events: none; }
+.aww-auth-field input { width: 100%; box-sizing: border-box; padding: 12px 16px 12px 40px; border: 1px solid var(--aww-border); border-radius: 12px; background: var(--aww-raised); color: var(--aww-text); font-size: 14px; }
+.aww-auth-field input::placeholder { color: var(--aww-muted); }
+.aww-auth-field input:focus { outline: none; border-color: var(--aww-link); box-shadow: 0 0 0 2px color-mix(in srgb, var(--aww-link) 20%, transparent); }
+
+.aww-auth-primary { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box; padding: 12px 0; border: 0; border-radius: 999px; background: var(--aww-primary); color: var(--aww-on-primary); font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
+.aww-auth-primary:hover { opacity: 0.88; }
+.aww-auth-primary:disabled { opacity: 0.6; cursor: default; }
+.aww-auth-primary svg { width: 16px; height: 16px; }
+.aww-auth-signup { display: flex; flex-direction: column; gap: 16px; text-align: center; }
+.aww-auth-signup p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--aww-muted); }
+.aww-auth-legal { margin: 32px 0 0; font-size: 11px; line-height: 1.8; text-align: center; color: var(--aww-muted); }
+.aww-auth-legal a { color: var(--aww-muted); font-weight: 500; }
+.aww-auth-legal a:hover { color: var(--aww-text); }
+@media (max-width: 420px) {
+  .aww-auth-card { padding: 24px 20px; }
 }
