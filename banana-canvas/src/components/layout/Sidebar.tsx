@@ -131,6 +131,14 @@ export function Sidebar({
             <span className="nav-badge-free">0원 초고속</span>
           </a>
 
+          {/* 무료 지우기용 AI 모델 파일 받기 — /erase 받기 상자로 이동(주인님 지시 2026-10-25) */}
+          <a className="nav-item group" href="/erase#model" title="무료 지우기에 쓰는 AI 계산용 모델 파일(설치 없음, 약 203MB)을 미리 받습니다">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[15px] group-hover:scale-110 transition-transform">⬇</span>
+              <span className="truncate">AI 모델 파일 받기</span>
+            </div>
+          </a>
+
           {/* 내 결과 기록 */}
           <a
             className="nav-item group"
