@@ -7,7 +7,7 @@ import './aimaster.css';
 
 const PROGRAMS_URL = 'https://www.buylife.xyz/programs';
 export const AIMASTER_APP_NAME = 'AI 업무 워크스페이스';
-export const AIMASTER_APP_VERSION = 'v1.18';
+export const AIMASTER_APP_VERSION = 'v1.19';
 
 export function AimasterSidebarTop() {
   return (

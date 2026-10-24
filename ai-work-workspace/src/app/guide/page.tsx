@@ -284,6 +284,7 @@ export default async function GuidePage() {
               { no: 2, icon: "👀", title: "내용 확인", desc: "목록에서 항목을 고르면 오른쪽에 본문과 보낸 프로그램, 원본 결과 화면 링크가 보입니다." },
               { no: 3, icon: "📄", title: "페이지로 만들기", desc: "파란 버튼을 누르면 「내 페이지」 맨 위에 새 페이지가 생기고 본문이 그대로 들어갑니다." },
               { no: 4, icon: "📊", title: "표에 행으로 넣기", desc: "초록 버튼을 누르면 「📨 받은 업무 표」(처음 한 번 자동 생성)에 한 줄이 추가됩니다." },
+              { no: 5, icon: "✅", title: "할 일 플래너로 보내기", desc: "페이지 오른쪽 위 「⋯」 → 「📨 할 일 플래너로 보내기」에서 체크 안 된 할 일 항목이나 페이지 자체를 AI 할 일 플래너 「받은 할 일」로 보낼 수 있습니다." },
             ].map((s) => (
               <article key={s.no} className="aww-step-card">
                 <div className="aww-step-card-header">
@@ -297,7 +298,7 @@ export default async function GuidePage() {
           </div>
           <div className="aww-meeting-buttons">
             <a className="aww-3d blue" href="/inbox">📨 받은 업무 열기</a>
-            <span className="aww-meeting-buttons-note">다른 프로그램과의 연결(할 일 플래너·음성 분석·문서 번역 등)은 차례로 열립니다.</span>
+            <span className="aww-meeting-buttons-note">할 일 플래너와는 양쪽으로 주고받습니다. 음성 분석·문서 번역 등 다른 프로그램 연결은 차례로 열립니다.</span>
           </div>
         </section>
 

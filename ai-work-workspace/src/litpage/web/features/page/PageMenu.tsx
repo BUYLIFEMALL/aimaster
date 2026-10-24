@@ -280,6 +280,13 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
       ] },
       { items: [item(t('lp.page.appearance_layout', 'Appearance & layout'), 'textFormat', { keywords: ['font', 'serif', 'mono', 'small text', 'full width', 'contents list', 'page discussions', 'inline comments', 'customize page', 'style'], submenu: appearance })] },
       { items: [item(t('lp.page.use_in_ai', 'Use in AI'), 'aiFace', { keywords: ['skill', 'agent', 'instructions'], submenu: useWithAi })] },
+      // U8-B: AI 할 일 플래너 「받은 할 일」로 보내기(src/server/workInbox.ts workInboxSendToPlanner)
+      { items: [item('📨 할 일 플래너로 보내기', 'arrowTurnUpRight', { keywords: ['할 일', '플래너', 'todo', 'planner'], submenu: () => ({
+        width: 280, role: 'menu', className: 'nc-page-submenu', sections: [{ items: [
+          { label: '체크 안 된 할 일 항목 보내기', description: '이 페이지의 체크하지 않은 체크 상자 항목(최대 30개)을 하나씩', onSelect: () => void sendToPlanner(pageId, 'todos') },
+          { label: '이 페이지를 할 일 하나로', description: '표 행이면 마감일·우선순위도 함께', onSelect: () => void sendToPlanner(pageId, 'page') },
+        ] }],
+      }) })] },
       { items: [
         // toggles suggest mode (features/comments/suggest.ts listens); "Stop" while suggesting
         item(t('lp.page.suggest_edits', 'Suggest edits'), 'commentPencil', { right: <SuggestStop pageId={pageId} />, onSelect: () => { window.dispatchEvent(new CustomEvent('nc:suggest-edits', { detail: { pageId } })); }, disabled: !canEdit && role !== 'comment_only' }),
@@ -327,6 +334,16 @@ export function exportBlocked(page: BlockRecord): boolean {
     else break;
   }
   return false;
+}
+
+// U8-B: 할 일 플래너 「받은 할 일」로 보내기
+async function sendToPlanner(pageId: string, mode: 'todos' | 'page') {
+  try {
+    const r = await api<{ count: number; plannerUrl: string }>('workInboxSendToPlanner', { pageId, mode });
+    useUI.getState().toast(`할 일 ${r.count}개를 AI 할 일 플래너 「받은 할 일」로 보냈습니다.`, { label: '플래너 열기', run: () => window.open(r.plannerUrl, '_blank', 'noopener') });
+  } catch (e: any) {
+    useUI.getState().toast(e?.message ?? '할 일 플래너로 보내지 못했습니다.');
+  }
 }
 
 async function duplicateDatabase(pageId: string, withContent: boolean) {

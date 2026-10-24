@@ -11,11 +11,16 @@ import { getRecord, putRecord } from "@/litpage/server/db.ts";
 import { storeFile } from "@/litpage/server/content/files.ts";
 import { compactId } from "#shared/ids.ts";
 import { inboxRowCsv } from "./workInboxCsv";
-import type { BlockRecord, SpaceRecord, SpaceViewRecord, UserRootRecord, UserSettingsRecord } from "#shared/records.ts";
+import { uncheckedTodos, pageAsTask, type PlannerTask } from "./workInboxPlannerItems";
+import { sendToWorkInbox } from "@/lib/workInbox";
+import type { BlockRecord, CollectionRecord, SpaceRecord, SpaceViewRecord, UserRootRecord, UserSettingsRecord } from "#shared/records.ts";
+
+const APP_ORIGIN = "https://ai-work-workspace.buylife.xyz";
 
 export const WORK_INBOX_RETENTION_DAYS = 30;
 const SETTINGS_KEY = "aww_work_inbox_db"; // 「📨 받은 업무 표」 데이터베이스 블록 id(회원 설정에 저장)
 const INBOX_DB_TITLE = "📨 받은 업무 표";
+const TARGET = "ai-work-workspace"; // U8-B: 받는 곳이 워크스페이스인 줄만 이 화면에서 다룬다
 
 export interface WorkInboxRow {
   id: string;
@@ -49,11 +54,22 @@ function memberSpace(userId: string): SpaceRecord {
   throw new ApiError("워크스페이스를 찾지 못했습니다. 워크스페이스를 먼저 열어 주세요.", 404);
 }
 
+/** 회원이 연결된 모든 워크스페이스 id */
+function memberSpaceIds(userId: string): Set<string> {
+  const root = getRecord<UserRootRecord>("user_root", userId);
+  const ids = new Set<string>();
+  for (const id of root?.space_views ?? []) {
+    const sv = getRecord<SpaceViewRecord>("space_view", id);
+    if (sv && sv.alive !== false) ids.add(sv.space_id);
+  }
+  return ids;
+}
+
 async function loadRow(userId: string, id: unknown): Promise<WorkInboxRow> {
   const { data, error } = await createAdminClient()
     .from("work_inbox")
     .select("id, source_slug, kind, title, body_md, data, source_url, created_at, imported_at, imported_ref")
-    .eq("user_id", userId)
+    .eq("user_id", userId).eq("target_slug", TARGET)
     .eq("id", String(id ?? ""))
     .maybeSingle();
   if (error) throw new ApiError("받은 업무를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.", 500);
@@ -62,7 +78,7 @@ async function loadRow(userId: string, id: unknown): Promise<WorkInboxRow> {
 }
 
 async function markImported(userId: string, id: string, ref: string) {
-  await createAdminClient().from("work_inbox").update({ imported_at: new Date().toISOString(), imported_ref: ref }).eq("user_id", userId).eq("id", id);
+  await createAdminClient().from("work_inbox").update({ imported_at: new Date().toISOString(), imported_ref: ref }).eq("user_id", userId).eq("target_slug", TARGET).eq("id", id);
 }
 
 function pageUrl(space: SpaceRecord, pageId: string): string {
@@ -82,7 +98,7 @@ export const workInboxHandlers: Record<string, Handler> = {
     const { data, error } = await createAdminClient()
       .from("work_inbox")
       .select("id, source_slug, kind, title, body_md, data, source_url, created_at, imported_at, imported_ref")
-      .eq("user_id", userId)
+      .eq("user_id", userId).eq("target_slug", TARGET)
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw new ApiError("받은 업무를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.", 500);
@@ -150,10 +166,29 @@ export const workInboxHandlers: Record<string, Handler> = {
     return { pageId: dbId, url: pageUrl(space, dbId), recordMap };
   },
 
+  /** U8-B 「할 일 플래너로 보내기」: mode "todos" = 체크 안 된 할 일 항목들, "page" = 이 페이지를 할 일 하나로. 회원 본인 공간의 페이지만 */
+  async workInboxSendToPlanner(ctx, { pageId, mode }) {
+    const userId = uid(ctx);
+    const page = getRecord<BlockRecord>("block", String(pageId ?? ""));
+    if (!page || page.alive === false || !memberSpaceIds(userId).has(page.space_id)) throw new ApiError("보낼 페이지를 찾지 못했습니다.", 404);
+    const tasks: PlannerTask[] = mode === "page"
+      ? [pageAsTask(page, page.parent_table === "collection" ? getRecord<CollectionRecord>("collection", page.parent_id) : undefined)]
+      : uncheckedTodos((id) => getRecord<BlockRecord>("block", id), page).map((title) => ({ title, data: {} }));
+    if (!tasks.length) throw new ApiError("이 페이지에 체크하지 않은 할 일 항목이 없습니다.", 400);
+    const space = memberSpace(userId);
+    const sourceUrl = `${APP_ORIGIN}${pageUrl(space, page.id)}`;
+    const pageTitle = (page.properties?.title ?? []).map((d) => d[0]).join("").trim() || "제목 없는 페이지";
+    for (const t of tasks) {
+      await sendToWorkInbox({ userId, sourceSlug: "ai-work-workspace", targetSlug: "ai-task-planner", kind: "task", title: t.title, bodyMd: `업무 워크스페이스 「${pageTitle}」에서 보냄`, data: t.data, sourceUrl })
+        .catch((e) => { throw new ApiError(e instanceof Error ? e.message : "할 일 플래너로 보내지 못했습니다.", 502); });
+    }
+    return { count: tasks.length, plannerUrl: "https://ai-task-planner.buylife.xyz/dashboard" };
+  },
+
   /** 삭제(본인 줄만) */
   async workInboxDelete(ctx, { id }) {
     const userId = uid(ctx);
-    const { error } = await createAdminClient().from("work_inbox").delete().eq("user_id", userId).eq("id", String(id ?? ""));
+    const { error } = await createAdminClient().from("work_inbox").delete().eq("user_id", userId).eq("target_slug", TARGET).eq("id", String(id ?? ""));
     if (error) throw new ApiError("삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.", 500);
     return { ok: true };
   },

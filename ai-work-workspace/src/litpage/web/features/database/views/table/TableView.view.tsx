@@ -603,7 +603,7 @@ function TitleCell({ row, view, collection, readOnly, wrap, showIcon, editing, w
               }}
             >
               <Icon name={peekMode === 'center_peek' ? 'centerPeek' : peekMode === 'full_page' ? 'arrowExpandDiagonal' : 'peekSideFill'} size={14} />
-              {width >= 100 && <span>{openLabel}</span>}
+              {width >= 100 && <span>{tx(openLabel)}</span>}
             </div>
           </div>
         </div>

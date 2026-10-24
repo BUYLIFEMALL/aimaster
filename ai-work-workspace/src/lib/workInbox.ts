@@ -21,6 +21,8 @@ export interface WorkInboxItem {
   data?: Record<string, string | number | boolean | string[]>;
   /** 원본 결과 화면 주소(선택) */
   sourceUrl?: string;
+  /** 받는 프로그램 programs.slug — 기본 ai-work-workspace (U8-B: ai-task-planner 등) */
+  targetSlug?: string;
 }
 
 const KINDS: WorkInboxKind[] = ["note", "task", "meeting", "document", "table", "link"];
@@ -33,11 +35,12 @@ export function validateWorkInboxItem(item: WorkInboxItem): string | null {
   const title = (item.title ?? "").trim();
   if (!title || title.length > 200) return "제목은 1~200자로 적어 주세요.";
   if ((item.bodyMd ?? "").length > 200_000) return "본문이 너무 깁니다(최대 20만 자).";
+  if (item.targetSlug !== undefined && !/^[a-z0-9-]{2,60}$/.test(item.targetSlug)) return "받는 프로그램 이름(slug)이 올바르지 않습니다.";
   if (item.sourceUrl && !/^https:\/\//.test(item.sourceUrl)) return "원본 주소는 https:// 로 시작해야 합니다.";
   return null;
 }
 
-/** 회원의 「받은 업무」함으로 보내기. 성공하면 받은편지함 항목 id */
+/** 회원의 받은편지함으로 보내기(기본은 워크스페이스 「받은 업무」, targetSlug로 다른 프로그램). 성공하면 받은편지함 항목 id */
 export async function sendToWorkInbox(item: WorkInboxItem): Promise<{ id: string }> {
   const problem = validateWorkInboxItem(item);
   if (problem) throw new Error(problem);
@@ -51,6 +54,7 @@ export async function sendToWorkInbox(item: WorkInboxItem): Promise<{ id: string
       body_md: item.bodyMd ?? "",
       data: item.data ?? {},
       source_url: item.sourceUrl ?? null,
+      target_slug: item.targetSlug ?? "ai-work-workspace",
     })
     .select("id")
     .single();
