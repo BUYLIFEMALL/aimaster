@@ -58,16 +58,18 @@
 - 대상 `D:\PDS\Program_dev\AutoGemmaStarter-Setup-2.0.0.exe`(Inno 6.7 → PyInstaller·PySide6, GPT PARK 정회원 전용, 실행 안 함). 내 PC에 Ollama 자동 설치·사양별 모델 추천 + 내장 채팅(커스텀 봇 12종·프롬프트 25종·지식 도서관 RAG·웹 검색·로컬/클라우드 공급자 Groq·OpenRouter·NVIDIA·Cloudflare).
 - 의견: 독립 개발 안 함(로컬 설치는 데스크톱 전용) → 좋은 기능만 `ai-doc-chatbot`·`ai-prompt-studio`에 병합. 후보 G1 OpenAI 호환 공급자 묶음(공용, 두 프로그램의 「한 공급자」 단점 해소) · G2·G3 커스텀 봇 · G5 문서 RAG 보강 · G4 회원 PC 로컬 Ollama 연결(시제품 뒤). **문서 챗봇·AI Prompt 담당 세션에 인계(주인님 지시)** — 플랜 초안 G-1 공용 OpenAI 호환 공급자(문서 챗봇은 답변·라우터만, 임베딩 Upstage 유지) · G-2·G-3 커스텀 봇 · G-4 문서 보강 · G-5 로컬 Ollama(시제품). 범위·순서·비용·봇 위치·로컬 AI 여부 승인 전, `integration_catalog` 추가는 DB 쓰기 승인 필요. [인계](analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md) · [보고서](analysis-autogemma-starter-20261024/REPORT.md). 비용 없음.
 
-## 2026-10-24 ✅ Antigravity(윈도우) · 세션 `agy-win-20261024-videorender` — 초고속 영상 렌더링 & GIF 스튜디오 v1.25 명칭 개편 & 표준 매뉴얼 리뉴얼
+## 2026-10-24 ✅ Antigravity(윈도우) · 세션 `agy-win-20261024-videorender` — AI 영상렌더 스튜디오 v1.25 명칭 개편 & 표준 매뉴얼 리뉴얼 & 배포 완료
 - 한 일:
-  - **프로그램 명칭 및 정체성 개편**: 단순 상세페이지 이커머스 툴 탈피 ➔ **「초고속 영상 렌더링 & GIF 스튜디오 (VideoRender Studio)」**로 공식 명칭 개편.
+  - **프로그램 명칭 및 정체성 개편**: 단순 상세페이지 이커머스 툴 탈피 ➔ **「AI 영상렌더 스튜디오 (AI VideoRender Studio)」**로 공식 명칭 확정.
   - UI 쇄신: 사이드바, 헤더, 모바일 드로어, 대시보드 히어로 배너, 랜딩(`app/page.tsx`), 메타데이터(`app/layout.tsx`), 프리셋 버튼(스탠다드 560px·HD 780px·와이드 860px) 전면 정비.
   - **표준 연동 & 사용 매뉴얼 리뉴얼 (`app/guide/page.tsx`)**: `docs/MANUAL_AND_INTEGRATION_GUIDELINES.md` 7대 핵심 컴포넌트 탑재(① 상단 메타데이터 바 ② 개요 히어로 카드 ③ 4단계 시각 카드 뷰어 ④ 단계별 상세 안내 + 윈도우/맥 내 PC 가속 렌더러 원클릭/1초 복사 설치 ⑤ 💡 전문가 실전 팁 배너 ⑥ ⚠️ 주의사항 배너 ⑦ 작업실 직링크 액션 버튼 + FAQ 8종 아코디언).
   - **비주얼·이미지 UI 리뉴얼 보강**: 뷰파인더 코너 브래킷, REC 타임코드 인디케이터, 7대 비디오 포맷 칩, 필름 스트립 썸네일, NLE 에디터 타임라인 트랙 콘솔 목업(랜딩), 10단계 지능형 사다리 5열 컬러 인포그래픽(가이드).
-  - 로컬 렌더러 확장 manifest v1.25 및 ZIP/version.json 빌드 완료 (`build-local-renderer.mjs`).
-  - 프로그램 비교표(`docs/PROGRAM_CAPABILITY_MAP.md`) 94번 및 1106번 항목 갱신.
-- 검수: `npm run typecheck` 통과, Next.js 프로덕션 빌드(`npm run build`) 8개 라우트 100% 성공.
-- 남은 일: Vercel 배포(승인 대기) 및 네이버 웨일 브라우저 실세션 검수, DB `programs` name/version SQL 적용 (`20261024_rename_video_render_studio_v1_25.sql`).
+  - 로컬 렌더러 확장 manifest v1.25 및 ZIP/version.json 빌드 완료 (`build-local-renderer.mjs`), `check-extension-release` OK.
+  - 프로그램 비교표(`docs/PROGRAM_CAPABILITY_MAP.md`) 73번(표) 및 1106번(상세) 항목 「AI 영상렌더 스튜디오」 갱신 완료.
+  - Supabase 운영 DB (`AIMaster` ref `esgxyikcnnvmlhygjkth`) `programs` 테이블 name='AI 영상렌더 스튜디오', version='v1.25' 반영 완료.
+- 검수: `npm run typecheck` 통과, Next.js 프로덕션 빌드(`npm run build`) 8개 라우트 100% 성공. Vercel 배포 완료 (`https://video-to-gif.buylife.xyz`).
+- 남은 일: Vercel 배포(승인 대기) 및 네이버 웨일 브라우저 실세션 검수, DB `programs` name/version SQL 적용 (`20261024_rename_video_render_studio_v1_25.sql`) ➔ Vercel 배포 및 REST API로 name='AI 영상렌더 스튜디오' 반영 완료.
+- 비용: Vercel 빌드 1회 (`video-to-g387nl9me`), AI API 호출 0회.
 - 프로그램: https://video-to-gif.buylife.xyz (slug: `video-to-gif`)
 
 ## 2026-10-24 ✅ Claude Code(윈도우) · 세션 `claude-win-dotori` — Lyricbi 1.9.0 재확인 (읽기 전용, 변경 없음)
