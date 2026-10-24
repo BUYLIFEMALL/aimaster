@@ -12,6 +12,7 @@ import { drawLyricsLayer, locate, trackTimelines } from './lyrics-layer';
 import { drawTitleLayer, trackTitle } from './title-layer';
 import { drawBackgroundSlides, slideState } from './background-layer';
 import { drawAnimatedBackground } from './animated-bg';
+import { drawVideoCover, prepareBgVideo, syncBgVideo } from './video-bg';
 import { bassLevelOf, createSpectrumReader } from './audio-spectrum';
 import { loadGifSticker } from './gif-frames';
 
@@ -153,6 +154,10 @@ async function renderVideoMp4(
     }
   }
   const bgImg: HTMLImageElement | null = bgImgs[0] ?? null;
+  // 2026-10-24 영상(MP4) 배경 — 미리 받아 두고 프레임마다 시각을 맞춰 그린다
+  const bgVid = bgMedia && bgMedia.type === 'video'
+    ? await prepareBgVideo(bgMedia.url, (status) => onProgress({ progress: 3, currentSecond: 0, totalSeconds: 0, status }))
+    : null;
 
   // 4. File save target setup
   let fileHandle: any = null;
@@ -298,10 +303,18 @@ async function renderVideoMp4(
     ctx.fillRect(0, 0, width, height);
 
     // P-4 배경 이미지가 없으면 움직이는 무료 배경(미리보기와 같은 함수)
-    if (!bgImg && settings.bgAnimated !== 'none') {
+    if (!bgImg && !bgVid && settings.bgAnimated !== 'none') {
       ctx.save();
       ctx.filter = `brightness(${settings.brightness}%) ${getFilterString(settings.filterType, settings.filterIntensity, bassLevel)}`.trim();
       drawAnimatedBackground(ctx, width, height, settings, timeMs, bassLevel);
+      ctx.restore();
+    }
+    // 영상 배경(미리보기와 같은 꽉 채우기, 영상이 짧으면 반복)
+    if (bgVid) {
+      await syncBgVideo(bgVid.video, currentTimeSec, fps);
+      ctx.save();
+      ctx.filter = `brightness(${settings.brightness}%) ${getFilterString(settings.filterType, settings.filterIntensity, bassLevel)}`.trim();
+      drawVideoCover(ctx, bgVid.video, width, height);
       ctx.restore();
     }
     // Draw background (밝기 + 저음에 반응하는 필터)
@@ -407,6 +420,7 @@ async function renderVideoMp4(
   onProgress({ progress: 96, currentSecond: Math.round(totalDuration), totalSeconds: Math.round(totalDuration), status: '인코딩 마무리 및 파일 패키징 중...' });
   encodeAudioUntil(totalAudioFrames); // 남은 소리
   gif?.close();
+  bgVid?.release();
   await videoEncoder.flush();
   videoEncoder.close();
   await audioEncoder.flush();

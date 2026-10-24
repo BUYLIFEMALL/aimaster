@@ -47,6 +47,7 @@ import { drawTitleLayer, trackTitle, type TitleInfo } from "@/lib/render/title-l
 import { drawBackgroundSlides, slideState } from "@/lib/render/background-layer";
 import { ANIMATED_BGS, BG_PALETTES, drawAnimatedBackground } from "@/lib/render/animated-bg";
 import { SettingsPresets } from "./SettingsPresets";
+import { drawVideoCover } from "@/lib/render/video-bg";
 import { timeline, type LyricLine } from "@/lib/lyrics";
 
 interface EditorStudioProps {
@@ -108,6 +109,8 @@ export function EditorStudio({
 
   // Background and logo images cache
   const bgImgRef = useRef<HTMLImageElement | null>(null);
+  // 2026-10-24 영상(MP4) 배경 — 소리 없이 반복 재생하며 매 프레임 그린다(예전엔 그리는 코드가 없었음)
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
   const logoImgRef = useRef<HTMLImageElement | null>(null);
   const gifImgRef = useRef<HTMLImageElement | null>(null);
   const particleSystemRef = useRef<ParticleSystem>(new ParticleSystem());
@@ -137,6 +140,24 @@ export function EditorStudio({
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bgMedia, extraKey]);
+
+  // 영상 배경 준비·정리
+  useEffect(() => {
+    if (bgMedia && bgMedia.type === 'video') {
+      const v = document.createElement('video');
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous';
+      v.src = bgMedia.url;
+      bgVideoRef.current = v;
+      return () => { v.pause(); v.removeAttribute('src'); v.load(); if (bgVideoRef.current === v) bgVideoRef.current = null; };
+    }
+    bgVideoRef.current = null;
+  }, [bgMedia]);
+  // 음악 재생·일시정지에 맞춰 영상 배경도 재생·멈춤
+  useEffect(() => {
+    const v = bgVideoRef.current;
+    if (!v) return;
+    if (isPlaying) v.play().catch(() => undefined); else v.pause();
+  }, [isPlaying, bgMedia]);
 
   // Load Logo Image
   useEffect(() => {
@@ -290,10 +311,17 @@ export function EditorStudio({
 
       // 3. Draw Background with Filters & Brightness
       // P-4 배경 이미지가 없으면 움직이는 무료 배경(내보내기와 같은 함수)
-      if (!bgImgRef.current && settings.bgAnimated !== 'none') {
+      if (!bgImgRef.current && !bgVideoRef.current && settings.bgAnimated !== 'none') {
         ctx.save();
         ctx.filter = `brightness(${settings.brightness}%) ${getFilterString(settings.filterType, settings.filterIntensity, bassLevel)}`.trim();
         drawAnimatedBackground(ctx, width, height, settings, timeMs, bassLevel);
+        ctx.restore();
+      }
+      // 영상 배경(내보내기와 같은 꽉 채우기)
+      if (bgVideoRef.current) {
+        ctx.save();
+        ctx.filter = `brightness(${settings.brightness}%) ${getFilterString(settings.filterType, settings.filterIntensity, bassLevel)}`.trim();
+        drawVideoCover(ctx, bgVideoRef.current, width, height);
         ctx.restore();
       }
       if (bgImgRef.current) {
