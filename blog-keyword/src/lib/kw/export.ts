@@ -58,8 +58,25 @@ export function toMarkdown(result: AnalysisResult): string {
         .join("\n")}\n\n## 빈출어 기반 글 제안\n${sugMd(result.keywordBased)}\n\n## 흐름 분석 기반 글 제안\n${sugMd(result.analysisBased)}\n`;
     case "prompt":
       return `# ${result.promptTitle} — ${result.keyword}\n\n${result.markdown}\n${src(result.sources)}`;
+    case "discover":
+      return `${head(result.keyword)}\n| 등급 | 검색어 | 월 검색량 | 문서 수 | 문서÷검색 | 출처 | 이유 |\n|---|---|---|---|---|---|---|\n${result.candidates
+        .map((c) => `| ${c.grade} | ${c.keyword} | ${c.total.toLocaleString("ko-KR")} | ${metricDocs(c.docs)} | ${ratioText(c.ratio)} | ${c.source} | ${c.reason} |`)
+        .join("\n")}\n${result.notes.length ? `\n${result.notes.map((n) => `- ${n}`).join("\n")}\n` : ""}`;
+    case "surge":
+      return `${head(result.keyword)}\n${result.summary}\n\n## 용어별 검색 추이(데이터랩 14일)\n${result.terms
+        .map((t) => `- ${t.surging ? "🔥 급상승 " : ""}**${t.term}** — 최근 3일 변화 ${t.change == null ? "판정 불가" : `${t.change >= 0 ? "+" : ""}${Math.round(t.change * 100)}%`}${t.metric ? ` · 월 ${t.metric.total.toLocaleString("ko-KR")}회 · ${t.metric.grade}` : ""}\n  - ${t.why}`)
+        .join("\n")}\n\n## 자료\n${result.sources.map((s) => `- (${s.kind}) [${s.title}](${s.link})`).join("\n")}\n${result.notes.length ? `\n${result.notes.map((n) => `- ${n}`).join("\n")}\n` : ""}`;
+    case "benchmark":
+      return `${head(result.keyword)}\n## 같은 주제를 쓰는 블로그\n${result.blogs
+        .map((b) => `- ${result.watch.includes(b.blogId) ? "⭐ " : ""}${b.name} (${b.blogId}) · 검색 ${b.hits}건${b.recent ? " · 최근 7일 활동" : ""}`)
+        .join("\n")}\n${result.analyses
+        .map((a) => `\n## ${a.name} 분석 (${a.at.slice(0, 10)})\n${a.pattern}\n\n- 배울 점: ${a.strengths.join(" / ")}\n\n| 참고 검색어 | 월 검색량 | 등급 | 이유 |\n|---|---|---|---|\n${a.keywords.map((k) => `| ${k.keyword} | ${k.metric ? k.metric.total.toLocaleString("ko-KR") : "-"} | ${k.metric?.grade ?? "-"} | ${k.why} |`).join("\n")}\n`)
+        .join("")}`;
   }
 }
+
+const metricDocs = (d: number | null) => (d == null ? "값 없음" : d.toLocaleString("ko-KR"));
+const ratioText = (r: number | null) => (r == null ? "-" : r.toFixed(1));
 
 const csvCell = (v: unknown) => {
   const s = String(v ?? "");
@@ -109,6 +126,18 @@ export function toCsv(result: AnalysisResult): string | null {
       break;
     case "prompt":
       return null;
+    case "discover":
+      rows.push(["등급", "검색어", "PC", "모바일", "월 검색량", "문서 수", "문서÷검색", "광고 경쟁도", "출처", "이유"]);
+      result.candidates.forEach((c) => rows.push([c.grade, c.keyword, c.pc, c.mobile, c.total, c.docs ?? "값 없음", c.ratio == null ? "" : c.ratio.toFixed(2), c.compIdx ?? "", c.source, c.reason]));
+      break;
+    case "surge":
+      rows.push(["급상승", "용어", "최근 3일 변화(%)", "월 검색량", "등급", "이유"]);
+      result.terms.forEach((t) => rows.push([t.surging ? "급상승" : "", t.term, t.change == null ? "" : Math.round(t.change * 100), t.metric?.total ?? "", t.metric?.grade ?? "", t.why]));
+      break;
+    case "benchmark":
+      rows.push(["블로그", "참고 검색어", "월 검색량", "등급", "이유"]);
+      result.analyses.forEach((a) => a.keywords.forEach((k) => rows.push([a.name, k.keyword, k.metric?.total ?? "", k.metric?.grade ?? "", k.why])));
+      break;
   }
   return `﻿${rows.map((r) => r.map(csvCell).join(",")).join("\r\n")}`;
 }

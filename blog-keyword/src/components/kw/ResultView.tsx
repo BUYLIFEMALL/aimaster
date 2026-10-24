@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
 import type { AnalysisResult, Real, Suggestion } from "@/lib/kw/types";
+import { BenchmarkView, DiscoverView, SurgeView } from "./MergeResults";
 
 export function CopyButton({ text, label = "복사" }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
@@ -111,8 +112,14 @@ function Sources({ sources }: { sources: { title: string; uri: string }[] }) {
   );
 }
 
-export function ResultView({ result, onKeyword }: { result: AnalysisResult; onKeyword: (kw: string, feature?: string) => void }) {
+export function ResultView({ result, onKeyword, onBenchmark, busy }: {
+  result: AnalysisResult; onKeyword: (kw: string, feature?: string) => void;
+  onBenchmark?: (action: "analyze" | "watch", blogId: string, on?: boolean) => void; busy?: boolean;
+}) {
   switch (result.kind) {
+    case "discover": return <DiscoverView result={result} onKeyword={onKeyword} />;
+    case "surge": return <SurgeView result={result} onKeyword={onKeyword} />;
+    case "benchmark": return <BenchmarkView result={result} onKeyword={onKeyword} onBenchmark={onBenchmark} busy={busy} />;
     case "autocomplete":
       return (
         <>

@@ -4,6 +4,7 @@ import {
   runAutocomplete, runBlogs, runCompetition, runNews, runPrompt, runRecommend, runRelated, runTopics,
   runSustainable, runTrend,
 } from "@/lib/kw/features";
+import { runBenchmarkAnalyze, runBenchmarkFind, runDiscover, runSurge, setBenchmarkWatch } from "@/lib/kw/mergeFeatures";
 import { FEATURE_INFO, isFeature, type AnalysisResult, type Feature } from "@/lib/kw/types";
 import { cleanKeyword } from "@/lib/kw/util";
 import { isUuid, loadReport, saveReport, updateResult } from "@/lib/reports";
@@ -25,8 +26,11 @@ export async function POST(request: NextRequest) {
   if (info.needsKeyword && !keyword) return json({ error: "키워드를 입력해 주세요." }, 400);
   const params = (body.params && typeof body.params === "object" && !Array.isArray(body.params) ? body.params : {}) as Record<string, unknown>;
 
-  // 자동완성 목록 조회만 Gemini 키 없이 쓸 수 있다(AI 호출이 없다).
-  const needsGemini = !(feature === "autocomplete" && params.action !== "topics");
+  // AI 호출이 없는 동작은 Gemini 키 없이 쓸 수 있다: 자동완성 목록, 묶음 C의 검색어 직접 입력 등급·블로그 찾기·관심 표시.
+  const noAi = (feature === "autocomplete" && params.action !== "topics")
+    || (feature === "discover" && params.mode === "list")
+    || (feature === "benchmark" && params.action !== "analyze");
+  const needsGemini = !noAi;
   if (needsGemini && !ctx.gemini) return needGeminiResponse();
 
   try {
@@ -43,6 +47,20 @@ export async function POST(request: NextRequest) {
       return json({ id: reportId, result });
     }
 
+    // 묶음 C 벤치마킹: 기존 기록에 블로그 분석·관심 표시를 덧붙인다(자동완성 「주제 만들기」와 같은 방식).
+    if (feature === "benchmark" && (params.action === "analyze" || params.action === "watch")) {
+      const reportId = params.reportId;
+      if (!isUuid(reportId)) return json({ error: "기록을 찾을 수 없습니다. 블로그 찾기를 다시 실행해 주세요." }, 400);
+      const row = await loadReport(userId, reportId);
+      if (!row || row.result.kind !== "benchmark") return json({ error: "기록을 찾을 수 없습니다." }, 404);
+      const blogId = String(params.blogId ?? "").slice(0, 300);
+      const result: AnalysisResult = params.action === "watch"
+        ? setBenchmarkWatch(row.result, blogId, params.on === true)
+        : await runBenchmarkAnalyze({ ...ctx, userId }, row.result, blogId);
+      await updateResult(userId, reportId, result);
+      return json({ id: reportId, result });
+    }
+
     let result: AnalysisResult;
     switch (feature) {
       case "autocomplete": result = await runAutocomplete(ctx, keyword, params.engine === "google" ? "google" : "naver"); break;
@@ -54,6 +72,9 @@ export async function POST(request: NextRequest) {
       case "news": result = await runNews(ctx, keyword); break;
       case "trend": result = await runTrend(ctx, keyword); break;
       case "prompt": result = await runPrompt(ctx, keyword, String(params.promptId ?? "")); break;
+      case "discover": result = await runDiscover({ ...ctx, userId }, keyword, params); break;
+      case "surge": result = await runSurge({ ...ctx, userId }, keyword); break;
+      case "benchmark": result = await runBenchmarkFind({ ...ctx, userId }, keyword); break;
     }
     const id = await saveReport(userId, feature, keyword || "오늘의 전략 키워드", params, result);
     return json({ id, result });

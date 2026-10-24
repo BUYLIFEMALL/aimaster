@@ -42,11 +42,11 @@ async function call(url: string, init: RequestInit): Promise<{ ok: boolean; stat
 }
 
 // ---- 검색(블로그·뉴스) ----
-export interface RawItem { title: string; link: string; description: string; pubDate?: string; postdate?: string; bloggername?: string; originallink?: string }
+export interface RawItem { title: string; link: string; description: string; pubDate?: string; postdate?: string; bloggername?: string; bloggerlink?: string; originallink?: string }
 export interface SearchOut { total: number; items: RawItem[] }
 
-export async function naverSearch(auth: NaverAuth, type: "blog" | "news", query: string, opts: { display?: number; sort?: "sim" | "date" } = {}): Promise<SearchOut> {
-  const display = Math.min(100, Math.max(1, opts.display ?? 10));
+export async function naverSearch(auth: NaverAuth, type: "blog" | "news" | "webkr", query: string, opts: { display?: number; sort?: "sim" | "date" } = {}): Promise<SearchOut> {
+  const display = Math.min(type === "webkr" ? 30 : 100, Math.max(1, opts.display ?? 10)); // 묶음 C: 웹문서 검색(급상승 검증) 추가
   const qs = `?query=${encodeURIComponent(query)}&display=${display}&start=1&sort=${opts.sort ?? "sim"}`;
   let r = await call(`${HUB_SEARCH}/${type}${qs}`, {
     headers: { "X-NCP-APIGW-API-KEY-ID": auth.clientId, "X-NCP-APIGW-API-KEY": auth.clientSecret },
@@ -56,7 +56,7 @@ export async function naverSearch(auth: NaverAuth, type: "blog" | "news", query:
       headers: { "X-Naver-Client-Id": auth.clientId, "X-Naver-Client-Secret": auth.clientSecret },
     });
   }
-  if (!r.ok) throw classify(r.status, r.text, type === "blog" ? "네이버 블로그 검색" : "네이버 뉴스 검색");
+  if (!r.ok) throw classify(r.status, r.text, type === "blog" ? "네이버 블로그 검색" : type === "news" ? "네이버 뉴스 검색" : "네이버 웹문서 검색");
   let data: { total?: number; items?: RawItem[] };
   try { data = JSON.parse(r.text); } catch { throw new NaverError("http", "네이버 응답을 해석하지 못했습니다.", 502); }
   const items = (data.items ?? []).map((it) => ({

@@ -33,6 +33,9 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [reportId, setReportId] = useState<string | null>(null);
   const [libOpen, setLibOpen] = useState(false);
+  // 블로그 병합 묶음 C: 키워드 등급 탐색의 입력 방식(주제로 탐색 / 검색어 직접 입력)
+  const [discoverMode, setDiscoverMode] = useState<"topic" | "list">("topic");
+  const [listText, setListText] = useState("");
   const resultRef = useRef<HTMLDivElement>(null);
   const info = FEATURE_INFO.find((f) => f.id === feature)!;
 
@@ -101,20 +104,30 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
   async function run(opts: { feature?: Feature; keyword?: string; params?: Record<string, unknown> } = {}) {
     const f = opts.feature ?? feature;
     const fi = FEATURE_INFO.find((x) => x.id === f)!;
-    const kw = cleanKeyword(opts.keyword ?? keyword);
+    const listMode = f === "discover" && discoverMode === "list" && !opts.keyword;
+    const listKeywords = listMode ? listText.split(/\n+/).map((s) => cleanKeyword(s, 40)).filter(Boolean).slice(0, 20) : [];
+    if (listMode && !listKeywords.length) { setProblem({ message: "분석할 검색어를 줄마다 하나씩 넣어 주세요(최대 20개)." }); return; }
+    const kw = listMode ? "직접 입력" : cleanKeyword(opts.keyword ?? keyword);
     if (fi.needsKeyword && !kw) { setProblem({ message: "키워드를 입력해 주세요." }); return; }
     if (opts.feature) setFeature(f);
     if (opts.keyword != null) setKeyword(kw);
     setLibOpen(false);
     setResult(null);
     setReportId(null);
-    const out = await call({ feature: f, keyword: kw, params: { engine, ...(opts.params ?? {}) } });
+    const out = await call({ feature: f, keyword: kw, params: { engine, ...(listMode ? { mode: "list", keywords: listKeywords } : {}), ...(opts.params ?? {}) } });
     if (out) {
       setResult(out.result);
       setReportId(out.id);
       if (out.id) window.history.replaceState(null, "", `/dashboard?report=${out.id}`);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     }
+  }
+
+  // 묶음 C 벤치마킹: 같은 기록에 블로그 분석·관심 표시를 덧붙인다.
+  async function benchAction(action: "analyze" | "watch", blogId: string, on?: boolean) {
+    if (!reportId || result?.kind !== "benchmark") return;
+    const out = await call({ feature: "benchmark", keyword: result.keyword, params: { action, reportId, blogId, on } });
+    if (out) setResult(out.result);
   }
 
   async function makeTopics(mode: "main" | "all") {
@@ -125,7 +138,9 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
 
   const fileBase = `${info.id}-${(result && "keyword" in result ? result.keyword : keyword) || "result"}`.replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 60);
   const naverMissing = info.needsNaver && keys && !keys.naver;
-  const geminiMissing = keys && !keys.gemini && feature !== "autocomplete";
+  const noAiInput = feature === "autocomplete" || feature === "benchmark" || (feature === "discover" && discoverMode === "list");
+  const geminiMissing = keys && !keys.gemini && !noAiInput;
+  const adsMissing = feature === "discover" && keys && !keys.ads;
 
   return (
     <div className="kw-layout">
@@ -170,6 +185,15 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
                   <button type="button" aria-pressed={engine === "google"} onClick={() => setEngine("google")}>구글</button>
                 </div>
               )}
+              {feature === "discover" && (
+                <div className="kw-seg" role="group" aria-label="입력 방식">
+                  <button type="button" aria-pressed={discoverMode === "topic"} onClick={() => setDiscoverMode("topic")}>주제로 탐색</button>
+                  <button type="button" aria-pressed={discoverMode === "list"} onClick={() => setDiscoverMode("list")}>검색어 직접 입력</button>
+                </div>
+              )}
+              {feature === "discover" && discoverMode === "list" ? (
+                <textarea className="kw-list-input" aria-label="검색어 목록" value={listText} maxLength={1200} placeholder={"줄마다 검색어 하나(최대 20개)\n예: 캠핑 의자 추천\n차박 매트"} onChange={(e) => setListText(e.target.value)} />
+              ) : (
               <input
                 aria-label="키워드"
                 value={keyword}
@@ -178,10 +202,11 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
                 placeholder={info.placeholder}
                 onChange={(e) => setKeyword(e.target.value)}
               />
+              )}
               {feature === "trend" && (
                 <datalist id="kw-categories">{TREND_CATEGORIES.map((c) => <option key={c} value={c} />)}</datalist>
               )}
-              <button type="submit" className="primary" disabled={busy || !!naverMissing || !!geminiMissing}>
+              <button type="submit" className="primary" disabled={busy || !!naverMissing || !!geminiMissing || !!adsMissing}>
                 {busy ? <Loader2 size={14} className="ls-spin" /> : <Play size={14} />}
                 {busy ? "분석 중…" : "분석하기"}
               </button>
@@ -202,6 +227,11 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
           {naverMissing && (
             <p className="notice warning" style={{ marginTop: 12 }}>
               이 기능은 본인의 네이버 Client ID/Secret이 필요합니다. <a href="/settings" style={{ textDecoration: "underline" }}>[API키등록·플랫폼연동]</a>에서 등록해 주세요.
+            </p>
+          )}
+          {adsMissing && (
+            <p className="notice warning" style={{ marginTop: 12 }}>
+              키워드 등급은 월 검색량이 필요해 본인의 네이버 검색광고 API(라이선스·비밀키·고객 ID)가 있어야 합니다. <a href="/settings" style={{ textDecoration: "underline" }}>[API키등록·플랫폼연동]</a>에서 등록해 주세요.
             </p>
           )}
           {geminiMissing && (
@@ -231,7 +261,8 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
                   <span className="muted">{reportId ? "기록에 저장됨" : "저장되지 않음"}</span>
                   <CopyButton text={toMarkdown(result)} label="결과 복사" />
                   <button type="button" className="kw-mini" onClick={() => download(`${fileBase}.md`, toMarkdown(result), "text/markdown;charset=utf-8")}><FileText size={12} />Markdown</button>
-                  {seoHandoffUrl(reportId) && (
+                  {/* 묶음 C 새 3종은 SEO 스튜디오가 아직 넘겨받지 않음(422) — 표의 검색어 → 경쟁력 분석 결과를 보내도록 숨김 */}
+                  {seoHandoffUrl(reportId) && !["discover", "surge", "benchmark"].includes(result.kind) && (
                     <a className="kw-mini" href={seoHandoffUrl(reportId) ?? undefined} target="_blank" rel="noreferrer noopener" title="이 기록 번호만 넘깁니다. SEO 스튜디오가 내 기록을 다시 읽어 실측 값과 AI 추정 값을 나눠 보여 줍니다."><ExternalLink size={12} />SEO 스튜디오로 보내기</a>
                   )}
                   {toCsv(result) && (
@@ -242,6 +273,8 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
               <ResultView
                 result={result}
                 onKeyword={(kw, f) => void run({ keyword: kw, feature: (f as Feature | undefined) ?? feature })}
+                onBenchmark={reportId ? (action, blogId, on) => void benchAction(action, blogId, on) : undefined}
+                busy={busy}
               />
               {result.kind === "autocomplete" && result.keywords.length > 0 && (
                 <section className="card kw-sec">

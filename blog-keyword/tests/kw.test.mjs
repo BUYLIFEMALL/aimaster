@@ -85,10 +85,10 @@ test("프롬프트 라이브러리: 50개, 3분류, 중복 없음", () => {
 });
 
 test("기능 목록", () => {
-  assert.equal(FEATURE_INFO.length, 9);
+  assert.equal(FEATURE_INFO.length, 12); // 묶음 C(2026-10-24): 등급 탐색·급상승 검증·벤치마킹 추가
   assert.ok(isFeature("trend"));
   assert.ok(!isFeature("nope"));
-  assert.equal(FEATURE_INFO.filter((f) => f.needsNaver).length, 3);
+  assert.equal(FEATURE_INFO.filter((f) => f.needsNaver).length, 6);
 });
 
 test("내보내기: Markdown·CSV(수식 주입 방어)", () => {

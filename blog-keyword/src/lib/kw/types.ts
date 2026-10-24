@@ -1,4 +1,5 @@
 // AI 블로그 키워드 자동화 — 공통 타입. 모든 분석 결과는 이 구조로 DB(jsonb)에 저장되고 화면이 그대로 그린다.
+import type { KeywordMetric } from "./grade";
 
 export const FEATURES = [
   "autocomplete",
@@ -10,6 +11,10 @@ export const FEATURES = [
   "news",
   "trend",
   "prompt",
+  // 블로그 병합 묶음 C(2026-10-24, 작업실에서 옮김)
+  "discover",
+  "surge",
+  "benchmark",
 ] as const;
 export type Feature = (typeof FEATURES)[number];
 
@@ -36,6 +41,9 @@ export const FEATURE_INFO: FeatureInfo[] = [
   { id: "sustainable", title: "다각도 주제 발굴", desc: "한 키워드를 4가지 관점 40개 글감으로 넓혀 오래 쓰는 콘텐츠를 설계합니다.", needsKeyword: true, needsNaver: false, placeholder: "예: 연말정산" },
   { id: "news", title: "실시간 뉴스 전략", desc: "네이버 최신 뉴스 10건에서 핵심 이슈와 블로그 글 기회를 찾습니다.", needsKeyword: true, needsNaver: true, placeholder: "예: 금리 인하" },
   { id: "trend", title: "카테고리 트렌드", desc: "분야별 최신 블로그 제목의 빈출어와 실제 검색 추이로 뜨는 키워드를 찾습니다.", needsKeyword: true, needsNaver: true, placeholder: "분야를 고르거나 직접 입력" },
+  { id: "discover", title: "키워드 등급 탐색", desc: "주제로 검색어 후보를 찾아 실측 검색량·문서 수로 골드·실버 등급을 매깁니다. 검색어를 직접 넣으면 AI 없이 등급만 봅니다.", needsKeyword: true, needsNaver: true, placeholder: "주제(쉼표로 최대 3개) 예: 캠핑, 차박" },
+  { id: "surge", title: "급상승 검증", desc: "최신 뉴스·웹 문서에서 새 용어를 찾고 데이터랩 14일 추이로 정말 뜨는지 확인합니다.", needsKeyword: true, needsNaver: true, placeholder: "예: 전기차 보조금" },
+  { id: "benchmark", title: "블로그 벤치마킹", desc: "같은 주제를 꾸준히 쓰는 블로그를 찾아 최근 글의 주제·제목 방식과 참고 검색어를 분석합니다. 관심 블로그는 다음에 새 글만 분석합니다.", needsKeyword: true, needsNaver: true, placeholder: "주제(쉼표로 최대 3개) 예: 홈카페" },
   { id: "prompt", title: "프롬프트 라이브러리", desc: "검증된 키워드 전략 프롬프트 50개를 키워드에 맞춰 바로 실행합니다.", needsKeyword: true, needsNaver: false, placeholder: "키워드를 입력하세요" },
 ];
 
@@ -151,7 +159,49 @@ export interface PromptResult {
   sources: { title: string; uri: string }[];
 }
 
+// ---- 블로그 병합 묶음 C(2026-10-24) ----
+export type CandidateSource = "AI 후보" | "연관어" | "직접 입력";
+export interface DiscoverResult {
+  kind: "discover";
+  keyword: string;
+  mode: "topic" | "list";
+  candidates: (KeywordMetric & { reason: string; source: CandidateSource })[];
+  /** 도톨이 N9: 수치 조회 전 주제 판정(같은 주제 6시간 재사용) */
+  judged?: { at: string; topic: string; fit: string[]; unfit: string[]; reused: boolean } | null;
+  notes: string[];
+}
+export interface SurgeTerm { term: string; why: string; series: number[]; change: number | null; surging: boolean; metric: KeywordMetric | null }
+export interface SurgeResult {
+  kind: "surge";
+  keyword: string;
+  sources: { kind: "뉴스" | "웹"; title: string; link: string; date: string }[];
+  summary: string;
+  terms: SurgeTerm[];
+  notes: string[];
+}
+export interface BenchBlog { blogId: string; name: string; hits: number; sample: string; recent: boolean }
+export interface BenchAnalysis {
+  blogId: string; name: string; titles: string[]; pattern: string; strengths: string[];
+  keywords: { keyword: string; why: string; metric: KeywordMetric | null }[];
+  at: string;
+  /** 도톨이 N8: 이미 분석한 글 번호(다음엔 새 글만) */
+  seenLogNos: string[];
+  newCount: number;
+  noNew?: boolean;
+}
+export interface BenchmarkResult {
+  kind: "benchmark";
+  keyword: string;
+  blogs: BenchBlog[];
+  analyses: BenchAnalysis[];
+  /** 관심 블로그 ID */
+  watch: string[];
+}
+
 export type AnalysisResult =
+  | DiscoverResult
+  | SurgeResult
+  | BenchmarkResult
   | AutocompleteResult
   | RelatedResult
   | BlogsResult

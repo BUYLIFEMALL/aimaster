@@ -130,3 +130,37 @@ export function libraryRunPrompt(promptText: string, keyword: string, now?: Date
 // ---- 연결 테스트용 아주 짧은 호출 ----
 export const PING = { system: "한 단어로만 답하세요.", user: "OK 라고만 답하세요." };
 
+
+// ---- 블로그 병합 묶음 C(2026-10-24): 작업실 seedPrompt·trendPrompt·benchPrompt를 이 프로그램 형식으로 옮김 + 도톨이 N9 주제 판정 ----
+/** 키워드 등급 탐색: 주제 → 검색어 후보 8~12개 */
+export function discoverSeedPrompt(topics: string[], now?: Date) {
+  const t = todayKst(now);
+  const system = `${yearGuard(now)}\n${PERSONA}\n블로그 작성자가 다음 글로 쓰기 좋은 네이버 검색어 후보를 찾습니다. 사람들이 실제로 검색창에 입력할 만한 2~4단어 검색어로, 지금 시기(${t.year}년 ${t.month}월)에 맞는 것을 우선합니다. 너무 넓은 한 단어 검색어는 피합니다. why는 이 주제에 맞는 이유 한 문장입니다.\n${JSON_ONLY}`;
+  const user = `주제: ${topics.join(", ")}\nseeds는 8~12개.`;
+  const schema = obj({ seeds: arr(obj({ keyword: S, why: S })) });
+  return { system, user, schema };
+}
+
+/** 도톨이 N9: 수치를 조회하기 전에 연관어가 주제에 맞는지 한 번에 판정한다(관계없는 검색어에 검색 API 한도를 쓰지 않도록). */
+export function judgePrompt(topics: string[], candidates: string[], now?: Date) {
+  const system = `${yearGuard(now)}\n${PERSONA}\n검색어 목록에서 주어진 주제의 블로그 글로 쓸 수 있는 검색어만 고릅니다. 주제와 관계없거나 다른 뜻으로 쓰이는 검색어, 상호·인명만 있는 검색어는 빼세요. fit에는 목록에 있는 검색어를 글자 그대로만 넣습니다.\n${JSON_ONLY}`;
+  const user = `주제: ${topics.join(", ")}\n검색어 목록:\n${candidates.map((c, i) => `${i + 1}. ${c}`).join("\n")}`;
+  const schema = obj({ fit: arr(S) });
+  return { system, user, schema };
+}
+
+/** 급상승 검증: 최신 뉴스·웹 자료 요약 + 자료에 실제로 나온 새 용어(최대 10) */
+export function surgeTermsPrompt(topic: string, sources: { kind: string; title: string; summary: string }[], now?: Date) {
+  const system = `${yearGuard(now)}\n${PERSONA}\n최신 뉴스·웹 자료를 읽고 블로그 작성자 관점에서 요약하고, 자료에 실제로 나온 새 용어·화제 중 사람들이 검색할 만한 검색어를 고릅니다. summary는 자료에 있는 내용만 5~8문장, terms는 최대 10개이며 자료에 없는 용어는 넣지 않습니다. why에는 어느 자료에서 나왔고 왜 뜰 만한지 적습니다.\n${JSON_ONLY}`;
+  const user = `관측 주제: ${topic}\n자료:\n${sources.map((s, i) => `[${i + 1}] (${s.kind}) ${s.title} — ${s.summary.slice(0, 200)}`).join("\n")}`;
+  const schema = obj({ summary: S, terms: arr(obj({ term: S, why: S })) });
+  return { system, user, schema };
+}
+
+/** 블로그 벤치마킹: 다른 블로그의 최근 글에서 주제·제목 방식과 참고 검색어(최대 10) */
+export function benchmarkPrompt(name: string, posts: { title: string; text: string }[], now?: Date) {
+  const system = `${yearGuard(now)}\n${PERSONA}\n참고할 블로그의 최근 글을 보고 어떤 주제·제목 방식으로 쓰는지 분석하고, 내 블로그가 참고할 검색어를 뽑습니다. 글에 실제로 나온 주제에서만 뽑고 문장을 베끼라는 뜻이 아닙니다. pattern은 제목·구성 패턴 3~4문장, strengths는 배울 점 최대 4개, keywords는 최대 10개입니다.\n${JSON_ONLY}`;
+  const user = `블로그: 「${name}」의 최근 글\n${posts.map((p, i) => `#${i + 1} ${p.title}${p.text ? `\n${p.text.slice(0, 1500)}` : ""}`).join("\n\n")}`;
+  const schema = obj({ pattern: S, strengths: arr(S), keywords: arr(obj({ keyword: S, why: S })) });
+  return { system, user, schema };
+}

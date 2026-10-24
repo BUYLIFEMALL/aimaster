@@ -59,6 +59,20 @@ export async function loadReport(userId: string, id: string): Promise<ReportRow 
   return data as unknown as ReportRow;
 }
 
+/** 블로그 병합 묶음 C: 같은 회원의 최근 기록 결과(한 종류, 보관 기간 안). 주제 판정 재사용(6시간)·벤치마킹 새 글만 분석에 쓴다. */
+export async function recentResults(userId: string, feature: Feature, sinceIso: string, limit = 20): Promise<{ id: string; created_at: string; result: AnalysisResult }[]> {
+  const since = sinceIso > retentionCutoff() ? sinceIso : retentionCutoff();
+  const { data } = await createAdminClient()
+    .from(TABLE)
+    .select("id, created_at, result")
+    .eq("user_id", userId)
+    .eq("feature", feature)
+    .gt("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []) as unknown as { id: string; created_at: string; result: AnalysisResult }[];
+}
+
 export async function updateResult(userId: string, id: string, result: AnalysisResult): Promise<boolean> {
   const { error, count } = await createAdminClient()
     .from(TABLE)

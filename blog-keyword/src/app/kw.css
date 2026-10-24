@@ -144,3 +144,26 @@ button[aria-pressed=true]{background:rgb(30 58 138 / .5);border-color:var(--mx-p
 .gd-time{padding:0 8px;border:1px solid var(--line);border-radius:999px;color:var(--mx-muted);font-size:11px}
 @media(max-width:1100px){.mx-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){.gd-pipeline{grid-template-columns:1fr 1fr}.gd-pipeline li::after{display:none}.kw-hist-tools input{max-width:none}}
+
+/* ---- 블로그 병합 묶음 C(2026-10-24): 등급 표·급상승 추이·벤치마킹 목록 ---- */
+.kw-table-wrap{overflow-x:auto;margin-top:12px;-webkit-overflow-scrolling:touch}
+.kw-table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+.kw-table th,.kw-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.kw-table th{font-size:12px;color:var(--mx-muted);font-weight:700;white-space:nowrap}
+.kw-table td small{color:var(--muted)}
+.kw-table tr.hot td{background:rgb(120 53 15 / .18)}
+.kw-link{border:0;background:none;padding:0;color:var(--mx-link);font-weight:700;cursor:pointer;text-align:left}
+.kw-grade{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid var(--line);white-space:nowrap}
+.kw-grade.gold{color:#fde68a;background:rgb(120 53 15 / .6);border-color:#b45309}
+.kw-grade.silver{color:#e2e8f0;background:rgb(71 85 105 / .6);border-color:#64748b}
+.kw-grade.normal{color:#bfdbfe;background:rgb(30 58 138 / .45);border-color:#1e40af}
+.kw-grade.hard{color:#fecaca;background:rgb(127 29 29 / .5);border-color:#991b1b}
+.kw-grade.low{color:var(--mx-muted)}
+.kw-spark{width:96px;height:28px;display:block}
+.kw-spark polyline{fill:none;stroke:var(--mx-link);stroke-width:2;vector-effect:non-scaling-stroke}
+.kw-bench{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.kw-bench li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--mx-raised)}
+.kw-bench li > span:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kw-bench .actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.kw-list-input{width:100%;min-height:120px;margin-top:10px}
+@media (max-width:767px){.kw-bench li{flex-direction:column;align-items:flex-start}.kw-bench .actions{justify-content:flex-start}}
