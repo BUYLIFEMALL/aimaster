@@ -17,8 +17,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `banana-canvas` | 무료 지우기 모델 받는 곳 명시(허깅페이스 huggingface.co, 자동으로 받음·따로 받을 필요 없음) + 모델 소개 페이지 링크 2개(`/erase` 안내·`/guide` 자주 묻는 질문) | `2cc9edc75` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 주인님 지적 「어디서 받는지 명시가 안 되어 있어」 | 다음 배포 v1.37, `/erase` 안내 줄 링크 확인 |
-| `shop-detail-page` | 같은 내용(문구 고치기 무료 지우기 안내에 허깅페이스 출처·링크) | `2cc9edc75` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
+| `banana-canvas` | 무료 지우기 모델 받는 곳 명시(허깅페이스 huggingface.co, 자동으로 받음·따로 받을 필요 없음) + 모델 소개 페이지 링크 2개, 이름을 「AI 계산용 모델 파일(설치 없음)」로(안내·진행 표시·매뉴얼·오류 문구, 공용 기준 포함) | `2cc9edc75`·`9cfb40fb1` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 주인님 지적 「어디서 받는지 명시가 안 되어 있어」 | 다음 배포 v1.37, `/erase` 안내 줄 링크 확인 |
+| `shop-detail-page` | 같은 내용(문구 고치기 안내·진행 표시, 공용 사본 오류 문구) | `2cc9edc75`·`9cfb40fb1` | 2026-10-25 · Claude Code(윈도우) `claude-win-sdp` | 위와 같음 | 다음 배포 v1.34 |
 | `ai-video-studio` (운영 v1.21) | 영상 만들기 남은 시간을 전체 진행률로 계산(라이브러리 값은 그리기만 봐서 인코딩에서 막히면 짧게 나옴, 느림 안내 안 뜸) | `d8c0aed57` | 2026-10-24 · [역할: video] Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 끝 | 다음 배포 때 함께(맥미니 측정 결과로 2단계 할 때), 버전 v1.22 |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1 공용 공급자·키·중단 + G-2 회원별 봇/방 선택/당시 설정 보존. 운영 DB 준비·83개 시험/타입/로컬 빌드 통과, 임베딩·파싱 유지 | `2d56a117b` · `07795803c` | 2026-10-24 · [역할: docbot-prompt] Codex `codex-win-20261024-docbot-g2` | [G-2 현재 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261024_G2.md) | 일반 시험 회원 Edge 로그인/본인 키 검수 → G-3·G-4 후 묶음, 버전 +0.01·DB·프로그램 비교표 일치 |
