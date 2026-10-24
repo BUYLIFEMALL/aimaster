@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-24 📝 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 이커머스 외부 도구 46개 분석 + 분류(독립 개발·병합·제외)
+- 대상: KDP 도구(수수료 7·이미지·서명·라벨메이트·QR·PDF 등 19종, 모두 실제 동작·브라우저 안 처리) · prohubstart 19종(마진 계산 1개 외 **모두 시연 화면**) · 크롬 확장 메이커 셀링 도우미 · channelup.kr(SMM 패널) · alphacut.video(실제 상용) · mixxxi.ai · GitHub `web-crawler`(**우리 `web-crawler-saas`의 원본**, MIT) · nam 쇼츠 2종 · we-insub 3종.
+- 최종 분류: `docs/analysis-ecommerce-bundle-20261024/00_COMPARISON_TABLE.md` §0 — 🆕 독립 개발 2개(쇼핑몰 판매 후 관리 / 쇼핑몰 업무 도구함: 라벨·QR·파일명·PDF·서명) · 🔗 병합(상품소싱: 마켓 수수료·카테고리 요율·등록 정보 도우미 / image-convert-studio·banana-canvas: 워터마크·무료 누끼·얼굴 모자이크 / video-to-gif: 화면 녹화 / 쇼츠 원스톱: 상품 홍보 쇼츠 / ai-video-studio: 긴 영상 → 쇼츠) · ⛔ 제외(channelup SMM 패널·mixxxi 짜깁기·오픈채팅 목록·Mato Helper·시연 도구).
+- ⚠️ **회원 영향 → 이커머스 담당 [역할: ecommerce-image] 확인 요청**: `trending-product-finder` 수수료 참고표(`/fees`)의 11번가·지마켓·옥션 값이 KDP 표와 크게 다르고 「옥션·G마켓 동일」로 적혀 있으나 31개 카테고리가 다름 → 회원이 잘못된 마진을 볼 수 있음. 마켓 공식 안내로 재확인 필요(근거 `01_KDP_MARKET_FEES.md`).
+- 주인님 결정: 우리 `web-crawler`에 원본 출처를 넣지 않음(LICENSE 파일은 유지).
+- 코드·DB·배포 변경 없음. 다음: 쇼핑몰 비즈니스 묶음 플랜(주인님 승인 뒤).
+
 ## 2026-10-24 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.21: 영상 만들기 진단 1단계 + 갤러리 목록 서명 한 번에 + 화질 균형(주인님 승인 빌드 1회)
 - 한 일: ① 영상 만들기 진행 막대 「남은 시간」·20초 뒤 3분 초과면 느림 안내·콘솔 `[avs-render]` 진단 줄·`?render=software` 시험 스위치(`lib/edit/renderInfo.ts`) ② 갤러리 목록 서명을 `createSignedUrls` 1번으로(예전 최대 180번, `lib/signedUrls.ts`) ③ 「작게 줄이기(720)」 화질 「균형」. 커밋 `10f736e9e`·`4e1776da0`, DB v1.21.
 - 검수(운영 메인 크롬, 시험 계정): 화면 v1.21 · 목록 20행·영상 18개 재생·내려받기 주소 정상(영상 받기 206) · `?render=software` 10초 영상 9.5초, 진단 `{"hw":"prefer-software","frames":"300/300/300","fps":31.6}`.
