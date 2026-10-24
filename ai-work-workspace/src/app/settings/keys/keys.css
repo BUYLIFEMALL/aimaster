@@ -12,3 +12,7 @@
 .aww-key-guides h2 { margin: 0 0 6px; font-size: 16px; }
 .aww-key-guides p { margin: 0 0 12px; font-size: 13px; color: var(--lp-text-secondary, #888); }
 .aww-key-guide-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+/* 버튼 요소는 브라우저 기본 흰 바탕이 남으므로(링크용 .aww-btn) 배경·글자색을 직접 정한다 */
+button.aww-btn { font: inherit; cursor: pointer; }
+button.aww-btn:not(.primary) { background: var(--lp-bg-secondary, transparent); color: var(--lp-text-primary, inherit); }
+button.aww-btn:disabled { opacity: 0.5; cursor: default; }

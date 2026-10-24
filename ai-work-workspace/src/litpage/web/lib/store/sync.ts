@@ -20,8 +20,23 @@ function send(msg: unknown) {
   if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
 }
 
+// 이식판(U3 중 발견): 이식판 서버(Vercel)에는 원본 웹소켓(/ws)이 없어 연결이 늘 실패 → 화면이 항상 「오프라인」이 되고
+// AI 입력 칸이 잠기며 재연결을 계속 시도했다. 실시간 동기화는 협업 단계(U13, Supabase Realtime)에서 다시 연다.
+// 그 전까지는 웹소켓을 열지 않고 브라우저의 실제 인터넷 연결 상태(navigator.onLine)로 판단한다.
+const REALTIME_SOCKET = false;
+let onlineWatch = false;
+function watchBrowserOnline() {
+  if (onlineWatch || typeof window === 'undefined') return;
+  onlineWatch = true;
+  const apply = () => useUI.getState().setConnection(navigator.onLine === false ? 'offline' : 'online');
+  window.addEventListener('online', apply);
+  window.addEventListener('offline', apply);
+  apply();
+}
+
 export function connectRealtime(spaces: string[]) {
   spaceIds = spaces;
+  if (!REALTIME_SOCKET) return watchBrowserOnline();
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
     send({ type: 'subscribe', spaceIds });
     return;

@@ -903,7 +903,7 @@ export function ChatComposer(p: Props) {
   };
 
   const approvalLabel = approval === 'always_ask' ? 'Always ask' : approval === 'skip_all' ? 'No approval prompts' : 'Review risky actions';
-  const noticeText = offline ? 'AI 비서 isn’t available offline. Reconnect to continue' : status.policy.enabled === false ? 'AI is turned off for this workspace' : NO_KEY_MESSAGE;
+  const noticeText = offline ? '인터넷 연결이 끊겨 AI 비서를 쓸 수 없습니다. 다시 연결해 주세요' : status.policy.enabled === false ? '이 워크스페이스에서 AI 비서가 꺼져 있습니다' : NO_KEY_MESSAGE;
 
   return (
     <div
@@ -929,7 +929,7 @@ export function ChatComposer(p: Props) {
           <div role="button" tabIndex={0} className="nc-ai-banner-body" onClick={(e) => { if (status.policy.enabled !== false && !offline) openKeyHelp(e.currentTarget); }}>
             <Icon name="aiNoticeDot" size={12} style={{ color: 'var(--lp-blue-icon-accent)' }} />
             <div className="nc-ai-banner-text">
-              {noticeText}.{status.policy.enabled !== false && !offline && p.configured === false && <> <span className="nc-ai-banner-link">How to connect</span></>}
+              {noticeText}.{status.policy.enabled !== false && !offline && p.configured === false && <> <span className="nc-ai-banner-link">등록 방법</span></>}
             </div>
           </div>
         </div>

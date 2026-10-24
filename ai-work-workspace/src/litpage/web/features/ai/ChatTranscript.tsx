@@ -221,7 +221,7 @@ function AssistantRow({ m, streaming, sources, last, canInsert, insertLabel, rea
         <div className="nc-ai-error" role="alert">
           <Icon name="warning" size={14} />
           <span>{m.error?.message ?? 'Something went wrong while loading while processing that request. Please try again later.'}</span>
-          {m.error?.code === 'no_key' && <span role="button" className="nc-ai-banner-link" onClick={(e) => openKeyHelp(e.currentTarget)}>How to connect</span>}
+          {m.error?.code === 'no_key' && <span role="button" className="nc-ai-banner-link" onClick={(e) => openKeyHelp(e.currentTarget)}>등록 방법</span>}
         </div>
       )}
       {!live && text.trim() && <SourcesRow sources={srcs} text={text} />}
