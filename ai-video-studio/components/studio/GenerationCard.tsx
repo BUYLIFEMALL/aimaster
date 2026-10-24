@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, Download, Layers, Loader2, RotateCcw, Trash2
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { PROVIDERS } from "@/lib/providers/catalog";
 import { isSlow } from "@/lib/promptPolish";
+import { PcQuickTools } from "./PcQuickTools";
 
 function elapsed(from: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / 1000));
@@ -110,6 +111,7 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
           </Link>
         </div>
       )}
+      {gen.status === "completed" && video?.url && <PcQuickTools id={gen.id} url={video.url} seconds={gen.duration_s} />}
 
       <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800/80 pt-3 text-[11px] text-zinc-500">
         <span className="whitespace-nowrap">

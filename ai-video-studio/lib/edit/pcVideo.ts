@@ -27,3 +27,24 @@ export function compressCommand(quality: ShrinkQuality, seconds: number) {
 }
 
 export const toMb = (bytes: number) => Math.round(bytes / 104857.6) / 10;
+
+// v1.18 작업 결과 갤러리 카드 「⚡ 내 PC로」 — 렌더러에 이미 있는 명령만 쓴다(GIF = `encode` 1.00부터, 작게 = `compress`+`maxSide` 1.30부터)
+export const GALLERY_GIF = { width: 480, fps: 10, colors: 128, maxSeconds: 6 }; // 6초·10fps — 움직임 많은 1280×720 영상 기준 약 5MB(상세페이지 권장 8MB 안)
+export const GALLERY_SMALL_SIDE = 720;
+
+/** 갤러리 영상 → GIF(앞 6초 안, 가로 480·10fps·128색) */
+export function galleryGifCommand(seconds: number) {
+  const len = Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds, GALLERY_GIF.maxSeconds) : GALLERY_GIF.maxSeconds;
+  return { type: "encode", width: GALLERY_GIF.width, fps: GALLERY_GIF.fps, colors: GALLERY_GIF.colors, start: 0, duration: durationValue(len) };
+}
+
+/** 갤러리 영상 → 긴 변 720·「작게」 품질 MP4 */
+export function gallerySmallCommand(seconds: number) {
+  return { ...compressCommand("small", seconds), maxSide: GALLERY_SMALL_SIDE };
+}
+
+/** 내려받을 파일 이름: ai-video-<생성 id 앞 8자>-<붙임말>.<확장자> */
+export function galleryFileName(id: string, kind: "gif" | "small") {
+  const base = `ai-video-${String(id).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "clip"}`;
+  return kind === "gif" ? `${base}.gif` : `${base}-small.mp4`;
+}

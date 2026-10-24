@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb } from "../lib/edit/pcVideo.ts";
+import { compressCommand, galleryFileName, galleryGifCommand, gallerySmallCommand, normalizeCommand, SHRINK_QUALITIES, toMb } from "../lib/edit/pcVideo.ts";
 import { FPS } from "../lib/edit/timeline.ts";
 
 test("normalize 명령은 실행기 값 범위 안의 낱말·숫자만", () => {
@@ -27,4 +27,20 @@ test("compress 명령은 정해진 품질 낱말만", () => {
 test("MB 표시는 소수 첫째 자리", () => {
   assert.equal(toMb(52428800), 50);
   assert.equal(toMb(1572864), 1.5);
+});
+
+test("v1.18 갤러리 GIF는 실행기 encode 범위(가로 16~4096·fps 1~60·색 2~256), 앞 6초 안", () => {
+  assert.deepEqual(galleryGifCommand(5), { type: "encode", width: 480, fps: 10, colors: 128, start: 0, duration: 5 });
+  assert.equal(galleryGifCommand(30).duration, 6);
+  assert.equal(galleryGifCommand(NaN).duration, 6);
+});
+
+test("v1.18 갤러리 작게 줄이기는 compress small + 긴 변 720", () => {
+  assert.deepEqual(gallerySmallCommand(8), { type: "compress", quality: "small", duration: 8, maxSide: 720 });
+});
+
+test("v1.18 내려받을 파일 이름은 영문·숫자만", () => {
+  assert.equal(galleryFileName("3f2a-91bc-77de", "gif"), "ai-video-3f2a91bc.gif");
+  assert.equal(galleryFileName("3f2a-91bc-77de", "small"), "ai-video-3f2a91bc-small.mp4");
+  assert.equal(galleryFileName("../--", "gif"), "ai-video-clip.gif");
 });
