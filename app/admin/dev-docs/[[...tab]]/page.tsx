@@ -20,6 +20,14 @@ const TABS: Record<string, { tab: DevDocsTab; title: string; desc: string }> = {
   requests: { tab: "requests", title: "수정 요청함", desc: "화면에서 저장한 수정안·관리자 지시·역할 메모와 반영 상태" },
 };
 
+const REQ_BASE = "id, kind, target_path, target_role, note, status, handled_by, commit_sha, reject_reason, handled_at, created_at";
+// 0044(작업 결과·주인님이 해 줄 일) 칸이 아직 없으면(42703) 기본 칸만 다시 읽는다
+async function loadRequests(service: ReturnType<typeof createServiceClient>) {
+  const q = (cols: string) => service.from("admin_dev_requests").select(cols).order("created_at", { ascending: false }).limit(300);
+  const r = await q(`${REQ_BASE}, category, title, from_session, parent_id, link, cost`);
+  return r.error?.code === "42703" ? q(REQ_BASE) : r;
+}
+
 export default async function AdminDevDocsPage({ params }: { params: { tab?: string[] } }) {
   const key = params.tab?.[0] ?? "";
   const meta = TABS[key];
@@ -39,7 +47,7 @@ export default async function AdminDevDocsPage({ params }: { params: { tab?: str
     fetchRepoText("docs/ACTIVE_WORK.md", 120),
     fetchRepoText("docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md", 300),
     fetchRepoText("docs/CATEGORY_GUIDE_MAP.md", 300),
-    service.from("admin_dev_requests").select("id, kind, target_path, target_role, note, status, handled_by, commit_sha, reject_reason, handled_at, created_at").order("created_at", { ascending: false }).limit(200),
+    loadRequests(service),
     service.from("programs").select("slug, name, version, app_url"),
   ]);
   if (!manifest) loadErrors.push("문서 목록");

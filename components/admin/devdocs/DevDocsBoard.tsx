@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, ChevronRight, XCircle } from "lucide-react";
+import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, ChevronRight, XCircle, CheckCircle2, ExternalLink } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import DocDialogs, { type Dialog } from "./DocDialogs";
-import type { DevRequest } from "./types";
+import { OWNER_ACTION_CATEGORIES, type DevRequest } from "./types";
 import type { ActiveWorkRow, CategoryMapData, RegistryData, RoleStatus, TableRow } from "@/lib/devDocs/parse";
 import type { DevDocsManifest, ManifestEntry } from "@/lib/devDocs/github";
 
@@ -14,7 +14,9 @@ type ProgramMeta = { slug: string; name: string; version: string | null; app_url
 
 const REGISTRY = "docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md";
 const STALE_MS = 3 * 86400000;
-const KIND_LABEL: Record<string, string> = { doc_edit: "수정안", doc_comment: "관리자 지시", role_note: "역할 메모" };
+const KIND_LABEL: Record<string, string> = { doc_edit: "수정안", doc_comment: "관리자 지시", role_note: "역할 메모", work_result: "작업 결과", owner_action: "해 줄 일" };
+/** 관리자 → 세션 방향(수정안·지시·메모). 0044의 작업 결과·해 줄 일(세션 → 관리자)과 구분 */
+const isAdminKind = (r: DevRequest) => r.kind === "doc_edit" || r.kind === "doc_comment" || r.kind === "role_note";
 const STATUS_LABEL: Record<string, string> = { open: "반영 대기", applied: "반영됨", rejected: "반려·취소" };
 const DECISION_LABEL: Record<string, string> = { independent: "🆕 독립", merge: "🔗 병합", hold: "⏸ 보류", exclude: "❌ 제외", unknown: "?" };
 
@@ -221,7 +223,8 @@ function Overview({ roles, activeWork, registry, requests, setDialog, roleNoteCo
     ...roles.flatMap((r) => r.next.map((n) => ({ who: r.title, text: plain(n), src: r.path }))),
     ...(registry?.rows ?? []).filter((x) => /🔶/.test(x.status)).map((x) => ({ who: `외부 분석 ${x.id}`, text: `${plain(x.origin)} — 남은 묶음`, src: REGISTRY })),
   ];
-  const openReq = requests.filter((r) => r.status === "open").length;
+  const openReq = requests.filter((r) => isAdminKind(r) && r.status === "open").length;
+  const ownerTodo = requests.filter((r) => r.kind === "owner_action" && r.status === "open").length;
   const cols: { title: string; tone: string; items: typeof inProgress }[] = [
     { title: "🔧 개발 진행 중", tone: "border-sky-400/30", items: inProgress },
     { title: "⏳ 개발 대기 중", tone: "border-amber-400/30", items: waiting },
@@ -229,10 +232,13 @@ function Overview({ roles, activeWork, registry, requests, setDialog, roleNoteCo
   ];
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
         {[["진행 중", inProgress.length], ["대기 중", waiting.length], ["예정", planned.length], ["분석 완료", registry?.rows.length ?? 0], ["반영 대기 요청", openReq]].map(([k, v]) => (
           <GlassCard key={k as string} className="p-4 text-center"><p className="text-2xl font-bold text-gold">{v}</p><p className="text-xs text-subtext">{k}</p></GlassCard>
         ))}
+        <a href="/admin/dev-docs/requests" className="block">
+          <GlassCard className={`h-full p-4 text-center ${ownerTodo ? "border border-rose-400/40" : ""}`}><p className={`text-2xl font-bold ${ownerTodo ? "text-rose-300" : "text-gold"}`}>{ownerTodo}</p><p className="text-xs text-subtext">🙋 내가 해 줄 일</p></GlassCard>
+        </a>
       </div>
 
       {/* 각 세션이 역할 파일 「주인님께 여쭐 것」에 남긴 요청·건의를 한곳에 모은다(2026-10-24 주인님 지시) */}
@@ -500,38 +506,106 @@ function Programs({ manifest, programs, docActions }: { manifest: DevDocsManifes
 
 function Requests({ requests, setRequests, setDialog }: { requests: DevRequest[]; setRequests: (f: (r: DevRequest[]) => DevRequest[]) => void; setDialog: (d: Dialog) => void }) {
   const [busy, setBusy] = useState<string | null>(null);
-  const cancel = async (id: string) => {
+  const act = async (id: string, action: "cancel" | "done" | "dismiss") => {
+    if (busy) return;
     setBusy(id);
-    const r = await fetch("/api/admin/dev-docs/requests", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    const r = await fetch("/api/admin/dev-docs/requests", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, action }) });
     const j = await r.json().catch(() => ({}));
     setBusy(null);
-    if (r.ok) setRequests((rs) => rs.map((x) => (x.id === id ? j.request : x)));
+    if (r.ok) setRequests((rs) => rs.map((x) => (x.id === id ? { ...x, ...j.request } : x)));
   };
+  const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  // 🙋 각 세션이 주인님께 드린 요청(owner_action) — 분류별
+  const todo = requests.filter((r) => r.kind === "owner_action" && r.status === "open");
+  const todoDone = requests.filter((r) => r.kind === "owner_action" && r.status !== "open").slice(0, 20);
+  const catOf = (r: DevRequest) => OWNER_ACTION_CATEGORIES.find((c) => c.id === r.category) ?? OWNER_ACTION_CATEGORIES[OWNER_ACTION_CATEGORIES.length - 1];
+  // 📬 주인님이 맡긴 일의 결과(work_result) — 최신순, 화면에서 남긴 요청에 연결됐으면 그 요청도 표시
+  const results = requests.filter((r) => r.kind === "work_result");
+  const byId = Object.fromEntries(requests.map((r) => [r.id, r]));
+  // 🗂 기존 수정안·지시·메모
+  const admin = requests.filter(isAdminKind);
   const groups: [string, DevRequest[]][] = [
-    ["⏳ 반영 대기", requests.filter((r) => r.status === "open")],
-    ["✅ 반영됨", requests.filter((r) => r.status === "applied")],
-    ["↩ 반려·취소", requests.filter((r) => r.status === "rejected")],
+    ["⏳ 반영 대기", admin.filter((r) => r.status === "open")],
+    ["✅ 반영됨", admin.filter((r) => r.status === "applied")],
+    ["↩ 반려·취소", admin.filter((r) => r.status === "rejected")],
   ];
+  const linkBtn = (r: DevRequest) => r.link && (
+    <a href={r.link} target="_blank" rel="noopener noreferrer" title="링크 열기" aria-label="링크 열기" className="rounded-lg p-2 text-subtext transition-colors hover:bg-white/10 hover:text-white"><ExternalLink size={15} /></a>
+  );
+
   return (
     <Sections>
       <GlassCard className="p-4 text-xs text-white/80">
-        화면에서 저장한 수정안·관리자 지시·역할 메모입니다. 담당 세션은 작업을 시작할 때 <code className="rounded bg-white/10 px-1">node scripts/dev-requests.mjs list</code>로 확인하고 반영합니다. 반영되면 커밋 번호가 표시됩니다.
+        <b className="text-white">🙋 내가 해 줄 일</b>은 각 세션이 주인님께 드린 요청(승인·비용·로그인·DB 실행 등)을 분류별로 모은 것입니다. 처리하셨으면 ✔ 「완료」, 필요 없으면 ✖를 누르세요.{" "}
+        <b className="text-white">📬 작업 결과</b>는 주인님이 맡기신 일을 각 세션이 끝낸 뒤 남긴 결과(커밋·비용·링크)입니다. 세션은 <code className="rounded bg-white/10 px-1">node scripts/dev-requests.mjs ask</code>·<code className="rounded bg-white/10 px-1">report</code>로 올립니다.
       </GlassCard>
-      {groups.map(([title, items]) => (
-        <Section key={title} title={title} count={items.length}>
-          {items.length === 0 ? <Empty>없음</Empty> : items.map((r) => (
-            <Row key={r.id} badge={KIND_LABEL[r.kind]} title={r.target_path ?? `역할 ${r.target_role}`} sub={`${new Date(r.created_at).toLocaleString("ko-KR")}${r.handled_by ? ` · 처리 ${r.handled_by}` : ""}${r.commit_sha ? ` · 커밋 ${r.commit_sha}` : ""}${r.reject_reason ? ` · ${r.reject_reason}` : ""} · ${STATUS_LABEL[r.status]}`}
-              right={
-                <div className="flex shrink-0 gap-1">
-                  <IconBtn title="자세히" onClick={() => setDialog({ type: "request", id: r.id })}><Eye size={15} /></IconBtn>
-                  {r.status === "open" && <IconBtn title="취소" onClick={() => busy !== r.id && cancel(r.id)}><XCircle size={15} /></IconBtn>}
-                </div>
-              }>
-              {r.note && <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-xs text-white/75">{r.note}</p>}
+
+      <Section title="🙋 내가 해 줄 일" count={todo.length}>
+        {todo.length === 0 ? <Empty>지금 처리하실 일이 없습니다.</Empty> : OWNER_ACTION_CATEGORIES.filter((c) => todo.some((r) => catOf(r).id === c.id)).map((c) => {
+          const items = todo.filter((r) => catOf(r).id === c.id);
+          return (
+            <Fold key={c.id} title={`${c.icon} ${c.label}`} count={items.length} defaultOpen tone="text-rose-200">
+              {items.map((r) => (
+                <Row key={r.id} title={r.title ?? "(제목 없음)"} sub={`${r.from_session ?? "세션 미상"} · ${when(r.created_at)}`}
+                  right={
+                    <div className="flex shrink-0 gap-1">
+                      {linkBtn(r)}
+                      <IconBtn title="완료" onClick={() => act(r.id, "done")}><CheckCircle2 size={15} className="text-emerald-300" /></IconBtn>
+                      <IconBtn title="필요 없음" onClick={() => act(r.id, "dismiss")}><XCircle size={15} /></IconBtn>
+                    </div>
+                  }>
+                  {r.note && <p className="mt-1 whitespace-pre-wrap text-xs text-white/80">{r.note}</p>}
+                </Row>
+              ))}
+            </Fold>
+          );
+        })}
+        {todoDone.length > 0 && (
+          <Fold title="처리한 일" count={todoDone.length} tone="text-subtext">
+            {todoDone.map((r) => (
+              <p key={r.id} className="text-xs text-subtext">
+                {r.status === "applied" ? "✅" : "↩"} [{catOf(r).label}] {r.title} · {r.from_session ?? "세션 미상"}{r.handled_at ? ` · ${when(r.handled_at)}` : ""}
+              </p>
+            ))}
+          </Fold>
+        )}
+      </Section>
+
+      <Section title="📬 작업 결과" count={results.length}>
+        {results.length === 0 ? <Empty>아직 올라온 작업 결과가 없습니다.</Empty> : results.map((r) => {
+          const parent = r.parent_id ? byId[r.parent_id] : undefined;
+          return (
+            <Row key={r.id} badge="결과" title={r.title ?? "(제목 없음)"}
+              sub={[r.from_session ?? "세션 미상", when(r.created_at), r.commit_sha && `커밋 ${r.commit_sha}`, r.cost && `비용 ${r.cost}`].filter(Boolean).join(" · ")}
+              right={<div className="flex shrink-0 gap-1">{linkBtn(r)}<IconBtn title="자세히" onClick={() => setDialog({ type: "request", id: r.id })}><Eye size={15} /></IconBtn></div>}>
+              {parent && <p className="mt-1 text-xs text-sky-300">요청: [{KIND_LABEL[parent.kind]}] {parent.title ?? parent.target_path ?? `역할 ${parent.target_role}`}</p>}
+              {r.note && <p className="mt-1 line-clamp-4 whitespace-pre-wrap text-xs text-white/80">{r.note}</p>}
             </Row>
-          ))}
-        </Section>
-      ))}
+          );
+        })}
+      </Section>
+
+      <Section title="🗂 화면에서 남긴 수정안·지시·메모">
+        {groups.map(([title, items]) => (
+          <Fold key={title} title={title} count={items.length} defaultOpen={title.startsWith("⏳") && items.length > 0}>
+            {items.length === 0 ? <Empty>없음</Empty> : items.map((r) => {
+              const res = results.filter((x) => x.parent_id === r.id);
+              return (
+                <Row key={r.id} badge={KIND_LABEL[r.kind]} title={r.target_path ?? `역할 ${r.target_role}`} sub={`${new Date(r.created_at).toLocaleString("ko-KR")}${r.handled_by ? ` · 처리 ${r.handled_by}` : ""}${r.commit_sha ? ` · 커밋 ${r.commit_sha}` : ""}${r.reject_reason ? ` · ${r.reject_reason}` : ""} · ${STATUS_LABEL[r.status]}${res.length ? ` · 결과 ${res.length}건` : ""}`}
+                  right={
+                    <div className="flex shrink-0 gap-1">
+                      <IconBtn title="자세히" onClick={() => setDialog({ type: "request", id: r.id })}><Eye size={15} /></IconBtn>
+                      {r.status === "open" && <IconBtn title="취소" onClick={() => act(r.id, "cancel")}><XCircle size={15} /></IconBtn>}
+                    </div>
+                  }>
+                  {r.note && <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-xs text-white/75">{r.note}</p>}
+                </Row>
+              );
+            })}
+          </Fold>
+        ))}
+      </Section>
     </Sections>
   );
 }

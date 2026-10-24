@@ -17,7 +17,7 @@ export type Dialog =
   | { type: "markdown"; title: string; markdown: string; path?: string }
   | { type: "request"; id: string };
 
-const KIND_LABEL: Record<string, string> = { doc_edit: "수정안", doc_comment: "관리자 지시", role_note: "역할 메모" };
+const KIND_LABEL: Record<string, string> = { doc_edit: "수정안", doc_comment: "관리자 지시", role_note: "역할 메모", work_result: "작업 결과", owner_action: "해 줄 일" };
 
 export default function DocDialogs({
   dialog,
@@ -228,7 +228,8 @@ function RequestDialog({ id, onClose }: { id: string; onClose: () => void }) {
         {!req && !error && <p className="text-subtext">불러오는 중…</p>}
         {req && (
           <>
-            <p className="text-subtext">{KIND_LABEL[req.kind]} · {req.target_path ?? `역할 ${req.target_role}`} · {new Date(req.created_at).toLocaleString("ko-KR")}</p>
+            <p className="text-subtext">{KIND_LABEL[req.kind]} · {req.title ?? req.target_path ?? `역할 ${req.target_role}`} · {new Date(req.created_at).toLocaleString("ko-KR")}{req.from_session ? ` · ${req.from_session}` : ""}{req.commit_sha ? ` · 커밋 ${req.commit_sha}` : ""}{req.cost ? ` · 비용 ${req.cost}` : ""}</p>
+            {req.link && <a href={req.link} target="_blank" rel="noopener noreferrer" className="block break-all text-sky-300 underline">{req.link}</a>}
             {req.note && <div className="whitespace-pre-wrap rounded-xl border border-white/10 bg-black/30 p-3 text-white/90">{req.note}</div>}
             {req.proposed_content && (
               <div className="max-h-[60vh] overflow-y-auto rounded-xl border border-white/10 p-4">

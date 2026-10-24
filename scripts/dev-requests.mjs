@@ -8,6 +8,14 @@
 //   node scripts/dev-requests.mjs apply <id> --as <세션> [--push]      반영: 수정안은 3-way 병합, 지시는 문서 맨 위에 옮겨 적기 → 안전 커밋 → 「반영됨」 기록
 //   node scripts/dev-requests.mjs done <id> --as <세션> [--note "…"]  역할 메모를 읽고 따랐음을 기록
 //   node scripts/dev-requests.mjs reject <id> --as <세션> --reason "…" 반려(이유를 화면에 남김 — 관리자 지시는 반려하지 말고 주인님께 먼저 여쭌다)
+//
+// 세션 → 주인님 방향(2026-10-24 마이그레이션 0044, 주인님 지시 「작업요청한 내용에 대한 결과를 받아 볼 수 있도록」「내가 해줘야 할 요청사항도 카테고리별로」):
+//   node scripts/dev-requests.mjs report --title "<맡긴 일>" --summary "<결과 요약>" --as <세션> [--request <요청id>] [--link <프로그램 주소>] [--commit <해시>] [--cost "<비용>"]
+//        작업이 끝날 때마다 결과를 남긴다 → 관리자 화면 「수정 요청함 › 📬 작업 결과」
+//   node scripts/dev-requests.mjs ask --category <분류> --title "<해 주실 일>" --as <세션> [--note "<자세히>"] [--link <주소>]
+//        주인님 승인·조치가 필요할 때 채팅으로 여쭙는 것과 함께 올린다 → 「🙋 내가 해 줄 일」(주인님이 화면에서 완료 처리)
+//        분류: approval(승인·결정) cost(비용 승인) account(로그인·계정) db(DB SQL 실행) install(PC 설치·확장) check(화면 확인·검수) external(외부 서비스 설정) etc(기타)
+//   node scripts/dev-requests.mjs asks [--all]                       주인님께 올려 둔 「해 줄 일」 보기(처리 여부 확인)
 // 서버 키는 로컬 .env.local(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY 또는 SUPABASE_SERVICE_ROLE_KEY)에서 읽는다. 키를 출력하지 않는다.
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -45,7 +53,19 @@ async function rest(path, init = {}) {
   if (!res.ok) throw new Error(`DB 오류 ${res.status}: ${text.slice(0, 300)}`);
   return text ? JSON.parse(text) : null;
 }
-const KIND = { doc_edit: "수정안", doc_comment: "관리자 지시(절대)", role_note: "역할 메모(절대)" };
+const KIND = { doc_edit: "수정안", doc_comment: "관리자 지시(절대)", role_note: "역할 메모(절대)", work_result: "작업 결과", owner_action: "주인님이 해 줄 일" };
+const ADMIN_KINDS = "kind=in.(doc_edit,doc_comment,role_note)&";
+const CATEGORIES = { approval: "승인·결정", cost: "비용 승인", account: "로그인·계정", db: "DB SQL 실행", install: "PC 설치·확장", check: "화면 확인·검수", external: "외부 서비스 설정", etc: "기타" };
+function need(name) {
+  const v = opt(name);
+  if (!v || !v.trim()) { console.error(`✖ ${name} "…"이 필요합니다.`); process.exit(1); }
+  return v.trim();
+}
+function missingColumnHint(e) {
+  if (String(e.message).includes("42703")) console.error("✖ DB에 0044 칸이 아직 없습니다 — supabase/migrations/0044_admin_dev_requests_results_owner_actions.sql을 주인님이 SQL 편집기에서 실행해야 합니다.");
+  else console.error(`✖ ${e.message}`);
+  process.exit(1);
+}
 const lf = (s) => s.replace(/\r\n/g, "\n");
 const hash = (s) => createHash("sha256").update(lf(s)).digest("hex");
 const git = (a) => execFileSync("git", a, { cwd: ROOT, encoding: "utf8" }).trim();
@@ -73,7 +93,7 @@ function safeCommit(path, msg, as, push) {
 
 if (cmd === "list") {
   const role = opt("--role");
-  const q = flag("--all") ? "" : "status=eq.open&";
+  const q = (flag("--all") ? "" : "status=eq.open&") + ADMIN_KINDS;
   const rows = await rest(`admin_dev_requests?${q}select=id,kind,target_path,target_role,note,status,created_at,commit_sha&order=created_at.asc&limit=200`);
   const shown = rows.filter((r) => !role || r.target_role === role || (r.target_path || "").includes(`docs/roles/${role}.md`));
   if (!shown.length) { console.log(role ? `역할 ${role}에 대기 중인 요청이 없습니다.` : "대기 중인 요청이 없습니다."); process.exit(0); }
@@ -158,6 +178,29 @@ if (cmd === "list") {
   if (r.kind !== "doc_edit") console.log("⚠ 관리자 지시·메모는 절대 지시입니다. 반려 전에 주인님께 확인했는지 다시 보세요.");
   await mark(r.id, { status: "rejected", handled_by: as, reject_reason: reason });
   console.log(`✔ 반려 기록 — ${r.id}`);
+} else if (cmd === "report") {
+  const as = needAs();
+  const row = { kind: "work_result", status: "applied", title: need("--title"), note: need("--summary"), from_session: as, handled_by: as, handled_at: new Date().toISOString(),
+    parent_id: opt("--request") || null, link: opt("--link") || null, commit_sha: opt("--commit") || null, cost: opt("--cost") || null };
+  if (row.parent_id) await getReq(row.parent_id);
+  const out = await rest("admin_dev_requests", { method: "POST", body: JSON.stringify(row) }).catch(missingColumnHint);
+  console.log(`✔ 작업 결과 기록 — ${out[0].id} · 관리자 화면 「수정 요청함 › 📬 작업 결과」`);
+} else if (cmd === "ask") {
+  const as = needAs();
+  const category = need("--category");
+  if (!CATEGORIES[category]) { console.error(`✖ --category는 ${Object.keys(CATEGORIES).join("·")} 중 하나입니다.`); process.exit(1); }
+  const title = need("--title");
+  // 같은 세션이 같은 제목으로 이미 올려 두었으면 다시 올리지 않는다
+  const dup = await rest(`admin_dev_requests?kind=eq.owner_action&status=eq.open&from_session=eq.${encodeURIComponent(as)}&title=eq.${encodeURIComponent(title)}&select=id`).catch(missingColumnHint);
+  if (dup.length) { console.log(`ℹ 이미 올려 둔 요청입니다 — ${dup[0].id}`); process.exit(0); }
+  const row = { kind: "owner_action", status: "open", category, title, note: opt("--note") || null, link: opt("--link") || null, from_session: as };
+  const out = await rest("admin_dev_requests", { method: "POST", body: JSON.stringify(row) }).catch(missingColumnHint);
+  console.log(`✔ 주인님께 요청 올림 — [${CATEGORIES[category]}] ${title} · ${out[0].id} · 관리자 화면 「수정 요청함 › 🙋 내가 해 줄 일」`);
+} else if (cmd === "asks") {
+  const q = flag("--all") ? "" : "status=eq.open&";
+  const rows = await rest(`admin_dev_requests?kind=eq.owner_action&${q}select=id,category,title,from_session,status,created_at,handled_at&order=created_at.asc&limit=200`).catch(missingColumnHint);
+  if (!rows.length) { console.log("주인님께 올려 둔 요청이 없습니다."); process.exit(0); }
+  for (const r of rows) console.log(`■ ${r.id}  [${CATEGORIES[r.category] ?? r.category}]  ${r.title}  (${r.from_session} · ${kst(r.created_at)}${r.status !== "open" ? ` · ${r.status === "applied" ? "주인님 완료" : "필요 없음"}` : ""})`);
 } else {
-  console.log("사용: node scripts/dev-requests.mjs list | show <id> | apply <id> --as <세션> [--push] | done <id> --as <세션> | reject <id> --as <세션> --reason \"…\"");
+  console.log("사용: node scripts/dev-requests.mjs list | show <id> | apply <id> --as <세션> [--push] | done <id> --as <세션> | reject <id> --as <세션> --reason \"…\"\n      report --title … --summary … --as <세션> [--request <id>] [--link …] [--commit …] [--cost …] | ask --category <분류> --title … --as <세션> [--note …] [--link …] | asks [--all]");
 }

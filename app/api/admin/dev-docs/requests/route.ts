@@ -8,7 +8,10 @@ export const fetchCache = "force-no-store";
 
 const MAX_CONTENT = 400 * 1024;
 const MAX_NOTE = 20000;
-const LIST_COLUMNS = "id, kind, target_path, target_role, note, status, handled_by, commit_sha, reject_reason, handled_at, created_at";
+const BASE_COLUMNS = "id, kind, target_path, target_role, note, status, handled_by, commit_sha, reject_reason, handled_at, created_at";
+// 0044(작업 결과·주인님이 해 줄 일) 칸 — 마이그레이션 적용 전에는 없으므로 실패하면 기본 칸만 다시 읽는다
+const LIST_COLUMNS = `${BASE_COLUMNS}, category, title, from_session, parent_id, link, cost`;
+const isMissingColumn = (e: { code?: string } | null) => e?.code === "42703";
 
 /** GET — 요청 목록(최근 200개). ?id= 이면 수정본 원문까지 */
 export async function GET(req: NextRequest) {
@@ -18,11 +21,13 @@ export async function GET(req: NextRequest) {
 
   const id = req.nextUrl.searchParams.get("id");
   if (id) {
-    const { data, error } = await service.from("admin_dev_requests").select(`${LIST_COLUMNS}, proposed_content`).eq("id", id).single();
+    let { data, error } = await service.from("admin_dev_requests").select(`${LIST_COLUMNS}, proposed_content`).eq("id", id).single();
+    if (isMissingColumn(error)) ({ data, error } = await service.from("admin_dev_requests").select(`${BASE_COLUMNS}, proposed_content`).eq("id", id).single());
     if (error) return NextResponse.json({ error: error.message }, { status: 404 });
     return NextResponse.json({ request: data });
   }
-  const { data, error } = await service.from("admin_dev_requests").select(LIST_COLUMNS).order("created_at", { ascending: false }).limit(200);
+  let { data, error } = await service.from("admin_dev_requests").select(LIST_COLUMNS).order("created_at", { ascending: false }).limit(200);
+  if (isMissingColumn(error)) ({ data, error } = await service.from("admin_dev_requests").select(BASE_COLUMNS).order("created_at", { ascending: false }).limit(200));
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ requests: data ?? [] });
 }
@@ -66,25 +71,36 @@ export async function POST(req: NextRequest) {
   }
 
   const service = createServiceClient();
-  const { data, error } = await service.from("admin_dev_requests").insert(row).select(LIST_COLUMNS).single();
+  // 관리자가 저장하는 요청에는 0044 칸이 없어도 되므로 기본 칸만 돌려준다(0044 적용 전에도 저장 가능)
+  const { data, error } = await service.from("admin_dev_requests").insert(row).select(BASE_COLUMNS).single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ request: data });
 }
 
-/** PATCH { id } — 아직 반영 전(open)인 요청을 관리자가 취소 */
+/** PATCH { id, action? } — open 요청 처리.
+ *  action 없음/"cancel": 관리자가 낸 요청 취소(rejected)
+ *  "done": 「주인님이 해 줄 일」(owner_action)을 주인님이 처리함(applied)
+ *  "dismiss": 「주인님이 해 줄 일」이 필요 없어짐(rejected) */
 export async function PATCH(req: NextRequest) {
   const auth = await requireAdmin();
   if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
-  const { id } = await req.json().catch(() => ({}));
+  const { id, action = "cancel" } = await req.json().catch(() => ({}));
   if (!id) return NextResponse.json({ error: "id 필요" }, { status: 400 });
+  const patch =
+    action === "done" ? { status: "applied", reject_reason: null }
+    : action === "dismiss" ? { status: "rejected", reject_reason: "주인님: 필요 없음" }
+    : action === "cancel" ? { status: "rejected", reject_reason: "관리자 취소" }
+    : null;
+  if (!patch) return NextResponse.json({ error: "action은 cancel·done·dismiss 중 하나" }, { status: 400 });
   const service = createServiceClient();
-  const { data, error } = await service
-    .from("admin_dev_requests")
-    .update({ status: "rejected", reject_reason: "관리자 취소", handled_by: "admin", handled_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("status", "open")
-    .select(LIST_COLUMNS)
-    .single();
+  const run = (cols: string) => {
+    let q = service.from("admin_dev_requests").update({ ...patch, handled_by: "admin", handled_at: new Date().toISOString() }).eq("id", id).eq("status", "open");
+    if (action !== "cancel") q = q.eq("kind", "owner_action");
+    return q.select(cols).single();
+  };
+  // 칸이 없으면 PostgREST가 요청 전체를 거절하므로(갱신도 안 됨) 기본 칸으로 다시 보내도 안전하다
+  let { data, error } = await run(LIST_COLUMNS);
+  if (isMissingColumn(error)) ({ data, error } = await run(BASE_COLUMNS));
   if (error) return NextResponse.json({ error: "이미 반영됐거나 없는 요청입니다." }, { status: 409 });
   return NextResponse.json({ request: data });
 }
