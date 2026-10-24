@@ -22,5 +22,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `ai-doc-chatbot/` · `ai-prompt-studio/` (G-1 실회원 검수) | Codex(윈도우, 엣지) · 세션 `codex-win-20261024-docbot-g1` (문서·챗봇·AI 프롬프트 담당) | 2026-10-24 | G-1 소스 `2d56a117b`·65개 시험·양쪽 타입/로컬 빌드·운영 DB 준비 완료. **미배포·Edge 직접 전면 표시/로컬 로그인·본인 키 검수 대기**. G-2~G-5 미착수. [현재 결과](analysis-autogemma-starter-20261024/G1_IMPLEMENTATION_20261024.md) |
 | (확인만, 코드 수정 없음) `video-to-gif/local-renderer/test/`·`video-to-gif/AGENTS.md` 기록 | Claude Code(맥미니, 크롬) · 세션 `claude-mac-20261024-maccheck` | 2026-10-24 | 윈도우 영상 담당 요청: 내 PC 렌더러 1.30 맥판 loop·normalize·compress 맥 실물 확인(터미널 + 크롬 3화면) |
 | `naver-blog-agent/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` (블로그 담당) | 2026-10-24 | E-3 ✅ v2.19 · E-4 ✅ v2.20 · E-5 ✅ v2.21 → **다음: ② 간편 모드 실제 네이버 입력 시험(비공개 1건, 크롬 시험 계정 로그인 필요)** → ③ SEO 예약·콘텐츠 메이커 포스팅 → ④ 묶음 E. 미배포 대기 `89d135c4b` |

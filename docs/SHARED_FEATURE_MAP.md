@@ -1,5 +1,14 @@
 # 기능별 프로그램 지도 (SHARED_FEATURE_MAP.md)
 
+## 2026-10-24 G-1 공용 텍스트 AI 공급자 — 미배포·실회원 검수 대기
+
+| 프로그램 | 상태 | 파일·범위 |
+|---|---|---|
+| 문서 챗봇 `ai-doc-chatbot` v1.07 유지 | 🟢 기준(소스/로컬 검사·DB 준비, 미배포) | `src/lib/compatibleChat/` 6개 + `src/app/api/settings/compatible-keys/route.ts`. Groq·고정 무료 OpenRouter·Cloudflare 답변/라우터·회원 공용 키·설정/매뉴얼. 임베딩/파싱 유지 |
+| AI Prompt `ai-prompt-studio` v1.09 유지 | 🔵 동일 사본(미배포) | 같은 경로 7개, 내 템플릿 실행과 기존 키 설정에 연결. 설계/AI 자동 채우기는 Gemini 유지 |
+
+기준만 수정→`node scripts/check-shared-modules.mjs --module compatible-chat --sync`→해당 묶음 검사. 소스 `2d56a117b`, 65개 시험·양쪽 타입/로컬 빌드 통과. NVIDIA 비활성. 실제 회원 연결/Edge 검수는 남아 있습니다. [결과·한계](analysis-autogemma-starter-20261024/G1_IMPLEMENTATION_20261024.md), [공용 모듈 등록부](SHARED_MODULES.md).
+
 > 2026-10-17 주인님 지시로 만든 문서다. **다른 CLI가 프로그램을 개발·리뉴얼하기 전에 먼저 본다.**
 > 같은 기능을 어느 프로그램이 어느 파일에서 쓰는지, 그 코드가 **기준 / 사본 / 각자 구현** 중 어디에 해당하는지를 기능별로 모았다.
 > - 프로그램별 소개(기능·장단점·사용 순서)는 [`PROGRAM_CAPABILITY_MAP.md`](PROGRAM_CAPABILITY_MAP.md)를 본다.

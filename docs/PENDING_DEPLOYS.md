@@ -17,6 +17,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-doc-chatbot` (운영 v1.07) | G-1 답변 공급자/모델·회원 공용 키·중단. DB provider/카탈로그 준비 적용, 임베딩·파싱 유지 | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | [G-1 결과](analysis-autogemma-starter-20261024/G1_IMPLEMENTATION_20261024.md) | 실회원/Edge 검수 후 G-1~G-4 묶음, 버전 +0.01·DB·프로그램 비교표 일치 |
+| `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
 | `naver-blog-agent` (운영 v2.21) | 다른 포스팅 방식에서 「발행 전까지」로 바꾸면 「예약 시각도 미리 넣어 두기」를 끔(화면 동작만) | `89d135c4b` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-blog3` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `ai-video-studio` (운영 v1.19) | 프롬프트 게시판 관리자 숨기기·다시 공개·저장, 내 프롬프트 삭제에 진행 중 배지(도는 아이콘) + 누른 카드 바로 갱신(전에는 약 3.9초 표시 없음) | `5b2c589b5` | 2026-10-24 · Claude Code(윈도우) `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 게시판 A안 항목 | v1.20으로 함께 배포 |
 | `ai-work-workspace` | 슬래시 메뉴 「AI 이미지」 항목 숨김(U3 시험 중 발견) | `768bf908d` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | U4와 함께 배포 → 슬래시 메뉴에 「AI 이미지」 없음 확인 |

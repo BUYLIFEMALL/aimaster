@@ -1,5 +1,7 @@
 # 인수인계 — AutoGemmaStarter 분석 → 문서 챗봇·AI Prompt 묶음 G-1~G-5 (2026-10-24)
 
+> **현재 상태(2026-10-24, Codex `codex-win-20261024-docbot-g1`):** 주인님 「순서대로 한스텝」에 따라 G-1 소스/로컬 검사와 운영 DB 준비를 진행했습니다(`2d56a117b`). **미배포·실회원/Edge 검수 대기**, G-1 전체 완료 아님. G-2~G-5 미착수. [최신 결과·근거·다음 첫 단계](G1_IMPLEMENTATION_20261024.md). 아래 ‘코드·DB 변경 없음/승인 대기’는 최초 분석·조사 시점 기록입니다.
+
 - 넘기는 쪽: Claude Code(윈도우) `claude-win-dotori`(새 프로그램 분석·플랜 담당) — 분석·사전 조사·플랜 초안만, **코드·DB·배포 변경 없음**
 - **받는 쪽: 문서 챗봇(`ai-doc-chatbot`)·AI Prompt(`ai-prompt-studio`) 담당 세션**(주인님 지시 「문서 챗봇, AI 프롬프트 담당자에게 전달할 인수인계 문서 만들어줘」)
 - 근거: [AutoGemmaStarter 2.0.0 분석 보고서](REPORT.md)

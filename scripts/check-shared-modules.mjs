@@ -12,6 +12,16 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
+  ...["config.ts", "transport.ts", "keyStore.ts", "ProviderSelect.tsx", "ProviderGuide.tsx", "ProviderKeys.tsx"].map((file) => ({
+    id: `compatible-chat-${file.split(".")[0]}`,
+    source: `ai-doc-chatbot/src/lib/compatibleChat/${file}`,
+    copies: [`ai-prompt-studio/src/lib/compatibleChat/${file}`],
+  })),
+  {
+    id: "compatible-chat-keys-api",
+    source: "ai-doc-chatbot/src/app/api/settings/compatible-keys/route.ts",
+    copies: ["ai-prompt-studio/src/app/api/settings/compatible-keys/route.ts"],
+  },
   {
     // 텔레그램 승인·알림 봇(회원 본인 BotFather 봇): 연동 확인 findChatIdFromUpdates(deleteWebhook → getUpdates allowed_updates=["message"]),
     // 메시지·버튼 메시지·버튼 처리 응답·웹훅 걸기/해제. 2026-10-21 등록 — 10곳이 같은 코드를 손 복사로 쓰고 있었음(알림 전용 5곳은 일부만)
@@ -685,6 +695,14 @@ const MODULES = [
 
 const sync = process.argv.includes("--sync");
 const forceTest = process.argv.includes("--test");
+// 작업 범위만 검사/동기화: --module compatible-chat (정확한 ID 또는 ID의 접두사).
+const moduleIndex = process.argv.indexOf("--module");
+const moduleFilter = moduleIndex < 0 ? null : process.argv[moduleIndex + 1];
+const selectedModules = moduleFilter ? MODULES.filter((m) => m.id === moduleFilter || m.id.startsWith(`${moduleFilter}-`)) : MODULES;
+if (moduleIndex >= 0 && (!moduleFilter || !selectedModules.length)) {
+  console.error("--module 뒤에 등록된 모듈 ID 또는 접두사를 지정해 주세요.");
+  process.exit(1);
+}
 const hash = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex").slice(0, 12);
 let bad = 0;
 // 2026-10-21: 사본이 있는 폴더 중 자동 시험이 있는 곳 — 그 사본이 동기화되면(또는 --test) 시험을 돌린다.
@@ -692,7 +710,7 @@ let bad = 0;
 const COPY_TEST_DIRS = ["comment-inbox"];
 const testDirsToRun = new Set(forceTest ? COPY_TEST_DIRS : []);
 
-for (const m of MODULES) {
+for (const m of selectedModules) {
   const src = path.join(root, m.source);
   if (!fs.existsSync(src)) {
     console.log(`MISSING  ${m.id}: 기준 파일 없음 ${m.source}`);
@@ -717,6 +735,9 @@ for (const m of MODULES) {
     }
   }
 }
+
+// 범위를 지정하면 관계없는 이미지 호출·다른 프로그램 검사/수정은 하지 않는다.
+if (moduleIndex >= 0) process.exit(bad ? 1 : 0);
 
 // 이미지 생성 호출 시간 검사(2026-10-17, docs/SHARED_MODULE_CHECKPOINTS.md §2-1):
 // generateGeminiImage() 호출마다 최악 소요 시간 = (retries+1) × timeoutMs + 재시도 전 대기(1.5초 × 회차)를 계산해

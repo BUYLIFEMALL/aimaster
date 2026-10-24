@@ -442,6 +442,8 @@
 **2026-10-24 담당 검토 이력(Codex 윈도우 `codex-win-20261024-docbot-prompt`):** [공식 공급자 확인](analysis-autogemma-starter-20261024/OFFICIAL_PROVIDERS_20261024.md)·[G-1~G-5 개발 플랜/비용](analysis-autogemma-starter-20261024/PLAN_G1_G5_20261024.md) 작성, 구현/DB/비용 승인 대기. IDEA-GEMMA-01은 NVIDIA 운영 이용 조건과 Groq 실제 무료 한도 확인을 선결 조건으로 보완(안정성), 두 앱의 공용 키/호출 재사용에 적용(적용성), 재등록·유료 자동 전환을 방지(편의). IDEA-GEMMA-02는 회원별 봇/역할 검수와 위치 선택 대기. IDEA-GEMMA-03은 HTTPS→localhost의 CORS/LNA 시제품·회원 PC 설정 난이도 때문에 G-5 별도 선택 대기. IDEA-GEMMA-04는 기존 단일 문서 선택/출처 보기를 재사용하고 다중 선택의 검색 전 범위 적용·문서 분류/미리보기·PDF 경고를 G-4로 보강하는 안. 디자인/개발/신규성의 기존 표 구분은 유지하며 신규 기능 구현 완료로 표시하지 않습니다. 실제 API 0·빌드 0·비용 없음.
 <!-- /GEMMA_DOCBOT_PROMPT_REVIEW_20261024 -->
 
+**2026-10-24 G-1 구현 이력(Codex `codex-win-20261024-docbot-g1`, `2d56a117b`):** IDEA-GEMMA-01은 소스·로컬 검사와 운영 DB 준비까지 진행, **미배포·실회원 검수 대기**입니다. 안정성: 고정 공식 주소/허용 모델·회원 소유 조건·손상 스트림/한도/중단/키 마스킹을 양쪽 사본에서 검사(총 65개 통과), NVIDIA 비활성. 적용성: 문서 챗봇 답변/라우터와 Prompt 템플릿 실행에 공용 모듈 연결, 임베딩/파싱·Gemini 설계 유지. 편의: FREE Prompt 회원도 기존 설정에서 동일 회원 공용 키를 등록·재사용. 디자인: 각 앱 테마의 공급자·모델 선택과 4단계 연결 가이드, Edge 실제 검수는 포커스 제한으로 대기. 신규성: 공급자 확장/공용화이며 새 독립 프로그램은 아님. 다음은 본인 키와 실제 화면 검수, IDEA-GEMMA-02/G-2 위치 확정. G-3~G-5 미착수, G-5 별도 선택 대기. 실제 AI 0·Vercel 빌드 0, 비용 $0. [상세](analysis-autogemma-starter-20261024/G1_IMPLEMENTATION_20261024.md).
+
 | ID | 개발·유지보수 | 디자인 | 신규 자동화 시스템 | 안정성 / 현재 적용 / 편의 | 처리 |
 |---|---|---|---|---|---|
 | IDEA-GEMMA-01 | OpenAI 호환 공급자 묶음(Groq·OpenRouter·NVIDIA·Cloudflare Workers AI, 회원 본인 키) — 공용 연동 항목 + 공용 호출 모듈 | 공급자·모델 고르기 칸 | 아님(공급자 확장) | 높음 / `ai-doc-chatbot`·`ai-prompt-studio` / 높음 | 플랜 초안 · 문서 챗봇·AI Prompt 담당 인계 · 승인 대기 |
