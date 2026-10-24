@@ -545,6 +545,7 @@
 ### 3-9. Tools
 
 #### EXT-TL-01 AutoGemmaStarter 2.0.0
+> **2026-10-24 구현 상태 보완(`[역할: docbot-prompt]`)**: G-1 공용 공급자·회원 키와 G-2 문서 챗봇 봇 CRUD/방 선택/설정 기록 구현·운영 DB 준비, 미배포. G-2 83개 시험·타입·로컬 빌드/RLS 검사 통과, 일반 회원 Edge 검수 대기. 새 Groq/OpenRouter 키는 나중 등록 결정. G-3·G-4 후속, G-5 사전 검증 페이지 여부·NVIDIA 운영 조건 미결정. 아래 승인 대기 문구는 초기 이력이며 [최신 인수인계](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261024_G2.md)가 우선합니다.
 | 항목 | 내용 |
 |---|---|
 | 원본 | Inno Setup 6.7 → PyInstaller 단일 실행 파일(Python 3.12, PySide6/Qt6), `gemma_starter` 18 + `ui` 10개 모듈 · 200.2MB, SHA-256 `21c5afea` · `D:\PDS\Program_dev\AutoGemmaStarter-Setup-2.0.0.exe` · GPT PARK(「유튜브 정회원 전용」), 레지스트리 `HKCU\Software\GPTPARK` |

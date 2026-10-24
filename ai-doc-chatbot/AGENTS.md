@@ -1,4 +1,6 @@
-> **현재 G-1 상태(2026-10-24, Codex `codex-win-20261024-docbot-g1`): 구현·로컬 검사·운영 DB 준비 완료, 미배포(v1.07). Edge 재시도 성공: 관리자 설정·매뉴얼/공급자 선택·키 미등록 안내 확인. 일반 회원 본인 키·실제 응답·좁은 화면 검수 남음. G-2~G-5 미착수.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_G1.md). 아래 담당 이어받기 대기 문구는 구현 전 기록입니다.
+> **현재 G-2 상태(2026-10-24, 역할 `docbot-prompt`): 회원별 봇 관리·채팅방 선택·당시 설정 기록 구현, 83개 시험/타입/로컬 빌드 통과·운영 DB 추가/RLS 검사 완료. 미배포(v1.07), 일반 회원 Edge 로그인·화면/실제 AI 검수 대기.** [최신 인수인계](docs/IMPROVEMENT_HANDOFF_20261024_G2.md). 개정 공통/분야별/담당 지침 재독 완료. 아래 G-1·초기 소개는 당시 기록입니다.
+
+> **G-1 기록(2026-10-24, Codex `codex-win-20261024-docbot-g1`): 구현·로컬 검사·운영 DB 준비 완료, 미배포(v1.07). Edge 관리자 설정·매뉴얼/공급자 선택·키 미등록 안내 확인. 일반 회원 본인 키·실제 응답·좁은 화면 검수 남음.** [인수인계](docs/IMPROVEMENT_HANDOFF_20261024_G1.md). 아래 담당 이어받기 대기 문구는 구현 전 기록입니다.
 
 > **📋 담당 이어받기 대기(2026-10-24, Claude Code 윈도우 `claude-win-dotori`) — AutoGemmaStarter 2.0.0 참고 묶음:** G-1 여러 공급자(답변·라우터만, 임베딩은 Upstage 유지) · G-2·G-3 커스텀 봇 · G-4 문서 근거 보강 · G-5 로컬 Ollama(시제품). 분석·플랜 초안만, 코드 변경 없음, **범위·순서·비용 승인 전.** [인수인계](../docs/analysis-autogemma-starter-20261024/HANDOFF_20261024_DOCBOT_PROMPT.md) · [분석](../docs/analysis-autogemma-starter-20261024/REPORT.md)
 
