@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: docbot-prompt] Codex(윈도우·엣지) · 세션 `codex-win-20261025-docbot-g4` — Cloudflare 계정 식별번호·확인 직링크 정정 (미배포)
+- 주인님 「확인 링크·로그인 계정과 구분」 요청: `d2b05913b` — Cloudflare 계정 식별번호(Account ID), 로그인 이메일·비밀번호가 아닌 32자리 번호 안내/입력 예시/오류 안내. 확인 버튼은 공식 Workers & Pages `https://dash.cloudflare.com/?to=/:account/workers-and-pages`, Account Details → Account ID 복사 및 Ctrl+K 대안·공식 찾기 안내. API 키 마스킹 유지, 식별번호 입력은 글자 확인 가능.
+- 공용 기준2개·AI Prompt 사본 일치, 양쪽 타입·문서 챗봇108개 시험·로컬 빌드1회 통과. Edge 일반 회원 localhost:4311/settings의 번호 명칭/설명/입력/두 링크 주소 및 실제 표시 확인. 공식 외부 페이지의 로그인 후 실제 번호 복사는 주인님 진행 사항, 번호 등록/키 생성/유료 호출 없음. Prompt 실제 화면·좁은 화면은 미검수.
+- 문서 `bbb2f0ff6`, 양쪽 AGENTS/개선·G4 인수인계·공용 현황 갱신. 운영 v1.07/v1.09 미배포 대기·작은 수정 묶음 배포, API0원·수동 배포0회. ACTIVE_WORK 본인 행 해제, 본인 검수 서버4311 세션22291. 다음: 회원 본인 Upstage 실제 검수와 기존 G1~G4 묶음 배포. 프로그램 https://ai-doc-chatbot.buylife.xyz · https://ai-prompt.buylife.xyz (이번 안내 운영 미반영).
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.04 UX 리뉴얼
 - 한 일: 대시보드 🚀 시작하기 5단계(자동 판정·다음 할 일 버튼), 네이버 단지 화면 위 「➕ 매물 알림에 추가」(확장 `naver-button.js`), 감시 대상·팝업 단순화, 쉬운 말, 매뉴얼 5단계. 시험에서 나온 2페이지(탭 안 다음 페이지 부르기)·단지 이름(탭 제목 대신 실제 단지명)·주소 판별 수정.
 - 검수: 시험 18개·tsc·build, 배포 `realty-listing-alert-4zdi1ijp9` Ready, DB v1.04, `check-extension-release` OK, 운영 화면(시작하기 4/5·감시 대상), 주인님 크롬 네이버 화면에 「✅ 감시 중」. 미배포: 계정 대조 `3f0db7161`.
