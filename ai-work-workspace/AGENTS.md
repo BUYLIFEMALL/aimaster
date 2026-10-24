@@ -2,7 +2,7 @@
 
 - 주소: https://ai-work-workspace.buylife.xyz · 메인 상세: https://www.buylife.xyz/programs/ai-work-workspace
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
-- 현재 버전: **v1.10** (13번 스마트 프로 인디고 워크스페이스 스타일) · 대상 프로젝트: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`, 전용 스키마 `aww`)
+- 현재 버전: **v1.10** (13번 스마트 프로 인디고 워크스페이스 스타일) · **미배포 대기: `59959ec28`(767px 이하 메뉴 접기·표준 메뉴 이름·도구줄 「내 페이지」), `404c1ee85`(모델 목록 회원 키별) — 다음 배포(v1.11) 때 함께** · 버전 SQL은 v1.10까지(v1.08~v1.09 건너뜀, `20261024000900`) · 대상 프로젝트: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`, 전용 스키마 `aww`)
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
 - 개발 플랜·결정 기록: [`docs/PLAN_20261024_INITIAL_BUILD.md`](docs/PLAN_20261024_INITIAL_BUILD.md)(§7 주인님 결정, §7-1 구현 중 바뀐 결정)
 
@@ -29,6 +29,8 @@
 | 버전 | 날짜 | 내용 |
 |---|---|---|
 | v1.10 | 2026-10-24 | UI/UX 종합 리뉴얼 — 13번 「스마트 프로 인디고 워크스페이스 스타일」 전면 적용: 1) 공식 표준 2탭 로그인/회원가입 레이아웃(24px 모눈 격자·인디고 버튼), 2) 빈 페이지 온보딩 웰컴 퀵스타트 허브 4종 카드(회의록·칸반·위키·AI글쓰기), 3) 상단 툴바 퀵 액션 그룹(🔑 AI 연동 상태·📖 가이드·저장 배지), 4) 사이드바 브랜드 헤더 및 하단 유틸리티 카드 고도화, 5) 8대 표준 규격 비주얼 가이드북(/guide) 키캡 단축키 치트시트(kbd) & FAQ 5종 아코디언 인터랙션 탑재 |
+| v1.07 | 2026-10-24 | 로그인·회원가입 화면을 공식 표준 2탭(DESIGN.md 14번, 기준 `threads-comment-reply`)으로 교체, 회원가입 버튼 404(`buylife.xyz/signup`) → `/register`, 비밀번호 찾기·약관 연결, 원본 로그인 화면 대신 서버 오류 「다시 시도」 안내 — `4e717d888`·`72ad69198`, 배포(`ai-work-workspace-kyrubh4hb`) |
+| v1.06 | 2026-10-24 | U4 회원 본인 Gemini 키 연결 — 어댑터 `src/litpage/server/ai/providers/gemini.ts`·`geminiTranslate.ts`(키는 `x-goog-api-key` 머리글만, 도구 호출·생각 서명·웹 페이지 읽기, 웹 검색은 아직 제외, 한국어 오류, 한 번 재시도), 회원 키별 모델 목록 `geminiModels.ts`(기본 최신 정식 Flash·빠른 작업 Flash-Lite, 실패 시 공식 별칭 `gemini-flash-latest`), 회원이 키를 가진 회사 모델을 채팅 목록에 함께 표시하고 고른 모델의 회사 키 사용(자동은 Claude→OpenAI→Gemini, `availableProviders`·`providerForModel`), 키 화면 Gemini 칸(새 키 형식 `AQ.`도 허용), AI 채팅 기록 30일 자동 삭제 `src/server/aiRetention.ts`(매일 `/api/cron/jobs`), 슬래시 「AI 이미지」 숨김 — `60316a2d7`·`304f2ccb1`·`8dd6398e5`·`fcacdde40`·`8c269894a`, 배포(`ai-work-workspace-3l3mq5okd` → 재배포 `ai-work-workspace-3ndt12k9l`) |
 | v1.05 | 2026-10-24 | U3 회원 본인 OpenAI·Claude 키로 AI 비서 열기 — 키는 공용 표 `user_api_keys`(`anthropic` 우선, 없으면 `openai`, 회원별 60초 캐시 `src/server/memberAiKeys.ts`), Next 스트림 라우트 `/api/ai/stream`, 「🔑 API키등록·플랫폼연동」 화면 `/settings/keys` + `/api/keys`(좌측 메뉴, 📖 연동 매뉴얼 팝업), 키 없음 안내 한국어, 서버 오류 문구·AI 지시문의 AI 이름 「AI 비서」, 기본 모델 Sonnet(빠른 작업 Haiku), 당해 연도·답변 언어 기준 블록, 회의록 AI는 별도 스위치로 계속 닫힘, 외부 연결·MCP·채팅 공유·AI 그림·에이전트 계속 닫힘 — `24c8602ba`·`6be13d77c`, 배포(`ai-work-workspace-hzp7uowv1` → 수정 재배포 `ai-work-workspace-fk4ffx35l`) |
 | v1.04 | 2026-10-24 | U1 이름 바꾸기(AI 이름 「AIMaster」 → 「AI 비서」, 메뉴 이름 6종) + U2 불필요한 기능 숨기기(게시 탭·마켓플레이스·계정 화면·메일 알림·AI 그림/가짜 사진 탭·지도 보기·요금제 문구, 숨김 목록 `trimPolicy.ts`) — `1771f446f`·`04d6601b9`, 배포(`ai-work-workspace-9esamryua`) |
 | v1.03 | 2026-10-24 | 1단계 화면 보완 `2f0de2776`·`df7a628d3`·`db77b7a3b`: 회의록 블록 안내, 템플릿 10개 한국어(갤러리 버전 6), 날짜·시각 화면 언어 — 배포(`ai-work-workspace-l322zllr7`) |
