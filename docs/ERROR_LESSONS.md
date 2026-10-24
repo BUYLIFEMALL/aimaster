@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-25 — 공용 `user_api_keys` 공급자 제약에 값 하나를 더하려다, 목록을 2개로 잘못 읽어 다른 프로그램 키 종류를 모두 지울 뻔했다 (realty-listing-alert v1.08, Claude Code 윈도우 [역할: realty])
+- 증상: `ERROR 23514 check constraint "user_api_keys_provider_check" … is violated by some row` — SQL 전체가 취소돼 DB 변경은 없었다.
+- 원인: 제약 정의는 `provider = ANY ('{apify,elevenlabs,…}'::text[]) OR provider = ANY ('{…}'::text[])`처럼 **중괄호 목록 한 덩어리(여러 덩어리)**로 저장돼 있다. 따옴표 단위(`'([^']+)'`)로 읽어 「덩어리 2개」를 값 2개로 착각했다.
+- 해결: `regexp_matches(def, '\{([^}]*)\}', 'g')`로 **모든 중괄호 덩어리**를 읽고 `string_to_array(…, ',')`로 펼친 뒤 값을 더한다(2026-10-25 기준 54개). 바꾸기 전에 **기존 줄 중 새 목록 밖 값이 있으면 멈추는 검사**를 넣는다. 기준: `realty-listing-alert/supabase/migrations/20261025001000_kakao_email_delivery.sql`.
+- 다음부터 확인: 공용 제약을 다시 거는 SQL은 먼저 읽기 전용으로 「새 목록 개수」와 「목록 밖 기존 값」을 조회해 0개인지 본 뒤 쓰기 SQL을 넣는다.
+
 ## 2026-10-25 — Supabase SQL 편집기 주소 `/sql/new`가 빈 편집기가 아니라 다른 세션의 저장 안 된 초안을 열어, 내 SQL이 그 초안 문장 한가운데 끼어 들어갔다 (realty-listing-alert v1.04, Claude Code 윈도우 [역할: realty])
 - 증상: `.../sql/new`로 이동해 입력 칸을 누르고 버전 SQL을 입력했더니, 다른 세션의 「셀러 라벨·QR·서류 자동화」 등록 `insert into programs …` 초안 7번째 줄 글자 사이에 들어감. 실행·저장 전에 화면 캡처로 발견.
 - 원인: 편집기가 마지막으로 열렸던 「저장 안 된 쿼리」 탭을 다시 보여 줌(같은 주인님 계정이라 다른 세션 초안도 공유). 화면 가운데를 누르면 그 초안 중간에 커서가 놓임.

@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.08 카톡·이메일 받기
+- 한 일: 카톡 받기(요약 200자 + 결과 보기 버튼, 「카카오 자동화」에서 연결한 공용 카카오 계정 재사용)·이메일 받기(회원 본인 Resend 키 `resend_api_key`, 요약 + 엑셀 첨부) — 확장이 회원 PC에서 직접 보냄(매물은 서버를 거치지 않음), 채널별 따로 보내기, 받는 방법·API키등록 두 화면에 같은 카드(`ChannelCards`), 시험 보내기. 플랜 `realty-listing-alert/docs/PLAN_20261025_KAKAO_EMAIL.md`. 서버 `lib/notifyChannels.ts`(공용 카카오 계정 토큰 갱신·Resend 키), 확장 `extension/lib/notify.js`, 공용 컴포넌트 사본 `lib/memberIntegrations.ts` 추가(`check-shared-modules` 등록). DB `20261025001000_kakao_email_delivery.sql`(주인님 Run, `new_columns=3`·`resend_ok=true` 확인). 확장 1.8.0/v1.08(권한 `kapi.kakao.com`·`api.resend.com` 추가).
+- 주의: 공용 `user_api_keys_provider_check`는 중괄호 목록 2덩어리(54개)로 저장돼 있다 — 따옴표 단위로 읽으면 2개로 읽혀 목록이 줄어들 뻔했다(Postgres 검사로 취소, DB 변경 없음). `docs/ERROR_LESSONS.md` 2026-10-25.
+- 검수: 시험 27개·tsc·eslint·build, 배포 `realty-listing-alert-7428qs4w6` Ready, 크롬 운영 API키등록 화면에 카톡·이메일 카드 확인. 실제 카톡·메일 수신은 시험 계정 Resend 키·카카오 연결 뒤 확인(미완). v1.08 DB 버전 SQL은 SQL 편집기에 입력, 주인님 Run 대기.
+- 남은 일: 실물 수신 시험, 카톡 연결 안내 상자 여백(글자가 버튼에 붙어 보임), 이 프로그램 안 카카오 직접 연결(A안, 정식 공개 전).
+- 링크: https://realty-listing-alert.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.07 주소 추가 칸 여유 배치
 - 한 일: 주소 추가 칸 여유 배치(3단계 안내 전체 폭·주소 2:이름 1·높이 맞춤, 주인님 「우측에 여유가 있는데」). 확장 1.7.0/v1.07(내용 변경 없음, 버전 맞춤). v1.06 DB SQL은 주인님 실행 확인(v1.06·간격 규칙).
 - 검수: 배포 `realty-listing-alert-1ejwpzrcw` Ready, 크롬 운영 화면에서 넓은 배치·주소 붙여 넣기 즉시 확인(✅ 번호 2936) 확인, 예약 화면 예상 수집량(하루 2회·약 42페이지) 확인. v1.07 DB SQL은 SQL 편집기 새 탭에 입력, 주인님 Run 대기.
