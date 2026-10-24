@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-24 — 브라우저 무료 지우기(LaMa): 마스크를 `>127`로 자르면 지운 자리에 사람 모양 어두운 형체가 다시 그려졌다 (banana-canvas C-0 사전 검증 페이지, Claude Code 윈도우 이커머스·이미지 담당)
+- 증상: 인물 마스크로 지웠는데 그 자리가 배경이 아니라 흐릿한 어두운 실루엣으로 채워짐(모델 저장소 기준 결과와 마스크 안 평균 차이 44.6). WASM·WebGPU 결과가 똑같아 계산 오류가 아니었다.
+- 원인: 512로 줄인 마스크의 흐린 가장자리를 `>127`로 잘라 인물 윤곽 1~2픽셀이 「남길 곳」으로 남음 → LaMa가 그 윤곽을 이어 형체를 그림. 제작자 데모는 `(mask > 0) * 1`.
+- 해결: 마스크는 축소 뒤 `>0`(흐린 가장자리까지 지울 곳) → 차이 3.8, 깨끗이 지워짐. 엔진 기본값으로 2~4px 넓히기(dilate)를 둔다. 상세 `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md` §7.
+- 다음부터: 지우기(inpainting) 모델의 마스크는 「조금 넉넉하게」가 기본이다. 결과에 흐린 형체가 남으면 모델보다 마스크 기준·넓히기를 먼저 본다. `onnxruntime-web` 1.20.1의 WebGPU는 LaMa 연산(Add) 미지원 → 1.23.0.
+
 ## 2026-10-24 — 브라우저 무료 음성: `onnxruntime-web`을 작업자(worker)에 import하면 Turbopack이 묶음에 합쳐, 여러 줄 계산용 하위 작업자가 뜨지 않고 아무 오류 없이 멈췄다 (shorts-onestop-studio v1.42, Claude Code 윈도우 음악 담당)
 - 증상: 로컬 빌드에서 작업자 묶음 파일을 띄우자 진행률·오류가 하나도 오지 않음. 빌드 결과에 `new Worker(new URL(__TURBOPACK__import$2e$meta__.url),{type:"module",name:"em-pthread"})`가 들어 있었다.
 - 원인: 라이브러리가 하위 작업자를 「자기 파일 주소(import.meta.url)」로 띄우는데, 묶인 뒤에는 그 주소가 Turbopack 실행 준비 코드 없는 묶음 조각이라 하위 작업자가 시작하지 못함. 또 Turbopack은 `new Worker(new URL("./worker.ts", import.meta.url))`를 `turbopack-worker` 준비 파일로 띄우므로, 묶음 조각 주소로 직접 띄워 시험하면 아무 일도 안 일어난다(시험 방법도 틀림).
