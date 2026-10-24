@@ -8,6 +8,7 @@
 //   t('lp.shell.search_or_ask_here', 'Search or ask here')
 //   t('lp.shell.count_plural_one_other', '{count, plural, one {# page} other {# pages}}', { count: 3 })
 import ko from './i18n.ko-KR.json';
+import literals from './i18n.literals.ko-KR.json';
 import { setDateLocale } from '#shared/database/dates.ts';
 
 export type Locale = 'en-US' | 'ko-KR';
@@ -52,6 +53,14 @@ export function setLocale(l: string | undefined | null, opts?: { reload?: boolea
   document.documentElement.lang = next.slice(0, 2);
   if (opts?.reload) location.reload();
   return true;
+}
+
+/**
+ * 이식판(v1.15): 원본 화면에 번역 키 없이 적혀 있던 영어 문구 — 영어 원문을 그대로 열쇠로 한국어를 찾는다.
+ * 사전: i18n.literals.ko-KR.json (없는 문구는 영어 그대로)
+ */
+export function tx(s: string): string {
+  return current === 'ko-KR' ? ((literals as Record<string, string>)[s] ?? s) : s;
 }
 
 export type Values = Record<string, string | number | boolean | null | undefined>;

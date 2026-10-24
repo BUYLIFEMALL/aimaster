@@ -7,7 +7,7 @@ import { openOverlay, PopoverSurface } from '../../components/overlay.tsx';
 import { Icon } from '../../components/Icon.tsx';
 import { NO_KEY_MESSAGE, ensureAiStatus, isNoKeyError, useAiStatus } from '../ai/aiApi.ts';
 import { NoKeyNotice } from '../ai/NoKeyNotice.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { PREFILLS, STYLES, generateIntoBlock, imageSwitchOn, planIncludesImages } from './api.ts';
 import './aiImage.css';
 
@@ -84,7 +84,7 @@ export function AiImageTab({ blockId, close, generate }: { blockId?: string; clo
           }}
         />
       </div>
-      <div className="nc-aiimg-styles" role="group" aria-label="Style">
+      <div className="nc-aiimg-styles" role="group" aria-label={tx('Style')}>
         {STYLES.map((s) => (
           <button key={s.key} type="button" className="nc-aiimg-style" aria-pressed={style === s.key} disabled={busy} onMouseDown={(e) => e.preventDefault()} onClick={() => setStyle(s.key)}>
             {s.label()}

@@ -28,6 +28,7 @@ import { useViewKit } from '../../advanced/viewKit.tsx';
 import { setDashboardMode, useDashboardMode, useEffectiveView, withExtraFilters } from '../../viewState.ts';
 import { TRIM_VIEW_TYPES } from '../../../shell/trimPolicy.ts';
 import './dashboard.css';
+import { tx } from '../../../shell/i18n.ts';
 
 export interface DashboardWidget { id: string; view_id: string; /** relative width in its row (default 1) */ width?: number }
 export interface DashboardRow { id: string; height?: number; widgets: DashboardWidget[] }
@@ -74,7 +75,7 @@ export function addWidget(dashboard: CollectionViewRecord, blockId: string, coll
 function addWidgetMenu(anchor: HTMLElement, dashboard: CollectionViewRecord, blockId: string, collectionId: string, place?: { rowIndex?: number; newRowAt?: number }, after?: (id: string) => void) {
   openMenu(anchor, {
     width: 240,
-    header: <div className="nc-dash-menu-head">Add charts, tables, or lists</div>,
+    header: <div className="nc-dash-menu-head">{tx('Add charts, tables, or lists')}</div>,
     sections: [{ items: WIDGET_TYPES.map((t) => ({ id: t, label: viewTypeMeta(t).label, icon: viewIcon(t), onSelect: () => { const id = addWidget(dashboard, blockId, collectionId, t, place); if (id) after?.(id); } })) }],
   }, { placement: 'bottom-start' });
 }
@@ -114,7 +115,7 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
   const ctxValue = useMemo(() => (db ? { ...db, view: shown, bleed: { left: 0, right: 0, width: null } } : null), [db, shown]);
   const menu = (e: React.MouseEvent<HTMLElement>) => {
     const items: MenuItemDef[] = [
-      { id: 'edit', label: 'Edit view', icon: 'slidersTwo', onSelect: () => openViewSettings(e.currentTarget as HTMLElement, { block: props.block, view: wv, collection: props.collection, readOnly: props.readOnly, inline: true, onSelectView: () => undefined }) },
+      { id: 'edit', label: tx('Edit view'), icon: 'slidersTwo', onSelect: () => openViewSettings(e.currentTarget as HTMLElement, { block: props.block, view: wv, collection: props.collection, readOnly: props.readOnly, inline: true, onSelectView: () => undefined }) },
     ];
     // View mode: the widget's view settings only (its filters / sorts stay yours until saved)
     if (!editing) {
@@ -122,19 +123,19 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
       return;
     }
     items.push(
-      { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => onDuplicate(false) },
-      { id: 'dupRow', label: 'Copy into a new row', icon: 'duplicate', onSelect: () => onDuplicate(true) },
+      { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => onDuplicate(false) },
+      { id: 'dupRow', label: tx('Copy into a new row'), icon: 'duplicate', onSelect: () => onDuplicate(true) },
     );
     const moves: MenuItemDef[] = [];
-    if (index > 0) moves.push({ id: 'left', label: 'Move left', icon: 'arrowLeft', onSelect: () => onMove('left') });
-    if (index < rowCount - 1) moves.push({ id: 'right', label: 'Move right', icon: 'arrowRight', onSelect: () => onMove('right') });
-    if (rowIndex > 0) moves.push({ id: 'up', label: 'Send to the row above', icon: 'arrowUp', onSelect: () => onMove('up') });
-    if (rowIndex < rowsTotal - 1) moves.push({ id: 'down', label: 'Send to the row below', icon: 'arrowDown', onSelect: () => onMove('down') });
+    if (index > 0) moves.push({ id: 'left', label: tx('Move left'), icon: 'arrowLeft', onSelect: () => onMove('left') });
+    if (index < rowCount - 1) moves.push({ id: 'right', label: tx('Move right'), icon: 'arrowRight', onSelect: () => onMove('right') });
+    if (rowIndex > 0) moves.push({ id: 'up', label: tx('Send to the row above'), icon: 'arrowUp', onSelect: () => onMove('up') });
+    if (rowIndex < rowsTotal - 1) moves.push({ id: 'down', label: tx('Send to the row below'), icon: 'arrowDown', onSelect: () => onMove('down') });
     if (rowCount > 1) {
-      moves.push({ id: 'newAbove', label: 'Insert a row above', icon: 'rows', onSelect: () => onMove('newAbove') });
-      moves.push({ id: 'newBelow', label: 'Insert a row below', icon: 'rows', onSelect: () => onMove('newBelow') });
+      moves.push({ id: 'newAbove', label: tx('Insert a row above'), icon: 'rows', onSelect: () => onMove('newAbove') });
+      moves.push({ id: 'newBelow', label: tx('Insert a row below'), icon: 'rows', onSelect: () => onMove('newBelow') });
     }
-    openMenu(e.currentTarget, { width: 240, sections: [{ items }, ...(moves.length ? [{ items: moves }] : []), { items: [{ id: 'delete', label: 'Delete', icon: 'trash', danger: true, onSelect: onDelete }] }] }, { placement: 'bottom-end' });
+    openMenu(e.currentTarget, { width: 240, sections: [{ items }, ...(moves.length ? [{ items: moves }] : []), { items: [{ id: 'delete', label: tx('Delete'), icon: 'trash', danger: true, onSelect: onDelete }] }] }, { placement: 'bottom-end' });
   };
   return (
     <div
@@ -159,14 +160,14 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
       >
         <Icon name={viewIcon(wv.type)} size={16} color="var(--lp-icon-secondary)" />
         <span className="nc-dash-widget-title">{wv.name || viewTypeMeta(wv.type).label}</span>
-        {!props.readOnly && <div role="button" className="nc-dash-widget-more" aria-label="Widget options" data-tooltip="Widget options" onClick={menu}><Icon name="ellipsis" size={16} /></div>}
+        {!props.readOnly && <div role="button" className="nc-dash-widget-more" aria-label={tx('Widget options')} data-tooltip={tx('Widget options')} onClick={menu}><Icon name="ellipsis" size={16} /></div>}
       </div>
       <div className="nc-dash-widget-body lit-scroller vertical">
         {Comp && ctxValue ? (
           <DatabaseContext.Provider value={ctxValue}>
             <Comp block={props.block} view={shown} collection={source} readOnly={props.readOnly} />
           </DatabaseContext.Provider>
-        ) : <div className="nc-dash-empty-sub">This view type can’t be shown in a dashboard.</div>}
+        ) : <div className="nc-dash-empty-sub">{tx('This view type can’t be shown in a dashboard.')}</div>}
       </div>
     </div>
   );
@@ -335,14 +336,14 @@ function DashboardView(props: ViewProps) {
     return (
       <div className="nc-dash lit-dashboard-view" style={{ paddingInlineStart: bleed.left, paddingInlineEnd: bleed.right }}>
         <div className="nc-dash-empty" data-testid="dashboard-empty">
-          <div className="nc-dash-empty-title">Start using your dashboard</div>
-          <div className="nc-dash-empty-sub">Combine charts, tables, and lists of this data source in one place.</div>
+          <div className="nc-dash-empty-title">{tx('Start using your dashboard')}</div>
+          <div className="nc-dash-empty-sub">{tx('Combine charts, tables, and lists of this data source in one place.')}</div>
           <div className="nc-dash-cards">
             <div className="nc-dash-card disabled" onClick={() => useUI.getState().toast('AI 비서 is not available in this workspace')}><div>Ask AI 비서 to build<br />your dashboard</div><Icon name="aiFace" size={28} color="var(--lp-icon-tertiary)" /></div>
-            <div role="button" className="nc-dash-card" onClick={(e) => !readOnly && addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><div>Add charts, tables, or lists to<br />your dashboard</div><div className="nc-dash-card-art"><span><Icon name="plus" size={16} /></span><span><Icon name="donutChart" size={16} /></span><span><Icon name="chartBarXAxis" size={16} /></span></div></div>
-            <div className="nc-dash-card disabled"><div>Learn about filters across<br />multiple data sources</div><Icon name="filter" size={24} color="var(--lp-icon-tertiary)" /></div>
+            <div role="button" className="nc-dash-card" onClick={(e) => !readOnly && addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><div>{tx('Add charts, tables, or lists to')}<br />your dashboard</div><div className="nc-dash-card-art"><span><Icon name="plus" size={16} /></span><span><Icon name="donutChart" size={16} /></span><span><Icon name="chartBarXAxis" size={16} /></span></div></div>
+            <div className="nc-dash-card disabled"><div>{tx('Learn about filters across')}<br />multiple data sources</div><Icon name="filter" size={24} color="var(--lp-icon-tertiary)" /></div>
           </div>
-          {!readOnly && <div role="button" className="nc-dash-add-btn" data-testid="dashboard-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={16} />New view</div>}
+          {!readOnly && <div role="button" className="nc-dash-add-btn" data-testid="dashboard-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={16} />{tx('New view')}</div>}
         </div>
       </div>
     );
@@ -379,19 +380,19 @@ function DashboardView(props: ViewProps) {
                 onDropWidget={doDrop}
               />,
               editing && wi < r.widgets.length - 1 ? (
-                <div key={`${w.id}-w`} className="nc-dash-col-resize" role="separator" aria-label="Drag to resize" data-tooltip="Drag to resize" onPointerDown={(e) => startWidthDrag(e, ri, wi)} />
+                <div key={`${w.id}-w`} className="nc-dash-col-resize" role="separator" aria-label={tx('Drag to resize')} data-tooltip={tx('Drag to resize')} onPointerDown={(e) => startWidthDrag(e, ri, wi)} />
               ) : null,
             ])}
             {editing && r.widgets.length < MAX_PER_ROW && (
-              <div role="button" className="nc-dash-row-add" aria-label="Place in row" data-tooltip="Place in row" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { rowIndex: ri })}><Icon name="plus" size={16} /></div>
+              <div role="button" className="nc-dash-row-add" aria-label={tx('Place in row')} data-tooltip={tx('Place in row')} onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { rowIndex: ri })}><Icon name="plus" size={16} /></div>
             )}
-            {editing && <div className="nc-dash-row-resize" data-tooltip="Drag to resize" onPointerDown={(e) => startResize(e, ri)} />}
+            {editing && <div className="nc-dash-row-resize" data-tooltip={tx('Drag to resize')} onPointerDown={(e) => startResize(e, ri)} />}
           </div>,
           gap(ri + 1),
         ];
       })}
       {editing && (
-        <div role="button" className="nc-dash-newrow" aria-label="Place in a new row" data-tooltip="Place in a new row" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { newRowAt: rows.length })}><Icon name="plus" size={16} /><span>New view</span></div>
+        <div role="button" className="nc-dash-newrow" aria-label={tx('Place in a new row')} data-tooltip={tx('Place in a new row')} onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { newRowAt: rows.length })}><Icon name="plus" size={16} /><span>{tx('New view')}</span></div>
       )}
     </div>
   );
@@ -406,14 +407,14 @@ function DashboardToolbar({ block, view, collection, readOnly }: ToolbarExtraPro
   if (!editing) {
     return (
       <div className="nc-db-new-wrap">
-        <div role="button" className="nc-dash-tb-add" data-testid="dashboard-edit" onClick={() => setDashboardMode(view.id, 'edit')}><Icon name="pencil" size={14} />Edit dashboard</div>
+        <div role="button" className="nc-dash-tb-add" data-testid="dashboard-edit" onClick={() => setDashboardMode(view.id, 'edit')}><Icon name="pencil" size={14} />{tx('Edit dashboard')}</div>
       </div>
     );
   }
   return (
     <div className="nc-db-new-wrap">
-      <div role="button" className="nc-dash-tb-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={14} />New view</div>
-      <div role="button" className="nc-dash-tb-done" data-testid="dashboard-done" onClick={() => setDashboardMode(view.id, 'view')}>Done</div>
+      <div role="button" className="nc-dash-tb-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={14} />{tx('New view')}</div>
+      <div role="button" className="nc-dash-tb-done" data-testid="dashboard-done" onClick={() => setDashboardMode(view.id, 'view')}>{tx('Done')}</div>
     </div>
   );
 }

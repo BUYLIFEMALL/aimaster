@@ -13,7 +13,7 @@ import { useSession } from '../../../../lib/store/session.ts';
 import { fileSizeLabel, isValidUrl, normalizeUrl, containerWidthOf, toast } from '../shared.tsx';
 import { isAudioFile, isImageFile, isPdfFile, isVideoFile, providerByName, providerForType, providerForUrl, resolveEmbed, videoEmbedUrl } from './embedProviders.ts';
 import { AiImageTab, aiImageTabs } from '../../../aiImage/AiImageTab.tsx';
-import { t as tr } from '../../../shell/i18n.ts';
+import { t as tr, tx } from '../../../shell/i18n.ts';
 import { AI_IMAGE_STUDIO_URL, TRIM_MEDIA_TABS } from '../../../shell/trimPolicy.ts';
 
 type Tab = 'upload' | 'link' | 'unsplash' | 'giphy' | 'embed' | 'add' | 'ai';
@@ -338,7 +338,7 @@ function StockTab({ kind, onPick }: { kind: 'unsplash' | 'giphy'; onPick: (url: 
   return (
     <div className="nc-stock">
       <div className="nc-input">
-        <input autoFocus placeholder={kind === 'unsplash' ? 'Find an image…' : 'Search GIPHY…'} value={q} onChange={(e) => setQ(e.target.value)} />
+        <input autoFocus placeholder={kind === 'unsplash' ? tx('Find an image…') : tx('Search GIPHY…')} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="nc-stock-grid">
         {items.map((it) => (

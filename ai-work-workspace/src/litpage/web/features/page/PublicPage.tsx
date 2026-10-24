@@ -14,7 +14,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { PageIcon } from '../shell/PageIcon.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { usePageLoader } from './usePageLoader.ts';
 import { PageView } from './PageView.tsx';
 import { pageTitle } from './pageActions.ts';
@@ -178,8 +178,8 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
     return (
       <div className="nc-public-page">
         <div className="nc-public-message">
-          <div className="title">We couldn’t find this page</div>
-          <div className="sub">The page may not be published, or the link may have expired.</div>
+          <div className="title">{tx('We couldn’t find this page')}</div>
+          <div className="sub">{tx('The page may not be published, or the link may have expired.')}</div>
           <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.page.open_litpage', 'Open Workspace')}</button>
         </div>
       </div>
@@ -248,7 +248,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
           ))}
         </div>
         {links.length > 0 && (
-          <nav className="nc-public-nav" aria-label="Site navigation">
+          <nav className="nc-public-nav" aria-label={tx('Site navigation')}>
             {links.map((b) => (
               <div key={b.id} role="link" className={`nc-public-nav-link ${b.id === pageId ? 'current' : ''}`} onClick={() => navigate(`/public/${b.id === site?.rootId && settings?.slug ? settings.slug : b.id.replace(/-/g, '')}`)}>
                 <PageIcon block={b} size={16} />

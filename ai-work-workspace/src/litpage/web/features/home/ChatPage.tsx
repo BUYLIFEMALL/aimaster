@@ -8,6 +8,7 @@ import { ChatView } from '../ai/ChatView.tsx';
 import type { ChatMode } from '../ai/aiApi.ts';
 import { chatUrl, openChatHistory } from '../ai/ChatHistory.tsx';
 import '../ai/ai.css';
+import { tx } from '../shell/i18n.ts';
 
 export function ChatPage({ chatId }: { chatId?: string }) {
   const initialQuery = useMemo(() => {
@@ -29,15 +30,15 @@ export function ChatPage({ chatId }: { chatId?: string }) {
           <div className="nc-ai-page-actions">
             <div
               role="button"
-              aria-label="Chat history"
-              data-tooltip="Chat history"
+              aria-label={tx('Chat history')}
+              data-tooltip={tx('Chat history')}
               className="nc-btn icon-only"
               onClick={(e) => void openChatHistory(e.currentTarget, { currentId: threadId, onOpen: (id) => navigate(chatUrl(id)), onNew: () => navigate(chatUrl()) })}
             >
               <Icon name="history" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />
             </div>
             {threadId && (
-              <div role="button" aria-label="New chat" data-tooltip="New chat" className="nc-btn icon-only" onClick={() => navigate(chatUrl())}>
+              <div role="button" aria-label={tx('New chat')} data-tooltip={tx('New chat')} className="nc-btn icon-only" onClick={() => navigate(chatUrl())}>
                 <Icon name="chatBubblePlus" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />
               </div>
             )}

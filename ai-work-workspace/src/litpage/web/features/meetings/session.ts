@@ -194,8 +194,9 @@ class Controller {
 
   async pause() {
     useLive.getState().patch(this.blockId, { status: 'pausing' });
-    this.rec?.stop();
+    const rec = this.rec;
     this.rec = null;
+    await rec?.stopAndDrain();
     this.stopLocal?.();
     this.stopLocal = null;
     await this.flush();
@@ -210,6 +211,9 @@ class Controller {
 
   async stop() {
     useLive.getState().patch(this.blockId, { status: 'stopping' });
+    const rec = this.rec;
+    this.rec = null;
+    await rec?.stopAndDrain(); // 이식판(v1.15): the last sentence first, then meetingStop
     this.teardown();
     await this.flush();
     try {

@@ -141,7 +141,7 @@ describe('live transcription session', () => {
     const runs = model.transcriptRuns(rec(ids.m));
     expect(runs).toHaveLength(2);
     expect(text(runs[0].id)).toBe('Let us review the launch plan. Marketing needs the copy by Friday.');
-    expect(runs[0].format).toMatchObject({ meeting_speaker: 'Ada Lovelace’s microphone', meeting_speaker_id: ids.owner, meeting_start_ms: 0, meeting_end_ms: 4000 });
+    expect(runs[0].format).toMatchObject({ meeting_speaker: 'Ada Lovelace의 마이크', meeting_speaker_id: ids.owner, meeting_start_ms: 0, meeting_end_ms: 4000 });
     expect(runs[1].format.meeting_speaker).toBe('Speaker 2');
   });
 
@@ -153,7 +153,7 @@ describe('live transcription session', () => {
     expect(await status(() => call(ids.owner, 'meetingAppend', { blockId: ids.m, sessionId: ids.session, segments: [{ text: 'late' }] }))).toBe(409);
     await call(ids.editor, 'meetingAppend', { blockId: ids.m, sessionId: r.sessionId, segments: [{ text: 'Editor here, budget approved.', startMs: 6000, endMs: 7000 }] });
     ids.session = r.sessionId;
-    expect(model.transcriptRuns(rec(ids.m)).map((x) => x.format.meeting_speaker)).toEqual(['Ada Lovelace’s microphone', 'Speaker 2', 'Editor’s microphone']);
+    expect(model.transcriptRuns(rec(ids.m)).map((x) => x.format.meeting_speaker)).toEqual(['Ada Lovelace의 마이크', 'Speaker 2', 'Editor의 마이크']);
   });
 
   it('microphone blocked right away: Cancel undoes Start / Resume (heard lines are kept, like Pause)', async () => {
@@ -203,7 +203,7 @@ describe('summary', () => {
     off();
     expect(r.status).toBe('complete');
     const userTurn = seen[0].messages[0].content as string;
-    expect(userTurn).toContain('L1 [00:00] Ada Lovelace’s microphone: Let us review the launch plan.');
+    expect(userTurn).toContain('L1 [00:00] Ada Lovelace의 마이크: Let us review the launch plan.');
     expect(userTurn).toContain('<instructions name="Auto">');
     expect(seen[0].system[0].text).toContain('You write the summary of a meeting');
     const b = rec(ids.m);
@@ -272,7 +272,7 @@ describe('public API', () => {
     const md = await (await app.request(`/v1/pages/${ids.page}/markdown`, { headers })).json() as any;
     expect(md.markdown).toContain('## Launch plan sync');
     expect(md.markdown).toContain('### Transcript');
-    expect(md.markdown).toMatch(/\*\*Ada Lovelace’s microphone \(00:00\): \*\*Let us review/);
+    expect(md.markdown).toMatch(/\*\*Ada Lovelace의 마이크 \(00:00\): \*\*Let us review/);
   });
 });
 

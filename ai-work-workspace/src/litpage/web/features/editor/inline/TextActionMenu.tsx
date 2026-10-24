@@ -29,6 +29,7 @@ import { useSkills } from '../../ai/aiStores.ts';
 import { openPage } from '../../../lib/router.ts';
 import './icons.tsx';
 import { colorToken } from '../../../lib/colorToken.ts';
+import { tx } from '../../shell/i18n.ts';
 
 interface MenuState {
   range: TextRange | null;
@@ -385,7 +386,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
               <TBtn icon="textBold" tip="Bold" sub={`${mod}B`} pressed={has('b')} onPress={() => toggleMarkRange(r, ['b'])} />
               <TBtn icon="textItalic" tip="Italicize" sub={`${mod}I`} pressed={has('i')} onPress={() => toggleMarkRange(r, ['i'])} />
               <TBtn icon="textUnderline" tip="Underline" sub={`${mod}U`} pressed={has('_')} onPress={() => toggleMarkRange(r, ['_'])} />
-              <TBtn icon="textX" width={28} tip="Clear format" sub={`${mod}${alt}\\`} label="Clear format" onPress={() => clearFormatRange(r)} />
+              <TBtn icon="textX" width={28} tip="Clear format" sub={`${mod}${alt}\\`} label={tx('Clear format')} onPress={() => clearFormatRange(r)} />
             </div>
             <div className="nc-tam-row">
               <TBtn
@@ -415,9 +416,9 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
             <div
               role="button"
               tabIndex={0}
-              aria-label="Write a comment"
+              aria-label={tx('Write a comment')}
               className="nc-tam-comment"
-              data-tooltip="Comment"
+              data-tooltip={tx('Comment')}
               data-tooltip-sub={`${mod}${shift}M`}
               onClick={() => { hideTextMenu(); startCommentOnSelection(r.blockId, r.start, r.end, r.property); }}
             >
@@ -441,7 +442,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
             <div className="nc-tam-skills lit-scroller vertical">
               <div className="nc-tam-skills-head">
                 Skills
-                <div role="button" aria-label="Skills" className="nc-tam-icon-btn" data-tooltip="Manage skills" onClick={() => askAI(r, { skill: 'manage' })}>
+                <div role="button" aria-label={tx('Skills')} className="nc-tam-icon-btn" data-tooltip={tx('Manage skills')} onClick={() => askAI(r, { skill: 'manage' })}>
                   <Icon name="sliders" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
                 </div>
               </div>
@@ -449,7 +450,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
                 <div key={s} role="button" tabIndex={0} className="nc-tam-skill" onClick={() => askAI(r, { skill: s })}>
                   <span className="nc-ellipsis" style={{ flex: '1 1 0%', minWidth: 0 }}>{s}</span>
                   <div className="nc-tam-skill-edit">
-                    <div role="button" aria-label="Edit skill" className="nc-tam-icon-btn" data-tooltip="Edit skill" onClick={(e) => { e.stopPropagation(); askAI(r, { skill: s, edit: true } as any); }}>
+                    <div role="button" aria-label={tx('Edit skill')} className="nc-tam-icon-btn" data-tooltip={tx('Edit skill')} onClick={(e) => { e.stopPropagation(); askAI(r, { skill: s, edit: true } as any); }}>
                       <Icon name="pencilLineSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
                     </div>
                   </div>
@@ -460,7 +461,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
                   <span className="nc-ellipsis" style={{ flex: '1 1 0%', minWidth: 0 }}>{s.name}</span>
                   {s.pageId && (
                     <div className="nc-tam-skill-edit">
-                      <div role="button" aria-label="Edit skill" className="nc-tam-icon-btn" data-tooltip="Edit skill" onClick={(e) => { e.stopPropagation(); hideTextMenu(); openPage(s.pageId!); }}>
+                      <div role="button" aria-label={tx('Edit skill')} className="nc-tam-icon-btn" data-tooltip={tx('Edit skill')} onClick={(e) => { e.stopPropagation(); hideTextMenu(); openPage(s.pageId!); }}>
                         <Icon name="pencilLineSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
                       </div>
                     </div>
@@ -477,7 +478,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
               role="textbox"
               aria-multiline="true"
               rows={1}
-              placeholder="Revise with AI"
+              placeholder={tx('Revise with AI')}
               value={aiText}
               onFocus={() => { useTextMenu.setState((s) => ({ frozen: s.frozen + 1 })); }}
               onBlur={() => { useTextMenu.setState((s) => ({ frozen: Math.max(0, s.frozen - 1) })); }}

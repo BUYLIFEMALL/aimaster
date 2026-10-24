@@ -16,6 +16,7 @@ import {
 import { ChartSettingsMain } from './ChartSettings.tsx';
 import { openChartDrilldown } from './ChartDrilldown.tsx';
 import './chart.css';
+import { tx } from '../../../shell/i18n.ts';
 
 let measureCtx: CanvasRenderingContext2D | null = null;
 function textWidth(s: string, px = 12, weight = 400): number {
@@ -180,7 +181,7 @@ function CategoryChart({ data: all, cfg, width, height, hasOptionColors, stackHa
   };
 
   return (
-    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="Chart">
+    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label={tx('Chart')}>
       <defs>
         {(isLine ? (stacked ? data.series : [{ key: 'main' }]) : []).map((s, i) => (
           <linearGradient key={s.key} id={`nc-chart-fill-${i}`} x1="0" x2="0" y1="0" y2="1">
@@ -330,7 +331,7 @@ function BarChart({ data: all, cfg, width, height, hasOptionColors, onTip, onPic
     onTip({ x: e.clientX - box.left, y: e.clientY - box.top, title: p.label, lines: stacked ? (p.parts ?? []).filter((s) => s.value).map((s) => ({ label: s.label, value: s.display })) : [{ label: data.yName, value: p.display }] });
   };
   return (
-    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="Chart">
+    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label={tx('Chart')}>
       {(grid === 'horizontal' || grid === 'both') && Array.from({ length: n + 1 }, (_, i) => <line key={`g${i}`} x1={left} x2={left + plotW} y1={top + slot * i} y2={top + slot * i} className="nc-chart-grid" />)}
       {(grid === 'vertical' || grid === 'both') && ticks.map((t, i) => <line key={`v${i}`} x1={x(t)} x2={x(t)} y1={top} y2={top + plotH} className="nc-chart-grid" />)}
       <line x1={x0} x2={x0} y1={top} y2={top + plotH} className="nc-chart-axis" />
@@ -403,7 +404,7 @@ function DonutChart({ data, cfg, width, height, hasOptionColors, onTip, onPick, 
   const pctText = (f: number) => `${Math.round(f * 1000) / 10}%`;
   const label = (p: ChartPoint, f: number) => (labelsMode === 'name' ? p.label : labelsMode === 'name_and_value' ? `${p.label}: ${p.display} (${pctText(f)})` : `${p.display} (${pctText(f)})`);
   return (
-    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="Chart">
+    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label={tx('Chart')}>
       {arcs.map(({ p, i, a0: s, a1: e, frac }) => {
         const mid = (s + e) / 2;
         const lx1 = cx + (outer + 6) * Math.cos(mid);
@@ -508,7 +509,7 @@ function ChartView(props: ViewProps) {
   let body: ReactNode;
   if (data.kind === 'error') body = <div className="nc-chart-error" style={{ height }}>{data.error}</div>;
   else if (cfg.type === 'number') body = <NumberChart data={data} cfg={cfg} height={height} />;
-  else if (!kit.rows.length || !data.points.length) body = <div className="nc-chart-error" style={{ height }}>No data</div>;
+  else if (!kit.rows.length || !data.points.length) body = <div className="nc-chart-error" style={{ height }}>{tx('No data')}</div>;
   else {
     const p: ChartProps = { data, cfg, width, height, hasOptionColors, stackHasOptionColors, onTip: setTip, onPick, svgRef, legendOff, onLegend };
     body = cfg.type === 'bar' ? <BarChart {...p} /> : cfg.type === 'donut' ? <DonutChart {...p} /> : <CategoryChart {...p} />;
@@ -528,7 +529,7 @@ function ChartView(props: ViewProps) {
                 <span className="val">{l.value}</span>
               </div>
             ))}
-            <div className="nc-chart-tip-hint">Click to inspect data</div>
+            <div className="nc-chart-tip-hint">{tx('Click to inspect data')}</div>
           </div>
         )}
       </div>

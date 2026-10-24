@@ -14,6 +14,7 @@ import { getBlock, run, setTitle } from '../../../lib/blocks.ts';
 import { useEditor } from '../editorState.ts';
 import { registerBlockMenu } from './registry.ts';
 import { BlockPlaceholder, blockElement } from './shared.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 const PLACEHOLDER = '|x| = \\begin{cases}             \n  x, &\\quad x \\geq 0 \\\\           \n -x, &\\quad x < 0             \n\\end{cases}';
 
@@ -120,7 +121,7 @@ function EquationBlock({ block, readOnly }: BlockProps) {
   if (!expr.trim() && !editing) {
     return (
       <div className="nc-bpad">
-        <BlockPlaceholder block={block} readOnly={readOnly} icon="texTintable" label="Insert a TeX formula" onOpen={(el) => openEquationEditor(block.id, el)} />
+        <BlockPlaceholder block={block} readOnly={readOnly} icon="texTintable" label={tx('Insert a TeX formula')} onOpen={(el) => openEquationEditor(block.id, el)} />
       </div>
     );
   }
@@ -150,5 +151,5 @@ registerBlock(['equation'], EquationBlock);
 
 registerBlockMenu(['equation'], ({ block, turnInto }) => [
   turnInto,
-  { label: 'Edit equation', icon: 'texTintable', onSelect: () => { const el = blockElement(block.id)?.querySelector('.nc-equation-2, .nc-blk-placeholder') as HTMLElement | null; if (el) setTimeout(() => openEquationEditor(block.id, el), 0); } },
+  { label: tx('Edit equation'), icon: 'texTintable', onSelect: () => { const el = blockElement(block.id)?.querySelector('.nc-equation-2, .nc-blk-placeholder') as HTMLElement | null; if (el) setTimeout(() => openEquationEditor(block.id, el), 0); } },
 ]);

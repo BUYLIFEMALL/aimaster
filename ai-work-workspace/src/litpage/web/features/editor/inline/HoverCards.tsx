@@ -24,6 +24,7 @@ import { groupOf } from '../atoms.ts';
 import { Avatar } from './MentionMenus.tsx';
 import { Icon } from '../../../components/Icon.tsx';
 import { useUI } from '../../../lib/store/ui.ts';
+import { tx } from '../../shell/i18n.ts';
 
 interface PageHover {
   pageId: string;
@@ -104,16 +105,16 @@ export function LinkMentionCard() {
         <div className="nc-lm-hover-url nc-ellipsis">{v.href}</div>
       </div>
       <div className="nc-lm-hover-actions">
-        <div role="button" className="nc-lm-hover-btn" aria-label="Copy link" onClick={() => { void navigator.clipboard?.writeText(v.href); useUI.getState().toast('Link copied'); close(); }}>
+        <div role="button" className="nc-lm-hover-btn" aria-label={tx('Copy link')} onClick={() => { void navigator.clipboard?.writeText(v.href); useUI.getState().toast('Link copied'); close(); }}>
           <Icon name="docOnDoc" size={14} />Copy link
         </div>
         {hover.editable && (
-          <div role="button" className="nc-lm-hover-btn" aria-label="Reload mention" onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.refreshLinkMention(range.blockId, range.property, range.start, v.href)); }}>
+          <div role="button" className="nc-lm-hover-btn" aria-label={tx('Reload mention')} onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.refreshLinkMention(range.blockId, range.property, range.start, v.href)); }}>
             <Icon name="refresh" size={14} />Reload mention
           </div>
         )}
         {hover.editable && (
-          <div role="button" className="nc-lm-hover-btn" aria-label="Change to preview" onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.replaceRangeWithBlock(range, 'bookmark', undefined, v.href)); }}>
+          <div role="button" className="nc-lm-hover-btn" aria-label={tx('Change to preview')} onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.replaceRangeWithBlock(range, 'bookmark', undefined, v.href)); }}>
             <Icon name="bookmark" size={14} />Change to preview
           </div>
         )}

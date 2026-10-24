@@ -32,6 +32,7 @@ import { REMINDER_OPTIONS_DATE, canRestrictProperty, hasPropertyRule, subitemCon
 import './properties.css';
 import { openNestedMenu } from '../menus.ts';
 import { autofillMenuItems, createAutofillProperty } from '../../ai/autofillUi.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 export interface PropMenuContext {
   collectionId: string;
@@ -96,32 +97,32 @@ export function calculateMenuDef(prop: PropertySchema, current: string, pick: (a
   const countAggs = isCheckbox ? ['count', 'checked', 'unchecked'] : ['count', 'count_values', 'unique', 'empty', 'not_empty'];
   const pctAggs = isCheckbox ? ['percent_checked', 'percent_unchecked'] : ['percent_empty', 'percent_not_empty'];
   const items: MenuItemDef[] = [
-    { id: 'none', label: 'None', checked: !current || current === 'none', onSelect: () => pick('none') },
+    { id: 'none', label: tx('None'), checked: !current || current === 'none', onSelect: () => pick('none') },
     {
-      id: 'count', label: 'Count', checked: countAggs.includes(current), submenu: () => ({
+      id: 'count', label: tx('Count'), checked: countAggs.includes(current), submenu: () => ({
         width: 250,
         sections: [
-          ...(opts?.limitToggle ? [{ items: [{ id: 'limit', label: 'Display large counts as 99+', description: 'This improves performance for large tables.', right: <Toggle on={opts.limitToggle.on} />, onSelect: () => { opts.limitToggle!.set(!opts.limitToggle!.on); return false; } }] }] : []),
+          ...(opts?.limitToggle ? [{ items: [{ id: 'limit', label: tx('Display large counts as 99+'), description: tx('This improves performance for large tables.'), right: <Toggle on={opts.limitToggle.on} />, onSelect: () => { opts.limitToggle!.set(!opts.limitToggle!.on); return false; } }] }] : []),
           { items: bucketItems(countAggs, current, pick) },
         ],
       }),
     },
-    { id: 'percent', label: 'Percent', checked: pctAggs.includes(current), submenu: () => ({ width: 250, sections: [{ items: bucketItems(pctAggs, current, pick) }] }) },
+    { id: 'percent', label: tx('Percent'), checked: pctAggs.includes(current), submenu: () => ({ width: 250, sections: [{ items: bucketItems(pctAggs, current, pick) }] }) },
   ];
   if (prop.type === 'status') {
     const groups = (prop.groups ?? []) as StatusGroup[];
     items.push({
-      id: 'per_group', label: 'Per group', submenu: () => ({
+      id: 'per_group', label: tx('Per group'), submenu: () => ({
         width: 250,
         sections: [
-          { title: 'Count per group', items: groups.map((g) => ({ id: `c:${g.id}`, label: g.name, onSelect: () => pick({ operator: 'count_per_group', groupName: g.name }) })) },
-          { title: 'Percent per group', items: groups.map((g) => ({ id: `p:${g.id}`, label: g.name, onSelect: () => pick({ operator: 'percent_per_group', groupName: g.name }) })) },
+          { title: tx('Count per group'), items: groups.map((g) => ({ id: `c:${g.id}`, label: g.name, onSelect: () => pick({ operator: 'count_per_group', groupName: g.name }) })) },
+          { title: tx('Percent per group'), items: groups.map((g) => ({ id: `p:${g.id}`, label: g.name, onSelect: () => pick({ operator: 'percent_per_group', groupName: g.name }) })) },
         ],
       }),
     });
   }
-  if (isDate) items.push({ id: 'date', label: 'Date', checked: ['earliest_date', 'latest_date', 'date_range'].includes(current), submenu: () => ({ width: 250, sections: [{ items: bucketItems(['earliest_date', 'latest_date', 'date_range'], current, pick) }] }) });
-  if (isNumber) items.push({ id: 'more', label: 'More options', checked: ['sum', 'average', 'median', 'min', 'max', 'range'].includes(current), submenu: () => ({ width: 250, sections: [{ items: bucketItems(['sum', 'average', 'median', 'min', 'max', 'range'], current, pick) }] }) });
+  if (isDate) items.push({ id: 'date', label: tx('Date'), checked: ['earliest_date', 'latest_date', 'date_range'].includes(current), submenu: () => ({ width: 250, sections: [{ items: bucketItems(['earliest_date', 'latest_date', 'date_range'], current, pick) }] }) });
+  if (isNumber) items.push({ id: 'more', label: tx('More options'), checked: ['sum', 'average', 'median', 'min', 'max', 'range'].includes(current), submenu: () => ({ width: 250, sections: [{ items: bucketItems(['sum', 'average', 'median', 'min', 'max', 'range'], current, pick) }] }) });
   return { width: 200, sections: [{ items }] };
 }
 
@@ -185,10 +186,10 @@ function DateFlyout({ collectionId, propId, prop, timeOnly }: { collectionId: st
   const reminder = prop.default_reminder as any;
   return (
     <div className="nc-menu-section">
-      <FlyRow icon="viewCalendar" label="Date format" value={DATE_FORMATS.find((f) => f.id === df)?.label ?? 'Full date'} onClick={(e) => dropdown(e.currentTarget, DATE_FORMATS.map((f) => ({ id: f.id, label: f.label, checked: df === f.id, onSelect: () => updateProperty(collectionId, propId, { date_format: f.id }) })))} />
-      <FlyRow icon="clock" label="Time format" value={TIME_FORMATS.find((f) => f.id === timeFormatId(tf))?.label} onClick={(e) => dropdown(e.currentTarget, TIME_FORMATS.map((f) => ({ id: f.id, label: f.label, checked: timeFormatId(tf) === f.id, onSelect: () => updateProperty(collectionId, propId, { time_format: f.stored }) })))} />
+      <FlyRow icon="viewCalendar" label={tx('Date format')} value={DATE_FORMATS.find((f) => f.id === df)?.label ?? 'Full date'} onClick={(e) => dropdown(e.currentTarget, DATE_FORMATS.map((f) => ({ id: f.id, label: f.label, checked: df === f.id, onSelect: () => updateProperty(collectionId, propId, { date_format: f.id }) })))} />
+      <FlyRow icon="clock" label={tx('Time format')} value={TIME_FORMATS.find((f) => f.id === timeFormatId(tf))?.label} onClick={(e) => dropdown(e.currentTarget, TIME_FORMATS.map((f) => ({ id: f.id, label: f.label, checked: timeFormatId(tf) === f.id, onSelect: () => updateProperty(collectionId, propId, { time_format: f.stored }) })))} />
       {!timeOnly && (
-        <FlyRow icon="alarm" label="Notifications" value={reminderLabel(reminder, false)} onClick={(e) => dropdown(e.currentTarget, REMINDER_OPTIONS_DATE.map((o, i) => ({ id: String(i), label: reminderLabel(o as any, false), checked: JSON.stringify(o) === JSON.stringify(reminder ?? { unit: 'none' }), onSelect: () => updateProperty(collectionId, propId, { default_reminder: o.unit === 'none' ? undefined : o }) })))} />
+        <FlyRow icon="alarm" label={tx('Notifications')} value={reminderLabel(reminder, false)} onClick={(e) => dropdown(e.currentTarget, REMINDER_OPTIONS_DATE.map((o, i) => ({ id: String(i), label: reminderLabel(o as any, false), checked: JSON.stringify(o) === JSON.stringify(reminder ?? { unit: 'none' }), onSelect: () => updateProperty(collectionId, propId, { default_reminder: o.unit === 'none' ? undefined : o }) })))} />
       )}
     </div>
   );
@@ -204,16 +205,16 @@ function NumberFlyout({ collectionId, propId, prop }: { collectionId: string; pr
   return (
     <>
       <div className="nc-menu-section">
-        <FlyRow label="Number format" value={fmtLabel(NUMBER_FORMATS.find((f) => f.id === fmt) ?? NUMBER_FORMATS[0])} onClick={(e) => openNestedMenu(e.currentTarget, { width: 192, search: 'Filter formats…', maxHeight: 600, sections: [{ items: NUMBER_FORMATS.map((f) => ({ id: f.id, label: fmtLabel(f), onSelect: () => updateProperty(collectionId, propId, { number_format: f.id }) })) }] }, { placement: 'right-start', parent: overlayIdOf(e.currentTarget) })} />
-        <FlyRow label="Decimal places" value={prec === 'precision_uncapped' ? 'Default' : NUMBER_PRECISIONS.find((p) => p.id === prec)?.digits} onClick={(e) => dropdown(e.currentTarget, NUMBER_PRECISIONS.map((p) => ({ id: p.id, label: p.digits === null ? 'Default' : String(p.digits), checked: prec === p.id, onSelect: () => updateProperty(collectionId, propId, { number_precision: p.id }) })))} />
+        <FlyRow label={tx('Number format')} value={fmtLabel(NUMBER_FORMATS.find((f) => f.id === fmt) ?? NUMBER_FORMATS[0])} onClick={(e) => openNestedMenu(e.currentTarget, { width: 192, search: 'Filter formats…', maxHeight: 600, sections: [{ items: NUMBER_FORMATS.map((f) => ({ id: f.id, label: fmtLabel(f), onSelect: () => updateProperty(collectionId, propId, { number_format: f.id }) })) }] }, { placement: 'right-start', parent: overlayIdOf(e.currentTarget) })} />
+        <FlyRow label={tx('Decimal places')} value={prec === 'precision_uncapped' ? 'Default' : NUMBER_PRECISIONS.find((p) => p.id === prec)?.digits} onClick={(e) => dropdown(e.currentTarget, NUMBER_PRECISIONS.map((p) => ({ id: p.id, label: p.digits === null ? 'Default' : String(p.digits), checked: prec === p.id, onSelect: () => updateProperty(collectionId, propId, { number_precision: p.id }) })))} />
       </div>
       <div className="nc-menu-section with-divider">
-        <div className="nc-menu-section-title">Show as</div>
+        <div className="nc-menu-section-title">{tx('Show as')}</div>
         <div className="nc-show-as-tiles">
           {[
-            { id: 'number', label: 'Number', preview: <span className="nc-show-as-42">42</span> },
-            { id: 'bar', label: 'Bar', preview: <span className="nc-show-as-bar"><span /></span> },
-            { id: 'ring', label: 'Ring', preview: <svg width={20} height={20} viewBox="0 0 20 20"><circle cx={10} cy={10} r={7} fill="none" stroke="var(--lp-border-primary-transparent)" strokeWidth={3} /><circle cx={10} cy={10} r={7} fill="none" stroke="currentColor" strokeWidth={3} strokeDasharray="22 44" transform="rotate(-90 10 10)" /></svg> },
+            { id: 'number', label: tx('Number'), preview: <span className="nc-show-as-42">42</span> },
+            { id: 'bar', label: tx('Bar'), preview: <span className="nc-show-as-bar"><span /></span> },
+            { id: 'ring', label: tx('Ring'), preview: <svg width={20} height={20} viewBox="0 0 20 20"><circle cx={10} cy={10} r={7} fill="none" stroke="var(--lp-border-primary-transparent)" strokeWidth={3} /><circle cx={10} cy={10} r={7} fill="none" stroke="currentColor" strokeWidth={3} strokeDasharray="22 44" transform="rotate(-90 10 10)" /></svg> },
           ].map((tile) => (
             <div key={tile.id} role="button" className={`nc-show-as-tile ${mode === tile.id ? 'selected' : ''}`} onClick={() => (tile.id === 'number' ? updateProperty(collectionId, propId, { show_as: undefined }) : setShow({ type: tile.id }))}>
               <div className="nc-show-as-preview">{tile.preview}</div>
@@ -224,7 +225,7 @@ function NumberFlyout({ collectionId, propId, prop }: { collectionId: string; pr
         {mode !== 'number' && (
           <div className="nc-show-as-settings" data-menu-keys="ignore">
             <div className="nc-show-as-row">
-              <span>Color</span>
+              <span>{tx('Color')}</span>
               <span role="button" className="nc-show-as-color" onClick={(e) => dropdown(e.currentTarget, OPTION_COLORS.filter((c) => c !== 'default').map((c) => ({ id: c, label: COLOR_LABELS[c], icon: <ColorSwatch color={c} />, checked: (showAs?.color ?? 'green') === c, onSelect: () => setShow({ color: c }) })), { width: 190 })}>
                 <ColorSwatch color={showAs?.color ?? 'green'} />
                 {COLOR_LABELS[(showAs?.color ?? 'green') as keyof typeof COLOR_LABELS] ?? 'Green'}
@@ -232,16 +233,16 @@ function NumberFlyout({ collectionId, propId, prop }: { collectionId: string; pr
               </span>
             </div>
             <div className="nc-show-as-row">
-              <span>Divide by</span>
+              <span>{tx('Divide by')}</span>
               <span className="nc-input nc-show-as-divide"><input defaultValue={String(showAs?.maxValue ?? 100)} onBlur={(e) => { const n = Number(e.target.value); if (Number.isFinite(n) && n > 0) setShow({ maxValue: n }); }} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} /></span>
             </div>
             <div className="nc-show-as-row">
-              <span>Show number</span>
+              <span>{tx('Show number')}</span>
               <Toggle on={showAs?.showValue !== false} onChange={(v) => setShow({ showValue: v })} />
             </div>
           </div>
         )}
-        <div className="nc-fly-footnote">Changes apply to all layouts showing this field.</div>
+        <div className="nc-fly-footnote">{tx('Changes apply to all layouts showing this field.')}</div>
       </div>
     </>
   );
@@ -272,11 +273,11 @@ export function optionEditMenuDef(collectionId: string, propId: string, prop: Pr
     sections: [
       {
         items: [
-          { id: 'delete', label: 'Delete', icon: 'trash', onSelect: () => deleteOption(collectionId, propId, option.id) },
+          { id: 'delete', label: tx('Delete'), icon: 'trash', onSelect: () => deleteOption(collectionId, propId, option.id) },
           ...(isStatus ? [
-            { id: 'default', label: 'Set as default', icon: 'flag', disabled: prop.defaultOption === option.value, onSelect: () => updateProperty(collectionId, propId, { defaultOption: option.value }) },
+            { id: 'default', label: tx('Set as default'), icon: 'flag', disabled: prop.defaultOption === option.value, onSelect: () => updateProperty(collectionId, propId, { defaultOption: option.value }) },
             {
-              id: 'group', label: 'Group', icon: 'checkmarkSquare', right: <span className="nc-menu-value">{curGroup?.name ?? ''}</span>,
+              id: 'group', label: tx('Group'), icon: 'checkmarkSquare', right: <span className="nc-menu-value">{curGroup?.name ?? ''}</span>,
               submenu: () => ({ width: 200, sections: [{ items: groups.map((g) => ({ id: g.id, label: g.name, checked: g.id === curGroup?.id, onSelect: () => {
                 const next = groups.map((x) => ({ ...x, optionIds: (x.optionIds ?? []).filter((id) => id !== option.id) }));
                 next.find((x) => x.id === g.id)!.optionIds.push(option.id);
@@ -287,7 +288,7 @@ export function optionEditMenuDef(collectionId: string, propId: string, prop: Pr
         ],
       },
       {
-        title: 'Colors',
+        title: tx('Colors'),
         items: OPTION_COLORS.map((c) => ({ id: c, label: COLOR_LABELS[c], icon: <ColorSwatch color={c} />, checked: (option.color ?? 'default') === c, onSelect: () => { updateOption(collectionId, propId, option.id, { color: c }); } })),
       },
     ],
@@ -346,7 +347,7 @@ function OptionsFlyout({ collectionId, propId, prop }: { collectionId: string; p
       <div className="nc-menu-item-inner">
         <span className="nc-option-drag"><Icon name="dragHandle" size={14} /></span>
         <div className="nc-menu-label">{isStatus ? <StatusPill option={o} /> : <OptionPill option={o} />}</div>
-        {isStatus && prop.defaultOption === o.value && <span className="nc-option-default">Default</span>}
+        {isStatus && prop.defaultOption === o.value && <span className="nc-option-default">{tx('Default')}</span>}
         <Icon name="arrowChevronSingleRightSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
       </div>
     </div>
@@ -355,7 +356,7 @@ function OptionsFlyout({ collectionId, propId, prop }: { collectionId: string; p
   const adder = (groupId?: string) => adding === (groupId ?? '') && (
     <div className="nc-option-add-input" data-menu-keys="ignore">
       <div className="nc-input focused">
-        <input autoFocus placeholder="Type a new option…" value={newName} onChange={(e) => setNewName(e.target.value)} onBlur={() => create(groupId)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); create(groupId); setAdding(groupId ?? ''); } if (e.key === 'Escape') { e.preventDefault(); setAdding(null); } }} />
+        <input autoFocus placeholder={tx('Type a new option…')} value={newName} onChange={(e) => setNewName(e.target.value)} onBlur={() => create(groupId)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); create(groupId); setAdding(groupId ?? ''); } if (e.key === 'Escape') { e.preventDefault(); setAdding(null); } }} />
       </div>
     </div>
   );
@@ -367,7 +368,7 @@ function OptionsFlyout({ collectionId, propId, prop }: { collectionId: string; p
           <div key={g.id} className={`nc-menu-section ${gi ? 'with-divider' : ''}`}>
             <div className="nc-menu-section-title nc-options-title">
               <span>{g.name}</span>
-              <span role="button" className="nc-options-add" aria-label="Create an option" onClick={() => { setAdding(g.id); setNewName(''); }}><Icon name="plus" size={14} /></span>
+              <span role="button" className="nc-options-add" aria-label={tx('Create an option')} onClick={() => { setAdding(g.id); setNewName(''); }}><Icon name="plus" size={14} /></span>
             </div>
             {adder(g.id)}
             {(g.optionIds ?? []).map((id) => options.find((o) => o.id === id)).filter(Boolean).map((o) => row(o!))}
@@ -379,23 +380,23 @@ function OptionsFlyout({ collectionId, propId, prop }: { collectionId: string; p
   return (
     <>
       <div className="nc-menu-section">
-        <FlyRow icon="arrowUpDown" label="Sort" value={sortMode === 'alphabetical' ? 'Alphabetical' : sortMode === 'reverse_alphabetical' ? 'Reverse alphabetical' : 'Manual'} onClick={(e) => dropdown(e.currentTarget, [
-          { id: 'manual', label: 'Manual', checked: sortMode === 'manual', onSelect: () => updateProperty(collectionId, propId, { option_sort: 'manual' }) },
-          { id: 'az', label: 'Alphabetical', checked: sortMode === 'alphabetical', onSelect: () => { const sorted = [...options].sort((a, b) => a.value.localeCompare(b.value)); reorderOptions(collectionId, propId, sorted.map((o) => o.id)); updateProperty(collectionId, propId, { option_sort: 'alphabetical' }); } },
-          { id: 'za', label: 'Reverse alphabetical', checked: sortMode === 'reverse_alphabetical', onSelect: () => { const sorted = [...options].sort((a, b) => b.value.localeCompare(a.value)); reorderOptions(collectionId, propId, sorted.map((o) => o.id)); updateProperty(collectionId, propId, { option_sort: 'reverse_alphabetical' }); } },
+        <FlyRow icon="arrowUpDown" label={tx('Sort')} value={sortMode === 'alphabetical' ? 'Alphabetical' : sortMode === 'reverse_alphabetical' ? tx('Reverse alphabetical') : tx('Manual')} onClick={(e) => dropdown(e.currentTarget, [
+          { id: 'manual', label: tx('Manual'), checked: sortMode === 'manual', onSelect: () => updateProperty(collectionId, propId, { option_sort: 'manual' }) },
+          { id: 'az', label: tx('Alphabetical'), checked: sortMode === 'alphabetical', onSelect: () => { const sorted = [...options].sort((a, b) => a.value.localeCompare(b.value)); reorderOptions(collectionId, propId, sorted.map((o) => o.id)); updateProperty(collectionId, propId, { option_sort: 'alphabetical' }); } },
+          { id: 'za', label: tx('Reverse alphabetical'), checked: sortMode === 'reverse_alphabetical', onSelect: () => { const sorted = [...options].sort((a, b) => b.value.localeCompare(a.value)); reorderOptions(collectionId, propId, sorted.map((o) => o.id)); updateProperty(collectionId, propId, { option_sort: 'reverse_alphabetical' }); } },
         ])} />
       </div>
       <div className="nc-menu-section with-divider">
         <div className="nc-menu-section-title nc-options-title">
-          <span>Options</span>
-          <span role="button" className="nc-options-add" aria-label="Create an option" onClick={() => { setAdding(''); setNewName(''); }}><Icon name="plus" size={14} /></span>
+          <span>{tx('Options')}</span>
+          <span role="button" className="nc-options-add" aria-label={tx('Create an option')} onClick={() => { setAdding(''); setNewName(''); }}><Icon name="plus" size={14} /></span>
         </div>
         {adder()}
         {options.map(row)}
-        {!options.length && adding === null && <div className="nc-options-empty">No options</div>}
+        {!options.length && adding === null && <div className="nc-options-empty">{tx('No options')}</div>}
       </div>
       <div className="nc-menu-section with-divider">
-        <div role="menuitem" className="nc-menu-item disabled"><div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="aiFace" size={20} /></div><div className="nc-menu-label">Generate with AI</div></div></div>
+        <div role="menuitem" className="nc-menu-item disabled"><div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="aiFace" size={20} /></div><div className="nc-menu-label">{tx('Generate with AI')}</div></div></div>
       </div>
     </>
   );
@@ -419,13 +420,13 @@ function IdFlyout({ collectionId, propId, prop }: { collectionId: string; propId
   return (
     <div className="nc-menu-section nc-id-flyout" data-menu-keys="ignore">
       <div className="nc-id-prefix-row">
-        <span className="nc-id-prefix-label">Prefix</span>
+        <span className="nc-id-prefix-label">{tx('Prefix')}</span>
         <span className="nc-input"><input placeholder={suggestion} value={prefix} data-testid="id-prefix" onChange={(e) => { setError(''); setPrefix(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 10)); }} onKeyDown={(e) => { if (e.key === 'Enter') apply(); }} /></span>
       </div>
       <div className="nc-id-preview">{`${shown}-1, ${shown}-2, ${shown}-3, …`}</div>
       {error && <div className="nc-id-error" role="alert">{error}</div>}
       <div role="button" className="nc-btn primary nc-id-apply" data-testid="id-prefix-apply" onClick={apply}>
-        <Icon name="plus" size={14} />{prop.prefix ? 'Update ID Prefix' : 'Create ID prefix'}
+        <Icon name="plus" size={14} />{prop.prefix ? tx('Update ID Prefix') : tx('Create ID prefix')}
       </div>
     </div>
   );
@@ -438,17 +439,17 @@ function LimitFlyout({ collectionId, propId, prop, kind }: { collectionId: strin
   const limit = prop.limit === 1 ? 1 : 0;
   return (
     <div className="nc-menu-section">
-      <FlyRow icon="numbers123" label="Limit" value={limit ? `1 ${kind === 'person' ? 'person' : 'file'}` : 'No limit'} onClick={(e) => dropdown(e.currentTarget, [
-        { id: 'none', label: 'No limit', checked: !limit, onSelect: () => updateProperty(collectionId, propId, { limit: undefined }) },
+      <FlyRow icon="numbers123" label={tx('Limit')} value={limit ? `1 ${kind === 'person' ? 'person' : 'file'}` : 'No limit'} onClick={(e) => dropdown(e.currentTarget, [
+        { id: 'none', label: tx('No limit'), checked: !limit, onSelect: () => updateProperty(collectionId, propId, { limit: undefined }) },
         { id: 'one', label: `1 ${kind === 'person' ? 'person' : 'file'}`, checked: limit === 1, onSelect: () => updateProperty(collectionId, propId, { limit: 1 }) },
       ])} />
       {kind === 'person' && (
         <>
-          <FlyRow icon="personCircle" label="Default" value={prop.default === 'created_by' ? 'Created by' : 'No default'} onClick={(e) => dropdown(e.currentTarget, [
-            { id: 'none', label: 'No default', checked: prop.default !== 'created_by', onSelect: () => updateProperty(collectionId, propId, { default: undefined }) },
-            { id: 'cb', label: 'Created by', checked: prop.default === 'created_by', onSelect: () => updateProperty(collectionId, propId, { default: 'created_by' }) },
+          <FlyRow icon="personCircle" label={tx('Default')} value={prop.default === 'created_by' ? tx('Created by') : tx('No default')} onClick={(e) => dropdown(e.currentTarget, [
+            { id: 'none', label: tx('No default'), checked: prop.default !== 'created_by', onSelect: () => updateProperty(collectionId, propId, { default: undefined }) },
+            { id: 'cb', label: tx('Created by'), checked: prop.default === 'created_by', onSelect: () => updateProperty(collectionId, propId, { default: 'created_by' }) },
           ])} />
-          <FlyRow icon="bell" label="Notifications" value={NOTIFY_LABEL[(prop.notification_mode as string | undefined) ?? 'users'] ?? 'Users only'} onClick={(e) => dropdown(e.currentTarget, (['users_and_groups', 'users', 'none'] as const).map((m) => ({
+          <FlyRow icon="bell" label={tx('Notifications')} value={NOTIFY_LABEL[(prop.notification_mode as string | undefined) ?? 'users'] ?? 'Users only'} onClick={(e) => dropdown(e.currentTarget, (['users_and_groups', 'users', 'none'] as const).map((m) => ({
             id: m, label: NOTIFY_LABEL[m], checked: ((prop.notification_mode as string | undefined) ?? 'users') === m, onSelect: () => updateProperty(collectionId, propId, { notification_mode: m === 'users' ? undefined : m }),
           })))} />
         </>
@@ -465,10 +466,10 @@ function ComputedFallbackFlyout({ collectionId, propId, prop }: { collectionId: 
     const all = records.all<CollectionRecord>('collection').filter((x) => x.alive !== false);
     return (
       <div className="nc-menu-section">
-        <FlyRow icon="arrowDiagonalUpRight" label="Related to" value={target ? toPlainText(target.name as any) || 'Untitled' : 'Select'} onClick={(e) => dropdown(e.currentTarget, all.map((x) => ({ id: x.id, label: toPlainText(x.name as any) || 'Untitled', checked: x.id === target?.id, onSelect: () => updateProperty(collectionId, propId, { collection_id: x.id, collection_pointer: { id: x.id, table: 'collection', spaceId: x.space_id } }) })), { width: 280, search: 'Search datasets…' })} />
-        <FlyRow icon="numbers123" label="Limit" value={prop.limit === 1 ? '1 page' : 'No limit'} onClick={(e) => dropdown(e.currentTarget, [
-          { id: 'none', label: 'No limit', checked: prop.limit !== 1, onSelect: () => updateProperty(collectionId, propId, { limit: undefined }) },
-          { id: 'one', label: '1 page', checked: prop.limit === 1, onSelect: () => updateProperty(collectionId, propId, { limit: 1 }) },
+        <FlyRow icon="arrowDiagonalUpRight" label={tx('Related to')} value={target ? toPlainText(target.name as any) || 'Untitled' : 'Select'} onClick={(e) => dropdown(e.currentTarget, all.map((x) => ({ id: x.id, label: toPlainText(x.name as any) || 'Untitled', checked: x.id === target?.id, onSelect: () => updateProperty(collectionId, propId, { collection_id: x.id, collection_pointer: { id: x.id, table: 'collection', spaceId: x.space_id } }) })), { width: 280, search: 'Search datasets…' })} />
+        <FlyRow icon="numbers123" label={tx('Limit')} value={prop.limit === 1 ? tx('1 page') : tx('No limit')} onClick={(e) => dropdown(e.currentTarget, [
+          { id: 'none', label: tx('No limit'), checked: prop.limit !== 1, onSelect: () => updateProperty(collectionId, propId, { limit: undefined }) },
+          { id: 'one', label: tx('1 page'), checked: prop.limit === 1, onSelect: () => updateProperty(collectionId, propId, { limit: 1 }) },
         ])} />
       </div>
     );
@@ -481,13 +482,13 @@ function ComputedFallbackFlyout({ collectionId, propId, prop }: { collectionId: 
     const agg = typeof prop.aggregation === 'string' ? prop.aggregation : 'show_original';
     return (
       <div className="nc-menu-section">
-        <FlyRow icon="arrowDiagonalUpRight" label="Relation" value={rel?.name ?? 'Select'} onClick={(e) => dropdown(e.currentTarget, rels.map(([id, p]) => ({ id, label: p.name, checked: id === prop.relation_property, onSelect: () => updateProperty(collectionId, propId, { relation_property: id }) })), { width: 280 })} />
-        <FlyRow icon="pathRoundEnds" label="Property" value={targetProp?.name ?? 'Select'} onClick={(e) => target && dropdown(e.currentTarget, Object.entries(target.schema).map(([id, p]) => ({ id, label: p.name, checked: id === prop.target_property, onSelect: () => updateProperty(collectionId, propId, { target_property: id, target_property_type: p.type }) })), { width: 280 })} />
-        <FlyRow icon="sum" label="Calculate" value={agg === 'show_original' ? 'Show original' : AGGREGATION_LABELS[agg]?.full ?? agg} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <FlyRow icon="arrowDiagonalUpRight" label={tx('Relation')} value={rel?.name ?? 'Select'} onClick={(e) => dropdown(e.currentTarget, rels.map(([id, p]) => ({ id, label: p.name, checked: id === prop.relation_property, onSelect: () => updateProperty(collectionId, propId, { relation_property: id }) })), { width: 280 })} />
+        <FlyRow icon="pathRoundEnds" label={tx('Property')} value={targetProp?.name ?? 'Select'} onClick={(e) => target && dropdown(e.currentTarget, Object.entries(target.schema).map(([id, p]) => ({ id, label: p.name, checked: id === prop.target_property, onSelect: () => updateProperty(collectionId, propId, { target_property: id, target_property_type: p.type }) })), { width: 280 })} />
+        <FlyRow icon="sum" label={tx('Calculate')} value={agg === 'show_original' ? 'Show original' : AGGREGATION_LABELS[agg]?.full ?? agg} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 200,
           sections: [{ items: [
-            { id: 'orig', label: 'Show original', checked: agg === 'show_original', onSelect: () => updateProperty(collectionId, propId, { aggregation: 'show_original' }) },
-            { id: 'uniq', label: 'Display unique values', checked: agg === 'show_unique', onSelect: () => updateProperty(collectionId, propId, { aggregation: 'show_unique' }) },
+            { id: 'orig', label: tx('Show original'), checked: agg === 'show_original', onSelect: () => updateProperty(collectionId, propId, { aggregation: 'show_original' }) },
+            { id: 'uniq', label: tx('Display unique values'), checked: agg === 'show_unique', onSelect: () => updateProperty(collectionId, propId, { aggregation: 'show_unique' }) },
             ...calculateMenuDef(targetProp ?? { name: '', type: 'number' }, agg, (a) => updateProperty(collectionId, propId, { aggregation: a as any })).sections[0].items.slice(1),
           ] }],
         }, { placement: 'right-start', parent: overlayIdOf(e.currentTarget) })} />
@@ -504,7 +505,7 @@ function FormulaFallback({ collectionId, propId, prop }: { collectionId: string;
   const [code, setCode] = useState(initial);
   return (
     <div className="nc-menu-section nc-formula-fallback" data-menu-keys="ignore">
-      <div className="nc-menu-section-title">Formula</div>
+      <div className="nc-menu-section-title">{tx('Formula')}</div>
       <textarea className="nc-formula-input" value={code} placeholder='e.g. prop("Number") * 2' onChange={(e) => setCode(e.target.value)} onBlur={() => updateProperty(collectionId, propId, { version: 'v2', formula2: { code: code ? [[code]] : [], result_type: f2?.result_type ?? { type: 'text' } }, formula: { expression: code } })} />
     </div>
   );
@@ -531,7 +532,7 @@ export function EditPropertyBody({ collectionId, propId, view, close }: { collec
     case 'file': return <LimitFlyout collectionId={collectionId} propId={propId} prop={prop} kind="file" />;
     case 'auto_increment_id': return <IdFlyout collectionId={collectionId} propId={propId} prop={prop} />;
     case 'rollup': case 'relation': case 'formula': return <ComputedFallbackFlyout collectionId={collectionId} propId={propId} prop={prop} />;
-    default: return <div className="nc-menu-empty">No options for this property type</div>;
+    default: return <div className="nc-menu-empty">{tx('No options for this property type')}</div>;
   }
 }
 
@@ -568,8 +569,8 @@ function PropertyDetailActions({ collectionId, propId, view, close }: { collecti
   return (
     <div className="nc-menu-section nc-prop-detail-actions">
       <div className="nc-menu-divider" />
-      {prop.type !== 'auto_increment_id' && <FlyRow icon="dbDuplicate" label="Duplicate property" chevron={false} onClick={() => { duplicateProperty(collectionId, propId, view); close(); }} />}
-      <FlyRow icon="dbTrash" label="Delete property" chevron={false} onClick={() => { close(); setTimeout(() => void confirmDeleteProperty(collectionId, propId), 0); }} />
+      {prop.type !== 'auto_increment_id' && <FlyRow icon="dbDuplicate" label={tx('Duplicate property')} chevron={false} onClick={() => { duplicateProperty(collectionId, propId, view); close(); }} />}
+      <FlyRow icon="dbTrash" label={tx('Delete property')} chevron={false} onClick={() => { close(); setTimeout(() => void confirmDeleteProperty(collectionId, propId), 0); }} />
     </div>
   );
 }
@@ -583,7 +584,7 @@ export function deletedPropertiesMenuDef(collectionId: string): MenuDef {
     if (ok) permanentlyDeleteProperty(collectionId, id);
   };
   const removeAll = async () => {
-    const ok = await confirmDialog({ message: 'Permanently delete all fields?', description: 'This action cannot be undone.', confirmLabel: 'Permanently delete all', danger: true, width: 320 });
+    const ok = await confirmDialog({ message: 'Permanently delete all fields?', description: tx('This action cannot be undone.'), confirmLabel: 'Permanently delete all', danger: true, width: 320 });
     if (ok) for (const [id] of deleted) permanentlyDeleteProperty(collectionId, id);
   };
   return {
@@ -592,11 +593,11 @@ export function deletedPropertiesMenuDef(collectionId: string): MenuDef {
       { items: deleted.map(([id, p]) => ({
         id, label: p.name, icon: <PropertyIcon prop={p} size={16} />,
         submenu: () => ({ width: 200, sections: [{ items: [
-          { id: 'restore', label: 'Restore', icon: 'undo', onSelect: () => restoreProperty(collectionId, id) },
-          { id: 'delete', label: 'Delete', icon: 'trash', onSelect: () => { setTimeout(() => void removeOne(id), 0); } },
+          { id: 'restore', label: tx('Restore'), icon: 'undo', onSelect: () => restoreProperty(collectionId, id) },
+          { id: 'delete', label: tx('Delete'), icon: 'trash', onSelect: () => { setTimeout(() => void removeOne(id), 0); } },
         ] }] }),
       })) },
-      ...(deleted.length ? [{ items: [{ id: 'all', label: 'Permanently delete all', icon: 'trash', onSelect: () => { setTimeout(() => void removeAll(), 0); } }] }] : []),
+      ...(deleted.length ? [{ items: [{ id: 'all', label: tx('Permanently delete all'), icon: 'trash', onSelect: () => { setTimeout(() => void removeAll(), 0); } }] }] : []),
     ],
   };
 }
@@ -633,14 +634,14 @@ function PropertyNameHeader({ collectionId, propId, autoFocus }: { collectionId:
   return (
     <div className="nc-prop-menu-head" data-menu-keys="ignore">
       <div className="nc-prop-menu-head-row">
-        <div role="button" className="nc-prop-icon-btn" aria-label="Change icon" onClick={(e) => openIconPicker(e.currentTarget, { current: prop.icon as string | undefined, onPick: (v) => updateProperty(collectionId, propId, { icon: v ?? undefined }) })}>
+        <div role="button" className="nc-prop-icon-btn" aria-label={tx('Change icon')} onClick={(e) => openIconPicker(e.currentTarget, { current: prop.icon as string | undefined, onPick: (v) => updateProperty(collectionId, propId, { icon: v ?? undefined }) })}>
           <PropertyIcon prop={prop} size={14} style={{ color: 'rgb(85, 83, 78)' }} />
         </div>
         <div className="nc-input nc-prop-name-input">
           <input
             ref={inputRef}
             value={name}
-            placeholder="Property name"
+            placeholder={tx('Property name')}
             onChange={(e) => { setName(e.target.value); setError(''); }}
             onBlur={commit}
             onKeyDown={(e) => {
@@ -658,7 +659,7 @@ function PropertyNameHeader({ collectionId, propId, autoFocus }: { collectionId:
           <span
             role="button"
             className="nc-prop-desc-btn"
-            aria-label={prop.description ? 'Edit field description' : 'Create field description'}
+            aria-label={prop.description ? tx('Edit field description') : tx('Create field description')}
             data-tooltip={prop.description ? String(prop.description) : 'Create field description'}
             onClick={(e) => openDescriptionPopover(e.currentTarget, collectionId, propId)}
           >
@@ -677,7 +678,7 @@ function openDescriptionPopover(anchor: HTMLElement, collectionId: string, propI
   openOverlay((close) => (
     <PopoverSurface width={280} className="nc-prop-desc-popover">
       <div data-menu-keys="ignore" className="nc-prop-desc-body">
-        <textarea autoFocus defaultValue={text} placeholder="Add a description…" onChange={(e) => (text = e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); close(); } }} />
+        <textarea autoFocus defaultValue={text} placeholder={tx('Add a description…')} onChange={(e) => (text = e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); close(); } }} />
       </div>
     </PopoverSurface>
   ), { anchor, placement: 'bottom-start', parent: overlayIdOf(anchor), onClose: () => updateProperty(collectionId, propId, { description: text.trim() || undefined }) });
@@ -710,57 +711,57 @@ export function openPropertyHeaderMenu(anchor: HTMLElement, ctx: PropMenuContext
   const currentAgg = view ? aggregatorName((view.query2?.aggregations ?? []).find((a) => a.property === propId) as AggregationSpec | undefined) : 'none';
 
   const s2: MenuItemDef[] = [];
-  if (isTitle && view) s2.push({ id: 'pageicon', label: 'Display entry icon', icon: 'emojiFace', right: <Toggle on={fmt.show_page_icon !== false} decorative />, onSelect: () => { updateViewFormat(view.id, { show_page_icon: fmt.show_page_icon === false }); return false; } });
-  if (type === 'url') s2.push({ id: 'fullurl', label: 'Display full URL', icon: 'arrowExpandHorizontal', right: <Toggle on={prop.show_full_url === true} />, onSelect: () => { updateProperty(collectionId, propId, { show_full_url: prop.show_full_url !== true }); return false; } });
-  if (type === 'button') s2.push({ id: 'automation', label: 'Edit automation', icon: 'pencilLine', onSelect: () => openButtonConfig(collectionId, propId) });
-  if (!ctx.readOnly && hasEditFlyout(prop) && !isTitle) s2.push({ id: 'edit', label: 'Edit property', icon: 'slidersTwo', submenu: () => editFlyoutDef(collectionId, propId, view) });
-  if (!NO_ACCESS.has(type) && canRestrictProperty(prop, propId, subitemPairOf(c))) s2.push({ id: 'access', label: 'Property access', icon: 'lockKeyhole', right: hasPropertyRule(prop) ? <span className="nc-menu-value">On</span> : undefined, onSelect: () => openPropertyAccess(collectionId, propId) });
-  if (!isTitle && type !== 'auto_increment_id' && !ctx.readOnly) s2.push({ id: 'type', label: 'Change type', icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(collectionId, propId, prop) });
+  if (isTitle && view) s2.push({ id: 'pageicon', label: tx('Display entry icon'), icon: 'emojiFace', right: <Toggle on={fmt.show_page_icon !== false} decorative />, onSelect: () => { updateViewFormat(view.id, { show_page_icon: fmt.show_page_icon === false }); return false; } });
+  if (type === 'url') s2.push({ id: 'fullurl', label: tx('Display full URL'), icon: 'arrowExpandHorizontal', right: <Toggle on={prop.show_full_url === true} />, onSelect: () => { updateProperty(collectionId, propId, { show_full_url: prop.show_full_url !== true }); return false; } });
+  if (type === 'button') s2.push({ id: 'automation', label: tx('Edit automation'), icon: 'pencilLine', onSelect: () => openButtonConfig(collectionId, propId) });
+  if (!ctx.readOnly && hasEditFlyout(prop) && !isTitle) s2.push({ id: 'edit', label: tx('Edit property'), icon: 'slidersTwo', submenu: () => editFlyoutDef(collectionId, propId, view) });
+  if (!NO_ACCESS.has(type) && canRestrictProperty(prop, propId, subitemPairOf(c))) s2.push({ id: 'access', label: tx('Property access'), icon: 'lockKeyhole', right: hasPropertyRule(prop) ? <span className="nc-menu-value">{tx('On')}</span> : undefined, onSelect: () => openPropertyAccess(collectionId, propId) });
+  if (!isTitle && type !== 'auto_increment_id' && !ctx.readOnly) s2.push({ id: 'type', label: tx('Change type'), icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(collectionId, propId, prop) });
   // header-menu-name / -status: "AI Autofill ›" (no promo badge any more), also on the title column
   if (AI_AUTOFILL_TYPES.has(type) || isTitle) s2.push({
-    id: 'ai', label: 'AI Autofill', icon: 'magicWandSparkle',
+    id: 'ai', label: tx('AI Autofill'), icon: 'magicWandSparkle',
     // Basic autofill is configured / run by features/ai; Custom Agent autofill comes with Custom Agents
     submenu: () => ({ width: 260, sections: [{ items: [
-      ...(ctx.readOnly ? [{ id: 'basic', label: 'Basic', icon: 'magicWand', description: 'Not available for this field type', disabled: true }] : autofillMenuItems(collectionId, propId, view, anchor)),
-      { id: 'agent', label: 'Custom Agent', icon: 'aiFace', badge: 'New', description: 'Uses advanced models to fill fields based on web search and your connected workspace.', disabled: true },
+      ...(ctx.readOnly ? [{ id: 'basic', label: tx('Basic'), icon: 'magicWand', description: tx('Not available for this field type'), disabled: true }] : autofillMenuItems(collectionId, propId, view, anchor)),
+      { id: 'agent', label: tx('Custom Agent'), icon: 'aiFace', badge: 'New', description: tx('Uses advanced models to fill fields based on web search and your connected workspace.'), disabled: true },
     ] }] }),
   });
 
   const s3: MenuItemDef[] = [];
   if (view && type !== 'button') {
-    s3.push({ id: 'filter', label: 'Filter', icon: 'dbFilter', onSelect: () => ctx.onAddFilter?.(propId) });
-    s3.push({ id: 'sort', label: 'Sort', icon: 'arrowUpDownSmall', disabled: type === 'rollup' && (prop.aggregation ?? 'show_original') === 'show_original', submenu: () => sortMenuDef(view, propId, prop) });
+    s3.push({ id: 'filter', label: tx('Filter'), icon: 'dbFilter', onSelect: () => ctx.onAddFilter?.(propId) });
+    s3.push({ id: 'sort', label: tx('Sort'), icon: 'arrowUpDownSmall', disabled: type === 'rollup' && (prop.aggregation ?? 'show_original') === 'show_original', submenu: () => sortMenuDef(view, propId, prop) });
     if (isGroupable(prop) && !['file', 'place', 'auto_increment_id'].includes(type) && !(type === 'rollup' && (prop.aggregation ?? 'show_original') === 'show_original')) {
       s3.push(groupedHere
-        ? { id: 'ungroup', label: 'Ungroup', icon: 'dbGroup', onSelect: () => setGroupBy(view, null) }
-        : { id: 'group', label: 'Group', icon: 'dbGroup', onSelect: () => setGroupBy(view, defaultGroupBy(prop, propId, { board: view.type === 'board' }) as GroupBy) });
+        ? { id: 'ungroup', label: tx('Ungroup'), icon: 'dbGroup', onSelect: () => setGroupBy(view, null) }
+        : { id: 'group', label: tx('Group'), icon: 'dbGroup', onSelect: () => setGroupBy(view, defaultGroupBy(prop, propId, { board: view.type === 'board' }) as GroupBy) });
     }
-    s3.push({ id: 'calc', label: 'Calculate', icon: 'sum', submenu: () => calculateMenuDef(prop, currentAgg, (a) => setAggregation(view, propId, a as any)) });
+    s3.push({ id: 'calc', label: tx('Calculate'), icon: 'sum', submenu: () => calculateMenuDef(prop, currentAgg, (a) => setAggregation(view, propId, a as any)) });
   }
   if (view?.type === 'table') {
     s3.push(frozenHere
       ? { id: 'unfreeze', label: frozenIdx > 0 ? 'Unfreeze columns' : 'Unfreeze column', icon: 'pinSlash', onSelect: () => updateViewFormat(view.id, { table_frozen_column_index: -1 }) }
-      : { id: 'freeze', label: 'Freeze', icon: 'dbPin', onSelect: () => updateViewFormat(view.id, { table_frozen_column_index: Math.max(0, myIdx) }) });
+      : { id: 'freeze', label: tx('Freeze'), icon: 'dbPin', onSelect: () => updateViewFormat(view.id, { table_frozen_column_index: Math.max(0, myIdx) }) });
   }
-  if (view && !isTitle) s3.push({ id: 'hide', label: 'Hide', icon: 'dbEyeSlash', onSelect: () => setPropertyVisible(view, c.schema, propId, false) });
+  if (view && !isTitle) s3.push({ id: 'hide', label: tx('Hide'), icon: 'dbEyeSlash', onSelect: () => setPropertyVisible(view, c.schema, propId, false) });
   if (view && type !== 'checkbox' && type !== 'button') {
     s3.push({ id: 'wrap', label: wrapped ? 'Unwrap content' : 'Wrap content', icon: wrapped ? 'arrowLineRight' : 'arrowUTurnDownLeft', onSelect: () => updateViewProperty(view, c.schema, propId, { wrap: !wrapped }, wrapped ? 'unwrapColumn' : 'wrapColumn') });
   }
   if (view && type === 'status') {
     const showAs = (entry?.statusShowAs as string | undefined) ?? 'select';
-    s3.push({ id: 'displayas', label: 'Display as', icon: 'dbEye', right: <span className="nc-menu-value">{showAs === 'checkbox' ? 'Checkbox' : 'Select'}</span>, submenu: () => ({ width: 200, sections: [{ items: [
-      { id: 'cb', label: 'Checkbox', icon: 'checkmarkSquare', checked: showAs === 'checkbox', onSelect: () => updateViewProperty(view, c.schema, propId, { statusShowAs: 'checkbox' }) },
-      { id: 'sel', label: 'Select', icon: 'arrowTriangleDownCircle', checked: showAs !== 'checkbox', onSelect: () => updateViewProperty(view, c.schema, propId, { statusShowAs: undefined }) },
+    s3.push({ id: 'displayas', label: tx('Display as'), icon: 'dbEye', right: <span className="nc-menu-value">{showAs === 'checkbox' ? tx('Checkbox') : tx('Select')}</span>, submenu: () => ({ width: 200, sections: [{ items: [
+      { id: 'cb', label: tx('Checkbox'), icon: 'checkmarkSquare', checked: showAs === 'checkbox', onSelect: () => updateViewProperty(view, c.schema, propId, { statusShowAs: 'checkbox' }) },
+      { id: 'sel', label: tx('Select'), icon: 'arrowTriangleDownCircle', checked: showAs !== 'checkbox', onSelect: () => updateViewProperty(view, c.schema, propId, { statusShowAs: undefined }) },
     ] }] }) });
   }
 
   const s4: MenuItemDef[] = [];
   if (view && !ctx.readOnly) {
-    s4.push({ id: 'left', label: 'Insert left', icon: 'arrowRectangleLeft', onSelect: () => ctx.onInsert?.('left') });
-    s4.push({ id: 'right', label: 'Insert right', icon: 'arrowRectangleRight', onSelect: () => ctx.onInsert?.('right') });
+    s4.push({ id: 'left', label: tx('Insert left'), icon: 'arrowRectangleLeft', onSelect: () => ctx.onInsert?.('left') });
+    s4.push({ id: 'right', label: tx('Insert right'), icon: 'arrowRectangleRight', onSelect: () => ctx.onInsert?.('right') });
   }
-  if (!isTitle && type !== 'auto_increment_id' && !ctx.readOnly) s4.push({ id: 'dup', label: 'Duplicate property', icon: 'dbDuplicate', onSelect: () => duplicateProperty(collectionId, propId, view) });
-  if (!isTitle && !ctx.readOnly) s4.push({ id: 'delete', label: 'Delete property', icon: 'dbTrash', danger: false, onSelect: () => { setTimeout(() => void confirmDeleteProperty(collectionId, propId), 0); } });
+  if (!isTitle && type !== 'auto_increment_id' && !ctx.readOnly) s4.push({ id: 'dup', label: tx('Duplicate property'), icon: 'dbDuplicate', onSelect: () => duplicateProperty(collectionId, propId, view) });
+  if (!isTitle && !ctx.readOnly) s4.push({ id: 'delete', label: tx('Delete property'), icon: 'dbTrash', danger: false, onSelect: () => { setTimeout(() => void confirmDeleteProperty(collectionId, propId), 0); } });
 
   const sections = [{ items: s2 }, { items: s3 }, { items: s4 }].filter((s) => s.items.length);
   //: min-width 220, rows with a toggle make it ~243; the popover sits 6px left of the header cell
@@ -821,8 +822,8 @@ export interface AddPropertyOptions {
 
 // AI Autofill presets of the "+ Add property" card (05-database-.1)
 const AI_PRESETS = [
-  { id: 'sum', label: 'Summarize', icon: 'textAlignLeft', options: ['Paragraph', 'Bullets', 'One-liner'] },
-  { id: 'tr', label: 'Translate', icon: 'textTranslate', options: ['English', 'Korean', 'Chinese Simplified', 'Chinese Traditional', 'Japanese', 'Spanish', 'Russian', 'French', 'Portuguese', 'German', 'Italian', 'Dutch', 'Indonesian', 'Filipino', 'Vietnamese'] },
+  { id: 'sum', label: tx('Summarize'), icon: 'textAlignLeft', options: ['Paragraph', 'Bullets', 'One-liner'] },
+  { id: 'tr', label: tx('Translate'), icon: 'textTranslate', options: ['English', 'Korean', 'Chinese Simplified', 'Chinese Traditional', 'Japanese', 'Spanish', 'Russian', 'French', 'Portuguese', 'German', 'Italian', 'Dutch', 'Indonesian', 'Filipino', 'Vietnamese'] },
 ];
 
 function AddPropertyMenu({ opts, close }: { opts: AddPropertyOptions; close: () => void }) {
@@ -848,10 +849,10 @@ function AddPropertyMenu({ opts, close }: { opts: AddPropertyOptions; close: () 
   return (
     <div className="nc-add-prop" data-menu-keys="ignore">
       <div className="nc-add-prop-name">
-        <span role="button" className="nc-add-prop-icon" aria-label="Select icon"><Icon name="emojiFaceFill" size={16} /></span>
+        <span role="button" className="nc-add-prop-icon" aria-label={tx('Select icon')}><Icon name="emojiFaceFill" size={16} /></span>
         <input
           autoFocus
-          placeholder="Type field name…"
+          placeholder={tx('Type field name…')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
@@ -866,24 +867,24 @@ function AddPropertyMenu({ opts, close }: { opts: AddPropertyOptions; close: () 
       <div className="nc-add-prop-card">
         <div className="lit-scroller vertical nc-add-prop-scroll" role="grid">
           <div className="nc-add-prop-section">
-            <div className="nc-add-prop-section-title">AI Autofill</div>
+            <div className="nc-add-prop-section-title">{tx('AI Autofill')}</div>
             {/* add-property-menu: regular rows; presets open a submenu */}
             {AI_PRESETS.map((a) => (
               <div key={a.id} role="gridcell" className="nc-add-prop-ai" onClick={(e) => openMenu(e.currentTarget, { width: 220, sections: [{ items: a.options.map((o) => ({ id: o, label: o, onSelect: () => { close(); createAutofillProperty(opts.collectionId, a.id as 'sum' | 'tr', o, view ?? opts.view, { afterPropId: opts.afterPropId, beforePropId: opts.beforePropId }); } })) }] }, { placement: 'right-start', parent: overlayIdOf(e.currentTarget) })}>
                 <Icon name={a.icon} size={20} style={{ color: 'var(--lp-icon-secondary)' }} />
                 <span className="nc-add-prop-ai-label">{a.label}</span>
-                <span className="nc-badge gray">Basic</span>
+                <span className="nc-badge gray">{tx('Basic')}</span>
                 <Icon name="arrowChevronSingleRightSmall" size={16} style={{ color: 'var(--lp-icon-secondary)', marginInlineStart: 'auto' }} />
               </div>
             ))}
           </div>
           <div className="nc-add-prop-section types-head with-divider">
             <div className="nc-add-prop-section-title">
-              <span>Select type</span>
-              <span role="button" className={`nc-add-prop-search-btn ${query !== null ? 'on' : ''}`} aria-label="Search types…" onClick={() => setQuery(query === null ? '' : null)}><Icon name="magnifyingGlassSmall" size={14} /></span>
+              <span>{tx('Select type')}</span>
+              <span role="button" className={`nc-add-prop-search-btn ${query !== null ? 'on' : ''}`} aria-label={tx('Search types…')} onClick={() => setQuery(query === null ? '' : null)}><Icon name="magnifyingGlassSmall" size={14} /></span>
             </div>
             {query !== null && (
-              <div className="nc-add-prop-search"><input autoFocus placeholder="Search types…" value={query} onChange={(e) => { setQuery(e.target.value); setActive(0); }} onKeyDown={(e) => { if (e.key === 'Enter' && flat[Math.max(0, active)]) choose(flat[Math.max(0, active)] as PropertyType); if (e.key === 'Escape') { e.preventDefault(); setQuery(null); } }} /></div>
+              <div className="nc-add-prop-search"><input autoFocus placeholder={tx('Search types…')} value={query} onChange={(e) => { setQuery(e.target.value); setActive(0); }} onKeyDown={(e) => { if (e.key === 'Enter' && flat[Math.max(0, active)]) choose(flat[Math.max(0, active)] as PropertyType); if (e.key === 'Escape') { e.preventDefault(); setQuery(null); } }} /></div>
             )}
           </div>
           {sections.map((s, si) => (
@@ -905,7 +906,7 @@ function AddPropertyMenu({ opts, close }: { opts: AddPropertyOptions; close: () 
               ))}
             </div>
           ))}
-          {!sections.length && <div className="nc-menu-empty">No results</div>}
+          {!sections.length && <div className="nc-menu-empty">{tx('No results')}</div>}
         </div>
       </div>
     </div>

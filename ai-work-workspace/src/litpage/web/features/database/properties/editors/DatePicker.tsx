@@ -20,6 +20,7 @@ import type { CellEditorOptions } from '../editorRegistry.ts';
 import { openNestedMenu } from '../../menus.ts';
 import { effectiveTimeZone, weekdayHeaders, weekStartDay } from '../../../settings/userSettings.ts';
 import { TemplateDateOptions, isTemplateVariableDate } from '../../templates/templateVars.tsx';
+import { tx } from '../../../shell/i18n.ts';
 
 /** Decorative: the toggle mirrors the state of the menu row it sits in; “Show page icon” has no role of its own. */
 export function Toggle({ on, onChange, disabled, decorative }: { on: boolean; onChange?: (v: boolean) => void; disabled?: boolean; decorative?: boolean }) {
@@ -193,8 +194,8 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
       search: 'Search for a timezone…',
       maxHeight: 'min(70vh, 600px)',
       sections: [
-        { title: 'Current timezone', items: [{ id: `cur:${zone}`, label: city(zone), text: `${city(zone)} ${zone}`, description: gmtOffset(zone, 'long'), checked: true, onSelect: () => update({ timeZone: zone }) }] },
-        { title: 'Select a timezone', items: zones.filter((z) => z !== zone).map((z) => ({ id: z, label: city(z), text: `${city(z)} ${z}`, description: gmtOffset(z, 'long'), onSelect: () => update({ timeZone: z, timeOn: true }) })) },
+        { title: tx('Current timezone'), items: [{ id: `cur:${zone}`, label: city(zone), text: `${city(zone)} ${zone}`, description: gmtOffset(zone, 'long'), checked: true, onSelect: () => update({ timeZone: zone }) }] },
+        { title: tx('Select a timezone'), items: zones.filter((z) => z !== zone).map((z) => ({ id: z, label: city(z), text: `${city(z)} ${z}`, description: gmtOffset(z, 'long'), onSelect: () => update({ timeZone: z, timeOn: true }) })) },
       ],
     }, { placement: 'right-start', backdrop: 'transparent' });
   };
@@ -219,9 +220,9 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
         <div className="nc-date-month">
           <span className="nc-date-month-label">{monthLabel(month, true)}</span>
           <div className="nc-date-month-nav">
-            <span role="button" className="nc-date-today" onClick={() => setMonth(startOfMonth(Date.now()))}>{s.timeOn && !simple ? 'Now' : 'Today'}</span>
-            <span role="button" className="nc-date-nav" aria-label="Previous month" onClick={() => setMonth(addMonths(month, -1))}><Icon name="chevronLeft" size={16} /></span>
-            <span role="button" className="nc-date-nav" aria-label="Next month" onClick={() => setMonth(addMonths(month, 1))}><Icon name="chevronRight" size={16} /></span>
+            <span role="button" className="nc-date-today" onClick={() => setMonth(startOfMonth(Date.now()))}>{s.timeOn && !simple ? tx('Now') : tx('Today')}</span>
+            <span role="button" className="nc-date-nav" aria-label={tx('Previous month')} onClick={() => setMonth(addMonths(month, -1))}><Icon name="chevronLeft" size={16} /></span>
+            <span role="button" className="nc-date-nav" aria-label={tx('Next month')} onClick={() => setMonth(addMonths(month, 1))}><Icon name="chevronRight" size={16} /></span>
           </div>
         </div>
         <div className="nc-date-weekdays">
@@ -243,17 +244,17 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
       </div>
       {!simple && (
         <div className="nc-date-options">
-          <Row label="End date" right={<Toggle on={s.endOn} onChange={(v) => { update({ endOn: v, end: v ? s.end ?? s.start : null }); setField(v ? 'end' : 'start'); }} />} onClick={() => { update({ endOn: !s.endOn, end: !s.endOn ? s.end ?? s.start : null }); }} />
-          <Row label="Date format" right={<span className="nc-menu-value">{fmtLabel}</span>} chevron onClick={(e) => dateFormatMenu(e.currentTarget)} />
-          <Row label="Include time" right={<Toggle on={s.timeOn} onChange={(v) => update({ timeOn: v })} />} onClick={() => update({ timeOn: !s.timeOn })} />
-          {s.timeOn && <Row label="Time format" right={<span className="nc-menu-value">{tfLabel}</span>} chevron onClick={(e) => timeFormatMenu(e.currentTarget)} />}
-          {s.timeOn && <Row label="Timezone" right={<span className="nc-menu-value">{gmtOffset(zone, 'short')}</span>} chevron onClick={(e) => timezoneMenu(e.currentTarget)} />}
-          <Row label="Remind" right={<span className="nc-menu-value">{reminderLabel(s.reminder, s.timeOn)}</span>} chevron onClick={(e) => remindMenu(e.currentTarget)} />
+          <Row label={tx('End date')} right={<Toggle on={s.endOn} onChange={(v) => { update({ endOn: v, end: v ? s.end ?? s.start : null }); setField(v ? 'end' : 'start'); }} />} onClick={() => { update({ endOn: !s.endOn, end: !s.endOn ? s.end ?? s.start : null }); }} />
+          <Row label={tx('Date format')} right={<span className="nc-menu-value">{fmtLabel}</span>} chevron onClick={(e) => dateFormatMenu(e.currentTarget)} />
+          <Row label={tx('Include time')} right={<Toggle on={s.timeOn} onChange={(v) => update({ timeOn: v })} />} onClick={() => update({ timeOn: !s.timeOn })} />
+          {s.timeOn && <Row label={tx('Time format')} right={<span className="nc-menu-value">{tfLabel}</span>} chevron onClick={(e) => timeFormatMenu(e.currentTarget)} />}
+          {s.timeOn && <Row label={tx('Timezone')} right={<span className="nc-menu-value">{gmtOffset(zone, 'short')}</span>} chevron onClick={(e) => timezoneMenu(e.currentTarget)} />}
+          <Row label={tx('Remind')} right={<span className="nc-menu-value">{reminderLabel(s.reminder, s.timeOn)}</span>} chevron onClick={(e) => remindMenu(e.currentTarget)} />
         </div>
       )}
       <div className="nc-date-footer">
         <div role="button" className="nc-menu-item nc-date-row" onMouseDown={(e) => e.preventDefault()} onClick={() => setS({ ...toState(null), endOn: false })}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-label">Clear</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-label">{tx('Clear')}</div></div>
         </div>
       </div>
       {!simple && (
@@ -261,7 +262,7 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
           {HELP_URL && <a className="nc-menu-item nc-date-row nc-date-learn" href={HELP_URL} target="_blank" rel="noopener noreferrer" onMouseDown={(e) => e.preventDefault()}>
             <div className="nc-menu-item-inner">
               <div className="nc-menu-icon"><Icon name="questionMarkCircle" size={20} style={{ color: 'var(--lp-icon-secondary)' }} /></div>
-              <div className="nc-menu-label">Explore reminders</div>
+              <div className="nc-menu-label">{tx('Explore reminders')}</div>
             </div>
           </a>}
         </div>
@@ -299,7 +300,7 @@ function DateTextInput({ dateText, timeText, onDate, onTime, active, onFocus }: 
     <div className={`nc-date-input ${active ? 'active' : ''}`} onMouseDown={onFocus}>
       <input
         value={d}
-        placeholder="Date"
+        placeholder={tx('Date')}
         onFocus={onFocus}
         onChange={(e) => setD(e.target.value)}
         onBlur={() => d !== dateText && onDate(d)}

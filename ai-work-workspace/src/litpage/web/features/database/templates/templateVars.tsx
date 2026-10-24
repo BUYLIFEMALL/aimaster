@@ -13,6 +13,7 @@ import { userTimeZone } from '../advanced/context.ts';
 import { mentionMenuExtensions } from '../../editor/inline/MentionMenus.tsx';
 import { insertAtomForTrigger } from '../../editor/inline/trigger.ts';
 import './templates.css';
+import { tx } from '../../shell/i18n.ts';
 
 export { TEMPLATE_ME, isTemplateVariableDate };
 
@@ -44,7 +45,7 @@ export function templateDateLabel(v: unknown): string | null {
 /** Blue chip used for template variable values (person / date properties). */
 export function TemplateVarChip({ icon, children }: { icon: string; children: ReactNode }) {
   return (
-    <span className="nc-tplvar-chip" title="Filled in when the template is used">
+    <span className="nc-tplvar-chip" title={tx('Filled in when the template is used')}>
       <Icon name={icon} size={14} />
       <span>{children}</span>
     </span>
@@ -55,7 +56,7 @@ export function TemplateVarChip({ icon, children }: { icon: string; children: Re
 export function TemplateDateOptions({ value, onPick }: { value: DateValue | null; onPick: (v: DateValue) => void }) {
   const cur = isTemplateVariableDate(value) ? value.template_variable : null;
   return (
-    <div className="nc-tplvar-options" role="listbox" aria-label="Template variables">
+    <div className="nc-tplvar-options" role="listbox" aria-label={tx('Template variables')}>
       {(Object.keys(TEMPLATE_DATE_LABELS) as TemplateDateVariable[]).map((k) => (
         <div key={k} role="option" aria-selected={cur === k} className={`nc-tplvar-option ${cur === k ? 'on' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={() => onPick(newTemplateDate(k))}>
           <Icon name={k === 'now' ? 'clock' : 'date'} size={16} />
@@ -87,8 +88,8 @@ export function registerTemplateVariableMentions() {
       icon: k === 'now' ? 'clock' : 'date',
       onSelect: () => insertAtomForTrigger([['‣', [['d', newTemplateDate(k)]]]] as any),
     }));
-    const me = match('me') ? [{ id: 'tv-me', label: <span>Me <span className="nc-tplvar-hint">— Person who copied the entry</span></span>, text: 'Me Person who duplicated page', icon: 'person', onSelect: () => insertAtomForTrigger([['‣', [['u', TEMPLATE_ME]]]] as any) }] : [];
-    return [{ title: 'Date', items: dates }, { title: 'People', items: me }];
+    const me = match('me') ? [{ id: 'tv-me', label: <span>{tx('Me')} <span className="nc-tplvar-hint">— Person who copied the entry</span></span>, text: 'Me Person who duplicated page', icon: 'person', onSelect: () => insertAtomForTrigger([['‣', [['u', TEMPLATE_ME]]]] as any) }] : [];
+    return [{ title: tx('Date'), items: dates }, { title: tx('People'), items: me }];
   });
 }
 registerTemplateVariableMentions();

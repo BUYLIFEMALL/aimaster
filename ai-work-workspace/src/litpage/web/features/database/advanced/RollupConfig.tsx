@@ -14,6 +14,7 @@ import { propertyIconFor } from './formulaComplete.ts';
 import { updateRollup } from './relations.ts';
 import { ConfigRow, ShowAsPicker } from './ui.tsx';
 import './advanced.css';
+import { tx } from '../../shell/i18n.ts';
 
 export const NUMBER_FORMAT_LABEL: Record<string, string> = {
   number: 'Number', number_with_commas: 'Number with commas', percent: 'Percent', dollar: 'US dollar', australian_dollar: 'Australian dollar',
@@ -27,7 +28,7 @@ export const NUMBER_FORMAT_LABEL: Record<string, string> = {
 };
 
 export const PRECISIONS: { id: string; label: string }[] = [
-  { id: 'precision_uncapped', label: 'Default' }, { id: 'precision_0', label: '1' }, { id: 'precision_1', label: '1.0' }, { id: 'precision_2', label: '1.00' },
+  { id: 'precision_uncapped', label: tx('Default') }, { id: 'precision_0', label: '1' }, { id: 'precision_1', label: '1.0' }, { id: 'precision_2', label: '1.00' },
   { id: 'precision_3', label: '1.000' }, { id: 'precision_4', label: '1.0000' }, { id: 'precision_5', label: '1.00000' },
 ];
 
@@ -88,32 +89,32 @@ export function RollupConfigBody({ collectionId, propertyId }: { collectionId: s
   const menu = (e: React.MouseEvent<HTMLDivElement>, def: Parameters<typeof openMenu>[1]) => openMenu(e.currentTarget, def, { placement: 'right-start', parent: parentOf(e.currentTarget) });
   return (
     <div className="nc-menu-section nc-adv-config" data-menu-keys="ignore">
-      <ConfigRow icon="relation" label="Relation" value={rel?.name ?? 'Select'} onClick={(e) => menu(e, {
+      <ConfigRow icon="relation" label={tx('Relation')} value={rel?.name ?? 'Select'} onClick={(e) => menu(e, {
         width: 280,
-        sections: [{ items: relations.length ? relations.map(([id, p]) => ({ label: p.name, icon: 'relation', checked: id === relId, onSelect: () => set({ relation_property: id, target_property: 'title', target_property_type: 'title', aggregation: 'show_original' }) })) : [{ label: 'No relations in this data source', disabled: true }] }],
+        sections: [{ items: relations.length ? relations.map(([id, p]) => ({ label: p.name, icon: 'relation', checked: id === relId, onSelect: () => set({ relation_property: id, target_property: 'title', target_property_type: 'title', aggregation: 'show_original' }) })) : [{ label: tx('No relations in this data source'), disabled: true }] }],
       })} />
-      <ConfigRow icon="rollup" label="Property" value={tps?.name ?? (targetPropId === 'title' && target ? target.schema.title?.name ?? 'Name' : 'Select')} disabled={!rel} tooltip={rel ? undefined : 'Choose a link first.'} onClick={(e) => target && menu(e, {
+      <ConfigRow icon="rollup" label={tx('Property')} value={tps?.name ?? (targetPropId === 'title' && target ? target.schema.title?.name ?? 'Name' : 'Select')} disabled={!rel} tooltip={rel ? undefined : 'Choose a link first.'} onClick={(e) => target && menu(e, {
         width: 280, search: 'Find a field…',
         
         sections: [{ items: Object.entries(target.schema).map(([id, p]) => ({ label: p.name, icon: propertyIconFor(p.type), checked: id === targetPropId, disabled: p.type === 'rollup' && id !== targetPropId, onSelect: () => set({ target_property: id, target_property_type: p.type, aggregation: 'show_original' }) })) }],
       })} />
-      <ConfigRow icon="formula" label="Calculate" value={aggregationLabel(spec)} disabled={!rel || !targetPropId} tooltip={rel && targetPropId ? undefined : 'Choose a link and field first.'} onClick={(e) => menu(e, {
+      <ConfigRow icon="formula" label={tx('Calculate')} value={aggregationLabel(spec)} disabled={!rel || !targetPropId} tooltip={rel && targetPropId ? undefined : 'Choose a link and field first.'} onClick={(e) => menu(e, {
         width: 200,
         sections: [{ items: calculateMenu(tps?.type ?? (targetPropId === 'title' ? 'title' : undefined), spec, (s) => set({ aggregation: s as unknown as string }), tps?.type === 'status' ? (tps.groups ?? []).map((g) => g.name) : undefined) }],
       })} />
       {numeric && (
         <>
-          <ConfigRow icon={<span style={{ width: 20 }} />} label="Number format" value={NUMBER_FORMAT_LABEL[(ps.number_format as string) ?? 'number'] ?? 'Number'} onClick={(e) => menu(e, {
+          <ConfigRow icon={<span style={{ width: 20 }} />} label={tx('Number format')} value={NUMBER_FORMAT_LABEL[(ps.number_format as string) ?? 'number'] ?? 'Number'} onClick={(e) => menu(e, {
             width: 250, search: 'Search',
             sections: [{ items: NUMBER_FORMATS.map((f) => ({ label: NUMBER_FORMAT_LABEL[f] ?? f, checked: ((ps.number_format as string) ?? 'number') === f, onSelect: () => set({ number_format: f }) })) }],
           })} />
-          <ConfigRow icon={<span style={{ width: 20 }} />} label="Decimal places" value={PRECISIONS.find((p) => p.id === ((ps.number_precision as string) ?? 'precision_uncapped'))?.label ?? 'Default'} onClick={(e) => menu(e, {
+          <ConfigRow icon={<span style={{ width: 20 }} />} label={tx('Decimal places')} value={PRECISIONS.find((p) => p.id === ((ps.number_precision as string) ?? 'precision_uncapped'))?.label ?? 'Default'} onClick={(e) => menu(e, {
             width: 200,
             sections: [{ items: PRECISIONS.map((p) => ({ label: p.label, checked: ((ps.number_precision as string) ?? 'precision_uncapped') === p.id, onSelect: () => set({ number_precision: p.id }) })) }],
           })} />
-          <div className="nc-menu-section-title" style={{ marginTop: 10 }}>Show as</div>
+          <div className="nc-menu-section-title" style={{ marginTop: 10 }}>{tx('Show as')}</div>
           <ShowAsPicker value={showAs} onChange={(v) => set({ show_as: v === 'number' ? undefined : { type: v, color: 'green', maxValue: agg.startsWith('percent') ? 1 : 100, showValue: true } })} />
-          <div className="nc-rollup-hint">Changes apply to all layouts showing this field.</div>
+          <div className="nc-rollup-hint">{tx('Changes apply to all layouts showing this field.')}</div>
         </>
       )}
     </div>
@@ -122,10 +123,10 @@ export function RollupConfigBody({ collectionId, propertyId }: { collectionId: s
 
 function RollupPanel({ collectionId, propertyId, close }: { collectionId: string; propertyId: string; close: () => void }) {
   return (
-    <div className="nc-rel-panel" style={{ width: 300 }} role="dialog" aria-label="Rollup">
+    <div className="nc-rel-panel" style={{ width: 300 }} role="dialog" aria-label={tx('Rollup')}>
       <RollupConfigBody collectionId={collectionId} propertyId={propertyId} />
       <div className="nc-rel-foot">
-        <ConfigRow icon="check" label="Done" chevron={false} onClick={close} />
+        <ConfigRow icon="check" label={tx('Done')} chevron={false} onClick={close} />
       </div>
     </div>
   );

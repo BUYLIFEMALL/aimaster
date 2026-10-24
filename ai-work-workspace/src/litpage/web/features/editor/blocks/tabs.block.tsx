@@ -20,6 +20,7 @@ import { useEditor } from '../editorState.ts';
 import { pageIdOfBlock } from '../commands.ts';
 import { registerBlockMenu, overrideSlashItem } from './registry.ts';
 import { createTabs } from './factories.ts';
+import { tx } from '../../shell/i18n.ts';
 
 const KEY = 'nc:tab-selected:';
 
@@ -104,10 +105,10 @@ function TabPill({ tab, index, selected, readOnly, onSelect, blockId }: { tab: B
               width: 220,
               sections: [{
                 items: [
-                  { label: 'Rename', icon: 'pencilLine', onSelect: () => { setTimeout(startRename, 0); } },
-                  { label: 'Edit icon', icon: 'iconEdit', onSelect: () => { setTimeout(() => ref.current && openIconPicker(ref.current, { current: icon, onPick: (val) => run('tabBlockActions.setIcon', (tx) => setFormat(tx, tab.id, { page_icon: val ?? undefined })) }), 0); } },
-                  { label: 'Copy link', icon: 'link', onSelect: () => copyPageLink(pageIdOfBlock(blockId) ?? blockId, tab.id) },
-                  { label: 'Delete', icon: 'trash', onSelect: () => deleteTab(blockId, tab.id) },
+                  { label: tx('Rename'), icon: 'pencilLine', onSelect: () => { setTimeout(startRename, 0); } },
+                  { label: tx('Edit icon'), icon: 'iconEdit', onSelect: () => { setTimeout(() => ref.current && openIconPicker(ref.current, { current: icon, onPick: (val) => run('tabBlockActions.setIcon', (tx) => setFormat(tx, tab.id, { page_icon: val ?? undefined })) }), 0); } },
+                  { label: tx('Copy link'), icon: 'link', onSelect: () => copyPageLink(pageIdOfBlock(blockId) ?? blockId, tab.id) },
+                  { label: tx('Delete'), icon: 'trash', onSelect: () => deleteTab(blockId, tab.id) },
                 ],
               }],
             });
@@ -165,13 +166,13 @@ function TabsBlock({ block, depth, readOnly }: BlockProps) {
     <div className="nc-bpad">
       <div className="nc-tabs-card">
         <div className="nc-tabs-strip">
-          <div role="tablist" aria-label="Tab block" aria-orientation="horizontal" style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          <div role="tablist" aria-label={tx('Tab block')} aria-orientation="horizontal" style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {tabs.map((t, i) => (
               <TabPill key={t.id} tab={t} index={i} blockId={block.id} selected={t.id === current?.id} readOnly={readOnly} onSelect={() => select(t.id)} />
             ))}
           </div>
           {!readOnly && (
-            <div role="button" aria-label="Add tab" className="nc-tab-add" data-tooltip="Add tab" onMouseDown={(e) => e.preventDefault()} onClick={() => { const id = addTab(block.id); select(id); }}>
+            <div role="button" aria-label={tx('Add tab')} className="nc-tab-add" data-tooltip={tx('Add tab')} onMouseDown={(e) => e.preventDefault()} onClick={() => { const id = addTab(block.id); select(id); }}>
               <Icon name="plus" size={16} />
             </div>
           )}

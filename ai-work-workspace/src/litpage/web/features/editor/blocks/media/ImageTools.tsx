@@ -22,6 +22,7 @@ import { pageTitle } from '../../../page/pageActions.ts';
 import { breadcrumbOf, pageOrNull, usePageSearch } from '../../inline/pageSearch.ts';
 import { looksLikeUrl, normalizeUrl } from '../../inline/LinkPopups.tsx';
 import { originalSourceOf, sourceOf } from '../shared.tsx';
+import { tx } from '../../../shell/i18n.ts';
 
 registerIcons({
   flipHorizontal: L.FlipHorizontal2, flipVertical: L.FlipVertical2, rotateLeft: L.RotateCcw, rotateRight: L.RotateCw,
@@ -33,10 +34,10 @@ registerIcons({
 
 type CropStyle = 'freeform' | 'rectangle' | 'square' | 'circle';
 const STYLES: { id: CropStyle; label: string; icon: string; ratio: number | null }[] = [
-  { id: 'freeform', label: 'Freeform', icon: 'cropStyleFreeform', ratio: null },
-  { id: 'rectangle', label: 'Rectangle', icon: 'cropStyleRectangle', ratio: 16 / 9 },
-  { id: 'square', label: 'Square', icon: 'cropStyleSquare', ratio: 1 },
-  { id: 'circle', label: 'Circle', icon: 'cropStyleCircle', ratio: 1 },
+  { id: 'freeform', label: tx('Freeform'), icon: 'cropStyleFreeform', ratio: null },
+  { id: 'rectangle', label: tx('Rectangle'), icon: 'cropStyleRectangle', ratio: 16 / 9 },
+  { id: 'square', label: tx('Square'), icon: 'cropStyleSquare', ratio: 1 },
+  { id: 'circle', label: tx('Circle'), icon: 'cropStyleCircle', ratio: 1 },
 ];
 
 interface Crop { x: number; y: number; w: number; h: number } // fractions of the oriented image
@@ -270,13 +271,13 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
   const cur = STYLES.find((s) => s.id === style)!;
   const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
   return (
-    <div className="nc-image-editor" role="dialog" aria-label="Crop image">
+    <div className="nc-image-editor" role="dialog" aria-label={tx('Crop image')}>
       <div className="nc-image-editor-head">
         <div
           role="button"
           className="nc-image-editor-style"
-          aria-label="Aspect ratio"
-          data-tooltip="Aspect ratio"
+          aria-label={tx('Aspect ratio')}
+          data-tooltip={tx('Aspect ratio')}
           onClick={(e) => {
             // only this menu closes (Menu closes every overlay unless onSelect returns false — the editor stays)
             let closeMenu: () => void = () => {};
@@ -286,18 +287,18 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
           <Icon name={cur.icon} size={18} />
           <Icon name="chevronDown" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
         </div>
-        <div className="nc-image-editor-title">Crop image</div>
+        <div className="nc-image-editor-title">{tx('Crop image')}</div>
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-icon-btn" aria-label="Rotate left" data-tooltip="Rotate left" onClick={() => rotate(-1)}><Icon name="rotateLeft" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Rotate right" data-tooltip="Rotate right" onClick={() => rotate(1)}><Icon name="rotateRight" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Flip horizontal" data-tooltip="Flip horizontal" onClick={() => setFlipH(!flipH)}><Icon name="flipHorizontal" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Flip vertical" data-tooltip="Flip vertical" onClick={() => setFlipV(!flipV)}><Icon name="flipVertical" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label={tx('Rotate left')} data-tooltip={tx('Rotate left')} onClick={() => rotate(-1)}><Icon name="rotateLeft" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label={tx('Rotate right')} data-tooltip={tx('Rotate right')} onClick={() => rotate(1)}><Icon name="rotateRight" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label={tx('Flip horizontal')} data-tooltip={tx('Flip horizontal')} onClick={() => setFlipH(!flipH)}><Icon name="flipHorizontal" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label={tx('Flip vertical')} data-tooltip={tx('Flip vertical')} onClick={() => setFlipV(!flipV)}><Icon name="flipVertical" size={18} /></div>
       </div>
       <div className="nc-image-editor-stage" ref={stageRef}>
-        {failed && <div className="nc-image-editor-error">The image could not be loaded.</div>}
+        {failed && <div className="nc-image-editor-error">{tx('The image could not be loaded.')}</div>}
         {img && (
           <div className="nc-image-editor-canvas" style={{ width: box.w, height: box.h }}>
-            <canvas ref={previewRef} style={{ width: box.w, height: box.h }} aria-label="Source image" />
+            <canvas ref={previewRef} style={{ width: box.w, height: box.h }} aria-label={tx('Source image')} />
             <div
               className={`nc-crop-box ${style === 'circle' ? 'circle' : ''}`}
               style={{ left: crop.x * box.w, top: crop.y * box.h, width: crop.w * box.w, height: crop.h * box.h }}
@@ -311,10 +312,10 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
         )}
       </div>
       <div className="nc-image-editor-foot">
-        {original && <div role="button" className="nc-dialog-btn" onClick={revert}><Icon name="revertImage" size={16} />Restore original</div>}
+        {original && <div role="button" className="nc-dialog-btn" onClick={revert}><Icon name="revertImage" size={16} />{tx('Restore original')}</div>}
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-dialog-btn" onClick={close}>Cancel</div>
-        <div role="button" className={`nc-dialog-btn primary ${!img || saving ? 'disabled' : ''}`} aria-disabled={!img || saving} onClick={() => void save()}>{saving ? 'Saving…' : 'Save'}</div>
+        <div role="button" className="nc-dialog-btn" onClick={close}>{tx('Cancel')}</div>
+        <div role="button" className={`nc-dialog-btn primary ${!img || saving ? 'disabled' : ''}`} aria-disabled={!img || saving} onClick={() => void save()}>{saving ? tx('Saving…') : tx('Save')}</div>
       </div>
     </div>
   );
@@ -357,7 +358,7 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
         <div className="nc-input">
           <input
             autoFocus
-            placeholder="Paste a link or find pages"
+            placeholder={tx('Paste a link or find pages')}
             value={q}
             onChange={(e) => { setQ(e.target.value); setActive(0); }}
             onKeyDown={(e) => {
@@ -373,7 +374,7 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
         </div>
       </div>
       <div className="nc-image-link-list" role="listbox">
-        {!isUrl && !q.trim() && rows.length > 0 && <div className="nc-image-link-section">Recents</div>}
+        {!isUrl && !q.trim() && rows.length > 0 && <div className="nc-image-link-section">{tx('Recents')}</div>}
         {rows.map((r, i) => (
           <div key={r.key} role="option" aria-selected={i === active} className={`nc-menu-item ${i === active ? 'active' : ''}`} onMouseMove={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={() => pick(r.href)}>
             <div className="nc-menu-item-inner nc-mi">
@@ -389,7 +390,7 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
           <div role="option" aria-selected={false} className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={() => { setImageLink(blockId, null); close(); }}>
             <div className="nc-menu-item-inner nc-mi">
               <div className="nc-menu-icon"><Icon name="trash" size={18} /></div>
-              <div className="nc-menu-label"><div className="nc-ellipsis">Remove link</div></div>
+              <div className="nc-menu-label"><div className="nc-ellipsis">{tx('Remove link')}</div></div>
             </div>
           </div>
         )}

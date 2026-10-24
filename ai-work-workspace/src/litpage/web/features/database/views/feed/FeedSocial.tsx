@@ -17,6 +17,7 @@ import { useSession } from '../../../../lib/store/session.ts';
 import { timeAgo } from '../../../../lib/format.ts';
 import { UserAvatar, userName } from '../../../presence/Avatar.tsx';
 import { CommentComposer, DiscussionThread, ReactionGlyph, addComment, isPageDiscussion, isPostReactions, useComments } from '../../../comments/comments.tsx';
+import { tx } from '../../../shell/i18n.ts';
 
 const QUICK = ['👍', '❤️', '🎉', '😄', '👀', '✅', '🙏', '🔥'];
 
@@ -115,7 +116,7 @@ export function PostReactions({ row }: { row: BlockRecord }) {
   return (
     <>
       {canReact && (
-        <div role="button" className="nc-feed-react" aria-label="Add reaction" data-tooltip="Add reaction" aria-haspopup="dialog" data-testid="feed-add-reaction" onClick={(e) => pickPostReaction(e.currentTarget, row)}>
+        <div role="button" className="nc-feed-react" aria-label={tx('Add reaction')} data-tooltip={tx('Add reaction')} aria-haspopup="dialog" data-testid="feed-add-reaction" onClick={(e) => pickPostReaction(e.currentTarget, row)}>
           <Icon name="emojiFacePlus" size={18} />
         </div>
       )}
@@ -133,7 +134,7 @@ export function PostReactionPills({ row }: { row: BlockRecord }) {
   return (
     <div className="nc-reactions nc-page-reactions" data-testid="page-reactions">
       <Pills row={row} counts={counts} canReact={canReact} />
-      {canReact && <div role="button" className="nc-reaction add" aria-label="Add reaction" onClick={(e) => pickPostReaction(e.currentTarget, row)}><Icon name="emojiFacePlus" size={14} /></div>}
+      {canReact && <div role="button" className="nc-reaction add" aria-label={tx('Add reaction')} onClick={(e) => pickPostReaction(e.currentTarget, row)}><Icon name="emojiFacePlus" size={14} /></div>}
     </div>
   );
 }
@@ -178,7 +179,7 @@ function openViewers(anchor: HTMLElement, info: PostViewInfo) {
 export function PostViews({ info }: { info: PostViewInfo | undefined }) {
   if (!info) return null;
   return (
-    <div role="button" className="nc-feed-views" aria-haspopup="dialog" data-testid="feed-views" data-tooltip="Views" onClick={(e) => info.count && openViewers(e.currentTarget, info)}>
+    <div role="button" className="nc-feed-views" aria-haspopup="dialog" data-testid="feed-views" data-tooltip={tx('Views')} onClick={(e) => info.count && openViewers(e.currentTarget, info)}>
       <div className="nc-feed-facepile">
         {info.viewers.slice(0, 3).map((v) => <UserAvatar key={v.userId} userId={v.userId} size={18} />)}
       </div>
@@ -209,7 +210,7 @@ export function PostComments({ row, onOpen }: { row: BlockRecord; onOpen: () => 
       ))}
       {canComment && (
         <div className="nc-feed-composer">
-          <CommentComposer placeholder="Add a comment" submitAria="Send comment" onSubmit={(text) => { addComment(row.id, text, undefined, undefined, { type: 'page' }); }} />
+          <CommentComposer placeholder={tx('Add a comment')} submitAria="Send comment" onSubmit={(text) => { addComment(row.id, text, undefined, undefined, { type: 'page' }); }} />
         </div>
       )}
     </div>

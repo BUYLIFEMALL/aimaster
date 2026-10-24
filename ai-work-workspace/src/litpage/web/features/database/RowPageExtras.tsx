@@ -14,6 +14,7 @@ import { PostReactionPills } from './views/feed/FeedSocial.tsx';
 import { createTemplate } from './actions.ts';
 import { EmptyRowTemplates } from './templates/templates.tsx';
 import { useCollectionAccess } from './access.ts';
+import { tx } from '../shell/i18n.ts';
 
 export function RowComments({ pageId, canComment }: { pageId: string; canComment: boolean }) {
   const page = useBlock(pageId);
@@ -31,7 +32,7 @@ export function RowComments({ pageId, canComment }: { pageId: string; canComment
   return (
     <div ref={rootRef} className="layout-content nc-row-comments">
       <div className="nc-row-comments-inner">
-        <div className="nc-row-comments-title">Comments</div>
+        <div className="nc-row-comments-title">{tx('Comments')}</div>
         <div className="lit-page-view-discussion nc-row-comments-body">
           {page && <PostReactionPills row={page} />}
           {open.map((d) => (

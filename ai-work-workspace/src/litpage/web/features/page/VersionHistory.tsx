@@ -17,7 +17,7 @@ import { records } from '../../lib/store/records.ts';
 import { getBlock } from '../../lib/blocks.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { userName } from '../presence/Avatar.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { SnapshotPage } from './SnapshotPage.tsx';
 import { BLOCKS_MIME, blocksToHtml, blocksToMarkdown, type ParsedBlock } from '../editor/clipboard.ts';
 import { pageUrl } from '../../lib/router.ts';
@@ -250,7 +250,7 @@ function VersionHistory({ pageId, close, initial }: { pageId: string; close: () 
             <Icon name="chevronDownNarrow" size={14} />
           </div>
         </div>
-        <div className="lit-scroller vertical nc-vh-list" role="listbox" aria-label="Version history entries">
+        <div className="lit-scroller vertical nc-vh-list" role="listbox" aria-label={tx('Version history entries')}>
           {versions && listed.length === 0 && (
             <div className="nc-vh-empty small">{grouping === 'bookmarks' ? t('lp.page.you_haven_t_bookmarked_any_versions', 'You haven’t bookmarked any versions') : t('lp.page.there_s_no_change_history_yet', 'There’s no change history yet.')}</div>
           )}

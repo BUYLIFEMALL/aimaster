@@ -42,6 +42,7 @@ import { SettingsSaveControl } from './SaveControl.tsx';
 import { ManageDataSourcesPage } from '../sources/ManageSources.tsx';
 import { SourceRow } from '../sources/SourceRow.tsx';
 import { TRIM_VIEW_TYPES } from '../../shell/trimPolicy.ts';
+import { tx } from '../../shell/i18n.ts';
 
 interface VSState {
   openFor: string | null;
@@ -67,9 +68,9 @@ interface Ctx {
 function Header({ title, onBack, close, main }: { title: string; onBack?: () => void; close: () => void; main?: boolean }) {
   return (
     <div className={`nc-vs-header ${main ? 'main' : ''}`}>
-      {onBack && <span role="button" className="nc-vs-back" aria-label="Back" onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>}
+      {onBack && <span role="button" className="nc-vs-back" aria-label={tx('Back')} onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>}
       <span className="nc-vs-title">{title}</span>
-      <span role="button" className="nc-panel-close" aria-label="Close" data-testid="collection-settings-menu-close-button" onClick={close}><Icon name="xMarkSmall" size={14} /></span>
+      <span role="button" className="nc-panel-close" aria-label={tx('Close')} data-testid="collection-settings-menu-close-button" onClick={close}><Icon name="xMarkSmall" size={14} /></span>
     </div>
   );
 }
@@ -137,26 +138,26 @@ function MainPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
   const archivedOn = useArchivedViews((st) => !!st.on[ctx.block.id]);
   return (
     <>
-      <Header title={ctx.newView ? 'New view' : 'View settings'} close={close} main={!ctx.newView} />
+      <Header title={ctx.newView ? tx('New view') : tx('View settings')} close={close} main={!ctx.newView} />
       <div className="nc-vs-name-row" data-menu-keys="ignore">
-        <span role="button" className="nc-prop-icon-btn" aria-label="Change icon" onClick={(e) => !ro && openIconPicker(e.currentTarget, { current: (view.format as any)?.collection_view_icon, onPick: (v) => updateViewFormat(view.id, { collection_view_icon: v ?? undefined }) })}>
+        <span role="button" className="nc-prop-icon-btn" aria-label={tx('Change icon')} onClick={(e) => !ro && openIconPicker(e.currentTarget, { current: (view.format as any)?.collection_view_icon, onPick: (v) => updateViewFormat(view.id, { collection_view_icon: v ?? undefined }) })}>
           <Icon name={viewIcon(view.type)} size={20} />
         </span>
         <div className="nc-input nc-vs-name-input">
           <input
             value={name}
-            placeholder="View name"
+            placeholder={tx('View name')}
             readOnly={ro}
             autoFocus={ctx.newView}
             onChange={(e) => { setName(e.target.value); renameView(view.id, e.target.value || defaultName); }}
             onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
           />
-          <span role="button" className="nc-prop-desc-btn" aria-label="Create layout description" data-tooltip={(view.format as any)?.description || 'Create layout description'} onClick={(e) => {
+          <span role="button" className="nc-prop-desc-btn" aria-label={tx('Create layout description')} data-tooltip={(view.format as any)?.description || 'Create layout description'} onClick={(e) => {
             if (ro) return;
             const cur = String((view.format as any)?.description ?? '');
             let text = cur;
             openOverlay((c) => (
-              <PopoverSurface width={260}><div className="nc-prop-desc-body" data-menu-keys="ignore"><textarea autoFocus defaultValue={cur} placeholder="Add a description…" onChange={(ev) => (text = ev.target.value)} onKeyDown={(ev) => { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); c(); } }} /></div></PopoverSurface>
+              <PopoverSurface width={260}><div className="nc-prop-desc-body" data-menu-keys="ignore"><textarea autoFocus defaultValue={cur} placeholder={tx('Add a description…')} onChange={(ev) => (text = ev.target.value)} onKeyDown={(ev) => { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); c(); } }} /></div></PopoverSurface>
             ), { anchor: e.currentTarget, parent: overlayIdOf(e.currentTarget), onClose: () => updateViewFormat(view.id, { description: text.trim() || undefined }) });
           }}><Icon name="infoCircleFill" size={20} /></span>
         </div>
@@ -165,41 +166,41 @@ function MainPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
         <LayoutGrid view={view} collection={collection} readOnly={ro} />
       ) : null}
       {MainOverride ? <MainOverride block={ctx.block} view={view} collection={collection} readOnly={ro} go={(p) => go(p as Page)} close={close} /> : <Section className={ctx.newView ? undefined : 'nc-vs-sec first'}>
-        {!ctx.newView && <Row icon={viewIcon(view.type)} label="Layout" value={viewTypeMeta(view.type).label} onClick={() => go('layout')} />}
-        <Row icon="dbEye" label="Property visibility" value={shown} onClick={() => go('visibility')} />
-        <Row icon="dbFilter" label="Filter" value={filters || undefined} onClick={() => go('filter')} />
-        <Row icon="arrowUpDownSmall" label="Sort" value={sorts || undefined} onClick={() => go('sort')} />
-        {!['calendar', 'map', 'chart', 'form', 'feed', 'dashboard'].includes(view.type) && <Row icon={view.type === 'board' ? 'viewBoard' : 'dbGroup'} label="Group" value={gb ? collection.schema[gb.property]?.name : undefined} onClick={() => go('group')} />}
-        {view.type === 'board' && <Row icon="dbGroup" label="Sub-group" value={sub ? collection.schema[sub.property]?.name : undefined} onClick={() => go('subgroup')} />}
-        {['table', 'board', 'list', 'gallery', 'calendar', 'timeline', 'feed'].includes(view.type) && <Row icon="paintRoller" label="Conditional color" value={rules || undefined} onClick={() => go('color')} />}
-        <Row icon="dbLink" label="Copy link to layout" chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(ctx.block, view.id)); useUI.getState().toast('Copied link to view'); }} />
+        {!ctx.newView && <Row icon={viewIcon(view.type)} label={tx('Layout')} value={viewTypeMeta(view.type).label} onClick={() => go('layout')} />}
+        <Row icon="dbEye" label={tx('Property visibility')} value={shown} onClick={() => go('visibility')} />
+        <Row icon="dbFilter" label={tx('Filter')} value={filters || undefined} onClick={() => go('filter')} />
+        <Row icon="arrowUpDownSmall" label={tx('Sort')} value={sorts || undefined} onClick={() => go('sort')} />
+        {!['calendar', 'map', 'chart', 'form', 'feed', 'dashboard'].includes(view.type) && <Row icon={view.type === 'board' ? 'viewBoard' : 'dbGroup'} label={tx('Group')} value={gb ? collection.schema[gb.property]?.name : undefined} onClick={() => go('group')} />}
+        {view.type === 'board' && <Row icon="dbGroup" label={tx('Sub-group')} value={sub ? collection.schema[sub.property]?.name : undefined} onClick={() => go('subgroup')} />}
+        {['table', 'board', 'list', 'gallery', 'calendar', 'timeline', 'feed'].includes(view.type) && <Row icon="paintRoller" label={tx('Conditional color')} value={rules || undefined} onClick={() => go('color')} />}
+        <Row icon="dbLink" label={tx('Copy link to layout')} chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(ctx.block, view.id)); useUI.getState().toast('Copied link to view'); }} />
       </Section>}
       {ctx.newView && (
         <Section divider>
           {/* the new view’s data source: any source of this database, or a linked one */}
           <SourceRow block={ctx.block} view={view} collection={collection} readOnly={ro} allowLink />
-          <div className="nc-vs-done-wrap"><div role="button" className="nc-btn primary nc-vs-done" onClick={close}>Done</div></div>
+          <div className="nc-vs-done-wrap"><div role="button" className="nc-btn primary nc-vs-done" onClick={close}>{tx('Done')}</div></div>
         </Section>
       )}
       {!ctx.newView && !MainOverride && (
         <>
           {/* order and labels per */}
-          <Section divider title="Dataset settings" className="nc-vs-sec titled">
+          <Section divider title={tx('Dataset settings')} className="nc-vs-sec titled">
             {/* a block with a single data source shows its source as a dimmed, inert row */}
             <SourceRow block={ctx.block} view={view} collection={collection} readOnly={ro} />
-            <Row icon="bulletedList" label="Edit properties" onClick={() => go('properties')} />
-            <Row icon="dbLightning" label="Automations" onClick={() => void automationsEntry(collection, () => go('automations'))} />
-            <Row icon="magicWand" label="AI Autofill" onClick={(e) => pick(e.currentTarget, [
-              { id: 'basic', label: 'Basic', icon: 'magicWand', description: 'Not available in this workspace', disabled: true },
-              { id: 'agent', label: 'Custom Agent', icon: 'aiFace', badge: 'New', description: 'Uses advanced models to fill fields based on web search and your connected workspace.', disabled: true },
+            <Row icon="bulletedList" label={tx('Edit properties')} onClick={() => go('properties')} />
+            <Row icon="dbLightning" label={tx('Automations')} onClick={() => void automationsEntry(collection, () => go('automations'))} />
+            <Row icon="magicWand" label={tx('AI Autofill')} onClick={(e) => pick(e.currentTarget, [
+              { id: 'basic', label: tx('Basic'), icon: 'magicWand', description: tx('Not available in this workspace'), disabled: true },
+              { id: 'agent', label: tx('Custom Agent'), icon: 'aiFace', badge: 'New', description: tx('Uses advanced models to fill fields based on web search and your connected workspace.'), disabled: true },
             ], 260)} />
-            {!ro && <Row icon="dbTurnInto" label="Turn into" onClick={(e) => pick(e.currentTarget, turnIntoItems(collection, close))} />}
-            <Row icon="archiveBoxSmall" label={archivedOn ? 'Exit archive view' : 'Show archived entries'} chevron={false} onClick={() => { useArchivedViews.getState().set(ctx.block.id, !archivedOn); close(); }} />
-            <Row icon="ellipsis" label="More settings" onClick={(e) => pick(e.currentTarget, moreSettingsItems({ collection, view, block: ctx.block, go: (p) => go(p as Page), close }))} />
+            {!ro && <Row icon="dbTurnInto" label={tx('Turn into')} onClick={(e) => pick(e.currentTarget, turnIntoItems(collection, close))} />}
+            <Row icon="archiveBoxSmall" label={archivedOn ? tx('Exit archive view') : tx('Show archived entries')} chevron={false} onClick={() => { useArchivedViews.getState().set(ctx.block.id, !archivedOn); close(); }} />
+            <Row icon="ellipsis" label={tx('More settings')} onClick={(e) => pick(e.currentTarget, moreSettingsItems({ collection, view, block: ctx.block, go: (p) => go(p as Page), close }))} />
           </Section>
           <Section divider className="nc-vs-sec last">
             {/* Source and Linked lists, Add data source, and Link existing data source */}
-            <Row icon="collection" label="Manage datasets" onClick={() => go('sources')} />
+            <Row icon="collection" label={tx('Manage datasets')} onClick={() => go('sources')} />
             <LockRow block={ctx.block} />
           </Section>
         </>
@@ -215,7 +216,7 @@ function LockRow({ block }: { block: BlockRecord }) {
   const locked = isDatabaseLocked(live);
   return (
     <div data-tooltip={locked ? 'Unlock layouts and datasets in this table' : undefined}>
-      <Row icon="lockKeyhole" label={locked ? 'Unlock database' : 'Lock database'} chevron={false} disabled={!access.canToggleLock} testid="lock-database" onClick={() => setDatabaseLocked(live, !locked)} />
+      <Row icon="lockKeyhole" label={locked ? tx('Unlock database') : tx('Lock database')} chevron={false} disabled={!access.canToggleLock} testid="lock-database" onClick={() => setDatabaseLocked(live, !locked)} />
     </div>
   );
 }
@@ -254,43 +255,43 @@ function LayoutPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Coll
   const LayoutExtra = layoutSettingsRegistry[view.type];
   return (
     <>
-      <Header title="Layout" onBack={() => go('main')} close={close} />
+      <Header title={tx('Layout')} onBack={() => go('main')} close={close} />
       <LayoutGrid view={view} collection={collection} readOnly={ro} />
       <Section>
-        <ToggleRow label="Display dataset title" on={fmt.hide_linked_collection_name !== true} onChange={(v) => set({ hide_linked_collection_name: !v })} disabled={ro} />
-        {view.type !== 'chart' && view.type !== 'map' && <ToggleRow label="Display entry icon" on={fmt.show_page_icon !== false} onChange={(v) => set({ show_page_icon: v })} disabled={ro} />}
-        {(view.type === 'table' || view.type === 'board' || view.type === 'gallery') && <ToggleRow label="Wrap all content" on={fmt.table_wrap !== false} onChange={(v) => {
+        <ToggleRow label={tx('Display dataset title')} on={fmt.hide_linked_collection_name !== true} onChange={(v) => set({ hide_linked_collection_name: !v })} disabled={ro} />
+        {view.type !== 'chart' && view.type !== 'map' && <ToggleRow label={tx('Display entry icon')} on={fmt.show_page_icon !== false} onChange={(v) => set({ show_page_icon: v })} disabled={ro} />}
+        {(view.type === 'table' || view.type === 'board' || view.type === 'gallery') && <ToggleRow label={tx('Wrap all content')} on={fmt.table_wrap !== false} onChange={(v) => {
           const key = propertiesKeyFor(view.type);
           set({ table_wrap: v, ...(view.type === 'table' ? { [key]: viewProperties(view, collection.schema).map((e) => ({ ...e, wrap: undefined })) } : {}) });
         }} disabled={ro} />}
-        {view.type === 'table' && <ToggleRow label="Display vertical lines" on={fmt.hide_table_vertical_lines !== true} onChange={(v) => set({ hide_table_vertical_lines: !v })} disabled={ro} />}
+        {view.type === 'table' && <ToggleRow label={tx('Display vertical lines')} on={fmt.hide_table_vertical_lines !== true} onChange={(v) => set({ hide_table_vertical_lines: !v })} disabled={ro} />}
         {view.type === 'board' && (
           <>
-            <Row label="Group by" value={gb ? collection.schema[gb.property]?.name : 'None'} onClick={() => go('group')} />
-            <ToggleRow label="Color columns" on={!(gb as any)?.disableBoardColorColumns} onChange={(v) => updateGroupBy(view, { disableBoardColorColumns: !v })} disabled={ro || !gb} />
+            <Row label={tx('Group by')} value={gb ? collection.schema[gb.property]?.name : 'None'} onClick={() => go('group')} />
+            <ToggleRow label={tx('Color columns')} on={!(gb as any)?.disableBoardColorColumns} onChange={(v) => updateGroupBy(view, { disableBoardColorColumns: !v })} disabled={ro || !gb} />
           </>
         )}
         {LayoutExtra && <LayoutExtra view={view} collection={collection} readOnly={ro} />}
-        <Row label="Launch entries in" value={PEEK_MODES.find((m) => m.id === peek)?.label} onClick={(e) => pick(e.currentTarget, PEEK_MODES.map((m) => ({
+        <Row label={tx('Launch entries in')} value={PEEK_MODES.find((m) => m.id === peek)?.label} onClick={(e) => pick(e.currentTarget, PEEK_MODES.map((m) => ({
           id: m.id, label: m.label, icon: m.icon, checked: peek === m.id, onSelect: () => set({ collection_peek_mode: m.id }),
           // The default option is labeled for the current view type.
           description: <>{PEEK_DESCRIPTIONS[m.id]}{m.id === viewTypeMeta(view.type).defaultPeek ? <span className="nc-peek-default"> Default for {viewTypeMeta(view.type).label.toLowerCase()}</span> : null}</>,
         })), 290)} />
-        {['table', 'board', 'list', 'gallery', 'timeline', 'feed'].includes(view.type) && <Row label="Load limit" value={limit} onClick={(e) => pick(e.currentTarget, LOAD_LIMITS.map((n) => ({ id: String(n), label: `${n} pages`, checked: limit === n, onSelect: () => set({ inline_collection_first_load_limit: { type: 'load_limit', limit: n } }) })))} />}
+        {['table', 'board', 'list', 'gallery', 'timeline', 'feed'].includes(view.type) && <Row label={tx('Load limit')} value={limit} onClick={(e) => pick(e.currentTarget, LOAD_LIMITS.map((n) => ({ id: String(n), label: `${n} pages`, checked: limit === n, onSelect: () => set({ inline_collection_first_load_limit: { type: 'load_limit', limit: n } }) })))} />}
       </Section>
       {(view.type === 'board' || view.type === 'gallery') && (
         <Section divider>
-          <Row label="Card preview" value={coverLabel} onClick={(e) => pick(e.currentTarget, [
-            { id: 'none', label: 'None', checked: coverLabel === 'None', onSelect: () => set({ [coverKey]: { type: 'none' } }) },
-            { id: 'cover', label: 'Page cover', checked: cover?.type === 'page_cover', onSelect: () => set({ [coverKey]: { type: 'page_cover' } }) },
-            { id: 'content', label: 'Page content', description: 'Uses first block on the entry', checked: cover?.type === 'page_content' || cover?.type === 'page_content_first', onSelect: () => set({ [coverKey]: { type: 'page_content_first' } }) },
+          <Row label={tx('Card preview')} value={coverLabel} onClick={(e) => pick(e.currentTarget, [
+            { id: 'none', label: tx('None'), checked: coverLabel === 'None', onSelect: () => set({ [coverKey]: { type: 'none' } }) },
+            { id: 'cover', label: tx('Page cover'), checked: cover?.type === 'page_cover', onSelect: () => set({ [coverKey]: { type: 'page_cover' } }) },
+            { id: 'content', label: tx('Page content'), description: tx('Uses first block on the entry'), checked: cover?.type === 'page_content' || cover?.type === 'page_content_first', onSelect: () => set({ [coverKey]: { type: 'page_content_first' } }) },
             ...fileProps.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: cover?.type === 'property' && cover.property === id, onSelect: () => set({ [coverKey]: { type: 'property', property: id } }) })),
           ])} />
-          <Row label="Card size" value={({ small: 'Small', medium: 'Medium', large: 'Large' } as Record<string, string>)[fmt[sizeKey] ?? 'medium']} onClick={(e) => pick(e.currentTarget, (['small', 'medium', 'large'] as const).map((s) => ({ id: s, label: s[0].toUpperCase() + s.slice(1), checked: (fmt[sizeKey] ?? 'medium') === s, onSelect: () => set({ [sizeKey]: s }) })))} />
-          <ToggleRow label="Fit media" on={fmt[aspectKey] === 'contain'} onChange={(v) => set({ [aspectKey]: v ? 'contain' : 'cover' })} disabled={ro} />
-          <Row label="Card layout" value={(fmt.card_layout?.mode ?? 'list') === 'compact' ? 'Compact' : 'List'} onClick={(e) => pick(e.currentTarget, [
-            { id: 'list', label: 'List', checked: (fmt.card_layout?.mode ?? 'list') === 'list', onSelect: () => set({ card_layout: { mode: 'list' } }) },
-            { id: 'compact', label: 'Compact', checked: fmt.card_layout?.mode === 'compact', onSelect: () => set({ card_layout: { mode: 'compact' } }) },
+          <Row label={tx('Card size')} value={({ small: 'Small', medium: 'Medium', large: 'Large' } as Record<string, string>)[fmt[sizeKey] ?? 'medium']} onClick={(e) => pick(e.currentTarget, (['small', 'medium', 'large'] as const).map((s) => ({ id: s, label: s[0].toUpperCase() + s.slice(1), checked: (fmt[sizeKey] ?? 'medium') === s, onSelect: () => set({ [sizeKey]: s }) })))} />
+          <ToggleRow label={tx('Fit media')} on={fmt[aspectKey] === 'contain'} onChange={(v) => set({ [aspectKey]: v ? 'contain' : 'cover' })} disabled={ro} />
+          <Row label={tx('Card layout')} value={(fmt.card_layout?.mode ?? 'list') === 'compact' ? tx('Compact') : tx('List')} onClick={(e) => pick(e.currentTarget, [
+            { id: 'list', label: tx('List'), checked: (fmt.card_layout?.mode ?? 'list') === 'list', onSelect: () => set({ card_layout: { mode: 'list' } }) },
+            { id: 'compact', label: tx('Compact'), checked: fmt.card_layout?.mode === 'compact', onSelect: () => set({ card_layout: { mode: 'compact' } }) },
           ])} />
         </Section>
       )}
@@ -322,10 +323,10 @@ function VisibilityPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: 
         }}
       >
         <div className="nc-menu-item-inner">
-          <span className="nc-vis-drag" aria-label="Drag to send, click to launch menu"><Icon name="dragHandle" size={14} /></span>
+          <span className="nc-vis-drag" aria-label={tx('Drag to send, click to launch menu')}><Icon name="dragHandle" size={14} /></span>
           <div className="nc-menu-icon"><PropertyIcon prop={p} size={16} /></div>
           <div className="nc-menu-label">{p.name}</div>
-          <span role="button" className={`nc-vis-eye ${locked ? 'locked' : ''}`} aria-label="Switch field visibility" onClick={() => !locked && !ctx.readOnly && setPropertyVisible(view, collection.schema, e.property, !e.visible)}>
+          <span role="button" className={`nc-vis-eye ${locked ? 'locked' : ''}`} aria-label={tx('Switch field visibility')} onClick={() => !locked && !ctx.readOnly && setPropertyVisible(view, collection.schema, e.property, !e.visible)}>
             <Icon name={locked ? 'lock' : e.visible ? 'eye' : 'eyeSlash'} size={16} />
           </span>
         </div>
@@ -336,21 +337,21 @@ function VisibilityPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: 
   const hidden = entries.filter((e) => !e.visible);
   return (
     <>
-      <Header title="Property visibility" onBack={() => go('main')} close={close} />
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Find a field…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <Header title={tx('Property visibility')} onBack={() => go('main')} close={close} />
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder={tx('Find a field…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       {shown.length > 0 && (
-        <Section title={<span className="nc-vs-section-head"><span>Shown in {where}</span>{!ctx.readOnly && <span role="button" className="nc-vs-section-action" onClick={() => setAllPropertiesVisible(view, collection.schema, false)}>Hide all</span>}</span>}>
+        <Section title={<span className="nc-vs-section-head"><span>Shown in {where}</span>{!ctx.readOnly && <span role="button" className="nc-vs-section-action" onClick={() => setAllPropertiesVisible(view, collection.schema, false)}>{tx('Hide all')}</span>}</span>}>
           {shown.map(row)}
         </Section>
       )}
       {hidden.length > 0 && (
-        <Section divider={shown.length > 0} title={<span className="nc-vs-section-head"><span>Hidden in {where}</span>{!ctx.readOnly && <span role="button" className="nc-vs-section-action" onClick={() => setAllPropertiesVisible(view, collection.schema, true)}>Show all</span>}</span>}>
+        <Section divider={shown.length > 0} title={<span className="nc-vs-section-head"><span>Hidden in {where}</span>{!ctx.readOnly && <span role="button" className="nc-vs-section-action" onClick={() => setAllPropertiesVisible(view, collection.schema, true)}>{tx('Show all')}</span>}</span>}>
           {hidden.map(row)}
         </Section>
       )}
       {!ctx.readOnly && (
         <Section divider>
-          <Row icon="plus" label="New property" chevron={false} onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view })} />
+          <Row icon="plus" label={tx('New property')} chevron={false} onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view })} />
         </Section>
       )}
     </>
@@ -363,7 +364,7 @@ function FilterPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Coll
   const props = Object.entries(collection.schema).filter(([, p]) => propertyTypeMeta(p.type).filterValueType !== null && p.type !== 'button' && (!q || p.name.toLowerCase().includes(q.toLowerCase())));
   return (
     <>
-      <Header title="Filter" onBack={() => go('main')} close={close} />
+      <Header title={tx('Filter')} onBack={() => go('main')} close={close} />
       {chips.length > 0 && (
         <Section>
           {chips.map((c) => {
@@ -375,8 +376,8 @@ function FilterPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Coll
       )}
       <SettingsSaveControl view={view} scope="filters" />
       {/* everyone can filter for themselves; only people who can change the view save it for everyone (viewState.ts) */}
-      <Section divider={chips.length > 0} title="Add filter">
-        <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input placeholder="Filter by…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <Section divider={chips.length > 0} title={tx('Add filter')}>
+        <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input placeholder={tx('Filter by…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
         {props.map(([id, p]) => (
           <Row key={id} icon={<PropertyIcon prop={p} size={16} />} label={p.name} chevron={false} onClick={() => { addPropertyFilter(view, { property: id, filter: { operator: defaultFilterOperator(p) } }); close(); }} />
         ))}
@@ -391,24 +392,24 @@ function SortPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
   const props = Object.entries(collection.schema).filter(([id, p]) => p.type !== 'button' && !sorts.some((s) => s.property === id) && (!q || p.name.toLowerCase().includes(q.toLowerCase())));
   return (
     <>
-      <Header title="Sort" onBack={() => go('main')} close={close} />
+      <Header title={tx('Sort')} onBack={() => go('main')} close={close} />
       {sorts.length > 0 && (
         <Section>
           {sorts.map((s, i) => {
             const p = collection.schema[s.property];
             return (
-              <Row key={s.property} icon={<PropertyIcon prop={p} size={16} />} label={p.name} value={s.direction === 'descending' ? 'Descending' : 'Ascending'} onClick={(e) => pick(e.currentTarget, [
-                { id: 'asc', label: 'Ascending', checked: s.direction === 'ascending', onSelect: () => setSorts(view, sorts.map((x, j) => (j === i ? { ...x, direction: 'ascending' as const } : x))) },
-                { id: 'desc', label: 'Descending', checked: s.direction === 'descending', onSelect: () => setSorts(view, sorts.map((x, j) => (j === i ? { ...x, direction: 'descending' as const } : x))) },
-                { id: 'rm', label: 'Remove sort', icon: 'trash', onSelect: () => setSorts(view, sorts.filter((_, j) => j !== i)) },
+              <Row key={s.property} icon={<PropertyIcon prop={p} size={16} />} label={p.name} value={s.direction === 'descending' ? tx('Descending') : tx('Ascending')} onClick={(e) => pick(e.currentTarget, [
+                { id: 'asc', label: tx('Ascending'), checked: s.direction === 'ascending', onSelect: () => setSorts(view, sorts.map((x, j) => (j === i ? { ...x, direction: 'ascending' as const } : x))) },
+                { id: 'desc', label: tx('Descending'), checked: s.direction === 'descending', onSelect: () => setSorts(view, sorts.map((x, j) => (j === i ? { ...x, direction: 'descending' as const } : x))) },
+                { id: 'rm', label: tx('Remove sort'), icon: 'trash', onSelect: () => setSorts(view, sorts.filter((_, j) => j !== i)) },
               ])} />
             );
           })}
         </Section>
       )}
       <SettingsSaveControl view={view} scope="sorts" />
-      <Section divider={sorts.length > 0} title="New sort">
-        <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input placeholder="Sort by…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <Section divider={sorts.length > 0} title={tx('New sort')}>
+        <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input placeholder={tx('Sort by…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
         {props.map(([id, p]) => <Row key={id} icon={<PropertyIcon prop={p} size={16} />} label={p.name} chevron={false} onClick={() => setSorts(view, [...sorts, { property: id, direction: 'ascending' }])} />)}
       </Section>
     </>
@@ -416,7 +417,7 @@ function SortPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
 }
 
 const DATE_GROUP_OPTIONS = [
-  { id: 'relative', label: 'Relative' }, { id: 'day', label: 'Day' }, { id: 'week', label: 'Week' }, { id: 'month', label: 'Month' }, { id: 'year', label: 'Year' },
+  { id: 'relative', label: tx('Relative') }, { id: 'day', label: tx('Day') }, { id: 'week', label: tx('Week') }, { id: 'month', label: tx('Month') }, { id: 'year', label: tx('Year') },
 ];
 
 function GroupPage({ ctx, view, collection, go, close, sub }: { ctx: Ctx; view: CollectionViewRecord; collection: CollectionRecord; go: (p: Page) => void; close: () => void; sub?: boolean }) {
@@ -439,14 +440,14 @@ function GroupPage({ ctx, view, collection, go, close, sub }: { ctx: Ctx; view: 
     const choose = (id: string, p: PropertySchema) => setGroupBy(view, defaultGroupBy(p, id, { board: view.type === 'board' && !sub }) as GroupBy, { sub });
     return (
       <>
-        <Header title={sub ? 'Sub-group by' : 'Group by'} onBack={() => go('main')} close={close} />
+        <Header title={sub ? tx('Sub-group by') : tx('Group by')} onBack={() => go('main')} close={close} />
         <div className="nc-vs-search" data-menu-keys="ignore">
-          <div className="nc-input focused"><input autoFocus placeholder="Find a field…" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && shown[0] && !ro) choose(shown[0][0], shown[0][1]); }} /></div>
+          <div className="nc-input focused"><input autoFocus placeholder={tx('Find a field…')} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && shown[0] && !ro) choose(shown[0][0], shown[0][1]); }} /></div>
         </div>
         <div className="nc-vs-pick-list" role="listbox">
           {!search.trim() && (
             <div role="option" aria-selected className="nc-menu-item" onMouseDown={(e) => e.preventDefault()}>
-              <div className="nc-menu-item-inner"><div className="nc-menu-label">None</div><Icon name="checkmarkSmall" size={16} /></div>
+              <div className="nc-menu-item-inner"><div className="nc-menu-label">{tx('None')}</div><Icon name="checkmarkSmall" size={16} /></div>
             </div>
           )}
           {shown.map(([id, p]) => (
@@ -457,39 +458,39 @@ function GroupPage({ ctx, view, collection, go, close, sub }: { ctx: Ctx; view: 
               </div>
             </div>
           ))}
-          {!shown.length && <div className="nc-menu-empty">No results</div>}
+          {!shown.length && <div className="nc-menu-empty">{tx('No results')}</div>}
         </div>
       </>
     );
   }
   return (
     <>
-      <Header title={sub ? 'Sub-group' : 'Group'} onBack={() => go('main')} close={close} />
+      <Header title={sub ? tx('Sub-group') : tx('Group')} onBack={() => go('main')} close={close} />
       <Section>
-        <Row label={sub ? 'Sub-group by' : 'Group by'} value={prop?.name ?? 'None'} onClick={(e) => pickMenu(e.currentTarget, { width: 250, search: 'Find a field…', sections: [{ items: [
-          ...(view.type !== 'board' || sub ? [{ id: 'none', label: 'None', checked: !gb, onSelect: () => setGroupBy(view, null, { sub }) }] : []),
+        <Row label={sub ? tx('Sub-group by') : tx('Group by')} value={prop?.name ?? 'None'} onClick={(e) => pickMenu(e.currentTarget, { width: 250, search: 'Find a field…', sections: [{ items: [
+          ...(view.type !== 'board' || sub ? [{ id: 'none', label: tx('None'), checked: !gb, onSelect: () => setGroupBy(view, null, { sub }) }] : []),
           ...candidates.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: gb?.property === id, onSelect: () => setGroupBy(view, defaultGroupBy(p, id, { board: view.type === 'board' && !sub }) as GroupBy, { sub }) })),
         ] }] })} />
-        {gb && prop?.type === 'status' && <Row label="Status by" value={gb.groupBy === 'group' ? 'Group' : 'Option'} onClick={(e) => pick(e.currentTarget, [
-          { id: 'group', label: 'Group', checked: gb.groupBy === 'group', onSelect: () => updateGroupBy(view, { groupBy: 'group' }, { sub }) },
-          { id: 'option', label: 'Option', checked: gb.groupBy !== 'group', onSelect: () => updateGroupBy(view, { groupBy: 'option' }, { sub }) },
+        {gb && prop?.type === 'status' && <Row label={tx('Status by')} value={gb.groupBy === 'group' ? tx('Group') : tx('Option')} onClick={(e) => pick(e.currentTarget, [
+          { id: 'group', label: tx('Group'), checked: gb.groupBy === 'group', onSelect: () => updateGroupBy(view, { groupBy: 'group' }, { sub }) },
+          { id: 'option', label: tx('Option'), checked: gb.groupBy !== 'group', onSelect: () => updateGroupBy(view, { groupBy: 'option' }, { sub }) },
         ])} />}
-        {gb && isDate && <Row label="Date by" value={DATE_GROUP_OPTIONS.find((o) => o.id === (gb.groupBy ?? 'relative'))?.label} onClick={(e) => pick(e.currentTarget, DATE_GROUP_OPTIONS.map((o) => ({ id: o.id, label: o.label, checked: (gb.groupBy ?? 'relative') === o.id, onSelect: () => updateGroupBy(view, { groupBy: o.id }, { sub }) })))} />}
-        {gb && isText && <Row label="Text by" value={gb.groupBy === 'alphabet_prefix' ? 'Alphabetical' : 'Exact'} onClick={(e) => pick(e.currentTarget, [
-          { id: 'exact', label: 'Exact', checked: gb.groupBy !== 'alphabet_prefix', onSelect: () => updateGroupBy(view, { groupBy: 'exact' }, { sub }) },
-          { id: 'alpha', label: 'Alphabetical', checked: gb.groupBy === 'alphabet_prefix', onSelect: () => updateGroupBy(view, { groupBy: 'alphabet_prefix' }, { sub }) },
+        {gb && isDate && <Row label={tx('Date by')} value={DATE_GROUP_OPTIONS.find((o) => o.id === (gb.groupBy ?? 'relative'))?.label} onClick={(e) => pick(e.currentTarget, DATE_GROUP_OPTIONS.map((o) => ({ id: o.id, label: o.label, checked: (gb.groupBy ?? 'relative') === o.id, onSelect: () => updateGroupBy(view, { groupBy: o.id }, { sub }) })))} />}
+        {gb && isText && <Row label={tx('Text by')} value={gb.groupBy === 'alphabet_prefix' ? tx('Alphabetical') : tx('Exact')} onClick={(e) => pick(e.currentTarget, [
+          { id: 'exact', label: tx('Exact'), checked: gb.groupBy !== 'alphabet_prefix', onSelect: () => updateGroupBy(view, { groupBy: 'exact' }, { sub }) },
+          { id: 'alpha', label: tx('Alphabetical'), checked: gb.groupBy === 'alphabet_prefix', onSelect: () => updateGroupBy(view, { groupBy: 'alphabet_prefix' }, { sub }) },
         ])} />}
         {gb && prop?.type === 'number' && <NumberRange gb={gb} view={view} sub={sub} />}
-        {gb && <Row label="Sort" value={sortType === 'manual' ? 'Manual' : sortType === 'descending' ? 'Descending' : 'Ascending'} onClick={(e) => pick(e.currentTarget, [
-          { id: 'manual', label: 'Manual', checked: sortType === 'manual', onSelect: () => updateGroupBy(view, { sort: { type: 'manual' } }, { sub }) },
-          { id: 'asc', label: 'Ascending', checked: sortType === 'ascending', onSelect: () => updateGroupBy(view, { sort: { type: 'ascending' } }, { sub }) },
-          { id: 'desc', label: 'Descending', checked: sortType === 'descending', onSelect: () => updateGroupBy(view, { sort: { type: 'descending' } }, { sub }) },
+        {gb && <Row label={tx('Sort')} value={sortType === 'manual' ? 'Manual' : sortType === 'descending' ? tx('Descending') : tx('Ascending')} onClick={(e) => pick(e.currentTarget, [
+          { id: 'manual', label: tx('Manual'), checked: sortType === 'manual', onSelect: () => updateGroupBy(view, { sort: { type: 'manual' } }, { sub }) },
+          { id: 'asc', label: tx('Ascending'), checked: sortType === 'ascending', onSelect: () => updateGroupBy(view, { sort: { type: 'ascending' } }, { sub }) },
+          { id: 'desc', label: tx('Descending'), checked: sortType === 'descending', onSelect: () => updateGroupBy(view, { sort: { type: 'descending' } }, { sub }) },
         ])} />}
-        {gb && <ToggleRow label="Conceal empty groups" on={!!gb.hideEmptyGroups} onChange={(v) => updateGroupBy(view, { hideEmptyGroups: v }, { sub })} disabled={ro} />}
-        {gb && view.type === 'board' && !sub && <ToggleRow label="Color columns" on={!gb.disableBoardColorColumns} onChange={(v) => updateGroupBy(view, { disableBoardColorColumns: !v })} disabled={ro} />}
+        {gb && <ToggleRow label={tx('Conceal empty groups')} on={!!gb.hideEmptyGroups} onChange={(v) => updateGroupBy(view, { hideEmptyGroups: v }, { sub })} disabled={ro} />}
+        {gb && view.type === 'board' && !sub && <ToggleRow label={tx('Color columns')} on={!gb.disableBoardColorColumns} onChange={(v) => updateGroupBy(view, { disableBoardColorColumns: !v })} disabled={ro} />}
       </Section>
       {gb && groups.length > 0 && (
-        <Section divider title={<span className="nc-vs-section-head"><span>Groups</span>{!ro && <span role="button" className="nc-vs-section-action" onClick={() => setSavedGroups(view, savedGroupsFrom(groups.map((g) => ({ ...g, hidden: groups.some((x) => !x.hidden) })), gb.property, saved), { sub })}>{groups.some((x) => !x.hidden) ? 'Hide all' : 'Show all'}</span>}</span>}>
+        <Section divider title={<span className="nc-vs-section-head"><span>{tx('Groups')}</span>{!ro && <span role="button" className="nc-vs-section-action" onClick={() => setSavedGroups(view, savedGroupsFrom(groups.map((g) => ({ ...g, hidden: groups.some((x) => !x.hidden) })), gb.property, saved), { sub })}>{groups.some((x) => !x.hidden) ? tx('Hide all') : tx('Show all')}</span>}</span>}>
           {[...groups.filter((g) => !g.hidden), ...groups.filter((g) => g.hidden)].map((g) => (
             <div
               key={g.id}
@@ -509,15 +510,15 @@ function GroupPage({ ctx, view, collection, go, close, sub }: { ctx: Ctx; view: 
               <div className="nc-menu-item-inner">
                 <span className="nc-vis-drag"><Icon name="dragHandle" size={14} /></span>
                 <div className="nc-menu-label"><GroupToken group={g} /></div>
-                <span role="button" className="nc-vis-eye" aria-label={g.hidden ? 'Show group' : 'Hide group'} onClick={() => !ro && setHidden(g.id, !g.hidden)}><Icon name={g.hidden ? 'eyeSlash' : 'eye'} size={16} /></span>
+                <span role="button" className="nc-vis-eye" aria-label={g.hidden ? tx('Show group') : tx('Hide group')} onClick={() => !ro && setHidden(g.id, !g.hidden)}><Icon name={g.hidden ? 'eyeSlash' : 'eye'} size={16} /></span>
               </div>
             </div>
           ))}
         </Section>
       )}
       <Section divider>
-        {gb && !ro && (view.type !== 'board' || sub) && <Row icon="trash" label={sub ? 'Remove sub-grouping' : 'Remove grouping'} chevron={false} onClick={() => setGroupBy(view, null, { sub })} />}
-        {HELP_URL && <Row icon="questionMarkCircle" label="Explore grouping" chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
+        {gb && !ro && (view.type !== 'board' || sub) && <Row icon="trash" label={sub ? tx('Remove sub-grouping') : tx('Remove grouping')} chevron={false} onClick={() => setGroupBy(view, null, { sub })} />}
+        {HELP_URL && <Row icon="questionMarkCircle" label={tx('Explore grouping')} chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
       </Section>
     </>
   );
@@ -527,15 +528,15 @@ function NumberRange({ gb, view, sub }: { gb: GroupBy; view: CollectionViewRecor
   const range = typeof gb.groupBy === 'object' && gb.groupBy.type === 'range';
   return (
     <>
-      <Row label="Number by" value={range ? 'Range' : 'Unique value'} onClick={(e) => pick(e.currentTarget, [
-        { id: 'unique', label: 'Unique value', checked: !range, onSelect: () => updateGroupBy(view, { groupBy: { type: 'unique' } }, { sub }) },
-        { id: 'range', label: 'Range', checked: range, onSelect: () => updateGroupBy(view, { groupBy: { type: 'range' }, start: gb.start ?? 0, end: gb.end ?? 1000, size: gb.size ?? 100 }, { sub }) },
+      <Row label={tx('Number by')} value={range ? tx('Range') : tx('Unique value')} onClick={(e) => pick(e.currentTarget, [
+        { id: 'unique', label: tx('Unique value'), checked: !range, onSelect: () => updateGroupBy(view, { groupBy: { type: 'unique' } }, { sub }) },
+        { id: 'range', label: tx('Range'), checked: range, onSelect: () => updateGroupBy(view, { groupBy: { type: 'range' }, start: gb.start ?? 0, end: gb.end ?? 1000, size: gb.size ?? 100 }, { sub }) },
       ])} />
       {range && (
         <div className="nc-vs-number-range" data-menu-keys="ignore">
           {(['start', 'end', 'size'] as const).map((k) => (
             <label key={k}>
-              <span>{k === 'start' ? 'From' : k === 'end' ? 'To' : 'Interval'}</span>
+              <span>{k === 'start' ? 'From' : k === 'end' ? tx('To') : tx('Interval')}</span>
               <input type="number" defaultValue={String(gb[k] ?? (k === 'start' ? 0 : k === 'end' ? 1000 : 100))} onBlur={(e) => { const n = Number(e.target.value); if (Number.isFinite(n)) updateGroupBy(view, { [k]: n }, { sub }); }} />
             </label>
           ))}
@@ -563,8 +564,8 @@ function ColorPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Colle
   const props = propsForPicker(collection.schema, (p) => !['button', 'file', 'place', 'location', 'verification'].includes(p.type));
   return (
     <>
-      <Header title="Conditional color" onBack={() => go('main')} close={close} />
-      {!rules.length && <div className="nc-vs-empty">Adjust entry colors to easily distinguish categories, highlight overdue events, and bring clarity to your work.</div>}
+      <Header title={tx('Conditional color')} onBack={() => go('main')} close={close} />
+      {!rules.length && <div className="nc-vs-empty">{tx('Adjust entry colors to easily distinguish categories, highlight overdue events, and bring clarity to your work.')}</div>}
       {rules.map((r, i) => {
         const p = collection.schema[r.property];
         const leaf: PropertyFilterLeaf = { property: r.property, filter: r.filter };
@@ -578,13 +579,13 @@ function ColorPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Colle
               <span role="button" className="nc-cc-color" onClick={(e) => pick(e.currentTarget, BG_COLORS.map((c) => ({ id: c, label: COLOR_LABELS[c], icon: <ColorSwatch color={c} />, checked: r.color === `${c}_background`, onSelect: () => set(rules.map((x, j) => (j === i ? { ...x, color: `${c}_background`, color_auto: false } : x))) })), 200)}>
                 <ColorSwatch color={r.color.replace('_background', '')} />
               </span>
-              <span role="button" className="nc-sort-remove" aria-label="Delete conditional color rule" onClick={() => set(rules.filter((_, j) => j !== i))}><Icon name="trash" size={14} /></span>
+              <span role="button" className="nc-sort-remove" aria-label={tx('Delete conditional color rule')} onClick={() => set(rules.filter((_, j) => j !== i))}><Icon name="trash" size={14} /></span>
             </div>
             <div className="nc-cc-rule-cond">{l.rest || 'Any value'}</div>
             {p && <FilterValueEditor leaf={leaf} prop={p} onChange={(n) => set(rules.map((x, j) => (j === i ? { ...x, filter: n.filter, ...(x.color_auto !== false && inheritedColor(p, n.filter) ? { color: inheritedColor(p, n.filter)! } : {}) } : x)))} />}
             {view.type === 'table' && (
-              <Row label="Apply to" value={r.apply_to === 'property' ? p?.name ?? 'Property' : 'Row'} onClick={(e) => pick(e.currentTarget, [
-                { id: 'row', label: 'Row', checked: r.apply_to !== 'property', onSelect: () => set(rules.map((x, j) => (j === i ? { ...x, apply_to: 'row' } : x))) },
+              <Row label={tx('Apply to')} value={r.apply_to === 'property' ? p?.name ?? tx('Property') : tx('Row')} onClick={(e) => pick(e.currentTarget, [
+                { id: 'row', label: tx('Row'), checked: r.apply_to !== 'property', onSelect: () => set(rules.map((x, j) => (j === i ? { ...x, apply_to: 'row' } : x))) },
                 { id: 'prop', label: p?.name ?? 'Property', checked: r.apply_to === 'property', onSelect: () => set(rules.map((x, j) => (j === i ? { ...x, apply_to: 'property' } : x))) },
               ])} />
             )}
@@ -593,7 +594,7 @@ function ColorPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Colle
       })}
       {!ctx.readOnly && (
         <Section divider={rules.length > 0}>
-          <Row icon="plusSmall" label={rules.length ? 'Add another' : 'New color setting'} chevron={false} onClick={(e) => pick(e.currentTarget, props.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => {
+          <Row icon="plusSmall" label={rules.length ? tx('Add another') : tx('New color setting')} chevron={false} onClick={(e) => pick(e.currentTarget, props.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => {
             // a new rule starts as "<property> is not empty" 
             const opt = p.options?.[0];
             set([...rules, { id: crypto.randomUUID(), property: id, filter: { operator: 'is_not_empty' }, color: `${opt?.color && opt.color !== 'default' ? opt.color : 'red'}_background`, color_auto: true }]);
@@ -612,15 +613,15 @@ function PropertiesPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: 
   const deleted = Object.entries(((collection as any).deleted_schema ?? {}) as Record<string, PropertySchema>);
   return (
     <>
-      <Header title="Properties" onBack={() => go('main')} close={close} />
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Find a field…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <Header title={tx('Properties')} onBack={() => go('main')} close={close} />
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder={tx('Find a field…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <Section>
         {entries.map(([id, p]) => <Row key={id} icon={<PropertyIcon prop={p} size={16} />} label={p.name} onClick={(e) => openEditPropertyPopover(e.currentTarget, collection.id, id, view, { placement: 'right-start' })} />)}
       </Section>
       {!ctx.readOnly && (
         <Section divider>
-          <Row icon="plus" label="New property" chevron={false} onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view })} />
-          {deleted.length > 0 && <Row icon="trash" label="Deleted properties" value={deleted.length} onClick={(e) => pickMenu(e.currentTarget, deletedPropertiesMenuDef(collection.id), 'right-start')} />}
+          <Row icon="plus" label={tx('New property')} chevron={false} onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view })} />
+          {deleted.length > 0 && <Row icon="trash" label={tx('Deleted properties')} value={deleted.length} onClick={(e) => pickMenu(e.currentTarget, deletedPropertiesMenuDef(collection.id), 'right-start')} />}
         </Section>
       )}
     </>
@@ -647,7 +648,7 @@ function ViewSettingsPanel({ ctx, close }: { ctx: Ctx; close: () => void }) {
     case 'subitems': body = <SubitemsPage {...props} />; break;
     case 'dependencies': body = <DependenciesPage {...props} />; break;
     case 'sprints': body = <SprintsPage {...props} />; break;
-    case 'automations': body = <><Header title="Automations" onBack={() => setPage('main')} close={close} /><AutomationsList collectionId={collection.id} /></>; break;
+    case 'automations': body = <><Header title={tx('Automations')} onBack={() => setPage('main')} close={close} /><AutomationsList collectionId={collection.id} /></>; break;
     case 'sources': body = <ManageDataSourcesPage block={ctx.block} readOnly={ctx.readOnly} onBack={() => setPage('main')} close={close} />; break;
     default: body = <MainPage {...props} />;
   }

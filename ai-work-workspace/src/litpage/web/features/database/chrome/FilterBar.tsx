@@ -26,6 +26,7 @@ import { collectionRows, collectionTemplates } from '../data.ts';
 import { openNestedMenu } from '../menus.ts';
 import { dirtyKind, effectiveView, useEffectiveView, useViewTempVersion } from '../viewState.ts';
 import { FilterBarSaveControl } from './SaveControl.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 // ---------- helpers ----------
 
@@ -38,7 +39,7 @@ function valuesOf(fv: FilterValue | FilterValue[] | undefined): FilterValue[] {
 
 function relativeLabel(v: FilterValue): string {
   if (typeof v.value === 'string' && RELATIVE_DATE_LABELS[v.value]) {
-    if (v.value === 'custom') return `${v.direction === 'future' ? 'Next' : 'Past'} ${v.count ?? 1} ${v.unit ?? 'week'}${(v.count ?? 1) === 1 ? '' : 's'}`;
+    if (v.value === 'custom') return `${v.direction === 'future' ? tx('Next') : tx('Past')} ${v.count ?? 1} ${v.unit ?? 'week'}${(v.count ?? 1) === 1 ? '' : 's'}`;
     if (v.value === 'surrounding') return `This ${v.unit ?? 'week'}`;
     return RELATIVE_DATE_LABELS[v.value];
   }
@@ -90,7 +91,7 @@ function TextValue({ leaf, onChange, number }: { leaf: PropertyFilterLeaf; onCha
       <div className="nc-input focused">
         <input
           autoFocus
-          placeholder="Type a value…"
+          placeholder={tx('Type a value…')}
           inputMode={number ? 'decimal' : undefined}
           value={text}
           onChange={(e) => {
@@ -124,7 +125,7 @@ function OptionsValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; prop
   );
   return (
     <div className="nc-filter-options" data-menu-keys="ignore">
-      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="Choose one or more options…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder={tx('Choose one or more options…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-filter-options-list">
         {isStatus
           ? groups.map((g) => (
@@ -134,9 +135,9 @@ function OptionsValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; prop
               </div>
             ))
           : options.map((o) => row(o.id, <OptionPill option={o} />, { type: 'exact', value: o.value }))}
-        {!options.length && !isStatus && <div className="nc-select-editor-empty">No results</div>}
+        {!options.length && !isStatus && <div className="nc-select-editor-empty">{tx('No results')}</div>}
       </div>
-      {vals.length > 0 && <div role="button" className="nc-filter-clear" onClick={() => onChange(undefined)}>Clear selection</div>}
+      {vals.length > 0 && <div role="button" className="nc-filter-clear" onClick={() => onChange(undefined)}>{tx('Clear selection')}</div>}
     </div>
   );
 }
@@ -153,13 +154,13 @@ function PeopleValue({ leaf, onChange }: { leaf: PropertyFilterLeaf; onChange: (
   const me: FilterValue = { type: 'relative', value: 'me' };
   return (
     <div className="nc-filter-options" data-menu-keys="ignore">
-      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="Find one or more people…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder={tx('Find one or more people…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-filter-options-list">
         {(!q || 'me'.includes(q.toLowerCase())) && (
           <div role="option" className="nc-filter-option" onClick={() => toggle(me)}>
             <span className={`nc-prop-checkbox ${has(me) ? 'checked' : ''}`}>{has(me) && <Icon name="checkmarkSmall" size={12} strokeWidth={2.6} />}</span>
             <UserAvatar userId={useSession.getState().userId} size={20} />
-            <span>Me</span>
+            <span>{tx('Me')}</span>
           </div>
         )}
         {users.map((u) => {
@@ -189,7 +190,7 @@ function RelationValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
   const sprintVars = isSprintsDatabase(records.get<CollectionRecord>('collection', String(prop.collection_id ?? ''))) ? ['current_sprint', 'next_sprint', 'last_sprint'] : [];
   return (
     <div className="nc-filter-options" data-menu-keys="ignore">
-      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="Find one or more entries…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder={tx('Find one or more entries…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-filter-options-list">
         {sprintVars.map((sv) => (
           <div key={sv} role="option" className="nc-filter-option" onClick={() => { const next = has(sv) ? vals.filter((v) => v.value !== sv) : [...vals, { type: 'relative' as const, value: sv }]; onChange(next.length ? next : undefined); }}>
@@ -200,10 +201,10 @@ function RelationValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
         {pages.map((p) => (
           <div key={p.id} role="option" className="nc-filter-option" onClick={() => { const next = has(p.id) ? vals.filter((v) => v.value !== p.id) : [...vals, { type: 'exact' as const, value: p.id }]; onChange(next.length ? next : undefined); }}>
             <span className={`nc-prop-checkbox ${has(p.id) ? 'checked' : ''}`}>{has(p.id) && <Icon name="checkmarkSmall" size={12} strokeWidth={2.6} />}</span>
-            <span>{toPlainText(p.properties?.title) || 'Untitled'}{p.is_template && <span className="nc-filter-option-badge"> Template</span>}</span>
+            <span>{toPlainText(p.properties?.title) || 'Untitled'}{p.is_template && <span className="nc-filter-option-badge"> {tx('Template')}</span>}</span>
           </div>
         ))}
-        {!pages.length && <div className="nc-select-editor-empty">No results</div>}
+        {!pages.length && <div className="nc-select-editor-empty">{tx('No results')}</div>}
       </div>
     </div>
   );
@@ -216,7 +217,7 @@ function CheckboxValue({ leaf, onChange }: { leaf: PropertyFilterLeaf; onChange:
       {[true, false].map((b) => (
         <div key={String(b)} role="option" className="nc-filter-option" onClick={() => onChange({ type: 'exact', value: b })}>
           <span className={`nc-prop-checkbox ${b ? 'checked' : ''}`}>{b && <Icon name="checkmarkSmall" size={12} strokeWidth={2.6} />}</span>
-          <span>{b ? 'Checked' : 'Unchecked'}</span>
+          <span>{b ? tx('Checked') : tx('Unchecked')}</span>
           {(cur === b || (cur === undefined && false)) && <Icon name="check" size={16} style={{ marginInlineStart: 'auto' }} />}
         </div>
       ))}
@@ -257,8 +258,8 @@ function DateValue({ leaf, onChange, onUseEnd }: { leaf: PropertyFilterLeaf; onC
   return (
     <div className="nc-filter-date" data-menu-keys="ignore">
       <div className="nc-filter-date-mode">
-        <span role="button" className={`nc-filter-date-tab ${!leaf.filter.use_end ? 'active' : ''}`} data-tooltip="Matches the start of a date range, or the date itself for single dates." onClick={() => onUseEnd(false)}>Start date</span>
-        <span role="button" className={`nc-filter-date-tab ${leaf.filter.use_end ? 'active' : ''}`} data-tooltip="Matches the end of a date range, or the date itself for single dates." onClick={() => onUseEnd(true)}>End date</span>
+        <span role="button" className={`nc-filter-date-tab ${!leaf.filter.use_end ? 'active' : ''}`} data-tooltip={tx('Matches the start of a date range, or the date itself for single dates.')} onClick={() => onUseEnd(false)}>{tx('Start date')}</span>
+        <span role="button" className={`nc-filter-date-tab ${leaf.filter.use_end ? 'active' : ''}`} data-tooltip={tx('Matches the end of a date range, or the date itself for single dates.')} onClick={() => onUseEnd(true)}>{tx('End date')}</span>
       </div>
       <div className="nc-filter-options">
         {(isRange ? RANGE_OPTIONS : SINGLE_DATE_OPTIONS).map((v) => (
@@ -269,10 +270,10 @@ function DateValue({ leaf, onChange, onUseEnd }: { leaf: PropertyFilterLeaf; onC
         ))}
         {isRange && (
           <div className="nc-filter-relative-range">
-            <span>Relative range</span>
+            <span>{tx('Relative range')}</span>
             <select value={custom.direction} onChange={(e) => onChange({ ...custom, direction: e.target.value as 'past' | 'future' })}>
-              <option value="past">Past</option>
-              <option value="future">Next</option>
+              <option value="past">{tx('Past')}</option>
+              <option value="future">{tx('Next')}</option>
             </select>
             <input type="number" min={1} value={custom.count ?? 1} onChange={(e) => onChange({ ...custom, count: Math.max(1, Number(e.target.value) || 1) })} />
             <select value={custom.unit} onChange={(e) => onChange({ ...custom, unit: e.target.value as 'day' | 'week' | 'month' | 'year' })}>
@@ -281,7 +282,7 @@ function DateValue({ leaf, onChange, onUseEnd }: { leaf: PropertyFilterLeaf; onC
           </div>
         )}
         <div role="option" className={`nc-filter-option ${mode === 'exact' ? 'selected' : ''}`} onClick={() => setMode('exact')}>
-          <span>{isRange ? 'Exact dates' : 'Custom date'}</span>
+          <span>{isRange ? tx('Exact dates') : tx('Custom date')}</span>
           {mode === 'exact' && <Icon name="check" size={16} style={{ marginInlineStart: 'auto' }} />}
         </div>
       </div>
@@ -353,10 +354,10 @@ function FilterChipEditor({ viewId, collectionId, filterId, close }: { viewId: s
         <span
           role="button"
           className="nc-filter-editor-more"
-          aria-label="More actions"
+          aria-label={tx('More actions')}
           onClick={(e) => openMenu(e.currentTarget, { width: 240, sections: [{ items: [
-            { id: 'del', label: 'Delete filter', icon: 'trash', onSelect: () => { removePropertyFilter(view, filterId); close(); } },
-            { id: 'adv', label: 'Add an advanced filter', icon: 'filter', description: 'Group rules with an advanced filter and combine AND/OR conditions.', onSelect: () => {
+            { id: 'del', label: tx('Delete filter'), icon: 'trash', onSelect: () => { removePropertyFilter(view, filterId); close(); } },
+            { id: 'adv', label: tx('Add an advanced filter'), icon: 'filter', description: tx('Group rules with an advanced filter and combine AND/OR conditions.'), onSelect: () => {
               const adv = advancedFilterOf(view) ?? { operator: 'and' as const, filters: [] };
               setAdvancedFilter(view, { ...adv, filters: [...adv.filters, leaf] });
               const latest = effectiveView(records.get<CollectionViewRecord>('collection_view', view.id)!);
@@ -405,7 +406,7 @@ export function openFilterPropertyPicker(anchor: HTMLElement, opts: { view: Coll
         <div role="menuitem" className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); addAdvanced(); }}>
           <div className="nc-menu-item-inner nc-mi">
             <div className="nc-menu-icon" style={{ color: 'var(--lp-icon-secondary)' }}><Icon name="plus" size={20} /></div>
-            <div className="nc-menu-label"><div className="nc-ellipsis" style={{ color: 'var(--lp-text-secondary)' }}>Create an advanced filter</div></div>
+            <div className="nc-menu-label"><div className="nc-ellipsis" style={{ color: 'var(--lp-text-secondary)' }}>{tx('Create an advanced filter')}</div></div>
           </div>
         </div>
       </div>
@@ -444,29 +445,29 @@ function AdvancedRows({ group, path, schema, onChange, depth }: { group: FilterG
       {group.filters.map((node, i) => {
         const p = [...path, i];
         const lead = i === 0 ? (
-          <span className="nc-adv-lead">Where</span>
+          <span className="nc-adv-lead">{tx('Where')}</span>
         ) : i === 1 ? (
           <span role="button" className="nc-adv-lead select" onClick={(e) => openNestedMenu(e.currentTarget, { width: 220, sections: [{ items: [
-            { id: 'and', label: 'And', description: 'Every filter must match', checked: group.operator === 'and', onSelect: () => setCombinator('and') },
-            { id: 'or', label: 'Or', description: 'Any filter can match', checked: group.operator === 'or', onSelect: () => setCombinator('or') },
-          ] }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>{group.operator === 'or' ? 'Or' : 'And'}<Icon name="arrowChevronSingleDownSmall" size={12} /></span>
+            { id: 'and', label: tx('And'), description: tx('Every filter must match'), checked: group.operator === 'and', onSelect: () => setCombinator('and') },
+            { id: 'or', label: tx('Or'), description: tx('Any filter can match'), checked: group.operator === 'or', onSelect: () => setCombinator('or') },
+          ] }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>{group.operator === 'or' ? tx('Or') : tx('And')}<Icon name="arrowChevronSingleDownSmall" size={12} /></span>
         ) : (
-          <span className="nc-adv-lead muted">{group.operator === 'or' ? 'Or' : 'And'}</span>
+          <span className="nc-adv-lead muted">{group.operator === 'or' ? tx('Or') : tx('And')}</span>
         );
         const more = (e: React.MouseEvent<HTMLElement>, isGroup: boolean) => openNestedMenu(e.currentTarget, { width: 220, sections: [{ items: [
-          { id: 'rm', label: 'Remove', icon: 'trash', onSelect: () => onChange((root) => updateAt(root, p, () => null)) },
-          { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => onChange((root) => {
+          { id: 'rm', label: tx('Remove'), icon: 'trash', onSelect: () => onChange((root) => updateAt(root, p, () => null)) },
+          { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => onChange((root) => {
             const parentPath = p.slice(0, -1);
             const idx = p[p.length - 1];
             const dupe = (g: FilterGroup) => { const filters = [...g.filters]; filters.splice(idx + 1, 0, structuredClone(g.filters[idx])); return { ...g, filters }; };
             return parentPath.length ? updateAt(root, parentPath, (n) => dupe(n as FilterGroup)) : dupe(root);
           }) },
-          ...(isGroup ? [{ id: 'unwrap', label: 'Unwrap group', icon: 'arrowLineRight', onSelect: () => onChange((root) => {
+          ...(isGroup ? [{ id: 'unwrap', label: tx('Unwrap group'), icon: 'arrowLineRight', onSelect: () => onChange((root) => {
             const parentPath = p.slice(0, -1);
             const idx = p[p.length - 1];
             const unwrap = (g: FilterGroup) => { const inner = (g.filters[idx] as FilterGroup).filters; const filters = [...g.filters]; filters.splice(idx, 1, ...inner); return { ...g, filters }; };
             return parentPath.length ? updateAt(root, parentPath, (n) => unwrap(n as FilterGroup)) : unwrap(root);
-          }) }] : depth < 2 ? [{ id: 'wrap', label: 'Place in a group', icon: 'dbGroup', description: 'Group this filter', onSelect: () => onChange((root) => updateAt(root, p, (n) => ({ operator: 'and', filters: [n] }))) }] : []),
+          }) }] : depth < 2 ? [{ id: 'wrap', label: tx('Place in a group'), icon: 'dbGroup', description: tx('Group this filter'), onSelect: () => onChange((root) => updateAt(root, p, (n) => ({ operator: 'and', filters: [n] }))) }] : []),
         ] as MenuItemDef[] }] }, { placement: 'bottom-end', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' });
         if (isFilterGroup(node)) {
           return (
@@ -475,7 +476,7 @@ function AdvancedRows({ group, path, schema, onChange, depth }: { group: FilterG
               <div className="nc-adv-nested">
                 <AdvancedRows group={node} path={p} schema={schema} onChange={onChange} depth={depth + 1} />
               </div>
-              <span role="button" className="nc-adv-more" aria-label="More actions" onClick={(e) => more(e, true)}><Icon name="ellipsisSmall" size={16} /></span>
+              <span role="button" className="nc-adv-more" aria-label={tx('More actions')} onClick={(e) => more(e, true)}><Icon name="ellipsisSmall" size={16} /></span>
             </div>
           );
         }
@@ -494,15 +495,15 @@ function AdvancedRows({ group, path, schema, onChange, depth }: { group: FilterG
               <Icon name="arrowChevronSingleDownSmall" size={12} />
             </span>
             <AdvancedValue leaf={leaf} prop={prop} onChange={(next) => onChange((root) => updateAt(root, p, () => next))} />
-            <span role="button" className="nc-adv-more" aria-label="More actions" onClick={(e) => more(e, false)}><Icon name="ellipsisSmall" size={16} /></span>
+            <span role="button" className="nc-adv-more" aria-label={tx('More actions')} onClick={(e) => more(e, false)}><Icon name="ellipsisSmall" size={16} /></span>
           </div>
         );
       })}
       <div role="button" className="nc-adv-add" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, sections: [{ items: [
-        { id: 'rule', label: 'Create a filter rule', icon: 'plus', onSelect: () => addRule(false) },
-        ...(depth < 2 ? [{ id: 'group', label: 'Create a filter group', icon: 'dbGroup', description: 'A group for nested filters', onSelect: () => addRule(true) }] : []),
+        { id: 'rule', label: tx('Create a filter rule'), icon: 'plus', onSelect: () => addRule(false) },
+        ...(depth < 2 ? [{ id: 'group', label: tx('Create a filter group'), icon: 'dbGroup', description: tx('A group for nested filters'), onSelect: () => addRule(true) }] : []),
       ] }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-        <Icon name="plus" size={14} /> Create a filter rule <Icon name="arrowChevronSingleDownSmall" size={12} />
+        <Icon name="plus" size={14} /> {tx('Create a filter rule')} <Icon name="arrowChevronSingleDownSmall" size={12} />
       </div>
     </div>
   );
@@ -516,7 +517,7 @@ function AdvancedValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
     const cur = valuesOf(leaf.filter.value)[0]?.value ?? '';
     return (
       <span className="nc-adv-value" data-menu-keys="ignore">
-        <input className="nc-adv-input" placeholder="Value" defaultValue={String(cur)} onChange={(e) => onChange({ ...leaf, filter: { ...leaf.filter, value: e.target.value === '' ? undefined : { type: 'exact', value: vt === 'number' || op.startsWith('number') ? Number(e.target.value) : e.target.value } } })} />
+        <input className="nc-adv-input" placeholder={tx('Value')} defaultValue={String(cur)} onChange={(e) => onChange({ ...leaf, filter: { ...leaf.filter, value: e.target.value === '' ? undefined : { type: 'exact', value: vt === 'number' || op.startsWith('number') ? Number(e.target.value) : e.target.value } } })} />
       </span>
     );
   }
@@ -555,7 +556,7 @@ function AdvancedFilter({ viewId, collectionId, close }: { viewId: string; colle
       </div>
       <div className="nc-adv-footer">
         <div role="button" className="nc-menu-item danger-hover" onClick={() => { setAdvancedFilter(view, undefined); close(); }}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">Delete filter</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">{tx('Delete filter')}</div></div>
         </div>
       </div>
     </PopoverSurface>
@@ -614,17 +615,17 @@ function SortPopover({ viewId, collectionId, close }: { viewId: string; collecti
                 <span className="nc-adv-select-text">{sortDirectionLabel(prop, s.direction === 'descending' ? 'descending' : 'ascending')}</span>
                 <Icon name="arrowChevronSingleDownSmall" size={12} />
               </span>
-              <span role="button" className="nc-sort-remove" aria-label="Delete sort rule" data-tooltip="Delete sort rule" onClick={() => set(sorts.filter((_, j) => j !== i))}><Icon name="xMarkSmall" size={14} /></span>
+              <span role="button" className="nc-sort-remove" aria-label={tx('Delete sort rule')} data-tooltip={tx('Delete sort rule')} onClick={() => set(sorts.filter((_, j) => j !== i))}><Icon name="xMarkSmall" size={14} /></span>
             </div>
           );
         })}
       </div>
       <div className="nc-sort-footer">
         <div role="button" className="nc-menu-item" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, search: 'Sort by…', sections: [{ items: props.filter(([id]) => !sorts.some((s) => s.property === id)).map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => set([...sorts, { property: id, direction: 'ascending' }]) })) }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={16} /></div><div className="nc-menu-label">Add sort</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={16} /></div><div className="nc-menu-label">{tx('Add sort')}</div></div>
         </div>
         <div role="button" className="nc-menu-item danger-hover" onClick={() => set([])}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={16} /></div><div className="nc-menu-label">Delete sort</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={16} /></div><div className="nc-menu-label">{tx('Delete sort')}</div></div>
         </div>
       </div>
     </PopoverSurface>
@@ -742,7 +743,7 @@ export function FilterBar({ view: viewIn, collection, readOnly, openFilterId, on
             }, 30);
           } })}>
             <Icon name="plusSmall" size={14} />
-            <span>Filter</span>
+            <span>{tx('Filter')}</span>
           </div>
         )}
         <FilterBarSaveControl view={view} />

@@ -20,7 +20,7 @@ import { conditionalBg, useConditionalColors } from '../../data.ts';
 import { titleOf } from '../../advanced/index.ts';
 import { SettingsToggle, setFormat, useViewKit, visibleProperties } from '../../advanced/viewKit.tsx';
 import { PostComments, PostReactions, PostViews, useFeedViews, type PostViewInfo } from './FeedSocial.tsx';
-import { getLocale } from '../../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
+import { getLocale, tx } from '../../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 import './feed.css';
 
 function ago(t: number | undefined): string {
@@ -118,11 +118,11 @@ function FeedView(props: ViewProps) {
       {kit.rows.length > limit && (
         <div role="button" className="nc-feed-load-more" onClick={() => setLimit((l) => l + first)}>
           <Icon name="arrowDown" size={16} />
-          <span>Load more</span>
+          <span>{tx('Load more')}</span>
         </div>
       )}
       {!readOnly && (
-        <div role="button" className="nc-feed-new" onClick={() => kit.addRow(undefined, { open: true })}><Icon name="plus" size={16} /><span>New page</span></div>
+        <div role="button" className="nc-feed-new" onClick={() => kit.addRow(undefined, { open: true })}><Icon name="plus" size={16} /><span>{tx('New page')}</span></div>
       )}
     </div>
   );
@@ -134,8 +134,8 @@ function FeedLayoutSettings({ view, readOnly }: LayoutSettingsProps) {
   const fmt = (view.format ?? {}) as Record<string, any>;
   return (
     <>
-      <SettingsToggle label="Wrap properties" on={fmt.table_wrap === true} disabled={readOnly} onChange={(v) => setFormat(view, { table_wrap: v }, 'feedView.wrapProperties')} />
-      <SettingsToggle label="Display author credit" on={fmt.feed_show_author_byline !== false} disabled={readOnly} onChange={(v) => setFormat(view, { feed_show_author_byline: v }, 'feedView.showAuthorByline')} />
+      <SettingsToggle label={tx('Wrap properties')} on={fmt.table_wrap === true} disabled={readOnly} onChange={(v) => setFormat(view, { table_wrap: v }, 'feedView.wrapProperties')} />
+      <SettingsToggle label={tx('Display author credit')} on={fmt.feed_show_author_byline !== false} disabled={readOnly} onChange={(v) => setFormat(view, { feed_show_author_byline: v }, 'feedView.showAuthorByline')} />
     </>
   );
 }

@@ -11,6 +11,7 @@ import { api, uploadFile } from '../../../lib/api.ts';
 import { records } from '../../../lib/store/records.ts';
 import { useSession } from '../../../lib/store/session.ts';
 import { getCustomEmojis, type CustomEmoji } from '../../settings/customEmoji.ts';
+import { tx } from '../../shell/i18n.ts';
 
 const NAME_RE = /^[a-z0-9_-]{1,49}$/;
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
@@ -120,19 +121,19 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
 
   return (
     <PopoverSurface width={300} className="nc-cemoji-popup">
-      <div role="dialog" aria-label="Add a custom emoji" className="nc-cemoji" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}>
-        <div className="nc-cemoji-title">Add a custom emoji</div>
-        <div className="nc-cemoji-desc">Anyone on your team can use this custom emoji</div>
+      <div role="dialog" aria-label={tx('Add a custom emoji')} className="nc-cemoji" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}>
+        <div className="nc-cemoji-title">{tx('Add a custom emoji')}</div>
+        <div className="nc-cemoji-desc">{tx('Anyone on your team can use this custom emoji')}</div>
         {step === 'image' ? (
           <>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void takeFile(f); }} data-testid="custom-emoji-file" />
             <div role="button" className={`nc-cemoji-btn primary ${busy ? 'disabled' : ''}`} onClick={() => !busy && fileRef.current?.click()}>
-              {busy ? 'Uploading…' : 'Upload an image file'}
+              {busy ? tx('Uploading…') : tx('Upload an image file')}
             </div>
             <div className="nc-cemoji-or"><span>or</span></div>
             <div className="nc-input">
               <input
-                placeholder="Paste an image URL…"
+                placeholder={tx('Paste an image URL…')}
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); takeLink(link); } }}
@@ -140,16 +141,16 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
             </div>
             <div className="nc-cemoji-hint">or {isMac ? '⌘V' : 'Ctrl+V'} to paste an image or link</div>
             {err && <div className="nc-cemoji-err" role="alert">{err}</div>}
-            {link.trim() && <div role="button" className="nc-cemoji-btn" onClick={() => takeLink(link)}>Next</div>}
+            {link.trim() && <div role="button" className="nc-cemoji-btn" onClick={() => takeLink(link)}>{tx('Next')}</div>}
           </>
         ) : (
           <>
             <div className="nc-cemoji-preview">
-              <span className="label">Preview</span>
+              <span className="label">{tx('Preview')}</span>
               <img src={url} alt="" />
               <span className="name">:{n || 'emoji'}:</span>
             </div>
-            <label className="nc-cemoji-label" htmlFor="nc-cemoji-name">Emoji name</label>
+            <label className="nc-cemoji-label" htmlFor="nc-cemoji-name">{tx('Emoji name')}</label>
             <div className="nc-input">
               <input
                 id="nc-cemoji-name"
@@ -162,9 +163,9 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
             </div>
             {(nameErr || err) && <div className="nc-cemoji-err" role="alert">{nameErr || err}</div>}
             <div className="nc-cemoji-actions">
-              <div role="button" className="nc-cemoji-btn" onClick={() => { setStep('image'); setErr(''); }}><Icon name="arrowLeft" size={14} />Back</div>
+              <div role="button" className="nc-cemoji-btn" onClick={() => { setStep('image'); setErr(''); }}><Icon name="arrowLeft" size={14} />{tx('Back')}</div>
               <div style={{ flex: 1 }} />
-              <div role="button" className={`nc-cemoji-btn primary ${!n || nameErr || busy ? 'disabled' : ''}`} onClick={() => void save()}>Save</div>
+              <div role="button" className={`nc-cemoji-btn primary ${!n || nameErr || busy ? 'disabled' : ''}`} onClick={() => void save()}>{tx('Save')}</div>
             </div>
           </>
         )}

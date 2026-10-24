@@ -92,13 +92,13 @@ export async function uploadAudio(blockId: unknown, userId: string, fileId: unkn
   assertCanEdit(b, userId);
   assertNotTemplate(b);
   const st = stateOf(b);
-  if (st.state === 'transcribing' || st.state === 'summarizing') throw new MeetingError('busy', 'Stop transcribing before uploading audio.', 409);
+  if (st.state === 'transcribing' || st.state === 'summarizing') throw new MeetingError('busy', '받아쓰기를 멈춘 뒤 음성 파일을 올려 주세요.', 409);
   const row = fileRow(String(fileId ?? ''));
-  if (!row || row.user_id !== userId) throw new MeetingError('upload', 'The audio upload failed. Select the file again and retry.', 400);
+  if (!row || row.user_id !== userId) throw new MeetingError('upload', '음성 파일을 올리지 못했습니다. 파일을 다시 골라 시도해 주세요.', 400);
   const mime = audioMime(row.name, row.mime);
   if (!mime) {
     removeFile(row.id);
-    throw new MeetingError('unsupported', `Choose an ${ALLOWED_LABEL} audio file.`, 400);
+    throw new MeetingError('unsupported', `${ALLOWED_LABEL} 형식의 음성 파일을 골라 주세요.`, 400);
   }
   b = ensureStructure(b, userId);
   const now = Date.now();
@@ -117,7 +117,7 @@ export async function transcribeUploaded(blockId: string, userId: string): Promi
   const b = meetingBlock(blockId);
   const st = stateOf(b);
   const audio = st.audio;
-  if (!audio || audio.status === 'deleted') throw new MeetingError('no_audio', 'Audio recovery is unavailable. The local recording may have expired.', 400);
+  if (!audio || audio.status === 'deleted') throw new MeetingError('no_audio', '음성을 복구할 수 없습니다. 이 PC에 저장된 녹음이 만료됐을 수 있습니다.', 400);
   const provider = sttProvider();
   const fail = (message: string, code = 'transcribe') => {
     recordState(userId, meetingBlock(blockId), { state: 'error', error: { code, message, time: Date.now() }, audio: { ...audio, status: 'failed' } }, 'transcribeFailed');

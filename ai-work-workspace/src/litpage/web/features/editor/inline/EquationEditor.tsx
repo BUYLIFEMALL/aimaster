@@ -9,6 +9,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { run, setTitle, setProperty } from '../../../lib/blocks.ts';
 import { useEditor } from '../editorState.ts';
 import { valueOf, type TextRange } from './format.ts';
+import { tx } from '../../shell/i18n.ts';
 
 function writeValue(blockId: string, property: string, next: RichText, action: string, coalesce?: string) {
   run(action, (tx) => (property === 'title' ? setTitle(tx, blockId, next) : setProperty(tx, blockId, property, next)), coalesce ? { coalesceKey: coalesce } : undefined);
@@ -167,7 +168,7 @@ function EquationEditor({ blockId, property, offset, initial, close, from }: { b
           suppressContentEditableWarning
           spellCheck={false}
           role="textbox"
-          aria-label="Equation (LaTeX)"
+          aria-label={tx('Equation (LaTeX)')}
           aria-multiline="true"
           data-placeholder="E = mc^2"
           onInput={onInput}

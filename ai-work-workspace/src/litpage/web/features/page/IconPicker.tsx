@@ -11,7 +11,7 @@ import { api, uploadFile } from '../../lib/api.ts';
 import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { ICON_SET } from './iconSet.ts';
 import { customEmojiIcon, searchCustomEmojis, useCustomEmojis, type CustomEmoji } from '../settings/customEmoji.ts';
 import { openCustomEmojiUpload } from '../editor/inline/CustomEmojiUpload.tsx';
@@ -217,13 +217,13 @@ function EmojiPanel({ onPick, callout, quick, autoFocus }: { onPick: (v: string)
         )}
       </div>
       <div className="nc-picker-categories">
-        <div role="button" className="nc-cat-btn" aria-label="Jump to category: recent" onClick={() => jump(quick ? 'quick' : 'recent')}><Icon name="clock" size={20} /></div>
+        <div role="button" className="nc-cat-btn" aria-label={tx('Jump to category: recent')} onClick={() => jump(quick ? 'quick' : 'recent')}><Icon name="clock" size={20} /></div>
         {SECTIONS.map((s) => (
           <div key={s.id} role="button" className="nc-cat-btn" aria-label={t('lp.page.go_to_category', 'Go to category: {category}', { category: s.title })} onClick={() => jump(s.id)}>
             <Icon name={s.icon} size={20} />
           </div>
         ))}
-        <div role="button" className="nc-cat-btn" aria-label="Jump to category: custom" onClick={(e) => (customs.length ? jump('custom') : openCustomEmojiUpload(e.currentTarget))}><Icon name="emojiCustom" size={20} /></div>
+        <div role="button" className="nc-cat-btn" aria-label={tx('Jump to category: custom')} onClick={(e) => (customs.length ? jump('custom') : openCustomEmojiUpload(e.currentTarget))}><Icon name="emojiCustom" size={20} /></div>
         <div role="button" className="nc-cat-btn" aria-label={t('lp.page.add_emoji', 'Add emoji')} data-tooltip={t('lp.page.add_emoji', 'Add emoji')} onClick={(e) => openCustomEmojiUpload(e.currentTarget)}><Icon name="plusCircleFill" size={20} /></div>
       </div>
     </>
@@ -336,7 +336,7 @@ function UploadPanel({ onPick }: { onPick: (v: string) => void }) {
         <span>{t('lp.page.save_as_a_custom_emoji_for', 'Save as a custom emoji for the workspace')}</span>
       </label>
       <div className="nc-picker-filter" style={{ marginTop: 16 }}>
-        <input placeholder="Paste link to an image…" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && /^https?:\/\//.test(url.trim())) onPick(url.trim()); }} />
+        <input placeholder={tx('Paste link to an image…')} value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && /^https?:\/\//.test(url.trim())) onPick(url.trim()); }} />
       </div>
       <div role="button" className={`nc-dialog-btn primary nc-upload-btn ${/^https?:\/\//.test(url.trim()) ? '' : 'disabled'}`} style={{ marginTop: 8 }}
         onClick={() => { if (/^https?:\/\//.test(url.trim())) onPick(url.trim()); else setErr('Enter a valid image URL.'); }}>

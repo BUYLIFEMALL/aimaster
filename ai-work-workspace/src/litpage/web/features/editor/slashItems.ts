@@ -19,6 +19,7 @@ import { useUI } from '../../lib/store/ui.ts';
 import { ColorSwatch } from './colorSwatch.tsx';
 import { stickyFormat } from './prefs.ts';
 import { turnIntoItems } from './inline/turnInto.ts';
+import { tx } from '../shell/i18n.ts';
 
 /** Stable ids of the slash "Turn into" items (block modules override some by id, e.g. turn-callout). */
 const TURN_IDS: Record<string, string> = {
@@ -76,7 +77,21 @@ export function place(ctx: SlashContext, type: BlockType, opts?: { format?: any;
 }
 
 // `id` is the item's stable key (block modules' overrideSlashItem, usage stats), not an i18n message id
-const t = (id: string, label: string, section: string, icon: SlashItem['icon'], apply: SlashItem['apply'], extra?: Partial<SlashItem>): SlashItem => ({ id, label, section, icon, apply, ...extra });
+// 이식판(v1.15): 이름은 한국어로 보여 주고(section은 내부 열쇠라 그대로), 영어 이름·한국어 검색어도 찾기에 쓴다
+const KO_KEYWORDS: Record<string, string[]> = {
+  'ai-meeting-notes': ['회의록', '회의', '받아쓰기', '녹음', '녹취', '음성', '마이크', '메모'],
+  'ai-meeting-notes-2': ['회의록', '회의', '받아쓰기', '녹음', '녹취', '음성', '마이크', '메모'],
+};
+const koLabel = (label: string): string => {
+  const m = /^(.+) (text|background)$/.exec(label);
+  if (m && tx(m[1]) !== m[1]) return `${tx(m[1])} ${m[2] === 'text' ? '글자' : '배경'}`;
+  return tx(label);
+};
+const t = (id: string, label: string, section: string, icon: SlashItem['icon'], apply: SlashItem['apply'], extra?: Partial<SlashItem>): SlashItem => {
+  const shown = koLabel(label);
+  const keywords = [...(extra?.keywords ?? []), ...(shown !== label ? [label.toLowerCase()] : []), ...(KO_KEYWORDS[id] ?? [])];
+  return { id, label: shown, section, icon, apply, ...extra, keywords };
+};
 
 // Toggles and toggle headings created from the slash menu start closed;
 // the "> " markdown shortcut creates them open.

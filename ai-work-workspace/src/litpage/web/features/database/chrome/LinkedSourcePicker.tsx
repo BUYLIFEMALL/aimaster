@@ -14,6 +14,7 @@ import { openOverlay, PopoverSurface, type Anchor } from '../../../components/ov
 import { Icon } from '../../../components/Icon.tsx';
 import { PageIcon } from '../../shell/PageIcon.tsx';
 import { viewsOfSource } from '../sources/sources.ts';
+import { tx } from '../../shell/i18n.ts';
 
 interface Result {
   collectionId: string;
@@ -85,16 +86,16 @@ export function ViewStep({ source, onChoose, onBack, close }: { source: Collecti
   return (
     <>
       <div className="nc-vs-header link">
-        {onBack && <span role="button" className="nc-vs-back" aria-label="Back" onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>}
-        <span className="nc-vs-title">New view</span>
-        {close && <span role="button" className="nc-panel-close" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={14} /></span>}
+        {onBack && <span role="button" className="nc-vs-back" aria-label={tx('Back')} onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>}
+        <span className="nc-vs-title">{tx('New view')}</span>
+        {close && <span role="button" className="nc-panel-close" aria-label={tx('Close')} onClick={close}><Icon name="xMarkSmall" size={14} /></span>}
       </div>
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Find a layout…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder={tx('Find a layout…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-menu-scroll">
         {!q && (
           <div className="nc-menu-section">
             <div role="menuitem" className="nc-menu-item nc-link-new-view" onClick={() => onChoose({ type: 'table' })}>
-              <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={20} /></div><div className="nc-menu-label">New table view</div></div>
+              <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={20} /></div><div className="nc-menu-label">{tx('New table view')}</div></div>
             </div>
           </div>
         )}
@@ -113,7 +114,7 @@ export function ViewStep({ source, onChoose, onBack, close }: { source: Collecti
             )}
           </div>
         )}
-        {q && !list.length && <div className="nc-menu-empty">No results</div>}
+        {q && !list.length && <div className="nc-menu-empty">{tx('No results')}</div>}
       </div>
     </>
   );
@@ -152,7 +153,7 @@ function Picker({ opts, close }: { opts: LinkedPickerOptions; close: () => void 
         <div className="nc-input focused">
           <input
             autoFocus
-            placeholder={opts.onCreate ? 'Create or link a dataset…' : 'Choose a dataset…'}
+            placeholder={opts.onCreate ? tx('Create or link a dataset…') : tx('Choose a dataset…')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => {
@@ -172,14 +173,14 @@ function Picker({ opts, close }: { opts: LinkedPickerOptions; close: () => void 
           </div>
         )}
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">Available datasets</div>
+          <div className="nc-menu-section-title">{tx('Available datasets')}</div>
           {shown.map((r, i) => <SourceRow key={r.collectionId} r={r} active={i === active} onHover={() => setActive(i)} onClick={() => choose(r)} />)}
           {!q && !showAll && results.length > 4 && (
             <div role="menuitem" className="nc-menu-item nc-new-db-row muted" onClick={() => setShowAll(true)}>
-              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">Show more</div></div>
+              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">{tx('Show more')}</div></div>
             </div>
           )}
-          {!results.length && <div className="nc-menu-empty">No datasets found</div>}
+          {!results.length && <div className="nc-menu-empty">{tx('No datasets found')}</div>}
         </div>
         {opts.onCreate && q.trim() && (
           <div className="nc-menu-section with-divider">

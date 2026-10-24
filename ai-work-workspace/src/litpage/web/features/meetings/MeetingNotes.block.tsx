@@ -105,6 +105,16 @@ function ErrorBanner({ block, state, canEdit }: { block: BlockRecord; state: Mee
   if (e.code === 'no_key') return <div style={{ marginTop: 10 }}><NoKeyNotice compact /></div>;
   if (e.code === 'rate_limited') return <div className="nc-mtg-banner error" role="alert"><Icon name="warning" size={16} /><div className="grow">{limitBanner()}</div></div>;
   const summaryError = !['stt_unavailable', 'transcribe', 'audio_missing'].includes(e.code);
+  // 이식판(v1.15): 녹취가 짧아 자동 요약을 건너뛴 경우 — 오류가 아니라 안내(파란 띠) + 「요약 만들기」 버튼
+  if (e.code === 'too_short') {
+    return (
+      <div className="nc-mtg-banner info" role="status">
+        <Icon name="info" size={16} style={{ marginTop: 1 }} />
+        <div className="grow">{e.message}</div>
+        {canEdit && <button className="nc-blk-btn" onClick={() => void retry(block.id)}>{t('aww.meetings.make_summary', '요약 만들기')}</button>}
+      </div>
+    );
+  }
   return (
     <div className="nc-mtg-banner error" role="alert">
       <Icon name="warning" size={16} style={{ color: 'var(--lp-red-text-accent)', marginTop: 1 }} />

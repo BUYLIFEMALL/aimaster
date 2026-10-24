@@ -27,6 +27,7 @@ import { registerBlockMenu, overrideSlashItem } from './registry.ts';
 import { LiveSwitch, containerWidthOf, toast } from './shared.tsx';
 import { createViewIn } from '../../database/createDatabase.ts';
 import { colorToken } from '../../../lib/colorToken.ts';
+import { tx } from '../../shell/i18n.ts';
 
 const DEFAULT_COL_WIDTH = 120;
 const MIN_COL_WIDTH = 32;
@@ -299,8 +300,8 @@ function colorSubmenu(current: string | undefined, apply: (c: string | undefined
   return () => ({
     width: 220,
     sections: [
-      { title: 'Text color', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} text`, icon: swatch(c, false), checked: (current ?? 'default') === c, onSelect: () => apply(c === 'default' ? undefined : c) })) },
-      { title: 'Background color', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} background`, icon: swatch(c, true), checked: current === `${c}_background`, onSelect: () => apply(c === 'default' ? undefined : `${c}_background`) })) },
+      { title: tx('Text color'), items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} text`, icon: swatch(c, false), checked: (current ?? 'default') === c, onSelect: () => apply(c === 'default' ? undefined : c) })) },
+      { title: tx('Background color'), items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} background`, icon: swatch(c, true), checked: current === `${c}_background`, onSelect: () => apply(c === 'default' ? undefined : `${c}_background`) })) },
     ],
   });
 }
@@ -311,14 +312,14 @@ function columnMenu(tableId: string, colIdx: number): MenuDef {
   const fmt = colFormat(b);
   const items: MenuItemDef[] = [
     {
-      label: 'Color', icon: 'blockColor',
+      label: tx('Color'), icon: 'blockColor',
       submenu: colorSubmenu(fmt[col]?.color, (c) => run('table.columnColor', (tx) => setFormat(tx, tableId, { table_block_column_format: { ...colFormat(getBlock(tableId)!), [col]: { ...(colFormat(getBlock(tableId)!)[col] ?? {}), color: c } } }))),
     },
-    { label: 'Insert left', icon: 'arrowStraightLeft', onSelect: () => { insertColumn(tableId, colIdx); } },
-    { label: 'Insert right', icon: 'arrowStraightRight', onSelect: () => { insertColumn(tableId, colIdx + 1); } },
-    { label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { insertColumn(tableId, colIdx + 1, { copyFrom: col }); } },
-    { label: 'Clear contents', icon: 'xMarkCircleFill', onSelect: () => clearCells(tableId, liveRows(b).map((r) => r.id), [col]) },
-    { label: 'Delete', icon: 'trash', onSelect: () => deleteColumn(tableId, col) },
+    { label: tx('Insert left'), icon: 'arrowStraightLeft', onSelect: () => { insertColumn(tableId, colIdx); } },
+    { label: tx('Insert right'), icon: 'arrowStraightRight', onSelect: () => { insertColumn(tableId, colIdx + 1); } },
+    { label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D', onSelect: () => { insertColumn(tableId, colIdx + 1, { copyFrom: col }); } },
+    { label: tx('Clear contents'), icon: 'xMarkCircleFill', onSelect: () => clearCells(tableId, liveRows(b).map((r) => r.id), [col]) },
+    { label: tx('Delete'), icon: 'trash', onSelect: () => deleteColumn(tableId, col) },
   ];
   return { width: 265, search: 'Search actions…', sections: [{ items }] };
 }
@@ -328,14 +329,14 @@ function rowMenu(tableId: string, rowIdx: number): MenuDef {
   const row = liveRows(b)[rowIdx];
   const items: MenuItemDef[] = [
     {
-      label: 'Color', icon: 'blockColor',
+      label: tx('Color'), icon: 'blockColor',
       submenu: colorSubmenu(row?.format?.block_color as string | undefined, (c) => run('table.rowColor', (tx) => setFormat(tx, row.id, { block_color: c }))),
     },
-    { label: 'Insert above', icon: 'arrowStraightUp', onSelect: () => { insertRow(tableId, rowIdx); } },
-    { label: 'Insert below', icon: 'arrowStraightDown', onSelect: () => { insertRow(tableId, rowIdx + 1); } },
-    { label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { insertRow(tableId, rowIdx + 1, { copyFrom: row.id }); } },
-    { label: 'Clear contents', icon: 'xMarkCircleFill', onSelect: () => clearCells(tableId, [row.id], colOrder(b)) },
-    { label: 'Delete', icon: 'trash', onSelect: () => deleteRow(tableId, row.id) },
+    { label: tx('Insert above'), icon: 'arrowStraightUp', onSelect: () => { insertRow(tableId, rowIdx); } },
+    { label: tx('Insert below'), icon: 'arrowStraightDown', onSelect: () => { insertRow(tableId, rowIdx + 1); } },
+    { label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D', onSelect: () => { insertRow(tableId, rowIdx + 1, { copyFrom: row.id }); } },
+    { label: tx('Clear contents'), icon: 'xMarkCircleFill', onSelect: () => clearCells(tableId, [row.id], colOrder(b)) },
+    { label: tx('Delete'), icon: 'trash', onSelect: () => deleteRow(tableId, row.id) },
   ];
   return { width: 265, search: 'Search actions…', sections: [{ items }] };
 }
@@ -353,7 +354,7 @@ function cellMenu(tableId: string, sel: CellSel): MenuDef {
     sections: [{
       items: [
         {
-          label: 'Color', icon: 'blockColor',
+          label: tx('Color'), icon: 'blockColor',
           submenu: colorSubmenu(cur, (c) => run('table.cellColor', (tx) => {
             for (const rid of rIds) {
               const r = getBlock(rid);
@@ -364,7 +365,7 @@ function cellMenu(tableId: string, sel: CellSel): MenuDef {
           })),
         },
         ...mergeItems(tableId, sel),
-        { label: 'Clear contents', icon: 'xMarkCircleFill', onSelect: () => clearCells(tableId, rIds, cIds) },
+        { label: tx('Clear contents'), icon: 'xMarkCircleFill', onSelect: () => clearCells(tableId, rIds, cIds) },
       ],
     }],
   };
@@ -381,8 +382,8 @@ function mergeItems(tableId: string, sel: CellSel): MenuItemDef[] {
   const exactlyMerged = merged && Math.min(sel.r0, sel.r1) === merged.r && Math.min(sel.c0, sel.c1) === merged.c
     && (!multi || (Math.max(sel.r0, sel.r1) === merged.r + merged.rs - 1 && Math.max(sel.c0, sel.c1) === merged.c + merged.cs - 1));
   const out: MenuItemDef[] = [];
-  if (exactlyMerged) out.push({ label: 'Unmerge cells', icon: 'tableSplit', onSelect: () => unmergeCells(tableId, rows[merged.r].id, cols[merged.c]) });
-  else if (multi) out.push({ label: 'Merge cells', icon: 'tableMerge', onSelect: () => mergeCells(tableId, sel) });
+  if (exactlyMerged) out.push({ label: tx('Unmerge cells'), icon: 'tableSplit', onSelect: () => unmergeCells(tableId, rows[merged.r].id, cols[merged.c]) });
+  else if (multi) out.push({ label: tx('Merge cells'), icon: 'tableMerge', onSelect: () => mergeCells(tableId, sel) });
   return out;
 }
 
@@ -883,7 +884,7 @@ function TableBlock({ block, readOnly }: BlockProps) {
                 <div
                   key={`cg-${col}`}
                   role="button"
-                  aria-label="Drag to reposition, click for options"
+                  aria-label={tx('Drag to reposition, click for options')}
                   className={`nc-table-grip col ${hover?.c === c ? 'show' : ''} ${highlight && highlight.c0 === c && highlight.c1 === c && highlight.r0 === 0 ? 'active' : ''}`}
                   style={{ left: (geo.colX[c] ?? 0) + (geo.colW[c] ?? 0) / 2 - 9, top: -3 }}
                   onPointerDown={(e) => startGrip(e, 'col', c)}
@@ -896,7 +897,7 @@ function TableBlock({ block, readOnly }: BlockProps) {
                 <div
                   key={`rg-${row.id}`}
                   role="button"
-                  aria-label="Drag to reposition, click for options"
+                  aria-label={tx('Drag to reposition, click for options')}
                   className={`nc-table-grip row ${hover?.r === r ? 'show' : ''} ${highlight && highlight.r0 === r && highlight.r1 === r && highlight.c0 === 0 ? 'active' : ''}`}
                   style={{ top: (geo.rowY[r] ?? 0) + (geo.rowH[r] ?? 0) / 2 - 9, left: -3 }}
                   onPointerDown={(e) => startGrip(e, 'row', r)}
@@ -905,13 +906,13 @@ function TableBlock({ block, readOnly }: BlockProps) {
                   <Icon name="dragHandle" size={10} />
                 </div>
               ))}
-              <div role="button" aria-label="Add column" className="nc-table-add col" style={{ left: geo.w + 8, top: 0, height: geo.h }} onMouseDown={(e) => e.preventDefault()} onClick={() => insertColumn(block.id, cols.length)}>
+              <div role="button" aria-label={tx('Add column')} className="nc-table-add col" style={{ left: geo.w + 8, top: 0, height: geo.h }} onMouseDown={(e) => e.preventDefault()} onClick={() => insertColumn(block.id, cols.length)}>
                 <Icon name="plusFillSmall" size={12} />
               </div>
-              <div role="button" aria-label="Add row" className="nc-table-add row" style={{ left: 0, top: geo.h + 8, width: geo.w }} onMouseDown={(e) => e.preventDefault()} onClick={() => insertRow(block.id, rows.length)}>
+              <div role="button" aria-label={tx('Add row')} className="nc-table-add row" style={{ left: 0, top: geo.h + 8, width: geo.w }} onMouseDown={(e) => e.preventDefault()} onClick={() => insertRow(block.id, rows.length)}>
                 <Icon name="plusFillSmall" size={12} />
               </div>
-              <div role="button" aria-label="Add row and column" className="nc-table-add corner" style={{ left: geo.w - 8, top: geo.h - 8 }} onPointerDown={startCorner}>
+              <div role="button" aria-label={tx('Add row and column')} className="nc-table-add corner" style={{ left: geo.w - 8, top: geo.h - 8 }} onPointerDown={startCorner}>
                 <Icon name="plusFillSmall" size={10} />
               </div>
             </>
@@ -939,10 +940,10 @@ registerBlock(['table'], TableBlock);
 // Header row (switch), Header column (switch), then the shared items.
 registerBlockMenu(['table'], ({ block }) => {
   return [
-    { label: 'Change to database', icon: 'arrowSquarePathUpDown', onSelect: () => turnTableIntoDatabase(block.id) },
-    { label: 'Expand to full width', icon: 'arrowExpandHorizontal', onSelect: () => fitTableToWidth(block.id) },
-    { label: 'Header row', icon: 'tableHeaderRow', right: <LiveSwitch blockId={block.id} get={(b) => !!b.format?.table_block_column_header} />, onSelect: () => { const on = !!getBlock(block.id)?.format?.table_block_column_header; run('actionRegistry.createToggleAction', (tx) => setFormat(tx, block.id, { table_block_column_header: !on })); return false; } },
-    { label: 'Header column', icon: 'tableHeaderColumn', right: <LiveSwitch blockId={block.id} get={(b) => !!b.format?.table_block_row_header} />, onSelect: () => { const on = !!getBlock(block.id)?.format?.table_block_row_header; run('actionRegistry.createToggleAction', (tx) => setFormat(tx, block.id, { table_block_row_header: !on })); return false; } },
+    { label: tx('Change to database'), icon: 'arrowSquarePathUpDown', onSelect: () => turnTableIntoDatabase(block.id) },
+    { label: tx('Expand to full width'), icon: 'arrowExpandHorizontal', onSelect: () => fitTableToWidth(block.id) },
+    { label: tx('Header row'), icon: 'tableHeaderRow', right: <LiveSwitch blockId={block.id} get={(b) => !!b.format?.table_block_column_header} />, onSelect: () => { const on = !!getBlock(block.id)?.format?.table_block_column_header; run('actionRegistry.createToggleAction', (tx) => setFormat(tx, block.id, { table_block_column_header: !on })); return false; } },
+    { label: tx('Header column'), icon: 'tableHeaderColumn', right: <LiveSwitch blockId={block.id} get={(b) => !!b.format?.table_block_row_header} />, onSelect: () => { const on = !!getBlock(block.id)?.format?.table_block_row_header; run('actionRegistry.createToggleAction', (tx) => setFormat(tx, block.id, { table_block_row_header: !on })); return false; } },
   ];
 });
 

@@ -14,6 +14,7 @@ import { records } from '../../../lib/store/records.ts';
 import { useUI } from '../../../lib/store/ui.ts';
 import { ensureAiStatus, isNoKeyError, NO_KEY_MESSAGE, useAiStatus } from '../../ai/aiApi.ts';
 import { openKeyHelp } from '../../ai/NoKeyNotice.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 export interface AssistantContextItem {
   key: string;
@@ -113,9 +114,9 @@ function FeedbackForm({ rating, payload, close }: { rating: 'positive' | 'negati
   const [busy, setBusy] = useState(false);
   return (
     <PopoverSurface width={320}>
-      <div className="nc-fx-ai-feedback" role="dialog" aria-label="Feedback">
-        <div className="nc-fx-ai-feedback-title">{rating === 'positive' ? 'What worked well here?' : 'What should we improve here?'}</div>
-        <textarea autoFocus placeholder="Send feedback" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
+      <div className="nc-fx-ai-feedback" role="dialog" aria-label={tx('Feedback')}>
+        <div className="nc-fx-ai-feedback-title">{rating === 'positive' ? tx('What worked well here?') : tx('What should we improve here?')}</div>
+        <textarea autoFocus placeholder={tx('Send feedback')} value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
         <div className="nc-fx-ai-feedback-desc">Your notes help AI 비서 improve. We’ll share your prompt, formula, relevant table details, and comments.</div>
         <button
           className="nc-btn primary"
@@ -230,7 +231,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
         <div className={`nc-fx-ai-banner ${failure && !unavailable ? 'error' : ''}`} role="status">
           <Icon name={unavailable ? 'info' : 'warning'} size={14} />
           <span>{unavailable ?? failure}</span>
-          {unavailable === NO_KEY_MESSAGE && <span role="button" className="nc-fx-ai-link" onClick={(e) => openKeyHelp(e.currentTarget)}>Learn how</span>}
+          {unavailable === NO_KEY_MESSAGE && <span role="button" className="nc-fx-ai-link" onClick={(e) => openKeyHelp(e.currentTarget)}>{tx('Learn how')}</span>}
         </div>
       )}
       <div className={`nc-fx-ai-input ${phase === 'running' ? 'running' : ''} ${unavailable ? 'disabled' : ''}`}>
@@ -239,7 +240,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
           <div className="nc-fx-ai-progress" role="status" aria-live="polite">
             <span className="nc-fx-ai-shimmer">{label}</span>
             <span style={{ flex: 1 }} />
-            <span role="button" className="nc-fx-ai-cancel" onClick={stop}>Cancel</span>
+            <span role="button" className="nc-fx-ai-cancel" onClick={stop}>{tx('Cancel')}</span>
             <span className="nc-fx-ai-esc">esc</span>
           </div>
         ) : (
@@ -249,8 +250,8 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
             rows={1}
             value={text}
             disabled={!!unavailable}
-            placeholder="Describe a formula, or ask about this one…"
-            aria-label="Describe a formula, or ask about this one…"
+            placeholder={tx('Describe a formula, or ask about this one…')}
+            aria-label={tx('Describe a formula, or ask about this one…')}
             onChange={(e) => {
               setText(e.target.value);
               autosize();
@@ -276,10 +277,10 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
       </div>
       {phase === 'running' && <EscToCancel onEsc={stop} />}
       {answer && phase !== 'running' && (
-        <div className="nc-fx-ai-answer" role="region" aria-label="Formula assistant answer">
+        <div className="nc-fx-ai-answer" role="region" aria-label={tx('Formula assistant answer')}>
           {answer.explanation && <div className="nc-fx-ai-explanation">{answer.explanation}</div>}
           <div className="nc-fx-ai-output">
-            <span className="nc-fx-ai-output-label">Output</span>
+            <span className="nc-fx-ai-output-label">{tx('Output')}</span>
             <span className="nc-fx-ai-output-value">{preview}</span>
             {showTypes && <span className="nc-fx-ai-type">{typeLabel}</span>}
           </div>
@@ -291,8 +292,8 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
           <div className="nc-fx-ai-actions">
             <label className="nc-fx-ai-showtypes">
               <span className={`nc-adv-toggle ${showTypes ? 'on' : ''}`}><span /></span>
-              <input type="checkbox" role="switch" aria-label="Show types" checked={showTypes} onChange={(e) => setShowTypes(e.target.checked)} />
-              <span>Show types</span>
+              <input type="checkbox" role="switch" aria-label={tx('Show types')} checked={showTypes} onChange={(e) => setShowTypes(e.target.checked)} />
+              <span>{tx('Show types')}</span>
             </label>
             <span style={{ flex: 1 }} />
             {answer.previous !== null && (
@@ -300,8 +301,8 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
                 <Icon name="undo" size={14} />Undo
               </span>
             )}
-            <span role="button" aria-label="Good response" className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'positive', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsUp" size={14} /></span>
-            <span role="button" aria-label="Bad response" className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'negative', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsDown" size={14} /></span>
+            <span role="button" aria-label={tx('Good response')} className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'positive', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsUp" size={14} /></span>
+            <span role="button" aria-label={tx('Bad response')} className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'negative', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsDown" size={14} /></span>
           </div>
         </div>
       )}

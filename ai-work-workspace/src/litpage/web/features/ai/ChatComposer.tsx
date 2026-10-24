@@ -22,6 +22,7 @@ import { choiceDialog, openMcpConnectDialog } from './dialogs.tsx';
 import { openKeyHelp } from './NoKeyNotice.tsx';
 import { CHAT_SKILL_PROMPTS } from './skills.ts';
 import { addDays, isoDate, parseNaturalDate } from '../editor/inline/dates.ts';
+import { tx } from '../shell/i18n.ts';
 
 export interface ComposerMention {
   pageId: string;
@@ -106,10 +107,10 @@ function writePref(key: string, v: string) {
 }
 
 const MODE_INFO: Record<ChatMode, { label: string; description: string; icon: string; off?: string }> = {
-  default: { label: 'Default', description: 'Can search, edit, and take actions', icon: 'aiFace' },
-  ask: { label: 'Ask', description: 'Answers only, with no edits', icon: 'questionMarkCircle', off: 'Allow edits' },
-  plan: { label: 'Plan', description: 'Plans first, then acts after approval', icon: 'checklist', off: 'Disable planning mode' },
-  research: { label: 'Research', description: 'Think deeper and broader.\nSlower, more thorough analysis.', icon: 'docTextMagnifyingGlass', off: 'Disable research mode' },
+  default: { label: tx('Default'), description: tx('Can search, edit, and take actions'), icon: 'aiFace' },
+  ask: { label: tx('Ask'), description: tx('Answers only, with no edits'), icon: 'questionMarkCircle', off: 'Allow edits' },
+  plan: { label: tx('Plan'), description: tx('Plans first, then acts after approval'), icon: 'checklist', off: 'Disable planning mode' },
+  research: { label: tx('Research'), description: 'Think deeper and broader.\nSlower, more thorough analysis.', icon: 'docTextMagnifyingGlass', off: 'Disable research mode' },
 };
 const MODE_ORDER: ChatMode[] = ['default', 'ask', 'plan', 'research'];
 
@@ -254,7 +255,7 @@ function dateOptions(q: string): MenuOption[] {
   const ql = q.trim().toLowerCase();
   const today = new Date();
   const iso = (d: Date) => isoDate(d);
-  if (!ql) return [{ kind: 'date', id: iso(today), title: 'Today', icon: 'calendar' }];
+  if (!ql) return [{ kind: 'date', id: iso(today), title: tx('Today'), icon: 'calendar' }];
   const p = parseNaturalDate(q);
   if (p && !p.remind) {
     const v = p.value;
@@ -282,7 +283,7 @@ function TriggerMenu({ state, onPick, active, setActive, sections, total }: { st
   let idx = -1;
   return (
     <div ref={ref} className="nc-popover nc-ai-mention-menu" role="listbox" data-trigger={state.char} style={{ position: 'fixed', left: pos?.left ?? -9999, top: pos?.top ?? -9999 }} onMouseDown={(e) => e.preventDefault()}>
-      {flat.length === 0 && <div className="nc-menu-empty">No results</div>}
+      {flat.length === 0 && <div className="nc-menu-empty">{tx('No results')}</div>}
       {sections.map((s) => (s.options.length ? (
         <div key={s.title}>
           <div className="nc-ai-mention-section">{s.title}</div>
@@ -323,15 +324,15 @@ function ContextChip({ pageId, included, onToggle }: { pageId: string; included:
     return (
       <div role="button" className="nc-ai-context-chip ghost" data-tooltip="Add context so AI 비서 can tailor its response" onClick={() => onToggle(true)}>
         <Icon name="plusSmall" size={14} />
-        <span>Current page</span>
+        <span>{tx('Current page')}</span>
       </div>
     );
   }
   return (
-    <div className="nc-ai-context-chip" data-tooltip="Current page">
+    <div className="nc-ai-context-chip" data-tooltip={tx('Current page')}>
       <PageIcon block={block as BlockRecord} size={14} />
       <span className="nc-ellipsis">{title}</span>
-      <div role="button" aria-label="Remove context" className="nc-ai-context-chip-x" onClick={() => onToggle(false)}>
+      <div role="button" aria-label={tx('Remove context')} className="nc-ai-context-chip-x" onClick={() => onToggle(false)}>
         <Icon name="close" size={12} />
       </div>
     </div>
@@ -435,8 +436,8 @@ export function ChatComposer(p: Props) {
         const userSkills = useSkills.getState().enabled.filter((s) => !s.builtin && s.inChat && (!ql || s.name.toLowerCase().includes(ql)));
         const prompts = CHAT_SKILL_PROMPTS.filter((s) => !ql || s.label.toLowerCase().includes(ql));
         const secs = [
-          { title: 'Your skills', options: userSkills.map((s): MenuOption => ({ kind: 'skill', id: s.id, title: s.name, path: s.description || undefined })) },
-          { title: 'Skills', options: prompts.map((s): MenuOption => ({ kind: 'prompt', id: s.label, title: s.label, prompt: s.prompt, icon: s.icon })) },
+          { title: tx('Your skills'), options: userSkills.map((s): MenuOption => ({ kind: 'skill', id: s.id, title: s.name, path: s.description || undefined })) },
+          { title: tx('Skills'), options: prompts.map((s): MenuOption => ({ kind: 'prompt', id: s.label, title: s.label, prompt: s.prompt, icon: s.icon })) },
         ];
         setSections(secs);
         setTotal(secs.reduce((n, s) => n + s.options.length, 0));
@@ -467,10 +468,10 @@ export function ChatComposer(p: Props) {
         const dates = dateOptions(q);
         setTotal(dates.length + pages.length + people.length + teams.length);
         setSections([
-          { title: 'Date', options: dates },
-          { title: 'Page link', options: pages.slice(0, 5) },
-          { title: 'People', options: people },
-          { title: 'Teamspaces', options: teams },
+          { title: tx('Date'), options: dates },
+          { title: tx('Page link'), options: pages.slice(0, 5) },
+          { title: tx('People'), options: people },
+          { title: tx('Teamspaces'), options: teams },
         ]);
         setActive(0);
       } catch {
@@ -657,9 +658,9 @@ export function ChatComposer(p: Props) {
     }
     if (on && readPref<string>('nc:ai:webWarned', '0') !== '1') {
       const ok = await choiceDialog({
-        title: 'Confirm this action?',
+        title: tx('Confirm this action?'),
         description: 'Web access lets AI 비서 browse the internet and connected workspace data without asking for approval. Continue? This comes with risks like data loss and prompt injection.',
-        buttons: [{ label: 'Cancel', value: false }, { label: 'Enable web access', value: true, primary: true }],
+        buttons: [{ label: tx('Cancel'), value: false }, { label: tx('Enable web access'), value: true, primary: true }],
       });
       if (!ok) return;
       writePref('nc:ai:webWarned', '1');
@@ -677,21 +678,21 @@ export function ChatComposer(p: Props) {
       width: 280,
       sections: [
         {
-          title: 'Sources',
+          title: tx('Sources'),
           items: [
-            { id: 'src-all', label: 'All sources', icon: 'squareGrid2X2', description: 'Your workspace, the web and connected apps', checked: scope.kind === 'all', onSelect: () => setScope({ kind: 'all' }) },
-            { id: 'src-litpage', label: 'Workspace', icon: 'aiFace', description: 'Only pages in this workspace', checked: scope.kind === 'workspace', onSelect: () => setScope({ kind: 'workspace' }) },
+            { id: 'src-all', label: tx('All sources'), icon: 'squareGrid2X2', description: tx('Your workspace, the web and connected apps'), checked: scope.kind === 'all', onSelect: () => setScope({ kind: 'all' }) },
+            { id: 'src-litpage', label: tx('Workspace'), icon: 'aiFace', description: tx('Only pages in this workspace'), checked: scope.kind === 'workspace', onSelect: () => setScope({ kind: 'workspace' }) },
             {
-              id: 'src-web', label: 'Web', icon: 'globe', checked: scope.kind === 'web', disabled: !status.policy.webSearch,
+              id: 'src-web', label: tx('Web'), icon: 'globe', checked: scope.kind === 'web', disabled: !status.policy.webSearch,
               description: status.policy.webSearch ? 'Only the web' : 'Web browsing is disabled by your workspace admin.', onSelect: () => setScope({ kind: 'web' }),
             },
           ],
         },
         {
-          title: 'Search within',
+          title: tx('Search within'),
           items: [
             {
-              id: 'src-page', label: 'A page…', icon: 'page', checked: scope.kind === 'page', description: scope.kind === 'page' ? scope.title : 'A page and its sub-pages',
+              id: 'src-page', label: tx('A page…'), icon: 'page', checked: scope.kind === 'page', description: scope.kind === 'page' ? scope.title : tx('A page and its sub-pages'),
               onSelect: () => {
                 setTimeout(() => {
                   void import('../agents/ui.tsx').then((m) => m.openResourcePicker(anchor, (r) => setScope({ kind: 'page', id: r.blockId, title: r.title })));
@@ -700,7 +701,7 @@ export function ChatComposer(p: Props) {
             },
             ...(teams.length
               ? [{
-                id: 'src-team', label: 'A teamspace', icon: 'teamspace', checked: scope.kind === 'teamspace', description: scope.kind === 'teamspace' ? scope.title : undefined,
+                id: 'src-team', label: tx('A teamspace'), icon: 'teamspace', checked: scope.kind === 'teamspace', description: scope.kind === 'teamspace' ? scope.title : undefined,
                 submenu: () => ({ width: 240, sections: [{ items: teams.map((tm) => ({ id: tm.id, label: tm.name, icon: 'teamspace', checked: scope.kind === 'teamspace' && scope.id === tm.id, onSelect: () => setScope({ kind: 'teamspace', id: tm.id, title: tm.name }) })) }] }),
               }]
               : []),
@@ -717,9 +718,9 @@ export function ChatComposer(p: Props) {
     const sectionsDef: MenuSectionDef[] = [];
     if (pageCtx) {
       sectionsDef.push({
-        title: 'Context',
+        title: tx('Context'),
         items: [{
-          id: 'current-page', label: 'Current page', text: 'Current page', icon: 'page', description: pageTitle(pageCtx) || 'Untitled', checked: !!p.includePage,
+          id: 'current-page', label: tx('Current page'), text: 'Current page', icon: 'page', description: pageTitle(pageCtx) || 'Untitled', checked: !!p.includePage,
           onSelect: () => { p.onIncludePage?.(!p.includePage); },
         }],
       });
@@ -729,12 +730,12 @@ export function ChatComposer(p: Props) {
       const secs: MenuSectionDef[] = [];
       if (mine.length) {
         secs.push({
-          title: 'Your skills',
+          title: tx('Your skills'),
           items: mine.map((s: SkillInfo) => ({ label: s.name, icon: 'aiStepSkill', description: s.description || undefined, onSelect: () => setSkills((cur) => (cur.some((x) => x.id === s.id) ? cur : [...cur, { id: s.id, name: s.name }])) })),
         });
       }
       secs.push({
-        title: 'Skills',
+        title: tx('Skills'),
         items: CHAT_SKILL_PROMPTS.map((s) => ({
           label: s.label, icon: s.icon, onSelect: () => {
             const el = inputRef.current;
@@ -765,39 +766,39 @@ export function ChatComposer(p: Props) {
       return {
         width: 280,
         sections: [
-          ...(items.length ? [{ title: 'Connections', items }] : []),
-          { items: [{ label: 'Add Connections', icon: 'plus', description: 'External MCP endpoint', onSelect: () => { setTimeout(() => void openMcpConnectDialog(), 0); } }] },
+          ...(items.length ? [{ title: tx('Connections'), items }] : []),
+          { items: [{ label: tx('Add Connections'), icon: 'plus', description: tx('External MCP endpoint'), onSelect: () => { setTimeout(() => void openMcpConnectDialog(), 0); } }] },
         ],
       };
     };
     sectionsDef.push({
       items: [
-        { label: 'Attach images and files', icon: 'paperClip', onSelect: () => fileRef.current?.click() },
-        { label: 'Skills', icon: 'paperBolt', submenu: skillsSub },
+        { label: tx('Attach images and files'), icon: 'paperClip', onSelect: () => fileRef.current?.click() },
+        { label: tx('Skills'), icon: 'paperBolt', submenu: skillsSub },
         {
-          label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>Web <span className="nc-menu-badge">Beta</span></span>, text: 'Web', icon: 'globe',
+          label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{tx('Web')} <span className="nc-menu-badge">{tx('Beta')}</span></span>, text: 'Web', icon: 'globe',
           description: status.policy.webSearch ? 'Enables web browsing and unrestricted internet access for the agent.' : 'Web browsing is disabled by your workspace admin.',
           disabled: !status.policy.webSearch,
           right: <span className={`nc-ai-switch ${web ? 'on' : ''}`} aria-hidden><span /></span>,
           // after the menu closes (selecting a row closes every overlay, the confirm included)
           onSelect: () => { setTimeout(() => void toggleWeb(!web), 0); },
         },
-        { label: 'Connections', icon: 'squareGrid2X2', submenu: connectionsSub },
+        { label: tx('Connections'), icon: 'squareGrid2X2', submenu: connectionsSub },
       ],
     });
     sectionsDef.push({
-      title: 'Mode',
+      title: tx('Mode'),
       items: MODE_ORDER.map((m) => ({ id: `mode-${m}`, label: MODE_INFO[m].label, icon: MODE_INFO[m].icon, description: MODE_INFO[m].description, checked: mode === m, onSelect: () => setMode(m) })),
     });
-    openMenu(anchor, { width: 300, sections: sectionsDef, footer: <div className="nc-ai-menu-tip">Tip: press Shift+Tab to cycle modes</div> }, { placement: 'bottom-start', offset: 2 });
+    openMenu(anchor, { width: 300, sections: sectionsDef, footer: <div className="nc-ai-menu-tip">{tx('Tip: press Shift+Tab to cycle modes')}</div> }, { placement: 'bottom-start', offset: 2 });
   };
 
   const chooseApproval = async (id: ApprovalMode) => {
     if (id === 'skip_all') {
       const choice = await choiceDialog<'with' | 'without'>({
-        title: 'Enable action without approval?',
+        title: tx('Enable action without approval?'),
         description: 'AI 비서 can act in your workspace and connected apps without asking first. Continue only if you trust this setting. Web browsing gives the agent unrestricted internet access. You can change it later from the + menu.',
-        buttons: [{ label: 'Cancel', value: null as unknown as 'with' }, { label: 'Without internet', value: 'without' }, { label: 'With internet', value: 'with', primary: true }],
+        buttons: [{ label: tx('Cancel'), value: null as unknown as 'with' }, { label: tx('Without internet'), value: 'without' }, { label: tx('With internet'), value: 'with', primary: true }],
         width: 440,
       });
       if (!choice) return;
@@ -822,7 +823,7 @@ export function ChatComposer(p: Props) {
       header: (
         <div className="nc-ai-menu-head">
           <span>How should AI 비서 request approval?</span>
-          {HELP_URL && (<a href={HELP_URL} target="_blank" rel="noopener noreferrer">Learn more</a>)}
+          {HELP_URL && (<a href={HELP_URL} target="_blank" rel="noopener noreferrer">{tx('Learn more')}</a>)}
         </div>
       ),
       sections: [{
@@ -845,7 +846,7 @@ export function ChatComposer(p: Props) {
     const models = status.models;
     const row = (m: (typeof models)[number]): MenuItemDef => ({
       id: m.id,
-      label: <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 }}><span style={{ fontWeight: 500 }}>{m.name}</span><span style={{ color: 'var(--lp-text-secondary)' }}>{m.version}</span>{m.beta && <span className="nc-menu-badge">Beta</span>}</span>,
+      label: <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 }}><span style={{ fontWeight: 500 }}>{m.name}</span><span style={{ color: 'var(--lp-text-secondary)' }}>{m.version}</span>{m.beta && <span className="nc-menu-badge">{tx('Beta')}</span>}</span>,
       text: `${m.name} ${m.version}`,
       icon: 'sparkle',
       checked: model === m.id,
@@ -859,13 +860,13 @@ export function ChatComposer(p: Props) {
       sections: [
         {
           items: [{
-            label: <span style={{ fontWeight: 500 }}>Auto</span>, text: 'Auto', icon: 'aiFace', description: 'Balances speed, work, and cost.', checked: model === 'auto',
+            label: <span style={{ fontWeight: 500 }}>{tx('Auto')}</span>, text: 'Auto', icon: 'aiFace', description: tx('Balances speed, work, and cost.'), checked: model === 'auto',
             onSelect: () => chooseModel('auto'),
           }],
         },
-        { title: 'Recommended', items: allowed.filter((m) => m.group === 'recommended').map(row) },
-        ...(others.length ? [{ items: [{ label: 'Other models', submenu: () => ({ width: 240, sections: [{ items: others.map(row) }] }) } as MenuItemDef] }] : []),
-        ...(restricted.length ? [{ title: <span data-tooltip="These models are restricted in this workspace.">Restricted models</span>, items: restricted.map((m) => ({ ...row(m), disabled: true, onSelect: undefined })) }] : []),
+        { title: tx('Recommended'), items: allowed.filter((m) => m.group === 'recommended').map(row) },
+        ...(others.length ? [{ items: [{ label: tx('Other models'), submenu: () => ({ width: 240, sections: [{ items: others.map(row) }] }) } as MenuItemDef] }] : []),
+        ...(restricted.length ? [{ title: <span data-tooltip={tx('These models are restricted in this workspace.')}>{tx('Restricted models')}</span>, items: restricted.map((m) => ({ ...row(m), disabled: true, onSelect: undefined })) }] : []),
       ],
     }, { placement: 'bottom-end', offset: 2 });
   };
@@ -953,8 +954,8 @@ export function ChatComposer(p: Props) {
               <div key={f.key} className={`nc-ai-attach file ${f.status}`} data-tooltip={f.error || f.name}>
                 {f.preview ? <img className="nc-ai-attach-thumb" src={f.preview} alt="" /> : <Icon name={f.mime === 'application/pdf' ? 'filePdf' : 'file'} size={14} />}
                 <span className="nc-ellipsis">{f.name}</span>
-                {f.status === 'uploading' && <span className="nc-ai-attach-status">Uploading…</span>}
-                {f.status === 'error' && <span className="nc-ai-attach-status error">Failed</span>}
+                {f.status === 'uploading' && <span className="nc-ai-attach-status">{tx('Uploading…')}</span>}
+                {f.status === 'error' && <span className="nc-ai-attach-status error">{tx('Failed')}</span>}
                 <div role="button" aria-label={`Remove ${f.name}`} className="nc-ai-context-chip-x" onClick={() => removeFile(f.key)}><Icon name="close" size={12} /></div>
               </div>
             ))}
@@ -992,7 +993,7 @@ export function ChatComposer(p: Props) {
         <div className="nc-ai-composer-bar">
           <div className="nc-ai-composer-left">
             {!p.agentChat && (
-              <div role="button" aria-label="Add files and settings" data-tooltip="Give context" className="nc-ai-icon-btn" onClick={(e) => { if (!disabled) openPlusMenu(e.currentTarget); }}>
+              <div role="button" aria-label={tx('Add files and settings')} data-tooltip={tx('Give context')} className="nc-ai-icon-btn" onClick={(e) => { if (!disabled) openPlusMenu(e.currentTarget); }}>
                 <Icon name="plus" size={20} />
               </div>
             )}
@@ -1004,25 +1005,25 @@ export function ChatComposer(p: Props) {
               </div>
             )}
             {!p.agentChat && mode !== 'ask' && (
-              <div role="button" className={`nc-ai-pill-btn sources ${scope.kind !== 'all' ? 'on' : ''}`} data-testid="ai-sources-button" aria-label="Choose sources" data-tooltip="Choose sources" onClick={(e) => openSourcesMenu(e.currentTarget)}>
+              <div role="button" className={`nc-ai-pill-btn sources ${scope.kind !== 'all' ? 'on' : ''}`} data-testid="ai-sources-button" aria-label={tx('Choose sources')} data-tooltip={tx('Choose sources')} onClick={(e) => openSourcesMenu(e.currentTarget)}>
                 <Icon name={scope.kind === 'web' ? 'globe' : scope.kind === 'page' ? 'page' : scope.kind === 'teamspace' ? 'teamspace' : scope.kind === 'workspace' ? 'aiFace' : 'squareGrid2X2'} size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
                 <span className="nc-ellipsis" style={{ maxWidth: 140 }}>{scopeLabel(scope)}</span>
-                {scope.kind !== 'all' && <span role="button" aria-label="Search all sources" className="nc-ai-context-chip-x" onClick={(e) => { e.stopPropagation(); setScope({ kind: 'all' }); }}><Icon name="close" size={12} /></span>}
+                {scope.kind !== 'all' && <span role="button" aria-label={tx('Search all sources')} className="nc-ai-context-chip-x" onClick={(e) => { e.stopPropagation(); setScope({ kind: 'all' }); }}><Icon name="close" size={12} /></span>}
               </div>
             )}
             {web && status.policy.webSearch && !p.agentChat && (
-              <div className="nc-ai-mode-pill web" data-tooltip="Web access enabled">
+              <div className="nc-ai-mode-pill web" data-tooltip={tx('Web access enabled')}>
                 <Icon name="globe" size={14} />
-                <div role="button" aria-label="Turn off web browser" className="nc-ai-context-chip-x" onClick={() => void toggleWeb(false)}><Icon name="close" size={12} /></div>
+                <div role="button" aria-label={tx('Turn off web browser')} className="nc-ai-context-chip-x" onClick={() => void toggleWeb(false)}><Icon name="close" size={12} /></div>
               </div>
             )}
             {p.variant === 'panel' ? (
               
-              <div role="button" aria-label="Select an approval mode" data-tooltip={approvalLabel} data-testid="agent-service-approval-mode-button" className="nc-ai-icon-btn" onClick={(e) => openApprovalMenu(e.currentTarget)}>
+              <div role="button" aria-label={tx('Select an approval mode')} data-tooltip={approvalLabel} data-testid="agent-service-approval-mode-button" className="nc-ai-icon-btn" onClick={(e) => openApprovalMenu(e.currentTarget)}>
                 <Icon name="aiShieldCheck" size={16} />
               </div>
             ) : (
-              <div role="button" aria-label="Select an approval mode" data-testid="agent-service-approval-mode-button" className="nc-ai-pill-btn" onClick={(e) => openApprovalMenu(e.currentTarget)}>
+              <div role="button" aria-label={tx('Select an approval mode')} data-testid="agent-service-approval-mode-button" className="nc-ai-pill-btn" onClick={(e) => openApprovalMenu(e.currentTarget)}>
                 <Icon name="shield" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
                 <span>{approvalLabel}</span>
               </div>
@@ -1030,23 +1031,23 @@ export function ChatComposer(p: Props) {
           </div>
           <div className="nc-ai-composer-right">
             {(!p.agentChat || p.agentModel !== undefined) && (
-              <div role="button" aria-label="Select an AI model" data-tooltip="Switch AI model" data-testid="agent-chat-model-button" className="nc-ai-pill-btn model" onClick={(e) => openModelMenu(e.currentTarget)}>
+              <div role="button" aria-label={tx('Select an AI model')} data-tooltip={tx('Switch AI model')} data-testid="agent-chat-model-button" className="nc-ai-pill-btn model" onClick={(e) => openModelMenu(e.currentTarget)}>
                 <span>{modelLabelOf(model, status.models)}</span>
               </div>
             )}
             {SpeechRec && !p.streaming && (
-              <div role="button" aria-label={listening ? 'Stop voice input' : 'Voice input'} aria-pressed={listening} data-tooltip={listening ? 'Stop voice input' : 'Voice input'} className={`nc-ai-icon-btn ${listening ? 'listening' : ''}`} onClick={() => { if (!disabled) toggleVoice(); }}>
+              <div role="button" aria-label={listening ? tx('Stop voice input') : tx('Voice input')} aria-pressed={listening} data-tooltip={listening ? tx('Stop voice input') : tx('Voice input')} className={`nc-ai-icon-btn ${listening ? 'listening' : ''}`} onClick={() => { if (!disabled) toggleVoice(); }}>
                 <Icon name="mic" size={16} />
               </div>
             )}
             {p.streaming ? (
-              <div role="button" aria-label="Stop" data-tooltip="Stop" className="nc-ai-send stop" onClick={p.onStop}>
+              <div role="button" aria-label={tx('Stop')} data-tooltip={tx('Stop')} className="nc-ai-send stop" onClick={p.onStop}>
                 <span className="nc-ai-stop-square" />
               </div>
             ) : (
               <div
                 role="button"
-                aria-label="Send AI message"
+                aria-label={tx('Send AI message')}
                 aria-disabled={!hasContent || disabled || uploading}
                 data-testid="agent-chat-send-button"
                 className={`nc-ai-send ${!hasContent || disabled || uploading ? '' : 'ready'}`}

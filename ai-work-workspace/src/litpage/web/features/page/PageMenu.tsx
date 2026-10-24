@@ -13,7 +13,7 @@ import { records } from '../../lib/store/records.ts';
 import { transactions } from '../../lib/store/transactions.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { isDatabaseRow, notifyLevelItems, notifyLevelLabel, notifyLevelToast, type NotifyLevel } from '../shell/inbox/notifyLevels.ts';
 import { copyPageLink, duplicatePage, trashPage } from './pageActions.ts';
 import { openMoveToDialog } from './MoveTo.tsx';
@@ -77,7 +77,7 @@ function FontCards({ pageId }: { pageId: string }) {
       className={`nc-font-choice ${cur === font ? 'active' : ''}`}
       onClick={() => run('setPageFont', (tx) => setFormat(tx, pageId, { page_font: font === 'default' ? null : font } as any))}
     >
-      <div className={`sample ${font}`}>Ag</div>
+      <div className={`sample ${font}`}>{tx('Ag')}</div>
       <div className="label">{label}</div>
     </div>
   );
@@ -104,7 +104,7 @@ function MenuFooter({ pageId }: { pageId: string }) {
     <div className="nc-menu-section nc-block-menu-footer nc-page-menu-footer">
       <div className="nc-block-menu-footer-row">
         <div className="nc-block-menu-footer-col">
-          <div className="title">Last edited</div>
+          <div className="title">{tx('Last edited')}</div>
           <div className="who">
             <UserAvatar userId={page.last_edited_by_id} size={24} />
             <span className="name nc-ellipsis">{userName(editor)}</span>
@@ -174,7 +174,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     initialActive: -1,
     header: <FontCards pageId={pageId} />,
     sections: [{
-      title: 'Appearance',
+      title: tx('Appearance'),
       items: [
         item(t('lp.page.small_text', 'Small text'), 'textSmall', { right: <Switch pageId={pageId} k="page_small_text" />, onSelect: keep(() => togglePageSetting(pageId, 'page_small_text')), disabled: !canEdit }),
         // a wiki's home has no Full width / Contents list
@@ -195,8 +195,8 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
               run('setInlineComments', (tx) => setFormat(tx, pageId, { page_section_visibility: { ...sv, margin_comments: v } } as any));
             };
             return { width: 220, sections: [{ items: [
-              { label: t('lp.page.default', 'Default'), description: 'Show comments to the right of the page', checked: cur === 'inline', onSelect: () => set('inline') },
-              { label: t('lp.page.minimal', 'Minimal'), description: 'Show an icon and comment count', checked: cur === 'minimal', onSelect: () => set('minimal') },
+              { label: t('lp.page.default', 'Default'), description: tx('Show comments to the right of the page'), checked: cur === 'inline', onSelect: () => set('inline') },
+              { label: t('lp.page.minimal', 'Minimal'), description: tx('Show an icon and comment count'), checked: cur === 'minimal', onSelect: () => set('minimal') },
             ] }] };
           },
         }),

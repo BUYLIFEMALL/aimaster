@@ -32,6 +32,7 @@ import {
   RefsField, ValueChips, ctxSurface, defaultEditFor, earlierOutputs, editSentence, editablePropsOf, openValuePicker, refLabel, type EditorCtx, type Surface,
 } from './valueRefs.tsx';
 import { openAutomationFormula } from './formulaField.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 export interface StepListProps {
   surface: Surface;
@@ -90,7 +91,7 @@ export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; c
       onSelect: () => props.onPick(newStep(type, { collectionId: props.collectionId })),
     });
   }
-  return openKeepMenu(anchor, { width: 266, search: 'Search actions…', emptyText: 'No results', sections: [{ items }] }, { placement: 'bottom-start', offset: 0, parent: overlayIdOf(anchor), backdrop: 'transparent' });
+  return openKeepMenu(anchor, { width: 266, search: 'Search actions…', emptyText: tx('No results'), sections: [{ items }] }, { placement: 'bottom-start', offset: 0, parent: overlayIdOf(anchor), backdrop: 'transparent' });
 }
 
 // ------------------------------------------------------------------ shared pickers
@@ -113,10 +114,10 @@ function useDataSources() {
 export function openDataSourcePicker(anchor: HTMLElement, opts: { current?: string; extra?: MenuItemDef[]; onPick: (collectionId: string) => void }) {
   const spaceId = useSession.getState().spaceId;
   const show = (cols: CollectionRecord[]) => openKeepMenu(anchor, {
-    width: 300, search: 'Search for a data source…', emptyText: 'No results',
+    width: 300, search: 'Search for a data source…', emptyText: tx('No results'),
     sections: [
-      ...(opts.extra?.length ? [{ title: 'From this workflow', items: opts.extra }] : []),
-      { title: 'Data sources', items: cols.map((c) => ({ id: c.id, label: collectionName(c), text: collectionName(c), icon: <PageIcon block={records.get<BlockRecord>('block', c.parent_id)} size={18} />, checked: c.id === opts.current, onSelect: () => opts.onPick(c.id) })) },
+      ...(opts.extra?.length ? [{ title: tx('From this workflow'), items: opts.extra }] : []),
+      { title: tx('Data sources'), items: cols.map((c) => ({ id: c.id, label: collectionName(c), text: collectionName(c), icon: <PageIcon block={records.get<BlockRecord>('block', c.parent_id)} size={18} />, checked: c.id === opts.current, onSelect: () => opts.onPick(c.id) })) },
     ],
   }, { placement: 'bottom-start', parent: overlayIdOf(anchor), backdrop: 'transparent' });
   api<{ results: { collectionId: string }[]; recordMap: any }>('searchDataSources', { spaceId, limit: 100 }).then((res) => {
@@ -133,7 +134,7 @@ function DataSourcePill({ collectionId, onPick, readOnly, extra, label }: { coll
   useDataSources();
   const col = collectionId ? records.get<CollectionRecord>('collection', collectionId) : undefined;
   return (
-    <Pill title="Choose a dataset" placeholder={!col && !label} disabled={readOnly} onClick={(e) => openDataSourcePicker(e.currentTarget, { current: collectionId, extra, onPick })}>
+    <Pill title={tx('Choose a dataset')} placeholder={!col && !label} disabled={readOnly} onClick={(e) => openDataSourcePicker(e.currentTarget, { current: collectionId, extra, onPick })}>
       {col ? <PageIcon block={records.get<BlockRecord>('block', col.parent_id)} size={16} /> : null}
       <span>{label ?? (col ? collectionName(col) : 'Choose a dataset')}</span>
     </Pill>
@@ -159,7 +160,7 @@ function EditRows({ c, collectionId, edits, onChange, readOnly, addLabel }: { c:
             <div className="nc-auto-row-label">{prop ? <PropertyIcon prop={prop} size={16} /> : <Icon name="warning" size={16} />}<span>{prop?.name ?? 'Deleted property'}</span></div>
             <div className="nc-auto-row-value">
               {textual ? (
-                <RefsField c={c} value={e.values} onChange={(v) => set(i, { ...e, values: v })} placeholder={prop.type === 'title' ? 'Untitled' : prop.type === 'number' ? 'Number' : 'Empty'} ariaLabel={`${prop.name} value`} multiline={prop.type === 'text'} />
+                <RefsField c={c} value={e.values} onChange={(v) => set(i, { ...e, values: v })} placeholder={prop.type === 'title' ? 'Untitled' : prop.type === 'number' ? tx('Number') : tx('Empty')} ariaLabel={`${prop.name} value`} multiline={prop.type === 'text'} />
               ) : (
                 <span role="button" className="nc-auto-pill" style={{ height: 'auto', minHeight: 24, flexWrap: 'wrap', whiteSpace: 'normal' }} onClick={(ev) => !readOnly && prop && collectionId && openValuePicker(ev.currentTarget, { c, prop, collectionId, edit: e, onChange: (next) => set(i, next) })}>
                   <span style={{ color: 'var(--lp-text-secondary)' }}>{s.before}</span>
@@ -168,7 +169,7 @@ function EditRows({ c, collectionId, edits, onChange, readOnly, addLabel }: { c:
                 </span>
               )}
             </div>
-            {!readOnly && <span role="button" className="nc-auto-icon-btn nc-auto-row-remove" aria-label="Remove" data-tooltip="Remove" onClick={() => onChange(edits.filter((_, j) => j !== i))}><Icon name="xMarkSmall" size={14} /></span>}
+            {!readOnly && <span role="button" className="nc-auto-icon-btn nc-auto-row-remove" aria-label={tx('Remove')} data-tooltip={tx('Remove')} onClick={() => onChange(edits.filter((_, j) => j !== i))}><Icon name="xMarkSmall" size={14} /></span>}
           </div>
         );
       })}
@@ -209,7 +210,7 @@ function FilterEditor({ collectionId, filter, onChange }: { collectionId: string
         return (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <div className="nc-auto-header-row">
-              <span className="nc-auto-hint" style={{ width: 34 }}>{i === 0 ? 'Where' : <span role="button" className="nc-auto-mode-btn" onClick={() => { const m = mode === 'and' ? 'or' : 'and'; setMode(m); commit(leaves, m); }}>{mode === 'and' ? 'And' : 'Or'}</span>}</span>
+              <span className="nc-auto-hint" style={{ width: 34 }}>{i === 0 ? 'Where' : <span role="button" className="nc-auto-mode-btn" onClick={() => { const m = mode === 'and' ? 'or' : 'and'; setMode(m); commit(leaves, m); }}>{mode === 'and' ? tx('And') : tx('Or')}</span>}</span>
               <Pill onClick={(e) => openKeepMenu(e.currentTarget, { width: 220, search: 'Search properties…', sections: [{ items: props.map(([pid, p]) => ({ id: pid, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => commit(leaves.map((x, j) => (j === i ? { property: pid, filter: { operator: defaultFilterOperator(p) } } : x))) })) }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
                 {prop && <PropertyIcon prop={prop} size={14} />}<span>{prop?.name ?? 'Property'}</span>
               </Pill>
@@ -217,7 +218,7 @@ function FilterEditor({ collectionId, filter, onChange }: { collectionId: string
                 <span>{(FILTER_OPERATOR_LABELS[leaf.filter.operator] ?? leaf.filter.operator).toLowerCase()}</span>
               </Pill>
               <span role="button" className="nc-auto-pill" onClick={() => setOpen(open === i ? null : i)}><span>{label.rest && label.active ? label.rest : 'Value'}</span></span>
-              <span role="button" className="nc-auto-icon-btn" aria-label="Delete filter" data-tooltip="Delete filter" onClick={() => commit(leaves.filter((_, j) => j !== i))}><Icon name="trash" size={14} /></span>
+              <span role="button" className="nc-auto-icon-btn" aria-label={tx('Delete filter')} data-tooltip={tx('Delete filter')} onClick={() => commit(leaves.filter((_, j) => j !== i))}><Icon name="trash" size={14} /></span>
             </div>
             {open === i && prop && <div style={{ border: '1px solid var(--lp-border-secondary)', borderRadius: 8 }}><FilterValueEditor leaf={leaf} prop={prop} onChange={(l) => commit(leaves.map((x, j) => (j === i ? l : x)))} /></div>}
           </div>
@@ -262,23 +263,23 @@ function OpenTargetPicker({ c, current, onChange, close }: { c: EditorCtx; curre
   return (
     <PopoverSurface width={300} className="nc-auto-pop" maxHeight="50vh">
       <div className="nc-auto-pop-search" style={{ paddingTop: 8 }} data-menu-keys="ignore">
-        <div className="nc-input focused"><input autoFocus placeholder={urlAllowed ? 'Find or paste a link…' : 'Type to find…'} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && isUrl && urlAllowed) pick({ type: 'url', url: query }); }} /></div>
+        <div className="nc-input focused"><input autoFocus placeholder={urlAllowed ? tx('Find or paste a link…') : tx('Type to find…')} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && isUrl && urlAllowed) pick({ type: 'url', url: query }); }} /></div>
       </div>
       <div className="nc-auto-pop-list">
         {isUrl && (
           <>
-            <div className="nc-auto-pop-section">Link</div>
+            <div className="nc-auto-pop-section">{tx('Link')}</div>
             {urlAllowed
               ? <div role="option" className="nc-auto-opt" onClick={() => pick({ type: 'url', url: query })}><Icon name="link" size={18} /><span className="grow">{query}</span></div>
-              : <div className="nc-auto-hint" style={{ padding: '0 8px 6px' }}>A URL can be linked only as the first workflow action.</div>}
+              : <div className="nc-auto-hint" style={{ padding: '0 8px 6px' }}>{tx('A URL can be linked only as the first workflow action.')}</div>}
           </>
         )}
-        {(match(contextLabel('page', ctxSurface(c))) || out.length > 0) && <div className="nc-auto-pop-section">{c.surface === 'automation' ? 'From this workflow' : 'From this button'}</div>}
+        {(match(contextLabel('page', ctxSurface(c))) || out.length > 0) && <div className="nc-auto-pop-section">{c.surface === 'automation' ? tx('From this workflow') : tx('From this button')}</div>}
         {match(contextLabel('page', ctxSurface(c))) && <div role="option" className="nc-auto-opt" onClick={() => pick({ type: 'context', key: 'page' })}><Icon name="page" size={18} /><span className="grow">{contextLabel('page', ctxSurface(c))}</span></div>}
         {out.filter((r) => match(refLabel(r, c).label)).map((r) => (
           <div key={(r as { step: string }).step} role="option" className="nc-auto-opt" onClick={() => pick({ type: 'step', step: (r as { step: string }).step })}><Icon name="page" size={18} /><span className="grow">{refLabel(r, c).label}</span></div>
         ))}
-        {ids.length > 0 && <div className="nc-auto-pop-section">Pages</div>}
+        {ids.length > 0 && <div className="nc-auto-pop-section">{tx('Pages')}</div>}
         {ids.map((id) => (
           <div key={id} role="option" className="nc-auto-opt" onClick={() => pick({ type: 'page', page_id: id })}><PageIcon block={records.get<BlockRecord>('block', id)} size={18} /><span className="grow">{pageTitle(records.get<BlockRecord>('block', id)) || 'Untitled'}</span></div>
         ))}
@@ -328,13 +329,13 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       return {
         title: (
           <>
-            <b>Add page to</b>
+            <b>{tx('Add page to')}</b>
             <DataSourcePill collectionId={step.collection_id} readOnly={readOnly} onPick={(id) => onChange({ ...step, collection_id: id, template_id: null, edits: id === step.collection_id ? step.edits : [{ property: 'title', op: 'set', values: [] }] })} />
             {target && (
               <>
                 <span>as</span>
-                <Pill title="Select template" disabled={readOnly} placeholder={!tpl} onClick={(e) => openKeepMenu(e.currentTarget, { width: 260, sections: [{ title: 'Select template', items: [
-                  { id: 'empty', label: 'Empty', icon: 'pageEmpty', checked: !step.template_id, onSelect: () => onChange({ ...step, template_id: null }) },
+                <Pill title={tx('Select template')} disabled={readOnly} placeholder={!tpl} onClick={(e) => openKeepMenu(e.currentTarget, { width: 260, sections: [{ title: tx('Select template'), items: [
+                  { id: 'empty', label: tx('Empty'), icon: 'pageEmpty', checked: !step.template_id, onSelect: () => onChange({ ...step, template_id: null }) },
                   ...templates.map((t) => ({ id: t.id, label: toPlainText(t.properties?.title) || 'Untitled', icon: <PageIcon block={t} size={18} />, checked: t.id === step.template_id, onSelect: () => onChange({ ...step, template_id: t.id }) })),
                 ] }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
                   <span>{tpl ? toPlainText(tpl.properties?.title) || 'Untitled' : 'Empty'}</span>
@@ -343,7 +344,7 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
             )}
           </>
         ),
-        body: step.collection_id ? <EditRows c={c} collectionId={step.collection_id} edits={step.edits} readOnly={readOnly} addLabel={step.edits.length ? 'Edit another property' : 'Edit a property'} onChange={(edits) => onChange({ ...step, edits })} /> : null,
+        body: step.collection_id ? <EditRows c={c} collectionId={step.collection_id} edits={step.edits} readOnly={readOnly} addLabel={step.edits.length ? tx('Edit another property') : tx('Edit a property')} onChange={(edits) => onChange({ ...step, edits })} /> : null,
       };
     }
     case 'edit_pages': {
@@ -353,7 +354,7 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       return {
         title: (
           <>
-            <b>Edit</b>
+            <b>{tx('Edit')}</b>
             {!step.source && (
               <Pill disabled={readOnly || !step.collection_id} onClick={(e) => step.collection_id && openFilterEditor(e.currentTarget, { collectionId: step.collection_id, filter: step.filter, onChange: (f) => onChange({ ...step, filter: f }) })}>
                 <span>{n ? `pages that match ${n} ${n === 1 ? 'filter' : 'filters'}` : 'all pages'}</span>
@@ -373,13 +374,13 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       return {
         title: (
           <>
-            <b>Send a notice to</b>
+            <b>{tx('Send a notice to')}</b>
             {blockButton ? <span>specific people</span> : (
               <Pill disabled={readOnly} onClick={(e) => openKeepMenu(e.currentTarget, { width: 200, sections: [{ items: [
-                { id: 'users', label: 'People', checked: t.type === 'users', onSelect: () => onChange({ ...step, target: { type: 'users', user_ids: [] } }) },
-                { id: 'prop', label: 'Property', checked: t.type === 'property', disabled: !people.length, onSelect: () => onChange({ ...step, target: { type: 'property', property: people[0]?.[0] ?? '' } }) },
+                { id: 'users', label: tx('People'), checked: t.type === 'users', onSelect: () => onChange({ ...step, target: { type: 'users', user_ids: [] } }) },
+                { id: 'prop', label: tx('Property'), checked: t.type === 'property', disabled: !people.length, onSelect: () => onChange({ ...step, target: { type: 'property', property: people[0]?.[0] ?? '' } }) },
               ] }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-                <span>{t.type === 'property' ? 'Property' : 'People'}</span>
+                <span>{t.type === 'property' ? tx('Property') : tx('People')}</span>
               </Pill>
             )}
           </>
@@ -395,8 +396,8 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
                     <span role="button" className="nc-auto-pill placeholder" onClick={(e) => openKeepMenu(e.currentTarget, {
                       width: 280, search: `Choose up to ${LIMITS.notifyUsers} people…`,
                       sections: [
-                        { title: 'From this workflow'.replace('automation', c.surface === 'automation' ? 'automation' : 'button'), items: (['actor', ...(c.surface === 'automation' ? ['page_creator'] : [])] as ('actor' | 'page_creator')[]).map((k) => ({ id: k, label: contextLabel(k, ctxSurface(c)), icon: 'person', checked: (t.dynamic ?? []).includes(k), onSelect: () => { const d = t.dynamic ?? []; onChange({ ...step, target: { ...t, dynamic: d.includes(k) ? d.filter((x) => x !== k) : [...d, k] } }); } })) },
-                        { title: 'Send a notice to', items: workspaceMembers().map((u) => ({ id: u.id, label: u.name || u.email, text: `${u.name} ${u.email}`, icon: <UserAvatar userId={u.id} size={20} />, checked: t.user_ids.includes(u.id), onSelect: () => onChange({ ...step, target: { ...t, user_ids: t.user_ids.includes(u.id) ? t.user_ids.filter((x) => x !== u.id) : [...t.user_ids, u.id].slice(0, LIMITS.notifyUsers) } }) })) },
+                        { title: tx('From this workflow').replace('automation', c.surface === 'automation' ? 'automation' : 'button'), items: (['actor', ...(c.surface === 'automation' ? ['page_creator'] : [])] as ('actor' | 'page_creator')[]).map((k) => ({ id: k, label: contextLabel(k, ctxSurface(c)), icon: 'person', checked: (t.dynamic ?? []).includes(k), onSelect: () => { const d = t.dynamic ?? []; onChange({ ...step, target: { ...t, dynamic: d.includes(k) ? d.filter((x) => x !== k) : [...d, k] } }); } })) },
+                        { title: tx('Send a notice to'), items: workspaceMembers().map((u) => ({ id: u.id, label: u.name || u.email, text: `${u.name} ${u.email}`, icon: <UserAvatar userId={u.id} size={20} />, checked: t.user_ids.includes(u.id), onSelect: () => onChange({ ...step, target: { ...t, user_ids: t.user_ids.includes(u.id) ? t.user_ids.filter((x) => x !== u.id) : [...t.user_ids, u.id].slice(0, LIMITS.notifyUsers) } }) })) },
                       ],
                     }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
                       <span>{t.user_ids.length + (t.dynamic?.length ?? 0) ? 'Edit' : `Choose up to ${LIMITS.notifyUsers} people…`}</span>
@@ -413,8 +414,8 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
                 </div>
               </div>
             )}
-            <div className="nc-auto-field-label">Message</div>
-            <RefsField c={c} value={step.message} onChange={(message) => onChange({ ...step, message })} placeholder="Write a message, @ to mention" multiline ariaLabel="Message" />
+            <div className="nc-auto-field-label">{tx('Message')}</div>
+            <RefsField c={c} value={step.message} onChange={(message) => onChange({ ...step, message })} placeholder={tx('Write a message, @ to mention')} multiline ariaLabel="Message" />
           </>
         ),
       };
@@ -425,18 +426,18 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       const all = step.properties === 'all';
       const selected = all ? sendable.map(([id]) => id) : (step.properties as string[]);
       return {
-        title: <b>Send webhook</b>,
+        title: <b>{tx('Send webhook')}</b>,
         body: (
           <>
             <div className="nc-auto-field-label">URL</div>
             <input className="nc-auto-input" aria-label="URL" placeholder="https://" value={step.url} readOnly={readOnly} onChange={(e) => onChange({ ...step, url: e.target.value })} />
             {c.surface === 'automation' && col && (
               <>
-                <div className="nc-auto-field-label">Content</div>
+                <div className="nc-auto-field-label">{tx('Content')}</div>
                 <span role="button" className="nc-auto-pill" style={{ alignSelf: 'flex-start' }} onClick={(e) => !readOnly && openKeepMenu(e.currentTarget, {
                   width: 280,
                   sections: [
-                    { items: [{ id: 'all', label: 'Choose all existing fields', description: 'New fields are not added automatically', checked: all, onSelect: () => { onChange({ ...step, properties: all ? [] : 'all' }); return false; } }] },
+                    { items: [{ id: 'all', label: tx('Choose all existing fields'), description: tx('New fields are not added automatically'), checked: all, onSelect: () => { onChange({ ...step, properties: all ? [] : 'all' }); return false; } }] },
                     { items: sendable.map(([pid, p]) => ({ id: pid, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: selected.includes(pid), onSelect: () => { const next = selected.includes(pid) ? selected.filter((x) => x !== pid) : [...selected, pid]; onChange({ ...step, properties: next }); return false; } })) },
                   ],
                 }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
@@ -447,59 +448,59 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
             )}
             {step.headers.map((h, i) => (
               <div key={i} className="nc-auto-header-row">
-                <input className="nc-auto-input" aria-label="Key" placeholder="Key" value={h.key} readOnly={readOnly} onChange={(e) => onChange({ ...step, headers: step.headers.map((x, j) => (j === i ? { ...x, key: e.target.value } : x)) })} />
+                <input className="nc-auto-input" aria-label={tx('Key')} placeholder={tx('Key')} value={h.key} readOnly={readOnly} onChange={(e) => onChange({ ...step, headers: step.headers.map((x, j) => (j === i ? { ...x, key: e.target.value } : x)) })} />
                 <HeaderValueInput value={h.value} readOnly={readOnly} onChange={(value) => onChange({ ...step, headers: step.headers.map((x, j) => (j === i ? { ...x, value } : x)) })} />
-                {!readOnly && <span role="button" className="nc-auto-icon-btn" aria-label="Delete custom header" onClick={() => onChange({ ...step, headers: step.headers.filter((_, j) => j !== i) })}><Icon name="xMarkSmall" size={14} /></span>}
+                {!readOnly && <span role="button" className="nc-auto-icon-btn" aria-label={tx('Delete custom header')} onClick={() => onChange({ ...step, headers: step.headers.filter((_, j) => j !== i) })}><Icon name="xMarkSmall" size={14} /></span>}
               </div>
             ))}
-            {!readOnly && step.headers.length < LIMITS.customHeaders && <span role="button" className="nc-auto-link" onClick={() => onChange({ ...step, headers: [...step.headers, { id: newId(), key: '', value: '' }] })}><Icon name="plusSmall" size={16} />Create custom header</span>}
+            {!readOnly && step.headers.length < LIMITS.customHeaders && <span role="button" className="nc-auto-link" onClick={() => onChange({ ...step, headers: [...step.headers, { id: newId(), key: '', value: '' }] })}><Icon name="plusSmall" size={16} />{tx('Create custom header')}</span>}
           </>
         ),
       };
     }
     case 'define_variables':
       return {
-        title: <b>Define variables</b>,
+        title: <b>{tx('Define variables')}</b>,
         body: (
           <>
             {step.variables.map((v, i) => (
               <div key={v.id} className="nc-auto-row">
                 <div className="nc-auto-row-label" style={{ width: 130 }}>
-                  <input className="nc-auto-input" aria-label="Variable name" value={v.name} readOnly={readOnly} onChange={(e) => onChange({ ...step, variables: step.variables.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)) })} />
+                  <input className="nc-auto-input" aria-label={tx('Variable name')} value={v.name} readOnly={readOnly} onChange={(e) => onChange({ ...step, variables: step.variables.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)) })} />
                 </div>
                 <div className="nc-auto-row-value">
                   <span style={{ color: 'var(--lp-text-tertiary)' }}>=</span>
                   <span role="button" className={`nc-auto-pill ${v.formula ? '' : 'placeholder'}`} onClick={(e) => !readOnly && openAutomationFormula(e.currentTarget, { c, initial: v.formula, onSave: (src) => onChange({ ...step, variables: step.variables.map((x, j) => (j === i ? { ...x, formula: src } : x)) }) })}>
-                    <span style={{ fontWeight: 600, color: 'var(--lp-icon-secondary)' }}>∑</span><span>{v.formula ? 'Edit formula' : 'Add a formula'}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--lp-icon-secondary)' }}>∑</span><span>{v.formula ? tx('Edit formula') : tx('Add a formula')}</span>
                   </span>
                 </div>
                 {!readOnly && (
-                  <span role="button" className="nc-auto-icon-btn nc-auto-row-remove" aria-label="More" onClick={(e) => openKeepMenu(e.currentTarget, { width: 200, sections: [{ items: [
-                    { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => onChange({ ...step, variables: [...step.variables.slice(0, i + 1), { ...v, id: newId(), name: `${v.name} (1)` }, ...step.variables.slice(i + 1)] }) },
-                    { id: 'del', label: 'Delete', icon: 'trash', disabled: step.variables.length <= 1, onSelect: () => onChange({ ...step, variables: step.variables.filter((_, j) => j !== i) }) },
+                  <span role="button" className="nc-auto-icon-btn nc-auto-row-remove" aria-label={tx('More')} onClick={(e) => openKeepMenu(e.currentTarget, { width: 200, sections: [{ items: [
+                    { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => onChange({ ...step, variables: [...step.variables.slice(0, i + 1), { ...v, id: newId(), name: `${v.name} (1)` }, ...step.variables.slice(i + 1)] }) },
+                    { id: 'del', label: tx('Delete'), icon: 'trash', disabled: step.variables.length <= 1, onSelect: () => onChange({ ...step, variables: step.variables.filter((_, j) => j !== i) }) },
                   ] }] }, { placement: 'bottom-end', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}><Icon name="ellipsisSmall" size={14} /></span>
                 )}
               </div>
             ))}
-            {!readOnly && step.variables.length < LIMITS.variables && <span role="button" className="nc-auto-link" onClick={() => onChange({ ...step, variables: [...step.variables, { id: newId(), name: `Variable ${step.variables.length + 1}`, formula: '' }] })}><Icon name="plusSmall" size={16} />Define one more variable…</span>}
+            {!readOnly && step.variables.length < LIMITS.variables && <span role="button" className="nc-auto-link" onClick={() => onChange({ ...step, variables: [...step.variables, { id: newId(), name: `Variable ${step.variables.length + 1}`, formula: '' }] })}><Icon name="plusSmall" size={16} />{tx('Define one more variable…')}</span>}
           </>
         ),
       };
     case 'confirm':
       return {
-        title: <b>Show confirmation</b>,
+        title: <b>{tx('Show confirmation')}</b>,
         body: (
           <>
-            <div className="nc-auto-field-label">Confirmation message</div>
-            <input className="nc-auto-input" aria-label="Confirmation message" placeholder="Continue with this action?" value={step.message} readOnly={readOnly} onChange={(e) => onChange({ ...step, message: e.target.value })} />
+            <div className="nc-auto-field-label">{tx('Confirmation message')}</div>
+            <input className="nc-auto-input" aria-label={tx('Confirmation message')} placeholder={tx('Continue with this action?')} value={step.message} readOnly={readOnly} onChange={(e) => onChange({ ...step, message: e.target.value })} />
             <div className="nc-auto-header-row">
               <div style={{ flex: 1 }}>
-                <div className="nc-auto-field-label">Text for the continue button</div>
-                <input className="nc-auto-input" aria-label="Text for the continue button" placeholder="Continue" value={step.continue_label ?? ''} readOnly={readOnly} onChange={(e) => onChange({ ...step, continue_label: e.target.value })} />
+                <div className="nc-auto-field-label">{tx('Text for the continue button')}</div>
+                <input className="nc-auto-input" aria-label={tx('Text for the continue button')} placeholder={tx('Continue')} value={step.continue_label ?? ''} readOnly={readOnly} onChange={(e) => onChange({ ...step, continue_label: e.target.value })} />
               </div>
               <div style={{ flex: 1 }}>
-                <div className="nc-auto-field-label">Text for the cancel button</div>
-                <input className="nc-auto-input" aria-label="Text for the cancel button" placeholder="Cancel" value={step.cancel_label ?? ''} readOnly={readOnly} onChange={(e) => onChange({ ...step, cancel_label: e.target.value })} />
+                <div className="nc-auto-field-label">{tx('Text for the cancel button')}</div>
+                <input className="nc-auto-input" aria-label={tx('Text for the cancel button')} placeholder={tx('Cancel')} value={step.cancel_label ?? ''} readOnly={readOnly} onChange={(e) => onChange({ ...step, cancel_label: e.target.value })} />
               </div>
             </div>
           </>
@@ -509,8 +510,8 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       return {
         title: (
           <>
-            <b>Open</b>
-            <Pill disabled={readOnly} placeholder={!step.target} title="Choose an entry, form, or URL" onClick={(e) => openTargetMenu(e.currentTarget, c, step, onChange)}>
+            <b>{tx('Open')}</b>
+            <Pill disabled={readOnly} placeholder={!step.target} title={tx('Choose an entry, form, or URL')} onClick={(e) => openTargetMenu(e.currentTarget, c, step, onChange)}>
               {step.target?.type === 'page' ? <PageIcon block={records.get<BlockRecord>('block', step.target.page_id)} size={16} /> : null}
               <span>{openTargetLabel(step.target, c)}</span>
             </Pill>
@@ -526,7 +527,7 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       return {
         title: (
           <>
-            <b>Insert blocks</b>
+            <b>{tx('Insert blocks')}</b>
             <Pill disabled={readOnly} onClick={(e) => openKeepMenu(e.currentTarget, { width: 200, sections: [{ items: Object.entries(INSERT_LABELS).map(([k, [label]]) => ({ id: k, label, checked: step.position === k, onSelect: () => onChange({ ...step, position: k as 'below' }) })) }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
               <span>{INSERT_LABELS[step.position]?.[1] ?? 'below button'}</span>
             </Pill>
@@ -536,16 +537,16 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
       };
     case 'agent':
       return {
-        title: <><b>Send message to:</b><span className="nc-auto-pill static"><Icon name="aiFace" size={14} /><span>AI 비서</span></span></>,
+        title: <><b>{tx('Send message to:')}</b><span className="nc-auto-pill static"><Icon name="aiFace" size={14} /><span>AI 비서</span></span></>,
         body: (
           <>
-            <div className="nc-auto-field-label">Message</div>
-            <input className="nc-auto-input" aria-label="Message" placeholder="Message" value={step.message} readOnly={readOnly} onChange={(e) => onChange({ ...step, message: e.target.value })} />
+            <div className="nc-auto-field-label">{tx('Message')}</div>
+            <input className="nc-auto-input" aria-label={tx('Message')} placeholder={tx('Message')} value={step.message} readOnly={readOnly} onChange={(e) => onChange({ ...step, message: e.target.value })} />
           </>
         ),
       };
     default:
-      return { title: <b>{meta.title}</b>, body: <div className="nc-auto-hint">{step.type === 'mail' ? 'Connect a Gmail account in Settings › Connections to send mail.' : 'Connect Slack in Settings › Connections to send Slack notifications.'}</div> };
+      return { title: <b>{meta.title}</b>, body: <div className="nc-auto-hint">{step.type === 'mail' ? tx('Connect a Gmail account in Settings › Connections to send mail.') : tx('Connect Slack in Settings › Connections to send Slack notifications.')}</div> };
   }
 }
 
@@ -567,18 +568,18 @@ function StepCard({ step, index, props, issues, onDragStart, onDropAt, dragging,
       width: 220,
       sections: [
         { items: [
-          { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => props.onChange([...steps.slice(0, index + 1), { ...structuredClone(step), id: newId() }, ...steps.slice(index + 1)]) },
-          { id: 'up', label: 'Move up', icon: 'arrowUp', disabled: index === 0, onSelect: () => { const n = steps.slice(); [n[index - 1], n[index]] = [n[index], n[index - 1]]; props.onChange(n); } },
-          { id: 'down', label: 'Move down', icon: 'arrowDown', disabled: index === steps.length - 1, onSelect: () => { const n = steps.slice(); [n[index + 1], n[index]] = [n[index], n[index + 1]]; props.onChange(n); } },
+          { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => props.onChange([...steps.slice(0, index + 1), { ...structuredClone(step), id: newId() }, ...steps.slice(index + 1)]) },
+          { id: 'up', label: tx('Move up'), icon: 'arrowUp', disabled: index === 0, onSelect: () => { const n = steps.slice(); [n[index - 1], n[index]] = [n[index], n[index - 1]]; props.onChange(n); } },
+          { id: 'down', label: tx('Move down'), icon: 'arrowDown', disabled: index === steps.length - 1, onSelect: () => { const n = steps.slice(); [n[index + 1], n[index]] = [n[index], n[index + 1]]; props.onChange(n); } },
         ] },
         { items: [
-          { id: 'above', label: 'Create action above', icon: 'plus', onSelect: () => { setTimeout(() => insertAt(index, anchor), 0); } },
-          { id: 'below', label: 'Create action below', icon: 'plus', onSelect: () => { setTimeout(() => insertAt(index + 1, anchor), 0); } },
+          { id: 'above', label: tx('Create action above'), icon: 'plus', onSelect: () => { setTimeout(() => insertAt(index, anchor), 0); } },
+          { id: 'below', label: tx('Create action below'), icon: 'plus', onSelect: () => { setTimeout(() => insertAt(index + 1, anchor), 0); } },
         ] },
         { items: [
-          ...(HELP_URL && step.type === 'webhook' ? [{ id: 'learn', label: 'Explore webhooks', icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank', 'noopener') }] : []),
-          ...(HELP_URL && step.type === 'define_variables' ? [{ id: 'learn', label: 'Explore variables', icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank', 'noopener') }] : []),
-          { id: 'del', label: 'Delete', icon: 'trash', onSelect: () => props.onChange(steps.filter((s) => s.id !== step.id)) },
+          ...(HELP_URL && step.type === 'webhook' ? [{ id: 'learn', label: tx('Explore webhooks'), icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank', 'noopener') }] : []),
+          ...(HELP_URL && step.type === 'define_variables' ? [{ id: 'learn', label: tx('Explore variables'), icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank', 'noopener') }] : []),
+          { id: 'del', label: tx('Delete'), icon: 'trash', onSelect: () => props.onChange(steps.filter((s) => s.id !== step.id)) },
         ] },
       ],
     }, { placement: 'bottom-end', parent: overlayIdOf(anchor), backdrop: 'transparent', onClose: () => setMenuOpen(false) });
@@ -600,7 +601,7 @@ function StepCard({ step, index, props, issues, onDragStart, onDropAt, dragging,
         <div className="nc-auto-card-title">{title}</div>
         {!props.readOnly && (
           <div className={`nc-auto-card-actions ${menuOpen ? 'open' : ''}`}>
-            <span role="button" className="nc-auto-icon-btn" aria-label="More" data-tooltip="More" onClick={(e) => more(e.currentTarget)}><Icon name="ellipsisSmall" size={16} /></span>
+            <span role="button" className="nc-auto-icon-btn" aria-label={tx('More')} data-tooltip={tx('More')} onClick={(e) => more(e.currentTarget)}><Icon name="ellipsisSmall" size={16} /></span>
           </div>
         )}
       </div>
@@ -641,13 +642,13 @@ export function StepList(props: StepListProps) {
           {steps.length > 0 && <div className="nc-auto-connector short" style={{ alignSelf: 'center' }} />}
           <div
             role="button"
-            aria-label="Add action"
+            aria-label={tx('Add action')}
             aria-haspopup="dialog"
             className="nc-auto-add"
             onClick={(e) => openActionMenu(e.currentTarget, { ...props, steps, onPick: (s) => props.onChange([...steps, s]) })}
           >
             <span className="nc-auto-add-icon"><Icon name="plusSmall" size={16} /></span>
-            <span className="nc-auto-add-label">{steps.length ? 'Create another step' : 'New action'}</span>
+            <span className="nc-auto-add-label">{steps.length ? tx('Create another step') : tx('New action')}</span>
           </div>
         </>
       )}
@@ -666,8 +667,8 @@ function HeaderValueInput({ value, readOnly, onChange }: { value: string; readOn
   return (
     <input
       className="nc-auto-input"
-      aria-label="Value"
-      placeholder="Value"
+      aria-label={tx('Value')}
+      placeholder={tx('Value')}
       value={shown}
       readOnly={readOnly}
       title={masked ? 'The saved value is hidden. Type to replace it.' : undefined}

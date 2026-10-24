@@ -35,7 +35,8 @@ Output Markdown only:
 
 export function minSummaryChars(): number {
   const v = Number(process.env.NC_MEETING_MIN_SUMMARY_CHARS);
-  return Number.isFinite(v) && v >= 0 ? v : 300;
+  // 이식판(v1.15): 한국어는 300자를 채우려면 1분 넘게 말해야 해 짧은 회의는 늘 요약이 빠졌다 → 100자(약 20~30초)
+  return Number.isFinite(v) && v >= 0 ? v : 100;
 }
 
 function clock(ms: number): string {
@@ -198,16 +199,18 @@ export async function summarize(blockId: unknown, userId: string, opts: { instru
   const b = meetingBlock(blockId);
   assertCanEdit(b, userId);
   const st0 = stateOf(b);
-  if (st0.state === 'transcribing') throw new MeetingError('busy', 'Stop transcribing before summarizing.', 409);
+  if (st0.state === 'transcribing') throw new MeetingError('busy', '받아쓰기를 멈춘 뒤 요약해 주세요.', 409);
   const runs = transcriptRuns(b);
   const notes = notesMarkdown(b, userId);
   const transcriptChars = runs.reduce((n, r) => n + toPlainText(r.properties?.title as RichText | undefined).length, 0);
   if (opts.auto && transcriptChars < minSummaryChars() && notes.replace(/\s+/g, '').length < 20) {
+    // 이식판(v1.15): 조용히 건너뛰면 요약 칸이 빈 채로 남아 고장처럼 보였다 → 안내와 「요약 만들기」 버튼(블록 쪽)을 띄운다
+    recordState(userId, b, { state: 'transcript_ready', error: { code: 'too_short', message: '녹취가 짧아 자동 요약을 건너뛰었습니다. 그래도 요약이 필요하면 「요약 만들기」를 눌러 주세요.', time: Date.now() } }, 'summarySkipped');
     return { status: 'skipped' };
   }
   if (!runs.length && !notes) {
-    recordState(userId, b, { state: 'transcript_ready', error: { code: 'empty', message: 'We could not create this summary.', time: Date.now() } }, 'summaryEmpty');
-    return { status: 'error', error: 'We could not create this summary.' };
+    recordState(userId, b, { state: 'transcript_ready', error: { code: 'empty', message: '녹취록과 노트가 비어 있어 요약을 만들 수 없습니다.', time: Date.now() } }, 'summaryEmpty');
+    return { status: 'error', error: '녹취록과 노트가 비어 있어 요약을 만들 수 없습니다.' };
   }
   const fail = (code: string, message: string) => {
     const cur = meetingBlock(b.id);
@@ -238,7 +241,7 @@ export async function summarize(blockId: unknown, userId: string, opts: { instru
   });
   const res = await executeSimple('meeting.summary', req, {}, undefined, opts.client);
   if (res.status !== 'complete' || !res.text.trim()) {
-    return fail(res.error?.code ?? 'error', res.error?.code === 'no_key' ? NO_KEY_MESSAGE : 'The summary could not be created. Try again.');
+    return fail(res.error?.code ?? 'error', res.error?.code === 'no_key' ? NO_KEY_MESSAGE : '요약을 만들지 못했습니다. 다시 시도해 주세요.');
   }
   const cited = citeMarkdown(res.text, lines);
   let specs = summarySpecs(cited.markdown);
@@ -246,7 +249,7 @@ export async function summarize(blockId: unknown, userId: string, opts: { instru
   const cur = meetingBlock(b.id);
   const sid = sectionId(cur, 'summary');
   const section = sid ? getRecord<BlockRecord>('block', sid) : undefined;
-  if (!section) return fail('error', 'The summary could not be created. Try again.');
+  if (!section) return fail('error', '요약을 만들지 못했습니다. 다시 시도해 주세요.');
   const ops: Operation[] = [];
   const now = Date.now();
   for (const id of section.content ?? []) {
@@ -264,7 +267,7 @@ export async function summarize(blockId: unknown, userId: string, opts: { instru
   try {
     apply(userId, cur, ops, 'summary');
   } catch (e) {
-    return fail('forbidden', e instanceof MeetingError ? e.message : 'The summary could not be created. Try again.');
+    return fail('forbidden', e instanceof MeetingError ? e.message : '요약을 만들지 못했습니다. 다시 시도해 주세요.');
   }
   const done = meetingBlock(b.id);
   emitMeetingSummarized({

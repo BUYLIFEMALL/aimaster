@@ -15,6 +15,7 @@ import { spacingFor } from '../editor/spacing.ts';
 import { highlightToHtml } from '../editor/blocks/codeHighlight.ts';
 import { PageIcon } from '../shell/PageIcon.tsx';
 import { coverStyle, isImageCover } from './Cover.tsx';
+import { tx } from '../shell/i18n.ts';
 
 type Lookup = (id: string) => BlockRecord | undefined;
 
@@ -205,7 +206,7 @@ function BlockBody({ block: b, index, siblings, depth, ctx }: { block: BlockReco
       const language = (b.properties?.language as RichText | undefined)?.[0]?.[0] ?? 'Plain Text';
       return (
         <div className="nc-bpad">
-          <div className="nc-code-box" role="figure" aria-label="Code block">
+          <div className="nc-code-box" role="figure" aria-label={tx('Code block')}>
             <div className="nc-code-scroll">
               <div
                 className={`nc-code-leaf-2 language-${String(language).toLowerCase().replace(/[^a-z0-9]/g, '')} ${b.format?.code_wrap === true ? 'wrap' : ''}`}
@@ -218,7 +219,7 @@ function BlockBody({ block: b, index, siblings, depth, ctx }: { block: BlockReco
     }
     case 'image': {
       const src = toPlainText(b.properties?.source as RichText | undefined) || (b.format?.display_source as string) || '';
-      return <div className="nc-bpad">{src ? <img src={src} alt="" style={{ maxWidth: '100%', borderRadius: 4, display: 'block' }} /> : <div className="nc-static-placeholder">Image</div>}</div>;
+      return <div className="nc-bpad">{src ? <img src={src} alt="" style={{ maxWidth: '100%', borderRadius: 4, display: 'block' }} /> : <div className="nc-static-placeholder">{tx('Image')}</div>}</div>;
     }
     case 'page': case 'collection_view_page': case 'link_to_page': case 'alias': {
       const target = b.type === 'alias' || b.type === 'link_to_page' ? ctx.get(String((b.format as any)?.alias_pointer?.id ?? '')) ?? b : b;
@@ -260,7 +261,7 @@ function BlockBody({ block: b, index, siblings, depth, ctx }: { block: BlockReco
     case 'equation':
       return <div className="nc-bpad"><div style={{ textAlign: 'center', fontFamily: 'KaTeX_Main, serif', padding: 8 }}>{toPlainText(title)}</div></div>;
     case 'collection_view':
-      return <div className="nc-bpad"><div className="nc-static-placeholder">Database</div></div>;
+      return <div className="nc-bpad"><div className="nc-static-placeholder">{tx('Database')}</div></div>;
     case 'video': case 'audio': case 'file': case 'pdf': case 'bookmark': case 'embed':
       return <div className="nc-bpad"><div className="nc-static-placeholder">{toPlainText(title) || toPlainText(b.properties?.source as RichText | undefined) || b.type}</div></div>;
     case 'column': case 'transclusion_container': case 'tabs': case 'tab':
@@ -287,7 +288,7 @@ function SnapToggle({ block: b, depth, ctx }: { block: BlockRecord; depth: numbe
       <div className="nc-row">
         <div className="nc-list-row">
           <div className="lit-list-item-box-left nc-toggle-btn-box">
-            <div role="button" tabIndex={0} aria-label={open ? 'Close' : 'Open'} aria-expanded={open} className="nc-toggle-btn nc-toggle-caret" onClick={() => setOpen(!open)}>
+            <div role="button" tabIndex={0} aria-label={open ? tx('Close') : tx('Open')} aria-expanded={open} className="nc-toggle-btn nc-toggle-caret" onClick={() => setOpen(!open)}>
               <ChevronDown size={16} aria-hidden className="nc-toggle-caret-svg" style={{ transform: open ? 'none' : 'rotateZ(-90deg)', opacity: b.content?.length ? undefined : 0.5 }} />
             </div>
           </div>

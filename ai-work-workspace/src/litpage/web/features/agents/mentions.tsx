@@ -7,7 +7,7 @@ import type { MenuItemDef } from '../../components/Menu.tsx';
 import { pageOf } from '../../lib/blocks.ts';
 import { transactions } from '../../lib/store/transactions.ts';
 import { useUI } from '../../lib/store/ui.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { mentionMenuExtensions } from '../editor/inline/MentionMenus.tsx';
 import { insertAtomForTrigger } from '../editor/inline/trigger.ts';
 import { agentApi, openAgent, toastError, useAgents, type AgentSummary } from './agentsApi.ts';
@@ -84,6 +84,6 @@ setTimeout(() => {
       const page = blockId ? pageOf(blockId) : undefined;
       if (page) afterSave(() => void checkMentionedAgent(a, page.id));
     });
-    return items.length ? [{ title: 'Agents', items }] : [];
+    return items.length ? [{ title: tx('Agents'), items }] : [];
   });
 }, 0);

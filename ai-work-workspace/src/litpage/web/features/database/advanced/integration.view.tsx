@@ -18,6 +18,7 @@ import { COLOR_LABELS } from '#shared/colors.ts';
 import { OPTION_COLORS } from '#shared/database/index.ts';
 import { ColorSwatch } from '../properties/editors/SelectEditor.tsx';
 import { Toggle } from '../properties/editors/DatePicker.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 function parentOf(el: Element | null): number | undefined {
   const o = el?.closest('[data-overlay-id]') as HTMLElement | null;
@@ -32,7 +33,7 @@ function ShowAsSettings({ show, onChange }: { show: ShowAsConfig; onChange: (pat
   return (
     <div className="nc-show-as-settings nc-fx-show-as-settings" data-menu-keys="ignore">
       <div className="nc-show-as-row">
-        <span>Color</span>
+        <span>{tx('Color')}</span>
         <span role="button" className="nc-show-as-color" onClick={(e) => openMenu(e.currentTarget, {
           width: 190,
           sections: [{ items: OPTION_COLORS.filter((c) => c !== 'default').map((c) => ({ id: c, label: COLOR_LABELS[c], icon: <ColorSwatch color={c} />, checked: color === c, onSelect: () => onChange({ color: c }) })) }],
@@ -43,13 +44,13 @@ function ShowAsSettings({ show, onChange }: { show: ShowAsConfig; onChange: (pat
         </span>
       </div>
       <div className="nc-show-as-row">
-        <span>Divide by</span>
+        <span>{tx('Divide by')}</span>
         <span className="nc-input nc-show-as-divide">
-          <input aria-label="Divide by" defaultValue={String(show.maxValue ?? 100)} onBlur={(e) => { const n = Number(e.target.value); if (Number.isFinite(n) && n > 0) onChange({ maxValue: n }); else e.target.value = String(show.maxValue ?? 100); }} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
+          <input aria-label={tx('Divide by')} defaultValue={String(show.maxValue ?? 100)} onBlur={(e) => { const n = Number(e.target.value); if (Number.isFinite(n) && n > 0) onChange({ maxValue: n }); else e.target.value = String(show.maxValue ?? 100); }} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
         </span>
       </div>
       <div className="nc-show-as-row">
-        <span>Show number</span>
+        <span>{tx('Show number')}</span>
         <Toggle on={show.showValue !== false} onChange={(v) => onChange({ showValue: v })} />
       </div>
     </div>
@@ -63,21 +64,21 @@ function FormulaConfig({ collection, propId, prop }: PropertyConfigProps) {
   const showAs = show.type ?? 'number';
   return (
     <div className="nc-menu-section nc-adv-config" data-menu-keys="ignore">
-      <ConfigRow icon="pencil" label="Edit formula" onClick={(e) => openFormulaEditor(e.currentTarget, { collectionId: collection.id, propertyId: propId })} />
+      <ConfigRow icon="pencil" label={tx('Edit formula')} onClick={(e) => openFormulaEditor(e.currentTarget, { collectionId: collection.id, propertyId: propId })} />
       {type.type === 'number' && (
         <>
-          <ConfigRow label="Number format" value={NUMBER_FORMAT_LABEL[(prop.number_format as string) ?? 'number'] ?? 'Number'} onClick={(e) => openMenu(e.currentTarget, {
+          <ConfigRow label={tx('Number format')} value={NUMBER_FORMAT_LABEL[(prop.number_format as string) ?? 'number'] ?? 'Number'} onClick={(e) => openMenu(e.currentTarget, {
             width: 250, search: 'Search',
             sections: [{ items: NUMBER_FORMATS.map((f) => ({ label: NUMBER_FORMAT_LABEL[f] ?? f, checked: ((prop.number_format as string) ?? 'number') === f, onSelect: () => set({ number_format: f }) })) }],
           }, { placement: 'right-start', parent: parentOf(e.currentTarget) })} />
-          <ConfigRow label="Decimal places" value={PRECISIONS.find((p) => p.id === ((prop.number_precision as string) ?? 'precision_uncapped'))?.label ?? 'Default'} onClick={(e) => openMenu(e.currentTarget, {
+          <ConfigRow label={tx('Decimal places')} value={PRECISIONS.find((p) => p.id === ((prop.number_precision as string) ?? 'precision_uncapped'))?.label ?? 'Default'} onClick={(e) => openMenu(e.currentTarget, {
             width: 200,
             sections: [{ items: PRECISIONS.map((p) => ({ label: p.label, checked: ((prop.number_precision as string) ?? 'precision_uncapped') === p.id, onSelect: () => set({ number_precision: p.id }) })) }],
           }, { placement: 'right-start', parent: parentOf(e.currentTarget) })} />
-          <div className="nc-menu-section-title" style={{ marginTop: 10 }}>Show as</div>
+          <div className="nc-menu-section-title" style={{ marginTop: 10 }}>{tx('Show as')}</div>
           <ShowAsPicker value={showAs} onChange={(v) => set({ show_as: v === 'number' ? undefined : { color: 'green', maxValue: 100, showValue: true, ...show, type: v } })} />
           {showAs !== 'number' && <ShowAsSettings show={show} onChange={(patch) => set({ show_as: { color: 'green', maxValue: 100, showValue: true, ...show, ...patch } })} />}
-          <div className="nc-rollup-hint">Changes apply to all layouts showing this field.</div>
+          <div className="nc-rollup-hint">{tx('Changes apply to all layouts showing this field.')}</div>
         </>
       )}
     </div>
@@ -90,25 +91,25 @@ function RelationConfigSection({ collection, propId, prop }: PropertyConfigProps
   if (!target) {
     return (
       <div className="nc-menu-section nc-adv-config" data-menu-keys="ignore">
-        <ConfigRow icon="collectionArrow" label="Related to" value="Select" onClick={(e) => openRelationConfig(e.currentTarget, { collectionId: collection.id, propertyId: propId })} />
+        <ConfigRow icon="collectionArrow" label={tx('Related to')} value="Select" onClick={(e) => openRelationConfig(e.currentTarget, { collectionId: collection.id, propertyId: propId })} />
       </div>
     );
   }
   return (
     <div className="nc-menu-section nc-adv-config" data-menu-keys="ignore">
-      <ConfigRow icon="collectionArrow" label="Related to" chevron={false} disabled value={<><Icon name="databaseEmbed" size={14} color="var(--lp-icon-tertiary)" /><span style={{ color: 'var(--lp-text-secondary)', fontWeight: 500 }}>{collectionName(target)}</span></>} />
-      <ConfigRow icon="numberProp" label="Limit" value={prop.limit === 1 ? '1 page' : 'No limit'} onClick={(e) => openMenu(e.currentTarget, {
+      <ConfigRow icon="collectionArrow" label={tx('Related to')} chevron={false} disabled value={<><Icon name="databaseEmbed" size={14} color="var(--lp-icon-tertiary)" /><span style={{ color: 'var(--lp-text-secondary)', fontWeight: 500 }}>{collectionName(target)}</span></>} />
+      <ConfigRow icon="numberProp" label={tx('Limit')} value={prop.limit === 1 ? tx('1 page') : tx('No limit')} onClick={(e) => openMenu(e.currentTarget, {
         width: 250,
         sections: [{ items: [
-          { label: '1 page', checked: prop.limit === 1, onSelect: () => setRelationLimit(collection.id, propId, 1) },
-          { label: 'No limit', checked: prop.limit !== 1, onSelect: () => setRelationLimit(collection.id, propId, undefined) },
+          { label: tx('1 page'), checked: prop.limit === 1, onSelect: () => setRelationLimit(collection.id, propId, 1) },
+          { label: tx('No limit'), checked: prop.limit !== 1, onSelect: () => setRelationLimit(collection.id, propId, undefined) },
         ] }],
       }, { placement: 'right-start', parent: parentOf(e.currentTarget) })} />
-      <ConfigRow icon="fullWidth" label="Bidirectional link" value={twoWay ? 'On' : 'Off'} onClick={(e) => openMenu(e.currentTarget, {
+      <ConfigRow icon="fullWidth" label={tx('Bidirectional link')} value={twoWay ? tx('On') : tx('Off')} onClick={(e) => openMenu(e.currentTarget, {
         width: 250,
         sections: [{ items: [
-          { label: 'On', checked: twoWay, onSelect: () => setRelationTwoWay(collection.id, propId, true) },
-          { label: 'Off', checked: !twoWay, onSelect: () => setRelationTwoWay(collection.id, propId, false) },
+          { label: tx('On'), checked: twoWay, onSelect: () => setRelationTwoWay(collection.id, propId, true) },
+          { label: tx('Off'), checked: !twoWay, onSelect: () => setRelationTwoWay(collection.id, propId, false) },
         ] }],
       }, { placement: 'right-start', parent: parentOf(e.currentTarget) })} />
     </div>

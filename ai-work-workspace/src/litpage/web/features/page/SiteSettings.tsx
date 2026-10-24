@@ -11,7 +11,7 @@ import { openOverlay } from '../../components/overlay.tsx';
 import { openMenu } from '../../components/Menu.tsx';
 import { Icon } from '../../components/Icon.tsx';
 import { PageIcon } from '../shell/PageIcon.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { Toggle } from './ExportDialog.tsx';
 import { openIconPicker } from './IconPicker.tsx';
 import { pageTitle } from './pageActions.ts';
@@ -152,13 +152,13 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
         <Section title={t('lp.page.site_link', 'Site link')}>
           <div className="nc-site-slug">
             <span className="prefix nc-ellipsis">{location.host}/public/</span>
-            <input aria-label="Short link" placeholder={title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-site'} value={s.slug ?? ''} onChange={(e) => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} />
+            <input aria-label={tx('Short link')} placeholder={title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-site'} value={s.slug ?? ''} onChange={(e) => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} />
           </div>
           {slugState && <div className={`nc-site-hint ${slugState.ok ? 'ok' : 'bad'}`}>{slugState.ok ? t('lp.page.available', 'Available') : slugState.reason}</div>}
         </Section>
 
         <Section title={t('lp.page.theme', 'Theme')}>
-          <div className="nc-site-segment" role="radiogroup" aria-label="Theme">
+          <div className="nc-site-segment" role="radiogroup" aria-label={tx('Theme')}>
             {(['system', 'light', 'dark'] as const).map((th) => (
               <div key={th} role="radio" aria-checked={s.theme === th} className={`opt ${s.theme === th ? 'on' : ''}`} onClick={() => set({ theme: th })}>
                 {th === 'system' ? t('lp.page.system', 'System') : th === 'light' ? t('lp.page.light', 'Light') : t('lp.page.dark', 'Dark')}
@@ -189,7 +189,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
         </Section>
 
         <Section title={t('lp.page.favicon', 'Favicon')}>
-          <div className="nc-site-segment" role="radiogroup" aria-label="Favicon">
+          <div className="nc-site-segment" role="radiogroup" aria-label={tx('Favicon')}>
             <div role="radio" aria-checked={s.favicon === 'page_icon'} className={`opt ${s.favicon === 'page_icon' ? 'on' : ''}`} onClick={() => set({ favicon: 'page_icon' })}>{t('lp.page.page_icon', 'Page icon')}</div>
             <div role="radio" aria-checked={s.favicon === 'litpage'} className={`opt ${s.favicon === 'litpage' ? 'on' : ''}`} onClick={() => set({ favicon: 'litpage' })}>{t('lp.page.litpage_logo', 'Workspace logo')}</div>
             <div role="radio" aria-checked={!!s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage'} className={`opt ${s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage' ? 'on' : ''}`}
@@ -242,7 +242,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
         <Section title={t('lp.page.google_analytics', 'Google Analytics')} caption={t('lp.page.to_track_your_site_enter_a', 'To track your site, enter a Google Analytics measurement ID, then publish your changes')}>
           <label className="nc-site-field">
             <span>{t('lp.page.measurement_id', 'Measurement ID')}</span>
-            <input value={s.ga ?? ''} placeholder="G-XXXXXXXXXX" onChange={(e) => set({ ga: e.target.value })} />
+            <input value={s.ga ?? ''} placeholder={tx('G-XXXXXXXXXX')} onChange={(e) => set({ ga: e.target.value })} />
           </label>
           {!!s.ga && !/^[A-Za-z0-9-]*$/.test(s.ga) && <div className="nc-site-hint bad">{t('lp.page.use_letters_and_numbers_only', 'Use letters and numbers only')}</div>}
         </Section>

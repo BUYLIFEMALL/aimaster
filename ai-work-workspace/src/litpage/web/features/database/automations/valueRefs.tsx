@@ -24,6 +24,7 @@ import { workspaceMembers } from '../properties/editors/MiscEditors.tsx';
 import { overlayIdOf } from '../properties/PropertyMenus.tsx';
 import { formatDateValue } from '../../editor/inline/dates.ts';
 import { openAutomationFormula } from './formulaField.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 export type Surface = 'automation' | 'button_block' | 'button_property';
 
@@ -67,7 +68,7 @@ export function refLabel(ref: ValueRef, c: EditorCtx): { label: string; icon?: s
     case 'relative_date': {
       const n = Math.abs(ref.amount);
       const unit = `${ref.unit}${n === 1 ? '' : 's'}`;
-      if (ref.amount === 0) return { label: 'Today', icon: 'date' };
+      if (ref.amount === 0) return { label: tx('Today'), icon: 'date' };
       return { label: ref.amount > 0 ? `${n} ${unit} from today` : `${n} ${unit} ago`, icon: 'date' };
     }
     case 'property': {
@@ -174,9 +175,9 @@ function MentionMenu({ c, onPick, close, kinds }: { c: EditorCtx; onPick: Mentio
   return (
     <PopoverSurface width={300} className="nc-auto-pop" maxHeight="50vh">
       <div className="nc-auto-pop-search" style={{ paddingTop: 8 }} data-menu-keys="ignore">
-        <div className="nc-input focused"><input autoFocus placeholder="Type to find…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } }} /></div>
+        <div className="nc-input focused"><input autoFocus placeholder={tx('Type to find…')} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } }} /></div>
       </div>
-      <div className="nc-auto-pop-list">{rows.length ? rows : <div className="nc-auto-pop-section">No results</div>}</div>
+      <div className="nc-auto-pop-list">{rows.length ? rows : <div className="nc-auto-pop-section">{tx('No results')}</div>}</div>
     </PopoverSurface>
   );
 }
@@ -333,8 +334,8 @@ export function RefsField({ value, onChange, c, placeholder, multiline, ariaLabe
         }}
       />
       <div className="nc-auto-refs-tools">
-        <span role="button" className="nc-auto-refs-tool" aria-label="Mention" data-tooltip="Mention a value" onMouseDown={(e) => e.preventDefault()} onClick={() => openAt(false)}>@</span>
-        <span role="button" className="nc-auto-refs-tool" aria-label="Custom formula" data-tooltip="Custom formula" onMouseDown={(e) => e.preventDefault()} onClick={formula}>∑</span>
+        <span role="button" className="nc-auto-refs-tool" aria-label={tx('Mention')} data-tooltip={tx('Mention a value')} onMouseDown={(e) => e.preventDefault()} onClick={() => openAt(false)}>@</span>
+        <span role="button" className="nc-auto-refs-tool" aria-label={tx('Custom formula')} data-tooltip={tx('Custom formula')} onMouseDown={(e) => e.preventDefault()} onClick={formula}>∑</span>
       </div>
     </div>
   );
@@ -458,17 +459,17 @@ function ValuePicker({ c, prop, collectionId, edit, onChange, close }: { c: Edit
         <>
           {typed ? (
             <div style={{ padding: '0 8px 8px' }}>
-              <RefsField c={c} value={e.values} onChange={(v) => update({ ...e, op: 'set', values: v })} placeholder={t === 'number' ? 'Number or ∑ formula' : 'Type a value, @ to mention'} ariaLabel={`${prop.name} value`} multiline={t === 'text'} />
+              <RefsField c={c} value={e.values} onChange={(v) => update({ ...e, op: 'set', values: v })} placeholder={t === 'number' ? tx('Number or ∑ formula') : tx('Type a value, @ to mention')} ariaLabel={`${prop.name} value`} multiline={t === 'text'} />
             </div>
           ) : (
             <>
               {['select', 'multi_select', 'status', 'person', 'relation'].includes(t) && (
-                <div className="nc-auto-pop-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Search…" value={q} onChange={(ev) => setQ(ev.target.value)} /></div></div>
+                <div className="nc-auto-pop-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder={tx('Search…')} value={q} onChange={(ev) => setQ(ev.target.value)} /></div></div>
               )}
               <div className="nc-auto-pop-list">{rows}</div>
               {t === 'date' && (
                 <div style={{ padding: '0 4px 4px' }} data-menu-keys="ignore">
-                  <div className="nc-auto-pop-section">Specific date</div>
+                  <div className="nc-auto-pop-section">{tx('Specific date')}</div>
                   <DatePicker simple value={fixedDate?.date ?? null} onChange={(d: DateValue | null) => update({ ...e, op: 'set', values: d ? [{ type: 'date', date: d }] : [] })} />
                 </div>
               )}
@@ -478,11 +479,11 @@ function ValuePicker({ c, prop, collectionId, edit, onChange, close }: { c: Edit
             <span role="button" className="nc-auto-link" onClick={(ev) => openAutomationFormula(ev.currentTarget as HTMLElement, { c, initial: (e.values.find((v) => v.type === 'formula') as any)?.formula ?? '', onSave: (src) => { if (src.trim()) update({ ...e, op: e.op === 'clear' ? 'set' : e.op, values: [{ type: 'formula', formula: src, name: 'My value' }] }); } })}>
               <span style={{ fontWeight: 600 }}>∑</span> Custom formula
             </span>
-            <span role="button" className="nc-btn primary" onClick={close}>Done</span>
+            <span role="button" className="nc-btn primary" onClick={close}>{tx('Done')}</span>
           </div>
         </>
       )}
-      {(e.op === 'clear' || (e.op === 'toggle' && t === 'checkbox')) && <div className="nc-auto-pop-foot"><span role="button" className="nc-btn primary" onClick={close}>Done</span></div>}
+      {(e.op === 'clear' || (e.op === 'toggle' && t === 'checkbox')) && <div className="nc-auto-pop-foot"><span role="button" className="nc-btn primary" onClick={close}>{tx('Done')}</span></div>}
       {void collectionId}
     </PopoverSurface>
   );
@@ -494,7 +495,7 @@ export function openValuePicker(anchor: HTMLElement, opts: { c: EditorCtx; prop:
 
 /** Chips showing the values of an edit. */
 export function ValueChips({ values, c, prop }: { values: ValueRef[]; c: EditorCtx; prop?: PropertySchema }) {
-  if (!values.length) return <span className="nc-auto-pill placeholder"><span>Empty</span></span>;
+  if (!values.length) return <span className="nc-auto-pill placeholder"><span>{tx('Empty')}</span></span>;
   return (
     <>
       {values.map((r, i) => {

@@ -26,7 +26,7 @@ import { ArchivedMark } from '../page/archive.tsx';
 import { SuggestingPill, TopbarCommentsButton } from '../comments/comments.tsx';
 import { TopbarFacepile } from '../presence/Facepile.tsx';
 import { relativeEdited } from '../../lib/format.ts';
-import { t } from './i18n.ts';
+import { t, tx } from './i18n.ts';
 import { InboxBadge } from './Sidebar.tsx';
 import { AgentCrumbs, AgentTopbarActions } from '../agents/AgentPage.tsx';
 
@@ -235,14 +235,14 @@ function TopbarActions({ pageId }: { pageId: string }) {
         <TopbarFacepile pageId={pageId} />
         <SuggestingPill pageId={pageId} />
         <ShareButton pageId={pageId} />
-        <div role="button" aria-label="Copy link" className="nc-topbar-icon-btn" data-tooltip="Copy link" onClick={() => copyPageLink(pageId)}>
+        <div role="button" aria-label={tx('Copy link')} className="nc-topbar-icon-btn" data-tooltip={tx('Copy link')} onClick={() => copyPageLink(pageId)}>
           <Icon name="link" size={18} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
         <TopbarCommentsButton pageId={pageId} />
-        <div role="button" aria-label="Favorite" className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? 'Remove from saved pages' : 'Save this page'} onClick={() => toggleFavorite(pageId)}>
+        <div role="button" aria-label={tx('Favorite')} className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? tx('Remove from saved pages') : tx('Save this page')} onClick={() => toggleFavorite(pageId)}>
           <Icon name="star" size={18} style={{ color: fav ? '#78350f' : 'var(--lp-icon-primary)', fill: fav ? '#78350f' : 'none' }} />
         </div>
-        <div ref={moreRef} role="button" aria-label="Actions" className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip="Style, export, and more…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+        <div ref={moreRef} role="button" aria-label={tx('Actions')} className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
           <Icon name="ellipsis" size={22} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
       </div>

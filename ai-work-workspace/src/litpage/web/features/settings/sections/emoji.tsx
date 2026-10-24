@@ -8,7 +8,7 @@ import { records } from '../../../lib/store/records.ts';
 import { useUI } from '../../../lib/store/ui.ts';
 import { Icon } from '../../../components/Icon.tsx';
 import { openMenu } from '../../../components/Menu.tsx';
-import { t } from '../../shell/i18n.ts';
+import { t, tx } from '../../shell/i18n.ts';
 import { Button, Row, SectionPage, Switch, confirmDialog, openSubDialog } from '../ui.tsx';
 import { saveSpaceSettings, spaceApi, spaceSetting, useSpaceAccess } from '../spaceSettings.ts';
 import { fmtDate } from './workspace.tsx';
@@ -80,7 +80,7 @@ export function EmojiSection() {
           id="emoji-admin-only"
           label={t('lp.settings.only_workspace_owners_can_create_custom', 'Only workspace owners can create custom emojis')}
           description={t('lp.settings.people_who_added_existing_emojis_can', 'People who added existing emojis can still edit or delete them')}
-          control={<Switch label="Limit custom emoji creation" checked={adminOnly} onChange={(v) => saveSpaceSettings(space.id, { emoji_admin_only: v })} />}
+          control={<Switch label={tx('Limit custom emoji creation')} checked={adminOnly} onChange={(v) => saveSpaceSettings(space.id, { emoji_admin_only: v })} />}
         />
       )}
       <div>

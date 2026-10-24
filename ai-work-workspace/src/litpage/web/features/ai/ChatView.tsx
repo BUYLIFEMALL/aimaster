@@ -20,6 +20,7 @@ import { Transcript, type StreamingState } from './ChatTranscript.tsx';
 import { syncRecords } from '../../lib/store/sync.ts';
 import { appendMarkdown, createPlannedInto, insertMarkdownAfter, markdownToPlan } from './insert.ts';
 import { PAGE_SUGGESTIONS, PROMPT_PILLS } from './skills.ts';
+import { tx } from '../shell/i18n.ts';
 
 export interface InitialQuery {
   text: string;
@@ -363,7 +364,7 @@ export function ChatView(props: ChatViewProps) {
       id = createPageIn(tx, { kind: 'private' }, { title: pageTitle as any });
       createPlannedInto(tx, plan, id);
     });
-    useUI.getState().toast('Saved to private pages', { label: 'Open', run: () => openPage(id) });
+    useUI.getState().toast('Saved to private pages', { label: tx('Open'), run: () => openPage(id) });
   };
 
   const empty = messages.length === 0 && !loadError;
@@ -374,7 +375,7 @@ export function ChatView(props: ChatViewProps) {
   const composer = (
     <ChatComposer
       variant={variant}
-      placeholder={empty ? placeholder : 'Ask a follow-up…'}
+      placeholder={empty ? placeholder : tx('Ask a follow-up…')}
       configured={configured}
       streaming={!!streaming}
       onSend={(payload) => send(payload)}
@@ -407,8 +408,8 @@ export function ChatView(props: ChatViewProps) {
         {loadError ? (
           <div className="nc-ai-noaccess">
             <div className="nc-ai-noaccess-title">{loadError}</div>
-            <div className="nc-ai-noaccess-desc">It may be private or sharing may have ended.</div>
-            <button className="nc-btn outline" onClick={() => props.onThreadChange?.(null)}>Open a new conversation</button>
+            <div className="nc-ai-noaccess-desc">{tx('It may be private or sharing may have ended.')}</div>
+            <button className="nc-btn outline" onClick={() => props.onThreadChange?.(null)}>{tx('Open a new conversation')}</button>
           </div>
         ) : empty && props.landing ? (
           <div className="nc-ai-landing nc-agent-landing">
@@ -422,8 +423,8 @@ export function ChatView(props: ChatViewProps) {
             <div className="nc-ai-landing">
               <div className="nc-ai-landing-inner">
                 <div className="nc-ai-hero">
-                  <div role="button" aria-label="Open response preferences" className="nc-ai-hero-face"><AiFaceAvatar size={64} /></div>
-                  <div className="nc-ai-hero-title">What would you like to work on?</div>
+                  <div role="button" aria-label={tx('Open response preferences')} className="nc-ai-hero-face"><AiFaceAvatar size={64} /></div>
+                  <div className="nc-ai-hero-title">{tx('What would you like to work on?')}</div>
                 </div>
                 {composer}
                 <div className="nc-ai-pills">
@@ -449,10 +450,10 @@ export function ChatView(props: ChatViewProps) {
           ) : (
             
             <div className="nc-ai-panel-empty">
-              <div role="button" aria-label="Open response preferences" className="nc-ai-panel-face" onClick={() => useUI.getState().openSettings('lit-ai')}>
+              <div role="button" aria-label={tx('Open response preferences')} className="nc-ai-panel-face" onClick={() => useUI.getState().openSettings('lit-ai')}>
                 <AiFaceAvatar size={50} />
               </div>
-              <div className="nc-ai-panel-empty-title">What would you like to work on?</div>
+              <div className="nc-ai-panel-empty-title">{tx('What would you like to work on?')}</div>
               {props.contextPageId && (
                 <div className="nc-ai-suggestions" role="menu">
                   {PAGE_SUGGESTIONS.map((s) => (

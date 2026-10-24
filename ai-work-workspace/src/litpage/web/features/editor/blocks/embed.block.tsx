@@ -17,13 +17,14 @@ import { EMBED_PROVIDERS, PROVIDER_BLOCK_TYPES, SLASH_EMBED_NAMES, providerByNam
 import { replaceMedia, viewOriginal } from './media.block.tsx';
 import { HtmlBlock, htmlMenuItems } from './html.block.tsx';
 import { insertBlock } from './factories.ts';
+import { tx } from '../../shell/i18n.ts';
 
 const SANDBOX = 'allow-scripts allow-popups allow-top-navigation-by-user-activation allow-forms allow-same-origin allow-storage-access-by-user-activation allow-popups-to-escape-sandbox';
 
 function placeholderFor(b: BlockRecord): { label: string; color?: string } {
   const p = providerByName(b.format?.embed_provider as string | undefined) ?? (b.type !== 'embed' ? providerForType(b.type) : undefined);
   if (p) return { label: p.placeholder, color: p.color };
-  return { label: 'Embed content (PDFs, maps, music, and more…)' };
+  return { label: tx('Embed content (PDFs, maps, music, and more…)') };
 }
 
 function EmbedBlock(props: BlockProps) {
@@ -55,8 +56,8 @@ function EmbedBlock(props: BlockProps) {
       bar={(
         <>
           <AlignButton block={block} />
-          <ActionButton icon="caption" tooltip="Caption" label="Add a caption" onClick={() => showCaption(block.id)} />
-          <ActionButton icon="openOriginal" tooltip="View original" label="View source media" onClick={() => viewOriginal(block)} />
+          <ActionButton icon="caption" tooltip="Caption" label={tx('Add a caption')} onClick={() => showCaption(block.id)} />
+          <ActionButton icon="openOriginal" tooltip="View original" label={tx('View source media')} onClick={() => viewOriginal(block)} />
           <ActionButton icon="ellipsis" tooltip="More actions" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
         </>
       )}
@@ -80,9 +81,9 @@ registerBlockMenu(['embed', 'external_object_instance', ...PROVIDER_BLOCK_TYPES]
   if (block.format?.embed_variant === 'html_artifact') return htmlMenuItems(block);
   const has = !!originalSourceOf(block);
   return [
-    ...(has ? [{ label: 'Replace', icon: 'replace', onSelect: () => replaceMedia(block) }] : []),
-    { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
-    ...(has ? [{ label: 'View original', icon: 'openOriginal', onSelect: () => viewOriginal(block) }] : []),
+    ...(has ? [{ label: tx('Replace'), icon: 'replace', onSelect: () => replaceMedia(block) }] : []),
+    { label: tx('Caption'), icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+    ...(has ? [{ label: tx('View original'), icon: 'openOriginal', onSelect: () => viewOriginal(block) }] : []),
   ];
 });
 

@@ -25,6 +25,7 @@ import { addDays, formatDateValue, isoDate, parseNaturalDate, timeCaption, parse
 import { breadcrumbOf, pageOrNull, usePageSearch } from './pageSearch.ts';
 import { closeTrigger, insertAtomForTrigger, useTriggerUI } from './trigger.ts';
 import { openPagePicker } from './PagePicker.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 export function Avatar({ user, size = 20 }: { user: UserRecord; size?: number }) {
   if (user.profile_photo) {
@@ -85,7 +86,7 @@ function addPageIn(q: string, link: boolean) {
   const leaf = document.querySelector<HTMLElement>(`[data-content-editable-leaf][data-block-id="${s.blockId}"][data-property="${s.property}"]`);
   const snapshot = { ...s };
   openPagePicker(leaf?.getBoundingClientRect() ?? new DOMRect(200, 200, 0, 0), {
-    placeholder: 'Add page in…',
+    placeholder: tx('Add page in…'),
     onPick: (parentId) => {
       useEditor.setState({ slash: snapshot });
       const id = createPageIn(parentId, q);
@@ -99,7 +100,7 @@ function addPageIn(q: string, link: boolean) {
 
 function newPageSection(q: string, link: boolean): MenuSectionDef {
   return {
-    title: 'New page',
+    title: tx('New page'),
     items: [
       {
         id: 'new-subpage',
@@ -132,7 +133,7 @@ function SearchFeedback() {
     <div className="nc-mention-feedback">
       <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('Thanks for your feedback')}><Icon name="thumbsUp" size={16} /></div>
       <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('Thanks for your feedback')}><Icon name="thumbsDown" size={16} /></div>
-      <span>Share search feedback</span>
+      <span>{tx('Share search feedback')}</span>
     </div>
   );
 }
@@ -152,7 +153,7 @@ function dateItems(q: string): MenuItemDef[] {
   if (!q.trim()) {
     const today = new Date();
     return [
-      { id: 'today', label: 'Today', icon: 'clock', onSelect: () => insert({ type: 'date', start_date: isoDate(today), date_format: 'relative' }) },
+      { id: 'today', label: tx('Today'), icon: 'clock', onSelect: () => insert({ type: 'date', start_date: isoDate(today), date_format: 'relative' }) },
       {
         id: 'remind',
         label: <RemindLabel when="Tomorrow 9am" />,
@@ -214,10 +215,10 @@ export function MentionMenu({ q }: { q: string }) {
     const extra = mentionMenuExtensions.flatMap((fn) => fn({ blockId: useEditor.getState().slash?.blockId ?? '', q }));
     const extraFor = (title: string) => extra.filter((x) => x.title === title).flatMap((x) => x.items);
     const dates = [...extraFor('Date'), ...dateItems(q)];
-    if (dates.length) sections.push({ title: 'Date', items: dates });
+    if (dates.length) sections.push({ title: tx('Date'), items: dates });
     if (people.length || extraFor('People').length) {
       sections.push({
-        title: 'People',
+        title: tx('People'),
         items: [...extraFor('People'), ...people.slice(0, q ? 6 : 4).map((u) => ({
           id: u.id,
           label: u.name || u.email,
@@ -232,7 +233,7 @@ export function MentionMenu({ q }: { q: string }) {
     }
     if (groups.length) {
       sections.push({
-        title: 'Groups',
+        title: tx('Groups'),
         items: groups.slice(0, 4).map((g) => ({
           id: `group:${g.id}`,
           label: g.name || 'Untitled',
@@ -246,12 +247,12 @@ export function MentionMenu({ q }: { q: string }) {
         })),
       });
     }
-    if (extraFor('Agents').length) sections.push({ title: 'Agents', items: extraFor('Agents') });
+    if (extraFor('Agents').length) sections.push({ title: tx('Agents'), items: extraFor('Agents') });
     const pageItems = hits.ids.map((id) => pageItem(id, () => insertPage(id, false)));
     if (!expanded && hits.total > hits.ids.length) {
       pageItems.push({ id: 'more', label: `${hits.total - hits.ids.length} more results`, icon: 'ellipsisSmall', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { setExpanded(true); return false; } });
     }
-    if (pageItems.length) sections.push({ title: 'Page link', items: pageItems });
+    if (pageItems.length) sections.push({ title: tx('Page link'), items: pageItems });
     sections.push(newPageSection(q.trim(), false));
     return { width: 330, maxHeight: '40vh', className: 'nc-mention-menu', sections, footer: q.trim() ? <SearchFeedback /> : undefined };
   }, [q, people, groups, hits.ids.join(','), hits.total, expanded]);
@@ -267,7 +268,7 @@ export function LinkToPageMenu({ q, plus }: { q: string; plus?: boolean }) {
     if (!expanded && hits.total > hits.ids.length) {
       items.push({ id: 'more', label: `${hits.total - hits.ids.length} more results`, icon: 'ellipsisSmall', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { setExpanded(true); return false; } });
     }
-    const linkSection: MenuSectionDef = { title: 'Page link', items };
+    const linkSection: MenuSectionDef = { title: tx('Page link'), items };
     const create = newPageSection(q.trim(), true);
     const createUntitled: MenuSectionDef = { items: create.items };
     const sections = plus ? [create, ...(items.length ? [linkSection] : [])] : [...(items.length ? [linkSection] : []), createUntitled];

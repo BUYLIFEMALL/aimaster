@@ -28,7 +28,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { RichTextEditable, type LeafApi } from '../editor/RichTextEditable.tsx';
 import { renderRichText } from '../editor/richTextDom.ts';
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
-import { t, getLocale } from '../shell/i18n.ts';
+import { t, getLocale, tx } from '../shell/i18n.ts';
 import { confirmDialog } from '../page/confirm.tsx';
 import { getCustomEmojis } from '../settings/customEmoji.ts';
 import { canSuggest, commentOnly, isSuggesting, setSuggesting, useSuggest } from './suggest.ts';
@@ -463,8 +463,8 @@ function MentionMenu({ close, onPick }: { close: () => void; onPick: MentionPick
     const dateItems: MenuItemDef[] = parsed
       ? [{ id: 'd:parsed', label: parsed.label, keywords: [q], icon: parsed.remind ? 'alarm' : 'clock', onSelect: () => onPick('d', '', parsed.value) }]
       : [
-        { id: 'd:today', label: 'Today', icon: 'clock', onSelect: () => onPick('d', '', { type: 'date', start_date: isoDate(today), date_format: 'relative' }) },
-        { id: 'd:remind', label: 'Remind me', text: 'Remind me tomorrow', icon: 'alarm', onSelect: () => onPick('d', '', { type: 'datetime', start_date: isoDate(addDays(today, 1)), start_time: '09:00', date_format: 'relative', reminder: { unit: 'minute', value: 0 } }) },
+        { id: 'd:today', label: tx('Today'), icon: 'clock', onSelect: () => onPick('d', '', { type: 'date', start_date: isoDate(today), date_format: 'relative' }) },
+        { id: 'd:remind', label: tx('Remind me'), text: 'Remind me tomorrow', icon: 'alarm', onSelect: () => onPick('d', '', { type: 'datetime', start_date: isoDate(addDays(today, 1)), start_time: '09:00', date_format: 'relative', reminder: { unit: 'minute', value: 0 } }) },
       ];
     const users = workspaceUsers();
     const pages = records.all<BlockRecord>('block').filter((b) => b.alive && (b.type === 'page' || b.type === 'collection_view_page') && toPlainText(b.properties?.title)).slice(0, 200);
@@ -477,7 +477,7 @@ function MentionMenu({ close, onPick }: { close: () => void; onPick: MentionPick
       onSelect: () => onPick('p', b.id),
     }));
     const agents = agentMentionItems(q, (a) => onPick('u', a.botId));
-    return { width: 300, maxHeight: 320, emptyText: t('lp.comments.no_results', 'No results'), sections: [{ title: 'Date', items: dateItems }, { title: 'People', items: people }, ...(agents.length ? [{ title: 'Agents', items: agents }] : []), { title: 'Page link', items: pageItems.slice(0, 50) }] };
+    return { width: 300, maxHeight: 320, emptyText: t('lp.comments.no_results', 'No results'), sections: [{ title: tx('Date'), items: dateItems }, { title: tx('People'), items: people }, ...(agents.length ? [{ title: tx('Agents'), items: agents }] : []), { title: tx('Page link'), items: pageItems.slice(0, 50) }] };
   }, [onPick, q]);
   // picking must not close the overlays around the composer (Menu closes them all unless onSelect returns false)
   const keepOpen = useMemo(() => ({ ...def, sections: def.sections.map((sec) => ({ ...sec, items: sec.items.map((it) => ({ ...it, onSelect: () => { it.onSelect?.(); close(); return false; } })) })) }), [def, close]);
@@ -788,7 +788,7 @@ function SuggestionChange({ discussion }: { discussion: DiscussionRecord }) {
   return (
     <div className="nc-suggestion-change" data-suggestion-kind={sum?.kind}>
       {body}
-      {status && <span className="status">{status === 'accepted' ? 'Accepted' : 'Rejected'}</span>}
+      {status && <span className="status">{status === 'accepted' ? tx('Accepted') : tx('Rejected')}</span>}
     </div>
   );
 }
@@ -1094,9 +1094,9 @@ function dayLabel(ms: number): string {
 function notifyBell(pageId: string, anchor: HTMLElement) {
   void api('getPageNotifySettings', { pageId }).then((r) => {
     const set = (level: string) => void api('setPageNotifySettings', { pageId, level }).then((x) => records.mergeRecordMap(x.recordMap));
-    openMenu(anchor, { width: 240, sections: [{ title: 'Notify me', items: [
-      { label: 'All comments', checked: r.level === 'all_comments', onSelect: () => set('all_comments') },
-      { label: 'Replies and mentions', checked: r.level === 'replies_and_mentions', onSelect: () => set('replies_and_mentions') },
+    openMenu(anchor, { width: 240, sections: [{ title: tx('Notify me'), items: [
+      { label: tx('All comments'), checked: r.level === 'all_comments', onSelect: () => set('all_comments') },
+      { label: tx('Replies and mentions'), checked: r.level === 'replies_and_mentions', onSelect: () => set('replies_and_mentions') },
     ] }] }, { placement: 'bottom-end' });
   }).catch(() => {});
 }
@@ -1184,11 +1184,11 @@ export function CommentsSidebar({ pageId }: { pageId: string }) {
           { label: t('lp.comments.open', 'Open'), checked: status === 'open', onSelect: () => setStatus('open') },
           { label: t('lp.comments.resolved', 'Resolved'), checked: status === 'resolved', onSelect: () => setStatus('resolved') },
         ] },
-        { title: 'Type', items: [
+        { title: tx('Type'), items: [
           { label: t('lp.comments.any', 'Any'), checked: kind === 'any', onSelect: () => setKind('any') },
           { label: t('lp.comments.suggestions_only', 'Suggestions only'), checked: kind === 'suggestions', onSelect: () => setKind('suggestions') },
         ] },
-        { title: 'Read', items: [
+        { title: tx('Read'), items: [
           { label: t('lp.comments.any', 'Any'), checked: readState === 'any', onSelect: () => setReadState('any') },
           { label: t('lp.comments.unread', 'Unread'), checked: readState === 'unread', onSelect: () => setReadState('unread') },
           { label: t('lp.comments.read', 'Read'), checked: readState === 'read', onSelect: () => setReadState('read') },
@@ -1216,8 +1216,8 @@ export function CommentsSidebar({ pageId }: { pageId: string }) {
       </div>
       {status === 'open' && openSugg.length > 0 && openSugg.some((d) => canReject(d.id)) && (
         <div className="nc-sidebar-review" data-testid="suggestions-review">
-          {openSugg.some((d) => canReview(d.id)) && <div role="button" className="nc-dialog-btn outline small" onClick={() => reviewAll(pageId, 'accept')}>Accept all</div>}
-          <div role="button" className="nc-dialog-btn outline small" onClick={() => reviewAll(pageId, 'reject')}>Reject all</div>
+          {openSugg.some((d) => canReview(d.id)) && <div role="button" className="nc-dialog-btn outline small" onClick={() => reviewAll(pageId, 'accept')}>{tx('Accept all')}</div>}
+          <div role="button" className="nc-dialog-btn outline small" onClick={() => reviewAll(pageId, 'reject')}>{tx('Reject all')}</div>
         </div>
       )}
       {list.length === 0 ? (
@@ -1278,7 +1278,7 @@ export function SuggestingPill({ pageId }: { pageId: string }): ReactNode {
   const commenter = commentOnly(pageId) && canSuggest(pageId);
   if (!on && !commenter) return null;
   return (
-    <div className="nc-suggesting-pill" data-tooltip={commenter ? 'Suggest changes or comment' : 'Suggesting changes'} role="status">
+    <div className="nc-suggesting-pill" data-tooltip={commenter ? tx('Suggest changes or comment') : tx('Suggesting changes')} role="status">
       <SuggestGlyph size={16} />
       <span>{t('lp.comments.suggesting', 'Suggesting')}</span>
       {!commenter && (

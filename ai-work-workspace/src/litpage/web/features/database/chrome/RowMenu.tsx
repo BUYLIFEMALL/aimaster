@@ -18,6 +18,7 @@ import { openIconPicker } from '../../page/IconPicker.tsx';
 import { useUI } from '../../../lib/store/ui.ts';
 import { deleteRows, duplicateRows } from '../actions.ts';
 import { openPropertyEditor, PropertyIcon } from '../properties/PropertyCell.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 const NOT_EDITABLE = new Set(['button', 'created_time', 'created_by', 'last_edited_time', 'last_edited_by', 'auto_increment_id', 'formula', 'rollup', 'location']);
 
@@ -49,9 +50,9 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
   const fav = isFavorite(first.id);
   const pageItems: MenuItemDef[] = [
     ...(!multi ? [{ id: 'fav', label: fav ? 'Remove from favorites' : 'Add to favorites', icon: fav ? 'starFilled' : 'star', onSelect: () => toggleFavorite(first.id) }] : []),
-    { id: 'icon', label: 'Edit icon', icon: 'emojiFace', onSelect: () => { openIconPicker(anchor, { current: first.format?.page_icon as string | undefined, onPick: (v) => run('setRowIcons', (tx) => rows.forEach((r) => setFormat(tx, r.id, { page_icon: (v ?? null) as any }))) }); } },
+    { id: 'icon', label: tx('Edit icon'), icon: 'emojiFace', onSelect: () => { openIconPicker(anchor, { current: first.format?.page_icon as string | undefined, onPick: (v) => run('setRowIcons', (tx) => rows.forEach((r) => setFormat(tx, r.id, { page_icon: (v ?? null) as any }))) }); } },
     {
-      id: 'edit', label: 'Edit property', icon: 'bulletedList',
+      id: 'edit', label: tx('Edit property'), icon: 'bulletedList',
       submenu: () => ({
         width: 220,
         search: true,
@@ -65,20 +66,20 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
   ];
   const actions: MenuItemDef[] = [
     ...(!multi ? [
-      { id: 'open', label: 'Open in', icon: 'arrowDiagonalUpRight', submenu: () => ({ width: 220, sections: [{ items: [
-        { id: 'tab', label: 'New tab', icon: 'arrowDiagonalUpRight', shortcut: '⌘⇧↵', onSelect: () => window.open(pageUrl(first.id), '_blank') },
-        { id: 'peek', label: 'Side peek', icon: 'sidePeek', shortcut: '⌥Click', onSelect: () => openPeek(first.id, 'side_peek') },
-        { id: 'center', label: 'Center peek', icon: 'centerPeek', onSelect: () => openPeek(first.id, 'center_peek') },
-        { id: 'full', label: 'Full page', icon: 'fullPage', onSelect: () => openPage(first.id) },
+      { id: 'open', label: tx('Open in'), icon: 'arrowDiagonalUpRight', submenu: () => ({ width: 220, sections: [{ items: [
+        { id: 'tab', label: tx('New tab'), icon: 'arrowDiagonalUpRight', shortcut: '⌘⇧↵', onSelect: () => window.open(pageUrl(first.id), '_blank') },
+        { id: 'peek', label: tx('Side peek'), icon: 'sidePeek', shortcut: '⌥Click', onSelect: () => openPeek(first.id, 'side_peek') },
+        { id: 'center', label: tx('Center peek'), icon: 'centerPeek', onSelect: () => openPeek(first.id, 'center_peek') },
+        { id: 'full', label: tx('Full page'), icon: 'fullPage', onSelect: () => openPage(first.id) },
       ] }] }) } as MenuItemDef,
-      { id: 'comment', label: 'Comment', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => { openPeek(first.id, 'side_peek'); setTimeout(() => startPageComment(first.id), 150); } },
+      { id: 'comment', label: tx('Comment'), icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => { openPeek(first.id, 'side_peek'); setTimeout(() => startPageComment(first.id), 150); } },
     ] : []),
   ];
   const manage: MenuItemDef[] = [
-    ...(!multi ? [{ id: 'link', label: 'Copy link', icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast('Link copied'); } }] : []),
-    { id: 'dup', label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { void duplicateRows(rowIds); opts.onDone?.(); } },
-    { id: 'move', label: 'Move to', icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(rowIds, anchor) },
-    { id: 'trash', label: 'Send to trash', icon: 'trash', shortcut: 'Del', onSelect: () => { deleteRows(rowIds); opts.onDone?.(); } },
+    ...(!multi ? [{ id: 'link', label: tx('Copy link'), icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast('Link copied'); } }] : []),
+    { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D', onSelect: () => { void duplicateRows(rowIds); opts.onDone?.(); } },
+    { id: 'move', label: tx('Move to'), icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(rowIds, anchor) },
+    { id: 'trash', label: tx('Send to trash'), icon: 'trash', shortcut: 'Del', onSelect: () => { deleteRows(rowIds); opts.onDone?.(); } },
   ];
   return openMenu(anchor, {
     width: 265,
@@ -86,7 +87,7 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
     sections: [{ title: multi ? `${rows.length} pages` : 'Page', items: pageItems }, ...(actions.length ? [{ items: actions }] : []), { items: manage }],
     footer: !multi ? (
       <div className="nc-row-menu-footer">
-        <div className="nc-row-menu-footer-title">Last edited</div>
+        <div className="nc-row-menu-footer-title">{tx('Last edited')}</div>
         <div className="nc-row-menu-footer-user">
           <UserAvatar userId={first.last_edited_by_id} size={24} />
           <span>{editor?.name || editor?.email || 'Unknown'}</span>

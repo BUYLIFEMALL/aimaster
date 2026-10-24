@@ -18,6 +18,7 @@ import { rectsForRange } from '../richTextDom.ts';
 import { valueOf } from './format.ts';
 import { api } from '../../../lib/api.ts';
 import { internalPageId } from './LinkPopups.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 function hostOf(url: string): string {
   try {
@@ -51,29 +52,29 @@ export function pasteUrlWithMenu(blockId: string, property: string, start: numbe
     const extended = pasteUrlExtensions.map((fn) => fn(url, range)).find((x) => x && x.length);
     const items: MenuItemDef[] = extended ? extended : linked
       ? [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', linked.id]]]]) },
-          ...(canSyncFrom(linked, blockId) ? [{ label: 'Synced block', icon: 'blockSync', onSelect: () => toSyncedBlock(range, linked.id) }] : []),
+          { label: tx('Mention'), icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', linked.id]]]]) },
+          ...(canSyncFrom(linked, blockId) ? [{ label: tx('Synced block'), icon: 'blockSync', onSelect: () => toSyncedBlock(range, linked.id) }] : []),
           { label: 'URL', icon: 'link', onSelect: () => undefined },
         ]
       : pageId && database
       ? [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
-          { label: 'Connected database view', icon: 'collectionArrow', onSelect: () => void toLinkedView(range, page!) },
+          { label: tx('Mention'), icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
+          { label: tx('Connected database view'), icon: 'collectionArrow', onSelect: () => void toLinkedView(range, page!) },
           { label: 'URL', icon: 'link', onSelect: () => undefined },
         ]
       : pageId
       ? [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
-          { label: 'Page link', icon: 'docSend', onSelect: () => toBlock(range, 'alias', { alias_pointer: { id: pageId, table: 'block', spaceId: useSession.getState().spaceId } }) },
+          { label: tx('Mention'), icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
+          { label: tx('Page link'), icon: 'docSend', onSelect: () => toBlock(range, 'alias', { alias_pointer: { id: pageId, table: 'block', spaceId: useSession.getState().spaceId } }) },
           { label: 'URL', icon: 'link', onSelect: () => undefined },
         ]
       : [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => { replaceWithAtom(range, [['‣', [['lm', { href: url, title: hostOf(url) }]]]]); void enrichLinkMention(range.blockId, range.property, url); } },
+          { label: tx('Mention'), icon: 'arrowDiagonalUpRight', onSelect: () => { replaceWithAtom(range, [['‣', [['lm', { href: url, title: hostOf(url) }]]]]); void enrichLinkMention(range.blockId, range.property, url); } },
           { label: 'URL', icon: 'link', onSelect: () => undefined },
-          { label: 'Bookmark', icon: 'bookmark', onSelect: () => toBlock(range, 'bookmark', undefined, url) },
-          { label: 'Embed', icon: 'linkCapture', onSelect: () => toBlock(range, 'embed', undefined, url) },
+          { label: tx('Bookmark'), icon: 'bookmark', onSelect: () => toBlock(range, 'bookmark', undefined, url) },
+          { label: tx('Embed'), icon: 'linkCapture', onSelect: () => toBlock(range, 'embed', undefined, url) },
         ];
-    openMenu(anchor, { width: 240, sections: [{ title: 'Paste as', items }] }, { placement: 'bottom-start', offset: 4 });
+    openMenu(anchor, { width: 240, sections: [{ title: tx('Paste as'), items }] }, { placement: 'bottom-start', offset: 4 });
   }, 30);
 }
 

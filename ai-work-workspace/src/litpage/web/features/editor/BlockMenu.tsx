@@ -26,6 +26,7 @@ import { presentFrom } from './slashItems.ts';
 import { showTextDirectionControls } from '../settings/userSettings.ts';
 import { developerMenuSection } from '../settings/developerMode.ts';
 import { useSkills } from '../ai/aiStores.ts';
+import { tx } from '../shell/i18n.ts';
 
 function blockLabel(b: BlockRecord): string {
   if (b.format?.toggleable) return `Toggle ${BLOCK_LABELS[b.type] ?? 'block'}`.replace('Toggle Heading', 'Toggle heading');
@@ -83,9 +84,9 @@ export function colorMenu(ids: string[]): MenuDef {
     maxHeight: '70vh',
     role: 'menu',
     sections: [
-      ...(last ? [{ title: 'Last used', items: [{ label: colorLabel(last), icon: <ColorSwatch color={last} />, shortcut: '⌘⇧H', onSelect: () => apply(last) }] }] : []),
-      { title: 'Text color', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} text`, icon: <ColorSwatch color={c} />, onSelect: () => apply(c) })) },
-      { title: 'Background color', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} background`, icon: <ColorSwatch color={c === 'default' ? 'default_background' : `${c}_background`} />, onSelect: () => apply(c === 'default' ? 'default' : `${c}_background`) })) },
+      ...(last ? [{ title: tx('Last used'), items: [{ label: colorLabel(last), icon: <ColorSwatch color={last} />, shortcut: '⌘⇧H', onSelect: () => apply(last) }] }] : []),
+      { title: tx('Text color'), items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} text`, icon: <ColorSwatch color={c} />, onSelect: () => apply(c) })) },
+      { title: tx('Background color'), items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} background`, icon: <ColorSwatch color={c === 'default' ? 'default_background' : `${c}_background`} />, onSelect: () => apply(c === 'default' ? 'default' : `${c}_background`) })) },
     ],
   };
 }
@@ -117,16 +118,16 @@ export function blockActionMenu(ids: string[]): MenuDef {
   const { words, chars } = selectionCounts(ids);
   const countable = ids.some((id) => { const x = getBlock(id); return !!x && (TEXT_BLOCKS.has(x.type) || x.type === 'page' || !!x.content?.length); });
   const actions: MenuItemDef[] = [
-    { label: 'Copy block URL', icon: 'link', shortcut: '⌘⌃L', onSelect: () => copyPageLink(pageIdOfBlock(b.id) ?? b.id, b.id) },
-    blockDuplicateItem({ ids, block: b }) ?? { label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { duplicateBlocks(ids); } },
-    { label: 'Move to', icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(ids, document.querySelector(`[data-block-id="${b.id}"]`) as HTMLElement) },
-    { label: 'Delete', icon: 'trash', shortcut: 'Del', onSelect: () => deleteBlocks(ids) },
+    { label: tx('Copy block URL'), icon: 'link', shortcut: '⌘⌃L', onSelect: () => copyPageLink(pageIdOfBlock(b.id) ?? b.id, b.id) },
+    blockDuplicateItem({ ids, block: b }) ?? { label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D', onSelect: () => { duplicateBlocks(ids); } },
+    { label: tx('Move to'), icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(ids, document.querySelector(`[data-block-id="${b.id}"]`) as HTMLElement) },
+    { label: tx('Delete'), icon: 'trash', shortcut: 'Del', onSelect: () => deleteBlocks(ids) },
   ];
-  const turnIntoItem: MenuItemDef = { label: 'Turn into', icon: 'arrowSquarePathUpDown', submenu: () => turnIntoMenu(ids) };
-  const colorItem: MenuItemDef = { label: 'Color', icon: 'blockColor', submenu: () => colorMenu(ids) };
+  const turnIntoItem: MenuItemDef = { label: tx('Turn into'), icon: 'arrowSquarePathUpDown', submenu: () => turnIntoMenu(ids) };
+  const colorItem: MenuItemDef = { label: tx('Color'), icon: 'blockColor', submenu: () => colorMenu(ids) };
   // Text direction (Settings › Preferences › Always show text direction controls, or an RTL language): format.block_text_direction
   const directionItem: MenuItemDef | null = textual && showTextDirectionControls() ? {
-    label: 'Text direction', icon: 'textDirection',
+    label: tx('Text direction'), icon: 'textDirection',
     submenu: () => ({
       width: 200,
       sections: [{
@@ -147,17 +148,17 @@ export function blockActionMenu(ids: string[]): MenuDef {
     { items: actions },
     {
       items: [
-        { label: 'Comment', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => startCommentOnBlock(b.id) },
-        { label: 'Suggest edits', icon: 'commentPencil', shortcut: '⌘⇧⌥X', onSelect: () => void import('../comments/suggest.ts').then((m) => m.startSuggestingFrom(b.id)) },
+        { label: tx('Comment'), icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => startCommentOnBlock(b.id) },
+        { label: tx('Suggest edits'), icon: 'commentPencil', shortcut: '⌘⇧⌥X', onSelect: () => void import('../comments/suggest.ts').then((m) => m.startSuggestingFrom(b.id)) },
       ],
     },
-    { items: [{ label: 'Start presenting here', icon: 'playButton', badge: 'Beta', shortcut: '⌘⌥P', onSelect: () => presentFrom(b.id) }] },
+    { items: [{ label: tx('Start presenting here'), icon: 'playButton', badge: 'Beta', shortcut: '⌘⌥P', onSelect: () => presentFrom(b.id) }] },
     // Settings › Developer › Enable developer features: Copy block / database / data source ID 
     ...(!multi && developerMenuSection(b.id) ? [developerMenuSection(b.id)!] : []),
     {
       items: [
-        { label: 'Ask AI', icon: 'aiFace', shortcut: '⌘J', onSelect: () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { blockId: b.id } })) },
-        { label: 'Skills', icon: 'paperBolt', submenu: () => blockSkillsMenu(b.id) },
+        { label: tx('Ask AI'), icon: 'aiFace', shortcut: '⌘J', onSelect: () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { blockId: b.id } })) },
+        { label: tx('Skills'), icon: 'paperBolt', submenu: () => blockSkillsMenu(b.id) },
       ],
     },
   ];
@@ -165,10 +166,10 @@ export function blockActionMenu(ids: string[]): MenuDef {
   const searchSections = (): MenuSectionDef[] => {
     const out: MenuSectionDef[] = [];
     if (textual || custom?.includes(turnIntoItem)) {
-      out.push({ title: 'Turn into', items: turnIntoMenu(ids).sections[0].items.map((it) => ({ ...it, keywords: ['turn into', 'turn', 'convert'] })) });
+      out.push({ title: tx('Turn into'), items: turnIntoMenu(ids).sections[0].items.map((it) => ({ ...it, keywords: ['turn into', 'turn', 'convert'] })) });
     }
     if (!custom || custom.includes(colorItem)) {
-      out.push({ title: 'Color', items: colorMenu(ids).sections.filter((sec) => sec.title !== 'Last used').flatMap((sec) => sec.items).map((it) => ({ ...it, keywords: ['color', 'colour', ...(String(it.label).startsWith('Gray') ? ['grey'] : [])] })) });
+      out.push({ title: tx('Color'), items: colorMenu(ids).sections.filter((sec) => sec.title !== 'Last used').flatMap((sec) => sec.items).map((it) => ({ ...it, keywords: ['color', 'colour', ...(String(it.label).startsWith('Gray') ? ['grey'] : [])] })) });
     }
     return out;
   };
@@ -185,7 +186,7 @@ export function blockActionMenu(ids: string[]): MenuDef {
       <div className="nc-menu-section nc-block-menu-footer">
         <div className="nc-block-menu-footer-row">
           <div className="nc-block-menu-footer-col">
-            <div className="title">Last edited</div>
+            <div className="title">{tx('Last edited')}</div>
             <div className="who">
               <UserAvatar userId={b.last_edited_by_id} size={24} />
               <span className="name nc-ellipsis">{editor ? userName(editor) : 'Unknown'}</span>
@@ -257,8 +258,8 @@ function blockSkillsMenu(blockId: string): MenuDef {
   return {
     sections: [
       { items: builtin.map((s) => ({ label: s, icon: 'sparkle', onSelect: ask({ skill: s }) })) },
-      ...(mine.length ? [{ title: 'Your skills', items: mine.map((x) => ({ label: x.name, icon: 'paperBolt', description: x.description || undefined, onSelect: ask({ skill: x.name, skillId: x.id }) })) }] : []),
-      { items: [{ label: 'Manage skills', icon: 'sliders', onSelect: ask({ skill: 'manage' }) }] },
+      ...(mine.length ? [{ title: tx('Your skills'), items: mine.map((x) => ({ label: x.name, icon: 'paperBolt', description: x.description || undefined, onSelect: ask({ skill: x.name, skillId: x.id }) })) }] : []),
+      { items: [{ label: tx('Manage skills'), icon: 'sliders', onSelect: ask({ skill: 'manage' }) }] },
     ],
   };
 }

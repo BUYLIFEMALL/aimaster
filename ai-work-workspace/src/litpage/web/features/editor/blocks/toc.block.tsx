@@ -13,6 +13,7 @@ import { pageUrl } from '../../../lib/router.ts';
 import { pageIdOfBlock, setOpen } from '../commands.ts';
 import { registerBlockMenu } from './registry.ts';
 import { blockElement } from './shared.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 const LEVEL: Record<string, number> = { header: 0, sub_header: 1, sub_sub_header: 2, header_4: 3 };
 
@@ -56,7 +57,7 @@ function TableOfContents({ block }: BlockProps) {
   return (
     <div className="nc-bpad">
       <div className={`nc-toc-2 ${colored ? 'colored' : ''}`}>
-        {headings.length === 0 && <div className="nc-toc-empty-2">Add headings to create a table of contents.</div>}
+        {headings.length === 0 && <div className="nc-toc-empty-2">{tx('Add headings to create a table of contents.')}</div>}
         {headings.map((h) => (
           <a
             key={h.id}

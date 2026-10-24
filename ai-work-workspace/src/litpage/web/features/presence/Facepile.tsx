@@ -6,7 +6,7 @@ import { useBlock, useRecord, useTableVersion } from '../../lib/hooks.ts';
 import { records } from '../../lib/store/records.ts';
 import { getBlock } from '../../lib/blocks.ts';
 import { useSession } from '../../lib/store/session.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { shareStateOf } from '../page/ShareMenu.tsx';
 import { usePageViewers, type PresenceData } from './presence.ts';
 import { userName } from './Avatar.tsx';
@@ -51,7 +51,7 @@ export function TopbarFacepile({ pageId }: { pageId: string }) {
     if (id) document.querySelector(`.lit-page-content [data-block-id="${CSS.escape(id)}"], .nc-page-title[data-block-id="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   };
   return (
-    <div className="nc-facepile" aria-label="People on this page">
+    <div className="nc-facepile" aria-label={tx('People on this page')}>
       {extra > 0 && (
         <div role="button" className="nc-facepile-more" data-tooltip={t('lp.presence.viewers', 'Viewers')}>
           {t('lp.presence.hiddenuserscount_plural_one_other', '{hiddenUsersCount, plural, one {+{hiddenUsersCount}} other {+{hiddenUsersCount}}}', { hiddenUsersCount: extra })}

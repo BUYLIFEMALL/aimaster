@@ -22,7 +22,7 @@ import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { copyPageLink, pageTitle } from './pageActions.ts';
 import { confirmDialog } from './confirm.tsx';
 import { Toggle } from './ExportDialog.tsx';
@@ -300,7 +300,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
 
   const roleMenu = (anchor: HTMLElement, cur: string, onPick: (r: PageRole | 'remove') => void, opts?: { remove?: boolean; current?: string; allowed?: PageRole[]; extra?: MenuSectionDef[] }) => {
     const sections = [];
-    if (opts?.current) sections.push({ title: 'Current access', items: [{ label: ROLE_LABEL[cur] ?? cur, description: opts.current, disabled: true, render: () => (
+    if (opts?.current) sections.push({ title: tx('Current access'), items: [{ label: ROLE_LABEL[cur] ?? cur, description: opts.current, disabled: true, render: () => (
       <div className="nc-menu-item-inner" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 2, cursor: 'default' }}>
         <div style={{ fontSize: 14 }}>{ROLE_LABEL[cur]}</div>
         <div style={{ fontSize: 12, color: 'var(--lp-text-secondary)' }} dangerouslySetInnerHTML={{ __html: opts.current! }} />
@@ -456,7 +456,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
         </div>
         {ga.kind === 'public' && (
           <div className="nc-share-row sub">
-            <div className="label">{t('lp.page.link_expires', 'Link expires')}{plan === 'free' && <span className="nc-plan-badge">Plus</span>}</div>
+            <div className="label">{t('lp.page.link_expires', 'Link expires')}{plan === 'free' && <span className="nc-plan-badge">{tx('Plus')}</span>}</div>
             <div role="button" className={`nc-share-role ${model.canManage && plan !== 'free' ? '' : 'disabled'}`}
               data-tooltip={plan === 'free' ? 'Upgrade to Plus to set link expiration' : undefined}
               onClick={(e) => model.canManage && plan !== 'free' && expiryMenu(e.currentTarget, setLinkExpiry)}>
@@ -686,7 +686,7 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
             if (plan === 'free') { useUI.getState().toast(t('lp.page.upgrade_to_customize_everything', 'Upgrade to customize everything')); return; }
             openSiteSettings(pub.pageId);
           }}>
-          <div className="label">{t('lp.page.customize_site_appearance', 'Customize site appearance')}{plan === 'free' && <span className="nc-plan-badge">Plus</span>}</div>
+          <div className="label">{t('lp.page.customize_site_appearance', 'Customize site appearance')}{plan === 'free' && <span className="nc-plan-badge">{tx('Plus')}</span>}</div>
           <Icon name="chevronRight" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
         </div>
         <div role="button" className="nc-setting-row clickable" onClick={() => useUI.getState().openSettings('public-pages')}>

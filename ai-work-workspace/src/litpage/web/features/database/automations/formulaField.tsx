@@ -10,6 +10,7 @@ import { useSession } from '../../../lib/store/session.ts';
 import { openCustomFormulaEditor, type CustomFormula } from '../advanced/FormulaEditor.tsx';
 import { userTimeZone } from '../advanced/context.ts';
 import { contextKeys, ctxSurface, earlierOutputs, refLabel, type EditorCtx } from './valueRefs.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 const DESCRIPTIONS: Record<string, [string, string]> = {
   page: ['The entry that was edited to trigger this workflow to run.', 'The entry that contains this button'],
@@ -40,11 +41,11 @@ export function customFormulaFor(c: EditorCtx, onSave: (src: string) => void): C
     const step = c.steps.find((s) => s.id === (r as { step: string }).step);
     items.push({ key, label: refLabel(r, c).label, icon: 'page', description: step?.type === 'edit_pages' ? 'The pages edited by this step' : 'The entry created by the add-entry action', type: step?.type === 'edit_pages' ? 'list' : 'block' });
   }
-  for (const r of out.variables) items.push({ key: refKey(r)!, label: refLabel(r, c).label, icon: 'formula', description: 'A variable defined earlier in this automation.' });
+  for (const r of out.variables) items.push({ key: refKey(r)!, label: refLabel(r, c).label, icon: 'formula', description: tx('A variable defined earlier in this automation.') });
   const col = records.get<CollectionRecord>('collection', c.collectionId);
   const me = useSession.getState().userId ?? '';
   return {
-    title: 'Edit formula',
+    title: tx('Edit formula'),
     collectionId: c.collectionId,
     blockId: c.blockId,
     contextItems: items,

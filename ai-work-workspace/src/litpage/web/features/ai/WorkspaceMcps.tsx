@@ -9,7 +9,7 @@ import { records } from '../../lib/store/records.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { openMenu } from '../../components/Menu.tsx';
 import { Icon } from '../../components/Icon.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { Badge, Button, Group, Row, confirmDialog } from '../settings/ui.tsx';
 import './ai.css';
 
@@ -61,7 +61,7 @@ export function WorkspaceSharedMcps({ space }: { space: SpaceRecord }) {
         {adding ? (
           <form className="nc-ai-mcp-preset-form" onSubmit={(e) => { e.preventDefault(); void add(); }}>
             <div className="nc-set-row-label">{t('lp.ai.new_workspace_mcp', 'Create workspace MCP')}</div>
-            <label className="nc-ai-field"><span>{t('lp.ai.name', 'Name')}</span><input autoFocus value={form.name} maxLength={60} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Snowflake" /></label>
+            <label className="nc-ai-field"><span>{t('lp.ai.name', 'Name')}</span><input autoFocus value={form.name} maxLength={60} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={tx('Snowflake')} /></label>
             <label className="nc-ai-field"><span>{t('lp.ai.description', 'Description')}</span><input value={form.description} maxLength={300} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder={t('lp.ai.what_members_can_do_with_it', 'What members can do with it')} /></label>
             <label className="nc-ai-field"><span>{t('lp.ai.server_url', 'Server URL')}</span><input value={form.url} inputMode="url" onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://example.com/mcp" /></label>
             <label className="nc-ai-field">

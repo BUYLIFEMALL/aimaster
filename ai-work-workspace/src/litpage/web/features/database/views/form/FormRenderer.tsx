@@ -8,6 +8,7 @@ import { api, uploadFile } from '../../../../lib/api.ts';
 import { Icon } from '../../../../components/Icon.tsx';
 import { OptionPill } from '../../properties/ValueView.tsx';
 import './form.css';
+import { tx } from '../../../shell/i18n.ts';
 
 export interface PublicQuestion {
   id: string;
@@ -77,9 +78,9 @@ function EmailCopy({ form, pageId }: { form: PublicForm; pageId: string }) {
   if (state === 'sent') return <div className="nc-form-done-sub" data-testid="form-email-sent">{msg}</div>;
   return (
     <div className="nc-form-email-copy">
-      {!form.submitAs && <div className="nc-form-done-sub">Enter your email to receive a copy of your submission.</div>}
-      {!form.submitAs && <div className="nc-form-input"><input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Email address" /></div>}
-      <div role="button" className={`nc-form-btn secondary ${state === 'busy' ? 'busy' : ''}`} onClick={() => state !== 'busy' && (form.submitAs || email.trim()) && void send()}>Email me a copy</div>
+      {!form.submitAs && <div className="nc-form-done-sub">{tx('Enter your email to receive a copy of your submission.')}</div>}
+      {!form.submitAs && <div className="nc-form-input"><input type="email" placeholder={tx('Email address')} value={email} onChange={(e) => setEmail(e.target.value)} aria-label={tx('Email address')} /></div>}
+      <div role="button" className={`nc-form-btn secondary ${state === 'busy' ? 'busy' : ''}`} onClick={() => state !== 'busy' && (form.submitAs || email.trim()) && void send()}>{tx('Email me a copy')}</div>
       {state === 'error' && <div className="nc-form-error" role="alert">{msg}</div>}
     </div>
   );
@@ -105,7 +106,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
         return (
           <div className="nc-form-input nc-form-select">
             <select value={String((Array.isArray(value) ? (value as string[])[0] : (value as string | undefined)) ?? '')} disabled={disabled} onChange={(e) => onChange(e.target.value || undefined)}>
-              <option value="">Choose an option</option>
+              <option value="">{tx('Choose an option')}</option>
               {q.options.map((o) => <option key={o.id} value={o.value}>{o.value}</option>)}
             </select>
             <Icon name="chevronDown" size={14} color="var(--lp-icon-secondary)" />
@@ -136,7 +137,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
               </label>
             );
           })}
-          {!multi && sel.size > 0 && !disabled && <div role="button" className="nc-form-clear" onClick={() => onChange(undefined)}>Clear selection</div>}
+          {!multi && sel.size > 0 && !disabled && <div role="button" className="nc-form-clear" onClick={() => onChange(undefined)}>{tx('Clear selection')}</div>}
           {multi && <div className="nc-form-hint">{q.maxSelection ? `(Respondents can choose up to ${q.maxSelection})` : '(Respondents can choose any number of options)'}</div>}
         </div>
       );
@@ -145,7 +146,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
       const d = (value as DateAnswer | undefined) ?? undefined;
       return (
         <div className="nc-form-input">
-          <input type="date" value={d?.start_date ?? ''} disabled={disabled} placeholder="Your answer" onChange={(e) => onChange(e.target.value ? { start_date: e.target.value } : undefined)} />
+          <input type="date" value={d?.start_date ?? ''} disabled={disabled} placeholder={tx('Your answer')} onChange={(e) => onChange(e.target.value ? { start_date: e.target.value } : undefined)} />
         </div>
       );
     }
@@ -169,7 +170,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
       return (
         <div className="nc-form-input nc-form-select">
           <select value={sel[0] ?? ''} disabled={disabled} onChange={(e) => onChange(e.target.value ? [e.target.value] : undefined)}>
-            <option value="">Your answer</option>
+            <option value="">{tx('Your answer')}</option>
             {rows.map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
           </select>
           <Icon name="chevronDown" size={14} color="var(--lp-icon-secondary)" />
@@ -182,11 +183,11 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
         <div className="nc-form-files">
           {files.map((f, i) => (
             <div key={i} className="nc-form-file"><Icon name="paperClip" size={14} /><span>{f.name}</span>
-              {!disabled && <span role="button" aria-label="Delete file" className="nc-form-file-del" onClick={() => onChange(files.filter((_, j) => j !== i) as unknown as FormAnswer)}><Icon name="close" size={12} /></span>}
+              {!disabled && <span role="button" aria-label={tx('Delete file')} className="nc-form-file-del" onClick={() => onChange(files.filter((_, j) => j !== i) as unknown as FormAnswer)}><Icon name="close" size={12} /></span>}
             </div>
           ))}
           <label className={`nc-form-upload ${disabled || form.anonymous ? 'disabled' : ''}`}>
-            <Icon name="upload" size={14} />{uploading ? 'Uploading…' : 'Upload'}
+            <Icon name="upload" size={14} />{uploading ? tx('Uploading…') : tx('Upload')}
             <input type="file" disabled={disabled || form.anonymous || uploading} onChange={async (e) => {
               const f = e.target.files?.[0];
               if (!f) return;
@@ -206,7 +207,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
       const props = {
         value: (value as string | undefined) ?? '',
         disabled,
-        placeholder: 'Your answer',
+        placeholder: tx('Your answer'),
         onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value),
         inputMode: q.type === 'number' ? ('decimal' as const) : undefined,
         type: q.type === 'email' ? 'email' : q.type === 'url' ? 'url' : q.type === 'phone_number' ? 'tel' : 'text',
@@ -283,10 +284,10 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
         <div className="nc-form-done-sub">{ss.confirmationBody?.trim() || (publicCopy ? 'Thanks for filling out this form.' : 'Your submission was sent successfully.')}</div>
         <div className="nc-form-done-actions">
           {ss.allowSubmitAnotherResponse !== false && (
-            <div role="button" className="nc-form-btn secondary" onClick={() => { setAnswers({}); setErrors({}); setDone(null); }}>Submit another</div>
+            <div role="button" className="nc-form-btn secondary" onClick={() => { setAnswers({}); setErrors({}); setDone(null); }}>{tx('Submit another')}</div>
           )}
           {ss.allowViewResponse && canView && (
-            <a className="nc-form-btn secondary" data-testid="form-view-response" href={`/${done.replace(/-/g, '')}`} target="_blank" rel="noopener noreferrer">Open my submission</a>
+            <a className="nc-form-btn secondary" data-testid="form-view-response" href={`/${done.replace(/-/g, '')}`} target="_blank" rel="noopener noreferrer">{tx('Open my submission')}</a>
           )}
         </div>
         {ss.allowEmailResponse && !preview && <EmailCopy form={form} pageId={done} />}
@@ -301,9 +302,9 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
         {header}
         <div className="nc-form-r-as">
           {form.submitAs ? (
-            <span className="nc-form-r-pill">Submitting as <span className="nc-form-avatar sm">{form.submitAs.name[0]?.toUpperCase()}</span>{form.submitAs.name}</span>
+            <span className="nc-form-r-pill">{tx('Submitting as')} <span className="nc-form-avatar sm">{form.submitAs.name[0]?.toUpperCase()}</span>{form.submitAs.name}</span>
           ) : (
-            <span className="nc-form-r-pill">Sending anonymously</span>
+            <span className="nc-form-r-pill">{tx('Sending anonymously')}</span>
           )}
         </div>
         {qs.map((q) => (

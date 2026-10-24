@@ -12,6 +12,7 @@ import { records } from '../../lib/store/records.ts';
 import { pageUrl } from '../../lib/router.ts';
 import { useEditor } from '../editor/editorState.ts';
 import { duplicateDatabaseBlock, ownsData } from './duplicate.ts';
+import { tx } from '../shell/i18n.ts';
 
 function canEdit(b: BlockRecord): boolean {
   return roleAtLeast(records.role('block', b.id), 'read_and_write') && !(b.format as { block_locked?: boolean } | undefined)?.block_locked;
@@ -28,26 +29,26 @@ export function setDatabaseBlockType(blockId: string, type: 'collection_view' | 
 }
 
 registerBlockMenu(['collection_view'], ({ block }) => (canEdit(block) ? [
-  { label: 'Change to entry', icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view_page') },
+  { label: tx('Change to entry'), icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view_page') },
   // features/import/MergeCsv.tsx: column mapping, rows added to this database's data source
-  ...(ownsData(block) ? [{ label: 'Combine with CSV', icon: 'fileCsv', description: 'A header row is required', onSelect: () => { void import('../import/MergeCsv.tsx').then((m) => m.openMergeCsv(block.id)); } }] : []),
+  ...(ownsData(block) ? [{ label: tx('Combine with CSV'), icon: 'fileCsv', description: tx('A header row is required'), onSelect: () => { void import('../import/MergeCsv.tsx').then((m) => m.openMergeCsv(block.id)); } }] : []),
 ] : []));
 
 registerBlockMenu(['collection_view_page'], ({ block }) => [
-  ...(canEdit(block) ? [{ label: 'Change to inline table', icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view') }] : []),
-  { label: 'Launch in a new tab', icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
+  ...(canEdit(block) ? [{ label: tx('Change to inline table'), icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view') }] : []),
+  { label: tx('Launch in a new tab'), icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
 ]);
 
 registerDuplicateItem(['collection_view', 'collection_view_page'], ({ block }) => {
   if (!ownsData(block)) return null; // a linked view duplicates as another linked view
   return {
-    label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D',
+    label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D',
     submenu: () => ({
       width: 275,
       role: 'menu',
       sections: [{ items: [
-        { label: 'Make a copy with content', shortcut: '⌘D', onSelect: () => { duplicateDatabaseBlock(block.id, true); } },
-        { label: 'Make an empty copy', onSelect: () => { duplicateDatabaseBlock(block.id, false); } },
+        { label: tx('Make a copy with content'), shortcut: '⌘D', onSelect: () => { duplicateDatabaseBlock(block.id, true); } },
+        { label: tx('Make an empty copy'), onSelect: () => { duplicateDatabaseBlock(block.id, false); } },
       ] }],
     }),
   };

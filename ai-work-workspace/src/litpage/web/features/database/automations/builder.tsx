@@ -25,6 +25,7 @@ import { collectionName, deleteAutomation, loadAutomations, saveAutomation, useA
 import { StepList } from './steps.tsx';
 import { ButtonTriggerSection, TriggerSection } from './triggers.tsx';
 import './automations.css';
+import { tx } from '../../shell/i18n.ts';
 
 function lookups(collectionId: string, surface: 'automation' | 'button_property', webhooksAllowed: boolean) {
   return {
@@ -101,23 +102,23 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
   const scopeMenu = (anchor: HTMLElement) => openKeepMenu(anchor, {
     width: 300,
     sections: [
-      { items: [{ id: 'all', label: collectionName(col), icon: 'collection', description: 'Whole dataset', checked: draft.scope?.type !== 'view', onSelect: () => update({ scope: { type: 'collection' } }) }] },
-      { title: 'Views', items: viewsOf(collectionId).filter((v) => !['form', 'dashboard', 'chart'].includes(v.type)).map((v) => {
+      { items: [{ id: 'all', label: collectionName(col), icon: 'collection', description: tx('Whole dataset'), checked: draft.scope?.type !== 'view', onSelect: () => update({ scope: { type: 'collection' } }) }] },
+      { title: tx('Views'), items: viewsOf(collectionId).filter((v) => !['form', 'dashboard', 'chart'].includes(v.type)).map((v) => {
         const n = countActive(combinedFilter(v) ?? null, col?.schema);
         return { id: v.id, label: v.name || 'Untitled view', icon: viewIcon(v.type), description: n ? `${n} ${n === 1 ? 'filter' : 'filters'}` : 'Every entry in this layout', checked: draft.scope?.type === 'view' && draft.scope.view_id === v.id, onSelect: () => update({ scope: { type: 'view', view_id: v.id } }) };
       }) },
     ],
   }, { placement: 'bottom-start', parent: overlayIdOf(anchor), backdrop: 'transparent' });
   return (
-    <div className="nc-auto-dialog" role="dialog" aria-modal="true" aria-label={existing ? 'Edit automation' : 'Create automation'}>
+    <div className="nc-auto-dialog" role="dialog" aria-modal="true" aria-label={existing ? tx('Edit automation') : tx('Create automation')}>
       <div className="lit-automation-builder-modal">
-        <div className="nc-auto-close" role="button" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={14} /></div>
+        <div className="nc-auto-close" role="button" aria-label={tx('Close')} onClick={close}><Icon name="xMarkSmall" size={14} /></div>
         <div className="nc-auto-head">
           <div className="nc-auto-name-row" data-menu-keys="ignore">
-            <input className="nc-auto-name" aria-label="Automation name" placeholder={placeholder} value={draft.name} readOnly={readOnly} onChange={(e) => update({ name: e.target.value })} />
+            <input className="nc-auto-name" aria-label={tx('Automation name')} placeholder={placeholder} value={draft.name} readOnly={readOnly} onChange={(e) => update({ name: e.target.value })} />
           </div>
           <div className="nc-auto-scope">
-            <span>{draft.scope?.type === 'view' ? 'For entries in' : 'For every entry in'}</span>
+            <span>{draft.scope?.type === 'view' ? tx('For entries in') : tx('For every entry in')}</span>
             <span role="button" className={`nc-auto-scope-btn ${readOnly ? 'static' : ''}`} aria-haspopup="dialog" onClick={(e) => !readOnly && scopeMenu(e.currentTarget)}>
               {scopeView && <Icon name={viewIcon(scopeView.type)} size={16} />}
               <span>{scopeView ? scopeView.name || 'Untitled view' : collectionName(col)}</span>
@@ -132,7 +133,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
             <TriggerSection collectionId={collectionId} trigger={draft.trigger} onChange={(trigger) => update({ trigger, actions: trigger.type === 'recurrence' ? draft.actions.filter((a) => a.type !== 'edit_property') : draft.actions })} readOnly={readOnly} issues={issues} />
             <div className="nc-auto-connector" />
             <section className="nc-auto-section">
-              <header className="nc-auto-section-head"><span>Do</span></header>
+              <header className="nc-auto-section-head"><span>{tx('Do')}</span></header>
               <StepList surface="automation" collectionId={collectionId} steps={draft.actions} onChange={(actions) => update({ actions })} issues={issues} readOnly={readOnly} noTriggerPage={noTriggerPage} webhooksAllowed={access?.webhooksAllowed} />
             </section>
           </div>
@@ -145,13 +146,13 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
               await deleteAutomation(existing.id);
               state.dirty = false;
               close();
-            }}>Delete</span>
-          ) : <span role="button" className="nc-btn outline" onClick={close}>Cancel</span>}
+            }}>{tx('Delete')}</span>
+          ) : <span role="button" className="nc-btn outline" onClick={close}>{tx('Cancel')}</span>}
           <div className="nc-auto-foot-right">
-            {!valid && draft.status === 'active' && !readOnly && (draft.actions.length > 0 || (draft.trigger.type === 'event' ? draft.trigger.events.length > 0 : true)) && <span className="nc-auto-error-caption">Resolve errors to enable</span>}
+            {!valid && draft.status === 'active' && !readOnly && (draft.actions.length > 0 || (draft.trigger.type === 'event' ? draft.trigger.events.length > 0 : true)) && <span className="nc-auto-error-caption">{tx('Resolve errors to enable')}</span>}
             {existing && !readOnly && (
               <label className="nc-auto-active">
-                <span>Active</span>
+                <span>{tx('Active')}</span>
                 <Toggle on={draft.status === 'active'} onChange={(v) => update({ status: v ? 'active' : 'paused' })} />
               </label>
             )}
@@ -161,7 +162,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
               className={`nc-btn primary ${readOnly || saving || (draft.status === 'active' && !valid) || (!!existing && !dirty) ? 'disabled' : ''}`}
               onClick={() => void save()}
             >
-              {existing ? 'Save' : 'Enable'}
+              {existing ? tx('Save') : tx('Enable')}
             </span>
           </div>
         </div>
@@ -218,12 +219,12 @@ function ButtonPropertyBuilder({ collectionId, propId, close, state }: { collect
     close();
   };
   return (
-    <div className="nc-auto-dialog" role="dialog" aria-modal="true" aria-label="Edit automation">
+    <div className="nc-auto-dialog" role="dialog" aria-modal="true" aria-label={tx('Edit automation')}>
       <div className="lit-automation-builder-modal">
-        <div className="nc-auto-close" role="button" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={14} /></div>
+        <div className="nc-auto-close" role="button" aria-label={tx('Close')} onClick={close}><Icon name="xMarkSmall" size={14} /></div>
         <div className="nc-auto-head">
           <div className="nc-auto-name-row" data-menu-keys="ignore">
-            <input className="nc-auto-name" aria-label="Button name" placeholder="Enter a name" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input className="nc-auto-name" aria-label={tx('Button name')} placeholder={tx('Enter a name')} value={label} onChange={(e) => setLabel(e.target.value)} />
           </div>
         </div>
         <div className="nc-auto-body">
@@ -231,13 +232,13 @@ function ButtonPropertyBuilder({ collectionId, propId, close, state }: { collect
             <ButtonTriggerSection />
             <div className="nc-auto-connector" />
             <section className="nc-auto-section">
-              <header className="nc-auto-section-head"><span>Do</span></header>
+              <header className="nc-auto-section-head"><span>{tx('Do')}</span></header>
               <StepList surface="button_property" collectionId={collectionId} steps={steps} onChange={setSteps} issues={issues} webhooksAllowed={access?.webhooksAllowed} />
             </section>
           </div>
         </div>
         <div className="nc-auto-foot">
-          <span role="button" aria-disabled={issues.length > 0} className={`nc-btn primary full ${issues.length ? 'disabled' : ''}`} onClick={save}>Save</span>
+          <span role="button" aria-disabled={issues.length > 0} className={`nc-btn primary full ${issues.length ? 'disabled' : ''}`} onClick={save}>{tx('Save')}</span>
         </div>
       </div>
     </div>

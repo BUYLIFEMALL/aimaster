@@ -4,7 +4,7 @@
 import type { SpaceRecord } from '#shared/records.ts';
 import { Group, Row, Switch, Upsell } from '../settings/ui.tsx';
 import { planAtLeast, saveSpaceSettings, spaceSetting, useSpaceAccess } from '../settings/spaceSettings.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 
 export function ImageGenerationSettings() {
   const { space, owner: admin, plan } = useSpaceAccess(); // workspace setting: owners (server policy.ts)
@@ -29,7 +29,7 @@ function ImageGroup({ space, admin, included }: { space: SpaceRecord; admin: boo
         control={(
           <span data-tooltip={tip}>
             <Switch
-              label="Turn on image creation"
+              label={tx('Turn on image creation')}
               checked={included && aiOn && on}
               disabled={!admin || !aiOn || !included}
               onChange={(v) => saveSpaceSettings(space.id, { ai_image_generation: v })}

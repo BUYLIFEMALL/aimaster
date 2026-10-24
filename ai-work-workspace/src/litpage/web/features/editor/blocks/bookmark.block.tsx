@@ -12,6 +12,7 @@ import { registerBlockMenu } from './registry.ts';
 import { ActionBar, ActionButton, BlockPlaceholder, Caption, copyText, showCaption, sourceOf } from './shared.tsx';
 import { openMediaPicker, refreshBookmark, useUploads } from './media/MediaPicker.tsx';
 import { replaceMedia } from './media.block.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 function BookmarkBlock({ block, readOnly }: BlockProps) {
   const url = toPlainText((block.properties as any)?.link as RichText | undefined) || sourceOf(block);
@@ -19,7 +20,7 @@ function BookmarkBlock({ block, readOnly }: BlockProps) {
   if (!url) {
     return (
       <div className="nc-bpad">
-        <BlockPlaceholder block={block} readOnly={readOnly} icon="bookmark" label="Add a bookmark" onOpen={(el) => openMediaPicker(block, el)} />
+        <BlockPlaceholder block={block} readOnly={readOnly} icon="bookmark" label={tx('Add a bookmark')} onOpen={(el) => openMediaPicker(block, el)} />
       </div>
     );
   }
@@ -63,11 +64,11 @@ registerBlock(['bookmark'], BookmarkBlock);
 registerBlockMenu(['bookmark'], ({ block, color }) => {
   const url = toPlainText((block.properties as any)?.link as RichText | undefined) || sourceOf(block);
   return [
-    { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+    { label: tx('Caption'), icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
     ...(url ? [
-      { label: 'Copy source link', icon: 'link', onSelect: () => void copyText(url, 'Link copied') },
-      { label: 'Reload', icon: 'refresh', onSelect: () => void refreshBookmark(block.id, url) },
-      { label: 'Replace', icon: 'replace', onSelect: () => replaceMedia(block) },
+      { label: tx('Copy source link'), icon: 'link', onSelect: () => void copyText(url, 'Link copied') },
+      { label: tx('Reload'), icon: 'refresh', onSelect: () => void refreshBookmark(block.id, url) },
+      { label: tx('Replace'), icon: 'replace', onSelect: () => replaceMedia(block) },
     ] : []),
     color,
   ];

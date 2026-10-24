@@ -22,6 +22,7 @@ import {
   AGG_LABEL, CHART_TYPE_LABEL, CHART_TYPE_ORDER, aggregationLabel, chartColorVar, chartConfigOf, chartGroupLists, chartSavedGroupsOf, groupByFor, isGroupableForChart, isNumericProperty, numberChartTitle, switchChartType,
   type ChartAggregation, type ChartColorTheme, type ChartConfig, type ChartFormat, type ChartGroupBy, type ChartHeight, type ChartType, type MainSort, type ReferenceLine,
 } from './chartModel.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 registerIcons({
   ncChartXWhat: L.CornerDownRight, ncChartSort: L.ArrowLeftRight, ncChartYWhat: L.ArrowUp, ncChartGroup: L.Rows2, ncChartRange: L.MoveVertical,
@@ -31,10 +32,10 @@ registerIcons({
 
 const CHART_TYPE_ICON: Record<ChartType, string> = { column: 'chartBarXAxis', bar: 'chartBarYAxis', line: 'chartLine', donut: 'donutChart', number: 'number' };
 const THEMES: { id: ChartColorTheme; label: string }[] = [
-  { id: 'auto', label: 'Auto' }, { id: 'colorful', label: 'Colorful' }, { id: 'gray', label: 'Colorless' }, { id: 'blue', label: 'Blue' }, { id: 'green', label: 'Green' },
-  { id: 'orange', label: 'Orange' }, { id: 'pink', label: 'Pink' }, { id: 'purple', label: 'Purple' }, { id: 'red', label: 'Red' }, { id: 'teal', label: 'Teal' }, { id: 'yellow', label: 'Yellow' },
+  { id: 'auto', label: tx('Auto') }, { id: 'colorful', label: tx('Colorful') }, { id: 'gray', label: tx('Colorless') }, { id: 'blue', label: tx('Blue') }, { id: 'green', label: tx('Green') },
+  { id: 'orange', label: tx('Orange') }, { id: 'pink', label: tx('Pink') }, { id: 'purple', label: tx('Purple') }, { id: 'red', label: tx('Red') }, { id: 'teal', label: tx('Teal') }, { id: 'yellow', label: tx('Yellow') },
 ];
-const HEIGHTS: { id: ChartHeight; label: string }[] = [{ id: 'small', label: 'Small' }, { id: 'medium', label: 'Medium' }, { id: 'large', label: 'Large' }, { id: 'extra_large', label: 'Extra large' }];
+const HEIGHTS: { id: ChartHeight; label: string }[] = [{ id: 'small', label: tx('Small') }, { id: 'medium', label: tx('Medium') }, { id: 'large', label: tx('Large') }, { id: 'extra_large', label: tx('Extra large') }];
 const NUMBER_COLORS = ['default', 'gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'];
 const REF_COLORS = ['gray', 'lightgray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'];
 const NUMERIC_AGGS = ['sum', 'average', 'median', 'min', 'max', 'range'];
@@ -88,7 +89,7 @@ function GroupVisibility({ groups, ro, onToggle, onAll }: { groups: GroupResult[
     <div key={g.id} className="nc-menu-item nc-vis-row nc-chart-group-row" data-group-key={g.id}>
       <div className="nc-menu-item-inner">
         <div className="nc-menu-label"><GroupToken group={g} /></div>
-        <span role="button" className={`nc-vis-eye ${ro ? 'disabled' : ''}`} aria-label={g.hidden ? 'Show group' : 'Hide group'} onClick={() => !ro && onToggle(g)}><Icon name={g.hidden ? 'eyeSlash' : 'eye'} size={16} /></span>
+        <span role="button" className={`nc-vis-eye ${ro ? 'disabled' : ''}`} aria-label={g.hidden ? tx('Show group') : tx('Hide group')} onClick={() => !ro && onToggle(g)}><Icon name={g.hidden ? 'eyeSlash' : 'eye'} size={16} /></span>
       </div>
     </div>
   );
@@ -157,8 +158,8 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
 
   const yItems = (onPick: (a: ChartAggregation) => void, opts?: { none?: boolean }): MenuItemDef[] => {
     const out: MenuItemDef[] = [];
-    if (opts?.none) out.push({ id: 'none', label: 'None', checked: !agg.property, onSelect: () => onPick({ aggregator: 'count' }) });
-    else out.push({ id: 'count', label: 'Count', icon: 'number', checked: !agg.property && agg.aggregator === 'count', onSelect: () => onPick({ aggregator: 'count' }) });
+    if (opts?.none) out.push({ id: 'none', label: tx('None'), checked: !agg.property, onSelect: () => onPick({ aggregator: 'count' }) });
+    else out.push({ id: 'count', label: tx('Count'), icon: 'number', checked: !agg.property && agg.aggregator === 'count', onSelect: () => onPick({ aggregator: 'count' }) });
     const ids = ['title', ...Object.keys(schema).filter((k) => k !== 'title')].filter((id) => schema[id] && !['button'].includes(schema[id].type));
     for (const id of ids) {
       const p = schema[id];
@@ -176,7 +177,7 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
   };
 
   const colorRow = () => (
-    <SettingsRow icon="ncChartColor" label="Color" value={THEMES.find((t) => t.id === (fmt.colorTheme ?? 'auto'))?.label} disabled={ro} onClick={(e) => sub(e.currentTarget, THEMES.map((t) => ({
+    <SettingsRow icon="ncChartColor" label={tx('Color')} value={THEMES.find((t) => t.id === (fmt.colorTheme ?? 'auto'))?.label} disabled={ro} onClick={(e) => sub(e.currentTarget, THEMES.map((t) => ({
       id: t.id, label: t.label, checked: (fmt.colorTheme ?? 'auto') === t.id, onSelect: () => setFmt({ colorTheme: t.id }),
       icon: t.id === 'auto' || t.id === 'colorful' ? <span className="nc-chart-swatch multi" /> : <Swatch color={chartColorVar(t.id === 'gray' ? 'gray' : t.id)} />,
     })))} />
@@ -184,37 +185,37 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
 
   const styleMenu = (e: React.MouseEvent<HTMLElement>) => {
     const items: MenuItemDef[] = [
-      { id: 'height', label: 'Height', right: <span className="nc-menu-value">{HEIGHTS.find((h) => h.id === (fmt.height ?? 'medium'))?.label}</span>, submenu: () => ({ width: 200, sections: [{ items: HEIGHTS.map((h) => ({ id: h.id, label: h.label, checked: (fmt.height ?? 'medium') === h.id, onSelect: () => setFmt({ height: h.id }) })) }] }) },
+      { id: 'height', label: tx('Height'), right: <span className="nc-menu-value">{HEIGHTS.find((h) => h.id === (fmt.height ?? 'medium'))?.label}</span>, submenu: () => ({ width: 200, sections: [{ items: HEIGHTS.map((h) => ({ id: h.id, label: h.label, checked: (fmt.height ?? 'medium') === h.id, onSelect: () => setFmt({ height: h.id }) })) }] }) },
     ];
     if (cfg.type !== 'donut') {
       items.push(
-        { id: 'grid', label: 'Grid line', right: <span className="nc-menu-value">{({ none: 'None', horizontal: 'Horizontal', vertical: 'Vertical', both: 'Both' })[fmt.axisGridLine ?? 'horizontal']}</span>, submenu: () => ({ width: 200, sections: [{ items: (['none', 'horizontal', 'vertical', 'both'] as const).map((g) => ({ id: g, label: ({ none: 'None', horizontal: 'Horizontal', vertical: 'Vertical', both: 'Both' })[g], checked: (fmt.axisGridLine ?? 'horizontal') === g, onSelect: () => setFmt({ axisGridLine: g }) })) }] }) },
-        { id: 'axisname', label: 'Axis name', right: <span className="nc-menu-value">{({ none: 'None', x_axis: 'X axis', y_axis: 'Y axis', both: 'Both' })[fmt.axisLabel ?? 'none']}</span>, submenu: () => ({ width: 200, sections: [{ items: (['none', 'x_axis', 'y_axis', 'both'] as const).map((g) => ({ id: g, label: ({ none: 'None', x_axis: 'X axis', y_axis: 'Y axis', both: 'Both' })[g], checked: (fmt.axisLabel ?? 'none') === g, onSelect: () => setFmt({ axisLabel: g }) })) }] }) },
-        { id: 'labels', label: 'Data labels', checked: fmt.axisShowDataLabels !== false, onSelect: () => setFmt({ axisShowDataLabels: fmt.axisShowDataLabels === false }) },
+        { id: 'grid', label: tx('Grid line'), right: <span className="nc-menu-value">{({ none: 'None', horizontal: 'Horizontal', vertical: 'Vertical', both: 'Both' })[fmt.axisGridLine ?? 'horizontal']}</span>, submenu: () => ({ width: 200, sections: [{ items: (['none', 'horizontal', 'vertical', 'both'] as const).map((g) => ({ id: g, label: ({ none: 'None', horizontal: 'Horizontal', vertical: 'Vertical', both: 'Both' })[g], checked: (fmt.axisGridLine ?? 'horizontal') === g, onSelect: () => setFmt({ axisGridLine: g }) })) }] }) },
+        { id: 'axisname', label: tx('Axis name'), right: <span className="nc-menu-value">{({ none: 'None', x_axis: 'X axis', y_axis: 'Y axis', both: 'Both' })[fmt.axisLabel ?? 'none']}</span>, submenu: () => ({ width: 200, sections: [{ items: (['none', 'x_axis', 'y_axis', 'both'] as const).map((g) => ({ id: g, label: ({ none: 'None', x_axis: 'X axis', y_axis: 'Y axis', both: 'Both' })[g], checked: (fmt.axisLabel ?? 'none') === g, onSelect: () => setFmt({ axisLabel: g }) })) }] }) },
+        { id: 'labels', label: tx('Data labels'), checked: fmt.axisShowDataLabels !== false, onSelect: () => setFmt({ axisShowDataLabels: fmt.axisShowDataLabels === false }) },
       );
       if (cfg.type === 'line') {
         items.push(
-          { id: 'smooth', label: 'Smooth line', checked: !!fmt.smoothLine, onSelect: () => setFmt({ smoothLine: !fmt.smoothLine }) },
-          { id: 'fill', label: 'Gradient area', checked: !fmt.hideLineFillArea, onSelect: () => setFmt({ hideLineFillArea: !fmt.hideLineFillArea }) },
-          { id: 'cumulative', label: 'Cumulative', checked: !!fmt.axisCumulative, onSelect: () => setFmt({ axisCumulative: !fmt.axisCumulative }) },
+          { id: 'smooth', label: tx('Smooth line'), checked: !!fmt.smoothLine, onSelect: () => setFmt({ smoothLine: !fmt.smoothLine }) },
+          { id: 'fill', label: tx('Gradient area'), checked: !fmt.hideLineFillArea, onSelect: () => setFmt({ hideLineFillArea: !fmt.hideLineFillArea }) },
+          { id: 'cumulative', label: tx('Cumulative'), checked: !!fmt.axisCumulative, onSelect: () => setFmt({ axisCumulative: !fmt.axisCumulative }) },
         );
       }
       if (stackGb) {
-        items.push({ id: 'groupstyle', label: 'Group style', right: <span className="nc-menu-value">{({ normal: 'Stacked', side_by_side: 'Not stacked', percent: 'Percent' })[fmt.axisGroupStyle ?? 'normal']}</span>, submenu: () => ({ width: 200, sections: [{ items: (['normal', 'side_by_side', 'percent'] as const).map((g) => ({ id: g, label: ({ normal: 'Stacked', side_by_side: 'Not stacked', percent: 'Percent' })[g], checked: (fmt.axisGroupStyle ?? 'normal') === g, onSelect: () => setFmt({ axisGroupStyle: g }) })) }] }) });
+        items.push({ id: 'groupstyle', label: tx('Group style'), right: <span className="nc-menu-value">{({ normal: 'Stacked', side_by_side: 'Not stacked', percent: 'Percent' })[fmt.axisGroupStyle ?? 'normal']}</span>, submenu: () => ({ width: 200, sections: [{ items: (['normal', 'side_by_side', 'percent'] as const).map((g) => ({ id: g, label: ({ normal: 'Stacked', side_by_side: 'Not stacked', percent: 'Percent' })[g], checked: (fmt.axisGroupStyle ?? 'normal') === g, onSelect: () => setFmt({ axisGroupStyle: g }) })) }] }) });
       }
     } else {
       items.push(
-        { id: 'donutlabels', label: 'Data labels', right: <span className="nc-menu-value">{({ none: 'None', value: 'Value (%)', name: 'Name', name_and_value: 'Label and value (%)' })[fmt.donutDataLabels ?? 'value']}</span>, submenu: () => ({ width: 220, sections: [{ items: (['none', 'value', 'name', 'name_and_value'] as const).map((g) => ({ id: g, label: ({ none: 'None', value: 'Value (%)', name: 'Name', name_and_value: 'Label and value (%)' })[g], checked: (fmt.donutDataLabels ?? 'value') === g, onSelect: () => setFmt({ donutDataLabels: g }) })) }] }) },
-        { id: 'showvalue', label: 'Show value', checked: !fmt.donutHideValue, onSelect: () => setFmt({ donutHideValue: !fmt.donutHideValue }) },
+        { id: 'donutlabels', label: tx('Data labels'), right: <span className="nc-menu-value">{({ none: 'None', value: 'Value (%)', name: 'Name', name_and_value: 'Label and value (%)' })[fmt.donutDataLabels ?? 'value']}</span>, submenu: () => ({ width: 220, sections: [{ items: (['none', 'value', 'name', 'name_and_value'] as const).map((g) => ({ id: g, label: ({ none: 'None', value: 'Value (%)', name: 'Name', name_and_value: 'Label and value (%)' })[g], checked: (fmt.donutDataLabels ?? 'value') === g, onSelect: () => setFmt({ donutDataLabels: g }) })) }] }) },
+        { id: 'showvalue', label: tx('Show value'), checked: !fmt.donutHideValue, onSelect: () => setFmt({ donutHideValue: !fmt.donutHideValue }) },
       );
     }
     // "Color by metric": bars / donut drawn in one color get darker with larger values
     const theme = fmt.colorTheme ?? 'auto';
     if ((cfg.type === 'donut' || ((cfg.type === 'column' || cfg.type === 'bar') && !stackGb)) && theme !== 'auto' && theme !== 'colorful') {
-      items.push({ id: 'weight', label: 'Color by metric', checked: !!fmt.weightColorValue, onSelect: () => setFmt({ weightColorValue: !fmt.weightColorValue }) });
+      items.push({ id: 'weight', label: tx('Color by metric'), checked: !!fmt.weightColorValue, onSelect: () => setFmt({ weightColorValue: !fmt.weightColorValue }) });
     }
     if (cfg.type === 'donut' || stackGb || cfg.type === 'line') {
-      items.push({ id: 'legend', label: 'Legend', right: <span className="nc-menu-value">{fmt.hideLegend || fmt.legendPosition === 'off' ? 'Off' : fmt.legendPosition === 'side' ? 'Side' : 'Bottom'}</span>, submenu: () => ({ width: 200, sections: [{ items: (['bottom', 'side', 'off'] as const).map((g) => ({ id: g, label: ({ bottom: 'Bottom', side: 'Side', off: 'Off' })[g], checked: (fmt.hideLegend ? 'off' : fmt.legendPosition ?? 'bottom') === g, onSelect: () => setFmt({ legendPosition: g, hideLegend: g === 'off' }) })) }] }) });
+      items.push({ id: 'legend', label: tx('Legend'), right: <span className="nc-menu-value">{fmt.hideLegend || fmt.legendPosition === 'off' ? 'Off' : fmt.legendPosition === 'side' ? tx('Side') : tx('Bottom')}</span>, submenu: () => ({ width: 200, sections: [{ items: (['bottom', 'side', 'off'] as const).map((g) => ({ id: g, label: ({ bottom: 'Bottom', side: 'Side', off: 'Off' })[g], checked: (fmt.hideLegend ? 'off' : fmt.legendPosition ?? 'bottom') === g, onSelect: () => setFmt({ legendPosition: g, hideLegend: g === 'off' }) })) }] }) });
     }
     sub(e.currentTarget, items, 260);
   };
@@ -237,27 +238,27 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
 
   const categoryRows = (
     <>
-      <SettingsRow icon="ncChartXWhat" label="Choose what to display" value={xProp?.name ?? 'None'} disabled={ro} onClick={pickX} />
+      <SettingsRow icon="ncChartXWhat" label={tx('Choose what to display')} value={xProp?.name ?? 'None'} disabled={ro} onClick={pickX} />
       {xProp && DATE_KINDS.includes(xProp.type) && groups && (
-        <SettingsRow icon="calendar" label="Group by" value={({ day: 'Day', week: 'Week', month: 'Month', year: 'Year', relative: 'Relative' } as Record<string, string>)[String(groups.groupBy.groupBy ?? 'month')] ?? 'Month'} disabled={ro} onClick={(e) => sub(e.currentTarget, (['day', 'week', 'month', 'year'] as const).map((g) => ({ id: g, label: g[0].toUpperCase() + g.slice(1), checked: (groups.groupBy.groupBy ?? 'month') === g, onSelect: () => setGroups({ groupBy: { ...groups.groupBy, groupBy: g } }) })))} />
+        <SettingsRow icon="calendar" label={tx('Group by')} value={({ day: 'Day', week: 'Week', month: 'Month', year: 'Year', relative: 'Relative' } as Record<string, string>)[String(groups.groupBy.groupBy ?? 'month')] ?? 'Month'} disabled={ro} onClick={(e) => sub(e.currentTarget, (['day', 'week', 'month', 'year'] as const).map((g) => ({ id: g, label: g[0].toUpperCase() + g.slice(1), checked: (groups.groupBy.groupBy ?? 'month') === g, onSelect: () => setGroups({ groupBy: { ...groups.groupBy, groupBy: g } }) })))} />
       )}
-      <SettingsRow icon="ncChartSort" label="Sort by" value={sortLabel(fmt.mainSort, xProp, yName)} disabled={ro} onClick={(e) => sub(e.currentTarget, sortItems(), 260)} />
-      <SettingsToggle label={<span className="nc-chart-row-label"><Icon name="eyeOff" size={20} />Hide zero values</span>} on={!!fmt.axisHideEmptyGroups} disabled={ro} onChange={(v) => setFmt({ axisHideEmptyGroups: v })} />
+      <SettingsRow icon="ncChartSort" label={tx('Sort by')} value={sortLabel(fmt.mainSort, xProp, yName)} disabled={ro} onClick={(e) => sub(e.currentTarget, sortItems(), 260)} />
+      <SettingsToggle label={<span className="nc-chart-row-label"><Icon name="eyeOff" size={20} />{tx('Hide zero values')}</span>} on={!!fmt.axisHideEmptyGroups} disabled={ro} onChange={(v) => setFmt({ axisHideEmptyGroups: v })} />
       {mainVisibility}
     </>
   );
   const valueRows = (
     <>
-      <SettingsRow icon="ncChartYWhat" label="Choose what to display" value={yName} disabled={ro} onClick={(e) => sub(e.currentTarget, yItems(setAgg), 260, 'Search properties...')} />
-      <SettingsRow icon="ncChartGroup" label="Group by" value={stackGb ? schema[stackGb.property]?.name ?? 'None' : 'None'} disabled={ro || !groups} onClick={(e) => groups && sub(e.currentTarget, [
-        { id: 'none', label: 'None', checked: !stackGb, onSelect: () => setGroups({ aggregationConfig: { ...groups.aggregationConfig, stackOptions: undefined } }) },
+      <SettingsRow icon="ncChartYWhat" label={tx('Choose what to display')} value={yName} disabled={ro} onClick={(e) => sub(e.currentTarget, yItems(setAgg), 260, 'Search properties...')} />
+      <SettingsRow icon="ncChartGroup" label={tx('Group by')} value={stackGb ? schema[stackGb.property]?.name ?? tx('None') : tx('None')} disabled={ro || !groups} onClick={(e) => groups && sub(e.currentTarget, [
+        { id: 'none', label: tx('None'), checked: !stackGb, onSelect: () => setGroups({ aggregationConfig: { ...groups.aggregationConfig, stackOptions: undefined } }) },
         ...groupablePropItems(stackGb?.property, (id) => {
           save({ ...cfg, chartFormat: { ...fmt, axisGroupStyle: fmt.axisGroupStyle ?? 'normal' }, dataConfig: { ...groups, aggregationConfig: { ...groups.aggregationConfig, stackOptions: { groupBy: groupByFor(id, schema) } } } });
         }, groups.groupBy.property),
       ], 260, 'Search properties...')} />
       {stackGb && <GroupVisibility groups={lists.stack} ro={ro} onToggle={(g) => toggleStack(lists.stack, (x) => (x.id === g.id ? !x.hidden : !!x.hidden))} onAll={(hide) => toggleStack(lists.stack, () => hide)} />}
-      <SettingsRow icon={isBar ? 'ncChartRangeH' : 'ncChartRange'} label="Range" value={rangeValue} disabled={ro} onClick={rangeEditor} />
-      <SettingsRow icon="ncChartRefLines" label="Reference lines" value={refValue} disabled={ro} onClick={refEditor} />
+      <SettingsRow icon={isBar ? 'ncChartRangeH' : 'ncChartRange'} label={tx('Range')} value={rangeValue} disabled={ro} onClick={rangeEditor} />
+      <SettingsRow icon="ncChartRefLines" label={tx('Reference lines')} value={refValue} disabled={ro} onClick={refEditor} />
     </>
   );
 
@@ -270,10 +271,10 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
   return (
     <>
       <Section>
-        <SettingsRow icon={viewIcon(view.type)} label="Layout" value="Chart" onClick={() => go('layout')} />
+        <SettingsRow icon={viewIcon(view.type)} label={tx('Layout')} value="Chart" onClick={() => go('layout')} />
       </Section>
-      <Section divider title="Chart type">
-        <div className="nc-chart-types" role="radiogroup" aria-label="Chart type">
+      <Section divider title={tx('Chart type')}>
+        <div className="nc-chart-types" role="radiogroup" aria-label={tx('Chart type')}>
           {CHART_TYPE_ORDER.map((t) => (
             <div key={t} role="radio" aria-checked={cfg.type === t} aria-label={CHART_TYPE_LABEL[t]} data-tooltip={CHART_TYPE_LABEL[t]} className={`nc-chart-type ${cfg.type === t ? 'on' : ''} ${ro ? 'disabled' : ''}`} onClick={() => !ro && cfg.type !== t && save(switchChartType(cfg, t, schema))}>
               <Icon name={CHART_TYPE_ICON[t]} size={20} />
@@ -284,69 +285,69 @@ export function ChartSettingsMain({ block, view, collection, readOnly, go }: Vie
       {cfg.type === 'number' ? (
         <>
           <Section>
-            <SettingsToggle label={<span className="nc-chart-row-label"><Icon name="ncChartTitle" size={20} />Chart title</span>} on={!fmt.hideTitle} disabled={ro} onChange={(v) => setFmt({ hideTitle: !v })} />
+            <SettingsToggle label={<span className="nc-chart-row-label"><Icon name="ncChartTitle" size={20} />{tx('Chart title')}</span>} on={!fmt.hideTitle} disabled={ro} onChange={(v) => setFmt({ hideTitle: !v })} />
             {!fmt.hideTitle && <TitleInput value={fmt.valueLabel ?? ''} placeholder={numberChartTitle(agg, schema)} disabled={ro} onChange={(v) => save({ ...cfg, chartFormat: { ...fmt, valueLabel: v || undefined } }, 'chartSettings.setChartFormat.valueLabel')} />}
           </Section>
-          <Section title="Data">
-            <SettingsRow icon="number" label="Choose what to display" value={agg.property ? schema[agg.property]?.name ?? 'None' : 'None'} disabled={ro} onClick={(e) => sub(e.currentTarget, [
-              { id: 'none', label: 'None', checked: !agg.property, onSelect: () => setAgg({ aggregator: 'count' }) },
+          <Section title={tx('Data')}>
+            <SettingsRow icon="number" label={tx('Choose what to display')} value={agg.property ? schema[agg.property]?.name ?? tx('None') : tx('None')} disabled={ro} onClick={(e) => sub(e.currentTarget, [
+              { id: 'none', label: tx('None'), checked: !agg.property, onSelect: () => setAgg({ aggregator: 'count' }) },
               ...['title', ...Object.keys(schema).filter((k) => k !== 'title')].filter((id) => schema[id] && schema[id].type !== 'button').map((id) => ({
                 id, label: schema[id].name, icon: <PropertyIcon prop={schema[id]} size={16} />, checked: agg.property === id,
                 onSelect: () => setAgg({ aggregator: aggregationsFor(schema[id])[0], property: id }),
               })),
             ], 260, 'Search properties...')} />
-            <SettingsRow icon="ncChartCalc" label="Calculate" value={!agg.property ? 'Count all' : AGG_LABEL[String(agg.aggregator)] ?? String(agg.aggregator)} chevron={!!agg.property} disabled={ro || !agg.property} onClick={(e) => agg.property && sub(e.currentTarget, aggregationsFor(schema[agg.property]).map((a) => ({ id: a, label: a === 'unique' ? 'Distinct values' : AGG_LABEL[a] ?? a, checked: agg.aggregator === a, onSelect: () => setAgg({ aggregator: a, property: agg.property }) })))} />
-            <SettingsRow icon="sliders" label="Format" value={fmt.numberFormatOverride ? NUMBER_FORMAT_LABEL[fmt.numberFormatOverride] ?? fmt.numberFormatOverride : 'Inherit'} disabled={ro} onClick={(e) => sub(e.currentTarget, [
-              { id: 'inherit', label: 'Inherit', checked: !fmt.numberFormatOverride, onSelect: () => setFmt({ numberFormatOverride: undefined }) },
+            <SettingsRow icon="ncChartCalc" label={tx('Calculate')} value={!agg.property ? 'Count all' : AGG_LABEL[String(agg.aggregator)] ?? String(agg.aggregator)} chevron={!!agg.property} disabled={ro || !agg.property} onClick={(e) => agg.property && sub(e.currentTarget, aggregationsFor(schema[agg.property]).map((a) => ({ id: a, label: a === 'unique' ? 'Distinct values' : AGG_LABEL[a] ?? a, checked: agg.aggregator === a, onSelect: () => setAgg({ aggregator: a, property: agg.property }) })))} />
+            <SettingsRow icon="sliders" label={tx('Format')} value={fmt.numberFormatOverride ? NUMBER_FORMAT_LABEL[fmt.numberFormatOverride] ?? fmt.numberFormatOverride : 'Inherit'} disabled={ro} onClick={(e) => sub(e.currentTarget, [
+              { id: 'inherit', label: tx('Inherit'), checked: !fmt.numberFormatOverride, onSelect: () => setFmt({ numberFormatOverride: undefined }) },
               {
-                id: 'format', label: 'Number format', submenu: () => ({ width: 250, search: 'Filter formats…', sections: [{ items: NUMBER_FORMATS.map((f) => ({ id: f, label: NUMBER_FORMAT_LABEL[f] ?? f, checked: fmt.numberFormatOverride === f, onSelect: () => setFmt({ numberFormatOverride: f }) })) }] }),
+                id: 'format', label: tx('Number format'), submenu: () => ({ width: 250, search: 'Filter formats…', sections: [{ items: NUMBER_FORMATS.map((f) => ({ id: f, label: NUMBER_FORMAT_LABEL[f] ?? f, checked: fmt.numberFormatOverride === f, onSelect: () => setFmt({ numberFormatOverride: f }) })) }] }),
               },
               {
-                id: 'precision', label: 'Decimal places', submenu: () => ({ width: 200, sections: [{ items: PRECISIONS.map((p) => ({ id: p.id, label: p.label, checked: (fmt.numberPrecisionOverride ?? 'precision_uncapped') === p.id, onSelect: () => setFmt({ numberPrecisionOverride: p.id }) })) }] }),
+                id: 'precision', label: tx('Decimal places'), submenu: () => ({ width: 200, sections: [{ items: PRECISIONS.map((p) => ({ id: p.id, label: p.label, checked: (fmt.numberPrecisionOverride ?? 'precision_uncapped') === p.id, onSelect: () => setFmt({ numberPrecisionOverride: p.id }) })) }] }),
               },
             ], 240)} />
           </Section>
-          <Section title="Style">
-            <SettingsRow icon="ncChartColor" label="Color" value={fmt.numberColor ? fmt.numberColor[0].toUpperCase() + fmt.numberColor.slice(1) : 'Default'} disabled={ro} onClick={(e) => sub(e.currentTarget, NUMBER_COLORS.map((c) => ({ id: c, label: c === 'default' ? 'Default' : c[0].toUpperCase() + c.slice(1), checked: (fmt.numberColor ?? 'default') === c, icon: <Swatch color={c === 'default' ? 'var(--lp-text-primary)' : c === 'gray' ? 'var(--lp-text-secondary)' : chartColorVar(c)} />, onSelect: () => setFmt({ numberColor: c === 'default' ? undefined : c }) })))} />
-            <SettingsRow icon="ncChartHeight" label="Height" value={HEIGHTS.find((h) => h.id === (fmt.height ?? 'medium'))?.label} disabled={ro} onClick={(e) => sub(e.currentTarget, HEIGHTS.map((h) => ({ id: h.id, label: h.label, checked: (fmt.height ?? 'medium') === h.id, onSelect: () => setFmt({ height: h.id }) })))} />
+          <Section title={tx('Style')}>
+            <SettingsRow icon="ncChartColor" label={tx('Color')} value={fmt.numberColor ? fmt.numberColor[0].toUpperCase() + fmt.numberColor.slice(1) : 'Default'} disabled={ro} onClick={(e) => sub(e.currentTarget, NUMBER_COLORS.map((c) => ({ id: c, label: c === 'default' ? 'Default' : c[0].toUpperCase() + c.slice(1), checked: (fmt.numberColor ?? 'default') === c, icon: <Swatch color={c === 'default' ? 'var(--lp-text-primary)' : c === 'gray' ? 'var(--lp-text-secondary)' : chartColorVar(c)} />, onSelect: () => setFmt({ numberColor: c === 'default' ? undefined : c }) })))} />
+            <SettingsRow icon="ncChartHeight" label={tx('Height')} value={HEIGHTS.find((h) => h.id === (fmt.height ?? 'medium'))?.label} disabled={ro} onClick={(e) => sub(e.currentTarget, HEIGHTS.map((h) => ({ id: h.id, label: h.label, checked: (fmt.height ?? 'medium') === h.id, onSelect: () => setFmt({ height: h.id }) })))} />
           </Section>
         </>
       ) : cfg.type === 'donut' ? (
         <>
-          <Section title="Data">
-            <SettingsRow icon="donutChart" label="Choose what to display" value={xProp?.name ?? 'None'} disabled={ro} onClick={pickX} />
-            <SettingsRow icon="ncChartSlice" label="Slice by" value={yName} disabled={ro} onClick={(e) => sub(e.currentTarget, yItems(setAgg), 260, 'Search properties...')} />
-            <SettingsRow icon="ncChartSort" label="Sort by" value={sortLabel(fmt.mainSort, xProp, yName)} disabled={ro} onClick={(e) => sub(e.currentTarget, sortItems(), 260)} />
+          <Section title={tx('Data')}>
+            <SettingsRow icon="donutChart" label={tx('Choose what to display')} value={xProp?.name ?? 'None'} disabled={ro} onClick={pickX} />
+            <SettingsRow icon="ncChartSlice" label={tx('Slice by')} value={yName} disabled={ro} onClick={(e) => sub(e.currentTarget, yItems(setAgg), 260, 'Search properties...')} />
+            <SettingsRow icon="ncChartSort" label={tx('Sort by')} value={sortLabel(fmt.mainSort, xProp, yName)} disabled={ro} onClick={(e) => sub(e.currentTarget, sortItems(), 260)} />
             {mainVisibility}
           </Section>
-          <Section title="Style">
+          <Section title={tx('Style')}>
             {colorRow()}
-            <SettingsRow icon="ncChartStyle" label="More style settings" disabled={ro} onClick={styleMenu} />
+            <SettingsRow icon="ncChartStyle" label={tx('More style settings')} disabled={ro} onClick={styleMenu} />
           </Section>
         </>
       ) : (
         <>
-          <Section title="X axis">{isBar ? valueRows : categoryRows}</Section>
-          <Section title="Y axis">{isBar ? categoryRows : valueRows}</Section>
-          <Section title="Style">
+          <Section title={tx('X axis')}>{isBar ? valueRows : categoryRows}</Section>
+          <Section title={tx('Y axis')}>{isBar ? categoryRows : valueRows}</Section>
+          <Section title={tx('Style')}>
             {colorRow()}
-            <SettingsRow icon="ncChartStyle" label="More style settings" disabled={ro} onClick={styleMenu} />
+            <SettingsRow icon="ncChartStyle" label={tx('More style settings')} disabled={ro} onClick={styleMenu} />
           </Section>
         </>
       )}
       <Section divider>
-        <SettingsRow icon="databaseEmbed" label="Database" value={collectionName(collection)} chevron={false} />
-        <SettingsRow icon="filter" label="Filter" onClick={() => go('filter')} />
-        <SettingsRow icon="archive" label="Show archived entries" chevron={false} disabled />
+        <SettingsRow icon="databaseEmbed" label={tx('Database')} value={collectionName(collection)} chevron={false} />
+        <SettingsRow icon="filter" label={tx('Filter')} onClick={() => go('filter')} />
+        <SettingsRow icon="archive" label={tx('Show archived entries')} chevron={false} disabled />
       </Section>
       <Section divider>
         {cfg.type !== 'number' && (
-          <SettingsRow icon="download" label="Store chart as…" chevron={false} onClick={() => exportChart()} />
+          <SettingsRow icon="download" label={tx('Store chart as…')} chevron={false} onClick={() => exportChart()} />
         )}
-        <SettingsRow icon="link" label="Copy link to layout" chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('Copied link to view'); }} />
+        <SettingsRow icon="link" label={tx('Copy link to layout')} chevron={false} onClick={() => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('Copied link to view'); }} />
       </Section>
       <Section divider>
-        {HELP_URL && <SettingsRow icon="questionMarkCircle" label="Explore charts" chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
+        {HELP_URL && <SettingsRow icon="questionMarkCircle" label={tx('Explore charts')} chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
       </Section>
     </>
   );
@@ -371,13 +372,13 @@ function RangeEditor({ min, max, onChange, onReset }: { min?: number; max?: numb
   };
   return (
     <div className="nc-chart-range" data-menu-keys="ignore">
-      <div className="nc-menu-section-title">Choose a custom range</div>
+      <div className="nc-menu-section-title">{tx('Choose a custom range')}</div>
       <div className="nc-chart-range-row">
-        <input className="nc-input-el" inputMode="decimal" placeholder="Min" value={lo} onChange={(e) => setLo(e.target.value)} onBlur={() => commit(lo, hi)} />
+        <input className="nc-input-el" inputMode="decimal" placeholder={tx('Min')} value={lo} onChange={(e) => setLo(e.target.value)} onBlur={() => commit(lo, hi)} />
         <span>–</span>
-        <input className="nc-input-el" inputMode="decimal" placeholder="Max" value={hi} onChange={(e) => setHi(e.target.value)} onBlur={() => commit(lo, hi)} />
+        <input className="nc-input-el" inputMode="decimal" placeholder={tx('Max')} value={hi} onChange={(e) => setHi(e.target.value)} onBlur={() => commit(lo, hi)} />
       </div>
-      <div role="button" className="nc-chart-range-reset" onClick={onReset}>Reset</div>
+      <div role="button" className="nc-chart-range-reset" onClick={onReset}>{tx('Reset')}</div>
     </div>
   );
 }
@@ -390,20 +391,20 @@ function RefLinesEditor({ lines, onChange }: { lines: ReferenceLine[]; onChange:
   };
   return (
     <div className="nc-chart-refs" data-menu-keys="ignore">
-      <div className="nc-menu-section-title">Reference lines</div>
-      {!list.length && <div className="nc-chart-refs-empty">Reference lines mark targets and thresholds on a chart.</div>}
+      <div className="nc-menu-section-title">{tx('Reference lines')}</div>
+      {!list.length && <div className="nc-chart-refs-empty">{tx('Reference lines mark targets and thresholds on a chart.')}</div>}
       {list.map((r, i) => (
         <div key={r.id} className="nc-chart-ref">
-          <input className="nc-input-el" style={{ width: 70 }} inputMode="decimal" placeholder="Value" defaultValue={String(r.value)} onBlur={(e) => { const v = Number(e.target.value); if (Number.isFinite(v)) update(list.map((x, j) => (j === i ? { ...x, value: v } : x))); }} />
-          <input className="nc-input-el" placeholder="Label" defaultValue={r.label} onBlur={(e) => update(list.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} />
-          <div role="button" className="nc-chart-ref-color" aria-label="Color" onClick={(e) => openNestedMenu(e.currentTarget, { width: 180, sections: [{ items: REF_COLORS.map((c) => ({ id: c, label: c === 'gray' ? 'Black' : c[0].toUpperCase() + c.slice(1), icon: <Swatch color={chartColorVar(c)} />, checked: r.color === c, onSelect: () => update(list.map((x, j) => (j === i ? { ...x, color: c } : x))) })) }] })}><Swatch color={chartColorVar(r.color)} /></div>
-          <div role="button" className="nc-chart-ref-style" onClick={() => update(list.map((x, j) => (j === i ? { ...x, dashStyle: x.dashStyle === 'Dash' ? 'Solid' : 'Dash' } : x)))}>{r.dashStyle === 'Dash' ? 'Dash' : 'Solid'}</div>
-          <div role="button" className="nc-chart-ref-del" aria-label="Delete" onClick={() => update(list.filter((_, j) => j !== i))}><Icon name="trash" size={14} /></div>
+          <input className="nc-input-el" style={{ width: 70 }} inputMode="decimal" placeholder={tx('Value')} defaultValue={String(r.value)} onBlur={(e) => { const v = Number(e.target.value); if (Number.isFinite(v)) update(list.map((x, j) => (j === i ? { ...x, value: v } : x))); }} />
+          <input className="nc-input-el" placeholder={tx('Label')} defaultValue={r.label} onBlur={(e) => update(list.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} />
+          <div role="button" className="nc-chart-ref-color" aria-label={tx('Color')} onClick={(e) => openNestedMenu(e.currentTarget, { width: 180, sections: [{ items: REF_COLORS.map((c) => ({ id: c, label: c === 'gray' ? 'Black' : c[0].toUpperCase() + c.slice(1), icon: <Swatch color={chartColorVar(c)} />, checked: r.color === c, onSelect: () => update(list.map((x, j) => (j === i ? { ...x, color: c } : x))) })) }] })}><Swatch color={chartColorVar(r.color)} /></div>
+          <div role="button" className="nc-chart-ref-style" onClick={() => update(list.map((x, j) => (j === i ? { ...x, dashStyle: x.dashStyle === 'Dash' ? 'Solid' : 'Dash' } : x)))}>{r.dashStyle === 'Dash' ? tx('Dash') : tx('Solid')}</div>
+          <div role="button" className="nc-chart-ref-del" aria-label={tx('Delete')} onClick={() => update(list.filter((_, j) => j !== i))}><Icon name="trash" size={14} /></div>
         </div>
       ))}
       {list.length < 10 ? (
-        <div role="button" className="nc-chart-ref-add" onClick={() => update([...list, { id: crypto.randomUUID(), value: 0, label: '', color: 'gray', dashStyle: 'Dash' }])}><Icon name="plus" size={14} />Create a reference line</div>
-      ) : <div className="nc-chart-refs-empty">This chart allows up to 10 reference lines</div>}
+        <div role="button" className="nc-chart-ref-add" onClick={() => update([...list, { id: crypto.randomUUID(), value: 0, label: '', color: 'gray', dashStyle: 'Dash' }])}><Icon name="plus" size={14} />{tx('Create a reference line')}</div>
+      ) : <div className="nc-chart-refs-empty">{tx('This chart allows up to 10 reference lines')}</div>}
     </div>
   );
 }

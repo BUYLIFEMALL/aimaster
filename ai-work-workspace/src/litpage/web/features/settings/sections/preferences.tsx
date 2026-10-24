@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react';
 import { openMenu } from '../../../components/Menu.tsx';
 import { Icon } from '../../../components/Icon.tsx';
 import { useUI, type Theme } from '../../../lib/store/ui.ts';
-import { t, getLocale } from '../../shell/i18n.ts';
+import { t, getLocale, tx } from '../../shell/i18n.ts';
 import { Badge, Button, Dropdown, Group, Row, SectionPage, Switch, msg, rich, openSubDialog, type Option } from '../ui.tsx';
 import {
   applyContrast, prefValue, saveLocale, savePref, savePrefs, savePreferredTheme, usePrefs, viewHistoryAllowed, type Contrast, type DateFormat, type NumberFormat,
@@ -150,14 +150,14 @@ export function PreferencesSection() {
           id="theme"
           label={t('lp.settings.theme', 'Theme')}
           description={t('lp.settings.set_litpage_s_appearance_for_this', 'Set Workspace’s appearance for this device')}
-          control={<Dropdown label="Theme" value={theme} options={themeOpts} onChange={(v) => savePreferredTheme(v)} />}
+          control={<Dropdown label={tx('Theme')} value={theme} options={themeOpts} onChange={(v) => savePreferredTheme(v)} />}
         />
         <Row
           id="contrast"
           label={t('lp.settings.high_contrast', 'High contrast')}
           badge={<Badge tone="gray">{t('lp.settings.beta', 'Beta')}</Badge>}
           description={t('lp.settings.boost_contrast_for_easier_reading', 'Boost contrast for easier reading')}
-          control={<Dropdown label="High contrast" value={prefValue(prefs, 'high_contrast')} options={contrastOpts} onChange={(v) => { savePref('high_contrast', v); applyContrast(v); }} />}
+          control={<Dropdown label={tx('High contrast')} value={prefValue(prefs, 'high_contrast')} options={contrastOpts} onChange={(v) => { savePref('high_contrast', v); applyContrast(v); }} />}
         />
       </Group>
 
@@ -166,7 +166,7 @@ export function PreferencesSection() {
           id="enter"
           label={t('lp.settings.enter_key_inserts_a_line_break', 'Enter key inserts a line break')}
           description={rich(msg('lp.settings.in_chat_comments_and_similar_text', 'In chat, comments, and similar text boxes, <bold>Cmd</bold>/<bold>Ctrl</bold> + <bold>Enter</bold> sends your message.'), {}, { bold: (c) => <strong>{c}</strong> })}
-          control={<Switch label="Press Enter for a new line" checked={prefValue(prefs, 'enter_new_line')} onChange={(v) => savePref('enter_new_line', v)} />}
+          control={<Switch label={tx('Press Enter for a new line')} checked={prefValue(prefs, 'enter_new_line')} onChange={(v) => savePref('enter_new_line', v)} />}
         />
       </Group>
 
@@ -177,7 +177,7 @@ export function PreferencesSection() {
           description={t('lp.settings.select_the_language_for_litpage', 'Select the language for Workspace')}
           control={
             <Dropdown
-              label="Language"
+              label={tx('Language')}
               value={curLang.id}
               options={langOpts}
               width={260}
@@ -191,31 +191,31 @@ export function PreferencesSection() {
           id="number-format"
           label={t('lp.settings.number_format', 'Number format')}
           description={t('lp.settings.choose_number_and_currency_formats_by', 'Choose number and currency formats. By default, Workspace follows your language.')}
-          control={<Dropdown label="Number format" value={prefValue(prefs, 'number_format')} options={numberOpts} onChange={(v) => savePref('number_format', v)} />}
+          control={<Dropdown label={tx('Number format')} value={prefValue(prefs, 'number_format')} options={numberOpts} onChange={(v) => savePref('number_format', v)} />}
         />
         <Row
           id="text-direction"
           label={t('lp.settings.keep_text_direction_controls_visible', 'Keep text direction controls visible')}
           description={t('lp.settings.let_the_editor_offer_left_to', 'Let the editor offer left-to-right or right-to-left text direction, whatever your language')}
-          control={<Switch label="Keep direction controls visible" checked={prefValue(prefs, 'text_direction_controls')} onChange={(v) => savePref('text_direction_controls', v)} />}
+          control={<Switch label={tx('Keep direction controls visible')} checked={prefValue(prefs, 'text_direction_controls')} onChange={(v) => savePref('text_direction_controls', v)} />}
         />
         <Row
           id="week-start"
           label={t('lp.settings.begin_weeks_on_monday', 'Begin weeks on Monday')}
           description={t('lp.settings.this_changes_how_calendars_are_shown', 'This changes how calendars are shown in Workspace')}
-          control={<Switch label="Begin weeks on Monday" checked={prefValue(prefs, 'start_day_of_week') === 1} onChange={(v) => savePref('start_day_of_week', v ? 1 : 0)} />}
+          control={<Switch label={tx('Begin weeks on Monday')} checked={prefValue(prefs, 'start_day_of_week') === 1} onChange={(v) => savePref('start_day_of_week', v ? 1 : 0)} />}
         />
         <Row
           id="date-format"
           label={t('lp.settings.date_format', 'Date format')}
           description={t('lp.settings.choose_how_new_date_mentions_are', 'Choose how new @date mentions are formatted by default')}
-          control={<Dropdown label="Date format" value={prefValue(prefs, 'date_format')} options={dateOpts} onChange={(v) => savePref('date_format', v)} />}
+          control={<Dropdown label={tx('Date format')} value={prefValue(prefs, 'date_format')} options={dateOpts} onChange={(v) => savePref('date_format', v)} />}
         />
         <Row
           id="tz-auto"
           label={t('lp.settings.set_the_time_zone_from_your', 'Set the time zone from your location automatically')}
           description={t('lp.settings.reminders_notifications_and_emails_use_y', 'Reminders, notifications, and emails use your time zone')}
-          control={<Switch label="Set time zone automatically" checked={tzAuto} onChange={(v) => { savePref('time_zone_auto', v); if (!v && !prefs.time_zone) savePref('time_zone', deviceTz); }} />}
+          control={<Switch label={tx('Set time zone automatically')} checked={tzAuto} onChange={(v) => { savePref('time_zone_auto', v); if (!v && !prefs.time_zone) savePref('time_zone', deviceTz); }} />}
         />
         <Row
           id="time-zone"
@@ -234,7 +234,7 @@ export function PreferencesSection() {
             { platform: /Mac/.test(navigator.platform) ? 'macOS' : 'Windows' },
             { desktopAppLink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c },
           )}
-          control={<Switch label="Open links in the desktop app" checked={prefValue(prefs, 'open_links_desktop')} onChange={(v) => savePref('open_links_desktop', v)} />}
+          control={<Switch label={tx('Open links in the desktop app')} checked={prefValue(prefs, 'open_links_desktop')} onChange={(v) => savePref('open_links_desktop', v)} />}
         />
         <Row
           id="desktop-browser"
@@ -250,7 +250,7 @@ export function PreferencesSection() {
           id="start-page"
           label={t('lp.settings.open_at_startup', 'Open at startup')}
           description={t('lp.settings.choose_the_page_that_opens_when', 'Choose the page that opens when Workspace starts or you change workspaces')}
-          control={<Dropdown label="Launch on startup" value={prefValue(prefs, 'start_page')} options={startOpts} onChange={(v) => savePref('start_page', v)} />}
+          control={<Dropdown label={tx('Launch on startup')} value={prefValue(prefs, 'start_page')} options={startOpts} onChange={(v) => savePref('start_page', v)} />}
         />
       </Group>
 
@@ -274,7 +274,7 @@ export function PreferencesSection() {
           description={rich(msg('lp.settings.your_page_views_are_visible_to', 'Your page views are visible to people who have edit or full access. <inlinelink>Learn more</inlinelink>'), {}, {
             inlinelink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
           })}
-          control={<Switch label="Show my page history" checked={viewHistoryAllowed(prefs)} onChange={(v) => savePrefs({ page_view_history: v ? 'allow' : 'deny', view_history: v })} />}
+          control={<Switch label={tx('Show my page history')} checked={viewHistoryAllowed(prefs)} onChange={(v) => savePrefs({ page_view_history: v ? 'allow' : 'deny', view_history: v })} />}
         />
         <Row
           id="discoverability"
@@ -282,7 +282,7 @@ export function PreferencesSection() {
           description={rich(msg('lp.settings.when_someone_who_knows_your_email', 'When someone who knows your email invites you to a workspace, they’ll see your Workspace name and profile photo. <inlinelink>Learn more</inlinelink>'), {}, {
             inlinelink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
           })}
-          control={<Switch label="Profile discoverability" checked={prefValue(prefs, 'profile_discoverable')} onChange={(v) => savePref('profile_discoverable', v)} />}
+          control={<Switch label={tx('Profile discoverability')} checked={prefValue(prefs, 'profile_discoverable')} onChange={(v) => savePref('profile_discoverable', v)} />}
         />
       </Group>
     </SectionPage>

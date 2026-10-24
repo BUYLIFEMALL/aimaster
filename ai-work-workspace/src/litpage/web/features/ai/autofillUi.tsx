@@ -16,6 +16,7 @@ import { collectionRows, makeQueryContext } from '../database/data.ts';
 import { NO_KEY_MESSAGE, useAiStatus } from './aiApi.ts';
 import { runAutofillAll, type AutofillKind } from './autofill.ts';
 import { LANGUAGES } from './skills.ts';
+import { tx } from '../shell/i18n.ts';
 
 export interface AutofillConfig {
   kind: AutofillKind;
@@ -33,10 +34,10 @@ export function autofillConfigOf(prop: PropertySchema | undefined): AutofillConf
 }
 
 const KINDS: { id: AutofillKind; label: string; icon: string; hint: string }[] = [
-  { id: 'summary', label: 'Summary', icon: 'textJustifyLeft', hint: 'A short summary of each page' },
-  { id: 'keywords', label: 'Key info', icon: 'checklist', hint: 'Extract key information from each page' },
-  { id: 'translation', label: 'Translate', icon: 'translate', hint: 'Translate each page’s title and content' },
-  { id: 'custom', label: 'Custom autofill', icon: 'aiFace', hint: 'Fill the property with your own instructions' },
+  { id: 'summary', label: tx('Summary'), icon: 'textJustifyLeft', hint: tx('A short summary of each page') },
+  { id: 'keywords', label: tx('Key info'), icon: 'checklist', hint: tx('Extract key information from each page') },
+  { id: 'translation', label: tx('Translate'), icon: 'translate', hint: tx('Translate each page’s title and content') },
+  { id: 'custom', label: tx('Custom autofill'), icon: 'aiFace', hint: tx('Fill the property with your own instructions') },
 ];
 
 const col = (id: string) => records.get<CollectionRecord>('collection', id);
@@ -101,11 +102,11 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
     <div className="nc-ai-autofill" data-testid="ai-autofill-config">
       <div className="nc-ai-autofill-head">
         <Icon name="magicWandSparkle" size={16} />
-        <span className="nc-ai-autofill-title">AI Autofill</span>
+        <span className="nc-ai-autofill-title">{tx('AI Autofill')}</span>
         <span className="nc-ai-autofill-prop nc-ellipsis">{prop.name}</span>
       </div>
-      <div className="nc-ai-autofill-caption">Uses a fast model to fill properties based on info in the current row.</div>
-      <div className="nc-ai-autofill-kinds" role="radiogroup" aria-label="Autofill type">
+      <div className="nc-ai-autofill-caption">{tx('Uses a fast model to fill properties based on info in the current row.')}</div>
+      <div className="nc-ai-autofill-kinds" role="radiogroup" aria-label={tx('Autofill type')}>
         {kinds.map((k) => (
           <div key={k.id} role="radio" aria-checked={kind === k.id} tabIndex={0} className={`nc-ai-autofill-kind ${kind === k.id ? 'active' : ''}`} onClick={() => setKind(k.id)} data-tooltip={k.hint}>
             <Icon name={k.icon} size={14} />
@@ -115,24 +116,24 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
       </div>
       {kind === 'translation' && (
         <label className="nc-ai-field">
-          <span>Language</span>
-          <select value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="Language">
+          <span>{tx('Language')}</span>
+          <select value={language} onChange={(e) => setLanguage(e.target.value)} aria-label={tx('Language')}>
             {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
           </select>
         </label>
       )}
       <label className="nc-ai-field">
-        <span>{kind === 'custom' ? 'Instructions' : 'Additional instructions (optional)'}</span>
+        <span>{kind === 'custom' ? tx('Instructions') : tx('Additional instructions (optional)')}</span>
         <textarea
           value={prompt}
           rows={3}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder={kind === 'custom' ? 'Describe what to generate. Use ‘@’ for people, pages, or dates' : 'e.g. Keep it under 20 words'}
-          aria-label="Instructions"
+          aria-label={tx('Instructions')}
         />
       </label>
-      <div className="nc-ai-autofill-toggle" role="switch" aria-checked={auto} tabIndex={0} onClick={() => setAuto(!auto)} data-tooltip="The agent fills this property whenever the page changes">
-        <span>When the page changes</span>
+      <div className="nc-ai-autofill-toggle" role="switch" aria-checked={auto} tabIndex={0} onClick={() => setAuto(!auto)} data-tooltip={tx('The agent fills this property whenever the page changes')}>
+        <span>{tx('When the page changes')}</span>
         <span className={`nc-ai-switch ${auto ? 'on' : ''}`} aria-hidden><span /></span>
       </div>
       <div className="nc-ai-autofill-actions">
@@ -142,8 +143,8 @@ function ConfigBody({ collectionId, propId, view, close }: { collectionId: strin
           </button>
         )}
         <span style={{ flex: 1 }} />
-        <button type="button" className="nc-btn outline" onClick={() => save(false)}>Save changes</button>
-        <button type="button" className="nc-btn primary" onClick={() => save(true)}>Run autofill</button>
+        <button type="button" className="nc-btn outline" onClick={() => save(false)}>{tx('Save changes')}</button>
+        <button type="button" className="nc-btn primary" onClick={() => save(true)}>{tx('Run autofill')}</button>
       </div>
     </div>
   );
@@ -164,13 +165,13 @@ export function autofillMenuItems(collectionId: string, propId: string, view?: C
   const ok = !!prop && AUTOFILL_TYPES.has(prop.type);
   const cfg = autofillConfigOf(prop);
   const items: MenuItemDef[] = [{
-    id: 'basic', label: 'Basic', icon: 'magicWand',
+    id: 'basic', label: tx('Basic'), icon: 'magicWand',
     description: ok ? 'Uses a fast model to fill properties based on info in the current row.' : 'Unavailable for this property type',
     disabled: !ok,
-    right: cfg ? <span className="nc-menu-value">On</span> : undefined,
+    right: cfg ? <span className="nc-menu-value">{tx('On')}</span> : undefined,
     onSelect: () => { if (ok) setTimeout(() => openAutofillConfig(anchor ?? { x: window.innerWidth / 2 - 180, y: 120 }, collectionId, propId, view), 0); },
   }];
-  if (cfg) items.push({ id: 'run', label: 'Run autofill', icon: 'refresh', onSelect: () => { void runAutofillNow(collectionId, propId, view); } });
+  if (cfg) items.push({ id: 'run', label: tx('Run autofill'), icon: 'refresh', onSelect: () => { void runAutofillNow(collectionId, propId, view); } });
   return items;
 }
 
@@ -179,7 +180,7 @@ export function createAutofillProperty(collectionId: string, preset: 'sum' | 'tr
   const c = col(collectionId);
   if (!c) return '';
   const cfg: AutofillConfig = preset === 'sum'
-    ? { kind: 'summary', auto_update: true, prompt: option === 'Bullets' ? 'Write the summary as 3 short bullet points.' : option === 'One-liner' ? 'Write a one-line summary.' : 'Write the summary as one short paragraph.' }
+    ? { kind: 'summary', auto_update: true, prompt: option === 'Bullets' ? 'Write the summary as 3 short bullet points.' : option === 'One-liner' ? 'Write a one-line summary.' : 'Write the summary as one short paragraph.'}
     : { kind: 'translation', auto_update: true, language: option === 'Chinese Simplified' ? 'Chinese, Simplified' : option === 'Chinese Traditional' ? 'Chinese, Traditional' : option };
   const name = preset === 'sum' ? 'Summary' : `Translation (${option})`;
   const pid = addProperty(collectionId, 'text' as PropertyType, { name, view: view ?? undefined, ...pos, extra: { ai_autofill: cfg } as Partial<PropertySchema>, action: 'aiAutofill.create' });
@@ -200,19 +201,19 @@ export function openToolbarAutofillMenu(anchor: HTMLElement, collectionId: strin
     submenu: () => ({
       width: 260,
       sections: [{ items: [
-        { label: 'Run across every page in this view', icon: 'refresh', onSelect: () => { void runAutofillNow(collectionId, pid, view); } },
-        { label: 'Run only on empty pages in this view', icon: 'refresh', onSelect: () => { void runAutofillNow(collectionId, pid, view, { onlyEmpty: true }); } },
-        { label: 'Edit autofill', icon: 'sliders', onSelect: () => setTimeout(() => openAutofillConfig(anchor, collectionId, pid, view), 0) },
+        { label: tx('Run across every page in this view'), icon: 'refresh', onSelect: () => { void runAutofillNow(collectionId, pid, view); } },
+        { label: tx('Run only on empty pages in this view'), icon: 'refresh', onSelect: () => { void runAutofillNow(collectionId, pid, view, { onlyEmpty: true }); } },
+        { label: tx('Edit autofill'), icon: 'sliders', onSelect: () => setTimeout(() => openAutofillConfig(anchor, collectionId, pid, view), 0) },
       ] }],
     }),
   }));
   openMenu(anchor, {
     width: 300,
     sections: [
-      ...(items.length ? [{ title: 'AI Autofill', items }] : [{ title: 'AI Autofill', items: [{ id: 'none', label: 'Fill properties automatically from each page', disabled: true, description: 'AI Autofill fills properties using information in the row.' } as MenuItemDef] }]),
+      ...(items.length ? [{ title: tx('AI Autofill'), items }] : [{ title: tx('AI Autofill'), items: [{ id: 'none', label: tx('Fill properties automatically from each page'), disabled: true, description: tx('AI Autofill fills properties using information in the row.') } as MenuItemDef] }]),
       { items: [
-        { id: 'new', label: 'New AI autofill', icon: 'plus', onSelect: () => { createAutofillProperty(collectionId, 'sum', 'Paragraph', view); } },
-        { id: 'agent', label: 'Custom Agent', icon: 'aiFace', badge: 'New', description: 'Uses advanced models, web search, and your connected workspace to fill properties.', disabled: true },
+        { id: 'new', label: tx('New AI autofill'), icon: 'plus', onSelect: () => { createAutofillProperty(collectionId, 'sum', 'Paragraph', view); } },
+        { id: 'agent', label: tx('Custom Agent'), icon: 'aiFace', badge: 'New', description: tx('Uses advanced models, web search, and your connected workspace to fill properties.'), disabled: true },
       ] },
     ],
   }, { placement: 'bottom-end' });

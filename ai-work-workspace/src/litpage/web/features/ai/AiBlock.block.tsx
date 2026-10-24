@@ -22,6 +22,7 @@ import { setChildrenFromMarkdown } from './insert.ts';
 import { NoKeyNotice } from './NoKeyNotice.tsx';
 import './mount.tsx';
 import './ai.css';
+import { tx } from '../shell/i18n.ts';
 
 type Output = 'custom' | 'page_summary' | 'key_points' | 'action_items';
 
@@ -33,16 +34,16 @@ function titleOf(id: string): string {
 type Sources = 'page' | 'specified' | 'search';
 
 const OUTPUTS: { id: Output; label: string; placeholder: string; icon: string }[] = [
-  { id: 'custom', label: 'Custom output', placeholder: 'Describe what to generate. Use ‘@’ for people, pages, or dates', icon: 'pencil' },
-  { id: 'page_summary', label: 'Page summary', placeholder: 'Give me a brief of this page', icon: 'textJustifyLeft' },
-  { id: 'key_points', label: 'Key points', placeholder: 'Pull out the main points from this page', icon: 'listBullet' },
-  { id: 'action_items', label: 'Action items', placeholder: 'Surface action items on this page', icon: 'checklist' },
+  { id: 'custom', label: tx('Custom output'), placeholder: tx('Describe what to generate. Use ‘@’ for people, pages, or dates'), icon: 'pencil' },
+  { id: 'page_summary', label: tx('Page summary'), placeholder: tx('Give me a brief of this page'), icon: 'textJustifyLeft' },
+  { id: 'key_points', label: tx('Key points'), placeholder: tx('Pull out the main points from this page'), icon: 'listBullet' },
+  { id: 'action_items', label: tx('Action items'), placeholder: tx('Surface action items on this page'), icon: 'checklist' },
 ];
 
 const SOURCES: { id: Sources; label: string; icon: string }[] = [
-  { id: 'page', label: 'Current page', icon: 'page' },
-  { id: 'specified', label: 'Specific pages', icon: 'pageLink' },
-  { id: 'search', label: 'Current page and workspace', icon: 'magnifyingGlass' },
+  { id: 'page', label: tx('Current page'), icon: 'page' },
+  { id: 'specified', label: tx('Specific pages'), icon: 'pageLink' },
+  { id: 'search', label: tx('Current page and workspace'), icon: 'magnifyingGlass' },
 ];
 
 interface GenState {
@@ -160,8 +161,8 @@ function AiBlockConfig({ block, close }: { block: BlockRecord; close: () => void
   return (
     <PopoverSurface width={480}>
       <div className="nc-ai-block-config" onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); generate(); } }}>
-        <div className="nc-ai-block-config-title">Generate</div>
-        <div className="nc-ai-block-config-label">Choose an output format</div>
+        <div className="nc-ai-block-config-title">{tx('Generate')}</div>
+        <div className="nc-ai-block-config-label">{tx('Choose an output format')}</div>
         <div className="nc-ai-block-types" role="radiogroup">
           {OUTPUTS.map((o) => (
             <div key={o.id} role="radio" aria-checked={o.id === output} className={`nc-ai-block-type ${o.id === output ? 'active' : ''}`} onClick={() => setOutput(o.id)}>
@@ -179,7 +180,7 @@ function AiBlockConfig({ block, close }: { block: BlockRecord; close: () => void
           onChange={(e) => setPrompt(e.target.value)}
         />
         <div className="nc-ai-block-context">
-          <span className="nc-ai-block-context-title">Based on information from</span>
+          <span className="nc-ai-block-context-title">{tx('Based on information from')}</span>
           <span
             role="button"
             className="nc-ai-block-context-chip"
@@ -195,16 +196,16 @@ function AiBlockConfig({ block, close }: { block: BlockRecord; close: () => void
             {mentions.map((id) => (
               <span key={id} className="nc-ai-block-context-chip" data-testid="ai-block-ref">
                 <Icon name="page" size={14} /> {titleOf(id)}
-                <span role="button" aria-label="Remove page" className="nc-ai-context-chip-x" onClick={() => setMentions((m) => m.filter((x) => x !== id))}><Icon name="close" size={10} /></span>
+                <span role="button" aria-label={tx('Remove page')} className="nc-ai-context-chip-x" onClick={() => setMentions((m) => m.filter((x) => x !== id))}><Icon name="close" size={10} /></span>
               </span>
             ))}
-            <span role="button" className="nc-ai-block-context-chip ghost" onClick={(e) => addPage(e.currentTarget)}><Icon name="plus" size={12} /> Add page</span>
+            <span role="button" className="nc-ai-block-context-chip ghost" onClick={(e) => addPage(e.currentTarget)}><Icon name="plus" size={12} /> {tx('Add page')}</span>
           </div>
         )}
         {configured === false && <NoKeyNotice compact />}
         <div className="nc-ai-block-config-actions">
-          <button className="nc-btn" onClick={close}>Cancel</button>
-          <button className="nc-btn primary" disabled={!canGenerate} onClick={generate}>Generate</button>
+          <button className="nc-btn" onClick={close}>{tx('Cancel')}</button>
+          <button className="nc-btn primary" disabled={!canGenerate} onClick={generate}>{tx('Generate')}</button>
         </div>
       </div>
     </PopoverSurface>
@@ -241,15 +242,15 @@ function AiBlock({ block, depth, readOnly }: BlockProps) {
   const toolbar = !readOnly && (
     <div className="nc-ai-block-toolbar" contentEditable={false}>
       {gen.running ? (
-        <div role="button" className="nc-ai-block-tool" data-tooltip="Stop" onClick={() => gen.abort?.abort()}>
+        <div role="button" className="nc-ai-block-tool" data-tooltip={tx('Stop')} onClick={() => gen.abort?.abort()}>
           <span className="nc-ai-stop-square small" />
         </div>
       ) : (
-        <div role="button" aria-label="Generate" className="nc-ai-block-tool" data-tooltip="Generate" onClick={() => void generateAiBlock(block)}>
+        <div role="button" aria-label={tx('Generate')} className="nc-ai-block-tool" data-tooltip={tx('Generate')} onClick={() => void generateAiBlock(block)}>
           <Icon name="refresh" size={16} />
         </div>
       )}
-      <div role="button" aria-label="Settings" className="nc-ai-block-tool" data-tooltip="Settings" onClick={(e) => openConfig(block, e.currentTarget)}>
+      <div role="button" aria-label={tx('Settings')} className="nc-ai-block-tool" data-tooltip={tx('Settings')} onClick={(e) => openConfig(block, e.currentTarget)}>
         <Icon name="sliders" size={16} />
       </div>
     </div>
@@ -262,7 +263,7 @@ function AiBlock({ block, depth, readOnly }: BlockProps) {
         {gen.running ? (
           <div className="nc-ai-block-stream" aria-busy="true">
             {gen.text.trim() ? <AiMarkdown text={gen.text} streaming /> : (
-              <div className="nc-ai-step"><span className="nc-ai-step-dot" /><span className="nc-ai-shimmer">Generating...</span></div>
+              <div className="nc-ai-step"><span className="nc-ai-step-dot" /><span className="nc-ai-shimmer">{tx('Generating...')}</span></div>
             )}
           </div>
         ) : hasContent ? (
@@ -276,7 +277,7 @@ function AiBlock({ block, depth, readOnly }: BlockProps) {
             <span className="nc-ai-block-empty-icon"><FaceGlyph size={18} /></span>
             <span>{fmt.ai_prompt ? String(fmt.ai_prompt) : 'Generated content will appear here. Click to configure.'}</span>
             {!readOnly && !!fmt.ai_prompt && (
-              <span role="button" className="nc-ai-block-generate" onClick={(e) => { e.stopPropagation(); void generateAiBlock(block); }}>Generate</span>
+              <span role="button" className="nc-ai-block-generate" onClick={(e) => { e.stopPropagation(); void generateAiBlock(block); }}>{tx('Generate')}</span>
             )}
           </div>
         )}

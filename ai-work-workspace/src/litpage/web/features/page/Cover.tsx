@@ -10,7 +10,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { run, setFormat } from '../../lib/blocks.ts';
 import { uploadFile } from '../../lib/api.ts';
 import { useSession } from '../../lib/store/session.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { AiImageTab, aiImageTabs } from '../aiImage/AiImageTab.tsx';
 import { TRIM_MEDIA_TABS } from '../shell/trimPolicy.ts';
 import { AiImageStudioLink } from '../editor/blocks/media/MediaPicker.tsx';
@@ -23,31 +23,31 @@ export const GALLERY: { title: string; items: { url: string; title: string }[] }
   {
     title: t('lp.page.color_gradient', 'Color & Gradient'),
     items: [
-      { url: c('solid-red'), title: 'Red' }, { url: c('solid-yellow'), title: 'Yellow' }, { url: c('solid-blue'), title: 'Blue' }, { url: c('solid-beige'), title: 'Beige' },
-      { url: c('gradient-8'), title: 'Gradient 8' }, { url: c('gradient-4'), title: 'Gradient 4' }, { url: c('gradient-2'), title: 'Gradient 2' }, { url: c('gradient-11'), title: 'Gradient 11' },
-      { url: c('gradient-10'), title: 'Gradient 10' }, { url: c('gradient-5'), title: 'Gradient 5' }, { url: c('gradient-3'), title: 'Gradient 3' },
+      { url: c('solid-red'), title: tx('Red') }, { url: c('solid-yellow'), title: tx('Yellow') }, { url: c('solid-blue'), title: tx('Blue') }, { url: c('solid-beige'), title: tx('Beige') },
+      { url: c('gradient-8'), title: tx('Gradient 8') }, { url: c('gradient-4'), title: tx('Gradient 4') }, { url: c('gradient-2'), title: tx('Gradient 2') }, { url: c('gradient-11'), title: tx('Gradient 11') },
+      { url: c('gradient-10'), title: tx('Gradient 10') }, { url: c('gradient-5'), title: tx('Gradient 5') }, { url: c('gradient-3'), title: tx('Gradient 3') },
     ],
   },
   {
-    title: 'Textures',
+    title: tx('Textures'),
     items: [
-      { url: c('texture-frosted-glass'), title: 'Frosted glass' }, { url: c('texture-painted-metal'), title: 'Painted metal' }, { url: c('texture-old-paint'), title: 'Old paint' },
-      { url: c('texture-paint'), title: 'Paint canvas' }, { url: c('texture-rusted-metal'), title: 'Rusted metal' }, { url: c('texture-aged-copper'), title: 'Aged copper' },
-      { url: c('texture-ice'), title: 'Ice' }, { url: c('texture-concrete'), title: 'Concrete' }, { url: c('texture-painted-wood'), title: 'Painted wood' },
-      { url: c('texture-vintage-paper'), title: 'Vintage paper' },
+      { url: c('texture-frosted-glass'), title: tx('Frosted glass') }, { url: c('texture-painted-metal'), title: tx('Painted metal') }, { url: c('texture-old-paint'), title: tx('Old paint') },
+      { url: c('texture-paint'), title: tx('Paint canvas') }, { url: c('texture-rusted-metal'), title: tx('Rusted metal') }, { url: c('texture-aged-copper'), title: tx('Aged copper') },
+      { url: c('texture-ice'), title: tx('Ice') }, { url: c('texture-concrete'), title: tx('Concrete') }, { url: c('texture-painted-wood'), title: tx('Painted wood') },
+      { url: c('texture-vintage-paper'), title: tx('Vintage paper') },
     ],
   },
   {
-    title: 'Cosmos',
+    title: tx('Cosmos'),
     items: [
-      { url: c('cosmos-cliffs'), title: 'Nebula' }, { url: c('cosmos-deep-field'), title: 'Deep field' }, { url: c('cosmos-ring'), title: 'Ring nebula' }, { url: c('cosmos-quintet'), title: 'Galaxy cluster' },
+      { url: c('cosmos-cliffs'), title: tx('Nebula') }, { url: c('cosmos-deep-field'), title: tx('Deep field') }, { url: c('cosmos-ring'), title: tx('Ring nebula') }, { url: c('cosmos-quintet'), title: tx('Galaxy cluster') },
     ],
   },
   {
-    title: 'Patterns',
+    title: tx('Patterns'),
     items: [
-      { url: c('pattern-dots'), title: 'Dots' }, { url: c('pattern-stripes'), title: 'Stripes' }, { url: c('pattern-grid'), title: 'Grid' },
-      { url: c('pattern-waves'), title: 'Waves' }, { url: c('pattern-checker'), title: 'Checker' }, { url: c('pattern-triangles'), title: 'Triangles' },
+      { url: c('pattern-dots'), title: tx('Dots') }, { url: c('pattern-stripes'), title: tx('Stripes') }, { url: c('pattern-grid'), title: tx('Grid') },
+      { url: c('pattern-waves'), title: tx('Waves') }, { url: c('pattern-checker'), title: tx('Checker') }, { url: c('pattern-triangles'), title: tx('Triangles') },
     ],
   },
 ];
@@ -303,7 +303,7 @@ function UnsplashTab({ onPick }: { onPick: (url: string) => void }) {
     return () => clearTimeout(h);
   }, [q, key]);
   if (!key) {
-    return <div className="nc-unsplash-note">Unsplash search needs an API access key.<br />Set <code>VITE_UNSPLASH_ACCESS_KEY</code> to enable it — or pick from the Gallery, upload a file, or paste a link.</div>;
+    return <div className="nc-unsplash-note">{tx('Unsplash search needs an API access key.')}<br />Set <code>{tx('VITE_UNSPLASH_ACCESS_KEY')}</code> to enable it — or pick from the Gallery, upload a file, or paste a link.</div>;
   }
   return (
     <div>

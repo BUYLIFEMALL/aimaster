@@ -23,6 +23,7 @@ import { useCollectionAccess } from '../access.ts';
 import { openNestedMenu } from '../menus.ts';
 import { PropertyIcon } from '../properties/PropertyCell.tsx';
 import './permissions.css';
+import { tx } from '../../shell/i18n.ts';
 
 type Group = { id: string; name: string; member_ids?: string[] };
 
@@ -94,7 +95,7 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
       width: 300,
       sections: [
         { items: options.map((r) => ({ id: r.id, label: r.label, description: r.description, checked: o.role === r.id, onSelect: () => setDraft({ ...draft, overrides: overrides.map((x) => (sameOverride(x, o) ? { ...x, role: r.id } : x)) }) })) },
-        { items: [{ id: 'remove', label: 'Remove exception', icon: 'trash', onSelect: () => setDraft({ ...draft, overrides: overrides.filter((x) => !sameOverride(x, o)) }) }] },
+        { items: [{ id: 'remove', label: tx('Remove exception'), icon: 'trash', onSelect: () => setDraft({ ...draft, overrides: overrides.filter((x) => !sameOverride(x, o)) }) }] },
       ],
     }, { placement: 'bottom-end' });
   };
@@ -115,10 +116,10 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
       return { id: `p:${o.property_info?.property_id}`, label: p ? p.name : 'Page creator', icon: p ? <PropertyIcon prop={p} size={16} /> : 'personCircle', onSelect: () => add(o) };
     });
     const sections: MenuSectionDef[] = [];
-    if (userItems.length) sections.push({ title: 'People', items: userItems });
-    if (groupItems.length) sections.push({ title: 'Groups', items: groupItems });
-    if (dynItems.length) sections.push({ title: 'From this table', items: dynItems });
-    if (!sections.length) sections.push({ items: [{ id: 'none', label: 'No people, groups, or fields to create.', disabled: true }] });
+    if (userItems.length) sections.push({ title: tx('People'), items: userItems });
+    if (groupItems.length) sections.push({ title: tx('Groups'), items: groupItems });
+    if (dynItems.length) sections.push({ title: tx('From this table'), items: dynItems });
+    if (!sections.length) sections.push({ items: [{ id: 'none', label: tx('No people, groups, or fields to create.'), disabled: true }] });
     openNestedMenu(anchor, { width: 300, search: 'Search people or groups', sections }, { placement: 'bottom-start' });
   };
 
@@ -130,7 +131,7 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
   };
   const cancel = async () => {
     if (dirty && canManage) {
-      const ok = await confirmDialog({ message: 'Discard changes?', description: 'You have unsaved changes to this field access rule. If you close now, they’ll be lost.', confirmLabel: 'Discard changes', cancelLabel: 'Keep editing', danger: true });
+      const ok = await confirmDialog({ message: 'Discard changes?', description: tx('You have unsaved changes to this field access rule. If you close now, they’ll be lost.'), confirmLabel: 'Discard changes', cancelLabel: 'Keep editing', danger: true });
       if (!ok) return;
     }
     close();
@@ -146,33 +147,33 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
   const pickPreview = (anchor: HTMLElement) => openNestedMenu(anchor, {
     width: 280,
     search: 'Search people',
-    sections: [{ items: people.length ? people.map((u) => ({ id: u.id, label: (u.name || u.email) + (u.id === me ? ' (You)' : ''), icon: <UserAvatar userId={u.id} size={20} />, checked: u.id === previewUser, onSelect: () => setPreviewUser(u.id) })) : [{ id: 'none', label: 'No people found', disabled: true }] }],
+    sections: [{ items: people.length ? people.map((u) => ({ id: u.id, label: (u.name || u.email) + (u.id === me ? ' (You)' : ''), icon: <UserAvatar userId={u.id} size={20} />, checked: u.id === previewUser, onSelect: () => setPreviewUser(u.id) })) : [{ id: 'none', label: tx('No people found'), disabled: true }] }],
   }, { placement: 'bottom-start' });
   const previewName = (() => { const u = previewUser ? records.get<UserRecord>('lit_user', previewUser) : undefined; return previewUser === me ? 'You' : u?.name || u?.email || 'Someone'; })();
 
   const disabled = !canManage;
   return (
-    <div className="nc-pa" role="dialog" aria-label="Property access" data-menu-keys="ignore" data-testid="property-access" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); void cancel(); } }}>
-      <div className="nc-pa-title">Property access</div>
-      <div className="nc-pa-subtitle">Choose who may view or edit this column.</div>
-      <div className="nc-pa-prop">For <PropertyIcon prop={prop} size={14} /><b>{prop.name}</b></div>
-      {disabled && <div className="nc-pa-note">Only people with full access to this database can change property access.</div>}
+    <div className="nc-pa" role="dialog" aria-label={tx('Property access')} data-menu-keys="ignore" data-testid="property-access" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); void cancel(); } }}>
+      <div className="nc-pa-title">{tx('Property access')}</div>
+      <div className="nc-pa-subtitle">{tx('Choose who may view or edit this column.')}</div>
+      <div className="nc-pa-prop">{tx('For')} <PropertyIcon prop={prop} size={14} /><b>{prop.name}</b></div>
+      {disabled && <div className="nc-pa-note">{tx('Only people with full access to this database can change property access.')}</div>}
 
-      <div className="nc-pa-heading">Default access</div>
+      <div className="nc-pa-heading">{tx('Default access')}</div>
       <div className="nc-pa-row">
-        <div className="who"><span>Everyone</span><span className="sub">Covers every person, agent, and connection</span></div>
+        <div className="who"><span>{tx('Everyone')}</span><span className="sub">{tx('Covers every person, agent, and connection')}</span></div>
         <div role="button" data-testid="pa-default" className={`nc-pa-select ${disabled ? 'disabled' : ''}`} onClick={(e) => !disabled && setDefault(e.currentTarget)}>
           <span>{DEFAULT_ACCESS_OPTIONS.find((o) => o.id === draft.default_access)?.label}</span><Icon name="chevronDown" size={14} />
         </div>
       </div>
-      <div className="nc-pa-row" data-tooltip="Everyone with full access to this table always has full access to this field">
-        <div className="who"><span>Everyone with full access</span></div>
-        <div className="nc-pa-select disabled"><span>Full access</span></div>
+      <div className="nc-pa-row" data-tooltip={tx('Everyone with full access to this table always has full access to this field')}>
+        <div className="who"><span>{tx('Everyone with full access')}</span></div>
+        <div className="nc-pa-select disabled"><span>{tx('Full access')}</span></div>
       </div>
 
-      <div className="nc-pa-heading">Exceptions</div>
-      <div className="nc-pa-desc">Set different access for particular people</div>
-      {!overrides.length && <div className="nc-pa-empty">No exceptions yet.</div>}
+      <div className="nc-pa-heading">{tx('Exceptions')}</div>
+      <div className="nc-pa-desc">{tx('Set different access for particular people')}</div>
+      {!overrides.length && <div className="nc-pa-empty">{tx('No exceptions yet.')}</div>}
       {overrides.map((o) => {
         const n = overrideName(o);
         return (
@@ -187,34 +188,34 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
       })}
       {!disabled && (
         <div role="button" className="nc-pa-add" data-testid="pa-add-override" onClick={(e) => addMenu(e.currentTarget)}>
-          <Icon name="plus" size={16} /><span>Create a person, group, or person field</span>
+          <Icon name="plus" size={16} /><span>{tx('Create a person, group, or person field')}</span>
         </div>
       )}
       {overrides.some((o) => o.type === 'collection_property_permission') && <div className="nc-pa-note">* Person field exceptions apply only to people who may view this field</div>}
 
       <div role="button" className="nc-pa-add" data-testid="pa-preview-toggle" onClick={() => setPreview(!preview)}>
-        <Icon name={preview ? 'eyeOff' : 'eye'} size={16} /><span>{preview ? 'Hide preview' : 'Show preview'}</span>
+        <Icon name={preview ? 'eyeOff' : 'eye'} size={16} /><span>{preview ? tx('Hide preview') : tx('Show preview')}</span>
       </div>
       {previewInfo && (
         <div className="nc-pa-preview" data-testid="pa-preview">
           <div className="nc-pa-row">
-            <div className="who"><span>Preview as</span></div>
+            <div className="who"><span>{tx('Preview as')}</span></div>
             <div role="button" className="nc-pa-select" onClick={(e) => pickPreview(e.currentTarget)}><UserAvatar userId={previewUser} size={18} /><span>{previewName}</span><Icon name="chevronDown" size={14} /></div>
           </div>
           <div className="nc-pa-preview-result">{previewInfo.role === 'none' ? 'Can’t see field' : propertyRoleLabel(previewInfo.role)}</div>
           <div>{previewInfo.via}</div>
           {previewInfo.conditional.map((x) => <div key={x.label}>{x.label}: {propertyRoleLabel(x.role)}</div>)}
-          {previewInfo.conditional.length > 0 && <div className="nc-pa-note">If more than one of these applies to the same entry, the highest access wins.</div>}
+          {previewInfo.conditional.length > 0 && <div className="nc-pa-note">{tx('If more than one of these applies to the same entry, the highest access wins.')}</div>}
         </div>
       )}
-      {overLimit && <div className="nc-pa-note nc-pa-error">The property access rule limit has been reached</div>}
+      {overLimit && <div className="nc-pa-note nc-pa-error">{tx('The property access rule limit has been reached')}</div>}
 
       <div className="nc-pa-foot">
-        {HELP_URL && (<a className="nc-pa-learn" href={HELP_URL} target="_blank" rel="noreferrer">Learn more</a>)}
+        {HELP_URL && (<a className="nc-pa-learn" href={HELP_URL} target="_blank" rel="noreferrer">{tx('Learn more')}</a>)}
         <div className="spacer" />
-        {!disabled && <div role="button" className="nc-btn outline" data-testid="pa-clear" onClick={() => setDraft({ default_access: 'inherit', overrides: [] })}>Clear</div>}
-        <div role="button" className="nc-btn outline" onClick={() => void cancel()}>Cancel</div>
-        {!disabled && <div role="button" className={`nc-btn primary ${overLimit ? 'disabled' : ''}`} data-testid="pa-save" onClick={() => !overLimit && save()}>Save</div>}
+        {!disabled && <div role="button" className="nc-btn outline" data-testid="pa-clear" onClick={() => setDraft({ default_access: 'inherit', overrides: [] })}>{tx('Clear')}</div>}
+        <div role="button" className="nc-btn outline" onClick={() => void cancel()}>{tx('Cancel')}</div>
+        {!disabled && <div role="button" className={`nc-btn primary ${overLimit ? 'disabled' : ''}`} data-testid="pa-save" onClick={() => !overLimit && save()}>{tx('Save')}</div>}
       </div>
     </div>
   );

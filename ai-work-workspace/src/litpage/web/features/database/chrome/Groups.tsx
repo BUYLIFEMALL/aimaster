@@ -11,6 +11,7 @@ import { calculateMenuDef } from '../properties/PropertyMenus.tsx';
 import { useViewQuery } from '../data.ts';
 import { useDatabaseContext } from '../DatabaseContext.tsx';
 import { colorToken } from '../../../lib/colorToken.ts';
+import { tx } from '../../shell/i18n.ts';
 
 const LS = (viewId: string) => `nc:collapsedGroups:${viewId}`;
 
@@ -70,8 +71,8 @@ export function openGroupMenu(anchor: HTMLElement, group: GroupResult, view: Col
     width: 220,
     sections: [{
       items: [
-        { id: 'hide', label: 'Hide group', icon: 'eyeSlash', onSelect: () => setSavedGroups(view, savedGroupsFrom(allGroups.map((g) => (g.id === group.id ? { ...g, hidden: true } : g)), property, savedGroupsOf(view)), { action: 'hideGroup' }) },
-        { id: 'calc', label: 'Calculate', icon: 'sum', submenu: () => calculateMenuDef(prop ?? { name: '', type: 'title' }, aggregatorName(agg ?? undefined), (a) => setGroupAggregation(view, { ...(agg?.property ? { property: agg.property } : {}), aggregator: a as any })) },
+        { id: 'hide', label: tx('Hide group'), icon: 'eyeSlash', onSelect: () => setSavedGroups(view, savedGroupsFrom(allGroups.map((g) => (g.id === group.id ? { ...g, hidden: true } : g)), property, savedGroupsOf(view)), { action: 'hideGroup' }) },
+        { id: 'calc', label: tx('Calculate'), icon: 'sum', submenu: () => calculateMenuDef(prop ?? { name: '', type: 'title' }, aggregatorName(agg ?? undefined), (a) => setGroupAggregation(view, { ...(agg?.property ? { property: agg.property } : {}), aggregator: a as any })) },
       ],
     }],
   }, { placement: 'bottom-start' });
@@ -86,15 +87,15 @@ export function GroupHeader({ group, view, collection, readOnly, collapsed, onTo
   const showAgg = agg && !!explicit && aggregatorName(explicit) !== 'none';
   return (
     <div className={`nc-group-header ${sticky ? 'sticky' : ''}`} style={groupColorVars(group)}>
-      <div role="button" className={`nc-group-caret ${collapsed ? 'collapsed' : ''}`} aria-label={collapsed ? 'Expand group' : 'Collapse group'} onClick={onToggle}>
+      <div role="button" className={`nc-group-caret ${collapsed ? 'collapsed' : ''}`} aria-label={collapsed ? tx('Expand group') : tx('Collapse group')} onClick={onToggle}>
         <Icon name="triangleDown" size={20} />
       </div>
       <div className="nc-group-token" onClick={onToggle}><GroupToken group={group} /></div>
       {showAgg && <span className="nc-group-count">{agg!.display}</span>}
       {!readOnly && (
         <div className="nc-group-actions">
-          {!structureRO && <div role="button" className="nc-group-action" aria-label="Group options" onClick={(e) => q.groupBy && openGroupMenu(e.currentTarget, group, view, collection, q.groups ?? [], q.groupBy.property)}><Icon name="ellipsisSmall" size={16} /></div>}
-          <div role="button" className="nc-group-action" aria-label="Create an entry in this group" data-tooltip="Create an entry in this group" onClick={onAdd}><Icon name="plusSmall" size={16} /></div>
+          {!structureRO && <div role="button" className="nc-group-action" aria-label={tx('Group options')} onClick={(e) => q.groupBy && openGroupMenu(e.currentTarget, group, view, collection, q.groups ?? [], q.groupBy.property)}><Icon name="ellipsisSmall" size={16} /></div>}
+          <div role="button" className="nc-group-action" aria-label={tx('Create an entry in this group')} data-tooltip={tx('Create an entry in this group')} onClick={onAdd}><Icon name="plusSmall" size={16} /></div>
         </div>
       )}
     </div>
@@ -116,7 +117,7 @@ export function HiddenGroups({ groups, view, collection, onShow }: { groups: Gro
         <div key={g.id} className="nc-hidden-group-row">
           <GroupToken group={g} />
           <span className="nc-group-count">{g.rows.length}</span>
-          <div role="button" className="nc-group-action" aria-label="Show group" onClick={() => onShow(g)}><Icon name="eyeSlash" size={16} /></div>
+          <div role="button" className="nc-group-action" aria-label={tx('Show group')} onClick={() => onShow(g)}><Icon name="eyeSlash" size={16} /></div>
         </div>
       ))}
     </div>

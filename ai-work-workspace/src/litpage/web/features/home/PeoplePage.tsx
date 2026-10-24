@@ -15,7 +15,7 @@ import { TeamIcon } from '../shell/sidebar/TeamIcon.tsx';
 import { pageTitle } from '../page/pageActions.ts';
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
 import { localTime, roleLabel, type PersonProfile } from '../presence/PersonHoverCard.tsx';
-import { t, getLocale } from '../shell/i18n.ts';
+import { t, getLocale, tx } from '../shell/i18n.ts';
 import './people.css';
 
 export function PeoplePage({ userId }: { userId?: string }) {
@@ -52,7 +52,7 @@ function Directory() {
         <div className="nc-ppl-toolbar">
           <div className="nc-input nc-ppl-search">
             <Icon name="search" size={16} style={{ color: 'var(--lp-icon-tertiary)' }} />
-            <input value={query} placeholder={t('lp.home.type_to_search', 'Search by typing…')} onChange={(e) => setQuery(e.target.value)} aria-label="Search people" />
+            <input value={query} placeholder={t('lp.home.type_to_search', 'Search by typing…')} onChange={(e) => setQuery(e.target.value)} aria-label={tx('Search people')} />
           </div>
           <label className="nc-ppl-guests">
             <input type="checkbox" checked={guests} onChange={(e) => setGuests(e.target.checked)} />

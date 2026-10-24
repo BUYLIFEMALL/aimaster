@@ -11,6 +11,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { openMenu } from '../../components/Menu.tsx';
 import { setSkillAutomatic, setSkillEnabled, unsetSkill, useSkills, type SkillInfo } from './aiStores.ts';
 import { useAiStatus } from './aiApi.ts';
+import { tx } from '../shell/i18n.ts';
 
 /** "New skill": a private skill page (template body), opened for editing. */
 export async function createNewSkill() {
@@ -72,11 +73,11 @@ function SkillRow({ s, tab }: { s: SkillInfo; tab: 'enabled' | 'discover' }) {
     width: 260,
     sections: [{
       items: [
-        ...(s.pageId ? [{ label: 'Show skill', icon: 'page', onSelect: () => openPage(s.pageId!) }] : []),
-        ...(localSkills ? [{ label: 'Download for local agent use', icon: 'download', onSelect: () => { void downloadSkill(s); } }] : []),
+        ...(s.pageId ? [{ label: tx('Show skill'), icon: 'page', onSelect: () => openPage(s.pageId!) }] : []),
+        ...(localSkills ? [{ label: tx('Download for local agent use'), icon: 'download', onSelect: () => { void downloadSkill(s); } }] : []),
         ...(s.pageId && s.mine ? [
-          { label: 'Remove skill from this page', icon: 'close', onSelect: () => { void unsetSkill(s.pageId!).then(() => useUI.getState().toast('This page is no longer a skill')); } },
-          { label: 'Send to trash', icon: 'trash', danger: true, onSelect: () => { run('ai.skill.trash', (tx) => deleteBlocksIn(tx, [s.pageId!])); setTimeout(() => void useSkills.getState().load(true), 300); } },
+          { label: tx('Remove skill from this page'), icon: 'close', onSelect: () => { void unsetSkill(s.pageId!).then(() => useUI.getState().toast('This page is no longer a skill')); } },
+          { label: tx('Send to trash'), icon: 'trash', danger: true, onSelect: () => { run('ai.skill.trash', (tx) => deleteBlocksIn(tx, [s.pageId!])); setTimeout(() => void useSkills.getState().load(true), 300); } },
         ] : []),
       ],
     }],
@@ -87,31 +88,31 @@ function SkillRow({ s, tab }: { s: SkillInfo; tab: 'enabled' | 'discover' }) {
       <div className="nc-ai-skill-main" role={s.pageId ? 'link' : undefined} onClick={() => s.pageId && openPage(s.pageId)}>
         <div className="nc-ai-skill-name">
           <span className="nc-ellipsis">{s.name || 'Untitled'}</span>
-          {s.builtin && <span className="nc-badge gray">Default</span>}
+          {s.builtin && <span className="nc-badge gray">{tx('Default')}</span>}
         </div>
         <div className="nc-ai-skill-desc nc-ellipsis" data-tooltip={s.description ? undefined : 'AI 비서 uses this description to choose when the skill applies. Edit the opening of the page to change it.'}>
           {s.description || 'No description'}
         </div>
         <div className="nc-ai-skill-where">
-          {s.inChat && <span>In chat</span>}
-          {s.inPage && <span data-tooltip="This skill can appear as you work across Workspace pages">In a page</span>}
+          {s.inChat && <span>{tx('In chat')}</span>}
+          {s.inPage && <span data-tooltip={tx('This skill can appear as you work across Workspace pages')}>{tx('In a page')}</span>}
           {!s.mine && !s.builtin && s.createdBy && <span>by {s.createdBy}</span>}
         </div>
       </div>
       <div className="nc-ai-skill-actions">
         {tab === 'enabled' && !s.builtin && (
           <div role="switch" aria-checked={s.automatic} tabIndex={0} className="nc-ai-skill-auto" data-tooltip="Let AI 비서 use this skill automatically when relevant" onClick={() => void setSkillAutomatic(s, !s.automatic)}>
-            <span>Use automatically</span>
+            <span>{tx('Use automatically')}</span>
             <span className={`nc-ai-switch ${s.automatic ? 'on' : ''}`} aria-hidden><span /></span>
           </div>
         )}
         {tab === 'enabled' ? (
-          <button type="button" className="nc-btn outline" disabled={busy} data-tooltip="After uninstalling, this skill disappears from chat and automatic runs." onClick={() => void toggle(false)}>Uninstall</button>
+          <button type="button" className="nc-btn outline" disabled={busy} data-tooltip={tx('After uninstalling, this skill disappears from chat and automatic runs.')} onClick={() => void toggle(false)}>{tx('Uninstall')}</button>
         ) : (
-          <button type="button" className="nc-btn primary" disabled={busy} onClick={() => void toggle(true)}>Enable for my account</button>
+          <button type="button" className="nc-btn primary" disabled={busy} onClick={() => void toggle(true)}>{tx('Enable for my account')}</button>
         )}
         {(s.pageId || localSkills) && (
-          <div role="button" aria-label="More actions" className="nc-ai-icon-btn" onClick={(e) => more(e.currentTarget)}><Icon name="ellipsisSmall" size={16} /></div>
+          <div role="button" aria-label={tx('More actions')} className="nc-ai-icon-btn" onClick={(e) => more(e.currentTarget)}><Icon name="ellipsisSmall" size={16} /></div>
         )}
       </div>
     </div>
@@ -126,14 +127,14 @@ export function SkillsTab({ seg, setSeg }: { seg: 'enabled' | 'discover'; setSeg
   const list = seg === 'enabled' ? enabled : discover;
   return (
     <div className="nc-lib-skills">
-      <div className="nc-lib-seg" role="tablist" aria-label="Skill library sections">
-        <div role="tab" aria-selected={seg === 'enabled'} className={`nc-lib-seg-item ${seg === 'enabled' ? 'selected' : ''}`} data-tooltip="Skills you or others have created that you can use now." onClick={() => setSeg('enabled')}>Enabled for my account</div>
-        <div role="tab" aria-selected={seg === 'discover'} className={`nc-lib-seg-item ${seg === 'discover' ? 'selected' : ''}`} data-tooltip="Browse skills created by others. Click Enable for my account to use." onClick={() => setSeg('discover')}>Discover</div>
+      <div className="nc-lib-seg" role="tablist" aria-label={tx('Skill library sections')}>
+        <div role="tab" aria-selected={seg === 'enabled'} className={`nc-lib-seg-item ${seg === 'enabled' ? 'selected' : ''}`} data-tooltip={tx('Skills you or others have created that you can use now.')} onClick={() => setSeg('enabled')}>{tx('Enabled for my account')}</div>
+        <div role="tab" aria-selected={seg === 'discover'} className={`nc-lib-seg-item ${seg === 'discover' ? 'selected' : ''}`} data-tooltip={tx('Browse skills created by others. Click Enable for my account to use.')} onClick={() => setSeg('discover')}>{tx('Discover')}</div>
       </div>
       {error && !list.length ? (
         <div className="nc-lib-empty skills">
-          <div className="nc-lib-empty-text">Could not load skills.</div>
-          <div role="button" className="nc-lib-linkbtn" onClick={() => void useSkills.getState().load(true)}>Retry</div>
+          <div className="nc-lib-empty-text">{tx('Could not load skills.')}</div>
+          <div role="button" className="nc-lib-linkbtn" onClick={() => void useSkills.getState().load(true)}>{tx('Retry')}</div>
         </div>
       ) : list.length ? (
         <div className="nc-ai-skill-list" role="list">
@@ -150,7 +151,7 @@ export function SkillsTab({ seg, setSeg }: { seg: 'enabled' | 'discover'; setSeg
           {seg === 'enabled' && (
             <div role="button" className="nc-lib-linkbtn" onClick={() => void createNewSkill()}>
               <Icon name="plus" size={16} />
-              <span>New skill</span>
+              <span>{tx('New skill')}</span>
             </div>
           )}
         </div>

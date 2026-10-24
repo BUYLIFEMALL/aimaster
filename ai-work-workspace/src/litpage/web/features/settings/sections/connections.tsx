@@ -6,7 +6,7 @@ import { records } from '../../../lib/store/records.ts';
 import { useUI } from '../../../lib/store/ui.ts';
 import { Icon } from '../../../components/Icon.tsx';
 import { openMenu } from '../../../components/Menu.tsx';
-import { t } from '../../shell/i18n.ts';
+import { t, tx } from '../../shell/i18n.ts';
 import { Button, Group, Row, SectionPage, Switch, Upsell, UserAvatar, confirmDialog, msg, openSubDialog, rich } from '../ui.tsx';
 import { planAtLeast, saveSpaceSettings, spaceSetting, useSpaceAccess } from '../spaceSettings.ts';
 import { fmtDate } from './workspace.tsx';
@@ -163,7 +163,7 @@ export function ConnectionsSection() {
           <div className="nc-set-input nc-set-conn-search">
             <Icon name="magnifyingGlassSmall" size={16} />
             <input aria-label={t('lp.settings.search_connections', 'Search connections')} placeholder={t('lp.settings.search_connections', 'Search connections')} value={q} onChange={(e) => setQ(e.target.value)} />
-            {q && <span role="button" className="nc-set-icon-btn" aria-label="Clear" onClick={() => setQ('')}><Icon name="xMarkSmall" size={14} /></span>}
+            {q && <span role="button" className="nc-set-icon-btn" aria-label={tx('Clear')} onClick={() => setQ('')}><Icon name="xMarkSmall" size={14} /></span>}
           </div>
           <div
             role="button"
@@ -377,13 +377,13 @@ function ManageConnections({ space }: { space: SpaceRecord }) {
               {!enterprise && <Upsell text={msg('lp.settings.upgrade_to_block_database_automations_an', '<highlight>Upgrade</highlight> to block database automations and buttons from sending webhooks to third-party tools')} onClick={() => useUI.getState().set({ settingsSection: 'plans' })} />}
             </>
           )}
-          control={<Switch label="Permit webhooks in automations" checked={webhooksOn} disabled={!enterprise} onChange={(v) => saveSpaceSettings(space.id, { disallow_webhook_automation_action: !v })} />}
+          control={<Switch label={tx('Permit webhooks in automations')} checked={webhooksOn} disabled={!enterprise} onChange={(v) => saveSpaceSettings(space.id, { disallow_webhook_automation_action: !v })} />}
         />
         <Row
           id="custom-mcp-servers"
           label={t('lp.settings.turn_on_custom_mcp_servers', 'Turn on custom MCP servers')}
           description={t('lp.settings.members_can_link_agents_to_custom', 'Members can link agents to custom MCP servers not reviewed by Workspace. Through those servers, agents can send content outside, pull in external data, and act in other systems.')}
-          control={<Switch label="Turn on custom MCP servers" checked={customMcp} onChange={(v) => saveSpaceSettings(space.id, { ai_custom_mcp: v })} />}
+          control={<Switch label={tx('Turn on custom MCP servers')} checked={customMcp} onChange={(v) => saveSpaceSettings(space.id, { ai_custom_mcp: v })} />}
         />
       </Group>
     </div>

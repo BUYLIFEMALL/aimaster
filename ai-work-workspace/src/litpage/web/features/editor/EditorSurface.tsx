@@ -32,6 +32,7 @@ import { openTextMenuAtPoint } from './inline/TextActionMenu.tsx';
 import { valueOf } from './inline/format.ts';
 import { useBlockLinkScroll } from './blockLinks.ts';
 import { clearSidebarDrop, externalBlockDropTargets, moveBlocksToPage, sidebarPageAt, type ExternalBlockDrop } from './dragToSidebar.ts';
+import { tx } from '../shell/i18n.ts';
 
 interface Gutter {
   blockId: string;
@@ -715,10 +716,10 @@ export function EditorSurface({ pageId, readOnly, children, scroller }: { pageId
       {gutter && !readOnly && (!selected.length || menuFor === gutter.blockId) && (
         // DOM order handle → "+"; row-reverse keeps "+" on the left
         <div className="nc-block-gutter" style={{ top: gutter.top, left: gutter.left - 52 }}>
-          <div role="button" className={`nc-block-handle nc-gutter-btn ${menuFor === gutter.blockId ? 'pressed' : ''}`} aria-label="Drag to reposition, click for options" data-tooltip="Drag to reposition" data-tooltip-sub="Click or ⌘/ to open menu" onPointerDown={(e) => { e.preventDefault(); startDrag(e, gutter.blockId); }}>
+          <div role="button" className={`nc-block-handle nc-gutter-btn ${menuFor === gutter.blockId ? 'pressed' : ''}`} aria-label={tx('Drag to reposition, click for options')} data-tooltip={tx('Drag to reposition')} data-tooltip-sub="Click or ⌘/ to open menu" onPointerDown={(e) => { e.preventDefault(); startDrag(e, gutter.blockId); }}>
             <Icon name="dragHandle" size={14} />
           </div>
-          <div role="button" className="lit-block-add-button nc-gutter-btn" aria-label="Click to insert below. Option-click inserts above" data-tooltip="Click to insert below" data-tooltip-sub="Option-click inserts above" onMouseDown={(e) => e.preventDefault()} onClick={(e) => plusClick(e, gutter.blockId)}>
+          <div role="button" className="lit-block-add-button nc-gutter-btn" aria-label={tx('Click to insert below. Option-click inserts above')} data-tooltip={tx('Click to insert below')} data-tooltip-sub="Option-click inserts above" onMouseDown={(e) => e.preventDefault()} onClick={(e) => plusClick(e, gutter.blockId)}>
             <Plus size={16} aria-hidden className="nc-gutter-plus" />
           </div>
         </div>

@@ -21,7 +21,7 @@ import { useEditor } from '../editor/editorState.ts';
 import { EditorSurface } from '../editor/EditorSurface.tsx';
 import { Icon } from '../../components/Icon.tsx';
 import { PageIcon } from '../shell/PageIcon.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { retentionDurationLabel } from '../settings/spaceSettings.ts';
 import { openIconPicker, randomEmoji } from './IconPicker.tsx';
 import { PageCover, randomCover } from './Cover.tsx';
@@ -316,8 +316,8 @@ function PageHeader({ page, readOnly, publicView, backlinks }: { page: BlockReco
 function PageNotFound() {
   return (
     <div className="nc-page-missing">
-      <div className="nc-page-missing-title">We couldn’t find this page</div>
-      <div className="nc-page-missing-sub">You may lack access, or the page moved or was removed. Check the URL and try again.</div>
+      <div className="nc-page-missing-title">{tx('We couldn’t find this page')}</div>
+      <div className="nc-page-missing-sub">{tx('You may lack access, or the page moved or was removed. Check the URL and try again.')}</div>
     </div>
   );
 }
@@ -343,7 +343,7 @@ function TrashBanner({ page }: { page: BlockRecord }) {
         className={`nc-banner-btn ${canEdit ? '' : 'disabled'}`}
         onClick={async () => {
           if (!canEdit) return;
-          const ok = await confirmDialog({ message: 'Are you sure you want to delete this page permanently?', description: 'You can’t undo this action.', confirmLabel: t('lp.page.permanently_delete', 'Permanently delete') });
+          const ok = await confirmDialog({ message: 'Are you sure you want to delete this page permanently?', description: tx('You can’t undo this action.'), confirmLabel: t('lp.page.permanently_delete', 'Permanently delete') });
           if (!ok) return;
           await api('deleteBlocksPermanently', { blockIds: [page.id] }).catch(() => {});
           if (page.parent_table === 'block' && getBlock(page.parent_id)?.alive) openPage(page.parent_id);

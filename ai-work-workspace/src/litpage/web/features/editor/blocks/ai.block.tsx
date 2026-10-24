@@ -10,7 +10,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { createBlockIn, run } from '../../../lib/blocks.ts';
 import { useEditor } from '../editorState.ts';
 import { toast } from './shared.tsx';
-import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
+import { getLocale, tx } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 
 type Tab = 'summary' | 'notes' | 'transcript';
 
@@ -43,14 +43,14 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
               }}
             >
               <Icon name="mic" size={14} />
-              {state === 'transcription_in_progress' ? 'Stop' : 'Start transcribing'}
+              {state === 'transcription_in_progress' ? tx('Stop') : tx('Start transcribing')}
             </button>
           )}
         </div>
         <div className="nc-tabs-strip" role="tablist">
           {(['summary', 'notes', 'transcript'] as Tab[]).map((t) => (
             <div key={t} role="tab" aria-selected={tab === t} className={`nc-tab-pill ${tab === t ? 'selected' : ''}`} onClick={() => setTab(t)}>
-              {t === 'summary' ? 'Summary' : t === 'notes' ? 'Notes' : 'Transcript'}
+              {t === 'summary' ? 'Summary' : t === 'notes' ? tx('Notes') : tx('Transcript')}
             </div>
           ))}
         </div>
@@ -66,8 +66,8 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
               useEditor.getState().requestFocus(id, 0);
             }}>AI 비서 will turn notes and transcript into a summary</div>
           ))}
-          {tab === 'summary' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>Write the summary here…</div>}
-          {tab === 'transcript' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>The transcript will appear here…</div>}
+          {tab === 'summary' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>{tx('Write the summary here…')}</div>}
+          {tab === 'transcript' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>{tx('The transcript will appear here…')}</div>}
         </div>
       </div>
     </div>
@@ -85,7 +85,7 @@ function AiBlock({ block, readOnly }: BlockProps) {
           <div className="nc-ai-input">
             <Icon name="aiFace" size={18} />
             <input
-              placeholder="Ask AI to write anything…"
+              placeholder={tx('Ask AI to write anything…')}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {

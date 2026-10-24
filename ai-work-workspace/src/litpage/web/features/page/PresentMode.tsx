@@ -12,6 +12,7 @@ import { getLocation } from '../../lib/router.ts';
 import { PageIcon } from '../shell/PageIcon.tsx';
 import { StaticBlockList } from './StaticBlocks.tsx';
 import './present.css';
+import { tx } from '../shell/i18n.ts';
 
 function slidesOf(pageId: string): string[][] {
   const page = getBlock(pageId);
@@ -103,7 +104,7 @@ function Presentation({ pageId, close, fromBlockId }: { pageId: string; close: (
     };
   }, [total, close]);
   return (
-    <div className="nc-present" role="dialog" aria-label="Presentation">
+    <div className="nc-present" role="dialog" aria-label={tx('Presentation')}>
       <div className="nc-present-stage" ref={stageRef} style={{ transform: `translate(-50%, -50%) scale(${scale})` }}>
         {i === 0 ? (
           <div className="nc-present-title-slide">
@@ -117,10 +118,10 @@ function Presentation({ pageId, close, fromBlockId }: { pageId: string; close: (
         )}
       </div>
       <div className="nc-present-controls">
-        <div role="button" aria-label="Previous slide" className={`nc-icon-btn ${i === 0 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.max(0, x - 1))}><Icon name="chevronLeft" size={18} /></div>
+        <div role="button" aria-label={tx('Previous slide')} className={`nc-icon-btn ${i === 0 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.max(0, x - 1))}><Icon name="chevronLeft" size={18} /></div>
         <span className="count">{i + 1} / {total}</span>
-        <div role="button" aria-label="Next slide" className={`nc-icon-btn ${i === total - 1 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.min(total - 1, x + 1))}><Icon name="chevronRight" size={18} /></div>
-        <div role="button" aria-label="Exit presentation" className="nc-icon-btn" onClick={close}><Icon name="close" size={18} /></div>
+        <div role="button" aria-label={tx('Next slide')} className={`nc-icon-btn ${i === total - 1 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.min(total - 1, x + 1))}><Icon name="chevronRight" size={18} /></div>
+        <div role="button" aria-label={tx('Exit presentation')} className="nc-icon-btn" onClick={close}><Icon name="close" size={18} /></div>
       </div>
     </div>
   );

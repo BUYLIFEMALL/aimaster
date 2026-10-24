@@ -36,6 +36,7 @@ import './icons.tsx';
 import './featureIcons.tsx';
 import './dependencies.ts';
 import './database.css';
+import { tx } from '../shell/i18n.ts';
 
 const ACTIVE_KEY = activeViewKey;
 const DISPLAY_KEY = (blockId: string) => `nc:tabDisplay:${blockId}`;
@@ -138,7 +139,7 @@ function DbTitle({ collection, block, readOnly, className, linked }: { collectio
       readOnly={readOnly}
       tagName="div"
       className={`content-editable-leaf-rtl ${className}`}
-      placeholder={block.collection_id && collection.id !== block.collection_id ? 'Create a dataset' : 'New database'}
+      placeholder={block.collection_id && collection.id !== block.collection_id ? tx('Create a dataset') : tx('New database')}
       placeholderAlways
       spellCheck={false}
       onChange={(next) => run('renameDatabase', (tx) => tx.set('collection', collection.id, ['name'], next), { coalesceKey: `dbname:${collection.id}` })}
@@ -274,7 +275,7 @@ export function DatabaseView({ block, inline, readOnly: hostReadOnly, structureR
   useDocumentTitle(documentTitle && view && collection ? databaseDocumentTitle(toPlainText(collection.name as RichText | undefined), view.name || viewTypeMeta(view.type).label, views.length > 1) : null);
 
   if (!view || !collection || !ctx) {
-    return <div className="nc-db-missing">{block.view_ids?.length ? 'Loading…' : 'No dataset available'}</div>;
+    return <div className="nc-db-missing">{block.view_ids?.length ? tx('Loading…') : tx('No dataset available')}</div>;
   }
 
   const linked = collection.parent_id !== block.id;
@@ -363,10 +364,10 @@ export function DatabaseView({ block, inline, readOnly: hostReadOnly, structureR
                 {titleNode || <div className="nc-db-title-spacer" />}
                 {(!sro || !readOnly) && (
                   <div className={`nc-db-title-actions ${titleActionsShown ? 'visible' : ''}`}>
-                    {!sro && <div role="button" className={`lit-collection-add-view nc-db-title-action${addViewOpen ? ' pressed' : ''}`} aria-label="Add view" aria-haspopup="dialog" data-tooltip="Create another layout" onClick={(e) => openAddViewMenu(e.currentTarget, { block, collection, linked, onCreated: (id) => { setActiveId(id); setTimeout(() => { const anchor = rootRef.current?.querySelector<HTMLElement>('.lit-collection-edit-view'); const v = records.get<CollectionViewRecord>('collection_view', id); if (anchor && v) openViewSettings(anchor, { block, view: v, collection, readOnly: sro, inline, onSelectView: setActiveId, newView: true }); }, 50); } })}>
+                    {!sro && <div role="button" className={`lit-collection-add-view nc-db-title-action${addViewOpen ? ' pressed' : ''}`} aria-label={tx('Add view')} aria-haspopup="dialog" data-tooltip={tx('Create another layout')} onClick={(e) => openAddViewMenu(e.currentTarget, { block, collection, linked, onCreated: (id) => { setActiveId(id); setTimeout(() => { const anchor = rootRef.current?.querySelector<HTMLElement>('.lit-collection-edit-view'); const v = records.get<CollectionViewRecord>('collection_view', id); if (anchor && v) openViewSettings(anchor, { block, view: v, collection, readOnly: sro, inline, onSelectView: setActiveId, newView: true }); }, 50); } })}>
                       <Icon name="plusSmall" size={16} />
                     </div>}
-                    {titleActionsShown && <div role="button" className={`nc-db-title-action nc-db-view-options${viewOptionsOpen ? ' pressed' : ''}`} aria-label="View options" onClick={(e) => openViewMenu(e.currentTarget, { block, view, collection, readOnly: sro, onEdit: () => openViewSettings(e.currentTarget as HTMLElement, { block, view, collection, readOnly: sro, inline, onSelectView: setActiveId }), onSelect: setActiveId, display, setDisplay: (d) => { setDisplayState(d); writeLS(DISPLAY_KEY(block.id), d); } })}>
+                    {titleActionsShown && <div role="button" className={`nc-db-title-action nc-db-view-options${viewOptionsOpen ? ' pressed' : ''}`} aria-label={tx('View options')} onClick={(e) => openViewMenu(e.currentTarget, { block, view, collection, readOnly: sro, onEdit: () => openViewSettings(e.currentTarget as HTMLElement, { block, view, collection, readOnly: sro, inline, onSelectView: setActiveId }), onSelect: setActiveId, display, setDisplay: (d) => { setDisplayState(d); writeLS(DISPLAY_KEY(block.id), d); } })}>
                       <Icon name="ellipsisSmall" size={16} />
                     </div>}
                   </div>

@@ -5,9 +5,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '../../../../components/Icon.tsx';
 import { openOverlay } from '../../../../components/overlay.tsx';
 import { useUI } from '../../../../lib/store/ui.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 type Background = 'default' | 'gray' | 'none';
-const BACKGROUNDS: { id: Background; label: string }[] = [{ id: 'default', label: 'Default' }, { id: 'gray', label: 'Gray' }, { id: 'none', label: 'Transparent' }];
+const BACKGROUNDS: { id: Background; label: string }[] = [{ id: 'default', label: tx('Default') }, { id: 'gray', label: tx('Gray') }, { id: 'none', label: tx('Transparent') }];
 const PAD = 24;
 
 function resolveColor(cssValue: string): string {
@@ -130,27 +131,27 @@ function ChartExport({ svg, name, close }: { svg: SVGSVGElement; name: string; c
     close();
   };
   return (
-    <div className="nc-chart-export" role="dialog" aria-label="Store chart as…" data-testid="chart-export">
+    <div className="nc-chart-export" role="dialog" aria-label={tx('Store chart as…')} data-testid="chart-export">
       <div className="nc-chart-export-head">
-        <span>Store chart as…</span>
-        <div role="button" className="nc-icon-btn" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={18} /></div>
+        <span>{tx('Store chart as…')}</span>
+        <div role="button" className="nc-icon-btn" aria-label={tx('Close')} onClick={close}><Icon name="xMarkSmall" size={18} /></div>
       </div>
-      <div className="nc-chart-export-label">Preview</div>
+      <div className="nc-chart-export-label">{tx('Preview')}</div>
       <div className={`nc-chart-export-preview ${bg === 'none' ? 'checker' : ''}`}>
-        {preview && <img src={preview} alt="Chart preview" style={{ aspectRatio: `${out.width} / ${out.height}` }} />}
+        {preview && <img src={preview} alt={tx('Chart preview')} style={{ aspectRatio: `${out.width} / ${out.height}` }} />}
       </div>
       <div className="nc-chart-export-row">
-        <span className="nc-chart-export-label inline">Background</span>
-        <div className="nc-chart-export-bgs" role="radiogroup" aria-label="Background">
+        <span className="nc-chart-export-label inline">{tx('Background')}</span>
+        <div className="nc-chart-export-bgs" role="radiogroup" aria-label={tx('Background')}>
           {BACKGROUNDS.map((b) => (
             <div key={b.id} role="radio" aria-checked={bg === b.id} aria-label={b.label} data-tooltip={b.label} className={`nc-chart-export-bg bg-${b.id} ${bg === b.id ? 'on' : ''}`} onClick={() => setBg(b.id)} />
           ))}
         </div>
       </div>
       <div className="nc-chart-export-actions">
-        <div role="button" className="nc-btn" onClick={() => void copyPng()}>Copy as PNG</div>
-        <div role="button" className="nc-btn" onClick={() => void downloadPng()}>Download PNG</div>
-        <div role="button" className="nc-btn primary" onClick={downloadSvg}>Download SVG</div>
+        <div role="button" className="nc-btn" onClick={() => void copyPng()}>{tx('Copy as PNG')}</div>
+        <div role="button" className="nc-btn" onClick={() => void downloadPng()}>{tx('Download PNG')}</div>
+        <div role="button" className="nc-btn primary" onClick={downloadSvg}>{tx('Download SVG')}</div>
       </div>
     </div>
   );

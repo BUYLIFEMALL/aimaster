@@ -6,6 +6,7 @@ import { navigate } from '../../../../lib/router.ts';
 import { useSession } from '../../../../lib/store/session.ts';
 import { FormRenderer, type PublicForm } from './FormRenderer.tsx';
 import './form.css';
+import { tx } from '../../../shell/i18n.ts';
 
 type Res = { status: 'ok' | 'closed' | 'login' | 'denied' | 'notfound'; form?: PublicForm; spaceName?: string };
 
@@ -32,23 +33,23 @@ export function PublicFormPage({ viewId }: { viewId: string }) {
   else if (res.status === 'login') {
     body = (
       <div className="nc-form-state">
-        <div className="nc-form-state-title">This form is not available publicly.</div>
-        <div className="nc-form-state-sub">Log in to submit, or ask the form owner to publish it.</div>
-        <div role="button" className="nc-form-btn primary" onClick={() => navigate('/login')}>Log in</div>
+        <div className="nc-form-state-title">{tx('This form is not available publicly.')}</div>
+        <div className="nc-form-state-sub">{tx('Log in to submit, or ask the form owner to publish it.')}</div>
+        <div role="button" className="nc-form-btn primary" onClick={() => navigate('/login')}>{tx('Log in')}</div>
       </div>
     );
   } else if (res.status === 'denied') {
     body = (
       <div className="nc-form-state">
-        <div className="nc-form-state-title">This form is not available publicly.</div>
+        <div className="nc-form-state-title">{tx('This form is not available publicly.')}</div>
         <div className="nc-form-state-sub">Only members at {res.spaceName ?? 'this workspace'} can fill out this form.</div>
       </div>
     );
   } else {
     body = (
       <div className="nc-form-state">
-        <div className="nc-form-state-title">This form is closed or no longer available.</div>
-        <div className="nc-form-state-sub">If this seems wrong, reach out to the form owner.</div>
+        <div className="nc-form-state-title">{tx('This form is closed or no longer available.')}</div>
+        <div className="nc-form-state-sub">{tx('If this seems wrong, reach out to the form owner.')}</div>
       </div>
     );
   }

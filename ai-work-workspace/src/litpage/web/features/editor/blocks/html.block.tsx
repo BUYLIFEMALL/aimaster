@@ -20,14 +20,15 @@ import { ActionButton, BlockPlaceholder, downloadUrl, fileSizeLabel, originalSou
 import { MediaFrame, AlignButton } from './media/MediaFrame.tsx';
 import { PickerTabs, useUploads } from './media/MediaPicker.tsx';
 import { insertBlock } from './factories.ts';
+import { tx } from '../../shell/i18n.ts';
 
 const TILES: { kind: string; label: string; icon: string; bg: string; fg: string }[] = [
-  { kind: 'slides', label: 'Slides', icon: 'presentation', bg: 'var(--lp-orange-bg-secondary)', fg: 'var(--lp-orange-icon-accent, #fb923c)' },
-  { kind: 'dashboard', label: 'Dashboard', icon: 'dashboardTile', bg: 'var(--lp-pink-bg-secondary)', fg: 'var(--lp-pink-icon-accent, #f472b6)' },
-  { kind: 'report', label: 'Report', icon: 'reportTile', bg: 'var(--lp-red-bg-secondary)', fg: 'var(--lp-red-icon-accent, #fb7185)' },
-  { kind: 'explainer', label: 'Explainer', icon: 'helpCircle', bg: 'var(--lp-yellow-bg-secondary)', fg: 'var(--lp-yellow-icon-accent, #fbbf24)' },
-  { kind: 'prototype', label: 'Prototype', icon: 'mobilePhone', bg: 'var(--lp-blue-bg-secondary)', fg: 'var(--lp-blue-icon-accent, #818cf8)' },
-  { kind: 'game', label: 'Game', icon: 'layers', bg: 'var(--lp-green-bg-secondary)', fg: 'var(--lp-green-icon-accent, #34d399)' },
+  { kind: 'slides', label: tx('Slides'), icon: 'presentation', bg: 'var(--lp-orange-bg-secondary)', fg: 'var(--lp-orange-icon-accent, #fb923c)' },
+  { kind: 'dashboard', label: tx('Dashboard'), icon: 'dashboardTile', bg: 'var(--lp-pink-bg-secondary)', fg: 'var(--lp-pink-icon-accent, #f472b6)' },
+  { kind: 'report', label: tx('Report'), icon: 'reportTile', bg: 'var(--lp-red-bg-secondary)', fg: 'var(--lp-red-icon-accent, #fb7185)' },
+  { kind: 'explainer', label: tx('Explainer'), icon: 'helpCircle', bg: 'var(--lp-yellow-bg-secondary)', fg: 'var(--lp-yellow-icon-accent, #fbbf24)' },
+  { kind: 'prototype', label: tx('Prototype'), icon: 'mobilePhone', bg: 'var(--lp-blue-bg-secondary)', fg: 'var(--lp-blue-icon-accent, #818cf8)' },
+  { kind: 'game', label: tx('Game'), icon: 'layers', bg: 'var(--lp-green-bg-secondary)', fg: 'var(--lp-green-icon-accent, #34d399)' },
 ];
 
 const htmlCache = new Map<string, string>();
@@ -83,7 +84,7 @@ function starter(kind: string, prompt?: string): string {
   <h1>${esc}</h1>
   <p>${kind === 'game' ? 'Click the button to score points.' : 'Edit this HTML to build your ' + kind + '.'}</p>
   <div class="card">
-    <button id="b">Click me</button> <span id="n">0</span>
+    <button id="b">{tx('Click me')}</button> <span id="n">0</span>
   </div>
   <script>
     let n = 0; document.getElementById('b').onclick = () => { document.getElementById('n').textContent = String(++n); };
@@ -124,11 +125,11 @@ function HtmlPicker({ blockId, close }: { blockId: string; close: () => void }) 
           onDragLeave={() => setOver(false)}
           onDrop={(e) => { e.preventDefault(); setOver(false); void onFile(e.dataTransfer.files?.[0]); }}
         >
-          <div className="t1"><Icon name="codeAngle" size={18} />Upload an HTML file</div>
-          <div className="t2">Or drop a file here</div>
+          <div className="t1"><Icon name="codeAngle" size={18} />{tx('Upload an HTML file')}</div>
+          <div className="t2">{tx('Or drop a file here')}</div>
           <input ref={fileRef} type="file" accept=".html,.htm,text/html" hidden onChange={(e) => void onFile(e.target.files?.[0])} />
         </div>
-        <div className="nc-html-ai-title">Generate with AI</div>
+        <div className="nc-html-ai-title">{tx('Generate with AI')}</div>
         <div className="nc-html-tiles">
           {TILES.map((t) => (
             <div key={t.kind} role="button" className="nc-html-tile" onClick={() => { close(); runAi(blockId, t.kind); }}>
@@ -140,7 +141,7 @@ function HtmlPicker({ blockId, close }: { blockId: string; close: () => void }) 
         <div className="nc-html-prompt">
           <Icon name="pencilLine" size={18} />
           <input
-            placeholder="Describe your idea…"
+            placeholder={tx('Describe your idea…')}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => {
@@ -151,7 +152,7 @@ function HtmlPicker({ blockId, close }: { blockId: string; close: () => void }) 
               }
             }}
           />
-          <span className="beta">Beta</span>
+          <span className="beta">{tx('Beta')}</span>
         </div>
       </div>
     </PopoverSurface>
@@ -177,10 +178,10 @@ function HtmlEditor({ blockId, initial, close }: { blockId: string; initial: str
     <PopoverSurface width="auto" maxHeight="90vh" className="nc-html-editor-pop">
       <div className="nc-html-editor-head">
         <Icon name="codeAngle" size={16} />
-        <span>Edit HTML</span>
+        <span>{tx('Edit HTML')}</span>
         <span className="grow" />
-        <button className="nc-blk-btn outline" onClick={close}>Cancel</button>
-        <button className="nc-blk-btn primary" onClick={() => void save()}>Save</button>
+        <button className="nc-blk-btn outline" onClick={close}>{tx('Cancel')}</button>
+        <button className="nc-blk-btn primary" onClick={() => void save()}>{tx('Save')}</button>
       </div>
       <div className="nc-html-editor">
         <textarea
@@ -200,7 +201,7 @@ function HtmlEditor({ blockId, initial, close }: { blockId: string; initial: str
             }
           }}
         />
-        <iframe title="Preview" sandbox="allow-scripts allow-forms allow-modals allow-popups" srcDoc={preview} />
+        <iframe title={tx('Preview')} sandbox="allow-scripts allow-forms allow-modals allow-popups" srcDoc={preview} />
       </div>
     </PopoverSurface>
   );
@@ -257,7 +258,7 @@ export function HtmlBlock({ block, readOnly }: BlockProps) {
           <AlignButton block={block} />
           <ActionButton icon="pencilLine" tooltip="Edit HTML" onClick={() => html != null && openHtmlEditor(block.id, html)} />
           <ActionButton icon="caption" tooltip="Caption" onClick={() => showCaption(block.id)} />
-          <ActionButton icon="expand2" tooltip="Expand" label="Open full-screen view" onClick={() => html != null && openOverlay(() => (
+          <ActionButton icon="expand2" tooltip="Expand" label={tx('Open full-screen view')} onClick={() => html != null && openOverlay(() => (
             <div style={{ width: '92vw', height: '86vh', background: '#fff', borderRadius: 10, overflow: 'hidden', boxShadow: 'var(--lp-shadow-outset-screen)' }}>
               <iframe title="HTML" sandbox="allow-scripts allow-forms allow-modals allow-popups" srcDoc={html} style={{ width: '100%', height: '100%', border: 0 }} />
             </div>
@@ -271,7 +272,7 @@ export function HtmlBlock({ block, readOnly }: BlockProps) {
           {html != null ? (
             <iframe title={toPlainText(block.properties?.title) || 'HTML'} sandbox="allow-scripts allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox" srcDoc={html} />
           ) : (
-            <div className="nc-media-error-box" style={{ height: '100%', borderRadius: 10 }}>{error ? 'Could not load the HTML file.' : 'Loading…'}</div>
+            <div className="nc-media-error-box" style={{ height: '100%', borderRadius: 10 }}>{error ? tx('Could not load the HTML file.') : tx('Loading…')}</div>
           )}
         </div>
       )}
@@ -282,18 +283,18 @@ export function HtmlBlock({ block, readOnly }: BlockProps) {
 registerBlock(['html'], HtmlBlock);
 
 registerBlockMenu(['html'], ({ block }) => [
-  { label: 'Edit HTML', icon: 'pencilLine', onSelect: () => { const h = toPlainText(block.properties?.title); openHtmlEditor(block.id, h); } },
-  { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+  { label: tx('Edit HTML'), icon: 'pencilLine', onSelect: () => { const h = toPlainText(block.properties?.title); openHtmlEditor(block.id, h); } },
+  { label: tx('Caption'), icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
 ]);
 
 /** Extra menu items for embed blocks with the html_artifact variant (registered through embed.block.tsx's type list). */
 export function htmlMenuItems(block: BlockRecord) {
   const src = originalSourceOf(block);
   return [
-    { label: 'Edit HTML', icon: 'pencilLine', onSelect: () => { if (src) void loadHtml(src).then((h) => openHtmlEditor(block.id, h)); } },
-    { label: 'Replace', icon: 'replace', onSelect: () => { const el = document.querySelector(`[data-block-id="${block.id}"] .nc-media-frame`) as HTMLElement | null; if (el) openHtmlPicker(block.id, el); } },
-    { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
-    ...(src ? [{ label: 'Download', icon: 'download', onSelect: () => downloadUrl(src, toPlainText(block.properties?.title) || 'index.html') }] : []),
+    { label: tx('Edit HTML'), icon: 'pencilLine', onSelect: () => { if (src) void loadHtml(src).then((h) => openHtmlEditor(block.id, h)); } },
+    { label: tx('Replace'), icon: 'replace', onSelect: () => { const el = document.querySelector(`[data-block-id="${block.id}"] .nc-media-frame`) as HTMLElement | null; if (el) openHtmlPicker(block.id, el); } },
+    { label: tx('Caption'), icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+    ...(src ? [{ label: tx('Download'), icon: 'download', onSelect: () => downloadUrl(src, toPlainText(block.properties?.title) || 'index.html') }] : []),
   ];
 }
 

@@ -20,6 +20,7 @@ import { createViewIn } from '../../actions.ts';
 import { effectiveView } from '../../viewState.ts';
 import { titleOf } from '../../advanced/index.ts';
 import type { ChartConfig, ChartData, ChartPoint } from './chartModel.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 const MAX_ROWS = 500;
 const MAX_COLUMNS = 6;
@@ -131,7 +132,7 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
       items: [
         { id: 'open', label: `Open ${dbName}`, icon: 'openAsPage', onSelect: () => { close(); openPage(collection.parent_id); } },
         ...(nodes ? [{
-          id: 'save', label: 'Store layout in…', icon: 'plus', onSelect: () => {
+          id: 'save', label: tx('Store layout in…'), icon: 'plus', onSelect: () => {
             // opened once this menu has closed (menus close the overlays stacked above them)
             setTimeout(() => openPagePicker(anchor, { onPick: (pageId) => { if (saveAsView(o, pageId, nodes)) close(); } }), 0);
           },
@@ -146,8 +147,8 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
         <span className="nc-chart-drill-title">{point.label}</span>
         <span className="nc-chart-drill-count">{point.rows.length}</span>
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-icon-btn" aria-label="More" data-tooltip="More" onClick={(e) => more(e.currentTarget)}><Icon name="ellipsis" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label={tx('More')} data-tooltip={tx('More')} onClick={(e) => more(e.currentTarget)}><Icon name="ellipsis" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label={tx('Close')} onClick={close}><Icon name="xMarkSmall" size={18} /></div>
       </div>
       <div className="nc-chart-drill-body lit-scroller vertical">
         <div className="nc-chart-drill-table" style={{ gridTemplateColumns: cols.map((c) => (c === 'title' ? 'minmax(200px, 2fr)' : 'minmax(120px, 1fr)')).join(' ') }}>

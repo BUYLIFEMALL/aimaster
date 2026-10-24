@@ -15,6 +15,7 @@ import { openPage, openPeek } from '../../../../lib/router.ts';
 import { titleOf } from '../../advanced/index.ts';
 import { dateByProperty, dateValue, isoOfDay, rowDayRange, todayNum } from '../../advanced/viewKit.tsx';
 import '../../dbv.css';
+import { tx } from '../../../shell/i18n.ts';
 
 export const NO_DATE_DRAG_TYPE = 'application/x-nc-nodate-row';
 const PAGE = 20;
@@ -54,7 +55,7 @@ function NoDatePopup({ kind, view, collection, close, onOpen }: { kind: Kind; vi
   return (
     <PopoverSurface width={320} className="nc-nodate-popup" maxHeight="min(480px, 70vh)">
       <div className="nc-vs-search" data-menu-keys="ignore">
-        <div className="nc-input focused"><input autoFocus placeholder="Find an entry…" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <div className="nc-input focused"><input autoFocus placeholder={tx('Find an entry…')} value={q} onChange={(e) => setQ(e.target.value)} /></div>
       </div>
       <div
         ref={listRef}
@@ -83,11 +84,11 @@ function NoDatePopup({ kind, view, collection, close, onOpen }: { kind: Kind; vi
               <div className="nc-menu-item-inner">
                 <span className="nc-nodate-icon"><PageIcon block={r} size={20} fallback="page" /></span>
                 <div className="nc-menu-label nc-ellipsis">{titleOf(r) || 'Untitled'}</div>
-                <span role="button" className="nc-nodate-open" onClick={(e) => { e.stopPropagation(); close(); onOpen(r.id); }}>Open</span>
+                <span role="button" className="nc-nodate-open" onClick={(e) => { e.stopPropagation(); close(); onOpen(r.id); }}>{tx('Open')}</span>
               </div>
             </div>
           ))}
-          {!rows.length && <div className="nc-menu-empty">No results</div>}
+          {!rows.length && <div className="nc-menu-empty">{tx('No results')}</div>}
         </div>
       </div>
     </PopoverSurface>

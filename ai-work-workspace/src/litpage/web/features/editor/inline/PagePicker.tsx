@@ -5,6 +5,7 @@ import { openOverlay, PopoverSurface, type Anchor } from '../../../components/ov
 import { PageIcon } from '../../shell/PageIcon.tsx';
 import { pageTitle } from '../../page/pageActions.ts';
 import { breadcrumbOf, pageOrNull, usePageSearch } from './pageSearch.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export interface PagePickerOpts {
   placeholder?: string;
@@ -45,7 +46,7 @@ function PagePicker({ placeholder, exclude, onPick, close }: PagePickerOpts & { 
       </div>
       <div className="lit-scroller vertical nc-menu-scroll" role="listbox">
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">{q ? 'Pages' : 'Recents'}</div>
+          <div className="nc-menu-section-title">{q ? tx('Pages') : tx('Recents')}</div>
           {hits.ids.map((id, i) => {
             const b = pageOrNull(id) as BlockRecord | undefined;
             const crumb = breadcrumbOf(id);
@@ -61,7 +62,7 @@ function PagePicker({ placeholder, exclude, onPick, close }: PagePickerOpts & { 
               </div>
             );
           })}
-          {!hits.loading && !hits.ids.length && <div className="nc-menu-empty">No results</div>}
+          {!hits.loading && !hits.ids.length && <div className="nc-menu-empty">{tx('No results')}</div>}
         </div>
       </div>
     </PopoverSurface>

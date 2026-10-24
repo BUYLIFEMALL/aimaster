@@ -11,6 +11,7 @@ import { records } from '../../../lib/store/records.ts';
 import { PropertyIcon } from '../properties/PropertyCell.tsx';
 import { defaultRoleChoice, roleCandidates, turnIntoTaskDatabase, type RoleChoice } from '../taskdb.ts';
 import './relationFeatures.css';
+import { tx } from '../../shell/i18n.ts';
 
 const ROLES: { id: 'status' | 'assignee' | 'due'; word: string; newName: string; newType: string }[] = [
   { id: 'status', word: 'status', newName: 'Status', newType: 'status' },
@@ -26,9 +27,9 @@ function TurnIntoTasks({ collectionId, close }: { collectionId: string; close: (
   });
   if (!c) return null;
   return (
-    <div className="nc-tt-dialog" role="dialog" aria-label="Turn into task database" data-menu-keys="ignore">
-      <div className="nc-tt-title">Turn into task database</div>
-      <div className="nc-tt-sub">Task tables require status, assignee, and due date fields.</div>
+    <div className="nc-tt-dialog" role="dialog" aria-label={tx('Turn into task database')} data-menu-keys="ignore">
+      <div className="nc-tt-title">{tx('Turn into task database')}</div>
+      <div className="nc-tt-sub">{tx('Task tables require status, assignee, and due date fields.')}</div>
       {ROLES.map((r) => {
         const cur = choice[r.id];
         const prop = cur && cur !== 'new' ? c.schema[cur] : undefined;
@@ -43,7 +44,7 @@ function TurnIntoTasks({ collectionId, close }: { collectionId: string; close: (
                 width: 280,
                 sections: [{ items: [
                   ...roleCandidates(c, r.id).map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: cur === id, onSelect: () => setChoice({ ...choice, [r.id]: id }) })),
-                  { id: 'new', label: 'Create new', icon: 'plus', checked: cur === 'new', onSelect: () => setChoice({ ...choice, [r.id]: 'new' }) },
+                  { id: 'new', label: tx('Create new'), icon: 'plus', checked: cur === 'new', onSelect: () => setChoice({ ...choice, [r.id]: 'new' }) },
                 ] }],
               }, { placement: 'bottom-start' })}
             >
@@ -51,21 +52,21 @@ function TurnIntoTasks({ collectionId, close }: { collectionId: string; close: (
               <span className="nc-tt-select-label">{prop ? prop.name : cur === 'new' ? `Create new · ${r.newName}` : 'Select…'}</span>
               <Icon name="chevronDown" size={14} />
             </div>
-            {r.id === 'status' && prop && prop.type !== 'status' && <div className="nc-tt-note">This field will be converted to a Status field type.</div>}
+            {r.id === 'status' && prop && prop.type !== 'status' && <div className="nc-tt-note">{tx('This field will be converted to a Status field type.')}</div>}
           </div>
         );
       })}
       <div className="nc-tt-preview">
         <Icon name="checkmarkSquare" size={20} />
         <div>
-          <div className="nc-tt-preview-title">My Tasks</div>
-          <div className="nc-tt-preview-desc">See all your tasks across multiple tables in your personal Home.</div>
+          <div className="nc-tt-preview-title">{tx('My Tasks')}</div>
+          <div className="nc-tt-preview-desc">{tx('See all your tasks across multiple tables in your personal Home.')}</div>
         </div>
       </div>
       <div className="nc-tt-footer">
-        {HELP_URL && (<a className="nc-tt-learn" href={HELP_URL} target="_blank" rel="noreferrer">Learn about task databases</a>)}
-        <div role="button" className="nc-btn outline" onClick={close}>Close</div>
-        <div role="button" className="nc-btn primary" data-testid="turn-into-tasks-confirm" onClick={() => { turnIntoTaskDatabase(c, { status: choice.status, assignee: choice.assignee, due: choice.due }); close(); }}>Turn into task database</div>
+        {HELP_URL && (<a className="nc-tt-learn" href={HELP_URL} target="_blank" rel="noreferrer">{tx('Learn about task databases')}</a>)}
+        <div role="button" className="nc-btn outline" onClick={close}>{tx('Close')}</div>
+        <div role="button" className="nc-btn primary" data-testid="turn-into-tasks-confirm" onClick={() => { turnIntoTaskDatabase(c, { status: choice.status, assignee: choice.assignee, due: choice.due }); close(); }}>{tx('Turn into task database')}</div>
       </div>
     </div>
   );

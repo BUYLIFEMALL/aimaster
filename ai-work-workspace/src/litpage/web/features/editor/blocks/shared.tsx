@@ -16,6 +16,7 @@ import { commitText } from '../textHandlers.ts';
 import { insertAfter, neighborLeaf } from '../commands.ts';
 import { useEditor } from '../editorState.ts';
 import './blocks.css';
+import { tx } from '../../shell/i18n.ts';
 
 /* ---------------------------------------------------------------- helpers */
 
@@ -165,7 +166,7 @@ export function Caption({ block, readOnly, className }: { block: BlockRecord; re
         value={value}
         readOnly={readOnly}
         className="lit-caption nc-caption"
-        placeholder="Write a caption…"
+        placeholder={tx('Write a caption…')}
         placeholderAlways={shown && !value.length}
         onChange={(next, info) => commitText(block.id, 'caption', next, info.caret)}
         onBlur={() => {
@@ -370,7 +371,7 @@ export function LiveSwitch({ blockId, get }: { blockId: string; get: (b: BlockRe
 export function openLightbox(render: () => ReactNode) {
   return openOverlay((close) => (
     <div className="nc-lightbox" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
-      <div className="nc-lightbox-close" role="button" aria-label="Close" onClick={close}><Icon name="close" size={20} /></div>
+      <div className="nc-lightbox-close" role="button" aria-label={tx('Close')} onClick={close}><Icon name="close" size={20} /></div>
       <div className="nc-lightbox-body">{render()}</div>
     </div>
   ), { backdrop: 'dim', placement: 'center', className: 'nc-lightbox-overlay' });

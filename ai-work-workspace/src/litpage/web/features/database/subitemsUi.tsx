@@ -10,6 +10,7 @@ import { titleOf } from './advanced/context.ts';
 import { addSubitem, useSubitemExpansion } from './subitems.ts';
 import { useDatabaseContext } from './DatabaseContext.tsx';
 import './subitems.css';
+import { tx } from '../shell/i18n.ts';
 
 export const SUBITEM_INDENT = 24;
 
@@ -29,7 +30,7 @@ export function SubitemToggle({ info }: { info: SubitemRowInfo }) {
       <span
         role="button"
         className={`nc-subitem-toggle ${info.open ? 'open' : ''} ${info.count ? 'has-children' : ''}`}
-        aria-label={info.open ? 'Collapse sub-items' : 'Expand sub-items'}
+        aria-label={info.open ? tx('Collapse sub-items') : tx('Expand sub-items')}
         aria-expanded={info.open}
         onMouseDown={(e) => e.preventDefault()}
         onClick={(e) => {
@@ -64,7 +65,7 @@ export function NewSubitemRow({ parent, view, depth, className }: { parent: Bloc
         if (id) db?.setEditingTitle(id);
       }}>
         <Icon name="plusSmall" size={16} />
-        <span>New nested item</span>
+        <span>{tx('New nested item')}</span>
       </div>
     </div>
   );

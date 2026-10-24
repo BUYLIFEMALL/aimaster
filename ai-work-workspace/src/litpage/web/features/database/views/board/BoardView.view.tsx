@@ -18,6 +18,7 @@ import { openRowMenu } from '../../chrome/RowMenu.tsx';
 import type { Tx } from '../../../../lib/store/transactions.ts';
 import './board.css';
 import { colorToken } from '../../../../lib/colorToken.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 const SIZES: Record<string, number> = { small: 180, medium: 260, large: 320 };
 
@@ -82,7 +83,7 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
   if (!gb || !result.groups) {
     return (
       <div className="lit-board-view nc-board-empty" style={{ marginInlineStart: bleed.left, marginInlineEnd: bleed.right }}>
-        <div className="nc-board-nogroup">No group by property. Choose one in View settings › Group.</div>
+        <div className="nc-board-nogroup">{tx('No group by property. Choose one in View settings › Group.')}</div>
       </div>
     );
   }
@@ -132,8 +133,8 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
         <CardBody row={row} view={view} collection={collection} props={props} showTitle={showTitle} readOnly={readOnly} editing={db?.editingTitle === row.id} onDoneEditing={() => db?.setEditingTitle(null)} />
         {!readOnly && (
           <div className="nc-card-hover-pill" onClick={(e) => e.stopPropagation()}>
-            <span role="button" className="nc-card-pill-btn" data-tooltip="Edit" onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
-            <span role="button" className="nc-card-pill-btn" data-tooltip="Rename, remove, send, and more…" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
+            <span role="button" className="nc-card-pill-btn" data-tooltip={tx('Edit')} onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
+            <span role="button" className="nc-card-pill-btn" data-tooltip={tx('Rename, remove, send, and more…')} onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
           </div>
         )}
       </div>
@@ -157,13 +158,13 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
         {rows.length > shown.length && (
           <div role="button" className="nc-board-load-more" onClick={() => setLimits((m) => ({ ...m, [key]: lim + firstLimit }))}>
             <Icon name="arrowDown" size={16} />
-            <span>Load more</span>
+            <span>{tx('Load more')}</span>
           </div>
         )}
         {!readOnly && (
           <div role="button" className="nc-board-new" onClick={() => db?.addRow({ group: g, subgroup: sub ?? null, position: 'end', editTitle: true })}>
             <Icon name="plusSmall" size={16} />
-            <span>New page</span>
+            <span>{tx('New page')}</span>
           </div>
         )}
       </div>
@@ -189,12 +190,12 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
       onDragEnd={() => setColDrag(null)}
     >
       <div className="nc-board-header-pill" title={g.uncategorized ? `Any items with an empty ${collection.schema[gb.property]?.name} property will go here. This group cannot be removed.` : undefined}><GroupToken group={g} /></div>
-      {g.aggregation && <span role="button" className="nc-board-count" data-tooltip="Aggregate">{g.aggregation.display}</span>}
+      {g.aggregation && <span role="button" className="nc-board-count" data-tooltip={tx('Aggregate')}>{g.aggregation.display}</span>}
       <div className="nc-board-header-spacer" />
       {!readOnly && (
         <>
-          {!structureRO && <span role="button" className="nc-board-header-btn" aria-label="More group actions" onClick={(e) => openGroupMenu(e.currentTarget, g, view, collection, result.groups!, gb.property)}><Icon name="ellipsisSmall" size={16} /></span>}
-          <span role="button" className="nc-board-header-btn" aria-label="New page" onClick={() => db?.addRow({ group: g, position: 'start', editTitle: true })}><Icon name="plusSmall" size={16} /></span>
+          {!structureRO && <span role="button" className="nc-board-header-btn" aria-label={tx('More group actions')} onClick={(e) => openGroupMenu(e.currentTarget, g, view, collection, result.groups!, gb.property)}><Icon name="ellipsisSmall" size={16} /></span>}
+          <span role="button" className="nc-board-header-btn" aria-label={tx('New page')} onClick={() => db?.addRow({ group: g, position: 'start', editTitle: true })}><Icon name="plusSmall" size={16} /></span>
         </>
       )}
     </div>
@@ -208,7 +209,7 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
       if (name?.trim()) addOption(collection.id, gb.property, name.trim());
     }}>
       <Icon name="plusSmall" size={16} />
-      <span>New group</span>
+      <span>{tx('New group')}</span>
     </div>
   );
 

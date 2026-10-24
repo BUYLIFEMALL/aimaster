@@ -19,7 +19,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { getBlock, moveBlocksIn, run } from '../../lib/blocks.ts';
 import { useTableVersion } from '../../lib/hooks.ts';
 import { PageIcon } from '../shell/PageIcon.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { pageTitle, trashPage } from './pageActions.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import './pageIcons.tsx';
@@ -212,7 +212,7 @@ function MoveTo({ ids, close, addTo }: { ids: string[]; close: () => void; addTo
   } else if (!query) {
     for (const id of suggested) pushPage(id, 0);
   } else {
-    if ((crossSpace || sv) && ('private pages'.includes(query) || 'private'.startsWith(query))) rows.push({ key: 'private', depth: 0, target: { kind: 'private' }, label: 'Private pages', icon: <Icon name="lock" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />, expandable: false });
+    if ((crossSpace || sv) && ('private pages'.includes(query) || 'private'.startsWith(query))) rows.push({ key: 'private', depth: 0, target: { kind: 'private' }, label: tx('Private pages'), icon: <Icon name="lock" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />, expandable: false });
     for (const tm of teams) if (tm.name?.toLowerCase().includes(query)) rows.push({ key: `team:${tm.id}`, depth: 0, target: { kind: 'team', id: tm.id }, label: tm.name ?? 'Teamspace', icon: <PageIcon icon={tm.icon || '🏠'} size={20} />, expandable: false });
     for (const id of results) pushPage(id, 0);
   }
@@ -272,7 +272,7 @@ function MoveTo({ ids, close, addTo }: { ids: string[]; close: () => void; addTo
           >
             <div
               role="button"
-              aria-label={r.id && expanded.has(r.id) ? 'Close' : 'Open'}
+              aria-label={r.id && expanded.has(r.id) ? tx('Close') : tx('Open')}
               className={`nc-moveto-chevron ${r.expandable ? '' : 'hidden'} ${r.id && expanded.has(r.id) ? 'open' : ''}`}
               onClick={(e) => { e.stopPropagation(); if (r.expandable && r.id) toggle(r.id); }}
             >

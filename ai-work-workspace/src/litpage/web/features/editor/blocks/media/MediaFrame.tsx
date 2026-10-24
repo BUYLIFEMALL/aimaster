@@ -6,6 +6,7 @@ import type { BlockRecord } from '#shared/records.ts';
 import { openMenu } from '../../../../components/Menu.tsx';
 import { run, setFormat } from '../../../../lib/blocks.ts';
 import { ActionBar, ActionButton, Caption, ResizeHandles, useResize } from '../shared.tsx';
+import { tx } from '../../../shell/i18n.ts';
 
 export type Align = 'left' | 'center' | 'right';
 
@@ -25,7 +26,7 @@ export function AlignButton({ block }: { block: BlockRecord }) {
     <ActionButton
       icon={icon}
       tooltip="Alignment"
-      label="Align block"
+      label={tx('Align block')}
       onClick={(e) => openMenu(e.currentTarget, {
         width: 180,
         sections: [{

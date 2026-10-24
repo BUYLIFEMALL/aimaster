@@ -15,6 +15,7 @@ import { PageIcon } from '../../shell/PageIcon.tsx';
 import { RichTextView } from './RichTextView.tsx';
 import { TEMPLATE_ME, TemplateVarChip, templateDateLabel } from '../templates/templateVars.tsx';
 import { colorToken } from '../../../lib/colorToken.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export function optionColorClass(color: string | undefined): string {
   return `nc-color-${color && color !== 'teal' ? color : color === 'teal' ? 'green' : 'default'}`;
@@ -178,8 +179,8 @@ function CopyValueButton({ text, kind }: { text: string; kind: string }) {
     <span
       role="button"
       className="nc-copy-value"
-      aria-label="Copy value"
-      data-tooltip="Copy value"
+      aria-label={tx('Copy value')}
+      data-tooltip={tx('Copy value')}
       onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
       onClick={(e) => {
         e.stopPropagation();
@@ -252,7 +253,7 @@ export function ValueView({ value, prop, wrap, onToggleCheckbox, readOnly, ctx, 
       if (!value.ids.length && !value.groups?.length) return null;
       return (
         <span className={`nc-people ${wrap ? 'wrap' : ''}`}>
-          {value.ids.map((id) => (id === TEMPLATE_ME ? <TemplateVarChip key={id} icon="person">Person who duplicated entry</TemplateVarChip> : <PersonChip key={id} userId={id} size={20} />))}
+          {value.ids.map((id) => (id === TEMPLATE_ME ? <TemplateVarChip key={id} icon="person">{tx('Person who duplicated entry')}</TemplateVarChip> : <PersonChip key={id} userId={id} size={20} />))}
           {(value.groups ?? []).map((g) => <GroupChip key={`g:${g.id}`} groupId={g.id} spaceId={g.spaceId} size={20} />)}
         </span>
       );
@@ -292,7 +293,7 @@ export function ValueView({ value, prop, wrap, onToggleCheckbox, readOnly, ctx, 
       return (
         <span className={`nc-verification ${value.state}`}>
           <Icon name="verification" size={14} />
-          <span>{value.state === 'verified' ? 'Verified' : 'Expired'}</span>
+          <span>{value.state === 'verified' ? tx('Verified') : tx('Expired')}</span>
         </span>
       );
     case 'button':

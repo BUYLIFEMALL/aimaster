@@ -16,6 +16,7 @@ import { createCallout, turnIntoCallout } from './factories.ts';
 import { Leaf } from './TextBlocks.tsx';
 import { blockElement } from './shared.tsx';
 import { PREF, setPref } from '../prefs.ts';
+import { tx } from '../../shell/i18n.ts';
 
 /** Callout icon. An emoji uses a 21.6px block in the UI font with line-height 1 holding an emoji-font span. The UI font strut puts the glyph 1px lower than an emoji-font block.92). Icon-set glyphs and images go through PageIcon. */
 function CalloutIcon({ icon }: { icon: string }) {
@@ -111,7 +112,7 @@ registerBlockMenu(['callout'], ({ block, turnInto, color }) => [
   turnInto,
   color,
   {
-    label: 'Edit icon', icon: 'iconEdit',
+    label: tx('Edit icon'), icon: 'iconEdit',
     onSelect: () => {
       const el = blockElement(block.id)?.querySelector('.nc-callout-icon-btn') as HTMLElement | null;
       setTimeout(() => editCalloutIcon(block, el ?? blockElement(block.id)!.getBoundingClientRect()), 0);

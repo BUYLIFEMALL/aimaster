@@ -19,7 +19,7 @@ import { openOverlay, PopoverSurface, type Anchor } from '../../components/overl
 import { Icon } from '../../components/Icon.tsx';
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
 import { registerCellEditor } from '../database/properties/editorRegistry.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { archiveState } from './archive.tsx';
 
 function collectionOf(page: BlockRecord | undefined): CollectionRecord | undefined {
@@ -254,7 +254,7 @@ function VerificationPopover({ pageId, close, readOnly }: { pageId: string; clos
             <UserAvatar userId={id} size={20} />
             <span className="nc-ellipsis">{userName(records.get<UserRecord>('lit_user', id))}</span>
             {canEdit && (
-              <span role="button" className="nc-icon-btn small" aria-label="Remove owner" onClick={() => void setOwners(info.owners.filter((x) => x !== id))}>
+              <span role="button" className="nc-icon-btn small" aria-label={tx('Remove owner')} onClick={() => void setOwners(info.owners.filter((x) => x !== id))}>
                 <Icon name="close" size={12} />
               </span>
             )}

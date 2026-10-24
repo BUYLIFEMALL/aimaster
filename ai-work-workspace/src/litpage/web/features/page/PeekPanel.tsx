@@ -10,7 +10,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { openMenu } from '../../components/Menu.tsx';
 import { records } from '../../lib/store/records.ts';
 import { transactions } from '../../lib/store/transactions.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { PageView } from './PageView.tsx';
 import { usePageLoader } from './usePageLoader.ts';
 import { ShareButton } from './ShareMenu.tsx';
@@ -76,7 +76,7 @@ export function PeekPanel({ pageId, mode }: { pageId: string; mode: 'side_peek' 
       <PreviewAddTo pageId={pageId} />
       <div className="spacer" />
       <ShareButton pageId={pageId} />
-      <div ref={moreRef} role="button" className="nc-btn icon-only" aria-label="Actions" data-tooltip="Style, export, and more…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+      <div ref={moreRef} role="button" className="nc-btn icon-only" aria-label={tx('Actions')} data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
         <Icon name="ellipsis" size={20} />
       </div>
     </div>
@@ -108,11 +108,11 @@ function SidePeekFrame({ children }: { children: ReactNode }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const current = () => frameRef.current?.getBoundingClientRect().width ?? window.innerWidth / 2;
   return (
-    <div ref={frameRef} className="nc-side-peek lit-peek-renderer" role="region" aria-label="Side Peek" style={width ? { flexBasis: width } : undefined}>
+    <div ref={frameRef} className="nc-side-peek lit-peek-renderer" role="region" aria-label={tx('Side Peek')} style={width ? { flexBasis: width } : undefined}>
       <div
         role="separator"
         aria-orientation="vertical"
-        aria-label="Resize with the arrow keys"
+        aria-label={tx('Resize with the arrow keys')}
         tabIndex={0}
         className="nc-peek-resize"
         onPointerDown={(e) => {
@@ -168,13 +168,13 @@ function SidePeekHeader({ pageId, mode, onSwitch, nav }: { pageId: string; mode:
       {/* the frame's topbar actions, re-hosted: Share / Copy link / Favorite / Actions */}
       <div className="nc-peek-right lit-topbar">
         <ShareButton pageId={pageId} />
-        <div role="button" aria-label="Copy link" className="nc-topbar-icon-btn" data-tooltip="Copy link" onClick={() => copyPageLink(pageId)}>
+        <div role="button" aria-label={tx('Copy link')} className="nc-topbar-icon-btn" data-tooltip={tx('Copy link')} onClick={() => copyPageLink(pageId)}>
           <Icon name="dbLink" size={20} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
-        <div role="button" aria-label="Favorite" className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? 'Remove from favorites' : 'Add to favorites'} onClick={() => toggleFavorite(pageId)}>
+        <div role="button" aria-label={tx('Favorite')} className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? tx('Remove from favorites') : tx('Add to favorites')} onClick={() => toggleFavorite(pageId)}>
           <Icon name="star" size={18} style={{ color: fav ? '#78350f' : 'var(--lp-icon-primary)', fill: fav ? '#78350f' : 'none' }} />
         </div>
-        <div ref={moreRef} role="button" aria-label="Actions" className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip="Style, export, and more…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+        <div ref={moreRef} role="button" aria-label={tx('Actions')} className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
           <Icon name="ellipsis" size={22} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
       </div>

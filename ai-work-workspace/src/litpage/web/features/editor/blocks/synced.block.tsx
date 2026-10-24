@@ -25,6 +25,7 @@ import { blockToMarkdown } from '../clipboard.ts';
 import { registerBlockMenu, registerTurnInto, overrideSlashItem } from './registry.ts';
 import { createSyncedBlock, wrapInSyncedBlock } from './factories.ts';
 import { toast } from './shared.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 const MARK = 'data-nc-synced-block';
 
@@ -215,7 +216,7 @@ function confirmDialog(anchor: HTMLElement | DOMRect, title: string, text: strin
         <div className="msg" style={{ color: 'var(--lp-text-secondary)', fontSize: 13 }}>{text}</div>
         <div className="btns">
           <button className="nc-blk-btn danger outline" onClick={() => { close(); onConfirm(); }}>{confirm}</button>
-          <button className="nc-blk-btn outline" onClick={close}>Cancel</button>
+          <button className="nc-blk-btn outline" onClick={close}>{tx('Cancel')}</button>
         </div>
       </div>
     </PopoverSurface>
@@ -241,7 +242,7 @@ function BacklinksButton({ containerId, refs, currentPage }: { containerId: stri
     <div
       role="button"
       tabIndex={0}
-      aria-label="Open backlinks"
+      aria-label={tx('Open backlinks')}
       className="nc-blk-action with-text"
       style={{ color: 'var(--lp-text-secondary)', fontSize: 14, height: 24 }}
       onMouseDown={(e) => e.preventDefault()}
@@ -251,13 +252,13 @@ function BacklinksButton({ containerId, refs, currentPage }: { containerId: stri
         openMenu(e.currentTarget, {
           width: 280,
           sections: [{
-            title: 'Synced to',
+            title: tx('Synced to'),
             items: all.map((p) => ({
               id: p, label: pageTitle(getBlock(p)) || 'New page', icon: <PageIcon block={getBlock(p)} size={20} />,
-              right: p === origPage ? <span className="nc-menu-badge">Original</span> : p === currentPage ? <span className="nc-menu-shortcut">Current</span> : undefined,
+              right: p === origPage ? <span className="nc-menu-badge">{tx('Original')}</span> : p === currentPage ? <span className="nc-menu-shortcut">{tx('Current')}</span> : undefined,
               onSelect: () => { if (p !== currentPage) openPage(p); },
             })),
-          }, ...(HELP_URL ? [{ items: [{ label: 'Learn about mirrored blocks', icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank') }] }] : [])],
+          }, ...(HELP_URL ? [{ items: [{ label: tx('Learn about mirrored blocks'), icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank') }] }] : [])],
         });
       }}
     >
@@ -289,7 +290,7 @@ function SyncFrame({ block, containerId, depth, readOnly, isReference }: { block
     return (
       <div className="nc-bpad0">
         <div className="nc-synced-2 readonly">
-          <div className="nc-synced-missing"><Icon name="blockSync" size={16} />You can’t access this mirrored block</div>
+          <div className="nc-synced-missing"><Icon name="blockSync" size={16} />{tx('You can’t access this mirrored block')}</div>
         </div>
       </div>
     );
@@ -298,13 +299,13 @@ function SyncFrame({ block, containerId, depth, readOnly, isReference }: { block
     <div className="nc-bpad0" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <div className={`nc-synced-2 ${active ? 'active' : ''} ${readOnly ? 'readonly' : ''}`} data-synced-container={containerId}>
         {!readOnly && (
-          <div className="nc-synced-bar" role="toolbar" aria-label="Mirrored block actions" onMouseDown={(e) => e.preventDefault()}>
+          <div className="nc-synced-bar" role="toolbar" aria-label={tx('Mirrored block actions')} onMouseDown={(e) => e.preventDefault()}>
             <BacklinksButton containerId={containerId} refs={refs} currentPage={currentPage} />
             <div className="nc-blk-action-divider" />
-            <div role="button" tabIndex={0} className="nc-blk-action" aria-label="Copy mirrored block" data-tooltip="Copy mirrored block" onClick={() => void copySyncedBlock(block.id)}>
+            <div role="button" tabIndex={0} className="nc-blk-action" aria-label={tx('Copy mirrored block')} data-tooltip={tx('Copy mirrored block')} onClick={() => void copySyncedBlock(block.id)}>
               <Icon name="duplicate" size={16} />
             </div>
-            <div role="button" tabIndex={0} className="nc-blk-action" aria-label="Open block options" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())}>
+            <div role="button" tabIndex={0} className="nc-blk-action" aria-label={tx('Open block options')} onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())}>
               <Icon name="ellipsis" size={16} />
             </div>
           </div>
@@ -312,8 +313,8 @@ function SyncFrame({ block, containerId, depth, readOnly, isReference }: { block
         {src.alive === false && (
           <div className="nc-synced-missing">
             <Icon name="warningTriangle" size={16} />
-            {isReference ? 'The original synced block has been deleted.' : 'This synced block has been deleted.'}
-            {isReference && !readOnly && <button className="nc-blk-btn outline" style={{ marginInlineStart: 'auto' }} onClick={() => unsyncReference(block.id)}>Unsync</button>}
+            {isReference ? tx('The original synced block has been deleted.') : tx('This synced block has been deleted.')}
+            {isReference && !readOnly && <button className="nc-blk-btn outline" style={{ marginInlineStart: 'auto' }} onClick={() => unsyncReference(block.id)}>{tx('Unsync')}</button>}
           </div>
         )}
         {kids.length ? (
@@ -357,9 +358,9 @@ registerBlock(['transclusion_container'], SyncedContainer);
 registerBlock(['transclusion_reference'], SyncedReference);
 
 registerBlockMenu(['transclusion_container'], ({ block, anchor }) => [
-  { label: 'Copy and sync', icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
+  { label: tx('Copy and sync'), icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
   {
-    label: 'Unsync all', icon: 'unsync',
+    label: tx('Unsync all'), icon: 'unsync',
     onSelect: () => {
       void fetchReferences(block.id, true).then((refs) => {
         if (!refs.length) return unsyncAll(block.id);
@@ -370,10 +371,10 @@ registerBlockMenu(['transclusion_container'], ({ block, anchor }) => [
 ]);
 
 registerBlockMenu(['transclusion_reference'], ({ block, anchor }) => [
-  { label: 'Copy and sync', icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
-  { label: 'Go to original', icon: 'arrowDiagonalUpRight', onSelect: () => { const p = pageOf(containerOf(block) ?? '')?.id; if (p) openPage(p); } },
+  { label: tx('Copy and sync'), icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
+  { label: tx('Go to original'), icon: 'arrowDiagonalUpRight', onSelect: () => { const p = pageOf(containerOf(block) ?? '')?.id; if (p) openPage(p); } },
   {
-    label: 'Unsync', icon: 'unsync',
+    label: tx('Unsync'), icon: 'unsync',
     onSelect: () => confirmDialog(anchor ?? new DOMRect(innerWidth / 2, innerHeight / 3, 0, 0), 'Unsync this?', 'Selected blocks will stop mirroring the source.', 'Unsync', () => unsyncReference(block.id)),
   },
 ]);

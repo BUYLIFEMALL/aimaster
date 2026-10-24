@@ -17,7 +17,7 @@ import { automationAccess, automationRuns, deleteAutomation, duplicateAutomation
 import { openAutomationBuilder } from './builder.tsx';
 import './automations.css';
 import { openKeepMenu } from './keepMenu.ts';
-import { getLocale } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
+import { getLocale, tx } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 
 export function automationDisplayName(a: AutomationRecord): string {
   if (a.properties?.name) return a.properties.name;
@@ -37,9 +37,9 @@ function caption(a: AutomationRecord): string {
 }
 
 function statusToken(a: AutomationRecord): { label: string; cls: string } | null {
-  if (a.status === 'completed') return { label: 'Completed', cls: 'completed' };
-  if (a.status === 'paused' && a.last_error) return { label: 'Failing', cls: 'failing' };
-  if (a.status === 'paused') return { label: 'Paused', cls: 'paused' };
+  if (a.status === 'completed') return { label: tx('Completed'), cls: 'completed' };
+  if (a.status === 'paused' && a.last_error) return { label: tx('Failing'), cls: 'failing' };
+  if (a.status === 'paused') return { label: tx('Paused'), cls: 'paused' };
   return null;
 }
 
@@ -50,7 +50,7 @@ function cardMenu(anchor: HTMLElement, a: AutomationRecord, canEdit: boolean, on
     width: 240,
     sections: [
       ...(canEdit ? [{ items: [{
-        id: 'active', label: 'Active', icon: 'lightning',
+        id: 'active', label: tx('Active'), icon: 'lightning',
         right: <Toggle on={active} decorative />,
         onSelect: () => {
           setAutomationStatus(a.id, active ? 'paused' : 'active').then(() => {
@@ -61,11 +61,11 @@ function cardMenu(anchor: HTMLElement, a: AutomationRecord, canEdit: boolean, on
       { items: [
         { id: 'edit', label: canEdit ? 'Edit' : 'View', icon: 'pencilLine', onSelect: () => openAutomationBuilder(a.parent_id, a.id) },
         ...(canEdit ? [
-          { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => void duplicateAutomation(a.id).catch((e) => useUI.getState().toast(e?.message || 'Could not duplicate')) },
-          { id: 'del', label: 'Delete', icon: 'trash', onSelect: async () => { if (await confirmDialog({ message: `Delete ${automationDisplayName(a)}?`, confirmLabel: 'Delete' })) await deleteAutomation(a.id); } },
+          { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => void duplicateAutomation(a.id).catch((e) => useUI.getState().toast(e?.message || 'Could not duplicate')) },
+          { id: 'del', label: tx('Delete'), icon: 'trash', onSelect: async () => { if (await confirmDialog({ message: `Delete ${automationDisplayName(a)}?`, confirmLabel: 'Delete' })) await deleteAutomation(a.id); } },
         ] : []),
       ] },
-      { items: [{ id: 'runs', label: 'Recent runs', icon: 'history', onSelect: () => { void openRuns(anchor, a); } }] },
+      { items: [{ id: 'runs', label: tx('Recent runs'), icon: 'history', onSelect: () => { void openRuns(anchor, a); } }] },
     ],
   }, { placement: 'bottom-end', parent: overlayIdOf(anchor), backdrop: 'transparent', onClose: () => onMenu(false) });
   void onOpen;
@@ -75,9 +75,9 @@ async function openRuns(anchor: HTMLElement, a: AutomationRecord) {
   const runs = await automationRuns(a.id).catch(() => []);
   openOverlay(() => (
     <PopoverSurface width={300} className="nc-auto-pop">
-      <div className="nc-auto-pop-head">Recent runs</div>
+      <div className="nc-auto-pop-head">{tx('Recent runs')}</div>
       <div className="nc-auto-pop-list nc-autoruns" style={{ padding: '0 12px 10px' }}>
-        {!runs.length && <div className="nc-auto-hint">This automation hasn’t run yet.</div>}
+        {!runs.length && <div className="nc-auto-hint">{tx('This automation hasn’t run yet.')}</div>}
         {runs.map((r) => (
           <div key={r.id} className={`nc-autorun ${r.status}`}>
             <span className="dot" />
@@ -101,7 +101,7 @@ function SummaryCard({ a, canEdit }: { a: AutomationRecord; canEdit: boolean }) 
         <div className="nc-autocard-caption">{caption(a)}</div>
         {a.status === 'paused' && a.last_error && <div className="nc-autocard-caption" style={{ color: 'var(--lp-red-text-secondary, #c4554d)' }}>{a.last_error.message}</div>}
       </div>
-      <span role="button" className={`nc-auto-icon-btn nc-autocard-more ${menu ? 'open' : ''}`} aria-label="More" data-tooltip="More" onClick={(e) => { e.stopPropagation(); cardMenu(e.currentTarget, a, canEdit, () => {}, setMenu); }}>
+      <span role="button" className={`nc-auto-icon-btn nc-autocard-more ${menu ? 'open' : ''}`} aria-label={tx('More')} data-tooltip={tx('More')} onClick={(e) => { e.stopPropagation(); cardMenu(e.currentTarget, a, canEdit, () => {}, setMenu); }}>
         <Icon name="ellipsisSmall" size={16} />
       </span>
     </div>
@@ -116,8 +116,8 @@ export function AutomationsList({ collectionId, onNew, header }: { collectionId:
   const newAutomation = () => { onNew?.(); openAutomationBuilder(collectionId); };
   return (
     <div className="nc-autolist">
-      {header && <div className="nc-autolist-head"><span>Automations</span></div>}
-      {list.length > 5 && <div className="nc-autolist-search" data-menu-keys="ignore"><div className="nc-input"><input placeholder="Search automations…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>}
+      {header && <div className="nc-autolist-head"><span>{tx('Automations')}</span></div>}
+      {list.length > 5 && <div className="nc-autolist-search" data-menu-keys="ignore"><div className="nc-input"><input placeholder={tx('Search automations…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>}
       {list.length === 0 ? (
         <div className="nc-autolist-empty">
           <span>{access && !access.canEdit ? (access.role === 'read_and_write' || access.role === 'content_only_editor' ? 'You can edit entries, but full access is required to create workflows.' : access.editProblem === 'Join this workspace before editing automations' ? access.editProblem : 'View-only users cannot create workflows.') : 'Update fields, create entries, send notices, and more'}</span>
@@ -125,17 +125,17 @@ export function AutomationsList({ collectionId, onNew, header }: { collectionId:
       ) : (
         <div className="nc-autolist-items">
           {shown.map((a) => <SummaryCard key={a.id} a={a} canEdit={canEdit} />)}
-          {!shown.length && <div className="nc-auto-pop-section">No results</div>}
+          {!shown.length && <div className="nc-auto-pop-section">{tx('No results')}</div>}
         </div>
       )}
       <div className="nc-autolist-foot">
         {canEdit && (
           <div role="menuitem" className="nc-menu-item" onClick={newAutomation}>
-            <div className="nc-menu-item-inner nc-mi"><div className="nc-menu-icon"><Icon name="plus" size={20} /></div><div className="nc-menu-label">New automation</div></div>
+            <div className="nc-menu-item-inner nc-mi"><div className="nc-menu-icon"><Icon name="plus" size={20} /></div><div className="nc-menu-label">{tx('New automation')}</div></div>
           </div>
         )}
         {HELP_URL && <a role="menuitem" className="nc-menu-item" href={HELP_URL} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div className="nc-menu-item-inner nc-mi"><div className="nc-menu-icon"><Icon name="questionMarkCircle" size={20} /></div><div className="nc-menu-label">Explore workflows</div></div>
+          <div className="nc-menu-item-inner nc-mi"><div className="nc-menu-icon"><Icon name="questionMarkCircle" size={20} /></div><div className="nc-menu-label">{tx('Explore workflows')}</div></div>
         </a>}
       </div>
     </div>

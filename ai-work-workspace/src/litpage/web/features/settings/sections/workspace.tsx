@@ -13,7 +13,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { openMenu } from '../../../components/Menu.tsx';
 import { openEmojiPicker } from '../../page/IconPicker.tsx';
 import { archiveTeamspace, joinTeamspace, leaveTeamspace, openCreateTeamspaceDialog, openTeamspaceSettings } from '../../shell/teamspaces.tsx';
-import { getLocale, t } from '../../shell/i18n.ts';
+import { getLocale, t, tx } from '../../shell/i18n.ts';
 import { Button, Dropdown, Group, IdRow, Pills, Row, SectionPage, Switch, Upsell, UserAvatar, confirmDialog, msg, openSubDialog, rich } from '../ui.tsx';
 import { saveSpaceViewSetting } from '../userSettings.ts';
 import { useSettingsFocus } from '../searchIndex.ts';
@@ -87,7 +87,7 @@ export function GeneralSection() {
           id="show-lit-apps"
           label={t('lp.settings.sidebar_app_shortcuts', 'Sidebar app shortcuts')}
           description={t('lp.settings.add_a_calendar_shortcut_to_the_sidebar', 'Add a calendar shortcut to the sidebar')}
-          control={<Switch label="Show app shortcuts in the sidebar" checked={sv?.settings?.show_lit_apps !== false} onChange={(v) => saveSpaceViewSetting('show_lit_apps', v)} />}
+          control={<Switch label={tx('Show app shortcuts in the sidebar')} checked={sv?.settings?.show_lit_apps !== false} onChange={(v) => saveSpaceViewSetting('show_lit_apps', v)} />}
         />
       </Group>
       {owner && <ExportGroup space={space} />}
@@ -97,7 +97,7 @@ export function GeneralSection() {
             id="page-view-analytics"
             label={t('lp.settings.save_page_views_and_show_analytics', 'Save page views and show analytics')}
             description={t('lp.settings.track_page_views_across_people_with', 'Track page views across {workspaceName}. People with edit or full access can see each page’s view count.', { workspaceName: space.name })}
-            control={<Switch label="Save and show page view metrics" checked={spaceSetting(space, 'page_view_analytics', true)} onChange={(v) => saveSpaceSettings(space.id, { page_view_analytics: v })} />}
+            control={<Switch label={tx('Save and show page view metrics')} checked={spaceSetting(space, 'page_view_analytics', true)} onChange={(v) => saveSpaceSettings(space.id, { page_view_analytics: v })} />}
           />
         </Group>
       )}
@@ -580,7 +580,7 @@ export function TeamspacesSection() {
           description={t('lp.settings.only_workspace_owners_can_create_teams', 'Only workspace owners can create teams')}
           control={(
             <Switch
-              label="Limit teamspace creation"
+              label={tx('Limit teamspace creation')}
               disabled={!owner}
               checked={spaceSetting(space, 'limit_team_creation', false)}
               onChange={(v) => {
@@ -727,7 +727,7 @@ function DefaultTeams({ space, teams }: { space: SpaceRecord; teams: TeamRecord[
           return (
             <span key={id} className="nc-set-chip">
               {tm?.name || t('lp.settings.untitled', 'Untitled')}
-              <span role="button" aria-label="Remove" className="x" onClick={() => setSel((s) => s.filter((x) => x !== id))}><Icon name="xMarkSmall" size={14} /></span>
+              <span role="button" aria-label={tx('Remove')} className="x" onClick={() => setSel((s) => s.filter((x) => x !== id))}><Icon name="xMarkSmall" size={14} /></span>
             </span>
           );
         })}
@@ -788,31 +788,31 @@ export function SecuritySection() {
             id="disable-public-access"
             label={t('lp.settings.turn_off_public_links_forms_and', 'Turn off public links, forms, and site publishing')}
             description={t('lp.settings.block_public_sharing_from_this_workspace', 'Block public sharing from this workspace')}
-            control={<span data-tooltip={ent ? undefined : entTip}><Switch label="Disable publishing" disabled={!ent} checked={!!space.disable_public_access} onChange={(v) => void confirmPublic(v)} /></span>}
+            control={<span data-tooltip={ent ? undefined : entTip}><Switch label={tx('Disable publishing')} disabled={!ent} checked={!!space.disable_public_access} onChange={(v) => void confirmPublic(v)} /></span>}
           />
           <Row
             id="disable-move-to-space"
             label={t('lp.settings.prevent_copying_pages_to_other_workspace', 'Prevent copying pages to other workspaces')}
             description={rich(msg('lp.settings.prevent_pages_from_being_duplicated_to', 'Prevent pages from being duplicated to another workspace through <bold>Change to</bold> or <bold>Duplicate to</bold>'), {}, { bold: (c) => <strong>{c}</strong> })}
-            control={<span data-tooltip={ent ? undefined : entTip}><Switch label="Disable duplicating pages" disabled={!ent} checked={spaceSetting(space, 'disable_move_to_space', false)} onChange={(v) => set({ disable_move_to_space: v })} /></span>}
+            control={<span data-tooltip={ent ? undefined : entTip}><Switch label={tx('Disable duplicating pages')} disabled={!ent} checked={spaceSetting(space, 'disable_move_to_space', false)} onChange={(v) => set({ disable_move_to_space: v })} /></span>}
           />
           <Row
             id="disable-export"
             label={t('lp.settings.disable_export', 'Disable export')}
             description={t('lp.settings.block_exports_of_this_workspace_s', 'Block exports of this workspace’s content')}
-            control={<span data-tooltip={ent ? undefined : entTip}><Switch label="Disable export" disabled={!ent} checked={!!space.disable_export} onChange={(v) => saveSpace(space.id, { disable_export: v })} /></span>}
+            control={<span data-tooltip={ent ? undefined : entTip}><Switch label={tx('Disable export')} disabled={!ent} checked={!!space.disable_export} onChange={(v) => saveSpace(space.id, { disable_export: v })} /></span>}
           />
           <Row
             id="allow-access-requests"
             label={t('lp.settings.let_non_members_request_access_with', 'Let non-members request access with the link')}
             description={t('lp.settings.let_non_members_request_page_access', 'Let non-members request page access when they have its link')}
-            control={<Switch label="Let non-members request page access" disabled={plan === 'free'} checked={accessRequests} onChange={(v) => set({ allow_access_requests: v })} />}
+            control={<Switch label={tx('Let non-members request page access')} disabled={plan === 'free'} checked={accessRequests} onChange={(v) => set({ allow_access_requests: v })} />}
           />
           <Row
             id="disable-space-page-edits"
             label={t('lp.settings.lock_the_workspace_section_so_members', 'Lock the Workspace section so members can’t edit it')}
             description={t('lp.settings.stop_members_from_creating_moving_reorde', 'Stop members from creating, moving, reordering, or deleting top-level workspace pages.')}
-            control={<span data-tooltip={ent ? undefined : entTip}><Switch label="Stop members editing the Workspace section" disabled={!ent} checked={!!spaceSetting(space, 'disable_space_page_edits', false)} onChange={(v) => set({ disable_space_page_edits: v })} /></span>}
+            control={<span data-tooltip={ent ? undefined : entTip}><Switch label={tx('Stop members editing the Workspace section')} disabled={!ent} checked={!!spaceSetting(space, 'disable_space_page_edits', false)} onChange={(v) => set({ disable_space_page_edits: v })} /></span>}
           />
           <Row
             id="workspace-support-access"
@@ -820,7 +820,7 @@ export function SecuritySection() {
             description={supportOn && supportSince
               ? `${t('lp.settings.allow_litpage_to_inspect_this_workspace', 'Allow Workspace to inspect this workspace’s data while troubleshooting. Access ends automatically.')} ${t('lp.settings.active_until', 'Active until {date}', { date: fmtDate(supportSince + 28 * 86_400_000) })}`
               : t('lp.settings.allow_litpage_to_inspect_this_workspace', 'Allow Workspace to inspect this workspace’s data while troubleshooting. Access ends automatically.')}
-            control={<span data-tooltip={t('lp.settings.give_litpage_support_short_term_access', 'Give Workspace support short-term access so they can diagnose and fix problems in your workspace. It ends automatically after {days} days.', { days: 28 })}><Switch label="Workspace support access" checked={supportOn} onChange={(v) => set({ support_access: v, support_access_granted_time: v ? Date.now() : null })} /></span>}
+            control={<span data-tooltip={t('lp.settings.give_litpage_support_short_term_access', 'Give Workspace support short-term access so they can diagnose and fix problems in your workspace. It ends automatically after {days} days.', { days: 28 })}><Switch label={tx('Workspace support access')} checked={supportOn} onChange={(v) => set({ support_access: v, support_access_granted_time: v ? Date.now() : null })} /></span>}
           />
           <GateHint plan={plan} min="enterprise" text={msg('lp.settings.upgrade_to_enterprise_to_disable_publish', '<highlight>Upgrade</highlight> to Enterprise to disable publishing, duplicating and exporting')} />
         </Group>
@@ -833,7 +833,7 @@ export function SecuritySection() {
             description={t('lp.settings.allow_members_to_add_guests_to', 'Allow members to add guests to pages.')}
             control={(
               <span data-tooltip={!ent ? entTip : guestsOn && accessRequests ? t('lp.settings.to_turn_this_off_first_stop', 'To turn this off, first stop non-members from requesting access to pages') : undefined}>
-                <Switch label="Allow members to invite guests" disabled={!ent || (guestsOn && accessRequests)} checked={guestsOn} onChange={(v) => saveSpace(space.id, { disable_guests: !v })} />
+                <Switch label={tx('Allow members to invite guests')} disabled={!ent || (guestsOn && accessRequests)} checked={guestsOn} onChange={(v) => saveSpace(space.id, { disable_guests: !v })} />
               </span>
             )}
           />
@@ -843,7 +843,7 @@ export function SecuritySection() {
             description={t('lp.settings.allow_members_to_request_to_add', 'Allow members to request to add guests to pages. Requests must be approved by a workspace owner.')}
             control={(
               <span data-tooltip={!ent ? entTip : guestsOn ? t('lp.settings.turn_off_guest_invitations_to_use', 'Turn off guest invitations to use this feature') : undefined}>
-                <Switch label="Let members ask to invite guests" disabled={!ent || guestsOn} checked={!!spaceSetting(space, 'allow_guest_invite_requests', false)} onChange={(v) => set({ allow_guest_invite_requests: v })} />
+                <Switch label={tx('Let members ask to invite guests')} disabled={!ent || guestsOn} checked={!!spaceSetting(space, 'allow_guest_invite_requests', false)} onChange={(v) => set({ allow_guest_invite_requests: v })} />
               </span>
             )}
           />
@@ -851,19 +851,19 @@ export function SecuritySection() {
             id="member-requests"
             label={t('lp.settings.let_members_ask_to_add_other', 'Let members ask to add other members')}
             description={t('lp.settings.let_members_request_that_admins_add', 'Let members request that admins add more people')}
-            control={<Switch label="Let members ask to add members" disabled={plan === 'free'} checked={spaceSetting(space, 'allow_member_requests', true)} onChange={(v) => set({ allow_member_requests: v })} />}
+            control={<Switch label={tx('Let members ask to add members')} disabled={plan === 'free'} checked={spaceSetting(space, 'allow_member_requests', true)} onChange={(v) => set({ allow_member_requests: v })} />}
           />
           <Row
             id="external-member-requests"
             label={t('lp.settings.let_anyone_ask_to_become_a', 'Let anyone ask to become a workspace member')}
             description={t('lp.settings.let_people_with_team_invite_links', 'Let people with team invite links request workspace membership')}
-            control={<Switch label="Let anyone request workspace membership" disabled={plan === 'free'} checked={spaceSetting(space, 'allow_external_member_requests', false)} onChange={(v) => set({ allow_external_member_requests: v })} />}
+            control={<Switch label={tx('Let anyone request workspace membership')} disabled={plan === 'free'} checked={spaceSetting(space, 'allow_external_member_requests', false)} onChange={(v) => set({ allow_external_member_requests: v })} />}
           />
           <Row
             id="guest-member-requests"
             label={t('lp.settings.let_guests_ask_to_become_members', 'Let guests ask to become members')}
             description={t('lp.settings.let_guests_request_workspace_membership', 'Let guests request workspace membership')}
-            control={<Switch label="Let guests ask to join as members" disabled={plan === 'free'} checked={spaceSetting(space, 'allow_guest_member_requests', true)} onChange={(v) => set({ allow_guest_member_requests: v })} />}
+            control={<Switch label={tx('Let guests ask to join as members')} disabled={plan === 'free'} checked={spaceSetting(space, 'allow_guest_member_requests', true)} onChange={(v) => set({ allow_guest_member_requests: v })} />}
           />
           <Row
             id="restricted-teamspaces"
@@ -1005,7 +1005,7 @@ export function IdentitySection() {
           id="saml-enabled"
           label={t('lp.settings.turn_on_saml_sso', 'Turn on SAML SSO')}
           description={t('lp.settings.members_whose_email_belongs_to_a', 'Members whose email belongs to a verified domain can sign in through SAML SSO')}
-          control={<Switch label="Turn on SAML SSO" disabled={!business || !domains.some((d) => d.status === 'verified')} checked={!!saml.enabled} onChange={(v) => setSaml({ enabled: v })} />}
+          control={<Switch label={tx('Turn on SAML SSO')} disabled={!business || !domains.some((d) => d.status === 'verified')} checked={!!saml.enabled} onChange={(v) => setSaml({ enabled: v })} />}
         />
         <Row
           id="saml-login"
@@ -1029,7 +1029,7 @@ export function IdentitySection() {
           disabled={!saml.enabled}
           label={t('lp.settings.create_accounts_automatically', 'Create accounts automatically')}
           description={t('lp.settings.give_first_time_saml_sso_users', 'Give first-time SAML SSO users a Workspace account automatically')}
-          control={<Switch label="Create accounts automatically" disabled={!saml.enabled} checked={!!saml.auto_create} onChange={(v) => setSaml({ auto_create: v })} />}
+          control={<Switch label={tx('Create accounts automatically')} disabled={!saml.enabled} checked={!!saml.auto_create} onChange={(v) => setSaml({ auto_create: v })} />}
         />
         {!business && <Upsell text={msg('lp.settings.upgrade_to_business_to_set_up', '<highlight>Upgrade</highlight> to Business to set up SAML single sign-on')} />}
       </Group>
@@ -1125,13 +1125,13 @@ export function RequestsSection() {
           id="allow-upgrade-requests"
           label={t('lp.settings.let_members_request_upgrades', 'Let members request upgrades')}
           description={t('lp.settings.people_in_this_workspace_can_request', 'People in this workspace can request a plan upgrade, add-ons, or other changes from an owner')}
-          control={<span data-tooltip={owner ? undefined : policyTooltip.ownersOnly()}><Switch label="Let members request upgrades" disabled={!owner} checked={spaceSetting(space, 'allow_upgrade_requests', true)} onChange={(v) => saveSpaceSettings(space.id, { allow_upgrade_requests: v })} /></span>}
+          control={<span data-tooltip={owner ? undefined : policyTooltip.ownersOnly()}><Switch label={tx('Let members request upgrades')} disabled={!owner} checked={spaceSetting(space, 'allow_upgrade_requests', true)} onChange={(v) => saveSpaceSettings(space.id, { allow_upgrade_requests: v })} /></span>}
         />
         <Row
           id="allow-member-requests"
           label={t('lp.settings.let_members_ask_to_add_other', 'Let members ask to add other members')}
           description={t('lp.settings.let_members_request_that_admins_add', 'Let members request that admins add more people')}
-          control={<span data-tooltip={owner ? undefined : policyTooltip.ownersOnly()}><Switch label="Let members ask to add members" disabled={!owner} checked={spaceSetting(space, 'allow_member_requests', true)} onChange={(v) => saveSpaceSettings(space.id, { allow_member_requests: v })} /></span>}
+          control={<span data-tooltip={owner ? undefined : policyTooltip.ownersOnly()}><Switch label={tx('Let members ask to add members')} disabled={!owner} checked={spaceSetting(space, 'allow_member_requests', true)} onChange={(v) => saveSpaceSettings(space.id, { allow_member_requests: v })} /></span>}
         />
       </Group>
       <Group title={t('lp.settings.people', 'People')}>

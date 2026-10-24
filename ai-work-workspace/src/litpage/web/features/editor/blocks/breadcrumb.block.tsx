@@ -10,6 +10,7 @@ import { PageIcon } from '../../shell/PageIcon.tsx';
 import { pageTitle } from '../../page/pageActions.ts';
 import { pageIdOfBlock } from '../commands.ts';
 import { registerBlockMenu } from './registry.ts';
+import { tx } from '../../shell/i18n.ts';
 
 function Breadcrumb({ block }: BlockProps) {
   useTableVersion(['block']);
@@ -18,7 +19,7 @@ function Breadcrumb({ block }: BlockProps) {
   const chain: BlockRecord[] = page ? [...ancestorsOf(page.id), page] : [];
   return (
     <div className="nc-bpad">
-      <div className="nc-breadcrumb-2" role="navigation" aria-label="Breadcrumb">
+      <div className="nc-breadcrumb-2" role="navigation" aria-label={tx('Breadcrumb')}>
         {chain.map((p, i) => (
           <span key={p.id} style={{ display: 'inline-flex', alignItems: 'center' }}>
             <span role="button" tabIndex={0} className="nc-crumb" onMouseDown={(e) => e.preventDefault()} onClick={() => openPage(p.id)}>

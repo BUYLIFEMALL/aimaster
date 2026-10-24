@@ -24,7 +24,7 @@ import { openMenu } from '../../../../components/Menu.tsx';
 import { records } from '../../../../lib/store/records.ts';
 import { PageIcon } from '../../../shell/PageIcon.tsx';
 import { titleOf } from '../../advanced/context.ts';
-import { getLocale } from '../../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
+import { getLocale, tx } from '../../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 import './calendar.css';
 
 const ROW_HEIGHT = 124;
@@ -92,8 +92,8 @@ function layoutWeek(items: { row: BlockRecord; range: DayRange }[], weekStart: n
 function NoDateProperty({ onAdd, readOnly }: { onAdd: () => void; readOnly: boolean }) {
   return (
     <div className="nc-cal-nodate">
-      <div className="nc-cal-nodate-title">No date field</div>
-      {readOnly ? <div>Calendar layouts need a date field to display entries.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>Add a date field</span> to this table to display a calendar layout.</div>}
+      <div className="nc-cal-nodate-title">{tx('No date field')}</div>
+      {readOnly ? <div>{tx('Calendar layouts need a date field to display entries.')}</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>{tx('Add a date field')}</span> to this table to display a calendar layout.</div>}
     </div>
   );
 }
@@ -301,13 +301,13 @@ function CalendarView(props: ViewProps) {
       <div className="nc-cal-header">
         <div className="nc-cal-title">{monthTitle}</div>
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-cal-manage" data-tooltip="Calendar sync is not available" onClick={() => useUI.getState().toast('Calendar sync is not available')}>
+        <div role="button" className="nc-cal-manage" data-tooltip={tx('Calendar sync is not available')} onClick={() => useUI.getState().toast('Calendar sync is not available')}>
           <Icon name="calendar" size={16} />
-          <span>Manage in Calendar</span>
+          <span>{tx('Manage in Calendar')}</span>
         </div>
-        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? 'Previous Week' : 'Previous Month'} onClick={() => goto(-1)}><Icon name="chevronLeft" size={20} color="var(--lp-icon-secondary)" /></div>
-        <div role="button" className="nc-cal-today" onClick={() => goto(0)}>Today</div>
-        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? 'Next Week' : 'Next Month'} onClick={() => goto(1)}><Icon name="chevronRight" size={20} color="var(--lp-icon-secondary)" /></div>
+        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? tx('Previous Week') : tx('Previous Month')} onClick={() => goto(-1)}><Icon name="chevronLeft" size={20} color="var(--lp-icon-secondary)" /></div>
+        <div role="button" className="nc-cal-today" onClick={() => goto(0)}>{tx('Today')}</div>
+        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? tx('Next Week') : tx('Next Month')} onClick={() => goto(1)}><Icon name="chevronRight" size={20} color="var(--lp-icon-secondary)" /></div>
       </div>
       <div className="nc-cal-days lit-calendar-header-days">
         {headerDays.map((d) => <div key={d}>{weekdayName(weekdayOf(d) === 0 ? 7 : weekdayOf(d), 'short')}</div>)}
@@ -343,7 +343,7 @@ function CalendarView(props: ViewProps) {
                     onDrop={(e) => { const id = e.dataTransfer.getData(NO_DATE_DRAG_TYPE); setDropDay(null); if (id && editable) { e.preventDefault(); setRowDay(id, view, collection, d); } }}
                   >
                     {!readOnly && (
-                      <div role="button" className="nc-cal-add" aria-label="Create an item" data-tooltip="Create an item" onClick={() => addOn(d)}><Icon name="plus" size={14} /></div>
+                      <div role="button" className="nc-cal-add" aria-label={tx('Create an item')} data-tooltip={tx('Create an item')} onClick={() => addOn(d)}><Icon name="plus" size={14} /></div>
                     )}
                     <div className={`nc-cal-num lit-calendar-view-day ${inMonth ? '' : 'outside'} ${d === today ? 'today' : ''}`} data-testid={d === today ? 'today-day-number' : undefined}>
                       {first && d !== today ? `${monthName(Number(iso.slice(5, 7)), true)} 1` : Number(iso.slice(8))}
@@ -431,13 +431,13 @@ function CalendarLayoutSettings({ view, collection, readOnly }: LayoutSettingsPr
   const range = fmt.calendar_view_range === 'week' ? 'week' : 'month';
   return (
     <>
-      <SettingsRow label="Group calendar by" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, datePropertyItems(schema, by, (id) => setQuery2(view, { calendar_by: id }, 'calendar.setDateProperty')))} />
-      <SettingsRow label="Display calendar as" value={range === 'week' ? 'Week' : 'Month'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
-        { id: 'month', label: 'Month', checked: range === 'month', onSelect: () => setFormat(view, { calendar_view_range: 'month' }) },
-        { id: 'week', label: 'Week', checked: range === 'week', onSelect: () => setFormat(view, { calendar_view_range: 'week' }) },
+      <SettingsRow label={tx('Group calendar by')} value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, datePropertyItems(schema, by, (id) => setQuery2(view, { calendar_by: id }, 'calendar.setDateProperty')))} />
+      <SettingsRow label={tx('Display calendar as')} value={range === 'week' ? tx('Week') : tx('Month')} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
+        { id: 'month', label: tx('Month'), checked: range === 'month', onSelect: () => setFormat(view, { calendar_view_range: 'month' }) },
+        { id: 'week', label: tx('Week'), checked: range === 'week', onSelect: () => setFormat(view, { calendar_view_range: 'week' }) },
       ])} />
-      <SettingsToggle label="Show weekends" on={fmt.calendar_show_weekends !== false} disabled={readOnly} onChange={(v) => setFormat(view, { calendar_show_weekends: v })} />
-      <SettingsToggle label="Wrap entry titles" on={viewProperties(view, schema).some((e) => e.property === 'title' && (e as { wrap?: boolean }).wrap === true)} disabled={readOnly} onChange={(v) => {
+      <SettingsToggle label={tx('Show weekends')} on={fmt.calendar_show_weekends !== false} disabled={readOnly} onChange={(v) => setFormat(view, { calendar_show_weekends: v })} />
+      <SettingsToggle label={tx('Wrap entry titles')} on={viewProperties(view, schema).some((e) => e.property === 'title' && (e as { wrap?: boolean }).wrap === true)} disabled={readOnly} onChange={(v) => {
         const entries = viewProperties(view, schema);
         const next = entries.some((e) => e.property === 'title') ? entries.map((e) => (e.property === 'title' ? { ...e, wrap: v } : e)) : [{ property: 'title', visible: true, wrap: v }, ...entries];
         setFormat(view, { calendar_properties: next }, 'calendar.wrapPageTitles');

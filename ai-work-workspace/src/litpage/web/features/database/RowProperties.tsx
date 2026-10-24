@@ -26,6 +26,7 @@ import { TemplateBanner as DbTemplateBanner } from './templates/templates.tsx';
 import { records } from '../../lib/store/records.ts';
 import { roleAtLeast } from '#shared/permissions.ts';
 import { PropertyCommentButton } from './propertyComments.tsx';
+import { tx } from '../shell/i18n.ts';
 
 type Visibility = 'show' | 'hide_if_empty' | 'hide';
 
@@ -70,23 +71,23 @@ export function openLabelMenu(anchor: HTMLElement, c: CollectionRecord, propId: 
     width: 220,
     sections: [
       { items: [
-        { id: 'rename', label: 'Rename', icon: 'compose', disabled: readOnly, onSelect: () => { setTimeout(() => openRename(anchor, c, propId), 0); } },
-        { id: 'edit', label: 'Edit property', icon: 'slidersTwo', disabled: readOnly || !hasEditFlyout(prop), onSelect: () => { setTimeout(() => openEditPropertyPopover(anchor, c.id, propId), 0); } },
-        ...(!readOnly && prop?.type !== 'auto_increment_id' ? [{ id: 'type', label: 'Change type', icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(c.id, propId, prop) }] : []),
+        { id: 'rename', label: tx('Rename'), icon: 'compose', disabled: readOnly, onSelect: () => { setTimeout(() => openRename(anchor, c, propId), 0); } },
+        { id: 'edit', label: tx('Edit property'), icon: 'slidersTwo', disabled: readOnly || !hasEditFlyout(prop), onSelect: () => { setTimeout(() => openEditPropertyPopover(anchor, c.id, propId), 0); } },
+        ...(!readOnly && prop?.type !== 'auto_increment_id' ? [{ id: 'type', label: tx('Change type'), icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(c.id, propId, prop) }] : []),
       ] },
       { items: [
-        { id: 'vis', label: 'Property visibility', icon: 'eyeSlash', disabled: readOnly, submenu: () => ({ width: 180, sections: [{ items: [
-          { id: 'show', label: 'Always show', checked: vis === 'show', onSelect: () => setVisibility(c, propId, 'show') },
-          { id: 'empty', label: 'Hide when blank', checked: vis === 'hide_if_empty', onSelect: () => setVisibility(c, propId, 'hide_if_empty') },
-          { id: 'hide', label: 'Always hide', checked: vis === 'hide', onSelect: () => setVisibility(c, propId, 'hide') },
+        { id: 'vis', label: tx('Property visibility'), icon: 'eyeSlash', disabled: readOnly, submenu: () => ({ width: 180, sections: [{ items: [
+          { id: 'show', label: tx('Always show'), checked: vis === 'show', onSelect: () => setVisibility(c, propId, 'show') },
+          { id: 'empty', label: tx('Hide when blank'), checked: vis === 'hide_if_empty', onSelect: () => setVisibility(c, propId, 'hide_if_empty') },
+          { id: 'hide', label: tx('Always hide'), checked: vis === 'hide', onSelect: () => setVisibility(c, propId, 'hide') },
         ] }] }) },
         ...(!readOnly ? [
-          { id: 'dup', label: 'Duplicate property', icon: 'duplicate', onSelect: () => duplicateProperty(c.id, propId) },
-          { id: 'del', label: 'Delete property', icon: 'trash', onSelect: () => { setTimeout(() => void confirmDeleteProperty(c.id, propId), 0); } },
+          { id: 'dup', label: tx('Duplicate property'), icon: 'duplicate', onSelect: () => duplicateProperty(c.id, propId) },
+          { id: 'del', label: tx('Delete property'), icon: 'trash', onSelect: () => { setTimeout(() => void confirmDeleteProperty(c.id, propId), 0); } },
         ] : []),
       ] },
       { items: [{
-        id: 'layout', label: 'Customize layout', icon: 'layout', disabled: !access.canEditStructure,
+        id: 'layout', label: tx('Customize layout'), icon: 'layout', disabled: !access.canEditStructure,
         description: access.locked ? 'Unlock this table to adjust its layout.' : undefined,
         onSelect: () => openLayoutBuilder(c.id),
       }] },
@@ -124,7 +125,7 @@ export function PropertyRow({ page, col, id, readOnly, structureRO, icons = true
           </div>
         </div>
         <div role="cell" className="nc-page-prop-value">
-          <PropertyCell row={page} schema={col.schema} propId={id} readOnly={readOnly} mode="page" wrap placeholder={<span className="nc-page-prop-empty">Empty</span>} className="nc-page-prop-cell" />
+          <PropertyCell row={page} schema={col.schema} propId={id} readOnly={readOnly} mode="page" wrap placeholder={<span className="nc-page-prop-empty">{tx('Empty')}</span>} className="nc-page-prop-cell" />
           {p.type !== 'title' && <PropertyCommentButton page={page} col={col} propId={id} />}
         </div>
       </div>
@@ -165,7 +166,7 @@ export function AddPropertyRow({ col }: { col: CollectionRecord }) {
   return (
     <div role="button" aria-haspopup="dialog" className="nc-page-prop-add" onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: col.id })}>
       <Icon name="plusFillSmall" size={16} />
-      <span>Add a property</span>
+      <span>{tx('Add a property')}</span>
     </div>
   );
 }
@@ -186,7 +187,7 @@ export function RowProperties({ page, readOnly }: { page: BlockRecord; readOnly:
   return (
     <div className="nc-row-props-wrap">
       <TemplateBanner page={page} col={col} />
-      <div role="table" aria-label="Page properties" className="nc-row-props">
+      <div role="table" aria-label={tx('Page properties')} className="nc-row-props">
         <PropertyRows page={page} col={col} ids={pageProperties(col)} readOnly={readOnly} structureRO={structureRO} />
         {!structureRO && <AddPropertyRow col={col} />}
       </div>

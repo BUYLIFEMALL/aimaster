@@ -14,6 +14,7 @@ import {
   type SaveScope,
 } from '../viewState.ts';
 import '../dbv.css';
+import { tx } from '../../shell/i18n.ts';
 
 const ONLY_YOU = 'Changes to filters & sorts in this layout are only visible to you.';
 
@@ -26,11 +27,11 @@ function selectView(viewId: string) {
 function extraItems(view: CollectionViewRecord, scope: SaveScope, onDone?: () => void): MenuItemDef[] {
   const items: MenuItemDef[] = [];
   if (canSaveForEveryone(view)) {
-    items.push({ id: 'new', label: 'Store as a new layout', icon: 'plus', onSelect: () => { const id = saveAsNewView(view.id); if (id) selectView(id); onDone?.(); } });
+    items.push({ id: 'new', label: tx('Store as a new layout'), icon: 'plus', onSelect: () => { const id = saveAsNewView(view.id); if (id) selectView(id); onDone?.(); } });
   }
   const t = tempStateOf(view.id);
   if (scope !== 'sorts' && (t?.propertyFilters?.length ?? 0) > 0) {
-    items.push({ id: 'merge', label: 'Combine with advanced filter', icon: 'filter', description: 'Group rules with an advanced filter and combine AND/OR conditions.', onSelect: () => { mergeIntoAdvancedFilter(view.id); onDone?.(); } });
+    items.push({ id: 'merge', label: tx('Combine with advanced filter'), icon: 'filter', description: tx('Group rules with an advanced filter and combine AND/OR conditions.'), onSelect: () => { mergeIntoAdvancedFilter(view.id); onDone?.(); } });
   }
   return items;
 }
@@ -40,7 +41,7 @@ export function FilterBarSaveControl({ view }: { view: CollectionViewRecord }) {
   useViewTempVersion();
   if (!dirtyKind(view)) return null;
   const reset = (
-    <div role="button" className="nc-save-reset" onClick={() => resetPersonal(view.id)}>Reset</div>
+    <div role="button" className="nc-save-reset" onClick={() => resetPersonal(view.id)}>{tx('Reset')}</div>
   );
   if (!canSaveForEveryone(view)) {
     return <div className="nc-save-control" data-tooltip={ONLY_YOU}>{reset}</div>;
@@ -50,9 +51,9 @@ export function FilterBarSaveControl({ view }: { view: CollectionViewRecord }) {
     <div className="nc-save-control">
       {reset}
       <div className={`nc-save-everyone ${extra.length ? 'split' : ''}`}>
-        <div role="button" className="nc-save-everyone-main" onClick={() => saveForEveryone(view.id)}>Store for everyone</div>
+        <div role="button" className="nc-save-everyone-main" onClick={() => saveForEveryone(view.id)}>{tx('Store for everyone')}</div>
         {extra.length > 0 && (
-          <div role="button" className="nc-save-everyone-more" aria-label="More storage options" onClick={(e) => openMenu(e.currentTarget, { width: 250, sections: [{ items: extraItems(view, 'all') }] }, { placement: 'bottom-end' })}>
+          <div role="button" className="nc-save-everyone-more" aria-label={tx('More storage options')} onClick={(e) => openMenu(e.currentTarget, { width: 250, sections: [{ items: extraItems(view, 'all') }] }, { placement: 'bottom-end' })}>
             <Icon name="arrowChevronSingleDownSmall" size={14} />
           </div>
         )}
@@ -86,8 +87,8 @@ export function SettingsSaveControl({ view, scope }: { view: CollectionViewRecor
   return (
     <div className="nc-menu-section nc-save-settings">
       {canSave ? <div className="nc-save-caption">{caption}</div> : <div className="nc-save-caption">{ONLY_YOU}</div>}
-      {canSave && <Row icon="check" tone="orange" label="Store for everyone" onClick={() => saveForEveryone(view.id, scope)} />}
-      <Row icon="undo" tone="gray" label={scope === 'filters' ? 'Reset filters' : 'Reset sorts'} onClick={() => resetPersonal(view.id, scope)} />
+      {canSave && <Row icon="check" tone="orange" label={tx('Store for everyone')} onClick={() => saveForEveryone(view.id, scope)} />}
+      <Row icon="undo" tone="gray" label={scope === 'filters' ? tx('Reset filters') : tx('Reset sorts')} onClick={() => resetPersonal(view.id, scope)} />
       {extra.map((it) => <Row key={it.id} icon={String(it.icon ?? 'plus')} tone="gray" label={it.label} onClick={() => it.onSelect?.()} />)}
     </div>
   );

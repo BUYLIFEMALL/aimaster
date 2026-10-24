@@ -10,6 +10,7 @@ import { AiMarkdown } from './AiMarkdown.tsx';
 import { openSource, type AgentStep, type AiStatusEvent, type ChatMessage, type SourceRef, type TouchedPage } from './aiApi.ts';
 import { ChangesCard, StepsList } from './AgentSteps.tsx';
 import { openKeyHelp } from './NoKeyNotice.tsx';
+import { tx } from '../shell/i18n.ts';
 
 export interface StreamingState {
   text: string;
@@ -59,7 +60,7 @@ function SourcesRow({ sources, text }: { sources: SourceRef[]; text: string }) {
   if (!shown.length) return null;
   return (
     <div className="nc-ai-sources">
-      <div className="nc-ai-sources-title">Sources</div>
+      <div className="nc-ai-sources-title">{tx('Sources')}</div>
       <div className="nc-ai-sources-list">
         {shown.map((s) => (s.url ? (
           <a key={s.n} className="nc-ai-source web" href={s.url} target="_blank" rel="noopener noreferrer" data-tooltip={s.url}>
@@ -137,11 +138,11 @@ function openFeedback(anchor: HTMLElement, onSubmit: (comment: string) => void) 
           close();
         }}
       >
-        <div className="nc-ai-feedback-title">Share feedback</div>
-        <textarea name="comment" autoFocus rows={3} placeholder="What could be better?" className="nc-ai-feedback-input" />
+        <div className="nc-ai-feedback-title">{tx('Share feedback')}</div>
+        <textarea name="comment" autoFocus rows={3} placeholder={tx('What could be better?')} className="nc-ai-feedback-input" />
         <div className="nc-ai-feedback-actions">
-          <button type="button" className="nc-btn" onClick={close}>Cancel</button>
-          <button type="submit" className="nc-btn primary">Submit</button>
+          <button type="button" className="nc-btn" onClick={close}>{tx('Cancel')}</button>
+          <button type="submit" className="nc-btn primary">{tx('Submit')}</button>
         </div>
       </form>
     </PopoverSurface>
@@ -216,7 +217,7 @@ function AssistantRow({ m, streaming, sources, last, canInsert, insertLabel, rea
       {showStep && <StatusStep status={streaming!.status} />}
       {text.trim() && <AiMarkdown text={text} sources={srcs} streaming={live} />}
       {changes && <ChangesCard changes={changes} onUndo={!live && !readOnly && onUndo ? () => onUndo(m.id) : undefined} />}
-      {!live && m.status === 'stopped' && <div className="nc-ai-note">Interrupted</div>}
+      {!live && m.status === 'stopped' && <div className="nc-ai-note">{tx('Interrupted')}</div>}
       {!live && (m.status === 'error' || m.status === 'refused') && (
         <div className="nc-ai-error" role="alert">
           <Icon name="warning" size={14} />
@@ -230,7 +231,7 @@ function AssistantRow({ m, streaming, sources, last, canInsert, insertLabel, rea
           {text.trim() && (
             <ActionButton
               icon={copied ? 'check' : 'copy'}
-              label={copied ? 'Copied' : 'Copy response'}
+              label={copied ? tx('Copied') : tx('Copy response')}
               onClick={() => {
                 onCopy(text);
                 setCopied(true);
@@ -238,17 +239,17 @@ function AssistantRow({ m, streaming, sources, last, canInsert, insertLabel, rea
               }}
             />
           )}
-          {last && onRetry && !readOnly && <ActionButton icon="refresh" label={m.status === 'error' || m.status === 'refused' ? 'Try again' : 'Retry'} onClick={onRetry} />}
+          {last && onRetry && !readOnly && <ActionButton icon="refresh" label={m.status === 'error' || m.status === 'refused' ? tx('Try again') : tx('Retry')} onClick={onRetry} />}
           {text.trim() && onFeedback && !readOnly && !m.id.startsWith('assistant-') && (
             <>
-              <div role="button" aria-label="Send positive feedback" aria-pressed={rating === 'positive'} data-tooltip="Send positive feedback" className={`nc-ai-action ${rating === 'positive' ? 'active' : ''}`} onClick={() => onFeedback(m.id, rating === 'positive' ? null : 'positive')}>
+              <div role="button" aria-label={tx('Send positive feedback')} aria-pressed={rating === 'positive'} data-tooltip={tx('Send positive feedback')} className={`nc-ai-action ${rating === 'positive' ? 'active' : ''}`} onClick={() => onFeedback(m.id, rating === 'positive' ? null : 'positive')}>
                 <Icon name="thumbsUp" size={16} />
               </div>
               <div
                 role="button"
-                aria-label="Send negative feedback"
+                aria-label={tx('Send negative feedback')}
                 aria-pressed={rating === 'negative'}
-                data-tooltip="Send negative feedback"
+                data-tooltip={tx('Send negative feedback')}
                 className={`nc-ai-action ${rating === 'negative' ? 'active' : ''}`}
                 onClick={(e) => {
                   if (rating === 'negative') onFeedback(m.id, null);

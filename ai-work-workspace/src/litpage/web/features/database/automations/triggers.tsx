@@ -26,6 +26,7 @@ import { workspaceMembers } from '../properties/editors/MiscEditors.tsx';
 import { openKeepMenu } from './keepMenu.ts';
 import { openRecurrenceEditor } from './recurrence.tsx';
 import * as L from 'lucide-react';
+import { tx } from '../../shell/i18n.ts';
 
 registerIcons({ arrowSquareLeftRight: L.Repeat2, cursorClick: L.MousePointerClick, gmail: L.Mail, slack: L.Hash });
 
@@ -79,16 +80,16 @@ function ConditionEditor({ prop, cond, onChange, close }: { prop: PropertySchema
   );
   let list: React.ReactNode[] = [];
   if (prop.type === 'select' || prop.type === 'status' || prop.type === 'multi_select') {
-    list = [row('any', <span className="grow">Any option</span>, !vals.length, () => update({ ...c, values: [] })),
+    list = [row('any', <span className="grow">{tx('Any option')}</span>, !vals.length, () => update({ ...c, values: [] })),
       ...(prop.options ?? []).filter((o) => !ql || o.value.toLowerCase().includes(ql)).map((o) => row(o.id, prop.type === 'status' ? <StatusPill option={o} /> : <OptionPill option={o} />, vals.includes(o.value), () => toggle(o.value)))];
   } else if (prop.type === 'person') {
-    list = [row('any', <span className="grow">Any person</span>, !vals.length, () => update({ ...c, values: [] })),
+    list = [row('any', <span className="grow">{tx('Any person')}</span>, !vals.length, () => update({ ...c, values: [] })),
       ...workspaceMembers().filter((u) => !ql || `${u.name} ${u.email}`.toLowerCase().includes(ql)).map((u) => row(u.id, <><UserAvatar userId={u.id} size={20} /><span className="grow">{u.name || u.email}</span></>, vals.includes(u.id), () => toggle(u.id)))];
   } else if (prop.type === 'relation') {
-    list = [row('any', <span className="grow">Any page</span>, !vals.length, () => update({ ...c, values: [] })),
+    list = [row('any', <span className="grow">{tx('Any page')}</span>, !vals.length, () => update({ ...c, values: [] })),
       ...pages.filter((p) => !ql || (toPlainText(p.properties?.title) || 'Untitled').toLowerCase().includes(ql)).slice(0, 50).map((p) => row(p.id, <><PageIcon block={p} size={18} /><span className="grow">{toPlainText(p.properties?.title) || 'Untitled'}</span></>, vals.includes(p.id), () => toggle(p.id)))];
   } else if (prop.type === 'checkbox') {
-    list = [row('checked', <span className="grow">Checked</span>, vals[0] === 'checked', () => toggle('checked', true)), row('unchecked', <span className="grow">Unchecked</span>, vals[0] === 'unchecked', () => toggle('unchecked', true))];
+    list = [row('checked', <span className="grow">{tx('Checked')}</span>, vals[0] === 'checked', () => toggle('checked', true)), row('unchecked', <span className="grow">{tx('Unchecked')}</span>, vals[0] === 'unchecked', () => toggle('unchecked', true))];
   }
   return (
     <PopoverSurface width={280} className="nc-auto-pop" maxHeight="60vh">
@@ -103,16 +104,16 @@ function ConditionEditor({ prop, cond, onChange, close }: { prop: PropertySchema
       {c.op !== 'edited' && c.op !== 'cleared' && (
         textual ? (
           <div style={{ padding: '0 8px 8px' }} data-menu-keys="ignore">
-            <input autoFocus className="nc-auto-input" aria-label="Value" placeholder={prop.type === 'number' ? 'Number' : 'Type a value…'} inputMode={prop.type === 'number' ? 'decimal' : undefined} value={vals[0] ?? ''} onChange={(e) => update({ ...c, values: e.target.value ? [e.target.value] : [] })} onKeyDown={(e) => { if (e.key === 'Enter') close(); }} />
+            <input autoFocus className="nc-auto-input" aria-label={tx('Value')} placeholder={prop.type === 'number' ? tx('Number') : tx('Type a value…')} inputMode={prop.type === 'number' ? 'decimal' : undefined} value={vals[0] ?? ''} onChange={(e) => update({ ...c, values: e.target.value ? [e.target.value] : [] })} onKeyDown={(e) => { if (e.key === 'Enter') close(); }} />
           </div>
         ) : (
           <>
-            {list.length > 4 && <div className="nc-auto-pop-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>}
+            {list.length > 4 && <div className="nc-auto-pop-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder={tx('Search…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>}
             <div className="nc-auto-pop-list">{list}</div>
           </>
         )
       )}
-      <div className="nc-auto-pop-foot"><span role="button" className="nc-btn primary" onClick={close}>Done</span></div>
+      <div className="nc-auto-pop-foot"><span role="button" className="nc-btn primary" onClick={close}>{tx('Done')}</span></div>
     </PopoverSurface>
   );
 }
@@ -132,17 +133,17 @@ export function openTriggerMenu(anchor: HTMLElement, opts: { collectionId: strin
   const mode = t.type === 'event' ? t.mode : 'any';
   const add = (ev: TriggerEvent) => opts.onChange({ type: 'event', mode, events: [...events, ev] });
   const eventItems: MenuItemDef[] = [];
-  if (!hasAny) eventItems.push({ id: 'any', label: 'Any field edited', icon: 'pencilLine', onSelect: () => {
+  if (!hasAny) eventItems.push({ id: 'any', label: tx('Any field edited'), icon: 'pencilLine', onSelect: () => {
     if (propEvents.length) {
-      void confirmDialog({ message: 'Replace the other triggers?', description: 'Adding the ‘Any field edited’ trigger replaces every other field trigger.', confirmLabel: 'Replace', danger: false }).then((ok) => {
+      void confirmDialog({ message: 'Replace the other triggers?', description: tx('Adding the ‘Any field edited’ trigger replaces every other field trigger.'), confirmLabel: 'Replace', danger: false }).then((ok) => {
         if (ok) opts.onChange({ type: 'event', mode, events: [...events.filter((e) => e.type !== 'property_edited'), { id: newId(), type: 'any_property_edited' }] });
       });
       return;
     }
     add({ id: newId(), type: 'any_property_edited' });
   } });
-  if (!hasAdded) eventItems.push({ id: 'added', label: 'Page added', icon: 'plus', onSelect: () => add({ id: newId(), type: 'page_added' }) });
-  if (!events.length) eventItems.push({ id: 'every', label: 'Every…', icon: 'arrowSquareLeftRight', onSelect: () => {
+  if (!hasAdded) eventItems.push({ id: 'added', label: tx('Page added'), icon: 'plus', onSelect: () => add({ id: newId(), type: 'page_added' }) });
+  if (!events.length) eventItems.push({ id: 'every', label: tx('Every…'), icon: 'arrowSquareLeftRight', onSelect: () => {
     opts.onChange({ type: 'recurrence', recurrence: null });
     // open the cadence editor on the new card
     setTimeout(() => (document.querySelector('[data-trigger-recurrence] .nc-auto-pill') as HTMLElement | null)?.click(), 50);
@@ -157,10 +158,10 @@ export function openTriggerMenu(anchor: HTMLElement, opts: { collectionId: strin
     },
   }));
   return openKeepMenu(anchor, {
-    width: 266, search: 'Search triggers…', emptyText: 'No results',
+    width: 266, search: 'Search triggers…', emptyText: tx('No results'),
     sections: [
-      ...(eventItems.length ? [{ title: 'Event', items: eventItems }] : []),
-      ...(propItems.length ? [{ title: 'Property', items: propItems }] : []),
+      ...(eventItems.length ? [{ title: tx('Event'), items: eventItems }] : []),
+      ...(propItems.length ? [{ title: tx('Property'), items: propItems }] : []),
     ],
   }, { placement: 'bottom-start', offset: 0, parent: overlayIdOf(anchor), backdrop: 'transparent' });
 }
@@ -181,7 +182,7 @@ export function TriggerSection({ collectionId, trigger, onChange, readOnly, issu
       <div className="nc-auto-card-head">
         <span className="nc-auto-card-icon">{icon}</span>
         <div className="nc-auto-card-title">{content}</div>
-        {!readOnly && <div className="nc-auto-card-actions"><span role="button" className="nc-auto-icon-btn" aria-label="Delete trigger" data-tooltip="Delete trigger" onClick={onRemove}><Icon name="xMarkSmall" size={14} /></span></div>}
+        {!readOnly && <div className="nc-auto-card-actions"><span role="button" className="nc-auto-icon-btn" aria-label={tx('Delete trigger')} data-tooltip={tx('Delete trigger')} onClick={onRemove}><Icon name="xMarkSmall" size={14} /></span></div>}
       </div>
     </div>
   );
@@ -190,7 +191,7 @@ export function TriggerSection({ collectionId, trigger, onChange, readOnly, issu
     const r = trigger.recurrence;
     cards.push(card('rec', <Icon name="arrowSquareLeftRight" size={18} />, (
       <>
-        <b>Every</b>
+        <b>{tx('Every')}</b>
         <span role="button" className={`nc-auto-pill ${r ? '' : 'placeholder'}`} onClick={(e) => !readOnly && openRecurrenceEditor(e.currentTarget, { value: r, onSave: (rec) => onChange({ type: 'recurrence', recurrence: rec }), onDelete: () => onChange({ type: 'event', mode: 'any', events: [] }), deleteLabel: 'Delete trigger' })}>
           <span>{r ? frequencyText(r) : 'frequency'}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
         </span>
@@ -199,8 +200,8 @@ export function TriggerSection({ collectionId, trigger, onChange, readOnly, issu
     ), () => onChange({ type: 'event', mode: 'any', events: [] }), { 'data-trigger-recurrence': '1' }));
   }
   for (const ev of events) {
-    if (ev.type === 'page_added') cards.push(card(ev.id, <Icon name="plus" size={18} />, <b>Page added</b>, () => remove(ev.id)));
-    else if (ev.type === 'any_property_edited') cards.push(card(ev.id, <Icon name="pencilLine" size={18} />, <b>Any field edited</b>, () => remove(ev.id)));
+    if (ev.type === 'page_added') cards.push(card(ev.id, <Icon name="plus" size={18} />, <b>{tx('Page added')}</b>, () => remove(ev.id)));
+    else if (ev.type === 'any_property_edited') cards.push(card(ev.id, <Icon name="pencilLine" size={18} />, <b>{tx('Any field edited')}</b>, () => remove(ev.id)));
     else {
       const prop = schema[ev.property];
       const text = conditionText(prop, ev.condition, names());
@@ -216,24 +217,24 @@ export function TriggerSection({ collectionId, trigger, onChange, readOnly, issu
       <header className="nc-auto-section-head">
         {events.length > 1 ? (
           <>
-            <span>When</span>
+            <span>{tx('When')}</span>
             <span role="button" className="nc-auto-mode-btn" onClick={(e) => !readOnly && openKeepMenu(e.currentTarget, { width: 160, sections: [{ items: [
-              { id: 'any', label: 'Any', checked: mode === 'any', onSelect: () => onChange({ type: 'event', mode: 'any', events }) },
-              { id: 'all', label: 'All', checked: mode === 'all', onSelect: () => onChange({ type: 'event', mode: 'all', events }) },
-            ] }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>{mode === 'all' ? 'All' : 'Any'}<Icon name="arrowChevronSingleDownSmall" size={12} /></span>
+              { id: 'any', label: tx('Any'), checked: mode === 'any', onSelect: () => onChange({ type: 'event', mode: 'any', events }) },
+              { id: 'all', label: tx('All'), checked: mode === 'all', onSelect: () => onChange({ type: 'event', mode: 'all', events }) },
+            ] }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>{mode === 'all' ? tx('All') : tx('Any')}<Icon name="arrowChevronSingleDownSmall" size={12} /></span>
             <span>triggers occur</span>
           </>
-        ) : <span>When</span>}
+        ) : <span>{tx('When')}</span>}
       </header>
       <div style={{ position: 'relative', paddingInline: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
         {cards}
         {!readOnly && trigger.type !== 'recurrence' && (events.length === 0 ? (
-          <div role="button" aria-label="Add trigger" aria-haspopup="dialog" className="nc-auto-add" onClick={(e) => openTriggerMenu(e.currentTarget, { collectionId, trigger, onChange })}>
+          <div role="button" aria-label={tx('Add trigger')} aria-haspopup="dialog" className="nc-auto-add" onClick={(e) => openTriggerMenu(e.currentTarget, { collectionId, trigger, onChange })}>
             <span className="nc-auto-add-icon"><Icon name="plusSmall" size={16} /></span>
-            <span className="nc-auto-add-label">New trigger</span>
+            <span className="nc-auto-add-label">{tx('New trigger')}</span>
           </div>
         ) : (
-          <span role="button" aria-label="Add trigger" className="nc-auto-link" onClick={(e) => openTriggerMenu(e.currentTarget, { collectionId, trigger, onChange })}><Icon name="plusSmall" size={16} />Add trigger</span>
+          <span role="button" aria-label={tx('Add trigger')} className="nc-auto-link" onClick={(e) => openTriggerMenu(e.currentTarget, { collectionId, trigger, onChange })}><Icon name="plusSmall" size={16} />{tx('Add trigger')}</span>
         ))}
         {triggerIssue && triggerIssue.message !== 'Add trigger' && <div className="nc-auto-card-error" style={{ margin: 0 }} role="alert"><Icon name="warning" size={14} /><span>{triggerIssue.message}</span></div>}
       </div>
@@ -245,8 +246,8 @@ export function TriggerSection({ collectionId, trigger, onChange, readOnly, issu
 export function ButtonTriggerSection() {
   return (
     <section className="nc-auto-section">
-      <header className="nc-auto-section-head"><span>When</span></header>
-      <div className="nc-auto-card"><div className="nc-auto-card-head"><span className="nc-auto-card-icon"><Icon name="cursorClick" size={18} /></span><div className="nc-auto-card-title"><span><b>Button</b> is clicked</span></div></div></div>
+      <header className="nc-auto-section-head"><span>{tx('When')}</span></header>
+      <div className="nc-auto-card"><div className="nc-auto-card-head"><span className="nc-auto-card-icon"><Icon name="cursorClick" size={18} /></span><div className="nc-auto-card-title"><span><b>{tx('Button')}</b> is clicked</span></div></div></div>
     </section>
   );
 }

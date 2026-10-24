@@ -16,6 +16,7 @@ import { createViewIn, newPropertyId } from '../actions.ts';
 import { openDatabaseTemplates } from '../../templates/dbTemplates.tsx';
 import { ViewStep } from './LinkedSourcePicker.tsx';
 import { addLinkedView } from '../sources/sources.ts';
+import { tx } from '../../shell/i18n.ts';
 
 /** The block's own, still empty data source (replaced when the database links an existing one). */
 function own(c: CollectionRecord, b: BlockRecord): boolean {
@@ -106,10 +107,10 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
   void view;
   if (page === 'link') return <LinkExisting block={block} collection={collection} onBack={() => setPage('main')} onClose={onClose} />;
   return (
-    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="New database">
+    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label={tx('New database')}>
       <div className="nc-vs-header">
-        <span className="nc-vs-title">New database</span>
-        <span role="button" className="nc-panel-close" aria-label="Close" data-testid="collection-settings-menu-close-button" onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
+        <span className="nc-vs-title">{tx('New database')}</span>
+        <span role="button" className="nc-panel-close" aria-label={tx('Close')} data-testid="collection-settings-menu-close-button" onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
       </div>
       <div className="lit-scroller vertical nc-new-db-scroll">
         <div className="nc-new-db-ai">
@@ -125,17 +126,17 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
             }}
           >
             <span className="nc-new-db-ai-avatar"><Icon name="aiFace" size={14} /></span>
-            <input name="prompt" className="nc-new-db-ai-text" placeholder="Describe what to build" aria-label="Describe what to build" autoComplete="off" style={{ border: 'none', outline: 'none', background: 'transparent', font: 'inherit', color: 'inherit', flex: 1, minWidth: 0 }} />
+            <input name="prompt" className="nc-new-db-ai-text" placeholder={tx('Describe what to build')} aria-label={tx('Describe what to build')} autoComplete="off" style={{ border: 'none', outline: 'none', background: 'transparent', font: 'inherit', color: 'inherit', flex: 1, minWidth: 0 }} />
             <button type="submit" className="nc-new-db-ai-submit" aria-label="Send prompt to AI 비서" style={{ border: 'none', cursor: 'pointer' }}><Icon name="arrowUp" size={14} /></button>
           </form>
         </div>
         <div className="nc-menu-section">
           <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { onClose(); setTimeout(() => document.querySelector<HTMLElement>('.nc-db-page-title')?.focus(), 30); }}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">New blank dataset</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">{tx('New blank dataset')}</div></div>
           </div>
           {/*: Import CSV goes through the column mapping of Merge with CSV (features/import, /006) */}
           <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { onClose(); void import('../../import/MergeCsv.tsx').then((m) => m.openMergeCsv(block.id)); }}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="download" size={20} /></span><div className="nc-menu-label">Import CSV</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="download" size={20} /></span><div className="nc-menu-label">{tx('Import CSV')}</div></div>
           </div>
           <input ref={fileRef} type="file" accept=".csv,text/csv" hidden onChange={async (e) => {
             const f = e.target.files?.[0];
@@ -151,11 +152,11 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
           }} />
         </div>
         <div className="nc-menu-section no-divider">
-          <div className="nc-menu-section-title">Suggested</div>
+          <div className="nc-menu-section-title">{tx('Suggested')}</div>
           {([
-            { id: 'tasks', label: 'Tasks Tracker', icon: 'checkmarkSquare', tile: 'green' },
-            { id: 'projects', label: 'Projects', icon: 'refresh', tile: 'blue' },
-            { id: 'skills', label: 'Skills', icon: 'magicWand', tile: 'gray' },
+            { id: 'tasks', label: tx('Tasks Tracker'), icon: 'checkmarkSquare', tile: 'green' },
+            { id: 'projects', label: tx('Projects'), icon: 'refresh', tile: 'blue' },
+            { id: 'skills', label: tx('Skills'), icon: 'magicWand', tile: 'gray' },
           ] as const).map((t) => (
             <div key={t.id} role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { applyTemplate(block, collection, t.id); onClose(); }}>
               <div className="nc-menu-item-inner"><span className={`nc-new-db-tile tile-${t.tile}`}><Icon name={t.icon} size={16} /></span><div className="nc-menu-label">{t.label}</div></div>
@@ -163,12 +164,12 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
           ))}
           {/*: gallery templates with a database */}
           <div role="menuitem" className="nc-menu-item nc-new-db-row" data-testid="new-db-more-templates" onClick={(e) => void openDatabaseTemplates(e.currentTarget, block.id, onClose)}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">More templates</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">{tx('More templates')}</div></div>
           </div>
         </div>
         <div className="nc-menu-section with-divider">
           <div role="menuitem" className="nc-menu-item nc-new-db-row" onClick={() => setPage('link')}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="arrowDiagonalUpRight" size={16} /></span><div className="nc-menu-label">Link an existing dataset</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="arrowDiagonalUpRight" size={16} /></span><div className="nc-menu-label">{tx('Link an existing dataset')}</div></div>
           </div>
         </div>
       </div>
@@ -211,7 +212,7 @@ function LinkExisting({ block, collection, onBack, onClose }: { block: BlockReco
   }, [q, collection.id]);
   if (picked) {
     return (
-      <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="New view">
+      <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label={tx('New view')}>
         <ViewStep source={picked} onBack={() => setPicked(null)} close={onClose} onChoose={(choice) => {
           if (choice.copyViewId) {
             const views = block.view_ids ?? [];
@@ -224,16 +225,16 @@ function LinkExisting({ block, collection, onBack, onClose }: { block: BlockReco
     );
   }
   return (
-    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="Link an existing dataset">
+    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label={tx('Link an existing dataset')}>
       <div className="nc-vs-header link">
-        <span role="button" className="nc-vs-back" aria-label="Back" onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>
-        <span className="nc-vs-title">Link an existing dataset</span>
-        <span role="button" className="nc-panel-close" aria-label="Close" onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
+        <span role="button" className="nc-vs-back" aria-label={tx('Back')} onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>
+        <span className="nc-vs-title">{tx('Link an existing dataset')}</span>
+        <span role="button" className="nc-panel-close" aria-label={tx('Close')} onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
       </div>
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Link…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder={tx('Link…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-new-db-scroll">
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">Available datasets</div>
+          <div className="nc-menu-section-title">{tx('Available datasets')}</div>
           {results.slice(0, q ? 100 : limit).map((r) => {
             const host = records.get<BlockRecord>('block', r.blockId);
             const target = records.get<CollectionRecord>('collection', r.collectionId);
@@ -254,7 +255,7 @@ function LinkExisting({ block, collection, onBack, onClose }: { block: BlockReco
               <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">Show {results.length - limit} more</div></div>
             </div>
           )}
-          {!results.length && <div className="nc-menu-empty">No data sources</div>}
+          {!results.length && <div className="nc-menu-empty">{tx('No data sources')}</div>}
         </div>
       </div>
     </div>

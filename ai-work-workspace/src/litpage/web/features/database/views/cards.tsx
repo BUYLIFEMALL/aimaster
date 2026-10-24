@@ -16,6 +16,7 @@ import { useDatabaseContext } from '../DatabaseContext.tsx';
 import { CardSubitems } from '../subitemsUi.tsx';
 import { TitleText } from './highlight.tsx';
 import '../dbv.css';
+import { tx } from '../../shell/i18n.ts';
 
 export interface CoverConfig {
   type: 'none' | 'page_cover' | 'page_content' | 'page_content_first' | 'property';
@@ -114,13 +115,13 @@ export function CardCover({ row, cover, view, collection, readOnly = true }: { r
         <div className="nc-card-preview-text">{preview.lines.map((l, i) => <div key={i} className="nc-card-preview-line"><RichTextView value={l} /></div>)}</div>
       ))}
       {canReposition && !rep.editing && (
-        <div role="button" className="nc-card-reposition" onClick={(e) => { e.stopPropagation(); rep.start(); }}>Reposition</div>
+        <div role="button" className="nc-card-reposition" onClick={(e) => { e.stopPropagation(); rep.start(); }}>{tx('Reposition')}</div>
       )}
       {rep.editing && (
         <div className="nc-card-reposition-bar" onClick={(e) => e.stopPropagation()}>
-          <span className="nc-card-reposition-hint">Drag the image to move it</span>
-          <span role="button" className="nc-card-reposition-btn" onClick={rep.save}>Save position</span>
-          <span role="button" className="nc-card-reposition-btn" onClick={rep.cancel}>Cancel</span>
+          <span className="nc-card-reposition-hint">{tx('Drag the image to move it')}</span>
+          <span role="button" className="nc-card-reposition-btn" onClick={rep.save}>{tx('Save position')}</span>
+          <span role="button" className="nc-card-reposition-btn" onClick={rep.cancel}>{tx('Cancel')}</span>
         </div>
       )}
     </div>
@@ -161,7 +162,7 @@ export function CardBody({ row, view, collection, props, showTitle, readOnly, ed
               property="title"
               value={title}
               className="nc-card-title editing"
-              placeholder="Type a name…"
+              placeholder={tx('Type a name…')}
               placeholderAlways
               onChange={(next) => setValue(row.id, 'title', next, { coalesce: `title:${row.id}` })}
               onBlur={() => { setEdit(false); onDoneEditing(); }}

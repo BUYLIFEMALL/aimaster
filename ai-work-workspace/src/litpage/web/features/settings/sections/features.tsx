@@ -12,7 +12,7 @@ import { navigate, openPage, spaceDomain } from '../../../lib/router.ts';
 import { Icon } from '../../../components/Icon.tsx';
 import { openMenu } from '../../../components/Menu.tsx';
 import { ImportPanel } from '../../import/ImportPanel.tsx';
-import { t } from '../../shell/i18n.ts';
+import { t, tx } from '../../shell/i18n.ts';
 import { Badge, Button, Dropdown, Group, Pills, Row, SectionPage, Switch, Upsell, UserAvatar, confirmDialog, msg, openSubDialog, rich } from '../ui.tsx';
 import { prefValue, savePref, savePrefs, usePrefs, type UserPrefs } from '../userSettings.ts';
 import { planAtLeast, saveSpaceSettings, spaceApi, spaceSetting, useSpaceAccess } from '../spaceSettings.ts';
@@ -301,13 +301,13 @@ export function MeetingNotesSection() {
           id="meeting-notes-enabled"
           label={t('lp.settings.turn_on_meeting_notes_for_the', 'Turn on meeting notes for the workspace')}
           description={t('lp.settings.make_ai_meeting_notes_available_to', 'Make AI meeting notes available to everyone in the workspace.')}
-          control={<span data-tooltip={lockTip}><Switch label="Turn on meeting notes for this workspace" disabled={!admin} checked={spaceSetting(space, 'meeting_notes_enabled', true)} onChange={(v) => set({ meeting_notes_enabled: v })} /></span>}
+          control={<span data-tooltip={lockTip}><Switch label={tx('Turn on meeting notes for this workspace')} disabled={!admin} checked={spaceSetting(space, 'meeting_notes_enabled', true)} onChange={(v) => set({ meeting_notes_enabled: v })} /></span>}
         />
         <Row
           id="store-audio-locally"
           label={t('lp.settings.save_audio_on_this_device', 'Save audio on this device')}
           description={t('lp.settings.allow_members_to_temporarily_store_a', 'Allow members to temporarily store a local, on-device copy of their meeting audio for added reliability.')}
-          control={<span data-tooltip={lockTip}><Switch label="Keep audio on this device" disabled={!admin} checked={spaceSetting(space, 'meeting_store_audio_locally', false)} onChange={(v) => set({ meeting_store_audio_locally: v })} /></span>}
+          control={<span data-tooltip={lockTip}><Switch label={tx('Keep audio on this device')} disabled={!admin} checked={spaceSetting(space, 'meeting_store_audio_locally', false)} onChange={(v) => set({ meeting_store_audio_locally: v })} /></span>}
         />
         <Row
           id="transcript-deletion"
@@ -340,7 +340,7 @@ export function MeetingNotesSection() {
           id="enforce-consent"
           label={t('lp.settings.require_consent_from_every_workspace_mem', 'Require consent from every workspace member')}
           description={t('lp.settings.require_every_transcription_by_a_workspa', 'Require every transcription by a workspace member to open with an audio consent message')}
-          control={<span data-tooltip={lockTip}><Switch label="Require consent from every workspace member" disabled={!admin} checked={enforce} onChange={(v) => set({ meeting_enforce_consent: v })} /></span>}
+          control={<span data-tooltip={lockTip}><Switch label={tx('Require consent from every workspace member')} disabled={!admin} checked={enforce} onChange={(v) => set({ meeting_enforce_consent: v })} /></span>}
         />
       </Group>
       <Group plain title={t('lp.settings.personal_preferences', 'Personal preferences')}>
@@ -348,7 +348,7 @@ export function MeetingNotesSection() {
           id="meeting-auto-share"
           label={t('lp.settings.share_automatically_with_internal_calend', 'Share automatically with internal calendar attendees')}
           description={t('lp.settings.workspace_members_invited_to_a_calendar', 'Workspace members invited to a calendar event automatically get access to its AI meeting notes. Notes without a linked calendar event aren’t affected.')}
-          control={<Switch label="Share automatically with internal calendar guests" checked={prefValue(prefs, 'meeting_auto_share')} onChange={(v) => savePref('meeting_auto_share', v)} />}
+          control={<Switch label={tx('Share automatically with internal calendar guests')} checked={prefValue(prefs, 'meeting_auto_share')} onChange={(v) => savePref('meeting_auto_share', v)} />}
         />
         <Row
           id="meeting-hide-tab"
@@ -370,7 +370,7 @@ export function MeetingNotesSection() {
           id="meeting-auto-consent"
           label={t('lp.settings.open_each_transcription_with_a_consent', 'Open each transcription with a consent message')}
           description={t('lp.settings.every_transcription_starts_by_playing_an', 'Every transcription starts by playing an audio consent message automatically.')}
-          control={<Switch label="Play the consent message when starting" disabled={enforce} checked={enforce || prefValue(prefs, 'meeting_auto_consent')} onChange={(v) => savePref('meeting_auto_consent', v)} />}
+          control={<Switch label={tx('Play the consent message when starting')} disabled={enforce} checked={enforce || prefValue(prefs, 'meeting_auto_consent')} onChange={(v) => savePref('meeting_auto_consent', v)} />}
         />
         <Row
           id="meeting-default-db"
@@ -572,7 +572,7 @@ function AddMcpClientBody({ close, onAdd }: { close: () => void; onAdd: (c: McpC
       <h3>{t('lp.settings.connect_a_new_mcp_client', 'Connect a new MCP client')}</h3>
       <div>
         <label className="nc-set-label">{t('lp.settings.name', 'Name')}</label>
-        <div className="nc-set-input"><input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="My agent" /></div>
+        <div className="nc-set-input"><input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={tx('My agent')} /></div>
       </div>
       <div>
         <label className="nc-set-label">{t('lp.settings.client_url', 'Client URL')}</label>
@@ -902,7 +902,7 @@ export function DeveloperSection() {
           id="developer-mode"
           label={t('lp.settings.turn_on_developer_features', 'Turn on developer features')}
           description={t('lp.settings.turn_on_the_developer_ui_including', 'Turn on the developer UI, including the toolbar, menu, and quick links to developer tools.')}
-          control={<Switch label="Turn on developer tools" checked={devOn} onChange={(v) => useDeveloperMode.getState().setOn(v)} />}
+          control={<Switch label={tx('Turn on developer tools')} checked={devOn} onChange={(v) => useDeveloperMode.getState().setOn(v)} />}
         />
       </Group>
       <Group plain title={t('lp.settings.personal_access_tokens_pats', 'Access tokens (PATs)')}>

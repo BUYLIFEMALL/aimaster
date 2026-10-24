@@ -33,6 +33,7 @@ import { endRowDrag, startRowDrag } from '../../rowPageDrag.ts';
 import '../../layout/layout.css';
 import '../../dbv.css';
 import './table.css';
+import { tx } from '../../../shell/i18n.ts';
 
 interface Column extends ViewPropEntry {
   prop: PropertySchema;
@@ -249,17 +250,17 @@ function TableView({ block, view, collection, readOnly }: ViewProps) {
           {columns.length <= 1 && Object.keys(collection.schema).length <= 1 ? (!schemaRO && (
             <div role="button" className="nc-add-property-btn" data-testid="add-column-button" aria-haspopup="dialog" onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view })}>
               <Plus size={13} aria-hidden className="nc-add-property-plus" />
-              <span>Add property</span>
+              <span>{tx('Add property')}</span>
             </div>
           )) : (
             <>
               {/* while “+ Add property” is open, the new column occupies a 378px slot and pushes “•••” after it */}
               {schemaRO ? null : pendingAdd ? <div className="nc-th-pending" /> : (
-                <div role="button" className="nc-th-icon-btn" data-testid="add-column-button" aria-label="Add property" data-tooltip="Add property" onClick={(e) => { setPendingAdd(true); openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view, onClose: () => setPendingAdd(false) }); }}>
+                <div role="button" className="nc-th-icon-btn" data-testid="add-column-button" aria-label={tx('Add property')} data-tooltip={tx('Add property')} onClick={(e) => { setPendingAdd(true); openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view, onClose: () => setPendingAdd(false) }); }}>
                   <Icon name="plusSmall" size={16} />
                 </div>
               )}
-              <div role="button" className="nc-th-icon-btn lit-table-view-add-column" aria-label="Display or conceal fields" data-tooltip="Display or conceal fields" onClick={(e) => openPropertyVisibility(e.currentTarget, view, collection)}>
+              <div role="button" className="nc-th-icon-btn lit-table-view-add-column" aria-label={tx('Display or conceal fields')} data-tooltip={tx('Display or conceal fields')} onClick={(e) => openPropertyVisibility(e.currentTarget, view, collection)}>
                 <Icon name="ellipsisSmall" size={16} />
               </div>
             </>
@@ -325,7 +326,7 @@ function TableView({ block, view, collection, readOnly }: ViewProps) {
         {rows.length > shown.length && (
           <div role="button" className="nc-table-load-more" data-testid="collection-load-more" onClick={() => setLimit((l) => l + (Number.isFinite(firstLimit) ? firstLimit : 50))}>
             <Icon name="arrowDown" size={14} />
-            <span>Load more</span>
+            <span>{tx('Load more')}</span>
           </div>
         )}
         {canAdd && <NewRowButton onClick={() => db?.addRow({ group: group ?? null, position: 'end', editTitle: true })} />}
@@ -472,7 +473,7 @@ function TableRow({ row, columns, collection, view, readOnly, minWidth, vertical
             <div
               role="button"
               className="nc-row-drag"
-              aria-label="Drag to send, click to launch menu"
+              aria-label={tx('Drag to send, click to launch menu')}
               draggable
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
@@ -485,8 +486,8 @@ function TableRow({ row, columns, collection, view, readOnly, minWidth, vertical
             <div
               role="button"
               className="nc-row-add"
-              aria-label="Add a row below (Option-click adds one above)"
-              data-tooltip="Click to add below"
+              aria-label={tx('Add a row below (Option-click adds one above)')}
+              data-tooltip={tx('Click to add below')}
               data-tooltip-sub="Option-click to add a block above"
               onMouseDown={(e) => e.preventDefault()}
               onClick={(e) => db?.addRow(e.altKey ? { before: row.id, editTitle: true } : { after: row.id, editTitle: true })}
@@ -595,7 +596,7 @@ function TitleCell({ row, view, collection, readOnly, wrap, showIcon, editing, w
             <div
               role="button"
               className="nc-open-button"
-              aria-label={peeking ? 'Close side preview' : peekMode === 'center_peek' ? 'Open in center preview' : peekMode === 'full_page' ? 'Open as entry' : 'Open in side preview'}
+              aria-label={peeking ? 'Close side preview' : peekMode === 'center_peek' ? 'Open in center preview' : peekMode === 'full_page' ? tx('Open as entry') : tx('Open in side preview')}
               onClick={(e) => {
                 e.stopPropagation();
                 db?.openRow(row.id);
@@ -650,7 +651,7 @@ export function CalcFooter({ columns, view, collection, rows, aggregations, read
                   <span className="nc-table-calc-value">{r.display}</span>
                 </>
               ) : (
-                <span className="nc-table-calc-placeholder">Calculate <Icon name="arrowChevronSingleDownSmall" size={12} /></span>
+                <span className="nc-table-calc-placeholder">{tx('Calculate')} <Icon name="arrowChevronSingleDownSmall" size={12} /></span>
               )}
             </div>
           </div>

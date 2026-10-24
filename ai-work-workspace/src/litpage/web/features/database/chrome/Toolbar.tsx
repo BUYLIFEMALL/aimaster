@@ -20,6 +20,7 @@ import { SprintToolbarButton } from '../sprints/SprintSettings.tsx';
 import { openTemplateItemMenu, templateCaption } from '../templates/templates.tsx';
 import { loadAutomations } from '../automations/api.ts';
 import { openToolbarAutofillMenu } from '../../ai/autofillUi.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 export function ToolButton({ icon, label, onClick, active, pressed, className, rotate }: { icon: string; label: string; onClick?: (e: React.MouseEvent<HTMLDivElement>) => void; active?: boolean; pressed?: boolean; className?: string; rotate?: boolean }) {
   return (
@@ -67,10 +68,10 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
       <div className="nc-templates-head">
         <div className="nc-templates-title-row">
           <span className="nc-templates-title">Templates for {name}</span>
-          <span role="button" className="nc-templates-help" aria-label="Help" data-tooltip="Learn about database templates"><Icon name="questionMarkCircle" size={16} /></span>
+          <span role="button" className="nc-templates-help" aria-label={tx('Help')} data-tooltip={tx('Learn about database templates')}><Icon name="questionMarkCircle" size={16} /></span>
         </div>
-        {!templates.length && access.canEditStructure && <div className="nc-templates-desc">Create a reusable entry template for this table.</div>}
-        {access.locked && <div className="nc-templates-desc">This table is locked. Unlock it to create templates.</div>}
+        {!templates.length && access.canEditStructure && <div className="nc-templates-desc">{tx('Create a reusable entry template for this table.')}</div>}
+        {access.locked && <div className="nc-templates-desc">{tx('This table is locked. Unlock it to create templates.')}</div>}
       </div>
     ),
     sections: [
@@ -82,20 +83,20 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
             icon: <PageIcon block={t} size={20} />,
             badge: defId === t.id ? 'Default' : undefined,
             description: templateCaption(t.id),
-            right: access.canEditStructure ? <span role="button" className="nc-template-more" aria-label="Template options" onClick={templateMenu(t)}><Icon name="ellipsisSmall" size={16} /></span> : undefined,
+            right: access.canEditStructure ? <span role="button" className="nc-template-more" aria-label={tx('Template options')} onClick={templateMenu(t)}><Icon name="ellipsisSmall" size={16} /></span> : undefined,
             onSelect: () => opts.onCreateFrom(t.id),
           })),
-          { id: 'empty', label: 'Empty', icon: 'pageEmpty', badge: !defId ? 'Default' : undefined, onSelect: () => opts.onCreateFrom('empty') },
+          { id: 'empty', label: tx('Empty'), icon: 'pageEmpty', badge: !defId ? 'Default' : undefined, onSelect: () => opts.onCreateFrom('empty') },
         ],
       }] : []),
-      ...(!access.canEditStructure ? [] : [{ items: [{ id: 'new', label: <span className="nc-templates-new">New template</span>, text: 'New template', icon: 'plus', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { const id = createTemplate(collection.id); openPeek(id, 'center_peek'); } }] }]),
+      ...(!access.canEditStructure ? [] : [{ items: [{ id: 'new', label: <span className="nc-templates-new">{tx('New template')}</span>, text: 'New template', icon: 'plus', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { const id = createTemplate(collection.id); openPeek(id, 'center_peek'); } }] }]),
     ],
     footer: (
       <div className="nc-templates-foot">
         <div role="button" className="nc-menu-item nc-templates-shortcut" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); useUI.getState().toast('Sidebar shortcuts for templates are not available yet'); }}>
           <div className="nc-menu-item-inner nc-mi">
             <div className="nc-menu-icon"><Icon name="sidebarLeft" size={20} /></div>
-            <div className="nc-menu-label">Create shortcut to sidebar</div>
+            <div className="nc-menu-label">{tx('Create shortcut to sidebar')}</div>
           </div>
         </div>
       </div>
@@ -177,7 +178,7 @@ export function Toolbar(p: ToolbarProps) {
     if (p.search !== null) searchRef.current?.focus();
   }, [p.search !== null]);
   const hovered = hover || popoverOpen;
-  const settingsButton = <ToolButton icon="dbToolSettings" label="Settings" className="lit-collection-edit-view" pressed={p.settingsOpen} onClick={(e) => p.onSettings(e.currentTarget)} />;
+  const settingsButton = <ToolButton icon="dbToolSettings" label={tx('Settings')} className="lit-collection-edit-view" pressed={p.settingsOpen} onClick={(e) => p.onSettings(e.currentTarget)} />;
   if (minimized && !p.compact) {
     return (
       <div ref={rootRef} className="nc-db-toolbar minimized" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
@@ -193,27 +194,27 @@ export function Toolbar(p: ToolbarProps) {
       {!p.compact && (
         <>
           {ToolbarLeading && <ToolbarLeading block={block} view={view} collection={collection} readOnly={p.readOnly} />}
-          <ToolButton icon="dbToolFilter" label="Filter" className="lit-collection-filter" active={filterCount > 0} pressed={filterOpen} onClick={(e) => p.onFilter(e.currentTarget)} />
-          <ToolButton icon="arrowUpDownSmall" label="Sort" className="lit-collection-sort" active={sortCount > 0} pressed={sortOpen} onClick={(e) => p.onSort(e.currentTarget)} />
-          <ToolButton icon="dbToolLightning" label="Automations" className="lit-collection-automation-edit-view" onClick={(e) => openAutomations(collection, e.currentTarget)} />
-          <ToolButton icon="magicWandSmall" label="AI Autofill" onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />
+          <ToolButton icon="dbToolFilter" label={tx('Filter')} className="lit-collection-filter" active={filterCount > 0} pressed={filterOpen} onClick={(e) => p.onFilter(e.currentTarget)} />
+          <ToolButton icon="arrowUpDownSmall" label={tx('Sort')} className="lit-collection-sort" active={sortCount > 0} pressed={sortOpen} onClick={(e) => p.onSort(e.currentTarget)} />
+          <ToolButton icon="dbToolLightning" label={tx('Automations')} className="lit-collection-automation-edit-view" onClick={(e) => openAutomations(collection, e.currentTarget)} />
+          <ToolButton icon="magicWandSmall" label={tx('AI Autofill')} onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />
           <div className={`nc-db-search ${p.search !== null ? 'open' : ''}`}>
-            <ToolButton icon="dbToolSearch" label="Search" onClick={() => (p.search === null ? p.setSearch('') : searchRef.current?.focus())} />
+            <ToolButton icon="dbToolSearch" label={tx('Search')} onClick={() => (p.search === null ? p.setSearch('') : searchRef.current?.focus())} />
             {p.search !== null && (
               <input
                 ref={searchRef}
                 className="nc-db-search-input"
-                placeholder="Type to find…"
+                placeholder={tx('Type to find…')}
                 value={p.search}
                 onChange={(e) => p.setSearch(e.target.value)}
                 onBlur={() => { if (!p.search) p.setSearch(null); }}
                 onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); p.setSearch(null); } }}
               />
             )}
-            {p.search && <span role="button" className="nc-db-search-clear" aria-label="Clear" onMouseDown={(e) => e.preventDefault()} onClick={() => { p.setSearch(''); searchRef.current?.focus(); }}><Icon name="xMarkSmall" size={11} strokeWidth={2.4} /></span>}
+            {p.search && <span role="button" className="nc-db-search-clear" aria-label={tx('Clear')} onMouseDown={(e) => e.preventDefault()} onClick={() => { p.setSearch(''); searchRef.current?.focus(); }}><Icon name="xMarkSmall" size={11} strokeWidth={2.4} /></span>}
           </div>
           {p.inline && (
-            <a role="link" className="nc-db-tool" aria-label="Launch as full entry" data-tooltip="Launch as full entry" href={`${pageUrl(block.id)}?v=${compactId(view.id)}`} onClick={(e) => { e.preventDefault(); history.pushState(null, '', `${pageUrl(block.id)}?v=${compactId(view.id)}`); dispatchEvent(new PopStateEvent('popstate')); }}>
+            <a role="link" className="nc-db-tool" aria-label={tx('Launch as full entry')} data-tooltip={tx('Launch as full entry')} href={`${pageUrl(block.id)}?v=${compactId(view.id)}`} onClick={(e) => { e.preventDefault(); history.pushState(null, '', `${pageUrl(block.id)}?v=${compactId(view.id)}`); dispatchEvent(new PopStateEvent('popstate')); }}>
               <Icon name="dbToolExpand" size={16} />
             </a>
           )}
@@ -224,8 +225,8 @@ export function Toolbar(p: ToolbarProps) {
       {ToolbarExtra ? <ToolbarExtra block={block} view={view} collection={collection} readOnly={p.readOnly} /> : (p.canAdd ?? !p.readOnly) && (
         <div className="nc-db-new-wrap">
           <div className={`lit-collection-view-item-add ${hoverNew ? 'hover' : ''}${newMenuOpen ? ' open' : ''}`} data-inp-target="collection-add-item">
-            <div role="button" aria-haspopup="dialog" className="nc-db-new" onMouseEnter={() => setHoverNew(true)} onMouseLeave={() => setHoverNew(false)} onClick={() => p.onNew()}>New</div>
-            <div role="button" aria-label="More create options" aria-haspopup="dialog" className="nc-db-new-more" onClick={(e) => openTemplatesMenu(e.currentTarget, { collection, view, onCreateFrom: (t) => p.onNew(t) })}>
+            <div role="button" aria-haspopup="dialog" className="nc-db-new" onMouseEnter={() => setHoverNew(true)} onMouseLeave={() => setHoverNew(false)} onClick={() => p.onNew()}>{tx('New')}</div>
+            <div role="button" aria-label={tx('More create options')} aria-haspopup="dialog" className="nc-db-new-more" onClick={(e) => openTemplatesMenu(e.currentTarget, { collection, view, onCreateFrom: (t) => p.onNew(t) })}>
               <Icon name="arrowChevronSingleDownSmall" size={16} strokeWidth={2} />
             </div>
           </div>

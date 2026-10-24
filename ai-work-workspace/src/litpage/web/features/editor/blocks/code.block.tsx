@@ -21,6 +21,7 @@ import { renderMermaid, svgToJpeg } from './mermaid.ts';
 import { registerBlockMenu } from './registry.ts';
 import { PREF, setPref } from '../prefs.ts';
 import { ActionBar, ActionButton, ActionDivider, Caption, copyText, openLightbox, showCaption, toast, downloadUrl, LiveSwitch } from './shared.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 type PreviewFormat = 'code' | 'preview' | 'split_view';
 
@@ -159,24 +160,24 @@ function CodeBlock({ block, readOnly }: BlockProps) {
 
   return (
     <div className="nc-bpad">
-      <div className={`nc-code-box nc-blk-hoverable ${showCode ? '' : 'preview-only'}`} role="figure" aria-label="Code block">
+      <div className={`nc-code-box nc-blk-hoverable ${showCode ? '' : 'preview-only'}`} role="figure" aria-label={tx('Code block')}>
         {!readOnly && (
           <ActionBar className="nc-code-actionbar">
-            <div ref={langRef} role="button" tabIndex={0} aria-label="Choose a language" className="nc-blk-action with-text nc-code-lang-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => langRef.current && openLanguagePicker([block.id], langRef.current)}>
+            <div ref={langRef} role="button" tabIndex={0} aria-label={tx('Choose a language')} className="nc-blk-action with-text nc-code-lang-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => langRef.current && openLanguagePicker([block.id], langRef.current)}>
               {language}
               <Icon name="chevronDown" size={12} />
             </div>
             <ActionDivider />
             {isMermaid && (
               <>
-                <ActionButton icon={preview === 'code' ? 'code' : preview === 'preview' ? 'previewEye' : 'splitView'} tooltip="Display" label="Choose a preview format" onClick={(e) => openMenu(e.currentTarget, {
+                <ActionButton icon={preview === 'code' ? 'code' : preview === 'preview' ? 'previewEye' : 'splitView'} tooltip="Display" label={tx('Choose a preview format')} onClick={(e) => openMenu(e.currentTarget, {
                   width: 200,
                   sections: [{ items: ([['code', 'Code', 'code'], ['preview', 'Preview', 'previewEye'], ['split_view', 'Split', 'splitView']] as const).map(([f, label, icon]) => ({ label, icon, checked: preview === f, onSelect: () => setPreviewFormat(block.id, f) })) }],
                 })} />
                 <ActionButton icon="zoomIn" tooltip="Expand diagram" onClick={() => {
                   void renderMermaid(text).then((r) => r.svg && openLightbox(() => <div className="nc-lightbox-diagram" dangerouslySetInnerHTML={{ __html: r.svg! }} />));
                 }} />
-                <ActionButton icon="download" tooltip="Download image" label="Download diagram image" onClick={() => {
+                <ActionButton icon="download" tooltip="Download image" label={tx('Download diagram image')} onClick={() => {
                   void renderMermaid(text).then(async (r) => {
                     if (!r.svg) return toast('The diagram has errors');
                     const blob = await svgToJpeg(r.svg);
@@ -188,9 +189,9 @@ function CodeBlock({ block, readOnly }: BlockProps) {
                 }} />
               </>
             )}
-            <ActionButton icon={copied ? 'check' : 'copy'} tooltip="Copy" label="Copy code" onClick={() => { copyCode(block.id); setCopied(true); setTimeout(() => setCopied(false), 1500); }} />
-            <ActionButton icon="arrowTurnDownLeft" tooltip={wrap ? 'Disable code wrapping' : 'Wrap code'} active={wrap} onClick={() => toggleWrap([block.id])} />
-            <ActionButton icon="ellipsis" tooltip="More actions" label="Open block options" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
+            <ActionButton icon={copied ? 'check' : 'copy'} tooltip="Copy" label={tx('Copy code')} onClick={() => { copyCode(block.id); setCopied(true); setTimeout(() => setCopied(false), 1500); }} />
+            <ActionButton icon="arrowTurnDownLeft" tooltip={wrap ? tx('Disable code wrapping') : tx('Wrap code')} active={wrap} onClick={() => toggleWrap([block.id])} />
+            <ActionButton icon="ellipsis" tooltip="More actions" label={tx('Open block options')} onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
           </ActionBar>
         )}
         {showCode && (
@@ -248,19 +249,19 @@ registerBlock(['code'], CodeBlock);
 registerBlockMenu(['code'], ({ ids, block, turnInto }) => {
   const items: MenuItemDef[] = [
     turnInto,
-    { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
-    { label: 'Copy code', icon: 'copyCode', onSelect: () => copyCode(block.id) },
-    { label: 'Wrap code', icon: 'arrowTurnDownLeft', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_wrap === true} />, onSelect: () => { toggleWrap(ids); return false; } },
+    { label: tx('Caption'), icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+    { label: tx('Copy code'), icon: 'copyCode', onSelect: () => copyCode(block.id) },
+    { label: tx('Wrap code'), icon: 'arrowTurnDownLeft', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_wrap === true} />, onSelect: () => { toggleWrap(ids); return false; } },
     {
-      label: 'Language', icon: 'curlyBraces',
+      label: tx('Language'), icon: 'curlyBraces',
       submenu: () => ({
         search: 'Find a language…', width: 240, maxHeight: '50vh',
         sections: [{ items: CODE_LANGUAGES.map((l) => ({ label: l, checked: l === languageOf(block), onSelect: () => setLanguage(ids, l) })) }],
       }),
     },
-    { label: 'Format code', icon: 'lightning', onSelect: () => formatCode(block.id) },
+    { label: tx('Format code'), icon: 'lightning', onSelect: () => formatCode(block.id) },
     {
-      label: 'Line numbers', icon: 'listNumber', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_line_numbers === true} />,
+      label: tx('Line numbers'), icon: 'listNumber', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_line_numbers === true} />,
       onSelect: () => { const on = getBlock(block.id)?.format?.code_line_numbers === true; run('toggleCodeLineNumbers', (tx) => { for (const id of ids) setFormat(tx, id, { code_line_numbers: !on }); }); return false; },
     },
   ];

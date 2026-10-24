@@ -19,6 +19,7 @@ import { TEMPLATE_ME } from '../../templates/templateVars.tsx';
 import '../../featureIcons.tsx';
 import { useUI } from '../../../../lib/store/ui.ts';
 import { openNestedMenu } from '../../menus.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 function write(opts: CellEditorOptions, raw: any) {
   if (opts.rowIds.length > 1) setValues(opts.rowIds, opts.propId, raw);
@@ -118,7 +119,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
         <input
           ref={inputRef}
           value={q}
-          placeholder={ids.length || groups.length ? '' : spaceGroups.length ? 'Find people or groups…' : 'Find a person…'}
+          placeholder={ids.length || groups.length ? '' : spaceGroups.length ? tx('Find people or groups…') : tx('Find a person…')}
           onChange={(e) => { setQ(e.target.value); setActive(0); }}
           onKeyDown={(e) => {
             if (e.nativeEvent.isComposing) return;
@@ -132,11 +133,11 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
       </div>
       </div>
       <div className="lit-scroller vertical nc-select-editor-scroll">
-        <div className="nc-select-editor-hint">{spaceGroups.length ? (limit === 1 ? 'Select one' : 'Choose any number of options') : limit === 1 ? 'Select a person' : 'Select as many people as you like'}</div>
+        <div className="nc-select-editor-hint">{spaceGroups.length ? (limit === 1 ? 'Select one' : 'Choose any number of options') : limit === 1 ? tx('Select a person') : tx('Select as many people as you like')}</div>
         {/* database templates: "Me — Person who duplicated entry" */}
         {getBlock(opts.rowIds[0])?.is_template && !ids.includes(TEMPLATE_ME) && (!q || 'me'.includes(q.trim().toLowerCase())) && (
           <div role="option" aria-selected={false} className="nc-select-option" onMouseDown={(e) => e.preventDefault()} onClick={() => add(TEMPLATE_ME)}>
-            <span className="nc-person-chip"><Icon name="person" size={18} /><span className="nc-person-name">Me</span><span className="nc-select-editor-hint" style={{ padding: 0, marginInlineStart: 8 }}>Person who duplicated entry</span></span>
+            <span className="nc-person-chip"><Icon name="person" size={18} /><span className="nc-person-name">{tx('Me')}</span><span className="nc-select-editor-hint" style={{ padding: 0, marginInlineStart: 8 }}>{tx('Person who duplicated entry')}</span></span>
           </div>
         )}
         {list.map((u, i) => (
@@ -144,7 +145,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
             <span className="nc-person-chip"><UserAvatar userId={u.id} size={20} /><span className="nc-person-name">{u.name || u.email}</span></span>
           </div>
         ))}
-        {groupList.length > 0 && <div className="nc-select-editor-hint">Groups</div>}
+        {groupList.length > 0 && <div className="nc-select-editor-hint">{tx('Groups')}</div>}
         {groupList.map((g, k) => {
           const i = list.length + k;
           return (
@@ -157,7 +158,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
             </div>
           );
         })}
-        {!options.length && <div className="nc-select-editor-empty">No results</div>}
+        {!options.length && <div className="nc-select-editor-empty">{tx('No results')}</div>}
       </div>
     </PopoverSurface>
   );
@@ -192,8 +193,8 @@ export function openFileFullScreen(f: FileValue) {
       <img src={f.url} alt={f.name} onClick={(e) => e.stopPropagation()} />
       <div className="nc-file-fullscreen-bar" onClick={(e) => e.stopPropagation()}>
         <span className="nc-ellipsis">{f.name}</span>
-        <a href={f.url} download={f.name} className="nc-btn outline">Download</a>
-        <span role="button" className="nc-btn outline" onClick={close}>Close</span>
+        <a href={f.url} download={f.name} className="nc-btn outline">{tx('Download')}</a>
+        <span role="button" className="nc-btn outline" onClick={close}>{tx('Close')}</span>
       </div>
     </div>
   ), { placement: 'center', backdrop: 'dim', className: 'nc-file-fullscreen-overlay' });
@@ -239,12 +240,12 @@ function FilesEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
     const f = files[i];
     openNestedMenu(anchor, { width: 200, sections: [
       { items: [
-        ...(isImageFile(f) ? [{ id: 'full', label: 'Full screen', icon: 'maximize', onSelect: () => { setTimeout(() => openFileFullScreen(f), 0); } }] : []),
-        { id: 'orig', label: 'View original', icon: 'openAsPage', onSelect: () => { window.open(f.url, '_blank', 'noopener'); } },
-        { id: 'dl', label: 'Download', icon: 'download', onSelect: () => downloadFile(f) },
-        { id: 'rename', label: 'Rename', icon: 'pencil', onSelect: () => setRenaming(i) },
+        ...(isImageFile(f) ? [{ id: 'full', label: tx('Full screen'), icon: 'maximize', onSelect: () => { setTimeout(() => openFileFullScreen(f), 0); } }] : []),
+        { id: 'orig', label: tx('View original'), icon: 'openAsPage', onSelect: () => { window.open(f.url, '_blank', 'noopener'); } },
+        { id: 'dl', label: tx('Download'), icon: 'download', onSelect: () => downloadFile(f) },
+        { id: 'rename', label: tx('Rename'), icon: 'pencil', onSelect: () => setRenaming(i) },
       ] },
-      { items: [{ id: 'delete', label: 'Delete', icon: 'trash', onSelect: () => set(files.filter((_, j) => j !== i)) }] },
+      { items: [{ id: 'delete', label: tx('Delete'), icon: 'trash', onSelect: () => set(files.filter((_, j) => j !== i)) }] },
     ] }, { placement: 'bottom-end' });
   };
   return (
@@ -274,7 +275,7 @@ function FilesEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
                   set(next);
                 }}
               >
-                <span className="nc-files-handle" draggable aria-label="Drag to reorder" onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i)); setDrag({ from: i, over: i }); }} onDragEnd={() => setDrag(null)}><Icon name="gripVertical" size={14} /></span>
+                <span className="nc-files-handle" draggable aria-label={tx('Drag to reorder')} onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i)); setDrag({ from: i, over: i }); }} onDragEnd={() => setDrag(null)}><Icon name="gripVertical" size={14} /></span>
                 {isImageFile(f) ? <img className="nc-files-thumb" src={f.url} alt="" /> : <Icon name="paperClip" size={16} />}
                 {renaming === i ? (
                   <input
@@ -287,26 +288,26 @@ function FilesEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
                 ) : (
                   <a href={f.url} target="_blank" rel="noreferrer" className="nc-files-name" onClick={(e) => { if (isImageFile(f)) { e.preventDefault(); openFileFullScreen(f); } }}>{f.name}</a>
                 )}
-                <span role="button" className="nc-files-remove" aria-label="More actions" data-testid="files-item-menu" onClick={(e) => fileMenu(e.currentTarget, i)}><Icon name="ellipsisSmall" size={14} /></span>
+                <span role="button" className="nc-files-remove" aria-label={tx('More actions')} data-testid="files-item-menu" onClick={(e) => fileMenu(e.currentTarget, i)}><Icon name="ellipsisSmall" size={14} /></span>
               </div>
             ))}
           </div>
         )}
         <div className="nc-files-tabs">
-          <span role="tab" aria-selected={tab === 'upload'} className={tab === 'upload' ? 'active' : ''} onClick={() => setTab('upload')}>Upload</span>
-          <span role="tab" aria-selected={tab === 'link'} className={tab === 'link' ? 'active' : ''} onClick={() => setTab('link')}>Link</span>
+          <span role="tab" aria-selected={tab === 'upload'} className={tab === 'upload' ? 'active' : ''} onClick={() => setTab('upload')}>{tx('Upload')}</span>
+          <span role="tab" aria-selected={tab === 'link'} className={tab === 'link' ? 'active' : ''} onClick={() => setTab('link')}>{tx('Link')}</span>
         </div>
         <div className="nc-files-body">
           {tab === 'upload' ? (
             <>
-              <button className="nc-btn outline nc-files-choose" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? 'Uploading…' : 'Choose a file'}</button>
+              <button className="nc-btn outline nc-files-choose" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? tx('Uploading…') : tx('Choose a file')}</button>
               <input ref={fileRef} type="file" multiple={!single} hidden data-testid="files-input" onChange={(e) => void addUploads([...(e.target.files ?? [])])} />
-              <div className="nc-files-hint">{dropping ? 'Drop to upload' : 'The maximum size per file is 5 MB.'}</div>
+              <div className="nc-files-hint">{dropping ? tx('Drop to upload') : tx('The maximum size per file is 5 MB.')}</div>
             </>
           ) : (
             <>
-              <div className="nc-input focused"><input autoFocus placeholder="Paste a URL such as https://…" value={link} onChange={(e) => setLink(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && link.trim()) { e.preventDefault(); set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); } if (e.key === 'Escape') close(); }} /></div>
-              <button className="nc-btn primary nc-files-embed" disabled={!link.trim()} onClick={() => { set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); }}>Embed link</button>
+              <div className="nc-input focused"><input autoFocus placeholder={tx('Paste a URL such as https://…')} value={link} onChange={(e) => setLink(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && link.trim()) { e.preventDefault(); set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); } if (e.key === 'Escape') close(); }} /></div>
+              <button className="nc-btn primary nc-files-embed" disabled={!link.trim()} onClick={() => { set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); }}>{tx('Embed link')}</button>
             </>
           )}
         </div>
@@ -375,12 +376,12 @@ function PlaceEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
       <div className="nc-place-fields" data-menu-keys="ignore">
         <div className="nc-input focused">
           <Icon name="magnifyingGlassSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
-          <input autoFocus placeholder="Find a place..." value={q} data-testid="place-search" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); pickTyped(); close(); } if (e.key === 'Escape') close(); }} />
+          <input autoFocus placeholder={tx('Find a place...')} value={q} data-testid="place-search" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); pickTyped(); close(); } if (e.key === 'Escape') close(); }} />
         </div>
       </div>
       <div className="nc-place-results">
         <div role="button" className={`nc-menu-item ${geoError ? 'disabled' : ''}`} data-testid="place-current" data-tooltip={geoError ? 'Location access is unavailable' : undefined} onClick={() => !geoError && !busy && useCurrent()}>
-          <div className="nc-menu-item-inner"><Icon name="crosshair" size={16} /><div className="nc-menu-label">{busy ? 'Current Location…' : 'Current Location'}</div></div>
+          <div className="nc-menu-item-inner"><Icon name="crosshair" size={16} /><div className="nc-menu-label">{busy ? tx('Current Location…') : tx('Current Location')}</div></div>
         </div>
         {needle && (
           <div role="button" className="nc-menu-item" data-testid="place-use-typed" onClick={() => { pickTyped(); close(); }}>
@@ -395,17 +396,17 @@ function PlaceEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
             </div>
           </div>
         ))}
-        {needle && <div className="nc-place-disclaimer">Results may be limited. </div>}
+        {needle && <div className="nc-place-disclaimer">{tx('Results may be limited.')} </div>}
       </div>
       {cur && (
         <>
           <div className="nc-menu-divider" />
           <div className="nc-place-fields" data-menu-keys="ignore">
-            <label className="nc-place-label">Place name</label>
-            <div className="nc-input"><input placeholder="Rename place" value={name} data-testid="place-name" onChange={(e) => setName(e.target.value)} onBlur={() => set({ ...cur, name: name.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') { set({ ...cur, name: name.trim() || undefined }); close(); } }} /></div>
+            <label className="nc-place-label">{tx('Place name')}</label>
+            <div className="nc-input"><input placeholder={tx('Rename place')} value={name} data-testid="place-name" onChange={(e) => setName(e.target.value)} onBlur={() => set({ ...cur, name: name.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') { set({ ...cur, name: name.trim() || undefined }); close(); } }} /></div>
           </div>
-          <a className="nc-menu-item nc-place-map" href={mapsUrl(cur)} target="_blank" rel="noreferrer"><div className="nc-menu-item-inner"><Icon name="openAsPage" size={16} /><div className="nc-menu-label">Open in Maps</div></div></a>
-          <div role="button" className="nc-menu-item nc-place-clear" data-testid="place-clear" onClick={() => { write(opts, undefined); close(); }}><div className="nc-menu-item-inner"><Icon name="trash" size={16} /><div className="nc-menu-label">Clear place</div></div></div>
+          <a className="nc-menu-item nc-place-map" href={mapsUrl(cur)} target="_blank" rel="noreferrer"><div className="nc-menu-item-inner"><Icon name="openAsPage" size={16} /><div className="nc-menu-label">{tx('Open in Maps')}</div></div></a>
+          <div role="button" className="nc-menu-item nc-place-clear" data-testid="place-clear" onClick={() => { write(opts, undefined); close(); }}><div className="nc-menu-item-inner"><Icon name="trash" size={16} /><div className="nc-menu-label">{tx('Clear place')}</div></div></div>
         </>
       )}
     </PopoverSurface>
@@ -434,19 +435,19 @@ function RelationEditor({ opts, close }: { opts: CellEditorOptions; close: () =>
     <PopoverSurface width={360} className="nc-select-editor">
       <div className="nc-select-editor-field">
       <div className="nc-select-editor-input">
-        <input autoFocus value={q} placeholder="Link or create an entry…" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') close(); }} />
+        <input autoFocus value={q} placeholder={tx('Link or create an entry…')} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') close(); }} />
       </div>
       </div>
       <div className="lit-scroller vertical nc-select-editor-scroll">
-        {!target && <div className="nc-select-editor-empty">Choose a related database in Edit property.</div>}
-        {linked.length > 0 && <div className="nc-select-editor-hint">Linked</div>}
+        {!target && <div className="nc-select-editor-empty">{tx('Choose a related database in Edit property.')}</div>}
+        {linked.length > 0 && <div className="nc-select-editor-hint">{tx('Linked')}</div>}
         {linked.map((b) => (
           <div key={b.id} className="nc-select-option" onClick={() => set(ids.filter((x) => x !== b.id))}>
             <span className="nc-page-chip"><PageIcon block={b} size={18} /><span className="nc-page-chip-title">{title(b)}</span></span>
             <span className="nc-select-option-more"><Icon name="minus" size={14} /></span>
           </div>
         ))}
-        {target && <div className="nc-select-editor-hint">{rest.length ? 'Select more' : 'No pages'}</div>}
+        {target && <div className="nc-select-editor-hint">{rest.length ? tx('Select more') : tx('No pages')}</div>}
         {rest.slice(0, 100).map((b) => (
           <div key={b.id} className="nc-select-option" onClick={() => { if (prop?.limit === 1) { set([b.id]); close(); } else set([...ids, b.id]); }}>
             <span className="nc-page-chip"><PageIcon block={b} size={18} /><span className="nc-page-chip-title">{title(b)}</span></span>

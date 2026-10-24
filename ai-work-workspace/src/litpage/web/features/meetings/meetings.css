@@ -107,3 +107,39 @@
 .nc-mtg-floating { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 90; display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 6px 0 12px; border-radius: 18px; background: var(--lp-bg-elevated, #fff); box-shadow: var(--lp-shadow-outset-large, 0 0 0 1px rgba(0, 0, 0, 0.05), 0 3px 6px rgba(0, 0, 0, 0.1), 0 9px 24px rgba(0, 0, 0, 0.2)); font-size: 13px; color: var(--lp-text-primary); }
 .nc-mtg-floating .go { cursor: pointer; font-weight: 500; }
 .nc-mtg-floating .go:hover { text-decoration: underline; }
+
+/* 이식판(v1.15): 주인님 지시 「버튼은 잘 보이도록 3D 형태로」 — 받아쓰기 시작·재개·정지·요약 만들기를 입체 버튼으로 */
+.nc-mtg-start:not(.busy):not(.secondary),
+.nc-mtg-start.secondary:not([aria-disabled='true']),
+.nc-mtg-stop,
+.nc-mtg-banner .nc-blk-btn {
+  height: 34px; padding: 0 14px; border-radius: 10px; font-size: 14px; font-weight: 700;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+}
+.nc-mtg-start:not(.busy):not(.secondary) {
+  background: linear-gradient(180deg, #4f8cff 0%, #2563eb 100%); color: #fff;
+  box-shadow: 0 4px 0 #1e40af, 0 6px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.nc-mtg-start.secondary:not([aria-disabled='true']) {
+  background: linear-gradient(180deg, #ffffff 0%, #e8eefc 100%); color: #1e3a8a;
+  box-shadow: 0 4px 0 #9fb4e6, 0 6px 12px rgba(30, 58, 138, 0.18), inset 0 1px 0 #fff;
+}
+.nc-mtg-stop {
+  background: linear-gradient(180deg, #ff6b6b 0%, #e11d48 100%); color: #fff;
+  box-shadow: 0 4px 0 #9f1239, 0 6px 14px rgba(225, 29, 72, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.nc-mtg-banner .nc-blk-btn {
+  border: none; cursor: pointer; white-space: nowrap; align-self: center;
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%); color: #fff;
+  box-shadow: 0 4px 0 #065f46, 0 6px 12px rgba(5, 150, 105, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.nc-mtg-start:not(.busy):not(.secondary):hover,
+.nc-mtg-start.secondary:not([aria-disabled='true']):hover,
+.nc-mtg-stop:hover,
+.nc-mtg-banner .nc-blk-btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.nc-mtg-start:not(.busy):not(.secondary):active,
+.nc-mtg-start.secondary:not([aria-disabled='true']):active,
+.nc-mtg-stop:active,
+.nc-mtg-banner .nc-blk-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+.nc-mtg-stop:disabled, .nc-mtg-start[disabled] { filter: grayscale(0.4) brightness(0.9); transform: none; cursor: default; }
+.nc-mtg-banner.info { background: color-mix(in srgb, #3b82f6 12%, transparent); }

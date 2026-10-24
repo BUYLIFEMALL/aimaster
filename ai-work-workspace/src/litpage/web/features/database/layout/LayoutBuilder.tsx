@@ -28,10 +28,11 @@ import { getPropertyValue, isEmptyValue } from '#shared/database/index.ts';
 import { applyPageLayout, pageLayoutOf, pagePropertyOrder, resetPageLayout } from './model.ts';
 import '../featureIcons.tsx';
 import './layout.css';
+import { tx } from '../../shell/i18n.ts';
 
 type Sel = { kind: 'page' } | { kind: 'module'; id: string };
 
-const MODULE_LABEL: Record<string, string> = { title: 'Heading', properties: 'Property group', discussions: 'Page discussions', editor: 'Content' };
+const MODULE_LABEL: Record<string, string> = { title: tx('Heading'), properties: 'Property group', discussions: 'Page discussions', editor: 'Content' };
 
 function clone(l: PageLayout): PageLayout {
   return structuredClone(l);
@@ -69,9 +70,9 @@ function returnToGroup(l: PageLayout, pid: string) {
 
 function PreviewValue({ row, pid, col }: { row: BlockRecord | undefined; pid: string; col: CollectionRecord }) {
   const ctx = makeQueryContext();
-  if (!row) return <span className="nc-page-prop-empty">Empty</span>;
+  if (!row) return <span className="nc-page-prop-empty">{tx('Empty')}</span>;
   const v = getPropertyValue(row, pid, col.schema, ctx);
-  if (isEmptyValue(v) && v.kind !== 'checkbox') return <span className="nc-page-prop-empty">Empty</span>;
+  if (isEmptyValue(v) && v.kind !== 'checkbox') return <span className="nc-page-prop-empty">{tx('Empty')}</span>;
   return <ValueView value={v} prop={col.schema[pid]} propId={pid} row={row} ctx={ctx} wrap readOnly mode="cell" />;
 }
 
@@ -92,7 +93,7 @@ function ModuleFrame({ m, selected, onSelect, onMenu, label, children, hoverLabe
     <div className={`nc-lb-module ${selected ? 'selected' : ''} type-${m.type}`} data-module={m.type} data-module-id={m.id} onClick={(e) => { e.stopPropagation(); onSelect(); }}>
       {hoverLabel && <div className="nc-lb-module-label"><Icon name="gripVertical" size={12} /><span>{label}</span></div>}
       {onMenu && (
-        <span role="button" className="nc-lb-module-menu" aria-label="Action menu for module" onClick={(e) => { e.stopPropagation(); onMenu(e.currentTarget); }}>
+        <span role="button" className="nc-lb-module-menu" aria-label={tx('Action menu for module')} onClick={(e) => { e.stopPropagation(); onMenu(e.currentTarget); }}>
           <Icon name="ellipsisSmall" size={16} />
         </span>
       )}
@@ -170,21 +171,21 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
     const items: MenuItemDef[] = [];
     const canUp = at.area === 'page_main' ? at.index > 1 : at.index > 0;
     if (at.m.type !== 'title') {
-      items.push({ id: 'up', label: 'Move up', icon: 'arrowUp', disabled: !canUp, onSelect: () => edit((l) => { const a = l.modules[at.area]; [a[at.index - 1], a[at.index]] = [a[at.index], a[at.index - 1]]; }) });
-      items.push({ id: 'down', label: 'Move down', icon: 'arrowDown', disabled: at.index >= list.length - 1, onSelect: () => edit((l) => { const a = l.modules[at.area]; [a[at.index + 1], a[at.index]] = [a[at.index], a[at.index + 1]]; }) });
+      items.push({ id: 'up', label: tx('Move up'), icon: 'arrowUp', disabled: !canUp, onSelect: () => edit((l) => { const a = l.modules[at.area]; [a[at.index - 1], a[at.index]] = [a[at.index], a[at.index - 1]]; }) });
+      items.push({ id: 'down', label: tx('Move down'), icon: 'arrowDown', disabled: at.index >= list.length - 1, onSelect: () => edit((l) => { const a = l.modules[at.area]; [a[at.index + 1], a[at.index]] = [a[at.index], a[at.index + 1]]; }) });
     }
     if (at.area === 'page_main' && canMoveToPanel(at.m, col.schema)) {
-      items.push({ id: 'panel', label: 'Send to panel', icon: 'panelRight', onSelect: () => edit((l) => { const [m] = l.modules.page_main.splice(at.index, 1); l.modules.page_details.push(m); }) });
+      items.push({ id: 'panel', label: tx('Send to panel'), icon: 'panelRight', onSelect: () => edit((l) => { const [m] = l.modules.page_main.splice(at.index, 1); l.modules.page_details.push(m); }) });
     }
     if (at.area === 'page_details') {
-      items.push({ id: 'page', label: 'Send to entry', icon: 'arrowStraightLeftSmall', onSelect: () => edit((l) => { const [m] = l.modules.page_details.splice(at.index, 1); const ed = l.modules.page_main.findIndex((x) => x.type === 'editor'); l.modules.page_main.splice(ed < 0 ? l.modules.page_main.length : ed, 0, m); }) });
+      items.push({ id: 'page', label: tx('Send to entry'), icon: 'arrowStraightLeftSmall', onSelect: () => edit((l) => { const [m] = l.modules.page_details.splice(at.index, 1); const ed = l.modules.page_main.findIndex((x) => x.type === 'editor'); l.modules.page_main.splice(ed < 0 ? l.modules.page_main.length : ed, 0, m); }) });
     }
     if (at.m.type === 'property') {
       const pid = at.m.property;
-      items.push({ id: 'group', label: 'Create to field group', icon: 'bulletedList', onSelect: () => edit((l) => returnToGroup(l, pid)) });
-      items.push({ id: 'remove', label: 'Remove from layout', icon: 'trash', onSelect: () => edit((l) => { returnToGroup(l, pid); const g = groupOf(l); if (g && !g.hidden.includes(pid)) g.hidden.push(pid); }) });
+      items.push({ id: 'group', label: tx('Create to field group'), icon: 'bulletedList', onSelect: () => edit((l) => returnToGroup(l, pid)) });
+      items.push({ id: 'remove', label: tx('Remove from layout'), icon: 'trash', onSelect: () => edit((l) => { returnToGroup(l, pid); const g = groupOf(l); if (g && !g.hidden.includes(pid)) g.hidden.push(pid); }) });
     }
-    if (at.m.type === 'discussions') items.push({ id: 'hide', label: 'Conceal entry discussions', icon: 'eyeSlash', onSelect: () => edit((l) => { l.modules[at.area] = l.modules[at.area].filter((m) => m.type !== 'discussions'); }) });
+    if (at.m.type === 'discussions') items.push({ id: 'hide', label: tx('Conceal entry discussions'), icon: 'eyeSlash', onSelect: () => edit((l) => { l.modules[at.area] = l.modules[at.area].filter((m) => m.type !== 'discussions'); }) });
     if (!items.length) return;
     openMenu(anchor, { width: 220, sections: [{ items }] }, { placement: 'bottom-end' });
   };
@@ -197,7 +198,7 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
     };
     const suggested: MenuItemDef[] = [];
     if (![...draft.modules.page_main, ...draft.modules.page_details].some((m) => m.type === 'discussions')) {
-      suggested.push({ id: 'disc', label: 'Page discussions', icon: 'commentFilled', onSelect: () => edit((l) => insert(l, { id: 'discussions', type: 'discussions' })) });
+      suggested.push({ id: 'disc', label: tx('Page discussions'), icon: 'commentFilled', onSelect: () => edit((l) => insert(l, { id: 'discussions', type: 'discussions' })) });
     }
     const existing = Object.entries(col.schema).filter(([id, p]) => id !== 'title' && p.type !== 'title' && !(area === 'page_details' && p.type === 'relation'));
     const def: MenuDef = {
@@ -205,9 +206,9 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
       search: 'Search…',
       maxHeight: 460,
       sections: [
-        ...(suggested.length ? [{ title: 'Suggested', items: suggested }] : []),
-        { title: 'Use an existing field', items: existing.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => edit((l) => { detachProperty(l, id); const g = groupOf(l); if (g) g.hidden = g.hidden.filter((x) => x !== id); insert(l, { id: newLayoutModuleId('prop'), type: 'property', property: id }); }) })) },
-        { title: 'Create new field', items: PICKER_SECTIONS.flatMap((s) => s.types).filter((t) => !(area === 'page_details' && t === 'relation')).map((t) => ({ id: `new-${t}`, label: propertyTypeMeta(t).label, icon: <PropertyIcon prop={{ type: t }} size={16} />, onSelect: () => {
+        ...(suggested.length ? [{ title: tx('Suggested'), items: suggested }] : []),
+        { title: tx('Use an existing field'), items: existing.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => edit((l) => { detachProperty(l, id); const g = groupOf(l); if (g) g.hidden = g.hidden.filter((x) => x !== id); insert(l, { id: newLayoutModuleId('prop'), type: 'property', property: id }); }) })) },
+        { title: tx('Create new field'), items: PICKER_SECTIONS.flatMap((s) => s.types).filter((t) => !(area === 'page_details' && t === 'relation')).map((t) => ({ id: `new-${t}`, label: propertyTypeMeta(t).label, icon: <PropertyIcon prop={{ type: t }} size={16} />, onSelect: () => {
           const pid = addProperty(col.id, t as PropertyType, { action: 'layout.createProperty' });
           if (pid) setTimeout(() => setDraft((d) => {
             if (!d) return d;
@@ -227,14 +228,14 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
   const pickPreview = (anchor: HTMLElement) => openMenu(anchor, {
     width: 300,
     search: 'Search pages…',
-    emptyText: 'No results.',
-    sections: [{ title: 'Choose entry to preview', items: rows.map((r) => ({ id: r.id, label: toPlainText(r.properties?.title) || 'Untitled', icon: <PageIcon block={r} size={16} fallback="page" />, checked: r.id === row?.id, onSelect: () => setPreviewId(r.id) })) }],
+    emptyText: tx('No results.'),
+    sections: [{ title: tx('Choose entry to preview'), items: rows.map((r) => ({ id: r.id, label: toPlainText(r.properties?.title) || 'Untitled', icon: <PageIcon block={r} size={16} fallback="page" />, checked: r.id === row?.id, onSelect: () => setPreviewId(r.id) })) }],
   }, { placement: 'bottom' as never });
 
   const saveOptions = (anchor: HTMLElement) => openMenu(anchor, {
     width: 280,
-    sections: [{ items: [{ id: 'reset', label: 'Reset to original entry layout', description: 'No fields will be deleted', icon: 'undo', onSelect: async () => {
-      const ok = await confirmDialog({ message: 'Reset to original entry layout?', description: 'No fields will be deleted.', confirmLabel: 'Reset' });
+    sections: [{ items: [{ id: 'reset', label: tx('Reset to original entry layout'), description: tx('No fields will be deleted'), icon: 'undo', onSelect: async () => {
+      const ok = await confirmDialog({ message: 'Reset to original entry layout?', description: tx('No fields will be deleted.'), confirmLabel: 'Reset' });
       if (!ok) return;
       resetPageLayout(col);
       close();
@@ -249,7 +250,7 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
     switch (m.type) {
       case 'title':
         return (
-          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} label="Heading" hoverLabel>
+          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} label={tx('Heading')} hoverLabel>
             <div className="nc-lb-heading">
               {row && <PageIcon block={row} size={30} fallback={null} />}
               <div className="nc-lb-heading-title">{toPlainText(row?.properties?.title) || 'Untitled'}</div>
@@ -264,12 +265,12 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
                 ))}
               </div>
             )}
-            <div className="nc-lb-backlinks"><Icon name="arrowDiagonalDownLeftSmall" size={14} /><span>No backlinks</span></div>
+            <div className="nc-lb-backlinks"><Icon name="arrowDiagonalDownLeftSmall" size={14} /><span>{tx('No backlinks')}</span></div>
           </ModuleFrame>
         );
       case 'properties':
         return (
-          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} onMenu={menu} label="Property group">
+          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} onMenu={menu} label={tx('Property group')}>
             {m.sections.map((s) => (
               <div key={s.id} className="nc-lb-section">
                 {s.name && <div className="nc-lb-section-name"><Icon name="triangleRight" size={10} /><span>{s.name}</span></div>}
@@ -289,13 +290,13 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
         );
       case 'discussions':
         return (
-          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} onMenu={menu} label="Page discussions">
-            <div className="nc-lb-discussions"><div className="nc-lb-discussions-title">Comments</div><div className="nc-lb-discussions-input">Add a comment…</div></div>
+          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} onMenu={menu} label={tx('Page discussions')}>
+            <div className="nc-lb-discussions"><div className="nc-lb-discussions-title">{tx('Comments')}</div><div className="nc-lb-discussions-input">{tx('Add a comment…')}</div></div>
           </ModuleFrame>
         );
       case 'editor':
         return (
-          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} onMenu={menu} label="Content">
+          <ModuleFrame key={m.id} m={m} selected={selected} onSelect={select} onMenu={menu} label={tx('Content')}>
             <div className="nc-lb-content">{row?.content?.length ? `${row.content.length} block${row.content.length === 1 ? '' : 's'}` : 'Empty'}</div>
           </ModuleFrame>
         );
@@ -307,7 +308,7 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
 
   const addButton = (area: LayoutArea, index: number) => (
     <div className="nc-lb-add-wrap" key={`add-${area}-${index}`}>
-      <span role="button" className="nc-lb-add" aria-label="Create entry module" onClick={(e) => { e.stopPropagation(); addMenu(e.currentTarget, area, index); }}><Icon name="plus" size={16} /></span>
+      <span role="button" className="nc-lb-add" aria-label={tx('Create entry module')} onClick={(e) => { e.stopPropagation(); addMenu(e.currentTarget, area, index); }}><Icon name="plus" size={16} /></span>
     </div>
   );
 
@@ -325,33 +326,33 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
     sidebar = (
       <div className="nc-lb-side-section">
         <div className="nc-lb-side-title">{col.schema[pid]?.name ?? 'Property'}</div>
-        <div role="button" className="nc-lb-side-row" onClick={(e) => openEditPropertyPopover(e.currentTarget, col.id, pid)}><Icon name="slidersTwo" size={16} /><span>Edit property</span></div>
-        <div role="button" className="nc-lb-side-row" onClick={() => { edit((l) => returnToGroup(l, pid)); setSel({ kind: 'page' }); }}><Icon name="bulletedList" size={16} /><span>Create to field group</span></div>
+        <div role="button" className="nc-lb-side-row" onClick={(e) => openEditPropertyPopover(e.currentTarget, col.id, pid)}><Icon name="slidersTwo" size={16} /><span>{tx('Edit property')}</span></div>
+        <div role="button" className="nc-lb-side-row" onClick={() => { edit((l) => returnToGroup(l, pid)); setSel({ kind: 'page' }); }}><Icon name="bulletedList" size={16} /><span>{tx('Create to field group')}</span></div>
       </div>
     );
   } else {
     sidebar = (
       <div className="nc-lb-side-section">
         <div className="nc-lb-side-title">{MODULE_LABEL[selected.m.type]}</div>
-        <div className="nc-lb-side-caption">{selected.m.type === 'editor' ? 'The page’s own content. It stays on every page.' : 'Comments about the whole page.'}</div>
+        <div className="nc-lb-side-caption">{selected.m.type === 'editor' ? tx('The page’s own content. It stays on every page.') : tx('Comments about the whole page.')}</div>
       </div>
     );
   }
 
   return (
-    <div className="nc-lb" role="dialog" aria-label="Customize layout" onClick={() => setSel({ kind: 'page' })}>
+    <div className="nc-lb" role="dialog" aria-label={tx('Customize layout')} onClick={() => setSel({ kind: 'page' })}>
       <header className="nc-lb-header" onClick={(e) => e.stopPropagation()}>
         <div className="nc-lb-header-center">
           <div className="nc-lb-dbname">{col.icon ? <span className="nc-lb-dbicon">{String(col.icon)}</span> : <Icon name="collection" size={18} />}<span>{toPlainText(col.name as never) || 'Untitled'}</span></div>
           <div role="button" className="nc-lb-preview" aria-haspopup="dialog" onClick={(e) => pickPreview(e.currentTarget)}>
-            <span className="nc-lb-preview-prefix">Preview:</span><span className="nc-lb-preview-title">{toPlainText(row?.properties?.title) || 'Untitled'}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
+            <span className="nc-lb-preview-prefix">{tx('Preview:')}</span><span className="nc-lb-preview-title">{toPlainText(row?.properties?.title) || 'Untitled'}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
           </div>
         </div>
         <div className="nc-lb-header-right">
-          <div role="button" className="nc-lb-cancel" data-testid="layout-cancel" onClick={() => void cancel()}><Icon name="xMarkSmall" size={14} /><span>Cancel</span></div>
+          <div role="button" className="nc-lb-cancel" data-testid="layout-cancel" onClick={() => void cancel()}><Icon name="xMarkSmall" size={14} /><span>{tx('Cancel')}</span></div>
           <div className="nc-lb-apply-group">
-            <div role="button" className="nc-lb-apply" data-testid="layout-apply" onClick={apply}><Icon name="checkmarkSmall" size={14} /><span>Apply to all entries</span></div>
-            <div role="button" className="nc-lb-apply-more" aria-label="More storage options" onClick={(e) => saveOptions(e.currentTarget)}><Icon name="arrowChevronSingleDownSmall" size={14} /></div>
+            <div role="button" className="nc-lb-apply" data-testid="layout-apply" onClick={apply}><Icon name="checkmarkSmall" size={14} /><span>{tx('Apply to all entries')}</span></div>
+            <div role="button" className="nc-lb-apply-more" aria-label={tx('More storage options')} onClick={(e) => saveOptions(e.currentTarget)}><Icon name="arrowChevronSingleDownSmall" size={14} /></div>
           </div>
         </div>
       </header>
@@ -365,25 +366,25 @@ function LayoutBuilder({ collectionId, close }: { collectionId: string; close: (
                   {m.type !== 'title' && addButton('page_main', i)}
                   {m.type === 'properties' && tipOpen && (
                     <div className="nc-lb-tip" role="dialog" onClick={(e) => e.stopPropagation()}>
-                      <div className="nc-lb-tip-title">Start creating your layout</div>
-                      <span role="button" className="nc-lb-tip-close" aria-label="Close tooltip" onClick={dismissTip}><Icon name="xMarkSmall" size={12} /></span>
-                      <div className="nc-lb-tip-body">Click the <Icon name="plus" size={12} /> icon to add to the page</div>
+                      <div className="nc-lb-tip-title">{tx('Start creating your layout')}</div>
+                      <span role="button" className="nc-lb-tip-close" aria-label={tx('Close tooltip')} onClick={dismissTip}><Icon name="xMarkSmall" size={12} /></span>
+                      <div className="nc-lb-tip-body">{tx('Click the')} <Icon name="plus" size={12} /> icon to add to the page</div>
                     </div>
                   )}
                 </div>
               ))}
-              {draft.structure === 'tabbed' && <div className="nc-lb-tabs-preview"><span className="active">Content</span>{(draft.tabs ?? []).map((t) => <span key={t.id}>{t.name}</span>)}</div>}
+              {draft.structure === 'tabbed' && <div className="nc-lb-tabs-preview"><span className="active">{tx('Content')}</span>{(draft.tabs ?? []).map((t) => <span key={t.id}>{t.name}</span>)}</div>}
             </div>
             {panelShown ? (
               <div className="nc-lb-panel">
-                <span role="button" className="nc-lb-panel-hide" aria-label="Hide sidebar" onClick={(e) => { e.stopPropagation(); setPanelShown(false); }}><Icon name="arrowChevronDoubleRight" size={16} /></span>
+                <span role="button" className="nc-lb-panel-hide" aria-label={tx('Hide sidebar')} onClick={(e) => { e.stopPropagation(); setPanelShown(false); }}><Icon name="arrowChevronDoubleRight" size={16} /></span>
                 {draft.modules.page_details.map((m, i) => renderModule(m, 'page_details', i))}
                 <div role="button" className="nc-lb-add-panel" data-testid="layout-add-to-panel" onClick={(e) => { e.stopPropagation(); addMenu(e.currentTarget, 'page_details', draft.modules.page_details.length - 1); }}>
-                  <Icon name="plus" size={16} /><span>Create to panel</span>
+                  <Icon name="plus" size={16} /><span>{tx('Create to panel')}</span>
                 </div>
               </div>
             ) : (
-              <span role="button" className="nc-lb-panel-show" aria-label="Show sidebar" onClick={(e) => { e.stopPropagation(); setPanelShown(true); }}><Icon name="arrowChevronDoubleLeft" size={16} /></span>
+              <span role="button" className="nc-lb-panel-show" aria-label={tx('Show sidebar')} onClick={(e) => { e.stopPropagation(); setPanelShown(true); }}><Icon name="arrowChevronDoubleLeft" size={16} /></span>
             )}
           </div>
         </div>
@@ -409,49 +410,49 @@ function PageSettings({ draft, col, edit }: { draft: PageLayout; col: Collection
   const relations = Object.entries(col.schema).filter(([, p]) => p.type === 'relation');
   return (
     <div className="nc-lb-side-section">
-      <div className="nc-lb-side-title">Page settings</div>
-      <div className="nc-lb-side-heading">Structure</div>
+      <div className="nc-lb-side-title">{tx('Page settings')}</div>
+      <div className="nc-lb-side-heading">{tx('Structure')}</div>
       <div className="nc-lb-structures">
         {(['simple', 'tabbed'] as const).map((k) => (
           <div key={k} role="button" className={`nc-lb-structure ${draft.structure === k ? 'selected' : ''}`} data-testid={`structure-${k}`} onClick={() => edit((l) => { l.structure = k; })}>
             <div className={`nc-lb-structure-art ${k}`}><span /><span /><span /></div>
-            <div className="nc-lb-structure-label">{k === 'simple' ? 'Simple' : 'Tabbed'}</div>
+            <div className="nc-lb-structure-label">{k === 'simple' ? tx('Simple') : tx('Tabbed')}</div>
           </div>
         ))}
       </div>
       {draft.structure === 'tabbed' && (
         <>
-          <div className="nc-lb-side-heading">Tabs</div>
+          <div className="nc-lb-side-heading">{tx('Tabs')}</div>
           <div className="nc-lb-tab-list">
-            <div className="nc-lb-tab-item"><Icon name="page" size={14} /><span>Content</span></div>
+            <div className="nc-lb-tab-item"><Icon name="page" size={14} /><span>{tx('Content')}</span></div>
             {(draft.tabs ?? []).map((t) => (
               <div key={t.id} className="nc-lb-tab-item">
                 <Icon name="collection" size={14} /><span>{t.name}</span>
-                <span role="button" className="nc-lb-tab-remove" aria-label="Remove tab" onClick={() => edit((l) => { l.tabs = (l.tabs ?? []).filter((x) => x.id !== t.id); })}><Icon name="xMarkSmall" size={12} /></span>
+                <span role="button" className="nc-lb-tab-remove" aria-label={tx('Remove tab')} onClick={() => edit((l) => { l.tabs = (l.tabs ?? []).filter((x) => x.id !== t.id); })}><Icon name="xMarkSmall" size={12} /></span>
               </div>
             ))}
             <div role="button" className="nc-lb-side-row" onClick={(e) => openMenu(e.currentTarget, {
               width: 260,
-              sections: [{ title: 'New view', items: relations.length ? relations.map(([id, p]) => {
+              sections: [{ title: tx('New view'), items: relations.length ? relations.map(([id, p]) => {
                 const target = (p.collection_pointer as { id?: string } | undefined)?.id ?? (p.collection_id as string);
                 return { id, label: `Related to ${p.name}`, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => edit((l) => { l.tabs = [...(l.tabs ?? []), { id: newLayoutModuleId('tab'), name: p.name, collection_id: target }]; }) };
-              }) : [{ id: 'none', label: 'Add a relation property first', disabled: true }] }],
-            }, { placement: 'bottom-start' })}><Icon name="plus" size={16} /><span>New view</span></div>
+              }) : [{ id: 'none', label: tx('Add a relation property first'), disabled: true }] }],
+            }, { placement: 'bottom-start' })}><Icon name="plus" size={16} /><span>{tx('New view')}</span></div>
           </div>
         </>
       )}
-      <div className="nc-lb-side-heading">Options</div>
+      <div className="nc-lb-side-heading">{tx('Options')}</div>
       <div role="button" className="nc-lb-switch-row" onClick={(e) => openMenu(e.currentTarget, { width: 220, sections: [{ items: [
-        { id: 'default', label: 'Default', description: 'Show comments to the right of the page', checked: s.inline_comments !== 'minimal', onSelect: () => edit((l) => { l.settings.inline_comments = 'default'; }) },
-        { id: 'minimal', label: 'Minimal', description: 'Show an icon and comment count', checked: s.inline_comments === 'minimal', onSelect: () => edit((l) => { l.settings.inline_comments = 'minimal'; }) },
+        { id: 'default', label: tx('Default'), description: tx('Show comments to the right of the page'), checked: s.inline_comments !== 'minimal', onSelect: () => edit((l) => { l.settings.inline_comments = 'default'; }) },
+        { id: 'minimal', label: tx('Minimal'), description: tx('Show an icon and comment count'), checked: s.inline_comments === 'minimal', onSelect: () => edit((l) => { l.settings.inline_comments = 'minimal'; }) },
       ] }] }, { placement: 'bottom-end' })}>
-        <span className="nc-lb-switch-label">Inline comments</span>
-        <span className="nc-lb-value">{s.inline_comments === 'minimal' ? 'Minimal' : 'Default'}<Icon name="arrowChevronSingleRightSmall" size={14} /></span>
+        <span className="nc-lb-switch-label">{tx('Inline comments')}</span>
+        <span className="nc-lb-value">{s.inline_comments === 'minimal' ? tx('Minimal') : tx('Default')}<Icon name="arrowChevronSingleRightSmall" size={14} /></span>
       </div>
-      <SettingSwitch label="Page discussions" on={s.page_discussions !== false} testid="setting-discussions" onChange={(v) => edit((l) => { l.settings.page_discussions = v; })} />
-      <SettingSwitch label="Property icons" on={s.property_icons !== false} testid="setting-icons" onChange={(v) => edit((l) => { l.settings.property_icons = v; })} />
-      <SettingSwitch label="Full width" info="Entry width can be overwritten on individual entries." on={!!s.full_width} onChange={(v) => edit((l) => { l.settings.full_width = v; })} />
-      <SettingSwitch label="Database templates" info="If enabled, empty entries will display the template picker." on={s.database_templates !== false} onChange={(v) => edit((l) => { l.settings.database_templates = v; })} />
+      <SettingSwitch label={tx('Page discussions')} on={s.page_discussions !== false} testid="setting-discussions" onChange={(v) => edit((l) => { l.settings.page_discussions = v; })} />
+      <SettingSwitch label={tx('Property icons')} on={s.property_icons !== false} testid="setting-icons" onChange={(v) => edit((l) => { l.settings.property_icons = v; })} />
+      <SettingSwitch label={tx('Full width')} info="Entry width can be overwritten on individual entries." on={!!s.full_width} onChange={(v) => edit((l) => { l.settings.full_width = v; })} />
+      <SettingSwitch label={tx('Database templates')} info="If enabled, empty entries will display the template picker." on={s.database_templates !== false} onChange={(v) => edit((l) => { l.settings.database_templates = v; })} />
     </div>
   );
 }
@@ -488,8 +489,8 @@ function HeadingSettings({ m, col, edit }: { m: TitleModule; col: CollectionReco
   };
   return (
     <div className="nc-lb-side-section">
-      <div className="nc-lb-side-title">Heading</div>
-      <div className="nc-lb-side-heading">Pinned properties</div>
+      <div className="nc-lb-side-title">{tx('Heading')}</div>
+      <div className="nc-lb-side-heading">{tx('Pinned properties')}</div>
       {m.pinned.length ? m.pinned.map((pid) => row(pid, true)) : <div className="nc-lb-side-caption">Pin up to {MAX_PINNED_PROPERTIES} properties to show them under the title.</div>}
       <div role="button" className={`nc-lb-side-row ${full ? 'disabled' : ''}`} data-tooltip={full ? 'Maximum number of pinned properties reached. Unpin a property to create a new pinned property.' : undefined} onClick={(e) => !full && openMenu(e.currentTarget, {
         width: 240, search: 'Search…',
@@ -497,13 +498,13 @@ function HeadingSettings({ m, col, edit }: { m: TitleModule; col: CollectionReco
           const pid = addProperty(col.id, t as PropertyType, { action: 'layout.createPinnedProperty' });
           if (pid) setTimeout(() => edit((l) => { detachProperty(l, pid); (l.modules.page_main[0] as TitleModule).pinned.push(pid); }), 0);
         } })) }],
-      }, { placement: 'bottom-start' })}><Icon name="plus" size={16} /><span>Add a property</span></div>
-      <div className="nc-lb-side-heading">Unpinned properties</div>
+      }, { placement: 'bottom-start' })}><Icon name="plus" size={16} /><span>{tx('Add a property')}</span></div>
+      <div className="nc-lb-side-heading">{tx('Unpinned properties')}</div>
       {unpinned.map((pid) => row(pid, false))}
-      <div className="nc-lb-side-heading">Options</div>
+      <div className="nc-lb-side-heading">{tx('Options')}</div>
       <div role="button" className="nc-lb-switch-row" onClick={(e) => openMenu(e.currentTarget, { width: 200, sections: [{ items: (['show', 'hover', 'off'] as const).map((k) => ({ id: k, label: k === 'show' ? 'Always show' : k === 'hover' ? 'Show on hover' : 'Off', checked: (m.backlinks ?? 'show') === k, onSelect: () => edit((l) => { (l.modules.page_main[0] as TitleModule).backlinks = k; }) })) }] }, { placement: 'bottom-end' })}>
-        <span className="nc-lb-switch-label">Backlinks</span>
-        <span className="nc-lb-value">{m.backlinks === 'hover' ? 'Show on hover' : m.backlinks === 'off' ? 'Off' : 'Always show'}<Icon name="arrowChevronSingleRightSmall" size={14} /></span>
+        <span className="nc-lb-switch-label">{tx('Backlinks')}</span>
+        <span className="nc-lb-value">{m.backlinks === 'hover' ? 'Show on hover' : m.backlinks === 'off' ? tx('Off') : tx('Always show')}<Icon name="arrowChevronSingleRightSmall" size={14} /></span>
       </div>
     </div>
   );
@@ -531,13 +532,13 @@ function GroupSettings({ m, col, edit }: { m: PropertiesModule; col: CollectionR
   const sectionMenu = (anchor: HTMLElement, sid: string, index: number) => openMenu(anchor, {
     width: 220,
     sections: [{ items: [
-      { id: 'rename', label: 'Rename', icon: 'compose', onSelect: () => {
+      { id: 'rename', label: tx('Rename'), icon: 'compose', onSelect: () => {
         const name = window.prompt('Rename section', m.sections[index]?.name ?? '');
         if (name !== null) edit((l) => { const g = groupOf(l)!; const s = g.sections.find((x) => x.id === sid); if (s) s.name = name.trim() || undefined; });
       } },
-      { id: 'up', label: 'Move up', icon: 'arrowUp', disabled: index === 0, onSelect: () => edit((l) => { const g = groupOf(l)!; [g.sections[index - 1], g.sections[index]] = [g.sections[index], g.sections[index - 1]]; }) },
-      { id: 'down', label: 'Move down', icon: 'arrowDown', disabled: index >= m.sections.length - 1, onSelect: () => edit((l) => { const g = groupOf(l)!; [g.sections[index + 1], g.sections[index]] = [g.sections[index], g.sections[index + 1]]; }) },
-      { id: 'delete', label: 'Delete', icon: 'trash', description: 'No fields will be deleted', disabled: m.sections.length <= 1, onSelect: () => edit((l) => {
+      { id: 'up', label: tx('Move up'), icon: 'arrowUp', disabled: index === 0, onSelect: () => edit((l) => { const g = groupOf(l)!; [g.sections[index - 1], g.sections[index]] = [g.sections[index], g.sections[index - 1]]; }) },
+      { id: 'down', label: tx('Move down'), icon: 'arrowDown', disabled: index >= m.sections.length - 1, onSelect: () => edit((l) => { const g = groupOf(l)!; [g.sections[index + 1], g.sections[index]] = [g.sections[index], g.sections[index + 1]]; }) },
+      { id: 'delete', label: tx('Delete'), icon: 'trash', description: tx('No fields will be deleted'), disabled: m.sections.length <= 1, onSelect: () => edit((l) => {
         const g = groupOf(l)!;
         const [gone] = g.sections.splice(index, 1);
         g.sections[Math.max(0, index - 1)].properties.push(...gone.properties);
@@ -546,13 +547,13 @@ function GroupSettings({ m, col, edit }: { m: PropertiesModule; col: CollectionR
   }, { placement: 'bottom-end' });
   return (
     <div className="nc-lb-side-section">
-      <div className="nc-lb-side-title">Property group</div>
-      <div className="nc-input nc-lb-search" data-menu-keys="ignore"><input placeholder="Search properties…" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+      <div className="nc-lb-side-title">{tx('Property group')}</div>
+      <div className="nc-input nc-lb-search" data-menu-keys="ignore"><input placeholder={tx('Search properties…')} value={q} onChange={(e) => setQ(e.target.value)} /></div>
       {m.sections.map((s, i) => (
         <div key={s.id} className="nc-lb-group-section">
           <div className={`nc-lb-group-section-head ${over?.section === s.id && !over.before ? 'drop' : ''}`} onDragOver={(e) => { if (drag) { e.preventDefault(); setOver({ section: s.id }); } }} onDrop={() => drop(s.id)}>
             <span>{s.name || 'Properties'}</span>
-            <span role="button" className="nc-lb-group-section-menu" aria-label="Display section options" onClick={(e) => sectionMenu(e.currentTarget, s.id, i)}><Icon name="ellipsisSmall" size={14} /></span>
+            <span role="button" className="nc-lb-group-section-menu" aria-label={tx('Display section options')} onClick={(e) => sectionMenu(e.currentTarget, s.id, i)}><Icon name="ellipsisSmall" size={14} /></span>
           </div>
           {s.properties.filter(match).map((pid) => {
             const hidden = m.hidden.includes(pid);
@@ -578,8 +579,8 @@ function GroupSettings({ m, col, edit }: { m: PropertiesModule; col: CollectionR
           })}
         </div>
       ))}
-      {!m.sections.some((s) => s.properties.some(match)) && q && <div className="nc-lb-side-caption">Not found</div>}
-      <div role="button" className="nc-lb-side-row" data-testid="layout-add-section" onClick={() => edit((l) => { const g = groupOf(l)!; g.sections.push({ id: newLayoutModuleId('sec'), name: 'New section', properties: [] }); })}><Icon name="plus" size={16} /><span>Add section</span></div>
+      {!m.sections.some((s) => s.properties.some(match)) && q && <div className="nc-lb-side-caption">{tx('Not found')}</div>}
+      <div role="button" className="nc-lb-side-row" data-testid="layout-add-section" onClick={() => edit((l) => { const g = groupOf(l)!; g.sections.push({ id: newLayoutModuleId('sec'), name: 'New section', properties: [] }); })}><Icon name="plus" size={16} /><span>{tx('Add section')}</span></div>
     </div>
   );
 }

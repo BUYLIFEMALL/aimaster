@@ -20,6 +20,7 @@ import { TitleText } from '../highlight.tsx';
 import { NewSubitemRow, SubitemCount, SubitemToggle, subitemInfoFor, type SubitemRowInfo } from '../../subitemsUi.tsx';
 import { useIsExpanded } from '../../subitems.ts';
 import './list.css';
+import { tx } from '../../../shell/i18n.ts';
 
 function ListRow({ row, view, collection, props, readOnly, selected, color, subitem, subitemCount = 0, contextRow }: { row: BlockRecord; view: CollectionViewRecord; collection: CollectionRecord; props: string[]; readOnly: boolean; selected: boolean; color?: string; subitem?: SubitemRowInfo | null; subitemCount?: number; contextRow?: boolean }) {
   const db = useDatabaseContext();
@@ -59,7 +60,7 @@ function ListRow({ row, view, collection, props, readOnly, selected, color, subi
               property="title"
               value={title}
               className="nc-list-title editing"
-              placeholder="Untitled"
+              placeholder={tx('Untitled')}
               placeholderAlways
               onChange={(next) => setValue(row.id, 'title', next, { coalesce: `title:${row.id}` })}
               onBlur={() => db?.setEditingTitle(null)}
@@ -157,13 +158,13 @@ function ListView({ view, collection, readOnly }: ViewProps) {
       {list.length > limit && (
         <div role="button" className="nc-list-load-more" onClick={() => setLimit((l) => l + (Number.isFinite(first) ? first : 50))}>
           <Icon name="arrowDown" size={16} />
-          <span>Load more</span>
+          <span>{tx('Load more')}</span>
         </div>
       )}
       {!readOnly && (
         <div role="button" className="nc-list-new" onClick={() => db?.addRow({ group: group ?? null, position: 'end', editTitle: true })}>
           <Icon name="plusSmall" size={16} />
-          <span>New page</span>
+          <span>{tx('New page')}</span>
         </div>
       )}
     </>

@@ -13,6 +13,7 @@ import { useUI } from '../../../lib/store/ui.ts';
 import { addView, deleteView, duplicateView, renameView, reorderViews, updateViewFormat } from '../actions.ts';
 import { confirmDialog } from '../../page/confirm.tsx';
 import { TRIM_VIEW_TYPES } from '../../shell/trimPolicy.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export function viewIcon(type: string): string {
   return viewTypeMeta(type).icon;
@@ -73,7 +74,7 @@ function AddViewGrid({ opts, close }: { opts: { block: BlockRecord; collection?:
     <PopoverSurface width={390} className="nc-add-view-menu">
       <div role="grid">
         <div className="nc-add-view-section">
-          <MenuSectionTitle>Create another layout</MenuSectionTitle>
+          <MenuSectionTitle>{tx('Create another layout')}</MenuSectionTitle>
           <div className="nc-add-view-grid">
             {types.map((v, i) => (
               <div
@@ -90,7 +91,7 @@ function AddViewGrid({ opts, close }: { opts: { block: BlockRecord; collection?:
         </div>
         <div className="nc-add-view-footer">
           <div role="gridcell" className={`nc-menu-item nc-add-view-source ${active === types.length ? 'active' : ''}`} onClick={() => { close(); newDataSource(); }}>
-            <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="squareOnSquarePlus" size={20} /></div><div className="nc-menu-label">Create a dataset</div></div>
+            <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="squareOnSquarePlus" size={20} /></div><div className="nc-menu-label">{tx('Create a dataset')}</div></div>
           </div>
         </div>
       </div>
@@ -108,7 +109,7 @@ function openRename(anchor: HTMLElement, view: CollectionViewRecord) {
     <PopoverSurface width={260} className="nc-rename-view">
       <div className="nc-rename-view-body" data-menu-keys="ignore">
         <div className="nc-input focused">
-          <input autoFocus defaultValue={view.name} placeholder="View name" onFocus={(e) => e.currentTarget.select()} onChange={(e) => (name = e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) close(); }} />
+          <input autoFocus defaultValue={view.name} placeholder={tx('View name')} onFocus={(e) => e.currentTarget.select()} onChange={(e) => (name = e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) close(); }} />
         </div>
       </div>
     </PopoverSurface>
@@ -126,25 +127,25 @@ export function openViewMenu(anchor: HTMLElement, opts: { block: BlockRecord; vi
     width: 265,
     sections: [
       { items: [
-        { id: 'rename', label: 'Rename', icon: 'pencilLine', disabled: opts.readOnly, onSelect: () => { setTimeout(() => openRename(anchor, view), 0); } },
-        { id: 'display', label: 'Show as', icon: 'eye', submenu: () => ({ width: 220, footer: <div className="nc-menu-caption">Only applies to you</div>, sections: [{ items: [
-          { id: 'ti', label: 'Text and icon', checked: opts.display === 'text_and_icon', onSelect: () => opts.setDisplay('text_and_icon') },
-          { id: 't', label: 'Text only', checked: opts.display === 'text', onSelect: () => opts.setDisplay('text') },
-          { id: 'i', label: 'Icon only', checked: opts.display === 'icon', onSelect: () => opts.setDisplay('icon') },
+        { id: 'rename', label: tx('Rename'), icon: 'pencilLine', disabled: opts.readOnly, onSelect: () => { setTimeout(() => openRename(anchor, view), 0); } },
+        { id: 'display', label: tx('Show as'), icon: 'eye', submenu: () => ({ width: 220, footer: <div className="nc-menu-caption">{tx('Only applies to you')}</div>, sections: [{ items: [
+          { id: 'ti', label: tx('Text and icon'), checked: opts.display === 'text_and_icon', onSelect: () => opts.setDisplay('text_and_icon') },
+          { id: 't', label: tx('Text only'), checked: opts.display === 'text', onSelect: () => opts.setDisplay('text') },
+          { id: 'i', label: tx('Icon only'), checked: opts.display === 'icon', onSelect: () => opts.setDisplay('icon') },
         ] }] }) },
-        { id: 'edit', label: 'Edit view', icon: 'sliders', onSelect: () => opts.onEdit() },
-        { id: 'source', label: 'Database', icon: 'pathRoundEnds', right: <span className="nc-menu-value">{toPlainText(opts.collection?.name as any) || 'Untitled'}</span>, disabled: true },
+        { id: 'edit', label: tx('Edit view'), icon: 'sliders', onSelect: () => opts.onEdit() },
+        { id: 'source', label: tx('Database'), icon: 'pathRoundEnds', right: <span className="nc-menu-value">{toPlainText(opts.collection?.name as any) || 'Untitled'}</span>, disabled: true },
       ] },
       { items: [
-        { id: 'link', label: 'Copy link to layout', icon: 'dbLink', onSelect: () => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('Copied link to view'); } },
+        { id: 'link', label: tx('Copy link to layout'), icon: 'dbLink', onSelect: () => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('Copied link to view'); } },
 // a sidebar section listing this view’s rows; lazy import avoids a cycle
-        { id: 'sidebar', label: 'Add layout to sidebar', icon: 'sidebarLeft', onSelect: () => { void import('../../shell/sidebar/Customize.tsx').then((m) => m.addDatabaseViewToSidebar(block.id, view.id)); } },
-        { id: 'full', label: 'Launch as full entry', icon: 'arrowDiagonalUpRight', onSelect: () => openPage(block.id) },
+        { id: 'sidebar', label: tx('Add layout to sidebar'), icon: 'sidebarLeft', onSelect: () => { void import('../../shell/sidebar/Customize.tsx').then((m) => m.addDatabaseViewToSidebar(block.id, view.id)); } },
+        { id: 'full', label: tx('Launch as full entry'), icon: 'arrowDiagonalUpRight', onSelect: () => openPage(block.id) },
         { id: 'title', label: showTitle ? 'Conceal dataset title' : 'Display dataset title', icon: 'eye', disabled: opts.readOnly, onSelect: () => updateViewFormat(view.id, { hide_linked_collection_name: showTitle }) },
       ] },
       ...(opts.readOnly ? [] : [{ items: [
-        { id: 'dup', label: 'Duplicate view', icon: 'duplicate', onSelect: () => { const id = duplicateView(block, view.id); if (id) opts.onSelect(id); } },
-        ...(views.length > 1 ? [{ id: 'del', label: 'Delete view', icon: 'trash', onSelect: async () => {
+        { id: 'dup', label: tx('Duplicate view'), icon: 'duplicate', onSelect: () => { const id = duplicateView(block, view.id); if (id) opts.onSelect(id); } },
+        ...(views.length > 1 ? [{ id: 'del', label: tx('Delete view'), icon: 'trash', onSelect: async () => {
           const ok = await confirmDialog({ message: `Delete the view “${view.name}”?`, confirmLabel: 'Delete' });
           if (!ok) return;
           const next = views.find((x) => x !== view.id);
@@ -152,7 +153,7 @@ export function openViewMenu(anchor: HTMLElement, opts: { block: BlockRecord; vi
           if (next) opts.onSelect(next);
         } }] : []),
       ] }]),
-      { items: [{ id: 'calendar', label: 'Manage in Calendar', icon: 'viewCalendar', disabled: true }] },
+      { items: [{ id: 'calendar', label: tx('Manage in Calendar'), icon: 'viewCalendar', disabled: true }] },
     ],
   }, { placement: 'bottom-start' });
 }
@@ -260,8 +261,8 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
               sections: [
                 { items: views.map((v) => ({ id: v.id, label: v.name, icon: viewIcon(v.type), checked: v.id === activeId, onSelect: () => onSelect(v.id) })) },
                 ...(readOnly ? [] : [{ items: [
-                  { id: 'new', label: 'New view', icon: 'plus', onSelect: () => { setTimeout(() => openAddViewMenu(e.currentTarget as HTMLElement, { block, collection, onCreated: (id) => onAdded(id) }), 0); } },
-                  { id: 'source', label: 'Create a dataset', icon: 'squareOnSquarePlus', onSelect: () => { const a = e.currentTarget as HTMLElement; setTimeout(() => void import('../sources/ManageSources.tsx').then((m) => m.openAddDataSource(a, block)), 0); } },
+                  { id: 'new', label: tx('New view'), icon: 'plus', onSelect: () => { setTimeout(() => openAddViewMenu(e.currentTarget as HTMLElement, { block, collection, onCreated: (id) => onAdded(id) }), 0); } },
+                  { id: 'source', label: tx('Create a dataset'), icon: 'squareOnSquarePlus', onSelect: () => { const a = e.currentTarget as HTMLElement; setTimeout(() => void import('../sources/ManageSources.tsx').then((m) => m.openAddDataSource(a, block)), 0); } },
                 ] }]),
               ],
             }, { placement: 'bottom-start' })}
@@ -271,7 +272,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
         ) : (
           !readOnly && (
             <div className={`nc-view-add-wrap ${hovered ? 'visible' : ''}`}>
-              <div role="button" className="lit-collection-add-view nc-view-add" aria-label="Add view" aria-haspopup="dialog" data-tooltip="Create another layout" onClick={(e) => openAddViewMenu(e.currentTarget, { block, collection, onCreated: (id) => onAdded(id) })}>
+              <div role="button" className="lit-collection-add-view nc-view-add" aria-label={tx('Add view')} aria-haspopup="dialog" data-tooltip={tx('Create another layout')} onClick={(e) => openAddViewMenu(e.currentTarget, { block, collection, onCreated: (id) => onAdded(id) })}>
                 <Icon name="plusSmall" size={16} />
               </div>
             </div>

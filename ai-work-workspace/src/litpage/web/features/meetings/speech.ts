@@ -34,6 +34,16 @@ function ctor(): (new () => RecognitionLike) | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
+/** 이식판(v1.15): 연결된 마이크(입력 장치)가 하나라도 있는지. 알 수 없으면 있다고 본다. */
+export async function hasMicrophone(): Promise<boolean> {
+  try {
+    const list = await navigator.mediaDevices?.enumerateDevices?.();
+    return !list || list.some((d) => d.kind === 'audioinput');
+  } catch {
+    return true;
+  }
+}
+
 export function speechSupported(): boolean {
   return typeof window !== 'undefined' && !!ctor();
 }
@@ -106,7 +116,8 @@ export class LiveRecognizer {
       const err = String(e?.error ?? 'failed');
       if (err === 'no-speech' || err === 'aborted') return; // silence: onend restarts
       this.active = false;
-      if (err === 'not-allowed' || err === 'service-not-allowed') this.opts.onError('permission');
+      // 이식판(v1.15): 마이크가 아예 없어도 크롬은 'not-allowed'를 줄 때가 있다 → 장치가 0개면 「마이크를 찾지 못함」으로 안내
+      if (err === 'not-allowed' || err === 'service-not-allowed') void hasMicrophone().then((ok) => this.opts.onError(ok ? 'permission' : 'no_microphone'));
       else if (err === 'audio-capture') this.opts.onError('no_microphone');
       else if (err === 'network') this.opts.onError('network');
       else if (err === 'language-not-supported') this.opts.onError('language');
@@ -149,6 +160,26 @@ export class LiveRecognizer {
     }
     this.opts.onInterim('');
     return ms;
+  }
+
+  /**
+   * 이식판(v1.15): stop and wait until the engine has delivered its last final results (onend), at most `timeoutMs`.
+   * Without this the last sentence arrived after meetingStop / meetingPause and the server rejected it (409 → "ended").
+   */
+  stopAndDrain(timeoutMs = 2000): Promise<number> {
+    const rec = this.rec;
+    const drained = new Promise<void>((resolve) => {
+      if (!rec) return resolve();
+      const prev = rec.onend;
+      const timer = setTimeout(resolve, timeoutMs);
+      rec.onend = () => {
+        clearTimeout(timer);
+        prev?.();
+        resolve();
+      };
+    });
+    const ms = this.stop();
+    return drained.then(() => ms);
   }
 
   get running(): boolean {

@@ -22,6 +22,7 @@ import { templateSchema, type Template } from '../chrome/NewDatabasePanel.tsx';
 import { addDataSource, addLinkedView, blockSources, moveDataSource, removeLinkedSource, sourceName, trashDataSource } from './sources.ts';
 import { choiceDialog, openDatabasePicker } from './DatabasePicker.tsx';
 import '../dbv.css';
+import { tx } from '../../shell/i18n.ts';
 
 const nViews = (n: number) => (n === 1 ? '1 view' : `${n} views`);
 
@@ -44,9 +45,9 @@ export function openAddDataSource(anchor: HTMLElement, block: BlockRecord, onDon
 function AddSourceMenu({ block, close, onCreated, fileInput }: { block: BlockRecord; close: () => void; onCreated: (r: { viewId: string } | null) => void; fileInput: HTMLInputElement }) {
   const [q, setQ] = useState('');
   const templates = ([
-    { id: 'tasks', label: 'Tasks Tracker', icon: 'checkmarkSquare', tile: 'green' },
-    { id: 'projects', label: 'Projects', icon: 'refresh', tile: 'blue' },
-    { id: 'skills', label: 'Skills', icon: 'magicWand', tile: 'gray' },
+    { id: 'tasks', label: tx('Tasks Tracker'), icon: 'checkmarkSquare', tile: 'green' },
+    { id: 'projects', label: tx('Projects'), icon: 'refresh', tile: 'blue' },
+    { id: 'skills', label: tx('Skills'), icon: 'magicWand', tile: 'gray' },
   ] as const).filter((t) => !q || t.label.toLowerCase().includes(q.toLowerCase()));
   const fromTemplate = (t: Template) => {
     const tpl = templateSchema(t);
@@ -75,10 +76,10 @@ function AddSourceMenu({ block, close, onCreated, fileInput }: { block: BlockRec
   return (
     <PopoverSurface width={300} className="nc-add-source-menu" maxHeight="min(520px, 70vh)">
       <div className="nc-vs-header">
-        <span className="nc-vs-title">Create a dataset</span>
-        <span role="button" className="nc-panel-close" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={14} /></span>
+        <span className="nc-vs-title">{tx('Create a dataset')}</span>
+        <span role="button" className="nc-panel-close" aria-label={tx('Close')} onClick={close}><Icon name="xMarkSmall" size={14} /></span>
       </div>
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder={tx('Search…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-menu-scroll">
         <div className="nc-menu-section">
           <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { close(); onCreated(addDataSource(block, { name: q.trim() || undefined })); }}>
@@ -86,13 +87,13 @@ function AddSourceMenu({ block, close, onCreated, fileInput }: { block: BlockRec
           </div>
           {!q && (
             <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={importCsv}>
-              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="download" size={20} /></span><div className="nc-menu-label">Import CSV</div></div>
+              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="download" size={20} /></span><div className="nc-menu-label">{tx('Import CSV')}</div></div>
             </div>
           )}
         </div>
         {templates.length > 0 && (
           <div className="nc-menu-section no-divider">
-            <div className="nc-menu-section-title">Suggested</div>
+            <div className="nc-menu-section-title">{tx('Suggested')}</div>
             {templates.map((t) => (
               <div key={t.id} role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => fromTemplate(t.id)}>
                 <div className="nc-menu-item-inner"><span className={`nc-new-db-tile tile-${t.tile}`}><Icon name={t.icon} size={16} /></span><div className="nc-menu-label">{t.label}</div></div>
@@ -106,7 +107,7 @@ function AddSourceMenu({ block, close, onCreated, fileInput }: { block: BlockRec
             close();
             linkExisting(anchor ?? document.body, block, (id) => onCreated({ viewId: id }));
           }}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="arrowDiagonalUpRight" size={16} /></span><div className="nc-menu-label">Link an existing dataset</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="arrowDiagonalUpRight" size={16} /></span><div className="nc-menu-label">{tx('Link an existing dataset')}</div></div>
           </div>
         </div>
       </div>
@@ -136,14 +137,14 @@ function sourceMenu(anchor: HTMLElement, block: BlockRecord, c: CollectionRecord
     width: 240,
     sections: [
       { items: [
-        { id: 'move', label: 'Move to', icon: 'arrowTurnUpRight', onSelect: () => {
-          setTimeout(() => openDatabasePicker(anchor, { exclude: [block.id], title: 'Send dataset to…', onPick: async (to) => {
+        { id: 'move', label: tx('Move to'), icon: 'arrowTurnUpRight', onSelect: () => {
+          setTimeout(() => openDatabasePicker(anchor, { exclude: [block.id], title: tx('Send dataset to…'), onPick: async (to) => {
             const how = viewCount > 0 ? await choiceDialog({
               message: `Sending dataset ${name}`,
               description: viewCount === 1 ? 'This database has 1 view based on this data source.' : `This database has ${viewCount} views based on this data source.`,
               choices: [
                 { key: 'views', label: viewCount === 1 ? 'Move data source and 1 view' : `Move data source and ${viewCount} views`, primary: true },
-                { key: 'only', label: 'Send dataset only' },
+                { key: 'only', label: tx('Send dataset only') },
               ],
             }) : 'views';
             if (!how) return;
@@ -151,10 +152,10 @@ function sourceMenu(anchor: HTMLElement, block: BlockRecord, c: CollectionRecord
             moveDataSource(live, c.id, to, how === 'views');
           } }), 0);
         } },
-        { id: 'copy', label: 'Copy dataset ID', icon: 'copy', onSelect: () => { void navigator.clipboard?.writeText(compactId(c.id)); useUI.getState().toast(`${name} ID copied`); } },
+        { id: 'copy', label: tx('Copy dataset ID'), icon: 'copy', onSelect: () => { void navigator.clipboard?.writeText(compactId(c.id)); useUI.getState().toast(`${name} ID copied`); } },
       ] },
       ...(canDelete ? [{ items: [
-        { id: 'delete', label: 'Delete', icon: 'trash', danger: true, onSelect: async () => {
+        { id: 'delete', label: tx('Delete'), icon: 'trash', danger: true, onSelect: async () => {
           await new Promise((r) => setTimeout(r, 0)); // after the menu closed (it closes overlays opened above it)
           const ok = await confirmDialog({
             message: `Send ${name} to trash?`,
@@ -187,12 +188,12 @@ export function ManageDataSourcesPage({ block: blockIn, readOnly, onBack, close 
           <div className="nc-menu-label nc-ellipsis">{sourceName(c) || 'Untitled'}</div>
           <span className="nc-menu-value">{nViews(n)}</span>
           {!readOnly && kind === 'owned' && (
-            <span role="button" className="nc-source-more" aria-label="Dataset actions" onClick={(e) => { e.stopPropagation(); sourceMenu(e.currentTarget, block, c, n, total > 1); }}>
+            <span role="button" className="nc-source-more" aria-label={tx('Dataset actions')} onClick={(e) => { e.stopPropagation(); sourceMenu(e.currentTarget, block, c, n, total > 1); }}>
               <Icon name="ellipsisSmall" size={16} />
             </span>
           )}
           {!readOnly && kind === 'linked' && total > 1 && (
-            <span role="button" className="nc-source-more" aria-label="Remove linked layouts" data-tooltip={n === 1 ? 'Delete linked view' : `Delete ${n} linked views`} onClick={(e) => { e.stopPropagation(); removeLinkedSource(block, c.id); }}>
+            <span role="button" className="nc-source-more" aria-label={tx('Remove linked layouts')} data-tooltip={n === 1 ? 'Delete linked view' : `Delete ${n} linked views`} onClick={(e) => { e.stopPropagation(); removeLinkedSource(block, c.id); }}>
               <Icon name="trash" size={16} />
             </span>
           )}
@@ -202,17 +203,17 @@ export function ManageDataSourcesPage({ block: blockIn, readOnly, onBack, close 
   };
   return (
     <>
-      <Header title="Manage datasets" onBack={onBack} close={close} />
-      <Section title="Source">
+      <Header title={tx('Manage datasets')} onBack={onBack} close={close} />
+      <Section title={tx('Source')}>
         {owned.map((c) => rowFor(c, 'owned'))}
-        {!readOnly && <Row icon="plus" label="Create dataset" chevron={false} onClick={(e) => openAddDataSource(e.currentTarget, block)} />}
+        {!readOnly && <Row icon="plus" label={tx('Create dataset')} chevron={false} onClick={(e) => openAddDataSource(e.currentTarget, block)} />}
       </Section>
-      <Section divider title="Linked">
+      <Section divider title={tx('Linked')}>
         {linked.map((c) => rowFor(c, 'linked'))}
-        {!readOnly && <Row icon="plus" label="Link an existing dataset" chevron={false} onClick={(e) => linkExisting(e.currentTarget, block)} />}
+        {!readOnly && <Row icon="plus" label={tx('Link an existing dataset')} chevron={false} onClick={(e) => linkExisting(e.currentTarget, block)} />}
       </Section>
       <Section divider>
-        {HELP_URL && <Row icon="questionMarkCircle" label="Explore datasets" chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
+        {HELP_URL && <Row icon="questionMarkCircle" label={tx('Explore datasets')} chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
       </Section>
     </>
   );

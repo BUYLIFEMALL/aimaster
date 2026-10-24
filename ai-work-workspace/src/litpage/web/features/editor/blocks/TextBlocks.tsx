@@ -22,6 +22,7 @@ import { createToggleHeading } from './factories.ts';
 import { PREF, setPref } from '../prefs.ts';
 import './icons.tsx';
 import './blocks.css';
+import { tx } from '../../shell/i18n.ts';
 
 const PLACEHOLDER: Record<string, string> = {
   text: 'Press ‘space’ for AI or ‘/’ to open commands',
@@ -115,7 +116,7 @@ export function ToggleTriangle({ open, onToggle, lineHeight, empty }: { open: bo
       <div
         role="button"
         tabIndex={0}
-        aria-label={open ? 'Close' : 'Open'}
+        aria-label={open ? tx('Close') : tx('Open')}
         aria-expanded={open}
         className="nc-toggle-btn nc-toggle-caret"
         onMouseDown={(e) => e.preventDefault()}
@@ -174,11 +175,11 @@ function listFormatItem(block: BlockRecord): MenuItemDef {
     ? [['numbers', 'Numbers'], ['letters', 'Letters'], ['roman', 'Roman numerals']]
     : [['disc', 'Disc'], ['circle', 'Circle'], ['square', 'Square']];
   return {
-    label: 'List format', icon: numbered ? 'listNumber' : 'listBullet',
+    label: tx('List format'), icon: numbered ? 'listNumber' : 'listBullet',
     submenu: () => ({
       width: 200, role: 'menu',
       sections: [{ items: [
-        { label: 'Default', checked: !cur, onSelect: () => run('blockActions.listFormat', (tx) => setFormat(tx, first, { list_format: undefined } as any)) },
+        { label: tx('Default'), checked: !cur, onSelect: () => run('blockActions.listFormat', (tx) => setFormat(tx, first, { list_format: undefined } as any)) },
         ...options.map(([v, label]) => ({ label, checked: cur === v, onSelect: () => run('blockActions.listFormat', (tx) => setFormat(tx, first, { list_format: v } as any)) })),
       ] }],
     }),
@@ -306,7 +307,7 @@ registerBlockMenu(['quote'], ({ ids, block, turnInto, color }) => [
   turnInto,
   color,
   {
-    label: 'Quote size', icon: 'quoteText',
+    label: tx('Quote size'), icon: 'quoteText',
     submenu: () => ({
       width: 220,
       sections: [{

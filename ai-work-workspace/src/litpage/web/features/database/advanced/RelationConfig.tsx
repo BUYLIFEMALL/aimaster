@@ -15,6 +15,7 @@ import { run } from '../../../lib/blocks.ts';
 import { collectionName, getCollection, titleOf } from './context.ts';
 import { createRelationProperty, knownCollections, setRelationLimit, setRelationTarget, setRelationTwoWay } from './relations.ts';
 import './advanced.css';
+import { tx } from '../../shell/i18n.ts';
 
 interface DataSourceItem {
   id: string;
@@ -79,16 +80,16 @@ function DataSourcePicker({ onPick, close, currentId }: { onPick: (id: string) =
   const list = useDataSources(q);
   const shown = all || q ? list : list.slice(0, 5);
   return (
-    <div className="nc-rel-panel" role="dialog" aria-label="Related to">
+    <div className="nc-rel-panel" role="dialog" aria-label={tx('Related to')}>
       <div className="nc-rel-head">
-        <div className="nc-rel-title">Related to</div>
-        <div role="button" className="nc-rel-x" aria-label="Close" onClick={close}><Icon name="xSmall" size={12} /></div>
+        <div className="nc-rel-title">{tx('Related to')}</div>
+        <div role="button" className="nc-rel-x" aria-label={tx('Close')} onClick={close}><Icon name="xSmall" size={12} /></div>
       </div>
       <div className="nc-rel-input focused">
-        <input autoFocus placeholder="Choose a dataset…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input autoFocus placeholder={tx('Choose a dataset…')} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="nc-rel-section" style={{ maxHeight: 340, overflowY: 'auto' }}>
-        <div className="nc-rel-section-title">Available datasets</div>
+        <div className="nc-rel-section-title">{tx('Available datasets')}</div>
         {shown.map((d) => (
           <div key={d.id} role="menuitem" className={`nc-rel-ds ${d.id === currentId ? 'active' : ''}`} onClick={() => onPick(d.id)}>
             <Icon name="databaseEmbed" size={18} color="var(--lp-icon-secondary)" />
@@ -105,7 +106,7 @@ function DataSourcePicker({ onPick, close, currentId }: { onPick: (id: string) =
             <span className="label" style={{ color: 'var(--lp-text-secondary)' }}>Show {list.length - 5} more</span>
           </div>
         )}
-        {list.length === 0 && <div className="nc-rel-sub">No results</div>}
+        {list.length === 0 && <div className="nc-rel-sub">{tx('No results')}</div>}
       </div>
     </div>
   );
@@ -115,8 +116,8 @@ function LimitMenu(anchor: HTMLElement, value: number | undefined, onChange: (v:
   openMenu(anchor, {
     width: 250,
     sections: [{ items: [
-      { label: '1 page', checked: value === 1, onSelect: () => onChange(1) },
-      { label: 'No limit', checked: !value, onSelect: () => onChange(undefined) },
+      { label: tx('1 page'), checked: value === 1, onSelect: () => onChange(1) },
+      { label: tx('No limit'), checked: !value, onSelect: () => onChange(undefined) },
     ] }],
   }, { placement: 'right-start' });
 }
@@ -137,47 +138,47 @@ function NewRelation({ collectionId, targetId, view, afterPropId, close, onCreat
     if (pid) onCreated?.(pid);
   };
   return (
-    <div className="nc-rel-panel" role="dialog" aria-label="New relation">
+    <div className="nc-rel-panel" role="dialog" aria-label={tx('New relation')}>
       <div className="nc-rel-head">
-        <div className="nc-rel-title">New relation</div>
-        <div role="button" className="nc-rel-x" aria-label="Close" onClick={close}><Icon name="xSmall" size={12} /></div>
+        <div className="nc-rel-title">{tx('New relation')}</div>
+        <div role="button" className="nc-rel-x" aria-label={tx('Close')} onClick={close}><Icon name="xSmall" size={12} /></div>
       </div>
       <div className="nc-rel-input">
-        <input autoFocus placeholder="Property name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') add(); }} />
+        <input autoFocus placeholder={tx('Property name')} value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') add(); }} />
       </div>
       <div className="nc-rel-section">
         <div role="menuitem" className="nc-rel-row" onClick={onBack}>
           <Icon name="collectionArrow" size={18} color="var(--lp-icon-primary)" />
-          <span className="label">Related to</span>
+          <span className="label">{tx('Related to')}</span>
           <span className="value"><Icon name="databaseEmbed" size={14} color="var(--lp-icon-tertiary)" /><span className="v">{self ? 'This data source' : target ? collectionName(target) : ''}</span><Icon name="chevronRight" size={14} /></span>
         </div>
         <div role="menuitem" className="nc-rel-row" onClick={(e) => LimitMenu(e.currentTarget, limit, setLimit)}>
           <Icon name="numberProp" size={18} color="var(--lp-icon-primary)" />
-          <span className="label">Limit</span>
-          <span className="value"><span className="v">{limit === 1 ? '1 page' : 'No limit'}</span><Icon name="chevronRight" size={14} /></span>
+          <span className="label">{tx('Limit')}</span>
+          <span className="value"><span className="v">{limit === 1 ? tx('1 page') : tx('No limit')}</span><Icon name="chevronRight" size={14} /></span>
         </div>
         <div role="menuitemcheckbox" aria-checked={twoWay} className="nc-rel-row" onClick={() => setTwoWay(!twoWay)}>
           <Icon name="fullWidth" size={18} color="var(--lp-icon-primary)" />
-          <span className="label">Bidirectional link <span data-tooltip={self ? 'Creates a second property in this data source that shows the reverse relation.' : `Show this relation on ${target ? collectionName(target) : 'the related data source'}.`} style={{ color: 'var(--lp-icon-tertiary)', verticalAlign: 'middle', display: 'inline-flex' }}><Icon name="questionMark" size={14} /></span></span>
+          <span className="label">{tx('Bidirectional link')} <span data-tooltip={self ? 'Creates a second property in this data source that shows the reverse relation.' : `Show this relation on ${target ? collectionName(target) : 'the related data source'}.`} style={{ color: 'var(--lp-icon-tertiary)', verticalAlign: 'middle', display: 'inline-flex' }}><Icon name="questionMark" size={14} /></span></span>
           <span className={`nc-adv-toggle ${twoWay ? 'on' : ''}`}><span /></span>
         </div>
       </div>
       {twoWay && (
         <>
-          <div className="nc-rel-section-title" style={{ padding: '0 16px' }}>Linked field name</div>
+          <div className="nc-rel-section-title" style={{ padding: '0 16px' }}>{tx('Linked field name')}</div>
           <div className="nc-rel-input" style={{ marginTop: 0 }}>
             <input placeholder={source ? collectionName(source) : 'Related'} value={reverseName} onChange={(e) => setReverseName(e.target.value)} />
           </div>
-          <div className="nc-rel-preview" aria-label="Relation preview">
+          <div className="nc-rel-preview" aria-label={tx('Relation preview')}>
             <div className="nc-rel-preview-line"><Icon name="databaseEmbed" size={14} /><b>{source ? collectionName(source) : ''}</b><span>→</span><span>{name || 'Relation'}</span></div>
             <div className="nc-rel-preview-line"><Icon name="databaseEmbed" size={14} /><b>{target ? collectionName(target) : ''}</b><span>→</span><span>{reverseName || (source ? collectionName(source) : '')}</span></div>
           </div>
         </>
       )}
-      <div role="button" className="nc-rel-button" onClick={add}>Add relation</div>
+      <div role="button" className="nc-rel-button" onClick={add}>{tx('Add relation')}</div>
       <div className="nc-rel-foot">
         {HELP_URL && <a className="nc-rel-row" style={{ color: 'var(--lp-text-secondary)', textDecoration: 'none' }} href={HELP_URL} target="_blank" rel="noopener noreferrer">
-          <Icon name="questionMark" size={18} color="var(--lp-icon-secondary)" /><span className="label">Explore linked fields</span>
+          <Icon name="questionMark" size={18} color="var(--lp-icon-secondary)" /><span className="label">{tx('Explore linked fields')}</span>
         </a>}
       </div>
     </div>
@@ -202,17 +203,17 @@ function EditRelation({ collectionId, propertyId, close }: { collectionId: strin
   const twoWay = !!ps.property && ps.property !== propertyId;
   const reverseName = twoWay && target ? target.schema[ps.property as string]?.name : undefined;
   return (
-    <div className="nc-rel-panel" role="dialog" aria-label="Edit property">
+    <div className="nc-rel-panel" role="dialog" aria-label={tx('Edit property')}>
       <div className="nc-rel-head">
-        <div className="nc-rel-title">Edit property</div>
-        <div role="button" className="nc-rel-x" aria-label="Close" onClick={close}><Icon name="xSmall" size={12} /></div>
+        <div className="nc-rel-title">{tx('Edit property')}</div>
+        <div role="button" className="nc-rel-x" aria-label={tx('Close')} onClick={close}><Icon name="xSmall" size={12} /></div>
       </div>
       <div className="nc-rel-input">
         <Icon name="relation" size={16} color="var(--lp-icon-secondary)" />
         <input
           style={{ marginLeft: 6 }}
           defaultValue={ps.name}
-          placeholder="Property name"
+          placeholder={tx('Property name')}
           onChange={(e) => { nameRef.current = e.target.value; }}
           onBlur={() => { if (nameRef.current.trim() && nameRef.current !== ps.name) run('renameProperty', (tx) => tx.update('collection', collectionId, ['schema', propertyId], { name: nameRef.current.trim() })); }}
           onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
@@ -221,29 +222,29 @@ function EditRelation({ collectionId, propertyId, close }: { collectionId: strin
       <div className="nc-rel-section">
         <div role="menuitem" className="nc-rel-row" onClick={() => setPicking(true)}>
           <Icon name="collectionArrow" size={18} color="var(--lp-icon-secondary)" />
-          <span className="label">Related to</span>
+          <span className="label">{tx('Related to')}</span>
           <span className="value"><Icon name="databaseEmbed" size={14} color="var(--lp-icon-tertiary)" /><span className="v" style={{ color: 'var(--lp-text-secondary)', fontWeight: 500 }}>{target ? collectionName(target) : 'Select'}</span></span>
         </div>
         <div role="menuitem" className="nc-rel-row" onClick={(e) => LimitMenu(e.currentTarget, ps.limit as number | undefined, (v) => setRelationLimit(collectionId, propertyId, v))}>
           <Icon name="numberProp" size={18} color="var(--lp-icon-primary)" />
-          <span className="label">Limit</span>
-          <span className="value"><span className="v">{ps.limit === 1 ? '1 page' : 'No limit'}</span><Icon name="chevronRight" size={14} /></span>
+          <span className="label">{tx('Limit')}</span>
+          <span className="value"><span className="v">{ps.limit === 1 ? tx('1 page') : tx('No limit')}</span><Icon name="chevronRight" size={14} /></span>
         </div>
         <div role="menuitem" className="nc-rel-row" onClick={(e) => openMenu(e.currentTarget, {
           width: 250,
           sections: [{ items: [
-            { label: 'On', description: reverseName ? `Shown on ${target ? collectionName(target) : ''} as “${reverseName}”` : undefined, checked: twoWay, onSelect: () => setRelationTwoWay(collectionId, propertyId, true) },
-            { label: 'Off', checked: !twoWay, onSelect: () => setRelationTwoWay(collectionId, propertyId, false) },
+            { label: tx('On'), description: reverseName ? `Shown on ${target ? collectionName(target) : ''} as “${reverseName}”` : undefined, checked: twoWay, onSelect: () => setRelationTwoWay(collectionId, propertyId, true) },
+            { label: tx('Off'), checked: !twoWay, onSelect: () => setRelationTwoWay(collectionId, propertyId, false) },
           ] }],
         }, { placement: 'right-start' })}>
           <Icon name="fullWidth" size={18} color="var(--lp-icon-primary)" />
-          <span className="label">Bidirectional link</span>
-          <span className="value"><span className="v">{twoWay ? 'On' : 'Off'}</span><Icon name="chevronRight" size={14} /></span>
+          <span className="label">{tx('Bidirectional link')}</span>
+          <span className="value"><span className="v">{twoWay ? tx('On') : tx('Off')}</span><Icon name="chevronRight" size={14} /></span>
         </div>
       </div>
       <div className="nc-rel-foot">
         {HELP_URL && <a className="nc-rel-row" style={{ color: 'var(--lp-text-secondary)', textDecoration: 'none' }} href={HELP_URL} target="_blank" rel="noopener noreferrer">
-          <Icon name="questionMark" size={18} color="var(--lp-icon-secondary)" /><span className="label">Explore linked fields</span>
+          <Icon name="questionMark" size={18} color="var(--lp-icon-secondary)" /><span className="label">{tx('Explore linked fields')}</span>
         </a>}
       </div>
     </div>

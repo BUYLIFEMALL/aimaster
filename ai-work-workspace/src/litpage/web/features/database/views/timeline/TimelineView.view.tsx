@@ -34,6 +34,7 @@ import {
 } from '../../advanced/viewKit.tsx';
 import '../calendar/calendar.css';
 import './timeline.css';
+import { tx } from '../../../shell/i18n.ts';
 
 export type ZoomLevel = 'hours' | 'day' | 'week' | 'bi_week' | 'month' | 'quarter' | 'year' | '5_years';
 type Unit = 'fifteen_minutes' | 'hour' | 'day' | 'week' | 'month' | 'year';
@@ -167,8 +168,8 @@ interface Drag {
 function NoDate({ onAdd, readOnly }: { onAdd: () => void; readOnly: boolean }) {
   return (
     <div className="nc-cal-nodate">
-      <div className="nc-cal-nodate-title">No date field</div>
-      {readOnly ? <div>Timeline layouts need a date field to display entries.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>Add a date field</span> to this table to display a timeline layout.</div>}
+      <div className="nc-cal-nodate-title">{tx('No date field')}</div>
+      {readOnly ? <div>{tx('Timeline layouts need a date field to display entries.')}</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>{tx('Add a date field')}</span> to this table to display a timeline layout.</div>}
     </div>
   );
 }
@@ -483,7 +484,7 @@ function TimelineView(props: ViewProps) {
         {showTable && (
           <div className="nc-tl-table" style={{ width: tableW }}>
             <div className="nc-tl-table-top">
-              <div role="button" className="nc-tl-iconbtn" aria-label="Hide table" data-tooltip="Hide table" onClick={() => toggleTable(false)}><Icon name="arrowChevronDoubleLeft" size={16} /></div>
+              <div role="button" className="nc-tl-iconbtn" aria-label={tx('Hide table')} data-tooltip={tx('Hide table')} onClick={() => toggleTable(false)}><Icon name="arrowChevronDoubleLeft" size={16} /></div>
             </div>
             <div className="nc-tl-table-head">
               {cols.map((c) => (
@@ -592,7 +593,7 @@ function TimelineView(props: ViewProps) {
                           <a role="link" className="nc-tl-bar" data-testid="timeline-item-bar" style={colorsOf(it.row)?.row ? { background: conditionalBg(colorsOf(it.row)?.row) } : undefined} onPointerDown={(e) => beginDrag(e, it, 'move')} onClick={(e) => { e.preventDefault(); if (!editable) kit.openRow(it.row.id); }} />
                           {editable && <div className="lit-timeline-item-resizer-left nc-tl-resizer left" onPointerDown={(e) => beginDrag(e, it, 'left')} />}
                           {editable && <div className="lit-timeline-item-resizer-right nc-tl-resizer right" onPointerDown={(e) => beginDrag(e, it, 'right')} />}
-                          {editable && arrowsBy && schema[arrowsBy] && <div className="nc-tl-connector" role="button" aria-label="Drag to add a dependency" data-testid="timeline-connector" onPointerDown={(e) => link.start(e, it.row.id)} />}
+                          {editable && arrowsBy && schema[arrowsBy] && <div className="nc-tl-connector" role="button" aria-label={tx('Drag to add a dependency')} data-testid="timeline-connector" onPointerDown={(e) => link.start(e, it.row.id)} />}
                         </div>
                       )}
                       {has && (
@@ -613,14 +614,14 @@ function TimelineView(props: ViewProps) {
                 {hasMore && (
                   <div className="lit-timeline-item-row nc-tl-row nc-tl-addrow">
                     <div role="button" className="nc-tl-add nc-tl-load-more" onClick={() => setLoadLimit((n) => n + firstLimit)}>
-                      <Icon name="arrowDown" size={16} color="var(--lp-icon-tertiary)" /><span>Load more</span>
+                      <Icon name="arrowDown" size={16} color="var(--lp-icon-tertiary)" /><span>{tx('Load more')}</span>
                     </div>
                   </div>
                 )}
                 {!readOnly && (
                   <div className="lit-timeline-item-row nc-tl-row nc-tl-addrow">
                     <div role="button" data-timeline-add-row-indicator="true" className="nc-tl-add" onClick={() => kit.addRow(undefined, { open: true })}>
-                      <Icon name="plus" size={16} color="var(--lp-icon-tertiary)" /><span>New</span>
+                      <Icon name="plus" size={16} color="var(--lp-icon-tertiary)" /><span>{tx('New')}</span>
                     </div>
                   </div>
                 )}
@@ -652,19 +653,19 @@ function TimelineView(props: ViewProps) {
             </div>
           </div>
           <div className="nc-tl-head-left">
-            {!showTable && !readOnly && <div role="button" className="nc-tl-iconbtn" aria-label="Show table" data-tooltip="Show table" onClick={() => toggleTable(true)}><Icon name="arrowChevronDoubleRight" size={16} /></div>}
+            {!showTable && !readOnly && <div role="button" className="nc-tl-iconbtn" aria-label={tx('Show table')} data-tooltip={tx('Show table')} onClick={() => toggleTable(true)}><Icon name="arrowChevronDoubleRight" size={16} /></div>}
             <span className="nc-tl-title" style={{ paddingInlineStart: !showTable && !readOnly ? 0 : 16 }}>{secondaryTitle(msAt(scrollLeft + 8), z.secondary, tz)}</span>
             <div className="nc-tl-fade left" />
           </div>
           <div className="nc-tl-head-right">
             <div className="nc-tl-fade right" />
             <div className="nc-tl-controls">
-              <div role="button" className="nc-tl-manage" onClick={() => useUI.getState().toast('Calendar sync is not available')}><Icon name="calendar" size={16} /><span>Manage in Calendar</span></div>
+              <div role="button" className="nc-tl-manage" onClick={() => useUI.getState().toast('Calendar sync is not available')}><Icon name="calendar" size={16} /><span>{tx('Manage in Calendar')}</span></div>
               <div role="button" className="nc-tl-zoom" aria-haspopup="dialog" onClick={zoomMenu}>{ZOOM_LABEL[zoom]}<Icon name="chevronDown" size={14} /></div>
             </div>
-            <div role="button" className="nc-tl-nav" aria-label="Previous" onClick={() => step(-1)} style={{ marginInlineStart: 4 }}><Icon name="chevronLeft" size={16} /></div>
-            <div role="button" className="nc-tl-today" onClick={() => scrollToMs(Date.now())}>Today</div>
-            <div role="button" className="nc-tl-nav" aria-label="Next" onClick={() => step(1)}><Icon name="chevronRight" size={16} /></div>
+            <div role="button" className="nc-tl-nav" aria-label={tx('Previous')} onClick={() => step(-1)} style={{ marginInlineStart: 4 }}><Icon name="chevronLeft" size={16} /></div>
+            <div role="button" className="nc-tl-today" onClick={() => scrollToMs(Date.now())}>{tx('Today')}</div>
+            <div role="button" className="nc-tl-nav" aria-label={tx('Next')} onClick={() => step(1)}><Icon name="chevronRight" size={16} /></div>
           </div>
           <div className="nc-tl-offscreen-layer" style={{ top: HEAD }}>
             {shownRows.map((v, i) => {
@@ -673,7 +674,7 @@ function TimelineView(props: ViewProps) {
               const side = x(it.endMs) < viewL + 4 ? 'left' : x(it.startMs) > viewR - 4 ? 'right' : null;
               if (!side) return null;
               return (
-                <div key={rowKey(v)} role="button" className={`nc-tl-offscreen ${side}`} style={{ top: i * ROW + 9 }} aria-label={side === 'left' ? 'Scroll left to item' : 'Scroll right to item'} onClick={() => scrollToMs(side === 'left' ? it.startMs : it.endMs)}>
+                <div key={rowKey(v)} role="button" className={`nc-tl-offscreen ${side}`} style={{ top: i * ROW + 9 }} aria-label={side === 'left' ? tx('Scroll left to item') : tx('Scroll right to item')} onClick={() => scrollToMs(side === 'left' ? it.startMs : it.endMs)}>
                   <Icon name={side === 'left' ? 'arrowLeft' : 'arrowRight'} size={12} color="var(--lp-bg-primary)" />
                 </div>
               );
@@ -702,22 +703,22 @@ function TimelineLayoutSettings({ view, collection, readOnly }: LayoutSettingsPr
     <>
       {separate ? (
         <>
-          <SettingsRow label="Start date" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
-          <SettingsRow label="End date" value={end ? schema[end]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by_end')} />
+          <SettingsRow label={tx('Start date')} value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
+          <SettingsRow label={tx('End date')} value={end ? schema[end]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by_end')} />
         </>
       ) : (
-        <SettingsRow label="Group timeline by" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
+        <SettingsRow label={tx('Group timeline by')} value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
       )}
-      <SettingsToggle label="Use separate start and end dates" on={separate} disabled={readOnly} onChange={(v) => {
+      <SettingsToggle label={tx('Use separate start and end dates')} on={separate} disabled={readOnly} onChange={(v) => {
         if (!v) return setQuery2(view, { timeline_by_end: undefined }, 'timeline.separateDates');
         const other = dateProperties(schema).find(([id, p]) => id !== by && p.type === 'date')?.[0];
         if (other) return setQuery2(view, { timeline_by_end: other }, 'timeline.separateDates');
         const pid = addProperty(collection.id, 'date', { name: 'End date', view });
         if (pid) setQuery2(view, { timeline_by_end: pid }, 'timeline.separateDates');
       }} />
-      <SettingsToggle label="Show table" on={fmt.timeline_show_table === true} disabled={readOnly} onChange={(v) => setFormat(view, { timeline_show_table: v, ...(v && !fmt.timeline_table_properties ? { timeline_table_properties: [{ property: 'title', visible: true, width: 280 }] } : {}) })} />
+      <SettingsToggle label={tx('Show table')} on={fmt.timeline_show_table === true} disabled={readOnly} onChange={(v) => setFormat(view, { timeline_show_table: v, ...(v && !fmt.timeline_table_properties ? { timeline_table_properties: [{ property: 'title', visible: true, width: 280 }] } : {}) })} />
       {fmt.timeline_show_table === true && (
-        <SettingsRow label="Table properties" value={`${tableColumns(view, schema).length} shown`} disabled={readOnly} onClick={(e) => {
+        <SettingsRow label={tx('Table properties')} value={`${tableColumns(view, schema).length} shown`} disabled={readOnly} onClick={(e) => {
           const cur = (fmt.timeline_table_properties as { property: string; visible?: boolean; width?: number }[] | undefined) ?? [{ property: 'title', visible: true, width: 280 }];
           const ids = ['title', ...Object.keys(schema).filter((k) => k !== 'title')];
           pickMenu(e.currentTarget, ids.filter((id) => schema[id]).map((id) => {
@@ -734,11 +735,11 @@ function TimelineLayoutSettings({ view, collection, readOnly }: LayoutSettingsPr
           }), 260, 'Find a field…');
         }} />
       )}
-      <SettingsRow label="Dependencies" value={arrows && schema[arrows] ? schema[arrows].name : 'Off'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
-        { id: 'off', label: 'Off', checked: !arrows, onSelect: () => setFormat(view, { timeline_arrows_by: undefined }) },
+      <SettingsRow label={tx('Dependencies')} value={arrows && schema[arrows] ? schema[arrows].name : 'Off'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
+        { id: 'off', label: tx('Off'), checked: !arrows, onSelect: () => setFormat(view, { timeline_arrows_by: undefined }) },
         ...selfRelations.map(([id, p]) => ({ id, label: p.name, icon: 'relation', checked: arrows === id, onSelect: () => setFormat(view, { timeline_arrows_by: { property: id } }) })),
         {
-          id: 'create', label: 'Create “Blocked by” and “Blocking”', icon: 'plus', onSelect: () => {
+          id: 'create', label: tx('Create “Blocked by” and “Blocking”'), icon: 'plus', onSelect: () => {
             // turns on the Dependencies feature: "Blocking" (arrows) ↔ "Blocked by", default date shifting
             const pid = turnOnDependencies(getCollection(collection.id) ?? collection, { view });
             if (pid && getCollection(collection.id)?.schema[pid]) setFormat(view, { timeline_arrows_by: { property: pid } });

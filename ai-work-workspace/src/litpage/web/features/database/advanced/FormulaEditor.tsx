@@ -23,13 +23,14 @@ import { applyItem, buildItems, caretContext, propertyIconFor, type CompletionIt
 import { FormulaValueView } from './FormulaValueView.tsx';
 import { assistantOpenPref, FormulaAssistant, setAssistantOpenPref } from './FormulaAssistant.tsx';
 import './advanced.css';
+import { tx } from '../../shell/i18n.ts';
 
 const PROPERTY_DESCRIPTIONS: Record<string, string> = {
   auto_increment_id: 'ID property.', checkbox: 'Checkbox property.', created_by: 'Creator field.', created_time: 'Creation time field.',
   date: 'Date property.', email: 'Email property.', file: 'File field, list.', formula: 'Formula property.', last_edited_by: 'Last changed by property.',
   last_edited_time: 'Last edited property.', multi_select: 'Multiple-choice field, list.', number: 'Number property.', phone_number: 'Phone field.',
   person: 'People field, list.', relation: 'Linked records field, list.', rollup: 'Summary field, list.', select: 'Select property.', status: 'Status property.',
-  text: 'Text property.', title: 'Title property.', url: 'URL property.', place: 'Database property.',
+  text: 'Text property.', title: tx('Title property.'), url: 'URL property.', place: 'Database property.',
 };
 
 const iconCache = new Map<string, string>();
@@ -107,7 +108,7 @@ function ExampleCard({ input, output }: { input: string; output: string | null }
         <div><ExampleCode code={input} /></div>
         {(output !== null || live) && <div className="nc-fx-example-out">= {output !== null ? output : formatExampleOutput(live!)}</div>}
       </div>
-      <div role="button" className="nc-fx-copy" aria-label="Copy formula" data-tooltip="Copy formula" onClick={copy}>
+      <div role="button" className="nc-fx-copy" aria-label={tx('Copy formula')} data-tooltip={tx('Copy formula')} onClick={copy}>
         <Icon name="copy" size={14} />
       </div>
     </div>
@@ -367,7 +368,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
       sections: [{
         items: rowsOfCollection(collectionId).map((r) => ({ id: r.id, label: titleOf(r) || 'Untitled', icon: 'page', checked: r.id === previewId, onSelect: () => setPreviewId(r.id) })),
       }],
-      emptyText: 'No results',
+      emptyText: tx('No results'),
     });
   };
 
@@ -375,7 +376,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
   const ast = useMemo(() => (debug ? parse(src).ast : null), [debug, src]);
   let lastSection = '';
   const [assistantOpen, setAssistantOpen] = useState(assistantOpenPref);
-  const previewNode = sizeProblem ? <span className="nc-fx-error-text">{sizeProblem}</span> : result.error ? <span className="nc-fx-error-text">{result.error.message}</span> : result.value.type === 'undefined' ? <span className="nc-fx-empty">No output</span> : <FormulaValueView value={result.value} schema={col?.schema[propertyId]} />;
+  const previewNode = sizeProblem ? <span className="nc-fx-error-text">{sizeProblem}</span> : result.error ? <span className="nc-fx-error-text">{result.error.message}</span> : result.value.type === 'undefined' ? <span className="nc-fx-empty">{tx('No output')}</span> : <FormulaValueView value={result.value} schema={col?.schema[propertyId]} />;
   const applyFromAssistant = (next: string) => {
     setSrc(next);
     setCaretState(next.length);
@@ -386,13 +387,13 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
   };
 
   return (
-    <div className="nc-fx-dialog" role="dialog" aria-label="Edit formula" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="nc-fx-dialog" role="dialog" aria-label={tx('Edit formula')} onMouseDown={(e) => e.stopPropagation()}>
       <div className="nc-fx-head">
         <div className="nc-fx-title">{custom?.title ?? 'Edit formula'}</div>
-        {HELP_URL && (<a className="nc-fx-help" role="link" aria-label="Explore formula help" href={HELP_URL} target="_blank" rel="noopener noreferrer"><Icon name="questionMark" size={16} /></a>)}
+        {HELP_URL && (<a className="nc-fx-help" role="link" aria-label={tx('Explore formula help')} href={HELP_URL} target="_blank" rel="noopener noreferrer"><Icon name="questionMark" size={16} /></a>)}
         <div style={{ flex: 1 }} />
-        {dirty && <div role="button" className="nc-fx-discard" title="Restores the formula from when this editor opened." onClick={() => { setSrc(state.original); setCaretState(state.original.length); }}>Drop all edits</div>}
-        <div role="button" className="nc-fx-close" aria-label="Close" onClick={close}><Icon name="xSmall" size={14} /></div>
+        {dirty && <div role="button" className="nc-fx-discard" title={tx('Restores the formula from when this editor opened.')} onClick={() => { setSrc(state.original); setCaretState(state.original.length); }}>{tx('Drop all edits')}</div>}
+        <div role="button" className="nc-fx-close" aria-label={tx('Close')} onClick={close}><Icon name="xSmall" size={14} /></div>
       </div>
       {assistantOpen && (
         <FormulaAssistant
@@ -409,7 +410,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
       )}
       <div className="nc-fx-codebox-wrap">
         <div className={`nc-fx-codebox ${focused ? 'focused' : ''}`}>
-          {!src && <div className="nc-fx-placeholder">Your formula</div>}
+          {!src && <div className="nc-fx-placeholder">{tx('Your formula')}</div>}
           <div
             ref={editorRef}
             className="nc-fx-code"
@@ -435,8 +436,8 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
           <div
             role="button"
             aria-pressed={assistantOpen}
-            aria-label="Switch formula helper"
-            data-tooltip={assistantOpen ? 'Hide formula assistant' : 'Get help with this formula'}
+            aria-label={tx('Switch formula helper')}
+            data-tooltip={assistantOpen ? tx('Hide formula assistant') : tx('Get help with this formula')}
             className={`nc-fx-ai-toggle ${assistantOpen ? 'on' : ''}`}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
@@ -451,7 +452,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
       <div className="nc-fx-preview">
         <div className="nc-fx-preview-head">
           <div className="nc-fx-preview-left">
-            <span className="nc-fx-label">Preview with</span>
+            <span className="nc-fx-label">{tx('Preview with')}</span>
             <div role="button" className="nc-fx-preview-page" aria-haspopup="dialog" onClick={previewMenu}>
               <Icon name="page" size={14} color="var(--lp-icon-secondary)" />
               <span className="nc-fx-preview-title">{row ? titleOf(row) || 'Untitled' : 'Select a page'}</span>
@@ -460,8 +461,8 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
           </div>
           <label className="nc-fx-debug">
             <span className={`nc-adv-toggle ${debug ? 'on' : ''}`}><span /></span>
-            <input type="checkbox" role="switch" aria-label="Debug mode" checked={debug} onChange={(e) => setDebug(e.target.checked)} />
-            <span>Debug mode</span>
+            <input type="checkbox" role="switch" aria-label={tx('Debug mode')} checked={debug} onChange={(e) => setDebug(e.target.checked)} />
+            <span>{tx('Debug mode')}</span>
           </label>
         </div>
         <div className="nc-fx-result-row">
@@ -487,7 +488,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
       </div>
       <div className="nc-fx-bottom">
         <div className="nc-fx-list lit-scroller vertical" ref={listRef} role="menu" onMouseLeave={() => setHover(null)}>
-          {items.length === 0 && <div className="nc-fx-noresults">No results</div>}
+          {items.length === 0 && <div className="nc-fx-noresults">{tx('No results')}</div>}
           {items.map((it, i) => {
             const header = it.section !== lastSection ? it.section : null;
             lastSection = it.section;

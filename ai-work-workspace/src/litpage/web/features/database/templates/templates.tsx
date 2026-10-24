@@ -24,6 +24,7 @@ import { setTemplateRecurrence, templateRepeat, useAutomations } from '../automa
 import { openRecurrenceEditor } from '../automations/recurrence.tsx';
 import { userTimeZone } from '../advanced/context.ts';
 import './templates.css';
+import { tx } from '../../shell/i18n.ts';
 
 const nameOf = (b: BlockRecord | undefined) => toPlainText(b?.properties?.title) || 'Untitled';
 const collectionName = (c: CollectionRecord | undefined) => toPlainText(c?.name as any) || 'Untitled';
@@ -46,11 +47,11 @@ export function repeatItems(templateId: string, anchor: () => HTMLElement | null
     id: p.id, label: p.label, checked: !!cur && preset === p.id,
     onSelect: () => void setRepeat(templateId, presetRecurrence(p.id as RecurrencePreset, Date.now(), userTimeZone(), rec?.time ?? '09:00')),
   }));
-  items.push({ id: 'custom', label: 'Custom…', checked: !!cur && !preset, onSelect: () => {
+  items.push({ id: 'custom', label: tx('Custom…'), checked: !!cur && !preset, onSelect: () => {
     const a = anchor();
     if (a) setTimeout(() => openRecurrenceEditor(a, { value: rec, onSave: (r) => void setRepeat(templateId, r), onDelete: cur ? () => void setRepeat(templateId, null) : undefined, deleteLabel: 'Cancel recurrence' }), 0);
   } });
-  if (cur) items.push({ id: 'off', label: 'Off', icon: 'xMarkSmall', onSelect: () => void setRepeat(templateId, null) });
+  if (cur) items.push({ id: 'off', label: tx('Off'), icon: 'xMarkSmall', onSelect: () => void setRepeat(templateId, null) });
   return items;
 }
 
@@ -67,7 +68,7 @@ export function openSetDefaultDialog(t: BlockRecord, collection: CollectionRecor
           close();
         }}>For all views in “{collectionName(collection)}”</button>
         {view && <button className="nc-dialog-btn outline" onClick={() => { setDefaultTemplate(view, collection.id, t.id); close(); }}>Only on “{view.name || 'Untitled'}” view</button>}
-        <button className="nc-dialog-btn outline" onClick={close}>Cancel</button>
+        <button className="nc-dialog-btn outline" onClick={close}>{tx('Cancel')}</button>
       </div>
     </div>
   ), { placement: 'center', backdrop: 'dim' });
@@ -80,11 +81,11 @@ export function openTemplateItemMenu(anchor: HTMLElement, opts: { t: BlockRecord
     width: 240,
     sections: [{ items: [
       // the dialog opens after the menu closed (a menu choice closes every overlay)
-      { id: 'default', label: 'Set as default', icon: 'checkmarkSquare', checked: opts.isDefault, onSelect: () => (opts.isDefault ? setDefaultTemplate(view, collection.id, null) : void setTimeout(() => openSetDefaultDialog(t, collection, view), 0)) },
-      { id: 'edit', label: 'Edit', icon: 'pencilLine', onSelect: () => openPeek(t.id, 'center_peek') },
-      { id: 'repeat', label: 'Duplicate every…', icon: 'arrowSquareLeftRight', submenu: () => ({ width: 200, sections: [{ items: repeatItems(t.id, () => anchor) }] }) },
-      { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => void duplicateTemplate(collection.id, t.id) },
-      { id: 'del', label: 'Delete', icon: 'trash', onSelect: async () => { if (await confirmDialog({ message: 'Remove this template?', confirmLabel: 'Delete' })) { if (templateRepeat(t.id)) await setRepeat(t.id, null); deleteTemplate(collection.id, t.id); } } },
+      { id: 'default', label: tx('Set as default'), icon: 'checkmarkSquare', checked: opts.isDefault, onSelect: () => (opts.isDefault ? setDefaultTemplate(view, collection.id, null) : void setTimeout(() => openSetDefaultDialog(t, collection, view), 0)) },
+      { id: 'edit', label: tx('Edit'), icon: 'pencilLine', onSelect: () => openPeek(t.id, 'center_peek') },
+      { id: 'repeat', label: tx('Duplicate every…'), icon: 'arrowSquareLeftRight', submenu: () => ({ width: 200, sections: [{ items: repeatItems(t.id, () => anchor) }] }) },
+      { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', onSelect: () => void duplicateTemplate(collection.id, t.id) },
+      { id: 'del', label: tx('Delete'), icon: 'trash', onSelect: async () => { if (await confirmDialog({ message: 'Remove this template?', confirmLabel: 'Delete' })) { if (templateRepeat(t.id)) await setRepeat(t.id, null); deleteTemplate(collection.id, t.id); } } },
     ] }],
   }, { placement: 'right-start', backdrop: 'transparent', parent: overlayIdOf(anchor) });
 }
@@ -106,12 +107,12 @@ export function TemplateBanner({ page, collection, readOnly }: { page: BlockReco
   return (
     <div className="nc-tpl-banner" role="note">
       <div className="nc-tpl-banner-text">
-        <span>{readOnly ? 'You’re viewing a template in' : 'You’re editing a template in'}</span>
+        <span>{readOnly ? tx('You’re viewing a template in') : tx('You’re editing a template in')}</span>
         <a role="link" className="nc-tpl-banner-db" href={host ? `/${host.id.replace(/-/g, '')}` : undefined} onClick={(e) => { e.preventDefault(); if (host) openPeek(host.id, 'side_peek'); }}>
           <PageIcon block={host} size={20} fallback="collection" />
           <span>{collectionName(collection)}</span>
         </a>
-        {HELP_URL && (<span role="button" className="nc-tpl-banner-help" aria-label="Learn more" data-tooltip="Learn about database templates" onClick={() => window.open(HELP_URL!, '_blank', 'noopener')}><Icon name="questionMarkCircle" size={16} /></span>)}
+        {HELP_URL && (<span role="button" className="nc-tpl-banner-help" aria-label={tx('Learn more')} data-tooltip={tx('Learn about database templates')} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')}><Icon name="questionMarkCircle" size={16} /></span>)}
       </div>
       {!readOnly && (
         <span
@@ -142,7 +143,7 @@ export function EmptyRowTemplates({ page }: { page: BlockRecord }) {
   const templates = collectionTemplates(collection);
   if (!templates.length) return null;
   return (
-    <div className="nc-empty-row-templates" role="listbox" aria-label="Templates">
+    <div className="nc-empty-row-templates" role="listbox" aria-label={tx('Templates')}>
       {templates.map((t) => (
         <div key={t.id} role="option" className="nc-empty-row-template-item" onMouseDown={(e) => e.preventDefault()} onClick={() => void applyTemplate(page.id, t.id)}>
           <PageIcon block={t} size={20} />

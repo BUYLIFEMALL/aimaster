@@ -32,6 +32,7 @@ import { positionAt, setSelectionOffsets } from '../richTextDom.ts';
 import { useEditor } from '../editorState.ts';
 import { isOpen, pageIdOfBlock, setOpen } from '../commands.ts';
 import './find.css';
+import { tx } from '../../shell/i18n.ts';
 
 export interface FindMatch {
   /** block (or database row) id and rich-text property holding the match */
@@ -545,7 +546,7 @@ export function FindBar() {
     <div
       className="nc-find-bar"
       role="dialog"
-      aria-label="Find in page"
+      aria-label={tx('Find in page')}
       onMouseDown={(e) => {
         e.stopPropagation();
         // buttons keep the keyboard focus in the inputs (Enter / Esc keep working)
@@ -564,7 +565,7 @@ export function FindBar() {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Find or replace text…"
+            placeholder={tx('Find or replace text…')}
             value={st.query}
             spellCheck={false}
             onChange={(e) => {
@@ -587,29 +588,29 @@ export function FindBar() {
         </div>
         {st.query && (
           <div className="nc-find-count" aria-live="polite">
-            {total ? <div className="nc-find-count-inner"><span>{st.current + 1}</span>of<span>{total}</span></div> : <span>Not found</span>}
+            {total ? <div className="nc-find-count-inner"><span>{st.current + 1}</span>of<span>{total}</span></div> : <span>{tx('Not found')}</span>}
           </div>
         )}
         <div className="nc-find-buttons">
-          <div role="button" tabIndex={0} aria-label="Previous match" data-tooltip="Previous match" data-tooltip-sub="⇧↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(-1)}>
+          <div role="button" tabIndex={0} aria-label={tx('Previous match')} data-tooltip={tx('Previous match')} data-tooltip-sub="⇧↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(-1)}>
             <Icon name="arrowUp" size={16} />
           </div>
-          <div role="button" tabIndex={0} aria-label="Next match" data-tooltip="Next match" data-tooltip-sub="↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(1)}>
+          <div role="button" tabIndex={0} aria-label={tx('Next match')} data-tooltip={tx('Next match')} data-tooltip-sub="↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(1)}>
             <Icon name="arrowDown" size={16} />
           </div>
           <div
             role="button"
             tabIndex={0}
-            aria-label="Replace"
+            aria-label={tx('Replace')}
             aria-pressed={st.replace}
-            data-tooltip={locked ? 'This page is locked' : 'Replace'}
+            data-tooltip={locked ? tx('This page is locked') : tx('Replace')}
             className={`nc-find-btn ${st.replace ? 'pressed' : ''} ${editable ? '' : 'disabled'}`}
             onClick={() => { if (editable) useFind.setState({ replace: !st.replace }); }}
           >
             <Icon name="arrowLoop" size={16} />
           </div>
         </div>
-        <div role="button" tabIndex={0} aria-label="Close" data-tooltip="Close" data-tooltip-sub="esc" className="nc-find-btn" onClick={() => closeFind()}>
+        <div role="button" tabIndex={0} aria-label={tx('Close')} data-tooltip={tx('Close')} data-tooltip-sub="esc" className="nc-find-btn" onClick={() => closeFind()}>
           <Icon name="close" size={16} />
         </div>
       </div>
@@ -620,7 +621,7 @@ export function FindBar() {
             <div className="nc-find-input">
               <input
                 type="text"
-                placeholder="Replace with…"
+                placeholder={tx('Replace with…')}
                 value={st.replacement}
                 spellCheck={false}
                 onChange={(e) => useFind.setState({ replacement: e.target.value })}
@@ -639,9 +640,9 @@ export function FindBar() {
               />
             </div>
             <div className="nc-find-replace-actions">
-              <div role="button" tabIndex={0} className={`nc-find-text-btn ${total ? '' : 'disabled'}`} onClick={() => replaceAll()}>Replace all</div>
+              <div role="button" tabIndex={0} className={`nc-find-text-btn ${total ? '' : 'disabled'}`} onClick={() => replaceAll()}>{tx('Replace all')}</div>
               <div role="button" tabIndex={0} className={`nc-find-primary-btn ${total ? '' : 'disabled'}`} onClick={() => replaceCurrent()}>
-                <div className="inner">Replace<Icon name="arrowTurnDownLeft" size={16} /></div>
+                <div className="inner">{tx('Replace')}<Icon name="arrowTurnDownLeft" size={16} /></div>
               </div>
             </div>
           </div>

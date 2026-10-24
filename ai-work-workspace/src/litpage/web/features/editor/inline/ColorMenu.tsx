@@ -6,6 +6,7 @@ import { COLOR_NAMES } from '#shared/colors.ts';
 import { openOverlay } from '../../../components/overlay.tsx';
 import { colorsOf, recentColors, setColorRange, valueOf, type TextRange } from './format.ts';
 import { colorToken } from '../../../lib/colorToken.ts';
+import { tx } from '../../shell/i18n.ts';
 
 const TOK: Record<string, string> = { default: 'gra', gray: 'gra', brown: 'bro', orange: 'ora', yellow: 'yel', green: 'gre', blue: 'blu', purple: 'pur', pink: 'pin', red: 'red' };
 
@@ -75,16 +76,16 @@ function ColorMenu({ r, close }: { r: TextRange; close: () => void }) {
       <div className="lit-scroller vertical" role="menu">
         {recent.length > 0 && (
           <div className="nc-color-section">
-            <div className="nc-menu-section-title">Recently used</div>
+            <div className="nc-menu-section-title">{tx('Recently used')}</div>
             {grid(recent, false)}
           </div>
         )}
         <div className="nc-color-section">
-          <div className="nc-menu-section-title">Text color</div>
+          <div className="nc-menu-section-title">{tx('Text color')}</div>
           {grid(textColors, true)}
         </div>
         <div className="nc-color-section">
-          <div className="nc-menu-section-title">Background color</div>
+          <div className="nc-menu-section-title">{tx('Background color')}</div>
           {grid(bgColors, true)}
         </div>
       </div>

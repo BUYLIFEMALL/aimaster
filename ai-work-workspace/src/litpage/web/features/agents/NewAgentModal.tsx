@@ -8,7 +8,7 @@ import { Modal } from '../../components/Modal.tsx';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { navigate } from '../../lib/router.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { agentApi, agentUrl, applyAnswer, toastError, useAgents } from './agentsApi.ts';
 import { AgentIcon } from './AgentsSection.tsx';
 import './icons.tsx';
@@ -101,7 +101,7 @@ function NewAgent({ close }: { close: () => void }) {
             }
           }}
         />
-        <button type="submit" className={`nc-new-agent-send ${text.trim() ? 'ready' : ''}`} aria-label="Build with AI chat" disabled={!text.trim() || !!busy}>
+        <button type="submit" className={`nc-new-agent-send ${text.trim() ? 'ready' : ''}`} aria-label={tx('Build with AI chat')} disabled={!text.trim() || !!busy}>
           <Icon name="arrowUp" size={16} strokeWidth={2.2} />
         </button>
       </form>

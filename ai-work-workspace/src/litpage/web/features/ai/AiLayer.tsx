@@ -25,6 +25,7 @@ import { createHtmlWithAi } from './htmlAi.ts';
 import { savePref } from '../settings/userSettings.ts';
 import { useAsSkill, useSkills } from './aiStores.ts';
 import { editSkill } from './SkillsLibrary.tsx';
+import { tx } from '../shell/i18n.ts';
 
 // ---------------------------------------------------------------------------------------------
 // Entry points
@@ -225,9 +226,9 @@ function onSkillMenu(e: Event) {
       width: 280,
       search: 'Search skills…',
       sections: [
-        ...(mine.length ? [{ title: 'Your skills', items: mine.map((s) => ({ label: s.name, icon: 'aiStepSkill', description: s.description || undefined, onSelect: () => askAiAtBlock(blockId, { skillId: s.id }) })) }] : []),
-        { title: 'Skills', items: builtin.map((s) => ({ label: s.label, icon: s.icon, onSelect: () => (isEmptyText(blockId) ? askAiAtBlock(blockId, { prompt: s.label }) : askAiAtBlock(blockId, { blockIds: [blockId], skill: s.id })) })) },
-        { items: [{ label: 'Manage skills', icon: 'sliders', onSelect: () => navigate(`/${spaceDomain(useSession.getState().spaceId)}/library/skills`) }] },
+        ...(mine.length ? [{ title: tx('Your skills'), items: mine.map((s) => ({ label: s.name, icon: 'aiStepSkill', description: s.description || undefined, onSelect: () => askAiAtBlock(blockId, { skillId: s.id }) })) }] : []),
+        { title: tx('Skills'), items: builtin.map((s) => ({ label: s.label, icon: s.icon, onSelect: () => (isEmptyText(blockId) ? askAiAtBlock(blockId, { prompt: s.label }) : askAiAtBlock(blockId, { blockIds: [blockId], skill: s.id })) })) },
+        { items: [{ label: tx('Manage skills'), icon: 'sliders', onSelect: () => navigate(`/${spaceDomain(useSession.getState().spaceId)}/library/skills`) }] },
       ],
     }, { placement: 'bottom-start' });
   });
@@ -345,24 +346,24 @@ function PanelHeader({ threadId, title, onNew, onClose }: { threadId: string | n
   const switchMode = (anchor: HTMLElement) => openMenu(anchor, {
     width: 220,
     sections: [{ items: [
-      { label: 'Sidebar', icon: 'sidePeek', checked: mode === 'sidebar', onSelect: () => useAiLayer.getState().setPanelMode('sidebar') },
-      { label: 'Floating', icon: 'centerPeek', checked: mode === 'floating', onSelect: () => useAiLayer.getState().setPanelMode('floating') },
-      { label: 'Full', icon: 'fullPage', onSelect: () => { onClose(); navigate(chatUrl(threadId)); } },
+      { label: tx('Sidebar'), icon: 'sidePeek', checked: mode === 'sidebar', onSelect: () => useAiLayer.getState().setPanelMode('sidebar') },
+      { label: tx('Floating'), icon: 'centerPeek', checked: mode === 'floating', onSelect: () => useAiLayer.getState().setPanelMode('floating') },
+      { label: tx('Full'), icon: 'fullPage', onSelect: () => { onClose(); navigate(chatUrl(threadId)); } },
     ] }],
   }, { placement: 'bottom-end' });
   const actions = (anchor: HTMLElement) => openMenu(anchor, {
     width: 240,
     sections: [
       { items: [
-        { label: 'Copy link', icon: 'link', disabled: !threadId, onSelect: () => { void navigator.clipboard?.writeText(location.origin + chatUrl(threadId)).catch(() => {}); useUI.getState().toast('Link copied'); } },
+        { label: tx('Copy link'), icon: 'link', disabled: !threadId, onSelect: () => { void navigator.clipboard?.writeText(location.origin + chatUrl(threadId)).catch(() => {}); useUI.getState().toast('Link copied'); } },
         { label: thread?.shared ? 'Copy link to shared chat' : 'Share chat', icon: 'share', disabled: !thread, onSelect: () => { if (thread) void shareChatLink(thread); } },
         { label: thread?.pinned ? 'Unpin' : 'Pin', icon: 'pin', disabled: !thread, onSelect: () => { if (thread) void pinChat(thread.id, !thread.pinned); } },
-        { label: 'Open as a full page', icon: 'arrowDiagonalUpRightSmall', onSelect: () => { onClose(); navigate(chatUrl(threadId)); } },
-        { label: 'Rename', icon: 'edit', disabled: !thread, onSelect: () => { if (thread) setTimeout(() => openRenameChat(anchor, thread), 0); } },
+        { label: tx('Open as a full page'), icon: 'arrowDiagonalUpRightSmall', onSelect: () => { onClose(); navigate(chatUrl(threadId)); } },
+        { label: tx('Rename'), icon: 'edit', disabled: !thread, onSelect: () => { if (thread) setTimeout(() => openRenameChat(anchor, thread), 0); } },
       ] },
       { items: [
         {
-          label: 'Delete chat', icon: 'trash', danger: true, disabled: !thread,
+          label: tx('Delete chat'), icon: 'trash', danger: true, disabled: !thread,
           onSelect: () => {
             if (!thread || !window.confirm(`Delete “${thread.title || UNTITLED_CHAT}” chat?`)) return;
             void deleteChat(thread.id);
@@ -375,25 +376,25 @@ function PanelHeader({ threadId, title, onNew, onClose }: { threadId: string | n
   return (
     <div className="nc-ai-panel-head">
       <div className="nc-ai-panel-head-left">
-        <div role="button" aria-label="Personalize" data-tooltip="Personalize" className="nc-ai-head-face" onClick={() => useUI.getState().openSettings('lit-ai')}>
+        <div role="button" aria-label={tx('Personalize')} data-tooltip={tx('Personalize')} className="nc-ai-head-face" onClick={() => useUI.getState().openSettings('lit-ai')}>
           <AiFaceAvatar size={24} />
         </div>
         <div className="nc-ai-panel-title nc-ellipsis">{shown}</div>
-        <div role="button" aria-label="Chat history" data-tooltip="Chat history" className="nc-ai-head-btn" onClick={(e) => history(e.currentTarget)}>
+        <div role="button" aria-label={tx('Chat history')} data-tooltip={tx('Chat history')} className="nc-ai-head-btn" onClick={(e) => history(e.currentTarget)}>
           <Icon name="chevronDown" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
         </div>
       </div>
       <div className="nc-ai-panel-actions">
-        <div role="button" aria-label="Begin a new conversation" data-tooltip="Begin a new conversation" className="nc-ai-head-btn" onClick={onNew}>
+        <div role="button" aria-label={tx('Begin a new conversation')} data-tooltip={tx('Begin a new conversation')} className="nc-ai-head-btn" onClick={onNew}>
           <Icon name="chatBubblePlus" size={20} style={HEAD_ICON} />
         </div>
-        <div role="button" aria-label="Change conversation mode" data-tooltip="Change conversation mode" className="nc-ai-head-btn" onClick={(e) => switchMode(e.currentTarget)}>
+        <div role="button" aria-label={tx('Change conversation mode')} data-tooltip={tx('Change conversation mode')} className="nc-ai-head-btn" onClick={(e) => switchMode(e.currentTarget)}>
           <Icon name="aiSidebarMode" size={20} style={HEAD_ICON} />
         </div>
-        <div role="button" aria-label="Chat actions" data-tooltip="Chat actions" className="nc-ai-head-btn" onClick={(e) => actions(e.currentTarget)}>
+        <div role="button" aria-label={tx('Chat actions')} data-tooltip={tx('Chat actions')} className="nc-ai-head-btn" onClick={(e) => actions(e.currentTarget)}>
           <Icon name="ellipsis" size={20} style={HEAD_ICON} />
         </div>
-        <div role="button" aria-label="Hide chat" data-tooltip="Hide chat" className="nc-ai-head-btn" onClick={onClose}>
+        <div role="button" aria-label={tx('Hide chat')} data-tooltip={tx('Hide chat')} className="nc-ai-head-btn" onClick={onClose}>
           <Icon name="arrowChevronDoubleRight" size={20} style={HEAD_ICON} />
         </div>
       </div>
@@ -452,7 +453,7 @@ function SideResizer() {
     <div
       role="separator"
       aria-orientation="vertical"
-      aria-label="Resize with the left and right arrow keys"
+      aria-label={tx('Resize with the left and right arrow keys')}
       tabIndex={0}
       className="nc-ai-side-resizer"
       onPointerDown={(e) => {
@@ -510,7 +511,7 @@ function SidePanel({ pageId }: { pageId: string | null }) {
   }, []);
   if (!host) return null;
   return createPortal(
-    <div className="nc-ai-panel nc-ai-side lit-peek-renderer" role="region" aria-label="Side Peek" style={{ width: sideWidth(stored) }}>
+    <div className="nc-ai-panel nc-ai-side lit-peek-renderer" role="region" aria-label={tx('Side Peek')} style={{ width: sideWidth(stored) }}>
       <SideResizer />
       <PanelChat pageId={pageId} />
     </div>,

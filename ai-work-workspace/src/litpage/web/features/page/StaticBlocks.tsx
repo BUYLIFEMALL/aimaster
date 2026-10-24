@@ -8,6 +8,7 @@ import { toPlainText, type RichText } from '#shared/richtext.ts';
 import { renderRichText } from '../editor/richTextDom.ts';
 import { PageIcon } from '../shell/PageIcon.tsx';
 import { coverStyle, isImageCover } from './Cover.tsx';
+import { tx } from '../shell/i18n.ts';
 
 function Rich({ value, className, tag = 'div' }: { value: RichText | undefined; className?: string; tag?: 'div' | 'h2' | 'h3' | 'h4' | 'h5' | 'span' }) {
   const ref = useRef<HTMLElement>(null);
@@ -28,7 +29,7 @@ const ToggleDefault = createContext(true);
 
 function ToggleArrow({ open, onClick }: { open: boolean; onClick: () => void }) {
   return (
-    <span role="button" aria-label={open ? 'Close' : 'Open'} aria-expanded={open} className="nc-static-toggle" onClick={onClick}
+    <span role="button" aria-label={open ? tx('Close') : tx('Open')} aria-expanded={open} className="nc-static-toggle" onClick={onClick}
       style={{ display: 'inline-flex', cursor: 'pointer', fontSize: 12, color: 'var(--lp-icon-primary)', transform: open ? undefined : 'rotate(-90deg)', transition: 'transform 120ms' }}>▼</span>
   );
 }
@@ -104,7 +105,7 @@ function StaticBlock({ block: b, get, depth, index }: { block: BlockRecord; get:
       return wrap(<div style={{ textAlign: 'center', fontFamily: 'KaTeX_Main, serif', padding: 8 }}>{toPlainText(title)}</div>);
     case 'image': {
       const src = toPlainText(b.properties?.source as RichText | undefined) || (b.format?.display_source as string) || '';
-      return wrap(src ? <img src={src} alt="" style={{ maxWidth: '100%', borderRadius: 4, display: 'block' }} /> : <div className="nc-static-placeholder">Image</div>);
+      return wrap(src ? <img src={src} alt="" style={{ maxWidth: '100%', borderRadius: 4, display: 'block' }} /> : <div className="nc-static-placeholder">{tx('Image')}</div>);
     }
     case 'page': case 'collection_view_page': case 'link_to_page': case 'alias':
       return wrap(
@@ -138,7 +139,7 @@ function StaticBlock({ block: b, get, depth, index }: { block: BlockRecord; get:
       );
     }
     case 'collection_view':
-      return wrap(<div className="nc-static-placeholder">Database</div>);
+      return wrap(<div className="nc-static-placeholder">{tx('Database')}</div>);
     case 'video': case 'audio': case 'file': case 'pdf': case 'bookmark': case 'embed':
       return wrap(<div className="nc-static-placeholder">{toPlainText(b.properties?.title) || toPlainText(b.properties?.source as RichText | undefined) || b.type}</div>);
     case 'column': case 'transclusion_container': case 'tabs': case 'tab':

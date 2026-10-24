@@ -105,7 +105,7 @@ export function meetingsEnabled(spaceId: string): boolean {
 
 export function meetingBlock(blockId: unknown): BlockRecord {
   const b = getRecord<BlockRecord>('block', String(blockId ?? ''));
-  if (!b || b.alive === false || !MEETING_TYPES.has(b.type)) throw new MeetingError('not_found', 'This meeting note no longer exists.', 404);
+  if (!b || b.alive === false || !MEETING_TYPES.has(b.type)) throw new MeetingError('not_found', '이 회의록이 더 이상 없습니다.', 404);
   return b;
 }
 
@@ -125,19 +125,19 @@ export function canRead(b: BlockRecord, userId: string): boolean {
 
 /** Transcribing, summarizing and deleting need edit access to the page. */
 export function assertCanEdit(b: BlockRecord, userId: string) {
-  if (!canRead(b, userId)) throw new MeetingError('not_found', 'This meeting note no longer exists.', 404);
-  if (!roleAtLeast(blockRole(b.id, userId), 'read_and_write')) throw new MeetingError('forbidden', 'You do not have access to transcribe this recording', 403);
+  if (!canRead(b, userId)) throw new MeetingError('not_found', '이 회의록이 더 이상 없습니다.', 404);
+  if (!roleAtLeast(blockRole(b.id, userId), 'read_and_write')) throw new MeetingError('forbidden', '이 회의록을 받아쓸 권한이 없습니다.', 403);
 }
 
 export function assertEnabled(b: BlockRecord) {
-  if (!meetingsEnabled(b.space_id)) throw new MeetingError('disabled', 'AI meeting notes are unavailable in this workspace', 403);
+  if (!meetingsEnabled(b.space_id)) throw new MeetingError('disabled', '이 워크스페이스에서는 AI 회의록을 쓸 수 없습니다.', 403);
 }
 
 /** Blocks inside a template page can't be transcribed. */
 export function assertNotTemplate(b: BlockRecord) {
   let cur: BlockRecord | undefined = b;
   for (let i = 0; i < 100 && cur; i++) {
-    if (cur.is_template) throw new MeetingError('template', 'You cannot start transcription inside a template', 400);
+    if (cur.is_template) throw new MeetingError('template', '템플릿 안에서는 받아쓰기를 시작할 수 없습니다.', 400);
     if (cur.parent_table !== 'block') break;
     cur = getRecord<BlockRecord>('block', cur.parent_id);
   }
@@ -149,7 +149,7 @@ export function apply(userId: string, b: BlockRecord, ops: Operation[], action: 
     return applyTransactions(userId, [{ id: newId(), spaceId: b.space_id, debug: { userAction: `meetingNotes.${action}` }, operations: ops }], undefined, { client: true, source });
   } catch (e) {
     const status = (e as { status?: number })?.status ?? 400;
-    throw new MeetingError(status === 403 ? 'forbidden' : 'bad_request', status === 403 ? 'You do not have access to transcribe this recording' : 'The meeting note couldn’t be updated.', status);
+    throw new MeetingError(status === 403 ? 'forbidden' : 'bad_request', status === 403 ? '이 회의록을 받아쓸 권한이 없습니다.' : '회의록을 고치지 못했습니다.', status);
   }
 }
 
@@ -212,8 +212,8 @@ function setState(userId: string, b: BlockRecord, next: MeetingState, extra: Ope
 
 function speakerLabel(userId: string): string {
   const u = getRecord<UserRecord>('lit_user', userId);
-  const name = (u?.name || u?.email || 'Someone').trim();
-  return `${name}’s microphone`;
+  const name = (u?.name || u?.email || '참석자').trim();
+  return `${name}의 마이크`; // 이식판(v1.15): 화자 이름 한국어
 }
 
 /** "Start transcribing" (also used by Resume): this person becomes the transcriber. */
@@ -222,14 +222,14 @@ export function startTranscription(blockId: unknown, userId: string, opts: { lan
   assertEnabled(b);
   assertCanEdit(b, userId);
   assertNotTemplate(b);
-  if (opts.consent !== true) throw new MeetingError('consent', 'By starting, you confirm that everyone being transcribed has agreed.', 400);
+  if (opts.consent !== true) throw new MeetingError('consent', '시작하면 받아쓰기 대상자 모두가 동의했음을 확인한 것으로 봅니다.', 400);
   const st = stateOf(b);
   if ((st.state === 'transcribing') && st.transcriber_id && st.transcriber_id !== userId) {
-    const who = getRecord<UserRecord>('lit_user', st.transcriber_id)?.name || 'Someone';
-    throw new MeetingError('busy', `${who} is currently transcribing this meeting`, 409);
+    const who = getRecord<UserRecord>('lit_user', st.transcriber_id)?.name || '다른 사람';
+    throw new MeetingError('busy', `${who} 님이 지금 이 회의를 받아쓰고 있습니다.`, 409);
   }
   if (usedTodayMs(userId) >= dailyLimitMs()) {
-    throw new MeetingError('rate_limited', 'You have used all of today’s transcription time', 429);
+    throw new MeetingError('rate_limited', '오늘 받아쓰기 가능 시간을 모두 썼습니다.', 429);
   }
   b = ensureStructure(b, userId);
   const now = Date.now();
@@ -251,7 +251,7 @@ export function startTranscription(blockId: unknown, userId: string, opts: { lan
 function assertSession(b: BlockRecord, userId: string, sessionId: unknown): MeetingState {
   const st = stateOf(b);
   if (st.state !== 'transcribing' || st.transcriber_id !== userId || st.session_id !== sessionId) {
-    throw new MeetingError('stale_session', 'This transcription session has ended.', 409);
+    throw new MeetingError('stale_session', '받아쓰기가 이미 끝났습니다. 다시 받아쓰려면 「재개」를 눌러 주세요.', 409);
   }
   return st;
 }
@@ -330,10 +330,10 @@ export function appendSegments(blockId: unknown, userId: string, sessionId: unkn
   const next: MeetingState = { ...st, elapsed_ms: elapsed, resumed_time: now };
   if (over) {
     next.state = 'paused';
-    next.error = { code: 'rate_limited', message: 'You have used all of today’s transcription time', time: now };
+    next.error = { code: 'rate_limited', message: '오늘 받아쓰기 가능 시간을 모두 썼습니다.', time: now };
   }
   setState(userId, b, next, ops, 'appendTranscript');
-  if (over) throw new MeetingError('rate_limited', 'You have used all of today’s transcription time', 429);
+  if (over) throw new MeetingError('rate_limited', '오늘 받아쓰기 가능 시간을 모두 썼습니다.', 429);
   return { block: getRecord<BlockRecord>('block', b.id)!, usedMs: usedTodayMs(userId), limitMs: dailyLimitMs() };
 }
 
@@ -372,9 +372,9 @@ export function stopTranscription(blockId: unknown, userId: string, sessionId: u
   const st = stateOf(b);
   // the transcriber stops from any tab (after a reload the browser session is gone); others wait for them
   if (st.state === 'transcribing') {
-    if (st.transcriber_id !== userId) throw new MeetingError('busy', `${getRecord<UserRecord>('lit_user', st.transcriber_id ?? '')?.name || 'Someone'} is currently transcribing this meeting`, 409);
+    if (st.transcriber_id !== userId) throw new MeetingError('busy', `${getRecord<UserRecord>('lit_user', st.transcriber_id ?? '')?.name || '다른 사람'} 님이 지금 이 회의를 받아쓰고 있습니다.`, 409);
     void sessionId;
-  } else if (st.state !== 'paused') throw new MeetingError('not_recording', 'This meeting isn’t being transcribed.', 409);
+  } else if (st.state !== 'paused') throw new MeetingError('not_recording', '이 회의는 지금 받아쓰는 중이 아닙니다.', 409);
   const now = Date.now();
   const since = st.state === 'transcribing' ? Math.min(Math.max(0, now - (st.resumed_time ?? now)), 5 * 60_000) : 0;
   addUsage(st.transcriber_id ?? userId, since);
@@ -418,13 +418,13 @@ export function deleteTranscript(blockId: unknown, userId: string, by: 'user' | 
   const b = meetingBlock(blockId);
   if (by === 'user') {
     assertCanEdit(b, userId);
-    if (!roleAtLeast(blockRole(b.id, userId), 'editor')) throw new MeetingError('forbidden', 'You need full access to this page to delete its transcript.', 403);
+    if (!roleAtLeast(blockRole(b.id, userId), 'editor')) throw new MeetingError('forbidden', '녹취록을 지우려면 이 페이지의 전체 권한이 필요합니다.', 403);
   }
   const st = stateOf(b);
-  if (st.state === 'transcribing') throw new MeetingError('busy', 'Stop transcribing before deleting the transcript.', 409);
+  if (st.state === 'transcribing') throw new MeetingError('busy', '받아쓰기를 멈춘 뒤 녹취록을 지워 주세요.', 409);
   const tid = sectionId(b, 'transcript');
   const runs = transcriptRuns(b);
-  if (!tid || (!runs.length && !snapshotsWithTranscript(b, tid).length)) throw new MeetingError('no_transcript', 'This meeting note has no transcript.', 400);
+  if (!tid || (!runs.length && !snapshotsWithTranscript(b, tid).length)) throw new MeetingError('no_transcript', '이 회의록에는 녹취록이 없습니다.', 400);
   const now = Date.now();
   const ops: Operation[] = [];
   for (const r of runs) {
@@ -452,7 +452,7 @@ export function importSegments(blockId: string, userId: string, raw: SegmentInpu
   const b = meetingBlock(blockId);
   assertCanEdit(b, userId);
   const tid = sectionId(b, 'transcript');
-  if (!tid) throw new MeetingError('bad_request', 'This meeting note has no transcript section.', 400);
+  if (!tid) throw new MeetingError('bad_request', '이 회의록에는 녹취록 칸이 없습니다.', 400);
   const now = Date.now();
   const ops: Operation[] = [];
   for (const r of transcriptRuns(b)) {

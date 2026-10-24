@@ -2,7 +2,7 @@
 // values. New database: pick each column's property type (or skip it; the first column is the title). Merge: pick the
 // existing property each column fills, "New property" (Text) or skip — matched by name by default.
 import { useMemo, useState } from 'react';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import '../page/dialogs.css';
 
 export interface CsvPreview {
@@ -13,7 +13,7 @@ export interface CsvPreview {
 }
 
 const TYPE_LABEL: Record<string, string> = {
-  title: 'Title', text: 'Text', number: 'Number', select: 'Select', multi_select: 'Multi-select', status: 'Status', date: 'Date',
+  title: tx('Title'), text: 'Text', number: 'Number', select: 'Select', multi_select: 'Multi-select', status: 'Status', date: 'Date',
   checkbox: 'Checkbox', url: 'URL', email: 'Email', phone_number: 'Phone',
 };
 

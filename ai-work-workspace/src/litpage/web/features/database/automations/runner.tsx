@@ -19,6 +19,7 @@ import { openPage, openPeek, pageUrl } from '../../../lib/router.ts';
 import { openOverlay, PopoverSurface } from '../../../components/overlay.tsx';
 import { userTimeZone } from '../advanced/context.ts';
 import './automations.css';
+import { tx } from '../../shell/i18n.ts';
 
 export interface ButtonRun {
   surface: 'button_block' | 'button_property';
@@ -50,7 +51,7 @@ function confirmPopup(step: Extract<AutomationAction, { type: 'confirm' }>, anch
     let answered = false;
     openOverlay((close) => (
       <PopoverSurface width={260}>
-        <div className="nc-auto-confirm" role="alertdialog" aria-label="Confirmation">
+        <div className="nc-auto-confirm" role="alertdialog" aria-label={tx('Confirmation')}>
           <div>{step.message || 'Continue with this action?'}</div>
           <div className="nc-auto-confirm-btns">
             <button className="nc-btn primary" autoFocus onClick={() => { answered = true; close(); resolve(true); }}>{step.continue_label || 'Continue'}</button>
@@ -179,10 +180,10 @@ export async function runButtonSteps(r: ButtonRun): Promise<void> {
   const edited = planner.edited.size;
   if (created === 1 && planner.created[0]) {
     const id = planner.created[0];
-    toast('Created 1 page', { label: 'Open', run: () => openPeek(id, 'side_peek') });
-  } else if (created > 1) toast(`Created ${created} pages`, { label: 'Undo', run: () => transactions.undo() });
+    toast('Created 1 page', { label: tx('Open'), run: () => openPeek(id, 'side_peek') });
+  } else if (created > 1) toast(`Created ${created} pages`, { label: tx('Undo'), run: () => transactions.undo() });
   else if (edited > 0 && r.surface === 'button_block' ? edited > 0 && !r.steps.some((s) => s.type === 'insert_blocks') : edited > 0) {
-    toast(`Edited ${edited} ${edited === 1 ? 'page' : 'pages'}`, { label: 'Undo', run: () => transactions.undo() });
+    toast(`Edited ${edited} ${edited === 1 ? 'page' : 'pages'}`, { label: tx('Undo'), run: () => transactions.undo() });
   }
   for (const fn of later) fn();
 }

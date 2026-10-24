@@ -22,7 +22,7 @@ import { CommentsSidebar, focusDiscussion, RichTextView, TopbarCommentsButton } 
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
 import { TopbarFacepile } from '../presence/Facepile.tsx';
 import { PageIcon } from '../shell/PageIcon.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { openVersionHistory } from './VersionHistory.tsx';
 import { ShareButton } from './ShareMenu.tsx';
 import { TranslatePill } from './TranslatePill.tsx';
@@ -47,7 +47,7 @@ function PanelResizer({ width, setWidth }: { width: number; setWidth: (w: number
     <div
       role="separator"
       aria-orientation="vertical"
-      aria-label="Resize with the arrow keys"
+      aria-label={tx('Resize with the arrow keys')}
       tabIndex={0}
       className="nc-right-panel-resizer"
       onPointerDown={(e) => {
@@ -137,10 +137,10 @@ function PanelTopbar({ pageId, close }: { pageId: string; close: () => void }) {
         <TopbarFacepile pageId={pageId} />
         <ShareButton pageId={pageId} />
         <TopbarCommentsButton pageId={pageId} />
-        <div role="button" aria-label="Favorite" className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? 'Remove from favorites' : 'Add to favorites'} onClick={() => toggleFavorite(pageId)}>
+        <div role="button" aria-label={tx('Favorite')} className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? tx('Remove from favorites') : tx('Add to favorites')} onClick={() => toggleFavorite(pageId)}>
           <Icon name="star" size={18} style={{ color: fav ? '#78350f' : 'var(--lp-icon-primary)', fill: fav ? '#78350f' : 'none' }} />
         </div>
-        <div ref={moreRef} role="button" aria-label="Actions" className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip="Style, export, and more…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+        <div ref={moreRef} role="button" aria-label={tx('Actions')} className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip={tx('Style, export, and more…')} onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
           <Icon name="ellipsis" size={22} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
       </div>
@@ -329,7 +329,7 @@ function UpdateDiff({ pageId, item: it }: { pageId: string; item: UpdateItem }) 
             {p.key === 'icon' ? (
               <>{iconValue(p.before)}<Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />{iconValue(p.after)}</>
             ) : p.key === 'cover' ? (
-              <>{p.before ? <img className="cover" src={String(p.before)} alt="" /> : <span className="none">Empty</span>}<Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />{p.after ? <img className="cover" src={String(p.after)} alt="" /> : <span className="none">Empty</span>}</>
+              <>{p.before ? <img className="cover" src={String(p.before)} alt="" /> : <span className="none">{tx('Empty')}</span>}<Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />{p.after ? <img className="cover" src={String(p.after)} alt="" /> : <span className="none">{tx('Empty')}</span>}</>
             ) : (
               <><span className="removed-text">{String(p.before || 'Untitled')}</span><Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} /><span className="added-text">{String(p.after || 'Untitled')}</span></>
             )}
@@ -450,7 +450,7 @@ function Analytics({ pageId }: { pageId: string }) {
         </div>
         <div role="button" className="nc-dialog-btn outline small nc-analytics-allow"
           onClick={(e) => openMenu(e.currentTarget, { width: 180, sections: [{ items: [
-            { label: 'Allow', checked: data.showViewHistory !== false, onSelect: () => setHistory(true) },
+            { label: tx('Allow'), checked: data.showViewHistory !== false, onSelect: () => setHistory(true) },
             { label: "Don't allow", checked: data.showViewHistory === false, onSelect: () => setHistory(false) },
           ] }] }, { placement: 'bottom-end' })}>
           <span>{data.showViewHistory === false ? "Don't allow" : 'Allow'}</span>
@@ -524,7 +524,7 @@ function ViewsChart({ days, createdTime }: { days: AnalyticsData['days']; create
   const h = hover !== null ? series[hover] : null;
   return (
     <div className="nc-analytics-chart" ref={boxRef}>
-      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Page views" onMouseLeave={() => setHover(null)}>
+      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={tx('Page views')} onMouseLeave={() => setHover(null)}>
         {ticks.map((v) => (
           <g key={v}>
             <text x={left - 13} y={y(v) + 4} textAnchor="end" className="tick">{v}</text>

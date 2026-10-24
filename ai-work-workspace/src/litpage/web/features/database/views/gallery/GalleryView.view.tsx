@@ -13,6 +13,7 @@ import { openRowMenu } from '../../chrome/RowMenu.tsx';
 import { CardBody, CardCover, cardCoverConfig } from '../cards.tsx';
 import { Icon } from '../../../../components/Icon.tsx';
 import './gallery.css';
+import { tx } from '../../../shell/i18n.ts';
 
 const SIZES: Record<string, number> = { small: 180, medium: 260, large: 320 };
 
@@ -53,8 +54,8 @@ function GalleryView({ view, collection, readOnly }: ViewProps) {
               <CardBody row={row} view={view} collection={collection} props={props} showTitle={showTitle} readOnly={readOnly} editing={db?.editingTitle === row.id} onDoneEditing={() => db?.setEditingTitle(null)} />
               {!readOnly && (
                 <div className="nc-card-hover-pill" onClick={(e) => e.stopPropagation()}>
-                  <span role="button" className="nc-card-pill-btn" data-tooltip="Edit" onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
-                  <span role="button" className="nc-card-pill-btn" data-tooltip="Rename, remove, send, and more…" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
+                  <span role="button" className="nc-card-pill-btn" data-tooltip={tx('Edit')} onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
+                  <span role="button" className="nc-card-pill-btn" data-tooltip={tx('Rename, remove, send, and more…')} onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
                 </div>
               )}
             </div>
@@ -63,14 +64,14 @@ function GalleryView({ view, collection, readOnly }: ViewProps) {
         {!readOnly && (
           <div role="button" className="nc-gallery-new" onClick={() => db?.addRow({ group: group ?? null, position: 'end', editTitle: true })}>
             <Icon name="plus" size={15} />
-            <span>New page</span>
+            <span>{tx('New page')}</span>
           </div>
         )}
       </div>
       {rows.length > limit && (
         <div role="button" className="nc-gallery-load-more" onClick={() => setLimit((l) => l + (Number.isFinite(first) ? first : 50))}>
           <Icon name="arrowDown" size={16} />
-          <span>Load more</span>
+          <span>{tx('Load more')}</span>
         </div>
       )}
     </>

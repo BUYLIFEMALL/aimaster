@@ -18,6 +18,7 @@ import { Toggle } from '../properties/editors/DatePicker.tsx';
 import { newPropertyId } from '../actions.ts';
 import { openNestedMenu } from '../menus.ts';
 import './permissions.css';
+import { tx } from '../../shell/i18n.ts';
 
 const RULE_ROLE_LABEL: Record<string, string> = { editor: 'Full access', read_and_write: 'Can edit', comment_only: 'Can comment', reader: 'Can view' };
 const RULE_ROLE_CAPTION: Record<string, string> = { editor: 'Edit, suggest, comment, and share with others', read_and_write: 'Edit, suggest, and comment', comment_only: 'Suggest and comment', reader: '' };
@@ -87,13 +88,13 @@ function openCreatorAccessModal(c: CollectionRecord, onDone: () => void) {
 function CreatorAccess({ c, close, onDone }: { c: CollectionRecord; close: () => void; onDone: () => void }) {
   const [role, setRole] = useState<Role>('read_and_write');
   const opts: { id: Role; title: string; sub: string }[] = [
-    { id: 'read_and_write', title: 'Can edit the entries they create', sub: 'Edit, suggest, and comment' },
-    { id: 'editor', title: 'Have full access to the entries they create', sub: 'Edit, suggest, comment, and share with others' },
+    { id: 'read_and_write', title: tx('Can edit the entries they create'), sub: 'Edit, suggest, and comment' },
+    { id: 'editor', title: tx('Have full access to the entries they create'), sub: 'Edit, suggest, comment, and share with others' },
   ];
   return (
-    <div className="nc-perm-modal" role="dialog" aria-label="How much access should entry creators get?">
-      <div className="nc-perm-modal-title">How much access should entry creators get?</div>
-      <div className="nc-perm-modal-sub">This applies to all people with Can create access in this table</div>
+    <div className="nc-perm-modal" role="dialog" aria-label={tx('How much access should entry creators get?')}>
+      <div className="nc-perm-modal-title">{tx('How much access should entry creators get?')}</div>
+      <div className="nc-perm-modal-sub">{tx('This applies to all people with Can create access in this table')}</div>
       {opts.map((o) => (
         <div key={o.id} role="radio" aria-checked={role === o.id} className={`nc-perm-choice ${role === o.id ? 'on' : ''}`} onClick={() => setRole(o.id)}>
           <Icon name={role === o.id ? 'radioOn' : 'radioOff'} size={16} />
@@ -101,8 +102,8 @@ function CreatorAccess({ c, close, onDone }: { c: CollectionRecord; close: () =>
         </div>
       ))}
       <div className="nc-perm-modal-foot">
-        <div role="button" className="nc-btn outline" onClick={close}>Cancel</div>
-        <div role="button" className="nc-btn primary" data-testid="create-creator-rule" onClick={() => { addPageAccessRule(c, ensureCreatedBy(records.get<CollectionRecord>('collection', c.id) ?? c), role); close(); onDone(); }}>Create an entry-level access rule</div>
+        <div role="button" className="nc-btn outline" onClick={close}>{tx('Cancel')}</div>
+        <div role="button" className="nc-btn primary" data-testid="create-creator-rule" onClick={() => { addPageAccessRule(c, ensureCreatedBy(records.get<CollectionRecord>('collection', c.id) ?? c), role); close(); onDone(); }}>{tx('Create an entry-level access rule')}</div>
       </div>
     </div>
   );
@@ -121,7 +122,7 @@ export function dbRoleExtras(page: BlockRecord | undefined, t: Target): MenuSect
   const items: MenuItemDef[] = [];
   if (role === 'reader' || role === 'comment_only' || (role === 'none' && on)) {
     items.push({
-      id: 'create', label: 'Can also create entries', right: <Toggle on={on} decorative />,
+      id: 'create', label: tx('Can also create entries'), right: <Toggle on={on} decorative />,
       onSelect: () => {
         setPermission(page, t, { can_create_pages_in_collection: !on });
         if (!on) ensureRule();
@@ -129,7 +130,7 @@ export function dbRoleExtras(page: BlockRecord | undefined, t: Target): MenuSect
     });
   }
   items.push({
-    id: 'only-create', label: 'Can only create', checked: role === 'none' && on,
+    id: 'only-create', label: tx('Can only create'), checked: role === 'none' && on,
     onSelect: () => {
       setPermission(page, t, { role: 'none', can_create_pages_in_collection: true });
       ensureRule();
@@ -148,12 +149,12 @@ export function DatabaseShareSection({ page, canManage }: { page: BlockRecord | 
     width: 260,
     sections: [
       { items: PAGE_RULE_ROLES.map((r) => ({ id: r, label: RULE_ROLE_LABEL[r], description: RULE_ROLE_CAPTION[r] || undefined, checked: rule.role === r, onSelect: () => updatePageAccessRule(c, rule.id, r) })) },
-      { items: [{ id: 'delete', label: 'Delete permission rule', icon: 'trash', onSelect: () => updatePageAccessRule(c, rule.id, null) }] },
+      { items: [{ id: 'delete', label: tx('Delete permission rule'), icon: 'trash', onSelect: () => updatePageAccessRule(c, rule.id, null) }] },
     ],
   }, { placement: 'bottom-end' });
   return (
     <div className="nc-share-general nc-perm-section" data-testid="entry-level-access">
-      <div className="nc-share-section-title">Entry-level access</div>
+      <div className="nc-share-section-title">{tx('Entry-level access')}</div>
       {rules.map((r) => {
         const prop = c.schema[r.property];
         return (
@@ -171,8 +172,8 @@ export function DatabaseShareSection({ page, canManage }: { page: BlockRecord | 
         <div role="button" className="nc-share-row nc-perm-add" data-testid="add-page-rule" onClick={(e) => openRuleCreator(e.currentTarget, c, candidates)}>
           <div className="nc-share-ga-icon"><Icon name="plus" size={18} /></div>
           <div className="who">
-            <div className="name">Create new rule</div>
-            <div className="email">For example, people in Assignees get edit access</div>
+            <div className="name">{tx('Create new rule')}</div>
+            <div className="email">{tx('For example, people in Assignees get edit access')}</div>
           </div>
         </div>
       )}
@@ -185,14 +186,14 @@ function RuleCreator({ c, candidates, close }: { c: CollectionRecord; candidates
   const [role, setRole] = useState<Role>('read_and_write');
   return (
     <div className="nc-perm-creator" data-menu-keys="ignore">
-      <div className="nc-perm-creator-title">Choose person field</div>
-      {!candidates.length && <div className="nc-perm-empty">No available fields</div>}
+      <div className="nc-perm-creator-title">{tx('Choose person field')}</div>
+      {!candidates.length && <div className="nc-perm-empty">{tx('No available fields')}</div>}
       {candidates.map(([id, p]) => (
         <div key={id} role="option" aria-selected={prop === id} className={`nc-perm-option ${prop === id ? 'on' : ''}`} onClick={() => setProp(id)}>
           <PropertyIcon prop={p} size={16} /><span>{p.name}</span>{prop === id && <Icon name="checkmarkSmall" size={14} />}
         </div>
       ))}
-      <div className="nc-perm-creator-sub">Grant access to a particular entry for anyone selected in this field</div>
+      <div className="nc-perm-creator-sub">{tx('Grant access to a particular entry for anyone selected in this field')}</div>
       <div className="nc-perm-roles">
         {PAGE_RULE_ROLES.map((r) => (
           <div key={r} role="option" aria-selected={role === r} className={`nc-perm-option ${role === r ? 'on' : ''}`} onClick={() => setRole(r)}>
@@ -201,7 +202,7 @@ function RuleCreator({ c, candidates, close }: { c: CollectionRecord; candidates
         ))}
       </div>
       <div className="nc-perm-creator-foot">
-        <div role="button" className={`nc-btn primary ${prop ? '' : 'disabled'}`} data-testid="create-rule" onClick={() => { if (!prop) return; addPageAccessRule(c, prop, role); close(); }}>Create rule</div>
+        <div role="button" className={`nc-btn primary ${prop ? '' : 'disabled'}`} data-testid="create-rule" onClick={() => { if (!prop) return; addPageAccessRule(c, prop, role); close(); }}>{tx('Create rule')}</div>
       </div>
     </div>
   );

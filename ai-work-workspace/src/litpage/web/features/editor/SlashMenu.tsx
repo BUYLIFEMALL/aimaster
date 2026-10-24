@@ -20,6 +20,7 @@ import { insertEquationAt } from './inline/EquationEditor.tsx';
 import { valueOf } from './inline/format.ts';
 import { getBlock } from '../../lib/blocks.ts';
 import { getPref, PREF, setPref } from './prefs.ts';
+import { tx } from '../shell/i18n.ts';
 
 const useQuery = create<{ q: string; full: boolean }>(() => ({ q: '', full: false }));
 
@@ -211,7 +212,7 @@ function SlashCommandMenu({ q }: { q: string }) {
     const toItem = (it: SlashItem, filtered = false): MenuItemDef => {
       const turnIntoItem = it.section === 'Turn into';
  // “Label · hint New” is inline with tertiary hint and dot; filtered Turn into rows read “Label · Turn into”
-      const hint = filtered && turnIntoItem ? 'Turn into' : it.section === 'Suggested' ? it.hint : undefined;
+      const hint = filtered && turnIntoItem ? tx('Turn into') : it.section === 'Suggested' ? it.hint : undefined;
       return {
         id: it.id,
         label: (
@@ -243,7 +244,7 @@ function SlashCommandMenu({ q }: { q: string }) {
       return {
         ...base,
         sections: sections.map((s) => ({
-          title: s,
+          title: tx(s),
           items: s === 'Suggested' && frequent
             ? frequent.map((id) => catalog.find((c) => c.id === id)!).map((it) => toItem({ ...it, section: 'Suggested', hint: undefined }))
             : catalog.filter((i) => i.section === s && !i.searchOnly).map((it) => toItem(it)),
@@ -267,7 +268,7 @@ function SlashCommandMenu({ q }: { q: string }) {
     }
     const items = list.map((x) => toItem(x.it, true));
  // filtered rows are a plain 32px-pitch list (no 1px row gap;)
-    return { ...base, className: 'nc-slash-menu filtered', sections: items.length ? [{ title: 'Filtered results', items }] : [], emptyText: 'No results' };
+    return { ...base, className: 'nc-slash-menu filtered', sections: items.length ? [{ title: tx('Filtered results'), items }] : [], emptyText: tx('No results') };
   }, [catalog, q]);
   useEffect(() => {
  // Close the menu after several characters with no results
@@ -287,7 +288,7 @@ function MenuFooter() {
       <div className="nc-slash-footer-rule"><div role="separator" /></div>
       <div className="nc-slash-footer-section">
         <div className="nc-slash-footer-row" role="button" onMouseDown={(e) => { e.preventDefault(); closeSlashMenu(); }}>
-          <span>Close menu</span>
+          <span>{tx('Close menu')}</span>
           <span className="nc-menu-shortcut">esc</span>
         </div>
       </div>

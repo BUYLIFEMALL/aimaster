@@ -10,7 +10,7 @@ import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { openPage } from '../../lib/router.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { CsvMapping, type CsvPreview } from './CsvMapping.tsx';
 import '../templates/icons.tsx';
 import './import.css';
@@ -37,14 +37,14 @@ const FILE_SOURCES = (): Source[] => [
 
 const THIRD_PARTY = (): Source[] => [
   { id: 'asana', title: 'Asana', caption: t('lp.import.carry_over_tasks_and_projects', 'Carry over tasks and projects'), icon: 'importAsana', kind: 'thirdparty', accept: '.csv,.xlsx' },
-  { id: 'confluence', title: 'Confluence', caption: t('lp.import.move_your_team_s_documentation', "Move your team’s documentation"), icon: 'importConfluence', kind: 'thirdparty', accept: '.zip,.html,.htm' },
+  { id: 'confluence', title: tx('Confluence'), caption: t('lp.import.move_your_team_s_documentation', "Move your team’s documentation"), icon: 'importConfluence', kind: 'thirdparty', accept: '.zip,.html,.htm' },
   { id: 'trello', title: 'Trello', caption: t('lp.import.import_boards_together_with_their_cards', 'Import boards together with their cards'), icon: 'importTrello', kind: 'thirdparty', accept: '.json,application/json' },
-  { id: 'workflowy', title: 'Workflowy', caption: t('lp.import.pull_in_lists_and_outlines', 'Pull in lists and outlines'), icon: 'importWorkflowy', kind: 'thirdparty', accept: '.opml,.txt' },
-  { id: 'evernote', title: 'Evernote', caption: t('lp.import.transfer_notebooks_and_the_notes_inside', 'Transfer notebooks and the notes inside'), icon: 'importEvernote', kind: 'thirdparty', accept: '.enex' },
+  { id: 'workflowy', title: tx('Workflowy'), caption: t('lp.import.pull_in_lists_and_outlines', 'Pull in lists and outlines'), icon: 'importWorkflowy', kind: 'thirdparty', accept: '.opml,.txt' },
+  { id: 'evernote', title: tx('Evernote'), caption: t('lp.import.transfer_notebooks_and_the_notes_inside', 'Transfer notebooks and the notes inside'), icon: 'importEvernote', kind: 'thirdparty', accept: '.enex' },
   { id: 'jira', title: 'Jira', caption: t('lp.import.bring_in_projects_along_with_their', 'Bring in projects along with their issues'), icon: 'importJira', kind: 'thirdparty', accept: '.csv,.xlsx' },
-  { id: 'monday', title: 'Monday.com', caption: t('lp.import.move_workspaces_and_tasks', 'Move workspaces and tasks'), icon: 'importMonday', kind: 'thirdparty', accept: '.xlsx,.csv' },
-  { id: 'quip', title: 'Quip', caption: t('lp.import.import_shared_documents', 'Import shared documents'), icon: 'importQuip', kind: 'thirdparty', accept: '.docx,.html,.htm,.md' },
-  { id: 'gdocs', title: 'Google Docs', caption: t('lp.import.import_your_documents_with_ease', 'Import your documents with ease'), icon: 'importGoogleDocs', kind: 'thirdparty', accept: '.docx,.html,.htm' },
+  { id: 'monday', title: tx('Monday.com'), caption: t('lp.import.move_workspaces_and_tasks', 'Move workspaces and tasks'), icon: 'importMonday', kind: 'thirdparty', accept: '.xlsx,.csv' },
+  { id: 'quip', title: tx('Quip'), caption: t('lp.import.import_shared_documents', 'Import shared documents'), icon: 'importQuip', kind: 'thirdparty', accept: '.docx,.html,.htm,.md' },
+  { id: 'gdocs', title: tx('Google Docs'), caption: t('lp.import.import_your_documents_with_ease', 'Import your documents with ease'), icon: 'importGoogleDocs', kind: 'thirdparty', accept: '.docx,.html,.htm' },
 ];
 
 const SUPPORTED = /\.(md|markdown|txt|csv|tsv|html?|zip|docx|pdf|xlsx|opml|enex|json)$/i;
@@ -210,7 +210,7 @@ export function ImportPanel({ onDone, parentPageId, afterBlockId, initialKind }:
   useEffect(() => {
     if (!initialKind) return;
     const all = [...FILE_SOURCES(), ...THIRD_PARTY()];
-    const src = all.find((x) => x.id === initialKind) ?? (initialKind === 'zip' ? { id: 'zip', title: 'ZIP', caption: '', icon: 'fileZip', kind: 'any' as SourceKind, accept: '.zip,application/zip' } : undefined);
+    const src = all.find((x) => x.id === initialKind) ?? (initialKind === 'zip' ? { id: 'zip', title: tx('ZIP'), caption: '', icon: 'fileZip', kind: 'any' as SourceKind, accept: '.zip,application/zip' } : undefined);
     if (src) pick(src);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialKind]);

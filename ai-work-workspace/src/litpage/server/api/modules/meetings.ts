@@ -19,6 +19,7 @@ import {
   spaceSetting, startTranscription, stopTranscription, usedTodayMs, SECTIONS,
 } from '../../meetings/model.ts';
 import { summarize } from '../../meetings/summary.ts';
+import { after } from 'next/server';
 import { ALLOWED_LABEL, deleteAudio, sttProvider, transcribeUploaded, uploadAudio } from '../../meetings/audio.ts';
 import { AUTO, BUILTINS, CUSTOM_TEMPLATE, userMeetingPrefs } from '../../meetings/instructions.ts';
 
@@ -140,7 +141,13 @@ export const handlers: Record<string, Handler> = {
   meetingStop(ctx, { blockId, sessionId }) {
     const uid = requireUser(ctx);
     const b = wrap(() => stopTranscription(blockId, uid, sessionId));
-    void summarize(b.id, uid, { auto: true }).catch((e) => console.error('[meetings] summary failed', e));
+    const pending = summarize(b.id, uid, { auto: true }).catch((e) => console.error('[meetings] summary failed', e));
+    // 이식판(v1.15): Vercel은 응답 뒤 남은 작업을 멈출 수 있다 → after()로 요약이 끝날 때까지 함수를 살려 둔다
+    try {
+      after(pending);
+    } catch {
+      /* 요청 밖(시험 등): 그대로 뒤에서 진행 */
+    }
     return { recordMap: blockMap(uid, b.id) };
   },
 

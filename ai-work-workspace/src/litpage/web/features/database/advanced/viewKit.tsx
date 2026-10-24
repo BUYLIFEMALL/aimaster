@@ -16,6 +16,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { openMenu, type MenuItemDef } from '../../../components/Menu.tsx';
 import { Toggle as CoreToggle } from '../properties/editors/DatePicker.tsx';
 import { PropertyIcon } from '../properties/PropertyCell.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 export const DEFAULT_PEEK: Record<string, PeekMode> = { calendar: 'center_peek', feed: 'center_peek', map: 'center_peek', gallery: 'center_peek' };
 
@@ -213,6 +214,6 @@ export function openNestedMenu(anchor: HTMLElement, def: Parameters<typeof openM
 /** Menu items for picking a date-like property ("Show calendar by" / "Show timeline by"). */
 export function datePropertyItems(schema: Record<string, PropertySchema>, current: string | undefined, onPick: (id: string) => void, opts?: { onlyEditable?: boolean }): MenuItemDef[] {
   const list = dateProperties(schema).filter(([, p]) => !opts?.onlyEditable || p.type === 'date');
-  if (!list.length) return [{ label: 'No date properties', disabled: true }];
+  if (!list.length) return [{ label: tx('No date properties'), disabled: true }];
   return list.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: id === current, onSelect: () => onPick(id) }));
 }

@@ -5,6 +5,7 @@ import { api } from '../../lib/api.ts';
 import { openPage } from '../../lib/router.ts';
 import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
+import { tx } from '../shell/i18n.ts';
 
 /** Last URL segment that looks a prefixed Unique ID (""). */
 export const UNIQUE_ID_SEGMENT = /^[A-Za-z][A-Za-z0-9-]{0,9}-\d{1,9}$/;
@@ -28,7 +29,7 @@ export function UniqueIdRedirect({ uid }: { uid: string }) {
   if (!missing) return null;
   return (
     <div className="nc-uid-missing" style={{ padding: '120px 24px', textAlign: 'center', color: 'var(--lp-text-secondary)', fontSize: 14 }} data-testid="unique-id-missing">
-      <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--lp-text-primary)', marginBottom: 8 }}>This entry could not be found</div>
+      <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--lp-text-primary)', marginBottom: 8 }}>{tx('This entry could not be found')}</div>
       <div>{`No page with the ID ${uid} — it may have been deleted, or you may not have access.`}</div>
     </div>
   );

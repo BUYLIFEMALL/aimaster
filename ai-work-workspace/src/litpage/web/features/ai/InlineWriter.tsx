@@ -19,6 +19,7 @@ import { insertMarkdownAfter, replaceBlocks, replaceBlockWithMarkdown, replaceSe
 import { useAiLayer, type WriterTarget } from './layerStore.ts';
 import { NoKeyNotice } from './NoKeyNotice.tsx';
 import { LANGUAGES, SKILL, TONES, writerSections, type SkillId } from './skills.ts';
+import { tx } from '../shell/i18n.ts';
 
 const EDIT_SKILLS = new Set<SkillId>(['improve', 'proofread', 'shorter', 'longer', 'tone', 'simplify', 'reformat', 'translate', 'custom']);
 
@@ -307,21 +308,21 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
   });
 
   const items: { title?: string; items: Item[] }[] = useMemo(() => {
-    if (phase === 'running') return [{ items: [{ kind: 'action', id: 'stop', label: 'Stop', icon: 'stop', hint: 'Esc' }] }];
+    if (phase === 'running') return [{ items: [{ kind: 'action', id: 'stop', label: tx('Stop'), icon: 'stop', hint: 'Esc' }] }];
     if (phase === 'done') {
       const out: { title?: string; items: Item[] }[] = [{
         items: [
-          { kind: 'action', id: 'accept', label: 'Accept', icon: 'check', hint: '↵' },
-          ...(hasSelection || target.mode === 'below' ? [{ kind: 'action', id: 'below', label: 'Insert below', icon: 'arrowTurnUpRight' } as Item] : []),
-          { kind: 'action', id: 'retry', label: 'Try again', icon: 'refresh' },
-          { kind: 'action', id: 'discard', label: 'Discard', icon: 'trash', hint: 'Esc' },
+          { kind: 'action', id: 'accept', label: tx('Accept'), icon: 'check', hint: '↵' },
+          ...(hasSelection || target.mode === 'below' ? [{ kind: 'action', id: 'below', label: tx('Insert below'), icon: 'arrowTurnUpRight' } as Item] : []),
+          { kind: 'action', id: 'retry', label: tx('Try again'), icon: 'refresh' },
+          { kind: 'action', id: 'discard', label: tx('Discard'), icon: 'trash', hint: 'Esc' },
         ],
       }];
       const refine: Item[] = (['longer', 'shorter', 'simplify'] as SkillId[]).map((id) => ({ kind: 'skill', id, label: SKILL[id].label, icon: SKILL[id].icon }));
-      out.push({ title: 'Edit', items: refine.filter((i) => !query || i.label.toLowerCase().includes(query.toLowerCase())) });
+      out.push({ title: tx('Edit'), items: refine.filter((i) => !query || i.label.toLowerCase().includes(query.toLowerCase())) });
       return out.filter((s) => s.items.length);
     }
-    if (phase === 'error') return [{ items: [{ kind: 'action', id: 'retry', label: 'Try again', icon: 'refresh' }, { kind: 'action', id: 'discard', label: 'Discard', icon: 'trash', hint: 'Esc' }] }];
+    if (phase === 'error') return [{ items: [{ kind: 'action', id: 'retry', label: tx('Try again'), icon: 'refresh' }, { kind: 'action', id: 'discard', label: tx('Discard'), icon: 'trash', hint: 'Esc' }] }];
     if (pending) return [];
     if (sub) {
       const list = sub === 'tone' ? TONES : LANGUAGES;
@@ -329,19 +330,19 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
       return [{
         title: sub === 'tone' ? 'Change tone' : 'Translate',
         items: [
-          { kind: 'back', label: 'Back', icon: 'arrowLeft' } as Item,
+          { kind: 'back', label: tx('Back'), icon: 'arrowLeft' } as Item,
           ...list.filter((v) => !q || v.toLowerCase().includes(q)).map((v): Item => ({ kind: 'option', value: v, label: v, icon: sub === 'tone' ? 'sliders' : 'translate' })),
         ],
       }];
     }
     const at = /(?:^|\s)@([^@]{0,40})$/.exec(query);
     if (at) {
-      return [{ title: 'Reference a page', items: refHits.map((h): Item => ({ kind: 'ref', id: h.id, label: h.title || 'Untitled', icon: 'page' })) }];
+      return [{ title: tx('Reference a page'), items: refHits.map((h): Item => ({ kind: 'ref', id: h.id, label: h.title || 'Untitled', icon: 'page' })) }];
     }
     const q = query.trim().toLowerCase();
     const mine: Item[] = userSkills.filter((k) => !q || k.name.toLowerCase().includes(q)).map((k) => ({ kind: 'userSkill', id: k.id, label: k.name, icon: 'aiStepSkill' }));
     return [
-      ...(mine.length ? [{ title: 'Your skills', items: mine }] : []),
+      ...(mine.length ? [{ title: tx('Your skills'), items: mine }] : []),
       ...writerSections(hasSelection)
         .map((s) => ({
           title: s.title,
@@ -554,10 +555,10 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
           {refs.map((r) => (
             <span key={r.id} className="nc-ai-writer-chip ref" data-testid="ai-writer-ref">
               @{r.title || 'Untitled'}
-              <span role="button" aria-label="Remove reference" className="nc-ai-context-chip-x" onMouseDown={(e) => e.preventDefault()} onClick={() => setRefs((cur) => cur.filter((x) => x.id !== r.id))}><Icon name="close" size={10} /></span>
+              <span role="button" aria-label={tx('Remove reference')} className="nc-ai-context-chip-x" onMouseDown={(e) => e.preventDefault()} onClick={() => setRefs((cur) => cur.filter((x) => x.id !== r.id))}><Icon name="close" size={10} /></span>
             </span>
           ))}
-          {sub && <span className="nc-ai-writer-chip">{sub === 'tone' ? 'Change tone' : 'Translate'}</span>}
+          {sub && <span className="nc-ai-writer-chip">{sub === 'tone' ? tx('Change tone') : tx('Translate')}</span>}
           {phase === 'running' && (
             <div className="nc-ai-writer-running">
               <span className="nc-ai-shimmer">AI 비서 is writing</span>
@@ -579,13 +580,13 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
             onKeyDown={onKeyDown}
           />
           {phase === 'running' ? (
-            <div role="button" aria-label="Stop" data-tooltip="Stop" className="nc-ai-send stop" onMouseDown={(e) => e.preventDefault()} onClick={() => abortRef.current?.abort()}>
+            <div role="button" aria-label={tx('Stop')} data-tooltip={tx('Stop')} className="nc-ai-send stop" onMouseDown={(e) => e.preventDefault()} onClick={() => abortRef.current?.abort()}>
               <span className="nc-ai-stop-square" />
             </div>
           ) : (
             <div
               role="button"
-              aria-label="Submit"
+              aria-label={tx('Submit')}
               className={`nc-ai-send ${query.trim() || pending ? 'ready' : ''}`}
               onMouseDown={(e) => e.preventDefault()}
               onClick={submit}
@@ -602,10 +603,10 @@ export function InlineWriter({ target }: { target: WriterTarget }) {
         {configured === false && phase === 'input' && <div className="nc-ai-writer-note"><NoKeyNotice compact /></div>}
         {confirmDiscard ? (
           <div className="nc-ai-writer-confirm" role="alertdialog">
-            <span>Discard this AI response?</span>
+            <span>{tx('Discard this AI response?')}</span>
             <div className="nc-ai-writer-confirm-actions">
-              <button className="nc-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => { setConfirmDiscard(false); inputRef.current?.focus(); }}>Cancel</button>
-              <button className="nc-btn danger" onMouseDown={(e) => e.preventDefault()} onClick={closeAndRefocus}>Discard</button>
+              <button className="nc-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => { setConfirmDiscard(false); inputRef.current?.focus(); }}>{tx('Cancel')}</button>
+              <button className="nc-btn danger" onMouseDown={(e) => e.preventDefault()} onClick={closeAndRefocus}>{tx('Discard')}</button>
             </div>
           </div>
         ) : (

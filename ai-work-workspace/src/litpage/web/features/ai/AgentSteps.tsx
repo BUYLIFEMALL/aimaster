@@ -7,6 +7,7 @@ import { getBlock } from '../../lib/blocks.ts';
 import { PageIcon } from '../shell/PageIcon.tsx';
 import { AiMarkdown } from './AiMarkdown.tsx';
 import type { AgentStep, ApprovalPayload, StepRef, TouchedPage, TurnChanges } from './aiApi.ts';
+import { tx } from '../shell/i18n.ts';
 
 registerIcons({
   aiStepSearch: L.Search,
@@ -66,8 +67,8 @@ function McpDetails({ mcp }: { mcp: NonNullable<AgentStep['mcp']> }) {
   return (
     <div className="nc-ai-mcp">
       <div className="nc-ai-mcp-tabs" role="tablist">
-        <span role="tab" aria-selected={tab === 'input'} className={tab === 'input' ? 'active' : ''} onClick={() => setTab('input')}>Input</span>
-        <span role="tab" aria-selected={tab === 'response'} className={tab === 'response' ? 'active' : ''} onClick={() => setTab('response')}>Response</span>
+        <span role="tab" aria-selected={tab === 'input'} className={tab === 'input' ? 'active' : ''} onClick={() => setTab('input')}>{tx('Input')}</span>
+        <span role="tab" aria-selected={tab === 'response'} className={tab === 'response' ? 'active' : ''} onClick={() => setTab('response')}>{tx('Response')}</span>
       </div>
       <pre className="nc-ai-mcp-body">{tab === 'input' ? mcp.input || '{}' : mcp.output ?? 'Waiting on a reply…'}</pre>
     </div>
@@ -87,7 +88,7 @@ function StepRow({ s, onAnswer }: { s: AgentStep; onAnswer?: (approvalId: string
         <span className="nc-ai-agent-step-icon"><Icon name={icon} size={16} /></span>
         <span className={`nc-ai-agent-step-label ${running ? 'nc-ai-shimmer' : ''}`}>{s.label}</span>
         {s.detail && !(refs.length && !s.mcp && refs.some((r) => r.title === s.detail)) && <span className="nc-ai-agent-step-detail nc-ellipsis">{s.detail}</span>}
-        {s.status === 'declined' && <span className="nc-ai-agent-step-tag">Rejected</span>}
+        {s.status === 'declined' && <span className="nc-ai-agent-step-tag">{tx('Rejected')}</span>}
         {shownRefs.length > 0 && !s.mcp && (
           <span className="nc-ai-agent-step-refs" onClick={(e) => e.stopPropagation()}>
             {shownRefs.map((r, i) => <RefChip key={i} r={r} />)}
@@ -125,7 +126,7 @@ export function ApprovalCard({ a, onAnswer }: { a: ApprovalPayload; onAnswer: (a
   };
   const longPreview = (a.markdown?.length ?? 0) > 600 || (a.removed?.join('\n').length ?? 0) > 600;
   return (
-    <div className={`nc-ai-approval ${a.danger ? 'danger' : ''}`} role="group" aria-label="Approval" data-testid="ai-approval-card">
+    <div className={`nc-ai-approval ${a.danger ? 'danger' : ''}`} role="group" aria-label={tx('Approval')} data-testid="ai-approval-card">
       <div className="nc-ai-approval-title">{a.title}</div>
       {a.description && <div className="nc-ai-approval-desc">{a.description}</div>}
       {(a.markdown || a.removed?.length || a.properties?.length || a.plan || (a.pages?.length ?? 0) > 1) && (
@@ -146,7 +147,7 @@ export function ApprovalCard({ a, onAnswer }: { a: ApprovalPayload; onAnswer: (a
             </div>
           ) : null}
           {a.removed?.length ? (
-            <div className="nc-ai-approval-removed" aria-label="Removed content">
+            <div className="nc-ai-approval-removed" aria-label={tx('Removed content')}>
               {a.removed.map((r, i) => <div key={i} className="nc-ai-approval-removed-unit">{r}</div>)}
             </div>
           ) : null}
@@ -157,12 +158,12 @@ export function ApprovalCard({ a, onAnswer }: { a: ApprovalPayload; onAnswer: (a
         </div>
       )}
       {longPreview && (
-        <div role="button" className="nc-ai-approval-more" onClick={() => setExpanded(!expanded)}>{expanded ? 'Show less' : 'Show more'}</div>
+        <div role="button" className="nc-ai-approval-more" onClick={() => setExpanded(!expanded)}>{expanded ? tx('Show less') : tx('Show more')}</div>
       )}
       <div className="nc-ai-approval-foot">
-        <span className="nc-ai-approval-ask">Continue with this step?</span>
+        <span className="nc-ai-approval-ask">{tx('Continue with this step?')}</span>
         <div className="nc-ai-approval-buttons">
-          <div role="button" tabIndex={0} aria-disabled={!!busy} className="nc-btn outline small" onClick={() => answer('decline')}>Reject</div>
+          <div role="button" tabIndex={0} aria-disabled={!!busy} className="nc-btn outline small" onClick={() => answer('decline')}>{tx('Reject')}</div>
           <div role="button" tabIndex={0} aria-disabled={!!busy} className={`nc-btn small ${a.danger ? 'danger' : 'primary'}`} onClick={() => answer('accept')}>
             {busy === 'accept' ? '…' : a.confirmLabel || 'Continue'}
           </div>
@@ -205,18 +206,18 @@ export function ChangesCard({ changes, onUndo }: { changes: TurnChanges; onUndo?
         <span className="nc-ai-changes-title nc-ellipsis">{changes.undone ? 'Changes reverted' : title}</span>
         <div className="nc-ai-changes-actions">
           {pages.length > 0 && (
-            <div role="button" className="nc-ai-changes-btn" onClick={() => setShow(!show)}>{show ? 'Hide changes' : 'Show changes'}</div>
+            <div role="button" className="nc-ai-changes-btn" onClick={() => setShow(!show)}>{show ? tx('Hide changes') : tx('Show changes')}</div>
           )}
           {!changes.undone && onUndo && !confirm && (
             <div role="button" className="nc-ai-changes-btn" onClick={() => setConfirm(true)}>
               <Icon name="undo" size={14} />
-              <span>Undo</span>
+              <span>{tx('Undo')}</span>
             </div>
           )}
           {confirm && (
             <>
-              <div role="button" className="nc-ai-changes-btn" onClick={() => setConfirm(false)}>Cancel</div>
-              <div role="button" className="nc-ai-changes-btn danger" aria-disabled={busy} onClick={() => void undo()}>{busy ? 'Undoing…' : 'Confirm Undo'}</div>
+              <div role="button" className="nc-ai-changes-btn" onClick={() => setConfirm(false)}>{tx('Cancel')}</div>
+              <div role="button" className="nc-ai-changes-btn danger" aria-disabled={busy} onClick={() => void undo()}>{busy ? tx('Undoing…') : tx('Confirm Undo')}</div>
             </>
           )}
         </div>
@@ -233,7 +234,7 @@ export function ChangesCard({ changes, onUndo }: { changes: TurnChanges; onUndo?
                 </span>
               ) : <span className="nc-ai-changes-plain">{p.title}</span>}
               {p.pageId && p.action !== 'deleted' && !changes.undone && (
-                <span role="button" className="nc-ai-changes-open" onClick={() => openPage(p.pageId)}>Open page</span>
+                <span role="button" className="nc-ai-changes-open" onClick={() => openPage(p.pageId)}>{tx('Open page')}</span>
               )}
             </div>
           ))}

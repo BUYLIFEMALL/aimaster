@@ -12,7 +12,7 @@ import { timeAgo } from '../../lib/format.ts';
 import { records } from '../../lib/store/records.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 import { spaceMembers } from '../search/filterMenus.tsx';
 import { Badge, Button, Dropdown, Group, Row, Switch, Upsell, openSubDialog } from '../settings/ui.tsx';
 import { saveSpaceSettings, useSpaceAccess } from '../settings/spaceSettings.ts';
@@ -339,7 +339,7 @@ function Resources({ a, enterprise, close, onChanged }: { a: Pick<AdminAgent, 'i
               <div className="nc-agent-row-icon"><Icon name="page" size={16} /></div>
               <div className="nc-agent-row-main">
                 <div className="nc-agent-row-title">{g.title}</div>
-                <div className="nc-agent-row-sub">{g.role === 'editor' ? 'Full access' : g.role === 'read_and_write' ? 'Can edit' : g.role === 'comment_only' ? 'Can comment' : 'Can view'}{g.addedBy ? ` · ${t('lp.agents.added_by', 'Added by {name}', { name: g.addedBy })}` : ''}</div>
+                <div className="nc-agent-row-sub">{g.role === 'editor' ? 'Full access' : g.role === 'read_and_write' ? 'Can edit' : g.role === 'comment_only' ? tx('Can comment') : tx('Can view')}{g.addedBy ? ` · ${t('lp.agents.added_by', 'Added by {name}', { name: g.addedBy })}` : ''}</div>
               </div>
               {enterprise && <Button small variant="danger" onClick={() => revoke(g.blockId)}>{t('lp.agents.remove', 'Remove')}</Button>}
             </div>

@@ -16,7 +16,7 @@ import { copyPageLink, duplicatePage, isFavorite, newPage, pageTitle, toggleFavo
 import { openMoveToDialog } from '../../page/MoveTo.tsx';
 import { openRenamePopover } from '../../page/RenamePopover.tsx';
 import { createDatabaseIn } from '../../database/createDatabase.ts';
-import { getLocale, t } from '../i18n.ts';
+import { getLocale, t, tx } from '../i18n.ts';
 import {
   DEFAULT_LIMIT, MAX_TABS, SECTION_LIMITS, findSection, findShortcut, layoutOf, newSectionId, setActiveTabId, updateLayout,
   useSidebarMode, type SectionType, type SidebarLayout, type SidebarSection, type SidebarTab,
@@ -483,9 +483,9 @@ export function openMyTasks() {
 }
 
 export const RELEASES: { label: string; date: string; url: string }[] = HELP_URL ? [
-  { label: 'Agents, rebuilt to do more for less', date: '2026-10-19', url: HELP_URL },
-  { label: 'Workspace 3.8', date: '2026-10-13', url: HELP_URL },
-  { label: 'Workspace 3.7', date: '2026-09-15', url: HELP_URL },
+  { label: tx('Agents, rebuilt to do more for less'), date: '2026-10-19', url: HELP_URL },
+  { label: tx('Workspace 3.8'), date: '2026-10-13', url: HELP_URL },
+  { label: tx('Workspace 3.7'), date: '2026-09-15', url: HELP_URL },
 ] : [];
 
 export const APP_VERSION = 'Workspace 0.1.0';

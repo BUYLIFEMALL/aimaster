@@ -17,6 +17,7 @@ import { newPropertyId } from '../database/actions.ts';
 import { PropertyIcon } from '../database/properties/PropertyCell.tsx';
 import { savePrefs } from '../settings/userSettings.ts';
 import '../database/chrome/relationFeatures.css';
+import { tx } from '../shell/i18n.ts';
 
 export function isSkillsDatabase(c: CollectionRecord | undefined): boolean {
   return !!(c?.format as Record<string, unknown> | undefined)?.ai_skills_db;
@@ -50,11 +51,11 @@ function TurnIntoSkills({ collectionId, close }: { collectionId: string; close: 
     close();
   };
   return (
-    <div className="nc-tt-dialog" role="dialog" aria-label="Change to Skills database" data-menu-keys="ignore" data-testid="turn-into-skills">
-      <div className="nc-tt-title">Change to Skills database</div>
+    <div className="nc-tt-dialog" role="dialog" aria-label={tx('Change to Skills database')} data-menu-keys="ignore" data-testid="turn-into-skills">
+      <div className="nc-tt-title">{tx('Change to Skills database')}</div>
       <div className="nc-tt-sub">Every page in this database becomes a skill that AI 비서 and your agents can use. A skill with a description is used automatically when it fits the task.</div>
       <div className="nc-tt-row">
-        <div className="nc-tt-row-label">Pick the property that describes each skill</div>
+        <div className="nc-tt-row-label">{tx('Pick the property that describes each skill')}</div>
         <div
           role="button"
           className="nc-tt-select"
@@ -63,7 +64,7 @@ function TurnIntoSkills({ collectionId, close }: { collectionId: string; close: 
             width: 280,
             sections: [{ items: [
               ...textProps.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: desc === id, onSelect: () => setDesc(id) })),
-              { id: 'new', label: 'Create new', icon: 'plus', checked: desc === 'new', onSelect: () => setDesc('new') },
+              { id: 'new', label: tx('Create new'), icon: 'plus', checked: desc === 'new', onSelect: () => setDesc('new') },
             ] }],
           }, { placement: 'bottom-start' })}
         >
@@ -74,12 +75,12 @@ function TurnIntoSkills({ collectionId, close }: { collectionId: string; close: 
       </div>
       <label className="nc-tt-row nc-ai-skills-enable">
         <input type="checkbox" checked={enable} onChange={(e) => setEnable(e.target.checked)} />
-        <span>Enable skills for me</span>
+        <span>{tx('Enable skills for me')}</span>
       </label>
       <div className="nc-tt-footer">
-        {HELP_URL && (<a className="nc-tt-learn" href={HELP_URL} target="_blank" rel="noreferrer">Learn about skills</a>)}
-        <div role="button" className="nc-btn outline" onClick={close}>Close</div>
-        <div role="button" className="nc-btn primary" data-testid="turn-into-skills-confirm" onClick={apply}>Change to Skills database</div>
+        {HELP_URL && (<a className="nc-tt-learn" href={HELP_URL} target="_blank" rel="noreferrer">{tx('Learn about skills')}</a>)}
+        <div role="button" className="nc-btn outline" onClick={close}>{tx('Close')}</div>
+        <div role="button" className="nc-btn primary" data-testid="turn-into-skills-confirm" onClick={apply}>{tx('Change to Skills database')}</div>
       </div>
     </div>
   );

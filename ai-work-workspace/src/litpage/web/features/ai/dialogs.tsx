@@ -6,6 +6,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { openOverlay } from '../../components/overlay.tsx';
 import { Icon } from '../../components/Icon.tsx';
 import { useConnections, type McpConnection } from './aiStores.ts';
+import { tx } from '../shell/i18n.ts';
 
 export interface DialogButton<T> {
   label: string;
@@ -81,7 +82,7 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
     <form
       className="nc-ai-dialog nc-ai-mcp-dialog"
       role="dialog"
-      aria-label="External MCP endpoint"
+      aria-label={tx('External MCP endpoint')}
       onSubmit={(e) => {
         e.preventDefault();
         void submit();
@@ -89,12 +90,12 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
     >
       <div className="nc-ai-dialog-title">{preset ? preset.name : 'External MCP endpoint'}</div>
       {presets.length > 0 && (
-        <div className="nc-ai-mcp-presets" role="listbox" aria-label="Workspace Managed">
+        <div className="nc-ai-mcp-presets" role="listbox" aria-label={tx('Workspace Managed')}>
           {presets.map((p) => (
             <div key={p.id} role="option" aria-selected={preset?.id === p.id} className={`nc-ai-mcp-preset ${preset?.id === p.id ? 'on' : ''}`} onClick={() => { setPreset(preset?.id === p.id ? null : p); setName(p.name); setUrl(p.url); }}>
               <Icon name="puzzle" size={16} />
               <span className="nc-ellipsis">{p.name}</span>
-              <span className="badge">Workspace Managed</span>
+              <span className="badge">{tx('Workspace Managed')}</span>
             </div>
           ))}
         </div>
@@ -104,41 +105,41 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
           <div className="nc-ai-dialog-desc">{preset.description || 'Shared with this workspace by an owner.'}</div>
           {preset.auth === 'token' && (
             <label className="nc-ai-field">
-              <span>Your access token</span>
-              <input autoFocus value={token} onChange={(e) => setToken(e.target.value)} placeholder="Bearer token sent as the Authorization header" type="password" autoComplete="off" />
+              <span>{tx('Your access token')}</span>
+              <input autoFocus value={token} onChange={(e) => setToken(e.target.value)} placeholder={tx('Bearer token sent as the Authorization header')} type="password" autoComplete="off" />
             </label>
           )}
           {error && <div className="nc-ai-dialog-error" role="alert">{error}</div>}
         </>
       ) : !customMcp ? (
-        <div className="nc-ai-dialog-desc">External MCP endpoints are off in this workspace. Ask an owner to enable them.</div>
+        <div className="nc-ai-dialog-desc">{tx('External MCP endpoints are off in this workspace. Ask an owner to enable them.')}</div>
       ) : (
         <>
           <div className="nc-ai-mcp-warning">
             <Icon name="warning" size={16} />
             <div>
-              <div className="nc-ai-mcp-warning-title">Workspace has not reviewed this endpoint</div>
-              <div>After connection, it can read or change agent content and send data outside Workspace. Connect only trusted endpoints.</div>
+              <div className="nc-ai-mcp-warning-title">{tx('Workspace has not reviewed this endpoint')}</div>
+              <div>{tx('After connection, it can read or change agent content and send data outside Workspace. Connect only trusted endpoints.')}</div>
             </div>
           </div>
           <label className="nc-ai-field">
-            <span>Name</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="External MCP endpoint" maxLength={60} />
+            <span>{tx('Name')}</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder={tx('External MCP endpoint')} maxLength={60} />
           </label>
           <label className="nc-ai-field">
             <span>MCP endpoint URL</span>
             <input autoFocus value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/mcp" inputMode="url" />
           </label>
           <label className="nc-ai-field">
-            <span>Access token (optional)</span>
-            <input value={token} onChange={(e) => setToken(e.target.value)} placeholder="Bearer token sent as the Authorization header" type="password" autoComplete="off" />
+            <span>{tx('Access token (optional)')}</span>
+            <input value={token} onChange={(e) => setToken(e.target.value)} placeholder={tx('Bearer token sent as the Authorization header')} type="password" autoComplete="off" />
           </label>
           {error && <div className="nc-ai-dialog-error" role="alert">{error}</div>}
         </>
       )}
       <div className="nc-ai-dialog-buttons">
-        <button type="button" className="nc-btn outline" onClick={close}>Cancel</button>
-        {customMcp && <button type="submit" className="nc-btn primary" disabled={busy || (!preset && !url.trim()) || (preset?.auth === 'token' && !token.trim())}>{busy ? 'Connecting…' : 'Connect'}</button>}
+        <button type="button" className="nc-btn outline" onClick={close}>{tx('Cancel')}</button>
+        {customMcp && <button type="submit" className="nc-btn primary" disabled={busy || (!preset && !url.trim()) || (preset?.auth === 'token' && !token.trim())}>{busy ? tx('Connecting…') : tx('Connect')}</button>}
       </div>
     </form>
   );

@@ -8,6 +8,7 @@ import { openPage } from '../../lib/router.ts';
 import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { parseInline } from './md.ts';
+import { tx } from '../shell/i18n.ts';
 
 
 function plain(md: string): string {
@@ -60,7 +61,7 @@ export function AiTable({ header, rows, streaming, render }: { header: string[];
     setBusy(true);
     try {
       const r = await api<{ pageId: string; rows: number }>('aiTableToDatabase', { spaceId, header: header.map(plain), rows: order.map((i) => plainRows[i]) });
-      useUI.getState().toast(`Saved as a database with ${r.rows} row${r.rows === 1 ? '' : 's'}`, { label: 'Open', run: () => openPage(r.pageId) });
+      useUI.getState().toast(`Saved as a database with ${r.rows} row${r.rows === 1 ? '' : 's'}`, { label: tx('Open'), run: () => openPage(r.pageId) });
     } catch (e) {
       useUI.getState().toast((e as Error)?.message || 'Couldn’t save the table.');
     } finally {
@@ -74,12 +75,12 @@ export function AiTable({ header, rows, streaming, render }: { header: string[];
           {rows.length > 8 && (
             <div className="nc-ai-table-filter">
               <Icon name="search" size={12} />
-              <input value={q} placeholder="Filter" aria-label="Filter rows" onChange={(e) => setQ(e.target.value)} />
+              <input value={q} placeholder={tx('Filter')} aria-label={tx('Filter rows')} onChange={(e) => setQ(e.target.value)} />
             </div>
           )}
           <span className="nc-ai-table-count">{order.length === rows.length ? `${rows.length} row${rows.length === 1 ? '' : 's'}` : `${order.length} of ${rows.length} rows`}</span>
-          <div role="button" className="nc-ai-table-btn" aria-label="Copy table as CSV" data-tooltip="Copy as CSV" onClick={copy}><Icon name="duplicate" size={14} /></div>
-          <div role="button" className="nc-ai-table-btn" aria-disabled={busy} data-testid="ai-table-save" data-tooltip="Save as database" aria-label="Save as database" onClick={() => void save()}><Icon name="viewTable" size={14} /><span>Save as database</span></div>
+          <div role="button" className="nc-ai-table-btn" aria-label={tx('Copy table as CSV')} data-tooltip={tx('Copy as CSV')} onClick={copy}><Icon name="duplicate" size={14} /></div>
+          <div role="button" className="nc-ai-table-btn" aria-disabled={busy} data-testid="ai-table-save" data-tooltip={tx('Save as database')} aria-label={tx('Save as database')} onClick={() => void save()}><Icon name="viewTable" size={14} /><span>{tx('Save as database')}</span></div>
         </div>
       )}
       <table className="nc-ai-table">

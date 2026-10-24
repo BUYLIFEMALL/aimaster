@@ -17,7 +17,7 @@ import { useConnections, type McpConnection } from './aiStores.ts';
 import { chatUrl } from './ChatHistory.tsx';
 import { openMcpConnectDialog } from './dialogs.tsx';
 import { McpClientsAdmin } from './McpClients.tsx';
-import { t } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 
 const LOCK_TIP = 'Ask a workspace admin to change this option';
 
@@ -50,10 +50,10 @@ function ModelControls({ space, admin }: { space: SpaceRecord; admin: boolean })
     setTimeout(() => void useAiStatus.getState().refresh(), 300);
   };
   return (
-    <Group plain title="Model controls">
+    <Group plain title={tx('Model controls')}>
       <Row
         id="ai-allowed-models"
-        label="Models available to Workspace Agent"
+        label={tx('Models available to Workspace Agent')}
         description="Choose which models Workspace Agent may use. Restricted models are dimmed in its model picker and chats set to Auto will respect these restrictions."
       />
       <div className="nc-ai-set-models" role="list">
@@ -80,16 +80,16 @@ function Usage({ spaceId }: { spaceId: string }) {
   }, [spaceId]);
   return (
     <Group plain title="AI 비서 usage in your workspace" description="Chats, messages and agent edits by member over the last 30 days.">
-      {error ? <div className="nc-set-row-desc">{error}</div> : !data ? <div className="nc-set-row-desc">Loading…</div> : !data.members.length ? (
+      {error ? <div className="nc-set-row-desc">{error}</div> : !data ? <div className="nc-set-row-desc">{tx('Loading…')}</div> : !data.members.length ? (
         <div className="nc-set-row-desc">Use cases appear once people in your workspace try AI 비서.</div>
       ) : (
         <table className="nc-set-table nc-ai-usage-table">
-          <thead><tr><th>Member</th><th>Chats</th><th>Messages</th><th>Agent edits</th><th>Last used</th></tr></thead>
+          <thead><tr><th>{tx('Member')}</th><th>{tx('Chats')}</th><th>{tx('Messages')}</th><th>{tx('Agent edits')}</th><th>{tx('Last used')}</th></tr></thead>
           <tbody>
             {data.members.map((m) => (
               <tr key={m.userId}><td>{m.name || 'Unknown'}</td><td>{m.chats}</td><td>{m.messages}</td><td>{m.edits}</td><td>{fmtTime(m.lastUsed)}</td></tr>
             ))}
-            <tr className="total"><td>Total</td><td>{data.totals.chats}</td><td>{data.totals.messages}</td><td>{data.totals.edits}</td><td /></tr>
+            <tr className="total"><td>{tx('Total')}</td><td>{data.totals.chats}</td><td>{data.totals.messages}</td><td>{data.totals.edits}</td><td /></tr>
           </tbody>
         </table>
       )}
@@ -108,27 +108,27 @@ function ConnectionRow({ c }: { c: McpConnection }) {
       <div className="nc-ai-set-conn-head">
         <Icon name="aiStepPlug" size={18} />
         <div className="main" role="button" onClick={() => setOpen(!open)}>
-          <div className="nm">{c.name} <span className="nc-ai-set-badge" data-tooltip="This server has not been reviewed by Workspace">Custom MCP</span></div>
+          <div className="nm">{c.name} <span className="nc-ai-set-badge" data-tooltip={tx('This server has not been reviewed by Workspace')}>{tx('Custom MCP')}</span></div>
           <div className="ds">{c.url}{c.error ? ` · ${c.error}` : ` · ${c.tools.length} tools`}</div>
         </div>
         <Switch label={`Use ${c.name}`} checked={c.enabled} onChange={(v) => void update({ enabled: v })} />
-        <Button small onClick={async () => { await api('aiRefreshConnection', { id: c.id }).catch(() => {}); await useConnections.getState().load(true); }}>Refresh</Button>
+        <Button small onClick={async () => { await api('aiRefreshConnection', { id: c.id }).catch(() => {}); await useConnections.getState().load(true); }}>{tx('Refresh')}</Button>
         <Button small variant="danger" onClick={async () => {
           if (!(await confirmDialog({ title: `Disconnect ${c.name}?`, description: 'AI 비서 will no longer be able to use this server’s tools.', confirmLabel: 'Disconnect', danger: true }))) return;
           await api('aiRemoveConnection', { id: c.id });
           await useConnections.getState().load(true);
-        }}>Disconnect</Button>
+        }}>{tx('Disconnect')}</Button>
       </div>
       {open && (
-        <div className="nc-ai-set-tools" aria-label="Tool permissions">
-          <div className="hdr">Tool permissions</div>
+        <div className="nc-ai-set-tools" aria-label={tx('Tool permissions')}>
+          <div className="hdr">{tx('Tool permissions')}</div>
           {c.tools.map((t) => {
             const on = !c.disabledTools.includes(t.name);
             return (
               <div key={t.name} className="nc-ai-set-tool">
                 <span className="nm">{t.name}</span>
-                {t.readOnly && <span className="nc-ai-set-badge gray">Read-only</span>}
-                {t.destructive && <span className="nc-ai-set-badge red">Destructive</span>}
+                {t.readOnly && <span className="nc-ai-set-badge gray">{tx('Read-only')}</span>}
+                {t.destructive && <span className="nc-ai-set-badge red">{tx('Destructive')}</span>}
                 <span className="ds nc-ellipsis">{t.description}</span>
                 <Switch label={`Allow ${t.name}`} checked={on} onChange={(v) => void update({ disabledTools: v ? c.disabledTools.filter((x) => x !== t.name) : [...c.disabledTools, t.name] })} />
               </div>
@@ -170,12 +170,12 @@ function McpAllowlist({ space }: { space: SpaceRecord }) {
       {list.map((p) => (
         <div key={p} className="nc-ai-set-allow-row">
           <code className="nc-ai-set-code">{p}</code>
-          <Button small variant="danger" onClick={() => void call({ remove: p })}>Remove</Button>
+          <Button small variant="danger" onClick={() => void call({ remove: p })}>{tx('Remove')}</Button>
         </div>
       ))}
       <div className="nc-ai-set-token-new">
         <input aria-label="MCP endpoint URL or pattern" placeholder="https://mcp.your-domain.example/*" value={value} onChange={(e) => { setValue(e.target.value); setError(null); }} onKeyDown={(e) => { if (e.key === 'Enter') void call({ add: value }).then((ok) => ok && setValue('')); }} />
-        <Button onClick={() => void call({ add: value }).then((ok) => ok && setValue(''))}>Add</Button>
+        <Button onClick={() => void call({ add: value }).then((ok) => ok && setValue(''))}>{tx('Add')}</Button>
       </div>
       {error && <div className="nc-ai-dialog-error" role="alert">{error}</div>}
     </div>
@@ -195,35 +195,35 @@ export function AiWorkspaceControls() {
   if (!space) return null;
   const webOn = spaceSetting<boolean>(space, 'ai_web_search', true);
   const rows: { k: string; fallback: boolean; label: string; description: ReactNode; disabled?: boolean }[] = [
-    { k: 'ai_enabled', fallback: true, label: 'Turn on AI 비서', description: 'Enable AI for all members of your workspace.' },
-    { k: 'ai_web_search', fallback: true, label: 'Allow web search for this workspace', description: 'Let AI search the web for current information when it answers.' },
-    { k: 'ai_web_confirm', fallback: false, label: 'Ask before making web requests', description: 'The agent may open external pages when search is not enough. Require approval before viewing any web page.', disabled: !webOn },
-    { k: 'ai_skip_approvals', fallback: true, label: 'Allow actions without approval', description: 'Let agents act without asking you first' },
-    { k: 'ai_custom_mcp', fallback: true, label: 'Allow custom MCP servers', description: 'Allow members to connect agents to custom MCP servers that Workspace hasn’t reviewed. Connected agents can share content externally, access external data, and take external actions.' },
-    { k: 'ai_memories', fallback: true, label: 'Enable Memories', description: 'Let AI 비서 create and use personal memories for workspace members.' },
-    { k: 'ai_mcp_skills', fallback: true, label: 'Allow skills over MCP', description: 'Let MCP clients use Workspace skills automatically.' },
-    { k: 'ai_local_skills', fallback: true, label: 'Allow skill downloads on local devices', description: 'Let members download skills for local agent use' },
+    { k: 'ai_enabled', fallback: true, label: 'Turn on AI 비서', description: tx('Enable AI for all members of your workspace.') },
+    { k: 'ai_web_search', fallback: true, label: tx('Allow web search for this workspace'), description: tx('Let AI search the web for current information when it answers.') },
+    { k: 'ai_web_confirm', fallback: false, label: tx('Ask before making web requests'), description: tx('The agent may open external pages when search is not enough. Require approval before viewing any web page.'), disabled: !webOn },
+    { k: 'ai_skip_approvals', fallback: true, label: tx('Allow actions without approval'), description: tx('Let agents act without asking you first') },
+    { k: 'ai_custom_mcp', fallback: true, label: tx('Allow custom MCP servers'), description: tx('Allow members to connect agents to custom MCP servers that Workspace hasn’t reviewed. Connected agents can share content externally, access external data, and take external actions.') },
+    { k: 'ai_memories', fallback: true, label: tx('Enable Memories'), description: 'Let AI 비서 create and use personal memories for workspace members.' },
+    { k: 'ai_mcp_skills', fallback: true, label: tx('Allow skills over MCP'), description: tx('Let MCP clients use Workspace skills automatically.') },
+    { k: 'ai_local_skills', fallback: true, label: tx('Allow skill downloads on local devices'), description: tx('Let members download skills for local agent use') },
   ];
   return (
     <div className="nc-ai-set" data-testid="ai-workspace-controls">
-      <Group plain title="Workspace settings">
+      <Group plain title={tx('Workspace settings')}>
         {rows.map((r) => (
           <Row key={r.k} id={r.k} label={r.label} description={r.description} control={<WorkspaceSwitch space={space} admin={owner} k={r.k} fallback={r.fallback} label={r.label} disabled={r.disabled} />} />
         ))}
         {owner && <McpAllowlist space={space} />}
       </Group>
       <ModelControls space={space} admin={owner} />
-      <Group plain title="My MCP connections" description="Remote MCP servers AI 비서 can use in your chats (+ → Connections).">
+      <Group plain title={tx('My MCP connections')} description="Remote MCP servers AI 비서 can use in your chats (+ → Connections).">
         {conns.list.map((c) => <ConnectionRow key={c.id} c={c} />)}
         <div>
-          <Button icon="plusSmall" disabled={!conns.customMcp} title={conns.customMcp ? undefined : 'External MCP endpoints are off in this workspace. Ask an owner to enable them.'} onClick={() => void openMcpConnectDialog()}>Add Connections</Button>
+          <Button icon="plusSmall" disabled={!conns.customMcp} title={conns.customMcp ? undefined : 'External MCP endpoints are off in this workspace. Ask an owner to enable them.'} onClick={() => void openMcpConnectDialog()}>{tx('Add Connections')}</Button>
           {owner && (
             <Button variant="danger" onClick={async () => {
-              if (!(await confirmDialog({ title: 'Disconnect all custom MCP servers?', description: 'Every member’s custom MCP connections in this workspace will be removed.', confirmLabel: 'Disconnect all', danger: true }))) return;
+              if (!(await confirmDialog({ title: tx('Disconnect all custom MCP servers?'), description: tx('Every member’s custom MCP connections in this workspace will be removed.'), confirmLabel: 'Disconnect all', danger: true }))) return;
               const r = await api<{ removed: number }>('aiDisconnectAllConnections', { spaceId: space.id });
               useUI.getState().toast(`Disconnected ${r.removed} connection(s)`);
               void useConnections.getState().load(true);
-            }}>Disconnect all</Button>
+            }}>{tx('Disconnect all')}</Button>
           )}
         </div>
       </Group>
@@ -271,64 +271,64 @@ export function LitMcpAccess() {
     }
   };
   const revoke = async (t: TokenInfo) => {
-    if (!(await confirmDialog({ title: `Revoke “${t.name}”?`, description: 'Apps using this token will lose access to the workspace right away.', confirmLabel: 'Revoke', danger: true }))) return;
+    if (!(await confirmDialog({ title: `Revoke “${t.name}”?`, description: tx('Apps using this token will lose access to the workspace right away.'), confirmLabel: 'Revoke', danger: true }))) return;
     await api('mcpRevokeToken', { tokenId: t.id }).catch((e) => useUI.getState().toast((e as Error)?.message));
     void load();
   };
   return (
     <div className="nc-ai-set" data-testid="lit-mcp-access">
-      <Group plain title="Connect with an access token" description="Any MCP client can use this workspace through the Workspace MCP server with a personal access token. Tools act as you, with your permissions.">
-        <Row label="Server URL" description={<code className="nc-ai-set-code">{serverUrl}</code>} control={<Button small onClick={() => { void navigator.clipboard?.writeText(serverUrl).catch(() => {}); useUI.getState().toast('Copied'); }}>Copy</Button>} />
+      <Group plain title={tx('Connect with an access token')} description="Any MCP client can use this workspace through the Workspace MCP server with a personal access token. Tools act as you, with your permissions.">
+        <Row label={tx('Server URL')} description={<code className="nc-ai-set-code">{serverUrl}</code>} control={<Button small onClick={() => { void navigator.clipboard?.writeText(serverUrl).catch(() => {}); useUI.getState().toast('Copied'); }}>{tx('Copy')}</Button>} />
         {owner && (
           <Row
             id="lit-mcp-enabled"
-            label="Allow Workspace MCP for this workspace"
+            label={tx('Allow Workspace MCP for this workspace')}
             description="Members can connect MCP clients to this workspace."
-            control={<Switch label="Allow Workspace MCP for this workspace" checked={enabled} onChange={(v) => saveSpaceSettings(space.id, { lit_mcp_enabled: v })} />}
+            control={<Switch label={tx('Allow Workspace MCP for this workspace')} checked={enabled} onChange={(v) => saveSpaceSettings(space.id, { lit_mcp_enabled: v })} />}
           />
         )}
         {fresh && (
           <div className="nc-ai-set-token-fresh" role="status">
-            <div>Copy your token now — it won’t be shown again.</div>
+            <div>{tx('Copy your token now — it won’t be shown again.')}</div>
             <code className="nc-ai-set-code" data-testid="mcp-token-value">{fresh}</code>
             <div className="nc-ai-set-snippet">{`Authorization: Bearer ${fresh.slice(0, 12)}…`}</div>
-            <Button small onClick={() => { void navigator.clipboard?.writeText(fresh).catch(() => {}); useUI.getState().toast('Copied'); }}>Copy token</Button>
+            <Button small onClick={() => { void navigator.clipboard?.writeText(fresh).catch(() => {}); useUI.getState().toast('Copied'); }}>{tx('Copy token')}</Button>
           </div>
         )}
         <div className="nc-ai-set-token-new">
-          <input aria-label="Token name" placeholder="Token name, e.g. Claude Desktop" value={name} onChange={(e) => setName(e.target.value)} disabled={!enabled} />
-          <Button variant="primary" disabled={!enabled} onClick={() => void create()}>Create token</Button>
+          <input aria-label={tx('Token name')} placeholder={tx('Token name, e.g. Claude Desktop')} value={name} onChange={(e) => setName(e.target.value)} disabled={!enabled} />
+          <Button variant="primary" disabled={!enabled} onClick={() => void create()}>{tx('Create token')}</Button>
         </div>
         {tokens.length > 0 && (
           <table className="nc-set-table nc-ai-usage-table">
-            <thead><tr><th>Name</th><th>Token</th><th>Created</th><th>Last used</th><th /></tr></thead>
+            <thead><tr><th>{tx('Name')}</th><th>{tx('Token')}</th><th>{tx('Created')}</th><th>{tx('Last used')}</th><th /></tr></thead>
             <tbody>
               {tokens.map((t) => (
-                <tr key={t.id}><td>{t.name}</td><td><code>{t.prefix}…</code></td><td>{fmtTime(t.createdTime)}</td><td>{fmtTime(t.lastUsedTime)}</td><td><Button small variant="danger" onClick={() => void revoke(t)}>Revoke</Button></td></tr>
+                <tr key={t.id}><td>{t.name}</td><td><code>{t.prefix}…</code></td><td>{fmtTime(t.createdTime)}</td><td>{fmtTime(t.lastUsedTime)}</td><td><Button small variant="danger" onClick={() => void revoke(t)}>{tx('Revoke')}</Button></td></tr>
               ))}
             </tbody>
           </table>
         )}
       </Group>
       {owner && all && (
-        <Group plain title="All connections in this workspace" description="View all the MCP clients currently connected to this workspace.">
+        <Group plain title={tx('All connections in this workspace')} description="View all the MCP clients currently connected to this workspace.">
           {all.length ? (
             <table className="nc-set-table nc-ai-usage-table">
-              <thead><tr><th>Member</th><th>Name</th><th>Created</th><th>Last used</th><th /></tr></thead>
+              <thead><tr><th>{tx('Member')}</th><th>{tx('Name')}</th><th>{tx('Created')}</th><th>{tx('Last used')}</th><th /></tr></thead>
               <tbody>
                 {all.map((t) => (
-                  <tr key={t.id}><td>{t.userName || 'Unknown'}</td><td>{t.name}</td><td>{fmtTime(t.createdTime)}</td><td>{fmtTime(t.lastUsedTime)}</td><td><Button small variant="danger" onClick={() => void revoke(t)}>Revoke</Button></td></tr>
+                  <tr key={t.id}><td>{t.userName || 'Unknown'}</td><td>{t.name}</td><td>{fmtTime(t.createdTime)}</td><td>{fmtTime(t.lastUsedTime)}</td><td><Button small variant="danger" onClick={() => void revoke(t)}>{tx('Revoke')}</Button></td></tr>
                 ))}
               </tbody>
             </table>
-          ) : <div className="nc-set-row-desc">No members have connected yet.</div>}
+          ) : <div className="nc-set-row-desc">{tx('No members have connected yet.')}</div>}
           <div>
             <Button variant="danger" disabled={!all.length} onClick={async () => {
-              if (!(await confirmDialog({ title: 'Disconnect everyone?', description: 'Every MCP connection to this workspace will be revoked. Members can reconnect later.', confirmLabel: 'Disconnect everyone', danger: true }))) return;
+              if (!(await confirmDialog({ title: tx('Disconnect everyone?'), description: tx('Every MCP connection to this workspace will be revoked. Members can reconnect later.'), confirmLabel: 'Disconnect everyone', danger: true }))) return;
               const r = await api<{ revoked: number }>('mcpRevokeAll', { spaceId: space.id });
               useUI.getState().toast(`Revoked ${r.revoked} connection(s)`);
               void load();
-            }}>Disconnect everyone</Button>
+            }}>{tx('Disconnect everyone')}</Button>
           </div>
         </Group>
       )}
@@ -363,14 +363,14 @@ export function useSharedChats(spaceId: string | undefined): SharedChat[] | null
 export function SharedChatsTable({ chats, onClose }: { chats: SharedChat[]; onClose?: () => void }) {
   return (
     <table className="nc-set-table nc-set-public-table" data-testid="shared-ai-chats">
-      <thead><tr><th style={{ width: '40%' }}>Chat</th><th>Shared by</th><th>Updated</th><th style={{ width: 120 }} /></tr></thead>
+      <thead><tr><th style={{ width: '40%' }}>{tx('Chat')}</th><th>{tx('Shared by')}</th><th>{tx('Updated')}</th><th style={{ width: 120 }} /></tr></thead>
       <tbody>
         {chats.map((c) => (
           <tr key={c.id}>
             <td><span className="nc-ai-set-chatlink" role="link" onClick={() => { onClose?.(); navigate(chatUrl(c.id)); }}><Icon name="chatBubble" size={14} /> {c.title || 'Untitled chat'}</span></td>
             <td>{c.ownerName}</td>
             <td>{fmtTime(c.updatedTime)}</td>
-            <td>{c.ownerId === useSession.getState().userId && <Button small onClick={() => void shareChat(c.id, false).then(() => useUI.getState().toast('Stopped sharing'), (e) => useUI.getState().toast((e as Error)?.message || 'Couldn’t stop sharing'))}>Stop sharing</Button>}</td>
+            <td>{c.ownerId === useSession.getState().userId && <Button small onClick={() => void shareChat(c.id, false).then(() => useUI.getState().toast('Stopped sharing'), (e) => useUI.getState().toast((e as Error)?.message || 'Couldn’t stop sharing'))}>{tx('Stop sharing')}</Button>}</td>
           </tr>
         ))}
       </tbody>

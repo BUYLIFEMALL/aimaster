@@ -5,6 +5,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { PropertyIcon, openPropertyEditor } from '../properties/PropertyCell.tsx';
 import { deleteRows, viewProperties } from '../actions.ts';
 import { openRowMenu } from './RowMenu.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 const EXCLUDED = new Set(['title', 'rollup', 'formula', 'button', 'created_time', 'created_by', 'last_edited_time', 'last_edited_by', 'auto_increment_id', 'location']);
 
@@ -31,10 +32,10 @@ export function SelectionBar({ selection, setSelection, collection, view }: { se
             </div>
           );
         })}
-        <div role="button" className="nc-selection-icon trash" aria-label="Send to trash" data-tooltip="Send to trash" onClick={() => { deleteRows(selection); setSelection([]); }}>
+        <div role="button" className="nc-selection-icon trash" aria-label={tx('Send to trash')} data-tooltip={tx('Send to trash')} onClick={() => { deleteRows(selection); setSelection([]); }}>
           <Icon name="trash" size={16} />
         </div>
-        <div role="button" className="nc-selection-icon more" aria-label="More actions" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: selection, collection, view, onDone: () => setSelection([]) })}>
+        <div role="button" className="nc-selection-icon more" aria-label={tx('More actions')} onClick={(e) => openRowMenu(e.currentTarget, { rowIds: selection, collection, view, onDone: () => setSelection([]) })}>
           <Icon name="ellipsisSmall" size={16} />
         </div>
       </div>

@@ -22,6 +22,7 @@ import { useEditor } from '../editorState.ts';
 import { valueOf, restoreRange, type TextRange } from './format.ts';
 import { breadcrumbOf, pageOrNull, usePageSearch } from './pageSearch.ts';
 import { freezeTextMenu, useTextMenu } from './TextActionMenu.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 /** Text range shown with a gray highlight while a popup acts on it. */
 export const useDecor = create<{ pending: TextRange | null }>(() => ({ pending: null }));
@@ -148,7 +149,7 @@ function LinkPopup({ r, close }: { r: TextRange; close: () => void }) {
         <div className="nc-link-input focused">
           <input
             autoFocus
-            placeholder="Paste a link or find pages"
+            placeholder={tx('Paste a link or find pages')}
             value={q}
             role="combobox"
             onChange={(e) => setQ(e.target.value)}
@@ -168,8 +169,8 @@ function LinkPopup({ r, close }: { r: TextRange; close: () => void }) {
       {options.length > 0 && (
         <div className="lit-scroller vertical nc-menu-scroll" role="listbox">
           <div className="nc-menu-section">
-            {!q && <MenuSectionTitle>Recents</MenuSectionTitle>}
-            {q && !isUrl && <MenuSectionTitle>Page link</MenuSectionTitle>}
+            {!q && <MenuSectionTitle>{tx('Recents')}</MenuSectionTitle>}
+            {q && !isUrl && <MenuSectionTitle>{tx('Page link')}</MenuSectionTitle>}
             {options.map((o, i) => (
               <div key={o.key} role="option" aria-selected={i === active} className={`nc-menu-item ${i === active ? 'active' : ''}`} onMouseMove={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={o.run}>
                 <div className={`nc-menu-item-inner nc-mi${o.sub ? ' has-desc' : ''}`}>
@@ -268,9 +269,9 @@ function LinkEdit({ r, href, close }: { r: TextRange; href: string; close: () =>
   return (
     <PopoverSurface width={330} className="nc-link-edit">
       <div className="nc-link-edit-section">
-        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>Page or URL</div>
+        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>{tx('Page or URL')}</div>
         <div className="nc-link-input">
-          <input placeholder="Edit link or find pages" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={onKey} />
+          <input placeholder={tx('Edit link or find pages')} value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={onKey} />
         </div>
         {urlIsPage && hits.ids.length > 0 && (
           <div className="nc-link-edit-results">
@@ -286,14 +287,14 @@ function LinkEdit({ r, href, close }: { r: TextRange; href: string; close: () =>
         )}
       </div>
       <div className="nc-link-edit-section" style={{ paddingBottom: 8 }}>
-        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>Link title</div>
+        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>{tx('Link title')}</div>
         <div className="nc-link-input focused">
           <input ref={titleRef} value={title} onChange={(e) => setTitle(e.target.value)} onKeyDown={onKey} />
         </div>
       </div>
       <div className="nc-menu-section" style={{ borderTop: '1px solid var(--lp-border-secondary)' }}>
         <div role="option" className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={remove}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">Remove link</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">{tx('Remove link')}</div></div>
         </div>
       </div>
     </PopoverSurface>
@@ -376,9 +377,9 @@ export function LinkHoverPill() {
       </div>
       <div
         role="button"
-        aria-label="Copy link"
+        aria-label={tx('Copy link')}
         className="nc-link-pill-btn icon"
-        data-tooltip="Copy link"
+        data-tooltip={tx('Copy link')}
         onClick={() => {
           void navigator.clipboard?.writeText(pid ? new URL(hover.href, location.origin).href : hover.href);
           useUI.getState().toast('Link copied');

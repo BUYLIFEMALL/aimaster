@@ -8,6 +8,7 @@ import { toPlainText } from '#shared/richtext.ts';
 import { HEADING_TYPES } from '#shared/blocks.ts';
 import { useBlock, useTableVersion } from '../../lib/hooks.ts';
 import { records } from '../../lib/store/records.ts';
+import { tx } from '../shell/i18n.ts';
 
 function headingsOf(page: BlockRecord | undefined): BlockRecord[] {
   const out: BlockRecord[] = [];
@@ -91,7 +92,7 @@ export function TableOfContentsRail({ pageId, scroller }: { pageId: string; scro
           onMouseLeave={() => setHover(false)}
         >
           {hover ? (
-            <div className="nc-toc-panel" role="navigation" aria-label="Contents list">
+            <div className="nc-toc-panel" role="navigation" aria-label={tx('Contents list')}>
               <div className="nc-toc-panel-list">
               {headings.map((h) => (
                 <div

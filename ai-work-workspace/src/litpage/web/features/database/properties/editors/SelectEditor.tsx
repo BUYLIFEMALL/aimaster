@@ -15,6 +15,7 @@ import { OptionPill, StatusPill, optionColorClass } from '../ValueView.tsx';
 import type { CellEditorOptions } from '../editorRegistry.ts';
 import { openNestedMenu } from '../../menus.ts';
 import { useCollectionAccess } from '../../access.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 function currentNames(rowId: string, propId: string, c: CollectionRecord): string[] {
   const row = getBlock(rowId);
@@ -53,9 +54,9 @@ export function openOptionMenu(anchor: HTMLElement, collectionId: string, propId
       </div>
     ),
     sections: [
-      { items: [{ id: 'delete', label: 'Delete', icon: 'trash', onSelect: () => { deleteOption(collectionId, propId, option.id); opts?.onDeleted?.(); } }] },
+      { items: [{ id: 'delete', label: tx('Delete'), icon: 'trash', onSelect: () => { deleteOption(collectionId, propId, option.id); opts?.onDeleted?.(); } }] },
       {
-        title: 'Colors',
+        title: tx('Colors'),
         items: (['default', 'gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'] as const).map((c) => ({
           id: c, label: COLOR_LABELS[c], icon: <ColorSwatch color={c} />, checked: (option.color ?? 'default') === c,
           onSelect: () => { updateOption(collectionId, propId, option.id, { color: c }); return false; },
@@ -190,7 +191,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
       </div>
       </div>
       <div className="lit-scroller vertical nc-select-editor-scroll" ref={listRef} role="listbox">
-        {!isStatus && <div className="nc-select-editor-hint">{schemaEditable ? 'Choose an option or create one' : 'Choose an option'}</div>}
+        {!isStatus && <div className="nc-select-editor-hint">{schemaEditable ? tx('Choose an option or create one') : tx('Choose an option')}</div>}
         {ordered.map(({ group, option }) => {
           idx++;
           const myIdx = idx;
@@ -229,7 +230,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
                 {!isStatus && schemaEditable && <span
                   role="button"
                   className="nc-select-option-more"
-                  aria-label="Edit option"
+                  aria-label={tx('Edit option')}
                   onClick={(e) => {
                     e.stopPropagation();
                     openOptionMenu(e.currentTarget as HTMLElement, opts.collectionId, opts.propId, option, { onDeleted: () => setSelected((s) => s.filter((n) => n !== option.value)) });
@@ -251,11 +252,11 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
             onMouseDown={(e) => e.preventDefault()}
             onClick={create}
           >
-            <span className="nc-select-create-label">Create</span>
+            <span className="nc-select-create-label">{tx('Create')}</span>
             {isStatus ? <StatusPill option={{ value: query.trim(), color: 'default' }} /> : <OptionPill option={{ value: query.trim(), color: nextOptionColor(options, () => 0) }} />}
           </div>
         )}
-        {!ordered.length && !canCreate && isStatus && <div className="nc-select-editor-empty">No options</div>}
+        {!ordered.length && !canCreate && isStatus && <div className="nc-select-editor-empty">{tx('No options')}</div>}
         {isStatus && schemaEditable && (
           <>
             <div className="nc-select-editor-divider" />
@@ -271,7 +272,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
               }}
             >
               <Icon name="slidersTwo" size={20} style={{ color: 'var(--lp-icon-primary)' }} />
-              <span className="nc-select-edit-property-label">Edit property</span>
+              <span className="nc-select-edit-property-label">{tx('Edit property')}</span>
             </div>
           </>
         )}

@@ -15,6 +15,7 @@ import { DatabaseView } from './DatabaseView.tsx';
 import { collectionOfBlock } from './data.ts';
 import { useDatabaseAccess } from './access.ts';
 import './views/table/TableView.view.tsx';
+import { tx } from '../shell/i18n.ts';
 
 export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?: boolean }) {
   const b = useBlock(block.id) ?? block;
@@ -62,7 +63,7 @@ export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?:
             readOnly={readOnly || linked}
             tagName="h1"
             className="content-editable-leaf-rtl nc-db-page-title"
-            placeholder="New database"
+            placeholder={tx('New database')}
             placeholderAlways
             onChange={(next) => run('renameDatabase', (tx) => tx.set('collection', col.id, ['name'], next), { coalesceKey: `dbname:${col.id}` })}
             onKeyDown={(e) => {
@@ -82,7 +83,7 @@ export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?:
             value={desc}
             readOnly={readOnly}
             className="nc-db-page-description-leaf"
-            placeholder="Add a description…"
+            placeholder={tx('Add a description…')}
             placeholderAlways
             onChange={(next) => run('setDatabaseDescription', (tx) => tx.set('collection', col.id, ['description'], next), { coalesceKey: `dbdesc:${col.id}` })}
             onBlur={() => setShowDesc(false)}

@@ -25,6 +25,7 @@ import { pageIdOfBlock, titleOf } from '../commands.ts';
 import type { SlashContext } from '../slashItems.ts';
 import { registerBlockMenu } from './registry.ts';
 import { blockElement } from './shared.tsx';
+import { tx } from '../../shell/i18n.ts';
 
 function aliasTarget(b: BlockRecord): string | undefined {
   return (b.format as any)?.alias_pointer?.id as string | undefined;
@@ -40,7 +41,7 @@ function PageLinkBlock({ block, readOnly }: BlockProps) {
   if (block.type === 'link_to_page' && !targetId) {
     return (
       <div className="nc-bpad">
-        <div ref={elRef} className="nc-link-empty" role="button" aria-label="Page link" onClick={() => !readOnly && elRef.current && openLinkToPagePicker(block.id, elRef.current)} />
+        <div ref={elRef} className="nc-link-empty" role="button" aria-label={tx('Page link')} onClick={() => !readOnly && elRef.current && openLinkToPagePicker(block.id, elRef.current)} />
       </div>
     );
   }
@@ -49,7 +50,7 @@ function PageLinkBlock({ block, readOnly }: BlockProps) {
       <div className="nc-pad">
         <div className="nc-pagelink-2 missing">
           <div className="nc-pagelink-icon"><Icon name="pageEmpty" size={18} style={{ color: 'var(--lp-icon-secondary)' }} /></div>
-          <span className="nc-pagelink-title-2" style={{ borderBottom: 'none', fontWeight: 400 }}>{target && target.alive === false ? 'Deleted page' : 'You can’t view this page'}</span>
+          <span className="nc-pagelink-title-2" style={{ borderBottom: 'none', fontWeight: 400 }}>{target && target.alive === false ? tx('Deleted page') : tx('You can’t view this page')}</span>
         </div>
       </div>
     );
@@ -84,13 +85,13 @@ registerBlock(['page', 'alias', 'link_to_page', 'collection_view_page'], PageLin
 registerBlockMenu(['page'], ({ block, turnInto, color }) => [
   turnInto,
   color,
-  { label: 'Open a new tab', icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
+  { label: tx('Open a new tab'), icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
 ]);
 
 registerBlockMenu(['alias', 'link_to_page'], ({ block, color }) => [
   color,
-  { label: 'Open a new tab', icon: 'openAsPage', onSelect: () => { const t = aliasTarget(block); if (t) window.open(pageUrl(t), '_blank'); } },
-  { label: 'Edit link', icon: 'pencilLine', onSelect: () => { const el = blockElement(block.id); if (el) setTimeout(() => openLinkToPagePicker(block.id, el), 0); } },
+  { label: tx('Open a new tab'), icon: 'openAsPage', onSelect: () => { const t = aliasTarget(block); if (t) window.open(pageUrl(t), '_blank'); } },
+  { label: tx('Edit link'), icon: 'pencilLine', onSelect: () => { const el = blockElement(block.id); if (el) setTimeout(() => openLinkToPagePicker(block.id, el), 0); } },
 ]);
 
 /* ------------------------------------------------------------------ picker */
@@ -202,7 +203,7 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
         <div className="nc-input focused">
           <input
             autoFocus
-            placeholder="Find a page…"
+            placeholder={tx('Find a page…')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => {
@@ -215,8 +216,8 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
       </div>
       <div className="lit-scroller vertical nc-menu-scroll" role="listbox">
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">Page link</div>
-          {items.length === 0 && <div className="nc-menu-empty">{q ? 'No results' : 'No recent pages'}</div>}
+          <div className="nc-menu-section-title">{tx('Page link')}</div>
+          {items.length === 0 && <div className="nc-menu-empty">{q ? tx('No results') : tx('No recent pages')}</div>}
           {items.map((it) => (
             <MenuRow key={it.id} item={it} active={!it.disabled && flat.indexOf(it) === active} onHover={() => !it.disabled && setActive(flat.indexOf(it))} onClick={() => it.onSelect?.()} />
           ))}

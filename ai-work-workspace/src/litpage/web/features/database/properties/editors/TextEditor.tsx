@@ -12,6 +12,7 @@ import { Icon } from '../../../../components/Icon.tsx';
 import { setValue, setValues } from '../../actions.ts';
 import { makeQueryContext } from '../../data.ts';
 import type { CellEditorOptions } from '../editorRegistry.ts';
+import { tx } from '../../../shell/i18n.ts';
 
 function RichCellEditor({ rowId, propId, close, minWidth, minHeight, allRows }: { rowId: string; propId: string; close: () => void; minWidth: number; minHeight: number; allRows: string[] }) {
   const row = getBlock(rowId);
@@ -105,7 +106,7 @@ function PlainCellEditor({ rowIds, prop, propId, close, minWidth, minHeight }: {
         }}
       />
       {isLink && text.trim() && (
-        <a className="nc-cell-editor-open" href={href} target="_blank" rel="noreferrer" data-tooltip={prop.type === 'email' ? 'Send email' : prop.type === 'phone_number' ? 'Call' : 'Open link'}>
+        <a className="nc-cell-editor-open" href={href} target="_blank" rel="noreferrer" data-tooltip={prop.type === 'email' ? 'Send email' : prop.type === 'phone_number' ? tx('Call') : tx('Open link')}>
           <Icon name={prop.type === 'email' ? 'mail' : prop.type === 'phone_number' ? 'phone' : 'arrowDiagonalUpRightSmall'} size={14} />
         </a>
       )}

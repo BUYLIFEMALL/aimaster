@@ -10,6 +10,7 @@ import { VSRow as Row } from '../chrome/ViewSettings.tsx';
 import { openLinkedSourcePicker } from '../chrome/LinkedSourcePicker.tsx';
 import { overlayIdOf } from '../properties/PropertyMenus.tsx';
 import { blockSources, setViewSource, sourceIdOfView, sourceName } from './sources.ts';
+import { tx } from '../../shell/i18n.ts';
 
 export function SourceRow({ block: blockIn, view, collection, readOnly, allowLink }: { block: BlockRecord; view: CollectionViewRecord; collection: CollectionRecord; readOnly: boolean; allowLink?: boolean }) {
   useTableVersion(['collection']);
@@ -18,12 +19,12 @@ export function SourceRow({ block: blockIn, view, collection, readOnly, allowLin
   const choices = [...owned, ...linked].filter((c) => view.type !== 'form' || c.parent_id === block.id);
   const enabled = !readOnly && (choices.length > 1 || !!allowLink) && view.type !== 'form';
   const name = sourceName(collection) || 'Untitled';
-  if (!enabled) return <Row icon="pathRoundEnds" label="Source" value={name} chevron={false} disabled />;
+  if (!enabled) return <Row icon="pathRoundEnds" label={tx('Source')} value={name} chevron={false} disabled />;
   const current = sourceIdOfView(view, block);
   return (
     <Row
       icon="pathRoundEnds"
-      label="Source"
+      label={tx('Source')}
       value={name}
       testid="view-source-row"
       onClick={(e) => {
@@ -31,8 +32,8 @@ export function SourceRow({ block: blockIn, view, collection, readOnly, allowLin
         openMenu(anchor, {
           width: 260,
           sections: [
-            { title: 'Data sources', items: choices.map((c) => ({ id: c.id, label: sourceName(c) || 'Untitled', icon: 'collection', checked: c.id === current, onSelect: () => setViewSource(view, records.get<BlockRecord>('block', block.id) ?? block, c) })) },
-            { items: [{ id: 'link', label: 'Link an existing dataset', icon: <Icon name="arrowDiagonalUpRight" size={16} />, onSelect: () => {
+            { title: tx('Data sources'), items: choices.map((c) => ({ id: c.id, label: sourceName(c) || 'Untitled', icon: 'collection', checked: c.id === current, onSelect: () => setViewSource(view, records.get<BlockRecord>('block', block.id) ?? block, c) })) },
+            { items: [{ id: 'link', label: tx('Link an existing dataset'), icon: <Icon name="arrowDiagonalUpRight" size={16} />, onSelect: () => {
               setTimeout(() => openLinkedSourcePicker(anchor, {
                 skipViewStep: true,
                 exclude: choices.map((c) => c.id),
