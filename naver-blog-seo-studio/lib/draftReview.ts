@@ -67,7 +67,7 @@ ${facts}
 ${input.body}
 
 위 글을 ${REVIEW_AREAS.length}개 영역에서 점검하세요: ${REVIEW_AREAS.map((a) => `「${a}」`).join("")}.
-「검색 의도」: 첫 문단이 독자가 이 제목으로 검색한 질문에 바로 답하지 않고 배경 설명만 하면 지적합니다(첫 문단 첫 문장을 인용하고, 바로 답하는 문장으로 고쳐 씁니다). 「답변 명료성」: 소제목이 묻는 내용에 짧고 분명하게 답하는 문장이 그 아래에 없으면 지적합니다(그 소제목 아래 첫 문장을 인용하고, 한두 문장으로 분명히 답하는 문장으로 고쳐 씁니다). 이 두 영역은 「권장」으로 둡니다.
+「검색 의도」: 첫 문단이 독자가 이 제목으로 검색한 질문에 바로 답하지 않고 배경 설명만 하면 지적합니다(첫 문단 첫 문장을 인용하고, 바로 답하는 문장으로 고쳐 씁니다). 「답변 명료성」: 소제목이 묻는 내용에 짧고 분명하게 답하는 문장이 그 아래에 없으면 지적합니다(소제목 줄은 인용하지 말고 그 소제목 아래 첫 문장을 인용하며, 한두 문장으로 분명히 답하는 문장으로 고쳐 씁니다). 이 두 영역은 「권장」으로 둡니다.
 각 문제는 글 속 문장을 그대로 짧게 인용(quote, 원문 그대로 10~60자)하고, 이유(reason)와 고친 문장(suggestion)을 적으세요. suggestion은 quote 자리에 그대로 바꿔 넣을 완성된 본문 문장이어야 합니다(「삭제하세요」 같은 지시문 금지). 문장을 지워야 하면 suggestion을 빈 문자열로 두세요. 반드시 고쳐야 하는 것(사실과 다름, 지어낸 경험·수치, 과장·민감 표현)은 level을 「필수」, 나머지는 「권장」으로 하세요. [확인 필요] 표시가 붙은 문장은 이미 확인 대상이므로 지적하지 않습니다. 문제가 없으면 issues를 빈 배열로 두세요.
 JSON: {"summary":"전체 평가 2~3문장","issues":[{"area":"영역","level":"필수","quote":"","reason":"","suggestion":""}]}`;
   return { system, user };
@@ -104,6 +104,13 @@ export function parseReview(raw: unknown, body: string, checks: ReviewChecks, so
 // 고친 문장이 빈 값이면 그 문장을 지운다. 앞에서 바꾼 자리와 겹쳐 더 이상 찾을 수 없으면 건너뜀.
 export interface ReviewFixResult { body: string; applied: number[]; skipped: { index: number; reason: string }[] }
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** 소제목 줄 판별(lib/draftExport.ts isHeadingLine과 같은 기준을 import 없이): 60자 이하 한 줄이면서 질문형이거나 평서문 끝맺음이 아님. */
+function isHeadingLine(line: string): boolean {
+  const s = line.trim();
+  if (!s || s.length > 60) return false;
+  if (/[?？]$/.test(s)) return true;
+  return !/[.!。…]$/.test(s) && !/(니다|어요|아요|해요|예요|이에요|세요|죠|다)$/.test(s);
+}
 function quotePattern(quote: string): RegExp | null {
   const chars = [...quote.replace(/\s+/g, "")];
   if (chars.length < 4) return null;
@@ -119,6 +126,16 @@ export function applyReviewFixes(body: string, issues: ReviewIssue[], indexes: n
     const hits = re ? [...text.matchAll(re)] : [];
     if (hits.length !== 1) { skipped.push({ index, reason: hits.length ? "같은 문장이 여러 곳에 있어 직접 고쳐 주세요." : "본문에서 해당 문장을 찾지 못했습니다(이미 고쳤거나 앞의 반영과 겹침)." }); continue; }
     const start = hits[0].index ?? 0, end = start + hits[0][0].length;
+    // v2.17 실검수: 「답변 명료성」 지적이 소제목 줄 자체를 인용함 → 바꾸면 소제목이 사라진다. 소제목 줄 전체면 소제목은 두고 아래 문단 맨 앞에 넣는다.
+    const lineStart = text.lastIndexOf("\n", start - 1) + 1, lineEndAt = text.indexOf("\n", end), lineEnd = lineEndAt < 0 ? text.length : lineEndAt;
+    if (text.slice(lineStart, start).trim() === "" && text.slice(end, lineEnd).trim() === "" && isHeadingLine(text.slice(lineStart, lineEnd))) {
+      if (!issue.suggestion) { skipped.push({ index, reason: "소제목은 지우지 않습니다. 필요하면 직접 고쳐 주세요." }); continue; }
+      const next = text.slice(lineEnd).search(/\S/);
+      const at = next < 0 ? text.length : lineEnd + next;
+      text = next < 0 ? `${text}\n\n${issue.suggestion}` : `${text.slice(0, at)}${issue.suggestion} ${text.slice(at)}`;
+      applied.push(index);
+      continue;
+    }
     text = text.slice(0, start) + issue.suggestion + text.slice(end);
     applied.push(index);
   }

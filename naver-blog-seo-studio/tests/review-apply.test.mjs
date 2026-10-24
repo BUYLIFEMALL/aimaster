@@ -43,3 +43,17 @@ test("D-3: review prompt now covers 8 areas including search intent and answer c
   assert.match(p.user, /「검색 의도」: 첫 문단이/);
   assert.match(p.user, /「답변 명료성」: 소제목이/);
 });
+
+test("D-3 (v2.17 live case): a quote that is a whole heading line keeps the heading and puts the answer at the start of the next paragraph", () => {
+  const body = "도입 문단입니다.\n\n가을 캠핑에 필요한 기본 준비물은 무엇인가요?\n\n가장 먼저 고려할 것은 텐트입니다.\n\n마무리 문단입니다.";
+  const r = applyReviewFixes(body, [issue("가을 캠핑에 필요한 기본 준비물은 무엇인가요?", "기본 준비물은 텐트, 침낭, 매트입니다.")], [0]);
+  assert.deepEqual(r.applied, [0]);
+  assert.equal(r.body, "도입 문단입니다.\n\n가을 캠핑에 필요한 기본 준비물은 무엇인가요?\n\n기본 준비물은 텐트, 침낭, 매트입니다. 가장 먼저 고려할 것은 텐트입니다.\n\n마무리 문단입니다.");
+  const del = applyReviewFixes(body, [issue("가을 캠핑에 필요한 기본 준비물은 무엇인가요?", "")], [0]);
+  assert.equal(del.body, body);
+  assert.match(del.skipped[0].reason, /소제목은 지우지 않습니다/);
+  // 한 문장짜리 일반 문단(마침표로 끝남)은 소제목이 아니므로 그대로 바꾼다
+  const plain = applyReviewFixes(body, [issue("마무리 문단입니다.", "정리 문단입니다.")], [0]);
+  assert.ok(plain.body.endsWith("정리 문단입니다."));
+  assert.match(buildReviewPrompt({ title: "t", body: "b", year: 2026 }).user, /소제목 줄은 인용하지 말고/);
+});
