@@ -9,6 +9,8 @@ const STEPS = [
 ];
 
 const FAQ = [
+  { q: "커스텀 봇에도 새 AI 키가 필요한가요?", a: "새 키는 필수가 아닙니다. 기본 번역·요약·업무 문서 봇과 내 봇은 기존 Upstage로도 사용할 수 있습니다. 봇 관리에서 역할·모델·온도를 저장하고 채팅방에서 선택하세요. 다른 공급자를 골랐을 때만 해당 회원 본인 키가 필요합니다." },
+  { q: "봇을 수정하거나 삭제하면 예전 대화도 바뀌나요?", a: "바뀌지 않습니다. 새 답변부터 선택한 봇을 쓰고, 이전 답변에는 당시 봇 이름·지침·실제 모델을 따로 기록합니다. 삭제된 봇을 고른 방에서는 새 봇을 선택하거나 일반 채팅으로 해제해 주세요. 직접 저장한 봇 설정과, 기존 30일 보관을 따르는 대화·답변 당시 기록은 구분합니다." },
   { q: "키가 없으면 쓸 수 없나요?", a: "선택한 답변 AI의 본인 키가 필요합니다. Groq·OpenRouter·Cloudflare로 일반 대화만 하려면 「내 문서 참고」를 끄세요. 문서 검색·읽기는 Upstage 키, 웹 검색은 Tavily 키가 따로 필요합니다." },
   { q: "어떤 질문에 웹 검색을 하나요?", a: "질문마다 AI가 최신 정보(뉴스·가격·일정·최근 출시 등)가 필요한지 먼저 판단하고, 필요할 때만 Tavily MCP로 검색합니다. 입력창 아래 「웹 검색」을 끄면 검색하지 않습니다." },
   { q: "내 문서와 대화는 어디에 저장되나요?", a: "회원님 계정에만 저장되어 다른 회원은 볼 수 없습니다. 원본 파일은 보관하지 않고 뽑은 글·임베딩·대화만 저장하며, 만든 날부터 30일이 지나면 자동으로 지워집니다." },
@@ -54,6 +56,13 @@ export default function GuidePage() {
       </div>
 
       <ProviderGuide dark />
+      <section className="space-y-3 rounded-2xl border border-indigo-500/25 bg-indigo-500/5 p-5">
+        <p className="text-xs text-indigo-300">🤖 내 봇 활용 · 설정 약 2분 · <Link href="/bots" className="underline">봇 관리 바로 열기 →</Link></p>
+        <h2 className="text-base font-bold text-slate-100">내 역할을 저장하고 대화마다 선택하세요</h2>
+        <ol className="grid gap-3 sm:grid-cols-2">{["① 기본 봇을 고르거나 내 역할 지침을 작성", "② 본인 모델·온도와 함께 저장", "③ 채팅방의 대화 봇에서 선택·해제", "④ 답변 아래 당시 설정을 펼쳐 확인"].map((step) => <li key={step} className="rounded-xl border border-slate-700 bg-[#161922] p-3 text-sm text-slate-300">{step}</li>)}</ol>
+        <p className="rounded-lg bg-emerald-500/10 p-3 text-xs text-emerald-200">💡 기본 봇은 바로 선택할 수 있습니다. 원하는 문구로 바꾸려면 「내 봇으로 편집」해서 본인 설정으로 저장하세요.</p>
+        <p className="rounded-lg bg-amber-500/10 p-3 text-xs text-amber-200">⚠️ 역할 지침에 비밀번호나 API 키를 넣지 마세요. 봇 삭제는 과거 대화를 지우지 않으며, 삭제된 봇을 쓰던 방에서는 직접 해제/변경해야 합니다.</p>
+      </section>
       <div className="space-y-2">
         <h2 className="text-sm font-bold text-slate-100">❓ 자주 묻는 질문</h2>
         {FAQ.map((f) => (

@@ -7,6 +7,7 @@ import { ErrorNote, INPUT } from "@/components/studio/ui";
 import { Markdown } from "@/components/chat/Markdown";
 import { ProviderSelect } from "@/lib/compatibleChat/ProviderSelect";
 import type { ChatSelection } from "@/lib/compatibleChat/config";
+import type { BotDefinition, GenerationContext } from "@/lib/bots/core";
 
 interface Source {
   type: "doc" | "web";
@@ -22,6 +23,7 @@ interface Msg {
   sources?: Source[];
   created_at?: string;
   pending?: boolean;
+  generation_context?: GenerationContext | null;
 }
 interface Room {
   id: string;
@@ -46,6 +48,9 @@ export default function ChatPage() {
   const [useDocs, setUseDocs] = useState(true);
   const [webAuto, setWebAuto] = useState(true);
   const [selection, setSelection] = useState<ChatSelection>({ provider: "upstage", model: "solar-pro4" });
+  const [bots, setBots] = useState<BotDefinition[]>([]);
+  const [botRef, setBotRef] = useState<string | null>(null);
+  const [botSaving, setBotSaving] = useState(false);
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState<string | null>(null);
   const [error, setError] = useState<{ text: string; needKey?: boolean } | null>(null);
@@ -59,6 +64,25 @@ export default function ChatPage() {
   const [onlyDoc, setOnlyDoc] = useState<{ id: string; name: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const selectedBot = bots.find((bot) => bot.id === botRef);
+  const unavailableBot = !!botRef && (!selectedBot || selectedBot.available === false);
+  const locked = busy || botSaving;
+
+  const loadBots = useCallback(async (signal?: AbortSignal) => {
+    const response = await fetch("/api/bots", { cache: "no-store", signal });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "봇 목록을 불러오지 못했습니다.");
+    setBots([...(data.presets ?? []), ...(data.bots ?? [])]);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setBotRef(new URLSearchParams(window.location.search).get("bot"));
+    const reload = () => { void loadBots(controller.signal).catch((e: Error) => { if (!controller.signal.aborted) setError({ text: e.message }); }); };
+    reload();
+    window.addEventListener("focus", reload);
+    return () => { controller.abort(); window.removeEventListener("focus", reload); };
+  }, [loadBots]);
 
   useEffect(() => () => requestRef.current?.abort(), []);
 
@@ -88,7 +112,7 @@ export default function ChatPage() {
   }, [messages]);
 
   async function openRoom(id: string) {
-    if (busy) return;
+    if (locked) return;
     setError(null);
     setNotice(null);
     setShowRooms(false);
@@ -96,18 +120,38 @@ export default function ChatPage() {
     if (!r.room) return setError({ text: r.error ?? "대화를 불러오지 못했습니다." });
     setRoomId(id);
     setMessages(r.messages ?? []);
+    setBotRef(r.room.bot_ref ?? null);
+    void loadBots().catch((e: Error) => setError({ text: e.message }));
   }
 
   function newChat() {
-    if (busy) return;
+    if (locked) return;
     setRoomId(null);
     setMessages([]);
     setError(null);
     setNotice(null);
     setShowRooms(false);
+    setBotRef(null);
+  }
+
+  async function changeBot(ref: string | null) {
+    if (locked) return;
+    setError(null);
+    if (roomId) {
+      setBotSaving(true);
+      try {
+        const response = await fetch(`/api/rooms/${roomId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ botRef: ref }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "봇 선택을 저장하지 못했습니다.");
+      } catch (e) { setError({ text: e instanceof Error ? e.message : "봇을 선택하지 못했습니다." }); return; }
+      finally { setBotSaving(false); }
+    }
+    setBotRef(ref);
+    setNotice("다음 답변부터 선택한 설정을 사용합니다. 이전 대화와 당시 답변 설정은 유지됩니다.");
   }
 
   async function deleteRoom(id: string) {
+    if (locked) return;
     if (!confirm("이 대화를 삭제할까요? 삭제하면 되돌릴 수 없습니다.")) return;
     await fetch(`/api/rooms?id=${id}`, { method: "DELETE" });
     if (id === roomId) newChat();
@@ -115,7 +159,7 @@ export default function ChatPage() {
   }
 
   async function renameRoom() {
-    if (!editing) return;
+    if (!editing || locked) return;
     const title = editing.title.trim();
     setEditing(null);
     if (!title) return;
@@ -126,6 +170,7 @@ export default function ChatPage() {
 
   /** 대화 고정/해제(U3) — 고정한 대화는 목록 맨 위 */
   async function togglePin(room: Room) {
+    if (locked) return;
     const r = await fetch(`/api/rooms/${room.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pinned: !room.pinned }) }).then((x) => x.json()).catch(() => ({}));
     if (r.error) setError({ text: r.error });
     void loadRooms();
@@ -143,7 +188,7 @@ export default function ChatPage() {
 
   /** 마지막 답변 다시 생성(U3) — 마지막 질문을 같은 방에서 다시 보낸다(서버가 이전 질문·답변을 지움) */
   function regenerate() {
-    if (busy) return;
+    if (locked) return;
     const lastUser = [...messages].reverse().find((m) => m.role === "user");
     if (!lastUser) return;
     setMessages((m) => m.slice(0, Math.max(0, m.length - 2)));
@@ -152,7 +197,8 @@ export default function ChatPage() {
 
   async function send(text?: string, isRegenerate = false) {
     const question = (text ?? input).trim();
-    if (!question || busy) return;
+    if (!question || locked) return;
+    if (unavailableBot) { setError({ text: "삭제됐거나 사용할 수 없는 봇입니다. 봇을 해제하거나 다시 선택해 주세요." }); return; }
     if (!isRegenerate) setInput("");
     setError(null);
     setNotice(null);
@@ -166,13 +212,14 @@ export default function ChatPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off", documentId: useDocs ? onlyDoc?.id : undefined, regenerate: isRegenerate, ...selection }),
+        body: JSON.stringify({ roomId, message: question, useDocs, web: webAuto ? "auto" : "off", documentId: useDocs ? onlyDoc?.id : undefined, regenerate: isRegenerate, ...selection, botRef, botRevision: selectedBot?.revision }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
         const d = await res.json().catch(() => ({}));
         setMessages((m) => m.slice(0, -1));
         setError({ text: d.error ?? "답변을 만들지 못했습니다.", needKey: d.needApiKey });
+        if (res.status === 409 || res.status === 404) void loadBots().catch(() => undefined);
         return;
       }
       const reader = res.body.getReader();
@@ -187,17 +234,18 @@ export default function ChatPage() {
         buffer = lines.pop() ?? "";
         for (const line of lines) {
           if (!line.trim()) continue;
-          const ev = JSON.parse(line) as { type: string; roomId?: string; sources?: Source[]; webNote?: string | null; text?: string; error?: string; needApiKey?: boolean; createdAt?: string };
+          const ev = JSON.parse(line) as { type: string; roomId?: string; sources?: Source[]; webNote?: string | null; text?: string; error?: string; needApiKey?: boolean; createdAt?: string; botRef?: string | null; generationContext?: GenerationContext };
           if (ev.type === "meta") {
             if (ev.roomId) setRoomId(ev.roomId);
-            patchLast((msg) => ({ ...msg, sources: ev.sources ?? [] }));
+            if (ev.botRef !== undefined) setBotRef(ev.botRef);
+            patchLast((msg) => ({ ...msg, sources: ev.sources ?? [], generation_context: ev.generationContext }));
             if (ev.webNote === "no_key") setNotice("Tavily 키를 등록하면 최신 정보가 필요한 질문을 웹에서 찾아 답합니다.");
             else if (ev.webNote?.startsWith("error:")) setNotice(`웹 검색을 하지 못해 검색 없이 답했습니다. ${ev.webNote.slice(6)}`);
             setStage("답변을 쓰는 중…");
           } else if (ev.type === "delta") {
             patchLast((msg) => ({ ...msg, content: msg.content + (ev.text ?? "") }));
           } else if (ev.type === "done") {
-            patchLast((msg) => ({ ...msg, pending: false, created_at: ev.createdAt ?? new Date().toISOString() }));
+            patchLast((msg) => ({ ...msg, pending: false, created_at: ev.createdAt ?? new Date().toISOString(), generation_context: ev.generationContext ?? msg.generation_context }));
           } else if (ev.type === "error") {
             if (ev.roomId) setRoomId(ev.roomId);
             patchLast((msg) => ({ ...msg, pending: false }));
@@ -383,6 +431,11 @@ export default function ChatPage() {
                     </div>
                   )}
                   {m.created_at && !m.pending && <p className="mt-1 text-[10px] text-slate-500">{timeLabel(m.created_at)}</p>}
+                  {m.role === "assistant" && !m.pending && m.generation_context && <details className="mt-2 text-left text-xs text-slate-400">
+                    <summary className="cursor-pointer">당시 답변 설정 · {m.generation_context.bot?.name ?? "일반 채팅"} · {m.generation_context.model}</summary>
+                    <p className="mt-1 break-all">{m.generation_context.provider} · {m.generation_context.model} · 온도 {m.generation_context.temperature}</p>
+                    {m.generation_context.bot && <pre className="mt-2 max-h-48 overflow-y-auto whitespace-pre-wrap break-words rounded-lg border border-slate-700 p-3 font-sans">{m.generation_context.bot.instructions}</pre>}
+                  </details>}
                 </div>
               </div>
             ))}
@@ -392,8 +445,18 @@ export default function ChatPage() {
 
         <div className="border-t border-[#1f2433] px-4 py-3">
           <div className="mx-auto max-w-3xl space-y-2">
-            <ProviderSelect dark legacy="upstage" value={selection} onChange={setSelection} disabled={busy} />
-            {selection.provider !== "upstage" && <p className="text-xs text-slate-400">질문·대화 이력과 참고 문서 내용이 선택한 AI에 전달됩니다. 문서 참고를 끄면 답변에 Upstage 키가 필요하지 않습니다.</p>}
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="min-w-0 flex-1 text-xs text-slate-300">대화 봇<select aria-label="대화 봇" className={`${INPUT} mt-1 text-xs`} value={botRef ?? ""} disabled={locked} onChange={(e) => void changeBot(e.target.value || null)}>
+                <option value="">일반 채팅 (봇 사용 안 함)</option>
+                <optgroup label="기본 제공 봇">{bots.filter((bot) => bot.builtin).map((bot) => <option key={bot.id} value={bot.id}>{bot.name}</option>)}</optgroup>
+                <optgroup label="내 봇">{bots.filter((bot) => !bot.builtin).map((bot) => <option key={bot.id} value={bot.id} disabled={bot.available === false}>{bot.name}{bot.available === false ? " (모델 변경 필요)" : ""}</option>)}</optgroup>
+                {botRef && !selectedBot && <option value={botRef}>삭제됐거나 사용할 수 없는 봇</option>}
+              </select></label>
+              <Link href="/bots" className="shrink-0 py-2 text-xs text-indigo-300 underline">내 봇 관리 →</Link>
+            </div>
+            {selectedBot && <p className="text-xs text-slate-400">선택한 역할: {selectedBot.name} · 온도 {selectedBot.temperature}. 모델·지침 변경은 내 봇 관리에서 합니다.</p>}
+            {unavailableBot ? <ErrorNote message="선택한 봇이 삭제됐거나 모델을 사용할 수 없습니다. 일반 채팅으로 해제하거나 다른 봇을 선택해 주세요." /> : <ProviderSelect dark legacy="upstage" value={selectedBot ?? selection} onChange={setSelection} disabled={locked || !!botRef} />}
+            {(selectedBot?.provider ?? selection.provider) !== "upstage" && <p className="text-xs text-slate-400">질문·대화 이력과 참고 문서 내용이 선택한 AI에 전달됩니다. 문서 참고를 끄면 답변에 Upstage 키가 필요하지 않습니다.</p>}
             {error && <ErrorNote message={error.text} needKey={error.needKey} />}
             {notice && <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-200">{notice}</p>}
             {onlyDoc && (
@@ -412,6 +475,7 @@ export default function ChatPage() {
                 value={input}
                 placeholder="질문을 입력하세요 (Enter 보내기 · Shift+Enter 줄바꿈)"
                 aria-label="질문 입력"
+                disabled={botSaving}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -420,16 +484,16 @@ export default function ChatPage() {
                   }
                 }}
               />
-              <button type="button" aria-label={busy ? "답변 중단" : "보내기"} onClick={() => busy ? requestRef.current?.abort() : void send()} disabled={!busy && !input.trim()} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-40">
+              <button type="button" aria-label={busy ? "답변 중단" : "보내기"} onClick={() => busy ? requestRef.current?.abort() : void send()} disabled={botSaving || (!busy && (!input.trim() || unavailableBot))} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-40">
                 {busy ? <X className="h-5 w-5" /> : <Send className="h-5 w-5" />}
               </button>
             </div>
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
               <label className="inline-flex cursor-pointer items-center gap-1.5">
-                <input type="checkbox" checked={useDocs} onChange={(e) => setUseDocs(e.target.checked)} /> 📄 내 문서 참고
+                <input type="checkbox" disabled={locked} checked={useDocs} onChange={(e) => setUseDocs(e.target.checked)} /> 📄 내 문서 참고
               </label>
               <label className="inline-flex cursor-pointer items-center gap-1.5">
-                <input type="checkbox" checked={webAuto} onChange={(e) => setWebAuto(e.target.checked)} /> 🌐 웹 검색(필요할 때 자동)
+                <input type="checkbox" disabled={locked} checked={webAuto} onChange={(e) => setWebAuto(e.target.checked)} /> 🌐 웹 검색(필요할 때 자동)
               </label>
               <span className="ml-auto text-[10px] text-slate-500">AI 답변은 틀릴 수 있으니 중요한 내용은 출처를 확인하세요.</span>
             </div>

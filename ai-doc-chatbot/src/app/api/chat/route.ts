@@ -8,6 +8,8 @@ import { buildRouterPrompt, buildSources, buildSystemPrompt, extractKeywords, is
 import { compatibleCredentials } from "@/lib/compatibleChat/keyStore";
 import { compatibleChat } from "@/lib/compatibleChat/transport";
 import { CompatibleChatError } from "@/lib/compatibleChat/config";
+import { generationContext, UUID, withBotInstructions } from "@/lib/bots/core";
+import { resolveBot } from "@/lib/bots/store";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -15,22 +17,39 @@ export const maxDuration = 120;
 
 const MAX_QUESTION = 4000;
 const HISTORY_TURNS = 10;
-const UUID = /^[0-9a-f-]{36}$/i;
 
 /** POST — 질문 하나에 답한다. 응답은 한 줄에 JSON 하나씩(meta → delta… → done | error) 흘려보낸다 */
 export async function POST(request: Request) {
   const gate = await authorize();
   if (!gate.ok) return gate.response;
   const userId = gate.auth.user.id;
-  const body = (await request.json().catch(() => ({}))) as { roomId?: unknown; message?: unknown; useDocs?: unknown; web?: unknown; documentId?: unknown; regenerate?: unknown; provider?: unknown; model?: unknown };
+  const input: unknown = await request.json().catch(() => null);
+  if (!input || typeof input !== "object" || Array.isArray(input)) return NextResponse.json({ error: "질문 요청을 확인해 주세요." }, { status: 400 });
+  const body = input as Record<string, unknown>;
   const question = typeof body.message === "string" ? body.message.trim().slice(0, MAX_QUESTION) : "";
   if (!question) return NextResponse.json({ error: "질문을 입력해 주세요." }, { status: 400 });
   const useDocs = body.useDocs !== false;
   const webMode = body.web === "off" ? "off" : "auto";
   const regenerate = body.regenerate === true;
 
-  const legacy = body.provider === undefined || body.provider === "upstage";
-  if (legacy && body.model !== undefined && body.model !== "solar-pro4") return NextResponse.json({ error: "기존 Solar 답변 모델을 다시 선택해 주세요." }, { status: 400 });
+  const admin = createAdminClient();
+  let roomId: string | null = null;
+  let savedBotRef: string | null = null;
+  if (body.roomId !== undefined && body.roomId !== null) {
+    if (typeof body.roomId !== "string" || !UUID.test(body.roomId)) return NextResponse.json({ error: "채팅방을 다시 선택해 주세요." }, { status: 400 });
+    const { data, error } = await admin.from("dcb_rooms").select("id,bot_ref").eq("id", body.roomId).eq("user_id", userId).maybeSingle();
+    if (error) return NextResponse.json({ error: "채팅방을 확인하지 못했습니다." }, { status: 500 });
+    if (!data) return NextResponse.json({ error: "채팅방을 찾지 못했습니다." }, { status: 404 });
+    roomId = data.id; savedBotRef = data.bot_ref;
+  }
+  let bot: Awaited<ReturnType<typeof resolveBot>>;
+  try { bot = await resolveBot(admin, userId, body.botRef === undefined ? savedBotRef : body.botRef, body.botRevision); }
+  catch (error) { return NextResponse.json({ error: error instanceof CompatibleChatError ? error.message : "봇 설정을 확인하지 못했습니다." }, { status: error instanceof CompatibleChatError ? error.status : 500 }); }
+  // 봇 설정은 회원 소유 DB/공개 기본 설정에서만 가져온다. 요청 본문의 가짜 모델·지침을 적용하지 않는다.
+  const provider = bot?.provider ?? (body.provider === undefined ? "upstage" : body.provider);
+  const model = bot?.model ?? body.model;
+  const legacy = provider === "upstage";
+  if (legacy && model !== undefined && model !== "solar-pro4") return NextResponse.json({ error: "기존 Solar 답변 모델을 다시 선택해 주세요." }, { status: 400 });
   let upstageKey: string | undefined;
   if (legacy || useDocs) {
     const up = await requireOwnKey(userId, "upstage");
@@ -39,23 +58,23 @@ export async function POST(request: Request) {
   }
   const tavilyKey = webMode === "auto" ? await getUserApiKey(userId, "tavily") : null;
 
-  const admin = createAdminClient();
   let credentials: Awaited<ReturnType<typeof compatibleCredentials>> | null = null;
   if (!legacy) {
-    try { credentials = await compatibleCredentials(admin, userId, body.provider, body.model); }
+    try { credentials = await compatibleCredentials(admin, userId, provider, model); }
     catch (error) { return NextResponse.json({ error: error instanceof CompatibleChatError ? error.message : "AI 연결 정보를 확인하지 못했습니다.", needApiKey: error instanceof CompatibleChatError && error.needApiKey }, { status: error instanceof CompatibleChatError ? error.status : 500 }); }
   }
 
-  // 채팅방: 내 방이 맞는지 확인하거나 새로 만든다
-  let roomId = typeof body.roomId === "string" && UUID.test(body.roomId) ? body.roomId : null;
-  if (roomId) {
-    const { data } = await admin.from("dcb_rooms").select("id").eq("id", roomId).eq("user_id", userId).maybeSingle();
-    if (!data) roomId = null;
-  }
+  const selection = { provider: credentials?.provider ?? "upstage", model: credentials?.model ?? "solar-pro4", temperature: bot?.temperature ?? 0.3 };
+  const context = generationContext(selection, bot);
+  const botRef = bot?.id ?? null;
+  // 본인 키·봇 검증을 마친 뒤에만 방과 질문을 저장한다.
   if (!roomId) {
-    const { data, error } = await admin.from("dcb_rooms").insert({ user_id: userId, title: roomTitleFrom(question) }).select("id").single();
+    const { data, error } = await admin.from("dcb_rooms").insert({ user_id: userId, title: roomTitleFrom(question), bot_ref: botRef }).select("id").single();
     if (error || !data) return NextResponse.json({ error: "채팅방을 만들지 못했습니다." }, { status: 500 });
     roomId = data.id as string;
+  } else if (botRef !== savedBotRef) {
+    const { error } = await admin.from("dcb_rooms").update({ bot_ref: botRef }).eq("id", roomId).eq("user_id", userId);
+    if (error) return NextResponse.json({ error: "채팅방의 봇 선택을 저장하지 못했습니다." }, { status: 500 });
   }
 
   // 「이 문서만 참고」(U4): 내 문서가 맞을 때만
@@ -83,7 +102,8 @@ export async function POST(request: Request) {
     .limit(HISTORY_TURNS * 2);
   const history: ChatMessage[] = (historyRows ?? []).reverse().map((m) => ({ role: m.role as "user" | "assistant", content: m.content as string }));
 
-  await admin.from("dcb_messages").insert({ room_id: roomId, user_id: userId, role: "user", content: question });
+  const { error: questionError } = await admin.from("dcb_messages").insert({ room_id: roomId, user_id: userId, role: "user", content: question, generation_context: context });
+  if (questionError) return NextResponse.json({ error: "질문을 저장하지 못했습니다. AI를 호출하지 않았습니다." }, { status: 500 });
 
   const today = todayKst();
   const encoder = new TextEncoder();
@@ -125,24 +145,26 @@ export async function POST(request: Request) {
         }
 
         const sources = buildSources(docs, web, webVia);
-        send({ type: "meta", roomId, sources, webNote });
+        send({ type: "meta", roomId, sources, webNote, botRef, generationContext: context });
 
         // 3) 답변(실시간으로 흘려보냄)
-        const messages: ChatMessage[] = [{ role: "system", content: buildSystemPrompt(today, docs, web) }, ...history, { role: "user", content: question }];
+        const messages: ChatMessage[] = [{ role: "system", content: withBotInstructions(buildSystemPrompt(today, docs, web), bot) }, ...history, { role: "user", content: question }];
         signal.throwIfAborted();
         const result = credentials
-          ? await compatibleChat({ ...credentials, messages, signal, onDelta: (text) => send({ type: "delta", text }) })
-          : { text: await chatStream(upstageKey!, messages, (text) => send({ type: "delta", text }), signal), model: "solar-pro4" };
+          ? await compatibleChat({ ...credentials, messages, temperature: selection.temperature, signal, onDelta: (text) => send({ type: "delta", text }) })
+          : { text: await chatStream(upstageKey!, messages, (text) => send({ type: "delta", text }), signal, selection.temperature), model: "solar-pro4" };
         const answer = result.text;
         signal.throwIfAborted();
 
-        const { data: saved } = await admin
+        const finalContext = generationContext(selection, bot, result.model);
+        const { data: saved, error: saveError } = await admin
           .from("dcb_messages")
-          .insert({ room_id: roomId, user_id: userId, role: "assistant", content: answer || "(빈 답변)", sources })
+          .insert({ room_id: roomId, user_id: userId, role: "assistant", content: answer || "(빈 답변)", sources, generation_context: finalContext })
           .select("id, created_at")
           .single();
+        if (saveError || !saved) throw new CompatibleChatError("답변을 받았지만 저장하지 못했습니다. 자동으로 재호출하지 않았습니다.", 500);
         await admin.from("dcb_rooms").update({ updated_at: new Date().toISOString() }).eq("id", roomId).eq("user_id", userId);
-        send({ type: "done", messageId: saved?.id ?? null, createdAt: saved?.created_at ?? null, model: result.model, provider: credentials?.provider ?? "upstage" });
+        send({ type: "done", messageId: saved.id, createdAt: saved.created_at, model: result.model, provider: selection.provider, generationContext: finalContext });
       } catch (err) {
         send({ type: "error", roomId, error: (err as Error).message || "답변을 만들지 못했습니다.", needApiKey: err instanceof CompatibleChatError && err.needApiKey });
       } finally {

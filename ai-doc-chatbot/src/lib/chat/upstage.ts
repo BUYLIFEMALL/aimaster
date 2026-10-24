@@ -42,12 +42,12 @@ export async function chatOnce(apiKey: string, model: string, messages: ChatMess
 }
 
 /** 답변을 조금씩 받아 onDelta로 넘긴다(SSE). 끝나면 전체 답변을 돌려준다 */
-export async function chatStream(apiKey: string, messages: ChatMessage[], onDelta: (text: string) => void, signal?: AbortSignal): Promise<string> {
+export async function chatStream(apiKey: string, messages: ChatMessage[], onDelta: (text: string) => void, signal?: AbortSignal, temperature = 0.3): Promise<string> {
   const res = await fetch(`${BASE}/chat/completions`, {
     method: "POST",
     signal,
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: ANSWER_MODEL, messages, stream: true, temperature: 0.3 }),
+    body: JSON.stringify({ model: ANSWER_MODEL, messages, stream: true, temperature }),
   });
   if (!res.ok || !res.body) throw await upstageError(res);
   const reader = res.body.getReader();

@@ -13,6 +13,7 @@ interface SidebarProps {
 // 좌측 메뉴(docs/SIDEBAR_LAYOUT_STANDARD.md): 계정·로그아웃은 마지막 메뉴 바로 아래에 붙인다(빈 공간으로 밀어내지 않음).
 const MAIN_ITEMS = [
   { href: "/chat", label: "AI 채팅", description: "질문하면 내 문서·웹을 근거로 답변", icon: MessagesSquare },
+  { href: "/bots", label: "내 봇 관리", description: "자주 쓰는 역할·모델 설정", icon: Bot },
   { href: "/documents", label: "내 문서", description: "PDF·문서 올리기 (RAG 검색용)", icon: FileText },
 ];
 const UTILITY_ITEMS = [
