@@ -1,4 +1,4 @@
-// E-3 간편 모드: AI 추천값 정리·작성 화면 넘겨받기 검사. 네트워크·AI 없음.
+// E-3·E-4 간편 모드: AI 추천값 정리·간편 원고 범위 판정. 네트워크·AI 없음.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -23,15 +23,16 @@ test('suggestion: custom persona needs name+desc, else falls back to first prese
   assert.equal(c.persona.id, 'custom'); assert.equal(c.persona.name.length, 20); assert.equal(c.category, '일반');
   assert.equal(q.readQuickSuggestion({ mainKeyword: '캠핑', persona: { id: 'unknown' } }, ids).persona.id, 'housewife');
 });
-test('quick start: valid payload within 10 minutes only, image 1~5, custom needs name/desc', () => {
-  const now = 1_000_000_000;
-  const ok = { topic: '실내 체험관', keywords: 'a, b', category: '육아', purpose: 'p', persona: { id: 'tech', name: '', desc: '' }, imageCount: 2, at: now - 1000 };
-  assert.equal(q.readQuickStart(JSON.stringify(ok), now).imageCount, 2);
-  assert.equal(q.readQuickStart(JSON.stringify({ ...ok, at: now - 11 * 60_000 }), now), null);
-  assert.equal(q.readQuickStart(JSON.stringify({ ...ok, imageCount: 0 }), now), null);
-  assert.equal(q.readQuickStart(JSON.stringify({ ...ok, imageCount: 6 }), now), null);
-  assert.equal(q.readQuickStart(JSON.stringify({ ...ok, topic: ' ' }), now), null);
-  assert.equal(q.readQuickStart(JSON.stringify({ ...ok, persona: { id: 'custom', name: '이름', desc: '' } }), now), null);
-  assert.equal(q.readQuickStart('{bad', now), null);
-  assert.equal(q.readQuickStart(null, now), null);
+test('E-4 scope: quick members see only quick posts; full members see all', () => {
+  const quickPost = { research_summary: { mode: 'quick', naver: {} } };
+  const fullPost = { research_summary: { naver: {} } };
+  assert.equal(q.isQuickPost(quickPost), true);
+  assert.equal(q.isQuickPost(fullPost), false);
+  assert.equal(q.isQuickPost({ research_summary: null }), false);
+  assert.equal(q.isQuickPost(null), false);
+  assert.equal(q.scopeAllowsPost('quick', quickPost), true);
+  assert.equal(q.scopeAllowsPost('quick', fullPost), false);
+  assert.equal(q.scopeAllowsPost('quick', null), false);
+  assert.equal(q.scopeAllowsPost('full', fullPost), true);
+  assert.equal(q.scopeAllowsPost('full', quickPost), true);
 });

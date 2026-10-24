@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
+import { scopeAllowsPost } from "@/lib/quickMode";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeNaverTags, parseNaverCategory, readNaverCategory, withNaverCategory, parseNaverExecutionMode, readNaverExecutionMode } from "@/lib/naverPublishing";
 import { postSaveRevision, savedPost, saveUuid, saveFingerprint, saveReceipt, withSaveReceipt, SAVE_CONFLICT } from "@/lib/postSaveProtocol";
@@ -17,14 +18,14 @@ async function ownedPost(admin: any, userId: string, id: string) {
 }
 
 export async function GET(_req: Request, context: Context) {
-  const access = await checkProgramAccessApi();
+  const access = await checkAccessScopeApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const { id } = await context.params;
   if (!/^[\da-f-]{36}$/i.test(id)) return NextResponse.json({ error: "원고를 먼저 보관함에 저장해 주세요." }, { status: 400 });
   const admin: any = createAdminClient();
   const { data: post, error } = await ownedPost(admin, access.userId, id);
   if (error) return NextResponse.json({ error: "발행 설정을 불러오지 못했습니다." }, { status: 500 });
-  if (!post) return NextResponse.json({ error: "본인 원고를 찾지 못했습니다." }, { status: 404 });
+  if (!post || !scopeAllowsPost(access.scope, post)) return NextResponse.json({ error: "본인 원고를 찾지 못했습니다." }, { status: 404 });
   const { data: account, error: accountError } = await admin.from("nba_accounts").select("default_category")
     .eq("user_id", access.userId).eq("blog_id", post.blog_id).maybeSingle();
   if (accountError) return NextResponse.json({ error: "블로그 기본 카테고리를 확인하지 못했습니다." }, { status: 500 });
@@ -35,7 +36,7 @@ export async function GET(_req: Request, context: Context) {
 }
 
 export async function PUT(req: Request, context: Context) {
-  const access = await checkProgramAccessApi();
+  const access = await checkAccessScopeApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const { id } = await context.params;
   if (!/^[\da-f-]{36}$/i.test(id)) return NextResponse.json({ error: "원고를 먼저 보관함에 저장해 주세요." }, { status: 400 });
@@ -45,7 +46,7 @@ export async function PUT(req: Request, context: Context) {
   const admin: any = createAdminClient();
   const { data: post, error } = await ownedPost(admin, access.userId, id);
   if (error) return NextResponse.json({ error: "원고를 확인하지 못했습니다." }, { status: 500 });
-  if (!post) return NextResponse.json({ error: "본인 원고를 찾지 못했습니다." }, { status: 404 });
+  if (!post || !scopeAllowsPost(access.scope, post)) return NextResponse.json({ error: "본인 원고를 찾지 못했습니다." }, { status: 404 });
   if(!saveUuid(body.save_request_id))return NextResponse.json({error:SAVE_CONFLICT},{status:409});
   const fingerprint=saveFingerprint("SETTINGS",{id,expected_revision:body.expected_revision,content:stableJson({category:body.category,tags:body.tags,setDefault:body.setDefault,executionMode:body.executionMode,reservation:body.reservation})});
   const receipt=saveReceipt(post,body.save_request_id,fingerprint);

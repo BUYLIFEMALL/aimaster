@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
+import { scopeAllowsPost } from "@/lib/quickMode";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { leaseExpired, nextTimestamp, publicPost, readExecution, RUN_PATH, withExecution } from "@/lib/executionRuns";
 import { getPostReview } from "@/lib/postReview";
@@ -9,7 +10,7 @@ export const fetchCache = "force-no-store";
 const reply=(body:Record<string,unknown>,status=200)=>NextResponse.json(body,{status,headers:{"Cache-Control":"no-store"}});
 export async function POST(req:Request,context:{params:Promise<{id:string}>}) {
   try{
-    const access=await checkProgramAccessApi();
+    const access=await checkAccessScopeApi();
     if(!access.allowed)return reply({error:access.error},access.status);
     const {id}=await context.params;
     const body=await req.json().catch(()=>null);
@@ -17,7 +18,7 @@ export async function POST(req:Request,context:{params:Promise<{id:string}>}) {
     const admin:any=createAdminClient();
     const {data:row,error}=await admin.from("nba_posts").select("*").eq("id",id).eq("user_id",access.userId).maybeSingle();
     if(error)return reply({error:"원고 상태를 확인하지 못했습니다."},503);
-    if(!row)return reply({error:"본인 원고를 찾을 수 없습니다."},404);
+    if(!row || !scopeAllowsPost(access.scope,row))return reply({error:"본인 원고를 찾을 수 없습니다."},404);
     const run=readExecution(row.research_summary);
     if(!run || run.runId!==body.runId || row.status!=="publishing" || !leaseExpired(run))return reply({error:"현재 실행이 진행 중이거나 상태가 바뀌었습니다. 새로고침 후 확인해 주세요."},409);
     const now=nextTimestamp(row.updated_at);

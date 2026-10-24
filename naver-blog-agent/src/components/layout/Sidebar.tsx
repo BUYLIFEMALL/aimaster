@@ -50,10 +50,13 @@ interface SidebarProps {
   userEmail: string;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
+  /** E-4: 간편 범위 회원은 간편 모드·키 등록만 보인다. */
+  scope?: "full" | "quick";
 }
 
-export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: SidebarProps) {
+export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile, scope = "full" }: SidebarProps) {
   const pathname = usePathname();
+  const quick = scope === "quick";
 
   const content = (
     <div className="flex h-full flex-col overflow-y-auto bg-white p-4">
@@ -62,7 +65,7 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
         <div className="mb-4 border-b border-slate-200/90 pb-4">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard"
+              href={quick ? "/quick" : "/dashboard"}
               onClick={() => {
                 if (onCloseMobile) onCloseMobile();
               }}
@@ -111,6 +114,7 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
 
         {/* 2. 대시보드 & 3단계 작업 흐름 */}
         <div className="space-y-3">
+          {!quick && (<>
           {/* 최상단 대시보드 */}
           <Link
             href="/dashboard"
@@ -126,6 +130,8 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
             <LayoutDashboard className={`h-4 w-4 ${pathname === "/dashboard" ? "text-emerald-600" : "text-slate-500"}`} />
             <span>대시보드 메인</span>
           </Link>
+
+          </>)}
 
           {/* E-3 간편 모드: 주제 하나로 원고·이미지까지 */}
           <Link
@@ -144,6 +150,16 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
             <span className="ml-auto text-[10px] font-bold text-amber-600">주제만 입력</span>
           </Link>
 
+          {quick ? (
+            <a
+              href="https://www.buylife.xyz/programs/naver-blog-agent"
+              className="flex items-center gap-2.5 rounded-xl border border-dashed border-emerald-300 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50"
+              title="글감 수집·단계별 편집·보관함·여러 계정 같은 전체 기능 안내"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>전체 기능 보기</span>
+            </a>
+          ) : (<>
           {/* 스텝퍼 섹션 라벨 */}
           <div className="px-1 pt-1">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -209,6 +225,7 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
               );
             })}
           </nav>
+          </>)}
         </div>
 
         {/* 3. 구분선 및 유틸리티 항목 */}
@@ -219,6 +236,7 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
             </span>
           </div>
 
+          {!quick && (<>
           {/* 📖 연동 & 사용 매뉴얼 */}
           <Link
             href="/guide"
@@ -235,14 +253,16 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile }: Side
             <span>📖 연동 & 사용 매뉴얼</span>
           </Link>
 
+          </>)}
+
           {/* 🔑 API키등록·플랫폼연동 */}
           <Link
-            href="/settings"
+            href={quick ? "/quick/settings" : "/settings"}
             onClick={() => {
               if (onCloseMobile) onCloseMobile();
             }}
             className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
-              pathname === "/settings"
+              pathname === (quick ? "/quick/settings" : "/settings")
                 ? "bg-amber-50 text-amber-700 border border-amber-200/80 shadow-2xs"
                 : "text-slate-700 hover:bg-slate-100"
             }`}

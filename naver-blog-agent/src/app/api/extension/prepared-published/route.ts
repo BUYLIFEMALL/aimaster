@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { evaluateProgramAccessForUser } from "@/lib/access";
+import { evaluateAccessScope } from "@/lib/access";
+import { scopeAllowsPost } from "@/lib/quickMode";
 import { recordPreparedPublish } from "@/lib/preparedPublish";
 
 export const dynamic = "force-dynamic";
@@ -19,10 +20,14 @@ export async function POST(req: Request) {
       .from("nba_extension_tokens").select("user_id").eq("token", token).maybeSingle();
     if (tokenError) return reply({ error: "연결을 확인하지 못했습니다. 다시 보고합니다." }, 503);
     if (!tokenRecord) return reply({ error: "인증 실패" }, 401);
-    const access = await evaluateProgramAccessForUser(tokenRecord.user_id);
+    const access = await evaluateAccessScope(tokenRecord.user_id);
     if (!access.allowed) return reply({ error: access.error }, access.status);
     const body = await req.json().catch(() => null);
     if (!body || typeof body.taskId !== "string" || typeof body.postUrl !== "string") return reply({ error: "taskId와 글 주소가 필요합니다." }, 400);
+    if (access.scope === "quick") {
+      const { data: own } = await admin.from("nba_posts").select("research_summary").eq("id", body.taskId).eq("user_id", tokenRecord.user_id).maybeSingle();
+      if (!scopeAllowsPost(access.scope, own)) return reply({ error: "본인 원고를 찾을 수 없습니다." }, 404);
+    }
     const result = await recordPreparedPublish(admin, tokenRecord.user_id, body.taskId, body.postUrl, "extension");
     return reply(result.body, result.status);
   } catch {

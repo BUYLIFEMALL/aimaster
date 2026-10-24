@@ -1,7 +1,8 @@
 import { validSource } from "@/lib/sourceBundle";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
+import { isQuickPost, scopeAllowsPost } from "@/lib/quickMode";
 import { handlePostSave } from "@/lib/postSaveHandler";
 import { postSaveRevision } from "@/lib/postSaveProtocol";
 import { getPostReview } from "@/lib/postReview";
@@ -31,7 +32,7 @@ async function resolveActiveTable(admin: any): Promise<"nba_posts" | "naver_blog
 // GET: 로그인 사용자의 원고 목록 조회
 export async function GET(request: Request) {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
     const user = { id: access.userId };
 
@@ -57,7 +58,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      const posts = (data || []).filter((row: any) => !row.research_summary?.source_bundle || validSource(row.research_summary.source_bundle, user.id)).map((row: any) => ({
+      const posts = (data || []).filter((row: any) => scopeAllowsPost(access.scope, row)).filter((row: any) => !row.research_summary?.source_bundle || validSource(row.research_summary.source_bundle, user.id)).map((row: any) => ({
         id: row.id,
         blog_id: row.blog_id || "myblog_sample",
         category_name: row.category_name || "일반",
@@ -128,11 +129,16 @@ export async function GET(request: Request) {
 // Saved drafts use a client revision and an atomic request receipt in the existing JSON.
 async function saveRequest(request: Request, method: "POST" | "PUT") {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({error: access.error}, {status: access.status, headers: {"Cache-Control": "no-store"}});
     const payload = await request.json().catch(() => null);
     const admin = createAdminClient() as any;
     if (await resolveActiveTable(admin) !== "nba_posts") return NextResponse.json({error: "원고 저장소를 확인하지 못했습니다. 현재 편집 내용을 보관한 뒤 다시 시도해 주세요."}, {status: 503, headers: {"Cache-Control": "no-store"}});
+    // E-4: 간편 범위 회원은 간편 모드가 만든 본인 원고만 고칠 수 있다(새 원고 만들기 불가).
+    if (access.scope === "quick") {
+      const {data: own} = await admin.from("nba_posts").select("research_summary").eq("id", typeof payload?.id === "string" ? payload.id : "").eq("user_id", access.userId).maybeSingle();
+      if (!isQuickPost(own)) return NextResponse.json({error: "간편 모드에서 만든 원고만 저장할 수 있습니다."}, {status: 403, headers: {"Cache-Control": "no-store"}});
+    }
     return await handlePostSave(admin, access.userId, payload, method);
   } catch {
     return NextResponse.json({error: "원고 저장을 확인하지 못했습니다. 같은 내용으로 다시 저장해 주세요."}, {status: 503, headers: {"Cache-Control": "no-store"}});
@@ -144,7 +150,7 @@ export const PUT = (request: Request) => saveRequest(request, "PUT");
 // DELETE: 원고 삭제
 export async function DELETE(request: Request) {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
     const user = { id: access.userId };
 
@@ -159,9 +165,9 @@ export async function DELETE(request: Request) {
     const targetTable = await resolveActiveTable(admin);
 
     if (targetTable === "nba_posts") {
-      const {data:current,error:readError}=await admin.from("nba_posts").select("id,status,updated_at").eq("id",id).eq("user_id",user.id).maybeSingle();
+      const {data:current,error:readError}=await admin.from("nba_posts").select("id,status,updated_at,research_summary").eq("id",id).eq("user_id",user.id).maybeSingle();
       if(readError)return NextResponse.json({error:"삭제 전 실행 상태를 확인하지 못했습니다."},{status:503});
-      if(!current)return NextResponse.json({error:"본인 원고를 찾을 수 없습니다."},{status:404});
+      if(!current || !scopeAllowsPost(access.scope,current))return NextResponse.json({error:"본인 원고를 찾을 수 없습니다."},{status:404});
       if(current.status==="publishing")return NextResponse.json({error:"입력 중인 원고는 삭제할 수 없습니다. 연결 종료 후 복구해 주세요."},{status:409});
       const { data:deleted,error } = await admin
         .from("nba_posts")

@@ -1,12 +1,12 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { evaluateProgramAccessForUser } from "@/lib/access";
+import { evaluateAccessScope, type AccessScope } from "@/lib/access";
 import { normalizeNaverTags, readNaverCategory, readNaverExecutionMode } from "@/lib/naverPublishing";
 import { containsShoppingLink, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
 
 /** 확장 토큰으로 회원을 확인하고 현재 이용 권한을 다시 검증한다. */
 export async function authenticateExtension(
   req: Request
-): Promise<{ ok: true; userId: string; token: string; admin: any } | { ok: false; error: string; status: number }> {
+): Promise<{ ok: true; userId: string; token: string; admin: any; scope: AccessScope } | { ok: false; error: string; status: number }> {
   const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "")?.trim();
   if (!token) return { ok: false, error: "인증 토큰이 누락되었습니다.", status: 401 };
 
@@ -19,10 +19,10 @@ export async function authenticateExtension(
   if(tokenError)return {ok:false,error:"확장 연결 확인이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.",status:503};
   if (!record) return { ok: false, error: "유효하지 않은 토큰입니다. 다시 연결해주세요.", status: 401 };
 
-  const access = await evaluateProgramAccessForUser(record.user_id);
+  const access = await evaluateAccessScope(record.user_id);
   if (!access.allowed) return { ok: false, error: access.error as string, status: access.status as number };
 
-  return { ok: true, userId: record.user_id, token, admin };
+  return { ok: true, userId: record.user_id, token, admin, scope: access.scope };
 }
 
 export interface BridgeAsset {

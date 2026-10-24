@@ -57,7 +57,6 @@ import { ARTICLE_FORMATS, type ArticleFormat } from "@/lib/ai/articleFormats";
 import { MAX_SHOPPING_LINKS, SHOPPING_DISCLOSURE } from "@/lib/shoppingLinks";
 import { MAX_REFERENCE_URLS, MAX_EXTRA_INSTRUCTIONS } from "@/lib/referenceUrls";
 import { CUSTOM_PERSONA_ID, MAX_CUSTOM_PERSONA_NAME, MAX_CUSTOM_PERSONA_DESC, MAX_EXPERIENCE } from "@/lib/memberVoice";
-import { QUICK_START_KEY, readQuickStart, type QuickStart } from "@/lib/quickMode";
 import SourceEvidence from "@/components/SourceEvidence";
 import { openAIModelBadge, openAIModelTierHint, openAIModelNotice } from "@/lib/ai/openaiRequestParams";
 import {
@@ -151,10 +150,6 @@ export default function MainPage() {
   const postSaveRef = useRef<PostSaveClient | null>(null);
   const [saveRevision,setSaveRevision] = useState<string | undefined>();
   const editorSaveRef = useRef<PostSaveClient | null>(null);
-  // E-3 간편 모드에서 넘어온 값(한 번만 자동 생성). accountsChecked = 서버 블로그 목록을 다 읽었는가.
-  const quickRef = useRef<QuickStart | null>(null);
-  const [quickReady, setQuickReady] = useState<QuickStart | null>(null);
-  const [accountsChecked, setAccountsChecked] = useState(false);
   useEffect(() => () => { sourceEpoch.current++; }, []);
   const [imageGenerating, setImageGenerating] = useState<{ done: number; total: number } | null>(null);
   const [singleGeneratingIndex, setSingleGeneratingIndex] = useState<number | null>(null);
@@ -205,11 +200,6 @@ export default function MainPage() {
   };
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("quick") === "1") {
-      try { quickRef.current = readQuickStart(sessionStorage.getItem(QUICK_START_KEY)); sessionStorage.removeItem(QUICK_START_KEY); } catch { quickRef.current = null; }
-      if (!quickRef.current) setError("간편 모드에서 넘어온 값이 없거나 10분이 지났습니다. 간편 모드에서 다시 시작해 주세요.");
-      window.history.replaceState(null, "", "/");
-    }
     const saved = localStorage.getItem("nba_accounts_local");
     if (saved) {
       try {
@@ -229,8 +219,7 @@ export default function MainPage() {
         setSelectedBlogId((prev) => (data.accounts.some((acc: any) => acc.blog_id === prev) ? prev : data.accounts[0]?.blog_id || ""));
         try { localStorage.setItem("nba_accounts_local", JSON.stringify(data.accounts)); } catch {}
       })
-      .catch(() => {})
-      .finally(() => setAccountsChecked(true));
+      .catch(() => {});
 
     // 회원 서버 목록만 사용한다. 출처와 주제는 URL에 복제하지 않는다.
     fetch("/api/collector/materials", {cache: "no-store"})
@@ -533,36 +522,6 @@ export default function MainPage() {
       overridePersona: activePersona,
     });
   };
-
-  // E-3 간편 모드 ① 넘겨받은 값을 입력칸에 채운다(저장된 기본 모델·서버 블로그 목록을 읽은 뒤).
-  useEffect(() => {
-    const q = quickRef.current;
-    if (!q || !preferencesLoaded || !accountsChecked) return;
-    quickRef.current = null;
-    if (!selectedBlogId) { setError("발행할 블로그를 먼저 등록해 주세요. 간편 모드 값은 입력칸에 채워 두었습니다."); }
-    setTopic(q.topic); setSearchKeywords(q.keywords); setCategory(q.category); setPublishPurpose(q.purpose);
-    if (q.persona.id === CUSTOM_PERSONA_ID) { setCustomPersonaName(q.persona.name); setCustomPersonaDesc(q.persona.desc); }
-    setActivePersonaId(q.persona.id);
-    setImageSettings((s) => ({ ...s, count: q.imageCount }));
-    setAutoGenerateImages(true);
-    if (selectedBlogId) setQuickReady(q);
-  }, [preferencesLoaded, accountsChecked, selectedBlogId]);
-
-  // E-3 간편 모드 ② 이미지 장수가 반영된 뒤 기존 생성 흐름을 그대로 한 번 실행한다.
-  useEffect(() => {
-    const q = quickReady;
-    if (!q || imageSettings.count !== q.imageCount || loading) return;
-    setQuickReady(null);
-    const preset = BLOG_PERSONAS.find((p) => p.id === q.persona.id);
-    void executeGeneration({
-      overrideTopic: q.topic,
-      overrideCategory: q.category,
-      overrideKeywords: q.keywords,
-      overridePurpose: q.purpose,
-      overrideTone: preferredTone,
-      overridePersona: preset ?? { id: CUSTOM_PERSONA_ID, name: q.persona.name, badge: "직접 입력", tonePrompt: q.persona.desc },
-    });
-  }, [quickReady, imageSettings.count]);
 
   // 공통 생성 실행 함수
   const executeGeneration = async (params: {

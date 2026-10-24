@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
 import { resolveAvailableAI } from "@/lib/apiKeys";
 import { callAI, parseJsonSafe } from "@/lib/ai/models";
 import { readQuickSuggestion } from "@/lib/quickMode";
@@ -10,7 +10,7 @@ export const fetchCache = "force-no-store";
 
 // E-3 간편 모드: 주제 하나로 핵심 키워드·보조 키워드·카테고리·글 목적·화자만 추천한다(원고는 기존 /api/generate가 만든다).
 export async function POST(req: Request) {
-  const access = await checkProgramAccessApi();
+  const access = await checkAccessScopeApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const body = await req.json().catch(() => null) as { topic?: unknown; engine?: { provider?: unknown; model?: unknown } } | null;
   const topic = typeof body?.topic === "string" ? body.topic.trim().slice(0, 300) : "";

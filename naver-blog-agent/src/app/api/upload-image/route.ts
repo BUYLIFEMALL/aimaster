@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
 export async function POST(req: Request) {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
     const user = { id: access.userId };
     const formData = await req.formData();

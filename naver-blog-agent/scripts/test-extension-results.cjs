@@ -42,7 +42,7 @@ function harness(options={}) {
   const module={exports:{}};
   const requireMock=name=>name==='next/server'?{NextResponse:{json:(body,init)=>({body,status:init?.status||200,headers:init?.headers||{}})}}
     :name==='@/lib/supabase/admin'?{createAdminClient:()=>admin}
-    :name==='@/lib/executionRuns'?loadRuntime():name==='@/lib/naverPublishing'?loadPublishing():name==='@/lib/access'?{evaluateProgramAccessForUser:async()=>access}:require(name);
+    :name==='@/lib/executionRuns'?loadRuntime():name==='@/lib/naverPublishing'?loadPublishing():name==='@/lib/access'?withScope({evaluateProgramAccessForUser:async()=>access}):name==='@/lib/quickMode'?{QUICK_POST_MODE:'quick',scopeAllowsPost:(s,r)=>s==='full'||r?.research_summary?.mode==='quick'}:require(name);
   new Function('require','module','exports',compiled)(requireMock,module,module.exports);
   const send=(body={taskId:'task',success:true,postUrl:'https://blog.naver.com/myblog/123'},token='token')=>module.exports.POST({
     headers:{get:()=>token?`Bearer ${token}`:null},json:async()=>{if(body==='invalid-json')throw new Error('bad json');return body;},
@@ -120,3 +120,10 @@ test('prepared reports require saved prepare mode and cannot include publication
  rejected(await harness().send({taskId:'task',success:false,prepared:true}),409);
  rejected(await harness().send({taskId:'task',success:true,prepared:true}),400);
 });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

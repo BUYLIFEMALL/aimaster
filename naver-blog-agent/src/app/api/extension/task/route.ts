@@ -4,6 +4,7 @@ import { hasBodyText } from "@/lib/bodyText";
 import { validSource } from "@/lib/sourceBundle";
 import { getPostReview } from "@/lib/postReview";
 import { PrivatePhotoError, resolvePrivatePostPhotos } from "@/lib/privatePhotos";
+import { QUICK_POST_MODE } from "@/lib/quickMode";
 import { connectionOwner, newExecution, OWNER_PATH, publicExecution, readExecution, withExecution } from "@/lib/executionRuns";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,8 @@ export async function POST(req: Request) {
       .order("created_at", { ascending: true })
       .limit(1);
     if (blogId) query = query.eq("blog_id", blogId);
+    // E-4: 간편 범위 회원의 확장에는 간편 모드 원고만 준다.
+    if (auth.scope === "quick") query = query.eq("research_summary->>mode", QUICK_POST_MODE);
 
     const { data: posts, error: postErr } = await query;
     if (postErr) return reply({error:"작업 대기 목록을 확인하지 못했습니다."},{status:503});

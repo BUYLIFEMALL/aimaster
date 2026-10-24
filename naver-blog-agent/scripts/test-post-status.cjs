@@ -53,7 +53,7 @@ function loadTS(rel) {
   const js = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const mockRequire = (id) => {
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ status: (init && init.status) || 200, body }) } };
-    if (id === '@/lib/access') return { checkProgramAccessApi: async () => ({ allowed: true, userId: currentUser }) };
+    if (id === '@/lib/access') return withScope({ checkProgramAccessApi: async () => ({ allowed: true, userId: currentUser }) });
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => admin };
     if (id === 'server-only') return {}; // 2026-10-23: 서버 전용 표시는 시험에서 빈 값(v2.04~ privatePhotoPost가 쓰기 시작)
     if (id === '@/lib/executionRuns') return loadTS('lib/executionRuns.ts');
@@ -136,3 +136,10 @@ assert.equal(resolveSaveStatus('published', 'queued'), 'queued', '명시적 큐 
 
   console.log('post status ok');
 })().catch((e) => { console.error(e); process.exit(1); });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

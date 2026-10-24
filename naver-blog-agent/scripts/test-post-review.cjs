@@ -42,7 +42,7 @@ function harness() {
       if(id==='server-only')return {};
       if(id==='next/server')return {NextResponse:{json:(body,init)=>({body,status:init?.status || 200,headers:init?.headers})}};
       if(id==='@/lib/supabase/admin')return {createAdminClient:()=>admin};
-      if(id==='@/lib/access')return {checkProgramAccessApi:async()=>access?{allowed:true,userId:'owner'}:{allowed:false,error:'로그인 필요',status:401},evaluateProgramAccessForUser:async()=>access?{allowed:true}:{allowed:false,error:'로그인 필요',status:403}};
+      if(id==='@/lib/access')return (m=>({...m,checkAccessScopeApi:async()=>{const r=await m.checkProgramAccessApi();return r.allowed?{...r,scope:'full'}:r;},evaluateAccessScope:async(uid)=>{const r=await m.evaluateProgramAccessForUser(uid);return r.allowed?{...r,scope:'full'}:r;}}))({checkProgramAccessApi:async()=>access?{allowed:true,userId:'owner'}:{allowed:false,error:'로그인 필요',status:401},evaluateProgramAccessForUser:async()=>access?{allowed:true}:{allowed:false,error:'로그인 필요',status:403}});
       if(id==='@/lib/apiKeys')return {resolveAvailableAI:async(userId,provider)=>{assert.equal(userId,'owner');return {provider:provider || 'openai',apiKey:'mock-owner-key'};}};
       if(id==='@/lib/ai/pipeline')return {runBlogGenerationPipeline:async args=>{input=args;return generated;}};
       if(id==='@/lib/extensionBridge')return {authenticateExtension:async(req)=>access?{ok:true,admin,userId:'owner',token: req.headers.get('authorization').replace('Bearer ','')}:{ok:false,status:401,error:'denied'},buildBridgePayload:row=>({title:row.title,executionMode:row.research_summary?.naver_publishing?.execution_mode || 'publish'})};
@@ -306,3 +306,4 @@ test('BLC-07: an empty-body queued draft is failed without a claim and does not 
   const again=await route.POST(h.request(modernClaim));
   assert.equal(again.body.task.id,'second');assert.equal(next.status,'publishing');assert.equal(empty.status,'failed');
 });
+

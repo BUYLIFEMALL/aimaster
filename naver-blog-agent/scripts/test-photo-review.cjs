@@ -41,7 +41,7 @@ function harness(data = input()) {
     function mocked(name) {
       if (name === 'server-only') return {};
       if (name === 'next/server') return { NextResponse: { json: (body, init) => ({ body, status: init?.status || 200, headers: init?.headers }) } };
-      if (name === '@/lib/access') return { checkProgramAccessApi: async () => state.allowed ? { allowed: true, userId: OWNER } : { allowed: false, status: 401, error: '로그인 필요' } };
+      if (name === '@/lib/access') return withScope({ checkProgramAccessApi: async () => state.allowed ? { allowed: true, userId: OWNER } : { allowed: false, status: 401, error: '로그인 필요' } });
       if (name === '@/lib/apiKeys') return { resolveApiKey: async (owner, provider) => { state.keyReads.push({ owner, provider }); return state.key; } };
       if (name === '@/lib/supabase/admin') return { createAdminClient: () => admin };
       if (name.startsWith('@/')) return load(name.slice(2) + '.ts');
@@ -160,3 +160,10 @@ test('copy keeps direct-review warning and confirmation items with the draft', (
   const text = photoReviewPlainText({ ...draft(input()), warning: PHOTO_REVIEW_WARNING });
   assert.ok(text.includes(PHOTO_REVIEW_WARNING)); assert.ok(text.includes('가격은 입력하지 않았으므로 확인 필요')); assert.ok(text.includes('사진에는 붉은 면이 보여요.'));
 });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

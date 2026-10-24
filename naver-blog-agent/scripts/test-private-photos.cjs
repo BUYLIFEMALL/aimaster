@@ -46,7 +46,7 @@ function harness() {
       if (name === 'server-only') return {};
       if (name === 'next/server') return { NextResponse: { json: (body, init) => ({ body, status: init?.status || 200, headers: init?.headers }) } };
       if (name === '@/lib/supabase/admin') return { createAdminClient: () => admin };
-      if (name === '@/lib/access') return { checkProgramAccessApi: async () => state.allowed ? { allowed: true, userId: OWNER } : { allowed: false, status: 401, error: '로그인 필요' } };
+      if (name === '@/lib/access') return withScope({ checkProgramAccessApi: async () => state.allowed ? { allowed: true, userId: OWNER } : { allowed: false, status: 401, error: '로그인 필요' } });
       if (name === '@/lib/postReview') return { getPostReview: () => ({ allowed: true }) };
       if (name === '@/lib/extensionBridge') return { authenticateExtension: async () => state.allowed ? { ok: true, userId: OWNER, token: 'own-token', admin } : { ok: false, status: 401, error: '로그인 필요' }, buildBridgePayload: load('lib/extensionBridge.ts').buildBridgePayload };
       if (name === '@/lib/naverRanking') return { checkRankingHealth: async () => [] };
@@ -273,3 +273,10 @@ test('새 글감 정리 실패도 성공으로 숨기지 않으며 dry 모드가
     assert.equal(result.status,503);assert.equal(result.body.success,false);assert.ok(result.body.sourceMaterials.error);assert.equal(result.body.dryRun,true);assert.equal(h.state.removed.length,0);
   } finally {previous===undefined?delete process.env.CRON_SECRET:process.env.CRON_SECRET=previous;}
 });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

@@ -46,7 +46,7 @@ test('server loads own original material, refuses foreign/missing source before 
 test('collector edit API denies unauthenticated requests and immutable fields; always binds server owner',async()=>{
   let allowed=false,rpcCall=null;
   const admin={rpc:async(name,args)=>{rpcCall={name,args};return {error:{code:'P0001',message:'source_conflict'}}}};
-  const load=loader({'next/server':{NextResponse:{json:(body,init)=>({body,status:init?.status||200})}},'@/lib/access':{checkProgramAccessApi:async()=>allowed?{allowed:true,userId:OWNER}:{allowed:false,status:401,error:'denied'}},'@/lib/supabase/admin':{createAdminClient:()=>admin}});
+  const load=loader({'next/server':{NextResponse:{json:(body,init)=>({body,status:init?.status||200})}},'@/lib/access':withScope({checkProgramAccessApi:async()=>allowed?{allowed:true,userId:OWNER}:{allowed:false,status:401,error:'denied'}}),'@/lib/supabase/admin':{createAdminClient:()=>admin}});
   const route=load('app/api/collector/materials/route.ts'),req=body=>({json:async()=>body}),fields={title:'수정 제목',content:'수정 요약',category:'생활',status:'used',is_archived:true};
   assert.equal((await route.PATCH(req({}))).status,401);assert.equal(rpcCall,null);allowed=true;
   assert.equal((await route.PATCH(req({changes:[{id:ID,revision:new Date().toISOString(),fields:{...fields,source:{text:'forged'}}}]}))).status,400);assert.equal(rpcCall,null);
@@ -89,3 +89,10 @@ test('generate uses server material, ignoring forged client sourceMaterial when 
   assert.equal(response.status,200);assert.match(h.input.sourceMaterial,/합성 시험 자료/);assert.doesNotMatch(h.input.sourceMaterial,/INJECTED/);assert.equal(response.body.post.created_at,bundle.collectedAt);assert.deepEqual(response.body.post.source_bundle,bundle);
   h.db.nba_collected_materials[0].user_id='foreign';const denied=await route.POST(h.request({category:'생활',blogId:'myblog',source_id:ID}));assert.equal(denied.status,410);assert.equal(h.db.nba_posts.length,1);
 });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

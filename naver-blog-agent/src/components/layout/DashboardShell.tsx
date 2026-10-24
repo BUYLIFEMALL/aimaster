@@ -8,9 +8,10 @@ import DialogHost from "@/components/DialogHost";
 interface DashboardShellProps {
   userEmail: string;
   children: React.ReactNode;
+  scope?: "full" | "quick";
 }
 
-export function DashboardShell({ userEmail, children }: DashboardShellProps) {
+export function DashboardShell({ userEmail, children, scope = "full" }: DashboardShellProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   return (
@@ -20,6 +21,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         userEmail={userEmail}
         isOpenMobile={isMobileNavOpen}
         onCloseMobile={() => setIsMobileNavOpen(false)}
+        scope={scope}
       />
 
       {/* 우측 메인 영역 */}

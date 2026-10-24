@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
+import { scopeAllowsPost } from "@/lib/quickMode";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPostReview, withPostReview } from "@/lib/postReview";
 import { postReviewSnapshot } from "@/lib/postReviewSnapshot";
@@ -16,19 +17,19 @@ async function owned(context:Context,userId:string) {
   return {admin,data,error};
 }
 export async function GET(_req:Request,context:Context) {
-  const access=await checkProgramAccessApi();if(!access.allowed)return reply({error:access.error},access.status);
+  const access=await checkAccessScopeApi();if(!access.allowed)return reply({error:access.error},access.status);
   const {data,error}=await owned(context,access.userId);
   if(error)return reply({error:"검수 기록을 확인하지 못했습니다."},503);
-  if(!data)return reply({error:"본인 원고를 찾을 수 없습니다."},404);
+  if(!data || !scopeAllowsPost(access.scope,data))return reply({error:"본인 원고를 찾을 수 없습니다."},404);
   return reply({review:getPostReview(data),snapshot:postReviewSnapshot(data),postStatus:data.status,save_revision:postSaveRevision(data)});
 }
 export async function POST(req:Request,context:Context) {
-  const access=await checkProgramAccessApi();if(!access.allowed)return reply({error:access.error},access.status);
+  const access=await checkAccessScopeApi();if(!access.allowed)return reply({error:access.error},access.status);
   const body=await req.json().catch(()=>null);
   if(body?.confirmed!==true || typeof body.fingerprint!=="string")return reply({error:"저장한 원고의 사실·출처·이미지·표현을 확인하고 직접 검수를 완료해 주세요."},400);
   const {admin,data,error}=await owned(context,access.userId);
   if(error)return reply({error:"원고를 확인하지 못했습니다."},503);
-  if(!data)return reply({error:"본인 원고를 찾을 수 없습니다."},404);
+  if(!data || !scopeAllowsPost(access.scope,data))return reply({error:"본인 원고를 찾을 수 없습니다."},404);
   if(["queued","publishing"].includes(data.status))return reply({error:"작업 대기를 취소한 뒤 직접 검수해 주세요."},409);
   const review=getPostReview(data);
   if(review.fingerprint!==body.fingerprint)return reply({error:"검수 중 원고가 변경됐습니다. 최신 원고를 다시 확인해 주세요."},409);

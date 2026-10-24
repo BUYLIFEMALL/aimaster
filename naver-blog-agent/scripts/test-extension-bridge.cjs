@@ -39,10 +39,11 @@ function loadTS(filename) {
     if (id === './privatePhotoRules') return loadTS(path.join(root, 'src/lib/privatePhotoRules.ts'));
     if (id === './cleanupUsageLog') return loadTS(path.join(root, 'src/lib/cleanupUsageLog.ts')); // 2026-10-23 privatePhotos가 정리 기록 공용 사본을 불러옴
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => db };
-    if (id === '@/lib/access') return { evaluateProgramAccessForUser: async () => access };
+    if (id === '@/lib/access') return withScope({ evaluateProgramAccessForUser: async () => access });
     if (id === '@/lib/version') return loadTS(path.join(root, 'src/lib/version.ts'));
     if (id === '@/lib/extensionBridge') return loadTS(path.join(root, 'src/lib/extensionBridge.ts'));
     if (id === '@/lib/naverPublishing') return loadTS(path.join(root, 'src/lib/naverPublishing.ts'));
+    if (id === '@/lib/quickMode') return loadTS(path.join(root, 'src/lib/quickMode.ts'));
     if (id === '@/lib/shoppingLinks') return loadTS(path.join(root, 'src/lib/shoppingLinks.ts'));
     if (id === '@/lib/executionRuns') return loadTS(path.join(root, 'src/lib/executionRuns.ts'));
     if (id === '@/lib/bodyText') return loadTS(path.join(root, 'src/lib/bodyText.ts'));
@@ -162,7 +163,7 @@ function fakeDb(rows, tokens) {
 const taskRoute = loadTS(path.join(root, 'src/app/api/extension/task/route.ts'));
 const statusRoute = loadTS(path.join(root, 'src/app/api/extension/status/route.ts'));
 const finishSrc = fs.readFileSync(path.join(root, 'src/app/api/extension/finish/route.ts'), 'utf8');
-assert.ok(finishSrc.includes('evaluateProgramAccessForUser'), '결과 반영 전 권한 재검증 유지');
+assert.ok(finishSrc.includes('evaluateAccessScope'), '결과 반영 전 권한 재검증 유지(E-4 범위 판정)');
 const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'authorization' && token ? `Bearer ${token}` : null) }, json: async () => body });
 
 (async () => {
@@ -407,3 +408,10 @@ const post = (token, body) => ({ headers: { get: (k) => (k.toLowerCase() === 'au
   assert.ok(!/46321|tistory/i.test(fs.readFileSync(path.join(root, 'extension/background.js'), 'utf8')));
   console.log('extension bridge tests passed');
 })().catch((e) => { console.error(e); process.exit(1); });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

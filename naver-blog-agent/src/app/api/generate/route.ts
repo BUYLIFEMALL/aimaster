@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
+import { QUICK_POST_MODE } from "@/lib/quickMode";
 import { resolveAvailableAI } from "@/lib/apiKeys";
 import { runBlogGenerationPipeline } from "@/lib/ai/pipeline";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -21,10 +22,13 @@ export const fetchCache = "force-no-store";
 
 export async function POST(req: Request) {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
     const user = { id: access.userId };
     const body = await req.json();
+    // E-4: 간편 범위 회원은 간편 모드 요청만(글감·참고 URL·쇼핑 링크 같은 전체 기능 입력은 받지 않음)
+    const quick = body?.mode === QUICK_POST_MODE;
+    if (access.scope === "quick" && (!quick || body.source_id || body.sourceMaterial || (Array.isArray(body.referenceUrls) && body.referenceUrls.length) || (Array.isArray(body.shoppingLinks) && body.shoppingLinks.length))) return NextResponse.json({ error: "이 기능은 에이전트 전체 기능 회원만 쓸 수 있습니다. 간편 모드에서 만들어 주세요." }, { status: 403 });
     const blogId=typeof body.blogId==="string"?body.blogId.trim():"";
     const {
       topic,
@@ -122,7 +126,7 @@ export async function POST(req: Request) {
     if (source && Date.parse(source.bundle.expiresAt) <= Date.now()) throw new SourceError("생성 중 근거 자료가 만료됐습니다. 원고를 저장하지 않았습니다.", 410);
     if (source) result.sourceBundle = source.bundle;
     const row={user_id:user.id,blog_id:blogId,category_name:result.category,title:result.title,content:result.content,tags:result.tags,images:result.images,status:"draft", ...(source ? {created_at: source.bundle.collectedAt} : {})};
-    const summary=withPostReview({...newNaverDraftSummary(blogId), ...(source ? {source_bundle: source.bundle} : {}), ...(references.pages.length ? {reference_urls: references.pages.map((page)=>page.url)} : {}), ...(topicNews.length ? {news_sources: topicNews.map(({title,url,source,publishedAt})=>({title,url,source,publishedAt}))} : {})},{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
+    const summary=withPostReview({...newNaverDraftSummary(blogId), ...(quick ? {mode: QUICK_POST_MODE} : {}), ...(source ? {source_bundle: source.bundle} : {}), ...(references.pages.length ? {reference_urls: references.pages.map((page)=>page.url)} : {}), ...(topicNews.length ? {news_sources: topicNews.map(({title,url,source,publishedAt})=>({title,url,source,publishedAt}))} : {})},{status:result.reviewStatus || "UNKNOWN",source:"ai",note:result.reviewNote || "",fingerprint:reviewFingerprint(row),checkedAt:new Date().toISOString()});
     let post:any=null,saveError:unknown=null;
     try {const saved=await admin.from("nba_posts").insert({...row,research_summary:summary}).select("*").single();post=saved.data;saveError=saved.error;}
     catch {saveError=true;}

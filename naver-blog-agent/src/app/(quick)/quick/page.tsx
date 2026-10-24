@@ -2,27 +2,39 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Zap, Loader2, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { BLOG_PERSONAS } from "@/types/persona";
-import { QUICK_CUSTOM_PERSONA_ID, QUICK_START_KEY, quickKeywords, type QuickSuggestion } from "@/lib/quickMode";
+import { QUICK_CUSTOM_PERSONA_ID, QUICK_POST_MODE, quickKeywords, type QuickSuggestion } from "@/lib/quickMode";
+import { PostSaveClient } from "@/lib/postSaveClient";
+import { mergeDraftImage, pendingDraftImages, type DraftImage } from "@/lib/draftImages";
+import { DEFAULT_IMAGE_MODELS, DEFAULT_IMAGE_PLATFORM, findImageModel } from "@/lib/ai/contentModels";
+import QuickResult, { type QuickPost } from "@/components/quick/QuickResult";
 
-// E-3 간편 모드: 주제 → 키워드·화자 추천 → 기존 작성 화면에서 원고·이미지 자동 생성(새 생성 엔진 없음).
+// E-3 간편 모드: 주제 → 키워드·화자 추천 → 에이전트 생성 API(기획·작성·윤문) → 이미지 → 저장 → 간편 결과 화면(E-4). 새 생성 엔진 없음.
 export default function QuickModePage() {
-  const router = useRouter();
   const [topic, setTopic] = useState("");
   const [imageCount, setImageCount] = useState(2);
   const [engine, setEngine] = useState<{ provider: string; model: string } | null>(null);
+  const [image, setImage] = useState<{ model: string; ratio: string }>({ model: DEFAULT_IMAGE_MODELS[DEFAULT_IMAGE_PLATFORM], ratio: "1:1" });
   const [status, setStatus] = useState<{ accounts: number | null; keys: string[] | null }>({ accounts: null, keys: null });
+  const [blogIds, setBlogIds] = useState<string[]>([]);
+  const [blogId, setBlogId] = useState("");
   const [suggestion, setSuggestion] = useState<QuickSuggestion | null>(null);
   const [personaId, setPersonaId] = useState("");
   const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState<string | null>(null);
+  const [post, setPost] = useState<QuickPost | null>(null);
+  const [saver, setSaver] = useState<PostSaveClient | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [needKey, setNeedKey] = useState(false);
 
   useEffect(() => {
     fetch("/api/accounts", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null))
-      .then((d) => setStatus((s) => ({ ...s, accounts: Array.isArray(d?.accounts) ? d.accounts.length : 0 }))).catch(() => setStatus((s) => ({ ...s, accounts: 0 })));
+      .then((d) => {
+        const ids: string[] = Array.isArray(d?.accounts) ? d.accounts.map((a: { blog_id?: string }) => a.blog_id).filter(Boolean) : [];
+        setBlogIds(ids); setBlogId(ids[0] || "");
+        setStatus((s) => ({ ...s, accounts: ids.length }));
+      }).catch(() => setStatus((s) => ({ ...s, accounts: 0 })));
     fetch("/api/keys", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null))
       .then((d) => setStatus((s) => ({ ...s, keys: Array.isArray(d?.registered) ? d.registered : [] }))).catch(() => setStatus((s) => ({ ...s, keys: [] })));
     fetch("/api/generation-preferences", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null))
@@ -30,6 +42,7 @@ export default function QuickModePage() {
         const p = d?.preferences;
         if (p?.textProvider && p?.textModel) setEngine({ provider: p.textProvider, model: p.textModel });
         if (p?.imageCount) setImageCount(Math.min(5, Math.max(1, Number(p.imageCount) || 2)));
+        if (p?.imageModel && findImageModel(p.imageModel)) setImage({ model: p.imageModel, ratio: p.imageRatio || "1:1" });
       }).catch(() => {});
   }, []);
 
@@ -52,17 +65,49 @@ export default function QuickModePage() {
     }
   };
 
-  const start = () => {
-    if (!suggestion) return;
+  const start = async () => {
+    if (!suggestion || stage) return;
     const preset = BLOG_PERSONAS.find((p) => p.id === personaId);
-    const persona = preset ? { id: preset.id, name: "", desc: "" } : suggestion.persona;
+    const persona = preset
+      ? { id: preset.id, name: preset.name, badge: preset.badge, tonePrompt: preset.tonePrompt }
+      : { id: QUICK_CUSTOM_PERSONA_ID, name: suggestion.persona.name, badge: "직접 입력", tonePrompt: suggestion.persona.desc };
+    setError(null); setNeedKey(false); setPost(null); setSaver(null);
     try {
-      sessionStorage.setItem(QUICK_START_KEY, JSON.stringify({ topic: topic.trim(), keywords: quickKeywords(suggestion), category: suggestion.category, purpose: suggestion.purpose, persona, imageCount, at: Date.now() }));
-    } catch {
-      setError("브라우저 저장 공간을 쓸 수 없어 이어서 만들 수 없습니다. 콘텐츠 생성 화면에서 직접 만들어 주세요.");
-      return;
+      setStage("원고를 만드는 중입니다(기획 → 작성 → 윤문, 1~2분).");
+      const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+        mode: QUICK_POST_MODE, blogId, imageCount, topic: topic.trim(), category: suggestion.category || "일반", searchKeywords: quickKeywords(suggestion),
+        publishPurpose: suggestion.purpose, preferredTone: preset?.preferredTone ?? "해요체", engine: engine ?? undefined, persona,
+      }) });
+      const data = await res.json();
+      if (!res.ok) { if (data.needKey) setNeedKey(true); throw new Error(data.error || "원고를 만들지 못했습니다."); }
+      if (!data.saved || !data.post) throw new Error(data.saveError || "원고를 보관함에 저장하지 못했습니다. 다시 시도해 주세요.");
+      const client = new PostSaveClient(data.post);
+      let current: QuickPost = { id: data.post.id, blog_id: data.post.blog_id, category_name: data.post.category_name, title: data.post.title, content: data.post.content, tags: data.post.tags || [], images: data.post.images || [], save_revision: data.post.save_revision };
+      const plans: DraftImage[] = current.images;
+      const todo = pendingDraftImages(plans);
+      const failures: string[] = [];
+      for (let i = 0; i < todo.length; i++) {
+        setStage(`이미지를 만드는 중입니다(${i + 1}/${todo.length}장).`);
+        const item = todo[i];
+        try {
+          const r = await fetch("/api/generate-image", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: item.prompt, imageModel: image.model, ratio: image.ratio, caption: item.caption, type: item.type }) });
+          const d = await r.json();
+          if (!r.ok || !d.url) { if (d.needKey) setNeedKey(true); throw new Error(d.error || "이미지 주소가 없습니다."); }
+          const images = mergeDraftImage(current.images, { url: d.url, type: item.type, caption: item.caption, prompt: item.prompt }, plans);
+          const saved = await client.save({ images });
+          current = { ...current, images: saved.images || images, save_revision: saved.save_revision };
+        } catch (e) {
+          failures.push(`${item.caption}: ${e instanceof Error ? e.message : "통신 오류"}`);
+        }
+      }
+      setSaver(client); setPost(current);
+      if (failures.length) setError(`이미지 ${failures.length}장을 만들지 못했습니다(원고는 저장됨). ${failures.join(" / ")}`);
+      setTimeout(() => document.getElementById("quick-result")?.scrollIntoView({ behavior: "smooth" }), 150);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "원고를 만들지 못했습니다.");
+    } finally {
+      setStage(null);
     }
-    router.push("/?quick=1");
   };
 
   const setSub = (i: number, v: string) => suggestion && setSuggestion({ ...suggestion, subKeywords: suggestion.subKeywords.map((s, j) => (j === i ? v : s)) });
@@ -76,13 +121,13 @@ export default function QuickModePage() {
           <span className="text-xs text-neutral-500">주제 하나로 원고·이미지까지</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900 mt-1">주제만 적으면 바로 만들기</h1>
-        <p className="text-xs text-neutral-500 mt-0.5">AI가 키워드와 화자를 추천하고, 콘텐츠 생성 화면의 같은 단계(기획·작성·윤문 → 이미지 → 보관함 저장)를 자동으로 이어서 실행합니다. 세부 조건을 직접 정하려면 <Link href="/" className="font-bold text-emerald-700 underline">콘텐츠 생성</Link>을 쓰세요.</p>
+        <p className="text-xs text-neutral-500 mt-0.5">AI가 키워드와 화자를 추천하고, 에이전트와 같은 단계(기획·작성·윤문 → 이미지)로 원고를 만든 뒤 최종 확인을 거쳐 네이버에 입력합니다.</p>
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">
-        <StatusCard label="발행할 블로그" ok={(status.accounts ?? 0) > 0} loading={status.accounts === null} okText={`${status.accounts}개 등록`} failText="블로그 등록 필요" href="/accounts" />
-        <StatusCard label="AI 본인 키" ok={Boolean(hasAiKey)} loading={status.keys === null} okText="등록됨" failText="키 등록 필요" href="/settings" />
-        <StatusCard label="크롬 확장" ok loading={false} okText="입력할 때 확인" failText="" href="/guide" />
+        <StatusCard label="발행할 블로그" ok={(status.accounts ?? 0) > 0} loading={status.accounts === null} okText={`${status.accounts}개 등록`} failText="블로그 등록 필요" href="/quick/settings" />
+        <StatusCard label="AI 본인 키" ok={Boolean(hasAiKey)} loading={status.keys === null} okText="등록됨" failText="키 등록 필요" href="/quick/settings" />
+        <StatusCard label="크롬 확장" ok loading={false} okText="입력할 때 확인" failText="" href="/extension-connect" />
       </div>
 
       <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-2xs space-y-4">
@@ -97,14 +142,14 @@ export default function QuickModePage() {
               {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}장</option>)}
             </select>
           </label>
-          <button type="button" onClick={suggest} disabled={busy || topic.trim().length < 2 || !ready}
+          <button type="button" onClick={suggest} disabled={busy || topic.trim().length < 2 || !ready || Boolean(stage)}
             className="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">
             {busy ? <Loader2 size={15} className="animate-spin" /> : suggestion ? <RefreshCw size={15} /> : <Zap size={15} />}
             {suggestion ? "다시 추천받기" : "② 키워드·화자 추천받기"}
           </button>
         </div>
         {!ready && status.accounts !== null && status.keys !== null && <p className="text-xs text-rose-600">발행할 블로그와 AI 본인 키를 먼저 등록해 주세요(위 카드를 누르면 등록 화면으로 갑니다).</p>}
-        {error && <p className="flex items-start gap-1.5 text-xs text-rose-600"><AlertCircle size={14} className="mt-0.5 shrink-0" />{error}{needKey && <Link href="/settings" className="font-bold underline">키 등록하기</Link>}</p>}
+        {error && <p className="flex items-start gap-1.5 text-xs text-rose-600"><AlertCircle size={14} className="mt-0.5 shrink-0" />{error}{needKey && <Link href="/quick/settings" className="font-bold underline">키 등록하기</Link>}</p>}
       </section>
 
       {suggestion && (
@@ -138,14 +183,22 @@ export default function QuickModePage() {
             {personaId === QUICK_CUSTOM_PERSONA_ID && customPersona && <p className="mt-1 text-[11px] text-neutral-500">{customPersona.desc}</p>}
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <p className="text-[11px] text-neutral-500">본인 AI 키로 원고 1편과 이미지 {imageCount}장을 만들고 보관함에 저장합니다. 네이버 입력·발행은 결과 화면에서 직접 누릅니다.</p>
-            <button type="button" onClick={start} disabled={!suggestion.mainKeyword.trim()}
+            <p className="text-[11px] text-neutral-500">본인 AI 키로 원고 1편과 이미지 {imageCount}장을 만들고 저장합니다. 네이버 입력은 아래 결과 화면에서 최종 확인 후 직접 누릅니다.</p>
+            {blogIds.length > 1 && (
+              <select value={blogId} onChange={(e) => setBlogId(e.target.value)} className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-xs" aria-label="발행할 블로그">
+                {blogIds.map((id) => <option key={id} value={id}>{id}</option>)}
+              </select>
+            )}
+            <button type="button" onClick={start} disabled={!suggestion.mainKeyword.trim() || !blogId || Boolean(stage)}
               className="sm:ml-auto inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-40">
-              <Zap size={15} /> ④ 글과 이미지 만들기
+              {stage ? <Loader2 size={15} className="animate-spin" /> : <Zap size={15} />} ④ 글과 이미지 만들기
             </button>
           </div>
         </section>
       )}
+
+      {stage && <p className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800"><Loader2 size={16} className="animate-spin" />{stage}</p>}
+      {post && saver && <QuickResult post={post} saver={saver} onChange={setPost} />}
     </div>
   );
 }

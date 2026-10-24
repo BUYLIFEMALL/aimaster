@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { evaluateProgramAccessForUser } from "@/lib/access";
+import { evaluateAccessScope } from "@/lib/access";
+import { scopeAllowsPost } from "@/lib/quickMode";
 import { readNaverExecutionMode } from "@/lib/naverPublishing";
 import { nextTimestamp, ownsExecution, readExecution, RUN_PATH, withExecution } from "@/lib/executionRuns";
 
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
       .maybeSingle();
     if (tokenError) return unavailable();
     if (!tokenRecord) return reply({ error: "인증 실패" }, 401);
-    const access = await evaluateProgramAccessForUser(tokenRecord.user_id);
+    const access = await evaluateAccessScope(tokenRecord.user_id);
     if (!access.allowed) return reply({ error: access.error }, access.status);
     const body = await req.json().catch(() => null);
     if (!body || typeof body.taskId !== "string" || !body.taskId.trim() ||
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     const { data: owned, error: ownerError } = await admin.from("nba_posts")
       .select("id,blog_id,status,updated_at,research_summary").eq("id",taskId).eq("user_id",tokenRecord.user_id).maybeSingle();
     if (ownerError) return unavailable();
-    if (!owned) return reply({ error: "본인 원고를 찾을 수 없습니다." }, 404);
+    if (!owned || !scopeAllowsPost(access.scope, owned)) return reply({ error: "본인 원고를 찾을 수 없습니다." }, 404);
     const run=readExecution(owned.research_summary);
     if(!ownsExecution(run,body.runId,token) || run?.stage==="abandoned")return superseded();
     const mode = readNaverExecutionMode(owned.research_summary, owned.blog_id);

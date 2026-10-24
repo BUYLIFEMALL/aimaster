@@ -43,6 +43,10 @@ const ACCESS_ERRORS = {
 const hasMobilePhone = (v: unknown): boolean => typeof v === "string" && /^01[016789]\d{7,8}$/.test(v.replace(/[^0-9]/g, ""));
 
 export async function evaluateProgramAccessForUser(userId: string): Promise<ProgramAccessResult> {
+  return evaluateSlugAccess(userId, THIS_PROGRAM_SLUG);
+}
+
+async function evaluateSlugAccess(userId: string, slug: string): Promise<ProgramAccessResult> {
   const adminClient = createAdminClient() as unknown as SupabaseLike;
 
   // 1. 계정 정지 여부 및 관리자, 회원 등급 조회
@@ -64,7 +68,7 @@ export async function evaluateProgramAccessForUser(userId: string): Promise<Prog
   const { data: program } = await adminClient
     .from("programs")
     .select("id, required_grade_id, badges, required_grade:member_grades!required_grade_id(sort_order)")
-    .eq("slug", THIS_PROGRAM_SLUG)
+    .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();
 
@@ -122,6 +126,36 @@ export async function evaluateProgramAccessForUser(userId: string): Promise<Prog
   }
 
   return { allowed: false, error: ACCESS_ERRORS.denied, status: 403 };
+}
+
+// E-4 간편 모드 무료 입구(2026-10-24 주인님 결정): 에이전트 권한이 없어도 BLOG(ai-auto-blog, FREE 배지) 권한이 있으면
+// 「간편」 범위로 간편 모드 화면·간편 원고만 쓴다. 판정 순서(정지 → 핸드폰 → FREE → 구독 → 부여 → 등급)는 두 프로그램 모두 공통 그대로.
+export const QUICK_ENTRY_SLUG = "ai-auto-blog";
+export type AccessScope = "full" | "quick";
+type ScopeResult = { allowed: true; userId: string; scope: AccessScope } | { allowed: false; error: string; status: 401 | 403 };
+
+export async function evaluateAccessScope(userId: string): Promise<ScopeResult> {
+  const full = await evaluateSlugAccess(userId, THIS_PROGRAM_SLUG);
+  if (full.allowed) return { ...full, scope: "full" };
+  if (full.error !== ACCESS_ERRORS.denied && full.error !== ACCESS_ERRORS.unavailable) return full; // 정지·핸드폰 없음은 그대로 차단
+  const quick = await evaluateSlugAccess(userId, QUICK_ENTRY_SLUG);
+  return quick.allowed ? { ...quick, scope: "quick" } : full;
+}
+
+/** 간편 모드에서도 쓰는 API용: 전체 또는 간편 범위면 통과(간편 범위는 호출부에서 간편 원고만 다루게 한다). */
+export async function checkAccessScopeApi(): Promise<ScopeResult> {
+  const user = await getOptionalUser();
+  if (!user) return { allowed: false, error: ACCESS_ERRORS.login, status: 401 };
+  return evaluateAccessScope(user.id);
+}
+
+/** 간편 모드 화면 묶음 레이아웃용. 둘 다 없으면 에이전트 상품 페이지로 보낸다. */
+export async function requireAccessScope() {
+  const user = await getOptionalUser();
+  if (!user) redirect("/login?redirect=%2Fquick");
+  const result = await evaluateAccessScope(user.id);
+  if (result.allowed) return { user, scope: result.scope };
+  redirect(noAccessUrl(result.error === ACCESS_ERRORS.suspended ? "suspended" : undefined));
 }
 
 /** Returns JSON-safe 401/403 results for Route Handlers; never redirects. */

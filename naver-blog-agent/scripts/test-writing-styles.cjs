@@ -29,7 +29,7 @@ function loadTS(filename) {
   function mockRequire(id) {
     if (id === 'server-only') return {}; // 2026-10-23: 서버 전용 표시는 시험에서 빈 값(v2.06 collectedMaterials·privatePhotoPost가 쓰기 시작)
     if (id === './models') return { callAI, parseJsonSafe: (text, fallback) => { try { return JSON.parse(text); } catch { return fallback; } } };
-    if (id === '@/lib/access') return { checkProgramAccessApi: async () => hasAccess ? { allowed: true, userId: 'test-user' } : { allowed: false, error: '로그인이 필요합니다.', status: 401 } };
+    if (id === '@/lib/access') return withScope({ checkProgramAccessApi: async () => hasAccess ? { allowed: true, userId: 'test-user' } : { allowed: false, error: '로그인이 필요합니다.', status: 401 } });
     if (id === '@/lib/apiKeys') return { resolveAvailableAI: async (userId) => { assert.equal(userId, 'test-user'); keyLookups++; return keyAvailable ? { provider: 'openai', apiKey: 'mock-not-a-key' } : null; } };
     if (id === '@/lib/supabase/admin') return { createAdminClient:()=>({from(table){let inserted=false;const q={select(){return q;},eq(){return q;},order(){return q;},limit(){return q;},insert(){inserted=true;return q;},maybeSingle:async()=>({data:{id:'account'}}),single:async()=>({data:{id:'00000000-0000-4000-8000-000000000001'}}),then(resolve){resolve({data:[],error:null});}};return q;}}) };
     if (id.startsWith('@/') || id.startsWith('.')) {
@@ -126,3 +126,10 @@ function loadTS(filename) {
   assert.equal((await POST(request({ category: '생활', writingStyle: 'plain' }))).status, 401);
   console.log('PASS: 32 combinations, legacy defaults, prompt priority/safety, API validation and auth guard (no paid API calls).');
 })().catch((error) => { console.error(error); process.exitCode = 1; });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

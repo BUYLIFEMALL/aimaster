@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { findImageModel, isKnownRatio, IMAGE_KEY_LABEL, type ImageRatio } from "@/lib/ai/contentModels";
 import { generateImageBytes } from "@/lib/ai/imageGenerator";
@@ -12,7 +12,7 @@ import { MEDIA_BUCKET } from "@/lib/mediaBucket";
 
 export async function POST(req: Request) {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
     const user = { id: access.userId };
     const body = await req.json();

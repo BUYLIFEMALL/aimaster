@@ -33,7 +33,7 @@ function load(file){
   const module={exports:{}};
   const js=ts.transpileModule(fs.readFileSync(path.join(root,file),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
   const req=name=>name==='next/server'?{NextResponse:{json:(body,init)=>({body,status:init?.status||200})}}:
-    name==='@/lib/access'?{checkProgramAccessApi:async()=>access}:
+    name==='@/lib/access'?withScope({checkProgramAccessApi:async()=>access}):
     name==='@/lib/supabase/admin'?{createAdminClient:()=>admin}:
     name.startsWith('@/')?load('src/'+name.slice(2)+'.ts'):
     name.startsWith('.')?load(path.relative(root,path.resolve(root,path.dirname(file),name))+'.ts'):require(name);
@@ -80,3 +80,10 @@ const request=body=>({json:async()=>({save_request_id:crypto.randomUUID(),expect
   rows[0].status='publishing';result=await route.PUT(request({...modeBody,executionMode:'publish'}),context(id));assert.equal(result.status,409);
   console.log('naver publishing ownership, preservation and race tests passed');
 })().catch(err=>{console.error(err);process.exit(1);});
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

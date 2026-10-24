@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
 import {
   findImageModel,
   isKnownEngine,
@@ -28,7 +28,7 @@ function serializePreference(row: any) {
 
 export async function GET() {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
     const admin = createAdminClient() as any;
@@ -47,7 +47,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const access = await checkProgramAccessApi();
+    const access = await checkAccessScopeApi();
     if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
     const body = await request.json();

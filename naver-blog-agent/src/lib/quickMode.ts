@@ -1,13 +1,10 @@
 // E-3 간편 모드(2026-10-24, Maepsi M1 참고 — 코드·지시문 미사용): 주제 하나로 키워드·화자를 추천받아
-// 기존 작성 화면의 생성 흐름(기획·작성·윤문 → 이미지 → 저장)을 그대로 자동 실행한다. 외부 호출 없음(서버·화면·시험 공용).
+// 에이전트 생성 API(기획·작성·윤문)를 그대로 불러 원고를 만든다(E-4부터 간편 화면 안에서 결과까지). 외부 호출 없음(서버·화면·시험 공용).
 
-export const QUICK_START_KEY = "nba_quick_start";
-export const QUICK_START_TTL_MS = 10 * 60_000;
 export const QUICK_CUSTOM_PERSONA_ID = "custom";
 
 export interface QuickPersona { id: string; name: string; desc: string }
 export interface QuickSuggestion { mainKeyword: string; subKeywords: string[]; category: string; purpose: string; persona: QuickPersona }
-export interface QuickStart { topic: string; keywords: string; category: string; purpose: string; persona: QuickPersona; imageCount: number; at: number }
 
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
 
@@ -33,19 +30,13 @@ export function quickKeywords(s: Pick<QuickSuggestion, "mainKeyword" | "subKeywo
   return [s.mainKeyword, ...s.subKeywords].filter(Boolean).join(", ");
 }
 
-/** 간편 모드 → 작성 화면 넘겨받기(sessionStorage). 형식이 틀리거나 10분이 지나면 null(자동 생성하지 않음). */
-export function readQuickStart(raw: string | null, now = Date.now()): QuickStart | null {
-  if (!raw) return null;
-  let v: Record<string, unknown>;
-  try { v = JSON.parse(raw); } catch { return null; }
-  if (!v || typeof v !== "object") return null;
-  const at = Number(v.at);
-  if (!Number.isFinite(at) || now - at < 0 || now - at > QUICK_START_TTL_MS) return null;
-  const topic = text(v.topic, 300);
-  const imageCount = Number(v.imageCount);
-  const p = (v.persona && typeof v.persona === "object" ? v.persona : {}) as Record<string, unknown>;
-  const persona = { id: text(p.id, 40), name: text(p.name, 20), desc: text(p.desc, 200) };
-  if (!topic || !persona.id || !Number.isInteger(imageCount) || imageCount < 1 || imageCount > 5) return null;
-  if (persona.id === QUICK_CUSTOM_PERSONA_ID && (!persona.name || !persona.desc)) return null;
-  return { topic, keywords: text(v.keywords, 300), category: text(v.category, 20) || "일반", purpose: text(v.purpose, 200), persona, imageCount, at };
+/** E-4: 간편 모드로 만든 원고 표시(`research_summary.mode`). 간편 범위 회원은 이 원고만 보고·고치고·입력한다. */
+export const QUICK_POST_MODE = "quick";
+export function isQuickPost(row: { research_summary?: unknown } | null | undefined): boolean {
+  const s = row?.research_summary;
+  return Boolean(s && typeof s === "object" && (s as Record<string, unknown>).mode === QUICK_POST_MODE);
+}
+/** 간편 범위면 간편 원고만 허용. 전체 범위는 항상 허용. */
+export function scopeAllowsPost(scope: "full" | "quick", row: { research_summary?: unknown } | null | undefined): boolean {
+  return scope === "full" || isQuickPost(row);
 }

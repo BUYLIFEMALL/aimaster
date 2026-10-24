@@ -57,7 +57,7 @@ function loadTS(rel, extra = {}) {
   const js = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const mockRequire = (id) => {
     if (id === 'next/server') return { NextResponse: { json: (body, init) => ({ status: (init && init.status) || 200, body }) } };
-    if (id === '@/lib/access') return { checkProgramAccessApi: async () => (allowed ? { allowed: true, userId: currentUser } : { allowed: false, error: '로그인이 필요합니다.', status: 401 }) };
+    if (id === '@/lib/access') return withScope({ checkProgramAccessApi: async () => (allowed ? { allowed: true, userId: currentUser } : { allowed: false, error: '로그인이 필요합니다.', status: 401 }) });
     if (id === '@/lib/supabase/admin') return { createAdminClient: () => admin };
     if (id in extra) return extra[id];
     if (id === '@/lib/serverSync') return loadTS('lib/serverSync.ts', { __fetch: null });
@@ -135,3 +135,10 @@ const req = (body, url = 'http://x/api') => ({ json: async () => body, url });
 
   console.log('member data ok');
 })().catch((e) => { console.error(e); process.exit(1); });
+
+// E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.
+function withScope(m) {
+  return { ...m,
+    ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
+    ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
+}

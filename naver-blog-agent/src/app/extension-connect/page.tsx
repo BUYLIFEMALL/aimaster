@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { checkProgramAccessApi } from "@/lib/access";
+import { checkAccessScopeApi } from "@/lib/access";
 import { ExtensionConnectButton } from "@/components/extension/ExtensionConnectButton";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export const fetchCache = "force-no-store";
 export default async function ExtensionConnectPage({ searchParams }: { searchParams: Promise<{ from?: string }> }) {
   const { from } = await searchParams;
   const auto = from === "extension";
-  const access = await checkProgramAccessApi();
+  const access = await checkAccessScopeApi();
   if (!access.allowed) {
     if (access.status === 401) redirect(`/login?redirect=${encodeURIComponent(`/extension-connect${auto ? "?from=extension" : ""}`)}`);
     redirect("https://www.buylife.xyz/programs/naver-blog-agent");
