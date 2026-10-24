@@ -21,5 +21,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| (확인만, 코드 수정 없음) `video-to-gif/local-renderer/test/`·`video-to-gif/AGENTS.md` 기록 | Claude Code(맥미니, 크롬) · 세션 `claude-mac-20261024-maccheck` | 2026-10-24 | 윈도우 영상 담당 요청: 내 PC 렌더러 1.30 맥판 loop·normalize·compress 맥 실물 확인(터미널 + 크롬 3화면) |
 | `naver-blog-agent/` | Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` (블로그 담당) | 2026-10-24 | E-3 ✅ v2.19 · E-4 무료 입구 ✅ v2.20 → **다음: E-5 발행 방식·자동 임시저장(주인님 확인 후)**. 미배포 대기 `7ec53853f`. 플랜 `naver-blog-agent/docs/PLAN_20261024_MAEPSI_E1_E4.md` |
 | (폴더 없음 — 분담표 참고, 2026-10-24 주인님 승인으로 `infinite-loop-video/` 뺌: 묶음 A-1 크롬 확인은 영상 담당 `claude-win-video`가 끝냄) | Claude Code(윈도우) · 세션 `claude-win-20261023-next-security`(종료) | 2026-10-23 | **⚠ 세션 종료 — 배포 49/49 끝남. 남은 일은 `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` 분담표(묶음 A~H)에서 맡을 것. 이 줄은 묶음 A·B 끝나면 삭제** Next.js 보안 업데이트(16.4.2·15.5.28) → 하나씩 배포, 플랜 `docs/PLAN_20261023_NEXTJS_SECURITY.md` · 빌드 약 49회 승인 · 2026-10-23 17:4x 주인님 지시로 끝난 45개 폴더를 이 줄에서 뺌(커밋된 Next.js 보안판 + 미커밋 없음 + 코드 버전=DB 운영 버전으로 판정, 링크 정정 세션 `claude-win-20261023-mainsite-url`) |
