@@ -2,7 +2,7 @@
 // 쓰는 법: await loadFreeErase("lama", p => …) → const out = await eraseRegion(img, mask, w, h) (mask: 원본 크기 0/1)
 //          const boxes = await detectTextBoxes(img, w, h) → fillBoxes(mask, w, h, boxes)
 import {
-  LAMA_SIZE, MASK_DILATE, binarizeMask, detInputSize, dilateMask, freeEraseErrorText, maskBounds, probToBoxes, scaleBoxes, workRegion,
+  LAMA_SIZE, MASK_DILATE, binarizeMask, detInputSize, dilateMask, freeEraseErrorText, maskClusters, probToBoxes, scaleBoxes, workRegion,
   type Backend, type Box, type ModelKind, type WorkerIn, type WorkerOut,
 } from "./protocol";
 
@@ -92,10 +92,17 @@ function maskCanvas(mask: Uint8Array, w: number, h: number): HTMLCanvasElement {
 export async function eraseRegion(src: Src, mask: Uint8Array, w: number, h: number, opts: { dilate?: number } = {}): Promise<HTMLCanvasElement> {
   const out = canvas(w, h), ox = ctx2d(out);
   ox.drawImage(src, 0, 0, w, h);
-  const b = maskBounds(mask, w, h);
-  if (!b) return out;
+  const clusters = maskClusters(mask, w, h);
+  if (!clusters.length) return out;
   await loadFreeErase("lama");
-  const r = workRegion(b, w, h);
+  const full = maskCanvas(mask, w, h);
+  // 떨어진 덩어리마다 따로 계산(앞 덩어리 결과 위에 이어서) — 해상도 손실을 줄인다
+  for (const b of clusters) await eraseOne(out, full, workRegion(b, w, h), opts.dilate ?? MASK_DILATE);
+  return out;
+}
+
+async function eraseOne(out: HTMLCanvasElement, full: HTMLCanvasElement, r: Box, dilate: number): Promise<void> {
+  const ox = ctx2d(out);
   const S = LAMA_SIZE, N = S * S;
 
   // 1) 작업 영역 → 512 그림
@@ -106,10 +113,9 @@ export async function eraseRegion(src: Src, mask: Uint8Array, w: number, h: numb
   for (let i = 0; i < N; i++) { image[i] = id[i * 4] / 255; image[N + i] = id[i * 4 + 1] / 255; image[2 * N + i] = id[i * 4 + 2] / 255; }
 
   // 2) 작업 영역 마스크 → 512, 흐린 가장자리까지 지울 곳(>0) + 넓히기(§7 ③-1)
-  const full = maskCanvas(mask, w, h);
   const mc = canvas(S, S), mx = ctx2d(mc);
   mx.drawImage(full, r.x, r.y, r.w, r.h, 0, 0, S, S);
-  const m512 = dilateMask(binarizeMask(mx.getImageData(0, 0, S, S).data, 4, 3), S, S, opts.dilate ?? MASK_DILATE);
+  const m512 = dilateMask(binarizeMask(mx.getImageData(0, 0, S, S).data, 4, 3), S, S, dilate);
   const maskF = new Float32Array(N); for (let i = 0; i < N; i++) maskF[i] = m512[i];
 
   // 3) 계산(출력 0~255)
@@ -120,7 +126,7 @@ export async function eraseRegion(src: Src, mask: Uint8Array, w: number, h: numb
   px.putImageData(pd, 0, 0);
 
   // 4) 원래 크기로 되돌려 마스크(512에서 넓힌 만큼 원본에서도 넓힘) 부분에만 붙인다
-  const grow = Math.max(1, Math.round(((opts.dilate ?? MASK_DILATE) * Math.max(r.w, r.h)) / S));
+  const grow = Math.max(1, Math.round((dilate * Math.max(r.w, r.h)) / S));
   const rm = dilateMask(binarizeMask(ctx2d(full).getImageData(r.x, r.y, r.w, r.h).data, 4, 3), r.w, r.h, grow);
   const patch = canvas(r.w, r.h), tx = ctx2d(patch);
   tx.drawImage(pc, 0, 0, r.w, r.h);
@@ -128,7 +134,6 @@ export async function eraseRegion(src: Src, mask: Uint8Array, w: number, h: numb
   tx.filter = "blur(1px)";
   tx.drawImage(maskCanvas(rm, r.w, r.h), 0, 0);
   ox.drawImage(patch, r.x, r.y);
-  return out;
 }
 
 /** 그림 속 글자 위치(원본 좌표 상자). 글자를 읽지는 않는다 */

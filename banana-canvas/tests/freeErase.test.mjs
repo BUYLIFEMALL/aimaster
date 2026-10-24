@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  FREE_ERASE_CACHE, FREE_ERASE_MODELS, binarizeMask, detInputSize, dilateMask, fillBoxes, freeEraseErrorText, maskBounds, probToBoxes, scaleBoxes, workRegion,
+  FREE_ERASE_CACHE, FREE_ERASE_MODELS, binarizeMask, detInputSize, dilateMask, fillBoxes, freeEraseErrorText, maskBounds, maskClusters, probToBoxes, scaleBoxes, workRegion,
 } from "../src/lib/freeErase/protocol.ts";
 
 test("모델 주소는 커밋 고정·Apache-2.0, 캐시 이름에 커밋이 들어간다", () => {
@@ -73,4 +73,15 @@ test("오류 안내는 한국어이고 다른 방법(AI로 다시 그리기)을 
   assert.match(freeEraseErrorText("download:503"), /인터넷/);
   assert.match(freeEraseErrorText("RangeError: Array buffer allocation failed"), /메모리/);
   assert.match(freeEraseErrorText("x"), /AI로 다시 그리기/);
+});
+
+test("떨어진 칠한 곳은 덩어리마다 따로(해상도 손실 줄이기), 가까운 곳은 하나로", () => {
+  const w = 600, h = 400, m = new Uint8Array(w * h);
+  const paint = (x0, y0, x1, y1) => { for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) m[y * w + x] = 1; };
+  paint(10, 10, 100, 40); paint(110, 15, 150, 35); paint(400, 300, 590, 390);
+  const c = maskClusters(m, w, h, 24);
+  assert.equal(c.length, 2);
+  assert.ok(c[0].x <= 10 && c[0].x + c[0].w >= 150 && c[0].y <= 10);
+  assert.ok(c[1].x <= 400 && c[1].x + c[1].w <= w && c[1].y + c[1].h <= h);
+  assert.equal(maskClusters(new Uint8Array(w * h), w, h).length, 0);
 });

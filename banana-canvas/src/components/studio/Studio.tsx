@@ -361,7 +361,10 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
           <section className="card bc-card" id="source">
             <header><h2><span aria-hidden>🖼️</span> 원본 이미지</h2><span className="bc-need on">모든 작업의 출발점</span></header>
             {maskMode && base ? (
-              <MaskEditor src={base.url} busy={busy === "inpaint" || busy === "upload"} onApply={(m) => void runInpaint(m)} onCancel={() => setMaskMode(false)} />
+              <>
+                <p className="bc-hint">💡 글자·작은 물체만 지울 거라면 키·비용 없이 <a href="/erase">🧽 무료 지우기(내 PC)</a>로도 됩니다. 여기 「부분 삭제」는 Gemini가 다시 그려 넓은 곳·복잡한 배경에 강합니다(본인 키·유료).</p>
+                <MaskEditor src={base.url} busy={busy === "inpaint" || busy === "upload"} onApply={(m) => void runInpaint(m)} onCancel={() => setMaskMode(false)} />
+              </>
             ) : !base ? (
               <button
                 type="button" className={`bc-drop${over ? " over" : ""}`} disabled={disabled}

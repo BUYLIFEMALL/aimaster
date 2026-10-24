@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, Images, KeyRound, LogOut, Menu, Palette, X } from "lucide-react";
+import { BookOpen, Eraser, Images, KeyRound, LogOut, Menu, Palette, X } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
 export function Sidebar({ userEmail, currentPath }: { userEmail?: string; currentPath: string }) {
@@ -39,6 +39,7 @@ export function Sidebar({ userEmail, currentPath }: { userEmail?: string; curren
           <span className="step-number">3</span><div><strong>결과</strong><small>다운로드 · 계속 편집</small></div>
         </a>
         <div className="utility-menu">
+          <a className="nav-item" aria-current={currentPath === "/erase" ? "page" : undefined} href="/erase"><Eraser size={17} />🧽 무료 지우기(내 PC)</a>
           <a className="nav-item" aria-current={currentPath === "/history" ? "page" : undefined} href="/history"><Images size={17} />내 결과 기록</a>
           <a className="nav-item" aria-current={currentPath === "/settings" ? "page" : undefined} href="/settings"><KeyRound size={17} />API키등록·플랫폼연동</a>
           <a className="nav-item" aria-current={currentPath === "/guide" ? "page" : undefined} href="/guide"><BookOpen size={17} />📖 연동 & 사용 매뉴얼</a>

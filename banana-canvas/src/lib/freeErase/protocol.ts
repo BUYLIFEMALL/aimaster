@@ -92,6 +92,31 @@ export function workRegion(b: Box, imgW: number, imgH: number): Box {
   return { x, y, w: Math.round(w), h: Math.round(h) };
 }
 
+/**
+ * 칠한 곳을 떨어진 덩어리로 나눈다(cell 픽셀 격자로 줄여 8방향으로 이어 붙임) — 덩어리마다 따로 512로 계산해야
+ * 멀리 떨어진 글자 여러 곳을 한 번에 줄여 계산할 때보다 해상도가 덜 떨어진다
+ */
+export function maskClusters(mask: Uint8Array, w: number, h: number, cell = 24): Box[] {
+  const gw = Math.ceil(w / cell), gh = Math.ceil(h / cell), grid = new Uint8Array(gw * gh);
+  for (let y = 0; y < h; y++) { const row = y * w, gy = ((y / cell) | 0) * gw; for (let x = 0; x < w; x++) if (mask[row + x]) grid[gy + ((x / cell) | 0)] = 1; }
+  const seen = new Uint8Array(gw * gh), out: Box[] = [], st: number[] = [];
+  for (let i = 0; i < grid.length; i++) {
+    if (!grid[i] || seen[i]) continue;
+    let x0 = gw, y0 = gh, x1 = -1, y1 = -1; st.push(i); seen[i] = 1;
+    while (st.length) {
+      const c = st.pop()!, cx = c % gw, cy = (c - cx) / gw;
+      if (cx < x0) x0 = cx; if (cx > x1) x1 = cx; if (cy < y0) y0 = cy; if (cy > y1) y1 = cy;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const nx = cx + dx, ny = cy + dy; if (nx < 0 || ny < 0 || nx >= gw || ny >= gh) continue;
+        const n = ny * gw + nx; if (grid[n] && !seen[n]) { seen[n] = 1; st.push(n); }
+      }
+    }
+    const bx = x0 * cell, by = y0 * cell;
+    out.push({ x: bx, y: by, w: Math.min(w, (x1 + 1) * cell) - bx, h: Math.min(h, (y1 + 1) * cell) - by });
+  }
+  return out;
+}
+
 /** 글자 찾기 입력 크기 — 긴 변을 limit 안으로 줄이고 32의 배수로 맞춘다 */
 export function detInputSize(w: number, h: number, limit = DET_LIMIT_SIDE): { width: number; height: number } {
   const s = Math.min(1, limit / Math.max(w, h));
@@ -119,8 +144,8 @@ export function probToBoxes(prob: ArrayLike<number>, w: number, h: number, thres
   return boxes;
 }
 
-/** 맵 좌표 상자 → 원본 좌표로 늘리고 둘레를 넓힌다(글자 가장자리·그림자까지 덮기) */
-export function scaleBoxes(boxes: Box[], fromW: number, fromH: number, toW: number, toH: number, grow = 0.25): Box[] {
+/** 맵 좌표 상자 → 원본 좌표로 늘리고 둘레를 넓힌다. 이 모델은 글자보다 줄어든 영역을 내므로(원래 쓰는 곳은 1.5~2배로 넓힘) 높이의 절반씩 넓혀 테두리·그림자까지 덮는다 */
+export function scaleBoxes(boxes: Box[], fromW: number, fromH: number, toW: number, toH: number, grow = 0.5): Box[] {
   const sx = toW / fromW, sy = toH / fromH;
   return boxes.map((b) => {
     const g = Math.max(4, Math.round(b.h * sy * grow));
