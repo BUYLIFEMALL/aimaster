@@ -15,6 +15,12 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-25 — Render 크롤링 서버가 저장소의 모든 푸시마다 자동 빌드돼 월 빌드 시간을 다 써서, 빌드가 취소됐다 (web-crawler-saas-service, Claude Code 윈도우 [역할: video])
+- 증상: Render `web-crawler-saas-service` 배포 실패 「Build canceled: your workspace has run out of build pipeline minutes for the current billing period」. 원인 커밋은 다른 프로그램 문서 커밋(`77fed68a0`). 운영 서버는 마지막 정상 배포(`a1f6382`)로 Live 유지.
+- 원인: Render 서비스가 GitHub `master` 자동 배포(Auto-Deploy)인데 빌드 필터가 없어, 여러 세션이 하루 수십 번 하는 푸시마다 빌드가 돌았다. Vercel의 `vercel-ignore-build.sh`와 같은 장치가 Render에는 없었다.
+- 해결(주인님 승인, 비용 없음): Render 대시보드 Settings → Build Filters → Included Paths `web-crawler/service/**`·`web-crawler/scripts/**`·`web-crawler/requirements.txt`(Dockerfile 복사 대상). 기록 `web-crawler/service/README.md` 배포 절.
+- 다음부터: 저장소에 연결한 외부 자동 배포(Render·기타)를 새로 만들면 처음부터 빌드 필터(그 프로그램 폴더만)를 건다. Dockerfile 복사 대상이 바뀌면 필터 경로도 함께 고친다.
+
 ## 2026-10-25 — 편집 가능한 표를 「입력값으로 계산한 값」 기준으로 정렬해, 입력하는 동안 줄이 움직여 다른 상품에 값이 들어갔다 + 쿠팡 「묶음배송번호」를 상품 줄 키로 쓸 뻔했다 (shop-order-report v1.01→v1.02, Claude Code 윈도우 [역할: ecommerce-image])
 - 증상 ①: 재고 소진 표에서 첫 상품 재고를 넣자 「남은 날」 순으로 줄이 다시 정렬돼, 이어서 누른 칸이 다른 상품이었다. ②: 쿠팡 모양 파일에서 「묶음배송번호」가 상품주문번호 칸으로 자동 선택됨 — 한 상자에 여러 상품이 묶이면 서로 다른 상품 줄이 하나로 합쳐진다.
 - 해결: ① 정렬 기준을 입력과 무관한 판매량·이름 순으로 고정(`shop-order-report/src/lib/report/inventory.ts`). ② 상품주문번호 별칭에서 「묶음배송번호」 제거, 없으면 「주문번호#상품#옵션」을 키로(`shop-order-report/src/lib/orders/markets.ts`, 시험 추가).
