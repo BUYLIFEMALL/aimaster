@@ -52,7 +52,7 @@ export default async function SettingsPage() {
         <h2>💬 카카오톡 · ✉️ 이메일(Resend) 연동</h2>
         <p className="lede">카카오톡은 요약만, 이메일은 요약 + 엑셀 파일을 받아요. 「받는 방법」 화면과 같은 설정이에요.</p>
         <div className="ra-howto-grid">
-          <KeyHowTo ids={["kakaoRest", "kakaoSecret"]} title="카카오톡 연동 방법" />
+          <KeyHowTo ids={["kakao"]} title="카카오톡 연동 방법" />
           <KeyHowTo ids={["resend"]} title="이메일(Resend) 연동 방법" />
         </div>
         <ChannelCards

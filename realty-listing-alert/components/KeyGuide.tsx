@@ -13,18 +13,12 @@ const ROWS: Row[] = [
     not: ["봇 이름(@…_bot)", "내 텔레그램 아이디"],
   },
   {
-    id: "kakaoRest", icon: "💬", name: "카카오 REST API 키", use: "카톡 받기",
+    // 2026-10-25 주인님 「같은 위치에 있잖아 굳이 2번 설명할 필요 없어」 — REST API 키·클라이언트 시크릿은 같은 「플랫폼 키」 화면이라 한 번에
+    id: "kakao", icon: "💬", name: "카카오 REST API 키 · 클라이언트 시크릿", use: "카톡 받기",
     site: { label: "카카오 개발자", href: "https://developers.kakao.com/console/app" },
-    where: ["내 앱 선택", "왼쪽 「앱」 → 「플랫폼 키」", "맨 왼쪽 「REST API 키」 칸", "Default Rest API Key 옆 복사(□)"],
-    looks: ["영문 소문자·숫자", "32자"],
-    not: ["JavaScript 키", "네이티브 앱 키", "어드민 키"],
-  },
-  {
-    id: "kakaoSecret", icon: "🔒", name: "카카오 클라이언트 시크릿", use: "카톡 받기",
-    site: { label: "카카오 개발자", href: "https://developers.kakao.com/console/app" },
-    where: ["왼쪽 「앱」 → 「플랫폼 키」", "Default Rest API Key 카드 클릭", "아래 「클라이언트 시크릿」 표", "「카카오 로그인」 줄 「코드」 복사"],
-    looks: ["영문 대소문자·숫자", "30자 안팎"],
-    not: ["「비즈니스 인증」 줄 코드"],
+    where: ["내 앱 선택", "왼쪽 「앱」 → 「플랫폼 키」", "REST API 키: Default Rest API Key 옆 복사(□)", "시크릿: 그 카드 클릭 → 「클라이언트 시크릿」 표", "「카카오 로그인」 줄 「코드」 복사"],
+    looks: ["REST API 키: 영문 소문자·숫자 32자", "시크릿: 영문 대소문자·숫자 30자 안팎"],
+    not: ["JavaScript 키 · 네이티브 앱 키 · 어드민 키", "「비즈니스 인증」 줄 코드"],
   },
   {
     id: "resend", icon: "✉️", name: "Resend API 키", use: "이메일 받기",
