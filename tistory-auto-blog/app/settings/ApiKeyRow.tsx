@@ -4,6 +4,35 @@ import { useState, useTransition } from 'react'
 import { saveApiKeyAction, deleteApiKeyAction, type SaveApiKeyState } from './actions'
 import type { ApiKeyProvider } from '@/utils/apiKeys'
 
+
+const PLATFORM_LINKS: Record<string, { createUrl: string; signupUrl: string; note: string }> = {
+  openai: {
+    createUrl: 'https://platform.openai.com/api-keys',
+    signupUrl: 'https://platform.openai.com/signup',
+    note: 'GPT-4o 고품질 티스토리 원고 작성에 사용됩니다.',
+  },
+  anthropic: {
+    createUrl: 'https://console.anthropic.com/settings/keys',
+    signupUrl: 'https://console.anthropic.com/',
+    note: 'Claude 3.5 자연스러운 문체 원고 작성에 사용됩니다.',
+  },
+  gemini: {
+    createUrl: 'https://aistudio.google.com/app/apikey',
+    signupUrl: 'https://aistudio.google.com/',
+    note: 'Gemini 초고속 원고 및 나노바나나 고화질 삽화 생성에 필수입니다.',
+  },
+  perplexity: {
+    createUrl: 'https://www.perplexity.ai/settings/api',
+    signupUrl: 'https://www.perplexity.ai/',
+    note: '실시간 검색 및 최신 이슈 글감 수집에 사용됩니다.',
+  },
+  youtube_api_key: {
+    createUrl: 'https://console.cloud.google.com/apis/credentials',
+    signupUrl: 'https://console.cloud.google.com/',
+    note: '유튜브 쇼츠 트렌드 키워드 검색 및 분석에 사용됩니다.',
+  },
+};
+
 interface ApiKeyRowProps {
   provider: ApiKeyProvider
   label: string
@@ -54,6 +83,34 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
             </form>
           </div>
         )}
+      
+      {/* 2단 퀵 액션 버튼 세트 (2026-10-25 주인님 지시) */}
+      {PLATFORM_LINKS[provider] && (
+        <div className="mb-3">
+          <div className="platform-link-group">
+            <a
+              href={PLATFORM_LINKS[provider].createUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-create-key"
+              title="해당 플랫폼 공식 콘솔에서 새 API 키 발급/생성하기"
+            >
+              🔗 API 키 발급/생성하기 ↗
+            </a>
+            <a
+              href={PLATFORM_LINKS[provider].signupUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-platform-signup"
+              title="해당 플랫폼 회원가입 및 관리 콘솔 바로가기"
+            >
+              👤 회원가입 / 콘솔 ↗
+            </a>
+          </div>
+          <p className="text-[11.5px] text-zinc-500">{PLATFORM_LINKS[provider].note}</p>
+        </div>
+      )}
+
       </div>
 
       {showForm ? (

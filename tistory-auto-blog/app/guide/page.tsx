@@ -135,7 +135,7 @@ export default function GuidePage() {
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/candidates"
-            className="rounded-xl bg-orange-500 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-orange-600 active:scale-95 transition-all"
+            className="rounded-xl btn-3d-primary text-xs sm:text-sm active:scale-95 transition-all"
           >
             1단계: 주제 수집 시작하기 →
           </Link>
@@ -147,6 +147,39 @@ export default function GuidePage() {
           </Link>
         </div>
       </div>
+
+      
+      {/* 럭셔리 크롬 확장 프로그램 3D 엠보싱 퀵 다운로드 카드 (2026-10-25 주인님 지시) */}
+      <section className="card-download-banner">
+        <div className="download-banner-inner">
+          <div className="download-banner-text">
+            <span className="download-tag">🚀 Chrome Extension</span>
+            <h2>티스토리 블로그 자동 포스팅 크롬 확장 프로그램</h2>
+            <p>
+              웹에서 완성된 고품질 원고와 나노바나나 이미지를 티스토리 글쓰기 화면에 <b>HTML 서식을 완벽 보존하여 자동 입력 및 실제 포스팅</b>해 드립니다.
+              <br />
+              입력만 하기(발행 전 검수) · 바로 발행 · 예약 포스팅 3가지 방식을 자유롭게 선택하세요!
+            </p>
+          </div>
+          <div className="download-banner-action">
+            <a
+              className="guide-3d-download-btn"
+              href="/downloads/tistory-auto-blog-extension-latest.zip"
+              download
+              title="티스토리 자동 포스팅 확장 프로그램 최신 ZIP 다운로드"
+            >
+              <span className="btn-icon">⬇</span>
+              <span className="btn-text">
+                <strong>확장 프로그램 다운로드</strong>
+                <small>최신 버전 ({APP_VERSION} ZIP 압축파일)</small>
+              </span>
+            </a>
+            <Link className="text-xs text-emerald-200 underline font-semibold hover:text-white" href="/settings">
+              설치 및 연동 토큰 등록 방법 ↗
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <AutoPublishGuide />
       {/* 5단계 시각적 파이프라인 다이어그램 */}

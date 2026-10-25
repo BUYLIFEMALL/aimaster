@@ -195,6 +195,18 @@ export default function BlogSidebar({ onNavigate }: BlogSidebarProps) {
             도구 및 매뉴얼
           </div>
 
+          {/* 좌측 사이드바 3D 에메랄드 확장 다운로드 버튼 (2026-10-25 주인님 지시) */}
+          <a
+            className="nav-download"
+            href="/downloads/tistory-auto-blog-extension-latest.zip"
+            download
+            onClick={handleItemClick}
+            title="티스토리 자동 포스팅 크롬 확장 프로그램 최신버전 다운로드"
+          >
+            ⬇ 확장 프로그램 받기 ({APP_VERSION})
+          </a>
+
+
           <div className="flex flex-col space-y-1">
             {UTILITY_ITEMS.map((item) => {
               const isActive = pathname.startsWith(item.href);
