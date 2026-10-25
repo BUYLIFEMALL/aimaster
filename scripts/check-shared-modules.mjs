@@ -618,7 +618,6 @@ const MODULES = [
       // 3묶음 단일 주소형(2026-10-17)
       "kakao_auto_poster/src/lib/ai/geminiImage.ts",
       "stepmail/lib/ai/geminiImage.ts",
-      "auto-detail-page/lib/ai/geminiImage.ts",
       "tarot/lib/ai/geminiImage.ts",
       "mbti-character/lib/ai/geminiImage.ts",
       "music/lib/ai/geminiImage.ts",
@@ -646,7 +645,6 @@ const MODULES = [
       // 5묶음 Imagen 교체분(2026-10-18)
       "ai-webtoon-studio/src/lib/geminiImage.ts",
       "ebook-studio/src/lib/geminiImage.ts",
-      "detail-page-12p/src/lib/geminiImage.ts",
       "vinyl-lp-studio/src/lib/geminiImage.ts",
     ],
   },
@@ -672,7 +670,6 @@ const MODULES = [
       // 3묶음 단일 주소형(2026-10-17)
       "kakao_auto_poster/src/lib/ai/nanoBananaModels.ts",
       "stepmail/lib/ai/nanoBananaModels.ts",
-      "auto-detail-page/lib/ai/nanoBananaModels.ts",
       "tarot/lib/ai/nanoBananaModels.ts",
       "mbti-character/lib/ai/nanoBananaModels.ts",
       "music/lib/ai/nanoBananaModels.ts",
@@ -700,7 +697,6 @@ const MODULES = [
       // 5묶음 Imagen 교체분(2026-10-18)
       "ai-webtoon-studio/src/lib/nanoBananaModels.ts",
       "ebook-studio/src/lib/nanoBananaModels.ts",
-      "detail-page-12p/src/lib/nanoBananaModels.ts",
       "vinyl-lp-studio/src/lib/nanoBananaModels.ts",
     ],
   },
