@@ -1049,3 +1049,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-aieng-line .ra-aitbl-btns { flex: 0 0 auto; flex-wrap: nowrap; }
 /* 모델 선택 칸 더 넓게(2026-10-25 「모델 선택 칸을 좀더 넓혀」) */
 .ra-aieng-key { flex: 0 0 26%; }
+/* 키 칸을 가림표로 꽉 채우고 끝 4자리는 오른쪽 끝(2026-10-25 「우측에 공간이 남잖아」) */
+.ra-aieng-key.ra-keychip { display: flex; align-items: center; overflow: hidden; }
+.ra-keydots { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; letter-spacing: 1px; color: #6b7280; }
+.ra-keytail { flex: 0 0 auto; font-weight: 700; }

@@ -371,7 +371,7 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
           {editing ? (
             <input className="ra-aitbl-input ra-aieng-key" type="password" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? "새 키(비우면 그대로)" : "API 키 붙여넣기"} />
           ) : (
-            <span className="ra-keychip ra-aieng-key"><i />••••••••••••{mask.slice(-4)}</span>
+            <span className="ra-keychip ra-aieng-key"><i /><span className="ra-keydots">{"•".repeat(40)}</span><span className="ra-keytail">{mask.slice(-4)}</span></span>
           )}
           <select className="ra-aitbl-model ra-aieng-model" aria-label={`${engine.label} 모델`} value={model} disabled={!editing || busy} onChange={(e) => setModel(e.target.value)}>
             {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
