@@ -108,8 +108,8 @@
 | 87 | AI 음악 스튜디오 | `ai-music-studio` | 음악 | v1.14 | 공개(new, 2026-10-23 신규) | Lyria·ElevenLabs·Suno·MiniMax·Stable Audio 등 여러 음악 AI로 노래·배경음악을 만들고 최대 3개 모델을 나란히 비교 |
 | 88 | AI 영상 스튜디오 | `ai-video-studio` | 영상 | v1.24 | 공개(new, 2026-10-23 신규) | Gemini Omni Flash·Kling·Seedance 등 여러 영상 AI를 본인 키로 골라 영상을 만들고 갤러리에 30일 보관 · 영상 연동 레퍼런스 |
 | 89 | AI 업무 워크스페이스 자동화 | `ai-work-workspace` | 업무자동화 | v1.19 | 공개(2026-10-24 신규, 일반 등급 이상) | 회의록·업무 위키·프로젝트 보드를 블록 문서와 데이터베이스(표·보드·캘린더·타임라인 등 12가지 보기)로 한곳에 정리하는 노션형 워크스페이스 |
-| 91 | 셀러 라벨·QR·서류 자동화 | `seller-label-docs` | 이커머스 | v1.02 | 공개(new, 2026-10-25 신규) | A4 라벨 인쇄(엑셀 대량·바코드·식품 표시)·QR·파일명 일괄 변경·PDF 정리·문서 서명을 내 PC 브라우저 안에서만 처리하는 판매자 도구함 |
-| 92 | AI 쇼핑몰 주문·매출 리포트 자동화 | `shop-order-report` | 이커머스 | v1.02 | 공개(new, 2026-10-25 신규) | 마켓 주문 엑셀로 주문 현황·매출·순이익·재고 소진·리뷰 개선점을 정리(개인정보 열 버림, 주문은 회원 PC에만 보관) |
+| 91 | 셀러 라벨·QR·서류 자동화 | `seller-label-docs` | 이커머스 | v1.03 | 공개(new, 2026-10-25 신규) | A4 라벨 인쇄(엑셀 대량·바코드·식품 표시)·QR·파일명 일괄 변경·PDF 정리·문서 서명을 내 PC 브라우저 안에서만 처리하는 판매자 도구함 |
+| 92 | AI 쇼핑몰 주문·매출 리포트 자동화 | `shop-order-report` | 이커머스 | v1.03 | 공개(new, 2026-10-25 신규) | 마켓 주문 엑셀로 주문 현황·매출·순이익·재고 소진·리뷰 개선점을 정리(개인정보 열 버림, 주문은 회원 PC에만 보관) |
 | 90 | 부동산 실시간 매물 알림 | `realty-listing-alert` | 부동산 | v1.18 | 준비중(2026-10-24 신규, 공개 전 — 테스트 정상 확인 뒤 주인님 결정) | 관심 단지의 네이버 부동산 새 매물·가격 변동을 회원 PC 크롬 확장이 회원 본인 계정으로 찾아 본인 텔레그램·카톡·메일로 알림 + 통계·추이 대시보드(서버는 매물 미보관) |
 
 ## 0. 이 문서를 쓰는 방법
@@ -1143,7 +1143,7 @@
 - **키·계정·주의**: API 키가 필요 없습니다. 변환은 내 브라우저 안에서만 이뤄져 영상이 서버로 올라가지 않고, 처음 한 번 변환 엔진(약 25~30MB)을 내려받으며 속도는 기기 성능에 따라 다릅니다.
 
 #### AI 쇼핑몰 주문·매출 리포트 자동화 (`shop-order-report`)
-- 주소·폴더: https://shop-order-report.buylife.xyz · `shop-order-report/` · v1.02 (셀러 워크벤치 스타일, 2026-10-25 신규, 쇼핑몰 묶음 E7·E8)
+- 주소·폴더: https://shop-order-report.buylife.xyz · `shop-order-report/` · v1.03 (셀러 워크벤치 스타일, 2026-10-25 신규, 쇼핑몰 묶음 E7·E8)
 - **차별점**: 판매 「후」 실적 — 상품소싱 키워드 리포트와 달리 실제 주문 파일로 매출·순이익을 낸다. 저장 방식 A(주인님 결정): 주문은 회원 PC 브라우저(IndexedDB)에만, 서버 데이터 표 없음, 개인정보 열은 읽지 않음.
 - **기능(v1.02)**: 📥 마켓(스마트스토어·쿠팡·11번가·G마켓·옥션) 자동 인식·열 맞추기 기억·중복 제거·예시 파일 · 📦 상태 6종 · 💰 일·주·월·상품·마켓 매출·정산(없으면 수수료 추정·표시)·원가·택배·광고비 → 순이익, 엑셀·인쇄 · 📉 재고 소진(7·14·30일) · ⭐ 리뷰 별점·자주 나온 말·불만(무료) + 선택 AI 요약(본인 Gemini, `gemini-3.5-flash-lite`) · ⚙ 설정 파일 내보내기/가져오기
 - **재사용 부품**: 공용 `market-fees`(`src/lib/marketFees.ts`, 기준) · 마켓 열 별칭·개인정보 열 판정 `src/lib/orders/markets.ts` · 상태 사전·금액·날짜 읽기·중복 합치기 `src/lib/orders/parse.ts` · 집계 `src/lib/report/aggregate.ts` · 재고 예측·리뷰 분석 · IndexedDB 보관 `src/lib/browser/store.ts`
@@ -1154,7 +1154,7 @@
 - 문서: [`shop-order-report/AGENTS.md`](../shop-order-report/AGENTS.md) · 플랜 [`PLAN_20261025_SHOP_ORDER_REPORT.md`](../shop-order-report/docs/PLAN_20261025_SHOP_ORDER_REPORT.md)
 
 #### 셀러 라벨·QR·서류 자동화 (`seller-label-docs`)
-- 주소·폴더: https://seller-label-docs.buylife.xyz · `seller-label-docs/` · v1.02 (셀러 워크벤치 스타일 라이트, 2026-10-25 신규, 쇼핑몰 묶음 E6)
+- 주소·폴더: https://seller-label-docs.buylife.xyz · `seller-label-docs/` · v1.03 (셀러 워크벤치 스타일 라이트, 2026-10-25 신규, 쇼핑몰 묶음 E6)
 - **차별점**: 판매 「후 단계」 서류 작업 전용 — 파일을 서버로 보내지 않고 키·계정 없이 브라우저에서만 처리(운영 비용 0).
 - **기능(v1.02)**: 🏷 A4 라벨(규격 16종 가운데 정렬 추정값+직접 입력, `{열 이름}` 엑셀·붙여넣기 채우기, Code128·EAN-13(검증 숫자)·QR·데이터매트릭스, 식품 한글표시사항 틀, 시작 칸·장수·위치 보정 mm, 실제 크기 인쇄) · 🔳 꾸민 QR(대비 판정·로고·PNG/JPG/SVG) · 🗂 파일명 「공통 이름+순번」 ZIP · 📄 사진→PDF(EXIF 회전), 여러 PDF 페이지 카드(순서·돌리기·빼기·범위·n쪽 나누기) · ✍ 서명(손글씨·서명 사진 투명화·이름 손글씨 글꼴, 끌어서 위치, 모든 쪽 같은 자리, 법적 전자서명 아님 고정 안내)
 - **재사용 부품**: 라벨 칸 좌표 `src/lib/label/layout.ts`, 바코드 검증 `barcode.ts`, PDF 조작 `src/lib/pdf/ops.ts`(`buildFromPages`·`stampPng`), QR 대비 `src/lib/qr/contrast.ts`, 표 읽기 `src/lib/sheet.ts`(EUC-KR CSV 자동)
