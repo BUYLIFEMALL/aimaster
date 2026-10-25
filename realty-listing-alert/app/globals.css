@@ -821,3 +821,22 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-keyguide-table { white-space: normal; }
 .ra-keyguide-table td { vertical-align: top; min-width: 140px; line-height: 1.55; }
 .ra-keyguide-table small { color: #374151; }
+/* 키 안내 표 — 한 줄에 하나씩(2026-10-25 주인님) */
+.ra-kg-name b, .ra-kg-name small { display: block; white-space: nowrap; }
+.ra-kg-name small { margin-top: 2px; color: var(--muted); }
+.ra-kg-steps { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 3px; font-size: 12.5px; color: #374151; }
+.ra-kg-steps li, .ra-kg-lines li { white-space: nowrap; }
+.ra-kg-lines { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 12.5px; color: #374151; }
+.ra-kg-not li { color: #b91c1c; }
+.ra-kg-note { display: block; margin-top: 6px; color: #b45309; font-size: 12px; white-space: normal; }
+.ra-keyguide-table { white-space: nowrap; }
+/* 📖 플랫폼별 연동 방법(각 연동 칸 밑, 2026-10-25) */
+.ra-howto { margin: 10px 0 14px; border: 1px solid #cfe9da; border-radius: 14px; padding: 12px 16px; background: #f6fcf8; display: grid; gap: 12px; }
+.ra-howto-title { font-size: 14px; color: #0b7a3e; }
+.ra-howto-item + .ra-howto-item { border-top: 1px dashed #cfe9da; padding-top: 10px; }
+.ra-howto-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.ra-howto-head .secondary { padding: 6px 10px; font-size: 12px; }
+.ra-howto-meta { display: grid; gap: 3px; margin-top: 6px; font-size: 12.5px; color: #374151; }
+.ra-howto-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 920px) { .ra-howto-grid { grid-template-columns: 1fr; } }
+.ra-howto .ra-kg-steps li { white-space: normal; }
