@@ -1,10 +1,10 @@
 # AI 업무 워크스페이스
 
 - 담당: Claude Code(윈도우) `claude-win-20261025-workspace` (2026-10-25 인계받음, 이전 `claude-win-20261024-workspace`)
-- 맡은 폴더: `ai-work-workspace/`
+- 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-10-25 (새 담당 claude-win-20261025-workspace — 인계 확인)
+- 마지막 갱신: 2026-10-26 (claude-win-20261025-workspace — 할 일 플래너 담당 추가, 미배포 묶음 결정 기록)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,11 +17,12 @@
 | `ai-work-workspace` | U6-A 자동 요약 실제 1회(30초 이상 녹음) | 주인님 녹음 | `ai-work-workspace/docs/PLAN_20261024_U6_MEETING_NOTES.md` §3 |
 | `ai-work-workspace` | U6-B 음성 파일 받아쓰기(회원 Gemini 우선·OpenAI 보조) → v1.18 | U6-A 운영 확인 | 같은 플랜 §2 |
 | `ai-work-workspace` | U9 연계(음성 분석·문서 챗봇·번역·슬라이드 보내기 버튼) | 착수 전 플랜·비용 보고 | 로드맵 §5, `docs/WORK_INBOX.md` |
-| `ai-work-workspace` | 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기) | 다음 워크스페이스 배포(빌드 1회) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
+| `ai-work-workspace` | 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기) | 다음 워크스페이스 배포 때 함께 내보내기(2026-10-26 주인님 결정, 단독 배포 안 함) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-26 | 역할 | 주인님 결정 2건 반영: 할 일 플래너를 맡은 폴더에 추가, 미배포 `94719d8da`는 다음 워크스페이스 배포 때 묶어서 내보냄 | 없음 |
 | 2026-10-25 | `ai-work-workspace` v1.19 · `ai-task-planner` v1.12 | U8-B 워크스페이스 페이지 할 일 → 플래너 「📥 받은 할 일」(공용 표 받는 곳 열 추가) | 배포 2회 |
 | 2026-10-25 | `ai-task-planner` v1.11 | U8-A 할 일·오늘 성과를 워크스페이스 「📨 받은 업무」로 보내기(공용 기준 코드 `work-inbox-client` 첫 사본) | 배포 |
 | 2026-10-25 | `ai-work-workspace` v1.18 | U7 업무 받은편지함 — 공용 표 `public.work_inbox` + 「📨 받은 업무」 화면(페이지로 만들기·표에 행으로 넣기) | 배포 |
@@ -38,7 +39,5 @@
 2. U9 연계 상세 플랜·비용 보고(음성 분석·문서 챗봇·번역·슬라이드)
 
 ## 주인님께 여쭐 것
-- 할 일 플래너(`ai-task-planner`)도 이 역할이 계속 맡을까요? U8 연계로 함께 고쳤지만 「맡은 폴더」에는 없습니다.
-- 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기)를 바로 배포할까요?(빌드 1회)
 - 회의록 자동 요약 확인: 회의록에서 30초 이상 말씀하신 뒤 「정지」를 눌러 주시면 요약이 나오는지 확인하겠습니다(시험 계정 Gemini 1회, 1원 안팎).
 - U6-B 음성 파일 받아쓰기 제공자를 Gemini 우선·OpenAI 보조(4MB 이하)로 할까요?(추천)
