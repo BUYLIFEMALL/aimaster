@@ -1,0 +1,2 @@
+-- 운영 esgxyikcnnvmlhygjkth, 배포 dpl_4YjhJhW16BrqRtc5umXDxmpo7XU5 Ready 뒤 적용. 프로그램 버전 행만 변경.
+do $$ begin if not exists (select 1 from public.programs where slug='ai-prompt-studio' and version in ('v1.09','v1.10')) then raise exception 'Unexpected ai-prompt-studio version; no update applied'; end if; update public.programs set version='v1.10' where slug='ai-prompt-studio' and version='v1.09'; end $$;
