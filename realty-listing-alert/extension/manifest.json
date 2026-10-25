@@ -7,7 +7,8 @@
   "permissions": [
     "debugger",
     "alarms",
-    "storage"
+    "storage",
+    "unlimitedStorage"
   ],
   "host_permissions": [
     "https://new.land.naver.com/*",

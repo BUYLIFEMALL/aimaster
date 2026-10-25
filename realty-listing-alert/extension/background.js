@@ -264,8 +264,8 @@ async function runCollection(trigger) {
     // 통계·추이(2026-10-25): 회차마다 요약만 회원 PC에 쌓는다(90일) — 웹 「수집 결과」 대시보드가 확장에 물어 그린다
     if (table.length) {
       const { history = [], eventLog = [] } = await get(["history", "eventLog"]);
-      // 변동 기록: 새 매물·가격 내림/오름·사라짐 줄만 따로 90일(최대 5000줄) — 「변동 기록」 탭용
-      await set({ history: pushHistory(history, summarizeTable(COLUMNS, table, startedAt)), eventLog: pushEvents(eventLog, pickEvents(COLUMNS, table, startedAt)) });
+      // 변동 기록: 새 매물·가격 내림/오름·사라짐 줄만 따로 1년(전화번호 칸은 30일 뒤 비움) — 「변동 기록」 탭용. 통계 요약도 1년(주인님 결정 2026-10-25)
+      await set({ history: pushHistory(history, summarizeTable(COLUMNS, table, startedAt)), eventLog: pushEvents(eventLog, pickEvents(COLUMNS, table, startedAt), { phoneCols: [COLUMNS.indexOf("사무실 번호"), COLUMNS.indexOf("휴대폰")] }) });
     }
 
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });

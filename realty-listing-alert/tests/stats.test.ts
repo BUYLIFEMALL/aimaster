@@ -44,22 +44,34 @@ test("단지·거래별 요약: 개수·평균·중간값·㎡당·면적대·�
   assert.deepEqual(s.realtors[0], { name: "가부동산", n: 3 }); // 사라진 매물은 세지 않음(A 2 + B 1)
 });
 
-test("기록 쌓기: 90일 지난 것과 최대 개수를 넘는 것은 정리", () => {
+test("기록 쌓기: 1년 지난 것과 최대 개수를 넘는 것은 정리", () => {
   const now = Date.parse("2026-10-25T00:00:00Z");
-  const old = { at: "2026-07-01T00:00:00Z", complexes: [], realtors: [] };
+  const old = { at: "2025-09-01T00:00:00Z", complexes: [], realtors: [] };
   const recent = { at: "2026-10-24T00:00:00Z", complexes: [], realtors: [] };
   const next = { at: "2026-10-25T00:00:00Z", complexes: [], realtors: [] };
   assert.deepEqual(pushHistory([old, recent], next, { now }).map((h: { at: string }) => h.at), [recent.at, next.at]);
   assert.equal(pushHistory([recent, recent, recent], next, { now, max: 2 }).length, 2);
 });
 
-test("변동 기록: 상태가 바뀐 매물만 고르고 90일·최대 줄 수로 정리", async () => {
+test("변동 기록: 상태가 바뀐 매물만 고르고 1년·최대 줄 수로 정리", async () => {
   const { pickEvents, pushEvents } = await import("../extension/lib/stats.js");
   const table = [row("A", "매매", "8억", "59", "가"), row("A", "매매", "9억", "84", "가", "🆕 신규"), row("A", "전세", "5억", "59", "나", "👋 사라짐"), row("A", "매매", "7억", "59", "나", "📈 가격 오름")];
   const ev = pickEvents(COLUMNS, table, "2026-10-25T00:00:00Z");
   assert.deepEqual(ev.map((e: { type: string }) => e.type), ["new", "gone", "priceUp"]);
   const now = Date.parse("2026-10-25T00:00:00Z");
-  const old = { at: "2026-07-01T00:00:00Z", type: "new", row: [] };
+  const old = { at: "2025-09-01T00:00:00Z", type: "new", row: [] };
   assert.equal(pushEvents([old], ev, { now }).length, 3);
   assert.equal(pushEvents([], ev, { now, max: 2 }).length, 2);
+});
+
+test("보관 1년: 30일 지난 변동 줄은 전화번호 칸만 비운다", async () => {
+  const { pushEvents } = await import("../extension/lib/stats.js");
+  const now = Date.parse("2026-10-25T00:00:00Z");
+  const office = COLUMNS.indexOf("사무실 번호"), mobile = COLUMNS.indexOf("휴대폰");
+  const mk = (at: string) => { const r = COLUMNS.map(() => "x"); return { at, type: "new", row: r }; };
+  const out = pushEvents([mk("2026-08-01T00:00:00Z"), mk("2026-10-20T00:00:00Z"), mk("2025-09-01T00:00:00Z")], [], { now, phoneCols: [office, mobile] });
+  assert.equal(out.length, 2); // 1년 넘은 줄은 정리
+  assert.equal(out[0].row[office], ""); assert.equal(out[0].row[mobile], ""); // 30일 지남 → 번호만 비움
+  assert.equal(out[0].row[COLUMNS.indexOf("단지명")], "x");
+  assert.equal(out[1].row[office], "x"); // 30일 안 → 그대로
 });

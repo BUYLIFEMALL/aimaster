@@ -70,8 +70,8 @@ export function summarizeTable(columns, table, at) {
   return { at, complexes, realtors };
 }
 
-/** 기록에 요약 하나를 더하고 오래된 것(기본 90일·최대 400회)을 정리한다. */
-export function pushHistory(history, snap, { now = Date.now(), days = 90, max = 400 } = {}) {
+/** 기록에 요약 하나를 더하고 오래된 것(기본 1년·최대 3000회 = 3시간 간격 1년치)을 정리한다. 2026-10-25 주인님 결정: 통계 누적은 1년. */
+export function pushHistory(history, snap, { now = Date.now(), days = 365, max = 3000 } = {}) {
   const cut = now - days * 24 * 3600 * 1000;
   return [...(history || []).filter((h) => new Date(h.at).getTime() >= cut), snap].slice(-max);
 }
@@ -82,8 +82,15 @@ export function pickEvents(columns, table, at) {
   return (table || []).filter((r) => STATUS_KEY[r[s]]).map((row) => ({ at, type: STATUS_KEY[row[s]], row }));
 }
 
-/** 변동 기록을 더하고 오래된 것(기본 90일·최대 5000줄)을 정리한다. */
-export function pushEvents(log, add, { now = Date.now(), days = 90, max = 5000 } = {}) {
+/** 변동 기록을 더하고 오래된 것(기본 1년·최대 50000줄)을 정리한다. 30일 지난 줄은 중개사 전화번호 칸을 비운다(개인정보는 30일 기준 — phoneCols는 그 칸 번호). */
+export function pushEvents(log, add, { now = Date.now(), days = 365, max = 50000, phoneDays = 30, phoneCols = [] } = {}) {
   const cut = now - days * 24 * 3600 * 1000;
-  return [...(log || []).filter((e) => new Date(e.at).getTime() >= cut), ...add].slice(-max);
+  const phoneCut = now - phoneDays * 24 * 3600 * 1000;
+  const kept = (log || []).filter((e) => new Date(e.at).getTime() >= cut).map((e) => {
+    if (!phoneCols.length || new Date(e.at).getTime() >= phoneCut || !phoneCols.some((i) => e.row?.[i])) return e;
+    const row = [...e.row];
+    for (const i of phoneCols) if (i >= 0) row[i] = "";
+    return { ...e, row };
+  });
+  return [...kept, ...add].slice(-max);
 }

@@ -12,7 +12,9 @@ type ComplexSnap = { name: string; total: number; events: { new: number; priceDo
 type Snap = { at: string; complexes: ComplexSnap[]; realtors: { name: string; n: number }[] };
 type Trade = "매매" | "전세" | "월세";
 type EvType = "new" | "priceDown" | "priceUp" | "gone";
-type Period = "last" | "7" | "30" | "90";
+type Period = "last" | "7" | "30" | "90" | "180" | "365";
+type Range = "30" | "90" | "180" | "365";
+const RANGES: [Range, string][] = [["30", "1개월"], ["90", "3개월"], ["180", "6개월"], ["365", "1년"]];
 type EventRow = { at: string; type: EvType; row: unknown[] };
 
 const TRADES: Trade[] = ["매매", "전세", "월세"];
@@ -38,6 +40,7 @@ export default function StatsDashboard({ email }: { email: string }) {
   const [trade, setTrade] = useState<Trade>("매매");
   const [evType, setEvType] = useState<EvType | "all">("all");
   const [evPeriod, setEvPeriod] = useState<Period>("last");
+  const [range, setRange] = useState<Range>("90"); // 추이 그래프 기간
 
   useEffect(() => {
     let alive = true;
@@ -78,9 +81,14 @@ export default function StatsDashboard({ email }: { email: string }) {
     };
   }, [latest, prev]);
 
-  const series = useMemo(() => (history ?? [])
-    .map((h) => ({ at: h.at, t: h.complexes.find((c) => c.name === selected)?.trades[trade] }))
-    .filter((p): p is { at: string; t: TradeStat } => !!p.t), [history, selected, trade]);
+  const series = useMemo(() => {
+    const last = history?.length ? new Date(history[history.length - 1].at).getTime() : 0;
+    const cut = last - Number(range) * 24 * 3600 * 1000; // 마지막 수집 시각 기준
+    return (history ?? [])
+      .filter((h) => new Date(h.at).getTime() >= cut)
+      .map((h) => ({ at: h.at, t: h.complexes.find((c) => c.name === selected)?.trades[trade] }))
+      .filter((p): p is { at: string; t: TradeStat } => !!p.t);
+  }, [history, selected, trade, range]);
 
   const current = latest?.complexes.find((c) => c.name === selected)?.trades[trade];
 
@@ -95,7 +103,7 @@ export default function StatsDashboard({ email }: { email: string }) {
 
       {latest && tiles && (
         <>
-          <p className="card-caption">{when(latest.at)} 수집 기준 · 기록 {history!.length}회(최근 90일, 회원님 PC에만 저장)</p>
+          <p className="card-caption">{when(latest.at)} 수집 기준 · 기록 {history!.length}회(최근 1년, 회원님 PC에만 저장)</p>
           <div className="ra-stat-tiles">
             <div className="ra-stat"><small>지금 매물</small><strong>{tiles.total.toLocaleString("ko-KR")}건</strong><span>{tiles.delta === null ? "직전 회차 없음" : `직전보다 ${signed(tiles.delta)}`}</span></div>
             <button type="button" className="ra-stat link" onClick={() => openEvents("new")}><small>🆕 새 매물</small><strong>{tiles.fresh.toLocaleString("ko-KR")}건</strong><span>이번 회차 · 눌러서 보기 →</span></button>
@@ -115,6 +123,11 @@ export default function StatsDashboard({ email }: { email: string }) {
             <div className="ra-seg" role="group" aria-label="거래 종류">
               {TRADES.map((t) => (
                 <button key={t} type="button" aria-pressed={trade === t} className={trade === t ? "on" : ""} onClick={() => setTrade(t)}>{t}</button>
+              ))}
+            </div>
+            <div className="ra-seg" role="group" aria-label="추이 기간">
+              {RANGES.map(([id, label]) => (
+                <button key={id} type="button" aria-pressed={range === id} className={range === id ? "on" : ""} onClick={() => setRange(id)}>{label}</button>
               ))}
             </div>
           </div>
@@ -255,10 +268,10 @@ function EventLog({ events, columns, lastAt, type, setType, period, setPeriod }:
   return (
     <div id="event-log" className="ra-event-log">
       <h3 className="ra-stat-h">🔔 변동 기록</h3>
-      <p className="card-caption">새 매물·가격 내림/오름·사라진 매물을 기간·단지별로 모아 봐요. 기록은 회원님 PC 확장에만 90일 쌓여요(사라짐은 목록을 끝까지 읽은 회차만 판단).</p>
+      <p className="card-caption">새 매물·가격 내림/오름·사라진 매물을 기간·단지별로 모아 봐요. 기록은 회원님 PC 확장에만 1년 쌓여요(중개사 번호는 30일 뒤 지워요 · 사라짐은 목록을 끝까지 읽은 회차만 판단).</p>
       <div className="ra-stat-filters">
         <div className="ra-seg" role="group" aria-label="기간">
-          {([["last", "이번 회차"], ["7", "7일"], ["30", "30일"], ["90", "90일"]] as [Period, string][]).map(([id, label]) => (
+          {([["last", "이번 회차"], ["7", "7일"], ["30", "1개월"], ["90", "3개월"], ["180", "6개월"], ["365", "1년"]] as [Period, string][]).map(([id, label]) => (
             <button key={id} type="button" aria-pressed={period === id} className={period === id ? "on" : ""} onClick={() => setPeriod(id)}>{label}</button>
           ))}
         </div>
