@@ -19,7 +19,7 @@ export type FieldId = "orderNo" | "lineNo" | "orderedAt" | "product" | "option" 
 
 export const FIELDS: { id: FieldId; label: string; required: boolean; aliases: string[] }[] = [
   { id: "orderNo", label: "주문번호", required: true, aliases: ["주문번호", "주문 번호", "orderid", "order no", "주문id"] },
-  { id: "lineNo", label: "상품주문번호", required: false, aliases: ["상품주문번호", "상품 주문번호", "주문상세번호", "주문순번", "묶음배송번호"] },
+  { id: "lineNo", label: "상품주문번호", required: false, aliases: ["상품주문번호", "상품 주문번호", "주문상세번호", "주문순번"] },
   { id: "orderedAt", label: "주문일시", required: true, aliases: ["주문일시", "주문일", "결제일", "결제일시", "주문일자", "구매일", "주문시간"] },
   { id: "product", label: "상품명", required: true, aliases: ["상품명", "등록상품명", "노출상품명", "상품이름", "품명"] },
   { id: "option", label: "옵션", required: false, aliases: ["옵션정보", "옵션명", "옵션", "등록옵션명", "선택옵션"] },

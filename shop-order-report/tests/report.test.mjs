@@ -24,6 +24,7 @@ test("마켓·열 자동 인식, 개인정보 열은 고르지 않는다", () =>
   const c = guessMapping(COUPANG_HEADERS);
   assert.equal(c.product, "등록상품명");
   assert.equal(c.qty, "구매수");
+  assert.equal(c.lineNo, undefined); // 묶음배송번호는 여러 상품을 묶으므로 상품주문번호로 쓰지 않는다
   assert.equal(c.amount, "결제액");
   for (const v of [...Object.values(m), ...Object.values(c)]) assert.equal(isPersonalColumn(v), false, v);
   assert.ok(isPersonalColumn("수취인연락처1") && isPersonalColumn("배송지") && isPersonalColumn("구매자명"));

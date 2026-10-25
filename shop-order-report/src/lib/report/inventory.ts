@@ -38,7 +38,8 @@ export function forecastStock(
       const level: StockForecast["level"] = stock == null ? "unknown" : daysLeft == null ? "ok" : daysLeft <= 7 ? "danger" : daysLeft <= 14 ? "warn" : "ok";
       return { key, soldInWindow: s, perDay, stock, daysLeft, level };
     })
-    .sort((a, b) => (a.daysLeft ?? 1e9) - (b.daysLeft ?? 1e9) || b.soldInWindow - a.soldInWindow);
+    // 재고를 고치는 동안 줄이 움직이지 않도록 판매량 순(같으면 이름 순)으로 고정한다
+    .sort((a, b) => b.soldInWindow - a.soldInWindow || a.key.localeCompare(b.key, "ko"));
 }
 
 /** 마지막 주문일 */
