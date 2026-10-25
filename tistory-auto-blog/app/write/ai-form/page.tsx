@@ -148,6 +148,8 @@ function AiFormPageInner() {
   const [ctaText, setCtaText] = useState('추천링크')
   const [ctaUrl, setCtaUrl] = useState('')
   const [customPrompt, setCustomPrompt] = useState('')
+  // 최우선 블로그 지침: 포스팅 방식 선택 (발행 전까지 / 즉시 발행 / 예약 발행)
+  const [postingMode, setPostingMode] = useState<'prepare' | 'now' | 'reserve'>('prepare')
 
   const [loading, setLoading] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
@@ -309,6 +311,88 @@ function AiFormPageInner() {
           <div className="space-y-2 border-b border-slate-100 pb-6">
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">AI 맞춤 자동 글쓰기</h1>
             <p className="text-sm font-medium text-slate-500">카테고리(복수선택), 주제, AI 이미지 설정 및 추천링크를 지정하시면 최적의 SEO 포스팅이 자동 생성됩니다.</p>
+          </div>
+
+          
+
+          {/* ★ 최우선 블로그 지침: 크롬 확장 포스팅 방식 선택 (회원 직접 선택) */}
+          <div className="bg-orange-50/80 p-5 rounded-2xl border border-orange-200 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-orange-950 flex items-center gap-1.5 uppercase">
+                <span>🚀</span>
+                <span>크롬 확장 자동 포스팅 방식 (회원 필수 선택)</span>
+              </label>
+              <span className="text-[10px] bg-orange-200 text-orange-900 px-2 py-0.5 rounded-full font-extrabold">
+                최우선 블로그 지침
+              </span>
+            </div>
+            <p className="text-xs text-orange-800">
+              최종 원문과 이미지는 웹에서 완성되며, 선택하신 방식으로 크롬 확장이 티스토리 에디터에 자동 입력합니다.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <label 
+                className={`flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  postingMode === 'prepare' 
+                    ? 'border-orange-500 bg-white shadow-sm ring-1 ring-orange-500/30' 
+                    : 'border-slate-200 bg-white/70 hover:bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-black text-slate-900">발행 전까지</span>
+                  <input 
+                    type="radio" 
+                    name="postingMode" 
+                    value="prepare" 
+                    checked={postingMode === 'prepare'} 
+                    onChange={() => setPostingMode('prepare')} 
+                    className="accent-orange-600"
+                  />
+                </div>
+                <span className="text-[11px] text-slate-500 leading-tight">서식·이미지 입력만 완료하고 회원이 최종 검수 후 직접 발행</span>
+              </label>
+
+              <label 
+                className={`flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  postingMode === 'now' 
+                    ? 'border-orange-500 bg-white shadow-sm ring-1 ring-orange-500/30' 
+                    : 'border-slate-200 bg-white/70 hover:bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-black text-slate-900">즉시 포스팅</span>
+                  <input 
+                    type="radio" 
+                    name="postingMode" 
+                    value="now" 
+                    checked={postingMode === 'now'} 
+                    onChange={() => setPostingMode('now')} 
+                    className="accent-orange-600"
+                  />
+                </div>
+                <span className="text-[11px] text-slate-500 leading-tight">확장이 글 입력 후 즉시 실제 발행 버튼까지 원클릭 자동 완료</span>
+              </label>
+
+              <label 
+                className={`flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  postingMode === 'reserve' 
+                    ? 'border-orange-500 bg-white shadow-sm ring-1 ring-orange-500/30' 
+                    : 'border-slate-200 bg-white/70 hover:bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-black text-slate-900">예약 포스팅</span>
+                  <input 
+                    type="radio" 
+                    name="postingMode" 
+                    value="reserve" 
+                    checked={postingMode === 'reserve'} 
+                    onChange={() => setPostingMode('reserve')} 
+                    className="accent-orange-600"
+                  />
+                </div>
+                <span className="text-[11px] text-slate-500 leading-tight">지정된 시각에 티스토리 예약 발행으로 확장이 자동 예약 등록</span>
+              </label>
+            </div>
           </div>
 
           {/* [상단] 1. 카테고리 복수 선택 섹션 */}
@@ -683,8 +767,7 @@ function AiFormPageInner() {
             <button
               type="submit"
               disabled={loading}
-              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none' }}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-base rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.01] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+              className="w-full py-4 btn-3d-orange disabled:opacity-50 text-white font-extrabold text-base rounded-2xl cursor-pointer flex items-center justify-center gap-2 disabled:cursor-not-allowed shadow-xl"
             >
               {loading ? (
                 <>
@@ -695,7 +778,7 @@ function AiFormPageInner() {
                   <span>AI 글 생성 및 분석 진행 중...</span>
                 </>
               ) : (
-                <span>✨ AI 글 생성 시작</span>
+                <span>✨ AI 글 생성 및 티스토리 원고 완성</span>
               )}
             </button>
           </div>

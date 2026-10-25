@@ -271,13 +271,22 @@ export default function HomePage() {
           </button>
         </form>
 
-        <Link
-          href="/write/ai-form"
-          className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:bg-blue-700 shadow-lg shadow-blue-500/20"
-        >
-          <span className="text-lg">✨</span>
-          <span>AI 글쓰기 (자동 포스팅 생성)</span>
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/write/ai-form"
+            className="btn-3d-orange px-8 py-3.5 text-base rounded-xl font-black text-white shadow-xl flex items-center gap-2 no-underline"
+          >
+            <span className="text-lg">✨</span>
+            <span>AI 맞춤 원고 & 이미지 즉시 생성</span>
+          </Link>
+          <Link
+            href="/guide"
+            className="btn-3d-blue px-6 py-3.5 text-base rounded-xl font-bold text-white shadow-xl flex items-center gap-2 no-underline"
+          >
+            <span>📖</span>
+            <span>연동 가이드 & 확장 다운로드</span>
+          </Link>
+        </div>
       </section>
 
       {/* =================== MAIN CONTENT =================== */}
