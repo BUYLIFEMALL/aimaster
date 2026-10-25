@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E7 새 프로그램 「AI 쇼핑몰 주문·매출 리포트 자동화」 v1.01 → v1.02 공개
+- 한 일: 플랜 승인(저장 방식 A — 주문은 회원 PC 브라우저에만) 뒤 `shop-order-report/` 구현·공개. 📥 마켓 자동 인식·열 맞추기 기억·중복 제거(개인정보 열 읽지 않음) · 📦 주문 상태 6종 · 💰 일·주·월·상품·마켓 매출·정산·순이익(정산액 우선, 없으면 수수료 추정 표시) 엑셀·인쇄 · 📉 재고 소진 · ⭐ 리뷰 분석(무료)+선택 AI 요약(본인 Gemini) · ⚙ 원가·수수료·택배·광고비 설정. 공용 `market-fees` 기준 등록(`docs/SHARED_MODULES.md`, 사본은 상품소싱 E1부터).
+- 운영 등록: DB(① 운영) programs·요금제 3단계·VIP 등급 표·시험 계정 30일(144건), Vercel 새 프로젝트·환경변수 4개·framework nextjs·도메인, 썸네일(1장째 화면 글자가 생겨 다시 만들어 2회).
+- 검수: 시험 16개·tsc·빌드, 크롬 시험 계정으로 예시 주문 파일 2개 올리기(138줄) → 브라우저 저장소에 이름·전화·주소 없음 확인, 리포트·원가 반영(순이익률 45.2%)·재고·리뷰·AI 요약 1회·주문 현황, 400px 틀 8개 화면 가로 넘침 없음. 검수 중 발견 2건 v1.02 수정(쿠팡 묶음배송번호를 줄 키로 쓰던 문제, 재고 입력 중 줄 순서가 바뀌던 문제). 검수 뒤 크롬 저장소의 예시 데이터는 지움.
+- 배포 `shop-order-report-gndfngy99`(v1.01)·`shop-order-report-dxj1g8phk`(v1.02) Ready, DB v1.02.
+- 참고: 공용 모듈 점검에 기존 문제 1건(`video-edit-composition` 사본 차이, 영상 담당) — 이번 작업과 무관, 건드리지 않음.
+- 다음 첫 단계: 주인님 실제 마켓 주문 파일로 열 이름·상태 사전 보정 → 쇼핑몰 묶음 E1(상품소싱 마진 계산에 `market-fees` 사본).
+- 비용: Vercel 빌드 2회(승인 최대 3회 안), 썸네일 2회(관리자 키), 리뷰 AI 요약 시험 1회(시험 계정 본인 키, 가장 싼 모델).
+- https://shop-order-report.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.08 카톡·이메일 받기
 - 한 일: 카톡 받기(요약 200자 + 결과 보기 버튼, 「카카오 자동화」에서 연결한 공용 카카오 계정 재사용)·이메일 받기(회원 본인 Resend 키 `resend_api_key`, 요약 + 엑셀 첨부) — 확장이 회원 PC에서 직접 보냄(매물은 서버를 거치지 않음), 채널별 따로 보내기, 받는 방법·API키등록 두 화면에 같은 카드(`ChannelCards`), 시험 보내기. 플랜 `realty-listing-alert/docs/PLAN_20261025_KAKAO_EMAIL.md`. 서버 `lib/notifyChannels.ts`(공용 카카오 계정 토큰 갱신·Resend 키), 확장 `extension/lib/notify.js`, 공용 컴포넌트 사본 `lib/memberIntegrations.ts` 추가(`check-shared-modules` 등록). DB `20261025001000_kakao_email_delivery.sql`(주인님 Run, `new_columns=3`·`resend_ok=true` 확인). 확장 1.8.0/v1.08(권한 `kapi.kakao.com`·`api.resend.com` 추가).
 - 주의: 공용 `user_api_keys_provider_check`는 중괄호 목록 2덩어리(54개)로 저장돼 있다 — 따옴표 단위로 읽으면 2개로 읽혀 목록이 줄어들 뻔했다(Postgres 검사로 취소, DB 변경 없음). `docs/ERROR_LESSONS.md` 2026-10-25.

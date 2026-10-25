@@ -77,6 +77,7 @@
 | E5 | 키 없는 무료 배경 제거(u2netp급 ONNX, ONNX Runtime Web) · 얼굴 자동 모자이크(얼굴 감지 모델)·EXIF 제거 · 이미지 2·4·8·16분할 | [05](05_KDP_WORK_TOOLS.md) §4~6 | 공용 `browser-free-erase`(shop-detail-page v1.31 사본, onnxruntime-web 1.23.0) 기준 파일에 작업 추가 → `node scripts/check-shared-modules.mjs --sync`, 사본 직접 수정 금지. 경량 모델이라 경계가 약함 — 「더 정교한 누끼는 회원 키 AI」 선택지 유지 |
 
 ## 7. E7·E8 — 🆕 AI 쇼핑몰 주문·매출 리포트 자동화 (`shop-order-report`, 이름 확정)
+- ✅ **처리됨 2026-10-25 (`claude-win-sdp`, v1.01→v1.02 운영 공개)**: 주인님 결정 A안(주문은 회원 PC 브라우저에만, 서버 표 없음, 개인정보 열 읽지 않음). 7개 화면·리뷰 AI 요약(선택)·공용 `market-fees` 기준 등록. https://shop-order-report.buylife.xyz · 상세 [`shop-order-report/AGENTS.md`](../../shop-order-report/AGENTS.md). 남은 것: 실제 마켓 파일(개인정보 지운 사본)로 열 이름 검증, 3차 마켓 API.
 - 원본(prohubstart 매출 보고서·주문 대시보드·재고 알림·리뷰 수집)은 **모두 시연(가짜 데이터)** — 화면 아이디어만, 기능은 새로 설계. 근거 [03](03_PROHUB_SALES_REPORT.md) §8-5, [06](06_PROHUB_PRICE_MARGIN_KEYWORD.md) §5, [07](07_PROHUB_REVIEW_SHORTS_IDEA.md) 리뷰 절.
 - 기능: ① 주문·정산 엑셀 올리기(마켓별 양식 자동 인식 — 엑셀 읽기는 `file-merge/src/lib/files/*` 재사용) ② 주문·배송·취소·반품 현황 ③ 마켓별 매출·**순이익**(E1 `lib/marketFees.ts` 공식 재사용) ④ 재고 소진 예측(「N일 후 품절」) ⑤ **내 상품** 리뷰 파일 → 감성·키워드·개선점(AI는 선택, 회원 본인 키) ⑥ 일·주·월·상품별 리포트·엑셀 ⑦ E8 「진짜 지표」: 이 화면의 실제 수치가 곧 진짜 지표(마켓 API 자동 연동은 3차 — 회원 본인 판매자 키 있을 때만).
 - 데이터: 업로드 파일·결과는 회원별(RLS), **30일 정리**. DB 표는 주인님 승인 뒤.

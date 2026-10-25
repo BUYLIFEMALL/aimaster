@@ -15,6 +15,11 @@
 > **작업 시작 때**: `AIMASTER_SESSION=<CLI>-<장비>-<날짜>-<작업> node scripts/index-watch.mjs session-check` 한 번(Claude Code는 세션 시작 훅이 자동). ⚠가 없으면 「[공용 스테이징] 이상 없음」 한 줄.
 
 
+## 2026-10-25 — 편집 가능한 표를 「입력값으로 계산한 값」 기준으로 정렬해, 입력하는 동안 줄이 움직여 다른 상품에 값이 들어갔다 + 쿠팡 「묶음배송번호」를 상품 줄 키로 쓸 뻔했다 (shop-order-report v1.01→v1.02, Claude Code 윈도우 [역할: ecommerce-image])
+- 증상 ①: 재고 소진 표에서 첫 상품 재고를 넣자 「남은 날」 순으로 줄이 다시 정렬돼, 이어서 누른 칸이 다른 상품이었다. ②: 쿠팡 모양 파일에서 「묶음배송번호」가 상품주문번호 칸으로 자동 선택됨 — 한 상자에 여러 상품이 묶이면 서로 다른 상품 줄이 하나로 합쳐진다.
+- 해결: ① 정렬 기준을 입력과 무관한 판매량·이름 순으로 고정(`shop-order-report/src/lib/report/inventory.ts`). ② 상품주문번호 별칭에서 「묶음배송번호」 제거, 없으면 「주문번호#상품#옵션」을 키로(`shop-order-report/src/lib/orders/markets.ts`, 시험 추가).
+- 다음부터: 입력칸이 있는 표는 그 입력으로 바뀌는 값으로 정렬하지 않는다. 중복 제거 키는 「한 줄을 유일하게 가리키는 번호」인지(묶음·배송 번호가 아닌지) 확인한다.
+
 ## 2026-10-25 — 공용 `user_api_keys` 공급자 제약에 값 하나를 더하려다, 목록을 2개로 잘못 읽어 다른 프로그램 키 종류를 모두 지울 뻔했다 (realty-listing-alert v1.08, Claude Code 윈도우 [역할: realty])
 - 증상: `ERROR 23514 check constraint "user_api_keys_provider_check" … is violated by some row` — SQL 전체가 취소돼 DB 변경은 없었다.
 - 원인: 제약 정의는 `provider = ANY ('{apify,elevenlabs,…}'::text[]) OR provider = ANY ('{…}'::text[])`처럼 **중괄호 목록 한 덩어리(여러 덩어리)**로 저장돼 있다. 따옴표 단위(`'([^']+)'`)로 읽어 「덩어리 2개」를 값 2개로 착각했다.
