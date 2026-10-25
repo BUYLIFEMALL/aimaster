@@ -4,6 +4,7 @@
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
 - 현재 버전: **v1.19** (13번 스마트 프로 인디고 워크스페이스 스타일) · 버전 SQL은 v1.19까지(v1.08~v1.09 건너뜀)
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
+- **🔁 역할 인수인계(2026-10-25, 다른 Claude로 담당 교체): [`docs/IMPROVEMENT_HANDOFF_20261025.md`](docs/IMPROVEMENT_HANDOFF_20261025.md) — 새 담당은 이 문서부터 읽는다**
 - 개발 플랜·결정 기록: [`docs/PLAN_20261024_INITIAL_BUILD.md`](docs/PLAN_20261024_INITIAL_BUILD.md)(§7 주인님 결정, §7-1 구현 중 바뀐 결정)
 
 ## 1. 사용 목적 및 대상
