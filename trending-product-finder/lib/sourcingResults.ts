@@ -56,7 +56,7 @@ export const SELLING_MULTIPLIER = 2.5;
 // 지금 검색한 결과물 전체를 CSV로 내려받는 용도 — 채널별 검색결과 상품 하나하나에
 // 원가×2.5 기준 추정 판매가로 마진을 계산해 마진율 순으로 정렬해둔다(관심 키워드
 // 일괄계산과 달리 최저가 1건이 아니라 결과 전체를 대상으로 함).
-export function buildResultMarginRows(results: PlatformResults): ResultMarginRow[] {
+export function buildResultMarginRows(results: PlatformResults, platformFeeRate?: number): ResultMarginRow[] {
   const rows: ResultMarginRow[] = [];
   for (const p of PLATFORMS) {
     const result = results[p.value];
@@ -71,7 +71,7 @@ export function buildResultMarginRows(results: PlatformResults): ResultMarginRow
         vatRate: defaults.vatRate,
         shippingPerUnitKrw: defaults.shippingPerUnitKrw,
         domesticFeePerUnitKrw: defaults.domesticFeePerUnitKrw,
-        platformFeeRate: defaults.platformFeeRate,
+        platformFeeRate: platformFeeRate ?? defaults.platformFeeRate,
         deliveryFeeKrw: defaults.deliveryFeeKrw,
         marketingFeeKrw: defaults.marketingFeeKrw,
         sellingPriceKrw,

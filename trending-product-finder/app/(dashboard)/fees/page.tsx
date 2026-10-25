@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
+import { CATEGORY_FEES } from "@/lib/marketFees";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -10,48 +11,16 @@ interface FeeRow {
   values: string[];
 }
 
-const COUPANG_FEES: FeeRow[] = [
-  { category: "도서", values: ["10.8%"] },
-  { category: "가구·홈인테리어", values: ["10.8%"] },
-  { category: "식품", values: ["10.6%"] },
-  { category: "패션의류", values: ["10.5%"] },
-  { category: "자동차용품", values: ["10.0%"] },
-  { category: "뷰티", values: ["9.6%"] },
-  { category: "가전디지털", values: ["7.8%"] },
-  { category: "생활용품", values: ["7.8%"] },
-  { category: "게임", values: ["6.8%"] },
-  { category: "신선식품(쌀/잡곡)", values: ["5.8%"] },
-  { category: "냉난방가전", values: ["5.8%"] },
-  { category: "컴퓨터·태블릿PC", values: ["5.0%"] },
-  { category: "모니터", values: ["4.5%"] },
-  { category: "쥬얼리(순금/골드바)", values: ["4.0%"] },
-];
+// v1.27(E1): 수수료 숫자는 공용 기준 코드 market-fees 사본(lib/marketFees.ts) 한 곳에서만 읽는다(계산기와 같은 값).
+const pct = (n: number) => `${Number.isInteger(n) ? n.toFixed(1) : n}%`;
+const COUPANG_FEES: FeeRow[] = (CATEGORY_FEES.coupang?.rows ?? []).map((r) => ({ category: r.label, values: [pct(r.ratePct)] }));
 
 // 2026-10-25 재확인: G마켓·옥션은 ESM PLUS 공식 「서비스 이용료 안내」 표의 대분류 「전체」 값을 그대로 옮겼다(중분류는 다를 수 있음).
 // 예전 표(옥션·G마켓 6.5~10%, 「ESM 통합이라 동일」)는 공식 값(대부분 13%)보다 낮아 마진이 높게 보였다.
 const ESM_HEADERS = ["대분류(ESM 공식 이름)", "G마켓", "옥션", "중분류 예외(예)"];
-const ESM_FEES: FeeRow[] = [
-  { category: "여성의류·남성의류·브랜드 의류", values: ["13%", "13%", "—"] },
-  { category: "가방/잡화 · 신발", values: ["13%", "13%", "—"] },
-  { category: "화장품/향수", values: ["13%", "13%", "—"] },
-  { category: "바디/헤어", values: ["11%", "11%", "—"] },
-  { category: "생활용품 · 주방용품", values: ["13%", "13%", "—"] },
-  { category: "생필품", values: ["11%", "11%", "화장지/물티슈·생리대 9%"] },
-  { category: "가구/DIY · 조명/인테리어 · 침구/커튼", values: ["13%", "13%", "—"] },
-  { category: "가공식품 · 건강식품 · 커피/음료", values: ["13%", "13%", "옥션 수산가공식품 12%"] },
-  { category: "신선식품", values: ["12%", "12%", "쌀·잡곡/혼합곡 7%"] },
-  { category: "출산/육아 · 장난감/완구", values: ["13%", "13%", "기저귀·분유 7%"] },
-  { category: "반려동물용품 · 문구/사무용품", values: ["13%", "13%", "—"] },
-  { category: "스포츠의류 · 등산/아웃도어 · 캠핑/낚시", values: ["13%", "13%", "—"] },
-  { category: "자동차용품", values: ["13%", "13%", "블랙박스 등 9%"] },
-  { category: "생활/미용가전 · 계절가전 · 영상가전", values: ["9%", "9%", "TV·에어컨 7%, 사무가전·재봉틀 12%"] },
-  { category: "PC주변기기 · 저장장치 · 음향기기 · 카메라", values: ["9%", "9%", "디지털카메라 7%"] },
-  { category: "모바일/태블릿", values: ["9%", "9%", "태블릿 7%"] },
-  { category: "노트북/데스크탑", values: ["7%", "7%", "노트북용품 9%"] },
-  { category: "모니터/프린터", values: ["9%", "7%", "G마켓 모니터·프린터 7%"] },
-  { category: "쥬얼리/시계", values: ["13%", "13%", "순금/돌반지 7%"] },
-  { category: "도서·음반·교육", values: ["15%", "15%", "—"] },
-];
+const gRows = CATEGORY_FEES.gmarket?.rows ?? [];
+const aRows = CATEGORY_FEES.auction?.rows ?? [];
+const ESM_FEES: FeeRow[] = gRows.map((g, k) => ({ category: g.label, values: [`${g.ratePct}%`, `${aRows[k]?.ratePct ?? g.ratePct}%`, g.exception ?? "—"] }));
 
 /** 표마다 붙이는 확인 정보 — 확인일·부가세·출처, 공식 표 확인 여부 */
 function SourceNote({ verified, children }: { verified: boolean; children: ReactNode }) {
@@ -102,6 +71,12 @@ export default async function FeesPage() {
         title="플랫폼·카테고리별 판매수수료"
         description="마진계산기의 「판매 플랫폼 수수료율」을 실제 판매 플랫폼·카테고리에 맞게 조정할 때 참고하는 표입니다. 표마다 확인일·부가세 포함 여부·출처를 적었습니다. 「⚠ 공식 표 미확인」 표는 판매자 로그인 화면에서만 보이는 값이라 참고치이니, 판매 전 각 판매자 센터에서 내 카테고리 값을 꼭 확인해 주세요."
       />
+
+      {/* v1.27(E1): 이 표의 숫자는 마진 계산기와 같은 파일에서 읽는다 — 계산기에서 마켓·카테고리를 고르면 자동으로 채워진다 */}
+      <a href="/sourcing" className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-mx-primary/40 bg-mx-primary/10 px-4 py-3 text-sm text-mx-text hover:bg-mx-primary/20">
+        <span>💰 마진 계산기에서 「판매할 마켓」과 카테고리를 고르면 이 요율이 자동으로 들어가고, 5개 마켓을 나란히 비교할 수 있습니다.</span>
+        <span className="font-bold text-mx-link">마진 계산하러 가기 →</span>
+      </a>
 
       <section className="space-y-2 rounded-2xl border border-mx-border bg-mx-surface p-4">
         <div>

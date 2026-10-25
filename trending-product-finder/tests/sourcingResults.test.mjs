@@ -51,3 +51,29 @@ test("채널 기본값: 국내 2곳은 국내 기본값", () => {
   assert.equal(isDomesticPlatform("aliexpress"), false); assert.equal(isDomesticPlatform(null), false);
   assert.deepEqual(defaultsFor("elevenst"), D); assert.deepEqual(defaultsFor(null), M);
 });
+
+// v1.27(E1) 마켓별 정산 공식 — 공용 market-fees 사본
+const fees = await load("lib/marketFees.ts");
+
+test("E1: 직접 입력(기타·무료배송)이면 예전 수수료 한 칸 계산과 마진이 같다", () => {
+  const base = { sourcePriceKrw: 10000, customsDutyRate: 8, vatRate: 10, shippingPerUnitKrw: 3000, domesticFeePerUnitKrw: 500, platformFeeRate: 10.8, deliveryFeeKrw: 3000, marketingFeeKrw: 200, sellingPriceKrw: 30000 };
+  const old = calcMargin(base);
+  const now = fees.calcMarketMargin({ market: "other", sellingPrice: 30000, feePct: 10.8, shippingMode: "free", shippingFeePct: 0, courierCost: 3000, unitCost: old.landedCostKrw, adCost: 200 });
+  assert.equal(now.profit, old.contributionProfitKrw);
+  assert.equal(now.marginPct, old.marginRatePct);
+});
+
+test("E1: 검색결과 전체 마진에 고른 마켓 수수료가 들어간다(안 고르면 예전 기본값)", () => {
+  const results = { ...EMPTY_RESULTS, elevenst: { products: [prod("elevenst", "e1", "상품", 10000)] } };
+  const def = buildResultMarginRows(results)[0];
+  const esm = buildResultMarginRows(results, 13)[0];
+  assert.ok(esm.contributionProfitKrw < def.contributionProfitKrw);
+  assert.equal(def.contributionProfitKrw - esm.contributionProfitKrw, Math.round(25000 * 0.13) - Math.round(25000 * 0.108));
+});
+
+test("E1: 공용 사본의 ESM·쿠팡 표와 대표값", () => {
+  assert.equal(fees.CATEGORY_FEES.gmarket.rows.length, 20);
+  assert.equal(fees.CATEGORY_FEES.coupang.rows[0].ratePct, 10.8);
+  assert.equal(fees.defaultFeePct("auction", "도서·음반·교육"), 15);
+  assert.equal(fees.compareMarkets({ sellingPrice: 20000, shippingMode: "free", courierCost: 3000, unitCost: 8000 }).length, 5);
+});

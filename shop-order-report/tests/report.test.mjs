@@ -120,3 +120,49 @@ test("리뷰 분석", () => {
   assert.ok(tokenize("포장이 꼼꼼해서").includes("포장"));
   assert.ok(topWords(reviews).some((w) => w.word === "포장"));
 });
+
+// ── 공용 market-fees: 마켓별 마진 ──
+import { calcMarketMargin, priceForMargin, compareMarkets, defaultFeePct, CATEGORY_FEES, MONTHLY_SERVER_FEE } from "../src/lib/marketFees.ts";
+
+test("ESM 공식 계산식: (판매가+옵션) × 요율 + 선결제 배송비 × 3.3%", () => {
+  const r = calcMarketMargin({ market: "gmarket", sellingPrice: 20000, optionPrice: 0, feePct: 13, shippingMode: "prepaid", shippingCharge: 3000, courierCost: 3000, unitCost: 8000 });
+  assert.equal(r.feeKrw, 2600);
+  assert.equal(r.shippingFeeKrw, 99);
+  assert.equal(r.settlement, 20000 - 2600 + 3000 - 99);
+  assert.equal(r.profit, 20301 - 8000 - 3000);
+  assert.equal(r.marginPct, Math.round((9301 / 23000) * 1000) / 10);
+});
+
+test("배송 방식·판매자 할인·월 고정비 개당 배분", () => {
+  const base = { market: "coupang", sellingPrice: 10000, feePct: 10, courierCost: 3000, unitCost: 4000 };
+  assert.equal(calcMarketMargin({ ...base, shippingMode: "free" }).profit, 10000 - 1000 - 4000 - 3000);
+  assert.equal(calcMarketMargin({ ...base, shippingMode: "cod" }).profit, 10000 - 1000 - 4000); // 착불은 택배비를 구매자가 낸다
+  const disc = calcMarketMargin({ ...base, shippingMode: "free", sellerDiscount: 1000 });
+  assert.equal(disc.saleBase, 9000);
+  assert.equal(disc.feeKrw, 900);
+  const fixed = calcMarketMargin({ ...base, shippingMode: "cod", monthlyFixed: 55000, monthlyQty: 550 });
+  assert.equal(fixed.fixedPerUnit, 100);
+  assert.equal(MONTHLY_SERVER_FEE.auction.krw, 55000);
+});
+
+test("손익분기·목표 마진 판매가는 다시 넣으면 그 이익률이 나온다", () => {
+  const base = { market: "11st", sellingPrice: 0, feePct: 13, shippingMode: "prepaid", shippingCharge: 3000, courierCost: 3000, unitCost: 7000, packCost: 500 };
+  const be = priceForMargin(base, 0);
+  assert.ok(calcMarketMargin({ ...base, sellingPrice: be }).profit >= 0);
+  assert.ok(calcMarketMargin({ ...base, sellingPrice: be - 2 }).profit < 0);
+  const p20 = priceForMargin(base, 20);
+  assert.ok(Math.abs(calcMarketMargin({ ...base, sellingPrice: p20 }).marginPct - 20) <= 0.1);
+  assert.equal(priceForMargin({ ...base, feePct: 90 }, 20), null);
+});
+
+test("카테고리 요율·마켓 비교", () => {
+  assert.equal(defaultFeePct("auction", "모니터/프린터"), 7);
+  assert.equal(defaultFeePct("gmarket", "모니터/프린터"), 9);
+  assert.equal(defaultFeePct("smartstore"), 6.36);
+  assert.equal(CATEGORY_FEES.gmarket.verified, true);
+  assert.equal(CATEGORY_FEES.coupang.verified, false);
+  const rows = compareMarkets({ sellingPrice: 30000, shippingMode: "free", courierCost: 3000, unitCost: 10000 });
+  assert.equal(rows.length, 5);
+  assert.equal(rows[0].market, "smartstore"); // 대표 수수료가 가장 낮음
+  assert.ok(rows.every((r, i) => i === 0 || rows[i - 1].profit >= r.profit));
+});

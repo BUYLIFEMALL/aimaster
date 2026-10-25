@@ -1,7 +1,8 @@
 // 마켓 주문 파일의 열 이름 사전(순수 데이터·함수). 마켓·시기마다 열 이름이 바뀌므로 「별칭 목록」으로 찾고,
 // 못 찾은 열은 화면의 「열 맞추기」로 회원이 고른다. 개인정보 열(이름·주소·전화 등)은 읽지 않는다.
 
-export type MarketId = "smartstore" | "coupang" | "11st" | "gmarket" | "auction" | "other";
+export type { MarketId } from "@/lib/marketFees";
+import type { MarketId } from "@/lib/marketFees";
 
 export const MARKETS: { id: MarketId; label: string; color: string }[] = [
   { id: "smartstore", label: "스마트스토어", color: "#03c75a" },

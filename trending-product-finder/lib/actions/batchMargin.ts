@@ -8,6 +8,8 @@ import { searchProducts as searchDomeggook } from "@/lib/domeggook/client";
 import { searchProducts as searchElevenst } from "@/lib/elevenst/client";
 import { translateToEnglishKeyword } from "@/lib/ai/translateKeyword";
 import { calcMargin, MARGIN_DEFAULTS, DOMESTIC_MARGIN_DEFAULTS } from "@/lib/margin";
+// v1.27(E1): 판매할 마켓을 고르면 그 마켓 대표 수수료로 계산(공용 market-fees 사본)
+import { defaultFeePct, MARKET_LABELS, type MarketId } from "@/lib/marketFees";
 
 // Phase 11 — 관심 키워드 여러 개를 한 번에 검색해 대표(최저가) 상품 기준 마진을 계산한다.
 // 상세 계산기(SourcingCalculator)와 달리 상품을 하나하나 고르지 않고, 채널별 검색결과 중
@@ -27,6 +29,8 @@ export interface BatchMarginRow {
   marginRatePct: number;
   contributionProfitKrw: number;
   detailUrl: string;
+  /** 적용한 판매 수수료율(%) */
+  feePct: number;
 }
 
 export interface BatchMarginSkip {
@@ -37,6 +41,8 @@ export interface BatchMarginSkip {
 
 export interface BatchMarginState {
   error?: string;
+  /** 적용한 판매 마켓 이름(직접 입력이면 없음) */
+  marketLabel?: string;
   rows?: BatchMarginRow[];
   skipped?: BatchMarginSkip[];
 }
@@ -53,6 +59,8 @@ export async function runBatchMarginCalculationAction(formData: FormData): Promi
 
   let keywords: string[];
   let platforms: Platform[];
+  const marketRaw = String(formData.get("market") ?? "");
+  const market: MarketId | null = (["smartstore", "coupang", "11st", "gmarket", "auction"] as const).find((m) => m === marketRaw) ?? null;
   try {
     keywords = JSON.parse(String(formData.get("keywords") ?? "[]"));
     platforms = JSON.parse(String(formData.get("platforms") ?? "[]"));
@@ -116,7 +124,7 @@ export async function runBatchMarginCalculationAction(formData: FormData): Promi
           vatRate: defaults.vatRate,
           shippingPerUnitKrw: defaults.shippingPerUnitKrw,
           domesticFeePerUnitKrw: defaults.domesticFeePerUnitKrw,
-          platformFeeRate: defaults.platformFeeRate,
+          platformFeeRate: market ? defaultFeePct(market) : defaults.platformFeeRate,
           deliveryFeeKrw: defaults.deliveryFeeKrw,
           marketingFeeKrw: defaults.marketingFeeKrw,
           sellingPriceKrw,
@@ -131,6 +139,7 @@ export async function runBatchMarginCalculationAction(formData: FormData): Promi
           marginRatePct: margin.marginRatePct,
           contributionProfitKrw: margin.contributionProfitKrw,
           detailUrl: cheapest.detailUrl,
+          feePct: market ? defaultFeePct(market) : defaults.platformFeeRate,
         };
         return { keyword, platform, row };
       } catch (err) {
@@ -152,8 +161,8 @@ export async function runBatchMarginCalculationAction(formData: FormData): Promi
     userId: user.id,
     action: "batch_margin_calc",
     quantity: tasks.length,
-    metadata: { keywordCount: keywords.length, platforms },
+    metadata: { keywordCount: keywords.length, platforms, market },
   });
 
-  return { rows, skipped };
+  return { rows, skipped, marketLabel: market ? MARKET_LABELS[market] : undefined };
 }

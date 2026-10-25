@@ -94,6 +94,8 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         ? { sourcePrice: String(product.priceKrw), sellingPrice: String(Math.round(product.priceKrw * SELLING_MULTIPLIER)) }
         : {}),
       ...costFieldsFrom(defaultsFor(product.platform)),
+      // v1.27(E1): 판매 마켓을 골라 뒀으면 그 마켓·카테고리 수수료를 지킨다(비용 칸만 채널 기본값으로)
+      ...(prev.market ? { platformFeeRate: prev.platformFeeRate } : {}),
     }));
   }
 
@@ -128,7 +130,9 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
     setForm((prev) => ({ ...prev, sourcePrice: "", sellingPrice: "" }));
   }
 
-  const resultMarginRows = useMemo(() => buildResultMarginRows(results), [results]);
+  // v1.27(E1): 판매 마켓을 골랐으면 검색결과 전체 마진·CSV도 그 수수료로 계산한다
+  const marketFeePct = form.market ? Number(form.platformFeeRate) || 0 : undefined;
+  const resultMarginRows = useMemo(() => buildResultMarginRows(results, marketFeePct), [results, marketFeePct]);
 
   // 프로모션 키워드(공동구매/할인/이벤트 등) + 마진율 조건을 동시에 만족하는 상품만
   // 골라서 보고 싶을 때 쓰는 필터. 키워드만으로는 "홍보할 가치가 있는지"를 보장 못 한다는

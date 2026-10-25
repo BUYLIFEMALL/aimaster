@@ -2,6 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { runBatchMarginCalculationAction, type BatchMarginRow, type BatchMarginSkip, type Platform } from "@/lib/actions/batchMargin";
+// v1.27(E1): 판매할 마켓 대표 수수료로 계산(공용 market-fees 사본)
+import { MARKET_FEES, MARKET_LABELS, defaultFeePct, type MarketId } from "@/lib/marketFees";
+
+const SALE_MARKETS: MarketId[] = ["smartstore", "coupang", "11st", "gmarket", "auction"];
 
 interface WatchlistGroup {
   categoryName: string;
@@ -21,10 +25,10 @@ const PLATFORMS: { value: Platform; label: string }[] = [
 
 const MAX_KEYWORDS = 20;
 
-function toCsv(rows: BatchMarginRow[]): string {
+function toCsv(rows: BatchMarginRow[], marketLabel?: string): string {
   const platformLabel: Record<Platform, string> = { aliexpress: "알리익스프레스", domeggook: "도매매", elevenst: "11번가" };
   const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
-  const header = ["키워드", "채널", "상품명(최저가 기준)", "원가(원)", "추천판매가(원)", "마진율(%)", "마진(원)", "상품링크"];
+  const header = ["키워드", "채널", "상품명(최저가 기준)", "원가(원)", "추천판매가(원)", "마진율(%)", "마진(원)", "상품링크", "판매 마켓", "적용 수수료(%)"];
   const lines = [header.map(escape).join(",")];
   for (const r of rows) {
     lines.push(
@@ -37,6 +41,8 @@ function toCsv(rows: BatchMarginRow[]): string {
         r.marginRatePct,
         r.contributionProfitKrw,
         r.detailUrl,
+        marketLabel ?? "직접 입력",
+        r.feePct,
       ]
         .map(escape)
         .join(","),
@@ -54,6 +60,8 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<BatchMarginRow[] | null>(null);
+  const [market, setMarket] = useState<MarketId | "">("");
+  const [resultMarket, setResultMarket] = useState<string | undefined>(undefined);
   const [skipped, setSkipped] = useState<BatchMarginSkip[]>([]);
 
   const manualKeywords = useMemo(
@@ -117,12 +125,14 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
       const formData = new FormData();
       formData.set("keywords", JSON.stringify(keywords));
       formData.set("platforms", JSON.stringify(Array.from(selectedPlatforms)));
+      formData.set("market", market);
       const result = await runBatchMarginCalculationAction(formData);
       if (result.error) {
         setError(result.error);
         return;
       }
       setRows(result.rows ?? []);
+      setResultMarket(result.marketLabel);
       setSkipped(result.skipped ?? []);
     } finally {
       setIsRunning(false);
@@ -131,7 +141,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
 
   function handleDownloadCsv() {
     if (!rows || rows.length === 0) return;
-    const csv = toCsv(rows);
+    const csv = toCsv(rows, resultMarket);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -209,6 +219,20 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
           placeholder="예: 무선청소기, 캠핑의자"
           className="input w-full text-sm"
         />
+      </label>
+
+      {/* v1.27(E1) 판매할 마켓 — 고르면 그 마켓 대표 수수료로 계산 */}
+      <label className="flex flex-wrap items-center gap-2 text-xs text-mx-text">
+        <span className="font-semibold">🏪 판매할 마켓</span>
+        <select value={market} onChange={(e) => setMarket(e.target.value as MarketId | "")} className="input-sm">
+          <option value="">직접 입력 기본값(수수료 10.8%)</option>
+          {SALE_MARKETS.map((m) => (
+            <option key={m} value={m}>
+              {MARKET_LABELS[m]} {defaultFeePct(m)}% {MARKET_FEES[m].verified ? "✅" : "⚠"}
+            </option>
+          ))}
+        </select>
+        <span className="text-mx-muted">대표 수수료라 카테고리별로 다릅니다 — 정확한 값은 소싱 화면 마진 계산기에서 카테고리를 고르세요.</span>
       </label>
 
       {/* 채널 선택 */}
@@ -324,6 +348,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
                 <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">추천판매가(원)</th>
                 <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">마진율</th>
                 <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">마진(원)</th>
+                <th className="whitespace-nowrap px-3 py-2 text-right font-semibold">수수료</th>
                 <th className="px-3 py-2 font-semibold"></th>
               </tr>
             </thead>
@@ -345,6 +370,7 @@ export function BatchMarginCalculator({ watchlistGroups, registeredPlatforms }: 
                     {r.marginRatePct}%
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-mx-text">{r.contributionProfitKrw.toLocaleString()}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-mx-muted">{r.feePct}%</td>
                   <td className="whitespace-nowrap px-3 py-2 text-right">
                     {r.detailUrl && (
                       <a
