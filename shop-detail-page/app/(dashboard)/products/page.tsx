@@ -67,19 +67,18 @@ export default async function ProductsPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Link
             href="/products/import"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-700 transition-all"
+            className="btn-3d-amber text-xs font-bold"
           >
-            <span>📦</span>
-            <span>12단 자료 가져오기</span>
+            <span>📦 12단 자료 가져오기</span>
           </Link>
           <Link
             href="/products/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="btn-3d-primary text-xs font-bold shadow-lg"
           >
-            <span className="text-base leading-none">+</span>
+            <span className="text-sm leading-none">+</span>
             <span>새 상품 분석하기</span>
           </Link>
         </div>

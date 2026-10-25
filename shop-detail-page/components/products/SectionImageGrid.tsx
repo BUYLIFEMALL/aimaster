@@ -326,7 +326,7 @@ export function SectionImageGrid({
           <button
             onClick={() => void handleGenerate("remaining")}
             disabled={isRunning || remainingCount === 0}
-            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold py-2 px-5 rounded-xl shadow-md shadow-blue-500/25 transition-all text-xs sm:text-sm whitespace-nowrap"
+            className="btn-3d-primary py-2 px-5 text-xs sm:text-sm font-black whitespace-nowrap shadow-md disabled:opacity-50"
           >
             {isRunning ? (
               <>
@@ -657,7 +657,7 @@ export function SectionImageGrid({
           <a
             href={`/api/products/${productId}/export`}
             title={`선택한 이미지로 최종 ${templates.length}단 상세페이지 세로 롱 이미지(860px) 병합 & 다운로드`}
-            className="flex flex-1 min-w-0 items-center justify-center gap-1.5 sm:gap-2 text-center text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 px-3 py-2.5 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-[1.01] active:scale-[0.99]"
+            className="btn-3d-primary flex-1 min-w-0 text-center text-xs sm:text-sm font-black py-2.5 sm:py-3.5 px-3 sm:px-6 shadow-xl"
           >
             <span className="text-base sm:text-lg">📥</span>
             <span className="sm:hidden">롱 이미지 병합 받기</span>
@@ -667,7 +667,7 @@ export function SectionImageGrid({
           <a
             href={`/api/products/${productId}/export-zip`}
             title="섹션마다 가로 860px JPG로 맞춰 01, 02… 순서로 ZIP 하나에 담아 받습니다(GIF는 원본 그대로)"
-            className="flex items-center justify-center gap-1.5 sm:gap-2 text-center text-xs sm:text-sm font-bold text-indigo-700 bg-white hover:bg-indigo-50 border border-indigo-200 px-3 py-2.5 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/10 transition-all whitespace-nowrap shrink-0"
+            className="btn-3d-amber text-xs sm:text-sm font-black py-2.5 sm:py-3.5 px-3 sm:px-5 shadow-xl whitespace-nowrap shrink-0"
           >
             <span className="text-base sm:text-lg">📦</span>
             <span>섹션별 ZIP</span>

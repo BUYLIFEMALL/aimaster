@@ -382,7 +382,7 @@ export function ProductAnalyzeForm({
           type="button"
           onClick={handleAnalyze}
           disabled={!sourceImageUrl || isAnalyzing}
-          className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
+          className="w-full btn-3d-primary py-3 px-4 flex items-center justify-center gap-2 text-sm sm:text-base font-black shadow-lg"
         >
           {isAnalyzing ? (
             <>
@@ -665,7 +665,7 @@ export function ProductAnalyzeForm({
       <button
         type="submit"
         disabled={!sourceImageUrl || isSaving}
-        className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold py-3.5 px-6 rounded-xl shadow-md shadow-blue-500/25 transition-all text-sm sm:text-base"
+        className="w-full btn-3d-primary py-3.5 px-6 font-black shadow-lg text-sm sm:text-base disabled:opacity-50"
       >
         {isSaving ? "상세페이지 프로젝트 저장 중..." : `✓ 상품정보 저장 후 ${LAYOUT_PRESETS[layoutPreset].short} 상세페이지 만들기`}
       </button>

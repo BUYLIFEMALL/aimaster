@@ -266,13 +266,20 @@ export function CommerceUsageGuide() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Link
               href="/products/new"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-500/20 transition-all hover:scale-[1.02]"
+              className="btn-3d-blue"
             >
               <Sparkles size={14} />
               <span>지금 상품 제작하기</span>
+            </Link>
+            <Link
+              href="/settings"
+              className="btn-3d-amber"
+            >
+              <KeyRound size={14} />
+              <span>API 키 등록·연동</span>
             </Link>
           </div>
         </div>
@@ -337,7 +344,7 @@ export function CommerceUsageGuide() {
               </div>
               <Link
                 href="/settings"
-                className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline"
+                className="btn-3d-amber text-xs font-bold"
               >
                 <span>API 키 설정 바로가기</span>
                 <ArrowRight size={13} />
