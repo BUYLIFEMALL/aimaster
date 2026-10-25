@@ -7,7 +7,7 @@ import ExtensionTokenManager from "./ExtensionTokenManager";
 import ExtensionConnectButton from "./ExtensionConnectButton";
 import ExtensionDownloadCard from "./ExtensionDownloadCard";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
-import { AiKeysCard, ChannelCards, TelegramCard } from "@/app/delivery/DeliveryClient";
+import { AiEngineCard, ChannelCards, TelegramCard } from "@/app/delivery/DeliveryClient";
 import { createServiceClient } from "@/lib/supabase/service";
 import { KAKAO_CONNECT_URL, getAiKeyStatus, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
 import { REAL_ESTATE_SALES_SLUG } from "@/lib/delivery";
@@ -67,8 +67,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "", aiSummary: ch?.notify_ai_summary ?? false, aiProvider: toAiProvider(ch?.ai_provider) }}
         />
         <div className="settings-divider" />
-        <h2 id="ai">🤖 AI 시세 요약 키(선택)</h2>
-        <AiKeysCard ai={aiKeys} models={(ch?.ai_models as Record<string, string> | null) ?? {}} />
+        <div id="ai" />
+        <AiEngineCard ai={aiKeys} initialProvider={toAiProvider(ch?.ai_provider)} models={(ch?.ai_models as Record<string, string> | null) ?? {}} />
         <div className="settings-divider" />
         <h2>🏛 실거래가 비교(공공데이터 키, 선택)</h2>
         <KeyHowTo ids={["publicData"]} title="공공데이터 키 가져오는 법" />

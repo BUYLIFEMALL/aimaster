@@ -865,3 +865,29 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-ai-model { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .ra-ai-model label { font-size: 13px; font-weight: 700; color: var(--muted); }
 .ra-ai-model select { max-width: 420px; }
+/* 🤖 AI 엔진 선택 카드(기준: threads-content-ops 「AI 글 생성 엔진 선택」, 줄마다 엔진 · 오른쪽 모델+저장) */
+.ra-engine-card { border: 2px solid #86efac; }
+.ra-engine-sub { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
+.ra-engine-row { display: grid; grid-template-columns: 170px 1fr; gap: 14px; align-items: start; padding: 12px 0; border-top: 1px dashed var(--line); }
+.ra-engine { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 14px 8px; border: 1px solid var(--line); border-radius: 14px; background: #fff; cursor: pointer; min-height: 96px; width: 100%; }
+.ra-engine strong { font-size: 15px; }
+.ra-engine small { font-size: 11px; color: var(--muted); }
+.ra-engine em { font-style: normal; font-size: 11px; font-weight: 700; margin-top: 2px; }
+.ra-engine-icon { font-size: 20px; }
+.ra-engine.on { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+.ra-engine.on small { color: #fff; opacity: .9; }
+.ra-engine-right { display: grid; gap: 8px; min-width: 0; }
+.ra-engine-right > label { font-size: 13px; font-weight: 700; }
+.ra-engine-pick { display: flex; gap: 8px; }
+.ra-engine-pick select { flex: 1; min-width: 0; }
+.ra-engine-key { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ra-engine-key .secondary { padding: 6px 10px; font-size: 12.5px; }
+@media (max-width: 767px) { .ra-engine-row { grid-template-columns: 1fr; } }
+/* 엔진 줄 한 줄 배치(2026-10-25 다시 잡음): [엔진 카드] [키 상태 · 모델 · 저장|수정 · API 만들기] */
+.ra-engine-row { grid-template-columns: 150px 1fr; align-items: center; }
+.ra-engine { min-height: 84px; padding: 10px 8px; }
+.ra-engine-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ra-engine-line select { flex: 1 1 260px; min-width: 0; }
+.ra-engine-line select:disabled { background: #f8fafc; color: #111827; opacity: 1; }
+.ra-engine-line .primary, .ra-engine-line .secondary { padding: 8px 14px; font-size: 13px; white-space: nowrap; }
+.ra-engine-keyinput { width: 100%; }
