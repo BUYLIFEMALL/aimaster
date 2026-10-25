@@ -151,8 +151,9 @@ function useTest(action: () => Promise<{ error?: string; success?: string; sugge
   };
 }
 
-// 💬 카톡 받기 — 「카카오 자동화」에서 연결한 공용 카카오 계정을 그대로 쓴다(요약만, 파일은 못 보냄)
-function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: boolean; onToggle: (v: boolean) => void; disabled: boolean }) {
+// 💬 카카오 연결(설정 화면) — 「카카오 자동화」에서 연결한 공용 카카오 계정을 그대로 쓴다(요약만, 파일은 못 보냄).
+// 켜고 끄기는 「받는 방법」 화면(ReceiveCard)에서(2026-10-25 주인님 「받는 방법에는 실제 업무를 위한 항목만, 등록·연동은 한곳으로」)
+function KakaoCard({ kakao }: { kakao: KakaoInfo }) {
   // 💬 카카오 바로 연결(2026-10-25 v1.17): 회원 본인 카카오 앱 키 저장 → 「카카오 연결하기」 → 카카오 동의 → /api/kakao/callback이 공용 연결 계정에 저장
   const router = useRouter();
   const test = useTest(sendTestKakaoAction);
@@ -179,7 +180,7 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
   return (
     <section className="card" id="kakao-card">
       <div className="ra-card-head">
-        <h2 className="card-title">💬 카카오톡으로 받기</h2>
+        <h2 className="card-title">💬 카카오톡 연결</h2>
         <span className={`ra-status ${kakao.ok ? "on" : "off"}`}>{kakao.ok ? `✅ 연결됨${kakao.nickname ? ` (${kakao.nickname})` : ""}` : "⚪ 연결 전"}</span>
       </div>
       <div className="ra-caption-row">
@@ -190,10 +191,6 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
       {kakao.ok && !editKeys ? (
         <>
           <div className="ra-toggle-row">
-            <label className="ra-chip big oneline">
-              <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
-              <span><strong>카톡 요약 받기</strong><small>{on ? "켜짐 — 수집할 때마다 보내요" : "꺼짐"}</small></span>
-            </label>
             <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "💬 시험 메시지 보내기"}</button>
             <button type="button" className="secondary" disabled={connecting} onClick={connect}>{connecting ? "여는 중..." : "🔁 다시 연결"}</button>
             <button type="button" className="secondary" onClick={() => setEditKeys(true)}>앱 키 바꾸기</button>
@@ -251,7 +248,7 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
 }
 
 // ✉️ 이메일 받기 — 회원 본인 Resend 키(공용 user_api_keys resend_api_key), 확장이 회원 PC에서 요약 + 엑셀 첨부로 보낸다
-function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled, manageKeys }: { email: EmailInfo; on: boolean; emailTo: string; onToggle: (v: boolean) => void; onEmailTo: (v: string) => void; disabled: boolean; manageKeys: boolean }) {
+function EmailCard({ email, emailTo, onEmailTo, disabled }: { email: EmailInfo; emailTo: string; onEmailTo: (v: string) => void; disabled: boolean }) {
   const router = useRouter();
   const [saveState, saveAction, saving] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
     const r = await saveResendKeyAction(prev, fd);
@@ -264,7 +261,7 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled, manageKe
   return (
     <section className="card">
       <div className="ra-card-head">
-        <h2 className="card-title">✉️ 이메일로 받기</h2>
+        <h2 className="card-title">✉️ 이메일(Resend) 연결</h2>
         <span className={`ra-status ${email.hasKey ? "on" : "off"}`}>{email.hasKey ? "✅ 키 등록됨" : "⚪ 키 등록 전"}</span>
       </div>
       <div className="ra-caption-row">
@@ -297,13 +294,9 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled, manageKe
         <>
           {/* 켜기 칸 + 버튼을 한 줄로(2026-10-25 주인님 「보기좋게 버튼을 1열로」) — 카톡 카드와 같은 모양 */}
           <div className="ra-toggle-row">
-            <label className="ra-chip big oneline">
-              <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
-              <span><strong>이메일 받기</strong><small>{on ? "켜짐 — 수집할 때마다 요약 + 엑셀" : "꺼짐"}</small></span>
-            </label>
             <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "✉️ 시험 메일 보내기"}</button>
-            {/* 키 지우기는 「API키등록·플랫폼연동」 화면에서만(2026-10-25 주인님 「키지우기는 아래 플랫폼 연동쪽에서 일괄 관리」) */}
-            {manageKeys && <button type="button" className="secondary" disabled={del} onClick={() => startDel(async () => { await deleteResendKeyAction(); router.refresh(); })}>키 지우기</button>}
+            {/* 키 지우기는 이 화면(API키등록·플랫폼연동)에서만(2026-10-25 주인님 「키지우기는 아래 플랫폼 연동쪽에서 일괄 관리」) */}
+            <button type="button" className="secondary" disabled={del} onClick={() => startDel(async () => { await deleteResendKeyAction(); router.refresh(); })}>키 지우기</button>
           </div>
           <div className="ra-inline-form">
             <div className="field">
@@ -325,80 +318,153 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled, manageKe
   );
 }
 
-// 🤖 AI 시세 요약(2026-10-25, v1.22) — 회원 본인 AI 키로 하루 1번, 이번 주 시세 흐름 한두 줄을 텔레그램·메일 맨 위에 붙인다.
-// 보내는 것은 단지별 통계 숫자뿐(중개사 번호·매물 목록은 보내지 않음). 요약은 회원 PC 확장이 직접 AI를 부른다.
-function AiSummaryCard({ ai, on, provider, onToggle, onProvider, disabled }: { ai: AiInfo; on: boolean; provider: AiProvider; onToggle: (v: boolean) => void; onProvider: (v: AiProvider) => void; disabled: boolean }) {
+// 🤖 AI 키(설정 화면) — AI 시세 요약에 쓸 회원 본인 키. 공용 user_api_keys라 다른 AIMaster 프로그램과 함께 쓴다(그래서 여기서 지우지 않음).
+// 켜기·쓸 AI 고르기는 「받는 방법」 화면(ReceiveCard)에서.
+function AiKeyRow({ id, has }: { id: AiProvider; has: boolean }) {
   const router = useRouter();
+  const info = aiProviderInfo(id);
+  const [edit, setEdit] = useState(false);
   const [state, action, saving] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
     const r = await saveAiKeyAction(prev, fd);
-    if (r.success) router.refresh();
+    if (r.success) { setEdit(false); router.refresh(); }
     return r;
   }, {});
-  const hasKey = provider === "openai" ? ai.hasOpenai : provider === "claude" ? ai.hasClaude : ai.hasGemini;
-  const info = aiProviderInfo(provider);
-  const name = info.name;
   return (
-    <section className="card">
-      <div className="ra-card-head">
-        <h2 className="card-title">🤖 AI 시세 요약</h2>
-        <span className={`ra-status ${hasKey ? "on" : "off"}`}>{hasKey ? `✅ ${name} 키 있음` : `⚪ ${name} 키 없음`}</span>
+    <div className="ra-ai-key">
+      <div className="ra-ai-key-head">
+        <b>{info.name}</b>
+        <span className={`ra-status ${has ? "on" : "off"}`}>{has ? "✅ 등록됨" : "⚪ 없음"}</span>
+        {has && !edit && <button type="button" className="secondary" onClick={() => setEdit(true)}>키 바꾸기</button>}
+        <a className="secondary ra-link-btn" href={info.keyUrl} target="_blank" rel="noopener noreferrer">키 만들기 ↗</a>
       </div>
-      <p className="card-caption">하루 1번, 이번 주 시세 흐름을 한두 줄로 요약해 <b>텔레그램·메일 맨 위</b>와 수집 결과 화면에 붙여 드려요. 회원님 본인 AI 키를 쓰고, 단지별 통계 숫자만 보내요(중개사 번호·매물 목록은 보내지 않아요).</p>
-      <div className="ra-toggle-row">
-        <label className="ra-chip big oneline">
-          <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
-          <span><strong>AI 요약 받기</strong><small>{on ? "켜짐 — 하루 1번" : "꺼짐"}</small></span>
-        </label>
-        <div className="ra-seg" role="group" aria-label="쓸 AI">
-          {AI_PROVIDERS.map((p) => <button key={p.id} type="button" className={provider === p.id ? "on" : ""} disabled={disabled} onClick={() => onProvider(p.id)}>{p.name}</button>)}
-        </div>
-      </div>
-      {!hasKey && (
+      {(!has || edit) && (
         <form action={action} className="ra-inline-form">
-          <input type="hidden" name="provider" value={provider} />
-          <div className="field"><label htmlFor="aiKey">🔑 {name} API 키</label><input id="aiKey" name="aiKey" required autoComplete="off" placeholder={info.placeholder} /></div>
+          <input type="hidden" name="provider" value={id} />
+          <div className="field"><label htmlFor={`aiKey-${id}`}>🔑 {info.name} API 키</label><input id={`aiKey-${id}`} name="aiKey" required autoComplete="off" placeholder={info.placeholder} /></div>
           <button className="primary" type="submit" disabled={saving}>{saving ? "저장 중..." : "키 저장"}</button>
-          <a className="secondary ra-link-btn" href={info.keyUrl} target="_blank" rel="noopener noreferrer">{name} 키 만들기 ↗</a>
+          {edit && <button type="button" className="secondary" onClick={() => setEdit(false)}>취소</button>}
         </form>
       )}
       {state.error && <p className="ra-msg ra-err">{state.error}</p>}
       {state.success && <p className="ra-msg ra-ok">{state.success}</p>}
+    </div>
+  );
+}
+
+export function AiKeysCard({ ai }: { ai: AiInfo }) {
+  const has: Record<AiProvider, boolean> = { gemini: ai.hasGemini, openai: ai.hasOpenai, claude: ai.hasClaude };
+  return (
+    <section className="card">
+      <div className="ra-card-head"><h2 className="card-title">🤖 AI 키 (선택 — AI 시세 요약)</h2></div>
+      <p className="card-caption">셋 중 하나만 있으면 돼요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요.</p>
+      {AI_PROVIDERS.map((p) => <AiKeyRow key={p.id} id={p.id} has={has[p.id]} />)}
     </section>
   );
 }
 
-// 💬 카톡 + ✉️ 이메일 카드 묶음 — 「받는 방법」·「API키등록·플랫폼연동」 두 화면이 같이 쓴다(같은 저장값)
-/** manageKeys: 키 지우기 버튼은 「API키등록·플랫폼연동」 화면(true)에만 */
-export function ChannelCards({ kakao, email, ai, initial, manageKeys = false }: { kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; initial: ChannelInitial; manageKeys?: boolean }) {
+// 💬 카톡 + ✉️ 이메일 연결 묶음 — 「API키등록·플랫폼연동」 화면 전용(등록·연동만)
+export function ChannelCards({ kakao, email, initial }: { kakao: KakaoInfo; email: EmailInfo; initial: ChannelInitial }) {
   const router = useRouter();
-  const [value, setValue] = useState<ChannelInitial>(initial);
+  const [emailTo, setEmailTo] = useState(initial.emailTo);
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<Msg>(null);
-  function save(next: Partial<ChannelInitial>) {
-    const before = value;
-    setValue({ ...value, ...next });
+  function saveEmailTo(v: string) {
+    const before = emailTo;
+    setEmailTo(v);
     start(async () => {
-      const r = await saveChannelAction(next);
-      if (r.error) {
-        setValue(before);
-        setMsg({ kind: "err", text: r.error });
-      } else {
-        setMsg({ kind: "ok", text: "저장됐어요." });
-        router.refresh();
-      }
+      const r = await saveChannelAction({ emailTo: v });
+      if (r.error) { setEmailTo(before); setMsg({ kind: "err", text: r.error }); }
+      else { setMsg({ kind: "ok", text: "저장됐어요." }); router.refresh(); }
     });
   }
   return (
     <>
-      <KakaoCard kakao={kakao} on={value.notifyKakao} disabled={pending} onToggle={(v) => save({ notifyKakao: v })} />
-      <EmailCard email={email} on={value.notifyEmail} emailTo={value.emailTo} disabled={pending} onToggle={(v) => save({ notifyEmail: v })} onEmailTo={(v) => save({ emailTo: v })} manageKeys={manageKeys} />
-      <AiSummaryCard ai={ai} on={value.aiSummary} provider={value.aiProvider} disabled={pending} onToggle={(v) => save({ aiSummary: v })} onProvider={(v) => save({ aiProvider: v })} />
+      <div id="kakao"><KakaoCard kakao={kakao} /></div>
+      <div id="email"><EmailCard email={email} emailTo={emailTo} disabled={pending} onEmailTo={saveEmailTo} /></div>
       <Message msg={msg} />
     </>
   );
 }
 
-export default function DeliveryClient({ telegram, realEstateBot, initial, kakao, email, ai, channel }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery; kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; channel: ChannelInitial }) {
+// 📬 받는 곳(받는 방법 화면) — 실제 업무용: 곳마다 연결 상태·켜기·시험만. 연결·키 등록은 「API키등록·플랫폼연동」으로 보낸다
+// (2026-10-25 주인님 「받는 방법에는 실제 업무를 위한 항목만 주로 남겨놓고 … 등록,연동작업을 한곳으로 모아서」).
+function ReceiveCard({ telegram, kakao, email, ai, initial }: { telegram: Telegram; kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; initial: ChannelInitial }) {
+  const router = useRouter();
+  const [value, setValue] = useState<ChannelInitial>(initial);
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState<Msg>(null);
+  const kakaoTest = useTest(sendTestKakaoAction);
+  const emailTest = useTest(sendTestEmailAction);
+  function save(next: Partial<ChannelInitial>) {
+    const before = value;
+    setValue({ ...value, ...next });
+    start(async () => {
+      const r = await saveChannelAction(next);
+      if (r.error) { setValue(before); setMsg({ kind: "err", text: r.error }); }
+      else { setMsg({ kind: "ok", text: "저장됐어요." }); router.refresh(); }
+    });
+  }
+  const aiName = aiProviderInfo(value.aiProvider).name;
+  const aiHas = value.aiProvider === "openai" ? ai.hasOpenai : value.aiProvider === "claude" ? ai.hasClaude : ai.hasGemini;
+  const emailReady = email.hasKey && Boolean(value.emailTo);
+  const goSetup = (hash: string) => <a className="ra-recv-go" href={`/settings#${hash}`}>연동하러 가기 →</a>;
+  return (
+    <section className="card">
+      <div className="ra-card-head">
+        <h2 className="card-title">📬 받는 곳</h2>
+        <a className="secondary ra-link-btn" href="/settings">🔑 연결·키 관리</a>
+      </div>
+      <div className="ra-recv">
+        <div className="ra-recv-row">
+          <b>📨 텔레그램</b>
+          <span className={`ra-status ${telegram ? "on" : "off"}`}>{telegram ? `✅ @${telegram.botUsername ?? "봇"}` : "⚪ 연결 전"}</span>
+          <div className="ra-recv-ctl">{telegram ? <small>요약·파일은 아래 「무엇을 보낼까요?」에서 골라요</small> : goSetup("telegram")}</div>
+        </div>
+        <div className="ra-recv-row">
+          <b>💬 카카오톡</b>
+          <span className={`ra-status ${kakao.ok ? "on" : "off"}`}>{kakao.ok ? "✅ 연결됨" : "⚪ 연결 전"}</span>
+          <div className="ra-recv-ctl">
+            {kakao.ok ? (
+              <>
+                <label className="ra-chip oneline"><input type="checkbox" checked={value.notifyKakao} disabled={pending} onChange={(e) => save({ notifyKakao: e.target.checked })} /><span><strong>요약 받기</strong></span></label>
+                <button type="button" className="secondary" disabled={kakaoTest.pending} onClick={kakaoTest.run}>{kakaoTest.pending ? "보내는 중..." : "시험 보내기"}</button>
+              </>
+            ) : goSetup("kakao")}
+          </div>
+        </div>
+        <div className="ra-recv-row">
+          <b>✉️ 이메일</b>
+          <span className={`ra-status ${emailReady ? "on" : "off"}`}>{emailReady ? `✅ ${value.emailTo}` : email.hasKey ? "⚪ 받는 주소 없음" : "⚪ 연결 전"}</span>
+          <div className="ra-recv-ctl">
+            {emailReady ? (
+              <>
+                <label className="ra-chip oneline"><input type="checkbox" checked={value.notifyEmail} disabled={pending} onChange={(e) => save({ notifyEmail: e.target.checked })} /><span><strong>요약 + 엑셀 받기</strong></span></label>
+                <button type="button" className="secondary" disabled={emailTest.pending} onClick={emailTest.run}>{emailTest.pending ? "보내는 중..." : "시험 보내기"}</button>
+              </>
+            ) : goSetup("email")}
+          </div>
+        </div>
+        <div className="ra-recv-row">
+          <b>🤖 AI 시세 요약</b>
+          <span className={`ra-status ${aiHas ? "on" : "off"}`}>{aiHas ? `✅ ${aiName} 키` : `⚪ ${aiName} 키 없음`}</span>
+          <div className="ra-recv-ctl">
+            <label className="ra-chip oneline"><input type="checkbox" checked={value.aiSummary} disabled={pending || !aiHas} onChange={(e) => save({ aiSummary: e.target.checked })} /><span><strong>하루 1번 받기</strong></span></label>
+            <div className="ra-seg" role="group" aria-label="쓸 AI">
+              {AI_PROVIDERS.map((p) => <button key={p.id} type="button" className={value.aiProvider === p.id ? "on" : ""} disabled={pending} onClick={() => save({ aiProvider: p.id })}>{p.name}</button>)}
+            </div>
+            {!aiHas && goSetup("ai")}
+          </div>
+        </div>
+      </div>
+      <p className="card-caption">AI 요약은 이번 주 시세 흐름 한두 줄을 텔레그램·메일 맨 위와 수집 결과 화면에 붙여요(통계 숫자만 보내요).</p>
+      <Message msg={kakaoTest.msg} />
+      <Message msg={emailTest.msg} />
+      <Message msg={msg} />
+    </section>
+  );
+}
+
+export default function DeliveryClient({ telegram, initial, kakao, email, ai, channel }: { telegram: Telegram; initial: Delivery; kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; channel: ChannelInitial }) {
   const [value, setValue] = useState<Delivery>(initial);
   // 빠르게 여러 칸을 연달아 바꿔도 앞의 변경을 잃지 않도록 마지막 값을 ref로 들고 간다(2026-10-25 시험에서 발견).
   const latest = useRef<Delivery>(initial);
@@ -427,8 +493,7 @@ export default function DeliveryClient({ telegram, realEstateBot, initial, kakao
 
   return (
     <>
-      <TelegramCard telegram={telegram} realEstateBot={realEstateBot} />
-      <ChannelCards kakao={kakao} email={email} ai={ai} initial={channel} />
+      <ReceiveCard telegram={telegram} kakao={kakao} email={email} ai={ai} initial={channel} />
       <section className="card">
         <h2 className="card-title">🔔 어떤 때 알려 드릴까요?</h2>
         <div className="ra-chips">

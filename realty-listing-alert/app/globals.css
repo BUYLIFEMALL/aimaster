@@ -846,3 +846,19 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-ai-summary strong { font-size: 14px; color: #1d4ed8; }
 .ra-ai-summary p { margin: 0; font-size: 14.5px; line-height: 1.6; color: #111827; }
 .ra-ai-summary small { color: var(--muted); font-size: 12px; }
+/* 📬 받는 곳(받는 방법 화면, 2026-10-25 — 사용 위주: 곳마다 상태·켜기·시험만) */
+.ra-recv { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 6px 0 10px; }
+.ra-recv-row { display: grid; grid-template-columns: 150px 220px 1fr; align-items: center; gap: 12px; padding: 12px 16px; }
+.ra-recv-row + .ra-recv-row { border-top: 1px solid var(--line); }
+.ra-recv-row > b { font-size: 15px; }
+.ra-recv-row .ra-status { justify-self: start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ra-recv-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ra-recv-ctl small { color: var(--muted); font-size: 13px; }
+.ra-recv-ctl .secondary { padding: 7px 12px; font-size: 13px; }
+.ra-recv-go { font-weight: 700; color: var(--accent); text-decoration: none; font-size: 14px; }
+@media (max-width: 767px) { .ra-recv-row { grid-template-columns: 1fr; gap: 6px; } }
+/* 🤖 AI 키 줄(설정 화면) */
+.ra-ai-key { border-top: 1px dashed var(--line); padding: 10px 0; }
+.ra-ai-key-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ra-ai-key-head b { min-width: 70px; font-size: 15px; }
+.ra-ai-key-head .secondary { padding: 6px 10px; font-size: 12.5px; }

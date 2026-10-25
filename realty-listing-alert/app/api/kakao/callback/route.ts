@@ -11,7 +11,7 @@ export const fetchCache = "force-no-store";
 // 카카오 바로 연결 콜백(2026-10-25, v1.17). 기준: kakao_auto_poster src/app/api/kakao/callback/route.ts.
 // ① 로그인 회원 ② state = 쿠키 = 그 회원 ③ 프로그램 이용 권한 ④ 회원 본인 REST 키로 토큰 교환 ⑤ 공용 연결 계정(member_platform_accounts kakao)에 저장
 // — 「카카오 자동화」도 같은 앱이면 이 연결을 그대로 쓴다. 토큰은 서버에만, 화면으로 보내지 않는다.
-const BACK = "https://realty-listing-alert.buylife.xyz/delivery";
+const BACK = "https://realty-listing-alert.buylife.xyz/settings"; // 2026-10-25 연동은 설정 화면으로 모음
 
 function back(q: string) {
   const res = NextResponse.redirect(`${BACK}?${q}#kakao-card`);
