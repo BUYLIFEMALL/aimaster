@@ -265,19 +265,16 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
         <span className={`ra-status ${email.hasKey ? "on" : "off"}`}>{email.hasKey ? "✅ 키 등록됨" : "⚪ 키 등록 전"}</span>
       </div>
       <div className="ra-caption-row">
-        <p className="card-caption">요약과 <b>엑셀 파일</b>을 메일로 보내 드립니다. 메일은 회원님 본인 <b>Resend</b>(무료 메일 발송 서비스) 계정으로 보냅니다.<br />— 무료로 하루 100통, 가입한 본인 메일 주소로만 받을 수 있습니다</p>
+        <p className="card-caption">요약과 <b>엑셀 파일</b>을 메일로 보내 드립니다. 메일은 회원님 본인 <b>Resend</b>(무료 메일 발송 서비스) 계정으로 보냅니다.</p>
         {/* 2026-10-25 주인님 「우측에 resend 메일 회원가입 주소 링크를 버튼으로」 */}
         <a className="secondary ra-link-btn" href="https://resend.com/signup" target="_blank" rel="noopener noreferrer">✉️ Resend 가입하기 ↗</a>
       </div>
-      {/* 이메일 받기 전에 알아 둘 것(2026-10-25 주인님 「이메일 설정하는 부분에 사용자가 숙지할 수 있도록 명시해놔」) */}
+      {/* 이메일 받기 전에 알아 둘 것(2026-10-25 주인님 「이메일 설정하는 부분에 사용자가 숙지할 수 있도록 명시해놔」, 같은 날 「설명 너무 길어」 → 무료 한도·본인 메일만 2줄) */}
       <div className="ra-hint ra-email-notes">
         <strong>📌 이메일 받기 전에 꼭 알아 두세요</strong>
         <ul>
           <li><b>무료</b> — 하루 100통 · 한 달 3,000통까지 무료예요.</li>
           <li><b>받는 주소</b> — Resend에 가입한 본인 메일로만 받을 수 있어요.</li>
-          <li><b>스팸함 확인</b> — 보낸 사람이 <code>onboarding@resend.dev</code>라 처음엔 스팸함으로 갈 수 있어요. 첫 메일을 「스팸 아님」으로 표시해 주세요.</li>
-          <li><b>언제 오나요</b> — 예약 수집은 새 매물·가격 변동이 있을 때만 보내고, 직접 누른 「🔍 지금 수집」은 변동이 없어도 보내요.</li>
-          <li><b>내용·보안</b> — 요약과 엑셀(중개사 번호 포함)이 회원님 PC에서 바로 나가요. 우리 서버를 거치지 않아요. API 키는 다른 사람에게 알려 주지 마세요. 키가 새어 나갔다면 Resend에서 지우고 새로 만들어 주세요.</li>
         </ul>
       </div>
       {!email.hasKey ? (
