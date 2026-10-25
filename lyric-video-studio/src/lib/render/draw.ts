@@ -2,6 +2,7 @@
 // 크기는 1080 기준 단위(u)로 잡아 미리보기(축소)와 내보내기(1080p)가 같은 비율로 그려진다.
 import { FONTS, type Design } from "@/lib/design";
 import { formatTime, lineAt, type LyricLine } from "@/lib/lyrics";
+import { romanize } from "@/lib/romanize";
 import { smoothBandsAt, waveAt, type AudioSource } from "@/lib/render/spectrum";
 
 export interface Scene {
@@ -214,6 +215,15 @@ function drawLyrics(ctx: CanvasRenderingContext2D, sc: Scene, t: number, rx: num
         if (part > 0) { ctx.save(); ctx.beginPath(); ctx.rect(x0 - 4 * u, top + rowH * r, w * part + 4 * u, rowH); ctx.clip(); ctx.fillStyle = d.accent; ctx.fillText(row, left, top + rowH * (r + 0.5)); ctx.restore(); }
         used += w;
       });
+    }
+    if (d.roman !== "off" && ad < 0.5) { // 지금 줄의 로마자 발음 — 강조 박스 밖에 작게
+      const rom = romanize(tl[i].text);
+      if (rom) {
+        const rpx = blk.px * 0.46, off = (d.highlight === "box" || d.highlight === "outline" ? 10 * u : 0) + rpx * 0.85;
+        ctx.font = `600 ${Math.round(rpx)}px "Noto Sans KR", "Malgun Gothic", sans-serif`;
+        ctx.globalAlpha = fade * (1 - ad) * 0.9; ctx.fillStyle = d.text;
+        ctx.fillText(rom, left, d.roman === "above" ? top - off : top + blockH + off, rw);
+      }
     }
     ctx.restore();
   }

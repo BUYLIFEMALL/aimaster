@@ -6,6 +6,7 @@ export type Layout = "panel" | "center";
 export type Highlight = "color" | "box" | "outline" | "marker" | "underline" | "bar" | "karaoke";
 export type SpectrumKind = "none" | "bars" | "mirror" | "wave";
 export type Align = "left" | "center";
+export type Roman = "off" | "above" | "below";
 export type FontId = "noto" | "gowun" | "dohyeon" | "blackhan" | "myeongjo" | "pen";
 
 export interface Design {
@@ -28,6 +29,8 @@ export interface Design {
   showTitle: boolean;
   /** 움직이는 빛 배경 세기(0~1) */
   ambient: number;
+  /** 노래방 로마자 발음 표기 — 지금 부르는 줄 위·아래에 작게(한글 줄만) */
+  roman: Roman;
   fps: 24 | 30;
 }
 
@@ -52,13 +55,17 @@ export const HIGHLIGHTS: { id: Highlight; label: string; hint: string }[] = [
   { id: "karaoke", label: "노래방 채움", hint: "왼쪽부터 색이 차오릅니다" },
 ];
 
+export const ROMANS: { id: Roman; label: string }[] = [
+  { id: "off", label: "끔" }, { id: "above", label: "가사 위" }, { id: "below", label: "가사 아래" },
+];
+
 export const SPECTRUMS: { id: SpectrumKind; label: string }[] = [
   { id: "none", label: "없음" }, { id: "bars", label: "막대" }, { id: "mirror", label: "가운데 대칭" }, { id: "wave", label: "파형" },
 ];
 
 const BASE: Omit<Design, "presetId" | "aspect"> = {
   layout: "panel", bg1: "#141028", bg2: "#06060c", coverBackdrop: true, text: "#ffffff", accent: "#a78bfa", font: "noto",
-  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, fps: 30,
+  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, roman: "off", fps: 30,
 };
 
 export interface Preset { id: string; name: string; desc: string; design: Design }
@@ -109,6 +116,7 @@ export function normalizeDesign(raw: unknown): Design {
     progress: typeof d.progress === "boolean" ? d.progress : base.progress,
     showTitle: typeof d.showTitle === "boolean" ? d.showTitle : base.showTitle,
     ambient: num(d.ambient, 0, 1, base.ambient),
+    roman: pick(d.roman, ["off", "above", "below"], "off"),
     fps: d.fps === 24 ? 24 : 30,
   };
 }

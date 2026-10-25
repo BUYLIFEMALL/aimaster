@@ -3,7 +3,7 @@
 # AI 가사영상 자동화 (`lyric-video-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`를 먼저 읽는다. 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
-> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.10**
+> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.11**
 > 출발점: 외부 상용 앱 Lyricbi 1.9.0 분석([`docs/analysis-lyricbi-20261021/REPORT.md`](../docs/analysis-lyricbi-20261021/REPORT.md)) — **코드는 옮기지 않고** 기능·흐름만 참고해 새로 만들었다.
 
 ## 1. 사용 목적과 대상
@@ -40,6 +40,7 @@
 ## 4. 버전·변경 기록
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.11 | 2026-10-25 | Lyricbi L-1 노래방 로마자 발음: 새 `src/lib/romanize.ts`(국립국어원 로마자 표기법 기본 규칙 — 연음·받침 대표음·비음화·ㄹ 겹침·ㅎ 거센소리, AI 없음, 시험 5개 `tests/romanize.test.ts`), 디자인 「노래방 로마자 발음: 끔/가사 위/가사 아래」(`Design.roman`, 기본 끔 — 저장된 작업 모양 그대로), `drawLyrics`가 지금 줄 위·아래에 작게(박스 강조는 박스 밖). 한글 없는 줄은 표시 안 함. 플랜 `docs/PLAN_20261024_LYRICBI_L1_L5.md` |
 | v1.06 | 2026-10-21 | Suno 곡 작업을 저장하면 변주 번호(`sunoVariantId`)도 남겨, 보관함에서 다시 열 때 음악·커버를 자동으로 다시 받음(`lib/sunoClient.ts`, Suno 조회 없음). 곡 목록에 보관함 저장 변주 「✓ 보관함」(누르면 그 작업 열기)·이번 접속에서 받은 변주 「✓ 받음」(재조회 없음). 플랜 `docs/PLAN_20261021_V1_06_SUNO_RESTORE.md` |
 | v1.07 | 2026-10-21 | 유튜브 카드: 배경(커버) 그림이 있고 가로 영상이면 1280×720 JPG(가운데 잘라 맞춤, 2MB 이하) 미리보기·「⬇ 썸네일 내려받기」·「🖼 올릴 때 배경 그림을 썸네일로 지정」(기본 켬). 업로드 뒤 `/api/youtube/thumbnail`(`guard`·회원 공용 유튜브 연결 토큰만) → `lib/youtube/thumbnail.ts`(`thumbnails.set`, 플레이리스트 v1.23에서 복사·공용 기준 코드는 그대로). 세로(쇼츠)는 지정 안 함. 검수: 시험 11개·tsc·build·배포 Ready·DB v1.07, 크롬(관리자): 400·400·없는 영상 502 안내, 2초 시험 MP4 만든 뒤 카드에 미리보기 1280×720·32KB·체크·내려받기 표시(실제 업로드는 하지 않음 — 같은 함수는 플레이리스트에서 200 확인). 비용: Vercel 빌드 1회. 플랜 `docs/PLAN_20261021_V1_07_THUMBNAIL.md` |
 | v1.08 | 2026-10-21 | 유튜브 「올릴 채널」 선택(개선 제안 C5, 플레이리스트 v1.24 `listYoutubeChannels`·`load(userId, accountId)` 그대로 복사 — 회원 본인 채널만, 연결한 순서 고정). `/api/youtube/status?account=`·업로드 주소·썸네일 API가 `accountId`를 받음. 카드: 채널 2개 이상이면 선택 칸(연결 상태가 나빠도 다른 채널로 바꿀 수 있게 항상 표시). 검수: 시험 11개·tsc·build·배포 Ready·DB v1.08, 크롬(시험 회원·유튜브 미연결): 채널 목록 비어 있고 선택 칸 없이 연결 안내만(다른 회원 채널로 대신하지 않음). 관리자 2채널 선택 확인은 관리자 로그인 뒤 확인 예정. 비용: Vercel 빌드 1회 |

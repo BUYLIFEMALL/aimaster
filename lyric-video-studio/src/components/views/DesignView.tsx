@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { Preview, StudioBar, Transport } from "@/components/studio/parts";
 import { PresetThumb } from "@/components/studio/PresetThumb";
-import { FONT_IDS, FONTS, HIGHLIGHTS, presetsFor, SPECTRUMS, type Aspect, type Design } from "@/lib/design";
+import { FONT_IDS, FONTS, HIGHLIGHTS, presetsFor, ROMANS, SPECTRUMS, type Aspect, type Design } from "@/lib/design";
 import { allSynced } from "@/lib/lyrics";
 
 function Chips<T extends string | number>({ value, items, onPick }: { value: T; items: { id: T; label: string; hint?: string }[]; onPick: (v: T) => void }) {
@@ -48,6 +48,7 @@ export function DesignView() {
           <section className="card stack">
             <div><div className="panel-label">배치</div><Chips value={d.layout} onPick={(v) => set({ layout: v })} items={[{ id: "panel", label: "커버 + 가사" }, { id: "center", label: "가사 가운데" }]} /></div>
             <div><div className="panel-label">현재 줄 강조</div><Chips value={d.highlight} onPick={(v) => set({ highlight: v })} items={HIGHLIGHTS} /></div>
+            <div><div className="panel-label">노래방 로마자 발음 <span className="muted">(한글 가사 → saranghae)</span></div><Chips value={d.roman} onPick={(v) => set({ roman: v })} items={ROMANS} /></div>
             <div className="field-grid two">
               <label>서체<select value={d.font} onChange={(e) => set({ font: e.target.value as Design["font"] })}>{FONT_IDS.map((f) => <option key={f} value={f}>{FONTS[f].label}</option>)}</select></label>
               <label>정렬<select value={d.align} onChange={(e) => set({ align: e.target.value as Design["align"] })}><option value="left">왼쪽</option><option value="center">가운데</option></select></label>
