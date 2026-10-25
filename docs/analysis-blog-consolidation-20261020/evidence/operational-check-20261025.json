@@ -1,0 +1,141 @@
+{
+  "checkedAt": "2026-10-25T14:54:45.271Z",
+  "session": "codex-win-20261025-blog",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "scope": "운영 추천1~3, 분석 보고서 이후 실행 기록",
+  "releases": [
+    {
+      "slug": "ai-auto-blog",
+      "before": {
+        "version": "v1.81",
+        "extensionVersion": "v1.80"
+      },
+      "verifiedVersion": "v1.82",
+      "deployment": "dpl_AzdhJzf61r2GsbkiEVoDc33SjF7y",
+      "deploymentUrl": "ai-auto-blog-2xwhd8d9b-buylife.vercel.app",
+      "alias": "ai-auto-blog.buylife.xyz",
+      "httpPage": "/guide",
+      "state": "READY",
+      "aliasConfirmed": true,
+      "httpStatus": 200,
+      "renderedHtmlHasVerifiedVersion": true,
+      "liveZipVersion": "v1.82",
+      "after": {
+        "version": "v1.82",
+        "extensionVersion": "v1.82"
+      }
+    },
+    {
+      "slug": "tistory-auto-blog",
+      "before": {
+        "version": "v1.92",
+        "extensionVersion": "v1.91"
+      },
+      "verifiedVersion": "v1.92",
+      "deployment": "dpl_GcWRJe3ixSJEw4kdjnhFW829y57g",
+      "deploymentUrl": "tistory-auto-blog-2bt2isxn5-buylife.vercel.app",
+      "alias": "tistory-auto-blog.buylife.xyz",
+      "httpPage": "/guide",
+      "state": "READY",
+      "aliasConfirmed": true,
+      "httpStatus": 200,
+      "renderedHtmlHasVerifiedVersion": true,
+      "liveZipVersion": "v1.92",
+      "after": {
+        "version": "v1.92",
+        "extensionVersion": "v1.92"
+      }
+    },
+    {
+      "slug": "naver-blog-allinone",
+      "before": {
+        "version": "v1.53",
+        "extensionVersion": "v1.52"
+      },
+      "verifiedVersion": "v1.53",
+      "deployment": "dpl_4nL1XB5jwKF4kLCqZY8EM7HVHvh6",
+      "deploymentUrl": "naver-blog-allinone-mzoghjora-buylife.vercel.app",
+      "alias": "naver-blog-allinone.buylife.xyz",
+      "httpPage": "/",
+      "state": "READY",
+      "aliasConfirmed": true,
+      "httpStatus": 200,
+      "renderedHtmlHasVerifiedVersion": true,
+      "liveZipVersion": "v1.53",
+      "after": {
+        "version": "v1.53",
+        "extensionVersion": "v1.53"
+      }
+    }
+  ],
+  "correction": {
+    "programRows": 3,
+    "changedFields": [
+      "programs.version (ai-auto-blog only)",
+      "programs.extension_version",
+      "programs.updated_at"
+    ],
+    "sql": "release-metadata-correction-20261025.sql",
+    "memberContentWrites": 0,
+    "keyWrites": 0,
+    "tokenWrites": 0,
+    "schemaWrites": 0
+  },
+  "check": {
+    "command": "node scripts/check-extension-release.mjs ai-auto-blog tistory-auto-blog naver-blog-allinone naver-blog-agent naver-blog-seo-studio blog-content-maker",
+    "exitCode": 0,
+    "passed": 6,
+    "failed": 0,
+    "warnings": 0
+  },
+  "agent": {
+    "id": "48f06db1-6e01-4099-b151-1ac5f90519cc",
+    "owner": "buylifemall@naver.com",
+    "blog": "buylifemall",
+    "status": "failed",
+    "executionMode": "prepare",
+    "settingsBlog": "buylifemall",
+    "visibility": "private",
+    "reserved": false,
+    "scheduledAt": null,
+    "sentThisTurn": 0,
+    "realInputVerified": false,
+    "browser": "foreground Edge actual window",
+    "currentWebLogin": "buylifemall@gmail.com",
+    "installedExtension": "v2.21",
+    "required": "주인님 직접 시험계정 전환·확장 연결·네이버 로그인, 기존8연결 해제 여부 답변"
+  },
+  "seo": {
+    "candidate": "c9263541-e31f-4470-949b-7fb3f27a164f",
+    "title": "초보자를 위한 가을 캠핑 준비물",
+    "owner": "buylifemall@naver.com",
+    "draftStatus": "ready",
+    "publicationState": null,
+    "liveVersion": "v2.20",
+    "codeOwner": "agy-win-20261025-ext3d",
+    "sourceChanged": false,
+    "actualReservations": 0,
+    "cancellations": 0,
+    "requires": "구체적인 예약·취소 시험 승인, 현장 계정/확장/원고 검수",
+    "approvalRequest": "5b8cdd00-a006-4a67-a77e-18309972e4f6"
+  },
+  "cost": {
+    "aiCalls": 0,
+    "builds": 0,
+    "deployments": 0
+  },
+  "limits": [
+    "운영 HTML 버전 확인은 HTTP 읽기이며 세 앱 전체 회원 화면 E2E 검수는 아님",
+    "엣지 접근성 상태는 읽음; 이번 캡처는 screenshot_failed로 영상 증거 없음",
+    "배포 소스 CLI 작업 트리는 gitSource SHA와 다를 수 있어 READY+공식 alias+라이브 HTML/ZIP을 우선 대조",
+    "에이전트 실제 입력/SEO 실제 예약 성공은 아직 없음",
+    "다른 CLI의 SEO v2.19 ZIP 미커밋 삭제 보존"
+  ],
+  "collaboration": {
+    "commit": "4b76e86ae",
+    "scope": "agy BLOG/티스토리 API키 설정 UI4파일",
+    "ownScope": "버전 메타·인수인계",
+    "conflictingEdits": false,
+    "sourcePreserved": true
+  }
+}
