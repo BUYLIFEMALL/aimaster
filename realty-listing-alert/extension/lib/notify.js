@@ -2,9 +2,20 @@
 // 요청 모양은 웹 lib/notifySend.ts와 같다.
 import { EVENT_LABEL } from "./compare.js";
 import { ALERT_PREFIX } from "./telegram.js";
+import { articleUrl } from "./listing.js";
 
 export const RESEND_FROM = "부동산 매물 알림 <onboarding@resend.dev>";
-const RESULT_URL = "https://realty-listing-alert.buylife.xyz/dashboard";
+const SITE = "https://realty-listing-alert.buylife.xyz";
+const RESULT_URL = `${SITE}/dashboard`;
+
+/** 카톡 「결과 보기」가 열 주소: 새 매물·가격 변동이 있으면 첫 매물의 네이버 화면(우리 /api/go를 거쳐 — 회원 카카오 앱엔 우리 도메인 하나만 등록), 없으면 대시보드. */
+export function kakaoLinkFor(perTarget) {
+  for (const t of perTarget) {
+    const e = t.events.find((x) => x.type !== "gone" && x.item?.complexNo && x.item?.no);
+    if (e) return `${SITE}/api/go?u=${encodeURIComponent(articleUrl(e.item.complexNo, e.item.no))}`;
+  }
+  return RESULT_URL;
+}
 
 /** 카톡용 짧은 요약(카카오 텍스트 템플릿 200자 제한). 엑셀은 못 붙이므로 안내 한 줄. */
 export function buildKakaoText(perTarget) {
