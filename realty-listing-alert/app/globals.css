@@ -1056,5 +1056,6 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 /* 확장 줄 「연결」 버튼을 표 버튼 크기로(2026-10-25 v1.26 운영 확인에서 발견) */
 .ra-setup .ra-aitbl-btns .extension-connect { display: inline-flex; margin: 0; }
 .ra-setup .ra-aitbl-btns .extension-connect button { padding: 5px 8px; font-size: 12px; border-radius: 7px; width: auto; margin: 0; min-height: 0; background: var(--accent); color: #fff; border: 1px solid var(--accent); }
-.ra-setup .ra-aitbl-btns .extension-connect p { display: none; }
+.ra-setup .ra-aitbl-btns .extension-connect { flex-direction: column; align-items: flex-end; }
+.ra-setup .ra-aitbl-btns .extension-connect p { margin: 2px 0 0; font-size: 11px; white-space: normal; }
 .ra-setup .ra-aitbl-btns { align-items: center; flex-wrap: nowrap; }
