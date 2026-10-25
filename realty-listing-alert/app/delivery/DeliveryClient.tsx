@@ -198,7 +198,11 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
         <h2 className="card-title">✉️ 이메일로 받기</h2>
         <span className={`ra-status ${email.hasKey ? "on" : "off"}`}>{email.hasKey ? "✅ 키 등록됨" : "⚪ 키 등록 전"}</span>
       </div>
-      <p className="card-caption">요약과 <b>엑셀 파일</b>을 메일로 보내 드립니다. 메일은 회원님 본인 <b>Resend</b>(무료 메일 발송 서비스) 계정으로 보냅니다.<br />— 무료로 하루 100통, 가입한 본인 메일 주소로만 받을 수 있습니다</p>
+      <div className="ra-caption-row">
+        <p className="card-caption">요약과 <b>엑셀 파일</b>을 메일로 보내 드립니다. 메일은 회원님 본인 <b>Resend</b>(무료 메일 발송 서비스) 계정으로 보냅니다.<br />— 무료로 하루 100통, 가입한 본인 메일 주소로만 받을 수 있습니다</p>
+        {/* 2026-10-25 주인님 「우측에 resend 메일 회원가입 주소 링크를 버튼으로」 */}
+        <a className="secondary ra-link-btn" href="https://resend.com/signup" target="_blank" rel="noopener noreferrer">✉️ Resend 가입하기 ↗</a>
+      </div>
       {/* 이메일 받기 전에 알아 둘 것(2026-10-25 주인님 「이메일 설정하는 부분에 사용자가 숙지할 수 있도록 명시해놔」) */}
       <div className="ra-hint ra-email-notes">
         <strong>📌 이메일 받기 전에 꼭 알아 두세요</strong>
