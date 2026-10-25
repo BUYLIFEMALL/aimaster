@@ -5,7 +5,7 @@ import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/colle
 import { complexNoFromUrl, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
-import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
+import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
 import { buildKakaoText, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 
@@ -247,7 +247,7 @@ async function runCollection(trigger) {
     if (limitHit) await set({ limitDate: kstDate() });
     const iv = settings.schedule?.intervalMinutes || 180;
     await set({ nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, rules.scheduleJitter ?? 0.1) });
-    await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })) } });
+    await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })) } });
 
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });
     await reportStatus(result, total, errMsg);

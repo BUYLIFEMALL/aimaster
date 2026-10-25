@@ -736,3 +736,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-hint strong { color: #111827; }
 .ra-hint .ra-domain { color: #dc2626; font-weight: 800; background: #fee2e2; padding: 1px 6px; border-radius: 6px; word-break: break-all; }
 .ra-elsewhere { margin: 0 0 8px; font-size: 14px; color: #1d4ed8; font-weight: 700; }
+/* 📄 최근 수집 결과 표(2026-10-25) */
+.ra-result-wrap { margin-top: 10px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.ra-result { width: 100%; border-collapse: collapse; font-size: 13.5px; white-space: nowrap; }
+.ra-result th { position: sticky; top: 0; background: #f2fbf6; text-align: left; padding: 8px 10px; font-weight: 800; border-bottom: 1px solid var(--line); }
+.ra-result td { padding: 7px 10px; border-bottom: 1px solid #f1f1f1; }
+.ra-result tr:hover td { background: #fafafa; }
+.ra-result a { color: #009b4d; font-weight: 700; }

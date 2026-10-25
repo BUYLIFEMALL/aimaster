@@ -8,7 +8,7 @@ const KAKAO_LABEL = { new: "신규", priceDown: "가격 내림", priceUp: "가�
 
 export const RESEND_FROM = "부동산 매물 알림 <onboarding@resend.dev>";
 const SITE = "https://realty-listing-alert.buylife.xyz";
-const RESULT_URL = `${SITE}/dashboard`;
+const RESULT_URL = `${SITE}/dashboard#results`;
 
 /** 카톡 「결과 보기」가 열 주소: 새 매물·가격 변동이 있으면 첫 매물의 네이버 화면(우리 /api/go를 거쳐 — 회원 카카오 앱엔 우리 도메인 하나만 등록), 없으면 대시보드. */
 export function kakaoLinkFor(perTarget) {
