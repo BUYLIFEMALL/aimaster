@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.23: AI 시세 요약 Claude 추가·AI별 모델 고르기(블로그 SEO 스튜디오 목록), 받는 방법 = 사용 위주(받는 곳 카드), 연동·키 등록은 API키등록 화면으로, 순서 텔레그램→이메일→카톡 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.23', extension_version = 'v1.23', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
