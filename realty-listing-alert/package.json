@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "extension:archive": "node scripts/build-extension-archive.mjs",
-    "test": "node --test tests/stage2.test.ts tests/privacy.test.ts tests/stage3.test.ts tests/region.test.ts tests/limits.test.ts tests/notify.test.ts tests/phone.test.ts tests/stats.test.ts"
+    "test": "node --test tests/stage2.test.ts tests/privacy.test.ts tests/stage3.test.ts tests/region.test.ts tests/limits.test.ts tests/notify.test.ts tests/phone.test.ts tests/stats.test.ts tests/kakao.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

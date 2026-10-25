@@ -6,7 +6,7 @@ import ExtensionDownloadCard from "./ExtensionDownloadCard";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import { ChannelCards, TelegramCard } from "@/app/delivery/DeliveryClient";
 import { createServiceClient } from "@/lib/supabase/service";
-import { KAKAO_CONNECT_URL, getKakaoState, getResendKey } from "@/lib/notifyChannels";
+import { KAKAO_CONNECT_URL, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
 import { REAL_ESTATE_SALES_SLUG } from "@/lib/delivery";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +28,7 @@ export default async function SettingsPage() {
   ]);
   const { data: tokens } = await supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", PROGRAM_SLUG).is("revoked_at", null).order("created_at", { ascending: false });
 
+  const kakaoKey = await hasKakaoKey(service, user.id);
   return (
     <main className="settings-layout">
       <StudioSidebar email={user.email ?? ""} active="settings" />
@@ -46,7 +47,7 @@ export default async function SettingsPage() {
         <h2>💬 카카오톡 · ✉️ 이메일(Resend) 연동</h2>
         <p className="lede">카카오톡은 요약만, 이메일은 요약 + 엑셀 파일을 받아요. 「받는 방법」 화면과 같은 설정이에요.</p>
         <ChannelCards
-          kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL }}
+          kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
           initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "" }}
         />

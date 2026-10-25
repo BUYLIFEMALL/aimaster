@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.17: 카카오 바로 연결 + 가격 변동 화살표 + 1년 보관 + 이메일 안내·카톡 연결 매뉴얼 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.17', extension_version = 'v1.17', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;

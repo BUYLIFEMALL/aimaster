@@ -810,3 +810,4 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .kg-link { display: inline-flex; margin-top: 10px; text-decoration: none; }
 .kg-sub { margin: 20px 0 6px; font-size: 15px; }
 .kg .guide-two { margin-top: 16px; }
+.ra-kakao-steps .ra-inline-form { margin-top: 8px; } .ra-kakao-steps .kg-copy { margin-top: 6px; } .ra-kakao-state { display: block; margin-top: 6px; color: #b45309; }

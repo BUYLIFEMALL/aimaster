@@ -2,26 +2,10 @@
 
 // 💬 카카오톡 연결 따라 하기(2026-10-25 주인님 「카카오톡 본인 계정 등록해서 연동하는 방법도 자세하게… 쉽고 단계별」「일반 처음 사용자들은 어려운 내용이야」).
 // 처음 쓰는 회원 기준: 어디를 눌러 → 무엇을 복사해 → 어디에 붙여 넣는지만. 카카오 개발자 화면 메뉴 이름은 바뀔 수 있어 「비슷한 이름」 안내를 붙인다.
-import { useState } from "react";
+import CopyText from "@/components/CopyText";
 
 const SITE = "https://realty-listing-alert.buylife.xyz";
 const REDIRECT = `${SITE}/api/kakao/callback`;
-
-function Copy({ text }: { text: string }) {
-  const [done, setDone] = useState(false);
-  return (
-    <span className="kg-copy">
-      <code>{text}</code>
-      <button
-        type="button"
-        className="secondary"
-        onClick={async () => {
-          try { await navigator.clipboard.writeText(text); setDone(true); setTimeout(() => setDone(false), 1500); } catch { setDone(false); }
-        }}
-      >{done ? "✅ 복사됨" : "📋 복사"}</button>
-    </span>
-  );
-}
 
 const STAGES = [
   {
@@ -49,7 +33,7 @@ const STAGES = [
     steps: [
       <>왼쪽 메뉴 <b>「카카오 로그인」</b>에서 <b>활성화 설정을 「ON」</b>으로 바꿔요.</>,
       <>같은 화면 아래 <b>「Redirect URI」</b>(돌아올 주소) → 「등록」을 누르고 아래 주소를 <b>그대로</b> 붙여 넣어 저장해요. 이미 다른 주소가 있으면 지우지 말고 <b>한 줄 추가</b>만 해요.</>,
-      <Copy key="r" text={REDIRECT} />,
+      <CopyText key="r" text={REDIRECT} />,
     ],
   },
   {
@@ -65,7 +49,7 @@ const STAGES = [
     time: "1분",
     steps: [
       <>왼쪽 메뉴 <b>「앱 설정 → 플랫폼」</b>(또는 「제품 링크 관리 → 웹 도메인」)에서 <b>Web 사이트 도메인</b>에 아래 주소를 추가해요.</>,
-      <Copy key="d" text={SITE} />,
+      <CopyText key="d" text={SITE} />,
       <>이걸 넣어야 카톡의 「결과 보기」를 눌렀을 때 매물 화면이 열려요.</>,
     ],
   },
@@ -73,7 +57,7 @@ const STAGES = [
     title: "이 프로그램에 붙여 넣고 연결하기",
     time: "1분",
     steps: [
-      <>왼쪽 메뉴 <b>「3 · 📨 받는 방법」</b> → <b>「💬 카톡으로 받기」</b> 카드로 가요.</>,
+      <>왼쪽 메뉴 <b>「3 · 📨 받는 방법」</b> → <b>「💬 카카오톡으로 받기」</b> 카드로 가요.</>,
       <>2단계에서 복사한 <b>REST API 키</b>와 <b>Client Secret</b>을 칸에 붙여 넣고 「키 저장」을 눌러요.</>,
       <><b>「💬 카카오 연결하기」</b>를 누르면 카카오 화면이 열려요. <b>「동의하고 계속하기」</b>를 누르면 자동으로 돌아오고 「✅ 연결됨」이 보여요.</>,
       <>마지막으로 <b>「카톡 시험 보내기」</b>를 눌러 내 카카오톡 <b>「나와의 채팅」</b>에 메시지가 오면 끝이에요! 🎉</>,

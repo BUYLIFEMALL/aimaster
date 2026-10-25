@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useRef, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
 import { saveChannelAction, saveDeliveryAction } from "@/lib/actions/settings";
-import { deleteResendKeyAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction } from "@/lib/actions/notify";
+import { deleteResendKeyAction, saveKakaoKeysAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction, startKakaoConnectAction } from "@/lib/actions/notify";
+import CopyText from "@/components/CopyText";
+import { KAKAO_REDIRECT_URI } from "@/lib/kakaoOAuth";
 
 type Delivery = {
   notifyNew: boolean;
@@ -16,7 +18,8 @@ type Delivery = {
   fileFormat: "xlsx" | "csv";
 };
 export type ChannelInitial = { notifyKakao: boolean; notifyEmail: boolean; emailTo: string };
-export type KakaoInfo = { ok: true; nickname: string | null } | { ok: false; message: string; connectUrl: string };
+/** notice: 카카오에서 돌아온 결과(받는 방법 화면이 주소의 ?kakao=…를 서버에서 읽어 넘김) */
+export type KakaoInfo = ({ ok: true; nickname: string | null } | { ok: false; message: string; connectUrl: string }) & { hasKey: boolean; notice?: { kind: "ok" | "err"; text: string } };
 export type EmailInfo = { hasKey: boolean; loginEmail: string };
 export type Telegram = { botUsername: string | null; linkedAt: string | null } | null;
 type Msg = { kind: "ok" | "err"; text: string } | null;
@@ -147,15 +150,41 @@ function useTest(action: () => Promise<{ error?: string; success?: string; sugge
 
 // 💬 카톡 받기 — 「카카오 자동화」에서 연결한 공용 카카오 계정을 그대로 쓴다(요약만, 파일은 못 보냄)
 function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: boolean; onToggle: (v: boolean) => void; disabled: boolean }) {
+  // 💬 카카오 바로 연결(2026-10-25 v1.17): 회원 본인 카카오 앱 키 저장 → 「카카오 연결하기」 → 카카오 동의 → /api/kakao/callback이 공용 연결 계정에 저장
+  const router = useRouter();
   const test = useTest(sendTestKakaoAction);
+  const [editKeys, setEditKeys] = useState(false);
+  const [keyState, keyAction, savingKeys] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
+    const r = await saveKakaoKeysAction(prev, fd);
+    if (r.success) { setEditKeys(false); router.refresh(); }
+    return r;
+  }, {});
+  const [connecting, startConnect] = useTransition();
+  const [connectMsg, setConnectMsg] = useState<Msg>(kakao.notice ?? null);
+  // 카카오에서 돌아온 결과는 서버가 읽어 notice로 넘겼다 — 새로고침해도 다시 뜨지 않게 주소창의 ?kakao=…만 지운다
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("kakao") || q.has("kakao_error")) window.history.replaceState(null, "", window.location.pathname + window.location.hash);
+  }, []);
+  const connect = () => startConnect(async () => {
+    const r = await startKakaoConnectAction();
+    if (r.url) window.location.href = r.url;
+    else setConnectMsg({ kind: "err", text: r.error || "연결을 시작하지 못했어요." });
+  });
+  const showKeyForm = !kakao.hasKey || editKeys;
+
   return (
-    <section className="card">
+    <section className="card" id="kakao-card">
       <div className="ra-card-head">
         <h2 className="card-title">💬 카카오톡으로 받기</h2>
         <span className={`ra-status ${kakao.ok ? "on" : "off"}`}>{kakao.ok ? `✅ 연결됨${kakao.nickname ? ` (${kakao.nickname})` : ""}` : "⚪ 연결 전"}</span>
       </div>
-      <p className="card-caption">카카오톡 「나와의 채팅」으로 <b>요약</b>을 보내 드려요(새 매물·가격 변동 건수 + 결과 보기 버튼). 카톡으로는 파일을 보낼 수 없어서 엑셀은 텔레그램·이메일로 받아 주세요.</p>
-      {kakao.ok ? (
+      <div className="ra-caption-row">
+        <p className="card-caption">카카오톡 「나와의 채팅」으로 <b>요약</b>을 보내 드립니다(새 매물·가격 변동 건수 + 결과 보기 버튼). 카톡으로는 파일을 보낼 수 없어서 엑셀은 텔레그램·이메일로 받아 주세요.<br />— 무료이며, <b>회원님 본인 카카오 앱</b>으로 연결합니다</p>
+        <a className="secondary ra-link-btn" href="/guide#kakao">📖 연결 방법 따라 하기</a>
+      </div>
+
+      {kakao.ok && !editKeys ? (
         <>
           <div className="ra-toggle-row">
             <label className="ra-chip big oneline">
@@ -163,19 +192,56 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
               <span><strong>카톡 요약 받기</strong><small>{on ? "켜짐 — 수집할 때마다 보내요" : "꺼짐"}</small></span>
             </label>
             <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "💬 시험 메시지 보내기"}</button>
+            <button type="button" className="secondary" disabled={connecting} onClick={connect}>{connecting ? "여는 중..." : "🔁 다시 연결"}</button>
+            <button type="button" className="secondary" onClick={() => setEditKeys(true)}>앱 키 바꾸기</button>
           </div>
           <div className="ra-hint">
             <strong>💡 카톡의 「결과 보기」가 다른 화면으로 열리는 경우</strong>
-            <span>카카오 개발자 콘솔 → 내 앱 → <b>제품 링크 관리 → 웹 도메인</b>에</span>
+            <span>카카오 개발자 콘솔 → 내 앱 → <b>플랫폼(또는 제품 링크 관리) → 웹 도메인</b>에</span>
             <span><code className="ra-domain">https://realty-listing-alert.buylife.xyz</code> 를 추가해 주세요.</span>
           </div>
         </>
       ) : (
-        <div className="ra-import">
-          <p>{kakao.message}<br /><small>「카카오 자동화」에서 한 번 연결하면 이 프로그램도 그대로 써요(카카오 앱을 또 만들 필요 없음).</small></p>
-          <a className="primary" href={kakao.connectUrl} target="_blank" rel="noopener noreferrer">💬 카카오 자동화에서 연결하기 ↗</a>
-        </div>
+        <ol className="ra-addr-steps ra-kakao-steps">
+          <li>
+            <span>1</span>
+            <div>
+              <b>카카오 앱 키 저장</b>
+              <small>카카오 개발자 → 내 앱 → 「앱 키」의 <b>REST API 키</b>와 「보안」의 <b>Client Secret</b>(「사용함」일 때만)을 붙여 넣어요. {kakao.hasKey && !editKeys && "✅ 저장됨"}</small>
+              {showKeyForm && (
+                <form action={keyAction} className="ra-inline-form">
+                  <div className="field"><label htmlFor="kakaoRestKey">🔑 REST API 키</label><input id="kakaoRestKey" name="kakaoRestKey" required autoComplete="off" placeholder="영문·숫자 32자" /></div>
+                  <div className="field"><label htmlFor="kakaoSecret">🔒 Client Secret(선택)</label><input id="kakaoSecret" name="kakaoSecret" autoComplete="off" placeholder="보안 → 코드 생성 후 복사" /></div>
+                  <button className="primary" type="submit" disabled={savingKeys}>{savingKeys ? "저장 중..." : "키 저장"}</button>
+                </form>
+              )}
+              {keyState.error && <p className="ra-msg ra-err">{keyState.error}</p>}
+              {keyState.success && <p className="ra-msg ra-ok">{keyState.success}</p>}
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <b>돌아올 주소 등록</b>
+              <small>카카오 개발자 → 내 앱 → 카카오 로그인(활성화 ON) → <b>Redirect URI</b>에 아래 주소를 <b>그대로</b> 추가해요. 「동의항목」에서 <b>카카오톡 메시지 전송</b>도 켜 주세요.</small>
+              <CopyText text={KAKAO_REDIRECT_URI} />
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <b>카카오 연결하기</b>
+              <small>카카오 화면에서 「동의하고 계속하기」를 누르면 자동으로 돌아와요.</small>
+              <div className="ra-row-actions">
+                <button type="button" className="primary" disabled={!kakao.hasKey || connecting} onClick={connect}>{connecting ? "카카오 여는 중..." : "💬 카카오 연결하기"}</button>
+                {editKeys && <button type="button" className="secondary" onClick={() => setEditKeys(false)}>취소</button>}
+              </div>
+              {!kakao.ok && <small className="ra-kakao-state">{kakao.message}</small>}
+            </div>
+          </li>
+        </ol>
       )}
+      <Message msg={connectMsg} />
       <Message msg={test.msg} />
     </section>
   );

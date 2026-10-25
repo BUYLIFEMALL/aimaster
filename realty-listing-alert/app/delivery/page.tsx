@@ -4,14 +4,19 @@ import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import DeliveryClient from "./DeliveryClient";
 import { REAL_ESTATE_SALES_SLUG } from "@/lib/delivery";
 import { createServiceClient } from "@/lib/supabase/service";
-import { KAKAO_CONNECT_URL, getKakaoState, getResendKey } from "@/lib/notifyChannels";
+import { KAKAO_CONNECT_URL, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // 📨 받는 방법(인수인계 §3-1·§5-2): 회원 본인 텔레그램 봇(공용 user_telegram_links, program_slug) + 알림 기준·파일 형식.
 // 봇 토큰은 화면에 다시 보여 주지 않는다(연결 여부·봇 이름만).
-export default async function DeliveryPage() {
+export default async function DeliveryPage({ searchParams }: { searchParams: Promise<{ kakao?: string; kakao_error?: string }> }) {
+  // 카카오 바로 연결(v1.17)에서 돌아온 결과 — /api/kakao/callback이 ?kakao=connected 또는 ?kakao_error=… 를 붙인다
+  const sp = await searchParams;
+  const kakaoNotice = sp.kakao === "connected"
+    ? { kind: "ok" as const, text: "✅ 카카오가 연결됐어요. 「💬 시험 메시지 보내기」로 확인해 보세요." }
+    : sp.kakao_error ? { kind: "err" as const, text: `카카오 연결 실패: ${String(sp.kakao_error).slice(0, 200)}` } : undefined;
   const user = await requireProgramAccess();
   const supabase = await createClient();
   const [{ data: link }, { data: settings }, { data: realEstateBot }] = await Promise.all([
@@ -28,6 +33,7 @@ export default async function DeliveryPage() {
   const service = createServiceClient();
   const [kakao, resendKey] = await Promise.all([getKakaoState(service, user.id, false), getResendKey(service, user.id)]);
 
+  const kakaoKey = await hasKakaoKey(service, user.id);
   return (
     <div className="studio-shell">
       <StudioSidebar email={user.email ?? ""} active="delivery" />
@@ -52,7 +58,7 @@ export default async function DeliveryPage() {
             fileFormat: settings?.file_format === "csv" ? "csv" : "xlsx",
           }}
           channel={{ notifyKakao: settings?.notify_kakao ?? false, notifyEmail: settings?.notify_email ?? false, emailTo: settings?.email_to ?? "" }}
-          kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL }}
+          kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey, notice: kakaoNotice } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey, notice: kakaoNotice }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
         />
       </main>
