@@ -351,3 +351,8 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 숫자 한 곳: 공용 기준 코드 `market-fees` 사본 `lib/marketFees.ts`(기준 `shop-order-report/src/lib/marketFees.ts`, 직접 고치지 말고 `node scripts/check-shared-modules.mjs --module market-fees --sync`). 기존 `calcMargin`은 그대로(직접 입력 = 예전 계산과 마진 같음, 시험).
 - 검사: `test:trend` 14개(새 3개), tsc, 빌드. 배포 `trending-product-finder-qbhkolhin` Ready, DB v1.27. 크롬(시험 계정): 옥션·모니터/프린터 7%·선결제 → 정산 30,801원·마진 12,501원·손익분기 16,559원(손계산 일치), 5개 마켓 비교, `/fees` 39행 같음, 일괄 마켓 선택, 390px 틀 `/sourcing`·`/fees` 가로 넘침 없음. 일괄 계산 실행은 외부 검색 호출이라 누르지 않음.
 - 하지 않음(다음 후보): 쿠팡 로켓그로스 물류비(공식 요금표 확인 필요), 11번가 쿠폰·ESM 제휴/프로모션 수수료(공식 확인 전엔 「기타 추가 수수료」 칸).
+
+## 2026-10-25 E9 「🛒 쇼핑몰 흐름」 띠 — **미배포 대기** (Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image])
+- 대시보드 위 띠(`components/ShopFlowBar.tsx`, `app/(dashboard)/layout.tsx`) — `?flow=shop`으로 들어왔을 때만 보이고 같은 탭에서 유지. 공용 기준 코드 `shop-flow`·`shop-flow-bar` 사본(`lib/shopFlow.ts`·`components/ShopFlowBar.tsx`, 기준 `shop-order-report` — 직접 고치지 않음).
+- 상세페이지 링크(`lib/shopDetailLink.ts` `shopDetailPageUrl(product, price, inFlow)`)가 흐름 중이면 `flow=shop`을 붙임. 패널은 `readFlowActive()`를 그릴 때 읽음.
+- 검사: `test:trend` 14개, tsc 통과. 커밋 `93b20e6b0`. 배포는 `docs/PENDING_DEPLOYS.md` 대기 — 다음 상품소싱 배포 때 함께, 그때 버전 +0.01(v1.28)과 DB를 올린다.

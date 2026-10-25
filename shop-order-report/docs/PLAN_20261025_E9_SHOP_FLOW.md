@@ -3,7 +3,7 @@
 작성: 2026-10-25 Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image]
 대상: ① AIMaster 운영 — `shop-order-report`·`seller-label-docs`·`trending-product-finder` (상세페이지 `shop-detail-page`는 디자인 담당 작업 중 표 줄이 비면 사본만 추가)
 근거: [쇼핑몰 묶음 인계](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md) §0 D7(「각 프로그램은 단독으로 끝까지 쓸 수 있고 연결은 선택, 흐름 띠는 흐름으로 들어왔을 때만」)·§4
-상태: **주인님 승인 대기** (코드 없음)
+상태: ✅ **완료 2026-10-25** — 주인님 「진행해」(추천안: 주문 리포트·셀러 라벨만 배포, 상품소싱 띠는 미배포 대기). 코드 `93b20e6b0`, 배포 주문 리포트 v1.03 `b0s1sfp6u`·셀러 라벨 v1.03 `f2dzr25lh`(빌드 2회). 상세페이지 사본은 보류(그 폴더 다른 세션 작업 중).
 
 ## 1. 만들 것
 | # | 연결 | 내용 |

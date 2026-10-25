@@ -1,7 +1,7 @@
 # AI 쇼핑몰 주문·매출 리포트 자동화 (`shop-order-report`)
 
 - 운영 주소: https://shop-order-report.buylife.xyz · 소개: https://www.buylife.xyz/programs/shop-order-report
-- 현재 버전: **v1.02** (2026-10-25) · Vercel 프로젝트 `shop-order-report` · 카테고리 이커머스 · 기본 프로그램
+- 현재 버전: **v1.03** (2026-10-25) · Vercel 프로젝트 `shop-order-report` · 카테고리 이커머스 · 기본 프로그램
 - 담당 역할: `ecommerce-image` · 플랜 [`docs/PLAN_20261025_SHOP_ORDER_REPORT.md`](docs/PLAN_20261025_SHOP_ORDER_REPORT.md) · 쇼핑몰 묶음 E7·E8([인계](../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md) §7)
 
 ## 1. 사용 목적·대상
@@ -17,6 +17,7 @@ Next.js 16 + Tailwind 4 + 공용 Supabase(권한 판정·회원 키 조회만). 
 - 장점: 개인정보·주문이 서버에 안 감, 운영 비용 0, 몇 달 치 추이 보관. 단점: 다른 기기와 자동 공유 안 됨(설정만 파일로 옮김), 마켓 파일 양식은 실제 파일로 검증 전(예시 파일·별칭 추측), 암호 걸린 엑셀 불가, 수수료 추정은 대표값.
 
 ## 4. 버전 기록
+- **v1.03 (2026-10-25, E9)**: 「주문 현황」에 「🏷 발송 전 주문 N건 라벨 만들기」 — 셀러 라벨로 보내기(주소 「#import=」 안 표, 서버·개인정보 없음, 최대 300줄 초과 시 엑셀 안내)·라벨용 엑셀 받기(`LABEL_HEADERS`). 대시보드 위 「🛒 쇼핑몰 흐름」 띠(`?flow=shop`일 때만). 공용 기준 코드 `shop-flow`(`src/lib/shopFlow.ts`)·`shop-flow-bar`(`src/components/ShopFlowBar.tsx`) 신설 — 사본은 셀러 라벨·상품소싱, 직접 고치지 말고 기준만 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 대기 중이던 E1 `market-fees` 확장도 함께 나감. 시험 22개, 배포 `b0s1sfp6u`, DB v1.03. 플랜 [`docs/PLAN_20261025_E9_SHOP_FLOW.md`](docs/PLAN_20261025_E9_SHOP_FLOW.md).
 - **v1.02 (2026-10-25)**: 쿠팡 「묶음배송번호」를 상품주문번호로 쓰지 않음(한 상자 여러 상품이 한 줄로 합쳐지는 문제), 재고 표 순서를 판매량 순으로 고정(입력 중 줄이 움직여 다른 상품에 입력되던 문제). 배포 `shop-order-report-dxj1g8phk`.
 - **v1.01 (2026-10-25)**: 첫 공개 — 7개 화면·리뷰 AI 요약·DB 등록(요금제 3단계·VIP 등급 표·시험 계정 30일)·도메인·썸네일. 배포 `shop-order-report-gndfngy99`.
 
@@ -26,7 +27,7 @@ Next.js 16 + Tailwind 4 + 공용 Supabase(권한 판정·회원 키 조회만). 
 ## 6. 연계 아이디어
 - `src/lib/marketFees.ts` = 공용 기준 코드 `market-fees`(docs/SHARED_MODULES.md) → 상품소싱 E1 마진 계산이 사본으로 가져감.
 - 상품소싱의 소싱 후보 ↔ 실제 판매 결과 비교(소싱 점수가 맞았는지).
-- 셀러 라벨(`seller-label-docs`)로 「발송 전 주문」 라벨 바로 인쇄(E9 흐름).
+- 셀러 라벨(`seller-label-docs`)로 「발송 전 주문」 라벨 바로 인쇄 — ✅ v1.03(E9). 남은 것: 상세페이지 띠 사본(agy `shop-detail-page` 작업 끝난 뒤).
 
 ## 7. UI/UX 개선안
 「셀러 워크벤치 스타일」 공유. 후보: 기간 빠른 선택(이번 달·지난달), 상품 이름 묶기(마켓마다 다른 상품명을 한 상품으로), 리포트 PDF에 그래프 포함 정리.

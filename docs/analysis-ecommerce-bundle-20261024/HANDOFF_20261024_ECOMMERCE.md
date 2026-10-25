@@ -52,6 +52,7 @@
 - 요율 숫자는 **반드시 공식 안내로**, 표에 기준 날짜. 요율 상수는 한 파일에서만.
 
 ## 4. E9 — 단계 잇기
+- ✅ **처리됨 2026-10-25 (`claude-win-sdp`)**: ③ 「🛒 쇼핑몰 흐름」 띠 — 공용 `shop-flow`·`shop-flow-bar`(기준 `shop-order-report`), 주문 리포트·셀러 라벨 v1.03 배포, 상품소싱 미배포 대기. 추가로 주문 리포트 → 셀러 라벨 발송 전 주문 넘기기(개인정보 없음). 남은 것: ① E2 카테고리·태그 초안 넘기기(E2 뒤), ② 상세페이지 → 쇼츠(영상 담당 협의), 상세페이지 띠 사본(그 폴더 작업 끝난 뒤). 플랜 [`shop-order-report/docs/PLAN_20261025_E9_SHOP_FLOW.md`](../../shop-order-report/docs/PLAN_20261025_E9_SHOP_FLOW.md).
 - 기존: `trending-product-finder/lib/shopDetailLink.ts`(v1.23) — 상품명·원본 정보·추천 판매가를 주소로 `shop-detail-page/products/new`에 넘김(**도매가는 넘기지 않음**). 받는 쪽 `shop-detail-page/app/(dashboard)/products/new/page.tsx`(`from=sourcing`, name ≤100자, source ≤1000자, price 선택 — 「정상가」 칸에만).
 - 넓힐 것: ① E2의 카테고리·태그 초안도 함께 넘기기 ② 상세페이지 → 쇼츠 원스톱 넘기기(받는 쪽은 영상 담당 — 넘길 값 형식만 영상 담당과 맞춤) ③ 각 프로그램 대시보드 맨 위 「🛒 쇼핑몰 흐름」 띠(현재 단계 + 이전·다음 버튼) — 공용 컴포넌트로 만들고 사본 등록(`docs/SHARED_MODULES.md`).
 - DB 변경 없음. 2차(회원 상품 카드 공유 표)는 승인 뒤.
