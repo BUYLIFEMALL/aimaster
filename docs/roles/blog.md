@@ -4,9 +4,11 @@
 - 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-25 Codex `codex-win-20261025-blog` 인수, 무료65개 통과·에이전트v2.21 일치. Edge 현재 Gmail→시험Naver 로그인/확장연결 및 기존Chrome8개 정리 승인 대기. SEO/콘텐츠 메이커 DB확장버전 불일치 발견·미수정.
+- 마지막 갱신: 2026-10-25 블로그 전체/타 카테고리 연계 분석·공통 인수인계 등록 완료. 공개8+비공개2/관련23개·핵심 소스70개 해시·무료59개 통과. 네 역할 유지·키워드→SEO 연결 우선 추천, 실제 병합/신규 구현/배포 미실행.
 
 ## 지금 하는 일
+
+**현재 우선 작업 결과:** [신규개발·병합·연계 공통 인수인계](../analysis-blog-consolidation-20261020/HANDOFF.md)와 [최신 전체 분석](../analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025). 주인님 후속 지시로 개별 구현보다 분석을 먼저 완료했고, 콘텐츠메이커③-2 단독 발행 플랜은 후보 보존/재검토 상태입니다.
 
 > [최신 인수 점검·요청 ID·다음 단계](../HANDOFF_20261025_BLOG_TO_CODEX.md#8-codex-인수-확인재개-준비2026-10-25). 아래 이전 실패/Chrome 기록은 당시 상황입니다.
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -18,7 +20,7 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `naver-blog-agent` | 미배포 대기 `89d135c4b`(「발행 전까지」로 바꿀 때 예약 미리 넣기 끄기) | 다음 배포 때 함께 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
-| `blog-content-maker` | ③ 실제·예약 포스팅과 결과 기록 추가(핵심 지침) | ② 뒤 플랜 | 같은 표 |
+| `blog-content-maker` | ③-2 단독 발행 플랜 후보 보존 | 전체 분석은 SEO/미디어 연계 동등성 검토를 우선 추천, 배치 결정 뒤 구현 | [후보 플랜](../../blog-content-maker/docs/PLAN_20261025_AUTO_POSTING.md)·[분석](../analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025) |
 | 블로그 5개 | ④ 묶음 E Next.js 보안 업데이트(프로그램마다 빌드 1회) | ③ 뒤 | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` |
 | `ai-auto-blog` | BLOG 정리(이동 안내·비공개·FREE 배지 이전) | 시점 결정 | `naver-blog-agent/docs/PLAN_20261024_MAEPSI_E1_E4.md` E-4 5번 |
 | `naver-blog-agent` | E-2 회원 선택 빠른 입력(보류) | 재개 결정 | 같은 플랜 |

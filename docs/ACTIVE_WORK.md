@@ -29,4 +29,3 @@
 | `insta_auto_poster/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | 7대 플랫폼 API키 발급 2단 버튼 & 피드·카드뉴스 3D 엠보싱 실행버튼 업그레이드 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
 | `realty-listing-alert/` (새 폴더) | [역할: realty] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-realty` | 2026-10-24 | 새 프로그램 「AI 부동산 매물 알림 자동화」 구현 — 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`. 0~3단계·UX 리뉴얼·지역 감시·수집 상한 ✅(v1.08 운영, 준비중). 지금: 카톡·이메일 받기 실물 시험 → 카톡·이메일 받기 |
-| `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지 포그라운드) · 세션 `codex-win-20261025-blog` | 2026-10-25 | 인수·무료65개 점검 완료. 실제입력(발행 전까지)은 시험Naver 로그인/엣지확장연결·기존Chrome8연결 정리 승인 대기. SEO/콘텐츠메이커 DB확장버전 불일치 기록, SEOv2.19 ZIP 삭제 보존·미배포89d135c4b 유지 |

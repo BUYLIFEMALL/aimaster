@@ -187,6 +187,12 @@ node docs/analysis-blog-consolidation-20261020/BUILD_REPORT.mjs
 4. 원래 버킷 공개 우려는 실제 DB에서 private임을 읽은 뒤 현재 상태로 보완했다. 과거 우려를 확정 사고로 복제하지 않았다.
 5. [SEO 근거 JSON](analysis-blog-consolidation-20261020/evidence/seo-recompare-20261021.json)과 [BLC-06 실제 회원 검수](../naver-blog-agent/docs/evidence/blc06-editor/live-member.json)는 각각 분석과 구현의 증거다. 둘의 시험 수·비용·완료 범위를 합쳐 하나의 E2E 통과로 쓰지 않는다.
 
+### 8-5. 신규 개발·기능 병합·타 카테고리 연계 공통 사례(2026-10-25)
+
+주인님이 다른 CLI의 이후 신규 개발·병합 작업 레퍼런스로 지정했습니다. [공통 인수인계](analysis-blog-consolidation-20261020/HANDOFF.md)→[최신 보고서](analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025)→[수치/소스/검수 근거](analysis-blog-consolidation-20261020/evidence/interop-20261025.json) 순서로 읽습니다. 공개8·비공개2·연계23개의 사례이며, 결과 자체보다 사용자 업무→중복입력/재생성/파일왕복→제품역할/기능병합/결과연계/공용엔진 구분→회원영향/수명/복구→작은단위 검수의 분석 순서를 재사용합니다. 4역할·추천 우선순위는 블로그 대상 결론이고 다른 카테고리의 배치/실행 승인은 아닙니다.
+
 ## 변경 기록
 - 2026-10-21 Claude Code(윈도우, 부계정) — 최초 작성(데이터수집|기획 분석 방법 정리), 수집 스크립트 `scripts/analyze-category.mjs` 추가.
 - 2026-10-21 Codex(윈도우) — 블로그 자동 포스팅 단계별 비교 기준 및 §8 정밀 재비교·산출물/근거·CLI 인수인계 레퍼런스 추가. 제품/엔진 선정 구분, 분석 인수인계 링크 허용 범위, 기존 승인 재사용, CLI별 검수 브라우저를 최상위 지침과 맞춤. [공통 인수인계](analysis-blog-consolidation-20261020/HANDOFF_20261021_CLI_REFERENCE.md).
+
+- 2026-10-25 Codex [역할: blog] — 주인님 지시로 전체 블로그·타 카테고리 연계 분석을 공통 신규개발/병합 레퍼런스로 등록. 기존 보고서·HTML·해시/수치·무료시험59개와 공통 인수인계 연결, 세 CLI 진입지침/분야별 색인 동기화.

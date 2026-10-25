@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: blog] Codex(윈도우·Edge) · 세션 `codex-win-20261025-blog` — 전체 블로그/타 카테고리 연계 분석·공통 인수인계 레퍼런스 등록
+- 주인님 최신지시: 먼저 전체 기능/병합/연계를 사용자편의·업무효율 기준으로 분석, 보고서를 이후 다른 CLI의 신규개발/병합 레퍼런스로 남김. [공통 인수인계](analysis-blog-consolidation-20261020/HANDOFF.md) · [최신 분석](analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025) · [열람용HTML](analysis-blog-consolidation-20261020/REPORT.html#blog-efficiency-20261025).
+- 공개블로그8+비공개App/Web2, 관련카테고리23개 수집·선택 경로/소스70개 해시·운영권한/로그/12표RLS 읽기. 무료SEO39+키워드20=59통과, 모의/실세션 구분. 블로그8개 usage_logs0은 사용자0이 아님. BLOG→에이전트 등록권한행 차이78명, 무료quick은 과거BLOG 전체원고 이관 아님.
+- 결론: 키워드/에이전트/SEO/티스토리4핵심역할 유지, 중복기능은 조건부이관. 키워드새3종→SEO·작업참조→플래너·이미지수정왕복 우선, 이후SNS/쇼츠. 콘텐츠메이커③-2 독립발행플랜은 후보보존·SEO/미디어 동등성 검토 우선추천. 실제병합/서비스중단/권한이전 미실행.
+- 새확인: BLOG DB앱v1.81/DB확장v1.80/소스·ZIPv1.82, 티스토리v1.92/확장v1.91/ZIPv1.92, 올인원v1.53/확장v1.52/ZIPv1.53 불일치. 이번분석DB수정0. 앞 대화에서 SEO/콘텐츠 확장표시2건만 실제배포에맞춰 정정한 이력은 별도 인계§9로 구분. SEOv2.19 ZIP 삭제 미커밋 보존.
+- 사용자지시로 AGENTS/CLAUDE/GEMINI 세CLI진입지침·비교분석매뉴얼·분야별색인·프로그램비교표/카테고리지도/기능표/작업표/역할/아이디어에 링크. 보고서와 추천을 구현/운영 승인으로 사용하지 않음. HTML표시 Edge실창 확인, 새 검색/좁은화면 재검수는 창이 없어져 미완·앱E2E아님.
+- 비용: 이번 분석 유료AI/이미지·영상/발행·예약/수동빌드·배포0, 운영DB읽기만·분석문서/로컬HTML작성. 분석 완료로 ACTIVE_WORK 자기예약 해제·blog 역할 유지, 다음 실제 변경 전 재예약. 다음은 주인님 추천순서 결정→한 연결의 구체계약/작업플랜. 이전 로그인/연결·기존8연결폐기 승인 요청2건은 보존하며 새 요청 추가 없음. 프로그램 https://naver-blog-agent.buylife.xyz · https://naver-blog-seo-studio.buylife.xyz · https://blog-keyword.buylife.xyz .
+
 ## 2026-10-25 🔁 [역할: blog] Codex(윈도우·Edge) · 세션 `codex-win-20261025-blog` — 블로그 담당 인수·입력 시험 준비
 - 주인님 명시 지시로 Claude→Codex 인수, ACTIVE_WORK·역할/색인 커밋 `26f859544`. [상세 인계 §8](HANDOFF_20261025_BLOG_TO_CODEX.md#8-codex-인수-확인재개-준비2026-10-25).
 - 무료모의65개 통과·에이전트 운영/설치확장/라이브ZIP v2.21 OK. 실제 Edge 현재Gmail, 원고48f06db1는Naver 소유·failed·예약꺼짐, 실제 재전송0/발행0. 주인님 직접 Naver메일 로그인 전환·엣지 확장연결·네이버로그인 요청. 기존Chrome paired8개(2개오늘응답) 정리는 승인 전 실행하지 않음. 요청함2건 `7eba5ff7`·`4c54bb78`, 같은 내용 채팅/역할 파일에도 기록.
