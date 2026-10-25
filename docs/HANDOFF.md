@@ -5,6 +5,7 @@
 - **배정(각 담당은 작업 전 근거 문서를 읽고 역할 파일 대기 칸에 옮겨 적기)**: `ecommerce-image` → 쇼핑몰 흐름 E1→E9→E2~E5 · `video` → V1~V7(순서 주인님 결정 대기) + DUP-4 Shots 업로드 중복 방지(YT-U7) · `realty` → 매물 수집기 N1·N2, `real_estate_sales` 당해 연도·30일 정리 · `blog` → `blog-neighbor-care` · `workspace` → `ebook-studio` v1.12(본인 키·API 권한·내부 주소 차단).
 - 카카오·CRM 새 작업자(주인님 지정 예정): 오픈채팅방 기능(`kakao_auto_poster`, `lib/openchat/`, 확장 없음 → 남의 방 주제 조사는 확장 새로 필요) · DUP-1 재발송 막기(CRM-P4) · CRM-P5·P6 · DUP-2 구글폼 2회 발송. 참고: `kakao_auto_poster` v1.30, 미배포 대기 2건(`22c6cda35`·`36d0a4fdc`).
 - **새 담당 필요(맞는 역할 없음)**: 인스타·쓰레드(DUP-5 중복 게시 최우선) · 네이버 카페(DUP-3) · 성격·운세(`tarot` v1.27 등).
+- **디자인 담당 배정(주인님 「개발 및 디자인 담당자를 배정하는 것도 너의 역활이야」)**: `design`(Antigravity) → E3 상세페이지 블록 편집 화면·E9 「🛒 쇼핑몰 흐름」 띠, `realty-listing-alert` 공개 전 1차 디자인·매뉴얼, `blog-neighbor-care` 첫 동작 버전 뒤 1차 디자인, 오픈채팅방 새 화면. 원칙: 개발 담당이 동작 완성 → `design`이 같은 폴더를 이어받음(동시 작업 금지, ACTIVE_WORK로 넘김). 작은 화면 수정은 개발 담당이 기존 템플릿대로.
 - 정리: 요청함 「E0 수수료표 처리 시점」은 상품소싱 v1.26으로 처리됨 → 필요 없음. 코드·DB·빌드 변경 없음.
 
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.13 왼쪽 메뉴 수집 결과
