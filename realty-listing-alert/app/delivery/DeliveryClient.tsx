@@ -428,7 +428,7 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
   return (
     <section className="card ra-engine-card">
       <div className="ra-card-head">
-        <h2 className="card-title">🤖 AI 시세 요약 엔진 <small className="ra-engine-sub">OpenAI / Claude / Gemini · 선택</small></h2>
+        <h2 className="card-title"><span className="ra-step opt">③ 선택</span>🤖 AI 시세 요약 엔진 <small className="ra-engine-sub">OpenAI / Claude / Gemini · 선택</small></h2>
       </div>
       <p className="card-caption">엔진 이름을 누르면 그 줄이 요약에 쓰여요(색이 바뀐 줄). 저장한 키·모델은 「수정」으로 바꿔요.</p>
       <div className="ra-aitbl-wrap">
@@ -444,6 +444,27 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
       <Message msg={msg} />
     </section>
   );
+}
+
+// 설정 화면 표의 펼침 칸에서 따로 쓰는 연결 칸(2026-10-25 페이지 구성 다시)
+export function KakaoSetup({ kakao }: { kakao: KakaoInfo }) {
+  return <KakaoCard kakao={kakao} />;
+}
+export function EmailSetup({ email, emailTo: initialTo }: { email: EmailInfo; emailTo: string }) {
+  const router = useRouter();
+  const [emailTo, setEmailTo] = useState(initialTo);
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState<Msg>(null);
+  const save = (v: string) => {
+    const before = emailTo;
+    setEmailTo(v);
+    start(async () => {
+      const r = await saveChannelAction({ emailTo: v });
+      if (r.error) { setEmailTo(before); setMsg({ kind: "err", text: r.error }); }
+      else { setMsg({ kind: "ok", text: "저장됐어요." }); router.refresh(); }
+    });
+  };
+  return (<><EmailCard email={email} emailTo={emailTo} disabled={pending} onEmailTo={save} /><Message msg={msg} /></>);
 }
 
 // 💬 카톡 + ✉️ 이메일 연결 묶음 — 「API키등록·플랫폼연동」 화면 전용(등록·연동만)
