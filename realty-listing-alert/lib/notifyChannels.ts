@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { AiProvider } from "@/lib/aiProviders";
 import { getMemberAccount, markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
 
 // 카톡·이메일 받기(플랜 docs/PLAN_20261025_KAKAO_EMAIL.md). 서버는 회원 본인 토큰·키만 건네고, 보내기는 확장이 회원 PC에서 한다(매물 내용은 서버를 거치지 않음).
@@ -63,15 +64,17 @@ export async function hasKakaoKey(db: Db, userId: string): Promise<boolean> {
   return !!(await memberKey(db, userId, "kakao_rest_api_key"));
 }
 
+/** 쓸 AI → 공용 user_api_keys provider 이름(Claude는 다른 프로그램과 같은 anthropic) */
+export const AI_KEY_PROVIDER: Record<AiProvider, string> = { gemini: "gemini", openai: "openai", claude: "anthropic" };
 /** 🤖 AI 시세 요약(v1.22): 회원 본인 AI 키(공용 user_api_keys openai·gemini — 다른 AIMaster 프로그램과 같은 키). 없으면 null */
-export function getAiKey(db: Db, userId: string, provider: "gemini" | "openai"): Promise<string | null> {
-  return memberKey(db, userId, provider);
+export function getAiKey(db: Db, userId: string, provider: AiProvider): Promise<string | null> {
+  return memberKey(db, userId, AI_KEY_PROVIDER[provider]);
 }
 
 /** 화면용: AI 키 등록 여부만(값은 보내지 않음) */
-export async function getAiKeyStatus(db: Db, userId: string): Promise<{ hasGemini: boolean; hasOpenai: boolean }> {
-  const [g, o] = await Promise.all([memberKey(db, userId, "gemini"), memberKey(db, userId, "openai")]);
-  return { hasGemini: Boolean(g), hasOpenai: Boolean(o) };
+export async function getAiKeyStatus(db: Db, userId: string): Promise<{ hasGemini: boolean; hasOpenai: boolean; hasClaude: boolean }> {
+  const [g, o, c] = await Promise.all([memberKey(db, userId, "gemini"), memberKey(db, userId, "openai"), memberKey(db, userId, "anthropic")]);
+  return { hasGemini: Boolean(g), hasOpenai: Boolean(o), hasClaude: Boolean(c) };
 }
 
 /** 회원 본인 메일 발송 키(Resend). 없으면 null. */

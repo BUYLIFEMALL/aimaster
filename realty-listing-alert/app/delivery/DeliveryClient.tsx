@@ -7,6 +7,7 @@ import { saveChannelAction, saveDeliveryAction } from "@/lib/actions/settings";
 import { deleteResendKeyAction, saveAiKeyAction, saveKakaoKeysAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction, startKakaoConnectAction } from "@/lib/actions/notify";
 import CopyText from "@/components/CopyText";
 import { KAKAO_REDIRECT_URI } from "@/lib/kakaoOAuth";
+import { AI_PROVIDERS, aiProviderInfo, type AiProvider } from "@/lib/aiProviders";
 
 type Delivery = {
   notifyNew: boolean;
@@ -17,9 +18,9 @@ type Delivery = {
   deliverFile: boolean;
   fileFormat: "xlsx" | "csv";
 };
-export type ChannelInitial = { notifyKakao: boolean; notifyEmail: boolean; emailTo: string; aiSummary: boolean; aiProvider: "gemini" | "openai" };
+export type ChannelInitial = { notifyKakao: boolean; notifyEmail: boolean; emailTo: string; aiSummary: boolean; aiProvider: AiProvider };
 /** 🤖 AI 시세 요약(v1.22) — 키 값은 보내지 않고 등록 여부만 */
-export type AiInfo = { hasGemini: boolean; hasOpenai: boolean };
+export type AiInfo = { hasGemini: boolean; hasOpenai: boolean; hasClaude: boolean };
 /** notice: 카카오에서 돌아온 결과(받는 방법 화면이 주소의 ?kakao=…를 서버에서 읽어 넘김) */
 export type KakaoInfo = ({ ok: true; nickname: string | null } | { ok: false; message: string; connectUrl: string }) & { hasKey: boolean; notice?: { kind: "ok" | "err"; text: string } };
 export type EmailInfo = { hasKey: boolean; loginEmail: string };
@@ -250,7 +251,7 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
 }
 
 // ✉️ 이메일 받기 — 회원 본인 Resend 키(공용 user_api_keys resend_api_key), 확장이 회원 PC에서 요약 + 엑셀 첨부로 보낸다
-function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { email: EmailInfo; on: boolean; emailTo: string; onToggle: (v: boolean) => void; onEmailTo: (v: string) => void; disabled: boolean }) {
+function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled, manageKeys }: { email: EmailInfo; on: boolean; emailTo: string; onToggle: (v: boolean) => void; onEmailTo: (v: string) => void; disabled: boolean; manageKeys: boolean }) {
   const router = useRouter();
   const [saveState, saveAction, saving] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
     const r = await saveResendKeyAction(prev, fd);
@@ -301,7 +302,8 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
               <span><strong>이메일 받기</strong><small>{on ? "켜짐 — 수집할 때마다 요약 + 엑셀" : "꺼짐"}</small></span>
             </label>
             <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "✉️ 시험 메일 보내기"}</button>
-            <button type="button" className="secondary" disabled={del} onClick={() => startDel(async () => { await deleteResendKeyAction(); router.refresh(); })}>키 지우기</button>
+            {/* 키 지우기는 「API키등록·플랫폼연동」 화면에서만(2026-10-25 주인님 「키지우기는 아래 플랫폼 연동쪽에서 일괄 관리」) */}
+            {manageKeys && <button type="button" className="secondary" disabled={del} onClick={() => startDel(async () => { await deleteResendKeyAction(); router.refresh(); })}>키 지우기</button>}
           </div>
           <div className="ra-inline-form">
             <div className="field">
@@ -325,15 +327,16 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
 
 // 🤖 AI 시세 요약(2026-10-25, v1.22) — 회원 본인 AI 키로 하루 1번, 이번 주 시세 흐름 한두 줄을 텔레그램·메일 맨 위에 붙인다.
 // 보내는 것은 단지별 통계 숫자뿐(중개사 번호·매물 목록은 보내지 않음). 요약은 회원 PC 확장이 직접 AI를 부른다.
-function AiSummaryCard({ ai, on, provider, onToggle, onProvider, disabled }: { ai: AiInfo; on: boolean; provider: "gemini" | "openai"; onToggle: (v: boolean) => void; onProvider: (v: "gemini" | "openai") => void; disabled: boolean }) {
+function AiSummaryCard({ ai, on, provider, onToggle, onProvider, disabled }: { ai: AiInfo; on: boolean; provider: AiProvider; onToggle: (v: boolean) => void; onProvider: (v: AiProvider) => void; disabled: boolean }) {
   const router = useRouter();
   const [state, action, saving] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
     const r = await saveAiKeyAction(prev, fd);
     if (r.success) router.refresh();
     return r;
   }, {});
-  const hasKey = provider === "openai" ? ai.hasOpenai : ai.hasGemini;
-  const name = provider === "openai" ? "OpenAI" : "Gemini";
+  const hasKey = provider === "openai" ? ai.hasOpenai : provider === "claude" ? ai.hasClaude : ai.hasGemini;
+  const info = aiProviderInfo(provider);
+  const name = info.name;
   return (
     <section className="card">
       <div className="ra-card-head">
@@ -347,16 +350,15 @@ function AiSummaryCard({ ai, on, provider, onToggle, onProvider, disabled }: { a
           <span><strong>AI 요약 받기</strong><small>{on ? "켜짐 — 하루 1번" : "꺼짐"}</small></span>
         </label>
         <div className="ra-seg" role="group" aria-label="쓸 AI">
-          <button type="button" className={provider === "gemini" ? "on" : ""} disabled={disabled} onClick={() => onProvider("gemini")}>Gemini</button>
-          <button type="button" className={provider === "openai" ? "on" : ""} disabled={disabled} onClick={() => onProvider("openai")}>OpenAI</button>
+          {AI_PROVIDERS.map((p) => <button key={p.id} type="button" className={provider === p.id ? "on" : ""} disabled={disabled} onClick={() => onProvider(p.id)}>{p.name}</button>)}
         </div>
       </div>
       {!hasKey && (
         <form action={action} className="ra-inline-form">
           <input type="hidden" name="provider" value={provider} />
-          <div className="field"><label htmlFor="aiKey">🔑 {name} API 키</label><input id="aiKey" name="aiKey" required autoComplete="off" placeholder={provider === "openai" ? "sk-로 시작 (OpenAI → API keys)" : "AIza로 시작 (Google AI Studio → API 키)"} /></div>
+          <div className="field"><label htmlFor="aiKey">🔑 {name} API 키</label><input id="aiKey" name="aiKey" required autoComplete="off" placeholder={info.placeholder} /></div>
           <button className="primary" type="submit" disabled={saving}>{saving ? "저장 중..." : "키 저장"}</button>
-          <a className="secondary ra-link-btn" href={provider === "openai" ? "https://platform.openai.com/api-keys" : "https://aistudio.google.com/apikey"} target="_blank" rel="noopener noreferrer">{name} 키 만들기 ↗</a>
+          <a className="secondary ra-link-btn" href={info.keyUrl} target="_blank" rel="noopener noreferrer">{name} 키 만들기 ↗</a>
         </form>
       )}
       {state.error && <p className="ra-msg ra-err">{state.error}</p>}
@@ -366,7 +368,8 @@ function AiSummaryCard({ ai, on, provider, onToggle, onProvider, disabled }: { a
 }
 
 // 💬 카톡 + ✉️ 이메일 카드 묶음 — 「받는 방법」·「API키등록·플랫폼연동」 두 화면이 같이 쓴다(같은 저장값)
-export function ChannelCards({ kakao, email, ai, initial }: { kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; initial: ChannelInitial }) {
+/** manageKeys: 키 지우기 버튼은 「API키등록·플랫폼연동」 화면(true)에만 */
+export function ChannelCards({ kakao, email, ai, initial, manageKeys = false }: { kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; initial: ChannelInitial; manageKeys?: boolean }) {
   const router = useRouter();
   const [value, setValue] = useState<ChannelInitial>(initial);
   const [pending, start] = useTransition();
@@ -388,7 +391,7 @@ export function ChannelCards({ kakao, email, ai, initial }: { kakao: KakaoInfo; 
   return (
     <>
       <KakaoCard kakao={kakao} on={value.notifyKakao} disabled={pending} onToggle={(v) => save({ notifyKakao: v })} />
-      <EmailCard email={email} on={value.notifyEmail} emailTo={value.emailTo} disabled={pending} onToggle={(v) => save({ notifyEmail: v })} onEmailTo={(v) => save({ emailTo: v })} />
+      <EmailCard email={email} on={value.notifyEmail} emailTo={value.emailTo} disabled={pending} onToggle={(v) => save({ notifyEmail: v })} onEmailTo={(v) => save({ emailTo: v })} manageKeys={manageKeys} />
       <AiSummaryCard ai={ai} on={value.aiSummary} provider={value.aiProvider} disabled={pending} onToggle={(v) => save({ aiSummary: v })} onProvider={(v) => save({ aiProvider: v })} />
       <Message msg={msg} />
     </>

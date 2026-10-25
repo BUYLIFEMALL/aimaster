@@ -5,6 +5,7 @@
 const DAY = 24 * 3600 * 1000;
 export const AI_MAX_CHARS = 200;
 const GEMINI_MODEL = "gemini-flash-lite-latest"; // 가장 최신 정식 Flash-Lite 별칭(ai-work-workspace geminiModels.ts와 같은 기준)
+const CLAUDE_MODEL = "claude-haiku-5-5"; // Claude 가장 저렴한 최신 Haiku(ai-mastering-studio models.ts와 같은 이름)
 
 /** 최근 7일 기록(history) → 단지·매매별 변화 숫자. 비교할 기록이 없으면 null */
 export function buildAiInput(history, now = Date.now()) {
@@ -81,12 +82,24 @@ async function callOpenAI(apiKey, prompt) {
   return clip(j?.choices?.[0]?.message?.content);
 }
 
-/** ai: { provider: "gemini"|"openai", apiKey } → 요약 글(200자). 실패하면 예외 */
+// 확장(회원 PC)에서 바로 부르므로 Anthropic의 브라우저 직접 호출 머리글이 필요하다 — 키는 회원 본인 것
+async function callClaude(apiKey, prompt) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+    body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, messages: [{ role: "user", content: prompt }] }),
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`Claude ${res.status} ${j?.error?.message || ""}`.trim());
+  return clip((j?.content || []).filter((c) => c.type === "text").map((c) => c.text).join(""));
+}
+
+/** ai: { provider: "gemini"|"openai"|"claude", apiKey } → 요약 글(200자). 실패하면 예외 */
 export async function makeAiSummary(ai, history) {
   const input = buildAiInput(history);
   if (!input) throw new Error("통계 기록이 아직 없어요");
   const prompt = buildAiPrompt(input);
-  const text = ai.provider === "openai" ? await callOpenAI(ai.apiKey, prompt) : await callGemini(ai.apiKey, prompt);
+  const text = ai.provider === "openai" ? await callOpenAI(ai.apiKey, prompt) : ai.provider === "claude" ? await callClaude(ai.apiKey, prompt) : await callGemini(ai.apiKey, prompt);
   if (!text) throw new Error("AI가 빈 답을 돌려줬어요");
   return text;
 }

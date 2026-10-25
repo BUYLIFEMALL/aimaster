@@ -1,4 +1,5 @@
 import { requireProgramAccess } from "@/lib/access";
+import { toAiProvider } from "@/lib/aiProviders";
 import { createClient } from "@/lib/supabase/server";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import DeliveryClient from "./DeliveryClient";
@@ -57,7 +58,7 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
             deliverFile: settings?.deliver_file ?? true,
             fileFormat: settings?.file_format === "csv" ? "csv" : "xlsx",
           }}
-          channel={{ notifyKakao: settings?.notify_kakao ?? false, notifyEmail: settings?.notify_email ?? false, emailTo: settings?.email_to ?? "", aiSummary: settings?.notify_ai_summary ?? false, aiProvider: settings?.ai_provider === "openai" ? "openai" : "gemini" }}
+          channel={{ notifyKakao: settings?.notify_kakao ?? false, notifyEmail: settings?.notify_email ?? false, emailTo: settings?.email_to ?? "", aiSummary: settings?.notify_ai_summary ?? false, aiProvider: toAiProvider(settings?.ai_provider) }}
           kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey, notice: kakaoNotice } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey, notice: kakaoNotice }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
           ai={aiKeys}

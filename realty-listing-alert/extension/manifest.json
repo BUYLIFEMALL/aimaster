@@ -19,6 +19,7 @@
     "https://api.resend.com/*",
     "https://generativelanguage.googleapis.com/*",
     "https://api.openai.com/*",
+    "https://api.anthropic.com/*",
     "https://realty-listing-alert.vercel.app/*",
     "https://realty-listing-alert.buylife.xyz/*"
   ],

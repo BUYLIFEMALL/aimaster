@@ -38,3 +38,13 @@ test("OpenAI 모델: nano 먼저, 없으면 mini, 음성·날짜 고정판 제�
   assert.equal(pickOpenAiModel(["gpt-5", "gpt-4.1-mini", "gpt-4o-mini-realtime"]), "gpt-4.1-mini");
   assert.equal(pickOpenAiModel(["gpt-5", "dall-e-3"]), null);
 });
+
+test("쓸 AI 3가지: 이름·키 모양(Claude는 공용 키 anthropic)", async () => {
+  const { AI_PROVIDERS, toAiProvider } = await import("../lib/aiProviders.ts");
+  assert.deepEqual(AI_PROVIDERS.map((p) => p.id), ["gemini", "openai", "claude"]);
+  assert.equal(toAiProvider("claude"), "claude");
+  assert.equal(toAiProvider("x"), "gemini");
+  const claude = AI_PROVIDERS.find((p) => p.id === "claude")!;
+  assert.equal(claude.keyPattern.test("sk-ant-api03-abcdefghijklmnopqrstuvwxyz"), true);
+  assert.equal(claude.keyPattern.test("sk-abcdefghijklmnopqrstuvwxyz"), false);
+});

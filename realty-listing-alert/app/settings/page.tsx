@@ -1,4 +1,5 @@
 import { requireProgramAccess, PROGRAM_SLUG } from "@/lib/access";
+import { toAiProvider } from "@/lib/aiProviders";
 import PublicDataKeyCard from "./PublicDataKeyCard";
 import { KeyHowTo } from "@/components/KeyGuide";
 import { createClient } from "@/lib/supabase/server";
@@ -61,7 +62,8 @@ export default async function SettingsPage() {
           kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
           ai={aiKeys}
-          initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "", aiSummary: ch?.notify_ai_summary ?? false, aiProvider: ch?.ai_provider === "openai" ? "openai" : "gemini" }}
+          manageKeys
+          initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "", aiSummary: ch?.notify_ai_summary ?? false, aiProvider: toAiProvider(ch?.ai_provider) }}
         />
         <div className="settings-divider" />
         <h2>🏛 실거래가 비교(공공데이터 키, 선택)</h2>
