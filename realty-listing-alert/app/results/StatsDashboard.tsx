@@ -268,7 +268,7 @@ function EventLog({ events, columns, lastAt, type, setType, period, setPeriod }:
   return (
     <div id="event-log" className="ra-event-log">
       <h3 className="ra-stat-h">🔔 변동 기록</h3>
-      <p className="card-caption">새 매물·가격 내림/오름·사라진 매물을 기간·단지별로 모아 봐요. 기록은 회원님 PC 확장에만 1년 쌓여요(중개사 번호는 30일 뒤 지워요 · 사라짐은 목록을 끝까지 읽은 회차만 판단).</p>
+      <p className="card-caption">새 매물·가격 내림/오름·사라진 매물을 기간·단지별로 모아 봐요. 기록은 중개사 번호까지 회원님 PC 확장에만 1년 쌓여요(사라짐은 목록을 끝까지 읽은 회차만 판단).</p>
       <div className="ra-stat-filters">
         <div className="ra-seg" role="group" aria-label="기간">
           {([["last", "이번 회차"], ["7", "7일"], ["30", "1개월"], ["90", "3개월"], ["180", "6개월"], ["365", "1년"]] as [Period, string][]).map(([id, label]) => (
