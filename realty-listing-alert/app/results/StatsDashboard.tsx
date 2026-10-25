@@ -5,6 +5,7 @@
 // 그래프는 한 그래프에 선 하나(축 하나): 매물 수와 평균 가격을 따로 그린다. 같은 숫자는 표로도 보인다.
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
+import PriceChange from "./PriceChange";
 
 type TradeStat = { n: number; avg: number | null; med: number | null; min: number | null; max: number | null; perM2: number | null; rentAvg?: number | null; bands: { label: string; n: number; avg: number }[] };
 type ComplexSnap = { name: string; total: number; events: { new: number; priceDown: number; priceUp: number; gone: number }; trades: Partial<Record<Trade, TradeStat>> };
@@ -219,8 +220,7 @@ function LineChart({ title, points, fmt }: { title: string; points: { at: string
 const EV_TABS: { id: EvType | "all"; label: string }[] = [
   { id: "all", label: "전체 변동" }, { id: "new", label: "🆕 새 매물" }, { id: "priceDown", label: "📉 가격 내림" }, { id: "priceUp", label: "📈 가격 오름" }, { id: "gone", label: "👋 사라짐" },
 ];
-const EV_LABEL: Record<EvType, string> = { new: "🆕 새 매물", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐" };
-const EV_COLS = ["단지명", "동", "거래 종류", "가격(만 원)", "이전 가격", "전용면적(㎡)", "층", "중개사 상호", "사무실 번호", "휴대폰"];
+const EV_COLS = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "중개사 상호", "사무실 번호", "휴대폰"];
 const MAX_ROWS = 500;
 
 /** 🔔 변동 기록 — 새 매물·가격 내림/오름·사라짐을 기간·단지별로 모아 본다(회원 PC 확장의 eventLog). */
@@ -284,14 +284,14 @@ function EventLog({ events, columns, lastAt, type, setType, period, setPeriod }:
       ) : (
         <div className="ra-result-wrap">
           <table className="ra-result">
-            <thead><tr><th>수집 시각</th><th>변동</th>{EV_COLS.map((c) => <th key={c}>{c === "가격(만 원)" ? "가격" : c}</th>)}<th>네이버</th></tr></thead>
+            <thead><tr><th>수집 시각</th><th>가격 변동</th>{EV_COLS.map((c) => <th key={c}>{c === "가격(만 원)" ? "가격" : c}</th>)}<th>네이버</th></tr></thead>
             <tbody>
               {rows.slice(0, MAX_ROWS).map((e, i) => {
                 const url = urlAt >= 0 ? e.row[urlAt] : "";
                 return (
                   <tr key={i}>
                     <td>{when(e.at)}</td>
-                    <td>{EV_LABEL[e.type]}</td>
+                    <td><PriceChange status={e.type} prev={col("이전 가격") >= 0 ? e.row[col("이전 가격")] : ""} /></td>
                     {EV_COLS.map((c) => { const k = col(c); const v = k >= 0 ? e.row[k] : ""; return <td key={c}>{v == null ? "" : String(v)}</td>; })}
                     <td>{typeof url === "string" && /^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(url) ? <a href={url} target="_blank" rel="noopener noreferrer">보기 ↗</a> : ""}</td>
                   </tr>

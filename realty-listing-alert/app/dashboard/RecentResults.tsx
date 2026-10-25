@@ -5,11 +5,12 @@
 // 확장이 연결된 계정과 지금 로그인 계정이 같을 때만 확장이 답한다. 확장이 없는 브라우저(카톡 링크·휴대폰)에서는 안내 + 서버의 숫자 요약.
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
+import PriceChange from "@/app/results/PriceChange";
 
 type Result = { at: string; result: string; columns: string[] | null; table: unknown[][]; perTarget: { name: string; total: number; events: number; firstRun: boolean }[] } | null;
 type Summary = { lastRunAt: string | null; lastCount: number | null; lastResult: string | null };
 
-const SHOW = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "상태", "이전 가격", "중개사 상호", "사무실 번호", "휴대폰", "네이버 매물 주소"];
+const SHOW = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "이전 가격", "중개사 상호", "사무실 번호", "휴대폰", "네이버 매물 주소"];
 const PAGE = 300; // 처음 보여 줄 줄 수
 const MORE = 500; // 「더 보기」 한 번에 늘릴 줄 수
 const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -36,7 +37,7 @@ export default function RecentResults({ email, summary }: { email: string; summa
     // 변동이 0건이면 처음부터 전체 매물을 보여 준다(2026-10-25 주인님 「바로 수집된 내용이 보여야 하지 않나?」)
     const showAll = all || changed === 0;
     const rows = showAll ? res.table : res.table.filter(isChanged);
-    return { idx, rows: rows.slice(0, limit), more: rows.length - Math.min(rows.length, limit), changed, showAll, total: res.table.length };
+    return { idx, statusAt, rows: rows.slice(0, limit), more: rows.length - Math.min(rows.length, limit), changed, showAll, total: res.table.length };
   }, [res, all, limit]);
 
   return (
@@ -74,12 +75,14 @@ export default function RecentResults({ email, summary }: { email: string; summa
               ) : (
                 <div className="ra-result-wrap">
                   <table className="ra-result">
-                    <thead><tr>{SHOW.map((c) => <th key={c}>{c === "네이버 매물 주소" ? "네이버" : c}</th>)}</tr></thead>
+                    <thead><tr>{SHOW.map((c) => <th key={c}>{c === "네이버 매물 주소" ? "네이버" : c === "이전 가격" ? "가격 변동" : c}</th>)}</tr></thead>
                     <tbody>
                       {view.rows.map((r, i) => (
                         <tr key={i}>
                           {view.idx.map((ci, k) => {
                             const v = ci >= 0 ? r[ci] : "";
+                            // 가격 변동(2026-10-25 주인님 지시): 오름 파란 ▲ · 내림 빨간 ▼ · 그대로 ➖ — 상태 칸 대신
+                            if (SHOW[k] === "이전 가격") return <td key={k}><PriceChange status={view.statusAt >= 0 ? r[view.statusAt] : ""} prev={v} /></td>;
                             if (SHOW[k] === "네이버 매물 주소") {
                               return <td key={k}>{typeof v === "string" && /^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(v) ? <a href={v} target="_blank" rel="noopener noreferrer">보기 ↗</a> : ""}</td>;
                             }
