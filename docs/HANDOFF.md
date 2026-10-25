@@ -25,6 +25,12 @@
 - 이후 다시 본 documents는 Naver 계정·목록0. Gmail 업로드 문서2개는 운영 DB(ref esgxyikcnnvmlhygjkth) ready·각1조각으로 유지, 회원 간 자료/키 복사 없음. 주인님이 방금 어떤 계정으로 입력했는지 확인 질문을 남김(입력 실수/인증 오류 원인 단정 안 함). 기존 Gmail 로그인 요청186e15c8 유지, 새 등록/재업로드 요청 없음.
 - 코드/회원자료/AI 호출/빌드/배포 변경0. 문서 질문1회(임베딩1·텍스트1)는 아직 미실행·원래 승인 한도 유지. 로그인 확인 뒤 두 문서 선택·웹 끄고 출처/본문 검수. 인수인계 bf241380a 및 후속 기록, 역할 b2ecb02eb. 본인 ACTIVE_WORK 해제. [상세](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md). 운영 https://ai-doc-chatbot.buylife.xyz v1.07 미배포 대기.
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.16 변동 기록·메일 제목 건수·HTML 메일·결과 표 더 보기
+- 한 일: ① **변동 기록**(주인님 「새매물/가격내림/가격변동/삭제 매물 같이 볼 수 있게」): 확장이 회차마다 변동 줄만 `chrome.storage` `eventLog`(90일·최대 5000줄)에 쌓음(`stats.js` `pickEvents`/`pushEvents`), `/results` 대시보드 아래 「🔔 변동 기록」— 종류 탭(전체·새 매물·가격 내림·오름·사라짐, 건수)·기간(이번 회차/7/30/90일, 마지막 수집 시각 기준)·단지 선택·날짜별 건수 막대·이전 가격·중개사 번호·네이버 링크 표(최근 500건), 요약 카드 누르면 그 종류로 이동. ② 메일 제목 `buildMailSubject`(건수·매물 수·시각). ③ HTML 메일 `buildMailHtml`(단지별 카드·변동 표·통계 보기 버튼, 글자 이스케이프, 텍스트 본문 함께). ④ 결과 표 300건 → 「500건 더 보기」「모두 보기」, web-bridge 전달 한도 2000→5000줄.
+- 검수: 시험 37개(변동 기록 1·메일 2 추가)·tsc·eslint·build, 배포 `realty-listing-alert-50mw15mrr` Ready, DB v1.16(Claude가 SQL 편집기 실행, 운영 DB esgxyikcnnvmlhygjkth)·`check-extension-release` OK. **화면·메일 실물은 확장 1.16.0 설치 뒤 확인 필요.**
+- 비용: 빌드 1회(승인 3회 중 누적 2회).
+- 남은 것: ⑤ 이 프로그램 안에서 카카오 바로 연결(빌드 1회 남음).
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.15 통계·추이 대시보드 + 이름 변경
 - 한 일: ① 이름 「AI 부동산 매물 알림 자동화」→ **「부동산 실시간 매물 알림」**(메뉴·탭 제목·로그인·확장 이름·메일 보낸 사람·텔레그램 문구, 운영 DB `programs.name`도 변경 — 주인님 지시), 부제목 「새 매물을 찾아 텔레그램/카톡/메일로」, 「텔레그램으로만」 문구 3곳 정리. ② **통계·추이 대시보드**: 확장이 회차마다 요약을 `chrome.storage` `history`(90일·최대 400회)에 쌓음(`extension/lib/stats.js`, 서버 미보관), 웹 `/results` 맨 위 `StatsDashboard.tsx`가 web-bridge 「stats」(같은 계정일 때만)로 받아 요약 카드 4개·매물 수/평균가 추이 그래프(선 하나·축 하나)·단지 비교표(평당가·전세가율)·면적대 표·중개사 순위를 그림. 기록이 없으면 마지막 결과로 첫 요약을 만듦.
 - 검수: 시험 34개(통계 3개 추가)·tsc·eslint·build, 배포 Ready, DB v1.15(운영 DB esgxyikcnnvmlhygjkth, Claude가 SQL 편집기에서 실행)·`check-extension-release` OK, 크롬 운영 `/results`에서 새 이름·부제목·v1.15 확인. **대시보드 그림은 확장 1.15.0 설치 뒤 확인 필요**(설치된 1.14는 「stats」에 답하지 않아 안내 문구가 나옴 — 예상 동작).
