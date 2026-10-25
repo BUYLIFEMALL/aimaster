@@ -119,7 +119,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             id: "publicData", name: "🏛 공공데이터", on: pdKey,
             info: pdKey ? `••••${pdTail} · 내 키로 비교` : "없으면 공용 키로 비교",
             quick: pdKey ? <ConfirmButton label="삭제" confirm="공공데이터 키를 지워요" action={deletePublicDataKeyAction} /> : null,
-            issue: { href: "https://www.data.go.kr/data/15057532/openapi.do", label: "신청 ↗" },
+            issue: { href: "https://www.data.go.kr/data/15126469/openapi.do", label: "신청 ↗" },
             detail: (<>
               <KeyHowTo ids={["publicData"]} title="공공데이터 키 가져오는 법" />
               <PublicDataKeyCard hasKey={pdKey} />

@@ -22,6 +22,8 @@ async function fetchMonth(serviceKey: string, lawd: string, ym: string): Promise
   try {
     const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(10000) });
     const text = await res.text();
+    // 403: 이 키로 「국토교통부_아파트 매매 실거래가 자료」(15126469) 활용신청이 안 됐거나 승인 전(2026-10-25 실물 확인)
+    if (res.status === 403) return { trades: [], error: "공공데이터 응답 403 — 이 키로 「국토교통부_아파트 매매 실거래가 자료」 활용신청(승인)이 필요해요" };
     if (!res.ok) return { trades: [], error: `공공데이터 응답 ${res.status}` };
     return parseTradeResponse(text);
   } catch (e) {
