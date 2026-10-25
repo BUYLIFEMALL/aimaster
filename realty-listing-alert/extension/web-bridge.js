@@ -23,7 +23,7 @@
       const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;
       const same = who?.email && String(message.email || "").toLowerCase() === String(who.email).toLowerCase();
       result = same
-        ? { ok: true, lastResult: lastResult ? { at: lastResult.at, result: lastResult.result, columns: lastResult.columns || null, table: (lastResult.table || []).slice(0, 2000), perTarget: lastResult.perTarget || [] } : null }
+        ? { ok: true, lastResult: lastResult ? { at: lastResult.at, result: lastResult.result, columns: lastResult.columns || null, table: (lastResult.table || []).slice(0, 5000), perTarget: lastResult.perTarget || [] } : null }
         : { ok: false };
     } else if (message.type === "stats") {
       // 통계·추이 요약(2026-10-25) — lastResult와 같은 조건(확장 연결 계정 = 웹 로그인 계정)일 때만, 같은 화면에만

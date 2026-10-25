@@ -781,3 +781,4 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-ev-tabs button b { margin-left: 4px; color: var(--ink); }
 .ra-ev-tabs button.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 .ra-ev-chart { margin: 4px 0 10px; }
+.ra-more-row { margin-top: 10px; flex-wrap: wrap; gap: 8px; }

@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.16: 변동 기록(새 매물·가격 내림/오름·사라짐) + 메일 제목 건수·HTML 본문 + 결과 표 더 보기 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.16', extension_version = 'v1.16', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;

@@ -10,11 +10,14 @@ type Result = { at: string; result: string; columns: string[] | null; table: unk
 type Summary = { lastRunAt: string | null; lastCount: number | null; lastResult: string | null };
 
 const SHOW = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "상태", "이전 가격", "중개사 상호", "사무실 번호", "휴대폰", "네이버 매물 주소"];
+const PAGE = 300; // 처음 보여 줄 줄 수
+const MORE = 500; // 「더 보기」 한 번에 늘릴 줄 수
 const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
 export default function RecentResults({ email, summary }: { email: string; summary: Summary }) {
   const [res, setRes] = useState<Result | undefined>(undefined); // undefined = 묻는 중, null = 확장 없음·다른 계정
   const [all, setAll] = useState(false);
+  const [limit, setLimit] = useState(PAGE); // 화면에 그릴 줄 수 — 「더 보기」로 늘린다(2026-10-25 주인님 「결과 표 줄 수 늘리기」)
 
   useEffect(() => {
     let alive = true;
@@ -33,8 +36,8 @@ export default function RecentResults({ email, summary }: { email: string; summa
     // 변동이 0건이면 처음부터 전체 매물을 보여 준다(2026-10-25 주인님 「바로 수집된 내용이 보여야 하지 않나?」)
     const showAll = all || changed === 0;
     const rows = showAll ? res.table : res.table.filter(isChanged);
-    return { idx, rows: rows.slice(0, 300), changed, showAll, total: res.table.length };
-  }, [res, all]);
+    return { idx, rows: rows.slice(0, limit), more: rows.length - Math.min(rows.length, limit), changed, showAll, total: res.table.length };
+  }, [res, all, limit]);
 
   return (
     <section className="card" id="results" aria-labelledby="results-title">
@@ -62,7 +65,7 @@ export default function RecentResults({ email, summary }: { email: string; summa
               <div className="ra-toggle-row">
                 <span className="card-caption">
                   {view.changed === 0 ? `이번엔 새 매물·가격 변동 없음 · 지금 매물 ${view.total}건` : view.showAll ? `전체 ${view.total}건` : `새 매물·가격 변동 ${view.changed}건`}
-                  {view.showAll && view.total > view.rows.length ? ` (화면엔 ${view.rows.length}건까지, 나머지는 엑셀)` : ""}
+                  {view.more > 0 ? ` (지금 ${view.rows.length.toLocaleString("ko-KR")}건 표시)` : ""}
                 </span>
                 {view.changed > 0 && <button type="button" className="secondary" onClick={() => setAll((v) => !v)}>{all ? "변동만 보기" : "전체 보기"}</button>}
               </div>
@@ -86,6 +89,13 @@ export default function RecentResults({ email, summary }: { email: string; summa
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+              {view.more > 0 && (
+                <div className="ra-toggle-row ra-more-row">
+                  <span className="card-caption">아직 {view.more.toLocaleString("ko-KR")}건이 더 있어요.</span>
+                  <button type="button" className="secondary" onClick={() => setLimit((n) => n + MORE)}>{Math.min(MORE, view.more).toLocaleString("ko-KR")}건 더 보기</button>
+                  <button type="button" className="secondary" onClick={() => setLimit(Infinity)}>모두 보기</button>
                 </div>
               )}
             </>
