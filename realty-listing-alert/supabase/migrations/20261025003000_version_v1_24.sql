@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.24: AI 시세 요약 엔진 선택 카드(쓰레드 콘텐츠 운영 방식 — 엔진 | 모델 | 저장·수정 | API 만들기), 엔진 고르기는 API키등록 한곳 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.24', extension_version = 'v1.24', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
