@@ -41,3 +41,9 @@
 - 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
 - 사본으로 맞춤: 주석 정리 + 쓰지 않는 RCS 발송 함수 `sendRcs` 추가(동작 같음). tsc·로컬 build 통과.
 - 배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01.
+
+## 2026-10-25 E1 뒤 남은 것 (`claude-win-sdp`)
+- (중) 쿠팡 로켓그로스 물류비(입출고·배송·보관·반품) — 쿠팡 공식 요금표 확인 뒤 `market-fees` 기준에 추가.
+- (중) 쿠팡·11번가·스마트스토어 공식 요율(판매자 로그인 화면) — 주인님 대조 값을 받으면 ⚠ → ✅, 카테고리 표 추가.
+- (하) 5개 마켓 비교 표는 각 마켓 대표 수수료 기준 — 마켓마다 카테고리를 따로 고르는 비교는 다음 개선 후보.
+- (하) 일괄 마진은 판매 마켓 하나만 고름(마켓별 여러 줄 비교는 다음 후보).

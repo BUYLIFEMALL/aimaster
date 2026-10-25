@@ -3,7 +3,7 @@
 작성: 2026-10-25 Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image]
 대상: ① AIMaster 운영 — `trending-product-finder`(상품소싱 자동화, 현재 v1.26) + 공용 기준 코드 `market-fees`(기준 `shop-order-report/src/lib/marketFees.ts`)
 근거: [쇼핑몰 묶음 인계](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md) §3, 원본 분석 [01](../../docs/analysis-ecommerce-bundle-20261024/01_KDP_MARKET_FEES.md)(항목·화면 아이디어만 — **요율표·숫자는 옮기지 않음**, D2), [06](../../docs/analysis-ecommerce-bundle-20261024/06_PROHUB_PRICE_MARGIN_KEYWORD.md)(여러 마켓 나란히·손익분기점), E0 결과(`/fees` v1.26)
-상태: **주인님 승인 대기** (코드 없음)
+상태: ✅ 승인(2026-10-25) → v1.27 운영 공개 완료. 결과는 `../AGENTS.md` 맨 아래
 
 ## 1. 지금 문제
 - 마진 계산(소싱 결과 패널·일괄 CSV·검색 결과 전체)이 모두 「플랫폼 수수료율 한 칸(기본 10.8%)」만 쓴다 → 마켓·카테고리·배송 방식에 따라 실제 정산과 다르다.
