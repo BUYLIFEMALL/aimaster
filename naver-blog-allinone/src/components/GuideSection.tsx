@@ -82,19 +82,20 @@ export function GuideSection({ onGoTab, onOpenSettings }: GuideSectionProps) {
             <a
               href="/downloads/naver-blog-allinone-latest.zip"
               download="naver-blog-allinone-latest.zip"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-3 text-xs font-black text-slate-900 shadow-md hover:bg-amber-300 transition-transform active:scale-95"
+              className="btn-3d-amber text-xs font-black shadow-lg"
+              title="네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 최신 ZIP 다운로드"
             >
-              <Download className="h-4 w-4 text-slate-900" />
-              <span>크롬 확장 ZIP 다운로드</span>
+              <Download className="h-4 w-4 text-white" />
+              <span>크롬 확장 최신 ZIP 받기 ({APP_VERSION})</span>
             </a>
             {onOpenSettings && (
               <button
                 type="button"
                 onClick={onOpenSettings}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/20 border border-white/30 px-4 py-3 text-xs font-bold text-white backdrop-blur-md hover:bg-white/30 transition-transform active:scale-95"
+                className="btn-3d-emerald text-xs font-bold"
               >
                 <Zap className="h-4 w-4 text-amber-300" />
-                <span>API 키 등록하기</span>
+                <span>API 키 등록·플랫폼연동</span>
               </button>
             )}
           </div>

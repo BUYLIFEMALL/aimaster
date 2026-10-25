@@ -215,17 +215,30 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             </p>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <label className="font-medium text-slate-700">Gemini API 키 입력</label>
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium hover:underline"
-                >
-                  무료 API 키 발급받기
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                <label className="font-bold text-slate-800">Gemini API 키 입력</label>
+                <div className="flex items-center gap-1.5">
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-create-key"
+                    title="Google AI Studio에서 무료 API 키를 즉시 생성·발급합니다"
+                  >
+                    <span>🔑 Gemini 키 발급</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <a
+                    href="https://aistudio.google.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-platform-signup"
+                    title="Google AI Studio 플랫폼 공식 콘솔로 이동합니다"
+                  >
+                    <span>🌐 플랫폼 콘솔</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
               <div className="relative">
                 <input
@@ -250,14 +263,14 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 type="button"
                 onClick={handleTestKey}
                 disabled={testStatus === "testing"}
-                className="px-3.5 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition shadow-xs"
+                className="btn-3d-indigo disabled:opacity-50"
               >
                 {testStatus === "testing" ? "연결 확인 중..." : "연결 테스트"}
               </button>
               <button
                 type="button"
                 onClick={handleSave}
-                className="px-3.5 py-2 text-xs font-semibold bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition shadow-xs flex items-center gap-1.5"
+                className="btn-3d-emerald flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 로컬에 저장
@@ -266,7 +279,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 <button
                   type="button"
                   onClick={handleDeleteKey}
-                  className="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition ml-auto flex items-center gap-1"
+                  className="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition ml-auto flex items-center gap-1 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   키 삭제
@@ -310,7 +323,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 type="button"
                 onClick={() => void handleLoadAccountKeys()}
                 disabled={loadingAccountKeys}
-                className="px-3.5 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition shadow-xs"
+                className="btn-3d-indigo disabled:opacity-50"
               >
                 {loadingAccountKeys ? "불러오는 중..." : "내 AIMaster 계정에 등록된 키 불러오기"}
               </button>
@@ -318,23 +331,71 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             </div>
             {accountKeyMessage && <p className="text-xs font-semibold text-indigo-800">{accountKeyMessage}</p>}
             {([
-              ["OpenAI API 키 (GPT 글 · GPT Image)", openaiKey, setOpenaiKey, "sk-...", "https://platform.openai.com/api-keys"],
-              ["Anthropic API 키 (Claude 글)", anthropicKey, setAnthropicKey, "sk-ant-...", "https://console.anthropic.com/settings/keys"],
-              ["Replicate API 키 (FLUX 2.0 · Z-Image)", replicateKey, setReplicateKey, "r8_...", "https://replicate.com/account/api-tokens"],
-            ] as const).map(([label, value, setter, placeholder, link]) => (
-              <div key={label} className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <label className="font-medium text-slate-700">{label}</label>
-                  <a href={link} target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium hover:underline">
-                    키 발급받기
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+              {
+                id: "openai",
+                label: "OpenAI API 키 (GPT 글 · GPT Image)",
+                value: openaiKey,
+                setter: setOpenaiKey,
+                placeholder: "sk-...",
+                keyUrl: "https://platform.openai.com/api-keys",
+                keyBtnLabel: "🔑 OpenAI 키 발급",
+                signupUrl: "https://platform.openai.com/signup",
+                signupBtnLabel: "🌐 가입/콘솔",
+              },
+              {
+                id: "claude",
+                label: "Anthropic Claude API 키 (Claude 글)",
+                value: anthropicKey,
+                setter: setAnthropicKey,
+                placeholder: "sk-ant-...",
+                keyUrl: "https://console.anthropic.com/settings/keys",
+                keyBtnLabel: "🔑 Claude 키 발급",
+                signupUrl: "https://console.anthropic.com/",
+                signupBtnLabel: "🌐 콘솔 바로가기",
+              },
+              {
+                id: "replicate",
+                label: "Replicate API 키 (FLUX 2.0 · Z-Image)",
+                value: replicateKey,
+                setter: setReplicateKey,
+                placeholder: "r8_...",
+                keyUrl: "https://replicate.com/account/api-tokens",
+                keyBtnLabel: "🔑 Replicate 토큰 발급",
+                signupUrl: "https://replicate.com/signin",
+                signupBtnLabel: "🌐 회원가입",
+              },
+            ] as const).map((item) => (
+              <div key={item.id} className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <label className="font-bold text-slate-800">{item.label}</label>
+                  <div className="flex items-center gap-1.5">
+                    <a
+                      href={item.keyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-create-key"
+                      title={`${item.label} 키를 발급받는 공식 페이지로 이동합니다`}
+                    >
+                      <span>{item.keyBtnLabel}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <a
+                      href={item.signupUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-platform-signup"
+                      title={`${item.label} 공식 회원가입/콘솔 페이지로 이동합니다`}
+                    >
+                      <span>{item.signupBtnLabel}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
                 <input
                   type={showKey ? "text" : "password"}
-                  value={value}
-                  onChange={(e) => setter(e.target.value)}
-                  placeholder={placeholder}
+                  value={item.value}
+                  onChange={(e) => item.setter(e.target.value)}
+                  placeholder={item.placeholder}
                   className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
                 />
               </div>
@@ -485,7 +546,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-xs"
+              className="btn-3d-indigo"
             >
               {savedSuccess ? "저장 완료!" : "완료"}
             </button>

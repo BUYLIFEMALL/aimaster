@@ -136,6 +136,22 @@ export function Sidebar({
 
         {/* 2. 대시보드 & 핵심 작업 흐름 (스텝퍼 1 -> 2 -> 3) */}
         <div className="space-y-3">
+          {/* 3D 에메랄드 크롬 확장 다운로드 엠보싱 버튼 */}
+          <a
+            href="/downloads/naver-blog-allinone-latest.zip"
+            download="naver-blog-allinone-latest.zip"
+            className="nav-download mb-2 flex items-center justify-between gap-2 text-xs font-black"
+            title={`네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 (${APP_VERSION})`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm">⬇</span>
+              <span>확장 프로그램 받기</span>
+            </div>
+            <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[10px] font-mono font-bold tracking-tight text-white backdrop-blur-xs">
+              {APP_VERSION}
+            </span>
+          </a>
+
           {/* 최상단 대시보드 / 개요 링크 */}
           <Link
             href="/"

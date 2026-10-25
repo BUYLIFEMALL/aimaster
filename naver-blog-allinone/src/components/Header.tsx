@@ -61,23 +61,23 @@ export function Header({
 
         {/* Model Badges & Action Buttons */}
         <div className="flex items-center flex-wrap gap-2 sm:gap-3">
-          {/* 크롬 확장 프로그램 다운로드 (사이드바에서 상단으로 이동) */}
+          {/* 크롬 확장 프로그램 다운로드 3D 엠보싱 버튼 */}
           <a
             href="/downloads/naver-blog-allinone-latest.zip"
             download="naver-blog-allinone-latest.zip"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 border border-amber-500 text-slate-900 hover:bg-amber-500 transition shadow-xs"
+            className="btn-3d-amber text-xs font-bold"
             title="네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 다운로드"
           >
-            <Download className="w-3.5 h-3.5 text-slate-900" />
+            <Download className="w-3.5 h-3.5 text-white" />
             <span>크롬 확장 프로그램</span>
-            <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-500">ZIP</span>
+            <span className="text-[10px] font-bold text-amber-200 bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-400/40">ZIP</span>
           </a>
 
-          {/* 실시간 트렌드 분석 (사이드바에서 상단으로 이동) */}
+          {/* 실시간 트렌드 분석 3D 엠보싱 버튼 */}
           <button
             type="button"
             onClick={onOpenTrends}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 border border-emerald-700 text-white hover:bg-emerald-700 transition shadow-xs"
+            className="btn-3d-emerald text-xs font-bold"
           >
             <TrendingUp className="w-3.5 h-3.5 text-white" />
             <span>실시간 트렌드 분석</span>
