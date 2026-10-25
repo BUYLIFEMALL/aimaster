@@ -125,17 +125,22 @@ export function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; 
   );
 }
 
-function useTest(action: () => Promise<{ error?: string; success?: string }>) {
+function useTest(action: () => Promise<{ error?: string; success?: string; suggestEmail?: string }>) {
   const [msg, setMsg] = useState<Msg>(null);
+  const [suggest, setSuggest] = useState<string | null>(null);
   const [pending, start] = useTransition();
   return {
     msg,
     pending,
+    suggest,
+    clearSuggest: () => setSuggest(null),
     run: () =>
       start(async () => {
         setMsg(null);
+        setSuggest(null);
         const r = await action();
         setMsg(r.error ? { kind: "err", text: r.error } : { kind: "ok", text: r.success ?? "보냈어요." });
+        if (r.suggestEmail) setSuggest(r.suggestEmail);
       }),
   };
 }
@@ -211,7 +216,7 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
           <div className="ra-inline-form">
             <div className="field">
               <label htmlFor="emailTo">📮 받는 메일 주소(Resend에 가입한 주소)</label>
-              <input id="emailTo" type="email" value={to} placeholder={email.loginEmail || "예: me@gmail.com"} onChange={(e) => setTo(e.target.value)} />
+              <input id="emailTo" type="email" value={to} placeholder="Resend에 가입한 메일(예: me@gmail.com)" onChange={(e) => setTo(e.target.value)} />
             </div>
             <button type="button" className="secondary" disabled={disabled || to.trim() === emailTo} onClick={() => onEmailTo(to.trim())}>주소 저장</button>
           </div>
@@ -223,6 +228,11 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
       )}
       {saveState.success && <p className="ra-msg ra-ok">{saveState.success}</p>}
       <Message msg={test.msg} />
+      {test.suggest && (
+        <div className="ra-row-actions">
+          <button type="button" className="primary" disabled={disabled} onClick={() => { setTo(test.suggest!); onEmailTo(test.suggest!); test.clearSuggest(); }}>📮 {test.suggest} 로 바꾸기</button>
+        </div>
+      )}
     </section>
   );
 }

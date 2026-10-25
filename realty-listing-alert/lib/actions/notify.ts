@@ -9,7 +9,7 @@ import { RESEND_FROM, sendKakaoMemo, sendResendMail } from "@/lib/notifySend";
 // 카톡·이메일 받기 설정 동작(플랜 docs/PLAN_20261025_KAKAO_EMAIL.md). 회원 본인 행만(userId 조건, 서비스 키).
 // 시험 보내기는 매물 내용이 없는 안내 문장만 보낸다 — 실제 알림은 확장이 회원 PC에서 보낸다.
 
-type Result = { error?: string; success?: string };
+type Result = { error?: string; success?: string; suggestEmail?: string };
 
 export async function saveResendKeyAction(_: Result, formData: FormData): Promise<Result> {
   const user = await requireProgramAccess();
@@ -39,14 +39,14 @@ export async function sendTestEmailAction(): Promise<Result> {
   const key = await getResendKey(db, user.id);
   if (!key) return { error: "먼저 Resend API 키를 저장해 주세요." };
   const { data: s } = await db.from("realty_alert_settings").select("email_to").eq("user_id", user.id).maybeSingle();
-  const to = s?.email_to || user.email;
-  if (!to) return { error: "받는 메일 주소를 먼저 저장해 주세요." };
+  const to = s?.email_to;
+  if (!to) return { error: "받는 메일 주소(Resend에 가입한 메일)를 먼저 넣고 「주소 저장」을 눌러 주세요." };
   const r = await sendResendMail(key, {
     to,
     subject: "🏠 [매물 알림] 시험 메일이에요",
     text: `부동산 매물 알림의 이메일 받기가 연결됐어요.\n앞으로 새 매물·가격 변동이 있으면 이 주소로 요약과 엑셀 파일을 보내 드려요.\n\n보내는 주소: ${RESEND_FROM}`,
   });
-  if (!r.ok) return { error: r.error };
+  if (!r.ok) return { error: r.error, suggestEmail: r.ownerEmail };
   return { success: `${to} 로 시험 메일을 보냈어요. 1~2분 안에 받은편지함(없으면 스팸함)을 확인해 주세요.` };
 }
 
