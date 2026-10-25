@@ -1021,3 +1021,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-role-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ra-role-line .ra-btn-orange { flex: 0 0 auto; }
 .ra-aitbl-role > td { padding: 4px 8px 8px; }
+/* 상태 칸을 아랫줄로 옮김(2026-10-25): 윗줄 4칸 [엔진 | API 키 | 모델 | 수정·삭제] */
+.ra-aitbl:not(.ra-setup) th:nth-child(2) { width: 92px; }
+.ra-aitbl:not(.ra-setup) th:nth-child(3) { width: auto; }
+.ra-aitbl:not(.ra-setup) th:nth-child(4) { width: 104px; }
+.ra-role-line .ra-badge { flex: 0 0 auto; }
