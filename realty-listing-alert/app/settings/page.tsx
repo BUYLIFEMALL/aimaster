@@ -62,7 +62,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <SetupTable head={["항목", "상태", "정보"]} rows={[{
             id: "extension", name: "🧩 확장", on: (tokens?.length ?? 0) > 0, onLabel: "✓ 연결됨", offLabel: "연결 전",
             info: (tokens?.length ?? 0) > 0 ? `${APP_VERSION} · PC ${tokens!.length}대 · 최근 ${lastUsed}` : "설치 후 「연결」을 눌러 주세요",
-            quick: <ExtensionConnectButton label="연결" />,
+            quick: <ExtensionConnectButton label="연결" compact />,
             issue: { href: "/downloads/realty-listing-alert-extension-latest.zip", label: "⬇ 받기" },
             openLabel: "설치·PC",
             detail: (<>

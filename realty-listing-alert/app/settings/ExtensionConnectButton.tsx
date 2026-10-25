@@ -8,7 +8,7 @@ import { createExtensionToken, retireStaleAutoTokens } from "@/lib/tokenActions"
 
 type State = { kind: "idle" | "working" | "done" | "error"; message: string };
 
-export default function ExtensionConnectButton({ auto = false, label = "확장 프로그램 바로 연결" }: { auto?: boolean; label?: string }) {
+export default function ExtensionConnectButton({ auto = false, label = "확장 프로그램 바로 연결", compact = false }: { auto?: boolean; label?: string; compact?: boolean }) {
   const [state, setState] = useState<State>({ kind: "idle", message: "" });
   const started = useRef(false);
 
@@ -34,6 +34,11 @@ export default function ExtensionConnectButton({ auto = false, label = "확장 �
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auto]);
 
+  // compact: 설정 표 한 줄 안 — 결과는 버튼 글자로 짧게, 오류만 문구로(2026-10-25 주인님 「한 행으로 죽 보이게」)
+  if (compact) return <div className="extension-connect compact">
+    <button type="button" onClick={connect} disabled={state.kind === "working"} title={state.message || undefined}>{state.kind === "working" ? "연결 중..." : state.kind === "done" ? "✓ 연결됨" : label}</button>
+    {state.kind === "error" && <p className="token-error">{state.message}</p>}
+  </div>;
   return <div className="extension-connect">
     <button type="button" onClick={connect} disabled={state.kind === "working"}>{state.kind === "working" ? "연결 중..." : label}</button>
     {state.message && <p className={state.kind === "error" ? "token-error" : "extension-connect-status"}>{state.message}</p>}
