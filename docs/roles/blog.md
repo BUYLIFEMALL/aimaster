@@ -1,10 +1,10 @@
 # 블로그
 
-- 담당: **Codex(인계 대기, 2026-10-25 주인님 지시)** — 이전 Claude Code(윈도우) `claude-win-20261024-blog3`·`claude-win-20261023-blog2`. 인계 문서: [`docs/HANDOFF_20261025_BLOG_TO_CODEX.md`](../HANDOFF_20261025_BLOG_TO_CODEX.md)(먼저 읽기). 작업 브라우저는 Codex 규칙대로 엣지.
+- 담당: **Codex(윈도우·엣지), 세션 `codex-win-20261025-blog`** — 2026-10-25 주인님 명시 인수. 이전 Claude Code `claude-win-20261024-blog3`. [인계 문서](../HANDOFF_20261025_BLOG_TO_CODEX.md).
 - 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-25 `claude-win-20261024-blog3` (Codex 인계 — 실제 입력 실패 원인 확인: 메인 크롬 확장 계정 미연결)
+- 마지막 갱신: 2026-10-25 `codex-win-20261025-blog` — 인계 문서 확인·ACTIVE_WORK 인수. 확장/배포/DB 읽기 점검 후 실제 입력 시험 준비, 주인님 직접 계정 연결·네이버 로그인 필요 여부 확인.
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
