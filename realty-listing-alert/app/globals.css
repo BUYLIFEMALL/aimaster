@@ -727,3 +727,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-status-row > span { flex: 1 1 260px; }
 .ra-status-row > button { flex: none; }
 .ra-toggle-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+/* 켜기 칩 한 줄(2026-10-25 주인님 「버튼 크기가 달라서 한줄로 맞추고」): 옆 버튼과 높이 맞춤 */
+.ra-chip.big.oneline { align-items: center; padding: 10px 16px; min-height: 44px; }
+.ra-chip.big.oneline span { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ra-toggle-row > button { min-height: 44px; }
