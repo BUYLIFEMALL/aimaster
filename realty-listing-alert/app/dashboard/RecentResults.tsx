@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 import PriceChange, { TradeGap } from "@/app/results/PriceChange";
+import { SORTS, floorText, sortFilterRows, type SortId } from "@/lib/resultSort";
 
 type Result = { at: string; result: string; columns: string[] | null; table: unknown[][]; perTarget: { name: string; total: number; events: number; firstRun: boolean }[] } | null;
 type Summary = { lastRunAt: string | null; lastCount: number | null; lastResult: string | null };
@@ -19,6 +20,10 @@ export default function RecentResults({ email, summary }: { email: string; summa
   const [res, setRes] = useState<Result | undefined>(undefined); // undefined = 묻는 중, null = 확장 없음·다른 계정
   const [all, setAll] = useState(false);
   const [limit, setLimit] = useState(PAGE); // 화면에 그릴 줄 수 — 「더 보기」로 늘린다(2026-10-25 주인님 「결과 표 줄 수 늘리기」)
+  // 정렬·거르기(v1.29 확장 제안 F) — 화면 안에서만
+  const [trade, setTrade] = useState("전체");
+  const [bargainOnly, setBargainOnly] = useState(false);
+  const [sort, setSort] = useState<SortId>("default");
 
   useEffect(() => {
     let alive = true;
@@ -36,9 +41,11 @@ export default function RecentResults({ email, summary }: { email: string; summa
     const changed = res.table.filter(isChanged).length;
     // 변동이 0건이면 처음부터 전체 매물을 보여 준다(2026-10-25 주인님 「바로 수집된 내용이 보여야 하지 않나?」)
     const showAll = all || changed === 0;
-    const rows = showAll ? res.table : res.table.filter(isChanged);
-    return { idx, statusAt, rows: rows.slice(0, limit), more: rows.length - Math.min(rows.length, limit), changed, showAll, total: res.table.length };
-  }, [res, all, limit]);
+    const base = showAll ? res.table : res.table.filter(isChanged);
+    const at = (name: string) => res.columns!.indexOf(name);
+    const rows = sortFilterRows(base, { trade: at("거래 종류"), price: at("가격(만 원)"), area: at("전용면적(㎡)"), floor: at("층"), gap: at("실거래 대비"), bargain: at("급매") }, { trade, bargainOnly, sort });
+    return { idx, statusAt, rows: rows.slice(0, limit), more: rows.length - Math.min(rows.length, limit), changed, showAll, total: res.table.length, shown: rows.length, base: base.length };
+  }, [res, all, limit, trade, bargainOnly, sort]);
 
   return (
     <section className="card" id="results" aria-labelledby="results-title">
@@ -70,12 +77,18 @@ export default function RecentResults({ email, summary }: { email: string; summa
                 </span>
                 {view.changed > 0 && <button type="button" className="secondary" onClick={() => setAll((v) => !v)}>{all ? "변동만 보기" : "전체 보기"}</button>}
               </div>
+              <div className="ra-sortbar">
+                {["전체", "매매", "전세", "월세"].map((t) => <button key={t} type="button" className={trade === t ? "on" : ""} onClick={() => { setTrade(t); setLimit(PAGE); }}>{t}</button>)}
+                <button type="button" className={bargainOnly ? "on hot" : ""} onClick={() => { setBargainOnly((v) => !v); setLimit(PAGE); }}>🔥 급매만</button>
+                <select aria-label="정렬" value={sort} onChange={(e) => setSort(e.target.value as SortId)}>{SORTS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select>
+                {view.shown !== view.base && <span className="card-caption">{view.shown.toLocaleString("ko-KR")}건 / {view.base.toLocaleString("ko-KR")}건</span>}
+              </div>
               {view.rows.length === 0 ? (
-                <p className="card-caption">수집된 매물이 없어요.</p>
+                <p className="card-caption">{view.base > 0 ? "조건에 맞는 매물이 없어요. 위 거르기를 바꿔 보세요." : "수집된 매물이 없어요."}</p>
               ) : (
                 <div className="ra-result-wrap">
                   <table className="ra-result">
-                    <thead><tr>{SHOW.map((c) => <th key={c}>{c === "네이버 매물 주소" ? "네이버" : c === "이전 가격" ? "가격 변동" : c}</th>)}</tr></thead>
+                    <thead><tr>{SHOW.map((c) => <th key={c}>{c === "네이버 매물 주소" ? "네이버" : c === "이전 가격" ? "가격 변동" : c === "층" ? "층(해당/전체)" : c}</th>)}</tr></thead>
                     <tbody>
                       {view.rows.map((r, i) => (
                         <tr key={i}>
@@ -84,6 +97,7 @@ export default function RecentResults({ email, summary }: { email: string; summa
                             // 가격 변동(2026-10-25 주인님 지시): 오름 파란 ▲ · 내림 빨간 ▼ · 그대로 ➖ — 상태 칸 대신
                             if (SHOW[k] === "이전 가격") return <td key={k}><PriceChange status={view.statusAt >= 0 ? r[view.statusAt] : ""} prev={v} /></td>;
                             if (SHOW[k] === "실거래 대비") return <td key={k}><TradeGap value={v} /></td>;
+                            if (SHOW[k] === "층") return <td key={k} className="ra-nowrap">{floorText(v)}</td>;
                             if (SHOW[k] === "급매") return <td key={k} className="ra-bargain">{String(v ?? "")}</td>;
                             if (SHOW[k] === "네이버 매물 주소") {
                               return <td key={k}>{typeof v === "string" && /^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(v) ? <a href={v} target="_blank" rel="noopener noreferrer">보기 ↗</a> : ""}</td>;
