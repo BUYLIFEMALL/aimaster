@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 
 // 답변(assistant) 표시용. react-markdown은 원본 HTML을 렌더링하지 않으므로 모델 출력에 태그가 섞여도 안전하다.
 const components: Components = {
-  p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
+  p: ({ children }) => <p className="my-2 whitespace-pre-line first:mt-0 last:mb-0">{children}</p>,
   strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
   ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-5">{children}</ul>,
   ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 pl-5">{children}</ol>,
