@@ -55,6 +55,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| music | v1.47 · 2026-10-25 ([역할: design] Antigravity(윈도우, 웨일) gy-win-20261025-ext3d, 빌드 1회) | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 세트 & 음악기획·생성 3D 엠보싱 버튼 규격화 배포 완료 |
 | `realty-listing-alert` | v1.14 · 2026-10-25 ([역할: realty] `claude-win-20261024-realty`, 승인 빌드 1회) | 중개사 번호 조금씩 채워 기억(새·변동 매물 먼저, 남는 여유로 번호 모르는 매물을 회차당 최대 20건 — 회원 PC `chrome.storage` `phones`에 기억, 30일 뒤 정리, 서버로 안 보냄), 수집 결과 화면은 변동 0건이면 바로 전체 표(「이번엔 변동 없음 · 지금 매물 n건」) |
 | `detail-page-12p` | v1.12 · 2026-10-25 ([역할: design] Antigravity(윈도우, 웨일) `agy-win-20261025-ext3d`, 빌드 1회) | Google AI Studio 키 발급 2단 퀵액션 버튼 세트 및 12단/9단 일괄 기획·렌더링 3D 엠보싱 버튼 탑재 |
 | `realty-listing-alert` | v1.13 · 2026-10-25 ([역할: realty] `claude-win-20261024-realty`, 승인 빌드 1회) | 왼쪽 메뉴 「4 · 📄 수집 결과」(주인님 「좌측에 메뉴는 보여야 할꺼 아냐」 「그래야 직관적이지」) — 전용 화면 `/results`(대시보드 결과 표와 같은 컴포넌트) (`948ef29cc`) |

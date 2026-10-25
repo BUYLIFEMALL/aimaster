@@ -85,7 +85,7 @@ export function PlanningForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-60 text-white font-black py-4 px-6 shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-sm tracking-wide"
+          className="btn-3d-primary w-full py-4 px-6 text-sm sm:text-base tracking-wide"
         >
           {isPending ? "⚡ AI가 곡 기획 및 프롬프트 설계 중..." : "🎼 곡 기획 시작하기"}
         </button>

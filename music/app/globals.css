@@ -38,3 +38,154 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #3f3f46;
 }
+
+
+/* ========================================================
+   3D 엠보싱 버튼 규격화 (사이버 수노 다크 스튜디오 테마)
+   DESIGN.md 원칙 21 및 PROGRAM_DESIGN_STANDARD.md §6.6 준수
+   ======================================================== */
+.btn-3d-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+  border: 1px solid #ff7849;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 0 #9a3412, 0 6px 12px rgba(249, 115, 22, 0.35);
+  transition: all 0.12s ease-in-out;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn-3d-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 5.5px 0 #9a3412, 0 8px 16px rgba(249, 115, 22, 0.45);
+}
+
+.btn-3d-primary:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #9a3412, 0 2px 4px rgba(249, 115, 22, 0.2);
+}
+
+.btn-3d-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-3d-emerald {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border: 1px solid #34d399;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 0 #047857, 0 6px 12px rgba(16, 185, 129, 0.35);
+  transition: all 0.12s ease-in-out;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn-3d-emerald:hover:not(:disabled) {
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 5.5px 0 #047857, 0 8px 16px rgba(16, 185, 129, 0.45);
+}
+
+.btn-3d-emerald:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #047857, 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.btn-3d-amber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+  border: 1px solid #fbbf24;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 0 #b45309, 0 6px 12px rgba(245, 158, 11, 0.35);
+  transition: all 0.12s ease-in-out;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn-3d-amber:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 5.5px 0 #b45309, 0 8px 16px rgba(245, 158, 11, 0.45);
+}
+
+.btn-3d-amber:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #b45309, 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+
+/* API 키 발급 및 가입 2단 퀵액션 버튼 세트 */
+.btn-create-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #ffffff;
+  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+  border: 1px solid #ff7849;
+  border-radius: 0.625rem;
+  padding: 0.45rem 0.85rem;
+  box-shadow: 0 3px 0 #9a3412, 0 4px 8px rgba(249, 115, 22, 0.25);
+  transition: all 0.12s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-create-key:hover {
+  background: linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4.5px 0 #9a3412, 0 6px 12px rgba(249, 115, 22, 0.35);
+}
+
+.btn-create-key:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 #9a3412;
+}
+
+.btn-platform-signup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #d4d4d8;
+  background: linear-gradient(180deg, #272738 0%, #1a1926 100%);
+  border: 1px solid #3f3f50;
+  border-radius: 0.625rem;
+  padding: 0.45rem 0.85rem;
+  box-shadow: 0 3px 0 #0d0d14, 0 4px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.12s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-platform-signup:hover {
+  background: linear-gradient(180deg, #323246 0%, #222130 100%);
+  color: #ffffff;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4.5px 0 #0d0d14, 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.btn-platform-signup:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 #0d0d14;
+}

@@ -36,9 +36,9 @@ export function ApiKeyRequiredModal({ missingLabels, onClose }: ApiKeyRequiredMo
           </button>
           <Link
             href="/settings"
-            className="px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md shadow-orange-500/20 transition-all"
+            className="btn-3d-primary px-5 py-2 text-xs"
           >
-            키 설정하러 가기
+            키 설정하러 가기 ↗
           </Link>
         </div>
       </div>

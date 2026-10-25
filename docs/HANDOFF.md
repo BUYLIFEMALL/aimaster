@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## [역할: design] 2026-10-25 음악(SUNO)자동화 (music) v1.47 4대 플랫폼 키발급 2단버튼 & 3D 실행버튼 배포 및 네이버 웨일 검수 완료
+
+- **프로그램**: 음악(SUNO)자동화 (`music`, 서비스 slug: `music-automation`, 버전: `v1.47`)
+- **디자인 템플릿**: `사이버 수노 다크 스튜디오 스타일` (DESIGN.md 원칙 22 준수 - 1: 어떤 템플릿, 2: 어떤 스타일, 3: 선정 이유 3대 기준 명시 완료)
+- **작업 내용**:
+  1. `ApiKeyRow.tsx`: Suno AI, OpenAI, Claude, Google Gemini 4대 플랫폼 공식 키 발급 바로가기(`.btn-create-key`) + 가입 바로가기(`.btn-platform-signup`) 2단 퀵액션 버튼 세트 및 3D 저장 버튼 탑재.
+  2. `ApiKeyRequiredModal.tsx`: 키 설정하러 가기 3D 버튼(`.btn-3d-primary`) 적용.
+  3. `globals.css`: 사이버 수노 오렌지 테마 3D 엠보싱 버튼 표준 규격 탑재 (물리적 4px 눌림 모션).
+  4. `plannings/page.tsx` & `PlanningForm.tsx` & `GenerateTracksPanel.tsx`: "+ 새 곡 기획하기", "🎼 곡 기획 시작하기", "🚀 지금 음악 생성하기" 핵심 전환/실행 버튼 3D 엠보싱화.
+  5. `guide/page.tsx`: 상단 히어로 배너에 3D 새 곡 기획 바로가기 버튼 추가.
+  6. Vercel 프로덕션 배포 (`https://music-d7i4i9noi-buylife.vercel.app`, 도메인 `https://music-automation.buylife.xyz`), DB 버전 `v1.47` 동기화 완료.
+  7. 네이버 웨일(Whale) 포그라운드 실제 창(1440x900) 실세션 검수 완료 (`music_v147_plannings_whale.png`, `music_v147_settings_whale.png`, `music_v147_guide_whale.png`, `music_v147_new_whale.png`).
+- **세션**: `agy-win-20261025-ext3d`
+
 ## [역할: design] 2026-10-25 INSTA 포스팅 자동화 (insta_auto_poster) v1.70 7대 플랫폼 키발급 2단버튼 & 3D 실행버튼 배포 및 네이버 웨일 검수 완료
 
 - **프로그램**: INSTA 포스팅 자동화 (`insta_auto_poster`, 서비스 slug: `auto-instagram-posting`, 버전: `v1.70`)

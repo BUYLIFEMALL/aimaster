@@ -62,7 +62,7 @@ export default async function PlanningsPage() {
 
         <Link
           href="/plannings/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          className="btn-3d-primary px-5 py-2.5 text-sm"
         >
           <span className="text-base leading-none">+</span>
           <span>새 곡 기획하기</span>

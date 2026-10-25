@@ -26,9 +26,15 @@ export default async function GuidePage() {
               Suno AI 음악 자동화 사용 가이드북
             </h1>
           </div>
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/30">
-            Cyber Suno Studio Guide
-          </span>
+          <div className="flex items-center gap-2">
+            <Link href="/plannings/new" className="btn-3d-primary px-4 py-2 text-xs">
+              <span>🎵</span>
+              <span>새 곡 기획하기</span>
+            </Link>
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/30">
+              Cyber Suno Studio Guide
+            </span>
+          </div>
         </div>
         <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
           주제 기획부터 Suno 최신 엔진 음원 생성, 곡 연장(Extend), MR/보컬 분리, 방송용 WAV 추출,
