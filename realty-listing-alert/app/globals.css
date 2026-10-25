@@ -812,3 +812,4 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .kg .guide-two { margin-top: 16px; }
 .ra-kakao-steps .ra-inline-form { margin-top: 8px; } .ra-kakao-steps .kg-copy { margin-top: 6px; } .ra-kakao-state { display: block; margin-top: 6px; color: #b45309; }
 .kg-path { display: inline-block; margin-bottom: 2px; padding: 3px 10px; border-radius: 8px; background: #eef6ff; color: #1d4ed8; font-weight: 800; font-size: 13px; } .kg-path b { color: #1e3a8a; }
+@media (max-width: 680px) { .ra-stat.split small { white-space: nowrap; font-size: 11px; letter-spacing: -0.03em; } .ra-chart svg text { font-size: 17px; } } /* 휴대폰 폭 검수(2026-10-25): 「가격 내림」 줄바꿈·그래프 축 글자 7px로 작아짐 */
