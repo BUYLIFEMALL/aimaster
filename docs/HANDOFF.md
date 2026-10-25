@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 📋 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 남은 작업 담당 배정(분석·플랜·배정 역할 확정)
+- 주인님 지시: 「너는 프로그램을 분석 하고 개발플랜을 세우고 담당자를 배정하는게 주 업무야」 · 「카카오 담당은 다른 작업자가 할꺼야」. 배정표 전체: [`docs/roles/analysis-planning.md`](roles/analysis-planning.md) 「담당 배정표」.
+- **배정(각 담당은 작업 전 근거 문서를 읽고 역할 파일 대기 칸에 옮겨 적기)**: `ecommerce-image` → 쇼핑몰 흐름 E1→E9→E2~E5 · `video` → V1~V7(순서 주인님 결정 대기) + DUP-4 Shots 업로드 중복 방지(YT-U7) · `realty` → 매물 수집기 N1·N2, `real_estate_sales` 당해 연도·30일 정리 · `blog` → `blog-neighbor-care` · `workspace` → `ebook-studio` v1.12(본인 키·API 권한·내부 주소 차단).
+- 카카오·CRM 새 작업자(주인님 지정 예정): 오픈채팅방 기능(`kakao_auto_poster`, `lib/openchat/`, 확장 없음 → 남의 방 주제 조사는 확장 새로 필요) · DUP-1 재발송 막기(CRM-P4) · CRM-P5·P6 · DUP-2 구글폼 2회 발송. 참고: `kakao_auto_poster` v1.30, 미배포 대기 2건(`22c6cda35`·`36d0a4fdc`).
+- **새 담당 필요(맞는 역할 없음)**: 인스타·쓰레드(DUP-5 중복 게시 최우선) · 네이버 카페(DUP-3) · 성격·운세(`tarot` v1.27 등).
+- 정리: 요청함 「E0 수수료표 처리 시점」은 상품소싱 v1.26으로 처리됨 → 필요 없음. 코드·DB·빌드 변경 없음.
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.13 왼쪽 메뉴 수집 결과
 - 한 일: 왼쪽 메뉴 「4 · 📄 수집 결과」(주인님 「좌측에 메뉴는 보여야 할꺼 아냐」 「그래야 직관적이지」) — 전용 화면 `/results`(대시보드 결과 표와 같은 컴포넌트). 확장 1.13.0/v1.13(코드 같음, 버전 맞춤).
 - 검수: 시험 31개·tsc·eslint·build, 배포 `realty-listing-alert-6853xdxvy` Ready, 크롬 운영 `/results`에서 왼쪽 메뉴 4번·화면 확인. **결과 표 실물은 미확인** — v1.12 이후 새 수집이 아직 없어 「예전 확장 결과」 안내만 보임(오늘 하루 한도 도달 가능성, 팝업 최근 기록 확인 필요). v1.12 DB 버전 SQL은 주인님 요청으로 Claude가 크롬 SQL 편집기에서 실행(결과 v1.12·check-extension-release OK). v1.13 SQL은 편집기 입력, 주인님 Run 대기.

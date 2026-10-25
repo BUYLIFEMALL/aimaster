@@ -3,8 +3,8 @@
 - 담당: Claude Code(윈도우) `claude-win-dotori`
 - 맡은 폴더: 저장소 `docs/`(분석 보고서·플랜·지침). 프로그램 코드는 맡지 않음
 - 카테고리: 전체(외부 프로그램 분석)
-- 주력 업무: 외부·신규 프로그램 정적 분석(`D:\PDS\Program_dev`), 우리 프로그램 비교, 배치 추천, 개발 플랜, 담당 인계. **구현·배포는 하지 않음**
-- 마지막 갱신: 2026-10-25 05:40 `claude-win-dotori` [역할: analysis-planning] 
+- 주력 업무: **프로그램 분석 → 개발 플랜 → 담당자 배정**(2026-10-25 주인님 「너는 프로그램을 분석 하고 개발플랜을 세우고 담당자를 배정하는게 주 업무야」) — 외부·신규 프로그램 정적 분석(`D:\PDS\Program_dev`), 우리 프로그램 비교, 개발 플랜, 작업마다 맞는 담당 역할 배정·인계(맞는 역할이 없으면 새 담당 필요로 주인님께). **구현·배포는 하지 않음**
+- 마지막 갱신: 2026-10-25 06:00 `claude-win-dotori` [역할: analysis-planning] 
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -26,6 +26,21 @@
 | 🔁 DUP-4 `shots`(Shots) | 유튜브·인스타 업로드 중복 방지 서버 조건(YT-U7) | 담당 지정 | `docs/YOUTUBE_CONSOLIDATION_TASKS.md` |
 | 🔁 DUP-5 `insta_auto_poster` + 사본(인플루언서·웹툰·4컷) | 게시 엔진 시간 초과 재시도(`postGraphWithRetry`) 중단 — 공용 사본이라 기준 코드 1곳 수정 후 사본 동기화(INC-D1) | 담당 지정 | `docs/INSTAGRAM_CONSOLIDATION_TASKS.md` |
 | 🏠 새 프로그램 `realty-listing-alert`(구조·이름·간격 결정 완료, 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`) | **네이버 부동산 매물 무인 수집·정리·알림** — 회원 PC(1단계 크롬 확장 → 2단계 PC 프로그램)에서만 네이버 접속, 우리 서버 요청 0·데이터 미보관, 텔레그램(엑셀 첨부)·이메일·파일 · 쿠키 추출기(EXT-RE-02) 함께 검토 · N1·N2는 `real_estate_sales` | ✅ 담당 지정됨 → [realty](realty.md) `claude-win-20261024-realty`로 인계(2026-10-24) · 0단계 승인은 담당이 여쭘 | `docs/analysis-naver-realty-collector-20261024/PLAN_20261024_LIVE_LISTINGS.md` |
+
+## 담당 배정표 (2026-10-25, 이 역할이 배정 — 주인님 「담당자를 배정하는게 주 업무」)
+| 작업 | 배정 담당 | 상태·남은 것 | 근거 |
+|---|---|---|---|
+| 🛒 쇼핑몰 흐름 E1→E9→E2~E5 | `ecommerce-image` | E0·E6·E7 완료, 다음 E1 | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md` |
+| 🎬 영상 V1~V7 | `video` | 🙋 순서 결정 대기 | `HANDOFF_20261024_VIDEO.md` |
+| 🎬 DUP-4 Shots 업로드 중복 방지(YT-U7) | `video`(유튜브·멀티미디어 같은 카테고리, 작은 수정) | 미착수 | `docs/YOUTUBE_CONSOLIDATION_TASKS.md` |
+| 🏠 `realty-listing-alert` 0단계 이후 | `realty` | 진행 중 | 부동산 인수인계 |
+| 🏠 매물 수집기 N1·N2 · 부동산 AI 분석 당해 연도·30일 정리 | `realty`(`real_estate_sales` 배정) | 미착수 | `PLAN_20261024_LIVE_LISTINGS.md` · 연도 플랜 §3 |
+| 📝 `blog-neighbor-care` | `blog` | 시작 시점은 담당 | `PLAN_20261024_BLOG_NEIGHBOR_CARE.md` |
+| 🔐 `ebook-studio` v1.12(본인 키·권한·내부 주소 차단) | `workspace`(업무자동화 같은 카테고리) | 미착수, 빌드 승인은 담당이 | `docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §1 |
+| 💬 오픈채팅방 기능 · DUP-1(재발송) · CRM-P5·P6 · DUP-2(구글폼 2회 발송) | 카카오·CRM 새 작업자(주인님 지정 예정 — 「카카오 담당은 다른 작업자가 할꺼야」) | 작업자 정해지면 인계 | `PLAN_20261024_SHOP_BUSINESS_FLOW.md` §7-1 · `docs/CRM_CONSOLIDATION_TASKS.md` |
+| 📸 DUP-5 인스타 중복 게시(최우선) · 쓰레드 연도·캐시 | **새 담당 필요**(인스타·쓰레드) | 맞는 역할 없음 | `docs/INSTAGRAM_CONSOLIDATION_TASKS.md` |
+| 🟢 DUP-3 네이버 카페 재게시·연도·공개 저장소 | **새 담당 필요**(네이버 카페) | 맞는 역할 없음 | `docs/NAVER_CONSOLIDATION_TASKS.md` |
+| 🔮 `tarot` v1.27 · 캐릭코드·성격 30일 정리·상표명 | **새 담당 필요**(성격·운세) | 맞는 역할 없음 | 연도 플랜 §2 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
