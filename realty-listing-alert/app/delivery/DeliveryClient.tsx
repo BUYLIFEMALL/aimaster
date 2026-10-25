@@ -418,7 +418,7 @@ function ReceiveCard({ telegram, kakao, email, ai, initial }: { telegram: Telegr
         <div className="ra-recv-row">
           <b>📨 텔레그램</b>
           <span className={`ra-status ${telegram ? "on" : "off"}`}>{telegram ? `✅ @${telegram.botUsername ?? "봇"}` : "⚪ 연결 전"}</span>
-          <div className="ra-recv-ctl">{telegram ? <small>요약·파일은 아래 「무엇을 보낼까요?」에서 골라요</small> : goSetup("telegram")}</div>
+          <div className="ra-recv-ctl">{telegram ? <small>요약 + 엑셀 파일을 받아요</small> : goSetup("telegram")}</div>
         </div>
         <div className="ra-recv-row">
           <b>💬 카카오톡</b>
@@ -493,6 +493,7 @@ export default function DeliveryClient({ telegram, initial, kakao, email, ai, ch
 
   return (
     <>
+      {/* 「📎 무엇을 보낼까요?」 카드는 2026-10-25 주인님 지시로 뺐다(헷갈림) — 저장값 deliver_telegram·deliver_file·file_format은 기본값(켜짐·켜짐·엑셀)대로 그대로 쓴다 */}
       <ReceiveCard telegram={telegram} kakao={kakao} email={email} ai={ai} initial={channel} />
       <section className="card">
         <h2 className="card-title">🔔 어떤 때 알려 드릴까요?</h2>
@@ -505,27 +506,6 @@ export default function DeliveryClient({ telegram, initial, kakao, email, ai, ch
           ))}
         </div>
         <p className="card-caption">같은 매물은 한 번만 알려 드리고, 가격이 바뀌면 이전 가격과 함께 다시 알려 드려요.</p>
-      </section>
-      <section className="card">
-        <h2 className="card-title">📎 무엇을 보낼까요?</h2>
-        <div className="ra-chips">
-          <label className="ra-chip big">
-            <input type="checkbox" checked={value.deliverTelegram} disabled={pending} onChange={(e) => update({ deliverTelegram: e.target.checked })} />
-            <span><strong>텔레그램 요약</strong><small>새 매물·가격 변동 몇 줄 요약</small></span>
-          </label>
-          <label className="ra-chip big">
-            <input type="checkbox" checked={value.deliverFile} disabled={pending} onChange={(e) => update({ deliverFile: e.target.checked })} />
-            <span><strong>정리 파일 첨부</strong><small>매물 표를 파일로 함께</small></span>
-          </label>
-        </div>
-        <div className="field">
-          <label htmlFor="fileFormat">파일 형식</label>
-          <select id="fileFormat" value={value.fileFormat} disabled={pending} onChange={(e) => update({ fileFormat: e.target.value === "csv" ? "csv" : "xlsx" })}>
-            <option value="xlsx">엑셀(xlsx)</option>
-            <option value="csv">CSV</option>
-          </select>
-        </div>
-        <p className="card-caption">파일은 텔레그램·이메일에 함께 붙어요. 중개사 사무실 번호·휴대폰(없으면 빈칸)도 들어가요 — 새·변동 매물은 바로, 나머지는 회차마다 조금씩 채워요. 회원님 PC 파일과 알림에만, 서버로는 보내지 않아요.</p>
         <Message msg={msg} />
       </section>
     </>
