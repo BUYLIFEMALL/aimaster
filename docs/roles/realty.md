@@ -1,7 +1,7 @@
 # 부동산
 
 - 담당: Claude Code(윈도우) `claude-win-20261024-realty`
-- 맡은 폴더: `realty-listing-alert/`(v1.18 운영, 준비중, 이름 「부동산 실시간 매물 알림」) · 부동산 카테고리 프로그램(`real_estate_sales/` 등은 배정 시)
+- 맡은 폴더: `realty-listing-alert/`(v1.19 운영, 준비중, 이름 「부동산 실시간 매물 알림」) · 부동산 카테고리 프로그램(`real_estate_sales/` 등은 배정 시)
 - 카테고리: 부동산
 - 주력 업무: 새 프로그램 「AI 부동산 매물 알림 자동화」(`realty-listing-alert`) 구현 — 인수인계 [`HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) 기준
 - 마지막 갱신: 2026-10-25 (claude-win-20261024-realty)
@@ -9,7 +9,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `realty-listing-alert` | v1.18 배포(카카오 매뉴얼 7단계), 카카오 연결·시험 메시지 실물 ✅. 미배포 대기: 휴대폰 폭 보정 2개. 다음: 체크리스트 12개 점검 → 정식 공개 결정 | 2026-10-25 | 진행 중 |
+| `realty-listing-alert` | v1.19 배포(실거래가 비교). 다음: 주인님 공공데이터 키 입력 → 실제 국토부 응답 확인 → AI 시세 요약(다음 순서). PC 프로그램은 제외 | 2026-10-25 | 진행 중 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
