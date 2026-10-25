@@ -1,5 +1,7 @@
 "use server";
 
+import type { AiProvider } from "@/lib/aiProviders";
+import { AI_MODELS } from "@/lib/aiModels";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -67,6 +69,20 @@ export async function saveDeliveryAction(input: DeliveryInput): Promise<{ error?
     { onConflict: "user_id" },
   );
   if (error) return { error: `저장에 실패했습니다: ${error.message}` };
+  revalidatePath("/delivery");
+  return {};
+}
+
+// 🤖 AI별 모델 고르기(설정 화면, 2026-10-25) — 블로그 SEO 스튜디오와 같은 모델 목록(lib/aiModels.ts). 다른 AI의 고른 값은 그대로 둔다.
+export async function saveAiModelAction(provider: AiProvider, model: string): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  if (!AI_MODELS[provider]?.some((m) => m.value === model)) return { error: "목록에 없는 모델이에요." };
+  const supabase = await createClient();
+  const { data } = await supabase.from("realty_alert_settings").select("ai_models").eq("user_id", user.id).maybeSingle();
+  const ai_models = { ...((data?.ai_models as Record<string, string> | null) ?? {}), [provider]: model };
+  const { error } = await supabase.from("realty_alert_settings").upsert({ user_id: user.id, ai_models, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  if (error) return { error: `저장에 실패했습니다: ${error.message}` };
+  revalidatePath("/settings");
   revalidatePath("/delivery");
   return {};
 }

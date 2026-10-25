@@ -34,7 +34,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     getKakaoState(service, user.id, false),
     getResendKey(service, user.id),
     getAiKeyStatus(service, user.id),
-    supabase.from("realty_alert_settings").select("notify_kakao, notify_email, email_to, notify_ai_summary, ai_provider").eq("user_id", user.id).maybeSingle(),
+    supabase.from("realty_alert_settings").select("notify_kakao, notify_email, email_to, notify_ai_summary, ai_provider, ai_models").eq("user_id", user.id).maybeSingle(),
   ]);
   const { data: tokens } = await supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", PROGRAM_SLUG).is("revoked_at", null).order("created_at", { ascending: false });
 
@@ -70,7 +70,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         />
         <div className="settings-divider" />
         <h2 id="ai">🤖 AI 시세 요약 키(선택)</h2>
-        <AiKeysCard ai={aiKeys} />
+        <AiKeysCard ai={aiKeys} models={(ch?.ai_models as Record<string, string> | null) ?? {}} />
         <div className="settings-divider" />
         <h2>🏛 실거래가 비교(공공데이터 키, 선택)</h2>
         <KeyHowTo ids={["publicData"]} title="공공데이터 키 가져오는 법" />

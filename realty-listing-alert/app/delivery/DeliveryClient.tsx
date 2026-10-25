@@ -3,7 +3,8 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
-import { saveChannelAction, saveDeliveryAction } from "@/lib/actions/settings";
+import { saveAiModelAction, saveChannelAction, saveDeliveryAction } from "@/lib/actions/settings";
+import { AI_MODELS, resolveAiModel } from "@/lib/aiModels";
 import { deleteResendKeyAction, saveAiKeyAction, saveKakaoKeysAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction, startKakaoConnectAction } from "@/lib/actions/notify";
 import CopyText from "@/components/CopyText";
 import { KAKAO_REDIRECT_URI } from "@/lib/kakaoOAuth";
@@ -320,10 +321,23 @@ function EmailCard({ email, emailTo, onEmailTo, disabled }: { email: EmailInfo; 
 
 // 🤖 AI 키(설정 화면) — AI 시세 요약에 쓸 회원 본인 키. 공용 user_api_keys라 다른 AIMaster 프로그램과 함께 쓴다(그래서 여기서 지우지 않음).
 // 켜기·쓸 AI 고르기는 「받는 방법」 화면(ReceiveCard)에서.
-function AiKeyRow({ id, has }: { id: AiProvider; has: boolean }) {
+function AiKeyRow({ id, has, model: savedModel }: { id: AiProvider; has: boolean; model: string }) {
   const router = useRouter();
   const info = aiProviderInfo(id);
   const [edit, setEdit] = useState(false);
+  // 모델 고르기(최신 ~ 가성비, 블로그 SEO 스튜디오와 같은 목록) — 고르면 바로 저장
+  const [model, setModel] = useState(savedModel);
+  const [modelMsg, setModelMsg] = useState<Msg>(null);
+  const [savingModel, startModel] = useTransition();
+  const pickModel = (v: string) => {
+    const before = model;
+    setModel(v);
+    startModel(async () => {
+      const r = await saveAiModelAction(id, v);
+      setModelMsg(r.error ? { kind: "err", text: r.error } : { kind: "ok", text: `${info.name} 모델을 저장했어요.` });
+      if (r.error) setModel(before);
+    });
+  };
   const [state, action, saving] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
     const r = await saveAiKeyAction(prev, fd);
     if (r.success) { setEdit(false); router.refresh(); }
@@ -337,6 +351,13 @@ function AiKeyRow({ id, has }: { id: AiProvider; has: boolean }) {
         {has && !edit && <button type="button" className="secondary" onClick={() => setEdit(true)}>키 바꾸기</button>}
         <a className="secondary ra-link-btn" href={info.keyUrl} target="_blank" rel="noopener noreferrer">키 만들기 ↗</a>
       </div>
+      <div className="ra-ai-model">
+        <label htmlFor={`aiModel-${id}`}>쓸 모델</label>
+        <select id={`aiModel-${id}`} value={model} disabled={savingModel} onChange={(e) => pickModel(e.target.value)}>
+          {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+        </select>
+      </div>
+      <Message msg={modelMsg} />
       {(!has || edit) && (
         <form action={action} className="ra-inline-form">
           <input type="hidden" name="provider" value={id} />
@@ -351,13 +372,13 @@ function AiKeyRow({ id, has }: { id: AiProvider; has: boolean }) {
   );
 }
 
-export function AiKeysCard({ ai }: { ai: AiInfo }) {
+export function AiKeysCard({ ai, models }: { ai: AiInfo; models: Record<string, string> }) {
   const has: Record<AiProvider, boolean> = { gemini: ai.hasGemini, openai: ai.hasOpenai, claude: ai.hasClaude };
   return (
     <section className="card">
       <div className="ra-card-head"><h2 className="card-title">🤖 AI 키 (선택 — AI 시세 요약)</h2></div>
-      <p className="card-caption">셋 중 하나만 있으면 돼요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요.</p>
-      {AI_PROVIDERS.map((p) => <AiKeyRow key={p.id} id={p.id} has={has[p.id]} />)}
+      <p className="card-caption">셋 중 하나만 있으면 돼요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 모델은 맨 위가 가성비 기본값이고, 아래로 갈수록 최신·고성능이에요(요약은 짧아서 기본값으로 충분해요). 어느 AI를 쓸지는 「받는 방법」에서 골라요.</p>
+      {AI_PROVIDERS.map((p) => <AiKeyRow key={p.id} id={p.id} has={has[p.id]} model={resolveAiModel(p.id, models[p.id])} />)}
     </section>
   );
 }

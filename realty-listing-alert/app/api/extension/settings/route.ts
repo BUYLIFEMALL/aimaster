@@ -5,6 +5,7 @@ import { COLLECT_RULES } from "@/lib/collectRules";
 import { DEFAULT_INTERVAL_MINUTES } from "@/lib/schedule";
 import { APP_VERSION } from "@/lib/version";
 import { aiProviderInfo, toAiProvider } from "@/lib/aiProviders";
+import { resolveAiModel } from "@/lib/aiModels";
 import { getAiKey, getKakaoState, getResendKey } from "@/lib/notifyChannels";
 
 export const dynamic = "force-dynamic";
@@ -58,7 +59,7 @@ export async function GET(request: Request) {
     },
     telegram: tg?.bot_token && tg.chat_id ? { botToken: tg.bot_token, chatId: tg.chat_id } : null,
     kakao: kakaoState ? (kakaoState.status === "ok" ? { accessToken: kakaoState.accessToken } : { error: kakaoState.message }) : null,
-    ai: s?.notify_ai_summary ? (aiKey ? { provider: aiProvider, apiKey: aiKey } : { error: `AI 시세 요약을 켰지만 ${aiProviderInfo(aiProvider).name} 키가 없어요. 다른 AIMaster 프로그램이나 「API키등록·플랫폼연동」에서 등록해 주세요.` }) : null,
+    ai: s?.notify_ai_summary ? (aiKey ? { provider: aiProvider, apiKey: aiKey, model: resolveAiModel(aiProvider, (s?.ai_models as Record<string, string> | null)?.[aiProvider]) } : { error: `AI 시세 요약을 켰지만 ${aiProviderInfo(aiProvider).name} 키가 없어요. 다른 AIMaster 프로그램이나 「API키등록·플랫폼연동」에서 등록해 주세요.` }) : null,
     email: s?.notify_email ? (resendKey && s?.email_to ? { apiKey: resendKey, to: s.email_to } : { error: "이메일 받기를 켰지만 Resend 키나 받는 주소(Resend 가입 메일)가 없어요. 「받는 방법」 화면에서 확인해 주세요." }) : null,
   });
 }

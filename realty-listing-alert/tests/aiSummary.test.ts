@@ -48,3 +48,13 @@ test("쓸 AI 3가지: 이름·키 모양(Claude는 공용 키 anthropic)", async
   assert.equal(claude.keyPattern.test("sk-ant-api03-abcdefghijklmnopqrstuvwxyz"), true);
   assert.equal(claude.keyPattern.test("sk-abcdefghijklmnopqrstuvwxyz"), false);
 });
+
+test("모델 고르기: AI마다 목록(블로그와 같은 목록), 맨 앞이 가성비 기본값, 목록 밖 값은 기본값", async () => {
+  const { AI_MODELS, resolveAiModel } = await import("../lib/aiModels.ts");
+  assert.equal(AI_MODELS.openai[0].value, "gpt-4o-mini");
+  assert.equal(AI_MODELS.claude[0].value, "claude-haiku-4-5");
+  assert.equal(AI_MODELS.gemini[0].value, "gemini-3.5-flash-lite");
+  assert.equal(resolveAiModel("openai", "gpt-6-astra"), "gpt-6-astra");
+  assert.equal(resolveAiModel("claude", "gpt-4o"), "claude-haiku-4-5");
+  assert.equal(resolveAiModel("gemini", undefined), "gemini-3.5-flash-lite");
+});

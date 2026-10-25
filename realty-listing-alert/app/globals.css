@@ -862,3 +862,6 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-ai-key-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .ra-ai-key-head b { min-width: 70px; font-size: 15px; }
 .ra-ai-key-head .secondary { padding: 6px 10px; font-size: 12.5px; }
+.ra-ai-model { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.ra-ai-model label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.ra-ai-model select { max-width: 420px; }
