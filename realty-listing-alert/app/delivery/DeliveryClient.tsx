@@ -319,9 +319,8 @@ function EmailCard({ email, emailTo, onEmailTo, disabled }: { email: EmailInfo; 
   );
 }
 
-// 🤖 AI 시세 요약 엔진(설정 화면, 2026-10-25 주인님 「이런 배열로」 — 엔진마다 상자 하나)
-// 윗줄: 엔진 이름·설명 … [요약에 사용] [🔑 API 키 발급/생성 ↗] (회원가입/콘솔 버튼은 2026-10-25 주인님 「굳이 이런 버튼 필요 없음」으로 뺌)
-// 아랫줄: ○○ API Key [● sk-pro••••FDUA] 연동 완료 [모델 ▼] … [수정] [삭제]  — 「수정」을 누르면 키 칸·모델이 풀리고 [저장][취소].
+// 🤖 AI 시세 요약 엔진(설정 화면, 2026-10-25 주인님 B안 「한 줄 표」 + 「앞에 셀렉트 빼고 선택됨은 색상만 바뀌는 것으로」)
+// 표 한 개에 엔진 3줄: 엔진 | 상태 | API 키 | 모델 | 수정·삭제·발급. 줄(엔진 이름)을 누르면 요약에 쓸 엔진이 되고 그 줄 색만 바뀐다.
 // 키는 공용 user_api_keys라 다른 AIMaster 프로그램과 함께 쓴다 — 삭제하면 그쪽에서도 지워지므로 한 번 더 확인한다.
 function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }: { id: AiProvider; has: boolean; mask: string; selected: boolean; savedModel: string; disabled: boolean; onSelect: () => void }) {
   const router = useRouter();
@@ -357,49 +356,56 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
     setAskDelete(false); setEditing(true); router.refresh();
   });
   return (
-    <div className={`ra-aibox${selected ? " on" : ""}`}>
-      <div className="ra-aibox-head">
-        <span className="ra-aibox-title">{engine.icon} <b>{info.name}</b><small> · {engine.sub} — AI 시세 요약에 사용</small></span>
-        <span className="ra-aibox-actions">
-          <button type="button" className={`ra-use${selected ? " on" : ""}`} aria-pressed={selected} disabled={disabled} onClick={onSelect}>{selected ? "✔ 요약에 사용 중" : "이 엔진으로 요약"}</button>
-          <a className="ra-btn-orange" href={info.keyUrl} target="_blank" rel="noopener noreferrer">🔑 API 키 발급/생성 ↗</a>
-        </span>
-      </div>
-      <div className="ra-aibox-body">
-        {/* 맨 왼쪽 등록 상태(2026-10-25 「맨왼쪽에 등록완료」) */}
-        <span className={`ra-badge ${has ? "on" : "off"}`}>{has ? "✓ 등록완료" : "미등록"}</span>
-        {editing ? (
-          <input className="ra-aibox-input" type="password" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? "새 키(바꿀 때만 — 비우면 기존 키 그대로)" : info.placeholder} />
-        ) : (
-          <>
-            <span className="ra-keychip"><i />{mask}</span>
-          </>
-        )}
-        <select className="ra-aibox-model" aria-label={`${engine.label} 모델`} value={model} disabled={!editing || busy} onChange={(e) => setModel(e.target.value)}>
-          {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-        </select>
-        <span className="ra-aibox-btns">
+    <>
+      <tr className={selected ? "on" : ""}>
+        <td>
+          <button type="button" className="ra-aitbl-engine" aria-pressed={selected} disabled={disabled} onClick={onSelect} title="눌러서 요약에 사용">
+            {engine.icon} <b>{info.name}</b>
+            <small>{selected ? "요약에 사용 중" : "눌러서 사용"}</small>
+          </button>
+        </td>
+        <td><span className={`ra-badge ${has ? "on" : "off"}`}>{has ? "✓ 등록완료" : "미등록"}</span></td>
+        <td>
           {editing ? (
-            <>
-              <button type="button" className="ra-btn-save" disabled={busy} onClick={save}>{busy ? "저장 중..." : "저장"}</button>
-              {has && <button type="button" className="ra-btn-edit" onClick={cancel}>취소</button>}
-            </>
-          ) : askDelete ? (
-            <>
-              <small className="ra-keyask">다른 AIMaster 프로그램에서도 지워져요</small>
-              <button type="button" className="ra-btn-del" disabled={busy} onClick={remove}>삭제</button>
-              <button type="button" className="ra-btn-edit" onClick={() => setAskDelete(false)}>취소</button>
-            </>
+            <input className="ra-aitbl-input" type="password" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? "새 키(비우면 그대로)" : "API 키 붙여넣기"} />
           ) : (
-            <>
-              <button type="button" className="ra-btn-edit" onClick={() => setEditing(true)}>수정</button>
-              <button type="button" className="ra-btn-del" onClick={() => setAskDelete(true)}>삭제</button>
-            </>
+            <span className="ra-keychip"><i />••••{mask.slice(-4)}</span>
           )}
-        </span>
-      </div>
-      <Message msg={msg} />
-    </div>
+        </td>
+        <td>
+          <select className="ra-aitbl-model" aria-label={`${engine.label} 모델`} value={model} disabled={!editing || busy} onChange={(e) => setModel(e.target.value)}>
+            {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+          </select>
+        </td>
+        <td>
+          <span className="ra-aitbl-btns">
+            {editing ? (
+              <>
+                <button type="button" className="ra-btn-save" disabled={busy} onClick={save}>{busy ? "저장 중..." : "저장"}</button>
+                {has && <button type="button" className="ra-btn-edit" onClick={cancel}>취소</button>}
+              </>
+            ) : askDelete ? (
+              <>
+                <button type="button" className="ra-btn-del" disabled={busy} onClick={remove}>정말 삭제</button>
+                <button type="button" className="ra-btn-edit" onClick={() => setAskDelete(false)}>취소</button>
+              </>
+            ) : (
+              <>
+                <button type="button" className="ra-btn-edit" onClick={() => setEditing(true)}>수정</button>
+                <button type="button" className="ra-btn-del" onClick={() => setAskDelete(true)}>삭제</button>
+              </>
+            )}
+            <a className="ra-btn-orange" href={info.keyUrl} target="_blank" rel="noopener noreferrer">발급 ↗</a>
+          </span>
+        </td>
+      </tr>
+      {(msg || askDelete) && (
+        <tr className="ra-aitbl-note"><td colSpan={5}>
+          {askDelete && <small className="ra-keyask">⚠️ 이 키는 다른 AIMaster 프로그램에서도 함께 쓰여요. 삭제하면 그쪽에서도 지워져요.</small>}
+          <Message msg={msg} />
+        </td></tr>
+      )}
+    </>
   );
 }
 
@@ -410,24 +416,31 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
   const [msg, setMsg] = useState<Msg>(null);
   const [pending, start] = useTransition();
   const pickEngine = (id: AiProvider) => {
+    if (id === provider) return;
     const before = provider;
     setProvider(id);
     start(async () => {
       const r = await saveChannelAction({ aiProvider: id });
-      setMsg(r.error ? { kind: "err", text: r.error } : { kind: "ok", text: `${AI_ENGINES.find((e) => e.id === id)!.label} 엔진으로 바꿨어요.` });
+      setMsg(r.error ? { kind: "err", text: r.error } : { kind: "ok", text: `${aiProviderInfo(id).name}로 요약해요.` });
       if (r.error) setProvider(before); else router.refresh();
     });
   };
   return (
     <section className="card ra-engine-card">
       <div className="ra-card-head">
-        <h2 className="card-title">🤖 AI 시세 요약 엔진 선택 <small className="ra-engine-sub">GPT / Claude / Gemini · 선택</small></h2>
-        <span className="ra-status on">요약에 적용</span>
+        <h2 className="card-title">🤖 AI 시세 요약 엔진 <small className="ra-engine-sub">OpenAI / Claude / Gemini · 선택</small></h2>
       </div>
-      <p className="card-caption">엔진마다 키와 모델을 저장하고, 「이 엔진으로 요약」으로 쓸 엔진을 고르세요. 저장한 키·모델은 「수정」으로 바꿔요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
-      {AI_ENGINES.map((e) => (
-        <AiEngineRow key={e.id} id={e.id} has={has[e.id]} mask={ai.masks?.[e.id] ?? ""} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
-      ))}
+      <p className="card-caption">엔진 이름을 누르면 그 줄이 요약에 쓰여요(색이 바뀐 줄). 저장한 키·모델은 「수정」으로 바꿔요.</p>
+      <div className="ra-aitbl-wrap">
+        <table className="ra-aitbl">
+          <thead><tr><th>엔진</th><th>상태</th><th>API 키</th><th>모델</th><th /></tr></thead>
+          <tbody>
+            {AI_ENGINES.map((e) => (
+              <AiEngineRow key={e.id} id={e.id} has={has[e.id]} mask={ai.masks?.[e.id] ?? ""} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Message msg={msg} />
     </section>
   );

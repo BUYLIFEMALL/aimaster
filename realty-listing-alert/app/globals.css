@@ -955,3 +955,20 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-aibox-body .ra-keychip { height: 34px; }
 .ra-aibox-btns { justify-content: flex-end; margin-left: 0; }
 @media (max-width: 767px) { .ra-aibox-body { grid-template-columns: 1fr; } .ra-aibox-btns { justify-content: flex-start; } }
+/* 🤖 AI 엔진 한 줄 표(2026-10-25 B안 — 선택 칸 없이 고른 줄 색만 바뀜) */
+.ra-aitbl-wrap { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-top: 10px; overflow-x: auto; }
+.ra-aitbl { width: 100%; border-collapse: collapse; background: #fff; min-width: 640px; }
+.ra-aitbl th { font-size: 12px; color: var(--muted); text-align: left; padding: 9px 12px; background: #f8fafc; border-bottom: 1px solid var(--line); font-weight: 700; }
+.ra-aitbl td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.ra-aitbl tbody tr:last-child td { border-bottom: 0; }
+.ra-aitbl tr.on > td { background: #fff7e6; }
+.ra-aitbl tr.on > td:first-child { box-shadow: inset 4px 0 0 #f59e0b; }
+.ra-aitbl-engine { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; border: 0; background: transparent; padding: 0; cursor: pointer; font-size: 14px; text-align: left; width: auto; margin: 0; }
+.ra-aitbl-engine small { font-size: 11px; color: var(--muted); font-weight: 600; }
+.ra-aitbl tr.on .ra-aitbl-engine small { color: #c2410c; }
+.ra-aitbl .ra-keychip { height: 32px; box-sizing: border-box; }
+.ra-aitbl-input { width: 100%; height: 32px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; font-size: 12.5px; }
+.ra-aitbl-model { width: 100%; height: 32px; min-width: 180px; }
+.ra-aitbl-model:disabled { background: #f8fafc; color: #111827; opacity: 1; }
+.ra-aitbl-btns { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: nowrap; }
+.ra-aitbl-note td { padding: 0 12px 10px; border-bottom: 1px solid #f1f5f9; }
