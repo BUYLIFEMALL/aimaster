@@ -893,3 +893,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-engine-keyinput { width: 100%; }
 .ra-engine-line > button, .ra-engine-line > a, .ra-engine-line > .ra-status { flex: 0 0 auto; width: auto; margin: 0; }
 .ra-engine-line select { flex: 1 1 200px; }
+/* 저장 버튼 = 상태 표시(2026-10-25 「키 등록됨 빼고 저장 버튼으로 상태」) */
+.ra-save-state { flex: 0 0 auto; width: auto; margin: 0; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.ra-save-state.todo { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+.ra-save-state.done { background: var(--accent-soft); color: var(--accent); border: 1px solid #bfe6cf; cursor: default; opacity: 1; }

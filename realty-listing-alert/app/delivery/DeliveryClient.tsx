@@ -319,9 +319,9 @@ function EmailCard({ email, emailTo, onEmailTo, disabled }: { email: EmailInfo; 
   );
 }
 
-// 🤖 AI 시세 요약 엔진 선택(설정 화면, 2026-10-25 주인님 「이런식으로」「플랫폼 우측에 선택할수 있는 모델을 보여주고 저장」「수정버튼도 옆에」「남는 위치에 API만들기 버튼」 — 기준: threads-content-ops 「AI 글 생성 엔진 선택」)
-// 한 줄: [엔진 카드(누르면 요약에 쓸 엔진)] [세부 실행 모델] [저장|수정] [API 만들기 ↗]. 「수정」을 누르면 모델·API 키를 바꿀 수 있다(키 칸을 비우면 기존 키 그대로).
-// 키는 공용 user_api_keys라 다른 AIMaster 프로그램과 함께 쓴다(그래서 여기서 지우지 않음).
+// 🤖 AI 시세 요약 엔진 선택(설정 화면, 2026-10-25 주인님 「이런식으로」「플랫폼 우측에 선택할수 있는 모델을 보여주고 저장」「수정버튼도 옆에」「남는 위치에 API만들기 버튼」「키 등록됨 표시는 빼고 저장 버튼으로 상태를 표시」 — 기준: threads-content-ops 「AI 글 생성 엔진 선택」)
+// 한 줄: [엔진 카드(누르면 요약에 쓸 엔진)] [세부 실행 모델] [저장 버튼 = 상태(✅ 저장됨 / 저장 / 🔑 키 저장)] [키 수정] [API 만들기 ↗].
+// 키는 공용 user_api_keys라 다른 AIMaster 프로그램과 함께 쓴다(그래서 여기서 지우지 않음). 키 칸을 비우고 저장하면 기존 키 그대로.
 function AiEngineRow({ id, has, selected, savedModel, disabled, onSelect }: { id: AiProvider; has: boolean; selected: boolean; savedModel: string; disabled: boolean; onSelect: () => void }) {
   const router = useRouter();
   const engine = AI_ENGINES.find((e) => e.id === id)!;
@@ -329,9 +329,10 @@ function AiEngineRow({ id, has, selected, savedModel, disabled, onSelect }: { id
   const [model, setModel] = useState(savedModel);
   const [saved, setSaved] = useState(savedModel);
   const [key, setKey] = useState("");
-  const [editing, setEditing] = useState(!has);
+  const [keyOpen, setKeyOpen] = useState(!has);
   const [msg, setMsg] = useState<Msg>(null);
   const [saving, start] = useTransition();
+  const dirty = model !== saved || key.trim() !== "";
   const save = () => start(async () => {
     setMsg(null);
     if (key.trim()) {
@@ -347,11 +348,10 @@ function AiEngineRow({ id, has, selected, savedModel, disabled, onSelect }: { id
       setSaved(model);
     }
     setKey("");
-    setEditing(false);
-    setMsg({ kind: "ok", text: `${engine.label} 설정을 저장했어요.` });
+    setKeyOpen(false);
     router.refresh();
   });
-  const cancel = () => { setModel(saved); setKey(""); setEditing(false); setMsg(null); };
+  const label = saving ? "저장 중..." : !has ? "🔑 키 저장" : dirty ? "저장" : "✅ 저장됨";
   return (
     <div className="ra-engine-row">
       <button type="button" className={`ra-engine${selected ? " on" : ""}`} aria-pressed={selected} disabled={disabled} onClick={onSelect}>
@@ -361,22 +361,15 @@ function AiEngineRow({ id, has, selected, savedModel, disabled, onSelect }: { id
       </button>
       <div className="ra-engine-right">
         <div className="ra-engine-line">
-          <span className={`ra-status ${has ? "on" : "off"}`}>{has ? "✅ 키 등록됨" : "⚪ 키 없음"}</span>
-          <select aria-label={`${engine.label} 세부 실행 모델`} value={model} disabled={!editing || saving} onChange={(e) => setModel(e.target.value)}>
+          <select aria-label={`${engine.label} 세부 실행 모델`} value={model} disabled={saving} onChange={(e) => setModel(e.target.value)}>
             {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
-          {editing ? (
-            <>
-              <button type="button" className="primary" disabled={saving} onClick={save}>{saving ? "저장 중..." : "저장"}</button>
-              {has && <button type="button" className="secondary" disabled={saving} onClick={cancel}>취소</button>}
-            </>
-          ) : (
-            <button type="button" className="secondary" onClick={() => setEditing(true)}>수정</button>
-          )}
+          <button type="button" className={`ra-save-state ${has && !dirty ? "done" : "todo"}`} disabled={saving || (has && !dirty)} onClick={save}>{label}</button>
+          {has && <button type="button" className="secondary" onClick={() => { setKeyOpen(!keyOpen); setKey(""); }}>{keyOpen ? "닫기" : "키 수정"}</button>}
           <a className="secondary ra-link-btn" href={info.keyUrl} target="_blank" rel="noopener noreferrer">API 만들기 ↗</a>
         </div>
-        {editing && (
-          <input className="ra-engine-keyinput" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? `새 ${info.name} API 키(바꿀 때만 — 비우면 기존 키 그대로)` : `🔑 ${info.placeholder}`} />
+        {keyOpen && (
+          <input className="ra-engine-keyinput" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? `새 ${info.name} API 키를 넣고 「저장」(비우면 기존 키 그대로)` : `🔑 ${info.placeholder}`} />
         )}
         <Message msg={msg} />
       </div>
@@ -405,7 +398,7 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
         <h2 className="card-title">🤖 AI 시세 요약 엔진 선택 <small className="ra-engine-sub">GPT / Claude / Gemini · 선택</small></h2>
         <span className="ra-status on">요약에 적용</span>
       </div>
-      <p className="card-caption">왼쪽 카드를 눌러 요약에 쓸 엔진을 고르세요. 모델·API 키를 바꾸려면 「수정」을 누르세요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
+      <p className="card-caption">왼쪽 카드를 눌러 요약에 쓸 엔진을 고르세요. 모델을 고르고 「저장」을 누르세요(저장된 상태면 「✅ 저장됨」). 키를 바꾸려면 「키 수정」. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
       {AI_ENGINES.map((e) => (
         <AiEngineRow key={e.id} id={e.id} has={has[e.id]} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
       ))}
