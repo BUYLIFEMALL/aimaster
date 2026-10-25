@@ -1,5 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — AI 12단 상세페이지 자동화 v1.12 (Gemini 키발급 2단 퀵액션 & 12단/9단 기획·렌더링 3D 엠보싱 실행버튼 전면 탑재)
+- **한 일**:
+  1. **Google Gemini API 키 발급 2단 퀵액션 버튼 세트 탑재 (`src/components/ApiKeyModal.tsx`)**:
+     - Google AI Studio 키 발급 바로가기(`.btn-create-key`: `https://aistudio.google.com/app/apikey`) + 플랫폼 가입(`.btn-platform-signup`: `https://ai.google.dev/`) 2단 세트 탑재.
+     - 키 저장 버튼을 물리적 키캡 4px 눌림 모션의 3D 엠보싱 버튼(`.btn-3d-primary`)으로 업그레이드.
+  2. **주요 링크 및 핵심 실행 버튼 전면 3D 엠보싱화 (`src/app/globals.css`, `ProductInputForm.tsx`, `DetailStudioView.tsx`)**:
+     - **메인 기획 액션**: 「쿠팡 규격 12단 / 스마트스토어 9단 상세페이지 원클릭 일괄 기획하기 🚀」 버튼을 고채도 로열 블루 2단 그라데이션 및 `box-shadow: 0 5px 0 #1e40af` 3D 버튼으로 전환.
+     - **스튜디오 핵심 실행**: 「⚡ 전체 이미지 일괄 렌더링」 (인디고 3D), 「📥 860px 통이미지 다운로드」 (에메랄드 3D) 탑재.
+     - **상세 목업 전환 액션**: 모바일 프리뷰 하단 「바로구매」 버튼 3D 엠보싱화.
+  3. **연동 & 사용 매뉴얼 (`src/components/DetailGuideView.tsx`, `/guide`)**:
+     - 상단 히어로 배너에 3D 엠보싱 원클릭 이동 버튼 탑재 및 초보 셀러 가이드북 시각화 강화.
+  4. **디자인 템플릿 현황판 유지관리 (`DESIGN.md` §2 표 8번)**:
+     - 공식 템플릿을 **`이커머스 셀러 스튜디오 스타일`**로 최적화하고 3대 필수 항목(유형: 포커스 스튜디오 계열 쿠팡 12단/스마트스토어 9단 기획·렌더러 / 스타일: 클린 슬레이트 화이트 + 블루 & 에메랄드 3D 버튼 / 선정이유: 셀러의 단계별 기획·렌더링·통이미지 합성 집중도 극대화 및 클릭 실수 방지) 명시.
+- **검수**:
+  - `npm run build` Turbopack 9/9 라우트 로컬 빌드 성공.
+  - Vercel 프로덕션 배포 Ready (`https://detail-page-12p-4on5zumir-buylife.vercel.app`), Aliased `https://detail-12p.buylife.xyz`.
+  - DB 버전 동기화: `programs.version = 'v1.12'` 완료.
+  - **네이버 웨일(Whale) 실제 창(포그라운드, 1440x900) 실세션 검수 완료**:
+    - 메인 `/` (스펙 입력 및 3D 일괄 기획하기 CTA 버튼, 키 관리 메뉴 정상 확인, `dp12_main_whale.png`)
+    - 매뉴얼 `/guide` (3D 엠보싱 가이드 배너 버튼 및 5단계 실전 가이드 정상 작동 확인, `dp12_guide_whale.png`)
+- **링크**: https://detail-12p.buylife.xyz
+
 ## 2026-10-25 📋 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-dotori` — 남은 작업 담당 배정(분석·플랜·배정 역할 확정)
 - 주인님 지시: 「너는 프로그램을 분석 하고 개발플랜을 세우고 담당자를 배정하는게 주 업무야」 · 「카카오 담당은 다른 작업자가 할꺼야」. 배정표 전체: [`docs/roles/analysis-planning.md`](roles/analysis-planning.md) 「담당 배정표」.
 - **배정(각 담당은 작업 전 근거 문서를 읽고 역할 파일 대기 칸에 옮겨 적기)**: `ecommerce-image` → 쇼핑몰 흐름 E1→E9→E2~E5 · `video` → V1~V7(순서 주인님 결정 대기) + DUP-4 Shots 업로드 중복 방지(YT-U7) · `realty` → 매물 수집기 N1·N2, `real_estate_sales` 당해 연도·30일 정리 · `blog` → `blog-neighbor-care` · `workspace` → `ebook-studio` v1.12(본인 키·API 권한·내부 주소 차단).
