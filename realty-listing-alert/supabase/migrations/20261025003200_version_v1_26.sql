@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.26: API키등록 표 — 좁은 창에서도 가로 스크롤 없음, AI 엔진 두 줄(이름·등록완료·용도·발급 / API 키·모델·수정삭제), 짧은 버튼 글자 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.26', extension_version = 'v1.26', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
