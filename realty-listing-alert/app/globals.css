@@ -917,3 +917,6 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 @media (max-width: 900px) { .ra-key-model { grid-template-columns: 1fr; } }
 .ra-engine-line select:disabled { background: #f8fafc; color: #111827; opacity: 1; cursor: default; }
 .ra-engine-line .ra-keybtn { flex: 0 0 auto; }
+/* 모델 고르기를 키 칸 왼쪽으로(2026-10-25 「좌측에 모델선택 셀렉트」) */
+.ra-key-model { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+.ra-key-model .ra-engine-line { order: -1; }
