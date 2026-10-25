@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.27: 확장 줄 버튼 한 줄·연결 버튼 크기, 텔레그램 동작 뒤 설정 화면 갱신, AI 요약 금액 한국어 표기(확장), 공공데이터 신청 링크 15126469·403 안내 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.27', extension_version = 'v1.27', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
