@@ -20,9 +20,10 @@
 
 ## 작업 중
 
-| aver-blog-seo-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | 사이드바 3D 확장 다운로드 버튼 탑재 & API키 생성버튼/매뉴얼 동기화 & 3D 실행버튼 업그레이드 |
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `ai-doc-chatbot/` (범위: src/lib/chat·src/app/api·src/app/(dashboard)·tests·docs·AGENTS.md) | [역할: docbot-prompt] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-docbot-g4` | 2026-10-25 | 실제 본인 Upstage TXT1/PDF1 업로드·문서 답변·번역/요약·방 재열기 검수, 기존 임베딩3·PDF1·텍스트 예산, 디자인 제외 |
+| i-auto-blog/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | 사이드바 3D 확장 다운로드 버튼 탑재 & API키 생성버튼/매뉴얼 동기화 & 3D 실행버튼 업그레이드 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
 | `realty-listing-alert/` (새 폴더) | [역할: realty] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-realty` | 2026-10-24 | 새 프로그램 「AI 부동산 매물 알림 자동화」 구현 — 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`. 0~3단계·UX 리뉴얼·지역 감시·수집 상한 ✅(v1.08 운영, 준비중). 지금: 카톡·이메일 받기 실물 시험 → 카톡·이메일 받기 |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-blog3` | 2026-10-24 | ③-1 SEO 예약 포스팅 ✅ v2.19(실제 네이버 예약은 주인님 시험 대기) → **다음: 에이전트 ② 간편 모드 실제 입력 시험(크롬 시험 계정 로그인 확인됨)** → ③-2 콘텐츠 메이커 포스팅 → ④ 묶음 E. 미배포 `89d135c4b` |
