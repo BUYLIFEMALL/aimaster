@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AIMaster 부동산 매물 알림",
-  "version": "1.10.0",
-  "version_name": "v1.10",
+  "version": "1.11.0",
+  "version_name": "v1.11",
   "description": "회원 PC에서 회원 본인 계정으로 네이버 부동산 매물을 읽어 정리하고 본인 텔레그램으로 알려 주는 확장 프로그램",
   "permissions": [
     "debugger",
