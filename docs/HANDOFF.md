@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.22 🤖 AI 시세 요약
+
+- **한 일**: 회원 본인 AI 키(공용 `user_api_keys` `gemini`·`openai`)로 확장이 회원 PC에서 하루 1번(그날 첫 수집) 단지별 통계 숫자만 보내 이번 주 시세 흐름 한두 줄(200자)을 만들고, 텔레그램·메일 맨 위(하루 1번, 카톡 제외)와 「수집 결과」 화면 맨 위 카드에 붙임. 중개사 번호·매물 목록은 보내지 않음. 모델: Gemini `gemini-flash-lite-latest` / OpenAI는 회원 키로 보이는 nano→mini 자동 선택.
+- **화면**: 받는 방법·API키등록 두 화면 「🤖 AI 시세 요약」 카드(켜기·쓸 AI 고르기·키 없으면 키 저장 칸). 함께 나간 미배포분: 카카오 연동 방법을 한 항목으로(REST 키·시크릿이 같은 화면), 이메일 안내 2줄(무료 한도·본인 메일만 — 주인님이 내 PC 미리보기로 2안 선택), 연동 방법 상자 정렬.
+- **바뀐 파일**: `extension/lib/aiSummary.js`(새), `extension/background.js`·`manifest.json`(AI 주소 권한 2개), `app/delivery/*`, `app/settings/page.tsx`, `app/results/StatsDashboard.tsx`, `lib/actions/{notify,settings}.ts`, `lib/notifyChannels.ts`, `app/api/extension/settings/route.ts`, `tests/aiSummary.test.ts`(시험 50개 통과).
+- **DB(운영 `esgxyikcnnvmlhygjkth`)**: `realty_alert_settings`에 `notify_ai_summary`(기본 false)·`ai_provider`(gemini|openai) 추가(주인님 승인), 버전 v1.22·확장 v1.22.
+- **검수**: 로컬 tsc·린트·빌드 통과, 배포 Ready, `check-extension-release` OK, 크롬 운영 화면에서 v1.22·이메일 2줄·AI 카드(Gemini 키 있음)·켜기 저장 확인. **못 한 것**: 실제 AI 요약 생성(회원 PC 확장을 v1.22로 업데이트해야 함 — 주인님 확인 대기).
+- **커밋**: `99838c696` 외. **다음 첫 단계**: 주인님이 확장 업데이트 후 「🔍 지금 수집」 → 텔레그램·메일 맨 위 「🤖 AI 한 줄 요약」과 「수집 결과」 카드 확인.
+- https://realty-listing-alert.buylife.xyz
+
 ## [역할: design] 2026-10-25 YOUTUBE 플레이리스트 자동화 (playlist-channel-studio) v1.32 4대 플랫폼 키발급 2단버튼 & 3D 실행버튼 배포 및 네이버 웨일 검수 완료
 
 - **프로그램**: YOUTUBE 플레이리스트 자동화 (`playlist-channel-studio`, 서비스 slug: `playlist-channel-studio`, 버전: `v1.32`)
