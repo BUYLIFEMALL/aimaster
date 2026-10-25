@@ -101,7 +101,7 @@ export function StudioSidebar({
       <aside className="sidebar">
         <div>
           {brand}
-          <div className="brand-sub">내 PC에서 새 매물을 찾아 텔레그램·카톡·메일로</div>
+          <div className="brand-sub">새 매물을 찾아 텔레그램/카톡/메일로</div>
           <a className="sidebar-back" href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</a>
         </div>
         {menu}
