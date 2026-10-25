@@ -1,0 +1,99 @@
+{
+  "at": "2026-10-25T16:02:12.416Z",
+  "session": "codex-win-20261025-blog",
+  "role": "blog",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "version": "v2.22",
+  "codeCommit": "f6cbcdc0a",
+  "dependencies": {
+    "next": {
+      "before": "16.2.11",
+      "after": "16.4.2"
+    },
+    "eslintConfigNext": {
+      "before": "16.2.11",
+      "after": "16.4.2"
+    },
+    "sharp": {
+      "before": "0.34.5",
+      "after": "0.35.5"
+    }
+  },
+  "sources": [
+    "https://nextjs.org/blog/nextjs-security-update-october-14-2026",
+    "https://github.com/vercel/next.js/releases/tag/v16.4.2",
+    "https://github.com/vercel/next.js/security/advisories/GHSA-p3m5-59mp-jv5r"
+  ],
+  "regressions": {
+    "namedTests": 56,
+    "browserLifecycleScenarios": 49,
+    "publishingOwnershipSuite": "passed",
+    "extensionBridgeSuite": "passed",
+    "tsc": "passed",
+    "localBuild": "passed"
+  },
+  "deployment": {
+    "id": "dpl_G38LdsoYvZberabV1vfjm32cAh4V",
+    "url": "naver-blog-agent-krphqarnr-buylife.vercel.app",
+    "state": "READY",
+    "alias": "naver-blog-agent.buylife.xyz"
+  },
+  "live": {
+    "extensionVersionEndpoint": {
+      "status": 200,
+      "latest": "v2.22",
+      "cacheControl": "no-store"
+    },
+    "unauthenticatedPosts": 401,
+    "unauthenticatedSettings": {
+      "status": 307,
+      "location": "/login?redirect=%2Fdashboard"
+    },
+    "loginStatus": 200,
+    "extensionReleaseCheck": "OK DB v2.22 / ext v2.22 / zip v2.22",
+    "runtimeErrorsLast15Minutes": 0,
+    "guideUnauthenticated": 307
+  },
+  "writes": {
+    "programMetadataRows": 1,
+    "siteSettingsOpsOverview": "배포 도우미가 집계 갱신",
+    "memberContent": 0,
+    "keys": 0,
+    "tokens": 0,
+    "permissions": 0,
+    "schema": 0
+  },
+  "includedPending": "89d135c4b",
+  "browser": {
+    "beforeDeploymentWebAccount": "buylifemall@gmail.com",
+    "installedExtensionAtLastReadableSettings": "v2.21",
+    "afterReload": "본문 접근성 관찰 및 캡처 실패",
+    "keyboardError": "window_not_focused",
+    "restoreWindowAlreadyUsed": true,
+    "retryStopped": true,
+    "realInputVerified": false,
+    "finalPublished": 0,
+    "scheduled": 0,
+    "requires": "주인님 직접 Edge 포커스·시험계정 전환·확장연결·네이버 로그인, 옛8연결 해제여부 답변"
+  },
+  "remainingSecurity": [
+    "ai-auto-blog next16.2.10",
+    "tistory-auto-blog next16.2.10",
+    "naver-blog-allinone next16.2.11",
+    "naver-blog-seo-studio next16.3.5 (agy UI 작업 중)"
+  ],
+  "cost": {
+    "vercelBuilds": 1,
+    "aiCalls": 0,
+    "paidImageCalls": 0,
+    "localAgentBuilds": 1,
+    "accidentalRootLocalBuild": "잘못된 workdir로 시작, 즉시 Ctrl+C 중단; 배포 없음",
+    "approval": "담당 인수인계 §4 프로그램별1회 승인 범위"
+  },
+  "limits": [
+    "취약점 의존성 수정 릴리스이며 전체 보안 감사 완료가 아님",
+    "HTTP/모의 성공을 실제 회원 로그인/입력/발행/예약 성공으로 보지 않음",
+    "새 UI 변경·회원 연결/원고 강제 수정 없음",
+    "실제 설치 확장 업데이트 확인은 주인님 작업 뒤 필요"
+  ]
+}

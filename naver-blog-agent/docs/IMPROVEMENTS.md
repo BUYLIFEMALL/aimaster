@@ -325,3 +325,13 @@
 ## 2026-10-25 전체 기능·타 카테고리 연계 분석 공통 레퍼런스
 
 [공통 인수인계](../../docs/analysis-blog-consolidation-20261020/HANDOFF.md)·[최신 분석](../../docs/analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025). 공개8+비공개2/관련23개 대조, 키워드→SEO 누락연계·일정/결과참조·이미지왕복 우선추천. BLOG 무료원고/권한행 차이78명·로컬키/수명/발행결과를 보존하는 조건부기능이관, 실제병합/중단/신규코드변경 미실행. 개발은 본인원본/revision/원래수명 계약 재사용, UI는 목적별입구·중복입력 최소화 제안, 창의자동화는 기존 콘텐츠팩/I-09의 연계구체화(새프로그램완료아님). 안정성/현재적용성/사용자편의 세기준·근거/한계는 보고서 참고. 무료59개·유료AI/발행/예약/빌드/배포0. 세CLI지침/분야색인에서 다른CLI도 먼저읽도록 등록.
+
+## 2026-10-26 v2.22 — 묶음E 보안 업데이트(Codex)
+
+- 입력 시험 계정 전환 대기 동안 독립 작업으로 Next.js/eslint-config-next 16.2.11→16.4.2, sharp 0.34.5→0.35.5 반영. 서버 동작을 쓰는 auth.ts가 있어 공식 GHSA-p3m5-59mp-jv5r 영향 범위를 확인했습니다. [공식 보안 공지](https://nextjs.org/blog/nextjs-security-update-october-14-2026)·[v16.4.2 릴리스](https://github.com/vercel/next.js/releases/tag/v16.4.2). UI/발행 알고리즘 변경 없음.
+- 무료 모의56개+탭 시나리오49개, 발행 소유권/보존/경합 검사·확장 브리지 검사, tsc, 로컬 빌드 통과. Next가 생성한 next-env.d.ts의 root-params 참조도 포함했습니다.
+- 기존 미배포89d135c4b(방식을 발행 전까지로 바꿀 때 예약 미리 넣기 끄기) 함께 배포 완료. DB/manifest/라이브ZIP v2.22 OK. 배포 dpl_G38LdsoYvZberabV1vfjm32cAh4V READY·공식 도메인 연결, 버전API200/no-store, 비로그인 글API401·설정307·로그인200, 최근15분 runtime errors0.
+- 실제 Edge 설정에서 업데이트 전 Gmail/설치v2.21 확인. 새로고침 뒤 본문/캡처 관찰 실패, 주소 이동 키 입력은 window_not_focused(restore-window 사용에도 포커스 없음)로 실패해 재시도 중지. 새 v2.22 회원 화면/네이버 실제 입력은 미검수입니다. 주인님 직접 Edge 포커스·시험Naver메일 로그인/확장 연결·네이버 로그인, 옛8연결 정리 여부 답변 뒤 재개합니다. 비밀번호/연결 버튼/기존 토큰을 대신 조작하지 않았습니다.
+- 운영 ref esgxyikcnnvmlhygjkth: programs 버전/확장 버전1행을 이전v2.21/예상URL 조건으로 v2.22로 정정. deploy.mjs가 site_settings.ops_overview 집계를 갱신. 회원 원고/키/연결/권한/스키마 변경0, 실제 전송/발행/예약0.
+- 비용: Vercel 빌드1회(인수인계의 프로그램별1회 승인), AI0. 로컬 에이전트 빌드1회; 처음 루트 workdir를 잘못 지정한 무료 로컬 빌드는 즉시 중단, 운영 메인 배포0. 나머지4앱 보안 업데이트는 미실행, SEO 소스는 agy 담당 보존.
+- 근거: [시험](../../docs/analysis-blog-consolidation-20261020/evidence/agent-security-tests-20261026.json)·[릴리스](../../docs/analysis-blog-consolidation-20261020/evidence/agent-security-release-20261026.json). 실제 입력/예약 성공과 구분합니다.
