@@ -1,15 +1,15 @@
 # 블로그
 
-- 담당: Claude Code(윈도우) `claude-win-20261024-blog3`(이전 `claude-win-20261023-blog2`)
+- 담당: **Codex(인계 대기, 2026-10-25 주인님 지시)** — 이전 Claude Code(윈도우) `claude-win-20261024-blog3`·`claude-win-20261023-blog2`. 인계 문서: [`docs/HANDOFF_20261025_BLOG_TO_CODEX.md`](../HANDOFF_20261025_BLOG_TO_CODEX.md)(먼저 읽기). 작업 브라우저는 Codex 규칙대로 엣지.
 - 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-24 `claude-win-20261024-blog3` (실제 입력 시험 3회 실패 기록, 이웃 소통 신규 개발 대기 등록)
+- 마지막 갱신: 2026-10-25 `claude-win-20261024-blog3` (Codex 인계 — 실제 입력 실패 원인 확인: 메인 크롬 확장 계정 미연결)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `naver-blog-agent` v2.21 | ② 간편 모드 실제 네이버 입력 시험(비공개 1건, 「발행 전까지」 방식, 원고 `48f06db1` 캠핑) | 2026-10-24 | 3번 실패(11:44·12:52 `EDITOR_PREPARATION_FAILED`, 12:05 `EDITOR_TAB_CLOSED`) — 확장(연결 기록 「Chrome」, 2026-10-21 연결)이 어느 브라우저에 있는지 확인 후 재시도. Claude 조작 브라우저가 Aside일 가능성 확인 중 |
+| `naver-blog-agent` v2.21 | ② 간편 모드 실제 네이버 입력 시험(비공개 1건, 「발행 전까지」 방식, 원고 `48f06db1` 캠핑) | 2026-10-24 | 3번 실패(11:44·12:52 `EDITOR_PREPARATION_FAILED`, 12:05 `EDITOR_TAB_CLOSED`). **원인 확인(10-24)**: 메인 크롬 확장은 설치됐지만 「확장을 본인 계정으로 먼저 연결해 주세요」 상태 — 다른 브라우저의 10-21 「Chrome」 연결이 작업을 받아 감. Codex는 엣지에 확장 설치·계정 연결(주인님) 뒤 재시험 |
 | `naver-blog-seo-studio` v2.19 | 예약 포스팅 실제 네이버 시험 | 2026-10-24 | 주인님 직접 시험 대기(Claude 브라우저 도구로 blog.naver.com 불가) |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
@@ -40,7 +40,8 @@
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-1. Claude가 조작하는 브라우저 확인(`list_connected_browsers`) → 에이전트 확장이 그 브라우저에 있는지 확인 → ② 같은 원고 `48f06db1`로 재시도(AI 비용 없음, 보이는 창에서)
+0. (Codex) `docs/HANDOFF_20261025_BLOG_TO_CODEX.md` 읽기 → ACTIVE_WORK 줄을 내 세션으로 → agy의 SEO v2.20·콘텐츠 메이커 v1.12 배포·확장 일치 확인
+1. 엣지에 에이전트 확장 설치 → 주인님이 시험 계정 연결·네이버 로그인(옛 「Chrome」 연결 정리 여부도 여쭘) → 같은 원고 `48f06db1`로 재시도(AI 비용 없음, 보이는 창에서)
 2. 그다음 ③-2 콘텐츠 메이커 포스팅 플랜을 주인님께 보여 드림
 3. `blog-neighbor-care` 착수 시점을 주인님께 여쭘(0단계는 주인님 크롬 설치·실행 필요)
 3. 관리자 「수정 요청함」 0044가 적용되면 E-3~E-5 결과를 `dev-requests.mjs report`로, 아래 여쭐 것을 `ask`로 올림(지금은 DB 칸 없음)
