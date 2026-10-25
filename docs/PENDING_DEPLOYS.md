@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `realty-listing-alert` | 카톡 요약 건수를 그림문자 없이 글자로(🆕가 카톡에서 네모로 깨짐, 2026-10-25 실물) | `2f9301b0f` | 2026-10-25 · [역할: realty] `claude-win-20261024-realty` | `realty-listing-alert/docs/IMPROVEMENTS.md` 미배포 대기 | 버전 +0.01(v1.12), **확장 ZIP 다시 만들기** |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1~G-4 공용 공급자·봇·역할 경계·다중 문서/분류/미리보기/PDF 경고. 108개 검사·타입·로컬 빌드·운영 DB/RLS·일반 회원 무료 조작 통과 | `2d56a117b` · `07795803c` · `d7dd0d367` · `952417454` · `9ab4f36e0` · `d2b05913b`(Cloudflare 식별번호·확인 직링크)(키 용도·공식 콘솔 버튼) · `47fc981ab`(로그아웃303) · `780cef254`(문단 줄바꿈·실제AI3회) | 2026-10-25 · [역할: docbot-prompt] Codex `codex-win-20261025-docbot-g4` | [G-4 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md) | 번역/요약/회원 봇 실제AI3회·방/당시 설정 확인. Gmail 업로드2개 정상·680px 초기 화면 확인. 남은 업로드 계정 로그인·문서 질문/출처 검수 후 묶음. 버전+0.01·DB·프로그램 비교표 일치, 디자인 agy 담당 |
 | `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` · `9ab4f36e0` · `d2b05913b`(Cloudflare 식별번호·확인 직링크)(키 용도·공식 콘솔 버튼) | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
