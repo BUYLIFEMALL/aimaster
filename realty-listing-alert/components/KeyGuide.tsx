@@ -44,7 +44,7 @@ const ROWS: Row[] = [
   },
 ];
 
-/** 📖 플랫폼별 「가져오는 법」 — 각 연동 칸 바로 밑에(2026-10-25 주인님 「각각의 플랫폼 밑에 표시」「텔레그램 연동 파트 밑에 텔레그램 연동 방법을」). 단계는 한 줄에 하나씩. */
+/** 📖 플랫폼별 「가져오는 법」(모양·「아닌 값」 줄은 2026-10-25 주인님 「삭제」로 화면에서 뺌 — 데이터는 남김) — 각 연동 칸 바로 밑에(2026-10-25 주인님 「각각의 플랫폼 밑에 표시」「텔레그램 연동 파트 밑에 텔레그램 연동 방법을」). 단계는 한 줄에 하나씩. */
 export function KeyHowTo({ ids, title }: { ids: string[]; title: string }) {
   const rows = ROWS.filter((r) => ids.includes(r.id));
   return (
@@ -58,10 +58,6 @@ export function KeyHowTo({ ids, title }: { ids: string[]; title: string }) {
           </div>
           <ol className="ra-kg-steps">{r.where.map((w) => <li key={w}>{w}</li>)}</ol>
           {r.note && <small className="ra-kg-note">💡 {r.note}</small>}
-          <div className="ra-howto-meta">
-            <span>✅ 모양: {r.looks.join(" · ")}</span>
-            <span className="ra-kg-not">✕ 이건 아니에요: {r.not.join(" · ")}</span>
-          </div>
         </div>
       ))}
     </div>
