@@ -10,7 +10,8 @@ test("카톡 요약: 건수·단지 이름·파일 안내, 200자 안", () => {
     { name: "백송건영", total: 20, events: [ev("new"), ev("new"), ev("priceDown")], firstRun: false },
     { name: "백송대림", total: 30, events: [ev("gone")], firstRun: false },
   ]);
-  assert.match(text, /^🏠 \[매물 알림\] 🆕 신규 2 · 📉 가격 내림 1 · 👋 사라짐 1/);
+  assert.match(text, /^🏠 \[매물 알림\] 신규 2 · 가격 내림 1 · 사라짐 1/);
+  assert.ok(!/🆕|📉|👋/.test(text)); // 카톡은 그림문자 없이
   assert.match(text, /백송건영 외 1곳/);
   assert.match(text, /엑셀은 텔레그램·이메일로/);
   assert.ok(text.length <= 200);

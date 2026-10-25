@@ -4,6 +4,8 @@ import { EVENT_LABEL } from "./compare.js";
 import { ALERT_PREFIX } from "./telegram.js";
 import { articleUrl } from "./listing.js";
 
+const KAKAO_LABEL = { new: "신규", priceDown: "가격 내림", priceUp: "가격 오름", gone: "사라짐" };
+
 export const RESEND_FROM = "부동산 매물 알림 <onboarding@resend.dev>";
 const SITE = "https://realty-listing-alert.buylife.xyz";
 const RESULT_URL = `${SITE}/dashboard`;
@@ -21,7 +23,8 @@ export function kakaoLinkFor(perTarget) {
 export function buildKakaoText(perTarget) {
   const counts = {};
   for (const t of perTarget) for (const e of t.events) counts[e.type] = (counts[e.type] || 0) + 1;
-  const countText = Object.entries(counts).map(([k, n]) => `${EVENT_LABEL[k]} ${n}`).join(" · ") || "변동 없음";
+  // 카톡은 🆕 같은 일부 그림문자를 네모로 그려서(2026-10-25 실물) 글자만 쓴다
+  const countText = Object.entries(counts).map(([k, n]) => `${KAKAO_LABEL[k] || EVENT_LABEL[k]} ${n}`).join(" · ") || "변동 없음";
   const names = perTarget.map((t) => t.name).filter(Boolean);
   const where = names.length ? `${names[0]}${names.length > 1 ? ` 외 ${names.length - 1}곳` : ""}` : "";
   const first = perTarget.some((t) => t.firstRun) ? "\n(첫 수집은 기준으로 저장했어요)" : "";
