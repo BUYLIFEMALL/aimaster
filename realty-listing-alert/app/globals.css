@@ -731,3 +731,7 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-chip.big.oneline { align-items: center; padding: 10px 16px; min-height: 44px; }
 .ra-chip.big.oneline span { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .ra-toggle-row > button { min-height: 44px; }
+/* 안내 상자(2026-10-25 주인님 「줄넘김·가독성 높혀서」「도메인주소는 붉은 색으로 강조」) */
+.ra-hint { display: grid; gap: 4px; margin-top: 14px; padding: 12px 16px; border: 1px solid #f3d9a8; border-radius: 12px; background: #fffaf0; font-size: 14px; line-height: 1.7; color: #374151; }
+.ra-hint strong { color: #111827; }
+.ra-hint .ra-domain { color: #dc2626; font-weight: 800; background: #fee2e2; padding: 1px 6px; border-radius: 6px; word-break: break-all; }

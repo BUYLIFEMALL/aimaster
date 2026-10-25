@@ -164,11 +164,11 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
             </label>
             <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "💬 시험 메시지 보내기"}</button>
           </div>
-          <p className="card-caption">
-            💡 카톡의 「결과 보기」가 다른 화면으로 열리는 경우
-            <br />
-            카카오 개발자 콘솔 → 내 앱 → <b>제품 링크 관리 → 웹 도메인</b>에 <code>https://realty-listing-alert.buylife.xyz</code>를 추가
-          </p>
+          <div className="ra-hint">
+            <strong>💡 카톡의 「결과 보기」가 다른 화면으로 열리는 경우</strong>
+            <span>카카오 개발자 콘솔 → 내 앱 → <b>제품 링크 관리 → 웹 도메인</b>에</span>
+            <span><code className="ra-domain">https://realty-listing-alert.buylife.xyz</code> 를 추가해 주세요.</span>
+          </div>
         </>
       ) : (
         <div className="ra-import">
