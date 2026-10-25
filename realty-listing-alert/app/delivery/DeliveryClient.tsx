@@ -197,7 +197,7 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
           </div>
           <div className="ra-hint">
             <strong>💡 카톡의 「결과 보기」가 다른 화면으로 열리는 경우</strong>
-            <span>카카오 개발자 콘솔 → 내 앱 → <b>플랫폼(또는 제품 링크 관리) → 웹 도메인</b>에</span>
+            <span>카카오 개발자 → 내 앱 → <b>앱 → 제품 링크 관리 → 「웹 도메인 수정」</b>에</span>
             <span><code className="ra-domain">https://realty-listing-alert.buylife.xyz</code> 를 추가해 주세요.</span>
           </div>
         </>
@@ -207,11 +207,11 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
             <span>1</span>
             <div>
               <b>카카오 앱 키 저장</b>
-              <small>카카오 개발자 → 내 앱 → 「앱 키」의 <b>REST API 키</b>와 「보안」의 <b>Client Secret</b>(「사용함」일 때만)을 붙여 넣어요. {kakao.hasKey && !editKeys && "✅ 저장됨"}</small>
+              <small>카카오 개발자 → 내 앱 → <b>앱 → 플랫폼 키</b>의 <b>REST API 키</b>와, 그 카드를 눌러 나오는 화면 아래 <b>클라이언트 시크릿</b>(카카오 로그인 줄 「코드」)을 붙여 넣어요. {kakao.hasKey && !editKeys && "✅ 저장됨"}</small>
               {showKeyForm && (
                 <form action={keyAction} className="ra-inline-form">
                   <div className="field"><label htmlFor="kakaoRestKey">🔑 REST API 키</label><input id="kakaoRestKey" name="kakaoRestKey" required autoComplete="off" placeholder="영문·숫자 32자" /></div>
-                  <div className="field"><label htmlFor="kakaoSecret">🔒 Client Secret(선택)</label><input id="kakaoSecret" name="kakaoSecret" autoComplete="off" placeholder="보안 → 코드 생성 후 복사" /></div>
+                  <div className="field"><label htmlFor="kakaoSecret">🔒 클라이언트 시크릿</label><input id="kakaoSecret" name="kakaoSecret" autoComplete="off" placeholder="플랫폼 키 카드 → 클라이언트 시크릿 「코드」" /></div>
                   <button className="primary" type="submit" disabled={savingKeys}>{savingKeys ? "저장 중..." : "키 저장"}</button>
                 </form>
               )}
@@ -223,7 +223,7 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
             <span>2</span>
             <div>
               <b>돌아올 주소 등록</b>
-              <small>카카오 개발자 → 내 앱 → 카카오 로그인(활성화 ON) → <b>Redirect URI</b>에 아래 주소를 <b>그대로</b> 추가해요. 「동의항목」에서 <b>카카오톡 메시지 전송</b>도 켜 주세요.</small>
+              <small>카카오 개발자 → 내 앱 → <b>앱 → 플랫폼 키 → Default Rest API Key 카드 클릭</b> → <b>「카카오 로그인 리다이렉트 URI」</b> 맨 아래 「+」에 아래 주소를 <b>그대로</b> 넣고 「저장」. 「제품 설정 → 카카오 로그인」에서 <b>사용 설정 ON</b>, 「동의항목」에서 <b>카카오톡 메시지 전송</b>도 켜 주세요.</small>
               <CopyText text={KAKAO_REDIRECT_URI} />
             </div>
           </li>

@@ -69,8 +69,8 @@ export async function saveKakaoKeysAction(_: Result, formData: FormData): Promis
   const user = await requireProgramAccess();
   const rest = String(formData.get("kakaoRestKey") ?? "").trim();
   const secret = String(formData.get("kakaoSecret") ?? "").trim();
-  if (!isRestApiKey(rest)) return { error: "REST API 키는 영문·숫자 32자예요. 카카오 개발자 → 내 앱 → 「앱 키」의 「REST API 키」를 다시 복사해 주세요(JavaScript 키·Admin 키가 아니에요)." };
-  if (secret && !isClientSecret(secret)) return { error: "Client Secret 모양이 이상해요. 카카오 개발자 → 「보안」에서 코드를 다시 복사해 주세요." };
+  if (!isRestApiKey(rest)) return { error: "REST API 키는 영문·숫자 32자예요. 카카오 개발자 → 내 앱 → 「앱 → 플랫폼 키」 맨 왼쪽 「REST API 키」를 다시 복사해 주세요(JavaScript 키·네이티브 앱 키가 아니에요)." };
+  if (secret && !isClientSecret(secret)) return { error: "클라이언트 시크릿 모양이 이상해요. 「플랫폼 키」의 REST API 키 카드를 눌러 아래 「클라이언트 시크릿 → 카카오 로그인 → 코드」를 다시 복사해 주세요." };
   const db = createServiceClient();
   const rows = [{ user_id: user.id, provider: "kakao_rest_api_key", api_key: rest }];
   if (secret) rows.push({ user_id: user.id, provider: "kakao_client_secret", api_key: secret });
