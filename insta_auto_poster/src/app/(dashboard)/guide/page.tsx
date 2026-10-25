@@ -36,9 +36,9 @@ export default function GuidePage() {
           </div>
           <Link
             href="/candidates"
-            className="shrink-0 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:opacity-90 transition-opacity"
+            className="shrink-0 rounded-xl btn-3d-primary px-5 py-3 text-xs font-bold text-white transition-all cursor-pointer"
           >
-            + 새 포스팅 시작하기
+            + 새 포스팅 시작하기 🚀
           </Link>
         </div>
       </div>

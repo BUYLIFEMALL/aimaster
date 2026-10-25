@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## [역할: design] 2026-10-25 INSTA 포스팅 자동화 (insta_auto_poster) v1.70 7대 플랫폼 키발급 2단버튼 & 3D 실행버튼 배포 및 네이버 웨일 검수 완료
+
+- **프로그램**: INSTA 포스팅 자동화 (`insta_auto_poster`, 서비스 slug: `auto-instagram-posting`, 버전: `v1.70`)
+- **디자인 템플릿**: `인스타 바이럴 스튜디오 스타일` (DESIGN.md 원칙 22 준수 - 1: 어떤 템플릿, 2: 어떤 스타일, 3: 선정 이유 3대 기준 명시 완료)
+- **작업 내용**:
+  1. `ApiKeyRow.tsx`: 7대 플랫폼(OpenAI, Claude, Gemini, Perplexity, Apify, Pixabay, Pexels) 및 Meta 공식 키 발급 바로가기(`.btn-create-key`) + 가입 바로가기(`.btn-platform-signup`) 2단 퀵액션 버튼 세트 및 3D 저장 버튼 탑재.
+  2. `globals.css`: 인스타 선셋 테마 3D 엠보싱 버튼 표준 규격 탑재 (물리적 4px 눌림 모션).
+  3. `guide/page.tsx`: 상단 히어로 배너 3D 새 포스팅 버튼 적용.
+  4. Vercel 프로덕션 배포 (`https://insta-auto-poster-b581etk0a-buylife.vercel.app`, 도메인 `https://auto-instagram-posting.buylife.xyz`), DB 버전 `v1.70` 동기화 완료.
+  5. 네이버 웨일(Whale) 포그라운드 실제 창(1440x900) 실세션 검수 완료 (`iap_v170_dashboard_whale.png`, `iap_v170_settings_whale.png`, `iap_v170_guide_whale.png`, `iap_v170_cardnews_whale.png`).
+- **세션**: `agy-win-20261025-ext3d`
+
 ## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E1 마켓별 정산 공식(상품소싱 v1.27)
 - 한 일: 마진 계산기에 「판매할 마켓」 — G마켓·옥션 ESM 공식 카테고리 요율 자동(✅)·쿠팡 참고 카테고리(⚠)·11번가·스마트스토어 대표값(⚠), 배송 방식(선결제 배송비 3.3%)·판매자 할인·기타 추가 수수료·포장비·월 고정비 → 정산 영수증·손익분기 판매가·목표 마진율 판매가·5개 마켓 나란히 비교. 일괄 마진에 마켓 선택, 검색결과 마진·CSV도 고른 수수료로, `/fees`와 계산기가 공용 `market-fees` 사본 한 곳을 읽음. 「직접 입력」은 예전 계산과 같음(시험).
 - 공용 기준 `market-fees`(기준 `shop-order-report`) 확장: 혼자 서는 파일로(타입 import 제거), 사본 `trending-product-finder/lib/marketFees.ts` 등록·동기화. 주문 리포트는 결과가 같아 미배포 대기(`docs/PENDING_DEPLOYS.md`).
