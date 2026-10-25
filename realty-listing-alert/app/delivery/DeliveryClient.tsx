@@ -427,7 +427,7 @@ function ReceiveCard({ telegram, kakao, email, ai, initial }: { telegram: Telegr
             {kakao.ok ? (
               <>
                 <label className="ra-chip oneline"><input type="checkbox" checked={value.notifyKakao} disabled={pending} onChange={(e) => save({ notifyKakao: e.target.checked })} /><span><strong>요약 받기</strong></span></label>
-                <button type="button" className="secondary" disabled={kakaoTest.pending} onClick={kakaoTest.run}>{kakaoTest.pending ? "보내는 중..." : "시험 보내기"}</button>
+                <button type="button" className="secondary" disabled={kakaoTest.pending} onClick={kakaoTest.run}>{kakaoTest.pending ? "보내는 중..." : "테스트 발송"}</button>
               </>
             ) : goSetup("kakao")}
           </div>
@@ -439,7 +439,7 @@ function ReceiveCard({ telegram, kakao, email, ai, initial }: { telegram: Telegr
             {emailReady ? (
               <>
                 <label className="ra-chip oneline"><input type="checkbox" checked={value.notifyEmail} disabled={pending} onChange={(e) => save({ notifyEmail: e.target.checked })} /><span><strong>요약 + 엑셀 받기</strong></span></label>
-                <button type="button" className="secondary" disabled={emailTest.pending} onClick={emailTest.run}>{emailTest.pending ? "보내는 중..." : "시험 보내기"}</button>
+                <button type="button" className="secondary" disabled={emailTest.pending} onClick={emailTest.run}>{emailTest.pending ? "보내는 중..." : "테스트 발송"}</button>
               </>
             ) : goSetup("email")}
           </div>
