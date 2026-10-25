@@ -156,6 +156,18 @@ export default function BlogSidebar() {
           <div className="px-2 pb-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
             설정 및 매뉴얼
           </div>
+
+          {/* 좌측 사이드바 3D 에메랄드 확장 다운로드 버튼 (2026-10-25 주인님 지시) */}
+          <a
+            className="nav-download"
+            href="/downloads/ai-auto-blog-extension-latest.zip"
+            download
+            onClick={closeMobile}
+            title="네이버 블로그 자동 포스팅 크롬 확장 프로그램 최신버전 다운로드"
+          >
+            ⬇ 확장 프로그램 받기 ({APP_VERSION})
+          </a>
+
           {UTILITY_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             return (
