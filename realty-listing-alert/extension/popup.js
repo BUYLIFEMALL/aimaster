@@ -43,18 +43,27 @@ function stateLine(s) {
   if (s.targetCount === 0) return ["todo", "⚠ 감시할 단지를 추가해 주세요", "🎯 추가하기", "targets"];
   if (s.schedule && !s.schedule.enabled) return ["todo", `✅ ${s.targetCount}곳 감시 준비 · 예약은 꺼져 있어요`, "⏰ 예약 켜기", "schedule"];
   const lr = s.lastResult;
-  const last = lr ? ` · 마지막 ${kstTime(lr.at)} ${RESULT[lr.result] || ""}` : "";
+  const last = lr ? ` · 마지막 ${RESULT[lr.result] ? `${RESULT[lr.result]} ` : ""}${kstTime(lr.at)}` : ""; // 결과 표시를 앞에(줄 끝 ✅가 혼자 떨어지던 문제)
   const every = s.schedule ? ` · ${intervalText(s.schedule.intervalMinutes)}마다` : "";
   return ["ok", `✅ 준비 완료 · ${s.targetCount ?? 0}곳 감시 중${every}${last}`, null, null];
 }
 
-/** 연결된 계정을 상태 줄 아래에 작게 보여 준다(웹 로그인 계정과 다르면 혼동하므로) */
-function accountText(s) {
-  if (!s.connected) return "";
-  const who = s.connectedEmail ? `🔗 연결 계정: ${s.connectedEmail}` : "🔗 웹과 연결됨";
+/** 연결된 계정(웹 로그인 계정과 다르면 혼동하므로) — 2026-10-26 주인님 「잘 안 보여」「폰트를 키우던지 붉은 색으로 강조」: 계정은 큰 굵은 글씨·붉은색 줄, 사용량은 아래 줄 */
+function renderAccount(el, s) {
+  el.replaceChildren();
+  if (!s.connected) return;
+  const who = document.createElement("div");
+  who.className = "account-who";
+  who.append("🔗 연결 계정 ");
+  const em = document.createElement("b");
+  em.textContent = s.connectedEmail || "웹과 연결됨";
+  who.append(em);
   // 오늘 읽은 양(하루 300페이지 상한) · 다음 예정 시각
+  const sub = document.createElement("div");
+  sub.className = "account-sub";
   const next = s.nextDueAt && s.schedule?.enabled ? ` · 다음 수집 ${kstTime(s.nextDueAt)}쯤` : "";
-  return `${who} · 오늘 ${s.pagesToday ?? 0}/300페이지${next}`;
+  sub.textContent = `📶 오늘 ${s.pagesToday ?? 0}/300페이지${next}`;
+  el.append(who, sub);
 }
 
 async function refresh() {
@@ -67,7 +76,7 @@ async function refresh() {
   const [kind, text, goLabel, path] = stateLine(s);
   $("stateLine").className = `state-line ${kind}`;
   $("stateText").textContent = text;
-  $("account").textContent = accountText(s);
+  renderAccount($("account"), s);
   goPath = path ? WEB_PATH[path] : null;
   $("stateGo").hidden = !goLabel;
   if (goLabel) $("stateGo").textContent = goLabel;
