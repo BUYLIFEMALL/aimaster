@@ -920,3 +920,29 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 /* 모델 고르기를 키 칸 왼쪽으로(2026-10-25 「좌측에 모델선택 셀렉트」) */
 .ra-key-model { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
 .ra-key-model .ra-engine-line { order: -1; }
+/* 🤖 AI 엔진 상자(2026-10-25 「이런 배열로」): 윗줄 이름 … 요약 사용·발급·콘솔 / 아랫줄 키 칩·연동 완료·모델 … 수정·삭제 */
+.ra-aibox { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-top: 12px; background: #fff; }
+.ra-aibox.on { border-color: #f59e0b; box-shadow: 0 0 0 2px #fde68a; }
+.ra-aibox-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; background: #f8fafc; border-bottom: 1px solid var(--line); }
+.ra-aibox-title { font-size: 14px; }
+.ra-aibox-title small { color: var(--muted); font-size: 12px; }
+.ra-aibox-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.ra-use, .ra-btn-orange, .ra-btn-white { border-radius: 10px; padding: 7px 12px; font-size: 12.5px; font-weight: 800; text-decoration: none; white-space: nowrap; cursor: pointer; width: auto; margin: 0; }
+.ra-use { background: #fff; border: 1px solid var(--line); color: var(--muted); }
+.ra-use.on { background: #fff7ed; border-color: #f59e0b; color: #c2410c; }
+.ra-btn-orange { background: #f97316; color: #fff; border: 1px solid #ea580c; }
+.ra-btn-white { background: #fff; color: #111827; border: 1px solid var(--line); }
+.ra-aibox-body { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 14px; }
+.ra-aibox-label { font-size: 14px; white-space: nowrap; }
+.ra-keychip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-family: ui-monospace, monospace; font-size: 12.5px; }
+.ra-keychip i { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; }
+.ra-linked { border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; font-size: 12px; color: #0b7a3e; }
+.ra-aibox-input { flex: 1 1 220px; min-width: 0; }
+.ra-aibox-model { flex: 1 1 220px; min-width: 0; max-width: 380px; }
+.ra-aibox-model:disabled { background: #f8fafc; color: #111827; opacity: 1; }
+.ra-aibox-btns { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
+.ra-btn-edit, .ra-btn-del, .ra-btn-save { border-radius: 8px; padding: 6px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; width: auto; margin: 0; }
+.ra-btn-edit { background: #fff; border: 1px solid var(--line); color: #374151; }
+.ra-btn-del { background: #fff; border: 1px solid #fecdd3; color: #e11d48; }
+.ra-btn-save { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
+.ra-aibox .ra-msg { margin: 0 14px 12px; }
