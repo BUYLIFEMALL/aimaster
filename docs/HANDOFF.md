@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.23 AI 3가지·모델 고르기·받는 방법 정리
+
+- **한 일**: AI 시세 요약에 Claude 추가(공용 키 `anthropic`), 설정 화면에서 AI별 모델 고르기(블로그 SEO 스튜디오 `contentModels.ts`·`openaiModels.ts` 목록을 `lib/aiModels.ts`로, 맨 앞 가성비 기본값, 확장이 고른 모델로 호출). 「받는 방법」은 사용 위주 — 📬 받는 곳 카드(텔레그램→이메일→카톡→AI 순, 상태·켜기·테스트 발송, 미연결이면 「연동하러 가기 →」), 「무엇을 보낼까요?」 카드 삭제(저장값 기본값 유지). 연동·키 등록은 「API키등록·플랫폼연동」 한곳(연동 방법 상자 1줄씩 각 연결 카드 위, AI 키 3칸+모델). 카카오는 연동이 어려워 어디서나 맨 뒤(매뉴얼 「(선택)」), 카카오 연결 뒤 돌아오는 곳 `/settings`.
+- **DB(운영 `esgxyikcnnvmlhygjkth`)**: `ai_provider` 허용값에 `claude`, `ai_models jsonb` 추가(주인님 승인), 버전 v1.23·확장 v1.23.
+- **검수**: 시험 52개·tsc·린트·빌드 통과, 배포 Ready, `check-extension-release` OK, 크롬 운영 화면(받는 방법·설정 AI 칸) 확인, Claude 모델 저장 → 「저장했어요」 확인 뒤 기본값(Haiku 4.5)으로 되돌림. **못 한 것**: 실제 AI 요약 생성(확장 v1.23 업데이트 후 「지금 수집」 필요).
+- **커밋**: `a08d54d0a`(v1.23) 외. https://realty-listing-alert.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.22 🤖 AI 시세 요약
 
 - **한 일**: 회원 본인 AI 키(공용 `user_api_keys` `gemini`·`openai`)로 확장이 회원 PC에서 하루 1번(그날 첫 수집) 단지별 통계 숫자만 보내 이번 주 시세 흐름 한두 줄(200자)을 만들고, 텔레그램·메일 맨 위(하루 1번, 카톡 제외)와 「수집 결과」 화면 맨 위 카드에 붙임. 중개사 번호·매물 목록은 보내지 않음. 모델: Gemini `gemini-flash-lite-latest` / OpenAI는 회원 키로 보이는 nano→mini 자동 선택.
