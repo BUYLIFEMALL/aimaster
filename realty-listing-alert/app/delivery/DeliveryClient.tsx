@@ -395,12 +395,11 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
                 <button type="button" className="ra-btn-del" onClick={() => setAskDelete(true)}>삭제</button>
               </>
             )}
-            <a className="ra-btn-orange" href={info.keyUrl} target="_blank" rel="noopener noreferrer">발급 ↗</a>
           </span>
         </td>
       </tr>
-      {/* 엔진 역할 띠(줄 아래 한 줄로) */}
-      <tr className={`ra-aitbl-role${selected ? " on" : ""}`}><td colSpan={5}><span className="ra-role-tag">엔진 역할</span> <b>{engine.role.title}:</b> {engine.role.text}</td></tr>
+      {/* 역할 설명 한 줄 + 발급 버튼(2026-10-25 「엔진역할 표현은 빼고 한줄안에」「발급 버튼을 아래 설명글 행으로」) */}
+      <tr className={`ra-aitbl-role${selected ? " on" : ""}`}><td colSpan={5}><div className="ra-role-line"><span className="ra-role-text"><b>{engine.role.title}</b> · {engine.role.text}</span><a className="ra-btn-orange" href={info.keyUrl} target="_blank" rel="noopener noreferrer">발급 ↗</a></div></td></tr>
       {(msg || askDelete) && (
         <tr className="ra-aitbl-note"><td colSpan={5}>
           {askDelete && <small className="ra-keyask">⚠️ 이 키는 다른 AIMaster 프로그램에서도 함께 쓰여요. 삭제하면 그쪽에서도 지워져요.</small>}

@@ -7,9 +7,9 @@ export type AiModelOption = { value: string; label: string };
 
 // role: 표의 「엔진 역할」 띠(2026-10-25 주인님 「모델별 모델이 하는 역할을 설명해준게 좋아」) — 셋 다 AI 시세 요약을 하고, 고른 엔진 하나만 쓴다
 export const AI_ENGINES: { id: AiProvider; label: string; sub: string; icon: string; role: { title: string; text: string } }[] = [
-  { id: "openai", label: "GPT", sub: "OpenAI", icon: "🤖", role: { title: "숫자로 짚는 시세 요약", text: "매물 수·호가·실거래 대비 변화를 숫자로 정리(기본 추천)" } },
-  { id: "claude", label: "Claude", sub: "Anthropic", icon: "🧠", role: { title: "자연스러운 브리핑", text: "중개사가 설명하듯 부드러운 문장으로 요약" } },
-  { id: "gemini", label: "Gemini", sub: "Google", icon: "✨", role: { title: "빠르고 저렴한 요약", text: "비용 부담이 가장 적어 가볍게 받기 좋아요" } },
+  { id: "openai", label: "GPT", sub: "OpenAI", icon: "🤖", role: { title: "숫자 요약", text: "매물 수·호가·실거래 대비를 숫자로 정리" } },
+  { id: "claude", label: "Claude", sub: "Anthropic", icon: "🧠", role: { title: "자연스러운 브리핑", text: "중개사가 설명하듯 부드러운 문장" } },
+  { id: "gemini", label: "Gemini", sub: "Google", icon: "✨", role: { title: "빠르고 저렴", text: "비용 부담이 가장 적은 가벼운 요약" } },
 ];
 
 export const AI_MODELS: Record<AiProvider, AiModelOption[]> = {

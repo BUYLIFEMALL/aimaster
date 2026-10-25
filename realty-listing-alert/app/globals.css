@@ -1015,3 +1015,9 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-aitbl-model { font-size: 12.5px; }
 .ra-aitbl-engine { font-size: 13px; }
 .ra-setup-name { font-size: 13px; }
+/* 역할 줄: 한 줄 설명 + 발급 버튼, 버튼 칸 줄이고 모델 칸 넓힘(2026-10-25) */
+.ra-aitbl:not(.ra-setup) th:nth-child(5) { width: 104px; }
+.ra-role-line { display: flex; align-items: center; gap: 10px; }
+.ra-role-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ra-role-line .ra-btn-orange { flex: 0 0 auto; }
+.ra-aitbl-role > td { padding: 4px 8px 8px; }
