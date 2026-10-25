@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — EC-P5 운영 포함 확인 + EC-W12 병합 원본 두 폴더 정리(백업 뒤 39개 삭제, 미배포·배포 불필요)
+- EC-P5: 상세페이지 운영 v1.34 배포(`dpl_3SFwXkeHvd1n4i8NMARYsga8LjeZ`) 파일 `src/lib/cleanupUsageLog.ts`·`cleanup-generated/route.ts` 해시가 로컬과 같음 → v1.31 때부터 운영 반영. 「미배포 대기」 표시 정정(`55a94d536` 등).
+- EC-W12(주인님 「백업하고 정리」): `detail-page-12p` 13개·`auto-detail-page` 26개 — 이동 안내·로그인·410 응답 경로·첫 화면 이동 페이지는 그대로, 어디서도 불러 쓰지 않던 옛 화면·엔진만 삭제(`4e660826a`). 공용 사본 점검 목록에서 두 폴더의 이미지 사본 4개 제외(`2deb484b4`).
+- 백업: `D:/Antigravity/AIMaster_backup/retired-programs/{detail-page-12p,auto-detail-page}/`(54·72개 전체) + git 태그 `backup/ec-w12-20261026`. 12단 엔진 `detailEngine.ts`(상품명으로 입력 채우기·장면별 카피)는 EC-W4 후보라 옮길 때 백업에서 가져온다.
+- 검수: 두 폴더 `tsc`·로컬 `npm run build` 통과. 공용 사본 점검의 남은 1건(`music-video-studio` `Composition.tsx` 기준과 다름)은 영상 담당 영역, 이번 변경과 무관.
+- 참고: agy v1.12(10-25)가 고친 12단 버튼 파일 일부(`ApiKeyModal` 등)는 실제 화면에 나오지 않던 파일이었다(백업에 있음). 작업 중 표의 agy `detail-page-12p` 줄은 「✅ v1.12 완료」인데 남아 있음 — agy가 지울 줄.
+
 ## 2026-10-25 [역할: blog] Codex(윈도우·엣지) · 세션 `codex-win-20261025-blog` — 추천 운영1~3 착수·버전 정합성 완료
 - ① 기존 READY·공식 alias·실제 HTML/ZIP 대조 뒤 운영 programs3행만 조건부 정정: BLOG 앱/확장v1.82, 티스토리v1.92, 올인원v1.53. 블로그6개 release 검사6/6 OK. 운영 DB ref esgxyikcnnvmlhygjkth, 회원자료/키/연결/권한/스키마 변경0. [실행 기록 §10](HANDOFF_20261025_BLOG_TO_CODEX.md#10-추천-운영13-실행-기록2026-10-25-codex)·[근거](analysis-blog-consolidation-20261020/evidence/operational-check-20261025.json).
 - ② 에이전트 원고48f06db1 소유자/prepare/비공개/예약꺼짐 재확인. 현재 Edge Gmail이므로 시험회원 전환·주인님 직접 연결/네이버 로그인 필요. 기존8연결해제 승인도 open. 재전송/실제 입력/최종 발행0.

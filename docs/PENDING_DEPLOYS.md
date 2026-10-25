@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
 | `trending-product-finder` (운영 v1.27) | E9 「🛒 쇼핑몰 흐름」 띠(공용 `shop-flow-bar` 사본, 흐름으로 들어왔을 때만 보임)·상세페이지 링크에 흐름 표시(`flow=shop`) 붙이기. 시험 14개·`tsc` 통과, 화면 변화는 흐름 중일 때만 | `93b20e6b0` | 2026-10-25 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow · `trending-product-finder/AGENTS.md` | 다음 상품소싱 배포 때 함께(버전 +0.01) |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `naver-blog-agent` (운영 v2.21) | 다른 포스팅 방식에서 「발행 전까지」로 바꾸면 「예약 시각도 미리 넣어 두기」를 끔(화면 동작만) | `89d135c4b` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-blog3` | `naver-blog-agent/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
