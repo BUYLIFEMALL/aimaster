@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/* 셀러 워크벤치 스타일(라이트) — 흰 바탕 + 청록 강조. 모든 페이지 같은 바탕색(디자인 지침 ⑪) */
+:root {
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-soft: #e6f6f4;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", Roboto, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.slw-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.slw-btn,
+.slw-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+  min-height: 36px;
+}
+.slw-primary {
+  background: var(--accent);
+  color: #ffffff;
+  border: 1px solid var(--accent);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.22);
+}
+.slw-primary:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+.slw-btn {
+  background: #ffffff;
+  color: var(--text);
+  border: 1px solid #cbd5e1;
+}
+.slw-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-hover); }
+.slw-btn:disabled,
+.slw-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.slw-field {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+.slw-field:focus { outline: 2px solid rgba(15, 118, 110, 0.35); border-color: var(--accent); }
+.slw-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+
+.slw-drop {
+  border: 2px dashed #94a3b8;
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.slw-drop:hover,
+.slw-drop[data-over="true"] { border-color: var(--accent); background: var(--accent-soft); }
+
+/* 리포트 인쇄: 바탕을 흰색으로, 카드 그림자 없이 */
+@media print {
+  html, body { background: #ffffff !important; }
+  .slw-card { box-shadow: none; break-inside: avoid; }
+}
