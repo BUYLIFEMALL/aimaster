@@ -75,6 +75,11 @@
 - 이후 다시 본 documents는 Naver 계정·목록0. Gmail 업로드 문서2개는 운영 DB(ref esgxyikcnnvmlhygjkth) ready·각1조각으로 유지, 회원 간 자료/키 복사 없음. 주인님이 방금 어떤 계정으로 입력했는지 확인 질문을 남김(입력 실수/인증 오류 원인 단정 안 함). 기존 Gmail 로그인 요청186e15c8 유지, 새 등록/재업로드 요청 없음.
 - 코드/회원자료/AI 호출/빌드/배포 변경0. 문서 질문1회(임베딩1·텍스트1)는 아직 미실행·원래 승인 한도 유지. 로그인 확인 뒤 두 문서 선택·웹 끄고 출처/본문 검수. 인수인계 bf241380a 및 후속 기록, 역할 b2ecb02eb. 본인 ACTIVE_WORK 해제. [상세](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md). 운영 https://ai-doc-chatbot.buylife.xyz v1.07 미배포 대기.
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.20 키 위치 안내 표
+- 한 일: 주인님 「플랫폼 연동 부분도 정확하게 어느 위치에 있는 어떤 값이라고 명시」 → 공용 컴포넌트 `components/KeyGuide.tsx` 「🔑 어떤 값을 어디서 가져오나요?」(텔레그램 봇 토큰·카카오 REST 키·클라이언트 시크릿·Resend·공공데이터 일반 인증키 — 사이트·메뉴 위치·값 모양·「이건 아니에요」), 설정 화면 맨 위(펼침)·받는 방법(접힘), 입력 칸 예시 문구에 위치, 공공데이터 카드에 「서울 열린데이터·브이월드 키 아님」.
+- 검수: 시험 47개·build, 배포 `realty-listing-alert-nrt4iopny` Ready, DB v1.20·`check-extension-release` OK, 크롬 설정 화면 표 확인.
+- 비용: 빌드 1회(실거래 비교 승인 1~2회 중 2번째).
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.19 실거래가 비교
 - 한 일: 국토교통부 아파트 매매 실거래가(전국, 기존 실거래 프로그램은 서울만이라 일산 없음)로 매매 매물 「실거래 대비」 — 확장이 단지 법정동 코드(`findCortarNo`, 단지 정보 응답 → 없으면 탭 안 1회 조회, 회원 PC `complexInfo` 기억), 서버 `app/api/extension/trades/route.ts`(단지 이름·시군구만 받음, 최근 6개월, `lib/trades.ts` 이름 맞추기·해제 제외·면적별 ㎡당 중간값), 확장 `attachTradeGaps`(하루 1번, `tradeCache`), 결과 표·단지 비교표·텔레그램·메일 표시(높음 파란 ▲·낮음 빨간 ▼), 설정 「🏛 공공데이터 키(선택)」 카드(신청 링크 15057532), 매뉴얼 질문, 휴대폰 보정 2개. 키: 회원 본인 `data_go_kr_service_key` → 없으면 운영자 `DATA_GO_KR_SERVICE_KEY`(TOP_RULE §8 2026-10-25 승인). PC 프로그램은 설치 필요라 제외(주인님).
 - 검수: 시험 47개·tsc·eslint·build, 배포 `realty-listing-alert-l3xhosool` Ready, DB v1.19·`check-extension-release` OK. **실제 국토부 응답은 아직 미확인** — 이 프로젝트 Vercel에 운영자 키 없음(실거래 프로그램의 값은 Sensitive라 복사 불가) → 주인님이 설정 카드에 본인 공공데이터 일반 인증키를 넣은 뒤 「지금 수집」 → 확장 기록 「실거래 비교: 단지 n/m곳 자료 있음」 확인. 데이터셋 15057532 키가 새 주소(`apis.data.go.kr/1613000/RTMSDataSvcAptTrade`)에서 인증 오류면 확장 기록에 그 문구가 남음 → 그때 주소 조정.
