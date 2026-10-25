@@ -59,11 +59,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <div className="settings-divider" />
         <h2>✉️ 이메일(Resend) · 💬 카카오톡 연동</h2>
         <p className="lede">이메일은 요약 + 엑셀 파일, 카카오톡은 요약만 받아요. 연결한 뒤 「받는 방법」에서 켜 주세요.</p>
-        <div className="ra-howto-grid">
-          <KeyHowTo ids={["resend"]} title="이메일(Resend) 연동 방법" />
-          <KeyHowTo ids={["kakao"]} title="카카오톡 연동 방법" />
-        </div>
         <ChannelCards
+          emailHowTo={<KeyHowTo ids={["resend"]} title="이메일(Resend) 연동 방법" />}
+          kakaoHowTo={<KeyHowTo ids={["kakao"]} title="카카오톡 연동 방법" />}
           kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey, notice: kakaoNotice } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey, notice: kakaoNotice }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
           initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "", aiSummary: ch?.notify_ai_summary ?? false, aiProvider: toAiProvider(ch?.ai_provider) }}

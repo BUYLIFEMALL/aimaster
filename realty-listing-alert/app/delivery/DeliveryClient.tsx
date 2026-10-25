@@ -384,7 +384,8 @@ export function AiKeysCard({ ai, models }: { ai: AiInfo; models: Record<string, 
 }
 
 // 💬 카톡 + ✉️ 이메일 연결 묶음 — 「API키등록·플랫폼연동」 화면 전용(등록·연동만)
-export function ChannelCards({ kakao, email, initial }: { kakao: KakaoInfo; email: EmailInfo; initial: ChannelInitial }) {
+/** emailHowTo·kakaoHowTo: 각 연결 카드 바로 위에 1줄씩 놓을 「📖 연동 방법」 상자(2026-10-25 주인님 「1줄씩 배치」) */
+export function ChannelCards({ kakao, email, initial, emailHowTo, kakaoHowTo }: { kakao: KakaoInfo; email: EmailInfo; initial: ChannelInitial; emailHowTo?: React.ReactNode; kakaoHowTo?: React.ReactNode }) {
   const router = useRouter();
   const [emailTo, setEmailTo] = useState(initial.emailTo);
   const [pending, start] = useTransition();
@@ -400,8 +401,8 @@ export function ChannelCards({ kakao, email, initial }: { kakao: KakaoInfo; emai
   }
   return (
     <>
-      <div id="email"><EmailCard email={email} emailTo={emailTo} disabled={pending} onEmailTo={saveEmailTo} /></div>
-      <div id="kakao"><KakaoCard kakao={kakao} /></div>
+      <div id="email">{emailHowTo}<EmailCard email={email} emailTo={emailTo} disabled={pending} onEmailTo={saveEmailTo} /></div>
+      <div id="kakao">{kakaoHowTo}<KakaoCard kakao={kakao} /></div>
       <Message msg={msg} />
     </>
   );
