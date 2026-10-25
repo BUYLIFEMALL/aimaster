@@ -68,12 +68,12 @@ export default async function DashboardPage() {
         <div className="topline">
           <div>
             <div className="eyebrow">Dashboard</div>
-            <h1>관심 단지 새 매물,<br />텔레그램으로 받아 보세요</h1>
+            <h1>관심 단지 새 매물,<br />텔레그램·카톡·메일로 받아 보세요</h1>
             <p className="lede">수집은 회원님 PC의 크롬이 회원님 계정으로 합니다. 매물 정보는 이 사이트로 오지 않습니다.</p>
           </div>
         </div>
 
-        <StartChecklist facts={{ email: user.email ?? "", hasToken: (tokenCount ?? 0) > 0, telegram: hasChannel, targetCount: total, scheduleOn: !!settings?.schedule_enabled }} />
+        <StartChecklist facts={{ email: user.email ?? "", hasToken: (tokenCount ?? 0) > 0, telegram: hasChannel, targetCount: total, scheduleOn: !!settings?.schedule_enabled, lastRunAt: device?.last_run_at ?? null }} />
 
         <section className="card" aria-labelledby="install-title">
           <h2 className="card-title" id="install-title">🖥 원클릭 다운로드 센터</h2>

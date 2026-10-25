@@ -5,11 +5,12 @@
 import { useEffect, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 
-type Facts = { hasToken: boolean; telegram: boolean; targetCount: number; scheduleOn: boolean; email: string };
+/** lastRunAt: 확장이 서버에 보고한 마지막 수집 시각(숫자 상태) — 카톡 링크처럼 확장이 없는 브라우저에서 열어도 동작 중인지 알 수 있게(2026-10-25) */
+type Facts = { hasToken: boolean; telegram: boolean; targetCount: number; scheduleOn: boolean; email: string; lastRunAt?: string | null };
 type Step = { key: string; icon: string; title: string; desc: string; done: boolean; action: { label: string; href: string; external?: boolean; download?: boolean } };
 
 export default function StartChecklist({ facts }: { facts: Facts }) {
-  const [ext, setExt] = useState<{ installed: boolean; connected: boolean; otherEmail: string | null } | null>(null);
+  const [ext, setExt] = useState<{ installed: boolean; connected: boolean; otherEmail: string | null; elsewhere?: boolean } | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -19,10 +20,12 @@ export default function StartChecklist({ facts }: { facts: Facts }) {
       const linked = p?.ok ? (p.connected ?? facts.hasToken) : false;
       // 확장이 다른 계정에 연결돼 있으면 이 계정 기준으로는 「연결 전」(2026-10-25 시험에서 발견)
       const other = linked && p?.email && p.email.toLowerCase() !== facts.email.toLowerCase() ? p.email : null;
-      setExt({ installed: !!p?.ok, connected: linked && !other, otherEmail: other });
+      // 이 브라우저에 확장이 없어도 최근 3일 안에 이 계정으로 수집 기록이 있으면, 다른 브라우저·PC에서 동작 중으로 본다
+      const recent = !p?.ok && facts.hasToken && !!facts.lastRunAt && Date.now() - new Date(facts.lastRunAt).getTime() < 3 * 24 * 3600 * 1000;
+      setExt({ installed: !!p?.ok || recent, connected: (linked && !other) || recent, otherEmail: other, elsewhere: recent });
     });
     return () => { alive = false; };
-  }, [facts.hasToken, facts.email]);
+  }, [facts.hasToken, facts.email, facts.lastRunAt]);
 
   const steps: Step[] = [
     { key: "install", icon: "🧩", title: "확장 설치", desc: "크롬에 매물 알림 확장을 설치해요(1번만).", done: !!ext?.installed, action: { label: "⬇ 확장 받기", href: "/downloads/realty-listing-alert-extension-latest.zip", download: true } },
@@ -37,6 +40,9 @@ export default function StartChecklist({ facts }: { facts: Facts }) {
   if (ext && !next) {
     return (
       <section className="card start-done">
+        {ext.elsewhere && (
+          <p className="ra-elsewhere">💻 이 브라우저에는 확장이 없지만, 다른 브라우저·PC에서 확장이 잘 돌고 있어요 — 마지막 수집 {new Date(facts.lastRunAt!).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+        )}
         <strong>✅ 준비 완료!</strong> 크롬이 켜져 있으면 확장이 정해진 간격마다 단지를 살펴보고, 새 매물·가격 변동을 연결한 곳(텔레그램·카톡·이메일)으로 알려 드려요.
       </section>
     );

@@ -735,3 +735,4 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-hint { display: grid; gap: 4px; margin-top: 14px; padding: 12px 16px; border: 1px solid #f3d9a8; border-radius: 12px; background: #fffaf0; font-size: 14px; line-height: 1.7; color: #374151; }
 .ra-hint strong { color: #111827; }
 .ra-hint .ra-domain { color: #dc2626; font-weight: 800; background: #fee2e2; padding: 1px 6px; border-radius: 6px; word-break: break-all; }
+.ra-elsewhere { margin: 0 0 8px; font-size: 14px; color: #1d4ed8; font-weight: 700; }
