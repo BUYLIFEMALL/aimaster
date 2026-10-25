@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — AI 가사영상 v1.11 노래방 로마자 발음(Lyricbi L-1)
+- 한 일: 새 `lyric-video-studio/src/lib/romanize.ts`(국립국어원 로마자 표기법 기본 규칙, AI 없음) + 시험 5개, 디자인 「노래방 로마자 발음: 끔/가사 위/가사 아래」(기본 끔), `drawLyrics`가 지금 줄 위·아래에 작게 그림.
+- 검수: tsc·시험 19개·로컬 빌드 통과. 실제 `drawFrame`을 묶은 내 PC 전용 미리보기로 네온 노래방(아래)·나이트 스테이지(위)·오션 박스(박스 밖)·세로 네온 4장 확인. 운영 크롬: 디자인 화면 선택 칸·버전 v1.11 확인. 못 한 것: 운영에서 곡을 넣은 미리보기·MP4(시험 곡 없음 — 그리기 함수는 같은 코드).
+- 커밋 `feat(lyric-video-studio): karaoke romanization`, 배포 `lyric-video-studio-llsm8b5q9` Ready, DB v1.11.
+- 남은 것: L-2~L-5와 `?remix=` — 승인 빌드 남은 1회로 함께 배포.
+- 링크: https://lyric-video-studio.buylife.xyz/design
+- 비용: Vercel 빌드 1회(승인 2회 중), AI 호출 0.
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.23 AI 3가지·모델 고르기·받는 방법 정리
 
 - **한 일**: AI 시세 요약에 Claude 추가(공용 키 `anthropic`), 설정 화면에서 AI별 모델 고르기(블로그 SEO 스튜디오 `contentModels.ts`·`openaiModels.ts` 목록을 `lib/aiModels.ts`로, 맨 앞 가성비 기본값, 확장이 고른 모델로 호출). 「받는 방법」은 사용 위주 — 📬 받는 곳 카드(텔레그램→이메일→카톡→AI 순, 상태·켜기·테스트 발송, 미연결이면 「연동하러 가기 →」), 「무엇을 보낼까요?」 카드 삭제(저장값 기본값 유지). 연동·키 등록은 「API키등록·플랫폼연동」 한곳(연동 방법 상자 1줄씩 각 연결 카드 위, AI 키 3칸+모델). 카카오는 연동이 어려워 어디서나 맨 뒤(매뉴얼 「(선택)」), 카카오 연결 뒤 돌아오는 곳 `/settings`.
