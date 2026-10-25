@@ -47,7 +47,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const pdKey = Boolean(pdRow?.api_key);
   const pdTail = typeof pdRow?.api_key === "string" ? pdRow.api_key.slice(-4) : ""; // 화면엔 끝 4자리만
   const lastUsedAt = (tokens ?? []).map((t) => t.last_used_at).filter(Boolean).sort().pop();
-  const lastUsed = lastUsedAt ? new Date(lastUsedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "없음";
+  const lastUsed = lastUsedAt ? new Date(lastUsedAt).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric" }) : "없음";
   return (
     <main className="settings-layout">
       <StudioSidebar email={user.email ?? ""} active="settings" />
@@ -61,10 +61,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <div className="ra-card-head"><h2 className="card-title"><span className="ra-step">① 필수</span>🧩 크롬 확장</h2></div>
           <SetupTable head={["항목", "상태", "정보"]} rows={[{
             id: "extension", name: "🧩 확장", on: (tokens?.length ?? 0) > 0, onLabel: "✓ 연결됨", offLabel: "연결 전",
-            info: (tokens?.length ?? 0) > 0 ? `연결된 PC ${tokens!.length}대 · 마지막 사용 ${lastUsed}` : "확장을 설치한 브라우저에서 「확장 프로그램 바로 연결」을 눌러 주세요",
-            quick: <ExtensionConnectButton />,
-            issue: { href: "/downloads/realty-listing-alert-extension-latest.zip", label: `⬇ 받기 (${APP_VERSION})` },
-            openLabel: "설치 방법·다른 PC",
+            info: (tokens?.length ?? 0) > 0 ? `${APP_VERSION} · PC ${tokens!.length}대 · 최근 ${lastUsed}` : "설치 후 「연결」을 눌러 주세요",
+            quick: <ExtensionConnectButton label="연결" />,
+            issue: { href: "/downloads/realty-listing-alert-extension-latest.zip", label: "⬇ 받기" },
+            openLabel: "설치·PC",
             detail: (<>
               <ExtensionDownloadCard />
               <p className="token-manual-title">예전 PC나 다른 크롬 프로필에 연결된 확장을 끊을 수 있어요. 다시 연결하려면 그 브라우저에서 「확장 프로그램 바로 연결」을 누르면 됩니다.</p>
@@ -79,9 +79,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             {
               id: "telegram", name: "📨 텔레그램", sub: "요약 + 엑셀", on: Boolean(link),
               info: link ? `@${link.bot_username ?? "봇"}` : "회원님 텔레그램 봇 토큰으로 연결",
-              quick: link ? <ConfirmButton label="연결 끊기" confirm="텔레그램 연결을 끊어요" action={disconnectTelegramAction} /> : null,
+              quick: link ? <ConfirmButton label="끊기" confirm="텔레그램 연결을 끊어요" action={disconnectTelegramAction} /> : null,
               issue: { href: "https://t.me/BotFather", label: "발급 ↗" },
-              openLabel: link ? "연동 방법" : "연결하기",
+              openLabel: link ? "방법" : "연결하기",
               detail: (<>
                 <KeyHowTo ids={["telegram"]} title="텔레그램 연동 방법" />
                 <TelegramCard telegram={link ? { botUsername: link.bot_username ?? null, linkedAt: link.linked_at ?? null } : null} realEstateBot={realEstateBot ? { botUsername: realEstateBot.bot_username ?? null } : null} />
@@ -89,7 +89,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             },
             {
               id: "email", name: "✉️ 이메일", sub: "요약 + 엑셀", on: Boolean(resendKey),
-              info: resendKey ? `키 ••••${resendKey.slice(-4)} · 받는 주소 ${ch?.email_to || "없음(수정에서 넣기)"}` : "회원님 Resend(무료) 키로 보내요",
+              info: resendKey ? `••••${resendKey.slice(-4)} · ${ch?.email_to || "받는 주소 없음"}` : "Resend(무료) 키로 보내요",
               quick: resendKey ? <ConfirmButton label="삭제" confirm="Resend 키를 지워요" action={deleteResendKeyAction} /> : null,
               issue: { href: "https://resend.com/api-keys", label: "발급 ↗" },
               detail: (<>
@@ -99,7 +99,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             },
             {
               id: "kakao", name: "💬 카카오톡", sub: "요약만", on: kakao.status === "ok", onLabel: "✓ 연결됨",
-              info: kakao.status === "ok" ? `연결됨${kakao.nickname ? ` (${kakao.nickname})` : ""}` : kakaoKey ? "앱 키 저장됨 · 「연결하기」에서 카카오 연결" : "회원님 카카오 앱으로 연결(연동이 어려워 맨 뒤)",
+              info: kakao.status === "ok" ? (kakao.nickname ? `${kakao.nickname}` : "카카오 계정") : kakaoKey ? "앱 키 저장됨 · 연결 전" : "회원님 카카오 앱으로 연결",
               issue: { href: "https://developers.kakao.com/console/app", label: "발급 ↗" },
               defaultOpen: Boolean(kakaoNotice),
               detail: (<>
@@ -117,7 +117,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <div className="ra-card-head"><h2 className="card-title"><span className="ra-step opt">④ 선택</span>🏛 실거래가 비교</h2></div>
           <SetupTable head={["항목", "상태", "API 키"]} rows={[{
             id: "publicData", name: "🏛 공공데이터", on: pdKey,
-            info: pdKey ? `키 ••••${pdTail} · 내 키로 비교 중` : "키가 없으면 운영자 공용 키로 비교해요",
+            info: pdKey ? `••••${pdTail} · 내 키로 비교` : "없으면 공용 키로 비교",
             quick: pdKey ? <ConfirmButton label="삭제" confirm="공공데이터 키를 지워요" action={deletePublicDataKeyAction} /> : null,
             issue: { href: "https://www.data.go.kr/data/15057532/openapi.do", label: "신청 ↗" },
             detail: (<>

@@ -8,7 +8,7 @@ import { createExtensionToken, retireStaleAutoTokens } from "@/lib/tokenActions"
 
 type State = { kind: "idle" | "working" | "done" | "error"; message: string };
 
-export default function ExtensionConnectButton({ auto = false }: { auto?: boolean }) {
+export default function ExtensionConnectButton({ auto = false, label = "확장 프로그램 바로 연결" }: { auto?: boolean; label?: string }) {
   const [state, setState] = useState<State>({ kind: "idle", message: "" });
   const started = useRef(false);
 
@@ -35,7 +35,7 @@ export default function ExtensionConnectButton({ auto = false }: { auto?: boolea
   }, [auto]);
 
   return <div className="extension-connect">
-    <button type="button" onClick={connect} disabled={state.kind === "working"}>{state.kind === "working" ? "연결 중..." : "확장 프로그램 바로 연결"}</button>
+    <button type="button" onClick={connect} disabled={state.kind === "working"}>{state.kind === "working" ? "연결 중..." : label}</button>
     {state.message && <p className={state.kind === "error" ? "token-error" : "extension-connect-status"}>{state.message}</p>}
   </div>;
 }

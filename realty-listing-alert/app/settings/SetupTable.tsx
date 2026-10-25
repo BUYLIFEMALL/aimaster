@@ -26,7 +26,7 @@ export function SetupTable({ rows, head = ["항목", "상태", "연결 정보"] 
   return (
     <div className="ra-aitbl-wrap">
       <table className="ra-aitbl ra-setup">
-        <colgroup><col style={{ width: 140 }} /><col style={{ width: 100 }} /><col /><col style={{ width: 300 }} /></colgroup>
+        <colgroup><col style={{ width: 104 }} /><col style={{ width: 82 }} /><col /><col style={{ width: 196 }} /></colgroup>
         <thead><tr><th>{head[0]}</th><th>{head[1]}</th><th>{head[2]}</th><th /></tr></thead>
         <tbody>
           {rows.map((r) => (
