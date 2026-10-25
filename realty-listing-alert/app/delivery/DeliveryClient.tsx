@@ -331,6 +331,7 @@ function AiEngineRow({ id, has, tail, selected, savedModel, disabled, onSelect }
   const [key, setKey] = useState("");
   const [editKey, setEditKey] = useState(false);
   const [askDelete, setAskDelete] = useState(false);
+  const [editModel, setEditModel] = useState(false); // 저장 뒤엔 잠그고 「수정」만(2026-10-25 「저장하고 나면 수정,삭제」)
   const [msg, setMsg] = useState<Msg>(null);
   const [busy, start] = useTransition();
   const saveKey = () => start(async () => {
@@ -351,6 +352,7 @@ function AiEngineRow({ id, has, tail, selected, savedModel, disabled, onSelect }
     const r = await saveAiModelAction(id, model);
     if (r.error) { setMsg({ kind: "err", text: r.error }); return; }
     setSaved(model);
+    setEditModel(false);
   });
   return (
     <div className="ra-engine-row">
@@ -389,10 +391,17 @@ function AiEngineRow({ id, has, tail, selected, savedModel, disabled, onSelect }
           </div>
         )}
         <div className="ra-engine-line">
-          <select id={`aiModel-${id}`} value={model} disabled={busy} onChange={(e) => setModel(e.target.value)}>
+          <select id={`aiModel-${id}`} value={model} disabled={busy || !editModel} onChange={(e) => setModel(e.target.value)}>
             {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
-          <button type="button" className={`ra-save-state ${model === saved ? "done" : "todo"}`} disabled={busy || model === saved} onClick={saveModel}>{model === saved ? "✅ 저장됨" : "저장"}</button>
+          {editModel ? (
+            <>
+              <button type="button" className="ra-save-state todo" disabled={busy} onClick={saveModel}>{busy ? "저장 중..." : "저장"}</button>
+              <button type="button" className="ra-keybtn" onClick={() => { setModel(saved); setEditModel(false); }}>취소</button>
+            </>
+          ) : (
+            <button type="button" className="ra-keybtn" onClick={() => setEditModel(true)}>수정</button>
+          )}
         </div>
         </div>
         <Message msg={msg} />
@@ -422,7 +431,7 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
         <h2 className="card-title">🤖 AI 시세 요약 엔진 선택 <small className="ra-engine-sub">GPT / Claude / Gemini · 선택</small></h2>
         <span className="ra-status on">요약에 적용</span>
       </div>
-      <p className="card-caption">왼쪽 카드를 눌러 요약에 쓸 엔진을 고르세요. 키를 넣고 「저장」하면 「✓ 등록됨」, 모델은 고르고 「저장」하면 「✅ 저장됨」이에요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
+      <p className="card-caption">왼쪽 카드를 눌러 요약에 쓸 엔진을 고르세요. 키를 넣고 「저장」하면 「✓ 등록됨」이 되고, 저장한 키·모델은 「수정」으로 바꿔요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
       {AI_ENGINES.map((e) => (
         <AiEngineRow key={e.id} id={e.id} has={has[e.id]} tail={ai.tails?.[e.id] ?? ""} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
       ))}

@@ -915,3 +915,5 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-key-model { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 8px; align-items: center; }
 .ra-key-model .ra-engine-line { flex-wrap: nowrap; }
 @media (max-width: 900px) { .ra-key-model { grid-template-columns: 1fr; } }
+.ra-engine-line select:disabled { background: #f8fafc; color: #111827; opacity: 1; cursor: default; }
+.ra-engine-line .ra-keybtn { flex: 0 0 auto; }
