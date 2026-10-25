@@ -167,7 +167,7 @@ export default function GuidePage() {
             </span>
             <Link
               href="/studio"
-              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:brightness-110 transition-all shadow-md shadow-cyan-500/20"
+              className="btn-3d-cyan px-3.5 py-1.5 text-xs font-extrabold"
             >
               지금 만들기
             </Link>
@@ -505,7 +505,7 @@ export default function GuidePage() {
           <div className="pt-2">
             <Link
               href="/studio"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-extrabold bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:brightness-110 transition-all shadow-xl shadow-cyan-500/25"
+              className="btn-3d-cyan px-6 py-3 text-sm font-extrabold"
             >
               <Sparkles className="w-4 h-4" />
               <span>플레이리스트 스튜디오 바로가기</span>

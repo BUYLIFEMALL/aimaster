@@ -1,49 +1,29 @@
-# 플레이리스트 채널 제작 자동화 (playlist-channel-studio) — 디자인 & 로그인 2탭 개편 인수인계서
+# YOUTUBE 플레이리스트 자동화 (playlist-channel-studio) 디자인 & 기능 리뉴얼 인수인계 (v1.32)
 
-> **작업 일시**: 2026-10-17
-> **담당 CLI**: Antigravity (`agy`)
-> **버전**: `v1.09` ➔ **`v1.10`**
-> **적용 디자인 템플릿**: **사이버 네온 다크 콘솔 스타일 (Cyber Neon Dark Console Style)**
-> **공식 서비스 URL**: `https://playlist-maker.buylife.xyz`
-> **로그인 URL**: `https://playlist-maker.buylife.xyz/login`
+> **일시**: 2026-10-25
+> **버전**: `v1.32` (이전 v1.31)
+> **서비스 주소**: https://playlist.buylife.xyz (https://playlist-maker.buylife.xyz)
+> **Vercel 프로덕션**: `https://playlist-channel-studio-lswunya9c-buylife.vercel.app`
 
 ---
 
-## 1. 개요 및 목적
-주인님의 전체 서브프로그램 로그인/회원가입 표준 2탭 레이아웃(`threads-comment-reply` 표준 규격) 통일 지침에 따라, `playlist-channel-studio`의 로그인 라우트를 2탭 세그먼트 표준 레이아웃으로 전면 개편하고 기존 구형 라이트 박스로 인한 테마 불일치를 완벽히 해소했습니다.
+## 1. 디자인 템플릿 3대 기준 명시 (DESIGN.md 원칙 22 준수)
+1. **어떤 템플릿인가**: `사이버 네온 & 유튜브 다크 스튜디오 스타일 (Cyber Neon & YouTube Dark Studio Style)`
+2. **어떤 스타일인가**: 퓨어 옵시디언 블랙(`#060911` / `#0f0f0f`) 베이스에 사이버 네온 사이언(`#06b6d4`)과 유튜브 오리지널 레드(`#ef4444` / `#ff0000`) 듀얼 포인트가 결합된 하이테크 방송국 콘솔 스타일 + 4px 물리적 키캡 푸시 모션의 3D 엠보싱 버튼 세트(`.btn-3d-primary`, `.btn-3d-cyan`, `.btn-3d-emerald`, `.btn-create-key`, `.btn-platform-signup`).
+3. **왜 이 프로그램에 적용되어 있는가 (선정 이유)**: 유튜브 전문 영상 채널 제작에 최적화된 방송국 데스크 감성을 제공하고, 오디오 비주얼라이저 10종 스펙트럼 조작과 WebCodecs 1080p 고속 렌더링 및 YouTube Data API v3 연동을 직관적으로 완료할 수 있도록 하기 위함.
 
 ---
 
-## 2. 디자인 명세 및 컬러 토큰
-- **배경 테마**: `#060911` (딥블랙) + 24px 간격 사이안 모눈 격자 (`radial-gradient(rgba(6, 182, 212, 0.12) 1px, transparent 1px)`)
-- **카드 서피스**: `#0b1120`/90 다크 글래스모피즘, `border-cyan-500/20`, `shadow-2xl shadow-black/80`
-- **시그니처 포인트**:
-  - 상단 사이안-인디고 네온 `ListMusic` 심볼 (`from-cyan-500 to-indigo-500`, `ring-1 ring-cyan-400/30`)
-  - `AIMaster 통합 계정` 알약 뱃지 (`bg-cyan-500/10 border-cyan-500/30 text-cyan-300`)
-  - 2탭 세그먼트 컨트롤: `bg-[#0b101b]/80`, 활성 탭 `from-cyan-500 to-indigo-500` 그라디언트
-  - 인풋 필드: 좌측 아이콘(Mail, Lock), `pl-[42px]` 인셋 패딩, 포커스 시 `border-cyan-500` 및 `ring-cyan-500/20`
-  - 액션 버튼: `from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600` 풀위드
-  - 회원가입 탭: 단일 계정(SSO) 안내 박스, 플레이리스트 기획/선곡 혜택 체크리스트 3종, `AIMaster에서 무료 회원가입하기` 링크 버튼
-  - 푸터: 이용약관 · 개인정보처리방침 · 고객지원 통합 링크
-
----
-
-## 3. 변경 파일 목록
-- `playlist-channel-studio/src/lib/version.ts`: `v1.10` 갱신 및 `MAIN_SITE` export
-- `playlist-channel-studio/package.json`: version `1.10.0`
-- `playlist-channel-studio/src/app/(auth)/login/page.tsx`: 표준 2탭 세그먼트 레이아웃 전면 구현
-- `playlist-channel-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`: 작업 기획 플랜 문서
-- `playlist-channel-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`: 개선사항 및 인수인계 문서
-- `playlist-channel-studio/docs/DESIGN_HANDOFF.md`: 본 디자인 완료 인수인계서
-- `scripts/verify_edge_playlist_login_v110.cjs`: Microsoft Edge 실세션 검수 스크립트
-
----
-
-## 4. 빌드 및 배포 검증
-- **로컬 빌드**: `npm run build` (Turbopack) 성공 (`Compiled successfully in 6.2s`, `Finished TypeScript in 3.6s`)
-- **Vercel 프로덕션 배포**: `dpl_4LZVWwSijXqkr1DqigzE6vqKiWoq` 성공 (`READY`, `Aliased https://playlist-maker.buylife.xyz`)
-- **DB 버전 동기화**: `programs.version = 'v1.10'`, `app_url = 'https://playlist-maker.buylife.xyz'` 확인 완료
-- **Microsoft Edge 실세션 검수 캡처 확인**:
-  1. `edge_playlist_login_desktop_v110.png` (데스크톱 1280x900 로그인 탭)
-  2. `edge_playlist_signup_desktop_v110.png` (데스크톱 1280x900 회원가입 탭)
-  3. `edge_playlist_login_mobile_v110.png` (모바일 390x844 로그인 탭)
+## 2. v1.32 주요 변경 사항
+1. **플랫폼 공식 키발급 2단 퀵액션 버튼 세트 탑재**:
+   - `ApiKeySettings.tsx`: Google Gemini, OpenAI, Claude, Google Cloud (YouTube Data API v3) 공식 키 발급 바로가기(`.btn-create-key`) + 가입 바로가기(`.btn-platform-signup`) 2단 퀵액션 버튼 세트 전면 탑재.
+   - 키 저장/교체 버튼의 3D 엠보싱화(`.btn-3d-cyan`).
+2. **글로벌 3D 엠보싱 버튼 규격화**:
+   - `globals.css`: 사이버 네온 사이언 테마 및 유튜브 레드 테마 수직 2단 그라데이션, `box-shadow: 0 4px 0 ...`, hover 시 부유(-1.5px), active 시 4px 눌림 모션 완벽 구현.
+3. **핵심 실행 버튼 3D 엠보싱화**:
+   - 스튜디오 공용 실행 버튼([`common.tsx`](file:///D:/Antigravity/AIMaster/playlist-channel-studio/src/components/studio/common.tsx) `PrimaryButton`): 3D 사이언 버튼(`.btn-3d-cyan`) 전면 적용.
+   - 1080p MP4 고속 영상 렌더링([`ExportStudio.tsx`](file:///D:/Antigravity/AIMaster/playlist-channel-studio/src/components/video/ExportStudio.tsx)): 내보내기/렌더링 시작 버튼 3D 유튜브 레드(`.btn-3d-primary`)화.
+   - 유튜브 업로드 카드([`YoutubeUploadCard.tsx`](file:///D:/Antigravity/AIMaster/playlist-channel-studio/src/components/video/YoutubeUploadCard.tsx)): "유튜브에 올리기" 3D 엠보싱(`.btn-3d-primary`) 적용.
+   - 가이드북([`guide/page.tsx`](file:///D:/Antigravity/AIMaster/playlist-channel-studio/src/app/(dashboard)/guide/page.tsx)): 상단 및 하단 CTA 버튼 3D 사이언(`.btn-3d-cyan`)화.
+4. **네이버 웨일(Whale) 실제 창(1440x900) 실세션 검수 완료**:
+   - 스튜디오, 설정 화면(키발급 2단 버튼), 가이드북, 영상 만들기 화면 전면 검수 완료.

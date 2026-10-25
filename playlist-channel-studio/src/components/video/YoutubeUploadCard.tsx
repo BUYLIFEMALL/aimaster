@@ -221,7 +221,7 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
               <div className="text-[11px] text-[#aaa]">{pct < 100 ? `유튜브로 보내는 중 ${pct}% — 이 탭을 닫지 마세요` : "유튜브가 받은 영상을 확인하는 중…"}</div>
             </div>
           )}
-          <button type="button" disabled={!video || disabled || pct !== null || !form.title.trim()} onClick={() => void upload()} className="w-full py-3 rounded-xl text-xs font-bold bg-[#ff0000] text-white disabled:opacity-40 inline-flex items-center justify-center gap-1.5"><Upload className="w-3.5 h-3.5" />{done.length ? "유튜브에 한 번 더 올리기" : "유튜브에 올리기"}</button>
+          <button type="button" disabled={!video || disabled || pct !== null || !form.title.trim()} onClick={() => void upload()} className="btn-3d-primary w-full py-3 text-xs font-bold disabled:opacity-40"><Upload className="w-3.5 h-3.5" />{done.length ? "유튜브에 한 번 더 올리기" : "유튜브에 올리기"}</button>
           {done.length > 0 && <div className="text-[11px] text-[#aaa]">⚠️ 다시 누르면 새 영상으로 하나 더 올라갑니다.</div>}
         </div>
       )}

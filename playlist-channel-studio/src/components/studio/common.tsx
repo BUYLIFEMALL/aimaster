@@ -33,7 +33,7 @@ export function PrimaryButton({ busy, children, ...rest }: React.ButtonHTMLAttri
       type="button"
       {...rest}
       disabled={busy || rest.disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.35)] hover:shadow-[0_0_22px_rgba(6,182,212,0.5)] transition-all disabled:opacity-50 disabled:shadow-none ${rest.className ?? ""}`}
+      className={`btn-3d-cyan px-5 py-2.5 text-sm font-extrabold ${rest.className ?? ""}`}
     >
       {busy && <Loader2 size={16} className="animate-spin text-slate-950" />}
       {children}

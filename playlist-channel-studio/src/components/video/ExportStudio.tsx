@@ -303,9 +303,7 @@ export function ExportStudio({
             onClick={startExport}
             disabled={isExporting || tracks.length === 0}
             className={`w-full py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-md ${
-              isExporting
-                ? "bg-[#272727] text-[#777777] cursor-wait"
-                : "bg-[#ff0000] hover:bg-[#cc0000] text-white cursor-pointer shadow-red-950"
+              isExporting ? "bg-[#272727] text-[#777777] cursor-wait rounded-2xl" : "btn-3d-primary"
             }`}
           >
             {isExporting ? (
