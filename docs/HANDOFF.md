@@ -32,7 +32,7 @@
 
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.13 왼쪽 메뉴 수집 결과
 - 한 일: 왼쪽 메뉴 「4 · 📄 수집 결과」(주인님 「좌측에 메뉴는 보여야 할꺼 아냐」 「그래야 직관적이지」) — 전용 화면 `/results`(대시보드 결과 표와 같은 컴포넌트). 확장 1.13.0/v1.13(코드 같음, 버전 맞춤).
-- 검수: 시험 31개·tsc·eslint·build, 배포 `realty-listing-alert-6853xdxvy` Ready, 크롬 운영 `/results`에서 왼쪽 메뉴 4번·화면 확인. **결과 표 실물은 미확인** — v1.12 이후 새 수집이 아직 없어 「예전 확장 결과」 안내만 보임(오늘 하루 한도 도달 가능성, 팝업 최근 기록 확인 필요). v1.12 DB 버전 SQL은 주인님 요청으로 Claude가 크롬 SQL 편집기에서 실행(결과 v1.12·check-extension-release OK). v1.13 SQL은 편집기 입력, 주인님 Run 대기.
+- 검수: 시험 31개·tsc·eslint·build, 배포 `realty-listing-alert-6853xdxvy` Ready, 크롬 운영 `/results`에서 왼쪽 메뉴 4번·화면 확인. **결과 표 실물 확인 완료(15:03 수집)**: `/results`에 단지·동·거래·가격(월세 「6,000 / 190」)·면적·층·상태·중개사 상호·번호 칸·네이버 링크 표, 「변동만/전체 보기」 전환 동작. 처음 표가 안 보인 것은 고장이 아니라 확장 교체 뒤 새 수집 전이었음(예약 다음 차례 15:25). 표는 300줄까지만(이번 748건) — 나머지는 엑셀. v1.12 DB 버전 SQL은 주인님 요청으로 Claude가 크롬 SQL 편집기에서 실행(결과 v1.12·check-extension-release OK). v1.13 SQL은 편집기 입력, 주인님 Run 대기.
 - 링크: https://realty-listing-alert.buylife.xyz/results
 
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.12 대시보드 최근 수집 결과
