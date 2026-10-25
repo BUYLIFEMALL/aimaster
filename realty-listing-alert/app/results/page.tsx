@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import RecentResults from "@/app/dashboard/RecentResults";
+import StatsDashboard from "./StatsDashboard";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -26,9 +27,10 @@ export default async function ResultsPage() {
           <div>
             <div className="eyebrow">Step 4 · 수집 결과</div>
             <h1>📄 최근 수집 결과</h1>
-            <p className="lede">확장이 마지막으로 살펴본 매물이에요. 새 매물·가격 변동을 먼저 보여 드리고, 「전체 보기」로 모든 매물을 볼 수 있어요. 매물 정보는 회원님 PC 안에서만 오가요.</p>
+            <p className="lede">위에는 통계·추이를, 아래에는 확장이 마지막으로 살펴본 매물 표를 보여 드려요. 매물 정보와 통계 기록은 회원님 PC 안에서만 오가요.</p>
           </div>
         </div>
+        <StatsDashboard email={user.email ?? ""} />
         <RecentResults email={user.email ?? ""} summary={{ lastRunAt: device?.last_run_at ?? null, lastCount: device?.last_count ?? null, lastResult: device?.last_result ?? null }} />
       </main>
     </div>

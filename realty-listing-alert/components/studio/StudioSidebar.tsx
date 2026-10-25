@@ -10,7 +10,7 @@ const FLOW = [
   { id: "schedule", step: 2, icon: "⏰", label: "예약 설정", desc: "켜기/끄기·수집 간격·시간대", href: "/schedule" },
   { id: "delivery", step: 3, icon: "📨", label: "받는 방법", desc: "텔레그램·파일·이메일", href: "/delivery" },
   // 2026-10-25 주인님 「좌측에 메뉴는 보여야 할꺼 아냐」 — 수집 결과를 메뉴에서 바로
-  { id: "results", step: 4, icon: "📄", label: "수집 결과", desc: "최근 매물 표·번호·링크", href: "/results" },
+  { id: "results", step: 4, icon: "📄", label: "수집 결과", desc: "통계·추이·매물 표", href: "/results" },
 ];
 
 export function StudioSidebar({

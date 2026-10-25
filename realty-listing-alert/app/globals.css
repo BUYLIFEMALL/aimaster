@@ -743,3 +743,30 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-result td { padding: 7px 10px; border-bottom: 1px solid #f1f1f1; }
 .ra-result tr:hover td { background: #fafafa; }
 .ra-result a { color: #009b4d; font-weight: 700; }
+/* 📊 통계·추이 대시보드(2026-10-25, app/results/StatsDashboard.tsx) */
+.ra-stat-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+.ra-stat { display: grid; gap: 4px; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: #fff; }
+.ra-stat small { color: var(--muted); font-size: 12px; font-weight: 700; }
+.ra-stat strong { font-size: 22px; letter-spacing: -0.03em; }
+.ra-stat span { color: var(--muted); font-size: 12px; }
+.ra-stat-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0 6px; }
+.ra-stat-filters label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+.ra-stat-filters select { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: #fff; max-width: 320px; }
+.ra-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.ra-seg button { border: 0; background: #fff; padding: 8px 14px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.ra-seg button + button { border-left: 1px solid var(--line); }
+.ra-seg button.on { background: var(--accent-soft); color: var(--accent); }
+.ra-chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 8px; }
+.ra-chart { margin: 0; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; }
+.ra-chart figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-size: 13px; font-weight: 800; }
+.ra-chart figcaption span { color: var(--muted); font-weight: 500; }
+.ra-chart figcaption b { color: var(--ink); }
+.ra-chart svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+.ra-chart circle:focus { outline: none; }
+.ra-stat-h { margin: 22px 0 0; font-size: 15px; letter-spacing: -0.03em; }
+.ra-stat-two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; }
+.ra-stat-two .ra-result { margin-top: 10px; border: 1px solid var(--line); }
+.ra-rank { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: rank; }
+.ra-rank li { display: flex; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 13.5px; counter-increment: rank; }
+.ra-rank li span::before { content: counter(rank) ". "; color: var(--accent); font-weight: 800; }
+@media (max-width: 920px) { .ra-stat-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ra-chart-grid, .ra-stat-two { grid-template-columns: 1fr; } }
