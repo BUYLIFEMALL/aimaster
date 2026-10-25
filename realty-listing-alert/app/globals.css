@@ -946,3 +946,5 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-btn-del { background: #fff; border: 1px solid #fecdd3; color: #e11d48; }
 .ra-btn-save { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
 .ra-aibox .ra-msg { margin: 0 14px 12px; }
+.ra-aibox-title { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.ra-aibox-title input { accent-color: #f59e0b; width: 16px; height: 16px; margin: 0; }

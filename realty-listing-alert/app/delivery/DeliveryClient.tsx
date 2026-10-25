@@ -359,9 +359,12 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
   return (
     <div className={`ra-aibox${selected ? " on" : ""}`}>
       <div className="ra-aibox-head">
-        <span className="ra-aibox-title">{engine.icon} <b>{info.name}</b><small> · {engine.sub} — AI 시세 요약에 사용</small></span>
+        {/* 요약에 쓸 엔진은 이름 앞 동그라미로 고른다(2026-10-25 「설명글이 있는데 굳이 이런 버튼 필요 없음」) */}
+        <label className="ra-aibox-title">
+          <input type="radio" name="ai-engine" checked={selected} disabled={disabled} onChange={onSelect} />
+          {engine.icon} <b>{info.name}</b><small> · {engine.sub} — {selected ? "AI 시세 요약에 사용 중" : "AI 시세 요약에 사용"}</small>
+        </label>
         <span className="ra-aibox-actions">
-          <button type="button" className={`ra-use${selected ? " on" : ""}`} aria-pressed={selected} disabled={disabled} onClick={onSelect}>{selected ? "✔ 요약에 사용 중" : "이 엔진으로 요약"}</button>
           <a className="ra-btn-orange" href={info.keyUrl} target="_blank" rel="noopener noreferrer">🔑 API 키 발급/생성 ↗</a>
           <a className="ra-btn-white" href={info.consoleUrl} target="_blank" rel="noopener noreferrer">👤 회원가입 / 콘솔 ↗</a>
         </span>
@@ -425,7 +428,7 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
         <h2 className="card-title">🤖 AI 시세 요약 엔진 선택 <small className="ra-engine-sub">GPT / Claude / Gemini · 선택</small></h2>
         <span className="ra-status on">요약에 적용</span>
       </div>
-      <p className="card-caption">엔진마다 키와 모델을 저장하고, 「이 엔진으로 요약」으로 쓸 엔진을 고르세요. 저장한 키·모델은 「수정」으로 바꿔요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
+      <p className="card-caption">요약에 쓸 엔진은 이름 앞 동그라미로 고르세요. 저장한 키·모델은 「수정」으로 바꿔요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
       {AI_ENGINES.map((e) => (
         <AiEngineRow key={e.id} id={e.id} has={has[e.id]} mask={ai.masks?.[e.id] ?? ""} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
       ))}
