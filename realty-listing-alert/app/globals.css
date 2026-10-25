@@ -814,3 +814,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .kg-path { display: inline-block; margin-bottom: 2px; padding: 3px 10px; border-radius: 8px; background: #eef6ff; color: #1d4ed8; font-weight: 800; font-size: 13px; } .kg-path b { color: #1e3a8a; }
 @media (max-width: 680px) { .ra-stat.split small { white-space: nowrap; font-size: 11px; letter-spacing: -0.03em; } .ra-chart svg text { font-size: 17px; } } /* 휴대폰 폭 검수(2026-10-25): 「가격 내림」 줄바꿈·그래프 축 글자 7px로 작아짐 */
 .ra-pd-card .ra-inline-form { margin-top: 8px; flex-wrap: wrap; }
+/* 🔑 키 위치 안내 표(2026-10-25) */
+.ra-keyguide { margin: 16px 0; border: 1px solid #cfe9da; border-radius: 14px; padding: 12px 16px; background: #f6fcf8; }
+.ra-keyguide summary { cursor: pointer; font-weight: 800; font-size: 15px; }
+.ra-keyguide summary small { color: var(--muted); font-weight: 500; }
+.ra-keyguide-table { white-space: normal; }
+.ra-keyguide-table td { vertical-align: top; min-width: 140px; line-height: 1.55; }
+.ra-keyguide-table small { color: #374151; }

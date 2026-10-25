@@ -1,5 +1,6 @@
 import { requireProgramAccess, PROGRAM_SLUG } from "@/lib/access";
 import PublicDataKeyCard from "./PublicDataKeyCard";
+import KeyGuide from "@/components/KeyGuide";
 import { createClient } from "@/lib/supabase/server";
 import ExtensionTokenManager from "./ExtensionTokenManager";
 import ExtensionConnectButton from "./ExtensionConnectButton";
@@ -39,6 +40,7 @@ export default async function SettingsPage() {
         <div className="eyebrow">Settings</div>
         <h1>API키등록·플랫폼연동</h1>
         <p className="lede">이 프로그램은 AI 키 없이 동작합니다. ① 알림 받을 곳(텔레그램·카카오톡·이메일 중 하나 이상) ② 크롬 확장, 두 가지만 연결하면 됩니다.</p>
+        <KeyGuide />
         <div className="settings-divider" />
         <h2>📨 텔레그램 연동</h2>
         <p className="lede">새 매물 알림과 정리 파일을 받을 회원님 본인 텔레그램 봇입니다. 「받는 방법」 화면과 같은 연결이에요.</p>

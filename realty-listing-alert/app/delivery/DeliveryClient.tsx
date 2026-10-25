@@ -117,7 +117,7 @@ export function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; 
           <form onSubmit={connect}>
             <div className="field">
               <label htmlFor="botToken">봇 토큰</label>
-              <input id="botToken" name="botToken" required autoComplete="off" placeholder="예: 123456789:AAF..." />
+              <input id="botToken" name="botToken" required autoComplete="off" placeholder="숫자:영문 — 예 123456789:AAF… (@BotFather → API Token)" />
             </div>
             <button className="primary" type="submit" disabled={pending}>{pending ? "확인 중..." : "연결 시험"}</button>
           </form>
@@ -210,7 +210,7 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
               <small>카카오 개발자 → 내 앱 → <b>앱 → 플랫폼 키</b>의 <b>REST API 키</b>와, 그 카드를 눌러 나오는 화면 아래 <b>클라이언트 시크릿</b>(카카오 로그인 줄 「코드」)을 붙여 넣어요. {kakao.hasKey && !editKeys && "✅ 저장됨"}</small>
               {showKeyForm && (
                 <form action={keyAction} className="ra-inline-form">
-                  <div className="field"><label htmlFor="kakaoRestKey">🔑 REST API 키</label><input id="kakaoRestKey" name="kakaoRestKey" required autoComplete="off" placeholder="영문·숫자 32자" /></div>
+                  <div className="field"><label htmlFor="kakaoRestKey">🔑 REST API 키</label><input id="kakaoRestKey" name="kakaoRestKey" required autoComplete="off" placeholder="영문·숫자 32자 (앱 → 플랫폼 키 → REST API 키)" /></div>
                   <div className="field"><label htmlFor="kakaoSecret">🔒 클라이언트 시크릿</label><input id="kakaoSecret" name="kakaoSecret" autoComplete="off" placeholder="플랫폼 키 카드 → 클라이언트 시크릿 「코드」" /></div>
                   <button className="primary" type="submit" disabled={savingKeys}>{savingKeys ? "저장 중..." : "키 저장"}</button>
                 </form>
@@ -288,7 +288,7 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
             <li><span>3</span><div><b>아래 칸에 붙여 넣고 저장</b><small>칸 클릭 → <kbd>Ctrl</kbd>+<kbd>V</kbd> → 「키 저장」</small></div></li>
           </ol>
           <form action={saveAction} className="ra-inline-form">
-            <div className="field"><label htmlFor="resendKey">🔑 Resend API 키</label><input id="resendKey" name="resendKey" required autoComplete="off" placeholder="re_로 시작하는 키" /></div>
+            <div className="field"><label htmlFor="resendKey">🔑 Resend API 키</label><input id="resendKey" name="resendKey" required autoComplete="off" placeholder="re_로 시작 (resend.com → API Keys)" /></div>
             <button className="primary" type="submit" disabled={saving}>{saving ? "저장 중..." : "키 저장"}</button>
           </form>
           {saveState.error && <p className="ra-msg ra-err">{saveState.error}</p>}

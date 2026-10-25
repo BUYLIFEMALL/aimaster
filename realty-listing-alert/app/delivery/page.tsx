@@ -1,4 +1,5 @@
 import { requireProgramAccess } from "@/lib/access";
+import KeyGuide from "@/components/KeyGuide";
 import { createClient } from "@/lib/supabase/server";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import DeliveryClient from "./DeliveryClient";
@@ -45,6 +46,7 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
             <p className="lede">텔레그램·카카오톡·이메일 중 원하는 곳으로 받아요. 매물 정보는 확장이 회원님 PC에서 바로 보내고, 이 사이트를 거치지 않습니다.</p>
           </div>
         </div>
+        <KeyGuide compact />
         <DeliveryClient
           telegram={link ? { botUsername: link.bot_username ?? null, linkedAt: link.linked_at ?? null } : null}
           realEstateBot={realEstateBot ? { botUsername: realEstateBot.bot_username ?? null } : null}
