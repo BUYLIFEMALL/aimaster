@@ -4,28 +4,38 @@ import { useState, useTransition } from 'react'
 import { saveApiKeyAction, deleteApiKeyAction, type SaveApiKeyState } from './actions'
 import type { ApiKeyProvider } from '@/utils/apiKeys'
 
-const PLATFORM_LINKS: Record<string, { createUrl: string; signupUrl: string; note: string }> = {
+const PLATFORM_LINKS: Record<string, { icon: string; name: string; createUrl: string; signupUrl: string; note: string }> = {
   openai: {
+    icon: '🤖',
+    name: 'OpenAI (GPT-4o)',
     createUrl: 'https://platform.openai.com/api-keys',
     signupUrl: 'https://platform.openai.com/signup',
-    note: 'GPT-4o 고품질 티스토리 원고 작성에 사용됩니다.',
+    note: '고품질 티스토리 원고 및 본문 작성에 사용됩니다.',
   },
   anthropic: {
+    icon: '🧠',
+    name: 'Anthropic Claude',
     createUrl: 'https://console.anthropic.com/settings/keys',
     signupUrl: 'https://console.anthropic.com/',
-    note: 'Claude 3.5 자연스러운 문체 원고 작성에 사용됩니다.',
+    note: '자연스러운 문체 원고 작성에 사용됩니다.',
   },
   gemini: {
+    icon: '✨',
+    name: 'Google Gemini',
     createUrl: 'https://aistudio.google.com/app/apikey',
     signupUrl: 'https://aistudio.google.com/',
-    note: 'Gemini 초고속 원고 및 나노바나나 고화질 삽화 생성에 필수입니다.',
+    note: '초고속 원고 및 나노바나나 고화질 삽화 생성에 필수입니다.',
   },
   perplexity: {
+    icon: '🔍',
+    name: 'Perplexity AI',
     createUrl: 'https://www.perplexity.ai/settings/api',
     signupUrl: 'https://www.perplexity.ai/',
-    note: '실시간 검색 및 최신 이슈 글감 수집에 사용됩니다.',
+    note: '실시간 검색 및 최신 트렌드 이슈 글감 수집에 사용됩니다.',
   },
   youtube_api_key: {
+    icon: '📺',
+    name: 'YouTube Data API v3',
     createUrl: 'https://console.cloud.google.com/apis/credentials',
     signupUrl: 'https://console.cloud.google.com/',
     note: '유튜브 쇼츠 트렌드 키워드 검색 및 분석에 사용됩니다.',
@@ -57,38 +67,16 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
   const linkInfo = PLATFORM_LINKS[provider]
 
   return (
-    <div className="rounded-xl border border-zinc-200/90 bg-white p-4 sm:p-5 shadow-xs hover:border-zinc-300 transition-all">
-      {/* 1. 상단 타이틀 + 수정/삭제 버튼 (완벽한 가로 1행 분리) */}
-      <div className="flex items-center justify-between gap-3 mb-2.5">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm font-bold text-zinc-900 tracking-tight">{label}</span>
-        </div>
-        {maskedValue && !isEditing && (
-          <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="text-xs font-semibold text-orange-600 hover:text-orange-700 px-2.5 py-1 rounded-md hover:bg-orange-50 border border-orange-200/80 transition-colors"
-            >
-              수정
-            </button>
-            <form action={deleteApiKeyAction}>
-              <input type="hidden" name="provider" value={provider} />
-              <button
-                type="submit"
-                className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2.5 py-1 rounded-md hover:bg-rose-50 border border-rose-200/80 transition-colors"
-              >
-                삭제
-              </button>
-            </form>
-          </div>
-        )}
-      </div>
-
-      {/* 2. 공식 플랫폼 2단 퀵 액션 버튼 세트 (상하 독립 영역으로 깔끔하게 배치) */}
+    <div className="rounded-xl border border-zinc-200/90 bg-white shadow-xs overflow-hidden transition-all hover:border-zinc-300">
+      {/* 1행: 플랫폼 가이드 및 우상단 공식 링크/콘솔 버튼 2개 */}
       {linkInfo && (
-        <div className="mb-3.5 p-3 rounded-lg bg-zinc-50 border border-zinc-200/80">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="px-4 py-2.5 bg-zinc-50/80 border-b border-zinc-200/70 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-sm shrink-0">{linkInfo.icon}</span>
+            <span className="text-xs font-bold text-zinc-800 shrink-0">{linkInfo.name}</span>
+            <span className="text-[11px] text-zinc-500 truncate hidden sm:inline">· {linkInfo.note}</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
             <a
               href={linkInfo.createUrl}
               target="_blank"
@@ -97,7 +85,7 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
               title="해당 플랫폼 공식 콘솔에서 새 API 키 발급/생성하기"
             >
               <span>🔑</span>
-              <span>API 키 발급/생성하기</span>
+              <span>API 키 발급/생성</span>
               <span className="text-[10px] opacity-80">↗</span>
             </a>
             <a
@@ -112,55 +100,82 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
               <span className="text-[10px] opacity-80">↗</span>
             </a>
           </div>
-          {linkInfo.note && (
-            <p className="mt-2 text-[11.5px] text-zinc-500 font-medium">
-              {linkInfo.note}
-            </p>
-          )}
         </div>
       )}
 
-      {/* 3. API 키 입력 폼 또는 등록 상태 표시 */}
-      {showForm ? (
-        <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
-          <input type="hidden" name="provider" value={provider} />
-          <input
-            name="apiKey"
-            type="text"
-            autoComplete="new-password"
-            style={{ WebkitTextSecurity: 'disc' } as React.CSSProperties}
-            placeholder={maskedValue ? `새 키 입력 (현재: ${maskedValue})` : 'API 키 입력'}
-            className="min-w-[220px] flex-1 rounded-lg border border-zinc-300 bg-white px-3.5 py-2 text-sm text-zinc-800 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
-          />
-          <button
-            type="submit"
-            disabled={isPending}
-            className="btn-3d-primary px-4 py-2 text-xs font-bold"
-          >
-            {isPending ? '저장 중...' : '저장'}
-          </button>
-          {maskedValue && (
-            <button
-              type="button"
-              onClick={() => {
-                setIsEditing(false)
-                setState({})
-              }}
-              className="rounded-lg border border-zinc-300 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors"
-            >
-              취소
-            </button>
+      {/* 2행: 실제 키 관리 한 행 (라벨 + 키 상태 박스 + 수정/삭제) */}
+      <div className="p-4 bg-white flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3 min-w-0">
+            <span className="text-xs sm:text-sm font-bold text-zinc-900 whitespace-nowrap">{label}</span>
+            {!showForm && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-50 border border-zinc-200/80 font-mono text-xs text-zinc-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 shadow-xs" />
+                <span className="font-semibold text-zinc-800">{maskedValue}</span>
+                <span className="text-zinc-400">·</span>
+                <span className="text-emerald-700 font-sans font-medium text-[11px]">연동 완료</span>
+              </div>
+            )}
+          </div>
+
+          {maskedValue && !isEditing && (
+            <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="text-xs font-semibold text-zinc-700 hover:text-orange-600 px-2.5 py-1 rounded-md hover:bg-orange-50 border border-zinc-200 hover:border-orange-200 transition-colors"
+              >
+                수정
+              </button>
+              <form action={deleteApiKeyAction}>
+                <input type="hidden" name="provider" value={provider} />
+                <button
+                  type="submit"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2.5 py-1 rounded-md hover:bg-rose-50 border border-zinc-200 hover:border-rose-200 transition-colors"
+                >
+                  삭제
+                </button>
+              </form>
+            </div>
           )}
-        </form>
-      ) : (
-        <div className="flex items-center gap-2 font-mono text-xs text-zinc-600 bg-zinc-50 px-3 py-2 rounded-lg border border-zinc-200/60">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 shadow-xs" />
-          <span className="font-semibold text-zinc-800">{maskedValue}</span>
-          <span className="text-zinc-400">·</span>
-          <span className="text-emerald-700 font-sans font-medium text-[11px]">연동 완료</span>
         </div>
-      )}
-      {state.error && <p className="mt-1.5 text-xs font-medium text-rose-600">⚠️ {state.error}</p>}
+
+        {/* 폼 열림 상태 (입력창) */}
+        {showForm && (
+          <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-zinc-100">
+            <input type="hidden" name="provider" value={provider} />
+            <input
+              name="apiKey"
+              type="text"
+              autoComplete="new-password"
+              style={{ WebkitTextSecurity: 'disc' } as React.CSSProperties}
+              placeholder={maskedValue ? `새 키 입력 (현재: ${maskedValue})` : 'API 키 입력'}
+              className="min-w-[240px] flex-1 rounded-lg border border-zinc-300 bg-white px-3.5 py-2 text-sm text-zinc-800 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
+            />
+            <button
+              type="submit"
+              disabled={isPending}
+              className="btn-3d-primary px-4 py-2 text-xs font-bold"
+            >
+              {isPending ? '저장 중...' : '저장'}
+            </button>
+            {maskedValue && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditing(false)
+                  setState({})
+                }}
+                className="rounded-lg border border-zinc-300 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors"
+              >
+                취소
+              </button>
+            )}
+          </form>
+        )}
+
+        {state.error && <p className="mt-1 text-xs font-medium text-rose-600">⚠️ {state.error}</p>}
+      </div>
     </div>
   )
 }
