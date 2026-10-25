@@ -790,3 +790,4 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-pc.same { color: #8a93a3; font-weight: 500; }
 .ra-pc.new { color: #0b7a3e; }
 .ra-pc.gone { color: #6b7280; }
+.ra-email-notes { margin: 12px 0; } .ra-email-notes ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; line-height: 1.6; } .ra-email-notes code { font-size: 12px; }
