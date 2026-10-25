@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import { APP_VERSION } from "@/lib/version";
 import LimitNotice from "@/components/LimitNotice";
+import KakaoGuide from "./KakaoGuide";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -10,7 +11,7 @@ export const fetchCache = "force-no-store";
 const STEPS = [
   { icon: "🧩", title: "확장 설치", desc: "「⬇ 확장 받기」로 ZIP을 받아 압축을 풀고 → chrome://extensions → 개발자 모드 → 「압축해제된 확장 프로그램을 로드」로 그 폴더를 고릅니다.", href: "/dashboard", time: "3분" },
   { icon: "🔗", title: "웹과 연결", desc: "「API키등록·플랫폼연동」에서 「확장 프로그램 바로 연결」 버튼을 한 번 누릅니다.", href: "/settings", time: "10초" },
-  { icon: "📨", title: "받는 곳 연결", desc: "텔레그램(요약 + 엑셀): @BotFather에서 내 봇을 만들어 토큰을 넣고 「연결 시험」. 카카오톡(요약): 「카카오 자동화」에서 한 번 연결한 계정을 그대로 써요. 이메일(요약 + 엑셀): 무료 Resend 가입 → API 키를 붙여 넣기.", href: "/delivery", time: "3분" },
+  { icon: "📨", title: "받는 곳 연결", desc: "텔레그램(요약 + 엑셀): @BotFather에서 내 봇을 만들어 토큰을 넣고 「연결 시험」. 카카오톡(요약): 내 카카오 앱을 만들어 연결 — 아래 「💬 카카오톡으로 알림 받기」를 그대로 따라 하세요. 이메일(요약 + 엑셀): 무료 Resend 가입 → API 키를 붙여 넣기.", href: "/delivery", time: "3분" },
   { icon: "🏠", title: "단지 추가", desc: "네이버 부동산에서 단지를 눌러 열면 화면 오른쪽 아래에 초록 「➕ 매물 알림에 추가」 버튼이 떠요. 누르면 끝(최대 10곳).", href: "/targets", time: "1분" },
   { icon: "⏰", title: "예약 켜기", desc: "얼마나 자주(1~24시간)·몇 시부터 몇 시까지 살펴볼지 정하고 켭니다. 크롬이 켜져 있는 동안 내 PC가 수집해요.", href: "/schedule", time: "1분" },
 ];
@@ -71,6 +72,8 @@ export default async function GuidePage() {
             ))}
           </ol>
         </section>
+
+        <KakaoGuide />
 
         <div className="guide-two">
           <section className="guide-tip">
