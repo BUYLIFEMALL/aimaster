@@ -159,7 +159,7 @@ export function DetailGuideView({ onStartNew, onOpenApiKey }: DetailGuideViewPro
           <button
             type="button"
             onClick={onStartNew}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-500/20 transition hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl btn-3d-primary px-5 py-3.5 text-sm font-bold text-white transition cursor-pointer"
           >
             <Sparkles size={16} />
             <span>상세페이지 제작 시작하기</span>

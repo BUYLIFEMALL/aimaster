@@ -102,19 +102,34 @@ export function ApiKeyModal({
             </span>
           </div>
 
-          {/* 입력 필드 */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 flex justify-between">
-              <span>새 Gemini API 키 입력</span>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 font-normal"
-              >
-                무료 키 발급받기 <ExternalLink className="w-3 h-3" />
-              </a>
-            </label>
+          {/* 입력 필드 및 퀵액션 버튼 세트 */}
+          <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="text-xs font-semibold text-slate-700">
+                새 Google Gemini API 키 입력
+              </label>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-create-key"
+                  title="Google AI Studio에서 Gemini API 키 발급받기"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span>키 발급 바로가기</span>
+                </a>
+                <a
+                  href="https://ai.google.dev/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-platform-signup"
+                  title="Google AI Studio 플랫폼 가입 및 안내"
+                >
+                  <span>플랫폼 가입</span>
+                </a>
+              </div>
+            </div>
             <input
               type="password"
               placeholder="AIzaSy..."
@@ -163,9 +178,9 @@ export function ApiKeyModal({
             <button
               type="submit"
               disabled={isSaving || !inputKey.trim()}
-              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 btn-3d-primary disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              {isSaving ? "저장 중..." : "API 키 저장"}
+              {isSaving ? "저장 중..." : "🔑 API 키 저장"}
             </button>
           </div>
         </form>

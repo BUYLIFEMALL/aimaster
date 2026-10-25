@@ -281,7 +281,7 @@ export function DetailStudioView({
               type="button"
               onClick={handleBatchGenerate}
               disabled={isBatchGenerating}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-4 py-2.5 btn-3d-primary disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               {isBatchGenerating
@@ -293,7 +293,7 @@ export function DetailStudioView({
               type="button"
               onClick={handleDownloadFullImage}
               disabled={isSynthesizing}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-4 py-2.5 btn-3d-emerald disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               {isSynthesizing ? "통이미지 합성 중..." : "📥 860px 통이미지 다운로드"}
@@ -434,7 +434,7 @@ export function DetailStudioView({
                       {project.productData.salePrice ? `${project.productData.salePrice.toLocaleString()}원` : "구매하기"}
                     </span>
                   </div>
-                  <button className="px-4 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold">
+                  <button className="px-4 py-1.5 btn-3d-primary text-white rounded-lg text-xs font-bold cursor-pointer">
                     바로구매
                   </button>
                 </div>
