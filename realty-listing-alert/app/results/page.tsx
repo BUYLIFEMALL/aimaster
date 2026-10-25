@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import RecentResults from "@/app/dashboard/RecentResults";
+import DailyUsage from "@/app/dashboard/DailyUsage";
 import StatsDashboard from "./StatsDashboard";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,7 @@ export default async function ResultsPage() {
           </div>
         </div>
         <StatsDashboard email={user.email ?? ""} />
+        <DailyUsage />
         <RecentResults email={user.email ?? ""} summary={{ lastRunAt: device?.last_run_at ?? null, lastCount: device?.last_count ?? null, lastResult: device?.last_result ?? null }} />
       </main>
     </div>

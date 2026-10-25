@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.28: 🔥 급매 표시(같은 단지·면적 중간값보다 10%↓), 오늘 수집 사용량 n/300페이지, 감시 조건 「목표가 알림」 안내 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.28', extension_version = 'v1.28', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;

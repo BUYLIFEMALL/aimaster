@@ -41,6 +41,7 @@ function Conditions({ target }: { target?: TargetRow }) {
         <div className="field"><label>전용면적 최소(㎡)</label><input name="areaMin" inputMode="decimal" placeholder="예: 59" defaultValue={target?.area_min ?? ""} /></div>
         <div className="field"><label>전용면적 최대(㎡)</label><input name="areaMax" inputMode="decimal" placeholder="비우면 제한 없음" defaultValue={target?.area_max ?? ""} /></div>
       </div>
+      <p className="card-caption">🎯 <b>목표가 알림</b>: 「가격 최대」에 원하는 값을 넣으면, 그 값 이하 매물이 새로 올라오거나 가격이 내려 그 안으로 들어올 때 알려 드려요.</p>
     </>
   );
 }

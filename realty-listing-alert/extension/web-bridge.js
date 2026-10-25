@@ -17,7 +17,11 @@
       const { extToken } = await chrome.storage.local.get("extToken").catch(() => ({}));
       // email: 확장이 연결된 계정(로그인 계정과 다르면 웹이 「다시 연결」을 안내)
       const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;
-      result = { ok: true, version: chrome.runtime.getManifest().version_name || "", connected: !!extToken, email: who?.email || null };
+      // 오늘 수집 사용량(v1.28, 숫자만): 하루 상한에 닿으면 웹이 「내일 0시에 다시」를 보여 준다
+      const { pagesDay, limitDate, rulesCache } = await chrome.storage.local.get(["pagesDay", "limitDate", "rulesCache"]).catch(() => ({}));
+      const today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+      const usage = { pagesToday: pagesDay?.date === today ? pagesDay.count : 0, maxPages: rulesCache?.maxPagesPerDay || 300, limitToday: limitDate === today };
+      result = { ok: true, version: chrome.runtime.getManifest().version_name || "", connected: !!extToken, email: who?.email || null, usage };
     } else if (message.type === "lastResult") {
       const { extToken, lastResult } = await chrome.storage.local.get(["extToken", "lastResult"]).catch(() => ({}));
       const who = extToken ? await chrome.runtime.sendMessage({ type: "whoami" }).catch(() => null) : null;

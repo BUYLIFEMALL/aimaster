@@ -10,6 +10,7 @@ import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
 import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
 import { compareToTrades, gapText } from "./lib/tradeCompare.js";
+import { findBargains } from "./lib/bargain.js";
 import { makeAiSummary } from "./lib/aiSummary.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
@@ -263,6 +264,10 @@ async function runCollection(trigger) {
 
     await set({ complexInfo });
     await attachTradeGaps(fileRows, perTarget, tradeTargets);
+    // 🔥 급매(v1.28): 같은 단지·같은 면적 매매 중간값보다 10% 이상 싼 매물 — 회원 PC 안에서만 계산
+    const bargains = findBargains(fileRows.filter((r) => r.status !== "gone").map((r) => r.item));
+    for (const row of fileRows) if (row.status !== "gone" && bargains[row.item.no]) row.item.bargain = bargains[row.item.no];
+    for (const t of perTarget) for (const e of t.events || []) if (e.type !== "gone" && bargains[e.item.no]) e.item.bargain = bargains[e.item.no];
     const table = toTable(fileRows);
     if (limitHit) await set({ limitDate: kstDate() });
     const iv = settings.schedule?.intervalMinutes || 180;

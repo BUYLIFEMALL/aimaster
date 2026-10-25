@@ -6,6 +6,7 @@ import { COLLECT_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { MAX_TARGETS } from "@/lib/targets";
 import StartChecklist from "./StartChecklist";
 import RecentResults from "./RecentResults";
+import DailyUsage from "./DailyUsage";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -76,6 +77,7 @@ export default async function DashboardPage() {
 
         <StartChecklist facts={{ email: user.email ?? "", hasToken: (tokenCount ?? 0) > 0, telegram: hasChannel, targetCount: total, scheduleOn: !!settings?.schedule_enabled, lastRunAt: device?.last_run_at ?? null }} />
 
+        <DailyUsage />
         <RecentResults email={user.email ?? ""} summary={{ lastRunAt: device?.last_run_at ?? null, lastCount: device?.last_count ?? null, lastResult: device?.last_result ?? null }} />
 
         <section className="card" aria-labelledby="install-title">

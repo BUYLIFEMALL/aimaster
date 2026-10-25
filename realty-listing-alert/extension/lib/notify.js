@@ -87,7 +87,7 @@ export function buildMailHtml(perTarget, { now = new Date(), maxRows = 200 } = {
       const url = i.complexNo && i.no ? articleUrl(i.complexNo, i.no) : "";
       return `<tr>
 <td style="${td}"><span style="display:inline-block;padding:2px 8px;border-radius:999px;background:${MAIL_COLOR[e.type] || "#334155"};color:#fff;font-size:12px;font-weight:700;white-space:nowrap;">${esc(KAKAO_LABEL[e.type] || e.type)}</span></td>
-<td style="${td}"><b>${esc(i.tradeName)} ${esc(i.priceText)}</b>${e.prevPriceText ? `<br><span style="color:#6b7280;">이전 ${esc(e.prevPriceText)}</span>` : ""}${i.tradeGap ? `<br><span style="color:#6b7280;">실거래 대비 ${esc(i.tradeGap)}</span>` : ""}</td>
+<td style="${td}"><b>${esc(i.tradeName)} ${esc(i.priceText)}</b>${e.prevPriceText ? `<br><span style="color:#6b7280;">이전 ${esc(e.prevPriceText)}</span>` : ""}${i.tradeGap ? `<br><span style="color:#6b7280;">실거래 대비 ${esc(i.tradeGap)}</span>` : ""}${i.bargain ? `<br><span style="color:#dc2626;font-weight:700;">${esc(i.bargain)} 급매</span>` : ""}</td>
 <td style="${td}">${esc(i.areaName || (i.area ? `${i.area}㎡` : ""))}<br><span style="color:#6b7280;">${esc(i.dong)} ${esc(i.floor)}</span></td>
 <td style="${td}">${esc(i.realtor)}${tel ? `<br><span style="color:#6b7280;">📞 ${esc(tel)}</span>` : ""}</td>
 <td style="${td}">${url ? `<a href="${esc(url)}" style="color:#009b4d;font-weight:700;">네이버에서 보기</a>` : ""}</td>

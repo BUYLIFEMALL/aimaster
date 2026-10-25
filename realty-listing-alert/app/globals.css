@@ -1060,3 +1060,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-setup .ra-aitbl-btns .extension-connect.compact p { position: absolute; right: 0; top: calc(100% + 4px); width: 240px; margin: 0; font-size: 11px; white-space: normal; text-align: right; z-index: 2; background: #fff; }
 .ra-setup .ra-aitbl-btns > * { flex: 0 0 auto; }
 .ra-setup .ra-aitbl-btns { align-items: center; flex-wrap: nowrap; }
+/* v1.28 급매 표시·오늘 수집 사용량 */
+.ra-bargain { color: #dc2626; font-weight: 800; white-space: nowrap; }
+.ra-usage { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 12.5px; color: #374151; }
+.ra-usage.full { border-color: #fdba74; background: #fff7ed; }
+.ra-usage-bar { flex: 0 0 120px; height: 6px; border-radius: 999px; background: #eef2f7; overflow: hidden; }
+.ra-usage-bar i { display: block; height: 100%; background: var(--accent); }
+.ra-usage.full .ra-usage-bar i { background: #f97316; }
