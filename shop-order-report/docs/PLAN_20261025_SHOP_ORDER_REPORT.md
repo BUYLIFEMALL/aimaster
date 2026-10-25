@@ -3,7 +3,7 @@
 작성: 2026-10-25 Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image]
 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`) — 새 서브프로그램
 근거: [쇼핑몰 묶음 인계](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md) §7, 원본 분석 [03](../../docs/analysis-ecommerce-bundle-20261024/03_PROHUB_SALES_REPORT.md)(매출 리포트·주문 대시보드 — **둘 다 무작위 숫자 시연**, 화면 구성만 참고), [06](../../docs/analysis-ecommerce-bundle-20261024/06_PROHUB_PRICE_MARGIN_KEYWORD.md) §5, [07](../../docs/analysis-ecommerce-bundle-20261024/07_PROHUB_REVIEW_SHORTS_IDEA.md) 리뷰 절
-상태: **주인님 승인 대기** (코드 없음)
+상태: ✅ 승인(2026-10-25, A안) → v1.01·v1.02 운영 공개 완료. 결과는 `../AGENTS.md`
 
 ## 1. 무엇을 만드나
 마켓 판매자센터에서 받은 **주문·정산 엑셀을 올리면** 주문·배송·취소·반품 현황, 마켓별·기간별 매출과 **순이익**, 재고 소진 예측, 내 상품 리뷰 분석을 한 화면에 보여 주는 판매 후 리포트 도구입니다. 화면의 숫자는 모두 회원이 올린 실제 파일에서 계산하므로 그대로 「내 스토어 진짜 지표」(E8)가 됩니다. 시연·가짜 숫자는 넣지 않습니다(D3·D4).
