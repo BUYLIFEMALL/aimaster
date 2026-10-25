@@ -65,7 +65,7 @@ export async function connectTelegramAction(
     await sendTelegramMessage({
       botToken,
       chatId: chatInfo.chatId,
-      text: "✅ AI 부동산 실시간 매물 알림 자동화 연결이 완료됐어요. 새 매물·가격 변동 알림을 여기로 보내 드릴게요.",
+      text: "✅ 부동산 실시간 매물 알림 연결이 완료됐어요. 새 매물·가격 변동 알림을 여기로 보내 드릴게요.",
     });
   } catch {
     // 저장은 이미 성공했으니, 테스트 메시지 발송 실패는 치명적이지 않음

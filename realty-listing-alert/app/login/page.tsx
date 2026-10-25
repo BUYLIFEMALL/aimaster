@@ -12,7 +12,7 @@ export default function LoginPage() {
       <div className="auth-wrap">
         <div className="auth-head">
           <span className="auth-logo" aria-hidden="true">🏠</span>
-          <h1>AI 부동산 실시간 매물 알림 자동화</h1>
+          <h1>부동산 실시간 매물 알림</h1>
           <p>AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
         </div>
         <Suspense fallback={<div className="auth-card"><p className="auth-note">로그인 화면을 준비하고 있습니다.</p></div>}>
