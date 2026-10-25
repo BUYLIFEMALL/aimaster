@@ -22,7 +22,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-25 | ①3앱 운영 버전 정합성 완료·폴더 해제. ②기존 원고 입력시험은 주인님 로그인·연결/기존8연결해제 답변 대기(브라우저: 엣지). ③SEO 예약시험은 계획/후보만 확인·별도 승인 대기, SEO 소스/UI는 agy 담당. 인계§10 |
+| `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | v2.22 보안 배포 완료·예약 설정 해제 대기분 포함. 실제 입력: Edge window_not_focused로 주인님 직접 포커스/시험회원 연결·옛8연결해제 답변 대기. 보안 나머지4개 미수정, SEO UI/소스는 agy 담당. 인계§11 |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
 | `shop-detail-page/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | 사이드바 3D 확장 다운로드 버튼 탑재 & API키 생성버튼/매뉴얼 동기화 & 3D 실행버튼 업그레이드 (✅ v1.34 완료) |

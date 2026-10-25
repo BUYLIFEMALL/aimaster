@@ -1,3 +1,5 @@
+> **2026-10-26 v2.22 보안 릴리스(Codex):** Next.js/eslint-config-next16.4.2·sharp0.35.5, 예약 설정 해제 대기89d135c4b 포함. READY·공식alias·DB/라이브ZIP OK, 무료 모의105개+발행/브리지2검사·tsc·로컬빌드 통과. 실제 입력은 Edge 포커스(window_not_focused)·시험회원 연결/기존8연결해제 답변 대기. Vercel1회·AI0. [최신 기록](docs/IMPROVEMENTS.md#2026-10-26-v222--묶음e-보안-업데이트codex). 아래 버전/미배포 표시는 당시 이력입니다.
+
 > **2026-10-25 전체 분석·공통 인수인계:** 신규 개발/병합/연계 전 [블로그 전체·타 카테고리 연계 공통 인수인계](../docs/analysis-blog-consolidation-20261020/HANDOFF.md)와 [최신 보고서](../docs/analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025)를 먼저 확인합니다. 추천/미구현/실제 검수를 구분하며 콘텐츠메이커 단독 발행 플랜은 후보 재검토, 실제 병합/권한/코드/배포 미실행입니다.
 
 > **2026-10-25 담당 인수:** [역할: blog] Codex(윈도우·Edge), `codex-win-20261025-blog`. 운영v2.21·설치확장/라이브ZIP 일치, 간편/방식/편집기/확장탭 무료65개 통과. 원고48f06db1 실제입력은 시험Naver 계정 전환·확장연결/네이버 로그인·기존8연결 정리 승인 대기. [현재 인계·다음 단계](../docs/HANDOFF_20261025_BLOG_TO_CODEX.md#8-codex-인수-확인재개-준비2026-10-25)를 먼저 읽습니다. 실제발행0·AI/빌드/배포0. 아래 버전/담당 대기는 당시 기록입니다.

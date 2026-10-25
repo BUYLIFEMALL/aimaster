@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 [역할: blog] Codex(윈도우·엣지) · 세션 `codex-win-20261025-blog` — 에이전트 v2.22 보안 배포 완료·입력시험 대기
+- Next/eslint16.4.2·sharp0.35.5, 기존 대기89d135c4b 함께. 코드f6cbcdc0a·배포dpl_G38LdsoYvZberabV1vfjm32cAh4V READY·공식alias·DB/라이브ZIP v2.22 OK. 무료 모의105개+발행/브리지2검사·tsc·로컬빌드 통과, 운영 버전API200·비로그인 글401/설정307/로그인200·최근15분 runtime errors0.
+- 실제 입력은 여전히 미검수: 마지막 Edge 설정은 Gmail/설치v2.21, 새로고침 후 본문 관찰 실패·Return 입력 window_not_focused(restore 요청에도 실패)라 재시도 중지. 주인님 직접 Edge 포커스·시험회원 로그인/연결·네이버 로그인, 기존8연결해제 여부 답변 필요. SEO 예약 승인도 대기.
+- [인계 §11](HANDOFF_20261025_BLOG_TO_CODEX.md#11-2026-10-26-재개--에이전트-보안-릴리스-완료실제-입력-대기)·[릴리스 근거](analysis-blog-consolidation-20261020/evidence/agent-security-release-20261026.json). 보안 남은4개는 읽기 점검만, SEO 소스/미커밋ZIP삭제 보존. 운영ref esgxyikcnnvmlhygjkth programs버전1행+배포도우미 ops집계 갱신; 회원원고/키/연결/스키마 변경0.
+- 비용 리포트: Vercel1회(기존 앱별1회 승인), AI0. 에이전트 무료 로컬빌드1회; 잘못된 root workdir의 메인 로컬빌드는 즉시 중단·메인배포0. 실제입력/발행/예약0.
+
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — EC-P5 운영 포함 확인 + EC-W12 병합 원본 두 폴더 정리(백업 뒤 39개 삭제, 미배포·배포 불필요)
 - EC-P5: 상세페이지 운영 v1.34 배포(`dpl_3SFwXkeHvd1n4i8NMARYsga8LjeZ`) 파일 `src/lib/cleanupUsageLog.ts`·`cleanup-generated/route.ts` 해시가 로컬과 같음 → v1.31 때부터 운영 반영. 「미배포 대기」 표시 정정(`55a94d536` 등).
 - EC-W12(주인님 「백업하고 정리」): `detail-page-12p` 13개·`auto-detail-page` 26개 — 이동 안내·로그인·410 응답 경로·첫 화면 이동 페이지는 그대로, 어디서도 불러 쓰지 않던 옛 화면·엔진만 삭제(`4e660826a`). 공용 사본 점검 목록에서 두 폴더의 이미지 사본 4개 제외(`2deb484b4`).

@@ -135,3 +135,16 @@ https://blog-content-maker.buylife.xyz
 다음 CLI는 위 세 가지 승인을 다시 추측하지 말고 최신 사용자 답/요청 상태와 운영 화면을 확인합니다. SEOv2.19 ZIP 미커밋 삭제와 다른 CLI 변경은 보존했습니다.
 
 - 협업 대조: 작업 중 agy 커밋4b76e86ae가 BLOG/티스토리 API키 설정 UI4파일을 변경한 것을 확인했습니다. 이번 Codex 변경은 배포 메타/인수인계뿐이고 UI/버전 파일과 겹치지 않아 호환됩니다. UI 변경은 되돌리거나 함께 커밋하지 않았으며 버전 정합성 완료 뒤 해당3폴더 예약을 해제했습니다.
+
+## 11. 2026-10-26 재개 — 에이전트 보안 릴리스 완료·실제 입력 대기
+
+주인님 「진행해」 이후 Edge 설정을 다시 읽어 Gmail/설치v2.21을 확인했습니다. 시험원고 소유자와 달라 전송하지 않았고, 연결/기존8연결해제/SEO예약 요청은 open 상태입니다. 로그인 대기 동안 독립 가능한 묶음E에서 **에이전트 한 개를 v2.22로 보안 배포**했습니다.
+
+- Next.js/eslint-config-next16.2.11→16.4.2, sharp0.34.5→0.35.5. [공식 공지](https://nextjs.org/blog/nextjs-security-update-october-14-2026)·[릴리스](https://github.com/vercel/next.js/releases/tag/v16.4.2) 확인. 원래 서버 동작 auth.ts가 있어 서비스거부 취약점 적용 범위와 대조했습니다. UI/게시 동작을 새로 만들지 않았습니다.
+- 무료 모의56개+탭49시나리오, 발행 소유권/보존/경합·확장브리지 검사, tsc, 에이전트 로컬 빌드 통과. 다음 배포 대기89d135c4b도 함께 나갔습니다. Next 생성 next-env.d.ts(root-params 참조) 포함.
+- 코드f6cbcdc0a, 배포dpl_G38LdsoYvZberabV1vfjm32cAh4V(naver-blog-agent-krphqarnr-buylife.vercel.app) READY·공식alias 확인. /api/extension/version200 latestv2.22/no-store·비로그인 글API401·설정307·로그인200·최근15분 runtime errors0. programs1행을 이전v2.21/예상ZIP주소 조건으로 앱/확장v2.22로 맞춘 뒤 라이브ZIP 검사OK. 운영ref esgxyikcnnvmlhygjkth. 배포 도우미가 site_settings.ops_overview 집계도 갱신했습니다.
+- Edge 새로고침 후 본문 접근성/캡처가 보이지 않아 회원 화면 실검수는 미완료. 주소 표시줄에 settings?verify=20261026을 설정했으나 Return 입력이 **window_not_focused**로 실패(restore-window 사용에도 포커스가 없음)해 안내대로 재시도 중지. 주소 편집 성공을 페이지 이동 성공으로 기록하지 않습니다. 주인님이 직접 Edge를 앞에 클릭해 두어야 합니다.
+- 다음: 주인님 직접 Edge 포커스·시험Naver메일 로그인/확장 연결·네이버로그인 → 현재 웹/확장/블로그 소유자 대조 → 기존8연결해제 여부 명시 답변 확인 → 시험원고 prepare/비공개/예약꺼짐 재확인 → 한 번만 전송. v2.22 ZIP은 manifest 버전만 바뀌었고 확장 동작 코드는 같으나 설치본이 v2.21이므로 실제 업데이트 여부를 확인합니다. 비밀번호/연결버튼은 주인님 직접.
+- 나머지 보안4개(BLOG16.2.10·티스토리16.2.10·올인원16.2.11·SEO16.3.5)는 package/lock/설치본 읽기까지만, 미수정입니다. SEO는 agy 작업 중이며 다른 UI/SEOv2.19 ZIP 미커밋 삭제 보존.
+- 비용: Vercel1회(인수인계 프로그램별1회 승인), AI0. 에이전트 무료 로컬 빌드1회; 처음 루트 폴더로 잘못 실행한 무료 로컬 빌드는 즉시 중단·운영 메인배포0. 회원원고/키/연결/권한/스키마 변경0·실제입력/발행/예약0.
+- 근거: [시험JSON](analysis-blog-consolidation-20261020/evidence/agent-security-tests-20261026.json)·[릴리스JSON](analysis-blog-consolidation-20261020/evidence/agent-security-release-20261026.json). 보안 의존성 릴리스와 실제 입력/예약 성공을 구분합니다.
