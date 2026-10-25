@@ -28,8 +28,12 @@ export default function RecentResults({ email, summary }: { email: string; summa
     if (!res?.columns || !Array.isArray(res.table)) return null;
     const idx = SHOW.map((c) => res.columns!.indexOf(c));
     const statusAt = res.columns.indexOf("상태");
-    const rows = res.table.filter((r) => all || (statusAt >= 0 && r[statusAt] && r[statusAt] !== "유지"));
-    return { idx, rows: rows.slice(0, 300), changed: res.table.filter((r) => statusAt >= 0 && r[statusAt] && r[statusAt] !== "유지").length };
+    const isChanged = (r: unknown[]) => statusAt >= 0 && !!r[statusAt] && r[statusAt] !== "유지";
+    const changed = res.table.filter(isChanged).length;
+    // 변동이 0건이면 처음부터 전체 매물을 보여 준다(2026-10-25 주인님 「바로 수집된 내용이 보여야 하지 않나?」)
+    const showAll = all || changed === 0;
+    const rows = showAll ? res.table : res.table.filter(isChanged);
+    return { idx, rows: rows.slice(0, 300), changed, showAll, total: res.table.length };
   }, [res, all]);
 
   return (
@@ -56,11 +60,14 @@ export default function RecentResults({ email, summary }: { email: string; summa
           ) : (
             <>
               <div className="ra-toggle-row">
-                <span className="card-caption">{all ? `전체 ${view.rows.length}건` : `새 매물·가격 변동 ${view.changed}건`}</span>
-                <button type="button" className="secondary" onClick={() => setAll((v) => !v)}>{all ? "변동만 보기" : "전체 보기"}</button>
+                <span className="card-caption">
+                  {view.changed === 0 ? `이번엔 새 매물·가격 변동 없음 · 지금 매물 ${view.total}건` : view.showAll ? `전체 ${view.total}건` : `새 매물·가격 변동 ${view.changed}건`}
+                  {view.showAll && view.total > view.rows.length ? ` (화면엔 ${view.rows.length}건까지, 나머지는 엑셀)` : ""}
+                </span>
+                {view.changed > 0 && <button type="button" className="secondary" onClick={() => setAll((v) => !v)}>{all ? "변동만 보기" : "전체 보기"}</button>}
               </div>
               {view.rows.length === 0 ? (
-                <p className="card-caption">이번 수집에서는 새 매물·가격 변동이 없어요. 「전체 보기」로 지금 매물을 볼 수 있어요.</p>
+                <p className="card-caption">수집된 매물이 없어요.</p>
               ) : (
                 <div className="ra-result-wrap">
                   <table className="ra-result">
