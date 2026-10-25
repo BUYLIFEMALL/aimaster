@@ -1,5 +1,17 @@
 # G-1 인수인계 — AI Prompt
 
+## 2026-10-25 운영 v1.10 배포 완료
+
+`codex-win-20261025-docbot-release`: `dpl_4YjhJhW16BrqRtc5umXDxmpo7XU5` Ready·https://ai-prompt.buylife.xyz 확인, 운영 DB `esgxyikcnnvmlhygjkth` 버전 v1.10 일치(`20261025084645_prompt_release_v1_10`). 문서 챗봇 v1.08과 순차 배포했으며 아래 미배포·회원 로그인 대기는 당시 기록입니다.
+
+최종 로컬 빌드 통과·공용7개 일치. 운영 실제 Edge에서 기존 Naver 일반 회원 로그인, v1.10·공용 키 모달의 용도/공식 콘솔 버튼·Cloudflare 32자리 계정 식별번호 설명/확인 링크·동일 회원 등록 상태 조회를 확인했습니다. 예제의 실행 준비 창에서 Gemini/Groq/OpenRouter/Cloudflare 목록과 Groq 선택 시 `openai/gpt-oss-20b` 표시를 확인한 뒤 닫았습니다. 실제 실행/AI 자동 채우기/키 변경/자료 저장은 하지 않았습니다.
+
+Groq/OpenRouter 키는 나중 등록이라는 결정을 유지합니다. 새 공급자 실제 응답/중단·키 저장/삭제·좁은 화면 전체 검수는 남았고, Gemini 설계/자동 채우기는 기존 경로를 유지합니다. 로컬4312 별도 로그인은 미완료지만 운영 공유 로그인 성공은 확인했습니다. G-5/NVIDIA 별도 결정. 배포1회, 이번 AI0회. 두 앱 합계 빌드비 약US$0.0061 추정(실청구 미확인), 승인0.20달러/2회 중 두 앱 모두 사용.
+
+[공통 릴리스 증거·비용·배포 ID·다음 단계](../../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md#최종-운영-배포--2026-10-25).
+
+---
+
 2026-10-24 · Codex 윈도우 `codex-win-20261024-docbot-g1`.
 
 > **재시도 보완:** Edge 실제 창에서 동일 관리자 로그인으로 추가 공급자 공용 키 모달을 확인했습니다. 현재 이 모달을 열어 두고 본인 키 등록을 요청한 상태입니다. 일반 회원·키 저장/재사용·실제 실행·좁은 화면은 남았습니다. [공통 결과 §6](../../docs/analysis-autogemma-starter-20261024/G1_IMPLEMENTATION_20261024.md#6-edge-재시도-기록--2026-10-24). 이번 재시도는 소스/DB 변경·빌드·외부 AI 호출 없음.
