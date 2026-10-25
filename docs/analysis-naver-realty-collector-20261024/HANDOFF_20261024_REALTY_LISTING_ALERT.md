@@ -55,6 +55,7 @@ D3·D4를 어기는 구현(우리 서버가 네이버를 부름, 매물 데이�
 | 인증 | 요청 머리글 `authorization: Bearer <토큰>` + 쿠키 — 원본은 회원이 복사한 cURL에서 정규식 `-H\s+'authorization:\s*Bearer\s+([^']+)'`로 뽑음 |
 | 목록 응답 칸(원본이 읽은 것) | `articleList[]` 안: `articleNo` · `articleName` · `realEstateTypeName` · `tradeTypeName` · `buildingName`(동) · `floorInfo` · `areaName` · `direction` · `articleConfirmYmd` · `articleFeatureDesc` · `sameAddrMaxPrc` · `cpName` · `realtorName` |
 | 상세에서만 | `realtorPhone`·`cellPhoneNo`·`realtorAddress`·`representativeName`·`moveInTypeName`·`moveInPossibleYmd` — **개인 정보는 저장·전송하지 않는다** |
+| ↳ 변경(2026-10-25 주인님 결정) | **새·가격 변동 매물만** 상세를 읽어 `realtorPhone`(사무실)·`cellPhoneNo`(휴대폰)을 회원 PC 파일·회원 본인 알림에만 넣는다(없으면 빈칸, 서버로 보내지 않음 — §0 유지). 주소·대표자 이름은 여전히 넣지 않는다. 플랜 `realty-listing-alert/docs/PLAN_20261025_REALTOR_PHONE.md` |
 | 가격 칸 | 원본 문자열 추출에서 확인 못 함(목록의 가격 칸 이름, 예상 후보는 거래가·보증금·월세 칸) → **0단계에서 확인 필수** |
 
 ### 2-2. 쿠키 추출기 Ver1.3(EXT-RE-02)에서 얻은 기법
