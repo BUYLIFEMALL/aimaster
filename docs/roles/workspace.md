@@ -1,10 +1,10 @@
 # AI 업무 워크스페이스
 
-- 담당: Claude Code(윈도우) — **2026-10-25 다른 Claude 세션으로 교체 중**(이전 `claude-win-20261024-workspace`). 새 담당은 `ai-work-workspace/docs/IMPROVEMENT_HANDOFF_20261025.md`부터 읽고 이 줄을 자기 세션 이름으로 바꾼다
+- 담당: Claude Code(윈도우) `claude-win-20261025-workspace` (2026-10-25 인계받음, 이전 `claude-win-20261024-workspace`)
 - 맡은 폴더: `ai-work-workspace/`
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-10-25 04:40 (이전 담당 세션 — 인수인계 문서 작성)
+- 마지막 갱신: 2026-10-25 (새 담당 claude-win-20261025-workspace — 인계 확인)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
