@@ -4,7 +4,7 @@
 - 맡은 폴더: 저장소 `docs/`(분석 보고서·플랜·지침). 프로그램 코드는 맡지 않음
 - 카테고리: 전체(외부 프로그램 분석)
 - 주력 업무: 외부·신규 프로그램 정적 분석(`D:\PDS\Program_dev`), 우리 프로그램 비교, 배치 추천, 개발 플랜, 담당 인계. **구현·배포는 하지 않음**
-- 마지막 갱신: 2026-10-24 21:40 `claude-win-dotori` [역할: analysis-planning] 
+- 마지막 갱신: 2026-10-25 05:40 `claude-win-dotori` [역할: analysis-planning] 
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| 🛒 이커머스 외부 도구 46개 분석 묶음 | KDP·prohubstart·메이커 셀링 도우미·channelup·alphacut·mixxxi·GitHub 저장소 분석 완료 → 최종 분류(독립 개발 2: 쇼핑몰 판매 후 관리·쇼핑몰 업무 도구함 / 병합: 상품소싱·상세페이지·이미지·쇼츠·AI 영상 / 제외: SMM 패널·짜깁기·시연 도구) | ✅ SMM 공통 제외 등록 · ✅ 흐름 플랜 작성(`PLAN_20261024_SHOP_BUSINESS_FLOW.md`) · ✅ 본인 사용판 승인 3건(mixxxi → video, 블로그스팟 → blog, 오픈채팅방 관리·남의 방 주제 조사 → 담당 지정 대기) · 남은 결정: 흐름 구조·새 프로그램 2개 이름·진행 순서·담당 | `docs/analysis-ecommerce-bundle-20261024/00_COMPARISON_TABLE.md` §0 |
+| 🛒 이커머스 외부 도구 46개 분석 묶음 | 분석·최종 분류표(`00C_FINAL_TABLE.md`)·흐름 플랜·인계 완료 → 이커머스 담당 E6(`seller-label-docs` v1.02 공개)·E7·E8(`shop-order-report`), 영상 담당 V1~V7 | ✅ 인계 완료(이커머스·영상) · 🙋 E0 수수료표 처리 시점 · 🙋 영상 V1~V7 순서 · 🙋 오픈채팅방 → 카카오 프로그램(`kakao_auto_poster`) 담당 지정(요청함 2026-10-25) | `docs/analysis-ecommerce-bundle-20261024/00C_FINAL_TABLE.md` |
 | 📝 새 프로그램 후보 `blog-neighbor-care` | 서이추&스댓공 Ver3.5(EXT-BLOG-07) 분석 → 「AI 블로그 이웃 소통 자동화」(내 글 AI 대댓글·답방 도우미·이웃 새글 공감·이웃 정리, 회원 확인 후 등록) 플랜 | ✅ 결정 완료 → 블로그 담당 [blog](blog.md)에게 인계(2026-10-24, 인수인계·전달 프롬프트 작성) | `docs/analysis-naver-blog-neighbor-20261024/PLAN_20261024_BLOG_NEIGHBOR_CARE.md` |
 | 🔐 `ebook-studio` v1.12 | 본인 키 등록 후에만 사용 + API 4개 권한 확인 + 키 원문 노출 막기 + 사설 주소 차단 | 담당 지정·빌드 승인 | `docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §1 |
 | 🔗 `tarot`(tarot-reading) v1.27 | 링크 공개 유지 + 30일 자동 삭제(기존분 30일 유예) + 「30일 뒤 사라짐」 안내 + 당해 연도 | 담당 지정·빌드 승인 | 같은 플랜 §2 |
