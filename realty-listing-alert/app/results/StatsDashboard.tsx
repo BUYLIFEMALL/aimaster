@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 import PriceChange, { TradeGap } from "./PriceChange";
+import { findRepeatDrops } from "@/lib/repeatDrops";
 
 type TradeStat = { n: number; avg: number | null; med: number | null; min: number | null; max: number | null; perM2: number | null; rentAvg?: number | null; tradeGapAvg?: number | null; tradeGapN?: number; bands: { label: string; n: number; avg: number }[] };
 type ComplexSnap = { name: string; total: number; events: { new: number; priceDown: number; priceUp: number; gone: number }; trades: Partial<Record<Trade, TradeStat>> };
@@ -189,6 +190,7 @@ export default function StatsDashboard({ email }: { email: string }) {
           </div>
 
           <EventLog events={events} columns={columns} lastAt={latest.at} type={evType} setType={setEvType} period={evPeriod} setPeriod={setEvPeriod} />
+          <RepeatDrops events={events} columns={columns} />
         </>
       )}
     </section>
@@ -347,5 +349,34 @@ function DailyBars({ data }: { data: { d: string; n: number }[] }) {
         })}
       </svg>
     </figure>
+  );
+}
+
+/** 📉 여러 번 내린 매물(v1.29 확장 제안 C) — 변동 기록 1년치에서 같은 매물의 「가격 내림」 2번 이상. 협상 여지가 있는 매물 찾기용. */
+function RepeatDrops({ events, columns }: { events: EventRow[]; columns: string[] }) {
+  const list = useMemo(() => findRepeatDrops(events, columns), [events, columns]);
+  return (
+    <div className="ra-stat-block">
+      <h3 className="ra-stat-h">📉 여러 번 내린 매물 <small className="card-caption">최근 1년 · 가격 내림 2번 이상</small></h3>
+      {list.length === 0 ? (
+        <p className="card-caption">아직 가격을 2번 이상 내린 매물이 없어요. 수집 기록이 쌓이면 여기에 모여요.</p>
+      ) : (
+        <div className="ra-result-wrap">
+          <table className="ra-result">
+            <thead><tr><th>단지명</th><th>동</th><th>전용면적(㎡)</th><th>층</th><th>처음 가격</th><th>지금 가격</th><th>내린 횟수</th><th>마지막 내림</th><th>네이버</th></tr></thead>
+            <tbody>
+              {list.slice(0, 100).map((d) => (
+                <tr key={d.key}>
+                  <td>{d.complex}</td><td>{d.dong}</td><td>{d.area}</td><td className="ra-nowrap">{d.floor}</td><td>{d.firstPrice}</td>
+                  <td><b>{d.nowPrice}</b></td><td className="ra-bargain">📉 {d.drops}번</td>
+                  <td>{new Date(d.lastAt).toLocaleDateString("ko-KR")}</td>
+                  <td>{/^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(d.url) ? <a href={d.url} target="_blank" rel="noopener noreferrer">보기 ↗</a> : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
