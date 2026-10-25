@@ -48,7 +48,7 @@ export default function ExtensionDownloadCard() {
       <div className="extension-download-copy">
         <div className="extension-download-kicker">Chrome Extension · {EXTENSION_VERSION}</div>
         <h3 id="extension-download-title">부동산 실시간 매물 알림 확장 프로그램</h3>
-        <p>회원님 PC의 크롬에서 회원님 계정으로 네이버 부동산 매물을 읽어 정리하고, 회원님이 고른 텔레그램·카톡·메일로 알려 줍니다. 매물 정보는 우리 서버로 보내지 않습니다.</p>
+        <p>회원님 PC의 크롬에서 회원님 계정으로 네이버 부동산 매물을 읽어 정리하고, 회원님이 고른 텔레그램·메일·카톡으로 알려 줍니다. 매물 정보는 우리 서버로 보내지 않습니다.</p>
       </div>
       <div className="extension-status" role="status" aria-live="polite">
         <span className={`extension-status-dot ${isLatest ? "ready" : isUpdate || downloaded ? "progress" : ""}`} />

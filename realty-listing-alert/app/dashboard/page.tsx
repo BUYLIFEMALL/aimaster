@@ -35,7 +35,7 @@ export default async function DashboardPage() {
       .maybeSingle(),
     supabase.from("personal_access_tokens").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("program_slug", "realty-listing-alert").is("revoked_at", null),
   ]);
-  // 받는 곳: 텔레그램·카톡·이메일 중 하나라도(2026-10-25)
+  // 받는 곳: 텔레그램·이메일·카톡 중 하나라도(2026-10-25)
   const hasChannel = !!telegram || !!settings?.notify_kakao || !!settings?.notify_email;
   const total = targets?.length ?? 0;
   const active = targets?.filter((t) => t.enabled).length ?? 0;
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
   const cards = [
     { icon: "🎯", title: "감시 대상", value: `${total} / ${MAX_TARGETS}`, href: "/targets", note: total ? `${active}개 감시 중` : "단지를 추가하세요" },
     { icon: "⏰", title: "예약", value: settings?.schedule_enabled ? "켜짐" : "꺼짐", href: "/schedule", note: settings?.schedule_enabled ? `${intervalLabel}마다${hours}` : "간격·시간대를 정하고 켜 주세요" },
-    { icon: "📨", title: "받는 방법", value: hasChannel ? "연결됨" : "미연결", href: "/delivery", note: hasChannel ? [telegram ? "텔레그램" : "", settings?.notify_kakao ? "카톡" : "", settings?.notify_email ? "이메일" : ""].filter(Boolean).join(" · ") : "텔레그램·카톡·이메일 중 하나를 연결하세요" },
+    { icon: "📨", title: "받는 방법", value: hasChannel ? "연결됨" : "미연결", href: "/delivery", note: hasChannel ? [telegram ? "텔레그램" : "", settings?.notify_kakao ? "카톡" : "", settings?.notify_email ? "이메일" : ""].filter(Boolean).join(" · ") : "텔레그램·이메일·카톡 중 하나를 연결하세요" },
     {
       icon: "🖥",
       title: "내 PC 수집",
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
         <div className="topline">
           <div>
             <div className="eyebrow">Dashboard</div>
-            <h1>관심 단지 새 매물,<br />텔레그램·카톡·메일로 받아 보세요</h1>
+            <h1>관심 단지 새 매물,<br />텔레그램·메일·카톡으로 받아 보세요</h1>
             <p className="lede">수집은 회원님 PC의 크롬이 회원님 계정으로 합니다. 매물 정보는 이 사이트로 오지 않습니다.</p>
           </div>
         </div>

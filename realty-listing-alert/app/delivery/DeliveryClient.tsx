@@ -379,8 +379,8 @@ export function ChannelCards({ kakao, email, initial }: { kakao: KakaoInfo; emai
   }
   return (
     <>
-      <div id="kakao"><KakaoCard kakao={kakao} /></div>
       <div id="email"><EmailCard email={email} emailTo={emailTo} disabled={pending} onEmailTo={saveEmailTo} /></div>
+      <div id="kakao"><KakaoCard kakao={kakao} /></div>
       <Message msg={msg} />
     </>
   );
@@ -421,18 +421,6 @@ function ReceiveCard({ telegram, kakao, email, ai, initial }: { telegram: Telegr
           <div className="ra-recv-ctl">{telegram ? <small>요약 + 엑셀 파일을 받아요</small> : goSetup("telegram")}</div>
         </div>
         <div className="ra-recv-row">
-          <b>💬 카카오톡</b>
-          <span className={`ra-status ${kakao.ok ? "on" : "off"}`}>{kakao.ok ? "✅ 연결됨" : "⚪ 연결 전"}</span>
-          <div className="ra-recv-ctl">
-            {kakao.ok ? (
-              <>
-                <label className="ra-chip oneline"><input type="checkbox" checked={value.notifyKakao} disabled={pending} onChange={(e) => save({ notifyKakao: e.target.checked })} /><span><strong>요약 받기</strong></span></label>
-                <button type="button" className="secondary" disabled={kakaoTest.pending} onClick={kakaoTest.run}>{kakaoTest.pending ? "보내는 중..." : "테스트 발송"}</button>
-              </>
-            ) : goSetup("kakao")}
-          </div>
-        </div>
-        <div className="ra-recv-row">
           <b>✉️ 이메일</b>
           <span className={`ra-status ${emailReady ? "on" : "off"}`}>{emailReady ? `✅ ${value.emailTo}` : email.hasKey ? "⚪ 받는 주소 없음" : "⚪ 연결 전"}</span>
           <div className="ra-recv-ctl">
@@ -442,6 +430,18 @@ function ReceiveCard({ telegram, kakao, email, ai, initial }: { telegram: Telegr
                 <button type="button" className="secondary" disabled={emailTest.pending} onClick={emailTest.run}>{emailTest.pending ? "보내는 중..." : "테스트 발송"}</button>
               </>
             ) : goSetup("email")}
+          </div>
+        </div>
+        <div className="ra-recv-row">
+          <b>💬 카카오톡</b>
+          <span className={`ra-status ${kakao.ok ? "on" : "off"}`}>{kakao.ok ? "✅ 연결됨" : "⚪ 연결 전"}</span>
+          <div className="ra-recv-ctl">
+            {kakao.ok ? (
+              <>
+                <label className="ra-chip oneline"><input type="checkbox" checked={value.notifyKakao} disabled={pending} onChange={(e) => save({ notifyKakao: e.target.checked })} /><span><strong>요약 받기</strong></span></label>
+                <button type="button" className="secondary" disabled={kakaoTest.pending} onClick={kakaoTest.run}>{kakaoTest.pending ? "보내는 중..." : "테스트 발송"}</button>
+              </>
+            ) : goSetup("kakao")}
           </div>
         </div>
         <div className="ra-recv-row">

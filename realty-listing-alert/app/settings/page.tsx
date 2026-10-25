@@ -47,7 +47,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <section className="settings-card">
         <div className="eyebrow">Settings</div>
         <h1>API키등록·플랫폼연동</h1>
-        <p className="lede">연결·키 등록은 모두 여기서 해요. 꼭 필요한 것은 ① 알림 받을 곳(텔레그램·카카오톡·이메일 중 하나 이상) ② 크롬 확장, 두 가지예요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
+        <p className="lede">연결·키 등록은 모두 여기서 해요. 꼭 필요한 것은 ① 알림 받을 곳(텔레그램·이메일·카카오톡 중 하나 이상) ② 크롬 확장, 두 가지예요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
         <div className="settings-divider" />
         <h2 id="telegram">📨 텔레그램 연동</h2>
         <p className="lede">새 매물 알림과 정리 파일을 받을 회원님 본인 텔레그램 봇입니다.</p>
@@ -57,11 +57,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           realEstateBot={realEstateBot ? { botUsername: realEstateBot.bot_username ?? null } : null}
         />
         <div className="settings-divider" />
-        <h2>💬 카카오톡 · ✉️ 이메일(Resend) 연동</h2>
-        <p className="lede">카카오톡은 요약만, 이메일은 요약 + 엑셀 파일을 받아요. 연결한 뒤 「받는 방법」에서 켜 주세요.</p>
+        <h2>✉️ 이메일(Resend) · 💬 카카오톡 연동</h2>
+        <p className="lede">이메일은 요약 + 엑셀 파일, 카카오톡은 요약만 받아요. 연결한 뒤 「받는 방법」에서 켜 주세요.</p>
         <div className="ra-howto-grid">
-          <KeyHowTo ids={["kakao"]} title="카카오톡 연동 방법" />
           <KeyHowTo ids={["resend"]} title="이메일(Resend) 연동 방법" />
+          <KeyHowTo ids={["kakao"]} title="카카오톡 연동 방법" />
         </div>
         <ChannelCards
           kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey, notice: kakaoNotice } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey, notice: kakaoNotice }}
