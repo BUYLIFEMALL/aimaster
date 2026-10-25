@@ -72,6 +72,7 @@ export async function connectTelegramAction(
   }
 
   revalidatePath("/delivery");
+  revalidatePath("/settings"); // 텔레그램 카드가 설정 화면 표에도 있음(2026-10-25 끊기·가져오기 뒤 화면이 안 바뀌던 문제)
   revalidatePath("/dashboard");
   return { success: `@${chatInfo.botUsername ?? "봇"} 연동이 완료됐어요.` };
 }
@@ -116,6 +117,7 @@ export async function importRealEstateBotAction(): Promise<TelegramActionState> 
     // 저장은 이미 성공 — 확인 메시지 실패는 치명적이지 않음(봇을 차단했거나 토큰이 바뀐 경우 화면에서 다시 연결)
   }
   revalidatePath("/delivery");
+  revalidatePath("/settings"); // 텔레그램 카드가 설정 화면 표에도 있음(2026-10-25 끊기·가져오기 뒤 화면이 안 바뀌던 문제)
   revalidatePath("/dashboard");
   return { success: `@${source.bot_username ?? "봇"} (부동산 실거래 프로그램과 같은 봇)으로 연결했어요.` };
 }
@@ -129,5 +131,6 @@ export async function disconnectTelegramAction() {
     .eq("user_id", user.id)
     .eq("program_slug", THIS_PROGRAM_SLUG);
   revalidatePath("/delivery");
+  revalidatePath("/settings"); // 텔레그램 카드가 설정 화면 표에도 있음(2026-10-25 끊기·가져오기 뒤 화면이 안 바뀌던 문제)
   revalidatePath("/dashboard");
 }
