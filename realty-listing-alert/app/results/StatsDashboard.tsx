@@ -5,9 +5,9 @@
 // 그래프는 한 그래프에 선 하나(축 하나): 매물 수와 평균 가격을 따로 그린다. 같은 숫자는 표로도 보인다.
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
-import PriceChange from "./PriceChange";
+import PriceChange, { TradeGap } from "./PriceChange";
 
-type TradeStat = { n: number; avg: number | null; med: number | null; min: number | null; max: number | null; perM2: number | null; rentAvg?: number | null; bands: { label: string; n: number; avg: number }[] };
+type TradeStat = { n: number; avg: number | null; med: number | null; min: number | null; max: number | null; perM2: number | null; rentAvg?: number | null; tradeGapAvg?: number | null; tradeGapN?: number; bands: { label: string; n: number; avg: number }[] };
 type ComplexSnap = { name: string; total: number; events: { new: number; priceDown: number; priceUp: number; gone: number }; trades: Partial<Record<Trade, TradeStat>> };
 type Snap = { at: string; complexes: ComplexSnap[]; realtors: { name: string; n: number }[] };
 type Trade = "매매" | "전세" | "월세";
@@ -143,7 +143,7 @@ export default function StatsDashboard({ email }: { email: string }) {
           <h3 className="ra-stat-h">🏢 단지 비교 (이번 회차)</h3>
           <div className="ra-result-wrap">
             <table className="ra-result">
-              <thead><tr><th>단지</th><th>매물</th><th>매매 평균</th><th>매매 평당가</th><th>전세 평균</th><th>전세가율</th><th>월세 평균</th></tr></thead>
+              <thead><tr><th>단지</th><th>매물</th><th>매매 평균</th><th>매매 평당가</th><th>실거래 대비</th><th>전세 평균</th><th>전세가율</th><th>월세 평균</th></tr></thead>
               <tbody>
                 {latest.complexes.map((c) => {
                   const s = c.trades["매매"], j = c.trades["전세"], m = c.trades["월세"];
@@ -154,6 +154,7 @@ export default function StatsDashboard({ email }: { email: string }) {
                       <td>{c.total}건</td>
                       <td>{s ? `${won(s.avg)} (${s.n})` : "—"}</td>
                       <td>{s?.perM2 ? won(Math.round(s.perM2 * PYEONG)) : "—"}</td>
+                      <td>{s?.tradeGapAvg != null ? <><TradeGap value={`${s.tradeGapAvg}%`} /> <small className="card-caption">({s.tradeGapN}건)</small></> : <TradeGap value="" />}</td>
                       <td>{j ? `${won(j.avg)} (${j.n})` : "—"}</td>
                       <td>{ratio !== null ? `${ratio}%` : "—"}</td>
                       <td>{m ? `${won(m.avg)} / ${won(m.rentAvg)} (${m.n})` : "—"}</td>
@@ -163,7 +164,7 @@ export default function StatsDashboard({ email }: { email: string }) {
               </tbody>
             </table>
           </div>
-          <p className="card-caption">단위: 만 원 · 평당가 = ㎡당 평균 × 3.3058 · 전세가율 = 전세 ㎡당 ÷ 매매 ㎡당 · (괄호)는 매물 수</p>
+          <p className="card-caption">단위: 만 원 · 평당가 = ㎡당 평균 × 3.3058 · 실거래 대비 = 매매 호가를 최근 6개월 국토부 실거래(같은 단지·면적대 ㎡당 중간값)와 비교한 평균(실거래는 계약 후 30일 안에 신고돼 조금 늦게 반영) · 전세가율 = 전세 ㎡당 ÷ 매매 ㎡당 · (괄호)는 매물 수</p>
 
           <div className="ra-stat-two">
             <div>

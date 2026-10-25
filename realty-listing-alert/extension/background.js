@@ -9,6 +9,7 @@ import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
 import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
+import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
 const DEFAULT_RULES = {
@@ -133,6 +134,8 @@ async function runCollection(trigger) {
     const listKey = rules.fields?.list || "articleList";
     const { states = {} } = await get("states");
     const { phones = {} } = await get("phones"); // 매물 번호 → 중개사 번호(회원 PC에만, 2026-10-25)
+    const { complexInfo = {} } = await get("complexInfo"); // 단지 번호 → 법정동 코드(공개 정보, 실거래가 비교용 v1.19)
+    const tradeTargets = []; // 실거래 조회할 단지: { key: 단지 번호, name, lawd: 시·군·구 5자리 }
     const perTarget = [];
     const fileRows = [];
     let total = 0;
@@ -212,8 +215,9 @@ async function runCollection(trigger) {
         detailLeft -= nos.length;
         return nos;
       };
-      const r = await collectComplex(t.complex_no, rules, addLog, { pickDetails, extract: (body) => extractPhones(body, rules.detail) });
-      await addPages(Math.max(1, r.bodies?.length || 0) + (r.detailCount || 0));
+      const needLocation = !t.cortar_no && !complexInfo[t.complex_no]?.cortarNo;
+      const r = await collectComplex(t.complex_no, rules, addLog, { pickDetails, extract: (body) => extractPhones(body, rules.detail), needLocation });
+      await addPages(Math.max(1, r.bodies?.length || 0) + (r.detailCount || 0) + (r.locateCount || 0));
       await set({ running: { startedAt, trigger, done: i + 1, total: work.length } });
       if (r.status === "blocked") {
         result = "blocked";
@@ -240,6 +244,10 @@ async function runCollection(trigger) {
       if (isGenericName(t.complex_name) && realName) {
         api("/api/extension/targets", { method: "POST", body: JSON.stringify({ complexNo: t.complex_no, complexName: realName, rename: true }) }).catch(() => {});
       }
+      // 실거래가 비교 대상(지역 감시는 그 동 코드, 단지 감시는 단지 화면에서 읽은 코드)
+      if (r.cortarNo) complexInfo[t.complex_no] = { cortarNo: r.cortarNo, at: nowIso };
+      const lawdSrc = t.cortar_no || complexInfo[t.complex_no]?.cortarNo;
+      if (lawdSrc) tradeTargets.push({ key: String(t.complex_no), name, lawd: String(lawdSrc).slice(0, 5) });
       const cmp = compareComplex(states[t.complex_no], items, { complete: r.complete });
       states[t.complex_no] = cmp.state;
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
@@ -252,6 +260,8 @@ async function runCollection(trigger) {
       total += items.length;
     }
 
+    await set({ complexInfo });
+    await attachTradeGaps(fileRows, perTarget, tradeTargets);
     const table = toTable(fileRows);
     if (limitHit) await set({ limitDate: kstDate() });
     const iv = settings.schedule?.intervalMinutes || 180;
@@ -283,6 +293,39 @@ async function runCollection(trigger) {
 }
 
 /** 텔레그램 보내기 — 변동이 있거나, 첫 수집이거나, 「지금 수집」이면 보낸다. 실패하면 다음 회차에 알리고 같은 알림을 반복해 보내지 않는다. */
+// 실거래가 비교(2026-10-25 v1.19): 서버에 「단지 이름 + 시·군·구 코드」만 보내 국토부 실거래 요약(면적대별 ㎡당 중간값)을 받고,
+// 회원 PC에 하루 기억한다. 매매 매물마다 「실거래 대비 +8%」를 붙인다(엑셀·결과 표·알림). 회원 매물은 서버로 보내지 않는다.
+async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
+  if (!tradeTargets.length) return;
+  const DAY = 24 * 3600 * 1000;
+  const now = Date.now();
+  const { tradeCache = {} } = await get("tradeCache");
+  const need = tradeTargets.filter((t) => !tradeCache[t.key] || now - new Date(tradeCache[t.key].at).getTime() > DAY || tradeCache[t.key].name !== t.name);
+  if (need.length) {
+    try {
+      const r = await api("/api/extension/trades", { method: "POST", body: JSON.stringify({ targets: need }) });
+      if (r?.error === "no_key") await addLog("실거래 비교: 공공데이터 키가 없어 건너뛰었어요(웹 「API키등록·플랫폼연동」에서 등록할 수 있어요)");
+      for (const t of need) if (r?.results?.[t.key]) tradeCache[t.key] = { at: new Date().toISOString(), name: t.name, ...r.results[t.key] };
+      if (r?.errors?.length) await addLog(`실거래 비교 알림: ${r.errors.join(" / ")}`.slice(0, 200));
+    } catch (e) {
+      await addLog(`실거래 비교 실패: ${e.message}`);
+    }
+  }
+  for (const [k, v] of Object.entries(tradeCache)) if (now - new Date(v.at).getTime() > 30 * DAY) delete tradeCache[k];
+  await set({ tradeCache });
+  const gapOf = (it) => {
+    if (it.tradeName !== "매매") return "";
+    const c = tradeCache[String(it.complexNo)];
+    const cmp = c ? compareToTrades(it.price, it.area, c.bands || []) : null;
+    return cmp ? gapText(cmp.pct) : "";
+  };
+  let n = 0;
+  for (const row of fileRows) { const g = gapOf(row.item); if (g) { row.item.tradeGap = g; n++; } }
+  for (const t of perTarget) for (const e of t.events || []) { const g = gapOf(e.item); if (g) e.item.tradeGap = g; }
+  const matched = tradeTargets.filter((t) => tradeCache[t.key]?.bands?.length).length;
+  await addLog(`실거래 비교: 단지 ${matched}/${tradeTargets.length}곳 자료 있음 · 매매 ${n}건에 「실거래 대비」`);
+}
+
 async function deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit = false, maxPages = 300 }) {
   // 채널별로 따로 보낸다(2026-10-25 카톡·이메일 추가) — 한 채널이 실패해도 다른 채널은 보낸다.
   const tg = settings.telegram;

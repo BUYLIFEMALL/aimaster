@@ -3,7 +3,7 @@
 import { EVENT_LABEL } from "./compare.js";
 import { articleUrl } from "./listing.js";
 
-export const COLUMNS = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "방향", "매물 특징", "확인일", "중개사 상호", "사무실 번호", "휴대폰", "상태", "이전 가격", "첫 발견일", "네이버 매물 주소"];
+export const COLUMNS = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "방향", "매물 특징", "확인일", "중개사 상호", "사무실 번호", "휴대폰", "상태", "이전 가격", "실거래 대비", "첫 발견일", "네이버 매물 주소"];
 
 const ymd = (s) => (s && /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : s || "");
 
@@ -11,7 +11,7 @@ const ymd = (s) => (s && /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-
 export function toTable(rows) {
   return rows.map(({ item, status, prevPriceText, firstSeen }) => [
     item.complexName, item.dong, item.tradeName, item.priceText, item.area ?? "", item.floor, item.direction, item.feature,
-    ymd(item.confirmYmd), item.realtor, item.officeTel || "", item.mobileTel || "", EVENT_LABEL[status] || "", prevPriceText || "", firstSeen ? firstSeen.slice(0, 10) : "",
+    ymd(item.confirmYmd), item.realtor, item.officeTel || "", item.mobileTel || "", EVENT_LABEL[status] || "", prevPriceText || "", item.tradeGap || "", firstSeen ? firstSeen.slice(0, 10) : "",
     articleUrl(item.complexNo, item.no),
   ]);
 }

@@ -25,7 +25,7 @@ export function parsePriceCell(text) {
 /** 표(columns + table) → { at, complexes: [{ name, total, events, trades: { 매매: {...} } }], realtors: [{ name, n }] } */
 export function summarizeTable(columns, table, at) {
   const ix = (c) => columns.indexOf(c);
-  const C = { name: ix("단지명"), trade: ix("거래 종류"), price: ix("가격(만 원)"), area: ix("전용면적(㎡)"), realtor: ix("중개사 상호"), status: ix("상태") };
+  const C = { name: ix("단지명"), trade: ix("거래 종류"), price: ix("가격(만 원)"), area: ix("전용면적(㎡)"), realtor: ix("중개사 상호"), status: ix("상태"), gap: ix("실거래 대비") };
   const groups = new Map();
   const realtorCount = new Map();
   for (const r of table || []) {
@@ -61,6 +61,11 @@ export function summarizeTable(columns, table, at) {
         }).filter(Boolean),
       };
       if (trade === "월세") t.rentAvg = avg(parsed.map((p) => p.rent).filter(Number.isFinite));
+      // 실거래 대비(매매만, v1.19): 「+8%」 글자 → 숫자 평균. 비교된 매물 수도 함께
+      if (C.gap >= 0) {
+        const gaps = rows.map((r) => Number(String(r[C.gap] ?? "").replace("%", ""))).filter((v, k) => String(rows[k][C.gap] ?? "") !== "" && Number.isFinite(v));
+        if (gaps.length) { t.tradeGapAvg = avg(gaps); t.tradeGapN = gaps.length; }
+      }
       trades[trade] = t;
     }
     return { name: g.name, total: g.total, events: g.events, trades };

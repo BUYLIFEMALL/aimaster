@@ -16,3 +16,14 @@ export default function PriceChange({ status, prev }: { status: unknown; prev?: 
   if (kind === "gone") return <span className="ra-pc gone">👋 사라짐{prevText && <small>마지막 {prevText}</small>}</span>;
   return <span className="ra-pc same" title="가격 변동 없음"><b aria-hidden>➖</b> 변동 없음</span>;
 }
+
+/** 실거래 대비(v1.19): 「+8%」 → 파란 ▲ 8% 높음 · 「-5%」 → 빨간 ▼ 5% 낮음(가격 변동과 같은 색 — 주인님 지정) · 0% → ➖ 비슷 */
+export function TradeGap({ value }: { value: unknown }) {
+  const s = String(value ?? "").trim();
+  if (!s) return <span className="ra-pc same" title="같은 단지·면적대 실거래가 없거나 비교 전">—</span>;
+  const n = Number(s.replace("%", ""));
+  if (!Number.isFinite(n)) return <span>{s}</span>;
+  if (n > 0) return <span className="ra-pc up" title="최근 6개월 같은 면적대 실거래 ㎡당 중간값보다 비쌈"><b aria-hidden>▲</b> {n}% 높음</span>;
+  if (n < 0) return <span className="ra-pc down" title="최근 6개월 같은 면적대 실거래 ㎡당 중간값보다 쌈"><b aria-hidden>▼</b> {-n}% 낮음</span>;
+  return <span className="ra-pc same"><b aria-hidden>➖</b> 비슷</span>;
+}

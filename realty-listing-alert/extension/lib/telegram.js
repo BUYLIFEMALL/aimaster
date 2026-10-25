@@ -23,7 +23,7 @@ export function buildSummary(perTarget, { failedBefore = false, now = new Date()
       if (shown >= MAX_LINES) { hidden++; continue; }
       const i = e.item;
       const prev = e.prevPriceText ? ` (이전 ${e.prevPriceText})` : "";
-      lines.push(`${EVENT_LABEL[e.type]} ${i.tradeName} ${i.priceText}${prev} · ${i.areaName || (i.area ? `${i.area}㎡` : "")} · ${i.dong ? `${i.dong} ` : ""}${i.floor}`);
+      lines.push(`${EVENT_LABEL[e.type]} ${i.tradeName} ${i.priceText}${prev}${i.tradeGap ? ` (실거래 대비 ${i.tradeGap})` : ""} · ${i.areaName || (i.area ? `${i.area}㎡` : "")} · ${i.dong ? `${i.dong} ` : ""}${i.floor}`);
       const tel = phoneText(i);
       if (tel) lines.push(`   📞 ${tel}`);
       lines.push(`   ${articleUrl(i.complexNo, i.no)}`);

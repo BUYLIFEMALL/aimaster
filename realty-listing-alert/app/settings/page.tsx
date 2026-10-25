@@ -1,4 +1,5 @@
 import { requireProgramAccess, PROGRAM_SLUG } from "@/lib/access";
+import PublicDataKeyCard from "./PublicDataKeyCard";
 import { createClient } from "@/lib/supabase/server";
 import ExtensionTokenManager from "./ExtensionTokenManager";
 import ExtensionConnectButton from "./ExtensionConnectButton";
@@ -29,6 +30,8 @@ export default async function SettingsPage() {
   const { data: tokens } = await supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", PROGRAM_SLUG).is("revoked_at", null).order("created_at", { ascending: false });
 
   const kakaoKey = await hasKakaoKey(service, user.id);
+  const { data: pdRow } = await service.from("user_api_keys").select("provider").eq("user_id", user.id).eq("provider", "data_go_kr_service_key").maybeSingle();
+  const pdKey = Boolean(pdRow);
   return (
     <main className="settings-layout">
       <StudioSidebar email={user.email ?? ""} active="settings" />
@@ -51,6 +54,9 @@ export default async function SettingsPage() {
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
           initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "" }}
         />
+        <div className="settings-divider" />
+        <h2>🏛 실거래가 비교(공공데이터 키, 선택)</h2>
+        <PublicDataKeyCard hasKey={pdKey} />
         <div className="settings-divider" />
         <h2>Chrome 확장 연결</h2>
         <p className="lede">확장을 설치한 이 브라우저에서 아래 버튼을 누르면 연결 코드가 자동으로 만들어져 확장에 바로 연결됩니다. 다른 자동화 프로그램의 연결 코드와 따로 관리됩니다.</p>

@@ -45,6 +45,18 @@ function decodeBody(b) {
 /**
  * @returns {Promise<{status: "ok"|"blocked"|"rule_mismatch"|"error", bodies: object[], complete: boolean, error?: string}>}
  */
+/** 응답 안 어디든 10자리 법정동 코드(cortarNo)를 찾는다(실거래가 비교용 위치, 2026-10-25 v1.19) — 칸 위치가 바뀌어도 찾도록 깊이 4까지 */
+export function findCortarNo(o, depth = 0) {
+  if (!o || typeof o !== "object" || depth > 4) return null;
+  const v = o.cortarNo;
+  if ((typeof v === "string" || typeof v === "number") && /^\d{10}$/.test(String(v))) return String(v);
+  for (const x of Object.values(o)) {
+    const f = findCortarNo(x, depth + 1);
+    if (f) return f;
+  }
+  return null;
+}
+
 export async function collectComplex(complexNo, rules, log = async () => {}, opts = {}) {
   const listKey = rules.fields?.list || "articleList";
   const moreKey = rules.fields?.more || "isMoreData";
@@ -71,6 +83,9 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
   };
   const details = {}; // 매물 번호 → { office, mobile } (중개사 번호, 2026-10-25) — 회원 PC 메모리에만
   let detailCount = 0;
+  let cortarNo = null; // 이 단지의 법정동 코드(공개 정보) — 회원 PC에만 기억
+  let locateCount = 0;
+  const locatePending = new Set();
   const diag = []; // 진단 기록(2026-10-25: 2페이지가 안 읽히는 원인 찾기) — 숫자·상태만, 매물 내용 없음
 
   const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
@@ -86,9 +101,18 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
       return;
     }
     if (method === "Network.responseReceived") {
-      if (!String(params.response?.url || "").includes(rules.listPathIncludes)) return;
+      const rurl = String(params.response?.url || "");
+      // 단지 정보 응답(/api/complexes/…)에서 법정동 코드를 줍는다 — 위치가 필요할 때만
+      if (opts.needLocation && !cortarNo && rurl.includes("/api/complexes/") && !rurl.includes(rules.listPathIncludes) && params.response.status === 200) { locatePending.add(params.requestId); return; }
+      if (!rurl.includes(rules.listPathIncludes)) return;
       if (isBlockedStatus(params.response.status)) blockedStatus = params.response.status;
       else pending.add(params.requestId);
+    } else if (method === "Network.loadingFinished" && locatePending.has(params.requestId)) {
+      locatePending.delete(params.requestId);
+      try {
+        const body = decodeBody(await chrome.debugger.sendCommand({ tabId }, "Network.getResponseBody", { requestId: params.requestId }));
+        cortarNo = cortarNo || findCortarNo(body);
+      } catch {}
     } else if (method === "Network.loadingFinished" && pending.has(params.requestId)) {
       pending.delete(params.requestId);
       try {
@@ -138,6 +162,15 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
         if (stale >= 2) break;
       } else stale = 0;
     }
+    // 법정동 코드를 못 주웠으면 단지 정보를 탭 안에서 한 번만 직접 부른다(실거래가 비교용, 한 번 찾으면 회원 PC에 기억해 다시 안 부름)
+    if (opts.needLocation && !cortarNo && !blockedStatus && !blockedText && bodies.length) {
+      const lurl = `https://new.land.naver.com/api/complexes/${encodeURIComponent(complexNo)}?sameAddressGroup=false`;
+      const res = await evalInPage(tabId, `fetch(${JSON.stringify(lurl)}, { credentials: "include", headers: ${JSON.stringify(listAuth ? { authorization: listAuth } : {})} }).then(async (r) => ({ status: r.status, body: r.ok ? await r.json().catch(() => null) : null })).catch(() => ({ status: 0, body: null }))`);
+      locateCount += 1;
+      if (isBlockedStatus(res?.status ?? 0)) blockedStatus = res.status;
+      else cortarNo = findCortarNo(res?.body);
+    }
+    if (opts.needLocation) diag.push(`위치 코드 ${cortarNo ? "찾음" : "못 찾음"}${locateCount ? "(직접)" : ""}`);
     // 새·가격 변동 매물만 상세를 읽어 중개사 번호를 가져온다(주인님 결정 2026-10-25). 탭 안 요청 · 페이지 인증 머리글 재사용 · 사이사이 쉬기.
     const d = rules.detail;
     if (d && opts.pickDetails && !blockedStatus && !blockedText && bodies.length) {
@@ -166,13 +199,13 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
   if (blockedStatus || blockedText) {
     const why = blockedStatus ? `네이버가 ${blockedStatus} 응답(접근 제한)을 보냈어요.` : "네이버 확인 화면(보안 문자·로그인)이 나타났어요.";
     await log(`단지 ${complexNo}: 멈춤 — ${why}`);
-    return { status: "blocked", bodies, complete: false, error: why, details, detailCount };
+    return { status: "blocked", bodies, complete: false, error: why, details, detailCount, locateCount };
   }
   if (!bodies.length) return { status: error ? "error" : "rule_mismatch", bodies, complete: false, error: error || "매물 목록 응답을 찾지 못했어요(네이버 화면이 바뀌었을 수 있어요)." };
   if (bodies.some((b) => isRuleMismatch(b, rules))) return { status: "rule_mismatch", bodies: [], complete: false, error: "매물 목록 모양이 수집 규칙과 달라요." };
   await log(`단지 ${complexNo}: 목록 ${bodies.length}페이지 · 매물 ${bodies.reduce((n, b) => n + (b[listKey]?.length || 0), 0)}건`);
   await log(`단지 ${complexNo} 진단: ${diag.join(" / ").slice(0, 400)}`);
-  return { status: "ok", bodies, complete: !lastMore, details, detailCount };
+  return { status: "ok", bodies, complete: !lastMore, details, detailCount, cortarNo, locateCount };
 }
 
 /**

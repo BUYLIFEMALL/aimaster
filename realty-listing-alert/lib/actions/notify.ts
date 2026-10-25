@@ -93,3 +93,24 @@ export async function startKakaoConnectAction(): Promise<Result & { url?: string
   jar.set(STATE_COOKIE, state, { httpOnly: true, secure: true, sameSite: "lax", path: "/api/kakao", maxAge: 600 });
   return { url: kakaoAuthorizeUrl(rest, state) };
 }
+
+// 🏛 실거래가 비교용 공공데이터 키(선택, v1.19) — 공용 user_api_keys data_go_kr_service_key(부동산 실거래 프로그램과 같은 이름)
+export async function savePublicDataKeyAction(_: Result, formData: FormData): Promise<Result> {
+  const user = await requireProgramAccess();
+  const key = String(formData.get("pdKey") ?? "").trim();
+  if (!/^[A-Za-z0-9%+/=]{20,200}$/.test(key)) return { error: "공공데이터 인증키 모양이 이상해요. 공공데이터포털 마이페이지의 「일반 인증키」를 다시 복사해 주세요." };
+  const db = createServiceClient();
+  const { error } = await db.from("user_api_keys").upsert({ user_id: user.id, provider: "data_go_kr_service_key", api_key: key }, { onConflict: "user_id,provider" });
+  if (error) return { error: `저장에 실패했습니다: ${error.message}` };
+  revalidatePath("/settings");
+  return { success: "공공데이터 키를 저장했어요. 다음 수집부터 이 키로 실거래를 비교해요(하루 한 번 새로 받아요)." };
+}
+
+export async function deletePublicDataKeyAction(): Promise<Result> {
+  const user = await requireProgramAccess();
+  const db = createServiceClient();
+  const { error } = await db.from("user_api_keys").delete().eq("user_id", user.id).eq("provider", "data_go_kr_service_key");
+  if (error) return { error: `삭제에 실패했습니다: ${error.message}` };
+  revalidatePath("/settings");
+  return { success: "공공데이터 키를 지웠어요. 운영자 공용 키로 계속 비교해요." };
+}
