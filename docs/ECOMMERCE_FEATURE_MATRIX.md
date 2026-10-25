@@ -97,8 +97,8 @@
 | 알리익스프레스 원가 비교 | × | ○ `lib/aliexpress/client.ts`, `components/sourcing/sourcingFetchers.ts` |
 | 도매매 원가 비교 | × | ○ `lib/domeggook/client.ts` |
 | 키워드 번역(해외 검색용) | × | ○ `lib/ai/translateKeyword.ts` |
-| 마진 계산(수수료·관세·운송) | × | ○ `lib/margin.ts` `calcMargin`, `components/sourcing/MarginCalculatorPanel.tsx` |
-| 플랫폼·카테고리 수수료 참고표 | × | ○ `app/(dashboard)/fees/page.tsx`(2026년 9월 조사 자료) |
+| 마진 계산(수수료·관세·운송) | × | ○ `lib/margin.ts` `calcMargin`, `components/sourcing/MarginCalculatorPanel.tsx` · v1.27 마켓별 정산 `lib/marketFees.ts`(공용 `market-fees` 사본)·`MarketSalesSection.tsx` |
+| 플랫폼·카테고리 수수료 참고표 | × | ○ `app/(dashboard)/fees/page.tsx`(2026-10-25 E0 공식 재확인, v1.27부터 공용 `market-fees`에서 읽음) |
 | 프로모션 문구 상품 필터 | × | ○ `lib/promoKeywords.ts` |
 | 소싱 후보 저장 | × | ○ `lib/actions/savedProducts.ts`, `components/sourcing/SavedProductsPanel.tsx` |
 | 환율 자동 갱신(수출입은행) | × | × (Phase 12 대기) |
@@ -174,7 +174,7 @@
 | 이미지 생성 호출·모델 목록 | `shop-detail-page/lib/ai/geminiImage.ts`, `lib/ai/nanoBananaModels.ts` | 공용 사본(기준 `ai-image-studio/lib/providers/`) |
 | 다른 프로그램으로 초안 넘기기 | `shop-detail-page/lib/threadsLink.ts` | 이미지 위치만 넘기고 받는 쪽이 본인 폴더 확인 |
 | 소싱 → 상세 넘기기 | `trending-product-finder/lib/shopDetailLink.ts` | 가격은 정상가 칸만 |
-| 마진 계산 | `trending-product-finder/lib/margin.ts` `calcMargin` | |
+| 마진 계산 | `trending-product-finder/lib/margin.ts` `calcMargin` · 마켓별 정산은 공용 `market-fees`(기준 `shop-order-report/src/lib/marketFees.ts`) | |
 | 기회 점수·AI 사유 | `trending-product-finder/lib/ai/opportunity.ts`, `lib/reportEngine.ts` | |
 | 회원 예약 실행 방식 | `trending-product-finder/lib/schedulerMember/` | 공용 `member-scheduler` 사본 |
 | 알림 발송 | `trending-product-finder/lib/telegram/client.ts`, `lib/solapi/client.ts`, `lib/email/transport.ts` | 텔레그램·SOLAPI는 공용 사본 |
