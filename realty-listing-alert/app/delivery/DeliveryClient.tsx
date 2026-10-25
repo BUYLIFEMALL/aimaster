@@ -368,7 +368,6 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
       <div className="ra-aibox-body">
         {/* 맨 왼쪽 등록 상태(2026-10-25 「맨왼쪽에 등록완료」) */}
         <span className={`ra-badge ${has ? "on" : "off"}`}>{has ? "✓ 등록완료" : "미등록"}</span>
-        <b className="ra-aibox-label">{info.name} API Key</b>
         {editing ? (
           <input className="ra-aibox-input" type="password" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? "새 키(바꿀 때만 — 비우면 기존 키 그대로)" : info.placeholder} />
         ) : (

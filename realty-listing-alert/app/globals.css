@@ -946,3 +946,12 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-btn-del { background: #fff; border: 1px solid #fecdd3; color: #e11d48; }
 .ra-btn-save { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
 .ra-aibox .ra-msg { margin: 0 14px 12px; }
+/* 엔진 상자 아랫줄 다시 잡음(2026-10-25 「다시 잡아봐」): 세 상자 칸이 위아래로 맞는 4칸 격자 [등록완료 | 키 | 모델 | 수정·삭제] */
+.ra-aibox-body { display: grid; grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1.3fr) 128px; gap: 10px; align-items: center; }
+.ra-aibox-body > .ra-badge { justify-self: start; }
+.ra-aibox-body .ra-keychip, .ra-aibox-body .ra-aibox-input, .ra-aibox-body .ra-aibox-model { width: 100%; max-width: none; min-width: 0; box-sizing: border-box; }
+.ra-aibox-body .ra-aibox-model { height: 34px; }
+.ra-aibox-body .ra-aibox-input { height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; }
+.ra-aibox-body .ra-keychip { height: 34px; }
+.ra-aibox-btns { justify-content: flex-end; margin-left: 0; }
+@media (max-width: 767px) { .ra-aibox-body { grid-template-columns: 1fr; } .ra-aibox-btns { justify-content: flex-start; } }
