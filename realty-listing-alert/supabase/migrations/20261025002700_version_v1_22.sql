@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.22: 🤖 AI 시세 요약(회원 본인 Gemini·OpenAI 키, 하루 1번 텔레그램·메일 맨 위 + 수집 결과) · 카카오 연동 방법 한 번에 · 이메일 안내 2줄 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.22', extension_version = 'v1.22', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
