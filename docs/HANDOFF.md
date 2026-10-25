@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.24 AI 엔진 선택 카드
+
+- **한 일**: 「API키등록」의 AI 칸을 「쓰레드 콘텐츠 운영」(threads-content-ops `AttentionComposer` 「AI 글 생성 엔진 선택」) 방식으로 — 엔진 줄마다 [엔진 카드(누르면 요약 엔진) | 키 상태 | 세부 실행 모델 | 저장·수정 | API 만들기 ↗], 「수정」을 누르면 모델·키 변경(키 칸 비우면 기존 키). 모델 목록은 `lib/aiModels.ts`(threads-content-ops `ENGINES` 그대로, 맨 앞 기본 추천). 받는 방법 AI 줄은 켜기 + 「✅ 엔진 · 모델」 표시 + 「엔진·모델 바꾸기 →」만. 배포 전 내 PC 미리보기로 주인님 확인.
+- **검수**: 시험 52개·tsc·린트·빌드 통과, 배포 Ready, 확장 검증 OK, 운영 설정 화면 확인. **주인님 검토 중**(이 버전을 보고 다음 수정 결정).
+- **커밋**: `0c47aca33`(v1.24) 외. https://realty-listing-alert.buylife.xyz/settings
+
 ## 2026-10-25 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — AI 가사영상 v1.11 노래방 로마자 발음(Lyricbi L-1)
 - 한 일: 새 `lyric-video-studio/src/lib/romanize.ts`(국립국어원 로마자 표기법 기본 규칙, AI 없음) + 시험 5개, 디자인 「노래방 로마자 발음: 끔/가사 위/가사 아래」(기본 끔), `drawLyrics`가 지금 줄 위·아래에 작게 그림.
 - 검수: tsc·시험 19개·로컬 빌드 통과. 실제 `drawFrame`을 묶은 내 PC 전용 미리보기로 네온 노래방(아래)·나이트 스테이지(위)·오션 박스(박스 밖)·세로 네온 4장 확인. 운영 크롬: 디자인 화면 선택 칸·버전 v1.11 확인. 못 한 것: 운영에서 곡을 넣은 미리보기·MP4(시험 곡 없음 — 그리기 함수는 같은 코드).
