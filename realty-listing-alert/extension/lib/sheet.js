@@ -3,7 +3,7 @@
 import { EVENT_LABEL } from "./compare.js";
 import { articleUrl } from "./listing.js";
 
-export const COLUMNS = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "방향", "매물 특징", "확인일", "중개사 상호", "상태", "이전 가격", "첫 발견일", "네이버 매물 주소"];
+export const COLUMNS = ["단지명", "동", "거래 종류", "가격(만 원)", "전용면적(㎡)", "층", "방향", "매물 특징", "확인일", "중개사 상호", "사무실 번호", "휴대폰", "상태", "이전 가격", "첫 발견일", "네이버 매물 주소"];
 
 const ymd = (s) => (s && /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : s || "");
 
@@ -11,7 +11,7 @@ const ymd = (s) => (s && /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-
 export function toTable(rows) {
   return rows.map(({ item, status, prevPriceText, firstSeen }) => [
     item.complexName, item.dong, item.tradeName, item.priceText, item.area ?? "", item.floor, item.direction, item.feature,
-    ymd(item.confirmYmd), item.realtor, EVENT_LABEL[status] || "", prevPriceText || "", firstSeen ? firstSeen.slice(0, 10) : "",
+    ymd(item.confirmYmd), item.realtor, item.officeTel || "", item.mobileTel || "", EVENT_LABEL[status] || "", prevPriceText || "", firstSeen ? firstSeen.slice(0, 10) : "",
     articleUrl(item.complexNo, item.no),
   ]);
 }
@@ -37,11 +37,15 @@ function sheetXml(table) {
     const cells = r.map((v, ci) => {
       const ref = `${colName(ci)}${ri + 1}`;
       if (typeof v === "number" && Number.isFinite(v)) return `<c r="${ref}"><v>${v}</v></c>`;
+      // 네이버 매물 주소는 누르면 바로 열리는 링크로(2026-10-25)
+      if (ri > 0 && typeof v === "string" && /^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(v)) {
+        return `<c r="${ref}" t="str"><f>HYPERLINK("${xml(v)}","네이버에서 보기")</f><v>네이버에서 보기</v></c>`;
+      }
       return `<c r="${ref}" t="inlineStr"${ri === 0 ? ' s="1"' : ""}><is><t xml:space="preserve">${xml(v)}</t></is></c>`;
     });
     return `<row r="${ri + 1}">${cells.join("")}</row>`;
   });
-  const widths = [18, 8, 8, 16, 11, 8, 8, 30, 11, 22, 12, 16, 11, 52].map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("");
+  const widths = [18, 8, 8, 16, 11, 8, 8, 30, 11, 22, 15, 15, 12, 16, 11, 16].map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("");
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${widths}</cols><sheetData>${rows.join("")}</sheetData></worksheet>`;
 }
 const PARTS = (table) => ({

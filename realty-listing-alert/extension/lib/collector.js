@@ -45,7 +45,7 @@ function decodeBody(b) {
 /**
  * @returns {Promise<{status: "ok"|"blocked"|"rule_mismatch"|"error", bodies: object[], complete: boolean, error?: string}>}
  */
-export async function collectComplex(complexNo, rules, log = async () => {}) {
+export async function collectComplex(complexNo, rules, log = async () => {}, opts = {}) {
   const listKey = rules.fields?.list || "articleList";
   const moreKey = rules.fields?.more || "isMoreData";
   const url = String(rules.complexUrl).replace("{complexNo}", encodeURIComponent(complexNo));
@@ -69,6 +69,8 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
     diag.push(`응답${bodies.length}: ${list?.length ?? "?"}건·더있음=${String(body?.[moreKey])}${how}`);
     return true;
   };
+  const details = {}; // 매물 번호 → { office, mobile } (중개사 번호, 2026-10-25) — 회원 PC 메모리에만
+  let detailCount = 0;
   const diag = []; // 진단 기록(2026-10-25: 2페이지가 안 읽히는 원인 찾기) — 숫자·상태만, 매물 내용 없음
 
   const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
@@ -136,6 +138,22 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
         if (stale >= 2) break;
       } else stale = 0;
     }
+    // 새·가격 변동 매물만 상세를 읽어 중개사 번호를 가져온다(주인님 결정 2026-10-25). 탭 안 요청 · 페이지 인증 머리글 재사용 · 사이사이 쉬기.
+    const d = rules.detail;
+    if (d && opts.pickDetails && !blockedStatus && !blockedText && bodies.length) {
+      const nos = opts.pickDetails(bodies) || [];
+      for (const no of nos) {
+        const durl = String(d.url).replace("{articleNo}", encodeURIComponent(no)).replace("{complexNo}", encodeURIComponent(complexNo));
+        const res = await evalInPage(tabId, `fetch(${JSON.stringify(durl)}, { credentials: "include", headers: ${JSON.stringify(listAuth ? { authorization: listAuth } : {})} }).then(async (r) => ({ status: r.status, body: r.ok ? await r.json().catch(() => null) : null })).catch(() => ({ status: 0, body: null }))`);
+        detailCount += 1;
+        const status = res?.status ?? 0;
+        if (isBlockedStatus(status)) { blockedStatus = status; break; }
+        if (status === 200 && res?.body) details[no] = opts.extract ? opts.extract(res.body) : {};
+        const [a, b] = d.waitMs || [1000, 2000];
+        await sleep(rand(a, b));
+      }
+      if (nos.length) diag.push(`중개사 번호 ${Object.keys(details).length}/${nos.length}건`);
+    }
   } catch (e) {
     error = String(e).slice(0, 160);
     if (/Another debugger|Cannot attach|not attached/i.test(error)) error = "다른 확장이 이 탭을 조작 중이라 디버거를 붙이지 못했어요.";
@@ -148,13 +166,13 @@ export async function collectComplex(complexNo, rules, log = async () => {}) {
   if (blockedStatus || blockedText) {
     const why = blockedStatus ? `네이버가 ${blockedStatus} 응답(접근 제한)을 보냈어요.` : "네이버 확인 화면(보안 문자·로그인)이 나타났어요.";
     await log(`단지 ${complexNo}: 멈춤 — ${why}`);
-    return { status: "blocked", bodies, complete: false, error: why };
+    return { status: "blocked", bodies, complete: false, error: why, details, detailCount };
   }
   if (!bodies.length) return { status: error ? "error" : "rule_mismatch", bodies, complete: false, error: error || "매물 목록 응답을 찾지 못했어요(네이버 화면이 바뀌었을 수 있어요)." };
   if (bodies.some((b) => isRuleMismatch(b, rules))) return { status: "rule_mismatch", bodies: [], complete: false, error: "매물 목록 모양이 수집 규칙과 달라요." };
   await log(`단지 ${complexNo}: 목록 ${bodies.length}페이지 · 매물 ${bodies.reduce((n, b) => n + (b[listKey]?.length || 0), 0)}건`);
   await log(`단지 ${complexNo} 진단: ${diag.join(" / ").slice(0, 400)}`);
-  return { status: "ok", bodies, complete: !lastMore };
+  return { status: "ok", bodies, complete: !lastMore, details, detailCount };
 }
 
 /**

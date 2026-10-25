@@ -1,7 +1,7 @@
 // 회원 본인 텔레그램 봇으로 회원 PC에서 바로 보낸다(매물이 우리 서버를 거치지 않음, 인수인계 §0).
 // 같은 봇을 부동산 실거래 프로그램과 함께 쓰는 회원을 위해 앞에 머리말을 붙인다(웹 lib/delivery.ts ALERT_PREFIX와 같은 값).
 import { EVENT_LABEL } from "./compare.js";
-import { articleUrl } from "./listing.js";
+import { articleUrl, phoneText } from "./listing.js";
 
 export const ALERT_PREFIX = "🏠 [매물 알림]";
 const MAX_LINES = 15; // 텔레그램 4096자 제한 안에서 읽기 좋게
@@ -24,6 +24,8 @@ export function buildSummary(perTarget, { failedBefore = false, now = new Date()
       const i = e.item;
       const prev = e.prevPriceText ? ` (이전 ${e.prevPriceText})` : "";
       lines.push(`${EVENT_LABEL[e.type]} ${i.tradeName} ${i.priceText}${prev} · ${i.areaName || (i.area ? `${i.area}㎡` : "")} · ${i.dong ? `${i.dong} ` : ""}${i.floor}`);
+      const tel = phoneText(i);
+      if (tel) lines.push(`   📞 ${tel}`);
       lines.push(`   ${articleUrl(i.complexNo, i.no)}`);
       shown++;
     }

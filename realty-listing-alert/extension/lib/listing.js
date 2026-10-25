@@ -101,3 +101,27 @@ export function pickTopComplexes(list, fields, n) {
   rows.sort((a, b) => b.count - a.count || a.i - b.i);
   return rows.slice(0, Math.max(1, Math.min(10, n || 5))).map(({ complexNo, complexName, count }) => ({ complexNo, complexName, count }));
 }
+
+/** 매물 상세 응답에서 중개사 번호 찾기(2026-10-25). 칸 이름은 수집 규칙(detail.office/mobile)에서 — 네이버가 바꾸면 웹만 배포. 없으면 빈칸. */
+export function extractPhones(body, keys = {}) {
+  const office = keys.office || ["realtorPhone", "representativeTelNo", "realtorTelNo"];
+  const mobile = keys.mobile || ["cellPhoneNo", "realtorCellPhoneNo"];
+  const find = (obj, names, depth = 0) => {
+    if (!obj || typeof obj !== "object" || depth > 4) return "";
+    for (const n of names) {
+      const v = obj[n];
+      if (typeof v === "string" && /\d{3,}/.test(v)) return v.trim();
+    }
+    for (const v of Object.values(obj)) {
+      const hit = find(v, names, depth + 1);
+      if (hit) return hit;
+    }
+    return "";
+  };
+  return { office: find(body, office), mobile: find(body, mobile) };
+}
+
+/** 요약 줄용 번호 글자: 「031-917-1234 · 010-1234-5678」(있는 것만). */
+export function phoneText(item) {
+  return [item.officeTel, item.mobileTel].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(" · ");
+}

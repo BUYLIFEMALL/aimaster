@@ -2,7 +2,7 @@
 // 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
 // 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/collector.js";
-import { complexNoFromUrl, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes } from "./lib/listing.js";
+import { complexNoFromUrl, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
@@ -22,6 +22,14 @@ const DEFAULT_RULES = {
   maxComplexesPerRun: 20,
   maxPagesPerDay: 300,
   scheduleJitter: 0.1,
+  // 중개사 번호(2026-10-25 주인님 결정 「사무실 + 휴대폰, 없으면 빈칸」): 새·가격 변동 매물만 상세를 읽는다. 서버에는 보내지 않는다.
+  detail: {
+    url: "https://new.land.naver.com/api/articles/{articleNo}?complexNo={complexNo}",
+    office: ["realtorPhone", "representativeTelNo", "realtorTelNo"],
+    mobile: ["cellPhoneNo", "realtorCellPhoneNo"],
+    maxPerRun: 20,
+    waitMs: [1000, 2000],
+  },
   region: {
     pageUrl: "https://new.land.naver.com/complexes",
     listUrl: "https://new.land.naver.com/api/regions/complexes?cortarNo={cortarNo}&realEstateType=APT%3AABYG%3AJGC&order=",
@@ -129,6 +137,7 @@ async function runCollection(trigger) {
     let result = "ok";
     let errMsg = null;
     let limitHit = false; // 하루 페이지 한도에 닿음
+    let detailLeft = rules.detail?.maxPerRun ?? 20; // 회차당 상세(중개사 번호) 최대 건수
 
     // 지역 대상은 그 동에서 매물 많은 단지 N곳으로 펼친다(2026-10-25). 단지 대상과 겹치는 단지는 한 번만 읽는다.
     const work = [];
@@ -179,8 +188,25 @@ async function runCollection(trigger) {
         await sleep(rand(a, b));
       }
       if ((await pagesToday()) >= (rules.maxPagesPerDay || 300)) { limitHit = true; await addLog(`오늘 수집 한도(${rules.maxPagesPerDay || 300}페이지)에 닿아 나머지는 쉬어요`); break; }
-      const r = await collectComplex(t.complex_no, rules, addLog);
-      await addPages(Math.max(1, r.bodies?.length || 0));
+      // 매물 목록 → 정리(상세 대상 고르기와 아래 비교가 같은 방법을 쓰도록 함수로)
+      const itemsOf = (bodies) => {
+        const seen = new Set();
+        return bodies
+          .flatMap((b) => b[listKey] || [])
+          .map((a) => normalizeArticle(a, t.complex_no, isGenericName(t.complex_name) ? "" : t.complex_name, rules.fields))
+          .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no))
+          .filter((it) => matchesTarget(it, t));
+      };
+      // 새·가격 변동(알림 기준에 맞는 것)만, 회차 전체 상한 안에서 상세를 읽는다. 첫 수집(기준 저장)은 읽지 않는다.
+      const pickDetails = (bodies) => {
+        if (detailLeft <= 0) return [];
+        const pre = compareComplex(states[t.complex_no], itemsOf(bodies), { complete: false });
+        const nos = filterEvents(pre.events, settings.delivery).filter((e) => e.type !== "gone").map((e) => e.item.no).slice(0, detailLeft);
+        detailLeft -= nos.length;
+        return nos;
+      };
+      const r = await collectComplex(t.complex_no, rules, addLog, { pickDetails, extract: (body) => extractPhones(body, rules.detail) });
+      await addPages(Math.max(1, r.bodies?.length || 0) + (r.detailCount || 0));
       await set({ running: { startedAt, trigger, done: i + 1, total: work.length } });
       if (r.status === "blocked") {
         result = "blocked";
@@ -193,12 +219,12 @@ async function runCollection(trigger) {
         await addLog(`단지 ${t.complex_no}: ${r.error}`);
         continue;
       }
-      const seen = new Set();
-      const items = r.bodies
-        .flatMap((b) => b[listKey] || [])
-        .map((a) => normalizeArticle(a, t.complex_no, isGenericName(t.complex_name) ? "" : t.complex_name, rules.fields))
-        .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no))
-        .filter((it) => matchesTarget(it, t));
+      const items = itemsOf(r.bodies);
+      // 중개사 번호 붙이기(없으면 빈칸) — 회원 PC 파일·회원 알림에만, 서버로 보내지 않음
+      for (const it of items) {
+        const ph = r.details?.[it.no];
+        if (ph) { it.officeTel = ph.office || ""; it.mobileTel = ph.mobile || ""; }
+      }
       const realName = r.bodies.flatMap((b) => b[listKey] || []).find((a) => a.articleName)?.articleName || "";
       const name = (!isGenericName(t.complex_name) && t.complex_name) || realName || `단지 ${t.complex_no}`;
       // 이름이 비었거나 탭 제목 같은 일반 이름이면 웹 감시 대상 이름을 실제 단지명으로 고친다(단지 번호·이름만 보냄)

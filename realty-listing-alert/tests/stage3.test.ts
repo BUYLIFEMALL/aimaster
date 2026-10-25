@@ -94,13 +94,14 @@ test("예약 판정: 꺼짐·그날 멈춤·시간대·차례·밀린 회차 1�
   assert.equal(shouldRunScheduled({ schedule, lastRunAt: new Date(now - 24 * 3600e3).toISOString(), stoppedDate: "2026-10-24", now }).run, true);
 });
 
-test("파일: CSV·xlsx 모양, 개인 정보 칸 없음", () => {
+test("파일: CSV·xlsx 모양, 중개사 번호 칸(2026-10-25 주인님 결정)은 있고 주소·대표자 칸은 없음", () => {
   const item = normalizeArticle(raw("1", "4억"), "10981", "백송건영");
   const table = toTable([{ item, status: "new", firstSeen: "2026-10-25T00:00:00Z" }]);
   const csv = toCsv(table);
   assert.ok(csv.startsWith("﻿단지명,"));
   assert.ok(csv.includes("https://new.land.naver.com/complexes/10981?articleNo=1"));
-  assert.ok(!/전화|주소지|대표자/.test(csv.split("\r\n")[0]));
+  assert.ok(!/주소지|대표자/.test(csv.split("\r\n")[0]));
+  assert.ok(csv.split("\r\n")[0].includes("사무실 번호,휴대폰"));
   const x = toXlsx(table);
   assert.equal(x[0], 0x50); // 'P'
   assert.equal(x[1], 0x4b); // 'K'

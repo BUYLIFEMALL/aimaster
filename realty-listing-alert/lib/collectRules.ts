@@ -3,7 +3,7 @@
 import { MAX_COMPLEXES_PER_RUN, MAX_PAGES_PER_DAY, SCHEDULE_JITTER } from "@/lib/limits";
 
 export const COLLECT_RULES = {
-  version: "2026-10-25.3",
+  version: "2026-10-25.4",
   // 수집량 상한(2026-10-25 주인님 지시) — 값은 lib/limits.ts
   maxComplexesPerRun: MAX_COMPLEXES_PER_RUN,
   maxPagesPerDay: MAX_PAGES_PER_DAY,
@@ -15,6 +15,14 @@ export const COLLECT_RULES = {
   scrollWaitMs: [2000, 5000],
   betweenTargetsMs: [10000, 30000],
   firstLoadWaitMs: 8000,
+  // 중개사 번호(2026-10-25 주인님 결정 「사무실 + 휴대폰, 없으면 빈칸」): 새·가격 변동 매물만 상세를 읽는다. 서버에는 보내지 않는다.
+  detail: {
+    url: "https://new.land.naver.com/api/articles/{articleNo}?complexNo={complexNo}",
+    office: ["realtorPhone", "representativeTelNo", "realtorTelNo"],
+    mobile: ["cellPhoneNo", "realtorCellPhoneNo"],
+    maxPerRun: 20,
+    waitMs: [1000, 2000],
+  },
   // 지역(동) 감시(2026-10-25): 동 번호로 단지 목록 → 매물 많은 순 상위 N곳. 첫 실물 시험에서 주소·칸 이름 확인(진단 기록).
   region: {
     pageUrl: "https://new.land.naver.com/complexes",
