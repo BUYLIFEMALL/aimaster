@@ -36,7 +36,7 @@ flowchart TD
 
 ### [Group 1] 블로그 자동화 & SEO 그룹 (총 8개)
 > **핵심 기능**: 블로그 원고·이미지 자동 생성, 크롬 확장을 통한 자동 포스팅(발행전까지/즉시발행/예약발행), SEO 키워드 분석 및 최적화
-- **그룹 대표 프로그램 (기준 모델)**: `tistory-auto-blog` (티스토리 자동화) & `naver-blog-seo-studio` (네이버 블로그 SEO)
+- **그룹 대표 프로그램 (기준 모델)**: `tistory-auto-blog` (티스토리 자동화 — **2026-10-25 4대 화면 3시안(12개 뷰) 실세션 검수 완료 및 3대 템플릿 자산화 완료**, 레퍼런스: `TISTORY_12VIEWS_DESIGN_PROPOSAL.md`) & `naver-blog-seo-studio` (네이버 블로그 SEO)
 - **그룹 소속 프로그램 목록**:
   1. `tistory-auto-blog` (티스토리 원문생성 및 자동 포스팅)
   2. `ai-auto-blog` (실시간 이슈 AI 자동 블로그 포스팅)
