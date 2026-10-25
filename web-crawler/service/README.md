@@ -90,6 +90,7 @@ $7/month·0.5 CPU·512MB RAM 플랜)에 배포됨. Live URL: `https://web-crawle
 - 최종 정답: Root Directory 빈칸 / Dockerfile Path `web-crawler/service/Dockerfile` /
   Docker Build Context Directory `web-crawler/` — 전부 저장소 실제 루트(`aimaster`) 기준
   경로다.
+- **빌드 필터(Build Filters, 2026-10-25 추가)**: Included Paths = `web-crawler/service/**`, `web-crawler/scripts/**`, `web-crawler/requirements.txt`(Dockerfile이 복사하는 세 곳). 이 서비스는 GitHub `master` 자동 배포라, 필터가 없을 때는 다른 프로그램 문서 푸시까지 매번 빌드돼 월 빌드 시간을 다 써 버렸다(「Build canceled: your workspace has run out of build pipeline minutes」). Dockerfile에 복사 대상을 더하면 여기 경로도 함께 더할 것.
 - Health Check Path는 `/health`(코드의 실제 라우트)로 지정. 화면에 예시로 뜨는
   `/healthz`는 placeholder일 뿐 실제 경로가 아니다.
 
