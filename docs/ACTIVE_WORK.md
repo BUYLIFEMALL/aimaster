@@ -22,7 +22,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `shop-order-report/` (새 폴더) | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-25 | E7 새 프로그램 「AI 쇼핑몰 주문·매출 리포트 자동화」 구현(A안 내 PC 보관, 플랜 `shop-order-report/docs/PLAN_20261025_SHOP_ORDER_REPORT.md`, 빌드 최대 3회 승인) |
 | i-auto-blog/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | 사이드바 3D 확장 다운로드 버튼 탑재 & API키 생성버튼/매뉴얼 동기화 & 3D 실행버튼 업그레이드 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
 | `realty-listing-alert/` (새 폴더) | [역할: realty] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-realty` | 2026-10-24 | 새 프로그램 「AI 부동산 매물 알림 자동화」 구현 — 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`. 0~3단계·UX 리뉴얼·지역 감시·수집 상한 ✅(v1.08 운영, 준비중). 지금: 카톡·이메일 받기 실물 시험 → 카톡·이메일 받기 |
