@@ -88,10 +88,10 @@ export function TelegramCard({ telegram, realEstateBot }: { telegram: Telegram; 
       </div>
       {telegram ? (
         <>
-          <p className="ra-msg ra-ok">
-            ✅ @{telegram.botUsername ?? "봇"} 에 연결돼 있어요{telegram.linkedAt ? ` (${new Date(telegram.linkedAt).toLocaleString("ko-KR")})` : ""}.
-          </p>
-          <button type="button" className="secondary" disabled={pending} onClick={disconnect}>연결 끊기</button>
+          <div className="ra-msg ra-ok ra-status-row">
+            <span>✅ @{telegram.botUsername ?? "봇"} 에 연결돼 있어요{telegram.linkedAt ? ` (${new Date(telegram.linkedAt).toLocaleString("ko-KR")})` : ""}.</span>
+            <button type="button" className="secondary" disabled={pending} onClick={disconnect}>연결 끊기</button>
+          </div>
         </>
       ) : (
         <>
@@ -157,11 +157,11 @@ function KakaoCard({ kakao, on, onToggle, disabled }: { kakao: KakaoInfo; on: bo
       <p className="card-caption">카카오톡 「나와의 채팅」으로 <b>요약</b>을 보내 드려요(새 매물·가격 변동 건수 + 결과 보기 버튼). 카톡으로는 파일을 보낼 수 없어서 엑셀은 텔레그램·이메일로 받아 주세요.</p>
       {kakao.ok ? (
         <>
-          <label className="ra-chip big">
-            <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
-            <span><strong>카톡 요약 받기</strong><small>{on ? "켜짐 — 수집할 때마다 보내요" : "꺼짐"}</small></span>
-          </label>
-          <div className="ra-row-actions">
+          <div className="ra-toggle-row">
+            <label className="ra-chip big">
+              <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
+              <span><strong>카톡 요약 받기</strong><small>{on ? "켜짐 — 수집할 때마다 보내요" : "꺼짐"}</small></span>
+            </label>
             <button type="button" className="secondary" disabled={test.pending} onClick={test.run}>{test.pending ? "보내는 중..." : "💬 시험 메시지 보내기"}</button>
           </div>
           <p className="card-caption">💡 카톡의 「결과 보기」가 다른 화면으로 열리면: 카카오 개발자 콘솔 → 내 앱 → <b>제품 링크 관리 → 웹 도메인</b>에 <code>https://realty-listing-alert.buylife.xyz</code>를 추가해 주세요(카카오는 등록한 도메인만 열어 줘요).</p>

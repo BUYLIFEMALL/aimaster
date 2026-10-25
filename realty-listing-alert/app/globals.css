@@ -722,3 +722,8 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .card .ra-addr-steps kbd, .card .ra-addr-steps code { font-size: 12px; }
 @media (max-width: 680px) { .ra-inline-form { grid-template-columns: 1fr; } }
 .ra-import > a.primary { display: inline-flex; align-items: center; margin-top: 12px; }
+/* 버튼 위치 조정(2026-10-25): 연결 안내 줄 오른쪽 끝 버튼 · 켜기 칩 옆 버튼 */
+.ra-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ra-status-row > span { flex: 1 1 260px; }
+.ra-status-row > button { flex: none; }
+.ra-toggle-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
