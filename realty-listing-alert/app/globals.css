@@ -1032,3 +1032,5 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-aitbl:not(.ra-setup) th:nth-child(4) { width: 92px; }
 .ra-aitbl:not(.ra-setup) .ra-keychip, .ra-aitbl:not(.ra-setup) .ra-aitbl-input { width: 100%; box-sizing: border-box; }
 .ra-aitbl:not(.ra-setup) .ra-aitbl-btns { gap: 3px; }
+.ra-aitbl:not(.ra-setup) th:nth-child(4) { width: 112px; }
+.ra-aitbl:not(.ra-setup) .ra-aitbl-btns { flex-wrap: nowrap; }
