@@ -12,7 +12,7 @@ export default function LimitNotice() {
       <div className="limit-grid">
         <div><strong>⏱ 예약 간격</strong><small>1시간부터 고를 수 있어요. 보통 2~3시간을 권해요.</small></div>
         <div><strong>🏢 한 회차 최대 {MAX_COMPLEXES_PER_RUN}곳</strong><small>더 많으면 다음 회차에 나머지를 차례로 읽어요.</small></div>
-        <div><strong>📄 하루 최대 {MAX_PAGES_PER_DAY}페이지</strong><small>닿으면 그날은 쉬고 텔레그램으로 알려 드려요. 다음 날 다시 시작해요.</small></div>
+        <div><strong>📄 하루 최대 {MAX_PAGES_PER_DAY}페이지</strong><small>닿으면 그날은 쉬고 텔레그램·카톡으로 알려 드려요. 다음 날 다시 시작해요.</small></div>
         <div><strong>🐢 사람처럼 천천히</strong><small>페이지·단지 사이를 몇 초씩 쉬고, 예약 시각도 조금씩 다르게 돌아요.</small></div>
       </div>
       <div className="limit-block">
