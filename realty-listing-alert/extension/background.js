@@ -7,7 +7,7 @@ import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
-import { buildKakaoText, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
+import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
@@ -331,7 +331,7 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
   }
   if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget), kakaoLinkFor(perTarget)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
   if (email) {
-    await sendResendMail(email.apiKey, { to: email.to, subject: summary.split("\n")[0], text: summary, file })
+    await sendResendMail(email.apiKey, { to: email.to, subject: buildMailSubject(perTarget), text: summary, html: buildMailHtml(perTarget), file })
       .catch((e) => addLog(`이메일 보내기 실패: ${e.message}`));
   }
 }
