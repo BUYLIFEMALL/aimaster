@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — 상세페이지 자동화(15p) v1.34 (4대 플랫폼 키발급 2단 퀵액션 & 3D 엠보싱 실행버튼 전면 탑재) 및 디자인 리뉴얼·템플릿 유지관리 지침 반영
+- **한 일**:
+  1. **최상위 디자인 리뉴얼 지침 및 템플릿 상시 유지관리 지침 공식 반영 (주인님 지시)**:
+     - 프로그램 리뉴얼 시 새로 추가/변경된 기능 전수 점검 및 사용자 편의성 관점에서 UI, 메뉴, 3D 버튼, 설명 툴팁, 플랫폼 연동법, 사용자 매뉴얼(`/guide`) 일체형 업그레이드.
+     - 변경사항 사전 정리 및 채팅 보고 후 승인 득하여 코드 반영 (Strict Approval).
+     - 기존 등록된 템플릿의 명칭을 가장 어울리는 이름으로 유연하게 변경 허용.
+     - 각각 프로그램마다 적용된 템플릿을 디자인 템플릿 표에 상시 추가·변경·유지관리하며, 각 템플릿마다 **1) 어떤 템플릿인지(유형/구조)**, **2) 어떤 스타일인지(비주얼 톤앤매너/컬러/3D버튼)**, **3) 왜 이 프로그램에 적용되었는지(선정 이유 및 적합성)** 3대 항목 필수 명시.
+     - `DESIGN.md`(원칙 1, 원칙 22, §2 현황판), `docs/PROGRAM_DESIGN_STANDARD.md`(§7), `AGENTS.md`·`GEMINI.md`(상단 최우선 배너), `docs/guidelines/DESIGN.md` 전면 동기화.
+  2. **`shop-detail-page` v1.34 업그레이드**:
+     - 4대 플랫폼(Gemini, OpenAI, Claude, Replicate) API 키 생성 바로가기 + 플랫폼 가입 2단 퀵액션 버튼 세트 탑재 (`components/settings/ApiKeyRow.tsx`).
+     - 주요 링크 및 핵심 실행 버튼 전면 3D 엠보싱화 (`app/globals.css` `.btn-3d-primary`, `.btn-3d-amber`, 신규 상품 등록, AI 소구점 분석, 12P 섹션별 생성, 롱이미지 병합 및 ZIP 다운로드).
+     - 커머스 매뉴얼(`/guide`) 상단 히어로 배너 3D 엠보싱 버튼 탑재 (`components/guide/CommerceUsageGuide.tsx`).
+     - 이전 대기 변경(`2cc9edc75`·`9cfb40fb1`·`c5fb22b4d`) 함께 반영하여 v1.34 배포.
+- **검수**:
+  - `next build` 11/11 정적 페이지 생성 로컬 빌드 성공.
+  - Vercel 프로덕션 배포 Ready (`https://shop-detail-page-2mxhveqw2-buylife.vercel.app`), Aliased `https://shop-detail-page.buylife.xyz`.
+  - DB 버전 동기화: `programs.version = 'v1.34'` 완료.
+  - **네이버 웨일(Whale) 실제 창(포그라운드, 1440x900) 실세션 검수 완료**:
+    - 상품 관리 메인 `/products` (신규 상품 등록 3D 버튼 및 카드 레이아웃 확인, `sdp_products_whale.png`)
+    - 설정 `/settings` (4대 플랫폼 키 발급 2단 퀵액션 버튼 세트 확인, `sdp_settings_whale.png`)
+    - 매뉴얼 `/guide` (3D 엠보싱 원클릭 이동 배너 버튼 및 5단계 가이드북 확인, `sdp_guide_whale.png`)
+- **링크**: https://shop-detail-page.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.10 중개사 번호(사무실·휴대폰)
 - 한 일: 중개사 사무실 번호·휴대폰(주인님 결정 2026-10-25: 「사무실 + 휴대폰, 없으면 빈칸」) — 새·가격 변동 매물만 단지 탭을 닫기 전에 상세(`/api/articles/{매물번호}`)를 탭 안 요청으로 읽음, 회차당 최대 20건·1~2초 쉬기·하루 300페이지 한도에 함께 셈, 엑셀 「사무실 번호」·「휴대폰」 칸 + 텔레그램·메일 요약 📞 줄(회원 PC·회원 알림에만, 서버로 보내지 않음), 엑셀 「네이버 매물 주소」는 누르면 열리는 링크(HYPERLINK), 버튼 위치 조정(텔레그램 연결 끊기·카톡 시험 보내기). 수집 규칙 `detail`(주소·칸 이름 후보·상한·간격, 규칙 버전 2026-10-25.4). 확장 1.10.0/v1.10. 분석 인수인계서 §0 상세 줄에 결정 기록.
 - 검수: 시험 31개(번호 4개 추가: 상세 응답 번호 찾기·빈칸·같은 번호 1번·엑셀 칸·HYPERLINK·요약 📞), tsc·eslint·build, 배포 `realty-listing-alert-gcvn1uq1b` Ready. **상세 응답의 실제 칸 이름은 실물 미확인** — 첫 변동 회차의 진단 기록(「중개사 번호 n/m건」)으로 확인, 0건이면 규칙 `detail.office/mobile`만 고쳐 웹 배포. v1.10 DB 버전 SQL은 SQL 편집기 입력, 주인님 Run 대기.
