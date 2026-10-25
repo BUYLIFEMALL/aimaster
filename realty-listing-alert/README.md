@@ -1,6 +1,6 @@
 # 부동산 실시간 매물 알림 (`realty-listing-alert`)
 
-> **v1.26 운영 배포(「준비중」 배지, 공개 전)** — 2026-10-25 기준. 주소 https://realty-listing-alert.buylife.xyz · 담당 [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty`.
+> **v1.27 운영 배포(「준비중」 배지, 공개 전)** — 2026-10-25 기준. 주소 https://realty-listing-alert.buylife.xyz · 담당 [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty`.
 > 기준 설계 문서: [`HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) · 상세·7대 항목·버전 이력: [`AGENTS.md`](AGENTS.md) · 남은 일: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
 
 ## 무엇을 하는 프로그램인가
@@ -19,7 +19,7 @@
 
 - **확장(`extension/`)**: 예약 타이머(`chrome.alarms`) → 감시 대상 수집(페이지가 불러온 응답 읽기) → 지난 결과와 비교(신규·가격 내림/오름·사라짐) → 엑셀 → 텔레그램·메일·카톡 발송. 중개사 번호(회차당 20건), 실거래 대비 %, 하루 1번 AI 시세 요약(통계 숫자만 전송). 차단·확인 화면이면 그날 멈춤.
 - **다운로드**: `npm run build`의 `prebuild`(`scripts/build-extension-archive.mjs`)가 `lib/version.ts` → manifest 버전을 맞추고 `public/downloads/realty-listing-alert-extension-latest.zip`을 만든다.
-- **운영 상태**: DB `programs`(준비중) · Vercel `realty-listing-alert` · `check-extension-release` OK(v1.26) · 시험 계정에 개별 권한.
+- **운영 상태**: DB `programs`(준비중) · Vercel `realty-listing-alert` · `check-extension-release` OK(v1.27) · 시험 계정에 개별 권한.
 - **미배포 대기**: [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) 「미배포 대기」 표.
 
 ## 절대 원칙 (주인님 결정, 인수인계 §0)
