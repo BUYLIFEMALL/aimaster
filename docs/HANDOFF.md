@@ -1,5 +1,26 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## [역할: design] 2026-10-25 YOUTUBE 플레이리스트 자동화 (playlist-channel-studio) v1.32 4대 플랫폼 키발급 2단버튼 & 3D 실행버튼 배포 및 네이버 웨일 검수 완료
+
+- **프로그램**: YOUTUBE 플레이리스트 자동화 (`playlist-channel-studio`, 서비스 slug: `playlist-channel-studio`, 버전: `v1.32`)
+- **디자인 템플릿**: `사이버 네온 & 유튜브 다크 스튜디오 스타일` (DESIGN.md 원칙 22 준수 - 1: 어떤 템플릿, 2: 어떤 스타일, 3: 선정 이유 3대 기준 명시 완료)
+- **작업 내용**:
+  1. `ApiKeySettings.tsx`: Google Gemini, OpenAI, Claude, Google Cloud (YouTube Data API v3) 4대 플랫폼 공식 키 발급 바로가기(`.btn-create-key`) + 가입 바로가기(`.btn-platform-signup`) 2단 퀵액션 버튼 세트 및 3D 저장 버튼(`.btn-3d-cyan`) 탑재.
+  2. `globals.css`: 사이버 네온 사이언 테마 & 유튜브 레드 테마 3D 엠보싱 버튼 표준 규격 탑재 (물리적 4px 눌림 모션).
+  3. `common.tsx` & `ExportStudio.tsx` & `YoutubeUploadCard.tsx`: 스튜디오 공용 실행 버튼(`.btn-3d-cyan`), 1080p MP4 고속 영상 렌더링 내보내기 버튼(`.btn-3d-primary`), 유튜브 업로드 버튼(`.btn-3d-primary`) 3D 엠보싱화.
+  4. `guide/page.tsx`: 상단 및 하단 CTA 버튼 3D 사이언(`.btn-3d-cyan`) 적용.
+  5. Vercel 프로덕션 배포 (`https://playlist-channel-studio-lswunya9c-buylife.vercel.app`, 도메인 `https://playlist.buylife.xyz`), DB 버전 `v1.32` 동기화 완료.
+  6. 네이버 웨일(Whale) 포그라운드 실제 창(1440x900) 실세션 검수 완료 (`playlist_v132_studio_whale.png`, `playlist_v132_settings_whale.png`, `playlist_v132_guide_whale.png`, `playlist_v132_video_whale.png`).
+- **세션**: `agy-win-20261025-ext3d`
+
+## 2026-10-25 ✅ [역할: docbot-prompt] Codex(윈도우·엣지) · 세션 `codex-win-20261025-docbot-release` — 챗봇v1.08·공용 부품 Promptv1.10 순차 배포 완료
+- 문서 챗봇 G1~G4·API별 용도/공식 콘솔 버튼·Cloudflare 계정 식별번호 설명·답변 줄바꿈·로그아웃303 포함. 공용 G1 사본을 쓰는 Prompt도 기존 묶음 범위로 동반 배포. 새 기능 소스 수정 없이 버전 `e81560135`, 실제 적용한 버전 SQL 기록 `8eb9aebba`·`2c3f493ae`.
+- 두 앱 Ready: 문서 챗봇 `dpl_CRZ4ZSzCehcwovNfGSKkDu6xsq2L` → Prompt `dpl_4YjhJhW16BrqRtc5umXDxmpo7XU5`, 팀 순차·동시 없음. 운영 DB ref `esgxyikcnnvmlhygjkth` 해당 version만 v1.08/v1.10 일치(이력 `20261025084407`·`20261025084645`), 회원 자료/키/소유자·스키마·Lab 변경 없음.
+- 검수: 문서 챗봇108개/타입, Prompt 최종 로컬 빌드, 공용7개 일치. 실제 운영 Edge 기존 Naver 일반 회원으로 두 앱 버전/설정·용도/공식 버튼·Cloudflare32자리 설명 확인. 챗봇 기본 봇3종·문서0(타 계정 Gmail 자료 안 보임), Prompt 예제 준비 창 Groq→openai/gpt-oss-20b 확인 후 닫음. 실제 실행/자동 채우기/키 변경 없음. 앞선 Gmail 실제 TXT/PDF 답변/출처/본문·재열기/680px 증거 유지.
+- 비용: 승인된 수동 배포2/2회 사용·Basic고정/추가동시구매 꺼짐. buildingAt→Ready 총51.918초, 공식 Basic0.007달러/분 환산 약US$0.0061(실청구/반올림/세금/메인 푸시 취소 빌드 미확인). 이번 AI0, 누적 성공 기준 텍스트4/임베딩3/PDF1·API1,000원 상한.
+- **주인님 후속 지시로 챗봇 완성도 개선에 집중.** Prompt 공용 부품 동반 배포 이유 설명 완료, 추가 개발로 범위 확장하지 않음. 새 공급자 실호출은 본인 키 등록 후(나중 등록 유지), G5/NVIDIA 별도 결정. 재로그인/재업로드/키 재등록 요청 없음. [최종 인수인계·배포/검수 근거·다음 단계](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md#최종-운영-배포--2026-10-25).
+- 운영: https://ai-doc-chatbot.buylife.xyz · https://ai-prompt.buylife.xyz . 미배포 목록 두 줄을 내보낸 기록으로 이동, 프로그램 비교표·공용 모듈·역할 현황 갱신. 아래 미배포 기록은 각 당시 상태.
+
 ## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우·크롬) · 세션 `claude-win-sdp` — E9 쇼핑몰 흐름 띠 + 발송 전 주문→셀러 라벨 (주문 리포트·셀러 라벨 v1.03 배포, 상품소싱 띠 미배포 대기)
 - 공용 기준 코드 2개 신설: `shop-flow`(`shop-order-report/src/lib/shopFlow.ts`) · `shop-flow-bar`(`src/components/ShopFlowBar.tsx`), 사본은 셀러 라벨·상품소싱. 띠는 `?flow=shop`으로 들어왔을 때만 보이고 같은 탭에서 유지, ✕로 닫힘.
 - 주문 리포트 「주문 현황」: 발송 전 주문을 셀러 라벨로 보내기(주소 「#import=」 안에 표, 서버를 거치지 않음, 이름·주소·전화 없음, 300줄 초과는 엑셀로 안내)·라벨용 엑셀 받기. 셀러 라벨은 받은 표로 칸을 채우고 안내 후 주소에서 지움.
