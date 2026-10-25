@@ -19,6 +19,9 @@ const MODULES = [
     copies: [`shop-detail-page/lib/freeErase/${file}`],
   })),
   // 마켓 수수료 대표값·정산 추정(ESM 공식 확인값 + 미확인 대표값) — 2026-10-25 AI 쇼핑몰 주문·매출 리포트 v1.01에서 등록, 사본은 상품소싱 E1부터(docs/SHARED_MODULES.md)
+  // 쇼핑몰 흐름 띠·발송 전 주문→라벨 넘기기 — 2026-10-25 E9(주문 리포트 v1.03)에서 등록(docs/SHARED_MODULES.md)
+  { id: "shop-flow", source: "shop-order-report/src/lib/shopFlow.ts", copies: ["seller-label-docs/src/lib/shopFlow.ts", "trending-product-finder/lib/shopFlow.ts"] },
+  { id: "shop-flow-bar", source: "shop-order-report/src/components/ShopFlowBar.tsx", copies: ["seller-label-docs/src/components/ShopFlowBar.tsx", "trending-product-finder/components/ShopFlowBar.tsx"] },
   { id: "market-fees", source: "shop-order-report/src/lib/marketFees.ts", copies: ["trending-product-finder/lib/marketFees.ts"] },
   // 브라우저 무료 음성(Supertone supertonic-3) — 2026-10-24 쇼츠 원스톱 v1.42에서 등록, 사본은 다음 적용 프로그램부터(docs/SHARED_MODULES.md)
   ...["supertonic.ts", "worker.ts", "engine.ts", "protocol.ts"].map((file) => ({
