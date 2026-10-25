@@ -204,19 +204,19 @@ export default async function HomePage() {
         <div className="relative text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/30 text-gold text-sm font-medium mb-8">
             <Zap size={14} />
-            AI 마케팅 자동화의 새로운 기준
+            AI 마케팅 & 업무 자동화의 새로운 기준
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-            <span className="text-white">마케팅을</span>
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight break-keep">
+            <span className="text-white">마케팅 및 업무/비지니스를</span>
             <br />
-            <GoldGradientText>자동화하세요</GoldGradientText>
+            <GoldGradientText>자동화 하세요</GoldGradientText>
           </h1>
 
-          <p className="text-subtext text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed">
-            AI 마케팅 프로그램으로 시간을 절약하고
+          <p className="text-subtext text-lg sm:text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed break-keep">
+            AI 자동화 프로그램으로 시간을 절약하고
             <br className="hidden md:block" />
-            매출을 극대화하세요.
+            매출과 비즈니스 성과를 극대화하세요.
           </p>
 
           {/* Hero CTA — Primary(골드) 중심 + 모바일 반응형(상단 와이드 + 하단 2열) 정돈 */}
