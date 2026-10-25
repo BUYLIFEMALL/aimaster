@@ -131,6 +131,7 @@ async function runCollection(trigger) {
 
     const listKey = rules.fields?.list || "articleList";
     const { states = {} } = await get("states");
+    const { phones = {} } = await get("phones"); // 매물 번호 → 중개사 번호(회원 PC에만, 2026-10-25)
     const perTarget = [];
     const fileRows = [];
     let total = 0;
@@ -197,11 +198,16 @@ async function runCollection(trigger) {
           .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no))
           .filter((it) => matchesTarget(it, t));
       };
-      // 새·가격 변동(알림 기준에 맞는 것)만, 회차 전체 상한 안에서 상세를 읽는다. 첫 수집(기준 저장)은 읽지 않는다.
+      // 상세(중개사 번호) 읽을 매물 고르기 — 회차 전체 상한(detailLeft) 안에서:
+      // ① 새·가격 변동(알림 기준에 맞는 것) 먼저 ② 남는 여유로 번호를 아직 모르는 매물을 조금씩(2026-10-25 주인님 「진행해」 — 조금씩 채워 기억).
+      // 한 번 읽은 번호는 phones(회원 PC chrome.storage)에 기억해 다시 읽지 않는다.
       const pickDetails = (bodies) => {
         if (detailLeft <= 0) return [];
-        const pre = compareComplex(states[t.complex_no], itemsOf(bodies), { complete: false });
-        const nos = filterEvents(pre.events, settings.delivery).filter((e) => e.type !== "gone").map((e) => e.item.no).slice(0, detailLeft);
+        const list = itemsOf(bodies);
+        const pre = compareComplex(states[t.complex_no], list, { complete: false });
+        const changed = filterEvents(pre.events, settings.delivery).filter((e) => e.type !== "gone").map((e) => e.item.no);
+        const unknown = list.map((it) => it.no).filter((no) => !phones[no] && !changed.includes(no));
+        const nos = [...changed.filter((no) => !phones[no]), ...unknown].slice(0, detailLeft);
         detailLeft -= nos.length;
         return nos;
       };
@@ -220,9 +226,11 @@ async function runCollection(trigger) {
         continue;
       }
       const items = itemsOf(r.bodies);
-      // 중개사 번호 붙이기(없으면 빈칸) — 회원 PC 파일·회원 알림에만, 서버로 보내지 않음
+      // 이번에 읽은 번호를 기억하고(번호가 없던 매물도 「없음」으로 기억해 다시 읽지 않음), 기억한 번호를 붙인다(없으면 빈칸) — 회원 PC 파일·회원 알림에만, 서버로 보내지 않음
+      const nowIso = new Date().toISOString();
+      for (const [no, ph] of Object.entries(r.details || {})) phones[no] = { office: ph.office || "", mobile: ph.mobile || "", at: nowIso };
       for (const it of items) {
-        const ph = r.details?.[it.no];
+        const ph = phones[it.no];
         if (ph) { it.officeTel = ph.office || ""; it.mobileTel = ph.mobile || ""; }
       }
       const realName = r.bodies.flatMap((b) => b[listKey] || []).find((a) => a.articleName)?.articleName || "";
@@ -247,6 +255,10 @@ async function runCollection(trigger) {
     if (limitHit) await set({ limitDate: kstDate() });
     const iv = settings.schedule?.intervalMinutes || 180;
     await set({ nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, rules.scheduleJitter ?? 0.1) });
+    // 기억한 번호는 30일이 지나면 지운다(그 사이 다시 보이면 다시 읽음)
+    const cut = Date.now() - 30 * 24 * 3600 * 1000;
+    for (const [no, ph] of Object.entries(phones)) if (!ph?.at || new Date(ph.at).getTime() < cut) delete phones[no];
+    await set({ phones });
     await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })) } });
 
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });

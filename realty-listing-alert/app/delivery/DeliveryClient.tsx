@@ -334,7 +334,7 @@ export default function DeliveryClient({ telegram, realEstateBot, initial, kakao
             <option value="csv">CSV</option>
           </select>
         </div>
-        <p className="card-caption">파일은 텔레그램·이메일에 함께 붙어요. 새·가격 변동 매물은 중개사 사무실 번호·휴대폰(없으면 빈칸)도 들어가요 — 회원님 PC 파일과 알림에만, 서버로는 보내지 않아요.</p>
+        <p className="card-caption">파일은 텔레그램·이메일에 함께 붙어요. 중개사 사무실 번호·휴대폰(없으면 빈칸)도 들어가요 — 새·변동 매물은 바로, 나머지는 회차마다 조금씩 채워요. 회원님 PC 파일과 알림에만, 서버로는 보내지 않아요.</p>
         <Message msg={msg} />
       </section>
     </>
