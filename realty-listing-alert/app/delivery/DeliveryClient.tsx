@@ -357,25 +357,25 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
   });
   return (
     <>
-      <tr className={selected ? "on" : ""}>
-        <td>
-          <button type="button" className="ra-aitbl-engine" aria-pressed={selected} disabled={disabled} onClick={onSelect} title="눌러서 요약에 사용">
-            {engine.icon} <b>{info.name}</b>
-          </button>
-        </td>
-        <td>
+      {/* 2026-10-25 「등록완료를 모델명 우측으로」「API키와 모델 셀렉트를 아래 행으로 내려 여유 있게」 */}
+      <tr className={`ra-aieng-top${selected ? " on" : ""}`}><td colSpan={4}>
+        <div className="ra-aieng-line">
+          <button type="button" className="ra-aitbl-engine" aria-pressed={selected} disabled={disabled} onClick={onSelect} title="눌러서 요약에 사용">{engine.icon} <b>{info.name}</b></button>
+          <span className={`ra-badge ${has ? "on" : "off"}`}>{has ? "✓ 등록완료" : "미등록"}</span>
+          <span className="ra-role-text"><b>{engine.role.title}</b> · {engine.role.text}</span>
+          <a className="ra-btn-orange" href={info.keyUrl} target="_blank" rel="noopener noreferrer">발급 ↗</a>
+        </div>
+      </td></tr>
+      <tr className={`ra-aieng-bottom${selected ? " on" : ""}`}><td colSpan={4}>
+        <div className="ra-aieng-line">
           {editing ? (
-            <input className="ra-aitbl-input" type="password" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? "새 키(비우면 그대로)" : "API 키 붙여넣기"} />
+            <input className="ra-aitbl-input ra-aieng-key" type="password" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? "새 키(비우면 그대로)" : "API 키 붙여넣기"} />
           ) : (
-            <span className="ra-keychip"><i />••••{mask.slice(-4)}</span>
+            <span className="ra-keychip ra-aieng-key"><i />••••{mask.slice(-4)}</span>
           )}
-        </td>
-        <td>
-          <select className="ra-aitbl-model" aria-label={`${engine.label} 모델`} value={model} disabled={!editing || busy} onChange={(e) => setModel(e.target.value)}>
+          <select className="ra-aitbl-model ra-aieng-model" aria-label={`${engine.label} 모델`} value={model} disabled={!editing || busy} onChange={(e) => setModel(e.target.value)}>
             {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
-        </td>
-        <td>
           <span className="ra-aitbl-btns">
             {editing ? (
               <>
@@ -394,10 +394,8 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
               </>
             )}
           </span>
-        </td>
-      </tr>
-      {/* 아랫줄: 등록 상태(맨 왼쪽) · 사용 용도 · 발급(맨 오른쪽) — 2026-10-25 「등록완료를 아래행 맨 왼쪽으로」 / 역할 설명 한 줄 + 발급 버튼(2026-10-25 「엔진역할 표현은 빼고 한줄안에」「발급 버튼을 아래 설명글 행으로」) */}
-      <tr className={`ra-aitbl-role${selected ? " on" : ""}`}><td colSpan={4}><div className="ra-role-line"><span className={`ra-badge ${has ? "on" : "off"}`}>{has ? "✓ 등록완료" : "미등록"}</span><span className="ra-role-text"><b>{engine.role.title}</b> · {engine.role.text}</span><a className="ra-btn-orange" href={info.keyUrl} target="_blank" rel="noopener noreferrer">발급 ↗</a></div></td></tr>
+        </div>
+      </td></tr>
       {(msg || askDelete) && (
         <tr className="ra-aitbl-note"><td colSpan={4}>
           {askDelete && <small className="ra-keyask">⚠️ 이 키는 다른 AIMaster 프로그램에서도 함께 쓰여요. 삭제하면 그쪽에서도 지워져요.</small>}
@@ -432,7 +430,6 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
       <p className="card-caption">엔진 이름을 누르면 그 줄이 요약에 쓰여요(색이 바뀐 줄). 저장한 키·모델은 「수정」으로 바꿔요.</p>
       <div className="ra-aitbl-wrap">
         <table className="ra-aitbl">
-          <thead><tr><th>엔진</th><th>API 키</th><th>모델</th><th /></tr></thead>
           <tbody>
             {AI_ENGINES.map((e) => (
               <AiEngineRow key={e.id} id={e.id} has={has[e.id]} mask={ai.masks?.[e.id] ?? ""} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
