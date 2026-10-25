@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — AI 부동산 매물 알림 v1.14 중개사 번호 채우기·결과 바로 보기
+- 배경: 주인님 「사무실 번호 휴대폰은 안들어오네」(변동 매물만 읽던 설계라 「유지」 회차엔 0건), 「바로 수집된 내용이 보여야 하지 않나?」(변동 0건이면 빈 화면).
+- 한 일: 중개사 번호 조금씩 채워 기억(새·변동 매물 먼저, 남는 여유로 번호 모르는 매물을 회차당 최대 20건 — 회원 PC `chrome.storage` `phones`에 기억, 30일 뒤 정리, 서버로 안 보냄), 수집 결과 화면은 변동 0건이면 바로 전체 표(「이번엔 변동 없음 · 지금 매물 n건」). 확장 1.14.0/v1.14.
+- 검수: 시험 31개·tsc·eslint·build, 배포 `realty-listing-alert-5uq7kt78c` Ready, 크롬 운영 `/results`에서 변동 0건일 때 전체 748건 표(화면 300건) 바로 보임 확인. **번호 칸 실물은 확장 1.14.0 설치 뒤 다음 회차부터**(회차당 20건씩 채워짐, 진단 기록 「중개사 번호 n/m건」). v1.14 DB 버전 SQL은 SQL 편집기 입력, 주인님 Run 대기.
+- 링크: https://realty-listing-alert.buylife.xyz/results
+
 ## 2026-10-25 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — AI 12단 상세페이지 자동화 v1.12 (Gemini 키발급 2단 퀵액션 & 12단/9단 기획·렌더링 3D 엠보싱 실행버튼 전면 탑재)
 - **한 일**:
   1. **Google Gemini API 키 발급 2단 퀵액션 버튼 세트 탑재 (`src/components/ApiKeyModal.tsx`)**:
