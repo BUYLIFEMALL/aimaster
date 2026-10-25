@@ -1026,3 +1026,9 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-aitbl:not(.ra-setup) th:nth-child(3) { width: auto; }
 .ra-aitbl:not(.ra-setup) th:nth-child(4) { width: 104px; }
 .ra-role-line .ra-badge { flex: 0 0 auto; }
+/* 윗줄 폭 다시(2026-10-25 「API키 영역을 조금 더 넓히고 모델셀렉트 칸을 더 넓혀」) */
+.ra-aitbl:not(.ra-setup) th:nth-child(1) { width: 88px; }
+.ra-aitbl:not(.ra-setup) th:nth-child(2) { width: 130px; }
+.ra-aitbl:not(.ra-setup) th:nth-child(4) { width: 92px; }
+.ra-aitbl:not(.ra-setup) .ra-keychip, .ra-aitbl:not(.ra-setup) .ra-aitbl-input { width: 100%; box-sizing: border-box; }
+.ra-aitbl:not(.ra-setup) .ra-aitbl-btns { gap: 3px; }
