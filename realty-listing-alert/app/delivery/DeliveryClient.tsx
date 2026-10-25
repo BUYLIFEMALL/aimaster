@@ -399,6 +399,8 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
           </span>
         </td>
       </tr>
+      {/* 엔진 역할 띠(줄 아래 한 줄로) */}
+      <tr className={`ra-aitbl-role${selected ? " on" : ""}`}><td colSpan={5}><span className="ra-role-tag">엔진 역할</span> <b>{engine.role.title}:</b> {engine.role.text}</td></tr>
       {(msg || askDelete) && (
         <tr className="ra-aitbl-note"><td colSpan={5}>
           {askDelete && <small className="ra-keyask">⚠️ 이 키는 다른 AIMaster 프로그램에서도 함께 쓰여요. 삭제하면 그쪽에서도 지워져요.</small>}

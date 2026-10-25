@@ -992,3 +992,16 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-setup-detail > td { background: #fbfdfc; padding: 12px 14px 16px; }
 .ra-setup .ra-aitbl-btns button, .ra-setup .ra-aitbl-btns a { white-space: nowrap; }
 .ra-setup .ra-aitbl-btns > button:not([class]) { border-radius: 8px; padding: 6px 12px; font-size: 12.5px; font-weight: 700; width: auto; margin: 0; }
+/* 스크롤바 없애기(2026-10-25 「스크롤바가 안생기게」): 설정 카드를 넓히고 표 최소 폭을 없앰, 버튼은 넘치면 줄바꿈 */
+.settings-layout > .settings-card { width: min(100% - 40px, 1080px); }
+.settings-card { max-width: 1080px; }
+.ra-aitbl-wrap { overflow-x: visible; }
+.ra-aitbl, .ra-setup { min-width: 0; }
+.ra-aitbl-btns { flex-wrap: wrap; }
+.ra-setup .ra-aitbl-btns > button:not([class]) { padding: 6px 10px; font-size: 12px; }
+.ra-aitbl th:nth-child(5) { width: 230px; }
+/* 엔진 역할 띠 */
+.ra-aitbl-role > td { padding: 6px 12px 10px; font-size: 12.5px; color: #374151; background: #fafafa; border-bottom: 1px solid #eef0f3; }
+.ra-aitbl-role.on > td { background: #fffaf0; }
+.ra-role-tag { display: inline-block; border-radius: 6px; padding: 1px 7px; margin-right: 4px; font-size: 11px; font-weight: 800; background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.ra-aitbl tr.on + .ra-aitbl-role > td:first-child { box-shadow: inset 4px 0 0 #f59e0b; }
