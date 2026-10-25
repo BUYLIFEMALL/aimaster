@@ -4,9 +4,11 @@
 - 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-25 `codex-win-20261025-blog` — 인계 문서 확인·ACTIVE_WORK 인수. 확장/배포/DB 읽기 점검 후 실제 입력 시험 준비, 주인님 직접 계정 연결·네이버 로그인 필요 여부 확인.
+- 마지막 갱신: 2026-10-25 Codex `codex-win-20261025-blog` 인수, 무료65개 통과·에이전트v2.21 일치. Edge 현재 Gmail→시험Naver 로그인/확장연결 및 기존Chrome8개 정리 승인 대기. SEO/콘텐츠 메이커 DB확장버전 불일치 발견·미수정.
 
 ## 지금 하는 일
+
+> [최신 인수 점검·요청 ID·다음 단계](../HANDOFF_20261025_BLOG_TO_CODEX.md#8-codex-인수-확인재개-준비2026-10-25). 아래 이전 실패/Chrome 기록은 당시 상황입니다.
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
 | `naver-blog-agent` v2.21 | ② 간편 모드 실제 네이버 입력 시험(비공개 1건, 「발행 전까지」 방식, 원고 `48f06db1` 캠핑) | 2026-10-24 | 3번 실패(11:44·12:52 `EDITOR_PREPARATION_FAILED`, 12:05 `EDITOR_TAB_CLOSED`). **원인 확인(10-24)**: 메인 크롬 확장은 설치됐지만 「확장을 본인 계정으로 먼저 연결해 주세요」 상태 — 다른 브라우저의 10-21 「Chrome」 연결이 작업을 받아 감. Codex는 엣지에 확장 설치·계정 연결(주인님) 뒤 재시험 |
@@ -47,6 +49,8 @@
 3. 관리자 「수정 요청함」 0044가 적용되면 E-3~E-5 결과를 `dev-requests.mjs report`로, 아래 여쭐 것을 `ask`로 올림(지금은 DB 칸 없음)
 
 ## 주인님께 여쭐 것
+- [로그인·계정] Edge 설정의 Gmail을 시험 원고 소유자 buylifemall@naver.com으로 직접 전환→확장 프로그램 바로 연결(buylifemall)→같은 Edge 네이버 로그인. 설치v2.21이라 재설치 불필요. 요청 `7eba5ff7-7af9-488b-83d2-946f78abb269`.
+- [승인·결정] 시험 회원의 기존 Chrome 연결8개를 끊고 이번 Edge만 남길지. 다른 브라우저가 작업을 가져갈 수 있어 승인 전 전송 보류. 요청 `4c54bb78-b9b5-456c-b90d-21788f4cb97a`, 인계 §1·§8에 대상/이유.
 - [확인] SEO 스튜디오 v2.19 예약 포스팅 실제 시험: 확장 ZIP을 다시 받아 덮어쓴 뒤 시험 계정 비공개 원고 1건을 30분 뒤로 「예약 포스팅 시작」 → 웹에 「예약 완료」가 뜨는지 → 네이버 예약 목록에서 취소(결과·오류 문구를 알려 주세요)
 - [결정] 워드프레스·블로그스팟은 공식 발행 API가 있습니다 — 확장 대신 공식 API로 발행해도 되는지(핵심 지침 예외 한 줄)
 - [결정] BLOG(`ai-auto-blog`) 정리 시점(이동 안내·비공개·FREE 배지 이전)

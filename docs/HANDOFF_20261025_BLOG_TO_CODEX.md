@@ -83,3 +83,14 @@ https://naver-blog-agent.buylife.xyz
 https://naver-blog-seo-studio.buylife.xyz
 
 https://blog-content-maker.buylife.xyz
+
+## 8. Codex 인수 확인·재개 준비(2026-10-25)
+
+2026-10-25 Codex 인수 점검(세션 codex-win-20261025-blog): 에이전트 운영/설치 확장/라이브 ZIP v2.21 일치. 실제 Edge 설정에서 확장 설치 확인, 현재 웹 계정은 Gmail이고 원고48f06db1 소유자는 buylifemall@naver.com이라 주인님 직접 로그인 전환·확장 연결·동일 Edge 네이버 로그인 대기. 대상 블로그 buylifemall·원고상태failed·예약꺼짐/예약시각없음 확인, 새 전송0·발행0. 기존 paired Chrome 연결8개 중2개가 오늘응답해 전송경합 가능성이 있으므로 명시 승인 전 연결삭제/재전송하지 않음. 무료 모의 검사65개 통과(간편/방식/편집기16+확장탭49), 실제 입력 성공 증거는 아님. SEOv2.20/라이브ZIPv2.20에 DB확장v2.19, 콘텐츠메이커v1.12/라이브ZIPv1.12에 DB확장v1.11로 불일치. 두 배포는 Ready·공식도메인 연결 확인, 프로그램 버전·ZIP 내용과 DB확장표시 정정은 구분. SEOv2.19 ZIP 미커밋삭제 보존·89d135c4b 미배포 유지. 이번 제품코드/프로그램DB/연결값 변경0·AI0·빌드/배포0. 관리자 요청2건: 로그인/연결7eba5ff7-7af9-488b-83d2-946f78abb269, 기존8연결해제여부4c54bb78-b9b5-456c-b90d-21788f4cb97a.
+
+- 인수 커밋: `26f859544`(ACTIVE_WORK·역할 blog·역할 색인). 운영 DB 대상 `esgxyikcnnvmlhygjkth`, Lab 무변경. 토큰값/연결번호/비밀번호를 읽거나 출력하지 않았습니다.
+- 실제 Edge 창: PID36584/창1838288, 설정 https://naver-blog-agent.buylife.xyz/settings 를 포그라운드로 열어 두었습니다. 주인님 로그인 작업 중 브라우저를 추가 조작하지 않습니다. 설치v2.21이므로 재설치 요청은 하지 않았습니다.
+- SEO 배포 `dpl_ETzgVvZrNqDnjJdmw8zWgwreaFkp`(`naver-blog-seo-studio-hzn8ke4gx-buylife.vercel.app`), 콘텐츠 메이커 배포 `dpl_GTGSLjpa56UHVU1MWXTi96CHUUXX`(`blog-content-maker-jpfvcu2qg-buylife.vercel.app`), 모두 Ready·공식 alias 확인. `check-extension-release`는 두 앱 모두 위 DB extension_version 불일치로 FAIL, 에이전트만 OK. 새로 배포하지 않았으며 이전 CLI 청구액을 이번 비용으로 합산하지 않습니다.
+- 승인 대상 기존 연결 ID 스냅샷(새 엣지 연결 포함 금지): `98e02725-ac68-4adf-9f84-691acf09a863`, `2de7c3b0-cefc-45f3-b9af-9a44a1acb88e`, `35c8bfbd-1eba-41be-bd90-fc877108496d`, `bc78e2a2-550a-4313-bfd8-b76850a115dd`, `2b45c1a2-de48-47d8-91ed-9b8dea2e4fd7`, `673213d8-ee37-4dc0-96d0-2ff3ea5ecfba`, `1349a311-84d3-4fc6-8990-2a01d5e6ed67`, `7f146d11-b960-4dad-aff2-500fc275d9d5`. 삭제 시 반드시 해당 회원·위 ID만 함께 조건, 승인 전 실행 금지. 기기 이름만으로 PC·브라우저를 특정할 수 없습니다.
+- 다음 첫 단계: 주인님 답 확인→정확한 웹/확장/네이버 계정 대조→기존 연결 정리 승인 처리(승인이 없으면 전송보류)→기존 원고 방식이 발행 전까지/비공개/예약꺼짐인지 다시 확인→한 번만 전송→보이는 Edge 네이버에서 제목/본문/이미지/태그와 발행 버튼 누르지 않음 확인→보관함 결과 기록 대조. 결과 불확실 시 자동 재전송 금지.
+- 적용: computer-use(실제 Edge), writing-for-agents(현재 상태·대기 조건/다음 단계 명시). 인계 §1의 주인님 직접 연결/로그인·기존 연결 폐기 전 확인 조건을 유지했습니다.
