@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
 import { saveAiModelAction, saveChannelAction, saveDeliveryAction } from "@/lib/actions/settings";
 import { AI_ENGINES, AI_MODELS, aiModelShortName, resolveAiModel } from "@/lib/aiModels";
-import { deleteResendKeyAction, saveAiKeyAction, saveKakaoKeysAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction, startKakaoConnectAction } from "@/lib/actions/notify";
+import { deleteAiKeyAction, deleteResendKeyAction, saveAiKeyAction, saveKakaoKeysAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction, startKakaoConnectAction } from "@/lib/actions/notify";
 import CopyText from "@/components/CopyText";
 import { KAKAO_REDIRECT_URI } from "@/lib/kakaoOAuth";
 import { aiProviderInfo, type AiProvider } from "@/lib/aiProviders";
@@ -21,7 +21,7 @@ type Delivery = {
 };
 export type ChannelInitial = { notifyKakao: boolean; notifyEmail: boolean; emailTo: string; aiSummary: boolean; aiProvider: AiProvider; aiModel?: string };
 /** 🤖 AI 시세 요약(v1.22) — 키 값은 보내지 않고 등록 여부만 */
-export type AiInfo = { hasGemini: boolean; hasOpenai: boolean; hasClaude: boolean };
+export type AiInfo = { hasGemini: boolean; hasOpenai: boolean; hasClaude: boolean; tails?: Partial<Record<AiProvider, string>> };
 /** notice: 카카오에서 돌아온 결과(받는 방법 화면이 주소의 ?kakao=…를 서버에서 읽어 넘김) */
 export type KakaoInfo = ({ ok: true; nickname: string | null } | { ok: false; message: string; connectUrl: string }) & { hasKey: boolean; notice?: { kind: "ok" | "err"; text: string } };
 export type EmailInfo = { hasKey: boolean; loginEmail: string };
@@ -319,39 +319,39 @@ function EmailCard({ email, emailTo, onEmailTo, disabled }: { email: EmailInfo; 
   );
 }
 
-// 🤖 AI 시세 요약 엔진 선택(설정 화면, 2026-10-25 주인님 「이런식으로」「플랫폼 우측에 선택할수 있는 모델을 보여주고 저장」「수정버튼도 옆에」「남는 위치에 API만들기 버튼」「키 등록됨 표시는 빼고 저장 버튼으로 상태를 표시」 — 기준: threads-content-ops 「AI 글 생성 엔진 선택」)
-// 한 줄: [엔진 카드(누르면 요약에 쓸 엔진)] [세부 실행 모델] [저장 버튼 = 상태(✅ 저장됨 / 저장 / 🔑 키 저장)] [키 수정] [API 만들기 ↗].
-// 키는 공용 user_api_keys라 다른 AIMaster 프로그램과 함께 쓴다(그래서 여기서 지우지 않음). 키 칸을 비우고 저장하면 기존 키 그대로.
-function AiEngineRow({ id, has, selected, savedModel, disabled, onSelect }: { id: AiProvider; has: boolean; selected: boolean; savedModel: string; disabled: boolean; onSelect: () => void }) {
+// 🤖 AI 시세 요약 엔진 선택(설정 화면, 2026-10-25 주인님 — 기준: threads-content-ops 「AI 글 생성 엔진 선택」 + shorts-viral-studio 설정의 키 칸(✓ 등록됨 · 가린 키 · 수정/삭제))
+// 줄마다: [엔진 카드(누르면 요약에 쓸 엔진)] | 맨 위 「○○ API 키 ✓ 등록됨 … 키 발급 사이트 열기 ↗」 · 키 칸(••••끝4자리 [수정][삭제] / 입력 [저장]) · 같은 줄 오른쪽에 세부 실행 모델 [✅ 저장됨|저장](2026-10-25 「이때 우측에 모델을 선택할수 있게」).
+// 키는 공용 user_api_keys라 다른 AIMaster 프로그램과 함께 쓴다 — 삭제하면 그쪽에서도 지워지므로 한 번 더 확인한다.
+function AiEngineRow({ id, has, tail, selected, savedModel, disabled, onSelect }: { id: AiProvider; has: boolean; tail: string; selected: boolean; savedModel: string; disabled: boolean; onSelect: () => void }) {
   const router = useRouter();
   const engine = AI_ENGINES.find((e) => e.id === id)!;
   const info = aiProviderInfo(id);
   const [model, setModel] = useState(savedModel);
   const [saved, setSaved] = useState(savedModel);
   const [key, setKey] = useState("");
-  const [keyOpen, setKeyOpen] = useState(!has);
+  const [editKey, setEditKey] = useState(false);
+  const [askDelete, setAskDelete] = useState(false);
   const [msg, setMsg] = useState<Msg>(null);
-  const [saving, start] = useTransition();
-  const dirty = model !== saved || key.trim() !== "";
-  const save = () => start(async () => {
+  const [busy, start] = useTransition();
+  const saveKey = () => start(async () => {
     setMsg(null);
-    if (key.trim()) {
-      const fd = new FormData();
-      fd.set("provider", id);
-      fd.set("aiKey", key.trim());
-      const k = await saveAiKeyAction({}, fd);
-      if (k.error) { setMsg({ kind: "err", text: k.error }); return; }
-    } else if (!has) { setMsg({ kind: "err", text: `${info.name} API 키를 넣어 주세요.` }); return; }
-    if (model !== saved) {
-      const r = await saveAiModelAction(id, model);
-      if (r.error) { setMsg({ kind: "err", text: r.error }); return; }
-      setSaved(model);
-    }
-    setKey("");
-    setKeyOpen(false);
-    router.refresh();
+    const fd = new FormData();
+    fd.set("provider", id);
+    fd.set("aiKey", key.trim());
+    const r = await saveAiKeyAction({}, fd);
+    if (r.error) { setMsg({ kind: "err", text: r.error }); return; }
+    setKey(""); setEditKey(false); router.refresh();
   });
-  const label = saving ? "저장 중..." : !has ? "🔑 키 저장" : dirty ? "저장" : "✅ 저장됨";
+  const removeKey = () => start(async () => {
+    const r = await deleteAiKeyAction(id);
+    if (r.error) { setMsg({ kind: "err", text: r.error }); return; }
+    setAskDelete(false); router.refresh();
+  });
+  const saveModel = () => start(async () => {
+    const r = await saveAiModelAction(id, model);
+    if (r.error) { setMsg({ kind: "err", text: r.error }); return; }
+    setSaved(model);
+  });
   return (
     <div className="ra-engine-row">
       <button type="button" className={`ra-engine${selected ? " on" : ""}`} aria-pressed={selected} disabled={disabled} onClick={onSelect}>
@@ -360,17 +360,41 @@ function AiEngineRow({ id, has, selected, savedModel, disabled, onSelect }: { id
         <small>{selected ? "✔ 요약에 사용" : engine.sub}</small>
       </button>
       <div className="ra-engine-right">
+        <div className="ra-engine-head">
+          <b>{info.name} API 키</b>
+          <span className={`ra-badge ${has ? "on" : "off"}`}>{has ? "✓ 등록됨" : "미등록"}</span>
+          <a className="ra-engine-site" href={info.keyUrl} target="_blank" rel="noopener noreferrer">키 발급 사이트 열기 ↗</a>
+        </div>
+        <div className="ra-key-model">
+        {has && !editKey ? (
+          <div className="ra-keybox">
+            <span className="ra-keymask">••••••••••••{tail}</span>
+            {askDelete ? (
+              <span className="ra-keyask">다른 AIMaster 프로그램에서도 지워져요. 삭제할까요?
+                <button type="button" className="ra-keybtn del" disabled={busy} onClick={removeKey}>삭제</button>
+                <button type="button" className="ra-keybtn" onClick={() => setAskDelete(false)}>취소</button>
+              </span>
+            ) : (
+              <span>
+                <button type="button" className="ra-keybtn" onClick={() => setEditKey(true)}>수정</button>
+                <button type="button" className="ra-keybtn del" onClick={() => setAskDelete(true)}>삭제</button>
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="ra-keybox edit">
+            <input type="password" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={`API 키를 여기에 붙여넣으세요 — ${info.placeholder}`} />
+            <button type="button" className="ra-save-state todo" disabled={busy || !key.trim()} onClick={saveKey}>{busy ? "저장 중..." : "저장"}</button>
+            {has && <button type="button" className="ra-keybtn" onClick={() => { setEditKey(false); setKey(""); }}>취소</button>}
+          </div>
+        )}
         <div className="ra-engine-line">
-          <select aria-label={`${engine.label} 세부 실행 모델`} value={model} disabled={saving} onChange={(e) => setModel(e.target.value)}>
+          <select id={`aiModel-${id}`} value={model} disabled={busy} onChange={(e) => setModel(e.target.value)}>
             {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
-          <button type="button" className={`ra-save-state ${has && !dirty ? "done" : "todo"}`} disabled={saving || (has && !dirty)} onClick={save}>{label}</button>
-          {has && <button type="button" className="secondary" onClick={() => { setKeyOpen(!keyOpen); setKey(""); }}>{keyOpen ? "닫기" : "키 수정"}</button>}
-          <a className="secondary ra-link-btn" href={info.keyUrl} target="_blank" rel="noopener noreferrer">API 만들기 ↗</a>
+          <button type="button" className={`ra-save-state ${model === saved ? "done" : "todo"}`} disabled={busy || model === saved} onClick={saveModel}>{model === saved ? "✅ 저장됨" : "저장"}</button>
         </div>
-        {keyOpen && (
-          <input className="ra-engine-keyinput" aria-label={`${info.name} API 키`} value={key} autoComplete="off" onChange={(e) => setKey(e.target.value)} placeholder={has ? `새 ${info.name} API 키를 넣고 「저장」(비우면 기존 키 그대로)` : `🔑 ${info.placeholder}`} />
-        )}
+        </div>
         <Message msg={msg} />
       </div>
     </div>
@@ -398,9 +422,9 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
         <h2 className="card-title">🤖 AI 시세 요약 엔진 선택 <small className="ra-engine-sub">GPT / Claude / Gemini · 선택</small></h2>
         <span className="ra-status on">요약에 적용</span>
       </div>
-      <p className="card-caption">왼쪽 카드를 눌러 요약에 쓸 엔진을 고르세요. 모델을 고르고 「저장」을 누르세요(저장된 상태면 「✅ 저장됨」). 키를 바꾸려면 「키 수정」. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
+      <p className="card-caption">왼쪽 카드를 눌러 요약에 쓸 엔진을 고르세요. 키를 넣고 「저장」하면 「✓ 등록됨」, 모델은 고르고 「저장」하면 「✅ 저장됨」이에요. 다른 AIMaster 프로그램에 등록한 키가 있으면 그대로 쓰여요. 켜고 끄기는 「3 · 받는 방법」에서 해요.</p>
       {AI_ENGINES.map((e) => (
-        <AiEngineRow key={e.id} id={e.id} has={has[e.id]} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
+        <AiEngineRow key={e.id} id={e.id} has={has[e.id]} tail={ai.tails?.[e.id] ?? ""} selected={provider === e.id} savedModel={resolveAiModel(e.id, models[e.id])} disabled={pending} onSelect={() => pickEngine(e.id)} />
       ))}
       <Message msg={msg} />
     </section>

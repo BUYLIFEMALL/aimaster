@@ -40,6 +40,18 @@ export async function saveAiKeyAction(_: Result, formData: FormData): Promise<Re
   return { success: `${info.name} 키를 저장했어요. 다음 수집 때부터 하루 1번 요약이 붙어요.` };
 }
 
+// 🤖 AI 키 삭제(설정 화면 「삭제」) — 공용 키라 다른 AIMaster 프로그램에서도 지워진다(화면에서 한 번 더 확인)
+export async function deleteAiKeyAction(provider: string): Promise<Result> {
+  const user = await requireProgramAccess();
+  const info = aiProviderInfo(toAiProvider(provider));
+  const db = createServiceClient();
+  const { error } = await db.from("user_api_keys").delete().eq("user_id", user.id).eq("provider", AI_KEY_PROVIDER[info.id]);
+  if (error) return { error: `삭제에 실패했습니다: ${error.message}` };
+  revalidatePath("/delivery");
+  revalidatePath("/settings");
+  return { success: `${info.name} 키를 지웠어요.` };
+}
+
 export async function deleteResendKeyAction(): Promise<Result> {
   const user = await requireProgramAccess();
   const db = createServiceClient();

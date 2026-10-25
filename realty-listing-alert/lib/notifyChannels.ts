@@ -72,9 +72,14 @@ export function getAiKey(db: Db, userId: string, provider: AiProvider): Promise<
 }
 
 /** 화면용: AI 키 등록 여부만(값은 보내지 않음) */
-export async function getAiKeyStatus(db: Db, userId: string): Promise<{ hasGemini: boolean; hasOpenai: boolean; hasClaude: boolean }> {
+export async function getAiKeyStatus(db: Db, userId: string): Promise<{ hasGemini: boolean; hasOpenai: boolean; hasClaude: boolean; tails: Partial<Record<AiProvider, string>> }> {
   const [g, o, c] = await Promise.all([memberKey(db, userId, "gemini"), memberKey(db, userId, "openai"), memberKey(db, userId, "anthropic")]);
-  return { hasGemini: Boolean(g), hasOpenai: Boolean(o), hasClaude: Boolean(c) };
+  // 화면에는 끝 4자리만(가린 키 「••••FDUA」 — shorts-viral-studio 설정과 같은 방식)
+  const tails: Partial<Record<AiProvider, string>> = {};
+  if (g) tails.gemini = g.slice(-4);
+  if (o) tails.openai = o.slice(-4);
+  if (c) tails.claude = c.slice(-4);
+  return { hasGemini: Boolean(g), hasOpenai: Boolean(o), hasClaude: Boolean(c), tails };
 }
 
 /** 회원 본인 메일 발송 키(Resend). 없으면 null. */
