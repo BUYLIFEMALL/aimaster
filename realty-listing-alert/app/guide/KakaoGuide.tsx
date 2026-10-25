@@ -95,7 +95,7 @@ export default function KakaoGuide() {
     <section className="card kg" id="kakao" aria-labelledby="kg-title">
       <div className="kg-head">
         <div>
-          <h2 className="card-title" id="kg-title">💬 카카오톡으로 알림 받기 — 처음이어도 10분이면 돼요</h2>
+          <h2 className="card-title" id="kg-title">💬 (선택) 카카오톡으로도 받기 — 처음이어도 10분이면 돼요</h2>
           <p className="card-caption">카카오가 「내 카톡으로 보내도 된다」고 허락하려면 <b>회원님 본인의 카카오 앱</b>이 하나 필요해요. 아래 7단계를 순서대로만 따라 하세요. 단계마다 <b>📍 어디로 가는지</b>를 먼저 적어 두었어요. (2026년 10월 카카오 개발자 화면 기준이에요. 메뉴 이름이 조금 다르면 비슷한 이름을 찾으면 돼요.)</p>
         </div>
         <span className="kg-badge">⏱ 약 10분 · 💸 무료</span>

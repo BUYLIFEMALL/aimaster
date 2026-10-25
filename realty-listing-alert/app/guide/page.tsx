@@ -74,8 +74,6 @@ export default async function GuidePage() {
           </ol>
         </section>
 
-        <KakaoGuide />
-
         <div className="guide-two">
           <section className="guide-tip">
             <h3>💡 TIP</h3>
@@ -96,6 +94,9 @@ export default async function GuidePage() {
         </div>
 
         <LimitNotice />
+
+        {/* 카카오톡은 연동이 어려워 맨 뒤로(2026-10-25 주인님 「텔레그램과 메일만 연동해서 사용하는 사람이 많을 것」) */}
+        <KakaoGuide />
 
         <section className="card">
           <h2 className="card-title">❓ 자주 묻는 질문</h2>
