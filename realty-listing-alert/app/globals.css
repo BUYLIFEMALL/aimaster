@@ -840,3 +840,4 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-howto-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 920px) { .ra-howto-grid { grid-template-columns: 1fr; } }
 .ra-howto .ra-kg-steps li { white-space: normal; }
+.ra-howto { align-content: start; } .ra-howto-grid { align-items: start; } /* 이메일 상자 빈칸 위로 쏠림 보정(v1.21 화면 확인) */
