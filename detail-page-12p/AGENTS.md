@@ -1,6 +1,6 @@
 # AI 12단 상세페이지 자동화 — 차기 에이전트 인수인계 문서 (AGENTS.md)
 
-> **🧹 2026-10-26 정리(EC-W12, 주인님 「백업하고 정리」, Claude Code 윈도우 `claude-win-sdp` [역할: ecommerce-image])**: 이동 안내 화면·로그인·410 응답 경로는 그대로 두고, 어디서도 불러 쓰지 않던 옛 생성 화면·엔진 13개(`src/components/` 9개 `ApiKeyModal`·`DetailGuideView`·`DetailHistoryView`·`DetailPageApp`·`DetailStudioView`·`HelpModal`·`ProductInputForm`·`SceneCard`·`Sidebar`, `src/lib/detailEngine.ts`·`geminiImage.ts`·`nanoBananaModels.ts`, `src/types/detail.ts`)를 지웠다. 백업: `D:\Antigravity\AIMaster_backupetired-programs\detail-page-12p\`(54개 전체) + git 태그 `backup/ec-w12-20261026`. v1.12에서 고친 버튼 파일 일부(`ApiKeyModal` 등)도 실제 화면에 나오지 않던 파일이라 함께 지웠고, 원본은 백업에 있다. `tsc`·로컬 빌드 통과, 화면 변화 없음 → 배포하지 않음(다음 배포 때 자연히 반영, 버전 그대로).
+> **🧹 2026-10-26 정리(EC-W12, 주인님 「백업하고 정리」, Claude Code 윈도우 `claude-win-sdp` [역할: ecommerce-image])**: 이동 안내 화면·로그인·410 응답 경로는 그대로 두고, 어디서도 불러 쓰지 않던 옛 생성 화면·엔진 13개(`src/components/` 9개 `ApiKeyModal`·`DetailGuideView`·`DetailHistoryView`·`DetailPageApp`·`DetailStudioView`·`HelpModal`·`ProductInputForm`·`SceneCard`·`Sidebar`, `src/lib/detailEngine.ts`·`geminiImage.ts`·`nanoBananaModels.ts`, `src/types/detail.ts`)를 지웠다. 백업: `D:/Antigravity/AIMaster_backup/retired-programs/detail-page-12p/`(54개 전체) + git 태그 `backup/ec-w12-20261026`. v1.12에서 고친 버튼 파일 일부(`ApiKeyModal` 등)도 실제 화면에 나오지 않던 파일이라 함께 지웠고, 원본은 백업에 있다. `tsc`·로컬 빌드 통과, 화면 변화 없음 → 배포하지 않음(다음 배포 때 자연히 반영, 버전 그대로).
 
 > **프로그램 공식 명칭**: AI 12단 상세페이지 자동화 (`detail-page-12p`)  
 > **현재 버전**: `v1.10` (2026-10-21, 상세페이지 자동화로 병합 — 이동 안내만)  

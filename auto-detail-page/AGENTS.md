@@ -1,6 +1,6 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
-> **🧹 2026-10-26 정리(EC-W12, 주인님 「백업하고 정리」, Claude Code 윈도우 `claude-win-sdp` [역할: ecommerce-image])**: 이동 안내 첫 화면·로그인·`/settings`·`/preview`·`/guide`(첫 화면으로 이동)·410 응답 API 4개는 그대로 두고, 어디서도 불러 쓰지 않던 옛 생성 화면·엔진 26개(`components/` 13개, `lib/` 12개 — `access`·`actions/settings`·`ai/geminiImage`·`ai/nanoBananaModels`·`apiKeyLabels`·`apiKeys`·`auth`·`claude`·`form-defaults`·`image-utils`·`prompt-builder`·`store`, `types/product.ts`)를 지웠다. 백업: `D:\Antigravity\AIMaster_backupetired-programsuto-detail-page\`(72개 전체) + git 태그 `backup/ec-w12-20261026`. `tsc`·로컬 빌드 통과, 화면 변화 없음 → 배포하지 않음(버전 그대로). `package.json`의 쓰이지 않게 된 의존성은 그대로 두었다.
+> **🧹 2026-10-26 정리(EC-W12, 주인님 「백업하고 정리」, Claude Code 윈도우 `claude-win-sdp` [역할: ecommerce-image])**: 이동 안내 첫 화면·로그인·`/settings`·`/preview`·`/guide`(첫 화면으로 이동)·410 응답 API 4개는 그대로 두고, 어디서도 불러 쓰지 않던 옛 생성 화면·엔진 26개(`components/` 13개, `lib/` 12개 — `access`·`actions/settings`·`ai/geminiImage`·`ai/nanoBananaModels`·`apiKeyLabels`·`apiKeys`·`auth`·`claude`·`form-defaults`·`image-utils`·`prompt-builder`·`store`, `types/product.ts`)를 지웠다. 백업: `D:/Antigravity/AIMaster_backup/retired-programs/auto-detail-page/`(72개 전체) + git 태그 `backup/ec-w12-20261026`. `tsc`·로컬 빌드 통과, 화면 변화 없음 → 배포하지 않음(버전 그대로). `package.json`의 쓰이지 않게 된 의존성은 그대로 두었다.
 
 이 문서는 **AI 상세페이지 자동생성기(auto-detail-page)** 프로젝트에서 AI Agent(Claude Code 등)가
 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
