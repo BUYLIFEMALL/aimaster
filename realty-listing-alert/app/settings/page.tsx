@@ -8,7 +8,7 @@ import ExtensionDownloadCard from "./ExtensionDownloadCard";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import { ChannelCards, TelegramCard } from "@/app/delivery/DeliveryClient";
 import { createServiceClient } from "@/lib/supabase/service";
-import { KAKAO_CONNECT_URL, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
+import { KAKAO_CONNECT_URL, getAiKeyStatus, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
 import { REAL_ESTATE_SALES_SLUG } from "@/lib/delivery";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +23,12 @@ export default async function SettingsPage() {
     supabase.from("user_telegram_links").select("bot_username").eq("user_id", user.id).eq("program_slug", REAL_ESTATE_SALES_SLUG).maybeSingle(),
   ]);
   const service = createServiceClient();
-  const [kakao, resendKey, { data: ch }] = await Promise.all([
+  const [kakao, resendKey, aiKeys, { data: ch }] = await Promise.all([
+    // ↓ AI 키 등록 여부(v1.22)
     getKakaoState(service, user.id, false),
     getResendKey(service, user.id),
-    supabase.from("realty_alert_settings").select("notify_kakao, notify_email, email_to").eq("user_id", user.id).maybeSingle(),
+    getAiKeyStatus(service, user.id),
+    supabase.from("realty_alert_settings").select("notify_kakao, notify_email, email_to, notify_ai_summary, ai_provider").eq("user_id", user.id).maybeSingle(),
   ]);
   const { data: tokens } = await supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", PROGRAM_SLUG).is("revoked_at", null).order("created_at", { ascending: false });
 
@@ -58,7 +60,8 @@ export default async function SettingsPage() {
         <ChannelCards
           kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
-          initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "" }}
+          ai={aiKeys}
+          initial={{ notifyKakao: ch?.notify_kakao ?? false, notifyEmail: ch?.notify_email ?? false, emailTo: ch?.email_to ?? "", aiSummary: ch?.notify_ai_summary ?? false, aiProvider: ch?.ai_provider === "openai" ? "openai" : "gemini" }}
         />
         <div className="settings-divider" />
         <h2>🏛 실거래가 비교(공공데이터 키, 선택)</h2>

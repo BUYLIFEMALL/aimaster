@@ -25,6 +25,21 @@ export async function saveResendKeyAction(_: Result, formData: FormData): Promis
   return { success: "Resend 키를 저장했어요. 「시험 메일 보내기」로 확인해 보세요." };
 }
 
+// 🤖 AI 시세 요약(v1.22): 회원 본인 AI 키 — 공용 user_api_keys(openai·gemini)라 다른 AIMaster 프로그램과 같은 키를 함께 쓴다
+export async function saveAiKeyAction(_: Result, formData: FormData): Promise<Result> {
+  const user = await requireProgramAccess();
+  const provider = formData.get("provider") === "openai" ? "openai" : "gemini";
+  const key = String(formData.get("aiKey") ?? "").trim();
+  if (provider === "gemini" && !/^AIza[0-9A-Za-z_-]{20,}$/.test(key)) return { error: "Gemini 키는 AIza로 시작해요. Google AI Studio의 「API 키」에서 다시 복사해 주세요." };
+  if (provider === "openai" && !/^sk-[0-9A-Za-z_-]{20,}$/.test(key)) return { error: "OpenAI 키는 sk-로 시작해요. OpenAI의 「API keys」에서 다시 복사해 주세요." };
+  const db = createServiceClient();
+  const { error } = await db.from("user_api_keys").upsert({ user_id: user.id, provider, api_key: key }, { onConflict: "user_id,provider" });
+  if (error) return { error: `저장에 실패했습니다: ${error.message}` };
+  revalidatePath("/delivery");
+  revalidatePath("/settings");
+  return { success: `${provider === "openai" ? "OpenAI" : "Gemini"} 키를 저장했어요. 다음 수집 때부터 하루 1번 요약이 붙어요.` };
+}
+
 export async function deleteResendKeyAction(): Promise<Result> {
   const user = await requireProgramAccess();
   const db = createServiceClient();

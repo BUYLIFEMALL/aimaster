@@ -10,6 +10,7 @@ import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
 import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
 import { compareToTrades, gapText } from "./lib/tradeCompare.js";
+import { makeAiSummary } from "./lib/aiSummary.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
 const DEFAULT_RULES = {
@@ -275,7 +276,20 @@ async function runCollection(trigger) {
     if (table.length) {
       const { history = [], eventLog = [] } = await get(["history", "eventLog"]);
       // 변동 기록: 새 매물·가격 내림/오름·사라짐 줄만 따로 1년(중개사 전화번호도 그대로 — 주인님 「필요하면 중개사한테 전화해야 하니 없애면 안 된다」) — 「변동 기록」 탭용. 통계 요약도 1년(주인님 결정 2026-10-25)
-      await set({ history: pushHistory(history, summarizeTable(COLUMNS, table, startedAt)), eventLog: pushEvents(eventLog, pickEvents(COLUMNS, table, startedAt)) });
+      const nextHistory = pushHistory(history, summarizeTable(COLUMNS, table, startedAt));
+      await set({ history: nextHistory, eventLog: pushEvents(eventLog, pickEvents(COLUMNS, table, startedAt)) });
+      // 🤖 AI 시세 요약(v1.22): 켠 회원만, 그날 첫 수집 때 1번 — 회원 본인 AI 키로 회원 PC에서 직접 부른다(통계 숫자만 보냄). 실패해도 알림은 평소대로.
+      if (settings.ai?.error) await addLog(`AI 요약: ${settings.ai.error}`);
+      if (settings.ai?.apiKey) {
+        const { aiSummary } = await get("aiSummary");
+        if (aiSummary?.date !== kstDate()) {
+          try {
+            const text = await makeAiSummary(settings.ai, nextHistory);
+            await set({ aiSummary: { text, at: new Date().toISOString(), date: kstDate(), provider: settings.ai.provider } });
+            await addLog("AI 요약을 만들었어요.");
+          } catch (e) { await addLog(`AI 요약 실패: ${e.message || e}`); }
+        }
+      }
     }
 
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });
@@ -353,7 +367,15 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
   const changed = perTarget.some((t) => t.events.length || t.firstRun);
   if (!changed && trigger !== "manual") return;
 
-  const summary = buildSummary(perTarget, { failedBefore: telegramFailed });
+  // 🤖 AI 요약은 하루 1번만 텔레그램·메일 맨 위에 붙인다(카톡은 글자 수가 짧아 빼고, 결과 보기 화면에서 봄)
+  const { aiSummary, aiSentDate } = await get(["aiSummary", "aiSentDate"]);
+  const aiLine = settings.ai?.apiKey && aiSummary?.date === kstDate() && aiSentDate !== kstDate() ? aiSummary.text : "";
+  const summary = (aiLine ? `🤖 AI 한 줄 요약
+${aiLine}
+
+` : "") + buildSummary(perTarget, { failedBefore: telegramFailed });
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const aiHtml = aiLine ? `<div style="background:#eef6ff;border:1px solid #cfe0ff;border-radius:10px;padding:10px 14px;margin:0 0 14px"><b>🤖 AI 한 줄 요약</b><br>${esc(aiLine)}</div>` : "";
   let file = null;
   if (d.deliverFile !== false && table.length) {
     const stamp = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace(/[-:T]/g, "").replace(/^(\d{8})(\d{4})$/, "$1_$2");
@@ -366,7 +388,7 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
     try {
       if (d.deliverTelegram !== false) await sendMessage(tg.botToken, tg.chatId, summary);
       if (file) await sendDocument(tg.botToken, tg.chatId, file.bytes, file.filename, file.mime, "🏠 [매물 알림] 정리 파일");
-      await set({ telegramFailed: false });
+      await set({ telegramFailed: false, ...(aiLine ? { aiSentDate: kstDate() } : {}) });
     } catch (e) {
       await set({ telegramFailed: true });
       await addLog(`텔레그램 보내기 실패: ${e.message}`);
@@ -374,7 +396,8 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
   }
   if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget), kakaoLinkFor(perTarget)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
   if (email) {
-    await sendResendMail(email.apiKey, { to: email.to, subject: buildMailSubject(perTarget), text: summary, html: buildMailHtml(perTarget), file })
+    if (aiLine) await set({ aiSentDate: kstDate() });
+    await sendResendMail(email.apiKey, { to: email.to, subject: buildMailSubject(perTarget), text: summary, html: aiHtml + buildMailHtml(perTarget), file })
       .catch((e) => addLog(`이메일 보내기 실패: ${e.message}`));
   }
 }
@@ -442,7 +465,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       }
       if (msg.type === "stats") {
         // 웹 대시보드용 요약 기록(web-bridge가 같은 계정인지 확인한 뒤에만 부름). 기록이 아직 없으면 마지막 결과로 첫 요약을 만든다.
-        const { history = [], eventLog = [], lastResult } = await get(["history", "eventLog", "lastResult"]);
+        const { history = [], eventLog = [], lastResult, aiSummary } = await get(["history", "eventLog", "lastResult", "aiSummary"]);
         const cols = lastResult?.columns || COLUMNS;
         const hasLast = !!lastResult?.table?.length;
         return reply({
@@ -450,6 +473,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           columns: eventLog.length || !hasLast ? COLUMNS : cols, // 변동 기록 줄의 열 순서
           history: history.length || !hasLast ? history : [summarizeTable(cols, lastResult.table, lastResult.at)],
           events: eventLog.length || !hasLast ? eventLog : pickEvents(cols, lastResult.table, lastResult.at),
+          aiSummary: aiSummary || null, // 🤖 v1.22
         });
       }
       if (msg.type === "isWatched") {

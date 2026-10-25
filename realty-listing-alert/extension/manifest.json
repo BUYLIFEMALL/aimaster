@@ -17,6 +17,8 @@
     "https://api.telegram.org/*",
     "https://kapi.kakao.com/*",
     "https://api.resend.com/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://api.openai.com/*",
     "https://realty-listing-alert.vercel.app/*",
     "https://realty-listing-alert.buylife.xyz/*"
   ],

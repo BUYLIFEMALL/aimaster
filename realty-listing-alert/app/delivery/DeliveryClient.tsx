@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState, useTransition } from "reac
 import { useRouter } from "next/navigation";
 import { connectTelegramAction, disconnectTelegramAction, importRealEstateBotAction } from "@/lib/actions/telegram";
 import { saveChannelAction, saveDeliveryAction } from "@/lib/actions/settings";
-import { deleteResendKeyAction, saveKakaoKeysAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction, startKakaoConnectAction } from "@/lib/actions/notify";
+import { deleteResendKeyAction, saveAiKeyAction, saveKakaoKeysAction, saveResendKeyAction, sendTestEmailAction, sendTestKakaoAction, startKakaoConnectAction } from "@/lib/actions/notify";
 import CopyText from "@/components/CopyText";
 import { KAKAO_REDIRECT_URI } from "@/lib/kakaoOAuth";
 
@@ -17,7 +17,9 @@ type Delivery = {
   deliverFile: boolean;
   fileFormat: "xlsx" | "csv";
 };
-export type ChannelInitial = { notifyKakao: boolean; notifyEmail: boolean; emailTo: string };
+export type ChannelInitial = { notifyKakao: boolean; notifyEmail: boolean; emailTo: string; aiSummary: boolean; aiProvider: "gemini" | "openai" };
+/** 🤖 AI 시세 요약(v1.22) — 키 값은 보내지 않고 등록 여부만 */
+export type AiInfo = { hasGemini: boolean; hasOpenai: boolean };
 /** notice: 카카오에서 돌아온 결과(받는 방법 화면이 주소의 ?kakao=…를 서버에서 읽어 넘김) */
 export type KakaoInfo = ({ ok: true; nickname: string | null } | { ok: false; message: string; connectUrl: string }) & { hasKey: boolean; notice?: { kind: "ok" | "err"; text: string } };
 export type EmailInfo = { hasKey: boolean; loginEmail: string };
@@ -321,8 +323,50 @@ function EmailCard({ email, on, emailTo, onToggle, onEmailTo, disabled }: { emai
   );
 }
 
+// 🤖 AI 시세 요약(2026-10-25, v1.22) — 회원 본인 AI 키로 하루 1번, 이번 주 시세 흐름 한두 줄을 텔레그램·메일 맨 위에 붙인다.
+// 보내는 것은 단지별 통계 숫자뿐(중개사 번호·매물 목록은 보내지 않음). 요약은 회원 PC 확장이 직접 AI를 부른다.
+function AiSummaryCard({ ai, on, provider, onToggle, onProvider, disabled }: { ai: AiInfo; on: boolean; provider: "gemini" | "openai"; onToggle: (v: boolean) => void; onProvider: (v: "gemini" | "openai") => void; disabled: boolean }) {
+  const router = useRouter();
+  const [state, action, saving] = useActionState(async (prev: { error?: string; success?: string }, fd: FormData) => {
+    const r = await saveAiKeyAction(prev, fd);
+    if (r.success) router.refresh();
+    return r;
+  }, {});
+  const hasKey = provider === "openai" ? ai.hasOpenai : ai.hasGemini;
+  const name = provider === "openai" ? "OpenAI" : "Gemini";
+  return (
+    <section className="card">
+      <div className="ra-card-head">
+        <h2 className="card-title">🤖 AI 시세 요약</h2>
+        <span className={`ra-status ${hasKey ? "on" : "off"}`}>{hasKey ? `✅ ${name} 키 있음` : `⚪ ${name} 키 없음`}</span>
+      </div>
+      <p className="card-caption">하루 1번, 이번 주 시세 흐름을 한두 줄로 요약해 <b>텔레그램·메일 맨 위</b>와 수집 결과 화면에 붙여 드려요. 회원님 본인 AI 키를 쓰고, 단지별 통계 숫자만 보내요(중개사 번호·매물 목록은 보내지 않아요).</p>
+      <div className="ra-toggle-row">
+        <label className="ra-chip big oneline">
+          <input type="checkbox" checked={on} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} />
+          <span><strong>AI 요약 받기</strong><small>{on ? "켜짐 — 하루 1번" : "꺼짐"}</small></span>
+        </label>
+        <div className="ra-seg" role="group" aria-label="쓸 AI">
+          <button type="button" className={provider === "gemini" ? "on" : ""} disabled={disabled} onClick={() => onProvider("gemini")}>Gemini</button>
+          <button type="button" className={provider === "openai" ? "on" : ""} disabled={disabled} onClick={() => onProvider("openai")}>OpenAI</button>
+        </div>
+      </div>
+      {!hasKey && (
+        <form action={action} className="ra-inline-form">
+          <input type="hidden" name="provider" value={provider} />
+          <div className="field"><label htmlFor="aiKey">🔑 {name} API 키</label><input id="aiKey" name="aiKey" required autoComplete="off" placeholder={provider === "openai" ? "sk-로 시작 (OpenAI → API keys)" : "AIza로 시작 (Google AI Studio → API 키)"} /></div>
+          <button className="primary" type="submit" disabled={saving}>{saving ? "저장 중..." : "키 저장"}</button>
+          <a className="secondary ra-link-btn" href={provider === "openai" ? "https://platform.openai.com/api-keys" : "https://aistudio.google.com/apikey"} target="_blank" rel="noopener noreferrer">{name} 키 만들기 ↗</a>
+        </form>
+      )}
+      {state.error && <p className="ra-msg ra-err">{state.error}</p>}
+      {state.success && <p className="ra-msg ra-ok">{state.success}</p>}
+    </section>
+  );
+}
+
 // 💬 카톡 + ✉️ 이메일 카드 묶음 — 「받는 방법」·「API키등록·플랫폼연동」 두 화면이 같이 쓴다(같은 저장값)
-export function ChannelCards({ kakao, email, initial }: { kakao: KakaoInfo; email: EmailInfo; initial: ChannelInitial }) {
+export function ChannelCards({ kakao, email, ai, initial }: { kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; initial: ChannelInitial }) {
   const router = useRouter();
   const [value, setValue] = useState<ChannelInitial>(initial);
   const [pending, start] = useTransition();
@@ -345,12 +389,13 @@ export function ChannelCards({ kakao, email, initial }: { kakao: KakaoInfo; emai
     <>
       <KakaoCard kakao={kakao} on={value.notifyKakao} disabled={pending} onToggle={(v) => save({ notifyKakao: v })} />
       <EmailCard email={email} on={value.notifyEmail} emailTo={value.emailTo} disabled={pending} onToggle={(v) => save({ notifyEmail: v })} onEmailTo={(v) => save({ emailTo: v })} />
+      <AiSummaryCard ai={ai} on={value.aiSummary} provider={value.aiProvider} disabled={pending} onToggle={(v) => save({ aiSummary: v })} onProvider={(v) => save({ aiProvider: v })} />
       <Message msg={msg} />
     </>
   );
 }
 
-export default function DeliveryClient({ telegram, realEstateBot, initial, kakao, email, channel }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery; kakao: KakaoInfo; email: EmailInfo; channel: ChannelInitial }) {
+export default function DeliveryClient({ telegram, realEstateBot, initial, kakao, email, ai, channel }: { telegram: Telegram; realEstateBot: { botUsername: string | null } | null; initial: Delivery; kakao: KakaoInfo; email: EmailInfo; ai: AiInfo; channel: ChannelInitial }) {
   const [value, setValue] = useState<Delivery>(initial);
   // 빠르게 여러 칸을 연달아 바꿔도 앞의 변경을 잃지 않도록 마지막 값을 ref로 들고 간다(2026-10-25 시험에서 발견).
   const latest = useRef<Delivery>(initial);
@@ -380,7 +425,7 @@ export default function DeliveryClient({ telegram, realEstateBot, initial, kakao
   return (
     <>
       <TelegramCard telegram={telegram} realEstateBot={realEstateBot} />
-      <ChannelCards kakao={kakao} email={email} initial={channel} />
+      <ChannelCards kakao={kakao} email={email} ai={ai} initial={channel} />
       <section className="card">
         <h2 className="card-title">🔔 어떤 때 알려 드릴까요?</h2>
         <div className="ra-chips">

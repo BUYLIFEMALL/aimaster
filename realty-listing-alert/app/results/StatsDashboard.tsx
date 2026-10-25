@@ -36,6 +36,7 @@ export default function StatsDashboard({ email }: { email: string }) {
   const [history, setHistory] = useState<Snap[] | null | undefined>(undefined); // undefined = 묻는 중, null = 확장 없음·다른 계정
   const [events, setEvents] = useState<EventRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
+  const [ai, setAi] = useState<{ text: string; at: string } | null>(null); // 🤖 AI 시세 요약(v1.22) — 확장이 하루 1번 만든 것
   const [complex, setComplex] = useState("");
   const [trade, setTrade] = useState<Trade>("매매");
   const [evType, setEvType] = useState<EvType | "all">("all");
@@ -44,11 +45,12 @@ export default function StatsDashboard({ email }: { email: string }) {
 
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; history?: Snap[]; events?: EventRow[]; columns?: string[] }>("stats", 3000, { email }).then((r) => {
+    void askExtension<{ ok?: boolean; history?: Snap[]; events?: EventRow[]; columns?: string[]; aiSummary?: { text: string; at: string } | null }>("stats", 3000, { email }).then((r) => {
       if (!alive) return;
       setHistory(r?.ok ? r.history ?? [] : null);
       setEvents(r?.ok ? r.events ?? [] : []);
       setColumns(r?.columns ?? []);
+      setAi(r?.ok && r.aiSummary?.text ? r.aiSummary : null);
     });
     return () => { alive = false; };
   }, [email]);
@@ -104,6 +106,7 @@ export default function StatsDashboard({ email }: { email: string }) {
       {latest && tiles && (
         <>
           <p className="card-caption">{when(latest.at)} 수집 기준 · 기록 {history!.length}회(최근 1년, 회원님 PC에만 저장)</p>
+          {ai && <div className="ra-ai-summary"><strong>🤖 AI 한 줄 요약</strong><p>{ai.text}</p><small>{when(ai.at)} 작성 · 통계 숫자만 보고 쓴 참고용이에요(투자 판단 근거가 아니에요)</small></div>}
           <div className="ra-stat-tiles">
             <div className="ra-stat"><small>지금 매물</small><strong>{tiles.total.toLocaleString("ko-KR")}건</strong><span>{tiles.delta === null ? "직전 회차 없음" : `직전보다 ${signed(tiles.delta)}`}</span></div>
             <button type="button" className="ra-stat link" onClick={() => openEvents("new")}><small>🆕 새 매물</small><strong>{tiles.fresh.toLocaleString("ko-KR")}건</strong><span>이번 회차 · 눌러서 보기 →</span></button>

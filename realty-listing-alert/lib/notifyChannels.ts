@@ -63,6 +63,17 @@ export async function hasKakaoKey(db: Db, userId: string): Promise<boolean> {
   return !!(await memberKey(db, userId, "kakao_rest_api_key"));
 }
 
+/** 🤖 AI 시세 요약(v1.22): 회원 본인 AI 키(공용 user_api_keys openai·gemini — 다른 AIMaster 프로그램과 같은 키). 없으면 null */
+export function getAiKey(db: Db, userId: string, provider: "gemini" | "openai"): Promise<string | null> {
+  return memberKey(db, userId, provider);
+}
+
+/** 화면용: AI 키 등록 여부만(값은 보내지 않음) */
+export async function getAiKeyStatus(db: Db, userId: string): Promise<{ hasGemini: boolean; hasOpenai: boolean }> {
+  const [g, o] = await Promise.all([memberKey(db, userId, "gemini"), memberKey(db, userId, "openai")]);
+  return { hasGemini: Boolean(g), hasOpenai: Boolean(o) };
+}
+
 /** 회원 본인 메일 발송 키(Resend). 없으면 null. */
 export function getResendKey(db: Db, userId: string): Promise<string | null> {
   return memberKey(db, userId, "resend_api_key");

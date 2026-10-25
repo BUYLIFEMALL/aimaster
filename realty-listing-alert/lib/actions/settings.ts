@@ -72,11 +72,13 @@ export async function saveDeliveryAction(input: DeliveryInput): Promise<{ error?
 }
 
 // 카톡·이메일 받기 켜기와 받는 주소(2026-10-25) — 「받는 방법」·「API키등록·플랫폼연동」 두 화면이 같이 쓴다. 바꾼 칸만 저장.
-export async function saveChannelAction(input: { notifyKakao?: boolean; notifyEmail?: boolean; emailTo?: string }): Promise<{ error?: string }> {
+export async function saveChannelAction(input: { notifyKakao?: boolean; notifyEmail?: boolean; emailTo?: string; aiSummary?: boolean; aiProvider?: "gemini" | "openai" }): Promise<{ error?: string }> {
   const user = await requireProgramAccess();
   const patch: Record<string, unknown> = { user_id: user.id, updated_at: new Date().toISOString() };
   if (typeof input.notifyKakao === "boolean") patch.notify_kakao = input.notifyKakao;
   if (typeof input.notifyEmail === "boolean") patch.notify_email = input.notifyEmail;
+  if (typeof input.aiSummary === "boolean") patch.notify_ai_summary = input.aiSummary; // 🤖 AI 시세 요약(v1.22)
+  if (input.aiProvider === "gemini" || input.aiProvider === "openai") patch.ai_provider = input.aiProvider;
   if (typeof input.emailTo === "string") {
     const emailTo = input.emailTo.trim();
     if (emailTo && (emailTo.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailTo))) return { error: "받는 메일 주소 모양이 올바르지 않아요." };

@@ -4,7 +4,7 @@ import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import DeliveryClient from "./DeliveryClient";
 import { REAL_ESTATE_SALES_SLUG } from "@/lib/delivery";
 import { createServiceClient } from "@/lib/supabase/service";
-import { KAKAO_CONNECT_URL, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
+import { KAKAO_CONNECT_URL, getAiKeyStatus, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,7 +23,7 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
     supabase.from("user_telegram_links").select("bot_username, linked_at").eq("user_id", user.id).eq("program_slug", "realty-listing-alert").maybeSingle(),
     supabase
       .from("realty_alert_settings")
-      .select("notify_new, notify_price_drop, notify_price_change, notify_gone, deliver_telegram, deliver_file, file_format, notify_kakao, notify_email, email_to")
+      .select("notify_new, notify_price_drop, notify_price_change, notify_gone, deliver_telegram, deliver_file, file_format, notify_kakao, notify_email, email_to, notify_ai_summary, ai_provider")
       .eq("user_id", user.id)
       .maybeSingle(),
     // 기존 부동산 실거래 프로그램에 연결한 본인 봇(있으면 「가져오기」 버튼). 토큰은 읽지 않고 봇 이름만.
@@ -31,7 +31,7 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
   ]);
   // 카톡·이메일 상태(토큰·키 값은 화면에 보내지 않고 상태만)
   const service = createServiceClient();
-  const [kakao, resendKey] = await Promise.all([getKakaoState(service, user.id, false), getResendKey(service, user.id)]);
+  const [kakao, resendKey, aiKeys] = await Promise.all([getKakaoState(service, user.id, false), getResendKey(service, user.id), getAiKeyStatus(service, user.id)]);
 
   const kakaoKey = await hasKakaoKey(service, user.id);
   return (
@@ -57,9 +57,10 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
             deliverFile: settings?.deliver_file ?? true,
             fileFormat: settings?.file_format === "csv" ? "csv" : "xlsx",
           }}
-          channel={{ notifyKakao: settings?.notify_kakao ?? false, notifyEmail: settings?.notify_email ?? false, emailTo: settings?.email_to ?? "" }}
+          channel={{ notifyKakao: settings?.notify_kakao ?? false, notifyEmail: settings?.notify_email ?? false, emailTo: settings?.email_to ?? "", aiSummary: settings?.notify_ai_summary ?? false, aiProvider: settings?.ai_provider === "openai" ? "openai" : "gemini" }}
           kakao={kakao.status === "ok" ? { ok: true, nickname: kakao.nickname, hasKey: kakaoKey, notice: kakaoNotice } : { ok: false, message: kakao.message, connectUrl: KAKAO_CONNECT_URL, hasKey: kakaoKey, notice: kakaoNotice }}
           email={{ hasKey: Boolean(resendKey), loginEmail: user.email ?? "" }}
+          ai={aiKeys}
         />
       </main>
     </div>
