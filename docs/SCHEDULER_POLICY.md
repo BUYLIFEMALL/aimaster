@@ -90,6 +90,7 @@
 | `youtube-auto-reply` (유튜브 댓글 예약 모니터링, 정기형) | ✅ 적용·배포(Vercel 방식 실검수, cron-job.org 실검수는 한도 소진으로 대기) | v1.12 · 2026-10-20 (`youtube-auto-reply-1ehpbw5to`) | 모니터링 시작=켜기·중지=끄기, 5분마다 깨우고 주기는 회원 설정, `after`. 표 `ytreply_member_scheduler`. 중복 실행 방지·이용 권한 확인·예약 주소 4곳 비밀값 검사 |
 | `threads-comment-reply` (쓰레드 댓글 예약 모니터링, 정기형) | ✅ 적용·배포(Vercel 방식 실검수 — 19:10 UTC 운영 호출에서 켠 회원 2명 처리 확인, cron-job.org는 시험 계정 키 없음으로 화면 안내만 확인) | v1.26 · 2026-10-23 (`09e25aa32`, youtube-auto-reply v1.12 이식. 그전에는 설정 화면만 있고 예약 호출이 없어 켜도 동작하지 않았음) |
 | `trending-product-finder` (상품소싱 — 매일 리포트·소싱 알림·가격 알림, 정기형) | ✅ 적용·배포(Vercel 방식 실검수, cron-job.org 실검수는 한도 소진으로 대기) | v1.15 · 2026-10-20 (`trending-product-finder-3put0pd4n`) | 작업 3개를 회원 5분 호출 한 주소에서 차례대로, 「남은 일」 = 켜진 관심 목록 + 알림 켠 관심 상품. 표 `trend_member_scheduler` + 매일 리포트 하루 1번 칸 `report_last_run_at`. 중복 발송 방지·이용 권한 확인·예약 주소 5곳 비밀값 검사 |
+| `realty-listing-alert` (부동산 실시간 매물 알림) | ➖ 대상 아님 — **확장 안 예약**(§11) | v1.06~ · 2026-10-25 | 수집이 회원 PC 크롬 확장에서만 돌아 서버 예약 호출이 없다. cron-job.org·운영자 Vercel 예약 모두 쓰지 않음 |
 | `real_estate_sales` | ⏸ 운영자 유지(주인님 결정 2026-10-20) | — | 공공데이터 키(서울열린데이터·공공데이터포털·브이월드)는 회원이 직접 발급·등록하기 어려워 **당분간 운영자 공용 키 + 운영자 Vercel 정기 수집 그대로**. 회원 cron-job.org 방식은 적용하지 않음. **사용자가 많아지면** 회원 본인 공공 키 등록 + 본인 예약 방식으로 전환(그때 다시 플랜). AI 키는 지금처럼 회원 본인 키 |
 
 ## 9. 비용·cron-job.org 무료 제한 메모
@@ -101,6 +102,7 @@
 |---|---|
 | 2026-10-19 | 제정(Claude Code 윈도우). 주인님 지시: 「예약 기능은 회원 본인 cron-job.org API 키 등록 후 사용」, 「설정 화면은 키만, 예약 설정은 포스팅 쪽」. agy의 주기 선택·토글(설정 화면) 1차안은 포스팅 쪽 예약과 충돌해 「1분 고정 + 자동 켜기/끄기 + 보관함 일시정지」로 정리. |
 | 2026-10-19 | 주인님 결정: **회원이 Vercel / cron-job.org 중 선택**(최상단 규칙에 따라 본인 계정 선택지 제공), **기본값 운영 Vercel·배포판 cron-job.org**. 비용 비교(공식 요금표): cron-job.org를 써도 처리는 사이트 Vercel에서 돌아 회원이 많을수록 Vercel 방식이 확인 비용이 적음. threads-content-ops v2.08·키트 반영. |
+| 2026-10-25 | §11 「확장 안 예약」 추가 — 서버 예약 호출 없이 회원 PC 확장이 `chrome.alarms`로 도는 방식(`realty-listing-alert`), §8 현황표에 한 줄(Claude Code 윈도우 `claude-win-20261024-realty`). |
 
 ### 2026-10-20 공용 개선 — 실패 시 상태 되돌리기 (Claude Code 윈도우, crm-google-form·youtube-auto-reply 작업 중 발견) → ✅ 같은 날 11개 적용·배포(커밋 `ccf80d68`), `threads/`도 같은 날 v1.23으로 적용·배포(커밋 `497f7e7c`) → 운영 12개 전부 적용
 threads 기준 `memberScheduler.ts` 사본 전체(threads·threads-content-ops·INSTA·카드뉴스·네이버 카페·카카오·stepmail·booking-reminder·crm-google-form·youtube-auto-reply) 공통:
@@ -125,3 +127,13 @@ threads 기준 `memberScheduler.ts` 사본 전체(threads·threads-content-ops·
 처리 결과 5(2026-10-20, Claude Code 윈도우): 회원 실행 방식 코드 `memberScheduler.ts`를 **예약 프로그램 15개 공용 기준 코드 `member-scheduler`**(기준 `cardnews-studio/src/lib/instagram/memberScheduler.ts`)로 통일. 프로그램 값은 같은 폴더 `schedulerConfig.ts`(사이트 주소·표·토큰 앞글자·환경변수·설치 키트 여부·「남은 일」 세기·실행 주소). **새 예약 프로그램은 `memberScheduler.ts`를 복사하지 말고 공용 사본으로 등록해 `--sync`로 받고 `schedulerConfig.ts`만 만든다.** 미배포(각 프로그램 다음 배포 때).
 
 **새 예약 프로그램 체크리스트 추가 항목(2026-10-20 — 메인 사이트 「📅 내 예약 현황」)**: 회원 예약을 만드는 프로그램을 새로 만들면 루트 `lib/schedules/memberSchedules.ts`에도 한 줄 등록한다 — 한 건씩 예약(`status='scheduled'` + `scheduled_at`, 또는 `is_reserved` 방식)은 `SOURCES`, 규칙을 켜 두면 주기마다 도는 정기형은 `RECURRING`(「남은 일」 세기는 그 프로그램 `schedulerConfig.ts` `countRemainingWork`와 같은 조건). 등록하면 회원의 「내 예약 현황」과 홈 요약 한 줄에 바로 모여 보인다. 현재 등록: 예약 게시 9개(인스타 5·쓰레드 3·네이버 블로그 에이전트), 정기형 7개.
+
+## 11. 확장 안 예약 — 서버 예약 호출이 없는 프로그램 (2026-10-25 추가, `realty-listing-alert` 기준)
+일이 **회원 PC의 크롬 확장 안에서만** 일어나는 프로그램(외부 사이트를 회원 본인 로그인으로 읽어야 해서 서버가 대신 접속하면 안 되는 경우)은 위 cron-job.org·운영자 Vercel 예약을 쓰지 않고 확장이 스스로 시각을 잰다.
+- **설정은 웹, 실행은 확장**: 회원은 웹 「예약 설정」에서 켜기/끄기·간격·동작 시간대를 저장하고(DB, 회원별 RLS), 확장이 `/api/extension/settings`(회원 확장 토큰)로 받아 기억한다.
+- **타이머**: `chrome.alarms` `tick`을 1분마다(`periodInMinutes: 1`) 깨워, 시간이 됐는지만 판정한다(`shouldRunScheduled` — 켜짐·시간대·다음 시각 `nextDueAt`·그날 멈춤 `stoppedDate`·하루 한도 `limitDate`). 브라우저가 꺼져 있던 동안 밀린 회차는 **1번만** 돈다.
+- **사람처럼 보이게**: 다음 시각은 간격 ±10%로 흔든다(`computeNextDue`, 수집 규칙 `scheduleJitter`). 간격은 1~24시간(10~50분은 2026-10-25 주인님 지시로 없앰 — 확인 화면·계정 제한 위험).
+- **안전 상한**: 한 회차 대상 수·하루 페이지 수 상한(넘으면 다음 회차·다음 날로 넘김), 차단·확인 화면·401/403/429면 그날 멈추고 회원에게 알림(우회 금지 — [`PLATFORM_PATTERNS.md`](PLATFORM_PATTERNS.md) §20).
+- **서버에는 숫자 상태만**: 마지막 실행 시각·건수·오류 종류만 `/api/extension/status`로 보고(대시보드 「내 PC 수집 상태」). 수집한 내용은 서버로 보내지 않는다.
+- **한계(화면·매뉴얼에 밝힘)**: PC와 크롬이 켜져 있어야 돈다. 크롬 창을 최소화해도 되지만 PC가 잠들면 멈춘다 → 다음 단계 PC 프로그램(작업 표시줄·자동 실행)으로 보완 예정.
+- 기준 코드: `realty-listing-alert/extension/background.js`(`chrome.alarms` 등록·`onAlarm`), `extension/lib/`(`computeNextDue`·`pickRunSlice`), 웹 `app/schedule/`.
