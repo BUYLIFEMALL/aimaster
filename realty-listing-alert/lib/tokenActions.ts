@@ -16,7 +16,7 @@ export async function createExtensionToken(label: string) {
   const { data, error } = await service.from("personal_access_tokens").insert({
     user_id: user.id,
     program_slug: PROGRAM_SLUG,
-    label: label.trim() || "부동산 매물 알림 크롬 확장",
+    label: label.trim() || "부동산 실시간 매물 알림 크롬 확장",
     token_hash: crypto.createHash("sha256").update(rawToken).digest("hex"),
   }).select("id, created_at").single();
   if (error) return { error: error.message };

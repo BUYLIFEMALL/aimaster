@@ -1,7 +1,7 @@
 // 카카오 「나에게 보내기」·Resend 메일 보내기(웹 시험 보내기용). 확장 extension/lib/notify.js와 같은 요청 모양.
 // 형식 기준: kakao_auto_poster lib/kakao/client.ts sendReportMemoToMe(텍스트 템플릿 + 웹 링크).
 
-export const RESEND_FROM = "부동산 매물 알림 <onboarding@resend.dev>";
+export const RESEND_FROM = "부동산 실시간 매물 알림 <onboarding@resend.dev>";
 
 export async function sendKakaoMemo(accessToken: string, msg: { text: string; url: string }): Promise<{ ok: true } | { ok: false; error: string }> {
   const template = {

@@ -75,7 +75,7 @@ export function StudioSidebar({
     <div className="brand-row">
       <span className="brand-mark" aria-hidden="true">🏠</span>
       <div>
-        <div className="brand"><em>부동산</em> 매물 알림</div>
+        <div className="brand"><em>부동산</em> 실시간 매물 알림</div>
         <div className="app-version">{APP_VERSION}</div>
       </div>
     </div>

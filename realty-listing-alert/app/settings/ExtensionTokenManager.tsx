@@ -17,7 +17,7 @@ export default function ExtensionTokenManager({ initialTokens }: { initialTokens
         {tokens.map((token) => (
           <li key={token.id}>
             <span>
-              <strong>{token.label || "부동산 매물 알림 크롬 확장"}</strong>
+              <strong>{token.label || "부동산 실시간 매물 알림 크롬 확장"}</strong>
               <small>최근 사용: {token.last_used_at ? new Date(token.last_used_at).toLocaleString("ko-KR") : "없음"}</small>
             </span>
             <button

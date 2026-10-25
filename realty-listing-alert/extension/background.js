@@ -1,4 +1,4 @@
-// AIMaster 부동산 매물 알림 확장 — 수집 엔진(3단계, v1.03).
+// AIMaster 부동산 실시간 매물 알림 확장 — 수집 엔진(3단계, v1.03).
 // 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
 // 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/collector.js";

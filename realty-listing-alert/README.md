@@ -1,4 +1,4 @@
-# AI 부동산 매물 알림 자동화 (`realty-listing-alert`)
+# AI 부동산 실시간 매물 알림 자동화 (`realty-listing-alert`)
 
 > v1.01 운영 배포(준비중 배지, 공개 전) — 1단계 등록·뼈대 완료(2026-10-24). 주소 https://realty-listing-alert.buylife.xyz 담당 [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty`.
 > 기준 문서: [`docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md)

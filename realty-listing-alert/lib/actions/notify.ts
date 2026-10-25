@@ -44,7 +44,7 @@ export async function sendTestEmailAction(): Promise<Result> {
   const r = await sendResendMail(key, {
     to,
     subject: "🏠 [매물 알림] 시험 메일이에요",
-    text: `부동산 매물 알림의 이메일 받기가 연결됐어요.\n앞으로 새 매물·가격 변동이 있으면 이 주소로 요약과 엑셀 파일을 보내 드려요.\n\n보내는 주소: ${RESEND_FROM}`,
+    text: `부동산 실시간 매물 알림의 이메일 받기가 연결됐어요.\n앞으로 새 매물·가격 변동이 있으면 이 주소로 요약과 엑셀 파일을 보내 드려요.\n\n보내는 주소: ${RESEND_FROM}`,
   });
   if (!r.ok) return { error: r.error, suggestEmail: r.ownerEmail };
   return { success: `${to} 로 시험 메일을 보냈어요. 1~2분 안에 받은편지함(없으면 스팸함)을 확인해 주세요.` };

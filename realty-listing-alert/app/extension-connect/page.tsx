@@ -21,7 +21,7 @@ export default async function ExtensionConnectPage({ searchParams }: { searchPar
       <section className="settings-card">
         <div className="eyebrow">Chrome 확장</div>
         <h1>확장 프로그램 연결</h1>
-        <p className="lede">버튼 한 번으로 이 계정 전용 연결 코드를 만들어 이 브라우저의 부동산 매물 알림 확장에 바로 넣습니다. 코드를 복사하거나 붙여 넣을 필요가 없습니다.</p>
+        <p className="lede">버튼 한 번으로 이 계정 전용 연결 코드를 만들어 이 브라우저의 부동산 실시간 매물 알림 확장에 바로 넣습니다. 코드를 복사하거나 붙여 넣을 필요가 없습니다.</p>
         <ExtensionConnectButton auto={auto} />
       </section>
     </main>

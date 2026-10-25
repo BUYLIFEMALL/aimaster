@@ -1,4 +1,4 @@
-# AGENTS.md — AI 부동산 매물 알림 자동화 (`realty-listing-alert`)
+# AGENTS.md — AI 부동산 실시간 매물 알림 자동화 (`realty-listing-alert`)
 
 - 주소: https://realty-listing-alert.buylife.xyz (Vercel 프로젝트 `realty-listing-alert`, 팀 `buylife`) · 운영 DB ① AIMaster `esgxyikcnnvmlhygjkth`
 - 담당: [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` — 역할 파일 [`docs/roles/realty.md`](../docs/roles/realty.md)

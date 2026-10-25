@@ -6,7 +6,7 @@ import { articleUrl } from "./listing.js";
 
 const KAKAO_LABEL = { new: "신규", priceDown: "가격 내림", priceUp: "가격 오름", gone: "사라짐" };
 
-export const RESEND_FROM = "부동산 매물 알림 <onboarding@resend.dev>";
+export const RESEND_FROM = "부동산 실시간 매물 알림 <onboarding@resend.dev>";
 const SITE = "https://realty-listing-alert.buylife.xyz";
 const RESULT_URL = `${SITE}/dashboard#results`;
 
