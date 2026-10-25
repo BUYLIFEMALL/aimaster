@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-10-25 `claude-win-video` (v1.24 배포)
+- 마지막 갱신: 2026-10-25 `claude-win-video` (남은 작업 정리)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | 영상 만들기 맥 인코더 35초 대기 — v1.24 software·realtime 비교 | 맥미니 재측정(절차 PLAN §12-1) | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` |
+| `ai-video-studio` | 영상 만들기 맥 렌더 v1.25 — 장면을 GPU 밖으로(`cpuframe`·`cpucanvas`) | 빌드 1회 승인(`2d09a22c`) → 맥미니 재측정 | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` §14·§15 |
 | Shots·원스톱 쇼츠 | 영상 D — 완성본에 내 PC 「용량 줄이기」 | 빌드 2회 승인 | `docs/analysis-pc-renderer-20261024/ROADMAP.md` 3-0 |
 
 ## 최근 완료 (최근 10개)
@@ -44,3 +44,4 @@
 ## 주인님께 여쭐 것
 - 서버 지역(`regions`)을 DB 가까이 옮기는 전체 프로그램 공통 제안 검토 여부
 - 영상 D(Shots·원스톱 용량 줄이기) 빌드 2회 승인 여부
+- AI 영상 스튜디오 v1.25 빌드 1회 승인 여부(맥 렌더 GPU 장면 시험)
