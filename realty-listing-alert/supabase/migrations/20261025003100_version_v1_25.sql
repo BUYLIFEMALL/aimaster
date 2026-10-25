@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.25: API키등록 페이지를 표 구성으로(① 확장 ② 알림 받을 곳 ③ AI 엔진 한 줄 표 ④ 공공데이터), 키 끝 4자리·등록완료·수정/삭제 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.25', extension_version = 'v1.25', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
