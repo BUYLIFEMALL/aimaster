@@ -972,3 +972,10 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-aitbl-model:disabled { background: #f8fafc; color: #111827; opacity: 1; }
 .ra-aitbl-btns { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: nowrap; }
 .ra-aitbl-note td { padding: 0 12px 10px; border-bottom: 1px solid #f1f5f9; }
+/* 한 줄 표 줄바꿈 막기·칸 폭 고정 */
+.ra-aitbl { table-layout: fixed; min-width: 760px; }
+.ra-aitbl th:nth-child(1) { width: 130px; } .ra-aitbl th:nth-child(2) { width: 96px; } .ra-aitbl th:nth-child(3) { width: 130px; } .ra-aitbl th:nth-child(5) { width: 210px; }
+.ra-aitbl .ra-badge, .ra-aitbl .ra-btn-edit, .ra-aitbl .ra-btn-del, .ra-aitbl .ra-btn-save, .ra-aitbl .ra-btn-orange, .ra-aitbl-engine b, .ra-aitbl-engine small, .ra-aitbl .ra-keychip { white-space: nowrap; }
+.ra-aitbl-engine { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 4px; }
+.ra-aitbl-engine small { flex-basis: 100%; }
+.ra-aitbl-model { min-width: 0; }
