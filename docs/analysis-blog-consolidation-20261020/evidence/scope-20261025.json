@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-25T13:41:38.363Z",
+  "base": "a7822289f7b932df9534cf468a03abca04992e23",
+  "project": "AIMaster operating",
+  "ref": "esgxyikcnnvmlhygjkth",
+  "scope": "existing blog programs and cross-category interoperability; analysis only",
+  "priorExtensionMetadataCorrection": {
+    "seo": [
+      "v2.19",
+      "v2.20"
+    ],
+    "contentMaker": [
+      "v1.11",
+      "v1.12"
+    ],
+    "occurredBeforeThisAnalysis": true
+  },
+  "reservedDeletionPreserved": "naver-blog-seo-studio/public/downloads/naver-blog-seo-studio-extension-v2.19.zip"
+}

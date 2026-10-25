@@ -1,0 +1,626 @@
+{
+  "at": "2026-10-25T13:48:39.492Z",
+  "baseCommit": "a7822289f7b932df9534cf468a03abca04992e23",
+  "currentHead": "b77e4f68bd5c467f6fb46556f085fab88cc92fea",
+  "operatingRef": "esgxyikcnnvmlhygjkth",
+  "method": "existing collector + selected source traces + read-only metadata + mock tests; no member content exported",
+  "programs": [
+    {
+      "name": "AI 블로그 작업실 자동화",
+      "slug": "blog-workroom",
+      "folder": "blog-workroom",
+      "version": "v1.14",
+      "visibility": "공개",
+      "badges": "",
+      "accessRows": 155,
+      "usage": "0(0명·-)"
+    },
+    {
+      "name": "AI 블로그 콘텐츠 제작 자동화",
+      "slug": "blog-content-maker",
+      "folder": "blog-content-maker",
+      "version": "v1.12",
+      "visibility": "공개",
+      "badges": "",
+      "accessRows": 155,
+      "usage": "0(0명·-)"
+    },
+    {
+      "name": "AI 블로그 키워드 자동화",
+      "slug": "blog-keyword",
+      "folder": "blog-keyword",
+      "version": "v1.09",
+      "visibility": "공개",
+      "badges": "",
+      "accessRows": 155,
+      "usage": "0(0명·-)"
+    },
+    {
+      "name": "네이버 블로그 SEO 스튜디오",
+      "slug": "naver-blog-seo-studio",
+      "folder": "naver-blog-seo-studio",
+      "version": "v2.20",
+      "visibility": "공개",
+      "badges": "best",
+      "accessRows": 246,
+      "usage": "0(0명·-)"
+    },
+    {
+      "name": "네이버 블로그 에이전트",
+      "slug": "naver-blog-agent",
+      "folder": "naver-blog-agent",
+      "version": "v2.21",
+      "visibility": "공개",
+      "badges": "recommended",
+      "accessRows": 196,
+      "usage": "0(0명·-)"
+    },
+    {
+      "name": "네이버 블로그 올인원 자동화",
+      "slug": "naver-blog-allinone",
+      "folder": "naver-blog-allinone",
+      "version": "v1.53",
+      "visibility": "공개",
+      "badges": "best,recommended",
+      "accessRows": 160,
+      "usage": "0(0명·-)"
+    },
+    {
+      "name": "블로그 포스팅 자동화",
+      "slug": "ai-auto-blog",
+      "folder": "ai-auto-blog",
+      "version": "v1.81",
+      "visibility": "공개",
+      "badges": "free",
+      "accessRows": 246,
+      "usage": "0(0명·-)"
+    },
+    {
+      "name": "티스토리 포스팅 자동화",
+      "slug": "tistory-auto-blog",
+      "folder": "tistory-auto-blog",
+      "version": "v1.92",
+      "visibility": "공개",
+      "badges": "",
+      "accessRows": 216,
+      "usage": "0(0명·-)"
+    }
+  ],
+  "files": [
+    {
+      "group": "blog-keyword",
+      "path": "blog-keyword/src/lib/kw/links.ts",
+      "sha256": "d38de740468c7fedf6733dcc739bcbc80ce81d9d7e26f32c829247e7e42d8ee5",
+      "lines": 28
+    },
+    {
+      "group": "blog-keyword",
+      "path": "blog-keyword/src/lib/reports.ts",
+      "sha256": "a934a220a38f0f30fcf46f675b3f5afa3e427753fb9dfd34334ec4f9880e1b02",
+      "lines": 103
+    },
+    {
+      "group": "blog-keyword",
+      "path": "blog-keyword/src/lib/kw/retention.ts",
+      "sha256": "901dbd12b074949d72df16066fb0079d97161de665fe9c7508ead854cdca9253",
+      "lines": 23
+    },
+    {
+      "group": "blog-keyword",
+      "path": "blog-keyword/src/lib/kw/mergeFeatures.ts",
+      "sha256": "9030ea5f1b8a8010693c0671f96c1d497e44f212e798dbf0537cdddf54963dcd",
+      "lines": 198
+    },
+    {
+      "group": "blog-keyword",
+      "path": "blog-keyword/src/components/kw/Workbench.tsx",
+      "sha256": "e9c2bc366d9e4b6273b697677e43530127352ea512bc6ea0b6c353b37c19862b",
+      "lines": 315
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/src/lib/access.ts",
+      "sha256": "be7ae32aa887bb5c4866287061e08b06c029b6167c9cd6a43b3b270e8d12ac0b",
+      "lines": 178
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/src/lib/quickMode.ts",
+      "sha256": "5030a143cd07d3a0982926ab6bf5733da1cdd286253b1fc958d8dc63b4b52115",
+      "lines": 43
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/src/lib/extensionBridge.ts",
+      "sha256": "e060d1af542019d00d95ed1ad9a8df24d4e72f8fea832a9d66d7c38ebb163412",
+      "lines": 172
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/src/lib/postReviewSnapshot.ts",
+      "sha256": "443e1ec925937baddcdcdd62e510c11fe2eb880e3a11b83e09ca6e083e47673b",
+      "lines": 13
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/src/app/api/posts/route.ts",
+      "sha256": "86fb0c3c9f1adff7ab6ae31aac42b037fbfdf0bc11e22e57ebbe4b5cfa168486",
+      "lines": 200
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/extension/background.js",
+      "sha256": "7c8c8f59ef3b91897816414be80ce1b3f9f8ec6e498b88d79eb9d16638c20bc4",
+      "lines": 639
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/extension/editor.js",
+      "sha256": "b23f4a312a2c17c4b84a71cf1c0a9111afa2daf27d56c14a2e173907d6548641",
+      "lines": 551
+    },
+    {
+      "group": "naver-blog-agent",
+      "path": "naver-blog-agent/src/app/api/cron/cleanup/route.ts",
+      "sha256": "f03e2b4d04bfaa0885bdf8b74fcea5f7c15f6d1b78fe2496ffff036c2f85ad05",
+      "lines": 160
+    },
+    {
+      "group": "naver-blog-seo-studio",
+      "path": "naver-blog-seo-studio/lib/keywordEvidence.ts",
+      "sha256": "fe4c019f67aecab4ba945c0a4cbd3fe7c59a83391f8499466837b920aa3c8b08",
+      "lines": 161
+    },
+    {
+      "group": "naver-blog-seo-studio",
+      "path": "naver-blog-seo-studio/lib/draftReview.ts",
+      "sha256": "1c90f000d916a94ba8d7c3ea4b29eb8e352c9e8ec05976f190773b0629aa4030",
+      "lines": 145
+    },
+    {
+      "group": "naver-blog-seo-studio",
+      "path": "naver-blog-seo-studio/lib/sourceReaders.ts",
+      "sha256": "66cf68fdc34ef8fe28d95a3df91fe5e9a17c4922f8973954daf0187a4e9e03d4",
+      "lines": 82
+    },
+    {
+      "group": "naver-blog-seo-studio",
+      "path": "naver-blog-seo-studio/lib/draftRetention.ts",
+      "sha256": "5aee117a076438e7f03bf59a344c5a8b961e38f8a9af7cbbd0e487d5972a74fd",
+      "lines": 128
+    },
+    {
+      "group": "naver-blog-seo-studio",
+      "path": "naver-blog-seo-studio/extension/auto-publish.js",
+      "sha256": "7a7dafab51559a542abb9176371fca2678df77addbf12dedccd1ac35a031ef49",
+      "lines": 171
+    },
+    {
+      "group": "naver-blog-seo-studio",
+      "path": "naver-blog-seo-studio/app/api/extension/drafts/library/[draftId]/auto-publish/route.ts",
+      "sha256": "5d9f0f5c1eadd641787568bbef2141d1cb0e527e45886e43df437bdc04f55551",
+      "lines": 86
+    },
+    {
+      "group": "ai-auto-blog",
+      "path": "ai-auto-blog/utils/apiKeys.ts",
+      "sha256": "0803a3cc5408caf5c0f19d870a45d0b655585c97c3803b71dae51f6d5b2d2cac",
+      "lines": 36
+    },
+    {
+      "group": "ai-auto-blog",
+      "path": "ai-auto-blog/app/write/ai-form/page.tsx",
+      "sha256": "e969060be20b48b99402c9cf74d07279079789e66b09e9061e45075517d7346d",
+      "lines": 1568
+    },
+    {
+      "group": "ai-auto-blog",
+      "path": "ai-auto-blog/app/api/cron/cleanup-images/route.ts",
+      "sha256": "8f115c76eaa014de5630e5c9337e9666365d0fe18bd056822860c62a0c0c78c1",
+      "lines": 127
+    },
+    {
+      "group": "ai-auto-blog",
+      "path": "ai-auto-blog/extension/manifest.json",
+      "sha256": "f74c865aa8c46da8f503747d2496590a080d3b521faf7cd569cc172c1f4928cc",
+      "lines": 56
+    },
+    {
+      "group": "naver-blog-allinone",
+      "path": "naver-blog-allinone/src/lib/storage.ts",
+      "sha256": "d169894334874a4dea89075a97bb58b7955cf13bc444e4db9c2e133c7ec35ecf",
+      "lines": 55
+    },
+    {
+      "group": "naver-blog-allinone",
+      "path": "naver-blog-allinone/src/lib/blog/records.ts",
+      "sha256": "d0efc784d57c9fe667b8441ef629080a87b57b4f1acddadccf07ba3e3471cf60",
+      "lines": 40
+    },
+    {
+      "group": "naver-blog-allinone",
+      "path": "naver-blog-allinone/src/lib/blog/pipeline.ts",
+      "sha256": "1fbed96719e8a33a363e251c23c0cabe084cf0fe235259c567288fb396c1dcf5",
+      "lines": 303
+    },
+    {
+      "group": "naver-blog-allinone",
+      "path": "naver-blog-allinone/src/components/SettingsModal.tsx",
+      "sha256": "2c641cfe369556c91929a85d0920b243a9d328910aeae6db0fc1e4a5d97b1880",
+      "lines": 559
+    },
+    {
+      "group": "blog-workroom",
+      "path": "blog-workroom/src/lib/store.ts",
+      "sha256": "cce66c1e7736dcf53404e315b76ba80d2610fc692359d2a2276e1fc9d62ce158",
+      "lines": 73
+    },
+    {
+      "group": "blog-workroom",
+      "path": "blog-workroom/src/lib/retention.ts",
+      "sha256": "d301182dccdc5f44a4d034b122feab62d831feb9f249849fa7329e6f91476f7e",
+      "lines": 39
+    },
+    {
+      "group": "blog-workroom",
+      "path": "blog-workroom/src/lib/actions/write.ts",
+      "sha256": "72b4b88d94ea2e98a9325be5e7c34a930e482a043bcaa3e54922037e1122b40e",
+      "lines": 80
+    },
+    {
+      "group": "blog-workroom",
+      "path": "blog-workroom/src/lib/apiKeys.ts",
+      "sha256": "04c8e750dbc766ea2be011d94667369e7b281e0f1e58036085ca394ea074e565",
+      "lines": 60
+    },
+    {
+      "group": "blog-content-maker",
+      "path": "blog-content-maker/src/lib/types.ts",
+      "sha256": "c4355f070b554139c1007f9bb83ddf89287483433916586dcc93482c417b448b",
+      "lines": 22
+    },
+    {
+      "group": "blog-content-maker",
+      "path": "blog-content-maker/src/lib/ai.ts",
+      "sha256": "24ee955a589d2042a67b4c06d764bae079481664f0b3b8c19dd8c988ee257308",
+      "lines": 88
+    },
+    {
+      "group": "blog-content-maker",
+      "path": "blog-content-maker/src/lib/store.ts",
+      "sha256": "49c687170245634392fb416179e9dabc06797b6c0d0bb4c8e5ce5a2ef7655ae4",
+      "lines": 103
+    },
+    {
+      "group": "blog-content-maker",
+      "path": "blog-content-maker/src/app/api/extension/route.ts",
+      "sha256": "0c1100ba5d562765a378b6c88ca9eb71140396e7a3cc8515d5f15dde6181b64a",
+      "lines": 30
+    },
+    {
+      "group": "blog-content-maker",
+      "path": "blog-content-maker/extension/background.js",
+      "sha256": "e76fef5e070af01d18bc201ada3017f5fbc29f1d04d679ad9a861d20c89fd7c4",
+      "lines": 62
+    },
+    {
+      "group": "blog-content-maker",
+      "path": "blog-content-maker/extension/editor.js",
+      "sha256": "e7b4cc5028bde33a213093276447699ff4251893e2ff76a8d8bc3e53d850d757",
+      "lines": 552
+    },
+    {
+      "group": "blog-content-maker",
+      "path": "blog-content-maker/src/components/ResultViews.tsx",
+      "sha256": "5f1d51cb962c6aa42b9ab13d3deac54f2d42117a7fcb2f6cbc5523e514283b2d",
+      "lines": 28
+    },
+    {
+      "group": "tistory-auto-blog",
+      "path": "tistory-auto-blog/utils/apiKeys.ts",
+      "sha256": "0803a3cc5408caf5c0f19d870a45d0b655585c97c3803b71dae51f6d5b2d2cac",
+      "lines": 36
+    },
+    {
+      "group": "tistory-auto-blog",
+      "path": "tistory-auto-blog/app/write/ai-form/page.tsx",
+      "sha256": "60ae4b78dcef2faa4674916657e52699c5de1b372ba50a076be145d125a93191",
+      "lines": 790
+    },
+    {
+      "group": "tistory-auto-blog",
+      "path": "tistory-auto-blog/app/api/cron/cleanup-images/route.ts",
+      "sha256": "00e002fe0e653075dccaa66e611d2ae1c2d920b3322e2b0c7c7a495eb7c61d1d",
+      "lines": 127
+    },
+    {
+      "group": "tistory-auto-blog",
+      "path": "tistory-auto-blog/extension/manifest.json",
+      "sha256": "f40bc96cfeb69509f0895fdaf99a740818a4b37be1031c89b3ddd088e8ed1ab2",
+      "lines": 55
+    },
+    {
+      "group": "legacy",
+      "path": "naver-blog-auto-poster_app/AGENTS.md",
+      "sha256": "04146b630cb885d084b13105bdc4929e4f98a142f9a3ec0fa817eb30274b8093",
+      "lines": 302
+    },
+    {
+      "group": "legacy",
+      "path": "naver-blog-auto-poster_app/src/lib/naverBlogAutomation.js",
+      "sha256": "61d6d82561526d997d6c30840b47c77d8ff467637316e279cc1abc88be85afc4",
+      "lines": 180
+    },
+    {
+      "group": "legacy",
+      "path": "naver-blog-auto-poster_web/AGENTS.md",
+      "sha256": "9cda87c27265edcc4b99e1990c6e27f95134552db93875d132eb1ef0830ae829",
+      "lines": 372
+    },
+    {
+      "group": "legacy",
+      "path": "naver-blog-auto-poster_web/extension/sidepanel.js",
+      "sha256": "6a8a3fb75db6ddaf3fe4ab89ebc3e1e7dd1d9804001c362526ad074a2bfe66aa",
+      "lines": 621
+    },
+    {
+      "group": "cross-category",
+      "path": "competitor-analysis/lib/serp/context.ts",
+      "sha256": "3559824aa0dc7658568053a32fc57208c18fa21f311ebeb1441c71d34fcd16b6",
+      "lines": 93
+    },
+    {
+      "group": "cross-category",
+      "path": "competitor-analysis/lib/ai/expansion.ts",
+      "sha256": "61e3843f26ae51a2701fc8d0776845f9917786a00cb510c45e773df915429303",
+      "lines": 124
+    },
+    {
+      "group": "cross-category",
+      "path": "ghost-scraper/src/lib/safeFetch.ts",
+      "sha256": "7dc8d7b74bc0cd305f7fbfb6598b8521fef32551cff0d000275a3cf27fd056a7",
+      "lines": 108
+    },
+    {
+      "group": "cross-category",
+      "path": "ai-doc-chatbot/src/lib/chat/documentSearch.ts",
+      "sha256": "115707b34188963dae6641017ae42d135d9f27c223c4f09bcee325405be5780c",
+      "lines": 43
+    },
+    {
+      "group": "cross-category",
+      "path": "ai-writing-editor/src/lib/version.ts",
+      "sha256": "4eef011cf55fcab308fa6b5639048a48934766344051715da3ff280213b91e47",
+      "lines": 5
+    },
+    {
+      "group": "cross-category",
+      "path": "ai-image-studio/lib/providers/registry.ts",
+      "sha256": "6f2b541b3d2043b1ad00f3b7e8d7122ef335accce61a4c88b4a4e0415ce4299c",
+      "lines": 1981
+    },
+    {
+      "group": "cross-category",
+      "path": "ai-image-studio/lib/resaveReceiver.ts",
+      "sha256": "2d3bc4253cfcb631b451f117fa97620c96410c7200cb2a7e9919fd74d05cc6e0",
+      "lines": 52
+    },
+    {
+      "group": "cross-category",
+      "path": "banana-canvas/src/app/api/import-result/route.ts",
+      "sha256": "5b5fcd15363a1ccc33f5112116de9b322f2ba6d963d2f39094fa58a464f7c45f",
+      "lines": 63
+    },
+    {
+      "group": "cross-category",
+      "path": "image-convert-studio/src/lib/resave.ts",
+      "sha256": "a4b97a531c95694add18c5c40b1b2fb713437b99d06fec6cf485f24e75a76405",
+      "lines": 56
+    },
+    {
+      "group": "cross-category",
+      "path": "thumbnail-master/README.md",
+      "sha256": "17c67d6a15192db224d37a1953d7d767bd5c2d68d228b4ebd99dc659ad29c490",
+      "lines": 40
+    },
+    {
+      "group": "cross-category",
+      "path": "shorts-onestop-studio/src/lib/reference.ts",
+      "sha256": "a41699d18f46efb67e5abd6bfd26349b6966d8320fe1ff1e5aef97de52427d21",
+      "lines": 98
+    },
+    {
+      "group": "cross-category",
+      "path": "shorts-onestop-studio/src/lib/refHandoff.ts",
+      "sha256": "1e39ea4c2342bb56d2b5f33b428098158bdd525b4610cf8c42e48acb3ee51855",
+      "lines": 53
+    },
+    {
+      "group": "cross-category",
+      "path": "shots/README.md",
+      "sha256": "817e33471a0d8c333f24d2b34c1cfad1bdb620286e3619b88d9dd6da7529adc1",
+      "lines": 34
+    },
+    {
+      "group": "cross-category",
+      "path": "threads-content-ops/lib/threadsPublish.ts",
+      "sha256": "86c2fa5f6b768e75e5b48c24ef35f2ae07a538c66b950f71c3d0008ea7b17a98",
+      "lines": 68
+    },
+    {
+      "group": "cross-category",
+      "path": "insta_auto_poster/src/lib/posts/publish-core.ts",
+      "sha256": "642feccad2ca2ac50ce5e89987b70082da42b090167764bbf65ea7541dae7d97",
+      "lines": 97
+    },
+    {
+      "group": "cross-category",
+      "path": "shop-detail-page/lib/actions/products.ts",
+      "sha256": "84e7295c3235591b586a50b27f16ae98f8a8edf38a8f269f07f1abf78aacfb86",
+      "lines": 269
+    },
+    {
+      "group": "cross-category",
+      "path": "trending-product-finder/lib/sourcingResults.ts",
+      "sha256": "3f3f04eb2e3eed559294959836f5d443afb601ab760d0587e7ea8f59edb55661",
+      "lines": 115
+    },
+    {
+      "group": "cross-category",
+      "path": "ai-work-workspace/src/lib/workInbox.ts",
+      "sha256": "ba93026285d8c280d3d7005864f13d32e5dba3c9ac2e2ebf930bb0774f57305e",
+      "lines": 64
+    },
+    {
+      "group": "cross-category",
+      "path": "ai-task-planner/src/app/api/work-inbox/received/route.ts",
+      "sha256": "17234176c56dad396f835fcb40a435b566e62f47e039a4e103ff438649694b92",
+      "lines": 60
+    },
+    {
+      "group": "cross-category",
+      "path": "ai-slide-builder/src/lib/fileParser.ts",
+      "sha256": "169df34e5304c3d4bb4b8751d0007827d72d8df86dd29458c5ff5f237ef0525b",
+      "lines": 145
+    },
+    {
+      "group": "cross-category",
+      "path": "ebook-studio/src/lib/types.ts",
+      "sha256": "3ad456e1991065f45232e04094868299795233b05eac7c1b290eb46e72d7bba1",
+      "lines": 133
+    },
+    {
+      "group": "cross-category",
+      "path": "crm-google-form/README.md",
+      "sha256": "6dcb72d49aec4f360980fd96ca9b9c809c31b0c7c96a7d1dce2e5a5339adb131",
+      "lines": 53
+    },
+    {
+      "group": "cross-category",
+      "path": "stepmail/README.md",
+      "sha256": "4b2f466951fa8c132bc678ba64ad71e38531eba592920e603e57e9b49756f5a5",
+      "lines": 142
+    },
+    {
+      "group": "cross-category",
+      "path": "realty-listing-alert/README.md",
+      "sha256": "75890fd1999cfa0b05c2f4e9eccda456d5e23f11deb6f58f30be8ad4d63e432f",
+      "lines": 29
+    }
+  ],
+  "checks": {
+    "seo": {
+      "command": "node --test tests/keyword-handoff.test.mjs tests/auto-publish.test.mjs tests/auto-publish-controller.test.mjs tests/background-run.test.mjs tests/browser/auto-publish-page.test.mjs",
+      "passed": 39,
+      "kind": "mock/unit/browser fixture, not live Naver"
+    },
+    "keyword": {
+      "command": "node --import tsx --test tests/merge-c.test.mjs tests/kw.test.mjs",
+      "passed": 20,
+      "kind": "pure/mocked, no paid API"
+    },
+    "priorAgentChecks": {
+      "passed": 65,
+      "source": "same session prior takeover, not re-run in this analysis"
+    },
+    "rlsTablesObservedEnabled": 12,
+    "keywordCron": {
+      "job": "blog-keyword-reports-retention-30d",
+      "schedule": "23 * * * *",
+      "active": true,
+      "successfulRunNotChecked": true
+    },
+    "registeredAccessGaps": [
+      {
+        "from": "ai-auto-blog",
+        "to": "naver-blog-agent",
+        "gap": 78
+      },
+      {
+        "from": "naver-blog-allinone",
+        "to": "naver-blog-agent",
+        "gap": 0
+      },
+      {
+        "from": "blog-workroom",
+        "to": "naver-blog-seo-studio",
+        "gap": 0
+      },
+      {
+        "from": "blog-content-maker",
+        "to": "naver-blog-seo-studio",
+        "gap": 0
+      }
+    ],
+    "accessGapCaveat": "registered rows only; not full entitlement evaluation, subscriptions, phone, grade or expiry"
+  },
+  "limitations": [
+    "cross-category implementation proposals are not existing blog end-to-end integrations",
+    "no paid generation, publication, reservation, migration, permission or API key modifications during analysis",
+    "prior metadata correction occurred before this analysis",
+    "favorite retention code vs policy registry needs reconciliation without deleting content",
+    "legacy local folder mapping manually verified; auto collector did not resolve the two folders"
+  ],
+  "extensionReleaseAudit": {
+    "at": "2026-10-25T13:51:38.719Z",
+    "command": "node scripts/check-extension-release.mjs ai-auto-blog tistory-auto-blog naver-blog-allinone",
+    "rows": [
+      {
+        "slug": "ai-auto-blog",
+        "dbProgram": "v1.81",
+        "dbExtension": "v1.80",
+        "liveZip": "v1.82",
+        "source": "v1.82",
+        "state": "FAIL"
+      },
+      {
+        "slug": "tistory-auto-blog",
+        "dbProgram": "v1.92",
+        "dbExtension": "v1.91",
+        "liveZip": "v1.92",
+        "state": "FAIL"
+      },
+      {
+        "slug": "naver-blog-allinone",
+        "dbProgram": "v1.53",
+        "dbExtension": "v1.52",
+        "liveZip": "v1.53",
+        "state": "FAIL"
+      },
+      {
+        "slug": "naver-blog-agent",
+        "dbProgram": "v2.21",
+        "dbExtension": "v2.21",
+        "liveZip": "v2.21",
+        "state": "OK"
+      },
+      {
+        "slug": "naver-blog-seo-studio",
+        "dbProgram": "v2.20",
+        "dbExtension": "v2.20",
+        "liveZip": "v2.20",
+        "state": "OK"
+      },
+      {
+        "slug": "blog-content-maker",
+        "dbProgram": "v1.12",
+        "dbExtension": "v1.12",
+        "liveZip": "v1.12",
+        "state": "OK"
+      }
+    ],
+    "analysisDidNotModifyTheseValues": true
+  },
+  "wordpressBloggerCatalogMatches": 0,
+  "reportVerification": {
+    "htmlTables": 50,
+    "brokenInternalAnchors": 0,
+    "desktop": "Edge actual foreground report table viewed, window5049754; later report window unavailable",
+    "tableSearch": "control and script present; new runtime interaction not verified after window changed",
+    "narrowScreen": "not reverified this analysis",
+    "sourceVsReport": "new latest section contains no emails/keys/member draft contents",
+    "deterministicRegeneration": true,
+    "latestRelativeLinksMissing": [],
+    "cliEntryPointersIdentical": true
+  }
+}

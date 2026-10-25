@@ -1,0 +1,14 @@
+카테고리: 블로그 (blog)
+
+| 프로그램 | slug | 폴더 | 버전 | 공개 | 배지 | 권한 회원 | 사용 기록(회원·최근) | 코드(파일·줄·API) | 자체 DB 표 | 브라우저 저장(LS·IDB) | 본인 키 사용 파일 | AI 모델 | 주요 라이브러리 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| AI 블로그 작업실 자동화 | `blog-workroom` | `blog-workroom` | v1.14 | 공개 |  | 155 | 0(0명·-) | 79·4879·7 | blog_workroom_items | 1·0 | 4 | gemini-nano-banana-2.1,gemini-3-pro-image,gemini-image-client | - |
+| AI 블로그 콘텐츠 제작 자동화 | `blog-content-maker` | `blog-content-maker` | v1.12 | 공개 |  | 155 | 0(0명·-) | 44·1792·4 | - | 1·0 | 3 | gemini-nano-banana-2.1,gemini-3-pro-image,gemini-3.5-flash | jszip,playwright |
+| AI 블로그 키워드 자동화 | `blog-keyword` | `blog-keyword` | v1.09 | 공개 |  | 155 | 0(0명·-) | 56·4612·5 | - | 0·0 | 3 | gemini-3.5-flash,gemini-2.5-flash | playwright |
+| 네이버 블로그 SEO 스튜디오 | `naver-blog-seo-studio` | `naver-blog-seo-studio` | v2.20 | 공개 | best | 246 | 0(0명·-) | 174·13536·42 | naver_blog_seo_categories,naver_blog_seo_research,naver_blog_seo_styles,naver_blog_seo_drafts,blog_keyword_reports,naver_blog_seo_outlines,naver_blog_seo_title_recommendations,personal_access_tokens | 2·0 | 21 | gpt-4.1,gpt-4o-mini,claude-haiku-4-5 | - |
+| 네이버 블로그 에이전트 | `naver-blog-agent` | `naver-blog-agent` | v2.21 | 공개 | recommended | 196 | 0(0명·-) | 144·18618·28 | nba_accounts,nba_collected_materials,nba_content_categories,nba_posts,nba_extension_tokens,nba_generation_preferences,naver_blog_seo_drafts | 5·0 | 7 | gemini-nano-banana-2.1,gpt-4.1,gpt-4o-mini | cheerio,@tiptap/react |
+| 네이버 블로그 올인원 자동화 | `naver-blog-allinone` | `naver-blog-allinone` | v1.53 | 공개 | best,recommended | 160 | 0(0명·-) | 71·10453·9 | aio_categories,aio_posts,user_grades,grades | 1·0 | 2 | gemini-flash-latest,gemini-flash-lite-latest,gemini-nano-banana-2.1 | - |
+| 블로그 포스팅 자동화 | `ai-auto-blog` | `ai-auto-blog` | v1.81 | 공개 | free | 246 | 0(0명·-) | 118·15125·20 | blog_posts,blog_authors,blog_categories,blog_post_categories,blog_candidates,newsblur_accounts,personal_access_tokens | 2·0 | 9 | gemini-nano-banana-2.1,gpt-4o-mini,gpt-5 | cheerio,@tiptap/react |
+| 티스토리 포스팅 자동화 | `tistory-auto-blog` | `tistory-auto-blog` | v1.92 | 공개 |  | 216 | 0(0명·-) | 129·15854·20 | tistory_candidates,tistory_authors,tistory_categories,tistory_posts,tistory_post_categories,newsblur_accounts,personal_access_tokens | 2·0 | 9 | gemini-nano-banana-2.1,gpt-4o-mini,gpt-5 | cheerio,@tiptap/react |
+
+다음 단계: docs/PROGRAM_COMPARISON_ANALYSIS_GUIDE.md §3(코드 확인)·§4(판단 기준)·§5(출력 양식)대로 보고서를 쓴다. 브라우저 저장이 1 이상이면 무엇을 저장하는지 직접 열어 본다(키·결과물·설정 구분).
