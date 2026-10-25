@@ -7,6 +7,15 @@ export const AI_MAX_CHARS = 200;
 const GEMINI_MODEL = "gemini-flash-lite-latest"; // 가장 최신 정식 Flash-Lite 별칭(ai-work-workspace geminiModels.ts와 같은 기준)
 const CLAUDE_MODEL = "claude-haiku-5-5"; // Claude 가장 저렴한 최신 Haiku(ai-mastering-studio models.ts와 같은 이름)
 
+/** 만 원 → 「10억 6,086만 원」(AI가 단위를 헷갈리지 않게 한국어 금액으로 보낸다 — 2026-10-25 「1억 600만 원대」로 잘못 쓴 사례) */
+export function wonText(man) {
+  const n = Math.round(Number(man));
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const eok = Math.floor(n / 10000), rest = n % 10000;
+  if (!eok) return `${rest.toLocaleString("ko-KR")}만 원`;
+  return rest ? `${eok}억 ${rest.toLocaleString("ko-KR")}만 원` : `${eok}억 원`;
+}
+
 /** 최근 7일 기록(history) → 단지·매매별 변화 숫자. 비교할 기록이 없으면 null */
 export function buildAiInput(history, now = Date.now()) {
   if (!Array.isArray(history) || !history.length) return null;
@@ -27,7 +36,7 @@ export function buildAiInput(history, now = Date.now()) {
       단지: c.name,
       매물수: c.total,
       매물수변화: before ? c.total - before.total : null,
-      매매평균만원: sale?.avg ?? null,
+      매매평균가격: wonText(sale?.avg),
       매매평균변화퍼센트: sale?.avg && saleBefore?.avg ? Math.round(((sale.avg / saleBefore.avg) - 1) * 1000) / 10 : null,
       실거래대비퍼센트: sale?.tradeGapAvg ?? null,
       이번주_새매물: ev.new, 이번주_가격내림: ev.priceDown, 이번주_가격오름: ev.priceUp, 이번주_사라짐: ev.gone,
@@ -39,7 +48,7 @@ export function buildAiInput(history, now = Date.now()) {
 export function buildAiPrompt(input, year = new Date().getFullYear()) {
   return [
     `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기는 ${year}년 기준으로 쓰고 과거 연도로 퇴행하지 마세요.]`,
-    "너는 부동산 매물 알림 비서야. 아래는 회원이 감시하는 아파트 단지들의 최근 7일 네이버 매물 통계 숫자야(가격 단위: 만 원).",
+    "너는 부동산 매물 알림 비서야. 아래는 회원이 감시하는 아파트 단지들의 최근 7일 네이버 매물 통계야. 가격은 「10억 6,086만 원」처럼 이미 한국어 금액으로 적혀 있으니 그대로 옮겨 쓰고, 단위를 바꾸거나 다시 계산하지 마.",
     "이번 주 시세 흐름을 한국어 존댓말 1~2문장, 200자 이내로 요약해. 가장 눈에 띄는 단지·변화(호가 오름/내림, 새 매물, 실거래 대비)를 숫자와 함께 짚고, 투자 권유·단정은 하지 마.",
     "기록이 1~2회뿐이면 「아직 기록이 적어」라고 짧게 밝혀.",
     JSON.stringify(input),

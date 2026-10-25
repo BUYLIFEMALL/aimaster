@@ -1,7 +1,7 @@
 // 🤖 AI 시세 요약(2026-10-25, v1.22) — 보내는 숫자 만들기·프롬프트·저렴한 모델 고르기 시험(실제 AI 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildAiInput, buildAiPrompt, pickOpenAiModel } from "../extension/lib/aiSummary.js";
+import { buildAiInput, buildAiPrompt, pickOpenAiModel, wonText } from "../extension/lib/aiSummary.js";
 
 const snap = (at: string, total: number, avg: number, ev = { new: 0, priceDown: 0, priceUp: 0, gone: 0 }) => ({
   at,
@@ -20,6 +20,7 @@ test("최근 7일 변화: 매물 수·매매 평균 % · 이번 주 변동 합�
   const c = x.단지들[0];
   assert.equal(c.매물수변화, 4);
   assert.equal(c.매매평균변화퍼센트, 2);
+  assert.equal(c.매매평균가격, "5억 1,000만 원");
   assert.equal(c.실거래대비퍼센트, 4);
   assert.deepEqual([c.이번주_새매물, c.이번주_가격내림, c.이번주_가격오름, c.이번주_사라짐], [5, 1, 1, 1]);
   assert.equal(JSON.stringify(x).includes("중개사A"), false);
@@ -57,4 +58,12 @@ test("모델 고르기: 엔진마다 목록(쓰레드 콘텐츠 운영과 같은
   assert.equal(resolveAiModel("openai", "gpt-6-astra"), "gpt-6-astra");
   assert.equal(resolveAiModel("claude", "gpt-4o"), "claude-sonnet-5");
   assert.equal(resolveAiModel("gemini", undefined), "gemini-3.7-flash");
+});
+
+test("금액 한국어 표기: 단위를 AI가 헷갈리지 않게", () => {
+  assert.equal(wonText(106086), "10억 6,086만 원");
+  assert.equal(wonText(80000), "8억 원");
+  assert.equal(wonText(6000), "6,000만 원");
+  assert.equal(wonText(null), null);
+  assert.match(buildAiPrompt({ a: 1 }, 2026), /그대로 옮겨/);
 });
