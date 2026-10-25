@@ -10,6 +10,9 @@ type TradeStat = { n: number; avg: number | null; med: number | null; min: numbe
 type ComplexSnap = { name: string; total: number; events: { new: number; priceDown: number; priceUp: number; gone: number }; trades: Partial<Record<Trade, TradeStat>> };
 type Snap = { at: string; complexes: ComplexSnap[]; realtors: { name: string; n: number }[] };
 type Trade = "매매" | "전세" | "월세";
+type EvType = "new" | "priceDown" | "priceUp" | "gone";
+type Period = "last" | "7" | "30" | "90";
+type EventRow = { at: string; type: EvType; row: unknown[] };
 
 const TRADES: Trade[] = ["매매", "전세", "월세"];
 const PYEONG = 3.3058;
@@ -28,16 +31,30 @@ const signed = (n: number) => (n > 0 ? `▲ ${n.toLocaleString("ko-KR")}` : n < 
 
 export default function StatsDashboard({ email }: { email: string }) {
   const [history, setHistory] = useState<Snap[] | null | undefined>(undefined); // undefined = 묻는 중, null = 확장 없음·다른 계정
+  const [events, setEvents] = useState<EventRow[]>([]);
+  const [columns, setColumns] = useState<string[]>([]);
   const [complex, setComplex] = useState("");
   const [trade, setTrade] = useState<Trade>("매매");
+  const [evType, setEvType] = useState<EvType | "all">("all");
+  const [evPeriod, setEvPeriod] = useState<Period>("last");
 
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; history?: Snap[] }>("stats", 3000, { email }).then((r) => {
-      if (alive) setHistory(r?.ok ? r.history ?? [] : null);
+    void askExtension<{ ok?: boolean; history?: Snap[]; events?: EventRow[]; columns?: string[] }>("stats", 3000, { email }).then((r) => {
+      if (!alive) return;
+      setHistory(r?.ok ? r.history ?? [] : null);
+      setEvents(r?.ok ? r.events ?? [] : []);
+      setColumns(r?.columns ?? []);
     });
     return () => { alive = false; };
   }, [email]);
+
+  // 요약 카드를 누르면 그 종류의 이번 회차 변동만 「변동 기록」에서 보여 준다
+  const openEvents = (t: EvType | "all") => {
+    setEvType(t);
+    setEvPeriod("last");
+    document.getElementById("event-log")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const latest = history?.length ? history[history.length - 1] : null;
   const prev = history && history.length > 1 ? history[history.length - 2] : null;
@@ -80,9 +97,12 @@ export default function StatsDashboard({ email }: { email: string }) {
           <p className="card-caption">{when(latest.at)} 수집 기준 · 기록 {history!.length}회(최근 90일, 회원님 PC에만 저장)</p>
           <div className="ra-stat-tiles">
             <div className="ra-stat"><small>지금 매물</small><strong>{tiles.total.toLocaleString("ko-KR")}건</strong><span>{tiles.delta === null ? "직전 회차 없음" : `직전보다 ${signed(tiles.delta)}`}</span></div>
-            <div className="ra-stat"><small>🆕 새 매물</small><strong>{tiles.fresh.toLocaleString("ko-KR")}건</strong><span>이번 회차</span></div>
-            <div className="ra-stat"><small>가격 변동</small><strong>📉 {tiles.down} · 📈 {tiles.up}</strong><span>내림 · 오름</span></div>
-            <div className="ra-stat"><small>👋 사라진 매물</small><strong>{tiles.gone.toLocaleString("ko-KR")}건</strong><span>이번 회차</span></div>
+            <button type="button" className="ra-stat link" onClick={() => openEvents("new")}><small>🆕 새 매물</small><strong>{tiles.fresh.toLocaleString("ko-KR")}건</strong><span>이번 회차 · 눌러서 보기 →</span></button>
+            <div className="ra-stat split">
+              <button type="button" className="link" onClick={() => openEvents("priceDown")}><small>📉 가격 내림</small><strong>{tiles.down}건</strong></button>
+              <button type="button" className="link" onClick={() => openEvents("priceUp")}><small>📈 가격 오름</small><strong>{tiles.up}건</strong></button>
+            </div>
+            <button type="button" className="ra-stat link" onClick={() => openEvents("gone")}><small>👋 사라진 매물</small><strong>{tiles.gone.toLocaleString("ko-KR")}건</strong><span>이번 회차 · 눌러서 보기 →</span></button>
           </div>
 
           <div className="ra-stat-filters">
@@ -149,6 +169,8 @@ export default function StatsDashboard({ email }: { email: string }) {
               ) : <p className="card-caption">중개사 정보가 없어요.</p>}
             </div>
           </div>
+
+          <EventLog events={events} columns={columns} lastAt={latest.at} type={evType} setType={setEvType} period={evPeriod} setPeriod={setEvPeriod} />
         </>
       )}
     </section>
@@ -189,6 +211,123 @@ function LineChart({ title, points, fmt }: { title: string; points: { at: string
             <circle cx={x(i)} cy={y(p.v)} r="14" fill="transparent" onMouseEnter={() => setHover(i)} onFocus={() => setHover(i)} tabIndex={0} aria-label={`${when(p.at)} ${fmt(p.v)}`} />
           </g>
         ))}
+      </svg>
+    </figure>
+  );
+}
+
+const EV_TABS: { id: EvType | "all"; label: string }[] = [
+  { id: "all", label: "전체 변동" }, { id: "new", label: "🆕 새 매물" }, { id: "priceDown", label: "📉 가격 내림" }, { id: "priceUp", label: "📈 가격 오름" }, { id: "gone", label: "👋 사라짐" },
+];
+const EV_LABEL: Record<EvType, string> = { new: "🆕 새 매물", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐" };
+const EV_COLS = ["단지명", "동", "거래 종류", "가격(만 원)", "이전 가격", "전용면적(㎡)", "층", "중개사 상호", "사무실 번호", "휴대폰"];
+const MAX_ROWS = 500;
+
+/** 🔔 변동 기록 — 새 매물·가격 내림/오름·사라짐을 기간·단지별로 모아 본다(회원 PC 확장의 eventLog). */
+function EventLog({ events, columns, lastAt, type, setType, period, setPeriod }: {
+  events: EventRow[]; columns: string[]; lastAt: string;
+  type: EvType | "all"; setType: (t: EvType | "all") => void; period: Period; setPeriod: (p: Period) => void;
+}) {
+  const [complex, setComplex] = useState("");
+  const col = (name: string) => columns.indexOf(name);
+  const nameAt = col("단지명");
+  const urlAt = col("네이버 매물 주소");
+
+  const inPeriod = useMemo(() => {
+    if (period === "last") return events.filter((e) => e.at === lastAt);
+    const cut = new Date(lastAt).getTime() - Number(period) * 24 * 3600 * 1000; // 마지막 수집 시각 기준
+    return events.filter((e) => new Date(e.at).getTime() >= cut);
+  }, [events, period, lastAt]);
+  const complexes = useMemo(() => [...new Set(inPeriod.map((e) => String(e.row[nameAt] ?? "")))].filter(Boolean), [inPeriod, nameAt]);
+  const scoped = complex && complexes.includes(complex) ? inPeriod.filter((e) => e.row[nameAt] === complex) : inPeriod;
+  const counts: Record<string, number> = { all: scoped.length, new: 0, priceDown: 0, priceUp: 0, gone: 0 };
+  for (const e of scoped) counts[e.type]++;
+  const rows = (type === "all" ? scoped : scoped.filter((e) => e.type === type)).slice().reverse(); // 최근 것부터
+
+  // 날짜별 건수(기간 보기일 때) — 막대 하나·축 하나
+  const daily: { d: string; n: number }[] = [];
+  if (period !== "last") {
+    const m = new Map<string, number>();
+    for (const e of rows) { const d = day(e.at); m.set(d, (m.get(d) || 0) + 1); }
+    daily.push(...[...m].reverse().map(([d, n]) => ({ d, n })));
+  }
+
+  return (
+    <div id="event-log" className="ra-event-log">
+      <h3 className="ra-stat-h">🔔 변동 기록</h3>
+      <p className="card-caption">새 매물·가격 내림/오름·사라진 매물을 기간·단지별로 모아 봐요. 기록은 회원님 PC 확장에만 90일 쌓여요(사라짐은 목록을 끝까지 읽은 회차만 판단).</p>
+      <div className="ra-stat-filters">
+        <div className="ra-seg" role="group" aria-label="기간">
+          {([["last", "이번 회차"], ["7", "7일"], ["30", "30일"], ["90", "90일"]] as [Period, string][]).map(([id, label]) => (
+            <button key={id} type="button" aria-pressed={period === id} className={period === id ? "on" : ""} onClick={() => setPeriod(id)}>{label}</button>
+          ))}
+        </div>
+        <label>단지
+          <select value={complex} onChange={(e) => setComplex(e.target.value)}>
+            <option value="">전체 단지</option>
+            {complexes.map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </label>
+      </div>
+      <div className="ra-ev-tabs" role="tablist" aria-label="변동 종류">
+        {EV_TABS.map((t) => (
+          <button key={t.id} type="button" role="tab" aria-selected={type === t.id} className={type === t.id ? "on" : ""} onClick={() => setType(t.id)}>
+            {t.label} <b>{counts[t.id]}</b>
+          </button>
+        ))}
+      </div>
+
+      {daily.length > 1 && <DailyBars data={daily} />}
+
+      {rows.length === 0 ? (
+        <p className="card-caption">{period === "last" ? "이번 회차에는 이 종류의 변동이 없어요. 기간을 7일·30일로 넓혀 보세요." : "이 기간에는 이 종류의 변동 기록이 없어요."}</p>
+      ) : (
+        <div className="ra-result-wrap">
+          <table className="ra-result">
+            <thead><tr><th>수집 시각</th><th>변동</th>{EV_COLS.map((c) => <th key={c}>{c === "가격(만 원)" ? "가격" : c}</th>)}<th>네이버</th></tr></thead>
+            <tbody>
+              {rows.slice(0, MAX_ROWS).map((e, i) => {
+                const url = urlAt >= 0 ? e.row[urlAt] : "";
+                return (
+                  <tr key={i}>
+                    <td>{when(e.at)}</td>
+                    <td>{EV_LABEL[e.type]}</td>
+                    {EV_COLS.map((c) => { const k = col(c); const v = k >= 0 ? e.row[k] : ""; return <td key={c}>{v == null ? "" : String(v)}</td>; })}
+                    <td>{typeof url === "string" && /^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(url) ? <a href={url} target="_blank" rel="noopener noreferrer">보기 ↗</a> : ""}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {rows.length > MAX_ROWS && <p className="card-caption">화면엔 최근 {MAX_ROWS}건까지 보여요(전체 {rows.length}건).</p>}
+    </div>
+  );
+}
+
+/** 날짜별 변동 건수 막대(축 하나). 막대에 마우스를 올리면 날짜·건수가 보인다. */
+function DailyBars({ data }: { data: { d: string; n: number }[] }) {
+  const W = 600, H = 140, L = 34, R = 8, T = 10, B = 24;
+  const max = Math.max(...data.map((x) => x.n), 1);
+  const slot = (W - L - R) / data.length;
+  const bw = Math.max(4, Math.min(28, slot - 2));
+  return (
+    <figure className="ra-chart ra-ev-chart">
+      <figcaption>날짜별 변동 건수</figcaption>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="날짜별 변동 건수">
+        <line x1={L} x2={W - R} y1={H - B} y2={H - B} stroke="var(--line)" />
+        <text x={L - 6} y={T + 8} textAnchor="end" fontSize="11" fill="var(--muted)">{max}</text>
+        {data.map((x, i) => {
+          const h = ((H - T - B) * x.n) / max;
+          const cx = L + slot * i + slot / 2;
+          return (
+            <g key={x.d}>
+              <rect x={cx - bw / 2} y={H - B - h} width={bw} height={h} rx="3" fill="var(--accent)"><title>{`${x.d} · ${x.n}건`}</title></rect>
+              {(i === 0 || i === data.length - 1) && <text x={cx} y={H - 8} textAnchor="middle" fontSize="11" fill="var(--muted)">{x.d}</text>}
+            </g>
+          );
+        })}
       </svg>
     </figure>
   );

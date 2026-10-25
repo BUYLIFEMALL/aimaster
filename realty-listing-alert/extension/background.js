@@ -8,7 +8,7 @@ import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib
 import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
 import { buildKakaoText, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
-import { pushHistory, summarizeTable } from "./lib/stats.js";
+import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
 const DEFAULT_RULES = {
@@ -263,8 +263,9 @@ async function runCollection(trigger) {
     await set({ states, lastRunAt: startedAt, lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun })) } });
     // 통계·추이(2026-10-25): 회차마다 요약만 회원 PC에 쌓는다(90일) — 웹 「수집 결과」 대시보드가 확장에 물어 그린다
     if (table.length) {
-      const { history = [] } = await get("history");
-      await set({ history: pushHistory(history, summarizeTable(COLUMNS, table, startedAt)) });
+      const { history = [], eventLog = [] } = await get(["history", "eventLog"]);
+      // 변동 기록: 새 매물·가격 내림/오름·사라짐 줄만 따로 90일(최대 5000줄) — 「변동 기록」 탭용
+      await set({ history: pushHistory(history, summarizeTable(COLUMNS, table, startedAt)), eventLog: pushEvents(eventLog, pickEvents(COLUMNS, table, startedAt)) });
     }
 
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });
@@ -398,9 +399,15 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       }
       if (msg.type === "stats") {
         // 웹 대시보드용 요약 기록(web-bridge가 같은 계정인지 확인한 뒤에만 부름). 기록이 아직 없으면 마지막 결과로 첫 요약을 만든다.
-        const { history = [], lastResult } = await get(["history", "lastResult"]);
-        if (history.length || !lastResult?.table?.length) return reply({ ok: true, history });
-        return reply({ ok: true, history: [summarizeTable(lastResult.columns || COLUMNS, lastResult.table, lastResult.at)] });
+        const { history = [], eventLog = [], lastResult } = await get(["history", "eventLog", "lastResult"]);
+        const cols = lastResult?.columns || COLUMNS;
+        const hasLast = !!lastResult?.table?.length;
+        return reply({
+          ok: true,
+          columns: eventLog.length || !hasLast ? COLUMNS : cols, // 변동 기록 줄의 열 순서
+          history: history.length || !hasLast ? history : [summarizeTable(cols, lastResult.table, lastResult.at)],
+          events: eventLog.length || !hasLast ? eventLog : pickEvents(cols, lastResult.table, lastResult.at),
+        });
       }
       if (msg.type === "isWatched") {
         // 네이버 화면 버튼용 — 웹 설정(1분 안이면 저장해 둔 값)에 그 단지가 있는지만 본다

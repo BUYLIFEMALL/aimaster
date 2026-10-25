@@ -75,3 +75,15 @@ export function pushHistory(history, snap, { now = Date.now(), days = 90, max = 
   const cut = now - days * 24 * 3600 * 1000;
   return [...(history || []).filter((h) => new Date(h.at).getTime() >= cut), snap].slice(-max);
 }
+
+/** 표에서 변동 매물(새 매물·가격 내림·가격 오름·사라짐)만 골라 기록 한 줄씩으로 — 변동 기록(2026-10-25 주인님 「새매물/가격내림/가격변동/삭제 매물 같이 볼 수 있게」) */
+export function pickEvents(columns, table, at) {
+  const s = columns.indexOf("상태");
+  return (table || []).filter((r) => STATUS_KEY[r[s]]).map((row) => ({ at, type: STATUS_KEY[row[s]], row }));
+}
+
+/** 변동 기록을 더하고 오래된 것(기본 90일·최대 5000줄)을 정리한다. */
+export function pushEvents(log, add, { now = Date.now(), days = 90, max = 5000 } = {}) {
+  const cut = now - days * 24 * 3600 * 1000;
+  return [...(log || []).filter((e) => new Date(e.at).getTime() >= cut), ...add].slice(-max);
+}

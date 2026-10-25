@@ -52,3 +52,14 @@ test("기록 쌓기: 90일 지난 것과 최대 개수를 넘는 것은 정리",
   assert.deepEqual(pushHistory([old, recent], next, { now }).map((h: { at: string }) => h.at), [recent.at, next.at]);
   assert.equal(pushHistory([recent, recent, recent], next, { now, max: 2 }).length, 2);
 });
+
+test("변동 기록: 상태가 바뀐 매물만 고르고 90일·최대 줄 수로 정리", async () => {
+  const { pickEvents, pushEvents } = await import("../extension/lib/stats.js");
+  const table = [row("A", "매매", "8억", "59", "가"), row("A", "매매", "9억", "84", "가", "🆕 신규"), row("A", "전세", "5억", "59", "나", "👋 사라짐"), row("A", "매매", "7억", "59", "나", "📈 가격 오름")];
+  const ev = pickEvents(COLUMNS, table, "2026-10-25T00:00:00Z");
+  assert.deepEqual(ev.map((e: { type: string }) => e.type), ["new", "gone", "priceUp"]);
+  const now = Date.parse("2026-10-25T00:00:00Z");
+  const old = { at: "2026-07-01T00:00:00Z", type: "new", row: [] };
+  assert.equal(pushEvents([old], ev, { now }).length, 3);
+  assert.equal(pushEvents([], ev, { now, max: 2 }).length, 2);
+});
