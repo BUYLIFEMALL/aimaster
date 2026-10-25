@@ -189,6 +189,8 @@ function AiFormPageInner() {
   const [ctaText, setCtaText] = useState('추천링크')
   const [ctaUrl, setCtaUrl] = useState('')
   const [customPrompt, setCustomPrompt] = useState('')
+  // 최우선 블로그 지침: 포스팅 방식 선택 (발행 전까지 / 즉시 발행 / 예약 발행)
+  const [postingMode, setPostingMode] = useState<'prepare' | 'now' | 'reserve'>('prepare')
 
   // 로딩 & 상태 메시지
   const [loading, setLoading] = useState(false)
@@ -669,6 +671,86 @@ function AiFormPageInner() {
                 </button>
               )}
             </div>
+
+            {/* ★ 최우선 블로그 지침: 네이버 스마트에디터 포스팅 방식 선택 (회원 직접 선택) */}
+            <div className="bg-emerald-50/80 p-5 rounded-2xl border border-emerald-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-black text-emerald-950 flex items-center gap-1.5 uppercase">
+                  <span>🚀</span>
+                  <span>네이버 스마트에디터 자동 포스팅 방식 (회원 필수 선택)</span>
+                </label>
+                <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-extrabold">
+                  최우선 블로그 지침
+                </span>
+              </div>
+              <p className="text-xs text-emerald-800">
+                최종 원문과 고화질 이미지는 웹에서 완성되며, 선택하신 방식으로 크롬 확장이 네이버 스마트에디터에 자동 입력합니다.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                <label 
+                  className={`flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    postingMode === 'prepare' 
+                      ? 'border-emerald-600 bg-white shadow-sm ring-1 ring-emerald-500/30' 
+                      : 'border-slate-200 bg-white/70 hover:bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-black text-slate-900">발행 전까지</span>
+                    <input 
+                      type="radio" 
+                      name="nbPostingMode" 
+                      value="prepare" 
+                      checked={postingMode === 'prepare'} 
+                      onChange={() => setPostingMode('prepare')} 
+                      className="accent-emerald-600"
+                    />
+                  </div>
+                  <span className="text-[11px] text-slate-500 leading-tight">서식·이미지 입력만 완료하고 회원이 최종 검수 후 직접 발행</span>
+                </label>
+
+                <label 
+                  className={`flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    postingMode === 'now' 
+                      ? 'border-emerald-600 bg-white shadow-sm ring-1 ring-emerald-500/30' 
+                      : 'border-slate-200 bg-white/70 hover:bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-black text-slate-900">즉시 포스팅</span>
+                    <input 
+                      type="radio" 
+                      name="nbPostingMode" 
+                      value="now" 
+                      checked={postingMode === 'now'} 
+                      onChange={() => setPostingMode('now')} 
+                      className="accent-emerald-600"
+                    />
+                  </div>
+                  <span className="text-[11px] text-slate-500 leading-tight">확장이 글 입력 후 즉시 실제 발행 버튼까지 원클릭 자동 완료</span>
+                </label>
+
+                <label 
+                  className={`flex flex-col p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    postingMode === 'reserve' 
+                      ? 'border-emerald-600 bg-white shadow-sm ring-1 ring-emerald-500/30' 
+                      : 'border-slate-200 bg-white/70 hover:bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-black text-slate-900">예약 포스팅</span>
+                    <input 
+                      type="radio" 
+                      name="nbPostingMode" 
+                      value="reserve" 
+                      checked={postingMode === 'reserve'} 
+                      onChange={() => setPostingMode('reserve')} 
+                      className="accent-emerald-600"
+                    />
+                  </div>
+                  <span className="text-[11px] text-slate-500 leading-tight">지정된 시각에 네이버 예약 발행으로 확장이 자동 예약 등록</span>
+                </label>
+              </div>
+            </div>
             <p className="text-xs font-medium text-slate-500 leading-relaxed">
               주제와 옵션을 지정하고 [AI 글 생성 시작] 버튼을 누르면, <strong>AI 본문 텍스트와 1~5장의 고화질 이미지가 사이사이에 자동 배치</strong>된 완성본 포스트가 즉시 데이터베이스에 등록됩니다.
             </p>
@@ -974,18 +1056,18 @@ function AiFormPageInner() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-base rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-4 btn-3d-green disabled:opacity-50 text-white font-extrabold text-base rounded-2xl cursor-pointer flex items-center justify-center gap-2 disabled:cursor-not-allowed shadow-xl"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin text-white" />
-                  <span>AI 본문 + 이미지 동시 생성 및 블로그 자동 등록 중...</span>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  <span>AI 글 생성 및 네이버 블로그 원고 작성 중...</span>
                 </>
               ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  <span>✨ AI 블로그 포스트 생성 및 즉시 등록 (원클릭)</span>
-                </>
+                <span>✨ AI 이슈 글 생성 및 네이버 블로그 완성</span>
               )}
             </button>
           </div>

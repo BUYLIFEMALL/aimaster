@@ -267,9 +267,9 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Link
               href="/write/ai-form"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-3 text-sm font-bold text-white transition-all shadow-md shadow-blue-500/25 hover:scale-[1.02]"
+              className="btn-3d-green inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-black text-white transition-all shadow-md"
             >
-              <span>✨ AI 글쓰기 (자동 생성)</span>
+              <span>✨ AI 글쓰기 (자동 완성)</span>
             </Link>
             <Link
               href="/candidates"

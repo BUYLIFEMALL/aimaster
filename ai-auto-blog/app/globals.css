@@ -521,3 +521,52 @@ body {
   box-shadow: 0 2px 0 #172554 !important;
 }
 
+
+/* ==========================================================================
+   네이버 스마트 그린 저널 스타일 3D 엠보싱 버튼 (.btn-3d-green, .btn-3d-blue)
+   ========================================================================== */
+.btn-3d-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 5px 0 #065f46, 0 8px 16px rgba(5, 150, 105, 0.35);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  text-decoration: none !important;
+}
+.btn-3d-green:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 7px 0 #065f46, 0 12px 20px rgba(5, 150, 105, 0.45);
+}
+.btn-3d-green:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #065f46, 0 3px 6px rgba(5, 150, 105, 0.25);
+}
+
+.btn-3d-blue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 5px 0 #1e3a8a, 0 8px 16px rgba(29, 78, 216, 0.35);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  text-decoration: none !important;
+}
+.btn-3d-blue:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 7px 0 #1e3a8a, 0 12px 20px rgba(29, 78, 216, 0.45);
+}
+.btn-3d-blue:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #1e3a8a, 0 3px 6px rgba(29, 78, 216, 0.25);
+}
