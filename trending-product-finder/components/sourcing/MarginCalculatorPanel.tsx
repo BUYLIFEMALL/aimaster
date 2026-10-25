@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { shopDetailPageUrl } from "@/lib/shopDetailLink";
 // v1.10: SourcingCalculator에서 분리 — 💰 마진 계산기(입력칸 + 영수증 형태 결과). 화면·계산식은 이전과 같다.
 import { calcMargin, MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
 // v1.27(E1): 마켓별 정산 공식 — 공용 기준 코드 market-fees 사본(lib/marketFees.ts, 직접 고치지 말 것)
 import { MARKET_LABELS, calcMarketMargin, compareMarkets, priceForMargin, type MarketId, type MarketMarginInput, type ShippingMode } from "@/lib/marketFees";
 import { MarketSalesSection } from "./MarketSalesSection";
+import { readFlowActive } from "@/components/ShopFlowBar";
 import { defaultsFor, isDomesticPlatform, platformLabel, type Platform } from "@/lib/sourcingResults";
 
 /** 계산기 입력값(입력칸 그대로의 문자열) */
@@ -131,6 +132,9 @@ export function MarginCalculatorPanel({
   const targetPct = Number(form.targetMargin) || 0;
   const targetPrice = priceForMargin(marketInput, targetPct);
   const [showCompare, setShowCompare] = useState(false);
+  // E9: 흐름 여부는 화면이 뜬 뒤 읽는다(서버에서 그린 링크와 어긋나지 않게)
+  const [inFlow, setInFlow] = useState(false);
+  useEffect(() => setInFlow(readFlowActive()), []);
   // v1.23(추가): 선택 기능 — 추천판매가를 상세페이지 「정상가」로 함께 넘길지(할인가로는 넘기지 않음).
   const [passPrice, setPassPrice] = useState(true);
   const isDomestic = isDomesticPlatform(selectedPlatform);
@@ -183,6 +187,7 @@ export function MarginCalculatorPanel({
             href={shopDetailPageUrl(
               { title: selectedTitle, platform: selectedPlatform, detailUrl: selectedDetailUrl },
               passPrice ? num(form.sellingPrice) : undefined,
+              inFlow,
             )}
             target="_blank"
             rel="noreferrer"

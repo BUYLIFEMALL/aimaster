@@ -166,3 +166,32 @@ test("카테고리 요율·마켓 비교", () => {
   assert.equal(rows[0].market, "smartstore"); // 대표 수수료가 가장 낮음
   assert.ok(rows.every((r, i) => i === 0 || rows[i - 1].profit >= r.profit));
 });
+
+// ── 공용 shop-flow ──
+import { withFlow, isFlowSearch, flowNeighbors, encodeImport, decodeImport, labelImportUrl, MAX_IMPORT_ROWS } from "../src/lib/shopFlow.ts";
+
+test("흐름 표시 붙이기·읽기·이웃 단계", () => {
+  assert.equal(withFlow("https://a.b/x"), "https://a.b/x?flow=shop");
+  assert.equal(withFlow("https://a.b/x?y=1#h=2"), "https://a.b/x?y=1&flow=shop#h=2");
+  assert.equal(withFlow("https://a.b/x?flow=shop"), "https://a.b/x?flow=shop");
+  assert.equal(isFlowSearch("?flow=shop&z=1"), true);
+  assert.equal(isFlowSearch("?flow=other"), false);
+  const n = flowNeighbors("orders");
+  assert.equal(n.prev.id, "detail");
+  assert.equal(n.next.id, "label");
+  assert.equal(flowNeighbors("sourcing").prev, null);
+});
+
+test("발송 전 주문 표를 주소로 넘기고 그대로 읽는다(한글·300줄 제한·깨진 값)", () => {
+  const table = { from: "주문 리포트", headers: ["상품명", "옵션", "수량"], rows: [["사과즙 30포", "선물세트", "2"], ["감귤 3kg", "", "1"]] };
+  const url = labelImportUrl(table, true);
+  assert.match(url, /^https:\/\/seller-label-docs\.buylife\.xyz\/label\?flow=shop#import=[A-Za-z0-9_-]+$/);
+  const back = decodeImport(url.slice(url.indexOf("#")));
+  assert.deepEqual(back, table);
+  assert.equal(labelImportUrl(table, false).includes("flow=shop"), false);
+  assert.equal(encodeImport({ ...table, rows: Array.from({ length: MAX_IMPORT_ROWS + 1 }, () => ["a", "b", "1"]) }), null);
+  assert.equal(encodeImport({ ...table, rows: [] }), null);
+  assert.equal(decodeImport("#import=!!깨짐"), null);
+  assert.equal(decodeImport("#import=bm90LWpzb24"), null);
+  assert.equal(decodeImport("#other=1"), null);
+});

@@ -10,6 +10,7 @@ import { CODE_TYPES, checkCodeValue } from "@/lib/label/barcode";
 import { DEFAULT_TEMPLATE, FOOD_FIELDS, SAMPLE_HEADERS, SAMPLE_ROWS, type LabelTemplate } from "@/lib/label/template";
 import { ACCEPT_SHEETS, parsePasted, readSheetBytes, sampleWorkbook, type SheetData } from "@/lib/sheet";
 import { loadLocal, saveBlob, saveLocal } from "@/lib/download";
+import { decodeImport } from "@/lib/shopFlow";
 
 const STORE_KEY = "sld-label-v1";
 const MM_PX = 96 / 25.4;
@@ -117,9 +118,27 @@ export default function LabelTool() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
 
+  const [imported, setImported] = useState<string | null>(null);
+
   useEffect(() => {
     const saved = loadLocal<Settings>(STORE_KEY, DEFAULTS);
-    setS({ ...saved, template: { ...DEFAULT_TEMPLATE, ...saved.template } });
+    let next: Settings = { ...saved, template: { ...DEFAULT_TEMPLATE, ...saved.template } };
+    // E9: 주문·매출 리포트 「셀러 라벨로 보내기」 — 주소 「#import=」의 표로 채운다(서버를 거치지 않음). 한 번 읽고 주소에서 지운다.
+    const table = decodeImport(window.location.hash);
+    if (table && table.rows.length) {
+      setData({ headers: table.headers, rows: table.rows.map((r) => Object.fromEntries(table.headers.map((h, i) => [h, r[i] ?? ""]))) });
+      setDataName(`${table.from} (${table.rows.length}줄)`);
+      const hasProduct = table.headers.includes("상품명");
+      next = {
+        ...next,
+        source: "sheet",
+        startCell: 0,
+        template: hasProduct ? { ...next.template, kind: "text", text: "{상품명}\n{옵션}\n수량 {수량}개 · {주문번호}", code: "none" } : next.template,
+      };
+      setImported(`${table.from}에서 ${table.rows.length}줄을 가져와 칸 글자를 맞췄습니다. 글자·바코드는 아래에서 바꿀 수 있습니다.`);
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+    setS(next);
     setMounted(true);
   }, []);
   useEffect(() => {
@@ -189,6 +208,11 @@ export default function LabelTool() {
   return (
     <div>
       <PageHeader emoji="🏷" title="라벨 인쇄" description="A4 라벨지 칸마다 상품명·주소·바코드·QR·식품 표시사항을 채워 인쇄합니다." />
+      {imported && (
+        <div className="mb-4">
+          <Notice tone="tip">📦 {imported}</Notice>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="space-y-4">

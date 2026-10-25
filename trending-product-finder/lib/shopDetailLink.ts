@@ -9,6 +9,8 @@ const SHOP_DETAIL_URL = "https://shop-detail-page.buylife.xyz/products/new";
 export function shopDetailPageUrl(
   product: { title: string; platform: Platform; detailUrl: string },
   sellingPriceKrw?: number,
+  /** E9: 쇼핑몰 흐름 중이면 흐름 표시(flow=shop)를 함께 넘긴다 — 받는 쪽은 띠 사본이 생기면 흐름 띠를 보여 준다 */
+  inFlow = false,
 ): string {
   const source = [
     `원본 판매처: ${platformLabel(product.platform) ?? product.platform}`,
@@ -25,5 +27,6 @@ export function shopDetailPageUrl(
   if (sellingPriceKrw && Number.isFinite(sellingPriceKrw) && sellingPriceKrw > 0) {
     params.set("price", String(Math.round(sellingPriceKrw)));
   }
+  if (inFlow) params.set("flow", "shop");
   return `${SHOP_DETAIL_URL}?${params.toString()}`;
 }

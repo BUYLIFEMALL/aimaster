@@ -6,6 +6,13 @@ import { useData, won } from "@/components/DataProvider";
 import { EmptyOrders, Stat } from "@/components/report/Widgets";
 import { STATUS_LABEL, type OrderStatus } from "@/lib/orders/parse";
 import { MARKETS, marketLabel, type MarketId } from "@/lib/orders/markets";
+import { MAX_IMPORT_ROWS, labelImportUrl } from "@/lib/shopFlow";
+import { readFlowActive } from "@/components/ShopFlowBar";
+import { writeWorkbook } from "@/lib/exportSheet";
+import { saveBlob } from "@/lib/download";
+
+// E9: 발송 전 주문 → 셀러 라벨(개인정보 없음 — 주문 리포트는 처음부터 이름·주소·전화를 읽지 않는다)
+const LABEL_HEADERS = ["상품명", "옵션", "수량", "주문번호", "주문일", "마켓"];
 
 const STATUSES = Object.keys(STATUS_LABEL) as OrderStatus[];
 const PAGE = 100;
@@ -31,9 +38,28 @@ export default function OrdersPage() {
       .reverse();
   }, [lines, status, market, q]);
 
+  const pending = useMemo(() => lines.filter((l) => l.status === "new"), [lines]);
+  const [labelMsg, setLabelMsg] = useState<string | null>(null);
+
   if (!ready) return <p className="text-sm text-slate-600">불러오는 중…</p>;
   if (!lines.length) return <EmptyOrders />;
   const shown = filtered.slice(page * PAGE, page * PAGE + PAGE);
+
+  function labelRows() {
+    return pending.map((l) => [l.product, l.option, String(l.qty), l.orderNo, l.orderedAt, marketLabel(l.market)]);
+  }
+  function openLabels() {
+    const url = labelImportUrl({ from: "주문·매출 리포트 — 발송 전 주문", headers: LABEL_HEADERS, rows: labelRows() }, readFlowActive());
+    if (!url) {
+      setLabelMsg(`발송 전 주문이 ${pending.length}줄이라 한 번에 넘길 수 있는 ${MAX_IMPORT_ROWS}줄을 넘습니다. 엑셀로 받아 셀러 라벨에서 「엑셀·CSV 열기」로 올려 주세요.`);
+      return;
+    }
+    setLabelMsg(null);
+    window.open(url, "_blank", "noopener");
+  }
+  function downloadLabelSheet() {
+    saveBlob(`발송전주문_라벨용_${new Date().toISOString().slice(0, 10)}.xlsx`, writeWorkbook([{ name: "라벨", rows: [LABEL_HEADERS, ...labelRows()] }]));
+  }
 
   return (
     <div>
@@ -45,6 +71,18 @@ export default function OrdersPage() {
           </button>
         ))}
       </div>
+      <section className="slw-card mb-4 flex flex-wrap items-center justify-between gap-3 p-4">
+        <div className="min-w-0">
+          <p className="text-sm font-extrabold text-slate-900">🏷 발송 전 주문 {pending.length}건 라벨 만들기</p>
+          <p className="text-[12px] text-slate-600">셀러 라벨이 새 탭으로 열리며 상품명·옵션·수량·주문번호가 표로 채워집니다. 구매자 개인정보는 넘기지 않습니다.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="slw-primary" disabled={!pending.length} onClick={openLabels}>🏷 셀러 라벨로 보내기</button>
+          <button type="button" className="slw-btn" disabled={!pending.length} onClick={downloadLabelSheet}>엑셀로 받기</button>
+        </div>
+        {labelMsg && <p className="w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">{labelMsg}</p>}
+      </section>
+
       <section className="slw-card p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <select className="slw-field !w-auto" value={market} onChange={(e) => { setMarket(e.target.value as MarketId | "all"); setPage(0); }} aria-label="마켓">
