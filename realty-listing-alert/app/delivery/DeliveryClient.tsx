@@ -361,7 +361,6 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
         <td>
           <button type="button" className="ra-aitbl-engine" aria-pressed={selected} disabled={disabled} onClick={onSelect} title="눌러서 요약에 사용">
             {engine.icon} <b>{info.name}</b>
-            <small>{selected ? "요약에 사용 중" : "눌러서 사용"}</small>
           </button>
         </td>
         <td>
