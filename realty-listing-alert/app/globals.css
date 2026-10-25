@@ -891,3 +891,5 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-engine-line select:disabled { background: #f8fafc; color: #111827; opacity: 1; }
 .ra-engine-line .primary, .ra-engine-line .secondary { padding: 8px 14px; font-size: 13px; white-space: nowrap; }
 .ra-engine-keyinput { width: 100%; }
+.ra-engine-line > button, .ra-engine-line > a, .ra-engine-line > .ra-status { flex: 0 0 auto; width: auto; margin: 0; }
+.ra-engine-line select { flex: 1 1 200px; }
