@@ -17,7 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `shop-order-report` (운영 v1.02) | 공용 `market-fees` 기준 확장(E1) — 혼자 서는 파일로 바꾸고 카테고리 표·마켓 마진 계산 추가, `orders/markets.ts`는 `MarketId`를 공용 파일에서 가져옴. 주문 리포트 계산 결과는 같음(시험 20개) | E1 코드 커밋(상품소싱 v1.27과 같은 커밋) | 2026-10-25 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` market-fees | 함께 내보내고 이 줄을 「내보낸 기록」으로 |
+| `trending-product-finder` (운영 v1.27) | E9 「🛒 쇼핑몰 흐름」 띠(공용 `shop-flow-bar` 사본, 흐름으로 들어왔을 때만 보임)·상세페이지 링크에 흐름 표시(`flow=shop`) 붙이기. 시험 14개·`tsc` 통과, 화면 변화는 흐름 중일 때만 | `93b20e6b0` | 2026-10-25 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow · `trending-product-finder/AGENTS.md` | 다음 상품소싱 배포 때 함께(버전 +0.01) |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `ai-doc-chatbot` (운영 v1.07) | G-1~G-4 공용 공급자·봇·역할 경계·다중 문서/분류/미리보기/PDF 경고. 108개 검사·타입·로컬 빌드·운영 DB/RLS·일반 회원 무료 조작 통과 | `2d56a117b` · `07795803c` · `d7dd0d367` · `952417454` · `9ab4f36e0` · `d2b05913b`(Cloudflare 식별번호·확인 직링크)(키 용도·공식 콘솔 버튼) · `47fc981ab`(로그아웃303) · `780cef254`(문단 줄바꿈·실제AI3회) | 2026-10-25 · [역할: docbot-prompt] Codex `codex-win-20261025-docbot-g4` | [G-4 결과](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md) | 실제 텍스트4회·Gmail 두 문서 질문/출처2·본문/재열기·680px 검수 완료. 기존 승인 묶음 배포 준비, 새 공급자 실호출은 키 등록 후. 버전+0.01·DB·프로그램 비교표 일치, 디자인 agy 담당 |
 | `ai-prompt-studio` (운영 v1.09) | G-1 내 템플릿 실행 공급자/모델·동일 공용 키 UI. 설계·AI 자동 채우기는 Gemini | `2d56a117b` · `9ab4f36e0` · `d2b05913b`(Cloudflare 식별번호·확인 직링크)(키 용도·공식 콘솔 버튼) | 2026-10-24 · Codex `codex-win-20261024-docbot-g1` | 같은 G-1 결과·앱 인수인계 | 실회원/Edge 검수 후 묶음 배포, 작은따옴표 버전 파일도 +0.01·DB 일치 |
@@ -56,6 +56,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `shop-order-report` | v1.03 · 2026-10-25 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드(E9 최대 3회 중 2회) `b0s1sfp6u`) | E1 공용 `market-fees` 기준 확장(대기 줄) + E9 흐름 띠·발송 전 주문→셀러 라벨. 같은 묶음 `seller-label-docs` v1.03 `f2dzr25lh` |
 | music | v1.47 · 2026-10-25 ([역할: design] Antigravity(윈도우, 웨일) gy-win-20261025-ext3d, 빌드 1회) | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 세트 & 음악기획·생성 3D 엠보싱 버튼 규격화 배포 완료 |
 | `realty-listing-alert` | v1.14 · 2026-10-25 ([역할: realty] `claude-win-20261024-realty`, 승인 빌드 1회) | 중개사 번호 조금씩 채워 기억(새·변동 매물 먼저, 남는 여유로 번호 모르는 매물을 회차당 최대 20건 — 회원 PC `chrome.storage` `phones`에 기억, 30일 뒤 정리, 서버로 안 보냄), 수집 결과 화면은 변동 0건이면 바로 전체 표(「이번엔 변동 없음 · 지금 매물 n건」) |
 | `detail-page-12p` | v1.12 · 2026-10-25 ([역할: design] Antigravity(윈도우, 웨일) `agy-win-20261025-ext3d`, 빌드 1회) | Google AI Studio 키 발급 2단 퀵액션 버튼 세트 및 12단/9단 일괄 기획·렌더링 3D 엠보싱 버튼 탑재 |

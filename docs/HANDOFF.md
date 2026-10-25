@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-25 ✅ [역할: ecommerce-image] Claude Code(윈도우·크롬) · 세션 `claude-win-sdp` — E9 쇼핑몰 흐름 띠 + 발송 전 주문→셀러 라벨 (주문 리포트·셀러 라벨 v1.03 배포, 상품소싱 띠 미배포 대기)
+- 공용 기준 코드 2개 신설: `shop-flow`(`shop-order-report/src/lib/shopFlow.ts`) · `shop-flow-bar`(`src/components/ShopFlowBar.tsx`), 사본은 셀러 라벨·상품소싱. 띠는 `?flow=shop`으로 들어왔을 때만 보이고 같은 탭에서 유지, ✕로 닫힘.
+- 주문 리포트 「주문 현황」: 발송 전 주문을 셀러 라벨로 보내기(주소 「#import=」 안에 표, 서버를 거치지 않음, 이름·주소·전화 없음, 300줄 초과는 엑셀로 안내)·라벨용 엑셀 받기. 셀러 라벨은 받은 표로 칸을 채우고 안내 후 주소에서 지움.
+- 검수: 시험 주문 리포트 22개·셀러 라벨 24개·상품소싱 14개, 크롬 실제 창에서 10건 넘기기·띠 유무·390px 넘침 없음 확인. 예시 데이터 정리 완료.
+- 배포: `shop-order-report` v1.03 `b0s1sfp6u`(대기 중이던 E1 `market-fees` 확장 함께) · `seller-label-docs` v1.03 `f2dzr25lh`, DB 버전 일치. 빌드 2회(승인 최대 3회 안). `trending-product-finder`는 `docs/PENDING_DEPLOYS.md` 대기.
+- 커밋: 코드 `93b20e6b0`, 공용 스크립트 등록 `57e2fe70c`, 비교표 버전 `1fedf26c3`. 남은 일: 상세페이지 사본(agy `shop-detail-page` 작업 끝난 뒤), 상세페이지→쇼츠 연결(영상 담당 협의). 다음 첫 단계: 셀러 라벨·주문 리포트 보정(주인님 실물 라벨지·실제 주문 파일 자료 대기) 또는 E3~E5.
+- 링크: https://shop-order-report.buylife.xyz · https://seller-label-docs.buylife.xyz
+
 ## 2026-10-25 ✅ [역할: docbot-prompt] Codex(윈도우·엣지) · 세션 `codex-win-20261025-docbot-g4` — 실제 TXT/PDF 두 문서 답변·출처·본문·재열기·680px 검수 완료 (운영 미배포)
 - Gmail 본인 로그인 확인 → 실제 업로드 TXT/PDF 두 개만 선택(기존5개 제외) → 웹 끄고 일반채팅 solar-pro4 질문1회. PDF2023-09-07/BOREAL-PDF-915/환불5일 전, TXT2024-06-18/AURORA-TXT-742/환불7일 전 원문대로 표 출력. 없는 방법/담당자 등은 찾지 못했다고 표시. 실제 정리 질문의 앞부분2조각 경로이며 출처score0을 벡터 유사도 품질 수치로 해석하지 않음.
 - 운영 DB ref esgxyikcnnvmlhygjkth: 본인 방 `9bf6b99a-d014-4193-a853-701b99271227`, 질문1/답변1 총2메시지, 당시 solar-pro4 설정·선택 docId2개만 저장. 실제 출처 조각→저장 본문에서 TXT/PDF 확인, 새 대화로 나갔다 재열어 표/출처/설정 유지 확인. 재생성 버튼/추가 질문 없음.
