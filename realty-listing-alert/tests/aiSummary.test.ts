@@ -41,7 +41,7 @@ test("OpenAI 모델: nano 먼저, 없으면 mini, 음성·날짜 고정판 제�
 
 test("쓸 AI 3가지: 이름·키 모양(Claude는 공용 키 anthropic)", async () => {
   const { AI_PROVIDERS, toAiProvider } = await import("../lib/aiProviders.ts");
-  assert.deepEqual(AI_PROVIDERS.map((p) => p.id), ["gemini", "openai", "claude"]);
+  assert.deepEqual(AI_PROVIDERS.map((p) => p.id), ["openai", "claude", "gemini"]);
   assert.equal(toAiProvider("claude"), "claude");
   assert.equal(toAiProvider("x"), "gemini");
   const claude = AI_PROVIDERS.find((p) => p.id === "claude")!;
