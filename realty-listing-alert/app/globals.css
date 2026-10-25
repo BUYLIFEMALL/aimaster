@@ -1047,3 +1047,5 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-aieng-key { flex: 0 0 34%; width: auto; min-width: 0; box-sizing: border-box; height: 34px; }
 .ra-aieng-model { flex: 1 1 auto; min-width: 0; width: auto; height: 34px; }
 .ra-aieng-line .ra-aitbl-btns { flex: 0 0 auto; flex-wrap: nowrap; }
+/* 모델 선택 칸 더 넓게(2026-10-25 「모델 선택 칸을 좀더 넓혀」) */
+.ra-aieng-key { flex: 0 0 26%; }
