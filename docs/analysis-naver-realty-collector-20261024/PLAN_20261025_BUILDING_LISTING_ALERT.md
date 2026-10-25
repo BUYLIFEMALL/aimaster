@@ -1,5 +1,7 @@
 # 개발 플랜 — 건물 매물 알림 (새 프로그램, 2026-10-25)
 
+> ⏸ **보류**(주인님 2026-10-25 「건물 작업은 이후에 할꺼야」) — 재개 순서는 인수인계 [`HANDOFF_20261025_BUILDING_LISTING_ALERT.md`](HANDOFF_20261025_BUILDING_LISTING_ALERT.md)를 먼저 읽는다.
+
 - 작성: [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty`
 - 근거: 주인님 결정(2026-10-25) 「기존 아파트 프로그램은 이대로 계속 개발 업그레이드하고, 별도의 프로그램으로 건물/상가/토지 순으로 개발해 보고, 나중에 가능하다면 하나로 합치는 방식으로 개발 난이도를 낮추어 진행」 · 백로그 [`realty-listing-alert/docs/IMPROVEMENT_BACKLOG.md`](../../realty-listing-alert/docs/IMPROVEMENT_BACKLOG.md) · 아이디어 IDEA-REALTY-04
 - 프로젝트 구분: ① AIMaster 운영(공용 DB `esgxyikcnnvmlhygjkth`) — 아파트 프로그램과 같은 회원·권한 체계
