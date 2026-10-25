@@ -58,6 +58,100 @@ const PROVIDER_FIELD: Record<Provider, keyof SavePayload> = {
   pexels: "pexelsKey",
 };
 
+
+const PLATFORM_LINKS: Partial<Record<Provider, { keyUrl: string; keyLabel: string; signupUrl: string; signupLabel: string }>> = {
+  threads_app_id: {
+    keyUrl: "https://developers.facebook.com/apps/",
+    keyLabel: "🔑 Meta 앱 키 발급",
+    signupUrl: "https://developers.facebook.com/",
+    signupLabel: "🌐 Meta 개발자 콘솔",
+  },
+  threads_app_secret: {
+    keyUrl: "https://developers.facebook.com/apps/",
+    keyLabel: "🔑 시크릿 코드 확인",
+    signupUrl: "https://developers.facebook.com/",
+    signupLabel: "🌐 Meta 개발자 콘솔",
+  },
+  openai: {
+    keyUrl: "https://platform.openai.com/api-keys",
+    keyLabel: "🔑 OpenAI 키 발급",
+    signupUrl: "https://platform.openai.com/signup",
+    signupLabel: "🌐 가입/콘솔",
+  },
+  perplexity: {
+    keyUrl: "https://www.perplexity.ai/settings/api",
+    keyLabel: "🔑 Perplexity 키 발급",
+    signupUrl: "https://www.perplexity.ai/",
+    signupLabel: "🌐 공식 사이트",
+  },
+  gemini: {
+    keyUrl: "https://aistudio.google.com/app/apikey",
+    keyLabel: "🔑 Gemini 키 발급",
+    signupUrl: "https://aistudio.google.com/",
+    signupLabel: "🌐 Google AI Studio",
+  },
+  anthropic: {
+    keyUrl: "https://console.anthropic.com/settings/keys",
+    keyLabel: "🔑 Claude 키 발급",
+    signupUrl: "https://console.anthropic.com/",
+    signupLabel: "🌐 Anthropic 콘솔",
+  },
+  replicate: {
+    keyUrl: "https://replicate.com/account/api-tokens",
+    keyLabel: "🔑 Replicate 키 발급",
+    signupUrl: "https://replicate.com/signin",
+    signupLabel: "🌐 회원가입",
+  },
+  pixabay: {
+    keyUrl: "https://pixabay.com/api/docs/",
+    keyLabel: "🔑 Pixabay 키 발급",
+    signupUrl: "https://pixabay.com/accounts/register/",
+    signupLabel: "🌐 무료 가입",
+  },
+  pexels: {
+    keyUrl: "https://www.pexels.com/api/new/",
+    keyLabel: "🔑 Pexels 키 발급",
+    signupUrl: "https://www.pexels.com/onboarding/",
+    signupLabel: "🌐 무료 가입",
+  },
+  youtube_api_key: {
+    keyUrl: "https://console.cloud.google.com/apis/credentials",
+    keyLabel: "🔑 YouTube 키 발급",
+    signupUrl: "https://console.cloud.google.com/",
+    signupLabel: "🌐 Cloud 콘솔",
+  },
+  coupang_access_key: {
+    keyUrl: "https://partners.coupang.com/#affiliate/api",
+    keyLabel: "🔑 쿠팡 API 키 발급",
+    signupUrl: "https://partners.coupang.com/",
+    signupLabel: "🌐 파트너스 가입",
+  },
+  coupang_secret_key: {
+    keyUrl: "https://partners.coupang.com/#affiliate/api",
+    keyLabel: "🔑 Secret Key 확인",
+    signupUrl: "https://partners.coupang.com/",
+    signupLabel: "🌐 파트너스 가입",
+  },
+  aliexpress_app_key: {
+    keyUrl: "https://portals.aliexpress.com/",
+    keyLabel: "🔑 알리 API 키 발급",
+    signupUrl: "https://portals.aliexpress.com/",
+    signupLabel: "🌐 포털 가입",
+  },
+  toss_access_key: {
+    keyUrl: "https://business.toss.im/",
+    keyLabel: "🔑 토스 키 발급",
+    signupUrl: "https://business.toss.im/",
+    signupLabel: "🌐 비즈니스 가입",
+  },
+  cronjob_org_api_key: {
+    keyUrl: "https://console.cron-job.org/api",
+    keyLabel: "🔑 cron-job 키 발급",
+    signupUrl: "https://console.cron-job.org/signup",
+    signupLabel: "🌐 무료 가입",
+  },
+};
+
 const GUIDES = [
   ["1c5c24e2-15d4-49b8-b907-0ac6843dee3a", "OpenAI API 키 발급받기"],
   ["343996d3-8c77-455d-9bd4-54bcd47a34cd", "Threads 계정 연동하기"],
@@ -278,22 +372,45 @@ function CredentialRow({
 }) {
   const [value, setValue] = useState("");
   const registered = Boolean(maskedValue);
+  const links = PLATFORM_LINKS[provider];
+
+  const actionButtons = links ? (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      <a href={links.keyUrl} target="_blank" rel="noreferrer" className="btn-create-key" title={`${label} 키 발급 공식 페이지로 이동`}>
+        <span>{links.keyLabel}</span>
+        <ExternalLink size={11} />
+      </a>
+      <a href={links.signupUrl} target="_blank" rel="noreferrer" className="btn-platform-signup" title={`${label} 공식 회원가입/콘솔로 이동`}>
+        <span>{links.signupLabel}</span>
+        <ExternalLink size={11} />
+      </a>
+    </div>
+  ) : null;
 
   if (registered && !editing) {
     return <div className="rounded-lg border border-neutral-200 bg-white p-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="text-sm font-medium text-neutral-800">{label}</p>
-        <div className="flex gap-3 text-xs font-medium"><button className="text-sky-700 hover:underline" onClick={() => onEdit(provider)}>수정</button><button className="text-red-600 hover:underline disabled:opacity-50" disabled={removing} onClick={() => void onDelete(provider)}>{removing ? "삭제 중…" : "삭제"}</button></div>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <p className="text-sm font-bold text-neutral-900">{label}</p>
+        <div className="flex items-center gap-3">
+          {actionButtons}
+          <div className="flex gap-2 text-xs font-semibold">
+            <button className="text-sky-700 hover:underline" onClick={() => onEdit(provider)}>수정</button>
+            <button className="text-red-600 hover:underline disabled:opacity-50" disabled={removing} onClick={() => void onDelete(provider)}>{removing ? "삭제 중…" : "삭제"}</button>
+          </div>
+        </div>
       </div>
-      <div className="mt-2 flex items-center gap-3 text-sm"><span className="font-mono text-neutral-700">{maskedValue}</span><span className="text-neutral-500">등록됨</span></div>
+      <div className="mt-2 flex items-center gap-3 text-sm"><span className="font-mono text-neutral-700 font-semibold bg-neutral-100 px-2 py-0.5 rounded">{maskedValue}</span><span className="text-emerald-700 text-xs font-bold">✓ 등록됨</span></div>
     </div>;
   }
 
   return <div className="rounded-lg border border-neutral-200 bg-white p-3">
-    <label className="mb-2 block text-sm font-medium text-neutral-800">{label}</label>
+    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+      <label className="text-sm font-bold text-neutral-900">{label}</label>
+      {actionButtons}
+    </div>
     <div className="flex flex-col gap-2 sm:flex-row">
-      <input className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400" type="password" autoComplete="off" placeholder={registered ? "새 값을 입력하면 기존 값이 교체됩니다" : `${label} 입력`} value={value} onChange={(event) => setValue(event.target.value)} />
-      <div className="flex gap-2"><button className="rounded-lg bg-neutral-800 px-3 py-2 text-sm font-semibold text-[#ffffff] transition-colors hover:bg-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-700" disabled={saving || !value.trim()} onClick={() => void onSave(provider, value).then(() => setValue(""))}>{saving ? "저장 중…" : "저장"}</button>{registered && <button className="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50" onClick={() => { setValue(""); onEdit(null); }}>취소</button>}</div>
+      <input className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 font-mono" type="password" autoComplete="off" placeholder={registered ? "새 값을 입력하면 기존 값이 교체됩니다" : `${label} 입력`} value={value} onChange={(event) => setValue(event.target.value)} />
+      <div className="flex gap-2"><button className="btn-3d-amber" disabled={saving || !value.trim()} onClick={() => void onSave(provider, value).then(() => setValue(""))}>{saving ? "저장 중…" : "저장"}</button>{registered && <button className="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50" onClick={() => { setValue(""); onEdit(null); }}>취소</button>}</div>
     </div>
   </div>;
 }

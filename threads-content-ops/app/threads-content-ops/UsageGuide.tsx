@@ -58,6 +58,22 @@ export default function UsageGuide() {
             떡상 콘텐츠 수집부터 6대 페르소나 AI 글 생성, 500자 최적화, 자동 예약 발행, 쇼핑제휴 수익화까지!
             초보자도 5분 만에 완벽히 이해하고 운영할 수 있는 실전 가이드를 제공합니다.
           </p>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a
+              href="/threads-content-ops?tab=settings"
+              className="btn-3d-amber text-xs font-bold"
+            >
+              <span>🔑 API 키 등록·플랫폼연동 바로가기</span>
+            </a>
+            <button
+              type="button"
+              onClick={() => setActiveTab("pipeline")}
+              className="btn-3d-emerald text-xs font-bold"
+            >
+              <span>⚡ 5단계 올인원 파이프라인 둘러보기</span>
+            </button>
+          </div>
         </div>
 
         {/* 배경 은은한 데코 칩 */}

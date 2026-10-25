@@ -82,6 +82,22 @@ export default function ContentOpsSidebar({ email, isMobile = false, onCloseMobi
 
       {/* 2. 네비게이션 메뉴 (스크롤 대응) */}
       <nav className="min-h-0 flex-1 overflow-y-auto p-3">
+        {/* 3D 에메랄드 상품수집 확장/데스크톱 다운로드 버튼 */}
+        <Link
+          href={href("settings")}
+          onClick={handleClickLink}
+          className="nav-download mb-3 flex items-center justify-between gap-2 text-xs font-black shadow-md"
+          title={`Threads 운영 자동화 쇼핑/상품 수집기 (${APP_VERSION})`}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm">⬇</span>
+            <span>수집·연동 확장 ({APP_VERSION})</span>
+          </div>
+          <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[10px] font-mono font-bold tracking-tight text-white backdrop-blur-xs">
+            연동
+          </span>
+        </Link>
+
         {/* 대시보드 */}
         <Link
           href={href("dashboard")}
