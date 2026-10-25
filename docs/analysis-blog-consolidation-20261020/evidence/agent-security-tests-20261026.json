@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-25T15:53:02.169Z",
+  "next": "16.4.2",
+  "jobs": [
+    {
+      "name": "critical",
+      "args": [
+        "--test",
+        "scripts/test-quick-mode.cjs",
+        "scripts/test-publish-choice.cjs",
+        "scripts/test-editor-safety.cjs",
+        "scripts/test-extension-results.cjs",
+        "scripts/test-post-save.cjs",
+        "scripts/test-prepared-publish.cjs"
+      ],
+      "exitCode": 0,
+      "tail": [
+        "✔ E-4 scope: quick members see only quick posts; full members see all (0.1692ms)",
+        "ℹ tests 56",
+        "ℹ suites 0",
+        "ℹ pass 56",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 3345.8059"
+      ]
+    },
+    {
+      "name": "tabs",
+      "args": [
+        "scripts/test-extension-tabs.cjs"
+      ],
+      "exitCode": 0,
+      "tail": [
+        "PASS actual writer verifies JPEG identity and still stops on another uploaded filename",
+        "PASS pairFromWeb: only the program site and 8-hex codes, then the existing pairing stores the connection and closes the tab",
+        "PASS pairFromWeb: keeps the settings tab open when closeTab is not requested",
+        "PASS prepared tab published by member: read-only check, report, then forget the tab",
+        "PASS prepared tab still on the editor or another blog: nothing is checked or reported",
+        "PASS title mismatch never reports (previous post shown under the new URL)",
+        "PASS server unavailable keeps the observed result and retries; 409 is dropped",
+        "PASS without a connection, stored reports wait and nothing is sent",
+        "49 browser lifecycle regression scenarios passed"
+      ]
+    },
+    {
+      "name": "publishing",
+      "args": [
+        "scripts/test-naver-publishing.cjs"
+      ],
+      "exitCode": 0,
+      "tail": [
+        "naver publishing ownership, preservation and race tests passed"
+      ]
+    },
+    {
+      "name": "bridge",
+      "args": [
+        "scripts/test-extension-bridge.cjs"
+      ],
+      "exitCode": 0,
+      "tail": [
+        "extension bridge tests passed"
+      ]
+    }
+  ]
+}
