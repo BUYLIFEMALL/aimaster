@@ -1074,3 +1074,5 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-sortbar button.on.hot { background: #dc2626; border-color: #dc2626; }
 .ra-sortbar select { height: 30px; border: 1px solid var(--line); border-radius: 8px; padding: 0 8px; font-size: 12.5px; width: auto; }
 .ra-nowrap { white-space: nowrap; }
+/* v1.29 설정 화면: AI 엔진 카드도 다른 구역과 같은 간격(2026-10-26 주인님 표시 — ②와 ③ 카드가 붙어 보임) */
+.ra-setup-card + div + .ra-engine-card, .ra-setup-card ~ .ra-engine-card { margin-top: 16px; }

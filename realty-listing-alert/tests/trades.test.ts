@@ -27,6 +27,11 @@ test("단지 이름 맞추기: 띄어쓰기·「아파트」·괄호 무시, 포
   assert.equal(normalizeAptName("일산 요진와이시티(주거복합)"), "일산요진와이시티");
   assert.equal(nameMatches("일산요진와이시티(주거복합)", "요진와이시티"), true);
   assert.equal(nameMatches("백송풍림,삼호", "백송마을5단지"), false);
+  // 2026-10-26 보강: 「마을·○단지」·괄호 안 단지명
+  assert.equal(nameMatches("백송대림", "백송마을5단지(대림)"), true);
+  assert.equal(nameMatches("백송풍림,삼호", "백송마을풍림삼호"), true);
+  assert.equal(nameMatches("흰돌3단지국제,한진", "흰돌마을3단지(국제한진)"), true);
+  assert.equal(nameMatches("백송대림", "백송마을7단지(한신)"), false);
 });
 
 test("면적대 중간값: 해제 거래 빼고 ㎡당, 매물 비교 ±3㎡", () => {

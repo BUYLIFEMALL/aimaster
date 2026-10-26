@@ -316,6 +316,7 @@ async function runCollection(trigger) {
 // 회원 PC에 하루 기억한다. 매매 매물마다 「실거래 대비 +8%」를 붙인다(엑셀·결과 표·알림). 회원 매물은 서버로 보내지 않는다.
 async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   if (!tradeTargets.length) return;
+  let lastTradeDiag = null;
   const DAY = 24 * 3600 * 1000;
   const now = Date.now();
   const { tradeCache = {} } = await get("tradeCache");
@@ -326,6 +327,7 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
       if (r?.error === "no_key") await addLog("실거래 비교: 공공데이터 키가 없어 건너뛰었어요(웹 「API키등록·플랫폼연동」에서 등록할 수 있어요)");
       for (const t of need) if (r?.results?.[t.key]) tradeCache[t.key] = { at: new Date().toISOString(), name: t.name, ...r.results[t.key] };
       if (r?.errors?.length) await addLog(`실거래 비교 알림: ${r.errors.join(" / ")}`.slice(0, 200));
+      lastTradeDiag = Array.isArray(r?.diag) ? r.diag : null;
     } catch (e) {
       await addLog(`실거래 비교 실패: ${e.message}`);
     }
@@ -343,6 +345,8 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   for (const t of perTarget) for (const e of t.events || []) { const g = gapOf(e.item); if (g) e.item.tradeGap = g; }
   const matched = tradeTargets.filter((t) => tradeCache[t.key]?.bands?.length).length;
   await addLog(`실거래 비교: 단지 ${matched}/${tradeTargets.length}곳 자료 있음 · 매매 ${n}건에 「실거래 대비」`);
+  // 진단(2026-10-26): 못 맞춘 단지가 있으면 국토부 거래 수·단지 이름 예시를 남긴다(다음 보완용)
+  if (matched < tradeTargets.length && lastTradeDiag?.length) await addLog(`실거래 진단: ${lastTradeDiag.map((d) => `지역 ${d.lawd} 국토부 거래 ${d.trades}건 · 예: ${(d.names || []).join(", ")}`).join(" / ")}`.slice(0, 300));
 }
 
 async function deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit = false, maxPages = 300 }) {

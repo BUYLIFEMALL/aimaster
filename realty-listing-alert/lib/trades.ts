@@ -7,21 +7,32 @@ export const MOLIT_TRADE_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTr
 export type Trade = { aptNm: string; area: number; price: number; ymd: string; floor: string; canceled: boolean };
 export type Band = { area: number; medianPerM2: number; count: number; lastYmd: string };
 
-/** 단지 이름 맞추기용: 띄어쓰기·괄호·「아파트」·기호를 지우고 소문자로 */
+/** 단지 이름 맞추기용(2026-10-26 보강 — 네이버 「백송대림」 ↔ 국토부 「백송마을5단지(대림)」처럼 「마을·○단지」가 붙으면 못 맞추던 문제):
+ *  주거복합·도시형 같은 꼬리말·「아파트」·「마을」·「○단지」·숫자를 지우고, 괄호는 기호만 지워 안의 단지명은 살린다 */
 export function normalizeAptName(s: string) {
   return String(s ?? "")
-    .replace(/\(.*?\)/g, "")
+    .replace(/\((주거복합|도시형|도시형생활주택|임대|재건축)\)/g, "")
     .replace(/아파트|apt/gi, "")
-    .replace(/[\s·.,\-_'"]/g, "")
+    .replace(/마을|\d+단지|단지|\d+/g, "")
+    .replace(/[\s·.,\-_'"()[\]]/g, "")
     .toLowerCase();
 }
 
-/** 네이버 단지 이름 ↔ 국토부 단지 이름: 같거나 한쪽이 다른 쪽을 포함(두 글자 이상) */
+/** 네이버 단지 이름 ↔ 국토부 단지 이름: 같거나 한쪽이 다른 쪽을 포함 — 짧은 쪽이 긴 쪽의 60% 이상일 때만(「백송」 같은 짧은 이름이 아무 데나 맞지 않게) */
 export function nameMatches(naverName: string, molitName: string) {
   const a = normalizeAptName(naverName);
   const b = normalizeAptName(molitName);
   if (a.length < 2 || b.length < 2) return false;
-  return a === b || a.includes(b) || b.includes(a);
+  if (a === b) return true;
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  return long.includes(short) && short.length / long.length >= 0.6;
+}
+
+/** 못 맞췄을 때 진단용: 그 지역 국토부 거래에서 많이 나온 단지 이름 몇 개(공공 데이터) */
+export function topAptNames(trades: Trade[], n = 6): string[] {
+  const c = new Map<string, number>();
+  for (const t of trades) if (t.aptNm) c.set(t.aptNm, (c.get(t.aptNm) || 0) + 1);
+  return [...c].sort((x, y) => y[1] - x[1]).slice(0, n).map(([k]) => k);
 }
 
 /** 최근 n개월 「yyyymm」(이번 달 포함, 한국 시간 기준) */

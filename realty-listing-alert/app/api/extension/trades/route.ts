@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { createServiceClient } from "@/lib/supabase/service";
-import { MOLIT_TRADE_URL, parseTradeResponse, recentMonths, summarizeTrades, type Trade } from "@/lib/trades";
+import { MOLIT_TRADE_URL, parseTradeResponse, recentMonths, summarizeTrades, type Trade, topAptNames } from "@/lib/trades";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -63,5 +63,7 @@ export async function POST(request: Request) {
     const trades = byLawd.get(t.lawd);
     if (trades) results[t.key] = summarizeTrades(trades, t.name);
   }
-  return NextResponse.json({ results, keySource: memberKey ? "member" : "operator", months, errors: errors.slice(0, 3) });
+  // 진단(2026-10-26): 이름을 하나도 못 맞춘 지역은 거래 수와 국토부 단지 이름 예시를 돌려준다(공공 데이터, 회원 매물 아님)
+  const diag = lawds.map((lawd) => ({ lawd, trades: byLawd.get(lawd)?.length ?? 0, names: topAptNames(byLawd.get(lawd) ?? []) }));
+  return NextResponse.json({ results, keySource: memberKey ? "member" : "operator", months, errors: errors.slice(0, 3), diag });
 }
