@@ -55,6 +55,30 @@ export interface Database {
         };
         Relationships: [];
       };
+      customs_fx_rates: {
+        Row: {
+          currency: string;
+          apply_start: string;
+          rate_krw: number;
+          unit: number;
+          fetched_at: string;
+        };
+        Insert: {
+          currency: string;
+          apply_start: string;
+          rate_krw: number;
+          unit?: number;
+          fetched_at?: string;
+        };
+        Update: {
+          currency?: string;
+          apply_start?: string;
+          rate_krw?: number;
+          unit?: number;
+          fetched_at?: string;
+        };
+        Relationships: [];
+      };
       trend_watchlist: {
         Row: {
           id: string;
@@ -74,6 +98,7 @@ export interface Database {
           sourcing_alert_notify_mode: string;
           sourcing_alert_last_snapshot: Json | null;
           report_last_run_at: string | null;
+          score_alert_threshold: number | null;
         };
         Insert: {
           id?: string;
@@ -93,6 +118,7 @@ export interface Database {
           sourcing_alert_notify_mode?: string;
           sourcing_alert_last_snapshot?: Json | null;
           report_last_run_at?: string | null;
+          score_alert_threshold?: number | null;
         };
         Update: {
           id?: string;
@@ -112,6 +138,7 @@ export interface Database {
           sourcing_alert_notify_mode?: string;
           sourcing_alert_last_snapshot?: Json | null;
           report_last_run_at?: string | null;
+          score_alert_threshold?: number | null;
         };
         Relationships: [];
       };

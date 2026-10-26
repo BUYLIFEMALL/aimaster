@@ -24,14 +24,17 @@ import {
 import { FETCHERS } from "./sourcingFetchers";
 import { PlatformResultList, ResultTools } from "./SourcingResults";
 import { MarginCalculatorPanel, costFieldsFrom, INITIAL_MARGIN_FORM, type MarginForm } from "./MarginCalculatorPanel";
+import type { CustomsFxSnapshot } from "@/lib/customs/fxParse";
 
 interface SourcingCalculatorProps {
   initialKeyword?: string;
   /** 회원이 이미 API 키를 등록해둔 채널 — 검색 체크박스 기본 선택값으로 쓴다 */
   registeredPlatforms?: Platform[];
+  /** EC-W7: 관세청 과세환율(없으면 회원이 환율을 직접 넣음) */
+  customsFx?: CustomsFxSnapshot;
 }
 
-export function SourcingCalculator({ initialKeyword, registeredPlatforms }: SourcingCalculatorProps) {
+export function SourcingCalculator({ initialKeyword, registeredPlatforms, customsFx }: SourcingCalculatorProps) {
   const router = useRouter();
   // 토글(단일 선택) 대신 체크박스로 여러 채널을 동시에 선택해서, 검색 한 번으로
   // 알리익스프레스/도매매/11번가 결과를 채널별로 나눠 보고 그 안에서 상품을 고를 수 있게 한다.
@@ -239,6 +242,7 @@ export function SourcingCalculator({ initialKeyword, registeredPlatforms }: Sour
         selectedPlatform={selectedPlatform}
         selectedDetailUrl={selectedDetailUrl}
         onReset={handleReset}
+        customsFx={customsFx}
       />
     </div>
   );

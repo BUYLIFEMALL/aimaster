@@ -33,7 +33,7 @@ try{
   await goto(route);await page.locator('main h1').waitFor();
   if(route==='/watchlist'){assert.match(await page.locator('main').innerText(),/관심 키워드 등록/);await shot('watchlist-1440');}
   if(route==='/reports'){assert.match(await page.locator('main').innerText(),/11번가/);const help=page.locator('main details').first();await help.locator('summary').click();assert.equal(await help.evaluate(e=>e.open),true);await help.locator('summary').click();}
-  if(route==='/sourcing'){await page.getByLabel('원가(원) *',{exact:true}).fill('10000');await page.getByLabel('추천판매가(원) *',{exact:true}).fill('30000');assert.match(await page.locator('main').innerText(),/8,460/);assert.match(await page.locator('main').innerText(),/28.2%/);await shot('sourcing-1440');}
+  if(route==='/sourcing'){await page.getByLabel('원가(원) *',{exact:true}).fill('10000');await page.getByLabel('추천판매가(원) *',{exact:true}).fill('30000');assert.match(await page.locator('main').innerText(),/7,816/);assert.match(await page.locator('main').innerText(),/26.1%/);await shot('sourcing-1440');}
   if(route==='/fees')assert.match(await page.locator('main').innerText(),/수수료/);
   if(route==='/settings'){
    const expected=['naver_client_id','naver_client_secret','naver_ads_api_key','naver_ads_secret_key','naver_ads_customer_id','aliexpress_app_key','aliexpress_app_secret','aliexpress_tracking_id','domeggook_api_key','elevenst_api_key','youtube_api_key','openai','gemini'];

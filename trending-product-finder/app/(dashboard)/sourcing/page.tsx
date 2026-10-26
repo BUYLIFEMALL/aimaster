@@ -8,6 +8,7 @@ import { SourcingCalculator } from "@/components/sourcing/SourcingCalculator";
 import { BatchMarginCalculator } from "@/components/sourcing/BatchMarginCalculator";
 import { SavedProductsPanel } from "@/components/sourcing/SavedProductsPanel";
 import type { SavedProductEntry } from "@/lib/actions/savedProducts";
+import { getCustomsFxSnapshot } from "@/lib/customs/fxRate";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,6 +20,8 @@ export default async function SourcingPage({
 }) {
   const user = await requireProgramAccess();
   const { keyword } = await searchParams;
+  // EC-W7: 관세청 과세환율(공용 참고 표, 12시간 지났을 때만 새로 받음 — 실패해도 화면은 그대로)
+  const customsFx = await getCustomsFxSnapshot();
 
   // 회원이 이미 등록해둔 API 키가 있는 채널은 검색 체크박스가 자동으로 선택되게 한다
   // (매번 직접 체크할 필요 없게). 아무 키도 없으면 기존처럼 알리익스프레스만 기본 선택.
@@ -84,7 +87,7 @@ export default async function SourcingPage({
         ) : null;
       })()}
 
-      <SourcingCalculator initialKeyword={keyword} registeredPlatforms={registeredPlatforms} />
+      <SourcingCalculator initialKeyword={keyword} registeredPlatforms={registeredPlatforms} customsFx={customsFx} />
 
       <SavedProductsPanel products={savedProducts} />
 

@@ -1,7 +1,9 @@
 // 착한 마진(원가 → 최종 공헌이익) 계산기. sourcing/docs/ARCHITECTURE.md에 정리된 수식을
 // 그대로 따른다(관세/부가세/운송비/플랫폼 수수료를 전부 반영).
 //
-// 최종 수입 단가(Landed Cost) = 알리 원가(KRW) + (관세+부가세) + 개당 운송비 + 개당 국내 입고비
+// 과세가격 = 알리 원가(KRW) + 개당 해외 운송비 (EC-W7, 2026-10-26: 관세는 운송비까지 포함한 가격에 붙는다)
+// 관세 = 과세가격 × 관세율, 부가세 = (과세가격 + 관세) × 부가세율
+// 최종 수입 단가(Landed Cost) = 과세가격 + 관세 + 부가세 + 개당 국내 입고비
 // 최종 공헌이익 = 판매가 - (최종 수입 단가 + 플랫폼 수수료 + 택배비 + 마케팅비)
 //
 // 관세/부가세율은 품목별로 다르고 개인 신고 여부에 따라서도 달라지므로, 여기서는 사용자가
@@ -21,6 +23,9 @@ export interface MarginInput {
 }
 
 export interface MarginResult {
+  dutiableValueKrw: number; // 과세가격(원가 + 해외 운송비)
+  customsDutyKrw: number; // 관세
+  importVatKrw: number; // 수입 부가세
   landedCostKrw: number; // 최종 수입 단가
   platformFeeKrw: number;
   totalCostKrw: number; // 판매를 위해 들어가는 총 비용
@@ -29,10 +34,10 @@ export interface MarginResult {
 }
 
 export function calcMargin(input: MarginInput): MarginResult {
-  const dutyAndVat = input.sourcePriceKrw * ((input.customsDutyRate + input.vatRate) / 100);
-  const landedCostKrw = Math.round(
-    input.sourcePriceKrw + dutyAndVat + input.shippingPerUnitKrw + input.domesticFeePerUnitKrw,
-  );
+  const dutiableValueKrw = Math.round(input.sourcePriceKrw + input.shippingPerUnitKrw);
+  const customsDutyKrw = Math.round(dutiableValueKrw * (input.customsDutyRate / 100));
+  const importVatKrw = Math.round((dutiableValueKrw + customsDutyKrw) * (input.vatRate / 100));
+  const landedCostKrw = Math.round(dutiableValueKrw + customsDutyKrw + importVatKrw + input.domesticFeePerUnitKrw);
 
   const platformFeeKrw = Math.round(input.sellingPriceKrw * (input.platformFeeRate / 100));
   const totalCostKrw = landedCostKrw + platformFeeKrw + input.deliveryFeeKrw + input.marketingFeeKrw;
@@ -41,7 +46,7 @@ export function calcMargin(input: MarginInput): MarginResult {
   const marginRatePct =
     input.sellingPriceKrw > 0 ? Math.round((contributionProfitKrw / input.sellingPriceKrw) * 1000) / 10 : 0;
 
-  return { landedCostKrw, platformFeeKrw, totalCostKrw: Math.round(totalCostKrw), contributionProfitKrw, marginRatePct };
+  return { dutiableValueKrw, customsDutyKrw, importVatKrw, landedCostKrw, platformFeeKrw, totalCostKrw: Math.round(totalCostKrw), contributionProfitKrw, marginRatePct };
 }
 
 /** UI 기본값(해외 소싱=알리익스프레스 기준) — 일반적인 국내 오픈마켓 판매를 가정한 보수적 추정치. */

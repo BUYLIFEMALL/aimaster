@@ -8,6 +8,7 @@ import { MARKET_LABELS, calcMarketMargin, compareMarkets, priceForMargin, type M
 import { MarketSalesSection } from "./MarketSalesSection";
 import { readFlowActive } from "@/components/ShopFlowBar";
 import { defaultsFor, isDomesticPlatform, platformLabel, type Platform } from "@/lib/sourcingResults";
+import { FX_CURRENCIES, FX_LABELS, toKrw, type CustomsFxSnapshot, type FxCurrency } from "@/lib/customs/fxParse";
 
 /** 계산기 입력값(입력칸 그대로의 문자열) */
 export interface MarginForm {
@@ -110,6 +111,8 @@ interface Props {
   selectedPlatform: Platform | null;
   selectedDetailUrl: string;
   onReset: () => void;
+  /** EC-W7: 관세청 과세환율 */
+  customsFx?: CustomsFxSnapshot;
 }
 
 export function MarginCalculatorPanel({
@@ -120,6 +123,7 @@ export function MarginCalculatorPanel({
   selectedPlatform,
   selectedDetailUrl,
   onReset,
+  customsFx,
 }: Props) {
   const marginResult = marginOf(form);
   // v1.27(E1): 마켓을 고르면 마켓 정산 공식(배송 방식·할인·추가 수수료·포장비·월 고정비)으로 이익을 낸다.
@@ -141,7 +145,6 @@ export function MarginCalculatorPanel({
   const activeDefaults = defaultsFor(selectedPlatform);
   const num = (v: string) => Number(v) || 0;
 
-  const dutyAndVatKrw = Math.round((num(form.sourcePrice) * (num(form.customsDutyRate) + num(form.vatRate))) / 100);
   const tone =
     marginPct >= 20
       ? { badge: "bg-[#047857]", box: "border-mx-success/30 bg-mx-success/10", text: "text-[#a7f3d0]" }
@@ -213,6 +216,8 @@ export function MarginCalculatorPanel({
       </p>
 
       <MarketSalesSection form={form} onChange={onChange} />
+
+      {!isDomestic && <ForeignCostBox customsFx={customsFx} onApply={(krw) => onChange("sourcePrice", String(krw))} />}
 
       <div className="grid grid-cols-2 gap-3 text-sm">
         <label className="space-y-1">
@@ -301,8 +306,10 @@ export function MarginCalculatorPanel({
               <p className="mb-1.5 text-xs font-bold text-mx-muted">최종 수입 단가 계산</p>
               <div className="space-y-1 text-mx-text">
                 <ReceiptRow label="원가" value={num(form.sourcePrice)} />
-                <ReceiptRow label={`+ 관세·부가세 (${num(form.customsDutyRate) + num(form.vatRate)}%)`} value={dutyAndVatKrw} />
                 <ReceiptRow label="+ 해외 운송비" value={num(form.shippingPerUnit)} />
+                <ReceiptRow label="= 과세가격(관세 기준)" value={marginResult.dutiableValueKrw} />
+                <ReceiptRow label={`+ 관세 (과세가격 × ${num(form.customsDutyRate)}%)`} value={marginResult.customsDutyKrw} />
+                <ReceiptRow label={`+ 부가세 ((과세가격 + 관세) × ${num(form.vatRate)}%)`} value={marginResult.importVatKrw} />
                 <ReceiptRow label="+ 국내 입고/검수비" value={num(form.domesticFee)} />
                 <div className="flex justify-between border-t border-dashed border-mx-border pt-1 font-bold text-mx-text">
                   <span>= 최종 수입 단가</span>
@@ -391,7 +398,45 @@ export function MarginCalculatorPanel({
 
       <p className="text-xs text-mx-muted">
         ※ 관세/부가세율은 품목·통관 방식에 따라 달라지는 추정치입니다. 실제 세율은 관세청 또는
-        세무사를 통해 확인해주세요.
+        세무사를 통해 확인해주세요. 품목별 참고 관세율은{" "}
+        <a href="/fees#tariff" className="font-semibold text-mx-link underline">수입 관세율 참고표</a>에 있습니다.
+        <br />※ 판매 목적 수입은 개인 소액 면세(자가사용)가 적용되지 않을 수 있어, 이 계산은 면세 없이 관세·부가세를 모두 넣었습니다.
+      </p>
+    </div>
+  );
+}
+
+/** EC-W7: 달러·위안 등 외화 원가 → 관세청 과세환율로 원화 환산(환율이 없으면 회원이 직접 입력) */
+function ForeignCostBox({ customsFx, onApply }: { customsFx?: CustomsFxSnapshot; onApply: (krw: number) => void }) {
+  const [currency, setCurrency] = useState<FxCurrency>("USD");
+  const [amount, setAmount] = useState("");
+  const official = customsFx?.rates[currency];
+  const [manualRate, setManualRate] = useState("");
+  const rate = official ?? (Number(manualRate) || null);
+  const krw = toKrw(Number(amount), rate);
+  const weekLabel = customsFx?.applyStart ? `${Number(customsFx.applyStart.slice(5, 7))}월 ${Number(customsFx.applyStart.slice(8, 10))}일 주` : null;
+  return (
+    <div className="space-y-2 rounded-lg border border-mx-border bg-mx-raised p-3 text-xs text-mx-text">
+      <p className="font-bold">💱 외화 원가로 넣기 <span className="font-normal text-mx-muted">(1688·타오바오·공장 견적 등 — 알리 검색 결과는 이미 원화)</span></p>
+      <div className="flex flex-wrap items-center gap-2">
+        <select value={currency} onChange={(e) => setCurrency(e.target.value as FxCurrency)} className="input-sm w-auto" aria-label="통화">
+          {FX_CURRENCIES.map((c) => (
+            <option key={c} value={c}>{FX_LABELS[c]}({c})</option>
+          ))}
+        </select>
+        <input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="금액" className="input-sm w-28" aria-label="외화 금액" />
+        {!official && (
+          <input type="number" min="0" step="0.01" value={manualRate} onChange={(e) => setManualRate(e.target.value)} placeholder={`1${FX_LABELS[currency]} = ?원`} className="input-sm w-32" aria-label="환율 직접 입력" />
+        )}
+        <span className="tabular-nums">= {krw == null ? "—" : `${krw.toLocaleString()}원`}</span>
+        <button type="button" disabled={krw == null} onClick={() => krw != null && onApply(krw)} className="rounded-lg bg-mx-primary px-3 py-1.5 font-bold text-white disabled:opacity-40">
+          원가에 넣기
+        </button>
+      </div>
+      <p className="text-[11px] text-mx-muted">
+        {official
+          ? `적용 환율 1${FX_LABELS[currency]} = ${official.toLocaleString()}원 (관세청 과세환율${weekLabel ? `, ${weekLabel}` : ""})`
+          : "관세청 과세환율을 아직 불러오지 못했습니다 — 환율을 직접 넣어 주세요(관세청 「관세환율」 조회 화면 참고)."}
       </p>
     </div>
   );
