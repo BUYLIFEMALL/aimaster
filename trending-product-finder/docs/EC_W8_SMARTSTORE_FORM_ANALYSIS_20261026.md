@@ -92,3 +92,4 @@
 - 숨은 파일 칸: `input[type=file]` `ngf-select="vm.uploadPhoto($files)"` `ngf-multiple=true` `ngf-pattern='.gif,.jpeg,.jpg,.png,.bmp'` `ngf-max-files=vm.maxUploadFileCount` `ngf-max-size=20MB`.
 - 보관함이 비어 있어 이미지 주소 모양은 미확인.
 - **판단**: 보관함 이미지가 3개월 보관이라, 그 주소를 상세설명 HTML에 넣으면 3개월 뒤 이미지가 사라질 위험 → 상세설명 이미지는 **스마트에디터 ONE 안에서 올리는 방식**(에디터에 올린 이미지는 상품 내용에 붙어 계속 보관)이 더 안전. 스마트스토어 상세설명 「스마트 에디터 ONE으로 작성」은 네이버 블로그와 같은 편집기라, 블로그 확장(`naver-blog-agent/extension/editor.js`)의 이미지 넣기 코드를 그대로 재사용할 수 있음(편집기 화면 저장본으로 확인 필요).
+- **보관함 사진 주소 확인(저장본 `…_사진보관함_사진등록.html`, 주인님 시험 업로드 1장)**: 목록 `li` `photo in vm.photoList` 안 `span` 배경 그림 `/shop1.phinf.naver.net/<날짜_번호>/<파일>.png?type=…` → 공개 주소 **`https://shop-phinf.pstatic.net/<같은 경로>`로 외부에서 200 열림**(`shop1.phinf.naver.net` 직접은 안 열림). 네이버 도메인이라 「외부 링크 자동 삭제」 대상은 아닐 것으로 보이나, **「3개월 보관」 뒤 주소가 계속 열리는지는 미확인** → 상세설명은 스마트에디터 ONE 방식 우선, 보관함+HTML은 대안.
