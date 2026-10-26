@@ -518,7 +518,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           telegramLinked: s.settingsCache ? !!s.settingsCache.telegram : null,
           latestVersion: s.settingsCache?.latestVersion || null,
           telegramFailed: !!s.telegramFailed,
-          recent: (s.log || []).slice(-6),
+          // 팝업 「최근 기록」은 쉬운 줄만(2026-10-26 주인님 — 「단지·지역 … 진단:」 개발용 줄이 중요한 줄을 밀어냄). 기록 자체는 그대로 남는다.
+          recent: (s.log || []).filter((l) => !/(단지|지역) \S+ 진단:/.test(String(l))).slice(-6),
         });
       }
       if (msg.type === "refreshSettings") {

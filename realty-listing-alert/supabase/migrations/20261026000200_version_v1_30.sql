@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.30: 카톡 글·버튼(변동 단지·그 단지 매물 목록), 실거래 저장분 규칙(빈 결과 3시간·규칙 버전), 팝업 기록에서 진단 줄 숨김 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.30', extension_version = 'v1.30', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
