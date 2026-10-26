@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-26T10:09:11.675Z",
+  "command": "node docs/analysis-naver-blog-neighbor-20261024/simulation/run-verification.mjs",
+  "nodeVersion": "v24.20.0",
+  "exitCode": 0,
+  "tests": 32,
+  "passed": 32,
+  "failed": 0,
+  "scope": "fictional search summaries and single-process in-memory queue only",
+  "productionDbConcurrencyVerified": false,
+  "rlsVerified": false,
+  "extensionVerified": false,
+  "externalApiCalls": 0,
+  "aiCalls": 0,
+  "productionWrites": 0,
+  "sourceHashEncoding": "UTF-8; CRLF normalized to LF",
+  "sourceSha256": {
+    "candidates.mjs": "990e26f77ec5373a887c30433a820e30544816f7fd7bf0ab68f105e9bdd48bb1",
+    "queue-model.mjs": "1395f72a93b9034e96431fc92fec6da1edad5348589c00e5d8d27d5c615474f4",
+    "preflight.test.mjs": "4e203bb276dfc5895859da595084be7ca9b3f2b7719600899851de085870031c",
+    "run-verification.mjs": "35cc922e793381e7eb77c1d4f4c3ed7ee6a57c5f8251f053b138db2e96a0a833"
+  }
+}
