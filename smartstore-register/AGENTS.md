@@ -23,7 +23,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 한계: 판매자센터 화면이 바뀌면 확장 수정 필요. **Claude 크롬 확장은 `sell.smartstore.naver.com`을 안전 제한으로 열지 못함** → 화면 확인은 주인님 캡처·저장본·확장 결과 기록으로 한다.
 
 ## 4. 버전·이력
-- v1.01 (2026-10-26, 배포 전): 뼈대 — 기본값·상품 불러오기·칸 미리보기·작업 만들기·기록·매뉴얼·30일 정리. 확장은 아직 없음(작업은 「확장 대기」로 쌓임). 시험 6개·tsc·build 통과.
+- v1.01 (2026-10-26, ✅ 배포 `smartstore-register-ij7pvrsnr`, DB 적용·도메인·환경변수 완료): 뼈대 — 기본값·상품 불러오기·칸 미리보기·작업 만들기·기록·매뉴얼·30일 정리. 확장은 아직 없음(작업은 「확장 대기」로 쌓임). 시험 6개·tsc·build 통과.
 
 ## 5. 남은 일 (다음 첫 단계부터)
 1. **주인님 승인 뒤**: 운영 DB에 마이그레이션 적용(크롬 SQL 편집기) → Vercel 새 프로젝트·도메인 `smartstore-register.buylife.xyz`·환경변수(Supabase 4개·`CRON_SECRET`, `shop-order-report`와 같은 값) → 배포 1회 → 시험 계정으로 화면 확인.
