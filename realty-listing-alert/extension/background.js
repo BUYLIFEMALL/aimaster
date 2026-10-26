@@ -320,12 +320,15 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   const DAY = 24 * 3600 * 1000;
   const now = Date.now();
   const { tradeCache = {} } = await get("tradeCache");
-  const need = tradeTargets.filter((t) => !tradeCache[t.key] || now - new Date(tradeCache[t.key].at).getTime() > DAY || tradeCache[t.key].name !== t.name);
+  // 2026-10-26: 못 맞춘 빈 결과를 하루 기억해 이름 규칙 보강(v1.29)이 하루 동안 안 쓰이던 문제 → 빈 결과는 3시간만, 규칙 버전이 바뀌면 바로 다시 묻는다
+  const TRADE_RULE_V = 2;
+  const stale = (c) => !c || c.v !== TRADE_RULE_V || now - new Date(c.at).getTime() > (c.bands?.length ? DAY : 3 * 3600 * 1000);
+  const need = tradeTargets.filter((t) => stale(tradeCache[t.key]) || tradeCache[t.key].name !== t.name);
   if (need.length) {
     try {
       const r = await api("/api/extension/trades", { method: "POST", body: JSON.stringify({ targets: need }) });
       if (r?.error === "no_key") await addLog("실거래 비교: 공공데이터 키가 없어 건너뛰었어요(웹 「API키등록·플랫폼연동」에서 등록할 수 있어요)");
-      for (const t of need) if (r?.results?.[t.key]) tradeCache[t.key] = { at: new Date().toISOString(), name: t.name, ...r.results[t.key] };
+      for (const t of need) if (r?.results?.[t.key]) tradeCache[t.key] = { at: new Date().toISOString(), name: t.name, v: TRADE_RULE_V, ...r.results[t.key] };
       if (r?.errors?.length) await addLog(`실거래 비교 알림: ${r.errors.join(" / ")}`.slice(0, 200));
       lastTradeDiag = Array.isArray(r?.diag) ? r.diag : null;
     } catch (e) {
