@@ -51,8 +51,9 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
-| `shop-detail-page` | v1.37 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-lkgk3d8zf`) | 대기 항목 없음 (본 작업: E3 상세페이지 편집 보강 `7be8c9583`) |
 |---|---|---|
+| `smartstore-register` | v1.01 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 2회 `smartstore-register-po82s56md`·`ij7pvrsnr`, 새 프로그램) | 대기 항목 없음 (본 작업: EC-W8 1단계 뼈대 `64ea89142`·화면 수정) |
+| `shop-detail-page` | v1.37 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-lkgk3d8zf`) | 대기 항목 없음 (본 작업: E3 상세페이지 편집 보강 `7be8c9583`) |
 | `seller-label-docs` | v1.04 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `seller-label-docs-84fsruei2`) | 대기 항목 없음 (본 작업: 개인정보 가리기 바로가기 `38180d0d9`) |
 | `shop-order-report` | v1.04 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-order-report-r59tb14xp`) | 대기 항목 없음 (본 작업: 개인정보 가리기 바로가기 `38180d0d9`) |
 | `shop-detail-page` | v1.36 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-7rl68h9iw`) | 대기 항목 없음 (본 작업: 누끼 결과 되돌려 넣기 `38180d0d9`) |

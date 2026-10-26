@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 새 프로그램 「스마트스토어 상품등록 자동화」 v1.01 (EC-W8 1단계)
+- 주인님 결정: 마켓마다 프로그램을 따로(「우선은 스마트스토어 상품등록 자동화 로 해보자」). 상세페이지 자동화 상품을 불러와 스마트스토어 「상품 등록」 칸에 넣을 값(15칸 안팎, `ng-model` 기준)을 미리 보여 주고 빠진 필수값을 경고, 스토어 기본값(원산지·A/S·고시·배송 템플릿) 1회 저장, 등록 방식(입력만·임시저장까지·바로 등록=기본 전시중지)으로 작업 만들기(진행 중 작업 있으면 거절), 등록 기록 30일 정리. 크롬 확장은 2단계.
+- 운영 등록: DB(① 운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기·저장) 표 `smartstore_register_defaults`·`smartstore_register_jobs`(RLS 본인만)·programs·요금제 3·VIP·시험 계정 30일(권한 145건), Vercel 새 프로젝트·환경변수 4개(값 미출력)·도메인. 썸네일은 아직 없음(이미지 생성 비용 — 별도 승인).
+- 검수: 시험 6·tsc·build, 운영 크롬(관리자 계정 본인 상품): 기본값 저장 → 상품 화면 15칸·할인 43,000원·판매자 코드 → 「입력만」 작업 생성 → 같은 상품 재전송 거절 → 기록에서 취소. 화면 문구 4곳 고쳐 2번째 배포. 시험 회원 계정 확인·휴대폰 폭 확인은 남음.
+- 커밋 `64ea89142`·화면 수정 커밋, 배포 `smartstore-register-po82s56md`·`smartstore-register-ij7pvrsnr` Ready, DB v1.01.
+- 다음 첫 단계: 주인님 시험 자료 2가지(HTML 작성 붙여 넣기 결과·이미지 창/카테고리 목록 저장본) → 2단계 크롬 확장. 상세 `smartstore-register/AGENTS.md` §5.
+- 링크: https://smartstore-register.buylife.xyz
+
 ## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실거래 투자분석 자동화 v1.22 배포(브이월드 도메인)
 - 한 일(`221172a2b`): 주인님이 브이월드 기존 인증키 도메인을 `n8n.buylife.xyz`→`real-estate-sales.buylife.xyz`로 변경 → 운영 환경변수 `VWORLD_REGISTERED_DOMAIN` 덮어쓰기(Vercel CLI, Overrode)·코드 기본값 맞춤·재배포. `N8N_VWORLD_PROXY_*`는 코드에서 안 쓰는 옛 값(삭제 안 함)
 - 검수: tsc 통과, 배포 Ready, DB v1.22. **미확인**: 배포 뒤 새 실거래가 아직 없어 브이월드 호출 전 — 다음 새 실거래의 `official_price` 채움 확인
