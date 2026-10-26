@@ -36,3 +36,11 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 
 ## 7. 디자인
 「스토어 등록 워크벤치 스타일」 — `shop-order-report`의 셀러 워크벤치(흰 바탕) 구조에 스마트스토어 초록(`--accent: #047857`). 상세: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md). 디자인 다듬기는 디자인 담당(agy)에게.
+
+## 2026-10-26 v1.02 — EC-W8 2단계 크롬 확장 (Claude Code 윈도우 `claude-win-sdp`)
+- 크롬 확장 v1.02 — 「확장 연결」 화면(ZIP 받기·설치 확인·버튼 한 번 연결, 토큰은 해시로만 저장), 30초마다 작업 받기(서버가 한 번만 넘김), 판매자센터 「상품 등록」 탭에서 카테고리·상품명·판매가·즉시할인·재고·대표 이미지·상세설명(스마트에디터 ONE에 섹션 이미지 순서대로)·고시·A/S·판매자 코드 입력, 칸 하나라도 실패하면 저장 버튼 안 누름, 결과·멈춘 칸 보고. 배송 템플릿 고르기·추가 이미지·옵션은 아직 수동.
+- 서버: `src/lib/extension/token.ts`(sha256 해시·토큰→회원→이용 권한 재확인) · `/api/extension/auth`(GET 번호 10분·POST 토큰 교환·DELETE 끊기) · `/task`(「확장 대기」→「입력 중」으로 먼저 바꾼 작업만, 이미지 15분 서명 주소) · `/finish`(「입력 중」인 본인 작업만) · `/version`. DB `supabase/migrations/20261026_ext_tokens_v1_02.sql`(표 `smartstore_register_ext_tokens`, 회원 정책 없음 = 서버만).
+- 확장 `extension/`: `manifest.json`(v1.02) · `background.js`(작업·칸 채우기 `pageCommand` — ng-model로 칸 찾기, selectize 고르기, 「내 사진」 파일 칸, 스마트에디터 ONE 사진은 블로그 확장 `editor.js` 방식) · `web-bridge.js` · `popup.*`. ZIP은 `npm run build` 앞에 `scripts/build-extension-archive.mjs`가 자동 생성(`public/downloads/`, 로그인 검사 제외 `proxy.ts`).
+- 검수: tsc·시험 6·build, 운영 ZIP 검증 `check-extension-release` OK(DB·확장·ZIP v1.02), 서버 주소 토큰 없음·가짜 토큰·로그인 없음 401, 잘못된 번호 400. **실제 스마트스토어 입력 시험은 주인님 크롬에서**(Claude 크롬 확장은 판매자센터를 열 수 없음).
+- 커밋 `bcab98b7c`·ZIP 경로 수정, 배포 `smartstore-register-q5ufh2eud`·`4cj06wxgp`, DB v1.02(확장 버전·다운로드 주소 포함).
+- 다음: 주인님 설치·연결 → 시험 상품 「입력만」 1회 → 멈춘 칸 보고 보며 칸 찾기 보정(이름이 다른 칸, 카테고리 목록 고르기, 할인 금액 칸).
