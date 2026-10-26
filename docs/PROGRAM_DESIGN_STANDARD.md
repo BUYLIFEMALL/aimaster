@@ -458,3 +458,47 @@ API 키 등록과 엔진/모델 선택이 들어가는 모든 프로그램은 �
 
 
 
+
+
+## 12. 네이버 블로그 최적 색상 톤·채도 규격 (2026-10-26 주인님 지시)
+
+> **2026-10-26 주인님 지시:** 「그리고 네이버 블로그 경우 이정도 색상톤과 채도가 적당에 다음 작업 할때 반영해줘」  
+> **기준 레퍼런스:** `realty-listing-alert` (부동산 실시간 매물 알림 v1.33)
+
+### 핵심 배색 토큰 규격
+1. **메인 시그니처 그린 (Main Action & Brand Point)**:
+   - 색상값: `#00b050` ~ `#00c73c`
+   - 특성: 과도하게 어둡거나 칙칙하지 않고, 눈이 편안하면서도 상쾌하고 시인성이 뛰어난 네이버 고유의 산뜻한 그린.
+   - 적용 위치: 핵심 실행 버튼(`.btn-3d-naver`), 좌측 사이드바 확장 다운로드 버튼(`.nav-download`), 상단 헤더 칩.
+2. **소프트 서피스 틴트 (Soft Surface & Banner Background)**:
+   - 색상값: `#ebfbee` ~ `#edfbf3`
+   - 특성: 장시간 작업 시에도 눈이 피로하지 않은 부드럽고 차분한 페일 세이지 그린.
+   - 적용 위치: 상단 상태 배너, 활성화된 사이드바 메뉴 배경, 안내 박스.
+3. **보더 및 구분선 (Border Lines)**:
+   - 색상값: `#d1f2dc` (그린 틴트 보더) 및 `#e2e8f0` (슬레이트 보더).
+4. **타이포그래피 (Text Colors)**:
+   - 본문 텍스트: `#1e293b` (딥 슬레이트 블랙)
+   - 포인트 텍스트: `#008a38` (차분한 딥 그린)
+   - 서브 텍스트: `#64748b` (소프트 슬레이트)
+5. **3D 엠보싱 네이버 버튼 규격 (`.btn-3d-naver`)**:
+   ```css
+   .btn-3d-naver {
+     background: linear-gradient(180deg, #00c73c 0%, #00a843 100%) !important;
+     color: #ffffff !important;
+     font-weight: 800 !important;
+     border: 1px solid #34d399 !important;
+     box-shadow: 0 4px 0 #007a30, 0 6px 14px rgba(0, 199, 60, 0.35) !important;
+     border-radius: 0.75rem !important;
+     transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+   }
+   .btn-3d-naver:hover {
+     transform: translateY(-1.5px);
+     box-shadow: 0 5.5px 0 #007a30, 0 8px 18px rgba(0, 199, 60, 0.45) !important;
+   }
+   .btn-3d-naver:active {
+     transform: translateY(3px) !important;
+     box-shadow: 0 1px 0 #007a30 !important;
+   }
+   ```
+6. **적용 대상**:
+   - 네이버 블로그 자동화군 전체 (`ai-auto-blog`, `blog-content-maker`, `blog-workroom`, `naver-blog-seo-studio`, `naver-blog-allinone`) 및 네이버 카페, 네이버 연동 전체 프로그램.
