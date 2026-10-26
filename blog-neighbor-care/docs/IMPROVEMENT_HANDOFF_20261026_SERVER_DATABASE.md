@@ -1,5 +1,22 @@
 # 서버·DB 1번 — 구현·검수 인수인계
 
+## 23:13 운영 직접 재조회 — 미적용 확인
+
+- 사용자 「확인해봐」에 따라 Supabase 연결 도구로 운영 ref `esgxyikcnnvmlhygjkth`에 읽기 전용 메타데이터 SELECT를 실행했습니다. 결과 `private_schema=false`, `table_count=0`, `dispatcher=null`입니다. 신규 스키마·6표·RPC는 아직 없습니다.
+- 생성 SQL 실행·삭제·라이브 활성화·빌드·배포·AI 호출은 0입니다. RLS/권한/runtime 검수는 객체 생성 후 진행하며, 현재 1번 운영 완료로 표시하지 않습니다.
+- 주인님 Run 지정은 그대로입니다. 기존 요청 `6eecd22c-9423-45f4-8b3e-1ab6d479a371`이 대기 중이므로 중복 요청을 만들지 않습니다. [적용 안내](APPLY_20261026_SERVER_DATABASE.md)의 검수본 전체를 운영 SQL 편집기에서 실행한 뒤 다시 읽기 검수합니다.
+- 기록: Codex `codex-win-20261026-blog-check`, 2026-10-26 23:13 KST. 브라우저 조작 없이 운영 DB 직접 조회.
+
+
+
+
+
+
+
+
+
+
+
 2026-10-26 · Codex `codex-win-20261025-blog` [역할: blog]. 주인님의 「순서대로 하나씩 진행해」에따라1번만진행. ① AIMaster 운영대상 ref `esgxyikcnnvmlhygjkth`, **운영은기존객체중복여부읽기만했으며스키마/프로그램/회원/키변경0**. 현재로컬구현/검수완료·운영Run대기입니다.
 
 ## 결과와 검수

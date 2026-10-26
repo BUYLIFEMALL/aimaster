@@ -12,6 +12,8 @@
 
 ## 지금 하는 일
 
+**2026-10-26 23:13 재개 확인:** 운영 ref `esgxyikcnnvmlhygjkth`를 Supabase 연결 도구로 직접 SELECT한 결과 `private_schema=false / table_count=0 / dispatcher=null`. 운영 미적용·주인님 Run 대기 유지(요청6eecd22c). 생성/삭제/라이브/빌드/배포0. 마지막 확인 갱신: Codex `codex-win-20261026-blog-check`.
+
 **최신 진행 결과:** 주인님순서1에따라 blog-neighbor-care 서버/API·신규6표/RLS/서버전용RPC를구현, API14·실제PG28·실제NextHTTP6=48개/타입/최종로컬빌드 통과. [상세인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 운영DB는미적용·미배포, 원본인수인계의Run주인님규칙에따라 DB요청6eecd22c 대기. 앱UI/확장/AI/정책허용/운영회원E2E미완료.
 
 **앞선 분석 결과:** [신규개발·병합·연계 공통 인수인계](../analysis-blog-consolidation-20261020/HANDOFF.md)와 [최신 전체 분석](../analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025). 주인님 후속 지시로 개별 구현보다 분석을 먼저 완료했고, 콘텐츠메이커③-2 단독 발행 플랜은 후보 보존/재검토 상태입니다.

@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 23:13 [역할: blog] Codex — 이웃 소통 운영DB 재조회: 미적용
+- 사용자 「확인해봐」에 따라 운영 ref `esgxyikcnnvmlhygjkth`를 Supabase 연결 도구로 직접 읽기 조회. `private_schema=false`, 신규6표 개수 `0`, `dispatcher=null`. 운영 적용 완료 아님.
+- 주인님 SQL Run 지정·기존 DB 요청 `6eecd22c-9423-45f4-8b3e-1ab6d479a371` 대기 유지. 다음은 검수 생성 SQL을 주인님이 실행한 뒤 RLS/권한/runtime=false 읽기 검수. 중복 요청 없음.
+- 세션 `codex-win-20261026-blog-check`. 운영 생성/삭제/라이브 활성화/AI/빌드/배포0. [상세 기록](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용 안내](../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md).
+
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 새 프로그램 「스마트스토어 상품등록 자동화」 v1.01 (EC-W8 1단계)
 - 주인님 결정: 마켓마다 프로그램을 따로(「우선은 스마트스토어 상품등록 자동화 로 해보자」). 상세페이지 자동화 상품을 불러와 스마트스토어 「상품 등록」 칸에 넣을 값(15칸 안팎, `ng-model` 기준)을 미리 보여 주고 빠진 필수값을 경고, 스토어 기본값(원산지·A/S·고시·배송 템플릿) 1회 저장, 등록 방식(입력만·임시저장까지·바로 등록=기본 전시중지)으로 작업 만들기(진행 중 작업 있으면 거절), 등록 기록 30일 정리. 크롬 확장은 2단계.
 - 운영 등록: DB(① 운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기·저장) 표 `smartstore_register_defaults`·`smartstore_register_jobs`(RLS 본인만)·programs·요금제 3·VIP·시험 계정 30일(권한 145건), Vercel 새 프로젝트·환경변수 4개(값 미출력)·도메인. 썸네일은 아직 없음(이미지 생성 비용 — 별도 승인).
