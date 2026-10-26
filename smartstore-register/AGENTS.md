@@ -52,3 +52,11 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 알게 된 것: ① 판매자센터 섹션은 접히면 칸이 DOM에 없음 → `div.title-line`(ncp-click `vm.openMenuToggle()`) 클릭 ② 에디터는 `window.open` 팝업 → 확장 click은 사람 동작이 아니라 크롬이 차단 → 회원이 팝업 허용 1회 ③ 스마트 에디터 사진 버튼은 화면에 붙이지 않은 `input[type=file]`을 만들어 `click()` → MAIN에서 `HTMLInputElement.prototype.click`을 잠깐 바꿔 받아 파일 넣기 ④ 확장이 연 탭이 Claude 작업 창(뒤쪽)에 열려 안 보였음 → `chrome.windows.create({focused, maximized})`.
 - 검수: tsc·시험 6·build, 운영 배포 `smartstore-register-isi1praid` Ready, DB v1.03·확장 v1.03(크롬 SQL 편집기), `check-extension-release` OK(zip v1.03), 운영 「확장 연결」 화면 크롬 확인(연결됨·팝업 안내·새 버전 알림).
 - 남은 일: 배송 템플릿 고르기(템플릿 고르는 화면 저장본 필요), 「임시저장까지」·「바로 등록」 실제 시험, 추가 이미지·옵션, 시험 상품 기본값의 시험값(02-0000-0000·시험 배송 템플릿) 정리.
+
+## 2026-10-27 v1.04 — 배송 칸 자동 입력, 「입력만」 18칸 전부 성공 (Claude Code 윈도우 `claude-win-sdp`)
+- 배송 칸 자동 입력 — 템플릿 이름이 있으면 「배송비 템플릿」 목록 창에서 「선택」, 없으면 택배사·배송비 종류·기본 배송비·무료 조건 금액 직접 입력(기본값 화면 칸 4개 추가). 예전 코드가 노리던 `vm.savedTemplate['DELIVERY']`는 고르는 칸이 아니라 「템플릿 추가」 체크 상자였음을 저장본으로 확인. 확장이 `X-Ext-Version`을 보내고 서버는 새 동작이 든 작업을 v1.04 미만 확장에 넘기지 않음. **실제 「입력만」 시험: 18칸 전부 자동 입력, 멈춘 칸 0**(택배사·배송비는 selectize라 화면 목록을 열어 정확히 같은 보기를 누르도록 보정 — 이 보정은 미배포 대기).
+- 시험 경과: 1회차(v1.04 배포본) 택배사·배송비 「고른 값이 반영되지 않았습니다」 — 두 칸 모두 `select.selectized`(진짜 select를 화면 밖에 숨기고 selectize 목록을 덮음)라 숨은 값을 바꾸면 되돌려짐 → 화면 목록을 열어 글자가 정확히 같은 보기를 누르고 화면 값으로 확인(택배사 목록에 「CJ대한통운(새벽배송)」·「CJ대한통운」이 함께 있음). 2회차 멈춘 칸 0.
+- 주인님 판매자센터에는 배송비 템플릿이 0개(목록 창 저장본으로 확인) → 템플릿 고르기 방법은 템플릿을 하나 만든 뒤 시험해야 함.
+- 검수: 시험 9개·tsc·build, 운영 배포 `smartstore-register-c2zo2h21x` Ready, DB·확장·ZIP v1.04(`check-extension-release` OK), 크롬에서 기본값 화면 저장·새로고침 확인, 「입력만」 실제 시험(작업 기록 18칸 통과).
+- 미배포 대기: selectize 고르기 보정(`extension/background.js`), 기본값 저장 직후 배송비 상자 표시 보정(`DefaultsForm.tsx`). 주인님 PC 확장은 저장소 폴더에서 바로 로드돼 이미 적용됨. 다음 배포(v1.05) 때 ZIP에 함께.
+- 남은 일: 템플릿 고르기 실제 시험(템플릿 1개 필요), 「임시저장까지」·「바로 등록」 실제 시험, 추가 이미지·옵션, 쿠팡용.
