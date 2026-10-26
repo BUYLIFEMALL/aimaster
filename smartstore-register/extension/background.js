@@ -247,7 +247,9 @@ async function findEditorTab(productTabId) {
 }
 
 async function openCreateTab() {
-  const tab = await chrome.tabs.create({ url: CREATE_URL, active: true });
+  // 항상 화면 맨 앞에 새 창으로 연다 — 다른(뒤쪽) 창의 탭에 열리면 회원이 진행을 볼 수 없다(포그라운드 원칙).
+  const win = await chrome.windows.create({ url: CREATE_URL, focused: true, state: 'maximized' });
+  const tab = win.tabs[0];
   for (let t = 0; t < 45; t++) {
     await wait(1000);
     const r = await run(tab.id, 'ready').catch(() => ({ ok: false }));
@@ -302,6 +304,8 @@ async function runJob(job) {
             const d = await run(editorTab, 'editorDone').catch(() => ({ ok: true })); // 창이 닫히면 실행 오류 — 정상 종료로 봄
             if (r.ok && !d.ok) r = d;
             await chrome.tabs.update(tabId, { active: true }).catch(() => {});
+            const t2 = await chrome.tabs.get(tabId).catch(() => null);
+            if (t2) await chrome.windows.update(t2.windowId, { focused: true }).catch(() => {});
             await wait(1500);
           }
         }
