@@ -70,8 +70,12 @@ export function ExtensionConnect() {
         <div className="slw-card p-4">
           <p className="text-[11px] font-black text-emerald-700">STEP 3</p>
           <p className="mt-1 font-extrabold text-slate-900">🔗 내 계정과 연결</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-600">버튼 한 번이면 이 계정 전용 연결 번호(10분)를 만들어 확장에 넘깁니다. 비밀번호·판매자 키는 쓰지 않습니다.</p>
-          <button type="button" onClick={() => void connect()} disabled={busy || !installed} className="slw-primary mt-3 w-full">{busy ? "연결 중…" : "🔗 확장 연결하기"}</button>
+          {installed?.connected ? (
+            <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-sm font-extrabold text-emerald-800">✅ 내 계정과 연결됨</p>
+          ) : (
+            <p className="mt-1 text-xs leading-relaxed text-slate-600">버튼 한 번이면 이 계정 전용 연결 번호(10분)를 만들어 확장에 넘깁니다. 비밀번호·판매자 키는 쓰지 않습니다.</p>
+          )}
+          <button type="button" onClick={() => void connect()} disabled={busy || !installed} className={`${installed?.connected ? "slw-btn" : "slw-primary"} mt-3 w-full`}>{busy ? "연결 중…" : installed?.connected ? "🔄 다시 연결하기" : "🔗 확장 연결하기"}</button>
         </div>
       </div>
       {note && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-[13px] font-bold text-emerald-900">{note}</p>}
