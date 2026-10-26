@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 📜 [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — [지침 신설] 작업 완료 시 최종 결과물 확인 링크 5대 세트 의무 표기 규칙 등록
+- **주인님 지시**: 「앞으로는 작업이 끝나면 최종 결과물을 볼수 있도록 작업결과물을 이렇게 보여줘 디자인 리뉴얼 작업지침에 추가해」
+- **반영 문서**:
+  1. `DESIGN.md`: 최상단 헌장 및 원칙 28번(작업 완료 시 최종 결과물 확인 링크 및 자산 경로 의무 표기 규격) 공식 신설.
+  2. `docs/PROGRAM_DESIGN_STANDARD.md`: §9 작업 완료 시 최종 결과물 확인 링크 및 자산 경로 의무 표기 규격 신설.
+  3. `AGENTS.md` & `GEMINI.md`: 최상위 배너에 공식 등재 (모든 에이전트/모든 CLI 공통 준수).
+- **필수 5대 링크 세트**:
+  - 🌐 공식 운영 서비스 링크 (`https://<프로그램명>.buylife.xyz`)
+  - 🌐 Vercel 프로덕션 보조 링크 (`https://<프로그램명>.vercel.app`)
+  - 📮 관리자 dev-docs 작업 결과함 (`https://www.buylife.xyz/admin/dev-docs/requests`)
+  - 🎨 브라우저 쇼케이스 HTML 링크 (`file:///D:/Antigravity/Design/...`)
+  - 📁 로컬 영구 자산 폴더 경로 (`D:\Antigravity\Design\...`)
+- **비용**: 지침 문서 갱신 작업으로 비용 0원.
+
 ## 2026-10-26 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — naver-blog-seo-studio 4대 화면 3시안 검수·네이버 스마트 그린 저널 템플릿 확정 적용·포스팅 3종 모드 & 3D 버튼 탑재 v2.21 배포 완료
 - **주인님 지시**: 「1번 좋네 진행해」 — 4대 화면 3시안(12개 뷰) 사전 보고 아티팩트(`NAVER_BLOG_SEO_STUDIO_12VIEWS_PROPOSAL.md`) 중 1번 네이버 스마트 그린 저널 스타일 확정 승인.
 - **구현 내용**:
