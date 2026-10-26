@@ -51,3 +51,10 @@
 
 ## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
 - 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).
+
+## 2026-10-26 v1.83 — 보안 업데이트·운영 반영(Codex)
+
+- Next.js/eslint-config-next16.4.2·sharp0.35.5 적용, React19.2.4 유지. 코드 6728a83ab; 새 UI/게시 엔진을 만들지 않았고 기존 작업을 보존했습니다.
+- 무료 검사188개·tsc·로컬빌드 통과 → 팀 빌드0 확인 뒤 한 곳씩 배포 → READY/공식alias·HTTP 버전·인증 응답·DB/확장/라이브ZIP v1.83 OK. 최근15분 운영 오류 기록0.
+- Vercel 빌드1회(인수인계 앱별1회 승인), AI/이미지/영상 생성0. 운영 ref esgxyikcnnvmlhygjkth의 programs 해당1행만 이전버전/예상다운로드URL 조건으로 갱신했고 배포 도우미의 ops집계 갱신 포함. 회원원고/키/연결/권한/스키마 변경0, 실제 입력/발행/예약0.
+- [세 앱 공통 근거](../../docs/analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json)·[이 앱 검사](../../docs/analysis-blog-consolidation-20261020/evidence/ai-auto-blog-security-tests-20261026.json). 실제 회원 화면/확장 설치본 검수는 별도입니다.

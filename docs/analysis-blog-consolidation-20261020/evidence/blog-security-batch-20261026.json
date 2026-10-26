@@ -1,0 +1,160 @@
+{
+  "session": "codex-win-20261025-blog",
+  "ref": "esgxyikcnnvmlhygjkth",
+  "apps": [
+    {
+      "slug": "ai-auto-blog",
+      "before": "v1.82",
+      "version": "v1.83",
+      "nextBefore": "16.2.10",
+      "tests": 188,
+      "types": "passed",
+      "localBuild": "passed",
+      "state": "READY",
+      "codeCommit": "6728a83ab",
+      "deployment": "dpl_BfYdEZcDK5hq3UfeFLMdA8B2kJQ7",
+      "deploymentUrl": "ai-auto-blog-7lfw1kigj-buylife.vercel.app",
+      "alias": "ai-auto-blog.buylife.xyz",
+      "http": {
+        "guide": 200,
+        "guideVersion": "v1.83",
+        "settings": 307,
+        "whoami": 401
+      },
+      "metadataSynchronized": true,
+      "releaseCheck": "OK",
+      "vercelBuilds": 1
+    },
+    {
+      "slug": "tistory-auto-blog",
+      "before": "v1.92",
+      "version": "v1.93",
+      "nextBefore": "16.2.10",
+      "tests": 175,
+      "types": "passed",
+      "state": "READY",
+      "vercelBuilds": 1,
+      "codeCommit": "c0e151740",
+      "localBuild": "passed",
+      "deployment": "dpl_C8bqVkeqBeXtHyrm3PR26GV1ubxn",
+      "deploymentUrl": "tistory-auto-blog-rz2f4xot2-buylife.vercel.app",
+      "alias": "tistory-auto-blog.buylife.xyz",
+      "metadataSynchronized": true,
+      "releaseCheck": "OK",
+      "http": {
+        "guide": 200,
+        "guideVersion": "v1.93",
+        "settings": 307,
+        "whoami": 401
+      }
+    },
+    {
+      "slug": "naver-blog-allinone",
+      "before": "v1.53",
+      "version": "v1.54",
+      "nextBefore": "16.2.11",
+      "state": "READY",
+      "vercelBuilds": 1,
+      "tests": 33,
+      "types": "passed",
+      "localBuild": "passed",
+      "deployment": "dpl_CU6cnigNbVBFuTVCt5NgWXSLFv2q",
+      "deploymentUrl": "naver-blog-allinone-jjt1xmd5j-buylife.vercel.app",
+      "alias": "naver-blog-allinone.buylife.xyz",
+      "codeCommit": "d490b437a",
+      "http": {
+        "root": 200,
+        "version": "v1.54",
+        "posts": 401
+      },
+      "metadataSynchronized": true,
+      "releaseCheck": "OK"
+    }
+  ],
+  "seo": {
+    "deployment": "dpl_BevpHTXU6tRVJtP3X5wYH6U5Uufb",
+    "sourceVersion": "v2.21",
+    "ready": true,
+    "owner": "agy-win-20261025-ext3d",
+    "next": "16.3.5",
+    "beforeMetadata": "v2.20",
+    "afterMetadata": "v2.21",
+    "metadataOnly": true,
+    "sourceChangedByCodex": false,
+    "ownDeployments": 0
+  },
+  "finalReleaseCheck": {
+    "programs": 6,
+    "exitCode": 0
+  },
+  "runtimeChecks": [
+    {
+      "slug": "ai-auto-blog",
+      "noErrors": true
+    },
+    {
+      "slug": "tistory-auto-blog",
+      "noErrors": true
+    },
+    {
+      "slug": "naver-blog-allinone",
+      "noErrors": true
+    }
+  ],
+  "at": "2026-10-26T01:53:05.907Z",
+  "target": {
+    "next": "16.4.2",
+    "eslintConfigNext": "16.4.2",
+    "sharp": "0.35.5"
+  },
+  "testsTotal": 396,
+  "cost": {
+    "vercelBuildsThisTurn": 3,
+    "previousAgentBuilds": 1,
+    "totalBlogSecurityBuilds": 4,
+    "aiCalls": 0,
+    "approval": "담당 인계§4 프로그램별1회 승인 범위"
+  },
+  "database": {
+    "projectRef": "esgxyikcnnvmlhygjkth",
+    "programMetadataRows": 4,
+    "memberContentWrites": 0,
+    "tokenWrites": 0,
+    "keyWrites": 0,
+    "permissionsWrites": 0,
+    "schemaWrites": 0,
+    "opsOverview": "deploy.mjs 집계 갱신"
+  },
+  "browser": {
+    "windowId": 1838288,
+    "pid": 36584,
+    "webVersion": "v2.22",
+    "webAccount": "buylifemall@gmail.com",
+    "installedExtension": "v2.21",
+    "observedScreen": "v2.22 설정 화면 읽기·캡처 성공",
+    "syntheticNavigation": "not verified; address changed but body stayed new-tab",
+    "numericTargetError": "stale element frame",
+    "dedicatedObservationSession": "codex-win-20261025-blog-edge",
+    "osForegroundCheck": {
+      "wasForeground": false,
+      "focusRequestSucceeded": false,
+      "isForeground": false
+    },
+    "manualForegroundRequested": true,
+    "loginChanged": false,
+    "extensionFilesChanged": false,
+    "connectionsChanged": false,
+    "sent": 0,
+    "published": 0,
+    "scheduled": 0
+  },
+  "officialSources": [
+    "https://nextjs.org/blog/nextjs-security-update-october-14-2026",
+    "https://github.com/vercel/next.js/releases/tag/v16.4.2"
+  ],
+  "limits": [
+    "HTTP/모의/빌드 성공은 시험회원 실제 입력/발행/예약 성공과 다름",
+    "SEO source16.3.5 보안 패치는 agy 예약 폴더라 미수정, 운영 메타만 v2.21 일치 정정",
+    "앞서 있던 SEO 미커밋 삭제는 현재 git status clean으로 확인. Codex 복구/삭제0"
+  ]
+}
