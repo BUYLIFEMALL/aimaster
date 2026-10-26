@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.32 배포
+- 한 일: ① 수집 도중 확장 업데이트로 저장소에 남은 「수집 중 n/m」을 서비스 워커가 자동 정리(「지금 수집」 잠김 해결, `529704800`) ② 팝업 시험 계정 표시를 노란 배지로 강조(주인님 「잘 안 보여」, `fac9120fd`) ③ 「실거래 비교」 줄에 자료 없는 단지 이름 기록(`885d541c6`)
+- 검수: 시험 63개·tsc·빌드 통과, 배포 Ready, 운영 DB v1.32(크롬 SQL 편집기), `check-extension-release` OK(DB·확장·ZIP v1.32). 실측(v1.31 확장): 실거래 비교 9/10곳·매매 587건 「실거래 대비」, 시험 계정 245페이지 정상
+- 남은 일: 확장 v1.32 덮어쓰기 뒤 「자료 없음」 단지 이름 확인 → 이름 맞추기(`lib/trades.ts`) 보완 판단. 예외 계정이 300 넘길 때 네이버 확인 화면 감시
+- 링크: https://realty-listing-alert.buylife.xyz · 비용: Vercel 빌드 1회(주인님 승인)
+
 ## 2026-10-26 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — blog-content-maker 네이버 그린(#03c75a) & 파란색/매뉴얼 배너 톤다운 및 포스팅 3종 모드·3D 버튼 탑재 v1.13 배포 완료
 - **주인님 지시**: 「C:\Users\ADMINI~1\AppData\Local\Temp\orca-paste-1792985257519-0e883917-cc97-408f-b4d7-ddc271aaea89.png 녹색 톤이 너무 진해 네이버 톤으로 맞춰」「전체적으로 파란색도 너무 진해 조금 채도를 낮추어 부드러운 이미지 느낌을 살려줘 C:\Users\ADMINI~1\AppData\Local\Temp\orca-paste-1792985323983-23237eb1-f48e-4a90-98fa-3f6b9e2a0fb5.png 여기도 톤다운」 반영.
 - **구현 내용**:
