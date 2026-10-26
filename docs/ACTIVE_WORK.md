@@ -23,8 +23,6 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `trending-product-finder/` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-26 | EC-W7 과세환율·관세 계산·관세율 참고표·점수 알림(플랜 `trending-product-finder/docs/PLAN_20261026_EC_W7_FX_TARIFF_ALERT.md`, 승인: DB 2건·환경변수 1개·빌드 최대 2회) |
-| `ai-auto-blog/` · `tistory-auto-blog/` · `naver-blog-allinone/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 연속 배포 중(총3개·BLOG 완료): 묶음E BLOG→티스토리→올인원 순차 로컬검사/배포(각1회 승인). 기존 디자인/분량 대기분 포함, SEO UI/소스는 agy 담당으로 수정 안 함 |
-| `trending-product-finder/` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-26 | EC-W7 과세환율·관세 계산·관세율 참고표·점수 알림(플랜 `trending-product-finder/docs/PLAN_20261026_EC_W7_FX_TARIFF_ALERT.md`, 승인: DB 2건·환경변수 1개·빌드 최대 2회) |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 보안4앱 완료(BLOG1.83·티스토리1.93·올인원1.54·agent2.22), SEO16.3.5만 남음. 실제 입력은 OS 전경 요청false·Gmail/설치2.21이라 주인님 직접 Edge 포커스/시험회원 연결·옛8연결해제 답변 대기. 인계§12 |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
