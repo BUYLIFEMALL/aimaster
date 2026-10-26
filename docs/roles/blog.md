@@ -4,7 +4,7 @@
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. 세션 `codex-win-20261026-blog-check`.
+- 마지막 갱신: 2026-10-27 자료미리보기API 로컬구현·검수완료: 검색요약 사전선별/회원제공본문 정리, 단위31·실제NextHTTP12·타입/빌드 통과. 실계정/본문/관계검수·AI/UI/배포 미완료. 세션 `codex-win-20261026-blog-check`.
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -12,7 +12,7 @@
 
 ## 지금 하는 일
 
-**최신:** 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. 다음은 2번 읽기검수의 허용자료·본인Edge 준비 확인. 이전Run대기는 해소됐으며 아래 과거시각 기록은 이력입니다.
+**최신:** 2026-10-27 자료미리보기API 로컬구현·검수완료: 검색요약 사전선별/회원제공본문 정리, 단위31·실제NextHTTP12·타입/빌드 통과. 실계정/본문/관계검수·AI/UI/배포 미완료. [상세](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md) Edge전경확인성공, 네이버로그인은 시험회원과불일치. 직접전환답변대기·외부본문수집0.
 
 **최신 진행 결과:** 주인님순서1에따라 blog-neighbor-care 서버/API·신규6표/RLS/서버전용RPC를구현, API14·실제PG28·실제NextHTTP6=48개/타입/최종로컬빌드 통과. [상세인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 운영DB 적용·읽기검수는23:47 완료, DB요청6eecd22c 처리완료. 앱은미배포. 앱UI/확장/AI/정책허용/운영회원E2E미완료.
 
@@ -36,10 +36,12 @@
 | `naver-blog-agent` | E-2 회원 선택 빠른 입력(보류) | 재개 결정 | 같은 플랜 |
 | `naver-blog-seo-studio` | 도톨이 2차(이전 글 비교·스타일 점수·이미지 노드), N7·N13 | 결정 | `naver-blog-seo-studio/docs/PLAN_20261024_DOTORI_D1_D4.md` |
 | 워드프레스·블로그스팟 | 같은 기준으로 기존 프로그램 있는지 점검 | 아래 여쭐 것 답 | 루트 핵심 지침 |
-| `blog-neighbor-care`(신규) | 1번서버/DB 로컬48개·운영6표/RLS/RPC/runtime=false 검수완료 | 2번 본문/이웃피드/관계 허용수단·본인Edge 읽기검수, 프로그램등록/SSO후속 | [자체인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용안내](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md) |
+| `blog-neighbor-care`(신규) | 1번서버/DB 로컬48개·운영6표/RLS/RPC/runtime=false 검수완료 | 자료미리보기API 로컬완료. 본문/관계 허용수단·본인Edge계정일치 및 프로그램등록/SSO후속 | [자체인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용안내](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md) |
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+
+- 2026-10-27: 자료미리보기API 구현·단위31/HTTP12·타입/빌드 통과(미배포), 실계정/AI분석은미완료.
 
 - 2026-10-26: 이웃소통 운영SQL 적용·읽기검수 완료, 직접Run 요청6eecd22c 해소. 앱배포/실제소통은 미완료.
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
@@ -58,7 +60,7 @@
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-**최신 이웃 소통 우선 단계:** 1번운영적용/읽기검수 완료 → 2번 허용자료·본인Edge 읽기검수. 검색요약과 전문/관계를 구분. 이후 프로필/AI·디자인시안·확장 순서, 타세션5번 제외.
+**최신 이웃 소통 우선 단계:** 1번운영완료·2번자료미리보기 로컬구현완료 → 본인Edge계정일치/허용자료 실제읽기검수. 검색요약과 전문/관계를 구분. 이후 프로필/AI·디자인시안·확장 순서, 타세션5번 제외.
 0. OS 실제 전경 확인: 엣지 전경 전환 요청 실패(false), 주인님이 작업표시줄에서 Edge를 직접 클릭해 앞에 두기. 화면 읽기/캡처 성공만으로 전경 성공으로 보지 않음. v2.22 웹 화면/설치확장 업데이트 상태를 확인(최근 실제 설치 확인은v2.21). 키 입력이 막힌 상태에서 반복 강제포커스 금지.
 1. 주인님 답변/관리자 요청 상태 확인 → Edge 시험 계정·확장·네이버 계정 대조. 기존8연결 폐기는 명시 답변이 있어야 하며 새 Edge 연결은 보존.
 2. 원고48f06db1가 prepare/비공개/예약꺼짐임을 화면에서 재확인 → 한 번 전송 → 실제 편집기·보관함 prepared 결과 대조. 최종 발행0 유지.
@@ -66,7 +68,7 @@
 4. 위 시험을 마친 뒤 다음 병합/연계 단위 또는 보안 업데이트를 결정. 콘텐츠③-2 독립 발행 플랜은 후보 재검토 상태. 관리자 요청함0044는 현재 정상 작동.
 
 ## 주인님께 여쭐 것
-- [계정/외부 확인] 2번 전문·이웃피드·관계 읽기검수에 필요한 허용수단/자료와 본인Edge 로그인·전경 준비. SQL 직접Run 요청은 해소됨.
+- [계정/외부 확인] 2번 본문·이웃피드·관계 읽기검수: Edge전경은확인됐지만 네이버계정이시험회원과불일치. buylifemall@naver.com으로직접전환필요(기존7eba), 허용수단요청3e257 유지. 자료미리보기로컬개발은완료, SQL요청은해소.
 
 - [범위 인수] SEO 디자인 완료 후 남은 보안패치2파일(임시127개/타입/적용검사 통과)을 Codex가 인수·적용·기존승인 배포1회로 이어갈지. agy ACTIVE_WORK 예약이 남음. 요청 cf22fd7b-452c-4017-8eec-bc4e4419d8ec.
 - [화면 확인] 도구/Edge는 Windows 원격 rdp-tcp#0 세션2, 전경 chrome. 해당 원격화면에서 작업표시줄 Edge를 직접 클릭했는지와 보고 있는 화면이 원격/직접 PC인지 확인 필요.

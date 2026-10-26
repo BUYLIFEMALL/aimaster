@@ -624,7 +624,8 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — 서버 구현·운영 미등록
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — 서버·자료미리보기 구현·운영 미등록
+- **자료미리보기(2026-10-27)**: [회원제공검색요약 사전선별/본문정리](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md), 단위31/HTTP12·타입/빌드통과·미배포. 네이버수집/계정검증/본문AI/관계판정/저장아님.
 - **1번서버/DB(2026-10-26)**: [신규폴더소스·로컬48검수](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md),6표/RLS·서비스전용RPC·공용인증/권한. 운영SQL 적용·6표RLS/서비스RPC/runtime=false 검수완료·미배포. 실제SSO/플랫폼·UI/확장/AI·30일삭제는미완료.
 - **모의검수(2026-10-26)**: [후보 사전필터/상태모델32개 통과](analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md), 가상100건에서댓글30예약·70제한. 단일프로세스모델로실제DB/RLS/확장/네이버는미검수, 운영앱 구현/출시와구분.
 - **0-B 확인(2026-10-26)**: [시험회원 기존 공용키로 HUB 검색200·3개](analysis-naver-blog-neighbor-20261024/PREVALIDATION_20261026_0B_SEARCH_ACCOUNT_ACCESS.md). 구경로401·024, 이관/자료범위 확인. 신규 프로그램 구현·본문/관계·신청/공감/댓글 검수·배포는 미완료.

@@ -1,12 +1,14 @@
 # AI 블로그 이웃 소통 자동화 — 담당 지침
 
+> **2026-10-27:** 회원제공자료 사전선별 API를 추가했습니다. 다음자료작업전 [미리보기 계약/검수·한계](docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md)를 읽습니다. 단위31/HTTP12·타입/빌드통과, 미배포. 실제본문/계정/AI 검수는미완료.
+
 > **최신 상태:** 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. 사용자 후속 실행 지시에 따라 Codex가 적용했습니다. 생성 SQL 재실행 대신 [완료검수/다음단계](docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)를 확인합니다.
 
 2026-10-26 · 담당 `codex-win-20261025-blog` [역할: blog]. 루트 지침 우선. ① AIMaster 운영용 신규 독립 기본 프로그램 `blog-neighbor-care`, 운영ref `esgxyikcnnvmlhygjkth`.
 
 ## 목적·현재 상태
 
-본인 블로그에 맞는 후보 선별→서로이웃 신청/수락→새 글 공감/분석/댓글→외부 결과 기록. [원문 D1~D9](../docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md) 유지. 현재 **1번 서버/DB 소스와 로컬 검수만**, 운영SQL 적용·읽기검수 완료, 프로그램등록/배포/실제네이버 동작 미완료. 공개UI·확장·AI생성은 아직 없습니다. 계획 초기버전v1.01(package1.1.0), 실제릴리스 아님.
+본인 블로그에 맞는 후보 선별→서로이웃 신청/수락→새 글 공감/분석/댓글→외부 결과 기록. [원문 D1~D9](../docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md) 유지. 현재 **1번 서버/DB와 자료미리보기API 구현**, 운영SQL 적용·읽기검수 완료, 프로그램등록/배포/실제네이버 동작 미완료. 공개UI·확장·AI생성은 아직 없습니다. 자료미리보기는회원제공입력만 처리하며 외부수집/저장없음. 계획 초기버전v1.01(package1.1.0), 실제릴리스 아님.
 
 ## 구조·도구
 

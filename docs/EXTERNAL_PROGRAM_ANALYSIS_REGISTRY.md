@@ -269,6 +269,8 @@
 
 #### EXT-BLOG-07 서이추&스댓공 Ai자동화 Ver3.5(공개용)
 
+> **2026-10-27 후속:** 회원제공자료 사전선별API 구현·단위31/HTTP12·타입/빌드통과, [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md). 외부수집/AI/계정·관계확인/출시 미완료.
+
 > **서버/DB1단계(2026-10-26):** [신규폴더/소스·로컬48검수](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md) 완료, 운영SQL 적용·6표RLS/서비스RPC/runtime=false 읽기검수완료·미배포. API14/실제PG28/실제HTTP6, 실제SSO/네이버/확장검수는별도. 프로그램등록/정책허용/AI/UI/30일정리미완료.
 
 
