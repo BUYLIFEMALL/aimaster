@@ -80,3 +80,9 @@
 | E 표 | ✅ |
 - 화면 안내: 「http 이미지가 제대로 표시되지 않을 수 있습니다. https 이미지로 등록」, 「**네이버 이외의 외부링크, 일부 스크립트 및 태그는 자동 삭제될 수 있습니다**」, 「상세설명 권장 크기: 가로 848px」, 「SmartEditor ONE으로 변환하기(1회성)」 버튼 있음.
 - 결론: 확장이 넣을 HTML은 ① 칸 안 스타일만 ② 이미지는 `https` 주소 ③ 폭 848px. 외부 이미지는 저장 때 지워질 위험이 있어 **네이버 쪽 이미지 주소(사진 보관함 등)를 쓰는 방식이 안전**(주인님 결정 대기).
+
+## 7. 상품이미지 올리기 창 (2026-10-26, 저장본 `네이버 스마트스토어센터_상품이미지등록.html`)
+- 「이미지 등록」(`vm.openUploadModal()`) → 작은 창 「내 사진 불러오기 · 최대 20MB」(`div.modal.seller-layer-modal`), 버튼 두 개: **「내 사진」** · **「사진보관함」**(`vm.uploadImagesFromPhotoStorge()`).
+- 「내 사진」 안 `label` 속 숨은 칸: `input[type=file]` · `ngf-select="vm.uploadImagesFromDevice($files, $invalidFiles)"` · `accept="image/jpeg, image/gif, image/png, image/bmp"` · `ngf-multiple="vm.isMultiple"` · `ngf-max-size="20MB"` · `ngf-max-total-size="20MB"`.
+- 확장 방법: 그 칸에 `DataTransfer`로 파일을 넣고 `change` 이벤트 → 화면이 네이버로 올림(파일 선택 창 안 띄움). 블로그 확장 `naver-blog-agent/extension/editor.js`의 파일 넣기 방식과 같음. 대표 1장 → 추가 최대 9장(권장 1000×1000, 저장본 화면 안내).
+- 남은 확인: 올린 뒤 이미지 주소(네이버 이미지 서버 주소인지)와, 상세설명용 이미지를 「사진 보관함」에 올려 주소를 받는 방법(사진보관함 화면 저장본 필요).
