@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.33: 📅 주간 리포트(D) · ⏳ 오래 안 팔린 매물(C-2) · 휴대폰 설정 표 카드(G) · 팝업 소개 한 줄·버전 칩 강조 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.33', extension_version = 'v1.33', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;

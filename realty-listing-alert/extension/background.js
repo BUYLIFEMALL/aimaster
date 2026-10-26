@@ -13,6 +13,7 @@ import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 import { findBargains } from "./lib/bargain.js";
 import { makeAiSummary } from "./lib/aiSummary.js";
 import { findStale } from "./lib/stale.js";
+import { WEEKLY_AI_MAX, WEEKLY_URL, buildWeeklyPrompt, buildWeeklyReport, shouldSendWeekly } from "./lib/weekly.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
 const DEFAULT_RULES = {
@@ -311,6 +312,7 @@ async function runCollection(trigger) {
     }
 
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit, maxPages: rules.maxPagesPerDay || 300 });
+    if (result !== "blocked") await sendWeekly(settings, states).catch((e) => addLog(`주간 리포트 실패: ${e.message || e}`));
     await reportStatus(result, total, errMsg);
     await addLog(`수집 끝 · ${result === "ok" ? "정상" : result} · 매물 ${total}건 · 알림 ${perTarget.reduce((n, p) => n + p.events.length, 0)}건`);
     return { ok: result === "ok", result, total, error: errMsg };
@@ -428,6 +430,32 @@ ${aiLine}
   }
 }
 
+// 📅 주간 리포트(D, 2026-10-26): 고른 요일의 그날 첫 수집 뒤 1번(놓치면 그 주 다음 수집 때). 같은 주에는 다시 보내지 않는다.
+async function sendWeekly(settings, states) {
+  const { history = [], eventLog = [], weeklySentKey } = await get(["history", "eventLog", "weeklySentKey"]);
+  const key = shouldSendWeekly(settings.weekly, weeklySentKey, history);
+  if (!key) return;
+  const tg = settings.telegram;
+  const kakao = settings.kakao?.accessToken ? settings.kakao : null;
+  const email = settings.email?.apiKey ? settings.email : null;
+  if (!tg && !kakao && !email) return;
+  let aiText = "";
+  if (settings.ai?.apiKey) {
+    try { aiText = await makeAiSummary(settings.ai, history, { buildPrompt: buildWeeklyPrompt, max: WEEKLY_AI_MAX }); }
+    catch (e) { await addLog(`주간 AI 요약 실패: ${e.message || e}`); }
+  }
+  const names = Object.fromEntries((settings.targets || []).filter((t) => t.complex_no && !isGenericName(t.complex_name)).map((t) => [String(t.complex_no), t.complex_name]));
+  const rep = buildWeeklyReport({ history, eventLog, states, names, aiText });
+  if (!rep) return;
+  let sent = false;
+  if (tg) await sendMessage(tg.botToken, tg.chatId, rep.text).then(() => { sent = true; }).catch((e) => addLog(`주간 리포트 텔레그램 실패: ${e.message}`));
+  if (kakao) await sendKakaoMemo(kakao.accessToken, rep.kakao, WEEKLY_URL, "주간 통계 보기").then(() => { sent = true; }).catch((e) => addLog(`주간 리포트 카톡 실패: ${e.message}`));
+  if (email) await sendResendMail(email.apiKey, { to: email.to, subject: rep.subject, text: rep.text, html: rep.html }).then(() => { sent = true; }).catch((e) => addLog(`주간 리포트 이메일 실패: ${e.message}`));
+  if (!sent) return; // 다 실패하면 다음 수집 때 다시 시도
+  await set({ weeklySentKey: key, weeklyReport: { text: rep.text, at: rep.at, from: rep.from, to: rep.to } });
+  await addLog(`📅 주간 리포트를 보냈어요(${rep.from}~${rep.to})`);
+}
+
 // ── 예약: 1분마다 깨어나 차례인지 본다(밀린 회차는 몰아서 하지 않고 1번만) ──
 function ensureAlarm() {
   chrome.alarms.get("tick", (a) => { if (!a) chrome.alarms.create("tick", { periodInMinutes: 1 }); });
@@ -492,7 +520,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       }
       if (msg.type === "stats") {
         // 웹 대시보드용 요약 기록(web-bridge가 같은 계정인지 확인한 뒤에만 부름). 기록이 아직 없으면 마지막 결과로 첫 요약을 만든다.
-        const { history = [], eventLog = [], lastResult, aiSummary, states = {}, settingsCache } = await get(["history", "eventLog", "lastResult", "aiSummary", "states", "settingsCache"]);
+        const { history = [], eventLog = [], lastResult, aiSummary, states = {}, settingsCache, weeklyReport } = await get(["history", "eventLog", "lastResult", "aiSummary", "states", "settingsCache", "weeklyReport"]);
         const names = Object.fromEntries((settingsCache?.targets || []).filter((t) => t.complex_no && !isGenericName(t.complex_name)).map((t) => [String(t.complex_no), t.complex_name]));
         const cols = lastResult?.columns || COLUMNS;
         const hasLast = !!lastResult?.table?.length;
@@ -503,6 +531,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           events: eventLog.length || !hasLast ? eventLog : pickEvents(cols, lastResult.table, lastResult.at),
           aiSummary: aiSummary || null, // 🤖 v1.22
           stale: findStale(states, names, { minDays: 30 }), // ⏳ 오래 안 팔린 매물(C-2)
+          weeklyReport: weeklyReport || null, // 📅 지난 주간 리포트(D)
         });
       }
       if (msg.type === "isWatched") {

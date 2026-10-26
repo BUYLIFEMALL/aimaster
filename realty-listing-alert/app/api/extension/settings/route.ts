@@ -57,6 +57,7 @@ export async function GET(request: Request) {
       deliverFile: s?.deliver_file ?? true,
       fileFormat: s?.file_format === "csv" ? "csv" : "xlsx",
     },
+    weekly: { enabled: s?.notify_weekly ?? false, day: s?.weekly_day ?? 1 }, // 📅 주간 리포트(D) — 옛 확장은 무시
     telegram: tg?.bot_token && tg.chat_id ? { botToken: tg.bot_token, chatId: tg.chat_id } : null,
     kakao: kakaoState ? (kakaoState.status === "ok" ? { accessToken: kakaoState.accessToken } : { error: kakaoState.message }) : null,
     ai: s?.notify_ai_summary ? (aiKey ? { provider: aiProvider, apiKey: aiKey, model: resolveAiModel(aiProvider, (s?.ai_models as Record<string, string> | null)?.[aiProvider]) } : { error: `AI 시세 요약을 켰지만 ${aiProviderInfo(aiProvider).name} 키가 없어요. 다른 AIMaster 프로그램이나 「API키등록·플랫폼연동」에서 등록해 주세요.` }) : null,

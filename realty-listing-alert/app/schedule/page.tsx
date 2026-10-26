@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
 import { DEFAULT_INTERVAL_MINUTES } from "@/lib/schedule";
 import ScheduleClient from "./ScheduleClient";
+import WeeklyReportCard from "./WeeklyReportCard";
 import LimitNotice from "@/components/LimitNotice";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,7 @@ export default async function SchedulePage() {
   const [{ data }, { data: targets }] = await Promise.all([
     supabase
       .from("realty_alert_settings")
-      .select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end")
+      .select("schedule_enabled, interval_minutes, active_hour_start, active_hour_end, notify_weekly, weekly_day")
       .eq("user_id", user.id)
       .maybeSingle(),
     // 예상 수집량 계산용(단지·지역 수만)
@@ -42,6 +43,7 @@ export default async function SchedulePage() {
             endHour: data?.active_hour_end ?? null,
           }}
         />
+        <WeeklyReportCard initial={{ enabled: data?.notify_weekly ?? false, day: data?.weekly_day ?? 1 }} />
         <LimitNotice />
       </main>
     </div>

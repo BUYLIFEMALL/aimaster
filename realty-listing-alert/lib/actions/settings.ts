@@ -108,3 +108,19 @@ export async function saveChannelAction(input: { notifyKakao?: boolean; notifyEm
   revalidatePath("/dashboard");
   return {};
 }
+
+// 📅 주간 리포트 켜기·요일(D, 2026-10-26) — 바꾼 칸만 저장
+export async function saveWeeklyAction(input: { enabled?: boolean; day?: number }): Promise<{ error?: string }> {
+  const user = await requireProgramAccess();
+  const patch: Record<string, unknown> = { user_id: user.id, updated_at: new Date().toISOString() };
+  if (typeof input.enabled === "boolean") patch.notify_weekly = input.enabled;
+  if (input.day !== undefined) {
+    if (!Number.isInteger(input.day) || input.day < 0 || input.day > 6) return { error: "요일 값이 올바르지 않아요." };
+    patch.weekly_day = input.day;
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.from("realty_alert_settings").upsert(patch, { onConflict: "user_id" });
+  if (error) return { error: `저장에 실패했습니다: ${error.message}` };
+  revalidatePath("/schedule");
+  return {};
+}

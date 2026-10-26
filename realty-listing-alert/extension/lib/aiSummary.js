@@ -56,16 +56,17 @@ export function buildAiPrompt(input, year = new Date().getFullYear()) {
 }
 
 /** AI 글 정리: 제목 #·굵은 글씨·목록 기호를 지우고 한 줄 200자(2026-10-26 Claude가 「# 📊 …」 제목 서식으로 답한 사례) */
-export function cleanAiText(s) {
-  return String(s || "").replace(/^\s{0,3}#{1,6}\s*/gm, "").replace(/\*\*|__|`/g, "").replace(/^\s*[-*•]\s+/gm, "").replace(/\s+/g, " ").trim().slice(0, AI_MAX_CHARS);
+export function cleanAiText(s, max = AI_MAX_CHARS) {
+  return String(s || "").replace(/^\s{0,3}#{1,6}\s*/gm, "").replace(/\*\*|__|`/g, "").replace(/^\s*[-*•]\s+/gm, "").replace(/\s+/g, " ").trim().slice(0, max);
 }
-const clip = cleanAiText;
+// 호출 함수는 길이를 자르지 않고 돌려주고(주간 리포트는 400자), 부르는 쪽이 cleanAiText로 자른다
+const clip = (t) => String(t || "");
 
 async function callGemini(apiKey, prompt, model) {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model || GEMINI_MODEL}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 300 } }),
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 900 } }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Gemini ${res.status} ${j?.error?.message || ""}`.trim());
@@ -93,7 +94,7 @@ async function callOpenAIModel(apiKey, prompt, model) {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], max_completion_tokens: 600 }),
+    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], max_completion_tokens: 1200 }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`OpenAI ${res.status} ${j?.error?.message || ""}`.trim());
@@ -105,7 +106,7 @@ async function callClaude(apiKey, prompt, model) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-    body: JSON.stringify({ model: model || CLAUDE_MODEL, max_tokens: 400, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model: model || CLAUDE_MODEL, max_tokens: 900, messages: [{ role: "user", content: prompt }] }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Claude ${res.status} ${j?.error?.message || ""}`.trim());
@@ -113,11 +114,12 @@ async function callClaude(apiKey, prompt, model) {
 }
 
 /** ai: { provider: "gemini"|"openai"|"claude", apiKey } → 요약 글(200자). 실패하면 예외 */
-export async function makeAiSummary(ai, history) {
+export async function makeAiSummary(ai, history, { buildPrompt = buildAiPrompt, max = AI_MAX_CHARS } = {}) {
   const input = buildAiInput(history);
   if (!input) throw new Error("통계 기록이 아직 없어요");
-  const prompt = buildAiPrompt(input);
-  const text = ai.provider === "openai" ? await callOpenAI(ai.apiKey, prompt, ai.model) : ai.provider === "claude" ? await callClaude(ai.apiKey, prompt, ai.model) : await callGemini(ai.apiKey, prompt, ai.model);
+  const prompt = buildPrompt(input);
+  const raw = ai.provider === "openai" ? await callOpenAI(ai.apiKey, prompt, ai.model) : ai.provider === "claude" ? await callClaude(ai.apiKey, prompt, ai.model) : await callGemini(ai.apiKey, prompt, ai.model);
+  const text = cleanAiText(raw, max);
   if (!text) throw new Error("AI가 빈 답을 돌려줬어요");
   return text;
 }
