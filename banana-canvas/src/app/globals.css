@@ -1322,7 +1322,7 @@ button[aria-pressed=true] {
 .bp-stack{display:flex;flex-direction:column;gap:10px}
 .bp-label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
 .bp-input{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:6px 10px;font-size:13px;background:#fff;color:inherit}
-.bp-input.short{width:80px}
+.bp-input.short{width:80px!important;flex:0 0 80px}  /* 50행 공통 입력칸 규칙(:not 4개)이 더 강해서 !important */
 .bp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px}
 .bp-seg{display:grid;gap:4px;margin-bottom:8px}
 .bp-seg.c3{grid-template-columns:repeat(3,1fr)}
