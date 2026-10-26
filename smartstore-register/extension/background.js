@@ -115,10 +115,32 @@ async function pageCommand(cmd, args) {
     }
 
     if (cmd === 'select') {
-      // 보통 고르기 상자(select): 보이는 글자가 같은 보기를 고르고 change를 보낸다(AngularJS가 값을 받음).
       const sel = byModel(args.target).find((e) => e.tagName === 'SELECT');
       if (!sel) return { ok: false, error: '고르기 상자를 찾지 못했습니다.' };
       const norm = (s) => s.replace(/\s+/g, '').trim();
+      // 판매자센터 배송 칸(택배사·배송비)은 진짜 select를 숨기고 selectize 목록을 덮어씌운 상자다(class "selectized").
+      // 숨은 select 값을 바꾸면 selectize가 되돌리므로, 화면 목록을 열어 글자가 「정확히 같은」 보기를 누른다
+      // (택배사 목록에 「CJ대한통운(새벽배송)」과 「CJ대한통운」이 함께 있음).
+      const control = sel.classList.contains('selectized') ? (sel.parentElement?.querySelector('.selectize-control')) : null;
+      if (control) {
+        const shown = () => norm(control.querySelector('.selectize-input .item')?.textContent || '');
+        if (shown() === norm(args.value)) return { ok: true, already: true };
+        const box = control.querySelector('.selectize-input');
+        box.scrollIntoView({ block: 'center' });
+        box.click();
+        box.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        const items = await waitFor(() => {
+          const list = [...control.querySelectorAll('.selectize-dropdown [data-selectable], .selectize-dropdown .option')].filter(visible);
+          return list.length ? list : null;
+        }, 5000);
+        if (!items) return { ok: false, error: '목록이 열리지 않았습니다.' };
+        const item = items.find((o) => norm(o.textContent) === norm(args.value)) || (items.filter((o) => norm(o.textContent).includes(norm(args.value))).length === 1 ? items.find((o) => norm(o.textContent).includes(norm(args.value))) : null);
+        if (!item) { document.body.click(); return { ok: false, error: `「${args.value}」 보기가 없습니다(있는 보기: ${items.map((o) => o.textContent.trim()).slice(0, 8).join(', ')})` }; }
+        item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        item.click();
+        const ok = await waitFor(() => shown() === norm(args.value), 3000);
+        return ok ? { ok: true } : { ok: false, error: `고른 값이 반영되지 않았습니다(화면 값: ${shown() || '없음'})` };
+      }
       const opts = [...sel.options].filter((o) => !/^\?/.test(o.value));
       const opt = opts.find((o) => norm(o.textContent) === norm(args.value)) || opts.filter((o) => norm(o.textContent).includes(norm(args.value)))[0];
       if (!opt) return { ok: false, error: `「${args.value}」 보기가 없습니다(있는 보기: ${opts.map((o) => o.textContent.trim()).slice(0, 8).join(', ')})` };
