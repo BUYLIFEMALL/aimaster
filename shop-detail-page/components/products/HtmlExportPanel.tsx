@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
+import { HtmlBlockEditor } from "@/components/products/HtmlBlockEditor";
 import { HTML_TEMPLATES, type HtmlTemplate } from "@/lib/ai/htmlDetailPrompt";
 
 // v1.17(2026-10-21, 이커머스 병합 E2): 상세페이지 자동생성기 v1의 「HTML 상세페이지」를 이 앱으로 옮겼다.
@@ -20,17 +21,38 @@ async function toDataUrl(src: string): Promise<string> {
   });
 }
 
+/** v1.37: 미리보기 내용이 바뀌면 iframe을 새로 만든다 — srcDoc만 바꾸면 크롬이 다시 그리지 않는 경우가 있었다(로컬 확인) */
+function previewKey(html: string): string {
+  let h = 0;
+  for (let i = 0; i < html.length; i += 97) h = (h * 31 + html.charCodeAt(i)) | 0;
+  return `${html.length}-${h}`;
+}
+
 export function HtmlExportPanel({ productId }: { productId: string }) {
   const [template, setTemplate] = useState<HtmlTemplate>("coupang");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ html: string; fileName: string } | null>(null);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  // v1.37(E3): 블록 편집 — 고친 HTML·글(없으면 처음 만든 HTML)로 미리보기·내려받기·복사
+  const [editing, setEditing] = useState(false);
+  const [edited, setEdited] = useState<{ html: string; text: string } | null>(null);
+  const [copyNote, setCopyNote] = useState<string | null>(null);
+  const onEdited = useCallback((html: string, text: string) => setEdited({ html, text }), []);
+  const currentHtml = edited?.html ?? result?.html ?? "";
+
+  async function copyText(label: string, text: string) {
+    try { await navigator.clipboard.writeText(text); setCopyNote(`✅ ${label}을(를) 복사했습니다.`); }
+    catch { setCopyNote("복사하지 못했습니다. HTML 파일을 내려받아 열어 주세요."); }
+  }
 
   async function run() {
     setBusy(true);
     setError(null);
     setResult(null);
+    setEditing(false);
+    setEdited(null);
+    setCopyNote(null);
     try {
       const res = await fetch(`/api/products/${productId}/export-html`, {
         method: "POST",
@@ -58,7 +80,7 @@ export function HtmlExportPanel({ productId }: { productId: string }) {
 
   function download() {
     if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.html], { type: "text/html;charset=utf-8" }));
+    const url = URL.createObjectURL(new Blob([currentHtml], { type: "text/html;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
     a.download = result.fileName;
@@ -111,12 +133,21 @@ export function HtmlExportPanel({ productId }: { productId: string }) {
             onClick={download}
             className="w-full text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl py-2.5"
           >
-            ⬇️ HTML 파일 내려받기
+            ⬇️ HTML 파일 내려받기{edited ? " (고친 내용)" : ""}
           </button>
+          <div className="grid grid-cols-3 gap-2">
+            <button type="button" onClick={() => setEditing((v) => !v)} className={`text-xs font-bold rounded-xl py-2 border ${editing ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-800 border-slate-200 hover:border-slate-300"}`}>✏️ 블록 편집</button>
+            <button type="button" onClick={() => void copyText("HTML 코드", currentHtml)} className="text-xs font-bold rounded-xl py-2 border bg-white text-slate-800 border-slate-200 hover:border-slate-300">📋 HTML 코드 복사</button>
+            <button type="button" onClick={() => void copyText("글", edited?.text ?? "")} disabled={!edited} title={edited ? "" : "「✏️ 블록 편집」을 한 번 열면 글만 복사할 수 있습니다"} className="text-xs font-bold rounded-xl py-2 border bg-white text-slate-800 border-slate-200 hover:border-slate-300 disabled:opacity-40">📝 글만 복사</button>
+          </div>
+          {copyNote && <p role="status" className="text-[11px] font-bold text-indigo-700 bg-indigo-50 rounded-lg px-2.5 py-1.5">{copyNote}</p>}
+          <p className="text-[11px] text-slate-500">이미지가 HTML 안에 들어 있어 코드가 큽니다. 마켓 HTML 편집기가 받지 않으면 「📦 섹션별 ZIP」 이미지를 올리고 「📝 글만 복사」로 글을 붙여 넣으세요.</p>
+          {editing && <HtmlBlockEditor original={result.html} onChange={onEdited} />}
           <iframe
+            key={previewKey(currentHtml)}
             title="HTML 상세페이지 미리보기"
             sandbox=""
-            srcDoc={result.html}
+            srcDoc={currentHtml}
             className="w-full h-[640px] rounded-xl border border-slate-200 bg-white"
           />
         </div>
