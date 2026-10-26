@@ -23,11 +23,13 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `trending-product-finder/` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-26 | EC-W7 과세환율·관세 계산·관세율 참고표·점수 알림(플랜 `trending-product-finder/docs/PLAN_20261026_EC_W7_FX_TARIFF_ALERT.md`, 승인: DB 2건·환경변수 1개·빌드 최대 2회) |
+| `ai-auto-blog/` · `tistory-auto-blog/` · `naver-blog-allinone/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 연속 배포 중(총3개·BLOG 완료): 묶음E BLOG→티스토리→올인원 순차 로컬검사/배포(각1회 승인). 기존 디자인/분량 대기분 포함, SEO UI/소스는 agy 담당으로 수정 안 함 |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | v2.22 보안 배포 완료·예약 설정 해제 대기분 포함. 실제 입력: Edge window_not_focused로 주인님 직접 포커스/시험회원 연결·옛8연결해제 답변 대기. 보안 나머지4개 미수정, SEO UI/소스는 agy 담당. 인계§11 |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
 | `shop-detail-page/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | 사이드바 3D 확장 다운로드 버튼 탑재 & API키 생성버튼/매뉴얼 동기화 & 3D 실행버튼 업그레이드 (✅ v1.34 완료) |
 | `detail-page-12p/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | Gemini API키 발급 2단 버튼 & 12단/9단 기획·렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.12 완료) |
+| `blog-workroom/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | 4대 핵심 화면 3시안(12개 뷰) 제작 및 네이버 스마트 그린 저널 메인 템플릿 리뉴얼 착수 (네이버 블로그 1번 지침 반영) |
 | `naver-blog-seo-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | 4대 핵심 화면 3시안(12개 뷰) 주인님 1번 확정 승인 반영, 네이버 스마트 그린 저널 템플릿 확정 적용, 포스팅 3종 모드 칩셋 & 3D 엠보싱 버튼 탑재, Whale 실세션 검수 및 D:\Antigravity\Design 자산 적재 (✅ v2.21 완료) |
 | `insta_auto_poster/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | 7대 플랫폼 API키 발급 2단 버튼 & 피드·카드뉴스 3D 엠보싱 실행버튼 업그레이드 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
