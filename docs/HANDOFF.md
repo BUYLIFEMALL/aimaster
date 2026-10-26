@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 00:40 [역할: blog] Codex — 네이버 시험계정 재로그인 확인
+- 사용자재로그인후 Edge네이버홈에서buylifemall일치확인, 이전다른계정불일치해소. 이번전경전환false·실제HWND9374700≠Edge1838288로입력/클릭안함. 직접Edge전경요청대기.
+- 운영읽기: 시험회원1명·naver_blog연결0·프로그램등록0·runtimefalse. 웹/확장연결과본문/관계실검수는미완료. DB/키/계정변경·네이버본문/쓰기·AI/빌드/배포0. 세션 `codex-win-20261026-blog-check`, [기록](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md).
+
 ## 2026-10-27 [역할: blog] Codex — 이웃소통 자료미리보기API 구현·로컬검수
 - 소스 커밋 `4f5e1e21a` (미푸시).
 - 2026-10-27 자료미리보기API 로컬구현·검수완료: 검색요약 사전선별/회원제공본문 정리, 단위31·실제NextHTTP12·타입/빌드 통과. 실계정/본문/관계검수·AI/UI/배포 미완료.
