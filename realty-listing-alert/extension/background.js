@@ -7,7 +7,7 @@ import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
 import { buildSummary, sendDocument, sendMessage } from "./lib/telegram.js";
-import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
+import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoButtonFor, kakaoLinkFor, sendKakaoMemo, sendResendMail } from "./lib/notify.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
 import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 import { findBargains } from "./lib/bargain.js";
@@ -403,7 +403,7 @@ ${aiLine}
       await addLog(`텔레그램 보내기 실패: ${e.message}`);
     }
   }
-  if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget), kakaoLinkFor(perTarget)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
+  if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget), kakaoLinkFor(perTarget), kakaoButtonFor(perTarget)).catch((e) => addLog(`카톡 보내기 실패: ${e.message}`));
   if (email) {
     if (aiLine) await set({ aiSentDate: kstDate() });
     await sendResendMail(email.apiKey, { to: email.to, subject: buildMailSubject(perTarget), text: summary, html: aiHtml + buildMailHtml(perTarget), file })

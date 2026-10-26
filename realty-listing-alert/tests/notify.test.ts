@@ -1,7 +1,7 @@
 // 카톡·이메일 받기(2026-10-25) 순수 함수 시험 — node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildKakaoText } from "../extension/lib/notify.js";
+import { buildKakaoText, kakaoButtonFor, kakaoLinkFor } from "../extension/lib/notify.js";
 
 const ev = (type: string) => ({ type, item: {} });
 
@@ -42,4 +42,16 @@ test("메일 HTML: 단지·변동 표가 들어가고 매물 글자는 이스케
   assert.match(html, /이전 9억/);
   assert.match(html, /new\.land\.naver\.com/);
   assert.match(html, /통계·변동 기록 보기/);
+});
+
+test("카톡: 변동이 생긴 단지 이름이 앞에, 링크·버튼도 그 단지 매물 목록으로(2026-10-26)", () => {
+  const pt = [
+    { name: "일산요진와이시티(주거복합)", total: 200, events: [], firstRun: false },
+    { name: "백송풍림,삼호", total: 80, events: [{ type: "new", item: { complexNo: "2945", no: "2652462657" } }], firstRun: false },
+  ];
+  const text = buildKakaoText(pt);
+  assert.match(text, /백송풍림,삼호 변동 · 감시 2곳/);
+  assert.ok(!text.includes("일산요진와이시티"));
+  assert.match(decodeURIComponent(kakaoLinkFor(pt)), /new\.land\.naver\.com\/complexes\/2945$/);
+  assert.equal(kakaoButtonFor(pt), "백송풍림,삼호 매물 보기");
 });

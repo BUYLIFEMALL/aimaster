@@ -11,12 +11,27 @@ const SITE = "https://realty-listing-alert.buylife.xyz";
 const RESULT_URL = `${SITE}/dashboard#results`;
 
 /** 카톡 「결과 보기」가 열 주소: 새 매물·가격 변동이 있으면 첫 매물의 네이버 화면(우리 /api/go를 거쳐 — 회원 카카오 앱엔 우리 도메인 하나만 등록), 없으면 대시보드. */
-export function kakaoLinkFor(perTarget) {
+// 2026-10-26 주인님 「결과보기를 클릭하면 전혀 다른 링크」: 글은 첫 감시 단지 이름, 링크는 다른 단지의 매물 1건이라 어긋나 보였다
+// → 변동이 생긴 첫 단지의 「매물 목록 화면」으로 보내고, 버튼 이름에 그 단지 이름을 쓴다.
+function firstChanged(perTarget) {
   for (const t of perTarget) {
-    const e = t.events.find((x) => x.type !== "gone" && x.item?.complexNo && x.item?.no);
-    if (e) return `${SITE}/api/go?u=${encodeURIComponent(articleUrl(e.item.complexNo, e.item.no))}`;
+    const e = (t.events || []).find((x) => x.item?.complexNo);
+    if (e) return { name: t.name, complexNo: e.item.complexNo };
   }
-  return RESULT_URL;
+  return null;
+}
+
+export function kakaoLinkFor(perTarget) {
+  const c = firstChanged(perTarget);
+  return c ? `${SITE}/api/go?u=${encodeURIComponent(`https://new.land.naver.com/complexes/${c.complexNo}`)}` : RESULT_URL;
+}
+
+/** 카톡 버튼 이름 — 「백송풍림,삼호 매물 보기」(이름이 길면 줄임) */
+export function kakaoButtonFor(perTarget) {
+  const c = firstChanged(perTarget);
+  if (!c?.name) return "결과 보기";
+  const n = c.name.length > 8 ? `${c.name.slice(0, 8)}…` : c.name;
+  return `${n} 매물 보기`;
 }
 
 /** 카톡용 짧은 요약(카카오 텍스트 템플릿 200자 제한). 엑셀은 못 붙이므로 안내 한 줄. */
@@ -30,14 +45,18 @@ function countText(perTarget) {
 export function buildKakaoText(perTarget) {
   // 카톡은 🆕 같은 일부 그림문자를 네모로 그려서(2026-10-25 실물) 글자만 쓴다
   const countText_ = countText(perTarget) || "변동 없음";
-  const names = perTarget.map((t) => t.name).filter(Boolean);
-  const where = names.length ? `${names[0]}${names.length > 1 ? ` 외 ${names.length - 1}곳` : ""}` : "";
+  // 변동이 생긴 단지 이름을 앞에(2026-10-26 — 첫 감시 단지 이름이 나와 링크와 어긋나 보이던 문제)
+  const changed = perTarget.filter((t) => t.events?.length && t.name);
+  const all = perTarget.filter((t) => t.name).length;
+  const where = changed.length
+    ? `${changed[0].name}${changed.length > 1 ? ` 외 ${changed.length - 1}곳` : ""} 변동 · 감시 ${all}곳`
+    : all ? `감시 ${all}곳` : "";
   const first = perTarget.some((t) => t.firstRun) ? "\n(첫 수집은 기준으로 저장했어요)" : "";
   return `${ALERT_PREFIX} ${countText_}\n${where}${first}\n엑셀은 텔레그램·이메일로 받아요.`.slice(0, 200);
 }
 
-export async function sendKakaoMemo(accessToken, text, url = RESULT_URL) {
-  const template = { object_type: "text", text: text.slice(0, 200), link: { web_url: url, mobile_web_url: url }, button_title: "결과 보기" };
+export async function sendKakaoMemo(accessToken, text, url = RESULT_URL, buttonTitle = "결과 보기") {
+  const template = { object_type: "text", text: text.slice(0, 200), link: { web_url: url, mobile_web_url: url }, button_title: buttonTitle };
   const res = await fetch("https://kapi.kakao.com/v2/api/talk/memo/default/send", {
     method: "POST",
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
