@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.34 배포
+- 한 일(`1ece449b4`·`fbece0087`): J 번호만 바뀐 같은 매물을 「🔁 다시 올림」 1줄로(알림·변동 기록 제외, 처음 발견일 이어받기, `extension/lib/compare.js` `sameListing`) · K 실거래 자료 없는 단지마다 비슷한 국토부 단지 이름 후보 기록(`lib/trades.ts` `similarAptNames`, 기록 줄 「실거래 이름 후보」) · L 카톡 주간 리포트 200자를 문장 끝에서 자르기(`extension/lib/weekly.js` `cutAtSentence`)
+- 검수: 시험 76개·tsc·빌드 통과, 배포 Ready, DB v1.34, `check-extension-release` 실패 0. 실물 확인(다시 올림 줄·이름 후보 줄)은 확장 덮어쓰기 뒤 첫 수집에서
+- 링크: https://realty-listing-alert.buylife.xyz · 비용: Vercel 빌드 1회(주인님 승인)
+
 ## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실거래 투자분석 자동화 v1.20 배포(규칙 바로잡기)
 - 한 일: RE-P3 매물 AI 분석·지역 분위기 프롬프트에 당해 연도 지시(`e35eecdf0`) · RE-P2 예약 수집·AI 분석·텔레그램 대상에서 이용 권한 없는 회원 제외(`src/lib/accessBatch.ts`, `f4509b896`) · RE-P1 주인님 지정 1년 보관(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8, `4ee142ba5`)에 맞춰 지역 분위기 30일→1년, AI 매물 분석도 1년 정리(`4768f4286`)
 - 영향(운영 DB 읽기): 예약 수집 회원 3명 중 1명(일반, 사용기간 2026-10-16 만료) 제외 — 만료 뒤에도 수집·알림이 가던 빈틈. 테스트 계정·VIP 유지
