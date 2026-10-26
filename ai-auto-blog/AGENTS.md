@@ -1,3 +1,5 @@
+> **2026-10-26 v1.83 보안 배포(Codex):** Next.js/eslint-config-next16.4.2·sharp0.35.5, 무료검사188개·tsc·로컬빌드 통과. READY·공식alias·DB/라이브ZIP v1.83 OK. Vercel1회·AI0. 실제 회원 입력/발행/예약은 이번 미검수. [최신 개선 기록](docs/IMPROVEMENTS.md)·[공통 인계 §12](../docs/HANDOFF_20261025_BLOG_TO_CODEX.md#12-2026-10-26-후속--블로그-보안3개-배포seo-메타-정정포그라운드-검수-대기). 아래 버전/대기는 당시 이력입니다.
+
 > **2026-10-25 운영 정합성 점검(Codex):** 기존 READY 배포·공식 도메인 HTML·라이브 ZIP v1.82 확인 후 programs 앱/확장 표시를 v1.82로 정정했습니다. 재배포·소스/회원 데이터 변경 없음. 블로그6개 release 검사 모두 OK. 상세·실행 SQL: [담당 인수인계 §10](../docs/HANDOFF_20261025_BLOG_TO_CODEX.md#10-추천-운영13-실행-기록2026-10-25-codex). 아래 버전 기록은 당시 이력입니다.
 
 > **✅ v1.80로 배포 완료(2026-10-23, Claude Code 윈도우 블로그 전담 `claude-win-20261023-seo-bg`):** 30일 정리 회원별 기록 — 글·이미지·글감(`6cd2b9783`). 매일 30일 정리 크론이 실제로 지운 것만 회원별로 `usage_logs` `cleanup_expired`에 기록(관리자 「30일 자동 정리」 표). 배포 Ready·코드/DB 버전 일치·확장/ZIP 검사 OK. 확장 코드 변경 없음(버전만).

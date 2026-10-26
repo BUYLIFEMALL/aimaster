@@ -148,3 +148,27 @@ https://blog-content-maker.buylife.xyz
 - 나머지 보안4개(BLOG16.2.10·티스토리16.2.10·올인원16.2.11·SEO16.3.5)는 package/lock/설치본 읽기까지만, 미수정입니다. SEO는 agy 작업 중이며 다른 UI/SEOv2.19 ZIP 미커밋 삭제 보존.
 - 비용: Vercel1회(인수인계 프로그램별1회 승인), AI0. 에이전트 무료 로컬 빌드1회; 처음 루트 폴더로 잘못 실행한 무료 로컬 빌드는 즉시 중단·운영 메인배포0. 회원원고/키/연결/권한/스키마 변경0·실제입력/발행/예약0.
 - 근거: [시험JSON](analysis-blog-consolidation-20261020/evidence/agent-security-tests-20261026.json)·[릴리스JSON](analysis-blog-consolidation-20261020/evidence/agent-security-release-20261026.json). 보안 의존성 릴리스와 실제 입력/예약 성공을 구분합니다.
+
+## 12. 2026-10-26 후속 — 블로그 보안3개 배포·SEO 메타 정정·포그라운드 검수 대기
+
+주인님 「진행해」 이후 에이전트 입력 시험 상태를 재확인했습니다. Edge 설정 v2.22/회원Gmail/설치확장v2.21이 보여 시험회원 소유자와 일치하지 않았습니다. 원고 전송·최종 발행·예약은 실행하지 않고 독립 가능한 보안3개를 순차 완료했습니다. 상세는 [검사/배포 공통 근거](analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json).
+
+| 프로그램 | 운영 버전 | 무료 검사 | 코드 | READY 배포 |
+|---|---|---|---|---|
+| BLOG | v1.83 | 188개 | 6728a83ab | dpl_BfYdEZcDK5hq3UfeFLMdA8B2kJQ7 |
+| 티스토리 포스팅 자동화 | v1.93 | 175개 | c0e151740 | dpl_C8bqVkeqBeXtHyrm3PR26GV1ubxn |
+| 올인원 | v1.54 | 33개 | d490b437a | dpl_CU6cnigNbVBFuTVCt5NgWXSLFv2q |
+
+- 세 앱 모두 Next.js/eslint-config-next16.4.2·sharp0.35.5, React19.2.4 유지. **396개 통과**·타입/각 로컬빌드 통과, Vercel팀 빌드0 확인→한 곳씩 READY/alias 확인→HTTP HTML 버전/인증 대조→이전버전/ZIP주소 조건의 programs1행 정정→release검사 순서입니다. 동시 빌드/앱별 푸시0, 작업단위 끝에 한 번 푸시합니다.
+- BLOG/티스토리 guide200·운영버전 표시, settings307·확장whoami401; 올인원 root200/v1.54·글목록401. 최근15분 운영 오류 기록은 세 앱 모두0. 각 확장 manifest/최신 ZIP/DB 버전 일치. 전체6앱 최종 release검사6/6 OK. HTTP/모의 결과를 일반 회원 E2E로 환산하지 않습니다.
+- 티스토리 분량 지시문 대기 fef7491d6·756a2ca7a 및 기존 공용 openai-request-params 사본은 이번 배포에 포함했습니다. 기존 AI 품질 수치는 과거 기록이며 이번 AI 호출0. 미배포 원장·공용 사본 표를 정리했습니다.
+- SEO는 agy가 디자인 v2.21 배포 완료(인계·ACTIVE_WORK 확인), 배포dpl_BevpHTXU6tRVJtP3X5wYH6U5Uufb READY/공식alias·소스/라이브ZIPv2.21에 DB앱/확장v2.20이 남아 있었습니다. 정확한 이전값/URL 조건으로 **운영 메타만 v2.21 정정**, Codex의 SEO 소스/디자인/배포 변경0입니다. 현재 git status는 SEO clean이며 예전 ZIP 삭제를 Codex가 복구/삭제하지 않았습니다.
+- **보안 미완료는 SEO1개(Next16.3.5)**입니다. agy ACTIVE_WORK가 완료 표기여도 예약 줄이 남아 있어 폴더를 동시에 수정하지 않았습니다. 예약 해제/범위 정리 뒤 보안 패치16.4.2를 다음 v2.22에 반영할 수 있으며 프로그램별1회 승인 범위는 이 SEO 보안 배포에 아직 사용하지 않았습니다(agy의 디자인 빌드는 별도).
+
+### 브라우저 검수·주인님 직접 작업
+
+- 실제 Edge창1838288/PID36584의 설정 화면/캡처는 읽히며 웹v2.22·Gmail·설치확장v2.21→v2.22 업데이트 필요 상태를 확인했습니다. 확장 관리 이동을 시도했지만 주소값이 바뀌어도 페이지가 새 탭에 남고, 합성 입력은 unverified, 메뉴 인덱스는 stale element frame이 발생했습니다. 전용 관찰 세션 codex-win-20261025-blog-edge 분리도 실제 이동 성공을 입증하지 못했습니다. 설치폴더·확장파일·로그인·연결은 변경하지 않았습니다.
+- 주인님 「포그라운도 작업해」에 따라 프로세스/창 일치를 확인하고 실제 Windows 전경을 별도로 대조했습니다. **wasForeground=false / SetForegroundWindow 요청=false / isForeground=false**라 전경 성공으로 보고하지 않았습니다. 강제 포커스 우회는 하지 않고 작업표시줄에서 Edge를 직접 클릭해 달라고 요청했습니다. 스크린샷 읽기 성공만으로 포그라운드 검수 완료라고 하지 않습니다.
+- 다음 첫 단계: 주인님 직접 Edge 클릭 → OS 전경 여부·화면 대조 → 시험회원 buylifemall@naver.com 로그인·확장v2.22 업데이트/연결·네이버 buylifemall 로그인(비밀번호·연결 버튼 주인님 직접) → 옛8연결해제 여부 명시 답변 확인 → 원고48f06db1 prepare/비공개/예약꺼짐 재확인 → 한 번 전송·보이는 편집기/결과기록 검수. 기존8연결/SEO 실제예약 승인은 여전히 open. 이번 사용자 「포그라운드」 요청을 연결 폐기/예약 승인으로 사용하지 않습니다.
+
+비용 리포트: **이번 Vercel3회**, AI/이미지/영상0, 로컬빌드3회(무료). 앞 단계 에이전트 보안1회를 합쳐 블로그 보안4개·Vercel4회이며 각 프로그램1회 승인 안입니다. agy의 SEO 디자인1회는 별도 기록입니다. 운영 DB ref esgxyikcnnvmlhygjkth: programs 버전메타4행(BLOG/티스토리/올인원/SEO)·배포도우미 ops집계만 갱신, 회원원고/키/연결/권한/스키마 변경0. 실제 입력/발행/예약0.

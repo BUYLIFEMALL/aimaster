@@ -1,3 +1,5 @@
+> **2026-10-26 v1.93 보안 배포(Codex):** Next.js/eslint-config-next16.4.2·sharp0.35.5, 무료검사175개·tsc·로컬빌드 통과. READY·공식alias·DB/라이브ZIP v1.93 OK. Vercel1회·AI0. 실제 회원 입력/발행/예약은 이번 미검수. [최신 개선 기록](docs/IMPROVEMENTS.md)·[공통 인계 §12](../docs/HANDOFF_20261025_BLOG_TO_CODEX.md#12-2026-10-26-후속--블로그-보안3개-배포seo-메타-정정포그라운드-검수-대기). 아래 버전/대기는 당시 이력입니다.
+
 > **2026-10-25 운영 정합성 점검(Codex):** 기존 READY 배포·공식 도메인 HTML·라이브 ZIP v1.92 확인 후 programs 앱/확장 표시를 v1.92로 정정했습니다. 재배포·소스/회원 데이터 변경 없음. 블로그6개 release 검사 모두 OK. 상세·실행 SQL: [담당 인수인계 §10](../docs/HANDOFF_20261025_BLOG_TO_CODEX.md#10-추천-운영13-실행-기록2026-10-25-codex). 아래 버전 기록은 당시 이력입니다.
 
 > **⏳ 미배포 대기(2026-10-23, Claude Code 윈도우 블로그 전담 `claude-win-20261023-blog2`) — 긴 글 분량 지시문:** `utils/news/lengthPlan.ts`(목표 분량 → 문단마다 단락 수, 단락≈120자)·`generator.ts` 지시문을 「문단마다 ### 1개 + 단락 N개」로. GPT-4.1 실측 2,097자(60%) → **3,104자(88.7%)**. 다음 배포 v1.92 때 함께(코드·manifest·ZIP·DB). 상세 [IMPROVEMENTS](docs/IMPROVEMENTS.md) 맨 아래.

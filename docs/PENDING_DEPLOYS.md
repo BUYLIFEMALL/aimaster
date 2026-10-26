@@ -21,7 +21,6 @@
 | `trending-product-finder` (운영 v1.27) | E9 「🛒 쇼핑몰 흐름」 띠(공용 `shop-flow-bar` 사본, 흐름으로 들어왔을 때만 보임)·상세페이지 링크에 흐름 표시(`flow=shop`) 붙이기. 시험 14개·`tsc` 통과, 화면 변화는 흐름 중일 때만 | `93b20e6b0` | 2026-10-25 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow · `trending-product-finder/AGENTS.md` | 다음 상품소싱 배포 때 함께(버전 +0.01) |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
-| `tistory-auto-blog` (운영 v1.91) | 긴 글 분량 지시문을 단락 개수로(`utils/news/lengthPlan.ts`·`generator.ts`) — GPT-4.1 실측 88.7%(3,104자) 통과 | `fef7491d6`·`756a2ca7a` | 2026-10-23 · Claude Code(윈도우) `claude-win-20261023-blog2` | `tistory-auto-blog/docs/IMPROVEMENTS.md` 맨 아래 | v1.92(코드·manifest·ZIP·DB) |
 | `booking-reminder` | 테스트 문자·이메일 테스트·텔레그램 연동 메시지에 남아 있던 「구글폼 CRM」 → 「예약(취소)방지 리마인드 자동화」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `booking-reminder/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `stepmail` | 테스트 문자 「[구글폼 CRM]」 → 「[대량 메일발송 자동화(Step Mail)]」 + 공용 `solapi-client` 사본 등록 | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `stepmail/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
 | `crm-google-form` | 공용 `solapi-client` 기준 등록(머리 주석만) | `36d0a4fdc` | 2026-10-23 · Claude Code(윈도우) | `crm-google-form/docs/IMPROVEMENTS.md` 맨 아래 | 버전 +0.01 |
@@ -54,6 +53,9 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-auto-blog` | v1.83 · 2026-10-26 (Codex·Next.js 보안) | Next16.4.2·sharp0.35.5, 무료188개·타입/빌드·READY/DB/ZIP OK. 6728a83ab |
+| `tistory-auto-blog` | v1.93 · 2026-10-26 (Codex·Next.js 보안) | Next16.4.2·sharp0.35.5, 무료175개·타입/빌드·READY/DB/ZIP OK. c0e151740 · 분량 지시 fef7491d6·756a2ca7a 포함 |
+| `naver-blog-allinone` | v1.54 · 2026-10-26 (Codex·Next.js 보안) | Next16.4.2·sharp0.35.5, 무료33개·타입/빌드·READY/DB/ZIP OK. d490b437a |
 | `naver-blog-agent` | v2.22 · 2026-10-26 (Codex·Next.js 보안) | 방식 전환 때 예약 미리 넣기 해제 `89d135c4b`, 보안 의존성 `f6cbcdc0a` 함께. READY·DB/ZIP OK |
 | playlist-channel-studio | v1.32 · 2026-10-25 ([역할: design] Antigravity(윈도우, 웨일) gy-win-20261025-ext3d, 빌드 1회) | YouTube/Gemini/OpenAI/Claude 4대 키발급 2단버튼 세트 & 1080p 렌더링 3D 엠보싱 버튼 규격화 배포 완료 |
 | `ai-doc-chatbot` | v1.08 · 2026-10-25 · Codex `codex-win-20261025-docbot-release` · `dpl_CRZ4ZSzCehcwovNfGSKkDu6xsq2L` Ready | G1~G4·키 용도/콘솔 버튼·Cloudflare 식별번호·줄바꿈·로그아웃303.108개 검사·실제 문서 답변/출처·운영 Edge 확인, DB버전 일치. [증거·비용·남은 검수](../ai-doc-chatbot/docs/IMPROVEMENT_HANDOFF_20261025_G4.md#최종-운영-배포--2026-10-25) |
