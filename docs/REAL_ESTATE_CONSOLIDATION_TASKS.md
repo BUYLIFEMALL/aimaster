@@ -40,7 +40,7 @@
 |---|---|---|---|
 | RE-B1 | 실거래 목록 페이지 나눔(현재 50건) | `src/app/(dashboard)/listings/page.tsx` `.limit(50)`, `IMPROVEMENTS.md` #3 | ✅ 코드 완료(`ae0e35ce5`) · v1.21 배포 완료(2026-10-26) |
 | RE-B2 | 상세 열람 시 「안 본 새 실거래」 줄이기(`new → seen`) | `IMPROVEMENTS.md` #5 | ✅ 코드 완료(DB 변경 없이 new→notified, `ae0e35ce5`) · v1.21 배포 완료(2026-10-26) |
-| RE-B3 | 브이월드 등록 도메인 새 주소로 | `src/lib/publicdata/client.ts` 18행 기본값 `n8n.buylife.xyz`, `IMPROVEMENTS.md` #7 | 대기(주인님 브이월드 로그인) |
+| RE-B3 | 브이월드 등록 도메인 새 주소로 | `src/lib/publicdata/client.ts` 18행 기본값 `n8n.buylife.xyz`, `IMPROVEMENTS.md` #7 | ✅ v1.22 배포(2026-10-26, 주인님 브이월드 도메인 변경 + 환경변수 교체) · 다음 새 실거래 때 공시가 확인 |
 | RE-B4 | 서울 외 지역(국토부 실거래 API) | `IMPROVEMENTS.md` #6 | 기존 과제 |
 | RE-B5 | 개발용 lint 도구 사슬 보안 경고 정리 | `IMPROVEMENTS.md` #11 | 대기 |
 
