@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 스마트스토어 상품등록 자동화 v1.03 (EC-W8 실제 시험 통과)
+- 실제 「입력만」 시험 6회로 보정 — 접힌 섹션 먼저 펼치기, 「이전 작성 내용」 확인 창 처리, 스마트 에디터 팝업 창 찾기(팝업 허용 1회 안내), 에디터 사진은 파일 칸 click() 가로채기(MAIN)로 넣기, 판매자센터 창을 맨 앞 새 창으로, 상태 창 오른쪽 위 버전 알약·「연결됨」 표시·한국 시간. **6회째 결과: 배송 템플릿(원래 수동)만 남고 카테고리~판매자 코드·대표 이미지·상세설명 섹션 사진 12장까지 자동 입력 성공**.
+- 주인님 크롬 설정: `https://sell.smartstore.naver.com` 팝업 허용(에디터 팝업용, 「확장 연결」 화면에 안내 추가).
+- 배포 `smartstore-register-isi1praid` Ready, DB v1.03·확장 v1.03, 운영 ZIP 검증 OK. 빌드 1회(승인).
+- 다음 첫 단계: 배송 템플릿 고르기(저장본 필요) → 「임시저장까지」 시험. 상세 `smartstore-register/AGENTS.md` v1.03.
+- 링크: https://smartstore-register.buylife.xyz/extension
+
 ## 2026-10-27 00:40 [역할: blog] Codex — 네이버 시험계정 재로그인 확인
 - 사용자재로그인후 Edge네이버홈에서buylifemall일치확인, 이전다른계정불일치해소. 이번전경전환false·실제HWND9374700≠Edge1838288로입력/클릭안함. 직접Edge전경요청대기.
 - 운영읽기: 시험회원1명·naver_blog연결0·프로그램등록0·runtimefalse. 웹/확장연결과본문/관계실검수는미완료. DB/키/계정변경·네이버본문/쓰기·AI/빌드/배포0. 세션 `codex-win-20261026-blog-check`, [기록](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md).
