@@ -43,4 +43,4 @@
 - **RE-P3**(`e35eecdf0`, `src/lib/ai/analyze.ts`·`sentiment.ts`): 매물 AI 분석·지역 분위기 프롬프트 맨 앞에 당해 연도 지시(핵심 원칙 8).
 - **RE-P2**(`f4509b896`, `src/lib/accessBatch.ts` 새 파일, `src/app/api/collect/dispatch/route.ts`): 예약 수집·AI 분석·텔레그램 알림 대상에서 이용 권한 없는 회원 제외(관리자 → FREE → 구독 → 최소 등급 없음 → 등급+사용기간, 화면 접속과 같은 순서). 시험 `npm run test:access`(3개). 운영 DB 읽기 확인(2026-10-26): 예약 수집 회원 3명 중 1명(일반 등급, 사용기간 2026-10-16 만료)이 빠짐 — 만료 뒤에도 수집·알림이 계속되던 빈틈이 실제로 있었음. 테스트 계정·VIP는 그대로 허용.
 - **RE-P1**(`4768f4286`, `src/app/api/cron/cleanup-sentiment/route.ts`): 주인님 지정(「부동산쪽은 예외로 1년」, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8)으로 보관 30일→**1년**, 기한 없이 남던 AI 매물 분석(`real_estate_analyses`)도 1년 정리 추가(정리 기록 `analyses`). 프로그램 시작이 2026-08이라 지금 지워지는 자료 없음.
-- 검수: tsc·eslint·`npm run build`·`test:access` 통과. 버전 v1.20(`lib/version.ts`, 마이그레이션 `20261026120000_version_v1_20.sql`). **배포: 운영 배포 명령이 자동 권한 검사에서 막혀 주인님 허용 대기** — 배포 뒤 DB `programs.version` v1.20 반영 필요.
+- 검수: tsc·eslint·`npm run build`·`test:access` 통과. **v1.20 운영 배포 완료(2026-10-26, 주인님 「배포해」)** — Ready·운영 주소 연결, DB `programs.version` v1.20(크롬 SQL 편집기), 운영 대시보드 v1.20 표시 확인.
