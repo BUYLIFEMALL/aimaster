@@ -427,3 +427,6 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 완료된 섹션 카드(GIF 제외) 제목 줄 「✏️ 문구」 옆 「✂ 누끼」 → `https://banana-canvas.buylife.xyz/tools?from=shop-detail` 새 창 → 그 창이 「준비됨」을 보내면 `/api/image`로 받은 섹션 이미지를 넘김(새 공용 모듈 **`nukki-handoff`** 사본 `lib/nukkiHandoff.ts` — 기준 `banana-canvas/src/lib/nukkiHandoff.ts`, 직접 고치지 말 것). 서버·DB·AI 변경 없음. 진행 안내는 카드 안 보라색 한 줄. 이번에는 보내기만(누끼 결과는 회원이 받아 「📤 직접 등록」).
 - 함께 나감: 공용 `browser-free-erase` 사본 동기화(`baf4a88e6`, 동작 같음).
 - 배포 전 작업 중 표의 agy `shop-detail-page` 줄(「✅ v1.34 완료」)을 주인님 승인(「끝난 것으로 보고 진행」)으로 뺌. 커밋 `6d7575a5f`, 배포 `shop-detail-page-3h85sy7og`. 운영 크롬 확인: 「#01 프로모션 배너」 「✂ 누끼」 → 바나나 새 창에 그림 도착, 이 카드에 「✂ 보냈습니다…」.
+
+## 2026-10-26 ✅ v1.36 — 누끼 결과 되돌려 넣기 (Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image])
+- 「✂ 누끼」가 섹션 키를 함께 보내고, 바나나 창의 「↩ 상세페이지에 넣기」 결과(`nukki-handoff` `readNukkiResult`, 바나나 주소·섹션 키·PNG/JPG·10MB)를 받으면 그 섹션에 `saveCustomFile`로 새 버전 저장(원본은 버전 목록). 공용 `browser-free-erase` 사본도 동기화(글자 읽기 모델 항목 추가, 상세페이지는 쓰지 않음). 커밋 `38180d0d9`, 배포 `shop-detail-page-7rl68h9iw`. 운영 크롬: VERSIONS 3→4 저장 확인 후 원본 다시 선택.
