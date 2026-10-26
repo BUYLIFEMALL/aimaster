@@ -33,7 +33,7 @@ export default function GuidePage() {
         ))}
       </div>
       <Notice tone="tip">💡 상품을 아직 만들지 않았다면 <a className="font-bold underline" href={`${SHOP_DETAIL_SITE}/products/new`} target="_blank" rel="noreferrer">AI 상세페이지 자동화 ↗</a>에서 먼저 만들어 주세요.</Notice>
-      <Notice tone="warn">⚠️ 크롬 확장은 다음 업데이트에서 내려받을 수 있습니다. 지금은 등록할 값 확인과 작업 만들기까지 됩니다.</Notice>
+      <Notice tone="warn">⚠️ 확장은 「🧩 확장 연결」 메뉴에서 내려받아 설치하고 연결합니다. 배송 템플릿 고르기는 아직 직접 하셔야 하고, 칸을 못 찾으면 그 칸 이름을 「등록 기록」에 남깁니다.</Notice>
       <div className="slw-card divide-y divide-slate-100 p-0">
         {FAQ.map((f) => (
           <details key={f.q} className="p-4">
