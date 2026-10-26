@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { CATEGORY_FEES } from "@/lib/marketFees";
+import { TARIFF_CHECKED_AT, TARIFF_LOOKUP_URL, TARIFF_ROWS } from "@/lib/customs/tariffTable";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,10 +24,10 @@ const aRows = CATEGORY_FEES.auction?.rows ?? [];
 const ESM_FEES: FeeRow[] = gRows.map((g, k) => ({ category: g.label, values: [`${g.ratePct}%`, `${aRows[k]?.ratePct ?? g.ratePct}%`, g.exception ?? "—"] }));
 
 /** 표마다 붙이는 확인 정보 — 확인일·부가세·출처, 공식 표 확인 여부 */
-function SourceNote({ verified, children }: { verified: boolean; children: ReactNode }) {
+function SourceNote({ verified, children, date = "2026-10-25" }: { verified: boolean; children: ReactNode; date?: string }) {
   return (
     <p className={`rounded-lg border px-3 py-2 text-[11px] leading-relaxed ${verified ? "border-mx-success/30 bg-mx-success/10 text-[#a7f3d0]" : "border-amber-400/40 bg-amber-400/10 text-[#fde68a]"}`}>
-      <span className="font-bold">{verified ? "✅ 공식 표 확인 · 2026-10-25" : "⚠ 공식 표 미확인 · 참고치 · 2026-10-25 기준"}</span> — {children}
+      <span className="font-bold">{verified ? `✅ 공식 표 확인 · ${date}` : `⚠ 공식 표 미확인 · 참고치 · ${date} 기준`}</span> — {children}
     </p>
   );
 }
@@ -166,6 +167,26 @@ export default async function FeesPage() {
             네이버플러스스토어·가격비교 등 다른 경로로 이탈하면 적용되지 않습니다.
           </p>
         </div>
+      </section>
+
+      {/* EC-W7(2026-10-26): 수입 관세율 참고표 — 숫자는 lib/customs/tariffTable.ts 한 곳 */}
+      <section id="tariff" className="space-y-3 rounded-2xl border border-mx-border bg-mx-surface p-5">
+        <h2 className="text-base font-bold text-mx-text">🛃 수입 관세율 참고표 (해외 소싱)</h2>
+        <SourceNote verified={false} date={TARIFF_CHECKED_AT}>
+          일반적으로 알려진 기본세율이며, {TARIFF_CHECKED_AT} 기준 관세청 공식 표로 숫자를 대조하지 못했습니다. 같은 품목군이라도
+          HS 부호마다 세율이 다르고, 원산지·FTA 적용 여부에 따라 낮아질 수 있습니다. 부가세는 별도(10%)입니다.
+        </SourceNote>
+        <FeeTable headers={["품목군", "대표 HS 부호", "기본세율(참고)", "주의"]} rows={TARIFF_ROWS.map((r) => ({ category: r.group, values: [r.hs, r.basicRate, r.note] }))} />
+        <div className="flex flex-wrap items-center gap-2 text-xs text-mx-muted">
+          <a href={TARIFF_LOOKUP_URL} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-mx-primary px-3 py-1.5 font-bold text-white hover:bg-[#1d4ed8]">
+            관세법령정보포털에서 내 품목 세율 조회 ↗
+          </a>
+          <span>품목분류(HS 부호)를 찾은 뒤 「세율」에서 기본·FTA 세율을 확인하세요. 확실하지 않으면 관세사에게 물어보세요.</span>
+        </div>
+        <p className="text-[11px] leading-relaxed text-mx-muted">
+          마진계산기의 관세는 <span className="font-semibold text-mx-text">(원가 + 해외 운송비) × 관세율</span>, 부가세는{" "}
+          <span className="font-semibold text-mx-text">(원가 + 운송비 + 관세) × 10%</span>로 계산합니다. 판매 목적 수입은 개인 소액 면세가 적용되지 않을 수 있습니다.
+        </p>
       </section>
 
       <section className="rounded-2xl border border-mx-accent/30 bg-mx-accent/10 p-4 text-xs leading-relaxed text-[#fde68a]">

@@ -20,7 +20,7 @@ export default async function WatchlistPage() {
   const { data: watchlist, error: watchlistError } = await supabase
     .from("trend_watchlist")
     .select(
-      "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode",
+      "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode, score_alert_threshold",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -37,6 +37,7 @@ export default async function WatchlistPage() {
     sourcingAlertActiveHourStart: w.sourcing_alert_active_hour_start,
     sourcingAlertActiveHourEnd: w.sourcing_alert_active_hour_end,
     sourcingAlertNotifyMode: w.sourcing_alert_notify_mode === "changes_only" ? "changes_only" : "always",
+    scoreAlertThreshold: w.score_alert_threshold ?? null,
   }));
 
   // 정기 작업(매일 리포트·소싱 알림·가격 알림) 실행 상태(v1.15) — 회원별 상태는 서비스 키로 읽는다(표 RLS는 본인 조회만)

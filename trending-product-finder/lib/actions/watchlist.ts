@@ -17,6 +17,8 @@ export interface WatchlistEntry {
   sourcingAlertActiveHourStart: number | null;
   sourcingAlertActiveHourEnd: number | null;
   sourcingAlertNotifyMode: "always" | "changes_only";
+  /** EC-W7: 기회 점수 ○점 이상만 알림(null = 끔) */
+  scoreAlertThreshold: number | null;
 }
 
 export interface WatchlistActionState {
@@ -25,7 +27,7 @@ export interface WatchlistActionState {
 }
 
 const WATCHLIST_SELECT =
-  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode";
+  "id, category_name, naver_category_code, keywords, is_active, sourcing_alert_enabled, sourcing_alert_interval_minutes, sourcing_alert_channels, sourcing_alert_active_hour_start, sourcing_alert_active_hour_end, sourcing_alert_notify_mode, score_alert_threshold";
 
 function toEntry(row: {
   id: string;
@@ -39,6 +41,7 @@ function toEntry(row: {
   sourcing_alert_active_hour_start: number | null;
   sourcing_alert_active_hour_end: number | null;
   sourcing_alert_notify_mode: string;
+  score_alert_threshold: number | null;
 }): WatchlistEntry {
   return {
     id: row.id,
@@ -52,6 +55,7 @@ function toEntry(row: {
     sourcingAlertActiveHourStart: row.sourcing_alert_active_hour_start,
     sourcingAlertActiveHourEnd: row.sourcing_alert_active_hour_end,
     sourcingAlertNotifyMode: row.sourcing_alert_notify_mode === "changes_only" ? "changes_only" : "always",
+    scoreAlertThreshold: row.score_alert_threshold ?? null,
   };
 }
 
@@ -206,4 +210,28 @@ export async function deleteWatchlistAction(formData: FormData): Promise<Watchli
   await syncMemberScheduler(user.id, false);
   revalidatePath("/watchlist");
   return {};
+}
+
+/** EC-W7(2026-10-26): 관심 목록별 「기회 점수 ○점 이상만 알림」 저장(빈 값 = 끔, 매일 리포트 전체 알림) */
+export async function updateScoreAlertThresholdAction(formData: FormData): Promise<WatchlistActionState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const id = String(formData.get("id") ?? "");
+  const raw = String(formData.get("threshold") ?? "").trim();
+  const threshold = raw === "" ? null : Number(raw);
+  if (threshold !== null && (!Number.isInteger(threshold) || threshold < 1 || threshold > 100)) {
+    return { error: "기준 점수는 1~100 사이로 골라 주세요." };
+  }
+
+  const { data, error } = await supabase
+    .from("trend_watchlist")
+    .update({ score_alert_threshold: threshold })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select(WATCHLIST_SELECT)
+    .single();
+  if (error) return { error: error.message };
+
+  revalidatePath("/watchlist");
+  return { entry: toEntry(data) };
 }

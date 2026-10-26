@@ -26,6 +26,8 @@ export interface WatchlistRow {
   category_name: string;
   naver_category_code: string | null;
   keywords: string[];
+  /** EC-W7: 기회 점수 알림 기준(null·없음 = 예전처럼 리포트 전체 알림) */
+  score_alert_threshold?: number | null;
 }
 
 export type GenerateReportResult = { ok: true } | { ok: false; error: string };
@@ -175,7 +177,11 @@ export async function generateReportForWatchlist(
   // 중복 알림이라 보내지 않음). 운영자 공용 계정이 아니라 회원이 설정 페이지에서 등록한
   // 본인 계정(SMTP/SOLAPI/텔레그램, 전부 BYOK)을 쓴다 — 채널별로 등록이 없으면 그 채널만
   // 조용히 건너뛰고, 한 채널 발송 실패가 다른 채널이나 리포트 생성 자체를 막지 않는다.
-  if (options?.notify) {
+  // EC-W7: 기준 점수를 정해 두면 기준 이상 키워드만, 하나도 없으면 보내지 않는다
+  const threshold = watchlist.score_alert_threshold ?? null;
+  const notifyItems = threshold == null ? items : items.filter((i) => i.opportunityScore >= threshold);
+  const notifyTitle = threshold == null ? watchlist.category_name : watchlist.category_name + " · " + threshold + "점 이상";
+  if (options?.notify && notifyItems.length > 0) {
     try {
       const { createAdminClient } = await import("@/lib/supabase/admin");
       const admin = createAdminClient();
@@ -205,7 +211,7 @@ export async function generateReportForWatchlist(
 
       if (userData.user?.email && smtpAccount) {
         try {
-          const { subject, html } = buildReportEmail(watchlist.category_name, items);
+          const { subject, html } = buildReportEmail(notifyTitle, notifyItems);
           await sendViaSmtpAccount(smtpAccount, userData.user.email, subject, html);
         } catch (err) {
           console.error(`[trending-product-finder] "${watchlist.category_name}" 이메일 알림 발송 실패:`, err);
@@ -214,7 +220,7 @@ export async function generateReportForWatchlist(
 
       if (profile?.phone && solapiAccount?.kakao_pf_id) {
         try {
-          await sendFriendtalk(solapiAccount, profile.phone, buildReportText(watchlist.category_name, items));
+          await sendFriendtalk(solapiAccount, profile.phone, buildReportText(notifyTitle, notifyItems));
         } catch (err) {
           console.error(`[trending-product-finder] "${watchlist.category_name}" 카카오톡 알림 발송 실패:`, err);
         }
@@ -225,7 +231,7 @@ export async function generateReportForWatchlist(
           await sendTelegramMessage({
             botToken: telegramLink.bot_token,
             chatId: telegramLink.chat_id,
-            text: buildReportText(watchlist.category_name, items),
+            text: buildReportText(notifyTitle, notifyItems),
           });
         } catch (err) {
           console.error(`[trending-product-finder] "${watchlist.category_name}" 텔레그램 알림 발송 실패:`, err);

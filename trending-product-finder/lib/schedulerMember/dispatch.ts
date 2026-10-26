@@ -63,7 +63,7 @@ export async function dispatchDueReports(options: DispatchOptions = {}) {
 
   let query = admin
     .from("trend_watchlist")
-    .select("id, user_id, category_name, naver_category_code, keywords, report_last_run_at")
+    .select("id, user_id, category_name, naver_category_code, keywords, report_last_run_at, score_alert_threshold")
     .eq("is_active", true);
   if (options.userId) query = query.eq("user_id", options.userId);
   if (options.excludeUserIds?.length) query = query.not("user_id", "in", `(${options.excludeUserIds.join(",")})`);

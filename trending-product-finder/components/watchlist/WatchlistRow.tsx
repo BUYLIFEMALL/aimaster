@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/watchlist";
 import { generateReportAction } from "@/lib/actions/reports";
 import { SourcingAlertControls } from "./SourcingAlertControls";
+import { ScoreAlertControl } from "./ScoreAlertControl";
 
 interface WatchlistRowProps {
   entry: WatchlistEntry;
@@ -245,6 +246,7 @@ export function WatchlistRow({ entry, onUpdated, onDeleted }: WatchlistRowProps)
       {genError && <p className="text-xs text-mx-danger">{genError}</p>}
       {rowError && <p className="text-xs text-mx-danger">{rowError}</p>}
 
+      <ScoreAlertControl entry={entry} onUpdated={onUpdated} />
       <SourcingAlertControls entry={entry} onUpdated={onUpdated} />
     </div>
   );
