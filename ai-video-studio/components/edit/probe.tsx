@@ -6,6 +6,7 @@ import { AbsoluteFill } from "remotion";
 import { Video } from "@remotion/media";
 import { renderMediaOnWeb } from "@remotion/web-renderer";
 import { ALL_FORMATS, BlobSource, BufferTarget, Conversion, Input, Mp4OutputFormat, Output } from "mediabunny";
+import { preferCpuCanvas } from "@/lib/edit/cpuCanvas";
 
 // v1.05 12초 → 6초(정상 영상은 1~2초에 통과). 갤러리 영상(업체 서버 인코딩)은 화면에서 시험을 건너뛴다
 const PROBE_TIMEOUT_MS = 6_000;
@@ -28,11 +29,17 @@ function ProbeClip({ src }: { src: string }) {
   );
 }
 
-/** 앞 10프레임 시험 렌더 — 성공하면 true, 멈추거나 실패하면 false */
-export async function probeClip(src: string): Promise<boolean> {
+/** 앞 10프레임 시험 렌더 — 성공하면 true, 멈추거나 실패하면 false.
+ *  v1.25 cpuCanvas면 메모리 쪽 2D 캔버스(맥 기본, PLAN §17). 시간 제한은 렌더 결과를 기다리지 않고 끝낸다 —
+ *  맥에서는 중단 신호를 렌더가 받지 못해 6초 제한이 90초 넘게 지나도 안 끝났다(§16) */
+export async function probeClip(src: string, opts: { cpuCanvas?: boolean } = {}): Promise<boolean> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), PROBE_TIMEOUT_MS);
-  try {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const restoreCanvas = opts.cpuCanvas ? preferCpuCanvas() : () => {};
+  const timeout = new Promise<boolean>((resolve) => {
+    timer = setTimeout(() => { ctrl.abort(); resolve(false); }, PROBE_TIMEOUT_MS);
+  });
+  const run = (async () => {
     const result = await renderMediaOnWeb({
       composition: { component: ProbeClip, id: "probe", width: 160, height: 160, fps: 30, durationInFrames: 10, defaultProps: { src } },
       inputProps: { src },
@@ -44,8 +51,9 @@ export async function probeClip(src: string): Promise<boolean> {
     });
     const blob = await result.getBlob();
     return blob.size > 0;
-  } catch {
-    return false;
+  })().catch(() => false).finally(restoreCanvas);
+  try {
+    return await Promise.race([run, timeout]);
   } finally {
     clearTimeout(timer);
   }

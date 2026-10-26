@@ -14,10 +14,11 @@ import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
 import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb, type ShrinkQuality } from "@/lib/edit/pcVideo";
-import { CLEANING_HINT_MS, STALL_MS, STOP_GRACE_MS, etaFromProgress, formatEta, isSlowRender, isStalled, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderTestSwitches, renderVerboseFromParam } from "@/lib/edit/renderInfo";
+import { CLEANING_HINT_MS, STALL_MS, STOP_GRACE_MS, etaFromProgress, formatEta, isSlowRender, isStalled, renderCanvasFromParam, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderTestSwitches, renderVerboseFromParam } from "@/lib/edit/renderInfo";
 import { PHASE_NAMES, RenderTrace, TRACE_WATCH_MS, setActiveTrace } from "@/lib/edit/renderTrace";
 import { tweakVideoEncoder } from "@/lib/edit/encoderTweak";
 import { preferSoftwareDecoding } from "@/lib/edit/softDecode";
+import { preferCpuCanvas } from "@/lib/edit/cpuCanvas";
 import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
@@ -52,6 +53,9 @@ function b64ToBlob(b64: string, mime: string): Blob {
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return new Blob([bytes], { type: mime });
 }
+
+/** v1.25 지금 주소·PC 기준 2D 캔버스 방식이 메모리 쪽인가(맥 기본, PLAN §17) — 형식 확인에도 같은 방식을 쓴다 */
+const probeOpts = () => ({ cpuCanvas: renderCanvasFromParam(new URLSearchParams(window.location.search).get("render"), navigator.userAgent) === "cpu" });
 
 export function EditStudio() {
   const params = useSearchParams();
@@ -135,7 +139,7 @@ export function EditStudio() {
       // 갤러리 영상은 업체 서버에서 인코딩된 파일이라 R1이 생기지 않는다(v1.04 운영 확인) → 시험을 건너뛴다
       if (!opts.trusted) {
         setBusy({ name, msg: "영상 형식 확인 중" });
-        if (!(await probeClip(url))) {
+        if (!(await probeClip(url, probeOpts()))) {
           URL.revokeObjectURL(url);
           url = "";
           // 내 PC 고속 변환이 있으면 회원 PC ffmpeg로 먼저(빠름), 안 되면 브라우저 소프트웨어 인코딩
@@ -155,7 +159,7 @@ export function EditStudio() {
           if (!fixed) setBusy({ name, msg: "형식 맞추는 중 0%" });
           blob = fixed ?? await reencodeSoftware(blob, (p) => setBusy({ name, msg: `형식 맞추는 중 ${Math.round(p * 100)}%` }));
           url = URL.createObjectURL(blob);
-          if (!(await probeClip(url))) throw new Error("이 영상은 형식을 맞춰도 합치기에 쓸 수 없습니다. 다른 영상을 넣어 주세요.");
+          if (!(await probeClip(url, probeOpts()))) throw new Error("이 영상은 형식을 맞춰도 합치기에 쓸 수 없습니다. 다른 영상을 넣어 주세요.");
         }
       }
       const clip: EditClip = { id: newId(), src: url, name, duration, trimStart: 0, trimEnd: 0, caption: opts.caption ?? "", narration: "", voice: null, source: opts.source, ...opts.base };
@@ -417,6 +421,9 @@ export function EditStudio() {
     // v1.23 시험 스위치(PLAN §10): trace·nopace·htmlcanvas
     const test = renderTestSwitches(renderParam);
     const restoreDecoding = decode === "software" ? preferSoftwareDecoding() : () => {};
+    // v1.25 맥은 메모리 쪽 2D 캔버스가 기본(PLAN §17, 맥미니 시험 §16). ?render=gpucanvas는 예전 방식
+    const canvas = renderCanvasFromParam(renderParam, navigator.userAgent);
+    const restoreCanvas = canvas === "cpu" ? preferCpuCanvas() : () => {};
     // v1.24 인코더 감싸기(PLAN §12): realtime이면 latencyMode "realtime", trace면 대기열·출력 수 기록. 기본 주소에서는 건드리지 않는다
     const enc = test.trace || test.realtime ? tweakVideoEncoder({ realtime: test.realtime }) : null;
     const trace = test.trace ? new RenderTrace(performance.now(), (t) => console.info("[avs-trace] slow", JSON.stringify({ ...t, encoder: enc?.stats() }))) : null;
@@ -436,7 +443,7 @@ export function EditStudio() {
     const frames = { total: 0, rendered: 0, encoded: 0 };
     const switches = [test.trace && "trace", test.noPace && "nopace", test.htmlCanvas && "htmlcanvas", test.realtime && "realtime"].filter(Boolean).join(",");
     const logDiag = (outcome: "done" | "error" | "aborted") =>
-      console.info("[avs-render]", JSON.stringify(renderDiagnostics({ outcome, hw, decode, elapsedMs: Date.now() - startedAt, totalFrames: frames.total, renderedFrames: frames.rendered, encodedFrames: frames.encoded, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 0, switches, phases: trace?.totals, encoder: enc?.stats() })));
+      console.info("[avs-render]", JSON.stringify(renderDiagnostics({ outcome, hw, decode, canvas, elapsedMs: Date.now() - startedAt, totalFrames: frames.total, renderedFrames: frames.rendered, encodedFrames: frames.encoded, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 0, switches, phases: trace?.totals, encoder: enc?.stats() })));
     try {
       const { width, height } = dimensions(project.aspect, project.quality);
       const { totalFrames } = layout(project);
@@ -486,6 +493,7 @@ export function EditStudio() {
       setActiveTrace(null);
       enc?.restore();
       restoreDecoding();
+      restoreCanvas();
       if (renderRun.current === run) renderRun.current = null;
       if (run.forced) setCleaning(false);
       else setRender(null);

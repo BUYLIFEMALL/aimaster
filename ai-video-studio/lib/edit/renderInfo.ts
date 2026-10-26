@@ -25,6 +25,17 @@ export function renderDecodeFromParam(value: string | null | undefined, userAgen
   return isMacDesktop(userAgent) ? "software" : "default";
 }
 
+export type RenderCanvas = "cpu" | "gpu";
+
+/** v1.25 2D 캔버스 방식 — 맥미니 시험(PLAN §16)에서 GPU 2D 캔버스가 막힘 원인으로 확정돼 맥은 메모리 쪽 캔버스(cpu)가 기본.
+ *  `?render=gpucanvas`는 예전 방식(비교용), `?render=cpucanvas`는 맥이 아니어도 cpu */
+export function renderCanvasFromParam(value: string | null | undefined, userAgent: string): RenderCanvas {
+  const sw = renderSwitches(value);
+  if (sw.includes("gpucanvas")) return "gpu";
+  if (sw.includes("cpucanvas")) return "cpu";
+  return isMacDesktop(userAgent) ? "cpu" : "gpu";
+}
+
 /** `?render=verbose`면 렌더 라이브러리 자세한 로그(장면 추출·키프레임) */
 export function renderVerboseFromParam(value: string | null | undefined): boolean {
   return renderSwitches(value).includes("verbose");
@@ -74,12 +85,13 @@ export function isSlowRender(elapsedMs: number, etaMs: number): boolean {
 }
 
 /** 진단 한 줄(콘솔) — 그리기(rendered)와 인코딩(encoded) 중 어디가 막히는지 구분용 */
-export function renderDiagnostics(d: { outcome: "done" | "error" | "aborted"; hw: RenderHw; decode: RenderDecode; elapsedMs: number; totalFrames: number; renderedFrames: number; encodedFrames: number; userAgent: string; cores: number; switches?: string; phases?: { waitMs: number; composeMs: number; encodeMs: number; slowFrames: number }; encoder?: { queue: number; dequeued: number; outputs: number; latencyMode: string | null } }) {
+export function renderDiagnostics(d: { outcome: "done" | "error" | "aborted"; hw: RenderHw; decode: RenderDecode; canvas?: RenderCanvas; elapsedMs: number; totalFrames: number; renderedFrames: number; encodedFrames: number; userAgent: string; cores: number; switches?: string; phases?: { waitMs: number; composeMs: number; encodeMs: number; slowFrames: number }; encoder?: { queue: number; dequeued: number; outputs: number; latencyMode: string | null } }) {
   const sec = Math.round(d.elapsedMs / 100) / 10;
   return {
     outcome: d.outcome,
     hw: d.hw,
     decode: d.decode,
+    ...(d.canvas ? { canvas: d.canvas } : {}),
     ...(d.switches ? { switches: d.switches } : {}),
     ...(d.phases ? { phases: d.phases } : {}),
     ...(d.encoder ? { encoder: d.encoder } : {}),
