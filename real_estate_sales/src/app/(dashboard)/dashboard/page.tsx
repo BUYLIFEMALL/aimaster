@@ -86,7 +86,7 @@ export default async function DashboardPage() {
 
       <KpiGrid>
         <KpiCard icon="📍" label="관심 지역" value={districtsRes.count ?? 0} hint="서울 자치구" />
-        <KpiCard icon="🆕" label="새 실거래" value={newRes.count ?? 0} hint="아직 분석·알림 전" tone="amber" />
+        <KpiCard icon="🆕" label="새 실거래" value={newRes.count ?? 0} hint="아직 열어 보거나 알림 받기 전" tone="amber" />
         <KpiCard icon="📅" label="최근 7일 수집" value={weekRes.count ?? 0} tone="green" />
         <KpiCard icon="🤖" label="AI 분석 완료" value={analysesRes.count ?? 0} tone="muted" />
       </KpiGrid>

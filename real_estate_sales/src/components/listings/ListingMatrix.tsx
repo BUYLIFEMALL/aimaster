@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { formatWon, priceToOfficialPct } from "@/lib/format";
+import { exportListingsCsvAction } from "@/lib/actions/export";
 
 export interface ListingRow {
   matchId: string;
@@ -23,7 +24,7 @@ type View = "table" | "grid";
 
 const STATUS: Record<string, { label: string; chip: string }> = {
   new: { label: "새 실거래", chip: "mx-chip-amber" },
-  notified: { label: "알림 보냄", chip: "mx-chip-blue" },
+  notified: { label: "✔ 확인됨", chip: "mx-chip-blue" }, // RE-B2: 알림을 보냈거나 회원이 상세를 열어 본 것
   analyzed: { label: "분석 완료", chip: "mx-chip-green" },
 };
 
@@ -33,6 +34,21 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
   const [sgg, setSgg] = useState("all");
   const [sort, setSort] = useState<Sort>("recent");
   const [view, setView] = useState<View>("table");
+  const [exporting, startExport] = useTransition();
+  const [exportMsg, setExportMsg] = useState("");
+  // RE-N2(2026-10-26): 전체 실거래 CSV(엑셀에서 열림) 내려받기
+  const exportCsv = () => startExport(async () => {
+    setExportMsg("");
+    const r = await exportListingsCsvAction();
+    if (!r.csv) { setExportMsg(r.error ?? "내보내기에 실패했어요."); return; }
+    const url = URL.createObjectURL(new Blob([r.csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `실거래내역_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExportMsg(`📥 ${r.count}건을 내려받았어요.`);
+  });
 
   const districts = useMemo(() => Array.from(new Set(rows.map((r) => r.sgg))).sort(), [rows]);
 
@@ -48,6 +64,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
 
   return (
     <div className="mx-card p-4">
+      {exportMsg && <p className="mb-2 text-sm text-mx-muted" role="status">{exportMsg}</p>}
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <input
           value={query}
@@ -73,6 +90,9 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
             <option value="area">전용면적 큰순</option>
             <option value="ratio">공시가 대비 높은순</option>
           </select>
+          <button type="button" onClick={exportCsv} disabled={exporting} className="mx-btn-ghost min-h-[40px] text-sm" title="전체 실거래를 엑셀에서 열 수 있는 CSV로 내려받아요">
+            {exporting ? "만드는 중…" : "📥 CSV 내려받기"}
+          </button>
           <div className="flex rounded-lg border border-mx-border p-0.5">
             <button type="button" onClick={() => setView("table")} className={`mx-toggle ${view === "table" ? "mx-toggle-active" : ""}`}>
               ☰ 표

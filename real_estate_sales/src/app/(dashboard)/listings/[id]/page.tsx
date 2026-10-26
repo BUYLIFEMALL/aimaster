@@ -26,6 +26,15 @@ export default async function ListingDetailPage({
   // 2026-10-17 v1.13: 상세 화면을 여는 것만으로는 유료 AI 분석을 실행하지 않는다(회원 본인 키 비용 — IMPROVEMENT_HANDOFF #12).
   // 분석은 아래 [AI 분석 실행] 버튼을 눌렀을 때만 한다.
 
+  // RE-B2(2026-10-26): 열어 본 새 실거래는 「확인됨」으로 — 대시보드 「안 본 새 실거래」가 줄어든다. DB 값은 그대로(new → notified),
+  // 이미 분석된 것(analyzed)은 건드리지 않는다. 본인 행만(RLS user_matches_update_own + user_id 조건). 실패해도 화면은 그대로 보여 준다.
+  await supabase
+    .from("real_estate_user_matches")
+    .update({ status: "notified" })
+    .eq("user_id", user.id)
+    .eq("listing_id", id)
+    .eq("status", "new");
+
   const [{ data: analyses }, { data: apiKeys }, { data: landInfo }] = await Promise.all([
     supabase
       .from("real_estate_analyses")
@@ -80,6 +89,17 @@ export default async function ListingDetailPage({
             className="mx-btn-ghost mt-3"
           >
             🔔 이 단지 새 매물 알림 받기 ↗
+          </a>
+        )}
+        {listing.bldg_nm && (
+          // RE-N1(2026-10-26): 네이버 부동산에서 이 단지 찾아보기 — 새 창으로 검색 화면만 연다(서버는 네이버에 요청하지 않음)
+          <a
+            href={`https://m.land.naver.com/search/result/${encodeURIComponent([listing.stdg_nm, listing.bldg_nm].filter(Boolean).join(" "))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mx-btn-ghost mt-3 ml-2"
+          >
+            🏠 네이버 부동산에서 보기 ↗
           </a>
         )}
       </div>
