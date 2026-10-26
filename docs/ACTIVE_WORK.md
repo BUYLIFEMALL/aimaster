@@ -22,7 +22,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `docs/analysis-naver-blog-neighbor-20261024/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 주인님 진행 지시: 0-A 허용 범위·상태/상한/보관/복구 상세명세·검수표. 문서만, 운영/DB/실제 등록/유료호출/디자인 구현 제외. |
+| `docs/analysis-naver-blog-neighbor-20261024/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 0-B: 공식 검색API 이관/요금·회원 본인키·계정/자료 접근 점검. 구 API1회401·024, HUB 현재 무료 범위 확인 후 제한된 조회 시험. 신청/공감/댓글·AI·운영 설정 변경0. |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 보안4앱 완료(BLOG1.83·티스토리1.93·올인원1.54·agent2.22), SEO16.3.5만 남음. 실제 입력은 OS 전경 요청false·Gmail/설치2.21이라 주인님 직접 Edge 포커스/시험회원 연결·옛8연결해제 답변 대기. 인계§12 |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
