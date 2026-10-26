@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-10-26T10:55:14.207Z",
+  "command": "npm run test:http",
+  "tests": [
+    "HTTP01 미로그인실제Next응답401",
+    "HTTP02 회원응답캐시금지",
+    "HTTP03 다른출처403",
+    "HTTP04 JSON아닌요청415",
+    "HTTP05 Origin없는요청403",
+    "HTTP06 GET실행차단405"
+  ],
+  "passed": 6,
+  "expected": 6,
+  "server": "Next production server on loopback",
+  "realCredentialsUsed": false,
+  "operatingSessionVerified": false,
+  "operatingDatabaseChanged": false,
+  "serverStopped": true
+}

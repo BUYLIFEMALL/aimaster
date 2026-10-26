@@ -1,0 +1,135 @@
+{
+  "checkedAt": "2026-10-26T10:56:03.519Z",
+  "command": "npm run test:database",
+  "version": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "image": "postgres:17-alpine",
+  "network": "none",
+  "hostPorts": [],
+  "tests": [
+    {
+      "name": "DB01 신규6표 모두RLS·함수는SECURITY INVOKER",
+      "passed": true
+    },
+    {
+      "name": "DB02 기본상한20/100/30·review/OFF·라이브차단",
+      "passed": true
+    },
+    {
+      "name": "DB03 RLS는회원본인행만조회",
+      "passed": true
+    },
+    {
+      "name": "DB04 회원은설정/카운터/작업직접변경불가",
+      "passed": true
+    },
+    {
+      "name": "DB05 익명조회·회원/익명RPC·라이브게이트변경차단",
+      "passed": true
+    },
+    {
+      "name": "DB06 타회원공용연결계정참조거절",
+      "passed": true
+    },
+    {
+      "name": "DB07 DB상한CHECK·실패트랜잭션보존",
+      "passed": true
+    },
+    {
+      "name": "DB08 라이브기본차단은설정ON/선점도차단",
+      "passed": true
+    },
+    {
+      "name": "DB09 별도DB연결2개·회원설정상한1개경합",
+      "passed": true
+    },
+    {
+      "name": "DB10 별도DB연결40개·댓글30예약/10한도거절",
+      "passed": true
+    },
+    {
+      "name": "DB11 연결계정/글/답글종류를바꿔도이웃당일1개",
+      "passed": true
+    },
+    {
+      "name": "DB12 만료선점회수·세대펜싱·예약이중가산없음",
+      "passed": true
+    },
+    {
+      "name": "DB13 armed만료는회수안함·결과불명은예약유지/계정중단",
+      "passed": true
+    },
+    {
+      "name": "DB14 성공중복계산0·늦은실패로성공되돌림0",
+      "passed": true
+    },
+    {
+      "name": "DB15 미실행근거가있을때만슬롯반환",
+      "passed": true
+    },
+    {
+      "name": "DB16 공감ON/불명은동작없이건너뜀",
+      "passed": true
+    },
+    {
+      "name": "DB17 신청성공은pending·수락전댓글거절",
+      "passed": true
+    },
+    {
+      "name": "DB18 관찰된서로이웃해제·오래된관계는등록허가거절",
+      "passed": true
+    },
+    {
+      "name": "DB19 승인문장/설정변경·다른회원작업접근차단",
+      "passed": true
+    },
+    {
+      "name": "DB20 중단뒤등록허가차단·도착한성공결과는기록",
+      "passed": true
+    },
+    {
+      "name": "DB21 KST날짜·자정상한허가·이전날선점거절",
+      "passed": true
+    },
+    {
+      "name": "DB22 30일만료·문장수정은만료시각연장안함",
+      "passed": true
+    },
+    {
+      "name": "DB23 계정연결해제시작업기록보존·재실행차단",
+      "passed": true
+    },
+    {
+      "name": "DB24 변경한작업ID로같은공감작업중복예약불가·롤백보존",
+      "passed": true
+    },
+    {
+      "name": "DB25 원래상한을낮추면예전승인으로arm불가",
+      "passed": true
+    },
+    {
+      "name": "DB26 회원RLS는작업/원장/슬롯/관계도격리",
+      "passed": true
+    },
+    {
+      "name": "DB27 HTTP처리→서버회원ID결합→실제SQL·위조결과보고차단",
+      "passed": true
+    },
+    {
+      "name": "DB28 등록직전허가재확인·만료/계정중단뒤에는실행불가",
+      "passed": true
+    }
+  ],
+  "passed": 28,
+  "failed": 0,
+  "operatingDatabaseChanged": false,
+  "fixtureUsersOnly": true,
+  "containerRemoved": true,
+  "sourceHashEncoding": "UTF-8 CRLF normalized to LF",
+  "sourceSha256": {
+    "src/lib/work-api.ts": "563f55174578062beb23f3f22b827136157b823a2dbe40adfa5ff28c6fd85d3b",
+    "src/app/api/work/route.ts": "c8c8ed4490b7125daa3bdadf8b9ef64e9e32c238a14190cc62b1bcabc555d776",
+    "src/lib/access.ts": "d3a2e4e60efa09703ccfbeba7a7a18fd90194eef318a9f2530a75b18c68013c3",
+    "supabase/migrations/20261026103202_bnc_server_queue.sql": "a5b3f68d53497b16a1e2c35a92b9afb13db5b374caf4418010b8b2eb1472d52e",
+    "tests/database.mjs": "d66c61c4606ec470ee91224af5898eab48b0c9fcd270083d2d91cea00c3b3af5"
+  }
+}
