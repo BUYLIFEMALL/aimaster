@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-26 후속 보안3앱 배포 완료: BLOGv1.83·티스토리v1.93·올인원v1.54(무료396개·Vercel3회). 기존 에이전트v2.22까지 보안4개 완료, SEO16.3.5만 남음. SEO는 agy디자인v2.21 배포를 확인해 DB표시만 정정. 실제 입력/예약은 Edge 실제 포커스·시험계정/연결·승인 대기. [최신 인계 §12](../HANDOFF_20261025_BLOG_TO_CODEX.md#12-2026-10-26-후속--블로그-보안3개-배포seo-메타-정정포그라운드-검수-대기).
+- 마지막 갱신: 2026-10-26 SEO 미적용 보안 패치 준비(2파일·단위127개/타입/적용사전검사 통과). 운영 보안4앱 완료/SEO16.3.5 미완료 유지. 원본/DB/배포 변경0. 원격세션2 전경은크롬, Edge 직접 활성화/시험계정 연결과 SEO 보안범위 인수 답변 대기. [최신 인계 §13](../HANDOFF_20261025_BLOG_TO_CODEX.md#13-2026-10-26-재개--원격-세션-확인seo-미적용-패치-준비).
 
 ## 지금 하는 일
 
@@ -23,7 +23,7 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `blog-content-maker` | ③-2 단독 발행 플랜 후보 보존 | 전체 분석은 SEO/미디어 연계 동등성 검토를 우선 추천, 배치 결정 뒤 구현 | [후보 플랜](../../blog-content-maker/docs/PLAN_20261025_AUTO_POSTING.md)·[분석](../analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025) |
-| SEO 1개 | ④ 묶음E 보안 업데이트(현재16.3.5, 나머지4앱은16.4.2 완료) | agy 디자인v2.21 완료, ACTIVE_WORK 예약 해제/범위 확인 뒤 | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` |
+| SEO 1개 | ④ 묶음E: 임시 복제본 보안패치2파일 준비·단위127개/타입/적용사전검사 통과, 운영16.3.5는 미수정 | 보안범위 인수 승인 또는 agy 예약 해제, 요청cf22fd7b | `docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md` |
 | `ai-auto-blog` | BLOG 정리(이동 안내·비공개·FREE 배지 이전) | 시점 결정 | `naver-blog-agent/docs/PLAN_20261024_MAEPSI_E1_E4.md` E-4 5번 |
 | `naver-blog-agent` | E-2 회원 선택 빠른 입력(보류) | 재개 결정 | 같은 플랜 |
 | `naver-blog-seo-studio` | 도톨이 2차(이전 글 비교·스타일 점수·이미지 노드), N7·N13 | 결정 | `naver-blog-seo-studio/docs/PLAN_20261024_DOTORI_D1_D4.md` |
@@ -55,6 +55,8 @@
 4. 위 시험을 마친 뒤 다음 병합/연계 단위 또는 보안 업데이트를 결정. 콘텐츠③-2 독립 발행 플랜은 후보 재검토 상태. 관리자 요청함0044는 현재 정상 작동.
 
 ## 주인님께 여쭐 것
+- [범위 인수] SEO 디자인 완료 후 남은 보안패치2파일(임시127개/타입/적용검사 통과)을 Codex가 인수·적용·기존승인 배포1회로 이어갈지. agy ACTIVE_WORK 예약이 남음. 요청 cf22fd7b-452c-4017-8eec-bc4e4419d8ec.
+- [화면 확인] 도구/Edge는 Windows 원격 rdp-tcp#0 세션2, 전경 chrome. 해당 원격화면에서 작업표시줄 Edge를 직접 클릭했는지와 보고 있는 화면이 원격/직접 PC인지 확인 필요.
 - [로그인·계정] Edge 설정의 Gmail을 시험 원고 소유자 buylifemall@naver.com으로 직접 전환→확장 프로그램 바로 연결(buylifemall)→같은 Edge 네이버 로그인. 마지막 설치확인은v2.21이며 웹/ZIP은v2.22로 갱신됨, 설치본 업데이트 확인 필요. 요청 `7eba5ff7-7af9-488b-83d2-946f78abb269`.
 - [승인·결정] 시험 회원의 기존 Chrome 연결8개를 끊고 이번 Edge만 남길지. 다른 브라우저가 작업을 가져갈 수 있어 승인 전 전송 보류. 요청 `4c54bb78-b9b5-456c-b90d-21788f4cb97a`, 인계 §1·§8에 대상/이유.
 - [승인·결정] SEO v2.21 기존 원고 c9263541 「초보자를 위한 가을 캠핑 준비물」을 비공개·30분 이상 뒤 예약 → 목록/웹 reserved 확인 → 즉시 취소하는 실제 시험. 현재는 계획/후보 확인만 했으며 승인 답변 대기. 비공개 예약 미지원이면 중단.

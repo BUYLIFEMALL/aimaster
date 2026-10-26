@@ -64,7 +64,7 @@
 | ai-auto-blog · tistory-auto-blog | **16.4.2 완료** | 2026-10-26 Codex BLOGv1.83/티스토리v1.93, 검사188/175개·tsc/로컬빌드·READY/DB/ZIP OK | ✅ |
 | naver-blog-agent | **16.4.2 완료** | 2026-10-26 Codex v2.22, READY·DB/ZIP OK, 모의105개+2검사/tsc/로컬빌드 통과. 실제 입력 검수 대기 | ✅ |
 | naver-blog-allinone | **16.4.2 완료** | 2026-10-26 Codex v1.54, 검사33개·tsc/로컬빌드·READY/DB/ZIP OK | ✅ |
-| naver-blog-seo-studio | 16.3.5 | agy 디자인v2.21 완료·ACTIVE_WORK 예약 남음. 보안 패치 별도 필요 | 블로그 담당, 폴더 예약 조율 후 |
+| naver-blog-seo-studio | 16.3.5 | agy 디자인v2.21 완료·예약 남음. Codex 임시후보2파일·127개/타입/적용검사 통과, 원본 미적용 | 블로그 담당, 폴더 예약 조율 후 |
 | blog-keyword | ~~16.4.0~~ → **16.4.2 완료** | 2026-10-24 블로그 담당 `claude-win-20261024-blog3` — 묶음 C v1.08 배포와 같은 빌드(`blog-keyword-b4vt26i3f`, `8c0e67c11`) | ✅ |
 | cardnews-studio · seo-thumbnail-pro · youtube-channel-consultant | 16.2.11 | 버전 파일 없는 옛 구조 | 윈도우 CLI 아무나 |
 | web-crawler | — | 미커밋 변경(`web-crawler/AGENTS.md`) 있음 | 그 변경 주인 세션 |
