@@ -22,6 +22,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `trending-product-finder/` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-26 | EC-W7 과세환율·관세 계산·관세율 참고표·점수 알림(플랜 `trending-product-finder/docs/PLAN_20261026_EC_W7_FX_TARIFF_ALERT.md`, 승인: DB 2건·환경변수 1개·빌드 최대 2회) |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | v2.22 보안 배포 완료·예약 설정 해제 대기분 포함. 실제 입력: Edge window_not_focused로 주인님 직접 포커스/시험회원 연결·옛8연결해제 답변 대기. 보안 나머지4개 미수정, SEO UI/소스는 agy 담당. 인계§11 |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
