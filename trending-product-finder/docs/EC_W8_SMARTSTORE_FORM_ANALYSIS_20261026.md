@@ -93,3 +93,9 @@
 - 보관함이 비어 있어 이미지 주소 모양은 미확인.
 - **판단**: 보관함 이미지가 3개월 보관이라, 그 주소를 상세설명 HTML에 넣으면 3개월 뒤 이미지가 사라질 위험 → 상세설명 이미지는 **스마트에디터 ONE 안에서 올리는 방식**(에디터에 올린 이미지는 상품 내용에 붙어 계속 보관)이 더 안전. 스마트스토어 상세설명 「스마트 에디터 ONE으로 작성」은 네이버 블로그와 같은 편집기라, 블로그 확장(`naver-blog-agent/extension/editor.js`)의 이미지 넣기 코드를 그대로 재사용할 수 있음(편집기 화면 저장본으로 확인 필요).
 - **보관함 사진 주소 확인(저장본 `…_사진보관함_사진등록.html`, 주인님 시험 업로드 1장)**: 목록 `li` `photo in vm.photoList` 안 `span` 배경 그림 `/shop1.phinf.naver.net/<날짜_번호>/<파일>.png?type=…` → 공개 주소 **`https://shop-phinf.pstatic.net/<같은 경로>`로 외부에서 200 열림**(`shop1.phinf.naver.net` 직접은 안 열림). 네이버 도메인이라 「외부 링크 자동 삭제」 대상은 아닐 것으로 보이나, **「3개월 보관」 뒤 주소가 계속 열리는지는 미확인** → 상세설명은 스마트에디터 ONE 방식 우선, 보관함+HTML은 대안.
+
+## 9. 상세설명 스마트에디터 ONE (2026-10-26, 저장본 `네이버 스마트스토어센터_에디터원.html`) — **결정: 상세설명은 이 방식**
+- 「직접 작성 → 스마트 에디터 ONE 으로 작성」으로 열리는 편집기가 **네이버 블로그와 같은 스마트 에디터 ONE**: `.se-component`(6)·`.se-image`·`.se-text-paragraph`·`.se-toolbar`·사진 추가 `button.se-image-toolbar-button[data-name="image"]`·끝내기 「등록」 버튼(`btn btn-primary btn-sm progress-button`). 본문 iframe 1개(입력 보조용). `.se-document`는 이 저장본에 없음(블로그 확장의 이 표시 확인 부분은 빼고 씀).
+- 블로그 확장 `naver-blog-agent/extension/editor.js` `command === 'image'`(397행~) 순서를 그대로 재사용: 사진 버튼 클릭 → `input[type=file]`(accept image) 대기 → `DataTransfer`로 파일 넣기·`change` → `.se-component.se-image` 수가 늘 때까지 대기. 블로그 전용 AI 표시(`ensureImageAi`)는 쓰지 않음.
+- 에디터에 올린 이미지는 상품 내용에 붙어 보관되므로 사진보관함 3개월 문제와 무관. 섹션 이미지를 순서대로 한 장씩 넣고 「등록」으로 상품 화면에 돌아옴.
+- 정리된 확장 단계: 카테고리(검색·고르기) → 상품명·판매가·즉시할인·재고 → 대표/추가 이미지(「내 사진」 파일 칸) → 상세설명(스마트에디터 ONE에 섹션 이미지 순서대로) → 고시·배송 템플릿·A/S·판매자 코드 → 방식별 마지막(멈춤/임시저장/저장하기).
