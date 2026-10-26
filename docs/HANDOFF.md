@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실거래 투자분석 자동화 v1.21 배포
+- 한 일(`ae0e35ce5`): RE-B1 목록 쪽 나누기(50건, `?page=N`) · RE-B2 상세를 열면 `new→notified`, 이름표 「✔ 확인됨」(DB 구조 변경 없음) · RE-N1 상세 「🏠 네이버 부동산에서 보기」 · RE-N2 「📥 CSV 내려받기」(서버 액션 `src/lib/actions/export.ts`, 이용 권한 확인, 최대 5,000건) · 목록 안내 문구 정정(AI 분석은 버튼을 눌렀을 때만)
+- 정책 결정: 사용기간 끝난 일반 회원은 연장하지 않고 종료, 유료 전환(주인님 지시) — v1.20 RE-P2가 이미 처리
+- 검수: tsc·build·내 파일 eslint·`test:access` 통과, 배포 Ready, DB v1.21, 운영 목록에서 v1.21·전체 425건·CSV 버튼·쪽 이동(9쪽) 확인
+- 참고: `dashboard/page.tsx` 19행 `Date.now` lint(react-hooks/purity)는 원래 있던 것, 빌드 영향 없음
+- 링크: https://real-estate-sales.buylife.xyz/listings · 비용: Vercel 빌드 1회(주인님 승인)
+
 ## 2026-10-26 ✅ [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` — AI 상세페이지 자동화 v1.38 E3 편집 화면 고도화 및 3D 버튼 장착
 - **한 일**:
   1. 이커머스·이미지 담당(`claude-win-sdp`)이 개발한 v1.37 E3(배송안내/블록편집/말투5종) 신규 컴포넌트 4종의 UI/UX 다듬기 및 **7. 이커머스 셀러 스튜디오 스타일** 일체화 리뉴얼
