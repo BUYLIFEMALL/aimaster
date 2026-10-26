@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실거래 투자분석 자동화 v1.22 배포(브이월드 도메인)
+- 한 일(`221172a2b`): 주인님이 브이월드 기존 인증키 도메인을 `n8n.buylife.xyz`→`real-estate-sales.buylife.xyz`로 변경 → 운영 환경변수 `VWORLD_REGISTERED_DOMAIN` 덮어쓰기(Vercel CLI, Overrode)·코드 기본값 맞춤·재배포. `N8N_VWORLD_PROXY_*`는 코드에서 안 쓰는 옛 값(삭제 안 함)
+- 검수: tsc 통과, 배포 Ready, DB v1.22. **미확인**: 배포 뒤 새 실거래가 아직 없어 브이월드 호출 전 — 다음 새 실거래의 `official_price` 채움 확인
+- 링크: https://real-estate-sales.buylife.xyz · 비용: Vercel 빌드 1회(주인님 「진행해」)
+
 ## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실거래 투자분석 자동화 v1.21 배포
 - 한 일(`ae0e35ce5`): RE-B1 목록 쪽 나누기(50건, `?page=N`) · RE-B2 상세를 열면 `new→notified`, 이름표 「✔ 확인됨」(DB 구조 변경 없음) · RE-N1 상세 「🏠 네이버 부동산에서 보기」 · RE-N2 「📥 CSV 내려받기」(서버 액션 `src/lib/actions/export.ts`, 이용 권한 확인, 최대 5,000건) · 목록 안내 문구 정정(AI 분석은 버튼을 눌렀을 때만)
 - 정책 결정: 사용기간 끝난 일반 회원은 연장하지 않고 종료, 유료 전환(주인님 지시) — v1.20 RE-P2가 이미 처리
