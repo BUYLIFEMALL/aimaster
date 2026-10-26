@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.29: 결과 표 정렬·거르기·층 표기, 여러 번 내린 매물, 팝업 연결 계정 강조, AI 요약 글 정리, 실거래 이름 맞추기 보강·진단, 설정 박스 간격 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.29', extension_version = 'v1.29', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
