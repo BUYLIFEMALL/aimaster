@@ -13,7 +13,7 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
     <div className="border-b border-slate-200 p-5">
       <Link href="/home" onClick={onNavigate} className="flex items-center gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-700 text-xl shadow-sm" aria-hidden>
-          📊
+          🛒
         </span>
         <span className="min-w-0">
           <span className="block text-sm font-extrabold leading-snug text-slate-900">{APP_NAME}</span>
@@ -90,7 +90,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
 
       <div className="sticky top-0 z-40 flex h-14 print:hidden items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur md:hidden">
         <Link href="/home" className="flex min-w-0 items-center gap-2">
-          <span aria-hidden>📊</span>
+          <span aria-hidden>🛒</span>
           <span className="truncate text-sm font-extrabold text-slate-900">{APP_NAME}</span>
           <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">{APP_VERSION}</span>
         </Link>

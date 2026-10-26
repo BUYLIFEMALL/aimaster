@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** 도구 화면 맨 위 제목 줄 — 이모티콘·제목·한 줄 설명·「브라우저 안에서만 처리」 배지. */
+/** 도구 화면 맨 위 제목 줄 — 이모티콘·제목·한 줄 설명·「내 상품만」 배지. */
 export function PageHeader({ emoji, title, description, children }: { emoji: string; title: string; description: string; children?: ReactNode }) {
   return (
     <header className="mb-5 flex flex-wrap items-start justify-between gap-3">
@@ -13,7 +13,7 @@ export function PageHeader({ emoji, title, description, children }: { emoji: str
       </div>
       <div className="flex items-center gap-2">
         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800">
-          🔒 주문은 이 PC에만 보관
+          🔒 내 상품만 보입니다
         </span>
         {children}
       </div>

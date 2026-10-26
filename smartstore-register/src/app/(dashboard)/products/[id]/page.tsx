@@ -9,6 +9,11 @@ import { SHOP_DETAIL_SITE } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 
+/** 상세페이지 분석 카테고리(예: 패션잡화 > 남성가방 > 백팩)의 마지막 단계만 검색어로 */
+function lastCategory(c: string | null): string {
+  return (c ?? "").split(/[>›/]/).map((s) => s.trim()).filter(Boolean).pop() ?? "";
+}
+
 export default async function ProductRegisterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireProgramAccess();
@@ -16,7 +21,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
   if (!loaded) notFound();
   const { product, mainImage, sections } = loaded;
   // 미리보기는 카테고리 검색어 칸을 비운 상태로 계산 — 실제 작업은 입력한 검색어로 다시 만든다.
-  const preview = buildFillSteps(product, defaults, { mode: "fill_only", categoryKeyword: product.category ?? "", detailImageCount: sections.length, mainImage: Boolean(mainImage) });
+  const preview = buildFillSteps(product, defaults, { mode: "fill_only", categoryKeyword: lastCategory(product.category), detailImageCount: sections.length, mainImage: Boolean(mainImage) });
 
   return (
     <div className="space-y-4">
@@ -37,7 +42,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
                 <tr key={s.key}>
                   <td className="py-1.5 pr-2 text-slate-500">{s.section}</td>
                   <td className="py-1.5 pr-2 font-bold text-slate-800">{s.label}{s.required && <span className="text-rose-600"> *</span>}</td>
-                  <td className="max-w-[260px] truncate py-1.5 text-slate-700">{s.key === "category" ? "(오른쪽에서 검색어 입력)" : s.action === "images" ? (mainImage ? "대표 사진 1장" : "없음") : s.action === "html" ? `섹션 이미지 ${sections.length}장` : s.value || "—"}</td>
+                  <td className="max-w-[260px] truncate py-1.5 text-slate-700">{s.key === "category" ? "(오른쪽에서 검색어 입력)" : s.action === "images" ? (mainImage ? "대표 사진 1장" : "없음") : s.action === "html" ? `섹션 이미지 ${sections.length}장` : s.action === "check" || (s.action === "radio" && s.value === "true") ? "켬" : s.value || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -45,7 +50,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         </div>
 
         <div className="space-y-3">
-          <RegisterForm productId={product.id} defaultKeyword={product.category ?? ""} />
+          <RegisterForm productId={product.id} defaultKeyword={lastCategory(product.category)} />
           <div className="slw-card p-3">
             <p className="mb-2 text-xs font-extrabold text-slate-700">대표 사진 · 상세 이미지 {sections.length}장</p>
             <div className="grid grid-cols-4 gap-1.5">
