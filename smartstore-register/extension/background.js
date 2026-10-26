@@ -273,11 +273,20 @@ async function pageCommand(cmd, args) {
     }
 
     if (cmd === 'editorDone') {
-      const done = [...document.querySelectorAll('button')].find((b) => visible(b) && b.textContent.replace(/\s+/g, '') === '등록' && b.className.includes('progress-button'));
+      // 사진이 아직 올라가는 중이면 「등록」이 늦게 먹거나 닫히는 데 20초를 넘긴다(2026-10-27 사진 12장 시험) →
+      // 올리는 중 표시가 사라질 때까지 기다리고, 닫힘은 45초까지, 15초에 안 닫혔으면 「등록」을 한 번 더 누른다.
+      const uploading = () => [...document.querySelectorAll('.se-component [class*="loading"], .se-component [class*="uploading"], .se-component [class*="progress"]')].some(visible);
+      await waitFor(() => !uploading(), 30000);
+      const findDone = () => [...document.querySelectorAll('button')].find((b) => visible(b) && b.textContent.replace(/\s+/g, '') === '등록' && b.className.includes('progress-button'));
+      const done = findDone();
       if (!done) return { ok: false, error: '에디터 「등록」 버튼을 찾지 못했습니다.' };
       done.click();
-      const closed = await waitFor(() => !document.querySelector('.se-image-toolbar-button'), 20000);
-      return closed ? { ok: true } : { ok: false, error: '에디터가 닫히지 않았습니다.' };
+      const isClosed = () => !document.querySelector('.se-image-toolbar-button');
+      if (await waitFor(isClosed, 15000)) return { ok: true };
+      const again = findDone();
+      if (again && !again.disabled) again.click();
+      const closed = await waitFor(isClosed, 30000);
+      return closed ? { ok: true } : { ok: false, error: '에디터가 45초 안에 닫히지 않았습니다.' };
     }
 
     if (cmd === 'submit') {
