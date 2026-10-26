@@ -45,10 +45,11 @@
 - **RE-P1**(`4768f4286`, `src/app/api/cron/cleanup-sentiment/route.ts`): 주인님 지정(「부동산쪽은 예외로 1년」, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8)으로 보관 30일→**1년**, 기한 없이 남던 AI 매물 분석(`real_estate_analyses`)도 1년 정리 추가(정리 기록 `analyses`). 프로그램 시작이 2026-08이라 지금 지워지는 자료 없음.
 - 검수: tsc·eslint·`npm run build`·`test:access` 통과. **v1.20 운영 배포 완료(2026-10-26, 주인님 「배포해」)** — Ready·운영 주소 연결, DB `programs.version` v1.20(크롬 SQL 편집기), 운영 대시보드 v1.20 표시 확인.
 
-## 2026-10-26 미배포 대기(v1.21) — RE-B1·RE-B2·RE-N1·RE-N2 (`ae0e35ce5`, [역할: realty] 세션 `claude-win-20261024-realty`)
+## 2026-10-26 ✅ v1.21 배포(주인님 「배포해」) — RE-B1·RE-B2·RE-N1·RE-N2 (`ae0e35ce5`, [역할: realty] 세션 `claude-win-20261024-realty`)
 - **RE-B1** 실거래 목록 쪽 나누기(한 쪽 50건, `?page=N`, 「이전/다음 50건」·전체 건수). 검색·정렬은 그 쪽 안에서.
 - **RE-B2** 상세를 열면 그 회원의 매칭 `new → notified`, 목록 이름표 「알림 보냄」→「✔ 확인됨」, 대시보드 「새 실거래」 설명 「아직 열어 보거나 알림 받기 전」. DB 구조 변경 없음(상태 값 제약 그대로), 알림은 새 매칭 기준이라 영향 없음.
 - **RE-N1** 상세에 「🏠 네이버 부동산에서 보기」(새 창 검색 화면, 서버는 네이버에 요청하지 않음).
 - **RE-N2** 목록 「📥 CSV 내려받기」 — 서버 액션 `src/lib/actions/export.ts`(이용 권한 확인, 회원 본인 매칭 최대 5,000건, 엑셀 한글용 BOM).
 - 목록 안내 문구 정정: 상세를 열면 AI 분석이 실행된다는 옛 설명 → 「AI 분석 실행」을 눌렀을 때만(v1.13부터의 실제 동작).
 - 검수: tsc·내 파일 eslint·build·`test:access` 통과. 참고: `dashboard/page.tsx` 19행 `Date.now` lint(react-hooks/purity)는 원래 있던 것(빌드 영향 없음, 이번 범위 밖).
+- 배포: Ready·운영 주소 연결, DB v1.21, 운영 목록 화면에서 v1.21·「전체 실거래 425」·「CSV 내려받기」·「쪽 이동」(9쪽) 확인(CSV 실제 내려받기는 회원 PC 파일 저장이라 미실행).
