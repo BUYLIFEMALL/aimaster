@@ -1,0 +1,38 @@
+# 스마트스토어 상품등록 자동화 (`smartstore-register`) — 에이전트 인수인계
+
+> 루트 `../CLAUDE.md`(메인 지침)를 함께 읽는다. 한국어 진행 안내·회원 본인 계정/키·운영/Lab 분리·비용 사전 승인·경로 지정 커밋 규칙이 그대로 적용된다.
+> 플랜: [`../trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md`](../trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md) · 0단계 화면 분석: [`../trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md`](../trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md)
+> 담당 역할: `ecommerce-image`(Claude Code 윈도우 `claude-win-sdp`). 앞으로 마켓별(쿠팡 등) 등록 프로그램을 계속 만든다 — 주인님 「앞으로 스마트스토어용 쿠팡용 계속 만들어 나가야하거든」「우선은 스마트스토어 상품등록 자동화 로 해보자」(2026-10-26).
+
+## 1. 사용 목적·대상
+AI 상세페이지 자동화(`shop-detail-page`)로 상세페이지를 만든 셀러가, 그 상품을 스마트스토어센터 「상품 등록」 화면에 다시 옮겨 적지 않도록 **회원 본인 크롬의 확장이 칸을 대신 채운다.** 네이버는 남의 「내 스토어」 API 키로 대신 운영하는 것을 허용하지 않으므로(공식 답변) 서버 API가 아니라 회원 브라우저 입력 방식이다.
+
+## 2. 기술·도구
+Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공용 DB(ref `esgxyikcnnvmlhygjkth`) · 뼈대는 `shop-order-report` 복사(권한·로그인·사이드바·`slw-*` 스타일). 시험 `npm test`(node:test + tsx). 확장(다음 단계): Manifest V3, 블로그 확장 `naver-blog-agent/extension/` 구조 재사용 예정.
+
+## 3. 핵심 기능·구조·장단점
+| 부분 | 파일 | 하는 일 |
+|---|---|---|
+| 칸 값 만들기(핵심) | `src/lib/smartstore/fields.ts` | 상품 + 스토어 기본값 → 확장이 실행할 단계 목록(`FillStep[]`: 칸 이름 `ng-model`·동작·값·필수). 필수값 검사, 할인 금액 계산, 판매자 관리 코드 `AIM-…`, 등록 방식별 마지막 단계(입력만/임시저장/저장하기+전시중지) |
+| 데이터 읽기 | `src/lib/data.ts` | 회원 세션으로 `shop_products`·`shop_product_images`(본인만, RLS) 읽기, 비공개 버킷 `shop-detail-images` 서명 주소, 기본값·작업 기록 |
+| 쓰기 | `src/lib/actions/register.ts` | 기본값 저장, 작업 만들기(진행 중 작업 있으면 거절 — 중복 방지), 취소. 모두 `requireProgramAccess()` + `user_id` 조건 |
+| 화면 | `/home` `/defaults` `/products` `/products/[id]` `/history` `/guide` | 대시보드·기본값·상품 고르기·칸 미리보기+보내기·기록·매뉴얼 |
+| 정리 | `/api/cron/cleanup` + `vercel.json` | 작업 기록 30일 자동 삭제(매일 한국 04:20, `CRON_SECRET`) |
+| DB | `supabase/migrations/20261026_smartstore_register_v1_01.sql` | `smartstore_register_defaults`(회원 1행 jsonb)·`smartstore_register_jobs` + 프로그램 등록·요금제·VIP·시험 계정 30일 |
+- 장점: 상세페이지 상품을 그대로 씀, 칸을 이름으로 찾음(화면 위치 변화에 강함), 기본값 「입력만」, 결과가 불확실하면 재등록 안 함.
+- 한계: 판매자센터 화면이 바뀌면 확장 수정 필요. **Claude 크롬 확장은 `sell.smartstore.naver.com`을 안전 제한으로 열지 못함** → 화면 확인은 주인님 캡처·저장본·확장 결과 기록으로 한다.
+
+## 4. 버전·이력
+- v1.01 (2026-10-26, 배포 전): 뼈대 — 기본값·상품 불러오기·칸 미리보기·작업 만들기·기록·매뉴얼·30일 정리. 확장은 아직 없음(작업은 「확장 대기」로 쌓임). 시험 6개·tsc·build 통과.
+
+## 5. 남은 일 (다음 첫 단계부터)
+1. **주인님 승인 뒤**: 운영 DB에 마이그레이션 적용(크롬 SQL 편집기) → Vercel 새 프로젝트·도메인 `smartstore-register.buylife.xyz`·환경변수(Supabase 4개·`CRON_SECRET`, `shop-order-report`와 같은 값) → 배포 1회 → 시험 계정으로 화면 확인.
+2. **0-2단계 자료(주인님)**: 「HTML 작성」 붙여 넣기 시험(`D:\PDS\Program_dev\smartstore_create\html_test.txt`, 미리보기만) 결과 · 「이미지 등록」 창·카테고리 목록이 열린 상태의 저장본 → 이미지 넣는 방식 확정.
+3. 확장 `extension/`: 연결 코드 → 작업 받기(확장 전용 API, 회원 토큰) → `smartstore.js`가 `steps`를 위에서부터 실행 → 결과 보고(`status`·`failed_step`·`market_product_no`). 확장 운영 규칙(핵심 원칙 10) — ZIP·DB `extension_version` 함께.
+4. 대기 목록: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
+
+## 6. 연계·아이디어
+상세페이지 자동화 → (이 프로그램) → 주문·매출 리포트로 이어지는 「쇼핑몰 흐름」(`shop-flow` 공용 띠)에 넣을 수 있다. 상품소싱 판매가를 상세페이지 정상가로 넘기는 기존 연결을 그대로 탄다. 쿠팡은 같은 구조로 `coupang-register`(가칭)를 만들 때 `fields.ts`·화면을 복사하고 칸 이름만 바꾼다.
+
+## 7. 디자인
+「스토어 등록 워크벤치 스타일」 — `shop-order-report`의 셀러 워크벤치(흰 바탕) 구조에 스마트스토어 초록(`--accent: #047857`). 상세: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md). 디자인 다듬기는 디자인 담당(agy)에게.

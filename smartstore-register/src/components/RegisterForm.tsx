@@ -1,0 +1,39 @@
+"use client";
+
+import { useActionState, useState } from "react";
+import { createJobAction } from "@/lib/actions/register";
+import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
+
+export function RegisterForm({ productId, defaultKeyword }: { productId: string; defaultKeyword: string }) {
+  const [state, action, pending] = useActionState(createJobAction, {});
+  const [mode, setMode] = useState<RegisterMode>("fill_only");
+
+  return (
+    <form action={action} className="slw-card space-y-3 p-4">
+      <input type="hidden" name="productId" value={productId} />
+      <div>
+        <label className="slw-label" htmlFor="categoryKeyword">카테고리 검색어 *</label>
+        <input id="categoryKeyword" name="categoryKeyword" defaultValue={defaultKeyword} placeholder="예: 텀블러" className="slw-field" />
+        <p className="mt-1 text-[11px] text-slate-500">확장이 이 말로 검색해 마지막 단계 카테고리까지 고릅니다.</p>
+      </div>
+      <fieldset>
+        <legend className="slw-label">등록 방식</legend>
+        <div className="space-y-1.5">
+          {(Object.keys(REGISTER_MODES) as RegisterMode[]).map((m) => (
+            <label key={m} className={`flex cursor-pointer gap-2 rounded-lg border p-2 text-xs ${mode === m ? "border-emerald-500 bg-emerald-50" : "border-slate-200"}`}>
+              <input type="radio" name="mode" value={m} checked={mode === m} onChange={() => setMode(m)} className="mt-0.5" />
+              <span>
+                <b className="text-slate-900">{REGISTER_MODES[m].label}</b>
+                <span className="block text-slate-600">{REGISTER_MODES[m].hint}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <button type="submit" disabled={pending} className="slw-primary w-full">{pending ? "작업 만드는 중…" : "🧩 확장으로 보내기"}</button>
+      {state?.ok && <p role="status" className="text-xs font-bold text-emerald-700">✅ 작업을 만들었습니다. 스마트스토어센터에 로그인된 크롬에서 확장이 순서대로 채웁니다.</p>}
+      {state?.error && <p role="alert" className="text-xs font-bold text-rose-700">{state.error}</p>}
+      <p className="text-[11px] text-slate-500">처음에는 「입력만」이나 「임시저장까지」로 확인해 보세요. 결과가 확실하지 않으면 확장이 자동으로 다시 등록하지 않습니다.</p>
+    </form>
+  );
+}
