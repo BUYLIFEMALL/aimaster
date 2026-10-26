@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-26T01:38:08.768Z",
+  "next": "16.4.2",
+  "results": [
+    {
+      "name": "unit",
+      "args": [
+        "--test",
+        "tests/security.test.cjs",
+        "tests/extension-api.test.cjs",
+        "tests/shorts-collection.test.cjs",
+        "tests/generation-rules.test.cjs",
+        "tests/extension-engine.test.cjs",
+        "tests/extension-worker.test.cjs",
+        "tests/extension-adapter.test.cjs",
+        "tests/extension-page.test.cjs"
+      ],
+      "exitCode": 0,
+      "summary": [
+        "ℹ tests 188",
+        "ℹ suites 0",
+        "ℹ pass 188",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 3979.6391"
+      ]
+    },
+    {
+      "name": "types",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "exitCode": 0,
+      "summary": [
+        ""
+      ]
+    }
+  ]
+}
