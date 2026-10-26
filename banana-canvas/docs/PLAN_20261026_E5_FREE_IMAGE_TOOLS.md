@@ -1,6 +1,6 @@
 # E5 무료 이미지 도구 — 배경 지우기·얼굴 가리기·사진 나누기 개발 플랜 (2026-10-26)
 
-상태: **주인님 승인 대기** (코드 없음)
+상태: **✅ 완료·배포 v1.40 (2026-10-26)** — 승인(이름 「🧰 무료 이미지 도구」, 빌드 최대 2회, 손 네모만) → 구현·운영 검수 끝. 「사진 일괄 손질로 넘기기」는 빠짐(IMPROVEMENTS 제안). 결과는 `AGENTS.md` 맨 위
 작성: Claude Code 윈도우 `claude-win-sdp` [역할: ecommerce-image]
 근거: `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md` §6 E5, `05_KDP_WORK_TOOLS.md` §4~6, 공용 컴포넌트 `browser-free-erase`(`docs/SHARED_MODULES.md`)
 
