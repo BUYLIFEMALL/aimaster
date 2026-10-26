@@ -514,6 +514,13 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       }
       if (msg.type === "state") {
         const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "rulesCache", "log", "telegramFailed"]);
+        // 끊긴 수집 정리(2026-10-26 v1.32): 수집 중 확장을 업데이트·새로고침하거나 크롬이 닫히면 「수집 중」 기록만 남아
+        // 「지금 수집」이 영영 잠겼다. 이 서비스 워커에서 실제로 돌고 있지 않으면(busy=false) 남은 기록을 지운다.
+        if (s.running && !busy) {
+          s.running = null;
+          await set({ running: null });
+          await addLog("지난 수집이 중간에 끊겨(확장 업데이트·크롬 종료 등) 정리했어요. 「지금 수집」을 다시 눌러 주세요");
+        }
         return reply({
           connected: !!s.extToken,
           connectedAt: s.connectedAt || null,
