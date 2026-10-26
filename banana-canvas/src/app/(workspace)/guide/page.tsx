@@ -99,6 +99,7 @@ export default function GuidePage() {
           <a href="#quick" className="luxury-toc-chip">⚡ ② 5분 시작하기</a>
           <a href="#tools" className="luxury-toc-chip">💎 ③ 12대 작업별 설명</a>
           <a href="#free-erase" className="luxury-toc-chip">🧼 ④ AI 매직 지우개 (0원)</a>
+          <a href="#batch-photo" className="luxury-toc-chip">🖼 사진 일괄 손질 (0원)</a>
           <a href="#styles" className="luxury-toc-chip">🎨 ⑤ 20종 스타일 프리셋</a>
           <a href="#tips" className="luxury-toc-chip">💡 ⑥ 고화질 제작 요령</a>
           <a href="#privacy" className="luxury-toc-chip">🛡️ ⑦ 프라이버시 보호 규정</a>
@@ -306,6 +307,22 @@ export default function GuidePage() {
         </ol>
       </section>
 
+      {/* E4(2026-10-26) 사진 일괄 손질 */}
+      <section id="batch-photo" className="card">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+          <h2>🖼 사진 일괄 손질 (높이 맞춤·워터마크·사진 정보 지우기)</h2>
+          <span className="nav-badge-free">0원 · 사진이 서버로 가지 않음</span>
+        </div>
+        <p className="bc-hint">🛒 마켓에 올리기 전 상품 사진 여러 장을 같은 규칙으로 한 번에 손질합니다. 크롬·엣지·웨일 최신 브라우저를 권장합니다.</p>
+        <ol className="gd-steps">
+          <Step n={1} title="사진을 넣습니다">사이드바 <b>[🖼 사진 일괄 손질]</b>에서 사진을 끌어 놓거나 [추가]로 고르고, 캡처한 사진은 <b>Ctrl+V</b>로 바로 붙여넣습니다(최대 50장, 한 장 25MB).</Step>
+          <Step n={2} title="높이를 맞춥니다">기본 <b>860px</b>(상세페이지 폭과 같음)로 세로 높이를 맞추며 비율은 그대로입니다. 원본 크기 그대로 둘 수도 있습니다.</Step>
+          <Step n={3} title="워터마크를 넣습니다">로고(투명 PNG) 또는 문자를 고르고, 위치 9곳·크기·농도·여백을 정합니다. 가운데 미리보기에 결과가 바로 보입니다.</Step>
+          <Step n={4} title="한 번에 받습니다">JPG·PNG와 파일 이름 앞붙임을 정하고 <b>[결과 받기]</b>를 누르면 여러 장은 ZIP으로 받습니다. 촬영 정보·위치 정보(GPS)는 결과 파일에 들어가지 않습니다.</Step>
+        </ol>
+        <p className="bc-hint">⚠️ 로고·문자 워터마크는 본인 상표·상호만 쓰세요. 다른 업체 사진에 워터마크를 넣어 내 것처럼 쓰면 저작권 문제가 될 수 있습니다.</p>
+      </section>
+
       {/* 8. 20종 스타일 프리셋 시각화 */}
       <section id="styles" className="card">
         <h2>🎨 ⑤ 20종 프리미엄 스타일 팔레트</h2>
@@ -369,6 +386,10 @@ export default function GuidePage() {
             </p>
           </details>
 
+          <details>
+            <summary>사진 일괄 손질에서 사진 정보는 정말 지워지나요?</summary>
+            <p>네. 사진을 브라우저 안에서 새로 그려 저장하기 때문에 촬영 날짜·기기·위치(GPS) 같은 정보가 결과 파일에 들어가지 않습니다. 사진은 서버로 전송되지 않고, 설정과 로고만 이 브라우저에 기억됩니다.</p>
+          </details>
           <details>
             <summary>AI 매직 지우개는 정말 비용이 전혀 안 드나요?</summary>
             <p>

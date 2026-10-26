@@ -139,6 +139,20 @@ export function Sidebar({
             </div>
           </a>
 
+          {/* E4(2026-10-26) 사진 일괄 손질 — 높이 맞춤·워터마크·사진 정보 지우기(브라우저 처리) */}
+          <a
+            className="nav-item group"
+            aria-current={currentPath === "/batch" ? "page" : undefined}
+            href="/batch"
+            title="여러 장의 높이를 맞추고 워터마크를 넣고 촬영 정보를 지워 한 번에 받습니다(서버 전송 없음)"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[15px] group-hover:scale-110 transition-transform">🖼</span>
+              <span className="truncate">사진 일괄 손질</span>
+            </div>
+            <span className="nav-badge-free">0원</span>
+          </a>
+
           {/* 내 결과 기록 */}
           <a
             className="nav-item group"
