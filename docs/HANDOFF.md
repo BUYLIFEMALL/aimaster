@@ -6,7 +6,8 @@
 - 새 기능: 💱 외화 원가 입력(`MarginCalculatorPanel.tsx` `ForeignCostBox`) · 과세환율 받기·저장(`lib/customs/fxParse.ts` 순수 함수, `fxRate.ts` 12시간 지나면 1번만, 예약 작업 없음) · `/fees#tariff` 관세율 참고표(`lib/customs/tariffTable.ts`, 전부 ⚠) · 관심 목록 「🔔 기회 점수 알림」(`ScoreAlertControl.tsx`, `reportEngine.ts` 알림 걸러내기 — 기준 이상 없으면 안 보냄).
 - DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기, 배포 **전**): `customs_fx_rates`(RLS 읽기만)·`trend_watchlist.score_alert_threshold` — 마이그레이션 `trending-product-finder/supabase/migrations/20261026120000_ec_w7_fx_alert.sql`.
 - 검수: tsc·`test:trend` 20개(새 6)·권한 15·로컬 빌드, 배포 `trending-product-finder-9lp6wy88e` Ready·DB v1.28. 크롬(시험 계정): 영수증 7,816원·26.1%, 12.5달러×1,385.2 → 17,315원 원가 채움, `/fees` 표 12줄, 점수 알림 80 저장·새로고침 유지 → 「끔」 복구, 390px 세 화면 넘침 없음.
-- **남은 일**: 과세환율 키 — 주인님 공공데이터포털 활용신청 뒤 Vercel 환경변수 `CUSTOMS_FX_SERVICE_KEY`(부동산 프로그램의 `DATA_GO_KR_SERVICE_KEY`와 같은 계정 키) 등록 + 재배포 1회(승인 범위 안). 그 전엔 회원이 환율 직접 입력. 관세율 공식 대조되면 ⚠→✅.
+- ✅ 과세환율 키: 주인님 활용신청 → 키를 CLI로 `CUSTOMS_FX_SERVICE_KEY`(Sensitive, Production) 등록 → 재배포 `trending-product-finder-gis68pxt2`(승인 2회 중 2회) → 크롬 「적용 환율 1달러 = 1,330.52원 (관세청 과세환율, 10월 25일 주)」, 10달러 → 13,305원. 실제 응답 58개 통화, 엔화는 1엔 단위로 옴. 부동산 키는 Sensitive라 옮길 수 없었음(ERROR_LESSONS).
+- **남은 일**: 관세율 공식 대조되면 ⚠→✅.
 - 커밋: `c700da2bb`(과세환율·계산식)·`dde32d96c`(관세율표·점수 알림·v1.28)·문서. 링크: https://trending-product-finder.buylife.xyz/sourcing
 
 ## 2026-10-26 [역할: blog] Codex(윈도우·엣지) · 세션 `codex-win-20261025-blog` — BLOGv1.83·티스토리v1.93·올인원v1.54 보안 배포 완료

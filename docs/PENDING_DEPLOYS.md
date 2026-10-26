@@ -52,6 +52,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `trending-product-finder` | v1.28 재배포 · 2026-10-26 (과세환율 키 `CUSTOMS_FX_SERVICE_KEY` 등록 뒤, 승인 빌드 2회 중 2회 `trending-product-finder-gis68pxt2`) | 코드 같음, 환경변수만 반영 |
 | `trending-product-finder` | v1.28 · 2026-10-26 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드(EC-W7 최대 2회 중 1회) `trending-product-finder-9lp6wy88e`) | E9 흐름 띠(`93b20e6b0`) + EC-W7 과세환율·관세 계산 순서 바로잡기·관세율 참고표·점수 알림 |
 | `ai-auto-blog` | v1.83 · 2026-10-26 (Codex·Next.js 보안) | Next16.4.2·sharp0.35.5, 무료188개·타입/빌드·READY/DB/ZIP OK. 6728a83ab |
 | `tistory-auto-blog` | v1.93 · 2026-10-26 (Codex·Next.js 보안) | Next16.4.2·sharp0.35.5, 무료175개·타입/빌드·READY/DB/ZIP OK. c0e151740 · 분량 지시 fef7491d6·756a2ca7a 포함 |
