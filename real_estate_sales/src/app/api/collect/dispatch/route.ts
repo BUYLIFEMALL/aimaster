@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { currentKstHour, isCollectDue, isWithinActiveHours } from "@/lib/publicdata/schedule";
 import { collectDistrict, findUnmatchedListingIds, notifyUserForListings } from "@/lib/realestate/collect";
+import { programAccessUserIds } from "@/lib/accessBatch";
 
 /** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
 async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
@@ -70,7 +71,9 @@ async function dispatch() {
 
   // 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)은 자동 수집·분석·발송 대상에서 제외한다.
   const phoneOkUsers = await phoneRegisteredUserIds(supabase, candidateUserIds);
-  const allRows = (watchRows ?? []).filter((w) => !suspendedUserIds.has(w.user_id) && phoneOkUsers.has(w.user_id));
+  // RE-P2(2026-10-26): 사용기간이 끝났거나 권한이 없는 회원도 빼야 한다(화면 접속과 같은 판정) — 본인 키 AI 비용·텔레그램 발송이 계속되던 빈틈
+  const accessOkUsers = await programAccessUserIds(supabase, "real-estate-sales", candidateUserIds, now);
+  const allRows = (watchRows ?? []).filter((w) => !suspendedUserIds.has(w.user_id) && phoneOkUsers.has(w.user_id) && accessOkUsers.has(w.user_id));
 
   const dueRows = allRows.filter(
     (w) =>
