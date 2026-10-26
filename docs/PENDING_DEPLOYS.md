@@ -17,7 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `smartstore-register` (운영 v1.02) | 확장 상태 창 머리를 부동산 확장 모양으로 — 오른쪽 위 버전 알약·초록 머리띠(화면만, 동작 같음) | `3cde9e812` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `smartstore-register/extension/popup.*` | 다음 배포 때 v1.03 + ZIP·DB 확장 버전 함께 |
+| `smartstore-register` (운영 v1.02) | 확장 상태 창 머리를 부동산 확장 모양으로(오른쪽 위 버전 알약·초록 머리띠, 초록 버튼 색 수정) · 「확장 연결」 단계 3에 「✅ 연결됨」·「다시 연결하기」(화면만, 동작 같음) | `3cde9e812` · `fdeeee3aa` · `15509057f` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `smartstore-register/extension/popup.*` | 다음 배포 때 v1.03 + ZIP·DB 확장 버전 함께 |
 | `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
