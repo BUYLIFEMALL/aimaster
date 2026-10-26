@@ -53,3 +53,9 @@
 - 목록 안내 문구 정정: 상세를 열면 AI 분석이 실행된다는 옛 설명 → 「AI 분석 실행」을 눌렀을 때만(v1.13부터의 실제 동작).
 - 검수: tsc·내 파일 eslint·build·`test:access` 통과. 참고: `dashboard/page.tsx` 19행 `Date.now` lint(react-hooks/purity)는 원래 있던 것(빌드 영향 없음, 이번 범위 밖).
 - 배포: Ready·운영 주소 연결, DB v1.21, 운영 목록 화면에서 v1.21·「전체 실거래 425」·「CSV 내려받기」·「쪽 이동」(9쪽) 확인(CSV 실제 내려받기는 회원 PC 파일 저장이라 미실행).
+
+## 2026-10-26 ✅ v1.22 배포 — RE-B3 브이월드 등록 도메인 교체 (`221172a2b`, [역할: realty] 세션 `claude-win-20261024-realty`)
+- 배경: 브이월드 인증키를 예전 n8n 서버에서 등록해 도메인이 `n8n.buylife.xyz`로 남아 있었음(주인님 설명). 주인님이 브이월드 개발자센터에서 **기존 키의 도메인을 `real-estate-sales.buylife.xyz`로 바꿈(A 방식)**.
+- 조치: Vercel 운영 환경변수 `VWORLD_REGISTERED_DOMAIN` 덮어쓰기(Vercel CLI `env add --force --sensitive`, 결과 「Overrode」) · 코드 기본값도 새 주소(`src/lib/publicdata/client.ts`) · 재배포 v1.22(Ready, DB v1.22).
+- 참고: `N8N_VWORLD_PROXY_URL`·`N8N_VWORLD_PROXY_TOKEN` 환경변수는 코드에서 쓰지 않는 옛 값(지우지 않고 둠 — 환경변수 삭제는 별도 승인).
+- 미확인: 마지막 새 실거래 저장이 10-25 18:25라 배포 뒤 브이월드 호출이 아직 없음 → **다음 새 실거래 수집 때 `official_price`가 채워지는지 확인**(최근 7일 공시가 채움 비율은 시간대별 1~18/20, 원래 공시가 없는 건물이 있음).
