@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우·크롬) · 세션 `claude-win-sdp` — EC-W7 상품소싱 v1.28: 과세환율·관세 계산 순서·관세율 참고표·점수 알림 (+E9 띠 함께 배포)
+- 조사: 관세청 「관세환율정보」 API는 관세율이 아니라 **과세환율**(무료, 하루 1,000건) → 환율은 이 API로, 수출입은행 API(2026-04-30 주소 변경)는 안 씀. 관세율 공식 API는 확인 못 해 참고표로.
+- 계산 바로잡기(`lib/margin.ts`): 관세 = (원가+해외운송비)×관세율, 부가세 = (과세가격+관세)×10%. 예: 원가 10,000·판매가 30,000 → 마진 8,460 → **7,816원(26.1%)**. 숫자를 적은 시험 3곳 기대값만 갱신.
+- 새 기능: 💱 외화 원가 입력(`MarginCalculatorPanel.tsx` `ForeignCostBox`) · 과세환율 받기·저장(`lib/customs/fxParse.ts` 순수 함수, `fxRate.ts` 12시간 지나면 1번만, 예약 작업 없음) · `/fees#tariff` 관세율 참고표(`lib/customs/tariffTable.ts`, 전부 ⚠) · 관심 목록 「🔔 기회 점수 알림」(`ScoreAlertControl.tsx`, `reportEngine.ts` 알림 걸러내기 — 기준 이상 없으면 안 보냄).
+- DB(운영 `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기, 배포 **전**): `customs_fx_rates`(RLS 읽기만)·`trend_watchlist.score_alert_threshold` — 마이그레이션 `trending-product-finder/supabase/migrations/20261026120000_ec_w7_fx_alert.sql`.
+- 검수: tsc·`test:trend` 20개(새 6)·권한 15·로컬 빌드, 배포 `trending-product-finder-9lp6wy88e` Ready·DB v1.28. 크롬(시험 계정): 영수증 7,816원·26.1%, 12.5달러×1,385.2 → 17,315원 원가 채움, `/fees` 표 12줄, 점수 알림 80 저장·새로고침 유지 → 「끔」 복구, 390px 세 화면 넘침 없음.
+- **남은 일**: 과세환율 키 — 주인님 공공데이터포털 활용신청 뒤 Vercel 환경변수 `CUSTOMS_FX_SERVICE_KEY`(부동산 프로그램의 `DATA_GO_KR_SERVICE_KEY`와 같은 계정 키) 등록 + 재배포 1회(승인 범위 안). 그 전엔 회원이 환율 직접 입력. 관세율 공식 대조되면 ⚠→✅.
+- 커밋: `c700da2bb`(과세환율·계산식)·`dde32d96c`(관세율표·점수 알림·v1.28)·문서. 링크: https://trending-product-finder.buylife.xyz/sourcing
+
 ## 2026-10-26 [역할: blog] Codex(윈도우·엣지) · 세션 `codex-win-20261025-blog` — BLOGv1.83·티스토리v1.93·올인원v1.54 보안 배포 완료
 - Next/eslint16.4.2·sharp0.35.5, 무료검사188+175+33=396개·타입/로컬빌드 통과. 각 READY/공식alias·운영HTTP/DB/확장ZIP 일치, 최근15분 오류기록0. 팀 빌드 확인 후 순차3회, AI0. 앞선 에이전트까지 보안4앱 완료·SEO16.3.5만 남음. [인계 §12](HANDOFF_20261025_BLOG_TO_CODEX.md#12-2026-10-26-후속--블로그-보안3개-배포seo-메타-정정포그라운드-검수-대기)·[근거JSON](analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json).
 - SEO는 agy 디자인v2.21 READY/소스/라이브ZIP 확인 뒤 DB앱/확장v2.20→v2.21 표시만 조건부 정정. SEO 소스/디자인/배포0, ACTIVE_WORK 예약 보존. 6앱 최종 release6/6 OK. 운영ref esgxyikcnnvmlhygjkth programs메타4행+ops집계, 회원원고/키/연결/권한/스키마 변경0.
