@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-26T01:41:01.984Z",
+  "next": "16.4.2",
+  "results": [
+    {
+      "name": "unit",
+      "args": [
+        "--test",
+        "tests/update-banner.test.mjs",
+        "tests/extension-core.test.cjs",
+        "tests/extension-engine.test.cjs",
+        "tests/extension-adapter.test.cjs",
+        "tests/extension-publish-dialog.test.cjs",
+        "tests/extension-worker.test.cjs",
+        "tests/extension-content.test.cjs",
+        "tests/extension-api.test.cjs",
+        "tests/shorts-collection.test.cjs",
+        "tests/home-topics.test.mjs",
+        "tests/blc12-collect.test.cjs",
+        "tests/publication-page.test.cjs",
+        "tests/collect-safety.test.cjs",
+        "tests/post-source.test.cjs"
+      ],
+      "exitCode": 0,
+      "summary": [
+        "ℹ tests 175",
+        "ℹ suites 0",
+        "ℹ pass 175",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 13992.4646"
+      ]
+    },
+    {
+      "name": "types",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "exitCode": 0,
+      "summary": [
+        ""
+      ]
+    }
+  ]
+}
