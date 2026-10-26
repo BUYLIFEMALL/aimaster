@@ -38,3 +38,9 @@
 - 주인님 제안 채택: 실거래 상세(`src/app/(dashboard)/listings/[id]/page.tsx`) 단지 제목 아래 버튼 → `https://realty-listing-alert.buylife.xyz/targets?name=<bldg_nm>&region=<자치구 동>` 새 탭. 실거래 자료에는 네이버 단지 번호가 없어(우리 서버는 네이버에 요청하지 않음) 이름·지역만 넘기고, 매물 알림 쪽 화면이 이름을 미리 채운 뒤 회원이 네이버 단지 주소를 붙여 넣게 안내한다.
 - 커밋 `154e7386b`. tsc·eslint 통과. **배포됨 v1.19(2026-10-25)** — 함께 나간 것: 공용 `solapi-client`·`telegram-bot-client` 사본, 30일 정리 회원별 기록(다음 정리 시각에 관리자 「30일 자동 정리」 표 확인 필요). 매물 알림 쪽 미리 채우기(`c623becf5`)도 배포돼야 안내가 보인다(먼저 배포되면 빈 추가 화면만 열림 — 해는 없음).
 - 2026-10-25 확인: 30일 정리는 매일 한국 03:30. 정리 코드는 실제로 지운 줄이 있을 때만 `usage_logs` `cleanup_expired`를 남긴다 — 지금 30일 지난 지역 분위기 자료가 0줄이라 기록 없음이 정상. 자료가 30일을 넘기는 날 첫 기록이 생긴다.
+
+## 2026-10-26 v1.20 — 규칙 바로잡기 RE-P3·RE-P2·RE-P1 ([역할: realty] Claude Code 윈도우 · 세션 `claude-win-20261024-realty`, 주인님 「진행해 순서대로」)
+- **RE-P3**(`e35eecdf0`, `src/lib/ai/analyze.ts`·`sentiment.ts`): 매물 AI 분석·지역 분위기 프롬프트 맨 앞에 당해 연도 지시(핵심 원칙 8).
+- **RE-P2**(`f4509b896`, `src/lib/accessBatch.ts` 새 파일, `src/app/api/collect/dispatch/route.ts`): 예약 수집·AI 분석·텔레그램 알림 대상에서 이용 권한 없는 회원 제외(관리자 → FREE → 구독 → 최소 등급 없음 → 등급+사용기간, 화면 접속과 같은 순서). 시험 `npm run test:access`(3개). 운영 DB 읽기 확인(2026-10-26): 예약 수집 회원 3명 중 1명(일반 등급, 사용기간 2026-10-16 만료)이 빠짐 — 만료 뒤에도 수집·알림이 계속되던 빈틈이 실제로 있었음. 테스트 계정·VIP는 그대로 허용.
+- **RE-P1**(`4768f4286`, `src/app/api/cron/cleanup-sentiment/route.ts`): 주인님 지정(「부동산쪽은 예외로 1년」, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8)으로 보관 30일→**1년**, 기한 없이 남던 AI 매물 분석(`real_estate_analyses`)도 1년 정리 추가(정리 기록 `analyses`). 프로그램 시작이 2026-08이라 지금 지워지는 자료 없음.
+- 검수: tsc·eslint·`npm run build`·`test:access` 통과. 버전 v1.20(`lib/version.ts`, 마이그레이션 `20261026120000_version_v1_20.sql`). **배포: 운영 배포 명령이 자동 권한 검사에서 막혀 주인님 허용 대기** — 배포 뒤 DB `programs.version` v1.20 반영 필요.
