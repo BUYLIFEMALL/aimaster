@@ -231,6 +231,44 @@ async function pageCommand(cmd, args) {
   }
 }
 
+// 에디터 사진 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 실행해야 한다.
+// 스마트 에디터는 사진 버튼을 누르면 화면에 붙이지 않은 파일 칸을 만들고 곧바로 click()으로 파일 창을 띄운다 →
+// 그 click()을 잠깐 가로채 파일 칸을 받아 두고, 파일을 넣고 change를 보낸다(파일 창은 뜨지 않음).
+async function editorImageMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const count = () => document.querySelectorAll('.se-component.se-image, .se-component[data-comp-type="image"]').length;
+  const before = count();
+  const orig = HTMLInputElement.prototype.click;
+  let captured = null;
+  HTMLInputElement.prototype.click = function () {
+    if (this.type === 'file') { captured = this; return; }
+    return orig.call(this);
+  };
+  try {
+    const btn = document.querySelector('.se-image-toolbar-button, button[data-name="image"]');
+    if (!btn) return { ok: false, error: '에디터 사진 버튼을 찾지 못했습니다.' };
+    btn.click();
+    for (let t = 0; t < 30 && !captured; t++) await sleep(100);
+    if (!captured) captured = [...document.querySelectorAll('input[type=file]')].find((el) => /image|.png|.jpg/i.test(el.accept || '')) || null;
+    if (!captured) return { ok: false, error: '에디터 사진 올리기 칸을 찾지 못했습니다(가로채기 실패).' };
+    const bytes = Uint8Array.from(atob(a.data), (c) => c.charCodeAt(0));
+    const dt = new DataTransfer();
+    dt.items.add(new File([bytes], a.name, { type: a.mime }));
+    captured.files = dt.files;
+    captured.dispatchEvent(new Event('input', { bubbles: true }));
+    captured.dispatchEvent(new Event('change', { bubbles: true }));
+  } finally {
+    HTMLInputElement.prototype.click = orig;
+  }
+  for (let t = 0; t < 100; t++) { if (count() > before) return { ok: true }; await sleep(250); }
+  return { ok: false, error: '에디터에 사진이 들어가지 않았습니다.' };
+}
+
+async function runMain(tabId, func, args) {
+  const [res] = await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func, args: [args] });
+  return res?.result || { ok: false, error: '에디터에서 실행하지 못했습니다.' };
+}
+
 async function run(tabId, cmd, args = {}) {
   const [res] = await chrome.scripting.executeScript({ target: { tabId }, func: pageCommand, args: [cmd, args] });
   return res?.result || { ok: false, error: '화면에서 실행하지 못했습니다.' };
@@ -310,7 +348,7 @@ async function runJob(job) {
           else {
             for (const [i, img] of job.detailImages.entries()) {
               await setStatus(`상세설명 사진 ${i + 1}/${job.detailImages.length}`);
-              r = await run(editorTab, 'editorImage', await fetchAsset(img));
+              r = await runMain(editorTab, editorImageMain, await fetchAsset(img));
               if (!r.ok) break;
               await human();
             }
