@@ -281,11 +281,18 @@ async function pageCommand(cmd, args) {
     }
 
     if (cmd === 'submit') {
-      const btn = args.target === 'vm.createTempSave'
-        ? [...document.querySelectorAll('button[ng-click="vm.createTempSave()"]')].find(visible)
+      // PC 화면의 임시저장 버튼은 progress-button="vm.createTempSave()"(아래 고정 막대), ng-click 버튼은 휴대폰 전용(visible-xs)이라 PC에서 숨겨져 있다.
+      const temp = args.target === 'vm.createTempSave';
+      const btn = temp
+        ? [...document.querySelectorAll('button[progress-button="vm.createTempSave()"], button[ng-click="vm.createTempSave()"]')].find(visible)
         : [...document.querySelectorAll('button')].find((b) => visible(b) && b.textContent.replace(/\s+/g, '') === '저장하기');
       if (!btn) return { ok: false, error: '저장 버튼을 찾지 못했습니다.' };
       btn.click();
+      if (temp) {
+        // 「임시저장 하시겠습니까?」 같은 확인 창이 뜨면 「확인」
+        const ask = await waitFor(() => [...document.querySelectorAll('.modal.in, [role="dialog"]')].find((m) => visible(m) && /임시저장/.test(m.textContent) && [...m.querySelectorAll('button')].some((b) => b.textContent.trim() === '확인')), 2500);
+        if (ask) [...ask.querySelectorAll('button')].find((b) => b.textContent.trim() === '확인').click();
+      }
       await sleep(4000);
       const modal = [...document.querySelectorAll('.modal.in, [role="dialog"], .toast, .alert')].filter(visible).map((m) => m.innerText.replace(/\s+/g, ' ').trim()).join(' / ');
       const no = (modal.match(/상품번호[^0-9]*([0-9]{6,})/) || [])[1] || null;
