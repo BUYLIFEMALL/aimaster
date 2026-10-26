@@ -26,7 +26,6 @@
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 보안4앱 완료(BLOG1.83·티스토리1.93·올인원1.54·agent2.22), SEO16.3.5만 남음. 실제 입력은 OS 전경 요청false·Gmail/설치2.21이라 주인님 직접 Edge 포커스/시험회원 연결·옛8연결해제 답변 대기. 인계§12 |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
-| `shop-detail-page/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | 사이드바 3D 확장 다운로드 버튼 탑재 & API키 생성버튼/매뉴얼 동기화 & 3D 실행버튼 업그레이드 (✅ v1.34 완료) |
 | `detail-page-12p/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | Gemini API키 발급 2단 버튼 & 12단/9단 기획·렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.12 완료) |
 | `blog-content-maker/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | 4대 핵심 화면 3시안(12뷰) 제작 및 네이버 스마트 그린 저널 스타일 적용, 공식 네이버 그린(#03c75a) 톤 보정, 포스팅 3종 모드 칩셋 & 3D 엠보싱 버튼 탑재, Whale 실세션 검수 및 D:\Antigravity\Design 자산 적재 (✅ v1.13 완료) |
 | `blog-workroom/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | 4대 핵심 화면 3시안(12개 뷰) 주인님 1번 확정 승인 반영, 네이버 스마트 그린 저널 템플릿 확정 적용, 포스팅 3종 모드 칩셋 & 3D 엠보싱 버튼 탑재, Whale 실세션 검수 및 D:\Antigravity\Design 자산 적재 (✅ v1.15 완료) |
