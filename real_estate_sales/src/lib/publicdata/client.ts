@@ -15,7 +15,8 @@ const VWORLD_BASE = "https://api.vworld.kr/ned/data";
 // 빼둔 이유: VWorld 개발자 포털(vworld.kr)에서 도메인을 실제 서비스 도메인으로 바꾸면,
 // 코드 배포 없이 Vercel 환경변수만 바꿔서 바로 반영할 수 있게 하기 위함
 // (n8n 서버가 나중에 정리되어 이 도메인이 없어져도 코드가 깨지지 않도록 하는 안전장치).
-const VWORLD_REGISTERED_DOMAIN = process.env.VWORLD_REGISTERED_DOMAIN ?? "n8n.buylife.xyz";
+// RE-B3(2026-10-26): 주인님이 VWorld 인증키 도메인을 real-estate-sales.buylife.xyz로 바꿈 → 운영 환경변수도 새 주소, 기본값도 맞춤(옛 n8n 값 폐기)
+const VWORLD_REGISTERED_DOMAIN = process.env.VWORLD_REGISTERED_DOMAIN ?? "real-estate-sales.buylife.xyz";
 
 // 회원이 설정 화면에 본인 공공데이터 키를 등록하면 그 키로, 안 넣으면 운영자 공용 키(환경변수)로 호출한다
 // (무료 공공데이터 키 예외 — docs/TOP_RULE_PERSONAL_ACCOUNT_API.md §8). vworld 키와 도메인은 짝이라
