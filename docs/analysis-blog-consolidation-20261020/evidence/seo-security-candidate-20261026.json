@@ -9,12 +9,16 @@
     {
       "path": "naver-blog-seo-studio/package.json",
       "beforeSha256": "f2af52bb52378110198bdfdb2b89018c8c68323e521bf5bfa7386ff5e7cd3910",
-      "candidateSha256": "99c51745790759000eb5f93e683f382c8c04f9a8a798bfa96d44eb129fd2a37f"
+      "candidateSha256": "99c51745790759000eb5f93e683f382c8c04f9a8a798bfa96d44eb129fd2a37f",
+      "beforeLfSha256": "f2af52bb52378110198bdfdb2b89018c8c68323e521bf5bfa7386ff5e7cd3910",
+      "candidateLfSha256": "99c51745790759000eb5f93e683f382c8c04f9a8a798bfa96d44eb129fd2a37f"
     },
     {
       "path": "naver-blog-seo-studio/package-lock.json",
       "beforeSha256": "29d654d551f65cabb6a23bf4f0351755fb2009281cb10fbdcaf8bcb50b59af4b",
-      "candidateSha256": "25b918bdf72d78cc110e0ca9f9a79b7bab0eed84eb4e0797fa137c564c2e1744"
+      "candidateSha256": "25b918bdf72d78cc110e0ca9f9a79b7bab0eed84eb4e0797fa137c564c2e1744",
+      "beforeLfSha256": "29d654d551f65cabb6a23bf4f0351755fb2009281cb10fbdcaf8bcb50b59af4b",
+      "candidateLfSha256": "25b918bdf72d78cc110e0ca9f9a79b7bab0eed84eb4e0797fa137c564c2e1744"
     }
   ],
   "target": {
@@ -105,7 +109,8 @@
   "patch": {
     "path": "docs/analysis-blog-consolidation-20261020/evidence/seo-security-candidate-20261026.patch",
     "sha256": "81bdea67e95e6fd532405ceeb8dcd0f82ffd284f6681a3e7c00266132aa6842d",
-    "applyCheck": "passed"
+    "applyCheck": "passed",
+    "lfSha256": "81bdea67e95e6fd532405ceeb8dcd0f82ffd284f6681a3e7c00266132aa6842d"
   },
   "sourceFilesChanged": false,
   "installedSourceNodeModulesChanged": false,
@@ -124,5 +129,6 @@
     "브라우저를 여는 시험2파일은 포그라운드 미확인으로 제외",
     "운영 원본/버전/manifest/ZIP/DB/배포 변경0",
     "현재 운영 SEO는16.3.5이므로 보안 완료로 표시하지 않음"
-  ]
+  ],
+  "hashFormat": "Sha256는 당시 파일 바이트, LfSha256는 UTF-8/CRLF→LF 정규화. 장비간 비교는 LF 정규화 값을 사용."
 }
