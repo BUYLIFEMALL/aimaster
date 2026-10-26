@@ -1,10 +1,10 @@
 # 블로그
 
 - 담당: **Codex(윈도우·엣지), 세션 `codex-win-20261025-blog`** — 2026-10-25 주인님 명시 인수. 이전 Claude Code `claude-win-20261024-blog3`. [인계 문서](../HANDOFF_20261025_BLOG_TO_CODEX.md).
-- 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
+- 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-26 후보 사전선별/상태 모의모델32개 통과. 가상100건 동시요청→댓글30건예약/70건제한, 실제DB/RLS/확장 미검수. [결과](../analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md). 운영앱/네이버/AI/배포 변경0.
+- 마지막 갱신: 2026-10-26 1번서버/DB 소스·로컬48검수 완료, 운영SQL Run 대기. [신규프로그램인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용안내](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md). 운영등록/키/회원권한/배포 변경0, 별도5번제외·기존Edge/SEO대기 보존.
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -12,7 +12,7 @@
 
 ## 지금 하는 일
 
-**최신 진행 결과:** [후보 선별·중복 방지 모의 검수](../analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md)32개 통과. 검색요약 사전필터·회원합산상한/이웃일일슬롯·선점세대·성공불명·승인/중단·만료를 가상자료로 확인. 단일프로세스 메모리 모델이며 실제DB/RLS/브라우저/네이버 검수는 별도. 운영앱/DB/외부API/AI/빌드·배포0. 다음 실제서버/DB 통합검수 설계와 디자인 담당 시안.
+**최신 진행 결과:** 주인님순서1에따라 blog-neighbor-care 서버/API·신규6표/RLS/서버전용RPC를구현, API14·실제PG28·실제NextHTTP6=48개/타입/최종로컬빌드 통과. [상세인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 운영DB는미적용·미배포, 원본인수인계의Run주인님규칙에따라 DB요청6eecd22c 대기. 앱UI/확장/AI/정책허용/운영회원E2E미완료.
 
 **앞선 분석 결과:** [신규개발·병합·연계 공통 인수인계](../analysis-blog-consolidation-20261020/HANDOFF.md)와 [최신 전체 분석](../analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025). 주인님 후속 지시로 개별 구현보다 분석을 먼저 완료했고, 콘텐츠메이커③-2 단독 발행 플랜은 후보 보존/재검토 상태입니다.
 
@@ -34,7 +34,7 @@
 | `naver-blog-agent` | E-2 회원 선택 빠른 입력(보류) | 재개 결정 | 같은 플랜 |
 | `naver-blog-seo-studio` | 도톨이 2차(이전 글 비교·스타일 점수·이미지 노드), N7·N13 | 결정 | `naver-blog-seo-studio/docs/PLAN_20261024_DOTORI_D1_D4.md` |
 | 워드프레스·블로그스팟 | 같은 기준으로 기존 프로그램 있는지 점검 | 아래 여쭐 것 답 | 루트 핵심 지침 |
-| `blog-neighbor-care`(신규) | **AI 블로그 이웃 소통 자동화 신규 개발**(주인님 지정 2026-10-24, 분석·플랜 `claude-win-dotori`) — 0단계 사전 검증(임시 확장, 주인님 설치·실행) → 1~5단계. 주인님 결정 D1~D9는 절대 지시 | 10-26 0-B검색200·3개/후보·상태모의32개 통과. 다음 실제서버/DB 통합검수·디자인시안. 전문/관계/쓰기 허용·실제 검수는 별도. | `docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md`(인수인계)·`PLAN_…`·`REPORT.md` |
+| `blog-neighbor-care`(신규) | 1번서버/DB 소스·로컬48검수 완료 | 운영SQL주인님Run·운영읽기검수 대기(요청6eecd22c). 다음단계자동착수안함 | [자체인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용안내](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md) |
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
@@ -54,7 +54,7 @@
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-**최신 이웃 소통 우선 단계:** 모의32개 결과를 실제서버/DB 계층의 검수 계약으로 이관. 전문/관계/쓰기 허용 미확인 동작 비활성 유지, 디자인 담당4대 화면3시안. 아래 기존 입력/보안 대기 업무는 취소·완료 처리하지 않고 보존합니다.
+**최신 이웃 소통 우선 단계:** 검수SQL을주인님Run→운영6표/RLS/RPC권한/runtimefalse읽기확인→1번정리후나머지순서대로. 요청6eecd22c. 다른단계/디자인/실제소통은미착수.
 0. OS 실제 전경 확인: 엣지 전경 전환 요청 실패(false), 주인님이 작업표시줄에서 Edge를 직접 클릭해 앞에 두기. 화면 읽기/캡처 성공만으로 전경 성공으로 보지 않음. v2.22 웹 화면/설치확장 업데이트 상태를 확인(최근 실제 설치 확인은v2.21). 키 입력이 막힌 상태에서 반복 강제포커스 금지.
 1. 주인님 답변/관리자 요청 상태 확인 → Edge 시험 계정·확장·네이버 계정 대조. 기존8연결 폐기는 명시 답변이 있어야 하며 새 Edge 연결은 보존.
 2. 원고48f06db1가 prepare/비공개/예약꺼짐임을 화면에서 재확인 → 한 번 전송 → 실제 편집기·보관함 prepared 결과 대조. 최종 발행0 유지.
@@ -62,6 +62,8 @@
 4. 위 시험을 마친 뒤 다음 병합/연계 단위 또는 보안 업데이트를 결정. 콘텐츠③-2 독립 발행 플랜은 후보 재검토 상태. 관리자 요청함0044는 현재 정상 작동.
 
 ## 주인님께 여쭐 것
+- [DB SQL 실행] 신규이웃소통1단계 검수SQL(신규6표/RLS·서버RPC, runtimefalse)을 운영ref esgxyikcnnvmlhygjkth에 직접Run 후 알려주세요. 원본인수인계§4 Run주체지정유지. [검수본/순서](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md). 요청6eecd22c-9423-45f4-8b3e-1ab6d479a371.
+
 - [범위 인수] SEO 디자인 완료 후 남은 보안패치2파일(임시127개/타입/적용검사 통과)을 Codex가 인수·적용·기존승인 배포1회로 이어갈지. agy ACTIVE_WORK 예약이 남음. 요청 cf22fd7b-452c-4017-8eec-bc4e4419d8ec.
 - [화면 확인] 도구/Edge는 Windows 원격 rdp-tcp#0 세션2, 전경 chrome. 해당 원격화면에서 작업표시줄 Edge를 직접 클릭했는지와 보고 있는 화면이 원격/직접 PC인지 확인 필요.
 - [로그인·계정] Edge 설정의 Gmail을 시험 원고 소유자 buylifemall@naver.com으로 직접 전환→확장 프로그램 바로 연결(buylifemall)→같은 Edge 네이버 로그인. 마지막 설치확인은v2.21이며 웹/ZIP은v2.22로 갱신됨, 설치본 업데이트 확인 필요. 요청 `7eba5ff7-7af9-488b-83d2-946f78abb269`.

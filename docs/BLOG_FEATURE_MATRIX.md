@@ -19,6 +19,8 @@
 
 ## 0. 이 문서를 쓰는 법
 
+**서버/DB1단계(2026-10-26):** 신규 이웃소통 [서버소스·로컬48검수](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md) 완료, 운영SQL Run/실제회원·플랫폼·UI·확장·배포는미완료. API14/PG28/HTTP6이며 원래40개출시검수전체완료아님. 기존운영8개표시는바꾸지않음.
+
 **모의검수(2026-10-26):** 신규 이웃소통 [후보사전선별/상태모델32개 통과](analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md). 분석폴더의 가상자료·단일프로세스 모델이며 실제DB/RLS/확장/네이버 검수는 별도. 기존프로그램 ○/△/×와 원래40개 출시완료 표시는 바꾸지 않습니다.
 
 **0-B 확인(2026-10-26):** 신규 이웃 소통용 시험회원 공용키의 [NAVER API HUB 검색200·3개](analysis-naver-blog-neighbor-20261024/PREVALIDATION_20261026_0B_SEARCH_ACCOUNT_ACCESS.md) 확인. 구경로401·024, 신규발급/유예·자료범위 보완. 후보20명 전문분석/관계/실제 소통은 미검수이며 아래 기존 프로그램 기능의 구현표시는 바꾸지 않습니다.

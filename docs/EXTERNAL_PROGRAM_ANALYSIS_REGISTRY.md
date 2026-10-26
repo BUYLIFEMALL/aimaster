@@ -82,7 +82,7 @@
 | EXT-BLOG-04 | Maepsi NP 1.0.11 | NSIS + Electron | 10-24 | 주제만 넣으면 키워드·페르소나 자동, Gemini 검색 근거 원고, 클립보드 붙여넣기 입력·구간 확인·임시저장 결과 판정 | 🔗 기존 병합 → `naver-blog-agent` | `naver-blog-agent` v2.20 | 🔶 |
 | EXT-BLOG-05 | 키워드 파이터 for Gemini(네이버 API 버전) = 앱 A | AI Studio 앱 + Express | 10-14 | 자동완성(ㄱ~ㅎ)·PAA·콘텐츠 갭·상위 블로그 공략·경쟁력 점수·뉴스 전략·프롬프트 50개 | 🆕 독립 새 프로그램(앱 B와 합침) | `blog-keyword` v1.09 | ✅ |
 | EXT-BLOG-06 | 키워드 파이터 for Gemini = 앱 B | AI Studio 앱 | 10-14 | 같은 기능 7종, 네이버 키 없이 대부분 사용 | 🆕 독립 새 프로그램(앱 A와 합침) | `blog-keyword` v1.09 | ✅ |
-| EXT-BLOG-07 | 서이추&스댓공 Ai자동화 Ver3.5(공개용) | 크롬 확장 MV3(소스, 압축) | 10-24 | 네이버 블로그 서로이웃 자동 신청·공감·AI 댓글·대댓글·답방·이웃 정리·예약 — 비밀번호 저장 자동 로그인, 무료판 월 1회 제작자 글 강제 공감·댓글 | 🧭 주인님 방향(10-24): 내 블로그 성격에 맞는 블로그를 먼저 찾아 고른 뒤 → 서로이웃 신청 → 수락된 이웃 새 글 정기 공감 → 정독 분석 → 사람 같은 댓글, AI 모델 회원 선택 → **새 기본 프로그램 `blog-neighbor-care` 플랜 2판** · 무작위 대량 ❌ · 결정 완료 → **블로그 담당(`blog`)에게 인계**(인수인계 `HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md`) | 새 기본 프로그램 `blog-neighbor-care`(이름 확정) | 📝 |
+| EXT-BLOG-07 | 서이추&스댓공 Ai자동화 Ver3.5(공개용) | 크롬 확장 MV3(소스, 압축) | 10-24 | 네이버 블로그 서로이웃 자동 신청·공감·AI 댓글·대댓글·답방·이웃 정리·예약 — 비밀번호 저장 자동 로그인, 무료판 월 1회 제작자 글 강제 공감·댓글 | 🧭 주인님 방향(10-24): 내 블로그 성격에 맞는 블로그를 먼저 찾아 고른 뒤 → 서로이웃 신청 → 수락된 이웃 새 글 정기 공감 → 정독 분석 → 사람 같은 댓글, AI 모델 회원 선택 → **새 기본 프로그램 `blog-neighbor-care` 플랜 2판** · 무작위 대량 ❌ · 결정 완료 → **블로그 담당(`blog`)에게 인계**(인수인계 `HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md`) | 새 기본 프로그램 `blog-neighbor-care`(이름 확정) | 개발 중 |
 | **유튜브** | | | | | | | |
 | EXT-YT-01 | GitHub `nam-ai-trend/shorts-auto` 0.1.0 | Python + React 로컬 도구 | 10-22 | 레퍼런스 찾기·후킹/텐션 분석·대본 A/B·목소리 복제·단어 자막·장면 AI 영상 이어 붙이기 | 🔗 기존 병합 → `shorts-onestop-studio`(카드뉴스 부분은 인스타) | `shorts-onestop-studio` v1.41 | ✅ |
 | EXT-YT-02 | 제3자 상용 「카드형 쇼츠」 설치 프로그램(이름 비공개) | NSIS 3.04 + Electron | 10-16 | 카드형 쇼츠 제작(세부는 카드 §3 — 보강 필요) | 🔗 기존 병합 → `shorts-onestop-studio` | `shorts-onestop-studio` v1.41 | ✅ |
@@ -268,6 +268,9 @@
 | 관련 문서 | `blog-keyword/docs/DEVELOPMENT_PLAN.md` |
 
 #### EXT-BLOG-07 서이추&스댓공 Ai자동화 Ver3.5(공개용)
+
+> **서버/DB1단계(2026-10-26):** [신규폴더/소스·로컬48검수](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md) 완료, 운영SQL주인님Run대기·미배포. API14/실제PG28/실제HTTP6, 실제SSO/네이버/확장검수는별도. 프로그램등록/정책허용/AI/UI/30일정리미완료.
+
 
 > **모의검수(2026-10-26):** [후보사전필터·상태모델32개 통과](analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md). 가상100건 중30예약/70제한, 이웃일일슬롯·성공불명/선점세대 확인. 단일프로세스 모델이며 실제DB/RLS/확장/네이버 미검수. 운영프로그램 미구현·원래40개출시검수 미완료 유지.
 

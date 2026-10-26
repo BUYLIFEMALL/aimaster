@@ -231,3 +231,12 @@ Edge 설정은 웹v2.22·buylifemall@gmail.com·설치확장v2.21→v2.22 업데
 - 후보필터F8개/상한Q7개/상태S10개/승인A6개/만료D1개. 가상100건 동시요청→댓글30예약·70제한, 이웃당댓글/답글합계1·KST자정·선점세대·성공불명/중복보고·중단/승인변경·만료 확인. 실제프로필/검색결과/키·DB/외부API/AI 사용0.
 - 단일프로세스 메모리Mutex의 가상모델. observedActorId/policyAllowed/matched는 신뢰된시험입력이며 운영 API가 회원요청을 믿어도 된다는 코드가 아님. 실제DB트랜잭션/RLS/다중서버·브라우저/네이버는 미검수. 원래40개중32개 완료로 세지 않음. 모델을검증된공용부품/운영앱으로 복사해완료처리하지 않음.
 - 다음 실제서버/DB계층의 통합검수 계약 이관·디자인 담당4화면3시안/승인. 전문/관계/쓰기 허용미확인·기존Edge/SEO대기·다른담당5번제외 유지. 비용API/AI/설치/빌드/배포0. 관리자결과함 af78f475-b800-44e7-b97c-6403310ea5f0(운영ref esgxyikcnnvmlhygjkth의 작업결과메타만 기록).
+
+
+## 18. 2026-10-26 순서1 서버/DB 구현·운영Run 대기
+
+- 신규 blog-neighbor-care/30파일·커밋60f720ad5. [자체인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용순서/SQLhash](../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md). 공용인증/프로그램권한·전화/SSO사본, API-only Next,6표/RLS/서비스전용RPC 구현. 사본5개정규화일치확인.
+- API/권한14·로컬Postgres17.11 28·실제NextHTTP6=48개통과, typecheck/최종로컬빌드통과. 40개독립연결→30예약/10제한, 회원설정1건경합/이웃당일1개·펜싱/성공불명·RLS·기본권한ALL회수·계정해제보존·최종허가재확인. 운영JWT/SSO/네이버검수아님.
+- 운영ref esgxyikcnnvmlhygjkth객체/slug중복조회만실행(해당객체/프로그램없음), 스키마/프로그램등록/권한/키/계정변경0. 원본인수인계§4 Run은주인님규칙에따라 SQL실행요청6eecd22c-9423-45f4-8b3e-1ab6d479a371, 결과기록ee994213-02db-47d8-ac93-087260b46ac4. 본인SQL실행뒤supabase/verify_server_queue.sql로읽기확인.
+- 마이그레이션LF SHA256 a5b3f68d53497b16a1e2c35a92b9afb13db5b374caf4418010b8b2eb1472d52e. 신규6표/비공개스키마·보조함수/RPC·RLS만, 라이브false. 일반회원RPC/직접상태변경/서버runtime변경금지. observe/claim/arm/verify_permit/result는회원HTTP에노출안함. 실제naver_blog공용연결/worker는4번단계, 현재HTTP는그연결없으면작업생성거절.
+- 비용로컬빌드3시도(상위설정상속실패1/명시분리후성공2)·무료패키지/검수. 실제HTTP에서Origin/내부URL호스트차이수정·회귀검수. 유료AI/네이버/Vercel빌드·배포0. 운영SQL미적용·미배포대기,UI/확장/AI/30일삭제Cron/실제정책/회원E2E미완료.1번운영확인전나머지착수안함,5번제외·기존Edge/SEO대기유지.

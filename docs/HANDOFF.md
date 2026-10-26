@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 [역할: blog] Codex · 세션 `codex-win-20261025-blog` — 이웃 소통1번 서버/DB 구현·로컬48검수, 운영Run대기
+- [자체인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[운영적용안내](../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md), 소스커밋60f720ad5(신규30파일). API-only Next/공용인증·권한·SSO사본,6표/RLS·서버전용RPC/선점·KST상한·이웃일일슬롯·성공불명·허가재확인.
+- API14·실제Postgres17.11 28·실제NextHTTP6=48개/타입/최종빌드 통과. 별도DB연결40→30예약/10거절, 기본권한ALL/본인RLS·서비스runtime변경금지·계정해제보존 검증. 로컬가상회원/키/권한fixture이며운영SSO/외부검수아님.
+- 운영ref esgxyikcnnvmlhygjkth는충돌/slug읽기만, 운영스키마/프로그램/회원/키변경0. 원본인수인계§4 Run주인님규칙유지, SQL실행요청6eecd22c-9423-45f4-8b3e-1ab6d479a371, 결과ee994213-02db-47d8-ac93-087260b46ac4. 적용뒤읽기검수예정. runtime초기false·회원HTTP에worker/성공보고비노출.
+- 비용: 로컬빌드3회시도(실패1/성공2)·무료패키지/검수, 네이버/유료AI/Vercel빌드·배포0. 미배포대기(개발1단계/운영Run·후속미완료). UI/확장/AI/30일삭제Cron·실제플랫폼미완료,5번다른담당제외/기존Edge·SEO대기유지.
+
+
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E5-3 누끼 되돌려 넣기·숫자 자리만 가리기·개인정보 가리기 바로가기
 - 한 일: ① 바나나 「↩ 상세페이지에 넣기」 → 상세페이지 그 섹션 새 버전 저장(`nukki-handoff` 결과 메시지) ② 얼굴 가리기 「숫자가 많은 자리만」(`browser-free-erase`에 글자 읽기 모델 `rec` 추가, 숫자 4개 이상·절반 이상) ③ 주문 리포트(홈·리뷰 분석)·라벨·서류(홈)에 「🙈 사진 속 개인정보 가리기 ↗」(`/tools?tab=face`) — 세 프로그램에 송장·후기 사진 화면이 없어 바로가기로.
 - 검수: 시험 74개·4개 프로그램 tsc·빌드, 로컬 크롬 임시 페이지(숫자 자리 3곳만·?tab=face), 운영 크롬 앞 탭(VERSIONS 3→4 저장·원본 복구, 바로가기 3곳 주소·새 탭).
