@@ -3,7 +3,7 @@
 작성: 2026-10-26 Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image]
 대상: ① AIMaster 운영 — `trending-product-finder`(상품소싱 자동화) 안의 새 메뉴 (새 프로그램 아님)
 근거: 주인님 「어떤 방식으로 개발할지 플랜을 자세히 분석하고 플랜을 세워봐」(2026-10-26) · `AGENTS.md` Phase 16·17(3순위, 신중 검토) · `docs/ECOMMERCE_CONSOLIDATION_TASKS.md` EC-W8
-상태: **주인님 방향 결정 대기** (코드 없음)
+상태: ⏩ **방향 바뀜(2026-10-26 주인님)** — 크롬 확장 등록기(방식 D)를 1단계로, 스마트스토어 먼저·쿠팡 다음. 새 플랜 [`PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md`](PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md). 이 문서는 방식 비교 근거로 남김
 
 ## 0. 결론 먼저
 - **「회원이 자기 마켓 API 키를 우리 사이트에 넣고, 우리 서버가 대신 상품을 올리는 방식」은 네이버가 허용하지 않는다**(공식 기술지원 답변). 그래서 처음 백로그에 적힌 Phase 16 방식 그대로는 만들 수 없다.
