@@ -17,7 +17,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  ExternalLink
+  ExternalLink,
+  Radio
 } from "lucide-react";
 
 const FLOW_STEPS = [
@@ -83,21 +84,22 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
 
   return (
     <>
-      {/* 모바일 상단 유튜브 다크 헤더 (767px 이하) */}
-      <div className="flex h-16 w-full items-center justify-between border-b border-[#282828] bg-[#181818] px-4 md:hidden sticky top-0 z-40 shadow-md">
+      {/* 모바일 상단 헐리우드 시네마틱 헤더 (767px 이하) */}
+      <div className="flex h-16 w-full items-center justify-between border-b border-[#202945] bg-[#0b0d1b] px-4 md:hidden sticky top-0 z-40 shadow-lg">
         <Link href="/candidates" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ff0000] text-white shadow-[0_0_12px_rgba(255,0,0,0.5)]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-b from-rose-500 to-rose-600 text-white shadow-[0_0_12px_rgba(244,63,94,0.6)]">
             <Play className="h-4 w-4 fill-white translate-x-0.5" />
           </div>
-          <span className="text-base font-bold text-white tracking-tight">YOUTUBE Shots</span>
-          <span className="rounded-full bg-red-950/80 px-2 py-0.5 text-[10px] font-bold text-red-400 border border-red-800">
-            {APP_VERSION}
-          </span>
+          <span className="text-base font-black text-white tracking-tight">YOUTUBE Shots</span>
+          <div className="flex items-center gap-1.5 rounded-full bg-rose-950/80 px-2 py-0.5 text-[10px] font-bold text-rose-300 border border-rose-800/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-rec-pulse" />
+            <span>REC {APP_VERSION}</span>
+          </div>
         </Link>
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#333333] bg-[#212121] text-neutral-300 hover:text-white hover:bg-[#282828]"
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#202945] bg-[#13182c] text-slate-300 hover:text-white hover:bg-[#1a223f]"
           aria-label="메뉴 토글"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -107,39 +109,45 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       {/* 모바일 백드롭 오버레이 */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-xs md:hidden"
+          className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm md:hidden"
           onClick={closeMobile}
         />
       )}
 
-      {/* 메인 유튜브 다크 사이드바 */}
+      {/* 메인 헐리우드 시네마틱 사이드바 */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-[#262626] bg-[#121212] transition-transform duration-200 ease-in-out md:static md:w-64 md:translate-x-0 md:h-screen md:sticky md:top-0 md:shrink-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-[#202945] bg-[#0f1325] transition-transform duration-200 ease-in-out md:static md:w-64 md:translate-x-0 md:h-screen md:sticky md:top-0 md:shrink-0 ${
           mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
-        {/* 메뉴는 필요한 만큼만(낮은 화면에서만 줄어들며 내부 스크롤) — 계정·로그아웃을 마지막 메뉴 바로 아래에 붙인다(docs/SIDEBAR_LAYOUT_STANDARD.md, flex-1 금지) */}
         <div className="flex min-h-0 shrink flex-col overflow-y-auto p-4">
-          {/* 유튜브 브랜드 헤더 */}
+          {/* 브랜드 헤더 & LIVE REC 인디케이터 */}
           <div className="mb-6 px-1 pt-1">
             <div className="flex items-center justify-between">
               <Link href="/candidates" onClick={closeMobile} className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ff0000] text-white shadow-[0_0_15px_rgba(255,0,0,0.5)]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-b from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.6)]">
                   <Play className="h-4.5 w-4.5 fill-white translate-x-0.5" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-base font-bold text-white tracking-tight">YOUTUBE Shots</span>
-                  <span className="text-[11px] font-medium text-neutral-400">이미지 스토리 자동화</span>
+                  <span className="text-base font-black text-white tracking-tight">YOUTUBE Shots</span>
+                  <span className="text-[11px] font-medium text-slate-400">헐리우드 시네마틱 스튜디오</span>
                 </div>
               </Link>
-              <span className="rounded-md bg-red-950/80 px-2 py-0.5 text-[11px] font-bold text-red-400 border border-red-800">
+            </div>
+
+            <div className="mt-2.5 flex items-center justify-between rounded-lg border border-rose-500/30 bg-rose-950/40 px-2.5 py-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-rose-500 animate-rec-pulse" />
+                <span className="text-[11px] font-extrabold tracking-wider text-rose-300">LIVE REC</span>
+              </div>
+              <span className="text-[10px] font-bold text-slate-400 font-mono">
                 {APP_VERSION}
               </span>
             </div>
 
             <a
               href="https://www.buylife.xyz/programs"
-              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-white transition-colors"
             >
               <span>← 다른 프로그램 보기</span>
               <ExternalLink className="h-3 w-3" />
@@ -149,8 +157,9 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           {/* 5단계 유튜브 쇼츠 제작 파이프라인 */}
           <nav className="flex flex-col space-y-1">
             <div className="pt-1 pb-2">
-              <p className="px-3 text-[11px] font-bold tracking-wider text-neutral-500 uppercase">
-                5단계 쇼츠 제작 파이프라인
+              <p className="px-3 text-[11px] font-extrabold tracking-wider text-slate-500 uppercase flex items-center gap-1.5">
+                <Radio className="w-3 h-3 text-rose-500" />
+                <span>5단계 숏폼 파이프라인</span>
               </p>
             </div>
 
@@ -165,8 +174,8 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     onClick={closeMobile}
                     className={`group relative flex gap-3 rounded-xl p-2.5 transition-all ${
                       isActive 
-                        ? "bg-[#212121] border border-red-950/80 shadow-xs" 
-                        : "hover:bg-[#1a1a1a] border border-transparent"
+                        ? "bg-[#181f38] border border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.2)]" 
+                        : "hover:bg-[#141a2e] border border-transparent"
                     }`}
                   >
                     {/* 스텝 번호 + 연결선 */}
@@ -174,24 +183,24 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                       <span
                         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${
                           isActive
-                            ? "bg-[#ff0000] text-white shadow-[0_0_10px_rgba(255,0,0,0.6)]"
-                            : "bg-[#242424] text-neutral-400 group-hover:bg-[#2e2e2e] group-hover:text-white"
+                            ? "bg-gradient-to-b from-rose-500 to-rose-600 text-white shadow-[0_0_10px_rgba(244,63,94,0.6)]"
+                            : "bg-[#1a223f] text-slate-400 group-hover:bg-[#202945] group-hover:text-white"
                         }`}
                       >
                         {item.step}
                       </span>
-                      {!isLast && <span className="mt-1.5 w-px flex-1 bg-[#262626]" />}
+                      {!isLast && <span className="mt-1.5 w-px flex-1 bg-[#202945]" />}
                     </div>
 
                     {/* 라벨 + 설명 */}
                     <div className="min-w-0 flex-1 pt-0.5">
                       <div className="flex items-center gap-1.5">
-                        <item.icon className={`h-3.5 w-3.5 ${isActive ? "text-[#ff0000]" : "text-neutral-400"}`} />
-                        <p className={`text-sm font-bold truncate ${isActive ? "text-white" : "text-neutral-300"}`}>
+                        <item.icon className={`h-3.5 w-3.5 ${isActive ? "text-rose-400" : "text-slate-400"}`} />
+                        <p className={`text-sm font-bold truncate ${isActive ? "text-white" : "text-slate-300"}`}>
                           {item.label}
                         </p>
                       </div>
-                      <p className="text-[11px] text-neutral-400 truncate mt-0.5">{item.description}</p>
+                      <p className="text-[11px] text-slate-400 truncate mt-0.5">{item.description}</p>
                     </div>
                   </Link>
                 );
@@ -200,11 +209,11 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           </nav>
 
           {/* 유틸리티 메뉴 (가이드북 & API키 연동) */}
-          <div className="mt-6 border-t border-[#262626] pt-4">
-            <p className="px-3 mb-2 text-[11px] font-bold tracking-wider text-neutral-500 uppercase">
+          <div className="mt-6 border-t border-[#202945] pt-4">
+            <p className="px-3 mb-2 text-[11px] font-extrabold tracking-wider text-slate-500 uppercase">
               설정 & 매뉴얼
             </p>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {UTILITY_ITEMS.map((item) => {
                 const isActive = pathname?.startsWith(item.href);
                 return (
@@ -214,19 +223,19 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     onClick={closeMobile}
                     className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all ${
                       isActive
-                        ? "bg-[#212121] text-white border border-red-900/60 shadow-xs"
+                        ? "bg-[#181f38] text-white border border-rose-500/50 shadow-xs"
                         : item.highlight
-                        ? "bg-amber-950/40 text-amber-300 hover:bg-amber-950/60 border border-amber-900/40"
-                        : "text-neutral-300 hover:bg-[#1a1a1a] hover:text-white"
+                        ? "btn-3d-amber py-2 text-xs"
+                        : "text-slate-300 hover:bg-[#141a2e] hover:text-white border border-transparent"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <item.icon className={`h-4 w-4 ${
-                        isActive ? "text-[#ff0000]" : item.highlight ? "text-amber-400" : "text-neutral-400"
+                        isActive ? "text-rose-400" : item.highlight ? "text-zinc-900" : "text-slate-400"
                       }`} />
                       <span>{item.label}</span>
                     </div>
-                    {item.badge && (
+                    {item.badge && !item.highlight && (
                       <span className="rounded-full bg-amber-500 text-black text-[10px] font-extrabold px-1.5 py-0.5 shadow-xs">
                         {item.badge}
                       </span>
@@ -239,17 +248,17 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </div>
 
         {/* 하단 사용자 계정 및 다크 로그아웃 */}
-        <div className="shrink-0 border-t border-[#262626] bg-[#161616] p-4">
+        <div className="shrink-0 border-t border-[#202945] bg-[#0b0d1b] p-4">
           <div className="mb-2 flex items-center gap-2 px-1">
-            <div className="h-2 w-2 rounded-full bg-[#ff0000] shadow-[0_0_6px_#ff0000]" />
-            <p className="truncate text-xs font-medium text-neutral-300" title={userEmail}>
+            <div className="h-2 w-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e] animate-rec-pulse" />
+            <p className="truncate text-xs font-medium text-slate-300" title={userEmail}>
               {userEmail}
             </p>
           </div>
           <form action={signOutAction}>
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#333333] bg-[#212121] px-3 py-2 text-xs font-semibold text-neutral-300 hover:bg-[#282828] hover:text-red-400 transition-colors shadow-xs"
+              className="btn-3d-dark flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold hover:text-rose-400 transition-colors"
             >
               <LogOut className="h-3.5 w-3.5" />
               <span>로그아웃</span>

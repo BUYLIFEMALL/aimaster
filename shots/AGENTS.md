@@ -4,8 +4,28 @@
 > - **프로그램 번호**: 58번
 > - **프로그램명**: YOUTUBE Shots(이미지 스토리) 자동화 (`auto-shorts-posting`, `shots/`)
 > - **공식 배포 주소**: https://shots.buylife.xyz
-> - **버전**: `v1.31` (`package.json` 1.31.0, `version.ts` v1.31, DB `programs` v1.31 — 2026-10-21)
-> - **적용 디자인 템플릿**: **유튜브 다크 콘솔 스타일 (YouTube Dark Console — Shorts Studio Edition)**
+> - **버전**: `v1.44` (`package.json` 1.44.0, `version.ts` v1.44, DB `programs` v1.44 — 2026-10-26)
+> - **적용 디자인 템플릿**: **21. 헐리우드 시네마틱 네온 REC 스타일 (Hollywood Cinematic Neon REC Style)**
+> - **보조 배포 주소**: https://shots-2zmi8an69-buylife.vercel.app
+> - **영구 자산 디렉터리**: `D:\Antigravity\Design\21_헐리우드_시네마틱_네온_REC_스타일\shots`
+
+---
+
+## 0. v1.44 리뉴얼 변경 히스토리 (2026-10-26 Antigravity)
+1. **21. 헐리우드 시네마틱 네온 REC 스타일 전면 도입**:
+   - 기존 블로그 프로그램들의 그린/오렌지/다크 테마에서 탈피하여 헐리우드 영상 프로덕션 현장의 뷰파인더 OSD 및 LIVE 🔴 REC 메타포 적용
+   - 배경: `#0b0d1b` (시네마틱 딥 네이비 블랙), 서피스: `#13182c`, 포인트: 루비 레드 네온(`#f43f5e`) & 골드 앰버(`#fbbf24`)
+2. **3D 엠보싱 버튼 전면 규격화 (DESIGN.md 원칙 21)**:
+   - `.btn-3d-rec`: 3단 입체 슬레이트 셔터 렌더링 및 핵심 CTA 액션
+   - `.btn-3d-amber`: 매뉴얼 및 회원가입 바로가기 3D 버튼
+   - `.btn-create-key`: API 키 및 연동 가이드북 3D 버튼
+   - `.btn-3d-dark`: 보조 다크 3D 버튼
+3. **전체 화면 배경색 일체화 (DESIGN.md 원칙 13)**:
+   - `/settings` 페이지의 기존 `bg-white` 카드를 전면 제거하고 딥 네이비 다크 카드로 통일
+   - `/login`, `/signup` 인증 페이지도 헐리우드 시네마틱 다크 그리드 배경 및 표준 탭 토글 레이아웃(원칙 14) 완비
+4. **WebCodecs 하드웨어 가속 1080p 브라우저 렌더러 패널 탑재**:
+   - 1080×1920 MP4 브라우저 인코딩 3D 버튼 장착 및 프로그레스 애니메이션 연동
+5. **네이버 웨일 실브라우저 검수 및 Vercel 프로덕션 실배포 완료 (`https://shots.buylife.xyz`)**
 
 ---
 

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "YOUTUBE Shots(이미지 스토리) 자동화",
-  description: "유튜브 쇼츠 주제/콘텐츠 수집 및 제작 자동화",
+  title: "YOUTUBE Shots (헐리우드 시네마틱 REC 에디션)",
+  description: "유튜브 쇼츠 바이럴 시나리오·Suno BGM·WebCodecs 1080p 브라우저 렌더링 올인원 스튜디오",
 };
 
 export default function RootLayout({
@@ -25,9 +25,11 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-neutral-50">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#0b0d1b] text-slate-100 selection:bg-rose-500 selection:text-white">
+        {children}
+      </body>
     </html>
   );
 }

@@ -20,7 +20,9 @@ import {
   UploadCloud,
   Timer,
   Zap,
+  Radio
 } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
 
 export default function GuidePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -34,7 +36,7 @@ export default function GuidePage() {
       step: "01",
       title: "트렌드 & 바이럴 주제 수집",
       desc: "HTTP URL, NewsBlur RSS, Perplexity Sonar 실시간 소셜 트렌드를 통해 조회수 폭발 잠재력이 높은 쇼츠 소재를 수집합니다.",
-      icon: <Flame className="w-5 h-5 text-[#ff4e45]" />,
+      icon: <Flame className="w-5 h-5 text-rose-500" />,
       badge: "Perplexity / RSS",
     },
     {
@@ -62,7 +64,7 @@ export default function GuidePage() {
       step: "05",
       title: "영상 만들기 & 업로드",
       desc: "① 브라우저에서 만들기(무료 기본): 본인 OpenAI 키로 장면 내레이션을 만들고 이미지·노란 자막·배경음악과 함께 이 브라우저 안에서 1080×1920 MP4로 합칩니다(영상 1편 음성 약 10원). ② 고급 합성: 본인 JSON2Video 키·ElevenLabs 음성. 완성 영상은 유튜브 쇼츠·인스타 릴스로 바로 올립니다.",
-      icon: <UploadCloud className="w-5 h-5 text-purple-400" />,
+      icon: <UploadCloud className="w-5 h-5 text-rose-400" />,
       badge: "Browser MP4 & YouTube API",
     },
   ];
@@ -100,31 +102,31 @@ export default function GuidePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-12">
-      {/* 🎬 가이드북 히어로 배너 */}
+      {/* 🎬 헐리우드 시네마틱 가이드북 히어로 배너 */}
       <div className="studio-hero">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#ff0000]/15 border border-[#ff0000]/40 text-[#ff4e45] text-xs font-semibold">
-              <BookOpen className="w-3.5 h-3.5 text-[#ff0000]" />
-              YOUTUBE SHORTS MASTER MANUAL
+          <div className="space-y-2.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs font-bold">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-rec-pulse" />
+              <span>HOLLYWOOD MASTER GUIDE · {APP_VERSION}</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-[#f1f1f1] tracking-tight flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-[#ff0000] flex items-center justify-center shadow-lg shadow-[#ff0000]/40">
-                <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+              <span className="w-9 h-9 rounded-xl bg-gradient-to-b from-rose-500 to-rose-600 flex items-center justify-center shadow-lg shadow-rose-500/50">
+                <Play className="w-5 h-5 text-white fill-white ml-0.5" />
               </span>
-              쇼츠 자동화 공식 가이드북
+              <span>쇼츠 자동화 공식 제작 매뉴얼</span>
             </h1>
-            <p className="text-sm text-[#aaaaaa] max-w-2xl leading-relaxed">
+            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
               소재 수집부터 6장면 스토리텔링, 9:16 비주얼, Suno AI 테마곡 생성 및 Full HD 렌더링까지 쇼츠 제작의 모든 노하우를 확인하세요.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <Link
               href="/candidates"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#ff0000] hover:bg-[#cc0000] text-sm font-bold text-white shadow-lg shadow-[#ff0000]/30 transition-all group"
+              className="btn-3d-rec px-4 py-2.5 text-xs font-black shadow-lg"
             >
-              <span>쇼츠 스튜디오 가기</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span>쇼츠 스튜디오 시작하기</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -133,8 +135,8 @@ export default function GuidePage() {
       {/* 5단계 제작 파이프라인 */}
       <section className="space-y-4">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#ff0000]" />
-          <h2 className="text-lg font-bold text-[#f1f1f1]">
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-rec-pulse" />
+          <h2 className="text-lg font-black text-white">
             5단계 쇼츠 제작 파이프라인
           </h2>
         </div>
@@ -142,24 +144,24 @@ export default function GuidePage() {
           {PIPELINE_STEPS.map((item) => (
             <div
               key={item.step}
-              className="rounded-xl border border-[#272727] bg-[#181818] p-4 flex flex-col justify-between hover:border-[#ff0000]/40 transition-all group shadow-md"
+              className="rounded-2xl border border-[#202945] bg-[#13182c] p-4 flex flex-col justify-between hover:border-rose-500/50 transition-all group shadow-md"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-black text-[#ff4e45]">{item.step}</span>
-                  <span className="p-1.5 rounded-lg bg-[#222222] group-hover:bg-[#2c2c2c] transition-colors">
+                  <span className="text-xs font-black text-rose-400 font-mono">{item.step}</span>
+                  <span className="p-1.5 rounded-lg bg-[#181f38] border border-[#202945] group-hover:border-rose-500/40 transition-colors">
                     {item.icon}
                   </span>
                 </div>
-                <h3 className="text-xs font-bold text-[#f1f1f1] mb-1.5 leading-snug">
+                <h3 className="text-xs font-bold text-white mb-1.5 leading-snug">
                   {item.title}
                 </h3>
-                <p className="text-[11px] text-[#888888] leading-relaxed">
+                <p className="text-[11px] text-slate-400 leading-relaxed">
                   {item.desc}
                 </p>
               </div>
-              <div className="mt-3 pt-2 border-t border-[#252525]">
-                <span className="inline-block text-[10px] font-semibold text-[#aaaaaa] bg-[#222222] px-2 py-0.5 rounded">
+              <div className="mt-3 pt-2 border-t border-[#202945]">
+                <span className="inline-block text-[10px] font-semibold text-rose-300 bg-rose-950/60 border border-rose-500/30 px-2 py-0.5 rounded-md">
                   {item.badge}
                 </span>
               </div>
@@ -171,59 +173,59 @@ export default function GuidePage() {
       {/* 9:16 비주얼 프롬프트 & 떡상 연출 매트릭스 */}
       <section className="space-y-4">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#ff0000]" />
-          <h2 className="text-lg font-bold text-[#f1f1f1]">
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-rec-pulse" />
+          <h2 className="text-lg font-black text-white">
             9:16 세로 씬 구성 및 떡상 연출 공식
           </h2>
         </div>
 
-        <div className="rounded-xl border border-[#272727] bg-[#181818] overflow-hidden shadow-lg">
+        <div className="rounded-2xl border border-[#202945] bg-[#13182c] overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#222222] text-[#aaaaaa] border-b border-[#2e2e2e]">
+              <thead className="bg-[#181f38] text-slate-400 border-b border-[#202945]">
                 <tr>
-                  <th className="py-3 px-4 font-semibold">구간</th>
-                  <th className="py-3 px-4 font-semibold">재생 시간</th>
-                  <th className="py-3 px-4 font-semibold">씬 연출 포인트</th>
-                  <th className="py-3 px-4 font-semibold">9:16 비주얼 가이드</th>
-                  <th className="py-3 px-4 font-semibold">사운드 템포</th>
+                  <th className="py-3 px-4 font-bold">구간</th>
+                  <th className="py-3 px-4 font-bold">재생 시간</th>
+                  <th className="py-3 px-4 font-bold">씬 연출 포인트</th>
+                  <th className="py-3 px-4 font-bold">9:16 비주얼 가이드</th>
+                  <th className="py-3 px-4 font-bold">사운드 템포</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#272727] text-[#cccccc]">
-                <tr className="hover:bg-[#1f1f1f]">
-                  <td className="py-3 px-4 font-bold text-[#ff4e45]">오프닝 훅</td>
-                  <td className="py-3 px-4 text-[#888888]">0초 ~ 3초</td>
+              <tbody className="divide-y divide-[#202945] text-slate-300">
+                <tr className="hover:bg-[#181f38]/60 transition-colors">
+                  <td className="py-3 px-4 font-bold text-rose-400">오프닝 훅</td>
+                  <td className="py-3 px-4 text-slate-400">0초 ~ 3초</td>
                   <td className="py-3 px-4">스크롤 멈춤용 질문 및 충격적인 핵심 요약</td>
                   <td className="py-3 px-4">초근접 클로즈업, 강렬한 대비 조명, 역동적 포즈</td>
-                  <td className="py-3 px-4 text-emerald-400 font-medium">강렬한 비트 드롭</td>
+                  <td className="py-3 px-4 text-emerald-400 font-bold">강렬한 비트 드롭</td>
                 </tr>
-                <tr className="hover:bg-[#1f1f1f]">
-                  <td className="py-3 px-4 font-bold text-[#f1f1f1]">문제 제기</td>
-                  <td className="py-3 px-4 text-[#888888]">3초 ~ 15초</td>
+                <tr className="hover:bg-[#181f38]/60 transition-colors">
+                  <td className="py-3 px-4 font-bold text-white">문제 제기</td>
+                  <td className="py-3 px-4 text-slate-400">3초 ~ 15초</td>
                   <td className="py-3 px-4">시청자가 겪는 현실적 고통과 공감대 형성</td>
                   <td className="py-3 px-4">고민하는 인물 앵글, 어두운 톤, 차분한 시네마틱</td>
-                  <td className="py-3 px-4 text-amber-400 font-medium">긴장감 빌드업</td>
+                  <td className="py-3 px-4 text-amber-400 font-bold">긴장감 빌드업</td>
                 </tr>
-                <tr className="hover:bg-[#1f1f1f]">
-                  <td className="py-3 px-4 font-bold text-[#f1f1f1]">핵심 해법 1·2</td>
-                  <td className="py-3 px-4 text-[#888888]">15초 ~ 38초</td>
+                <tr className="hover:bg-[#181f38]/60 transition-colors">
+                  <td className="py-3 px-4 font-bold text-white">핵심 해법 1·2</td>
+                  <td className="py-3 px-4 text-slate-400">15초 ~ 38초</td>
                   <td className="py-3 px-4">실행 가능한 구체적 비법 2가지 빠른 제시</td>
                   <td className="py-3 px-4">밝아지는 톤, 직관적 오브젝트 강조, 세로 분할 구도</td>
-                  <td className="py-3 px-4 text-sky-400 font-medium">경쾌한 팝 템포</td>
+                  <td className="py-3 px-4 text-sky-400 font-bold">경쾌한 팝 템포</td>
                 </tr>
-                <tr className="hover:bg-[#1f1f1f]">
+                <tr className="hover:bg-[#181f38]/60 transition-colors">
                   <td className="py-3 px-4 font-bold text-amber-400">반전 클라이맥스</td>
-                  <td className="py-3 px-4 text-[#888888]">38초 ~ 48초</td>
+                  <td className="py-3 px-4 text-slate-400">38초 ~ 48초</td>
                   <td className="py-3 px-4">대부분이 모르는 결정적 한 방의 반전 팁</td>
                   <td className="py-3 px-4">하이라이트 네온 효과, 감탄하는 표정, 와이드 앵글</td>
-                  <td className="py-3 px-4 text-purple-400 font-medium">절정 하이라이트</td>
+                  <td className="py-3 px-4 text-purple-400 font-bold">절정 하이라이트</td>
                 </tr>
-                <tr className="hover:bg-[#1f1f1f]">
+                <tr className="hover:bg-[#181f38]/60 transition-colors">
                   <td className="py-3 px-4 font-bold text-emerald-400">CTA 엔딩</td>
-                  <td className="py-3 px-4 text-[#888888]">48초 ~ 58초</td>
+                  <td className="py-3 px-4 text-slate-400">48초 ~ 58초</td>
                   <td className="py-3 px-4">구독·저장 유도 및 루프 재생(Loop) 완벽 연결</td>
                   <td className="py-3 px-4">정면 시선 응시, 구독 유도 제스처, 오프닝과 연결 구도</td>
-                  <td className="py-3 px-4 text-neutral-400 font-medium">자연스러운 페이드</td>
+                  <td className="py-3 px-4 text-slate-400 font-bold">자연스러운 페이드</td>
                 </tr>
               </tbody>
             </table>
@@ -233,39 +235,39 @@ export default function GuidePage() {
 
       {/* 3대 오디오 & 렌더링 팁 */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-[#272727] bg-[#181818] p-4 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#f1f1f1]">
-            <Timer className="w-4 h-4 text-[#ff4e45]" />
+        <div className="rounded-2xl border border-[#202945] bg-[#13182c] p-4 space-y-2 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-bold text-white">
+            <Timer className="w-4 h-4 text-rose-500" />
             <span>0초 훅 비트 드롭</span>
           </div>
-          <p className="text-xs text-[#888888] leading-relaxed">
+          <p className="text-xs text-slate-400 leading-relaxed">
             쇼츠는 첫 1초 안에 청각적 자극이 없으면 이탈합니다. 도입부 무음을 완전히 제거하고 첫 비트가 영상 시작과 0ms에 정확히 일치되도록 믹싱합니다.
           </p>
         </div>
 
-        <div className="rounded-xl border border-[#272727] bg-[#181818] p-4 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#f1f1f1]">
+        <div className="rounded-2xl border border-[#202945] bg-[#13182c] p-4 space-y-2 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-bold text-white">
             <Zap className="w-4 h-4 text-amber-400" />
             <span>1.8초 컷 전환 리듬</span>
           </div>
-          <p className="text-xs text-[#888888] leading-relaxed">
+          <p className="text-xs text-slate-400 leading-relaxed">
             시청자의 시각적 지루함을 방지하기 위해 씬 내에서도 줌인, 줌아웃, 팬(Pan) 효과를 1.8초 주기로 적용하여 완벽한 시청 지속 시간을 달성합니다.
           </p>
         </div>
 
-        <div className="rounded-xl border border-[#272727] bg-[#181818] p-4 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#f1f1f1]">
+        <div className="rounded-2xl border border-[#202945] bg-[#13182c] p-4 space-y-2 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-bold text-white">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span>고대비 볼드 자막 바</span>
           </div>
-          <p className="text-xs text-[#888888] leading-relaxed">
+          <p className="text-xs text-slate-400 leading-relaxed">
             무음 시청자(지하철, 사무실)를 위해 중앙 하단 20% 안전 구역(Safe Zone)에 노란색 포인트 강조 볼드 자막을 자동으로 렌더링합니다.
           </p>
         </div>
       </section>
 
       {/* 100% BYOK 보안 원칙 배너 */}
-      <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 p-5 flex items-start gap-4">
+      <div className="rounded-2xl border border-emerald-500/40 bg-emerald-950/30 p-5 flex items-start gap-4 shadow-lg">
         <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0 mt-0.5" />
         <div className="space-y-1">
           <h3 className="text-sm font-bold text-emerald-300">
@@ -281,8 +283,8 @@ export default function GuidePage() {
       {/* 자주 묻는 질문 FAQ (아코디언) */}
       <section className="space-y-4">
         <div className="flex items-center gap-2">
-          <HelpCircle className="w-4 h-4 text-[#ff4e45]" />
-          <h2 className="text-lg font-bold text-[#f1f1f1]">자주 묻는 질문 (FAQ)</h2>
+          <HelpCircle className="w-4 h-4 text-rose-500" />
+          <h2 className="text-lg font-black text-white">자주 묻는 질문 (FAQ)</h2>
         </div>
 
         <div className="space-y-2.5">
@@ -291,25 +293,25 @@ export default function GuidePage() {
             return (
               <div
                 key={idx}
-                className="rounded-xl border border-[#272727] bg-[#181818] overflow-hidden transition-colors"
+                className="rounded-2xl border border-[#202945] bg-[#13182c] overflow-hidden transition-colors shadow-sm"
               >
                 <button
                   type="button"
                   onClick={() => toggleFaq(idx)}
-                  className="w-full flex items-center justify-between p-4 text-left font-bold text-xs text-[#f1f1f1] hover:text-[#ff4e45] transition-colors"
+                  className="w-full flex items-center justify-between p-4 text-left font-bold text-xs text-white hover:text-rose-400 transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#ff0000] font-black">Q{idx + 1}.</span>
+                  <span className="flex items-center gap-2.5">
+                    <span className="text-rose-500 font-black font-mono">Q{idx + 1}.</span>
                     {faq.q}
                   </span>
                   {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-[#ff4e45]" />
+                    <ChevronUp className="w-4 h-4 text-rose-400" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-[#717171]" />
+                    <ChevronDown className="w-4 h-4 text-slate-500" />
                   )}
                 </button>
                 {isOpen && (
-                  <div className="px-4 pb-4 pt-1 text-xs text-[#aaaaaa] leading-relaxed border-t border-[#252525]/80 bg-[#141414]">
+                  <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-[#202945] bg-[#0f1325]">
                     {faq.a}
                   </div>
                 )}

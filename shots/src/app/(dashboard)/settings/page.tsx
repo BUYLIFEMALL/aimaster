@@ -7,11 +7,11 @@ import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { YoutubeConnectCard } from "@/components/youtube/YoutubeConnectCard";
 import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import type { ApiKeyProvider } from "@/types/database.types";
+import { Key, Radio, Film, Layers, Music, Video, ShieldCheck, ExternalLink } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002";
 
-// app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
-// 매뉴얼만 골랐다(2026-09-13, naver-cafe-poster에서 시작된 플랫폼 표준을 그대로 적용).
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
@@ -24,38 +24,40 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "c3ed7fe3-00d8-466b-b4ce-9c115accb273", label: "Meta 앱 만들기 (Instagram 릴스 연동)" },
 ];
 
-// 파이프라인 단계(1~5) + 나레이션/플랫폼 연동 순서로 API 키를 그룹핑해서 보여준다.
-// 어떤 키가 파이프라인의 어느 단계에 쓰이는지 한눈에 구분되도록 묶는다.
-const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[] }[] = [
+const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[]; icon: string }[] = [
   {
     title: "🔎 주제 수집 AI",
     description: "1단계 · 최신 쇼츠 주제 수집(트렌드 검색) 전용",
     providers: ["perplexity"],
+    icon: "Perplexity Sonar",
   },
   {
     title: "📝 대본 생성 AI",
     description: "2단계 · 영상스크립트(전체 스토리 + 6장면 대사) 생성",
     providers: ["openai", "anthropic"],
+    icon: "OpenAI & Claude",
   },
   {
     title: "🎨 이미지 생성 AI",
     description: "2~3단계 · 전체 스토리 생성 및 장면별 이미지(나노바나나) 생성에 함께 쓰이는 키",
     providers: ["gemini"],
+    icon: "Google Gemini 2.5",
   },
   {
     title: "🎵 음악 생성",
     description: "4단계 · 배경음악 생성(Suno 기본 · ElevenLabs 선택 · Google Lyria는 위 Gemini 키 사용)",
     providers: ["suno", "elevenlabs"],
+    icon: "Suno AI Music",
   },
   {
     title: "🎬 영상 렌더링",
     description: "5단계 · JSON2VIDEO로 이미지+나레이션+BGM+자막 합성",
     providers: ["json2video"],
+    icon: "JSON2Video Engine",
   },
 ];
 
 const GOOGLE_PROVIDERS: ApiKeyProvider[] = ["google_client_id", "google_client_secret"];
-// v1.23: Facebook 앱 칸(INSTA 포스팅과 같은 공용 칸)을 먼저, 예전 Meta 칸은 비어 있어도 됨
 const META_PROVIDERS: ApiKeyProvider[] = ["facebook_app_id", "facebook_app_secret", "meta_app_id", "meta_app_secret"];
 
 export default async function SettingsPage() {
@@ -75,19 +77,46 @@ export default async function SettingsPage() {
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="mb-2 text-2xl font-semibold text-[#f1f1f1]">API 키 설정</h1>
-      <p className="mb-6 text-sm text-[#aaaaaa]">
-        본인의 API 키를 등록하면 최신 쇼츠 주제 수집(콘텐츠 생성) 시 등록한 키를 우선 사용.
-        등록하지 않으면 앱 기본 키로 동작 (추가 등록시).
-      </p>
+    <div className="mx-auto max-w-3xl space-y-6 pb-12">
+      {/* 헤더 */}
+      <div className="studio-hero">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs font-bold">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-rec-pulse" />
+              <span>STUDIO CONFIG · {APP_VERSION}</span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
+              <Key className="w-7 h-7 text-rose-500" />
+              <span>API 키 및 플랫폼 연동 설정</span>
+            </h1>
+            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
+              본인의 API 키를 등록하면 최신 쇼츠 주제 수집 및 영상 제작 시 등록한 키를 100% 우선 사용합니다.
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <div className="mb-10 space-y-5">
+      {/* BYOK 보안 원칙 */}
+      <div className="rounded-2xl border border-emerald-500/40 bg-emerald-950/30 p-4 flex items-center gap-3.5 shadow-md">
+        <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+        <p className="text-xs text-emerald-200/90 leading-relaxed font-medium">
+          <strong>100% BYOK 보안 원칙:</strong> 등록된 모든 키는 안전하게 암호화되어 본인 계정에만 종속되며, 외부 유출 없이 오직 쇼츠 렌더링 파이프라인에만 사용됩니다.
+        </p>
+      </div>
+
+      {/* 파이프라인 단계별 API 키 섹션 */}
+      <div className="space-y-5">
         {SECTIONS.map((section) => (
-          <div key={section.title} className="rounded-2xl border-2 border-neutral-200 bg-white p-4 shadow-sm">
-            <div className="mb-3">
-              <h2 className="text-sm font-bold text-neutral-900">{section.title}</h2>
-              <p className="text-xs text-neutral-500">{section.description}</p>
+          <div key={section.title} className="rounded-2xl border border-[#202945] bg-[#13182c] p-5 shadow-xl">
+            <div className="mb-3.5 flex items-center justify-between border-b border-[#202945] pb-3">
+              <div>
+                <h2 className="text-sm font-black text-white">{section.title}</h2>
+                <p className="text-xs text-slate-400 mt-0.5">{section.description}</p>
+              </div>
+              <span className="text-[10px] font-bold text-rose-300 bg-rose-950/60 border border-rose-500/30 px-2 py-0.5 rounded-md">
+                {section.icon}
+              </span>
             </div>
             <div className="space-y-3">
               {section.providers.map((provider) => (
@@ -103,10 +132,11 @@ export default async function SettingsPage() {
         ))}
       </div>
 
-      <div className="rounded-2xl border-2 border-neutral-200 bg-white p-4 shadow-sm">
-        <div className="mb-3">
-          <h2 className="text-sm font-bold text-neutral-900">🎙️ 나레이션(ElevenLabs) 연동</h2>
-          <p className="text-xs text-neutral-500">5단계 · 영상 렌더링 시 사용할 더빙 음성 지정</p>
+      {/* 나레이션(ElevenLabs) 연동 */}
+      <div className="rounded-2xl border border-[#202945] bg-[#13182c] p-5 shadow-xl">
+        <div className="mb-3.5 border-b border-[#202945] pb-3">
+          <h2 className="text-sm font-black text-white">🎙️ 나레이션(ElevenLabs) 연동</h2>
+          <p className="text-xs text-slate-400 mt-0.5">5단계 · 영상 렌더링 시 사용할 더빙 음성 지정</p>
         </div>
         <VoiceIdSettings
           currentVoiceId={renderSettings?.elevenlabs_voice_id ?? null}
@@ -114,25 +144,26 @@ export default async function SettingsPage() {
         />
       </div>
 
-      <div className="mt-5 rounded-2xl border-2 border-neutral-200 bg-white p-4 shadow-sm">
-        <div className="mb-3">
-          <h2 className="text-sm font-bold text-neutral-900">📺 YouTube 연동(Google Cloud)</h2>
-          <p className="text-xs text-neutral-500">완성 영상을 유튜브 채널에 업로드하기 위한 OAuth 연동</p>
+      {/* YouTube 연동 */}
+      <div className="rounded-2xl border border-[#202945] bg-[#13182c] p-5 shadow-xl space-y-4">
+        <div className="border-b border-[#202945] pb-3">
+          <h2 className="text-sm font-black text-white">📺 YouTube 연동 (Google Cloud)</h2>
+          <p className="text-xs text-slate-400 mt-0.5">완성 영상을 유튜브 채널에 업로드하기 위한 OAuth 연동</p>
         </div>
-        <div className="mb-4">
+        <div>
           <YoutubeConnectCard connected={youtubeStatus.connected} channelTitle={youtubeStatus.channelTitle} needsReconnect={youtubeStatus.needsReconnect} returnTo="/settings" />
-          <p className="mt-2 text-xs text-neutral-500">처음이라면 아래 Google OAuth Client ID·Secret을 먼저 등록한 뒤 「채널 연결하기」를 눌러 주세요.</p>
+          <p className="mt-2 text-xs text-slate-400">처음이라면 아래 Google OAuth Client ID·Secret을 먼저 등록한 뒤 「채널 연결하기」를 눌러 주세요.</p>
         </div>
-        <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs font-medium text-amber-800">
+        <p className="rounded-xl border border-amber-500/40 bg-amber-950/30 p-3 text-xs font-semibold text-amber-300">
           ⚠️ Google Cloud Console에서 반드시 <strong>YouTube Data API v3</strong>를 먼저 활성화 해주세요.
         </p>
-        <p className="mb-2 text-sm text-neutral-600">
+        <p className="text-xs text-slate-300 font-medium">
           아래 주소를 Google Cloud Console의 &ldquo;승인된 리디렉션 URI&rdquo;에 그대로 등록하세요.
         </p>
-        <p className="mb-4 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-600">
-          <code className="font-mono">{SITE_URL}/api/youtube/callback</code>
-        </p>
-        <div className="space-y-3">
+        <div className="rounded-xl border border-[#202945] bg-[#0b0d1b] p-3 text-xs text-rose-300 font-mono">
+          <code>{SITE_URL}/api/youtube/callback</code>
+        </div>
+        <div className="space-y-3 pt-1">
           {GOOGLE_PROVIDERS.map((provider) => (
             <ApiKeyRow
               key={provider}
@@ -144,22 +175,22 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border-2 border-neutral-200 bg-white p-4 shadow-sm">
-        <div className="mb-3">
-          <h2 className="text-sm font-bold text-neutral-900">📸 Instagram 연동(Meta)</h2>
-          <p className="text-xs text-neutral-500">완성 영상을 인스타그램 릴스로 업로드하기 위한 OAuth 연동</p>
+      {/* Instagram 연동 */}
+      <div className="rounded-2xl border border-[#202945] bg-[#13182c] p-5 shadow-xl space-y-4">
+        <div className="border-b border-[#202945] pb-3">
+          <h2 className="text-sm font-black text-white">📸 Instagram 연동 (Meta)</h2>
+          <p className="text-xs text-slate-400 mt-0.5">완성 영상을 인스타그램 릴스로 업로드하기 위한 OAuth 연동</p>
         </div>
-        <p className="mb-3 space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+        <p className="space-y-2 rounded-xl border border-amber-500/40 bg-amber-950/30 p-3.5 text-xs text-amber-300/90 leading-relaxed">
           Meta 앱이 아직 개발(Development) 모드이기 때문에, 그 앱의 &quot;역할&quot; 메뉴에서
           테스터(tester)로 등록된 계정만 연결이 됩니다. 본인 명의로 Meta 앱을 직접 만들고
-          아래 Facebook 앱 ID/시크릿을 등록한 뒤(INSTA 포스팅에서 이미 넣었다면 「등록됨」으로 보이며 그대로 씁니다. 예전 Meta App 칸은 Facebook 앱 칸이 비어 있을 때만 쓰므로 새로 넣지 않아도 됩니다), 그 앱의 유효한 OAuth 리디렉션 URI에
-          아래 콜백 주소를 추가하고, &quot;역할&quot; 메뉴에서 본인 계정을 테스터로 추가해주셔야
-          연결할 수 있습니다.
+          아래 Facebook 앱 ID/시크릿을 등록한 뒤, 그 앱의 유효한 OAuth 리디렉션 URI에
+          아래 콜백 주소를 추가하고 테스터 계정을 등록해 주세요.
         </p>
-        <p className="mb-4 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-600">
-          <code className="font-mono">{SITE_URL}/api/instagram/callback</code>
-        </p>
-        <div className="space-y-3">
+        <div className="rounded-xl border border-[#202945] bg-[#0b0d1b] p-3 text-xs text-rose-300 font-mono">
+          <code>{SITE_URL}/api/instagram/callback</code>
+        </div>
+        <div className="space-y-3 pt-1">
           {META_PROVIDERS.map((provider) => (
             <ApiKeyRow
               key={provider}
@@ -171,15 +202,17 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <section className="mt-5 rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
+      {/* 3D 엠보싱 연동 매뉴얼 섹션 */}
+      <section className="rounded-2xl border border-[#202945] bg-[#13182c] p-5 shadow-xl">
         <div className="mb-4">
-          <h2 className="text-sm font-bold text-neutral-900">📖 연동 매뉴얼</h2>
-          <p className="text-xs text-neutral-500">
-            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로
-            따라 할 수 있습니다.
+          <h2 className="text-sm font-black text-white flex items-center gap-2">
+            <span>📖 API 키 & 플랫폼 연동 매뉴얼</span>
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">
+            이 프로그램에서 사용하는 API 키·플랫폼 연동 방법을 팝업창으로 열어 옆에 두고 그대로 따라 할 수 있습니다.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2.5">
           {GUIDE_LINKS.map((guide) => (
             <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
           ))}

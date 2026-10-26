@@ -4,9 +4,7 @@ const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://buylife.
 
 /**
  * 루트 AIMaster의 공개 매뉴얼 게시판(app/(main)/guides/[id])을 팝업창으로 띄운다
- * (naver-cafe-poster의 GuideLinkButton.tsx와 동일한 패턴, 2026-09-13 플랫폼 표준) — 같은
- * 이름의 팝업을 재사용해서, 여러 매뉴얼을 눌러도 창 하나가 계속 갱신되며 옆에서 보고
- * 따라 할 수 있게 한다.
+ * (3D 엠보싱 키발급/매뉴얼 바로가기 버튼 규격화)
  */
 export function GuideLinkButton({ guideId, label }: { guideId: string; label: string }) {
   const openGuide = () => {
@@ -21,9 +19,10 @@ export function GuideLinkButton({ guideId, label }: { guideId: string; label: st
     <button
       type="button"
       onClick={openGuide}
-      className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+      className="btn-create-key px-3.5 py-2 text-xs font-bold"
     >
-      📄 {label}
+      <span>🔑</span>
+      <span>{label}</span>
     </button>
   );
 }

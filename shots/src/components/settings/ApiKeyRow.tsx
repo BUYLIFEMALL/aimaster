@@ -25,15 +25,15 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
   const showForm = !maskedValue || isEditing;
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+    <div className="rounded-xl border border-[#202945] bg-[#161c33] p-4 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-base font-bold text-neutral-900">{label}</p>
+        <p className="text-sm font-bold text-white">{label}</p>
         {maskedValue && !isEditing && (
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-100"
+              className="rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
             >
               수정
             </button>
@@ -41,7 +41,7 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
               <input type="hidden" name="provider" value={provider} />
               <button
                 type="submit"
-                className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                className="rounded-lg border border-rose-900/60 bg-rose-950/40 px-2.5 py-1 text-xs font-semibold text-rose-400 hover:bg-rose-900/60 hover:text-rose-200 transition-colors"
               >
                 삭제
               </button>
@@ -57,22 +57,32 @@ export function ApiKeyRow({ provider, label, maskedValue }: ApiKeyRowProps) {
             name="apiKey"
             type="password"
             placeholder={maskedValue ? `새 키 입력 (현재: ${maskedValue})` : "API 키 입력"}
-            className="min-w-[220px] flex-1"
+            className="min-w-[220px] flex-1 bg-[#0f1325] border-[#202945] text-white placeholder:text-slate-500 focus:border-rose-500"
           />
-          <Button type="submit" variant="secondary" disabled={isPending}>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="btn-3d-rec px-4 py-2 text-xs font-bold"
+          >
             {isPending ? "저장 중..." : "저장"}
-          </Button>
+          </button>
           {maskedValue && (
-            <Button type="button" variant="ghost" onClick={() => setIsEditing(false)}>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="btn-3d-dark px-3 py-2 text-xs"
+            >
               취소
-            </Button>
+            </button>
           )}
         </form>
       ) : (
-        <p className="font-mono text-sm text-neutral-500">{maskedValue} · 등록됨</p>
+        <p className="font-mono text-xs text-rose-300 bg-rose-950/30 border border-rose-900/30 rounded-lg px-2.5 py-1 inline-block">
+          {maskedValue} · 정상 등록됨
+        </p>
       )}
-      {state.error && <p className="mt-1 text-xs text-red-600">{state.error}</p>}
-      {state.success && <p className="mt-1 text-xs text-green-600">저장되었습니다.</p>}
+      {state.error && <p className="mt-1.5 text-xs text-rose-400 font-semibold">{state.error}</p>}
+      {state.success && <p className="mt-1.5 text-xs text-emerald-400 font-semibold">저장되었습니다.</p>}
     </div>
   );
 }

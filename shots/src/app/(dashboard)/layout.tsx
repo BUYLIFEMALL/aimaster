@@ -8,9 +8,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = await requireProgramAccess();
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-[#0f0f0f] text-[#f1f1f1]">
+    <div className="flex min-h-screen flex-col md:flex-row bg-[#0b0d1b] text-slate-100">
       <Sidebar userEmail={user.email ?? ""} />
-      <main className="flex-1 p-4 md:p-8 bg-[#0f0f0f] overflow-x-hidden">{children}</main>
+      <main className="flex-1 p-4 md:p-8 bg-[#0b0d1b] overflow-x-hidden min-w-0">
+        {children}
+      </main>
     </div>
   );
 }

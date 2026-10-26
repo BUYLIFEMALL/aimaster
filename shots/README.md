@@ -1,7 +1,8 @@
 # 🎬 YOUTUBE Shorts 자동화 스튜디오 (shots)
 
 > **AIMaster 58번 프로그램** | **공식 도메인**: [https://shots.buylife.xyz](https://shots.buylife.xyz)  
-> **현재 버전**: `v1.34` | **디자인 템플릿**: 유튜브 다크 콘솔 스타일 (Shorts Studio Edition)
+> **현재 버전**: `v1.44` | **디자인 템플릿**: 21. 헐리우드 시네마틱 네온 REC 스타일 (Hollywood Cinematic Neon REC Style)
+> **보조 도메인**: [https://shots-2zmi8an69-buylife.vercel.app](https://shots-2zmi8an69-buylife.vercel.app) | **영구 자산**: `D:\Antigravity\Design\21_헐리우드_시네마틱_네온_REC_스타일\shots`
 
 ---
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
   collectFromHttpAction,
@@ -44,8 +43,8 @@ export function CandidateCollector({
   const [method, setMethod] = useState<Method>("http");
 
   return (
-    <div className="rounded-xl border border-[#272727] bg-[#1a1a1a] p-5">
-      <div className="mb-5 flex flex-wrap gap-2 border-b border-[#272727] pb-3">
+    <div className="rounded-2xl border border-[#202945] bg-[#161c33] p-5 shadow-lg">
+      <div className="mb-5 flex flex-wrap gap-2 border-b border-[#202945] pb-3">
         {(Object.keys(METHOD_LABELS) as Method[]).map((m) => {
           const item = METHOD_LABELS[m];
           const isSelected = method === m;
@@ -54,11 +53,10 @@ export function CandidateCollector({
               key={m}
               type="button"
               onClick={() => setMethod(m)}
-              className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
-                isSelected
-                  ? "bg-[#ff0000] text-white shadow-md shadow-[#ff0000]/25"
-                  : "bg-[#272727] text-[#aaaaaa] hover:bg-[#323232] hover:text-[#f1f1f1]"
-              }`}
+              className={isSelected 
+                ? "btn-3d-rec px-4 py-2 text-xs font-black shadow-md"
+                : "rounded-xl border border-[#202945] bg-[#13182c] px-3.5 py-2 text-xs font-bold text-slate-400 hover:bg-[#1a223f] hover:text-white transition-all flex items-center gap-2"
+              }
             >
               {item.icon}
               {item.label}
@@ -93,25 +91,25 @@ function HttpForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label className="mb-1.5 block text-xs font-semibold text-[#f1f1f1]">대상 웹페이지 URL</label>
+        <label className="mb-1.5 block text-xs font-bold text-white">대상 웹페이지 URL</label>
         <Input 
           name="url" 
           type="url" 
           required 
           placeholder="https://example.com/article/123" 
-          className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]! placeholder:text-[#666666] focus:border-[#ff0000]!"
+          className="bg-[#0f1325]! border-[#202945]! text-white! placeholder:text-slate-500 focus:border-rose-500!"
         />
-        <p className="mt-1.5 text-xs text-[#888888]">
+        <p className="mt-1.5 text-xs text-slate-400">
           특정 뉴스/블로그 본문 URL이면 해당 글로 1건, 카테고리/목록 URL이면 주요 글을 선별해 최대 5건의 쇼츠 주제를 동시 생성합니다.
         </p>
       </div>
-      <Button 
+      <button 
         type="submit" 
         disabled={isPending}
-        className="bg-[#ff0000] hover:bg-[#cc0000] text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-md"
+        className="btn-3d-rec px-5 py-2.5 text-xs font-black shadow-lg"
       >
         {isPending ? "주제 수집 및 스크립트 기획 중..." : "이 웹페이지로 쇼츠 주제 생성"}
-      </Button>
+      </button>
       <ResultMessage state={state} />
     </form>
   );
@@ -135,21 +133,21 @@ function NewsblurForm({
   if (!connected) {
     return (
       <div className="space-y-4">
-        <p className="text-xs text-[#aaaaaa]">
+        <p className="text-xs text-slate-300">
           NewsBlur(newsblur.com) 계정을 연결하면 구독 중인 RSS 피드 목록을 실시간으로 가져와 쇼츠 아이디어를 추출합니다.
         </p>
         <form action={saveAction} className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-[#f1f1f1]">NewsBlur 아이디</label>
-            <Input name="username" required autoComplete="off" className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]!" />
+            <label className="mb-1 block text-xs font-bold text-white">NewsBlur 아이디</label>
+            <Input name="username" required autoComplete="off" className="bg-[#0f1325]! border-[#202945]! text-white!" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-[#f1f1f1]">NewsBlur 비밀번호</label>
-            <Input name="password" type="password" required autoComplete="off" className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]!" />
+            <label className="mb-1 block text-xs font-bold text-white">NewsBlur 비밀번호</label>
+            <Input name="password" type="password" required autoComplete="off" className="bg-[#0f1325]! border-[#202945]! text-white!" />
           </div>
-          <Button type="submit" disabled={isSaving} className="bg-[#ff0000] hover:bg-[#cc0000] text-white text-xs">
+          <button type="submit" disabled={isSaving} className="btn-3d-rec px-4 py-2 text-xs font-bold">
             {isSaving ? "계정 연결 확인 중..." : "NewsBlur 계정 연동하기"}
-          </Button>
+          </button>
           {saveState.error && <p className="text-xs text-rose-400">{saveState.error}</p>}
         </form>
       </div>
@@ -158,10 +156,10 @@ function NewsblurForm({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between rounded-lg border border-[#2e2e2e] bg-[#121212] p-3 text-xs">
-        <span className="text-[#f1f1f1]">NewsBlur 연결 계정: <b className="text-[#ff4e45]">{username}</b></span>
+      <div className="flex items-center justify-between rounded-xl border border-[#202945] bg-[#0f1325] p-3 text-xs">
+        <span className="text-white font-medium">NewsBlur 연결 계정: <b className="text-rose-400 font-bold">{username}</b></span>
         <form action={deleteNewsblurAccountAction}>
-          <button type="submit" className="text-xs text-rose-400 hover:underline">
+          <button type="submit" className="text-xs text-rose-400 hover:underline font-bold">
             연결 해제
           </button>
         </form>
@@ -170,20 +168,20 @@ function NewsblurForm({
       {loadError && <p className="text-xs text-rose-400">{loadError}</p>}
 
       {!loadError && feeds.length === 0 && (
-        <p className="text-xs text-[#888888]">구독 중인 RSS 피드가 없습니다.</p>
+        <p className="text-xs text-slate-400">구독 중인 RSS 피드가 없습니다.</p>
       )}
 
       {feeds.length > 0 && (
         <form action={formAction} className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-[#f1f1f1]">구독 피드 선택</label>
+            <label className="mb-1 block text-xs font-bold text-white">구독 피드 선택</label>
             <select
-              className="w-full rounded-lg border border-[#2e2e2e] bg-[#121212] px-3 py-2 text-xs text-[#f1f1f1] outline-none focus:border-[#ff0000]"
+              className="w-full rounded-xl border border-[#202945] bg-[#0f1325] px-3 py-2 text-xs text-white outline-none focus:border-rose-500"
               value={selectedFeed?.id ?? ""}
               onChange={(e) => setSelectedFeed(feeds.find((f) => f.id === e.target.value) ?? null)}
             >
               {feeds.map((f) => (
-                <option key={f.id} value={f.id} className="bg-[#181818] text-[#f1f1f1]">
+                <option key={f.id} value={f.id} className="bg-[#13182c] text-white">
                   {f.title}
                 </option>
               ))}
@@ -191,9 +189,9 @@ function NewsblurForm({
           </div>
           <input type="hidden" name="feedId" value={selectedFeed?.id ?? ""} />
           <input type="hidden" name="feedTitle" value={selectedFeed?.title ?? ""} />
-          <Button type="submit" disabled={isPending || !selectedFeed} className="bg-[#ff0000] hover:bg-[#cc0000] text-white text-xs">
+          <button type="submit" disabled={isPending || !selectedFeed} className="btn-3d-rec px-4 py-2 text-xs font-bold">
             {isPending ? "피드 글 분석 중..." : "선택한 RSS 피드로 쇼츠 주제 생성"}
-          </Button>
+          </button>
           <ResultMessage state={state} />
         </form>
       )}
@@ -207,24 +205,24 @@ function PerplexityForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label className="mb-1.5 block text-xs font-semibold text-[#f1f1f1]">트렌드 시드 키워드</label>
+        <label className="mb-1.5 block text-xs font-bold text-white">트렌드 시드 키워드</label>
         <Input 
           name="topic" 
           required 
           placeholder="예: 2026 AI 자동화 트렌드, 직장인 부업 숏폼 팁" 
-          className="bg-[#121212]! border-[#2e2e2e]! text-[#f1f1f1]! placeholder:text-[#666666] focus:border-[#ff0000]!"
+          className="bg-[#0f1325]! border-[#202945]! text-white! placeholder:text-slate-500 focus:border-rose-500!"
         />
-        <p className="mt-1.5 text-xs text-[#888888]">
+        <p className="mt-1.5 text-xs text-slate-400">
           Perplexity Sonar 온라인 AI가 실시간 소셜 미디어 및 뉴스에서 가장 떡상 중인 앵글을 찾아 쇼츠 기획으로 가공합니다.
         </p>
       </div>
-      <Button 
+      <button 
         type="submit" 
         disabled={isPending}
-        className="bg-[#ff0000] hover:bg-[#cc0000] text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-md"
+        className="btn-3d-rec px-5 py-2.5 text-xs font-black shadow-lg"
       >
         {isPending ? "실시간 트렌드 검색 & 앵글 기획 중..." : "Perplexity 바이럴 앵글로 쇼츠 생성"}
-      </Button>
+      </button>
       <ResultMessage state={state} />
     </form>
   );
