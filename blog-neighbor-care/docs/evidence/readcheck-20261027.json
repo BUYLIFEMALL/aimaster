@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-10-26T16:08:08.180Z",
+  "scope": "Own Naver blog and relationship management, one visible view per screen",
+  "accountMatched": true,
+  "ownBlogUrl": "https://blog.naver.com/buylifemall",
+  "ownPostListVisible": true,
+  "ownPostBodyVisible": true,
+  "neighborFeedVisible": true,
+  "neighborFeedScope": "all-neighbors",
+  "relationshipManagementVisible": true,
+  "explicitRelationshipLabelsMappedToBlogLinks": {
+    "mutualRows": 17,
+    "ordinaryRows": 26
+  },
+  "relationshipCoverage": "visible rendered rows only; not all pages or ongoing monitoring",
+  "rawNamesOrBodiesSaved": false,
+  "thirdPartyPostsOpened": false,
+  "automationWorkerVerified": false,
+  "aiAnalysisPerformed": false,
+  "postingActions": 0,
+  "settingsChanged": false,
+  "operatingDatabaseChanged": false,
+  "nativeForegroundMatched": false,
+  "nativeForegroundProcess": "Orca",
+  "interaction": "Named Edge accessibility link/button actions; destination tree verified. No synthetic keyboard input.",
+  "limitations": [
+    "Manual GUI read verification, not automatic extraction or production worker verification",
+    "Naver login does not establish shared platform connection or extension ownership",
+    "All-neighbors feed must be filtered against explicit mutual relationship evidence before engagement",
+    "Permission for recurring automated collection or external posting remains unverified"
+  ]
+}
