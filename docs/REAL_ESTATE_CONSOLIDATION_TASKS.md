@@ -29,8 +29,8 @@
 
 | ID / 순서 | 대상과 범위 | 위험·비용 | 근거 | 상태 |
 |---|---|---|---|---|
-| RE-N1 | 실거래 상세 화면에 「이 단지 네이버 부동산에서 보기」 바로가기(새 창) | 위험·비용 없음(링크만, 수집 없음) | REPORT §5, IDEA-REALTY-01 | 결정 대기 |
-| RE-N2 | 실거래 목록 엑셀(또는 CSV) 내보내기 | 공공 데이터라 문제 없음, 엑셀 라이브러리는 카카오 v1.06의 SheetJS 공식 CDN 0.20.3 방식 참고 | REPORT §5, IDEA-REALTY-02 | 결정 대기 |
+| RE-N1 | 실거래 상세 화면에 「이 단지 네이버 부동산에서 보기」 바로가기(새 창) | 위험·비용 없음(링크만, 수집 없음) | REPORT §5, IDEA-REALTY-01 | ✅ 코드 완료(주인님 진행 지시, `ae0e35ce5`) · 미배포 대기(v1.21) |
+| RE-N2 | 실거래 목록 엑셀(또는 CSV) 내보내기 | 공공 데이터라 문제 없음, 엑셀 라이브러리는 카카오 v1.06의 SheetJS 공식 CDN 0.20.3 방식 참고 | REPORT §5, IDEA-REALTY-02 | ✅ 코드 완료(CSV, `ae0e35ce5`) · 미배포 대기(v1.21) |
 | RE-N3 | 회원이 직접 연 네이버 부동산 화면의 매물만 확장으로 소량 읽어 실거래와 비교 | 약관·권리 판단 필요 | REPORT §5, IDEA-REALTY-03 | **보류 — 주인님·법률 확인 전 진행 안 함** |
 | (N4) | 서버 비공식 내부 주소 반복 수집·1분 자동 | — | 완성 기준 §5 | ❌ 하지 않음 |
 
@@ -38,8 +38,8 @@
 
 | ID | 대상과 범위 | 근거 | 상태 |
 |---|---|---|---|
-| RE-B1 | 실거래 목록 페이지 나눔(현재 50건) | `src/app/(dashboard)/listings/page.tsx` `.limit(50)`, `IMPROVEMENTS.md` #3 | 대기 |
-| RE-B2 | 상세 열람 시 「안 본 새 실거래」 줄이기(`new → seen`) | `IMPROVEMENTS.md` #5 | 대기(DB 값 추가 가능성) |
+| RE-B1 | 실거래 목록 페이지 나눔(현재 50건) | `src/app/(dashboard)/listings/page.tsx` `.limit(50)`, `IMPROVEMENTS.md` #3 | ✅ 코드 완료(`ae0e35ce5`) · 미배포 대기(v1.21) |
+| RE-B2 | 상세 열람 시 「안 본 새 실거래」 줄이기(`new → seen`) | `IMPROVEMENTS.md` #5 | ✅ 코드 완료(DB 변경 없이 new→notified, `ae0e35ce5`) · 미배포 대기(v1.21) |
 | RE-B3 | 브이월드 등록 도메인 새 주소로 | `src/lib/publicdata/client.ts` 18행 기본값 `n8n.buylife.xyz`, `IMPROVEMENTS.md` #7 | 대기(주인님 브이월드 로그인) |
 | RE-B4 | 서울 외 지역(국토부 실거래 API) | `IMPROVEMENTS.md` #6 | 기존 과제 |
 | RE-B5 | 개발용 lint 도구 사슬 보안 경고 정리 | `IMPROVEMENTS.md` #11 | 대기 |
