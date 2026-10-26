@@ -1,0 +1,40 @@
+{
+  "phase": "0-B",
+  "checkedAt": "2026-10-26T09:07:26.938Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "testMember": "buylifemall@naver.com",
+  "credentialsSource": "same member-owned user_api_keys only",
+  "credentialValuesSaved": false,
+  "query": "캠핑 준비물",
+  "display": 3,
+  "start": 1,
+  "sort": "date",
+  "endpoint": "https://naverapihub.apigw.ntruss.com/search/v1/blog",
+  "route": "explicit-hub-single-probe-no-fallback",
+  "priceBasis": {
+    "source": "https://www.ncloud.com/product/applicationService/naverApiHub",
+    "checkedAt": "2026-10-26T09:07:26.939Z",
+    "searchBand": "0-775000 calls",
+    "listedPriceKRW": 0,
+    "accountRemainingQuotaVerified": false
+  },
+  "naverApiCalls": 1,
+  "aiCalls": 0,
+  "liveWrites": 0,
+  "httpStatus": 200,
+  "durationMs": 204,
+  "outcome": "hub-search-reachable",
+  "result": {
+    "validItemsArray": true,
+    "total": 2258208,
+    "returned": 3,
+    "start": 1,
+    "display": 3,
+    "allHaveTitle": true,
+    "allHaveLink": true,
+    "allHaveSummary": true,
+    "allHaveBloggerLink": true,
+    "allHavePostDate": true,
+    "naverBlogUrls": 3
+  }
+}

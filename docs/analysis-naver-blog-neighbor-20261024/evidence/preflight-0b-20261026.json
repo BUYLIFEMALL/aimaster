@@ -1,0 +1,25 @@
+{
+  "phase": "0-B",
+  "checkedAt": "2026-10-26T09:04:51.841Z",
+  "projectRef": "esgxyikcnnvmlhygjkth",
+  "testMember": "buylifemall@naver.com",
+  "credentialsSource": "member-owned user_api_keys only",
+  "credentialValuesSaved": false,
+  "query": "캠핑 준비물",
+  "display": 3,
+  "start": 1,
+  "sort": "date",
+  "endpoint": "https://openapi.naver.com/v1/search/blog.json",
+  "route": "legacy-only-no-hub-fallback",
+  "keysPresent": {
+    "clientId": true,
+    "clientSecret": true
+  },
+  "naverApiCalls": 1,
+  "aiCalls": 0,
+  "liveWrites": 0,
+  "httpStatus": 401,
+  "durationMs": 37,
+  "outcome": "legacy-search-not-validated",
+  "errorCode": "024"
+}
