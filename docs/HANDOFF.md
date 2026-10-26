@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 「부동산 실시간 매물 알림」 정식 공개
+- 주인님 「공개해」. 운영 DB(① `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기)에서 `programs.badges`의 `coming` 제거 → 배지 `{}`. VIP 등급 표(`grade_program_access`)에는 이미 들어 있어 VIP 145명 전원 유효 권한(만료 전) 확인. 썸네일은 기존 것.
+- 확인: 메인 상세 https://www.buylife.xyz/programs/realty-listing-alert 와 부동산 목록 카드에 「준비중」 없음(크롬). 버전 그대로 v1.34(DB 값만 변경, 빌드 없음).
+- 남은 일: 실물 확인(「실거래 이름 후보」 줄·「🔁 다시 올림」 표시), RLS 두 번째 계정 시험 등 역할 파일 대기 표 그대로.
+
 ## 2026-10-26 23:13 [역할: blog] Codex — 이웃 소통 운영DB 재조회: 미적용
 - 사용자 「확인해봐」에 따라 운영 ref `esgxyikcnnvmlhygjkth`를 Supabase 연결 도구로 직접 읽기 조회. `private_schema=false`, 신규6표 개수 `0`, `dispatcher=null`. 운영 적용 완료 아님.
 - 주인님 SQL Run 지정·기존 DB 요청 `6eecd22c-9423-45f4-8b3e-1ab6d479a371` 대기 유지. 다음은 검수 생성 SQL을 주인님이 실행한 뒤 RLS/권한/runtime=false 읽기 검수. 중복 요청 없음.
