@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E5-2 무료 이미지 도구 보강(바나나 v1.41 · 상세페이지 v1.35)
+- 한 일: ① 얼굴 가리기 탭 「🔢 글자 자리 가리기」(PP-OCR 재사용, 글자를 읽지 않음) ② 「🖼 사진 일괄 손질로 보내기」(IndexedDB 임시 보관 10분)·첫 모델 준비 MB 단계·60초 안내 ③ 상세페이지 섹션 「✂ 누끼」 → 바나나 `/tools` 새 창으로 그림 넘기기 — 새 공용 모듈 `nukki-handoff`(기준 바나나, 사본 상세페이지, `check-shared-modules` 등록).
+- 검수: 시험 72개·두 프로그램 tsc·빌드, 로컬 크롬 임시 페이지(커밋 안 함)로 ①② 확인, 운영 크롬 앞 탭에서 ②③ 확인(누끼 창에 그림 도착·상세 카드 안내·/batch에 누끼 PNG 도착).
+- 작업 중 표의 agy `shop-detail-page` 줄(「✅ v1.34 완료」)은 주인님 승인으로 뺌(배포 도우미가 막음). 커밋 `6d7575a5f`, 배포 `banana-canvas-ir04pepnx`·`shop-detail-page-3h85sy7og`(빌드 2회, 승인 3회 중). 남은 일: 누끼 결과를 상세페이지로 되돌리는 왕복(제안). 다음 첫 단계: E3(상세페이지 디자인 작업 끝났는지 확인부터).
+- 링크: https://banana-canvas.buylife.xyz/tools · https://shop-detail-page.buylife.xyz/products
+
 ## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.33 배포(주간 리포트)
 - 한 일: ① 📅 주간 리포트(D, 플랜 `realty-listing-alert/docs/PLAN_20261026_WEEKLY_REPORT.md`) — 고른 요일의 그날 첫 수집 뒤 7일 변화를 텔레그램·메일·카톡으로 주 1회, 놓치면 그 주 다음 수집 때(`extension/lib/weekly.js`), 예약 설정 화면 켜기·요일, 통계 화면 「지난 주간 리포트」, AI 주간 요약 400자(회원 본인 키) ② ⏳ 오래 안 팔린 매물(C-2, `extension/lib/stale.js`) ③ 휴대폰 설정 표·AI 엔진 표 카드(G) ④ 팝업 소개 한 줄·버전 칩 강조
 - DB(운영 `esgxyikcnnvmlhygjkth`): `realty_alert_settings.notify_weekly`(기본 false)·`weekly_day`(기본 1, 0~6 검사) 추가 — 크롬 SQL 편집기, 배포 전에 적용. 버전 v1.33

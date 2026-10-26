@@ -17,7 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `shop-detail-page` (운영 v1.34) | 공용 컴포넌트 `browser-free-erase` 사본 동기화 — 바나나 E5용 모델 2종(`bg`·`face`)·범용 `run` 메시지 추가, 상세페이지는 새 기능을 쓰지 않아 동작 같음 | `baf4a88e6` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `banana-canvas/AGENTS.md` 맨 위 | 다음 상세페이지 배포 때 함께 |
 | `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
@@ -53,6 +52,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `shop-detail-page` | v1.35 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-3h85sy7og`) | 공용 `browser-free-erase` 사본 동기화 `baf4a88e6` (본 작업: 섹션 「✂ 누끼」 `6d7575a5f`) |
+| `banana-canvas` | v1.41 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-ir04pepnx`) | 대기 항목 없음 (본 작업: E5-2 글자 가리기·사진 일괄 손질로 보내기·누끼 받기 `6d7575a5f`) |
 | `banana-canvas` | v1.40 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 2회 — `banana-canvas-ika50w7rb`, 같은 코드 실수 재배포 `-ph6adch6a`) | 사진 일괄 손질 숫자 칸 80px CSS (본 작업: E5 무료 이미지 도구 `baf4a88e6`) — 운영 크롬에서 80px 확인 |
 | `ai-video-studio` | v1.25 · 2026-10-26 (Claude Code 윈도우 `claude-win-video`, 승인 빌드 1회) | 맥 메모리 쪽 2D 캔버스 기본·형식 확인 6초 제한 `eaeae933d`(대기 줄 없음) |
 | `trending-product-finder` | v1.28 재배포 · 2026-10-26 (과세환율 키 `CUSTOMS_FX_SERVICE_KEY` 등록 뒤, 승인 빌드 2회 중 2회 `trending-product-finder-gis68pxt2`) | 코드 같음, 환경변수만 반영 |
