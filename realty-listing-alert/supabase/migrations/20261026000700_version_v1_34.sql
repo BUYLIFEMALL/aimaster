@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.34: 🔁 다시 올린 매물 묶기(J) · 실거래 이름 후보 기록(K) · 카톡 주간 리포트 문장 끝 자르기(L) (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.34', extension_version = 'v1.34', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
