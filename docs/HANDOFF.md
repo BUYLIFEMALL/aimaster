@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 상세페이지 자동화 v1.37 E3 편집 보강 배포
+- HTML 상세페이지 블록 편집(↑↓·🗑·그 자리 글 고치기·처음대로, 브라우저에서만)·🚚 배송·교환·환불 안내 카드(브라우저에만 기억, 860px PNG 받기, HTML 끝에 표 블록 넣기)·「📋 HTML 코드 복사」「📝 글만 복사」·✍️ 상품 문구 말투 5종(상품명 후보 3·한 줄 소개·본문·SNS 2, 회원 본인 Gemini 글 1회, 근거 없는 판매량·후기·한정 문구 서버에서 제거). 서버 저장·DB 변경 없음.
+- 커밋 `7be8c9583`, 배포 `shop-detail-page-lkgk3d8zf` Ready, DB v1.37. 검수: 시험 5개·tsc·build·로컬 크롬·운영 크롬(시험 계정, Gemini 글 2회).
+- 남은 일: /guide FAQ(미배포 대기), 편집 화면 디자인 다듬기(agy 인계). 다음 첫 단계: EC-W8 자동 상품 등록기 0단계(플랜 `trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md`).
+- 링크: https://shop-detail-page.buylife.xyz/products · 상세 `shop-detail-page/AGENTS.md` 맨 끝
+
 ## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.34 배포
 - 한 일(`1ece449b4`·`fbece0087`): J 번호만 바뀐 같은 매물을 「🔁 다시 올림」 1줄로(알림·변동 기록 제외, 처음 발견일 이어받기, `extension/lib/compare.js` `sameListing`) · K 실거래 자료 없는 단지마다 비슷한 국토부 단지 이름 후보 기록(`lib/trades.ts` `similarAptNames`, 기록 줄 「실거래 이름 후보」) · L 카톡 주간 리포트 200자를 문장 끝에서 자르기(`extension/lib/weekly.js` `cutAtSentence`)
 - 검수: 시험 76개·tsc·빌드 통과, 배포 Ready, DB v1.34, `check-extension-release` 실패 0. 실물 확인(다시 올림 줄·이름 후보 줄)은 확장 덮어쓰기 뒤 첫 수집에서
