@@ -4,12 +4,12 @@
 - 맡은 폴더: 디자인 리뉴얼 대상 프로그램(그때그때 배정)
 - 카테고리: 전체(디자인)
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
-- 마지막 갱신: 2026-10-26 11:28 (agy-win-20261025-ext3d)
+- 마지막 갱신: 2026-10-26 12:46 (agy-win-20261025-ext3d)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| 전체 프로그램 | 9대 기능 유사군 순차 리뉴얼 (블로그/유튜브/SNS/음악/이커머스/이미지/수집/생산성/CRM) | 2026-10-25 | Group 1 대표 블로그(`tistory-auto-blog` v1.47, `ai-auto-blog` v1.82, `naver-blog-seo-studio` v2.21, `blog-workroom` v1.15) 완료 ➔ 다음 프로그램 준비 |
+| 전체 프로그램 | 9대 기능 유사군 순차 리뉴얼 (블로그/유튜브/SNS/음악/이커머스/이미지/수집/생산성/CRM) | 2026-10-25 | Group 1 대표 블로그(`tistory-auto-blog` v1.47, `ai-auto-blog` v1.82, `naver-blog-seo-studio` v2.21, `blog-workroom` v1.15, `blog-content-maker` v1.13) 완료 ➔ 다음 프로그램 준비 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -19,6 +19,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-26 | `blog-content-maker` v1.13 | 4대 화면 3시안(12개 뷰) 제작 및 네이버 공식 시그니처 그린(#03c75a) 톤 보정, 18번 네이버 스마트 그린 저널 템플릿 확정 적용, 3종 포스팅 모드 칩셋 & 3D 엠보싱 버튼 탑재, Whale 검수 및 D:\Antigravity\Design 자산 영구 적재 | 배포 완료 (`https://blog-content-maker.buylife.xyz`) |
 | 2026-10-26 | `blog-workroom` v1.15 | 4대 화면 3시안(12개 뷰) 주인님 1번 확정 승인 반영, 18번 네이버 스마트 그린 저널 메인 템플릿 확정 적용, 3종 포스팅 모드 칩셋 & 3D 엠보싱 버튼 탑재, D:\Antigravity\Design 자산 영구 적재 | 배포 완료 (`https://blog-workroom.buylife.xyz`) |
 | 2026-10-26 | `naver-blog-seo-studio` v2.21 | 4대 화면 3시안(12개 뷰) 주인님 1번 확정 승인 반영, 18번 네이버 스마트 그린 저널 메인 템플릿 확정 적용, 3종 포스팅 모드 칩셋 & 3D 엠보싱 버튼 탑재, D:\Antigravity\Design 자산 영구 적재 | 배포 완료 (`https://naver-blog-seo-studio.buylife.xyz`) |
 | 2026-10-25 | `ai-auto-blog` v1.82 | 4대 화면 3시안 검수 및 네이버 스마트 그린 저널 스타일 확정 적용, 3종 포스팅 모드 칩셋 & 3D 버튼 탑재 | 배포 완료 (`https://ai-auto-blog.buylife.xyz`) |

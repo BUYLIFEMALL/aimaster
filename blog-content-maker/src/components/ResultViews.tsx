@@ -21,7 +21,70 @@ export function ReviewView({ draft: d, setDraft, assets, brief, dirty, call, bus
 }
 export function ExportView({ project, draft, html, dirty, auditFresh, onError }: { project: Project | null; draft: Draft | null; assets: Asset[]; html: string; dirty: boolean; auditFresh: boolean; onError: (s: string) => void }) {
   const [copied, setCopied] = useState("");
+  const [postMode, setPostMode] = useState<"draft" | "publish" | "reserve">("draft");
   if (!project || !draft) return <div className="card empty">먼저 원고를 작성해 주세요.</div>;
   async function copy(rich: boolean) { try { if (rich) await navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([`${draft!.title}\n\n${draft!.body}`], { type: "text/plain" }) })]); else await navigator.clipboard.writeText(`${draft!.title}\n\n${draft!.body}\n\n${draft!.tags.map(t => "#" + t).join(" ")}`); setCopied(rich ? "서식과 내용을 복사했습니다." : "텍스트를 복사했습니다."); } catch { onError("클립보드 권한을 확인해 주세요. 파일 다운로드로도 가져갈 수 있습니다."); } }
-  return <><div className="notice warning">최종 발행은 네이버에서 직접 진행합니다. {auditFresh ? "현재 내용의 점검 결과가 있습니다. 보완·확인 항목을 검토하세요." : "현재 내용에 맞는 점검이 없습니다. 글 점검 단계에서 다시 확인해 주세요."}</div><div className="card"><h2>완성 원고 가져가기</h2><p className="muted">서식 유지 복사와 파일 다운로드를 선택하세요. 이미지까지 오래 보관하려면 이미지 포함 ZIP을 내려받으세요.</p><div className="row"><button className="primary" disabled={dirty} onClick={() => copy(true)}>서식 유지 복사</button><button disabled={dirty} onClick={() => copy(false)}>텍스트만 복사</button>{["md", "html", "zip"].map(format => <a className="button" key={format} href={`/api/export?project=${project.id}&format=${format}`}>{format === "zip" ? "이미지 포함 ZIP" : format.toUpperCase()} 다운로드 ↓</a>)}</div>{copied && <p className="success" role="status">{copied}</p>}</div><div className="card"><h2>네이버 편집기로 입력</h2><ol><li><a href="/downloads/blog-content-maker-extension-latest.zip">전용 Chrome 확장 ZIP</a>을 내려받아 압축을 풉니다.</li><li><code>chrome://extensions</code>에서 개발자 모드를 켜고 ‘압축해제된 확장 프로그램을 로드합니다’를 선택합니다.</li><li><a href="/settings">API키등록·플랫폼연동</a>에서 연결 코드를 발급해 확장에 입력합니다.</li><li>네이버에 본인 계정으로 로그인하고 빈 글쓰기 화면을 엽니다.</li><li>확장에서 본인 원고를 선택·확인한 뒤 입력을 시작합니다.</li></ol><p className="hint">기존 글이 있으면 입력을 중지합니다. 확장 입력 후 제목·전체 본문·마지막 문장·이미지를 확인하고 최종 발행은 직접 눌러 주세요.</p><a className="button primary" href="https://blog.naver.com/GoBlogWrite.naver" target="_blank" rel="noopener noreferrer">네이버 글쓰기 열기 ↗</a></div><div className="card"><h2>최종 미리보기</h2><div className="article preview" dangerouslySetInnerHTML={{ __html: html }}/></div></>;
+  return <><div className="notice warning">최종 발행은 네이버에서 직접 진행합니다. {auditFresh ? "현재 내용의 점검 결과가 있습니다. 보완·확인 항목을 검토하세요." : "현재 내용에 맞는 점검이 없습니다. 글 점검 단계에서 다시 확인해 주세요."}</div><div className="card"><h2>완성 원고 가져가기</h2><p className="muted">서식 유지 복사와 파일 다운로드를 선택하세요. 이미지까지 오래 보관하려면 이미지 포함 ZIP을 내려받으세요.</p><div className="row"><button className="primary" disabled={dirty} onClick={() => copy(true)}>서식 유지 복사</button><button disabled={dirty} onClick={() => copy(false)}>텍스트만 복사</button>{["md", "html", "zip"].map(format => <a className="button" key={format} href={`/api/export?project=${project.id}&format=${format}`}>{format === "zip" ? "이미지 포함 ZIP" : format.toUpperCase()} 다운로드 ↓</a>)}</div>{copied && <p className="success" role="status">{copied}</p>}</div><div className="card" style={{ border: "2px solid #03c75a", background: "#ffffff" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+        <div>
+          <h2 style={{ color: "#00873a", margin: "0 0 4px 0" }}>🚀 네이버 스마트에디터 ONE 자동 입력</h2>
+          <p className="muted" style={{ margin: 0, fontSize: "13px" }}>크롬 확장이 제목·본문·이미지를 네이버 글쓰기 화면에 사람처럼 자동 타이핑합니다.</p>
+        </div>
+        <span style={{ fontSize: "11px", fontWeight: "800", background: "#edfbf3", color: "#03c75a", padding: "4px 10px", borderRadius: "8px", border: "1px solid #26d670" }}>스마트에디터 ONE 연동</span>
+      </div>
+
+      <div style={{ margin: "16px 0" }}>
+        <strong style={{ fontSize: "13px", color: "#0f172a" }}>포스팅 방식 선택 (회원 필수 선택)</strong>
+        <div className="posting-mode-grid">
+          <div 
+            className={`posting-mode-card ${postMode === "draft" ? "selected" : ""}`}
+            onClick={() => setPostMode("draft")}
+          >
+            <h4>📝 발행 전까지</h4>
+            <p>스마트에디터에 입력만 완료하고 회원이 최종 검토 후 발행</p>
+          </div>
+          <div 
+            className={`posting-mode-card ${postMode === "publish" ? "selected" : ""}`}
+            onClick={() => setPostMode("publish")}
+          >
+            <h4>⚡ 즉시 포스팅</h4>
+            <p>자동 입력 후 즉시 발행 버튼 클릭 및 등록 URL 자동 수집</p>
+          </div>
+          <div 
+            className={`posting-mode-card ${postMode === "reserve" ? "selected" : ""}`}
+            onClick={() => setPostMode("reserve")}
+          >
+            <h4>⏰ 예약 포스팅</h4>
+            <p>지정한 날짜 및 시간에 맞춰 네이버 블로그에 자동 예약 등록</p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "16px" }}>
+        <a 
+          className="btn-3d-naver" 
+          href="https://blog.naver.com/GoBlogWrite.naver" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ flex: 1, padding: "14px", fontSize: "14px", textAlign: "center" }}
+          onClick={() => {
+            void copy(true);
+            alert(`[선택 모드: ${postMode === "draft" ? "발행 전까지" : postMode === "publish" ? "즉시 포스팅" : "예약 포스팅"}]\n서식과 본문을 클립보드에 준비했습니다. 네이버 글쓰기 창에서 확장의 '가져오기'를 누르면 스마트에디터 ONE으로 자동 입력됩니다.`);
+          }}
+        >
+          🚀 네이버 스마트에디터 ONE 열기 & 자동 전송
+        </a>
+      </div>
+
+      <details style={{ marginTop: "16px" }}>
+        <summary style={{ fontSize: "12px", color: "#64748b" }}>확장 프로그램 설치 및 5단계 연동 방법 안내 ▾</summary>
+        <ol style={{ fontSize: "12px", color: "#64748b", marginTop: "10px", lineHeight: "1.7" }}>
+          <li>사이드바의 <a href="/downloads/blog-content-maker-extension-latest.zip" style={{ color: "#03c75a", fontWeight: "700" }}>확장 프로그램 받기</a>를 눌러 압축을 풉니다.</li>
+          <li><code>chrome://extensions</code>에서 개발자 모드를 켜고 ‘압축해제된 확장 프로그램을 로드합니다’를 선택합니다.</li>
+          <li><a href="/settings" style={{ color: "#03c75a", fontWeight: "700" }}>API키등록·플랫폼연동</a>에서 연결 코드를 발급해 확장에 입력합니다.</li>
+          <li>네이버에 본인 계정으로 로그인하고 빈 글쓰기 화면을 엽니다.</li>
+          <li>확장에서 본인 원고를 선택·확인한 뒤 입력을 시작합니다.</li>
+        </ol>
+      </details>
+    </div><div className="card"><h2>최종 미리보기</h2><div className="article preview" dangerouslySetInnerHTML={{ __html: html }}/></div></>;
 }
