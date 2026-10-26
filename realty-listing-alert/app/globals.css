@@ -1076,3 +1076,29 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .ra-nowrap { white-space: nowrap; }
 /* v1.29 설정 화면: AI 엔진 카드도 다른 구역과 같은 간격(2026-10-26 주인님 표시 — ②와 ③ 카드가 붙어 보임) */
 .ra-setup-card + div + .ra-engine-card, .ra-setup-card ~ .ra-engine-card { margin-top: 16px; }
+
+/* G: 휴대폰(767px 이하)에서 설정 표·AI 엔진 표를 줄마다 카드로(2026-10-26 주인님 「진행해」) — 표가 옆으로 넘쳐 밀리던 문제 */
+@media (max-width: 767px) {
+  .ra-aitbl-wrap { border: 0; border-radius: 0; overflow: visible; }
+  .ra-aitbl, .ra-aitbl tbody { display: block; width: 100%; min-width: 0 !important; table-layout: auto; background: transparent; }
+  .ra-aitbl colgroup, .ra-aitbl thead { display: none; }
+  .ra-aitbl tr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; margin-bottom: 10px; }
+  .ra-aitbl td { display: block; padding: 0 !important; border: 0 !important; width: auto !important; min-width: 0; background: transparent !important; box-shadow: none !important; }
+  /* 설정 표: [이름 · 상태] / 연결 정보 / 버튼 */
+  .ra-setup tr > td:nth-child(1) { flex: 1 1 auto; }
+  .ra-setup tr > td:nth-child(3), .ra-setup tr > td:nth-child(4) { flex: 1 1 100%; }
+  .ra-setup .ra-setup-info { white-space: normal; }
+  .ra-setup tr.open { border-color: var(--accent); background: #f6fcf8; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .ra-setup tr.ra-setup-detail { border-color: var(--accent); border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; background: #fbfdfc; }
+  .ra-setup tr.ra-setup-detail > td { flex: 1 1 100%; }
+  .ra-aitbl .ra-aitbl-btns { display: flex; flex-wrap: wrap !important; gap: 6px; }
+  .ra-aitbl .ra-aitbl-btns > * { min-height: 36px; }
+  /* AI 엔진 표: 엔진마다 위·아래 두 줄을 한 카드로 */
+  .ra-aieng-top { margin-bottom: 0 !important; border-bottom: 0 !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; padding-bottom: 6px !important; }
+  .ra-aieng-bottom { border-top: 0 !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important; padding-top: 6px !important; }
+  .ra-aieng-top.on, .ra-aieng-bottom.on { background: #fff7e6; border-color: #f59e0b; }
+  .ra-aieng-top > td, .ra-aieng-bottom > td { flex: 1 1 100%; }
+  .ra-aieng-line { flex-wrap: wrap; }
+  .ra-aieng-line .ra-role-text { flex: 1 1 100%; order: 5; white-space: normal; }
+  .ra-aieng-key, .ra-aieng-model { flex: 1 1 100% !important; height: 38px; }
+}
