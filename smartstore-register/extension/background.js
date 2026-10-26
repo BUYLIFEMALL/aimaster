@@ -60,6 +60,19 @@ async function pageCommand(cmd, args) {
       return { ok: !!byModel('vm.product.name')[0] };
     }
 
+    if (cmd === 'expand') {
+      // 접힌 섹션은 칸이 아예 없다 — 머리(div.title-line, ncp-click="vm.openMenuToggle()")를 눌러 펼친다.
+      const label = [...document.querySelectorAll('.title-line label')].find((l) => l.textContent.replace(/s+/g, ' ').trim().startsWith(args.title));
+      if (!label) return { ok: true, skipped: true };
+      const line = label.closest('.title-line');
+      const toggle = line.querySelector('.set-option a.btn, a.btn.btn-default');
+      if (toggle && toggle.classList.contains('active')) return { ok: true };
+      line.scrollIntoView({ block: 'center' });
+      (line.querySelector('.input-content') || label).click();
+      await sleep(700);
+      return { ok: true, opened: true };
+    }
+
     if (cmd === 'type') {
       const el = byModel(args.target).find(visible) || byModel(args.target)[0];
       if (!el) return { ok: false, error: '칸을 찾지 못했습니다.' };
@@ -149,8 +162,16 @@ async function pageCommand(cmd, args) {
       const btn = document.querySelector('button[ng-click*="openEditor($event, false)"]');
       if (!btn) return { ok: false, error: '「스마트 에디터 ONE 으로 작성」 버튼을 찾지 못했습니다.' };
       btn.click();
-      const tool = await waitFor(() => document.querySelector('.se-image-toolbar-button, button[data-name="image"]'), 25000);
-      return tool ? { ok: true } : { ok: false, error: '스마트 에디터가 열리지 않았습니다.' };
+      // 「이전에 작성하던 내용이 존재합니다」 확인 창 → 새로 작성(취소)
+      const prev = await waitFor(() => [...document.querySelectorAll('.modal.in, [role="dialog"]')].find((m) => visible(m) && m.textContent.includes('이전에 작성하던 내용')), 3000);
+      if (prev) { const cancel = [...prev.querySelectorAll('button')].find((b) => b.textContent.trim() === '취소'); if (cancel) cancel.click(); }
+      return { ok: true };
+    }
+
+    if (cmd === 'editorReady') {
+      const prev = [...document.querySelectorAll('.modal.in, [role="dialog"]')].find((m) => visible(m) && m.textContent.includes('이전에 작성하던 내용'));
+      if (prev) { const cancel = [...prev.querySelectorAll('button')].find((b) => b.textContent.trim() === '취소'); if (cancel) cancel.click(); await sleep(500); }
+      return { ok: !!document.querySelector('.se-image-toolbar-button, button[data-name="image"]') };
     }
 
     if (cmd === 'editorImage') {
@@ -211,6 +232,20 @@ async function fetchAsset(a) {
   return { data: btoa(bin), name: a.name, mime: res.headers.get('content-type') || 'image/jpeg' };
 }
 
+/** 에디터가 같은 탭이나 새 창(#/editor)으로 열린다 — 사진 버튼이 보이는 판매자센터 탭을 찾는다 */
+async function findEditorTab(productTabId) {
+  for (let t = 0; t < 30; t++) {
+    await wait(1000);
+    const tabs = await chrome.tabs.query({ url: 'https://sell.smartstore.naver.com/*' });
+    tabs.sort((a, b) => Number((b.url || '').includes('#/editor')) - Number((a.url || '').includes('#/editor')) || (a.id === productTabId ? 1 : -1));
+    for (const tab of tabs) {
+      const r = await run(tab.id, 'editorReady').catch(() => ({ ok: false }));
+      if (r.ok) return tab.id;
+    }
+  }
+  return null;
+}
+
 async function openCreateTab() {
   const tab = await chrome.tabs.create({ url: CREATE_URL, active: true });
   for (let t = 0; t < 45; t++) {
@@ -229,8 +264,14 @@ async function runJob(job) {
   let tabId;
   try {
     tabId = await openCreateTab();
+    const TOP = new Set(['카테고리', '상품명', '판매가', '재고수량', '상품이미지', '상세설명', '저장']);
+    const opened = new Set();
     for (const step of job.steps) {
       await human();
+      if (!TOP.has(step.section) && !opened.has(step.section)) {
+        opened.add(step.section);
+        await run(tabId, 'expand', { title: step.section });
+      }
       await setStatus(`입력 중: ${step.label}`);
       let r;
       if (step.key === 'discount') r = await run(tabId, 'discount', { value: step.value });
@@ -249,14 +290,20 @@ async function runJob(job) {
         if (!job.detailImages?.length) continue;
         r = await run(tabId, 'openEditor');
         if (r.ok) {
-          for (const [i, img] of job.detailImages.entries()) {
-            await setStatus(`상세설명 사진 ${i + 1}/${job.detailImages.length}`);
-            r = await run(tabId, 'editorImage', await fetchAsset(img));
-            if (!r.ok) break;
-            await human();
+          const editorTab = await findEditorTab(tabId);
+          if (!editorTab) r = { ok: false, error: '스마트 에디터 화면을 찾지 못했습니다.' };
+          else {
+            for (const [i, img] of job.detailImages.entries()) {
+              await setStatus(`상세설명 사진 ${i + 1}/${job.detailImages.length}`);
+              r = await run(editorTab, 'editorImage', await fetchAsset(img));
+              if (!r.ok) break;
+              await human();
+            }
+            const d = await run(editorTab, 'editorDone').catch(() => ({ ok: true })); // 창이 닫히면 실행 오류 — 정상 종료로 봄
+            if (r.ok && !d.ok) r = d;
+            await chrome.tabs.update(tabId, { active: true }).catch(() => {});
+            await wait(1500);
           }
-          const d = await run(tabId, 'editorDone');
-          if (r.ok && !d.ok) r = d;
         }
       } else if (step.action === 'button') {
         continue; // 마지막에 따로
