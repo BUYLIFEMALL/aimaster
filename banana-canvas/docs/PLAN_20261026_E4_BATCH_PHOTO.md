@@ -3,7 +3,7 @@
 작성: 2026-10-26 Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image]
 대상: ① AIMaster 운영 — `banana-canvas`(현재 v1.38)
 근거: 주인님 「진행해」(2026-10-26, 작업 순서 ① E4) · 쇼핑몰 묶음 인계 `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md` §6 E4 · 원본 분석 `02_KDP_IMAGE_SIGNATURE.md` §1(기능·동작만 참고, 코드·문구는 옮기지 않음)
-상태: **주인님 승인 대기** (코드 없음)
+상태: **✅ 완료·배포 v1.39 (2026-10-26)** — 주인님 승인(이름 「🖼 사진 일괄 손질」, 기본 860px, 빌드 2회) → 구현·운영 검수 끝. 결과는 `AGENTS.md` 맨 위·`docs/IMPROVEMENTS.md`
 
 ## 1. 무엇을 만드나
 상품 사진 여러 장을 **한 번에** 같은 규칙으로 손질해 ZIP으로 받는 화면. 쇼핑몰 판매자가 마켓에 올리기 전에 매번 하는 일(크기 맞추기·로고 넣기·촬영 정보 지우기)을 한 번에 끝낸다.

@@ -1,3 +1,5 @@
+> **✅ v1.39 (2026-10-26, Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image]) — E4 「🖼 사진 일괄 손질」 배포:** `/batch` — 여러 장(최대 50장·한 장 25MB) 세로 높이 맞춤(기본 860px·원본 그대로), 문자/로고 워터마크(9곳 위치·크기·농도·여백), 테두리, 촬영 정보·GPS 제거(캔버스에 새로 그림), JPG/PNG·화질, 파일 이름 앞붙임, 한 장은 파일·여러 장은 ZIP, Ctrl+V 붙여넣기. 모두 브라우저 처리(서버 전송·AI·키·비용 없음). 계산 `src/lib/batch/layout.ts`(시험 `tests/batchLayout.test.mjs`), 그리기 `src/lib/batch/render.ts`, 화면 `src/components/batch/BatchPhotoBoard.tsx`. **주의: 이 프로그램은 테일윈드가 없다 — 화면 클래스는 `src/app/globals.css`의 규칙(`bp-`·`fe-`·`card` 등)만 쓴다.** 예전 미배포 대기 `db31e8684`도 이번 배포에 함께 나갔다. 새 미배포 대기: 짧은 숫자 칸 80px 고정(CSS 1줄). 플랜 [PLAN_20261026_E4_BATCH_PHOTO](docs/PLAN_20261026_E4_BATCH_PHOTO.md)
+
 > **✅ v1.34 (2026-10-24, Claude Code 윈도우 `claude-win-sdp`) — 「🧽 무료 지우기(내 PC)」 배포:** ClearPic 참고 C-0~C-5 완료. 공용 기준 코드 `browser-free-erase`(`src/lib/freeErase/`, LaMa·PP-OCRv4 Apache-2.0, `onnxruntime-web@1.23.0` `/ort/`) · 화면 `/erase` · COOP/COEP는 `/erase`만(+작업자·계산 파일 COEP). 제미나이 워터마크 자동 제거는 제외. 미배포 대기 `db31e8684`(매뉴얼 절 번호·빈 화면 문구). [인수인계 §7·§8](docs/IMPROVEMENT_HANDOFF_20261024_CLEARPIC.md)
 
 # AI 바나나 캔버스 자동화 (`banana-canvas`) — AI 에이전트 인수인계 지침
