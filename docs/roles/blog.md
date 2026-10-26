@@ -4,9 +4,15 @@
 - 맡은 폴더: `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-26 SEO 미적용 보안 패치 준비(2파일·단위127개/타입/적용사전검사 통과). 운영 보안4앱 완료/SEO16.3.5 미완료 유지. 원본/DB/배포 변경0. 원격세션2 전경은크롬, Edge 직접 활성화/시험계정 연결과 SEO 보안범위 인수 답변 대기. [최신 인계 §13](../HANDOFF_20261025_BLOG_TO_CODEX.md#13-2026-10-26-재개--원격-세션-확인seo-미적용-패치-준비).
+- 마지막 갱신: 2026-10-26 남은5번 연계는 다른 세션 담당으로 제외, 8번 이웃 소통 플랜 검토 완료(문서만). D1~D9 유지, 허용 범위·답글/하루1개 충돌·동시실행/보관/예약/비용 명세 보완 추천. [검토·인수인계](../analysis-naver-blog-neighbor-20261024/REVIEW_20261026_BLOG_NEIGHBOR_CARE.md). 기존 Edge 실제시험/SEO 보안 인수 대기는 유지.
+
+## 담당 제외 — 주인님 지정(2026-10-26)
+
+- 남은 작업 목록 **5번: 워크스페이스·플래너 작업 상태 연결, 이미지 수정 후 원고 복귀**는 주인님이 다른 세션에 지정했습니다. 이 Codex 세션의 연계 범위 결정·설계·구현·비용 집계에서 제외합니다. 상대 세션명은 전달받지 않았으며 임의로 배정하지 않습니다. 기존 분석 자료는 다른 담당의 참고용으로 보존합니다.
 
 ## 지금 하는 일
+
+**최신 요청 완료:** 8번 이웃 소통 플랜 검토·공식자료 확인을 문서로 남겼습니다. [검토서](../analysis-naver-blog-neighbor-20261024/REVIEW_20261026_BLOG_NEIGHBOR_CARE.md)·[공식 근거](../analysis-naver-blog-neighbor-20261024/OFFICIAL_REFERENCE_CHECK_20261026.md). 실제 개발은 미착수이며 다음 후보는 0-A 허용 범위/명세 보완입니다.
 
 **앞선 분석 결과:** [신규개발·병합·연계 공통 인수인계](../analysis-blog-consolidation-20261020/HANDOFF.md)와 [최신 전체 분석](../analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025). 주인님 후속 지시로 개별 구현보다 분석을 먼저 완료했고, 콘텐츠메이커③-2 단독 발행 플랜은 후보 보존/재검토 상태입니다.
 
@@ -28,7 +34,7 @@
 | `naver-blog-agent` | E-2 회원 선택 빠른 입력(보류) | 재개 결정 | 같은 플랜 |
 | `naver-blog-seo-studio` | 도톨이 2차(이전 글 비교·스타일 점수·이미지 노드), N7·N13 | 결정 | `naver-blog-seo-studio/docs/PLAN_20261024_DOTORI_D1_D4.md` |
 | 워드프레스·블로그스팟 | 같은 기준으로 기존 프로그램 있는지 점검 | 아래 여쭐 것 답 | 루트 핵심 지침 |
-| `blog-neighbor-care`(신규) | **AI 블로그 이웃 소통 자동화 신규 개발**(주인님 지정 2026-10-24, 분석·플랜 `claude-win-dotori`) — 0단계 사전 검증(임시 확장, 주인님 설치·실행) → 1~5단계. 주인님 결정 D1~D9는 절대 지시 | 지금 시험(②·SEO 예약) 마친 뒤 착수 시점을 주인님께 여쭘 · 빌드 4~5회·AI 시험 비용 사전 승인 | `docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md`(인수인계)·`PLAN_…`·`REPORT.md` |
+| `blog-neighbor-care`(신규) | **AI 블로그 이웃 소통 자동화 신규 개발**(주인님 지정 2026-10-24, 분석·플랜 `claude-win-dotori`) — 0단계 사전 검증(임시 확장, 주인님 설치·실행) → 1~5단계. 주인님 결정 D1~D9는 절대 지시 | 10-26 플랜 검토 완료·구현 미착수. 기존 시험과 착수 순서 조정, 0-A 보완/단계 예산 보고 필요. 기존 4~5회·AI6회는 승인 아님 | `docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md`(인수인계)·`PLAN_…`·`REPORT.md` |
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)

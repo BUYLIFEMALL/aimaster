@@ -129,7 +129,7 @@
 **카테고리별 건수**
 | 카테고리 | 건수 | 판단 |
 |---|---|---|
-| 블로그 | 7 | 독립 4 · 병합 2 · 보류 1(EXT-BLOG-07 새 프로그램 플랜 결정 대기) |
+| 블로그 | 7 | 독립 5 · 병합 2(EXT-BLOG-07 신규 독립 방향 확정·구현 미착수, 10-26 플랜 보완 검토) |
 | 음악 | 7 | 독립 5(2개는 이후 병합) · 병합 1 · 조사 1(독립) |
 | 이미지 | 5 | 독립 4 · 병합 1 |
 | 업무자동화 | 7 | 독립 6(1개는 이후 병합) · 병합 1 |
@@ -268,6 +268,8 @@
 | 관련 문서 | `blog-keyword/docs/DEVELOPMENT_PLAN.md` |
 
 #### EXT-BLOG-07 서이추&스댓공 Ai자동화 Ver3.5(공개용)
+
+> **2026-10-26 최신 검토 [역할: blog, Codex]:** [검토·CLI 인수인계](analysis-naver-blog-neighbor-20261024/REVIEW_20261026_BLOG_NEIGHBOR_CARE.md)·[공식 근거](analysis-naver-blog-neighbor-20261024/OFFICIAL_REFERENCE_CHECK_20261026.md). D1~D9/새 독립 기본 프로그램 방향 유지, 구현 미착수. 아래 10-24 결정 기록의 ‘플랫폼 최대치’는 네이버 공인 안전 한도가 아닌 앱 자체 최대·기본값20/100/30으로 구분합니다. 정책 허용 범위·후속 답글과 하루1개 제한 충돌·다중기기/성공불명·보관/예약/비용 명세 보완 추천. 현재 블로그 인수는 `codex-win-20261025-blog`, 과거 담당·판단 기록은 보존.
 | 항목 | 내용 |
 |---|---|
 | 원본 | 크롬 확장 MV3 소스(압축 한 줄) — `background.js` 20KB·`content.js` 42KB·`popup.js` 68KB·`popup.html` 64KB 외 · `D:\PDS\Program_dev\7) 서이추&스댓공 Ai자동화_Ver3.5(공개용)\` · EXT-RE-01·02와 같은 제작자·같은 Google Apps Script(`mode=sdaetgong`) · manifest가 부르는 `content2.js`·`comment-scraper.js`는 공개본에 없음 |
