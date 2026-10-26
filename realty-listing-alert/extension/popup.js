@@ -62,8 +62,15 @@ function renderAccount(el, s) {
   const sub = document.createElement("div");
   sub.className = "account-sub";
   const next = s.nextDueAt && s.schedule?.enabled ? ` · 다음 수집 ${kstTime(s.nextDueAt)}쯤` : "";
-  sub.textContent = s.noDailyLimit ? `📶 오늘 ${s.pagesToday ?? 0}페이지 · 🧪 시험 계정(하루 한도 예외)${next}` : `📶 오늘 ${s.pagesToday ?? 0}/300페이지${next}`;
+  sub.textContent = s.noDailyLimit ? `📶 오늘 ${s.pagesToday ?? 0}페이지${next}` : `📶 오늘 ${s.pagesToday ?? 0}/300페이지${next}`;
   el.append(who, sub);
+  // 시험 계정 예외는 눈에 띄게 따로 한 줄(2026-10-26 주인님 「잘 안 보여」)
+  if (s.noDailyLimit) {
+    const ex = document.createElement("div");
+    ex.className = "account-exempt";
+    ex.textContent = "🧪 시험 계정 · 하루 300페이지 한도 예외";
+    el.append(ex);
+  }
 }
 
 async function refresh() {
