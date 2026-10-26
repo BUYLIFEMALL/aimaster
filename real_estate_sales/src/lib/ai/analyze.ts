@@ -106,7 +106,11 @@ export async function analyzeListing(
   model: AnalysisModel,
   apiKey: string,
 ): Promise<AnalyzeListingResult> {
-  const userPrompt = `# 입력
+  // RE-P3(2026-10-26, 핵심 원칙 8): 모델이 학습 시점 연도로 퇴행하지 않게 당해 연도를 매번 주입
+  const currentYear = new Date().getFullYear();
+  const userPrompt = `[기준 연도 엄수: 현재 연도는 ${currentYear}년입니다. 모든 연도 표기, 정책, 정보, 전망은 반드시 ${currentYear}년(당해 연도)을 기준으로 작성하세요. 과거 연도(2023년, 2024년 등)로 퇴행하지 마세요. 「1년 내 상승예측률」도 ${currentYear}년 기준 향후 1년입니다.]
+
+# 입력
 - 제공 데이터 수집일: ${input.dataProvidedAt ?? "-"}
 - 거래금액: ${input.priceAmountManwon ?? "-"} (만원)
 - 공시가격: ${input.officialPrice ?? "-"} (원)

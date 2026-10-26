@@ -49,7 +49,8 @@ async function fetchMarketSentiment(sggNm: string, apiKey: string): Promise<stri
       messages: [
         {
           role: "user",
-          content: `오늘(${today}) 기준 최근 1주일 이내의 한국 부동산 정책·시장 동향·추이를 조사하고,
+          content: `[기준 연도 엄수: 현재 연도는 ${today.slice(0, 4)}년입니다. 모든 연도 표기와 정보는 ${today.slice(0, 4)}년(당해 연도) 기준으로 쓰고 과거 연도로 퇴행하지 마세요.]
+오늘(${today}) 기준 최근 1주일 이내의 한국 부동산 정책·시장 동향·추이를 조사하고,
 그 내용을 바탕으로 ${sggNm} 지역의 부동산 분위기를 정리하라.
 
 조사 대상:
