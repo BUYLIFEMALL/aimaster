@@ -3,7 +3,7 @@
 작성: 2026-10-26 Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image]
 대상: ① AIMaster 운영 — `trending-product-finder`(상품소싱 자동화, 운영 v1.27 + 미배포 대기 E9 띠)
 근거: 주인님 「진행해」(2026-10-26, EC-W7) · `AGENTS.md` Phase 12·13·15 · `README.md` 「다음 자동화 후보 백로그」 · `docs/ECOMMERCE_CONSOLIDATION_TASKS.md` EC-W7
-상태: **주인님 승인 대기** (코드 없음)
+상태: ✅ **완료 2026-10-26** (v1.28 배포 `trending-product-finder-9lp6wy88e`, 빌드 1회) — 남은 것: 과세환율 키 등록 뒤 재배포 1회(승인 범위 안). 품목군은 기본 후보로 진행
 
 ## 0. 조사로 바뀐 점 (2026-10-26 확인)
 | 처음 백로그 | 실제 확인 | 그래서 |
