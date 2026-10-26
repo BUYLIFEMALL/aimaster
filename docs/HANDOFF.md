@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.33 배포(주간 리포트)
+- 한 일: ① 📅 주간 리포트(D, 플랜 `realty-listing-alert/docs/PLAN_20261026_WEEKLY_REPORT.md`) — 고른 요일의 그날 첫 수집 뒤 7일 변화를 텔레그램·메일·카톡으로 주 1회, 놓치면 그 주 다음 수집 때(`extension/lib/weekly.js`), 예약 설정 화면 켜기·요일, 통계 화면 「지난 주간 리포트」, AI 주간 요약 400자(회원 본인 키) ② ⏳ 오래 안 팔린 매물(C-2, `extension/lib/stale.js`) ③ 휴대폰 설정 표·AI 엔진 표 카드(G) ④ 팝업 소개 한 줄·버전 칩 강조
+- DB(운영 `esgxyikcnnvmlhygjkth`): `realty_alert_settings.notify_weekly`(기본 false)·`weekly_day`(기본 1, 0~6 검사) 추가 — 크롬 SQL 편집기, 배포 전에 적용. 버전 v1.33
+- 검수: 시험 71개(새 8개)·tsc·빌드 통과, 배포 Ready, `check-extension-release` OK, 운영 예약 설정 화면에 주간 리포트 카드 확인·테스트 계정 「받기 ON(월요일)」 저장 확인. **실제 발송은 확장 v1.33 덮어쓰기 뒤 「지금 수집」으로 확인 필요(미확인)**
+- 링크: https://realty-listing-alert.buylife.xyz/schedule · 비용: Vercel 빌드 1회(주인님 승인)
+
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.40 E5 「🧰 무료 이미지 도구」 배포
 - 한 일: `/tools` 배경 지우기(u2netp, 지우기·되살리기 붓)·얼굴 가리기(UltraFace, 모자이크·흐림·검게, 손 네모)·사진 나누기(2~16, 선 끌기, ZIP). 공용 `browser-free-erase`에 `bg`·`face`·범용 `run` 추가(캐시 이름 따로), 상세페이지 사본 동기화(미배포 대기). 메뉴·매뉴얼 `#free-tools`·시험 8개(전체 69).
 - 검수: 로컬 크롬(임시 페이지, 커밋 안 함)·운영 크롬 일반 회원 — 얼굴 모자이크 JPG Exif 0건, 누끼 PNG 투명 64%, 4분할·선 끌기, 390px 1단, E4 80px 함께 나감. 운영 첫 얼굴 찾기 1회 지연(새로 고침 뒤 정상, 재현 안 됨).
