@@ -86,3 +86,9 @@
 - 「내 사진」 안 `label` 속 숨은 칸: `input[type=file]` · `ngf-select="vm.uploadImagesFromDevice($files, $invalidFiles)"` · `accept="image/jpeg, image/gif, image/png, image/bmp"` · `ngf-multiple="vm.isMultiple"` · `ngf-max-size="20MB"` · `ngf-max-total-size="20MB"`.
 - 확장 방법: 그 칸에 `DataTransfer`로 파일을 넣고 `change` 이벤트 → 화면이 네이버로 올림(파일 선택 창 안 띄움). 블로그 확장 `naver-blog-agent/extension/editor.js`의 파일 넣기 방식과 같음. 대표 1장 → 추가 최대 9장(권장 1000×1000, 저장본 화면 안내).
 - 남은 확인: 올린 뒤 이미지 주소(네이버 이미지 서버 주소인지)와, 상세설명용 이미지를 「사진 보관함」에 올려 주소를 받는 방법(사진보관함 화면 저장본 필요).
+
+## 8. 사진보관함 고르기 창 (2026-10-26, 저장본 `네이버 스마트스토어센터_사진보관함.html`)
+- 상품 등록 화면 위 창. 안내: **「스토어 멤버에게 공유되는 사진 보관함입니다. (이미지 3개월간 보관)」**, 「사진 업로드 시 파일 개수 10개, 용량 최대 20MB 이하」. 버튼: 「사진 업로드」·「편집」·「20개 더보기」(`vm.getList()`)·닫기(`vm.closeModal()`).
+- 숨은 파일 칸: `input[type=file]` `ngf-select="vm.uploadPhoto($files)"` `ngf-multiple=true` `ngf-pattern='.gif,.jpeg,.jpg,.png,.bmp'` `ngf-max-files=vm.maxUploadFileCount` `ngf-max-size=20MB`.
+- 보관함이 비어 있어 이미지 주소 모양은 미확인.
+- **판단**: 보관함 이미지가 3개월 보관이라, 그 주소를 상세설명 HTML에 넣으면 3개월 뒤 이미지가 사라질 위험 → 상세설명 이미지는 **스마트에디터 ONE 안에서 올리는 방식**(에디터에 올린 이미지는 상품 내용에 붙어 계속 보관)이 더 안전. 스마트스토어 상세설명 「스마트 에디터 ONE으로 작성」은 네이버 블로그와 같은 편집기라, 블로그 확장(`naver-blog-agent/extension/editor.js`)의 이미지 넣기 코드를 그대로 재사용할 수 있음(편집기 화면 저장본으로 확인 필요).
