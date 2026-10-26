@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` — shots v1.44 21. 헐리우드 시네마틱 네온 REC 스타일 확정 리뉴얼 및 실배포
+- **한 일**:
+  1. Group 2(유튜브/숏폼 영상 자동화) 대표 모델 `shots` 4대 핵심 화면 3시안(12개 뷰) 단일 통합 쇼케이스 HTML(`scratch/shots_showcase_12views.html`) 제작 및 네이버 웨일 브라우저 12뷰 고해상도 캡처
+  2. 주인님 승인(「이거 부터 처리하고 이후에 작업하도록 하자」)에 따라 강력 추천안인 **21. 헐리우드 시네마틱 네온 REC 스타일** 확정 반영 및 v1.44 판올림
+  3. 비선택 시안 2종(22. 사이버네틱 펄스 타임라인 다크, 23. 클린 에디토리얼 크리에이터 미니멀 라이트) 100% 템플릿 자산화 등록(`DESIGN.md`, `docs/DESIGN_TEMPLATE_CATALOG.md`)
+  4. 3D 엠보싱 버튼 4종(`.btn-3d-rec`, `.btn-3d-amber`, `.btn-create-key`, `.btn-3d-dark`) 장착
+  5. 전체 페이지 배경색 일체화 (`#0b0d1b`) — `/settings` 페이지의 기존 `bg-white` 전면 제거 및 딥 네이비 다크 서피스 일체화 (원칙 13 완벽 준수)
+  6. WebCodecs 하드웨어 가속 1080p 브라우저 렌더러 패널 탑재 및 프로그레스 애니메이션 연동
+  7. 사용자 매뉴얼(`/guide`) 5단계 영화 제작 파이프라인 인포그래픽 & 9:16 비주얼 프롬프트 떡상 연출 공식 테이블 업그레이드
+  8. 로그인/회원가입(`(auth)`) 표준 2탭 토글 레이아웃 헐리우드 시네마틱 다크 그리드 테마 일치화 (원칙 14 준수)
+- **검수**:
+  - 로컬 Turbopack Next.js 16.4.2 빌드 & TypeScript 타입체크 100% 통과 (1.6s)
+  - Vercel 프로덕션 실배포 완료 (`https://shots.buylife.xyz` / `https://shots-2zmi8an69-buylife.vercel.app`, READY)
+  - Supabase `programs` 테이블 `version: v1.44` 동기화 완료
+  - 네이버 웨일 실브라우저 로그인(`shots_live_login_v144.png`) 및 매뉴얼(`shots_live_guide_v144.png`) 고해상도 검수 캡처 생성
+  - `D:\Antigravity\Design\21_헐리우드_시네마틱_네온_REC_스타일\shots` 쇼케이스 HTML 및 전체 캡처 이미지 영구 보존 동기화
+- **확인 링크 5대 세트**:
+  1. 공식 운영 도메인: https://shots.buylife.xyz
+  2. Vercel 프로덕션 보조: https://shots-2zmi8an69-buylife.vercel.app
+  3. 관리자 dev-docs 결과함: https://www.buylife.xyz/admin/dev-docs/requests
+  4. 브라우저 쇼케이스 HTML: [file:///D:/Antigravity/Design/21_헐리우드_시네마틱_네온_REC_스타일/shots/showcase_12views.html](file:///D:/Antigravity/Design/21_헐리우드_시네마틱_네온_REC_스타일/shots/showcase_12views.html)
+  5. 로컬 영구 자산 폴더: `D:\Antigravity\Design\21_헐리우드_시네마틱_네온_REC_스타일\shots`
+
 ## 2026-10-26 [역할: blog] Codex · 세션 `codex-win-20261025-blog` — 이웃 소통1번 서버/DB 구현·로컬48검수, 운영Run대기
 - [자체인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[운영적용안내](../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md), 소스커밋60f720ad5(신규30파일). API-only Next/공용인증·권한·SSO사본,6표/RLS·서버전용RPC/선점·KST상한·이웃일일슬롯·성공불명·허가재확인.
 - API14·실제Postgres17.11 28·실제NextHTTP6=48개/타입/최종빌드 통과. 별도DB연결40→30예약/10거절, 기본권한ALL/본인RLS·서비스runtime변경금지·계정해제보존 검증. 로컬가상회원/키/권한fixture이며운영SSO/외부검수아님.
