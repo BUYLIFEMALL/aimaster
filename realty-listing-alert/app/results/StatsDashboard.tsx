@@ -17,6 +17,7 @@ type Period = "last" | "7" | "30" | "90" | "180" | "365";
 type Range = "30" | "90" | "180" | "365";
 const RANGES: [Range, string][] = [["30", "1개월"], ["90", "3개월"], ["180", "6개월"], ["365", "1년"]];
 type EventRow = { at: string; type: EvType; row: unknown[] };
+type StaleRow = { key: string; complex: string; dong: string; tradeName: string; area: string | number; floor: string; priceText: string; firstSeen: string; days: number; sinceStart: boolean; url: string };
 
 const TRADES: Trade[] = ["매매", "전세", "월세"];
 const PYEONG = 3.3058;
@@ -37,6 +38,7 @@ export default function StatsDashboard({ email }: { email: string }) {
   const [history, setHistory] = useState<Snap[] | null | undefined>(undefined); // undefined = 묻는 중, null = 확장 없음·다른 계정
   const [events, setEvents] = useState<EventRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
+  const [stale, setStale] = useState<StaleRow[]>([]); // ⏳ 오래 안 팔린 매물(C-2)
   const [ai, setAi] = useState<{ text: string; at: string } | null>(null); // 🤖 AI 시세 요약(v1.22) — 확장이 하루 1번 만든 것
   const [complex, setComplex] = useState("");
   const [trade, setTrade] = useState<Trade>("매매");
@@ -46,11 +48,12 @@ export default function StatsDashboard({ email }: { email: string }) {
 
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; history?: Snap[]; events?: EventRow[]; columns?: string[]; aiSummary?: { text: string; at: string } | null }>("stats", 3000, { email }).then((r) => {
+    void askExtension<{ ok?: boolean; history?: Snap[]; events?: EventRow[]; columns?: string[]; aiSummary?: { text: string; at: string } | null; stale?: StaleRow[] }>("stats", 3000, { email }).then((r) => {
       if (!alive) return;
       setHistory(r?.ok ? r.history ?? [] : null);
       setEvents(r?.ok ? r.events ?? [] : []);
       setColumns(r?.columns ?? []);
+      setStale(r?.ok && Array.isArray(r.stale) ? r.stale : []);
       setAi(r?.ok && r.aiSummary?.text ? r.aiSummary : null);
     });
     return () => { alive = false; };
@@ -191,6 +194,7 @@ export default function StatsDashboard({ email }: { email: string }) {
 
           <EventLog events={events} columns={columns} lastAt={latest.at} type={evType} setType={setEvType} period={evPeriod} setPeriod={setEvPeriod} />
           <RepeatDrops events={events} columns={columns} />
+          <StaleListings rows={stale} />
         </>
       )}
     </section>
@@ -377,6 +381,42 @@ function RepeatDrops({ events, columns }: { events: EventRow[]; columns: string[
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+/** ⏳ 오래 안 팔린 매물(C-2) — 지금도 목록에 있고 처음 발견한 날로부터 오래된 매물. 협상 여지를 볼 때 「여러 번 내린 매물」과 함께 본다. */
+function StaleListings({ rows }: { rows: StaleRow[] }) {
+  const [minDays, setMinDays] = useState(30);
+  const list = rows.filter((r) => r.days >= minDays);
+  return (
+    <div className="ra-stat-block">
+      <h3 className="ra-stat-h">⏳ 오래 안 팔린 매물 <small className="card-caption">지금도 목록에 있음 · 처음 발견한 날 기준</small></h3>
+      <div className="ra-seg" role="group" aria-label="기준 일수">
+        {[30, 60, 90].map((d) => (
+          <button key={d} type="button" aria-pressed={minDays === d} className={minDays === d ? "on" : ""} onClick={() => setMinDays(d)}>{d}일 넘게</button>
+        ))}
+      </div>
+      {list.length === 0 ? (
+        <p className="card-caption">{minDays}일 넘게 남아 있는 매물이 아직 없어요. 예약 수집이 이어지면 여기에 모여요.</p>
+      ) : (
+        <div className="ra-result-wrap">
+          <table className="ra-result">
+            <thead><tr><th>단지명</th><th>동</th><th>거래</th><th>전용면적(㎡)</th><th>층</th><th>지금 가격</th><th>처음 발견</th><th>지난 날</th><th>네이버</th></tr></thead>
+            <tbody>
+              {list.map((d) => (
+                <tr key={d.key}>
+                  <td>{d.complex}</td><td>{d.dong}</td><td>{d.tradeName}</td><td>{d.area}</td><td className="ra-nowrap">{d.floor}</td>
+                  <td><b>{d.priceText}</b></td><td>{new Date(d.firstSeen).toLocaleDateString("ko-KR")}</td>
+                  <td className="ra-bargain">⏳ {d.days}일{d.sinceStart ? " 이상" : ""}</td>
+                  <td>{/^https:\/\/(new|fin|m)\.land\.naver\.com\//.test(d.url) ? <a href={d.url} target="_blank" rel="noopener noreferrer">보기 ↗</a> : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <p className="card-caption">「이상」은 처음 수집했을 때부터 있던 매물이에요 — 그 전부터 올라와 있었을 수 있어요. 최대 200건까지 보여요.</p>
     </div>
   );
 }

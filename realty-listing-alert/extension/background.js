@@ -12,6 +12,7 @@ import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats
 import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 import { findBargains } from "./lib/bargain.js";
 import { makeAiSummary } from "./lib/aiSummary.js";
+import { findStale } from "./lib/stale.js";
 
 const WEB = "https://realty-listing-alert.buylife.xyz";
 const DEFAULT_RULES = {
@@ -491,7 +492,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       }
       if (msg.type === "stats") {
         // 웹 대시보드용 요약 기록(web-bridge가 같은 계정인지 확인한 뒤에만 부름). 기록이 아직 없으면 마지막 결과로 첫 요약을 만든다.
-        const { history = [], eventLog = [], lastResult, aiSummary } = await get(["history", "eventLog", "lastResult", "aiSummary"]);
+        const { history = [], eventLog = [], lastResult, aiSummary, states = {}, settingsCache } = await get(["history", "eventLog", "lastResult", "aiSummary", "states", "settingsCache"]);
+        const names = Object.fromEntries((settingsCache?.targets || []).filter((t) => t.complex_no && !isGenericName(t.complex_name)).map((t) => [String(t.complex_no), t.complex_name]));
         const cols = lastResult?.columns || COLUMNS;
         const hasLast = !!lastResult?.table?.length;
         return reply({
@@ -500,6 +502,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           history: history.length || !hasLast ? history : [summarizeTable(cols, lastResult.table, lastResult.at)],
           events: eventLog.length || !hasLast ? eventLog : pickEvents(cols, lastResult.table, lastResult.at),
           aiSummary: aiSummary || null, // 🤖 v1.22
+          stale: findStale(states, names, { minDays: 30 }), // ⏳ 오래 안 팔린 매물(C-2)
         });
       }
       if (msg.type === "isWatched") {
