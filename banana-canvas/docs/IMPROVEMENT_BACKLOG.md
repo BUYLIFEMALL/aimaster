@@ -19,6 +19,14 @@
 
 ---
 
+### ⏸ E5-4 무료 이미지 도구 보강 — 추후 작업 대기(2026-10-26 주인님 지시로 보류)
+- [ ] 숫자 자리 판정 기준(최소 숫자 개수·숫자 비율) 화면에서 조절(localStorage 기억)
+- [ ] 한글 이름·주소 가리기 — 검토 끝: PaddlePaddle 공식 `korean_PP-OCRv5_mobile_rec_onnx` 13.4MB, Apache-2.0, 글자 목록 `inference.yml`. 주소·이름 규칙으로 후보 고르기
+- [ ] 결과 되돌려 넣기를 카드뉴스·인스타 게시 이미지로 확대 — `insta_auto_poster` 디자인 담당(agy) 작업 끝난 뒤, `nukki-handoff`를 여러 보낸 곳용으로 일반화
+- 근거·비용: [`PLAN_20261026_E5D_DIGIT_RULES_KOREAN_RETURN.md`](PLAN_20261026_E5D_DIGIT_RULES_KOREAN_RETURN.md)(빌드 최대 2회 + ③ 2회)
+
+---
+
 ## 3. 타 프로그램 연계 및 백로그 (Integration Backlog)
 - [ ] **`four-cut-comics` 연동**: 4컷 만화 규격으로 만화 패널 에셋 직접 전송.
 - [x] **`ai-image-studio` 연동**: 다중 모델 생성 에셋을 바나나 캔버스 원본으로 직접 불러오기. (v1.14 `?import=` 구현 — 2026-10-22 체크 보정)
