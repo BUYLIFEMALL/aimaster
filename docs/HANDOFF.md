@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실거래 투자분석 자동화 v1.20 배포(규칙 바로잡기)
+- 한 일: RE-P3 매물 AI 분석·지역 분위기 프롬프트에 당해 연도 지시(`e35eecdf0`) · RE-P2 예약 수집·AI 분석·텔레그램 대상에서 이용 권한 없는 회원 제외(`src/lib/accessBatch.ts`, `f4509b896`) · RE-P1 주인님 지정 1년 보관(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8, `4ee142ba5`)에 맞춰 지역 분위기 30일→1년, AI 매물 분석도 1년 정리(`4768f4286`)
+- 영향(운영 DB 읽기): 예약 수집 회원 3명 중 1명(일반, 사용기간 2026-10-16 만료) 제외 — 만료 뒤에도 수집·알림이 가던 빈틈. 테스트 계정·VIP 유지
+- 검수: tsc·eslint·build·`npm run test:access`(3개) 통과, 배포 Ready, DB v1.20, 운영 대시보드 v1.20 표시 확인
+- 링크: https://real-estate-sales.buylife.xyz · 비용: Vercel 빌드 1회(주인님 승인)
+
 ## 2026-10-26 [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` — 이커머스·이미지 담당(`claude-win-sdp`) 협업 회신 & 네이버 블로그 색상 규격 지침 반영
 - **[회신] 상세페이지(`shop-detail-page`) 디자인 작업 현황 및 E3 우선 개발 동의**:
   1. **상세페이지 디자인 작업 완료 상태 확인**: 디자인 담당(`agy`)은 v1.34 완료 후 `shots` 리뉴얼로 이동하여 현재 상세페이지에 진행 중이거나 대기 중인 작업이 없습니다.
