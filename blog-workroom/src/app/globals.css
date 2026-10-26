@@ -1,9 +1,9 @@
-/* Focus Studio Style — Blog Editorial Indigo Edition */
+/* 18번 네이버 스마트 그린 저널 스타일 (Naver Smart Green Journal Style) */
 :root {
-  --brand: #4f46e5;
-  --brand-dark: #3730a3;
-  --brand-soft: #eef2ff;
-  --brand-line: #c7d2fe;
+  --brand: #059669;
+  --brand-dark: #047857;
+  --brand-soft: #ecfdf5;
+  --brand-line: #a7f3d0;
   --accent-purple: #8b5cf6;
   --foreground: #0f172a;
   --muted: #64748b;
@@ -671,4 +671,102 @@ tr:hover td { background: #f8fafc; }
   .guide-pipeline-track { grid-template-columns: repeat(2, 1fr); }
   .notice { overflow-wrap: anywhere; }
   button, .button { min-height: 36px; }
+}
+
+/* ========================================================
+   18번 네이버 스마트 그린 저널 스타일 3D 엠보싱 버튼 & 칩셋
+   규격: DESIGN.md 원칙 21, 22 및 docs/PROGRAM_DESIGN_STANDARD.md
+   ======================================================== */
+
+.btn-3d-green {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 5px 0 #047857, 0 8px 15px rgba(5, 150, 105, 0.35) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+}
+.btn-3d-green:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6.5px 0 #047857, 0 12px 20px rgba(5, 150, 105, 0.45) !important;
+}
+.btn-3d-green:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 1px 0 #047857, 0 3px 6px rgba(5, 150, 105, 0.3) !important;
+}
+
+.btn-3d-blue {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 5px 0 #1e40af, 0 8px 15px rgba(29, 78, 216, 0.35) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+}
+.btn-3d-blue:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6.5px 0 #1e40af, 0 12px 20px rgba(29, 78, 216, 0.45) !important;
+}
+.btn-3d-blue:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 1px 0 #1e40af, 0 3px 6px rgba(29, 78, 216, 0.3) !important;
+}
+
+/* 3종 포스팅 모드 선택 칩셋 */
+.posting-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+}
+.posting-mode-card {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+.posting-mode-card:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+.posting-mode-card.selected {
+  border-color: #059669;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 1.5px #059669;
+}
+.posting-mode-card h4 {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 3px 0;
+}
+.posting-mode-card.selected h4 {
+  color: #059669;
+}
+.posting-mode-card p {
+  font-size: 11px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
 }

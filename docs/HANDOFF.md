@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — blog-workroom 4대 화면 3시안 검수·네이버 스마트 그린 저널 템플릿 확정 적용·포스팅 3종 모드 & 3D 버튼 탑재 v1.15 배포 완료
+- **주인님 지시**: 「진행해」 — 4대 화면 3시안(12개 뷰) 사전 보고 아티팩트(`BLOG_WORKROOM_12VIEWS_PROPOSAL.md`) 중 1번 네이버 스마트 그린 저널 스타일 확정 승인.
+- **구현 내용**:
+  1. **네이버 블로그 메인 템플릿 표준 반영**: 18번 네이버 스마트 그린 저널 스타일 확정 적용(인디고 컬러 ➔ 네이버 시그니처 딥 에메랄드 그린 `#059669`, 세이지 그린 `#ecfdf5`, 고대비 텍스트).
+  2. **3D 입체 엠보싱 버튼 규격화**: 글 구성 만들기(`.btn-3d-blue`), 글 작성/이어서 작성(`.btn-3d-green`), 검수하기(`.btn-3d-blue`), 최종본 저장 및 스마트에디터 ONE 전송(`.btn-3d-green`) 탑재.
+  3. **블로그 최우선 원칙 3종 포스팅 모드 칩셋 장착**: 검수 화면 하단에 크롬 확장 스마트에디터 ONE 전송 패널 신설 및 [📝 발행 전까지 / ⚡ 즉시 포스팅 / ⏰ 예약 포스팅] 라디오 카드 칩셋 탑재.
+  4. **버전 정합성**: `src/lib/version.ts` 및 `package.json` v1.15(1.15.0) 동기화 완료.
+- **검수 및 자산 영구 적재**:
+  1. 로컬 Next.js 16.4.1 Turbopack 빌드(`npm run build`) 및 TypeScript 컴파일 100% 통과.
+  2. Vercel 프로덕션 배포 완료 (Ready, `https://blog-workroom.buylife.xyz`, `https://blog-workroom.vercel.app`).
+  3. 네이버 웨일(Whale) 실제 브라우저 실세션 CDP 검수 완료 (홈, `/write`, `/review` 3개 뷰 고해상도 캡처).
+  4. 12개 시안 뷰 전체 및 실배포 캡처 3종, 단독 쇼케이스 HTML을 `D:\Antigravity\Design\18_네이버_스마트_그린_저널_스타일\blog_workroom`에 영구 보존 동기화 완료.
+- **비용 리포트**: Vercel 프로덕션 빌드 1회(사전 승인), 유료 AI 호출 0회, API 비용 0원.
+
+## 2026-10-26 [역할: blog] Codex(윈도우·엣지) · 세션 `codex-win-20261025-blog` — SEO 보안 후보 검증 완료·운영 미적용·원격 전경 확인 요청
+- SEO v2.21 원본을 바꾸지 않고 임시 복제본에서 Next/eslint16.4.2·sharp0.35.5 후보 준비. 단위127개·next typegen·tsc·git apply --check 통과, 패치대상 package/lock2파일. 원본/DB/버전/manifest/ZIP/배포 변경0, 보안SEO 미완료 유지. [인계 §13](HANDOFF_20261025_BLOG_TO_CODEX.md#13-2026-10-26-재개--원격-세션-확인seo-미적용-패치-준비)·[패치](analysis-blog-consolidation-20261020/evidence/seo-security-candidate-20261026.patch)·[근거](analysis-blog-consolidation-20261020/evidence/seo-security-candidate-20261026.json).
+- agy 디자인완료지만 ACTIVE_WORK 예약 남음. 보안범위 인수/적용/기존승인 배포1회 진행 여부를 요청cf22fd7b로 구체화. 아직 운영에 적용하지 않았음.
+- 실행/Edge는 원격 rdp-tcp#0 세션2/Active, 전경프로세스chrome, 물리콘솔1/Conn. Edge 화면읽기는 되나 전경은아님. 해당 원격 화면에서 주인님 직접 Edge 클릭·시험회원 전환/확장연결 필요, 옛8연결해제/SEO 실제예약 승인 대기. 크롬 UI조작0·실제입력/발행/예약0.
+- 비용 없음: Vercel/로컬빌드/AI/브라우저실행0, .env복사0. 브라우저 시험2파일은 포그라운드 미확인으로 제외.
+
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우·크롬) · 세션 `claude-win-sdp` — EC-W7 상품소싱 v1.28: 과세환율·관세 계산 순서·관세율 참고표·점수 알림 (+E9 띠 함께 배포)
 - 조사: 관세청 「관세환율정보」 API는 관세율이 아니라 **과세환율**(무료, 하루 1,000건) → 환율은 이 API로, 수출입은행 API(2026-04-30 주소 변경)는 안 씀. 관세율 공식 API는 확인 못 해 참고표로.
 - 계산 바로잡기(`lib/margin.ts`): 관세 = (원가+해외운송비)×관세율, 부가세 = (과세가격+관세)×10%. 예: 원가 10,000·판매가 30,000 → 마진 8,460 → **7,816원(26.1%)**. 숫자를 적은 시험 3곳 기대값만 갱신.

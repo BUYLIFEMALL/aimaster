@@ -22,6 +22,7 @@ export function ReviewView({ draftId }: { draftId: string }) {
   const [finals, setFinals] = useState<Item<FinalData>[]>([]);
   const [current, setCurrent] = useState<Item<DraftData> | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [postMode, setPostMode] = useState<"draft" | "publish" | "reserve">("draft");
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null);
 
   const load = useCallback(async () => {
@@ -78,7 +79,7 @@ export function ReviewView({ draftId }: { draftId: string }) {
           <section className="card stack">
             <div className="row" style={{ justifyContent: "space-between" }}><h2>{d.title}</h2><small className="muted">공백 제외 {charCount(d.text).toLocaleString()}자</small></div>
             <textarea className="editor" aria-label="본문" value={d.text} onChange={(e) => editText(e.target.value)} onBlur={() => void saveText()} />
-            <div className="actions"><button className="primary" disabled={!!busy} onClick={() => void review()}><ClipboardCheck size={14} />{rv ? "현재 수정본 다시 검수" : "검수하기"}</button><small className="muted">점검 영역: {AREAS.join(" · ")}</small></div>
+            <div className="actions"><button className="btn-3d-blue" style={{ padding: "10px 18px", fontSize: "13px" }} disabled={!!busy} onClick={() => void review()}><ClipboardCheck size={14} />{rv ? "현재 수정본 다시 검수" : "검수하기"}</button><small className="muted">점검 영역: {AREAS.join(" · ")}</small></div>
             <p className="muted" style={{ fontSize: 11 }}>AI 판단은 추정이며 사실 확인·검색 순위·인터넷 전체 표절 검사를 대신하지 않습니다. 출처는 직접 확인하세요. 후기·경험 표현은 실제 구매·방문·사용을 증명하지 않으니 본인 경험에 맞게 고치세요.</p>
           </section>
           {rv && <section className="card stack">
@@ -91,7 +92,56 @@ export function ReviewView({ draftId }: { draftId: string }) {
             </div>)}
             {must > 0 ? <div className="notice warning">필수 수정 사항을 해결하고 다시 검수해야 최종본으로 저장할 수 있습니다.</div> : <>
               <label className="row" style={{ fontWeight: 500 }}><input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />글 내용·출처·검수 결과를 직접 확인했습니다.</label>
-              <div className="actions"><button className="primary" disabled={!!busy || !confirmed} onClick={() => void finalize()}><FileCheck2 size={14} />최종본으로 저장</button>{finals.some((f) => f.data.draftId === current!.id) && <span className="ok row"><CheckCircle2 size={14} />이 초안의 최종본이 있습니다</span>}</div>
+              <div className="actions">
+              <button className="btn-3d-green" disabled={!!busy || !confirmed} onClick={() => void finalize()}><FileCheck2 size={14} />최종본으로 저장</button>
+              {finals.some((f) => f.data.draftId === current!.id) && <span className="ok row"><CheckCircle2 size={14} />이 초안의 최종본이 있습니다</span>}
+            </div>
+
+            <section className="card stack" style={{ border: "2px solid #059669", background: "#ffffff", marginTop: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h3 style={{ fontSize: "15px", fontWeight: "800", color: "#065f46", margin: "0 0 4px 0" }}>🚀 Chrome 확장 스마트에디터 ONE 자동 전송</h3>
+                  <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>검수된 원고(제목·본문·서식)를 네이버 블로그 스마트에디터 ONE에 직접 타이핑 방식으로 전송합니다.</p>
+                </div>
+                <span style={{ fontSize: "11px", fontWeight: "700", background: "#ecfdf5", color: "#059669", padding: "4px 8px", borderRadius: "6px" }}>스마트에디터 ONE 연동</span>
+              </div>
+
+              <div className="posting-mode-grid">
+                <div 
+                  className={`posting-mode-card ${postMode === "draft" ? "selected" : ""}`}
+                  onClick={() => setPostMode("draft")}
+                >
+                  <h4>📝 발행 전까지</h4>
+                  <p>스마트에디터에 자동 입력 후 회원이 직접 최종 확인 및 발행</p>
+                </div>
+                <div 
+                  className={`posting-mode-card ${postMode === "publish" ? "selected" : ""}`}
+                  onClick={() => setPostMode("publish")}
+                >
+                  <h4>⚡ 즉시 포스팅</h4>
+                  <p>자동 입력 완료 후 즉시 발행 및 최종 등록 게시글 URL 기록</p>
+                </div>
+                <div 
+                  className={`posting-mode-card ${postMode === "reserve" ? "selected" : ""}`}
+                  onClick={() => setPostMode("reserve")}
+                >
+                  <h4>⏰ 예약 포스팅</h4>
+                  <p>지정한 날짜 및 시간에 맞춰 네이버 블로그에 자동 예약</p>
+                </div>
+              </div>
+
+              <button 
+                type="button" 
+                className="btn-3d-green" 
+                style={{ width: "100%", padding: "14px", fontSize: "14px", fontWeight: "800" }}
+                onClick={() => {
+                  void copy(`${d.title}\n\n${d.text}`, toHtml(d.title, d.text));
+                  setMsg({ text: `[선택 모드: ${postMode === "draft" ? "발행 전까지" : postMode === "publish" ? "즉시 포스팅" : "예약 포스팅"}] 원고를 준비했습니다. 네이버 스마트에디터 ONE 창을 열고 확장의 '가져오기'를 누르면 자동 입력됩니다.`, ok: true });
+                }}
+              >
+                🚀 이 원고를 네이버 스마트에디터 ONE으로 전송하기
+              </button>
+            </section>
             </>}
           </section>}
         </>}

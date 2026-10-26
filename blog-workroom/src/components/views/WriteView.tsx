@@ -73,7 +73,7 @@ export function WriteView({ researchId, draftId }: { researchId: string; draftId
             <label>분량<select value={opt.length} onChange={(e) => setOpt({ ...opt, length: e.target.value })}>{LENGTHS.map((x) => <option key={x}>{x}</option>)}</select></label>
             <label>경험 표현<select value={opt.experience} onChange={(e) => setOpt({ ...opt, experience: e.target.value })}>{EXPERIENCE.map((x) => <option key={x}>{x}</option>)}</select></label>
             <label>추가 요청(선택)<textarea rows={3} value={opt.request} onChange={(e) => setOpt({ ...opt, request: e.target.value.slice(0, 500) })} placeholder="예) 초보 엄마 눈높이로, 마지막에 체크리스트" /></label>
-            <button className="primary" disabled={!!busy || !rid} onClick={() => void outline()}><PenLine size={14} />글 구성 만들기</button>
+            <button className="btn-3d-blue" style={{ padding: "10px 18px", fontSize: "13px" }} disabled={!!busy || !rid} onClick={() => void outline()}><PenLine size={14} />글 구성 만들기</button>
           </>}
         </section>
         <section className="card">
@@ -91,7 +91,7 @@ export function WriteView({ researchId, draftId }: { researchId: string; draftId
             <input aria-label="제목" value={d.title} onChange={(e) => edit({ title: e.target.value })} onBlur={() => void save(current!.data, current!.data.title)} />
             <small className="muted">{d.options.type} · {d.options.length} · 경험 표현 {d.options.experience} · 검색어 「{d.keyword}」</small>
             <div className="actions">
-              <button className="primary" disabled={!!busy || d.sections.every((s) => s.body.trim())} onClick={() => void writeAll()}><Play size={14} />{d.sections.some((s) => s.body.trim()) ? "이어서 작성" : "전체 작성 시작"}</button>
+              <button className="btn-3d-green" style={{ padding: "10px 20px", fontSize: "13px" }} disabled={!!busy || d.sections.every((s) => s.body.trim())} onClick={() => void writeAll()}><Play size={14} />{d.sections.some((s) => s.body.trim()) ? "이어서 작성" : "전체 작성 시작"}</button>
               {d.status === "written" || d.status === "reviewed" ? <a className="button" href={`/review?draft=${current!.id}`}>이 초안 최종 검수하기 →</a> : null}
               {d.text && <button onClick={() => void navigator.clipboard.writeText(d.text).then(() => setMsg({ text: "본문을 복사했습니다.", ok: true }))}><Copy size={13} />본문 복사</button>}
               {d.text && <small className="muted">공백 제외 {charCount(d.text).toLocaleString()}자</small>}
