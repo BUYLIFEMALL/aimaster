@@ -1,5 +1,9 @@
 # 기능별 프로그램 지도 (SHARED_FEATURE_MAP.md)
 
+## 2026-10-27 본인글읽기 확장연결 구현 사례(각자 구현)
+
+`blog-neighbor-care/src/lib/reader/`·`extension/`·`supabase/migrations/*_bnc_reader_connection.sql`: 기존 smartstore-register/블로그의웹연결패턴을참고하되 번호/토큰해시·원자적1회교환·읽기전용capability·다기기중복/원래수명으로보완. 공용member_platform_accounts저장·기존프로그램권한판정을재사용하며원본공용컴포넌트/타앱은미수정. 새공용기준으로전환한것아님. [로컬검수/운영미적용](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md).
+
 ## 2026-10-24 G-1 공용 텍스트 AI 공급자 — 미배포·실회원 검수 대기
 
 | 프로그램 | 상태 | 파일·범위 |

@@ -624,7 +624,8 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — 서버·자료미리보기 구현·운영 미등록
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — 읽기확장/설치본 준비·운영 미등록
+- **읽기확장(10-27)**: [회원/기기연결·본인글1개확인후전달/원래수명/ZIP](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md), 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 추가reader4표/카탈로그·프로그램등록/배포·설치미검수. v1.01은첫릴리스예정값.
 - **GUI읽기(10-27 01:08):** 본인블로그·글목록/본문표시·전체이웃피드·관계관리의서로이웃/일반이웃구분을Edge실제페이지에서확인. [근거](../blog-neighbor-care/docs/evidence/readcheck-20261027.json). 확장자동추출/본문AI/운영연결/쓰기허용완료아님.
 - **자료미리보기(2026-10-27)**: [회원제공검색요약 사전선별/본문정리](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md), 단위31/HTTP12·타입/빌드통과·미배포. 네이버수집/계정검증/본문AI/관계판정/저장아님.
 - **1번서버/DB(2026-10-26)**: [신규폴더소스·로컬48검수](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md),6표/RLS·서비스전용RPC·공용인증/권한. 운영SQL 적용·6표RLS/서비스RPC/runtime=false 검수완료·미배포. 실제SSO/플랫폼·UI/확장/AI·30일삭제는미완료.

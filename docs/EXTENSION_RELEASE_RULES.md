@@ -1,5 +1,7 @@
 # 크롬 확장 프로그램 운영·업로드 규칙 (모든 CLI 공통 핵심 지침)
 
+**2026-10-27 신규등록대기:** `blog-neighbor-care/extension`·`public/downloads/blog-neighbor-care-extension-latest.zip`·`prebuild`/버전동기화 준비. 계획 v1.01, 검수스크립트목록추가. 운영programs/다운로드URL/배포는아직없어라이브정합성검수는미완료([인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md)). 미등록경고를숨기지않고첫배포때DB/ZIP/사이트를함께확인합니다.
+
 > 2026-10-09 주인님 지시. 루트 `CLAUDE.md` 핵심 원칙 10번 / `AGENTS.md` 11번의 상세판이다.
 > Claude Code · Codex · Gemini 등 어떤 도구든 **확장이 있는 프로그램을 배포하기 전에 이 문서를 읽고, 배포 후 검증 스크립트를 실행한다.**
 

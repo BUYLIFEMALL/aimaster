@@ -1,5 +1,7 @@
 # 블로그 기능 상세 비교표 (기준 문서)
 
+**이웃소통읽기설치본(2026-10-27):** [회원/확장연결·본인글1개읽기·확인후전달·원래수명/ZIP](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md) 로컬구현·단위54/SQL16/HTTP23통과. 신규운영SQL/프로그램등록/배포/설치·반복읽기/AI/신청·공감·댓글은미완료. 기존발행3방식표시는유지.
+
 **이웃소통GUI읽기(2026-10-27 01:08):** [본인블로그/본문표시·이웃새글·관계관리확인](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md). 전체이웃피드와서로이웃상태는별도. 자동추출/AI정독/신청·공감·댓글·쓰기허용/출시 검수아님. 기존발행3방식상태유지.
 
 **이웃소통자료계약(2026-10-27):** [자료미리보기API](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md) 로컬구현·단위31/HTTP12·타입/빌드통과. 검색요약과회원제공본문을구분하며 실제본문수집/관계판정/AI점수/자동소통/저장미구현. 기존운영8개표/발행3방식검수상태는유지.

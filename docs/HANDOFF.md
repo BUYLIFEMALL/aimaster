@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 [역할: blog] Codex — 회원·읽기확장 설치시험 준비완료·운영적용승인대기
+- 소스/ZIP/검수 커밋 `083b10a0f` (미푸시).
+- 2026-10-27 본인글1개 읽기 연결 구현·ZIP 준비: 회원/확장API·원자적1회번호교환·공용계정읽기연결·activeTab본문확인후전달·중복/원래수명/정리, 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 신규운영4표·카탈로그/프로그램등록·Vercel배포·실제설치는미완료.
+- 설치ZIP `blog-neighbor-care/public/downloads/blog-neighbor-care-extension-latest.zip`, 소스7파일바이트일치. 번호40동시교환1건, 다른기기/다른요청중복방지·원래30일수명·해제후읽기차단/본문보존.
+- [구현/검수·한계/운영적용안](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 이번운영DB/프로그램/회원/키/계정변경0·네이버본문/쓰기0. 유료AI/Vercel빌드·배포0, 무료로컬빌드2회. 비용규칙상배포1회승인대기, 설치/연결요청은Ready후1회. 세션 `codex-win-20261026-blog-check`, 다른담당5번제외.
+
 ## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 스마트스토어 상품등록 자동화 v1.04 (배송 칸 자동 입력, 「입력만」 18칸 성공)
 - 배송 칸 자동 입력 — 템플릿 이름이 있으면 「배송비 템플릿」 목록 창에서 「선택」, 없으면 택배사·배송비 종류·기본 배송비·무료 조건 금액 직접 입력(기본값 화면 칸 4개 추가). 예전 코드가 노리던 `vm.savedTemplate['DELIVERY']`는 고르는 칸이 아니라 「템플릿 추가」 체크 상자였음을 저장본으로 확인. 확장이 `X-Ext-Version`을 보내고 서버는 새 동작이 든 작업을 v1.04 미만 확장에 넘기지 않음. **실제 「입력만」 시험: 18칸 전부 자동 입력, 멈춘 칸 0**(택배사·배송비는 selectize라 화면 목록을 열어 정확히 같은 보기를 누르도록 보정 — 이 보정은 미배포 대기).
 - 배포 `smartstore-register-c2zo2h21x` Ready, DB·확장·ZIP v1.04 검증 OK. 빌드 1회(승인). **미배포 대기**: selectize 보정·기본값 표시 보정(`docs/PENDING_DEPLOYS.md`).

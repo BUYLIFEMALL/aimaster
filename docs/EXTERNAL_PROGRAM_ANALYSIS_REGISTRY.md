@@ -269,6 +269,8 @@
 
 #### EXT-BLOG-07 서이추&스댓공 Ai자동화 Ver3.5(공개용)
 
+> **읽기설치본후속(2026-10-27):** 회원·공용계정/기기연결·본인글1개확인후전달·ZIP 로컬준비, 단위54/SQL16/HTTP23·타입/빌드통과([인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md)). 운영reader4표/프로그램등록/배포/설치·AI/자동소통은미완료.
+
 > **GUI읽기후속(2026-10-27 01:08):** 본인글목록/본문표시·이웃새글·관리표관계라벨의Edge실제페이지확인([근거](../blog-neighbor-care/docs/evidence/readcheck-20261027.json)). 자동추출/정독/반복자동읽기허용·쓰기·출시와구분.
 
 > **2026-10-27 후속:** 회원제공자료 사전선별API 구현·단위31/HTTP12·타입/빌드통과, [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md). 외부수집/AI/계정·관계확인/출시 미완료.

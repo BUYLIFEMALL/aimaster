@@ -1,5 +1,7 @@
 # AIMaster 프로그램 아이디어·개선 검토 원장
 
+2026-10-27 Codex [역할: blog] **이웃소통연결 기존제안 후속:** 본인글1개읽기 설치본준비. 안정성=원자적번호교환·회원/기기/글ID결합·다기기멱등·원래수명, 적용성=공용계정표재사용/기존권한판정, 편의=설치후한번연결→현재글확인후전달. 단위54/SQL16/HTTP23·ZIP통과, 운영적용/설치미검수. [인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md).
+
 2026-10-27 Codex [역할: blog] **이웃소통 기존제안 후속:** 자료미리보기API구현(요약/본문구분·세션소유자·관계unknown/자동소통불가). 안정성=31개/HTTP12·타입/빌드통과·외부요청0, 적용성=기존회원권한재사용·향후프로필입력계약, 편의=회원제공검색응답/본문을같은정리경로로처리. AI/저장/실제자료읽기는미완료. [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md).
 
 2026-10-26 Codex [역할: blog] **이웃소통 서버/DB 후속:** 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. 기존 이웃소통 제안의 진행상태 갱신이며 신규아이디어/연계승인 아님. 안정성=DB권한·실행OFF 확인, 적용성=서버소스와 운영스키마 일치, 편의=후속 화면의 상태/중단사유 기반 준비. [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md).
