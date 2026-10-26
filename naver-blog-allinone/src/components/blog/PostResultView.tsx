@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { AlertCircle, Archive, Check, CheckCircle2, ChevronDown, ChevronUp, Copy, ExternalLink, Loader2, Sparkles } from "lucide-react";
+import { AlertCircle, Archive, Calendar, Check, CheckCircle2, ChevronDown, ChevronUp, Clock, Copy, ExternalLink, Loader2, Send, Sparkles, Zap } from "lucide-react";
 import { findTheme, measureLength, renderHtml, renderMarkdown, renderPlainText } from "@/lib/blog/article";
 import type { BlogPost, ReviewStatus } from "@/lib/blog/types";
 import { PostEditorPanel } from "./PostEditorPanel";
@@ -72,44 +72,166 @@ export function PostResultView({ post, saveState, saveError, locked, onChange, o
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={onOpenLibrary} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50">
-            <Archive className="w-3.5 h-3.5" /> 내 보관함
+          <button type="button" onClick={onOpenLibrary} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition shadow-2xs">
+            <Archive className="w-3.5 h-3.5 text-slate-600" /> 내 보관함
           </button>
-          <div className="basis-full">
-            <NaverCategoryPicker
-              value={post.settings.naverCategory ?? null}
-              disabled={locked}
-              onChange={(c) => {
-                saveLastNaverCategory(window.localStorage, c);
-                const { naverCategory: _drop, ...rest } = post.settings;
-                void _drop;
-                onChange({ ...post, settings: c ? { ...rest, naverCategory: c } : rest });
-              }}
-            />
-          </div>
-          <a href="https://blog.naver.com/GoBlogWrite.naver" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg transition">
+          <a href="https://blog.naver.com/GoBlogWrite.naver" target="_blank" rel="noreferrer" className="btn-platform-signup flex items-center gap-1.5 text-xs font-bold transition">
             <span>네이버 글쓰기 열기</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
+        </div>
+      </div>
+
+      {/* 네이버 블로그 스마트에디터 ONE 자동 포스팅 제어 센터 (네이버 스마트 그린 저널 테마) */}
+      <div className="rounded-2xl border border-emerald-200 bg-[#edfbf3] p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#03c75a] text-white shadow-xs">
+              <Send className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-slate-900 tracking-tight">
+                스마트에디터 ONE 포스팅 모드 & 자동 전송
+              </h3>
+              <p className="text-[11px] text-emerald-800 font-medium">
+                원하는 발행 방식을 선택한 후 3D 실행 버튼을 누르면 크롬 확장을 통해 네이버 에디터에 자동 전송됩니다.
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#047857] border border-emerald-300">
+            네이버 공식 블로그 연동 규격
+          </span>
+        </div>
+
+        {/* 1. 카테고리 선택 */}
+        <div className="bg-white rounded-xl p-3 border border-emerald-100 shadow-2xs">
+          <NaverCategoryPicker
+            value={post.settings.naverCategory ?? null}
+            disabled={locked}
+            onChange={(c) => {
+              saveLastNaverCategory(window.localStorage, c);
+              const { naverCategory: _drop, ...rest } = post.settings;
+              void _drop;
+              onChange({ ...post, settings: c ? { ...rest, naverCategory: c } : rest });
+            }}
+          />
+        </div>
+
+        {/* 2. 포스팅 방식 3종 라디오 칩셋 */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-slate-800">포스팅 방식 선택 (원고별 개별 지정)</span>
+            <span className="text-[10px] text-slate-500 font-medium">회원이 고르지 않은 방식으로는 절대 발행되지 않습니다</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {([
+              { id: "draft", label: "📝 발행 전까지", desc: "제목·본문·이미지 자동 입력 후 최종 검토" },
+              { id: "immediate", label: "⚡ 즉시 포스팅", desc: "자동 입력 완료 후 즉시 원클릭 발행" },
+              { id: "scheduled", label: "⏰ 예약 포스팅", desc: "지정한 예약 일시로 예약 발행" },
+            ] as const).map((m) => {
+              const currentMode = post.settings.postingMode ?? "draft";
+              const isSelected = currentMode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  disabled={locked}
+                  onClick={() => {
+                    onChange({
+                      ...post,
+                      settings: {
+                        ...post.settings,
+                        postingMode: m.id,
+                      },
+                    });
+                  }}
+                  className={`flex flex-col text-left p-3 rounded-xl border transition cursor-pointer ${
+                    isSelected
+                      ? "bg-white border-[#03c75a] shadow-xs ring-2 ring-[#03c75a]/20"
+                      : "bg-white/80 border-slate-200 hover:bg-white"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs font-black ${isSelected ? "text-[#029a45]" : "text-slate-800"}`}>
+                      {m.label}
+                    </span>
+                    <span className={`h-3.5 w-3.5 rounded-full border flex items-center justify-center ${isSelected ? "border-[#03c75a] bg-[#03c75a]" : "border-slate-300"}`}>
+                      {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 mt-1 leading-snug">{m.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 예약 포스팅 선택 시 일시 인풋 */}
+          {(post.settings.postingMode === "scheduled") && (
+            <div className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-amber-200 text-xs">
+              <Calendar className="h-4 w-4 text-amber-600 shrink-0" />
+              <span className="font-bold text-slate-700 shrink-0">예약 일시 설정:</span>
+              <input
+                type="datetime-local"
+                value={post.settings.scheduledAt || ""}
+                onChange={(e) => {
+                  onChange({
+                    ...post,
+                    settings: {
+                      ...post.settings,
+                      scheduledAt: e.target.value,
+                    },
+                  });
+                }}
+                className="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-800 font-bold focus:outline-none focus:border-[#03c75a]"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* 3. 메인 3D 전송 버튼 및 서식 복사 그룹 */}
+        <div className="flex flex-wrap items-center gap-3 pt-1">
           <button
             type="button"
             onClick={() => {
               onSyncToExtension();
               setSynced(true);
-              setTimeout(() => setSynced(false), 2000);
+              setTimeout(() => setSynced(false), 2500);
             }}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 rounded-lg transition"
+            className="btn-3d-naver flex-1 sm:flex-initial text-xs font-black"
             title="설치된 크롬 확장 프로그램으로 원고를 전달하여 네이버 글쓰기에서 자동 주입합니다"
           >
-            {synced ? <><Check className="w-3.5 h-3.5" /><span>확장에 전달됨!</span></> : <><Sparkles className="w-3.5 h-3.5" /><span>⚡ 크롬 확장에 전달</span></>}
+            {synced ? (
+              <>
+                <Check className="w-4 h-4" />
+                <span>🎉 확장에 전달 완료! (네이버 글쓰기에서 1초 주입)</span>
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4 text-emerald-200" />
+                <span>🚀 네이버 스마트에디터 ONE 자동 전송 & 포스팅</span>
+              </>
+            )}
           </button>
-          <button type="button" onClick={() => void copyHtml()} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-xs">
+
+          <button
+            type="button"
+            onClick={() => void copyHtml()}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-white hover:bg-emerald-50 text-[#029a45] border border-emerald-300 rounded-xl transition shadow-2xs cursor-pointer"
+          >
             {copied === "html" ? <><Check className="w-3.5 h-3.5" /><span>서식 복사됨!</span></> : <><Copy className="w-3.5 h-3.5" /><span>스마트에디터 ONE 서식 복사</span></>}
           </button>
-          <button type="button" onClick={async () => { await navigator.clipboard.writeText(markdown); flash("markdown"); }} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg transition">
+          <button
+            type="button"
+            onClick={async () => { await navigator.clipboard.writeText(markdown); flash("markdown"); }}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-xl transition shadow-2xs cursor-pointer"
+          >
             {copied === "markdown" ? <><Check className="w-3.5 h-3.5" /><span>복사됨</span></> : <><Copy className="w-3.5 h-3.5" /><span>마크다운 복사</span></>}
           </button>
-          <button type="button" onClick={async () => { await navigator.clipboard.writeText(plain); flash("text"); }} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition">
+          <button
+            type="button"
+            onClick={async () => { await navigator.clipboard.writeText(plain); flash("text"); }}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition shadow-2xs cursor-pointer"
+          >
             {copied === "text" ? <><Check className="w-3.5 h-3.5" /><span>복사됨</span></> : <><Copy className="w-3.5 h-3.5" /><span>텍스트만 복사</span></>}
           </button>
         </div>

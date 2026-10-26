@@ -37,7 +37,7 @@ body {
    3D 엠보싱 버튼 표준 규격 (DESIGN.md 원칙 21 & PROGRAM_DESIGN_STANDARD.md §6.6)
    ========================================================================== */
 
-/* 사이드바 크롬 확장 다운로드 3D 에메랄드 엠보싱 버튼 */
+/* 사이드바 크롬 확장 다운로드 3D 네이버 스마트 그린 엠보싱 버튼 */
 .nav-download {
   display: flex;
   align-items: center;
@@ -45,12 +45,12 @@ body {
   width: 100%;
   padding: 10px 14px;
   border-radius: 12px;
-  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  background: linear-gradient(180deg, #03c75a 0%, #029a45 100%);
   color: #ffffff !important;
   font-size: 13px;
   font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 5px 0 #065f46, 0 10px 18px rgba(4, 120, 87, 0.28);
+  box-shadow: 0 5px 0 #027a37, 0 10px 18px rgba(3, 199, 90, 0.28);
   border: 1px solid #10b981;
   cursor: pointer;
   transform: translateY(0);
@@ -58,14 +58,46 @@ body {
 }
 
 .nav-download:hover {
-  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 6px 0 #065f46, 0 12px 22px rgba(4, 120, 87, 0.35);
+  background: linear-gradient(180deg, #10b981 0%, #03c75a 100%);
+  box-shadow: 0 6px 0 #027a37, 0 12px 22px rgba(3, 199, 90, 0.35);
   transform: translateY(-1.5px);
 }
 
 .nav-download:active {
-  background: linear-gradient(180deg, #047857 0%, #065f46 100%);
-  box-shadow: 0 1px 0 #065f46, 0 3px 6px rgba(4, 120, 87, 0.2);
+  background: linear-gradient(180deg, #029a45 0%, #027a37 100%);
+  box-shadow: 0 1px 0 #027a37, 0 3px 6px rgba(3, 199, 90, 0.2);
+  transform: translateY(4px);
+}
+
+/* 네이버 공식 스마트 그린 3D 엠보싱 버튼 (.btn-3d-naver) */
+.btn-3d-naver {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #03c75a 0%, #029a45 100%);
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 5px 0 #027a37, 0 10px 18px rgba(3, 199, 90, 0.28);
+  border: 1px solid #10b981;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.12s cubic-bezier(0.2, 0.8, 0.4, 1), background 0.12s ease;
+}
+
+.btn-3d-naver:hover {
+  background: linear-gradient(180deg, #10b981 0%, #03c75a 100%);
+  box-shadow: 0 6px 0 #027a37, 0 12px 22px rgba(3, 199, 90, 0.35);
+  transform: translateY(-1.5px);
+}
+
+.btn-3d-naver:active {
+  background: linear-gradient(180deg, #029a45 0%, #027a37 100%);
+  box-shadow: 0 1px 0 #027a37, 0 3px 6px rgba(3, 199, 90, 0.2);
   transform: translateY(4px);
 }
 

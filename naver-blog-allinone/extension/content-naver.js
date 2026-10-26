@@ -127,19 +127,29 @@
     const titlePreview = draft?.title || "작성된 원고가 없습니다";
     const hasDraft = Boolean(draft && draft.title);
     const hasCategory = Boolean(draft && draft.naverCategory && draft.naverCategory.id);
+    const postingMode = draft?.postingMode || "draft";
+    const modeBadge =
+      postingMode === "immediate"
+        ? '<span style="font-size: 10px; font-weight: 800; background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 6px; border: 1px solid #fde68a;">⚡ 즉시 포스팅</span>'
+        : postingMode === "scheduled"
+        ? `<span style="font-size: 10px; font-weight: 800; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 6px; border: 1px solid #c7d2fe;">⏰ 예약 (${draft.scheduledAt || "일시지정"})</span>`
+        : '<span style="font-size: 10px; font-weight: 800; background: #edfbf3; color: #047857; padding: 2px 6px; border-radius: 6px; border: 1px solid #a7f3d0;">📝 발행 전까지</span>';
 
     widget.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
         <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #03c75a;"></span>
           <span style="font-size: 12px; font-weight: 800; color: #0f172a;">올인원 마스터 PRO</span>
-          <span style="font-size: 10px; font-weight: 700; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 6px;">v1.04</span>
+          <span style="font-size: 10px; font-weight: 700; background: #edfbf3; color: #047857; padding: 2px 6px; border-radius: 6px; border: 1px solid #a7f3d0;">v1.55</span>
         </div>
         <button id="aio-close-widget" style="background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 16px; line-height: 1;">&times;</button>
       </div>
 
       <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 10px; margin-bottom: 12px;">
-        <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px;">대기 중인 최신 원고</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <span style="font-size: 10px; font-weight: 700; color: #64748b;">대기 중인 최신 원고</span>
+          ${modeBadge}
+        </div>
         <div id="aio-draft-title" style="font-size: 12px; font-weight: 700; color: #1e293b; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
           ${titlePreview}
         </div>
@@ -148,14 +158,14 @@
       <button id="aio-inject-btn" ${!hasDraft ? "disabled" : ""} style="
         width: 100%;
         padding: 10px 14px;
-        background: ${hasDraft ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" : "#cbd5e1"};
+        background: ${hasDraft ? "linear-gradient(135deg, #03c75a 0%, #029a45 100%)" : "#cbd5e1"};
         color: #ffffff;
         border: none;
         border-radius: 10px;
         font-size: 13px;
         font-weight: 700;
         cursor: ${hasDraft ? "pointer" : "not-allowed"};
-        box-shadow: ${hasDraft ? "0 4px 6px -1px rgba(16, 185, 129, 0.2)" : "none"};
+        box-shadow: ${hasDraft ? "0 4px 6px -1px rgba(3, 199, 90, 0.2)" : "none"};
         display: flex;
         align-items: center;
         justify-content: center;
@@ -223,10 +233,16 @@
 
         if (titleOk || bodyOk) {
           statusEl.style.display = "block";
-          statusEl.style.color = "#059669";
-          statusEl.textContent = "🎉 원고가 성공적으로 입력되었습니다!";
+          statusEl.style.color = "#03c75a";
+          if (postingMode === "immediate") {
+            statusEl.textContent = "🎉 원고 자동 입력 완료! 상단 [발행] 버튼을 누르면 즉시 발행됩니다.";
+          } else if (postingMode === "scheduled") {
+            statusEl.textContent = `🎉 원고 자동 입력 완료! [발행] 창에서 예약 일시(${draft.scheduledAt || "지정일"}) 확인 후 발행하세요.`;
+          } else {
+            statusEl.textContent = "🎉 원고가 성공적으로 입력되었습니다! 내용을 최종 확인 후 [발행] 버튼을 눌러주세요.";
+          }
           injectBtn.textContent = "✓ 주입 완료";
-          injectBtn.style.background = "#059669";
+          injectBtn.style.background = "#03c75a";
 
           setTimeout(() => {
             widget.style.opacity = "0.4";

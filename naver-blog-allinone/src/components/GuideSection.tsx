@@ -58,23 +58,23 @@ export function GuideSection({ onGoTab, onOpenSettings }: GuideSectionProps) {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      {/* 1. 상단 환영 히어로 배너 (네이버 그린 & 에메랄드 테마) */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-700 to-indigo-800 p-6 sm:p-8 text-white shadow-lg">
+      {/* 1. 상단 환영 히어로 배너 (네이버 스마트 그린 저널 스타일: 톤다운 슬레이트 & 네이버 그린) */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 p-6 sm:p-8 text-white shadow-lg border border-slate-700/50">
         {/* 장식용 배경 빛 효과 */}
-        <div className="absolute -top-12 -right-12 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="absolute -bottom-12 -left-12 h-64 w-64 rounded-full bg-indigo-400/20 blur-3xl" />
+        <div className="absolute -top-12 -right-12 h-64 w-64 rounded-full bg-[#03c75a]/20 blur-3xl" />
+        <div className="absolute -bottom-12 -left-12 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-md">
-              <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
-              <span>{APP_NAME} 공식 가이드북 · {APP_VERSION}</span>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-md border border-white/10">
+              <Sparkles className="h-3.5 w-3.5 text-[#03c75a]" />
+              <span className="text-emerald-100">{APP_NAME} 공식 가이드북 · {APP_VERSION}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
               아이디어 발굴부터 네이버 스마트에디터 ONE 1초 주입까지
             </h2>
-            <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed font-normal">
-              네이버 C-Rank 및 D.I.A.+ 알고리즘에 최적화된 4단계 파이프라인으로 일일 방문자 수가 급증하는 고품질 포스팅을 손쉽게 완성하세요.
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+              네이버 C-Rank 및 D.I.A.+ 알고리즘에 최적화된 4단계 파이프라인과 3대 포스팅 모드(발행 전까지 / 즉시 / 예약)로 일일 방문자 수가 급증하는 고품질 포스팅을 손쉽게 완성하세요.
             </p>
           </div>
 
@@ -82,7 +82,7 @@ export function GuideSection({ onGoTab, onOpenSettings }: GuideSectionProps) {
             <a
               href="/downloads/naver-blog-allinone-latest.zip"
               download="naver-blog-allinone-latest.zip"
-              className="btn-3d-amber text-xs font-black shadow-lg"
+              className="btn-3d-naver text-xs font-black shadow-lg"
               title="네이버 스마트에디터 ONE 원클릭 자동 주입 크롬 확장 프로그램 최신 ZIP 다운로드"
             >
               <Download className="h-4 w-4 text-white" />
@@ -92,7 +92,7 @@ export function GuideSection({ onGoTab, onOpenSettings }: GuideSectionProps) {
               <button
                 type="button"
                 onClick={onOpenSettings}
-                className="btn-3d-emerald text-xs font-bold"
+                className="btn-create-key text-xs font-bold"
               >
                 <Zap className="h-4 w-4 text-amber-300" />
                 <span>API 키 등록·플랫폼연동</span>

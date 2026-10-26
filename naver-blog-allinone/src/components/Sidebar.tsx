@@ -93,18 +93,18 @@ export function Sidebar({
               className="flex items-center gap-2.5 hover:opacity-90 transition group"
               title="메인 홈으로 이동"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 text-white shadow-md shadow-indigo-100 group-hover:scale-105 transition-transform">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#03c75a] to-[#029a45] text-white shadow-md shadow-emerald-100 group-hover:scale-105 transition-transform">
                 <Sparkles className="h-4.5 w-4.5" />
               </div>
               <div>
-                <h1 className="text-sm font-black text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
+                <h1 className="text-sm font-black text-slate-900 tracking-tight group-hover:text-[#03c75a] transition-colors">
                   {APP_NAME}
                 </h1>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-[11px] font-bold text-slate-500">
                     {APP_VERSION}
                   </span>
-                  <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-emerald-500 text-white rounded tracking-wide">
+                  <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-[#03c75a] text-white rounded tracking-wide shadow-xs">
                     FREE
                   </span>
                 </div>
@@ -197,14 +197,14 @@ export function Sidebar({
                     <span
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${
                         isActive
-                          ? "bg-slate-900 text-white shadow-sm"
+                          ? "bg-[#03c75a] text-white shadow-sm shadow-emerald-200"
                           : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
                       }`}
                     >
                       {item.step}
                     </span>
                     {!isLast && (
-                      <span className="mt-1 h-6 w-px bg-slate-200 group-hover:bg-slate-300" />
+                      <span className={`mt-1 h-6 w-px ${isActive ? "bg-emerald-200" : "bg-slate-200 group-hover:bg-slate-300"}`} />
                     )}
                   </div>
 
@@ -212,7 +212,7 @@ export function Sidebar({
                   <div
                     className={`min-w-0 flex-1 rounded-xl px-2.5 py-1.5 transition-all ${
                       isActive
-                        ? "bg-slate-100/90 border border-slate-200/80 shadow-xs"
+                        ? "bg-[#edfbf3] border border-[#a7f3d0] shadow-xs"
                         : "hover:bg-slate-50"
                     }`}
                   >
@@ -220,13 +220,13 @@ export function Sidebar({
                       <Icon className={`h-3.5 w-3.5 ${item.iconColor}`} />
                       <span
                         className={`text-xs font-black truncate ${
-                          isActive ? "text-slate-900" : "text-slate-700"
+                          isActive ? "text-[#065f46]" : "text-slate-700"
                         }`}
                       >
                         {item.label}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 font-normal">
+                    <p className={`text-[11px] line-clamp-1 mt-0.5 font-normal ${isActive ? "text-[#047857]" : "text-slate-500"}`}>
                       {item.description}
                     </p>
                   </div>

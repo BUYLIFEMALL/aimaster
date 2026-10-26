@@ -51,6 +51,10 @@ export interface PostSettings {
   categoryId?: string;
   /** 네이버에 발행할 때 들어갈 실제 카테고리(확장이 읽은 번호·이름) */
   naverCategory?: NaverCategory;
+  /** 포스팅 모드: draft(발행 전까지, 기본값) | immediate(즉시 발행) | scheduled(예약 발행) */
+  postingMode?: "draft" | "immediate" | "scheduled";
+  /** 예약 발행 일시 (YYYY-MM-DDTHH:mm) */
+  scheduledAt?: string;
 }
 
 export interface BlogPost {
