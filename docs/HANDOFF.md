@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.25 맥 렌더 막힘 해결(메모리 쪽 2D 캔버스)
+- 배경: 맥미니 무료 시험 — 크롬 「Accelerated 2D canvas」를 끄자 5초 영상 4.5초 완성, `silent.mp4`도 형식 확인 1초·렌더 4.4초. 평소 크롬에서는 형식 확인부터 90초 넘게 멈춤. 원인 = GPU 2D 캔버스.
+- v1.25(주인님 승인 빌드 1회, DB v1.25): `lib/edit/cpuCanvas.ts`(렌더·형식 확인 동안만 `willReadFrequently: true`), 맥 기본 `cpu`·`?render=gpucanvas|cpucanvas`, 형식 확인 6초 제한이 실제로 끝남. 커밋 `eaeae933d`. 플랜 `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` §17.
+- 검수: 시험 72·tsc·eslint·build, 운영 윈도우 크롬 `?render=trace,cpucanvas` 4.3초·150/150·재생 정상, `silent.mp4` 형식 확인 통과. 결과 저장 안 함.
+- 참고: 프로그램 비교표의 v1.25 표기는 배포 도우미가 고친 줄이 다른 세션 커밋 `0d78ce575`에 함께 들어감(내용은 맞음).
+- 다음 첫 단계: 맥미니 기본 주소 재측정(§17 절차). 비용: 빌드 1회(승인 범위), AI 0회. 링크:
+https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-10-26 [역할: blog] Codex · 세션 `codex-win-20261025-blog` — 이웃 소통0-A 상세명세·검수표 작성
 - 주인님 「진행하도록 해」로 [상세명세](analysis-naver-blog-neighbor-20261024/SPEC_20261026_BLOG_NEIGHBOR_CARE_0A.md)·[검수표](analysis-naver-blog-neighbor-20261024/TEST_MATRIX_20261026_BLOG_NEIGHBOR_CARE_0A.md) 작성. D1~D9/독립 기본 프로그램 유지, 회원 전체 기기 합산20/100/30·이웃당 후속답글 포함 하루1개·KST/선점세대·성공불명·30일/예약복구·예산·디자인 담당 전달 기준 구체화.
 - 공식 검색 API 범위와 자동수집/소통 허용근거 미확인을 분리. 문서 명세 완료이며 소스/모의검수/실동작/운영 등록/배포는 미완료. 다음0-B의 허용수단/계정/횟수·비용 구체화와 디자인4화면3시안. [인계§15](HANDOFF_20261025_BLOG_TO_CODEX.md#15-2026-10-26-이웃-소통-0-a-상세명세-진행). 별도5번 연계는 다른 세션 담당으로 제외 유지.
