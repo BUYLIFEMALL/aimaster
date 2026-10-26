@@ -10,7 +10,10 @@ export function DashboardView({ s }: { s: Studio }) {
           <section className="dashboard-intro card">
             <div><span className="eyebrow">SEO BLOG WORKSPACE</span><h2 className="card-title">콘텐츠 제작 현황</h2></div>
             <p>제목 추천부터 블로그(원문) 생성, 편집, Chrome 확장 전송까지 한 곳에서 관리합니다.</p>
-            <div className="dashboard-actions"><button type="button" className="secondary" onClick={() => openMenu("title")}>🔎 제목 추천 시작</button><button type="button" className="primary compact" onClick={() => openMenu("new-draft")}>📝 새 글 만들기</button></div>
+            <div className="dashboard-actions">
+              <button type="button" className="btn-3d-blue px-5 py-3 rounded-xl text-sm font-bold shadow-md cursor-pointer" onClick={() => openMenu("title")}>🔎 제목 추천 시작</button>
+              <button type="button" className="btn-3d-green px-6 py-3 rounded-xl text-sm font-bold shadow-md cursor-pointer" onClick={() => openMenu("new-draft")}>📝 새 글 만들기</button>
+            </div>
           </section>
           <div className="dashboard-stats" aria-label="콘텐츠 제작 통계">
             <div><strong>{history.length}</strong><span>생성한 블로그(원문)</span></div>

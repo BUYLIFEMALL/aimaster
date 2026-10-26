@@ -4,15 +4,12 @@
 - 맡은 폴더: 디자인 리뉴얼 대상 프로그램(그때그때 배정)
 - 카테고리: 전체(디자인)
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
-- 마지막 갱신: 2026-10-25 00:23 (agy-win-20261025-sidebar)
-- 이번 갱신: 2026-10-25 00:39 (agy-win-20261025-bananadesign)
-- 최신 갱신: 2026-10-25 03:35 (agy-win-20261025-apikeybtn)
-- 이번 갱신2: 2026-10-25 04:08 (agy-win-20261025-blogkey)
+- 마지막 갱신: 2026-10-26 10:35 (agy-win-20261025-ext3d)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| 전체 프로그램 | API 키 생성 및 플랫폼 가입 2단 퀵 버튼 탑재 & 럭셔리 매뉴얼 리뉴얼 | 2026-10-25 | 1단계 banana-canvas v1.39 완료, 2단계 blog-keyword v1.10 배포 완료 ➔ 3단계 four-cut-comics 등 순차 진행 |
+| 전체 프로그램 | 9대 기능 유사군 순차 리뉴얼 (블로그/유튜브/SNS/음악/이커머스/이미지/수집/생산성/CRM) | 2026-10-25 | Group 1 대표 블로그(`tistory-auto-blog` v1.47, `ai-auto-blog` v1.82, `naver-blog-seo-studio` v2.21) 완료 ➔ 다음 프로그램 준비 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -22,13 +19,10 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-10-25 | `blog-keyword` v1.10 | Gemini·네이버검색·검색광고 3대 API키 생성/가입 2단 퀵 버튼 탑재 & 📖 럭셔리 매뉴얼 스마트 매트릭스 리뉴얼 | 배포 완료 (`https://blog-keyword.buylife.xyz`) |
-| 2026-10-25 | `banana-canvas` v1.39 | API키등록·플랫폼 2단 퀵 액션 버튼 세트(발급/생성 + 가입/시작) 탑재 및 📖 매뉴얼 럭셔리 3D 전면 리뉴얼 | 배포 완료 (`https://banana-canvas.buylife.xyz`) |
-| 2026-10-25 | `banana-canvas` v1.38 | 프리미엄 3D 나노바나나 스튜디오 전면 리뉴얼 (맑은 크림 글래스 토큰, 3D 엠블럼·골드 뱃지·작업 칩 띠, AI 매직 지우개 분리, 비주얼 매뉴얼 동기화) | 배포 완료 (`https://banana-canvas.buylife.xyz`) |
-| 2026-10-25 | 사이드바 확장 다운로드 표준 | `docs/SIDEBAR_LAYOUT_STANDARD.md` 및 `DESIGN.md` 원칙 20번에 확장 다운로드 메뉴 상시 노출 의무 공식 반영 | 지침 반영 완료 (`4550ae613`) |
-| 2026-10-24 | `ai-video-studio` v1.20 | 2안 헐리우드 네온 사이버 스튜디오 스타일 전면 리뉴얼 (DESIGN.md 14번 템플릿 신설) | 배포 완료 |
-| 2026-10-24 | `ai-work-workspace` v1.10 | 1안 스마트 프로 인디고 워크스페이스 스타일 리뉴얼 (DESIGN.md 13번 템플릿 신설) | 배포 완료 |
-| 2026-10-24 | `video-to-gif` v1.25 | 「AI 영상렌더 스튜디오」 명칭 개편·표준 매뉴얼 리뉴얼 | 배포 |
+| 2026-10-26 | `naver-blog-seo-studio` v2.21 | 4대 화면 3시안(12개 뷰) 주인님 1번 확정 승인 반영, 18번 네이버 스마트 그린 저널 메인 템플릿 확정 적용, 3종 포스팅 모드 칩셋 & 3D 엠보싱 버튼 탑재, D:\Antigravity\Design 자산 영구 적재 | 배포 완료 (`https://naver-blog-seo-studio.buylife.xyz`) |
+| 2026-10-25 | `ai-auto-blog` v1.82 | 4대 화면 3시안 검수 및 네이버 스마트 그린 저널 스타일 확정 적용, 3종 포스팅 모드 칩셋 & 3D 버튼 탑재 | 배포 완료 (`https://ai-auto-blog.buylife.xyz`) |
+| 2026-10-25 | `tistory-auto-blog` v1.47 | 4대 화면 3시안 검수 및 클린 에디토리얼 오렌지 스타일 확정 적용, 3D 엠보싱 버튼 탑재 | 배포 완료 (`https://tistory-auto-blog.buylife.xyz`) |
+| 2026-10-25 | 디자인 템플릿 자산 보존 헌장 | `D:\Antigravity\Design` 20대 전체 템플릿 자산 영구 보존 및 `DESIGN.md`, `docs/DESIGN_TEMPLATE_CATALOG.md` 등재 | 지침 반영 완료 |
 
 ## 다음 첫 단계
 1. 이 파일 확인·보완

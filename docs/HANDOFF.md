@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — naver-blog-seo-studio 4대 화면 3시안 검수·네이버 스마트 그린 저널 템플릿 확정 적용·포스팅 3종 모드 & 3D 버튼 탑재 v2.21 배포 완료
+- **주인님 지시**: 「1번 좋네 진행해」 — 4대 화면 3시안(12개 뷰) 사전 보고 아티팩트(`NAVER_BLOG_SEO_STUDIO_12VIEWS_PROPOSAL.md`) 중 1번 네이버 스마트 그린 저널 스타일 확정 승인.
+- **구현 내용**:
+  1. **네이버 블로그 메인 템플릿 표준 반영**: 18번 네이버 스마트 그린 저널 스타일 확정 적용(딥 에메랄드 그린, 세이지 그린 카드, 고대비 텍스트).
+  2. **3D 입체 엠보싱 버튼 규격화**: 메인 대시보드 빠른 액션(`.btn-3d-blue`, `.btn-3d-green`), 원고 전송 버튼(`.btn-3d-green`), 최적화 저장 및 생성 버튼(`.btn-3d-green`) 탑재.
+  3. **블로그 최우선 원칙 3종 포스팅 모드 칩셋 장착**: 크롬 확장 전송 패널에 [📝 발행 전까지 / ⚡ 즉시 포스팅 / ⏰ 예약 포스팅] 라디오 카드 칩셋 탑재하여 회원이 직접 선택 가능하도록 개선.
+  4. **버전 정합성 및 확장 빌드**: `lib/version.ts` v2.21 갱신, `extension/manifest.json` v2.21.0 동기화, `naver-blog-seo-studio-extension-v2.21.zip` 및 `naver-blog-seo-studio-extension-latest.zip` 생성 완료.
+- **검수 및 자산 영구 적재**:
+  1. 로컬 Next.js 16.3.5 Turbopack 빌드(`npm run build`) 및 TypeScript 컴파일 100% 통과.
+  2. Vercel 프로덕션 배포 완료 (Ready, `https://naver-blog-seo-studio.buylife.xyz`, `https://naver-blog-seo-studio.vercel.app`).
+  3. 네이버 웨일(Whale) 실제 브라우저 실세션 CDP 검수 완료 (홈 화면 및 새 글 만들기 뷰 캡처).
+  4. 12개 시안 뷰 전체 및 실배포 캡처 2종을 `D:\Antigravity\Design\18_네이버_스마트_그린_저널_스타일\naver_blog_seo_studio`에 영구 보존 동기화 완료.
+- **비용 리포트**: Vercel 프로덕션 빌드 1회(사전 승인), 유료 AI 호출 0회, API 비용 0원.
+
 ## 2026-10-26 [역할: blog] Codex(윈도우·엣지) · 세션 `codex-win-20261025-blog` — 에이전트 v2.22 보안 배포 완료·입력시험 대기
 - Next/eslint16.4.2·sharp0.35.5, 기존 대기89d135c4b 함께. 코드f6cbcdc0a·배포dpl_G38LdsoYvZberabV1vfjm32cAh4V READY·공식alias·DB/라이브ZIP v2.22 OK. 무료 모의105개+발행/브리지2검사·tsc·로컬빌드 통과, 운영 버전API200·비로그인 글401/설정307/로그인200·최근15분 runtime errors0.
 - 실제 입력은 여전히 미검수: 마지막 Edge 설정은 Gmail/설치v2.21, 새로고침 후 본문 관찰 실패·Return 입력 window_not_focused(restore 요청에도 실패)라 재시도 중지. 주인님 직접 Edge 포커스·시험회원 로그인/연결·네이버 로그인, 기존8연결해제 여부 답변 필요. SEO 예약 승인도 대기.
