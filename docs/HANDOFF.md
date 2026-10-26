@@ -1,25 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-10-26 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — blog-content-maker 네이버 시그니처 그린(#03c75a) 톤 보정 및 포스팅 3종 모드·3D 엠보싱 버튼 탑재 v1.13 배포 완료
-- **주인님 지시**: 「C:\Users\ADMINI~1\AppData\Local\Temp\orca-paste-1792985257519-0e883917-cc97-408f-b4d7-ddc271aaea89.png 녹색 톤이 너무 진해 네이버 톤으로 맞춰」「진행해」 반영.
+## 2026-10-26 ✅ [역할: design] Antigravity(윈도우·웨일) · 세션 `agy-win-20261025-ext3d` — blog-content-maker 네이버 그린(#03c75a) & 파란색/매뉴얼 배너 톤다운 및 포스팅 3종 모드·3D 버튼 탑재 v1.13 배포 완료
+- **주인님 지시**: 「C:\Users\ADMINI~1\AppData\Local\Temp\orca-paste-1792985257519-0e883917-cc97-408f-b4d7-ddc271aaea89.png 녹색 톤이 너무 진해 네이버 톤으로 맞춰」「전체적으로 파란색도 너무 진해 조금 채도를 낮추어 부드러운 이미지 느낌을 살려줘 C:\Users\ADMINI~1\AppData\Local\Temp\orca-paste-1792985323983-23237eb1-f48e-4a90-98fa-3f6b9e2a0fb5.png 여기도 톤다운」 반영.
 - **구현 내용**:
   1. **네이버 시그니처 비비드 그린(`#03c75a`) 전면 보정**: 기존 칙칙한 암녹색(`#059669`, `#047857`)을 걷어내고 공식 네이버 그린 토큰(`--brand: #03c75a`, `--brand-dark: #029f45`, `--soft: #edfbf3`)으로 전면 교체.
-  2. **사이드바 및 주요 액션 3D 입체 엠보싱 버튼 장착**:
+  2. **매뉴얼 배너 및 파란색 요소 부드러운 톤다운 (채도 완화)**:
+     - 매뉴얼 히어로 배너: 쨍한 원색 블루 `#1e3a8a ~ #2563eb` ➔ 채도를 대폭 낮춘 차분하고 부드러운 **소프트 뮤티드 슬레이트 네이비(`linear-gradient(135deg, #243447 0%, #34495e 55%, #46627f 100%)`)**로 톤다운.
+     - 5단계 파이프라인 번호 뱃지: 1~4번을 쨍한 파란색에서 눈이 편안한 `#4a6572`로 톤다운, 5번은 네이버 그린(`#03c75a`) 통일.
+     - 배너 내부 버튼을 네이버 그린 3D 엠보싱 버튼(`.btn-3d-naver`)으로 교체.
+     - `.btn-create-key` (API 키 발급 버튼)도 채도를 낮춘 소프트 슬레이트 블루로 일괄 보정.
+  3. **사이드바 및 주요 액션 3D 입체 엠보싱 버튼 장착**:
      - 사이드바 `.nav-download` (확장 프로그램 받기): 2단 수직 그라데이션(`linear-gradient(180deg, #04e065 0%, #03c75a 100%)`)과 하단 입체 그림자(`0 4px 0 #029f45`) 장착.
      - 5단계 전송 `.btn-3d-naver`: 네이버 스마트에디터 ONE 자동 전송 3D 엠보싱 버튼 장착.
-  3. **블로그 최우선 핵심 지침: 3종 포스팅 모드 선택 칩셋 탑재**:
+  4. **블로그 최우선 핵심 지침: 3종 포스팅 모드 선택 칩셋 탑재**:
      - 5단계(완성 원고 가져가기) 화면에 [📝 발행 전까지 / ⚡ 즉시 포스팅 / ⏰ 예약 포스팅] 라디오 칩셋 탑재 및 모드 선택에 따른 자동 전송 연동.
-  4. **버전 정합성**: `src/lib/version.ts` v1.13, `package.json` 1.13.0, `extension/manifest.json` 1.13.0 동기화 및 `npm run prebuild`로 최신 ZIP 아카이브 생성.
+  5. **버전 정합성**: `src/lib/version.ts` v1.13, `package.json` 1.13.0, `extension/manifest.json` 1.13.0 동기화 및 `npm run prebuild`로 최신 ZIP 아카이브 생성.
 - **검수 및 자산 영구 적재**:
   1. 로컬 Next.js 16.4.1 Turbopack 빌드(`npm run build`) 및 TypeScript 체크 100% 통과.
   2. Vercel 프로덕션 배포 완료 (Ready, `https://blog-content-maker.buylife.xyz`, `https://blog-content-maker.vercel.app`).
-  3. 네이버 웨일(Whale) 실제 브라우저 실세션 CDP 검수 완료 (홈, 5단계 `/export`, 쇼케이스 3개 뷰 고해상도 캡처).
-  4. 자산 영구 적재: `D:\Antigravity\Design\18_네이버_스마트_그린_저널_스타일\blog_content_maker`에 12뷰 캡처 + 쇼케이스 HTML + 실배포 캡처 영구 저장 완료.
+  3. 네이버 웨일(Whale) 실제 브라우저 실세션 CDP 검수 완료 (홈, 5단계 `/export`, 매뉴얼 `/guide` 톤다운 화면 캡처).
+  4. 자산 영구 적재: `D:\Antigravity\Design\18_네이버_스마트_그린_저널_스타일\blog_content_maker`에 실배포 캡처 영구 저장 완료.
 - **확인 링크**:
   - 운영 도메인: https://blog-content-maker.buylife.xyz
-  - Vercel 보조: https://blog-content-maker-kyc24a35w-buylife.vercel.app
+  - Vercel 보조: https://blog-content-maker-bjjdep4jj-buylife.vercel.app
   - 쇼케이스 HTML: `file:///D:/Antigravity/Design/18_네이버_스마트_그린_저널_스타일/blog_content_maker/showcase_12views.html`
-- **비용**: Vercel 빌드 1회 (승인 범위), AI 0회.
+- **비용**: Vercel 빌드 2회 (승인 범위), AI 0회.
 
 
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.39 E4 「🖼 사진 일괄 손질」

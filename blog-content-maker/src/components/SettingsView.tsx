@@ -50,42 +50,42 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
     <div className="stack" style={{ gap: "28px" }}>
       {/* 에디토리얼 상단 히어로 배너 */}
       <div style={{
-        background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #0284c7 100%)",
+        background: "linear-gradient(135deg, #243447 0%, #34495e 55%, #46627f 100%)",
         borderRadius: "16px",
         padding: "28px 32px",
         color: "#ffffff",
-        boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.25)"
+        boxShadow: "0 10px 25px -5px rgba(52, 73, 94, 0.22)"
       }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.15)", padding: "4px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: "700", marginBottom: "12px" }}>
           <span>FLOW WIZARD EDITORIAL GUIDE</span>
           <span>•</span>
-          <span style={{ color: "#93c5fd" }}>v1.12 단계별 블로그 콘텐츠 에디션</span>
+          <span style={{ color: "#cbd5e1" }}>v1.13 단계별 블로그 콘텐츠 에디션</span>
         </div>
         <h2 style={{ fontSize: "24px", fontWeight: "800", margin: "0 0 8px", color: "#ffffff", letterSpacing: "-0.5px" }}>
           AI 블로그 콘텐츠 제작 종합 비주얼 매뉴얼
         </h2>
-        <p style={{ fontSize: "13px", color: "#bfdbfe", margin: "0 0 16px", maxWidth: "680px", lineHeight: "1.6" }}>
+        <p style={{ fontSize: "13px", color: "#cbd5e1", margin: "0 0 16px", maxWidth: "680px", lineHeight: "1.6" }}>
           글감 발굴부터 5가지 맞춤 글 작성, 정밀 문장 점검, AI 본문 이미지 제작, 크롬 확장을 통한 네이버 스마트에디터 원클릭 전송까지 블로그 성공 파이프라인을 완성하세요.
         </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "16px" }}><a href="/downloads/blog-content-maker-extension-latest.zip" download="blog-content-maker-extension-latest.zip" className="btn-3d-amber" title="크롬 확장 프로그램 다운로드 (v1.12)"><span>⬇ 크롬 확장 프로그램 받기 (v1.12)</span></a></div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "16px" }}><a href="/downloads/blog-content-maker-extension-latest.zip" download="blog-content-maker-extension-latest.zip" className="btn-3d-naver" title="크롬 확장 프로그램 다운로드 (v1.13)"><span>⬇ 크롬 확장 프로그램 받기 (v1.13)</span></a></div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-          <span style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.2)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#e0f2fe" }}>#5단계플로우위저드</span>
-          <span style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.2)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#e0f2fe" }}>#네이버스마트에디터연동</span>
-          <span style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.2)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#e0f2fe" }}>#검색근거웹검색</span>
-          <span style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.2)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#e0f2fe" }}>#30일안전보관</span>
+          <span style={{ background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.15)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#f1f5f9" }}>#5단계플로우위저드</span>
+          <span style={{ background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.15)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#f1f5f9" }}>#네이버스마트에디터연동</span>
+          <span style={{ background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.15)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#f1f5f9" }}>#검색근거웹검색</span>
+          <span style={{ background: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.15)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", color: "#f1f5f9" }}>#30일안전보관</span>
         </div>
       </div>
 
       {/* 5단계 플로우 위저드 파이프라인 */}
       <div className="card stack">
         <h3 style={{ fontSize: "16px", fontWeight: "700", display: "flex", alignItems: "center", gap: "8px", margin: "0 0 16px" }}>
-          <span style={{ color: "#2563eb" }}>⚡</span>
+          <span style={{ color: "#475569" }}>⚡</span>
           5단계 핵심 블로그 제작 파이프라인 (Workflow)
         </h3>
         <div className="grid" style={{ gap: "16px" }}>
           <div style={{ padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#f8fafc" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#2563eb", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>1</span>
+              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#4a6572", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>1</span>
               <strong style={{ fontSize: "13px" }}>글감·제목 찾기 (Ideas)</strong>
             </div>
             <p style={{ fontSize: "12px", color: "#64748b", margin: 0, paddingLeft: "32px", lineHeight: "1.5" }}>
@@ -95,7 +95,7 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
 
           <div style={{ padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#f8fafc" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#2563eb", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>2</span>
+              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#4a6572", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>2</span>
               <strong style={{ fontSize: "13px" }}>원고 만들기 (Write)</strong>
             </div>
             <p style={{ fontSize: "12px", color: "#64748b", margin: 0, paddingLeft: "32px", lineHeight: "1.5" }}>
@@ -105,7 +105,7 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
 
           <div style={{ padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#f8fafc" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#2563eb", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>3</span>
+              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#4a6572", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>3</span>
               <strong style={{ fontSize: "13px" }}>글 점검·다듬기 (Review)</strong>
             </div>
             <p style={{ fontSize: "12px", color: "#64748b", margin: 0, paddingLeft: "32px", lineHeight: "1.5" }}>
@@ -115,7 +115,7 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
 
           <div style={{ padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#f8fafc" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#2563eb", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>4</span>
+              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#4a6572", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>4</span>
               <strong style={{ fontSize: "13px" }}>이미지·장면 준비 (Images)</strong>
             </div>
             <p style={{ fontSize: "12px", color: "#64748b", margin: 0, paddingLeft: "32px", lineHeight: "1.5" }}>
@@ -125,7 +125,7 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
 
           <div style={{ padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#f8fafc", gridColumn: "span 2" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#10b981", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>5</span>
+              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#03c75a", color: "#fff", display: "grid", placeItems: "center", fontSize: "12px", fontWeight: "700" }}>5</span>
               <strong style={{ fontSize: "13px" }}>네이버로 옮기기 (Export)</strong>
             </div>
             <p style={{ fontSize: "12px", color: "#64748b", margin: 0, paddingLeft: "32px", lineHeight: "1.5" }}>
@@ -163,7 +163,7 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
       {/* 자주 묻는 질문 FAQ 아코디언 */}
       <div className="card stack">
         <h3 style={{ fontSize: "16px", fontWeight: "700", display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ color: "#2563eb" }}>❓</span>
+          <span style={{ color: "#475569" }}>❓</span>
           자주 묻는 질문 (FAQ)
         </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -178,7 +178,7 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "14px 18px",
-                  background: openFaq === idx ? "#eff6ff" : "#ffffff",
+                  background: openFaq === idx ? "#edfbf3" : "#ffffff",
                   border: "none",
                   textAlign: "left",
                   fontSize: "13px",
