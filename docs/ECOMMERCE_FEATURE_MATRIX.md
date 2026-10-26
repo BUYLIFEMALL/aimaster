@@ -1,11 +1,11 @@
 # 이커머스 기능 상세 비교표 (기준 문서)
 
-> **상태: 초안(2026-10-24, 작성 claude-win-dotori [역할: analysis-planning]) — 담당 세션(ecommerce-image) 확인 전.** 담당 세션이 칸을 코드·화면과 대조해 확정하기 전까지는 참고 자료로만 쓴다.
+> **상태: ✅ 담당 확인(2026-10-26, [역할: ecommerce-image] `claude-win-sdp`)** — 2026-10-24 초안(`claude-win-dotori` [역할: analysis-planning])을 코드·배포 기록과 대조해 확정했다. 이후 이커머스 작업은 이 문서를 기준으로 쓰고 같은 작업에서 고친다.
 
 > **이커머스 프로그램(상세페이지·상품 분석·소싱)을 새로 만들거나 기능을 추가·확장·병합하기 전에 이 문서를 먼저 읽는다.**
 >
-> - 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`) — [카테고리 지침 지도](CATEGORY_GUIDE_MAP.md) 「이커머스」 줄의 `shop-detail-page`·`trending-product-finder`와 병합됨 `detail-page-12p`·`auto-detail-page`.
-> - 기준 시점: **2026-10-24**, 코드 버전(각 폴더 버전 파일) 상세페이지 v1.30 · 상품소싱 v1.24 · 12단 v1.11 · 자동생성기 v1.21.
+> - 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`) — [카테고리 지침 지도](CATEGORY_GUIDE_MAP.md) 「이커머스」 줄의 `shop-detail-page`·`trending-product-finder`·`seller-label-docs`·`shop-order-report`와 병합됨 `detail-page-12p`·`auto-detail-page`.
+> - 기준 시점: **2026-10-26 갱신**(처음 2026-10-24), 운영 버전 상세페이지 v1.34 · 상품소싱 v1.28 · 셀러 라벨 v1.03 · 주문 리포트 v1.03 · 12단 v1.12 · 자동생성기 v1.21(두 병합 원본은 2026-10-26 쓰이지 않던 파일 39개 정리, EC-W12).
 > - 근거: 네 폴더의 현재 코드(파일 검색), 각 `AGENTS.md`·`docs/IMPROVEMENTS.md`·`docs/IMPROVEMENT_BACKLOG.md`, [이커머스 통합 분석 보고서](analysis-ecommerce-consolidation-20261021/REPORT.md) §1·§6·§8, [프로그램 비교표](PROGRAM_CAPABILITY_MAP.md) 카드. **운영 DB는 이번에 조회하지 않았다**(권한 회원 수·공개 여부·배지는 보고서·커밋 기록 기준).
 > - 이 문서는 **사실(지금 코드에 있는 것)** 만 적는다. 추천·계획은 §6에 따로 둔다.
 > - 관계 문서: [이커머스 자동화 완성 기준](ECOMMERCE_COMPLETION_POLICY.md) · [이커머스 통합 작업표](ECOMMERCE_CONSOLIDATION_TASKS.md) · [공용 기능 지도](SHARED_FEATURE_MAP.md) · [공용 모듈 등록부](SHARED_MODULES.md) · [이미지 생성 프롬프트 규칙](IMAGE_PROMPT_RULES.md).
@@ -21,10 +21,12 @@
 
 | 약칭 | 프로그램 (slug · 버전 · 배지) | 역할 | 핵심 흐름 | 저장 / AI / 키 | 장점 | 단점·한계 | 판정 |
 |---|---|---|---|---|---|---|---|
-| 상세 | AI 상세페이지 자동화 (`shop-detail-page` v1.30 · BEST) | 상세페이지 제작 **기준**(병합 기준 앱) | 사진·사양서·상품명 → Gemini 분석 → 규격(15·12단·9단) 섹션 이미지 → 섹션 수정(재생성·문구·순서·GIF) → 긴 PNG·섹션 ZIP·HTML → 쓰레드·인스타 넘기기 | 비공개 버킷 + 서명 주소·30일 정리 / Gemini 3.5 Flash 분석 + 나노바나나 2.1·3 Pro(공용 사본) / 회원 본인 Gemini 키 | 유일한 실제 회원 데이터, 서버 저장, 섹션 단위 수정·버전, 규격 3종, 이미지형·HTML형 둘 다, SNS·GIF·소싱 연계 | Next 14.2.35, 이미지 속 문구 고치기는 단색 배경용(복잡한 배경은 티 남), 마켓 직접 등록 없음, 다국어·로고 합성(n8n Phase 3·4) 보류 | 독립(기준) |
-| 소싱 | 상품소싱 자동화 (`trending-product-finder` v1.24 · BEST) | 상품 발굴·소싱 **기준** | 관심 키워드 등록 → 쇼핑인사이트·검색광고·YouTube·11번가 신호로 기회 점수 → AI 추천 사유 → 알리·도매매·11번가 원가로 마진 계산 → 정기 리포트·예약 소싱 알림·가격 알림 → 「📄 상세페이지」 넘기기 | 서버 다수 표·30일 정리 / gpt-4o-mini 또는 gemini-3.5-flash / 회원 본인 키 다수 | 실측 데이터 근거, 알림 채널 4종, 회원 cron-job.org 방식, 일괄 마진 CSV, 수수료 참고표 | 필요한 키가 많음(온보딩 무거움), 쿠팡파트너스 경쟁도는 승인 대기, 마켓 등록(커머스 API·Wing) 없음 | 독립 |
-| 12단 | AI 12단 상세페이지 자동화 (`detail-page-12p` v1.11) | 병합 원본 | **현재 이동 안내만** — 생성 API 3개 모두 410(`src/app/api/*/route.ts`) | (옛) 브라우저 `localStorage` / (옛) Gemini | (옛) 상품명만으로 사양 채우기·장면 카피·860px 통이미지 → 상세로 이관(장면 카피 제외) | 원본 엔진 파일(`src/lib/detailEngine.ts`)은 남았지만 API가 막혀 쓰이지 않음 | 병합됨 → 상세(2026-10-21) |
-| 생성기 | 상세페이지 자동생성기 v1 (`auto-detail-page` v1.21) | 병합 원본 | **현재 이동 안내만** — 생성·이미지·내보내기·페이지 API 4개 모두 410(`app/api/*/route.ts`) | (옛) DB `detail_pages`(0건) / (옛) Claude + 이미지 3사 | (옛) HTML 상세페이지 템플릿 3종 → 상세로 이관(Gemini로 통일) | OpenAI 이미지 공급자 선택은 이관 보류(F2) | 병합됨 → 상세(2026-10-21) |
+| 상세 | AI 상세페이지 자동화 (`shop-detail-page` v1.34 · BEST) | 상세페이지 제작 **기준**(병합 기준 앱) | 사진·사양서·상품명 → Gemini 분석 → 규격(15·12단·9단) 섹션 이미지 → 섹션 수정(재생성·문구·순서·GIF) → 긴 PNG·섹션 ZIP·HTML → 쓰레드·인스타 넘기기 | 비공개 버킷 + 서명 주소·30일 정리 / Gemini 3.5 Flash 분석 + 나노바나나 2.1·3 Pro(공용 사본) / 회원 본인 Gemini 키 | 유일한 실제 회원 데이터, 서버 저장, 섹션 단위 수정·버전, 규격 3종, 이미지형·HTML형 둘 다, SNS·GIF·소싱 연계 | Next 14.2.35, 이미지 속 문구 고치기는 단색 배경용(복잡한 배경은 티 남), 마켓 직접 등록 없음, 다국어·로고 합성(n8n Phase 3·4) 보류 | 독립(기준) |
+| 소싱 | 상품소싱 자동화 (`trending-product-finder` v1.28 · BEST) | 상품 발굴·소싱 **기준** | 관심 키워드 등록 → 쇼핑인사이트·검색광고·YouTube·11번가 신호로 기회 점수 → AI 추천 사유 → 알리·도매매·11번가 원가로 마진 계산 → 정기 리포트·예약 소싱 알림·가격 알림 → 「📄 상세페이지」 넘기기 | 서버 다수 표·30일 정리 / gpt-4o-mini 또는 gemini-3.5-flash / 회원 본인 키 다수 | 실측 데이터 근거, 알림 채널 4종, 회원 cron-job.org 방식, 일괄 마진 CSV, 수수료 참고표 | 필요한 키가 많음(온보딩 무거움), 쿠팡파트너스 경쟁도는 승인 대기, 마켓 등록(커머스 API·Wing) 없음 | 독립 |
+| 라벨 | 셀러 라벨·QR·서류 자동화 (`seller-label-docs` v1.03 · 기본) | 판매 후 서류 작업(2026-10-25 신규) | A4 라벨(엑셀 채우기·바코드·QR)·QR·파일명 일괄 변경·PDF 정리·서명 → 내려받기 | 저장 없음(브라우저 처리) / AI 없음 / 키 없음 | 파일이 서버로 안 감, 운영 비용 0, 주문 리포트에서 발송 전 주문 표를 바로 받음(E9) | 라벨 규격 여백은 가운데 정렬 추정값(실물 인쇄 보정 대기) | 독립 |
+| 주문 | AI 쇼핑몰 주문·매출 리포트 자동화 (`shop-order-report` v1.03 · 기본) | 판매 후 실적(2026-10-25 신규) | 마켓 주문 엑셀 올리기 → 주문 현황·매출·순이익·재고 소진·리뷰 요약 → 발송 전 주문을 셀러 라벨로 | 회원 PC 브라우저(IndexedDB)만, 개인정보 열 안 읽음 / 리뷰 요약만 회원 Gemini / 회원 본인 키 | 주문·개인정보가 서버에 안 감, 공용 `market-fees` **기준** | 실제 마켓 파일로 열 이름 검증 전, 다른 기기와 자동 공유 안 됨 | 독립 |
+| 12단 | AI 12단 상세페이지 자동화 (`detail-page-12p` v1.12) | 병합 원본 | **현재 이동 안내만** — 생성 API 3개 모두 410(`src/app/api/*/route.ts`) | (옛) 브라우저 `localStorage` / (옛) Gemini | (옛) 상품명만으로 사양 채우기·장면 카피·860px 통이미지 → 상세로 이관(장면 카피 제외) | 쓰이지 않던 엔진·화면 13개는 2026-10-26 백업 뒤 정리(EC-W12, 백업 `AIMaster_backup/retired-programs/detail-page-12p`) | 병합됨 → 상세(2026-10-21) |
+| 생성기 | 상세페이지 자동생성기 v1 (`auto-detail-page` v1.21) | 병합 원본 | **현재 이동 안내만** — 생성·이미지·내보내기·페이지 API 4개 모두 410(`app/api/*/route.ts`) | (옛) DB `detail_pages`(0건) / (옛) Claude + 이미지 3사 | (옛) HTML 상세페이지 템플릿 3종 → 상세로 이관(Gemini로 통일) | OpenAI 이미지 공급자 선택은 이관 보류(F2), 쓰이지 않던 파일 26개 2026-10-26 정리(EC-W12) | 병합됨 → 상세(2026-10-21) |
 
 공통: 두 운영 앱 모두 로그인 + 공통 권한 판정(`lib/access.ts`), 회원 본인 키(`user_api_keys`), 회원별 저장, 30일 자동 정리(`app/api/cron/cleanup-generated/route.ts`)를 갖췄다. 사용 기록이 거의 없어(보고서 §8-1: 상세 1건·소싱 6건) 사용량으로는 판단하지 않는다.
 
@@ -97,18 +99,20 @@
 | 알리익스프레스 원가 비교 | × | ○ `lib/aliexpress/client.ts`, `components/sourcing/sourcingFetchers.ts` |
 | 도매매 원가 비교 | × | ○ `lib/domeggook/client.ts` |
 | 키워드 번역(해외 검색용) | × | ○ `lib/ai/translateKeyword.ts` |
-| 마진 계산(수수료·관세·운송) | × | ○ `lib/margin.ts` `calcMargin`, `components/sourcing/MarginCalculatorPanel.tsx` · v1.27 마켓별 정산 `lib/marketFees.ts`(공용 `market-fees` 사본)·`MarketSalesSection.tsx` |
+| 마진 계산(수수료·관세·운송) | × | ○ `lib/margin.ts` `calcMargin`(v1.28 관세=(원가+운송비)×세율, 부가세=(과세가격+관세)×10%), `components/sourcing/MarginCalculatorPanel.tsx` · v1.27 마켓별 정산 `lib/marketFees.ts`(공용 `market-fees` 사본)·`MarketSalesSection.tsx` |
 | 플랫폼·카테고리 수수료 참고표 | × | ○ `app/(dashboard)/fees/page.tsx`(2026-10-25 E0 공식 재확인, v1.27부터 공용 `market-fees`에서 읽음) |
 | 프로모션 문구 상품 필터 | × | ○ `lib/promoKeywords.ts` |
 | 소싱 후보 저장 | × | ○ `lib/actions/savedProducts.ts`, `components/sourcing/SavedProductsPanel.tsx` |
-| 환율 자동 갱신(수출입은행) | × | × (Phase 12 대기) |
-| 관세율 참고표 | × | × (Phase 13 대기) |
+| 환율 자동 갱신(관세청 과세환율) | × | ○ v1.28 `lib/customs/fxRate.ts`·`fxParse.ts`, 공용 참고 표 `customs_fx_rates`(12시간마다 1번, 무료 공공 키 예외) · 💱 외화 원가 입력 |
+| 관세율 참고표 | × | ○ v1.28 `/fees#tariff`, `lib/customs/tariffTable.ts`(12품목군 전부 ⚠ 참고치 — 공식 대조 전) |
 
 ### 2-5. 알림·예약·연계
 
 | 기능 | 상세 | 소싱 |
 |---|---|---|
 | 매일 자동 리포트 | × | ○ `app/api/cron/generate-reports/route.ts` |
+| 기회 점수 ○점 이상만 알림 | × | ○ v1.28 `trend_watchlist.score_alert_threshold`, `components/watchlist/ScoreAlertControl.tsx`, `lib/reportEngine.ts` |
+| 「🛒 쇼핑몰 흐름」 띠(소싱→상세→주문→라벨, `?flow=shop`일 때만) | × (사본 미적용 — 디자인 작업 뒤) | ○ v1.28 공용 `shop-flow-bar` 사본 |
 | 예약 소싱 알림(주기 선택) | × | ○ `lib/sourcingAlert.ts`, `app/api/cron/dispatch-sourcing-alerts/route.ts` |
 | 저장 후보 가격·품절 알림 | × | ○ `lib/priceAlert.ts`, `app/api/cron/dispatch-price-alerts/route.ts` |
 | 회원 SMTP 메일 | × | ○ `lib/email/transport.ts`, `components/settings/SmtpAccountForm.tsx` |
@@ -120,7 +124,7 @@
 | 넘긴 초안의 광고·제휴 표기 | 미확인(보내는 쪽 초안에 없음, 받는 쪽 확인 필요) | – |
 | GIF 자동화에서 GIF 받기 | ○ v1.28 `lib/gifHandoff.ts`(공용 `gif-handoff` 기준) | × |
 | 상세페이지로 넘기기 | – (받는 쪽) | ○ v1.23 `lib/shopDetailLink.ts` |
-| 스마트스토어·쿠팡 상품 직접 등록 | × | × (Phase 16·17 대기) |
+| 스마트스토어·쿠팡 상품 직접 등록 | × (EC-W8 크롬 확장 「마켓 등록기」 플랜, 스마트스토어 먼저) | × — **서버가 회원 마켓 키로 대신 등록하는 방식은 네이버가 허용하지 않음**(2026-10-26 확인) |
 
 ### 2-6. 공통·보안
 
@@ -132,7 +136,7 @@
 | 회원 이미지 비공개 버킷·서명 주소 | ○ v1.15 `app/api/image/route.ts`, `lib/imageSrc.ts`, `lib/storageImage.ts` | – (이미지 없음) |
 | 우리 버킷 밖 주소를 서버가 받아오지 않음 | ○ v1.15 `lib/storageImage.ts` | – |
 | 30일 자동 정리 | ○ `app/api/cron/cleanup-generated/route.ts`, `lib/retention.ts`(유예 2026-11-21) | ○ `app/api/cron/cleanup-generated/route.ts`, `lib/retention.ts` |
-| 정리 건수 회원별 기록 | △ 코드 반영 `34094c954`·**미배포(v1.31 대기)** `lib/cleanupUsageLog.ts` | ○ v1.24 배포 `lib/cleanupUsageLog.ts` |
+| 정리 건수 회원별 기록 | ○ v1.31 배포 `lib/cleanupUsageLog.ts`(2026-10-26 운영 파일 해시 대조) | ○ v1.24 배포 `lib/cleanupUsageLog.ts` |
 | DB 조회 장애와 「자료 없음」 구분 | 미확인 | ○ v1.11 `lib/loadErrors.ts`, `components/ui/LoadErrorNotice.tsx` |
 | 휴대폰 폭 메뉴·하단 버튼 | ○ v1.30 `components/layout/Sidebar.tsx`, `SectionImageGrid.tsx` | ○ v1.08 `components/layout/Sidebar.tsx` |
 | 사용 안내(/guide) | ○ `components/guide/CommerceUsageGuide.tsx` | ○ `app/(dashboard)/guide/page.tsx` |
@@ -174,7 +178,11 @@
 | 이미지 생성 호출·모델 목록 | `shop-detail-page/lib/ai/geminiImage.ts`, `lib/ai/nanoBananaModels.ts` | 공용 사본(기준 `ai-image-studio/lib/providers/`) |
 | 다른 프로그램으로 초안 넘기기 | `shop-detail-page/lib/threadsLink.ts` | 이미지 위치만 넘기고 받는 쪽이 본인 폴더 확인 |
 | 소싱 → 상세 넘기기 | `trending-product-finder/lib/shopDetailLink.ts` | 가격은 정상가 칸만 |
-| 마진 계산 | `trending-product-finder/lib/margin.ts` `calcMargin` · 마켓별 정산은 공용 `market-fees`(기준 `shop-order-report/src/lib/marketFees.ts`) | |
+| 마진 계산 | `trending-product-finder/lib/margin.ts` `calcMargin` · 마켓별 정산은 공용 `market-fees`(기준 `shop-order-report/src/lib/marketFees.ts`) | 관세 순서 v1.28 |
+| 과세환율 읽기·저장 | `trending-product-finder/lib/customs/fxParse.ts`(순수)·`fxRate.ts`(서버) | 운영자 무료 공공 키 `CUSTOMS_FX_SERVICE_KEY` |
+| 쇼핑몰 흐름 띠·표 넘기기 | 공용 `shop-flow`·`shop-flow-bar`(기준 `shop-order-report/src/lib/shopFlow.ts`·`src/components/ShopFlowBar.tsx`) | 사본: 셀러 라벨·상품소싱 |
+| 주문 엑셀 읽기·개인정보 열 제외 | `shop-order-report/src/lib/orders/parse.ts`·`markets.ts` | 브라우저 저장 `src/lib/browser/store.ts` |
+| 라벨 칸 배치·바코드·PDF 조작 | `seller-label-docs/src/lib/label/layout.ts`·`barcode.ts`, `src/lib/pdf/ops.ts` | 공용 후보 |
 | 기회 점수·AI 사유 | `trending-product-finder/lib/ai/opportunity.ts`, `lib/reportEngine.ts` | |
 | 회원 예약 실행 방식 | `trending-product-finder/lib/schedulerMember/` | 공용 `member-scheduler` 사본 |
 | 알림 발송 | `trending-product-finder/lib/telegram/client.ts`, `lib/solapi/client.ts`, `lib/email/transport.ts` | 텔레그램·SOLAPI는 공용 사본 |
@@ -197,14 +205,16 @@
 
 | 단계 | 기능 | 넣을 곳 | 출처·근거 | 비용 | 상태 |
 |---|---|---|---|---|---|
-| 1차 | 30일 정리 회원별 기록 배포 | 상세 | `34094c954` | 빌드 1 | 미배포 대기(v1.31) |
+| 1차 | 30일 정리 회원별 기록 배포 | 상세 | `34094c954` | 빌드 1 | ✅ v1.31 배포(2026-10-26 확인) |
 | 1차 | 2026-11-21 유예 종료 뒤 첫 정리 확인 | 상세 | `IMPROVEMENT_BACKLOG.md` | 없음 | 대기 |
 | 2차 | 넘기는 홍보글 초안에 광고·제휴 표기 확인 | 상세 → 쓰레드·인스타 | 카테고리 지도 「광고 표기」 | 없음 | 후보(확인 필요) |
-| 2차 | 기회 점수 임계값 즉시 알림 | 소싱 | Phase 15 | 없음 | 대기 |
-| 2차 | 환율 자동 갱신·관세율 참고표 | 소싱 | Phase 12·13 | 무료 공공 API | 대기 |
+| 2차 | 기회 점수 임계값 즉시 알림 | 소싱 | Phase 15 | 없음 | ✅ v1.28(EC-W7) |
+| 2차 | 환율 자동 갱신·관세율 참고표 | 소싱 | Phase 12·13 | 무료 공공 API | ✅ v1.28(EC-W7), 관세율 공식 대조 남음 |
+| 2차 | 워터마크·높이 맞춤(E4)·무료 이미지 도구(E5) | 바나나 캔버스 | 쇼핑몰 묶음 E4·E5 | 빌드 | 진행 예정(2026-10-26 주인님) |
+| 2차 | 상세페이지 편집 보강(E3)·등록 정보 도우미(E2) | 상세·소싱 | 쇼핑몰 묶음 E2·E3 | 빌드 | 대기 |
 | 2차 | 장면별 카피를 섹션 생성 메모로 | 상세 | 12단 `generateDetailPageScenes` | 회원 키 1회 | 보류 |
 | 3차 | 다국어 상세페이지·로고 합성 | 상세 | n8n Phase 3·4 | 이미지 생성 | 보류(회원 요청 시) |
-| 3차 | 스마트스토어·쿠팡 상품 등록 | 소싱 → 상세 | Phase 16·17 | 회원 판매자 계정 | 대기(신중 검토) |
+| 3차 | 스마트스토어·쿠팡 상품 등록 | 상세 + 새 확장 | EC-W8 플랜 `trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md` | 빌드(단계마다) | 플랜 완료, 0단계(화면 분석) 승인·로그인 대기 |
 | 3차 | 공장 견적 비교 메뉴 | 소싱 | 기획 `sourcing/` | – | 주인님 지시 전 |
 | 3차 | 판매 후 운영 분석(ROAS·재고) | 새 독립 프로그램 | 기획 `coupang/` | – | 주인님 지시 전 |
 | 보류 | OpenAI 이미지 공급자 | 상세 | 생성기 F2 | – | 회원 요청 시 |
@@ -214,10 +224,11 @@
 
 | 프로그램 | 내용 | 나갈 때 |
 |---|---|---|
-| 상세 | 30일 정리 회원별 `usage_logs` 기록 `34094c954` | v1.31 |
+| 병합 원본 2곳 | EC-W12 쓰이지 않던 파일 39개 삭제(화면 변화 없음) `4e660826a` | 다른 이유로 배포할 때 |
 
 ## 7. 변경 이력
 
 | 날짜 | 바뀐 것 | 작성 |
 |---|---|---|
 | 2026-10-24 | 문서 처음 작성(초안) — 상세 v1.30·소싱 v1.24·12단 v1.11·생성기 v1.21 코드 기준, 병합 E0~E2·F1 반영 | Claude Code(윈도우) `claude-win-dotori` [역할: analysis-planning] |
+| 2026-10-26 | 담당 확인으로 「초안」 해제. 라벨·주문 리포트 2개 프로그램 추가, 상세 v1.34·소싱 v1.28 반영(과세환율·관세율표·점수 알림·흐름 띠·관세 계산 순서), 정리 기록 v1.31 배포 확인, EC-W12 정리, 마켓 등록 정책(서버 대신 등록 불가 → 확장 플랜) | Claude Code(윈도우) `claude-win-sdp` [역할: ecommerce-image] |

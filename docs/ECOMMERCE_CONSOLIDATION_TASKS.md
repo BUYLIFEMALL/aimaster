@@ -1,6 +1,6 @@
 # 이커머스 프로그램 부분 통합·기능 확장 순차 작업목록
 
-> **상태: 초안(2026-10-24, 작성 claude-win-dotori [역할: analysis-planning]) — 담당 세션(ecommerce-image) 확인 전.** 담당 세션이 확인하기 전까지는 참고 자료로만 쓴다. 이 문서 작성으로 운영 코드·DB·키·회원 권한·버전·배포는 바뀌지 않았다.
+> **상태: ✅ 담당 확인(2026-10-26, [역할: ecommerce-image] `claude-win-sdp`)** — 2026-10-24 초안(`claude-win-dotori` [역할: analysis-planning])을 코드·배포 기록과 대조해 확정했다. 이후 이커머스 작업은 이 문서를 기준으로 쓰고 같은 작업에서 고친다.
 
 대상은 **AIMaster 운영**이다. 공통 DB ref `esgxyikcnnvmlhygjkth`. 담당 역할: [`docs/roles/ecommerce-image.md`](roles/ecommerce-image.md)(`claude-win-sdp`). 맥미니 세션이 코드·tsc·커밋, 윈도우 세션이 DB·배포·크롬 확인을 나눠 맡아 왔다.
 
@@ -70,7 +70,7 @@
 | EC-W5 | 자동생성기 OpenAI 이미지 공급자(F2) | 회원 요청 | 보류 |
 | EC-W6 | n8n Phase 3(다국어)·Phase 4(자유 생성·로고 합성) | 회원 요청(2026-10-23 주인님 결정) | 보류 |
 | EC-W7 | 상품소싱 Phase 12 환율 자동 갱신·Phase 13 관세율 표·Phase 15 임계값 즉시 알림 | 주인님 「진행해」 2026-10-26 | ✅ v1.28 배포(2026-10-26) — 과세환율(키 등록 대기)·관세 계산 순서·관세율 참고표·점수 알림, 플랜 `trending-product-finder/docs/PLAN_20261026_EC_W7_FX_TARIFF_ALERT.md` |
-| EC-W8 | 스마트스토어·쿠팡 Wing 상품 등록(Phase 16·17) | 주인님 신중 검토 | 대기(3순위) |
+| EC-W8 | 스마트스토어·쿠팡 상품 등록 → **크롬 확장 「마켓 등록기」**(스마트스토어 먼저, 쿠팡 다음) | 0단계 화면 분석 승인·스마트스토어센터 로그인 | 플랜 완료 2026-10-26 `trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md`(방식 비교 `PLAN_20261026_EC_W8_MARKET_REGISTER.md`) |
 | EC-W9 | 쿠팡파트너스 경쟁도(Phase 2) | 파트너스 매출 요건 승인 | 보류 |
 | EC-W10 | `sourcing/`(공장 견적 비교)·`coupang/`(운영 분석) 개발 착수 | 주인님 지시 | 대기 |
 | EC-W11 | 상세 Next 14.2.35 → 상위 버전 | 담당 판단(빌드 비용) | 확인 필요 |
