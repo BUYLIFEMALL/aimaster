@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.32: 수집 도중 확장 업데이트로 남은 「수집 중」 자동 정리 · 시험 계정 배지 강조 · 실거래 자료 없는 단지 이름 기록 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.32', extension_version = 'v1.32', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;

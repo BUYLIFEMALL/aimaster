@@ -359,7 +359,8 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   for (const row of fileRows) { const g = gapOf(row.item); if (g) { row.item.tradeGap = g; n++; } }
   for (const t of perTarget) for (const e of t.events || []) { const g = gapOf(e.item); if (g) e.item.tradeGap = g; }
   const matched = tradeTargets.filter((t) => tradeCache[t.key]?.bands?.length).length;
-  await addLog(`실거래 비교: 단지 ${matched}/${tradeTargets.length}곳 자료 있음 · 매매 ${n}건에 「실거래 대비」`);
+  const missed = tradeTargets.filter((t) => !tradeCache[t.key]?.bands?.length).map((t) => t.name || t.key);
+  await addLog(`실거래 비교: 단지 ${matched}/${tradeTargets.length}곳 자료 있음 · 매매 ${n}건에 「실거래 대비」${missed.length ? ` · 자료 없음: ${missed.join(", ")}` : ""}`.slice(0, 300));
   // 진단(2026-10-26): 못 맞춘 단지가 있으면 국토부 거래 수·단지 이름 예시를 남긴다(다음 보완용)
   if (matched < tradeTargets.length && lastTradeDiag?.length) await addLog(`실거래 진단: ${lastTradeDiag.map((d) => `지역 ${d.lawd} 국토부 거래 ${d.trades}건 · 예: ${(d.names || []).join(", ")}`).join(" / ")}`.slice(0, 300));
 }
