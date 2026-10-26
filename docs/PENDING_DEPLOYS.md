@@ -52,6 +52,10 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `seller-label-docs` | v1.04 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `seller-label-docs-84fsruei2`) | 대기 항목 없음 (본 작업: 개인정보 가리기 바로가기 `38180d0d9`) |
+| `shop-order-report` | v1.04 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-order-report-r59tb14xp`) | 대기 항목 없음 (본 작업: 개인정보 가리기 바로가기 `38180d0d9`) |
+| `shop-detail-page` | v1.36 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-7rl68h9iw`) | 대기 항목 없음 (본 작업: 누끼 결과 되돌려 넣기 `38180d0d9`) |
+| `banana-canvas` | v1.42 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-cjvc8de5q`) | 대기 항목 없음 (본 작업: E5-3 `38180d0d9`) |
 | `shop-detail-page` | v1.35 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-3h85sy7og`) | 공용 `browser-free-erase` 사본 동기화 `baf4a88e6` (본 작업: 섹션 「✂ 누끼」 `6d7575a5f`) |
 | `banana-canvas` | v1.41 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `banana-canvas-ir04pepnx`) | 대기 항목 없음 (본 작업: E5-2 글자 가리기·사진 일괄 손질로 보내기·누끼 받기 `6d7575a5f`) |
 | `banana-canvas` | v1.40 · 2026-10-26 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 2회 — `banana-canvas-ika50w7rb`, 같은 코드 실수 재배포 `-ph6adch6a`) | 사진 일괄 손질 숫자 칸 80px CSS (본 작업: E5 무료 이미지 도구 `baf4a88e6`) — 운영 크롬에서 80px 확인 |

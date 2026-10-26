@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E5-3 누끼 되돌려 넣기·숫자 자리만 가리기·개인정보 가리기 바로가기
+- 한 일: ① 바나나 「↩ 상세페이지에 넣기」 → 상세페이지 그 섹션 새 버전 저장(`nukki-handoff` 결과 메시지) ② 얼굴 가리기 「숫자가 많은 자리만」(`browser-free-erase`에 글자 읽기 모델 `rec` 추가, 숫자 4개 이상·절반 이상) ③ 주문 리포트(홈·리뷰 분석)·라벨·서류(홈)에 「🙈 사진 속 개인정보 가리기 ↗」(`/tools?tab=face`) — 세 프로그램에 송장·후기 사진 화면이 없어 바로가기로.
+- 검수: 시험 74개·4개 프로그램 tsc·빌드, 로컬 크롬 임시 페이지(숫자 자리 3곳만·?tab=face), 운영 크롬 앞 탭(VERSIONS 3→4 저장·원본 복구, 바로가기 3곳 주소·새 탭).
+- 커밋 `38180d0d9`, 배포 바나나 `cjvc8de5q` v1.42·상세페이지 `7rl68h9iw` v1.36·주문 리포트 `r59tb14xp` v1.04·라벨·서류 `84fsruei2` v1.04(빌드 4회, 승인 5회 중). 다음 첫 단계: E3(상세페이지 디자인 작업 끝났는지 확인부터).
+- 링크: https://banana-canvas.buylife.xyz/tools · https://shop-detail-page.buylife.xyz/products · https://shop-order-report.buylife.xyz/home · https://seller-label-docs.buylife.xyz/home
+
 ## 2026-10-26 [역할: blog] Codex · 세션 `codex-win-20261025-blog` — 이웃 소통 후보/중복방지 모의32개 통과
 - [보고서/재현명령/한계](analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md)·[JSON](analysis-naver-blog-neighbor-20261024/evidence/simulation-20261026.json)·[검수소스](analysis-naver-blog-neighbor-20261024/simulation/preflight.test.mjs), 커밋ff7aa5367. 가상 검색요약 필터8·상한/경합7·상태10·승인/중단6·만료1=32개 통과. 가상100건 동시요청에서30건 예약/70건 제한.
 - 분석폴더의 단일프로세스 메모리 모델이며 운영DB잠금/RLS/확장·네이버 검증 아님. 후보는 요약근거/관계unknown·자동소통false, 본문AI점수/정독 아님. 원래40개 출시 검수와 구분해 미완료 항목/증거를 연결.
