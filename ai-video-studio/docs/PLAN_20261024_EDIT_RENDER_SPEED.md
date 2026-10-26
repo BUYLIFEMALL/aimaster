@@ -214,6 +214,20 @@
 - 멈추기·안내(v1.24): 두 회차 모두 「멈추는 중…」 → 「렌더를 멈췄습니다」(`stop-forced` 3초) → 「이전 렌더 정리 중…」 → 20초 뒤 새로고침 안내·버튼까지 정상. 15초 막힘 안내도 떠 있었음.
 - 렌더 결과 저장 안 함, 비용 없음. 캡처(맥미니 로컬): `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1792896984940-10.jpg`(2회차 멈춘 뒤 새로고침 안내).
 
+## 16. 맥미니 무료 시험 3가지 — v1.24 사진만·silent.mp4·가속 2D 캔버스 끄기 (2026-10-26 11:48~12:12, [역할: mac-mini] Claude Code(맥미니) `claude-mac-20261024-maccheck`)
+- 조건: 맥미니 i7-8700B, 크롬 155, `cores 6`, 시험 계정, 운영 v1.24, 720p·9:16, `?render=trace`. 콘솔 `[avs-` 줄 모두 받음. 렌더 결과 저장 안 함.
+
+| 시험 | 조건 | 결과 |
+|---|---|---|
+| ① 사진만으로 렌더 | — | **못 함.** 「내 PC 영상 올리기」가 영상만 받음(`EditStudio.tsx` `accept="video/mp4,video/quicktime,video/webm"`, `onFiles`가 `video/`만 남김). `Composition.tsx`는 `kind === "image"`를 그릴 수 있으나 화면에서 사진 장면을 만드는 길이 없음 |
+| ② `silent.mp4`(3.8MB) | 평소 크롬(가속 2D 캔버스 켜짐) | **넣기부터 막힘.** 「영상 형식 확인 중」(160×160·10장면 시험 렌더, 제한 6초)에서 **90초 넘게** 멈춤, 그동안 갤러리 카드도 안 눌림 → 시간 제한 중단도 안 먹힘 |
+| ③ 갤러리 Wan 3.0 · 5초 | 주인님이 `chrome://flags` 「Accelerated 2D canvas」 **Disabled** + 다시 시작(설정 파일 `Local State`의 `enabled_labs_experiments = ['disable-accelerated-2d-canvas']` 확인) | ✅ **4.5초 완성**, 1.6MB. 진단: `outcome done`, `decode software`, `hw no-preference`, `phases{waitMs 3223, composeMs 742, encodeMs 536, slowFrames 0}`, `encoder{queue 0, dequeued 90, outputs 150, latencyMode quality}`, `msPerFrame 30`, `frames 150/150/150`, `fps 33.3`. 완성 영상 마우스 재생 끝까지: 720×1280·5.08초·154장·끊긴 장면 0·한옥 장면 정상. 소리 트랙 있음(「영상 원래 소리」 기본 끄기·배경음악 없음이라 무음이 정상) |
+| ②-다시 `silent.mp4` | ③과 같음 | ✅ 형식 확인 **1초 안** 통과, 렌더 **4.4초**, 1.7MB. `phases{waitMs 3288, composeMs 713, encodeMs 405, slowFrames 0}`, `encoder{queue 0, dequeued 86, outputs 150}`, `msPerFrame 29`, `frames 150/150/150` |
+
+- **판단**: 가속 2D 캔버스를 끄면 맥에서도 정상 속도 → 맥 크롬 GPU 2D 캔버스에서 그린 장면을 인코더가 읽어 가지 못하는 것이 원인으로 보임(§14 가설). 형식 확인(시험 렌더)도 같은 막힘이라 함께 고쳐야 함 → v1.25(§17)에 반영됨. ※ §18에서 크롬을 다시 시작한 뒤에는 GPU 캔버스도 막히지 않아, 「크롬을 오래 켜 둔 GPU 상태」도 함께 얽혀 있을 수 있다.
+- **플래그 되돌림**: 시험 뒤 주인님이 Default로 되돌리고 크롬을 다시 시작함. 2026-10-26 맥미니가 `Local State`를 읽어 `enabled_labs_experiments = []`(항목 없음)으로 되돌려진 것 확인.
+- 캡처(맥미니 로컬): `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1792983109722-11.jpg`(② 형식 확인 중 멈춤), `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1792984256878-12.jpg`(③ 완성 영상 재생). 비용 없음.
+
 ## 17. v1.25 — 맥은 메모리 쪽 2D 캔버스가 기본 (2026-10-26, [역할: video] Claude Code(윈도우) `claude-win-video`, 주인님 승인 빌드 1회)
 - **근거 — 맥미니 무료 시험(2026-10-26 11:48~12:12, 맥미니 세션 기록 §16 예정)**: ① 사진만 넣기 = 화면이 영상 파일만 받아 못 함 ② `silent.mp4`(평소 크롬) = 「영상 형식 확인 중」(160×160 10장면, 제한 6초)에서 90초 넘게 멈추고 갤러리 카드도 눌리지 않음 ③ 크롬 플래그 「Accelerated 2D canvas」 Disabled(설정 파일 `disable-accelerated-2d-canvas` 확인) + 갤러리 Wan 3.0 · 5초 = **4.5초 완성**, 150/150, 장당 30ms, 막힌 장면 0, 인코더 출력 150·대기열 0, 완성 영상 재생 정상 ④ 같은 조건 `silent.mp4` = 형식 확인 1초 통과·렌더 4.4초. → **원인 확정: 맥 크롬 GPU 2D 캔버스에서 그린 장면을 인코더가 읽어 가지 못함**(v1.22~v1.24의 디코딩·인코딩 방식은 무관, §14 가설이 맞음). 시험 뒤 플래그는 Default로 되돌리도록 맥미니에 요청.
 - **고친 것**(커밋 `eaeae933d`):
@@ -223,3 +237,18 @@
   4. §14의 `cpuframe`(장면 복사)은 만들지 않음 — 캔버스만 바꿔도 맥에서 정상 속도가 나와 필요 없음.
 - **검수**: 시험 72(새 `tests/cpuCanvas.test.mjs` 2개)·tsc·eslint·build. 배포 `ai-video-studio` v1.25(DB v1.25). 운영 윈도우 크롬(시험 계정): `?render=trace,cpucanvas` 갤러리 Wan 3.0 · 5초 = 4.3초·`canvas: cpu`·150/150·막힌 장면 0·출력 150, 완성 영상 재생 정상(한옥 장면). 같은 주소에서 `silent.mp4` 형식 확인 4초 안에 통과(2개 · 총 10초). 결과 저장 안 함.
 - **맥미니 재측정 절차**(플래그를 Default로 되돌린 평소 크롬, 비용 없음): ① 기본 주소 `/edit?render=trace` — 갤러리 Wan 3.0 · 5초 렌더, 진단 줄의 `canvas: "cpu"`·완성 시간 ② `silent.mp4`를 「내 PC 영상 올리기」로 넣어 형식 확인이 몇 초에 통과하는지 → 렌더 ③ 비교용 `/edit?render=trace,gpucanvas`는 3분까지만(멈추면 「멈추기」). 결과는 이 문서 §18에.
+
+## 18. 맥미니 재측정 결과 — v1.25 (2026-10-26, [역할: mac-mini] Claude Code(맥미니) `claude-mac-20261024-maccheck`)
+- 조건: 맥미니 i7-8700B, 크롬 155, `cores 6`, 시험 계정, 운영 v1.25, 720p·9:16, 크롬 플래그 「Accelerated 2D canvas」 **Default**(`Local State` 실험 목록 비어 있음 확인). 콘솔 `[avs-` 줄 모두 받음, 마우스 클릭으로 진행. 렌더 결과 저장 안 함. 회차마다 페이지를 새로 염.
+
+| 회차 | 주소 | 넣은 영상 | 결과 | 진단 줄 |
+|---|---|---|---|---|
+| ① | `/edit?render=trace` | 갤러리 Wan 3.0 (fal) · 5초 | ✅ **4.4초 완성**, 1.6MB | `canvas: "cpu"`, `decode software`, `hw no-preference`, `phases{waitMs 2652, composeMs 1112, encodeMs 616, slowFrames 0}`, `encoder{queue 0, dequeued 97, outputs 150, latencyMode quality}`, `msPerFrame 29`, `frames 150/150/150`, `fps 34.1`, `lag 0` |
+| ② | `/edit?render=trace` | `silent.mp4`(3.8MB, 「내 PC 영상 올리기」) | ✅ 형식 확인 **1초 안** 통과(「1개 · 총 5초」, 「형식 확인 중」 표시 안 잡힘) → **4.2초 완성**, 1.7MB | `canvas: "cpu"`, `phases{waitMs 2508, composeMs 1121, encodeMs 581, slowFrames 0}`, `encoder{queue 0, dequeued 99, outputs 150}`, `msPerFrame 28`, `frames 150/150/150`, `fps 35.7` |
+| ③ 비교 | `/edit?render=trace,gpucanvas` | 갤러리 Wan 3.0 (fal) · 5초 | ✅ **2.6초 완성**, 1.6MB(멈추기 필요 없음). 완성 영상 마우스 재생 끝까지: 720×1280·5.08초·끊긴 장면 0, 0.5·2.5·4.5초 장면 밝기 평균 139~142(검은 화면 아님), 한옥 장면 정상 | `canvas: "gpu"`, `phases{waitMs 1235, composeMs 251, encodeMs 1138, slowFrames 0}`, `encoder{queue 0, dequeued 150, outputs 150}`, `msPerFrame 18`, `frames 150/150/150`, `fps 57.7` |
+
+- **판단**
+  - ① **v1.25 맥 기본값(`canvas: cpu`)은 정상** — 5초 영상 4.2~4.4초, 내 PC 영상 형식 확인 1초. v1.21~v1.24의 「5초에 수십 분」 막힘은 사라짐.
+  - ② **뜻밖에 `gpucanvas`(예전 방식)도 지금은 막히지 않고 오히려 더 빠름**(2.6초, 합성 251ms). v1.24까지는 같은 GPU 캔버스로 3분+ 멈췄는데, 그 사이 달라진 것은 **크롬을 두 번 다시 시작한 것**(플래그 끄기·되돌리기)뿐이다. → 원인이 「GPU 캔버스 자체」라기보다 「오래 켜 둔 크롬의 GPU 상태(GPU 프로세스가 장면을 붙잡는 상태)에서 GPU 캔버스를 쓸 때」일 수 있다. 그래서 다시 시작 직후 한 번의 비교로 GPU 캔버스를 기본으로 되돌리는 것은 이르다.
+  - ③ 권장: 맥 기본 `cpu`는 그대로 둔다(느려도 4초대, 막힘 없음). 원하면 크롬을 며칠 켜 둔 상태에서 ③을 다시 재 보면 「GPU 상태」 가설을 확인할 수 있다(맥미니 무료 시험, 윈도우 영상 담당 판단).
+- 캡처(맥미니 로컬): `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1793005482340-13.jpg`(① 완성), `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1793005614668-14.jpg`(③ 재생 끝). 비용 없음(브라우저 렌더 3회·형식 확인 1회 내 PC, AI 0회, 빌드 0회).
