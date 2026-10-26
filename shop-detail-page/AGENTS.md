@@ -430,3 +430,10 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 
 ## 2026-10-26 ✅ v1.36 — 누끼 결과 되돌려 넣기 (Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image])
 - 「✂ 누끼」가 섹션 키를 함께 보내고, 바나나 창의 「↩ 상세페이지에 넣기」 결과(`nukki-handoff` `readNukkiResult`, 바나나 주소·섹션 키·PNG/JPG·10MB)를 받으면 그 섹션에 `saveCustomFile`로 새 버전 저장(원본은 버전 목록). 공용 `browser-free-erase` 사본도 동기화(글자 읽기 모델 항목 추가, 상세페이지는 쓰지 않음). 커밋 `38180d0d9`, 배포 `shop-detail-page-7rl68h9iw`. 운영 크롬: VERSIONS 3→4 저장 확인 후 원본 다시 선택.
+
+## 2026-10-26 ✅ v1.37 — E3 상세페이지 편집 보강 (Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image])
+- 플랜 [`docs/PLAN_20261026_E3_EDIT_BLOCKS.md`](docs/PLAN_20261026_E3_EDIT_BLOCKS.md). HTML 상세페이지 블록 편집(↑↓·🗑·그 자리 글 고치기·처음대로, 브라우저에서만)·🚚 배송·교환·환불 안내 카드(브라우저에만 기억, 860px PNG 받기, HTML 끝에 표 블록 넣기)·「📋 HTML 코드 복사」「📝 글만 복사」·✍️ 상품 문구 말투 5종(상품명 후보 3·한 줄 소개·본문·SNS 2, 회원 본인 Gemini 글 1회, 근거 없는 판매량·후기·한정 문구 서버에서 제거).
+- 새 파일: `lib/detailBlocks.ts`(배송 안내 정리·표 HTML·말투·위험 문구 거르기), `lib/ai/copyTonePrompt.ts`, `app/api/products/[id]/copy/route.ts`(`checkProgramAccessApi`·본인 키·`user_id` 조건), `components/products/HtmlBlockEditor.tsx`·`ShippingNoticeCard.tsx`·`CopyTonePanel.tsx`. `HtmlExportPanel.tsx`: 편집·복사 버튼, 미리보기 iframe `key`(srcDoc만 바꾸면 크롬이 다시 그리지 않던 문제).
+- 서버 저장·DB 변경 없음(배송 안내는 `localStorage` `sdp-shipping-notice-v1`, 주인님 결정 ①). 블록 편집은 `DOMParser`라 브라우저 전용(서버 렌더 금지 — 편집 화면은 버튼을 눌러야 열림).
+- 검수: 시험 5개(`node --experimental-strip-types --test scripts/test-e3.mts`), tsc·build, 로컬 크롬(블록 이동·글 고치기·안내 블록·PNG 860×264), 운영 크롬(시험 계정: 쿠팡 HTML 생성 → 블록 10개 → 안내 넣어 11개 → 글 복사, 친근한 말투 문구 — 위험 문구·가격 없음). 커밋 `7be8c9583`, 배포 `shop-detail-page-lkgk3d8zf`, DB v1.37.
+- 남은 일(미배포 대기): 사용 안내(/guide) FAQ에 블록 편집·배송 안내·말투 문구 설명 추가, 복사 안내 「글을(를)」 조사 다듬기. 디자인 담당(agy)에게 편집 화면 다듬기 인계.

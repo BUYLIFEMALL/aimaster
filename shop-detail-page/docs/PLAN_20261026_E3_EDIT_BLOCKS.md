@@ -1,6 +1,6 @@
 # E3 상세페이지 편집 보강 — HTML 블록 편집·배송/교환 안내 블록·문구 말투 5종 (2026-10-26)
 
-상태: **주인님 승인 대기** (코드 없음)
+상태: **✅ 완료·배포 v1.37**(2026-10-26, 커밋 `7be8c9583`, 배포 `shop-detail-page-lkgk3d8zf`) — /guide FAQ는 미배포 대기(IMPROVEMENTS S-26-E3-1)
 작성: Claude Code 윈도우 `claude-win-sdp` [역할: ecommerce-image]
 근거: `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_ECOMMERCE.md` §6 E3, `06_PROHUB_PRICE_MARGIN_KEYWORD.md` §4(상세페이지 자동제작기)·§6(카피라이팅 생성기)
 디자인 담당 동의: `7ae8ffb83`(상세페이지 디자인 작업 없음, E3 먼저 개발 → 끝나면 블록 편집 화면 다듬기 인계)
