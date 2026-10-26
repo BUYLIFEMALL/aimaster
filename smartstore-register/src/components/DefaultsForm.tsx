@@ -55,7 +55,8 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         </div>
         <div>
           <label className="slw-label" htmlFor="deliveryFeeType">배송비</label>
-          <select id="deliveryFeeType" name="deliveryFeeType" defaultValue={initial.deliveryFeeType} className="slw-field">
+          {/* key: 저장 뒤 폼이 초기화될 때 고르기 상자가 옛 값으로 보이지 않게 새 값으로 다시 그림 */}
+          <select key={initial.deliveryFeeType} id="deliveryFeeType" name="deliveryFeeType" defaultValue={initial.deliveryFeeType} className="slw-field">
             <option value="">판매자센터 기본값 그대로</option>
             <option value="FREE">무료</option>
             <option value="PAID">유료</option>
