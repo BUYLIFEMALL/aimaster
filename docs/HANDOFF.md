@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 스마트스토어 상품등록 자동화 v1.02 크롬 확장 (EC-W8 2단계)
+- 크롬 확장 v1.02 — 「확장 연결」 화면(ZIP 받기·설치 확인·버튼 한 번 연결, 토큰은 해시로만 저장), 30초마다 작업 받기(서버가 한 번만 넘김), 판매자센터 「상품 등록」 탭에서 카테고리·상품명·판매가·즉시할인·재고·대표 이미지·상세설명(스마트에디터 ONE에 섹션 이미지 순서대로)·고시·A/S·판매자 코드 입력, 칸 하나라도 실패하면 저장 버튼 안 누름, 결과·멈춘 칸 보고. 배송 템플릿 고르기·추가 이미지·옵션은 아직 수동.
+- 0단계 분석 근거(주인님 저장본 5개·붙여 넣기 시험): `trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md` §6~§9 — 상세설명은 「HTML 작성」 대신 스마트에디터 ONE(사진보관함 3개월 보관 문제).
+- DB(① 운영) 표 `smartstore_register_ext_tokens`·버전·확장 버전·다운로드 주소. 배포 2회 Ready, 운영 ZIP 검증 OK, 서버 주소 401/400 확인. 실제 입력 시험은 주인님 크롬(Claude 크롬 확장은 판매자센터 열기 불가).
+- 다음 첫 단계: 주인님 설치·연결 → 시험 상품 「입력만」 → 「등록 기록」의 멈춘 칸으로 보정. 상세 `smartstore-register/AGENTS.md` v1.02.
+- 링크: https://smartstore-register.buylife.xyz/extension
+
 ## 2026-10-26 23:38 [역할: blog] Codex — 이웃 소통 SQL 실행 준비 재검증
 - 세션 `codex-win-20261026-blog-check`. 운영 직접 SELECT false/0/null 유지. 검수 SQL 원본 SHA256 일치, 스키마1·테이블6·BEGIN/COMMIT 각1 확인.
 - Edge 접근성 조회는 성공했지만 현재 SELECT 탭이며 캡처 실패·실제 전경HWND0. 입력/클릭0. 기존 주인님 직접 Run 지정을 Codex 도구 실행으로 바꿔도 되는지 채팅 질문 대기, 기존 DB 요청6eecd22c 유지. 운영 생성/삭제/AI/빌드/배포0. [상세](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md).
