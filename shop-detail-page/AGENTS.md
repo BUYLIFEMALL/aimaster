@@ -422,3 +422,8 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - `/products/new`: 상품명 `*`, 저장 버튼 꺼짐 + 「저장하려면 1. 대표이미지와 상품명(*)이 필요합니다.」. 상품명 빈 채 저장 안내는 사진을 올려야 재현돼 코드로만 확인.
 - 500px 틀: 새 상품·상품 화면 문서 폭 493px(넘침 없음). 창이 최대화라 iframe으로 측정.
 - 비용: 이번 검수 없음(AI 0회, 저장 0건).
+
+## 2026-10-26 ✅ v1.35 — 섹션 「✂ 누끼」 → 바나나 무료 이미지 도구 (Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image])
+- 완료된 섹션 카드(GIF 제외) 제목 줄 「✏️ 문구」 옆 「✂ 누끼」 → `https://banana-canvas.buylife.xyz/tools?from=shop-detail` 새 창 → 그 창이 「준비됨」을 보내면 `/api/image`로 받은 섹션 이미지를 넘김(새 공용 모듈 **`nukki-handoff`** 사본 `lib/nukkiHandoff.ts` — 기준 `banana-canvas/src/lib/nukkiHandoff.ts`, 직접 고치지 말 것). 서버·DB·AI 변경 없음. 진행 안내는 카드 안 보라색 한 줄. 이번에는 보내기만(누끼 결과는 회원이 받아 「📤 직접 등록」).
+- 함께 나감: 공용 `browser-free-erase` 사본 동기화(`baf4a88e6`, 동작 같음).
+- 배포 전 작업 중 표의 agy `shop-detail-page` 줄(「✅ v1.34 완료」)을 주인님 승인(「끝난 것으로 보고 진행」)으로 뺌. 커밋 `6d7575a5f`, 배포 `shop-detail-page-3h85sy7og`. 운영 크롬 확인: 「#01 프로모션 배너」 「✂ 누끼」 → 바나나 새 창에 그림 도착, 이 카드에 「✂ 보냈습니다…」.

@@ -1,6 +1,6 @@
 # E5-2 무료 이미지 도구 보강 — 글자 가리기·사진 일괄 손질로 넘기기·상세페이지 「누끼 따기」 연결 (2026-10-26)
 
-상태: **주인님 승인 대기** (코드 없음)
+상태: **✅ 완료·배포 (2026-10-26)** — 바나나 v1.41(`ir04pepnx`)·상세페이지 v1.35(`3h85sy7og`), 빌드 2회(승인 3회 중). 결과는 `banana-canvas/AGENTS.md` 맨 위
 작성: Claude Code 윈도우 `claude-win-sdp` [역할: ecommerce-image]
 근거: v1.40 결과 보고의 추가 개선 제안 3가지(주인님 진행 지시), `banana-canvas/docs/IMPROVEMENTS.md` 2026-10-26 v1.40 절
 
