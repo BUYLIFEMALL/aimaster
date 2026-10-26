@@ -20,7 +20,7 @@
 
 | 역할 | 파일 | 담당(CLI·세션) | 맡은 범위(요약) | 카테고리 |
 |---|---|---|---|---|
-| 새 프로그램 분석·개발 플랜 | [analysis-planning.md](analysis-planning.md) | Claude Code(윈도우) `claude-win-dotori` | 외부 분석·비교·플랜·인계(구현 안 함) | 전체 |
+| 새 프로그램 분석·개발 플랜 | [analysis-planning.md](analysis-planning.md) | Claude Code(윈도우) `claude-win-20261027-analysis`(이전 `claude-win-dotori`) | 외부 분석·비교·플랜·인계(구현 안 함) | 전체 |
 | 블로그 | [blog.md](blog.md) | Codex(윈도우·엣지) `codex-win-20261025-blog` | 블로그 9개 폴더 | 블로그 |
 | 음악 | [music.md](music.md) | Claude Code(윈도우) `claude-win-20261024-music` | 음악 프로그램·배경음악 공용화 | 음악 |
 | 영상 | [video.md](video.md) | Claude Code(윈도우) `claude-win-video` | 영상 스튜디오·공용 영상 코드·내 PC 렌더 영상 쪽 | 유튜브·멀티미디어 |
@@ -67,7 +67,7 @@
 
 | 역할 ID | 지금 세션 | 이전 세션 이름(옛 기록 연결용) |
 |---|---|---|
-| `analysis-planning` | `claude-win-dotori` | — |
+| `analysis-planning` | `claude-win-20261027-analysis` | `claude-win-dotori` |
 | `blog` | `codex-win-20261025-blog` | `claude-win-20261024-blog3`, `claude-win-20261023-blog2`, `claude-win-20261023-seo-bg` |
 | `music` | `claude-win-20261024-music` | — |
 | `video` | `claude-win-video` | — |
