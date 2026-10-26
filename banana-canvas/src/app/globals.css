@@ -1338,3 +1338,17 @@ button[aria-pressed=true] {
 .bp-logo{height:40px;max-width:120px;object-fit:contain;border:1px solid var(--line);border-radius:6px;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/12px 12px}
 .bp-go{width:100%;justify-content:center}
 .page-heading .bp-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+/* E5(2026-10-26) 🧰 무료 이미지 도구 — 테일윈드 없음, bp- 규칙과 함께 쓴다 */
+.ft-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0 4px}
+.ft-tabs button{border:1px solid var(--line-strong);background:#fff;border-radius:10px;padding:10px 6px;font-size:14px;font-weight:800;cursor:pointer;color:inherit}
+.ft-tabs button.on{background:var(--brand);border-color:var(--brand-deep);color:var(--brand-text);box-shadow:var(--pop)}
+.ft-checker{background:repeating-conic-gradient(#e7e5e4 0 25%,#fff 0 50%) 0 0/16px 16px}
+.ft-view{display:block;width:100%;height:auto;touch-action:none}
+.ft-view.empty{display:none}
+.ft-view.bg{cursor:crosshair}
+.ft-view.face{cursor:cell}
+.ft-view.split{cursor:move}
+.ft-layouts{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px}
+.ft-layouts button{border:1px solid var(--line-strong);background:#fff;border-radius:8px;padding:7px 4px;font-size:12px;font-weight:800;cursor:pointer;color:inherit}
+.ft-layouts button.on{background:var(--brand);border-color:var(--brand-deep);color:var(--brand-text)}
+@media(max-width:767px){.ft-tabs button{font-size:12px;padding:9px 4px}}

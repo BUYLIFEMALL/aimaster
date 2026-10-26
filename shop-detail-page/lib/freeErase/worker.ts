@@ -2,7 +2,7 @@
 // 공용 기준 코드 `browser-free-erase` — 작업자(worker): 모델 받기(Cache API 저장)·세션 만들기·지우기/글자 찾기 계산. 화면이 멈추지 않게 여기서만 계산한다.
 // onnxruntime-web은 묶지 않고 같은 주소 정적 파일(/ort/, scripts/copy-ort.mjs)에서 불러온다(docs/ERROR_LESSONS.md 2026-10-24).
 import type * as Ort from "onnxruntime-web";
-import { FREE_ERASE_CACHE, FREE_ERASE_MODELS, LAMA_SIZE, type Backend, type ModelKind, type WorkerIn, type WorkerOut } from "./protocol";
+import { FREE_ERASE_MODELS, LAMA_SIZE, modelCache, type Backend, type ModelKind, type WorkerIn, type WorkerOut } from "./protocol";
 
 const post = (m: WorkerOut, transfer: Transferable[] = []) => (self as unknown as Worker).postMessage(m, transfer);
 
@@ -28,7 +28,7 @@ function getOrt(threads: number): Promise<typeof Ort> {
 async function modelBytes(kind: ModelKind): Promise<Uint8Array> {
   const hit0 = bytes.get(kind); if (hit0) return hit0;
   const { url, bytes: total } = FREE_ERASE_MODELS[kind];
-  const cache = await caches.open(FREE_ERASE_CACHE);
+  const cache = await caches.open(modelCache(kind));
   const hit = await cache.match(url);
   if (hit) { const b = new Uint8Array(await hit.arrayBuffer()); post({ type: "progress", model: kind, loaded: b.length, total: b.length }); bytes.set(kind, b); return b; }
   const res = await fetch(url);
@@ -101,6 +101,14 @@ self.onmessage = async (ev: MessageEvent<WorkerIn>) => {
       const rgb = await runLama(m.threads, m.image, m.mask);
       const copy = new Float32Array(rgb); // 세션 버퍼를 넘기지 않도록 복사해 보낸다
       post({ type: "erased", id: m.id, rgb: copy }, [copy.buffer]);
+      return;
+    }
+    if (m.type === "run") {
+      const r = await session(m.model, m.threads);
+      const ort = await getOrt(m.threads);
+      const out = await r.s.run({ [r.s.inputNames[0]]: new ort.Tensor("float32", m.input, m.dims) });
+      const outputs = r.s.outputNames.map((k) => ({ data: new Float32Array(out[k].data as Float32Array), dims: [...out[k].dims] }));
+      post({ type: "ran", id: m.id, outputs }, outputs.map((o) => o.data.buffer));
       return;
     }
     const det = await session("det", m.threads);

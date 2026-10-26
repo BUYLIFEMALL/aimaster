@@ -3,7 +3,7 @@
 //          const boxes = await detectTextBoxes(img, w, h) → fillBoxes(mask, w, h, boxes)
 import {
   LAMA_SIZE, MASK_DILATE, binarizeMask, detInputSize, dilateMask, freeEraseErrorText, maskClusters, probToBoxes, scaleBoxes, workRegion,
-  type Backend, type Box, type ModelKind, type WorkerIn, type WorkerOut,
+  type Backend, type Box, type ModelKind, type RunOutput, type WorkerIn, type WorkerOut,
 } from "./protocol";
 
 export interface FreeEraseProgress { model: ModelKind; loaded: number; total: number }
@@ -151,3 +151,10 @@ export async function detectTextBoxes(src: Src, w: number, h: number): Promise<B
 }
 
 export { fillBoxes } from "./protocol";
+
+/** 범용 실행(E5 무료 이미지 도구 — 배경 지우기·얼굴 찾기): 모델 준비 후 입력 하나로 계산, 출력은 모델 순서대로 */
+export async function runModel(model: ModelKind, input: Float32Array, dims: number[]): Promise<RunOutput[]> {
+  await loadFreeErase(model);
+  const res = await call<Extract<WorkerOut, { type: "ran" }>>({ type: "run", id: ++seq, model, threads: freeEraseThreads(), input, dims }, [input.buffer]);
+  return res.outputs;
+}

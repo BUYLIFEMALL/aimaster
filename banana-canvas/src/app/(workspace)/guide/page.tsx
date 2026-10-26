@@ -100,6 +100,7 @@ export default function GuidePage() {
           <a href="#tools" className="luxury-toc-chip">💎 ③ 12대 작업별 설명</a>
           <a href="#free-erase" className="luxury-toc-chip">🧼 ④ AI 매직 지우개 (0원)</a>
           <a href="#batch-photo" className="luxury-toc-chip">🖼 사진 일괄 손질 (0원)</a>
+          <a href="#free-tools" className="luxury-toc-chip">🧰 무료 이미지 도구 (0원)</a>
           <a href="#styles" className="luxury-toc-chip">🎨 ⑤ 20종 스타일 프리셋</a>
           <a href="#tips" className="luxury-toc-chip">💡 ⑥ 고화질 제작 요령</a>
           <a href="#privacy" className="luxury-toc-chip">🛡️ ⑦ 프라이버시 보호 규정</a>
@@ -321,6 +322,23 @@ export default function GuidePage() {
           <Step n={4} title="한 번에 받습니다">JPG·PNG와 파일 이름 앞붙임을 정하고 <b>[결과 받기]</b>를 누르면 여러 장은 ZIP으로 받습니다. 촬영 정보·위치 정보(GPS)는 결과 파일에 들어가지 않습니다.</Step>
         </ol>
         <p className="bc-hint">⚠️ 로고·문자 워터마크는 본인 상표·상호만 쓰세요. 다른 업체 사진에 워터마크를 넣어 내 것처럼 쓰면 저작권 문제가 될 수 있습니다.</p>
+      </section>
+
+      {/* E5(2026-10-26) 무료 이미지 도구 */}
+      <section id="free-tools" className="card">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+          <h2>🧰 무료 이미지 도구 (배경 지우기·얼굴 가리기·사진 나누기)</h2>
+          <span className="nav-badge-free">0원 · 키 없음 · 사진이 서버로 가지 않음</span>
+        </div>
+        <p className="bc-hint">🛒 상품 누끼, 후기·택배 사진의 얼굴·송장 가리기, 긴 사진 나누기를 한 화면에서 합니다. 처음 한 번만 작은 AI 계산용 모델 파일(배경 약 5MB·얼굴 약 1MB)을 받고, 다음부터는 브라우저에 저장된 파일을 씁니다.</p>
+        <ol className="gd-steps">
+          <Step n={1} title="사진을 넣고 도구를 고릅니다">사이드바 <b>[🧰 무료 이미지 도구]</b>에서 사진을 끌어 놓거나 <b>Ctrl+V</b>로 붙여넣고(최대 20장), 위쪽 탭에서 <b>✂ 배경 지우기 · 🙈 얼굴 가리기 · ▦ 사진 나누기</b> 중 하나를 고릅니다.</Step>
+          <Step n={2} title="자동으로 처리합니다"><b>[배경 자동 지우기]</b> 또는 <b>[얼굴 찾아 가리기]</b>를 누르면 몇 초 안에 결과가 미리보기에 보입니다. 나누기는 2~16조각 모양을 고르면 됩니다.</Step>
+          <Step n={3} title="손으로 다듬습니다">배경은 <b>지우기·되살리기 붓</b>으로 경계를 문지르고, 얼굴 가리기는 사진 위를 <b>끌어 네모 추가</b>·<b>눌러 빼기</b>, 나누기는 <b>빨간 선을 끌어</b> 위치를 바꿉니다.</Step>
+          <Step n={4} title="받습니다"><b>[이 사진 받기]</b> 또는 여러 장이면 <b>[모두 받기(ZIP)]</b>. 투명 배경은 PNG로 저장되고, 촬영 정보·위치 정보는 결과 파일에 들어가지 않습니다.</Step>
+        </ol>
+        <p className="bc-hint">💡 머리카락·유리병처럼 섬세한 경계는 가벼운 무료 모델이 약합니다. 더 정교한 누끼가 필요하면 「🪄 AI 작업 카드」(본인 Gemini 키)를 이용하세요.</p>
+        <p className="bc-hint">⚠️ 약한 흐림·작은 모자이크는 알아볼 수 있습니다. 개인정보는 강도를 충분히 올리거나 <b>검게 칠</b>을 쓰고, 받은 결과를 꼭 확인하세요.</p>
       </section>
 
       {/* 8. 20종 스타일 프리셋 시각화 */}

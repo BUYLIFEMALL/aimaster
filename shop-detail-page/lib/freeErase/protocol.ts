@@ -4,6 +4,9 @@
 
 const LAMA_COMMIT = "c3c0c9e468934d62e79c329e35d82dd09ff8c444";
 const OCR_COMMIT = "1cfba2e90fc938db55889873735088de210cc173";
+// E5 무료 이미지 도구(2026-10-26): 배경 지우기 U²-Net 경량판·얼굴 찾기 UltraFace RFB-320
+const U2NETP_COMMIT = "7112208dbac3a3642496c8d54e2f0f9bb3dc1dc8";
+const RFB_COMMIT = "6fd293d22b523ec88959f104b8eef5395e3adfbc";
 export const FREE_ERASE_MODELS = {
   lama: {
     url: `https://huggingface.co/Carve/LaMa-ONNX/resolve/${LAMA_COMMIT}/lama_fp32.onnx`,
@@ -17,9 +20,24 @@ export const FREE_ERASE_MODELS = {
     license: "Apache-2.0 · PaddleOCR PP-OCRv4(Baidu) · ONNX 변환 RapidOCR",
     page: "https://huggingface.co/SWHL/RapidOCR",
   },
+  bg: {
+    url: `https://huggingface.co/BritishWerewolf/U-2-Netp/resolve/${U2NETP_COMMIT}/onnx/model.onnx`,
+    bytes: 4_574_861,
+    license: "Apache-2.0 · U²-Net(Qin et al.) 경량판 u2netp · ONNX 변환 BritishWerewolf",
+    page: "https://huggingface.co/BritishWerewolf/U-2-Netp",
+  },
+  face: {
+    url: `https://huggingface.co/onnxmodelzoo/version-RFB-320/resolve/${RFB_COMMIT}/version-RFB-320.onnx`,
+    bytes: 1_270_727,
+    license: "Apache-2.0 · Ultra-Light-Fast-Generic-Face-Detector RFB-320 · ONNX Model Zoo",
+    page: "https://huggingface.co/onnxmodelzoo/version-RFB-320",
+  },
 } as const;
 /** 캐시 이름에 모델 커밋을 넣어, 모델을 바꾸면 새로 받게 한다 */
 export const FREE_ERASE_CACHE = `free-erase-${LAMA_COMMIT.slice(0, 7)}-${OCR_COMMIT.slice(0, 7)}`;
+/** 새 모델은 따로 저장 — 위 이름을 바꾸면 회원이 받아 둔 지우기 모델(208MB)을 다시 받게 된다 */
+export const FREE_TOOLS_CACHE = `free-tools-${U2NETP_COMMIT.slice(0, 7)}-${RFB_COMMIT.slice(0, 7)}`;
+export const modelCache = (kind: keyof typeof FREE_ERASE_MODELS) => (kind === "lama" || kind === "det" ? FREE_ERASE_CACHE : FREE_TOOLS_CACHE);
 export const LAMA_SIZE = 512;
 /** 마스크 넓히기 기본값(512 기준 픽셀) — 가장자리가 남으면 LaMa가 형체를 다시 그린다(§7 ③-1) */
 export const MASK_DILATE = 3;
@@ -37,12 +55,16 @@ export interface Box { x: number; y: number; w: number; h: number }
 export type WorkerIn =
   | { type: "load"; model: ModelKind; threads: number }
   | { type: "erase"; id: number; threads: number; image: Float32Array; mask: Float32Array }
-  | { type: "detect"; id: number; threads: number; input: Float32Array; width: number; height: number };
+  | { type: "detect"; id: number; threads: number; input: Float32Array; width: number; height: number }
+  /** 범용 실행(입력 하나) — 결과는 모델의 출력 순서대로 */
+  | { type: "run"; id: number; model: ModelKind; threads: number; input: Float32Array; dims: number[] };
+export interface RunOutput { data: Float32Array; dims: number[] }
 export type WorkerOut =
   | { type: "progress"; model: ModelKind; loaded: number; total: number }
   | { type: "ready"; model: ModelKind; backend: Backend }
   | { type: "erased"; id: number; rgb: Float32Array }
   | { type: "detected"; id: number; prob: Float32Array; width: number; height: number }
+  | { type: "ran"; id: number; outputs: RunOutput[] }
   | { type: "error"; id?: number; model?: ModelKind; message: string };
 
 /** 그림 알파(또는 회색값) → 0/1 마스크. 0보다 크면 지울 곳(흐린 가장자리 포함) */

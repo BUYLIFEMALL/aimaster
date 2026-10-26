@@ -153,6 +153,20 @@ export function Sidebar({
             <span className="nav-badge-free">0원</span>
           </a>
 
+          {/* E5(2026-10-26) 무료 이미지 도구 — 배경 지우기·얼굴 가리기·사진 나누기(브라우저 처리) */}
+          <a
+            className="nav-item group"
+            aria-current={currentPath === "/tools" ? "page" : undefined}
+            href="/tools"
+            title="배경 지우기·얼굴 가리기·사진 나누기를 키 없이 브라우저에서 합니다(서버 전송 없음)"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[15px] group-hover:scale-110 transition-transform">🧰</span>
+              <span className="truncate">무료 이미지 도구</span>
+            </div>
+            <span className="nav-badge-free">0원</span>
+          </a>
+
           {/* 내 결과 기록 */}
           <a
             className="nav-item group"
