@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.40 E5 「🧰 무료 이미지 도구」 배포
+- 한 일: `/tools` 배경 지우기(u2netp, 지우기·되살리기 붓)·얼굴 가리기(UltraFace, 모자이크·흐림·검게, 손 네모)·사진 나누기(2~16, 선 끌기, ZIP). 공용 `browser-free-erase`에 `bg`·`face`·범용 `run` 추가(캐시 이름 따로), 상세페이지 사본 동기화(미배포 대기). 메뉴·매뉴얼 `#free-tools`·시험 8개(전체 69).
+- 검수: 로컬 크롬(임시 페이지, 커밋 안 함)·운영 크롬 일반 회원 — 얼굴 모자이크 JPG Exif 0건, 누끼 PNG 투명 64%, 4분할·선 끌기, 390px 1단, E4 80px 함께 나감. 운영 첫 얼굴 찾기 1회 지연(새로 고침 뒤 정상, 재현 안 됨).
+- 커밋 `baf4a88e6`, 배포 `banana-canvas-ika50w7rb` + 같은 코드 실수 재배포 `-ph6adch6a`(빌드 2회, ERROR_LESSONS 기록). 남은 일: 「사진 일괄 손질로 넘기기」(미구현), 상세페이지 사본 배포 대기. 다음 첫 단계: E3(상세페이지 디자인 작업 끝났는지 확인부터). 상세 `banana-canvas/AGENTS.md` 맨 위.
+- 링크: https://banana-canvas.buylife.xyz/tools · https://banana-canvas.buylife.xyz/guide#free-tools
+
 ## 2026-10-26 [역할: blog] Codex · 세션 `codex-win-20261025-blog` — 이웃 소통0-B HUB 검색·계정/자료접근 확인
 - [0-B 결과/다음 단계](analysis-naver-blog-neighbor-20261024/PREVALIDATION_20261026_0B_SEARCH_ACCOUNT_ACCESS.md)·[HUB 증거](analysis-naver-blog-neighbor-20261024/evidence/preflight-0b-hub-20261026.json). 시험회원 본인 공용키로 구API401·024, 현재NAVER API HUB200·검색3개 확인. 총조회2회·새키/연결/요금제 변경0·AI/빌드/배포0. 운영ref esgxyikcnnvmlhygjkth는 스키마/메타/본인키 읽기만(관리자 결과메타 별도).
 - 신규검색 발급의 HUB 이관·구키2027-06-30 유예를 앞선 명세/공식자료에 보완. 검색 응답은 제목/URL/요약 등이며 전문·관계/소통 검수 아님. 공개 요금표와 사용가이드의 일/월 한도 표현 차이도 기록. Edge는Gmail 설정화면/전경Orca로 실제계정 검수 미완료 유지.
