@@ -39,7 +39,7 @@ export function buildAiInput(history, now = Date.now()) {
       매매평균가격: wonText(sale?.avg),
       매매평균변화퍼센트: sale?.avg && saleBefore?.avg ? Math.round(((sale.avg / saleBefore.avg) - 1) * 1000) / 10 : null,
       실거래대비퍼센트: sale?.tradeGapAvg ?? null,
-      이번주_새매물: ev.new, 이번주_가격내림: ev.priceDown, 이번주_가격오름: ev.priceUp, 이번주_사라짐: ev.gone,
+      이번주_새매물: ev.new, 이번주_가격내림: ev.priceDown, 이번주_가격오름: ev.priceUp, 이번주_목록에서_내려감: ev.gone,
     };
   });
   return { 기간: `${new Date(first.at).toISOString().slice(0, 10)}~${new Date(last.at).toISOString().slice(0, 10)}`, 기록회수: recent.length, 단지들: complexes, now };
@@ -49,13 +49,17 @@ export function buildAiPrompt(input, year = new Date().getFullYear()) {
   return [
     `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기는 ${year}년 기준으로 쓰고 과거 연도로 퇴행하지 마세요.]`,
     "너는 부동산 매물 알림 비서야. 아래는 회원이 감시하는 아파트 단지들의 최근 7일 네이버 매물 통계야. 가격은 「10억 6,086만 원」처럼 이미 한국어 금액으로 적혀 있으니 그대로 옮겨 쓰고, 단위를 바꾸거나 다시 계산하지 마.",
-    "이번 주 시세 흐름을 한국어 존댓말 1~2문장, 200자 이내로 요약해. 가장 눈에 띄는 단지·변화(호가 오름/내림, 새 매물, 실거래 대비)를 숫자와 함께 짚고, 투자 권유·단정은 하지 마.",
+    "이번 주 시세 흐름을 한국어 존댓말 1~2문장, 200자 이내로 요약해. 가장 눈에 띄는 단지·변화(호가 오름/내림, 새 매물, 실거래 대비)를 숫자와 함께 짚고, 투자 권유·단정은 하지 마. 제목·#·굵은 글씨·목록 기호 없이 평범한 문장으로만 써. 「목록에서_내려감」은 광고를 내린 것일 수도 있으니 「거래됐다」고 단정하지 마.",
     "기록이 1~2회뿐이면 「아직 기록이 적어」라고 짧게 밝혀.",
     JSON.stringify(input),
   ].join("\n");
 }
 
-const clip = (s) => String(s || "").replace(/\s+/g, " ").trim().slice(0, AI_MAX_CHARS);
+/** AI 글 정리: 제목 #·굵은 글씨·목록 기호를 지우고 한 줄 200자(2026-10-26 Claude가 「# 📊 …」 제목 서식으로 답한 사례) */
+export function cleanAiText(s) {
+  return String(s || "").replace(/^\s{0,3}#{1,6}\s*/gm, "").replace(/\*\*|__|`/g, "").replace(/^\s*[-*•]\s+/gm, "").replace(/\s+/g, " ").trim().slice(0, AI_MAX_CHARS);
+}
+const clip = cleanAiText;
 
 async function callGemini(apiKey, prompt, model) {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model || GEMINI_MODEL}:generateContent`, {

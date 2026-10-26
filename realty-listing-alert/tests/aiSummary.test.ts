@@ -1,7 +1,7 @@
 // 🤖 AI 시세 요약(2026-10-25, v1.22) — 보내는 숫자 만들기·프롬프트·저렴한 모델 고르기 시험(실제 AI 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildAiInput, buildAiPrompt, pickOpenAiModel, wonText } from "../extension/lib/aiSummary.js";
+import { buildAiInput, buildAiPrompt, cleanAiText, pickOpenAiModel, wonText } from "../extension/lib/aiSummary.js";
 
 const snap = (at: string, total: number, avg: number, ev = { new: 0, priceDown: 0, priceUp: 0, gone: 0 }) => ({
   at,
@@ -22,7 +22,7 @@ test("최근 7일 변화: 매물 수·매매 평균 % · 이번 주 변동 합�
   assert.equal(c.매매평균변화퍼센트, 2);
   assert.equal(c.매매평균가격, "5억 1,000만 원");
   assert.equal(c.실거래대비퍼센트, 4);
-  assert.deepEqual([c.이번주_새매물, c.이번주_가격내림, c.이번주_가격오름, c.이번주_사라짐], [5, 1, 1, 1]);
+  assert.deepEqual([c.이번주_새매물, c.이번주_가격내림, c.이번주_가격오름, c.이번주_목록에서_내려감], [5, 1, 1, 1]);
   assert.equal(JSON.stringify(x).includes("중개사A"), false);
   assert.equal(buildAiInput([]), null);
 });
@@ -66,4 +66,9 @@ test("금액 한국어 표기: 단위를 AI가 헷갈리지 않게", () => {
   assert.equal(wonText(6000), "6,000만 원");
   assert.equal(wonText(null), null);
   assert.match(buildAiPrompt({ a: 1 }, 2026), /그대로 옮겨/);
+});
+
+test("AI 글 정리: 제목 #·굵은 글씨 지우기, 사라짐을 거래로 단정하지 않게 지시", () => {
+  assert.equal(cleanAiText("# 📊 주간 현황\n**일산** 매물이 늘었어요."), "📊 주간 현황 일산 매물이 늘었어요.");
+  assert.match(buildAiPrompt({ a: 1 }, 2026), /단정하지 마/);
 });
