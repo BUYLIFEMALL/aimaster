@@ -1,10 +1,10 @@
 # 블로그
 
-- 담당: **Codex(윈도우·엣지), 세션 `codex-win-20261025-blog`** — 2026-10-25 주인님 명시 인수. 이전 Claude Code `claude-win-20261024-blog3`. [인계 문서](../HANDOFF_20261025_BLOG_TO_CODEX.md).
+- 담당: **Codex(윈도우·엣지), 재개 세션 `codex-win-20261026-blog-check`** (이전 `codex-win-20261025-blog`) — 2026-10-25 주인님 명시 인수. 이전 Claude Code `claude-win-20261024-blog3`. [인계 문서](../HANDOFF_20261025_BLOG_TO_CODEX.md).
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-26 1번서버/DB 소스·로컬48검수 완료, 운영SQL Run 대기. [신규프로그램인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용안내](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md). 운영등록/키/회원권한/배포 변경0, 별도5번제외·기존Edge/SEO대기 보존.
+- 마지막 갱신: 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. 세션 `codex-win-20261026-blog-check`.
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -12,15 +12,13 @@
 
 ## 지금 하는 일
 
-**2026-10-26 23:38 후속:** 운영 여전히 false/0/null, 검수 SQL 해시 일치·스키마1/테이블6/트랜잭션1 확인. Edge 전경HWND0으로 클릭하지 않음. 기존 주인님 직접 Run 지정을 Codex 실행으로 바꿀지 채팅 답변 대기. 운영쓰기0, 기존 DB 요청6eecd22c 유지. 마지막 갱신: `codex-win-20261026-blog-check`.
+**최신:** 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. 다음은 2번 읽기검수의 허용자료·본인Edge 준비 확인. 이전Run대기는 해소됐으며 아래 과거시각 기록은 이력입니다.
 
-**2026-10-26 23:13 재개 확인:** 운영 ref `esgxyikcnnvmlhygjkth`를 Supabase 연결 도구로 직접 SELECT한 결과 `private_schema=false / table_count=0 / dispatcher=null`. 운영 미적용·주인님 Run 대기 유지(요청6eecd22c). 생성/삭제/라이브/빌드/배포0. 마지막 확인 갱신: Codex `codex-win-20261026-blog-check`.
-
-**최신 진행 결과:** 주인님순서1에따라 blog-neighbor-care 서버/API·신규6표/RLS/서버전용RPC를구현, API14·실제PG28·실제NextHTTP6=48개/타입/최종로컬빌드 통과. [상세인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 운영DB는미적용·미배포, 원본인수인계의Run주인님규칙에따라 DB요청6eecd22c 대기. 앱UI/확장/AI/정책허용/운영회원E2E미완료.
+**최신 진행 결과:** 주인님순서1에따라 blog-neighbor-care 서버/API·신규6표/RLS/서버전용RPC를구현, API14·실제PG28·실제NextHTTP6=48개/타입/최종로컬빌드 통과. [상세인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 운영DB 적용·읽기검수는23:47 완료, DB요청6eecd22c 처리완료. 앱은미배포. 앱UI/확장/AI/정책허용/운영회원E2E미완료.
 
 **앞선 분석 결과:** [신규개발·병합·연계 공통 인수인계](../analysis-blog-consolidation-20261020/HANDOFF.md)와 [최신 전체 분석](../analysis-blog-consolidation-20261020/REPORT.md#blog-efficiency-20261025). 주인님 후속 지시로 개별 구현보다 분석을 먼저 완료했고, 콘텐츠메이커③-2 단독 발행 플랜은 후보 보존/재검토 상태입니다.
 
-**현재 우선순위:** ① 버전 정합성 완료 → ② 기존 원고 실제 입력(발행 전까지) → ③ SEO 비공개 예약·확인·즉시 취소. [현재 실행 기록/조건](../HANDOFF_20261025_BLOG_TO_CODEX.md#10-추천-운영13-실행-기록2026-10-25-codex). 신규 병합/연계 구현은 이번 범위가 아닙니다.
+**기존 앱 별도 대기 우선순위(현재 이웃소통 다음):** ① 버전 정합성 완료 → ② 기존 원고 실제 입력(발행 전까지) → ③ SEO 비공개 예약·확인·즉시 취소. [현재 실행 기록/조건](../HANDOFF_20261025_BLOG_TO_CODEX.md#10-추천-운영13-실행-기록2026-10-25-codex). 신규 병합/연계 구현은 이번 범위가 아닙니다.
 
 > [최신 인수 점검·요청 ID·다음 단계](../HANDOFF_20261025_BLOG_TO_CODEX.md#8-codex-인수-확인재개-준비2026-10-25). 아래 이전 실패/Chrome 기록은 당시 상황입니다.
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -38,10 +36,12 @@
 | `naver-blog-agent` | E-2 회원 선택 빠른 입력(보류) | 재개 결정 | 같은 플랜 |
 | `naver-blog-seo-studio` | 도톨이 2차(이전 글 비교·스타일 점수·이미지 노드), N7·N13 | 결정 | `naver-blog-seo-studio/docs/PLAN_20261024_DOTORI_D1_D4.md` |
 | 워드프레스·블로그스팟 | 같은 기준으로 기존 프로그램 있는지 점검 | 아래 여쭐 것 답 | 루트 핵심 지침 |
-| `blog-neighbor-care`(신규) | 1번서버/DB 소스·로컬48검수 완료 | 운영SQL주인님Run·운영읽기검수 대기(요청6eecd22c). 다음단계자동착수안함 | [자체인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용안내](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md) |
+| `blog-neighbor-care`(신규) | 1번서버/DB 로컬48개·운영6표/RLS/RPC/runtime=false 검수완료 | 2번 본문/이웃피드/관계 허용수단·본인Edge 읽기검수, 프로그램등록/SSO후속 | [자체인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)·[적용안내](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md) |
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+
+- 2026-10-26: 이웃소통 운영SQL 적용·읽기검수 완료, 직접Run 요청6eecd22c 해소. 앱배포/실제소통은 미완료.
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
 | 2026-10-26 | BLOGv1.83·티스토리v1.93·올인원v1.54 | Next16.4.2·sharp0.35.5, 무료396개·tsc/빌드·운영HTTP/DB/ZIP OK. SEOv2.21 메타 정정은 별도 | 순차3회 |
@@ -58,7 +58,7 @@
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-**최신 이웃 소통 우선 단계:** 검수SQL을주인님Run→운영6표/RLS/RPC권한/runtimefalse읽기확인→1번정리후나머지순서대로. 요청6eecd22c. 다른단계/디자인/실제소통은미착수.
+**최신 이웃 소통 우선 단계:** 1번운영적용/읽기검수 완료 → 2번 허용자료·본인Edge 읽기검수. 검색요약과 전문/관계를 구분. 이후 프로필/AI·디자인시안·확장 순서, 타세션5번 제외.
 0. OS 실제 전경 확인: 엣지 전경 전환 요청 실패(false), 주인님이 작업표시줄에서 Edge를 직접 클릭해 앞에 두기. 화면 읽기/캡처 성공만으로 전경 성공으로 보지 않음. v2.22 웹 화면/설치확장 업데이트 상태를 확인(최근 실제 설치 확인은v2.21). 키 입력이 막힌 상태에서 반복 강제포커스 금지.
 1. 주인님 답변/관리자 요청 상태 확인 → Edge 시험 계정·확장·네이버 계정 대조. 기존8연결 폐기는 명시 답변이 있어야 하며 새 Edge 연결은 보존.
 2. 원고48f06db1가 prepare/비공개/예약꺼짐임을 화면에서 재확인 → 한 번 전송 → 실제 편집기·보관함 prepared 결과 대조. 최종 발행0 유지.
@@ -66,7 +66,7 @@
 4. 위 시험을 마친 뒤 다음 병합/연계 단위 또는 보안 업데이트를 결정. 콘텐츠③-2 독립 발행 플랜은 후보 재검토 상태. 관리자 요청함0044는 현재 정상 작동.
 
 ## 주인님께 여쭐 것
-- [DB SQL 실행] 신규이웃소통1단계 검수SQL(신규6표/RLS·서버RPC, runtimefalse)을 운영ref esgxyikcnnvmlhygjkth에 직접Run 후 알려주세요. 원본인수인계§4 Run주체지정유지. [검수본/순서](../../blog-neighbor-care/docs/APPLY_20261026_SERVER_DATABASE.md). 요청6eecd22c-9423-45f4-8b3e-1ab6d479a371.
+- [계정/외부 확인] 2번 전문·이웃피드·관계 읽기검수에 필요한 허용수단/자료와 본인Edge 로그인·전경 준비. SQL 직접Run 요청은 해소됨.
 
 - [범위 인수] SEO 디자인 완료 후 남은 보안패치2파일(임시127개/타입/적용검사 통과)을 Codex가 인수·적용·기존승인 배포1회로 이어갈지. agy ACTIVE_WORK 예약이 남음. 요청 cf22fd7b-452c-4017-8eec-bc4e4419d8ec.
 - [화면 확인] 도구/Edge는 Windows 원격 rdp-tcp#0 세션2, 전경 chrome. 해당 원격화면에서 작업표시줄 Edge를 직접 클릭했는지와 보고 있는 화면이 원격/직접 PC인지 확인 필요.

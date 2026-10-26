@@ -1,5 +1,7 @@
 # 이웃 소통 자동화 — 0-B 검색 API·계정·자료 접근 사전 확인
 
+> **23:47 후속:** 1번 운영SQL 적용·메타데이터 검수완료([결과](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)). 2번읽기 확인으로 [HUB 검색 규격](https://api.ncloud-docs.com/docs/naver-api-hub-search-blog)·[네이버 이용약관](https://policy.naver.com/rules/service.html)·[접근 안내](https://policy.naver.com/policy/disclaimer.html)를 재조회했습니다. 기존200/3개는 재호출하지 않았습니다. 요약은전문이 아니며 본문/이웃피드/관계 실검수·허용수단은 미확인. 본인Edge 로그인·전경 준비를 채팅으로 요청했으며 실제등록/신청/공감/댓글0.
+
 2026-10-26 · `codex-win-20261025-blog` [역할: blog] · 대상 ① AIMaster 운영 DB ref `esgxyikcnnvmlhygjkth`.
 
 **결과: 시험 회원의 기존 공용 키로 NAVER API HUB 검색 1회 성공(HTTP200·결과3개).** 구 API는 같은 키로401·024 인증 실패. 이번0-B는 검색 API·본인 키·응답 자료 범위 확인이며, 본문 자동 수집·서로이웃 상태·신청/공감/댓글의 구현이나 허용 확인을 뜻하지 않습니다.

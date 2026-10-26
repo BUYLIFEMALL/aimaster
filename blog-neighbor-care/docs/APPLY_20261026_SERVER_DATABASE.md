@@ -1,6 +1,8 @@
 # 서버/DB 1단계 — 운영 적용 검수본
 
-**대상① AIMaster 운영 ref `esgxyikcnnvmlhygjkth`만. 현재미적용입니다.** [검수·한계](IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)를먼저읽습니다. 원본[인수인계§4](../../docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md)는 **「운영 DB 쓰기는 주인님 승인 뒤, 크롬 SQL 편집기에 넣어 두고 Run은 주인님」**이라고지정했습니다. 당시Claude담당기록의브라우저표현과현재CLI배정을구분하며Codex는Edge만사용합니다. SQL실행주체지정은유지했습니다.
+> **적용 완료 — 생성 SQL을 다시 실행하지 않습니다.** 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. [상세결과](IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 아래 직접Run 순서는 당시 준비 절차이며, 사용자 후속지시로 이번 검수본은 Codex가 적용했습니다. 이후 확인에는 `verify_server_queue.sql`의 SELECT만 사용합니다.
+
+**대상① AIMaster 운영 ref `esgxyikcnnvmlhygjkth`만. 현재 적용 완료입니다.** [검수·한계](IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)를먼저읽습니다. 원본[인수인계§4](../../docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md)는 **「운영 DB 쓰기는 주인님 승인 뒤, 크롬 SQL 편집기에 넣어 두고 Run은 주인님」**이라고지정했습니다. 당시Claude담당기록의브라우저표현과현재CLI배정을구분하며Codex는Edge만사용합니다. 이전 직접Run 지정은 당시 절차이며, 이번 적용은 상단 후속지시 기록을 따릅니다.
 
 ## 실행할 파일·범위
 

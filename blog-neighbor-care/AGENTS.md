@@ -1,10 +1,12 @@
 # AI 블로그 이웃 소통 자동화 — 담당 지침
 
+> **최신 상태:** 2026-10-26 23:47 운영SQL 적용·읽기검수 완료: 신규6표 RLS=true, runtime=false, RPC는service_role만, 회원직접쓰기/서버runtime수정불가, jobs/settings0. 프로그램등록·실제SSO/계정·UI/AI/확장·30일정리·배포는 미완료. 사용자 후속 실행 지시에 따라 Codex가 적용했습니다. 생성 SQL 재실행 대신 [완료검수/다음단계](docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)를 확인합니다.
+
 2026-10-26 · 담당 `codex-win-20261025-blog` [역할: blog]. 루트 지침 우선. ① AIMaster 운영용 신규 독립 기본 프로그램 `blog-neighbor-care`, 운영ref `esgxyikcnnvmlhygjkth`.
 
 ## 목적·현재 상태
 
-본인 블로그에 맞는 후보 선별→서로이웃 신청/수락→새 글 공감/분석/댓글→외부 결과 기록. [원문 D1~D9](../docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md) 유지. 현재 **1번 서버/DB 소스와 로컬 검수만**, 운영SQL/프로그램등록/배포/실제네이버 동작 미완료. 공개UI·확장·AI생성은 아직 없습니다. 계획 초기버전v1.01(package1.1.0), 실제릴리스 아님.
+본인 블로그에 맞는 후보 선별→서로이웃 신청/수락→새 글 공감/분석/댓글→외부 결과 기록. [원문 D1~D9](../docs/analysis-naver-blog-neighbor-20261024/HANDOFF_20261024_BLOG_NEIGHBOR_CARE.md) 유지. 현재 **1번 서버/DB 소스와 로컬 검수만**, 운영SQL 적용·읽기검수 완료, 프로그램등록/배포/실제네이버 동작 미완료. 공개UI·확장·AI생성은 아직 없습니다. 계획 초기버전v1.01(package1.1.0), 실제릴리스 아님.
 
 ## 구조·도구
 
@@ -31,7 +33,7 @@ npm run test:http
 
 명령은 **이폴더**에서만 실행. DB검수는캐시된`postgres:17-alpine` 필요(`--pull never`), 실제DB/회원키연결없음. HTTP검수는빌드뒤실행, 가짜공개키/세션없음 경로만 확인. 실제Supabase로그인/Edge E2E통과로보고하지않습니다. [검수·인수인계](docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md)와`docs/evidence/`참고.
 
-**운영SQL:** [적용안내](docs/APPLY_20261026_SERVER_DATABASE.md)·검수SQL을 먼저제시합니다. 원본인수인계§4의 「운영 DB 쓰기는 주인님 승인 뒤…Run은 주인님」을 유지합니다. 사용자후속지시로절차가변경되면해당명시범위만기록해진행합니다. 현재운영스키마/키/권한/프로그램행을수정하지않았습니다.
+**운영SQL:** [적용안내](docs/APPLY_20261026_SERVER_DATABASE.md)·검수SQL을 먼저제시합니다. 원본 직접Run 절차는 이번 검수본에 한해 사용자 후속지시로 변경해 Codex가 실행했습니다. 신규6표/함수/RLS/권한만 적용했으며 기존키/회원권한/프로그램행은 미수정입니다.
 
 ## 기능·장단점·이력
 
@@ -42,4 +44,4 @@ npm run test:http
 
 ## 대기·연계·디자인
 
-운영Run/읽기검증→해당1번단계정리, 그다음2번프로필/AI·3번디자인·4번확장순서로진행합니다. UI는디자인담당의4화면3시안/승인후. 다른세션5번워크스페이스/플래너·이미지원고복귀는제외. 기존Edge에이전트/SEO대기기록보존. [개선원장](docs/IMPROVEMENTS.md)·[대기목록](docs/IMPROVEMENT_BACKLOG.md)·[디자인전달](docs/DESIGN_HANDOFF.md).
+1번운영적용/읽기검수 완료. 다음은 허용자료·본인Edge 읽기검수와2번프로필/AI·3번디자인·4번확장순서로진행합니다. UI는디자인담당의4화면3시안/승인후. 다른세션5번워크스페이스/플래너·이미지원고복귀는제외. 기존Edge에이전트/SEO대기기록보존. [개선원장](docs/IMPROVEMENTS.md)·[대기목록](docs/IMPROVEMENT_BACKLOG.md)·[디자인전달](docs/DESIGN_HANDOFF.md).

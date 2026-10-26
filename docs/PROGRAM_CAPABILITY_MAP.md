@@ -625,7 +625,7 @@
 ### 블로그
 
 #### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — 서버 구현·운영 미등록
-- **1번서버/DB(2026-10-26)**: [신규폴더소스·로컬48검수](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md),6표/RLS·서비스전용RPC·공용인증/권한. 운영SQL주인님Run대기·미배포, 실제SSO/플랫폼·UI/확장/AI·30일삭제는미완료.
+- **1번서버/DB(2026-10-26)**: [신규폴더소스·로컬48검수](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md),6표/RLS·서비스전용RPC·공용인증/권한. 운영SQL 적용·6표RLS/서비스RPC/runtime=false 검수완료·미배포. 실제SSO/플랫폼·UI/확장/AI·30일삭제는미완료.
 - **모의검수(2026-10-26)**: [후보 사전필터/상태모델32개 통과](analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md), 가상100건에서댓글30예약·70제한. 단일프로세스모델로실제DB/RLS/확장/네이버는미검수, 운영앱 구현/출시와구분.
 - **0-B 확인(2026-10-26)**: [시험회원 기존 공용키로 HUB 검색200·3개](analysis-naver-blog-neighbor-20261024/PREVALIDATION_20261026_0B_SEARCH_ACCOUNT_ACCESS.md). 구경로401·024, 이관/자료범위 확인. 신규 프로그램 구현·본문/관계·신청/공감/댓글 검수·배포는 미완료.
 - **방향 확정(D1~D9)**: 본인 블로그와 맞는 후보 선별 → 서로이웃 신청 → 수락 확인 → 새 글 공감·본문 분석·맞춤 댓글 → 결과 기록. 신규 독립 기본 프로그램이며 기존 앱에 병합하지 않습니다.

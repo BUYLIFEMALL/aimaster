@@ -1,5 +1,16 @@
 # 서버·DB 1번 — 구현·검수 인수인계
 
+## 23:47 운영 적용·읽기 검수 완료
+
+- 실행 주체 변경 질문과 남은 작업 목록 제시 후 사용자가 「순서대로 계속 진행해」라고 지시했습니다. 이번 검수본의 운영SQL 실행·검수 진행으로 해석하여 Codex가 Supabase 연결 도구로 실행했습니다. 네이버 실동작/유료호출/배포 승인은 포함하지 않습니다.
+- 운영 ref `esgxyikcnnvmlhygjkth`에서 스키마/동명객체0·공용계정 참조열을 확인한 뒤 검수본 전체를 트랜잭션1회 실행했습니다. 원본 LF SHA256 `a5b3f68d53497b16a1e2c35a92b9afb13db5b374caf4418010b8b2eb1472d52e`. 오류없음. 생성 SQL 재실행 금지.
+- 별도 SELECT: 신규6표 모두RLS=true, 본인SELECT 정책5개, runtime=`live_allowed:false,policy_reference:null`, jobs=0/settings=0. RPC EXECUTE는anon/authenticated=false·service_role=true. service_role의runtime UPDATE=false, authenticated의jobs UPDATE=false. 함수2개는SECURITY INVOKER·빈search_path.
+- 보안advisor 신규영역은 `bnc_runtime`의 정책없음 INFO1개. 회원접근을닫고 서비스SELECT만허용한 의도된 설계입니다. 경고제거용 회원정책을 추가하지 않습니다. [공식설명](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy). 다른프로그램 경고는 수정하지 않았습니다.
+- **1번 서버/DB 운영 적용·메타데이터 검수 완료.** 실제 JWT/SSO·프로그램등록/요금제/회원권한·네이버계정/확장·UI/AI·30일정리·배포는 미완료. 기존회원/계정/키/프로그램행 변경0, 라이브활성화/네이버/AI/빌드/배포0.
+- 2번읽기검수: 기존 HUB200/3개 증거와 공식검색 응답규격/접근정책 재대조. 제목/URL/요약 범위만 확인됨. 전문/이웃피드/관계는 별도 허용수단 및 본인Edge 준비가 필요해 미검수입니다. 0-A의 미확인동작 비활성 기준 유지.
+- 세션 `codex-win-20261026-blog-check`. 아래23:38이전 미적용/직접Run대기 기록은 당시 이력입니다.
+
+
 ## 23:38 후속 진행 — SQL 원본 재검증·실행 주체 확인 대기
 
 - 「계속 진행해」 후 운영 연결 SELECT 결과는 여전히 `false / 0 / null`. SQL 원본 LF SHA256은 검수본 `a5b3f68d53497b16a1e2c35a92b9afb13db5b374caf4418010b8b2eb1472d52e`와 일치합니다. create schema 1회·create table 6회·BEGIN/COMMIT 각1회 확인.
