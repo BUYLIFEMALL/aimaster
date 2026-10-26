@@ -269,6 +269,9 @@
 
 #### EXT-BLOG-07 서이추&스댓공 Ai자동화 Ver3.5(공개용)
 
+> **0-B 확인(2026-10-26):** [시험회원 본인키 API HUB200·3개](analysis-naver-blog-neighbor-20261024/PREVALIDATION_20261026_0B_SEARCH_ACCOUNT_ACCESS.md), 구경로401·024. 검색/계정/응답범위 확인 완료, 신규발급HUB·이관유예/한도표현 보완. 프로그램 구현/본문·관계·쓰기 실검수는 미완료. 검색2회·AI/빌드/배포0.
+
+
 > **2026-10-26 0-A 진행:** 주인님 「진행하도록 해」로 [상세 명세](analysis-naver-blog-neighbor-20261024/SPEC_20261026_BLOG_NEIGHBOR_CARE_0A.md)·[검수표](analysis-naver-blog-neighbor-20261024/TEST_MATRIX_20261026_BLOG_NEIGHBOR_CARE_0A.md) 작성. 상태/계정·기기 선점/원자적 상한/후속답글 제한/성공불명/30일/예약복구/예산을 구체화. 문서 단계 완료이며 구현·정책 허용 확보·네이버 실동작 검수·운영 등록·배포는 미완료입니다.
 
 > **2026-10-26 최신 검토 [역할: blog, Codex]:** [검토·CLI 인수인계](analysis-naver-blog-neighbor-20261024/REVIEW_20261026_BLOG_NEIGHBOR_CARE.md)·[공식 근거](analysis-naver-blog-neighbor-20261024/OFFICIAL_REFERENCE_CHECK_20261026.md). D1~D9/새 독립 기본 프로그램 방향 유지, 구현 미착수. 아래 10-24 결정 기록의 ‘플랫폼 최대치’는 네이버 공인 안전 한도가 아닌 앱 자체 최대·기본값20/100/30으로 구분합니다. 정책 허용 범위·후속 답글과 하루1개 제한 충돌·다중기기/성공불명·보관/예약/비용 명세 보완 추천. 현재 블로그 인수는 `codex-win-20261025-blog`, 과거 담당·판단 기록은 보존.
