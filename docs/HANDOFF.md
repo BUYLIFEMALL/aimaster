@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 [역할: blog] Codex · 세션 `codex-win-20261025-blog` — 이웃 소통 후보/중복방지 모의32개 통과
+- [보고서/재현명령/한계](analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md)·[JSON](analysis-naver-blog-neighbor-20261024/evidence/simulation-20261026.json)·[검수소스](analysis-naver-blog-neighbor-20261024/simulation/preflight.test.mjs), 커밋ff7aa5367. 가상 검색요약 필터8·상한/경합7·상태10·승인/중단6·만료1=32개 통과. 가상100건 동시요청에서30건 예약/70건 제한.
+- 분석폴더의 단일프로세스 메모리 모델이며 운영DB잠금/RLS/확장·네이버 검증 아님. 후보는 요약근거/관계unknown·자동소통false, 본문AI점수/정독 아님. 원래40개 출시 검수와 구분해 미완료 항목/증거를 연결.
+- 외부API/AI/설치/빌드/배포0·운영앱/DB/회원키 변경0. 관리자 결과메타 af78f475-b800-44e7-b97c-6403310ea5f0. 다음 실제서버/DB 통합검수·디자인 담당 시안,5번연계 제외/기존Edge·SEO대기 보존. 배포없음(모의검수).
+
+
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — E5-2 무료 이미지 도구 보강(바나나 v1.41 · 상세페이지 v1.35)
 - 한 일: ① 얼굴 가리기 탭 「🔢 글자 자리 가리기」(PP-OCR 재사용, 글자를 읽지 않음) ② 「🖼 사진 일괄 손질로 보내기」(IndexedDB 임시 보관 10분)·첫 모델 준비 MB 단계·60초 안내 ③ 상세페이지 섹션 「✂ 누끼」 → 바나나 `/tools` 새 창으로 그림 넘기기 — 새 공용 모듈 `nukki-handoff`(기준 바나나, 사본 상세페이지, `check-shared-modules` 등록).
 - 검수: 시험 72개·두 프로그램 tsc·빌드, 로컬 크롬 임시 페이지(커밋 안 함)로 ①② 확인, 운영 크롬 앞 탭에서 ②③ 확인(누끼 창에 그림 도착·상세 카드 안내·/batch에 누끼 PNG 도착).

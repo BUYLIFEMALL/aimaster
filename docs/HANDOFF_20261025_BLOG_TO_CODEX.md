@@ -223,3 +223,11 @@ Edge 설정은 웹v2.22·buylifemall@gmail.com·설치확장v2.21→v2.22 업데
 - 네이버OAuth 연결0은 검색 비로그인API의 장애가 아님. Edge웹Gmail/설치안내2.21·웹2.22, OS전경Orca로네이버로그인/확장 일치·실제 전경 검수는미완료. 키를 재등록하거나 기존8연결을 해제하지 않음. 실제신청/공감/댓글0·AI0·빌드/배포0. 운영ref esgxyikcnnvmlhygjkth는 읽기만, 관리자 작업결과메타는 별도.
 - 다음: 검증된HUB 응답범위 후보선정 계약/안정성 모의검수 준비·디자인4화면3시안. 전문수집/관계감시/쓰기의 허용범위/실제 검수·40개전체 검수는 미완료. 기존 키등록화면 발급링크/검색과로그인 자격증명구분은 개선후보만 기록, 앱소스/공용카탈로그 미수정.5번다른담당 제외·기존Edge/SEO대기 유지.
 - 관리자 결과함 `82ece0f0-95d8-4e02-b31e-045c97740b56`(운영ref esgxyikcnnvmlhygjkth의 작업결과 메타만 기록). 상대링크18개 존재·증거2개 HTTP/호출수 일치·문서 공백 검사 확인. 검색1회 성공과40개 모의/실동작 검수 전체는 구분합니다. 새 문서는 manifest에 등록, 앱 배포 없음.
+
+
+## 17. 2026-10-26 후보 사전선별·중복방지 모의 검수32개
+
+- [범위/재현/남은검수](analysis-naver-blog-neighbor-20261024/SIMULATION_VERIFICATION_20261026.md)·[요약JSON](analysis-naver-blog-neighbor-20261024/evidence/simulation-20261026.json)·[TAP](analysis-naver-blog-neighbor-20261024/evidence/simulation-20261026.tap), 커밋ff7aa5367(9파일). Node기본검수32개 통과·0실패·ID중복0·상대링크18개 존재·정규화소스SHA256 일치. 명령: node docs/analysis-naver-blog-neighbor-20261024/simulation/run-verification.mjs.
+- 후보필터F8개/상한Q7개/상태S10개/승인A6개/만료D1개. 가상100건 동시요청→댓글30예약·70제한, 이웃당댓글/답글합계1·KST자정·선점세대·성공불명/중복보고·중단/승인변경·만료 확인. 실제프로필/검색결과/키·DB/외부API/AI 사용0.
+- 단일프로세스 메모리Mutex의 가상모델. observedActorId/policyAllowed/matched는 신뢰된시험입력이며 운영 API가 회원요청을 믿어도 된다는 코드가 아님. 실제DB트랜잭션/RLS/다중서버·브라우저/네이버는 미검수. 원래40개중32개 완료로 세지 않음. 모델을검증된공용부품/운영앱으로 복사해완료처리하지 않음.
+- 다음 실제서버/DB계층의 통합검수 계약 이관·디자인 담당4화면3시안/승인. 전문/관계/쓰기 허용미확인·기존Edge/SEO대기·다른담당5번제외 유지. 비용API/AI/설치/빌드/배포0. 관리자결과함 af78f475-b800-44e7-b97c-6403310ea5f0(운영ref esgxyikcnnvmlhygjkth의 작업결과메타만 기록).
