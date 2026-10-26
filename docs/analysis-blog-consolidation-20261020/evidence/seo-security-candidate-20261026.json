@@ -1,0 +1,128 @@
+{
+  "at": "2026-10-26T02:19:31.346Z",
+  "session": "codex-win-20261025-blog",
+  "program": "naver-blog-seo-studio",
+  "kind": "미적용 보안 패치 후보",
+  "sourceHead": "b5c4f90a6c4690752a46a14af6d4d8be7e45e446",
+  "sourceAppVersion": "v2.21",
+  "files": [
+    {
+      "path": "naver-blog-seo-studio/package.json",
+      "beforeSha256": "f2af52bb52378110198bdfdb2b89018c8c68323e521bf5bfa7386ff5e7cd3910",
+      "candidateSha256": "99c51745790759000eb5f93e683f382c8c04f9a8a798bfa96d44eb129fd2a37f"
+    },
+    {
+      "path": "naver-blog-seo-studio/package-lock.json",
+      "beforeSha256": "29d654d551f65cabb6a23bf4f0351755fb2009281cb10fbdcaf8bcb50b59af4b",
+      "candidateSha256": "25b918bdf72d78cc110e0ca9f9a79b7bab0eed84eb4e0797fa137c564c2e1744"
+    }
+  ],
+  "target": {
+    "next": "16.4.2",
+    "eslintConfigNext": "16.4.2",
+    "sharp": "0.35.5",
+    "react": "19.2.4"
+  },
+  "validation": {
+    "at": "2026-10-26T02:17:43.914Z",
+    "browserFilesSkipped": [
+      "tests/browser/extension-regression.test.mjs",
+      "tests/browser/auto-publish-page.test.mjs"
+    ],
+    "envFilesCopied": 0,
+    "results": [
+      {
+        "name": "unit",
+        "args": [
+          "--test",
+          "tests/update-banner.test.mjs",
+          "tests/categories.test.mjs",
+          "tests/seo-quality.test.mjs",
+          "tests/openaiRequestParams.test.mjs",
+          "tests/auto-publish.test.mjs",
+          "tests/auto-publish-controller.test.mjs",
+          "tests/background-run.test.mjs",
+          "tests/grounding.test.mjs",
+          "tests/style.test.mjs",
+          "tests/sections.test.mjs",
+          "tests/image-nodes.test.mjs",
+          "tests/keyword-handoff.test.mjs",
+          "tests/extension-connect.test.mjs",
+          "tests/model-record.test.mjs",
+          "tests/draft-review.test.mjs",
+          "tests/style-keep.test.mjs",
+          "tests/length-plan.test.mjs",
+          "tests/image-options.test.mjs",
+          "tests/draft-export.test.mjs",
+          "tests/draft-revisions.test.mjs",
+          "tests/social-copy.test.mjs",
+          "tests/style-strength.test.mjs",
+          "tests/narrative-structure.test.mjs",
+          "tests/review-apply.test.mjs",
+          "tests/source-url.test.mjs"
+        ],
+        "exitCode": 0,
+        "summary": [
+          "✔ 같거나 낮은 버전, 연결 실패, 다른 사이트 주소에서는 배너를 숨긴다 (4.431ms)",
+          "✔ 버전 비교는 숫자로 한다 (v1.10 > v1.9, v2.01 > v1.99) (0.8526ms)",
+          "ℹ tests 127",
+          "ℹ suites 0",
+          "ℹ pass 127",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "ℹ todo 0",
+          "ℹ duration_ms 769.4785"
+        ]
+      },
+      {
+        "name": "typegen",
+        "args": [
+          "node_modules/next/dist/bin/next",
+          "typegen"
+        ],
+        "exitCode": 0,
+        "summary": [
+          "Generating route types...",
+          "✓ Types generated successfully"
+        ]
+      },
+      {
+        "name": "types",
+        "args": [
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--incremental",
+          "false"
+        ],
+        "exitCode": 0,
+        "summary": [
+          ""
+        ]
+      }
+    ]
+  },
+  "patch": {
+    "path": "docs/analysis-blog-consolidation-20261020/evidence/seo-security-candidate-20261026.patch",
+    "sha256": "81bdea67e95e6fd532405ceeb8dcd0f82ffd284f6681a3e7c00266132aa6842d",
+    "applyCheck": "passed"
+  },
+  "sourceFilesChanged": false,
+  "installedSourceNodeModulesChanged": false,
+  "envFilesCopied": 0,
+  "sourceFolderOwner": "agy-win-20261025-ext3d (ACTIVE_WORK 완료 표기·예약 남음)",
+  "productionRef": "esgxyikcnnvmlhygjkth",
+  "databaseWrites": 0,
+  "aiCalls": 0,
+  "builds": 0,
+  "deployments": 0,
+  "browserLaunches": 0,
+  "readyForProduction": false,
+  "next": "폴더 예약 정리→원본 해시/현재버전 재확인→git apply --check→패치 반영→버전/manifest/ZIP→기존 검사/빌드→순차 배포1회→DB/ZIP/Edge 검수",
+  "limits": [
+    "임시 복제본의 127개 모의·타입 검사이며 운영 회원 E2E 아님",
+    "브라우저를 여는 시험2파일은 포그라운드 미확인으로 제외",
+    "운영 원본/버전/manifest/ZIP/DB/배포 변경0",
+    "현재 운영 SEO는16.3.5이므로 보안 완료로 표시하지 않음"
+  ]
+}
