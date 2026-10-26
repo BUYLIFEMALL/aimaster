@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 실시간 매물 알림 v1.31(시험 계정 하루 한도 예외)
+- 주인님 「오늘 300 다 썼다네」「기준 규칙에서 제외시켜줘」「문제가 생길 여지나 피드백이 들어오면 바로 알려줘」. 시험 계정(관리자 buylifemall@gmail.com·테스트 buylifemall@naver.com)만 하루 300페이지 한도 예외(주인님 「기준 규칙에서 제외시켜줘」) — 서버가 계정 확인 뒤 수집 규칙에 noDailyLimit, 옛 확장은 300 유지. 차단 화면이면 그날 멈춤·페이지 사이 간격은 그대로, 300 넘기면 팝업 기록에 ⚠ 경고(주인님 「문제 여지가 있으면 바로 알려줘」). 팝업·웹 사용량 줄에 「🧪 시험 계정」 표시. 확장 1.31.0/v1.31. 배포 1회.
+- 커밋 `6b0706a7a`, 배포 Ready, DB v1.31(크롬 SQL 편집기), `check-extension-release` 실패 0. 시험 63개·tsc·빌드 통과.
+- 다음 첫 단계: 주인님 확장 v1.31 업데이트 → 「지금 수집」 → 「실거래 비교/진단」 줄 확인. 예외 계정에서 네이버 확인 화면이 뜨면 예외를 줄이거나 끈다(`realty-listing-alert/docs/IMPROVEMENTS.md` 맨 위 주의).
+- https://realty-listing-alert.buylife.xyz · 비용: Vercel 빌드 1회(승인 범위), AI 0회.
+
 ## 2026-10-26 [역할: blog] Codex · 세션 `codex-win-20261025-blog` — 5번 다른 담당 제외·8번 이웃 소통 플랜 검토 완료
 - 주인님 지정으로 워크스페이스·플래너 상태 연결/이미지 수정 후 원고 복귀는 이 세션에서 제외(상대 세션명 미전달, 기존 분석 보존).
 - 신규 `blog-neighbor-care` 플랜2판·인수인계·담당 프롬프트·공식 정책/검색API/MV3/AI가격 대조. D1~D9와 신규 독립 기본 프로그램 방향 유지. 실제 운영 전 허용 범위, 답글/하루1개 충돌, 원자적 상한/계정·기기 선점, 성공불명, 생성자료30일, 예약 복구, 단계 예산 보완 권고. [검토·다음 첫 단계](analysis-naver-blog-neighbor-20261024/REVIEW_20261026_BLOG_NEIGHBOR_CARE.md)·[공식 근거](analysis-naver-blog-neighbor-20261024/OFFICIAL_REFERENCE_CHECK_20261026.md)·[현재 인계 §14](HANDOFF_20261025_BLOG_TO_CODEX.md#14-2026-10-26-담당-조정--5번-연계-제외8번-플랜-검토).
