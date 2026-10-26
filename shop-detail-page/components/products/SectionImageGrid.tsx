@@ -11,6 +11,7 @@ import { saveSectionSequenceAction } from "@/lib/actions/products";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ImageTextEditor } from "@/components/products/ImageTextEditor";
 import { GIF_SENDER_ORIGIN } from "@/lib/gifHandoff";
+import { NUKKI_RECEIVER_ORIGIN, NUKKI_TOOLS_PATH, NUKKI_MSG_FILE, isNukkiReady } from "@/lib/nukkiHandoff";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
@@ -77,6 +78,42 @@ export function SectionImageGrid({
   const [customOrder, setCustomOrder] = useState(hasCustomOrder);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
+  // v1.35(E5-2): 「✂ 누끼」 — 섹션 이미지를 바나나 「🧰 무료 이미지 도구」 창으로 넘긴다(공용 nukki-handoff, 서버를 거치지 않음)
+  const [nukkiNotes, setNukkiNotes] = useState<Record<string, string>>({});
+  const nukkiCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => nukkiCleanupRef.current?.(), []);
+  function sendToNukki(t: TemplateInfo, url: string) {
+    const note = (text: string) => setNukkiNotes((cur) => ({ ...cur, [t.section_key]: text }));
+    nukkiCleanupRef.current?.();
+    const win = window.open(`${NUKKI_RECEIVER_ORIGIN}${NUKKI_TOOLS_PATH}`, "aimaster-nukki-tools");
+    if (!win) { note("새 창이 막혔습니다. 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요."); return; }
+    note("무료 이미지 도구 창을 여는 중입니다…");
+    // 「준비됨」 신호를 놓치지 않게 대기를 먼저 걸고, 그림은 신호를 받은 뒤 보낸다
+    const filePromise = fetch(imageSrc(url)).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.blob(); });
+    let sent = false;
+    const onMessage = async (e: MessageEvent) => {
+      if (e.source !== win || !isNukkiReady(e.origin, e.data)) return;
+      try {
+        const file = await filePromise;
+        win.postMessage({ type: NUKKI_MSG_FILE, name: t.section_name, file }, NUKKI_RECEIVER_ORIGIN);
+        sent = true;
+        note("보냈습니다. 새 창에서 「배경 자동 지우기」를 누른 뒤 결과를 받아 「📤 직접 등록」으로 넣어 주세요.");
+      } catch { note("이미지를 읽지 못했습니다. 새로 고친 뒤 다시 눌러 주세요."); }
+      cleanup();
+    };
+    const slow = window.setTimeout(() => {
+      if (!sent) note("무료 이미지 도구 창이 아직 준비되지 않았습니다. 로그인 화면이면 로그인해 주세요 — 열리면 자동으로 넘어갑니다.");
+    }, 10_000);
+    const watch = window.setInterval(() => { if (win.closed) cleanup(); }, 1000);
+    function cleanup() {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(slow);
+      window.clearInterval(watch);
+      if (nukkiCleanupRef.current === cleanup) nukkiCleanupRef.current = null;
+    }
+    window.addEventListener("message", onMessage);
+    nukkiCleanupRef.current = cleanup;
+  }
 
   async function saveOrder(next: TemplateInfo[], keys: string[] | null) {
     const prev = ordered;
@@ -498,6 +535,17 @@ export function SectionImageGrid({
                       <span>문구</span>
                     </button>
                     )}
+                    {!/\.gif(\?|$)/i.test(state.url ?? "") && (
+                    <button
+                      onClick={() => sendToNukki(t, state.url!)}
+                      disabled={isRunning}
+                      title="이 이미지를 바나나 캔버스 「🧰 무료 이미지 도구」로 넘겨 키 없이 배경을 지웁니다(새 창)"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors shadow-2xs shrink-0 whitespace-nowrap"
+                    >
+                      <span>✂</span>
+                      <span>누끼</span>
+                    </button>
+                    )}
                     <button
                       onClick={() => generateOne(t)}
                       disabled={isRunning}
@@ -522,6 +570,9 @@ export function SectionImageGrid({
                 )}
               </div>
 
+              {nukkiNotes[t.section_key] && (
+                <p role="status" className="px-4 py-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50 border-b border-indigo-100">✂ {nukkiNotes[t.section_key]}</p>
+              )}
               {/* 섹션 이미지 뷰어 */}
               <div className="aspect-[4/5] bg-slate-50 flex items-center justify-center relative overflow-hidden group">
                 {state.status === "done" && state.url && (

@@ -1,0 +1,43 @@
+// 공용 기준 코드 nukki-handoff (기준: banana-canvas/src/lib/nukkiHandoff.ts, 사본: shop-detail-page/lib/nukkiHandoff.ts).
+// 사본은 직접 고치지 말고 기준만 고친 뒤 `node scripts/check-shared-modules.mjs --module nukki-handoff --sync`.
+// E5-2(2026-10-26): 상세페이지 섹션 이미지 「✂ 누끼」 → 바나나 「🧰 무료 이미지 도구」 창으로 브라우저 안에서 그림을 넘기는 약속(postMessage).
+// gif-handoff와 같은 방식(방향만 반대). 서버를 거치지 않고, 두 창 모두 상대 주소가 정확히 아래 주소일 때만 메시지를 받는다.
+
+export const NUKKI_SENDER_ORIGIN = "https://shop-detail-page.buylife.xyz";
+export const NUKKI_RECEIVER_ORIGIN = "https://banana-canvas.buylife.xyz";
+/** 받는 화면 주소(쿼리로 보낸 곳 표시 — 이때만 「준비됨」을 보낸다) */
+export const NUKKI_TOOLS_PATH = "/tools?from=shop-detail";
+export const NUKKI_MAX_BYTES = 25 * 1024 * 1024;
+const TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+export const NUKKI_MSG_READY = "aimaster-nukki-ready";
+export const NUKKI_MSG_FILE = "aimaster-nukki-file";
+
+/** 받는 창(바나나)이 보낸 「준비됨」인지 */
+export function isNukkiReady(origin: string, data: unknown): boolean {
+  return origin === NUKKI_RECEIVER_ORIGIN && isRecord(data) && data.type === NUKKI_MSG_READY;
+}
+
+/**
+ * 보내는 창(상세페이지)이 보낸 그림 메시지를 검사한다. 맞으면 이름·파일, 아니면 오류 문구.
+ * 다른 사이트에서 온 메시지는 null(조용히 무시).
+ */
+export function readNukkiFile(origin: string, data: unknown): { name: string; file: Blob } | { error: string } | null {
+  if (origin !== NUKKI_SENDER_ORIGIN || !isRecord(data) || data.type !== NUKKI_MSG_FILE) return null;
+  const file = data.file;
+  if (!(file instanceof Blob)) return { error: "사진을 받지 못했습니다." };
+  if (!TYPES.includes(file.type)) return { error: "PNG·JPG·WEBP 사진만 받을 수 있습니다." };
+  if (file.size === 0 || file.size > NUKKI_MAX_BYTES) return { error: "25MB 이하 사진만 넣을 수 있습니다." };
+  return { name: nukkiFileName(typeof data.name === "string" ? data.name : "", file.type), file };
+}
+
+/** 보이는 파일 이름: 경로 글자를 지우고 60자 안, 끝은 형식에 맞는 확장자 */
+export function nukkiFileName(raw: string, type: string): string {
+  const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : "jpg";
+  const base = raw.replace(/[\\/]/g, "").replace(/\.[^.]*$/, "").replace(/^\.+/, "").trim().slice(0, 60);
+  return `${base || "상세페이지_사진"}.${ext}`;
+}
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null;
+}

@@ -5,8 +5,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import JSZip from "jszip";
 import { Download, ImagePlus, Trash2 } from "lucide-react";
-import { loadFreeErase, type FreeEraseError } from "@/lib/freeErase/engine";
+import { detectTextBoxes, loadFreeErase, type FreeEraseError } from "@/lib/freeErase/engine";
 import { readBitmap } from "@/lib/batch/render";
+import { NUKKI_SENDER_ORIGIN, NUKKI_MSG_READY, readNukkiFile } from "@/lib/nukkiHandoff";
+import { BATCH_FROM_TOOLS, prepareText, putForBatch } from "@/lib/freeTools/toBatch";
 import { SPLIT_LAYOUTS, clampRect, evenCuts, moveCut, pieceNames, splitRects, type Rect, type SplitLayout } from "@/lib/freeTools/calc";
 import { autoBgMask, autoFaces, composeBg, composeHide, cropPiece, paintMask, toBlob, type HideMode } from "@/lib/freeTools/render";
 
@@ -97,6 +99,30 @@ export function FreeToolsBoard() {
     bitmaps.current.forEach((b) => b.close());
   }, []);
 
+  // E5-2: 상세페이지 「✂ 누끼」로 열린 창이면 「준비됨」을 보내고 그림을 받는다(공용 nukki-handoff, 서버를 거치지 않음)
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("from") !== "shop-detail" || !window.opener) return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.source !== window.opener) return;
+      const got = readNukkiFile(e.origin, e.data);
+      if (!got) return;
+      if ("error" in got) { setNotice(got.error); return; }
+      setTab("bg");
+      void addFiles([new File([got.file], got.name, { type: got.file.type })]).then(() => setNotice(`📥 상세페이지에서 「${got.name}」을 받았습니다. 「배경 자동 지우기」를 눌러 주세요.`));
+    };
+    window.addEventListener("message", onMessage);
+    window.opener.postMessage({ type: NUKKI_MSG_READY }, NUKKI_SENDER_ORIGIN);
+    return () => window.removeEventListener("message", onMessage);
+  }, [addFiles]);
+
+  // 첫 모델 준비가 오래 걸리면 안내(60초)
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!busy) { setSlow(false); return; }
+    const t = window.setTimeout(() => setSlow(true), 60_000);
+    return () => window.clearTimeout(t);
+  }, [busy]);
+
   function remove(id: string) {
     const it = items.find((x) => x.id === id); if (it) URL.revokeObjectURL(it.thumb);
     bitmaps.current.get(id)?.close(); bitmaps.current.delete(id); masks.current.delete(id);
@@ -106,8 +132,10 @@ export function FreeToolsBoard() {
   function clearAll() { items.forEach((it) => remove(it.id)); }
 
   /** 모델 준비(첫 회 내려받기 진행률 표시) */
-  async function prepare(model: "bg" | "face") {
-    await loadFreeErase(model, (p) => setBusy(`AI 계산용 모델 받는 중 ${Math.round((p.loaded / Math.max(1, p.total)) * 100)}% (처음 한 번만)`));
+  async function prepare(model: "bg" | "face" | "det") {
+    const label = model === "bg" ? "배경 지우기" : model === "face" ? "얼굴 찾기" : "글자 찾기";
+    setBusy(`${label} 준비 중…`);
+    await loadFreeErase(model, (p) => setBusy(prepareText(label, p.loaded, p.total)));
   }
   async function ensureMask(it: Item) {
     const hit = masks.current.get(it.id); if (hit) return hit;
@@ -134,6 +162,18 @@ export function FreeToolsBoard() {
         setFaces((f) => ({ ...f, [cur.id]: r }));
         setNotice(r.length ? `✅ 얼굴 ${r.length}개를 가렸습니다. 빠진 곳은 끌어서 네모를 그리고, 잘못 가린 곳은 눌러서 빼세요.` : "얼굴을 찾지 못했습니다. 가릴 곳을 끌어서 네모로 그려 주세요.");
       }
+    } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
+  }
+
+  /** E5-2: 사진 속 글자 자리(송장 번호·전화번호·이름표 등)를 찾아 가림 네모로 더한다. 글자를 읽지는 않아 모든 글자 자리가 대상 */
+  async function runText() {
+    if (!cur) return;
+    setNotice(null);
+    try {
+      await prepare("det"); setBusy("글자 자리를 찾는 중…");
+      const boxes = await detectTextBoxes(bitmaps.current.get(cur.id)!, cur.w, cur.h);
+      setFaces((f) => ({ ...f, [cur.id]: [...(f[cur.id] ?? []), ...boxes] }));
+      setNotice(boxes.length ? `✅ 글자 자리 ${boxes.length}곳을 더 가렸습니다. 가릴 필요 없는 곳은 네모를 눌러서 빼세요.` : "글자를 찾지 못했습니다. 가릴 곳을 끌어서 네모로 그려 주세요.");
     } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
   }
 
@@ -264,6 +304,22 @@ export function FreeToolsBoard() {
       setNotice(`✅ ${files.length}개 파일을 받았습니다. 촬영 정보·위치 정보는 결과 파일에 들어가지 않았습니다.`);
     } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
   }
+  /** E5-2: 모든 사진의 결과를 브라우저 안에 잠시 보관하고 「사진 일괄 손질」로 이동(서버 전송 없음) */
+  async function sendToBatch() {
+    if (!items.length) return;
+    setNotice(null);
+    try {
+      if (tab !== "split") await prepare(tab);
+      const files: { name: string; blob: Blob }[] = [];
+      for (let i = 0; i < items.length; i++) {
+        setBusy(`보낼 결과 만드는 중 ${i + 1}/${items.length}`);
+        files.push(...(await outputsFor(items[i])));
+      }
+      if (files.length > 50) { setNotice(`사진 일괄 손질은 한 번에 50장까지 받습니다(지금 ${files.length}장). 사진 수를 줄여 주세요.`); return; }
+      await putForBatch(files);
+      window.location.assign(BATCH_FROM_TOOLS);
+    } catch (e) { setNotice(e instanceof DOMException ? "브라우저 임시 보관에 실패했습니다. 결과를 받아서 직접 넣어 주세요." : errorText(e)); } finally { setBusy(null); }
+  }
 
   const pieces = cur && curCuts ? splitRects(cur.w, cur.h, curCuts.xs, curCuts.ys) : [];
   const hasMask = !!(cur && masks.current.get(cur.id));
@@ -286,7 +342,7 @@ export function FreeToolsBoard() {
           {tab === "face" && <><b>「얼굴 찾아 가리기」</b>를 누르면 얼굴을 자동으로 가립니다. 못 찾은 얼굴·이름·송장 번호는 사진 위를 <b>끌어서 네모</b>로, 잘못 가린 곳은 <b>눌러서</b> 뺍니다. 약한 흐림은 알아볼 수 있으니 강도를 충분히 올리세요.</>}
           {tab === "split" && <>나눌 모양을 고르고, 빨간 선을 <b>끌어서</b> 위치를 바꾸세요. 조각마다 파일로(여러 개면 ZIP) 받습니다.</>}
         </p>
-        {busy && <p className="notice" role="status">⏳ {busy}</p>}
+        {busy && <p className="notice" role="status">⏳ {busy}{slow ? " — 1분 넘게 걸리고 있습니다. 계속 멈춰 있으면 새로 고침 후 다시 눌러 주세요." : ""}</p>}
         {!busy && notice && <p className="notice" role="status">{notice}</p>}
       </div>
 
@@ -377,6 +433,11 @@ export function FreeToolsBoard() {
                 {hide !== "fill" && <label className="bp-range">강도 {strength} <input type="range" min={1} max={10} value={strength} onChange={(e) => setStrength(Number(e.target.value))} /></label>}
               </div>
               <div>
+                <span className="bp-label">🔢 글자 자리 가리기</span>
+                <button type="button" className="button bp-go" disabled={!cur || !!busy} onClick={() => void runText()}>송장 번호·전화번호 등 글자도 찾아 가리기</button>
+                <p className="bp-hint">글자를 읽지 않고 자리만 찾으므로 상품명 같은 다른 글자도 가려집니다. 필요 없는 네모는 눌러서 빼세요(처음 한 번 약 5MB 모델을 받습니다).</p>
+              </div>
+              <div>
                 <span className="bp-label">✍ 손으로 가리기</span>
                 <p className="bp-hint">사진 위를 끌면 네모가 추가되고, 네모를 짧게 누르면 빠집니다. 지금 {cur ? (faces[cur.id]?.length ?? 0) : 0}곳.</p>
                 {cur && (faces[cur.id]?.length ?? 0) > 0 && <button type="button" className="bp-link" onClick={() => setFaces((f) => ({ ...f, [cur.id]: [] }))}>이 사진 네모 모두 지우기</button>}
@@ -416,7 +477,12 @@ export function FreeToolsBoard() {
                 <Download size={15} />사진 {items.length}장 모두 받기(ZIP)
               </button>
             )}
-            {items.length > 1 && tab !== "split" && <p className="bp-hint">아직 손대지 않은 사진은 자동 결과로 받습니다.</p>}
+            {items.length > 0 && (
+              <button type="button" className="button bp-go" disabled={!!busy} onClick={() => void sendToBatch()}>
+                🖼 사진 일괄 손질로 보내기({items.length}장)
+              </button>
+            )}
+            {items.length > 1 && tab !== "split" && <p className="bp-hint">아직 손대지 않은 사진은 자동 결과로 받거나 보냅니다.</p>}
           </div>
         </section>
       </div>

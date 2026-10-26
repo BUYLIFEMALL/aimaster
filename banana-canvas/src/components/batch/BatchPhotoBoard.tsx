@@ -8,6 +8,7 @@ import {
   ANCHORS, ANCHOR_LABELS, BATCH_MAX_BYTES, BATCH_MAX_ITEMS, DEFAULT_HEIGHT, DEFAULT_SETTINGS, normalizeSettings, outputNames, outputSize, type BatchSettings,
 } from "@/lib/batch/layout";
 import { canvasToBlob, readBitmap, renderToCanvas } from "@/lib/batch/render";
+import { takeForBatch } from "@/lib/freeTools/toBatch";
 
 const STORE_KEY = "bnc-batch-settings-v1";
 const LOGO_KEY = "bnc-batch-logo-v1";
@@ -75,6 +76,16 @@ export function BatchPhotoBoard() {
   }, [addFiles]);
 
   useEffect(() => () => { itemsRef.current.forEach((it) => URL.revokeObjectURL(it.thumb)); }, []);
+
+  // E5-2: 「🧰 무료 이미지 도구」에서 보낸 결과(브라우저 임시 보관)를 받아 넣고 보관분은 지운다
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("from") !== "tools") return;
+    window.history.replaceState(null, "", "/batch");
+    void takeForBatch().then((files) => {
+      if (files.length) void addFiles(files).then(() => setNotice(`📥 무료 이미지 도구에서 ${files.length}장을 받았습니다.`));
+      else setNotice("받을 사진이 없거나 10분이 지나 지워졌습니다. 무료 이미지 도구에서 다시 보내 주세요.");
+    }).catch(() => setNotice("브라우저 임시 보관을 읽지 못했습니다. 결과를 받아서 직접 넣어 주세요."));
+  }, [addFiles]);
 
   // 미리보기(고른 사진을 결과 그대로)
   const cur = items.find((x) => x.id === sel) ?? null;

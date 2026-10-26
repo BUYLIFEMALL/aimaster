@@ -71,3 +71,31 @@ test("조각 파일 이름", () => {
   assert.deepEqual(pieceNames("상품 사진.jpg", 3, "png"), ["상품 사진_01.png", "상품 사진_02.png", "상품 사진_03.png"]);
   assert.equal(pieceNames("a/b.png", 1, "jpg")[0], "a_b_01.jpg");
 });
+
+// E5-2(2026-10-26) 상세페이지 → 무료 이미지 도구 넘기기·사진 일괄 손질 보관·준비 안내
+import { isNukkiReady, readNukkiFile, nukkiFileName, NUKKI_SENDER_ORIGIN, NUKKI_RECEIVER_ORIGIN, NUKKI_MSG_FILE, NUKKI_MSG_READY } from "../src/lib/nukkiHandoff.ts";
+import { isFresh, prepareText, HANDOFF_TTL_MS } from "../src/lib/freeTools/toBatch.ts";
+
+test("누끼 넘기기: 허용 주소·형식·크기만 받음", () => {
+  assert.equal(isNukkiReady(NUKKI_RECEIVER_ORIGIN, { type: NUKKI_MSG_READY }), true);
+  assert.equal(isNukkiReady("https://evil.example", { type: NUKKI_MSG_READY }), false);
+  const png = new Blob([new Uint8Array(10)], { type: "image/png" });
+  assert.deepEqual(readNukkiFile(NUKKI_SENDER_ORIGIN, { type: NUKKI_MSG_FILE, name: "섹션 3.png", file: png }), { name: "섹션 3.png", file: png });
+  assert.equal(readNukkiFile("https://evil.example", { type: NUKKI_MSG_FILE, file: png }), null);
+  assert.deepEqual(readNukkiFile(NUKKI_SENDER_ORIGIN, { type: NUKKI_MSG_FILE, file: new Blob(["x"], { type: "image/gif" }) }), { error: "PNG·JPG·WEBP 사진만 받을 수 있습니다." });
+  assert.deepEqual(readNukkiFile(NUKKI_SENDER_ORIGIN, { type: NUKKI_MSG_FILE, file: new Blob([], { type: "image/png" }) }), { error: "25MB 이하 사진만 넣을 수 있습니다." });
+  assert.equal(nukkiFileName("../a/b.webp", "image/jpeg"), "ab.jpg");
+  assert.equal(nukkiFileName("", "image/png"), "상세페이지_사진.png");
+});
+
+test("사진 일괄 손질 보관: 10분 안만 받음", () => {
+  assert.equal(isFresh({ at: 1000 }, 1000 + HANDOFF_TTL_MS - 1), true);
+  assert.equal(isFresh({ at: 1000 }, 1000 + HANDOFF_TTL_MS), false);
+  assert.equal(isFresh(undefined, 1000), false);
+  assert.equal(isFresh({ at: 2000 }, 1000), false); // 시계가 거꾸로
+});
+
+test("첫 모델 준비 문구: MB 진행 → 계산 준비", () => {
+  assert.equal(prepareText("얼굴 찾기", 524288, 1270727), "얼굴 찾기 모델 받는 중 0.5/1.2MB (처음 한 번만)");
+  assert.match(prepareText("얼굴 찾기", 1270727, 1270727), /계산 준비 중/);
+});

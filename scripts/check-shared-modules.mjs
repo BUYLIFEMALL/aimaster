@@ -356,6 +356,7 @@ const MODULES = [
     source: "portrait-photo/src/lib/portrait/zip.ts",
     copies: ["emotion-writer/src/lib/studio/zip.ts", "shop-detail-page/lib/zip.ts", "video-to-gif/lib/zip.ts"],
   },
+  { id: "nukki-handoff", source: "banana-canvas/src/lib/nukkiHandoff.ts", copies: ["shop-detail-page/lib/nukkiHandoff.ts"] }, // E5-2(2026-10-26) 상세페이지 → 바나나 무료 이미지 도구 그림 넘기기
   {
     // GIF 자동화 창 → 상세페이지 「GIF 받기」 창으로 브라우저 안에서 GIF 넘기기 약속(postMessage, 허용 주소·메시지 검사). 2026-10-22 상세 v1.28·GIF v1.14
     id: "gif-handoff",
