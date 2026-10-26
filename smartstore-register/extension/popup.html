@@ -5,7 +5,12 @@
 <style>
   body { width: 300px; margin: 0; font: 13px -apple-system, "Malgun Gothic", sans-serif; color: #0f172a; background: #f5f7fa; }
   .wrap { padding: 14px; }
-  h1 { font-size: 14px; margin: 0 0 8px; }
+  .hero { padding: 14px 16px 12px; background: linear-gradient(135deg, #047857 0%, #10b981 100%); color: #fff; }
+  .hero-top { display: flex; align-items: center; gap: 8px; }
+  .logo { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.22); font-size: 18px; flex: none; }
+  .hero h1 { margin: 0; font-size: 15px; letter-spacing: -0.03em; line-height: 1.25; }
+  .chip { margin-left: auto; flex: none; padding: 3px 10px; border-radius: 999px; background: #fff; color: #047857; border: 2px solid #fde047; box-shadow: 0 1px 4px rgba(0,0,0,.18); font-size: 13px; font-weight: 900; }
+  .tagline { margin: 6px 0 0; font-size: 12px; opacity: .95; }
   .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; margin-bottom: 8px; line-height: 1.5; }
   .ok { color: #047857; font-weight: 700; } .warn { color: #b45309; font-weight: 700; }
   button, a.btn { display: block; width: 100%; box-sizing: border-box; margin-top: 6px; padding: 8px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; color: #0f172a; }
@@ -14,8 +19,15 @@
 </style>
 </head>
 <body>
+<header class="hero">
+  <div class="hero-top">
+    <span class="logo">🛒</span>
+    <h1>스마트스토어<br>상품등록 자동화</h1>
+    <span class="chip" id="verChip"></span>
+  </div>
+  <p class="tagline">상세페이지 상품을 판매자센터 칸에 대신 채워 넣습니다</p>
+</header>
 <div class="wrap">
-  <h1>🛒 스마트스토어 상품등록 자동화</h1>
   <div class="card"><div id="conn">확인 중…</div><small id="ver"></small></div>
   <div class="card"><b>지금 상태</b><div id="status">—</div></div>
   <a class="btn primary" id="open" href="https://smartstore-register.buylife.xyz/extension" target="_blank">프로그램 열기 · 연결</a>

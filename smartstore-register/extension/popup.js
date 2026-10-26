@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+$('verChip').textContent = chrome.runtime.getManifest().version_name || ''; // 오른쪽 위 버전 표시(부동산 확장과 같은 모양)
 async function refresh() {
   const s = await chrome.runtime.sendMessage({ type: 'status' });
   $('conn').innerHTML = s.connected ? '<span class="ok">✅ 내 계정과 연결됨</span>' : '<span class="warn">아직 연결되지 않았습니다 — 「프로그램 열기 · 연결」에서 연결해 주세요.</span>';
