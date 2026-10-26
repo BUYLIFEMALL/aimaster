@@ -114,3 +114,36 @@ export function pieceNames(base: string, count: number, ext: string): string[] {
   const stem = (base.replace(/\.[^.]+$/, "") || "사진").replace(/[\\/:*?"<>|]/g, "_");
   return Array.from({ length: count }, (_, i) => `${stem}_${String(i + 1).padStart(2, "0")}.${ext}`);
 }
+
+/* ───────── 숫자 자리만 가리기 (E5-3, PP-OCRv4 글자 읽기, 입력 1×3×48×W) ───────── */
+export const REC_H = 48;
+/** 모델 글자 목록(`character` 메타데이터)에서 숫자 0~9의 위치 + 1(출력 0번은 빈칸) — 2026-10-26 모델 파일에서 직접 뽑음 */
+export const REC_DIGIT_CLASSES: ReadonlySet<number> = new Set([25, 92, 24, 93, 631, 630, 932, 28, 26, 1108].map((i) => i + 1));
+
+/** 글자 자리 상자 → 읽기 입력 폭(높이 48 기준 비율 유지, 8의 배수, 32~960) */
+export function recWidth(w: number, h: number): number {
+  const raw = Math.round((REC_H * w) / Math.max(1, h));
+  return Math.min(960, Math.max(32, Math.ceil(raw / 8) * 8));
+}
+
+/** 48×W RGBA → 읽기 입력((값/255-0.5)/0.5) */
+export function recInput(rgba: ArrayLike<number>, w: number, h = REC_H): Float32Array {
+  const n = w * h, out = new Float32Array(3 * n);
+  for (let i = 0; i < n; i++) for (let c = 0; c < 3; c++) out[c * n + i] = (rgba[i * 4 + c] / 255 - 0.5) / 0.5;
+  return out;
+}
+
+/** 읽기 출력(T×C 점수) → 글자 수·숫자 수(같은 글자 연속·빈칸은 합침, 공백 칸은 셈에서 뺌) */
+export function countDigits(scores: ArrayLike<number>, T: number, C: number, spaceClass = C - 1): { chars: number; digits: number } {
+  let prev = -1, chars = 0, digits = 0;
+  for (let t = 0; t < T; t++) {
+    let best = 0, bv = -Infinity;
+    for (let c = 0; c < C; c++) { const v = scores[t * C + c]; if (v > bv) { bv = v; best = c; } }
+    if (best !== prev && best !== 0 && best !== spaceClass) { chars++; if (REC_DIGIT_CLASSES.has(best)) digits++; }
+    prev = best;
+  }
+  return { chars, digits };
+}
+
+/** 숫자가 많은 자리인가 — 숫자 4개 이상이면서 글자의 절반 이상이 숫자(전화번호·송장·주문번호). 「500ml」 같은 짧은 숫자는 제외 */
+export const isNumberish = (r: { chars: number; digits: number }) => r.digits >= 4 && r.digits * 2 >= r.chars;

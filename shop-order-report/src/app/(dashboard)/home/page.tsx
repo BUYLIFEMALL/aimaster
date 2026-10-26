@@ -80,6 +80,14 @@ export default function HomePage() {
               </span>
             </Link>
           ))}
+          {/* E5-3(2026-10-26): 사진 속 개인정보 가리기 — 바나나 캔버스 무료 이미지 도구(새 탭, 키·비용 없음) */}
+          <a href="https://banana-canvas.buylife.xyz/tools?tab=face" target="_blank" rel="noopener noreferrer" className="slw-card group flex gap-3 p-4 hover:border-teal-400">
+            <span className="text-2xl" aria-hidden>🙈</span>
+            <span className="min-w-0">
+              <span className="block font-extrabold text-slate-900 group-hover:text-teal-800">사진 속 개인정보 가리기 ↗</span>
+              <span className="mt-0.5 block text-[13px] text-slate-600">후기·송장 사진을 공유하기 전에 얼굴과 송장·전화번호를 자동으로 가립니다(바나나 캔버스 무료 이미지 도구, 사진은 서버로 가지 않음).</span>
+            </span>
+          </a>
         </div>
       </section>
     </div>

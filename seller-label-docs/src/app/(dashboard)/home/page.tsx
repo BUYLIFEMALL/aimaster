@@ -27,6 +27,13 @@ export default function HomePage() {
               <span className="mt-3 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[12px] text-slate-600">이럴 때: {t.when}</span>
             </Link>
           ))}
+          {/* E5-3(2026-10-26): 사진 속 개인정보 가리기 — 바나나 캔버스 무료 이미지 도구(새 탭, 키·비용 없음) */}
+          <a href="https://banana-canvas.buylife.xyz/tools?tab=face" target="_blank" rel="noopener noreferrer" className="slw-card group flex flex-col p-5 transition hover:-translate-y-0.5 hover:border-teal-400 hover:shadow-md">
+            <span className="text-3xl" aria-hidden>🙈</span>
+            <span className="mt-2 text-base font-extrabold text-slate-900 group-hover:text-teal-800">사진 속 개인정보 가리기 ↗</span>
+            <span className="mt-1 text-[13px] leading-relaxed text-slate-600">송장·후기 사진의 얼굴과 송장·전화번호를 자동으로 가리고, 빠진 곳은 끌어서 가립니다(바나나 캔버스 무료 이미지 도구).</span>
+            <span className="mt-3 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[12px] text-slate-600">이럴 때: 배송 사진·후기 캡처를 고객·단체방에 올리기 전</span>
+          </a>
           <Link href="/guide" className="slw-card flex flex-col justify-center p-5 hover:border-teal-400">
             <span className="text-3xl" aria-hidden>📖</span>
             <span className="mt-2 text-base font-extrabold text-slate-900">처음이신가요?</span>

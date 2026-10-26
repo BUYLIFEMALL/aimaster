@@ -1,7 +1,7 @@
 // E5 「🧰 무료 이미지 도구」 그리기 — 브라우저 전용. 모델 실행은 공용 컴포넌트 browser-free-erase의 runModel(작업자)로.
 // 사진을 캔버스에 새로 그려 저장하므로 촬영 정보·위치 정보(EXIF 등)는 결과 파일에 들어가지 않는다(E4와 같은 방식).
 import { runModel } from "@/lib/freeErase/engine";
-import { BG_SIZE, FACE_H, FACE_W, bgInput, clampRect, faceBoxes, faceInput, mosaicCell, probToAlpha, type Rect } from "./calc";
+import { BG_SIZE, FACE_H, FACE_W, REC_H, bgInput, clampRect, countDigits, faceBoxes, faceInput, isNumberish, mosaicCell, probToAlpha, recInput, recWidth, type Rect } from "./calc";
 
 export function makeCanvas(w: number, h: number): HTMLCanvasElement {
   const c = document.createElement("canvas"); c.width = w; c.height = h; return c;
@@ -61,6 +61,21 @@ export function composeBg(src: CanvasImageSource, mask: HTMLCanvasElement, w: nu
 export async function autoFaces(src: CanvasImageSource, w: number, h: number): Promise<Rect[]> {
   const [scores, boxes] = await runModel("face", faceInput(rgbaAt(src, FACE_W, FACE_H)), [1, 3, FACE_H, FACE_W]);
   return faceBoxes(scores.data, boxes.data, w, h);
+}
+
+/** E5-3: 글자 자리마다 잘라 읽고(글자 읽기 모델) 숫자가 많은 자리만 남긴다 — 송장·전화번호·주문번호. 최대 40곳 */
+export async function keepNumberBoxes(src: CanvasImageSource, w: number, h: number, boxes: Rect[]): Promise<Rect[]> {
+  const out: Rect[] = [];
+  for (const raw of boxes.slice(0, 40)) {
+    const r = clampRect(raw, w, h);
+    if (r.w < 4 || r.h < 4) continue;
+    const W = recWidth(r.w, r.h), c = makeCanvas(W, REC_H), x = ctx2d(c);
+    x.fillStyle = "#fff"; x.fillRect(0, 0, W, REC_H);
+    x.drawImage(src, r.x, r.y, r.w, r.h, 0, 0, W, REC_H);
+    const [o] = await runModel("rec", recInput(x.getImageData(0, 0, W, REC_H).data, W), [1, 3, REC_H, W]);
+    if (isNumberish(countDigits(o.data, o.dims[1], o.dims[2]))) out.push(raw);
+  }
+  return out;
 }
 
 export type HideMode = "pixel" | "blur" | "fill";

@@ -7,10 +7,10 @@ import JSZip from "jszip";
 import { Download, ImagePlus, Trash2 } from "lucide-react";
 import { detectTextBoxes, loadFreeErase, type FreeEraseError } from "@/lib/freeErase/engine";
 import { readBitmap } from "@/lib/batch/render";
-import { NUKKI_SENDER_ORIGIN, NUKKI_MSG_READY, readNukkiFile } from "@/lib/nukkiHandoff";
+import { NUKKI_SENDER_ORIGIN, NUKKI_MSG_READY, NUKKI_MSG_RESULT, NUKKI_RESULT_MAX_BYTES, readNukkiFile } from "@/lib/nukkiHandoff";
 import { BATCH_FROM_TOOLS, prepareText, putForBatch } from "@/lib/freeTools/toBatch";
 import { SPLIT_LAYOUTS, clampRect, evenCuts, moveCut, pieceNames, splitRects, type Rect, type SplitLayout } from "@/lib/freeTools/calc";
-import { autoBgMask, autoFaces, composeBg, composeHide, cropPiece, paintMask, toBlob, type HideMode } from "@/lib/freeTools/render";
+import { autoBgMask, autoFaces, composeBg, composeHide, cropPiece, keepNumberBoxes, paintMask, toBlob, type HideMode } from "@/lib/freeTools/render";
 
 type Tab = "bg" | "face" | "split";
 const TABS: { id: Tab; label: string }[] = [
@@ -108,12 +108,35 @@ export function FreeToolsBoard() {
       if (!got) return;
       if ("error" in got) { setNotice(got.error); return; }
       setTab("bg");
-      void addFiles([new File([got.file], got.name, { type: got.file.type })]).then(() => setNotice(`📥 상세페이지에서 「${got.name}」을 받았습니다. 「배경 자동 지우기」를 눌러 주세요.`));
+      if (got.section) setFromShop({ section: got.section, name: got.name });
+      void addFiles([new File([got.file], got.name, { type: got.file.type })]).then(() => setNotice(`📥 상세페이지에서 「${got.name}」을 받았습니다. 「배경 자동 지우기」 뒤 「↩ 상세페이지에 넣기」를 누르면 그 섹션에 새 버전으로 저장됩니다.`));
     };
     window.addEventListener("message", onMessage);
     window.opener.postMessage({ type: NUKKI_MSG_READY }, NUKKI_SENDER_ORIGIN);
     return () => window.removeEventListener("message", onMessage);
   }, [addFiles]);
+
+  // E5-3: 다른 프로그램의 「🙈 사진 속 개인정보 가리기」 바로가기(?tab=face)로 열리면 그 탭부터
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t === "face" || t === "split" || t === "bg") setTab(t);
+  }, []);
+
+  /** E5-3: 누끼 결과를 상세페이지 그 섹션으로 되돌려 보낸다(상세페이지가 새 버전으로 저장) */
+  const [fromShop, setFromShop] = useState<{ section: string; name: string } | null>(null);
+  async function returnToShop() {
+    if (!cur || !fromShop) return;
+    if (!window.opener || window.opener.closed) { setNotice("상세페이지 창이 닫혔습니다. 결과를 받아서 상세페이지 「📤 직접 등록」으로 넣어 주세요."); return; }
+    setNotice(null);
+    try {
+      await prepare("bg"); setBusy("상세페이지로 보낼 결과 만드는 중…");
+      const [f] = await outputsFor(cur);
+      if (f.blob.size > NUKKI_RESULT_MAX_BYTES) { setNotice("결과가 10MB를 넘습니다. JPG로 바꾸거나 결과를 받아 줄여서 「📤 직접 등록」으로 넣어 주세요."); return; }
+      window.opener.postMessage({ type: NUKKI_MSG_RESULT, section: fromShop.section, file: f.blob }, NUKKI_SENDER_ORIGIN);
+      setNotice("↩ 상세페이지로 보냈습니다. 상세페이지 창의 그 섹션 카드에서 저장 결과를 확인해 주세요.");
+    } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
+  }
+  const [digitsOnly, setDigitsOnly] = useState(true);
 
   // 첫 모델 준비가 오래 걸리면 안내(60초)
   const [slow, setSlow] = useState(false);
@@ -132,8 +155,8 @@ export function FreeToolsBoard() {
   function clearAll() { items.forEach((it) => remove(it.id)); }
 
   /** 모델 준비(첫 회 내려받기 진행률 표시) */
-  async function prepare(model: "bg" | "face" | "det") {
-    const label = model === "bg" ? "배경 지우기" : model === "face" ? "얼굴 찾기" : "글자 찾기";
+  async function prepare(model: "bg" | "face" | "det" | "rec") {
+    const label = model === "bg" ? "배경 지우기" : model === "face" ? "얼굴 찾기" : model === "det" ? "글자 찾기" : "글자 읽기";
     setBusy(`${label} 준비 중…`);
     await loadFreeErase(model, (p) => setBusy(prepareText(label, p.loaded, p.total)));
   }
@@ -171,9 +194,17 @@ export function FreeToolsBoard() {
     setNotice(null);
     try {
       await prepare("det"); setBusy("글자 자리를 찾는 중…");
-      const boxes = await detectTextBoxes(bitmaps.current.get(cur.id)!, cur.w, cur.h);
+      const bm = bitmaps.current.get(cur.id)!;
+      let boxes = await detectTextBoxes(bm, cur.w, cur.h);
+      const found = boxes.length;
+      if (digitsOnly && found) {
+        await prepare("rec"); setBusy(`글자 ${found}곳을 읽어 숫자 자리를 고르는 중…`);
+        boxes = await keepNumberBoxes(bm, cur.w, cur.h, boxes);
+      }
       setFaces((f) => ({ ...f, [cur.id]: [...(f[cur.id] ?? []), ...boxes] }));
-      setNotice(boxes.length ? `✅ 글자 자리 ${boxes.length}곳을 더 가렸습니다. 가릴 필요 없는 곳은 네모를 눌러서 빼세요.` : "글자를 찾지 못했습니다. 가릴 곳을 끌어서 네모로 그려 주세요.");
+      setNotice(boxes.length
+        ? `✅ ${digitsOnly ? `글자 ${found}곳 중 숫자가 많은 자리 ${boxes.length}곳` : `글자 자리 ${boxes.length}곳`}을 더 가렸습니다. 가릴 필요 없는 곳은 네모를 눌러서 빼세요.`
+        : digitsOnly && found ? `글자 ${found}곳을 찾았지만 숫자가 많은 자리는 없었습니다. 필요하면 「숫자가 많은 자리만」을 끄고 다시 눌러 주세요.` : "글자를 찾지 못했습니다. 가릴 곳을 끌어서 네모로 그려 주세요.");
     } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
   }
 
@@ -400,6 +431,11 @@ export function FreeToolsBoard() {
           {tab === "bg" && (
             <>
               <button type="button" className="primary bp-go" disabled={!cur || !!busy} onClick={() => void runAuto()}>✂ {hasMask ? "다시 자동 지우기" : "배경 자동 지우기"}</button>
+              {fromShop && cur?.name === fromShop.name && (
+                <button type="button" className="button bp-go" disabled={!hasMask || !!busy} onClick={() => void returnToShop()} title="이 결과를 상세페이지 그 섹션의 새 버전으로 저장합니다(원본은 버전 목록에 남음)">
+                  ↩ 상세페이지에 넣기
+                </button>
+              )}
               <div>
                 <span className="bp-label">🖌 경계 다듬기 붓</span>
                 <div className="bp-seg c2">
@@ -434,8 +470,11 @@ export function FreeToolsBoard() {
               </div>
               <div>
                 <span className="bp-label">🔢 글자 자리 가리기</span>
-                <button type="button" className="button bp-go" disabled={!cur || !!busy} onClick={() => void runText()}>송장 번호·전화번호 등 글자도 찾아 가리기</button>
-                <p className="bp-hint">글자를 읽지 않고 자리만 찾으므로 상품명 같은 다른 글자도 가려집니다. 필요 없는 네모는 눌러서 빼세요(처음 한 번 약 5MB 모델을 받습니다).</p>
+                <label className="bp-row" style={{ marginBottom: 6 }}>
+                  <input type="checkbox" checked={digitsOnly} onChange={(e) => setDigitsOnly(e.target.checked)} />숫자가 많은 자리만(송장·전화번호·주문번호)
+                </label>
+                <button type="button" className="button bp-go" disabled={!cur || !!busy} onClick={() => void runText()}>{digitsOnly ? "숫자 자리 찾아 가리기" : "글자 자리 모두 찾아 가리기"}</button>
+                <p className="bp-hint">{digitsOnly ? "글자를 읽어 숫자가 4개 이상이고 절반 이상인 자리만 가립니다(처음 한 번 약 5MB+11MB 모델을 받습니다). 한글은 읽지 못해 이름·주소는 끌어서 직접 가려 주세요." : "글자를 읽지 않고 자리만 찾으므로 상품명 같은 다른 글자도 가려집니다. 필요 없는 네모는 눌러서 빼세요(처음 한 번 약 5MB 모델을 받습니다)."}</p>
               </div>
               <div>
                 <span className="bp-label">✍ 손으로 가리기</span>

@@ -20,6 +20,13 @@ export const FREE_ERASE_MODELS = {
     license: "Apache-2.0 · PaddleOCR PP-OCRv4(Baidu) · ONNX 변환 RapidOCR",
     page: "https://huggingface.co/SWHL/RapidOCR",
   },
+  // E5-3(2026-10-26): 글자 읽기(숫자 자리만 가리기용). 글자 목록은 모델 메타데이터 `character`(6623자, 출력 0번은 빈칸)
+  rec: {
+    url: `https://huggingface.co/SWHL/RapidOCR/resolve/${OCR_COMMIT}/PP-OCRv4/ch_PP-OCRv4_rec_infer.onnx`,
+    bytes: 10_857_958,
+    license: "Apache-2.0 · PaddleOCR PP-OCRv4 rec(Baidu) · ONNX 변환 RapidOCR",
+    page: "https://huggingface.co/SWHL/RapidOCR",
+  },
   bg: {
     url: `https://huggingface.co/BritishWerewolf/U-2-Netp/resolve/${U2NETP_COMMIT}/onnx/model.onnx`,
     bytes: 4_574_861,

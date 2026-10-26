@@ -80,7 +80,7 @@ test("누끼 넘기기: 허용 주소·형식·크기만 받음", () => {
   assert.equal(isNukkiReady(NUKKI_RECEIVER_ORIGIN, { type: NUKKI_MSG_READY }), true);
   assert.equal(isNukkiReady("https://evil.example", { type: NUKKI_MSG_READY }), false);
   const png = new Blob([new Uint8Array(10)], { type: "image/png" });
-  assert.deepEqual(readNukkiFile(NUKKI_SENDER_ORIGIN, { type: NUKKI_MSG_FILE, name: "섹션 3.png", file: png }), { name: "섹션 3.png", file: png });
+  assert.deepEqual(readNukkiFile(NUKKI_SENDER_ORIGIN, { type: NUKKI_MSG_FILE, name: "섹션 3.png", file: png }), { name: "섹션 3.png", file: png, section: null });
   assert.equal(readNukkiFile("https://evil.example", { type: NUKKI_MSG_FILE, file: png }), null);
   assert.deepEqual(readNukkiFile(NUKKI_SENDER_ORIGIN, { type: NUKKI_MSG_FILE, file: new Blob(["x"], { type: "image/gif" }) }), { error: "PNG·JPG·WEBP 사진만 받을 수 있습니다." });
   assert.deepEqual(readNukkiFile(NUKKI_SENDER_ORIGIN, { type: NUKKI_MSG_FILE, file: new Blob([], { type: "image/png" }) }), { error: "25MB 이하 사진만 넣을 수 있습니다." });
@@ -98,4 +98,33 @@ test("사진 일괄 손질 보관: 10분 안만 받음", () => {
 test("첫 모델 준비 문구: MB 진행 → 계산 준비", () => {
   assert.equal(prepareText("얼굴 찾기", 524288, 1270727), "얼굴 찾기 모델 받는 중 0.5/1.2MB (처음 한 번만)");
   assert.match(prepareText("얼굴 찾기", 1270727, 1270727), /계산 준비 중/);
+});
+
+// E5-3(2026-10-26) 숫자 자리만 가리기 · 누끼 결과 되돌리기
+import { REC_DIGIT_CLASSES, recWidth, recInput, countDigits, isNumberish } from "../src/lib/freeTools/calc.ts";
+import { readNukkiResult, sectionKey, NUKKI_MSG_RESULT } from "../src/lib/nukkiHandoff.ts";
+
+test("숫자 자리: 읽기 폭·입력·숫자 세기·판정", () => {
+  assert.equal(recWidth(200, 48), 200);
+  assert.equal(recWidth(10, 48), 32);
+  assert.equal(recWidth(5000, 48), 960);
+  assert.deepEqual([...recInput([255, 0, 127.5, 255], 1, 1)], [1, -1, 0]);
+  // T=6, C=5: 출력 순서 [빈칸, 숫자26(=0의 다음 클래스 아님) …] — 클래스 26을 숫자로 시험
+  assert.equal(REC_DIGIT_CLASSES.has(26), true); // '0'(25)+1
+  const C = 1110, T = 7, s = new Float32Array(T * C);
+  const seq = [26, 26, 0, 26, 93, 0, 500]; // 0,0(합침) → 빈칸 → 0 → 1 → 빈칸 → 한자
+  seq.forEach((c, t) => { s[t * C + c] = 1; });
+  assert.deepEqual(countDigits(s, T, C), { chars: 4, digits: 3 });
+  assert.equal(isNumberish({ chars: 13, digits: 11 }), true); // 010-1234-5678
+  assert.equal(isNumberish({ chars: 6, digits: 3 }), false); // 텀블러 500ml
+  assert.equal(isNumberish({ chars: 20, digits: 6 }), false); // 글자 위주
+});
+
+test("누끼 결과 되돌리기: 바나나 주소·섹션 키·형식·10MB", () => {
+  const png = new Blob([new Uint8Array(5)], { type: "image/png" });
+  assert.deepEqual(readNukkiResult("https://banana-canvas.buylife.xyz", { type: NUKKI_MSG_RESULT, section: "cp_promotion", file: png }), { section: "cp_promotion", file: png });
+  assert.equal(readNukkiResult("https://evil.example", { type: NUKKI_MSG_RESULT, section: "a", file: png }), null);
+  assert.deepEqual(readNukkiResult("https://banana-canvas.buylife.xyz", { type: NUKKI_MSG_RESULT, section: "../x", file: png }), { error: "어느 섹션인지 알 수 없습니다." });
+  assert.equal(sectionKey("ss_hook-promo"), "ss_hook-promo");
+  assert.equal(sectionKey("a b"), null);
 });

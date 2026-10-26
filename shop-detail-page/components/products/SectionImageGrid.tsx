@@ -11,7 +11,7 @@ import { saveSectionSequenceAction } from "@/lib/actions/products";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ImageTextEditor } from "@/components/products/ImageTextEditor";
 import { GIF_SENDER_ORIGIN } from "@/lib/gifHandoff";
-import { NUKKI_RECEIVER_ORIGIN, NUKKI_TOOLS_PATH, NUKKI_MSG_FILE, isNukkiReady } from "@/lib/nukkiHandoff";
+import { NUKKI_RECEIVER_ORIGIN, NUKKI_TOOLS_PATH, NUKKI_MSG_FILE, isNukkiReady, readNukkiResult } from "@/lib/nukkiHandoff";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
@@ -92,14 +92,24 @@ export function SectionImageGrid({
     const filePromise = fetch(imageSrc(url)).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.blob(); });
     let sent = false;
     const onMessage = async (e: MessageEvent) => {
-      if (e.source !== win || !isNukkiReady(e.origin, e.data)) return;
+      if (e.source !== win) return;
+      // v1.36(E5-3): 바나나에서 「↩ 상세페이지에 넣기」로 돌아온 결과 → 이 섹션에 새 버전으로 저장(원본은 버전 목록에 남음)
+      const back = readNukkiResult(e.origin, e.data);
+      if (back) {
+        if ("error" in back) { note(back.error); return; }
+        if (back.section !== t.section_key) return;
+        note("누끼 결과를 저장하는 중입니다…");
+        const err = await saveCustomFile(t, new File([back.file], `${t.section_key}-nukki.${back.file.type === "image/png" ? "png" : "jpg"}`, { type: back.file.type }));
+        note(err ? `저장하지 못했습니다: ${err}` : "✅ 누끼 결과를 이 섹션의 새 버전으로 저장했습니다(원본은 버전 목록에 남아 있습니다).");
+        return;
+      }
+      if (sent || !isNukkiReady(e.origin, e.data)) return;
       try {
         const file = await filePromise;
-        win.postMessage({ type: NUKKI_MSG_FILE, name: t.section_name, file }, NUKKI_RECEIVER_ORIGIN);
+        win.postMessage({ type: NUKKI_MSG_FILE, name: t.section_name, section: t.section_key, file }, NUKKI_RECEIVER_ORIGIN);
         sent = true;
-        note("보냈습니다. 새 창에서 「배경 자동 지우기」를 누른 뒤 결과를 받아 「📤 직접 등록」으로 넣어 주세요.");
-      } catch { note("이미지를 읽지 못했습니다. 새로 고친 뒤 다시 눌러 주세요."); }
-      cleanup();
+        note("보냈습니다. 새 창에서 「배경 자동 지우기」 뒤 「↩ 상세페이지에 넣기」를 누르면 이 섹션에 새 버전으로 저장됩니다.");
+      } catch { note("이미지를 읽지 못했습니다. 새로 고친 뒤 다시 눌러 주세요."); cleanup(); }
     };
     const slow = window.setTimeout(() => {
       if (!sent) note("무료 이미지 도구 창이 아직 준비되지 않았습니다. 로그인 화면이면 로그인해 주세요 — 열리면 자동으로 넘어갑니다.");

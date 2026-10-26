@@ -71,6 +71,10 @@ export default function ReviewsPage() {
             {error && <Notice tone="warn">{error}</Notice>}
           </section>
           <Notice>ℹ 내 상품 리뷰만 다룹니다. 리뷰 파일은 서버에 저장하지 않습니다(AI 요약을 누를 때만 그 글이 회원 본인 Gemini 키로 전달됩니다).</Notice>
+          {/* E5-3(2026-10-26): 후기·송장 사진을 공유하기 전 얼굴·번호 가리기 — 바나나 캔버스 무료 이미지 도구(키·비용 없음) */}
+          <a href="https://banana-canvas.buylife.xyz/tools?tab=face" target="_blank" rel="noopener noreferrer" className="slw-card flex items-center gap-2 p-3 text-[13px] font-bold text-slate-800 hover:border-teal-400">
+            <span aria-hidden>🙈</span>후기·송장 사진 속 얼굴·전화번호 가리기 ↗
+          </a>
         </div>
 
         {reviews.length === 0 ? (
