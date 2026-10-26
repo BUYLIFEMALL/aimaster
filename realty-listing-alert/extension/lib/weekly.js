@@ -25,6 +25,16 @@ export function shouldSendWeekly(weekly, sentKey, history, now = Date.now()) {
   return key === sentKey ? null : key;
 }
 
+/** 글자 수 제한(카톡 200자)에 걸리면 문장 끝(「다.」 등)에서 자르고 「…」을 붙인다(L, 2026-10-26 문장 중간에 끊긴 사례). 끝낼 곳이 너무 앞이면 글자 수로 자른다 */
+export function cutAtSentence(s, max) {
+  const t = String(s ?? "");
+  if (t.length <= max) return t;
+  const head = t.slice(0, max - 1);
+  const end = Math.max(head.lastIndexOf("다."), head.lastIndexOf("요."), head.lastIndexOf("\n"));
+  const at = end >= max * 0.4 ? (head[end] === "\n" ? end : end + 2) : max - 1;
+  return `${t.slice(0, at).trimEnd()}…`;
+}
+
 const pct = (n) => (n == null ? "" : `${n > 0 ? "+" : ""}${n}%`);
 const plus = (n) => (n == null ? "" : `${n > 0 ? "+" : ""}${n}`);
 const md = (iso) => iso.slice(5).replace("-", ".");
@@ -72,7 +82,7 @@ export function buildWeeklyReport({ history, eventLog, states, names = {}, now =
   }
   const ai = cleanAiText(aiText, WEEKLY_AI_MAX);
   const text = [...lines, ...(ai ? ["", "🤖 AI 주간 요약", ai] : []), "", `📊 자세히: ${WEEKLY_URL}`].join("\n");
-  const kakao = `📅 주간 리포트 ${md(from)}~${md(to)}\n단지 ${input.단지들.length}곳 · 🆕${sum.new} 📉${sum.down} 📈${sum.up} 👋${sum.gone}${ai ? `\n${ai}` : ""}`.slice(0, 200);
+  const kakao = cutAtSentence(`📅 주간 리포트 ${md(from)}~${md(to)}\n단지 ${input.단지들.length}곳 · 🆕${sum.new} 📉${sum.down} 📈${sum.up} 👋${sum.gone}${ai ? `\n${ai}` : ""}`, 200);
   const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
   const html = `<div style="font-family:sans-serif;line-height:1.6">${ai ? `<div style="background:#eef6ff;border:1px solid #cfe0ff;border-radius:10px;padding:10px 14px;margin:0 0 14px"><b>🤖 AI 주간 요약</b><br>${esc(ai)}</div>` : ""}<pre style="white-space:pre-wrap;font:14px/1.6 sans-serif;margin:0">${esc(lines.join("\n"))}</pre><p><a href="${WEEKLY_URL}">📊 통계 화면에서 자세히 보기</a></p></div>`;
   return { text, kakao, html, subject: `📅 [매물 알림] 주간 리포트 ${md(from)}~${md(to)}`, from, to, at: new Date(now).toISOString() };

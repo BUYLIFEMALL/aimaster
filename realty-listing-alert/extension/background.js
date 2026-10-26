@@ -332,6 +332,7 @@ async function runCollection(trigger) {
 async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   if (!tradeTargets.length) return;
   let lastTradeDiag = null;
+  let lastMissed = null; // 진단 K: 못 찾은 단지별 비슷한 국토부 이름
   const DAY = 24 * 3600 * 1000;
   const now = Date.now();
   const { tradeCache = {} } = await get("tradeCache");
@@ -346,6 +347,7 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
       for (const t of need) if (r?.results?.[t.key]) tradeCache[t.key] = { at: new Date().toISOString(), name: t.name, v: TRADE_RULE_V, ...r.results[t.key] };
       if (r?.errors?.length) await addLog(`실거래 비교 알림: ${r.errors.join(" / ")}`.slice(0, 200));
       lastTradeDiag = Array.isArray(r?.diag) ? r.diag : null;
+      lastMissed = Array.isArray(r?.missed) ? r.missed : null;
     } catch (e) {
       await addLog(`실거래 비교 실패: ${e.message}`);
     }
@@ -366,6 +368,7 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   await addLog(`실거래 비교: 단지 ${matched}/${tradeTargets.length}곳 자료 있음 · 매매 ${n}건에 「실거래 대비」${missed.length ? ` · 자료 없음: ${missed.join(", ")}` : ""}`.slice(0, 300));
   // 진단(2026-10-26): 못 맞춘 단지가 있으면 국토부 거래 수·단지 이름 예시를 남긴다(다음 보완용)
   if (matched < tradeTargets.length && lastTradeDiag?.length) await addLog(`실거래 진단: ${lastTradeDiag.map((d) => `지역 ${d.lawd} 국토부 거래 ${d.trades}건 · 예: ${(d.names || []).join(", ")}`).join(" / ")}`.slice(0, 300));
+  for (const m of lastMissed || []) await addLog(`실거래 이름 후보: ${m.name} → ${m.similar?.length ? m.similar.join(", ") : "비슷한 이름 없음(최근 6개월 매매 신고가 없을 수 있어요)"}`.slice(0, 300));
 }
 
 async function deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit = false, maxPages = 300 }) {

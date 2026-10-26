@@ -35,6 +35,22 @@ export function topAptNames(trades: Trade[], n = 6): string[] {
   return [...c].sort((x, y) => y[1] - x[1]).slice(0, n).map(([k]) => k);
 }
 
+/** 진단 K(2026-10-26): 못 맞춘 단지와 글자가 많이 겹치는 국토부 단지 이름(두 글자 묶음이 2개 이상 겹침) — 이름 맞추기 보완 판단용 */
+export function similarAptNames(naverName: string, trades: Trade[], n = 5): string[] {
+  const a = normalizeAptName(naverName);
+  const grams = new Set<string>();
+  for (let i = 0; i + 1 < a.length; i++) grams.add(a.slice(i, i + 2));
+  const score = new Map<string, number>();
+  for (const t of trades) {
+    if (!t.aptNm || score.has(t.aptNm)) continue;
+    const b = normalizeAptName(t.aptNm);
+    let s = 0;
+    for (const g of grams) if (b.includes(g)) s++;
+    if (s >= 2) score.set(t.aptNm, s);
+  }
+  return [...score].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0])).slice(0, n).map(([k]) => k);
+}
+
 /** 최근 n개월 「yyyymm」(이번 달 포함, 한국 시간 기준) */
 export function recentMonths(now: Date, n: number) {
   const kst = new Date(now.getTime() + 9 * 3600 * 1000);

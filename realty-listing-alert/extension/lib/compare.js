@@ -36,7 +36,28 @@ export function compareComplex(prevState, items, { now = Date.now(), complete = 
     }
   }
 
-  return { events, state: { items: nextItems, initializedAt: prev?.initializedAt || nowIso, updatedAt: nowIso }, firstRun: !prev };
+  // J(2026-10-26): 중개사가 같은 매물을 번호만 바꿔 다시 올리면 「신규 + 사라짐」 2건 대신 「🔁 다시 올림」 1건(알림 안 함). 처음 발견일은 예전 매물 것을 잇는다.
+  const gones = events.filter((e) => e.type === "gone");
+  const relisted = new Set();
+  for (const e of events) {
+    if (e.type !== "new") continue;
+    const g = gones.find((x) => !relisted.has(x) && sameListing(x.item, e.item));
+    if (!g) continue;
+    relisted.add(g);
+    e.type = "relisted";
+    e.prevNo = g.item.no;
+    e.firstSeen = g.firstSeen;
+    if (nextItems[e.item.no] && g.firstSeen) nextItems[e.item.no].firstSeen = g.firstSeen;
+  }
+  const outEvents = relisted.size ? events.filter((e) => !relisted.has(e)) : events;
+
+  return { events: outEvents, state: { items: nextItems, initializedAt: prev?.initializedAt || nowIso, updatedAt: nowIso }, firstRun: !prev };
+}
+
+/** 같은 매물을 다시 올린 것인지 — 단지·동·거래 종류·가격·월세·면적·층·중개사가 모두 같고 비어 있지 않을 때만 */
+export function sameListing(a, b) {
+  if (!a || !b || !a.realtor || !a.floor) return false;
+  return ["complexNo", "dong", "tradeType", "price", "rent", "area", "floor", "realtor"].every((k) => (a[k] ?? null) === (b[k] ?? null));
 }
 
 /** 회원 알림 기준으로 거른다(같은 매물은 같은 일로 1번만 — compareComplex가 바뀐 때만 내므로 보장됨). */
@@ -50,4 +71,4 @@ export function filterEvents(events, d) {
   });
 }
 
-export const EVENT_LABEL = { new: "🆕 신규", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐", same: "유지" };
+export const EVENT_LABEL = { new: "🆕 신규", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐", relisted: "🔁 다시 올림", same: "유지" };
