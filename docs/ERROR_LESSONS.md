@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+
+## 2026-10-26 — 바나나 캔버스에 테일윈드 클래스로 새 화면을 만들었더니 배치가 통째로 깨졌다(3단이 세로로 쌓임) (banana-canvas v1.39, Claude Code 윈도우 [역할: ecommerce-image])
+- 증상: 새 화면 `/batch`의 `grid lg:grid-cols-[...]`·`text-[12px]`·`flex gap-2` 등이 전혀 적용되지 않아 운영 첫 배포에서 목록·미리보기·설정이 세로로 쌓이고 설정 칸 모양이 깨졌다. 빌드·타입 검사·시험은 모두 통과해 화면을 열기 전엔 몰랐다.
+- 원인: **바나나 캔버스에는 테일윈드 설정이 없다**(`tailwind.config` 없음, `globals.css`에 직접 쓴 규칙만). 다른 프로그램 습관대로 테일윈드 클래스를 썼다. 기존 `Sidebar.tsx`·지우개 머리말에도 테일윈드 클래스가 남아 있지만 실제로는 무시되고 있다.
+- 해결: `globals.css` 끝에 전용 규칙 `bp-`(격자 3단 → 1180px 이하 2단 → 767px 이하 1단 등)를 넣고 화면을 그 클래스로 바꿔 재배포. 또 `.bp-input.short{width:80px}`가 50행 공통 입력칸 규칙(`input:not(...)×4`, 우선순위 더 높음)에 져서 `!important`가 필요했다.
+- 다음부터: 화면을 만들기 전에 그 프로그램에 `tailwind.config.*`와 `@tailwind`/`@import "tailwindcss"`가 있는지 먼저 본다. 없으면 `globals.css`의 기존 클래스(`card`·`fe-*` 등)와 새 접두사 규칙만 쓴다. 첫 배포 전에 로컬 `npm run dev` 화면이나 계산된 스타일(`getComputedStyle`)로 배치를 한 번 본다.
+
 ## 2026-10-26 — Vercel 「보호된(Sensitive)」 환경변수는 다른 프로젝트로 옮겨 쓸 수 없다 (상품소싱 v1.28, Claude Code 윈도우 [역할: ecommerce-image])
 - 증상: `real_estate_sales`의 `DATA_GO_KR_SERVICE_KEY`를 상품소싱으로 옮기려고 `vercel env pull`로 받았더니 모든 값이 같은 길이(11)의 가림 값이었다.
 - 원인: Sensitive로 저장된 값은 대시보드·CLI·API 어디서도 다시 읽을 수 없다(설계상).

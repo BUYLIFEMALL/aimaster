@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 바나나 캔버스 v1.39 E4 「🖼 사진 일괄 손질」
+- 새 화면 `/batch`: 여러 장(최대 50) 세로 높이 맞춤(기본 860px)·문자/로고 워터마크(9곳)·테두리·촬영 정보/GPS 제거·JPG/PNG·이름 앞붙임·ZIP·Ctrl+V. 모두 브라우저 처리(서버·AI·키·비용 없음). 좌측 메뉴·안내 `/guide#batch-photo`.
+- 운영 검수(크롬): 결과 ZIP 3장 1376×860·553×860·860×860, Exif·기기 이름 0건, 워터마크 위치 이동, 390px 1단·넘침 없음. 시험 61개 통과.
+- 발견: 이 프로그램은 테일윈드가 없어 첫 배포 화면 배치가 깨짐 → 전용 `bp-` 규칙으로 고쳐 재배포(ERROR_LESSONS 2026-10-26).
+- 커밋 `47738928b`·`git log -- banana-canvas` 참고. 배포 2회(`banana-canvas-emag3gilq` Ready). 예전 미배포 `db31e8684`도 함께 나감. 새 미배포 대기: 짧은 숫자 칸 80px(CSS 1줄).
+- 다음 첫 단계: ② E5 무료 이미지 도구(배경 제거·얼굴 모자이크·분할) 플랜. 상세: `banana-canvas/AGENTS.md` 맨 위.
+- 비용: 빌드 2회(승인 범위), AI 0.
+
 ## 2026-10-26 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — AI 영상 스튜디오 v1.25 맥 렌더 막힘 해결(메모리 쪽 2D 캔버스)
 - 배경: 맥미니 무료 시험 — 크롬 「Accelerated 2D canvas」를 끄자 5초 영상 4.5초 완성, `silent.mp4`도 형식 확인 1초·렌더 4.4초. 평소 크롬에서는 형식 확인부터 90초 넘게 멈춤. 원인 = GPU 2D 캔버스.
 - v1.25(주인님 승인 빌드 1회, DB v1.25): `lib/edit/cpuCanvas.ts`(렌더·형식 확인 동안만 `willReadFrequently: true`), 맥 기본 `cpu`·`?render=gpucanvas|cpucanvas`, 형식 확인 6초 제한이 실제로 끝남. 커밋 `eaeae933d`. 플랜 `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` §17.
