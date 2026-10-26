@@ -49,3 +49,11 @@ test("예상 수집량 계산", () => {
   assert.equal(many.pagesPerDay, MAX_PAGES_PER_DAY);
   assert.equal(estimateLoad([], 120, 9, 18).runsPerDay, 4);
 });
+
+test("시험 계정 예외(v1.31): 관리자·테스트 계정만 하루 상한에서 빠짐", async () => {
+  const { isLimitExempt } = await import("../lib/limits.ts");
+  assert.equal(isLimitExempt("buylifemall@gmail.com"), true);
+  assert.equal(isLimitExempt(" BuyLifeMall@Naver.com "), true);
+  assert.equal(isLimitExempt("someone@gmail.com"), false);
+  assert.equal(isLimitExempt(null), false);
+});

@@ -108,6 +108,15 @@ async function pagesToday() {
   const { pagesDay } = await get("pagesDay");
   return pagesDay?.date === kstDate() ? pagesDay.count : 0;
 }
+// 하루 상한에 닿았나 — 시험 계정 예외(noDailyLimit)면 닿지 않음. 대신 300을 넘긴 첫 순간 기록에 경고를 남긴다(2026-10-26 주인님 「문제 여지가 있으면 바로 알려줘」)
+let exemptWarned = false;
+async function overDailyLimit(rules) {
+  const max = rules.maxPagesPerDay || 300;
+  const n = await pagesToday();
+  if (!rules.noDailyLimit) return n >= max;
+  if (n >= max && !exemptWarned) { exemptWarned = true; await addLog(`⚠ 시험 계정 예외로 하루 ${max}페이지를 넘겨 읽는 중(오늘 ${n}페이지) — 네이버 확인 화면이 뜨면 그날은 바로 멈춰요`); }
+  return false;
+}
 async function addPages(n) {
   const today = kstDate();
   const { pagesDay } = await get("pagesDay");
@@ -125,6 +134,9 @@ async function runCollection(trigger) {
   try {
     const settings = await loadSettings();
     const rules = await loadRules();
+    // 시험 계정 예외면 오늘 한도 기록을 지워 예약 수집도 다시 돈다
+    exemptWarned = false;
+    if (rules.noDailyLimit) await set({ limitDate: null });
     const targets = settings.targets || [];
     await addLog(`${trigger === "manual" ? "지금 수집" : "예약 수집"} 시작 · 감시 대상 ${targets.length}곳`);
     if (!targets.length) {
@@ -154,7 +166,7 @@ async function runCollection(trigger) {
         if (t.complex_no && !seenNo.has(t.complex_no)) { seenNo.add(t.complex_no); work.push(t); }
         continue;
       }
-      if ((await pagesToday()) >= (rules.maxPagesPerDay || 300)) { limitHit = true; break; }
+      if (await overDailyLimit(rules)) { limitHit = true; break; }
       const rg = await collectRegionComplexes(t.cortar_no, t.region_max_complexes || 5, rules, pickTopComplexes, addLog);
       await addPages(1);
       if (rg.status === "blocked") {
@@ -194,7 +206,7 @@ async function runCollection(trigger) {
         const [a, b] = rules.betweenTargetsMs || [10000, 30000];
         await sleep(rand(a, b));
       }
-      if ((await pagesToday()) >= (rules.maxPagesPerDay || 300)) { limitHit = true; await addLog(`오늘 수집 한도(${rules.maxPagesPerDay || 300}페이지)에 닿아 나머지는 쉬어요`); break; }
+      if (await overDailyLimit(rules)) { limitHit = true; await addLog(`오늘 수집 한도(${rules.maxPagesPerDay || 300}페이지)에 닿아 나머지는 쉬어요`); break; }
       // 매물 목록 → 정리(상세 대상 고르기와 아래 비교가 같은 방법을 쓰도록 함수로)
       const itemsOf = (bodies) => {
         const seen = new Set();
@@ -422,8 +434,9 @@ chrome.runtime.onInstalled.addListener(ensureAlarm);
 chrome.runtime.onStartup.addListener(ensureAlarm);
 chrome.alarms.onAlarm.addListener(async (a) => {
   if (a.name !== "tick" || busy) return;
-  const { extToken, consentAt, lastRunAt, stoppedDate, limitDate, nextDueAt } = await get(["extToken", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt"]);
+  const { extToken, consentAt, lastRunAt, stoppedDate, limitDate: savedLimit, nextDueAt, rulesCache } = await get(["extToken", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt", "rulesCache"]);
   if (!extToken || !consentAt) return;
+  const limitDate = rulesCache?.noDailyLimit ? null : savedLimit; // 시험 계정 예외(v1.31) — 확인 화면 멈춤(stoppedDate)은 그대로
   let settings;
   try { settings = await loadSettings(); } catch { return; }
   if (!shouldRunScheduled({ schedule: settings.schedule, lastRunAt, stoppedDate, limitDate, nextDueAt }).run) return;
@@ -500,7 +513,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         return reply({ ok: true });
       }
       if (msg.type === "state") {
-        const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "log", "telegramFailed"]);
+        const s = await get(["extToken", "connectedEmail", "connectedAt", "consentAt", "lastRunAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "rulesCache", "log", "telegramFailed"]);
         return reply({
           connected: !!s.extToken,
           connectedAt: s.connectedAt || null,
@@ -510,6 +523,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           stoppedToday: s.stoppedDate === kstDate(),
           limitToday: s.limitDate === kstDate(),
           pagesToday: s.pagesDay?.date === kstDate() ? s.pagesDay.count : 0,
+          noDailyLimit: !!s.rulesCache?.noDailyLimit,
           nextDueAt: s.nextDueAt || null,
           running: s.running || null,
           lastResult: s.lastResult ? { at: s.lastResult.at, result: s.lastResult.result, error: s.lastResult.error, perTarget: s.lastResult.perTarget } : null,

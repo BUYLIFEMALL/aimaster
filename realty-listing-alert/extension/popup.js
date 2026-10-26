@@ -62,7 +62,7 @@ function renderAccount(el, s) {
   const sub = document.createElement("div");
   sub.className = "account-sub";
   const next = s.nextDueAt && s.schedule?.enabled ? ` · 다음 수집 ${kstTime(s.nextDueAt)}쯤` : "";
-  sub.textContent = `📶 오늘 ${s.pagesToday ?? 0}/300페이지${next}`;
+  sub.textContent = s.noDailyLimit ? `📶 오늘 ${s.pagesToday ?? 0}페이지 · 🧪 시험 계정(하루 한도 예외)${next}` : `📶 오늘 ${s.pagesToday ?? 0}/300페이지${next}`;
   el.append(who, sub);
 }
 

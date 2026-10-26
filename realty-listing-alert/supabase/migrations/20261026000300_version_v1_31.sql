@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.31: 시험 계정(관리자·테스트)만 하루 300페이지 한도 예외 — 확인 화면 멈춤·쉬는 간격은 그대로, 300 넘기면 기록에 경고 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.31', extension_version = 'v1.31', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;

@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 
-type Usage = { pagesToday: number; maxPages: number; limitToday: boolean };
+type Usage = { pagesToday: number; maxPages: number; limitToday: boolean; exempt?: boolean };
 
 export default function DailyUsage() {
   const [u, setU] = useState<Usage | null>(null);
@@ -14,6 +14,13 @@ export default function DailyUsage() {
     });
   }, []);
   if (!u) return null;
+  // 시험 계정(관리자·테스트) 예외(v1.31)
+  if (u.exempt) return (
+    <div className="ra-usage">
+      <span>📶 오늘 수집 사용량 <b>{u.pagesToday}페이지</b></span>
+      <span>🧪 시험 계정이라 하루 {u.maxPages}페이지 한도에서 빠져 있어요 — 네이버 확인 화면이 뜨면 그날은 멈춰요</span>
+    </div>
+  );
   const pct = Math.min(100, Math.round((u.pagesToday / u.maxPages) * 100));
   return (
     <div className={`ra-usage${u.limitToday ? " full" : ""}`}>
