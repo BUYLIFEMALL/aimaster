@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 ✅ [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` — AI 상세페이지 자동화 v1.38 E3 편집 화면 고도화 및 3D 버튼 장착
+- **한 일**:
+  1. 이커머스·이미지 담당(`claude-win-sdp`)이 개발한 v1.37 E3(배송안내/블록편집/말투5종) 신규 컴포넌트 4종의 UI/UX 다듬기 및 **7. 이커머스 셀러 스튜디오 스타일** 일체화 리뉴얼
+  2. `ShippingNoticeCard.tsx`: 접이식 요약 바(입력 개수 뱃지·그리드 반응형·포커스 링·3D 다크 버튼 `.btn-3d-slate`). `localStorage` 키 `sdp-shipping-notice-v1` 100% 보존
+  3. `HtmlBlockEditor.tsx`: 블록 행 가독성 향상(2자리 고유 번호 태그·유형별 뱃지·글 요약 말줄임·인라인 텍스트 `onBlur` 편집기). 모바일(375~390px) 터치 타깃 최적화 및 `whitespace-nowrap`/`shrink-0` 줄바꿈 방지
+  4. `CopyTonePanel.tsx`: 5종 말투 칩셋 및 선택 피드백 강화, 3D 셀러 버튼(`.btn-3d-seller`), 전체 묶음 복사 3D 블루 버튼(`.btn-3d-blue`) 장착. Gemini 1회 비용 안내 문구 보존
+  5. `HtmlExportPanel.tsx`: 3D 셀러 생성 버튼, 3D 다운로드 버튼, 고유 `previewKey` 및 `sandbox=""` 격리 iframe 보존, 지연 렌더링 유지
+  6. `globals.css`: 셀러 오렌지 3D 버튼(`.btn-3d-seller` / `.btn-3d-orange`), 인디고(`.btn-3d-indigo`), 슬레이트 다크(`.btn-3d-slate` / `.btn-3d-dark`) 공식 등재
+- **검수**: 로컬 Next.js 빌드 성공, Vercel 프로덕션 실배포 완료 (`https://shop-detail-page.buylife.xyz` / `https://shop-detail-page.vercel.app`, READY), DB `programs.version` v1.38 동기화. Edge/Whale 브라우저 검수 캡처 및 `D:\Antigravity\Design\07_이커머스_셀러_스튜디오_스타일\shop-detail-page` 영구 자산 적재 완료.
+- **5대 확인 링크 세트**:
+  1. 공식 운영 도메인: https://shop-detail-page.buylife.xyz/products
+  2. Vercel 프로덕션 보조: https://shop-detail-page.vercel.app
+  3. 관리자 dev-docs 결과함: https://www.buylife.xyz/admin/dev-docs/requests
+  4. 브라우저 쇼케이스 HTML: [file:///D:/Antigravity/Design/07_이커머스_셀러_스튜디오_스타일/shop-detail-page/sdp_e3_preview.html](file:///D:/Antigravity/Design/07_이커머스_셀러_스튜디오_스타일/shop-detail-page/sdp_e3_preview.html)
+  5. 로컬 영구 자산 폴더: `D:\Antigravity\Design\07_이커머스_셀러_스튜디오_스타일\shop-detail-page`
+
 ## 2026-10-26 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 상세페이지 자동화 v1.37 E3 편집 보강 배포
 - HTML 상세페이지 블록 편집(↑↓·🗑·그 자리 글 고치기·처음대로, 브라우저에서만)·🚚 배송·교환·환불 안내 카드(브라우저에만 기억, 860px PNG 받기, HTML 끝에 표 블록 넣기)·「📋 HTML 코드 복사」「📝 글만 복사」·✍️ 상품 문구 말투 5종(상품명 후보 3·한 줄 소개·본문·SNS 2, 회원 본인 Gemini 글 1회, 근거 없는 판매량·후기·한정 문구 서버에서 제거). 서버 저장·DB 변경 없음.
 - 커밋 `7be8c9583`, 배포 `shop-detail-page-lkgk3d8zf` Ready, DB v1.37. 검수: 시험 5개·tsc·build·로컬 크롬·운영 크롬(시험 계정, Gemini 글 2회).
