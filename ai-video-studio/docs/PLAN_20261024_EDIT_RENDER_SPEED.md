@@ -184,7 +184,7 @@
 - 렌더 결과 저장 안 함, 비용 없음. 캡처(맥미니 로컬): `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1792871763899-8.jpg`(1회차 15초 막힘 안내), `…-1792871944986-9.jpg`(1회차 멈춘 뒤 새로고침 안내·버튼).
 - 다음: 윈도우 영상 담당이 ②의 「인코더에 들어가는 프레임이 안 풀림」 가설을 코드로 확인. 맥미니 무료 재측정 제안: `?render=trace,hwdecode` / `?render=trace,hwdecode,software`.
 
-## 14. 5단계 플랜 — 인코더에 넘기는 장면을 GPU 밖(메모리)으로 (2026-10-25, [역할: video] Claude Code(윈도우) `claude-win-video`, 승인 대기)
+## 14. 5단계 플랜 — 인코더에 넘기는 장면을 GPU 밖(메모리)으로 (2026-10-25, [역할: video] Claude Code(윈도우) `claude-win-video`, §17에서 `cpucanvas`만 채택 → v1.25 배포)
 - **맥미니 v1.24 결과(§13, `87f379c35`)**: `software`(하드웨어 아닌 인코더)도 `realtime`도 대기열 4개가 찬 뒤 인코더가 장면을 안 가져감(realtime은 266초 동안 `queue 4·dequeued 0·outputs 0`). 인코더 종류·방식과 상관없이 같다 → **인코더 자체보다 인코더에 넣는 장면(VideoFrame) 쪽**이 의심된다.
 - **코드로 본 것**: 웹 렌더러는 한 장면을 `OffscreenCanvas`(`willReadFrequently` 없음 = 보통 GPU 쪽)에 합성한 뒤 `new VideoFrame(canvas)`로 인코더에 넣는다. 이 장면은 GPU 메모리를 가리키므로, 인코더(특히 소프트웨어 인코더)는 처리 전에 GPU에서 픽셀을 읽어 와야 한다. 맥미니(인텔 UHD 630)에서 이 읽어 오기가 막히면 두 인코더가 똑같이 멈추는 현상과 맞는다(추정 — 코드로는 확정 못 함).
   - 맥미니 제안처럼 「영상 디코더가 내준 장면이 안 풀려 GPU 장면 자리가 모자란다」도 같은 줄기의 가능성이다(v1.21은 하드웨어 디코딩이었는데도 느렸으므로 디코딩 방식만의 문제일 가능성은 낮음).
@@ -213,3 +213,13 @@
   - ④ v1.25 `cpuframe`(장면을 메모리로 복사해 넘기고 원래 장면 바로 닫기)·`cpucanvas` 시험이 ②와 바로 맞닿는다 — 복사 뒤 인코더가 바로 가져가면 원인 확정.
 - 멈추기·안내(v1.24): 두 회차 모두 「멈추는 중…」 → 「렌더를 멈췄습니다」(`stop-forced` 3초) → 「이전 렌더 정리 중…」 → 20초 뒤 새로고침 안내·버튼까지 정상. 15초 막힘 안내도 떠 있었음.
 - 렌더 결과 저장 안 함, 비용 없음. 캡처(맥미니 로컬): `/var/folders/_j/v9sccltd4d19h03ryg3ms4400000gp/T/claude-chrome-screenshots-Nd6yuv/screenshot-1792896984940-10.jpg`(2회차 멈춘 뒤 새로고침 안내).
+
+## 17. v1.25 — 맥은 메모리 쪽 2D 캔버스가 기본 (2026-10-26, [역할: video] Claude Code(윈도우) `claude-win-video`, 주인님 승인 빌드 1회)
+- **근거 — 맥미니 무료 시험(2026-10-26 11:48~12:12, 맥미니 세션 기록 §16 예정)**: ① 사진만 넣기 = 화면이 영상 파일만 받아 못 함 ② `silent.mp4`(평소 크롬) = 「영상 형식 확인 중」(160×160 10장면, 제한 6초)에서 90초 넘게 멈추고 갤러리 카드도 눌리지 않음 ③ 크롬 플래그 「Accelerated 2D canvas」 Disabled(설정 파일 `disable-accelerated-2d-canvas` 확인) + 갤러리 Wan 3.0 · 5초 = **4.5초 완성**, 150/150, 장당 30ms, 막힌 장면 0, 인코더 출력 150·대기열 0, 완성 영상 재생 정상 ④ 같은 조건 `silent.mp4` = 형식 확인 1초 통과·렌더 4.4초. → **원인 확정: 맥 크롬 GPU 2D 캔버스에서 그린 장면을 인코더가 읽어 가지 못함**(v1.22~v1.24의 디코딩·인코딩 방식은 무관, §14 가설이 맞음). 시험 뒤 플래그는 Default로 되돌리도록 맥미니에 요청.
+- **고친 것**(커밋 `eaeae933d`):
+  1. `lib/edit/cpuCanvas.ts` `preferCpuCanvas()` — 렌더하는 동안만 `OffscreenCanvas`·`HTMLCanvasElement`의 `getContext("2d")`에 `willReadFrequently: true`를 넣어 크롬이 메모리 쪽 캔버스를 쓰게 함(웹 렌더러 4.0.538은 모든 2D 캔버스를 `getContext("2d")`로 만들고 캔버스 옵션을 받지 않음). 형식 확인과 본 렌더가 겹쳐도 되게 사용 수를 세고 마지막에 되돌림. `webgl`은 건드리지 않음.
+  2. `renderCanvasFromParam` — **맥 데스크톱은 `cpu` 기본**, 그 밖은 `gpu`(지금과 같음). `?render=gpucanvas`(예전 방식 비교)·`?render=cpucanvas`(맥이 아니어도 cpu). 진단 줄에 `canvas`.
+  3. 형식 확인 `probeClip(src, { cpuCanvas })` — 같은 캔버스 방식 적용 + **6초 제한이 렌더 결과를 기다리지 않고 「실패」로 끝남**(중단 신호를 렌더가 못 받던 맥 사례 대책). 실패면 기존대로 내 PC 고속 변환/브라우저 소프트웨어 인코딩으로 맞춘 뒤 다시 확인.
+  4. §14의 `cpuframe`(장면 복사)은 만들지 않음 — 캔버스만 바꿔도 맥에서 정상 속도가 나와 필요 없음.
+- **검수**: 시험 72(새 `tests/cpuCanvas.test.mjs` 2개)·tsc·eslint·build. 배포 `ai-video-studio` v1.25(DB v1.25). 운영 윈도우 크롬(시험 계정): `?render=trace,cpucanvas` 갤러리 Wan 3.0 · 5초 = 4.3초·`canvas: cpu`·150/150·막힌 장면 0·출력 150, 완성 영상 재생 정상(한옥 장면). 같은 주소에서 `silent.mp4` 형식 확인 4초 안에 통과(2개 · 총 10초). 결과 저장 안 함.
+- **맥미니 재측정 절차**(플래그를 Default로 되돌린 평소 크롬, 비용 없음): ① 기본 주소 `/edit?render=trace` — 갤러리 Wan 3.0 · 5초 렌더, 진단 줄의 `canvas: "cpu"`·완성 시간 ② `silent.mp4`를 「내 PC 영상 올리기」로 넣어 형식 확인이 몇 초에 통과하는지 → 렌더 ③ 비교용 `/edit?render=trace,gpucanvas`는 3분까지만(멈추면 「멈추기」). 결과는 이 문서 §18에.
