@@ -62,7 +62,7 @@ export default async function HomePage() {
           <ul className="divide-y divide-slate-100 text-sm">
             {recent.map((j) => (
               <li key={j.id} className="flex items-center justify-between gap-2 py-2">
-                <Link href={`/products/${j.product_id}`} className="truncate text-slate-700 hover:underline">{j.category_keyword || "카테고리 없음"} · {new Date(j.created_at).toLocaleString("ko-KR")}</Link>
+                <Link href={`/products/${j.product_id}`} className="truncate text-slate-700 hover:underline">{j.category_keyword || "카테고리 없음"} · {new Date(j.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</Link>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${JOB_STATUS[j.status]?.tone ?? ""}`}>{JOB_STATUS[j.status]?.label ?? j.status}</span>
               </li>
             ))}

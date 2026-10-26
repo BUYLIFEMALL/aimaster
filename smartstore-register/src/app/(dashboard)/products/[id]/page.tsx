@@ -67,7 +67,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
           <ul className="divide-y divide-slate-100 text-sm">
             {jobs.rows.map((j) => (
               <li key={j.id} className="flex items-center justify-between gap-2 py-2">
-                <span className="truncate text-slate-700">{new Date(j.created_at).toLocaleString("ko-KR")} · {j.category_keyword}{j.failed_step ? ` · 멈춘 칸: ${j.failed_step}` : ""}</span>
+                <span className="truncate text-slate-700">{new Date(j.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} · {j.category_keyword}{j.failed_step ? ` · 멈춘 칸: ${j.failed_step}` : ""}</span>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${JOB_STATUS[j.status]?.tone ?? ""}`}>{JOB_STATUS[j.status]?.label ?? j.status}</span>
               </li>
             ))}

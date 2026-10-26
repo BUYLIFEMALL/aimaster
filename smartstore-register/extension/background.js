@@ -179,6 +179,19 @@ async function pageCommand(cmd, args) {
       const count = () => document.querySelectorAll('.se-component.se-image, .se-component[data-comp-type="image"]').length;
       const before = count();
       const findInput = () => [...document.querySelectorAll('input[type="file"]')].find((el) => !el.hasAttribute('ngf-select') && /image|\.png|\.jpg/i.test(el.accept || ''));
+      // 1순위: 에디터 본문에 파일을 끌어다 놓기(드롭) — 파일 고르는 창이 뜨지 않는다.
+      const bytes = Uint8Array.from(atob(args.data), (c) => c.charCodeAt(0));
+      const target = [...document.querySelectorAll('.se-content, .se-canvas, .se-container, [contenteditable="true"]')].find(visible);
+      if (target) {
+        const dt = new DataTransfer();
+        dt.items.add(new File([bytes], args.name, { type: args.mime }));
+        for (const type of ['dragenter', 'dragover', 'drop']) {
+          target.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt }));
+          await sleep(120);
+        }
+        if (await waitFor(() => count() > before, 15000)) return { ok: true, via: 'drop' };
+      }
+      // 2순위: 숨은 파일 칸(블로그 확장 방식)
       let input = findInput();
       if (!input) {
         const b = document.querySelector('.se-image-toolbar-button, button[data-name="image"]');

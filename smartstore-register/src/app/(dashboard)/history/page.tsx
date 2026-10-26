@@ -23,7 +23,7 @@ export default async function HistoryPage() {
           <tbody className="divide-y divide-slate-100">
             {rows.map((j) => (
               <tr key={j.id}>
-                <td className="px-3 py-2 text-slate-600"><Link href={`/products/${j.product_id}`} className="hover:underline">{new Date(j.created_at).toLocaleString("ko-KR")}</Link></td>
+                <td className="px-3 py-2 text-slate-600"><Link href={`/products/${j.product_id}`} className="hover:underline">{new Date(j.created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</Link></td>
                 <td className="px-3 py-2">{REGISTER_MODES[toRegisterMode(j.mode)].label}</td>
                 <td className="px-3 py-2">{j.category_keyword}</td>
                 <td className="px-3 py-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${JOB_STATUS[j.status]?.tone ?? ""}`}>{JOB_STATUS[j.status]?.label ?? j.status}</span></td>

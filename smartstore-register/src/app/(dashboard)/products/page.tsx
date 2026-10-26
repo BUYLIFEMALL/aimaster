@@ -29,7 +29,7 @@ export default async function ProductsPage() {
               <p className="mt-1 text-xs text-slate-600">
                 정상가 {won(p.price)}{p.sale_price ? ` · 할인가 ${won(p.sale_price)}` : ""} · {p.category || "카테고리 미정"}
               </p>
-              <p className="mt-1 text-[11px] text-slate-500">상세페이지 수정 {new Date(p.updated_at).toLocaleDateString("ko-KR")}</p>
+              <p className="mt-1 text-[11px] text-slate-500">상세페이지 수정 {new Date(p.updated_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}</p>
             </Link>
           </li>
         ))}
