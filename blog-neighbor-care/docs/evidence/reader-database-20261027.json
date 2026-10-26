@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-10-26T16:57:03.907Z",
+  "tests": [
+    "RDB01 신규4표RLS·안전한RPC권한",
+    "RDB02 같은연결번호40개동시요청중성공1건",
+    "RDB03 공용계정은본인/읽기전용·OAuth토큰/소유검증을위조하지않음",
+    "RDB04 소비된번호/타회원번호교환/만료번호재사용차단",
+    "RDB05 다른블로그/타회원기기읽기차단",
+    "RDB06 준비요청동일ID재조회·중복선점/다른글재사용차단",
+    "RDB07 읽은내용다른글/타회원전송차단",
+    "RDB08 정상전송·같은요청재전송은한건·수명보존/변경거절",
+    "RDB09 회원은본인유효자료만조회/직접쓰기·토큰조회불가",
+    "RDB10 기기해제즉시차단/받은본문보존",
+    "RDB11 요청만료후재전송차단/명시적새읽기만가능",
+    "RDB12 공용계정삭제로읽기차단/기존본문보존",
+    "RDB13 30일만료조회/재사용차단·정리본문삭제",
+    "RDB14 HTTP핸들러→실제SQL 연결/읽기/전송/회원재조회",
+    "RDB15 다른기기/다른요청도같은자료는한건·수정본도원래수명",
+    "RDB16 번호발급간격·기기5개상한·기기만료/공용재연결요구"
+  ],
+  "passed": 16,
+  "expected": 16,
+  "version": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "migration": "20261026163340_bnc_reader_connection.sql",
+  "operatingDatabaseChanged": false,
+  "realCredentialsUsed": false,
+  "containerStopped": true,
+  "fixture": "Local PostgreSQL, network none, no published ports, real independent connections"
+}

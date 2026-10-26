@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "AIMaster · 블로그 이웃 소통 · 본인 글 읽기",
+  "version": "1.1.0",
+  "version_name": "v1.01",
+  "minimum_chrome_version": "120",
+  "description": "회원이 직접 선택한 본인 블로그 글 1개를 확인하고 프로그램에 전달합니다.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://blog-neighbor-care.buylife.xyz/*"
+  ],
+  "background": {
+    "service_worker": "background.mjs",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "본인 글 1개 읽기"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://blog-neighbor-care.buylife.xyz/*"
+      ],
+      "js": [
+        "web-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}

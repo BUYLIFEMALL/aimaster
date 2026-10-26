@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const reservation = createServer();
@@ -54,17 +54,39 @@ try {
     const r = await fetch(materialUrl, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' }); assert.equal(r.status, 403);
   });
   await check('HTTP12 자료미리보기GET405', async () => assert.equal((await fetch(materialUrl)).status, 405));
+  const reader = (path, input, headers = {}) => fetch(`${origin}/api/reader/${path}`, { method: 'POST',
+    headers: { origin, 'content-type': 'application/json', ...headers }, body: JSON.stringify(input) });
+  await check('HTTP13 연결번호발급회원인증401', async () => assert.equal((await reader('member', { operation: 'pair', payload: { blog_id: 'fixture', owner_confirmed: true } })).status, 401));
+  await check('HTTP14 확장토큰없음401', async () => assert.equal((await reader('extension', { operation: 'whoami', payload: {} }, { origin: `chrome-extension://${'a'.repeat(32)}` })).status, 401));
+  await check('HTTP15 연결번호형식오류400', async () => assert.equal((await reader('extension', { operation: 'connect', payload: { code: 'invalid' } }, { origin: `chrome-extension://${'a'.repeat(32)}` })).status, 400));
+  await check('HTTP16 확장API웹출처거절403', async () => assert.equal((await reader('extension', { operation: 'whoami', payload: {} })).status, 403));
+  await check('HTTP17 정리API비밀값없이401', async () => assert.equal((await fetch(`${origin}/api/cron/cleanup-reader`)).status, 401));
+  await check('HTTP18 공개확장버전확인', async () => {
+    const r = await fetch(`${origin}/api/extension/version`); assert.equal(r.status, 200); assert.equal((await r.json()).version, 'v1.01');
+  });
+  await check('HTTP19 ZIP다운로드바이트일치', async () => {
+    const r = await fetch(`${origin}/downloads/blog-neighbor-care-extension-latest.zip`); assert.equal(r.status, 200);
+    assert.deepEqual(Buffer.from(await r.arrayBuffer()), readFileSync(new URL('../public/downloads/blog-neighbor-care-extension-latest.zip', import.meta.url)));
+  });
+  await check('HTTP20 연결화면미로그인안내', async () => {
+    const r = await fetch(`${origin}/reader`); assert.equal(r.status, 200); assert.match(await r.text(), /로그인이 필요합니다/);
+  });
+  await check('HTTP21 회원연결API다른출처403', async () => assert.equal((await reader('member', { operation: 'materials', payload: {} }, { origin: 'https://other.test' })).status, 403));
+  await check('HTTP22 확장GET405', async () => assert.equal((await fetch(`${origin}/api/reader/extension`)).status, 405));
+  await check('HTTP23 루트에서연결화면으로이동', async () => {
+    const r = await fetch(origin, { redirect: 'manual' }); assert.equal(r.status, 307); assert.equal(r.headers.get('location'), '/reader');
+  });
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
-  writeFileSync(new URL('../docs/evidence/http-20261027.json', import.meta.url), JSON.stringify({
+  writeFileSync(new URL('../docs/evidence/reader-http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 12, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 23, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 12);
-console.log('로컬 HTTP12개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 23);
+console.log('로컬 HTTP23개 통과·서버 종료, 실제키/로그인세션 사용0.');

@@ -9,7 +9,10 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.mjs",
     "test:database": "node --import tsx tests/database.mjs",
-    "test:http": "node tests/http.mjs"
+    "test:http": "node tests/http.mjs",
+    "prebuild": "node scripts/build-extension-archive.mjs",
+    "build:extension": "node scripts/build-extension-archive.mjs",
+    "test:reader-database": "node --import tsx tests/reader-database.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -23,6 +26,8 @@
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.2.3",
+    "archiver": "7.0.1",
+    "linkedom": "0.18.12",
     "tsx": "4.23.15",
     "typescript": "5.9.3"
   }
