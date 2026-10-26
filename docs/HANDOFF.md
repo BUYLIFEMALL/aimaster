@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-26 23:38 [역할: blog] Codex — 이웃 소통 SQL 실행 준비 재검증
+- 세션 `codex-win-20261026-blog-check`. 운영 직접 SELECT false/0/null 유지. 검수 SQL 원본 SHA256 일치, 스키마1·테이블6·BEGIN/COMMIT 각1 확인.
+- Edge 접근성 조회는 성공했지만 현재 SELECT 탭이며 캡처 실패·실제 전경HWND0. 입력/클릭0. 기존 주인님 직접 Run 지정을 Codex 도구 실행으로 바꿔도 되는지 채팅 질문 대기, 기존 DB 요청6eecd22c 유지. 운영 생성/삭제/AI/빌드/배포0. [상세](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md).
+
 ## 2026-10-26 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 「부동산 실시간 매물 알림」 정식 공개
 - 주인님 「공개해」. 운영 DB(① `esgxyikcnnvmlhygjkth`, 크롬 SQL 편집기)에서 `programs.badges`의 `coming` 제거 → 배지 `{}`. VIP 등급 표(`grade_program_access`)에는 이미 들어 있어 VIP 145명 전원 유효 권한(만료 전) 확인. 썸네일은 기존 것.
 - 확인: 메인 상세 https://www.buylife.xyz/programs/realty-listing-alert 와 부동산 목록 카드에 「준비중」 없음(크롬). 버전 그대로 v1.34(DB 값만 변경, 빌드 없음).

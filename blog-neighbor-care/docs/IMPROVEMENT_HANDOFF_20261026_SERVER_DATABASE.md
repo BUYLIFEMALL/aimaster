@@ -1,5 +1,11 @@
 # 서버·DB 1번 — 구현·검수 인수인계
 
+## 23:38 후속 진행 — SQL 원본 재검증·실행 주체 확인 대기
+
+- 「계속 진행해」 후 운영 연결 SELECT 결과는 여전히 `false / 0 / null`. SQL 원본 LF SHA256은 검수본 `a5b3f68d53497b16a1e2c35a92b9afb13db5b374caf4418010b8b2eb1472d52e`와 일치합니다. create schema 1회·create table 6회·BEGIN/COMMIT 각1회 확인.
+- computer-use로 Edge HWND1838288 SQL 편집기 접근성 상태를 읽었습니다. 현재 선택된 탭은 생성문이 아닌 존재 여부 SELECT 탭이며, 캡처 실패·네이티브 전경 HWND0이라 클릭/입력하지 않았습니다. 첫 생성 SQL 탭의 현재 전체 내용은 재대조하지 못했습니다.
+- 기존 주인님 직접 Run 지정을 바꿔 Codex가 Supabase 연결 도구로 실행해도 되는지 채팅 선택 질문을 남겼습니다. 답변 전 생성 SQL 실행은 하지 않습니다. 기존 DB 요청6eecd22c 유지·중복 요청0. 생성/삭제/빌드/배포/AI0. 세션 `codex-win-20261026-blog-check`.
+
 ## 23:13 운영 직접 재조회 — 미적용 확인
 
 - 사용자 「확인해봐」에 따라 Supabase 연결 도구로 운영 ref `esgxyikcnnvmlhygjkth`에 읽기 전용 메타데이터 SELECT를 실행했습니다. 결과 `private_schema=false`, `table_count=0`, `dispatcher=null`입니다. 신규 스키마·6표·RPC는 아직 없습니다.

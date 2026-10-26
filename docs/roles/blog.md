@@ -12,6 +12,8 @@
 
 ## 지금 하는 일
 
+**2026-10-26 23:38 후속:** 운영 여전히 false/0/null, 검수 SQL 해시 일치·스키마1/테이블6/트랜잭션1 확인. Edge 전경HWND0으로 클릭하지 않음. 기존 주인님 직접 Run 지정을 Codex 실행으로 바꿀지 채팅 답변 대기. 운영쓰기0, 기존 DB 요청6eecd22c 유지. 마지막 갱신: `codex-win-20261026-blog-check`.
+
 **2026-10-26 23:13 재개 확인:** 운영 ref `esgxyikcnnvmlhygjkth`를 Supabase 연결 도구로 직접 SELECT한 결과 `private_schema=false / table_count=0 / dispatcher=null`. 운영 미적용·주인님 Run 대기 유지(요청6eecd22c). 생성/삭제/라이브/빌드/배포0. 마지막 확인 갱신: Codex `codex-win-20261026-blog-check`.
 
 **최신 진행 결과:** 주인님순서1에따라 blog-neighbor-care 서버/API·신규6표/RLS/서버전용RPC를구현, API14·실제PG28·실제NextHTTP6=48개/타입/최종로컬빌드 통과. [상세인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 운영DB는미적용·미배포, 원본인수인계의Run주인님규칙에따라 DB요청6eecd22c 대기. 앱UI/확장/AI/정책허용/운영회원E2E미완료.
