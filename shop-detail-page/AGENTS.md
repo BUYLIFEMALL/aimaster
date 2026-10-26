@@ -437,3 +437,14 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 서버 저장·DB 변경 없음(배송 안내는 `localStorage` `sdp-shipping-notice-v1`, 주인님 결정 ①). 블록 편집은 `DOMParser`라 브라우저 전용(서버 렌더 금지 — 편집 화면은 버튼을 눌러야 열림).
 - 검수: 시험 5개(`node --experimental-strip-types --test scripts/test-e3.mts`), tsc·build, 로컬 크롬(블록 이동·글 고치기·안내 블록·PNG 860×264), 운영 크롬(시험 계정: 쿠팡 HTML 생성 → 블록 10개 → 안내 넣어 11개 → 글 복사, 친근한 말투 문구 — 위험 문구·가격 없음). 커밋 `7be8c9583`, 배포 `shop-detail-page-lkgk3d8zf`, DB v1.37.
 - 남은 일(미배포 대기): 사용 안내(/guide) FAQ에 블록 편집·배송 안내·말투 문구 설명 추가, 복사 안내 「글을(를)」 조사 다듬기. 디자인 담당(agy)에게 편집 화면 다듬기 인계.
+
+## 2026-10-26 ✅ v1.38 — E3 편집 화면 고도화 및 이커머스 셀러 스튜디오 스타일 3D 엠보싱 버튼 장착 (Antigravity `agy-win-20261025-ext3d`, [역할: design])
+- 디자인 테마: **7. 이커머스 셀러 스튜디오 스타일** 일체화 및 3D 엠보싱 버튼 탑재.
+- 컴포넌트 고도화:
+  1. `ShippingNoticeCard.tsx`: 접이식 세련화(입력 개수 뱃지·그리드 반응형·포커스 링·3D 다크 버튼 `.btn-3d-slate`). 브라우저 `localStorage` 키 `sdp-shipping-notice-v1` 100% 보존.
+  2. `HtmlBlockEditor.tsx`: 블록 행 가독성 향상(2자리 고유 번호 태그·유형별 뱃지·글 요약 말줄임·인라인 텍스트 `onBlur` 편집기). 모바일(375~390px) 터치 타깃 최적화 및 `whitespace-nowrap`/`shrink-0` 줄바꿈 방지.
+  3. `CopyTonePanel.tsx`: 5종 말투 칩셋 및 피드백 강화, 3D 셀러 버튼(`.btn-3d-seller`), 전체 묶음 복사 3D 블루 버튼(`.btn-3d-blue`) 장착. Gemini 1회 비용 안내 문구 보존.
+  4. `HtmlExportPanel.tsx`: 3D 셀러 생성 버튼, 3D 다운로드 버튼, 고유 `previewKey` 및 `sandbox=""` 격리 iframe 보존, 지연 렌더링 유지.
+  5. `globals.css`: 셀러 오렌지 3D 버튼(`.btn-3d-seller` / `.btn-3d-orange`), 인디고(`.btn-3d-indigo`), 슬레이트 다크(`.btn-3d-slate` / `.btn-3d-dark`) 공식 등재.
+- 검증 및 배포: 로컬 `npm run build` 통과, Vercel 프로덕션 배포 완료 (`https://shop-detail-page.buylife.xyz`, READY), DB `programs.version` v1.38 동기화.
+- 자산 적재: `D:\Antigravity\Design\07_이커머스_셀러_스튜디오_스타일\shop-detail-page` 영구 저장 완료.

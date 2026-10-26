@@ -40,6 +40,7 @@ function renderNoticePng(n: ShippingNotice): Promise<Blob> {
 export function ShippingNoticeCard() {
   const [n, setN] = useState<ShippingNotice>(EMPTY_NOTICE);
   const [msg, setMsg] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
   useEffect(() => { setN(load()); }, []);
 
   function save(next: ShippingNotice) {
@@ -49,32 +50,90 @@ export function ShippingNoticeCard() {
 
   async function downloadPng() {
     if (!noticeRows(n).length) { setMsg("한 칸 이상 채워 주세요."); return; }
-    const blob = await renderNoticePng(n);
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "배송교환안내_860px.png"; a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    setMsg("✅ 860px 안내 이미지를 받았습니다. 「📤 직접 등록」으로 섹션에 넣거나 마켓 편집기에 올려 쓰세요.");
+    try {
+      setDownloading(true);
+      const blob = await renderNoticePng(n);
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "배송교환안내_860px.png"; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      setMsg("✅ 860px 안내 이미지를 받았습니다. 「📤 직접 등록」으로 섹션에 넣거나 마켓 편집기에 올려 쓰세요.");
+    } catch {
+      setMsg("이미지 생성에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setDownloading(false);
+    }
   }
 
+  const filledCount = noticeRows(n).length;
+
   return (
-    <details className="mt-6 rounded-2xl border border-slate-200/90 bg-slate-50 p-4 sm:p-5">
-      <summary className="cursor-pointer text-sm font-black text-slate-900">🚚 배송·교환·환불 안내 <span className="text-xs font-semibold text-slate-500">— 한 번 입력하면 이 브라우저에 기억</span></summary>
-      <p className="text-xs text-slate-500 mt-2">입력한 칸만 안내에 들어갑니다. 회원님 PC의 이 브라우저에만 저장되고 서버로 보내지 않습니다(다른 PC·브라우저에서는 다시 입력).</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+    <details className="mt-6 rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs transition-all group open:border-blue-200">
+      <summary className="cursor-pointer select-none flex flex-wrap items-center justify-between gap-2 list-none">
+        <div className="flex items-center gap-2">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-orange-50 text-orange-600 text-sm border border-orange-200/60 font-bold shrink-0">🚚</span>
+          <span className="text-sm font-black text-slate-900 tracking-tight">배송 · 교환 · 환불 안내</span>
+          <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline">— 브라우저 자동 기억</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {filledCount > 0 ? (
+            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
+              {filledCount}개 항목 입력됨
+            </span>
+          ) : (
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+              미입력 (선택)
+            </span>
+          )}
+          <span className="text-xs text-slate-400 group-open:rotate-180 transition-transform duration-200">▼</span>
+        </div>
+      </summary>
+
+      <p className="text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100 leading-relaxed">
+        입력한 칸만 안내에 들어갑니다. 회원님 PC의 이 브라우저에만 저장되고 서버로 보내지 않습니다(다른 PC·브라우저에서는 다시 입력).
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3.5">
         {NOTICE_FIELDS.map((f) => (
-          <label key={f.key} className={`text-[11px] font-bold text-slate-600 ${f.multiline ? "sm:col-span-2" : ""}`}>
-            {f.label}
+          <label key={f.key} className={`flex flex-col text-[11px] font-bold text-slate-700 ${f.multiline ? "sm:col-span-2" : ""}`}>
+            <span className="mb-1 flex items-center justify-between">
+              <span>{f.label}</span>
+              {n[f.key] && <span className="text-[10px] font-normal text-slate-400">{n[f.key].length}/300자</span>}
+            </span>
             {f.multiline
-              ? <textarea value={n[f.key]} placeholder={f.placeholder} maxLength={300} rows={2} onChange={(e) => save({ ...n, [f.key]: e.target.value })} className="mt-1 w-full text-xs font-normal rounded-lg border border-slate-200 bg-white px-2.5 py-2" />
-              : <input value={n[f.key]} placeholder={f.placeholder} maxLength={300} onChange={(e) => save({ ...n, [f.key]: e.target.value })} className="mt-1 w-full text-xs font-normal rounded-lg border border-slate-200 bg-white px-2.5 py-2" />}
+              ? <textarea value={n[f.key]} placeholder={f.placeholder} maxLength={300} rows={2} onChange={(e) => save({ ...n, [f.key]: e.target.value })} className="w-full text-xs font-normal rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 px-3 py-2 transition-all outline-none" />
+              : <input value={n[f.key]} placeholder={f.placeholder} maxLength={300} onChange={(e) => save({ ...n, [f.key]: e.target.value })} className="w-full text-xs font-normal rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 px-3 py-2 transition-all outline-none" />}
           </label>
         ))}
       </div>
-      <div className="flex flex-wrap gap-2 mt-3">
-        <button type="button" onClick={() => void downloadPng()} className="text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg px-3 py-2">🖼 860px 안내 이미지 받기</button>
-        <button type="button" onClick={() => save({ ...EMPTY_NOTICE })} className="text-xs font-bold text-slate-500 hover:text-slate-800 px-2 py-2">모두 지우기</button>
+
+      <div className="flex flex-wrap items-center justify-between gap-2.5 mt-4 pt-3 border-t border-slate-100">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void downloadPng()}
+            disabled={downloading}
+            className="btn-3d-slate !text-xs !py-2 !px-3.5 whitespace-nowrap shrink-0"
+          >
+            <span>🖼</span>
+            <span>{downloading ? "이미지 생성 중..." : "860px 안내 이미지 받기"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => save({ ...EMPTY_NOTICE })}
+            className="text-xs font-semibold text-slate-500 hover:text-rose-600 px-2.5 py-2 rounded-lg transition-colors whitespace-nowrap shrink-0"
+          >
+            모두 지우기
+          </button>
+        </div>
+        <p className="text-[11px] text-slate-400">
+          💡 HTML 상세페이지에는 아래 「✏️ 블록 편집」의 「🚚 배송·교환 안내 넣기」로 넣습니다.
+        </p>
       </div>
-      <p className="text-[11px] text-slate-500 mt-2">HTML 상세페이지에는 아래 「✏️ 블록 편집」의 「🚚 배송·교환 안내 넣기」로 넣습니다.</p>
-      {msg && <p role="status" className="text-[11px] font-bold text-indigo-700 bg-indigo-50 rounded-lg px-2.5 py-1.5 mt-2">{msg}</p>}
+
+      {msg && (
+        <p role="status" className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/70 rounded-xl px-3 py-2 mt-3 animate-fade-in flex items-center gap-1.5">
+          {msg}
+        </p>
+      )}
     </details>
   );
 }

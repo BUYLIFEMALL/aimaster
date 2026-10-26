@@ -96,40 +96,145 @@ export function HtmlBlockEditor({ original, onChange }: { original: string; onCh
   const summaries = useMemo(() => blocks.map((b) => summary(b.html)), [blocks]);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs font-black text-slate-800">✏️ 블록 편집 <span className="font-semibold text-slate-500">— {blocks.length}개 블록, 바꾸면 미리보기에 바로 반영</span></p>
-        <div className="flex gap-1.5">
-          <button type="button" onClick={addNotice} className="text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">🚚 배송·교환 안내 넣기</button>
-          <button type="button" onClick={() => { setBlocks(splitBlocks(original)); setNote("처음 만든 HTML로 되돌렸습니다."); }} className="text-[11px] font-bold text-slate-500 hover:text-slate-800 px-2 py-1">↺ 처음대로</button>
+    <div className="rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 space-y-3 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+            <span>✏️ 블록 순서 및 문구 편집</span>
+          </span>
+          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
+            총 {blocks.length}개 블록
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={addNotice}
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200 transition-colors whitespace-nowrap shrink-0"
+          >
+            <span>🚚</span>
+            <span>배송·교환 안내 넣기</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setBlocks(splitBlocks(original)); setNote("처음 만든 HTML로 되돌렸습니다."); }}
+            className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 px-2 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0"
+          >
+            ↺ 처음대로
+          </button>
         </div>
       </div>
-      {note && <p role="status" className="text-[11px] font-bold text-indigo-700 bg-indigo-50 rounded-lg px-2.5 py-1.5">{note}</p>}
-      <ol className="space-y-1.5 max-h-[420px] overflow-y-auto">
+
+      {note && (
+        <p role="status" className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/70 rounded-xl px-3 py-2 animate-fade-in">
+          {note}
+        </p>
+      )}
+
+      <ol className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
         {blocks.map((b, i) => {
           const s = summaries[i];
           const nodes = open === b.id ? textNodes(fragment(b.html)).slice(0, 40) : [];
+          const isShipping = b.html.includes('data-block="shipping-notice"');
           return (
-            <li key={b.id} className="rounded-lg border border-slate-200 bg-slate-50/60">
-              <div className="flex items-center gap-2 px-2.5 py-1.5">
-                <span className="text-[11px] font-black text-blue-600 font-mono shrink-0">#{String(i + 1).padStart(2, "0")}</span>
-                <span className="text-[11px] font-bold text-slate-700 shrink-0">{s.kind}</span>
-                <span className="text-[11px] text-slate-500 truncate min-w-0 flex-1">{s.text}</span>
-                <span className="flex items-center gap-0.5 shrink-0">
-                  {s.text && <button type="button" onClick={() => setOpen(open === b.id ? null : b.id)} className="h-6 px-1.5 text-[11px] font-bold text-slate-600 bg-white rounded border border-slate-200">{open === b.id ? "닫기" : "글 고치기"}</button>}
-                  <button type="button" aria-label="위로" onClick={() => move(i, -1)} disabled={i === 0} className="w-6 h-6 text-[11px] font-bold text-slate-500 bg-white rounded border border-slate-200 disabled:opacity-30">↑</button>
-                  <button type="button" aria-label="아래로" onClick={() => move(i, 1)} disabled={i === blocks.length - 1} className="w-6 h-6 text-[11px] font-bold text-slate-500 bg-white rounded border border-slate-200 disabled:opacity-30">↓</button>
-                  <button type="button" aria-label="빼기" onClick={() => remove(b.id)} className="w-6 h-6 text-[11px] text-rose-600 bg-white rounded border border-slate-200">🗑</button>
-                </span>
+            <li
+              key={b.id}
+              className={`rounded-xl border transition-all ${
+                open === b.id
+                  ? "border-blue-400 bg-blue-50/20 shadow-xs"
+                  : isShipping
+                  ? "border-amber-200 bg-amber-50/20"
+                  : "border-slate-200/90 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-300"
+              }`}
+            >
+              <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 p-2.5 sm:px-3 sm:py-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-md bg-white border border-slate-200 text-[11px] font-black text-blue-700 font-mono shrink-0 shadow-2xs">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    className={`text-[10px] font-black px-2 py-0.5 rounded-md border shrink-0 ${
+                      isShipping
+                        ? "bg-amber-100/70 text-amber-800 border-amber-300/60"
+                        : s.kind.includes("이미지")
+                        ? "bg-purple-50 text-purple-700 border-purple-200/60"
+                        : "bg-slate-100 text-slate-700 border-slate-200"
+                    }`}
+                  >
+                    {s.kind}
+                  </span>
+                  <span className="text-xs text-slate-600 truncate min-w-0 flex-1 font-medium">
+                    {s.text || <span className="text-slate-400 italic">(이미지 전용 블록)</span>}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
+                  {s.text && (
+                    <button
+                      type="button"
+                      onClick={() => setOpen(open === b.id ? null : b.id)}
+                      className={`h-7 px-2 text-[11px] font-bold rounded-lg border transition-all whitespace-nowrap shrink-0 ${
+                        open === b.id
+                          ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+                      }`}
+                    >
+                      {open === b.id ? "닫기" : "✏️ 글 고치기"}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    aria-label="위로"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    className="w-7 h-7 flex items-center justify-center text-xs font-bold text-slate-600 bg-white rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white transition-colors shrink-0 shadow-2xs"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="아래로"
+                    onClick={() => move(i, 1)}
+                    disabled={i === blocks.length - 1}
+                    className="w-7 h-7 flex items-center justify-center text-xs font-bold text-slate-600 bg-white rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white transition-colors shrink-0 shadow-2xs"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="빼기"
+                    onClick={() => remove(b.id)}
+                    className="w-7 h-7 flex items-center justify-center text-xs text-rose-600 bg-white rounded-lg border border-slate-200 hover:bg-rose-50 hover:border-rose-200 transition-colors shrink-0 shadow-2xs"
+                    title="블록 삭제"
+                  >
+                    🗑
+                  </button>
+                </div>
               </div>
+
               {open === b.id && (
-                <div className="px-2.5 pb-2.5 space-y-1.5">
+                <div className="px-3 pb-3 pt-1 space-y-2 border-t border-slate-200/80 bg-white/70 rounded-b-xl animate-fade-in">
+                  <p className="text-[10px] font-bold text-blue-700 flex items-center gap-1">
+                    <span>💡 텍스트를 수정한 후 입력창 바깥을 누르면(onBlur) 실시간 미리보기에 반영됩니다.</span>
+                  </p>
                   {nodes.map((n, k) => (
-                    <textarea key={k} defaultValue={n.textContent ?? ""} rows={Math.min(4, Math.ceil((n.textContent?.length ?? 0) / 40) || 1)}
-                      onBlur={(e) => setText(b.id, k, e.target.value)}
-                      className="w-full text-xs rounded-md border border-slate-200 bg-white px-2 py-1.5" aria-label={`#${i + 1} 글 ${k + 1}`} />
+                    <div key={k} className="space-y-1">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400">
+                        <span>텍스트 #{k + 1}</span>
+                        <span>{n.textContent?.length ?? 0}자</span>
+                      </div>
+                      <textarea
+                        defaultValue={n.textContent ?? ""}
+                        rows={Math.min(5, Math.ceil((n.textContent?.length ?? 0) / 40) || 1)}
+                        onBlur={(e) => setText(b.id, k, e.target.value)}
+                        className="w-full text-xs font-normal rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none leading-relaxed"
+                        aria-label={`#${i + 1} 글 ${k + 1}`}
+                      />
+                    </div>
                   ))}
-                  <p className="text-[10px] text-slate-400">칸을 벗어나면 반영됩니다. 이미지는 섹션 카드에서 바꿔 주세요.</p>
+                  <p className="text-[10px] text-slate-400">
+                    * 이미지는 상단 섹션 카드에서 교체하거나 재생성해 주세요.
+                  </p>
                 </div>
               )}
             </li>

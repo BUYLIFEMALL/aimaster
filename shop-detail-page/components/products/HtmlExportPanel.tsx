@@ -91,65 +91,131 @@ export function HtmlExportPanel({ productId }: { productId: string }) {
   }
 
   return (
-    <div className="mt-6 rounded-2xl border border-slate-200/90 bg-slate-50 p-4 sm:p-5 space-y-3">
+    <div className="mt-6 rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 space-y-4 shadow-xs">
       {showApiKeyModal && (
         <ApiKeyRequiredModal missingLabels={["Google (Gemini / 나노바나나)"]} onClose={() => setShowApiKeyModal(false)} />
       )}
-      <div>
-        <h3 className="text-sm font-black text-slate-900">🧾 HTML 상세페이지로 내보내기</h3>
-        <p className="text-xs text-slate-500 mt-1">
+      <div className="pb-3 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 text-sm border border-indigo-200/60 font-bold shrink-0">🧾</span>
+          <h3 className="text-sm font-black text-slate-900 tracking-tight">HTML 상세페이지로 내보내기</h3>
+        </div>
+        <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
           만든 섹션 이미지와 상품 정보로 글자를 고칠 수 있는 HTML 상세페이지를 씁니다. Gemini 글 생성 1회(회원 본인 키, 이미지 생성 아님)이며
           결과는 저장되지 않으니 바로 내려받아 주세요. 상품 정보에 없는 후기·판매량·인증은 넣지 않습니다.
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         {(Object.keys(HTML_TEMPLATES) as HtmlTemplate[]).map((key) => (
           <button
             key={key}
             type="button"
             onClick={() => setTemplate(key)}
             className={`text-left rounded-xl border p-3 transition-all ${
-              template === key ? "border-blue-500 bg-white shadow-xs" : "border-slate-200 bg-white/60 hover:border-slate-300"
+              template === key
+                ? "border-blue-500 bg-blue-50/30 ring-2 ring-blue-500/20 shadow-xs"
+                : "border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300"
             }`}
           >
-            <div className={`text-sm font-bold ${template === key ? "text-blue-700" : "text-slate-800"}`}>{HTML_TEMPLATES[key].label}</div>
-            <div className="text-[11px] text-slate-500 mt-1">{HTML_TEMPLATES[key].description}</div>
+            <div className={`text-xs font-black tracking-tight ${template === key ? "text-blue-700" : "text-slate-800"}`}>
+              {HTML_TEMPLATES[key].label}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1 leading-snug">
+              {HTML_TEMPLATES[key].description}
+            </div>
           </button>
         ))}
       </div>
+
       <button
         type="button"
         onClick={run}
         disabled={busy}
-        className="w-full text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-50 rounded-xl py-3"
+        className="btn-3d-seller w-full !text-sm !py-3 tracking-tight"
       >
-        {busy ? "HTML 작성 중... (1~2분)" : `${HTML_TEMPLATES[template].label} HTML 만들기`}
+        <span>🧾</span>
+        <span>{busy ? "HTML 상세페이지 코드 작성 중... (1~2분)" : `${HTML_TEMPLATES[template].label} HTML 페이지 만들기`}</span>
       </button>
-      {error && <p className="text-xs font-semibold text-rose-700 bg-rose-50 rounded-lg p-3 border border-rose-200">{error}</p>}
+
+      {error && (
+        <p className="text-xs font-semibold text-rose-700 bg-rose-50 rounded-xl p-3 border border-rose-200">
+          {error}
+        </p>
+      )}
+
       {result && (
-        <div className="space-y-2">
+        <div className="space-y-3 pt-2">
           <button
             type="button"
             onClick={download}
-            className="w-full text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl py-2.5"
+            className="btn-3d-blue w-full !text-sm !py-2.5 tracking-tight"
           >
-            ⬇️ HTML 파일 내려받기{edited ? " (고친 내용)" : ""}
+            <span>⬇️</span>
+            <span>HTML 파일 내려받기{edited ? " (고친 내용 반영됨)" : ""}</span>
           </button>
-          <div className="grid grid-cols-3 gap-2">
-            <button type="button" onClick={() => setEditing((v) => !v)} className={`text-xs font-bold rounded-xl py-2 border ${editing ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-800 border-slate-200 hover:border-slate-300"}`}>✏️ 블록 편집</button>
-            <button type="button" onClick={() => void copyText("HTML 코드", currentHtml)} className="text-xs font-bold rounded-xl py-2 border bg-white text-slate-800 border-slate-200 hover:border-slate-300">📋 HTML 코드 복사</button>
-            <button type="button" onClick={() => void copyText("글", edited?.text ?? "")} disabled={!edited} title={edited ? "" : "「✏️ 블록 편집」을 한 번 열면 글만 복사할 수 있습니다"} className="text-xs font-bold rounded-xl py-2 border bg-white text-slate-800 border-slate-200 hover:border-slate-300 disabled:opacity-40">📝 글만 복사</button>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setEditing((v) => !v)}
+              className={`text-xs font-bold rounded-xl py-2.5 px-3 border transition-all flex items-center justify-center gap-1.5 ${
+                editing
+                  ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
+                  : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+              }`}
+            >
+              <span>✏️</span>
+              <span>{editing ? "블록 편집기 닫기" : "블록 순서/글 편집"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => void copyText("HTML 코드", currentHtml)}
+              className="text-xs font-bold rounded-xl py-2.5 px-3 border bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>📋</span>
+              <span>HTML 코드 복사</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => void copyText("글", edited?.text ?? "")}
+              disabled={!edited}
+              title={edited ? "" : "「✏️ 블록 편집」을 한 번 열면 글만 복사할 수 있습니다"}
+              className="text-xs font-bold rounded-xl py-2.5 px-3 border bg-white text-slate-800 border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all disabled:opacity-40 disabled:hover:bg-white flex items-center justify-center gap-1.5"
+            >
+              <span>📝</span>
+              <span>텍스트만 복사</span>
+            </button>
           </div>
-          {copyNote && <p role="status" className="text-[11px] font-bold text-indigo-700 bg-indigo-50 rounded-lg px-2.5 py-1.5">{copyNote}</p>}
-          <p className="text-[11px] text-slate-500">이미지가 HTML 안에 들어 있어 코드가 큽니다. 마켓 HTML 편집기가 받지 않으면 「📦 섹션별 ZIP」 이미지를 올리고 「📝 글만 복사」로 글을 붙여 넣으세요.</p>
+
+          {copyNote && (
+            <p role="status" className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/70 rounded-xl px-3 py-2 animate-fade-in">
+              {copyNote}
+            </p>
+          )}
+
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            💡 고해상도 이미지가 HTML 내부에 base64 형태로 내장되어 파일 크기가 큽니다. 오픈마켓 편집기 업로드 용량 초과 시, 상단 「📦 섹션별 ZIP」으로 이미지를 먼저 올리고 「📝 텍스트만 복사」를 활용해 문구를 배치하세요.
+          </p>
+
           {editing && <HtmlBlockEditor original={result.html} onChange={onEdited} />}
-          <iframe
-            key={previewKey(currentHtml)}
-            title="HTML 상세페이지 미리보기"
-            sandbox=""
-            srcDoc={currentHtml}
-            className="w-full h-[640px] rounded-xl border border-slate-200 bg-white"
-          />
+
+          <div className="rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+            <div className="bg-slate-100 px-3 py-1.5 border-b border-slate-200 flex items-center justify-between text-[11px] font-bold text-slate-600">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>실시간 HTML 미리보기 (스크립트 실행 방지 격리 환경)</span>
+              </span>
+              <span className="text-[10px] text-slate-400">860px 너비 기준</span>
+            </div>
+            <iframe
+              key={previewKey(currentHtml)}
+              title="HTML 상세페이지 미리보기"
+              sandbox=""
+              srcDoc={currentHtml}
+              className="w-full h-[640px] bg-white"
+            />
+          </div>
         </div>
       )}
     </div>
