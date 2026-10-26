@@ -39,17 +39,32 @@ try {
     const r = await fetch(`${origin}/api/work`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' }); assert.equal(r.status, 403);
   });
   await check('HTTP06 GET실행차단405', async () => assert.equal((await fetch(`${origin}/api/work`)).status, 405));
+  const materialUrl = `${origin}/api/material/preview`;
+  const preview = (headers = {}) => fetch(materialUrl, { method: 'POST',
+    headers: { origin, 'content-type': 'application/json', ...headers },
+    body: JSON.stringify({ operation: 'summary_preview', payload: { profile: { own_blog_id: 'fixture', keywords: ['가상'] }, items: [] } }),
+  });
+  await check('HTTP07 자료미리보기실제Next응답401', async () => {
+    const r = await preview(); assert.equal(r.status, 401, await r.clone().text()); assert.match((await r.json()).error, /로그인/);
+  });
+  await check('HTTP08 자료미리보기캐시금지', async () => assert.match((await preview()).headers.get('cache-control'), /no-store/));
+  await check('HTTP09 자료미리보기다른출처403', async () => assert.equal((await preview({ origin: 'https://other.test' })).status, 403));
+  await check('HTTP10 자료미리보기JSON아닌요청415', async () => assert.equal((await preview({ 'content-type': 'text/plain' })).status, 415));
+  await check('HTTP11 자료미리보기Origin누락403', async () => {
+    const r = await fetch(materialUrl, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' }); assert.equal(r.status, 403);
+  });
+  await check('HTTP12 자료미리보기GET405', async () => assert.equal((await fetch(materialUrl)).status, 405));
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
-  writeFileSync(new URL('../docs/evidence/http-20261026.json', import.meta.url), JSON.stringify({
+  writeFileSync(new URL('../docs/evidence/http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 6, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 12, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 6);
-console.log('로컬 HTTP6개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 12);
+console.log('로컬 HTTP12개 통과·서버 종료, 실제키/로그인세션 사용0.');

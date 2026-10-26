@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-10-26T15:21:41.195Z",
+  "command": "npm run test:http",
+  "tests": [
+    "HTTP01 미로그인실제Next응답401",
+    "HTTP02 회원응답캐시금지",
+    "HTTP03 다른출처403",
+    "HTTP04 JSON아닌요청415",
+    "HTTP05 Origin없는요청403",
+    "HTTP06 GET실행차단405",
+    "HTTP07 자료미리보기실제Next응답401",
+    "HTTP08 자료미리보기캐시금지",
+    "HTTP09 자료미리보기다른출처403",
+    "HTTP10 자료미리보기JSON아닌요청415",
+    "HTTP11 자료미리보기Origin누락403",
+    "HTTP12 자료미리보기GET405"
+  ],
+  "passed": 12,
+  "expected": 12,
+  "server": "Next production server on loopback",
+  "realCredentialsUsed": false,
+  "operatingSessionVerified": false,
+  "operatingDatabaseChanged": false,
+  "serverStopped": true
+}
