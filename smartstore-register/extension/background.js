@@ -15,7 +15,7 @@ async function api(path, body, method = 'POST') {
   const token = await getToken();
   const res = await fetch(API + path, {
     method,
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    headers: { 'Content-Type': 'application/json', 'X-Ext-Version': chrome.runtime.getManifest().version_name, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: method === 'GET' ? undefined : JSON.stringify(body || {}),
     signal: AbortSignal.timeout(20000),
   });
@@ -62,7 +62,7 @@ async function pageCommand(cmd, args) {
 
     if (cmd === 'expand') {
       // 접힌 섹션은 칸이 아예 없다 — 머리(div.title-line, ncp-click="vm.openMenuToggle()")를 눌러 펼친다.
-      const label = [...document.querySelectorAll('.title-line label')].find((l) => l.textContent.replace(/s+/g, ' ').trim().startsWith(args.title));
+      const label = [...document.querySelectorAll('.title-line label')].find((l) => l.textContent.replace(/\s+/g, ' ').trim().startsWith(args.title));
       if (!label) return { ok: true, skipped: true };
       const line = label.closest('.title-line');
       const toggle = line.querySelector('.set-option a.btn, a.btn.btn-default');
@@ -112,6 +112,51 @@ async function pageCommand(cmd, args) {
       if (!c) return { ok: false, error: '체크 칸을 찾지 못했습니다.' };
       if (!c.checked) (c.closest('label') || c).click();
       return { ok: true };
+    }
+
+    if (cmd === 'select') {
+      // 보통 고르기 상자(select): 보이는 글자가 같은 보기를 고르고 change를 보낸다(AngularJS가 값을 받음).
+      const sel = byModel(args.target).find((e) => e.tagName === 'SELECT');
+      if (!sel) return { ok: false, error: '고르기 상자를 찾지 못했습니다.' };
+      const norm = (s) => s.replace(/\s+/g, '').trim();
+      const opts = [...sel.options].filter((o) => !/^\?/.test(o.value));
+      const opt = opts.find((o) => norm(o.textContent) === norm(args.value)) || opts.filter((o) => norm(o.textContent).includes(norm(args.value)))[0];
+      if (!opt) return { ok: false, error: `「${args.value}」 보기가 없습니다(있는 보기: ${opts.map((o) => o.textContent.trim()).slice(0, 8).join(', ')})` };
+      sel.scrollIntoView({ block: 'center' });
+      sel.focus();
+      sel.value = opt.value;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      await sleep(400);
+      return sel.value === opt.value ? { ok: true } : { ok: false, error: '고른 값이 반영되지 않았습니다.' };
+    }
+
+    if (cmd === 'deliveryTemplate') {
+      // 「배송비 템플릿」 버튼 → 목록 창(표: 템플릿명 | 선택 | 삭제)에서 이름이 같은 줄의 「선택」만 누른다.
+      // 「삭제」 칸과 「템플릿 추가」 체크 상자(vm.savedTemplate['DELIVERY'])는 절대 건드리지 않는다.
+      const btn = [...document.querySelectorAll('button[ng-click="vm.templateModal()"]')].find((b) => b.textContent.replace(/\s+/g, '') === '배송비템플릿');
+      if (!btn) return { ok: false, error: '「배송비 템플릿」 버튼을 찾지 못했습니다.' };
+      if (btn.disabled) return { ok: false, error: '「배송비 템플릿」 버튼이 꺼져 있습니다.' };
+      btn.scrollIntoView({ block: 'center' });
+      btn.click();
+      const modal = await waitFor(() => [...document.querySelectorAll('.modal.in')].find((m) => visible(m) && /배송비 템플릿 목록|배송정보 템플릿/.test(m.textContent)), 8000);
+      if (!modal) return { ok: false, error: '배송비 템플릿 목록 창이 열리지 않았습니다.' };
+      const close = () => modal.querySelector('button.close')?.click();
+      await waitFor(() => modal.querySelector('tbody tr td:nth-child(2)') || /등록된 배송비 템플릿이 없습니다/.test(modal.innerText), 5000);
+      const rows = [...modal.querySelectorAll('tbody tr')].filter((tr) => visible(tr) && tr.cells.length >= 2);
+      const name = (tr) => tr.cells[0].textContent.replace(/\s+/g, ' ').trim();
+      if (!rows.length) { close(); return { ok: false, error: '판매자센터에 등록된 배송비 템플릿이 없습니다. 기본값에서 템플릿 이름을 비우고 배송비를 직접 넣어 주세요.' }; }
+      const want = args.value.replace(/\s+/g, ' ').trim();
+      const row = rows.find((tr) => name(tr) === want) || (rows.filter((tr) => name(tr).includes(want)).length === 1 ? rows.find((tr) => name(tr).includes(want)) : null);
+      if (!row) { const names = rows.map(name).slice(0, 8).join(', '); close(); return { ok: false, error: `「${want}」 템플릿이 없습니다(있는 템플릿: ${names})` }; }
+      const pick = row.cells[1].querySelector('button, a');
+      if (!pick || !/선택/.test(pick.textContent)) { close(); return { ok: false, error: '「선택」 버튼을 찾지 못했습니다.' }; }
+      pick.click();
+      // 적용 확인 창이 뜨면 「확인」
+      await sleep(800);
+      const confirm = [...document.querySelectorAll('.modal.in')].find((m) => m !== modal && visible(m) && /템플릿|적용|변경/.test(m.textContent));
+      if (confirm) [...confirm.querySelectorAll('button')].find((b) => b.textContent.trim() === '확인')?.click();
+      const gone = await waitFor(() => !document.body.contains(modal) || !visible(modal), 6000);
+      return gone ? { ok: true } : { ok: false, error: '템플릿을 고른 뒤 목록 창이 닫히지 않았습니다.' };
     }
 
     if (cmd === 'pick') {
@@ -331,9 +376,11 @@ async function runJob(job) {
       else if (step.action === 'type') r = await run(tabId, 'type', { target: step.target, value: step.value });
       else if (step.action === 'radio') r = await run(tabId, 'radio', { target: step.target, value: step.value });
       else if (step.action === 'check') r = await run(tabId, 'check', { target: step.target });
+      else if (step.action === 'select') r = await run(tabId, 'select', { target: step.target, value: step.value });
+      else if (step.action === 'template') r = await run(tabId, 'deliveryTemplate', { value: step.value });
       else if (step.action === 'search_pick') {
         if (step.key === 'origin' && step.value === '국산') continue; // 기본값이 국산 — 건드리지 않음
-        if (step.key === 'delivery_tpl') { failures.push(`${step.label}(템플릿 고르기는 아직 수동)`); continue; }
+        if (step.key === 'delivery_tpl') { failures.push(`${step.label}(템플릿 고르기는 아직 수동)`); continue; } // 옛 작업 기록 호환
         const isCat = step.key === 'category';
         r = await run(tabId, 'pick', { target: step.target, value: step.value.split('|').pop(), leaf: isCat, verifyText: isCat ? '선택한 카테고리' : null });
       } else if (step.action === 'images') {
@@ -396,8 +443,9 @@ async function pump() {
       await api('/api/extension/finish', { jobId: activeJob, status: 'failed', failedStep: '중단', error: '확장이 작업 중에 멈췄습니다. 판매자센터 화면을 확인하고 필요하면 다시 보내 주세요.' }).catch(() => {});
       await chrome.storage.local.remove('activeJob');
     }
-    const { job } = await api('/api/extension/task', {});
+    const { job, updateRequired } = await api('/api/extension/task', {});
     if (job) await runJob(job);
+    else if (updateRequired) await setStatus(`새 버전(${updateRequired})이 있어야 하는 작업이 기다립니다 — 확장 ZIP을 다시 받아 덮어쓰고 새로고침해 주세요.`);
   } catch (e) {
     await setStatus(`연결 확인 필요: ${e.message || e}`);
   } finally {

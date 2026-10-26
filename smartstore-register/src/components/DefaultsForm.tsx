@@ -42,7 +42,35 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
       <div>
         <label className="slw-label" htmlFor="deliveryTemplate">배송 템플릿 이름</label>
         <input id="deliveryTemplate" name="deliveryTemplate" defaultValue={initial.deliveryTemplate} placeholder="판매자센터에 저장한 이름 그대로" className="slw-field" />
+        <p className="mt-1 text-[11px] text-slate-500">비우면 아래 배송비를 확장이 직접 넣습니다. 템플릿이 없으면 비워 두세요.</p>
       </div>
+      <fieldset className="grid gap-3 sm:col-span-2 sm:grid-cols-4">
+        <legend className="slw-label sm:col-span-4">배송비 직접 입력 <span className="font-normal text-slate-500">(템플릿 이름이 비어 있을 때만 씀)</span></legend>
+        <div>
+          <label className="slw-label" htmlFor="deliveryCompany">택배사</label>
+          <input id="deliveryCompany" name="deliveryCompany" list="ssr-couriers" defaultValue={initial.deliveryCompany} placeholder="예: CJ대한통운" className="slw-field" />
+          <datalist id="ssr-couriers">
+            {["CJ대한통운", "롯데택배", "한진택배", "로젠택배", "우체국택배", "경동택배", "대신택배", "일양로지스", "합동택배", "CU 편의점택배", "GS Postbox 택배"].map((c) => <option key={c} value={c} />)}
+          </datalist>
+        </div>
+        <div>
+          <label className="slw-label" htmlFor="deliveryFeeType">배송비</label>
+          <select id="deliveryFeeType" name="deliveryFeeType" defaultValue={initial.deliveryFeeType} className="slw-field">
+            <option value="">판매자센터 기본값 그대로</option>
+            <option value="FREE">무료</option>
+            <option value="PAID">유료</option>
+            <option value="CONDITIONAL_FREE">조건부 무료</option>
+          </select>
+        </div>
+        <div>
+          <label className="slw-label" htmlFor="baseFee">기본 배송비(원)</label>
+          <input id="baseFee" name="baseFee" type="number" min={0} step={10} defaultValue={initial.baseFee ?? ""} placeholder="예: 3000" className="slw-field" />
+        </div>
+        <div>
+          <label className="slw-label" htmlFor="freeOver">○원 이상 무료</label>
+          <input id="freeOver" name="freeOver" type="number" min={10} step={10} defaultValue={initial.freeOver ?? ""} placeholder="조건부 무료일 때" className="slw-field" />
+        </div>
+      </fieldset>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="slw-label" htmlFor="returnFee">반품 배송비(편도)</label>

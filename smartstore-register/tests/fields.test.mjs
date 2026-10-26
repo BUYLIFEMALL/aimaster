@@ -1,7 +1,7 @@
 // 실행: npm test
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildFillSteps, normalizeDefaults, managementCode, orderSections, toRegisterMode, EMPTY_DEFAULTS } from "../src/lib/smartstore/fields.ts";
+import { buildFillSteps, normalizeDefaults, managementCode, orderSections, toRegisterMode, EMPTY_DEFAULTS, extCanRun, extVersionNumber } from "../src/lib/smartstore/fields.ts";
 
 const P = { id: "82deeddc-58c8-4b14-9d59-66728bb876af", name: "스테인리스 텀블러 500ml", price: 19900, sale_price: 15900 };
 const D = normalizeDefaults({ asPhone: "010-1234-5678", deliveryTemplate: "기본 배송" });
@@ -50,4 +50,40 @@ test("섹션 순서: 순서 목록 우선, 나머지는 원래 순서로 뒤에"
   const rows = [{ section_key: "a", section_order: 1 }, { section_key: "b", section_order: 2 }, { section_key: "c", section_order: 3 }];
   assert.deepEqual(orderSections(rows, ["c", "a"]).map((r) => r.section_key), ["c", "a", "b"]);
   assert.deepEqual(orderSections(rows, null).map((r) => r.section_key), ["a", "b", "c"]);
+});
+
+test("배송: 템플릿 이름이 있으면 목록 창 고르기, 「템플릿 추가」 체크 상자는 건드리지 않음", () => {
+  const r = buildFillSteps(P, D, O);
+  const s = r.steps.find((x) => x.key === "delivery_tpl");
+  assert.equal(s.action, "template");
+  assert.equal(s.value, "기본 배송");
+  assert.ok(!r.steps.some((x) => x.target.includes("savedTemplate")));
+  assert.ok(!keys(r).includes("delivery_fee_type"));
+});
+
+test("배송: 템플릿 없이 조건부 무료 직접 입력, 금액 빠지면 오류", () => {
+  const base = { asPhone: "010-1234-5678", deliveryCompany: "CJ대한통운", deliveryFeeType: "CONDITIONAL_FREE" };
+  const ok = buildFillSteps(P, normalizeDefaults({ ...base, baseFee: "3,000", freeOver: 30000 }), O);
+  assert.deepEqual(ok.errors, []);
+  assert.deepEqual(ok.steps.filter((x) => x.section === "배송").map((x) => [x.key, x.action, x.value]), [
+    ["delivery_company", "select", "CJ대한통운"],
+    ["delivery_fee_type", "select", "조건부 무료"],
+    ["delivery_base_fee", "type", "3000"],
+    ["delivery_free_over", "type", "30000"],
+  ]);
+  const bad = buildFillSteps(P, normalizeDefaults(base), O);
+  assert.equal(bad.errors.length, 2);
+  const free = buildFillSteps(P, normalizeDefaults({ asPhone: "010-1", deliveryFeeType: "FREE" }), O);
+  assert.deepEqual(free.steps.filter((x) => x.section === "배송").map((x) => x.key), ["delivery_fee_type"]);
+  assert.equal(normalizeDefaults({ deliveryFeeType: "HACK" }).deliveryFeeType, "");
+});
+
+test("확장 버전: 새 동작이 든 작업은 v1.04 이상만", () => {
+  assert.equal(extVersionNumber("v1.04"), 104);
+  assert.equal(extVersionNumber("1.3"), 0);
+  assert.equal(extCanRun([{ action: "type" }], null), true);
+  assert.equal(extCanRun([{ action: "template" }], null), false);
+  assert.equal(extCanRun([{ action: "select" }], "v1.03"), false);
+  assert.equal(extCanRun([{ action: "select" }], "v1.04"), true);
+  assert.equal(extCanRun([{ action: "select" }], "v2.00"), true);
 });

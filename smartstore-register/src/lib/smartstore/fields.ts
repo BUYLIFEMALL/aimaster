@@ -16,6 +16,10 @@ export function toRegisterMode(v: unknown): RegisterMode {
 
 export type OriginType = "domestic" | "import" | "etc";
 
+/** 배송비 종류 — 판매자센터 「배송비」 고르기 상자의 보이는 글자 */
+export type DeliveryFeeType = "" | "FREE" | "PAID" | "CONDITIONAL_FREE";
+export const DELIVERY_FEE_LABEL: Record<Exclude<DeliveryFeeType, "">, string> = { FREE: "무료", PAID: "유료", CONDITIONAL_FREE: "조건부 무료" };
+
 export interface StoreDefaults {
   stock: number;
   originType: OriginType;
@@ -24,6 +28,11 @@ export interface StoreDefaults {
   noticeGroup: string;
   noticeReference: boolean;
   deliveryTemplate: string;
+  /** 템플릿 이름이 없을 때 직접 넣는 배송 칸 */
+  deliveryCompany: string;
+  deliveryFeeType: DeliveryFeeType;
+  baseFee: number | null;
+  freeOver: number | null;
   asPhone: string;
   asGuide: string;
   returnFee: number | null;
@@ -39,6 +48,10 @@ export const EMPTY_DEFAULTS: StoreDefaults = {
   noticeGroup: "기타 재화",
   noticeReference: true,
   deliveryTemplate: "",
+  deliveryCompany: "",
+  deliveryFeeType: "",
+  baseFee: null,
+  freeOver: null,
   asPhone: "",
   asGuide: "",
   returnFee: null,
@@ -64,6 +77,10 @@ export function normalizeDefaults(raw: unknown): StoreDefaults {
     noticeGroup: str(r.noticeGroup, 40) || EMPTY_DEFAULTS.noticeGroup,
     noticeReference: r.noticeReference !== false,
     deliveryTemplate: str(r.deliveryTemplate, 60),
+    deliveryCompany: str(r.deliveryCompany, 30),
+    deliveryFeeType: r.deliveryFeeType === "FREE" || r.deliveryFeeType === "PAID" || r.deliveryFeeType === "CONDITIONAL_FREE" ? r.deliveryFeeType : "",
+    baseFee: num(r.baseFee, 0, 100_000),
+    freeOver: num(r.freeOver, 10, 999_999_990),
     asPhone: str(r.asPhone, 20).replace(/[^0-9-]/g, ""),
     asGuide: str(r.asGuide, 500),
     returnFee: num(r.returnFee, 0, 1_000_000),
@@ -81,7 +98,22 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template";
+
+/** 이 동작들은 확장 v1.04부터 안다 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
+export const NEW_ACTIONS_MIN_EXT = { actions: ["select", "template"] as string[], version: "v1.04" };
+
+/** "v1.04" → 104, 형식이 틀리면 0 */
+export function extVersionNumber(v: string | null | undefined): number {
+  const m = /^v?(\d+)\.(\d{2})$/.exec((v ?? "").trim());
+  return m ? Number(m[1]) * 100 + Number(m[2]) : 0;
+}
+
+/** 이 작업을 이 확장 버전이 안전하게 실행할 수 있는가 */
+export function extCanRun(steps: { action: string }[], extVersion: string | null | undefined): boolean {
+  const needs = steps.some((s) => NEW_ACTIONS_MIN_EXT.actions.includes(s.action));
+  return !needs || extVersionNumber(extVersion) >= extVersionNumber(NEW_ACTIONS_MIN_EXT.version);
+}
 
 export interface FillStep {
   key: string;
@@ -155,10 +187,26 @@ export function buildFillSteps(
   add({ key: "notice_group", section: "상품정보제공고시", label: "상품군", target: "vm.selectizeType", action: "search_pick", value: defaults.noticeGroup, required: true });
   if (defaults.noticeReference) add({ key: "notice_ref", section: "상품정보제공고시", label: "상품상세 참조로 전체 입력", target: "vm.reference", action: "check", value: "true" });
 
+  // 배송 — 템플릿 이름이 있으면 「배송비 템플릿」 목록 창에서 고르고, 없으면 칸을 직접 채운다.
+  // 주의: vm.savedTemplate['DELIVERY']는 고르는 칸이 아니라 「템플릿 추가」(새 템플릿 저장) 체크 상자라 건드리지 않는다.
   if (defaults.deliveryTemplate) {
-    add({ key: "delivery_tpl", section: "배송", label: `배송 템플릿 「${defaults.deliveryTemplate}」`, target: "savedTemplate.DELIVERY", action: "search_pick", value: defaults.deliveryTemplate, required: true });
+    add({ key: "delivery_tpl", section: "배송", label: `배송 템플릿 「${defaults.deliveryTemplate}」`, target: "vm.templateModal()", action: "template", value: defaults.deliveryTemplate, required: true });
+  } else if (defaults.deliveryFeeType || defaults.deliveryCompany) {
+    if (defaults.deliveryCompany) add({ key: "delivery_company", section: "배송", label: `택배사 「${defaults.deliveryCompany}」`, target: "vm.modelData.deliveryCompany.id", action: "select", value: defaults.deliveryCompany, required: true });
+    const fee = defaults.deliveryFeeType;
+    if (fee) {
+      add({ key: "delivery_fee_type", section: "배송", label: `배송비 「${DELIVERY_FEE_LABEL[fee]}」`, target: "vm.modelData.deliveryFee.deliveryFeeType", action: "select", value: DELIVERY_FEE_LABEL[fee], required: true });
+      if (fee !== "FREE") {
+        if (defaults.baseFee == null || defaults.baseFee < 10) errors.push("배송비가 유료·조건부 무료인데 기본 배송비가 없습니다(10원 이상). 「스토어 기본값」에서 넣어 주세요.");
+        else add({ key: "delivery_base_fee", section: "배송", label: "기본 배송비", target: "vm.modelData.deliveryFee.baseFee", action: "type", value: String(defaults.baseFee), required: true });
+      }
+      if (fee === "CONDITIONAL_FREE") {
+        if (defaults.freeOver == null) errors.push("조건부 무료인데 「○원 이상 무료」 금액이 없습니다. 「스토어 기본값」에서 넣어 주세요.");
+        else add({ key: "delivery_free_over", section: "배송", label: "무료 조건 금액", target: "vm.modelData.deliveryFee.freeConditionalAmount", action: "type", value: String(defaults.freeOver), required: true });
+      }
+    }
   } else {
-    warnings.push("배송 템플릿 이름이 없습니다. 판매자센터 기본 배송 설정이 그대로 쓰이니 「입력만」으로 확인해 주세요.");
+    warnings.push("배송 템플릿 이름도 배송비 설정도 없습니다. 판매자센터 기본 배송 설정이 그대로 쓰이니 「입력만」으로 확인해 주세요.");
   }
   if (defaults.returnFee != null) add({ key: "return_fee", section: "반품/교환", label: "반품 배송비(편도)", target: "vm.modelData.claimDeliveryInfo.returnDeliveryFee", action: "type", value: String(defaults.returnFee) });
   if (defaults.exchangeFee != null) add({ key: "exchange_fee", section: "반품/교환", label: "교환 배송비(왕복)", target: "vm.modelData.claimDeliveryInfo.exchangeDeliveryFee", action: "type", value: String(defaults.exchangeFee) });
