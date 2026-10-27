@@ -2,6 +2,7 @@
 
 > 2026-10-27 주인님 지시: 「다른 쇼핑몰 들도 순차적으로 자동 등록기를 만들꺼니까 지금 하고 있는 분석 기법 방식을 레퍼런스 문서로 남겨서 이후 다른 cli들도 참고해서 작업할수 있도록 해놔」
 > 기준 사례: 스마트스토어 상품등록 자동화 `smartstore-register` v1.01~v1.03(2026-10-26~27, Claude Code 윈도우 `claude-win-sdp`, 역할 `ecommerce-image`). 「입력만」 실제 시험 6회 만에 배송 템플릿 1칸을 빼고 상세설명 사진까지 자동 입력에 성공했다.
+> 스마트스토어 실제 시험 전체 기록(에러 23건의 경과·해결): [`../smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md`](../smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md)
 > 대상: 쿠팡 윙, 11번가, G마켓·옥션(ESM), 롯데온, 카카오 쇼핑 등 **앞으로 만들 모든 마켓 등록기**. 모든 CLI(Claude Code·Codex·agy)가 같은 순서로 분석·개발한다.
 
 ## 0. 먼저 지킬 것
