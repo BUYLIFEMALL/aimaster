@@ -1,5 +1,9 @@
 # 개선·검수 원장
 
+확인 링크 — 이번 기능은 미배포: [공식 운영](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 확인 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/evidence-20261027/index.html) · 영구 자산 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\evidence-20261027`.
+
+**최신 활동·관계 기록(로컬 완료·미배포):** 2026-10-27 소스 `17e8e2b35`(v1.01 미배포): 후보 검색 응답의 확인 글 수·최근30일 범위 내 최소 글 수와 서버 관계 기록을 분리 표시. 회원+연결 본인 블로그 계정으로 관계를 조회하고 5분 경과/잘못된/중복 기록은 미확인. `/neighbors`·`/api/neighbors`에 연결계정별 저장 관계 50개 커서 조회·현재 불러온 범위 필터·계정 전환 응답 격리 추가. 별도 AI 프로필 생성 불필요. 단위122(신규22)/격리DB18/HTTP35·타입/빌드 통과. 기존 Edge 창 새 탭에서 합성4상태 전환 확인, 최초 화면 시각 확인·후속 캡처 실패. **네이버 전체 이웃 가져오기·타인본문 자동확보·실제 관계 신규 관찰·종합평가·소통/반복은 미완료**. 운영 새기능 실회원/PostgREST·실제AI는 미검수. 명칭/UI/기존 분석SQL과 묶음배포 대기, 자동소통OFF. 무료Next빌드2/기능번들2·배포/실제검색/AI/운영DB변경0.
+
 **최신 후보 본문(내부 준비):** 2026-10-27 후보 본문 읽기 내부 모듈 준비(소스 `2eb2e10ea`, 미배포). 허용 근거·회원/계정/기기·글주소·최대5분 만료를 묶고 읽기 전후 권한/신원/탭 변경을 거절합니다. 기존 가시본문 파서를 재사용하며 본문6,000자 초과·복수본문은 잘라 쓰지 않고 거절합니다. 기본 허용 어댑터는 항상 거절하며 실제 신뢰된 허용 어댑터·확장/UI/API 연결은 아직 없습니다. 회원 확인용 메모리 미리보기만 반환, 권리/외부AI동의는 false. 단위100(신규7)/타입검사 통과. **실제 타인본문 자동확보·관계 관찰은 미완료**, 기존 본인글 확장 제한/runtime=false 유지. v1.01·묶음배포 대기. 추가 빌드/배포/실제검색/AI/운영DB 변경0.
 
 **미배포 대기 — 후보 본문 파일:** 2026-10-27 회원제공 후보본문 파일입력 로컬완료(소스 `b323fda03`, 미배포): 글별UTF-8 TXT/MD·일괄JSON→본문미리보기→확인후입력/원자적합치기·충돌거절→권한/AI동의재확인. 파일선택시네트워크/저장/AI없음. 단위93(파일11)/HTTP32·타입/Next빌드 통과, ReactDOM파일→확인→반영검수. Edge화면접근성만확인·캡처실패/실브라우저파일선택은미검수. **타인본문자동수집은허용근거미확인으로미구현·운영차단유지**. 운영SQL/실회원/실제AI/배포·관계/소통/반복은남음. v1.01·묶음배포대기·비용0. [검수·한계](IMPROVEMENT_HANDOFF_20261027_CANDIDATE_BODY_FILES.md).
@@ -38,3 +42,15 @@
 | BNC-SRV-05 | 허가후중단/만료를최종클릭전에다시확인해야함 | 서버전용verify_permit와DB28검수. 실제worker/브라우저적용은미완료 |
 
 근거·명령·비용·미완료는[상세인수인계](IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md), 운영SQL은[적용안내](APPLY_20261026_SERVER_DATABASE.md). 위결과는이신규프로그램로컬검수이며기존다른앱의동일오류재현/수정완료가아닙니다.
+
+## 2026-10-27 활동·관계 근거와 저장 이웃 관계 화면 — 17e8e2b35
+
+확인 링크(운영에는 이번 미배포 기능 없음): [공식 운영](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 확인 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/evidence-20261027/index.html) · 영구 자산 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\evidence-20261027`.
+
+- 활동: 한 번의 HUB 응답만 집계, 동일 글 URL 정규화/중복 제거, 날짜 충돌 제외, 실제 KST 달력 오늘 포함30일. 미래/존재하지 않는 날짜 제외. 전체 글 수/빈도·휴면/진정성을 판정하지 않으며 activityScore/overallScore는 null. 다른 검색 결과를 합쳐 별도 보관하지 않음.
+- 관계: 공식 검색 데이터와 별개로 기존 bnc_neighbors를 읽음. 계정 조회와 관계 조회 모두 user_id 조건, 해당 본인 external_id+naver_blog+needs_reconnect=false 계정 하나만 사용. 계정 재확인·조회 후 회원/프로필 재검사. pending/mutual/removed/unknown을 구분하되 일반이웃/신청방향을 추론하지 않음. 조회 실패도 이웃 아님으로 바꾸지 않음. canAutoEngage는 항상 false.
+- 이웃 화면: `/neighbors`는 프로그램에 저장된 관계만 50개씩 조회. 네이버 전체 목록을 수집하는 import가 아님. 회원 HTTP에 observe/claim/허가/결과기록 등의 worker 연산을 추가하지 않음. 로그인/연결/AI 프로필을 반복 요구하지 않고 기존 연결계정을 사용. 페이지 필터는 로드된 범위만, 부분 결과를 전체 이웃 수로 표시하지 않음.
+- 검수: 단위122(기존100+검색2+근거9+이웃11), PostgreSQL18(기존16+관계SQL/RLS+이웃HTTP→실제SQL), 실제 로컬 Next HTTP35. DB 컨테이너는 network none·포트 공개0·가상회원·종료 완료. Supabase fluent adapter는 조건계약 검수, 실제 운영/PostgREST 연결 검수 아님. 소스 변경 후 Next빌드2·독립 기능번들2, 새 패키지/마이그레이션 없음. 네이버/AI 실호출0.
+- 실제 Edge: 최신 사용자 지시 후 HWND1838288 기존창의 새 탭 사용. 합성 기록없음→신청대기→서로이웃→오래된서로이웃 전환 뒤 실제 접근성 텍스트 대조. 최초 화면만 시각 확인, 이후 provider returned no image로 캡처는 미확인. 네이티브 select의 키입력은 포커스 실패였으며 합성 데모는 상태 비교 버튼으로 바꿔 Toggle 동작을 검수. 운영 원본 계정·본문을 데모에 넣지 않음.
+- 자료 수명: 새 저장소·AI 자료·계정 키 저장 없음. 조회 응답 no-store·브라우저 메모리만, 관계 조회/표시가 기존 자료/원고 수명을 갱신하지 않음. 원본 AI 분석/발행3방식 검수 상태는 이번 변경으로 바뀌지 않음.
+- 다음: 기존 이웃 전체 가져오기 허용 수단/확장 어댑터·목록 완전성·일반이웃/신청방향 세분·④새글/⑤답방 대상 설정. 타인본문 자동확보/전체 활동·진정성·소통 근거와 종합평가, 신청/수락/공감/댓글/답방/대댓글/반복, 신규분석SQL/실회원/실제AI·만료삭제·묶음배포는 남음.
