@@ -78,3 +78,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 
 ## 2026-10-27 v1.07 — 상품속성 창 자동 넘기기·상품번호 자동 기록 배포
 - 배포 `smartstore-register-7iiza23u6` Ready, DB·확장·ZIP v1.07 검증 OK(승인 빌드). 미배포 대기 없음. 대기 목록 정리(끝난 1·2단계 [x]).
+
+## 2026-10-27 v1.08 — 이커머스 한 흐름: 검토 상태 이어받기
+- 「등록할 상품」에 「✅ 검토 완료/검토 전」 배지(상세페이지 `shop_products.reviewed_at`), 검토 완료 먼저 정렬, 검토 전 상품 화면에 안내(막지 않음). 흐름 띠 사본(`src/lib/shopFlow.ts`·`src/components/ShopFlowBar.tsx`, 기준 `shop-order-report` — 직접 고치지 말 것)을 대시보드 레이아웃에 `current="market"`로. 상세페이지의 「스마트스토어에 등록하기」가 `/products/<id>?flow=shop`으로 들어옴.
+- 배포 Ready, DB·확장·ZIP v1.08 검증 OK. 시험 10·tsc·build. 크롬: 목록 배지·정렬·흐름 띠 확인.
