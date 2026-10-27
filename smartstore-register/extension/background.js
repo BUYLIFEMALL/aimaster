@@ -389,8 +389,13 @@ async function openCreateTab() {
     const r = await run(tab.id, 'ready').catch(() => ({ ok: false }));
     if (r.ok) return tab.id;
     if (r.error) throw new Error(r.error);
+    // 하루 첫 접속이면 홈·공지 화면으로 넘어가기도 한다 — 15초에 한 번 「상품 등록」 주소로 다시 이동
+    if (t === 15) await chrome.tabs.update(tab.id, { url: CREATE_URL }).catch(() => {});
   }
-  throw new Error('「상품 등록」 화면이 열리지 않았습니다. 스마트스토어센터 로그인 상태를 확인해 주세요.');
+  // 짐작 문구 대신 실제로 열려 있던 화면을 남긴다(로그인 문제로 오해하지 않게)
+  const now = await chrome.tabs.get(tab.id).catch(() => null);
+  const where = now ? `${(now.title || '').slice(0, 40)} · ${(now.url || '').replace(/^https?:\/\//, '').slice(0, 80)}` : '창이 닫힘';
+  throw new Error(`「상품 등록」 칸이 45초 안에 나타나지 않았습니다(열린 화면: ${where}).`);
 }
 
 async function runJob(job) {
