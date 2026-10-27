@@ -634,13 +634,13 @@ async function customOptionsMain(a) {
   const ng = window.angular;
   const on = vid('option_direct_type_true');
   if (!on) return { ok: false, error: '「직접입력형」 설정 버튼을 찾지 못했습니다(옵션 칸이 접혀 있을 수 있음).' };
-  ((vid('option_direct_type_true')?.parentElement?.querySelector('label[for="option_direct_type_true"]')) || on).click();
+  ([...document.querySelectorAll('label[for="option_direct_type_true"]')].find(_vis) || on).click();
   await sleep(700);
   const countSel = document.querySelector('input[ng-model="vm.customOptionNameCount"]');
   if (a.names.length > 1 && countSel?.selectize) { countSel.selectize.setValue(String(a.names.length)); await sleep(600); }
   let root = null;
   try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
-  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  const apply = (fn) => { if (!root || root.$$phase) fn(); else root.$apply(fn); };
   for (let i = 0; i < a.names.length; i++) {
     const el = vid('custom_option_name' + i);
     if (!el) return { ok: false, error: '직접입력형 옵션명 칸 ' + (i + 1) + '번을 찾지 못했습니다.' };
@@ -681,7 +681,7 @@ async function supplementsMain(a) {
   if (direct && !direct.checked) { (direct.closest('label') || direct).click(); await sleep(500); }
   let root = null;
   try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
-  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  const apply = (fn) => { if (!root || root.$$phase) fn(); else root.$apply(fn); };
   const put = (el, v) => {
     const ctrl = ng ? ng.element(el).controller('ngModel') : null;
     if (!ctrl) { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v); for (const t of ['input', 'change', 'blur']) el.dispatchEvent(new Event(t, { bubbles: true })); return true; }
@@ -728,7 +728,7 @@ async function preOrderMain(a) {
   if (dates.length < 2) return { ok: false, error: '예약구매 주문기간 칸을 찾지 못했습니다.' };
   let root = null;
   try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
-  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  const apply = (fn) => { if (!root || root.$$phase) fn(); else root.$apply(fn); };
   const vals = [a.start, a.end];
   for (let i = 0; i < 2; i++) {
     const el = dates[i];
@@ -763,7 +763,7 @@ async function brandInputMain(a) {
   if (!ctrl) return { ok: false, error: '숨은 칸을 찾지 못했습니다.' };
   let root = null;
   try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
-  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  const apply = (fn) => { if (!root || root.$$phase) fn(); else root.$apply(fn); };
   const sel = comp.querySelector('input[selectize]');
   const inst = sel && sel.selectize;
   if (inst) {
@@ -914,6 +914,15 @@ async function runJob(job) {
   try {
     tabId = await openCreateTab();
     const TOP = new Set(['카테고리', '상품명', '판매가', '재고수량', '상품이미지', '상세설명', '저장']);
+    // 옵션이 어느 단계에서 지워지는지 찾기 위한 기록(2026-10-28) — 칸마다 옵션목록 개수가 바뀌면 적는다
+    const optTrace = [];
+    let lastOpt = null;
+    const traceOpt = async (k) => {
+      if (!job.optionFile) return;
+      const st = await runMain(tabId, optionStateMain, {}).catch(() => null);
+      const c = st?.optionCount ?? -1;
+      if (c !== lastOpt) { optTrace.push(`${k}:${c}`); lastOpt = c; }
+    };
     const opened = new Set();
     for (const step of job.steps) {
       await human();
@@ -1033,6 +1042,7 @@ async function runJob(job) {
         continue; // 마지막에 따로
       } else continue;
       if (!r?.ok) failures.push(`${step.label}${r?.error ? ` — ${r.error}` : ''}`);
+      await traceOpt(step.key);
       // 카테고리를 못 고르면 뒤 칸(대표이미지는 「먼저 카테고리를 선택해 주세요」, 판매가는 카테고리 변경 때 지워짐)이 줄줄이 틀어진다 → 여기서 멈춘다(2026-10-27 실측)
       if (!r?.ok && step.key === 'category') { failures.push('카테고리를 판매자센터에서 직접 고른 뒤 나머지 칸을 확인해 주세요(이후 칸은 넣지 않았습니다)'); break; }
     }
@@ -1083,6 +1093,9 @@ async function runJob(job) {
         }
       }
     }
+
+    await traceOpt('끝');
+    if (job.optionFile && lastOpt !== job.optionFile.rows) failures.push(`옵션 — 끝났을 때 목록 ${lastOpt}줄(보낸 것 ${job.optionFile.rows}줄). 개수 변화: ${optTrace.join(' → ')}`);
 
     const submit = job.steps.find((s) => s.action === 'button');
     if (submit && failures.length) {
