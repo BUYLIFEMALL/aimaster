@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 스마트스토어 등록기 이름 변경·썸네일 (v1.09)
+- 주인님 지시: 「AI 스마트스토어 상품 자동등록기 로 썸네일 만들고 프로그램 등록 해줘」. 프로그램은 이미 카탈로그에 등록(공개)돼 있어 이름만 바꾸고 비어 있던 썸네일을 채움.
+- DB `programs.name` = 「AI 스마트스토어 상품 자동등록기」, 썸네일(관리자 Gemini 키, 상위 이미지 모델 1회, 글자·상표 없음 확대 확인) `program-images/catalog/smartstore-register-thumbnail.jpg`.
+- 화면(좌측 메뉴·로그인·대시보드·탭 제목)과 확장 표시명(manifest `name`·`default_title`)을 같은 이름으로(확장명 일치 지침). 배포 `smartstore-register-c59rnifm2` Ready, DB·확장·ZIP v1.09 검증 OK, 운영 ZIP 안 확장 이름 확인. 크롬: 메인 사이트 상세(이름·썸네일·v1.09)·프로그램 화면(이름·v1.09).
+- 회원 안내: 설치된 확장은 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침 뒤 새 이름으로 보임(옛 이름이어도 동작은 같음).
+- 링크: https://www.buylife.xyz/programs/smartstore-register
+
 ## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 이커머스 한 흐름 잇기(트렌드 → 상품 → 상세페이지 → 검토 → 스마트스토어)
 - 주인님 정의: 「각각의 개별 프로그램이지만 전체적으론 하나의 흐름」 — 핵심 지침 `docs/ECOMMERCE_COMPLETION_POLICY.md` 맨 위, 플랜 `smartstore-register/docs/PLAN_20261027_ECOMMERCE_FLOW.md`.
 - DB(운영 `esgxyikcnnvmlhygjkth`): `shop_products.reviewed_at`(마이그레이션 `shop-detail-page/supabase/migrations/20261027_reviewed_at.sql`).

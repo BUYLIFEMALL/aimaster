@@ -53,6 +53,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `smartstore-register` | v1.09 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-c59rnifm2`) | 대기 항목 없음 (본 작업: 이름 변경 「AI 스마트스토어 상품 자동등록기」 — 화면·확장 표시명) |
 | `shop-detail-page` | v1.39 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 3회 중 3번째 `shop-detail-page-3h5v9rlyd`) | 버전 숫자 v1.39 맞추기 + 분석 카테고리 우선 `e244bb71e` |
 | `shop-detail-page` | v1.38 표시 그대로 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 3회 중 1번째 `shop-detail-page-5az2ls9nr`) | 대기 항목 없음 (본 작업: 검토 완료·마켓 등록 영역·등록 결과 표시·목록 검토 배지·흐름 띠·카테고리 받기 — 버전 올리기를 빠뜨려 다음 배포 때 v1.39) |
 | `smartstore-register` | v1.08 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 3회 중 2번째) | 대기 항목 없음 (본 작업: 검토 배지·검토 완료 먼저 정렬·검토 전 안내·흐름 띠) |
