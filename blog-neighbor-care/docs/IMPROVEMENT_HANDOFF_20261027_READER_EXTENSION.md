@@ -1,5 +1,7 @@
 # 회원·확장 연결과 본인 글 1개 읽기 — 운영 반영 및 설치 시험
 
+**설치/회원 연결 최신:** 2026-10-27 11:59 Edge에서 읽기 확장 v1.01 설치·켜짐을 확인하고 reader 새로고침 후 회원 연결 1회 성공. 웹 연결완료 메시지, 운영 활성기기1개, 시험회원 buylifemall@naver.com 일치(true만 기록), 공용 naver_blog/browser_read 소유자·블로그 일치 확인. 설치요청811eb0aa 완료. 읽기요청/본문자료0건이며 실제 추출·전달은 아직 미검수. 본인 글 https://blog.naver.com/buylifemall/224427408654 (AI수익화, 지금 시작하는 5가지 방법)을 실제 Edge에서 열어 단일글 URL을 확인. 확장 메뉴의 해당 읽기 확장 항목은 표시됐지만 클릭이 stale element frame으로 실패해 팝업/activeTab 읽기 시작 미완료. 디버거/숨은 실행 우회 없이 사용자에게 확장창 열기 1회 안내. 로그인/설치는 재요청 불필요. 이전설치미완료문단은당시기록.
+
 2026-10-27 · Codex `codex-win-20261026-blog-check` [역할: blog]. **운영 반영·첫 배포 완료, 실제 회원·확장 설치 시험 미검수**입니다.
 
 - [확장 ZIP](../public/downloads/blog-neighbor-care-extension-latest.zip), 소스 `blog-neighbor-care/extension/` (같은 폴더 밖에 확장 사본 없음)

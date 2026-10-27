@@ -1,5 +1,7 @@
 # 블로그 기능 상세 비교표 (기준 문서)
 
+**설치/회원 연결 최신:** 2026-10-27 11:59 Edge에서 읽기 확장 v1.01 설치·켜짐을 확인하고 reader 새로고침 후 회원 연결 1회 성공. 웹 연결완료 메시지, 운영 활성기기1개, 시험회원 buylifemall@naver.com 일치(true만 기록), 공용 naver_blog/browser_read 소유자·블로그 일치 확인. 설치요청811eb0aa 완료. 읽기요청/본문자료0건이며 실제 추출·전달은 아직 미검수. 본인 글 https://blog.naver.com/buylifemall/224427408654 (AI수익화, 지금 시작하는 5가지 방법)을 실제 Edge에서 열어 단일글 URL을 확인. 확장 메뉴의 해당 읽기 확장 항목은 표시됐지만 클릭이 stale element frame으로 실패해 팝업/activeTab 읽기 시작 미완료. 디버거/숨은 실행 우회 없이 사용자에게 확장창 열기 1회 안내. 로그인/설치는 재요청 불필요. 이전설치미완료문단은당시기록.
+
 **최신 이웃소통 v1.01 운영:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF. [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 이전미배포문단은당시기록.
 
 **이웃소통읽기설치본(2026-10-27):** [회원/확장연결·본인글1개읽기·확인후전달·원래수명/ZIP](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md) 로컬구현·단위54/SQL16/HTTP23통과. 신규운영SQL/프로그램등록/배포/설치·반복읽기/AI/신청·공감·댓글은미완료. 기존발행3방식표시는유지.

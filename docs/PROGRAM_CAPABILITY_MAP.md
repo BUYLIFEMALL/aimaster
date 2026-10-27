@@ -626,6 +626,9 @@
 
 #### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.01 읽기 연결 시험 운영·실제설치검수대기
 
+- 설치·연결 최신: 2026-10-27 11:59 Edge에서 읽기 확장 v1.01 설치·켜짐을 확인하고 reader 새로고침 후 회원 연결 1회 성공. 웹 연결완료 메시지, 운영 활성기기1개, 시험회원 buylifemall@naver.com 일치(true만 기록), 공용 naver_blog/browser_read 소유자·블로그 일치 확인. 설치요청811eb0aa 완료. 읽기요청/본문자료0건이며 실제 추출·전달은 아직 미검수. 읽기팝업/실제전달은다음단계.
+
+
 - 최신: 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF.
 - 운영: https://blog-neighbor-care.buylife.xyz/reader · 보조: https://blog-neighbor-care.vercel.app/reader · 아래미등록기록은이전상태.
 - **읽기확장(10-27)**: [회원/기기연결·본인글1개확인후전달/원래수명/ZIP](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md), 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 추가reader4표/카탈로그·프로그램등록/배포·설치미검수. v1.01은첫릴리스예정값.
