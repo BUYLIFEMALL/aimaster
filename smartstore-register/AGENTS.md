@@ -89,3 +89,4 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 ## 2026-10-27 v1.10 — 추가 이미지 자동 넣기
 - 참고(실물) 사진 최대 9장 → 「추가이미지」(`fields.ts` 동작 `extra_images`·확장 v1.10 이상, `data.ts` `ownExtraPaths`, `/api/extension/task` `extraImages`, 확장 `extraImages` 명령: `image.add` 버튼·18MB 묶음·목록 사진 수 확인). 섹션 이미지는 넣지 않음. 배포 `48tdzwzos`, 「입력만」 실제 시험 실패 칸 0.
 - 미배포 대기: 상태 창 제목 새 이름(`popup.html`).
+- 주인님 화면 확인(2026-10-27): 판매자센터 「추가이미지 (2/9)」에 참고 사진 2장, 대표이미지 정상.
