@@ -407,7 +407,7 @@
 | 6 | `OLD\마케팅자동화14종\06블로그 챗GPT 자동포스팅(NBAP)` | ✅ §6 |
 | 7 | `OLD\마케팅자동화14종\07블로그원문 재생성기(botr)` | ✅ §7 |
 | 8 | `OLD\마케팅자동화14종\08블로그 티스토리 조회수증가(nbpm)` | ✅ §8 |
-| 9 | `OLD 9인스타 자동포스팅(igrp)`(새 판) | ✅ §9 |
+| 9 | `OLD\09인스타 자동포스팅(igrp)`(새 판) | ✅ §9 |
 | 9~14 | 10 인스타 상위노출(igtp) · 11 인스타 DM발송기(idas) · 12 네이버 오픈채팅방 리스트(nboa) · 13 지식인 자동답변(nbka) · 14 카페 이메일추출(ncet) · 15 카톡자동발송(koms) | 대기 |
 | 15~17 | `OLD\@네이버 지도 결과 추출기` · `OLD\@인플루언서 추출기` · `OLD\@자동 발송기` | 대기 |
 | 18~21 | `Auto_M\GMapSearcher1.0.9.exe` · `Auto_M\InstaDBSetup1.3.8.exe` · `Auto_M\NSearcherLiteSetup1.9.8.exe` · `Auto_M\YouTubeDB1.3.1.exe` | 대기 |
