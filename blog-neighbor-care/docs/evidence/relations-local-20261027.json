@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-10-27T11:21:10.838Z",
+  "scope": "Local implementation: official-search response activity lower bounds, stored relationship evidence, member/actor-scoped neighbor records view.",
+  "tests": {
+    "unit": 122,
+    "readerDatabase": 18,
+    "http": 35,
+    "typecheck": true,
+    "nextBuilds": 2,
+    "previewBundles": 2
+  },
+  "nativeEdge": {
+    "windowId": 1838288,
+    "existingWindowNewTabVerified": true,
+    "newWindowsAfterUserInstruction": 0,
+    "cases": [
+      {
+        "state": "missing",
+        "toolSucceeded": true,
+        "observedText": [
+          "95 텍스트 관계 미확인 · 서버 기록 없음",
+          "96 텍스트 종합 점수 보류 · 전체 활동·진정성·소통 성향 근거가 더 필요합니다."
+        ],
+        "screenshotCaptured": true
+      },
+      {
+        "state": "pending",
+        "toolSucceeded": true,
+        "observedText": [
+          "98 텍스트 서버 기록: 신청 대기",
+          "103 텍스트 종합 점수 보류 · 전체 활동·진정성·소통 성향 근거가 더 필요합니다."
+        ],
+        "screenshotCaptured": false
+      },
+      {
+        "state": "mutual",
+        "toolSucceeded": true,
+        "observedText": [
+          "98 텍스트 서버 기록: 서로이웃",
+          "103 텍스트 종합 점수 보류 · 전체 활동·진정성·소통 성향 근거가 더 필요합니다."
+        ],
+        "screenshotCaptured": false
+      },
+      {
+        "state": "stale",
+        "toolSucceeded": true,
+        "observedText": [
+          "98 텍스트 관계 미확인 · 기록이 오래되어 다시 확인 필요",
+          "103 텍스트 종합 점수 보류 · 전체 활동·진정성·소통 성향 근거가 더 필요합니다."
+        ],
+        "screenshotCaptured": false
+      }
+    ],
+    "latestScreenshotCaptured": false,
+    "latestScreenshotFailure": "desktop provider returned no image",
+    "initialMissingStateVisuallyInspected": true,
+    "syntheticDataOnly": true
+  },
+  "limits": {
+    "naverNeighborListImported": false,
+    "thirdPartyBodyAutoAcquisition": false,
+    "overallScore": null,
+    "operatingSessionVerifiedForNewFeatures": false,
+    "actualPostgrestAdapterVerified": false,
+    "postgresQueriesAndHandlerVerifiedLocally": true
+  },
+  "cost": {
+    "vercelDeployments": 0,
+    "actualSearchCalls": 0,
+    "actualAiCalls": 0,
+    "operatingDbChanges": 0
+  },
+  "runtimeLiveAllowed": false
+}

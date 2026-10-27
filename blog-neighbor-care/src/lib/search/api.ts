@@ -1,6 +1,7 @@
 import type { Access } from '../work-api';
 import { previewSearchSummaries } from '../material-preview';
 import type { AnalysisJob } from '../analysis/client';
+import { searchActivity, relationshipEvidence, type RelationRow } from './evidence';
 
 type NaverKeys = { clientId: string; clientSecret: string };
 type Dependencies = {
@@ -8,6 +9,7 @@ type Dependencies = {
   profile: (userId: string, id: string) => Promise<AnalysisJob | null>;
   keys: (userId: string) => Promise<NaverKeys | null>;
   fetch: typeof fetch;
+  relationships?: (userId: string, ownBlogId: string, blogIds: string[]) => Promise<RelationRow[]>;
   now?: () => number;
 };
 export class SearchError extends Error { constructor(readonly kind: 'auth' | 'quota' | 'response' | 'network') { super(kind); } }
@@ -76,7 +78,20 @@ export function createSearchHandler(deps: Dependencies) {
       const current = await deps.profile(access.userId, input.profileId);
       if (!current || current.revision !== profile.revision || !Number.isFinite(Date.parse(current.expiresAt)) || Date.parse(current.expiresAt) <= now()) return reply({ error: '검색 중 프로필이 변경되거나 만료됐습니다. 확인한 프로필을 다시 선택해 주세요.' }, 409);
       const preview = previewSearchSummaries({ profile: { own_blog_id: ownBlogId, keywords: [...new Set(query.split(/\s+/))].slice(0, 20), excluded_blog_ids: [] }, items, limit: 20 });
-      return reply({ data: { ...preview, candidates: preview.candidates.map(candidate => ({ ...candidate, evidenceLevel: 'naver-api-hub-search-summary' })), profileId: profile.id, profileRevision: profile.revision, searchedAt: new Date(now()).toISOString(), expiresAt: profile.expiresAt, fetchedCount: items.length, externalActions: 0, automaticRetry: false } });
+      let relations: RelationRow[] = [], relationshipLookup: 'available' | 'unavailable' = 'available';
+      try { relations = await deps.relationships?.(access.userId, ownBlogId!, preview.candidates.map(c => c.blogId)) ?? []; }
+      catch { relationshipLookup = 'unavailable'; }
+      // The extra lookup can outlive a login or profile revision; recheck before exposing any result.
+      const finalMember = await deps.member(); if (!finalMember.allowed) return reply({ error: finalMember.error }, finalMember.status);
+      if (finalMember.userId !== access.userId) return reply({ error: '로그인 계정을 다시 확인해 주세요.' }, 403);
+      const finalProfile = await deps.profile(access.userId, input.profileId);
+      if (!finalProfile || finalProfile.revision !== profile.revision || !Number.isFinite(Date.parse(finalProfile.expiresAt)) || Date.parse(finalProfile.expiresAt) <= now()) return reply({ error: '검색 중 프로필이 변경되거나 만료됐습니다.', }, 409);
+      const observedNow = now();
+      return reply({ data: { ...preview, candidates: preview.candidates.map(candidate => ({ ...candidate,
+        evidenceLevel: 'naver-api-hub-search-summary', activity: searchActivity(items, candidate.blogId, observedNow),
+        relationshipEvidence: relationshipEvidence(relations, candidate.blogId, observedNow), overallScore: null,
+        overallScorePending: ['full_activity_coverage', 'authenticity', 'communication_evidence'] })),
+        relationshipLookup, profileId: profile.id, profileRevision: profile.revision, searchedAt: new Date(observedNow).toISOString(), expiresAt: profile.expiresAt, fetchedCount: items.length, externalActions: 0, automaticRetry: false } });
     } catch (error) {
       if (error instanceof SearchError) {
         const errors = { auth: '검색용 키의 NAVER API HUB 이용 설정을 확인해 주세요.', quota: '검색 API 한도에 도달했습니다. 자동으로 다시 호출하지 않습니다.', response: '검색 응답을 확인하지 못했습니다. 자동 재호출하지 않습니다.', network: '검색 연결 결과가 불확실합니다. 검색 API 사용량을 확인하고 다시 검색할지 직접 결정해 주세요.' };

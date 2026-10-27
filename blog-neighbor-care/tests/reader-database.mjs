@@ -3,6 +3,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { createHash, randomUUID, randomBytes } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { createReaderMemberHandler, createReaderExtensionHandler } from '../src/lib/reader/api.ts';
+import { createNeighborHandler } from '../src/lib/neighbors/api.ts';
 const container = execFileSync('docker', ['run', '--pull', 'never', '--rm', '-d', '--network', 'none',
   '--label', 'aimaster.bnc-reader-test=true', '-e', 'POSTGRES_HOST_AUTH_METHOD=trust', 'postgres:17-alpine'], { encoding: 'utf8' }).trim();
 if (!/^[a-f0-9]{64}$/.test(container)) throw new Error('Unexpected container identifier');
@@ -51,6 +52,7 @@ try {
   const files = readdirSync(new URL('../supabase/migrations/', import.meta.url)).filter(x => x.endsWith('_bnc_reader_connection.sql'));
   assert.equal(files.length, 1); migrationName = files[0];
   sql(readFileSync(new URL(`../supabase/migrations/${migrationName}`, import.meta.url), 'utf8'));
+  sql(readFileSync(new URL('../supabase/migrations/20261026103202_bnc_server_queue.sql', import.meta.url), 'utf8'));
   const owner = member(), other = member(), code = pairing(owner);
   await check('RDB01 신규4표RLS·안전한RPC권한', () => {
     assert.equal(sql("select count(*) from pg_class where relnamespace='public'::regnamespace and relname like 'bnc_reader_%' and relkind='r' and relrowsecurity;"), '4');
@@ -67,6 +69,38 @@ try {
   await check('RDB03 공용계정은본인/읽기전용·OAuth토큰/소유검증을위조하지않음', () => {
     const row = parse(sql(`select jsonb_build_object('user',user_id,'token',access_token,'method',auth_method,'extra',extra) from public.member_platform_accounts where user_id=${q(owner)};`));
     assert.equal(row.user, owner); assert.equal(row.token, ''); assert.equal(row.method, 'browser_read'); assert.equal(row.extra.naver_session_verified, false);
+  });
+  await check('RDB17 관계조회 SQL은 회원·본인계정·대상으로 분리되고 RLS도 타회원 관계를 숨김', () => {
+    const otherCode = pairing(other, 'other-blog'), otherDevice = connect(other, otherCode);
+    const ownAccount = sql(`select account_id from public.bnc_reader_devices where id=${q(device.deviceId)};`);
+    const otherAccount = sql(`select account_id from public.bnc_reader_devices where id=${q(otherDevice.deviceId)};`);
+    sql(`insert into public.bnc_settings(user_id) values(${q(owner)}),(${q(other)});
+      insert into public.bnc_neighbors values(${q(owner)},${q(ownAccount)},'same-target','pending',now()),
+        (${q(other)},${q(otherAccount)},'same-target','mutual',now());`);
+    const scoped = sql(`select n.state from public.bnc_neighbors n join public.member_platform_accounts a on a.id=n.account_id
+      where n.user_id=${q(owner)} and a.user_id=${q(owner)} and a.platform='naver_blog' and a.external_id='my-blog'
+        and not a.needs_reconnect and n.neighbor_id in ('same-target');`, 'service_role');
+    assert.equal(scoped, 'pending');
+    assert.equal(sql(`select count(*) from public.bnc_neighbors where user_id=${q(other)};`, 'authenticated', owner).split('\n').at(-1), '0');
+    assert.equal(sql(`select count(*) from public.bnc_neighbors n join public.member_platform_accounts a on a.id=n.account_id
+      where n.user_id=${q(owner)} and a.user_id=${q(owner)} and a.external_id='other-blog';`, 'service_role'), '0');
+    sql(`delete from public.bnc_neighbors; delete from public.bnc_reader_devices where id=${q(otherDevice.deviceId)};`);
+  });
+  await check('RDB18 이웃조회HTTP→실제SQL 회원계정분리·50개커서·타계정거절', async () => {
+    const accountId=sql(`select account_id from public.bnc_reader_devices where id=${q(device.deviceId)};`);
+    sql(`insert into public.bnc_neighbors select ${q(owner)},${q(accountId)},'page-'||lpad(i::text,3,'0'),'mutual',now() from generate_series(1,55) i;`);
+    const getAccount=(user,id)=>parse(sql(`select coalesce((select jsonb_build_object('id',id,'blogId',external_id) from public.member_platform_accounts
+      where user_id=${q(user)} and id=${q(id)} and platform='naver_blog' and not needs_reconnect),'null'::jsonb);`,'service_role'));
+    const handler=createNeighborHandler(async()=>({allowed:true,userId:owner}),{
+      accounts:async()=>[],account:async(user,id)=>getAccount(user,id),
+      rows:async(user,id,cursor)=>parse(sql(`select coalesce(jsonb_agg(t),'[]'::jsonb) from (select neighbor_id,state,verified_at from public.bnc_neighbors
+        where user_id=${q(user)} and account_id=${q(id)} ${cursor?`and neighbor_id>${q(cursor)}`:''} order by neighbor_id limit 51) t;`,'service_role')),
+    });
+    const send=body=>handler(new Request('https://local.fixture/api/neighbors',{method:'POST',headers:{origin:'https://local.fixture','content-type':'application/json'},body:JSON.stringify(body)}));
+    const first=await(await send({operation:'list',accountId})).json();assert.equal(first.data.records.length,50);assert.equal(first.data.nextCursor,'page-050');
+    const second=await(await send({operation:'list',accountId,cursor:first.data.nextCursor})).json();assert.equal(second.data.records.length,5);assert.equal(second.data.nextCursor,null);
+    assert.equal((await send({operation:'list',accountId:randomUUID()})).status,404);
+    sql(`delete from public.bnc_neighbors where user_id=${q(owner)};`);
   });
   await check('RDB04 소비된번호/타회원번호교환/만료번호재사용차단', () => {
     assert.throws(() => connect(owner, code), /BNC_PAIR_INVALID/);
@@ -185,9 +219,10 @@ try {
   const removed = execFileSync('docker', ['rm', '-f', container], { encoding: 'utf8' }).trim();
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
   writeFileSync(new URL('../docs/evidence/reader-database-20261027.json', import.meta.url), JSON.stringify({
-    checkedAt: new Date().toISOString(), tests, passed: tests.length, expected: 16, version, migration: migrationName,
+    checkedAt: new Date().toISOString(), tests, passed: tests.length, expected: 18, version, migration: migrationName,
+    additionalMigration: '20261026103202_bnc_server_queue.sql',
     operatingDatabaseChanged: false, realCredentialsUsed: false, containerStopped: removed === container,
     fixture: 'Local PostgreSQL, network none, no published ports, real independent connections',
   }, null, 2)+'\n');
 }
-assert.equal(tests.length, 16);
+assert.equal(tests.length, 18);

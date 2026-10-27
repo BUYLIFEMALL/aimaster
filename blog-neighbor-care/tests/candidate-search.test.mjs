@@ -12,7 +12,12 @@ test('CS01 auth/CSRF/JSON/size/consent validation precedes member-key/provider a
  const f=fixture();for(const [r,status]of [[req(input,{origin:'https://other.test'}),403],[req(input,{origin:'http://example.test'}),403],[req(input,{'content-type':'text/plain'}),415],[req({...input,quotaConfirmed:false}),400],[req({...input,userId:'victim'}),400],[req({...input,query:'a'.repeat(9000)}),413]])assert.equal((await f.handle(r)).status,status);assert.equal(f.seen.calls,0);assert.equal(f.seen.keyOwners.length,0);
 });
 test('CS02 confirmed own profile + own keys, summaries never become body/AI/relationship evidence',async()=>{
- const f=fixture();const response=await f.handle(req());assert.equal(response.status,200);assert.match(response.headers.get('cache-control'),/no-store/);const {data}=await response.json();assert.deepEqual(f.seen.keyOwners,['member-a']);assert.deepEqual(f.seen.profileOwners,['member-a','member-a']);assert.equal(f.seen.calls,1);assert.equal(data.fullBodyAnalyzed,false);assert.equal(data.aiScoringPerformed,false);assert.equal(data.externalActions,0);assert.equal(data.candidates[0].relationship,'unknown');assert.equal(data.candidates[0].evidenceLevel,'naver-api-hub-search-summary');assert.equal(data.candidates[0].body,undefined);assert.equal(data.candidates[0].topicScore,undefined);assert.equal(data.candidates[0].summary,'캠핑 & 기록');assert.equal(JSON.stringify(data).includes('fixture-secret'),false);
+ const f=fixture();const response=await f.handle(req());assert.equal(response.status,200);assert.match(response.headers.get('cache-control'),/no-store/);
+ const {data}=await response.json();assert.deepEqual(f.seen.keyOwners,['member-a']);
+ assert.ok(f.seen.profileOwners.length>=2);assert.ok(f.seen.profileOwners.every(owner=>owner==='member-a'));
+ assert.equal(f.seen.calls,1);assert.equal(data.fullBodyAnalyzed,false);assert.equal(data.aiScoringPerformed,false);assert.equal(data.externalActions,0);
+ assert.equal(data.candidates[0].relationship,'unknown');assert.equal(data.candidates[0].evidenceLevel,'naver-api-hub-search-summary');
+ assert.equal(data.candidates[0].body,undefined);assert.equal(data.candidates[0].topicScore,undefined);assert.equal(data.candidates[0].summary,'캠핑 & 기록');assert.equal(JSON.stringify(data).includes('fixture-secret'),false);
 });
 test('CS03 missing key or unreviewed/expired/wrong-kind profile never calls external API',async()=>{
  for(const p of [{...profile(),revision:0},{...profile(),reviewedProfile:null},{...profile(),expiresAt:'2026-10-01T00:00:00Z'},{...profile(),kind:'candidates'}]){const f=fixture({profile:async()=>p});assert.equal((await f.handle(req())).status,409);assert.equal(f.seen.calls,0);assert.equal(f.seen.keyOwners.length,0);}
@@ -35,4 +40,14 @@ test('CS07 same-process concurrent search is rejected and the guard is released 
 });
 test('CS08 transport failure makes exactly one request and does not expose raw exception details',async()=>{
  let calls=0;await assert.rejects(searchHub({clientId:'fixture-id',clientSecret:'fixture-secret'},'캠핑',async()=>{calls++;throw new Error('fixture-secret');}),error=>error.kind==='network'&&!error.message.includes('fixture-secret'));assert.equal(calls,1);
+});
+
+test('CS09 activity bounds and relationship records have separate provenance, errors never imply no relationship',async()=>{
+ const f=fixture({fetch:async()=>Response.json({items:[item('neighbor','123'),item('neighbor','124')]}),relationships:async(user,actor,targets)=>{assert.equal(user,'member-a');assert.equal(actor,'myblog');assert.deepEqual(targets,['neighbor']);return [{neighbor_id:'neighbor',state:'pending',verified_at:'2026-10-26T23:59:59Z'}];}});
+ const r=await f.handle(req());assert.equal(r.status,200);const {data}=await r.json();const c=data.candidates[0];assert.equal(c.activity.observedRecent30DayCount,2);assert.equal(c.relationshipEvidence.state,'pending');assert.equal(c.canAutoEngage,false);assert.equal(c.overallScore,null);assert.equal(data.fullBodyAnalyzed,false);
+ const failed=fixture({relationships:async()=>{throw Error('private database details');}});const response=await failed.handle(req());assert.equal(response.status,200);const j=await response.json();assert.equal(j.data.relationshipLookup,'unavailable');assert.equal(j.data.candidates[0].relationshipEvidence.state,'unknown');assert.equal(JSON.stringify(j).includes('private database'),false);
+});
+test('CS10 member/profile changes during relation lookup discard all search results',async()=>{
+ let switched=false;const f=fixture({member:async()=>({allowed:true,userId:switched?'other':'member-a'}),relationships:async()=>{switched=true;return [];}});assert.equal((await f.handle(req())).status,403);
+ let revision=1;const p=fixture({profile:async()=>({...profile(),revision}),relationships:async()=>{revision=2;return [];}});assert.equal((await p.handle(req())).status,409);
 });

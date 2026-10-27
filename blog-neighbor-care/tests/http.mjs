@@ -92,17 +92,22 @@ try {
   await check('HTTP32 후보본문JSON양식·실제후보로오인할수없는자리표시자',async()=>{
     const r=await fetch(`${origin}/downloads/candidate-posts-template.json`);assert.equal(r.status,200);const value=await r.json();assert.equal(value.posts.length,3);assert.match(value.posts[0].url,/POST_ID_1/);assert.equal(value.posts[0].rightsConfirmed,undefined);
   });
+  await check('HTTP33 이웃관계조회API미로그인401·캐시금지',async()=>{
+    const r=await fetch(`${origin}/api/neighbors`,{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({operation:'accounts'})});assert.equal(r.status,401);assert.match(r.headers.get('cache-control'),/no-store/);
+  });
+  await check('HTTP34 이웃조회GET405',async()=>assert.equal((await fetch(`${origin}/api/neighbors`)).status,405));
+  await check('HTTP35 이웃관계화면회원가드',async()=>{const html=await(await fetch(`${origin}/neighbors`)).text();assert.match(html,/AIMaster 로그인/);assert.match(html,/이웃 관계 기록/);});
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
-  writeFileSync(new URL('../docs/evidence/body-files-http-20261027.json', import.meta.url), JSON.stringify({
+  writeFileSync(new URL('../docs/evidence/relations-http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 32, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 35, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 32);
-console.log('로컬 HTTP32개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 35);
+console.log('로컬 HTTP35개 통과·서버 종료, 실제키/로그인세션 사용0.');
