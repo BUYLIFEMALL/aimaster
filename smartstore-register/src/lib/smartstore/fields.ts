@@ -18,8 +18,11 @@ export function toRegisterMode(v: unknown): RegisterMode {
 export type OriginType = "domestic" | "import" | "etc";
 
 /** 배송비 종류 — 판매자센터 「배송비」 고르기 상자의 보이는 글자 */
-export type DeliveryFeeType = "" | "FREE" | "PAID" | "CONDITIONAL_FREE";
-export const DELIVERY_FEE_LABEL: Record<Exclude<DeliveryFeeType, "">, string> = { FREE: "무료", PAID: "유료", CONDITIONAL_FREE: "조건부 무료" };
+export type DeliveryFeeType = "" | "FREE" | "PAID" | "CONDITIONAL_FREE" | "QUANTITY" | "RANGE";
+export const DELIVERY_FEE_LABEL: Record<Exclude<DeliveryFeeType, "">, string> = { FREE: "무료", PAID: "유료", CONDITIONAL_FREE: "조건부 무료", QUANTITY: "수량별", RANGE: "구간별" };
+/** 배송 직접 입력 확장(2026-10-27 v1.14) — 판매자센터 화면 보기 글자 그대로 */
+export type PayType = "" | "착불" | "선결제" | "착불 또는 선결제";
+export type JejuMode = "" | "off" | "2" | "3";
 
 export interface StoreDefaults {
   stock: number;
@@ -34,6 +37,19 @@ export interface StoreDefaults {
   deliveryFeeType: DeliveryFeeType;
   baseFee: number | null;
   freeOver: number | null;
+  /** 수량별: ○개마다 기본 배송비 반복 부과 */
+  qtyEvery: number | null;
+  /** 구간별(2구간): ○개까지 추가배송비 없음 / 초과 구매 시 추가배송비 */
+  rangeUpTo: number | null;
+  rangeExtraFee: number | null;
+  payType: PayType;
+  bundle: "" | "가능" | "불가";
+  /** 제주/도서산간 추가배송비: off=설정안함, 2=2권역(금액 1개), 3=3권역(제주·제주 외 도서산간) */
+  jejuMode: JejuMode;
+  jejuFee: number | null;
+  islandFee: number | null;
+  regionFee: string;
+  installFee: "" | "있음" | "없음";
   asPhone: string;
   asGuide: string;
   returnFee: number | null;
@@ -55,6 +71,16 @@ export const EMPTY_DEFAULTS: StoreDefaults = {
   deliveryFeeType: "",
   baseFee: null,
   freeOver: null,
+  qtyEvery: null,
+  rangeUpTo: null,
+  rangeExtraFee: null,
+  payType: "",
+  bundle: "",
+  jejuMode: "",
+  jejuFee: null,
+  islandFee: null,
+  regionFee: "",
+  installFee: "",
   asPhone: "",
   asGuide: "",
   returnFee: null,
@@ -82,9 +108,19 @@ export function normalizeDefaults(raw: unknown): StoreDefaults {
     noticeReference: r.noticeReference !== false,
     deliveryTemplate: str(r.deliveryTemplate, 60),
     deliveryCompany: str(r.deliveryCompany, 30),
-    deliveryFeeType: r.deliveryFeeType === "FREE" || r.deliveryFeeType === "PAID" || r.deliveryFeeType === "CONDITIONAL_FREE" ? r.deliveryFeeType : "",
+    deliveryFeeType: (["FREE", "PAID", "CONDITIONAL_FREE", "QUANTITY", "RANGE"] as const).find((v) => v === r.deliveryFeeType) ?? "",
     baseFee: num(r.baseFee, 0, 100_000),
     freeOver: num(r.freeOver, 10, 999_999_990),
+    qtyEvery: num(r.qtyEvery, 1, 99_999),
+    rangeUpTo: num(r.rangeUpTo, 1, 99_999),
+    rangeExtraFee: num(r.rangeExtraFee, 0, 1_000_000),
+    payType: (["착불", "선결제", "착불 또는 선결제"] as const).find((v) => v === r.payType) ?? "",
+    bundle: r.bundle === "가능" || r.bundle === "불가" ? r.bundle : "",
+    jejuMode: r.jejuMode === "off" || r.jejuMode === "2" || r.jejuMode === "3" ? r.jejuMode : "",
+    jejuFee: num(r.jejuFee, 0, 1_000_000),
+    islandFee: num(r.islandFee, 0, 1_000_000),
+    regionFee: str(r.regionFee, 200),
+    installFee: r.installFee === "있음" || r.installFee === "없음" ? r.installFee : "",
     asPhone: str(r.asPhone, 20).replace(/[^0-9-]/g, ""),
     asGuide: str(r.asGuide, 500),
     returnFee: num(r.returnFee, 0, 1_000_000),
@@ -103,16 +139,16 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14" };
 
 /**
  * 칸 목록을 만든 코드의 세대 — 오래 열어 둔 탭은 그 시점 배포의 옛 코드로 작업을 만든다(2026-10-27 실제 사고: 고시 A/S 전화·어린이인증·추가 이미지가 빠진 작업).
  * 칸 구성이 바뀌어 옛 작업을 실행하면 안 될 때 이 숫자를 올린다. 이 표시가 없거나 낮은 작업은 확장에 넘기지 않는다.
  */
-export const STEP_BUILDER = 2; // 2: 옵션 단계(2026-10-27 v1.12)
+export const STEP_BUILDER = 3; // 2: 옵션 단계(v1.12) · 3: 배송 직접 입력 확장(v1.14)
 const BUILDER_KEY = "_builder";
 
 /** 저장할 단계 목록 끝에 「만든 세대」 표시를 붙인다(화면 미리보기에는 붙이지 않음) */
@@ -251,7 +287,34 @@ export function buildFillSteps(
         if (defaults.freeOver == null) errors.push("조건부 무료인데 「○원 이상 무료」 금액이 없습니다. 「스토어 기본값」에서 넣어 주세요.");
         else add({ key: "delivery_free_over", section: "배송", label: "무료 조건 금액", target: "vm.modelData.deliveryFee.freeConditionalAmount", action: "type", value: String(defaults.freeOver), required: true });
       }
+      // 수량별·구간별: 배송비 종류를 고른 뒤 나타나는 「배송비 조건」 칸(ng-model은 판매자센터 저장본에서 확인)
+      if (fee === "QUANTITY") {
+        if (defaults.qtyEvery == null) errors.push("수량별인데 「○개마다」 수량이 없습니다. 「스토어 기본값」에서 넣어 주세요.");
+        else add({ key: "delivery_qty", section: "배송", label: `${defaults.qtyEvery}개마다 기본 배송비`, target: "vm.modelData.deliveryFee.repeatQuantity", action: "type", value: String(defaults.qtyEvery), required: true });
+      }
+      if (fee === "RANGE") {
+        if (defaults.rangeUpTo == null || defaults.rangeExtraFee == null) errors.push("구간별인데 「○개까지」 수량이나 초과 추가배송비가 없습니다. 「스토어 기본값」에서 넣어 주세요.");
+        else {
+          add({ key: "delivery_range_qty", section: "배송", label: `${defaults.rangeUpTo}개까지 추가배송비 없음`, target: "vm.modelData.deliveryFee.freeSectionLastQuantity", action: "type", value: String(defaults.rangeUpTo), required: true });
+          add({ key: "delivery_range_fee", section: "배송", label: "초과 구매 시 추가배송비", target: "vm.modelData.deliveryFee.secondExtraFee", action: "type", value: String(defaults.rangeExtraFee), required: true });
+        }
+      }
+      if (defaults.payType && fee !== "FREE") add({ key: "delivery_pay", section: "배송", label: `결제방식 「${defaults.payType}」`, target: "결제방식", action: "choose", value: defaults.payType });
     }
+    if (defaults.bundle) add({ key: "delivery_bundle", section: "배송", label: `묶음배송 「${defaults.bundle}」`, target: "묶음배송", action: "choose", value: defaults.bundle === "불가" ? "불가(개별계산)" : "가능" });
+    if (defaults.jejuMode === "off") add({ key: "delivery_jeju", section: "배송", label: "제주/도서산간 추가배송비 「설정안함」", target: "제주/도서산간 추가배송비", action: "choose", value: "설정안함" });
+    if (defaults.jejuMode === "2" || defaults.jejuMode === "3") {
+      add({ key: "delivery_jeju", section: "배송", label: `제주/도서산간 추가배송비 ${defaults.jejuMode}권역`, target: "제주/도서산간 추가배송비", action: "choose", value: "설정함" });
+      add({ key: "delivery_jeju_zone", section: "배송", label: `배송권역 ${defaults.jejuMode}권역`, target: "배송권역", action: "choose", value: `${defaults.jejuMode}권역` });
+      if (defaults.jejuFee == null) errors.push("제주/도서산간 추가배송비를 설정함으로 했는데 금액이 없습니다.");
+      else if (defaults.jejuMode === "2") add({ key: "delivery_jeju_fee", section: "배송", label: "제주 및 도서산간 추가배송비", target: "vm.modelData.deliveryFee.deliveryFeeByArea.area2extraFee", action: "type", value: String(defaults.jejuFee) });
+      else {
+        add({ key: "delivery_jeju_fee", section: "배송", label: "제주 추가배송비", target: "vm.modelData.deliveryFee.deliveryFeeByArea.area2extraFee", action: "type", value: String(defaults.jejuFee) });
+        if (defaults.islandFee != null) add({ key: "delivery_island_fee", section: "배송", label: "제주 외 도서산간 추가배송비", target: "vm.modelData.deliveryFee.deliveryFeeByArea.area3extraFee", action: "type", value: String(defaults.islandFee) });
+      }
+    }
+    if (defaults.regionFee) add({ key: "delivery_region", section: "배송", label: "지역별 차등 배송비", target: "vm.modelData.deliveryFee.differentialFeeByArea", action: "type", value: defaults.regionFee });
+    if (defaults.installFee) add({ key: "delivery_install", section: "배송", label: `별도 설치비 「${defaults.installFee}」`, target: "별도 설치비", action: "choose", value: defaults.installFee });
   } else {
     warnings.push("배송 템플릿 이름도 배송비 설정도 없습니다. 판매자센터 기본 배송 설정이 그대로 쓰이니 「입력만」으로 확인해 주세요.");
   }

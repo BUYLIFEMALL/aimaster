@@ -18,6 +18,7 @@ export async function saveDefaultsAction(_prev: unknown, formData: FormData): Pr
     displayOnRegister: raw.displayOnRegister === "on",
     returnFee: raw.returnFee === "" ? null : raw.returnFee,
     exchangeFee: raw.exchangeFee === "" ? null : raw.exchangeFee,
+    ...Object.fromEntries((["qtyEvery", "rangeUpTo", "rangeExtraFee", "jejuFee", "islandFee", "baseFee", "freeOver"] as const).map((k) => [k, raw[k] === "" || raw[k] === undefined ? null : raw[k]])),
   });
   const supabase = await createClient();
   const { error } = await supabase

@@ -143,3 +143,28 @@ test("옵션: 단독형 표·조합형 조합·0원 규칙·10원 단위·엑셀
   const back = XLSX.read(XLSX.write(wb, { bookType: "biff8", type: "buffer" }));
   assert.deepEqual(XLSX.utils.sheet_to_json(back.Sheets.Sheet0, { header: 1 })[0], rows[0]);
 });
+
+test("배송 직접 입력 확장: 수량별·구간별·결제방식·묶음·제주 3권역·지역별·설치비, 템플릿이 있으면 안 넣음", () => {
+  const base = { asPhone: "010-1234-5678", deliveryCompany: "CJ대한통운", baseFee: 3000 };
+  const q = buildFillSteps(P, normalizeDefaults({ ...base, deliveryFeeType: "QUANTITY", qtyEvery: 3, payType: "선결제", bundle: "불가", jejuMode: "3", jejuFee: 5000, islandFee: 7000, regionFee: "산간 3000원", installFee: "없음" }), O);
+  assert.deepEqual(q.errors, []);
+  const by = (k) => q.steps.find((s) => s.key === k);
+  assert.equal(by("delivery_fee_type").value, "수량별");
+  assert.equal(by("delivery_qty").target, "vm.modelData.deliveryFee.repeatQuantity");
+  assert.equal(by("delivery_qty").value, "3");
+  assert.equal(by("delivery_pay").value, "선결제");
+  assert.equal(by("delivery_bundle").value, "불가(개별계산)");
+  assert.equal(by("delivery_jeju").value, "설정함");
+  assert.equal(by("delivery_jeju_zone").value, "3권역");
+  assert.equal(by("delivery_jeju_fee").target, "vm.modelData.deliveryFee.deliveryFeeByArea.area2extraFee");
+  assert.equal(by("delivery_island_fee").value, "7000");
+  assert.equal(by("delivery_install").value, "없음");
+  assert.equal(extCanRun(q.steps, "v1.13"), true); // 새 칸은 기존 동작(type·choose)만 씀
+  const r = buildFillSteps(P, normalizeDefaults({ ...base, deliveryFeeType: "RANGE", rangeUpTo: 5 }), O);
+  assert.match(r.errors.join(" "), /구간별/);
+  const r2 = buildFillSteps(P, normalizeDefaults({ ...base, deliveryFeeType: "RANGE", rangeUpTo: 5, rangeExtraFee: 2500, jejuMode: "2", jejuFee: 4000 }), O);
+  assert.equal(r2.steps.find((s) => s.key === "delivery_range_fee").value, "2500");
+  assert.equal(r2.steps.find((s) => s.key === "delivery_jeju_fee").target, "vm.modelData.deliveryFee.deliveryFeeByArea.area2extraFee");
+  const tpl = buildFillSteps(P, normalizeDefaults({ ...base, deliveryTemplate: "바이라이프", payType: "착불", jejuMode: "off" }), O);
+  assert.ok(!tpl.steps.some((s) => s.key.startsWith("delivery_") && s.key !== "delivery_tpl"));
+});

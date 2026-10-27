@@ -614,6 +614,7 @@ async function runJob(job) {
       let r;
       if (step.key === 'discount') { await wait(600); r = await runMain(tabId, ngTypeMain, { discount: true, value: step.value }); }
       else if (step.action === 'type') r = await runMain(tabId, ngTypeMain, { target: step.target, value: step.value, ...(step.key === 'notice_phone' ? { label: 'A/S 책임자 또는 소비자 상담' } : {}) });
+      else if (step.action === 'type_label') r = await runMain(tabId, ngTypeMain, { target: '__by_label__', label: step.target, value: step.value });
       else if (step.action === 'radio') r = await run(tabId, 'radio', { target: step.target, value: step.value });
       else if (step.action === 'check') {
         r = await run(tabId, 'check', { target: step.target });
