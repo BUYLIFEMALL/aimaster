@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 [역할: blog] Codex — 본인글1건 연결·읽기·전달·웹 재조회 실검수 완료
+- [운영 reader](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests).
+- 2026-10-27 13:21 본인 글1건 읽기 연결 전체 흐름 실검수 완료: 실제Edge에서 reader의연결·받은글새로고침→제목클릭→받은본문열림메시지·원문224427408654주소·만료2026-11-26 12:53:19 KST 확인. 표시본문과운영저장본문은공백정규화MD5 6cd039bf07e7b9cf740b92de52d6ec0e 일치, 저장3,727자·자료1건유지. 회원연결→미리보기3,738자→사용자확인후전달→completed/소유자일치/원래720시간→웹재열기까지통과. 원문본문을공유문서에복사하지않음.
+- 이완료는해당계정/해당단일글1건검수이며다른회원분리/정지·핸드폰·모바일·구형에디터·반복자동읽기·AI/자동소통·Cron실행/만료삭제실물까지완료한것은아님. 다음주력은기존플랜의프로필/후보처리. 명칭70f146a6c는소스/설치폴더/로컬ZIP만반영·작은수정묶음배포대기유지, 추가배포/AI/네이버게시0. 프로그램재조회요청f506cdbd완료.
+- 새소스/버전/DB정책변경0, 무료GUI/읽기검수·문서만. 운영회원이확인후보낸자기본문1행보관은기존동의범위, 키/토큰원문출력0.
+
 ## 2026-10-27 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-20261027-analysis` — Program_dev 분석분 담당 배정·착수 순서
 - 분석·플랜 완료(구현 전): [마케팅 수집 분류](analysis-marketing-collect-20261027/REPORT.md) · [영수증·세금계산서 플랜](../ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md) · [임장 평가 플랜](analysis-realty-onsite-20261027/PLAN.md) · 배정표·착수순서 [`docs/roles/analysis-planning.md`](roles/analysis-planning.md) 「담당 배정표 2」.
 - **지금 바로 착수 가능(담당 있음)**: ① 🧾 영수증 발행(간이영수증·거래명세서 PDF) → `workspace`(외부 의존 적어 가장 먼저 권장) ② 📝 `blog-neighbor-care` 보강(답방·대댓글·기존 이웃·A-3) → `blog`(진행 중).
