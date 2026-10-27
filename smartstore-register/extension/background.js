@@ -81,7 +81,9 @@ async function pageCommand(cmd, args) {
     }
 
     if (cmd === 'radio') {
-      const radios = byModel(args.target);
+      // 전시 상태처럼 실제 이름이 vm.singleChannelProductMap[channelServiceType].channelProductDisplayStatusType로 긴 칸은 끝부분으로도 찾는다
+      let radios = byModel(args.target);
+      if (!radios.length) radios = [...document.querySelectorAll('input[type=radio][ng-model]')].filter((e) => e.getAttribute('ng-model').endsWith('.' + args.target));
       const want = args.value === 'SUSPENSION' ? (l) => l.includes('전시중지') : args.value === 'ON' ? (l) => l.includes('전시중') && !l.includes('중지') : (l) => l.includes('설정함') && !l.includes('안함');
       const r = radios.find((x) => want(labelOf(x)));
       if (!r) return { ok: false, error: '선택지를 찾지 못했습니다.' };
