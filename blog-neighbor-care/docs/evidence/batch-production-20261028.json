@@ -96,6 +96,10 @@
   "failureFix": "All exclusions anchored at project root; actual Vercel dry-run source copied to fresh directory and built successfully",
   "afterFixUploadedRegularFiles": 86,
   "retryPendingSeparateApproval": true,
+  "retryApprovalRequest": "dca86631-b547-428a-8eaf-74f279c15883",
+  "nativeEdgeOperatingReaderMaintained": true,
+  "nativeEdgeNewResultPageNavigationVerified": false,
+  "nativeEdgeNewResultPageError": "window_not_focused after restore request; stopped keyboard retries",
   "actualNaverNeighborsImported": 0,
   "realAiCalls": 0
 }
