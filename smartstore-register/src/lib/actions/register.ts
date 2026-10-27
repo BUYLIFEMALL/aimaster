@@ -55,6 +55,22 @@ export async function createJobAction(_prev: unknown, formData: FormData): Promi
     .limit(1);
   if (open?.length) return { error: "이 상품은 이미 확장 대기 중인 작업이 있습니다. 「등록 기록」에서 취소한 뒤 다시 보내 주세요." };
 
+  // 「바로 등록」은 실제 상품이 생긴다 — 같은 상품을 이미 등록했으면 회원이 「한 번 더 등록」을 체크해야만 보낸다(2026-10-27 실제 시험에서 중복 작업이 생길 뻔함).
+  if (mode === "register" && formData.get("repeatOk") !== "on") {
+    const { data: done } = await supabase
+      .from("smartstore_register_jobs")
+      .select("created_at")
+      .eq("user_id", user.id)
+      .eq("product_id", productId)
+      .eq("status", "registered")
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (done?.length) {
+      const at = new Date(done[0].created_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+      return { error: `이 상품은 이미 「바로 등록」으로 올렸습니다(${at}). 같은 상품을 한 번 더 올리려면 아래 「한 번 더 등록합니다」를 체크해 주세요.` };
+    }
+  }
+
   const { error } = await supabase.from("smartstore_register_jobs").insert({
     user_id: user.id,
     product_id: productId,
