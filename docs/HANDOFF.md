@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 📘 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 오늘 이커머스 작업 전체 인수인계 (먼저 읽기)
+- **상세 문서**: [`smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md`](../smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md) — §1~§8 v1.06까지(실제 시험·에러), **§9~§12 오후 v1.07~v1.11·배송 칸 전체 지도·「완성까지 남은 기능」 표·다음 첫 단계**.
+- 오늘 결과: AI 스마트스토어 상품 자동등록기 v1.11(세 방식 실제 성공, 추가 이미지·배송비 템플릿 화면 확인, 오래된 탭 작업 막기, 이름·썸네일), 상세페이지 v1.39(검토 완료·마켓 등록·결과 표시), 흐름 띠 「마켓 등록」 단계. 미배포 대기: 흐름 띠 사본 3곳(상품소싱·주문 리포트·셀러 라벨).
+- **완전히 끝난 것이 아님**(주인님: 「각각 옵션이라던가 추가 할게 있을꺼야」「하면서 수정해 나갈꺼야」): 옵션·상품속성·주요정보·태그·배송 직접 입력 확장·반품/교환·여러 상품 연속·쿠팡 등 — 위 문서 §11 표와 `smartstore-register/docs/IMPROVEMENT_BACKLOG.md` 맨 아래.
+- 공통 레퍼런스 보완: [`docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md`](MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md) §6-1·§7.
+- 주인님 몫: 시험 상품 `13834442721`·임시저장본 삭제, 「스토어 기본값」 A/S 전화번호 시험값 `02-0000-0000` → 실제 번호.
+
 ## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.11 (오래된 탭이 만든 작업 막기)
 - 템플릿 「바이라이프」 시험 중 고시 A/S 전화가 빈 칸으로 나온 원인: 회원의 오래된 프로그램 탭이 옛 배포 코드로 칸 목록을 만듦(고시 A/S 전화·어린이인증·추가 이미지 빠짐). 상세·교훈: `docs/ERROR_LESSONS.md` 2026-10-27 맨 위.
 - 해결: 저장 칸 목록에 「만든 세대」 표시, 확장 작업 서버가 표시 없는 작업은 실행하지 않고 「오래된 화면」으로 기록. 시험 12개, 배포 `smartstore-register-m22lvumg4` Ready, DB·확장·ZIP v1.11 OK. 상태 창 제목 새 이름도 함께 나감.
