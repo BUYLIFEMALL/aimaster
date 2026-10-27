@@ -799,7 +799,7 @@ function optionDiagMain() {
   const ids = [...document.querySelectorAll('[id="option_direct_type_true"]')]
     .map((e) => `${e.tagName.toLowerCase()}/${e.type || ''}${vis(e) ? '보임' : '숨김'}${vis(e.parentElement) ? '+부모보임' : ''}${e.checked ? '+켜짐' : ''}`);
   const labs = [...document.querySelectorAll('label[for="option_direct_type_true"]')].map((l) => (vis(l) ? '보임' : '숨김'));
-  const custHead = [...document.querySelectorAll('label, th, div, span')].find((e) => e.children.length < 3 && vis(e) && (e.textContent || '').trim() === '직접입력형');
+  const custHead = [...document.querySelectorAll('label, th, div, span')].find((e) => e.children.length < 4 && vis(e) && (e.textContent || '').replace(/\s+/g, '').startsWith('직접입력형') && (e.textContent || '').replace(/\s+/g, '').length <= 12);
   let btns = '';
   for (let box = custHead?.parentElement, up = 0; box && up < 4 && !btns; up++, box = box.parentElement) {
     const b = [...box.querySelectorAll('button, a, label, input')].filter((x) => vis(x) && /설정함|설정안함/.test(x.textContent || x.value || ''));
@@ -814,7 +814,7 @@ async function optionOffMain() {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
   const norm = (s) => (s || '').replace(/\s+/g, '');
-  const head = [...document.querySelectorAll('label, th, div, span')].find((e) => e.children.length < 3 && vis(e) && norm(e.textContent) === '선택형');
+  const head = [...document.querySelectorAll('label, th, div, span')].find((e) => e.children.length < 4 && vis(e) && norm(e.textContent).startsWith('선택형') && norm(e.textContent).length <= 10);
   if (!head) return { ok: true, skipped: '선택형 줄 없음' };
   let off = null;
   for (let box = head.parentElement, up = 0; box && up < 4 && !off; up++, box = box.parentElement) {
@@ -956,6 +956,7 @@ async function runJob(job) {
     const TOP = new Set(['카테고리', '상품명', '판매가', '재고수량', '상품이미지', '상세설명', '저장']);
     // 옵션이 어느 단계에서 지워지는지 찾기 위한 기록(2026-10-28) — 칸마다 옵션목록 개수가 바뀌면 적는다
     const optTrace = [];
+    let optOffNote = '';
     let lastOpt = null;
     const traceOpt = async (k) => {
       if (!job.optionFile) return;
@@ -1029,7 +1030,10 @@ async function runJob(job) {
       } else if (step.action === 'custom_options') {
         let names = []; try { names = JSON.parse(step.value); } catch (e) { names = []; }
         if (!names.length) continue;
-        if (!job.steps.some((x) => x.key === 'options')) await runMain(tabId, optionOffMain, {});
+        if (!job.steps.some((x) => x.key === 'options')) {
+          const off = await runMain(tabId, optionOffMain, {}).catch((e) => ({ ok: false, error: String(e) }));
+          optOffNote = off?.switched ? '선택형을 설정안함으로 바꿈' : off?.already ? '선택형 이미 설정안함' : `선택형 끄기 못함(${off?.skipped || off?.error || '?'})`;
+        }
         r = await runMain(tabId, customOptionsMain, { names });
       } else if (step.action === 'attributes') {
         let pairs = []; try { pairs = JSON.parse(step.value); } catch (e) { pairs = []; }
@@ -1139,7 +1143,7 @@ async function runJob(job) {
     await traceOpt('끝');
     if (job.optionFile || job.steps.some((x) => x.key === 'custom_options')) {
       const dg = await runMain(tabId, optionDiagMain, {}).catch(() => null);
-      if (dg?.text) failures.push('진단 — ' + dg.text.slice(0, 400));
+      if (dg?.text) failures.push('진단 — ' + (optOffNote ? optOffNote + ' / ' : '') + dg.text.slice(0, 400));
     }
     if (job.optionFile && lastOpt !== job.optionFile.rows) failures.push(`옵션 — 끝났을 때 목록 ${lastOpt}줄(보낸 것 ${job.optionFile.rows}줄). 개수 변화: ${optTrace.join(' → ')}`);
 
