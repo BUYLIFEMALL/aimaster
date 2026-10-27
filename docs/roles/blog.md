@@ -12,6 +12,8 @@
 
 ## 지금 하는 일
 
+**최신 연결 확인:** 2026-10-27 11:20 사용자 로그인/연결 완료 알림 후 운영reader_devices/requests/materials 모두0행 확인. Edge는AIMaster메인→프로그램목록으로이동, 새읽기확장이아닌기존블로그에이전트툴바노출만확인. 숨은확장설치여부/실제연결앱은미확정이며연결실패원인단정안함. 사용자에게연결한확장명구분질문, 기존설치요청811eb0aa유지·새요청없음. DB토큰/키조회0·게시/설정/배포0.
+
 **운영 반영 최신:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF. [결과](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 다음은사용자운영URL열기→실제회원/설치/연결시험, 승인f1991bed처리완료.
 
 **실시간 브라우저 상태(2026-10-27 10:49):** 사용자 직접 로그인 후 실제 Edge 네이버 홈에서 buylifemall@naver.com·로그아웃·내 블로그 링크 확인. 내 블로그 클릭 후 https://blog.naver.com/buylifemall 이동 확인. 직전10:48 로그인 오류 해소. 네이버 로그인은 추가 요청 불필요, 웹/확장 연결은 별도 미검수. reader 운영적용·배포 승인 f1991bed 유지.
