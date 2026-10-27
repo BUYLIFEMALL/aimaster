@@ -499,10 +499,17 @@ async function tagsMain(a) {
   const shownCount = () => (box?.querySelectorAll('.selectize-input .item').length || 0);
   const before = shownCount();
   const inst = sel.selectize;
+  if (inst) inst.__ssrStart = inst.items.length;
   const input = box?.querySelector('.selectize-input input');
   for (const tag of a.tags) {
     if (inst && typeof inst.createItem === 'function') {
-      try { inst.addOption({ value: tag, text: tag }); inst.addItem(tag); } catch (e) { inst.createItem(tag); }
+      const before1 = inst.items.length;
+      try { inst.setTextboxValue ? inst.setTextboxValue(tag) : null; inst.createItem(tag, () => {}); } catch (e) { /* 아래에서 다시 */ }
+      await sleep(400);
+      if (inst.items.length === before1) {
+        const vf = inst.settings.valueField || 'value', lf = inst.settings.labelField || 'text';
+        try { inst.addOption({ [vf]: tag, [lf]: tag }); inst.addItem(tag); } catch (e) { /* 확인에서 실패로 */ }
+      }
     } else if (input) {
       input.focus();
       input.value = tag;
@@ -520,7 +527,7 @@ async function tagsMain(a) {
     await sleep(600);
   }
   await sleep(800);
-  const added = shownCount() - before;
+  const added = Math.max(shownCount() - before, inst ? inst.items.length - (inst.__ssrStart ?? 0) : 0);
   // 화면 표시와 별개로 판매자센터 값(seoInfo.sellerTags)에 들어갔는지도 본다
   let saved = -1;
   try { const h = document.querySelector('input[ng-model="vm.product.detailAttribute.seoInfo.sellerTags"]'); const c = h && window.angular ? window.angular.element(h).controller('ngModel') : null; if (c && Array.isArray(c.$modelValue)) saved = c.$modelValue.length; } catch (e) { /* 무시 */ }
@@ -873,7 +880,14 @@ async function runJob(job) {
         if (step.key === 'origin' && step.value === '국산') continue; // 기본값이 국산 — 건드리지 않음
         if (step.key === 'delivery_tpl') { failures.push(`${step.label}(템플릿 고르기는 아직 수동)`); continue; } // 옛 작업 기록 호환
         const isCat = step.key === 'category';
-        r = await run(tabId, 'pick', { target: step.target, value: step.value.split('|').pop(), leaf: isCat, verifyText: isCat ? '선택한 카테고리' : null });
+        const kw = step.value.split('|').pop();
+        r = await run(tabId, 'pick', { target: step.target, value: kw, leaf: isCat, verifyText: isCat ? '선택한 카테고리' : null });
+        const last = kw.trim().split(/s+/).pop();
+        if (!r.ok && isCat && last && last !== kw.trim()) {
+          await human();
+          const r2 = await run(tabId, 'pick', { target: step.target, value: last, leaf: true, verifyText: '선택한 카테고리' });
+          if (r2.ok) r = { ...r2, note: `「${kw}」 대신 「${last}」로 골랐습니다` };
+        }
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
