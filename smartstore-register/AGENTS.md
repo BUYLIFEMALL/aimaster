@@ -1,4 +1,4 @@
-# 스마트스토어 상품등록 자동화 (`smartstore-register`) — 에이전트 인수인계
+# AI 스마트스토어 상품 자동등록기 (`smartstore-register`, 옛 이름 스마트스토어 상품등록 자동화) — 에이전트 인수인계
 
 > 루트 `../CLAUDE.md`(메인 지침)를 함께 읽는다. 한국어 진행 안내·회원 본인 계정/키·운영/Lab 분리·비용 사전 승인·경로 지정 커밋 규칙이 그대로 적용된다.
 > 플랜: [`../trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md`](../trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md) · 0단계 화면 분석: [`../trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md`](../trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md)
@@ -82,3 +82,6 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 ## 2026-10-27 v1.08 — 이커머스 한 흐름: 검토 상태 이어받기
 - 「등록할 상품」에 「✅ 검토 완료/검토 전」 배지(상세페이지 `shop_products.reviewed_at`), 검토 완료 먼저 정렬, 검토 전 상품 화면에 안내(막지 않음). 흐름 띠 사본(`src/lib/shopFlow.ts`·`src/components/ShopFlowBar.tsx`, 기준 `shop-order-report` — 직접 고치지 말 것)을 대시보드 레이아웃에 `current="market"`로. 상세페이지의 「스마트스토어에 등록하기」가 `/products/<id>?flow=shop`으로 들어옴.
 - 배포 Ready, DB·확장·ZIP v1.08 검증 OK. 시험 10·tsc·build. 크롬: 목록 배지·정렬·흐름 띠 확인.
+
+## 2026-10-27 v1.09 — 이름 변경 「AI 스마트스토어 상품 자동등록기」·썸네일
+- 주인님 지시로 이름 변경: DB `programs.name`, 화면(`APP_NAME`·탭 제목·대시보드 제목), 확장 표시명(`manifest.json` `name`·`default_title`). 카탈로그 썸네일 새로 만듦(관리자 키 1회). 배포 `smartstore-register-c59rnifm2` Ready, DB·확장·ZIP v1.09 OK.
