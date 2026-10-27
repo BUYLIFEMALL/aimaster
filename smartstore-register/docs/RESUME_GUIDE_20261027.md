@@ -1,0 +1,118 @@
+# 재개 안내서 — AI 스마트스토어 상품 자동등록기 (`smartstore-register`)
+
+> **다음에 이 프로그램을 이어서 작업하는 세션은 이 문서부터 읽는다.** 작성 2026-10-27 저녁, Claude Code 윈도우 `claude-win-sdp`, 역할 `ecommerce-image`.
+> 운영 https://smartstore-register.buylife.xyz · 운영 DB ref `esgxyikcnnvmlhygjkth` · 운영 버전 **v1.13** · 미배포 대기 **없음**
+> 더 자세한 기록: 시험 경과·에러 원인 [`IMPROVEMENT_HANDOFF_20261027.md`](IMPROVEMENT_HANDOFF_20261027.md)(§1~§8 오전, §9~§12 오후) · 버전별 요약 [`../AGENTS.md`](../AGENTS.md) · 마켓 등록기 공통 레퍼런스 [`../../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md`](../../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md)
+
+---
+
+## 0. 다음 세션 첫 단계 체크리스트 (이 순서대로)
+1. `node scripts/dev-requests.mjs list --role ecommerce-image` — 관리자 지시가 있으면 그것부터(절대 지시).
+2. `docs/ACTIVE_WORK.md`에서 `smartstore-register/`·`shop-detail-page/`를 다른 세션이 잡고 있지 않은지 확인 → 내 줄 추가(안전 커밋 도우미).
+3. `git status --porcelain -- smartstore-register` — 남의 미커밋 변경이 없는지.
+4. 이 문서 §6 「남은 일」에서 주인님이 고른 항목을 플랜으로 보여 드린다(비용: Vercel 빌드 횟수 먼저 승인).
+5. 시험은 주인님 PC에서(§4). 판매자센터는 Claude 크롬 도구로 열 수 없다.
+
+## 1. 지금 무엇이 되나 (2026-10-27 기준, 모두 판매자센터 실제 화면에서 확인)
+
+| 기능 | 상태 | 확인 방법 |
+|---|---|---|
+| 등록 방식 「입력만 / 임시저장까지 / 바로 등록」 | ✅ | 바로 등록 실제 상품번호 `13834442721`(전시중지) |
+| 카테고리·상품명·판매가·즉시할인·재고 | ✅ | 작업 기록 + 화면 |
+| 대표 이미지 + **추가 이미지**(참고 실물 사진 최대 9장) | ✅ v1.10 | 「추가이미지 2/9」 캡처 |
+| 상세설명(스마트 에디터 ONE에 섹션 이미지 순서대로) | ✅ | 캡처 |
+| 원산지·어린이제품인증 「인증대상 아님」 | ✅ | |
+| 상품정보제공고시(상품군 + 「상품상세 참조」 + 고시 A/S 전화번호) | ✅ | |
+| 배송: **배송비 템플릿 고르기**(「바이라이프」) 또는 직접 입력(택배사·무료/조건부/유료·기본 배송비·무료 조건) | ✅ | 템플릿 기본 배송비 4,000원 확인 |
+| A/S 전화·안내, 판매자 코드 `AIM-…` | ✅ | |
+| **옵션**(엑셀 일괄등록, 단독/조합, 옵션명 3개, 조합별 옵션가·재고) | ✅ v1.12 | 옵션목록 「총 2개」 캡처 |
+| 「상품속성 미입력 확인」 창 자동 넘기기, 완료 창에서 상품번호 읽기 | ✅ v1.07 | |
+| 오래 열어 둔 탭이 만든 작업 막기 | ✅ v1.11 | 「오래된 화면」 실패로 막힌 것 확인 |
+| 같은 상품 「바로 등록」 중복 막기(한 번 더 체크해야 보냄) | ✅ v1.05 | |
+| 이커머스 한 흐름(상세페이지 검토 완료 → 「스마트스토어에 등록하기」 → 결과·상품번호 표시) | ✅ | `shop-detail-page` v1.39 |
+
+## 2. 구조 지도 (파일 → 하는 일)
+
+**웹(Next.js 16, `src/`)**
+| 파일 | 하는 일 |
+|---|---|
+| `lib/smartstore/fields.ts` | **핵심.** 상품 + 스토어 기본값 + 옵션 → 확장이 실행할 단계 목록(`buildFillSteps`). 동작별 최소 확장 버전 `ACTION_MIN_EXT`, 「만든 세대」 `STEP_BUILDER`(지금 2)·`withBuilderMark`·`isCurrentBuild`·`withoutBuilderMark`, 추가 이미지 `EXTRA_IMAGES_MAX`=9 |
+| `lib/smartstore/options.ts` | 옵션 검사(`normalizeOptions`: 25자·10원 단위·0원 조합), 양식 모양 행(`optionSheetRows`), 줄 수(`optionRowCount`) |
+| `lib/data.ts` | 회원 세션으로 상품·섹션 이미지·기본값·작업 기록 읽기, 참고 사진 본인 폴더만(`ownExtraPaths`), 마지막 옵션(`getLastOptions`) |
+| `lib/actions/register.ts` | 「보내기」: 권한 → 옵션 검사 → 단계 만들기 → 중복·진행 중 확인 → 작업 저장(세대 표시 붙임) |
+| `app/api/extension/task/route.ts` | 확장이 작업을 받는 곳(항상 최신 배포). 세대 확인 → 확장 버전 확인 → 「입력 중」으로 바꾼 뒤 이미지 15분 서명 주소·옵션 엑셀(.xls, `xlsx` biff8) 붙여 넘김 |
+| `app/api/extension/finish`·`auth`·`version` | 결과 기록 / 확장 연결 토큰(해시 저장) / 최신 버전 알림 |
+| `components/RegisterForm.tsx` + `OptionEditor.tsx` | 상품 화면 오른쪽: 카테고리 검색어·옵션·등록 방식·보내기 |
+| `components/DefaultsForm.tsx` | 「스토어 기본값」(재고·고시 상품군·원산지·배송 템플릿 이름 또는 직접 입력·A/S·어린이인증·바로 등록 전시) |
+| `app/(dashboard)/products/[id]/page.tsx` | 칸 미리보기(18칸 등)·보내기·이 상품의 작업 기록, 검토 전 안내 |
+| `lib/shopFlow.ts`·`components/ShopFlowBar.tsx` | **공용 기준 코드 사본**(기준 `shop-order-report`) — 직접 고치지 말고 기준 수정 후 `node scripts/check-shared-modules.mjs --sync` |
+
+**확장(`extension/background.js`, Manifest V3)**: 30초마다 작업 받기 → 판매자센터 탭(기존 탭을 닫고 같은 자리에 새 탭) → 단계를 위에서부터 실행 → 결과 보고.
+- 페이지 명령(`pageCommand`): `ready expand type radio check choose select deliveryTemplate pick mainImage extraImages openEditor editorReady editorImage editorDone submit`
+- 페이지 안(MAIN) 함수: `ngTypeMain`(AngularJS 모델에 직접 값), `editorImageMain`(에디터 사진, 파일 칸 click 가로채기), `optionsMain`(옵션 엑셀 일괄등록, 같은 가로채기)
+- ZIP은 `npm run build` 앞에 `scripts/build-extension-archive.mjs`가 만든다(manifest 버전도 자동).
+
+**DB(공용 운영 DB)**: `smartstore_register_defaults`(회원 1행 jsonb) · `smartstore_register_jobs`(작업·단계 jsonb·결과·상품번호) · `smartstore_register_ext_tokens`(확장 토큰 해시) · 상세페이지 `shop_products.reviewed_at`(검토 완료). 마이그레이션 `supabase/migrations/`.
+
+## 3. 동작 원리에서 꼭 알아야 할 것 (함정)
+1. **칸 입력 = AngularJS 모델에 직접**: 화면 글자만 바꾸면 판매가 등이 저장 때 비어 거절된다 → `ngTypeMain`, 모델 값으로 확인.
+2. **저장 성공 판정**: 누르기 전 글을 빼고 새로 나타난 글만 본다. 「완료」면 성공, 「필수…」면 실패, 불분명하면 `ng-invalid` 칸 이름을 기록. 결과가 불확실하면 자동으로 다시 등록하지 않는다.
+3. **selectize 고르기**(택배사·배송비 종류): 숨은 select가 아니라 화면 목록을 열고 글자가 정확히 같은 보기를 누른다.
+4. **같은 버튼 여러 개**: 대표/추가 이미지 「이미지 등록」은 `data-nclicks-code="image.repre"`/`"image.add"`로 구분. 「내 사진」 한 번 총 20MB → 18MB 묶음.
+5. **파일 고르는 창**: 에디터 사진·옵션 엑셀은 페이지 안에서 `HTMLInputElement.prototype.click`을 잠깐 가로채 파일을 넣는다(창이 뜨지 않게).
+6. **오래 열어 둔 탭 = 옛 코드**: Vercel은 탭을 연 시점 배포로 「보내기」를 처리 → 칸 구성을 바꾸면 **`STEP_BUILDER`를 올린다**(올리면 옛 탭 작업은 「오래된 화면」으로 막힘).
+7. **새 동작 = 최소 확장 버전**: `ACTION_MIN_EXT`에 넣으면 옛 확장에는 작업을 넘기지 않는다(`updateRequired`).
+8. **배송 칸은 「상품별 배송비」 값에 따라 칸이 생기고 사라진다**(무료/조건부/유료/수량별/구간별) → 직접 입력을 넓힐 땐 종류부터 고르고 나타난 칸만 채운다. 템플릿을 쓰면 판매자센터가 한꺼번에 채운다(권장).
+9. **옵션 엑셀**: 2행 안내 줄 없이 1행 머리글 + 데이터. 조합형은 「선택1~」 대신 실제 옵션명, 0원 조합 필수. 올린 뒤 입력방식이 「직접 입력하기」로 돌아가 보이는 건 정상.
+10. **창·탭**: 새 창을 띄우지 않는다(루트 `CLAUDE.md` 포그라운드 ⑥). 판매자센터는 Claude 크롬 도구가 열 수 없어 주인님 캡처로 확인.
+
+## 4. 시험하는 법 (주인님 PC)
+1. 코드를 고친 뒤 확장만 바뀌었으면 **배포 없이** 주인님께 `chrome://extensions` → 「AI 스마트스토어 상품 자동등록기」 새로고침(↻)을 부탁(저장소 폴더를 바로 불러옴).
+2. 웹(서버)이 바뀌었으면 배포가 먼저 필요(빌드 승인).
+3. 시험 상품: **스위스톤 확장형 여행백팩** `44a9cfc4-0ef0-4c64-9ecd-ba506e5e9ea3`(참고 사진 2장, 섹션 12장, 검토 완료 표시). 주소 https://smartstore-register.buylife.xyz/products/44a9cfc4-0ef0-4c64-9ecd-ba506e5e9ea3
+4. 등록 방식은 처음엔 **「입력만」**. 「바로 등록」은 실제 상품이 생기므로 꼭 필요할 때만, **보내기 클릭은 주인님이 직접**(자동 안전 검사가 막고, 막혔다고 해도 실제로 들어갔을 수 있으니 다시 부탁하기 전에 기록부터 확인).
+5. 결과 확인: ① DB 작업 기록(아래 명령) ② 주인님 판매자센터 캡처. 「입력만」 화면은 저장하지 말고 「취소」.
+```bash
+node --input-type=module -e 'import { rest } from "./scripts/program-info.mjs"; const r = await rest("smartstore_register_jobs?product_id=eq.44a9cfc4-0ef0-4c64-9ecd-ba506e5e9ea3&select=created_at,mode,status,failed_step,error,steps&order=created_at.desc&limit=1"); const j=r[0]; console.log(j.created_at,j.status,j.failed_step,j.error, (j.steps||[]).map(s=>s.key).join(","));'
+```
+6. 시험 결과가 이상하면 먼저 **그 작업의 단계 목록이 지금 코드 결과와 같은지** 대조(오래된 탭 사고 교훈).
+
+## 5. 배포 절차 (한 번에 하나, 비용 승인 먼저)
+1. `npm test`(지금 13개) · `npx tsc --noEmit` · `src/lib/version.ts` 버전 +0.01 · `npm run build`(확장 manifest·ZIP 자동)
+2. 경로 지정 커밋(`git add -- <새 ZIP>` + `git rm --cached -- <옛 ZIP>`, `git commit -- <경로>`), 공용 문서는 `node scripts/safe-commit.mjs`
+3. 빌드 중 배포 확인: `MSYS_NO_PATHCONV=1 npx vercel api "/v6/deployments?state=BUILDING,QUEUED,INITIALIZING&limit=5" --scope buylife`
+4. `node scripts/deploy.mjs smartstore-register --go --owner <세션> --set-version` (DB `programs.version` 자동)
+5. DB 확장 버전: `scripts/program-info.mjs`의 `rest`로 `programs.extension_version` PATCH → `node scripts/check-extension-release.mjs smartstore-register` OK 확인
+6. 문서: `docs/PENDING_DEPLOYS.md` 내보낸 기록, 비교표(배포 도우미가 미리 바꾼 것은 `git show HEAD:… >` 로 되돌린 뒤 `--begin`), 역할 파일, 루트 `docs/HANDOFF.md`, 이 폴더 `AGENTS.md`
+7. 회원 안내: 확장이 바뀐 배포는 「ZIP 다시 받기 → 덮어쓰기 → 새로고침」.
+
+## 6. 남은 일 (우선순위 순, 주인님이 쓰면서 고를 것 — 「하면서 수정해 나갈꺼야」)
+| 순위 | 일 | 메모 |
+|---|---|---|
+| 1 | 주인님 정리: 시험 상품 `13834442721`·임시저장본 삭제, **「스토어 기본값」 A/S 전화번호 시험값 `02-0000-0000` → 실제 번호** | 실제 등록 전 필수 |
+| 2 | 배송 직접 입력 확장: 결제방식·제주/도서산간(2·3권역)·묶음배송·수량별/구간별·별도 설치비 | 칸 지도 HANDOFF §10-4. 템플릿 쓰면 이미 됨 |
+| 3 | 검색설정 태그(최대 10개) | 상세페이지 분석 결과 활용 가능 |
+| 4 | 상품 주요정보: 브랜드·제조사·모델명·상품 상태 | 검색 품질 |
+| 5 | 카테고리별 상품속성(지금 「다음에 할래요」로 넘김), 카테고리별 필수 칸 대비 | 실패 기록의 칸 이름 보고 추가 |
+| 6 | 반품/교환 배송비·반품지 실제 입력 점검 | 기본값 칸은 있음 |
+| 7 | 옵션 추가: 직접입력형, 옵션별 관리코드, 다른상품 옵션 불러오기 | HANDOFF §10-5 |
+| 8 | 추가상품·구매/리뷰 혜택·예약구매 | 회원 선택 기능 |
+| 9 | 여러 상품 연속 등록 | 중복 막기·실패 시 멈춤 유지 |
+| 10 | **쿠팡 → 11번가 → G마켓 → 옥션 등록기** | 레퍼런스 §6 점검표, 마켓 목록 `shop-detail-page/lib/markets.ts`에 한 줄 추가로 상세페이지 버튼 생김 |
+- 새 칸 더하는 순서: 판매자센터 저장본(`D:\PDS\Program_dev\smartstore_create\`)·주인님 캡처로 칸 속성 확인 → `fields.ts` 단계(+`ACTION_MIN_EXT`) → 확장 명령 → `STEP_BUILDER` 올리기 → 「입력만」 시험(확장 새로고침) → 배포 1회.
+- 결정 대기(주인님): 일반 등급 2주 사용기간 기준 — 지금 「가입일 + 14일」(2026-10-19 주인님 지시, `supabase/migrations/0038_normal_grade_signup_14days.sql`). 「승급한 날 + 14일」로 바꿀지.
+- 미배포 대기(다른 프로그램): 흐름 띠 「마켓 등록」 단계 — 상품소싱·주문 리포트·셀러 라벨 사본(각 프로그램 다음 배포 때).
+
+## 7. 오늘(2026-10-27) 배포 이력
+| 버전 | 한 일 | 배포 |
+|---|---|---|
+| v1.03~v1.06 | 실제 시험 보정(접힌 섹션·에디터·배송 selectize·저장 결과 판정·AngularJS 입력·고시 전화·어린이인증), 「바로 등록」 첫 성공 | 오전 기록 HANDOFF §1~§8 |
+| v1.07 | 상품속성 창 넘기기·상품번호 기록 | `7iiza23u6` |
+| v1.08 | 검토 상태 배지·정렬·안내, 흐름 띠 | — |
+| v1.09 | 이름 「AI 스마트스토어 상품 자동등록기」·썸네일 | `c59rnifm2` |
+| v1.10 | 추가 이미지 | `48tdzwzos` |
+| v1.11 | 오래된 탭 작업 막기, 상태 창 제목 | `m22lvumg4` |
+| v1.12 | 옵션(엑셀 일괄등록) | `7blp17f02` |
+| v1.13 | 옵션 입력 칸 배치 | `gefdo1s9o` |
+- 함께: `shop-detail-page` v1.39(검토 완료·마켓 등록·결과 표시), DB `shop_products.reviewed_at`.
+- 비용(오늘 이 프로그램 오후분): Vercel 빌드 v1.08·v1.09·v1.10·v1.11·v1.12·v1.13 각 1회(모두 승인), 썸네일 이미지 1회(관리자 키), AI 글 호출 0.
