@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-10-27T04:55:45.350Z",
+  "database": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "migration": "20261027042907_bnc_analysis.sql",
+  "tests": [
+    "ADB01 신규2표 RLS·서비스전용RPC·회원 직접조회 차단",
+    "ADB02 타인 자료·여러 블로그·중복ID 거절",
+    "ADB03 원본 잔여수명 상속·타인 작업 조회/입력변경 차단",
+    "ADB04 독립 DB연결40개 동시선점 성공1건",
+    "ADB05 실행토큰/소유자 불일치 완료 차단",
+    "ADB06 회원 확인 전 후보평가 차단·수정 프로필 기록",
+    "ADB07 후보자료 회원격리·같은내용 재사용은 수명 연장 없음",
+    "ADB08 결과에 있는 후보만 선택·외부실행 없음",
+    "ADB09 프로필 수정은 기존후보를 무효화·선택/재생성 차단",
+    "ADB10 응답불명 작업2분후 uncertain·자동 재선점 없음",
+    "ADB11 HTTP핸들러→실제SQL→가상AI→회원결과재조회",
+    "ADB12 만료결과/자료 조회차단·정리후 파생후보삭제",
+    "ADB13 긴 원문은 발췌분량과 원문분량을 구분해 반환",
+    "ADB14 대기 취소는 본인만·다시 선점 불가·실행중 취소 차단"
+  ],
+  "passed": 14,
+  "network": "none",
+  "hostPorts": 0,
+  "operatingDatabaseChanged": false,
+  "realAiCalls": 0
+}

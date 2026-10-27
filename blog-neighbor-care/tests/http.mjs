@@ -76,17 +76,22 @@ try {
   await check('HTTP23 루트에서연결화면으로이동', async () => {
     const r = await fetch(origin, { redirect: 'manual' }); assert.equal(r.status, 307); assert.equal(r.headers.get('location'), '/reader');
   });
+  await check('HTTP24 프로필/후보분석회원인증401·캐시금지', async () => {
+    const r=await fetch(`${origin}/api/analysis`,{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({operation:'list',payload:{}})});
+    assert.equal(r.status,401);assert.match(r.headers.get('cache-control'),/no-store/);assert.match((await r.json()).error,/로그인/);
+  });
+  await check('HTTP25 분석GET실행차단405', async () => assert.equal((await fetch(`${origin}/api/analysis`)).status,405));
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
-  writeFileSync(new URL('../docs/evidence/reader-http-20261027.json', import.meta.url), JSON.stringify({
+  writeFileSync(new URL('../docs/evidence/analysis-http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 23, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 25, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 23);
-console.log('로컬 HTTP23개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 25);
+console.log('로컬 HTTP25개 통과·서버 종료, 실제키/로그인세션 사용0.');
