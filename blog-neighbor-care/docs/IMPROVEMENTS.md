@@ -1,10 +1,16 @@
 # 개선·검수 원장
 
-**미배포 대기 — 읽기확장(2026-10-27):** 소스/ZIP/검수 커밋 `083b10a0f`. 2026-10-27 본인글1개 읽기 연결 구현·ZIP 준비: 회원/확장API·원자적1회번호교환·공용계정읽기연결·activeTab본문확인후전달·중복/원래수명/정리, 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 신규운영4표·카탈로그/프로그램등록·Vercel배포·실제설치는미완료. [설치본/검수/배포승인안](IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 신규서버/회원권한을운영에열거나실제소통을켜지않음.
+**최신 배포:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF.
 
-**미배포 대기(2026-10-27):** 소스 커밋 `4f5e1e21a`. 자료미리보기API 추가·검색요약사전선별/회원제공본문 정리·단위31/HTTP12/타입/로컬빌드 통과. [검수/한계](IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md). 버전유지, 실제자료읽기/AI/프로그램등록 미완료.
+[운영 연결 화면](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [운영 ZIP](https://blog-neighbor-care.buylife.xyz/downloads/blog-neighbor-care-extension-latest.zip)
 
-2026-10-26 서버/DB1단계. **운영SQL 적용·읽기검수 완료 / 미배포대기**: 신규서버/API와6표/RPC, UI/회원프로그램등록·확장/정책검수이후배포. 실제버전상승/확장ZIP/DB버전등록없음.
+아래는 배포 전 준비 기록이며, 미완료 판정은 최신 결과를 우선합니다.
+
+**첫 배포에 포함 — 읽기확장(2026-10-27):** 소스/ZIP/검수 커밋 `083b10a0f`. 2026-10-27 본인글1개 읽기 연결 구현·ZIP 준비: 회원/확장API·원자적1회번호교환·공용계정읽기연결·activeTab본문확인후전달·중복/원래수명/정리, 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 신규운영4표·카탈로그/프로그램등록·Vercel배포·실제설치는미완료. [설치본/검수/배포승인안](IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 신규서버/회원권한을운영에열거나실제소통을켜지않음.
+
+**첫 배포에 포함 — 자료미리보기(2026-10-27):** 소스 커밋 `4f5e1e21a`. 자료미리보기API 추가·검색요약사전선별/회원제공본문 정리·단위31/HTTP12/타입/로컬빌드 통과. [검수/한계](IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md). 버전유지, 실제자료읽기/AI/프로그램등록 미완료.
+
+2026-10-26 서버/DB1단계. **운영SQL 적용·읽기검수 및 첫 배포에 포함**: 신규서버/API와6표/RPC, UI/회원프로그램등록·확장/정책검수이후배포. 실제버전상승/확장ZIP/DB버전등록없음.
 
 | ID | 근거·영향 | 처리 |
 |---|---|---|

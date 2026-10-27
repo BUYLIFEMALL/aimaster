@@ -1,5 +1,7 @@
 # 블로그 기능 상세 비교표 (기준 문서)
 
+**최신 이웃소통 v1.01 운영:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF. [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 이전미배포문단은당시기록.
+
 **이웃소통읽기설치본(2026-10-27):** [회원/확장연결·본인글1개읽기·확인후전달·원래수명/ZIP](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md) 로컬구현·단위54/SQL16/HTTP23통과. 신규운영SQL/프로그램등록/배포/설치·반복읽기/AI/신청·공감·댓글은미완료. 기존발행3방식표시는유지.
 
 **이웃소통GUI읽기(2026-10-27 01:08):** [본인블로그/본문표시·이웃새글·관계관리확인](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md). 전체이웃피드와서로이웃상태는별도. 자동추출/AI정독/신청·공감·댓글·쓰기허용/출시 검수아님. 기존발행3방식상태유지.

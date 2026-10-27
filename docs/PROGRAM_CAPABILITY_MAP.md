@@ -624,7 +624,10 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — 읽기확장/설치본 준비·운영 미등록
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.01 읽기 연결 시험 운영·실제설치검수대기
+
+- 최신: 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF.
+- 운영: https://blog-neighbor-care.buylife.xyz/reader · 보조: https://blog-neighbor-care.vercel.app/reader · 아래미등록기록은이전상태.
 - **읽기확장(10-27)**: [회원/기기연결·본인글1개확인후전달/원래수명/ZIP](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md), 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 추가reader4표/카탈로그·프로그램등록/배포·설치미검수. v1.01은첫릴리스예정값.
 - **GUI읽기(10-27 01:08):** 본인블로그·글목록/본문표시·전체이웃피드·관계관리의서로이웃/일반이웃구분을Edge실제페이지에서확인. [근거](../blog-neighbor-care/docs/evidence/readcheck-20261027.json). 확장자동추출/본문AI/운영연결/쓰기허용완료아님.
 - **자료미리보기(2026-10-27)**: [회원제공검색요약 사전선별/본문정리](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md), 단위31/HTTP12·타입/빌드통과·미배포. 네이버수집/계정검증/본문AI/관계판정/저장아님.

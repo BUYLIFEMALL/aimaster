@@ -1,11 +1,29 @@
-# 회원·확장 연결과 본인 글 1개 읽기 — 설치 시험 준비
+# 회원·확장 연결과 본인 글 1개 읽기 — 운영 반영 및 설치 시험
 
-2026-10-27 · Codex `codex-win-20261026-blog-check` [역할: blog]. **구현·로컬 검수·ZIP 준비 완료, 운영 미적용·미배포·실제 설치 미검수**입니다.
+2026-10-27 · Codex `codex-win-20261026-blog-check` [역할: blog]. **운영 반영·첫 배포 완료, 실제 회원·확장 설치 시험 미검수**입니다.
 
 - [확장 ZIP](../public/downloads/blog-neighbor-care-extension-latest.zip), 소스 `blog-neighbor-care/extension/` (같은 폴더 밖에 확장 사본 없음)
 - [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests)
-- 예정 운영: `https://blog-neighbor-care.buylife.xyz/reader`, 보조 `https://blog-neighbor-care.vercel.app/reader` — **아직 프로젝트/도메인 미등록·접속 검수 전**
+- [운영 연결 화면](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [운영 ZIP](https://blog-neighbor-care.buylife.xyz/downloads/blog-neighbor-care-extension-latest.zip)
 - 이번은 연결 시험 화면이며 정식 메인/상세/매뉴얼/설정 리뉴얼·디자인 시안 선택은 아닙니다. 정식4화면3시안·템플릿/영구자산 단계는 남아 있습니다.
+
+
+## 2026-10-27 운영 반영 결과 — 최신
+
+2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF.
+
+- 승인: 구체적 범위·비용 안내 후 사용자 「진행해」. 요청 f1991bed 처리 완료. 소스083b10a0f와 기존미리보기4f5e1e21a 포함, 배포 메타 커밋99c974c32. 새 푸시 없음.
+- Vercel production `dpl_Gw1fyVXxMQ2iJHL8cpLzV1WHbJWy`, READY, framework Next.js, 빌드27.3초(플랫폼 buildingAt→ready). 프로젝트 `prj_sofdvYyCKAKO5ymLTRZ0vHwYK9q8`, 팀buylife, Basic머신·동시빌드추가구매OFF. 운영/보조URL 정상HTTP200.
+- 신규SQL4표/RLS=true·RPC SECURITY INVOKER/빈search_path·anon/authenticated실행false/service_role실행true 확인. 본문만본인SELECT정책, 나머지3표회원접근정책없음은의도적. 보안advisor에서도이3표INFO만, 기존다른함수경고는이번변경범위밖이며전역보안완료로표시하지않음.
+- 프로그램e641f213-5062-4f64-83ec-c4650ccaa3e8·골드sort_order3·coming·is_active=true. 기존회원/등급권한수정0, 신규user_program_access/grade_program_access/pricing_plans행0. 실제트리거는premium배지/updated_at뿐이며VIP자동부여없음. 관리자는공용정책통과, 일반회원은기존구독/개별기간등공용정책대로이며임의우회하지않음.
+- 서버환경NEXT_PUBLIC_SUPABASE_URL/PUBLISHABLE_KEY·SUPABASE_SECRET_KEY·CRON_SECRET등록. 비밀값원문출력/문서/클라이언트반환0, 서비스키와Cron은sensitive설정. 일일Cron03:20UTC(12:20KST)활성확인, 첫예약실행/실제만료삭제는아직검수전.
+- HTTP확인: 루트307→/reader, reader200/미인증로그인안내, version200v1.01, ZIP200·8273bytes. 회원API401, 확장웹출처차단403, 무권한Cron401. 라이브ZIP7파일해제바이트=소스, 고정/버전ZIP·DB/확장버전검사OK. 아카이브타임스탬프때문에운영ZIP해시0a321d344b4d642db88fdd12941ec0a975dd34e7e87cea2ef9de6c29daef20d7은로컬해시와다르지만파일내용동일.
+- 배포후error레벨최근20분로그조회0건. 로그없음은실회원E2E성공근거아님. 운영자료4표0행·bnc_runtime.live_allowed=false유지.
+- Edge는실제전경1838288확인·네이버buylifemall로그인확인. 주소쓰기읽기성공과실제페이지이동을구분: Enter/클릭입력이전달되지않아현재DOM은기존네이버, 새reader로그인화면실검수아님. 브라우저주소직접열기실행은자동승인검토정책차단으로미실행. 사용자에게운영URL열기·화면종류확인1회요청, 재로그인반복요청하지않음.
+- 남은시험: 실제AIMaster회원계정/SSO→설치ZIP풀고Edge확장로드→연결→본인글1개읽기→본문확인→별도전달→받은자료재조회. 다른회원분리/정지/핸드폰실계정·다중서버/에디터별실물은후속. 네이버댓글/공감/이웃신청0, 유료AI0.
+- 비용: 승인Vercel production빌드1회사용·Basic27.3초, 실제청구액은팀사용량/포함량확인전미확정. 새로컬빌드0·AI0. 배포도우미가관리자ops_overview메타갱신1회. 디자인쇼케이스HTML/영구템플릿자산없음(정식4화면3시안미착수).
+
+아래의 「미실행」 적용안과 비용예상은 배포 전 검토 기록입니다. 현재 상태는 위 최신 결과를 우선합니다.
 
 ## 구현한 흐름
 
@@ -14,7 +32,7 @@
 3. 공용 `member_platform_accounts(platform=naver_blog,auth_method=browser_read)`를 재사용합니다. 별도 블로그계정 저장소를 만들지 않습니다. 새 카탈로그는 `account_set`이며 OAuth토큰은빈문자열입니다. 회원이 지정한블로그이지 네이버가 소유권/세션/게시권한을 인증한 연결이 아닙니다. 메타의 `ownership=member_declared,naver_session_verified=false`를 유지합니다.
 4. 회원이 네이버에서 본인 글 **1개의주소**를 열고 확장을 눌러 동의→읽기를 선택합니다. `activeTab`으로 현재 글의 제목/본문텍스트만 읽습니다. 본문 확인 후 별도 ‘보내기’ 클릭 전에는 서버에 본문을 저장하지 않습니다. 목록/편집기/다른블로그/모호한 여러본문/2만자 초과는 거절합니다. 이미지·댓글·알림·쿠키·비밀번호는 추출하지 않습니다.
 5. 서버가 회원/기기에 묶은5분 요청으로만 받습니다. 전송응답 유실 시 자동재시도 없이 ‘결과 확인’으로 조회합니다. 같은 요청은멱등이며 다른 기기·다른 요청번호라도 같은회원/글/내용은한건입니다. 수정본도 기존원본의 보관기한을 따릅니다.
-6. 받은자료는 회원별격리, 최초요청/원본생성부터30일. 만료즉시 조회를막고 정리RPC/일일Cron설정으로 물리삭제를준비했습니다. **Cron은미배포·미활성**이며 실제일일실행검수는남습니다. 기기해제/공용계정삭제는추가읽기를막되 이미받은본문의원래수명을지킵니다.
+6. 받은자료는 회원별격리, 최초요청/원본생성부터30일. 만료즉시 조회를막고 정리RPC/일일Cron설정으로 물리삭제를준비했습니다. **Cron은이번배포로활성**이며 실제일일실행검수는남습니다. 기기해제/공용계정삭제는추가읽기를막되 이미받은본문의원래수명을지킵니다.
 
 정기수집·이웃신청·공감·댓글·AI분석·발행기능을 추가하거나 `bnc_runtime.live_allowed`를 켜지 않았습니다. 이 읽기토큰으로 기존worker의observe/claim/arm/result를호출할수없습니다. 네이버반복수집/자동소통 허용근거가확보됐다고표시하지않습니다.
 

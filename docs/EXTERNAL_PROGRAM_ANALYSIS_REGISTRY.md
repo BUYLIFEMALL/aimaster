@@ -278,6 +278,8 @@
 
 #### EXT-BLOG-07 서이추&스댓공 Ai자동화 Ver3.5(공개용)
 
+> **최신 운영:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF. [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 아래미배포/미등록은이전기록.
+
 > **읽기설치본후속(2026-10-27):** 회원·공용계정/기기연결·본인글1개확인후전달·ZIP 로컬준비, 단위54/SQL16/HTTP23·타입/빌드통과([인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md)). 운영reader4표/프로그램등록/배포/설치·AI/자동소통은미완료.
 
 > **GUI읽기후속(2026-10-27 01:08):** 본인글목록/본문표시·이웃새글·관리표관계라벨의Edge실제페이지확인([근거](../blog-neighbor-care/docs/evidence/readcheck-20261027.json)). 자동추출/정독/반복자동읽기허용·쓰기·출시와구분.

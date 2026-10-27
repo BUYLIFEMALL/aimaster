@@ -1,5 +1,7 @@
 # AI 블로그 이웃 소통 자동화 — 담당 지침
 
+> **최신 운영(2026-10-27):** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF. [결과/남은시험](docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 아래 미배포 기록은 이전상태.
+
 > **2026-10-27 읽기확장 준비:** 회원·확장 연결/본인글1개 읽기 소스·ZIP·단위54/SQL16/HTTP23·타입/빌드검수 완료. **신규reader운영SQL/프로그램등록/배포/설치검수는아직미완료.** 다음담당은 [설치본/SQL·배포안/한계](docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md)를 먼저 읽습니다. 기존6표운영완료와 새reader4표미적용을구분합니다. v1.01은첫배포예정값이며릴리스완료표시가아닙니다.
 
 > **2026-10-27:** 회원제공자료 사전선별 API를 추가했습니다. 다음자료작업전 [미리보기 계약/검수·한계](docs/IMPROVEMENT_HANDOFF_20261027_MATERIAL_PREVIEW.md)를 읽습니다. 단위31/HTTP12·타입/빌드통과, 미배포. 실제본문/계정/AI 검수는미완료.

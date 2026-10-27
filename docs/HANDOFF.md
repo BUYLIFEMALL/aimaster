@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 [역할: blog] Codex — reader v1.01 운영 적용·첫 배포 완료
+- [운영 연결 화면](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [운영 ZIP](https://blog-neighbor-care.buylife.xyz/downloads/blog-neighbor-care-extension-latest.zip)
+- 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF.
+- 배포dpl_Gw1fyVXxMQ2iJHL8cpLzV1WHbJWy·Next·productionReady·Basic27.3초·추가동시빌드OFF. 소스083b10a0f/미리보기4f5e1e21a포함, 배포메타99c974c32, 푸시0.
+- 회원/등급권한수정0·신규권한/요금제행0·runtime=false. 기밀값출력0, Cron일1회활성/첫실행미검수, 로그error최근20분0건.
+- 다음: 사용자에게운영URL열기요청(Edge주소는입력됐으나Enter전달안됨), 실제SSO·확장설치/연결·본문확인후전달시험. 배포승인f1991bed처리완료, 본인네이버로그인완료상태유지.
+- 비용: Vercel빌드1회사용(승인범위)·실제청구미확정, AI0·새로컬빌드0·게시0. 자세한근거는프로그램[설치/운영인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md).
+
 ## 2026-10-27 [역할: blog] Codex — 네이버 재로그인 완료·본인 블로그 이동 확인
 - 10:49 사용자 직접 로그인 후 실제 Edge 네이버 홈의 buylifemall@naver.com·로그아웃 확인, 내 블로그 링크 클릭 후 blog.naver.com/buylifemall 이동 확인. 직전 로그인 오류 해소, 추가 네이버 로그인 요청 불필요.
 - 새 reader 운영 연결/설치 시험은 미완료·운영반영 승인 f1991bed 대기 유지. 계정요청7eba의 웹/확장 일치만 남음. 비밀번호 취급/쓰기/설정변경0, 유료호출/빌드/배포0.
