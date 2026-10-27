@@ -95,3 +95,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 오래 열어 둔 탭은 Vercel이 그 탭을 연 시점 배포로 「보내기」를 처리해 옛 칸 목록이 생긴다(실제: 고시 A/S 전화 빈 칸). 저장 때 `withBuilderMark`(세대 `STEP_BUILDER`=1), `/api/extension/task`가 `isCurrentBuild` 아니면 실행 안 하고 「오래된 화면」으로 기록, 넘길 때 `withoutBuilderMark`. **칸 구성을 바꾸면 `STEP_BUILDER`를 올릴 것.** 배포 `m22lvumg4`, v1.11 OK.
 - 재시험(16:12·16:18, 최신 탭): 「만든 세대」 표시 있음, 배송 템플릿 「바이라이프」 단계 포함, 「입력만」 실패 칸 0 → 템플릿 고르기 시험 통과(작업 기록 기준).
 - 주인님 화면 확인(2026-10-27): 배송 칸에 템플릿 「바이라이프」 값(CJ대한통운·묶음배송 불가·조건부 무료·기본 배송비 4,000원 — 직접 입력 기본값 3,000원과 달라 템플릿 적용 확인), 추가이미지 2/9.
+
+## 2026-10-27 v1.12·v1.13 — 옵션 자동 입력 (엑셀 일괄등록)
+- 플랜 [`docs/PLAN_20261027_OPTIONS.md`](docs/PLAN_20261027_OPTIONS.md). 화면 `src/components/OptionEditor.tsx`(보내기 칸 안, 쓰지 않음/단독형/조합형, 옵션명 3개까지, 조합별 옵션가·재고), 계산 `src/lib/smartstore/options.ts`(25자·10원 단위·0원 조합 규칙, 양식 모양 행), 저장은 새 DB 칸 없이 작업 `options` 단계 값(JSON) + 마지막 보낸 옵션 다시 채우기(`getLastOptions`), 서버 `/api/extension/task`가 `xlsx`로 .xls(biff8) 만들어 `optionFile`로 보냄, 확장 `optionsMain`(MAIN, 옵션 칸 범위에서 「설정함」→「엑셀 일괄등록」→단독/조합→「엑셀 일괄등록하기」 파일 칸 click 가로채기→옵션목록 「총 N개」 확인). 동작 `options` 확장 v1.12 이상, `STEP_BUILDER` 2.
+- 배포 v1.12 `7blp17f02`, v1.13 `gefdo1s9o`(옵션 입력 칸 배치 수정), DB·확장·ZIP v1.13 OK, 시험 13개. **실제 시험(17:10) 판매자센터 옵션목록 「총 2개」(블랙·그레이, 0원·99개) 주인님 화면 확인.**
