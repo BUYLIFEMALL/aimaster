@@ -99,7 +99,7 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         {fee !== "RANGE" && <><input type="hidden" name="rangeUpTo" value={initial.rangeUpTo ?? ""} /><input type="hidden" name="rangeExtraFee" value={initial.rangeExtraFee ?? ""} /></>}
         <div>
           <label className="slw-label" htmlFor="payType">결제방식</label>
-          <select id="payType" name="payType" defaultValue={initial.payType} className="slw-field">
+          <select key={initial.payType} id="payType" name="payType" defaultValue={initial.payType} className="slw-field">
             <option value="">판매자센터 기본값 그대로</option>
             <option value="선결제">선결제</option>
             <option value="착불">착불</option>
@@ -108,7 +108,7 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         </div>
         <div>
           <label className="slw-label" htmlFor="bundle">묶음배송</label>
-          <select id="bundle" name="bundle" defaultValue={initial.bundle} className="slw-field">
+          <select key={initial.bundle} id="bundle" name="bundle" defaultValue={initial.bundle} className="slw-field">
             <option value="">판매자센터 기본값 그대로</option>
             <option value="가능">가능</option>
             <option value="불가">불가(개별계산)</option>
@@ -116,7 +116,7 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         </div>
         <div>
           <label className="slw-label" htmlFor="installFee">별도 설치비</label>
-          <select id="installFee" name="installFee" defaultValue={initial.installFee} className="slw-field">
+          <select key={initial.installFee} id="installFee" name="installFee" defaultValue={initial.installFee} className="slw-field">
             <option value="">판매자센터 기본값 그대로</option>
             <option value="없음">없음</option>
             <option value="있음">있음</option>
@@ -124,7 +124,7 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         </div>
         <div>
           <label className="slw-label" htmlFor="jejuMode">제주/도서산간 추가배송비</label>
-          <select id="jejuMode" name="jejuMode" defaultValue={initial.jejuMode} onChange={(e) => setJeju(e.target.value as typeof jeju)} className="slw-field">
+          <select key={initial.jejuMode} id="jejuMode" name="jejuMode" defaultValue={initial.jejuMode} onChange={(e) => setJeju(e.target.value as typeof jeju)} className="slw-field">
             <option value="">판매자센터 기본값 그대로</option>
             <option value="off">설정안함</option>
             <option value="2">설정함 · 2권역</option>
@@ -198,7 +198,7 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
 
       <div className="sm:col-span-2">
         <label className="slw-label" htmlFor="childCert">어린이제품인증</label>
-        <select id="childCert" name="childCert" defaultValue={initial.childCert} className="slw-field">
+        <select key={initial.childCert} id="childCert" name="childCert" defaultValue={initial.childCert} className="slw-field">
           <option value="">판매자센터 기본값 그대로</option>
           <option value="not_target">인증대상 아님(성인용 상품)</option>
         </select>
