@@ -61,6 +61,8 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
     queuedPermit=await post('reserve',{id,page:next.page});
     if(!/^[a-f0-9]{64}$/.test(queuedPermit.nonce||'')||!Number.isFinite(Date.parse(queuedPermit.validUntil))||Date.parse(queuedPermit.validUntil)<=now())throw Error('다음 페이지 읽기 허가를 확인하지 못했습니다.');
     await active(target);
+    const beforeNavigation=await identity();
+    if(beforeNavigation.deviceId!==who.deviceId||beforeNavigation.blogId!==who.blogId||Date.parse(queuedPermit.validUntil)<=now())throw Error('다음 페이지 이동 전에 연결 또는 허가가 변경됐습니다.');
     if(source.kind==='shell'){
       const advanced=await browser.scripting.executeScript({target:{tabId:tab.id,allFrames:true},func:advanceVisibleNeighborPage,args:[who.blogId,snapshot.url,next.url]});
       if(advanced.filter(r=>r.result?.advanced).length!==1)throw Error('검증된 다음 목록 링크를 하나로 확인하지 못했습니다.');

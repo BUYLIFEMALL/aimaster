@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-27T15:06:42.240Z",
+  "checkedAt": "2026-10-27T15:22:29.425Z",
   "tests": [
     "IDB01 five tables RLS, private RPC, read gate default off and non-writable by service",
     "IDB02 missing platform permission blocks start without page reservation",
@@ -14,12 +14,16 @@
     "IDB11 expired nonce/run and revoked device or policy revision block writes",
     "IDB12 RLS hides other member directory; bulk toggle is atomic with count guard",
     "IDB13 member and extension HTTP handlers call actual SQL with server-bound identity/nonce",
+    "IDB15 controller -> serialized DOM -> 3 frame pages -> HTTP -> SQL -> member confirmation",
+    "IDB16 explicit empty DOM completes zero-row request without deleting existing neighbors",
+    "IDB17 loading placeholder and RSS row never upload or produce ready imports",
+    "IDB18 page-two tab change leaves exact partial receipt; confirm blocked, cancellation preserves directory",
     "IDB14 expiry cleanup deletes temporary source and receipts but preserves minimal member settings"
   ],
-  "passed": 14,
-  "expected": 14,
+  "passed": 18,
+  "expected": 18,
   "containerStopped": true,
   "operatingDatabaseChanged": false,
   "realCredentialsUsed": false,
-  "fixture": "Isolated PostgreSQL17, network none, no published ports; HTTP handlers + actual SQL, not production PostgREST"
+  "fixture": "Isolated PostgreSQL17, network none, no published ports; real controller + serialized DOM (linkedom layout stub) + HTTP handlers + actual SQL; not installed extension or production PostgREST"
 }

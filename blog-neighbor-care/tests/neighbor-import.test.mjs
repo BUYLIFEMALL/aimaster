@@ -112,3 +112,18 @@ test('NI20 iframe pagination clicks only exact safe next-page anchors, never for
  const run=(href,label='2')=>{const {document}=parseHTML(`<body><a href="${href}">${label}</a><button>삭제</button></body>`);let clicked=0;document.querySelector('a').getClientRects=()=>[{}];document.querySelector('a').click=()=>clicked++;const result=vm.runInNewContext(`(${advanceVisibleNeighborPage.toString()})('owner',${JSON.stringify(current)},${JSON.stringify(next)})`,{document,location:{href:current},URL});return {result,clicked};};
  assert.equal(run(next).clicked,1);for(const href of ['javascript:deleteBuddy()','https://evil.example/?currentPage=2',actualUrl+'&currentPage=3'])assert.equal(run(href).clicked,0);
 });
+
+test('NI21 explicit zero list must include rendered empty-state proof, never loading/error/absent rows',()=>{
+ const empty=actualShape({count:0}).replace('<tbody></tbody>','<tbody><tr><td colspan="7">등록된 이웃이 없습니다.</td></tr></tbody>');
+ assert.equal(inspect(empty,actualUrl).ok,true);
+ for(const text of ['불러오는 중입니다.','목록 조회에 실패했습니다.','잠시 후 다시 시도해 주세요.'])assert.equal(inspect(empty.replace('등록된 이웃이 없습니다.',text),actualUrl).ok,false);
+ assert.equal(inspect(actualShape({count:0}),actualUrl).ok,false);
+});
+
+test('NI22 device change after next-page reservation prevents navigation as well as capture',async()=>{
+ const f=engine();let reservations=0,navigations=0;
+ const original=f.browser.tabs.update;f.browser.tabs.update=async(...args)=>{navigations++;return original(...args);};
+ const post=async(op,p)=>{if(op==='reserve'){if(++reservations===2)f.state.identity={...f.state.identity,deviceId:'changed'};return {nonce:'b'.repeat(64),validUntil:new Date(100000).toISOString()};}if(op==='page')return {id,state:'capturing',lastPage:1};return {id,state:'capturing',lastPage:0};};
+ const handle=createNeighborImporter(f.browser,post,async()=>f.state.identity,()=>0,async()=>{});
+ await assert.rejects(handle({type:'neighbors_read',ownerConfirmed:true}));assert.equal(navigations,0);assert.equal(f.state.reads,1);
+});

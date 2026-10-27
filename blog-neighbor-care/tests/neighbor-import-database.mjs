@@ -3,6 +3,10 @@ import {execFileSync,spawn} from 'node:child_process';
 import {randomUUID,createHash} from 'node:crypto';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {createNeighborImportHandler} from '../src/lib/neighbors/importApi.ts';
+import vm from 'node:vm';
+import {parseHTML} from 'linkedom';
+import {createReaderController,SITE} from '../extension/background.mjs';
+import {managementFixture,shellFixture,fixtureListUrl} from './fixtures/neighbor-import.mjs';
 const container=execFileSync('docker',['run','--pull','never','--rm','-d','--network','none','--label','aimaster.bnc-import-test=true','-e','POSTGRES_HOST_AUTH_METHOD=trust','postgres:17-alpine'],{encoding:'utf8',windowsHide:true}).trim();
 assert.match(container,/^[a-f0-9]{64}$/);
 const args=['exec','-i',container,'psql','-X','-q','-A','-t','-v','ON_ERROR_STOP=1','-U','postgres'];
@@ -120,13 +124,60 @@ try{
   assert.equal((await send(web,'confirm',{id,confirmed:true})).status,200);assert.equal(directory(m).total,2);
   assert.equal((await send(ext,'confirm',{id,confirmed:true})).status,400);assert.equal((await send(web,'reserve',{id,page:1})).status,400);
  });
+ function pipeline(m,config={}){
+  const token='a'.repeat(64),session={},events=[];let page=1;
+  const state={page:1,active:true};const top=`https://admin.blog.naver.com/${m.blog}`;
+  const local={token},storage=data=>({get:async k=>({[k]:data[k]}),set:async patch=>Object.assign(data,patch),remove:async k=>{delete data[k];},setAccessLevel:async()=>{}});
+  const deps={member:async()=>({allowed:true,userId:m.user}),user:async()=>({allowed:true,userId:m.user}),device:async()=>({userId:m.user,deviceId:m.device}),rpc:async(user,op,p)=>{events.push(op);try{return {data:rpc({user},op,p),error:null};}catch(e){return {data:null,error:{message:e.message}};}}};
+  const ext=createNeighborImportHandler(deps,true),web=createNeighborImportHandler(deps);
+  const sender={id:'fixture-extension',url:'chrome-extension://fixture-extension/popup.html'};
+  const browser={runtime:{id:sender.id,getURL:p=>`chrome-extension://fixture-extension/${p}`},storage:{local:storage(local),session:storage(session)},windows:{get:async()=>({focused:true})},tabs:{query:async()=>[{id:7,windowId:1,url:top,active:state.active}],get:async()=>({id:7,url:top,status:'complete'})},scripting:{executeScript:async({func,args})=>{
+   if(func.name==='advanceVisibleNeighborPage')assert.equal(events.at(-1),'reserve');
+   events.push(func.name);
+   const execute=(html,url)=>{const {document}=parseHTML(html);document.querySelectorAll('*').forEach(e=>{e.getClientRects=()=>[{}];});document.querySelectorAll('a[href]').forEach(a=>{a.click=()=>{const next=new URL(a.getAttribute('href'));page=Number(next.searchParams.get('currentPage'));state.page=page;};});document.readyState='complete';return vm.runInNewContext(`(${func.toString()})(...args)`,{document,location:{href:url},URL,args});};
+   const results=[{frameId:0,result:execute(shellFixture(m.blog),top)},{frameId:1,result:execute(managementFixture({blogId:m.blog,page,...config}),fixtureListUrl(m.blog,page))}];
+   config.afterScript?.(func.name,state);return results;
+  }}};
+  const fetcher=async(url,options)=>{
+   if(url===SITE+'/api/reader/extension'){assert.equal(JSON.parse(options.body).operation,'whoami');return Response.json({data:{deviceId:m.device,blogId:m.blog}});}
+   assert.equal(url,SITE+'/api/neighbors/import/extension');return ext(new Request(url,options));
+  };
+  const handle=createReaderController(browser,fetcher);
+  return {events,session,state,read:()=>handle({type:'neighbors_read',ownerConfirmed:true},sender),web:async(operation,payload)=>web(new Request(SITE+'/api/neighbors/import/member',{method:'POST',headers:{'content-type':'application/json',origin:SITE},body:JSON.stringify({operation,payload})}))};
+ }
+ await check('IDB15 controller -> serialized DOM -> 3 frame pages -> HTTP -> SQL -> member confirmation',async()=>{
+  const m=member(),f=pipeline(m),result=await f.read();assert.equal(result.state,'ready');assert.equal(result.capturedCount,125);assert.equal(directory(m).total,0);
+  assert.equal(f.events.filter(e=>e==='advanceVisibleNeighborPage').length,2);assert.equal(f.events.filter(e=>e==='reserve').length,3);
+  assert.equal(sql(`select used from public.bnc_neighbor_import_daily where user_id=${q(m.user)};`),'3');
+  const get=await(await f.web('get',{id:result.id})).json();assert.equal(get.data.rows.length,51);assert.equal(get.data.totalPages,3);
+  assert.equal((await f.web('confirm',{id:result.id,confirmed:true})).status,200);const d=directory(m);assert.equal(d.total,125);assert.equal(d.records.length,51);
+  let cursor=null,records=[];for(let i=0;i<3;i++){const data=rpc(m,'directory',{account_id:m.account,cursor});const batch=data.records.slice(0,50);records.push(...batch);cursor=batch.at(-1)?.neighbor_id;}
+  assert.equal(new Set(records.map(r=>r.neighbor_id)).size,125);assert.equal(records.filter(r=>r.new_posts_enabled).length,63);assert.equal(records.filter(r=>r.return_visits_enabled).length,63);
+  assert.equal(JSON.stringify(f.session).includes('fixture-neighbor'),false);assert.equal(sql('select count(*) from public.bnc_neighbors;'),'0');
+ });
+ await check('IDB16 explicit empty DOM completes zero-row request without deleting existing neighbors',async()=>{
+  const m=member(),first=start(m);put(m,first,snap(m,rows));rpc(m,'confirm',{id:first});
+  const f=pipeline(m,{total:0,pages:1}),result=await f.read();assert.equal(result.state,'ready');assert.equal(result.capturedCount,0);
+  const confirm=await(await f.web('confirm',{id:result.id,confirmed:true})).json();assert.equal(confirm.data.count,0);assert.equal(directory(m).total,2);assert.equal(f.events.filter(e=>e==='reserve').length,1);
+ });
+ await check('IDB17 loading placeholder and RSS row never upload or produce ready imports',async()=>{
+  for(const config of [{total:0,pages:1,emptyText:'불러오는 중입니다.'},{rss:true}]){
+   const m=member(),f=pipeline(m,config);await assert.rejects(f.read());assert.equal(f.events.includes('page'),false);assert.equal(directory(m).total,0);
+   const id=f.session.neighborImport.id;assert.equal(rpc(m,'get',{id}).state,'capturing');assert.equal((await f.web('cancel',{id})).status,200);
+  }
+ });
+ await check('IDB18 page-two tab change leaves exact partial receipt; confirm blocked, cancellation preserves directory',async()=>{
+  let captures=0;const m=member(),f=pipeline(m,{afterScript:(name,state)=>{if(name==='inspectVisibleNeighbors'&&++captures===2)state.active=false;}});
+  await assert.rejects(f.read());const id=f.session.neighborImport.id,receipt=rpc(m,'get',{id});assert.equal(receipt.state,'capturing');assert.equal(receipt.lastPage,1);assert.equal(receipt.capturedCount,50);assert.equal(f.events.filter(e=>e==='page').length,1);
+  assert.equal((await f.web('confirm',{id,confirmed:true})).status,409);assert.equal(directory(m).total,0);assert.equal((await f.web('cancel',{id})).status,200);assert.equal(rpc(m,'get',{id}).rows.length,0);
+ });
  await check('IDB14 expiry cleanup deletes temporary source and receipts but preserves minimal member settings',()=>{
   sql(`update public.bnc_neighbor_import_pages set expires_at=now()-interval '1 second';`);rpc(null,'cleanup');assert.equal(sql('select count(*) from public.bnc_neighbor_import_pages;'),'0');
   sql(`update public.bnc_neighbor_imports set expires_at=now()-interval '1 second';`);rpc(null,'cleanup');assert.equal(sql('select count(*) from public.bnc_neighbor_imports;'),'0');assert.equal(directory(owner).total,3);
   assert.equal(sql(`select count(*) from public.bnc_neighbor_directory where user_id=${q(owner.user)} and last_import_id is not null;`),'0');
  });
- assert.equal(tests.length,14);
+ assert.equal(tests.length,18);
 }finally{
  removed=execFileSync('docker',['rm','-f',container],{encoding:'utf8'}).trim()===container;
- writeFileSync(new URL('../docs/evidence/neighbor-import-database-20261027.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),tests,passed:tests.length,expected:14,containerStopped:removed,operatingDatabaseChanged:false,realCredentialsUsed:false,fixture:'Isolated PostgreSQL17, network none, no published ports; HTTP handlers + actual SQL, not production PostgREST'},null,2)+'\n');
+ writeFileSync(new URL('../docs/evidence/neighbor-import-database-20261027.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),tests,passed:tests.length,expected:18,containerStopped:removed,operatingDatabaseChanged:false,realCredentialsUsed:false,fixture:'Isolated PostgreSQL17, network none, no published ports; real controller + serialized DOM (linkedom layout stub) + HTTP handlers + actual SQL; not installed extension or production PostgREST'},null,2)+'\n');
 }

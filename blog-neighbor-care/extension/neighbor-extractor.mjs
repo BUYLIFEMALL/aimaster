@@ -39,9 +39,12 @@ export function inspectVisibleNeighbors(expectedBlogId) {
     const relationIndex=names.indexOf('이웃전체'),blogIndex=names.indexOf('이웃');if(blogIndex<0)return fail('columns_not_confirmed');
     const totals=[...new Set([...body.matchAll(/정렬된\s*이웃\s*([\d,]+)\s*명/g)].map(m=>Number(m[1].replaceAll(',',''))))];
     if(totals.length!==1||!Number.isInteger(totals[0])||totals[0]<0||totals[0]>5000)return fail('total_not_confirmed');
-    const totalCount=totals[0],rows=[];
+    const totalCount=totals[0],rows=[];let emptyProof=false;
     for(const tr of trs.slice(1).filter(visible)){
-      const tds=cells(tr);if(totalCount===0&&tds.length===1)continue;
+      const tds=cells(tr);if(totalCount===0&&tds.length===1){
+        if(emptyProof||Number(tds[0].getAttribute('colspan'))!==names.length||!/^(?:등록된|추가한)?이웃이없습니다[.!]?$/.test(clean(tds[0])))return fail('empty_list_not_confirmed');
+        emptyProof=true;continue;
+      }
       if(tds.length!==names.length)return fail('columns_not_confirmed');
       let label=clean(tds[relationIndex]).replace(/[♡♥]/g,'');
       if(!label){const labels=[...new Set([...tds[relationIndex].querySelectorAll('img[alt]')].filter(visible).map(e=>e.getAttribute('alt')))];if(labels.length===1)label=labels[0];}
@@ -49,6 +52,7 @@ export function inspectVisibleNeighbors(expectedBlogId) {
       const ids=[...new Set([...tds[blogIndex].querySelectorAll('a[href]')].filter(visible).map(a=>{try{const u=new URL(a.getAttribute('href'),location.href),m=/^\/([a-z0-9_-]{1,50})\/?$/i.exec(u.pathname);return ['http:','https:'].includes(u.protocol)&&u.hostname==='blog.naver.com'&&!u.username&&!u.password&&!u.port&&m?m[1].toLowerCase():null;}catch{return null;}}).filter(Boolean))];
       if(!relation||ids.length!==1||ids[0]===expectedBlogId)return fail('row_not_confirmed');rows.push({blogId:ids[0],relation});
     }
+    if(totalCount===0&&(!emptyProof||rows.length))return fail('empty_list_not_confirmed');
     if(rows.length>100||new Set(rows.map(r=>r.blogId)).size!==rows.length||(totalCount>0&&!rows.length))return fail('ambiguous_rows');
     let totalPages=1,nextUrl=null;
     if(rows.length!==totalCount||page!==1){

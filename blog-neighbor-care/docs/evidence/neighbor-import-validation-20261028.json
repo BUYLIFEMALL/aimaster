@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-10-27T15:26:54.361Z",
+  "unitTests": 144,
+  "isolatedImportDatabaseTests": 18,
+  "httpTests": 39,
+  "typecheck": true,
+  "newNextBuilds": 0,
+  "previewBundleBuilds": 2,
+  "zip": {
+    "files": 9,
+    "sourceBytesMatched": true,
+    "version": "v1.01"
+  },
+  "operatingDatabaseChanges": 0,
+  "deployments": 0,
+  "realAiCalls": 0,
+  "installedExtensionUpdated": false,
+  "actualNaverNeighborsImported": 0,
+  "readPolicyEnabled": false,
+  "scope": "Synthetic fixtures only; real controller + serialized DOM + HTTP handlers + isolated PostgreSQL, plus native Edge real DOM + synthetic backend. Not installed-extension or production PostgREST validation.",
+  "reproducedBeforeFix": [
+    "Loading/error/absent empty row wrongly accepted as zero",
+    "Device change after reserve allowed next-page navigation before rejection"
+  ],
+  "fixed": [
+    "Explicit rendered zero-state proof required",
+    "Identity and permit checked again before next navigation"
+  ],
+  "nativeEdge": {
+    "windowId": 1838288,
+    "existingWindowNewTab": true,
+    "syntheticOnly": true,
+    "stages": [
+      {
+        "key": "multi",
+        "ok": true,
+        "result": [
+          "343 텍스트 통과 · 3페이지 / 125명 · ready · 자동 반영 없음",
+          "344 텍스트 가져오기 시작 · 합성 응답 페이지 허가: 1 화면 읽기: 1페이지 임시 전송: 1페이지 · 50명 · 합계 50명 페이지 허가: 2 이동 전 허가 확인: 2페이지 화면 읽기: 2페이지 임시 전송: 2페이지 · 50명 · 합계 100명 페이지 허가: 3 이동 전 허가 확인: 3페이지 화면 읽기: 3페이지 임시 전송: 3페이지 · 25명 · 합계 125명"
+        ],
+        "screenshot": "1-multi.png"
+      },
+      {
+        "key": "empty",
+        "ok": true,
+        "result": [
+          "95 텍스트 통과 · 명시적 빈 목록 / 0명 · ready · 자동 반영 없음",
+          "96 텍스트 가져오기 시작 · 합성 응답 페이지 허가: 1 화면 읽기: 1페이지 임시 전송: 1페이지 · 0명 · 합계 0명"
+        ],
+        "screenshot": "2-empty.png"
+      },
+      {
+        "key": "loading",
+        "ok": true,
+        "result": [
+          "95 텍스트 통과 · 미확인 목록 차단 · 전송 0명 · 이웃 목록의 계정·관계·전체 범위를 하나로 확인하지 못했습니다. 지원 화면 검수가 필요합니다.",
+          "96 텍스트 가져오기 시작 · 합성 응답 페이지 허가: 1 화면 읽기: 1페이지"
+        ],
+        "screenshot": "3-loading.png"
+      },
+      {
+        "key": "rss",
+        "ok": true,
+        "result": [
+          "103 텍스트 통과 · 미확인 목록 차단 · 전송 0명 · 이웃 목록의 계정·관계·전체 범위를 하나로 확인하지 못했습니다. 지원 화면 검수가 필요합니다.",
+          "104 텍스트 가져오기 시작 · 합성 응답 페이지 허가: 1 화면 읽기: 1페이지"
+        ],
+        "screenshot": "4-rss.png"
+      }
+    ]
+  },
+  "databaseCoverage": [
+    "125 unique rows across 3 pages; per-page reserve before navigation; explicit member confirmation; 50-row cursors; target defaults63/62",
+    "Explicit zero import preserves previous directory rows",
+    "Loading/RSS reject before upload",
+    "Page2 active-tab loss leaves exactly50 staged; confirmation blocked; cancellation deletes staged rows"
+  ]
+}
