@@ -41,10 +41,12 @@ export function OptionEditor({ initial, defaultStock }: { initial: unknown; defa
       {mode !== "none" && (
         <div className="space-y-1.5">
           {rows.map((r, i) => (
-            <div key={i} className="flex gap-1.5">
-              <input value={r.name} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="옵션명 예: 색상" maxLength={25} className="slw-field w-24 shrink-0" />
-              <input value={r.text} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} placeholder="옵션값 예: 빨강, 파랑 (쉼표로 구분)" className="slw-field min-w-0 flex-1" />
-              {rows.length > 1 && <button type="button" onClick={() => setRows(rows.filter((_, j) => j !== i))} className="slw-btn shrink-0 px-2" aria-label="옵션 줄 빼기">✕</button>}
+            <div key={i} className="space-y-1 rounded-lg border border-slate-200 p-1.5">
+              <div className="flex items-center gap-1.5">
+                <input value={r.name} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="옵션명 예: 색상" maxLength={25} className="slw-field" />
+                {rows.length > 1 && <button type="button" onClick={() => setRows(rows.filter((_, j) => j !== i))} className="slw-btn shrink-0 px-2" aria-label="옵션 줄 빼기">✕</button>}
+              </div>
+              <input value={r.text} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} placeholder="옵션값 예: 빨강, 파랑 (쉼표로 구분)" className="slw-field" />
             </div>
           ))}
           {rows.length < OPTION_GROUPS_MAX && <button type="button" onClick={() => setRows([...rows, { name: "", text: "" }])} className="slw-btn text-xs">＋ 옵션명 추가</button>}
