@@ -790,6 +790,24 @@ function optionStateMain() {
   return { ok: true, optionCount: m ? Number(m[1]) : -1, customOn: !!(custom && custom.checked) };
 }
 
+// 옵션 진단(2026-10-28, 읽기만) — 옵션목록 글자·직접입력형 칸이 문서에 몇 개 있고 어느 것이 보이는지
+function optionDiagMain() {
+  const vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const lists = [...document.querySelectorAll('label, div, span, p, strong, em')]
+    .filter((e) => e.children.length < 4 && /^옵션목록\s*\(총/.test((e.textContent || '').trim()))
+    .map((e) => `${e.tagName.toLowerCase()}${vis(e) ? '보임' : '숨김'}:${((e.textContent || '').match(/총\s*(\d+)/) || [])[1]}`);
+  const ids = [...document.querySelectorAll('[id="option_direct_type_true"]')]
+    .map((e) => `${e.tagName.toLowerCase()}/${e.type || ''}${vis(e) ? '보임' : '숨김'}${vis(e.parentElement) ? '+부모보임' : ''}${e.checked ? '+켜짐' : ''}`);
+  const labs = [...document.querySelectorAll('label[for="option_direct_type_true"]')].map((l) => (vis(l) ? '보임' : '숨김'));
+  const custHead = [...document.querySelectorAll('label, th, div, span')].find((e) => e.children.length < 3 && vis(e) && (e.textContent || '').trim() === '직접입력형');
+  let btns = '';
+  for (let box = custHead?.parentElement, up = 0; box && up < 4 && !btns; up++, box = box.parentElement) {
+    const b = [...box.querySelectorAll('button, a, label, input')].filter((x) => vis(x) && /설정함|설정안함/.test(x.textContent || x.value || ''));
+    if (b.length) btns = b.map((x) => `${x.tagName.toLowerCase()}${x.getAttribute('for') ? '[for=' + x.getAttribute('for') + ']' : ''}${x.getAttribute('ng-click') ? '[click=' + x.getAttribute('ng-click').slice(0, 40) + ']' : ''}:${(x.textContent || '').trim()}`).join(',');
+  }
+  return { ok: true, text: `옵션목록[${lists.join(' ')}] 직접입력형id[${ids.join(' ')}] 라벨[${labs.join(',')}] 버튼[${btns || '못찾음'}]` };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -1095,6 +1113,10 @@ async function runJob(job) {
     }
 
     await traceOpt('끝');
+    if (job.optionFile || job.steps.some((x) => x.key === 'custom_options')) {
+      const dg = await runMain(tabId, optionDiagMain, {}).catch(() => null);
+      if (dg?.text) failures.push('진단 — ' + dg.text.slice(0, 400));
+    }
     if (job.optionFile && lastOpt !== job.optionFile.rows) failures.push(`옵션 — 끝났을 때 목록 ${lastOpt}줄(보낸 것 ${job.optionFile.rows}줄). 개수 변화: ${optTrace.join(' → ')}`);
 
     const submit = job.steps.find((s) => s.action === 'button');
