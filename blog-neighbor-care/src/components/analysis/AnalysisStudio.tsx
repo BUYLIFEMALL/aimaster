@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ModelPicker } from './ModelPicker';
+import { CandidateSearch } from './CandidateSearch';
 import { selectionForProvider, isAnalysisSelection } from '../../lib/analysis/modelSelection';
 import { analysis, request, blankPreferences, date, stateLabels, pendingIds, rememberPending, AnalysisResponseError, type Preferences, type Profile, type AnalysisJob, type JobSummary, type Material } from '../../lib/analysis/client';
 
@@ -121,7 +122,14 @@ export function AnalysisStudio({ userId, mode }: { userId: string; mode: 'profil
       </> : <>
         <label className="field">확인한 내 프로필<select disabled={busy} value={profileId} onChange={e => { setProfileId(e.target.value); setConfirmed(false); }}><option value="">프로필을 선택해 주세요</option>{checkedProfiles.map(p => <option key={p.id} value={p.id}>{date(p.created_at)} · 확인본 {p.revision}</option>)}</select></label>
         {checkedProfiles.length === 0 && <p><Link href="/studio">내 프로필을 먼저 확인해 주세요 ↗</Link></p>}
-        <p>블로그당 3~5개 글, 전체 최대 20개입니다. 후보 검색과 자동 본문 가져오기는 아직 제공하지 않습니다.</p>
+        <CandidateSearch key={profileId} profileId={profileId} disabled={busy} onPick={lead => {
+          const index = posts.findIndex(post => !post.url.trim() && !post.body.trim());
+          if (index < 0 && posts.length >= 20) return false;
+          const post = { url: lead.url, title: lead.title, body: '', rightsConfirmed: false };
+          setPosts(values => index < 0 ? [...values, post] : values.map((value, i) => i === index ? post : value));
+          setConfirmed(false); setRights(false); return true;
+        }} />
+        <div className="divider" /><h3>평가에 사용할 실제 본문</h3><p>블로그당 3~5개 글, 전체 최대 20개입니다. 검색 요약을 본문으로 사용하지 않으며, 자동 본문 가져오기는 아직 제공하지 않습니다.</p>
         <div className="post-inputs">{posts.map((post, index) => <fieldset key={index} disabled={busy} className="post-input"><legend>후보 글 {index + 1}</legend><label className="field">네이버 글 주소<input type="url" maxLength={2048} value={post.url} onChange={e => { setPosts(values => values.map((p, i) => i === index ? { ...p, url: e.target.value } : p)); setConfirmed(false); }} placeholder="https://blog.naver.com/블로그ID/글번호" /></label><label className="field">제목<input maxLength={500} value={post.title} onChange={e => { setPosts(values => values.map((p, i) => i === index ? { ...p, title: e.target.value } : p)); setConfirmed(false); }} /></label><label className="field">사용 권한을 확인한 본문 · 최대 6,000자<textarea rows={4} maxLength={6000} value={post.body} onChange={e => { setPosts(values => values.map((p, i) => i === index ? { ...p, body: e.target.value } : p)); setConfirmed(false); }} /></label><label className="check"><input type="checkbox" checked={post.rightsConfirmed} onChange={e => { setPosts(values => values.map((p, i) => i === index ? { ...p, rightsConfirmed: e.target.checked } : p)); setConfirmed(false); }} />이 글의 본문을 제공·분석할 권한을 확인했습니다.</label>{posts.length > 3 && <button onClick={() => { setPosts(values => values.filter((_, i) => i !== index)); setConfirmed(false); }}>이 글 제외</button>}</fieldset>)}</div>
         <button disabled={busy || posts.length >= 20} onClick={() => { setPosts(values => [...values, blankPost()]); setConfirmed(false); }}>후보 글 추가</button>
         <label className="check"><input type="checkbox" disabled={busy} checked={rights} onChange={e => setRights(e.target.checked)} />제공하는 모든 후보 글의 사용 권한을 확인했습니다.</label>

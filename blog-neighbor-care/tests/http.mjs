@@ -87,17 +87,19 @@ try {
   await check('HTTP27 후보화면회원가드', async () => {const html=await (await fetch(`${origin}/candidates`)).text();assert.match(html,/AIMaster 로그인/);});
   await check('HTTP28 매뉴얼의동의·후보범위·재실행금지', async () => {const html=await (await fetch(`${origin}/guide`)).text();assert.match(html,/자동 재실행하지 않습니다/);assert.match(html,/3~5개/);assert.match(html,/모델을 선택/);});
   await check('HTTP29 설정화면회원가드', async () => {const html=await (await fetch(`${origin}/settings`)).text();assert.match(html,/AIMaster 로그인/);});
+  await check('HTTP30 후보검색미로그인401·캐시금지', async () => {const r=await fetch(`${origin}/api/candidates/search`,{method:'POST',headers:{origin,'content-type':'application/json'},body:'{}'});assert.equal(r.status,401);assert.match(r.headers.get('cache-control'),/no-store/);});
+  await check('HTTP31 후보검색GET405',async()=>assert.equal((await fetch(`${origin}/api/candidates/search`)).status,405));
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
-  writeFileSync(new URL('../docs/evidence/ui-http-20261027.json', import.meta.url), JSON.stringify({
+  writeFileSync(new URL('../docs/evidence/search-http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 29, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 31, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 29);
-console.log('로컬 HTTP29개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 31);
+console.log('로컬 HTTP31개 통과·서버 종료, 실제키/로그인세션 사용0.');

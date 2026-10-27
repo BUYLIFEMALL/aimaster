@@ -49,7 +49,7 @@ class InputError extends Error {}
 function invalid(): never { throw new InputError('invalid_material'); }
 const unverified = { relationship: 'unknown', accountVerified: false, canAutoEngage: false } as const;
 
-function summaries(payload: JsonObject) {
+export function previewSearchSummaries(payload: JsonObject) {
   if (!fields(payload, ['profile', 'items', 'limit']) || !object(payload.profile) ||
     !fields(payload.profile, ['own_blog_id', 'keywords', 'excluded_blog_ids'])) invalid();
   const { own_blog_id: ownId, keywords: rawKeywords, excluded_blog_ids: rawExcluded = [] } = payload.profile;
@@ -133,7 +133,7 @@ export function createMaterialPreviewHandler(authorize: () => Promise<Access>) {
       if (!access.allowed) return response({ error: access.error }, access.status);
       const input = await readJson(request);
       if (!object(input) || !fields(input, ['operation', 'payload']) || !object(input.payload)) invalid();
-      const data = input.operation === 'summary_preview' ? summaries(input.payload) :
+      const data = input.operation === 'summary_preview' ? previewSearchSummaries(input.payload) :
         input.operation === 'text_preview' ? memberText(input.payload) : invalid();
       return response({ data: { ...data, ownerId: access.userId, persisted: false, externalRequests: 0 } });
     } catch (error) {
