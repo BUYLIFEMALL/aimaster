@@ -29,6 +29,12 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         <a className="slw-btn" href={`${SHOP_DETAIL_SITE}/products/${product.id}`} target="_blank" rel="noreferrer">상세페이지에서 고치기 ↗</a>
       </PageHeader>
 
+      {!product.reviewed_at && (
+        <Notice tone="warn">
+          📝 아직 상세페이지에서 「검토 완료」를 누르지 않은 상품입니다. 상세페이지·가격·이미지를 확인한 뒤 보내기를 권장합니다(보내기는 막지 않습니다).{" "}
+          <a className="font-bold underline" href={`${SHOP_DETAIL_SITE}/products/${product.id}`} target="_blank" rel="noreferrer">상세페이지에서 검토하기 ↗</a>
+        </Notice>
+      )}
       {preview.errors.filter((e) => !e.startsWith("카테고리")).map((e) => <Notice key={e} tone="warn">⚠️ {e}</Notice>)}
       {preview.warnings.map((w) => <Notice key={w}>ℹ️ {w}</Notice>)}
 

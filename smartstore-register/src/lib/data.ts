@@ -25,15 +25,19 @@ export interface ProductRow {
   section_sequence: string[] | null;
   status: string;
   updated_at: string;
+  /** 상세페이지에서 회원이 「검토 완료」를 누른 시각(null=검토 전) — 이커머스 한 흐름 4단계 */
+  reviewed_at?: string | null;
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at";
 
 export async function listProducts(userId: string): Promise<{ rows: ProductRow[]; error: boolean }> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("shop_products").select(PRODUCT_COLS).eq("user_id", userId).order("updated_at", { ascending: false }).limit(60);
   if (error) console.error("[smartstore-register] listProducts", error.code);
-  return { rows: (data ?? []) as ProductRow[], error: Boolean(error) };
+  // 검토 완료 상품을 먼저(그 안에서는 최근 수정 순 유지)
+  const rows = ((data ?? []) as ProductRow[]).sort((a, b) => Number(Boolean(b.reviewed_at)) - Number(Boolean(a.reviewed_at)));
+  return { rows, error: Boolean(error) };
 }
 
 export interface SectionImage {

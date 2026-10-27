@@ -25,7 +25,12 @@ export default async function ProductsPage() {
         {rows.map((p) => (
           <li key={p.id}>
             <Link href={`/products/${p.id}`} className="slw-card block p-4 transition hover:border-emerald-300">
-              <p className="truncate font-extrabold text-slate-900">{p.name || p.product_label || "(상품명 없음)"}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate font-extrabold text-slate-900">{p.name || p.product_label || "(상품명 없음)"}</p>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${p.reviewed_at ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+                  {p.reviewed_at ? "✅ 검토 완료" : "검토 전"}
+                </span>
+              </div>
               <p className="mt-1 text-xs text-slate-600">
                 정상가 {won(p.price)}{p.sale_price ? ` · 할인가 ${won(p.sale_price)}` : ""} · {p.category || "카테고리 미정"}
               </p>
