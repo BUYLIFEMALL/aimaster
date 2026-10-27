@@ -4,7 +4,7 @@
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-27 11:02 v1.01 운영reader4표/프로그램등록·Vercel1회Ready·HTTP/ZIP/버전검수완료. 실제SSO/확장설치·본문전달은대기. 세션 `codex-win-20261026-blog-check`.
+- 마지막 갱신: 2026-10-27 본 프로그램명·확장명 일치 공통 지침 등록. 이웃소통 설치/회원연결 완료, 본문읽기/전달 시험과 기존명칭 실제수정은 대기. 세션 `codex-win-20261026-blog-check`.
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -50,6 +50,8 @@
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+
+- 2026-10-27: 사용자 지시로 본 프로그램명=확장 표시명 공통 규칙 등록. 루트3개·확장 운영규칙§1-1/릴리스0번·지침색인/카테고리지도 반영. 이웃소통 현재명칭 불일치는 개선목록에 기록, 실제 소스/배포/설치본명은 미변경. 비용없음.
 
 - 2026-10-27 11:59 Edge에서 읽기 확장 v1.01 설치·켜짐을 확인하고 reader 새로고침 후 회원 연결 1회 성공. 웹 연결완료 메시지, 운영 활성기기1개, 시험회원 buylifemall@naver.com 일치(true만 기록), 공용 naver_blog/browser_read 소유자·블로그 일치 확인. 설치요청811eb0aa 완료. 읽기요청/본문자료0건이며 실제 추출·전달은 아직 미검수.
 
