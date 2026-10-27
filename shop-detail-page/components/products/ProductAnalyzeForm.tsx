@@ -37,7 +37,7 @@ export function ProductAnalyzeForm({
   initialLabel?: string;
   initialSourceText?: string;
   initialPrice?: string;
-  /** 상품소싱에서 넘어온 마켓 카테고리 — 분석 결과보다 우선한다(마켓 등록 때 카테고리 검색어로 쓰임) */
+  /** 주소로 넘어온 카테고리 — 처음 칸에 채우고, 분석 결과가 비었을 때만 남긴다(분석이 더 자세함) */
   initialCategory?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -168,7 +168,7 @@ export function ProductAnalyzeForm({
         return;
       }
       if (result.data) {
-        setFields({ ...result.data, category: initialCategory || result.data.category });
+        setFields({ ...result.data, category: result.data.category || initialCategory });
         setAnalyzed(true);
         setIsNameEstimate(false);
       }
@@ -199,7 +199,7 @@ export function ProductAnalyzeForm({
         return;
       }
       if (result.data) {
-        setFields({ ...result.data, category: initialCategory || result.data.category });
+        setFields({ ...result.data, category: result.data.category || initialCategory });
         setAnalyzed(true);
         setIsNameEstimate(true);
       }
