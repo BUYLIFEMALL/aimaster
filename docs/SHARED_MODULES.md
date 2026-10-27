@@ -149,3 +149,5 @@
 <!-- TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->
 2026-10-22 `tistory-auto-blog`의 `openai-request-params` 사본+호출 수정은 명칭 v1.83/8589073f 배포에 포함됐습니다(Ready, 직접 사본 수정 없음). 기존 미배포 이력 중 티스토리 **요청 파라미터 사본**은 반영 완료이며 모델 안내 UI는 v1.84 미배포 후보로 구분합니다. 다른 대상은 이 기록으로 배포 완료 처리하지 않습니다. [운영 증거/한계](../tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261022_NAME_RELEASE.md).
 <!-- /TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->
+
+2026-10-27 Codex: `openai-request-params`의 정확한 사본을 `blog-neighbor-care/src/lib/analysis/openaiRequestParams.ts`에 등록했습니다. 기준/기존 사본은 변경하지 않았으며, 새 프로필/후보 서버에서 사용합니다. 로컬 구현·미배포, 실제 OpenAI 호출 검수는 별도입니다.

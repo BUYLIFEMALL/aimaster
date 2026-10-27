@@ -1,5 +1,7 @@
 # AIMaster 프로그램 아이디어·개선 검토 원장
 
+**이웃 소통 서버 후속:** 2026-10-27 프로필·후보 평가 서버 로컬 구현 완료(미배포): 회원 본인 키·별도 AI 전송 동의·출처 인용 검사·회원 프로필 수정본·후보 잠정 주제점수/선택·원본 수명 상속·중복 호출 방지·대기 취소. 단위70/실제 격리DB14/로컬 HTTP25·타입/빌드·공용사본9곳 통과. 운영 신규2표/RPC·실제 AI·정식 UI는 미적용/미검수. v1.01 유지, 명칭70f146a6c와 묶음 배포 대기. 다음 배포 전 신규SQL 필수(Cron 정리 연계). AI/Vercel 비용0·네이버 외부동작0. [상세](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_PROFILE_CANDIDATES.md). 기존 이웃·답방·대댓글 보강은 후속으로 유지하며 다른 세션의 플래너/이미지 복귀 작업은 제외합니다.
+
 **최신 이웃소통 v1.01 운영:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF. [결과](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 이전미배포문단은당시기록.
 
 2026-10-27 Codex [역할: blog] **이웃소통연결 기존제안 후속:** 본인글1개읽기 설치본준비. 안정성=원자적번호교환·회원/기기/글ID결합·다기기멱등·원래수명, 적용성=공용계정표재사용/기존권한판정, 편의=설치후한번연결→현재글확인후전달. 단위54/SQL16/HTTP23·ZIP통과, 운영적용/설치미검수. [인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md).

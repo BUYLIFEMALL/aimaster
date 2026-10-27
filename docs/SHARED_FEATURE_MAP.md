@@ -1,5 +1,9 @@
 # 기능별 프로그램 지도 (SHARED_FEATURE_MAP.md)
 
+## 2026-10-27 이웃소통 프로필·후보 서버 재사용
+
+`blog-neighbor-care/src/lib/analysis/`: 회원 키는 루트 `lib/apiKeys.ts`의 `resolveApiKey` 정확한 사본, 모델 카탈로그는 `web-crawler/webapp/src/lib/ai/models.ts` 사본, OpenAI 요청 규칙은 공용 `openai-request-params` 사본. 프로그램별 프롬프트/근거 검증/회원 확인·수명·중복과금 방지는 이웃소통 자체 구현입니다. 무료호환 공급자 G-1은 이번 연결하지 않았습니다. 기존 공용 기준/타앱 변경 없음, 로컬 구현·미배포/실제 AI 미호출.
+
 ## 2026-10-27 본인글읽기 확장연결 구현 사례(각자 구현)
 
 `blog-neighbor-care/src/lib/reader/`·`extension/`·`supabase/migrations/*_bnc_reader_connection.sql`: 기존 smartstore-register/블로그의웹연결패턴을참고하되 번호/토큰해시·원자적1회교환·읽기전용capability·다기기중복/원래수명으로보완. 공용member_platform_accounts저장·기존프로그램권한판정을재사용하며원본공용컴포넌트/타앱은미수정. 새공용기준으로전환한것아님. [로컬검수/운영미적용](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md).
@@ -101,7 +105,7 @@
 
 2026-10-20 BLC-02(2026-10-21 운영 검수 완료): `portrait-photo/src/lib/imageFileCheck.ts`와 같은 테스트를 `naver-blog-agent/src/lib/imageFileCheck.ts` / `tests/imageFileCheck.test.mjs`에 기준 사본으로 등록. 브라우저에서 실제 사진을 판독하고 깨진 파일은 업로드 전에 거절합니다. 원본/다른 사본 변경 없음. 로컬 5개 판독 시험·실회원 JPEG/PNG/WebP/손상 파일 검수와 v2.02 운영 회원 사진 준비 검수 통과·배포 Ready. 다른 프로그램 재배포 불필요. 전체 사용처는 [공용 모듈 원장](SHARED_MODULES.md) 참조.
 
-## 8. OpenAI 모델별 요청 규칙 — 공용 모듈 `openai-request-params` (2026-10-20 등록, 사본 8곳)
+## 8. OpenAI 모델별 요청 규칙 — 공용 모듈 `openai-request-params` (2026-10-20 등록, 사본 9곳)
 
 OpenAI 추론 모델(GPT-5·GPT-6·o 계열)은 `temperature` 지정과 `max_tokens`를 거부(400)한다. **모델 목록에 새 모델을 넣었으면 `node scripts/check-openai-models.mjs`(호출 없이 목록·보낼 옵션·마지막 시험 결과) → `OPENAI_API_KEY=<본인 키> node scripts/check-openai-models.mjs --live`(시험 안 한 모델만 1회씩, 결과 `scripts/data/openai-model-check.json` + `docs/HANDOFF.md` 맨 위 한 줄 자동 기록 — `--no-handoff`로 끔, 키 오류 401이면 기록 없이 멈춤, 오류 문구의 키 조각은 가림)로 회원보다 먼저 확인한다. 커밋 직전 훅(`scripts/git-hooks/pre-commit`, 설치 `node scripts/git-hooks/install.mjs` — 윈도우 저장소에 2026-10-20 설치, `.git`을 함께 쓰는 맥미니도 적용)이 이번 커밋에 시험 안 한 모델 이름이 추가되면 경고만 띄운다(커밋은 막지 않음). 키 없이 남은 모델만 보기: `node scripts/check-openai-models.mjs --new`.** 회원이 모델을 고르는 OpenAI 호출은 요청 본문에 `...openAIGenerationParams(model, { temperature, maxTokens })`를 펼쳐 넣는다. 새 세대 모델 규칙이 바뀌면 기준 한 곳만 고친다.
 

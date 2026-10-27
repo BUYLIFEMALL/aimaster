@@ -4,7 +4,7 @@
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-27 13:21 본인글1건 회원연결/실제읽기/별도전달/서버저장/30일수명/웹재열기 전체흐름검수완료. 다음프로필/후보처리, 작은이름수정묶음배포대기. 세션 `codex-win-20261026-blog-check`.
+- 마지막 갱신: 2026-10-27 프로필/후보 서버 로컬70/14/25 검수 완료·묶음배포 대기. 세션 `codex-win-20261026-blog-check`.
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
