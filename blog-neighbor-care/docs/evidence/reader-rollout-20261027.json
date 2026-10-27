@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-10-27T02:02:00Z",
+  "deploymentId": "dpl_Gw1fyVXxMQ2iJHL8cpLzV1WHbJWy",
+  "state": "READY",
+  "version": "v1.01",
+  "production": "https://blog-neighbor-care.buylife.xyz/reader",
+  "auxiliary": "https://blog-neighbor-care.vercel.app/reader",
+  "buildCount": 1,
+  "buildMs": 27308,
+  "buildMachine": "basic",
+  "elasticConcurrencyEnabled": false,
+  "readerTablesRls": 4,
+  "readerRows": 0,
+  "rpc": {
+    "securityInvoker": true,
+    "anonExecute": false,
+    "authenticatedExecute": false,
+    "serviceExecute": true
+  },
+  "programRegistered": true,
+  "newAccessRows": 0,
+  "runtimeLiveAllowed": false,
+  "cron": {
+    "enabled": true,
+    "schedule": "20 3 * * *",
+    "firstExecutionVerified": false
+  },
+  "http": {
+    "reader": 200,
+    "version": 200,
+    "zip": 200,
+    "memberUnauthenticated": 401,
+    "extensionWebOrigin": 403,
+    "cronUnauthenticated": 401
+  },
+  "liveZip": {
+    "bytes": 8273,
+    "entriesSourceMatched": 7,
+    "sha256": "0a321d344b4d642db88fdd12941ec0a975dd34e7e87cea2ef9de6c29daef20d7"
+  },
+  "releaseConsistencyPassed": true,
+  "recentErrorLogCount": 0,
+  "realMemberSsoVerified": false,
+  "extensionInstalledVerified": false,
+  "ownPostDeliveredVerified": false,
+  "secretsIncluded": false
+}
