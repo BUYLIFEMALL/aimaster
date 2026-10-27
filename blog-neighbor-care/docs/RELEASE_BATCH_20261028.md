@@ -1,5 +1,9 @@
 # 분석·기존 이웃 기능 묶음 반영안 — 승인 전
 
+**2026-10-28 최신 실행 결과:** 2026-10-28 실행: 사용자승인af760869로 신규분석/이웃7표·RPC2 운영적용, RLS/권한/읽기OFF/소통OFF 8조건통과. 릴리스소스19611d680(v1.02/manifest·package1.2.0)·단위144/HTTP39/로컬빌드통과. 승인프로덕션빌드1회는ERROR(dpl_3PjavjY6nbGy1EzemAnF3JTKDUgj, Basic8.749초): 내가추가한supabase제외패턴이src/lib/supabase까지누락. d4092f4cc로루트한정수정, 실제Vercel dry-run 필수3파일포함·업로드86파일만복사한격리소스빌드/타입통과. **운영/DB등록/설치본v1.01유지, v1.02미배포**, 설치폴더미교체·실제43명전송0. 추가빌드1회승인dca86631-b547-428a-8eaf-74f279c15883 대기(이전1회소진). 기존읽기허용근거3e257d73별도유지. AI/검색0, 운영신규SQL1회·원격실패빌드1회·실제청구미확정.
+
+아래 적용안의 미실행/승인전 표현은 준비 당시 기록입니다. **신규 SQL은 이미 운영 적용되어 재실행하지 않습니다.** 다음 단계는 수정본 추가배포1회 승인과배포이며, DB등록버전/설치본은실제Ready후에맞춥니다.
+
 확인 링크: [운영](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [적용안 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/batch-release-20261028/index.html) · 영구 폴더 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\batch-release-20261028`.
 
 **상태: 준비·격리 검수 완료, 운영 SQL/배포 미실행.** 담당 역할 blog, 세션 codex-win-20261026-blog-check. 현재 운영·소스·확장·DB 버전은 v1.01이며 v1.02는 승인 후 실제 릴리스 시 일괄 변경할 예정값입니다. 이번 반영 승인과 네이버 목록 자동 읽기 허용 근거는 별개입니다.
