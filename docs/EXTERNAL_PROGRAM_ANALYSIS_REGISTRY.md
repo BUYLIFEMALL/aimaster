@@ -114,6 +114,16 @@
 | EXT-IMG-05 | 4컷 만능 만화 생성기 PRO | Vite React 웹앱 | 10-14 | 주제 → 대본 → 캐릭터 시트 → 4컷, AI 말풍선 배치·편집, 저장 4종 | 🆕 독립 새 프로그램 | `four-cut-comics` v1.36 | ✅ |
 | **디자인** | | | | | | | |
 | EXT-MKT-01 | AI Landing Page Architect Enhance | AI Studio 앱 | 10-13 | 주제·타겟·목표 → 템플릿 20 → 기획안 JSON → 단일 HTML 프로토타입 | 🆕 독립 새 프로그램 | `landing-architect` v1.14 | ✅ |
+| EXT-MKT-02 | GMap Searcher 1.0.9 — Auto_M | MSI 설치형(.NET) | 10-27 | 지역+업종 → 구글 지도 업체 상호·주소·전화·홈페이지·별점·리뷰 → 엑셀 | 🔗 병합 → `competitor-analysis`(지역 업체 조사) · 관리자 지정 예외 | `competitor-analysis` v1.09 | ⏳ |
+| EXT-MKT-03 | 네이버 지도 검색 결과 추출 | .NET 윈폼 | 10-27 | 키워드 → 네이버 플레이스 업체 상호·주소·지도/톡톡 주소·등록일·순위 | 🔗 병합 → `competitor-analysis`(지역 업체 조사) · 관리자 지정 예외 | `competitor-analysis` | ⏳ |
+| EXT-MKT-04 | 네이버 스마트 스토어 톡톡 발송 | .NET 윈폼 | 10-27 | 키워드 → 스토어 판매자 목록 + 톡톡 발송 | 🔗 병합 → `competitor-analysis`(판매자 리스트, 발송은 회원 기기) · 관리자 지정 예외 | `competitor-analysis` | ⏳ |
+| EXT-MKT-05 | Insta DB 1.3.8 — Auto_M | MSI 설치형(.NET) | 10-27 | 키워드 인스타그래머 아이디·이메일·전화 수집 | 🔗 병합 → `insta_auto_poster`(공개 계정·통계만, 연락처 제외) · 관리자 지정 예외 | `insta_auto_poster` v1.70 | ⏳ |
+| EXT-MKT-06 | YouTube DB 1.3.1 — Auto_M | MSI 설치형(.NET) | 10-27 | 키워드/채널 유튜버 구독자·이메일·전화 수집 | 🔗 병합 → `youtube-viral-studio`(공개 통계만, 연락처 제외) · 관리자 지정 예외 | `youtube-viral-studio` v1.24 | ⏳ |
+| EXT-MKT-07 | 인플루언서 추출 프로그램 | .NET 윈폼 | 10-27 | 주제/키워드 네이버 인플루언서·블로거 팬 수·방문 수·이메일 | 🔗 병합 → `competitor-analysis`/블로그 계열(공개 통계만) · 관리자 지정 예외 | `competitor-analysis` | ⏳ |
+| EXT-MKT-08 | 네이버 카페 아이디 추출기 | .NET 윈폼 + Selenium | 10-27 | 카페 회원 아이디 수집(등급·페이지 범위) | 🆕 새 프로그램(카페 마케팅) · 관리자 지정 예외 — 운영·가입 카페+동의 범위만 | 새 프로그램 | ⏳ |
+| EXT-MKT-09 | N사 카페 회원 DB 추출기(CafeDBPro 1.2.8) — Auto_M | MSI 설치형(.NET) | 10-27 | 여러 카페 활동 회원 정보 수집 | 🆕 새 프로그램(카페 마케팅)과 합침 · 운영·가입 카페+동의 범위만 | 새 프로그램 | ⏳ |
+| EXT-MKT-10 | 카페 초대장 발송 프로그램 2.0 | .NET 윈폼 | 10-27 | 수집 아이디 대상 내 카페 초대 발송 | 🆕 새 프로그램(카페 마케팅) 발송 단계 · 발송은 회원 기기·회원 직접 | 새 프로그램 | ⏳ |
+| EXT-MKT-11 | N Searcher Lite 1.9.8 — Auto_M | MSI 설치형(.NET) | 10-27 | 키워드 관심자 이메일 수집(진성/비진성) | ⏸ 보류 — 이메일 자동 수집(제50조의2), 성격 재검토 · 관리자 지정 예외 | — | 📝 |
 | EXT-MM-03 | Cinematic Storyboard AI | 웹앱 | 확인 못 함 | 이미지 1장 → 키프레임 9 → 9컷 콘택트 시트 → 영상 프롬프트 | 🆕 독립 새 프로그램 | `cinematic-storyboard-studio` v1.18 | ✅ |
 | EXT-TL-10 | GPT PARK의 UI 캔버스 Pro | AI Studio 앱 | 10-13 | 컴포넌트 25종 캔버스 에디터·레이어·이미지/JSON 내보내기 | 🆕 독립 새 프로그램 | `ui-canvas` v1.14 | ✅ |
 | **인스타** | | | | | | | |
@@ -151,8 +161,9 @@
 | AI 프롬프트 | 1 | 독립 1 |
 | 성격·운세 | 1 | 독립 1 |
 | 부동산 | 2 | 진행 1(EXT-RE-01 → `realty-listing-alert` v1.26, 공개 전) · 보류 1(EXT-RE-02 짝 도구, 기법만 반영) |
-| 쓰레드·네이버·CRM·마케팅·이커머스·데이터수집\|기획 | 0 | — |
-| **합계** | **48** | 독립 27 · 병합 14 · 보류 3 · 제외 4 |
+| 마케팅(수집·발송, 관리자 지정 예외) | 10 | 🔗 병합 5 · 🆕 새 프로그램 1(카페 마케팅=3건) · ⏸ 보류 1 |
+| 쓰레드·네이버·CRM·이커머스·데이터수집\|기획 | 0 | — |
+| **합계** | **58** | 독립 27 · 병합 19 · 보류 4 · 제외 4 · 새 프로그램(마케팅) 4 |
 
 **제작자 계열 메모(병합·중복 판단용)**
 - **GPT PARK(`gptparkai.com`, 유튜브 「AIFACT-GPTPARK」) 계열이 가장 많다.** Supertonic·AutoGemma·ClearPic·성격 진단기·키워드 파이터 A/B·뮤직 플레이어·Playful File Helper·LookStudio·랜딩 아키텍트·Reverse Prompt·썸네일 마스터·UI 캔버스·마스터링(추정)이 여기에 속한다. 이 계열은 대부분 「브라우저에 키 저장 + Gemini 직접 호출 + 월간 인증 코드」 구조라서, 우리는 늘 「서버 경유 + 회원 본인 키 + 회원 권한」으로 바꿔 만들었다.
@@ -653,6 +664,17 @@
 | 못 옮긴 것 | 실제 운영 기능(폼 전송 등) 없음 — HTML 한 파일 프로토타입 |
 | 하지 않기로 한 것 | 키 미등록 시 LoremFlickr로 조용히 전환, 오류 HTML을 정상 처리, 전역 채팅 상태 의존, 원본 모델 고정·폴백 체인 |
 | 관련 문서 | `landing-architect/docs/REFERENCE_AUDIT.md`, `ANALYSIS_HANDOFF.md`, `DEVELOPMENT_PLAN.md`, `REFERENCE_MANIFEST.json` |
+
+#### EXT-MKT-02~11 마케팅 수집·발송 묶음 (Program_dev, 관리자 지정 예외)
+| 항목 | 내용 |
+|---|---|
+| 원본 | 네이버/구글/인스타/유튜브 업체·회원·크리에이터·연락처 수집 도구 10종(마케팅자동화 제작사·Auto_M 계열). .NET 설치형·윈폼+Selenium. 모두 여러 계정·IP 변경·화면 긁기/발송 구조 |
+| 분석 | 2026-10-27 · `claude-win-20261027-analysis` · 코드 복원·화면 그림 · 기능만 참고 |
+| 판단 | **관리자 지정 예외**(최상위 규칙 §0-2·§8, [마케팅 예외·우회 지침](../MARKETING_AUTOMATION_EXCEPTION_POLICY.md)). 분류: 🔗 병합 5(→ `competitor-analysis`·`insta_auto_poster`·`youtube-viral-studio`) · 🆕 새 프로그램 1(네이버 카페 마케팅: EXT-MKT-08·09·10) · ⏸ 보류 1(EXT-MKT-11 이메일) |
+| 공통 설계 | 우리 서버 고정 IP 금지(회원 기기에서 트래픽) · 회원 본인 계정·키 · 기본 안정적 리미트 + 선택 VPN · 발송은 회원 기기·회원 직접 · 사용 책임 고지 · 연락처 최소화·회원별 격리 |
+| 범위 제한 | 카페 수집은 운영·가입 카페+동의 범위만 · 이메일·전화는 기본 제외 |
+| 진행 상태 | 📝 분석·분류 완료(2026-10-27), 담당·플랜·구현은 주인님 방향 확정 뒤 |
+| 관련 문서 | [구현·분류 분석](../analysis-marketing-collect-20261027/REPORT.md) · [일괄 분석](../analysis-programdev-batch-20261027/REPORT.md) |
 
 ### 3-7. 멀티미디어
 
