@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-27T15:59:07.799Z",
+  "source": "Actual Vercel CLI deploy --dry --json file list",
+  "uploadedFiles": 86,
+  "requiredPaths": [
+    "src/lib/supabase/admin.ts",
+    "src/lib/supabase/server.ts",
+    "src/lib/supabase/cookieDomain.ts",
+    "extension/background.mjs",
+    "extension/neighbor-extractor.mjs",
+    "extension/neighbor-importer.mjs",
+    "scripts/build-extension-archive.mjs",
+    "package-lock.json"
+  ],
+  "criticalSupabaseFiles": 3,
+  "filteredSourceBuildPassed": true,
+  "remoteDeploymentsCreated": 0,
+  "realAiCalls": 0,
+  "rootOnlyExclusions": true
+}
