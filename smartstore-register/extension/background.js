@@ -328,6 +328,12 @@ async function pageCommand(cmd, args) {
       const no = (message.match(/상품번호[^0-9]*([0-9]{6,})/) || location.href.match(/products\/(?:edit\/)?([0-9]{6,})/) || [])[1] || null;
       if (verdict?.state === 'success') return { ok: true, confirmed: true, message, productNo: no };
       if (verdict?.state === 'error') return { ok: false, error: `판매자센터가 저장을 거절했습니다: ${message || '오류 안내'}` };
+      // 성공도 오류 안내도 없으면 — 화면 전체에서 「잘못됨」(ng-invalid) 칸을 찾아 칸 이름으로 남긴다(회원이 스크롤해 찾지 않게)
+      const bad = [...document.querySelectorAll('input.ng-invalid, textarea.ng-invalid, select.ng-invalid, [ng-model].ng-invalid')]
+        .filter((e) => !e.closest('form.ng-invalid > form') && (visible(e) || visible(e.parentElement)))
+        .map((e) => { const n = fieldName(e) || (e.closest('.title-line, .panel, section')?.querySelector('.title-line label, h3, .title')?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 30); const why = [...e.classList].filter((c) => c.startsWith('ng-invalid-')).map((c) => c.slice(11)).join(','); return `${n || e.getAttribute('ng-model') || '이름 모름'}${why ? `(${why})` : ''}`; });
+      const uniq = [...new Set(bad)].slice(0, 8);
+      if (uniq.length) return { ok: false, error: `저장되지 않았습니다 — 판매자센터가 잘못됐다고 표시한 칸: ${uniq.join(' / ')}` };
       return { ok: true, confirmed: false, message };
     }
 
