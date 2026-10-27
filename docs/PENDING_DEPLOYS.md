@@ -53,6 +53,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `smartstore-register` | v1.12 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-7blp17f02`) | 대기 항목 없음 (본 작업: 옵션 자동 입력 `2ceefdf8a`) |
+| `smartstore-register` | v1.13 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 주인님 추가 승인 빌드 1회 `smartstore-register-gefdo1s9o`) | 옵션 입력 칸 배치 수정 `74035bc95` |
 | `smartstore-register` | v1.11 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-m22lvumg4`) | 확장 상태 창 제목 새 이름 (본 작업: 오래된 탭이 만든 작업 막기 `20c37020f`) |
 | `smartstore-register` | v1.10 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-48tdzwzos`) | 대기 항목 없음 (본 작업: 추가 이미지 자동 넣기 `b6af9abe9`) |
 | `smartstore-register` | v1.09 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-c59rnifm2`) | 대기 항목 없음 (본 작업: 이름 변경 「AI 스마트스토어 상품 자동등록기」 — 화면·확장 표시명) |

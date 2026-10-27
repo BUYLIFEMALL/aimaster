@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.12·v1.13 옵션 자동 입력
+- 등록기 화면에서 옵션(단독/조합, 조합별 옵션가·재고) 입력 → 서버가 판매자센터 양식 모양 엑셀(.xls) 생성 → 확장이 「엑셀 일괄등록」으로 올림. 양식 원본 `D:\PDS\OptionSimpleTemplate.xls`·`OptionCombinationTemplate.xls`. 새 DB 칸 없음(작업 칸 목록에 저장, 마지막 옵션 다시 채움). `STEP_BUILDER` 2.
+- 실제 시험: 판매자센터 옵션목록 「총 2개」(블랙·그레이) 주인님 화면 확인. 배포 v1.12 `7blp17f02`, v1.13 `gefdo1s9o`(배치 수정), DB·확장·ZIP v1.13 OK.
+- 상세: `smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md` §9·§10-5·§11, 플랜 `smartstore-register/docs/PLAN_20261027_OPTIONS.md`.
+- 링크: https://smartstore-register.buylife.xyz/products
+
 ## 2026-10-27 [역할: blog] 릴레이 데스크 그린 UI·모델 선택 로컬 완료 — 미배포
 
 2026-10-27 소스 `cbb8ac788` · 사용자선택 3번 **릴레이 데스크 — 네이버 그린 변형** 및 플랫폼→모델 선택 반영. 프로필/확인본·후보 본문제공/평가/선택·매뉴얼·설정·기존reader메뉴 로컬구현. 단위74/실제격리DB14/로컬HTTP29·타입/Next빌드·ZIP 통과. **운영SQL·새UI실회원/실제AI·배포 미완료**, 후보검색/자동수집·실제소통/반복은후속. v1.01유지·명칭수정과묶음배포대기, 추가AI/Vercel0. [인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_RELAY_UI.md)·[12뷰](../blog-neighbor-care/docs/blog-neighbor-care_12VIEWS_PROPOSAL.md). 사용자3번선택완료. 전담Codex. 신규SQL get은원래preferences반환추가(운영미적용). 무료로컬빌드2/격리DB2. 다음후보검색/본문확보.
