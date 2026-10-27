@@ -102,10 +102,13 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10" };
+
+/** 스마트스토어 추가 이미지 최대 장수 */
+export const EXTRA_IMAGES_MAX = 9;
 
 /** 이 작업에 필요한 가장 낮은 확장 버전(없으면 null) */
 export function extMinVersion(steps: { action: string }[]): string | null {
@@ -153,7 +156,7 @@ export function managementCode(productId: string): string {
 export function buildFillSteps(
   product: ProductSource,
   defaults: StoreDefaults,
-  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean },
+  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number },
 ): BuildResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -185,6 +188,8 @@ export function buildFillSteps(
   }
   add({ key: "stock", section: "재고수량", label: "재고수량", target: "vm.product.stockQuantity", action: "type", value: String(defaults.stock), required: true });
   add({ key: "images", section: "상품이미지", label: "대표·추가 이미지", target: "vm.openUploadModal", action: "images", value: "main", required: true });
+  const extra = Math.min(EXTRA_IMAGES_MAX, Math.max(0, Math.floor(opts.extraImageCount ?? 0)));
+  if (extra > 0) add({ key: "extra_images", section: "상품이미지", label: `추가 이미지 ${extra}장`, target: "image.add", action: "extra_images", value: String(extra) });
   add({ key: "detail", section: "상세설명", label: `상세설명(섹션 이미지 ${opts.detailImageCount}장, HTML 작성)`, target: "vm.CONSTANTS.EDITOR_TYPE.NONE", action: "html", value: String(opts.detailImageCount), required: true });
 
   if (defaults.originType === "import") {

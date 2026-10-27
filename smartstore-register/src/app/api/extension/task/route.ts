@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { userFromExtension } from "@/lib/extension/token";
-import { SHOP_IMAGE_BUCKET, storagePathFromUrl } from "@/lib/data";
+import { SHOP_IMAGE_BUCKET, storagePathFromUrl, ownExtraPaths } from "@/lib/data";
 import { orderSections, extCanRun, extMinVersion } from "@/lib/smartstore/fields";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   // 이미지: 대표 사진 + 섹션 이미지(상세설명 순서). 본인 상품 폴더 안 경로만, 15분 서명 주소.
   const { data: product } = await admin
     .from("shop_products")
-    .select("source_image_url,section_sequence")
+    .select("source_image_url,section_sequence,reference_image_urls")
     .eq("id", job.product_id)
     .eq("user_id", who.userId)
     .maybeSingle();
@@ -56,7 +56,10 @@ export async function POST(req: Request) {
   const sections = orderSections(((rows ?? []) as { section_key: string; section_order: number; image_url: string | null }[]).filter((r) => r.image_url), product?.section_sequence)
     .map((r) => ({ key: r.section_key, path: own(storagePathFromUrl(r.image_url)) }))
     .filter((r): r is { key: string; path: string } => Boolean(r.path));
-  const paths = [...(main ? [main] : []), ...sections.map((s) => s.path)];
+  // 추가 이미지: 회원이 올린 참고(실물) 사진 최대 9장(작업에 그 단계가 있을 때만)
+  const wantsExtra = ((job.steps ?? []) as { action: string }[]).some((s) => s.action === "extra_images");
+  const extras = wantsExtra ? ownExtraPaths(who.userId, product?.reference_image_urls as string[] | null) : [];
+  const paths = [...(main ? [main] : []), ...sections.map((s) => s.path), ...extras];
   const signed = new Map<string, string>();
   if (paths.length) {
     const { data } = await admin.storage.from(SHOP_IMAGE_BUCKET).createSignedUrls(paths, 900);
@@ -71,6 +74,7 @@ export async function POST(req: Request) {
       categoryKeyword: job.category_keyword,
       steps: job.steps,
       mainImage: main && signed.get(main) ? { url: signed.get(main), name: name(main) } : null,
+      extraImages: extras.filter((p) => signed.get(p)).map((p) => ({ url: signed.get(p), name: name(p) })),
       detailImages: sections.filter((s) => signed.get(s.path)).map((s) => ({ key: s.key, url: signed.get(s.path), name: name(s.path) })),
     },
   });

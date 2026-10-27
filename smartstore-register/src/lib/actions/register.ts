@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { getDefaults, getProductForRegister } from "@/lib/data";
+import { getDefaults, getProductForRegister, ownExtraPaths } from "@/lib/data";
 import { buildFillSteps, normalizeDefaults, toRegisterMode } from "@/lib/smartstore/fields";
 
 // 모든 쓰기는 프로그램 이용 권한 확인 + 본인 행(user_id)만(CLAUDE.md 멀티테넌시 원칙 1·2).
@@ -41,6 +41,7 @@ export async function createJobAction(_prev: unknown, formData: FormData): Promi
     categoryKeyword,
     detailImageCount: loaded.sections.length,
     mainImage: Boolean(loaded.mainImage),
+    extraImageCount: ownExtraPaths(user.id, loaded.product.reference_image_urls).length,
   });
   if (built.errors.length) return { error: built.errors[0] };
 

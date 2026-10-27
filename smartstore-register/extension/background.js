@@ -230,7 +230,7 @@ async function pageCommand(cmd, args) {
     }
 
     if (cmd === 'mainImage') {
-      const open = document.querySelector('a[ng-click="vm.openUploadModal()"]');
+      const open = document.querySelector('a[ng-click="vm.openUploadModal()"][data-nclicks-code="image.repre"]') || document.querySelector('a[ng-click="vm.openUploadModal()"]');
       if (!open) return { ok: false, error: '「이미지 등록」 버튼을 찾지 못했습니다.' };
       open.scrollIntoView({ block: 'center' });
       open.click();
@@ -239,6 +239,31 @@ async function pageCommand(cmd, args) {
       await putFile(input, args);
       const done = await waitFor(() => !document.querySelector('.modal.in input[type=file][ngf-select*="uploadImagesFromDevice"]'), 20000);
       return done ? { ok: true } : { ok: false, error: '대표 이미지 올리기가 끝나지 않았습니다.' };
+    }
+
+    if (cmd === 'extraImages') {
+      // 추가 이미지(최대 9장): 「이미지 등록」(data-nclicks-code="image.add") → 「내 사진」 파일 칸에 여러 장 한 번에(창 1회 총 20MB 이하로 나눠 받음)
+      const links = [...document.querySelectorAll('a[ng-click="vm.openUploadModal()"]')];
+      const open = links.find((a) => a.getAttribute('data-nclicks-code') === 'image.add') || links[1];
+      if (!open) return { ok: false, error: '추가 이미지 「이미지 등록」 버튼을 찾지 못했습니다(이미 9장이 찼을 수 있음).' };
+      const list = open.closest('ul.img-list');
+      const countImgs = () => (list ? list.querySelectorAll('li img').length : 0);
+      const before = countImgs();
+      open.scrollIntoView({ block: 'center' });
+      open.click();
+      const input = await waitFor(() => document.querySelector('.modal.in input[type=file][ngf-select*="uploadImagesFromDevice"]') || document.querySelector('input[type=file][ngf-select*="uploadImagesFromDevice"]'), 8000);
+      if (!input) return { ok: false, error: '추가 이미지 사진 올리기 칸을 찾지 못했습니다.' };
+      const dt = new DataTransfer();
+      for (const f of args.files) dt.items.add(new File([Uint8Array.from(atob(f.data), (ch) => ch.charCodeAt(0))], f.name, { type: f.mime }));
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      const done = await waitFor(() => !document.querySelector('.modal.in input[type=file][ngf-select*="uploadImagesFromDevice"]'), 30000);
+      if (!done) return { ok: false, error: '추가 이미지 올리기가 끝나지 않았습니다.' };
+      if (list) {
+        const grew = await waitFor(() => countImgs() > before, 10000);
+        if (!grew) return { ok: false, error: '추가 이미지가 목록에 보이지 않습니다.' };
+      }
+      return { ok: true, added: countImgs() - before };
     }
 
     if (cmd === 'openEditor') {
@@ -551,6 +576,19 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'extra_images') {
+        if (!job.extraImages?.length) { failures.push('추가 이미지(받은 사진 없음)'); continue; }
+        // 창 한 번에 총 20MB까지 — 18MB 이하 묶음으로 나눠 올린다
+        const assets = [];
+        for (const a of job.extraImages) assets.push(await fetchAsset(a));
+        const batches = [[]]; let size = 0;
+        for (const a of assets) { const bytes = a.data.length * 0.75; if (batches.at(-1).length && size + bytes > 18e6) { batches.push([]); size = 0; } batches.at(-1).push(a); size += bytes; }
+        for (const [i, files] of batches.entries()) {
+          await setStatus(`추가 이미지 ${i + 1}/${batches.length}묶음`);
+          r = await run(tabId, 'extraImages', { files });
+          if (!r.ok) break;
+          await human();
+        }
       } else if (step.action === 'html') {
         if (!job.detailImages?.length) continue;
         r = await run(tabId, 'openEditor');

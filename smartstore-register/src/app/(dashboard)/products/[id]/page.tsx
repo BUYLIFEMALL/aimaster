@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
-import { getDefaults, getProductForRegister, listJobs, JOB_STATUS } from "@/lib/data";
+import { getDefaults, getProductForRegister, listJobs, JOB_STATUS, ownExtraPaths } from "@/lib/data";
 import { buildFillSteps } from "@/lib/smartstore/fields";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { RegisterForm } from "@/components/RegisterForm";
@@ -21,7 +21,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
   if (!loaded) notFound();
   const { product, mainImage, sections } = loaded;
   // 미리보기는 카테고리 검색어 칸을 비운 상태로 계산 — 실제 작업은 입력한 검색어로 다시 만든다.
-  const preview = buildFillSteps(product, defaults, { mode: "fill_only", categoryKeyword: lastCategory(product.category), detailImageCount: sections.length, mainImage: Boolean(mainImage) });
+  const preview = buildFillSteps(product, defaults, { mode: "fill_only", categoryKeyword: lastCategory(product.category), detailImageCount: sections.length, mainImage: Boolean(mainImage), extraImageCount: ownExtraPaths(user.id, product.reference_image_urls).length });
 
   return (
     <div className="space-y-4">
@@ -48,7 +48,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
                 <tr key={s.key}>
                   <td className="py-1.5 pr-2 text-slate-500">{s.section}</td>
                   <td className="py-1.5 pr-2 font-bold text-slate-800">{s.label}{s.required && <span className="text-rose-600"> *</span>}</td>
-                  <td className="max-w-[260px] truncate py-1.5 text-slate-700">{s.key === "category" ? "(오른쪽에서 검색어 입력)" : s.action === "images" ? (mainImage ? "대표 사진 1장" : "없음") : s.action === "html" ? `섹션 이미지 ${sections.length}장` : s.action === "check" || (s.action === "radio" && s.value === "true") ? "켬" : s.value || "—"}</td>
+                  <td className="max-w-[260px] truncate py-1.5 text-slate-700">{s.key === "category" ? "(오른쪽에서 검색어 입력)" : s.action === "images" ? (mainImage ? "대표 사진 1장" : "없음") : s.action === "extra_images" ? `참고 사진 ${s.value}장` : s.action === "html" ? `섹션 이미지 ${sections.length}장` : s.action === "check" || (s.action === "radio" && s.value === "true") ? "켬" : s.value || "—"}</td>
                 </tr>
               ))}
             </tbody>

@@ -27,9 +27,16 @@ export interface ProductRow {
   updated_at: string;
   /** 상세페이지에서 회원이 「검토 완료」를 누른 시각(null=검토 전) — 이커머스 한 흐름 4단계 */
   reviewed_at?: string | null;
+  /** 회원이 올린 참고(실물) 사진 — 스마트스토어 추가 이미지로 쓴다 */
+  reference_image_urls?: string[] | null;
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at";
+/** 참고 사진 중 회원 본인 폴더 경로만, 앞에서부터 최대 9개(스마트스토어 추가 이미지) */
+export function ownExtraPaths(userId: string, urls: string[] | null | undefined): string[] {
+  return (urls ?? []).map((u) => storagePathFromUrl(u)).filter((p): p is string => Boolean(p && p.startsWith(`${userId}/`))).slice(0, 9);
+}
+
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls";
 
 export async function listProducts(userId: string): Promise<{ rows: ProductRow[]; error: boolean }> {
   const supabase = await createClient();

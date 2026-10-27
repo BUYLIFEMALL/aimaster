@@ -98,3 +98,14 @@ test("어린이제품인증: 기본은 건드리지 않음, 「인증대상 아�
   assert.equal(extCanRun(r.steps, "v1.06"), true);
   assert.equal(normalizeDefaults({ childCert: "x" }).childCert, "");
 });
+
+test("추가 이미지: 0장이면 단계 없음, 3장은 3장, 12장은 9장까지, 확장 v1.10 이상", () => {
+  assert.ok(!keys(buildFillSteps(P, D, O)).includes("extra_images"));
+  const r3 = buildFillSteps(P, D, { ...O, extraImageCount: 3 });
+  const s3 = r3.steps.find((s) => s.key === "extra_images");
+  assert.equal(s3.value, "3");
+  assert.ok(keys(r3).indexOf("extra_images") > keys(r3).indexOf("images"));
+  assert.equal(buildFillSteps(P, D, { ...O, extraImageCount: 12 }).steps.find((s) => s.key === "extra_images").value, "9");
+  assert.equal(extCanRun(r3.steps, "v1.09"), false);
+  assert.equal(extCanRun(r3.steps, "v1.10"), true);
+});
