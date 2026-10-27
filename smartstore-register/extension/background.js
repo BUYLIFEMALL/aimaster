@@ -298,6 +298,9 @@ async function pageCommand(cmd, args) {
         ? [...document.querySelectorAll('button[progress-button="vm.createTempSave()"], button[ng-click="vm.createTempSave()"]')].find(visible)
         : [...document.querySelectorAll('button')].find((b) => visible(b) && b.textContent.replace(/\s+/g, '') === '저장하기');
       if (!btn) return { ok: false, error: '저장 버튼을 찾지 못했습니다.' };
+      // 누르기 전부터 떠 있던 글(검색 SEO 안내·「달력보기」 등)은 판정에서 뺀다 — 누른 뒤 새로 나타난 글만 본다
+      const noteNodes = () => [...document.querySelectorAll('.modal.in, [role="dialog"], .toast, .alert, .noti-message, .error-msg, [class*="error"]')].filter(visible);
+      const before = new Set(noteNodes().map((m) => m.innerText.replace(/\s+/g, ' ').trim()));
       btn.click();
       if (temp) {
         // 「임시저장 하시겠습니까?」 같은 확인 창이 뜨면 「확인」
@@ -307,7 +310,9 @@ async function pageCommand(cmd, args) {
       // 누르기만 하고 성공으로 보지 않는다(2026-10-27: 「등록 완료」로 기록됐는데 판매자센터에 상품이 없었음).
       // 성공 = 「상품 등록」 주소를 벗어남 또는 완료 안내 / 실패 = 오류 안내·칸 오류 문구 / 그 밖 = 결과 미확인.
       const startHash = location.hash;
-      const notes = () => [...document.querySelectorAll('.modal.in, [role="dialog"], .toast, .alert, .noti-message, .error-msg, [class*="error"]')].filter(visible).map((m) => m.innerText.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      // 칸 오류는 그 칸 이름과 함께 남긴다(예: 「A/S 전화번호: 필수 정보입니다」)
+      const fieldName = (m) => (m.closest('.form-group, .seller-input-wrap, li, tr')?.querySelector('label, th, .control-label, .title')?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 30);
+      const notes = () => noteNodes().map((m) => { const t = m.innerText.replace(/\s+/g, ' ').trim(); return before.has(t) ? '' : (/필수|입력해|선택해/.test(t) && fieldName(m) ? `${fieldName(m)}: ${t}` : t); }).filter(Boolean);
       let verdict = null;
       for (let t = 0; t < 30 && !verdict; t++) {
         await sleep(500);
