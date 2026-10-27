@@ -501,6 +501,18 @@ async function tagsMain(a) {
   const inst = sel.selectize;
   if (inst) inst.__ssrStart = inst.items.length;
   const input = box?.querySelector('.selectize-input input');
+  const rejected = [];
+  // 판매자센터가 카테고리·브랜드가 든 태그를 「태그로 등록할 수 없는 단어」 창으로 거절한다(2026-10-27 실측) → 단어를 기록하고 「확인」으로 닫는다
+  const closeReject = async () => {
+    await sleep(500);
+    const m = [...document.querySelectorAll('.modal, [role="dialog"], .layer, div')].filter((e) => e.offsetParent !== null && /태그로 등록할 수 없는/.test(e.textContent || '') && e.querySelector('button')).pop(); // 가장 안쪽 상자
+    if (!m) return;
+    const w = (m.textContent.match(/태그 불가 단어s*:?s*([^s]+?)(?:카테고리|$|s)/) || [])[1];
+    if (w) rejected.push(w);
+    const ok = [...m.querySelectorAll('button')].find((b) => b.textContent.trim() === '확인') || m.querySelector('button');
+    ok?.click();
+    await sleep(400);
+  };
   for (const tag of a.tags) {
     if (inst && typeof inst.createItem === 'function') {
       const before1 = inst.items.length;
@@ -525,14 +537,19 @@ async function tagsMain(a) {
       if (window.jQuery) { try { window.jQuery(input).trigger(window.jQuery.Event('keydown', { keyCode: 13, which: 13 })); } catch (e) { /* 무시 */ } }
     } else return { ok: false, error: '태그 입력칸을 찾지 못했습니다.' };
     await sleep(600);
+    await closeReject();
   }
   await sleep(800);
   const added = Math.max(shownCount() - before, inst ? inst.items.length - (inst.__ssrStart ?? 0) : 0);
   // 화면 표시와 별개로 판매자센터 값(seoInfo.sellerTags)에 들어갔는지도 본다
   let saved = -1;
   try { const h = document.querySelector('input[ng-model="vm.product.detailAttribute.seoInfo.sellerTags"]'); const c = h && window.angular ? window.angular.element(h).controller('ngModel') : null; if (c && Array.isArray(c.$modelValue)) saved = c.$modelValue.length; } catch (e) { /* 무시 */ }
-  if (added <= 0 && saved <= 0) return { ok: false, error: `태그가 화면에 추가되지 않았습니다(${inst ? '상자 연결됨' : '상자 연결 없음 — Enter 입력'}).` };
-  return { ok: true, added, expected: a.tags.length };
+  // 이 화면은 태그를 입력칸 아래 「# 여행백팩」 칩으로 따로 보여 준다 → 칩 수도 센다
+  const area = sel.closest('fieldset') || box?.parentElement?.parentElement || document;
+  const chips = [...area.querySelectorAll('span, li, a, div')].filter((e) => e.children.length <= 2 && /^#s*S/.test((e.textContent || '').trim()) && e.offsetParent !== null).length;
+  const count = Math.max(added, saved, chips);
+  if (count <= 0 && !rejected.length) return { ok: false, error: `태그가 화면에 추가되지 않았습니다(${inst ? '상자 연결됨' : '상자 연결 없음 — Enter 입력'}).` };
+  return { ok: true, added: count, expected: a.tags.length, rejected };
 }
 
 // 카테고리별 상품속성(2026-10-27 v1.14) — 「상품속성」 표(ncp-product-attribute-table)에서 속성 이름이 같은 줄을 찾아
@@ -916,7 +933,8 @@ async function runJob(job) {
         let tags = []; try { tags = JSON.parse(step.value); } catch (e) { tags = []; }
         if (!tags.length) continue;
         r = await runMain(tabId, tagsMain, { tags });
-        if (r.ok && r.added < r.expected) failures.push('검색 태그 — ' + r.added + '개만 들어감(보낸 것 ' + r.expected + '개). 카테고리·브랜드가 들어간 태그는 스마트스토어가 받지 않습니다');
+        if (r.ok && r.rejected?.length) failures.push('검색 태그 — 스마트스토어가 거절: ' + r.rejected.join(', ') + '(카테고리·브랜드·판매처 이름이 든 태그는 쓸 수 없음)');
+        else if (r.ok && r.added < r.expected) failures.push('검색 태그 — ' + r.added + '개만 들어감(보낸 것 ' + r.expected + '개). 카테고리·브랜드가 들어간 태그는 스마트스토어가 받지 않습니다');
       } else if (step.action === 'options') {
         if (!job.optionFile) { failures.push('옵션(엑셀 파일을 받지 못함)'); continue; }
         r = await runMain(tabId, optionsMain, { file: job.optionFile, type: job.optionFile.type, rows: job.optionFile.rows });
