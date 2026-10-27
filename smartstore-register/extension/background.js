@@ -451,11 +451,14 @@ async function editorImageMain(a) {
 // 옵션 — 판매자센터 「엑셀 일괄등록」(2026-10-27 v1.12). 옵션 칸 화면 템플릿이 저장본에 없어 화면 글자와 옵션 칸 범위로 찾는다.
 // 「엑셀 일괄등록하기」는 파일 고르는 창을 띄우므로 에디터 사진처럼 파일 칸 click()을 잠깐 가로채 파일을 넣는다.
 async function optionsMain(a) {
+  // 카테고리를 바꾸면 옛 칸이 보이지 않은 채 문서에 남는다(2026-10-28 실측) → 같은 id 중 보이는 쪽만 쓴다
+  const _vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const vid = (id) => { const all = [...document.querySelectorAll('[id="' + id + '"]')]; return all.find((e) => _vis(e) || _vis(e.parentElement) || _vis(document.querySelector('label[for="' + id + '"]'))) || null; };
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const norm = (s) => (s || '').replace(/\s+/g, ' ').trim();
   const visible = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
   const modalText = () => [...document.querySelectorAll('.modal.in, [role="dialog"], [role="alertdialog"]')].filter(visible).map((m) => norm(m.textContent).slice(0, 160)).join(' / ');
-  const title = [...document.querySelectorAll('.title-line label')].find((l) => norm(l.textContent).startsWith('옵션'));
+  const title = [...document.querySelectorAll('.title-line label')].find((l) => _vis(l) && norm(l.textContent).startsWith('옵션'));
   if (!title) return { ok: false, error: '「옵션」 칸을 찾지 못했습니다.' };
   const byText = (root, sel, text) => [...root.querySelectorAll(sel)].find((b) => visible(b) && norm(b.textContent) === text);
   let card = title.closest('.title-line') || title;
@@ -624,11 +627,14 @@ async function attributesMain(a) {
 // 직접입력형 옵션(2026-10-27 v1.14) — 「직접입력형」 설정함(#option_direct_type_true) → 옵션명 개수(selectize vm.customOptionNameCount) → 이름 칸 #custom_option_name0.. 에 넣기.
 // 이름 칸은 ng-model-options debounce라 모델에 바로 반영(commit)하고 모델 값으로 확인한다.
 async function customOptionsMain(a) {
+  // 카테고리를 바꾸면 옛 칸이 보이지 않은 채 문서에 남는다(2026-10-28 실측) → 같은 id 중 보이는 쪽만 쓴다
+  const _vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const vid = (id) => { const all = [...document.querySelectorAll('[id="' + id + '"]')]; return all.find((e) => _vis(e) || _vis(e.parentElement) || _vis(document.querySelector('label[for="' + id + '"]'))) || null; };
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const ng = window.angular;
-  const on = document.getElementById('option_direct_type_true');
+  const on = vid('option_direct_type_true');
   if (!on) return { ok: false, error: '「직접입력형」 설정 버튼을 찾지 못했습니다(옵션 칸이 접혀 있을 수 있음).' };
-  (document.querySelector('label[for="option_direct_type_true"]') || on).click();
+  ((vid('option_direct_type_true')?.parentElement?.querySelector('label[for="option_direct_type_true"]')) || on).click();
   await sleep(700);
   const countSel = document.querySelector('input[ng-model="vm.customOptionNameCount"]');
   if (a.names.length > 1 && countSel?.selectize) { countSel.selectize.setValue(String(a.names.length)); await sleep(600); }
@@ -636,7 +642,7 @@ async function customOptionsMain(a) {
   try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
   const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
   for (let i = 0; i < a.names.length; i++) {
-    const el = document.getElementById('custom_option_name' + i);
+    const el = vid('custom_option_name' + i);
     if (!el) return { ok: false, error: '직접입력형 옵션명 칸 ' + (i + 1) + '번을 찾지 못했습니다.' };
     const ctrl = ng ? ng.element(el).controller('ngModel') : null;
     if (ctrl) {
@@ -654,21 +660,24 @@ async function customOptionsMain(a) {
 
 // 추가상품(2026-10-27 v1.14) — 「선택형」 설정함(#supplement_true) → 직접 입력하기 → 줄마다 추가상품명·값·가격 → 「목록으로 적용」 → 목록 「총 N개」 확인.
 async function supplementsMain(a) {
+  // 카테고리를 바꾸면 옛 칸이 보이지 않은 채 문서에 남는다(2026-10-28 실측) → 같은 id 중 보이는 쪽만 쓴다
+  const _vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const vid = (id) => { const all = [...document.querySelectorAll('[id="' + id + '"]')]; return all.find((e) => _vis(e) || _vis(e.parentElement) || _vis(document.querySelector('label[for="' + id + '"]'))) || null; };
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const ng = window.angular;
   const norm = (s) => (s || '').replace(/\s+/g, '');
-  let on = document.getElementById('supplement_true');
+  let on = vid('supplement_true');
   if (!on) {
     const head = [...document.querySelectorAll('.title-line')].find((l) => (l.querySelector('label')?.textContent || '').replace(/\s+/g, '').startsWith('추가상품'));
     if (head) { head.scrollIntoView({ block: 'center' }); (head.querySelector('.input-content') || head).click(); await sleep(1000); }
-    on = document.getElementById('supplement_true');
+    on = vid('supplement_true');
   }
   if (!on) {
-    const why = [...document.querySelectorAll('p, div, span')].find((e) => e.children.length < 3 && /추가상품 설정이 불가/.test(e.textContent || ''));
+    const why = [...document.querySelectorAll('p, div, span')].filter((e) => _vis(e) && (e.textContent || '').length < 200 && /추가상품 설정이 불가/.test(e.textContent || '')).pop();
     return { ok: false, error: why ? why.textContent.trim().slice(0, 120) : '추가상품 「설정함」 버튼을 찾지 못했습니다(추가상품 칸이 접혀 있거나 이 카테고리에서 쓸 수 없음).' };
   }
-  if (!on.checked) { (document.querySelector('label[for="supplement_true"]') || on).click(); await sleep(700); }
-  const direct = [...document.querySelectorAll('input[ng-model="vm.suppleInputType"]')].find((x) => x.value === 'direct');
+  if (!on.checked) { (on.parentElement?.querySelector('label[for="supplement_true"]') || on).click(); await sleep(700); }
+  const direct = [...document.querySelectorAll('input[ng-model="vm.suppleInputType"]')].find((x) => x.value === 'direct' && (_vis(x) || _vis(x.parentElement)));
   if (direct && !direct.checked) { (direct.closest('label') || direct).click(); await sleep(500); }
   let root = null;
   try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
@@ -681,27 +690,27 @@ async function supplementsMain(a) {
     return String(ctrl.$modelValue ?? '') === v;
   };
   for (let i = 0; i < a.groups.length; i++) {
-    if (i > 0 && !document.getElementById('supple_group_name' + i)) {
-      const plus = [...document.querySelectorAll('a[ng-click="vm.addSuppleInput()"]')].pop();
+    if (i > 0 && !vid('supple_group_name' + i)) {
+      const plus = [...document.querySelectorAll('a[ng-click="vm.addSuppleInput()"]')].filter(_vis).pop();
       if (!plus) return { ok: false, error: '추가상품 줄 추가 버튼을 찾지 못했습니다.' };
       plus.click(); await sleep(500);
     }
     const g = a.groups[i];
     const cells = [['supple_group_name', g.name], ['supple_names', g.values.join(',')], ['supple_prices', g.prices.join(',')]];
     for (const [id, v] of cells) {
-      const el = document.getElementById(id + i);
+      const el = vid(id + i);
       if (!el) return { ok: false, error: `추가상품 ${i + 1}번째 줄 칸을 찾지 못했습니다.` };
       if (!put(el, v)) return { ok: false, error: `추가상품 「${g.name}」 값이 들어가지 않았습니다.` };
       await sleep(250);
     }
   }
   await sleep(400);
-  const btn = [...document.querySelectorAll('a, button')].find((b) => norm(b.textContent) === '목록으로적용' && b.closest('[ng-show="vm.isConfig"], fieldset, div'));
+  const btn = [...document.querySelectorAll('a, button')].find((b) => _vis(b) && norm(b.textContent) === '목록으로적용' && b.closest('[ng-show="vm.isConfig"], fieldset, div'));
   if (!btn) return { ok: false, error: '「목록으로 적용」 버튼을 찾지 못했습니다.' };
   btn.scrollIntoView({ block: 'center' });
   btn.click();
   await sleep(1500);
-  const lab = [...document.querySelectorAll('label')].find((l) => norm(l.textContent).startsWith('추가상품목록'));
+  const lab = [...document.querySelectorAll('label')].find((l) => _vis(l) && norm(l.textContent).startsWith('추가상품목록'));
   const n = Number(lab?.querySelector('em')?.textContent || 0);
   if (n !== a.expect) return { ok: false, error: `추가상품 목록이 ${n}개입니다(기대 ${a.expect}개). 판매자센터에서 확인해 주세요.` };
   return { ok: true };
@@ -772,9 +781,12 @@ async function brandInputMain(a) {
 
 // 옵션 상태 읽기(2026-10-28) — 카테고리 화면 갱신으로 옵션·직접입력형이 지워졌는지 마지막에 확인한다
 function optionStateMain() {
-  const lab = [...document.querySelectorAll('label, div, span')].find((e) => e.children.length < 4 && /^옵션목록\s*\(총/.test((e.textContent || '').trim()));
+  // 카테고리를 바꾸면 옛 칸이 보이지 않은 채 문서에 남는다(2026-10-28 실측) → 같은 id 중 보이는 쪽만 쓴다
+  const _vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const vid = (id) => { const all = [...document.querySelectorAll('[id="' + id + '"]')]; return all.find((e) => _vis(e) || _vis(e.parentElement) || _vis(document.querySelector('label[for="' + id + '"]'))) || null; };
+  const lab = [...document.querySelectorAll('label, div, span')].find((e) => _vis(e) && e.children.length < 4 && /^옵션목록\s*\(총/.test((e.textContent || '').trim()));
   const m = lab ? (lab.textContent || '').match(/총\s*(\d+)\s*개/) : null;
-  const custom = document.getElementById('option_direct_type_true');
+  const custom = vid('option_direct_type_true');
   return { ok: true, optionCount: m ? Number(m[1]) : -1, customOn: !!(custom && custom.checked) };
 }
 
