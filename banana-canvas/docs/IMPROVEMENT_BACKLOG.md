@@ -22,6 +22,7 @@
 ### ⏸ E5-4 무료 이미지 도구 보강 — 추후 작업 대기(2026-10-26 주인님 지시로 보류)
 - [ ] 숫자 자리 판정 기준(최소 숫자 개수·숫자 비율) 화면에서 조절(localStorage 기억)
 - [ ] 한글 이름·주소 가리기 — 검토 끝: PaddlePaddle 공식 `korean_PP-OCRv5_mobile_rec_onnx` 13.4MB, Apache-2.0, 글자 목록 `inference.yml`. 주소·이름 규칙으로 후보 고르기
+- [ ] **무료 지우기를 썸네일·카드뉴스 프로그램에도 넣기**(2026-10-27 주인님 지시로 대기 등록) — 공용 `browser-free-erase` 사본을 `thumbnail-master`·카드뉴스 프로그램에 붙이기. 다른 담당 폴더라 그 담당 세션과 협의한 뒤 프로그램마다 빌드 1회씩, AI 비용 없음
 - [ ] 결과 되돌려 넣기를 카드뉴스·인스타 게시 이미지로 확대 — `insta_auto_poster` 디자인 담당(agy) 작업 끝난 뒤, `nukki-handoff`를 여러 보낸 곳용으로 일반화
 - 근거·비용: [`PLAN_20261026_E5D_DIGIT_RULES_KOREAN_RETURN.md`](PLAN_20261026_E5D_DIGIT_RULES_KOREAN_RETURN.md)(빌드 최대 2회 + ③ 2회)
 
