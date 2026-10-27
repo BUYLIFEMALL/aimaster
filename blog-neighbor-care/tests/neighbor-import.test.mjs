@@ -5,7 +5,7 @@ import {parseHTML} from 'linkedom';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {createNeighborImportHandler,normalizeNeighborSnapshot} from '../src/lib/neighbors/importApi.ts';
-import {parseNeighborPage,inspectVisibleNeighbors} from '../extension/neighbor-extractor.mjs';
+import {parseNeighborPage,inspectVisibleNeighbors,advanceVisibleNeighborPage} from '../extension/neighbor-extractor.mjs';
 import {createNeighborImporter} from '../extension/neighbor-importer.mjs';
 import {NeighborImportPanel} from '../src/components/analysis/NeighborImportPanel.tsx';
 const id='11111111-1111-4111-8111-111111111111',device='22222222-2222-4222-8222-222222222222',account='33333333-3333-4333-8333-333333333333';
@@ -73,4 +73,42 @@ test('NI14 stop is immediate before the next DOM capture and never masquerades a
 });
 test('NI15 UI makes confirmation, coverage, target defaults and no external execution explicit',()=>{
  const text=renderToStaticMarkup(React.createElement(NeighborImportPanel,{accountId:account}));assert.match(text,/허용 수단/);assert.match(text,/자동 소통 실행은 꺼져 있습니다/);assert.match(text,/가져온 목록·진행 상태 조회/);
+});
+function actualShape({count=43,filter='이웃전체',query='블로그명, 별명 검색',badRelation=false}={}){
+ const rows=Array.from({length:count},(_,i)=>`<tr><td><input type="checkbox"></td><td>일반</td><td>${badRelation?'일반':i<17?'서로이웃':'이웃'}</td><td><a href="https://blog.naver.com/synthetic-${i}">합성 이름</a></td><td>ON</td><td>날짜</td><td>날짜</td></tr>`).join('');
+ return `<html><body><h1>환경설정 &gt; 내가 추가한 이웃</h1><input type="text" placeholder="블로그명, 별명 검색" value="${query}"><p>정렬된 이웃 ${count} 명</p><table><caption>이웃관리 목록</caption><thead><tr><td><input type="checkbox"></td><th><input value="dummy"><span>그룹전체</span></th><th>${filter}</th><th>이웃</th><th>새글소식전체</th><th>최근 글</th><th>이웃추가일</th></tr></thead><tbody>${rows}</tbody></table><div>1</div></body></html>`;
+}
+const actualUrl='https://admin.blog.naver.com/BuddyListManage.naver?blogId=owner';
+test('NI16 observed Naver table shape: checkbox column, group ordinary is NOT relationship, explicit 43 rows',()=>{
+ const r=inspect(actualShape(),actualUrl);assert.equal(r.ok,true);assert.equal(r.snapshot.rows.length,43);assert.equal(r.snapshot.totalPages,1);
+ assert.equal(r.snapshot.rows.filter(r=>r.relation==='mutual').length,17);assert.equal(r.snapshot.rows.filter(r=>r.relation==='one_way').length,26);
+ assert.equal(normalizeNeighborSnapshot(r.snapshot).blogId,'owner');assert.equal(normalizeNeighborSnapshot(r.snapshot).totalCount,43);
+});
+test('NI17 observed management frame rejects active filters/search or ambiguous relation; empty group never decides state',()=>{
+ for(const config of [{filter:'서로이웃'},{query:'찾는 사람'},{badRelation:true}])assert.equal(inspect(actualShape(config),actualUrl).ok,false);
+ assert.equal(inspect(actualShape(),actualUrl+'&groupId=all').ok,false);
+ const partial=actualShape().replace('정렬된 이웃 43 명','정렬된 이웃 100 명');assert.equal(inspect(partial,actualUrl).ok,false);
+});
+test('NI18 shell requires own statistics link; child route/canonical actor are server bound',()=>{
+ const context=inspect('<body><a href="https://admin.blog.naver.com/owner/stat/today">내 블로그 통계</a></body>','https://admin.blog.naver.com/owner');assert.equal(context.ok,true);assert.equal(context.context.blogId,'owner');
+ assert.equal(inspect('<body><a href="https://admin.blog.naver.com/other/stat/today">내 블로그 통계</a></body>','https://admin.blog.naver.com/owner').ok,false);
+ assert.equal(parseNeighborPage('https://admin.blog.naver.com/owner').kind,'shell');
+ assert.throws(()=>normalizeNeighborSnapshot({...snapshot(),url:'https://admin.blog.naver.com/owner'}));
+});
+test('NI19 shell + list frames together stage a single declared-complete page; missing parent proof prevents upload',async()=>{
+ for(const proof of [true,false]){
+  const f=engine();f.state.tab.url='https://admin.blog.naver.com/owner';
+  f.browser.scripting.executeScript=async()=>[
+   ...(proof?[{result:inspect('<body><a href="https://admin.blog.naver.com/owner/stat/today">내 블로그 통계</a></body>','https://admin.blog.naver.com/owner')}]:[]),
+   {result:inspect(actualShape(),actualUrl)}];
+  // Engine fixture responds ready for its second page; a one-page source uses an explicit ready receipt.
+  const calls=[];const handle=createNeighborImporter(f.browser,async(op,p)=>{calls.push(op);if(op==='reserve')return {nonce:'b'.repeat(64),validUntil:new Date(100000).toISOString()};if(op==='page')return {id,state:'ready',capturedCount:43};return {id,state:'capturing',lastPage:0};},async()=>f.state.identity,()=>0);
+  if(proof)assert.equal((await handle({type:'neighbors_read',ownerConfirmed:true})).capturedCount,43);
+  else{await assert.rejects(handle({type:'neighbors_read',ownerConfirmed:true}));assert.equal(calls.includes('page'),false);}
+ }
+});
+test('NI20 iframe pagination clicks only exact safe next-page anchors, never forms or script URLs',()=>{
+ const current=actualUrl+'&currentPage=1',next=actualUrl+'&currentPage=2';
+ const run=(href,label='2')=>{const {document}=parseHTML(`<body><a href="${href}">${label}</a><button>삭제</button></body>`);let clicked=0;document.querySelector('a').getClientRects=()=>[{}];document.querySelector('a').click=()=>clicked++;const result=vm.runInNewContext(`(${advanceVisibleNeighborPage.toString()})('owner',${JSON.stringify(current)},${JSON.stringify(next)})`,{document,location:{href:current},URL});return {result,clicked};};
+ assert.equal(run(next).clicked,1);for(const href of ['javascript:deleteBuddy()','https://evil.example/?currentPage=2',actualUrl+'&currentPage=3'])assert.equal(run(href).clicked,0);
 });

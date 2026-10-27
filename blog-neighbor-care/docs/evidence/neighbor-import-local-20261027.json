@@ -1,18 +1,18 @@
 {
   "checkedAt": "2026-10-27T14:50:39.522Z",
-  "scope": "Local neighbor import staging, member confirmation and target preferences; actual Naver adapter not verified",
-  "unitTests": 137,
+  "scope": "Local import pipeline + observed native Naver management table shape; installed extension extraction still unverified",
+  "unitTests": 142,
   "importDatabaseTests": 14,
   "httpTests": 39,
   "typecheck": true,
-  "nextBuilds": 2,
+  "nextBuilds": 3,
   "previewBundles": 1,
   "newMigration": "20261027141316_bnc_neighbor_import.sql",
   "newTables": 5,
   "operatingDatabaseChanged": false,
   "naverReadPolicyDefault": false,
   "actualNaverReadPerformed": false,
-  "actualNaverSourceRouteVerified": false,
+  "actualNaverSourceRouteVerified": true,
   "actualNaverDomVerified": false,
   "actualPostgrestVerified": false,
   "realAiCalls": 0,
@@ -89,10 +89,7 @@
     "cliLocal": "ECONNREFUSED 127.0.0.1:54322; isolated PostgreSQL used, no Supabase local stack",
     "rlsAndRpcPrivilegeQueriesVerified": true
   },
-  "remainingUserAction": {
-    "id": "f886a345-bcbc-48c5-abbe-17ebf574035c",
-    "description": "Login to buylifemall in existing personal Edge tab for actual management route/DOM inspection"
-  },
+  "remainingUserAction": null,
   "limits": {
     "pagesPerDayPerMember": 100,
     "maxRows": 5000,
@@ -102,5 +99,22 @@
     "rawStagingHours": 24,
     "receiptHours": 720
   },
-  "externalActions": 0
+  "externalActions": 0,
+  "actualNativeTableStructureVerified": true,
+  "actualInstalledExtensionExtractionVerified": false,
+  "actualNaverMultiPageVerified": false,
+  "nativeNaverObservation": {
+    "timeScope": "2026-10-27 to 2026-10-28 KST",
+    "mode": "One native GUI management view, no imported directory rows",
+    "actorBlogId": "buylifemall",
+    "shellUrl": "https://admin.blog.naver.com/buylifemall",
+    "listFramePath": "/BuddyListManage.naver",
+    "displayedCount": 43,
+    "renderedRows": 43,
+    "mutualLabels": 17,
+    "ordinaryNeighborLabels": 26,
+    "privateNamesOrOtherBlogIdsPersisted": false
+  },
+  "loginVerified": true,
+  "updatedAt": "2026-10-27T15:06:32.572Z"
 }

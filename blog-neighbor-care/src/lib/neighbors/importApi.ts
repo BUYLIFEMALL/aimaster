@@ -20,12 +20,12 @@ async function read(request:Request){
 }
 export function normalizeNeighborSnapshot(value:unknown){
  if(!obj(value)||!only(value,['format','url','listScope','page','totalPages','totalCount','rows','nextUrl'])||value.format!=='naver-visible-neighbors-v1'||value.listScope!=='all')invalid();
- const v=value as Obj,page=parseNeighborPage(v.url);if(!page||v.page!==page.page||!Number.isInteger(v.totalPages)||(v.totalPages as number)<page.page||(v.totalPages as number)>100||!Number.isInteger(v.totalCount)||(v.totalCount as number)<0||(v.totalCount as number)>5000||!Array.isArray(v.rows)||v.rows.length>100)invalid();
+ const v=value as Obj,page=parseNeighborPage(v.url);if(!page||page.kind==='shell'||v.page!==page.page||!Number.isInteger(v.totalPages)||(v.totalPages as number)<page.page||(v.totalPages as number)>100||!Number.isInteger(v.totalCount)||(v.totalCount as number)<0||(v.totalCount as number)>5000||!Array.isArray(v.rows)||v.rows.length>100)invalid();
  const rows=(v.rows as unknown[]).map(r=>{if(!obj(r)||!only(r,['blogId','relation'])||!blog(r.blogId)||r.blogId===page!.blogId||!['mutual','one_way'].includes(r.relation as string))invalid();return {blogId:(r as Obj).blogId as string,relation:(r as Obj).relation as string};});
  if(new Set(rows.map(r=>r.blogId)).size!==rows.length)invalid();
- const next=v.nextUrl===null?null:parseNeighborPage(v.nextUrl);if(v.nextUrl!==null&&(!next||next.blogId!==page!.blogId||next.page!==page!.page+1))invalid();
+ const next=v.nextUrl===null?null:parseNeighborPage(v.nextUrl);if(v.nextUrl!==null&&(!next||next.kind!==page!.kind||next.blogId!==page!.blogId||next.page!==page!.page+1))invalid();
  if((page!.page===v.totalPages)!==(next===null))invalid();
- return {format:v.format,url:page!.url,listScope:'all',page:page!.page,totalPages:v.totalPages,totalCount:v.totalCount,rows,nextUrl:next?.url??null};
+ return {format:v.format,url:page!.url,blogId:page!.blogId,listScope:'all',page:page!.page,totalPages:v.totalPages,totalCount:v.totalCount,rows,nextUrl:next?.url??null};
 }
 function result(r:{data:unknown;error:{message?:string}|null},extra:Obj={}){
  if(!r.error)return reply({data:r.data,...extra});

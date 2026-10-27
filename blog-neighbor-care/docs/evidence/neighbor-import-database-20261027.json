@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-27T14:38:26.870Z",
+  "checkedAt": "2026-10-27T15:06:42.240Z",
   "tests": [
     "IDB01 five tables RLS, private RPC, read gate default off and non-writable by service",
     "IDB02 missing platform permission blocks start without page reservation",

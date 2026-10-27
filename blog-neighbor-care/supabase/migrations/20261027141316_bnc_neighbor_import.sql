@@ -195,6 +195,7 @@ begin
  end if;
  if pg.valid_until<=v_now then raise exception 'BNC_IMPORT_EXPIRED'; end if;
  snapshot:=p_payload->'snapshot'; v_rows:=snapshot->'rows'; v_pages:=(snapshot->>'totalPages')::integer; v_total:=(snapshot->>'totalCount')::integer;
+ if snapshot->>'blogId' is distinct from r.blog_id then raise exception 'BNC_IMPORT_ACCOUNT'; end if;
  if v_pages not between 1 and 100 or v_total not between 0 and 5000 or v_page<>r.last_page+1 or v_page>v_pages or jsonb_typeof(v_rows) is distinct from 'array' or jsonb_array_length(v_rows)>100 then raise exception 'BNC_IMPORT_PAGE'; end if;
  if r.total_pages is not null and (r.total_pages<>v_pages or r.total_count<>v_total) then raise exception 'BNC_IMPORT_CHANGED'; end if;
  if v_total=0 and (v_pages<>1 or jsonb_array_length(v_rows)<>0) then raise exception 'BNC_IMPORT_PAGE'; end if;

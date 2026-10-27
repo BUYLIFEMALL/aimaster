@@ -24,7 +24,7 @@ function member(user=randomUUID()){
 const start=(m,id=randomUUID())=>{rpc(m,'start',{id,device_id:m.device});return id;};
 const reserve=(m,id,page=1)=>{const nonce=hash(randomUUID());rpc(m,'reserve',{id,device_id:m.device,page,nonce_hash:nonce});return nonce;};
 const snap=(m,rows,page=1,totalPages=1,totalCount=rows.length)=>({format:'naver-visible-neighbors-v1',url:`https://admin.blog.naver.com/ManageMyBuddy.naver?blogId=${m.blog}&page=${page}`,listScope:'all',page,totalPages,totalCount,rows,nextUrl:page<totalPages?`https://admin.blog.naver.com/ManageMyBuddy.naver?blogId=${m.blog}&page=${page+1}`:null});
-const put=(m,id,snapshot,nonce=reserve(m,id,snapshot.page))=>rpc(m,'page',{id,device_id:m.device,page:snapshot.page,nonce_hash:nonce,snapshot,snapshot_hash:hash(JSON.stringify(snapshot))});
+const put=(m,id,snapshot,nonce=reserve(m,id,snapshot.page))=>{const bound={...snapshot,blogId:m.blog};return rpc(m,'page',{id,device_id:m.device,page:snapshot.page,nonce_hash:nonce,snapshot:bound,snapshot_hash:hash(JSON.stringify(bound))});};
 const rows=[{blogId:'n-one',relation:'mutual'},{blogId:'n-two',relation:'one_way'}];
 const directory=m=>rpc(m,'directory',{account_id:m.account});
 const configure=(m,patch)=>rpc(m,'configure',{account_id:m.account,...patch});
@@ -50,6 +50,9 @@ try{
   assert.throws(()=>rpc(other,'start',{id:randomUUID(),device_id:owner.device}),/BNC_IMPORT_DISCONNECTED/);
   sql(`update public.member_platform_accounts set needs_reconnect=true where id=${q(other.account)};`);assert.throws(()=>start(other),/BNC_IMPORT_ACCOUNT/);
   sql(`update public.member_platform_accounts set needs_reconnect=false where id=${q(other.account)};`);
+  const wrong=member(),wrongRun=start(wrong),nonce=reserve(wrong,wrongRun),foreign={...snap(wrong,rows),blogId:'different-actor'};
+  assert.throws(()=>rpc(wrong,'page',{id:wrongRun,device_id:wrong.device,page:1,nonce_hash:nonce,snapshot:foreign,snapshot_hash:hash(JSON.stringify(foreign))}),/BNC_IMPORT_ACCOUNT/);
+  rpc(wrong,'cancel',{id:wrongRun});
  });
  let run;
  await check('IDB04 sequential pages stay staged until exact coverage and explicit confirmation',()=>{
