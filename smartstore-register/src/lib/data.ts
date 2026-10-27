@@ -121,6 +121,11 @@ export const JOB_STATUS: Record<string, { label: string; tone: string }> = {
 
 /** 이 상품으로 마지막에 보낸 작업의 옵션(다음 보내기 화면에 다시 채움) — 새 DB 칸 없이 작업 칸 목록에서 읽는다 */
 export async function getLastOptions(userId: string, productId: string): Promise<unknown> {
+  return getLastStepValue(userId, productId, "options");
+}
+
+/** 이 상품으로 마지막에 보낸 작업에서 그 단계(key)의 값(JSON) — 옵션·태그 다시 채우기 */
+export async function getLastStepValue(userId: string, productId: string, key: string): Promise<unknown> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("smartstore_register_jobs")
@@ -130,7 +135,7 @@ export async function getLastOptions(userId: string, productId: string): Promise
     .order("created_at", { ascending: false })
     .limit(5);
   for (const row of (data ?? []) as { steps: { key: string; value: string }[] | null }[]) {
-    const s = (row.steps ?? []).find((x) => x.key === "options");
+    const s = (row.steps ?? []).find((x) => x.key === key);
     if (s) { try { return JSON.parse(s.value); } catch { return null; } }
   }
   return null;

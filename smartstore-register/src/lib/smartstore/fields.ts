@@ -139,10 +139,17 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14" };
+
+/** 검색설정 태그 — 쉼표·줄바꿈으로 나눠 「#」·공백 정리, 같은 것 한 번, 최대 10개(스마트스토어 한도), 한 개 30자 이내 */
+export const TAGS_MAX = 10;
+export function normalizeTags(raw: unknown): string[] {
+  const list = Array.isArray(raw) ? raw.map(String) : String(raw ?? "").split(/[,\n]/);
+  return [...new Set(list.map((t) => t.replace(/^#+/, "").replace(/\s+/g, " ").trim().slice(0, 30)).filter(Boolean))].slice(0, TAGS_MAX);
+}
 
 /**
  * 칸 목록을 만든 코드의 세대 — 오래 열어 둔 탭은 그 시점 배포의 옛 코드로 작업을 만든다(2026-10-27 실제 사고: 고시 A/S 전화·어린이인증·추가 이미지가 빠진 작업).
@@ -215,7 +222,7 @@ export function managementCode(productId: string): string {
 export function buildFillSteps(
   product: ProductSource,
   defaults: StoreDefaults,
-  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null },
+  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[] },
 ): BuildResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -325,6 +332,8 @@ export function buildFillSteps(
   add({ key: "as_phone", section: "A/S", label: "A/S 전화번호", target: "vm.product.detailAttribute.afterServiceInfo.afterServiceTelephoneNumber", action: "type", value: defaults.asPhone, required: true });
   add({ key: "as_guide", section: "A/S", label: "A/S 안내", target: "vm.product.detailAttribute.afterServiceInfo.afterServiceGuideContent", action: "type", value: defaults.asGuide || "상품 상세페이지 참조", required: true });
 
+  const tags = normalizeTags(opts.tags ?? []);
+  if (tags.length) add({ key: "tags", section: "검색설정", label: `검색 태그 ${tags.length}개`, target: "vm.directInputTag", action: "tags", value: JSON.stringify(tags) });
   add({ key: "seller_code", section: "판매자 코드", label: "판매자 관리 코드", target: "vm.sellerCodeInfo.sellerManagementCode", action: "type", value: managementCode(product.id) });
 
   if (opts.mode === "register") {

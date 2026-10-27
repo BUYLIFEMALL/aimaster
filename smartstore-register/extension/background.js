@@ -479,6 +479,35 @@ async function optionsMain(a) {
   return { ok: false, error: '옵션목록에 줄이 생기지 않았습니다.' + (modalText() ? ' 화면 안내: ' + modalText() : '') };
 }
 
+// 검색설정 태그(2026-10-27 v1.14) — 「태그를 입력해주세요.」 selectize 상자(select[ng-model="vm.directInputTag"])에 하나씩 추가.
+// selectize 인스턴스가 있으면 createItem, 없으면 입력칸에 글자를 넣고 Enter. 결과는 숨은 칸 seoInfo.sellerTags 또는 화면의 태그 수로 확인.
+async function tagsMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const sel = document.querySelector('select[ng-model="vm.directInputTag"]');
+  if (!sel) return { ok: false, error: '검색 태그 입력 상자를 찾지 못했습니다(「검색설정」 칸이 접혀 있을 수 있음).' };
+  const box = sel.parentElement;
+  const shownCount = () => (box?.querySelectorAll('.selectize-input .item').length || 0);
+  const before = shownCount();
+  const inst = sel.selectize;
+  const input = box?.querySelector('.selectize-input input');
+  for (const tag of a.tags) {
+    if (inst && typeof inst.createItem === 'function') {
+      try { inst.addOption({ value: tag, text: tag }); inst.addItem(tag); } catch (e) { inst.createItem(tag); }
+    } else if (input) {
+      input.focus();
+      input.value = tag;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await sleep(150);
+      for (const type of ['keydown', 'keypress', 'keyup']) input.dispatchEvent(new KeyboardEvent(type, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+    } else return { ok: false, error: '태그 입력칸을 찾지 못했습니다.' };
+    await sleep(600);
+  }
+  await sleep(800);
+  const added = shownCount() - before;
+  if (added <= 0) return { ok: false, error: '태그가 화면에 추가되지 않았습니다.' };
+  return { ok: true, added, expected: a.tags.length };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -637,6 +666,11 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'tags') {
+        let tags = []; try { tags = JSON.parse(step.value); } catch (e) { tags = []; }
+        if (!tags.length) continue;
+        r = await runMain(tabId, tagsMain, { tags });
+        if (r.ok && r.added < r.expected) failures.push('검색 태그 — ' + r.added + '개만 들어감(보낸 것 ' + r.expected + '개). 카테고리·브랜드가 들어간 태그는 스마트스토어가 받지 않습니다');
       } else if (step.action === 'options') {
         if (!job.optionFile) { failures.push('옵션(엑셀 파일을 받지 못함)'); continue; }
         r = await runMain(tabId, optionsMain, { file: job.optionFile, type: job.optionFile.type, rows: job.optionFile.rows });

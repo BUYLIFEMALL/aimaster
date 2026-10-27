@@ -168,3 +168,17 @@ test("배송 직접 입력 확장: 수량별·구간별·결제방식·묶음·�
   const tpl = buildFillSteps(P, normalizeDefaults({ ...base, deliveryTemplate: "바이라이프", payType: "착불", jejuMode: "off" }), O);
   assert.ok(!tpl.steps.some((s) => s.key.startsWith("delivery_") && s.key !== "delivery_tpl"));
 });
+
+test("검색 태그: 쉼표·#·중복 정리, 최대 10개, 태그 단계(확장 v1.14+), 없으면 단계 없음", async () => {
+  const { normalizeTags } = await import("../src/lib/smartstore/fields.ts");
+  assert.deepEqual(normalizeTags("#여행백팩, 노트북가방,,여행백팩\n 출장 가방 "), ["여행백팩", "노트북가방", "출장 가방"]);
+  assert.equal(normalizeTags(Array.from({ length: 15 }, (_, i) => "태그" + i).join(",")).length, 10);
+  assert.ok(!keys(buildFillSteps(P, D, O)).includes("tags"));
+  const r = buildFillSteps(P, D, { ...O, tags: ["여행백팩", "노트북가방"] });
+  const s = r.steps.find((x) => x.key === "tags");
+  assert.equal(s.section, "검색설정");
+  assert.deepEqual(JSON.parse(s.value), ["여행백팩", "노트북가방"]);
+  assert.ok(keys(r).indexOf("tags") < keys(r).indexOf("seller_code"));
+  assert.equal(extCanRun(r.steps, "v1.13"), false);
+  assert.equal(extCanRun(r.steps, "v1.14"), true);
+});

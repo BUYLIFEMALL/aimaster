@@ -5,7 +5,7 @@ import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, defaultStock = 99 }: { productId: string; defaultKeyword: string; initialOptions?: unknown; defaultStock?: number }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, defaultStock = 99, initialTags = [] }: { productId: string; defaultKeyword: string; initialOptions?: unknown; defaultStock?: number; initialTags?: string[] }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -18,6 +18,11 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         <p className="mt-1 text-[11px] text-slate-500">확장이 이 말로 검색해 마지막 단계 카테고리까지 고릅니다.</p>
       </div>
       <OptionEditor initial={initialOptions} defaultStock={defaultStock} />
+      <div>
+        <label className="slw-label" htmlFor="tags">검색 태그 <span className="font-normal text-slate-500">(선택, 쉼표로 구분, 최대 10개)</span></label>
+        <input id="tags" name="tags" defaultValue={initialTags.join(", ")} placeholder="예: 여행백팩, 노트북가방, 출장가방" className="slw-field" />
+        <p className="mt-1 text-[11px] text-slate-500">카테고리·브랜드·판매처 이름이 들어간 태그는 스마트스토어가 등록하지 않습니다. 상품과 관계없는 태그는 판매금지될 수 있습니다.</p>
+      </div>
       <fieldset>
         <legend className="slw-label">등록 방식</legend>
         <div className="space-y-1.5">
