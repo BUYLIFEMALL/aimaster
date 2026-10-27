@@ -2,7 +2,7 @@
 
 > 루트 `../CLAUDE.md`(메인 지침)를 함께 읽는다. 한국어 진행 안내·회원 본인 계정/키·운영/Lab 분리·비용 사전 승인·경로 지정 커밋 규칙이 그대로 적용된다.
 > 플랜: [`../trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md`](../trending-product-finder/docs/PLAN_20261026_EC_W8_SMARTSTORE_EXTENSION.md) · 0단계 화면 분석: [`../trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md`](../trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md)
-> **📘 상세 인수인계(2026-10-27, 먼저 읽기)**: [`docs/IMPROVEMENT_HANDOFF_20261027.md`](docs/IMPROVEMENT_HANDOFF_20261027.md) — 현재 상태·시험 경과표·에러별 원인과 해결·시험하는 법·남은 일.
+> **📘 상세 인수인계(2026-10-27, 먼저 읽기)**: [`docs/IMPROVEMENT_HANDOFF_20261027.md`](docs/IMPROVEMENT_HANDOFF_20261027.md) — 현재 상태·시험 경과표·에러별 원인과 해결·시험하는 법·남은 일. **최신(v1.11)·배송 칸 구성·「완성까지 남은 기능」 표는 §9~§12.**
 > **마켓 등록기 공통 레퍼런스**: [`../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md`](../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md) — 분석 기법·실측 보정 순서·화면 변경 대응·새 마켓 점검표(2026-10-27).
 > 담당 역할: `ecommerce-image`(Claude Code 윈도우 `claude-win-sdp`). 앞으로 마켓별(쿠팡 등) 등록 프로그램을 계속 만든다 — 주인님 「앞으로 스마트스토어용 쿠팡용 계속 만들어 나가야하거든」「우선은 스마트스토어 상품등록 자동화 로 해보자」(2026-10-26).
 
