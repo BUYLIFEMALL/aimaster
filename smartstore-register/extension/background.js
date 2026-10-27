@@ -341,7 +341,9 @@ async function pageCommand(cmd, args) {
         else if (/입력해\s*주세요|선택해\s*주세요|확인해\s*주세요|필수|오류|실패|할 수 없|올바르지/.test(text)) verdict = { state: 'error', message: text };
       }
       const message = (verdict?.message || notes().join(' / ')).slice(0, 300);
-      const no = (message.match(/상품번호[^0-9]*([0-9]{6,})/) || location.href.match(/products\/(?:edit\/)?([0-9]{6,})/) || [])[1] || null;
+      // 완료 창(「상품저장이 완료되었습니다」)의 「스마트스토어 상품보기」 링크 주소에 상품번호가 있다
+      const viewHref = [...document.querySelectorAll('.modal.in a[href], [role="dialog"] a[href]')].map((a) => a.href).find((h) => /products\/[0-9]{6,}/.test(h)) || '';
+      const no = (message.match(/상품번호[^0-9]*([0-9]{6,})/) || viewHref.match(/products\/([0-9]{6,})/) || location.href.match(/products\/(?:edit\/)?([0-9]{6,})/) || [])[1] || null;
       if (verdict?.state === 'success') return { ok: true, confirmed: true, message, productNo: no };
       if (verdict?.state === 'error') return { ok: false, error: `판매자센터가 저장을 거절했습니다: ${message || '오류 안내'}` };
       // 성공도 오류 안내도 없으면 — 화면 전체에서 「잘못됨」(ng-invalid) 칸을 찾아 칸 이름으로 남긴다(회원이 스크롤해 찾지 않게)
