@@ -42,7 +42,7 @@
   "recentErrorLogCount": 0,
   "realMemberSsoVerified": true,
   "extensionInstalledVerified": true,
-  "ownPostDeliveredVerified": false,
+  "ownPostDeliveredVerified": true,
   "secretsIncluded": false,
   "connectionCheckpoint": {
     "checkedAt": "2026-10-27T03:03:00Z",
@@ -55,5 +55,21 @@
     "materials": 0,
     "ownPostOpened": "224427408654",
     "popupReadStarted": false
+  },
+  "deliveryCheckpoint": {
+    "checkedAt": "2026-10-27T03:57:00Z",
+    "postId": "224427408654",
+    "requestState": "completed",
+    "requestMaterialLinked": true,
+    "materialCount": 1,
+    "previewCharacters": 3738,
+    "storedCharactersAfterNormalization": 3727,
+    "ownerMatchesRequest": true,
+    "createdAt": "2026-10-27T03:53:19.258128Z",
+    "expiresAt": "2026-11-26T03:53:19.258128Z",
+    "retention720Hours": true,
+    "popupReceiptVerified": true,
+    "receivedMaterialWebReopenVerified": false,
+    "bodyIncludedInEvidence": false
   }
 }
