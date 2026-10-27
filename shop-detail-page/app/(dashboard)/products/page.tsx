@@ -34,7 +34,7 @@ export default async function ProductsPage() {
   const [{ data: products }, { data: program }] = await Promise.all([
     supabase
       .from("shop_products")
-      .select("id, product_label, name, category, source_image_url, status, created_at, layout_preset")
+      .select("id, product_label, name, category, source_image_url, status, created_at, layout_preset, reviewed_at")
       .order("created_at", { ascending: false }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as unknown as { from: (table: string) => any })
@@ -155,6 +155,11 @@ export default async function ProductsPage() {
                   >
                     {STATUS_LABELS[p.status] ?? p.status}
                   </span>
+                  {p.reviewed_at && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200">
+                      ✅ 검토 완료
+                    </span>
+                  )}
                   <span className="text-[10px] text-slate-400">
                     {new Date(p.created_at).toLocaleDateString()}
                   </span>

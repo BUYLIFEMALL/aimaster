@@ -73,6 +73,7 @@ export interface Database {
           default_image_model: string;
           layout_preset: string;
           section_sequence: string[] | null;
+          reviewed_at: string | null;
           status: ProductStatus;
           language: string;
           currency: string;
@@ -103,6 +104,7 @@ export interface Database {
           default_image_model?: string;
           layout_preset?: string;
           section_sequence?: string[] | null;
+          reviewed_at?: string | null;
           status?: ProductStatus;
           language?: string;
           currency?: string;
@@ -133,6 +135,7 @@ export interface Database {
           default_image_model?: string;
           layout_preset?: string;
           section_sequence?: string[] | null;
+          reviewed_at?: string | null;
           status?: ProductStatus;
           language?: string;
           currency?: string;
@@ -256,6 +259,22 @@ export interface Database {
           image_url?: string;
           created_at?: string;
         };
+        Relationships: [];
+      };
+      // 스마트스토어 상품등록 자동화(smartstore-register)의 표 — 이 프로그램은 등록 결과를 읽기만 한다(RLS 본인 행만).
+      smartstore_register_jobs: {
+        Row: {
+          id: string;
+          user_id: string;
+          product_id: string;
+          mode: string;
+          status: string;
+          market_product_no: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
     };

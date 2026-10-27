@@ -11,6 +11,8 @@ import type { ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
 import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 import { applySectionSequence } from "@/lib/sectionOrder";
+import { MarketRegisterPanel } from "@/components/products/MarketRegisterPanel";
+import { MARKETS, pickMarketResult, type MarketResult } from "@/lib/markets";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +61,20 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     .select("section_key, image_url, image_urls")
     .eq("product_id", product.id)
     .eq("language", product.language);
+
+  // 마켓 등록 결과(회원 본인 작업 기록만, RLS). 표가 없거나 읽기 실패면 결과 없이 보여 준다.
+  const marketResults: MarketResult[] = [];
+  for (const market of MARKETS) {
+    const { data: jobs } = await supabase
+      .from(market.jobsTable)
+      .select("status, market_product_no, updated_at")
+      .eq("product_id", product.id)
+      .in("status", ["registered", "temp_saved"])
+      .order("updated_at", { ascending: false })
+      .limit(10);
+    const picked = pickMarketResult(market.id, jobs ?? []);
+    if (picked) marketResults.push(picked);
+  }
 
   const preset = LAYOUT_PRESETS[toLayoutPreset(product.layout_preset)];
 
@@ -146,6 +162,11 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         <ShippingNoticeCard />
         <HtmlExportPanel productId={product.id} />
         <CopyTonePanel productId={product.id} />
+        <MarketRegisterPanel
+          productId={product.id}
+          initialReviewedAt={product.reviewed_at}
+          results={marketResults}
+        />
       </div>
     </div>
   );

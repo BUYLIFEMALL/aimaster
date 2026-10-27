@@ -26,6 +26,8 @@ export default async function NewProductPage({
   const initialLabel = fromSourcing ? firstParam(searchParams.name, 100) : "";
   const initialSourceText = fromSourcing ? firstParam(searchParams.source, 1000) : "";
   const priceParam = fromSourcing ? firstParam(searchParams.price, 12) : "";
+  // 이커머스 한 흐름(2026-10-27): 소싱 결과의 마켓 카테고리(예: 생활/건강>주방용품)를 「카테고리」 칸에 넣는다.
+  const initialCategory = fromSourcing ? firstParam(searchParams.category, 120) : "";
   const initialPrice = /^[1-9][0-9]{0,8}$/.test(priceParam) ? priceParam : "";
 
   return (
@@ -73,6 +75,7 @@ export default async function NewProductPage({
         initialLabel={initialLabel}
         initialSourceText={initialSourceText}
         initialPrice={initialPrice}
+        initialCategory={initialCategory}
       />
     </div>
   );

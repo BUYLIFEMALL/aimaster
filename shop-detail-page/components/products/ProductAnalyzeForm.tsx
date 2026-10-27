@@ -31,11 +31,14 @@ export function ProductAnalyzeForm({
   initialLabel = "",
   initialSourceText = "",
   initialPrice = "",
+  initialCategory = "",
 }: {
   hasGeminiKey: boolean;
   initialLabel?: string;
   initialSourceText?: string;
   initialPrice?: string;
+  /** 상품소싱에서 넘어온 마켓 카테고리 — 분석 결과보다 우선한다(마켓 등록 때 카테고리 검색어로 쓰임) */
+  initialCategory?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const referenceInputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +48,7 @@ export function ProductAnalyzeForm({
   const [sourceImageUrl, setSourceImageUrl] = useState<string | null>(null);
   const [referenceImageUrls, setReferenceImageUrls] = useState<string[]>([]);
   const [sourceText, setSourceText] = useState(initialSourceText);
-  const [fields, setFields] = useState<FlatProductAnalysis>(EMPTY_FIELDS);
+  const [fields, setFields] = useState<FlatProductAnalysis>({ ...EMPTY_FIELDS, category: initialCategory });
   const [price, setPrice] = useState(initialPrice);
   const [salePrice, setSalePrice] = useState("");
   const [defaultImageModel, setDefaultImageModel] = useState<ImageModelKey>(DEFAULT_IMAGE_MODEL);
@@ -165,7 +168,7 @@ export function ProductAnalyzeForm({
         return;
       }
       if (result.data) {
-        setFields(result.data);
+        setFields({ ...result.data, category: initialCategory || result.data.category });
         setAnalyzed(true);
         setIsNameEstimate(false);
       }
@@ -196,7 +199,7 @@ export function ProductAnalyzeForm({
         return;
       }
       if (result.data) {
-        setFields(result.data);
+        setFields({ ...result.data, category: initialCategory || result.data.category });
         setAnalyzed(true);
         setIsNameEstimate(true);
       }

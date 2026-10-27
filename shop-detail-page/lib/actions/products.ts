@@ -133,6 +133,24 @@ export async function saveSectionSequenceAction(
   return {};
 }
 
+/** 회원 최종 검토 완료 표시(이커머스 한 흐름 4단계). reviewed=false면 검토 전으로 되돌린다. */
+export async function setProductReviewedAction(
+  productId: string,
+  reviewed: boolean,
+): Promise<{ error?: string; reviewedAt?: string | null }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const reviewedAt = reviewed ? new Date().toISOString() : null;
+
+  const { error } = await supabase
+    .from("shop_products")
+    .update({ reviewed_at: reviewedAt })
+    .eq("id", productId)
+    .eq("user_id", user.id);
+  if (error) return { error: `검토 상태 저장 실패: ${error.message}` };
+  return { reviewedAt };
+}
+
 /** 분석 결과(사용자가 검토/수정 가능)를 실제 상품으로 저장한다. */
 export async function createProductAction(formData: FormData) {
   const user = await requireProgramAccess();
