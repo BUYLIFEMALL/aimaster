@@ -15,7 +15,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader emoji="🛒" title="스마트스토어 상품등록 자동화" description="상세페이지 자동화에서 만든 상품을 크롬 확장이 스마트스토어 「상품 등록」 화면에 대신 채워 넣습니다." />
+      <PageHeader emoji="🛒" title="AI 스마트스토어 상품 자동등록기" description="상세페이지 자동화에서 만든 상품을 크롬 확장이 스마트스토어 「상품 등록」 화면에 대신 채워 넣습니다." />
 
       <Notice tone="tip">
         🧭 <b>순서</b>: ① 스토어 기본값 한 번 넣기 → ② 등록할 상품 고르고 카테고리 검색어 넣기 → ③ 확장으로 보내기(판매자센터에 로그인된 크롬) → ④ 등록 기록 확인. 확장은 「🧩 확장 연결」에서 내려받아 연결합니다.
