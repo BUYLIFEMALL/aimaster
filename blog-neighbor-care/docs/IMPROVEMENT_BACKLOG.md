@@ -1,6 +1,6 @@
 # 남은 작업
 
-- [ ] **확장 이름 통일(2026-10-27 지시):** 공식 프로그램명 「AI 블로그 이웃 소통 자동화」로 manifest 표시명·툴팁·팝업 프로그램명·설치 안내를 맞춘다. 현재 설치본의 「AIMaster · 블로그 이웃 소통 · 본인 글 읽기」는 불일치. [공통 기준](../../docs/EXTENSION_RELEASE_RULES.md#extension-program-name-match)에 따라 다음 이름 수정/릴리스 때 ZIP·실제 설치본까지 확인한다. 이번 작업은 지침 등록이며 소스/설치본 이름 변경은 아직 미반영.
+- [ ] **확장 이름 실제반영 확인:** 2026-10-27 명칭 실제 수정(70f146a6c): 공식 프로그램명 「AI 블로그 이웃 소통 자동화」와 extension manifest.name/default_title·팝업 title/상단 프로그램명·웹 reader 상단명을 통일. 기능명은 내부 제목/버튼으로 유지. 로컬 ZIP2종 8271bytes·원본7파일/버전 일치 및 타입검사 통과. D:/Antigravity/Extensions/blog-neighbor-care-v1.01 설치폴더의 manifest/popup도 갱신. 버전v1.01유지·운영 다운로드/웹은 미배포 대기, Edge 실제 재로드/새표시명은 확인 전.
 
 - [x] **1번 운영SQL:** 2026-10-26 사용자 후속지시로 Codex 적용·6표/RLS/RPC권한/runtime=false 읽기검수 완료. 로컬48개와 운영메타 검수는 구분.
 - [x] **자료사전선별API:** 회원제공검색요약/본문 미리보기, 단위31/HTTP12/타입/빌드통과. DB저장/AI/계정검증아님.

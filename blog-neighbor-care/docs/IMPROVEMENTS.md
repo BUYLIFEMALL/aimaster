@@ -1,5 +1,9 @@
 # 개선·검수 원장
 
+**미배포 대기 — 이름 통일:** 2026-10-27 명칭 실제 수정(70f146a6c): 공식 프로그램명 「AI 블로그 이웃 소통 자동화」와 extension manifest.name/default_title·팝업 title/상단 프로그램명·웹 reader 상단명을 통일. 기능명은 내부 제목/버튼으로 유지. 로컬 ZIP2종 8271bytes·원본7파일/버전 일치 및 타입검사 통과. D:/Antigravity/Extensions/blog-neighbor-care-v1.01 설치폴더의 manifest/popup도 갱신. 버전v1.01유지·운영 다운로드/웹은 미배포 대기, Edge 실제 재로드/새표시명은 확인 전.
+
+브라우저 확장메뉴 클릭은 최신인덱스도 stale frame 반복, 주소이동은 window_not_focused. 복원1회 뒤에도 포커스가바뀌고주소입력뒤외부타자가섞여중단. 사용자에게 edge://extensions 에서 해당확장 다시로드·Edge포그라운드유지 요청. 회원연결은활성1/읽기요청·본문0 유지, 재연결/추가로그인불필요. 다음은새이름실제표시확인→본인글224427408654 읽기/확인후전달. 유료호출/빌드/배포/게시0.
+
 **최신 배포:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF.
 
 [운영 연결 화면](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [운영 ZIP](https://blog-neighbor-care.buylife.xyz/downloads/blog-neighbor-care-extension-latest.zip)

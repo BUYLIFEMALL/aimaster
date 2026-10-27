@@ -626,6 +626,9 @@
 
 #### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.01 읽기 연결 시험 운영·실제설치검수대기
 
+- 명칭 통일 미배포 대기: 2026-10-27 명칭 실제 수정(70f146a6c): 공식 프로그램명 「AI 블로그 이웃 소통 자동화」와 extension manifest.name/default_title·팝업 title/상단 프로그램명·웹 reader 상단명을 통일. 기능명은 내부 제목/버튼으로 유지. 로컬 ZIP2종 8271bytes·원본7파일/버전 일치 및 타입검사 통과. D:/Antigravity/Extensions/blog-neighbor-care-v1.01 설치폴더의 manifest/popup도 갱신. 버전v1.01유지·운영 다운로드/웹은 미배포 대기, Edge 실제 재로드/새표시명은 확인 전.
+
+
 - 설치·연결 최신: 2026-10-27 11:59 Edge에서 읽기 확장 v1.01 설치·켜짐을 확인하고 reader 새로고침 후 회원 연결 1회 성공. 웹 연결완료 메시지, 운영 활성기기1개, 시험회원 buylifemall@naver.com 일치(true만 기록), 공용 naver_blog/browser_read 소유자·블로그 일치 확인. 설치요청811eb0aa 완료. 읽기요청/본문자료0건이며 실제 추출·전달은 아직 미검수. 읽기팝업/실제전달은다음단계.
 
 
