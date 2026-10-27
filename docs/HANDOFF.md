@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 📮 [역할: analysis-planning] Claude Code(윈도우) · 세션 `claude-win-20261027-analysis` — Program_dev 분석분 담당 배정·착수 순서
+- 분석·플랜 완료(구현 전): [마케팅 수집 분류](analysis-marketing-collect-20261027/REPORT.md) · [영수증·세금계산서 플랜](../ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md) · [임장 평가 플랜](analysis-realty-onsite-20261027/PLAN.md) · 배정표·착수순서 [`docs/roles/analysis-planning.md`](roles/analysis-planning.md) 「담당 배정표 2」.
+- **지금 바로 착수 가능(담당 있음)**: ① 🧾 영수증 발행(간이영수증·거래명세서 PDF) → `workspace`(외부 의존 적어 가장 먼저 권장) ② 📝 `blog-neighbor-care` 보강(답방·대댓글·기존 이웃·A-3) → `blog`(진행 중).
+- **주인님 결정 후 착수(담당 있음)**: 세금계산서+📷사진 자동발행(`workspace`, 홈택스 방식 결정) · 임장 투자가치 평가(`realty`, 위치/호가/공공키 결정) · 홈페이지형 블로그 꾸미기(`blog`, 이름·플랜 승인).
+- **담당 지정 필요(새 역할)**: 🗺 지역 업체 조사·📇 카페 마케팅·📸 크리에이터 찾기·📣 인스타 해시태그/대기열 → `마케팅`·`카페/CRM`·`insta` 담당 없음.
+- 보류: N Searcher(이메일 자동 수집, 성격 변경 여부 주인님 결정). 마케팅 수집은 모두 관리자 지정 예외(최상위 규칙 §0-2·§8, [마케팅 예외 지침](MARKETING_AUTOMATION_EXCEPTION_POLICY.md)·[소스 보호 정책](SOURCE_PROTECTION_POLICY.md) 적용).
+- 코드·DB·배포 변경 없음(분석·문서만). 비용 없음.
+
 ## 2026-10-27 [역할: blog] Codex — 본인 글 전달·회원격리·원래30일 수명 확인
 - 2026-10-27 12:57 본인 글1건 전달 성공: 글224427408654 요청completed·material참조true·받은자료정확히1건, 제목 「AI수익화, 지금 시작하는 5가지 방법」 일치. 서버정리후본문3,727자(미리보기3,738자, 제로폭/제어문자제거정책 적용). 회원소유자=request소유자true, 원본생성2026-10-27T03:53:19.258128Z→만료2026-11-26T03:53:19.258128Z 정확히720시간 확인. 팝업「전달 완료. 프로그램의 받은 글 목록에서 확인할 수 있습니다」대조. 아직프로그램의받은글재열기UI검수는남음.
 - 전달요청3fb28154완료처리. 사용자가프로그램reader화면을열면연결/받은글새로고침→본문재조회검수. 팝업프로그램링크는stale frame, CtrlL복원1회도window_not_focused로실패해반복하지않음. AI/추가배포/네이버게시0, 작은명칭수정은묶음배포대기유지.
