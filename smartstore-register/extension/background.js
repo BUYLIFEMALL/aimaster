@@ -396,9 +396,11 @@ function ngTypeMain(a) {
     for (const t of ['input', 'change', 'blur']) el.dispatchEvent(new Event(t, { bubbles: true }));
     return { ok: true, via: 'dom' };
   }
-  const scope = ng.element(el).scope();
-  const apply = (fn) => { const root = scope.$root; if (root.$$phase) fn(); else scope.$apply(fn); };
-  apply(() => { ctrl.$setViewValue(a.value); ctrl.$render(); });
+  // 운영 모드(debugInfoEnabled false)에서는 element.scope()가 비어 있다 → injector로 $rootScope를 얻는다
+  let root = null;
+  try { root = (ng.element(document.body).injector() || ng.element(document.querySelector('[ng-app], [data-ng-app]') || document.documentElement).injector()).get('$rootScope'); } catch (e) { root = null; }
+  const apply = (fn) => { if (!root || root.$$phase) fn(); else root.$apply(fn); };
+  try { apply(() => { ctrl.$setViewValue(a.value); ctrl.$render(); }); } catch (e) { return { ok: false, error: `값 넣기 오류: ${String(e && e.message || e).slice(0, 120)}` }; }
   el.dispatchEvent(new Event('blur', { bubbles: true }));
   const model = ctrl.$modelValue;
   const filled = model !== undefined && model !== null && String(model).replace(/[,\s]/g, '') !== '';
@@ -406,8 +408,12 @@ function ngTypeMain(a) {
 }
 
 async function runMain(tabId, func, args) {
-  const [res] = await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func, args: [args] });
-  return res?.result || { ok: false, error: '에디터에서 실행하지 못했습니다.' };
+  try {
+    const [res] = await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func, args: [args] });
+    return res?.result || { ok: false, error: `페이지 안에서 실행하지 못했습니다(${func.name}).` };
+  } catch (e) {
+    return { ok: false, error: `페이지 안 실행 오류(${func.name}): ${String(e && e.message || e).slice(0, 120)}` };
+  }
 }
 
 async function run(tabId, cmd, args = {}) {
