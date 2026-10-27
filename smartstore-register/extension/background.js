@@ -384,7 +384,15 @@ function ngTypeMain(a) {
     }
   } else {
     const all = [...document.querySelectorAll('[ng-model]')].filter((e) => e.getAttribute('ng-model') === a.target);
-    el = all.find(visible) || all[0] || null;
+    el = all.find(visible) || (a.label ? null : all[0]) || null;
+    // 상품군마다 칸 이름이 달라지는 고시 칸은 화면 글자(라벨)로 한 번 더 찾는다 — 그 줄 안의 보이는 글자 입력칸
+    if (!el && a.label) {
+      const norm = (s) => s.replace(/\s+/g, '');
+      const lab = [...document.querySelectorAll('label, th, .control-label, span, div')].find((e) => e.children.length < 4 && norm(e.textContent).startsWith(norm(a.label)) && visible(e));
+      for (let box = lab?.parentElement, up = 0; box && up < 6 && !el; up++, box = box.parentElement) {
+        el = [...box.querySelectorAll('input[type=text], input[type=tel], input:not([type])')].find((x) => visible(x) && !x.readOnly && !x.disabled) || null;
+      }
+    }
   }
   if (!el) return { ok: false, error: a.discount ? '할인 금액 칸을 찾지 못했습니다.' : '칸을 찾지 못했습니다.' };
   el.scrollIntoView({ block: 'center' });
@@ -492,7 +500,7 @@ async function runJob(job) {
       await setStatus(`입력 중: ${step.label}`);
       let r;
       if (step.key === 'discount') { await wait(600); r = await runMain(tabId, ngTypeMain, { discount: true, value: step.value }); }
-      else if (step.action === 'type') r = await runMain(tabId, ngTypeMain, { target: step.target, value: step.value });
+      else if (step.action === 'type') r = await runMain(tabId, ngTypeMain, { target: step.target, value: step.value, ...(step.key === 'notice_phone' ? { label: 'A/S 책임자 또는 소비자 상담' } : {}) });
       else if (step.action === 'radio') r = await run(tabId, 'radio', { target: step.target, value: step.value });
       else if (step.action === 'check') {
         r = await run(tabId, 'check', { target: step.target });
@@ -500,7 +508,7 @@ async function runJob(job) {
         const asPhone = job.steps.find((s) => s.key === 'as_phone')?.value;
         if (r.ok && step.key === 'notice_ref' && asPhone && !job.steps.some((s) => s.key === 'notice_phone')) {
           await human();
-          const p = await runMain(tabId, ngTypeMain, { target: 'vm.content.customerServicePhoneNumber', value: asPhone });
+          const p = await runMain(tabId, ngTypeMain, { target: 'vm.content.customerServicePhoneNumber', label: 'A/S 책임자 또는 소비자 상담', value: asPhone });
           if (!p.ok) failures.push(`고시 A/S 책임자 전화번호 — ${p.error}`);
         }
       }
