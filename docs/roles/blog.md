@@ -12,6 +12,8 @@
 
 ## 지금 하는 일
 
+**실시간 브라우저 상태(2026-10-27 10:48):** Edge 실제 전경 HWND1838288 일치 확인. 현재 탭은 NAVER 로그인 URL이며 buylifemall 입력·아이디/비밀번호 오류 표시. 10:41 관리 화면 관찰은 당시 상태이며 현재 로그인 성공을 보장하지 않음. 비밀번호 재시도0, 사용자 직접 로그인 완료 필요. reader 배포승인 f1991bed는 별도 유지.
+
 **최신:** 2026-10-27 본인글1개 읽기 연결 구현·ZIP 준비: 회원/확장API·원자적1회번호교환·공용계정읽기연결·activeTab본문확인후전달·중복/원래수명/정리, 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 신규운영4표·카탈로그/프로그램등록·Vercel배포·실제설치는미완료. [설치본/운영적용안·한계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md) 다음은신규운영적용·배포1회승인, 아직사용자설치요청안함.
 
 **최신 진행 결과:** 주인님순서1에따라 blog-neighbor-care 서버/API·신규6표/RLS/서버전용RPC를구현, API14·실제PG28·실제NextHTTP6=48개/타입/최종로컬빌드 통과. [상세인계](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261026_SERVER_DATABASE.md). 운영DB 적용·읽기검수는23:47 완료, DB요청6eecd22c 처리완료. 앱은미배포. 앱UI/확장/AI/정책허용/운영회원E2E미완료.
