@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 이커머스 한 흐름 잇기(트렌드 → 상품 → 상세페이지 → 검토 → 스마트스토어)
+- 주인님 정의: 「각각의 개별 프로그램이지만 전체적으론 하나의 흐름」 — 핵심 지침 `docs/ECOMMERCE_COMPLETION_POLICY.md` 맨 위, 플랜 `smartstore-register/docs/PLAN_20261027_ECOMMERCE_FLOW.md`.
+- DB(운영 `esgxyikcnnvmlhygjkth`): `shop_products.reviewed_at`(마이그레이션 `shop-detail-page/supabase/migrations/20261027_reviewed_at.sql`).
+- 상세페이지: 상품 화면 맨 아래 「🛒 최종 검토 · 마켓 등록」 — 「✅ 검토 완료」(되돌리기 가능), 검토 뒤에만 「스마트스토어에 등록하기 ↗」(`?flow=shop`), 회원 본인 `smartstore_register_jobs`에서 등록됨/임시저장됨·상품번호 표시. 마켓 목록은 `lib/markets.ts`(쿠팡 등은 한 줄 추가). 목록 카드 「✅ 검토 완료」 배지. 새 상품 화면이 `category` 주소 값을 받음(분석 결과가 우선). 배포 `shop-detail-page-5az2ls9nr` — **버전 숫자 올리기를 빠뜨려 화면은 v1.38, 다음 배포 때 v1.39**(미배포 대기).
+- 스마트스토어 등록 v1.08: 목록 「검토 완료/검토 전」 배지·검토 완료 먼저 정렬, 검토 전 상품 화면에 안내(보내기는 막지 않음). DB·확장·ZIP v1.08 검증 OK.
+- 흐름 띠(공용 `shop-flow`): 「🛒 마켓 등록」 단계 추가, 상세페이지·등록 프로그램 사본 추가. 주문 리포트·셀러 라벨·상품소싱 사본은 미배포 대기.
+- 하지 않은 것: 상품소싱 → 카테고리 넘기기 — 상품소싱에는 상품별 카테고리가 없고(수수료 대분류뿐) 넘기면 분석 카테고리를 덮어 나빠져 보류. 승인 빌드 3회 중 2회만 사용.
+- 크롬 확인(관리자 계정): 상세페이지 검토 완료 저장·새로고침 유지·등록 버튼·상품번호 13834442721 표시·흐름 띠 2단계, 등록 프로그램 v1.08 목록 배지·정렬·흐름 띠 3단계.
+- 링크: https://shop-detail-page.buylife.xyz/products · https://smartstore-register.buylife.xyz/products
+
 ## 2026-10-27 📘 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 스마트스토어 상품등록 자동화 상세 인수인계 문서
 - 작업 내용·시험 경과표(23회)·에러별 원인과 해결·사고 직전 기록·시험하는 법·바뀐 파일과 커밋·남은 일을 한 문서로 정리: [`smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md`](../smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md).
 - 다음 CLI 첫 단계: 그 문서 §1(현재 상태)·§6(시험하는 법)·§8(남은 일) 순서로 읽고, v1.07 배포는 주인님 승인 뒤.

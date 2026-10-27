@@ -17,6 +17,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `trending-product-finder` · `shop-order-report` · `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
+| `shop-detail-page` (운영 v1.38 표시) | **버전 숫자 v1.39로 올리기**(이커머스 한 흐름 기능은 2026-10-27 `5az2ls9nr`로 이미 나갔으나 버전을 안 올리고 배포함) + 넘어온 카테고리보다 분석 카테고리 우선(`ProductAnalyzeForm.tsx`) | `e244bb71e` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `shop-detail-page/AGENTS.md` 맨 아래 | 다음 상세페이지 배포 때 `lib/version.ts` v1.39 + DB |
 | `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
 | `music-video-studio` (운영 v1.26) | 참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들기(`scenes/page.tsx` 조건 한 줄) | `fde4c94bf` | 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-music` | `music-video-studio/AGENTS.md` v1.26 | v1.27 |
@@ -52,6 +54,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `shop-detail-page` | v1.38 표시 그대로 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 3회 중 1번째 `shop-detail-page-5az2ls9nr`) | 대기 항목 없음 (본 작업: 검토 완료·마켓 등록 영역·등록 결과 표시·목록 검토 배지·흐름 띠·카테고리 받기 — 버전 올리기를 빠뜨려 다음 배포 때 v1.39) |
+| `smartstore-register` | v1.08 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 3회 중 2번째) | 대기 항목 없음 (본 작업: 검토 배지·검토 완료 먼저 정렬·검토 전 안내·흐름 띠) |
 | `smartstore-register` | v1.07 · 2026-10-27 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `7iiza23u6`) | 「상품속성 미입력 확인」 창 자동 넘기기·완료 창에서 상품번호 읽기 |
 | `smartstore-register` | v1.06 · 2026-10-27 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `mcvppashp`) | 저장 결과 확인·AngularJS 칸 입력·고시 전화번호·어린이제품인증 기본값·탭 다시 쓰기·나가기 확인 창 방지 |
 | `smartstore-register` | v1.05 · 2026-10-27 (Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `kjp25qgzv`) | 배송 selectize 고르기·기본값 표시 보정 + 실제 시험 보정(PC 임시저장 버튼·에디터 닫힘 대기·첫 화면 재이동·전시 상태 칸) + 「바로 등록」 중복 막기 |
