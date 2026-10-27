@@ -106,6 +106,7 @@ Exception: work under Buylife's own operating accounts is authorized.
   - 메인 계정: `buylifemall@gmail.com`(관리자·Claude 로그인·커밋 작성자·GitHub `BUYLIFEMALL`·Vercel 팀 `buylife`·Supabase 운영 기준)
   - 보조 테스트 계정: `buylifea@naver.com`
   - 그 밖에 본사가 지정·운영하는 개발/배포 계정·CLI(예: 맥미니 Claude 로그인 부계정 `rainbowi77777@gmail.com`, 일반 회원 시험 계정 `buylifemall@naver.com`)도 본사 작업이면 예외다.
+- **권한 (2026-10-27 주인님 지시)**: 위 메인 계정·보조 테스트 계정, 그리고 거기서 **예외적으로 추가 지정하는 계정**은 모두 **본사의 작업 계정**이다. 이 계정들은 이 문서의 소스 보호·수집 제약과 **상관없이 프로그램을 자유롭게 개발·운영·관리할 권한**을 가진다(소스 분석·수정·재사용·배포 포함). 추가 계정은 주인님이 지정하면 위 목록에 한 줄로 더한다.
 - 우리 개발 CLI(Claude Code·Codex·Antigravity 등)가 **본사 계정으로** 저장소를 읽고 분석·수정하는 것은 정상 업무다. 고지문·`robots.txt`가 우리 내부 작업을 막지 않도록, 내부 도구·본사 계정은 예외로 둔다(차단은 외부 AI 크롤러 User-Agent 대상).
 
 ## 4-1. 배포 키트 예외 — 수강생·협력사 (2026-10-27 주인님 지시)
