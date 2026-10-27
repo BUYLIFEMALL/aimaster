@@ -526,7 +526,7 @@ async function tagsMain(a) {
     await sleep(500);
     const m = [...document.querySelectorAll('.modal, [role="dialog"], .layer, div')].filter((e) => e.offsetParent !== null && /태그로 등록할 수 없는/.test(e.textContent || '') && e.querySelector('button')).pop(); // 가장 안쪽 상자
     if (!m) return;
-    const w = (m.textContent.match(/태그 불가 단어s*:?s*([^s]+?)(?:카테고리|$|s)/) || [])[1];
+    const w = (m.textContent.match(/태그 불가 단어\s*:?\s*([^\s]+?)(?:카테고리|$|\s)/) || [])[1];
     if (w) rejected.push(w);
     const ok = [...m.querySelectorAll('button')].find((b) => b.textContent.trim() === '확인') || m.querySelector('button');
     ok?.click();
@@ -565,7 +565,7 @@ async function tagsMain(a) {
   try { const h = document.querySelector('input[ng-model="vm.product.detailAttribute.seoInfo.sellerTags"]'); const c = h && window.angular ? window.angular.element(h).controller('ngModel') : null; if (c && Array.isArray(c.$modelValue)) saved = c.$modelValue.length; } catch (e) { /* 무시 */ }
   // 이 화면은 태그를 입력칸 아래 「# 여행백팩」 칩으로 따로 보여 준다 → 칩 수도 센다
   const area = sel.closest('fieldset') || box?.parentElement?.parentElement || document;
-  const chips = [...area.querySelectorAll('span, li, a, div')].filter((e) => e.children.length <= 2 && /^#s*S/.test((e.textContent || '').trim()) && e.offsetParent !== null).length;
+  const chips = [...area.querySelectorAll('span, li, a, div')].filter((e) => e.children.length <= 2 && /^#\s*\S/.test((e.textContent || '').trim()) && e.offsetParent !== null).length;
   const count = Math.max(added, saved, chips);
   if (count <= 0 && !rejected.length) return { ok: false, error: `태그가 화면에 추가되지 않았습니다(${inst ? '상자 연결됨' : '상자 연결 없음 — Enter 입력'}).` };
   return { ok: true, added: count, expected: a.tags.length, rejected };
