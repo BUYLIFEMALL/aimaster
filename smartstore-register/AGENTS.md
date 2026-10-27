@@ -85,3 +85,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 
 ## 2026-10-27 v1.09 — 이름 변경 「AI 스마트스토어 상품 자동등록기」·썸네일
 - 주인님 지시로 이름 변경: DB `programs.name`, 화면(`APP_NAME`·탭 제목·대시보드 제목), 확장 표시명(`manifest.json` `name`·`default_title`). 카탈로그 썸네일 새로 만듦(관리자 키 1회). 배포 `smartstore-register-c59rnifm2` Ready, DB·확장·ZIP v1.09 OK.
+
+## 2026-10-27 v1.10 — 추가 이미지 자동 넣기
+- 참고(실물) 사진 최대 9장 → 「추가이미지」(`fields.ts` 동작 `extra_images`·확장 v1.10 이상, `data.ts` `ownExtraPaths`, `/api/extension/task` `extraImages`, 확장 `extraImages` 명령: `image.add` 버튼·18MB 묶음·목록 사진 수 확인). 섹션 이미지는 넣지 않음. 배포 `48tdzwzos`, 「입력만」 실제 시험 실패 칸 0.
+- 미배포 대기: 상태 창 제목 새 이름(`popup.html`).
