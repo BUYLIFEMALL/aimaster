@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 [역할: blog] 신규SQL 운영완료·v1.02 배포실패 원인수정·추가1회 승인대기
+
+2026-10-28 실행: 사용자승인af760869로 신규분석/이웃7표·RPC2 운영적용, RLS/권한/읽기OFF/소통OFF 8조건통과. 릴리스소스19611d680(v1.02/manifest·package1.2.0)·단위144/HTTP39/로컬빌드통과. 승인프로덕션빌드1회는ERROR(dpl_3PjavjY6nbGy1EzemAnF3JTKDUgj, Basic8.749초): 내가추가한supabase제외패턴이src/lib/supabase까지누락. d4092f4cc로루트한정수정, 실제Vercel dry-run 필수3파일포함·업로드86파일만복사한격리소스빌드/타입통과. **운영/DB등록/설치본v1.01유지, v1.02미배포**, 설치폴더미교체·실제43명전송0. 추가빌드1회승인dca86631-b547-428a-8eaf-74f279c15883 대기(이전1회소진). 기존읽기허용근거3e257d73별도유지. AI/검색0, 운영신규SQL1회·원격실패빌드1회·실제청구미확정.
+
+- [적용안/최신결과](../blog-neighbor-care/docs/RELEASE_BATCH_20261028.md), [운영DB/실패근거](../blog-neighbor-care/docs/evidence/batch-production-20261028.json), [실제업로드검수](../blog-neighbor-care/docs/evidence/deployment-upload-20261028.json).
+- 교훈: .vercelignore의비루트supabase는src/lib/supabase까지제외. 루트/supabase/로한정하고vercel deploy --dry --json의실제파일목록으로새폴더빌드를검수한뒤배포. 운영DB정상/기존배포유지이며추가승인전재시도금지.
+- 원격빌드1/Basic8.749초·실제청구미확정, 이번AI/검색0. 기존Edge1838288운영reader/받은글유지확인, 설치본미교체. 새로그인/설치요청없음.
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.17(실제 입력 시험 보정)
 - 테스트 계정 「입력만」 실패 칸 0(태그 1개 거절은 스마트스토어 규칙). 카테고리 재시도·경로 우선, 태그 거절 창 처리, 판매가·옵션 마지막 재입력, 보이는 칸만, 패션 카테고리 선택형 끄기. 배포 Ready, DB·확장·ZIP v1.17 OK. 함정: heredoc 역슬래시 손실·replace의 $$ — 상세는 `smartstore-register/AGENTS.md` v1.17.
 - https://smartstore-register.buylife.xyz
