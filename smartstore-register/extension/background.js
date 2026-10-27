@@ -977,6 +977,8 @@ async function runJob(job) {
         continue; // 마지막에 따로
       } else continue;
       if (!r?.ok) failures.push(`${step.label}${r?.error ? ` — ${r.error}` : ''}`);
+      // 카테고리를 못 고르면 뒤 칸(대표이미지는 「먼저 카테고리를 선택해 주세요」, 판매가는 카테고리 변경 때 지워짐)이 줄줄이 틀어진다 → 여기서 멈춘다(2026-10-27 실측)
+      if (!r?.ok && step.key === 'category') { failures.push('카테고리를 판매자센터에서 직접 고른 뒤 나머지 칸을 확인해 주세요(이후 칸은 넣지 않았습니다)'); break; }
     }
 
     const submit = job.steps.find((s) => s.action === 'button');
