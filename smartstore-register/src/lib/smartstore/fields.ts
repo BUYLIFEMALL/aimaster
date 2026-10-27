@@ -218,7 +218,7 @@ export function buildFillSteps(
   add({ key: "seller_code", section: "판매자 코드", label: "판매자 관리 코드", target: "vm.sellerCodeInfo.sellerManagementCode", action: "type", value: managementCode(product.id) });
 
   if (opts.mode === "register") {
-    add({ key: "display", section: "노출 채널", label: defaults.displayOnRegister ? "전시중" : "전시중지(판매대기)", target: "channelProductDisplayStatusType", action: "radio", value: defaults.displayOnRegister ? "ON" : "SUSPENSION" });
+    add({ key: "display", section: "노출 채널", label: defaults.displayOnRegister ? "전시중" : "전시중지(판매대기)", target: "vm.singleChannelProductMap[channelServiceType].channelProductDisplayStatusType", action: "radio", value: defaults.displayOnRegister ? "ON" : "SUSPENSION" });
     add({ key: "submit", section: "저장", label: "저장하기", target: "저장하기", action: "button", value: "" });
   } else if (opts.mode === "temp_save") {
     add({ key: "submit", section: "저장", label: "임시저장", target: "vm.createTempSave", action: "button", value: "" });
