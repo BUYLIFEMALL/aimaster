@@ -57,6 +57,9 @@ async function pageCommand(cmd, args) {
   try {
     if (cmd === 'ready') {
       if (/nid\.naver\.com|accounts\./.test(location.href) || document.querySelector('form[action*="login"]')) return { ok: false, error: '스마트스토어센터 로그인이 필요합니다.' };
+      // 임시저장본이 있으면 「임시저장 된 내용(N건)을 불러오시겠습니까?」가 뜬다 — 새로 등록하므로 불러오지 않음(취소/아니오)
+      const load = [...document.querySelectorAll('.modal.in, [role="dialog"]')].find((m) => visible(m) && /임시저장\s*된\s*내용/.test(m.textContent));
+      if (load) { const no = [...load.querySelectorAll('button')].find((b) => /^(취소|아니오|아니요|닫기)$/.test(b.textContent.trim())); if (no) { no.click(); await sleep(500); } }
       return { ok: !!byModel('vm.product.name')[0] };
     }
 
@@ -367,6 +370,41 @@ async function editorImageMain(a) {
   return { ok: false, error: '에디터에 사진이 들어가지 않았습니다.' };
 }
 
+// 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
+// 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
+// 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
+function ngTypeMain(a) {
+  const ng = window.angular;
+  const visible = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  let el = null;
+  if (a.discount) {
+    const radio = [...document.querySelectorAll('[ng-model]')].find((e) => e.getAttribute('ng-model') === 'vm.viewData.isEnableImmediateDiscountPolicy');
+    for (let box = radio?.parentElement, up = 0; box && up < 8 && !el; up++, box = box.parentElement) {
+      el = [...box.querySelectorAll('input[type=tel], input[type=number], input[type=text]')].find((x) => visible(x) && x.getAttribute('ng-model') !== 'vm.product.salePrice' && !x.readOnly) || null;
+    }
+  } else {
+    const all = [...document.querySelectorAll('[ng-model]')].filter((e) => e.getAttribute('ng-model') === a.target);
+    el = all.find(visible) || all[0] || null;
+  }
+  if (!el) return { ok: false, error: a.discount ? '할인 금액 칸을 찾지 못했습니다.' : '칸을 찾지 못했습니다.' };
+  el.scrollIntoView({ block: 'center' });
+  el.focus();
+  const ctrl = ng ? ng.element(el).controller('ngModel') : null;
+  if (!ctrl) {
+    const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, a.value);
+    for (const t of ['input', 'change', 'blur']) el.dispatchEvent(new Event(t, { bubbles: true }));
+    return { ok: true, via: 'dom' };
+  }
+  const scope = ng.element(el).scope();
+  const apply = (fn) => { const root = scope.$root; if (root.$$phase) fn(); else scope.$apply(fn); };
+  apply(() => { ctrl.$setViewValue(a.value); ctrl.$render(); });
+  el.dispatchEvent(new Event('blur', { bubbles: true }));
+  const model = ctrl.$modelValue;
+  const filled = model !== undefined && model !== null && String(model).replace(/[,\s]/g, '') !== '';
+  return filled ? { ok: true, via: 'angular' } : { ok: false, error: `값이 판매자센터에 들어가지 않았습니다(화면: ${el.value || '빈칸'})` };
+}
+
 async function runMain(tabId, func, args) {
   const [res] = await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func, args: [args] });
   return res?.result || { ok: false, error: '에디터에서 실행하지 못했습니다.' };
@@ -435,8 +473,8 @@ async function runJob(job) {
       }
       await setStatus(`입력 중: ${step.label}`);
       let r;
-      if (step.key === 'discount') r = await run(tabId, 'discount', { value: step.value });
-      else if (step.action === 'type') r = await run(tabId, 'type', { target: step.target, value: step.value });
+      if (step.key === 'discount') { await wait(600); r = await runMain(tabId, ngTypeMain, { discount: true, value: step.value }); }
+      else if (step.action === 'type') r = await runMain(tabId, ngTypeMain, { target: step.target, value: step.value });
       else if (step.action === 'radio') r = await run(tabId, 'radio', { target: step.target, value: step.value });
       else if (step.action === 'check') r = await run(tabId, 'check', { target: step.target });
       else if (step.action === 'select') r = await run(tabId, 'select', { target: step.target, value: step.value });
