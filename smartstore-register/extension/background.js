@@ -20,7 +20,7 @@ async function api(path, body, method = 'POST') {
     signal: AbortSignal.timeout(20000),
   });
   const json = await res.json().catch(() => ({}));
-  if (res.status === 401) await chrome.storage.local.remove('token');
+  if (res.status === 401) await chrome.storage.local.remove(['token', 'accountEmail']);
   if (!res.ok) throw new Error(json.error || `서버 오류 ${res.status}`);
   return json;
 }
@@ -995,23 +995,27 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   (async () => {
     if (msg.type === 'status') {
       const { token, lastStatus } = await chrome.storage.local.get(['token', 'lastStatus']);
+      let { accountEmail } = await chrome.storage.local.get('accountEmail');
       let latest = null;
       try { latest = (await fetch(API + '/api/extension/version', { cache: 'no-store' }).then((r) => r.json())).latest; } catch {}
-      return { ok: true, version: chrome.runtime.getManifest().version_name, connected: !!token, lastStatus, latest };
+      // 예전에 연결한 확장은 이메일을 모른다 → 한 번 물어서 저장(어느 계정과 연결됐는지 보여 주기)
+      if (token && !accountEmail) { try { accountEmail = (await api('/api/extension/me', null, 'GET')).email || null; if (accountEmail) await chrome.storage.local.set({ accountEmail }); } catch {} }
+      const stillToken = (await chrome.storage.local.get('token')).token;
+      return { ok: true, version: chrome.runtime.getManifest().version_name, connected: !!stillToken, accountEmail: stillToken ? accountEmail || null : null, lastStatus, latest };
     }
     if (msg.type === 'pair') {
       const code = String(msg.code || '').trim().toUpperCase();
       const res = await fetch(API + '/api/extension/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, deviceName: 'Chrome' }) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.token) return { ok: false, error: json.error || '연결하지 못했습니다.' };
-      await chrome.storage.local.set({ token: json.token });
+      await chrome.storage.local.set({ token: json.token, accountEmail: json.email || null });
       await setStatus('연결되었습니다. 작업을 기다리는 중…');
       pump();
       return { ok: true };
     }
     if (msg.type === 'disconnect') {
       await api('/api/extension/auth', {}, 'DELETE').catch(() => {});
-      await chrome.storage.local.remove('token');
+      await chrome.storage.local.remove(['token', 'accountEmail']);
       await setStatus('연결을 끊었습니다.');
       return { ok: true };
     }

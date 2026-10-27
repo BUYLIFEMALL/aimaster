@@ -20,6 +20,12 @@ export function bearer(req: Request): string | null {
   return m ? m[1] : null;
 }
 
+/** 연결된 회원 이메일(확장 상태 창·웹 화면에 「어느 계정과 연결됐는지」 보여 주기용) */
+export async function emailOf(userId: string): Promise<string | null> {
+  const { data } = await createAdminClient().from("profiles").select("email").eq("id", userId).maybeSingle();
+  return (data as { email?: string | null } | null)?.email ?? null;
+}
+
 /** 확장 요청의 토큰으로 회원을 찾고 이용 권한까지 확인한다. */
 export async function userFromExtension(req: Request): Promise<{ ok: true; userId: string } | { ok: false; status: number; error: string }> {
   const token = bearer(req);

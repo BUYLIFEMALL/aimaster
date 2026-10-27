@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { TOKENS, hashToken, newPairCode, newToken } from "@/lib/extension/token";
+import { TOKENS, emailOf, hashToken, newPairCode, newToken } from "@/lib/extension/token";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     .eq("id", data.id)
     .is("token_hash", null);
   if (error) return NextResponse.json({ error: "연결하지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ token });
+  return NextResponse.json({ token, email: await emailOf(data.user_id) });
 }
 
 /** 확장 연결 끊기(토큰 행 삭제) */

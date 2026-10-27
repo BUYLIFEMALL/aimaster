@@ -22,14 +22,14 @@ function ask(type: "ping" | "connect", extra: Record<string, string> = {}, timeo
   });
 }
 
-export function ExtensionConnect() {
-  const [installed, setInstalled] = useState<{ version: string; connected: boolean } | null | undefined>(undefined);
+export function ExtensionConnect({ myEmail = null }: { myEmail?: string | null }) {
+  const [installed, setInstalled] = useState<{ version: string; connected: boolean; email: string | null } | null | undefined>(undefined);
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const check = useCallback(async () => {
     const r = await ask("ping");
-    setInstalled(r ? { version: String(r.version ?? ""), connected: r.connected === true } : null);
+    setInstalled(r ? { version: String(r.version ?? ""), connected: r.connected === true, email: typeof r.accountEmail === "string" ? r.accountEmail : null } : null);
   }, []);
   useEffect(() => { void check(); }, [check]);
 
@@ -48,6 +48,9 @@ export function ExtensionConnect() {
   }
 
   const outdated = installed?.version && installed.version !== APP_VERSION;
+  // 확장은 한 번에 한 계정과만 연결된다 — 다른 계정으로 연결돼 있으면 「내 계정과 연결됨」으로 보이지 않게(2026-10-27 테스트 계정 전환 때 헷갈림)
+  const mine = Boolean(installed?.connected && installed.email && myEmail && installed.email.toLowerCase() === myEmail.toLowerCase());
+  const other = Boolean(installed?.connected && installed.email && myEmail && !mine);
 
   return (
     <div className="space-y-4">
@@ -62,7 +65,7 @@ export function ExtensionConnect() {
           <p className="text-[11px] font-black text-emerald-700">STEP 2</p>
           <p className="mt-1 font-extrabold text-slate-900">🔎 설치 확인</p>
           <p className="mt-2 text-sm font-bold">
-            {installed === undefined ? "확인 중…" : installed ? <span className="text-emerald-700">설치됨 · {installed.version}{installed.connected ? " · 연결됨" : ""}</span> : <span className="text-amber-700">설치되지 않았거나 이 화면을 새로고침해야 합니다</span>}
+            {installed === undefined ? "확인 중…" : installed ? <span className="text-emerald-700">설치됨 · {installed.version}{installed.connected ? ` · 연결됨${installed.email ? `(${installed.email})` : ""}` : ""}</span> : <span className="text-amber-700">설치되지 않았거나 이 화면을 새로고침해야 합니다</span>}
           </p>
           {outdated && <p className="mt-1 text-xs font-bold text-rose-700">새 버전({APP_VERSION})이 있습니다. ZIP을 다시 받아 같은 폴더에 덮어쓰고 확장을 새로고침해 주세요.</p>}
           <button type="button" onClick={() => void check()} className="slw-btn mt-3 w-full">🔄 다시 확인</button>
@@ -70,12 +73,16 @@ export function ExtensionConnect() {
         <div className="slw-card p-4">
           <p className="text-[11px] font-black text-emerald-700">STEP 3</p>
           <p className="mt-1 font-extrabold text-slate-900">🔗 내 계정과 연결</p>
-          {installed?.connected ? (
-            <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-sm font-extrabold text-emerald-800">✅ 내 계정과 연결됨</p>
+          {mine ? (
+            <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-sm font-extrabold text-emerald-800">✅ 이 계정과 연결됨<br /><span className="break-all text-xs">{installed?.email}</span></p>
+          ) : other ? (
+            <p className="mt-2 rounded-lg border border-rose-300 bg-rose-50 px-2.5 py-2 text-sm font-extrabold text-rose-800">⚠️ 다른 계정과 연결돼 있습니다<br /><span className="break-all text-xs">확장: {installed?.email}<br />지금 로그인: {myEmail}</span><br /><span className="text-xs font-bold">아래 버튼으로 이 계정에 다시 연결해 주세요.</span></p>
+          ) : installed?.connected ? (
+            <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2 text-sm font-bold text-amber-800">연결돼 있지만 어느 계정인지 확인하지 못했습니다. 확장을 새로고침한 뒤 「다시 확인」을 눌러 주세요.</p>
           ) : (
             <p className="mt-1 text-xs leading-relaxed text-slate-600">버튼 한 번이면 이 계정 전용 연결 번호(10분)를 만들어 확장에 넘깁니다. 비밀번호·판매자 키는 쓰지 않습니다.</p>
           )}
-          <button type="button" onClick={() => void connect()} disabled={busy || !installed} className={`${installed?.connected ? "slw-btn" : "slw-primary"} mt-3 w-full`}>{busy ? "연결 중…" : installed?.connected ? "🔄 다시 연결하기" : "🔗 확장 연결하기"}</button>
+          <button type="button" onClick={() => void connect()} disabled={busy || !installed} className={`${mine ? "slw-btn" : "slw-primary"} mt-3 w-full`}>{busy ? "연결 중…" : mine ? "🔄 다시 연결하기" : installed?.connected ? "🔗 이 계정으로 다시 연결" : "🔗 확장 연결하기"}</button>
         </div>
       </div>
       {note && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-[13px] font-bold text-emerald-900">{note}</p>}

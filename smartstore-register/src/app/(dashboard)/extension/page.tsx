@@ -1,13 +1,15 @@
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { ExtensionConnect } from "@/components/ExtensionConnect";
+import { requireProgramAccess } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 
-export default function ExtensionPage() {
+export default async function ExtensionPage() {
+  const user = await requireProgramAccess();
   return (
     <div className="space-y-4">
       <PageHeader emoji="🧩" title="확장 연결" description="스마트스토어 칸을 대신 채우는 크롬 확장을 설치하고 내 계정과 연결합니다." />
-      <ExtensionConnect />
+      <ExtensionConnect myEmail={user.email ?? null} />
       <Notice tone="warn">
         ⚠️ <b>처음 한 번만 — 팝업 허용</b>: 상세설명을 넣는 스마트 에디터는 팝업 창으로 열립니다. 크롬 주소창에 <code>chrome://settings/content/popups</code>를 입력 → 「팝업 전송 및 리디렉션 사용이 허용됨」의 「추가」 → <code>https://sell.smartstore.naver.com</code>을 넣어 주세요. 허용하지 않으면 상세설명이 「에디터 화면을 찾지 못했습니다」로 멈춥니다.
       </Notice>
