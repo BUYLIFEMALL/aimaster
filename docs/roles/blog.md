@@ -1,5 +1,7 @@
 # 블로그
 
+- **전담 재확인(2026-10-27 사용자 지시): 이 세션은 블로그 작업 전담입니다.** 이웃 소통 프로그램뿐 아니라 위 맡은 블로그 프로그램의 개발·개선·검수·문서·묶음 배포를 담당합니다. 현재 우선순위는 이웃 소통 후속이며, 다른 세션에 명시 배정된 작업 구분은 유지합니다.
+
 - 담당: **Codex(윈도우·엣지), 재개 세션 `codex-win-20261026-blog-check`** (이전 `codex-win-20261025-blog`) — 2026-10-25 주인님 명시 인수. 이전 Claude Code `claude-win-20261024-blog3`. [인계 문서](../HANDOFF_20261025_BLOG_TO_CODEX.md).
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
