@@ -3,6 +3,13 @@
 > 2026-10-19 주인님 지시로 제정한 **최상위 메인 지침**이다. 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위에서 이 문서로 연결한다.
 > **AIMaster_dev는 기본 AIMaster 개발 프로젝트(buylife.xyz 메인 사이트 + 서브 프로그램)와 완전히 다른 별도 운영 체계다.** 두 체계의 규칙을 섞지 않는다.
 
+> ## ★ 외부 배포·개발 테스트는 여기(Lab)에서 한다 (2026-10-27 주인님 지시)
+> **앞으로 수강생용·외부협력업체용 외부 배포 키트, 그리고 개발·테스트는 모두 Lab(AIMaster_dev)에서 작업한다.** 구체적으로:
+> - **외부 배포 키트**(수강생용·협력사용): `labs/kit-<이름>/`에서 만들고, Lab DB(`AIMaster_dev`, ref `rjjtjakljjxsgjelqgek`)·Lab 전용 Vercel로 **수강생처럼 리허설**한 뒤 배포본(`D:\PDS\AIMater_KIT`)으로 포장한다. 기존 `labs/kit-insta`·`labs/kit-threads`와 같은 방식. 키트 표준은 [배포 키트 지침](DISTRIBUTION_KIT_GUIDE.md), 키트 라이선스·예외는 [소스 보호 정책](SOURCE_PROTECTION_POLICY.md) §4-1.
+> - **개발·테스트**(새 프로그램 사전 검증, 모델·기능 시험): Lab(`labs/`)에서 하고 Lab DB·Lab Vercel을 쓴다. 운영 DB·운영 프로그램은 **읽기·복사만** 한다(위 절대 불변 규칙).
+> - 운영 프로그램을 키트로 만들 때도 **원본(운영 폴더)은 그대로 두고 `labs/`로 복사**해서 작업한다. 운영 코드·DB·배포를 바꾸지 않는다.
+> - 블로그 자동화 수강생 키트처럼 **아직 없는 키트도 여기서 새로 만든다**(2026-10-27 기준 블로그 키트는 없음 — 만들면 `labs/kit-blog-<프로그램>/`).
+
 > ## ★★★ 절대 불변 최상위 규칙 — AIMaster_dev 작업 CLI의 AIMaster 운영 수정·삭제 금지 (2026-10-19 주인님 지시, 어떤 경우에도 바뀌지 않음)
 > **AIMaster_dev(Lab) 쪽을 작업하는 CLI(Claude Code·Codex·Antigravity `agy` 등 모든 에이전트)는 AIMaster 운영 쪽의 프로그램(루트 메인 사이트 코드, `AIMaster/<프로그램>/` 운영 서브프로그램 폴더, 그 Vercel 프로젝트·도메인·환경변수)과 운영 DB(Supabase `AIMaster`, ref `esgxyikcnnvmlhygjkth`)를 절대 수정하거나 삭제할 수 없다.**
 > - 금지 예: 운영 폴더 파일 편집·삭제, 운영 DB에 대한 모든 쓰기(`insert/update/delete`, 마이그레이션, 테이블·버킷·사용자 변경), 운영 Vercel 프로젝트 배포·설정 변경·삭제, 운영 프로그램을 `labs/`로 "옮기기"(복사만 허용 — 원본은 그대로 둔다).
