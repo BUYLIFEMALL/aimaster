@@ -453,3 +453,4 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 상품 화면 맨 아래 `components/products/MarketRegisterPanel.tsx`: 「✅ 검토 완료」(서버 동작 `setProductReviewedAction`, `requireProgramAccess` + `user_id`, DB `shop_products.reviewed_at`), 검토 뒤에만 마켓별 「○○에 등록하기 ↗」, 회원 본인 등록 기록(`smartstore_register_jobs`, RLS 본인 행·읽기만)에서 등록됨/임시저장됨·상품번호 표시. **마켓 목록은 `lib/markets.ts`** — 쿠팡·11번가·G마켓·옥션 등록기가 생기면 한 줄 추가.
 - 목록 카드 「✅ 검토 완료」 배지. 새 상품 화면이 `category` 주소 값을 받음(분석 결과가 있으면 분석 우선). 흐름 띠 사본(`lib/shopFlow.ts`·`components/ShopFlowBar.tsx`) — `?flow=shop`일 때만 보임.
 - 배포 `shop-detail-page-5az2ls9nr` Ready(크롬 확인: 검토 저장·유지·등록 버튼·상품번호·흐름 띠). **버전 숫자를 올리지 않고 배포해 화면은 v1.38 — 다음 배포 때 v1.39 + DB(미배포 대기)**.
+- **v1.39 배포(같은 날)**: 버전 숫자 맞추기 + 넘어온 카테고리보다 분석 카테고리 우선. `shop-detail-page-3h5v9rlyd` Ready, DB v1.39, 크롬 v1.39 표시 확인. 미배포 대기 없음.
