@@ -40,8 +40,20 @@
   },
   "releaseConsistencyPassed": true,
   "recentErrorLogCount": 0,
-  "realMemberSsoVerified": false,
-  "extensionInstalledVerified": false,
+  "realMemberSsoVerified": true,
+  "extensionInstalledVerified": true,
   "ownPostDeliveredVerified": false,
-  "secretsIncluded": false
+  "secretsIncluded": false,
+  "connectionCheckpoint": {
+    "checkedAt": "2026-10-27T03:03:00Z",
+    "edgeExtensionVersion": "v1.01",
+    "enabled": true,
+    "activeDevices": 1,
+    "testMemberMatches": true,
+    "commonAccountMatches": true,
+    "readRequests": 0,
+    "materials": 0,
+    "ownPostOpened": "224427408654",
+    "popupReadStarted": false
+  }
 }
