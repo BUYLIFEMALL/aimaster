@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.17(실제 입력 시험 보정)
+- 테스트 계정 「입력만」 실패 칸 0(태그 1개 거절은 스마트스토어 규칙). 카테고리 재시도·경로 우선, 태그 거절 창 처리, 판매가·옵션 마지막 재입력, 보이는 칸만, 패션 카테고리 선택형 끄기. 배포 Ready, DB·확장·ZIP v1.17 OK. 함정: heredoc 역슬래시 손실·replace의 $$ — 상세는 `smartstore-register/AGENTS.md` v1.17.
+- https://smartstore-register.buylife.xyz
+
 ## 2026-10-28 ✅ [역할: analysis-planning] Claude Code(윈도우) · ai-auto-blog v1.84 — 카테고리 회원별 전환
 
 주인님 지시(테스트 계정이 카테고리 수정 불가 신고 → 「카테고리는 회원 본인 소유, 같은 회원의 여러 블로그 프로그램이 공유, 타인과 공유 없음, 관리자 공용 폐지」). `ai-auto-blog`의 `blog_categories`를 전체 공용(관리자만 변경) → **회원별(`user_id`) owner-only**로 전환. DB 마이그레이션(`ai-auto-blog/supabase/migrations/20261027_blog_categories_per_user.sql`) 운영(ref esgxyik…) 적용 완료: `user_id` 추가·(user_id,slug) 복합 유일·기존 공용 10개 중 사용 5개를 쓰던 회원에게 이관·공용 삭제(남음 0)·RLS owner-only. 코드: `/api/categories`(본인 CRUD, 관리자 분기 제거)·`auto-post`·`candidates/shorts`·`dashboard` user_id 필터·모달 「내 카테고리」 안내. 검수(크롬, 테스트 계정): 본인 3개만 보임(타 회원 격리)·일반 회원 추가 성공→검수분 DB 원복. tsc·로컬빌드 통과·배포 Ready·`check-extension-release` OK(DB/확장/ZIP v1.84, 확장 코드 변경 없음). 커밋 `a82d17e81`(코드)·`69448ca66`(확장). 비용: Vercel 빌드 1회.
