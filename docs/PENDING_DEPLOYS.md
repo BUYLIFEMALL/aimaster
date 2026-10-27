@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `smartstore-register` (운영 v1.10) | 확장 상태 창 제목을 새 이름 「AI 스마트스토어 상품 자동등록기」로(`extension/popup.html`, 문구만) | `d1c315464` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `smartstore-register/AGENTS.md` 맨 아래 | 다음 등록기 배포 때 ZIP에 함께(버전 +0.01) |
 | `trending-product-finder` · `shop-order-report` · `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
 | `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
 | `shorts-onestop-studio` (운영 v1.42) | 무료 음성 안내 제목 그림문자 🆓가 앱 글꼴에서 네모로 보여 🎙️로 바꿈(문구만) | `a95613743` | 2026-10-24 · [역할: music] Claude Code(윈도우) `claude-win-20261024-music` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 쇼츠 원스톱 배포 때 함께(버전 +0.01) |
@@ -53,6 +54,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `smartstore-register` | v1.10 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-48tdzwzos`) | 대기 항목 없음 (본 작업: 추가 이미지 자동 넣기 `b6af9abe9`) |
 | `smartstore-register` | v1.09 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-c59rnifm2`) | 대기 항목 없음 (본 작업: 이름 변경 「AI 스마트스토어 상품 자동등록기」 — 화면·확장 표시명) |
 | `shop-detail-page` | v1.39 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 3회 중 3번째 `shop-detail-page-3h5v9rlyd`) | 버전 숫자 v1.39 맞추기 + 분석 카테고리 우선 `e244bb71e` |
 | `shop-detail-page` | v1.38 표시 그대로 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 3회 중 1번째 `shop-detail-page-5az2ls9nr`) | 대기 항목 없음 (본 작업: 검토 완료·마켓 등록 영역·등록 결과 표시·목록 검토 배지·흐름 띠·카테고리 받기 — 버전 올리기를 빠뜨려 다음 배포 때 v1.39) |

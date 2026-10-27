@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.10 추가 이미지
+- 상세페이지 상품의 참고(실물) 사진 중 회원 본인 폴더 것만 최대 9장을 스마트스토어 「추가이미지」에 자동으로 넣음. AI 섹션 이미지는 넣지 않음(글자 든 이미지 기준 위반 위험). 화면 구조는 저장본으로 확인: 추가 버튼 `data-nclicks-code="image.add"`(대표는 `image.repre`), 「내 사진」 한 번 총 20MB라 18MB 묶음으로 나눔, 목록 사진 수가 늘었는지 확인 후 성공.
+- 동작 `extra_images`는 확장 v1.10 이상에만 작업을 넘김. 배포 `smartstore-register-48tdzwzos` Ready, DB·확장·ZIP v1.10 OK, 시험 11개. 주인님 PC 「입력만」 실제 시험(스위스톤 백팩, 참고 사진 2장): 실패 칸 0으로 「입력 완료」.
+- 미배포 대기: 확장 상태 창 제목 새 이름(`d1c315464`). 플랜 `smartstore-register/docs/PLAN_20261027_EXTRA_IMAGES.md`.
+- 링크: https://smartstore-register.buylife.xyz/products
+
 ## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 스마트스토어 등록기 이름 변경·썸네일 (v1.09)
 - 주인님 지시: 「AI 스마트스토어 상품 자동등록기 로 썸네일 만들고 프로그램 등록 해줘」. 프로그램은 이미 카탈로그에 등록(공개)돼 있어 이름만 바꾸고 비어 있던 썸네일을 채움.
 - DB `programs.name` = 「AI 스마트스토어 상품 자동등록기」, 썸네일(관리자 Gemini 키, 상위 이미지 모델 1회, 글자·상표 없음 확대 확인) `program-images/catalog/smartstore-register-thumbnail.jpg`.
