@@ -22,6 +22,7 @@
 
 
 
+
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `smartstore-register/` | [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` | 2026-10-27 | 남은 기능 순서대로: 배송 직접 입력 확장 → 검색 태그 → 상품 주요정보 → 상품속성 |

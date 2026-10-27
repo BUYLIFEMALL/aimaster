@@ -1,5 +1,7 @@
 # 기능별 프로그램 지도 (SHARED_FEATURE_MAP.md)
 
+**2026-10-27 후보본문 파일 패턴 재사용:** `blog-neighbor-care`가 콘텐츠메이커의회원원문파일입력흐름을참고하고 기존확장 `extractor.mjs`의 `parsePost`를직접재사용. TXT/MD·일괄JSON·미리보기·원자적합치기·동의초기화. 외부수집이나새공용플랫폼을만든것은아님. 기존앱/확장조건수정없음.
+
 **2026-10-27 검색 재사용:** `blog-neighbor-care`가 기존 자료미리보기 `previewSearchSummaries`를 직접 재사용하고 `blog-keyword` HUB 규격/정확한 회원키 조회사본(`naver-member-api-keys`)을 사용. 검색요약과실제본문분리·서버저장/AI/쓰기없음. 기존다른프로그램소스는수정하지않음.
 
 **2026-10-27 모델선택 재사용:** `blog-neighbor-care/src/components/analysis/ModelPicker.tsx`는 SEO `TitleView.tsx`의 공급자→모델/공급자변경시기본모델 패턴을 재사용. 옵션은 이웃소통 서버카탈로그에서 공유, 실행시동의/비용확인·본인키. 기존 다른 앱은 수정하지 않음.
