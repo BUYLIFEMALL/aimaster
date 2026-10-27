@@ -304,10 +304,23 @@ async function pageCommand(cmd, args) {
         const ask = await waitFor(() => [...document.querySelectorAll('.modal.in, [role="dialog"]')].find((m) => visible(m) && /임시저장/.test(m.textContent) && [...m.querySelectorAll('button')].some((b) => b.textContent.trim() === '확인')), 2500);
         if (ask) [...ask.querySelectorAll('button')].find((b) => b.textContent.trim() === '확인').click();
       }
-      await sleep(4000);
-      const modal = [...document.querySelectorAll('.modal.in, [role="dialog"], .toast, .alert')].filter(visible).map((m) => m.innerText.replace(/\s+/g, ' ').trim()).join(' / ');
-      const no = (modal.match(/상품번호[^0-9]*([0-9]{6,})/) || [])[1] || null;
-      return { ok: true, message: modal.slice(0, 300), productNo: no };
+      // 누르기만 하고 성공으로 보지 않는다(2026-10-27: 「등록 완료」로 기록됐는데 판매자센터에 상품이 없었음).
+      // 성공 = 「상품 등록」 주소를 벗어남 또는 완료 안내 / 실패 = 오류 안내·칸 오류 문구 / 그 밖 = 결과 미확인.
+      const startHash = location.hash;
+      const notes = () => [...document.querySelectorAll('.modal.in, [role="dialog"], .toast, .alert, .noti-message, .error-msg, [class*="error"]')].filter(visible).map((m) => m.innerText.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      let verdict = null;
+      for (let t = 0; t < 30 && !verdict; t++) {
+        await sleep(500);
+        const text = notes().join(' / ');
+        if (location.hash !== startHash && !/products\/create/.test(location.hash)) verdict = { state: 'success', message: text };
+        else if (/(등록|저장)\s*(이|가)?\s*(완료|되었)|임시저장\s*(이|가)?\s*(완료|되었)/.test(text)) verdict = { state: 'success', message: text };
+        else if (/입력해\s*주세요|선택해\s*주세요|확인해\s*주세요|필수|오류|실패|할 수 없|올바르지/.test(text)) verdict = { state: 'error', message: text };
+      }
+      const message = (verdict?.message || notes().join(' / ')).slice(0, 300);
+      const no = (message.match(/상품번호[^0-9]*([0-9]{6,})/) || location.href.match(/products\/(?:edit\/)?([0-9]{6,})/) || [])[1] || null;
+      if (verdict?.state === 'success') return { ok: true, confirmed: true, message, productNo: no };
+      if (verdict?.state === 'error') return { ok: false, error: `판매자센터가 저장을 거절했습니다: ${message || '오류 안내'}` };
+      return { ok: true, confirmed: false, message };
     }
 
     return { ok: false, error: `모르는 명령 ${cmd}` };
@@ -465,6 +478,7 @@ async function runJob(job) {
       await setStatus(submit.target === 'vm.createTempSave' ? '임시저장 누르는 중…' : '저장하기 누르는 중…');
       const r = await run(tabId, 'submit', { target: submit.target });
       if (!r.ok) await api('/api/extension/finish', { jobId: job.id, status: 'failed', failedStep: submit.label, error: r.error });
+      else if (!r.confirmed) await api('/api/extension/finish', { jobId: job.id, status: 'filled', failedStep: submit.label, error: `「${submit.label}」은 눌렀지만 결과를 확인하지 못했습니다. 판매자센터 화면·상품 목록에서 직접 확인해 주세요.${r.message ? ` 화면 안내: ${r.message}` : ''}`.slice(0, 1000) });
       else await api('/api/extension/finish', { jobId: job.id, status: submit.target === 'vm.createTempSave' ? 'temp_saved' : 'registered', marketProductNo: r.productNo, error: r.message ? `화면 안내: ${r.message}` : null });
     } else {
       await api('/api/extension/finish', { jobId: job.id, status: 'filled', failedStep: failures[0]?.slice(0, 200) || null, error: failures.length ? `직접 확인할 칸: ${failures.join(' / ')}`.slice(0, 1000) : null });
