@@ -118,6 +118,7 @@
 | EXT-TL-10 | GPT PARK의 UI 캔버스 Pro | AI Studio 앱 | 10-13 | 컴포넌트 25종 캔버스 에디터·레이어·이미지/JSON 내보내기 | 🆕 독립 새 프로그램 | `ui-canvas` v1.14 | ✅ |
 | **인스타** | | | | | | | |
 | EXT-INS-01 | GitHub `nam-ai-trend/15_cardnews` | Node/Express 로컬 도구 | 10-19 · 10-22 | 릴스 수집·반응도 BEST 5·받아쓰기·7대 떡상 관점 TOP 3·4~10장 가변 카드뉴스 | 🔗 기존 병합 → `cardnews-studio` → 이후 `insta_auto_poster` | `insta_auto_poster` v1.69 | ✅ |
+| EXT-INS-02 | 인스타 자동포스팅(`igrp`) — 마케팅자동화 14종 09(OLD 새 판) | .NET 윈폼 + Selenium | 10-27 | 사진·글·해시태그 묶음에서 골라 웹 화면 조작으로 반복 게시(여러 계정, 간격) | 🔗 병합 추천 → `insta_auto_poster` 해시태그 묶음 · 게시 대기열(꾸준 게시) — 인스타 담당 없음 | `insta_auto_poster` v1.70 | 📝 |
 | **업무자동화** | | | | | | | |
 | EXT-TL-01 | AutoGemmaStarter 2.0.0 | Inno 6.7 + PyInstaller | 10-24 | 로컬 Gemma 설치 마법사·여러 공급자(Groq·OpenRouter 등)·커스텀 봇·RAG·프롬프트 25종 | 🔗 기존 병합 → `ai-doc-chatbot`·`ai-prompt-studio` | `ai-doc-chatbot` v1.07 · `ai-prompt-studio` v1.09 | ⏳ |
 | EXT-TL-02 | 오늘의 할 일 & 성과 | AI Studio 앱 | 10-13 | 할 일·집중 타이머·성과 점수·시간대 차트·AI 분석 | 🆕 독립 새 프로그램 | `ai-task-planner` v1.10 | ✅ |
@@ -144,12 +145,12 @@
 | 유튜브 | 3 | 독립 1 · 병합 2 |
 | 디자인 | 3 | 독립 3 |
 | 영상 | 2 | 독립 1 · 병합(공용 엔진) 1 |
-| 인스타 | 1 | 병합 1 |
+| 인스타 | 2 | 병합 1 · 결정 대기 1(EXT-INS-02 → `insta_auto_poster`) |
 | AI 프롬프트 | 1 | 독립 1 |
 | 성격·운세 | 1 | 독립 1 |
 | 부동산 | 2 | 진행 1(EXT-RE-01 → `realty-listing-alert` v1.26, 공개 전) · 보류 1(EXT-RE-02 짝 도구, 기법만 반영) |
 | 쓰레드·네이버·CRM·마케팅·이커머스·데이터수집\|기획 | 0 | — |
-| **합계** | **47** | 독립 27 · 병합 12 · 보류 3 · 결정 대기 1 · 제외 4 |
+| **합계** | **48** | 독립 27 · 병합 12 · 보류 3 · 결정 대기 2 · 제외 4 |
 
 **제작자 계열 메모(병합·중복 판단용)**
 - **GPT PARK(`gptparkai.com`, 유튜브 「AIFACT-GPTPARK」) 계열이 가장 많다.** Supertonic·AutoGemma·ClearPic·성격 진단기·키워드 파이터 A/B·뮤직 플레이어·Playful File Helper·LookStudio·랜딩 아키텍트·Reverse Prompt·썸네일 마스터·UI 캔버스·마스터링(추정)이 여기에 속한다. 이 계열은 대부분 「브라우저에 키 저장 + Gemini 직접 호출 + 월간 인증 코드」 구조라서, 우리는 늘 「서버 경유 + 회원 본인 키 + 회원 권한」으로 바꿔 만들었다.
@@ -619,6 +620,20 @@
 | 못 옮긴 것 | 인스타 주소 자동 수집 — 인스타그램 로그인 방식 토큰에 `business_discovery`가 없어(시험 회원 토큰 확인) 「파일 올리기」로 대체, Apify는 선택 |
 | 하지 않기로 한 것 | 코드·프롬프트(라이선스 없음), 네이버 뉴스 HTML 긁기(차단·약관) |
 | 관련 문서 | `docs/ANALYSIS_20261019_REF_15_CARDNEWS.md`, `cardnews-studio/docs/IMPROVEMENT_BACKLOG.md`, `cardnews-studio/AGENTS.md` v1.16, `insta_auto_poster/docs/PLAN_20261022_REELS_REMAKE.md`, `docs/analysis-shorts-auto-20261022/REPORT.md` |
+
+#### EXT-INS-02 인스타 자동포스팅(`igrp`) — 14종 09
+| 항목 | 내용 |
+|---|---|
+| 원본 | .NET 4.8 윈폼 + Selenium · OLD 폴더 새 판 `igrp.exe` 2024-03-12 SHA-256 `b5ca4b11`(14종 폴더 판 `388ac3de`와 다름) · 앱 코드 약 2,650줄 · 동봉 `id` 폴더 열지 않음 |
+| 분석 | 2026-10-27 · `claude-win-20261027-analysis` · ILSpy 구조 복원(실행 안 함) · 기능만 참고 |
+| 원본 기능 | 이미지 목록·게시글 목록·해시태그 목록 → 계정마다 무작위 조합 → 인스타 웹 화면 조작(만들기 → 사진 → 문구 → 공유하기) · 작업 갯수·간격(분) · 여러 계정·접속 위치 변경 · AI 없음 |
+| 우리 대상 | `insta_auto_poster` v1.70 — 공식 API 즉시·예약 게시, AI 캡션·해시태그, 카드뉴스로 앞섬. **해시태그 묶음·게시 대기열은 없음**(소스 검색 0건) |
+| 뽑아낸 기능 | 1. 해시태그 묶음 저장·한 번에 넣기 · 중 2. 게시 대기열(미리 만든 글을 정한 간격에 하나씩, 같은 재료 재게시 금지, 회원 본인 cron-job.org) · 중 |
+| 하지 않기로 한 것 | 웹 화면 조작 게시 · 여러 계정·접속 위치 변경 · 비밀번호 자동 로그인 · 같은 재료 무작위 재조합 반복 게시 |
+| 결정 | 🔗 병합 추천(독립 ❌) — 주인님 결정 대기, **인스타 담당 없음(새 담당 필요)** |
+| 진행 상태 | 📝 분석만(2026-10-27) |
+| 남은 결정 | 두 기능을 넣을지 · 인스타 담당 지정 |
+| 관련 문서 | `docs/analysis-marketing14-20261027/REPORT.md` §9 |
 
 ### 3-6. 마케팅
 
