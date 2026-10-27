@@ -4,7 +4,7 @@
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-27 본인글1개 읽기 연결 구현·ZIP 준비: 회원/확장API·원자적1회번호교환·공용계정읽기연결·activeTab본문확인후전달·중복/원래수명/정리, 단위54/SQL16/HTTP23·타입/빌드/ZIP검수통과. 신규운영4표·카탈로그/프로그램등록·Vercel배포·실제설치는미완료. 세션 `codex-win-20261026-blog-check`.
+- 마지막 갱신: 2026-10-27 11:02 v1.01 운영reader4표/프로그램등록·Vercel1회Ready·HTTP/ZIP/버전검수완료. 실제SSO/확장설치·본문전달은대기. 세션 `codex-win-20261026-blog-check`.
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -81,6 +81,7 @@
 4. 위 시험을 마친 뒤 다음 병합/연계 단위 또는 보안 업데이트를 결정. 콘텐츠③-2 독립 발행 플랜은 후보 재검토 상태. 관리자 요청함0044는 현재 정상 작동.
 
 ## 주인님께 여쭐 것
+- [설치/화면확인] reader v1.01 운영화면 열기·AIMaster회원확인·Edge확장ZIP설치/연결. [운영화면](https://blog-neighbor-care.buylife.xyz/reader), 요청811eb0aa-fc33-470e-8dbe-d93233456e0b. 네이버로그인은완료이며추가요청불필요. 로그인/권한안내면문구확인후공용정책대로처리. 운영배포승인요청은완료.
 - [계정/외부 확인] 네이버계정일치·본인글/본문표시·이웃피드·관계GUI확인완료. 공용연결0/웹·확장계정일치는미검수(7eba부분해소), 반복자동읽기허용근거3e257유지. 명명된링크탐색은동작했으나 키보드전경요건은별도.
 
 - [범위 인수] SEO 디자인 완료 후 남은 보안패치2파일(임시127개/타입/적용검사 통과)을 Codex가 인수·적용·기존승인 배포1회로 이어갈지. agy ACTIVE_WORK 예약이 남음. 요청 cf22fd7b-452c-4017-8eec-bc4e4419d8ec.
