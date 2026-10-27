@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 스마트스토어 상품등록 자동화 v1.05 (세 방식 실제 시험 통과)
+- 실제 시험 세 방식 모두 통과 — 「입력만」 18칸, 「임시저장까지」 임시저장 완료, 「바로 등록」 등록 완료(전시중지). 시험 중 찾은 보정 6건(배송 selectize 칸은 화면 목록에서 정확히 같은 보기 고르기, PC 임시저장 버튼은 `progress-button` 속성, 에디터 「등록」 뒤 닫힘 대기 45초·재클릭, 첫 화면 15초에 상품 등록 주소로 재이동·실패 시 실제 화면 기록, 전시 상태 라디오 실제 이름 `vm.singleChannelProductMap[channelServiceType].channelProductDisplayStatusType`, 기본값 저장 직후 표시) + **같은 상품 「바로 등록」 중복 막기**(「등록 완료」 기록이 있으면 「한 번 더 등록합니다」 체크가 있어야 보냄).
+- 주의 기록: 자동 실행 안전 검사가 「바로 등록」 클릭을 거부했다고 안내했지만 실제로는 클릭이 먼저 들어가 작업이 생겼음 → 다시 부탁해 중복 작업 발생, 확장 실행 전 취소로 막음. **도구가 막혔다고 해도 다시 부탁하기 전에 기록부터 확인.**
+- 배포 `smartstore-register-kjp25qgzv` Ready, DB·확장·ZIP v1.05 검증 OK. 빌드 1회(승인). 미배포 대기 없음.
+- 다음 첫 단계: 「바로 등록」 상품번호 기록(완료 화면 저장본). 상세 `smartstore-register/AGENTS.md` v1.05.
+- 링크: https://smartstore-register.buylife.xyz/history
+
 ## 2026-10-27 [역할: blog] Codex — reader v1.01 운영 적용·첫 배포 완료
 - [운영 연결 화면](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [운영 ZIP](https://blog-neighbor-care.buylife.xyz/downloads/blog-neighbor-care-extension-latest.zip)
 - 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF.
