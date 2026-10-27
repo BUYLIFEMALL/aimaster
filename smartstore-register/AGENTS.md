@@ -108,3 +108,9 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 「등록할 상품」 목록: 여러 상품 연속 보내기(`BatchRegister.tsx`·`createBatchJobsAction`, 최대 20개, 「입력만」 금지, 상품마다 마지막 입력 재사용, 예약구매 제외, 이미 「바로 등록」한 상품 건너뜀). 작업 만들기는 `queueJob` 하나로 합침.
 - 새 동작 최소 확장 v1.14, `STEP_BUILDER` 3. 배포 Ready, DB·확장·ZIP v1.14 OK, 시험 21개.
 - **남은 일**: 주인님 PC 「입력만」 실제 시험 → 새 확장 동작 보정(혜택·추가상품·예약구매·직접입력형·상품속성·태그·주요정보·배송 종류별), 「상품속성」 표 캡처 대기, 일반 등급 2주 기준 결정 대기.
+
+## 2026-10-27 v1.15 — 첫 「입력만」 시험 보정
+- 시험(gmail 계정, 19:58): 혜택 11칸·옵션·직접입력형·추가상품 통과. 실패 3칸 → 수정: 브랜드·제조사는 `ncp-brand-manufacturer-input[model-type]` 안 숨은 칸(`ng-model="vm.bindModel"`)에 넣는 새 동작 `brand_input`(확장 v1.15+), **모델명은 글자 칸이 없고 「찾기」(네이버 카탈로그)로만 고를 수 있어 자동 입력 제외**(상품 화면 안내), 태그는 합성 Enter의 `keyCode`가 0이라 selectize가 무시 → `keyCode/which` 13을 붙이고 `seoInfo.sellerTags`로도 확인.
+- 판매자센터 규칙 「포토/동영상 리뷰 ≥ 텍스트 리뷰」를 기본값 저장 때 검사. 기본값 화면 고르기 상자 5개(결제방식·묶음·설치비·제주·어린이제품인증)에 `key` — 저장 직후 예전 값으로 보여 다시 저장하면 값이 지워질 뻔함.
+- `STEP_BUILDER` 4. 배포 `bs7to8zwe` Ready, DB·확장·ZIP v1.15 OK, 시험 21개.
+- 테스트 계정(`buylifemall@naver.com`)으로 이어서 시험 중: 기본값 저장 완료, 남은 준비 = 상품 판매가(상세페이지 자동화에서 정상가 비어 있음)·「확장 연결」 다시 연결.
