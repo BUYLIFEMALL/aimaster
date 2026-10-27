@@ -5,7 +5,7 @@ import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -17,6 +17,14 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         <input id="categoryKeyword" name="categoryKeyword" defaultValue={defaultKeyword} placeholder="예: 텀블러" className="slw-field" />
         <p className="mt-1 text-[11px] text-slate-500">확장이 이 말로 검색해 마지막 단계 카테고리까지 고릅니다.</p>
       </div>
+      <fieldset className="space-y-1.5">
+        <legend className="slw-label">판매가 <span className="font-normal text-slate-500">(상세페이지 가격이 기본, 스마트스토어만 다르게 받으려면 고치기)</span></legend>
+        <div className="grid grid-cols-2 gap-2">
+          <input name="price" inputMode="numeric" defaultValue={initialPrice ?? ""} placeholder="정상가(원) *" className="slw-field" />
+          <input name="salePrice" inputMode="numeric" defaultValue={initialSalePrice ?? ""} placeholder="할인가(원, 선택)" className="slw-field" />
+        </div>
+        <p className="text-[11px] text-slate-500">할인가를 넣으면 「정상가 − 할인가」가 즉시할인으로 들어갑니다. 여기서 바꾼 가격은 이번 등록에만 쓰고 상세페이지 상품 정보는 바꾸지 않습니다.</p>
+      </fieldset>
       <fieldset className="space-y-1.5">
         <legend className="slw-label">상품 주요정보 <span className="font-normal text-slate-500">(선택)</span></legend>
         <input name="brand" defaultValue={initialMainInfo.brand} maxLength={50} placeholder="브랜드 (예: 스위스톤)" className="slw-field" />

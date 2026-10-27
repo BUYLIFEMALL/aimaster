@@ -39,6 +39,15 @@ type JobInputs = {
   supplements: unknown;
   mainInfo: { brand: unknown; manufacturer: unknown; model: unknown; used: unknown };
   preOrder: { on?: unknown; start?: unknown; end?: unknown; after?: unknown };
+  /** 이 마켓에만 쓰는 판매가(비우면 상세페이지 가격) — 상세페이지 가격이 비었거나 마켓마다 다를 때 */
+  price?: { price?: unknown; sale?: unknown };
+};
+
+const won = (v: unknown): number | null => {
+  const s = String(v ?? "").replace(/[,\s원]/g, "");
+  if (!s) return null;
+  const n = Number(s);
+  return Number.isInteger(n) && n >= 0 ? n : NaN;
 };
 
 /** 작업 하나 만들기 — 한 상품 보내기와 연속 보내기가 같이 쓴다. 오류면 { error }. */
@@ -46,6 +55,10 @@ async function queueJob(userId: string, productId: string, mode: RegisterMode, c
   const loaded = await getProductForRegister(userId, productId);
   if (!loaded) return { error: "상품을 찾을 수 없습니다." };
   const name = loaded.product.name || loaded.product.product_label || "(상품명 없음)";
+  const op = won(inputs.price?.price), os = won(inputs.price?.sale);
+  if (Number.isNaN(op) || Number.isNaN(os)) return { error: "판매가·할인가는 숫자로 넣어 주세요.", name };
+  if (op != null) loaded.product.price = op;
+  if (os != null || op != null) loaded.product.sale_price = os;
   const defaults = await getDefaults(userId);
   const opt = normalizeOptions(inputs.options, defaults.stock);
   if (opt.errors.length) return { error: opt.errors[0], name };
@@ -123,6 +136,7 @@ export async function createJobAction(_prev: unknown, formData: FormData): Promi
     supplements: formData.get("supplements"),
     mainInfo: { brand: formData.get("brand"), manufacturer: formData.get("manufacturer"), model: formData.get("modelName"), used: formData.get("saleType") },
     preOrder: { on: formData.get("preOrderOn"), start: formData.get("preOrderStart"), end: formData.get("preOrderEnd"), after: formData.get("preOrderAfter") },
+    price: { price: formData.get("price"), sale: formData.get("salePrice") },
   }, formData.get("repeatOk") === "on");
   if (r.error) return { error: r.error };
   revalidatePath("/history");
