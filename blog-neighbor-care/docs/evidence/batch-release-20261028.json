@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-27T15:43:47.447Z",
+  "checks": [
+    "BATCH01 missing prerequisite aborts before any new object",
+    "BATCH02 readonly preflight proves all prerequisites and no new objects",
+    "BATCH03 failure after both source migrations rolls back all seven tables and two functions",
+    "BATCH04 exact two source migrations apply atomically with every postcondition true",
+    "BATCH05 duplicate apply stops without recreating or enabling anything",
+    "BATCH06 verification is read-only and source fingerprints remain stable"
+  ],
+  "passed": 6,
+  "expected": 6,
+  "containerStopped": true,
+  "operatingApplied": false,
+  "productionWrites": 0,
+  "realCredentialsUsed": false,
+  "sourceMigrations": [
+    {
+      "file": "20261027042907_bnc_analysis.sql",
+      "sha256": "e32ed5f21f9b8456373b54aab8d430c2e0f1e3c9c858710dadf4174a0e68bc48"
+    },
+    {
+      "file": "20261027141316_bnc_neighbor_import.sql",
+      "sha256": "96b6f0bf46ab6b38f7c9487e7c9155d3c2215ded771572d8a705f601bc34a0ff"
+    }
+  ],
+  "scope": "Generated deployment SQL composition on isolated PostgreSQL17; no production migration or deployment"
+}
