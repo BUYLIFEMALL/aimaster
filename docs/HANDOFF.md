@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.11 (오래된 탭이 만든 작업 막기)
+- 템플릿 「바이라이프」 시험 중 고시 A/S 전화가 빈 칸으로 나온 원인: 회원의 오래된 프로그램 탭이 옛 배포 코드로 칸 목록을 만듦(고시 A/S 전화·어린이인증·추가 이미지 빠짐). 상세·교훈: `docs/ERROR_LESSONS.md` 2026-10-27 맨 위.
+- 해결: 저장 칸 목록에 「만든 세대」 표시, 확장 작업 서버가 표시 없는 작업은 실행하지 않고 「오래된 화면」으로 기록. 시험 12개, 배포 `smartstore-register-m22lvumg4` Ready, DB·확장·ZIP v1.11 OK. 상태 창 제목 새 이름도 함께 나감.
+- 기본값: 관리자 계정 「배송 템플릿 이름 = 바이라이프」 저장(칸 목록 21→18칸). 템플릿 고르기 실제 시험은 최신 탭에서 다시 보내기 대기.
+- 링크: https://smartstore-register.buylife.xyz/products
+
 ## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.10 추가 이미지
 - 상세페이지 상품의 참고(실물) 사진 중 회원 본인 폴더 것만 최대 9장을 스마트스토어 「추가이미지」에 자동으로 넣음. AI 섹션 이미지는 넣지 않음(글자 든 이미지 기준 위반 위험). 화면 구조는 저장본으로 확인: 추가 버튼 `data-nclicks-code="image.add"`(대표는 `image.repre`), 「내 사진」 한 번 총 20MB라 18MB 묶음으로 나눔, 목록 사진 수가 늘었는지 확인 후 성공.
 - 동작 `extra_images`는 확장 v1.10 이상에만 작업을 넘김. 배포 `smartstore-register-48tdzwzos` Ready, DB·확장·ZIP v1.10 OK, 시험 11개. 주인님 PC 「입력만」 실제 시험(스위스톤 백팩, 참고 사진 2장): 실패 칸 0으로 「입력 완료」.
