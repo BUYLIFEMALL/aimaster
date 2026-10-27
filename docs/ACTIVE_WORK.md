@@ -20,6 +20,7 @@
 
 ## 작업 중
 
+
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `smartstore-register/` | [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` | 2026-10-27 | 옵션 자동 입력(엑셀 일괄등록) v1.12 |

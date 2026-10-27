@@ -1,5 +1,7 @@
 # 기능별 프로그램 지도 (SHARED_FEATURE_MAP.md)
 
+**2026-10-27 모델선택 재사용:** `blog-neighbor-care/src/components/analysis/ModelPicker.tsx`는 SEO `TitleView.tsx`의 공급자→모델/공급자변경시기본모델 패턴을 재사용. 옵션은 이웃소통 서버카탈로그에서 공유, 실행시동의/비용확인·본인키. 기존 다른 앱은 수정하지 않음.
+
 ## 2026-10-27 이웃소통 프로필·후보 서버 재사용
 
 `blog-neighbor-care/src/lib/analysis/`: 회원 키는 루트 `lib/apiKeys.ts`의 `resolveApiKey` 정확한 사본, 모델 카탈로그는 `web-crawler/webapp/src/lib/ai/models.ts` 사본, OpenAI 요청 규칙은 공용 `openai-request-params` 사본. 프로그램별 프롬프트/근거 검증/회원 확인·수명·중복과금 방지는 이웃소통 자체 구현입니다. 무료호환 공급자 G-1은 이번 연결하지 않았습니다. 기존 공용 기준/타앱 변경 없음, 로컬 구현·미배포/실제 AI 미호출.

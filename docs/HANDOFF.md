@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 [역할: blog] 릴레이 데스크 그린 UI·모델 선택 로컬 완료 — 미배포
+
+2026-10-27 소스 `cbb8ac788` · 사용자선택 3번 **릴레이 데스크 — 네이버 그린 변형** 및 플랫폼→모델 선택 반영. 프로필/확인본·후보 본문제공/평가/선택·매뉴얼·설정·기존reader메뉴 로컬구현. 단위74/실제격리DB14/로컬HTTP29·타입/Next빌드·ZIP 통과. **운영SQL·새UI실회원/실제AI·배포 미완료**, 후보검색/자동수집·실제소통/반복은후속. v1.01유지·명칭수정과묶음배포대기, 추가AI/Vercel0. [인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_RELAY_UI.md)·[12뷰](../blog-neighbor-care/docs/blog-neighbor-care_12VIEWS_PROPOSAL.md). 사용자3번선택완료. 전담Codex. 신규SQL get은원래preferences반환추가(운영미적용). 무료로컬빌드2/격리DB2. 다음후보검색/본문확보.
+
+
 ## 2026-10-27 📘 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 오늘 이커머스 작업 전체 인수인계 (먼저 읽기)
 - **상세 문서**: [`smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md`](../smartstore-register/docs/IMPROVEMENT_HANDOFF_20261027.md) — §1~§8 v1.06까지(실제 시험·에러), **§9~§12 오후 v1.07~v1.11·배송 칸 전체 지도·「완성까지 남은 기능」 표·다음 첫 단계**.
 - 오늘 결과: AI 스마트스토어 상품 자동등록기 v1.11(세 방식 실제 성공, 추가 이미지·배송비 템플릿 화면 확인, 오래된 탭 작업 막기, 이름·썸네일), 상세페이지 v1.39(검토 완료·마켓 등록·결과 표시), 흐름 띠 「마켓 등록」 단계. 미배포 대기: 흐름 띠 사본 3곳(상품소싱·주문 리포트·셀러 라벨).
