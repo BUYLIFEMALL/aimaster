@@ -808,6 +808,28 @@ function optionDiagMain() {
   return { ok: true, text: `옵션목록[${lists.join(' ')}] 직접입력형id[${ids.join(' ')}] 라벨[${labs.join(',')}] 버튼[${btns || '못찾음'}]` };
 }
 
+// 옵션 「선택형」 끄기(2026-10-28) — 패션 카테고리는 상품등록을 열면 선택형이 「설정함 + 색상/사이즈 간편 입력」으로 켜져 있고,
+// 그 상태에서는 추가상품이 막히고 직접입력형도 켜지지 않는다(실측). 보낼 옵션이 없는 작업에서만 「설정안함」으로 바꾼다.
+async function optionOffMain() {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const norm = (s) => (s || '').replace(/\s+/g, '');
+  const head = [...document.querySelectorAll('label, th, div, span')].find((e) => e.children.length < 3 && vis(e) && norm(e.textContent) === '선택형');
+  if (!head) return { ok: true, skipped: '선택형 줄 없음' };
+  let off = null;
+  for (let box = head.parentElement, up = 0; box && up < 4 && !off; up++, box = box.parentElement) {
+    off = [...box.querySelectorAll('label, button, a')].find((x) => vis(x) && norm(x.textContent) === '설정안함');
+  }
+  if (!off) return { ok: true, skipped: '설정안함 버튼 없음' };
+  const input = off.tagName === 'LABEL' && off.htmlFor ? document.getElementById(off.htmlFor) : null;
+  if (input && input.checked) return { ok: true, already: true };
+  off.click();
+  await sleep(700);
+  const dlg = [...document.querySelectorAll('.modal.in, [role="dialog"], [role="alertdialog"]')].filter(vis).pop();
+  if (dlg) { const ok = [...dlg.querySelectorAll('button')].find((b) => norm(b.textContent) === '확인'); if (ok) { ok.click(); await sleep(600); } }
+  return { ok: true, switched: true };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -996,6 +1018,7 @@ async function runJob(job) {
       } else if (step.action === 'unit_pick') {
         r = await run(tabId, 'unitPick', { target: step.target, value: step.value });
       } else if (step.action === 'supplements') {
+        if (!job.steps.some((x) => x.key === 'options')) { await run(tabId, 'expand', { title: '옵션' }); await runMain(tabId, optionOffMain, {}); }
         let groups = []; try { groups = JSON.parse(step.value); } catch (e) { groups = []; }
         if (!groups.length) continue;
         r = await runMain(tabId, supplementsMain, { groups, expect: groups.reduce((n, g) => n + g.values.length, 0) });
@@ -1006,6 +1029,7 @@ async function runJob(job) {
       } else if (step.action === 'custom_options') {
         let names = []; try { names = JSON.parse(step.value); } catch (e) { names = []; }
         if (!names.length) continue;
+        if (!job.steps.some((x) => x.key === 'options')) await runMain(tabId, optionOffMain, {});
         r = await runMain(tabId, customOptionsMain, { names });
       } else if (step.action === 'attributes') {
         let pairs = []; try { pairs = JSON.parse(step.value); } catch (e) { pairs = []; }
