@@ -1,0 +1,106 @@
+{
+  "checkedAt": "2026-10-27T14:50:39.522Z",
+  "scope": "Local neighbor import staging, member confirmation and target preferences; actual Naver adapter not verified",
+  "unitTests": 137,
+  "importDatabaseTests": 14,
+  "httpTests": 39,
+  "typecheck": true,
+  "nextBuilds": 2,
+  "previewBundles": 1,
+  "newMigration": "20261027141316_bnc_neighbor_import.sql",
+  "newTables": 5,
+  "operatingDatabaseChanged": false,
+  "naverReadPolicyDefault": false,
+  "actualNaverReadPerformed": false,
+  "actualNaverSourceRouteVerified": false,
+  "actualNaverDomVerified": false,
+  "actualPostgrestVerified": false,
+  "realAiCalls": 0,
+  "vercelDeployments": 0,
+  "nativeEdge": {
+    "windowId": 1838288,
+    "existingWindowNewTab": true,
+    "syntheticOnly": true,
+    "stages": [
+      {
+        "stage": "01-start",
+        "ok": true,
+        "screenshot": true,
+        "visibleResult": []
+      },
+      {
+        "stage": "02-loaded",
+        "ok": true,
+        "screenshot": true,
+        "visibleResult": [
+          "85 단추 표시된 전 페이지 받음 · 2/2명 · 1/1페이지",
+          "86 제목 반영된 이웃 0명"
+        ]
+      },
+      {
+        "stage": "03-preview",
+        "ok": true,
+        "screenshot": true,
+        "visibleResult": [
+          "85 단추 표시된 전 페이지 받음 · 2/2명 · 1/1페이지",
+          "97 텍스트 네이버가 표시한 전 페이지·인원이 일치해야 반영할 수 있습니다. 여러 시점에 읽은 목록이며 동시점의 전체 관계를 보장하지 않습니다. 이번 목록에 없는 기존 이웃은 자동 삭제하지 않습니다.",
+          "104 제목 반영된 이웃 0명"
+        ]
+      },
+      {
+        "stage": "04-confirmed",
+        "ok": true,
+        "screenshot": true,
+        "visibleResult": [
+          "85 텍스트 확인한 목록을 반영했습니다. 외부 소통은 실행하지 않았습니다.",
+          "98 텍스트 네이버가 표시한 전 페이지·인원이 일치해야 반영할 수 있습니다. 여러 시점에 읽은 목록이며 동시점의 전체 관계를 보장하지 않습니다. 이번 목록에 없는 기존 이웃은 자동 삭제하지 않습니다.",
+          "102 제목 반영된 이웃 2명",
+          "127 확인란 이 계정의 반영된 이웃 전체 2명에 대해 새 글·답방 대상 설정을 함께 바꿉니다., Secondary Actions: SetValue, Toggle"
+        ]
+      },
+      {
+        "stage": "05-individual-target",
+        "ok": true,
+        "screenshot": true,
+        "visibleResult": [
+          "85 텍스트 소통 대상 설정을 저장했습니다. 지금 신청·공감·댓글을 실행하지 않습니다.",
+          "98 텍스트 네이버가 표시한 전 페이지·인원이 일치해야 반영할 수 있습니다. 여러 시점에 읽은 목록이며 동시점의 전체 관계를 보장하지 않습니다. 이번 목록에 없는 기존 이웃은 자동 삭제하지 않습니다.",
+          "102 제목 반영된 이웃 2명",
+          "127 확인란 이 계정의 반영된 이웃 전체 2명에 대해 새 글·답방 대상 설정을 함께 바꿉니다., Secondary Actions: SetValue, Toggle"
+        ]
+      },
+      {
+        "stage": "06-all-off",
+        "ok": true,
+        "screenshot": true,
+        "visibleResult": [
+          "85 텍스트 소통 대상 설정을 저장했습니다. 지금 신청·공감·댓글을 실행하지 않습니다.",
+          "98 텍스트 네이버가 표시한 전 페이지·인원이 일치해야 반영할 수 있습니다. 여러 시점에 읽은 목록이며 동시점의 전체 관계를 보장하지 않습니다. 이번 목록에 없는 기존 이웃은 자동 삭제하지 않습니다.",
+          "102 제목 반영된 이웃 2명",
+          "127 확인란 이 계정의 반영된 이웃 전체 2명에 대해 새 글·답방 대상 설정을 함께 바꿉니다., Secondary Actions: SetValue, Toggle"
+        ]
+      }
+    ],
+    "individualOrdinaryNewPostCheckedVisually": true,
+    "defaultMutualOnOrdinaryOffVisually": true,
+    "allTargetsOffVisually": true
+  },
+  "advisor": {
+    "cliLocal": "ECONNREFUSED 127.0.0.1:54322; isolated PostgreSQL used, no Supabase local stack",
+    "rlsAndRpcPrivilegeQueriesVerified": true
+  },
+  "remainingUserAction": {
+    "id": "f886a345-bcbc-48c5-abbe-17ebf574035c",
+    "description": "Login to buylifemall in existing personal Edge tab for actual management route/DOM inspection"
+  },
+  "limits": {
+    "pagesPerDayPerMember": 100,
+    "maxRows": 5000,
+    "maxPages": 100,
+    "permitSeconds": 60,
+    "confirmationMinutes": 15,
+    "rawStagingHours": 24,
+    "receiptHours": 720
+  },
+  "externalActions": 0
+}

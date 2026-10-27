@@ -97,17 +97,21 @@ try {
   });
   await check('HTTP34 이웃조회GET405',async()=>assert.equal((await fetch(`${origin}/api/neighbors`)).status,405));
   await check('HTTP35 이웃관계화면회원가드',async()=>{const html=await(await fetch(`${origin}/neighbors`)).text();assert.match(html,/AIMaster 로그인/);assert.match(html,/이웃 관계 기록/);});
+  await check('HTTP36 이웃가져오기회원API미로그인401',async()=>{const r=await fetch(`${origin}/api/neighbors/import/member`,{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({operation:'directory',payload:{}})});assert.equal(r.status,401);assert.match(r.headers.get('cache-control'),/no-store/);});
+  await check('HTTP37 이웃가져오기확장토큰없이401',async()=>{const r=await fetch(`${origin}/api/neighbors/import/extension`,{method:'POST',headers:{'content-type':'application/json'},body:'{}'});assert.equal(r.status,401);});
+  await check('HTTP38 이웃가져오기회원GET405',async()=>assert.equal((await fetch(`${origin}/api/neighbors/import/member`)).status,405));
+  await check('HTTP39 이웃가져오기확장GET405',async()=>assert.equal((await fetch(`${origin}/api/neighbors/import/extension`)).status,405));
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
-  writeFileSync(new URL('../docs/evidence/relations-http-20261027.json', import.meta.url), JSON.stringify({
+  writeFileSync(new URL('../docs/evidence/neighbor-import-http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 35, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 39, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 35);
-console.log('로컬 HTTP35개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 39);
+console.log('로컬 HTTP39개 통과·서버 종료, 실제키/로그인세션 사용0.');

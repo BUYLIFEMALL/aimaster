@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 let draft = null, busy = false;
 async function run(work) {
-  if (busy) return; busy = true; document.querySelectorAll('button').forEach(b => { b.disabled = true; });
+  if (busy) return; busy = true; document.querySelectorAll('button').forEach(b => { b.disabled = b.id!=='neighborStop'; });
   try { await work(); } catch (e) { $('message').textContent = e.message || '결과를 확인하지 못했습니다. 결과 확인 버튼을 눌러 주세요.'; }
   finally { busy = false; document.querySelectorAll('button').forEach(b => { b.disabled = false; }); }
 }
@@ -40,3 +40,10 @@ $('disconnect').addEventListener('click', () => run(async () => {
   $('message').textContent = r.remoteRevoked ? '이 기기 연결을 해제했습니다.' : '기기의 연결 정보는 지웠습니다. 서버 해제는 프로그램의 기기 목록에서 확인해 주세요.'; await status();
 }));
 run(status);
+function neighborResult(r){$('message').textContent=r.state==='ready'?`전체 페이지에서 ${r.capturedCount??r.totalCount}명을 받았습니다. 프로그램에서 범위를 확인한 뒤 반영해 주세요.`:r.state==='confirmed'?'프로그램에서 확인·반영한 목록입니다.':`목록 상태 ${r.state} · 받은 ${r.capturedCount??0}명 / 전체 표시 ${r.totalCount??'확인 중'}명. 프로그램에서 범위를 확인해 주세요.`;}
+$('neighborRead').addEventListener('click',()=>run(async()=>{
+  $('message').textContent='전체 이웃 목록을 페이지별로 확인하고 있습니다. Edge와 현재 탭을 유지해 주세요.';
+  neighborResult(await send({type:'neighbors_read',ownerConfirmed:$('neighborConfirm').checked}));
+}));
+$('neighborReceipt').addEventListener('click',()=>run(async()=>neighborResult(await send({type:'neighbors_status'}))));
+$('neighborStop').addEventListener('click',async()=>{try{await send({type:'neighbors_stop'});$('message').textContent='중단을 요청했습니다. 진행 중인 한 페이지의 결과는 남을 수 있습니다. 프로그램에서 받은 범위를 확인하세요.';}catch(e){$('message').textContent=e.message;}});

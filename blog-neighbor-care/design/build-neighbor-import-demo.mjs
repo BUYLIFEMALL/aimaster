@@ -1,0 +1,10 @@
+import {build} from 'esbuild';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const program=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const target=path.resolve(program,'../scratch/blog-neighbor-care-import-20261027');fs.mkdirSync(target,{recursive:true});
+const result=await build({entryPoints:[path.join(program,'design/neighbor-import-demo.tsx')],bundle:true,write:false,platform:'browser',format:'iife',target:'es2022',jsx:'automatic',minify:true,define:{'process.env.NODE_ENV':'"production"'}});
+const css=fs.readFileSync(path.join(program,'src/app/globals.css'),'utf8'),script=result.outputFiles[0].text.replace(/<\/script/gi,'<\\/script');
+fs.writeFileSync(path.join(target,'index.html'),`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src data:; form-action 'none'; base-uri 'none'"><title>기존 이웃 가져오기 · 합성 자료 기능 확인</title><style>${css}</style></head><body><div id="root"></div><script>${script}</script></body></html>`);
+console.log(JSON.stringify({target,bundleBytes:result.outputFiles[0].contents.length,externalConnections:false}));

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { Account } from '../../lib/neighbors/api';
 import type { RelationshipEvidence } from '../../lib/search/evidence';
 import { relationshipLabel } from './CandidateEvidence';
+import {NeighborImportPanel} from './NeighborImportPanel';
 type Row = { blogId: string; relationship: RelationshipEvidence };
 type Page = { account: Account; records: Row[]; nextCursor: string | null };
 class RecordError extends Error { constructor(message:string,readonly status:number){super(message);} }
@@ -59,9 +60,10 @@ export function NeighborRecords() {
   const visible=rows.filter(row=>filter==='all'||row.relationship.recordedState===filter);
   return <>
     <div className="page-heading"><div className="eyebrow">NEIGHBORS / 관계 기록</div><h1>내 블로그별 관계를 확인하세요.</h1><p>프로그램에 저장된 기록을 조회합니다. AI 분석이나 네이버 접속을 실행하지 않습니다.</p></div>
-    <section className="panel"><p className="notice">네이버 전체 이웃 목록 가져오기는 아직 제공하지 않습니다. 기록이 없거나 오래된 경우 실제 이웃 관계를 단정하지 않습니다. 일반 이웃·신청 방향의 세부 구분과 소통 대상 켜기/끄기도 후속 기능입니다.</p>
+    <section className="panel"><p className="notice">가져온 이웃 목록과 서버 관계 기록을 구분합니다. 가져온 표시나 대상 설정만으로 현재 관계를 단정하거나 외부 소통을 실행하지 않습니다. 읽기 허용·지원 화면 검수와 운영 반영이 먼저 필요합니다.</p>
       <label className="field">내 연결 블로그<select value={accountId} onChange={e=>choose(e.target.value)}><option value="">계정을 선택하세요</option>{accounts.map(account=><option key={account.id} value={account.id}>{account.blogId}</option>)}</select></label>
       {!accounts.length&&<p>표시할 연결 계정이 없으면 <Link href="/reader">내 글 연결</Link>에서 본인 블로그 연결 상태를 확인하세요.</p>}
+      {accountId&&<NeighborImportPanel key={accountId} accountId={accountId}/>}
       <button className="primary" disabled={busy||!accountId} onClick={()=>load()}>관계 기록 {loaded?'다시 조회':'조회'}</button>
       <div role="status">{busy?'저장된 기록을 조회하는 중입니다.':message}</div>
       {loaded&&<><p>현재 불러온 기록 {rows.length}건 · 네이버 전체 이웃 수가 아닙니다.</p><label className="field">불러온 기록에서 보기<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">전체 기록</option><option value="mutual">서로이웃 기록</option><option value="pending">신청 대기 기록</option><option value="removed">관계 해제 기록</option><option value="unknown">미확인 기록</option></select></label>

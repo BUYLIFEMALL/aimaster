@@ -4,7 +4,7 @@
   "version": "1.1.0",
   "version_name": "v1.01",
   "minimum_chrome_version": "120",
-  "description": "회원이 직접 선택한 본인 블로그 글 1개를 확인하고 프로그램에 전달합니다.",
+  "description": "회원이 선택한 본인 글과 허용된 이웃 관리 목록을 확인하고 프로그램에 전달합니다.",
   "permissions": [
     "activeTab",
     "scripting",

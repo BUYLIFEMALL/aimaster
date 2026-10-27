@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-10-27T14:38:26.870Z",
+  "tests": [
+    "IDB01 five tables RLS, private RPC, read gate default off and non-writable by service",
+    "IDB02 missing platform permission blocks start without page reservation",
+    "IDB03 wrong user/device or disconnected account never starts import",
+    "IDB04 sequential pages stay staged until exact coverage and explicit confirmation",
+    "IDB05 confirmation defaults mutual targets on and ordinary off, does not authorize worker",
+    "IDB06 reimport preserves member toggles/created time and never removes absent neighbors",
+    "IDB07 page omissions, duplicate IDs, changed totals and overcount cannot complete",
+    "IDB08 only one concurrent reservation wins, budget consumed once",
+    "IDB09 daily budget is shared across actor accounts and devices",
+    "IDB10 cancel removes staged IDs without deleting directory or refunding reads",
+    "IDB11 expired nonce/run and revoked device or policy revision block writes",
+    "IDB12 RLS hides other member directory; bulk toggle is atomic with count guard",
+    "IDB13 member and extension HTTP handlers call actual SQL with server-bound identity/nonce",
+    "IDB14 expiry cleanup deletes temporary source and receipts but preserves minimal member settings"
+  ],
+  "passed": 14,
+  "expected": 14,
+  "containerStopped": true,
+  "operatingDatabaseChanged": false,
+  "realCredentialsUsed": false,
+  "fixture": "Isolated PostgreSQL17, network none, no published ports; HTTP handlers + actual SQL, not production PostgREST"
+}

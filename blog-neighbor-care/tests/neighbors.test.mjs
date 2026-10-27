@@ -52,7 +52,7 @@ test('NB09 actual store queries bind owner/account and use a bounded ordered cur
  const records=seen.at(-1);assert.equal(records.limit,51);assert.equal(records.order,'neighbor_id');assert.ok(records.filters.some(x=>x[0]==='account_id'&&x[1]===accountId));assert.ok(records.filters.some(x=>x[0]==='gt'&&x[2]==='n001'));
 });
 test('NB10 UI distinguishes stored rows from importing Naver neighbors and performs no call during SSR',()=>{
- const html=renderToStaticMarkup(React.createElement(NeighborRecords));assert.match(html,/네이버 전체 이웃 목록 가져오기는 아직 제공하지 않습니다/);assert.match(html,/AI 분석이나 네이버 접속을 실행하지 않습니다/);assert.match(html,/관계 기록 조회/);
+ const html=renderToStaticMarkup(React.createElement(NeighborRecords));assert.match(html,/가져온 이웃 목록과 서버 관계 기록을 구분합니다/);assert.match(html,/AI 분석이나 네이버 접속을 실행하지 않습니다/);assert.match(html,/관계 기록 조회/);
 });
 test('NB11 changing actor account in mounted UI discards delayed previous account rows',async()=>{
  const {window,document}=parseHTML('<html><body><div id="root"></div></body></html>');
