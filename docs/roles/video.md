@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-10-26 `claude-win-video` (v1.25 배포)
+- 마지막 갱신: 2026-10-27 `claude-win-video` (분석 담당 새 플랜 반영)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,6 +16,9 @@
 |---|---|---|---|
 | `ai-video-studio` | 영상 만들기 맥 렌더 v1.25 메모리 쪽 캔버스 기본 | 맥미니 기본 주소 재측정(절차 §17) | `ai-video-studio/docs/PLAN_20261024_EDIT_RENDER_SPEED.md` §17 |
 | Shots·원스톱 쇼츠 | 영상 D — 완성본에 내 PC 「용량 줄이기」 | 빌드 2회 승인 | `docs/analysis-pc-renderer-20261024/ROADMAP.md` 3-0 |
+| `ai-video-studio`·`shorts-onestop-studio`·`video-to-gif` | 영상 묶음 V1~V7(추천 순서 V4 → V3 → V1 사전 검증 → V1 → V2·V5) | 순서 결정(요청함 `0258930d`) | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` |
+| `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(YT-U7, 서버 조건부 선점·불확실하면 「확인 필요」) — 분석 담당이 이 역할에 배정, 화면 변경 없음 | 착수 순서(작은 수정, 모았다가 배포) | `docs/YOUTUBE_CONSOLIDATION_TASKS.md` 16·30행 |
+| `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
@@ -38,11 +41,21 @@
 | 2026-10-24 | 실행기 1.20 · `infinite-loop-video` v1.08 | 내 PC 렌더러 단계 A `loop` | 배포 |
 | 2026-10-24 | `infinite-loop-video` v1.07 | 소리 없는 영상 실패 수정 | 배포 |
 
+## 작업 진행 때 참고할 분석·플랜 (분석 담당 `analysis-planning` 작성 — 2026-10-27 다시 읽음)
+- **V1~V7 기준 문서**: `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` — 절대 지시 D1~D6(영상 기능은 영상 프로그램만 열어도 끝까지 쓸 수 있게, 쇼핑몰 흐름 연결은 선택), V2·V5는 본인 사용 한정 공통 장치 4가지(권리 체크·회원 파일만·실행 기록 30일·고지), 하지 않을 것(남의 영상 다운로드·저작권 표시 제거·중복 탐지 회피·양산 루프·과장 대본·숫자 조작).
+- **V1**: 회원 본인 파일 → 회원 본인 키 받아쓰기 → LLM 구간 선택(점수·이유, 회원이 고침) → 무음 제거 → 브라우저 렌더(공용 `browser-mp4-encoder`·영상 합치기 엔진) → SRT·MP4. 첫 단계는 사전 검증 페이지 1회(수십 원, 실행 전 보고).
+- **V3**: 15초 6비트 구성·CTA, `shop-detail-page` 「쇼츠로 만들기」(이커머스 E9)에서 넘어오는 **받는 화면과 값 형식은 영상 담당이 정해 이커머스 담당과 맞춘다**(`trending-product-finder/lib/shopDetailLink.ts` 방식, 짧은 값만·원가 제외).
+- **V4**: `video-to-gif`에 `getDisplayMedia` 화면 녹화 입력만 추가(최대 15초, PC 전용). **V5**: ffmpeg.wasm `delogo`, 코어 라이선스(LGPL/GPL) 확인 필요.
+- **DUP-4**: 기준은 `youtube-auto-reply/lib/comments/post.ts` 46~59행 조건부 선점. 완료 기준 — 불확실하면 자동 재발송 안 함·서버에서 상태 먼저 잡기·같은 대상 재발송은 회원 확인 창·시험은 모의(실발송 1건은 승인 뒤).
+- **2026-10-27 Program_dev 묶음**: 영상 관련 새 개발 없음(Movavi 데스크톱 편집기는 제외). 유튜브 A4 「협업 크리에이터 찾기」만 `youtube-viral-studio` 병합 후보(연락처는 채널에 공개 등록된 비즈니스 이메일만, 마케팅 예외 지침 §3 적용).
+
 ## 다음 첫 단계
 1. 맥미니 v1.25 기본 주소 재측정(PLAN §17)을 받아 맥 렌더가 정상이면 진단 스위치 정리 여부 판단(급하지 않음, 다음 배포 때)
-2. 영상 D(빌드 2회 승인 뒤)
+2. 주인님이 V1~V7 순서를 정하면 첫 작업 플랜 보고(추천 V4부터) — 결정 전에는 DUP-4(빌드 없이 코드·모의 시험까지, 배포는 모았다가)를 먼저 할 수 있음
+3. 영상 D(빌드 2회 승인 뒤)
 
 ## 주인님께 여쭐 것
 - 서버 지역(`regions`)을 DB 가까이 옮기는 전체 프로그램 공통 제안 검토 여부
 - 영상 D(Shots·원스톱 용량 줄이기) 빌드 2회 승인 여부
-- AI 영상 스튜디오 v1.25 빌드 1회 승인 여부(맥 렌더 GPU 장면 시험)
+- 영상 묶음 V1~V7 시작 순서(추천 V4 → V3 → V1 사전 검증 → V1 → V2·V5) — 요청함 `0258930d`
+- DUP-4(Shots 업로드 중복 방지)를 V1~V7보다 먼저 해도 되는지(회원 중복 업로드 방지라 먼저 권장)
