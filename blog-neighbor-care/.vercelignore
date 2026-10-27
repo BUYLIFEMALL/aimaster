@@ -1,0 +1,10 @@
+.env*
+.git
+.next
+node_modules
+docs
+design
+tests
+supabase
+AGENTS.md
+README.md

@@ -1,0 +1,87 @@
+{
+  "checkedAt": "2026-10-27T15:54:49.624Z",
+  "approvalRequest": "af760869-6699-44c8-bc5c-1cd396f34d11",
+  "approval": "User chat 진행해 after explicit scope/cost",
+  "project": "esgxyikcnnvmlhygjkth",
+  "migration": "bnc_analysis_neighbor_batch_20261028",
+  "newTables": 7,
+  "newRpc": 2,
+  "checks": {
+    "importReadOff": true,
+    "socialLiveOff": true,
+    "allSevenTablesRls": true,
+    "privateInvokerRpc": true,
+    "noAnonDirectorySelect": true,
+    "policyNotServiceWritable": true,
+    "memberDirectoryOwnerPolicy": true,
+    "noMemberDirectDirectoryWrite": true
+  },
+  "securityAdvisors": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_analysis_jobs",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_analysis_sources",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_neighbor_import_daily",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_neighbor_import_pages",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_neighbor_import_policy",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_neighbor_imports",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_reader_devices",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_reader_pairings",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_reader_requests",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "table": "bnc_runtime",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    }
+  ],
+  "securityNote": "INFO RLS without member policies on server-only tables is intentional; no member policy added to private source/device/runtime tables.",
+  "buildMachine": "basic",
+  "elasticConcurrencyEnabled": false,
+  "productionDeploymentPending": true,
+  "actualNaverNeighborsImported": 0,
+  "realAiCalls": 0
+}

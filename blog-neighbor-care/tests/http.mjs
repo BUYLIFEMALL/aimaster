@@ -62,7 +62,7 @@ try {
   await check('HTTP16 확장API웹출처거절403', async () => assert.equal((await reader('extension', { operation: 'whoami', payload: {} })).status, 403));
   await check('HTTP17 정리API비밀값없이401', async () => assert.equal((await fetch(`${origin}/api/cron/cleanup-reader`)).status, 401));
   await check('HTTP18 공개확장버전확인', async () => {
-    const r = await fetch(`${origin}/api/extension/version`); assert.equal(r.status, 200); assert.equal((await r.json()).version, 'v1.01');
+    const r = await fetch(`${origin}/api/extension/version`); assert.equal(r.status, 200); assert.equal((await r.json()).version, 'v1.02');
   });
   await check('HTTP19 ZIP다운로드바이트일치', async () => {
     const r = await fetch(`${origin}/downloads/blog-neighbor-care-extension-latest.zip`); assert.equal(r.status, 200);

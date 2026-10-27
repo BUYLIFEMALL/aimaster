@@ -1,2 +1,2 @@
-// Planned first release; not yet deployed.
-export const APP_VERSION = 'v1.01';
+// Approved batch release: keep app, package, manifest, ZIP and program registration in sync.
+export const APP_VERSION = 'v1.02';
