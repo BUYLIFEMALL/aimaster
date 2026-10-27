@@ -164,10 +164,10 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags" | "attributes" | "custom_options" | "unit_pick" | "supplements" | "preorder";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags" | "attributes" | "custom_options" | "unit_pick" | "supplements" | "preorder" | "brand_input";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14", attributes: "v1.14", custom_options: "v1.14", unit_pick: "v1.14", supplements: "v1.14", preorder: "v1.14" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14", attributes: "v1.14", custom_options: "v1.14", unit_pick: "v1.14", supplements: "v1.14", preorder: "v1.14", brand_input: "v1.15" };
 
 /** 상품 주요정보(2026-10-27 v1.14) — 상품마다 다르므로 보내기 화면에서 받는다. 칸 이름은 판매자센터 저장본에서 확인 */
 export interface MainInfo { brand: string; manufacturer: string; model: string; used: boolean }
@@ -233,7 +233,7 @@ export function normalizeTags(raw: unknown): string[] {
  * 칸 목록을 만든 코드의 세대 — 오래 열어 둔 탭은 그 시점 배포의 옛 코드로 작업을 만든다(2026-10-27 실제 사고: 고시 A/S 전화·어린이인증·추가 이미지가 빠진 작업).
  * 칸 구성이 바뀌어 옛 작업을 실행하면 안 될 때 이 숫자를 올린다. 이 표시가 없거나 낮은 작업은 확장에 넘기지 않는다.
  */
-export const STEP_BUILDER = 3; // 2: 옵션 단계(v1.12) · 3: 배송 직접 입력 확장(v1.14)
+export const STEP_BUILDER = 4; // 2: 옵션 단계(v1.12) · 3: 배송 직접 입력 확장(v1.14) · 4: 브랜드·제조사 brand_input, 모델명 제외(v1.15)
 const BUILDER_KEY = "_builder";
 
 /** 저장할 단계 목록 끝에 「만든 세대」 표시를 붙인다(화면 미리보기에는 붙이지 않음) */
@@ -351,10 +351,9 @@ export function buildFillSteps(
   }
 
   const mi = opts.mainInfo;
-  const NS = "vm.product.detailAttribute.naverShoppingSearchInfo.";
-  if (mi?.brand) add({ key: "brand", section: "상품 주요정보", label: `브랜드 「${mi.brand}」`, target: NS + "brandName", action: "type", value: mi.brand });
-  if (mi?.manufacturer) add({ key: "manufacturer", section: "상품 주요정보", label: `제조사 「${mi.manufacturer}」`, target: NS + "manufacturerName", action: "type", value: mi.manufacturer });
-  if (mi?.model) add({ key: "model_name", section: "상품 주요정보", label: `모델명 「${mi.model}」`, target: NS + "modelName", action: "type", value: mi.model });
+  // 브랜드·제조사는 자동완성 상자 아래 숨은 칸(ng-model vm.bindModel)에 넣는다. 모델명은 글자 칸이 없고 「찾기」 창(네이버 카탈로그)에서만 고를 수 있어 자동 입력하지 않는다(2026-10-27 실측).
+  if (mi?.brand) add({ key: "brand", section: "상품 주요정보", label: `브랜드 「${mi.brand}」`, target: "brand", action: "brand_input", value: mi.brand });
+  if (mi?.manufacturer) add({ key: "manufacturer", section: "상품 주요정보", label: `제조사 「${mi.manufacturer}」`, target: "manufacturer", action: "brand_input", value: mi.manufacturer });
   if (mi?.used) add({ key: "sale_type", section: "상품 주요정보", label: "상품상태 「중고상품」", target: "상품상태", action: "choose", value: "중고상품" });
   if (opts.attributes?.length) add({ key: "attributes", section: "상품 주요정보", label: `상품속성 ${opts.attributes.length}개(${opts.attributes.map((p) => p.name).slice(0, 3).join("·")}${opts.attributes.length > 3 ? "…" : ""})`, target: "상품속성", action: "attributes", value: JSON.stringify(opts.attributes) });
   if (defaults.childCert === "not_target") add({ key: "child_cert", section: "상품 주요정보", label: "어린이제품인증 「인증대상 아님」", target: "어린이제품인증", action: "choose", value: "어린이제품 인증대상 아님" });

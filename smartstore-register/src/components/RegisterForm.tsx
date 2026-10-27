@@ -21,12 +21,11 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         <legend className="slw-label">상품 주요정보 <span className="font-normal text-slate-500">(선택)</span></legend>
         <input name="brand" defaultValue={initialMainInfo.brand} maxLength={50} placeholder="브랜드 (예: 스위스톤)" className="slw-field" />
         <input name="manufacturer" defaultValue={initialMainInfo.manufacturer} maxLength={50} placeholder="제조사" className="slw-field" />
-        <input name="modelName" defaultValue={initialMainInfo.model} maxLength={50} placeholder="모델명 (예: ST4D18)" className="slw-field" />
         <select name="saleType" defaultValue={initialMainInfo.used ? "used" : "new"} className="slw-field">
           <option value="new">상품상태: 신상품</option>
           <option value="used">상품상태: 중고상품</option>
         </select>
-        <p className="text-[11px] text-slate-500">비우면 판매자센터 칸을 건드리지 않습니다. 브랜드·제조사는 네이버 쇼핑 검색 품질에 쓰입니다.</p>
+        <p className="text-[11px] text-slate-500">비우면 판매자센터 칸을 건드리지 않습니다. 브랜드·제조사는 네이버 쇼핑 검색 품질에 쓰입니다. 모델명은 판매자센터 「찾기」(네이버 카탈로그)에서 직접 골라 주세요.</p>
       </fieldset>
       <div>
         <label className="slw-label" htmlFor="attributes">상품속성 <span className="font-normal text-slate-500">(선택, 한 줄에 「속성이름: 값」)</span></label>

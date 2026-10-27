@@ -20,6 +20,8 @@ export async function saveDefaultsAction(_prev: unknown, formData: FormData): Pr
     exchangeFee: raw.exchangeFee === "" ? null : raw.exchangeFee,
     ...Object.fromEntries((["qtyEvery", "rangeUpTo", "rangeExtraFee", "jejuFee", "islandFee", "baseFee", "freeOver", "purchasePoint", "reviewText", "reviewPhoto", "multiQty", "multiDiscount"] as const).map((k) => [k, raw[k] === "" || raw[k] === undefined ? null : raw[k]])),
   });
+  // 판매자센터 규칙: 포토/동영상 리뷰 포인트는 텍스트 리뷰보다 크거나 같아야 한다(2026-10-27 실측 오류 문구)
+  if (data.reviewText != null && data.reviewPhoto != null && data.reviewPhoto < data.reviewText) return { error: "포토/동영상 리뷰 포인트는 텍스트 리뷰 포인트보다 크거나 같아야 합니다(스마트스토어 규칙)." };
   const supabase = await createClient();
   const { error } = await supabase
     .from("smartstore_register_defaults")

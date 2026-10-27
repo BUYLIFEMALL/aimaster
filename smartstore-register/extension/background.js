@@ -508,13 +508,23 @@ async function tagsMain(a) {
       input.value = tag;
       input.dispatchEvent(new Event('input', { bubbles: true }));
       await sleep(150);
-      for (const type of ['keydown', 'keypress', 'keyup']) input.dispatchEvent(new KeyboardEvent(type, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+      // 크롬은 new KeyboardEvent의 keyCode·which를 0으로 만든다 → selectize가 Enter로 알아보도록 직접 붙인다
+      for (const type of ['keydown', 'keypress', 'keyup']) {
+        const ev = new KeyboardEvent(type, { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true });
+        Object.defineProperty(ev, 'keyCode', { get: () => 13 });
+        Object.defineProperty(ev, 'which', { get: () => 13 });
+        input.dispatchEvent(ev);
+      }
+      if (window.jQuery) { try { window.jQuery(input).trigger(window.jQuery.Event('keydown', { keyCode: 13, which: 13 })); } catch (e) { /* 무시 */ } }
     } else return { ok: false, error: '태그 입력칸을 찾지 못했습니다.' };
     await sleep(600);
   }
   await sleep(800);
   const added = shownCount() - before;
-  if (added <= 0) return { ok: false, error: '태그가 화면에 추가되지 않았습니다.' };
+  // 화면 표시와 별개로 판매자센터 값(seoInfo.sellerTags)에 들어갔는지도 본다
+  let saved = -1;
+  try { const h = document.querySelector('input[ng-model="vm.product.detailAttribute.seoInfo.sellerTags"]'); const c = h && window.angular ? window.angular.element(h).controller('ngModel') : null; if (c && Array.isArray(c.$modelValue)) saved = c.$modelValue.length; } catch (e) { /* 무시 */ }
+  if (added <= 0 && saved <= 0) return { ok: false, error: `태그가 화면에 추가되지 않았습니다(${inst ? '상자 연결됨' : '상자 연결 없음 — Enter 입력'}).` };
   return { ok: true, added, expected: a.tags.length };
 }
 
@@ -680,6 +690,35 @@ async function preOrderMain(a) {
   return { ok: true };
 }
 
+// 브랜드·제조사(2026-10-27 v1.15) — <ncp-brand-manufacturer-input model-type="brand|manufacturer"> 안의 숨은 칸(ng-model vm.bindModel, name …brandName/manufacturerName)에 넣고,
+// 보이는 자동완성 상자(selectize)에도 같은 글자를 띄운다. 일반 글자 칸이 아니라 type 동작으로는 찾지 못했다(실제 시험).
+async function brandInputMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ng = window.angular;
+  const comp = document.querySelector('ncp-brand-manufacturer-input[model-type="' + a.kind + '"]');
+  if (!comp) return { ok: false, error: (a.kind === 'brand' ? '브랜드' : '제조사') + ' 칸을 찾지 못했습니다.' };
+  comp.scrollIntoView({ block: 'center' });
+  const hidden = comp.querySelector('input[type=hidden][ng-model="vm.bindModel"]');
+  const ctrl = hidden && ng ? ng.element(hidden).controller('ngModel') : null;
+  if (!ctrl) return { ok: false, error: '숨은 칸을 찾지 못했습니다.' };
+  let root = null;
+  try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
+  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  const sel = comp.querySelector('input[selectize]');
+  const inst = sel && sel.selectize;
+  if (inst) {
+    try {
+      const vf = inst.settings.valueField || 'value', lf = inst.settings.labelField || 'text';
+      inst.addOption({ [vf]: a.value, [lf]: a.value });
+      inst.setValue(a.value, true);
+    } catch (e) { /* 표시만 실패 — 값은 아래에서 넣는다 */ }
+  }
+  apply(() => { ctrl.$setViewValue(a.value); ctrl.$render(); });
+  await sleep(300);
+  if (String(ctrl.$modelValue ?? '') !== a.value) return { ok: false, error: '값이 들어가지 않았습니다.' };
+  return { ok: true };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -838,6 +877,8 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'brand_input') {
+        r = await runMain(tabId, brandInputMain, { kind: step.target, value: step.value });
       } else if (step.action === 'unit_pick') {
         r = await run(tabId, 'unitPick', { target: step.target, value: step.value });
       } else if (step.action === 'supplements') {
