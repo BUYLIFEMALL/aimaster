@@ -558,6 +558,37 @@ async function attributesMain(a) {
   return { ok: true, done, missed };
 }
 
+// 직접입력형 옵션(2026-10-27 v1.14) — 「직접입력형」 설정함(#option_direct_type_true) → 옵션명 개수(selectize vm.customOptionNameCount) → 이름 칸 #custom_option_name0.. 에 넣기.
+// 이름 칸은 ng-model-options debounce라 모델에 바로 반영(commit)하고 모델 값으로 확인한다.
+async function customOptionsMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ng = window.angular;
+  const on = document.getElementById('option_direct_type_true');
+  if (!on) return { ok: false, error: '「직접입력형」 설정 버튼을 찾지 못했습니다(옵션 칸이 접혀 있을 수 있음).' };
+  (document.querySelector('label[for="option_direct_type_true"]') || on).click();
+  await sleep(700);
+  const countSel = document.querySelector('input[ng-model="vm.customOptionNameCount"]');
+  if (a.names.length > 1 && countSel?.selectize) { countSel.selectize.setValue(String(a.names.length)); await sleep(600); }
+  let root = null;
+  try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
+  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  for (let i = 0; i < a.names.length; i++) {
+    const el = document.getElementById('custom_option_name' + i);
+    if (!el) return { ok: false, error: '직접입력형 옵션명 칸 ' + (i + 1) + '번을 찾지 못했습니다.' };
+    const ctrl = ng ? ng.element(el).controller('ngModel') : null;
+    if (ctrl) {
+      apply(() => { ctrl.$setViewValue(a.names[i]); ctrl.$render(); });
+      try { if (ctrl.$commitViewValue) apply(() => ctrl.$commitViewValue()); } catch (e) { /* 무시 */ }
+      if (String(ctrl.$modelValue || '') !== a.names[i]) return { ok: false, error: '직접입력형 옵션명이 들어가지 않았습니다(' + a.names[i] + ').' };
+    } else {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, a.names[i]);
+      for (const t of ['input', 'change', 'blur']) el.dispatchEvent(new Event(t, { bubbles: true }));
+    }
+    await sleep(300);
+  }
+  return { ok: true };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -716,6 +747,10 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'custom_options') {
+        let names = []; try { names = JSON.parse(step.value); } catch (e) { names = []; }
+        if (!names.length) continue;
+        r = await runMain(tabId, customOptionsMain, { names });
       } else if (step.action === 'attributes') {
         let pairs = []; try { pairs = JSON.parse(step.value); } catch (e) { pairs = []; }
         if (!pairs.length) continue;

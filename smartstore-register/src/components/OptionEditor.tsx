@@ -11,9 +11,9 @@ export function OptionEditor({ initial, defaultStock }: { initial: unknown; defa
   const init = (initial && typeof initial === "object" ? initial : null) as OptionSpec | null;
   const [mode, setMode] = useState<Mode>(init?.type ?? "none");
   const [rows, setRows] = useState<Row[]>(init?.groups?.length ? init.groups.map((g) => ({ name: g.name, text: g.values.join(", ") })) : [{ name: "", text: "" }]);
-  const [combos, setCombos] = useState<Record<string, { price: string; stock: string }>>(() => {
-    const m: Record<string, { price: string; stock: string }> = {};
-    for (const c of init?.combos ?? []) m[JSON.stringify(c.values)] = { price: String(c.price), stock: String(c.stock) };
+  const [combos, setCombos] = useState<Record<string, { price: string; stock: string; code?: string }>>(() => {
+    const m: Record<string, { price: string; stock: string; code?: string }> = {};
+    for (const c of init?.combos ?? []) m[JSON.stringify(c.values)] = { price: String(c.price), stock: String(c.stock), code: c.code ?? "" };
     return m;
   });
 
@@ -21,10 +21,10 @@ export function OptionEditor({ initial, defaultStock }: { initial: unknown; defa
   const all = useMemo(() => (mode === "combination" && groups.length && groups.every((g) => g.values.length) ? combineValues(groups) : []), [mode, JSON.stringify(groups)]); // eslint-disable-line react-hooks/exhaustive-deps
   const comboList: OptionCombo[] = all.map((values) => {
     const c = combos[JSON.stringify(values)];
-    return { values, price: Number(c?.price ?? 0) || 0, stock: c?.stock === undefined || c.stock === "" ? defaultStock : Number(c.stock) || 0 };
+    return { values, price: Number(c?.price ?? 0) || 0, stock: c?.stock === undefined || c.stock === "" ? defaultStock : Number(c.stock) || 0, ...(c?.code ? { code: c.code } : {}) };
   });
   const spec: OptionSpec | null = mode === "none" ? null : { type: mode, groups, ...(mode === "combination" ? { combos: comboList } : {}) };
-  const setCombo = (values: string[], k: "price" | "stock", v: string) => setCombos((m) => ({ ...m, [JSON.stringify(values)]: { price: m[JSON.stringify(values)]?.price ?? "0", stock: m[JSON.stringify(values)]?.stock ?? String(defaultStock), [k]: v } }));
+  const setCombo = (values: string[], k: "price" | "stock" | "code", v: string) => setCombos((m) => ({ ...m, [JSON.stringify(values)]: { price: m[JSON.stringify(values)]?.price ?? "0", stock: m[JSON.stringify(values)]?.stock ?? String(defaultStock), [k]: v } }));
 
   return (
     <fieldset className="space-y-2">
@@ -53,13 +53,14 @@ export function OptionEditor({ initial, defaultStock }: { initial: unknown; defa
           {mode === "combination" && comboList.length > 0 && (
             <div className="max-h-60 overflow-auto rounded-lg border border-slate-200">
               <table className="w-full text-left text-[12px]">
-                <thead className="sticky top-0 bg-slate-50 text-[11px] text-slate-500"><tr><th className="p-1.5">조합</th><th className="p-1.5">옵션가(원)</th><th className="p-1.5">재고</th></tr></thead>
+                <thead className="sticky top-0 bg-slate-50 text-[11px] text-slate-500"><tr><th className="p-1.5">조합</th><th className="p-1.5">옵션가(원)</th><th className="p-1.5">재고</th><th className="p-1.5">관리코드</th></tr></thead>
                 <tbody className="divide-y divide-slate-100">
                   {comboList.map((c) => (
                     <tr key={JSON.stringify(c.values)}>
                       <td className="p-1.5 text-slate-700">{c.values.join(" / ")}</td>
                       <td className="p-1"><input type="number" step={10} value={combos[JSON.stringify(c.values)]?.price ?? "0"} onChange={(e) => setCombo(c.values, "price", e.target.value)} className="slw-field w-20" /></td>
                       <td className="p-1"><input type="number" min={0} value={combos[JSON.stringify(c.values)]?.stock ?? String(defaultStock)} onChange={(e) => setCombo(c.values, "stock", e.target.value)} className="slw-field w-16" /></td>
+                      <td className="p-1"><input value={combos[JSON.stringify(c.values)]?.code ?? ""} maxLength={20} onChange={(e) => setCombo(c.values, "code", e.target.value)} placeholder="선택" className="slw-field w-20" /></td>
                     </tr>
                   ))}
                 </tbody>

@@ -5,7 +5,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaults, getProductForRegister, ownExtraPaths } from "@/lib/data";
 import { buildFillSteps, normalizeDefaults, normalizeAttributes, normalizeMainInfo, normalizeTags, toRegisterMode, withBuilderMark } from "@/lib/smartstore/fields";
-import { normalizeOptions } from "@/lib/smartstore/options";
+import { normalizeCustomOptions, normalizeOptions } from "@/lib/smartstore/options";
 
 // 모든 쓰기는 프로그램 이용 권한 확인 + 본인 행(user_id)만(CLAUDE.md 멀티테넌시 원칙 1·2).
 
@@ -46,6 +46,7 @@ export async function createJobAction(_prev: unknown, formData: FormData): Promi
     options: opt.spec,
     tags: normalizeTags(formData.get("tags")),
     attributes: normalizeAttributes(formData.get("attributes")),
+    customOptions: normalizeCustomOptions(formData.get("customOptions")),
     mainInfo: normalizeMainInfo({ brand: formData.get("brand"), manufacturer: formData.get("manufacturer"), model: formData.get("modelName"), used: formData.get("saleType") }),
     mode,
     categoryKeyword,

@@ -12,6 +12,14 @@ export interface OptionCombo {
   values: string[];
   price: number;
   stock: number;
+  /** 옵션별 관리코드(20자, 선택) — 엑셀 「관리코드」 열 */
+  code?: string;
+}
+
+/** 직접입력형 옵션명(구매자가 글을 써넣는 옵션) — 쉼표 구분, 최대 5개, 25자 */
+export function normalizeCustomOptions(raw: unknown): string[] {
+  const list = Array.isArray(raw) ? raw.map(String) : String(raw ?? "").split(",");
+  return [...new Set(list.map((v) => v.trim().slice(0, OPTION_TEXT_MAX)).filter(Boolean))].slice(0, 5);
 }
 
 export interface OptionSpec {
@@ -66,7 +74,8 @@ export function normalizeOptions(raw: unknown, defaultStock: number): { spec: Op
       const c = given.get(JSON.stringify(values));
       const price = Number.isFinite(Number(c?.price)) ? Math.round(Number(c?.price)) : 0;
       const stock = Number.isFinite(Number(c?.stock)) ? Math.max(0, Math.floor(Number(c?.stock))) : defaultStock;
-      return { values, price, stock };
+      const code = String(c?.code ?? "").trim().slice(0, 20);
+      return code ? { values, price, stock, code } : { values, price, stock };
     });
     if (spec.combos.some((c) => c.price % 10 !== 0)) errors.push("옵션가는 10원 단위로 넣어 주세요.");
     if (!spec.combos.some((c) => c.price === 0)) errors.push("옵션가가 0원인 조합이 하나 이상 있어야 합니다(스마트스토어 규칙).");
@@ -81,7 +90,7 @@ export function optionSheetRows(spec: OptionSpec): (string | number)[][] {
   }
   return [
     [...spec.groups.map((g) => g.name), "옵션가", "재고수량", "관리코드", "사용여부"],
-    ...(spec.combos ?? []).map((c) => [...c.values, c.price, c.stock, "", "Y"]),
+    ...(spec.combos ?? []).map((c) => [...c.values, c.price, c.stock, c.code ?? "", "Y"]),
   ];
 }
 

@@ -5,7 +5,7 @@ import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -34,6 +34,10 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         <p className="mt-1 text-[11px] text-slate-500">카테고리마다 속성이 다릅니다. 판매자센터 「상품속성」 표의 이름 그대로 적어 주세요. 못 찾은 속성은 등록 기록에 「직접 확인할 칸」으로 남습니다.</p>
       </div>
       <OptionEditor initial={initialOptions} defaultStock={defaultStock} />
+      <div>
+        <label className="slw-label" htmlFor="customOptions">직접입력형 옵션 <span className="font-normal text-slate-500">(선택, 구매자가 글을 써넣는 옵션명, 쉼표로 최대 5개)</span></label>
+        <input id="customOptions" name="customOptions" defaultValue={initialCustomOptions.join(", ")} placeholder="예: 각인 문구" className="slw-field" />
+      </div>
       <div>
         <label className="slw-label" htmlFor="tags">검색 태그 <span className="font-normal text-slate-500">(선택, 쉼표로 구분, 최대 10개)</span></label>
         <input id="tags" name="tags" defaultValue={initialTags.join(", ")} placeholder="예: 여행백팩, 노트북가방, 출장가방" className="slw-field" />

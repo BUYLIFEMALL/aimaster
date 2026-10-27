@@ -143,10 +143,10 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags" | "attributes";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags" | "attributes" | "custom_options";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14", attributes: "v1.14" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14", attributes: "v1.14", custom_options: "v1.14" };
 
 /** 상품 주요정보(2026-10-27 v1.14) — 상품마다 다르므로 보내기 화면에서 받는다. 칸 이름은 판매자센터 저장본에서 확인 */
 export interface MainInfo { brand: string; manufacturer: string; model: string; used: boolean }
@@ -247,7 +247,7 @@ export function managementCode(productId: string): string {
 export function buildFillSteps(
   product: ProductSource,
   defaults: StoreDefaults,
-  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[]; mainInfo?: MainInfo; attributes?: AttrPair[] },
+  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[]; mainInfo?: MainInfo; attributes?: AttrPair[]; customOptions?: string[] },
 ): BuildResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -282,6 +282,7 @@ export function buildFillSteps(
     const o = opts.options;
     add({ key: "options", section: "옵션", label: `옵션 ${o.type === "simple" ? "단독형" : "조합형"} ${optionRowCount(o)}줄(${o.groups.map((g) => g.name).join("·")})`, target: "옵션", action: "options", value: JSON.stringify(o) });
   }
+  if (opts.customOptions?.length) add({ key: "custom_options", section: "옵션", label: `직접입력형 옵션 ${opts.customOptions.join("·")}`, target: "직접입력형", action: "custom_options", value: JSON.stringify(opts.customOptions) });
   add({ key: "images", section: "상품이미지", label: "대표·추가 이미지", target: "vm.openUploadModal", action: "images", value: "main", required: true });
   const extra = Math.min(EXTRA_IMAGES_MAX, Math.max(0, Math.floor(opts.extraImageCount ?? 0)));
   if (extra > 0) add({ key: "extra_images", section: "상품이미지", label: `추가 이미지 ${extra}장`, target: "image.add", action: "extra_images", value: String(extra) });
