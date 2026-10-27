@@ -12,6 +12,8 @@
 
 ## 지금 하는 일
 
+**설치 단계 최신:** 2026-10-27 11:47 사용자가보낸reader화면과실제EdgeDOM대조: 회원권한통과·buylifemall/동의입력완료, 하단상태는「확장 응답을 확인하지 못했습니다」. 서버pairings/devices/materials0. 웹로그인성공과확장연결실패경계를확인, 확장미설치/비활성/페이지미갱신중원인세분은미확정. 설치용 D:/Antigravity/Extensions/blog-neighbor-care-v1.01 준비, 원본7파일바이트/manifestv1.01검증, 기존다른파일덮어쓰기0. 사용자Edge확장관리에서개발자모드·압축풀린확장로드로이폴더선택→reader새로고침/연결안내. 기존요청811eb0aa유지, 코드/배포/게시/비용0.
+
 **최신 연결 확인:** 2026-10-27 11:20 사용자 로그인/연결 완료 알림 후 운영reader_devices/requests/materials 모두0행 확인. Edge는AIMaster메인→프로그램목록으로이동, 새읽기확장이아닌기존블로그에이전트툴바노출만확인. 숨은확장설치여부/실제연결앱은미확정이며연결실패원인단정안함. 사용자에게연결한확장명구분질문, 기존설치요청811eb0aa유지·새요청없음. DB토큰/키조회0·게시/설정/배포0.
 
 **운영 반영 최신:** 2026-10-27 운영 반영 완료: reader4표/RLS·서비스전용RPC·naver_blog카탈로그, 기본3등급 coming프로그램 등록, Vercel배포1회 Ready(v1.01), 도메인/서버환경4개·일일Cron활성. 운영HTTP/ZIP원본7파일·DB/확장/ZIP버전검수통과. 실제회원SSO/확장설치·본문전달·Cron첫실행은미검수, 자동소통OFF. [결과](../../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261027_READER_EXTENSION.md). 다음은사용자운영URL열기→실제회원/설치/연결시험, 승인f1991bed처리완료.
