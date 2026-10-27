@@ -6,7 +6,7 @@ export const FLOW_PARAM = "flow";
 export const FLOW_VALUE = "shop";
 export const FLOW_SESSION_KEY = "aimaster-shop-flow";
 
-export type FlowStepId = "sourcing" | "detail" | "orders" | "label";
+export type FlowStepId = "sourcing" | "detail" | "market" | "orders" | "label";
 
 export interface FlowStep {
   id: FlowStepId;
@@ -18,6 +18,8 @@ export interface FlowStep {
 export const FLOW_STEPS: FlowStep[] = [
   { id: "sourcing", emoji: "🔎", label: "상품 소싱", url: "https://trending-product-finder.buylife.xyz/sourcing" },
   { id: "detail", emoji: "📄", label: "상세페이지", url: "https://shop-detail-page.buylife.xyz/products/new" },
+  // 마켓 등록 — 지금은 스마트스토어(이후 쿠팡·11번가·G마켓·옥션 등록기가 생기면 이 단계에서 고름, 2026-10-27)
+  { id: "market", emoji: "🛒", label: "마켓 등록", url: "https://smartstore-register.buylife.xyz/products" },
   { id: "orders", emoji: "📊", label: "주문·매출 리포트", url: "https://shop-order-report.buylife.xyz/upload" },
   { id: "label", emoji: "🏷", label: "발송 라벨", url: "https://seller-label-docs.buylife.xyz/label" },
 ];
