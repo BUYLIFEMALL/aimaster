@@ -102,3 +102,9 @@
 ## 2026-10-23 v1.68 배포 (Claude Code 윈도우) — 모아 둔 수정 내보내기
 - 함께 나감: 「🔤」 전 검색어를 한글 있을 때만 기억 `4bebfb016` · 「✕ 슬라이드 N 빼기」 `447780d5c` · 공용 사본 `member-scheduler`·`instagram-publish`(동작 같음). 버전 커밋은 공유 스테이징 경합으로 다른 세션 커밋 `7f8085310`(메시지는 shorts-onestop 문서)에 들어감 — 내용은 `src/lib/version.ts`·`supabase/migrations/20261023250000_pending_batch_v1_68.sql` 두 파일뿐.
 - 검수: tsc 0, `test:cardnews` 78·`test:own-meta` 통과, 빌드 통과, 배포 Ready, DB `auto-instagram-posting` v1.68. 크롬(시험 회원, https://auto-instagram-posting.buylife.xyz): 메뉴 v1.68 · 예약 실행 주소 2곳(`/api/posts/dispatch-member`·`/api/cardnews/instagram/dispatch-member`) 가짜 토큰 → 401 · 사전에 없는 영어만 넣고 🔤 → 검색 0장일 때 「한국어로 다시 찾기」 안 뜸 · 새 글에 무료 사진(coffee) 1장 → 「✕ 슬라이드 1 빼기」 → 슬라이드 0, 첨부 칸 다시 표시. 시험 사진은 저장소에서 삭제(글은 저장 안 함).
+
+## 2026-10-27 — 해시태그 묶음 · 게시 대기열 추가 결정 (분석·플랜 담당 `claude-win-20261027-analysis`, 코드 변경 없음)
+- 근거: 외부 프로그램 「인스타 자동포스팅(igrp)」 분석 — 사진·글·해시태그 묶음을 정한 간격으로 꾸준히 올리는 운영 방식. 우리 프로그램에 없는 두 가지(해시태그 묶음 저장·재사용, 대기열 자동 간격 게시)만 가져오기로 함. 웹 화면 조작·여러 계정·같은 재료 무작위 반복 게시는 가져오지 않음.
+- 결정: 주인님(2026-10-27) 「넣도록 하고 담당자는 추후에 정해줄께」 → 구현 담당 미정.
+- 플랜: [`PLAN_20261027_HASHTAG_SETS_POST_QUEUE.md`](PLAN_20261027_HASHTAG_SETS_POST_QUEUE.md) — 새 게시 엔진 없이 지금 예약 실행(`dispatch.ts`)을 그대로 쓰고, 대기열에 넣을 때 다음 빈 시간을 `scheduled_at`에 채우는 방식. DB 새 표 2개(사전 승인), 빌드 1~2회, AI 호출 없음.
+- 상태: 처리 대기(담당 지정 전). 분석 보고서 `../../docs/analysis-marketing14-20261027/REPORT.md` §9.
