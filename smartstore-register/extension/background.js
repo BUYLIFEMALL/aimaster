@@ -1141,7 +1141,8 @@ async function runJob(job) {
     }
 
     await traceOpt('끝');
-    if (job.optionFile || job.steps.some((x) => x.key === 'custom_options')) {
+    // 진단은 옵션·직접입력형·추가상품 실패가 있을 때만(실패 목록에 들어가면 저장 버튼을 막는다)
+    if ((job.optionFile || job.steps.some((x) => x.key === 'custom_options')) && failures.some((f) => /옵션|직접입력형|추가상품/.test(f))) {
       const dg = await runMain(tabId, optionDiagMain, {}).catch(() => null);
       if (dg?.text) failures.push('진단 — ' + (optOffNote ? optOffNote + ' / ' : '') + dg.text.slice(0, 400));
     }
