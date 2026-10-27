@@ -39,7 +39,7 @@ export default function ReaderConnection() {
     const results = await Promise.all([member('devices'), member('materials')]);
     setDevices(results[0].data); setMaterials(results[1].data);
   }
-  return <main className="reader"><header><small>AI 블로그 이웃 소통 · {APP_VERSION}</small><h1>본인 글 1개부터 연결하기</h1>
+  return <main className="reader"><header><small>AI 블로그 이웃 소통 자동화 · {APP_VERSION}</small><h1>본인 글 1개부터 연결하기</h1>
     <p>로그인한 회원 계정으로 확장을 연결하고, 네이버에서 직접 선택한 글을 받아 확인합니다.</p></header>
     <section><h2>1. 확장 설치</h2><a className="primary" href="/downloads/blog-neighbor-care-extension-latest.zip">확장 ZIP 받기</a>
       <p>ZIP을 풀고 Edge 확장 관리에서 개발자 모드를 켠 뒤 ‘압축 풀린 확장 로드’로 폴더를 선택하세요. 설치 후 이 화면을 새로고침하세요.</p></section>
