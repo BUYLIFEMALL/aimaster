@@ -527,7 +527,7 @@ async function tagsMain(a) {
     const m = [...document.querySelectorAll('.modal, [role="dialog"], .layer, div')].filter((e) => e.offsetParent !== null && /태그로 등록할 수 없는/.test(e.textContent || '') && e.querySelector('button')).pop(); // 가장 안쪽 상자
     if (!m) return;
     const w = (m.textContent.match(/태그 불가 단어\s*:?\s*([^\s]+?)(?:카테고리|$|\s)/) || [])[1];
-    if (w) rejected.push(w);
+    if (w && !rejected.includes(w)) rejected.push(w);
     const ok = [...m.querySelectorAll('button')].find((b) => b.textContent.trim() === '확인') || m.querySelector('button');
     ok?.click();
     await sleep(400);
@@ -657,8 +657,13 @@ async function supplementsMain(a) {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const ng = window.angular;
   const norm = (s) => (s || '').replace(/\s+/g, '');
-  const on = document.getElementById('supplement_true');
-  if (!on) return { ok: false, error: '추가상품 「설정함」 버튼을 찾지 못했습니다(추가상품 칸이 접혀 있을 수 있음).' };
+  let on = document.getElementById('supplement_true');
+  if (!on) {
+    const head = [...document.querySelectorAll('.title-line')].find((l) => (l.querySelector('label')?.textContent || '').replace(/\s+/g, '').startsWith('추가상품'));
+    if (head) { head.scrollIntoView({ block: 'center' }); (head.querySelector('.input-content') || head).click(); await sleep(1000); }
+    on = document.getElementById('supplement_true');
+  }
+  if (!on) return { ok: false, error: '추가상품 「설정함」 버튼을 찾지 못했습니다(추가상품 칸이 접혀 있거나 이 카테고리에서 쓸 수 없음).' };
   if (!on.checked) { (document.querySelector('label[for="supplement_true"]') || on).click(); await sleep(700); }
   const direct = [...document.querySelectorAll('input[ng-model="vm.suppleInputType"]')].find((x) => x.value === 'direct');
   if (direct && !direct.checked) { (direct.closest('label') || direct).click(); await sleep(500); }
@@ -924,7 +929,12 @@ async function runJob(job) {
           const cands = [...new Set([kw, kw.split(/\s+/).pop(), ...segs].filter(Boolean))].slice(0, 5);
           for (const c of cands) {
             r = await run(tabId, 'pick', { target: step.target, value: c, leaf: true, path: step.path || '', verifyText: '선택한 카테고리' });
-            if (r.ok) { if (c !== kw) r.note = `「${kw}」 대신 「${c}」로 골랐습니다`; break; }
+            if (r.ok) {
+              if (c !== kw) r.note = `「${kw}」 대신 「${c}」로 골랐습니다`;
+              // 카테고리를 바꾸면 판매자센터가 조금 늦게 화면을 다시 그리며 바로 뒤에 넣은 칸(판매가·직접입력형)을 비운다(2026-10-27 실측) → 가라앉을 때까지 기다린다
+              await wait(3000);
+              break;
+            }
             await human();
           }
         }
@@ -1002,6 +1012,20 @@ async function runJob(job) {
       if (!r?.ok) failures.push(`${step.label}${r?.error ? ` — ${r.error}` : ''}`);
       // 카테고리를 못 고르면 뒤 칸(대표이미지는 「먼저 카테고리를 선택해 주세요」, 판매가는 카테고리 변경 때 지워짐)이 줄줄이 틀어진다 → 여기서 멈춘다(2026-10-27 실측)
       if (!r?.ok && step.key === 'category') { failures.push('카테고리를 판매자센터에서 직접 고른 뒤 나머지 칸을 확인해 주세요(이후 칸은 넣지 않았습니다)'); break; }
+    }
+
+    // 카테고리 쪽 늦은 화면 갱신으로 지워졌을 수 있는 핵심 칸을 한 번 더 넣는다
+    if (!failures.some((f) => f.startsWith('카테고리'))) {
+      for (const key of ['price', 'discount_on', 'discount', 'stock']) {
+        const s = job.steps.find((x) => x.key === key);
+        if (!s) continue;
+        await human();
+        let rr;
+        if (key === 'discount') { await wait(400); rr = await runMain(tabId, ngTypeMain, { discount: true, value: s.value }); }
+        else if (s.action === 'radio') rr = await run(tabId, 'radio', { target: s.target, value: s.value });
+        else rr = await runMain(tabId, ngTypeMain, { target: s.target, value: s.value });
+        if (!rr?.ok && !failures.some((f) => f.startsWith(s.label))) failures.push(`${s.label} — 마지막 확인에서 다시 넣지 못했습니다${rr?.error ? `(${rr.error})` : ''}`);
+      }
     }
 
     const submit = job.steps.find((s) => s.action === 'button');
