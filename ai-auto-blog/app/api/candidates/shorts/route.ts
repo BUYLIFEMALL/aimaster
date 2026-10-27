@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
       if (body.categoryId !== undefined && body.categoryId !== null && body.categoryId !== '') {
         categoryId = Number(body.categoryId)
         if (!Number.isSafeInteger(categoryId) || categoryId <= 0) return json({ error: '카테고리가 올바르지 않습니다.' }, 400)
-        // BLOG의 카테고리(blog_categories)는 회원별이 아니라 공통 분류 목록이므로 존재 여부만 확인한다.
-        const { data: category, error: categoryError } = await supabase.from('blog_categories').select('id').eq('id', categoryId).maybeSingle()
+        // 카테고리는 회원 본인 소유다 — 본인 카테고리인지 확인한다(2026-10-27 회원별 전환).
+        const { data: category, error: categoryError } = await supabase.from('blog_categories').select('id').eq('id', categoryId).eq('user_id', user.id).maybeSingle()
         if (categoryError) return json({ error: '카테고리를 확인하지 못했습니다.' }, 500)
         if (!category) return json({ error: '존재하지 않는 카테고리입니다.' }, 400)
       }

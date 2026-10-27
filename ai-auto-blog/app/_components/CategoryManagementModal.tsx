@@ -121,6 +121,7 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesU
           {/* 추가 폼 */}
           {canManage && <form onSubmit={handleAddCategory} className="space-y-2">
             <label className="text-xs font-bold text-slate-700">➕ 새 카테고리 추가</label>
+            <p className="text-[11px] text-slate-500 leading-relaxed">내가 만든 카테고리는 나에게만 보이며, 내 다른 블로그 프로그램에서도 함께 쓸 수 있습니다. 다른 회원과는 공유되지 않습니다.</p>
             <div className="flex gap-2">
               <input
                 type="text"

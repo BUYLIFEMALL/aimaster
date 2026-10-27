@@ -68,7 +68,7 @@ export default function DashboardPage() {
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(3),
-        supabase.from('blog_categories').select('id', { count: 'exact', head: true }),
+        supabase.from('blog_categories').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지
         // programs.description/short_desc)를 그대로 가져와 보여준다(2026-09-13 요청).
         supabase.from('programs').select('description, short_desc').eq('slug', 'ai-auto-blog').maybeSingle(),

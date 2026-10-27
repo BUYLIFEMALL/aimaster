@@ -114,6 +114,7 @@ async function savePostToDatabase({
     const { data: matchedCats } = await supabase
       .from('blog_categories')
       .select('id')
+      .eq('user_id', userId)
       .in('slug', categorySlugs)
 
     if (matchedCats && matchedCats.length > 0) {
@@ -122,7 +123,8 @@ async function savePostToDatabase({
   }
 
   if (targetCategoryIds.length === 0) {
-    const { data: firstCategory } = await supabase.from('blog_categories').select('id').limit(1).single()
+    // 본인 카테고리 중 첫 번째를 기본값으로. 본인 카테고리가 없으면 카테고리 없이 저장한다.
+    const { data: firstCategory } = await supabase.from('blog_categories').select('id').eq('user_id', userId).order('sort_order').limit(1).maybeSingle()
     if (firstCategory?.id) targetCategoryIds.push(firstCategory.id)
   }
 
