@@ -151,3 +151,7 @@
 <!-- /TISTORY_OPENAI_PARAMS_RELEASE_20261022 -->
 
 2026-10-27 Codex: `openai-request-params`의 정확한 사본을 `blog-neighbor-care/src/lib/analysis/openaiRequestParams.ts`에 등록했습니다. 기준/기존 사본은 변경하지 않았으며, 새 프로필/후보 서버에서 사용합니다. 로컬 구현·미배포, 실제 OpenAI 호출 검수는 별도입니다.
+
+## 2026-10-27 회원 네이버 검색 키 조회 사본
+
+`naver-member-api-keys`: 기준 `blog-keyword/src/lib/apiKeys.ts` → `blog-neighbor-care/src/lib/search/memberNaverKeys.ts` 정확한 사본. 검색은 `getUserApiKeys(userId,[naver_client_id,naver_client_secret])`만 사용. 저장/삭제 함수가 사본에 있으나 이웃소통 검색HTTP에는 노출하지 않음. 운영자/환경 키 폴백 없음. 검사 `node scripts/check-shared-modules.mjs --module naver-member-api-keys`.

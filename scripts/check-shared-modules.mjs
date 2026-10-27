@@ -12,6 +12,7 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 
 // 모듈 목록: 기준(source) 1개 + 사본(copies). 새 모듈은 docs/SHARED_MODULES.md 표와 여기에 함께 추가한다.
 const MODULES = [
+  { id: "naver-member-api-keys", source: "blog-keyword/src/lib/apiKeys.ts", copies: ["blog-neighbor-care/src/lib/search/memberNaverKeys.ts"] },
   // 브라우저 무료 지우기(LaMa·PP-OCRv4, Apache-2.0) — 2026-10-24 바나나 캔버스 C-1에서 등록, 사본: 상세페이지 v1.31 문구 고치기(docs/SHARED_MODULES.md)
   ...["protocol.ts", "worker.ts", "engine.ts"].map((file) => ({
     id: `browser-free-erase-${file.split(".")[0]}`,
