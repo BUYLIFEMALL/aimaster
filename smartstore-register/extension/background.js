@@ -663,7 +663,10 @@ async function supplementsMain(a) {
     if (head) { head.scrollIntoView({ block: 'center' }); (head.querySelector('.input-content') || head).click(); await sleep(1000); }
     on = document.getElementById('supplement_true');
   }
-  if (!on) return { ok: false, error: '추가상품 「설정함」 버튼을 찾지 못했습니다(추가상품 칸이 접혀 있거나 이 카테고리에서 쓸 수 없음).' };
+  if (!on) {
+    const why = [...document.querySelectorAll('p, div, span')].find((e) => e.children.length < 3 && /추가상품 설정이 불가/.test(e.textContent || ''));
+    return { ok: false, error: why ? why.textContent.trim().slice(0, 120) : '추가상품 「설정함」 버튼을 찾지 못했습니다(추가상품 칸이 접혀 있거나 이 카테고리에서 쓸 수 없음).' };
+  }
   if (!on.checked) { (document.querySelector('label[for="supplement_true"]') || on).click(); await sleep(700); }
   const direct = [...document.querySelectorAll('input[ng-model="vm.suppleInputType"]')].find((x) => x.value === 'direct');
   if (direct && !direct.checked) { (direct.closest('label') || direct).click(); await sleep(500); }
@@ -765,6 +768,14 @@ async function brandInputMain(a) {
   await sleep(300);
   if (String(ctrl.$modelValue ?? '') !== a.value) return { ok: false, error: '값이 들어가지 않았습니다.' };
   return { ok: true };
+}
+
+// 옵션 상태 읽기(2026-10-28) — 카테고리 화면 갱신으로 옵션·직접입력형이 지워졌는지 마지막에 확인한다
+function optionStateMain() {
+  const lab = [...document.querySelectorAll('label, div, span')].find((e) => e.children.length < 4 && /^옵션목록\s*\(총/.test((e.textContent || '').trim()));
+  const m = lab ? (lab.textContent || '').match(/총\s*(\d+)\s*개/) : null;
+  const custom = document.getElementById('option_direct_type_true');
+  return { ok: true, optionCount: m ? Number(m[1]) : -1, customOn: !!(custom && custom.checked) };
 }
 
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
@@ -1025,6 +1036,39 @@ async function runJob(job) {
         else if (s.action === 'radio') rr = await run(tabId, 'radio', { target: s.target, value: s.value });
         else rr = await runMain(tabId, ngTypeMain, { target: s.target, value: s.value });
         if (!rr?.ok && !failures.some((f) => f.startsWith(s.label))) failures.push(`${s.label} — 마지막 확인에서 다시 넣지 못했습니다${rr?.error ? `(${rr.error})` : ''}`);
+      }
+      // 옵션·직접입력형도 지워졌으면 다시 넣는다(2026-10-28 실측: 패션 카테고리에서 옵션목록 0개·직접입력형 설정안함으로 돌아감)
+      const optStep = job.steps.find((x) => x.key === 'options');
+      const cusStep = job.steps.find((x) => x.key === 'custom_options');
+      if (optStep || cusStep) {
+        await run(tabId, 'expand', { title: '옵션' });
+        const st = await runMain(tabId, optionStateMain, {});
+        if (optStep && job.optionFile && st?.optionCount !== job.optionFile.rows) {
+          await human();
+          const ro = await runMain(tabId, optionsMain, { file: job.optionFile, type: job.optionFile.type, rows: job.optionFile.rows });
+          if (!ro?.ok || (ro.expected && ro.count !== ro.expected)) failures.push(`옵션 — 마지막 확인에서 목록이 ${st?.optionCount}줄이라 다시 넣었지만 맞지 않습니다${ro?.error ? `(${ro.error})` : ''}`);
+        }
+        if (cusStep && !st?.customOn) {
+          let names = []; try { names = JSON.parse(cusStep.value); } catch (e) { names = []; }
+          if (names.length) {
+            await human();
+            const rc = await runMain(tabId, customOptionsMain, { names });
+            if (!rc?.ok) failures.push(`${cusStep.label} — 마지막 확인에서 다시 넣지 못했습니다${rc?.error ? `(${rc.error})` : ''}`);
+          }
+        }
+      }
+      // 추가상품은 옵션이 「색상/사이즈 간편 입력」이면 막힌다 → 옵션을 다시 넣은 뒤 한 번 더(2026-10-28 실측)
+      const supStep = job.steps.find((x) => x.key === 'supplements');
+      const supIdx = supStep ? failures.findIndex((f) => f.startsWith(supStep.label)) : -1;
+      if (supIdx >= 0) {
+        let groups = []; try { groups = JSON.parse(supStep.value); } catch (e) { groups = []; }
+        if (groups.length) {
+          await run(tabId, 'expand', { title: '추가상품' });
+          await human();
+          const rs = await runMain(tabId, supplementsMain, { groups, expect: groups.reduce((n, g) => n + g.values.length, 0) });
+          if (rs?.ok) failures.splice(supIdx, 1);
+          else failures[supIdx] = `${supStep.label} — ${rs?.error || '다시 넣지 못했습니다'}`;
+        }
       }
     }
 
