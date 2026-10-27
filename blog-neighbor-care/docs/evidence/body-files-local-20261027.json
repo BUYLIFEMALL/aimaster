@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-27T09:08:50.332Z",
+  "unitTests": 93,
+  "newFileTests": 11,
+  "httpTests": 32,
+  "typecheck": "passed",
+  "nextProductionBuild": "passed",
+  "previewBuild": "passed",
+  "browser": "Microsoft Edge actual window, Orca UIA",
+  "browserAccessibilityLoaded": true,
+  "nativeFileDialogFlowVerified": false,
+  "screenshot": "failed: desktop provider returned no image; permissions unsupported on win32",
+  "componentDomFlow": "File -> preview -> explicit confirmation -> apply three posts, consent false; passed with React DOM/linkedom, not a live browser",
+  "realAiCalls": 0,
+  "realNaverApiCalls": 0,
+  "operatingDatabaseChanged": false,
+  "programVersion": "v1.01",
+  "deployed": false,
+  "assetPath": "D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/body-files-20261027",
+  "files": [
+    {
+      "name": "candidate-posts-template.json",
+      "bytes": 674,
+      "sha256": "85238d1298220c530b7ec5bf071de5ac77d8a44ec90c7eb22a1c9c7e339ca497"
+    },
+    {
+      "name": "index.html",
+      "bytes": 251778,
+      "sha256": "99b9f8921b1792100c1315c64f77161a7d1060a84c9065aee0f2a2d9413c7174"
+    },
+    {
+      "name": "synthetic-candidates.json",
+      "bytes": 940,
+      "sha256": "bf338c5b873af26ee89983788de1b359f132815835351d3b1c1b809e4eab7d18"
+    }
+  ]
+}

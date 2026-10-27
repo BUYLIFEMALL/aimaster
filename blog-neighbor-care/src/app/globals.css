@@ -6,3 +6,5 @@
 @media(prefers-reduced-motion:reduce){.bnc-app *{transition:none!important}}
 
 .bnc-app .candidate-search{border:1px solid var(--line);padding:18px;margin:20px 0;background:#f9fcfa}.bnc-app .search-leads{max-height:480px;overflow:auto}.bnc-app .search-leads article{border-top:1px solid var(--line);padding:18px 0}.bnc-app .lead-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:12px;font-size:12px}
+
+.bnc-app .candidate-files{border:1px solid var(--line);background:#f8fcf9;padding:16px;margin:18px 0}.bnc-app .file-preview-list{max-height:330px;overflow:auto}.bnc-app .file-preview pre,.bnc-app .body-file pre{max-height:240px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.bnc-app .file-preview>button,.bnc-app .body-file button{margin:8px 8px 8px 0}.bnc-app .body-file{border-top:1px dashed var(--line);padding-top:6px;margin-top:15px}

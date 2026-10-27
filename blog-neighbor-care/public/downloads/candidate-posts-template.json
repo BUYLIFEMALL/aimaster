@@ -1,0 +1,19 @@
+{
+  "posts": [
+    {
+      "url": "https://blog.naver.com/YOUR_BLOG_ID/POST_ID_1",
+      "title": "실제 글 제목으로 바꿔 주세요",
+      "body": "사용 권한을 확인한 실제 글 본문으로 바꿔 주세요"
+    },
+    {
+      "url": "https://blog.naver.com/YOUR_BLOG_ID/POST_ID_2",
+      "title": "실제 글 제목으로 바꿔 주세요",
+      "body": "사용 권한을 확인한 실제 글 본문으로 바꿔 주세요"
+    },
+    {
+      "url": "https://blog.naver.com/YOUR_BLOG_ID/POST_ID_3",
+      "title": "실제 글 제목으로 바꿔 주세요",
+      "body": "사용 권한을 확인한 실제 글 본문으로 바꿔 주세요"
+    }
+  ]
+}

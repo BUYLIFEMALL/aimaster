@@ -1,0 +1,15 @@
+import { build } from 'esbuild';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const program = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const target = path.resolve(program, '../scratch/blog-neighbor-care-body-files-20261027');
+fs.mkdirSync(target, { recursive: true });
+const result = await build({ entryPoints: [path.join(program, 'design/candidate-file-demo.tsx')], bundle: true, write: false, platform: 'browser', format: 'iife', target: 'es2022', jsx: 'automatic', minify: true, define: { 'process.env.NODE_ENV': '"production"' } });
+const script = result.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+const css = fs.readFileSync(path.join(program, 'src/app/globals.css'), 'utf8');
+const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"><title>실제 본문 파일 가져오기 · 로컬 기능 확인</title><style>body{margin:0}${css}</style></head><body><div id="root"></div><script>${script}</script></body></html>`;
+fs.writeFileSync(path.join(target, 'index.html'), html);
+fs.copyFileSync(path.join(program, 'public/downloads/candidate-posts-template.json'), path.join(target, 'candidate-posts-template.json'));
+fs.writeFileSync(path.join(target, 'synthetic-candidates.json'), JSON.stringify({ posts: Array.from({ length: 3 }, (_, i) => ({ url: `https://blog.naver.com/synthetic_fixture_blog/${900001 + i}`, title: `합성 검수 글 ${i + 1}`, body: `실제 방문이나 게시글이 아닌 로컬 검수용 합성 본문 ${i + 1}입니다. 업무 자동화 과정을 기록하는 예문입니다.`, rightsConfirmed: true })) }, null, 2));
+console.log(JSON.stringify({ target, browserBundleBytes: result.outputFiles[0].contents.length, externalConnections: false }));
