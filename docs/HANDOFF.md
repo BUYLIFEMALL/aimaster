@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.16(연결 계정 표시·판매가 직접 입력)
+- 확장 상태 창·웹 「확장 연결」에 연결된 계정 이메일, 로그인 계정과 다르면 경고. 보내기 칸 판매가 직접 입력. 배포 Ready, DB·확장·ZIP v1.16 OK. 테스트 계정(naver) 상품 2개 가격은 DB 직접 입력(승인).
+- https://smartstore-register.buylife.xyz
+
 ## 2026-10-27 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.15(첫 입력 시험 보정)
 - 브랜드·제조사 숨은 칸 입력(`brand_input`), 모델명 자동 입력 제외(카탈로그 「찾기」 전용), 태그 Enter 키 번호 보정, 리뷰 포인트 규칙 검사, 기본값 고르기 상자 저장 직후 표시 보정. 배포 Ready, DB·확장·ZIP v1.15 OK. 다음: 테스트 계정으로 재시험(판매가·확장 재연결 필요).
 - 상세: `smartstore-register/AGENTS.md` v1.15
