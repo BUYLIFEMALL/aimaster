@@ -100,3 +100,11 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 ## 2026-10-27 v1.12·v1.13 — 옵션 자동 입력 (엑셀 일괄등록)
 - 플랜 [`docs/PLAN_20261027_OPTIONS.md`](docs/PLAN_20261027_OPTIONS.md). 화면 `src/components/OptionEditor.tsx`(보내기 칸 안, 쓰지 않음/단독형/조합형, 옵션명 3개까지, 조합별 옵션가·재고), 계산 `src/lib/smartstore/options.ts`(25자·10원 단위·0원 조합 규칙, 양식 모양 행), 저장은 새 DB 칸 없이 작업 `options` 단계 값(JSON) + 마지막 보낸 옵션 다시 채우기(`getLastOptions`), 서버 `/api/extension/task`가 `xlsx`로 .xls(biff8) 만들어 `optionFile`로 보냄, 확장 `optionsMain`(MAIN, 옵션 칸 범위에서 「설정함」→「엑셀 일괄등록」→단독/조합→「엑셀 일괄등록하기」 파일 칸 click 가로채기→옵션목록 「총 N개」 확인). 동작 `options` 확장 v1.12 이상, `STEP_BUILDER` 2.
 - 배포 v1.12 `7blp17f02`, v1.13 `gefdo1s9o`(옵션 입력 칸 배치 수정), DB·확장·ZIP v1.13 OK, 시험 13개. **실제 시험(17:10) 판매자센터 옵션목록 「총 2개」(블랙·그레이, 0원·99개) 주인님 화면 확인.**
+
+## 2026-10-27 v1.14 — 남은 기능 1~8 묶음 배포
+- 기본값 화면: 배송 직접 입력 확장(수량별 `repeatQuantity`·구간별 `freeSectionLastQuantity`/`secondExtraFee`·결제방식·묶음배송·제주/도서산간 2·3권역·지역별 차등·별도 설치비, 템플릿 없을 때만), 반품 택배사 `returnCompany`, 구매/리뷰 혜택(`purchasePoint`·`reviewText`·`reviewPhoto`·`multiQty`·`multiDiscount`, 비우면 안 넣음).
+- 상품 화면: 검색 태그(`tags`, selectize), 상품 주요정보(브랜드·제조사·모델명 `naverShoppingSearchInfo.*`, 중고 `choose`), 상품속성(「이름: 값」 → `attributesMain`), 옵션 조합별 관리코드(엑셀 「관리코드」 열), 직접입력형 옵션(`customOptionsMain`, `#option_direct_type_true`·`#custom_option_name0`), 추가상품(「이름 | 값 | 가격」 → `supplementsMain`, `#supplement_true`·`#supple_*{i}`·「목록으로 적용」·목록 「총 N개」 확인), 예약구매(`preOrderMain`, `#preOrder1_1`·달력 `vm.startDateModel`/`endDateModel` — 달력 칸 자동 입력은 실물 확인 필요).
+- 혜택 단위(원·개)는 새 동작 `unit_pick`(드롭다운 링크 `ng-click setBenefitUnitType('<종류>', …)` 글자로 클릭).
+- 「등록할 상품」 목록: 여러 상품 연속 보내기(`BatchRegister.tsx`·`createBatchJobsAction`, 최대 20개, 「입력만」 금지, 상품마다 마지막 입력 재사용, 예약구매 제외, 이미 「바로 등록」한 상품 건너뜀). 작업 만들기는 `queueJob` 하나로 합침.
+- 새 동작 최소 확장 v1.14, `STEP_BUILDER` 3. 배포 Ready, DB·확장·ZIP v1.14 OK, 시험 21개.
+- **남은 일**: 주인님 PC 「입력만」 실제 시험 → 새 확장 동작 보정(혜택·추가상품·예약구매·직접입력형·상품속성·태그·주요정보·배송 종류별), 「상품속성」 표 캡처 대기, 일반 등급 2주 기준 결정 대기.
