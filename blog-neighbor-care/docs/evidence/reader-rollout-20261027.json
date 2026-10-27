@@ -69,7 +69,24 @@
     "expiresAt": "2026-11-26T03:53:19.258128Z",
     "retention720Hours": true,
     "popupReceiptVerified": true,
-    "receivedMaterialWebReopenVerified": false,
+    "receivedMaterialWebReopenVerified": true,
     "bodyIncludedInEvidence": false
+  },
+  "webReopenCheckpoint": {
+    "checkedAt": "2026-10-27T04:21:00Z",
+    "memberUiActions": [
+      "refresh_received_materials",
+      "open_received_title"
+    ],
+    "titleMatches": true,
+    "sourceUrlMatches": true,
+    "bodyNormalizedMd5Matches": true,
+    "normalizedBodyMd5": "6cd039bf07e7b9cf740b92de52d6ec0e",
+    "storedBodyCharacters": 3727,
+    "expiryVisibleKst": "2026-11-26 12:53:19",
+    "receipt": "받은 본문을 열었습니다.",
+    "materialCount": 1,
+    "bodyIncludedInEvidence": false,
+    "scope": "one member and one own post"
   }
 }
