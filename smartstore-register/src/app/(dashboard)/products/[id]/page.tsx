@@ -2,17 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { getDefaults, getProductForRegister, listJobs, JOB_STATUS, ownExtraPaths, getLastOptions, getLastStepValue, getLastMainInfo } from "@/lib/data";
-import { buildFillSteps } from "@/lib/smartstore/fields";
+import { buildFillSteps, lastCategory } from "@/lib/smartstore/fields";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { RegisterForm } from "@/components/RegisterForm";
 import { SHOP_DETAIL_SITE } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
-
-/** 상세페이지 분석 카테고리(예: 패션잡화 > 남성가방 > 백팩)의 마지막 단계만 검색어로 */
-function lastCategory(c: string | null): string {
-  return (c ?? "").split(/[>›/]/).map((s) => s.trim()).filter(Boolean).pop() ?? "";
-}
 
 export default async function ProductRegisterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

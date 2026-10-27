@@ -15,6 +15,11 @@ export function toRegisterMode(v: unknown): RegisterMode {
   return v === "temp_save" || v === "register" ? v : "fill_only";
 }
 
+/** 상세페이지 분석 카테고리(예: 패션잡화 > 남성가방 > 백팩)의 마지막 단계만 검색어로 */
+export function lastCategory(c: string | null): string {
+  return (c ?? "").split(/[>›/]/).map((s) => s.trim()).filter(Boolean).pop() ?? "";
+}
+
 export type OriginType = "domestic" | "import" | "etc";
 
 /** 배송비 종류 — 판매자센터 「배송비」 고르기 상자의 보이는 글자 */
