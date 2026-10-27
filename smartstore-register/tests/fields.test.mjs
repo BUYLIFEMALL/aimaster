@@ -196,3 +196,14 @@ test("상품 주요정보: 브랜드·제조사·모델명은 실제 칸 이름�
   const none = buildFillSteps(P, D, { ...O, mainInfo: normalizeMainInfo({ used: "new" }) });
   assert.ok(!["brand", "manufacturer", "model_name", "sale_type"].some((k) => keys(none).includes(k)));
 });
+
+test("상품속성: 「이름: 값」 줄 정리(전각 콜론·중복·빈 줄), 단계(확장 v1.14+)", async () => {
+  const { normalizeAttributes } = await import("../src/lib/smartstore/fields.ts");
+  const pairs = normalizeAttributes("소재: 폴리에스터\n\n성별：남녀공용\n소재: 면\n잘못된 줄\n색상: 블랙, 그레이");
+  assert.deepEqual(pairs, [{ name: "소재", value: "폴리에스터" }, { name: "성별", value: "남녀공용" }, { name: "색상", value: "블랙, 그레이" }]);
+  const r = buildFillSteps(P, D, { ...O, attributes: pairs });
+  const s = r.steps.find((x) => x.key === "attributes");
+  assert.equal(JSON.parse(s.value).length, 3);
+  assert.equal(extCanRun(r.steps, "v1.13"), false);
+  assert.ok(!keys(buildFillSteps(P, D, O)).includes("attributes"));
+});

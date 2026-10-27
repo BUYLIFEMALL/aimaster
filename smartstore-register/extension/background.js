@@ -508,6 +508,56 @@ async function tagsMain(a) {
   return { ok: true, added, expected: a.tags.length };
 }
 
+// 카테고리별 상품속성(2026-10-27 v1.14) — 「상품속성」 표(ncp-product-attribute-table)에서 속성 이름이 같은 줄을 찾아
+// 그 줄의 고르기 상자(selectize·select)·체크/라디오·글자 칸에 값을 넣는다. 표는 카테고리를 고른 뒤 그려지므로 칸 이름이 아니라 화면 글자로 찾는다.
+async function attributesMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const norm = (s) => (s || '').replace(/\s+/g, '').trim();
+  const visible = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const table = document.querySelector('ncp-product-attribute-table') || document.getElementById('anchor-product-attribute')?.closest('.form-sub-wrap');
+  if (!table) return { ok: false, error: '「상품속성」 표를 찾지 못했습니다(카테고리를 먼저 골라야 나타남).' };
+  table.scrollIntoView({ block: 'center' });
+  const done = [], missed = [];
+  for (const { name, value } of a.pairs) {
+    const head = [...table.querySelectorAll('th, td, label, dt, span, strong, div')].find((e) => e.children.length < 3 && visible(e) && norm(e.textContent).replace(/[*필수]/g, '') === norm(name));
+    if (!head) { missed.push(name + '(속성 없음)'); continue; }
+    const row = head.closest('tr') || head.closest('li') || head.parentElement?.parentElement || head.parentElement;
+    let ok = false;
+    // 1) selectize 고르기 상자: 목록을 열고 글자가 같은(없으면 포함하는) 보기를 누른다
+    const sz = row.querySelector('.selectize-control');
+    if (!ok && sz) {
+      sz.querySelector('.selectize-input')?.click();
+      await sleep(400);
+      const opts = [...document.querySelectorAll('.selectize-dropdown .option')].filter(visible);
+      const pick = opts.find((o) => norm(o.textContent) === norm(value)) || opts.find((o) => norm(o.textContent).includes(norm(value)));
+      if (pick) { pick.click(); ok = true; } else document.body.click();
+    }
+    // 2) 진짜 select
+    const sel = row.querySelector('select:not(.selectized)');
+    if (!ok && sel) {
+      const o = [...sel.options].find((x) => norm(x.textContent) === norm(value)) || [...sel.options].find((x) => norm(x.textContent).includes(norm(value)));
+      if (o) { sel.value = o.value; sel.dispatchEvent(new Event('change', { bubbles: true })); ok = true; }
+    }
+    // 3) 체크/라디오: 값 여러 개는 쉼표로
+    if (!ok) {
+      const wants = String(value).split(',').map(norm).filter(Boolean);
+      const labels = [...row.querySelectorAll('label')].filter((l) => visible(l) && wants.includes(norm(l.textContent)));
+      for (const l of labels) { const inp = l.querySelector('input') || (l.htmlFor && document.getElementById(l.htmlFor)); if (!inp || !inp.checked) l.click(); ok = true; await sleep(150); }
+    }
+    // 4) 글자 칸
+    const txt = row.querySelector('input[type=text]:not([readonly]), input:not([type]), textarea');
+    if (!ok && txt && visible(txt)) {
+      const ng = window.angular; const ctrl = ng ? ng.element(txt).controller('ngModel') : null;
+      if (ctrl) { ctrl.$setViewValue(String(value)); ctrl.$render(); } else { txt.value = String(value); txt.dispatchEvent(new Event('input', { bubbles: true })); }
+      txt.dispatchEvent(new Event('change', { bubbles: true }));
+      ok = true;
+    }
+    await sleep(300);
+    (ok ? done : missed).push(ok ? name : name + '(「' + value + '」 보기 없음)');
+  }
+  return { ok: true, done, missed };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -666,6 +716,11 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'attributes') {
+        let pairs = []; try { pairs = JSON.parse(step.value); } catch (e) { pairs = []; }
+        if (!pairs.length) continue;
+        r = await runMain(tabId, attributesMain, { pairs });
+        if (r.ok && r.missed?.length) failures.push('상품속성 — 직접 확인: ' + r.missed.join(', '));
       } else if (step.action === 'tags') {
         let tags = []; try { tags = JSON.parse(step.value); } catch (e) { tags = []; }
         if (!tags.length) continue;

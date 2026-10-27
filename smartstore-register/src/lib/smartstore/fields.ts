@@ -139,16 +139,30 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags" | "attributes";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14", attributes: "v1.14" };
 
 /** 상품 주요정보(2026-10-27 v1.14) — 상품마다 다르므로 보내기 화면에서 받는다. 칸 이름은 판매자센터 저장본에서 확인 */
 export interface MainInfo { brand: string; manufacturer: string; model: string; used: boolean }
 export function normalizeMainInfo(raw: Record<string, unknown> | null | undefined): MainInfo {
   const s = (v: unknown) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, 50) : "");
   return { brand: s(raw?.brand), manufacturer: s(raw?.manufacturer), model: s(raw?.model), used: raw?.used === true || raw?.used === "used" };
+}
+
+/** 카테고리별 상품속성 — 「속성이름: 값」 한 줄씩(값 여러 개는 쉼표), 최대 30줄 */
+export interface AttrPair { name: string; value: string }
+export function normalizeAttributes(raw: unknown): AttrPair[] {
+  const lines = Array.isArray(raw) ? raw.map((x) => (x && typeof x === "object" ? `${(x as AttrPair).name}:${(x as AttrPair).value}` : String(x))) : String(raw ?? "").split("\n");
+  const out: AttrPair[] = [];
+  for (const line of lines) {
+    const i = line.search(/[:：]/);
+    if (i <= 0) continue;
+    const name = line.slice(0, i).trim().slice(0, 40), value = line.slice(i + 1).trim().slice(0, 100);
+    if (name && value && !out.some((p) => p.name === name)) out.push({ name, value });
+  }
+  return out.slice(0, 30);
 }
 
 /** 검색설정 태그 — 쉼표·줄바꿈으로 나눠 「#」·공백 정리, 같은 것 한 번, 최대 10개(스마트스토어 한도), 한 개 30자 이내 */
@@ -229,7 +243,7 @@ export function managementCode(productId: string): string {
 export function buildFillSteps(
   product: ProductSource,
   defaults: StoreDefaults,
-  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[]; mainInfo?: MainInfo },
+  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[]; mainInfo?: MainInfo; attributes?: AttrPair[] },
 ): BuildResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -283,6 +297,7 @@ export function buildFillSteps(
   if (mi?.manufacturer) add({ key: "manufacturer", section: "상품 주요정보", label: `제조사 「${mi.manufacturer}」`, target: NS + "manufacturerName", action: "type", value: mi.manufacturer });
   if (mi?.model) add({ key: "model_name", section: "상품 주요정보", label: `모델명 「${mi.model}」`, target: NS + "modelName", action: "type", value: mi.model });
   if (mi?.used) add({ key: "sale_type", section: "상품 주요정보", label: "상품상태 「중고상품」", target: "상품상태", action: "choose", value: "중고상품" });
+  if (opts.attributes?.length) add({ key: "attributes", section: "상품 주요정보", label: `상품속성 ${opts.attributes.length}개(${opts.attributes.map((p) => p.name).slice(0, 3).join("·")}${opts.attributes.length > 3 ? "…" : ""})`, target: "상품속성", action: "attributes", value: JSON.stringify(opts.attributes) });
   if (defaults.childCert === "not_target") add({ key: "child_cert", section: "상품 주요정보", label: "어린이제품인증 「인증대상 아님」", target: "어린이제품인증", action: "choose", value: "어린이제품 인증대상 아님" });
 
   add({ key: "notice_group", section: "상품정보제공고시", label: "상품군", target: "vm.selectizeType", action: "search_pick", value: defaults.noticeGroup, required: true });
