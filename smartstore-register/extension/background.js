@@ -469,7 +469,10 @@ async function openCreateTab() {
   const [existing] = await chrome.tabs.query({ url: 'https://sell.smartstore.naver.com/*' });
   let tab;
   if (existing) {
-    tab = await chrome.tabs.update(existing.id, { url: CREATE_URL, active: true });
+    // 기존 탭을 옮기면(칸이 채워진 등록 화면이면) 판매자센터가 「저장하지 않고 나가면 유실됩니다」 브라우저 확인 창을 띄워
+    // 작업이 멈춘다 → 그 탭을 닫고(확인 창 없음) 같은 창·같은 자리에 새 탭을 연다
+    await chrome.tabs.remove(existing.id).catch(() => {});
+    tab = await chrome.tabs.create({ url: CREATE_URL, active: true, windowId: existing.windowId, index: existing.index });
   } else {
     const win = await chrome.windows.getLastFocused({ windowTypes: ['normal'] }).catch(() => null);
     tab = await chrome.tabs.create({ url: CREATE_URL, active: true, ...(win ? { windowId: win.id } : {}) });
