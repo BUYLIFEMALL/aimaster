@@ -396,7 +396,8 @@ function ngTypeMain(a) {
       const norm = (s) => s.replace(/\s+/g, '');
       const lab = [...document.querySelectorAll('label, th, .control-label, span, div')].find((e) => e.children.length < 4 && norm(e.textContent).startsWith(norm(a.label)) && visible(e));
       for (let box = lab?.parentElement, up = 0; box && up < 6 && !el; up++, box = box.parentElement) {
-        el = [...box.querySelectorAll('input[type=text], input[type=tel], input:not([type])')].find((x) => visible(x) && !x.readOnly && !x.disabled) || null;
+        // 라벨 「뒤에」 오는 칸만(위쪽 「제조자(사)」 검색 칸 등을 잘못 고르지 않게)
+        el = [...box.querySelectorAll('input[type=text], input[type=tel], input:not([type])')].find((x) => visible(x) && !x.readOnly && !x.disabled && (lab.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING) && !x.closest('.selectize-control')) || null;
       }
     }
   }
