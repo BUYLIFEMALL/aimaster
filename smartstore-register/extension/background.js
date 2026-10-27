@@ -402,9 +402,13 @@ function ngTypeMain(a) {
   const apply = (fn) => { if (!root || root.$$phase) fn(); else root.$apply(fn); };
   try { apply(() => { ctrl.$setViewValue(a.value); ctrl.$render(); }); } catch (e) { return { ok: false, error: `값 넣기 오류: ${String(e && e.message || e).slice(0, 120)}` }; }
   el.dispatchEvent(new Event('blur', { bubbles: true }));
+  // ng-model-options(debounce·blur 반영)가 붙은 칸은 바로 반영되지 않는다 → 미뤄 둔 값을 바로 반영시킨 뒤 확인
+  try { if (ctrl.$commitViewValue) apply(() => ctrl.$commitViewValue()); } catch (e) { /* 무시 */ }
   const model = ctrl.$modelValue;
   const filled = model !== undefined && model !== null && String(model).replace(/[,\s]/g, '') !== '';
-  return filled ? { ok: true, via: 'angular' } : { ok: false, error: `값이 판매자센터에 들어가지 않았습니다(화면: ${el.value || '빈칸'})` };
+  if (filled) return { ok: true, via: 'angular' };
+  const why = ctrl.$error ? Object.keys(ctrl.$error).filter((k) => ctrl.$error[k]).join(',') : '';
+  return { ok: false, error: `값이 판매자센터에 들어가지 않았습니다(화면: ${el.value || '빈칸'}${why ? `, 검사: ${why}` : ''})` };
 }
 
 async function runMain(tabId, func, args) {
@@ -445,9 +449,17 @@ async function findEditorTab(productTabId) {
 }
 
 async function openCreateTab() {
-  // 항상 화면 맨 앞에 새 창으로 연다 — 다른(뒤쪽) 창의 탭에 열리면 회원이 진행을 볼 수 없다(포그라운드 원칙).
-  const win = await chrome.windows.create({ url: CREATE_URL, focused: true, state: 'maximized' });
-  const tab = win.tabs[0];
+  // 새 창을 만들지 않는다(주인님 2026-10-27 「기존에 떠있는 브라우저에 새탭으로 추가하면 안되?」).
+  // 판매자센터 탭이 있으면 그 탭을 다시 쓰고, 없으면 지금 쓰는 크롬 창에 새 탭 — 어느 쪽이든 그 탭·창을 맨 앞으로.
+  const [existing] = await chrome.tabs.query({ url: 'https://sell.smartstore.naver.com/*' });
+  let tab;
+  if (existing) {
+    tab = await chrome.tabs.update(existing.id, { url: CREATE_URL, active: true });
+  } else {
+    const win = await chrome.windows.getLastFocused({ windowTypes: ['normal'] }).catch(() => null);
+    tab = await chrome.tabs.create({ url: CREATE_URL, active: true, ...(win ? { windowId: win.id } : {}) });
+  }
+  await chrome.windows.update(tab.windowId, { focused: true }).catch(() => {});
   for (let t = 0; t < 45; t++) {
     await wait(1000);
     const r = await run(tab.id, 'ready').catch(() => ({ ok: false }));
