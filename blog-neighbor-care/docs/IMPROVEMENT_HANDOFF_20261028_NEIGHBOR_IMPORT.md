@@ -1,5 +1,7 @@
 # 기존 이웃 가져오기 — 2026-10-27 착수 / 10-28 실제 화면 보정
 
+최신 후속 검수: [페이지·빈 목록 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/neighbor-import-validation-20261028/index.html) · 영구 폴더 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\neighbor-import-validation-20261028`.
+
 확인 링크(이번 기능은 미배포): [공식 운영](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 기능 확인 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/neighbor-import-20261027/index.html) · 영구 자산 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\neighbor-import-20261027`.
 
 담당 `codex-win-20261026-blog-check` · 역할 blog. 소스 `a6255e602` + 실제 프레임 보정 `c70575200`. **가져오기 공통 경로·저장/확인·대상 설정은 로컬 구현·검수 완료, 실제 설치 확장의 네이버 목록 전송은 미검수입니다. 전체 기능 운영 완료가 아닙니다.** v1.01 유지·사용자 지시대로 묶음 배포 대기. 운영 DB/허용 플래그/현재 설치 확장 변경 없음.
@@ -69,3 +71,14 @@
 5. 이후 후보 본문/종합평가·신청/수락·공감/댓글·답방/대댓글·예약/반복·실회원/실제AI·운영 정리는 별도 잔여입니다. 다른 세션에 지정된 플래너/이미지 복귀는 제외합니다.
 
 로그인 요청 d86bf5fa/f886a345는 실제 개인 프로필 전환·NAVER 로그인 확인으로 완료 처리했습니다. 현재 추가 로그인·설치 요청은 없습니다. Codex는 **기존 Edge 창의 새 탭만 사용**합니다.
+
+## 2026-10-28 후속: 다중페이지·빈 목록·중단 통합 검수
+
+2026-10-28 후속 `f7b9c3ed1`(v1.01 미배포): 로딩/오류/미렌더링을 0명으로 받던 문제와 다음 페이지 허가 직후 기기 변경에도 이동하던 문제를 재현 후 수정. 단위144·격리DB18·HTTP39·타입·ZIP9파일 일치 통과. 실제 확장 컨트롤러→직렬화 DOM→API→격리 PostgreSQL로 3페이지125명·확인후반영·50개 커서·0명재가져오기/기존유지·RSS/로딩거절·2페이지탭변경/일부50명 반영차단·취소 검수. 기존 Edge1838288 새탭에서 합성 실제DOM 3페이지/0명/로딩/RSS 4상태 포그라운드 검수·4장 영구보존. **실제 설치 확장의 네이버43명 전송·실제Naver 다중페이지/0명·운영 PostgREST는 미검수**, 읽기근거/정책false·신규SQL/묶음배포 대기. 설치본/운영DB/배포/실AI변경0, 이번 추가Next빌드0·번들2.
+
+- **재현과 수정:** 관리 표에 총0명과 로딩/오류 한 셀 또는 미렌더링 tbody가 있으면 기존 코드는 ready로 오인했습니다. NI21을 먼저 실패시킨 뒤 명시적 빈 문구·전 열 colspan·실제 빈행을 확인하게 수정했습니다. 확인하지 못한 실제 네이버 빈 문구는 추측하지 않고 거절합니다. NI22는 두 번째 reserve 직후 기기가 바뀌었을 때 페이지 이동1회가 먼저 발생함을 재현했고, 이동 직전 기기/블로그/허가 유효성을 재확인하게 수정했습니다.
+- **통합 검사 범위:** 실제 createReaderController와 직렬화한 추출/이동 함수를 사용했습니다. DOM은 linkedom+가시성 대역, Chrome API/페이지 이동은 합성 대역입니다. HTTP 핸들러와 PostgreSQL17.11은 실제 실행하며 실제 키/로그인세션/운영 네트워크는 사용하지 않습니다. 3페이지50+50+25=125명·서로이웃63/일반62의 기본값, 50개 커서, 확인 전0명 저장, 빈목록 확인후 기존2명 보존, 로딩/RSS 전송0, 2페이지탭변경시 첫50명만 임시보존·반영거절·취소삭제를 확인했습니다.
+- **포그라운드 검사:** 기존 Edge 실제창1838288 새탭에서 버튼을 네이티브로 눌렀습니다. 합성표 iframe에는 실제 레이아웃과 getClientRects를 사용했고 최상위 계정 증명/URL/서버 응답만 합성했습니다. 실제 확장에 주입하거나 네이버 화면에 검수 스크립트를 실행한 것이 아닙니다. HTML CSP connect-src none, 캡처4장에는 합성 ID만 있습니다.
+- **검수 수치:** 전체 단위144·신규 이웃 격리DB18·기존 로컬Next HTTP39·타입·ZIP9파일/두ZIP/소스 바이트 일치. 이번 Next 추가빌드0(웹코드 미변경), 기능 검수번들2회, 운영DB/배포/유료AI0. 버전v1.01 유지·설치폴더 미교체.
+- **완료하지 않은 것:** 실제 설치 확장의43명 추출→임시전송→웹확인반영, 실제Naver 다중페이지/0명/RSS DOM, PostgREST/실회원 검수. 기존0-A§2/요청3e257d73의 읽기허용근거 미확인과 기본false를 유지합니다. 기존 분석SQL+이웃SQL/명칭/UI/확장ZIP 묶음배포 후 운영 검수는 별도입니다.
+- **근거:** [후속JSON](evidence/neighbor-import-validation-20261028.json), [DB18](evidence/neighbor-import-database-20261027.json), [HTTP39](evidence/neighbor-import-http-20261027.json). 소스커밋 f7b9c3ed1.
