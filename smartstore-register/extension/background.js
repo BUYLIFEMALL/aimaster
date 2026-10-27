@@ -419,6 +419,66 @@ async function editorImageMain(a) {
   return { ok: false, error: '에디터에 사진이 들어가지 않았습니다.' };
 }
 
+// 옵션 — 판매자센터 「엑셀 일괄등록」(2026-10-27 v1.12). 옵션 칸 화면 템플릿이 저장본에 없어 화면 글자와 옵션 칸 범위로 찾는다.
+// 「엑셀 일괄등록하기」는 파일 고르는 창을 띄우므로 에디터 사진처럼 파일 칸 click()을 잠깐 가로채 파일을 넣는다.
+async function optionsMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const norm = (s) => (s || '').replace(/\s+/g, ' ').trim();
+  const visible = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const modalText = () => [...document.querySelectorAll('.modal.in, [role="dialog"], [role="alertdialog"]')].filter(visible).map((m) => norm(m.textContent).slice(0, 160)).join(' / ');
+  const title = [...document.querySelectorAll('.title-line label')].find((l) => norm(l.textContent).startsWith('옵션'));
+  if (!title) return { ok: false, error: '「옵션」 칸을 찾지 못했습니다.' };
+  const byText = (root, sel, text) => [...root.querySelectorAll(sel)].find((b) => visible(b) && norm(b.textContent) === text);
+  let card = title.closest('.title-line') || title;
+  for (let i = 0; i < 8 && card && !byText(card, 'button, a, label', '설정함'); i++) card = card.parentElement;
+  if (!card) return { ok: false, error: '옵션 「설정함」 버튼을 찾지 못했습니다.' };
+  byText(card, 'button, a, label', '설정함').click();
+  await sleep(800);
+  const pick = async (text) => {
+    const lab = [...card.querySelectorAll('label, span')].find((l) => visible(l) && norm(l.textContent) === text);
+    if (!lab) return false;
+    const input = (lab.tagName === 'LABEL' && (lab.querySelector('input') || (lab.htmlFor && document.getElementById(lab.htmlFor)))) || lab.closest('label')?.querySelector('input') || null;
+    (input || lab).click();
+    await sleep(600);
+    return true;
+  };
+  if (!(await pick('엑셀 일괄등록'))) return { ok: false, error: '옵션 입력방식 「엑셀 일괄등록」을 찾지 못했습니다.' };
+  if (!(await pick(a.type === 'simple' ? '단독형' : '조합형'))) return { ok: false, error: '옵션 구성타입 단독형/조합형을 찾지 못했습니다.' };
+  const btn = byText(card, 'button, a', '엑셀 일괄등록하기');
+  if (!btn) return { ok: false, error: '「엑셀 일괄등록하기」 버튼을 찾지 못했습니다.' };
+
+  const orig = HTMLInputElement.prototype.click;
+  let captured = null;
+  HTMLInputElement.prototype.click = function () { if (this.type === 'file') { captured = this; return; } return orig.call(this); };
+  try {
+    btn.click();
+    for (let t = 0; t < 40 && !captured; t++) {
+      await sleep(100);
+      if (!captured) captured = [...document.querySelectorAll('.modal.in input[type=file], [role="dialog"] input[type=file]')].find((el) => /xls|excel|sheet/i.test((el.accept || '') + (el.getAttribute('ngf-pattern') || '') + (el.getAttribute('ngf-select') || ''))) || null;
+    }
+  } finally {
+    HTMLInputElement.prototype.click = orig;
+  }
+  if (!captured) return { ok: false, error: '엑셀 파일 칸을 찾지 못했습니다.' + (modalText() ? ' 화면 안내: ' + modalText() : '') };
+  const bytes = Uint8Array.from(atob(a.file.data), (c) => c.charCodeAt(0));
+  const dt = new DataTransfer();
+  dt.items.add(new File([bytes], a.file.name, { type: a.file.mime }));
+  captured.files = dt.files;
+  captured.dispatchEvent(new Event('input', { bubbles: true }));
+  captured.dispatchEvent(new Event('change', { bubbles: true }));
+
+  // 결과: 옵션목록 「(총 N개)」가 0보다 커지면 성공. 확인 창이 뜨면 글자를 보고 「확인」만 누른다.
+  for (let t = 0; t < 60; t++) {
+    await sleep(250);
+    const m = norm(card.textContent).match(/총\s*(\d+)\s*개/);
+    if (m && Number(m[1]) > 0) return { ok: true, count: Number(m[1]), expected: a.rows };
+    const dlg = [...document.querySelectorAll('.modal.in, [role="dialog"], [role="alertdialog"]')].find((d) => visible(d) && /옵션|엑셀|적용|등록/.test(d.textContent));
+    if (dlg && /실패|오류|올바르지|확인해\s*주세요|없습니다/.test(dlg.textContent)) return { ok: false, error: '엑셀 일괄등록 거절 — ' + norm(dlg.textContent).slice(0, 200) };
+    if (dlg) { const okBtn = [...dlg.querySelectorAll('button')].find((b) => /^(확인|적용|등록)$/.test(norm(b.textContent))); if (okBtn) { okBtn.click(); await sleep(600); } }
+  }
+  return { ok: false, error: '옵션목록에 줄이 생기지 않았습니다.' + (modalText() ? ' 화면 안내: ' + modalText() : '') };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -576,6 +636,10 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'options') {
+        if (!job.optionFile) { failures.push('옵션(엑셀 파일을 받지 못함)'); continue; }
+        r = await runMain(tabId, optionsMain, { file: job.optionFile, type: job.optionFile.type, rows: job.optionFile.rows });
+        if (r.ok && r.expected && r.count !== r.expected) failures.push('옵션 — 목록 ' + r.count + '줄(보낸 것 ' + r.expected + '줄), 직접 확인해 주세요');
       } else if (step.action === 'extra_images') {
         if (!job.extraImages?.length) { failures.push('추가 이미지(받은 사진 없음)'); continue; }
         // 창 한 번에 총 20MB까지 — 18MB 이하 묶음으로 나눠 올린다

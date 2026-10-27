@@ -5,6 +5,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaults, getProductForRegister, ownExtraPaths } from "@/lib/data";
 import { buildFillSteps, normalizeDefaults, toRegisterMode, withBuilderMark } from "@/lib/smartstore/fields";
+import { normalizeOptions } from "@/lib/smartstore/options";
 
 // 모든 쓰기는 프로그램 이용 권한 확인 + 본인 행(user_id)만(CLAUDE.md 멀티테넌시 원칙 1·2).
 
@@ -36,7 +37,12 @@ export async function createJobAction(_prev: unknown, formData: FormData): Promi
   const loaded = await getProductForRegister(user.id, productId);
   if (!loaded) return { error: "상품을 찾을 수 없습니다." };
   const defaults = await getDefaults(user.id);
+  let optionsRaw: unknown = null;
+  try { optionsRaw = JSON.parse(String(formData.get("options") ?? "null")); } catch { return { error: "옵션 값을 읽지 못했습니다. 화면을 새로고침해 주세요." }; }
+  const opt = normalizeOptions(optionsRaw, defaults.stock);
+  if (opt.errors.length) return { error: opt.errors[0] };
   const built = buildFillSteps(loaded.product, defaults, {
+    options: opt.spec,
     mode,
     categoryKeyword,
     detailImageCount: loaded.sections.length,

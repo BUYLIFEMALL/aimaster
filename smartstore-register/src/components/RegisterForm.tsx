@@ -3,8 +3,9 @@
 import { useActionState, useState } from "react";
 import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
+import { OptionEditor } from "@/components/OptionEditor";
 
-export function RegisterForm({ productId, defaultKeyword }: { productId: string; defaultKeyword: string }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, defaultStock = 99 }: { productId: string; defaultKeyword: string; initialOptions?: unknown; defaultStock?: number }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -16,6 +17,7 @@ export function RegisterForm({ productId, defaultKeyword }: { productId: string;
         <input id="categoryKeyword" name="categoryKeyword" defaultValue={defaultKeyword} placeholder="예: 텀블러" className="slw-field" />
         <p className="mt-1 text-[11px] text-slate-500">확장이 이 말로 검색해 마지막 단계 카테고리까지 고릅니다.</p>
       </div>
+      <OptionEditor initial={initialOptions} defaultStock={defaultStock} />
       <fieldset>
         <legend className="slw-label">등록 방식</legend>
         <div className="space-y-1.5">

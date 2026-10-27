@@ -1,3 +1,4 @@
+import { optionRowCount, type OptionSpec } from "./options";
 // 상세페이지 상품 + 회원 스토어 기본값 → 스마트스토어 「상품 등록」 칸에 넣을 값 목록.
 // 칸 이름(ng-model/name)은 0단계 화면 분석 결과(trending-product-finder/docs/EC_W8_SMARTSTORE_FORM_ANALYSIS_20261026.md).
 // 확장은 이 목록을 위에서부터 그대로 실행한다 — 화면 위치가 아니라 이름으로 칸을 찾는다.
@@ -102,16 +103,16 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12" };
 
 /**
  * 칸 목록을 만든 코드의 세대 — 오래 열어 둔 탭은 그 시점 배포의 옛 코드로 작업을 만든다(2026-10-27 실제 사고: 고시 A/S 전화·어린이인증·추가 이미지가 빠진 작업).
  * 칸 구성이 바뀌어 옛 작업을 실행하면 안 될 때 이 숫자를 올린다. 이 표시가 없거나 낮은 작업은 확장에 넘기지 않는다.
  */
-export const STEP_BUILDER = 1;
+export const STEP_BUILDER = 2; // 2: 옵션 단계(2026-10-27 v1.12)
 const BUILDER_KEY = "_builder";
 
 /** 저장할 단계 목록 끝에 「만든 세대」 표시를 붙인다(화면 미리보기에는 붙이지 않음) */
@@ -178,7 +179,7 @@ export function managementCode(productId: string): string {
 export function buildFillSteps(
   product: ProductSource,
   defaults: StoreDefaults,
-  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number },
+  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null },
 ): BuildResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -209,6 +210,10 @@ export function buildFillSteps(
     add({ key: "discount", section: "판매가", label: "할인 금액(원)", target: "immediateDiscountPolicy.value", action: "type", value: String(discount) });
   }
   add({ key: "stock", section: "재고수량", label: "재고수량", target: "vm.product.stockQuantity", action: "type", value: String(defaults.stock), required: true });
+  if (opts.options) {
+    const o = opts.options;
+    add({ key: "options", section: "옵션", label: `옵션 ${o.type === "simple" ? "단독형" : "조합형"} ${optionRowCount(o)}줄(${o.groups.map((g) => g.name).join("·")})`, target: "옵션", action: "options", value: JSON.stringify(o) });
+  }
   add({ key: "images", section: "상품이미지", label: "대표·추가 이미지", target: "vm.openUploadModal", action: "images", value: "main", required: true });
   const extra = Math.min(EXTRA_IMAGES_MAX, Math.max(0, Math.floor(opts.extraImageCount ?? 0)));
   if (extra > 0) add({ key: "extra_images", section: "상품이미지", label: `추가 이미지 ${extra}장`, target: "image.add", action: "extra_images", value: String(extra) });

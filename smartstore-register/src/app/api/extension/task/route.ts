@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { userFromExtension } from "@/lib/extension/token";
 import { SHOP_IMAGE_BUCKET, storagePathFromUrl, ownExtraPaths } from "@/lib/data";
+import * as XLSX from "xlsx";
+import { optionSheetRows, optionRowCount, type OptionSpec } from "@/lib/smartstore/options";
 import { orderSections, extCanRun, extMinVersion, isCurrentBuild, withoutBuilderMark } from "@/lib/smartstore/fields";
 
 export const dynamic = "force-dynamic";
@@ -77,8 +79,24 @@ export async function POST(req: Request) {
   }
   const name = (p: string) => p.split("/").pop() ?? "image.jpg";
 
+  // 옵션: 판매자센터 「엑셀 일괄등록」 양식 모양(.xls, 1행 머리글 + 데이터)으로 만들어 함께 보낸다
+  let optionFile: { data: string; name: string; mime: string; type: string; rows: number } | null = null;
+  const optStep = ((job.steps ?? []) as { key: string; value: string }[]).find((s) => s.key === "options");
+  if (optStep) {
+    try {
+      const spec = JSON.parse(optStep.value) as OptionSpec;
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(optionSheetRows(spec)), "Sheet0");
+      const data = XLSX.write(wb, { bookType: "biff8", type: "base64" }) as string;
+      optionFile = { data, name: spec.type === "simple" ? "OptionSimple.xls" : "OptionCombination.xls", mime: "application/vnd.ms-excel", type: spec.type, rows: optionRowCount(spec) };
+    } catch (e) {
+      console.error("[smartstore-register] option file", (e as Error).message);
+    }
+  }
+
   return NextResponse.json({
     job: {
+      optionFile,
       id: job.id,
       mode: job.mode,
       categoryKeyword: job.category_keyword,

@@ -119,3 +119,27 @@ test("만든 세대 표시: 저장할 때 붙고, 확장에 넘길 때 빠지며
   assert.deepEqual(withoutBuilderMark(saved).map((s) => s.key), keys(r));
   assert.equal(extCanRun(saved, "v1.10"), true);
 });
+
+test("옵션: 단독형 표·조합형 조합·0원 규칙·10원 단위·엑셀 머리글", async () => {
+  const { normalizeOptions, optionSheetRows, optionRowCount } = await import("../src/lib/smartstore/options.ts");
+  const XLSX = (await import("xlsx")).default;
+  assert.equal(normalizeOptions(null, 99).spec, null);
+  const s = normalizeOptions({ type: "simple", groups: [{ name: "컬러", values: ["빨강", "파랑"] }, { name: "사이즈", values: ["S"] }] }, 99);
+  assert.deepEqual(s.errors, []);
+  assert.deepEqual(optionSheetRows(s.spec), [["옵션명", "옵션값", "사용여부"], ["컬러", "빨강", "Y"], ["컬러", "파랑", "Y"], ["사이즈", "S", "Y"]]);
+  assert.equal(optionRowCount(s.spec), 3);
+  const c = normalizeOptions({ type: "combination", groups: [{ name: "색상", values: ["레드", "블랙"] }, { name: "사이즈", values: ["S", "M"] }], combos: [{ values: ["블랙", "M"], price: 500, stock: 3 }] }, 7);
+  assert.deepEqual(c.errors, []);
+  const rows = optionSheetRows(c.spec);
+  assert.deepEqual(rows[0], ["색상", "사이즈", "옵션가", "재고수량", "관리코드", "사용여부"]);
+  assert.equal(rows.length, 5);
+  assert.deepEqual(rows[4], ["블랙", "M", 500, 3, "", "Y"]);
+  assert.deepEqual(rows[1], ["레드", "S", 0, 7, "", "Y"]);
+  assert.match(normalizeOptions({ type: "combination", groups: [{ name: "색상", values: ["A"] }], combos: [{ values: ["A"], price: 100, stock: 1 }] }, 1).errors[0], /0원/);
+  assert.match(normalizeOptions({ type: "combination", groups: [{ name: "색상", values: ["A", "B"] }], combos: [{ values: ["B"], price: 105, stock: 1 }] }, 1).errors[0], /10원/);
+  assert.match(normalizeOptions({ type: "simple", groups: [{ name: "", values: ["A"] }] }, 1).errors[0], /옵션명/);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Sheet0");
+  const back = XLSX.read(XLSX.write(wb, { bookType: "biff8", type: "buffer" }));
+  assert.deepEqual(XLSX.utils.sheet_to_json(back.Sheets.Sheet0, { header: 1 })[0], rows[0]);
+});
