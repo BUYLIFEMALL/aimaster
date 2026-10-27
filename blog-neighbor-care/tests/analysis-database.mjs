@@ -52,6 +52,7 @@ try {
  });
  const profile=prepare(owner,[source]);
  await check('ADB03 원본 잔여수명 상속·타인 작업 조회/입력변경 차단',()=>{
+  assert.deepEqual(rpc(owner,'get',{id:profile}).preferences,preferences);
   assert.equal(sql(`select j.expires_at=m.expires_at from public.bnc_analysis_jobs j join public.bnc_reader_materials m on m.id=any(j.material_ids) where j.id=${q(profile)};`),'t');
   assert.throws(()=>rpc(other,'get',{id:profile}),/NOT_FOUND/);
   assert.throws(()=>rpc(owner,'prepare',{id:profile,kind:'profile',input_hash:hash('changed'),input:{materialIds:[source]}}),/CHANGED/);

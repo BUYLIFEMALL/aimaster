@@ -102,7 +102,7 @@ begin
  if p_operation='get' then
    if j.profile_job_id is not null then select * into p from public.bnc_analysis_jobs where id=j.profile_job_id; end if;
    return jsonb_build_object('id',j.id,'kind',j.kind,'state',case when j.state='running' and j.run_started_at<v_now-interval '2 minutes' then 'uncertain' else j.state end,
-     'result',j.result,'reviewedProfile',j.reviewed_result,'revision',j.revision,'selection',j.selection,
+     'result',j.result,'preferences',j.input->'preferences','reviewedProfile',j.reviewed_result,'revision',j.revision,'selection',j.selection,
      'profileStale',j.profile_job_id is not null and (p.revision is distinct from j.profile_revision),
      'provider',j.input->>'provider','model',j.input->>'model','errorCode',j.error_code,'createdAt',j.created_at,'expiresAt',j.expires_at);
  end if;

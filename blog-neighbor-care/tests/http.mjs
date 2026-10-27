@@ -81,17 +81,23 @@ try {
     assert.equal(r.status,401);assert.match(r.headers.get('cache-control'),/no-store/);assert.match((await r.json()).error,/로그인/);
   });
   await check('HTTP25 분석GET실행차단405', async () => assert.equal((await fetch(`${origin}/api/analysis`)).status,405));
+  await check('HTTP26 새프로필화면회원가드·메뉴·모델번들', async () => {
+    const r=await fetch(`${origin}/studio`);assert.equal(r.status,200);const html=await r.text();assert.match(html,/AIMaster 로그인/);assert.match(html,/후보 비교/);assert.doesNotMatch(html,/api[_-]?key["']\s*:\s*["'][^"']{20}/i);
+  });
+  await check('HTTP27 후보화면회원가드', async () => {const html=await (await fetch(`${origin}/candidates`)).text();assert.match(html,/AIMaster 로그인/);});
+  await check('HTTP28 매뉴얼의동의·후보범위·재실행금지', async () => {const html=await (await fetch(`${origin}/guide`)).text();assert.match(html,/자동 재실행하지 않습니다/);assert.match(html,/3~5개/);assert.match(html,/모델을 선택/);});
+  await check('HTTP29 설정화면회원가드', async () => {const html=await (await fetch(`${origin}/settings`)).text();assert.match(html,/AIMaster 로그인/);});
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
-  writeFileSync(new URL('../docs/evidence/analysis-http-20261027.json', import.meta.url), JSON.stringify({
+  writeFileSync(new URL('../docs/evidence/ui-http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 25, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 29, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 25);
-console.log('로컬 HTTP25개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 29);
+console.log('로컬 HTTP29개 통과·서버 종료, 실제키/로그인세션 사용0.');

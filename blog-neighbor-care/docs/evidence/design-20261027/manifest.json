@@ -1,0 +1,101 @@
+{
+  "checkedAt": "2026-10-27T08:08:36.068Z",
+  "browser": "Microsoft Edge actual visible window via Orca UIA",
+  "headless": false,
+  "productionChanged": false,
+  "realAiCalls": 0,
+  "selected": "relay",
+  "selectedTone": "Naver green/white",
+  "captures": [
+    {
+      "file": "editorial-main.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "f202109a243d1001361e31e9665d80071187df3f9b50b66e905f85b032e5aa27"
+    },
+    {
+      "file": "editorial-detail.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "f464a296ad7a17bf94b5811c0e42293208d8b185f2da6ca7384cc7ec8faa4f15"
+    },
+    {
+      "file": "editorial-guide.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "6d855d3ec03301cc5f469aa7f592b0dc817e843f218a38cb98950c6a4a28afb8"
+    },
+    {
+      "file": "editorial-settings.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "ef5121758f285d0f8c827bec360209eee58b37a694a85010ee328ae84b13b34e"
+    },
+    {
+      "file": "atelier-main.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "96b8f3326d9f8e9001183bc3c4e53f4f465398b9c01f1e0c77e53a8f0c5b5eeb"
+    },
+    {
+      "file": "atelier-detail.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "b54f622d1292cc7267125735189879a019601af6c6551cf2cd0e522b2d545ae9"
+    },
+    {
+      "file": "atelier-guide.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "6ab7fa08faa692442dff147fd541ff97cdfb47d903a00df56e1a9d914957d107"
+    },
+    {
+      "file": "atelier-settings.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "b397efd7273b54f601c192919f93783723c422de10b087119d4c4ac202cb0384"
+    },
+    {
+      "file": "relay-main.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "50f7b613757aa14a5fb080082cfdcf757ac01767b7d35df3f6087f7f41a36777"
+    },
+    {
+      "file": "relay-detail.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "651f264a906e43ff81c62ead0276c2a91bb4c935565720617a5fece99dd2e61d"
+    },
+    {
+      "file": "relay-guide.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "b9c89510e02619b568011c31bb158492350f6b0c06bb1dd3085d51f10ef427ed"
+    },
+    {
+      "file": "relay-settings.png",
+      "width": 1519,
+      "height": 1392,
+      "sha256": "f86c41f6af15b783736d1c48cd80fa7d7a0d6e9226053800b4fce8f2e621cb98"
+    }
+  ],
+  "fullPage": {
+    "file": "showcase-full.jpeg",
+    "source": "Edge native Web Capture - full page"
+  },
+  "assets": [
+    {
+      "template": "이웃_편집실",
+      "path": "D:\\Antigravity\\Design\\이웃_편집실\\blog-neighbor-care"
+    },
+    {
+      "template": "커넥트_아틀리에",
+      "path": "D:\\Antigravity\\Design\\커넥트_아틀리에\\blog-neighbor-care"
+    },
+    {
+      "template": "릴레이_데스크_네이버_그린",
+      "path": "D:\\Antigravity\\Design\\릴레이_데스크_네이버_그린\\blog-neighbor-care"
+    }
+  ]
+}
