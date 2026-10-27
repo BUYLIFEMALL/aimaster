@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaults, getProductForRegister, ownExtraPaths } from "@/lib/data";
-import { buildFillSteps, normalizeDefaults, normalizeAttributes, normalizeMainInfo, normalizeTags, toRegisterMode, withBuilderMark } from "@/lib/smartstore/fields";
+import { buildFillSteps, normalizeDefaults, normalizeAttributes, normalizeMainInfo, normalizePreOrder, normalizeSupplements, normalizeTags, toRegisterMode, withBuilderMark } from "@/lib/smartstore/fields";
 import { normalizeCustomOptions, normalizeOptions } from "@/lib/smartstore/options";
 
 // 모든 쓰기는 프로그램 이용 권한 확인 + 본인 행(user_id)만(CLAUDE.md 멀티테넌시 원칙 1·2).
@@ -18,7 +18,7 @@ export async function saveDefaultsAction(_prev: unknown, formData: FormData): Pr
     displayOnRegister: raw.displayOnRegister === "on",
     returnFee: raw.returnFee === "" ? null : raw.returnFee,
     exchangeFee: raw.exchangeFee === "" ? null : raw.exchangeFee,
-    ...Object.fromEntries((["qtyEvery", "rangeUpTo", "rangeExtraFee", "jejuFee", "islandFee", "baseFee", "freeOver"] as const).map((k) => [k, raw[k] === "" || raw[k] === undefined ? null : raw[k]])),
+    ...Object.fromEntries((["qtyEvery", "rangeUpTo", "rangeExtraFee", "jejuFee", "islandFee", "baseFee", "freeOver", "purchasePoint", "reviewText", "reviewPhoto", "multiQty", "multiDiscount"] as const).map((k) => [k, raw[k] === "" || raw[k] === undefined ? null : raw[k]])),
   });
   const supabase = await createClient();
   const { error } = await supabase
@@ -42,11 +42,17 @@ export async function createJobAction(_prev: unknown, formData: FormData): Promi
   try { optionsRaw = JSON.parse(String(formData.get("options") ?? "null")); } catch { return { error: "옵션 값을 읽지 못했습니다. 화면을 새로고침해 주세요." }; }
   const opt = normalizeOptions(optionsRaw, defaults.stock);
   if (opt.errors.length) return { error: opt.errors[0] };
+  const sup = normalizeSupplements(formData.get("supplements"));
+  if (sup.errors.length) return { error: sup.errors[0] };
+  const pre = normalizePreOrder({ on: formData.get("preOrderOn"), start: formData.get("preOrderStart"), end: formData.get("preOrderEnd"), after: formData.get("preOrderAfter") });
+  if (pre.error) return { error: pre.error };
   const built = buildFillSteps(loaded.product, defaults, {
     options: opt.spec,
     tags: normalizeTags(formData.get("tags")),
     attributes: normalizeAttributes(formData.get("attributes")),
     customOptions: normalizeCustomOptions(formData.get("customOptions")),
+    supplements: sup.groups,
+    preOrder: pre.preOrder,
     mainInfo: normalizeMainInfo({ brand: formData.get("brand"), manufacturer: formData.get("manufacturer"), model: formData.get("modelName"), used: formData.get("saleType") }),
     mode,
     categoryKeyword,

@@ -214,3 +214,37 @@ test("반품 택배사: 값이 있으면 select 단계, 반품·교환 배송비
   assert.ok(k.indexOf("return_company") >= 0 && k.indexOf("return_company") < k.indexOf("return_fee"));
   assert.equal(r.steps.find((s) => s.key === "return_company").action, "select");
 });
+
+test("구매/리뷰 혜택: 비우면 단계 없음, 넣으면 켜기 → 단위 → 금액 순서", () => {
+  assert.ok(!keys(buildFillSteps(P, D, O)).some((k) => k.startsWith("point_") || k.startsWith("review_") || k.startsWith("multi_")));
+  const r = buildFillSteps(P, normalizeDefaults({ asPhone: "010-1234-5678", purchasePoint: "500", reviewText: 100, reviewPhoto: "300", multiQty: 2, multiDiscount: 1000 }), O);
+  const k = keys(r);
+  assert.ok(k.indexOf("point_on") < k.indexOf("point_unit") && k.indexOf("point_unit") < k.indexOf("point_value"));
+  assert.ok(k.indexOf("multi_on") < k.indexOf("multi_qty") && k.indexOf("multi_unit") < k.indexOf("multi_discount"));
+  assert.equal(r.steps.find((s) => s.key === "review_photo").value, "300");
+  assert.ok(k.indexOf("multi_discount") < k.indexOf("seller_code"));
+  // 복수구매는 개수·금액이 둘 다 있어야
+  assert.ok(!keys(buildFillSteps(P, normalizeDefaults({ asPhone: "010-1234-5678", multiQty: 2 }), O)).includes("multi_on"));
+});
+
+test("추가상품: 「이름 | 값 | 가격」 정리와 오류", async () => {
+  const { normalizeSupplements } = await import("../src/lib/smartstore/fields.ts");
+  const ok = normalizeSupplements("파우치 | 블랙,그레이 | 3000,3000\n\n스트랩 | 레드 | 0");
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.groups.length, 2);
+  assert.match(normalizeSupplements("파우치 | 블랙,그레이 | 3000").errors[0], /가격 수/);
+  assert.match(normalizeSupplements("파우치 | 블랙 | 3005").errors[0], /10원/);
+  const r = buildFillSteps(P, D, { ...O, supplements: ok.groups });
+  assert.match(r.steps.find((s) => s.key === "supplements").label, /3개/);
+  assert.equal(extCanRun(r.steps, "v1.13"), false);
+});
+
+test("예약구매: 꺼져 있으면 없음, 날짜 검사, 단계는 상품명 앞", async () => {
+  const { normalizePreOrder } = await import("../src/lib/smartstore/fields.ts");
+  assert.equal(normalizePreOrder({}).preOrder, null);
+  assert.match(normalizePreOrder({ on: "on", start: "2026-11-01" }).error, /주문기간/);
+  assert.match(normalizePreOrder({ on: "on", start: "2026-11-05", end: "2026-11-01" }).error, /빠릅니다/);
+  const { preOrder } = normalizePreOrder({ on: "on", start: "2026-11-01", end: "2026-11-10", after: "SALE" });
+  const k = keys(buildFillSteps(P, D, { ...O, preOrder }));
+  assert.ok(k.indexOf("preorder") >= 0 && k.indexOf("preorder") < k.indexOf("name"));
+});

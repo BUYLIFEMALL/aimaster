@@ -163,6 +163,30 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         </div>
       </div>
 
+      <fieldset className="grid grid-cols-2 gap-3 rounded-lg border border-slate-200 p-3 sm:col-span-2">
+        <legend className="px-1 text-sm font-semibold text-slate-700">구매/리뷰 혜택 <span className="font-normal text-slate-500">(선택, 비우면 넣지 않음)</span></legend>
+        <div className="col-span-2">
+          <label className="slw-label" htmlFor="purchasePoint">상품 구매 시 포인트(원)</label>
+          <input id="purchasePoint" name="purchasePoint" type="number" min={10} step={10} defaultValue={initial.purchasePoint ?? ""} placeholder="예: 500" className="slw-field" />
+        </div>
+        <div>
+          <label className="slw-label" htmlFor="reviewText">텍스트 리뷰 포인트(원)</label>
+          <input id="reviewText" name="reviewText" type="number" min={10} max={20000} step={10} defaultValue={initial.reviewText ?? ""} placeholder="예: 100" className="slw-field" />
+        </div>
+        <div>
+          <label className="slw-label" htmlFor="reviewPhoto">포토/동영상 리뷰 포인트(원)</label>
+          <input id="reviewPhoto" name="reviewPhoto" type="number" min={10} max={20000} step={10} defaultValue={initial.reviewPhoto ?? ""} placeholder="예: 300" className="slw-field" />
+        </div>
+        <div>
+          <label className="slw-label" htmlFor="multiQty">복수구매할인 — ○개 이상</label>
+          <input id="multiQty" name="multiQty" type="number" min={2} defaultValue={initial.multiQty ?? ""} placeholder="예: 2" className="slw-field" />
+        </div>
+        <div>
+          <label className="slw-label" htmlFor="multiDiscount">○원 할인(개당)</label>
+          <input id="multiDiscount" name="multiDiscount" type="number" min={10} step={10} defaultValue={initial.multiDiscount ?? ""} placeholder="예: 1000" className="slw-field" />
+        </div>
+      </fieldset>
+
       <div>
         <label className="slw-label" htmlFor="asPhone">A/S 전화번호 *</label>
         <input id="asPhone" name="asPhone" defaultValue={initial.asPhone} placeholder="010-1234-5678" className="slw-field" />

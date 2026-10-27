@@ -132,6 +132,16 @@ async function pageCommand(cmd, args) {
       return { ok: false, error: `「${args.value}」 버튼을 찾지 못했습니다.` };
     }
 
+    if (cmd === 'unitPick') {
+      // 혜택 단위(원·%·개) — 드롭다운 안 링크를 글자로 찾아 누른다(드롭다운이 닫혀 있어도 ng-click은 동작)
+      const links = [...document.querySelectorAll('a[ng-click]')].filter((x) => x.getAttribute('ng-click').includes("'" + args.target + "'"));
+      const link = links.find((x) => x.textContent.trim() === args.value);
+      if (!link) return { ok: false, error: `단위 「${args.value}」를 찾지 못했습니다(보기 ${links.map((x) => x.textContent.trim()).join('·') || '없음'}).` };
+      link.click();
+      await sleep(300);
+      return { ok: true };
+    }
+
     if (cmd === 'select') {
       const sel = byModel(args.target).find((e) => e.tagName === 'SELECT');
       if (!sel) return { ok: false, error: '고르기 상자를 찾지 못했습니다.' };
@@ -589,6 +599,87 @@ async function customOptionsMain(a) {
   return { ok: true };
 }
 
+// 추가상품(2026-10-27 v1.14) — 「선택형」 설정함(#supplement_true) → 직접 입력하기 → 줄마다 추가상품명·값·가격 → 「목록으로 적용」 → 목록 「총 N개」 확인.
+async function supplementsMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ng = window.angular;
+  const norm = (s) => (s || '').replace(/\s+/g, '');
+  const on = document.getElementById('supplement_true');
+  if (!on) return { ok: false, error: '추가상품 「설정함」 버튼을 찾지 못했습니다(추가상품 칸이 접혀 있을 수 있음).' };
+  if (!on.checked) { (document.querySelector('label[for="supplement_true"]') || on).click(); await sleep(700); }
+  const direct = [...document.querySelectorAll('input[ng-model="vm.suppleInputType"]')].find((x) => x.value === 'direct');
+  if (direct && !direct.checked) { (direct.closest('label') || direct).click(); await sleep(500); }
+  let root = null;
+  try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
+  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  const put = (el, v) => {
+    const ctrl = ng ? ng.element(el).controller('ngModel') : null;
+    if (!ctrl) { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v); for (const t of ['input', 'change', 'blur']) el.dispatchEvent(new Event(t, { bubbles: true })); return true; }
+    apply(() => { ctrl.$setViewValue(v); ctrl.$render(); });
+    try { if (ctrl.$commitViewValue) apply(() => ctrl.$commitViewValue()); } catch (e) { /* 무시 */ }
+    return String(ctrl.$modelValue ?? '') === v;
+  };
+  for (let i = 0; i < a.groups.length; i++) {
+    if (i > 0 && !document.getElementById('supple_group_name' + i)) {
+      const plus = [...document.querySelectorAll('a[ng-click="vm.addSuppleInput()"]')].pop();
+      if (!plus) return { ok: false, error: '추가상품 줄 추가 버튼을 찾지 못했습니다.' };
+      plus.click(); await sleep(500);
+    }
+    const g = a.groups[i];
+    const cells = [['supple_group_name', g.name], ['supple_names', g.values.join(',')], ['supple_prices', g.prices.join(',')]];
+    for (const [id, v] of cells) {
+      const el = document.getElementById(id + i);
+      if (!el) return { ok: false, error: `추가상품 ${i + 1}번째 줄 칸을 찾지 못했습니다.` };
+      if (!put(el, v)) return { ok: false, error: `추가상품 「${g.name}」 값이 들어가지 않았습니다.` };
+      await sleep(250);
+    }
+  }
+  await sleep(400);
+  const btn = [...document.querySelectorAll('a, button')].find((b) => norm(b.textContent) === '목록으로적용' && b.closest('[ng-show="vm.isConfig"], fieldset, div'));
+  if (!btn) return { ok: false, error: '「목록으로 적용」 버튼을 찾지 못했습니다.' };
+  btn.scrollIntoView({ block: 'center' });
+  btn.click();
+  await sleep(1500);
+  const lab = [...document.querySelectorAll('label')].find((l) => norm(l.textContent).startsWith('추가상품목록'));
+  const n = Number(lab?.querySelector('em')?.textContent || 0);
+  if (n !== a.expect) return { ok: false, error: `추가상품 목록이 ${n}개입니다(기대 ${a.expect}개). 판매자센터에서 확인해 주세요.` };
+  return { ok: true };
+}
+
+// 예약구매(2026-10-27 v1.14) — 「설정함」 → 주문기간(달력 칸 2개) → 기간 끝난 뒤 상태. 달력 칸은 읽기 전용이라 모델에 넣고 화면 값으로 확인한다.
+async function preOrderMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ng = window.angular;
+  const on = document.getElementById('preOrder1_1');
+  if (!on) return { ok: false, error: '예약구매 「설정함」 버튼을 찾지 못했습니다(예약구매 칸이 접혀 있을 수 있음).' };
+  if (!on.checked) { (document.querySelector('label[for="preOrder1_1"]') || on).click(); await sleep(900); }
+  const scope = on.closest('fieldset')?.parentElement || document;
+  const dates = [...scope.querySelectorAll('input[ng-model="vm.startDateModel"], input[ng-model="vm.endDateModel"]')].slice(0, 2);
+  if (dates.length < 2) return { ok: false, error: '예약구매 주문기간 칸을 찾지 못했습니다.' };
+  let root = null;
+  try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
+  const apply = (fn) => { if (!root || root.$phase) fn(); else root.$apply(fn); };
+  const vals = [a.start, a.end];
+  for (let i = 0; i < 2; i++) {
+    const el = dates[i];
+    const ctrl = ng ? ng.element(el).controller('ngModel') : null;
+    // 화면에 이미 쓰인 날짜 모양(예: 2026.10.27.)을 따라 쓴다
+    const sample = el.value || el.placeholder || '';
+    const sep = (sample.match(/\d{4}([.\-/])/) || [])[1] || '.';
+    const text = vals[i].replace(/-/g, sep) + (sample.trim().endsWith('.') ? '.' : '');
+    if (ctrl) apply(() => { ctrl.$setViewValue(text); ctrl.$render(); });
+    else { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, text); el.dispatchEvent(new Event('change', { bubbles: true })); }
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    await sleep(400);
+    if (!(el.value || '').replace(/\D/g, '').startsWith(vals[i].replace(/\D/g, ''))) return { ok: false, error: '예약구매 주문기간이 들어가지 않았습니다 — 판매자센터 달력에서 직접 골라 주세요.' };
+  }
+  if (a.after) {
+    const r = document.getElementById(a.after === 'SALE' ? 'afterSaleStatus2' : 'afterSaleStatus1');
+    if (r && !r.checked) { (document.querySelector(`label[for="${r.id}"]`) || r).click(); await sleep(300); }
+  }
+  return { ok: true };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -747,6 +838,16 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'unit_pick') {
+        r = await run(tabId, 'unitPick', { target: step.target, value: step.value });
+      } else if (step.action === 'supplements') {
+        let groups = []; try { groups = JSON.parse(step.value); } catch (e) { groups = []; }
+        if (!groups.length) continue;
+        r = await runMain(tabId, supplementsMain, { groups, expect: groups.reduce((n, g) => n + g.values.length, 0) });
+      } else if (step.action === 'preorder') {
+        let po = null; try { po = JSON.parse(step.value); } catch (e) { po = null; }
+        if (!po) continue;
+        r = await runMain(tabId, preOrderMain, po);
       } else if (step.action === 'custom_options') {
         let names = []; try { names = JSON.parse(step.value); } catch (e) { names = []; }
         if (!names.length) continue;

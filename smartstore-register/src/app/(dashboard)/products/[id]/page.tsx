@@ -17,7 +17,7 @@ function lastCategory(c: string | null): string {
 export default async function ProductRegisterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireProgramAccess();
-  const [loaded, defaults, jobs, lastOptions, lastTags, lastMainInfo, lastAttributes, lastCustom] = await Promise.all([getProductForRegister(user.id, id), getDefaults(user.id), listJobs(user.id, id), getLastOptions(user.id, id), getLastStepValue(user.id, id, "tags"), getLastMainInfo(user.id, id), getLastStepValue(user.id, id, "attributes"), getLastStepValue(user.id, id, "custom_options")]);
+  const [loaded, defaults, jobs, lastOptions, lastTags, lastMainInfo, lastAttributes, lastCustom, lastSupple] = await Promise.all([getProductForRegister(user.id, id), getDefaults(user.id), listJobs(user.id, id), getLastOptions(user.id, id), getLastStepValue(user.id, id, "tags"), getLastMainInfo(user.id, id), getLastStepValue(user.id, id, "attributes"), getLastStepValue(user.id, id, "custom_options"), getLastStepValue(user.id, id, "supplements")]);
   if (!loaded) notFound();
   const { product, mainImage, sections } = loaded;
   // 미리보기는 카테고리 검색어 칸을 비운 상태로 계산 — 실제 작업은 입력한 검색어로 다시 만든다.
@@ -56,7 +56,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         </div>
 
         <div className="space-y-3">
-          <RegisterForm productId={product.id} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} initialCustomOptions={Array.isArray(lastCustom) ? lastCustom.map(String) : []} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} initialMainInfo={lastMainInfo} initialAttributes={Array.isArray(lastAttributes) ? (lastAttributes as { name: string; value: string }[]).map((p) => `${p.name}: ${p.value}`).join("\n") : ""} />
+          <RegisterForm productId={product.id} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} initialCustomOptions={Array.isArray(lastCustom) ? lastCustom.map(String) : []} initialSupplements={Array.isArray(lastSupple) ? (lastSupple as { name: string; values: string[]; prices: number[] }[]).map((g) => `${g.name} | ${g.values.join(",")} | ${g.prices.join(",")}`).join("\n") : ""} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} initialMainInfo={lastMainInfo} initialAttributes={Array.isArray(lastAttributes) ? (lastAttributes as { name: string; value: string }[]).map((p) => `${p.name}: ${p.value}`).join("\n") : ""} />
           <div className="slw-card p-3">
             <p className="mb-2 text-xs font-extrabold text-slate-700">대표 사진 · 상세 이미지 {sections.length}장</p>
             <div className="grid grid-cols-4 gap-1.5">

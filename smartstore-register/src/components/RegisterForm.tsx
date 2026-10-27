@@ -5,7 +5,7 @@ import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -38,6 +38,21 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         <label className="slw-label" htmlFor="customOptions">직접입력형 옵션 <span className="font-normal text-slate-500">(선택, 구매자가 글을 써넣는 옵션명, 쉼표로 최대 5개)</span></label>
         <input id="customOptions" name="customOptions" defaultValue={initialCustomOptions.join(", ")} placeholder="예: 각인 문구" className="slw-field" />
       </div>
+      <div>
+        <label className="slw-label" htmlFor="supplements">추가상품 <span className="font-normal text-slate-500">(선택, 한 줄에 「추가상품명 | 값1,값2 | 가격1,가격2」, 5줄까지)</span></label>
+        <textarea id="supplements" name="supplements" rows={2} defaultValue={initialSupplements} placeholder={"파우치 | 블랙,그레이 | 3000,3000"} className="slw-field" />
+      </div>
+      <details className="rounded-lg border border-slate-200 p-3">
+        <summary className="cursor-pointer text-sm font-medium text-slate-700">예약구매 (선택)</summary>
+        <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="preOrderOn" /> 이 상품을 예약구매로 등록</label>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <div><label className="slw-label" htmlFor="preOrderStart">주문 시작일</label><input id="preOrderStart" name="preOrderStart" type="date" className="slw-field" /></div>
+          <div><label className="slw-label" htmlFor="preOrderEnd">주문 마감일</label><input id="preOrderEnd" name="preOrderEnd" type="date" className="slw-field" /></div>
+          <div className="col-span-2"><label className="slw-label" htmlFor="preOrderAfter">기간 끝난 뒤 상품 상태</label>
+            <select id="preOrderAfter" name="preOrderAfter" className="slw-field"><option value="CLOSE">판매종료</option><option value="SALE">판매 중</option></select></div>
+        </div>
+        <p className="mt-1 text-[11px] text-slate-500">달력 칸이라 자동 입력이 안 되면 등록 기록에 「직접 확인할 칸」으로 남습니다.</p>
+      </details>
       <div>
         <label className="slw-label" htmlFor="tags">검색 태그 <span className="font-normal text-slate-500">(선택, 쉼표로 구분, 최대 10개)</span></label>
         <input id="tags" name="tags" defaultValue={initialTags.join(", ")} placeholder="예: 여행백팩, 노트북가방, 출장가방" className="slw-field" />

@@ -59,6 +59,12 @@ export interface StoreDefaults {
   displayOnRegister: boolean;
   /** 어린이제품인증 — 그 칸이 나오는 카테고리에서만 씀. ""=판매자센터 기본값 그대로, not_target=「인증대상 아님」(법적 선택이라 회원이 정함) */
   childCert: "" | "not_target";
+  /** 구매/리뷰 혜택(비우면 넣지 않음) — 상품 구매 시 포인트(원), 리뷰 포인트(텍스트·사진/동영상, 원), 복수구매할인(○개 이상 ○원 할인) */
+  purchasePoint: number | null;
+  reviewText: number | null;
+  reviewPhoto: number | null;
+  multiQty: number | null;
+  multiDiscount: number | null;
 }
 
 export const EMPTY_DEFAULTS: StoreDefaults = {
@@ -90,6 +96,11 @@ export const EMPTY_DEFAULTS: StoreDefaults = {
   returnCompany: "",
   displayOnRegister: false,
   childCert: "",
+  purchasePoint: null,
+  reviewText: null,
+  reviewPhoto: null,
+  multiQty: null,
+  multiDiscount: null,
 };
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -131,6 +142,11 @@ export function normalizeDefaults(raw: unknown): StoreDefaults {
     returnCompany: str(r.returnCompany, 30),
     displayOnRegister: r.displayOnRegister === true,
     childCert: r.childCert === "not_target" ? "not_target" : "",
+    purchasePoint: num(r.purchasePoint, 10, 1_000_000),
+    reviewText: num(r.reviewText, 10, 20_000),
+    reviewPhoto: num(r.reviewPhoto, 10, 20_000),
+    multiQty: num(r.multiQty, 2, 999),
+    multiDiscount: num(r.multiDiscount, 10, 10_000_000),
   };
 }
 
@@ -143,10 +159,10 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags" | "attributes" | "custom_options";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta" | "options" | "type_label" | "tags" | "attributes" | "custom_options" | "unit_pick" | "supplements" | "preorder";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14", attributes: "v1.14", custom_options: "v1.14" };
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14", attributes: "v1.14", custom_options: "v1.14", unit_pick: "v1.14", supplements: "v1.14", preorder: "v1.14" };
 
 /** 상품 주요정보(2026-10-27 v1.14) — 상품마다 다르므로 보내기 화면에서 받는다. 칸 이름은 판매자센터 저장본에서 확인 */
 export interface MainInfo { brand: string; manufacturer: string; model: string; used: boolean }
@@ -167,6 +183,38 @@ export function normalizeAttributes(raw: unknown): AttrPair[] {
     if (name && value && !out.some((p) => p.name === name)) out.push({ name, value });
   }
   return out.slice(0, 30);
+}
+
+/** 추가상품 — 한 줄에 「추가상품명 | 값1,값2 | 가격1,가격2」, 최대 5줄 */
+export interface SuppleGroup { name: string; values: string[]; prices: number[] }
+export function normalizeSupplements(raw: unknown): { groups: SuppleGroup[]; errors: string[] } {
+  const errors: string[] = [];
+  const lines = Array.isArray(raw) ? raw.map((g) => (g && typeof g === "object" ? `${(g as SuppleGroup).name}|${(g as SuppleGroup).values?.join(",")}|${(g as SuppleGroup).prices?.join(",")}` : String(g))) : String(raw ?? "").split("\n");
+  const groups: SuppleGroup[] = [];
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const [n = "", v = "", p = ""] = line.split("|").map((x) => x.trim());
+    const name = n.slice(0, 20);
+    const values = v.split(",").map((x) => x.trim()).filter(Boolean);
+    const prices = p.split(",").map((x) => x.trim()).filter(Boolean).map((x) => Number(x.replace(/[^0-9-]/g, "")));
+    if (!name || !values.length) { errors.push(`추가상품 줄 「${line.trim().slice(0, 30)}」에 이름과 값을 넣어 주세요(이름 | 값1,값2 | 가격1,가격2).`); continue; }
+    if (prices.length !== values.length || prices.some((x) => !Number.isInteger(x) || x < 0)) { errors.push(`추가상품 「${name}」의 가격 수가 값 수(${values.length}개)와 같아야 합니다.`); continue; }
+    if (prices.some((x) => x % 10 !== 0)) { errors.push(`추가상품 「${name}」 가격은 10원 단위로 넣어 주세요.`); continue; }
+    groups.push({ name, values, prices });
+  }
+  if (groups.length > 5) errors.push("추가상품은 5줄까지 넣을 수 있습니다.");
+  return { groups: groups.slice(0, 5), errors };
+}
+
+/** 예약구매 — 주문기간(YYYY-MM-DD 둘)과 기간 끝난 뒤 상태 */
+export interface PreOrder { start: string; end: string; after: "CLOSE" | "SALE" }
+export function normalizePreOrder(r: { on?: unknown; start?: unknown; end?: unknown; after?: unknown }): { preOrder: PreOrder | null; error?: string } {
+  if (r.on !== "on" && r.on !== true) return { preOrder: null };
+  const d = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "");
+  const start = d(r.start), end = d(r.end);
+  if (!start || !end) return { preOrder: null, error: "예약구매 주문기간(시작일·마감일)을 넣어 주세요." };
+  if (end < start) return { preOrder: null, error: "예약구매 마감일이 시작일보다 빠릅니다." };
+  return { preOrder: { start, end, after: r.after === "SALE" ? "SALE" : "CLOSE" } };
 }
 
 /** 검색설정 태그 — 쉼표·줄바꿈으로 나눠 「#」·공백 정리, 같은 것 한 번, 최대 10개(스마트스토어 한도), 한 개 30자 이내 */
@@ -247,7 +295,7 @@ export function managementCode(productId: string): string {
 export function buildFillSteps(
   product: ProductSource,
   defaults: StoreDefaults,
-  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[]; mainInfo?: MainInfo; attributes?: AttrPair[]; customOptions?: string[] },
+  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[]; mainInfo?: MainInfo; attributes?: AttrPair[]; customOptions?: string[]; supplements?: SuppleGroup[]; preOrder?: PreOrder | null },
 ): BuildResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -271,6 +319,7 @@ export function buildFillSteps(
   if (opts.detailImageCount === 0) warnings.push("완성된 섹션 이미지가 없어 상세설명이 비게 됩니다.");
 
   add({ key: "category", section: "카테고리", label: "카테고리", target: "vm.category", action: "search_pick", value: keyword, required: true });
+  if (opts.preOrder) add({ key: "preorder", section: "예약구매", label: `예약구매 ${opts.preOrder.start} ~ ${opts.preOrder.end}(끝난 뒤 ${opts.preOrder.after === "SALE" ? "판매 중" : "판매종료"})`, target: "예약구매", action: "preorder", value: JSON.stringify(opts.preOrder) });
   add({ key: "name", section: "상품명", label: "상품명", target: "vm.product.name", action: "type", value: name, required: true });
   add({ key: "price", section: "판매가", label: "판매가", target: "vm.product.salePrice", action: "type", value: price != null ? String(price) : "", required: true });
   if (discount > 0) {
@@ -367,6 +416,26 @@ export function buildFillSteps(
   add({ key: "as_guide", section: "A/S", label: "A/S 안내", target: "vm.product.detailAttribute.afterServiceInfo.afterServiceGuideContent", action: "type", value: defaults.asGuide || "상품 상세페이지 참조", required: true });
 
   const tags = normalizeTags(opts.tags ?? []);
+  const sup = opts.supplements ?? [];
+  if (sup.length) add({ key: "supplements", section: "추가상품", label: `추가상품 ${sup.reduce((n, g) => n + g.values.length, 0)}개(${sup.map((g) => g.name).join("·")})`, target: "추가상품", action: "supplements", value: JSON.stringify(sup) });
+  const BEN = "구매/리뷰 혜택";
+  if (defaults.purchasePoint != null) {
+    add({ key: "point_on", section: BEN, label: "상품 구매 시 포인트 지급", target: "vm.viewData.isUsePurchasePointPolicy", action: "check", value: "true" });
+    add({ key: "point_unit", section: BEN, label: "구매 포인트 단위 「원」", target: "PURCHASE_POINT_DISCOUNT_UNIT_TYPE", action: "unit_pick", value: "원" });
+    add({ key: "point_value", section: BEN, label: `구매 포인트 ${defaults.purchasePoint.toLocaleString("ko-KR")}원`, target: "vm.product.customerBenefit.purchasePointPolicy.value", action: "type", value: String(defaults.purchasePoint) });
+  }
+  if (defaults.reviewText != null || defaults.reviewPhoto != null) {
+    add({ key: "review_on", section: BEN, label: "상품리뷰 작성 시 포인트 지급", target: "vm.viewData.isUseReviewPointPolicy", action: "check", value: "true" });
+    if (defaults.reviewText != null) add({ key: "review_text", section: BEN, label: `텍스트 리뷰 ${defaults.reviewText.toLocaleString("ko-KR")}원`, target: "vm.product.customerBenefit.reviewPointPolicy.textReviewPoint", action: "type", value: String(defaults.reviewText) });
+    if (defaults.reviewPhoto != null) add({ key: "review_photo", section: BEN, label: `포토/동영상 리뷰 ${defaults.reviewPhoto.toLocaleString("ko-KR")}원`, target: "vm.product.customerBenefit.reviewPointPolicy.photoVideoReviewPoint", action: "type", value: String(defaults.reviewPhoto) });
+  }
+  if (defaults.multiQty != null && defaults.multiDiscount != null) {
+    add({ key: "multi_on", section: BEN, label: "복수구매할인 설정함", target: "vm.viewData.isUseMultiPurchaseDiscountPolicy", action: "radio", value: "true" });
+    add({ key: "multi_qty_unit", section: BEN, label: "복수구매 기준 단위 「개」", target: "MULTI_PUCHASE_ORDER_UNIT_TYPE", action: "unit_pick", value: "개" });
+    add({ key: "multi_qty", section: BEN, label: `${defaults.multiQty}개 이상 구매 시`, target: "vm.product.customerBenefit.multiPurchaseDiscountPolicy.orderValue", action: "type", value: String(defaults.multiQty) });
+    add({ key: "multi_unit", section: BEN, label: "복수구매 할인 단위 「원」", target: "MULTI_PUCHASE_DISCOUNT_UNIT_TYPE", action: "unit_pick", value: "원" });
+    add({ key: "multi_discount", section: BEN, label: `복수구매 ${defaults.multiDiscount.toLocaleString("ko-KR")}원 할인`, target: "vm.product.customerBenefit.multiPurchaseDiscountPolicy.discountMethod.value", action: "type", value: String(defaults.multiDiscount) });
+  }
   if (tags.length) add({ key: "tags", section: "검색설정", label: `검색 태그 ${tags.length}개`, target: "vm.directInputTag", action: "tags", value: JSON.stringify(tags) });
   add({ key: "seller_code", section: "판매자 코드", label: "판매자 관리 코드", target: "vm.sellerCodeInfo.sellerManagementCode", action: "type", value: managementCode(product.id) });
 
