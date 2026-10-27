@@ -219,16 +219,35 @@ async function pageCommand(cmd, args) {
       input.scrollIntoView({ block: 'center' });
       (control.querySelector('.selectize-input') || input).click();
       input.focus();
+      // 앞 검색의 목록이 남아 있으면 그걸 새 결과로 착각한다(2026-10-27 실측) → 비우고 잠깐 기다린 뒤 입력
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, '');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await sleep(400);
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, args.value);
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: args.value.slice(-1) }));
+      const squash = (s) => String(s || '').replace(/\s+/g, '');
+      const words = args.value.split(/\s+/).filter(Boolean);
       const options = await waitFor(() => {
         const list = [...document.querySelectorAll('.selectize-dropdown [data-selectable], .selectize-dropdown .option')].filter(visible);
-        return list.length ? list : null;
-      }, 10000);
+        // 검색어의 마지막 낱말이 든 줄만 새 결과로 본다(남은 옛 목록·「결과 없음」 줄 제외)
+        const fresh = list.filter((o) => squash(o.textContent).includes(squash(words[words.length - 1] || args.value)));
+        return fresh.length ? fresh : null;
+      }, 8000);
       if (!options) return { ok: false, error: `「${args.value}」 검색 결과가 나오지 않았습니다.` };
       const text = (o) => o.textContent.replace(/\s+/g, ' ').trim();
-      const pick = (args.leaf && options.find((o) => text(o).endsWith(args.value))) || options.find((o) => text(o).includes(args.value)) || options[0];
+      // 상세페이지 경로(예: 패션잡화>남성가방>백팩>여행/노트북 백팩)와 앞에서부터 가장 길게 겹치는 줄 — 여성가방>백팩 같은 다른 갈래를 피한다
+      let best = null;
+      if (args.path) {
+        const segs = args.path.split('>').map(squash);
+        let bestN = 0;
+        for (const o of options) {
+          const os = text(o).split('>').map(squash);
+          let n = 0; while (n < os.length && n < segs.length && os[n] === segs[n]) n++;
+          if (n === os.length && n > bestN) { bestN = n; best = o; }
+        }
+      }
+      const pick = best || (args.leaf && options.find((o) => text(o).endsWith(args.value))) || options.find((o) => text(o).includes(args.value)) || options[0];
       pick.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
       pick.click();
       await sleep(800);
@@ -897,13 +916,17 @@ async function runJob(job) {
         if (step.key === 'origin' && step.value === '국산') continue; // 기본값이 국산 — 건드리지 않음
         if (step.key === 'delivery_tpl') { failures.push(`${step.label}(템플릿 고르기는 아직 수동)`); continue; } // 옛 작업 기록 호환
         const isCat = step.key === 'category';
-        const kw = step.value.split('|').pop();
-        r = await run(tabId, 'pick', { target: step.target, value: kw, leaf: isCat, verifyText: isCat ? '선택한 카테고리' : null });
-        const last = kw.trim().split(/s+/).pop();
-        if (!r.ok && isCat && last && last !== kw.trim()) {
-          await human();
-          const r2 = await run(tabId, 'pick', { target: step.target, value: last, leaf: true, verifyText: '선택한 카테고리' });
-          if (r2.ok) r = { ...r2, note: `「${kw}」 대신 「${last}」로 골랐습니다` };
+        const kw = step.value.split('|').pop().trim();
+        if (!isCat) r = await run(tabId, 'pick', { target: step.target, value: kw, leaf: false, verifyText: null });
+        else {
+          // 후보: 입력한 검색어 → 그 마지막 낱말 → 상세페이지 경로의 단계(뒤에서부터). 경로와 겹치는 줄을 우선 고른다.
+          const segs = (step.path || '').split('>').map((s) => s.trim()).filter(Boolean).reverse();
+          const cands = [...new Set([kw, kw.split(/\s+/).pop(), ...segs].filter(Boolean))].slice(0, 5);
+          for (const c of cands) {
+            r = await run(tabId, 'pick', { target: step.target, value: c, leaf: true, path: step.path || '', verifyText: '선택한 카테고리' });
+            if (r.ok) { if (c !== kw) r.note = `「${kw}」 대신 「${c}」로 골랐습니다`; break; }
+            await human();
+          }
         }
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }

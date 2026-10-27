@@ -161,6 +161,8 @@ export interface ProductSource {
   product_label?: string | null;
   price: number | null;
   sale_price: number | null;
+  /** 상세페이지 분석 카테고리 경로(예: 패션잡화 > 남성가방 > 백팩) — 카테고리 목록에서 같은 경로 줄을 고르는 데 씀 */
+  category?: string | null;
 }
 
 /** 확장이 할 수 있는 동작 */
@@ -282,6 +284,8 @@ export interface FillStep {
   action: StepAction;
   value: string;
   required: boolean;
+  /** 카테고리 단계만 — 상세페이지 분석 경로(「>」로 잇기) */
+  path?: string;
 }
 
 export interface BuildResult {
@@ -323,7 +327,8 @@ export function buildFillSteps(
   if (!opts.mainImage) errors.push("대표 이미지가 없습니다. 상세페이지 자동화에서 대표 사진을 올려 주세요.");
   if (opts.detailImageCount === 0) warnings.push("완성된 섹션 이미지가 없어 상세설명이 비게 됩니다.");
 
-  add({ key: "category", section: "카테고리", label: "카테고리", target: "vm.category", action: "search_pick", value: keyword, required: true });
+  const catPath = (product.category ?? "").split(/[>›]/).map((s) => s.trim()).filter(Boolean).join(">");
+  add({ key: "category", section: "카테고리", label: "카테고리", target: "vm.category", action: "search_pick", value: keyword, required: true, ...(catPath ? { path: catPath } : {}) });
   if (opts.preOrder) add({ key: "preorder", section: "예약구매", label: `예약구매 ${opts.preOrder.start} ~ ${opts.preOrder.end}(끝난 뒤 ${opts.preOrder.after === "SALE" ? "판매 중" : "판매종료"})`, target: "예약구매", action: "preorder", value: JSON.stringify(opts.preOrder) });
   add({ key: "name", section: "상품명", label: "상품명", target: "vm.product.name", action: "type", value: name, required: true });
   add({ key: "price", section: "판매가", label: "판매가", target: "vm.product.salePrice", action: "type", value: price != null ? String(price) : "", required: true });
