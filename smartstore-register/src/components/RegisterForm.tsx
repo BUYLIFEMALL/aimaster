@@ -5,7 +5,7 @@ import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, defaultStock = 99, initialTags = [] }: { productId: string; defaultKeyword: string; initialOptions?: unknown; defaultStock?: number; initialTags?: string[] }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false } }: { productId: string; defaultKeyword: string; initialOptions?: unknown; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean } }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -17,6 +17,17 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         <input id="categoryKeyword" name="categoryKeyword" defaultValue={defaultKeyword} placeholder="예: 텀블러" className="slw-field" />
         <p className="mt-1 text-[11px] text-slate-500">확장이 이 말로 검색해 마지막 단계 카테고리까지 고릅니다.</p>
       </div>
+      <fieldset className="space-y-1.5">
+        <legend className="slw-label">상품 주요정보 <span className="font-normal text-slate-500">(선택)</span></legend>
+        <input name="brand" defaultValue={initialMainInfo.brand} maxLength={50} placeholder="브랜드 (예: 스위스톤)" className="slw-field" />
+        <input name="manufacturer" defaultValue={initialMainInfo.manufacturer} maxLength={50} placeholder="제조사" className="slw-field" />
+        <input name="modelName" defaultValue={initialMainInfo.model} maxLength={50} placeholder="모델명 (예: ST4D18)" className="slw-field" />
+        <select name="saleType" defaultValue={initialMainInfo.used ? "used" : "new"} className="slw-field">
+          <option value="new">상품상태: 신상품</option>
+          <option value="used">상품상태: 중고상품</option>
+        </select>
+        <p className="text-[11px] text-slate-500">비우면 판매자센터 칸을 건드리지 않습니다. 브랜드·제조사는 네이버 쇼핑 검색 품질에 쓰입니다.</p>
+      </fieldset>
       <OptionEditor initial={initialOptions} defaultStock={defaultStock} />
       <div>
         <label className="slw-label" htmlFor="tags">검색 태그 <span className="font-normal text-slate-500">(선택, 쉼표로 구분, 최대 10개)</span></label>

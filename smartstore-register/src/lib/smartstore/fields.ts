@@ -144,6 +144,13 @@ export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
 export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10", options: "v1.12", type_label: "v1.14", tags: "v1.14" };
 
+/** 상품 주요정보(2026-10-27 v1.14) — 상품마다 다르므로 보내기 화면에서 받는다. 칸 이름은 판매자센터 저장본에서 확인 */
+export interface MainInfo { brand: string; manufacturer: string; model: string; used: boolean }
+export function normalizeMainInfo(raw: Record<string, unknown> | null | undefined): MainInfo {
+  const s = (v: unknown) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, 50) : "");
+  return { brand: s(raw?.brand), manufacturer: s(raw?.manufacturer), model: s(raw?.model), used: raw?.used === true || raw?.used === "used" };
+}
+
 /** 검색설정 태그 — 쉼표·줄바꿈으로 나눠 「#」·공백 정리, 같은 것 한 번, 최대 10개(스마트스토어 한도), 한 개 30자 이내 */
 export const TAGS_MAX = 10;
 export function normalizeTags(raw: unknown): string[] {
@@ -222,7 +229,7 @@ export function managementCode(productId: string): string {
 export function buildFillSteps(
   product: ProductSource,
   defaults: StoreDefaults,
-  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[] },
+  opts: { mode: RegisterMode; categoryKeyword: string; detailImageCount: number; mainImage: boolean; extraImageCount?: number; options?: OptionSpec | null; tags?: string[]; mainInfo?: MainInfo },
 ): BuildResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -270,6 +277,12 @@ export function buildFillSteps(
     add({ key: "origin", section: "상품 주요정보", label: "원산지", target: "vm.viewData.originAreaInfo.originAreaExposureType", action: "search_pick", value: defaults.originType === "etc" ? `기타|${defaults.originCountry}` : "국산" });
   }
 
+  const mi = opts.mainInfo;
+  const NS = "vm.product.detailAttribute.naverShoppingSearchInfo.";
+  if (mi?.brand) add({ key: "brand", section: "상품 주요정보", label: `브랜드 「${mi.brand}」`, target: NS + "brandName", action: "type", value: mi.brand });
+  if (mi?.manufacturer) add({ key: "manufacturer", section: "상품 주요정보", label: `제조사 「${mi.manufacturer}」`, target: NS + "manufacturerName", action: "type", value: mi.manufacturer });
+  if (mi?.model) add({ key: "model_name", section: "상품 주요정보", label: `모델명 「${mi.model}」`, target: NS + "modelName", action: "type", value: mi.model });
+  if (mi?.used) add({ key: "sale_type", section: "상품 주요정보", label: "상품상태 「중고상품」", target: "상품상태", action: "choose", value: "중고상품" });
   if (defaults.childCert === "not_target") add({ key: "child_cert", section: "상품 주요정보", label: "어린이제품인증 「인증대상 아님」", target: "어린이제품인증", action: "choose", value: "어린이제품 인증대상 아님" });
 
   add({ key: "notice_group", section: "상품정보제공고시", label: "상품군", target: "vm.selectizeType", action: "search_pick", value: defaults.noticeGroup, required: true });

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
-import { getDefaults, getProductForRegister, listJobs, JOB_STATUS, ownExtraPaths, getLastOptions, getLastStepValue } from "@/lib/data";
+import { getDefaults, getProductForRegister, listJobs, JOB_STATUS, ownExtraPaths, getLastOptions, getLastStepValue, getLastMainInfo } from "@/lib/data";
 import { buildFillSteps } from "@/lib/smartstore/fields";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { RegisterForm } from "@/components/RegisterForm";
@@ -17,7 +17,7 @@ function lastCategory(c: string | null): string {
 export default async function ProductRegisterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireProgramAccess();
-  const [loaded, defaults, jobs, lastOptions, lastTags] = await Promise.all([getProductForRegister(user.id, id), getDefaults(user.id), listJobs(user.id, id), getLastOptions(user.id, id), getLastStepValue(user.id, id, "tags")]);
+  const [loaded, defaults, jobs, lastOptions, lastTags, lastMainInfo] = await Promise.all([getProductForRegister(user.id, id), getDefaults(user.id), listJobs(user.id, id), getLastOptions(user.id, id), getLastStepValue(user.id, id, "tags"), getLastMainInfo(user.id, id)]);
   if (!loaded) notFound();
   const { product, mainImage, sections } = loaded;
   // 미리보기는 카테고리 검색어 칸을 비운 상태로 계산 — 실제 작업은 입력한 검색어로 다시 만든다.
@@ -56,7 +56,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         </div>
 
         <div className="space-y-3">
-          <RegisterForm productId={product.id} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} />
+          <RegisterForm productId={product.id} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} initialMainInfo={lastMainInfo} />
           <div className="slw-card p-3">
             <p className="mb-2 text-xs font-extrabold text-slate-700">대표 사진 · 상세 이미지 {sections.length}장</p>
             <div className="grid grid-cols-4 gap-1.5">

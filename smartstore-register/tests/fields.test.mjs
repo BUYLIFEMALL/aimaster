@@ -182,3 +182,17 @@ test("검색 태그: 쉼표·#·중복 정리, 최대 10개, 태그 단계(확�
   assert.equal(extCanRun(r.steps, "v1.13"), false);
   assert.equal(extCanRun(r.steps, "v1.14"), true);
 });
+
+test("상품 주요정보: 브랜드·제조사·모델명은 실제 칸 이름으로, 중고면 상품상태 choose, 비우면 단계 없음", async () => {
+  const { normalizeMainInfo } = await import("../src/lib/smartstore/fields.ts");
+  const mi = normalizeMainInfo({ brand: " 스위스톤 ", manufacturer: "바이라이프", model: "ST4D18", used: "used" });
+  assert.deepEqual(mi, { brand: "스위스톤", manufacturer: "바이라이프", model: "ST4D18", used: true });
+  const r = buildFillSteps(P, D, { ...O, mainInfo: mi });
+  const by = (k) => r.steps.find((s) => s.key === k);
+  assert.equal(by("brand").target, "vm.product.detailAttribute.naverShoppingSearchInfo.brandName");
+  assert.equal(by("manufacturer").target, "vm.product.detailAttribute.naverShoppingSearchInfo.manufacturerName");
+  assert.equal(by("model_name").value, "ST4D18");
+  assert.equal(by("sale_type").value, "중고상품");
+  const none = buildFillSteps(P, D, { ...O, mainInfo: normalizeMainInfo({ used: "new" }) });
+  assert.ok(!["brand", "manufacturer", "model_name", "sale_type"].some((k) => keys(none).includes(k)));
+});

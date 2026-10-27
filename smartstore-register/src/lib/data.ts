@@ -124,6 +124,15 @@ export async function getLastOptions(userId: string, productId: string): Promise
   return getLastStepValue(userId, productId, "options");
 }
 
+/** 이 상품으로 마지막에 보낸 작업의 상품 주요정보(브랜드·제조사·모델명·중고) — 다음 보내기 화면에 다시 채움 */
+export async function getLastMainInfo(userId: string, productId: string): Promise<{ brand: string; manufacturer: string; model: string; used: boolean }> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("smartstore_register_jobs").select("steps").eq("user_id", userId).eq("product_id", productId).order("created_at", { ascending: false }).limit(1);
+  const steps = ((data?.[0]?.steps ?? []) as { key: string; value: string }[]);
+  const v = (k: string) => steps.find((s) => s.key === k)?.value ?? "";
+  return { brand: v("brand"), manufacturer: v("manufacturer"), model: v("model_name"), used: steps.some((s) => s.key === "sale_type") };
+}
+
 /** 이 상품으로 마지막에 보낸 작업에서 그 단계(key)의 값(JSON) — 옵션·태그 다시 채우기 */
 export async function getLastStepValue(userId: string, productId: string, key: string): Promise<unknown> {
   const supabase = await createClient();
