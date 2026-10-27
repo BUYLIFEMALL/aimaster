@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AI 스마트스토어 상품 자동등록기",
-  "version": "1.10.0",
-  "version_name": "v1.10",
+  "version": "1.11.0",
+  "version_name": "v1.11",
   "minimum_chrome_version": "120",
   "description": "AI 상세페이지 자동화로 만든 상품을 스마트스토어센터 「상품 등록」 화면에 칸마다 대신 채워 넣습니다.",
   "permissions": [

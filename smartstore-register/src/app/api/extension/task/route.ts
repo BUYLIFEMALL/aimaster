@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { userFromExtension } from "@/lib/extension/token";
 import { SHOP_IMAGE_BUCKET, storagePathFromUrl, ownExtraPaths } from "@/lib/data";
-import { orderSections, extCanRun, extMinVersion } from "@/lib/smartstore/fields";
+import { orderSections, extCanRun, extMinVersion, isCurrentBuild, withoutBuilderMark } from "@/lib/smartstore/fields";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -24,6 +24,16 @@ export async function POST(req: Request) {
     .limit(1)
     .maybeSingle();
   if (!next) return NextResponse.json({ job: null });
+  // 오래 열어 둔 탭(옛 배포)이 만든 작업은 칸이 빠져 있을 수 있다 → 실행하지 않고 다시 보내 달라고 기록한다.
+  if (!isCurrentBuild((next.steps ?? []) as { key: string; value?: string }[])) {
+    await admin
+      .from("smartstore_register_jobs")
+      .update({ status: "failed", failed_step: "오래된 화면", error: "오래 열어 둔 화면에서 보낸 작업이라 칸이 빠졌을 수 있어 실행하지 않았습니다. 프로그램 화면을 새로고침한 뒤 다시 보내 주세요.", updated_at: new Date().toISOString() })
+      .eq("id", next.id)
+      .eq("user_id", who.userId)
+      .eq("status", "queued");
+    return NextResponse.json({ job: null });
+  }
   // 옛 확장은 모르는 동작을 건너뛰므로 넘기지 않는다(작업은 「확장 대기」 그대로).
   if (!extCanRun((next.steps ?? []) as { action: string }[], req.headers.get("x-ext-version"))) {
     return NextResponse.json({ job: null, updateRequired: extMinVersion((next.steps ?? []) as { action: string }[]) });
@@ -72,7 +82,7 @@ export async function POST(req: Request) {
       id: job.id,
       mode: job.mode,
       categoryKeyword: job.category_keyword,
-      steps: job.steps,
+      steps: withoutBuilderMark((job.steps ?? []) as { key: string }[]),
       mainImage: main && signed.get(main) ? { url: signed.get(main), name: name(main) } : null,
       extraImages: extras.filter((p) => signed.get(p)).map((p) => ({ url: signed.get(p), name: name(p) })),
       detailImages: sections.filter((s) => signed.get(s.path)).map((s) => ({ key: s.key, url: signed.get(s.path), name: name(s.path) })),

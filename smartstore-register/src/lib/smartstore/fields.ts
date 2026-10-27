@@ -102,10 +102,32 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose" | "extra_images" | "meta";
 
 /** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
 export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06", extra_images: "v1.10" };
+
+/**
+ * 칸 목록을 만든 코드의 세대 — 오래 열어 둔 탭은 그 시점 배포의 옛 코드로 작업을 만든다(2026-10-27 실제 사고: 고시 A/S 전화·어린이인증·추가 이미지가 빠진 작업).
+ * 칸 구성이 바뀌어 옛 작업을 실행하면 안 될 때 이 숫자를 올린다. 이 표시가 없거나 낮은 작업은 확장에 넘기지 않는다.
+ */
+export const STEP_BUILDER = 1;
+const BUILDER_KEY = "_builder";
+
+/** 저장할 단계 목록 끝에 「만든 세대」 표시를 붙인다(화면 미리보기에는 붙이지 않음) */
+export function withBuilderMark<T extends { key: string }>(steps: T[]): (T | FillStep)[] {
+  return [...steps, { key: BUILDER_KEY, section: "", label: "", target: "", action: "meta", value: String(STEP_BUILDER), required: false }];
+}
+
+/** 지금 코드가 만든 작업인가 */
+export function isCurrentBuild(steps: { key: string; value?: string }[]): boolean {
+  return steps.some((s) => s.key === BUILDER_KEY && Number(s.value) >= STEP_BUILDER);
+}
+
+/** 확장에 넘길 때는 표시를 뺀다(옛 확장이 모르는 단계를 보지 않게) */
+export function withoutBuilderMark<T extends { key: string }>(steps: T[]): T[] {
+  return steps.filter((s) => s.key !== BUILDER_KEY);
+}
 
 /** 스마트스토어 추가 이미지 최대 장수 */
 export const EXTRA_IMAGES_MAX = 9;

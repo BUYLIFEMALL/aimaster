@@ -109,3 +109,13 @@ test("추가 이미지: 0장이면 단계 없음, 3장은 3장, 12장은 9장까
   assert.equal(extCanRun(r3.steps, "v1.09"), false);
   assert.equal(extCanRun(r3.steps, "v1.10"), true);
 });
+
+test("만든 세대 표시: 저장할 때 붙고, 확장에 넘길 때 빠지며, 표시 없는 옛 작업은 막는다", async () => {
+  const { withBuilderMark, withoutBuilderMark, isCurrentBuild } = await import("../src/lib/smartstore/fields.ts");
+  const r = buildFillSteps(P, D, O);
+  const saved = withBuilderMark(r.steps);
+  assert.equal(isCurrentBuild(saved), true);
+  assert.equal(isCurrentBuild(r.steps), false);
+  assert.deepEqual(withoutBuilderMark(saved).map((s) => s.key), keys(r));
+  assert.equal(extCanRun(saved, "v1.10"), true);
+});
