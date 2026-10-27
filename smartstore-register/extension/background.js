@@ -332,6 +332,9 @@ async function pageCommand(cmd, args) {
       let verdict = null;
       for (let t = 0; t < 30 && !verdict; t++) {
         await sleep(500);
+        // 「상품속성 미입력 확인」(상품속성을 입력해 보시겠어요?) — 선택 항목이라 「다음에 할래요」로 넘긴다(2026-10-27 실제 시험에서 등록을 막던 창)
+        const later = [...document.querySelectorAll('.modal.in, [role="dialog"]')].filter(visible).flatMap((m) => [...m.querySelectorAll('button, a')]).find((b) => visible(b) && b.textContent.replace(/\s+/g, '') === '다음에할래요');
+        if (later) { later.click(); await sleep(800); continue; }
         const text = notes().join(' / ');
         if (location.hash !== startHash && !/products\/create/.test(location.hash)) verdict = { state: 'success', message: text };
         else if (/(등록|저장)\s*(이|가)?\s*(완료|되었)|임시저장\s*(이|가)?\s*(완료|되었)/.test(text)) verdict = { state: 'success', message: text };
