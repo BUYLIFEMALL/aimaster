@@ -186,6 +186,8 @@ export function buildFillSteps(
 
   add({ key: "notice_group", section: "상품정보제공고시", label: "상품군", target: "vm.selectizeType", action: "search_pick", value: defaults.noticeGroup, required: true });
   if (defaults.noticeReference) add({ key: "notice_ref", section: "상품정보제공고시", label: "상품상세 참조로 전체 입력", target: "vm.reference", action: "check", value: "true" });
+  // 「상품상세 참조로 전체 입력」을 체크해도 고시의 「A/S 책임자와 전화번호」는 비어 저장이 거절된다(2026-10-27 실제 시험) → A/S 전화번호를 넣는다
+  if (defaults.asPhone) add({ key: "notice_phone", section: "상품정보제공고시", label: "고시 A/S 책임자 전화번호", target: "vm.content.customerServicePhoneNumber", action: "type", value: defaults.asPhone, required: true });
 
   // 배송 — 템플릿 이름이 있으면 「배송비 템플릿」 목록 창에서 고르고, 없으면 칸을 직접 채운다.
   // 주의: vm.savedTemplate['DELIVERY']는 고르는 칸이 아니라 「템플릿 추가」(새 템플릿 저장) 체크 상자라 건드리지 않는다.

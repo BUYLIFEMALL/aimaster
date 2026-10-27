@@ -494,7 +494,16 @@ async function runJob(job) {
       if (step.key === 'discount') { await wait(600); r = await runMain(tabId, ngTypeMain, { discount: true, value: step.value }); }
       else if (step.action === 'type') r = await runMain(tabId, ngTypeMain, { target: step.target, value: step.value });
       else if (step.action === 'radio') r = await run(tabId, 'radio', { target: step.target, value: step.value });
-      else if (step.action === 'check') r = await run(tabId, 'check', { target: step.target });
+      else if (step.action === 'check') {
+        r = await run(tabId, 'check', { target: step.target });
+        // 옛 서버가 만든 작업에는 고시 「A/S 책임자 전화번호」 단계가 없다 → 「상품상세 참조」 다음에 A/S 전화번호를 넣는다
+        const asPhone = job.steps.find((s) => s.key === 'as_phone')?.value;
+        if (r.ok && step.key === 'notice_ref' && asPhone && !job.steps.some((s) => s.key === 'notice_phone')) {
+          await human();
+          const p = await runMain(tabId, ngTypeMain, { target: 'vm.content.customerServicePhoneNumber', value: asPhone });
+          if (!p.ok) failures.push(`고시 A/S 책임자 전화번호 — ${p.error}`);
+        }
+      }
       else if (step.action === 'select') r = await run(tabId, 'select', { target: step.target, value: step.value });
       else if (step.action === 'template') r = await run(tabId, 'deliveryTemplate', { value: step.value });
       else if (step.action === 'search_pick') {
