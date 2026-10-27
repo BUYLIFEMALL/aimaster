@@ -119,6 +119,19 @@ async function pageCommand(cmd, args) {
       return { ok: true };
     }
 
+    if (cmd === 'choose') {
+      // 줄 이름(예: 「어린이제품인증」)으로 줄을 찾고, 그 줄 안에서 글자가 정확히 같은 버튼(예: 「어린이제품 인증대상 아님」)을 누른다.
+      // 카테고리에 따라 그 줄이 없으면 건너뛴다.
+      const norm = (s) => s.replace(/\s+/g, '');
+      const lab = [...document.querySelectorAll('label, th, .control-label, .title, span, div')].find((e) => e.children.length < 3 && norm(e.textContent).startsWith(norm(args.target)) && norm(e.textContent).length <= norm(args.target).length + 4 && visible(e));
+      if (!lab) return { ok: true, skipped: true };
+      for (let box = lab.parentElement, up = 0; box && up < 5; up++, box = box.parentElement) {
+        const btn = [...box.querySelectorAll('button, a, label')].find((b) => visible(b) && norm(b.textContent) === norm(args.value));
+        if (btn) { btn.scrollIntoView({ block: 'center' }); btn.click(); await sleep(500); return { ok: true }; }
+      }
+      return { ok: false, error: `「${args.value}」 버튼을 찾지 못했습니다.` };
+    }
+
     if (cmd === 'select') {
       const sel = byModel(args.target).find((e) => e.tagName === 'SELECT');
       if (!sel) return { ok: false, error: '고르기 상자를 찾지 못했습니다.' };
@@ -524,6 +537,7 @@ async function runJob(job) {
       }
       else if (step.action === 'select') r = await run(tabId, 'select', { target: step.target, value: step.value });
       else if (step.action === 'template') r = await run(tabId, 'deliveryTemplate', { value: step.value });
+      else if (step.action === 'choose') r = await run(tabId, 'choose', { target: step.target, value: step.value });
       else if (step.action === 'search_pick') {
         if (step.key === 'origin' && step.value === '국산') continue; // 기본값이 국산 — 건드리지 않음
         if (step.key === 'delivery_tpl') { failures.push(`${step.label}(템플릿 고르기는 아직 수동)`); continue; } // 옛 작업 기록 호환

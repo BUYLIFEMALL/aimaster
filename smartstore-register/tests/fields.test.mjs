@@ -87,3 +87,14 @@ test("확장 버전: 새 동작이 든 작업은 v1.04 이상만", () => {
   assert.equal(extCanRun([{ action: "select" }], "v1.04"), true);
   assert.equal(extCanRun([{ action: "select" }], "v2.00"), true);
 });
+
+test("어린이제품인증: 기본은 건드리지 않음, 「인증대상 아님」이면 choose 단계(확장 v1.06 필요)", () => {
+  assert.ok(!keys(buildFillSteps(P, D, O)).includes("child_cert"));
+  const r = buildFillSteps(P, normalizeDefaults({ asPhone: "010-1", childCert: "not_target" }), O);
+  const s = r.steps.find((x) => x.key === "child_cert");
+  assert.equal(s.action, "choose");
+  assert.equal(s.value, "어린이제품 인증대상 아님");
+  assert.equal(extCanRun(r.steps, "v1.05"), false);
+  assert.equal(extCanRun(r.steps, "v1.06"), true);
+  assert.equal(normalizeDefaults({ childCert: "x" }).childCert, "");
+});

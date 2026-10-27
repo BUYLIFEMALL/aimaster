@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { userFromExtension } from "@/lib/extension/token";
 import { SHOP_IMAGE_BUCKET, storagePathFromUrl } from "@/lib/data";
-import { orderSections, extCanRun, NEW_ACTIONS_MIN_EXT } from "@/lib/smartstore/fields";
+import { orderSections, extCanRun, extMinVersion } from "@/lib/smartstore/fields";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   if (!next) return NextResponse.json({ job: null });
   // 옛 확장은 모르는 동작을 건너뛰므로 넘기지 않는다(작업은 「확장 대기」 그대로).
   if (!extCanRun((next.steps ?? []) as { action: string }[], req.headers.get("x-ext-version"))) {
-    return NextResponse.json({ job: null, updateRequired: NEW_ACTIONS_MIN_EXT.version });
+    return NextResponse.json({ job: null, updateRequired: extMinVersion((next.steps ?? []) as { action: string }[]) });
   }
 
   const { data: job } = await admin

@@ -92,6 +92,15 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         <input id="asGuide" name="asGuide" defaultValue={initial.asGuide} placeholder="비우면 「상품 상세페이지 참조」" className="slw-field" />
       </div>
 
+      <div className="sm:col-span-2">
+        <label className="slw-label" htmlFor="childCert">어린이제품인증</label>
+        <select id="childCert" name="childCert" defaultValue={initial.childCert} className="slw-field">
+          <option value="">판매자센터 기본값 그대로</option>
+          <option value="not_target">인증대상 아님(성인용 상품)</option>
+        </select>
+        <p className="mt-1 text-[11px] text-slate-500">가방·의류 등 일부 카테고리에서만 나오는 칸입니다. 어린이(13세 이하)용이 아닌 상품만 「인증대상 아님」을 고르세요 — 판매자 책임 항목입니다.</p>
+      </div>
+
       <label className="flex items-center gap-1.5 text-sm text-slate-700 sm:col-span-2">
         <input type="checkbox" name="displayOnRegister" defaultChecked={initial.displayOnRegister} />
         「바로 등록」 때 바로 전시하기 <span className="text-xs text-slate-500">(끄면 전시중지 = 판매대기로 올라감, 기본 꺼짐)</span>

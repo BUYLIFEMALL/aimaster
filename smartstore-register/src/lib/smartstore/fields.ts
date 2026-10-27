@@ -38,6 +38,8 @@ export interface StoreDefaults {
   returnFee: number | null;
   exchangeFee: number | null;
   displayOnRegister: boolean;
+  /** 어린이제품인증 — 그 칸이 나오는 카테고리에서만 씀. ""=판매자센터 기본값 그대로, not_target=「인증대상 아님」(법적 선택이라 회원이 정함) */
+  childCert: "" | "not_target";
 }
 
 export const EMPTY_DEFAULTS: StoreDefaults = {
@@ -57,6 +59,7 @@ export const EMPTY_DEFAULTS: StoreDefaults = {
   returnFee: null,
   exchangeFee: null,
   displayOnRegister: false,
+  childCert: "",
 };
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -86,6 +89,7 @@ export function normalizeDefaults(raw: unknown): StoreDefaults {
     returnFee: num(r.returnFee, 0, 1_000_000),
     exchangeFee: num(r.exchangeFee, 0, 1_000_000),
     displayOnRegister: r.displayOnRegister === true,
+    childCert: r.childCert === "not_target" ? "not_target" : "",
   };
 }
 
@@ -98,10 +102,17 @@ export interface ProductSource {
 }
 
 /** 확장이 할 수 있는 동작 */
-export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template";
+export type StepAction = "type" | "radio" | "check" | "search_pick" | "html" | "images" | "button" | "select" | "template" | "choose";
 
-/** 이 동작들은 확장 v1.04부터 안다 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
-export const NEW_ACTIONS_MIN_EXT = { actions: ["select", "template"] as string[], version: "v1.04" };
+/** 동작별로 그 동작을 아는 가장 낮은 확장 버전 — 옛 확장이 모르는 동작을 건너뛰고 저장하지 않도록 서버가 작업을 넘기지 않는다 */
+export const ACTION_MIN_EXT: Record<string, string> = { select: "v1.04", template: "v1.04", choose: "v1.06" };
+
+/** 이 작업에 필요한 가장 낮은 확장 버전(없으면 null) */
+export function extMinVersion(steps: { action: string }[]): string | null {
+  let best: string | null = null;
+  for (const s of steps) { const v = ACTION_MIN_EXT[s.action]; if (v && (!best || extVersionNumber(v) > extVersionNumber(best))) best = v; }
+  return best;
+}
 
 /** "v1.04" → 104, 형식이 틀리면 0 */
 export function extVersionNumber(v: string | null | undefined): number {
@@ -111,8 +122,8 @@ export function extVersionNumber(v: string | null | undefined): number {
 
 /** 이 작업을 이 확장 버전이 안전하게 실행할 수 있는가 */
 export function extCanRun(steps: { action: string }[], extVersion: string | null | undefined): boolean {
-  const needs = steps.some((s) => NEW_ACTIONS_MIN_EXT.actions.includes(s.action));
-  return !needs || extVersionNumber(extVersion) >= extVersionNumber(NEW_ACTIONS_MIN_EXT.version);
+  const need = extMinVersion(steps);
+  return !need || extVersionNumber(extVersion) >= extVersionNumber(need);
 }
 
 export interface FillStep {
@@ -183,6 +194,8 @@ export function buildFillSteps(
   } else {
     add({ key: "origin", section: "상품 주요정보", label: "원산지", target: "vm.viewData.originAreaInfo.originAreaExposureType", action: "search_pick", value: defaults.originType === "etc" ? `기타|${defaults.originCountry}` : "국산" });
   }
+
+  if (defaults.childCert === "not_target") add({ key: "child_cert", section: "상품 주요정보", label: "어린이제품인증 「인증대상 아님」", target: "어린이제품인증", action: "choose", value: "어린이제품 인증대상 아님" });
 
   add({ key: "notice_group", section: "상품정보제공고시", label: "상품군", target: "vm.selectizeType", action: "search_pick", value: defaults.noticeGroup, required: true });
   if (defaults.noticeReference) add({ key: "notice_ref", section: "상품정보제공고시", label: "상품상세 참조로 전체 입력", target: "vm.reference", action: "check", value: "true" });
