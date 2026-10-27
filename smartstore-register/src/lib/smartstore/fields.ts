@@ -54,6 +54,8 @@ export interface StoreDefaults {
   asGuide: string;
   returnFee: number | null;
   exchangeFee: number | null;
+  /** 반품 택배사(반품/교환 칸, 비우면 판매자센터 기본값) */
+  returnCompany: string;
   displayOnRegister: boolean;
   /** 어린이제품인증 — 그 칸이 나오는 카테고리에서만 씀. ""=판매자센터 기본값 그대로, not_target=「인증대상 아님」(법적 선택이라 회원이 정함) */
   childCert: "" | "not_target";
@@ -85,6 +87,7 @@ export const EMPTY_DEFAULTS: StoreDefaults = {
   asGuide: "",
   returnFee: null,
   exchangeFee: null,
+  returnCompany: "",
   displayOnRegister: false,
   childCert: "",
 };
@@ -125,6 +128,7 @@ export function normalizeDefaults(raw: unknown): StoreDefaults {
     asGuide: str(r.asGuide, 500),
     returnFee: num(r.returnFee, 0, 1_000_000),
     exchangeFee: num(r.exchangeFee, 0, 1_000_000),
+    returnCompany: str(r.returnCompany, 30),
     displayOnRegister: r.displayOnRegister === true,
     childCert: r.childCert === "not_target" ? "not_target" : "",
   };
@@ -353,6 +357,7 @@ export function buildFillSteps(
   } else {
     warnings.push("배송 템플릿 이름도 배송비 설정도 없습니다. 판매자센터 기본 배송 설정이 그대로 쓰이니 「입력만」으로 확인해 주세요.");
   }
+  if (defaults.returnCompany) add({ key: "return_company", section: "반품/교환", label: `반품 택배사 「${defaults.returnCompany}」`, target: "vm.modelData.claimDeliveryInfo.returnDeliveryCompany.id", action: "select", value: defaults.returnCompany });
   if (defaults.returnFee != null) add({ key: "return_fee", section: "반품/교환", label: "반품 배송비(편도)", target: "vm.modelData.claimDeliveryInfo.returnDeliveryFee", action: "type", value: String(defaults.returnFee) });
   if (defaults.exchangeFee != null) add({ key: "exchange_fee", section: "반품/교환", label: "교환 배송비(왕복)", target: "vm.modelData.claimDeliveryInfo.exchangeDeliveryFee", action: "type", value: String(defaults.exchangeFee) });
 

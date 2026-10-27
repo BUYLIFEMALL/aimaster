@@ -149,6 +149,10 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
         </div>
       </fieldset>
       <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <label className="slw-label" htmlFor="returnCompany">반품 택배사</label>
+          <input id="returnCompany" name="returnCompany" list="ssr-couriers" defaultValue={initial.returnCompany} placeholder="비우면 판매자센터 기본값(반품/교환지는 판매자 주소록 기본 주소)" className="slw-field" />
+        </div>
         <div>
           <label className="slw-label" htmlFor="returnFee">반품 배송비(편도)</label>
           <input id="returnFee" name="returnFee" type="number" min={0} defaultValue={initial.returnFee ?? ""} placeholder="템플릿 쓰면 비움" className="slw-field" />

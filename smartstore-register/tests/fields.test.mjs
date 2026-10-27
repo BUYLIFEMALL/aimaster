@@ -207,3 +207,10 @@ test("상품속성: 「이름: 값」 줄 정리(전각 콜론·중복·빈 줄)
   assert.equal(extCanRun(r.steps, "v1.13"), false);
   assert.ok(!keys(buildFillSteps(P, D, O)).includes("attributes"));
 });
+
+test("반품 택배사: 값이 있으면 select 단계, 반품·교환 배송비와 함께", () => {
+  const r = buildFillSteps(P, normalizeDefaults({ asPhone: "010-1234-5678", returnCompany: "CJ대한통운", returnFee: 3000, exchangeFee: 6000 }), O);
+  const k = keys(r);
+  assert.ok(k.indexOf("return_company") >= 0 && k.indexOf("return_company") < k.indexOf("return_fee"));
+  assert.equal(r.steps.find((s) => s.key === "return_company").action, "select");
+});
