@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 ✅ [역할: analysis-planning] Claude Code(윈도우) · ai-auto-blog v1.84 — 카테고리 회원별 전환
+
+주인님 지시(테스트 계정이 카테고리 수정 불가 신고 → 「카테고리는 회원 본인 소유, 같은 회원의 여러 블로그 프로그램이 공유, 타인과 공유 없음, 관리자 공용 폐지」). `ai-auto-blog`의 `blog_categories`를 전체 공용(관리자만 변경) → **회원별(`user_id`) owner-only**로 전환. DB 마이그레이션(`ai-auto-blog/supabase/migrations/20261027_blog_categories_per_user.sql`) 운영(ref esgxyik…) 적용 완료: `user_id` 추가·(user_id,slug) 복합 유일·기존 공용 10개 중 사용 5개를 쓰던 회원에게 이관·공용 삭제(남음 0)·RLS owner-only. 코드: `/api/categories`(본인 CRUD, 관리자 분기 제거)·`auto-post`·`candidates/shorts`·`dashboard` user_id 필터·모달 「내 카테고리」 안내. 검수(크롬, 테스트 계정): 본인 3개만 보임(타 회원 격리)·일반 회원 추가 성공→검수분 DB 원복. tsc·로컬빌드 통과·배포 Ready·`check-extension-release` OK(DB/확장/ZIP v1.84, 확장 코드 변경 없음). 커밋 `a82d17e81`(코드)·`69448ca66`(확장). 비용: Vercel 빌드 1회.
+라이브: https://ai-auto-blog.buylife.xyz
+남은 일(플랜 `docs/analysis-member-categories-20261027/PLAN.md`): 2단계 티스토리(이미 회원별) 통합·3단계 인스타·쓰레드 카테고리 의미 확인 후 연계(담당 주인님 배정). `blog_auto_poster`는 레거시라 제외.
+
 ## 2026-10-28 [역할: blog] 실제 가져오기 선행 운영 점검·단일SQL 묶음 반영안 준비 — 승인 대기
 
 2026-10-28 묶음 반영 준비 `4f02687f1`: 운영 선행11표/RPC2·v1.01 Ready를 읽기 확인, 신규 분석/이웃7표·RPC2 미적용 확인. 기존2개 migration을 단일 트랜잭션으로 합성·사전/사후8조건·복구안 준비, 격리PG6개 통과. 기존 Edge1838288 새탭에서 검토HTML 확인·영구보존. 운영 적용/배포는 미실행·읽기/자동소통OFF, 현재v1.01 유지(v1.02는실제배포예정). 승인 요청 af760869-6699-44c8-bc5c-1cd396f34d11: 운영7표/RPC2+Vercel팀buylife 빌드1회, Basic/Standard1~3분 USD0.007~0.042 예상·실제설정/사용량별상이. 기존 읽기허용근거3e257d73 별도 유지. 이번 유료AI/검색/배포/업무DB변경0(관리자 요청/결과 메타 기록은 별도).
