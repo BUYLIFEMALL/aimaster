@@ -9,7 +9,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| (없음) | 「개발 문서 관리」 배포·검수 끝(2026-10-24) — 주인님 다음 지시 대기 | — | — |
+| 마케팅자동화 14종 + 주인님이 보낸 원본 33개 | 하나씩 정밀 분석 → 분류(새로 개발·병합·독립·제외) — 01~08 완료, 다음 09(포함 여부 확인)·10 | 2026-10-27 | 진행 중 · [보고서](../analysis-marketing14-20261027/REPORT.md) |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -35,7 +35,7 @@
 | 🎬 DUP-4 Shots 업로드 중복 방지(YT-U7) | `video`(유튜브·멀티미디어 같은 카테고리, 작은 수정) | 없음(화면 변경 없음) | 미착수 | `docs/YOUTUBE_CONSOLIDATION_TASKS.md` |
 | 🏠 `realty-listing-alert` 0단계 이후 | `realty` | `design` — 「준비중」 해제(공개) 전 1차 디자인·매뉴얼 시각화 | 진행 중 | 부동산 인수인계 |
 | 🏠 매물 수집기 N1·N2 · 부동산 AI 분석 당해 연도·30일 정리 | `realty`(`real_estate_sales` 배정) | 개발 담당이 함께 | 미착수 | `PLAN_20261024_LIVE_LISTINGS.md` · 연도 플랜 §3 |
-| 📝 `blog-neighbor-care` | `blog` | `design` — 첫 동작 버전 뒤 1차 디자인(블로그 계열 템플릿)·매뉴얼 | 시작 시점은 담당 | `PLAN_20261024_BLOG_NEIGHBOR_CARE.md` |
+| 📝 `blog-neighbor-care` + 2026-10-27 보강(⑤ 답방·⑥ AI 대댓글·기존 이웃 가져오기 본 개발, 추가 개발 목록 A-1·A-2) | `blog`(`codex-win-20261026-blog-check`) | `design` — 첫 동작 버전 뒤 1차 디자인(블로그 계열 템플릿)·매뉴얼 | 시작 시점은 담당 | `PLAN_20261024_BLOG_NEIGHBOR_CARE.md` |
 | 🔐 `ebook-studio` v1.12(본인 키·권한·내부 주소 차단) | `workspace`(업무자동화 같은 카테고리) | 없음(보안 수정) | 미착수, 빌드 승인은 담당이 | `docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §1 |
 | 💬 오픈채팅방 기능 · DUP-1(재발송) · CRM-P5·P6 · DUP-2(구글폼 2회 발송) | 카카오·CRM 새 작업자(주인님 지정 예정 — 「카카오 담당은 다른 작업자가 할꺼야」) | `design` — 오픈채팅방 새 화면 동작 뒤 디자인 다듬기 | 작업자 정해지면 인계 | `PLAN_20261024_SHOP_BUSINESS_FLOW.md` §7-1 · `docs/CRM_CONSOLIDATION_TASKS.md` |
 | 📸 DUP-5 인스타 중복 게시(최우선) · 쓰레드 연도·캐시 | **새 담당 필요**(인스타·쓰레드) | 없음(엔진 수정) | 맞는 역할 없음 | `docs/INSTAGRAM_CONSOLIDATION_TASKS.md` |
