@@ -1,0 +1,22 @@
+{
+  "registeredAt": "2026-10-28T08:28:55.387072Z",
+  "authorization": "User selected keeping premium with a payment-free test subscription, then corrected the default duration to two weeks.",
+  "subscriptionId": "b5561cd7-7a95-4e2d-9ac2-f4939f2c5523",
+  "durationDays": 14,
+  "expiresAt": "2026-11-11T08:28:55.387072Z",
+  "programSlug": "blog-neighbor-care",
+  "testMember": "buylifemall@naver.com",
+  "status": "active",
+  "pricingPlanId": null,
+  "paymentOrderId": null,
+  "premiumBadgeRetained": true,
+  "memberAdminStatusChanged": false,
+  "gradeChanged": false,
+  "policyTriggersChanged": false,
+  "commonAccessEvaluation": { "allowed": true, "reason": "active_subscription" },
+  "actualDatabaseRestAccessCheck": { "checkedAt": "2026-10-28T08:32:23.200Z", "allowed": true, "reason": "active_subscription" },
+  "actualNeighborImportVerified": false,
+  "aiCalls": 0,
+  "remoteBuilds": 0,
+  "deployments": 0
+}
