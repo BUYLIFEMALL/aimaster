@@ -613,3 +613,95 @@ API 키 등록과 엔진/모델 선택이 들어가는 모든 프로그램은 �
    - 체크박스/라디오 선택 시: `#00c73c`
    - 필수 입력 닷(Dot): `#ff4b4b` (강렬한 레드 포인트)
    - 툴팁 물음표 아이콘: `#22c55e` (산뜻한 라임 그린 서클)
+
+
+## 14. 크롬 확장 프로그램(Chrome Extension) 팝업 공식 레이아웃 및 UI 표준 (2026-10-28 주인님 지시)
+
+> **2026-10-28 주인님 지시:** 「확장 프로그램의 경우 좌상단에 로고, 중간에 프로그램명, 맨우측에 잘보이게 버전 표시, 하단에 프로그램 설명, 그리고 그 아래 현재 연결된 계정 정보가 보이게 하고, 그 아래는 각 프로그램마다의 옵션기능들에 필요한 버튼이나 항목이 표시되게 해주고」  
+> **기준 레퍼런스 실물 분석:** `D:/Antigravity/Design/naver_reference/extension_popup_layout_reference.png`
+
+### 14.1 확장 프로그램 팝업 4단 수직 레이아웃 구조도
+
+```
++-------------------------------------------------------------------------+
+| [1. 상단 히어로 헤더]                                                    |
+|  [로고]   프로그램 공식명칭                     [  vX.YY 뱃지  ]       |
+|  (34px)   (15px 볼드, 공식명 100% 일치)          (우측 상단 고대비 칩)   |
+|                                                                         |
+|  프로그램 한 줄 핵심 설명 (상세페이지 상품을 판매자센터 칸에 대신 채워 넣음)|
++-------------------------------------------------------------------------+
+| [2. 연결된 계정 및 상태 카드]                                           |
+|  ✅ 연결된 계정                                                         |
+|  [ user@example.com (뚜렷한 소프트 서피스 뱃지 박스)                  ] |
+|  지금 상태: 준비 완료 / 확인 필요 항목 N개                               |
++-------------------------------------------------------------------------+
+| [3. 프로그램별 고유 옵션 기능 영역 (Program Options)]                    |
+|  - 포스팅/등록 방식 선택 (발행전까지 / 즉시실행 / 예약)                  |
+|  - 추가상품/태그/이미지 자동 첨부 토글 등 프로그램별 맞춤 컨트롤         |
++-------------------------------------------------------------------------+
+| [4. 핵심 액션 3D 실행 버튼 및 유틸리티]                                 |
+|  [      ▶ 프로그램 열기 · 자동 연동 실행 (3D 엠보싱 버튼)      ]         |
+|  [      지금 작업 진행상황 확인 (슬레이트 보조 버튼)           ]         |
+|  [      연결 해제 / 계정 변경 (소프트 아웃라인)                ]         |
++-------------------------------------------------------------------------+
+```
+
+### 14.2 HTML & CSS 표준 컴포넌트 템플릿
+
+```html
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 320px; margin: 0; font: 13px -apple-system, "Pretendard", "Malgun Gothic", sans-serif; color: #0f172a; background: #f8fafc; }
+    .hero { padding: 16px 16px 14px; background: linear-gradient(135deg, #00c73c 0%, #00a843 100%); color: #ffffff; }
+    .hero-top { display: flex; align-items: center; gap: 10px; }
+    .logo { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.22); font-size: 20px; flex: none; }
+    .hero h1 { margin: 0; font-size: 15px; font-weight: 900; letter-spacing: -0.03em; line-height: 1.25; flex: 1; min-width: 0; }
+    .chip { margin-left: auto; flex: none; padding: 4px 10px; border-radius: 999px; background: #ffffff; color: #008a2a; border: 2px solid #34d399; box-shadow: 0 2px 6px rgba(0,0,0,0.15); font-size: 13px; font-weight: 900; }
+    .tagline { margin: 8px 0 0; font-size: 12px; opacity: 0.95; line-height: 1.4; }
+    
+    .wrap { padding: 14px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .card-title { font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .acct-box { font-size: 14px; font-weight: 800; color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 8px 10px; word-break: break-all; }
+    
+    /* 3D 엠보싱 메인 실행 버튼 */
+    .btn-3d-main { display: block; width: 100%; box-sizing: border-box; padding: 11px; border-radius: 10px; background: linear-gradient(180deg, #00c73c 0%, #00b336 100%); color: #fff; border: 1px solid #34d399; box-shadow: 0 4px 0 #008a2a, 0 6px 14px rgba(0, 199, 60, 0.3); font-size: 13px; font-weight: 800; text-align: center; text-decoration: none; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; }
+    .btn-3d-main:active { transform: translateY(3px); box-shadow: 0 1px 0 #008a2a; }
+    
+    /* 보조 버튼 */
+    .btn-sub { display: block; width: 100%; box-sizing: border-box; margin-top: 8px; padding: 9px; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; }
+    .btn-sub:hover { background: #f1f5f9; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-top">
+      <span class="logo">🛒</span>
+      <h1>AI 스마트스토어<br>상품 자동등록기</h1>
+      <span class="chip">v1.19</span>
+    </div>
+    <p class="tagline">상세페이지 상품을 판매자센터 칸에 대신 채워 넣습니다</p>
+  </header>
+  <div class="wrap">
+    <!-- 연결된 계정 정보 카드 -->
+    <div class="card">
+      <div class="card-title">✅ 연결된 계정</div>
+      <div class="acct-box">buylifemall@naver.com</div>
+      <div style="font-size: 11px; color: #64748b; margin-top: 6px;">상태: 준비 완료 (직접 확인할 칸 1개)</div>
+    </div>
+    <!-- 프로그램별 고유 옵션 영역 -->
+    <div class="card">
+      <div class="card-title">⚙️ 등록 옵션</div>
+      <!-- 프로그램별 라디오/셀렉트/체크박스 옵션 위치 -->
+    </div>
+    <!-- 메인 실행 버튼 및 보조 버튼 -->
+    <a class="btn-3d-main" href="#">프로그램 열기 · 연결</a>
+    <button class="btn-sub">지금 작업 확인</button>
+    <button class="btn-sub" style="border-color: transparent; color: #94a3b8;">연결 끊기</button>
+  </div>
+</body>
+</html>
+```
