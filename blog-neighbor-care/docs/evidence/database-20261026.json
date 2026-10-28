@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-26T10:56:03.519Z",
+  "checkedAt": "2026-10-28T23:25:45.170Z",
   "command": "npm run test:database",
   "version": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "image": "postgres:17-alpine",
@@ -117,19 +117,32 @@
     {
       "name": "DB28 등록직전허가재확인·만료/계정중단뒤에는실행불가",
       "passed": true
+    },
+    {
+      "name": "DB29 private executor actual SQL claim/arm/permit/result settles synthetic request/like/comment once",
+      "passed": true
+    },
+    {
+      "name": "DB30 ambiguous adapter outcome keeps SQL reservation and member OFF, no second external attempt",
+      "passed": true
+    },
+    {
+      "name": "DB31 final context change after SQL permit prevents application and preserves uncertainty",
+      "passed": true
     }
   ],
-  "passed": 28,
+  "passed": 31,
   "failed": 0,
   "operatingDatabaseChanged": false,
   "fixtureUsersOnly": true,
   "containerRemoved": true,
   "sourceHashEncoding": "UTF-8 CRLF normalized to LF",
   "sourceSha256": {
-    "src/lib/work-api.ts": "563f55174578062beb23f3f22b827136157b823a2dbe40adfa5ff28c6fd85d3b",
-    "src/app/api/work/route.ts": "c8c8ed4490b7125daa3bdadf8b9ef64e9e32c238a14190cc62b1bcabc555d776",
-    "src/lib/access.ts": "d3a2e4e60efa09703ccfbeba7a7a18fd90194eef318a9f2530a75b18c68013c3",
+    "src/lib/work-api.ts": "036fff373f36eed1d9fc69a98df325585bee9f043a79710f05dd5656834e6802",
+    "src/app/api/work/route.ts": "d68e7392b0c3666ddec0787d9986bde44c4373cd2e770f300813586befd7e144",
+    "src/lib/access.ts": "c9a2289031d97b10fa7d71526974dd536b44115e1f7e8dbc4f14f3d704182c56",
+    "src/lib/execution/approvedWork.ts": "19a08a1b00f7af85721be2767827e471de676b07ff41d9bbe7aa35701c07790a",
     "supabase/migrations/20261026103202_bnc_server_queue.sql": "a5b3f68d53497b16a1e2c35a92b9afb13db5b374caf4418010b8b2eb1472d52e",
-    "tests/database.mjs": "d66c61c4606ec470ee91224af5898eab48b0c9fcd270083d2d91cea00c3b3af5"
+    "tests/database.mjs": "35f02b57978a462c18eaeb90c26da9a82b485db2aaf22531e4ae3c0bbf3ce7ce"
   }
 }

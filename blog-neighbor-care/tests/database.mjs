@@ -3,6 +3,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createWorkHandler } from '../src/lib/work-api.ts';
+import { executeApprovedWork } from '../src/lib/execution/approvedWork.ts';
 
 const image = 'postgres:17-alpine';
 const label = `bnc-${randomUUID()}`;
@@ -250,11 +251,43 @@ try {
     rpc(other, 'configure', { enabled: false });
     assert.throws(() => rpc(other, 'verify_permit', token(active)), /BNC_STOPPED/);
   });
+  function executorFixture(m,j){
+    let applied=0;
+    const context=()=>({accountId:j.account_id,actorId:j.actor_id,neighborId:j.neighbor_id,postId:j.post_id,checkedAt:Date.now()});
+    const deps={authorize:async()=>true,permitted:async()=>true,
+      load:async(user,id)=>json(sql(`select to_jsonb(j) from public.bnc_jobs j where user_id=${quote(user)} and id=${quote(id)};`)),
+      rpc:async(user,op,p)=>rpc({id:user},op,p),adapter:{
+        inspect:async()=>({...context(),restriction:'none',relationship:j.kind==='request'?'none':'mutual',liked:false,duplicate:false}),
+        assertCurrent:async()=>true,apply:async()=>{applied++;},
+        verify:async()=>({...context(),state:j.kind==='request'?'pending':j.kind==='like'?'liked':'commented',bodyHash:createHash('sha256').update(j.body).digest('hex'),effectId:'fixture-effect-1'})
+      }};
+    return {deps,applied:()=>applied,run:()=>executeApprovedWork({memberId:m.id,jobId:j.id,deviceId:'11111111-1111-4111-8111-111111111111'},deps)};
+  }
+  await check('DB29 private executor actual SQL claim/arm/permit/result settles synthetic request/like/comment once',async()=>{
+    for(const kind of ['request','like','comment']){
+      const m=enabled(),j=ready(m,{kind,post_id:kind==='request'?'':'123'}),f=executorFixture(m,j),r=await f.run();
+      assert.equal(r.status,'succeeded');assert.equal(r.reportStored,true);assert.equal(f.applied(),1);
+      assert.equal(usage(m,kind).reserved,0);assert.equal(usage(m,kind).succeeded,1);
+      if(kind==='request')assert.equal(sql(`select state from public.bnc_neighbors where user_id=${quote(m.id)} and neighbor_id=${quote(j.neighbor_id)};`),'pending');
+      assert.equal((await f.run()).status,'blocked');assert.equal(f.applied(),1);
+    }
+  });
+  await check('DB30 ambiguous adapter outcome keeps SQL reservation and member OFF, no second external attempt',async()=>{
+    const m=enabled(),j=ready(m),f=executorFixture(m,j);f.deps.adapter.verify=async()=>{throw Error('synthetic lost effect response');};
+    const r=await f.run();assert.equal(r.status,'uncertain');assert.equal(r.reportStored,true);assert.equal(f.applied(),1);
+    assert.equal(usage(m).reserved,1);assert.equal(usage(m).succeeded,0);assert.equal(rpc(m,'settings').enabled,false);
+    assert.equal((await f.run()).status,'blocked');assert.equal(f.applied(),1);
+  });
+  await check('DB31 final context change after SQL permit prevents application and preserves uncertainty',async()=>{
+    const m=enabled(),j=ready(m),f=executorFixture(m,j);f.deps.adapter.assertCurrent=async()=>false;
+    const r=await f.run();assert.equal(r.status,'uncertain');assert.equal(r.externalAttempted,false);assert.equal(r.reportStored,true);
+    assert.equal(f.applied(),0);assert.equal(usage(m).reserved,1);assert.equal(rpc(m,'settings').enabled,false);
+  });
 } finally {
   const ownLabel = execFileSync('docker', ['inspect', '--format', '{{index .Config.Labels "aimaster.bnc-test"}}', container], { encoding: 'utf8' }).trim();
   if (ownLabel !== label) throw new Error('Container ownership mismatch - cleanup skipped');
   execFileSync('docker', ['rm', '-f', '-v', container], { stdio: 'pipe' });
-  const sourceFiles = ['src/lib/work-api.ts', 'src/app/api/work/route.ts', 'src/lib/access.ts', `supabase/migrations/${migration}`, 'tests/database.mjs'];
+  const sourceFiles = ['src/lib/work-api.ts', 'src/app/api/work/route.ts', 'src/lib/access.ts', 'src/lib/execution/approvedWork.ts', `supabase/migrations/${migration}`, 'tests/database.mjs'];
   const hashes = Object.fromEntries(sourceFiles.filter(p => !p.endsWith('/')).map(p => [p,
     createHash('sha256').update(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n')).digest('hex')]));
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
