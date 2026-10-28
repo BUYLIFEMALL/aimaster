@@ -10,6 +10,8 @@
   "actualExtension": true,
   "actualAuthenticatedWebConfirmation": true,
   "webRequeryVerified": true,
+  "actualPopupReceiptVerified": true,
+  "actualPopupReceiptText": "프로그램 저장 완료 · 페이지 1 / 1 · 받은 43 / 43명",
   "databaseVerified": true,
   "relations": {
     "mutual": {
