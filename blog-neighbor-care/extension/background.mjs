@@ -62,7 +62,17 @@ export function createReaderController(browser, fetcher = fetch) {
       const result = await post('whoami', {}, token);
       const { pending } = await browser.storage.session.get('pending');
       const {neighborProgress}=await browser.storage.session.get('neighborProgress');
-      const progress=neighborProgress?.deviceId===result.data.deviceId?neighborProgress:null;
+      let progress=neighborProgress?.deviceId===result.data.deviceId?neighborProgress:null;
+      const {neighborImport}=await browser.storage.session.get('neighborImport');
+      if(popup&&progress&&neighborImport?.deviceId===result.data.deviceId&&!neighbors.isRunning()){
+        importToken=token;
+        try{
+          await neighbors({type:'neighbors_status'});
+          progress=(await browser.storage.session.get('neighborProgress')).neighborProgress;
+        }catch{
+          progress={...progress,stage:'paused',state:'stopped',message:'이전 목록의 최신 상태를 확인하지 못했습니다. 가져온 범위·이전 결과 확인을 눌러 주세요.'};
+        }
+      }
       const restored=progress?.state==='running'&&!neighbors.isRunning()?{...progress,stage:'paused',state:'stopped',message:'진행 중이던 읽기의 결과 확인이 필요합니다. 가져온 범위·이전 결과 확인을 눌러 주세요.'}:progress;
       return { connected: true, ...result.data, pending: Boolean(pending), latestVersion: result.latestVersion,...(restored?{neighborProgress:restored}:{}) };
     }

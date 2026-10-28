@@ -24,7 +24,7 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
   if(message.type==='neighbors_status'){
    if(!previous||previous.deviceId!==who.deviceId)throw Error('이 기기의 가져오기 기록이 없습니다.');
    const r=await post('status',{id:previous.id});progress={deviceId:who.deviceId,...receiptFields(r)};
-   await emit(['ready','confirmed'].includes(r.state)?r.state:running?'received':'paused',{message:r.state==='ready'?'전체 목록을 임시 수신했습니다. 프로그램에서 확인·반영해 주세요.':r.state==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':`서버 상태: ${r.state}. 받은 범위를 확인해 주세요.`});return r;
+   await emit(['ready','confirmed'].includes(r.state)?r.state:running?'received':'paused',{message:r.state==='ready'?'전체 목록을 임시 수신했습니다. 프로그램에서 확인·반영해 주세요.':r.state==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':r.state==='expired'?'이전 목록의 확인 기한이 지났습니다. 네이버 이웃 관리 탭에서 동의 후 전체 이웃 목록 읽기를 눌러 주세요.':`서버 상태: ${r.state}. 받은 범위를 확인해 주세요.`});return r;
   }
   if(message.type!=='neighbors_read'||message.ownerConfirmed!==true)throw Error('본인 이웃 목록 읽기·임시 전송 동의를 확인해 주세요.');
   if(running)throw Error('진행 중인 목록 읽기부터 확인해 주세요.');
