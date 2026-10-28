@@ -62,6 +62,7 @@
 | 등급 할인 | 미정(필요하면 결제 연동 때 함께 결정) |
 | 골드의 "사용 프로그램·기간 제한" 기준, 실버의 정의 | 미확정 — 임의로 구현하지 않는다 |
 → 결제가 연동되기 전에는 프리미엄 뱃지를 실제 프로그램에 달지 않는다. 구현(`0031` 마이그레이션)은 적용·검증을 마쳤다.
+- **(2026-10-28 기록) 주인님이 프리미엄 뱃지를 직접 지정하기 시작함** — 확인 시점 21개: `smartstore-register`(18:52, 주인님 「내가 붙인거야」), `ai-influencer-studio`, `naver-blog-seo-studio`, `ai-work-workspace`, `music-video-studio`, `ai-mastering-studio`, `lyric-video-studio`, `ai-music-studio`, `ai-image-studio`, `fashion-style`, `portrait-photo`, `shorts-onestop-studio`, `threads-content-ops`, `thumbnail-master`, `youtube-auto-reply`, `auto-threads-posting`, `blog-workroom`, `naver-blog-allinone`, `blog-keyword`, `tistory-auto-blog`, `web-crawler-saas`. **영향**: 관리자 외 회원(테스트 계정 `buylifemall@naver.com` 포함)은 결제 구독이 있어야 쓴다 → 이 프로그램들의 회원 화면 시험은 관리자 계정으로 하거나 주인님께 시험 방법을 여쭌다. 확장이 있는 프로그램은 확장 토큰 확인도 같은 판정이라 테스트 계정 연결로는 작업을 받지 못한다(2026-10-28 `smartstore-register` 실측).
 
 ## 등급별 프로그램 자동 부여 · 사용기간 (2026-10-13 주인님 지시, 마이그레이션 0032)
 
