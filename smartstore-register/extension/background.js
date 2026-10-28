@@ -1153,14 +1153,18 @@ async function runJob(job) {
     if (job.optionFile && lastOpt !== job.optionFile.rows) failures.push(`옵션 — 끝났을 때 목록 ${lastOpt}줄(보낸 것 ${job.optionFile.rows}줄). 개수 변화: ${optTrace.join(' → ')}`);
 
     const submit = job.steps.find((s) => s.action === 'button');
-    if (submit && failures.length) {
+    // 마켓 규칙으로 거절된 태그는 알림일 뿐 — 저장을 막지 않는다(2026-10-28: 「노트북가방」 거절로 임시저장이 막힘)
+    const NOTE = (f) => f.startsWith('검색 태그 — 스마트스토어가 거절');
+    const blocking = failures.filter((f) => !NOTE(f));
+    const notes = failures.filter(NOTE);
+    if (submit && blocking.length) {
       await api('/api/extension/finish', { jobId: job.id, status: 'filled', failedStep: failures[0].slice(0, 200), error: `실패한 칸이 있어 저장 버튼은 누르지 않았습니다: ${failures.join(' / ')}`.slice(0, 1000) });
     } else if (submit) {
       await setStatus(submit.target === 'vm.createTempSave' ? '임시저장 누르는 중…' : '저장하기 누르는 중…');
       const r = await run(tabId, 'submit', { target: submit.target });
       if (!r.ok) await api('/api/extension/finish', { jobId: job.id, status: 'failed', failedStep: submit.label, error: r.error });
       else if (!r.confirmed) await api('/api/extension/finish', { jobId: job.id, status: 'filled', failedStep: submit.label, error: `「${submit.label}」은 눌렀지만 결과를 확인하지 못했습니다. 판매자센터 화면·상품 목록에서 직접 확인해 주세요.${r.message ? ` 화면 안내: ${r.message}` : ''}`.slice(0, 1000) });
-      else await api('/api/extension/finish', { jobId: job.id, status: submit.target === 'vm.createTempSave' ? 'temp_saved' : 'registered', marketProductNo: r.productNo, error: r.message ? `화면 안내: ${r.message}` : null });
+      else await api('/api/extension/finish', { jobId: job.id, status: submit.target === 'vm.createTempSave' ? 'temp_saved' : 'registered', marketProductNo: r.productNo, error: [r.message ? `화면 안내: ${r.message}` : '', ...notes].filter(Boolean).join(' / ').slice(0, 1000) || null });
     } else {
       await api('/api/extension/finish', { jobId: job.id, status: 'filled', failedStep: failures[0]?.slice(0, 200) || null, error: failures.length ? `직접 확인할 칸: ${failures.join(' / ')}`.slice(0, 1000) : null });
     }
