@@ -1,5 +1,7 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+2026-10-28 13:47 [역할: blog] 실제 설치확장 팝업에서 최초 동의미적용 메시지 확인. native Toggle 후 읽기 시작 메시지 확인했으나 최종 결과는 Edge 창이 앞에 있지 않아 목록 읽기 중단. 서버 가져오기 요청0 재확인. 사용자에게 동의 적용 후 전체 이웃 목록 읽기를 누르고 완료까지 Edge를 앞에 유지하도록 안내. 1회허가3c70d78f는13:57:53 KST만료·아직미사용. 전체읽기/자동소통OFF·AI/검색/빌드0. 실제43명전송/반영미완료.
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.19(모델명 자동 입력)
 - ego lite로 판매자센터 「모델명 입력」 창 구조 확인 → 「텍스트로 직접입력」으로 모델명 자동 입력(카탈로그 고르기는 하지 않음). 실제 「입력만」 통과. 배포 Ready, DB·확장·ZIP v1.19 OK. 상세 `smartstore-register/AGENTS.md` v1.19.
 - https://smartstore-register.buylife.xyz
