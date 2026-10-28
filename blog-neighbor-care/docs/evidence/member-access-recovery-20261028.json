@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-28T07:48:00Z",
+  "symptom": "프로그램 이용 권한을 확인해 주세요.",
+  "rootCause": "The ordinary test member met minimum grade but had neither an active subscription nor an individual usage period for this program.",
+  "before": { "admin": false, "suspended": false, "phonePresent": true, "memberGradeOrder": 4, "requiredGradeOrder": 3, "subscriptions": 0, "individualGrants": 0, "evaluation": "none", "allowed": false },
+  "remediation": "Registered a one-day individual usage period for blog-neighbor-care only through the established user_program_access mechanism.",
+  "grantExpiresAt": "2026-10-29T07:45:52.455760Z",
+  "after": { "admin": false, "gradeChanged": false, "individualGrantActive": true, "evaluation": "individual_grant", "allowed": true },
+  "actualInstalledExtensionWhoamiSucceeded": true,
+  "nativePopupObserved": "연결된 블로그: buylifemall",
+  "webMemberSession": "Reader currently reports login required; extension bearer connection is independently restored.",
+  "neighborImportCompleted": false,
+  "sourceChanged": false,
+  "aiCalls": 0,
+  "remoteBuilds": 0,
+  "deployments": 0
+}
