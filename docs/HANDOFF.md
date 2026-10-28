@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.22 배포
+
+- 상품속성 AI 추천(회원 본인 Claude 키)·필수 속성 안내·속성 읽기 재검색 묶음 배포 `5etiff2gv` Ready, DB·확장·ZIP v1.22 OK(빌드 1회 승인). 운영 화면에서 추천 실물 확인(빈 속성 2개만 채움). 미배포 대기 없음.
+- https://smartstore-register.buylife.xyz
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 기본 AI = Claude 지침 + smartstore-register 상품속성 AI 추천(미배포)
 
 - **지침**: 주인님 「앞으로 기본 api키 사용은 클로드야」 → 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위 「🤖 기본 AI = Claude」, `docs/CLAUDE_CODE_API_CREDIT.md` §2-1. 회원 기능은 회원 본인 `anthropic` 키, 개발·시험은 주인님 크레딧/관리자 본인 키, 기존 Gemini 코드는 일괄 교체 안 함.
