@@ -14,12 +14,26 @@ export function createReaderController(browser, fetcher = fetch) {
     return json;
   };
   let importToken;
+  const publishProgress=async progress=>{
+    const {token}=await browser.storage.local.get('token');
+    if(!token||token!==importToken||!progress.deviceId)return;
+    try{await browser.storage.session.set({neighborProgress:progress});}catch{/* Progress is advisory, never a retry trigger. */}
+    try{await browser.runtime.sendMessage?.({type:'neighbor_progress',progress});}catch{/* The popup can be closed. */}
+  };
+  const popupFocused=async windowId=>{
+    if(!browser.runtime.sendMessage)return false;
+    let timer;
+    try{
+      const result=await Promise.race([browser.runtime.sendMessage({type:'neighbor_focus_probe',windowId}),new Promise(resolve=>{timer=setTimeout(()=>resolve(null),500);})]);
+      return result?.focused===true&&result.windowId===windowId;
+    }catch{return false;}finally{clearTimeout(timer);}
+  };
   const neighbors=createNeighborImporter(browser,async(operation,payload)=>{
     const r=await post(operation,payload,importToken,'/api/neighbors/import/extension');return {...r.data,...(r.nonce?{nonce:r.nonce}:{})};
   },async()=>{
     const {token}=await browser.storage.local.get('token');if(!token||token!==importToken)throw Error('연결 계정이 변경됐습니다.');
     return (await post('whoami',{},token)).data;
-  });
+  },undefined,undefined,publishProgress,popupFocused);
   return async function handle(message, sender) {
     await ready;
     const popup = sender.id === browser.runtime.id && sender.url === browser.runtime.getURL('popup.html');
@@ -40,13 +54,17 @@ export function createReaderController(browser, fetcher = fetch) {
       await browser.storage.local.set({ token: result.token });
       await browser.storage.session.remove('pending');
       await browser.storage.session.remove('neighborImport');
+      await browser.storage.session.remove('neighborProgress');
       return { connected: true, blogId: result.data.blogId, expiresAt: result.data.expiresAt };
     }
     if (message.type === 'status') {
       if (!token) return { connected: false };
       const result = await post('whoami', {}, token);
       const { pending } = await browser.storage.session.get('pending');
-      return { connected: true, ...result.data, pending: Boolean(pending), latestVersion: result.latestVersion };
+      const {neighborProgress}=await browser.storage.session.get('neighborProgress');
+      const progress=neighborProgress?.deviceId===result.data.deviceId?neighborProgress:null;
+      const restored=progress?.state==='running'&&!neighbors.isRunning()?{...progress,stage:'paused',state:'stopped',message:'진행 중이던 읽기의 결과 확인이 필요합니다. 가져온 범위·이전 결과 확인을 눌러 주세요.'}:progress;
+      return { connected: true, ...result.data, pending: Boolean(pending), latestVersion: result.latestVersion,...(restored?{neighborProgress:restored}:{}) };
     }
     if (!token) throw new Error('먼저 프로그램에서 이 회원 계정과 연결해 주세요.');
     if (message.type === 'disconnect') {
@@ -54,6 +72,7 @@ export function createReaderController(browser, fetcher = fetch) {
       try { await post('disconnect', {}, token); remoteRevoked = true; } catch { /* local removal still succeeds */ }
       await browser.storage.local.remove('token'); await browser.storage.session.remove('pending');
       await browser.storage.session.remove('neighborImport');
+      await browser.storage.session.remove('neighborProgress');
       return { connected: false, remoteRevoked };
     }
     const identity = await post('whoami', {}, token);
@@ -91,6 +110,7 @@ export function createReaderController(browser, fetcher = fetch) {
 if (globalThis.chrome?.runtime?.onMessage) {
   const handle = createReaderController(chrome);
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if(['neighbor_progress','neighbor_focus_probe'].includes(message?.type))return false;
     handle(message, sender).then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false,
       error: error?.message || '결과를 확인하지 못했습니다. 자동 재전송하지 않습니다.' }));
     return true;

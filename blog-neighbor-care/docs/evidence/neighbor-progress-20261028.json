@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-28T09:43:10.036Z",
+  "unitPassed": 165,
+  "isolatedDatabasePassed": 28,
+  "typecheckPassed": true,
+  "installedSource": "D:/Antigravity/AIMaster/blog-neighbor-care/extension",
+  "reloadClicked": true,
+  "installedPopupProgressObserved": true,
+  "importId": "a3a9b562-a89f-47ed-b3e6-89abc9202f19",
+  "serverState": "ready",
+  "capturedCount": 43,
+  "totalCount": 43,
+  "lastPage": 1,
+  "confirmed": false,
+  "blocker": "Program web neighbors query returned login required; extension identity remains connected",
+  "globalReadAllowed": false,
+  "socialAllowed": false,
+  "remoteBuilds": 0,
+  "paidAiCalls": 0
+}
