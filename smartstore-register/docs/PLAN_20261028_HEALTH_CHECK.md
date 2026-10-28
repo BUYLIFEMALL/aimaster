@@ -49,3 +49,9 @@
 | DB | 표 1개 추가(비용 없음, **사전 승인**) |
 | 배포 | 다음 묶음 배포 때 함께(빌드 1회, 배포 직전 다시 여쭘) |
 | 회원 부담 | 없음 |
+
+## 8. 0단계 실측 결과(2026-10-28, ego·관리자 판매자센터 바이라이프몰, 읽기만)
+- 섹션 21개를 모두 펼쳐, `fields.ts`의 `target` 61개를 `ng-model`·`ng-click`·`ncp-click`·`progress-button`·`value`·`model-type`·`id`/`for` 속성 또는 한글 칸 이름 글자로 찾음 → **항상 있음 58개**, 카테고리(「백팩」) 고르기 전후 차이 **0개**.
+- **조건부 3개**(설정을 켜야 생김 — 점검에서 실패로 세지 않음): `immediateDiscountPolicy.value`(즉시할인 「설정함」 뒤), `image.add`(대표 이미지 뒤 추가이미지 버튼), `배송권역`(제주/도서산간 설정 뒤).
+- 측정 스크립트: `C:/Users/Administrator/ego/model-search-20261028/health-measure.mjs`(결과 `health-measure.json`).
+- DB 초안: `supabase/migrations/20261028_health_v1_23.sql` — **주인님 승인 뒤 적용**.
