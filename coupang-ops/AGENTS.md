@@ -22,7 +22,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - v1.01 (2026-10-28, **미배포·DB 미적용**): C1-1 웹 뼈대 — 대시보드(출시 순서)·매뉴얼. tsc·로컬 build 통과.
 
 ## 5. 남은 일
-1. 주인님 승인 뒤: 운영 DB에 등록 SQL 적용 → Vercel 새 프로젝트 `coupang-ops`·도메인 `coupang-ops.buylife.xyz`·환경변수(Supabase 4개, 이후 `FIXIE_URL`) → 배포.
+1. **배포는 모았다가(2026-10-28 주인님 「모았다가 하자」)**: C1-2~C1-14는 로컬(`npm run dev`, 이 PC IP `210.178.96.91`이 WING 허용 IP에 있음)에서 만들고 시험 → 1단계 완성 때 Vercel 새 프로젝트·도메인·환경변수(Supabase 4개·`FIXIE_URL`)·빌드 1회(그때 승인). 운영 DB 등록 SQL은 로컬 시험 시작 때 C1-2 키 목록 변경과 함께 적용(그때 승인).
 2. C1-2 키 등록(공용 키 표 「쿠팡 WING Open API」, DB 변경 승인) → C1-3 호출 컴포넌트 → C1-4 연결 시험.
 3. 주인님 쿠팡 계정: 10-29 판매 재개 → 키 재발급 → 「자체개발」 + IP 등록(플레이오토 연동은 안 씀, 끊겨도 됨).
 
