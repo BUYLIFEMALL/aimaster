@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 [역할: blog] v1.02 추가배포 Ready·운영 HTTP/버전/ZIP·설치파일 동기화 — 실회원/재로드 대기
+
+2026-10-28 v1.02운영 반영: 사용자승인dca86631 추가배포1회 READY(dpl_9AoWhXoq7SZTEJykyR6UQgjzSFve, Basic 19.385초), 공식/보조별칭연결. 웹/API·DB등록·package/manifest1.2.0·운영ZIP v1.02일치, 운영HTTP13·ZIP9파일소스일치통과. 기존설치폴더를7파일백업후9파일v1.02로갱신, 토큰저장소/확장ID변경없음. 기존Edge1838288에서릴레이데스크v1.02·회원로그인필요표시확인, e43fff5f 회원로그인/전경대기(실회원UI·실제확장재로드미검수). 신규SQL재적용없음·읽기/소통OFF·실제네이버43명전송0. 유료AI/검색0. 이번추가빌드1회성공19.385초, 앞선실패포함누적2회·실제청구미확정.
+
+- [결과·5대 링크](../blog-neighbor-care/docs/RELEASE_BATCH_20261028.md), [운영HTTP13/ZIP/백업](../blog-neighbor-care/docs/evidence/production-http-20261028.json). 운영별칭 https://blog-neighbor-care.buylife.xyz/reader · 보조 https://blog-neighbor-care.vercel.app/reader.
+- 설치D:/Antigravity/Extensions/blog-neighbor-care-v1.01 경로유지, 백업D:/Antigravity/Extensions/backups/blog-neighbor-care-v1.01-before-v1.02-20261028. 물리파일9개일치·Edge메모리재로드는미확인.
+- 사용자회원로그인필요표시확인후AIMaster로그인링크이동, e43fff5f계정요청1건등록. Chrome별도창은조작하지않음. 비용dca86631사용자추가1회승인/Ready처리완료.
+- 현재SQL재적용/배포재시도불필요. 실제AI/검색/네이버목록전송/공감댓글실행0. 기존읽기허용근거3e257d73별도. 이번Basic19.385초1회, 총실패8.749+성공19.385=2회·실제청구미확정.
+
 ## 2026-10-28 [역할: blog] 신규SQL 운영완료·v1.02 배포실패 원인수정·추가1회 승인대기
 
 2026-10-28 실행: 사용자승인af760869로 신규분석/이웃7표·RPC2 운영적용, RLS/권한/읽기OFF/소통OFF 8조건통과. 릴리스소스19611d680(v1.02/manifest·package1.2.0)·단위144/HTTP39/로컬빌드통과. 승인프로덕션빌드1회는ERROR(dpl_3PjavjY6nbGy1EzemAnF3JTKDUgj, Basic8.749초): 내가추가한supabase제외패턴이src/lib/supabase까지누락. d4092f4cc로루트한정수정, 실제Vercel dry-run 필수3파일포함·업로드86파일만복사한격리소스빌드/타입통과. **운영/DB등록/설치본v1.01유지, v1.02미배포**, 설치폴더미교체·실제43명전송0. 추가빌드1회승인dca86631-b547-428a-8eaf-74f279c15883 대기(이전1회소진). 기존읽기허용근거3e257d73별도유지. AI/검색0, 운영신규SQL1회·원격실패빌드1회·실제청구미확정.
