@@ -46,6 +46,9 @@ export function wingErrorMessage(status: number, body: string): string {
   if (status === 401 || b.includes("invalid signature") || b.includes("not registered")) {
     return "쿠팡이 키를 받아들이지 않았습니다. 업체코드·Access Key·Secret Key가 WING 화면과 같은지, 키가 만료(6개월)되지 않았는지 확인해 주세요. 발급 직후라면 최대 24시간 걸릴 수 있습니다.";
   }
+  if (status === 403 && b.includes("account status")) {
+    return "쿠팡 계정 상태(판매정지 등) 때문에 API 사용이 막혀 있습니다. WING 「온라인 문의」로 판매를 재개하면 다시 쓸 수 있습니다(2026-10-28 실제 응답 확인).";
+  }
   if (status === 403) {
     return "쿠팡이 이 요청의 출발 IP를 허용하지 않았습니다. WING 「연동 정보」가 「자체개발」인지, 허용 IP에 우리 서버 IP가 들어 있는지 확인해 주세요(등록 후 반영까지 30분~1시간).";
   }
