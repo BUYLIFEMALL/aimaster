@@ -1,0 +1,77 @@
+{
+  "checkedAt": "2026-10-28T02:47:21.239Z",
+  "programVersion": "v1.02",
+  "existingEdgeWindow": 1838288,
+  "newBrowserWindows": 0,
+  "approval": {
+    "requestId": "bc3a34c2-007f-484b-823d-5f170a2b2b15",
+    "response": "계속 진행해",
+    "scope": "one profile generation using own Anthropic key and one existing own post; external transmission approved",
+    "usdCap": 0.05,
+    "consumed": true
+  },
+  "job": {
+    "id": "e207aead-b540-4ec5-af46-8b371dafc30c",
+    "kind": "profile",
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5",
+    "state": "uncertain",
+    "errorCode": "GENERATION_UNCONFIRMED",
+    "materialCount": 1,
+    "createdAt": "2026-10-28T02:40:50.181855Z",
+    "runStartedAt": "2026-10-28T02:40:52.524296Z",
+    "expiresAt": "2026-11-26T03:53:19.258128Z",
+    "hasResult": false,
+    "hasReviewedResult": false,
+    "revision": 0
+  },
+  "generationButtonAttempts": 1,
+  "automaticRetries": 0,
+  "additionalModelsCalled": 0,
+  "successfulProfiles": 0,
+  "providerRequestCountIndependentlyVerified": false,
+  "providerRequestsMaximum": 1,
+  "billedTokens": null,
+  "actualChargeUsd": null,
+  "ui": {
+    "externalTransmissionConsentChecked": true,
+    "requestStatusReadBack": true,
+    "uncertainRequestHistoryVisible": true,
+    "additionalGenerationAcknowledgementUnchecked": true
+  },
+  "runtimeLogLookup": "No matching runtime logs or grouped request-path records returned for the deployment/time window.",
+  "originalFailureCause": "Unresolved: deployed catch hides provider, validation and persistence errors; no raw provider response or usage was retained.",
+  "localDiagnosticGap": {
+    "reproduction": "node --import tsx --test tests/analysis-diagnostics.test.mjs",
+    "red": "AD01 missing safe diagnostic for http: expected1/actual0",
+    "greenTests": 2,
+    "totalUnitTestsPassed": 150,
+    "typecheckPassed": true,
+    "scope": "Classify subsequent failures only; not a fix or reproduction of the exact live AI failure.",
+    "fields": [
+      "jobId",
+      "kind",
+      "provider",
+      "model",
+      "stage",
+      "reason",
+      "httpStatus"
+    ],
+    "sensitiveDataLogged": false,
+    "deployment": "pending-batch",
+    "productionBehaviorChanged": false
+  },
+  "screenshot": "profile-ai-uncertain-20261028.png",
+  "newBuilds": 0,
+  "newDeployments": 0,
+  "searchCalls": 0,
+  "naverNeighborsImported": 0,
+  "readAndSocialGatesChanged": false,
+  "rawMaterialOrKeySaved": false,
+  "remaining": [
+    "Original AI failure root cause and real profile quality",
+    "Provider usage/actual charge reconciliation",
+    "Batched deployment of diagnostics and previous retention fix",
+    "One-call approval is consumed; no further generation is authorized by it."
+  ]
+}

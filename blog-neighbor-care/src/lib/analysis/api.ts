@@ -1,13 +1,20 @@
 import { randomBytes } from 'node:crypto';
 import type { Access } from '../work-api';
 import { AnalysisInputError, bad, generation, hash, object, only, preferences, profileFields, prompt, strings, uuid, validateResult, type Bundle, type ObjectValue } from './contracts';
-import type { Provider } from './provider';
+import { ProviderFailure, type Provider } from './provider';
+
+export type GenerationFailureDiagnostic = {
+  jobId: string; kind: 'profile' | 'candidates'; provider: Provider; model: string;
+  stage: 'prompt' | 'provider' | 'validation' | 'persist' | 'access_check' | 'result_read';
+  reason: string; httpStatus?: number;
+};
 
 export type AnalysisDependencies = {
   member:()=>Promise<Access>;
   rpc:(userId:string,operation:string,payload:ObjectValue)=>Promise<{data:any;error:any}>; // RPC JSON boundary
   key:(userId:string,provider:Provider)=>Promise<string|null>;
   generate:(provider:Provider,model:string,key:string,system:string,user:string)=>Promise<unknown>;
+  reportFailure?:(diagnostic:GenerationFailureDiagnostic)=>Promise<void>|void;
 };
 class RpcError extends Error {constructor(readonly code:string){super(code);}}
 const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{'cache-control':'private, no-store','vary':'Cookie, Origin','x-content-type-options':'nosniff'}});
@@ -58,16 +65,30 @@ export function createAnalysisHandler(deps:AnalysisDependencies) {
       const runHash=hash(randomBytes(32).toString('hex'));
       const bundle=await rpc(userId,'claim',{id:prepared.id,run_hash:runHash}) as Bundle;
       let attempted=false;
+      let stage: GenerationFailureDiagnostic['stage']='prompt';
       try {
         const messages=prompt(bundle);attempted=true;
-        const result=validateResult(await deps.generate(prepared.input.provider,prepared.input.model,key,messages.system,messages.user),bundle);
+        stage='provider';
+        const output=await deps.generate(prepared.input.provider,prepared.input.model,key,messages.system,messages.user);
+        stage='validation';
+        const result=validateResult(output,bundle);
+        stage='persist';
         await rpc(userId,'complete',{id:prepared.id,run_hash:runHash,result});
+        stage='access_check';
         const after=await deps.member();
         if(!after.allowed)return reply({error:after.error},after.status);
         if(after.userId!==userId)return reply({error:'로그인 계정을 다시 확인해 주세요.'},403);
+        stage='result_read';
         return reply({data:await rpc(userId,'get',{id:prepared.id})});
-      } catch {
+      } catch(error) {
         if(attempted)await rpc(userId,'uncertain',{id:prepared.id,run_hash:runHash}).catch(()=>{});
+        // Internal metadata only. Never log errors/messages, input, output,
+        // authorization data or run capabilities, and never retry generation.
+        const diagnostic:GenerationFailureDiagnostic={jobId:prepared.id,kind:operation==='profile'?'profile':'candidates',provider:prepared.input.provider,model:prepared.input.model,stage,
+          reason:error instanceof ProviderFailure ? error.reason : stage==='validation' ? 'result_invalid' : stage==='persist' || stage==='result_read' ? 'storage_failed' : 'unconfirmed'};
+        const status=error instanceof ProviderFailure ? error.httpStatus : undefined;
+        if(typeof status==='number' && Number.isInteger(status) && status>=400 && status<=599)diagnostic.httpStatus=status;
+        try { await deps.reportFailure?.(diagnostic); } catch { /* telemetry cannot change the result or retry */ }
         return reply({error:'생성 결과를 확정하지 못했습니다. 같은 요청을 자동으로 다시 실행하지 않습니다. 결과 상태를 확인해 주세요.',code:'GENERATION_UNCONFIRMED',jobId:prepared.id},502);
       }
     } catch(error) {
