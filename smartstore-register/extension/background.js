@@ -372,6 +372,9 @@ async function pageCommand(cmd, args) {
       // 누르기 전부터 떠 있던 글(검색 SEO 안내·「달력보기」 등)은 판정에서 뺀다 — 누른 뒤 새로 나타난 글만 본다
       const noteNodes = () => [...document.querySelectorAll('.modal.in, [role="dialog"], .toast, .alert, .noti-message, .error-msg, [class*="error"]')].filter(visible);
       const before = new Set(noteNodes().map((m) => m.innerText.replace(/\s+/g, ' ').trim()));
+      // 임시저장은 상품 등록 화면에 그대로 머물고 완료 안내도 잠깐뿐 → 맨 위 「임시저장 된 내용(N건)」 숫자가 늘면 성공(2026-10-28 실측: 1건 → 2건)
+      const draftCount = () => { const m = (document.body.innerText || '').match(/임시저장\s*된\s*내용\s*\(\s*(\d+)\s*건\s*\)/); return m ? Number(m[1]) : null; };
+      const draftsBefore = draftCount();
       btn.click();
       if (temp) {
         // 「임시저장 하시겠습니까?」 같은 확인 창이 뜨면 「확인」
@@ -391,7 +394,9 @@ async function pageCommand(cmd, args) {
         const later = [...document.querySelectorAll('.modal.in, [role="dialog"]')].filter(visible).flatMap((m) => [...m.querySelectorAll('button, a')]).find((b) => visible(b) && b.textContent.replace(/\s+/g, '') === '다음에할래요');
         if (later) { later.click(); await sleep(800); continue; }
         const text = notes().join(' / ');
-        if (location.hash !== startHash && !/products\/create/.test(location.hash)) verdict = { state: 'success', message: text };
+        const draftsNow = temp ? draftCount() : null;
+        if (temp && draftsNow != null && (draftsBefore == null ? draftsNow > 0 : draftsNow > draftsBefore)) verdict = { state: 'success', message: `임시저장본 ${draftsBefore ?? 0}건 → ${draftsNow}건` };
+        else if (location.hash !== startHash && !/products\/create/.test(location.hash)) verdict = { state: 'success', message: text };
         else if (/(등록|저장)\s*(이|가)?\s*(완료|되었)|임시저장\s*(이|가)?\s*(완료|되었)/.test(text)) verdict = { state: 'success', message: text };
         else if (/입력해\s*주세요|선택해\s*주세요|확인해\s*주세요|필수|오류|실패|할 수 없|올바르지|동일한|중복/.test(text)) verdict = { state: 'error', message: text };
       }
