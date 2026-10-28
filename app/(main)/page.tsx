@@ -353,7 +353,7 @@ export default async function HomePage() {
               </h2>
               <p className="text-subtext mt-2">회원가입만 하면 무료로 쓸 수 있는 프로그램입니다. 마음에 드는 프로그램에 ♥ 추천을 눌러 주세요 — 추천을 많이 받은 순서로 보여 드립니다.</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className={freePrograms.length === 4 ? "grid sm:grid-cols-2 lg:grid-cols-4 gap-6" : "grid md:grid-cols-3 gap-6"}>
               {freePrograms.map((program) => (
                 <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} liked={likedSet.has(program.id)} loggedIn={loggedIn} />
               ))}
