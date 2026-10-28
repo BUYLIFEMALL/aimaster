@@ -1,0 +1,50 @@
+{
+  "recordedAt": "2026-10-28T15:01:22.062Z",
+  "importId": "e5e35481-41cb-4534-bd1d-efddcbf644d2",
+  "state": "confirmed",
+  "capturedCount": 43,
+  "totalCount": 43,
+  "lastPage": 1,
+  "totalPages": 1,
+  "confirmedAt": "2026-10-28T14:56:20.237981Z",
+  "actualExtension": true,
+  "actualAuthenticatedWebConfirmation": true,
+  "webRequeryVerified": true,
+  "databaseVerified": true,
+  "relations": {
+    "mutual": {
+      "count": 17,
+      "newPostsOn": 17,
+      "returnVisitsOn": 17
+    },
+    "oneWay": {
+      "count": 26,
+      "newPostsOn": 0,
+      "returnVisitsOn": 0
+    }
+  },
+  "individualTargetTest": {
+    "newPostsDisabledAndDatabaseChecked": true,
+    "restoredToOriginal": true,
+    "returnVisitsPreserved": true
+  },
+  "consumedPermitRevoked": true,
+  "globalReadAllowed": false,
+  "liveAllowed": false,
+  "socialJobs": 0,
+  "remainingActualChecks": [
+    "multi-page list",
+    "empty list",
+    "settings preserved across fresh reimport",
+    "AI/candidate quality",
+    "social executors",
+    "persistent scheduling",
+    "pending SQL3/cleanup Cron/batch release"
+  ],
+  "sourceChangeThisStep": false,
+  "operatingVersion": "v1.02",
+  "newDeployment": false,
+  "paidAiCalls": 0,
+  "searchCalls": 0,
+  "remoteBuilds": 0
+}
