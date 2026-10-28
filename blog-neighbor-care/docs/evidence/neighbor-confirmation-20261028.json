@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-10-28T10:02:45.946Z",
+  "programWebLoginVerified": true,
+  "accountBlog": "buylifemall",
+  "importId": "a3a9b562-a89f-47ed-b3e6-89abc9202f19",
+  "state": "expired",
+  "capturedCount": 43,
+  "totalCount": 43,
+  "lastPage": 1,
+  "validUntil": "2026-10-28T09:55:59.72242Z",
+  "confirmed": false,
+  "previewRowsVisible": 43,
+  "newReadRequested": true,
+  "newPermit": "ef87b251-9a48-4e80-9141-ca2559f4e4bd",
+  "blocker": "Native popup control closes popup when scrolling; owner read click requested",
+  "codeChanged": false,
+  "remoteBuilds": 0,
+  "paidAiCalls": 0
+}
