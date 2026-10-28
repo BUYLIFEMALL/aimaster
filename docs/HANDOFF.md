@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.21 상품속성 고르기
+
+- 상품 화면 「이 카테고리 속성 불러오기」 → 회원 확장이 판매자센터 내부 데이터 주소(카테고리 검색·attribute-group)를 읽기만 → 속성 이름·보기·최대 개수·필수를 골라 「이름: 값」으로 보냄. DB 표 `smartstore_register_attr_lookups` 추가(운영, 회원 본인만, 30일 정리). 함께 배포: 반품 택배사 고르기 보정, 상품번호 읽기 보강.
+- 배포 `hj1bnhk92` Ready, DB·확장·ZIP v1.21 OK(빌드 1회, 승인). 시험 23·빌드 통과. 실물 시험은 ego 확장 새로고침 뒤.
+- 상세: `smartstore-register/AGENTS.md`, 플랜 `smartstore-register/docs/PLAN_20261028_ATTRIBUTES.md`.
+- https://smartstore-register.buylife.xyz
+
 ## 2026-10-28 [역할: blog] 시작승인15분 조기만료 재현·14일시작/15분실행 분리
 
 2026-10-28 18:09KST 실제읽기재거절 원인은관리자발급허가의15분시작기한만료. 현재14일테스트구독REST권한정상/확장연결정상, 신규요청0·디렉터리0. IDB26을기존제약위반으로재현(red,기존25통과)후 승인시작기간과실행TTL분리: 신규migration20261028090356 운영적용, 승인최대14일·시작한run15분·nonce60초·정확회원/계정/기기·1회·범위/철회검사유지. 격리DB28/28통과·컨테이너종료. 기존1일이용기간/15분시작승인기록은과거, 기존migration재실행금지. 새승인569011fa(11/11 17:28:55KST까지,1페이지43명)는테스트구독만료에묶음. RLS/서비스INSERT불가/invoker/전체읽기OFF/자동소통OFF 유지. 실수신/반영미완료, 사용자직접읽기요청549344b3 유지. 웹/확장소스/버전/ZIP/원격빌드변경없음·AI/검색0.
