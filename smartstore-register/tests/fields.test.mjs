@@ -192,8 +192,9 @@ test("상품 주요정보: 브랜드·제조사는 brand_input(모델명은 자�
   assert.equal(by("brand").action, "brand_input");
   assert.equal(by("brand").target, "brand");
   assert.equal(by("manufacturer").target, "manufacturer");
-  assert.equal(by("model_name"), undefined);
-  assert.equal(extCanRun(r.steps, "v1.14"), false);
+  assert.equal(by("model_name").action, "model_text");
+  assert.equal(by("model_name").value, "ST4D18");
+  assert.equal(extCanRun(r.steps, "v1.18"), false);
   assert.equal(by("sale_type").value, "중고상품");
   const none = buildFillSteps(P, D, { ...O, mainInfo: normalizeMainInfo({ used: "new" }) });
   assert.ok(!["brand", "manufacturer", "model_name", "sale_type"].some((k) => keys(none).includes(k)));

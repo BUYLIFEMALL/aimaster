@@ -843,6 +843,44 @@ async function optionOffMain() {
   return { ok: true, switched: true, confirmed: !!dlg };
 }
 
+// 모델명(2026-10-28 v1.19) — 「찾기」(ng-click vm.func.openModelSearchModal) → 「모델명 입력」 창 → 「텍스트로 직접입력」(vm.inputType=TEXT)
+// → vm.modelText에 값 → 창의 「저장」(vm.func.save(), 상품 저장 아님) → 등록 화면 모델명 줄에 그 값이 보이면 성공. ego lite로 창 구조 확인.
+async function modelTextMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const vis = (e) => !!e && !!(e.offsetWidth || e.offsetHeight || e.getClientRects().length);
+  const ng = window.angular;
+  let root = null;
+  try { root = ng.element(document.body).injector().get('$rootScope'); } catch (e) { root = null; }
+  const apply = (fn) => { if (!root || root.$$phase) fn(); else root.$apply(fn); };
+  const btn = [...document.querySelectorAll('button[ng-click^="vm.func.openModelSearchModal"]')].find(vis);
+  if (!btn) return { ok: false, error: '모델명 「찾기」 버튼을 찾지 못했습니다(상품 주요정보 칸이 접혀 있을 수 있음).' };
+  if (btn.disabled) return { ok: false, error: '모델명 「찾기」 버튼이 꺼져 있습니다.' };
+  btn.scrollIntoView({ block: 'center' });
+  btn.click();
+  let m = null;
+  for (let i = 0; i < 20 && !m; i++) { await sleep(250); m = [...document.querySelectorAll('.modal.in, [role="dialog"]')].filter(vis).find((d) => /모델명 입력/.test(d.textContent)); }
+  if (!m) return { ok: false, error: '「모델명 입력」 창이 열리지 않았습니다.' };
+  const textRadio = [...m.querySelectorAll('input[type=radio]')].find((x) => x.value === 'TEXT');
+  if (!textRadio) return { ok: false, error: '「텍스트로 직접입력」을 찾지 못했습니다.' };
+  if (!textRadio.checked) { (m.querySelector('label[for="' + textRadio.id + '"]') || textRadio).click(); await sleep(800); }
+  const inp = m.querySelector('input[ng-model="vm.modelText"]');
+  if (!inp) return { ok: false, error: '모델명 입력칸을 찾지 못했습니다.' };
+  const c = ng ? ng.element(inp).controller('ngModel') : null;
+  if (c) apply(() => { c.$setViewValue(a.value); c.$render(); });
+  else { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(inp, a.value); inp.dispatchEvent(new Event('input', { bubbles: true })); }
+  await sleep(300);
+  const save = [...m.querySelectorAll('button')].find((b) => b.getAttribute('ng-click') === 'vm.func.save()');
+  if (!save) return { ok: false, error: '창의 「저장」 버튼을 찾지 못했습니다.' };
+  save.click();
+  for (let i = 0; i < 12 && document.body.contains(m) && vis(m); i++) await sleep(250);
+  if (document.body.contains(m) && vis(m)) return { ok: false, error: '「모델명 입력」 창이 닫히지 않았습니다: ' + m.innerText.replace(/\s+/g, ' ').slice(0, 80) };
+  const lab = [...document.querySelectorAll('label')].find((l) => l.getAttribute('for') === 'prd-model' && vis(l));
+  let shown = '';
+  for (let box = lab && lab.parentElement, up = 0; box && up < 3 && !shown.includes(a.value); up++, box = box.parentElement) shown = box.innerText || '';
+  if (!shown.includes(a.value)) return { ok: false, error: '모델명이 등록 화면에 보이지 않습니다.' };
+  return { ok: true };
+}
+
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
 // 판매가·할인 금액·배송비 금액·전화번호처럼 ncp-number-format이 붙은 칸은 화면 글자만 바꾸면 내부 값이 비어
 // 커서가 빠질 때 지워진다(2026-10-27 「바로 등록」 시험에서 판매가·할인 금액 「필수 정보입니다」로 저장 거절).
@@ -1027,6 +1065,8 @@ async function runJob(job) {
       } else if (step.action === 'images') {
         if (!job.mainImage) { failures.push('대표 이미지(없음)'); continue; }
         r = await run(tabId, 'mainImage', await fetchAsset(job.mainImage));
+      } else if (step.action === 'model_text') {
+        r = await runMain(tabId, modelTextMain, { value: step.value });
       } else if (step.action === 'brand_input') {
         r = await runMain(tabId, brandInputMain, { kind: step.target, value: step.value });
       } else if (step.action === 'unit_pick') {
