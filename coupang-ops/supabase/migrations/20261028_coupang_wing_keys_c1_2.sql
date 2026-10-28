@@ -14,7 +14,12 @@ begin
   if def is null then
     raise exception 'user_api_keys_provider_check 제약을 찾지 못했습니다';
   end if;
-  select array_agg(distinct m[1]) into vals from regexp_matches(def, '''([^'']+)''', 'g') as m;
+  -- 두 모양 모두: ANY ('{a,b,c}'::text[]) 배열 한 덩어리 / ARRAY['a'::text, 'b'::text]
+  if def ~ '[{][^}]*[}]' then
+    vals := regexp_split_to_array(substring(def from '[{]([^}]*)[}]'), ',');
+  else
+    select array_agg(distinct m[1]) into vals from regexp_matches(def, '''([^'']+)''', 'g') as m;
+  end if;
   if coalesce(array_length(vals, 1), 0) < 10 then
     raise exception '허용 목록을 읽지 못했습니다(%)', def;
   end if;
