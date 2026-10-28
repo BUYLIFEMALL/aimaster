@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.24 사용 매뉴얼 보강
+
+- 주인님 「초보자들도 보고 따라 할수 있는 수준으로」 → `/guide` 전면 재작성(매뉴얼 지침 규격: 헤더 바·히어로·4단계 카드·상세 4단계·팁/주의·「🛠 이럴 땐 이렇게」 9가지·FAQ 6·「1초 복사」 상자). 배포 `qqlsmkqo4` Ready, v1.24 OK, ego 데스크톱·390px 확인.
+- https://smartstore-register.buylife.xyz/guide
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.23 판매자센터 화면 점검
 
 - 확장이 7일마다(+대시보드 「지금 점검」) 상품 등록 화면을 비활성 새 탭에서 읽기만 해 확장이 쓰는 칸 58개가 그대로 있는지 확인 → 대시보드 「🩺 판매자센터 화면 점검」 카드(정상/바뀐 칸 N개). DB 표 `smartstore_register_health` 추가(운영, 승인). 배포 `1ei77dyqs` Ready, v1.23 OK. 첫 자동 점검 20:43 정상(21초).
