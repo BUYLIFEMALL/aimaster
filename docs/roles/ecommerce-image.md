@@ -15,11 +15,13 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `shop-order-report` | 마켓별 열 이름·상태 사전 보정 | 주인님 실제 주문 파일(개인정보 지운 사본) | `shop-order-report/docs/IMPROVEMENT_BACKLOG.md` |
+| `coupang-ops` | 쿠팡 실키 시험(연결 시험·출고지/반품지·카테고리) 이어서 | 주인님 쿠팡 판매 재개(판매정지 = 모든 API 막힘) → 키 재발급 | `coupang-ops/docs/IMPROVEMENT_HANDOFF_20261028.md` |
 | `seller-label-docs` | 기본 라벨 규격 여백 보정 | 주인님 실물 라벨지 시험 인쇄 결과 | `seller-label-docs/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-28 | `coupang-ops` v1.01(신규) | **AI 쿠팡 운영 자동화** 1단계 뼈대·키 등록·쿠팡 호출(HMAC·Fixie)·연결 시험·배송/반품 기본값·등록 본문 만들기/검사·카테고리 정리(시험 23개). 운영 DB 적용(비공개 등록·키 이름 4개·표 3개). 실키: IP 반영·서명 통과, **판매정지로 API 막힘**에서 멈춤. 인수인계 `coupang-ops/docs/IMPROVEMENT_HANDOFF_20261028.md` | 미배포(1단계 완성 때 1회) |
 | 2026-10-28 | `smartstore-register` v1.22·v1.23 | 상품속성 AI 추천(회원 본인 Claude 키)·필수 속성 안내 / 판매자센터 화면 점검(7일 자동·지금 점검) — 실물 확인 | ✅ `5etiff2gv`·`1ei77dyqs` |
 | 2026-10-28 | `smartstore-register` v1.20·v1.21 | 재고 합계(바로 등록 거절 원인)·스토어명 기록·반품 택배사·상품번호 보강·**상품속성 고르기**(판매자센터 데이터 읽기, DB 표 추가) — 실물 시험 전 항목 통과. 인수인계 `smartstore-register/docs/IMPROVEMENT_HANDOFF_20261028.md` | ✅ `hj1bnhk92` |
 | 2026-10-28 | 지침 | **기본 AI = Claude**(주인님 지시) — CLAUDE/AGENTS/GEMINI.md·`docs/CLAUDE_CODE_API_CREDIT.md` §2-1 | 문서 |
