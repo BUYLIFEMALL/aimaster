@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 [역할: blog] 메인 지침: 모든 CLI의 API 호출은 사용자 Claude Code용 지정 연결 사용
+
+2026-10-28 사용자 최종 지시: 모든 CLI가 개발·검수·진단을 위해 API를 사용해야 하면 사용자가 Claude Code용으로 지정·연결한 키와 연동 경로를 사용한다. 메인 AGENTS.md·CLAUDE.md 최상단과 docs/TOP_RULE_PERSONAL_ACCOUNT_API.md에 공통 규칙을 추가했다. 앞선 이 세션의 OpenAI 우선 기록을 대체한다. 회원 프로그램의 서비스 실행은 회원 본인 계정/키 규칙 유지. 키 값 저장/노출 없이 문서만 수정, 실제 연결/월간 크레딧 차감 검증이나 API 호출은 이번에 하지 않았다. 기존 비용 승인/사용량 규칙 유지. 과거미확정e207aead/철회df361204 상태 그대로.
+
+- 사용자원문: 「메인 지침에 API를 CLI가 사용해야 하는 경우 Claude code API키를 사용하라고 해」. [메인AGENTS](../AGENTS.md)·[메인CLAUDE](../CLAUDE.md)·[상세규칙](TOP_RULE_PERSONAL_ACCOUNT_API.md#cli-api-claude-code). 실제 API/배포/비용0.
+
 ## 2026-10-28 [역할: blog] 사용자 OpenAI키 보유/검수선호 반영·Anthropic 추가진단요청 철회
 
 2026-10-28 사용자 「난 CODEX인데 왜 클로드 API키를 사용했지?」「OPENAI 키도 있는데」에 따라 이 작업의 이후 검수는 회원 본인 OpenAI키를 우선 사용합니다. 개발담당CLI와 프로그램분석공급자는 별도이며, 과거 Haiku4.5 선택은 Codex의 필수조건이 아니라 이 세션의 검수모델 선택이었습니다. 기존 Anthropic 추가진단요청df361204는 세션이 만든 owner_action을 철회 처리(유료실행0)하고 로컬진단도구에서도 해당승인ID를 거절하도록 반영했습니다. 이 질문/정정은 새 유료호출 승인이 아니며 OpenAI 비용/모델/외부전송 범위를 정하기 전 추가생성0. 과거e207aead uncertain/청구미확정 보존, 원인 미해결. 여러공급자를 고를 수 있는 제품기능은 유지합니다. 실제Edge 선택변경은 도구읽기대기로 미확인, 바뀌었다고 보고하지 않습니다.

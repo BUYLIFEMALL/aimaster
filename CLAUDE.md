@@ -1,3 +1,7 @@
+<!-- CLI_API_CLAUDE_CODE_20261028 -->
+> **CLI의 API 사용 기준 (2026-10-28 사용자 지시, 모든 CLI·세션·장비 공통):** Codex·Claude Code·Antigravity 등 **CLI가 개발·검수·진단을 위해 API를 사용해야 할 때는 사용자가 Claude Code용으로 지정·연결한 API 키와 연동 경로를 사용한다.** CLI 종류와 관계없이 이 지정 연결을 기준으로 하며, 키 값은 문서·채팅·로그에 남기지 않는다. 비용·사용량은 기존 승인 범위와 기록 규칙을 따른다. 회원 프로그램의 실제 서비스 실행에는 회원 본인 계정·본인 키 규칙을 적용한다. 상세: [본인 계정·API 규칙의 CLI 사용 기준](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md#cli-api-claude-code).
+<!-- /CLI_API_CLAUDE_CODE_20261028 -->
+
 <!-- EXTENSION_PROGRAM_NAME_MATCH_20261027 -->
 > **📛 본 프로그램명·확장 프로그램명 일치 (2026-10-27 주인님 지시, 모든 CLI·세션·장비 공통):** 확장을 새로 만들거나 이름을 바꾸거나 릴리스할 때 **본 프로그램의 공식명과 확장 프로그램 표시명을 동일하게 맞춘다.** 기능명은 확장 내부 설명·버튼에 표시한다. 이름 대조·ZIP/설치본 확인 기준: [확장 운영 규칙 §1-1](docs/EXTENSION_RELEASE_RULES.md#extension-program-name-match).
 <!-- /EXTENSION_PROGRAM_NAME_MATCH_20261027 -->
