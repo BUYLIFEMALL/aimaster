@@ -5,7 +5,7 @@ import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, benefitNote = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; benefitNote?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -25,6 +25,11 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         </div>
         <p className="text-[11px] text-slate-500">할인가를 넣으면 「정상가 − 할인가」가 즉시할인으로 들어갑니다. 여기서 바꾼 가격은 이번 등록에만 쓰고 상세페이지 상품 정보는 바꾸지 않습니다.</p>
       </fieldset>
+      {/* 혜택은 상품마다가 아니라 스토어 기본값 — 상품 화면에서 찾는 회원이 있어 지금 값과 바로가기를 보여 준다(2026-10-28 주인님 「넣어」) */}
+      <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-[11px] leading-relaxed text-emerald-900">
+        🎁 구매/리뷰 혜택은 <b>스토어 기본값</b>에서 정합니다 — 지금: {benefitNote || "넣지 않음"}{" "}
+        <a href="/defaults" className="font-bold underline">바꾸기 →</a>
+      </p>
       <fieldset className="space-y-1.5">
         <legend className="slw-label">상품 주요정보 <span className="font-normal text-slate-500">(선택)</span></legend>
         <input name="brand" defaultValue={initialMainInfo.brand} maxLength={50} placeholder="브랜드 (예: 스위스톤)" className="slw-field" />

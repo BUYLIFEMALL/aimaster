@@ -9,6 +9,16 @@ import { SHOP_DETAIL_SITE } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 
+const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
+/** 상품 화면에 보여 줄 혜택 요약(스토어 기본값) */
+function benefitSummary(d: { purchasePoint: number | null; reviewText: number | null; reviewPhoto: number | null; multiQty: number | null; multiDiscount: number | null }): string {
+  const parts: string[] = [];
+  if (d.purchasePoint != null) parts.push(`구매 포인트 ${won(d.purchasePoint)}`);
+  if (d.reviewText != null || d.reviewPhoto != null) parts.push(`리뷰 ${d.reviewText != null ? won(d.reviewText) : "—"}/${d.reviewPhoto != null ? won(d.reviewPhoto) : "—"}`);
+  if (d.multiQty != null && d.multiDiscount != null) parts.push(`복수구매 ${d.multiQty}개 이상 ${won(d.multiDiscount)} 할인`);
+  return parts.join(", ");
+}
+
 export default async function ProductRegisterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireProgramAccess();
@@ -51,7 +61,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         </div>
 
         <div className="space-y-3">
-          <RegisterForm productId={product.id} initialPrice={product.price} initialSalePrice={product.sale_price} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} initialCustomOptions={Array.isArray(lastCustom) ? lastCustom.map(String) : []} initialSupplements={Array.isArray(lastSupple) ? (lastSupple as { name: string; values: string[]; prices: number[] }[]).map((g) => `${g.name} | ${g.values.join(",")} | ${g.prices.join(",")}`).join("\n") : ""} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} initialMainInfo={lastMainInfo} initialAttributes={Array.isArray(lastAttributes) ? (lastAttributes as { name: string; value: string }[]).map((p) => `${p.name}: ${p.value}`).join("\n") : ""} />
+          <RegisterForm productId={product.id} benefitNote={benefitSummary(defaults)} initialPrice={product.price} initialSalePrice={product.sale_price} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} initialCustomOptions={Array.isArray(lastCustom) ? lastCustom.map(String) : []} initialSupplements={Array.isArray(lastSupple) ? (lastSupple as { name: string; values: string[]; prices: number[] }[]).map((g) => `${g.name} | ${g.values.join(",")} | ${g.prices.join(",")}`).join("\n") : ""} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} initialMainInfo={lastMainInfo} initialAttributes={Array.isArray(lastAttributes) ? (lastAttributes as { name: string; value: string }[]).map((p) => `${p.name}: ${p.value}`).join("\n") : ""} />
           <div className="slw-card p-3">
             <p className="mb-2 text-xs font-extrabold text-slate-700">대표 사진 · 상세 이미지 {sections.length}장</p>
             <div className="grid grid-cols-4 gap-1.5">
