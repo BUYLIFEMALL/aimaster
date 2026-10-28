@@ -1,4 +1,10 @@
-# 분석·기존 이웃 기능 묶음 반영안 — 승인 전
+# 분석·기존 이웃 기능 묶음 반영 결과 — v1.02
+
+**최신 완료/잔여:** 2026-10-28 v1.02운영 반영: 사용자승인dca86631 추가배포1회 READY(dpl_9AoWhXoq7SZTEJykyR6UQgjzSFve, Basic 19.385초), 공식/보조별칭연결. 웹/API·DB등록·package/manifest1.2.0·운영ZIP v1.02일치, 운영HTTP13·ZIP9파일소스일치통과. 기존설치폴더를7파일백업후9파일v1.02로갱신, 토큰저장소/확장ID변경없음. 기존Edge1838288에서릴레이데스크v1.02·회원로그인필요표시확인, e43fff5f 회원로그인/전경대기(실회원UI·실제확장재로드미검수). 신규SQL재적용없음·읽기/소통OFF·실제네이버43명전송0. 유료AI/검색0. 이번추가빌드1회성공19.385초, 앞선실패포함누적2회·실제청구미확정.
+
+최종 결과: [운영](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [결과 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/v1.02-release-20261028/index.html) · 영구폴더 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\v1.02-release-20261028`.
+
+신규SQL과추가배포는완료되어재실행하지않습니다. 아래준비/실패기록은진행이력입니다.
 
 **2026-10-28 최신 실행 결과:** 2026-10-28 실행: 사용자승인af760869로 신규분석/이웃7표·RPC2 운영적용, RLS/권한/읽기OFF/소통OFF 8조건통과. 릴리스소스19611d680(v1.02/manifest·package1.2.0)·단위144/HTTP39/로컬빌드통과. 승인프로덕션빌드1회는ERROR(dpl_3PjavjY6nbGy1EzemAnF3JTKDUgj, Basic8.749초): 내가추가한supabase제외패턴이src/lib/supabase까지누락. d4092f4cc로루트한정수정, 실제Vercel dry-run 필수3파일포함·업로드86파일만복사한격리소스빌드/타입통과. **운영/DB등록/설치본v1.01유지, v1.02미배포**, 설치폴더미교체·실제43명전송0. 추가빌드1회승인dca86631-b547-428a-8eaf-74f279c15883 대기(이전1회소진). 기존읽기허용근거3e257d73별도유지. AI/검색0, 운영신규SQL1회·원격실패빌드1회·실제청구미확정.
 

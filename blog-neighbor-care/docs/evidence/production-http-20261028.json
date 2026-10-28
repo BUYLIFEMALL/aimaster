@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-27T17:06:15.692Z",
+  "checks": [
+    "Official version v1.02",
+    "/api/analysis POST requires authentication",
+    "/api/candidates/search POST requires authentication",
+    "/api/neighbors POST requires authentication",
+    "/api/neighbors/import/member POST requires authentication",
+    "/api/neighbors/import/extension POST requires authentication",
+    "/api/reader/member POST requires authentication",
+    "Website cannot call extension-only import endpoint",
+    "/api/neighbors/import/member GET rejected",
+    "/api/neighbors/import/extension GET rejected",
+    "Cron requires secret",
+    "Guide is current and public",
+    "Production ZIP nine files match reviewed source"
+  ],
+  "passed": 13,
+  "operatingVersion": "v1.02",
+  "productionZip": {
+    "files": 9,
+    "version": "v1.02",
+    "sha256": "cb609b81f23f892e68874b15cdf34aa23ba887cecc27401b7c1875a14c76bccc",
+    "sourceBytesMatched": true
+  },
+  "installFolder": "D:/Antigravity/Extensions/blog-neighbor-care-v1.01",
+  "backupFolder": "D:/Antigravity/Extensions/backups/blog-neighbor-care-v1.01-before-v1.02-20261028",
+  "installFilesMatchSource": true,
+  "edgeReloadVerified": false,
+  "actualNaverNeighborsImported": 0,
+  "realAiCalls": 0,
+  "searchCalls": 0
+}
