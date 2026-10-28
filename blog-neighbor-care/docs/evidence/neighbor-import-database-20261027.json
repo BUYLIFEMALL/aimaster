@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-27T15:22:29.425Z",
+  "checkedAt": "2026-10-28T04:32:01.264Z",
   "tests": [
     "IDB01 five tables RLS, private RPC, read gate default off and non-writable by service",
     "IDB02 missing platform permission blocks start without page reservation",
@@ -18,10 +18,17 @@
     "IDB16 explicit empty DOM completes zero-row request without deleting existing neighbors",
     "IDB17 loading placeholder and RSS row never upload or produce ready imports",
     "IDB18 page-two tab change leaves exact partial receipt; confirm blocked, cancellation preserves directory",
-    "IDB14 expiry cleanup deletes temporary source and receipts but preserves minimal member settings"
+    "IDB14 expiry cleanup deletes temporary source and receipts but preserves minimal member settings",
+    "IDB19 one-import grant permits only the exact member/account/device while global read and social remain off",
+    "IDB20 scoped snapshot stays staged until member confirms and cannot mint another run",
+    "IDB21 expiry, revocation and policy revision invalidate one-off grants",
+    "IDB22 page and total scopes are enforced before saving or confirming",
+    "IDB23 untrusted callers and service cannot create or extend grants; cancelled permits remain consumed",
+    "IDB24 local controller/DOM/API/SQL handles scoped own-list import while global read stays off",
+    "IDB25 active-run grant expiry blocks further reads; cleanup keeps referenced audit and member settings"
   ],
-  "passed": 18,
-  "expected": 18,
+  "passed": 25,
+  "expected": 25,
   "containerStopped": true,
   "operatingDatabaseChanged": false,
   "realCredentialsUsed": false,

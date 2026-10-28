@@ -1,5 +1,17 @@
 # 기존 이웃 가져오기 — 2026-10-27 착수 / 10-28 실제 화면 보정
 
+확인 링크 — [공식 운영](https://blog-neighbor-care.buylife.xyz/neighbors) · [Vercel 보조](https://blog-neighbor-care.vercel.app/neighbors) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 결과 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/v1.02-release-20261028/index.html) · 영구 자산 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\v1.02-release-20261028`.
+
+## 최신: 본인 1회 허가 운영 적용 / 실제 가져오기 미완료
+
+2026-10-28: 1번 기존 이웃 가져오기 우선. 계정·기기별 최대15분/1회/페이지·인원 범위 허가 SQL `20261028042655_bnc_member_import_permit.sql` 운영 적용. 격리DB25/단위152 통과. 전체읽기OFF·자동소통OFF, 허가발급/실제가져오기/반영0. 실제 Edge 본인목록43명 재확인. 전경HWND0·캡처실패·툴바클릭 미전달로 설치확장 팝업 실검수 대기(9ad39d88). 로그인/재설치 요청 아님. API/웹/확장 v1.02 유지·Vercel빌드0·AI/검색0. 기존 c4315e9f4/eac6b05f8/bc647bfcf 미배포 유지. 다음은 기존 Edge 팝업 열림 확인→정확한 회원/계정/기기에 1페이지43명 단기허가 발급→읽기→회원확인·반영→허가철회·DB검수. 실제 다중페이지/빈목록은 미검수 유지.
+
+일반 회원/서비스는 허가를 생성·연장할 수 없습니다. 취소해도 동일 허가는 재사용하지 못하며 만료/철회/범위초과/기기변경 시 중단합니다. 임시자료 만료정리는 참조 중인 허가 감사를 보존하고 기존 대상설정은 삭제하지 않습니다. 함수 원본 해시 검사로 운영 드리프트 시 전체 적용을 중단합니다. 보안 advisor의 새 표 RLS/no-policy INFO는 서버전용 설계와 일치하며 회원 정책을 추가하지 않습니다.
+
+이번 새 SQL만 운영적용됐고, 기존 진단/정리 웹 수정3건은 미배포입니다. Edge 목록43명 표시는 추출 성공이 아닙니다. 전경창0·캡처실패로 툴바 클릭 효과가 없었으며 회원 데이터는 아직0건입니다. 운영 허가는 팝업을 실제로 열고 읽기 직전에만 발급합니다. 네이버 공식 허락 확보로 보고하지 않습니다. [메타데이터 근거](evidence/neighbor-import-permit-20261028.json).
+
+아래 미배포/v1.01 문구는 당시 이력입니다.
+
 최신 후속 검수: [페이지·빈 목록 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/neighbor-import-validation-20261028/index.html) · 영구 폴더 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\neighbor-import-validation-20261028`.
 
 확인 링크(이번 기능은 미배포): [공식 운영](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 기능 확인 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/neighbor-import-20261027/index.html) · 영구 자산 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\neighbor-import-20261027`.

@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-28T04:38:00Z",
+  "migration": "20261028042655_bnc_member_import_permit.sql",
+  "productionApplied": true,
+  "migrationName": "bnc_member_import_permit_20261028",
+  "originalFunctionHashGuard": "29e6e8f303750bb84c56291317948f0d",
+  "isolatedDatabaseTests": { "passed": 25, "expected": 25 },
+  "unitTests": { "passed": 152, "expected": 152 },
+  "production": {
+    "globalRead": false,
+    "socialLive": false,
+    "permitRls": true,
+    "functionSecurityDefiner": false,
+    "serviceCanInsertPermit": false,
+    "serviceCanUpdatePermit": false,
+    "memberCanSelectPermit": false,
+    "permitsIssued": 0,
+    "importRuns": 0,
+    "directoryRows": 0,
+    "trustedRelations": 0
+  },
+  "visibleOwnListCount": 43,
+  "installedExtensionImportVerified": false,
+  "foregroundHwnd": 0,
+  "screenshotAvailable": false,
+  "nativeTabSelectionVerified": true,
+  "toolbarClickEffectVerified": false,
+  "next": "Open existing Edge extension popup in an active remote desktop, then issue a bounded own-list permit immediately before reading.",
+  "webBuilds": 0,
+  "aiGenerationCalls": 0,
+  "searchCalls": 0,
+  "officialPlatformPermissionClaimed": false
+}
