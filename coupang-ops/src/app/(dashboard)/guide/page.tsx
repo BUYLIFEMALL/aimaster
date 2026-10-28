@@ -60,11 +60,11 @@ export default async function GuidePage() {
         <h2 className="text-lg font-extrabold text-slate-900">STEP 2. 연동 방식 「자체개발」 + 허용 IP 등록</h2>
         <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">
           <li>같은 화면의 <b>「연동 정보 → 수정」</b>을 누르고 연동 방식을 <b>「자체개발」</b>로 고릅니다.</li>
-          <li>업체명은 자유롭게(예: 내 상호), URL은 아래 주소를 넣습니다.</li>
-          <li>IP 주소 칸에 우리 서버 IP 두 개를 <b>쉼표(,)로 이어서</b> 넣고 저장합니다.</li>
+          <li>업체 입력 방식은 <b>「자체개발(직접입력)」</b>, 업체명은 자유롭게(예: 내 상호), URL은 아래 주소(https:// 없이)를 넣습니다.</li>
+          <li>IP 주소 칸에 우리 서버 IP를 <b>하나씩</b> 넣고 그때마다 <b>「추가」</b>를 누릅니다(두 개). 목록에 둘 다 보이면 「확인」을 누릅니다.</li>
         </ol>
-        <CopyBox label="URL" text="https://www.buylife.xyz" />
-        <CopyBox label="IP" text={SERVER_IPS.join(",")} />
+        <CopyBox label="URL" text="www.buylife.xyz" />
+        {SERVER_IPS.map((ip, i) => <CopyBox key={ip} label={`IP ${i + 1}`} text={ip} />)}
         <Notice tone="tip">
           💡 IP는 등록 후 쿠팡에 반영되기까지 30분~1시간, 처음 발급한 키는 최대 24시간이 걸릴 수 있습니다. 바로 연결이 안 되면 잠시 뒤 다시 시험해 주세요.
         </Notice>

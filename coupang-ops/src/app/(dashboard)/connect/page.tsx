@@ -21,10 +21,10 @@ export default async function ConnectPage() {
       <section className="slw-card space-y-3 p-5">
         <h2 className="text-base font-extrabold text-slate-900">1. WING 허용 IP 확인</h2>
         <p className="text-sm text-slate-700">
-          WING 「추가판매정보 → OPEN API 키 발급 → 연동 정보 수정」에서 연동 방식 <b>「자체개발」</b>, IP 칸에 아래 값을 넣어야 연결됩니다.
+          WING 「추가판매정보 → OPEN API 키 발급 → 연동 정보 수정」에서 연동 방식 <b>「자체개발」</b>, IP 칸에 아래 IP를 하나씩 넣고 그때마다 「추가」를 눌러야 연결됩니다.
           자세한 방법은 <Link href="/guide" className="font-bold text-rose-700 underline">📖 매뉴얼</Link>에 있습니다.
         </p>
-        <CopyBox label="IP" text={SERVER_IPS.join(",")} />
+        {SERVER_IPS.map((ip, i) => <CopyBox key={ip} label={`IP ${i + 1}`} text={ip} />)}
       </section>
 
       <section className="slw-card space-y-3 p-5">

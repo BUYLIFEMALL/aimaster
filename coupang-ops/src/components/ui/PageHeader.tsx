@@ -13,7 +13,7 @@ export function PageHeader({ emoji, title, description, children }: { emoji: str
       </div>
       <div className="flex items-center gap-2">
         <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-800">
-          🔒 내 상품만 보입니다
+          🔒 내 쿠팡 계정만 보입니다
         </span>
         {children}
       </div>
