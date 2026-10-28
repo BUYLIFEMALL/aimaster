@@ -393,7 +393,7 @@ async function pageCommand(cmd, args) {
         const text = notes().join(' / ');
         if (location.hash !== startHash && !/products\/create/.test(location.hash)) verdict = { state: 'success', message: text };
         else if (/(등록|저장)\s*(이|가)?\s*(완료|되었)|임시저장\s*(이|가)?\s*(완료|되었)/.test(text)) verdict = { state: 'success', message: text };
-        else if (/입력해\s*주세요|선택해\s*주세요|확인해\s*주세요|필수|오류|실패|할 수 없|올바르지/.test(text)) verdict = { state: 'error', message: text };
+        else if (/입력해\s*주세요|선택해\s*주세요|확인해\s*주세요|필수|오류|실패|할 수 없|올바르지|동일한|중복/.test(text)) verdict = { state: 'error', message: text };
       }
       const message = (verdict?.message || notes().join(' / ')).slice(0, 300);
       // 완료 창(「상품저장이 완료되었습니다」)의 「스마트스토어 상품보기」 링크 주소에 상품번호가 있다
@@ -537,11 +537,15 @@ async function tagsMain(a) {
     await sleep(400);
   };
   for (const tag of a.tags) {
+    // 같은 태그가 이미 있으면 넣지 않는다(2026-10-28 실측: 두 방법으로 두 번 들어가 임시저장 때 「동일한 태그가 있습니다」로 막힘)
+    const squashT = (s) => String(s || '').replace(/[#\s]/g, '');
+    const has = () => (inst && inst.items.some((v) => squashT(v) === squashT(tag))) ||
+      [...(sel.closest('fieldset') || document).querySelectorAll('span, li, a, div')].some((e) => e.children.length <= 2 && e.offsetParent !== null && squashT(e.textContent) === squashT(tag));
+    if (has()) continue;
     if (inst && typeof inst.createItem === 'function') {
-      const before1 = inst.items.length;
       try { inst.setTextboxValue ? inst.setTextboxValue(tag) : null; inst.createItem(tag, () => {}); } catch (e) { /* 아래에서 다시 */ }
-      await sleep(400);
-      if (inst.items.length === before1) {
+      await sleep(900);
+      if (!has()) {
         const vf = inst.settings.valueField || 'value', lf = inst.settings.labelField || 'text';
         try { inst.addOption({ [vf]: tag, [lf]: tag }); inst.addItem(tag); } catch (e) { /* 확인에서 실패로 */ }
       }
