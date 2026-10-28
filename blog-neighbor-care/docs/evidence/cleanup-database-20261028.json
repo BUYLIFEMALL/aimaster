@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-28T13:14:04.132Z",
+  "checkedAt": "2026-10-28T14:16:31.548Z",
   "database": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "tests": [
     "CDB01 reader failure still expires analysis/import data, reports 503 and preserves member settings",
@@ -9,12 +9,14 @@
     "CDB05 member roles cannot call cleanup; forged member or operation cannot run it",
     "CDB06 cancel releases only unarmed reservations; uncertain/success guards remain and repeated cancellation is idempotent",
     "CDB07 cancellation cannot address another member and direct member RPC execution is denied",
-    "CDB08 cleanup skips a locked member, handles another member, then clears the first on the next run"
+    "CDB08 cleanup skips a locked member, handles another member, then clears the first on the next run",
+    "CDB09 schedule preferences persist without enabling execution or changing job approvals; stale revisions cannot overwrite",
+    "CDB10 schedule preferences are owner-only and member direct writes/RPC execution are denied"
   ],
-  "passed": 8,
+  "passed": 10,
   "network": "none",
   "hostPorts": 0,
-  "actualSqlCalls": 119,
+  "actualSqlCalls": 137,
   "cleanupRpcCalls": 12,
   "fixtureMembers": 2,
   "operatingDatabaseChanged": false,

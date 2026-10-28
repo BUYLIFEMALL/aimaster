@@ -41,7 +41,8 @@ try {
   for (const file of ['../../supabase/migrations/0039_member_integrations.sql',
     '../supabase/migrations/20261026103202_bnc_server_queue.sql', '../supabase/migrations/20261026163340_bnc_reader_connection.sql',
     '../supabase/migrations/20261027042907_bnc_analysis.sql', '../supabase/migrations/20261027141316_bnc_neighbor_import.sql',
-    '../supabase/migrations/20261028123000_bnc_work_retention.sql', '../supabase/migrations/20261028124500_bnc_work_cancel.sql']) {
+    '../supabase/migrations/20261028123000_bnc_work_retention.sql', '../supabase/migrations/20261028124500_bnc_work_cancel.sql',
+    '../supabase/migrations/20261028143000_bnc_schedule_preferences.sql']) {
     sql(readFileSync(new URL(file, import.meta.url), 'utf8'));
   }
   const fixtures = [];
@@ -176,6 +177,20 @@ try {
       assert.equal(sql(`select body from bnc_jobs where id=${q(ids[0])};`),'expired-lock-text');assert.equal(sql(`select body from bnc_jobs where id=${q(ids[1])};`),'');
     }finally{await finished;}
     assert.equal(JSON.parse(sql("select bnc_work_cleanup(null,'cleanup','{}');",'service_role')).expiredPayloadsRemoved,1);
+  });
+  await check('CDB09 schedule preferences persist without enabling execution or changing job approvals; stale revisions cannot overwrite',async()=>{
+    const pref=(op,p={})=>JSON.parse(sql(`select bnc_schedule_preferences_dispatch(${q(current.user)},${q(op)},${q(JSON.stringify(p))}::jsonb);`,'service_role'));
+    const before=sql(`select revision from bnc_settings where user_id=${q(current.user)};`),first=pref('get');assert.equal(first.revision,1);assert.equal(first.executionAvailable,false);
+    const second=pref('save',{interval_minutes:30,start_minute:1320,end_minute:120,expected_revision:1});assert.equal(second.revision,2);assert.equal(second.interval_minutes,30);assert.equal(second.externalActions,0);
+    assert.throws(()=>pref('save',{interval_minutes:60,start_minute:540,end_minute:1080,expected_revision:1}),/BNC_SCHEDULE_CHANGED/);assert.equal(pref('get').start_minute,1320);
+    for(const p of [{interval_minutes:45,start_minute:0,end_minute:0,expected_revision:2},{interval_minutes:60,start_minute:-1,end_minute:0,expected_revision:2},{interval_minutes:60,start_minute:0,end_minute:1440,expected_revision:2},{interval_minutes:60,start_minute:0,end_minute:0,expected_revision:2,enabled:true}])assert.throws(()=>pref('save',p));
+    assert.equal(pref('get').revision,2);assert.equal(sql(`select revision from bnc_settings where user_id=${q(current.user)};`),before);assert.equal(sql('select not live_allowed from bnc_runtime;'),'t');
+  });
+  await check('CDB10 schedule preferences are owner-only and member direct writes/RPC execution are denied',async()=>{
+    sql(`select bnc_schedule_preferences_dispatch(${q(expired.user)},'get','{}');`,'service_role');
+    assert.equal(sql(`select set_config('request.jwt.claim.sub',${q(current.user)},false);select count(*) from bnc_schedule_preferences;`,'authenticated').split('\n').at(-1),'1');
+    for(const role of ['anon','authenticated'])assert.throws(()=>sql(`select bnc_schedule_preferences_dispatch(${q(current.user)},'get','{}');`,role),/permission denied/);
+    assert.throws(()=>sql(`update bnc_schedule_preferences set interval_minutes=60 where user_id=${q(current.user)};`,'authenticated'),/permission denied/);
   });
   writeFileSync(new URL('../docs/evidence/cleanup-database-20261028.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), database: sql('select version();'), tests, passed: tests.length,

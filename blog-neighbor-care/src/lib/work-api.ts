@@ -1,3 +1,4 @@
+import {validSchedule} from './schedule';
 export type Access = { allowed: true; userId: string } | { allowed: false; status: number; error: string };
 type Dependencies = {
   authorize: () => Promise<Access>;
@@ -12,10 +13,12 @@ const text = (v: unknown) => typeof v === 'string' && v.length <= 4000;
 const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment_cap: 30 };
 const operations: Record<string, string[]> = {
   settings: [], list: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
+  schedule: [], save_schedule: ['interval_minutes','start_minute','end_minute','expected_revision'],
   create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'], cancel: ['id'],
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
+  if(operation==='save_schedule')return validSchedule(p as {interval_minutes:number;start_minute:number;end_minute:number})&&Number.isSafeInteger(p.expected_revision)&&Number(p.expected_revision)>0;
   if (operation === 'configure') {
     if (!Object.keys(p).length) return false;
     for (const [key, max] of Object.entries(limits)) {
@@ -79,6 +82,7 @@ export function createWorkHandler({ authorize, execute }: Dependencies) {
       const result = await execute(access.userId, operation, payload);
       if (result.error) {
         const message = result.error.message ?? '';
+        if(message==='BNC_SCHEDULE_CHANGED')return response({error:'다른 화면에서 반복 설정이 바뀌었습니다. 현재 설정을 다시 조회한 뒤 저장해 주세요.'},409);
         if (message === 'BNC_NOT_FOUND') return response({ error: '작업을 찾을 수 없습니다.' }, 404);
         if (/^BNC_(LIVE_DISABLED|ACCOUNT_REQUIRED|STOPPED|UNCERTAIN|APPROVAL_CHANGED|INVALID_STATE|EXPIRED)$/.test(message)) {
           return response({ error: '연결·실행 준비 상태를 확인해 주세요.', reason: message }, 409);

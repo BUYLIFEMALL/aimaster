@@ -3,6 +3,11 @@
 import { parsePost } from '../../../extension/extractor.mjs';
 
 export type CandidatePostInput = { url: string; title: string; body: string; rightsConfirmed: boolean };
+/** A changed source must never inherit the old article's permission checkbox. */
+export function reviseCandidateSource(post:CandidatePostInput,field:'url'|'title'|'body',value:string):CandidatePostInput{
+ if(!['url','title','body'].includes(field)||typeof value!=='string')throw new Error('후보 글 수정 항목을 확인해 주세요.');
+ return {...post,[field]:value,rightsConfirmed:false};
+}
 export const MAX_CANDIDATE_FILE_BYTES = 192 * 1024;
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 export class CandidateFileError extends Error {}

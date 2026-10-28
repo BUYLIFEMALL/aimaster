@@ -4,10 +4,17 @@ import { readFileSync } from 'node:fs';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { parseHTML } from 'linkedom';
-import { parseCandidateJson, readCandidateJson, readCandidateText, mergeCandidatePosts, MAX_CANDIDATE_FILE_BYTES } from '../src/lib/analysis/candidateFiles.ts';
+import { parseCandidateJson, readCandidateJson, readCandidateText, mergeCandidatePosts, MAX_CANDIDATE_FILE_BYTES, reviseCandidateSource } from '../src/lib/analysis/candidateFiles.ts';
 import { CandidateFileImport, CandidateBodyFile } from '../src/components/analysis/CandidateFileImport.tsx';
 import { generation } from '../src/lib/analysis/contracts.ts';
 const post=(n=1,blog='neighbor')=>({url:`https://blog.naver.com/${blog}/${n}`,title:`글 제목 ${n}`,body:`사용 권한을 확인한 실제 본문입니다. 글 ${n}`,rightsConfirmed:true});
+test('CF12 replacing a candidate source invalidates prior article permission and cannot overwrite confirmation flags',()=>{
+ const original=post();
+ for(const [field,value]of [['url','https://blog.naver.com/another/99'],['title','새 글 제목'],['body','다른 글의 본문']]){
+  const changed=reviseCandidateSource(original,field,value);assert.equal(changed.rightsConfirmed,false);assert.equal(changed[field],value);assert.equal(original.rightsConfirmed,true);assert.notEqual(changed,original);
+ }
+ assert.throws(()=>reviseCandidateSource(original,'rightsConfirmed',true));assert.throws(()=>reviseCandidateSource(original,'__proto__','anything'));
+});
 const json=(posts=[post()])=>JSON.stringify({posts});
 test('CF01 imports actual body, normalizes URL/newlines and never trusts file consent',()=>{
  const values=parseCandidateJson('\uFEFF'+json([{...post(),url:'https://m.blog.naver.com/NEIGHBOR/1',body:'  첫 문단\r\n두 번째 문단  '}]));assert.equal(values[0].url,'https://blog.naver.com/neighbor/1');assert.equal(values[0].body,'첫 문단\n두 번째 문단');assert.equal(values[0].rightsConfirmed,false);
