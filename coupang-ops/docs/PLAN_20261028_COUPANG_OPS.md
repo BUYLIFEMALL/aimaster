@@ -1,6 +1,6 @@
-# 개발 플랜 — 쿠팡 상품 자동등록기 (2026-10-28, Claude Code 윈도우 `claude-win-sdp` · 역할 ecommerce-image)
+# 개발 플랜 — AI 쿠팡 운영 자동화 `coupang-ops` (2026-10-28, Claude Code 윈도우 `claude-win-sdp` · 역할 ecommerce-image)
 
-> 상태: **플랜 보고 단계(주인님 승인 전, 코드·DB 변경 없음)**.
+> 상태: **플랜 확정(2026-10-28)** — 이름·범위는 §14, 기능 우선순위는 [`IMPROVEMENT_BACKLOG.md`](IMPROVEMENT_BACKLOG.md). (처음 이름 「쿠팡 상품 자동등록기 `coupang-register`」였다가 주인님 지시로 운영 자동화로 넓힘)
 > 기준 문서: [마켓 등록기 공통 레퍼런스](../../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md) · 기준 프로그램 [`smartstore-register`](../../smartstore-register/AGENTS.md)(v1.24, 실물 시험 전 항목 통과) · [프로그램 비교표](../../docs/PROGRAM_CAPABILITY_MAP.md)
 
 ## 1. 목표
@@ -109,3 +109,38 @@ AI 상세페이지 자동화(`shop-detail-page`)로 만든 상품을 **쿠팡 WI
 - **매 호출마다 고정 IP를 거친다**: 쿠팡 키는 로그인형이 아니라 요청마다 HMAC 서명(`signed-date`)을 붙이는 방식이고, IP 허용 목록은 요청이 도착할 때 출발 IP로 검사 → 한 번 인증으로 끝나지 않음. 단, **우리가 부를 때만 요청이 생김**(대기 중 트래픽 없음). 토스쇼핑 연동도 호출마다 Fixie를 거침(같은 구조).
 - 주인님: 「아마 제일 낮은 7$짜리 사용하고 있을꺼야」 → Fixie 최저 유료 구간 commuter(월 2,500회·500MB, 공식가 $5 — $7은 Vercel 마켓플레이스 가입 가격으로 추정). 토스 사용량을 월 500회로 가정하면 쿠팡 등록에 약 2,000회 → **월 약 500~650개 상품**(저장 설계 시 상품당 3~4회). 넘으면 cruiser(월 25,000회, 공식가 $19), IP 유지.
 - 안전장치: 사용량 70% 넘으면 주인님께 알림(요청함), 한도 초과 오류는 「고정 IP 요청 한도 초과」로 기록, 출고지·반품센터·카테고리 메타는 저장해 재호출 줄이기.
+
+## 13. 확정(2026-10-28, 주인님 「우리쪽 서버 고정으로 하고 나중에 트래픽이 많이 발생하면 이서비스 유료프리미엄으로 돌리면 되니까」「그렇게 가자」)
+| 항목 | 결정 |
+|---|---|
+| 호출 위치 | **우리 서버 + 기존 Fixie 고정 IP 프록시**(`FIXIE_URL`, `undici` `ProxyAgent` — `threads-affiliate-poster` 토스 연동과 같은 방식). 회원은 **웹 화면만** 사용, 확장 없음 |
+| 회원이 WING에 등록할 IP | `52.87.82.133`, `52.5.155.132`(Fixie) |
+| 회원 키 | 공용 키 표 `user_api_keys`에 회원별 저장 — 새 항목: 업체코드(vendorId)·Access Key·Secret Key·WING 로그인 ID(vendorUserId, 상품 생성 필수 칸). `integration_catalog`에 「쿠팡 WING Open API」 추가(쿠팡 파트너스 키 `coupang_access_key`와 다름). 키는 운영자 폴백 없음 |
+| 프리미엄 | **처음엔 프리미엄 아님**(일반 규칙), 트래픽이 많아지면 유료 프리미엄으로 전환 |
+| 이름 | **AI 쿠팡 상품 자동등록기** / `coupang-register` (추천안, 주인님 별도 지정 없음) |
+| 화면 조작 | 쓰지 않음(API만) |
+
+### 0단계 준비(주인님)
+1. WING → 판매자정보 → 추가판매정보 → **OPEN API 이용 신청 → 키 발급**(용도 「자체개발」).
+2. 허용 IP에 **`52.87.82.133`, `52.5.155.132`**(+ 개발 시험용으로 이 PC 공인 IP) 등록.
+3. 키 값은 채팅에 쓰지 않는다 — 1단계에서 만드는 키 등록 화면(메인 사이트 「API키생성|플랫폼연동」)에 주인님이 직접 넣는다.
+
+## 14. 이름·범위 확정(2026-10-28, 주인님 「프로그램은 쿠팡 운영자동화가 맞지 않을까?」「AI 쿠팡 운영 자동화로 만들고 기능을 하나씩 우선 순위를 두고 구현해나가는 걸로 하자」)
+- 이름 **AI 쿠팡 운영 자동화**, slug·폴더 **`coupang-ops`**(겹침 없음 확인). 따로 만든 뒤 합치지 않고 **한 프로그램 안에서 기능(모듈)을 우선순위대로 하나씩 출시** — 키 등록·서명·Fixie·코드 저장·사용량 관리를 한 번만 만들어 모든 모듈이 공유.
+- 첫 모듈은 상품 등록. 순서·세부 기능은 [`IMPROVEMENT_BACKLOG.md`](IMPROVEMENT_BACKLOG.md).
+- 기존 `coupang/` 폴더(다른 세션의 「Coupang Seller Copilot」 분석 기획, 코드 없음)는 주인님 결정 전까지 건드리지 않음 — 흡수 여부 대기.
+
+## 15. API 사용 시 쿠팡 제한·제재 확인(2026-10-28, 주인님 「API 방식으로 사용했을때 쿠팡에서 제한조치 같은건 없겠지?」)
+공식 Open API는 쿠팡이 판매자·셀러툴에 직접 제공하는 연동 수단이라 **API를 쓰는 것 자체로 제재받지 않는다**(화면 자동 조작과 다름). 다만 지켜야 할 조건이 있다.
+
+| 조건 | 내용 | 설계 반영 |
+|---|---|---|
+| 연동업체 등록 | 여러 판매자에게 연동 기능을 제공하는 업체는 「연동업체(셀러툴)」 정보 등록 필요(사업자 정보, 허용 IP 최대 20개, API 연동협약서 동의). 판매자는 키 발급 때 우리 업체를 골라 연동 | C0-2(정식 출시 전 신청), 매뉴얼에 「연동업체에서 AI 쿠팡 운영 자동화 고르기」 안내 |
+| 판매자당 연동 1곳 | 판매자 키 1개에 연동업체 1곳 **또는** 자체개발(IP 10개) 중 하나 | 다른 셀러툴을 쓰는 회원은 같이 못 씀 — 연결 시험 오류 안내·매뉴얼에 명시 |
+| 연동 정보 수정 | 일주일 10회까지 | 매뉴얼에 「IP·연동업체는 한 번에 맞게」 |
+| 키 유효 기간 | 180일마다 재발급 | 만료 30일 전 화면 알림(C1-4) |
+| 호출 한도(429) | 쓰로틀 90% 도달 시 429, 사용률은 `X-CAG-Warnings` 헤더 | 호출 컴포넌트에서 헤더 기록·429면 기다렸다 1회만 재시도(생성은 재시도 없음), 연속 등록은 간격 두기 |
+| 조회 구간 | 주문 등 일부 조회는 한 번에 최대 10분 구간 | 발주서 조회는 수동·구간 나눠 조회(C3-1) |
+| 상품 규칙 | 같은 옵션값 중복 불가, 승인 뒤 가격 −50%~+100%만, 판매 중 상품 삭제 불가, 이미지 다운로드 실패 = 승인 반려 | 미리보기 검사(C1-10·C1-11·C1-12), 가격 변경 검사(C2-2), 삭제 기능은 만들지 않음 |
+
+출처: [연동업체 정보추가 안내](https://developers.coupangcorp.com/hc/ko/articles/19915067279129) · [연동업체 FAQ](https://developers.coupang.com/ko/faq/do-all-sellers-have-to-enter-information-in-the-integrator-business-operator-sel) · [2개 이상 연동업체 FAQ](https://developers.coupang.com/ko/faq/can-i-register-more-than-2-integrators-when-issuing-an-openapi-key) · [429 FAQ](https://developers.coupang.com/ko/faq/what-should-i-do-when-a-429-error-is-returned) · [기타문의](https://developers.coupang.com/ko/faq/section/general) · [상품 FAQ](https://developers.coupang.com/ko/faq/section/products)
