@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 [역할: blog] 모든 CLI 공통 인계 — 지정 Gmail 계정의 Claude API 적극 활용
+
+2026-10-28 사용자 추가 지시로 CLI 외부API 규칙을 보강: buylifemall@gmail.com 계정 귀속 Claude API키/사용자지정 ClaudeCode연결을 개발·검수·진단·분석에서1순위로적극활용. 사용자가설명한월간$200 이용범위를문맥으로기록하고 실제차감경로/잔여/추가과금은연동설정기준확인. 기존승인범위내진행/사용량기록, 회원서비스는회원본인키원칙유지, 키값비기록. 메인AGENTS/CLAUDE·공통API규칙·모든CLI용루트HANDOFF에반영. 이번API조회/생성/빌드/배포0.
+
+- **지정 계정:** `buylifemall@gmail.com` 귀속 Claude API키. ClaudeCode용 사용자지정연동으로 사용하며 키값은 문서/채팅/로그에남기지않음.
+- **다른CLI의 다음 작업:** 외부API가필요하면 [메인AGENTS](../AGENTS.md)·[메인CLAUDE](../CLAUDE.md)의최상단규칙과 [지정계정/이용범위](TOP_RULE_PERSONAL_ACCOUNT_API.md#cli-api-claude-code)를먼저대조해이연결을1순위로활용. 이미승인된범위내진행/사용량기록. 실제연동/크레딧차감은이번문서작업에서검증한것이아님.
+- 이전OpenAI우선기록은최종사용자지시로대체. 과거미확정e207aead·철회df361204는이력보존이며추가호출실행없음.
+
 ## 2026-10-28 [역할: blog] 메인 지침: 모든 CLI의 API 호출은 사용자 Claude Code용 지정 연결 사용
 
 2026-10-28 사용자 최종 지시: 모든 CLI가 개발·검수·진단을 위해 API를 사용해야 하면 사용자가 Claude Code용으로 지정·연결한 키와 연동 경로를 사용한다. 메인 AGENTS.md·CLAUDE.md 최상단과 docs/TOP_RULE_PERSONAL_ACCOUNT_API.md에 공통 규칙을 추가했다. 앞선 이 세션의 OpenAI 우선 기록을 대체한다. 회원 프로그램의 서비스 실행은 회원 본인 계정/키 규칙 유지. 키 값 저장/노출 없이 문서만 수정, 실제 연결/월간 크레딧 차감 검증이나 API 호출은 이번에 하지 않았다. 기존 비용 승인/사용량 규칙 유지. 과거미확정e207aead/철회df361204 상태 그대로.

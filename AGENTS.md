@@ -1,5 +1,5 @@
 <!-- CLI_API_CLAUDE_CODE_20261028 -->
-> **CLI의 API 사용 기준 (2026-10-28 사용자 지시, 모든 CLI·세션·장비 공통):** Codex·Claude Code·Antigravity 등 **CLI가 개발·검수·진단을 위해 API를 사용해야 할 때는 사용자가 Claude Code용으로 지정·연결한 API 키와 연동 경로를 사용한다.** CLI 종류와 관계없이 이 지정 연결을 기준으로 하며, 키 값은 문서·채팅·로그에 남기지 않는다. 비용·사용량은 기존 승인 범위와 기록 규칙을 따른다. 회원 프로그램의 실제 서비스 실행에는 회원 본인 계정·본인 키 규칙을 적용한다. 상세: [본인 계정·API 규칙의 CLI 사용 기준](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md#cli-api-claude-code).
+> **CLI 외부 API 적극 활용 기준 (2026-10-28 사용자 지시, 모든 CLI·세션·장비 공통):** Codex·Claude Code·Antigravity 등 CLI가 개발·검수·진단·분석에 외부 API를 필요로 하면 **사용자가 지정한 `buylifemall@gmail.com` 계정 귀속 Claude API 키와 Claude Code용 연동 경로를 1순위로 적극 활용한다.** 사용자 설명은 「월간 $200 이용 범위를 연결해 두었으므로 필요한 API 작업에 적극 활용하라」이며, 실제 차감 경로·잔여량·추가 과금은 해당 연동 설정을 기준으로 확인한다. 이미 승인된 이용 범위 안에서 진행하고 사용량을 기록하며, 키 값은 문서·채팅·로그에 남기지 않는다. 회원 프로그램의 실제 서비스 실행은 회원 본인 계정·본인 키 규칙을 따른다. 상세: [지정 계정·실행 기준](docs/TOP_RULE_PERSONAL_ACCOUNT_API.md#cli-api-claude-code).
 <!-- /CLI_API_CLAUDE_CODE_20261028 -->
 
 <!-- EXTENSION_PROGRAM_NAME_MATCH_20261027 -->

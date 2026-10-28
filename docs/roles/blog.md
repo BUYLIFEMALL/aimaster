@@ -1,6 +1,6 @@
 # 블로그
 
-**최신 CLI API 지침 / Claude Code용 지정 연결:** 2026-10-28 사용자 최종 지시: 모든 CLI가 개발·검수·진단을 위해 API를 사용해야 하면 사용자가 Claude Code용으로 지정·연결한 키와 연동 경로를 사용한다. 메인 AGENTS.md·CLAUDE.md 최상단과 docs/TOP_RULE_PERSONAL_ACCOUNT_API.md에 공통 규칙을 추가했다. 앞선 이 세션의 OpenAI 우선 기록을 대체한다. 회원 프로그램의 서비스 실행은 회원 본인 계정/키 규칙 유지. 키 값 저장/노출 없이 문서만 수정, 실제 연결/월간 크레딧 차감 검증이나 API 호출은 이번에 하지 않았다. 기존 비용 승인/사용량 규칙 유지. 과거미확정e207aead/철회df361204 상태 그대로.
+**최신 CLI API 지침 / 지정 Gmail Claude API 적극 활용:** 2026-10-28 사용자 추가 지시로 CLI 외부API 규칙을 보강: buylifemall@gmail.com 계정 귀속 Claude API키/사용자지정 ClaudeCode연결을 개발·검수·진단·분석에서1순위로적극활용. 사용자가설명한월간$200 이용범위를문맥으로기록하고 실제차감경로/잔여/추가과금은연동설정기준확인. 기존승인범위내진행/사용량기록, 회원서비스는회원본인키원칙유지, 키값비기록. 메인AGENTS/CLAUDE·공통API규칙·모든CLI용루트HANDOFF에반영. 이번API조회/생성/빌드/배포0.
 
 **최신 순차 진행 / 프로필1회 결과 미확정:** 2026-10-28 사용자 계속 진행해로 직전 bc3a34c2의 본인글외부전송/본인Anthropic키/Haiku4.5 프로필최대1회·USD0.05이내 안 승인. 기존Edge1838288에서 동의체크·생성버튼1회 실행, 요청e207aead-b540-4ec5-af46-8b371dafc30c가 uncertain/GENERATION_UNCONFIRMED·저장결과없음임을 같은요청 UI조회와 운영메타로 확인. 승인1회 소진·재호출/다른모델/검색/배포0, 실제공급자요청수·사용토큰/청구액 독립확인불가. 실제 프로필 품질/원인은 미해결. 현재 배포의 공급자/결과검증/저장 예외 기록 부재를 별도로 가상응답 재현(AD01 red: expected1/actual0) 후 내부 stage/reason/HTTP상태만 기록하도록 eac6b05f8 보완. 단위150/타입통과·키/본문/응답원문 비기록·동일미확정요청 재호출차단 유지. 이보완은 실제AI실패원인수정으로 보고하지 않음. 진단보완eac6b05f8+만료정리c4315e9f4 미배포 대기, 운영/확장v1.02 유지. 1번43명 가져오기는 허용근거3e257d73 별도대기.
 
@@ -28,7 +28,7 @@
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-28 · 메인CLI API 지침: 사용자ClaudeCode용연결 사용, 이전OpenAI우선정정·추가호출0.
+- 마지막 갱신: 2026-10-28 · buylifemall@gmail.com 귀속Claude API/월간$200 사용자설명·전CLI 적극활용지침/인수인계보강.
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -104,6 +104,8 @@
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+
+- 2026-10-28 사용자 추가 지시로 CLI 외부API 규칙을 보강: buylifemall@gmail.com 계정 귀속 Claude API키/사용자지정 ClaudeCode연결을 개발·검수·진단·분석에서1순위로적극활용. 사용자가설명한월간$200 이용범위를문맥으로기록하고 실제차감경로/잔여/추가과금은연동설정기준확인. 기존승인범위내진행/사용량기록, 회원서비스는회원본인키원칙유지, 키값비기록. 메인AGENTS/CLAUDE·공통API규칙·모든CLI용루트HANDOFF에반영. 이번API조회/생성/빌드/배포0.
 
 - 2026-10-28 사용자 최종 지시: 모든 CLI가 개발·검수·진단을 위해 API를 사용해야 하면 사용자가 Claude Code용으로 지정·연결한 키와 연동 경로를 사용한다. 메인 AGENTS.md·CLAUDE.md 최상단과 docs/TOP_RULE_PERSONAL_ACCOUNT_API.md에 공통 규칙을 추가했다. 앞선 이 세션의 OpenAI 우선 기록을 대체한다. 회원 프로그램의 서비스 실행은 회원 본인 계정/키 규칙 유지. 키 값 저장/노출 없이 문서만 수정, 실제 연결/월간 크레딧 차감 검증이나 API 호출은 이번에 하지 않았다. 기존 비용 승인/사용량 규칙 유지. 과거미확정e207aead/철회df361204 상태 그대로.
 
