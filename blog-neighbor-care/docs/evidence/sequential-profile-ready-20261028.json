@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-28T02:29:36.223Z",
+  "version": "v1.02",
+  "existingEdgeWindow": 1838288,
+  "newWindowsOpened": 0,
+  "route": "/studio",
+  "existingMemberMaterialSelected": true,
+  "materialBodyReadOrCopied": false,
+  "providerSwitchObserved": {
+    "before": {
+      "provider": "openai",
+      "model": "gpt-5.6-luna"
+    },
+    "after": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5"
+    }
+  },
+  "materialSelectionRetained": true,
+  "externalAiConsentClicked": false,
+  "generationButtonClicked": false,
+  "actualProviderCompatibilityVerified": false,
+  "actualProfileQualityVerified": false,
+  "actualAiCalls": 0,
+  "actualSearchCalls": 0,
+  "newDeployments": 0,
+  "operatingDatabaseChanged": false,
+  "costAndExternalTransmissionRequest": "bc3a34c2-007f-484b-823d-5f170a2b2b15",
+  "permissionToReadNaverListRequest": "3e257d73-f19e-407b-b625-9cb757deb332",
+  "proposedAiCalls": 1,
+  "proposedUsdLimit": 0.05,
+  "estimatedUsd": [
+    0.005,
+    0.04
+  ],
+  "rateSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "catalogueModelSelectionReason": "Lowest-cost Anthropic model already supported in current deployment; avoids a separate build for model catalogue changes.",
+  "screenshot": "profile-ai-ready-20261028.png",
+  "toolLimit": "Native model option expansion not verified; no alternate model or all-provider compatibility claim."
+}
