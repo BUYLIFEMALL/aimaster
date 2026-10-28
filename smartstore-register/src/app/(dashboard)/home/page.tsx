@@ -4,12 +4,14 @@ import { getDefaults, listJobs, listProducts, JOB_STATUS } from "@/lib/data";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { TOOLS } from "@/lib/tools";
 import { SHOP_DETAIL_SITE } from "@/lib/version";
+import { HealthCard } from "@/components/HealthCard";
+import { getLatestHealthAction } from "@/lib/actions/health";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const user = await requireProgramAccess();
-  const [products, jobs, defaults] = await Promise.all([listProducts(user.id), listJobs(user.id), getDefaults(user.id)]);
+  const [products, jobs, defaults, health] = await Promise.all([listProducts(user.id), listJobs(user.id), getDefaults(user.id), getLatestHealthAction()]);
   const ready = Boolean(defaults.asPhone);
   const recent = jobs.rows.slice(0, 5);
 
@@ -21,7 +23,7 @@ export default async function HomePage() {
         🧭 <b>순서</b>: ① 스토어 기본값 한 번 넣기 → ② 등록할 상품 고르고 카테고리 검색어 넣기 → ③ 확장으로 보내기(판매자센터에 로그인된 크롬) → ④ 등록 기록 확인. 확장은 「🧩 확장 연결」에서 내려받아 연결합니다.
       </Notice>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="slw-card p-4">
           <p className="text-xs font-bold text-slate-500">⚙ 스토어 기본값</p>
           <p className={`mt-1 text-lg font-extrabold ${ready ? "text-emerald-700" : "text-amber-700"}`}>{ready ? "준비됨" : "아직 없음"}</p>
@@ -37,6 +39,7 @@ export default async function HomePage() {
           <p className="mt-1 text-lg font-extrabold text-slate-900">{jobs.rows.length}건</p>
           <Link href="/history" className="mt-2 inline-block text-xs font-bold text-emerald-700 hover:underline">기록 보기 →</Link>
         </div>
+        <HealthCard initial={health} />
       </div>
 
       {products.rows.length === 0 && !products.error && (

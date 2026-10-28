@@ -298,3 +298,13 @@ test("상품속성 AI 추천 거르기: 보기 안 값만·한 개·최대 개�
   ], attrs);
   assert.deepEqual(out, { 주요소재: ["폴리에스테르", "나일론"], 용도: ["여행용"] });
 });
+
+test("화면 점검 칸 표 = fields.ts가 쓰는 칸(칸을 바꾸면 health.ts도 고칠 것)", async () => {
+  const fs = await import("node:fs");
+  const { HEALTH_TARGETS, HEALTH_CONDITIONAL, normalizeHealthResult } = await import("../src/lib/smartstore/health.ts");
+  const src = fs.readFileSync(new URL("../src/lib/smartstore/fields.ts", import.meta.url), "utf8");
+  const used = [...new Set([...src.matchAll(/target: "([^"]+)"/g)].map((m) => m[1]))].sort();
+  assert.deepEqual([...HEALTH_TARGETS, ...HEALTH_CONDITIONAL].sort(), used);
+  const r = normalizeHealthResult({ missing: ["vm.product.name", "없는칸"], conditional: ["image.add", "vm.product.name"], storeName: "  바이라이프몰  " });
+  assert.deepEqual(r, { missing: ["vm.product.name"], conditional: ["image.add"], storeName: "바이라이프몰" });
+});

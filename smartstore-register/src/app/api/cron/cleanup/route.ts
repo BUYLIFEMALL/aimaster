@@ -21,9 +21,14 @@ export async function GET(request: NextRequest) {
     .from("smartstore_register_attr_lookups")
     .delete({ count: "exact" })
     .lt("created_at", cutoff);
-  if (error || attr.error) {
-    console.error("[smartstore-register] cleanup", error?.code ?? attr.error?.code);
+  // 판매자센터 화면 점검 결과도 30일(v1.23)
+  const health = await admin
+    .from("smartstore_register_health")
+    .delete({ count: "exact" })
+    .lt("created_at", cutoff);
+  if (error || attr.error || health.error) {
+    console.error("[smartstore-register] cleanup", error?.code ?? attr.error?.code ?? health.error?.code);
     return NextResponse.json({ error: "cleanup failed" }, { status: 500 });
   }
-  return NextResponse.json({ deleted: count ?? 0, attrDeleted: attr.count ?? 0 });
+  return NextResponse.json({ deleted: count ?? 0, attrDeleted: attr.count ?? 0, healthDeleted: health.count ?? 0 });
 }

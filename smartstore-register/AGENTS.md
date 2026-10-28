@@ -180,3 +180,11 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 배포 `5etiff2gv` Ready, DB·확장·ZIP v1.22 OK(주인님 승인 빌드 1회). 시험 24개.
 - 운영 화면 실물(관리자 백팩, ego): 속성 불러오기 → 노란 안내 「필수 2개 비어 있음: 패턴, 장식」 → 「✨ 상세페이지 내용으로 추천」 → 「속성 2개를 추천해 채웠습니다」, 이미 고른 3개 유지 + 잠금방식: 지퍼형·사용대상: 남성용 추가(관리자 본인 Claude 키 1회).
 - 미배포 대기 없음.
+
+## 2026-10-28 밤 — 판매자센터 화면 변경 조기 발견(미배포 대기, v1.23에 묶음)
+- 플랜 [`docs/PLAN_20261028_HEALTH_CHECK.md`](docs/PLAN_20261028_HEALTH_CHECK.md) §8 실측: 확장이 쓰는 칸 61개 중 항상 있음 58개·조건부 3개(즉시할인 금액·추가이미지 추가·배송권역), 카테고리 전후 차이 0.
+- DB: 표 `smartstore_register_health` 적용 완료(2026-10-28, ego Supabase SQL 편집기 — 새 표가 데이터 주소에 보이기까지 몇 초 걸림), 30일 정리에 추가.
+- 서버: `src/lib/smartstore/health.ts`(점검 칸 표 `HEALTH_TARGETS`·`HEALTH_CONDITIONAL`, **`fields.ts` target과 같은지 시험이 확인** — 칸을 바꾸면 여기도 고칠 것), `src/lib/actions/health.ts`(지금 점검·최근 결과), `/api/extension/health-task`(회원 요청 우선, 없으면 `auto`로 7일 지났을 때 새로 만듦, v1.23 미만 확장엔 안 넘김, 5분 멈춤 → 실패)·`/api/extension/health-result`.
+- 확장: 등록 작업·속성 읽기가 없을 때만 `health-task` → **비활성 새 탭**에서 상품 등록 화면 → `healthScanMain`(섹션 펼치고 칸 이름만 확인, 입력·저장 없음) → 스토어명 → 결과 → **그 탭만 닫음**(열린 판매자센터 탭은 안 건드림).
+- 화면: 대시보드 「🩺 판매자센터 화면 점검」 카드(✅ 정상 / ⚠️ 바뀐 칸 N개(이름) / 점검 실패, 「지금 점검」 버튼, 4초마다 확인).
+- 검수: 시험 25개·tsc·로컬 build 통과. **실물 확인은 배포 뒤**(확장 v1.23 필요).

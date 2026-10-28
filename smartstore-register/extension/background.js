@@ -1017,6 +1017,29 @@ async function attrLookupMain(a) {
   }
 }
 
+// 판매자센터 화면 점검(v1.23) — 섹션을 펼쳐 확장이 쓰는 칸 이름이 그대로 있는지만 본다(입력·저장 없음).
+async function healthScanMain(a) {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const vis = (e) => !!e && !!(e.offsetWidth || e.offsetHeight || e.getClientRects().length);
+  try {
+    for (const d of [...document.querySelectorAll('.modal.in, [role=dialog]')].filter(vis)) {
+      if (/이전에 작성하던 내용|임시저장\s*된\s*내용/.test(d.textContent)) [...d.querySelectorAll('button')].find((b) => /^(취소|아니오|아니요|닫기)$/.test(b.textContent.trim()))?.click();
+    }
+    for (const line of document.querySelectorAll('.title-line')) {
+      const toggle = line.querySelector('.set-option a.btn, a.btn.btn-default');
+      if (toggle && !toggle.classList.contains('active')) { (line.querySelector('.input-content') || line).click(); await sleep(250); }
+    }
+    await sleep(1500);
+    const els = [...document.querySelectorAll('*')].filter((e) => e.attributes.length);
+    const attrHas = (x) => els.some((e) => [...e.attributes].some((at) => /^(ng-model|ng-click|ncp-click|progress-button|value|model-type|id|for)$/.test(at.name) && at.value.includes(x)));
+    const textHas = (x) => [...document.querySelectorAll('label, th, .title-line, strong, span')].some((e) => e.children.length < 4 && e.textContent.replace(/\s+/g, '').includes(x.replace(/\s+/g, '')));
+    const has = (x) => (/[가-힣]/.test(x) ? textHas(x) : attrHas(x));
+    return { ok: true, missing: a.targets.filter((x) => !has(x)), conditional: a.conditional.filter((x) => !has(x)) };
+  } catch (e) {
+    return { ok: false, error: String((e && e.message) || e).slice(0, 200) };
+  }
+}
+
 async function runMain(tabId, func, args) {
   try {
     const [res] = await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func, args: [args] });
@@ -1097,6 +1120,33 @@ async function sellerTabForRead() {
     if (now.status === 'complete' && (now.url || '').startsWith('https://sell.smartstore.naver.com/')) return tab.id;
   }
   throw new Error('판매자센터 화면이 30초 안에 열리지 않았습니다.');
+}
+
+async function runHealth(check) {
+  await setStatus('판매자센터 화면 점검 중…');
+  let tabId = null;
+  try {
+    const win = await chrome.windows.getLastFocused({ windowTypes: ['normal'] }).catch(() => null);
+    const tab = await chrome.tabs.create({ url: CREATE_URL, active: false, ...(win ? { windowId: win.id } : {}) });
+    tabId = tab.id;
+    let ready = false;
+    for (let s = 0; s < 45 && !ready; s++) {
+      await wait(1000);
+      const r = await run(tabId, 'ready').catch(() => ({ ok: false }));
+      if (r.error) throw new Error(r.error);
+      ready = !!r.ok;
+    }
+    if (!ready) throw new Error('「상품 등록」 화면이 45초 안에 열리지 않았습니다.');
+    const store = await run(tabId, 'storeName', {}).catch(() => null);
+    const r = await runMain(tabId, healthScanMain, { targets: check.targets, conditional: check.conditional });
+    await api('/api/extension/health-result', r.ok ? { id: check.id, ok: true, missing: r.missing, conditional: r.conditional, storeName: store?.name || null } : { id: check.id, ok: false, error: r.error, storeName: store?.name || null });
+    await setStatus(r.ok ? (r.missing.length ? `화면 점검: 바뀐 칸 ${r.missing.length}개(${r.missing.slice(0, 3).join(', ')})` : '화면 점검: 정상') : `화면 점검 실패: ${r.error}`);
+  } catch (e) {
+    await api('/api/extension/health-result', { id: check.id, ok: false, error: String(e.message || e).slice(0, 300) }).catch(() => {});
+    await setStatus(`화면 점검 실패: ${e.message || e}`);
+  } finally {
+    if (tabId) await chrome.tabs.remove(tabId).catch(() => {});
+  }
 }
 
 async function runLookup(lookup) {
@@ -1369,6 +1419,10 @@ async function pump() {
     else {
       const { lookup } = await api('/api/extension/attr-task', {}).catch(() => ({ lookup: null }));
       if (lookup) await runLookup(lookup);
+      else {
+        const { check } = await api('/api/extension/health-task', { auto: true }).catch(() => ({ check: null }));
+        if (check) await runHealth(check);
+      }
     }
   } catch (e) {
     await setStatus(`연결 확인 필요: ${e.message || e}`);
