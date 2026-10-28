@@ -581,6 +581,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - **설정 변경**: `setup`이 `~/.claude/settings.json`에 세션 종료 기록 훅(Stop `timeline-stop-hook`) 하나를 추가했다. 기존 상태바 보호 훅·상태바 설정은 그대로다(설치 전 백업: `~/.claude/settings.json.before-gstack-20261018`). 훅 제거: `~/.claude/skills/gstack/bin/gstack-settings-hook remove-source --source gstack-timeline-stop`.
 - **점검·갱신**: `~/.claude/skills/gstack/bin/gstack-doctor`(2026-10-18 결과: 정상 13 · 경고 2[Codex 실호출 미점검, gstack 자체 CLAUDE.md 목록] · 미설정 1[장비 간 동기화] · 실패 0). 윈도우는 파일 복사 방식이라 `git pull` 뒤에는 `./setup`을 다시 실행한다(또는 `/gstack-upgrade`).
 
+## Claude Code API 크레딧 활용 (2026-10-28 주인님 지시, 모든 CLI 공통)
+
+- **`buylifemall@gmail.com`에 Claude Code용 Anthropic API 월 크레딧 $200가 연동돼 있다(Claude Max 200 플랜).** 개발·시험·분석·구현 중 Claude(Anthropic) API 호출이 필요하면 이 크레딧을 **적극 활용**한다 — 무료·저렴 모델을 먼저 보되 품질·기능 검증에 유료가 필요하면 진행하고, 대량·반복 호출은 사전 보고한다. **단 회원 기능의 AI 호출은 회원 본인 키만** 쓰며 이 크레딧은 운영자 개발·시험용이다(최상위 규칙 불변, 회원 요청에 폴백 금지). Vercel 배포 빌드 비용은 별개로 구분해 보고한다. 상세·다른 CLI 활용법·키 설정 확인: [`docs/CLAUDE_CODE_API_CREDIT.md`](docs/CLAUDE_CODE_API_CREDIT.md).
+
 ## Communication
 
 - 기본적으로 한국어로 대화한다.
