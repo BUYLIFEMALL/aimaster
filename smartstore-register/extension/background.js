@@ -191,7 +191,8 @@ async function pageCommand(cmd, args) {
       const modal = await waitFor(() => [...document.querySelectorAll('.modal.in')].find((m) => visible(m) && /배송비 템플릿 목록|배송정보 템플릿/.test(m.textContent)), 8000);
       if (!modal) return { ok: false, error: '배송비 템플릿 목록 창이 열리지 않았습니다.' };
       const close = () => modal.querySelector('button.close')?.click();
-      await waitFor(() => modal.querySelector('tbody tr td:nth-child(2)') || /등록된 배송비 템플릿이 없습니다/.test(modal.innerText), 5000);
+      // 목록은 늦게 채워지고 처음엔 「등록된 … 없습니다」를 잠깐 보일 수 있다(2026-10-28 실측: 5초 안에 못 받아 「없음」으로 판단) → 줄이 나올 때까지 최대 12초
+      await waitFor(() => [...modal.querySelectorAll('tbody tr')].some((tr) => visible(tr) && tr.cells.length >= 2), 12000);
       const rows = [...modal.querySelectorAll('tbody tr')].filter((tr) => visible(tr) && tr.cells.length >= 2);
       const name = (tr) => tr.cells[0].textContent.replace(/\s+/g, ' ').trim();
       if (!rows.length) { close(); return { ok: false, error: '판매자센터에 등록된 배송비 템플릿이 없습니다. 기본값에서 템플릿 이름을 비우고 배송비를 직접 넣어 주세요.' }; }
