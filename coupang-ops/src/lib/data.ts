@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { WING_FIELDS, WING_KEYS, maskKey, type WingField, type WingKeys } from "@/lib/coupang/keys";
+import { normalizeDefaults } from "@/lib/coupang/defaults";
 
 /** 회원 본인 쿠팡 키(서버 전용 — 화면에 원문을 넘기지 않는다). 하나라도 없으면 null */
 export async function getWingKeys(userId: string): Promise<WingKeys | null> {
@@ -23,4 +24,11 @@ export async function getWingKeyStatus(userId: string): Promise<{ saved: boolean
     saved: true,
     shown: { vendorId: keys.vendorId, wingUserId: keys.wingUserId, accessKey: maskKey(keys.accessKey), secretKey: maskKey(keys.secretKey) },
   };
+}
+
+/** 배송·반품 기본값(없으면 null) */
+export async function getCoupangDefaults(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("coupang_ops_defaults").select("data").eq("user_id", userId).maybeSingle();
+  return data?.data ? normalizeDefaults(data.data as Record<string, unknown>) : null;
 }

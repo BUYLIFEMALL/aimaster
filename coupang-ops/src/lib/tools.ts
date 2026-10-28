@@ -9,6 +9,7 @@ export interface ToolItem {
 
 export const TOOLS: ToolItem[] = [
   { href: "/connect", emoji: "🔑", label: "쿠팡 연결", short: "Open API 키 등록", description: "WING에서 발급받은 업체코드·Access Key·Secret Key·WING ID를 한 번 등록합니다." },
+  { href: "/defaults", emoji: "⚙", label: "배송·반품 기본값", short: "출고지·반품지·배송비", description: "출고지·반품지·택배사·배송비를 한 번 넣어 두면 모든 상품에 함께 쓰입니다." },
 ];
 
 /** 출시 순서(docs/IMPROVEMENT_BACKLOG.md 단계). 대시보드 「기능 출시 순서」에 보여 준다. */
