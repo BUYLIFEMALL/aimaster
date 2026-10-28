@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown, Sparkles, Megaphone } from "lucide-react";
+import { Pencil, Eye, EyeOff, ExternalLink, CheckSquare, Square, ArrowUp, ArrowDown, Sparkles, Megaphone, Gem } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Badge from "@/components/ui/Badge";
 import CategoryManagerButton from "@/components/admin/CategoryManagerButton";
@@ -201,6 +201,22 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     const nextBadges = (p.badges.includes("new")
       ? p.badges.filter((badge) => badge !== "new")
       : [...p.badges, "new"]) as Program["badges"];
+    await applyUpdate([p.id], { badges: nextBadges });
+  };
+
+  // 우측에서 프리미엄 배지를 바로 토글한다(2026-10-28 주인님 지시). 프리미엄은 회원 결제
+  // 조건에 바로 영향을 주므로(0031 트리거: 프리미엄이면 등급 무료 무효·결제 구독만 허용)
+  // 한 번 확인한다. FREE·프리미엄을 함께 달지 않도록, 프리미엄을 달 때 free는 자동으로 뺀다.
+  const handleTogglePremium = async (p: ProgramRow) => {
+    const has = p.badges.includes("premium");
+    if (!confirm(
+      has
+        ? `「${p.name}」의 💎 프리미엄 배지를 해제할까요?\n이 프로그램의 결제 조건이 즉시 해제됩니다.`
+        : `「${p.name}」에 💎 프리미엄 배지를 달까요?\n모든 회원(드림팀·드림AI팀 포함)이 결제해야 사용하게 됩니다.`
+    )) return;
+    const nextBadges = (has
+      ? p.badges.filter((b) => b !== "premium")
+      : [...p.badges.filter((b) => b !== "free"), "premium"]) as Program["badges"];
     await applyUpdate([p.id], { badges: nextBadges });
   };
 
@@ -675,6 +691,20 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                               >
                                 <Sparkles size={12} />
                                 {p.badges.includes("new") ? "최신 해제" : "최신 등록"}
+                              </button>
+                              {/* 프리미엄 배지 바로 토글(2026-10-28) — 클릭으로 달기/떼기 */}
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePremium(p)}
+                                className={`inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg transition-colors ${
+                                  p.badges.includes("premium")
+                                    ? "text-amber-300 bg-amber-500/15 hover:bg-amber-500/25"
+                                    : "text-subtext hover:text-amber-300 hover:bg-amber-500/10"
+                                }`}
+                                title={p.badges.includes("premium") ? "프리미엄 배지 해제" : "프리미엄 배지 달기"}
+                              >
+                                <Gem size={12} />
+                                {p.badges.includes("premium") ? "프리미엄 해제" : "프리미엄"}
                               </button>
                               {/* 이 프로그램 공지 쓰기 — 공지 창을 열고 관련 프로그램·제목을 미리 채움(2026-10-20) */}
                               <Link
