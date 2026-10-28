@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 [역할: blog] 검수회원 이용기간 누락 조치·실제확장 연결 복구
+
+2026-10-28 16:48 KST 실제팝업 프로그램이용권한오류 원인확정: 일반검수회원 buylifemall@naver.com은등급4≥요구3/핸드폰등록/정지아님이지만 본프로그램구독0·개별기간0. 실제공용evaluateProgramAccess 현재값재현 false/none. 사용자연결오류조치범위에서 이프로그램만1일한정 user_program_access 등록(2026-10-29 16:45:52 KST만료), admin=false/등급유지·구독/결제변경없음. DB재조회 및동일함수 true/individual_grant 확인. 설치확장 실제whoami후팝업 연결된블로그buylifemall 정상표시확인. 웹reader는별도로그인필요표시이며 확장bearer복구와구분. 43명수신/저장미완료. 소스변경/AI/검색/빌드/배포0.
+
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.20
 
 - 테스트 계정·ego lite 실물 시험: 연속 보내기 2개·예약구매 「임시저장까지」 통과(실패 칸 0, 임시저장본 6건 — 주인님 정리 대기). 「바로 등록」은 판매자센터가 「조합형 옵션 상품은 상품 재고와 옵션 재고 합이 같아야」로 거절(상품 생성 안 됨) → 조합형이면 재고 = 조합 재고 합계로 수정, STEP_BUILDER 6.
