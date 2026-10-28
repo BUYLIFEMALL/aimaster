@@ -826,9 +826,12 @@ async function optionOffMain() {
   if (input && input.checked) return { ok: true, already: true };
   off.click();
   await sleep(700);
-  const dlg = [...document.querySelectorAll('.modal.in, [role="dialog"], [role="alertdialog"]')].filter(vis).pop();
+  // 아무 창의 「확인」이나 누르면 안 된다(2026-10-28 실측: 선택형을 끈 직후 다른 창 「확인」으로 페이지가 다시 불러와져 칸이 모두 사라짐)
+  // → 옵션·선택형·삭제·초기화 관련 확인 창만, 임시저장·불러오기·나가기 창은 절대 누르지 않는다
+  const dlg = [...document.querySelectorAll('.modal.in, [role="dialog"], [role="alertdialog"]')].filter(vis)
+    .filter((d) => /옵션|선택형|삭제|초기화/.test(d.textContent || '') && !/임시저장|불러오|나가|이동/.test(d.textContent || '')).pop();
   if (dlg) { const ok = [...dlg.querySelectorAll('button')].find((b) => norm(b.textContent) === '확인'); if (ok) { ok.click(); await sleep(600); } }
-  return { ok: true, switched: true };
+  return { ok: true, switched: true, confirmed: !!dlg };
 }
 
 // 글자 칸 값 넣기 — 페이지 자체 스크립트 쪽(MAIN)에서 AngularJS 모델에 직접 넣고, 모델에 실제로 들어갔는지 확인한다.
