@@ -502,3 +502,114 @@ API 키 등록과 엔진/모델 선택이 들어가는 모든 프로그램은 �
    ```
 6. **적용 대상**:
    - 네이버 블로그 자동화군 전체 (`ai-auto-blog`, `blog-content-maker`, `blog-workroom`, `naver-blog-seo-studio`, `naver-blog-allinone`) 및 네이버 카페, 네이버 연동 전체 프로그램.
+
+
+## 13. 네이버 스마트스토어 센터 공식 버튼 및 UI 컬러 시스템 (2026-10-28 주인님 지시)
+
+> **2026-10-28 주인님 지시:** 「네이버 버튼 색상과 톤이야 분석해서 다음 네이버 관련 버튼이자 디자인 작업할때 활용하도록 해」  
+> **기준 레퍼런스 실물 분석:** 네이버 스마트스토어센터 실제 상품 등록/관리 화면 (`D:/Antigravity/Design/naver_reference/naver_smartstore_button_palette_reference.png`)
+
+### 13.1 네이버 스마트스토어 센터 4대 버튼 위계 (Button Hierarchy)
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                   네이버 스마트스토어 센터 공식 4대 버튼 컬러 팔레트                   │
+├───────┬─────────────────┬───────────┬─────────────┬────────────────────────────────────┤
+│ 위계  │ 버튼 명칭 / 역할 │ 배경 색상  │ 보더 / 텍스트│ 3D 엠보싱 그림자 및 시각적 특징     │
+├───────┼─────────────────┼───────────┼─────────────┼────────────────────────────────────┤
+│ 1차   │ [저장하기]       │ #00c73c   │ 보더: #00ae34│ box-shadow: 0 4px 0 #008a2a       │
+│ 핵심  │ [목록으로 적용 ↓]│ (네이버   │ 텍스트:      │ 가장 높은 채도의 선명한 네이버     │
+│ CTA   │ [설정함] (선택)  │ 스마트그린)│ #ffffff     │ 시그니처 그린, 최우선 전환 유도    │
+├───────┼─────────────────┼───────────┼─────────────┼────────────────────────────────────┤
+│ 2차   │ [미리보기]       │ #8991a3   │ 보더: #727b90│ box-shadow: 0 4px 0 #586072       │
+│ 운영  │ [임시저장]       │ (슬레이트 │ 텍스트:      │ 차분하고 중후한 쿨 그레이 톤으로,  │
+│ 도구  │ [노출설정]       │ 블루그레이)│ #ffffff     │ 메인 그린 버튼의 주목도를 보존     │
+├───────┼─────────────────┼───────────┼─────────────┼────────────────────────────────────┤
+│ 3차   │ [A/S 템플릿]    │ #697185   │ 보더: #5b6376│ box-shadow: 0 4px 0 #444b5b       │
+│ 인라인│ [+] (추가 버튼) │ (딥 다크  │ 텍스트:      │ 입력 폼 내부 인라인 데이터 조작    │
+│ 조작  │ [일괄수정]       │ 슬레이트) │ #ffffff     │ 및 템플릿 불러오기용 서브 컨트롤    │
+├───────┼─────────────────┼───────────┼─────────────┼────────────────────────────────────┤
+│ 4차   │ [취소]           │ #ffffff   │ 보더: #dbdde2│ box-shadow: 0 2px 4px rgba(0,0,0,0.04)│
+│ 중립  │ [닫기]           │ (클린화이트)│ 텍스트: #475569│ 깔끔한 화이트 서피스 + 소프트 라인 │
+└───────┴─────────────────┴───────────┴─────────────┴────────────────────────────────────┘
+```
+
+### 13.2 3D 엠보싱 버튼 CSS 구현 규격
+
+```css
+/* 1. 네이버 스마트스토어 1차 메인 3D 버튼 (.btn-3d-smartstore / .btn-3d-naver-green) */
+.btn-3d-smartstore,
+.btn-3d-naver-green {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #00c73c 0%, #00b336 100%) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 0 #008a2a, 0 7px 14px rgba(0, 199, 60, 0.3) !important;
+  border: 1px solid #34d399 !important;
+  cursor: pointer !important;
+  transform: translateY(0) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+}
+
+.btn-3d-smartstore:hover,
+.btn-3d-naver-green:hover {
+  background: linear-gradient(180deg, #10d34a 0%, #00c73c 100%) !important;
+  box-shadow: 0 5px 0 #008a2a, 0 9px 18px rgba(0, 199, 60, 0.4) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+.btn-3d-smartstore:active,
+.btn-3d-naver-green:active {
+  background: linear-gradient(180deg, #00b336 0%, #008a2a 100%) !important;
+  box-shadow: 0 1px 0 #008a2a, 0 2px 4px rgba(0, 199, 60, 0.2) !important;
+  transform: translateY(3px) !important;
+}
+
+/* 2. 네이버 스마트스토어 2차 운영 3D 버튼 (.btn-3d-naver-slate) */
+.btn-3d-naver-slate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 18px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #8991a3 0%, #767e91 100%) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 0 #586072, 0 7px 12px rgba(114, 123, 144, 0.25) !important;
+  border: 1px solid #9aa2b4 !important;
+  cursor: pointer !important;
+  transform: translateY(0) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+}
+
+.btn-3d-naver-slate:hover {
+  background: linear-gradient(180deg, #9aa2b4 0%, #8991a3 100%) !important;
+  box-shadow: 0 5px 0 #586072, 0 9px 15px rgba(114, 123, 144, 0.32) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+.btn-3d-naver-slate:active {
+  background: linear-gradient(180deg, #767e91 0%, #586072 100%) !important;
+  box-shadow: 0 1px 0 #586072, 0 2px 4px rgba(114, 123, 144, 0.2) !important;
+  transform: translateY(3px) !important;
+}
+```
+
+### 13.3 네이버 스마트스토어 3대 베이스 서피스 톤 (Surface Tokens)
+1. **상단 GNB 네비게이션**: `#575d61` (차분한 다크 차콜 슬레이트)
+2. **좌측 메뉴 사이드바**: `#475161` (전문성과 신뢰감 있는 딥 슬레이트 네이비)
+3. **메인 작업 캔버스 배경**: `#f8f9fd` (장시간 눈의 피로를 덜어주는 소프트 아이스 틴트)
+4. **활성 선택형 칩셋 / 필드 라벨 포커스**:
+   - 체크박스/라디오 선택 시: `#00c73c`
+   - 필수 입력 닷(Dot): `#ff4b4b` (강렬한 레드 포인트)
+   - 툴팁 물음표 아이콘: `#22c55e` (산뜻한 라임 그린 서클)
