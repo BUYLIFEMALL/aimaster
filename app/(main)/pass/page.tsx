@@ -16,6 +16,7 @@ type Pass = {
   price: string;
   premium: boolean;
   highlight?: boolean;
+  all?: boolean;
   desc: string;
 };
 
@@ -47,6 +48,7 @@ const PASSES: Pass[] = [
     count: "모든 프로그램",
     price: "월 79,000원",
     premium: true,
+    all: true,
     desc: "프리미엄 포함 모든 프로그램을 제한 없이 사용합니다.",
   },
 ];
@@ -104,13 +106,13 @@ export default function PassPage() {
             <div className="mt-5 space-y-2 text-sm">
               <div className="flex items-center gap-2 text-white">
                 <Check size={15} className="text-gold shrink-0" />
-                <span>직접 골라 한 달 사용</span>
+                <span>{pass.all ? "모든 프로그램 자유롭게 이용" : "직접 골라 한 달 사용"}</span>
               </div>
               <div className="flex items-center gap-2 text-white">
                 {pass.premium ? (
                   <>
                     <Crown size={15} className="text-gold shrink-0" />
-                    <span>프리미엄 배지 프로그램 선택 가능</span>
+                    <span>{pass.all ? "프리미엄 배지 프로그램 포함" : "프리미엄 배지 프로그램 선택 가능"}</span>
                   </>
                 ) : (
                   <>
