@@ -170,7 +170,7 @@ export default function PassPage() {
           프리미엄 배지 프로그램 안내
         </h3>
         <p className="text-subtext text-sm leading-relaxed">
-          운영 비용이 드는 일부 프로그램에는 프리미엄 배지가 붙습니다. 프리미엄 배지 프로그램은 회원 등급의 무료 제공과는
+          운영 비용이 많이 발생하는 일부 프로그램에는 프리미엄 배지가 붙습니다. 프리미엄 배지 프로그램은 회원 등급의 무료 제공과는
           별개로 결제가 필요합니다. 이용권으로는 <span className="text-white font-semibold">50개·전체 이용권</span>에서만
           프리미엄 배지 프로그램을 골라 담을 수 있으며, 10개·30개 이용권에서는 선택할 수 없습니다.
         </p>
