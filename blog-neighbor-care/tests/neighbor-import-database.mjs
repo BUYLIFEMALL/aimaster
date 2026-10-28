@@ -182,7 +182,7 @@ try{
  const grant=(m,patch={})=>{
   const id=randomUUID();
   sql(`insert into public.bnc_neighbor_import_permits(id,user_id,account_id,device_id,reference,policy_revision,max_pages,max_neighbors,created_at,valid_until,revoked_at)
-    values(${q(id)},${q(m.user)},${q(m.account)},${q(m.device)},'offline own-list fixture',${patch.revision??Number(sql('select revision from public.bnc_neighbor_import_policy;'))},${patch.pages??1},${patch.neighbors??2},${patch.expired?"now()-interval '2 minutes'":'now()'},${patch.expired?"now()-interval '1 minute'":"now()+interval '10 minutes'"},${patch.revoked?'now()':'null'});`);return id;
+    values(${q(id)},${q(m.user)},${q(m.account)},${q(m.device)},'offline own-list fixture',${patch.revision??Number(sql('select revision from public.bnc_neighbor_import_policy;'))},${patch.pages??1},${patch.neighbors??2},${patch.expired?"now()-interval '2 minutes'":'now()'},${patch.expired?"now()-interval '1 minute'":patch.days?`now()+interval '${patch.days} days'`:"now()+interval '10 minutes'"},${patch.revoked?'now()':'null'});`);return id;
  };
  let permittedRun,permitId;
  await check('IDB19 one-import grant permits only the exact member/account/device while global read and social remain off',()=>{
@@ -234,8 +234,31 @@ try{
   assert.equal(sql(`select count(*) from public.bnc_neighbor_import_permits where id=${q(id)};`),'0');
   assert.equal(directory(permitted).total,2);
  });
- assert.equal(tests.length,25);
+ sql(readFileSync(new URL('../supabase/migrations/20261028090356_bnc_import_activation_window.sql',import.meta.url),'utf8'));
+ await check('IDB26 fourteen-day one-off approval survives delayed start; active run still expires within fifteen minutes',()=>{
+  const m=member(),id=grant(m,{days:14});
+  sql(`update public.bnc_neighbor_import_permits set created_at=now()-interval '30 minutes',valid_until=now()+interval '13 days' where id=${q(id)};`);
+  const run=start(m);assert.equal(sql(`select valid_until>now()+interval '14 minutes' and valid_until<=now()+interval '15 minutes' from public.bnc_neighbor_imports where id=${q(run)};`),'t');
+  assert.equal(directory(m).total,0);put(m,run,snap(m,rows));rpc(m,'confirm',{id:run});assert.equal(directory(m).total,2);
+  assert.throws(()=>start(m),/BNC_IMPORT_READ_DISABLED/);
+  assert.equal(sql('select read_allowed from public.bnc_neighbor_import_policy;'),'f');assert.equal(sql('select live_allowed from public.bnc_runtime;'),'f');
+ });
+ await check('IDB27 approval does not lengthen an active run or permit automatic restart',()=>{
+  const m=member(),id=grant(m,{days:14}),run=start(m);
+  sql(`update public.bnc_neighbor_imports set valid_until=now()-interval '1 second' where id=${q(run)};`);
+  assert.equal(rpc(m,'get',{id:run}).state,'expired');
+  assert.throws(()=>reserve(m,run),/BNC_IMPORT_STATE/);assert.throws(()=>rpc(m,'confirm',{id:run}),/BNC_IMPORT_STATE/);
+  assert.equal(sql(`select valid_until>now() from public.bnc_neighbor_import_permits where id=${q(id)};`),'t');
+  assert.throws(()=>start(m),/BNC_IMPORT_READ_DISABLED/);assert.equal(directory(m).total,0);
+ });
+ await check('IDB28 approval remains bounded to fourteen days, revocable and inaccessible to member writes',()=>{
+  const m=member();assert.throws(()=>grant(m,{days:15}),/bnc_import_permit_activation_window/);
+  const id=grant(m,{days:14});sql(`update public.bnc_neighbor_import_permits set revoked_at=now() where id=${q(id)};`);
+  assert.throws(()=>start(m),/BNC_IMPORT_READ_DISABLED/);
+  assert.throws(()=>sql(`update public.bnc_neighbor_import_permits set revoked_at=null where id=${q(id)};`,'service_role'),/permission denied/);
+ });
+ assert.equal(tests.length,28);
 }finally{
  removed=execFileSync('docker',['rm','-f',container],{encoding:'utf8'}).trim()===container;
- writeFileSync(new URL('../docs/evidence/neighbor-import-database-20261027.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),tests,passed:tests.length,expected:25,containerStopped:removed,operatingDatabaseChanged:false,realCredentialsUsed:false,fixture:'Isolated PostgreSQL17, network none, no published ports; real controller + serialized DOM (linkedom layout stub) + HTTP handlers + actual SQL; not installed extension or production PostgREST'},null,2)+'\n');
+ writeFileSync(new URL('../docs/evidence/neighbor-import-database-20261027.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),tests,passed:tests.length,expected:28,containerStopped:removed,operatingDatabaseChanged:false,realCredentialsUsed:false,fixture:'Isolated PostgreSQL17, network none, no published ports; real controller + serialized DOM (linkedom layout stub) + HTTP handlers + actual SQL; not installed extension or production PostgREST'},null,2)+'\n');
 }

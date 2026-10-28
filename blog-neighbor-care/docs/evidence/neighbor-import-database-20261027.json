@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-28T04:32:01.264Z",
+  "checkedAt": "2026-10-28T09:06:41.769Z",
   "tests": [
     "IDB01 five tables RLS, private RPC, read gate default off and non-writable by service",
     "IDB02 missing platform permission blocks start without page reservation",
@@ -25,10 +25,13 @@
     "IDB22 page and total scopes are enforced before saving or confirming",
     "IDB23 untrusted callers and service cannot create or extend grants; cancelled permits remain consumed",
     "IDB24 local controller/DOM/API/SQL handles scoped own-list import while global read stays off",
-    "IDB25 active-run grant expiry blocks further reads; cleanup keeps referenced audit and member settings"
+    "IDB25 active-run grant expiry blocks further reads; cleanup keeps referenced audit and member settings",
+    "IDB26 fourteen-day one-off approval survives delayed start; active run still expires within fifteen minutes",
+    "IDB27 approval does not lengthen an active run or permit automatic restart",
+    "IDB28 approval remains bounded to fourteen days, revocable and inaccessible to member writes"
   ],
-  "passed": 25,
-  "expected": 25,
+  "passed": 28,
+  "expected": 28,
   "containerStopped": true,
   "operatingDatabaseChanged": false,
   "realCredentialsUsed": false,
