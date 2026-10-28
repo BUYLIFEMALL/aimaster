@@ -25,7 +25,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `blog-neighbor-care/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` | 2026-10-28 | 사용자승인프리미엄유지+무결제14일검수구독등록(11/11 17:28만료)·공용판정정상. 1번43명실제가져오기계속,자동소통OFF. |
+| `blog-neighbor-care/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` | 2026-10-28 | 시작승인조기만료수정SQL운영적용·격리28통과. 승인11/11까지1회·실행15분/nonce60초·읽기/소통OFF. 실제43명수신검수대기. |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261025-blog` | 2026-10-26 | 보안4앱 완료(BLOG1.83·티스토리1.93·올인원1.54·agent2.22), SEO16.3.5만 남음. 실제 입력은 OS 전경 요청false·Gmail/설치2.21이라 주인님 직접 Edge 포커스/시험회원 연결·옛8연결해제 답변 대기. 인계§12 |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
