@@ -296,6 +296,15 @@ async function pageCommand(cmd, args) {
       return { ok: true, added: countImgs() - before };
     }
 
+    if (cmd === 'dismissDraft') {
+      // 임시저장본이 있으면 상품 등록 화면을 열 때마다 이 창이 뜬다(2026-10-28 실측: 닫지 않아 옵션 엑셀 등이 막힘)
+      const prev = await waitFor(() => [...document.querySelectorAll('.modal.in, [role="dialog"]')].find((m) => visible(m) && m.textContent.includes('이전에 작성하던 내용')), 4000);
+      if (!prev) return { ok: true, none: true };
+      const cancel = [...prev.querySelectorAll('button')].find((b) => b.textContent.trim() === '취소');
+      if (cancel) { cancel.click(); await sleep(700); }
+      return { ok: true, dismissed: !!cancel };
+    }
+
     if (cmd === 'openEditor') {
       const direct = document.querySelector('a[ng-click*="EDITOR_TYPE.SEONE"]');
       if (direct) { direct.scrollIntoView({ block: 'center' }); direct.click(); await sleep(600); }
@@ -794,9 +803,11 @@ function optionStateMain() {
   // 카테고리를 바꾸면 옛 칸이 보이지 않은 채 문서에 남는다(2026-10-28 실측) → 같은 id 중 보이는 쪽만 쓴다
   const _vis = (el) => !!el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
   const vid = (id) => { const all = [...document.querySelectorAll('[id="' + id + '"]')]; return all.find((e) => _vis(e) || _vis(e.parentElement) || _vis(document.querySelector('label[for="' + id + '"]'))) || null; };
-  const lab = [...document.querySelectorAll('label, div, span')].find((e) => _vis(e) && e.children.length < 4 && /^옵션목록\s*\(총/.test((e.textContent || '').trim()));
-  const m = lab ? (lab.textContent || '').match(/총\s*(\d+)\s*개/) : null;
   const custom = vid('option_direct_type_true');
+  // 직접입력형에도 「옵션목록(총 N개)」가 있다 → 직접입력형 줄보다 앞(위)에 있는 것만 옵션 목록으로 본다
+  const before = (e) => !custom || !!(e.compareDocumentPosition(custom) & Node.DOCUMENT_POSITION_FOLLOWING);
+  const lab = [...document.querySelectorAll('label, div, span')].find((e) => _vis(e) && e.children.length < 4 && /^옵션목록\s*\(총/.test((e.textContent || '').trim()) && before(e));
+  const m = lab ? (lab.textContent || '').match(/총\s*(\d+)\s*개/) : null;
   return { ok: true, optionCount: m ? Number(m[1]) : -1, customOn: !!(custom && custom.checked) };
 }
 
@@ -1004,6 +1015,7 @@ async function runJob(job) {
   let tabId;
   try {
     tabId = await openCreateTab();
+    await run(tabId, 'dismissDraft').catch(() => null);
     const TOP = new Set(['카테고리', '상품명', '판매가', '재고수량', '상품이미지', '상세설명', '저장']);
     // 옵션이 어느 단계에서 지워지는지 찾기 위한 기록(2026-10-28) — 칸마다 옵션목록 개수가 바뀌면 적는다
     const optTrace = [];
@@ -1101,6 +1113,8 @@ async function runJob(job) {
         else if (r.ok && r.added < r.expected) failures.push('검색 태그 — ' + r.added + '개만 들어감(보낸 것 ' + r.expected + '개). 카테고리·브랜드가 들어간 태그는 스마트스토어가 받지 않습니다');
       } else if (step.action === 'options') {
         if (!job.optionFile) { failures.push('옵션(엑셀 파일을 받지 못함)'); continue; }
+        const priceStep = job.steps.find((x) => x.key === 'price');
+        if (priceStep) { await runMain(tabId, ngTypeMain, { target: priceStep.target, value: priceStep.value }).catch(() => null); await wait(800); }
         r = await runMain(tabId, optionsMain, { file: job.optionFile, type: job.optionFile.type, rows: job.optionFile.rows });
         if (r.ok && r.expected && r.count !== r.expected) failures.push('옵션 — 목록 ' + r.count + '줄(보낸 것 ' + r.expected + '줄), 직접 확인해 주세요');
       } else if (step.action === 'extra_images') {
