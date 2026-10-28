@@ -1,5 +1,7 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+> [역할: blog] **AI 블로그 이웃 소통 자동화(`blog-neighbor-care`) 공식 실사 썸네일 등록 완료** — 2026-10-29: 지침(`docs/PLATFORM_PATTERNS.md` §13, `docs/IMAGE_PROMPT_RULES.md`)에 따라 16:9 포토리얼 실사 썸네일(한국인 크리에이터, 네이버 그린 톤 UI/이웃 소통 대시보드 화면) 생성. 공식 스크립트 `scripts/upload-program-thumbnail.mjs`를 통해 Supabase Storage `program-images/catalog/blog-neighbor-care-thumbnail.jpg`에 업로드하고 DB `programs.thumbnail_url` 갱신 완료. 6분할 확대 점검(`thumbnail-zoom-tiles.mjs`) 결과 글자·오타·로고 0건 검증 완료. 로컬 `blog-neighbor-care/public/blog-neighbor-care-thumbnail.jpg` 및 `scratch/` 보존 완료.
+
 > [역할: blog] **2·3번 격리 검수 보강·2개 문제 수정 / 실제 특수상태 검수 대기** — 2026-10-29: 운영과 같은 14일 시작승인·1회 허가/전역읽기OFF 조건으로 직렬화DOM→확장컨트롤러→HTTP→PostgreSQL 검수 추가. 3페이지125명 응답의 totalPages 누락(undefined≠3)을 IDB29로 재현 후 해당run의 이미 수신된 범위값 유지로 수정. NI23으로 이미 발급된 페이지허가 재요청의 일반오류를 재현 후 받은범위확인→해당가져오기취소→새허가확인 안내/가이드 동기화; 자동재예약·재읽기는 추가하지 않음. 단위184/184·격리DB32/32(최신허가3페이지·빈목록재수신시기존/설정유지·2페이지중단후중복예약차단·취소시기존유지·다중재가져오기설정/생성시각유지)·타입·ZIP9파일원본일치. 컨테이너종료·네트워크none/호스트포트0. 소스75b39133a, v1.02 유지·웹/ZIP 미배포대기·이단계설치확장재로드없음. 실제43명저장완료는유지, 실제네이버다중/0명·실재가져오기설정유지 성공으로확대하지않음. 요청152bd1cc: 현재43명블로그외 다중페이지/빈목록인 본인블로그 보유여부만 확인(기존이웃 추가/삭제 불필요). 이번운영업무DB/AI/검색/원격빌드0. 신규SQL없음·기존대기SQL3개와실소통/반복/운영Cron은잔여. 근거 blog-neighbor-care/docs/evidence/import-edge-cases-20261029.json.
 
 

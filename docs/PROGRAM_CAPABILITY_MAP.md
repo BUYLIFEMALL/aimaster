@@ -661,6 +661,8 @@
 
 #### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.02 운영 / 반복 설정·작업 중단·문장 정리 로컬 완료, SQL3개·묶음 배포 대기
 
+- **공식 썸네일 등록(2026-10-29):** 지침(`docs/PLATFORM_PATTERNS.md` §13)에 따라 16:9 실사(포토리얼) 썸네일 생성 및 `scripts/upload-program-thumbnail.mjs`로 Supabase Storage `program-images/catalog/blog-neighbor-care-thumbnail.jpg` 업로드·DB `programs.thumbnail_url` 갱신 완료. 6분할 확대 점검(`thumbnail-zoom-tiles.mjs`) 결과 모니터 화면 가짜 글자·오타·로고 0건 검증 완료. 로컬 복사(`blog-neighbor-care/public/blog-neighbor-care-thumbnail.jpg`).
+
 - **최신 후속:** 실제43명 수신/웹저장/재조회·확장저장완료표시는 검수완료. 현행1회허가 기반 다중125명/빈목록/중단/재가져오기 설정·생성시각유지 격리32·단위184/타입/ZIP통과. 완료총페이지 누락·중단된허가 안내2건수정75b39133a 미배포. 실제다중/0명·실재가져오기 유지검수는 남아있으며 본인블로그유무152bd1cc 확인중. 기존SQL3·웹ZIP묶음/소통·반복 잔여. [근거](../blog-neighbor-care/docs/evidence/import-edge-cases-20261029.json).
 
 - **2026-10-28 독립 작업:** 8번 작업 조회·중단(API/설정 화면), 9번 소통 문장 30일 정리, 1번 확인 기한·이웃 읽기 우선 배치, 4번 안전한 AI 실패 사유 안내를 구현했습니다. 단위174·격리DB8·타입/로컬 빌드 통과. 신규 SQL2개 미적용·미배포, 실제43명 최종 저장/실행기/예약·반복/운영 Cron 검수는 남음. 기존 확장 최신 수정의 재로드는 Edge 활성화 요청91fa9442 이후 확인합니다.
