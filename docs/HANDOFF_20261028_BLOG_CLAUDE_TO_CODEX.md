@@ -1,5 +1,7 @@
 # 블로그 작업 인수인계 — Claude Code → Codex (이어받기)
 
+> **후속 검증 — 아래 §0/§1의 확정 표현 정정:** 2026-10-28 16:21 KST Codex 재인수 검증: 설치본 importer/extractor/manifest가 원본과 모두 동일. importer는 allFrames:true로 shell과 자식목록을 함께 검사하며 NI19(shell+child) 포함22검사 통과. 따라서 관리홈주소만으로 captured0 원인을 확정한 이전 인계는 가설로 정정. 이전 실측중단은 전경이탈, 이번 직접목록주소 수신은 아직미검증. 기존Edge탭을 BuddyListManage.naver?blogId=buylifemall로 실제이동하고43명표시 확인. 옛capturing b4ba8df6취소·만료허가83cf/d421철회. 관리자Supabase execute_sql로 새1페이지43명허가72a89733 발급(16:34:45 KST만료). SQL Editor만가능한것은아니며 postgres권한도구가능/service_role INSERT금지는유지. 전체읽기/소통OFF·실제디렉터리0. 기존Edge 확장아이콘열기응답대기. AI/검색/빌드/웹배포0. 원래Claude인계는 당시 조사기록으로 보존합니다.
+
 작성: 2026-10-28 KST · 역할 `blog` · 세션 Claude Code(윈도우) `claude-win-20261027-analysis`(한시 Edge 사용).
 사유: 주인님 지시 — Codex 토큰 회복으로 Codex가 blog-neighbor-care 1번 「기존 이웃 가져오기」를 이어받는다. 이 문서는 [Codex→다음 CLI 인계](HANDOFF_20261028_BLOG_CODEX_TO_NEXT_CLI.md)의 **후속**이며, 그 문서 §2 재개 절차를 그대로 따르되 아래 **새 발견**을 반드시 먼저 읽는다.
 

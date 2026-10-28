@@ -1,5 +1,7 @@
 # 블로그
 
+**Codex 재개 / 최신 우선:** 2026-10-28 16:21 KST Codex 재인수 검증: 설치본 importer/extractor/manifest가 원본과 모두 동일. importer는 allFrames:true로 shell과 자식목록을 함께 검사하며 NI19(shell+child) 포함22검사 통과. 따라서 관리홈주소만으로 captured0 원인을 확정한 이전 인계는 가설로 정정. 이전 실측중단은 전경이탈, 이번 직접목록주소 수신은 아직미검증. 기존Edge탭을 BuddyListManage.naver?blogId=buylifemall로 실제이동하고43명표시 확인. 옛capturing b4ba8df6취소·만료허가83cf/d421철회. 관리자Supabase execute_sql로 새1페이지43명허가72a89733 발급(16:34:45 KST만료). SQL Editor만가능한것은아니며 postgres권한도구가능/service_role INSERT금지는유지. 전체읽기/소통OFF·실제디렉터리0. 기존Edge 확장아이콘열기응답대기. AI/검색/빌드/웹배포0.
+
 **최신 인수인계(2026-10-28, Claude Code→Codex):** blog-neighbor-care 1번 「기존 이웃 가져오기」를 이어받아 **0명의 직접 원인 발견 — 확장 추출기는 `https://admin.blog.naver.com/BuddyListManage.naver?blogId=buylifemall` 주소에서만 목록을 읽는다**(지금까지 주인님이 연 `admin.blog.naver.com/buylifemall`은 shell이라 소유 확인만·목록 0명). 활성 허가 `d421b77c`(valid_until 2026-10-28T07:02:23Z). **허가는 Supabase SQL Editor(postgres)에서만 발급**(service_role INSERT 불가). 실제 43명 추출·반영은 미완료. 상세·다음 단계·발급 SQL: [Claude→Codex 상세 인계](../HANDOFF_20261028_BLOG_CLAUDE_TO_CODEX.md). 담당은 Codex 복귀. 이번 세션은 한시 Edge 사용(ego-lite는 다른 세션 사용 중). 아래는 직전 기록.
 
 **최신 인수인계(2026-10-28 13:51):** 사용자 크레딧 소진으로 [다음 CLI 상세 인수인계](../HANDOFF_20261028_BLOG_CODEX_TO_NEXT_CLI.md) 작성. 최종조회: 이웃요청1건 cancelled/수신0·디렉터리0·임시페이지0, 단기허가철회/활성0, 전체읽기/소통OFF. 실제43명가져오기는 미완료. 다음담당은 문서 §2부터 재개. 로그인/설치/연결/v1.02/허가SQL은 완료이므로 반복 작업하지 않음. 이번 AI/검색/빌드/배포0.

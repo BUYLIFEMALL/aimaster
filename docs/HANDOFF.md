@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 16:21 [역할: blog] Claude 인계 대조·직접목록 검수 재개
+
+2026-10-28 16:21 KST Codex 재인수 검증: 설치본 importer/extractor/manifest가 원본과 모두 동일. importer는 allFrames:true로 shell과 자식목록을 함께 검사하며 NI19(shell+child) 포함22검사 통과. 따라서 관리홈주소만으로 captured0 원인을 확정한 이전 인계는 가설로 정정. 이전 실측중단은 전경이탈, 이번 직접목록주소 수신은 아직미검증. 기존Edge탭을 BuddyListManage.naver?blogId=buylifemall로 실제이동하고43명표시 확인. 옛capturing b4ba8df6취소·만료허가83cf/d421철회. 관리자Supabase execute_sql로 새1페이지43명허가72a89733 발급(16:34:45 KST만료). SQL Editor만가능한것은아니며 postgres권한도구가능/service_role INSERT금지는유지. 전체읽기/소통OFF·실제디렉터리0. 기존Edge 확장아이콘열기응답대기. AI/검색/빌드/웹배포0.
+
+근거 `blog-neighbor-care/docs/evidence/neighbor-resume-20261028.json`. 직접목록주소는 정상 UI로 기존Edge탭에서 열었으며 네이버에에이전트접근불가라는 타CLI제약을Codex에일괄적용하지않음. 운영SQL/확장소스 재배포없음.
+
 ## 2026-10-28 13:51 [역할: blog] 크레딧 종료·다음 CLI 상세 인수인계 완료
 
 [블로그 상세 인수인계](HANDOFF_20261028_BLOG_CODEX_TO_NEXT_CLI.md) — 사용자 요청에 따라 경과/완료/남은순서/DB식별자/코드·검수/미배포3건/API귀속/브라우저주의/다음CLI시작문장 정리. 마지막 실제가져오기8e02b353은 전경이탈로수신0→취소, 허가3c70d78f철회. 13:51 KST DB재조회: cancelled/임시페이지0/디렉터리0/활성허가0/전체읽기OFF/자동소통OFF. 실제43명반영미완료로 인계. 유료AI/검색/빌드/배포0. 이전 요청0/허가미사용 기록보다 이 상태가 최신.
