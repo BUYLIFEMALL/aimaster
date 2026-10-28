@@ -19,6 +19,7 @@ export function AttributePicker({ initialText = "", categoryPath = "" }: { initi
   const picked = parseAttrText(text);
   const attrs = view?.status === "done" ? view.result?.attributes ?? [] : [];
   const order = attrs.map((a) => a.name);
+  const missingRequired = attrs.filter((a) => a.required && !picked[a.name]?.length).map((a) => a.name);
 
   function poll(id: string, started: number) {
     timer.current = setTimeout(async () => {
@@ -71,6 +72,12 @@ export function AttributePicker({ initialText = "", categoryPath = "" }: { initi
             </select>
           </label>
           {!attrs.length && <p className="text-[11px] text-slate-500">이 카테고리에는 고를 수 있는 상품속성이 없습니다.</p>}
+          {missingRequired.length > 0 && (
+            // 막지는 않는다 — 비워도 판매자센터 저장은 된다(2026-10-28 「바로 등록」 실측, 「다음에 할래요」로 넘어감)
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] leading-relaxed text-amber-900">
+              ⚠️ 판매자센터에서 「필수」로 표시한 속성 {missingRequired.length}개가 비어 있습니다: <b>{missingRequired.join(", ")}</b>. 비워도 등록은 되지만, 상품에 맞는 값을 고르면 네이버쇼핑 검색에 상품 정보가 더 정확히 나옵니다.
+            </p>
+          )}
           {attrs.map((a) => {
             const cur = picked[a.name] ?? [];
             const full = a.max > 0 && cur.length >= a.max;
