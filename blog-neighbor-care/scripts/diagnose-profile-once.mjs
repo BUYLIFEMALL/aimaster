@@ -29,7 +29,8 @@ try {
  if(!run){console.log(JSON.stringify(readiness));process.exit(0);}
  phase='approval';
  const approval=args[args.indexOf('--approval')+1];
- if(!args.includes('--approval')||!/^[a-f0-9-]{36}$/.test(approval??'')||approval==='bc3a34c2-007f-484b-823d-5f170a2b2b15')throw Error('new_approval_required');
+ const unavailableApprovals=['bc3a34c2-007f-484b-823d-5f170a2b2b15','df361204-55e4-4f74-967d-eb99b7967f14']; // consumed / withdrawn
+ if(!args.includes('--approval')||!/^[a-f0-9-]{36}$/.test(approval??'')||unavailableApprovals.includes(approval))throw Error('new_approval_required');
  phase='key';
  const keys=await read(`user_api_keys?user_id=eq.${encodeURIComponent(job.user_id)}&provider=eq.anthropic&select=api_key`);
  if(keys.length!==1||typeof keys[0].api_key!=='string')throw Error('key');
