@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 [역할: blog] 프로그램명 강조·참고 확장 레이아웃 반영
+
+2026-10-28 사용자 제공 스마트스토어 확장 레이아웃에 맞춰 팝업을 녹색헤더·큰공식명·우측버전배지·연결계정/지금상태/기능카드로 변경. 본프로그램명 AI 블로그 이웃 소통 자동화를 큰제목으로 표시하고 기능명은 설명으로 분리. 기존설치폴더 popup.html/css·로컬ZIP2종 동기화, 단위152통과. 실제열린팝업은 닫고다시열어 확인필요. v1.02유지·운영다운로드 미배포대기·추가AI/검색/원격빌드/배포0. 기존43명 가져오기 실검수는 계속미완료.
+
+같은템플릿 영구자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/extension-popup-20261028`에 HTML/CSS/SPEC 저장. 신규디자인템플릿이아닌 사용자지정레이아웃의 기존템플릿 적용.
+
 ## 2026-10-28 16:21 [역할: blog] Claude 인계 대조·직접목록 검수 재개
 
 2026-10-28 16:21 KST Codex 재인수 검증: 설치본 importer/extractor/manifest가 원본과 모두 동일. importer는 allFrames:true로 shell과 자식목록을 함께 검사하며 NI19(shell+child) 포함22검사 통과. 따라서 관리홈주소만으로 captured0 원인을 확정한 이전 인계는 가설로 정정. 이전 실측중단은 전경이탈, 이번 직접목록주소 수신은 아직미검증. 기존Edge탭을 BuddyListManage.naver?blogId=buylifemall로 실제이동하고43명표시 확인. 옛capturing b4ba8df6취소·만료허가83cf/d421철회. 관리자Supabase execute_sql로 새1페이지43명허가72a89733 발급(16:34:45 KST만료). SQL Editor만가능한것은아니며 postgres권한도구가능/service_role INSERT금지는유지. 전체읽기/소통OFF·실제디렉터리0. 기존Edge 확장아이콘열기응답대기. AI/검색/빌드/웹배포0.
