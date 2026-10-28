@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getAttrLookupAction, requestAttrLookupAction, type AttrLookupView } from "@/lib/actions/attributes";
+import { getAttrLookupAction, requestAttrLookupAction, suggestAttributesAction, type AttrLookupView } from "@/lib/actions/attributes";
 import { attrsToText, parseAttrText, type AttrDef } from "@/lib/smartstore/attributes";
 
 /**
  * 상품속성 고르기 — 「이 카테고리 속성 불러오기」를 누르면 회원 확장이 판매자센터에서 속성 이름·보기를 읽어 온다(저장은 하지 않음).
  * 고른 값은 아래 글 칸(name="attributes")에 「이름: 값1, 값2」로 들어가 기존 등록 흐름 그대로 쓰인다. 글 칸은 직접 고쳐도 된다.
  */
-export function AttributePicker({ initialText = "", categoryPath = "" }: { initialText?: string; categoryPath?: string }) {
+export function AttributePicker({ productId, initialText = "", categoryPath = "" }: { productId: string; initialText?: string; categoryPath?: string }) {
   const [text, setText] = useState(initialText);
   const [view, setView] = useState<AttrLookupView | null>(null);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const [keyLink, setKeyLink] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
@@ -42,6 +44,22 @@ export function AttributePicker({ initialText = "", categoryPath = "" }: { initi
     poll(r.id, Date.now());
   }
 
+  // 회원 본인 Claude 키로 추천 — 이미 고른 속성은 덮지 않고 빈 속성만 채운다(회원이 확인 뒤 보냄)
+  async function suggest() {
+    if (!view?.id) return;
+    setSuggesting(true);
+    setKeyLink(false);
+    setMsg("상세페이지 내용으로 추천하는 중… (회원 본인 Claude 키 사용)");
+    const r = await suggestAttributesAction(productId, view.id);
+    setSuggesting(false);
+    if (r.error || !r.picks) { setMsg(`⚠️ ${r.error ?? "추천하지 못했습니다."}`); setKeyLink(Boolean(r.needKey)); return; }
+    const next = { ...picked };
+    let added = 0;
+    for (const [name, vals] of Object.entries(r.picks)) if (!next[name]?.length) { next[name] = vals; added++; }
+    setText(attrsToText(next, order));
+    setMsg(added ? `✨ 속성 ${added}개를 추천해 채웠습니다. 상품에 맞는지 확인하고 고쳐 주세요.` : "추천할 수 있는 빈 속성이 없었습니다.");
+  }
+
   function setValues(a: AttrDef, values: string[]) {
     const next = { ...picked, [a.name]: values };
     if (!values.length) delete next[a.name];
@@ -56,7 +74,7 @@ export function AttributePicker({ initialText = "", categoryPath = "" }: { initi
           🔎 이 카테고리 속성 불러오기
         </button>
       </div>
-      {msg && <p className="text-[11px] text-slate-600">{msg}</p>}
+      {msg && <p className="text-[11px] text-slate-600">{msg}{keyLink && <> <a href="https://www.buylife.xyz/api-settings" target="_blank" rel="noreferrer" className="font-bold underline">키 등록하러 가기 →</a></>}</p>}
 
       {view?.status === "done" && view.result && (
         <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-2.5">
@@ -71,6 +89,11 @@ export function AttributePicker({ initialText = "", categoryPath = "" }: { initi
               {view.result.candidates.map((c) => <option key={c.id} value={c.id}>{c.path || c.id}</option>)}
             </select>
           </label>
+          {attrs.length > 0 && (
+            <button type="button" onClick={suggest} disabled={busy || suggesting} className="rounded-lg border border-violet-300 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-800 disabled:opacity-60">
+              {suggesting ? "추천하는 중…" : "✨ 상세페이지 내용으로 추천"}
+            </button>
+          )}
           {!attrs.length && <p className="text-[11px] text-slate-500">이 카테고리에는 고를 수 있는 상품속성이 없습니다.</p>}
           {missingRequired.length > 0 && (
             // 막지는 않는다 — 비워도 판매자센터 저장은 된다(2026-10-28 「바로 등록」 실측, 「다음에 할래요」로 넘어감)

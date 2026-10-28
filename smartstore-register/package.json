@@ -10,6 +10,7 @@
     "prebuild": "node scripts/build-extension-archive.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
     "lucide-react": "^1.48.0",

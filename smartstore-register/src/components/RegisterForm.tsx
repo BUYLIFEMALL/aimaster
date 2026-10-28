@@ -42,7 +42,7 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         </select>
         <p className="text-[11px] text-slate-500">비우면 판매자센터 칸을 건드리지 않습니다. 브랜드·제조사·모델명은 네이버 쇼핑 검색 품질에 쓰입니다. 모델명은 「텍스트로 직접입력」으로 넣습니다(네이버 카탈로그 연결은 판매자센터에서 직접).</p>
       </fieldset>
-      <AttributePicker initialText={initialAttributes} categoryPath={categoryPath} />
+      <AttributePicker productId={productId} initialText={initialAttributes} categoryPath={categoryPath} />
       <OptionEditor initial={initialOptions} defaultStock={defaultStock} />
       <div>
         <label className="slw-label" htmlFor="customOptions">직접입력형 옵션 <span className="font-normal text-slate-500">(선택, 구매자가 글을 써넣는 옵션명, 쉼표로 최대 5개)</span></label>

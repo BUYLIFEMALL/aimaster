@@ -12,7 +12,7 @@ v1.21 「속성 불러오기」로 판매자센터 속성·보기를 고를 수 
 | 항목 | 결정 |
 |---|---|
 | 재료 | `shop_products`의 상품명·카테고리·`key_features`·`specs`·`how_to_use`·`target_customer`(본인 상품만) |
-| AI | 회원 본인 Gemini 키(`user_api_keys` provider `gemini`, 폴백 없음, 없으면 「API 키 등록이 필요합니다」 안내) · 모델 `gemini-3.5-flash`(상세페이지 자동화와 같은 분석 모델) · JSON 응답 |
+| AI | **(2026-10-28 주인님 「앞으로 기본 api키 사용은 클로드야」로 변경)** 회원 본인 Claude 키(`user_api_keys` provider `anthropic`, 폴백 없음, 없으면 키 등록 안내) · 모델 `claude-opus-5-5`·effort low · 구조화 응답(json_schema) · 거절 시 `fallbacks: "default"` |
 | 규칙 | 보기에 없는 값은 버림, 최대 개수 넘으면 앞에서부터 자름, 확신 없는 속성은 비움, 당해 연도 규칙 해당 없음(사실 분류) |
 | 저장 | 따로 저장하지 않음(화면에만 채움) → DB 변경 없음 |
 

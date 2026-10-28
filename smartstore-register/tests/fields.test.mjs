@@ -283,3 +283,18 @@ test("상품속성 불러오기: 결과 정리·글 변환", async () => {
   assert.equal(attrsToText(picked, ["용도", "주요소재"]), "용도: 여행용\n주요소재: 폴리에스테르, 나일론\n제품특징: 노트북수납, 방수");
   assert.equal(attrsToText({ 패턴: [] }), "");
 });
+
+test("상품속성 AI 추천 거르기: 보기 안 값만·한 개·최대 개수", async () => {
+  const { sanitizeSuggestion } = await import("../src/lib/smartstore/attributes.ts");
+  const attrs = [
+    { name: "주요소재", type: "MULTI_SELECT", max: 2, required: true, values: ["가죽", "폴리에스테르", "나일론"] },
+    { name: "용도", type: "SINGLE_SELECT", max: 0, required: true, values: ["여행용", "학생용"] },
+  ];
+  const out = sanitizeSuggestion([
+    { name: "주요소재", values: ["폴리에스테르", "폴리에스터", "나일론", "가죽"] },
+    { name: "용도", values: ["여행용", "학생용"] },
+    { name: "없는속성", values: ["x"] },
+    { name: "주요소재", values: ["가죽"] },
+  ], attrs);
+  assert.deepEqual(out, { 주요소재: ["폴리에스테르", "나일론"], 용도: ["여행용"] });
+});

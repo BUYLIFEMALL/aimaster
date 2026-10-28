@@ -37,6 +37,20 @@ export function normalizeLookupResult(raw: unknown): AttrLookupResult | null {
   return { category, candidates: candidates.some((c) => c.id === category.id) ? candidates : [category, ...candidates].slice(0, 20), attributes };
 }
 
+/** AI 추천을 믿지 않고 거른다 — 있는 속성·보기 안의 값만, 한 개 고르기는 1개, 최대 개수까지 */
+export function sanitizeSuggestion(picks: { name: string; values: string[] }[], attrs: AttrDef[]): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const p of picks) {
+    const a = attrs.find((x) => x.name === p.name);
+    if (!a || out[a.name]) continue;
+    let vals = [...new Set(p.values.filter((v) => a.values.includes(v)))];
+    if (a.type === "SINGLE_SELECT") vals = vals.slice(0, 1);
+    else if (a.max > 0) vals = vals.slice(0, a.max);
+    if (vals.length) out[a.name] = vals;
+  }
+  return out;
+}
+
 /** 「이름: 값1, 값2」 글 → { 이름: [값…] } (확장 입력 형식과 같음) */
 export function parseAttrText(text: string): Record<string, string[]> {
   const out: Record<string, string[]> = {};
