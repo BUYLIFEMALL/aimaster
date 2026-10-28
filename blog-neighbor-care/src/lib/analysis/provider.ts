@@ -1,6 +1,7 @@
 import { openAIGenerationParams } from './openaiRequestParams';
 export type Provider = 'openai'|'anthropic'|'gemini';
 type FailureReason = 'http_rejected' | 'transport' | 'response_empty' | 'response_too_large' | 'response_json' | 'response_incomplete' | 'output_invalid' | 'output_json';
+export type ProviderCode = 'billing_required' | 'authentication_required' | 'model_unavailable' | 'rate_limited' | 'permission_denied' | 'request_invalid' | 'provider_unavailable';
 const failureMessages: Record<FailureReason, string> = {
   http_rejected: 'Provider request unconfirmed', transport: 'Provider request unconfirmed', response_empty: 'Empty provider response',
   response_too_large: 'Provider response too large', response_json: 'Invalid provider response', response_incomplete: 'Incomplete response',
@@ -8,7 +9,25 @@ const failureMessages: Record<FailureReason, string> = {
 };
 /** Safe classification only. Never retains raw errors, response bodies or keys. */
 export class ProviderFailure extends Error {
-  constructor(readonly reason: FailureReason, readonly httpStatus?: number) { super(failureMessages[reason]); }
+  constructor(readonly reason: FailureReason, readonly httpStatus?: number, readonly providerCode?: ProviderCode) { super(failureMessages[reason]); }
+}
+async function rejectionCode(response: Response): Promise<ProviderCode | undefined> {
+  if(response.status===401)return 'authentication_required';
+  if(response.status===402)return 'billing_required';
+  if(response.status===403)return 'permission_denied';
+  if(response.status===404)return 'model_unavailable';
+  if(response.status===429)return 'rate_limited';
+  if(response.status>=500)return 'provider_unavailable';
+  const reader=response.body?.getReader();if(!reader)return;
+  const chunks:Uint8Array[]=[];let bytes=0;
+  try {
+    for(;;){const {done,value}=await reader.read();if(done)break;bytes+=value.length;if(bytes>4096)return;chunks.push(value);}
+    const parsed=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    const message=typeof parsed?.error?.message==='string'?parsed.error.message:'';
+    if(/credit balance.*too low|insufficient credits?|billing.*(?:required|disabled)|billing account.*(?:inactive|not found)/i.test(message))return 'billing_required';
+    if(parsed?.error?.type==='invalid_request_error')return 'request_invalid';
+  } catch { /* Untrusted error text stays in memory and is never emitted. */ }
+  finally { await reader.cancel().catch(()=>{}); }
 }
 export async function generateJson(provider:Provider, model:string, key:string, system:string, user:string, fetcher:typeof fetch=fetch):Promise<unknown> {
   let url:string,headers:Record<string,string>,body:unknown;
@@ -27,7 +46,11 @@ export async function generateJson(provider:Provider, model:string, key:string, 
   let response: Response;
   try { response=await fetcher(url,{method:'POST',redirect:'error',signal:AbortSignal.timeout(45000),headers:{'content-type':'application/json',...headers},body:JSON.stringify(body)}); }
   catch { throw new ProviderFailure('transport'); }
-  if(!response.ok) { await response.body?.cancel().catch(()=>{});throw new ProviderFailure('http_rejected',response.status); }
+  if(!response.ok) {
+    const code=await rejectionCode(response);
+    await response.body?.cancel().catch(()=>{});
+    throw new ProviderFailure('http_rejected',response.status,code);
+  }
   const reader=response.body?.getReader();if(!reader)throw new ProviderFailure('response_empty');
   const chunks:Uint8Array[]=[];let bytes=0;
   try {for(;;){const {done,value}=await reader.read();if(done)break;bytes+=value.length;if(bytes>262144)throw new ProviderFailure('response_too_large');chunks.push(value);}}

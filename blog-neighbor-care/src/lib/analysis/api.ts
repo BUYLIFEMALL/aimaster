@@ -1,12 +1,12 @@
 import { randomBytes } from 'node:crypto';
 import type { Access } from '../work-api';
 import { AnalysisInputError, bad, generation, hash, object, only, preferences, profileFields, prompt, strings, uuid, validateResult, type Bundle, type ObjectValue } from './contracts';
-import { ProviderFailure, type Provider } from './provider';
+import { ProviderFailure, type Provider, type ProviderCode } from './provider';
 
 export type GenerationFailureDiagnostic = {
   jobId: string; kind: 'profile' | 'candidates'; provider: Provider; model: string;
   stage: 'prompt' | 'provider' | 'validation' | 'persist' | 'access_check' | 'result_read';
-  reason: string; httpStatus?: number;
+  reason: string; httpStatus?: number; providerCode?: ProviderCode;
 };
 
 export type AnalysisDependencies = {
@@ -88,6 +88,7 @@ export function createAnalysisHandler(deps:AnalysisDependencies) {
           reason:error instanceof ProviderFailure ? error.reason : stage==='validation' ? 'result_invalid' : stage==='persist' || stage==='result_read' ? 'storage_failed' : 'unconfirmed'};
         const status=error instanceof ProviderFailure ? error.httpStatus : undefined;
         if(typeof status==='number' && Number.isInteger(status) && status>=400 && status<=599)diagnostic.httpStatus=status;
+        if(error instanceof ProviderFailure && error.providerCode)diagnostic.providerCode=error.providerCode;
         try { await deps.reportFailure?.(diagnostic); } catch { /* telemetry cannot change the result or retry */ }
         return reply({error:'생성 결과를 확정하지 못했습니다. 같은 요청을 자동으로 다시 실행하지 않습니다. 결과 상태를 확인해 주세요.',code:'GENERATION_UNCONFIRMED',jobId:prepared.id},502);
       }

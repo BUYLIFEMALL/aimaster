@@ -1,0 +1,82 @@
+{
+  "checkedAt": "2026-10-28T03:44:27.132Z",
+  "originalJob": "e207aead-b540-4ec5-af46-8b371dafc30c",
+  "originalState": "uncertain",
+  "originalHasResult": false,
+  "modelReadCheck": {
+    "checkedAt": "2026-10-28T03:29:26.215Z",
+    "operation": "GET /v1/models/claude-haiku-4-5",
+    "usesSameScopedMemberKey": true,
+    "status": 200,
+    "durationMs": 268,
+    "modelAvailable": true,
+    "resolvedModelId": "claude-haiku-4-5-20251001",
+    "safeErrorType": null,
+    "creditIssue": false,
+    "invalidKey": false,
+    "modelRetired": false,
+    "textOrBodySent": false,
+    "messageGenerationRequests": 0,
+    "rawKeyOrResponseSaved": false
+  },
+  "memberKeyMetadata": {
+    "registered": true,
+    "length": 108,
+    "anthropicFormat": true,
+    "whitespaceClean": true,
+    "keyPrinted": false
+  },
+  "persistenceMetadata": {
+    "serviceRoleCanUpdateJobs": true,
+    "serviceRoleCanReadJobs": true,
+    "serviceRoleCanDispatch": true,
+    "customTriggers": 0
+  },
+  "conclusion": "Current credential/model lookup and database privileges passed. These do not establish billing availability or the historical generation failure cause.",
+  "rootCauseConfirmed": false,
+  "remainingHypotheses": [
+    "Provider billing/request/availability rejection",
+    "Generated result JSON/citation validation failure",
+    "Other persistence or transient failure"
+  ],
+  "diagnosticChange": {
+    "rejectionBodyLimitBytes": 4096,
+    "safeCodes": [
+      "billing_required",
+      "authentication_required",
+      "model_unavailable",
+      "rate_limited",
+      "permission_denied",
+      "request_invalid",
+      "provider_unavailable"
+    ],
+    "rawProviderMessageLogged": false,
+    "regressionRed": "PR01 billing_required expected; actual undefined",
+    "unitTestsPassed": 152,
+    "typecheckPassed": true,
+    "deployment": "pending-batch"
+  },
+  "localPreparation": {
+    "script": "scripts/diagnose-profile-once.mjs",
+    "readOnlyPreparationPassed": true,
+    "materialCount": 1,
+    "conservativeInputTokens": 10781,
+    "outputTokenLimit": 6000,
+    "conservativeUsd": 0.040781,
+    "usdLimit": 0.05,
+    "operatingWrites": 0,
+    "oldConsumedApprovalRejected": true,
+    "defaultGenerates": false,
+    "duplicateAttemptMarker": true
+  },
+  "furtherGenerationRequests": 0,
+  "newBuilds": 0,
+  "newDeployments": 0,
+  "request": "df361204-55e4-4f74-967d-eb99b7967f14",
+  "approvalStatus": "pending",
+  "sources": [
+    "https://platform.claude.com/docs/en/api/models/retrieve",
+    "https://platform.claude.com/docs/en/api/errors",
+    "https://platform.claude.com/docs/en/api/migration-2026-10-21"
+  ]
+}
