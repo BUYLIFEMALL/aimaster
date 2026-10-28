@@ -118,7 +118,7 @@
   "nativeEdgeOperatingVersionVerified": true,
   "memberLoginRequired": false,
   "memberRequest": "e43fff5f-b5c5-4dbd-97d9-9cf4294c9af7",
-  "extensionReloadVerified": false,
+  "extensionReloadVerified": true,
   "productionHttpChecks": 13,
   "productionZipFilesMatch": 9,
   "dbReappliedOnRetry": false,
@@ -126,6 +126,14 @@
   "memberUiReadPassed": true,
   "actualPostgrestMemberReadPassed": true,
   "previousMaterialRetained": true,
-  "edgeExtensionManagerOpenRequired": true,
-  "memberUiEvidence": "member-ui-20261028.json"
+  "edgeExtensionManagerOpenRequired": false,
+  "memberUiEvidence": "member-ui-20261028.json",
+  "internalExtensionManagerNavigationVerified": true,
+  "extensionPopupConnectionVerified": true,
+  "extensionVersionObserved": "v1.02",
+  "extensionNameObserved": "AI 블로그 이웃 소통 자동화",
+  "extensionIdUnchanged": true,
+  "extensionConnectedBlogObserved": "buylifemall",
+  "extensionUiCheckedAt": "2026-10-28T01:59:17.138Z",
+  "newDeployments": 0
 }

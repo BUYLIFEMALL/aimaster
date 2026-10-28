@@ -19,8 +19,8 @@
   "actualPostgrestMemberReadPassed": true,
   "actualNaverNeighborsImported": 0,
   "independentlyVerifiedRelations": false,
-  "extensionReloadVerified": false,
-  "internalExtensionManagerNavigationVerified": false,
+  "extensionReloadVerified": true,
+  "internalExtensionManagerNavigationVerified": true,
   "toolLimits": {
     "focusSupported": false,
     "keyboard": "window_not_focused after restore",
@@ -33,5 +33,13 @@
   "newDeployments": 0,
   "realAiCalls": 0,
   "searchCalls": 0,
-  "privateBodySaved": false
+  "privateBodySaved": false,
+  "edgeExtensionManagerOpenRequired": false,
+  "extensionPopupConnectionVerified": true,
+  "extensionVersionObserved": "v1.02",
+  "extensionNameObserved": "AI 블로그 이웃 소통 자동화",
+  "extensionIdUnchanged": true,
+  "extensionConnectedBlogObserved": "buylifemall",
+  "extensionUiCheckedAt": "2026-10-28T01:59:17.137Z",
+  "extensionPopupScreenshot": "extension-popup-v102-20261028.png"
 }
