@@ -23,6 +23,10 @@ export function WingKeyForm({ saved }: { saved: boolean }) {
             <input
               name={f.name}
               type={f.secret ? "password" : "text"}
+              // 브라우저가 사이트 로그인 정보(이메일·비밀번호)를 자동으로 채우지 않게(2026-10-28 실제로 채워짐)
+              autoComplete={f.secret ? "new-password" : "off"}
+              data-1p-ignore
+              data-lpignore="true"
               required
               spellCheck={false}
               className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm focus:border-rose-500 focus:outline-none"

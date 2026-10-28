@@ -102,6 +102,8 @@ export async function checkProgramAccess(
     .single();
 
   if (!program) {
+    // 공개 전(비공개) 프로그램은 관리자만 미리 쓴다 — 일반 회원은 그대로 not_found(2026-10-28 coupang-ops 개발 중)
+    if (profile?.is_admin && !profile?.is_suspended) return { allowed: true, reason: "admin", programId: null };
     return { allowed: false, reason: "not_found", programId: null };
   }
 
