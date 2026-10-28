@@ -143,16 +143,19 @@ async function pageCommand(cmd, args) {
     }
 
     if (cmd === 'select') {
-      const sel = byModel(args.target).find((e) => e.tagName === 'SELECT');
+      // 반품 택배사는 숨은 칸이 select가 아니라 input(값 = 계약 번호)이고 보기는 「기본 반품택배사 - CJ대한통운」 모양(2026-10-28 ego 실측)
+      const sel = byModel(args.target).find((e) => e.tagName === 'SELECT') || byModel(args.target).find((e) => e.tagName === 'INPUT');
       if (!sel) return { ok: false, error: '고르기 상자를 찾지 못했습니다.' };
       const norm = (s) => s.replace(/\s+/g, '').trim();
       // 판매자센터 배송 칸(택배사·배송비)은 진짜 select를 숨기고 selectize 목록을 덮어씌운 상자다(class "selectized").
       // 숨은 select 값을 바꾸면 selectize가 되돌리므로, 화면 목록을 열어 글자가 「정확히 같은」 보기를 누른다
       // (택배사 목록에 「CJ대한통운(새벽배송)」과 「CJ대한통운」이 함께 있음).
-      const control = sel.classList.contains('selectized') ? (sel.parentElement?.querySelector('.selectize-control')) : null;
+      const control = sel.classList.contains('selectized') || sel.tagName === 'INPUT' ? (sel.parentElement?.querySelector('.selectize-control')) : null;
+      if (sel.tagName === 'INPUT' && !control) return { ok: false, error: '고르기 목록을 찾지 못했습니다.' };
       if (control) {
         const shown = () => norm(control.querySelector('.selectize-input .item')?.textContent || '');
-        if (shown() === norm(args.value)) return { ok: true, already: true };
+        const same = (s) => s === norm(args.value) || s.endsWith('-' + norm(args.value));
+        if (same(shown())) return { ok: true, already: true };
         const box = control.querySelector('.selectize-input');
         box.scrollIntoView({ block: 'center' });
         box.click();
@@ -162,11 +165,12 @@ async function pageCommand(cmd, args) {
           return list.length ? list : null;
         }, 5000);
         if (!items) return { ok: false, error: '목록이 열리지 않았습니다.' };
-        const item = items.find((o) => norm(o.textContent) === norm(args.value)) || (items.filter((o) => norm(o.textContent).includes(norm(args.value))).length === 1 ? items.find((o) => norm(o.textContent).includes(norm(args.value))) : null);
+        const item = items.find((o) => norm(o.textContent) === norm(args.value)) || items.find((o) => norm(o.textContent).endsWith('-' + norm(args.value))) || (items.filter((o) => norm(o.textContent).includes(norm(args.value))).length === 1 ? items.find((o) => norm(o.textContent).includes(norm(args.value))) : null);
         if (!item) { document.body.click(); return { ok: false, error: `「${args.value}」 보기가 없습니다(있는 보기: ${items.map((o) => o.textContent.trim()).slice(0, 8).join(', ')})` }; }
         item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
         item.click();
-        const ok = await waitFor(() => shown() === norm(args.value), 3000);
+        const picked = norm(item.textContent);
+        const ok = await waitFor(() => shown() === picked || same(shown()), 3000);
         return ok ? { ok: true } : { ok: false, error: `고른 값이 반영되지 않았습니다(화면 값: ${shown() || '없음'})` };
       }
       const opts = [...sel.options].filter((o) => !/^\?/.test(o.value));
