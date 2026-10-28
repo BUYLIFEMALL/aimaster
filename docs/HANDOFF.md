@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.23 판매자센터 화면 점검
+
+- 확장이 7일마다(+대시보드 「지금 점검」) 상품 등록 화면을 비활성 새 탭에서 읽기만 해 확장이 쓰는 칸 58개가 그대로 있는지 확인 → 대시보드 「🩺 판매자센터 화면 점검」 카드(정상/바뀐 칸 N개). DB 표 `smartstore_register_health` 추가(운영, 승인). 배포 `1ei77dyqs` Ready, v1.23 OK. 첫 자동 점검 20:43 정상(21초).
+- 칸 구성을 바꾸면 `src/lib/smartstore/health.ts`도 고칠 것(시험이 잡음). 상세: `smartstore-register/docs/IMPROVEMENT_HANDOFF_20261028.md` §8.
+- https://smartstore-register.buylife.xyz
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.22 배포
 
 - 상품속성 AI 추천(회원 본인 Claude 키)·필수 속성 안내·속성 읽기 재검색 묶음 배포 `5etiff2gv` Ready, DB·확장·ZIP v1.22 OK(빌드 1회 승인). 운영 화면에서 추천 실물 확인(빈 속성 2개만 채움). 미배포 대기 없음.
