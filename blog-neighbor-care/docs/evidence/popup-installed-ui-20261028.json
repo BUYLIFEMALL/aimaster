@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-10-28T07:32:38Z",
+  "browser": "Microsoft Edge, existing window",
+  "verification": "native accessibility tree; visual screenshot not captured",
+  "installedExtension": "dnhdiinhfknkonedobhgbfjimojdhnij",
+  "mainHeading": "AI 블로그 이웃 소통 자동화",
+  "version": "v1.02",
+  "connectionCardPresent": true,
+  "statusCardPresent": true,
+  "connectedOwnBlog": "buylifemall",
+  "neighborConsentAndReadControlsPresent": true,
+  "readClickSucceeded": false,
+  "reason": "popup closed on restore before read action; no new import request at 07:34:54Z",
+  "neighborImportVerified": false,
+  "aiCalls": 0,
+  "searchCalls": 0,
+  "remoteBuilds": 0,
+  "deployments": 0
+}
