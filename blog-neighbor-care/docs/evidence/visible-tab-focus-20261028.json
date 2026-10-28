@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-10-28T14:49:41.341Z",
+  "observedFailure": {
+    "importId": "f0c3126d-18ca-4d81-8e83-9142ad736496",
+    "capturedCount": 0,
+    "lastPage": 0,
+    "source": "actual Edge popup accessibility tree",
+    "reason": "parent/popup focus verification rejected"
+  },
+  "changes": [
+    "exact active tab and URL unchanged",
+    "minimized window denied",
+    "unfocused window additionally requires explicit visible non-hidden exact-URL document probe",
+    "hidden list documents denied"
+  ],
+  "unitTests": {
+    "passed": 183,
+    "failed": 0
+  },
+  "typecheck": true,
+  "archiveSourceMatched": true,
+  "archiveSha256": "c27f0addc87560046f6c822739cdc5b35b5d1bc5f3cb44e882ba3d1d788614d3",
+  "installedExtensionReloaded": true,
+  "actualFreshCaptureVerified": false,
+  "confirmedDirectoryCount": 0,
+  "operatingVersion": "v1.02",
+  "deployed": false,
+  "paidAiCalls": 0,
+  "searchCalls": 0,
+  "remoteBuilds": 0
+}

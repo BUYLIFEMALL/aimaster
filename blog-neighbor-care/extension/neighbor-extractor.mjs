@@ -12,10 +12,17 @@ export function parseNeighborPage(value) {
   }catch{return null;}
 }
 
+// Read page visibility only. A visible selected tab can lose keyboard focus to
+// chat or an extension popup; no list data or page actions are accessed here.
+export function inspectNeighborVisibility(expectedUrl){
+ return {url:location.href,visible:location.href===expectedUrl&&document.visibilityState==='visible'&&document.hidden===false};
+}
+
 // chrome.scripting serializes this function; all helpers are intentionally inside.
 // Reads the currently rendered management table only; no network, navigation, clicks or writes.
 export function inspectVisibleNeighbors(expectedBlogId) {
   const fail=reason=>({ok:false,reason});
+  if(document.visibilityState==='hidden'||document.hidden===true)return fail('management_not_visible');
   const visible=e=>e.getClientRects().length>0;
   const clean=e=>(e.innerText||e.textContent||'').replace(/\s+/g,'').trim();
   let here;try{here=new URL(location.href);}catch{return fail('wrong_management_page');}

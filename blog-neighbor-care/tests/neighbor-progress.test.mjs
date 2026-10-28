@@ -2,15 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createNeighborImporter} from '../extension/neighbor-importer.mjs';
 import {createReaderController} from '../extension/background.mjs';
+import {inspectNeighborVisibility} from '../extension/neighbor-extractor.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 const url='https://admin.blog.naver.com/BuddyListManage.naver?blogId=owner';
 function fixture({focused=true,popup=false,failProgress=false}={}){
- const session={},events=[],calls=[],state={focused,popup,reads:0};
+ const session={},events=[],calls=[],state={focused,popup,reads:0,visible:false};
  const who={deviceId:'own-device',blogId:'owner'},tab={id:7,windowId:2,url,active:true,status:'complete'};
  const snapshot={format:'naver-visible-neighbors-v1',url,listScope:'all',page:1,totalPages:1,totalCount:1,rows:[{blogId:'private-neighbor',relation:'mutual'}],nextUrl:null};
- const browser={storage:{session:{get:async key=>({[key]:session[key]}),set:async value=>Object.assign(session,value)}},tabs:{query:async()=>[tab]},windows:{get:async()=>({focused:state.focused})},scripting:{executeScript:async()=>{state.reads++;return [{result:{ok:true,snapshot}}];}}};
+ const browser={storage:{session:{get:async key=>({[key]:session[key]}),set:async value=>Object.assign(session,value)}},tabs:{query:async()=>[tab]},windows:{get:async()=>({focused:state.focused})},scripting:{executeScript:async({func})=>{if(func===inspectNeighborVisibility)return [{result:{url,visible:state.visible}}];state.reads++;return [{result:{ok:true,snapshot}}];}}};
  const post=async(op)=>{calls.push(op);if(op==='reserve')return {nonce:'a'.repeat(64),validUntil:new Date(100000).toISOString()};if(op==='page')return {id:'own-run',state:'ready',capturedCount:1,totalCount:1,totalPages:1,lastPage:1};return {id:'own-run',state:'capturing',lastPage:0};};
  const report=async value=>{events.push(value);if(failProgress)throw Error('status storage unavailable');};
  const read=createNeighborImporter(browser,post,async()=>who,()=>0,async()=>{},report,async windowId=>windowId===2&&state.popup);
@@ -19,7 +20,7 @@ function fixture({focused=true,popup=false,failProgress=false}={}){
 test('NP01 focused own extension popup can validate focus when its parent window reports unfocused',async()=>{
  const f=fixture({focused:false,popup:true});assert.equal((await f.read({type:'neighbors_read',ownerConfirmed:true})).state,'ready');assert.equal(f.state.reads,1);
 });
-test('NP02 genuinely unfocused window and popup stop before capture and report the stopped state',async()=>{
+test('NP02 no focused window/popup or verified visible selected tab stops before list capture',async()=>{
  const f=fixture({focused:false});await assert.rejects(f.read({type:'neighbors_read',ownerConfirmed:true}),/읽기/);assert.equal(f.state.reads,0);assert.equal(f.events.at(-1)?.stage,'failed');assert.equal(f.events.at(-1)?.capturedCount,0);
 });
 test('NP03 stages report server-confirmed counts and temporary receipt without leaking list rows or nonce',async()=>{
@@ -80,7 +81,7 @@ test('NP10 worker restart restores unfinished progress as needing verification, 
 });
 test('NP11 controller validates the popup window and persists only receipt progress',async()=>{
  const f=controller();delete f.session.neighborProgress;const result=await f.handle({type:'neighbors_read',ownerConfirmed:true},f.sender);assert.equal(result.state,'ready');assert.equal(f.session.neighborProgress.stage,'ready');assert.equal(f.session.neighborProgress.focusCheck.ownPopupFocused,true);assert.doesNotMatch(JSON.stringify(f.session.neighborProgress),/private-neighbor|"(?:nonce|rows|token)"/);
- const wrong=controller({focusWindow:3});await assert.rejects(wrong.handle({type:'neighbors_read',ownerConfirmed:true},wrong.sender),/활성 상태/);assert.equal(wrong.calls.includes('reserve'),false);
+ const wrong=controller({focusWindow:3});await assert.rejects(wrong.handle({type:'neighbors_read',ownerConfirmed:true},wrong.sender),/화면에 보이는지/);assert.equal(wrong.calls.includes('reserve'),false);
 });
 test('NP12 a completed in-flight page is not overwritten by the stop-button response',async()=>{
  const f=popup();await tick();f.render({stage:'reading',state:'running',capturedCount:0});
@@ -91,7 +92,7 @@ test('NP13 an interrupted second page preserves the acknowledged first-page coun
  const f=fixture(),events=[];f.browser.scripting.executeScript=async()=>[{result:{ok:true,snapshot:{format:'naver-visible-neighbors-v1',url,listScope:'all',page:1,totalPages:2,totalCount:2,rows:[{blogId:'first-private',relation:'mutual'}],nextUrl:url+'&currentPage=2'}}}];
  const post=async op=>{if(op==='reserve')return {nonce:'a'.repeat(64),validUntil:new Date(100000).toISOString()};if(op==='page'){f.state.focused=false;return {id:'run',state:'capturing',capturedCount:1,totalCount:2,totalPages:2,lastPage:1};}return {id:'run',state:'capturing',lastPage:0};};
  const read=createNeighborImporter(f.browser,post,async()=>({deviceId:'own-device',blogId:'owner'}),()=>0,async()=>{},async p=>events.push(p));
- await assert.rejects(read({type:'neighbors_read',ownerConfirmed:true}),/활성 상태/);assert.equal(events.at(-1).stage,'failed');assert.equal(events.at(-1).capturedCount,1);assert.equal(events.at(-1).lastPage,1);assert.doesNotMatch(JSON.stringify(events),/first-private/);
+ await assert.rejects(read({type:'neighbors_read',ownerConfirmed:true}),/화면에 보이는지/);assert.equal(events.at(-1).stage,'failed');assert.equal(events.at(-1).capturedCount,1);assert.equal(events.at(-1).lastPage,1);assert.doesNotMatch(JSON.stringify(events),/first-private/);
 });
 
 test('NP14 reopening the popup refreshes expired ready receipts instead of blocking a fresh read',async()=>{
@@ -118,4 +119,17 @@ test('NP17 own neighbor-page status prioritizes the consent and read controls wi
  vm.runInContext(fs.readFileSync(new URL('../extension/popup.mjs',import.meta.url),'utf8'),vm.createContext({document,chrome,console}));await tick();
  const status=document.querySelector('.status-card');assert.equal(status.nextElementSibling.id,'neighborSection');
  assert.ok(document.getElementById('neighborSection').innerHTML.indexOf('id="neighborRead"')<document.getElementById('neighborSection').innerHTML.indexOf('<p>'));
+});
+test('NP18 loss of keyboard focus does not stop an explicitly visible selected own tab',async()=>{
+ const f=fixture({focused:false,popup:false});f.state.visible=true;assert.equal((await f.read({type:'neighbors_read',ownerConfirmed:true})).state,'ready');assert.equal(f.state.reads,1);assert.equal(f.events.at(-1).focusCheck.visibleSelectedTab,true);assert.equal(f.calls.includes('confirm'),false);
+});
+test('NP19 visibility fallback cannot authorize a different tab, URL or minimized window',async()=>{
+ for(const change of [f=>{let n=0;f.browser.tabs.query=async()=>[{...f.tab,id:++n===1?7:8}];},f=>{f.browser.scripting.executeScript=async()=>[{result:{visible:true,url:'https://other.invalid'}}];},f=>{f.browser.windows.get=async()=>({focused:false,state:'minimized'});}]){
+  const f=fixture({focused:false});f.state.visible=true;change(f);await assert.rejects(f.read({type:'neighbors_read',ownerConfirmed:true}));assert.equal(f.state.reads,0);assert.equal(f.calls.includes('page'),false);
+ }
+});
+test('NP20 serialized visibility probe requires a visible non-hidden exact URL and exposes no list content',()=>{
+ for(const [visibilityState,hidden,expected]of [['visible',false,true],['hidden',true,false],['visible',true,false],[undefined,false,false]]){
+  const r=vm.runInNewContext(`(${inspectNeighborVisibility.toString()})(${JSON.stringify(url)})`,{location:{href:url},document:{visibilityState,hidden}});assert.equal(r.visible,expected);assert.deepEqual(Object.keys(r).sort(),['url','visible']);
+ }
 });

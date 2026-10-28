@@ -1,4 +1,4 @@
-import {parseNeighborPage,inspectVisibleNeighbors,advanceVisibleNeighborPage,neighborPageReady} from './neighbor-extractor.mjs';
+import {parseNeighborPage,inspectVisibleNeighbors,inspectNeighborVisibility,advanceVisibleNeighborPage,neighborPageReady} from './neighbor-extractor.mjs';
 
 export function createNeighborImporter(browser,post,identity,now=Date.now,pause=ms=>new Promise(resolve=>setTimeout(resolve,ms)),onProgress=async()=>{},popupFocused=async()=>false) {
  let running=false,stopped=false,progress=null;
@@ -13,8 +13,13 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
   const window=await browser.windows.get(tabs[0].windowId);
   if(window.state==='minimized')throw Error('Edge 창이 최소화되어 읽기를 멈췄습니다.');
   const ownPopupFocused=!window.focused&&await popupFocused(tabs[0].windowId);
-  if(progress)progress.focusCheck={browserFocused:!!window.focused,ownPopupFocused:!!ownPopupFocused};
-  if(!window.focused&&!ownPopupFocused)throw Error('Edge 본창과 확장 팝업의 활성 상태를 확인하지 못해 읽기를 멈췄습니다.');
+  let visibleSelectedTab=false;
+  if(!window.focused&&!ownPopupFocused){
+   const checks=await browser.scripting.executeScript({target:{tabId:tabs[0].id},func:inspectNeighborVisibility,args:[expected.url]});
+   visibleSelectedTab=checks.length===1&&checks[0].result?.url===expected.url&&checks[0].result?.visible===true;
+  }
+  if(progress)progress.focusCheck={browserFocused:!!window.focused,ownPopupFocused:!!ownPopupFocused,visibleSelectedTab};
+  if(!window.focused&&!ownPopupFocused&&!visibleSelectedTab)throw Error('선택한 이웃 관리 탭이 화면에 보이는지 확인하지 못해 읽기를 멈췄습니다. Edge에서 해당 탭을 열고 창을 최소화하지 마세요.');
   if(stopped)throw Error('목록 읽기를 멈췄습니다. 받은 범위는 프로그램에서 확인하고 취소할 수 있습니다.');
  }
  const handle=async function(message){
