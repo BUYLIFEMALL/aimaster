@@ -296,6 +296,15 @@ async function pageCommand(cmd, args) {
       return { ok: true, added: countImgs() - before };
     }
 
+    if (cmd === 'closeNotice') {
+      // 글자가 든 안내 창의 「확인」만 누른다(다른 창은 건드리지 않음)
+      const m = [...document.querySelectorAll('.modal.in, [role="dialog"], [role="alertdialog"]')].filter(visible).find((d) => (d.textContent || '').includes(args.text));
+      if (!m) return { ok: true, none: true };
+      const ok = [...m.querySelectorAll('button')].find((b) => b.textContent.trim() === '확인') || m.querySelector('button.close');
+      if (ok) { ok.click(); await sleep(500); }
+      return { ok: true, closed: !!ok };
+    }
+
     if (cmd === 'dismissDraft') {
       // 임시저장본이 있으면 상품 등록 화면을 열 때마다 이 창이 뜬다(2026-10-28 실측: 닫지 않아 옵션 엑셀 등이 막힘)
       const prev = await waitFor(() => [...document.querySelectorAll('.modal.in, [role="dialog"]')].find((m) => visible(m) && m.textContent.includes('이전에 작성하던 내용')), 4000);
@@ -1116,6 +1125,12 @@ async function runJob(job) {
         const priceStep = job.steps.find((x) => x.key === 'price');
         if (priceStep) { await runMain(tabId, ngTypeMain, { target: priceStep.target, value: priceStep.value }).catch(() => null); await wait(800); }
         r = await runMain(tabId, optionsMain, { file: job.optionFile, type: job.optionFile.type, rows: job.optionFile.rows });
+        if (!r.ok && /먼저\s*판매가/.test(r.error || '')) {
+          await run(tabId, 'closeNotice', { text: '먼저 판매가' }).catch(() => null);
+          if (priceStep) await runMain(tabId, ngTypeMain, { target: priceStep.target, value: priceStep.value }).catch(() => null);
+          await wait(2500);
+          r = await runMain(tabId, optionsMain, { file: job.optionFile, type: job.optionFile.type, rows: job.optionFile.rows });
+        }
         if (r.ok && r.expected && r.count !== r.expected) failures.push('옵션 — 목록 ' + r.count + '줄(보낸 것 ' + r.expected + '줄), 직접 확인해 주세요');
       } else if (step.action === 'extra_images') {
         if (!job.extraImages?.length) { failures.push('추가 이미지(받은 사진 없음)'); continue; }
