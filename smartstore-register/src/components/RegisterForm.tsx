@@ -4,8 +4,9 @@ import { useActionState, useState } from "react";
 import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
+import { AttributePicker } from "@/components/AttributePicker";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, benefitNote = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; benefitNote?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, benefitNote = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "", categoryPath = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; benefitNote?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string; categoryPath?: string }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -41,11 +42,7 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         </select>
         <p className="text-[11px] text-slate-500">비우면 판매자센터 칸을 건드리지 않습니다. 브랜드·제조사·모델명은 네이버 쇼핑 검색 품질에 쓰입니다. 모델명은 「텍스트로 직접입력」으로 넣습니다(네이버 카탈로그 연결은 판매자센터에서 직접).</p>
       </fieldset>
-      <div>
-        <label className="slw-label" htmlFor="attributes">상품속성 <span className="font-normal text-slate-500">(선택, 한 줄에 「속성이름: 값」)</span></label>
-        <textarea id="attributes" name="attributes" rows={3} defaultValue={initialAttributes} placeholder={"소재: 폴리에스터\n성별: 남녀공용"} className="slw-field" />
-        <p className="mt-1 text-[11px] text-slate-500">카테고리마다 속성이 다릅니다. 판매자센터 「상품속성」 표의 이름 그대로 적어 주세요. 못 찾은 속성은 등록 기록에 「직접 확인할 칸」으로 남습니다.</p>
-      </div>
+      <AttributePicker initialText={initialAttributes} categoryPath={categoryPath} />
       <OptionEditor initial={initialOptions} defaultStock={defaultStock} />
       <div>
         <label className="slw-label" htmlFor="customOptions">직접입력형 옵션 <span className="font-normal text-slate-500">(선택, 구매자가 글을 써넣는 옵션명, 쉼표로 최대 5개)</span></label>

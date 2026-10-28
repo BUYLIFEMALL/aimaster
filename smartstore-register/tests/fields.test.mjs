@@ -261,3 +261,25 @@ test("조합형 옵션이면 상품 재고 = 조합 재고 합계(다르면 바�
   assert.equal(buildFillSteps(P, D, { ...O, options: simple }).steps.find((s) => s.key === "stock").value, String(D.stock));
   assert.equal(buildFillSteps(P, D, O).steps.find((s) => s.key === "stock").value, String(D.stock));
 });
+
+test("상품속성 불러오기: 결과 정리·글 변환", async () => {
+  const { normalizeLookupResult, parseAttrText, attrsToText } = await import("../src/lib/smartstore/attributes.ts");
+  assert.equal(normalizeLookupResult(null), null);
+  assert.equal(normalizeLookupResult({ category: { id: "abc" } }), null);
+  const r = normalizeLookupResult({
+    category: { id: "50000651", path: "패션잡화>남성가방>백팩" },
+    candidates: [{ id: "50004203", path: "출산/육아>유아동잡화>가방>백팩" }, { id: "x" }],
+    attributes: [
+      { name: "주요소재", type: "MULTI_SELECT", max: 3, required: false, values: ["가죽", "폴리에스테르", "가죽", ""] },
+      { name: "용도", type: "SINGLE_SELECT", max: 0, values: ["여행용"] },
+      { name: "용도", type: "SINGLE_SELECT", values: ["중복"] },
+      { name: "메모", type: "WEIRD", values: [] },
+    ],
+  });
+  assert.deepEqual(r.candidates.map((c) => c.id), ["50000651", "50004203"]);
+  assert.deepEqual(r.attributes.map((a) => [a.name, a.type, a.max, a.values.length]), [["주요소재", "MULTI_SELECT", 3, 2], ["용도", "SINGLE_SELECT", 0, 1], ["메모", "TEXT", 0, 0]]);
+  const picked = parseAttrText("주요소재: 폴리에스테르, 나일론\n용도：여행용\n잘못된 줄\n제품특징: 노트북수납, 방수");
+  assert.deepEqual(picked, { 주요소재: ["폴리에스테르", "나일론"], 용도: ["여행용"], 제품특징: ["노트북수납", "방수"] });
+  assert.equal(attrsToText(picked, ["용도", "주요소재"]), "용도: 여행용\n주요소재: 폴리에스테르, 나일론\n제품특징: 노트북수납, 방수");
+  assert.equal(attrsToText({ 패턴: [] }), "");
+});

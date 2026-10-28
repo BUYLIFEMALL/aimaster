@@ -159,3 +159,11 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - **미배포 대기(확장만)**: 상품번호 읽기 보강 — 완료 창의 a·button 속성(href·ng-click·onclick·data-*)에서 번호 찾기, 3초 대기, 못 찾으면 「[완료 창: …]」 버튼 모양을 기록에 남김. 판매자센터 스크립트에는 완료 창 글자가 없어(화면 틀을 따로 받아 옴) 미리 확인 못 함 → 다음 실제 「바로 등록」 때 확인.
 - 반품 칸 실물 시험(테스트 계정 기본값에 잠깐 반품 택배사 CJ대한통운·반품 3,000·교환 6,000 → 시험 뒤 다시 비움): 17:34 반품비·교환비 통과, **반품 택배사 실패**(「고르기 상자를 찾지 못했습니다」). ego로 확인 — 숨은 칸이 `select`가 아니라 `input`(`vm.modelData.claimDeliveryInfo.returnDeliveryCompany.id`, 값 = 계약 번호 `757294`) + selectize, 보기 글자 「기본 반품택배사 - CJ대한통운」(스토어 계약 택배사). **미배포 대기(확장)**: `select` 명령이 input 기준 칸도 받고 「- 이름」으로 끝나는 보기를 고르며, 누른 보기 글자로 확인. 18:01 재시험 통과(실패 칸 0).
 - 시험 함정: PC 화면 잠금 동안 확장이 멈춤 → 풀린 뒤 이어 돌지만 이미지 서명 주소(15분)가 만료돼 「이미지를 받지 못했습니다」로 실패. 시험 중 잠금 금지. 등록기 로그인도 한 번 풀려 있었음(ego에서 주인님이 다시 로그인).
+
+## 2026-10-28 저녁 — 상품속성 고르기(미배포 대기, v1.21에 묶음)
+- 플랜 [`docs/PLAN_20261028_ATTRIBUTES.md`](docs/PLAN_20261028_ATTRIBUTES.md) §9 실측: 판매자센터 내부 데이터 주소 — 카테고리 검색 `POST /api/category-search?_action=getCategoriesByIgnoreCase {query,isValid,leafOnly}`, 속성 `GET /api/category-attribute/attribute-group?leafCategoryId=`(이름·`MULTI_SELECT`/`SINGLE_SELECT`·최대 개수·필수·보기 글자).
+- DB: 표 `smartstore_register_attr_lookups` 적용 완료(2026-10-28, ego Supabase SQL 편집기, 확인 창 버튼 이름은 「Run query」), 30일 정리에 추가.
+- 서버: `src/lib/smartstore/attributes.ts`(결과 정리·「이름: 값」 변환, `ATTR_EXT_MIN` v1.21), `src/lib/actions/attributes.ts`(요청 — 7일 안 같은 조건 재사용, 조회), `/api/extension/attr-task`(v1.21 미만 확장엔 안 넘김, 5분 넘은 「읽는 중」은 실패 처리)·`/api/extension/attr-result`(서버에서 다시 정리).
+- 확장: 등록 작업이 없을 때만 `attr-task` → `attrLookupMain`(MAIN, 판매자센터 탭 안 fetch, **화면 조작·저장 없음**) → 열린 판매자센터 탭은 닫거나 옮기지 않음, 없으면 홈 탭을 비활성으로 하나 엶. 카테고리는 상세페이지 경로와 가장 길게 겹치는 후보.
+- 화면: `AttributePicker`(속성 불러오기 버튼 · 3초마다 확인 · 카테고리 후보 바꾸기 · 한 개=고르기 상자 / 여러 개=칩(최대 개수) / 그 밖=글 칸 · 필수 표시) — 결과는 기존 `attributes` 글 칸에 「이름: 값1, 값2」로(서버·확장 입력 변경 없음).
+- 검수: 시험 23개·tsc·로컬 build 통과. **실물 시험은 배포 뒤**(확장 v1.21 필요).

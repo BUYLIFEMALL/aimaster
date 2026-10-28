@@ -11,13 +11,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { count, error } = await createAdminClient()
+  const admin = createAdminClient();
+  const { count, error } = await admin
     .from("smartstore_register_jobs")
     .delete({ count: "exact" })
     .lt("created_at", cutoff);
-  if (error) {
-    console.error("[smartstore-register] cleanup", error.code);
+  // 상품속성 불러오기 결과도 30일(v1.21)
+  const attr = await admin
+    .from("smartstore_register_attr_lookups")
+    .delete({ count: "exact" })
+    .lt("created_at", cutoff);
+  if (error || attr.error) {
+    console.error("[smartstore-register] cleanup", error?.code ?? attr.error?.code);
     return NextResponse.json({ error: "cleanup failed" }, { status: 500 });
   }
-  return NextResponse.json({ deleted: count ?? 0 });
+  return NextResponse.json({ deleted: count ?? 0, attrDeleted: attr.count ?? 0 });
 }

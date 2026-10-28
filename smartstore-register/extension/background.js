@@ -973,6 +973,45 @@ function ngTypeMain(a) {
   return { ok: false, error: `값이 판매자센터에 들어가지 않았습니다(화면: ${el.value || '빈칸'}${why ? `, 검사: ${why}` : ''})` };
 }
 
+// 상품속성 불러오기(v1.21) — 판매자센터 화면이 쓰는 데이터 주소를 같은 로그인으로 「읽기만」 한다(2026-10-28 ego 실측).
+// 카테고리 검색: POST /api/category-search?_action=getCategoriesByIgnoreCase {query,isValid,leafOnly} / 속성: GET /api/category-attribute/attribute-group?leafCategoryId=
+async function attrLookupMain(a) {
+  const j = async (u, o = {}) => {
+    const r = await fetch(u, { credentials: 'include', ...o, headers: { accept: 'application/json', ...(o.body ? { 'content-type': 'application/json;charset=UTF-8' } : {}) } });
+    if (!r.ok) throw new Error(`판매자센터 응답 ${r.status}(${u.split('?')[0]})`);
+    return r.json();
+  };
+  try {
+    let candidates = [];
+    if (a.query) {
+      const list = await j('/api/category-search?_action=getCategoriesByIgnoreCase', { method: 'POST', body: JSON.stringify({ query: a.query, isValid: true, leafOnly: true }) });
+      candidates = (Array.isArray(list) ? list : []).filter((c) => c && !c.deleted).map((c) => ({ id: String(c.id), path: String(c.wholeCategoryName || c.name || '') })).slice(0, 20);
+    }
+    let cat = a.categoryId ? (candidates.find((c) => c.id === a.categoryId) || { id: String(a.categoryId), path: '' }) : null;
+    if (!cat) {
+      // 상세페이지 카테고리 경로와 앞에서부터 가장 길게 겹치는 후보, 없으면 첫 후보(등록 때 카테고리 고르기와 같은 기준)
+      const norm = (s) => String(s || '').replace(/\s+/g, '');
+      const want = norm(a.path).split(/[>›]/).filter(Boolean);
+      let best = null, score = -1;
+      for (const c of candidates) { const parts = norm(c.path).split('>'); let k = 0; while (k < want.length && k < parts.length && want[k] === parts[k]) k++; if (k > score) { score = k; best = c; } }
+      cat = best;
+    }
+    if (!cat) return { ok: false, error: `「${a.query}」로 찾은 카테고리가 없습니다. 검색어를 바꿔 보세요.` };
+    const g = await j('/api/category-attribute/attribute-group?leafCategoryId=' + encodeURIComponent(cat.id));
+    const by = (x, y) => (x.exposureOrder ?? 0) - (y.exposureOrder ?? 0);
+    const attributes = (Array.isArray(g) ? g : []).filter((x) => x && x.attribute && !x.attribute.deleted && x.serviceUsable !== false).sort(by).map((x) => ({
+      name: x.attribute.attributeName,
+      type: x.attribute.attributeClassificationType,
+      max: x.attribute.attributeValueMaxMatchingCount || 0,
+      required: !!x.attributeRequired,
+      values: (x.attribute.attributeValues || []).filter((v) => v && !v.deleted && v.serviceUsable !== false).sort(by).map((v) => v.attributeValueText),
+    }));
+    return { ok: true, result: { category: cat, candidates, attributes } };
+  } catch (e) {
+    return { ok: false, error: String((e && e.message) || e).slice(0, 200) };
+  }
+}
+
 async function runMain(tabId, func, args) {
   try {
     const [res] = await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func, args: [args] });
@@ -1037,6 +1076,35 @@ async function openCreateTab() {
   const now = await chrome.tabs.get(tab.id).catch(() => null);
   const where = now ? `${(now.title || '').slice(0, 40)} · ${(now.url || '').replace(/^https?:\/\//, '').slice(0, 80)}` : '창이 닫힘';
   throw new Error(`「상품 등록」 칸이 45초 안에 나타나지 않았습니다(열린 화면: ${where}).`);
+}
+
+/** 속성 읽기용 판매자센터 탭 — 이미 열린 탭은 건드리지 않고(칸이 채워져 있을 수 있음) 그 안에서 읽기만, 없으면 지금 창에 홈 탭 하나 */
+async function sellerTabForRead() {
+  const tabs = await chrome.tabs.query({ url: 'https://sell.smartstore.naver.com/*' });
+  if (tabs.length) return tabs[0].id;
+  const win = await chrome.windows.getLastFocused({ windowTypes: ['normal'] }).catch(() => null);
+  const tab = await chrome.tabs.create({ url: 'https://sell.smartstore.naver.com/#/home/dashboard', active: false, ...(win ? { windowId: win.id } : {}) });
+  for (let t = 0; t < 30; t++) {
+    await wait(1000);
+    const now = await chrome.tabs.get(tab.id).catch(() => null);
+    if (!now) break;
+    if (/nid\.naver\.com|accounts\.commerce\.naver\.com|\/login/.test(now.url || '')) throw new Error('판매자센터에 로그인돼 있지 않습니다. 로그인한 뒤 다시 불러와 주세요.');
+    if (now.status === 'complete' && (now.url || '').startsWith('https://sell.smartstore.naver.com/')) return tab.id;
+  }
+  throw new Error('판매자센터 화면이 30초 안에 열리지 않았습니다.');
+}
+
+async function runLookup(lookup) {
+  await setStatus(`상품속성 읽는 중 — 「${lookup.query || lookup.categoryId}」`);
+  try {
+    const tabId = await sellerTabForRead();
+    const r = await runMain(tabId, attrLookupMain, { query: lookup.query, path: lookup.path, categoryId: lookup.categoryId });
+    await api('/api/extension/attr-result', r.ok ? { id: lookup.id, ok: true, result: r.result } : { id: lookup.id, ok: false, error: r.error });
+    await setStatus(r.ok ? `상품속성 ${r.result.attributes.length}개를 읽었습니다(${r.result.category.path})` : `상품속성 읽기 실패: ${r.error}`);
+  } catch (e) {
+    await api('/api/extension/attr-result', { id: lookup.id, ok: false, error: String(e.message || e).slice(0, 300) }).catch(() => {});
+    await setStatus(`상품속성 읽기 실패: ${e.message || e}`);
+  }
 }
 
 async function runJob(job) {
@@ -1293,6 +1361,10 @@ async function pump() {
     const { job, updateRequired } = await api('/api/extension/task', {});
     if (job) await runJob(job);
     else if (updateRequired) await setStatus(`새 버전(${updateRequired})이 있어야 하는 작업이 기다립니다 — 확장 ZIP을 다시 받아 덮어쓰고 새로고침해 주세요.`);
+    else {
+      const { lookup } = await api('/api/extension/attr-task', {}).catch(() => ({ lookup: null }));
+      if (lookup) await runLookup(lookup);
+    }
   } catch (e) {
     await setStatus(`연결 확인 필요: ${e.message || e}`);
   } finally {
