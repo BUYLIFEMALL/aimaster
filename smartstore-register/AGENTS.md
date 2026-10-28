@@ -175,3 +175,8 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 미배포 대기: 속성 읽기 재검색·빈 응답 처리(확장).
 - **상품속성 AI 추천(미배포 대기)**: 속성을 불러온 뒤 「✨ 상세페이지 내용으로 추천」 → 회원 본인 **Claude** 키(`user_api_keys` provider `anthropic`, 폴백 없음, 없으면 `/api-settings` 안내)로 `claude-opus-5-5`(effort low, json_schema 응답, `fallbacks: "default"`, 재시도 0)를 1회 부름 → `sanitizeSuggestion`으로 보기 안 값만·한 개·최대 개수로 거른 뒤 **빈 속성만** 채움(저장·자동 전송 없음). 재료: 상품명·카테고리·특징·사양·사용법·대상 고객. 파일 `src/lib/ai/claude.ts`, `suggestAttributesAction`. SDK `@anthropic-ai/sdk` 1.3.0 추가. 실제 호출 1회(관리자 본인 키, 3.8초): 주요소재 폴리에스테르·용도 여행용·제품특징 노트북수납·방수·잠금방식 지퍼형·사용대상 남성용(보기 밖 값 0). 시험 24개·build 통과.
 - **AI 기본 제공자 = Claude(2026-10-28 주인님 지시)**: 이 프로그램의 새 AI 기능은 회원 본인 `anthropic` 키를 기본으로 쓴다. 개발·시험 호출은 주인님 Claude API 크레딧(또는 관리자 본인 키).
+
+## 2026-10-28 v1.22 — 상품속성 AI 추천·필수 속성 안내·속성 읽기 재검색 묶음 배포
+- 배포 `5etiff2gv` Ready, DB·확장·ZIP v1.22 OK(주인님 승인 빌드 1회). 시험 24개.
+- 운영 화면 실물(관리자 백팩, ego): 속성 불러오기 → 노란 안내 「필수 2개 비어 있음: 패턴, 장식」 → 「✨ 상세페이지 내용으로 추천」 → 「속성 2개를 추천해 채웠습니다」, 이미 고른 3개 유지 + 잠금방식: 지퍼형·사용대상: 남성용 추가(관리자 본인 Claude 키 1회).
+- 미배포 대기 없음.
