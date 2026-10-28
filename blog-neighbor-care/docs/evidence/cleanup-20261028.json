@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-28T02:09:19.347Z",
+  "unitTestsPassed": 148,
+  "typecheckPassed": true,
+  "isolatedDatabaseTestsPassed": 3,
+  "operatingReadOnlyMetadata": {
+    "readerMaterials": 1,
+    "expiredReaderMaterials": 0,
+    "analysisJobs": 0,
+    "expiredAnalysisJobs": 0,
+    "socialJobs": 0,
+    "expiredSocialJobs": 0,
+    "imports": 0,
+    "liveAllowed": false,
+    "importReadAllowed": false
+  },
+  "operatingDatabaseChanged": false,
+  "newBuilds": 0,
+  "newDeployments": 0,
+  "realAiCalls": 0,
+  "searchCalls": 0,
+  "deployment": "pending-batch",
+  "remaining": [
+    "Operating Cron authentication/scheduled deletion verification",
+    "Core social job payload expiry with unresolved-action replay prevention",
+    "Actual Naver neighbor import after permitted-method evidence"
+  ]
+}
