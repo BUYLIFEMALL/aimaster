@@ -1,5 +1,8 @@
 # 작업 중 표 (ACTIVE_WORK.md) — 동시 작업 방지
 
+> [역할: blog] **진행 표시 수정·실제43명 수신 완료 / 저장 대기** — 2026-10-28 18:44KST: 실제 설치 Edge 확장 재로드 후 본인 이웃 1페이지43명 수신 성공. import a3a9b562-a89f-47ed-b3e6-89abc9202f19 ready/captured43/total43/lastPage1, 최종확인·저장 전. 기존 d8ccebaa는0명·만료 확인 후취소/569011fa철회, 신규허가1198a9b1 사용(1페이지43명,11/11테스트만료까지시작,실행15분). 이전코드는 windows.focused=false만으로중단; 동일창 본인팝업 document.hasFocus/visibility 검증을 보완. 실제 포커스 원인 단정 금지. 진행단계/수신페이지·인원/임시수신과저장완료 구분/고정상태카드/중단사유/재개시결과확인 추가. 단위165·격리DB28·tsc통과, ZIP9파일 원본일치. 현재 설치출처는 Edge관리 UI상 D:/Antigravity/AIMaster/blog-neighbor-care/extension (이전복사폴더도5파일동기화). 프로그램 /neighbors 조회는 로그인필요 응답: 회원재로그인 요청, 받은43명 보존·재읽기금지. 전체읽기/소통OFF, 버전v1.02유지, 웹ZIP미배포대기·푸시/원격빌드/AI/검색0.
+
+
 2026-10-16 주인님 지시. **같은 프로젝트·같은 서브프로그램(폴더)을 두 CLI가 동시에 작업하지 않는다.** 윈도우 PC·맥미니의 Claude Code·Codex·Antigravity CLI(`agy`) 모두 적용한다. 규칙 원문: 루트 `CLAUDE.md`·`AGENTS.md` 최상단.
 
 ## 사용법

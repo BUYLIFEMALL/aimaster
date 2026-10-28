@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+> [역할: blog] **진행 표시 수정·실제43명 수신 완료 / 저장 대기** — 2026-10-28 18:44KST: 실제 설치 Edge 확장 재로드 후 본인 이웃 1페이지43명 수신 성공. import a3a9b562-a89f-47ed-b3e6-89abc9202f19 ready/captured43/total43/lastPage1, 최종확인·저장 전. 기존 d8ccebaa는0명·만료 확인 후취소/569011fa철회, 신규허가1198a9b1 사용(1페이지43명,11/11테스트만료까지시작,실행15분). 이전코드는 windows.focused=false만으로중단; 동일창 본인팝업 document.hasFocus/visibility 검증을 보완. 실제 포커스 원인 단정 금지. 진행단계/수신페이지·인원/임시수신과저장완료 구분/고정상태카드/중단사유/재개시결과확인 추가. 단위165·격리DB28·tsc통과, ZIP9파일 원본일치. 현재 설치출처는 Edge관리 UI상 D:/Antigravity/AIMaster/blog-neighbor-care/extension (이전복사폴더도5파일동기화). 프로그램 /neighbors 조회는 로그인필요 응답: 회원재로그인 요청, 받은43명 보존·재읽기금지. 전체읽기/소통OFF, 버전v1.02유지, 웹ZIP미배포대기·푸시/원격빌드/AI/검색0.
+
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · smartstore-register v1.21 상품속성 고르기
 
 - 상품 화면 「이 카테고리 속성 불러오기」 → 회원 확장이 판매자센터 내부 데이터 주소(카테고리 검색·attribute-group)를 읽기만 → 속성 이름·보기·최대 개수·필수를 골라 「이름: 값」으로 보냄. DB 표 `smartstore_register_attr_lookups` 추가(운영, 회원 본인만, 30일 정리). 함께 배포: 반품 택배사 고르기 보정, 상품번호 읽기 보강.
