@@ -979,13 +979,18 @@ async function attrLookupMain(a) {
   const j = async (u, o = {}) => {
     const r = await fetch(u, { credentials: 'include', ...o, headers: { accept: 'application/json', ...(o.body ? { 'content-type': 'application/json;charset=UTF-8' } : {}) } });
     if (!r.ok) throw new Error(`판매자센터 응답 ${r.status}(${u.split('?')[0]})`);
-    return r.json();
+    const txt = await r.text();
+    return txt.trim() ? JSON.parse(txt) : null; // 검색 결과가 없으면 빈 응답이 온다(2026-10-28 「노트북 백팩」)
   };
   try {
     let candidates = [];
-    if (a.query) {
-      const list = await j('/api/category-search?_action=getCategoriesByIgnoreCase', { method: 'POST', body: JSON.stringify({ query: a.query, isValid: true, leafOnly: true }) });
+    const words = String(a.query || '').trim().split(/\s+/).filter(Boolean);
+    const steps = String(a.path || '').split(/[>›]/).map((s) => s.trim()).filter(Boolean).reverse();
+    const tries = [...new Set([String(a.query || '').trim(), words[words.length - 1], ...steps].filter(Boolean))].slice(0, 6);
+    for (const q of tries) {
+      const list = await j('/api/category-search?_action=getCategoriesByIgnoreCase', { method: 'POST', body: JSON.stringify({ query: q, isValid: true, leafOnly: true }) });
       candidates = (Array.isArray(list) ? list : []).filter((c) => c && !c.deleted).map((c) => ({ id: String(c.id), path: String(c.wholeCategoryName || c.name || '') })).slice(0, 20);
+      if (candidates.length) break;
     }
     let cat = a.categoryId ? (candidates.find((c) => c.id === a.categoryId) || { id: String(a.categoryId), path: '' }) : null;
     if (!cat) {
