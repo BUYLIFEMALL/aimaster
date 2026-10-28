@@ -1,5 +1,6 @@
 import { parsePost, inspectVisiblePost, chooseSnapshot } from './extractor.mjs';
 import {createNeighborImporter} from './neighbor-importer.mjs';
+import {parseNeighborPage} from './neighbor-extractor.mjs';
 
 export const SITE = 'https://blog-neighbor-care.buylife.xyz';
 export function createReaderController(browser, fetcher = fetch) {
@@ -74,7 +75,9 @@ export function createReaderController(browser, fetcher = fetch) {
         }
       }
       const restored=progress?.state==='running'&&!neighbors.isRunning()?{...progress,stage:'paused',state:'stopped',message:'진행 중이던 읽기의 결과 확인이 필요합니다. 가져온 범위·이전 결과 확인을 눌러 주세요.'}:progress;
-      return { connected: true, ...result.data, pending: Boolean(pending), latestVersion: result.latestVersion,...(restored?{neighborProgress:restored}:{}) };
+      let pageKind;
+      if(popup){try{const [tab]=await browser.tabs.query({active:true,currentWindow:true});if(parseNeighborPage(tab?.url)?.blogId===result.data.blogId)pageKind='neighbors';}catch{/* Keep the general layout if the active page cannot be identified. */}}
+      return { connected: true, ...result.data, pending: Boolean(pending), latestVersion: result.latestVersion,...(restored?{neighborProgress:restored}:{}),...(pageKind?{pageKind}:{}) };
     }
     if (!token) throw new Error('먼저 프로그램에서 이 회원 계정과 연결해 주세요.');
     if (message.type === 'disconnect') {

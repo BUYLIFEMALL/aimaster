@@ -108,3 +108,14 @@ test('NP16 failed receipt refresh never presents cached ready as current or expo
  const r=await f.handle({type:'status'},f.sender);assert.equal(r.neighborProgress.stage,'paused');assert.match(r.neighborProgress.message,/확인하지 못/);assert.equal(f.calls.includes('start'),false);
  const other=controller();other.session.neighborImport={id:'other-run',deviceId:'other'};await other.handle({type:'status'},other.sender);assert.equal(other.calls.includes('status'),false);
 });
+test('NP17 own neighbor-page status prioritizes the consent and read controls without capturing or sending a list',async()=>{
+ const f=controller(),result=await f.handle({type:'status'},f.sender);assert.equal(result.pageKind,'neighbors');assert.equal(f.calls.includes('start'),false);assert.equal(f.calls.includes('reserve'),false);
+ const ui=popup();await tick();ui.chrome.runtime.sendMessage=async()=>({ok:true,data:{connected:true,deviceId:'own-device',blogId:'owner',pageKind:'neighbors'}});
+ ui.document.getElementById('receipt').dispatchEvent(new ui.document.defaultView.Event('click'));await tick();
+ // Run the real initialization with a neighbor-page response in a separate VM.
+ const {document}=parseHTML(fs.readFileSync(new URL('../extension/popup.html',import.meta.url),'utf8'));
+ const chrome={...ui.chrome,runtime:{...ui.chrome.runtime,onMessage:{addListener:()=>{}}}};
+ vm.runInContext(fs.readFileSync(new URL('../extension/popup.mjs',import.meta.url),'utf8'),vm.createContext({document,chrome,console}));await tick();
+ const status=document.querySelector('.status-card');assert.equal(status.nextElementSibling.id,'neighborSection');
+ assert.ok(document.getElementById('neighborSection').innerHTML.indexOf('id="neighborRead"')<document.getElementById('neighborSection').innerHTML.indexOf('<p>'));
+});

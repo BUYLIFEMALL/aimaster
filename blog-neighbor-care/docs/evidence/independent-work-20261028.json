@@ -1,0 +1,38 @@
+{
+  "checkedAt": "2026-10-28T13:15:30.711Z",
+  "unitPassed": 174,
+  "isolatedDatabasePassed": 8,
+  "isolatedSqlCalls": 119,
+  "fixtureMembers": 2,
+  "network": "none",
+  "hostPorts": 0,
+  "cleanupContainersRemaining": 0,
+  "typecheckPassed": true,
+  "localNextBuildPassed": true,
+  "localNextBuilds": 2,
+  "newMigrations": [
+    "20261028123000_bnc_work_retention.sql",
+    "20261028124500_bnc_work_cancel.sql"
+  ],
+  "operatingMigrationsApplied": false,
+  "operatingSocialJobs": 0,
+  "operatingNewNeighborImports": 0,
+  "liveAllowed": false,
+  "globalReadAllowed": false,
+  "latestExtensionReloaded": false,
+  "manualAction": "Existing Edge foreground activation only; native keyboard restore returned window_not_focused",
+  "remoteBuilds": 0,
+  "paidAiCalls": 0,
+  "realSearchCalls": 0,
+  "remaining": [
+    "Real43 confirmation/save",
+    "Real multipage/empty import",
+    "Live AI success and quality",
+    "Candidate real full flow",
+    "Neighbor request/accept executor",
+    "Like/comment/return/reply executor",
+    "Schedule/repeat/resume",
+    "Production SQL batch and Cron deletion",
+    "Bundled release"
+  ]
+}

@@ -41,6 +41,7 @@ async function status() {
     const r = await send({ type: 'status' });
     currentDeviceId=r.connected?r.deviceId:null;
     $('connection').textContent = r.connected ? `연결된 블로그: ${r.blogId}` : '프로그램에서 회원 계정을 연결해 주세요.';
+    if(r.pageKind==='neighbors')document.querySelector('.status-card').after($('neighborSection'));
     if(r.neighborProgress)renderNeighborProgress(r.neighborProgress);
     if (r.latestVersion && r.latestVersion !== chrome.runtime.getManifest().version_name) showStatus('프로그램에서 새 설치본이 있는지 확인해 주세요.');
   } catch (error) {

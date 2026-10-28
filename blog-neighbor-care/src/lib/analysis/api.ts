@@ -90,7 +90,17 @@ export function createAnalysisHandler(deps:AnalysisDependencies) {
         if(typeof status==='number' && Number.isInteger(status) && status>=400 && status<=599)diagnostic.httpStatus=status;
         if(error instanceof ProviderFailure && error.providerCode)diagnostic.providerCode=error.providerCode;
         try { await deps.reportFailure?.(diagnostic); } catch { /* telemetry cannot change the result or retry */ }
-        return reply({error:'생성 결과를 확정하지 못했습니다. 같은 요청을 자동으로 다시 실행하지 않습니다. 결과 상태를 확인해 주세요.',code:'GENERATION_UNCONFIRMED',jobId:prepared.id},502);
+        const hints:Record<string,string>={
+          billing_required:'선택한 AI 플랫폼의 API 잔액·결제 상태를 확인해 주세요.',
+          authentication_required:'선택한 AI 플랫폼에 등록한 회원 본인 API 키의 인증 상태를 확인해 주세요.',
+          model_unavailable:'선택한 모델을 현재 API에서 사용할 수 없습니다. 모델과 계정의 사용 가능 여부를 확인해 주세요.',
+          rate_limited:'선택한 AI 플랫폼의 호출·사용량 한도에 도달했습니다.',
+          permission_denied:'선택한 AI 플랫폼에서 이 키의 실행 권한을 거절했습니다.',
+          request_invalid:'AI 플랫폼이 분석 요청 형식을 거절했습니다. 요청 번호와 함께 관리자에게 알려주세요.',
+          provider_unavailable:'AI 플랫폼이 현재 요청을 처리하지 못하고 있습니다.',
+        };
+        const hint=diagnostic.providerCode?hints[diagnostic.providerCode]:diagnostic.stage==='validation'?'AI 응답이 필요한 분석 형식·근거 검사를 통과하지 못했습니다.':diagnostic.stage==='persist'||diagnostic.stage==='result_read'?'AI 응답의 저장·조회 결과를 확인하지 못했습니다.':'생성 결과를 확정하지 못했습니다.';
+        return reply({error:`${hint} 같은 요청을 자동으로 다시 실행하지 않습니다. 호출·과금 여부와 결과 상태부터 확인해 주세요.`,code:'GENERATION_UNCONFIRMED',jobId:prepared.id},502);
       }
     } catch(error) {
       if(error instanceof AnalysisInputError)return reply({error:'분석 입력·모델·동의 항목을 확인해 주세요.'},400);

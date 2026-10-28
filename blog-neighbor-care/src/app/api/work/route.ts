@@ -7,6 +7,10 @@ export const dynamic = 'force-dynamic';
 export const POST = createWorkHandler({
   authorize: authorizeMember,
   execute: async (userId, operation, payload) => {
+    if(operation==='cancel'){
+      const {data,error}=await createAdminClient().rpc('bnc_work_cancel',{p_user_id:userId,p_id:payload.id});
+      return {data,error};
+    }
     const { data, error } = await createAdminClient().rpc('bnc_dispatch', {
       p_user_id: userId, p_operation: operation, p_payload: payload,
     });

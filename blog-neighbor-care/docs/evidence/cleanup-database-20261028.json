@@ -1,17 +1,23 @@
 {
-  "checkedAt": "2026-10-28T02:07:37.425Z",
+  "checkedAt": "2026-10-28T13:14:04.132Z",
   "database": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "tests": [
     "CDB01 reader failure still expires analysis/import data, reports 503 and preserves member settings",
     "CDB02 retry removes remaining expired body without deleting the other member or refreshing lifetime",
-    "CDB03 repeated cleanup is idempotent, retains all directories and never enables gates"
+    "CDB03 repeated cleanup is idempotent, retains all directories and never enables gates",
+    "CDB04 expired text is removed while successful/uncertain guards and exact lifetimes survive",
+    "CDB05 member roles cannot call cleanup; forged member or operation cannot run it",
+    "CDB06 cancel releases only unarmed reservations; uncertain/success guards remain and repeated cancellation is idempotent",
+    "CDB07 cancellation cannot address another member and direct member RPC execution is denied",
+    "CDB08 cleanup skips a locked member, handles another member, then clears the first on the next run"
   ],
-  "passed": 3,
+  "passed": 8,
   "network": "none",
   "hostPorts": 0,
-  "actualSqlCalls": 9,
+  "actualSqlCalls": 119,
+  "cleanupRpcCalls": 12,
   "fixtureMembers": 2,
   "operatingDatabaseChanged": false,
   "realAiCalls": 0,
-  "remaining": "Core social-job payload retention and live Cron deletion remain unverified."
+  "remaining": "Production migration, scheduled Cron deletion and actual social actions remain unverified."
 }

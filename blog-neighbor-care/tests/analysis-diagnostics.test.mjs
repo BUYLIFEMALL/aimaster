@@ -17,6 +17,8 @@ function setup(mode, reporterThrows = false) {
     generate: (p, m, k, s, u) => generateJson(p, m, k, s, u, async () => {
       fetchCalls++;
       if (mode === 'http') return new Response(sensitive, { status: 401 });
+      if (mode === 'billing') return Response.json({error:{type:'invalid_request_error',message:'Your credit balance is too low. '+sensitive}},{status:400});
+      if (mode === 'rate') return new Response(sensitive,{status:429});
       if (mode === 'transport') throw Error(sensitive);
       if (mode === 'json') return new Response(sensitive);
       return Response.json({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify(mode === 'validation' ? {} : valid) }] });
@@ -58,4 +60,10 @@ test('AD02 logging failure cannot hide uncertain state or trigger a retry; succe
   assert.equal((await failure.send()).status, 502); assert.equal(failure.jobs.get(failure.input.id).state, 'uncertain');
   await failure.send(); assert.equal(failure.calls, 1);
   const success = setup('success'); assert.equal((await success.send()).status, 200); assert.equal(success.diagnostics.length, 0);
+});
+test('AD03 member sees a safe actionable rejection reason while uncertain state, privacy and one-call guard remain',async()=>{
+ for(const [mode,hint] of [['billing',/API 잔액·결제/],['http',/API 키의 인증/],['rate',/사용량 한도/],['validation',/형식·근거 검사/],['persist',/저장·조회 결과/]]){
+  const s=setup(mode),r=await s.send(),body=await r.json();assert.equal(r.status,502);assert.match(body.error,hint);assert.match(body.error,/과금 여부/);assert.equal(body.jobId,s.input.id);
+  assert.doesNotMatch(JSON.stringify(body),new RegExp(sensitive));assert.equal(s.jobs.get(s.input.id).state,'uncertain');await s.send();assert.equal(s.calls,1);
+ }
 });

@@ -3,6 +3,12 @@ import assert from 'node:assert/strict';
 import { createWorkHandler } from '../src/lib/work-api.ts';
 import { evaluateProgramAccess } from '../src/lib/programAccess.ts';
 const ID = '11111111-1111-4111-8111-111111111111';
+test('작업 중단은 인증된 회원과 작업ID만 서버에 전달하며 결과·기기를 위조할 수 없음',async()=>{
+ const {calls,send}=setup();assert.equal((await send({operation:'cancel',payload:{id:ID}})).status,200);
+ assert.deepEqual(calls[0],[ID,'cancel',{id:ID}]);
+ for(const payload of [{id:'bad'},{id:ID,user_id:'victim'},{id:ID,state:'skipped'},{id:ID,device_id:ID}])assert.equal((await send({operation:'cancel',payload})).status,400);
+ assert.equal(calls.length,1);
+});
 function setup({ access = { allowed: true, userId: ID }, result = { data: { ok: true }, error: null } } = {}) {
   const calls = [];
   const handler = createWorkHandler({ authorize: async () => access,

@@ -12,7 +12,7 @@ const text = (v: unknown) => typeof v === 'string' && v.length <= 4000;
 const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment_cap: 30 };
 const operations: Record<string, string[]> = {
   settings: [], list: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
-  create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'],
+  create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'], cancel: ['id'],
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
@@ -32,7 +32,7 @@ function valid(operation: string, p: Record<string, unknown>) {
     if (p.kind !== 'like' && (typeof p.body !== 'string' || !p.body.trim())) return false;
     if (['comment', 'reply'].includes(String(p.kind)) && /https?:\/\/|www\./i.test(String(p.body))) return false;
   }
-  if (['approve', 'edit'].includes(operation) && !uuid(p.id)) return false;
+  if (['approve', 'edit', 'cancel'].includes(operation) && !uuid(p.id)) return false;
   if (operation === 'edit' && (!text(p.body) || !String(p.body).trim())) return false;
   return true;
 }
