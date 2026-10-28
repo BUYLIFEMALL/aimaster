@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 [역할: blog] 사용자 1번 우선 재확인 — 실제 지연 원인·운영 읽기 OFF 확인
+
+2026-10-28 사용자 「1번은 왜 안해?」「1번」으로 최우선 재확인. 기존이웃가져오기 실제추출/전송을진행하지못한직접원인은 운영bnc_neighbor_import_policy.read_allowed=false와 0-A§2/이웃인수인계의허용근거미확인차단조건. 운영읽기메타재확인: 활성reader기기1·import요청0·반영이웃0, 소통live=false. 로그인/설치미완료나AI키/비용문제아님. 이조건을먼저정리하지않고2번으로넘긴순서처리를정정해1번우선으로돌림. 마케팅예외목록에본프로그램지정이없어다른프로그램예외를임의확대하지않음. 본인계정목록1회가져오기와주기적감시의범위를대조했으며 기존명세상차단은남아있음. 이번읽기/소통게이트변경·목록추출·운영쓰기·API생성·배포0, 실제완료로보고하지않음.
+
+- 직접차단: [0-A§2](analysis-naver-blog-neighbor-20261024/SPEC_20261026_BLOG_NEIGHBOR_CARE_0A.md)·[설치확장인계](../blog-neighbor-care/docs/IMPROVEMENT_HANDOFF_20261028_NEIGHBOR_IMPORT.md)의 「사용자 체크나 로그인 성공으로 읽기 정책을 켜지 않습니다」. 이조건을해결하지않은채2번으로넘긴진행순서가문제였음을채팅에설명. 기존요청3e257d73 유지, 새요청0.
+
 ## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.18(임시저장 첫 실제 성공) · ego lite 도입
 - ego lite를 Claude Code 전용 두 번째 브라우저로 추가(지침 3종) — Claude 크롬 확장이 못 여는 판매자센터를 직접 읽고 캡처. 「임시저장까지」 실제 성공(임시저장본 1→2건). 태그 겹침·확인 창 오클릭·템플릿 대기·임시저장 성공 판정 보정. 배포 Ready, DB·확장·ZIP v1.18 OK. 상세 `smartstore-register/AGENTS.md` v1.18.
 - https://smartstore-register.buylife.xyz
