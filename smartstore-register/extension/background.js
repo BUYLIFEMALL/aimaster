@@ -806,7 +806,7 @@ function optionStateMain() {
   const custom = vid('option_direct_type_true');
   // 직접입력형에도 「옵션목록(총 N개)」가 있다 → 직접입력형 줄보다 앞(위)에 있는 것만 옵션 목록으로 본다
   const before = (e) => !custom || !!(e.compareDocumentPosition(custom) & Node.DOCUMENT_POSITION_FOLLOWING);
-  const lab = [...document.querySelectorAll('label, div, span')].find((e) => _vis(e) && e.children.length < 4 && /^옵션목록\s*\(총/.test((e.textContent || '').trim()) && before(e));
+  const lab = [...document.querySelectorAll('label, div, span, strong, p')].filter((e) => _vis(e) && e.children.length < 8 && (e.textContent || '').length < 120 && /^옵션목록[^(]{0,30}\(\s*총\s*\d+\s*개/.test((e.textContent || '').trim()) && before(e)).pop();
   const m = lab ? (lab.textContent || '').match(/총\s*(\d+)\s*개/) : null;
   return { ok: true, optionCount: m ? Number(m[1]) : -1, customOn: !!(custom && custom.checked) };
 }
