@@ -679,20 +679,7 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                           </td>
                           <td className="p-4 text-right">
                             <div className="inline-flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleToggleLatest(p)}
-                                className={`inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg transition-colors ${
-                                  p.badges.includes("new")
-                                    ? "text-green-300 bg-green-500/10 hover:bg-green-500/20"
-                                    : "text-subtext hover:text-gold hover:bg-gold/10"
-                                }`}
-                                title={p.badges.includes("new") ? "최신 프로그램에서 해제" : "최신 프로그램으로 등록"}
-                              >
-                                <Sparkles size={12} />
-                                {p.badges.includes("new") ? "최신 해제" : "최신 등록"}
-                              </button>
-                              {/* 프리미엄 배지 바로 토글(2026-10-28) — 클릭으로 달기/떼기 */}
+                              {/* 프리미엄 배지 바로 토글(2026-10-28) — 맨 앞(주인님 지시) · 클릭으로 달기/떼기 */}
                               <button
                                 type="button"
                                 onClick={() => handleTogglePremium(p)}
@@ -705,6 +692,19 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
                               >
                                 <Gem size={12} />
                                 {p.badges.includes("premium") ? "프리미엄 해제" : "프리미엄"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLatest(p)}
+                                className={`inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg transition-colors ${
+                                  p.badges.includes("new")
+                                    ? "text-green-300 bg-green-500/10 hover:bg-green-500/20"
+                                    : "text-subtext hover:text-gold hover:bg-gold/10"
+                                }`}
+                                title={p.badges.includes("new") ? "최신 프로그램에서 해제" : "최신 프로그램으로 등록"}
+                              >
+                                <Sparkles size={12} />
+                                {p.badges.includes("new") ? "최신 해제" : "최신 등록"}
                               </button>
                               {/* 이 프로그램 공지 쓰기 — 공지 창을 열고 관련 프로그램·제목을 미리 채움(2026-10-20) */}
                               <Link
