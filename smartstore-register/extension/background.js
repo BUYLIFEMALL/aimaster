@@ -428,9 +428,19 @@ async function pageCommand(cmd, args) {
       }
       const message = (verdict?.message || notes().join(' / ')).slice(0, 300);
       // 완료 창(「상품저장이 완료되었습니다」)의 「스마트스토어 상품보기」 링크 주소에 상품번호가 있다
-      const viewHref = [...document.querySelectorAll('.modal.in a[href], [role="dialog"] a[href]')].map((a) => a.href).find((h) => /products\/[0-9]{6,}/.test(h)) || '';
-      const no = (message.match(/상품번호[^0-9]*([0-9]{6,})/) || viewHref.match(/products\/([0-9]{6,})/) || location.href.match(/products\/(?:edit\/)?([0-9]{6,})/) || [])[1] || null;
-      if (verdict?.state === 'success') return { ok: true, confirmed: true, message, productNo: no };
+      // 2026-10-28: 완료 창 「스마트스토어 상품보기」가 href 링크가 아니어서 번호가 비었다(10-27은 남음) → 링크 주소뿐 아니라 버튼의 ng-click·onclick·data-* 속성에 든 숫자도 본다
+      const doneBox = () => [...document.querySelectorAll('.modal.in, [role="dialog"]')].filter(visible).find((m) => /완료/.test(m.textContent)) || null;
+      const findNo = () => {
+        const box = doneBox();
+        const attrs = box ? [...box.querySelectorAll('a, button, [ng-click], [data-product-no], [onclick]')].flatMap((el) => [...el.attributes].map((x) => x.value)) : [];
+        const fromAttr = attrs.map((v) => (v.match(/products\/(?:edit\/)?([0-9]{8,})/) || v.match(/\b([0-9]{10,12})\b/) || [])[1]).find(Boolean);
+        return (message.match(/상품번호[^0-9]*([0-9]{6,})/) || [])[1] || fromAttr || (location.href.match(/products\/(?:edit\/)?([0-9]{6,})/) || [])[1] || null;
+      };
+      let no = findNo();
+      for (let w = 0; !no && verdict?.state === 'success' && w < 6; w++) { await sleep(500); no = findNo(); }
+      // 그래도 없으면 완료 창 버튼 모양을 남긴다(다음 실제 등록에서 바로 고칠 수 있게)
+      const doneShape = !no && verdict?.state === 'success' && doneBox() ? ' [완료 창: ' + [...doneBox().querySelectorAll('a, button')].map((el) => el.outerHTML.replace(/\s+/g, ' ').slice(0, 160)).join(' | ').slice(0, 500) + ']' : '';
+      if (verdict?.state === 'success') return { ok: true, confirmed: true, message: (message + doneShape).slice(0, 800), productNo: no };
       if (verdict?.state === 'error') return { ok: false, error: `판매자센터가 저장을 거절했습니다: ${message || '오류 안내'}` };
       // 성공도 오류 안내도 없으면 — 화면 전체에서 「잘못됨」(ng-invalid) 칸을 찾아 칸 이름으로 남긴다(회원이 스크롤해 찾지 않게)
       const bad = [...document.querySelectorAll('input.ng-invalid, textarea.ng-invalid, select.ng-invalid, [ng-model].ng-invalid')]
