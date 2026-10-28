@@ -251,3 +251,13 @@ test("예약구매: 꺼져 있으면 없음, 날짜 검사, 단계는 상품명 
   const k = keys(buildFillSteps(P, D, { ...O, preOrder }));
   assert.ok(k.indexOf("preorder") >= 0 && k.indexOf("preorder") < k.indexOf("name"));
 });
+
+test("조합형 옵션이면 상품 재고 = 조합 재고 합계(다르면 바로 등록 거절)", async () => {
+  const { normalizeOptions } = await import("../src/lib/smartstore/options.ts");
+  const options = normalizeOptions({ type: "combination", groups: [{ name: "색상", values: ["블랙", "그레이"] }], combos: [{ values: ["블랙"], price: 0, stock: 99 }, { values: ["그레이"], price: 0, stock: 50 }] }, 99).spec;
+  const r = buildFillSteps(P, D, { ...O, options });
+  assert.equal(r.steps.find((s) => s.key === "stock").value, "149");
+  const simple = normalizeOptions({ type: "simple", groups: [{ name: "색상", values: ["A", "B"] }] }, 99).spec;
+  assert.equal(buildFillSteps(P, D, { ...O, options: simple }).steps.find((s) => s.key === "stock").value, String(D.stock));
+  assert.equal(buildFillSteps(P, D, O).steps.find((s) => s.key === "stock").value, String(D.stock));
+});

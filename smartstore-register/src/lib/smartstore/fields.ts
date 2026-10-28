@@ -235,7 +235,7 @@ export function normalizeTags(raw: unknown): string[] {
  * 칸 목록을 만든 코드의 세대 — 오래 열어 둔 탭은 그 시점 배포의 옛 코드로 작업을 만든다(2026-10-27 실제 사고: 고시 A/S 전화·어린이인증·추가 이미지가 빠진 작업).
  * 칸 구성이 바뀌어 옛 작업을 실행하면 안 될 때 이 숫자를 올린다. 이 표시가 없거나 낮은 작업은 확장에 넘기지 않는다.
  */
-export const STEP_BUILDER = 5; // 2: 옵션 단계(v1.12) · 3: 배송 직접 입력 확장(v1.14) · 4: 브랜드·제조사 brand_input · 5: 모델명 model_text(v1.19), 모델명 제외(v1.15)
+export const STEP_BUILDER = 6; // 2: 옵션 단계(v1.12) · 3: 배송 직접 입력 확장(v1.14) · 4: 브랜드·제조사 brand_input · 5: 모델명 model_text(v1.19), 모델명 제외(v1.15) · 6: 조합형 옵션이면 재고 = 조합 재고 합계(v1.20)
 const BUILDER_KEY = "_builder";
 
 /** 저장할 단계 목록 끝에 「만든 세대」 표시를 붙인다(화면 미리보기에는 붙이지 않음) */
@@ -336,7 +336,9 @@ export function buildFillSteps(
     add({ key: "discount_on", section: "판매가", label: "즉시할인 설정함", target: "vm.viewData.isEnableImmediateDiscountPolicy", action: "radio", value: "true" });
     add({ key: "discount", section: "판매가", label: "할인 금액(원)", target: "immediateDiscountPolicy.value", action: "type", value: String(discount) });
   }
-  add({ key: "stock", section: "재고수량", label: "재고수량", target: "vm.product.stockQuantity", action: "type", value: String(defaults.stock), required: true });
+  // 조합형 옵션이면 상품 재고 = 조합 재고 합계(다르면 「바로 등록」을 판매자센터가 거절 — 2026-10-28 실측, 임시저장은 검사 안 함)
+  const comboStock = opts.options?.type === "combination" && opts.options.combos?.length ? opts.options.combos.reduce((n, c) => n + c.stock, 0) : null;
+  add({ key: "stock", section: "재고수량", label: "재고수량", target: "vm.product.stockQuantity", action: "type", value: String(comboStock ?? defaults.stock), required: true });
   if (opts.options) {
     const o = opts.options;
     add({ key: "options", section: "옵션", label: `옵션 ${o.type === "simple" ? "단독형" : "조합형"} ${optionRowCount(o)}줄(${o.groups.map((g) => g.name).join("·")})`, target: "옵션", action: "options", value: JSON.stringify(o) });
