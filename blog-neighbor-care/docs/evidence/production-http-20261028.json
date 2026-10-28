@@ -29,5 +29,13 @@
   "edgeReloadVerified": false,
   "actualNaverNeighborsImported": 0,
   "realAiCalls": 0,
-  "searchCalls": 0
+  "searchCalls": 0,
+  "memberLoginRequired": false,
+  "expectedMemberEmailVerified": true,
+  "memberUiReadPassed": true,
+  "actualPostgrestMemberReadPassed": true,
+  "previousMaterialRetained": true,
+  "edgeExtensionManagerOpenRequired": true,
+  "extensionReloadVerified": false,
+  "memberUiEvidence": "member-ui-20261028.json"
 }

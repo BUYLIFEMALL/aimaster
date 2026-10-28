@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-28T01:47:11.540Z",
+  "programVersion": "v1.02",
+  "nativeEdge": {
+    "windowId": 1838288,
+    "existingWindow": true,
+    "newProgramTabOpenedViaVisibleLink": true,
+    "expectedMemberEmailMatchedInAIMasterDashboard": true,
+    "mainDashboardAuthenticated": true,
+    "readerConnectionAndMaterialListRefreshPassed": true,
+    "connectedBlogMatched": true,
+    "previousMaterialListCountObserved": 1,
+    "importedDirectoryDisplayedCount": 0,
+    "importRunsNoneObserved": true,
+    "storedRelationshipListReadPassed": true,
+    "storedRelationshipListEmpty": true
+  },
+  "actualMemberUiReadPassed": true,
+  "actualPostgrestMemberReadPassed": true,
+  "actualNaverNeighborsImported": 0,
+  "independentlyVerifiedRelations": false,
+  "extensionReloadVerified": false,
+  "internalExtensionManagerNavigationVerified": false,
+  "toolLimits": {
+    "focusSupported": false,
+    "keyboard": "window_not_focused after restore",
+    "modifiedClick": "SendInput did not complete",
+    "internalUrlLinkDidNotNavigate": true
+  },
+  "existingRequestUpdated": "e43fff5f-b5c5-4dbd-97d9-9cf4294c9af7",
+  "newLoginRequest": false,
+  "newInstallRequest": false,
+  "newDeployments": 0,
+  "realAiCalls": 0,
+  "searchCalls": 0,
+  "privateBodySaved": false
+}

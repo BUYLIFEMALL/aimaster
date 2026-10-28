@@ -116,10 +116,16 @@
   "registeredVersion": "v1.02",
   "installedFilesVersion": "v1.02",
   "nativeEdgeOperatingVersionVerified": true,
-  "memberLoginRequired": true,
+  "memberLoginRequired": false,
   "memberRequest": "e43fff5f-b5c5-4dbd-97d9-9cf4294c9af7",
   "extensionReloadVerified": false,
   "productionHttpChecks": 13,
   "productionZipFilesMatch": 9,
-  "dbReappliedOnRetry": false
+  "dbReappliedOnRetry": false,
+  "expectedMemberEmailVerified": true,
+  "memberUiReadPassed": true,
+  "actualPostgrestMemberReadPassed": true,
+  "previousMaterialRetained": true,
+  "edgeExtensionManagerOpenRequired": true,
+  "memberUiEvidence": "member-ui-20261028.json"
 }

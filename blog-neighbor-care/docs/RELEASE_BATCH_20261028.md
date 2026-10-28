@@ -1,6 +1,8 @@
 # 분석·기존 이웃 기능 묶음 반영 결과 — v1.02
 
-**최신 완료/잔여:** 2026-10-28 v1.02운영 반영: 사용자승인dca86631 추가배포1회 READY(dpl_9AoWhXoq7SZTEJykyR6UQgjzSFve, Basic 19.385초), 공식/보조별칭연결. 웹/API·DB등록·package/manifest1.2.0·운영ZIP v1.02일치, 운영HTTP13·ZIP9파일소스일치통과. 기존설치폴더를7파일백업후9파일v1.02로갱신, 토큰저장소/확장ID변경없음. 기존Edge1838288에서릴레이데스크v1.02·회원로그인필요표시확인, e43fff5f 회원로그인/전경대기(실회원UI·실제확장재로드미검수). 신규SQL재적용없음·읽기/소통OFF·실제네이버43명전송0. 유료AI/검색0. 이번추가빌드1회성공19.385초, 앞선실패포함누적2회·실제청구미확정.
+**최신 완료/잔여:** 2026-10-28 실회원 UI 후속: 기존Edge1838288 AIMaster대시보드의회원이메일일치확인, 결과화면의새탭링크로v1.02프로그램열기. 연결/받은글새로고침에서buylifemall기기·기존자료1건유지, 새이웃화면에서본인계정·가져온목록0명·서버관계기록빈결과조회통과(실제네이버이웃0명뜻아님). 회원인증→실서버/PostgREST조회검수완료. 실제확장재로드/네이버43명전송미완료. 도구전경전환미지원·키보드window_not_focused·내부주소링크이동불가로기존요청e43fff5f를설치분류의확장관리탭열기로갱신, 로그인재요청없음. 기존Edge새탭주소에edge://extensions/만직접열면다시로드/표시명·버전·연결유지확인재개. 새배포/AI/검색0, 읽기/소통OFF유지.
+
+[실회원 UI 근거](evidence/member-ui-20261028.json). 배포 자체는 v1.02 Ready이며 신규SQL 재적용·재배포는 필요 없습니다.
 
 최종 결과: [운영](https://blog-neighbor-care.buylife.xyz/reader) · [Vercel 보조](https://blog-neighbor-care.vercel.app/reader) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [결과 HTML](file:///D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/v1.02-release-20261028/index.html) · 영구폴더 `D:\Antigravity\Design\릴레이_데스크_네이버_그린\blog-neighbor-care\v1.02-release-20261028`.
 
