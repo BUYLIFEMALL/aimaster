@@ -10,9 +10,14 @@ async function send(message) {
   if (!r?.ok) throw new Error(r?.error || '확장 연결을 확인해 주세요.'); return r.data;
 }
 async function status() {
-  const r = await send({ type: 'status' });
-  $('connection').textContent = r.connected ? `연결된 블로그: ${r.blogId}` : '프로그램에서 회원 계정을 연결해 주세요.';
-  if (r.latestVersion && r.latestVersion !== chrome.runtime.getManifest().version_name) $('message').textContent = '프로그램에서 새 설치본이 있는지 확인해 주세요.';
+  try {
+    const r = await send({ type: 'status' });
+    $('connection').textContent = r.connected ? `연결된 블로그: ${r.blogId}` : '프로그램에서 회원 계정을 연결해 주세요.';
+    if (r.latestVersion && r.latestVersion !== chrome.runtime.getManifest().version_name) $('message').textContent = '프로그램에서 새 설치본이 있는지 확인해 주세요.';
+  } catch (error) {
+    $('connection').textContent = '연결 확인 실패 · 지금 상태를 확인해 주세요.';
+    throw error;
+  }
 }
 function receipt(r) {
   $('message').textContent = r.state === 'completed' ? '전달 완료. 프로그램의 받은 글 목록에서 확인할 수 있습니다.' : '전달 완료 기록이 없습니다. 현재 읽기 내용을 확인해 주세요.';

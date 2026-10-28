@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-10-28T08:17:17Z",
+  "programBadges": ["premium"],
+  "programUpdatedAt": "2026-10-28T08:09:04.595075Z",
+  "grantState": {
+    "premiumSuspended": true,
+    "effectiveExpiry": "2026-10-28T08:08:28.199510Z",
+    "savedOriginalExpiry": "2026-10-29T07:45:52.455760Z"
+  },
+  "memberGradeOrder": 4,
+  "programRequiredGradeOrder": 1,
+  "deviceRevoked": false,
+  "rootCause": "Premium badge policy automatically suspended the previously valid ordinary test-member usage grant; this blocks extension whoami before list extraction.",
+  "confirmedPolicyImplementation": ["public.programs_premium_badge()", "public.user_program_access_premium_guard()", "supabase/migrations/0031_premium_enforcement.sql"],
+  "pendingOwnerDecision": "Keep premium and authorize a one-day test subscription without payment, or remove premium during testing.",
+  "policyChangedByThisInvestigation": false,
+  "subscriptionCreated": false,
+  "popupStatusTextFix": "A failed status lookup no longer leaves the connection card showing checking.",
+  "installedPopupScriptSynced": true,
+  "liveBrowserReloadVerified": false,
+  "webDownloadDeployed": false,
+  "aiCalls": 0,
+  "remoteBuilds": 0,
+  "deployments": 0
+}

@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-28T07:28:39.737Z",
+  "checkedAt": "2026-10-28T08:23:37.487Z",
   "archive": "public/downloads/blog-neighbor-care-extension-latest.zip",
   "version": "v1.02",
   "entries": [
@@ -15,8 +15,8 @@
   ],
   "sourceBytesMatched": true,
   "latestMatchesVersioned": true,
-  "bytes": 16268,
-  "sha256": "f613c7da2cf1ba5249818be26534bd0826808074a6770dd1789ab45ed14e5ff9",
+  "bytes": 16322,
+  "sha256": "15a7c34b82680c72bb82c0d10c4543419823064eda1f73e4a7e18be7754157d4",
   "installedInBrowser": false,
   "deployed": false
 }
