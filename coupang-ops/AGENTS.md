@@ -21,6 +21,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 | 쿠팡 호출(C1-3) | `src/lib/coupang/client.ts`(`wingRequest`)·`sign.ts`·`tests/client.test.mjs` | HMAC 「CEA」 서명(경로와 조건 사이 `?` 없음 — 파트너스 실계정 확인 규칙), `FIXIE_URL` 있으면 고정 IP 프록시·없으면 개발 PC 직접(운영에선 막음), 429는 GET만 1회 재시도, 생성·수정은 재시도 없음, `X-CAG-Warnings` 반환. `npm test` |
 | 상품·본문(C1-6·C1-12) | `src/lib/shop.ts`·`src/lib/coupang/product.ts`·`docs/API_PRODUCT_CREATE_SPEC.md`·`tests/product.test.mjs` | 상세페이지 상품 읽기(본인 폴더 이미지만), 쿠팡 생성 본문 `buildCreateBody`·검사 `checkDraft`(옵션명 중복·정가<판매가·재고·반품비 100~150%·이미지 https 200자) |
 | 물류·연결 시험(C1-4·C1-5) | `src/lib/coupang/logistics.ts`·`src/lib/actions/wing.ts`·`src/components/ConnectionTest.tsx`·`tests/logistics.test.mjs` | 출고지·반품지 조회와 응답 정리, `/connect` 「연결 시험」(읽기만) |
+| 카테고리(C1-7·C1-8) | `src/lib/coupang/category.ts`·`tests/category.test.mjs` | 추천(POST categorization/predict)·메타(구매/검색옵션·고시·서류·인증) 정리, 고시 채우기, 필수 안내. ⚠️ 메타의 고를 수 있는 값 목록 유무는 실응답 확인 필요 |
 | DB(C1-2) | `supabase/migrations/20261028_coupang_wing_keys_c1_2.sql` | 키 이름 제약에 4개 덧붙이기(운영 DB 현재 목록을 읽어 추가 — 다른 이름 보존) + `integration_catalog` 「쿠팡 WING Open API」 |
 
 ## 4. 버전·이력
