@@ -4,6 +4,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createWorkHandler } from '../src/lib/work-api.ts';
 import { executeApprovedWork } from '../src/lib/execution/approvedWork.ts';
+import {issueWorkerTicket} from '../src/lib/execution/workerTicket.ts';
+import {runTicketedWork} from '../src/lib/execution/trustedHost.ts';
 
 const image = 'postgres:17-alpine';
 const label = `bnc-${randomUUID()}`;
@@ -283,11 +285,61 @@ try {
     const r=await f.run();assert.equal(r.status,'uncertain');assert.equal(r.externalAttempted,false);assert.equal(r.reportStored,true);
     assert.equal(f.applied(),0);assert.equal(usage(m).reserved,1);assert.equal(rpc(m,'settings').enabled,false);
   });
+  sql(readFileSync(new URL('../supabase/migrations/20261028233611_bnc_execution_evidence.sql',import.meta.url),'utf8'));
+  const settle=(m,p)=>json(sql(`select bnc_execution_result_dispatch(${quote(m.id)},'result',${payload(p)});`,'service_role'));
+  function ticketed(m,j){
+    const f=executorFixture(m,j),deviceId='11111111-1111-4111-8111-111111111111',secret='fixture-only-private-worker-secret-12345';let last;
+    const ticket=issueWorkerTicket({memberId:m.id,jobId:j.id,deviceId,accountId:j.account_id,actorId:j.actor_id,bodyHash:createHash('sha256').update(j.body).digest('hex'),approvalRevision:j.approval_revision,generation:j.generation+1},secret);
+    const store={member:async id=>({allowed:true,userId:id}),connected:async()=>true,load:f.deps.load,permitted:async()=>true,rpc:f.deps.rpc,result:async(user,p)=>{last=p;return settle({id:user},p);}};
+    return {run:()=>runTicketedWork(ticket,{secret:()=>secret,store,adapter:f.deps.adapter}),last:()=>last,applied:f.applied};
+  }
+  let evidenceOwner,evidenceJob,evidencePayload;
+  await check('DB32 authenticated private host atomically records minimal effect proof and SQL success',async()=>{
+    for(const kind of ['request','like','comment']){
+      const m=enabled(),j=ready(m,{kind,post_id:kind==='request'?'':'123'}),f=ticketed(m,j),r=await f.run();
+      assert.equal(r.status,'succeeded');assert.equal(f.applied(),1);assert.equal(usage(m,kind).succeeded,1);
+      assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${quote(j.id)};`),'1');
+      assert.equal(sql(`select e.expires_at=j.expires_at from bnc_execution_evidence e join bnc_jobs j on j.id=e.job_id where j.id=${quote(j.id)};`),'t');
+      const proof=json(sql(`select proof from bnc_execution_evidence where job_id=${quote(j.id)};`));
+      assert.doesNotMatch(JSON.stringify(proof),/가상 검수 문장|cookie|token/);assert.equal(proof.kind,kind);
+      assert.equal((await f.run()).status,'blocked');assert.equal(f.applied(),1);
+      if(kind==='comment'){evidenceOwner=m;evidenceJob=j;evidencePayload=f.last();}
+    }
+  });
+  await check('DB33 invalid evidence and failed state transitions roll back proof and success counters together',()=>{
+    const m=enabled(),j=claim(m,ready(m)),now=new Date().toISOString();
+    const proof={account_id:j.account_id,actor_id:j.actor_id,neighbor_id:j.neighbor_id,post_id:j.post_id,kind:j.kind,state:'commented',effect_id:'fixture-comment',body_hash:createHash('sha256').update(j.body).digest('hex'),observed_at:now};
+    const p={...token(j),outcome:'success',verified:true,attempted_at:now,evidence:proof};
+    assert.throws(()=>settle(m,p),/BNC_INVALID_STATE/);assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${quote(j.id)};`),'0');
+    arm(m,j);for(const patch of [{body_hash:'a'.repeat(64)},{actor_id:'someone-else'},{body:'raw text'},{observed_at:new Date(Date.now()-60000).toISOString()}])assert.throws(()=>settle(m,{...p,evidence:{...proof,...patch}}),/BNC_EVIDENCE/);
+    assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${quote(j.id)};`),'0');assert.equal(usage(m).reserved,1);assert.equal(usage(m).succeeded,0);
+  });
+  await check('DB34 effect proof replay is idempotent and cannot replace or extend the original evidence',()=>{
+    const expiry=sql(`select expires_at from bnc_execution_evidence where job_id=${quote(evidenceJob.id)};`);
+    settle(evidenceOwner,evidencePayload);assert.equal(usage(evidenceOwner).succeeded,1);
+    assert.throws(()=>settle(evidenceOwner,{...evidencePayload,evidence:{...evidencePayload.evidence,effect_id:'changed-id'}}),/BNC_EVIDENCE_CHANGED/);
+    assert.equal(sql(`select expires_at from bnc_execution_evidence where job_id=${quote(evidenceJob.id)};`),expiry);
+    assert.throws(()=>sql(`update bnc_execution_evidence set proof='{}' where job_id=${quote(evidenceJob.id)};`,'service_role'),/permission denied/);
+  });
+  await check('DB35 evidence RLS isolates members and only the private service RPC can settle results',()=>{
+    assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${quote(evidenceJob.id)};`,'authenticated',evidenceOwner.id).split('\n').at(-1),'1');
+    assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${quote(evidenceJob.id)};`,'authenticated',first.id).split('\n').at(-1),'0');
+    assert.throws(()=>sql('select * from bnc_execution_evidence;','anon'),/permission denied/);
+    for(const role of ['anon','authenticated'])assert.throws(()=>sql(`select bnc_execution_result_dispatch(${quote(evidenceOwner.id)},'result',${payload(evidencePayload)});`,role),/permission denied/);
+    assert.equal(sql("select prosecdef from pg_proc where oid='bnc_execution_result_dispatch(uuid,text,jsonb)'::regprocedure;"),'f');
+  });
+  await check('DB36 expired evidence cleanup removes only proof and preserves the minimal successful job',()=>{
+    sql(`update bnc_execution_evidence set expires_at=now()-interval '1 second' where job_id=${quote(evidenceJob.id)};`);
+    assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${quote(evidenceJob.id)};`,'authenticated',evidenceOwner.id).split('\n').at(-1),'0');
+    const result=json(sql("select bnc_execution_result_dispatch(null,'cleanup','{}');",'service_role'));assert.equal(result.expiredEvidenceRemoved,1);
+    assert.equal(sql(`select state from bnc_jobs where id=${quote(evidenceJob.id)};`),'succeeded');
+    assert.equal(usage(evidenceOwner).succeeded,1);assert.throws(()=>sql(`select bnc_execution_result_dispatch(${quote(evidenceOwner.id)},'cleanup','{}');`,'service_role'),/BNC_EVIDENCE_INPUT/);
+  });
 } finally {
   const ownLabel = execFileSync('docker', ['inspect', '--format', '{{index .Config.Labels "aimaster.bnc-test"}}', container], { encoding: 'utf8' }).trim();
   if (ownLabel !== label) throw new Error('Container ownership mismatch - cleanup skipped');
   execFileSync('docker', ['rm', '-f', '-v', container], { stdio: 'pipe' });
-  const sourceFiles = ['src/lib/work-api.ts', 'src/app/api/work/route.ts', 'src/lib/access.ts', 'src/lib/execution/approvedWork.ts', `supabase/migrations/${migration}`, 'tests/database.mjs'];
+  const sourceFiles = ['src/lib/work-api.ts', 'src/app/api/work/route.ts', 'src/lib/access.ts', 'src/lib/execution/approvedWork.ts','src/lib/execution/workerTicket.ts','src/lib/execution/trustedHost.ts','supabase/migrations/20261028233611_bnc_execution_evidence.sql', `supabase/migrations/${migration}`, 'tests/database.mjs'];
   const hashes = Object.fromEntries(sourceFiles.filter(p => !p.endsWith('/')).map(p => [p,
     createHash('sha256').update(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n')).digest('hex')]));
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });

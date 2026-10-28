@@ -42,9 +42,12 @@ try {
     '../supabase/migrations/20261026103202_bnc_server_queue.sql', '../supabase/migrations/20261026163340_bnc_reader_connection.sql',
     '../supabase/migrations/20261027042907_bnc_analysis.sql', '../supabase/migrations/20261027141316_bnc_neighbor_import.sql',
     '../supabase/migrations/20261028123000_bnc_work_retention.sql', '../supabase/migrations/20261028124500_bnc_work_cancel.sql',
-    '../supabase/migrations/20261028143000_bnc_schedule_preferences.sql']) {
+    '../supabase/migrations/20261028143000_bnc_schedule_preferences.sql', '../supabase/migrations/20261028233611_bnc_execution_evidence.sql']) {
     sql(readFileSync(new URL(file, import.meta.url), 'utf8'));
   }
+  await check('CDB11 execution evidence cleanup is independently callable before other datasets',()=>{
+    assert.equal(JSON.parse(sql("select bnc_execution_result_dispatch(null,'cleanup','{}');",'service_role')).expiredEvidenceRemoved,0);
+  });
   const fixtures = [];
   for (const expired of [true, false]) {
     const user = randomUUID(), id = randomUUID(), profile = randomUUID(), run = randomUUID(), code = hash(randomUUID());

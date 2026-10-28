@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-28T23:25:45.170Z",
+  "checkedAt": "2026-10-28T23:47:00.076Z",
   "command": "npm run test:database",
   "version": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "image": "postgres:17-alpine",
@@ -129,9 +129,29 @@
     {
       "name": "DB31 final context change after SQL permit prevents application and preserves uncertainty",
       "passed": true
+    },
+    {
+      "name": "DB32 authenticated private host atomically records minimal effect proof and SQL success",
+      "passed": true
+    },
+    {
+      "name": "DB33 invalid evidence and failed state transitions roll back proof and success counters together",
+      "passed": true
+    },
+    {
+      "name": "DB34 effect proof replay is idempotent and cannot replace or extend the original evidence",
+      "passed": true
+    },
+    {
+      "name": "DB35 evidence RLS isolates members and only the private service RPC can settle results",
+      "passed": true
+    },
+    {
+      "name": "DB36 expired evidence cleanup removes only proof and preserves the minimal successful job",
+      "passed": true
     }
   ],
-  "passed": 31,
+  "passed": 36,
   "failed": 0,
   "operatingDatabaseChanged": false,
   "fixtureUsersOnly": true,
@@ -141,8 +161,11 @@
     "src/lib/work-api.ts": "036fff373f36eed1d9fc69a98df325585bee9f043a79710f05dd5656834e6802",
     "src/app/api/work/route.ts": "d68e7392b0c3666ddec0787d9986bde44c4373cd2e770f300813586befd7e144",
     "src/lib/access.ts": "c9a2289031d97b10fa7d71526974dd536b44115e1f7e8dbc4f14f3d704182c56",
-    "src/lib/execution/approvedWork.ts": "19a08a1b00f7af85721be2767827e471de676b07ff41d9bbe7aa35701c07790a",
+    "src/lib/execution/approvedWork.ts": "0e566c2d35cb97a2795ab68ea383a06ad6647508c95c7fe7bea0a977d9c18a72",
+    "src/lib/execution/workerTicket.ts": "0a95ab175ddd6fe38e145ccb4a67db14804ab025d5fba91d8ae421b587d74a36",
+    "src/lib/execution/trustedHost.ts": "8f661469f09e8ec39573b0a787c7dcf53d8e546edb08e2f881ec3f9fd6c1c35d",
+    "supabase/migrations/20261028233611_bnc_execution_evidence.sql": "0e60ea1533331b6fe0cf0171510f84b773057b474941c6e1b860556bfeafb887",
     "supabase/migrations/20261026103202_bnc_server_queue.sql": "a5b3f68d53497b16a1e2c35a92b9afb13db5b374caf4418010b8b2eb1472d52e",
-    "tests/database.mjs": "35f02b57978a462c18eaeb90c26da9a82b485db2aaf22531e4ae3c0bbf3ce7ce"
+    "tests/database.mjs": "a4250d47cb495933947266fd17bf449e5f6fb3919b68666eefb9caf922075869"
   }
 }

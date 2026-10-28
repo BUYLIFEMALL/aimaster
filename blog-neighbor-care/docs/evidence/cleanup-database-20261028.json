@@ -1,7 +1,8 @@
 {
-  "checkedAt": "2026-10-28T14:16:31.548Z",
+  "checkedAt": "2026-10-28T23:43:54.725Z",
   "database": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "tests": [
+    "CDB11 execution evidence cleanup is independently callable before other datasets",
     "CDB01 reader failure still expires analysis/import data, reports 503 and preserves member settings",
     "CDB02 retry removes remaining expired body without deleting the other member or refreshing lifetime",
     "CDB03 repeated cleanup is idempotent, retains all directories and never enables gates",
@@ -13,11 +14,11 @@
     "CDB09 schedule preferences persist without enabling execution or changing job approvals; stale revisions cannot overwrite",
     "CDB10 schedule preferences are owner-only and member direct writes/RPC execution are denied"
   ],
-  "passed": 10,
+  "passed": 11,
   "network": "none",
   "hostPorts": 0,
-  "actualSqlCalls": 137,
-  "cleanupRpcCalls": 12,
+  "actualSqlCalls": 142,
+  "cleanupRpcCalls": 15,
   "fixtureMembers": 2,
   "operatingDatabaseChanged": false,
   "realAiCalls": 0,

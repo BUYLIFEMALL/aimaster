@@ -30,6 +30,7 @@ type Dependencies={
  };
  now?:()=>number;
 };
+export type ExecutionAdapter=Dependencies['adapter'];
 type Outcome={status:'blocked'|'succeeded'|'uncertain';reason:string;externalAttempted:boolean;reportStored:boolean};
 const uuid=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(v);
 const obj=(v:unknown):v is Obj=>!!v&&typeof v==='object'&&!Array.isArray(v);
@@ -98,7 +99,9 @@ export async function executeApprovedWork(input:{memberId:string;jobId:string;de
    effect.state==='commented'&&effect.bodyHash===hash(job.body)&&typeof effect.effectId==='string'&&/^[a-zA-Z0-9_-]{1,128}$/.test(effect.effectId));
   if(!verified)return uncertain('effect_unconfirmed');
   // A late verified success may still settle an armed/uncertain server job.
-  const settled=await d.rpc(input.memberId,'result',{...token,outcome:'success',verified:true});
+  const evidence={account_id:job.account_id,actor_id:job.actor_id,neighbor_id:job.neighbor_id,post_id:job.post_id,kind:job.kind,state:effect.state,
+   effect_id:job.kind==='comment'?effect.effectId:null,body_hash:job.kind==='comment'?hash(job.body):null,observed_at:new Date(effect.checkedAt).toISOString()};
+  const settled=await d.rpc(input.memberId,'result',{...token,outcome:'success',verified:true,attempted_at:new Date(attemptedAt).toISOString(),evidence});
   if(!obj(settled)||settled.id!==job.id||settled.state!=='succeeded')return {status:'uncertain',reason:'report_unconfirmed',externalAttempted,reportStored:false};
   return {status:'succeeded',reason:'effect_verified',externalAttempted,reportStored:true};
  }catch{return uncertain('execution_unconfirmed');}

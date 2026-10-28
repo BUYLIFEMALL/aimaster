@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-29",
+  "scope": "Private ticket-authenticated execution host and transactional minimal result evidence",
+  "ticket": {
+    "algorithm": "HMAC-SHA256",
+    "maximumLifetimeMs": 60000,
+    "boundFields": ["memberId", "jobId", "accountId", "deviceId", "actorId", "bodyHash", "approvalRevision", "generation"],
+    "readerTokenAloneAccepted": false,
+    "publicIssuerOrExecutionEndpoint": false
+  },
+  "serverChecks": ["existing program access", "connected non-revoked device", "matching owned account without reconnect flag", "per-kind policy reference", "live gate", "approved content and generation"],
+  "resultEvidence": {
+    "atomicWithSuccessCounters": true,
+    "memberIsolation": true,
+    "serviceUpdatePrivilege": false,
+    "originalJobExpiryInherited": true,
+    "fullBodyOrCredentialsSaved": false,
+    "cleanupBatchLimit": 1000,
+    "cleanupUsesTransactionAdvisoryLock": true
+  },
+  "validation": {
+    "unitTestsPassed": 201,
+    "executionDatabaseTestsPassed": 36,
+    "cleanupDatabaseTestsPassed": 11,
+    "typecheckPassed": true,
+    "databaseNetwork": "none",
+    "hostPorts": 0,
+    "localContainersRemoved": true
+  },
+  "newMigration": "20261028233611_bnc_execution_evidence.sql",
+  "pendingMigrationCount": 4,
+  "productionCallerConfigured": false,
+  "browserAdapterImplemented": false,
+  "actualNaverActionsPerformed": false,
+  "newSecretConfigured": false,
+  "operatingDatabaseChanged": false,
+  "operatingVersion": "v1.02",
+  "deployed": false,
+  "paidAiCalls": 0,
+  "searchCalls": 0,
+  "remoteBuilds": 0,
+  "reference": "https://supabase.com/docs/guides/database/postgres/row-level-security"
+}
