@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-28 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — AI 스마트스토어 상품 자동등록기 v1.18(임시저장 첫 실제 성공) · ego lite 도입
+- ego lite를 Claude Code 전용 두 번째 브라우저로 추가(지침 3종) — Claude 크롬 확장이 못 여는 판매자센터를 직접 읽고 캡처. 「임시저장까지」 실제 성공(임시저장본 1→2건). 태그 겹침·확인 창 오클릭·템플릿 대기·임시저장 성공 판정 보정. 배포 Ready, DB·확장·ZIP v1.18 OK. 상세 `smartstore-register/AGENTS.md` v1.18.
+- https://smartstore-register.buylife.xyz
+
 ## 2026-10-28 [역할: blog] 모든 CLI 공통 인계 — 지정 Gmail 계정의 Claude API 적극 활용
 
 2026-10-28 사용자 추가 지시로 CLI 외부API 규칙을 보강: buylifemall@gmail.com 계정 귀속 Claude API키/사용자지정 ClaudeCode연결을 개발·검수·진단·분석에서1순위로적극활용. 사용자가설명한월간$200 이용범위를문맥으로기록하고 실제차감경로/잔여/추가과금은연동설정기준확인. 기존승인범위내진행/사용량기록, 회원서비스는회원본인키원칙유지, 키값비기록. 메인AGENTS/CLAUDE·공통API규칙·모든CLI용루트HANDOFF에반영. 이번API조회/생성/빌드/배포0.
