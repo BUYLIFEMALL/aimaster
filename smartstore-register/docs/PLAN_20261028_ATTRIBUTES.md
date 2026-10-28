@@ -51,3 +51,11 @@
 
 ## 8. 산출물
 이 플랜, 마이그레이션 SQL, `AGENTS.md` 기록, 대기 목록 갱신, 0단계 실측 기록, 루트 HANDOFF.
+
+## 9. 0단계 실측 결과(2026-10-28, ego lite·읽기만) — 플랜 보정
+- **판매자센터에 속성 데이터 주소가 있다**(상품 등록 화면이 쓰는 것): `GET /api/category-attribute/attribute-group?leafCategoryId=<번호>` → 속성마다 `attribute.attributeName`·`attributeClassificationType`(`MULTI_SELECT` 복수선택 / `SINGLE_SELECT` 단일선택)·`attributeValueMaxMatchingCount`(최대 개수, 0=제한 없음)·`unitUsable`·`attributeValues[].attributeValueText`(보기 글자 그대로), 항목 `attributeRequired`(필수).
+- **카테고리 번호 찾기**: `POST /api/category-search?_action=getCategoriesByIgnoreCase` 본문 `{ query, isValid: true, leafOnly: true }` → `[{ id, wholeCategoryName }]`. 「백팩」 3개(유아동·남성가방 `50000651`·여성가방), 「텀블러」 2개.
+- 백팩(`50000651`) 속성 8개: 주요소재(복수·최대 3·보기 29) · 용도(단일·5) · 패턴(복수·최대 2·27) · 제품특징(복수·4) · 장식(복수·최대 2·14) · 잠금방식(단일·13) · 사용대상(단일·3) · 추가구성(단일·3).
+- **보정**: 3단계 확장은 상품 등록 화면을 조작하지 않고, 판매자센터 탭(아무 화면) 안에서 위 두 주소를 **같은 로그인으로 불러 읽기만** 한다(검색 POST는 조회용). 카테고리는 상세페이지 경로와 가장 길게 겹치는 후보, 없으면 첫 후보. 후보 목록도 돌려줘 회원이 다른 카테고리를 고를 수 있게 한다.
+- 위험 추가: 판매자센터 내부 주소라 바뀔 수 있음 → 실패하면 화면에 「직접 입력」 칸 안내, 오류 문구를 기록.
+- DB 초안: `supabase/migrations/20261028_attr_lookups_v1_21.sql`(표 `smartstore_register_attr_lookups`, 회원 본인만, 30일 정리에 추가 예정) — **주인님 승인 뒤 적용**.
