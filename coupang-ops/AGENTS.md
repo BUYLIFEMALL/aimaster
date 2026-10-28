@@ -2,6 +2,7 @@
 
 > 루트 `../CLAUDE.md`(메인 지침)를 함께 읽는다. 한국어 진행 안내·회원 본인 계정/키·비용 사전 승인·경로 지정 커밋 규칙이 그대로 적용된다.
 > 플랜: [`docs/PLAN_20261028_COUPANG_OPS.md`](docs/PLAN_20261028_COUPANG_OPS.md)(API 103개 목록 §10, 고정 IP 비용 §11·§12, 확정 §13·§14, 제한·제재 §15) · 기능 대기 목록: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
+> **📘 최신 인수인계(2026-10-28, 가장 먼저 읽기)**: [`docs/IMPROVEMENT_HANDOFF_20261028.md`](docs/IMPROVEMENT_HANDOFF_20261028.md) — 판매정지로 쿠팡 API가 막혀 멈춘 상태·운영 DB 적용 내용·코드 지도·함정·다음 첫 단계.
 > 담당 역할: `ecommerce-image`(Claude Code 윈도우 `claude-win-sdp`). 마켓 등록기 공통 레퍼런스: [`../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md`](../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md).
 
 ## 1. 사용 목적·대상
@@ -22,10 +23,11 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 | 상품·본문(C1-6·C1-12) | `src/lib/shop.ts`·`src/lib/coupang/product.ts`·`docs/API_PRODUCT_CREATE_SPEC.md`·`tests/product.test.mjs` | 상세페이지 상품 읽기(본인 폴더 이미지만), 쿠팡 생성 본문 `buildCreateBody`·검사 `checkDraft`(옵션명 중복·정가<판매가·재고·반품비 100~150%·이미지 https 200자) |
 | 물류·연결 시험(C1-4·C1-5) | `src/lib/coupang/logistics.ts`·`src/lib/actions/wing.ts`·`src/components/ConnectionTest.tsx`·`tests/logistics.test.mjs` | 출고지·반품지 조회와 응답 정리, `/connect` 「연결 시험」(읽기만) |
 | 카테고리(C1-7·C1-8) | `src/lib/coupang/category.ts`·`tests/category.test.mjs` | 추천(POST categorization/predict)·메타(구매/검색옵션·고시·서류·인증) 정리, 고시 채우기, 필수 안내. ⚠️ 메타의 고를 수 있는 값 목록 유무는 실응답 확인 필요 |
+| 기본값(C1-5) | `/defaults`·`src/components/DefaultsForm.tsx`·`src/lib/coupang/defaults.ts`·`tests/defaults.test.mjs` | 출고지·반품지(쿠팡에서 불러오기)·택배사·배송비·반품비 저장(`coupang_ops_defaults`) |
 | DB(C1-2) | `supabase/migrations/20261028_coupang_wing_keys_c1_2.sql` | 키 이름 제약에 4개 덧붙이기(운영 DB 현재 목록을 읽어 추가 — 다른 이름 보존) + `integration_catalog` 「쿠팡 WING Open API」 |
 
 ## 4. 버전·이력
-- v1.01 (2026-10-28, **미배포·DB 미적용**): C1-1 웹 뼈대 — 대시보드(출시 순서)·매뉴얼. tsc·로컬 build 통과. 같은 날 C1-2 키 등록 화면 추가(검사 함수 가짜 값 확인, DB SQL 미적용).
+- v1.01 (2026-10-28, **미배포 · 운영 DB 적용됨(비공개)**): C1-1 웹 뼈대 — 대시보드(출시 순서)·매뉴얼. tsc·로컬 build 통과. 같은 날 C1-2 키 등록 화면 추가(검사 함수 가짜 값 확인, DB SQL 미적용).
 
 ## 5. 남은 일
 1. **배포는 모았다가(2026-10-28 주인님 「모았다가 하자」)**: C1-2~C1-14는 로컬(`npm run dev`, 이 PC IP `210.178.96.91`이 WING 허용 IP에 있음)에서 만들고 시험 → 1단계 완성 때 Vercel 새 프로젝트·도메인·환경변수(Supabase 4개·`FIXIE_URL`)·빌드 1회(그때 승인). 운영 DB 등록 SQL은 로컬 시험 시작 때 C1-2 키 목록 변경과 함께 적용(그때 승인).
@@ -47,3 +49,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## 2026-10-28 저녁 — 운영 DB 적용·실키 시험(판매정지로 멈춤)
+- 운영 DB에 SQL 3개 적용(프로그램 비공개 등록·키 이름 4개·표 3개), 관리자는 공개 전에도 사용(`programAccess.ts`), 주인님 실제 키 저장·WING 「자체개발」 IP 3개 반영 확인.
+- 쿠팡 응답: 「IP 불허」 → 반영 뒤 「계정 상태 변경으로 API 제한」(판매정지) — 서명·키·IP는 통과. 판매 재개 뒤 이어서.
+- 상세: [`docs/IMPROVEMENT_HANDOFF_20261028.md`](docs/IMPROVEMENT_HANDOFF_20261028.md).
