@@ -228,7 +228,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
                 className="mt-4 flex items-center justify-between rounded-lg border border-gold/25 bg-gold/5 px-3 py-2.5 text-xs transition-colors hover:bg-gold/10"
               >
                 <span className="text-subtext">
-                  여러 프로그램을 쓰신다면 <span className="font-semibold text-gold">이용권</span>이 더 저렴합니다
+                  <span className="font-semibold text-gold">프로그램 이용권</span>을 이용하시면 더 저렴합니다
                 </span>
                 <ArrowRight size={14} className="shrink-0 text-gold" />
               </Link>
