@@ -11,6 +11,7 @@ import { ADMIN_NAV_ITEMS } from "@/components/layout/adminNavItems";
 
 const NAV_LINKS = [
   { href: "/programs", label: "프로그램" },
+  { href: "/pass", label: "이용권" },
   { href: "/packages", label: "패키지" },
   { href: "/revenue-share", label: "수익 공유" },
   { href: "/custom", label: "제작의뢰" },

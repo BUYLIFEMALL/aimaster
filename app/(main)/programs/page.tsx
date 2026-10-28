@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
 import ProgramCard from "@/components/programs/ProgramCard";
 import CategoryNav from "@/components/programs/CategoryNav";
 import ProgramSearch from "@/components/programs/ProgramSearch";
@@ -162,6 +162,29 @@ export default async function ProgramsPage({ searchParams }: PageProps) {
           ))}
         </div>
       )}
+
+      {/* 이용권 안내 배너 */}
+      <div className="mt-20 glass-card rounded-2xl p-8 border border-gold/30 bg-gradient-to-r from-gold/5 via-surface/40 to-surface/80 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="space-y-2 text-center md:text-left">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 text-gold text-xs font-semibold">
+            <Sparkles size={13} />
+            묶음으로 더 저렴하게
+          </span>
+          <h2 className="text-xl md:text-2xl font-bold text-white">
+            여러 프로그램을 쓰신다면 이용권이 유리합니다
+          </h2>
+          <p className="text-subtext text-sm">
+            원하는 프로그램을 10개·30개·50개·전체 중에서 골라 한 달 동안 사용하는 묶음 이용권입니다.
+          </p>
+        </div>
+        <Link
+          href="/pass"
+          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl btn-gold text-sm font-bold shrink-0 hover:scale-105 transition-all shadow-md"
+        >
+          이용권 살펴보기
+          <ArrowRight size={16} />
+        </Link>
+      </div>
 
       {/* 가이드 센터 안내 배너 */}
       <div className="mt-20 glass-card rounded-2xl p-8 border border-gold/30 bg-gradient-to-r from-gold/5 via-surface/40 to-surface/80 flex flex-col md:flex-row items-center justify-between gap-6">
