@@ -4,6 +4,7 @@ import { getWingKeyStatus } from "@/lib/data";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { CopyBox } from "@/components/CopyBox";
 import { WingKeyForm } from "@/components/WingKeyForm";
+import { ConnectionTest } from "@/components/ConnectionTest";
 import { WING_FIELDS, WING_LABELS } from "@/lib/coupang/keys";
 import { SERVER_IPS } from "@/lib/version";
 
@@ -51,7 +52,8 @@ export default async function ConnectPage() {
 
       <section className="slw-card space-y-2 p-5">
         <h2 className="text-base font-extrabold text-slate-900">3. 연결 시험</h2>
-        <p className="text-sm text-slate-600">키와 허용 IP가 맞는지 쿠팡에 직접 물어보는 버튼은 다음 업데이트에서 열립니다.</p>
+        <p className="text-sm text-slate-600">키와 허용 IP가 맞는지 쿠팡에 직접 물어봅니다. 내 출고지·반품지 목록만 읽고, 쿠팡에 아무것도 만들거나 바꾸지 않습니다.</p>
+        <ConnectionTest saved={status.saved} />
       </section>
     </div>
   );
