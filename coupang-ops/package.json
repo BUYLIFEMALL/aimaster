@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3078",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
@@ -14,7 +15,8 @@
     "next": "^16.4.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "undici": "^8.12.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

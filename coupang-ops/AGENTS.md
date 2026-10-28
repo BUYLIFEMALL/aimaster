@@ -18,6 +18,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 | 화면 | `/home`·`/guide` | 대시보드·키 발급 매뉴얼(자체개발·허용 IP 복사 상자) |
 | 쿠팡 키(C1-2) | `/connect`·`src/lib/coupang/keys.ts`·`src/lib/actions/connection.ts`·`src/lib/data.ts` | 공용 표 `user_api_keys`에 키 이름 4개(`coupang_wing_vendor_id`·`_access_key`·`_secret_key`·`_user_id`, 파트너스 키와 다름) 저장·삭제, 화면엔 끝 4자리만. 원문은 서버 `getWingKeys()`만 |
 | DB | `supabase/migrations/20261028_coupang_ops_v1_01.sql` | 프로그램 등록(비공개)·요금제·VIP·테스트 계정 14일 |
+| 쿠팡 호출(C1-3) | `src/lib/coupang/client.ts`(`wingRequest`)·`sign.ts`·`tests/client.test.mjs` | HMAC 「CEA」 서명(경로와 조건 사이 `?` 없음 — 파트너스 실계정 확인 규칙), `FIXIE_URL` 있으면 고정 IP 프록시·없으면 개발 PC 직접(운영에선 막음), 429는 GET만 1회 재시도, 생성·수정은 재시도 없음, `X-CAG-Warnings` 반환. `npm test` |
 | DB(C1-2) | `supabase/migrations/20261028_coupang_wing_keys_c1_2.sql` | 키 이름 제약에 4개 덧붙이기(운영 DB 현재 목록을 읽어 추가 — 다른 이름 보존) + `integration_catalog` 「쿠팡 WING Open API」 |
 
 ## 4. 버전·이력
