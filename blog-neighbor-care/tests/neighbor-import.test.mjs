@@ -127,3 +127,10 @@ test('NI22 device change after next-page reservation prevents navigation as well
  const handle=createNeighborImporter(f.browser,post,async()=>f.state.identity,()=>0,async()=>{});
  await assert.rejects(handle({type:'neighbors_read',ownerConfirmed:true}));assert.equal(navigations,0);assert.equal(f.state.reads,1);
 });
+
+test('NI23 already-reserved interrupted page explains how to review and cancel without a hidden retry',async()=>{
+ const f=api(true,{rpc:async()=>({data:null,error:{message:'BNC_IMPORT_RESERVED hidden database context'}})});
+ const response=await f.send('reserve',{id,page:2});assert.equal(response.status,409);const body=await response.json();
+ assert.equal(body.code,'BNC_IMPORT_RESERVED');assert.match(body.error,/받은 범위/);assert.match(body.error,/취소/);assert.doesNotMatch(body.error,/hidden database/);
+ assert.equal(f.calls.length,0);
+});

@@ -76,7 +76,9 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
     await emit('sending',{totalCount:snapshot.totalCount,totalPages:snapshot.totalPages,message:`${source.page}페이지를 서버로 전송하고 있습니다.`});
     const saved=await post('page',{id,nonce:permit.nonce,snapshot});
     await emit(['ready','confirmed'].includes(saved.state)?saved.state:'received',{...receiptFields(saved),lastPage:saved.lastPage??source.page,message:saved.state==='ready'?'전체 목록을 임시 수신했습니다. 아직 프로그램에 반영하기 전입니다.':saved.state==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':`${source.page}페이지 수신을 확인했습니다.`});
-    if(['ready','confirmed'].includes(saved.state))return saved;
+    // The page RPC omits totalPages; preserve the coverage already accepted for
+    // this run so the popup's final response cannot erase its progress message.
+    if(['ready','confirmed'].includes(saved.state))return {...saved,totalPages:progress.totalPages,lastPage:progress.lastPage};
     const next=parseNeighborPage(snapshot.nextUrl);
     if(!next||next.blogId!==who.blogId||next.page!==source.page+1)throw Error('다음 페이지를 확인하지 못했습니다.');
     // Reserve the next page before navigating: loading a page is already a read.

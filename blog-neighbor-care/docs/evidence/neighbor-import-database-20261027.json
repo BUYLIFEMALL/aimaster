@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-28T09:33:36.139Z",
+  "checkedAt": "2026-10-28T15:12:50.525Z",
   "tests": [
     "IDB01 five tables RLS, private RPC, read gate default off and non-writable by service",
     "IDB02 missing platform permission blocks start without page reservation",
@@ -28,10 +28,14 @@
     "IDB25 active-run grant expiry blocks further reads; cleanup keeps referenced audit and member settings",
     "IDB26 fourteen-day one-off approval survives delayed start; active run still expires within fifteen minutes",
     "IDB27 approval does not lengthen an active run or permit automatic restart",
-    "IDB28 approval remains bounded to fourteen days, revocable and inaccessible to member writes"
+    "IDB28 approval remains bounded to fourteen days, revocable and inaccessible to member writes",
+    "IDB29 current approval schema: three-page response retains coverage for popup completion",
+    "IDB30 scoped explicit-empty reimport preserves existing directory and changed target preferences",
+    "IDB31 interrupted scoped page cannot silently re-reserve; cancellation preserves prior directory",
+    "IDB32 current scoped multi-page reimport retains member-edited preferences and creation times"
   ],
-  "passed": 28,
-  "expected": 28,
+  "passed": 32,
+  "expected": 32,
   "containerStopped": true,
   "operatingDatabaseChanged": false,
   "realCredentialsUsed": false,

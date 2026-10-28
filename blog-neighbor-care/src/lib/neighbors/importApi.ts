@@ -31,6 +31,7 @@ function result(r:{data:unknown;error:{message?:string}|null},extra:Obj={}){
  if(!r.error)return reply({data:r.data,...extra});
  const code=r.error.message?.match(/BNC_IMPORT_[A-Z_]+/)?.[0];
  if(code==='BNC_IMPORT_READ_DISABLED')return reply({error:'이웃 목록 읽기 허용 수단이 아직 확인되지 않아 운영 읽기를 시작하지 않습니다.',code},409);
+ if(code==='BNC_IMPORT_RESERVED')return reply({error:'이전 페이지 읽기 허가가 이미 발급되어 자동으로 다시 읽지 않습니다. 프로그램에서 받은 범위를 확인하고 해당 가져오기를 취소한 뒤 새 읽기 허가를 확인해 주세요.',code},409);
  if(code==='BNC_IMPORT_NOT_FOUND'||code==='BNC_IMPORT_ACCOUNT')return reply({error:'유효한 본인 계정·가져오기 기록이 없습니다.',code},404);
  if(code==='BNC_IMPORT_INPUT')return reply({error:'목록 형식과 동의 항목을 확인해 주세요.',code},400);
  if(code)return reply({error:'계정·목록 변경·가져오기 상태와 읽기 상한을 확인해 주세요. 자동으로 다시 읽거나 보내지 않습니다.',code},409);

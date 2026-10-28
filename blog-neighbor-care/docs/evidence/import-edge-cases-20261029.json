@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-29",
+  "scope": "Import edge cases and reimport preference preservation under current one-off approval schema",
+  "reproducedBeforeFix": [
+    "IDB29: final controller response totalPages was undefined instead of 3 after actual page RPC omitted totalPages",
+    "NI23: reserved-page retry returned generic error without review/cancellation guidance"
+  ],
+  "verifiedAfterFix": {
+    "unitTestsPassed": 184,
+    "unitTestsFailed": 0,
+    "isolatedDatabaseTestsPassed": 32,
+    "isolatedDatabaseTestsFailed": 0,
+    "typecheckPassed": true,
+    "archiveSourceBytesMatched": true,
+    "archiveSha256": "adb1f55186bbf57c94f8a63b1716ce41af516a84362e028d42fc2e8f7729d940",
+    "threePages125Neighbors": true,
+    "emptyReimportPreservesDirectoryAndPreferences": true,
+    "interruptedPageCannotSilentlyReserveAgain": true,
+    "cancellationPreservesPriorDirectory": true,
+    "multiPageReimportPreservesPreferencesAndCreationTimes": true
+  },
+  "databaseFixture": "Isolated PostgreSQL17, network none, no published ports; actual controller, serialized DOM functions (linkedom layout stub), HTTP handlers and SQL",
+  "containerStopped": true,
+  "actualNaverMultiPageVerified": false,
+  "actualNaverEmptyListVerified": false,
+  "actualNaverReimportPreservationVerified": false,
+  "existingRealImport43": "Previously confirmed, unchanged by this test suite",
+  "actualFixtureAccountQuestion": "152bd1cc-9978-4e7c-a346-912268180dc9",
+  "operatingDatabaseChanged": false,
+  "newSchemaMigration": false,
+  "operatingVersion": "v1.02",
+  "deployed": false,
+  "installedExtensionReloadedThisStep": false,
+  "paidAiCalls": 0,
+  "searchCalls": 0,
+  "remoteBuilds": 0
+}

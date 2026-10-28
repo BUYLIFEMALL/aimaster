@@ -257,8 +257,48 @@ try{
   assert.throws(()=>start(m),/BNC_IMPORT_READ_DISABLED/);
   assert.throws(()=>sql(`update public.bnc_neighbor_import_permits set revoked_at=null where id=${q(id)};`,'service_role'),/permission denied/);
  });
- assert.equal(tests.length,28);
+ await check('IDB29 current approval schema: three-page response retains coverage for popup completion',async()=>{
+  const m=member();grant(m,{days:14,pages:3,neighbors:125});const f=pipeline(m),result=await f.read();
+  assert.equal(result.state,'ready');assert.equal(result.capturedCount,125);assert.equal(result.totalPages,3);assert.equal(result.lastPage,3);
+  assert.equal(directory(m).total,0);assert.equal(f.events.filter(e=>e==='reserve').length,3);
+  assert.equal((await f.web('confirm',{id:result.id,confirmed:true})).status,200);assert.equal(directory(m).total,125);
+  assert.equal(sql('select read_allowed from public.bnc_neighbor_import_policy;'),'f');assert.equal(sql('select live_allowed from public.bnc_runtime;'),'f');
+ });
+ await check('IDB30 scoped explicit-empty reimport preserves existing directory and changed target preferences',async()=>{
+  const m=member();grant(m);const first=start(m);put(m,first,snap(m,rows));rpc(m,'confirm',{id:first});
+  configure(m,{ids:['n-one'],new_posts:false,return_visits:true});const before=directory(m).records;
+  grant(m,{days:14,pages:1,neighbors:2});const f=pipeline(m,{total:0,pages:1}),result=await f.read();
+  assert.equal(result.state,'ready');assert.equal(result.capturedCount,0);assert.equal((await f.web('confirm',{id:result.id,confirmed:true})).status,200);
+  assert.deepEqual(directory(m).records,before);assert.equal(f.events.filter(e=>e==='page').length,1);
+  assert.equal(sql(`select used from public.bnc_neighbor_import_daily where user_id=${q(m.user)};`),'2');
+ });
+ await check('IDB31 interrupted scoped page cannot silently re-reserve; cancellation preserves prior directory',async()=>{
+  const m=member();grant(m);const first=start(m);put(m,first,snap(m,rows));rpc(m,'confirm',{id:first});
+  configure(m,{ids:['n-one'],new_posts:false,return_visits:true});const before=directory(m).records;
+  grant(m,{days:14,pages:3,neighbors:125});let captures=0;
+  const f=pipeline(m,{afterScript:(name,state)=>{if(name==='inspectVisibleNeighbors'&&++captures===2)state.active=false;}});
+  await assert.rejects(f.read());const id=f.session.neighborImport.id,partial=rpc(m,'get',{id});
+  assert.equal(partial.state,'capturing');assert.equal(partial.lastPage,1);assert.equal(partial.capturedCount,50);
+  assert.equal((await f.web('confirm',{id,confirmed:true})).status,409);
+  f.state.active=true;const count=f.events.filter(e=>e==='inspectVisibleNeighbors').length;
+  await assert.rejects(f.read());assert.equal(f.events.filter(e=>e==='inspectVisibleNeighbors').length,count);
+  assert.equal(sql(`select used from public.bnc_neighbor_import_daily where user_id=${q(m.user)};`),'3');
+  assert.equal((await f.web('cancel',{id})).status,200);assert.deepEqual(directory(m).records,before);
+  assert.equal(rpc(m,'get',{id}).rows.length,0);assert.throws(()=>start(m),/BNC_IMPORT_READ_DISABLED/);
+ });
+ await check('IDB32 current scoped multi-page reimport retains member-edited preferences and creation times',async()=>{
+  const m=member();grant(m,{days:14,pages:3,neighbors:125});const first=pipeline(m),a=await first.read();
+  assert.equal((await first.web('confirm',{id:a.id,confirmed:true})).status,200);
+  configure(m,{ids:['fixture-neighbor-0000'],new_posts:false,return_visits:true});
+  configure(m,{ids:['fixture-neighbor-0001'],new_posts:true,return_visits:false});
+  const preferences=()=>parse(sql(`select jsonb_agg(jsonb_build_object('id',neighbor_id,'newPosts',new_posts_enabled,'returnVisits',return_visits_enabled,'createdAt',created_at) order by neighbor_id) from public.bnc_neighbor_directory where user_id=${q(m.user)} and account_id=${q(m.account)};`));
+  const before=preferences();grant(m,{days:14,pages:3,neighbors:125});const second=pipeline(m),b=await second.read();
+  assert.equal((await second.web('confirm',{id:b.id,confirmed:true})).status,200);assert.deepEqual(preferences(),before);
+  assert.equal(directory(m).total,125);assert.equal(sql(`select used from public.bnc_neighbor_import_daily where user_id=${q(m.user)};`),'6');
+  assert.equal(sql('select count(*) from public.bnc_neighbors;'),'0');assert.equal(sql('select count(*) from public.bnc_jobs;'),'0');
+ });
+ assert.equal(tests.length,32);
 }finally{
  removed=execFileSync('docker',['rm','-f',container],{encoding:'utf8'}).trim()===container;
- writeFileSync(new URL('../docs/evidence/neighbor-import-database-20261027.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),tests,passed:tests.length,expected:28,containerStopped:removed,operatingDatabaseChanged:false,realCredentialsUsed:false,fixture:'Isolated PostgreSQL17, network none, no published ports; real controller + serialized DOM (linkedom layout stub) + HTTP handlers + actual SQL; not installed extension or production PostgREST'},null,2)+'\n');
+ writeFileSync(new URL('../docs/evidence/neighbor-import-database-20261027.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),tests,passed:tests.length,expected:32,containerStopped:removed,operatingDatabaseChanged:false,realCredentialsUsed:false,fixture:'Isolated PostgreSQL17, network none, no published ports; real controller + serialized DOM (linkedom layout stub) + HTTP handlers + actual SQL; not installed extension or production PostgREST'},null,2)+'\n');
 }
