@@ -60,9 +60,6 @@ export function Sidebar({
               <span className="brand-3d-badge">
                 {APP_VERSION} PRO
               </span>
-              <span className="text-[10px] font-bold text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded-full border border-amber-200">
-                Nano Studio
-              </span>
             </div>
           </div>
         </a>
