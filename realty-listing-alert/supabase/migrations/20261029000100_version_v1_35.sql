@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.35: 시공사 여럿인 단지 실거래 이름 맞추기(K 후속 — 「백송선경,코오롱8단지」 ↔ 국토부 「백송마을(선경)」·「백송마을(코오롱)」) (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.35', extension_version = 'v1.35', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
