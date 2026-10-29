@@ -40,6 +40,7 @@ export function CategoryCheck({ saved }: { saved: boolean }) {
               )}
               <p className="text-xs">고시 상품군: {result.meta.notices.map((n) => n.category).join(", ") || "없음"}</p>
               <p className="text-[11px] text-slate-600">응답 속성 칸 이름(값 목록 확인용): {result.rawAttrKeys.join(", ") || "속성 없음"}</p>
+              {result.rawSample && <pre className="whitespace-pre-wrap break-all rounded bg-white/70 p-2 text-[11px] text-slate-700">{result.rawSample}</pre>}
             </>
           )}
         </div>

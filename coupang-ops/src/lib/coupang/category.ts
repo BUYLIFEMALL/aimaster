@@ -39,6 +39,10 @@ export interface CategoryAttribute {
   basicUnit: string;
   units: string[];
   group: string | null;
+  /** SELECT = 쿠팡 목록에서 고름, 그 밖(INPUT 등) = 직접 입력 — 2026-10-29 실응답 확인 */
+  inputType: string;
+  /** 고를 수 있는 값(inputValues, 글자 목록) */
+  values: string[];
 }
 
 export interface CategoryMeta {
@@ -66,6 +70,8 @@ export function normalizeMeta(json: unknown): CategoryMeta {
         basicUnit: s(a.basicUnit),
         units: (Array.isArray(a.usableUnits) ? a.usableUnits : []).map(s).filter(Boolean),
         group: s(a.groupNumber) && s(a.groupNumber) !== "NONE" ? s(a.groupNumber) : null,
+        inputType: s(a.inputType) || "INPUT",
+        values: (Array.isArray(a.inputValues) ? a.inputValues : []).map(s).filter(Boolean),
       }))
       .filter((a) => a.name),
     notices: arr(d.noticeCategories)

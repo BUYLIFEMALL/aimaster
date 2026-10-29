@@ -34,7 +34,7 @@ const meta = normalizeMeta({
 
 test("메타: 구매옵션/검색옵션·필수·그룹 구분", () => {
   assert.equal(meta.attributes.length, 3);
-  assert.deepEqual(meta.attributes[0], { name: "색상", dataType: "STRING", required: true, purchase: true, basicUnit: "", units: [], group: null });
+  assert.deepEqual(meta.attributes[0], { name: "색상", dataType: "STRING", required: true, purchase: true, basicUnit: "", units: [], group: null, inputType: "INPUT", values: [] });
   assert.equal(meta.attributes[1].group, "1");
   assert.equal(meta.attributes[2].purchase, false);
 });
