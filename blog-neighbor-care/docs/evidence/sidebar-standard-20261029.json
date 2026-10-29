@@ -1,0 +1,61 @@
+{
+  "checkedAt": "2026-10-29T00:55:16.106Z",
+  "standard": "docs/SIDEBAR_LAYOUT_STANDARD.md",
+  "template": "릴레이 데스크 — 네이버 그린 변형",
+  "scope": "Existing sidebar standards correction; existing template retained",
+  "desktopWidthPx": 240,
+  "mobileBreakpointPx": 767,
+  "accountGapPx": 12,
+  "flow": [
+    "/reader",
+    "/studio",
+    "/candidates",
+    "/neighbors"
+  ],
+  "accountEmailSource": "Server-verified Supabase auth.getUser only; login link if unavailable",
+  "logout": {
+    "method": "POST",
+    "sameOriginOnly": true,
+    "scope": "local",
+    "noStore": true,
+    "realMemberSignedOut": false
+  },
+  "checks": {
+    "typecheck": true,
+    "unitTests": 203,
+    "newNavigationTests": 2,
+    "productionBuild": true,
+    "localHttpTests": 44,
+    "mobileAccountCandidates": 0,
+    "overflowCandidates": 0,
+    "extensionSourceFilesMatched": 9
+  },
+  "edge": {
+    "existingWindow": 21169596,
+    "newWindowCreated": false,
+    "previewDesktopWidth": 1000,
+    "previewMobileWidth": 390,
+    "desktopVerified": true,
+    "mobileClosedVerified": true,
+    "mobileOpenedViaNativeClick": true,
+    "mobileAccountAndUtilitiesVisible": true,
+    "mobileClosedAgainViaNativeClick": true,
+    "lowHeightBrowserVerified": true,
+    "previewUsesActualComponentAndCss": true,
+    "previewRoutingStubbed": true,
+    "previewAccountSynthetic": true
+  },
+  "assets": "D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029",
+  "screenshots": [
+    "edge-desktop-mobile-closed.png",
+    "edge-desktop-mobile-open.png",
+    "edge-low-height.png"
+  ],
+  "operatingVersion": "v1.02",
+  "deployed": false,
+  "previous95FileReleaseSnapshotSuperseded": true,
+  "nextReleaseRequiresFreshSnapshotAndVersionSync": true,
+  "remoteBuilds": 0,
+  "realAiCalls": 0,
+  "operatingDatabaseChanges": 0
+}

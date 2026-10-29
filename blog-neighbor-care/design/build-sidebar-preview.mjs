@@ -1,0 +1,18 @@
+import { build } from 'esbuild';
+import { readFileSync,writeFileSync,mkdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const app=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const target='D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029';
+mkdirSync(target,{recursive:true});
+// Preview only: route context/links are local, while the actual navigation component stays unchanged.
+const routing={name:'preview-routing',setup(build){
+  build.onResolve({filter:/^next\/(?:link|navigation|dist\/shared\/lib\/hooks-client-context.shared-runtime)$/},()=>({path:'routing',namespace:'preview-routing'}));
+  build.onLoad({filter:/.*/,namespace:'preview-routing'},()=>({contents:`import React from 'react';export const PathnameContext=React.createContext('/neighbors');export function usePathname(){return React.useContext(PathnameContext)}export default function Link(props){return React.createElement('a',props,props.children)}`,loader:'js',resolveDir:app}));
+}};
+const result=await build({entryPoints:[path.join(app,'design/sidebar-preview.tsx')],plugins:[routing],bundle:true,write:false,platform:'browser',format:'iife',target:'es2022',jsx:'automatic',minify:true,define:{'process.env.NODE_ENV':'"production"'}});
+const css=readFileSync(path.join(app,'src/app/globals.css'),'utf8');
+writeFileSync(path.join(target,'preview.html'),`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"><title>좌측 메뉴 규격 · 로컬 미리보기</title><style>body{margin:0}${css}</style></head><body><div id="root"></div><script>${result.outputFiles[0].text.replace(/<\/script/gi,'<\\/script')}</script></body></html>`);
+writeFileSync(path.join(target,'index.html'),`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>블로그 이웃 소통 · 좌측 메뉴 레이아웃 수정</title><style>body{margin:0;padding:24px;background:#edf5ef;color:#203b31;font:14px/1.7 system-ui}h1{margin:0}p{max-width:950px}section{margin:24px 0}iframe{border:1px solid #adcdb7;background:white;max-width:100%}.gallery,.mobile{display:flex;gap:24px;flex-wrap:wrap}a{color:#027b38}</style></head><body><h1>AI 블로그 이웃 소통 자동화 · 좌측 메뉴 표준 반영</h1><p>240px 고정 폭 · 번호와 연결선 · 다운로드/연동/매뉴얼 · 계정 밀착 · 767px 이하 ☰ 전환. 기존 릴레이 데스크 네이버 그린 유지. 운영 미배포·합성 계정. 각 화면에서 메뉴를 눌러 확인할 수 있습니다.</p><a href="preview.html">단독 미리보기 열기</a> · <a href="#low">낮은 화면 확인</a><div class="gallery"><section><h2>데스크톱 · 1000px</h2><iframe title="데스크톱 1000px" src="preview.html" width="1000" height="900"></iframe></section><section><h2>모바일 · 390px</h2><iframe title="모바일 390px" src="preview.html" width="390" height="900"></iframe></section></div><div class="mobile"><section id="low"><h2>낮은 화면 · 1000×430px</h2><iframe title="낮은 화면" src="preview.html" width="1000" height="430"></iframe></section></div></body></html>`);
+writeFileSync(path.join(target,'SPEC.md'),'# 좌측 메뉴 표준 반영\n\n기준: docs/SIDEBAR_LAYOUT_STANDARD.md. 기존 릴레이 데스크 네이버 그린을 유지한 규격 보정입니다.\n\n실제 ProgramNavigation/CSS 사용, 계정 layout@example.invalid는 합성 예시. 연결/AI/DB 호출은 CSP로 차단. 운영 반영 전입니다.\n\n순서: 이름·버전 → 다른 프로그램 → 대시보드 → 글 연결/분석/후보/관계 4단계 → 구분선 → 확장 ZIP·버전 → API키등록·플랫폼연동 → 매뉴얼 → 계정/로그아웃. 데스크톱240px, 메뉴만 내부 스크롤, 계정간격12px, 모바일767px 이하 상단 펼침.\n');
+console.log(JSON.stringify({target,bundleBytes:result.outputFiles[0].contents.length,realAccountUsed:false,deployed:false}));

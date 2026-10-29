@@ -101,17 +101,22 @@ try {
   await check('HTTP37 이웃가져오기확장토큰없이401',async()=>{const r=await fetch(`${origin}/api/neighbors/import/extension`,{method:'POST',headers:{'content-type':'application/json'},body:'{}'});assert.equal(r.status,401);});
   await check('HTTP38 이웃가져오기회원GET405',async()=>assert.equal((await fetch(`${origin}/api/neighbors/import/member`)).status,405));
   await check('HTTP39 이웃가져오기확장GET405',async()=>assert.equal((await fetch(`${origin}/api/neighbors/import/extension`)).status,405));
+  await check('HTTP40 로그아웃GET405',async()=>assert.equal((await fetch(`${origin}/api/auth/logout`)).status,405));
+  await check('HTTP41 로그아웃출처없음403',async()=>assert.equal((await fetch(`${origin}/api/auth/logout`,{method:'POST'})).status,403));
+  await check('HTTP42 로그아웃cross-site403',async()=>assert.equal((await fetch(`${origin}/api/auth/logout`,{method:'POST',headers:{origin,'sec-fetch-site':'cross-site'}})).status,403));
+  await check('HTTP43 미로그인로컬로그아웃멱등·캐시금지',async()=>{const r=await fetch(`${origin}/api/auth/logout`,{method:'POST',headers:{origin}});assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/no-store/);assert.equal((await r.json()).ok,true);});
+  await check('HTTP44 실제셸표준메뉴·미로그인계정안내',async()=>{const html=await(await fetch(`${origin}/guide`)).text();assert.match(html,/다른 프로그램 보기/);assert.match(html,/API키등록·플랫폼연동/);assert.match(html,/mobile-sidebar/);assert.match(html,/회원 로그인 · 계정 확인/);assert.doesNotMatch(html,/layout@example.invalid/);});
 } finally {
   const closed = new Promise(resolve => child.once('exit', resolve));
   child.kill(); await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 3000))]);
   mkdirSync(new URL('../docs/evidence/', import.meta.url), { recursive: true });
   writeFileSync(new URL('../docs/evidence/neighbor-import-http-20261027.json', import.meta.url), JSON.stringify({
     checkedAt: new Date().toISOString(), command: 'npm run test:http', tests, passed: tests.length,
-    expected: 39, server: 'Next production server on loopback', realCredentialsUsed: false,
+    expected: 44, server: 'Next production server on loopback', realCredentialsUsed: false,
     operatingSessionVerified: false, operatingDatabaseChanged: false,
     serverStopped: child.exitCode !== null || child.signalCode !== null,
   }, null, 2)+'\n');
   if (child.exitCode === null && child.signalCode === null) throw new Error('Own local server did not exit');
 }
-assert.equal(tests.length, 39);
-console.log('로컬 HTTP39개 통과·서버 종료, 실제키/로그인세션 사용0.');
+assert.equal(tests.length, 44);
+console.log('로컬 HTTP44개 통과·서버 종료, 실제키/로그인세션 사용0.');

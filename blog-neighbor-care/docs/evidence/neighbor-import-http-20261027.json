@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-29T00:00:12.270Z",
+  "checkedAt": "2026-10-29T00:49:14.559Z",
   "command": "npm run test:http",
   "tests": [
     "HTTP01 미로그인실제Next응답401",
@@ -40,10 +40,15 @@
     "HTTP36 이웃가져오기회원API미로그인401",
     "HTTP37 이웃가져오기확장토큰없이401",
     "HTTP38 이웃가져오기회원GET405",
-    "HTTP39 이웃가져오기확장GET405"
+    "HTTP39 이웃가져오기확장GET405",
+    "HTTP40 로그아웃GET405",
+    "HTTP41 로그아웃출처없음403",
+    "HTTP42 로그아웃cross-site403",
+    "HTTP43 미로그인로컬로그아웃멱등·캐시금지",
+    "HTTP44 실제셸표준메뉴·미로그인계정안내"
   ],
-  "passed": 39,
-  "expected": 39,
+  "passed": 44,
+  "expected": 44,
   "server": "Next production server on loopback",
   "realCredentialsUsed": false,
   "operatingSessionVerified": false,
