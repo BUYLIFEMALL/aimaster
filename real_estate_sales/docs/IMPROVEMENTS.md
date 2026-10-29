@@ -7,10 +7,10 @@
 | 1 | 휴대폰 ☰ 없음 | 원칙 19 — 좁은 화면에서 메뉴가 본문 위에 쌓임 | 높음 | **운영 반영·Edge 검수 완료(v1.11)** | `src/components/layout/Sidebar.tsx` | 375px 검수 |
 | 2 | 사용 매뉴얼 없음 | 원칙 9 — 실거래가·공시가·점수 읽는 법 안내 없음 | 중간 | **운영 반영·Edge 검수 완료(v1.11)** | `src/app/(dashboard)/guide` | 화면 |
 | 3 | 실거래 목록 검색·필터·정렬 없음, 50건 제한 | 여러 자치구를 보면 비교 어려움 | 중간 | **검색·필터·정렬 운영 반영·합성 검수 완료(v1.11)** / 페이지 나눔은 미해결 | `listings/page.tsx` | 정렬·필터 검수 |
-| 4 | 상세 화면을 열기만 해도 AI 분석이 자동 실행 | 회원 본인 키 비용이 "열람"만으로 발생(기존 캐시 재사용 시 생략) — 명시적 실행·비용 안내 개선 필요 | 중간 | 미구현(제안) | `listings/[id]/page.tsx`, `lib/actions/analysis.ts` | 설정에 「열 때 자동 분석」 켜기/끄기 + 화면에 비용 안내 |
-| 5 | 「안 본 새 실거래」가 열어 봐도 줄지 않음 | 상태가 분석·알림 때만 바뀌고 "열람"은 기록 안 함 → 대시보드 숫자가 계속 남음 | 중간 | 미구현(제안) | `real_estate_user_matches.status` | 상세 열람 시 `new → seen` 표시(스키마 값 추가 필요할 수 있음) |
+| 4 | 상세 화면을 열기만 해도 AI 분석이 자동 실행 | 회원 본인 키 비용이 "열람"만으로 발생(기존 캐시 재사용 시 생략) — 명시적 실행·비용 안내 개선 필요 | 중간 | **완료(v1.13~v1.15)** — 상세 열람 자동 분석 제거(`6c88be2b7`), 설정 「알림 때 AI 분석」 켜기/끄기(`AutoAnalyzeForm`, v1.14), 저장값 반전 수정(v1.15). 2026-10-29 문서 정리 때 확인 | `listings/[id]/page.tsx`, `lib/actions/analysis.ts` | — |
+| 5 | 「안 본 새 실거래」가 열어 봐도 줄지 않음 | 상태가 분석·알림 때만 바뀌고 "열람"은 기록 안 함 → 대시보드 숫자가 계속 남음 | 중간 | **완료(v1.21 RE-B2, 2026-10-26)** — 상세를 열면 `new → notified`, 목록 「✔ 확인됨」(스키마 변경 없음) | `real_estate_user_matches.status` | — |
 | 6 | 서울만 지원 | 서울 열린데이터 API 한정 | 낮음 | 기존 과제 | `lib/publicdata/districts.ts` | 국토부 실거래 API로 경기·인천 확장 검토 |
-| 7 | VWorld 등록 도메인이 옛 `n8n.buylife.xyz` | 포털에서 지우면 공시가격 조회 중단 | 중간 | 기존 과제(주인님 VWorld 로그인 필요) | `VWORLD_REGISTERED_DOMAIN` | 포털에 `real-estate-sales.buylife.xyz` 추가 후 환경변수 변경 |
+| 7 | VWorld 등록 도메인이 옛 `n8n.buylife.xyz` | 포털에서 지우면 공시가격 조회 중단 | 중간 | **완료(v1.22 RE-B3, 2026-10-26)** — 주인님이 포털 도메인 변경, 운영 환경변수 교체. 공시가 실제 조회는 다음 새 실거래 때 확인 | `VWORLD_REGISTERED_DOMAIN` | 다음 새 실거래에서 `official_price` 채워지는지 확인 |
 | 8 | 공공데이터 키 회원별 전환 여부 | v1.04 남은 결정 | 낮음 | **결정(2026-10-29)**: 주인님 「우선은 운영자 키로 사용 사용량 보고 나중에 사용자 별로 분리하자」 — 당분간 운영자 공용 무료 키 유지 | `lib/publicdata/memberKeys.ts` | 사용량(일일 호출 한도 대비)을 지켜보다 한도에 가까워지면 회원별 분리 플랜 보고 |
 | 9 | 옛 금색 테마 이름(`gold`·`dark-*`)에 흰색 값 | 이름과 실제 색이 달라 유지보수 혼란 | 낮음 | **운영 반영·Edge 검수 완료(v1.11)** | `src/app/globals.css` | 옛 이름은 의도적으로 유지·재연결. 운영 계산 색 검수 통과(클래스 0건 목표 아님) |
 
@@ -18,7 +18,7 @@
 
 - **#10 AI 조사 캐시의 회원 격리·30일 보관 (높음·미해결)**: `lib/ai/sentiment.ts`가 본인 Perplexity 키로 생성한 시장 조사 결과를 `real_estate_district_sentiment`의 자치구+날짜만으로 조회/upsert합니다. 운영 catalog에도 user_id가 없고 authenticated 전체 SELECT/INSERT/UPDATE가 확인됐습니다(생성물 내용은 읽지 않음). 주인님 최신 생성 데이터 공유 금지·30일 보관 원칙과 충돌하며 과거 공공 API 키 예외를 AI 생성 캐시 공유 허가로 해석하지 않습니다. 이번 인수에서 연구/AI 경로를 실행하거나 DB 정책·자료를 변경하지 않았습니다. 다음 첫 단계: 소유자별 새 저장소·기한/정리·기존 무소유 자료의 접근 제한 전환안을 작성하고 필요한 DB/삭제 승인을 확인합니다. 임의 소유자 추정·회원에게 일괄 복사·관리자 공용 AI 캐시는 금지입니다. 다른 공공 수집 자료의 과거 예외 적용 여부도 최신 지시와 별도 대조합니다.
 - **#11 기존 의존성 보안 경고 (보완·일부 남음)**: 초기 npm audit 11건(critical1/high10), Next16.2.11. [공식 next/og 공지](https://github.com/vercel/next.js/security/advisories/GHSA-vcvr-r3jv-pc5j)·[Windows 공지](https://github.com/vercel/next.js/security/advisories/GHSA-p293-qw3h-jr36)와 npm 수정 버전을 대조해 같은16계열 Next/eslint-config-next16.4.2 및 허용 범위의 source-map-js/brace-expansion/js-yaml을 갱신했습니다. 보완 후 운영 의존성0건, 전체는 개발 lint 도구 사슬5high(braces/fast-glob/micromatch/eslint-config-next/@next/eslint-plugin-next) 남음. 실제 악용 검사는 안 했고 전체 보안 해결을 주장하지 않습니다. npm audit fix --force가 권하는 구버전 다운그레이드는 하지 않습니다. 다음: lint 사슬의 공식 수정판/대체 경로를 별도 검토하고 회귀 검사. before/after JSON은 docs/evidence/.
-- **#12 상세 GET의 자동 분석과 검수·미리읽기 위험 (높음·미해결)**: 상세가 서버 렌더 중 ensureListingAnalysis를 호출하므로 브라우저 POST만 막아도 비용 발생을 막을 수 없습니다. tests/runtime.mjs는 상세/미리읽기 GET까지 검사 브라우저에서 차단하고 실제 상세는 방문하지 않습니다. #4 자동 분석 선택/명시적 실행·동시 요청 중복 방지·Next Link 미리읽기 정책을 함께 검토합니다. 이번 무료 검수의 상세·유료 분석 품질은 합성 경계 검사이며 운영 유료 검수로 확대하지 않습니다.
+- **#12 상세 GET의 자동 분석과 검수·미리읽기 위험 (높음·→ v1.13에서 상세 자동 분석 제거로 해결, 2026-10-29 문서 정리 때 코드 확인: 상세 화면에 `ensureListingAnalysis` 호출 없음)**: 상세가 서버 렌더 중 ensureListingAnalysis를 호출하므로 브라우저 POST만 막아도 비용 발생을 막을 수 없습니다. tests/runtime.mjs는 상세/미리읽기 GET까지 검사 브라우저에서 차단하고 실제 상세는 방문하지 않습니다. #4 자동 분석 선택/명시적 실행·동시 요청 중복 방지·Next Link 미리읽기 정책을 함께 검토합니다. 이번 무료 검수의 상세·유료 분석 품질은 합성 경계 검사이며 운영 유료 검수로 확대하지 않습니다.
 
 ## 2026-10-23 ~~⚠ 확인 필요 — 지역 분위기(AI 시장조사) 캐시가 회원 구분 없는 공용 표~~ → 아래 「정정」(잘못된 판단) (Claude Code 윈도우, 발견만·미처리)
 - `real_estate_district_sentiment`에는 `user_id`가 없고 `unique (sgg_nm, sentiment_date)`라 지역·날짜마다 한 줄뿐이다. 그런데 정리 코드(`src/app/api/cron/cleanup-sentiment/route.ts`) 주석은 「회원별 AI 시장조사 캐시」라고 한다.
@@ -27,12 +27,12 @@
 
 ## 2026-10-23 정정 — 지역 분위기 캐시는 v1.12부터 회원별 (Claude Code 윈도우)
 - 위 「확인 필요」 항목은 **잘못된 판단**이었다. 처음 표를 만든 SQL(`20260810050751_real_estate_sales_init.sql`)만 보고 user_id가 없다고 봤으나, `supabase/migrations/20261017_district_sentiment_per_user_v1_12.sql`에서 이미 `user_id` 추가·`unique (user_id, sgg_nm, sentiment_date)`·회원 본인 RLS로 바뀌었고, `src/lib/ai/sentiment.ts`도 회원 본인 Perplexity 키로 만들어 본인 행만 읽고 쓴다. **최상위 규칙 위반 없음.** (운영 표가 0행이라 칸을 직접 확인하지 못한 것이 원인)
-- 조치: 정리 코드의 「회원 데이터 아님」 표시를 지우고 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록을 붙임(`61142a909`, 공용 `cleanup-usage-log` 사본). **미배포 대기** — 다음 배포 때 함께, 버전 +0.01.
+- 조치: 정리 코드의 「회원 데이터 아님」 표시를 지우고 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록을 붙임(`61142a909`, 공용 `cleanup-usage-log` 사본). ~~미배포 대기~~ → **v1.19(2026-10-25) 배포됨**.
 
 ## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 `solapi-client` (Claude Code 윈도우 · 세션 `claude-win-20261023-solapi-shared`)
 - 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
 - 사본으로 맞춤: 주석 정리 + 쓰지 않는 RCS 발송 함수 `sendRcs` 추가(동작 같음). tsc·로컬 build 통과.
-- 배포: 미배포 대기(급하지 않은 공용 변경·작은 문구 버그) — 다음 배포 때 버전 +0.01.
+- 배포: ~~미배포 대기~~ → **v1.19(2026-10-25) 배포됨**(아래 「🔔 이 단지 새 매물 알림 받기」와 함께).
 
 ## 2026-10-25 미배포 대기 — 「🔔 이 단지 새 매물 알림 받기」 버튼 ([역할: realty] Claude Code 윈도우 · 세션 `claude-win-20261024-realty`)
 - 주인님 제안 채택: 실거래 상세(`src/app/(dashboard)/listings/[id]/page.tsx`) 단지 제목 아래 버튼 → `https://realty-listing-alert.buylife.xyz/targets?name=<bldg_nm>&region=<자치구 동>` 새 탭. 실거래 자료에는 네이버 단지 번호가 없어(우리 서버는 네이버에 요청하지 않음) 이름·지역만 넘기고, 매물 알림 쪽 화면이 이름을 미리 채운 뒤 회원이 네이버 단지 주소를 붙여 넣게 안내한다.
