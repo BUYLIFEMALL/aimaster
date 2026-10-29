@@ -518,7 +518,7 @@ function Requests({ requests, setRequests, setDialog }: { requests: DevRequest[]
 
   // 🙋 각 세션이 주인님께 드린 요청(owner_action) — 분류별
   const todo = requests.filter((r) => r.kind === "owner_action" && r.status === "open");
-  const todoDone = requests.filter((r) => r.kind === "owner_action" && r.status !== "open").slice(0, 20);
+  const todoDone = requests.filter((r) => r.kind === "owner_action" && r.status !== "open").slice(0, 100);
   const catOf = (r: DevRequest) => OWNER_ACTION_CATEGORIES.find((c) => c.id === r.category) ?? OWNER_ACTION_CATEGORIES[OWNER_ACTION_CATEGORIES.length - 1];
   // 📬 주인님이 맡긴 일의 결과(work_result) — 최신순, 화면에서 남긴 요청에 연결됐으면 그 요청도 표시
   const results = requests.filter((r) => r.kind === "work_result");
@@ -561,16 +561,26 @@ function Requests({ requests, setRequests, setDialog }: { requests: DevRequest[]
             </Fold>
           );
         })}
-        {todoDone.length > 0 && (
-          <Fold title="처리한 일" count={todoDone.length} tone="text-subtext">
-            {todoDone.map((r) => (
-              <p key={r.id} className="text-xs text-subtext">
-                {r.status === "applied" ? "✅" : "↩"} [{catOf(r).label}] {r.title} · {r.from_session ?? "세션 미상"}{r.handled_at ? ` · ${when(r.handled_at)}` : ""}
-              </p>
-            ))}
-          </Fold>
-        )}
       </Section>
+
+      {todoDone.length > 0 && (
+        <Section title="✅ 승인완료" count={todoDone.length}>
+          {OWNER_ACTION_CATEGORIES.filter((c) => todoDone.some((r) => catOf(r).id === c.id)).map((c) => {
+            const items = todoDone.filter((r) => catOf(r).id === c.id);
+            return (
+              <Fold key={c.id} title={`${c.icon} ${c.label}`} count={items.length} tone="text-emerald-200">
+                {items.map((r) => (
+                  <Row key={r.id} title={r.title ?? "(제목 없음)"}
+                    sub={`${r.status === "applied" ? "✅ 완료" : "✖ 필요 없음"} · ${r.from_session ?? "세션 미상"}${r.handled_at ? ` · ${when(r.handled_at)}` : ""}`}
+                    right={linkBtn(r)}>
+                    {r.note && <p className="mt-1 whitespace-pre-wrap text-xs text-white/70">{r.note}</p>}
+                  </Row>
+                ))}
+              </Fold>
+            );
+          })}
+        </Section>
+      )}
 
       <Section title="📬 작업 결과" count={results.length}>
         {results.length === 0 ? <Empty>아직 올라온 작업 결과가 없습니다.</Empty> : results.map((r) => {
