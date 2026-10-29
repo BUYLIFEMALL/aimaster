@@ -1,5 +1,7 @@
 # 블로그 담당 인수인계 — Claude Code → Codex (2026-10-25)
 
+> [역할: blog] **에이전트 Edge 설치·연결 확인 완료 / 옛 연결 해제는 별도** — 2026-10-29 사용자 「했어 확인해봐」「이미 처리된건이면 처리완료」 후속. 이웃소통 확장과 다른 `naver-blog-agent` 확장을 실제 기존 Edge에서 열어 buylifemall 연결 표시를 확인했고, 같은 창의 본인 네이버 관리 화면/바이라이프 로그인도 확인했다. 설치v2.21/최신v2.22 표시는 업데이트 대기로 분리한다. 로그인·연결 요청7eba5ff7은 일괄정리로rejected였으나 이번 근거로applied 완료 처리. DB paired8개는 남아 있고10/21행도최근응답. 코드가 Edge도 deviceName=Chrome으로 전송하므로 브라우저명으로 현재 Edge/옛기기를 식별할 수 없다. 현재 연결 식별·해제대상 확정 전8개를 일괄폐기하지 않음(해제0). 기존4c54bb78은 해제완료 아님. 실제 입력 재시험/원고48f06db1 실패상태는 그대로, 발행/예약0·소스/빌드/유료호출0. [확인 근거](../naver-blog-agent/docs/evidence/edge-connection-check-20261029.json).
+
 - 넘기는 세션: [역할: blog] Claude Code(윈도우, 메인 크롬) `claude-win-20261024-blog3`
 - 받는 쪽: **Codex** (주인님 지시 2026-10-25: 「너가 하던걸 codex가 이어서 할꺼니까 인수인계 문서 만들어줘」)
 - 역할 ID: `blog` · 역할 파일 [`docs/roles/blog.md`](roles/blog.md) · 앞 인계 [`HANDOFF_20261024_BLOG_SESSION.md`](HANDOFF_20261024_BLOG_SESSION.md) → [`HANDOFF_20261023_BLOG_SESSION.md`](HANDOFF_20261023_BLOG_SESSION.md)
