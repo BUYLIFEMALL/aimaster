@@ -72,6 +72,14 @@ const git = (a) => execFileSync("git", a, { cwd: ROOT, encoding: "utf8" }).trim(
 const kst = (iso) => new Date(new Date(iso).getTime() + 9 * 3600000).toISOString().slice(0, 16).replace("T", " ");
 
 async function getReq(id) {
+  id = String(id ?? "").replace(/^#/, "");
+  // 화면의 짧은 번호(#b078)로도 찾는다 — 최근 500건 중 앞자리가 같은 것이 하나일 때만
+  if (/^[0-9a-f]{4,35}$/i.test(id)) {
+    const recent = await rest(`admin_dev_requests?select=*&order=created_at.desc&limit=500`);
+    const hit = recent.filter((r) => r.id.startsWith(id.toLowerCase()));
+    if (hit.length > 1) { console.error(`✖ 번호 ${id}로 시작하는 요청이 ${hit.length}건입니다. 더 길게 적어 주세요.`); process.exit(1); }
+    if (hit.length === 1) return hit[0];
+  }
   const rows = await rest(`admin_dev_requests?id=eq.${encodeURIComponent(id)}&select=*`);
   if (!rows?.length) { console.error(`✖ 요청 ${id}를 찾지 못했습니다.`); process.exit(1); }
   return rows[0];

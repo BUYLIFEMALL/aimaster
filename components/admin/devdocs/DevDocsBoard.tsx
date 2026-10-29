@@ -86,13 +86,13 @@ export default function DevDocsBoard(props: {
         <Sections>
           <Section title="🔧 작업 중 표 (지금 손대고 있는 폴더)" count={activeWork.length} action={docActions("docs/ACTIVE_WORK.md")}>
             {activeWork.length === 0 ? <Empty>작업 중인 세션이 없습니다.</Empty> : activeWork.map((w, i) => (
-              <Row key={i} title={plain(w.work).slice(0, 160)} sub={`${plain(w.agent)} · ${w.start}`} badge={w.role ? `역할 ${w.role}` : "역할 표시 없음"}
+              <Row key={i} no={`진${i + 1}`} title={plain(w.work).slice(0, 160)} sub={`${plain(w.agent)} · ${w.start}`} badge={w.role ? `역할 ${w.role}` : "역할 표시 없음"}
                 right={w.role && roleById[w.role] ? docActions(roleById[w.role].path) : null}>
                 <p className="mt-1 text-xs text-subtext">{plain(w.folders).slice(0, 200)}</p>
               </Row>
             ))}
           </Section>
-          <RoleTableSection title="📋 역할별 「지금 하는 일」" roles={roles} pick={(r) => r.now} cols={["프로그램", "작업", "시작", "상태"]} docActions={docActions} />
+          <RoleTableSection prefix="진" title="📋 역할별 「지금 하는 일」" roles={roles} pick={(r) => r.now} cols={["프로그램", "작업", "시작", "상태"]} docActions={docActions} />
         </Sections>
       )}
 
@@ -101,13 +101,13 @@ export default function DevDocsBoard(props: {
           <GlassCard className="p-4 text-xs text-white/80">
             <b className="text-white">개발완료</b>는 완료된 작업을 <b className="text-white">카테고리(담당 분야)별 · 프로그램별</b>로 모은 것입니다. 각 역할의 「최근 완료」 표와, 세션이 남긴 작업 결과(커밋·링크)를 함께 보여 줍니다.
           </GlassCard>
-          <RoleTableSection title="✅ 카테고리(담당 분야)별 · 프로그램별 최근 완료" roles={roles} pick={(r) => r.done} cols={["날짜", "프로그램·버전", "한 일", "배포"]} docActions={docActions} />
+          <RoleTableSection prefix="완" title="✅ 카테고리(담당 분야)별 · 프로그램별 최근 완료" roles={roles} pick={(r) => r.done} cols={["날짜", "프로그램·버전", "한 일", "배포"]} docActions={docActions} />
           {(() => {
             const wr = requests.filter((r) => r.kind === "work_result");
             return (
               <Section title="📬 세션 작업 결과 (커밋·링크)" count={wr.length}>
                 {wr.length === 0 ? <Empty>아직 올라온 작업 결과가 없습니다.</Empty> : wr.map((r) => (
-                  <Row key={r.id} title={r.title ?? "(제목 없음)"}
+                  <Row key={r.id} no={`#${r.id.slice(0, 4)}`} title={r.title ?? "(제목 없음)"}
                     sub={`${r.from_session ?? "세션 미상"}${r.handled_at ? ` · ${new Date(r.handled_at).toLocaleDateString("ko-KR")}` : ""}${r.commit_sha ? ` · 커밋 ${r.commit_sha}` : ""}${r.cost ? ` · ${r.cost}` : ""}`}
                     right={r.link ? <a href={r.link} target="_blank" rel="noopener noreferrer" title="링크 열기" className="rounded-lg p-2 text-subtext transition-colors hover:bg-white/10 hover:text-white"><ExternalLink size={15} /></a> : null}>
                     {r.note && <p className="mt-1 whitespace-pre-wrap text-xs text-white/80">{r.note}</p>}
@@ -121,11 +121,11 @@ export default function DevDocsBoard(props: {
 
       {tab === "waiting" && (
         <Sections>
-          <RoleTableSection title="⏳ 역할별 「대기 중」 (승인·결정 대기 포함)" roles={roles} pick={(r) => r.waiting} cols={["프로그램", "작업", "기다리는 것", "근거 문서"]} docActions={docActions} />
+          <RoleTableSection prefix="대" title="⏳ 역할별 「대기 중」 (승인·결정 대기 포함)" roles={roles} pick={(r) => r.waiting} cols={["프로그램", "작업", "기다리는 것", "근거 문서"]} docActions={docActions} />
           <RegistrySection title="📝 승인·결정을 기다리는 외부 분석 (⏳·📝·⏸)" rows={(registry?.rows ?? []).filter((r) => /⏳|📝|⏸/.test(r.status))} registry={registry} setDialog={setDialog} docActions={docActions} />
           {registry && registry.pending.length > 0 && (
             <Section title="❓ 주인님 결정 대기 모음 (개발분석표 §5)" count={registry.pending.length} action={docActions(REGISTRY)}>
-              {registry.pending.map((p, i) => <Row key={i} title={plain(p[1] ?? "")} sub={`${plain(p[0] ?? "")} · 담당 ${plain(p[2] ?? "")}`} />)}
+              {registry.pending.map((p, i) => <Row key={i} no={`결${i + 1}`} title={plain(p[1] ?? "")} sub={`${plain(p[0] ?? "")} · 담당 ${plain(p[2] ?? "")}`} />)}
             </Section>
           )}
         </Sections>
@@ -182,12 +182,13 @@ function Section({ title, count, action, children }: { title: string; count?: nu
     </div>
   );
 }
-function Row({ title, sub, badge, right, children, onClick }: { title: string; sub?: string; badge?: string; right?: React.ReactNode; children?: React.ReactNode; onClick?: () => void }) {
+function Row({ no, title, sub, badge, right, children, onClick }: { no?: string; title: string; sub?: string; badge?: string; right?: React.ReactNode; children?: React.ReactNode; onClick?: () => void }) {
   return (
     <GlassCard className="p-4">
       <div className="flex items-start justify-between gap-4">
         <div className={`min-w-0 flex-1 ${onClick ? "cursor-pointer" : ""}`} onClick={onClick}>
           <p className="text-sm font-semibold text-white">
+            {no && <span className="mr-2 rounded bg-amber-400/20 px-1.5 py-0.5 font-mono text-[11px] font-bold text-amber-300" title="채팅에서 이 번호로 말씀하시면 됩니다">{no}</span>}
             {badge && <span className="mr-2 rounded bg-white/10 px-1.5 py-0.5 text-[11px] font-medium text-subtext">{badge}</span>}
             {title}
           </p>
@@ -203,16 +204,17 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="rounded-xl border border-white/10 p-4 text-sm text-subtext">{children}</p>;
 }
 
-function RoleTableSection({ title, roles, pick, cols, docActions }: { title: string; roles: RoleStatus[]; pick: (r: RoleStatus) => TableRow[]; cols: string[]; docActions: (p: string) => React.ReactNode }) {
+function RoleTableSection({ prefix, title, roles, pick, cols, docActions }: { prefix: string; title: string; roles: RoleStatus[]; pick: (r: RoleStatus) => TableRow[]; cols: string[]; docActions: (p: string) => React.ReactNode }) {
   const withRows = roles.filter((r) => pick(r).length);
+  let seq = 0;
   return (
     <Section title={title} count={withRows.reduce((n, r) => n + pick(r).length, 0)}>
       {withRows.length === 0 ? <Empty>해당 항목이 없습니다.</Empty> : withRows.map((r) => (
         <Row key={r.id} title={r.title} sub={`${plain(r.owner)} · 마지막 갱신 ${r.updated.slice(0, 16)}${r.isDraft ? " · 초안(담당 확인 전)" : ""}`} right={docActions(r.path)}>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr>{cols.map((c) => <th key={c} className="border-b border-white/10 px-2 py-1 text-left font-medium text-subtext">{c}</th>)}</tr></thead>
-              <tbody>{pick(r).map((row, i) => <tr key={i}>{cols.map((_, j) => <td key={j} className="border-b border-white/5 px-2 py-1 align-top text-white/85">{plain(row[j] ?? "")}</td>)}</tr>)}</tbody>
+              <thead><tr><th className="border-b border-white/10 px-2 py-1 text-left font-medium text-subtext">번호</th>{cols.map((c) => <th key={c} className="border-b border-white/10 px-2 py-1 text-left font-medium text-subtext">{c}</th>)}</tr></thead>
+              <tbody>{pick(r).map((row, i) => <tr key={i}><td className="border-b border-white/5 px-2 py-1 align-top font-mono text-[11px] font-bold text-amber-300">{`${prefix}${++seq}`}</td>{cols.map((_, j) => <td key={j} className="border-b border-white/5 px-2 py-1 align-top text-white/85">{plain(row[j] ?? "")}</td>)}</tr>)}</tbody>
             </table>
           </div>
         </Row>
@@ -580,7 +582,7 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
           return (
             <Fold key={c.id} title={`${c.icon} ${c.label}`} count={items.length} defaultOpen tone="text-rose-200">
               {items.map((r) => (
-                <Row key={r.id} title={r.title ?? "(제목 없음)"} sub={`${r.from_session ?? "세션 미상"} · ${when(r.created_at)}`}
+                <Row key={r.id} no={`#${r.id.slice(0, 4)}`} title={r.title ?? "(제목 없음)"} sub={`${r.from_session ?? "세션 미상"} · ${when(r.created_at)}`}
                   right={
                     <div className="flex shrink-0 gap-1">
                       {linkBtn(r)}
@@ -603,7 +605,7 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
             return (
               <Fold key={c.id} title={`${c.icon} ${c.label}`} count={items.length} tone="text-emerald-200">
                 {items.map((r) => (
-                  <Row key={r.id} title={r.title ?? "(제목 없음)"}
+                  <Row key={r.id} no={`#${r.id.slice(0, 4)}`} title={r.title ?? "(제목 없음)"}
                     sub={`${r.status === "applied" ? "✅ 완료" : "✖ 필요 없음"} · ${r.from_session ?? "세션 미상"}${r.handled_at ? ` · ${when(r.handled_at)}` : ""}`}
                     right={linkBtn(r)}>
                     {r.note && <p className="mt-1 whitespace-pre-wrap text-xs text-white/70">{r.note}</p>}
@@ -620,7 +622,7 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
         {results.length === 0 ? <Empty>아직 올라온 작업 결과가 없습니다.</Empty> : results.map((r) => {
           const parent = r.parent_id ? byId[r.parent_id] : undefined;
           return (
-            <Row key={r.id} badge="결과" title={r.title ?? "(제목 없음)"}
+            <Row key={r.id} no={`#${r.id.slice(0, 4)}`} badge="결과" title={r.title ?? "(제목 없음)"}
               sub={[r.from_session ?? "세션 미상", when(r.created_at), r.commit_sha && `커밋 ${r.commit_sha}`, r.cost && `비용 ${r.cost}`].filter(Boolean).join(" · ")}
               right={<div className="flex shrink-0 gap-1">{linkBtn(r)}<IconBtn title="자세히" onClick={() => setDialog({ type: "request", id: r.id })}><Eye size={15} /></IconBtn></div>}>
               {parent && <p className="mt-1 text-xs text-sky-300">요청: [{KIND_LABEL[parent.kind]}] {parent.title ?? parent.target_path ?? `역할 ${parent.target_role}`}</p>}
@@ -636,7 +638,7 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
             {items.length === 0 ? <Empty>없음</Empty> : items.map((r) => {
               const res = results.filter((x) => x.parent_id === r.id);
               return (
-                <Row key={r.id} badge={KIND_LABEL[r.kind]} title={r.target_path ?? `역할 ${r.target_role}`} sub={`${new Date(r.created_at).toLocaleString("ko-KR")}${r.handled_by ? ` · 처리 ${r.handled_by}` : ""}${r.commit_sha ? ` · 커밋 ${r.commit_sha}` : ""}${r.reject_reason ? ` · ${r.reject_reason}` : ""} · ${STATUS_LABEL[r.status]}${res.length ? ` · 결과 ${res.length}건` : ""}`}
+                <Row key={r.id} no={`#${r.id.slice(0, 4)}`} badge={KIND_LABEL[r.kind]} title={r.target_path ?? `역할 ${r.target_role}`} sub={`${new Date(r.created_at).toLocaleString("ko-KR")}${r.handled_by ? ` · 처리 ${r.handled_by}` : ""}${r.commit_sha ? ` · 커밋 ${r.commit_sha}` : ""}${r.reject_reason ? ` · ${r.reject_reason}` : ""} · ${STATUS_LABEL[r.status]}${res.length ? ` · 결과 ${res.length}건` : ""}`}
                   right={
                     <div className="flex shrink-0 gap-1">
                       <IconBtn title="자세히" onClick={() => setDialog({ type: "request", id: r.id })}><Eye size={15} /></IconBtn>
