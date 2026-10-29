@@ -17,11 +17,13 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
         </span>
         <span className="min-w-0">
           <span className="block text-sm font-extrabold leading-snug text-slate-900">
-            <span>{APP_NAME_LINE1}</span>
-            <span className="block">{APP_NAME_LINE2}</span>
-          </span>
-          <span className="mt-0.5 inline-block rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">
-            {APP_VERSION}
+            <span className="block">{APP_NAME_LINE1}</span>
+            <span className="flex items-center gap-1.5 whitespace-nowrap">
+              <span>{APP_NAME_LINE2}</span>
+              <span className="inline-block rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">
+                {APP_VERSION}
+              </span>
+            </span>
           </span>
         </span>
       </Link>
