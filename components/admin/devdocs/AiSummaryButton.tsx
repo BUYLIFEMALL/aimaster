@@ -20,7 +20,7 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState<Cached | null>(null);
-  const [sort, setSort] = useState<"importance" | "quickness" | "category">("importance");
+  const [sort, setSort] = useState<"importance" | "quickness" | "category" | "owner">("importance");
 
   async function run(force: boolean) {
     const text = (document.getElementById("devdocs-tab-content")?.innerText ?? "").trim();
@@ -54,6 +54,12 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
   const catGroups: [string, Item[]][] = (() => {
     const m = new Map<string, Item[]>();
     for (const it of items) { const c = it.category || "기타"; if (!m.has(c)) m.set(c, []); m.get(c)!.push(it); }
+    return [...m.entries()].sort((a, b) => Math.max(...b[1].map((x) => x.importance)) - Math.max(...a[1].map((x) => x.importance)));
+  })();
+  // 담당역할순: 담당(세션/역할)별로 묶고, 각 묶음 안은 중요도순. 묶음 순서는 그 안 최고 중요도가 높은 담당부터.
+  const ownerGroups: [string, Item[]][] = (() => {
+    const m = new Map<string, Item[]>();
+    for (const it of items) { const o = it.source || "담당 미상"; if (!m.has(o)) m.set(o, []); m.get(o)!.push(it); }
     return [...m.entries()].sort((a, b) => Math.max(...b[1].map((x) => x.importance)) - Math.max(...a[1].map((x) => x.importance)));
   })();
   const card = (it: Item, idx: number) => (
@@ -96,17 +102,17 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
                   <p className="mb-3 rounded-lg bg-white/5 p-4 text-[15px] leading-relaxed text-white/90">{data.summary.overview}</p>
                   {data.truncated && <p className="mb-3 text-xs text-amber-300">내용이 길어 앞부분 8만 자까지만 읽었습니다.</p>}
                   <div className="mb-3 flex gap-2">
-                    {([["importance", "🔥 중요도순"], ["quickness", "⚡ 신속처리순"], ["category", "🗂 카테고리순"]] as const).map(([k, t]) => (
+                    {([["importance", "🔥 중요도순"], ["quickness", "⚡ 신속처리순"], ["category", "🗂 카테고리순"], ["owner", "👤 담당역할순"]] as const).map(([k, t]) => (
                       <button key={k} type="button" onClick={() => setSort(k)}
                         className={`rounded-full px-3.5 py-1.5 text-sm font-bold ${sort === k ? "bg-amber-400 text-black" : "bg-white/10 text-white/80 hover:bg-white/20"}`}>{t}</button>
                     ))}
                     <span className="ml-auto self-center text-[11px] text-subtext">{new Date(data.at).toLocaleTimeString("ko-KR")} 분석 · 30분 동안 같은 내용이면 다시 부르지 않음</span>
                   </div>
-                  {items.length === 0 ? <p className="text-subtext">따로 챙길 항목이 없습니다.</p> : sort === "category" ? (
+                  {items.length === 0 ? <p className="text-subtext">따로 챙길 항목이 없습니다.</p> : (sort === "category" || sort === "owner") ? (
                     <div className="space-y-4">
-                      {(() => { let n = 0; return catGroups.map(([cat, list]) => (
-                        <div key={cat}>
-                          <p className="mb-2 text-base font-bold text-amber-200">🗂 {cat} <span className="text-xs font-normal text-subtext">({list.length})</span></p>
+                      {(() => { let n = 0; const groups = sort === "owner" ? ownerGroups : catGroups; const icon = sort === "owner" ? "👤" : "🗂"; return groups.map(([g, list]) => (
+                        <div key={g}>
+                          <p className="mb-2 text-base font-bold text-amber-200">{icon} {g} <span className="text-xs font-normal text-subtext">({list.length})</span></p>
                           <ol className="space-y-2">{list.map((it) => card(it, n++))}</ol>
                         </div>
                       )); })()}
