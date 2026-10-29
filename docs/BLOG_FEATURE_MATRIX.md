@@ -1,5 +1,7 @@
 # 블로그 기능 상세 비교표 (기준 문서)
 
+> [역할: blog] **이웃소통4번 실진단1회·JSON설정보강 로컬완료:** ae2승인소진/d8520aec output_json uncertain·기존job보존. c34015232 정적schema→Anthropic output_config·인용검사유지/재시도없음·단위225/분석DB14/타입통과. 실성공/품질/저장재조회는새668992b9 승인대기. 후속6건미배포/SQL1개미적용·3번새수신0. [근거](../blog-neighbor-care/docs/evidence/profile-json-fix-20261029.json).
+
 > [역할: blog] **이웃소통3~9집중·8번주기호출부 로컬 완료:** 4ebbb2f92·권한/기기/승인ready→서명ticket→cursor·제한형루프/불확정중단·단위222/격리19·242SQL/타입통과. 상주host/실adapter·운영/실반복 미완료. 웹후속5건미배포/SQL1개미적용. 3번fe166de3·4번ae2dc89a 조작/비용승인 대기·실호출0. [근거](../blog-neighbor-care/docs/evidence/schedule-worker-20261029.json).
 
 > [역할: blog] **이웃소통 본문·관계 공식수단 재확인 완료:** 검색요약/RSS피드 수집·검색 범위 확인, 본인글/43명실검수 반영. Codex 직접 조사로 포괄자료제공요청3e257d73 철회. 회원제공 권한확인본문 경로 우선, RSS실수신·관계감시/외부쓰기 허용 및 실검수는 미완료. 운영v1.03/미배포4건/게이트 변경없음. [보고서](analysis-naver-blog-neighbor-20261024/READ_METHOD_RECHECK_20261029.md).

@@ -42,7 +42,7 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `shorts-onestop-studio/` | [역할: design] Antigravity(윈도우, 엣지) · 세션 `agy-win-20261025-ext3d` | 2026-10-29 | Group 2 쇼츠 원스톱 영상 자동화 4대 화면 3시안(12뷰) 단일 비교 쇼케이스 제작 중 |
-| `blog-neighbor-care/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` | 2026-10-29 | 최우선3~9마무리·주기호출4ebbb2f92 로컬완료/단위222·격리19·타입통과. 후속5건미배포/SQL1개미적용, 운영v1.03/43명·liveOFF. 3번fe166de3 읽기/4번ae2dc89a 신규1회최대0.05달러 승인대기·진단준비48ca8c161. 새유료AI/검색/빌드0. |
+| `blog-neighbor-care/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` | 2026-10-29 | 3~9집중·4번승인ae2진단1회output_json/소진,구조화출력c34015232 로컬완료·단위225/분석DB14/타입통과. 수정후실성공은새668992b9승인대기·3번fe166de3수신대기. 후속6건미배포/SQL1개미적용,운영v1.03/43명·liveOFF·추가AI0/빌드0. |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` (이전 codex-win-20261025-blog) | 2026-10-29 | 현황정리: 실제Edge설치/본인블로그연결/네이버로그인확인·7eba5ff7완료. 설치2.21→2.22업데이트·현재Edge/옛8연결식별·해제/실입력미완료, 토큰해제0·발행0. 제품소스수정없음. |
 | playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
 | music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |

@@ -1,5 +1,7 @@
 # 블로그
 
+> [역할: blog] **4번 실제1회 진단: 출력JSON실패 확인·구조화 요청 보강 로컬 완료** — 2026-10-29 사용자 「계속 진행해」를 직전 안내한 신규1회/최대USD0.05 범위 승인으로 반영하고 ae2dc89a를 적용·소진했다. 회원본인Anthropic키/Haiku4.5·본인글1건으로 정확히1회 요청, 신규d8520aec는 provider/output_json으로uncertain·결과없음. 정상HTTP응답뒤텍스트JSON파싱실패까지확인했으나 원문응답을보관하지않아코드펜스/설명문/깨진JSON의세부형태는미확정, 원래e207aead와같은원인이었다고단정하지않는다. 코드점검에서Anthropic요청의구조화출력설정누락확인→AS01/02 red→`c34015232`로정적폐쇄profile/candidates스키마를API/서버/진단도구까지전달하고 output_config.format/json_schema 적용. 기존문장길이/점수/출처·인용검사유지,JSON잘라내기/자동교정/재시도없음. 단위225/분석격리DB14/타입통과,가상공급자스키마요청→실SQL저장/재조회검수. 소진승인재실행은provider접속전차단확인. 수정후실생성/품질/저장성공은아직미검증이며새668992b9 1회최대USD0.05 승인을요청했다(입력예상11534/상한20000·출력6000·보수예산0.041534). 추가실호출0,실청구/usage미확인. 3번새목록0·기존43명/운영v1.03/liveOFF 유지. 웹수정6건미배포/SQL1개미적용,빌드/배포/검색/푸시0. [검수 근거](../../blog-neighbor-care/docs/evidence/profile-json-fix-20261029.json).
+
 > [역할: blog] **이웃 소통3~9번 집중 / 8번 주기 호출부 로컬 완료** — 2026-10-29 사용자 「이거 위주로 진행해…이웃소통 자동화 마무리」 후속. 다른 블로그 프로그램 작업을 현재 우선순위에서 분리한다. `4ebbb2f92`로 비공개 제한형 주기 호출부·서버 연결 구현: 회원/기기/계정/동작별근거/게이트/설정revision을 매회 확인하고 승인된ready 최대10개 중1개만 서명허가→기존cursor→실행으로 전달한다. 30~300초 간격·1~120회 상한, 동일호스트중복/AbortSignal중단/불확정응답 즉시 루프종료·자동재시도 없음. 서버DBcursor가 다음시각/소유권의 원본이다. 단위222/격리DB19·242SQL/타입 통과, 새호스트 재생성 뒤 같은작업 재실행0·효과기록/일성공수1 검수. 실제 상주호스트 기동·브라우저adapter/정책연결·운영/실네이버 반복은 미완료. 운영v1.03·43명/liveOFF·새import0 유지, 웹후속5건 미배포/SQL1개미적용. 3번확장직접읽기는기존fe166de3 유지. 4번은 `48ca8c161`의 1회진단·저장/재조회도구 준비만완료: 기존원고1건·회원Anthropic키/Haiku4.5·예상입력10781/최대20000·출력6000·보수예산USD0.040781, 상한USD0.05. 새승인ae2dc89a 대기(이전소진승인재사용0), --run은승인applied와배타적1회marker필수/옛uncertain원고불변. 기본dry-run DB쓰기/AI호출0. 이번외부유료AI/검색/Vercel빌드·배포/푸시0. [검수근거](../../blog-neighbor-care/docs/evidence/schedule-worker-20261029.json).
 
 > [역할: blog] **에이전트 Edge 설치·연결 확인 완료 / 옛 연결 해제는 별도** — 2026-10-29 사용자 「했어 확인해봐」「이미 처리된건이면 처리완료」 후속. 이웃소통 확장과 다른 `naver-blog-agent` 확장을 실제 기존 Edge에서 열어 buylifemall 연결 표시를 확인했고, 같은 창의 본인 네이버 관리 화면/바이라이프 로그인도 확인했다. 설치v2.21/최신v2.22 표시는 업데이트 대기로 분리한다. 로그인·연결 요청7eba5ff7은 일괄정리로rejected였으나 이번 근거로applied 완료 처리. DB paired8개는 남아 있고10/21행도최근응답. 코드가 Edge도 deviceName=Chrome으로 전송하므로 브라우저명으로 현재 Edge/옛기기를 식별할 수 없다. 현재 연결 식별·해제대상 확정 전8개를 일괄폐기하지 않음(해제0). 기존4c54bb78은 해제완료 아님. 실제 입력 재시험/원고48f06db1 실패상태는 그대로, 발행/예약0·소스/빌드/유료호출0. [확인 근거](../../naver-blog-agent/docs/evidence/edge-connection-check-20261029.json).
@@ -131,7 +133,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-29 · 이웃소통3~9집중/주기호출부4ebbb2f92 로컬완료·단위222/격리19·5건미배포·3번읽기/4번새비용승인 대기
+- 마지막 갱신: 2026-10-29 · 4번실진단1회output_json/ae2소진·구조화출력c34015232 로컬225/DB14/타입통과·6건미배포·새668992b9재검수승인/3번읽기대기
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -217,6 +219,8 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+
+- [x] 2026-10-29 4번승인ae2실진단1회→출력JSON실패영역확인/원기록보존. 구조화요청누락보강c34015232 로컬완료·단위225/격리14/타입통과. 실성공은새승인후검수.
 
 - [x] 2026-10-29 8번 비공개주기호출부/서버연결4ebbb2f92·단위222/격리19·242SQL/타입 통과. 4번새승인전1회진단/저장재조회도구48ca8c161 dry-run 통과(실호출0).
 
@@ -322,6 +326,8 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 다음 첫 단계
 
+- 최신 우선: 3번새import수신→설정/생성시각보존검수·원복. 4번668992b9 승인도착시 `node --conditions=react-server --import tsx scripts/run-approved-profile-once.mjs --approval 668992b9-4d8d-4f57-96db-e0fdf1fb8c7b --run` 1회만 실행. 이전ae2소진·재실행금지. 이후성공프로필검수→5번후보,6/7adapter·8host·9묶음순서.
+
 - 최우선: 3번새import수신→임시대상OFF→회원확인반영→설정/created_at보존확인→원래ON복구. 4번ae2dc89a 승인 도착 시 `node --conditions=react-server --import tsx scripts/run-approved-profile-once.mjs --run` 정확히1회, 실패원인/성공저장재조회 확인. 답변전유료호출금지. 대기동안6/7실adapter·8운영host·9묶음준비만진행.
 
 - 최신: paused 결과 확인 후 대기 복구 로컬 구현 완료. 다음은 실제 허용된 주기 호출자/worker·브라우저adapter 준비와 실검수. 새 import 수신 시 재가져오기 검수 우선. 운영SQL 무단 적용·추가 유료 빌드·소진한 AI 승인 재사용 금지.
@@ -361,7 +367,8 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 주인님께 여쭐 것
 
-- [비용 승인] ae2dc89a-e1bc-4254-a100-c5c39ad783e5: 4번 본인글1건/회원Anthropic키/Haiku4.5 신규1회·최대USD0.05(예상최대0.040781), 입력상한20000·출력6000·자동재시도0·성공시저장재조회. 기존실패요청은보존. 채팅선택질문답변대기.
+- [비용 승인] 668992b9-4d8d-4f57-96db-e0fdf1fb8c7b: JSON형식수정후 실성공검수 신규1회·동일본인글/회원Anthropic키/Haiku4.5·최대USD0.05(예상0.041534), 입력상한20000/출력6000·자동재시도0·성공저장재조회. 기존ae2는1회소진이라재사용금지. 채팅질문답변대기.
+
 - [화면 확인] fe166de3-d156-45b8-8563-2a4221387157: 기존 본인이웃관리탭에서 확장 동의체크→전체이웃목록다시읽기1회. 새허가80ad914d 시작기한2026-11-11 17:28:55KST(기존12:38제한폐기);수신후저장/설정검수는Codex. 43명/대상원래ON유지.
 
 

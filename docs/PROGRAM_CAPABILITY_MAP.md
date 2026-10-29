@@ -659,7 +659,9 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그·반복cursor·복구·주기호출 후속5건 미배포
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그·반복cursor·복구·주기호출·AI형식 후속6건 미배포
+
+- **4번 실진단/수정(10-29):** ae2승인1회소진·d8520aec provider/output_json uncertain. 원문형태/원래실패동일원인미확정. Anthropic output_config/schema누락보강c34015232·단위225/분석DB14/타입통과·미배포. 실성공/품질/저장검수는새668992b9대기,추가호출0. [근거](../blog-neighbor-care/docs/evidence/profile-json-fix-20261029.json).
 
 - **주기 호출부(10-29) 로컬 완료:** 4ebbb2f92·매회권한/기기/ready/revision검사→서명ticket→기존cursor, 제한형루프/중복/중단/불확정재시도차단. 단위222/격리19·242SQL/타입 통과. 상주host기동/브라우저adapter/실반복 미완료. 3번새수신0·4번신규승인ae2dc89a 대기/진단준비48ca8c161, 운영v1.03/43명·liveOFF유지. [근거](../blog-neighbor-care/docs/evidence/schedule-worker-20261029.json).
 
