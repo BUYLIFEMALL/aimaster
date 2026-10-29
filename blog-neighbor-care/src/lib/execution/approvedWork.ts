@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 
-// Private orchestration only: no route, scheduler, browser adapter or credentials.
+// Private orchestration only: no route, timer, browser adapter or credentials.
 // The trusted host must bind these dependencies to the authenticated member and
 // a permitted platform adapter. Member HTTP must never accept these operations.
 type Obj=Record<string,unknown>;
