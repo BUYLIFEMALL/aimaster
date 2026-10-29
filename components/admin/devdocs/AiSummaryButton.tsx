@@ -104,12 +104,12 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
                   </div>
                   {items.length === 0 ? <p className="text-subtext">따로 챙길 항목이 없습니다.</p> : sort === "category" ? (
                     <div className="space-y-4">
-                      {catGroups.map(([cat, list]) => (
+                      {(() => { let n = 0; return catGroups.map(([cat, list]) => (
                         <div key={cat}>
-                          <p className="mb-2 text-sm font-bold text-amber-200">🗂 {cat} <span className="text-xs font-normal text-subtext">({list.length})</span></p>
-                          <ol className="space-y-2">{list.map((it, i) => card(it, i))}</ol>
+                          <p className="mb-2 text-base font-bold text-amber-200">🗂 {cat} <span className="text-xs font-normal text-subtext">({list.length})</span></p>
+                          <ol className="space-y-2">{list.map((it) => card(it, n++))}</ol>
                         </div>
-                      ))}
+                      )); })()}
                     </div>
                   ) : (
                     <ol className="space-y-2">{items.map((it, i) => card(it, i))}</ol>
