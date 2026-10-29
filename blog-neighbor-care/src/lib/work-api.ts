@@ -12,7 +12,7 @@ const object = (v: unknown): v is Record<string, unknown> => v !== null && typeo
 const text = (v: unknown) => typeof v === 'string' && v.length <= 4000;
 const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment_cap: 30 };
 const operations: Record<string, string[]> = {
-  settings: [], list: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
+  settings: [], list: [], request_status: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
   schedule: [], save_schedule: ['interval_minutes','start_minute','end_minute','expected_revision'],
   schedule_status: [], resume_schedule: ['run_id','generation','settings_revision','preference_revision','confirmed'],
   create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'], cancel: ['id'],

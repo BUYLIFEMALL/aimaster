@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-29T09:12:27.434Z",
+  "date": "2026-10-29T11:24:24.794Z",
   "migration": "20261029044735_bnc_schedule_cursor.sql",
   "tests": [
     "SDB01 first tick schedules future work without claiming/arming or catching up missed intervals",
@@ -20,55 +20,15 @@
     "SDB16 another unsettled job or enabled execution prevents recovery; preference changes invalidate consent",
     "SDB17 members cannot call control RPC directly or forge a result; response contains no body/credentials",
     "SDB18 first status initializes disabled preferences only, not jobs/cursor or execution",
-    "SDB19 bounded worker selects a ready DB job, issues its ticket, settles once and survives host recreation without replay"
+    "SDB19 bounded worker selects a ready DB job, issues its ticket, settles once and survives host recreation without replay",
+    "SDB20 successful request -> private relationship observation -> accepted projection without a second effect or budget use"
   ],
-  "passed": 19,
-  "sqlCalls": 242,
+  "passed": 20,
+  "sqlCalls": 257,
   "isolated": true,
   "network": "none",
   "hostPorts": 0,
   "operatingApplied": false,
   "productionCaller": false,
-  "externalActions": 0,
-  "unitTests": 222,
-  "typecheck": "passed",
-  "scope": "blog-neighbor-care tasks 3-9 only",
-  "worker": {
-    "boundedCycles": [
-      1,
-      120
-    ],
-    "intervalMilliseconds": [
-      30000,
-      300000
-    ],
-    "defaultIntervalMilliseconds": 30000,
-    "readyJobLimit": 10,
-    "uncertainStopsLoop": true,
-    "abortSupported": true,
-    "productionHostStarted": false,
-    "browserAdapterImplemented": false
-  },
-  "operatingMetadata": {
-    "directory": 43,
-    "latestImport": "e5e35481-41cb-4534-bd1d-efddcbf644d2",
-    "newImport": false,
-    "liveAllowed": false
-  },
-  "pending": {
-    "reimportClick": "fe166de3-d156-45b8-8563-2a4221387157",
-    "aiCostApproval": "ae2dc89a-e1bc-4254-a100-c5c39ad783e5",
-    "aiCallsApproved": false,
-    "estimatedInputTokens": 10781,
-    "maximumInputTokens": 20000,
-    "maximumOutputTokens": 6000,
-    "estimatedMaximumUsd": 0.040781,
-    "requestedUsdLimit": 0.05
-  },
-  "cost": {
-    "paidAiCalls": 0,
-    "paidSearchCalls": 0,
-    "vercelBuilds": 0,
-    "deployments": 0
-  }
+  "externalActions": 0
 }
