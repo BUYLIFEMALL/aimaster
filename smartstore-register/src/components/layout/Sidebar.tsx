@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, ExternalLink, LogOut, Menu, X } from "lucide-react";
-import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
+import { APP_NAME, APP_NAME_LINE1, APP_NAME_LINE2, APP_VERSION, MAIN_SITE } from "@/lib/version";
 import { TOOLS } from "@/lib/tools";
 
 // 좌측 메뉴(docs/SIDEBAR_LAYOUT_STANDARD.md): 계정·로그아웃은 마지막 메뉴 바로 아래에 붙인다.
@@ -16,7 +16,10 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
           🛒
         </span>
         <span className="min-w-0">
-          <span className="block text-sm font-extrabold leading-snug text-slate-900">{APP_NAME}</span>
+          <span className="block text-sm font-extrabold leading-snug text-slate-900">
+            <span>{APP_NAME_LINE1}</span>
+            <span className="block">{APP_NAME_LINE2}</span>
+          </span>
           <span className="mt-0.5 inline-block rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">
             {APP_VERSION}
           </span>
