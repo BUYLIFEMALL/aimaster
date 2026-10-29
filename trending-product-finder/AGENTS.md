@@ -369,3 +369,4 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 공용 기준 `market-fees`(`shop-order-report/src/lib/marketFees.ts`) 스마트스토어 대표값 6.36% → **6.63%**(✅ 확인), 사본 동기화, `/fees` 표·출처 표시 갱신. 주문 리포트 시험 기대값 2곳 수정(6.63, 마켓 등록 단계 추가 뒤 이전 단계 기대값).
 - 쿠팡 WING·11번가 셀러오피스는 공식 표가 판매자 로그인 뒤에만 보여 아직 ⚠ 참고치.
 - 검사: 주문 리포트 22개·상품소싱 `test:trend` 20개·두 프로그램 tsc 통과. 커밋 `fix(market-fees)`. **배포 대기** — 다음 배포 때 상품소싱 v1.29·주문 리포트 버전 +0.01과 함께.
+- ✅ 2026-10-29 배포됨: 상품소싱 v1.29(`trending-product-finder-2arev86dm`)·주문 리포트 v1.05(`shop-order-report-3qdt03vl7`), DB 버전 갱신, 흐름 띠 「마켓 등록」 대기 항목도 함께 나감. 크롬 `/fees` 확인은 로그인 뒤 진행.
