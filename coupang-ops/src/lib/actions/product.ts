@@ -5,7 +5,9 @@ import { getCoupangDefaults, getWingKeys } from "@/lib/data";
 import { getShopProduct } from "@/lib/shop";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import { PREDICT_PATH, fillNotices, metaPath, metaWarnings, normalizeMeta, normalizePredict, predictBody, type CategoryMeta } from "@/lib/coupang/category";
-import { checkDraft, type CoupangOption } from "@/lib/coupang/product";
+import { buildCreateBody, checkDraft, type CoupangOption } from "@/lib/coupang/product";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createImageLinks } from "@/lib/imageLinks";
 
 export type CategoryLoad = { ok: true; code: number; name: string; meta: CategoryMeta } | { ok: false; error: string };
 
@@ -80,4 +82,71 @@ export async function checkProductDraftAction(productId: string, input: DraftInp
     }
   }
   return { problems, warnings, images: { main: Boolean(shop.mainImage), extras: shop.extraImages.length, contents: shop.sectionImages.length } };
+}
+
+export type SendResult =
+  | { ok: true; sellerProductId: number | null; jobId: string; message: string }
+  | { ok: false; error: string; problems?: string[] };
+
+const CREATE_PATH = "/v2/providers/seller_api/apis/api/v1/marketplace/seller-products";
+
+/** C1-13·C1-14 「저장만 보내기」(requested=false — 쿠팡 승인 요청 전 단계) + 기록.
+ *  쿠팡은 공개 주소의 이미지만 받아 가므로 배포 서버에서만 보낸다. 생성은 재시도하지 않고, 보내기 전에 「sending」 기록을 먼저 남긴다. */
+export async function sendProductAction(productId: string, input: DraftInput): Promise<SendResult> {
+  const user = await requireProgramAccess();
+  if (process.env.VERCEL !== "1") return { ok: false, error: "쿠팡은 공개 인터넷 주소에 있는 이미지만 받아 갑니다. 배포된 주소(coupang-ops.buylife.xyz)에서 보내 주세요. 로컬에서는 「검사하기」까지만 됩니다." };
+  const [keys, defaults, shop] = await Promise.all([getWingKeys(user.id), getCoupangDefaults(user.id), getShopProduct(user.id, productId)]);
+  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!defaults) return { ok: false, error: "먼저 「배송·반품 기본값」을 저장해 주세요." };
+  if (!shop) return { ok: false, error: "상세페이지 상품을 찾지 못했습니다." };
+  if (!input.categoryCode) return { ok: false, error: "카테고리를 골라 주세요." };
+
+  const admin = createAdminClient();
+  const { data: prev } = await admin.from("coupang_ops_jobs").select("id,status,seller_product_id").eq("user_id", user.id).eq("product_id", productId).neq("status", "failed").order("created_at", { ascending: false }).limit(1);
+  if (prev?.length) return { ok: false, error: `이미 보낸 기록이 있습니다(상태 ${prev[0].status}${prev[0].seller_product_id ? `, 상품번호 ${prev[0].seller_product_id}` : ""}). 같은 상품을 두 번 등록하지 않도록 막았습니다.` };
+
+  let meta;
+  try {
+    meta = normalizeMeta((await wingRequest(keys, "GET", metaPath(input.categoryCode))).data);
+  } catch (e) {
+    return { ok: false, error: `카테고리 정보를 읽지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
+  }
+  const notices = fillNotices(meta, input.noticeCategory);
+  const options = input.options.map((o) => ({ ...o, attributes: [...o.attributes, ...input.searchAttributes.filter((a) => a.value.trim())] }));
+
+  const [main, extras, contents] = await Promise.all([
+    createImageLinks(user.id, shop.mainImage ? [shop.mainImage.path] : []),
+    createImageLinks(user.id, shop.extraImages.map((i) => i.path)),
+    createImageLinks(user.id, shop.sectionImages.map((i) => i.path)),
+  ]);
+  const draft = { vendorId: keys.vendorId, wingUserId: keys.wingUserId, categoryCode: input.categoryCode, name: input.name, brand: input.brand, manufacturer: input.manufacturer, options, notices, searchTags: input.searchTags, images: { representation: main[0] ?? "", extras, contents }, requested: false };
+  const problems = checkDraft(draft, defaults);
+  if (problems.length) return { ok: false, error: "보내기 전 검사에서 걸렸습니다.", problems };
+
+  const { data: job, error: jobErr } = await admin.from("coupang_ops_jobs").insert({ user_id: user.id, product_id: productId, product_name: input.name.slice(0, 200), category_code: input.categoryCode, requested: false, status: "sending", item_count: options.length }).select("id").single();
+  if (jobErr || !job) return { ok: false, error: "기록을 만들지 못해 보내지 않았습니다. 잠시 뒤 다시 시도해 주세요." };
+
+  try {
+    const r = await wingRequest(keys, "POST", CREATE_PATH, { body: buildCreateBody(draft, defaults) });
+    const res = (r.data ?? {}) as { code?: unknown; message?: unknown; data?: unknown };
+    const sellerProductId = Number(res.data) || null;
+    const ok = String(res.code ?? "").toUpperCase() === "SUCCESS" || sellerProductId !== null;
+    const message = String(res.message ?? (ok ? "저장됨" : "응답 확인 필요"));
+    await admin.from("coupang_ops_jobs").update({ status: ok ? "saved" : "unknown", seller_product_id: sellerProductId, message, response: res, updated_at: new Date().toISOString() }).eq("id", job.id);
+    return ok ? { ok: true, sellerProductId, jobId: job.id, message } : { ok: false, error: `쿠팡 응답을 확인해야 합니다: ${message}` };
+  } catch (e) {
+    const known = e instanceof WingApiError && e.status >= 400 && e.status < 500;
+    const msg = e instanceof WingApiError ? e.message : "연결이 끊겼습니다 — 쿠팡에 들어갔는지 WING에서 확인해 주세요.";
+    await admin.from("coupang_ops_jobs").update({ status: known ? "failed" : "unknown", message: msg.slice(0, 500), response: e instanceof WingApiError ? { status: e.status, body: e.body.slice(0, 2000) } : null, updated_at: new Date().toISOString() }).eq("id", job.id);
+    return { ok: false, error: msg };
+  }
+}
+
+export type JobRow = { id: string; status: string; seller_product_id: number | null; message: string | null; created_at: string; item_count: number };
+
+/** 이 상품의 쿠팡 등록 기록(최근 10건, 회원 본인 것만) */
+export async function listJobsAction(productId: string): Promise<JobRow[]> {
+  const user = await requireProgramAccess();
+  const { data } = await createAdminClient().from("coupang_ops_jobs").select("id,status,seller_product_id,message,created_at,item_count").eq("user_id", user.id).eq("product_id", productId).order("created_at", { ascending: false }).limit(10);
+  return (data ?? []) as JobRow[];
 }

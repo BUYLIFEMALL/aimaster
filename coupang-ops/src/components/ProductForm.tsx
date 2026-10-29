@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { checkProductDraftAction, loadCategoryAction, type DraftCheck } from "@/lib/actions/product";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { checkProductDraftAction, listJobsAction, loadCategoryAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
+
+const JOB_LABEL: Record<string, string> = { sending: "⏳ 보내는 중", saved: "✅ 쿠팡에 저장됨", requested: "📨 승인 요청", approved: "🟢 승인", rejected: "⛔ 반려", failed: "❌ 실패", unknown: "❓ 확인 필요" };
 import type { CategoryMeta } from "@/lib/coupang/category";
 import type { CoupangOption } from "@/lib/coupang/product";
 
@@ -40,6 +42,10 @@ export function ProductForm(props: {
   const [tags, setTags] = useState("");
   const [check, setCheck] = useState<DraftCheck | null>(null);
   const [pending, start] = useTransition();
+  const [confirmSend, setConfirmSend] = useState(false);
+  const [sent, setSent] = useState<SendResult | null>(null);
+  const [jobs, setJobs] = useState<JobRow[]>([]);
+  useEffect(() => { listJobsAction(props.productId).then(setJobs).catch(() => {}); }, [props.productId]);
 
   const purchaseAttrs = useMemo(() => cat?.meta.attributes.filter((a) => a.purchase) ?? [], [cat]);
   const searchAttrs = useMemo(() => cat?.meta.attributes.filter((a) => !a.purchase) ?? [], [cat]);
@@ -79,20 +85,32 @@ export function ProductForm(props: {
   const setRow = (key: string, patch: Partial<Row>) => setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
   const num = (v: string) => Number(v.replace(/\D/g, "")) || 0;
 
+  const draftInput = (): DraftInput => ({
+    categoryCode: cat?.code ?? null,
+    name,
+    brand,
+    manufacturer,
+    options: rows.map(({ key: _key, ...o }) => o),
+    searchAttributes: Object.entries(searchVals).map(([type, value]) => ({ type, value })),
+    noticeCategory: notice || null,
+    searchTags: splitValues(tags).slice(0, 20),
+  });
+
   function runCheck() {
     start(async () => {
-      setCheck(await checkProductDraftAction(props.productId, {
-        categoryCode: cat?.code ?? null,
-        name,
-        brand,
-        manufacturer,
-        options: rows.map(({ key: _key, ...o }) => o),
-        searchAttributes: Object.entries(searchVals).map(([type, value]) => ({ type, value })),
-        noticeCategory: notice || null,
-        searchTags: splitValues(tags).slice(0, 20),
-      }));
+      setCheck(await checkProductDraftAction(props.productId, draftInput()));
     });
   }
+
+  function runSend() {
+    start(async () => {
+      setSent(await sendProductAction(props.productId, draftInput()));
+      setConfirmSend(false);
+      setJobs(await listJobsAction(props.productId));
+    });
+  }
+
+  const checkPassed = Boolean(check && check.problems.length === 0);
 
   return (
     <div className="space-y-5">
@@ -212,6 +230,39 @@ export function ProductForm(props: {
                   {check.warnings.length > 0 && <ul className="list-disc space-y-0.5 rounded-lg bg-amber-50 py-2 pl-7 pr-3 text-amber-900">{check.warnings.map((w) => <li key={w}>{w}</li>)}</ul>}
                 </>
               )}
+            </div>
+          )}
+        </section>
+      )}
+
+      {cat && (
+        <section className="slw-card space-y-3 p-5">
+          <h2 className="text-base font-extrabold text-slate-900">5. 쿠팡에 저장만 보내기</h2>
+          <p className="text-sm text-slate-600">쿠팡 WING에 상품을 <b>저장만</b> 합니다(승인 요청 전 단계 — 판매되지 않음). WING에서 확인한 뒤 승인 요청을 하면 됩니다. 같은 상품은 한 번만 보낼 수 있습니다.</p>
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input type="checkbox" checked={confirmSend} onChange={(e) => setConfirmSend(e.target.checked)} disabled={!checkPassed} />
+            위 내용을 확인했습니다{!checkPassed ? " (먼저 「검사하기」를 통과해 주세요)" : ""}
+          </label>
+          <button type="button" disabled={pending || !confirmSend || !checkPassed} onClick={runSend} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+            {pending ? "쿠팡에 보내는 중…" : "📤 쿠팡에 저장만 보내기"}
+          </button>
+          {sent && !sent.ok && (
+            <div className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">
+              ❌ {sent.error}
+              {sent.problems?.length ? <ul className="mt-1 list-disc pl-5">{sent.problems.map((p) => <li key={p}>{p}</li>)}</ul> : null}
+            </div>
+          )}
+          {sent?.ok && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">✅ 쿠팡에 저장됐습니다{sent.sellerProductId ? ` — 상품번호 ${sent.sellerProductId}` : ""}. WING 「상품 관리」에서 확인하고 승인 요청을 해 주세요.</p>}
+          {jobs.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-bold text-slate-700">이 상품의 쿠팡 등록 기록</p>
+              <ul className="space-y-1 text-[13px] text-slate-700">
+                {jobs.map((j) => (
+                  <li key={j.id} className="rounded-lg border border-slate-100 px-3 py-1.5">
+                    {JOB_LABEL[j.status] ?? j.status} · {new Date(j.created_at).toLocaleString("ko-KR")} · 옵션 {j.item_count}개{j.seller_product_id ? ` · 상품번호 ${j.seller_product_id}` : ""}{j.message ? ` · ${j.message}` : ""}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </section>

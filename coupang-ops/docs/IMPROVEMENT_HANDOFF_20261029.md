@@ -8,7 +8,7 @@
 1. `node scripts/dev-requests.mjs list --role ecommerce-image` → `asks`로 내 「해 줄 일」 확인(채팅 승인 받은 항목은 `done <#번호>`로 닫는 규칙 — CLAUDE.md 📬 ②-2).
 2. `docs/ACTIVE_WORK.md` · `git status --porcelain -- coupang-ops`로 남의 변경 없는지.
 3. 쿠팡 로컬 서버: `cd coupang-ops && npm run dev` → `http://localhost:3078` (관리자 `buylifemall@gmail.com` 로그인은 **주인님이 직접**). ⚠ PC 메모리가 부족하면 백그라운드 서버가 자동으로 꺼질 수 있음 — 꺼지면 주인님께 알리고 켜 달라고 요청.
-4. 아래 §1-5 「남은 일」 1번(등록 실행·기록)부터.
+4. 아래 §1-6 「남은 일」 — 1번(등록 실행)은 완료, **3번 최종 배포(주인님 승인)**부터. 제주·도서산간 추가배송비는 API로 못 바꿈(AGENTS.md) → 주인님이 WING에서 5,000원 입력 예정.
 
 ## 1. 쿠팡 운영 자동화 `coupang-ops` v1.01 — 로컬 개발 중(미배포)
 
@@ -43,7 +43,7 @@
 - 「남성 노트북 백팩 15.6인치 방수」 → 남성백팩 #69579(속성 27, 고시 3, 서류 5, 인증 27).
 
 ### 1-6. 남은 일(순서)
-1. **C1-13·C1-14 등록 실행·기록**: `ProductForm`에 「저장만 보내기」(requested=false) → 서버 액션에서 `createImageLinks`로 대표·추가·상세 이미지 짧은 주소 만들기 → `buildCreateBody`(product.ts) → `wingRequest POST`(생성 API 경로는 `docs/API_PRODUCT_CREATE_SPEC.md`) → 표 `coupang_ops_jobs`에 기록(보내기 전 `sending` 행 먼저, 생성은 재시도 없음 — 이중 등록 방지) → 결과·상품번호 표시 + 기록 목록. 로컬에서는 코드·검사까지(쿠팡이 localhost 이미지를 못 받음).
+1. ✅ (10-29 같은 세션에서 완료 — `AGENTS.md` 맨 아래) ~~**C1-13·C1-14 등록 실행·기록**: `ProductForm`에 「저장만 보내기」(requested=false) → 서버 액션에서 `createImageLinks`로 대표·추가·상세 이미지 짧은 주소 만들기 → `buildCreateBody`(product.ts) → `wingRequest POST`(생성 API 경로는 `docs/API_PRODUCT_CREATE_SPEC.md`) → 표 `coupang_ops_jobs`에 기록(보내기 전 `sending` 행 먼저, 생성은 재시도 없음 — 이중 등록 방지) → 결과·상품번호 표시 + 기록 목록. 로컬에서는 코드·검사까지(쿠팡이 localhost 이미지를 못 받음).~~ → 남은 것은 실제 1건(배포 뒤).
 2. 작은 개선: `/defaults` 새로고침 시 출고지가 이름 없이 번호만 보임(이름도 저장). `/connect` 카테고리 확인의 원본 예시(`rawSample`)는 확인용이었으니 정리해도 됨.
 3. **1단계 최종 배포(주인님 승인 필요)**: Vercel 새 프로젝트 `coupang-ops` + 도메인 `coupang-ops.buylife.xyz` + 환경변수(Supabase 4개 · `FIXIE_URL` · 필요하면 `NEXT_PUBLIC_SITE_URL`) + 빌드 1회 → 실제 「저장만」 1건 시험(상품 노출 풀린 뒤) → 버전 v1.01 그대로 첫 배포, DB `programs` 공개 여부는 주인님 결정.
 
