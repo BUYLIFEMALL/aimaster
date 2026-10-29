@@ -22,7 +22,7 @@ export function createServerScheduleWorker(binding:ScheduleWorkerBinding,adapter
     client.from('member_platform_accounts').select('id').eq('id',b.accountId).eq('user_id',b.memberId).eq('platform','naver_blog').eq('external_id',b.actorId).eq('needs_reconnect',false).maybeSingle(),
    ]);
    if([settings,prefs,runtime,device,account].some(r=>r.error))throw Error('Worker context unavailable');
-   const references={request:process.env.BNC_REQUEST_POLICY_REFERENCE,like:process.env.BNC_LIKE_POLICY_REFERENCE,comment:process.env.BNC_COMMENT_POLICY_REFERENCE};
+   const references={request:process.env.BNC_REQUEST_POLICY_REFERENCE,like:process.env.BNC_LIKE_POLICY_REFERENCE,comment:process.env.BNC_COMMENT_POLICY_REFERENCE,reply:process.env.BNC_REPLY_POLICY_REFERENCE};
    return {memberId:access.allowed?access.userId:'',allowed:access.allowed,connected:!!device.data&&!!account.data,
     enabled:settings.data?.enabled===true,liveAllowed:runtime.data?.live_allowed===true&&!!runtime.data?.policy_reference?.trim(),
     settingsRevision:settings.data?.revision??0,preferenceRevision:prefs.data?.revision??0,

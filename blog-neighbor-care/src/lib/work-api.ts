@@ -13,12 +13,15 @@ const text = (v: unknown) => typeof v === 'string' && v.length <= 4000;
 const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment_cap: 30 };
 const operations: Record<string, string[]> = {
   settings: [], list: [], request_status: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
+  engagement_list: [], engagement_review:['id'], draft_reply: ['id','body'], draft_return_visit: ['id','body'],
   schedule: [], save_schedule: ['interval_minutes','start_minute','end_minute','expected_revision'],
   schedule_status: [], resume_schedule: ['run_id','generation','settings_revision','preference_revision','confirmed'],
   create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'], cancel: ['id'],
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
+  if(operation==='engagement_review')return uuid(p.id);
+  if(operation==='draft_reply'||operation==='draft_return_visit')return uuid(p.id)&&text(p.body)&&!!String(p.body).trim()&&!/https?:\/\/|www\./i.test(String(p.body));
   if(operation==='resume_schedule')return uuid(p.run_id)&&p.confirmed===true&&
     [p.generation,p.settings_revision,p.preference_revision].every(n=>Number.isSafeInteger(n)&&Number(n)>0);
   if(operation==='save_schedule')return validSchedule(p as {interval_minutes:number;start_minute:number;end_minute:number})&&Number.isSafeInteger(p.expected_revision)&&Number(p.expected_revision)>0;
@@ -31,7 +34,7 @@ function valid(operation: string, p: Record<string, unknown>) {
       (!('enabled' in p) || typeof p.enabled === 'boolean');
   }
   if (operation === 'create') {
-    if (!uuid(p.account_id) || !blog(p.neighbor_id) || !['request', 'like', 'comment', 'reply'].includes(String(p.kind))) return false;
+    if (!uuid(p.account_id) || !blog(p.neighbor_id) || !['request', 'like', 'comment'].includes(String(p.kind))) return false;
     if (p.kind !== 'request' && (typeof p.post_id !== 'string' || !/^\d{1,30}$/.test(p.post_id))) return false;
     if ('post_id' in p && typeof p.post_id !== 'string') return false;
     if ('body' in p && !text(p.body)) return false;
@@ -88,6 +91,8 @@ export function createWorkHandler({ authorize, execute }: Dependencies) {
         if(message==='BNC_SCHEDULE_CHANGED')return response({error:'반복 설정이나 실행 기록이 바뀌었습니다. 현재 상태를 다시 조회한 뒤 진행해 주세요.'},409);
         if(message==='BNC_RESUME_BLOCKED')return response({error:'이전 작업의 결과 확인과 미해결 작업 처리가 필요합니다. 자동 실행은 꺼진 상태에서 다시 확인해 주세요.'},409);
         if (message === 'BNC_NOT_FOUND') return response({ error: '작업을 찾을 수 없습니다.' }, 404);
+        if (message === 'BNC_ENGAGEMENT_EXISTS') return response({ error: '이미 초안이 있습니다. 대상을 다시 조회해 저장된 초안을 확인하세요.' }, 409);
+        if (message === 'BNC_RETURN_POST_REQUIRED') return response({ error: '확인된 답방 글이 필요합니다.' }, 409);
         if (/^BNC_(LIVE_DISABLED|ACCOUNT_REQUIRED|STOPPED|UNCERTAIN|APPROVAL_CHANGED|INVALID_STATE|EXPIRED)$/.test(message)) {
           return response({ error: '연결·실행 준비 상태를 확인해 주세요.', reason: message }, 409);
         }

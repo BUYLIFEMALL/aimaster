@@ -6,9 +6,9 @@ import {createHash} from 'node:crypto';
 type Obj=Record<string,unknown>;
 export type ExecutionJob=Readonly<{
  id:string;user_id:string;account_id:string;actor_id:string;neighbor_id:string;
- post_id:string;kind:'request'|'like'|'comment';body:string;expires_at:string;
+ post_id:string;kind:'request'|'like'|'comment'|'reply';body:string;expires_at:string;parent_comment_id?:string;
 }>;
-type Context={accountId:string;actorId:string;neighborId:string;postId:string;checkedAt:number};
+type Context={accountId:string;actorId:string;neighborId:string;postId:string;checkedAt:number;postOwnerId?:string;parentCommentId?:string;parentAuthorId?:string};
 export type Observation=Context&{
  restriction:'none'|'login'|'captcha'|'platform';relationship:'none'|'unknown'|'pending'|'mutual'|'removed';
  liked:boolean|null;duplicate:boolean|null;
@@ -44,7 +44,8 @@ export async function executeApprovedWork(input:{memberId:string;jobId:string;de
  if(!uuid(input.memberId)||!uuid(input.jobId)||!uuid(input.deviceId))return blocked('invalid_identity');
  let job:ExecutionJob,claim:Obj;
  const context=(v:Context)=>v.accountId===job.account_id&&v.actorId===job.actor_id&&v.neighborId===job.neighbor_id&&v.postId===job.post_id&&
-  Number.isFinite(v.checkedAt)&&v.checkedAt<=now()&&v.checkedAt>now()-30000;
+  Number.isFinite(v.checkedAt)&&v.checkedAt<=now()&&v.checkedAt>now()-30000&&
+  (job.kind!=='reply'||(v.postOwnerId===job.actor_id&&v.parentCommentId===job.parent_comment_id&&v.parentAuthorId===job.neighbor_id));
  const usable=(v:Observation)=>context(v)&&v.restriction==='none'&&(
   job.kind==='request'?['none','removed'].includes(v.relationship):v.relationship==='mutual'&&
   (job.kind==='like'?v.liked===false:v.duplicate===false));
@@ -61,12 +62,14 @@ export async function executeApprovedWork(input:{memberId:string;jobId:string;de
   if(await d.authorize(input.memberId)!==true)return blocked('member_unavailable');
   const loaded=await d.load(input.memberId,input.jobId);
   if(!obj(loaded)||loaded.id!==input.jobId||loaded.user_id!==input.memberId||!uuid(loaded.account_id)||!blog(loaded.actor_id)||!blog(loaded.neighbor_id)||
-   loaded.actor_id===loaded.neighbor_id||!['request','like','comment'].includes(String(loaded.kind))||typeof loaded.post_id!=='string'||
+   loaded.actor_id===loaded.neighbor_id||!['request','like','comment','reply'].includes(String(loaded.kind))||typeof loaded.post_id!=='string'||
    (loaded.kind==='request'?loaded.post_id!=='':!/^\d+$/.test(loaded.post_id))||typeof loaded.body!=='string'||loaded.body.length>4000||
-   (loaded.kind!=='like'&&!loaded.body.trim())||(loaded.kind==='comment'&&/https?:\/\/|www\./i.test(loaded.body))||
+   (loaded.kind!=='like'&&!loaded.body.trim())||(['comment','reply'].includes(String(loaded.kind))&&/https?:\/\/|www\./i.test(loaded.body))||
+   (loaded.kind==='reply'&&(typeof loaded.parent_comment_id!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(loaded.parent_comment_id)))||
    loaded.state!=='ready'||typeof loaded.expires_at!=='string'||Date.parse(loaded.expires_at)<=now()||!Number.isFinite(Date.parse(loaded.expires_at)))return blocked('job_unavailable');
   job=Object.freeze({id:loaded.id as string,user_id:loaded.user_id as string,account_id:loaded.account_id,actor_id:loaded.actor_id,neighbor_id:loaded.neighbor_id,
-   post_id:loaded.post_id,kind:loaded.kind as ExecutionJob['kind'],body:loaded.body,expires_at:loaded.expires_at});
+   post_id:loaded.post_id,kind:loaded.kind as ExecutionJob['kind'],body:loaded.body,expires_at:loaded.expires_at,
+   ...(loaded.kind==='reply'?{parent_comment_id:loaded.parent_comment_id as string}:{})});
   if(await d.permitted(input.memberId,job)!==true)return blocked('platform_unavailable');
   await observe();
   const reserved=await d.rpc(input.memberId,'claim',{id:job.id,device_id:input.deviceId});
@@ -100,7 +103,8 @@ export async function executeApprovedWork(input:{memberId:string;jobId:string;de
   if(!verified)return uncertain('effect_unconfirmed');
   // A late verified success may still settle an armed/uncertain server job.
   const evidence={account_id:job.account_id,actor_id:job.actor_id,neighbor_id:job.neighbor_id,post_id:job.post_id,kind:job.kind,state:effect.state,
-   effect_id:job.kind==='comment'?effect.effectId:null,body_hash:job.kind==='comment'?hash(job.body):null,observed_at:new Date(effect.checkedAt).toISOString()};
+   effect_id:['comment','reply'].includes(job.kind)?effect.effectId:null,body_hash:['comment','reply'].includes(job.kind)?hash(job.body):null,observed_at:new Date(effect.checkedAt).toISOString(),
+   ...(job.kind==='reply'?{parent_comment_id:job.parent_comment_id}:{})};
   const settled=await d.rpc(input.memberId,'result',{...token,outcome:'success',verified:true,attempted_at:new Date(attemptedAt).toISOString(),evidence});
   if(!obj(settled)||settled.id!==job.id||settled.state!=='succeeded')return {status:'uncertain',reason:'report_unconfirmed',externalAttempted,reportStored:false};
   return {status:'succeeded',reason:'effect_verified',externalAttempted,reportStored:true};

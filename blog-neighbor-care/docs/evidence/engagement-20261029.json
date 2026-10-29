@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-29T13:59:04.819Z",
+  "migration": "20261029140000_bnc_engagement_inbox.sql",
+  "tests": [
+    "EDB01 source and operations are owner-scoped; members cannot intake or write directly",
+    "EDB02 reply draft pins own post, original comment and source deadline; it does not reserve or enable execution",
+    "EDB03 repeated/concurrent draft creation cannot duplicate a reply or overwrite the previous reviewed sentence",
+    "EDB04 return visit uses the confirmed neighbor post; missing target cannot create a draft",
+    "EDB05 raw reply cannot be approved without a parent; pinned target cannot change after binding",
+    "EDB06 signed reply -> exact parent verification -> atomic proof and shared comment budget, without replay",
+    "EDB07 forged parent proof cannot commit evidence or success counters",
+    "EDB08 disconnected account blocks drafting; expiry hides sources and cleanup deletes only expired metadata"
+  ],
+  "passed": 8,
+  "sqlCalls": 83,
+  "isolated": true,
+  "network": "none",
+  "hostPorts": 0,
+  "operatingApplied": false,
+  "actualPlatformActions": 0
+}

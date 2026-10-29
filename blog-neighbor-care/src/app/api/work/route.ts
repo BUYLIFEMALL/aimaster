@@ -8,6 +8,11 @@ export const dynamic = 'force-dynamic';
 export const POST = createWorkHandler({
   authorize: authorizeMember,
   execute: async (userId, operation, payload) => {
+    if(['engagement_list','engagement_review','draft_reply','draft_return_visit'].includes(operation)){
+      const op=operation==='engagement_list'?'list':operation==='engagement_review'?'review':operation==='draft_reply'?'reply':'return_visit';
+      const {data,error}=await createAdminClient().rpc('bnc_engagement_dispatch',{p_user_id:userId,p_operation:op,p_payload:payload});
+      return {data,error};
+    }
     if(operation==='request_status')return {data:await readRequestStatuses(userId),error:null};
     if(operation==='schedule_status'||operation==='resume_schedule'){
       const {data,error}=await createAdminClient().rpc('bnc_schedule_control',{p_user_id:userId,p_operation:operation==='schedule_status'?'status':'resume',p_payload:payload});

@@ -26,6 +26,26 @@ function fixture(kind='comment'){
 test('EX01 request, like and comment verify exact effect after one permit and one application',async()=>{
  for(const kind of ['request','like','comment']){const f=fixture(kind),r=await f.run();assert.equal(r.status,'succeeded');assert.equal(f.state.applyCount,1);assert.deepEqual(f.state.calls.map(c=>c.op),['observe','claim','observe','arm','verify_permit','result']);assert.equal(f.state.calls.at(-1).p.verified,true);assert.doesNotMatch(JSON.stringify(r),/검수 전용|fixture-neighbor/);}
 });
+test('EXR01 reply binds own post, exact parent comment and its author, and records the parent with the effect',async()=>{
+ const f=fixture('reply');f.state.job.parent_comment_id='parent-1';
+ const context=()=>({...f.context(),postOwnerId:'own-blog',parentCommentId:'parent-1',parentAuthorId:'fixture-neighbor'});
+ f.deps.adapter.inspect=async()=>({...context(),restriction:'none',relationship:'mutual',liked:false,duplicate:false});
+ f.deps.adapter.verify=async()=>({...context(),state:'commented',bodyHash:createHash('sha256').update(f.job.body).digest('hex'),effectId:'reply-1'});
+ assert.equal((await f.run()).status,'succeeded');assert.equal(f.state.applyCount,1);
+ assert.equal(f.state.calls.at(-1).p.evidence.parent_comment_id,'parent-1');
+ assert.equal(f.state.calls.at(-1).p.evidence.kind,'reply');
+});
+test('EXR02 wrong parent/author/post owner and duplicate reply prevent application; mismatched final parent becomes uncertain',async()=>{
+ for(const patch of [{parentCommentId:'other'},{parentAuthorId:'other'},{postOwnerId:'other'},{duplicate:true}]){
+  const f=fixture('reply');f.state.job.parent_comment_id='parent-1';
+  f.deps.adapter.inspect=async()=>({...f.observation(),postOwnerId:'own-blog',parentCommentId:'parent-1',parentAuthorId:'fixture-neighbor',...patch});
+  assert.equal((await f.run()).status,'blocked');assert.equal(f.state.applyCount,0);
+ }
+ const f=fixture('reply');f.state.job.parent_comment_id='parent-1';
+ f.deps.adapter.inspect=async()=>({...f.observation(),postOwnerId:'own-blog',parentCommentId:'parent-1',parentAuthorId:'fixture-neighbor'});
+ f.deps.adapter.verify=async()=>({...f.context(),postOwnerId:'own-blog',parentCommentId:'wrong',parentAuthorId:'fixture-neighbor',state:'commented',bodyHash:createHash('sha256').update(f.job.body).digest('hex'),effectId:'reply-1'});
+ assert.equal((await f.run()).status,'uncertain');assert.equal(f.state.applyCount,1);assert.equal((await f.run()).status,'blocked');assert.equal(f.state.applyCount,1);
+});
 test('EX02 authorization/policy/owner/state/unsupported reply fail before any external application',async()=>{
  for(const edit of [f=>f.state.auth=false,f=>f.state.allowed=false,f=>f.state.job.user_id=account,f=>f.state.job.state='armed',f=>f.state.job.kind='reply',f=>f.state.job={...f.state.job,kind:'request',post_id:'123'}]){const f=fixture();edit(f);assert.equal((await f.run()).status,'blocked');assert.equal(f.state.applyCount,0);assert.equal(f.state.calls.length,0);}
 });

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-29T11:24:24.794Z",
+  "date": "2026-10-29T14:00:45.399Z",
   "migration": "20261029044735_bnc_schedule_cursor.sql",
   "tests": [
     "SDB01 first tick schedules future work without claiming/arming or catching up missed intervals",
@@ -24,7 +24,7 @@
     "SDB20 successful request -> private relationship observation -> accepted projection without a second effect or budget use"
   ],
   "passed": 20,
-  "sqlCalls": 257,
+  "sqlCalls": 256,
   "isolated": true,
   "network": "none",
   "hostPorts": 0,

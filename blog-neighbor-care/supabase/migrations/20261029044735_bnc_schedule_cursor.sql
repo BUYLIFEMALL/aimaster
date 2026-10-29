@@ -107,7 +107,7 @@ begin
  then return jsonb_build_object('acquired',false,'reason','unsettled_work'); end if;
  select * into j from public.bnc_jobs where user_id=p_user_id and id=(p_payload->>'job_id')::uuid for update;
  if not found or j.state<>'ready' or j.expires_at<=t or j.approval_hash is null or j.approval_revision is distinct from s.revision
-  or j.kind not in ('request','like','comment') then return jsonb_build_object('acquired',false,'reason','job_unavailable'); end if;
+  or j.kind not in ('request','like','comment','reply') then return jsonb_build_object('acquired',false,'reason','job_unavailable'); end if;
  if not exists(select 1 from public.bnc_reader_devices d join public.member_platform_accounts a on a.id=d.account_id
    where d.id=(p_payload->>'device_id')::uuid and d.user_id=p_user_id and d.account_id=j.account_id and d.blog_id=j.actor_id
     and d.revoked_at is null and d.expires_at>t and a.user_id=p_user_id and a.platform='naver_blog'

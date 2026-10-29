@@ -38,7 +38,7 @@ try{
  sql(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);
   create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
   grant usage on schema auth,public to anon,authenticated,service_role;alter default privileges in schema public grant all on tables to anon,authenticated,service_role;`);
- for(const file of ['../../supabase/migrations/0039_member_integrations.sql','../supabase/migrations/20261026103202_bnc_server_queue.sql','../supabase/migrations/20261026163340_bnc_reader_connection.sql','../supabase/migrations/20261028124500_bnc_work_cancel.sql','../supabase/migrations/20261028143000_bnc_schedule_preferences.sql','../supabase/migrations/20261028233611_bnc_execution_evidence.sql',`../supabase/migrations/${migration}`])sql(readFileSync(new URL(file,import.meta.url),'utf8'));
+ for(const file of ['../../supabase/migrations/0039_member_integrations.sql','../supabase/migrations/20261026103202_bnc_server_queue.sql','../supabase/migrations/20261026163340_bnc_reader_connection.sql','../supabase/migrations/20261028124500_bnc_work_cancel.sql','../supabase/migrations/20261028143000_bnc_schedule_preferences.sql','../supabase/migrations/20261028233611_bnc_execution_evidence.sql',`../supabase/migrations/${migration}`,'../supabase/migrations/20261029140000_bnc_engagement_inbox.sql'])sql(readFileSync(new URL(file,import.meta.url),'utf8'));
  sql("update bnc_runtime set live_allowed=true,policy_reference='isolated-fixture-only';");
  const m=fixture(),other=fixture();
  await check('SDB01 first tick schedules future work without claiming/arming or catching up missed intervals',()=>{

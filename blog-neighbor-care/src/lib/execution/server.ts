@@ -19,7 +19,7 @@ export function runServerWork(ticket:string,adapter:ExecutionAdapter){
   },
   load:async(user,id)=>{const r=await client().from('bnc_jobs').select('*').eq('id',id).eq('user_id',user).maybeSingle();if(r.error)throw Error('Worker job unavailable');return r.data;},
   permitted:async job=>{
-   const reference=({request:process.env.BNC_REQUEST_POLICY_REFERENCE,like:process.env.BNC_LIKE_POLICY_REFERENCE,comment:process.env.BNC_COMMENT_POLICY_REFERENCE})[job.kind];
+   const reference=({request:process.env.BNC_REQUEST_POLICY_REFERENCE,like:process.env.BNC_LIKE_POLICY_REFERENCE,comment:process.env.BNC_COMMENT_POLICY_REFERENCE,reply:process.env.BNC_REPLY_POLICY_REFERENCE})[job.kind];
    if(!reference?.trim())return false;
    const r=await client().from('bnc_runtime').select('live_allowed,policy_reference').eq('singleton',true).maybeSingle();
    return !r.error&&r.data?.live_allowed===true&&!!r.data.policy_reference?.trim();
