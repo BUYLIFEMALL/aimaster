@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, ChevronRight, XCircle, CheckCircle2, ExternalLink } from "lucide-react";
+import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, ChevronRight, XCircle, CheckCircle2, ExternalLink, Copy, Check } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import DocDialogs, { type Dialog } from "./DocDialogs";
 import AiSummaryButton from "./AiSummaryButton";
@@ -134,8 +134,8 @@ export default function DevDocsBoard(props: {
       {tab === "planned" && (
         <Sections>
           <Section title="🗓 역할별 「다음 첫 단계」" count={roles.reduce((n, r) => n + r.next.length, 0)}>
-            {roles.filter((r) => r.next.length).map((r) => (
-              <Row key={r.id} title={r.title} sub={`${plain(r.owner)} · 마지막 갱신 ${r.updated.slice(0, 16)}`} right={docActions(r.path)}>
+            {roles.filter((r) => r.next.length).map((r, i) => (
+              <Row key={r.id} no={`예${i + 1}`} title={r.title} sub={`${plain(r.owner)} · 마지막 갱신 ${r.updated.slice(0, 16)}`} right={docActions(r.path)}>
                 <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-sm text-white/80">{r.next.map((n, i) => <li key={i}>{plain(n)}</li>)}</ol>
               </Row>
             ))}
@@ -182,6 +182,18 @@ function Section({ title, count, action, children }: { title: string; count?: nu
     </div>
   );
 }
+/** CLI 터미널에 바로 붙여넣을 수 있게 한 줄로 복사(2026-10-29 주인님 「메뉴별로 필요한 곳은 다 붙이라니까」) */
+function CopyLine({ text }: { text: string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button type="button" title="이 항목을 한 줄로 복사 (CLI 터미널에 바로 붙여넣기)" aria-label="한 줄 복사"
+      onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(text.replace(/\s*\n\s*/g, " ")).then(() => { setDone(true); setTimeout(() => setDone(false), 1500); }).catch(() => {}); }}
+      className="shrink-0 rounded-lg p-1.5 text-subtext transition-colors hover:bg-white/10 hover:text-white">
+      {done ? <Check size={14} className="text-emerald-300" /> : <Copy size={14} />}
+    </button>
+  );
+}
+
 function Row({ no, title, sub, badge, right, children, onClick }: { no?: string; title: string; sub?: string; badge?: string; right?: React.ReactNode; children?: React.ReactNode; onClick?: () => void }) {
   return (
     <GlassCard className="p-4">
@@ -195,6 +207,7 @@ function Row({ no, title, sub, badge, right, children, onClick }: { no?: string;
           {sub && <p className="mt-0.5 text-xs text-subtext">{sub}</p>}
           {children}
         </div>
+        {no && <CopyLine text={`[${no}] ${title}${sub ? ` — ${sub}` : ""}`} />}
         {right}
       </div>
     </GlassCard>
@@ -214,7 +227,7 @@ function RoleTableSection({ prefix, title, roles, pick, cols, docActions }: { pr
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr><th className="border-b border-white/10 px-2 py-1 text-left font-medium text-subtext">번호</th>{cols.map((c) => <th key={c} className="border-b border-white/10 px-2 py-1 text-left font-medium text-subtext">{c}</th>)}</tr></thead>
-              <tbody>{pick(r).map((row, i) => <tr key={i}><td className="border-b border-white/5 px-2 py-1 align-top font-mono text-[11px] font-bold text-amber-300">{`${prefix}${++seq}`}</td>{cols.map((_, j) => <td key={j} className="border-b border-white/5 px-2 py-1 align-top text-white/85">{plain(row[j] ?? "")}</td>)}</tr>)}</tbody>
+              <tbody>{pick(r).map((row, i) => <tr key={i}><td className="border-b border-white/5 px-2 py-1 align-top font-mono text-[11px] font-bold text-amber-300">{(() => { const code = `${prefix}${++seq}`; return <span className="inline-flex items-center gap-1">{code}<CopyLine text={`[${code}] ${r.title} · ${cols.map((c, j) => `${c}: ${plain(row[j] ?? "")}`).join(" · ")}`} /></span>; })()}</td>{cols.map((_, j) => <td key={j} className="border-b border-white/5 px-2 py-1 align-top text-white/85">{plain(row[j] ?? "")}</td>)}</tr>)}</tbody>
             </table>
           </div>
         </Row>
@@ -227,7 +240,7 @@ function RegistrySection({ title, rows, registry, setDialog, docActions }: { tit
   return (
     <Section title={title} count={rows.length} action={docActions(REGISTRY)}>
       {rows.length === 0 ? <Empty>해당 항목이 없습니다.</Empty> : rows.map((r) => (
-        <Row key={r.id} badge={`${r.id} · ${r.category}`} title={plain(r.origin)} sub={`${DECISION_LABEL[r.decisionType]} — ${plain(r.decision).replace(/^[🆕🔗⏸❌]\s*/u, "")}`}
+        <Row key={r.id} no={r.id} badge={r.category} title={plain(r.origin)} sub={`${DECISION_LABEL[r.decisionType]} — ${plain(r.decision).replace(/^[🆕🔗⏸❌]\s*/u, "")}`}
           onClick={() => registry?.cards[r.id] && setDialog({ type: "markdown", title: `${r.id} ${plain(r.origin)}`, markdown: registry.cards[r.id], path: REGISTRY })}
           right={<span className="shrink-0 text-lg" title="상태">{r.status}</span>}>
           <p className="mt-1 text-sm text-white/80">{plain(r.feature)}</p>
