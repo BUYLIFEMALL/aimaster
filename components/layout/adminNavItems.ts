@@ -51,7 +51,7 @@ export const ADMIN_DEV_NAV_ITEMS = [
   { href: "/admin/dev-docs", icon: Compass, label: "한눈에 보기" },
   { href: "/admin/dev-docs/in-progress", icon: Wrench, label: "개발 진행 중" },
   { href: "/admin/dev-docs/completed", icon: CheckCircle2, label: "개발완료" },
-  { href: "/admin/dev-docs/waiting", icon: Hourglass, label: "개발 대기 중" },
+  { href: "/admin/dev-docs/waiting", icon: Hourglass, label: "개발승인 대기중" },
   { href: "/admin/dev-docs/planned", icon: CalendarClock, label: "개발 예정" },
   { href: "/admin/dev-docs/analyzed", icon: ClipboardCheck, label: "분석 완료 · 판단" },
   { href: "/admin/dev-docs/admin-action", icon: ListChecks, label: "관리자 실행요청" },

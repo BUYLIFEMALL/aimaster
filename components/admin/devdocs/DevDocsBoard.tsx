@@ -13,7 +13,7 @@ export type DevDocsTab = "overview" | "in-progress" | "completed" | "waiting" | 
 
 type ProgramMeta = { slug: string; name: string; version: string | null; app_url: string | null };
 
-const TAB_LABEL: Record<DevDocsTab, string> = { overview: "한눈에 보기", "in-progress": "진행 중", completed: "개발완료", waiting: "대기 중", planned: "예정", analyzed: "분석 완료", "admin-action": "관리자 실행요청", guidelines: "지침", programs: "프로그램", requests: "요청함" };
+const TAB_LABEL: Record<DevDocsTab, string> = { overview: "한눈에 보기", "in-progress": "진행 중", completed: "개발완료", waiting: "승인 대기", planned: "예정", analyzed: "분석 완료", "admin-action": "관리자 실행요청", guidelines: "지침", programs: "프로그램", requests: "요청함" };
 const REGISTRY = "docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md";
 const STALE_MS = 3 * 86400000;
 const KIND_LABEL: Record<string, string> = { doc_edit: "수정안", doc_comment: "관리자 지시", role_note: "역할 메모", work_result: "작업 결과", owner_action: "해 줄 일" };
