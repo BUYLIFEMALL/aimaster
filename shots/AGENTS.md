@@ -220,3 +220,8 @@
 - 함께 나간 것: 대기분 공용 사본 동기화 `fd1f3cb67`(fal 소리·글→영상 선택값, 동작 불변).
 - 검수: tsc·build, 배포 `shots-lrb2sbwid` Ready, DB v1.43, 크롬 화면 v1.43. 장면 영상 선택 화면은 시험 계정에 장면이 없어 화면 확인 못 함(같은 사본 파일을 쓰는 원스톱 쇼츠에서 목록 4개 확인).
 - 비용: 빌드 1회.
+
+## 2026-10-29 DUP-4 — 유튜브·인스타 업로드 중복 방지 (Claude Code 윈도우, 영상 담당 `claude-win-video`, **미배포 대기**)
+- 플랜 `docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md`. `src/lib/uploadGuard.ts`(새) `claimDecision`·`needsCheck`·`isUncertainFailure` — 올리는 중이면 거절, 이미 올림·결과 불확실이면 회원 확인(`confirmResend=1`)이 있어야 진행. 두 액션이 조건부 update(`status ≠ posting` 또는 10분 지난 `posting`)로 선점, 0행이면 거절.
+- 업로드를 보낸 뒤 연결 오류·5xx(인스타는 연결 오류만)면 `failed`로 바꾸지 않고 `posting`으로 남겨 자동 재발송을 막음 → 10분 뒤 배지 「확인 필요」, 다시 올리기는 확인 창을 거침. DB 구조·공용 `youtube-upload-client` 변경 없음.
+- 검수: 시험 14개(`uploadGuard` 5개 추가)·tsc·eslint·build. 실제 업로드 시험은 안 함(외부 게시). 커밋 `7da2cb688`. 다음 Shots 배포 때 v1.45로 함께 내보낸다.
