@@ -12,6 +12,7 @@
     "test:http": "node tests/http.mjs",
     "prebuild": "node scripts/build-extension-archive.mjs",
     "build:extension": "node scripts/build-extension-archive.mjs",
+    "verify:extension": "node scripts/verify-extension-archive.mjs",
     "test:reader-database": "node --import tsx tests/reader-database.mjs",
     "test:analysis-database": "node --import tsx tests/analysis-database.mjs",
     "test:neighbor-import-database": "node --import tsx tests/neighbor-import-database.mjs",

@@ -21,10 +21,12 @@ const expected = readdirSync(new URL('extension/', root)).sort();
 assert.deepEqual([...entries.keys()].sort(), expected);
 for (const name of expected) assert.deepEqual(entries.get(name), readFileSync(new URL(`extension/${name}`, root)));
 const manifest = JSON.parse(entries.get('manifest.json').toString('utf8'));
-assert.equal(manifest.version_name, 'v1.01'); assert.equal(manifest.version, JSON.parse(readFileSync(new URL('package.json', root))).version);
+const appVersion=readFileSync(new URL('src/lib/version.ts',root),'utf8').match(/\bAPP_VERSION\s*=\s*['"](v\d+\.\d+)['"]/ )?.[1];
+assert.ok(appVersion,'Declared app version is required');
+assert.equal(manifest.version_name, appVersion); assert.equal(manifest.version, JSON.parse(readFileSync(new URL('package.json', root))).version);
 assert.deepEqual(buffer, readFileSync(new URL(`public/downloads/blog-neighbor-care-extension-${manifest.version_name}.zip`, root)));
 const result = { checkedAt: new Date().toISOString(), archive: 'public/downloads/blog-neighbor-care-extension-latest.zip',
   version: manifest.version_name, entries: expected, sourceBytesMatched: true, latestMatchesVersioned: true,
   bytes: buffer.length, sha256: createHash('sha256').update(buffer).digest('hex'), installedInBrowser: false, deployed: false };
-writeFileSync(new URL('docs/evidence/reader-archive-20261027.json', root), JSON.stringify(result, null, 2)+'\n');
+writeFileSync(new URL('docs/evidence/extension-archive-current.json', root), JSON.stringify(result, null, 2)+'\n');
 console.log(JSON.stringify(result));

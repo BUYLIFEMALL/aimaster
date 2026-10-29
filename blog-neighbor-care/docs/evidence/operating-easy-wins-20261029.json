@@ -1,0 +1,101 @@
+{
+  "checkedAt": "2026-10-29T00:02:14.718Z",
+  "project": "esgxyikcnnvmlhygjkth",
+  "migrations": [
+    {
+      "localFile": "20261028123000_bnc_work_retention.sql",
+      "name": "bnc_work_retention",
+      "operatingVersion": "20261028235504",
+      "sha256": "83ca96da2f0f10204a5047dfebe446620855eabf12147053feb1c6cc20eff405",
+      "applied": true
+    },
+    {
+      "localFile": "20261028124500_bnc_work_cancel.sql",
+      "name": "bnc_work_cancel",
+      "operatingVersion": "20261028235507",
+      "sha256": "fe1f044df1ea403b2e5133869ea5f85fbdae4b0c337463b18aea552121d46bb3",
+      "applied": true
+    },
+    {
+      "localFile": "20261028143000_bnc_schedule_preferences.sql",
+      "name": "bnc_schedule_preferences",
+      "operatingVersion": "20261028235510",
+      "sha256": "a236bd491ba0b96aba683880b6c19cfe8f8080c39c81e532f147b6f0963ea821",
+      "applied": true
+    },
+    {
+      "localFile": "20261028233611_bnc_execution_evidence.sql",
+      "name": "bnc_execution_evidence",
+      "operatingVersion": "20261028235514",
+      "sha256": "0e60ea1533331b6fe0cf0171510f84b773057b474941c6e1b860556bfeafb887",
+      "applied": true
+    }
+  ],
+  "pendingMigrationsBefore": 4,
+  "pendingMigrationsAfter": 0,
+  "privateInvokerFunctions": 4,
+  "anonymousOrMemberFunctionExecution": false,
+  "newTablesRls": true,
+  "memberDirectWrites": false,
+  "evidenceServiceUpdate": false,
+  "liveAllowed": false,
+  "readAllowed": false,
+  "jobs": 0,
+  "directory": {
+    "total": 43,
+    "mutual": 17,
+    "oneWay": 26,
+    "mutualNewPostsOn": 17,
+    "mutualReturnVisitsOn": 17,
+    "oneWayNewPostsOn": 0,
+    "oneWayReturnVisitsOn": 0
+  },
+  "productionCleanupSmoke": {
+    "expiredPayloadsRemoved": 0,
+    "expiredEvidenceRemoved": 0
+  },
+  "staleOwnerRequestsClosed": [
+    "03c67cbc-e3e3-48f8-96b4-c1b1691455f0",
+    "c833c805-65a7-4374-aa84-49248a94ea4d",
+    "4aecc39a-4a98-4c3b-8ab7-fc0050f95607"
+  ],
+  "archiveVerifierBefore": "v1.02 !== hardcoded v1.01",
+  "archiveVerifierAfter": "uses declared APP_VERSION",
+  "archiveCommand": "npm run verify:extension",
+  "archive": {
+    "checkedAt": "2026-10-29T00:00:15.613Z",
+    "archive": "public/downloads/blog-neighbor-care-extension-latest.zip",
+    "version": "v1.02",
+    "entries": [
+      "background.mjs",
+      "extractor.mjs",
+      "manifest.json",
+      "neighbor-extractor.mjs",
+      "neighbor-importer.mjs",
+      "popup.css",
+      "popup.html",
+      "popup.mjs",
+      "web-bridge.js"
+    ],
+    "sourceBytesMatched": true,
+    "latestMatchesVersioned": true,
+    "bytes": 19764,
+    "sha256": "a95c83aeddcb4fdc457141b0d64b55e06325448cdf8e882f90195d1851293e52",
+    "installedInBrowser": false,
+    "deployed": false
+  },
+  "localBuildPassed": true,
+  "localHttpPassed": 39,
+  "operatingVersion": "v1.02",
+  "webDeployed": false,
+  "pushed": false,
+  "paidAiCalls": 0,
+  "searchCalls": 0,
+  "remoteBuilds": 0,
+  "securityAdvisors": {
+    "returnedBncWarnOrError": 0,
+    "existingBncDenyAllInfo": 11,
+    "catalogPrivilegesVerifiedDirectly": true
+  },
+  "remaining": "Web/ZIP batch deployment, actual Cron expiration, real reimport verification, AI/candidate flow, live execution adapter/accept/reply/return visits/scheduler remain. Actual multi-page and empty Naver lists unavailable on owned accounts."
+}
