@@ -466,4 +466,4 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 
 ## 2026-10-29 v1.40 배포 — 위 두 미배포 대기분(12단 가져오기 삭제·나노바나나 2.1 표기/비용) 함께 내보냄
 - 배포 `shop-detail-page-izoi9n7fk` Ready, DB v1.40(배포 도우미 `--set-version`), 승인 빌드 1회. 로컬 build 통과. 로그인된 화면 확인은 주인님 브라우저(작업 크롬은 이 사이트 로그아웃 상태).
-- 옛 `detail-page-12p` 폐지: 백업 `D:/Antigravity/AIMaster_backup/retired-programs/detail-page-12p-20261029`(41개 파일), 태그 `retired/detail-page-12p-20261029`, 저장소 폴더 삭제. Vercel 프로젝트 `detail-page-12p`(도메인 `detail-12p.buylife.xyz`) 삭제는 자동 안전 검사가 막아 주인님 처리 대기. DB 프로그램 줄은 비공개 그대로(기록용).
+- 옛 `detail-page-12p` 폐지: 백업 `D:/Antigravity/AIMaster_backup/retired-programs/detail-page-12p-20261029`(41개 파일), 태그 `retired/detail-page-12p-20261029`, 저장소 폴더 삭제. Vercel 프로젝트 `detail-page-12p`(도메인 `detail-12p.buylife.xyz`) 는 **지우지 않고 백업으로 유지**(주인님 2026-10-29 「삭제가 아니라 백업이야」). DB 프로그램 줄은 비공개 그대로(기록용).
