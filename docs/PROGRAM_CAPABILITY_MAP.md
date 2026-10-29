@@ -659,7 +659,9 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그·반복cursor·복구 후속4건 미배포
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그·반복cursor·복구·주기호출 후속5건 미배포
+
+- **주기 호출부(10-29) 로컬 완료:** 4ebbb2f92·매회권한/기기/ready/revision검사→서명ticket→기존cursor, 제한형루프/중복/중단/불확정재시도차단. 단위222/격리19·242SQL/타입 통과. 상주host기동/브라우저adapter/실반복 미완료. 3번새수신0·4번신규승인ae2dc89a 대기/진단준비48ca8c161, 운영v1.03/43명·liveOFF유지. [근거](../blog-neighbor-care/docs/evidence/schedule-worker-20261029.json).
 
 - **읽기 수단 재확인(10-29) 완료:** 검색요약·작성자허용RSS 피드 범위 공식확인, 본인글/43명 실검수와 반복감시 구분. 포괄자료제공요청3e257d73 철회, 회원제공 권한확인자료 경로 우선. RSS파서/실수신·관계반복감시·외부쓰기 허용/실검수는 미완료. [보고서](analysis-naver-blog-neighbor-20261024/READ_METHOD_RECHECK_20261029.md).
 
