@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, ChevronRight, XCircle, CheckCircle2, ExternalLink, Copy, Check } from "lucide-react";
+import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, ChevronRight, XCircle, CheckCircle2, ExternalLink, Copy, Check, Terminal } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import DocDialogs, { type Dialog } from "./DocDialogs";
 import AiSummaryButton from "./AiSummaryButton";
@@ -183,13 +183,13 @@ function Section({ title, count, action, children }: { title: string; count?: nu
   );
 }
 /** CLI 터미널에 바로 붙여넣을 수 있게 한 줄로 복사(2026-10-29 주인님 「메뉴별로 필요한 곳은 다 붙이라니까」) */
-function CopyLine({ text }: { text: string }) {
+function CopyLine({ text, icon, tone, title }: { text: string; icon?: React.ReactNode; tone?: string; title?: string }) {
   const [done, setDone] = useState(false);
   return (
-    <button type="button" title="이 항목을 한 줄로 복사 (CLI 터미널에 바로 붙여넣기)" aria-label="한 줄 복사"
+    <button type="button" title={title ?? "이 항목을 한 줄로 복사 (CLI 터미널에 바로 붙여넣기)"} aria-label="한 줄 복사"
       onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(text.replace(/\s*\n\s*/g, " ")).then(() => { setDone(true); setTimeout(() => setDone(false), 1500); }).catch(() => {}); }}
-      className="shrink-0 rounded-lg p-1.5 text-subtext transition-colors hover:bg-white/10 hover:text-white">
-      {done ? <Check size={14} className="text-emerald-300" /> : <Copy size={14} />}
+      className={`shrink-0 rounded-lg p-1.5 transition-colors hover:bg-white/10 ${tone ?? "text-subtext hover:text-white"}`}>
+      {done ? <Check size={14} className="text-emerald-300" /> : (icon ?? <Copy size={14} />)}
     </button>
   );
 }
@@ -598,7 +598,7 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
                 <Row key={r.id} no={`#${r.id.slice(0, 4)}`} title={r.title ?? "(제목 없음)"} sub={`${r.from_session ?? "세션 미상"} · ${when(r.created_at)}`}
                   right={
                     <div className="flex shrink-0 gap-1">
-                      <CopyLine text={`[관리자 실행요청] [${catOf(r).label}] ${r.title ?? ""} — ${(r.note ?? "").replace(/\s*\n\s*/g, " ")} (담당 ${r.from_session ?? "미상"} · 요청id ${r.id} · 원본 확인: node scripts/dev-requests.mjs show ${r.id})`} />
+                      <CopyLine icon={<Terminal size={15} />} tone="text-sky-300 hover:text-sky-200" title="CLI 터미널에 붙여넣을 전체 요청문 복사 (분류·내용·담당·요청id·확인 명령 포함)" text={`[관리자 실행요청] [${catOf(r).label}] ${r.title ?? ""} — ${(r.note ?? "").replace(/\s*\n\s*/g, " ")} (담당 ${r.from_session ?? "미상"} · 요청id ${r.id} · 원본 확인: node scripts/dev-requests.mjs show ${r.id})`} />
                       {linkBtn(r)}
                       <IconBtn title="완료" onClick={() => act(r.id, "done")}><CheckCircle2 size={15} className="text-emerald-300" /></IconBtn>
                       <IconBtn title="필요 없음" onClick={() => act(r.id, "dismiss")}><XCircle size={15} /></IconBtn>
