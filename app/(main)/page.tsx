@@ -49,7 +49,7 @@ async function getHomeData() {
         .select("*, category:categories(*), pricing_plans(*)")
         .eq("is_active", true)
         .order("sort_order"),
-      supabase.from("categories").select("*").is("parent_id", null).order("sort_order"),
+      supabase.from("categories").select("*").is("parent_id", null).eq("is_public", true).order("sort_order"),
       // 홈페이지의 활성 사용자 수는 홍보용 고정 숫자가 아니라 실제 회원 데이터로
       // 계산한다. 정지 회원은 제외하고, 관리자 포함 전체 활성 계정을 집계한다.
       service.from("profiles").select("id", { count: "exact", head: true }).eq("is_suspended", false),

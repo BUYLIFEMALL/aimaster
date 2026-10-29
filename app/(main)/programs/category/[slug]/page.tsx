@@ -27,6 +27,7 @@ async function getCategory(slug: string) {
     .from("categories")
     .select("*")
     .eq("slug", slug)
+    .eq("is_public", true)
     .single();
   return data;
 }
@@ -37,6 +38,7 @@ async function getCategories() {
     .from("categories")
     .select("*")
     .is("parent_id", null)
+    .eq("is_public", true)
     .order("sort_order");
   return data ?? [];
 }

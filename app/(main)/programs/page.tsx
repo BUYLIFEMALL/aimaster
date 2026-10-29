@@ -28,6 +28,7 @@ async function getCategories() {
     .from("categories")
     .select("*")
     .is("parent_id", null)
+    .eq("is_public", true)
     .order("sort_order");
   return data ?? [];
 }

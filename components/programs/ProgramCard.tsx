@@ -166,7 +166,8 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
                   ))}
                 </div>
               )}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
+              {/* ♥ 추천 수 — 좌측 배지와 겹치지 않게 우측 즐겨찾기(★) 왼쪽에 둔다(2026-10-29 주인님 지시) */}
+              <div className={`absolute top-3 ${isAdmin ? "right-24" : "right-12"} z-10`}>
                 <LikeButton programId={program.id} initialCount={program.like_count ?? 0} initialLiked={liked} loggedIn={loggedIn} />
               </div>
 
