@@ -1,5 +1,7 @@
 # 블로그
 
+> [역할: blog] **사용자 확정: 웹 프로그램 + 확장 프로그램만 사용** — `f20ada675`로 PC 설치/Native Messaging 설계를 폐기하고 관련 실행파일·권한·stdio 코드를 제거했다. 웹의 기기별 동의→HTTPS 단계별1회허가→확장 현재탭 확인/입력/등록→웹 결과 기록으로 전환. 단위259/신규격리DB8·정리11/타입 통과. 실제 네이버 DOM profile·회원/Edge 검수·확장 주기 실행은 잔여. 후속9묶음 미배포/SQL3 미적용·운영/공개ZIP v1.03 불변·비용0.
+
 > [역할: blog] **6/7·8번 Edge 실행 연결 코드 로컬 완료** — `96a18514c`(+`a0f4dbd56`): 비공개 host→Native Messaging→현재 탭/단일 frame→확인/입력·클릭/결과 기록, 팝업 동의·상태·중단/매뉴얼. 단위260/타입 통과, 가상 DOM/stdio 검수이며 실제 Edge 확장 연결 성공 아님. 운영자 host 설치/등록·실 네이버 DOM profile 작성/검수·원댓글/수락 상태 읽기 연결은 남음. 후속9묶음 미배포/SQL2 미적용·공개v1.03 ZIP/운영 불변·비용0.
 
 > [역할: blog] 7번 구현 묶음의 추가 검토: `b9ffb2092`로 답방 글 작성자가 원댓글 작성자와 일치하는지 수신 전 검사. 무관한 블로그 글은 저장 차단, EN01~04/타입 재검수 통과. `ccf22b76c`와 같은 미배포 묶음(총8건 유지), 운영 변경/추가 비용0.
@@ -141,7 +143,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-29 · Edge native 실행연결96a18514c/a0f4dbd56 로컬260/타입·9묶음미배포/SQL2·다음host설치등록/실DOMprofile/읽기연결
+- 마지막 갱신: 2026-10-30 · 웹+확장 전용f20ada675/PC Native 제거·단위259/DB8+정리11/타입·9묶음미배포/SQL3
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -149,7 +151,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 지금 하는 일
 
-- **현재 우선:** Native 실행 연결 코드 로컬 완료. 다음은 운영자 host launcher/설치·등록 준비→실제 허용 DOM profile 작성/검수→수락/원댓글 읽기 연결→실Edge/운영반복 검수. 구현된 실행 adapter를 다시 처음부터 만들지 않는다. 합성 profile 운영 사용 금지. 기존 AI/목록 요청은 유지한다.
+- **현재 우선:** 웹+확장 HTTPS 연결 구현 완료. PC/Nativehost 설치·등록은 폐기. 다음은 실제 허용 DOM profile 작성/검수→수락/원댓글 확장 읽기 연결→웹 예약커서·확장 주기 호출 연결→운영 검수. 기존 AI/목록 요청 유지.
 
 - **현재 우선:** 7번 답방·대댓글 로컬 구현은 완료 목록으로 이동. 6/7의 실제 네이버 reader/등록 adapter와8번 상주host 연결을 먼저 구현한다. 운영 SQL2/배포는 별도 승인/묶음 원칙. 아래 이전 순서는 이력.
 
@@ -340,7 +342,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 다음 첫 단계
 
-- **현재 우선:** Native 실행 연결 코드 로컬 완료. 다음은 운영자 host launcher/설치·등록 준비→실제 허용 DOM profile 작성/검수→수락/원댓글 읽기 연결→실Edge/운영반복 검수. 구현된 실행 adapter를 다시 처음부터 만들지 않는다. 합성 profile 운영 사용 금지. 기존 AI/목록 요청은 유지한다.
+- **현재 우선:** 웹+확장 HTTPS 연결 구현 완료. PC/Nativehost 설치·등록은 폐기. 다음은 실제 허용 DOM profile 작성/검수→수락/원댓글 확장 읽기 연결→웹 예약커서·확장 주기 호출 연결→운영 검수. 기존 AI/목록 요청 유지.
 
 - **현재 우선:** 6/7 실제 브라우저 adapter 구현→8번 상주host 연결. 이번 ccf22b76c/SQL20261029140000은 미배포/미적용, 실제 등록 기능 제공으로 보고하지 않는다. 새 import/AI승인이 도착하면3/4 검수 병행.
 
