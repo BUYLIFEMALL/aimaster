@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/ui/Hero";
 import { api, timeAgo, type Item } from "@/components/ui/api";
+import { ShortsPhoneMockup } from "@/components/ui/ShortsPhoneMockup";
 import { PROVIDER_LABEL, modelName, type AiProvider } from "@/lib/models";
 import type { ShortsScript } from "@/lib/script";
 
@@ -44,19 +45,48 @@ export function DashboardView() {
       {settings && keys && !ready && (
         <div className="avatar-tip" style={{ marginBottom: 16 }}><span className="avatar">🤖</span><div><strong>먼저 본인 AI 키를 등록해 주세요</strong><p className="muted">지금 선택된 {PROVIDER_LABEL[settings.provider]} 키가 없습니다. <a href="/settings" style={{ textDecoration: "underline" }}>🔑 API키등록·플랫폼연동</a>에서 키를 저장하거나 다른 AI를 고르면 바로 시작할 수 있습니다.</p></div></div>
       )}
-      <section className="card stack">
-        <div className="row" style={{ justifyContent: "space-between" }}><h2>🕘 최근 대본</h2><a className="link-button" href="/library">전체 보기 →</a></div>
-        {projects === null ? <p className="muted">불러오는 중…</p> : projects.length === 0 ? (
-          <div className="empty-state"><span className="emoji">🎬</span><strong>아직 만든 대본이 없어요</strong><span>주제를 고르면 30초 만에 첫 쇼츠 대본이 완성됩니다.</span><a className="button primary" href="/topic">✨ 첫 대본 만들기</a></div>
-        ) : (
-          <div className="list">{projects.slice(0, 6).map((p) => (
-            <a key={p.id} className="list-item" href={`/topic?id=${p.id}`}>
-              <div><strong>{p.title}</strong><small>{p.data.category || "직접 입력"} · 카드 {p.data.cards?.length ?? 0}장 · {timeAgo(p.updated_at)}</small></div>
-              <span className="badge brand">{p.data.source === "manual" ? "내 대본" : "AI 대본"}</span>
-            </a>
-          ))}</div>
-        )}
-      </section>
+      <div className="grid-side" style={{ marginTop: 20 }}>
+        {/* 좌측 메인 작업 영역: 최근 대본 목록 */}
+        <section className="card stack">
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <h2>🕘 최근 제작 대본</h2>
+            <a className="link-button" href="/library">전체 보관함 보기 →</a>
+          </div>
+          {projects === null ? (
+            <p className="muted">불러오는 중…</p>
+          ) : projects.length === 0 ? (
+            <div className="empty-state">
+              <span className="emoji">🎬</span>
+              <strong>아직 만든 대본이 없어요</strong>
+              <span>주제만 입력하면 30초 만에 첫 유튜브 쇼츠 대본과 씬이 완성됩니다.</span>
+              <a className="button primary btn-3d-yt-red" href="/topic" style={{ marginTop: 10 }}>⚡ 첫 쇼츠 대본 만들기</a>
+            </div>
+          ) : (
+            <div className="list">
+              {projects.slice(0, 6).map((p) => (
+                <a key={p.id} className="list-item" href={`/topic?id=${p.id}`}>
+                  <div>
+                    <strong>{p.title}</strong>
+                    <small>{p.data.category || "직접 입력"} · 씬 {p.data.cards?.length ?? 0}장 · {timeAgo(p.updated_at)}</small>
+                  </div>
+                  <span className="badge brand">{p.data.source === "manual" ? "내 대본" : "AI 대본"}</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* 우측 상시 실시간 쇼츠 폰 뷰파인더 목업 덱 */}
+        <aside className="card" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "20px 14px", background: "var(--surface)" }}>
+          <ShortsPhoneMockup
+            title={projects?.[0]?.title || "2026 직장인 연봉 2배 AI 도구"}
+            narration={projects?.[0]?.data?.intro?.narration || "아직도 엑셀 수작업 하세요? 이번 달 연봉 앞자리가 바뀌는 AI 실무 툴 5가지!"}
+            author="@AI_Shorts_Studio"
+            currentTime="00:03"
+            totalTime="00:48"
+          />
+        </aside>
+      </div>
     </>
   );
 }
