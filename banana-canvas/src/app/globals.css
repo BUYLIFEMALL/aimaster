@@ -721,9 +721,9 @@ button[aria-pressed=true] {
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #fef08a 0%, #fcd34d 40%, #f59e0b 100%);
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.6);
-  border: 1px solid #fde047;
+  background: linear-gradient(145deg, #262220 0%, #151312 100%);
+  box-shadow: 0 4px 14px rgba(21, 19, 18, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  border: 1.5px solid #d97706;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -16,6 +16,32 @@ import {
 } from "lucide-react";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 
+function BananaEmblem({ size = 28 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 36 36"
+      fill="none"
+      className="select-none transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-200 drop-shadow-sm"
+      aria-hidden="true"
+    >
+      <path d="M26 6.5C28.5 4.5 30 4 30.8 4.8C31.5 5.5 31 7 28.5 9.5L26 6.5Z" fill="#16a34a" stroke="#14532d" strokeWidth="1.2" />
+      <path d="M5.5 25.5C8 28.5 15 30 22 25.5C27 22 30 16 28 8C25.5 9 20 11.5 15 15C9.5 19 6.5 22.5 5.5 25.5Z" fill="url(#banana-glow)" stroke="#92400e" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M9 23.5C13 25.5 18 24.5 23 21C26.5 18 28 13.5 27 10C24.5 11 20 13 16 16C12 19 9.8 21.5 9 23.5Z" fill="#fef08a" opacity="0.95" />
+      <path d="M12 21C16 22 21 20 24.5 16" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+      <path d="M5.5 25.5C4.8 26.5 4 27.5 4.5 28.2C5 28.8 6 28 7 27" stroke="#78350f" strokeWidth="2.2" strokeLinecap="round" />
+      <defs>
+        <linearGradient id="banana-glow" x1="5" y1="8" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#fef08a" />
+          <stop offset="45%" stopColor="#facc15" />
+          <stop offset="100%" stopColor="#ea580c" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 export function Sidebar({
   userEmail,
   currentPath,
@@ -46,9 +72,7 @@ export function Sidebar({
       <div className="sidebar-brand">
         <a href="/studio" className="brand-row group">
           <div className="brand-icon-3d">
-            <span className="text-xl select-none transform group-hover:scale-110 transition-transform">
-              🍌
-            </span>
+            <BananaEmblem size={28} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
@@ -236,7 +260,7 @@ export function Sidebar({
       <div className="mobile-sidebar">
         <div className="mobile-header">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🍌</span>
+            <BananaEmblem size={22} />
             <span className="font-black text-stone-900 text-sm">
               {APP_NAME}
             </span>
