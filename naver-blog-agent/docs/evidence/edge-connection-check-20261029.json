@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-10-29T06:38:05.340Z",
+  "scope": "naver-blog-agent only; not blog-neighbor-care",
+  "browser": "actual existing Microsoft Edge window",
+  "newWindows": 0,
+  "extension": {
+    "id": "jghcffojjhpadflbhmdbophincpciajm",
+    "installed": true,
+    "connectedBlogDisplay": "buylifemall",
+    "installedVersion": "v2.21",
+    "latestVersion": "v2.22",
+    "localConnectionDisplayVerified": true,
+    "exactServerTokenIdentityVerified": false
+  },
+  "naver": {
+    "managementUrl": "https://admin.blog.naver.com/buylifemall",
+    "accountDisplay": "바이라이프",
+    "loggedInManagementVerified": true
+  },
+  "server": {
+    "pairedConnectionCount": 8,
+    "allDeviceNames": "Chrome",
+    "deviceNameHardCodedInPairHandler": true,
+    "legacy20261021LastPing": "2026-10-29T06:32:15.356Z",
+    "exactCurrentEdgeRecordUnknown": true
+  },
+  "request": {
+    "loginConnection": "7eba5ff7-7af9-488b-83d2-946f78abb269",
+    "status": "applied",
+    "legacyDecision": "4c54bb78-b9b5-456c-b90d-21788f4cb97a",
+    "legacyDecisionCompleted": false
+  },
+  "draft": {
+    "id": "48f06db1-6e01-4099-b151-1ac5f90519cc",
+    "state": "failed",
+    "lastUpdated": "2026-10-24T12:52:58.116Z",
+    "retransmitted": false
+  },
+  "tokensReadOrLogged": false,
+  "connectionsDisconnected": 0,
+  "actualInputRetested": false,
+  "published": 0,
+  "scheduled": 0,
+  "codeChanged": false,
+  "paidAiCalls": 0,
+  "vercelBuilds": 0
+}
