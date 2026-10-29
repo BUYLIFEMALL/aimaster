@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-29 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — Shots DUP-4 업로드 중복 방지(미배포)
+- 한 일: `shots` 유튜브·인스타 게시 서버 조건부 선점(`src/lib/uploadGuard.ts`), 불확실 결과는 `posting` 유지 → 10분 뒤 「확인 필요」, 이미 올림·확인 필요 재발송은 회원 확인 창 + 서버 `confirmResend` 확인. DB 구조·공용 업로드 코드 변경 없음.
+- 검수: 시험 14개·tsc·eslint·build. 실제 업로드 시험 안 함. 커밋 `7da2cb688`. 배포: 미배포 대기(작은 수정, 다음 Shots 배포 때 v1.45). 비용 없음.
+- 다음 첫 단계: 다음 Shots 배포 때 함께 내보내고 크롬에서 배지·확인 창 확인. 플랜 `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md`. 링크:
+https://shots.buylife.xyz
+
 ## 2026-10-29 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 상태바 크레딧 사용 표시 `credit $사용액/$한도`
 - 배경: 주인님이 Console(API 키 방식)으로 인증했는데 `claude auth status`가 `claude.ai`로 나온다고 문의 → 확인 결과 Console 인증은 로그인을 바꾸지 않고 **구독 계정에 API 크레딧을 연결**하며, 구독 주간 한도(계정 저장값 100%·적용 중)를 다 쓴 뒤 크레딧(당시 한도 $250·사용 $6.02, 11-05 초기화)에서 차감되고 있었다. 상태바 5h·weekly에는 이 차감이 보이지 않았다.
 - 한 일: ① `~/.claude/statusline-extra.js`(·`.good`)에 `credit $사용액/$한도` 칸 추가 — 구독으로 쓰는 동안은 숨기고 크레딧으로 넘어갔을 때만 표시. 판단은 상태바 입력(99%로 반올림돼 옴)과 계정 저장값 `cachedUsageUtilization.utilization.limits`(100%·`is_active`)를 함께 본다. 금액은 `limit_dollars`가 있는 항목을 먼저, 없으면 `extra_usage`. ② 세션 자기 폴더에 저장값이 없으면(Orca 계정 폴더) 같은 계정의 최신 저장값을 쓴다. ③ 새 장비·새 계정 설치 원본 `scripts/install-statusbars.mjs` 내장 스크립트 갱신. ④ 지침 `CLAUDE.md` 원칙 20, `docs/CLAUDE_STATUSBAR.md` §1 기록.
