@@ -12,6 +12,7 @@ export const metadata = { title: "개발 문서 관리" };
 const TABS: Record<string, { tab: DevDocsTab; title: string; desc: string }> = {
   "": { tab: "overview", title: "한눈에 보기", desc: "개발 진행 중 · 대기 중 · 예정을 역할 파일과 개발분석표에서 모아 보여 줍니다" },
   "in-progress": { tab: "in-progress", title: "개발 진행 중", desc: "작업 중 표와 역할별 「지금 하는 일」" },
+  completed: { tab: "completed", title: "개발완료", desc: "완료된 작업을 카테고리(담당)별·프로그램별로 모아 봅니다 — 역할별 「최근 완료」와 요청 작업 결과" },
   waiting: { tab: "waiting", title: "개발 대기 중", desc: "승인·결정을 기다리는 작업과 외부 분석" },
   planned: { tab: "planned", title: "개발 예정", desc: "역할별 「다음 첫 단계」와 남은 묶음이 있는 분석" },
   analyzed: { tab: "analyzed", title: "분석 완료 · 판단", desc: "외부 프로그램 분석 결과 — 핵심 기능과 병합/독립 판단" },

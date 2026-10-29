@@ -8,7 +8,7 @@ import { OWNER_ACTION_CATEGORIES, type DevRequest } from "./types";
 import type { ActiveWorkRow, CategoryMapData, RegistryData, RoleStatus, TableRow } from "@/lib/devDocs/parse";
 import type { DevDocsManifest, ManifestEntry } from "@/lib/devDocs/github";
 
-export type DevDocsTab = "overview" | "in-progress" | "waiting" | "planned" | "analyzed" | "guidelines" | "programs" | "requests";
+export type DevDocsTab = "overview" | "in-progress" | "completed" | "waiting" | "planned" | "analyzed" | "guidelines" | "programs" | "requests";
 
 type ProgramMeta = { slug: string; name: string; version: string | null; app_url: string | null };
 
@@ -89,6 +89,29 @@ export default function DevDocsBoard(props: {
             ))}
           </Section>
           <RoleTableSection title="📋 역할별 「지금 하는 일」" roles={roles} pick={(r) => r.now} cols={["프로그램", "작업", "시작", "상태"]} docActions={docActions} />
+        </Sections>
+      )}
+
+      {tab === "completed" && (
+        <Sections>
+          <GlassCard className="p-4 text-xs text-white/80">
+            <b className="text-white">개발완료</b>는 완료된 작업을 <b className="text-white">카테고리(담당 분야)별 · 프로그램별</b>로 모은 것입니다. 각 역할의 「최근 완료」 표와, 세션이 남긴 작업 결과(커밋·링크)를 함께 보여 줍니다.
+          </GlassCard>
+          <RoleTableSection title="✅ 카테고리(담당 분야)별 · 프로그램별 최근 완료" roles={roles} pick={(r) => r.done} cols={["날짜", "프로그램·버전", "한 일", "배포"]} docActions={docActions} />
+          {(() => {
+            const wr = requests.filter((r) => r.kind === "work_result");
+            return (
+              <Section title="📬 세션 작업 결과 (커밋·링크)" count={wr.length}>
+                {wr.length === 0 ? <Empty>아직 올라온 작업 결과가 없습니다.</Empty> : wr.map((r) => (
+                  <Row key={r.id} title={r.title ?? "(제목 없음)"}
+                    sub={`${r.from_session ?? "세션 미상"}${r.handled_at ? ` · ${new Date(r.handled_at).toLocaleDateString("ko-KR")}` : ""}${r.commit_sha ? ` · 커밋 ${r.commit_sha}` : ""}${r.cost ? ` · ${r.cost}` : ""}`}
+                    right={r.link ? <a href={r.link} target="_blank" rel="noopener noreferrer" title="링크 열기" className="rounded-lg p-2 text-subtext transition-colors hover:bg-white/10 hover:text-white"><ExternalLink size={15} /></a> : null}>
+                    {r.note && <p className="mt-1 whitespace-pre-wrap text-xs text-white/80">{r.note}</p>}
+                  </Row>
+                ))}
+              </Section>
+            );
+          })()}
         </Sections>
       )}
 
