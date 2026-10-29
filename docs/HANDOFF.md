@@ -1,5 +1,7 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+> [역할: ecommerce-image] **AI 상세페이지 자동화 v1.40 배포 · 옛 12단 폐지** (2026-10-29, Claude Code 윈도우 `claude-win-sdp`) — 주인님 「불필요한 과거 연결고리 정리해」「나노바나나 2.1 … 반영해줘」. 12단 자료 가져오기(버튼·`/products/import`·양식·서버 동작) 삭제, 나노바나나 2.1은 10-17부터 이미 사용 중이라 이름 「Nanobanana 2.1」·2K 비용 /usr/bin/bash.0504로 정정. 배포 `shop-detail-page-izoi9n7fk` Ready·DB v1.40. `detail-page-12p` 폴더 삭제(백업 `AIMaster_backup/retired-programs/detail-page-12p-20261029`·태그 `retired/detail-page-12p-20261029`). **남은 일**: Vercel 프로젝트 `detail-page-12p` 삭제(자동 안전 검사가 막음 — 주인님 처리), 로그인 화면 확인(주인님 브라우저).
+
 > [역할: blog] **좌측 메뉴 표준 보정 완료 · 미배포** — 2026-10-29 사용자 요청으로 docs/SIDEBAR_LAYOUT_STANDARD.md를 대조해 기존 릴레이 데스크 네이버 그린을 유지하며 좌측메뉴 표준 보정. 240px·이름/버전·다른프로그램/programs·대시보드·내글연결→분석→후보→관계 4번호/원형/연결선·구분선뒤 3D확장ZIP/버전→정확한연동메뉴→매뉴얼→12px계정블록. 서버 getUser 검증이메일만 표시/미확인시로그인, 동일출처 POST 로컬로그아웃/실패안내. 메뉴만스크롤/계정shrink0,767px이하 ☰ 전환·동일메뉴/계정. 실제Edge 기존창 새탭에서 실제컴포넌트/CSS 합성계정 미리보기1000px/390px 열기·닫기/1000×430 낮은화면 계정접근 확인. 단위203(메뉴2신규)·타입·로컬Next빌드·HTTP44·모바일점검후보0·ZIP9일치. 소스75c57b1a1. 웹미배포/운영v1.02유지·원격빌드/AI/검색/운영DB변경0. 기존비용요청e859eb43 유지·신규요청없음. 이전95파일릴리스사본은 이변경을포함하지않으므로 그대로배포금지, 다음배포전최신소스사본/버전/ZIP/DB동기화필수.
 > 결과: [로컬 비교 미리보기](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029/index.html) · [영구 자산 폴더](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029) · [검수 근거](../blog-neighbor-care/docs/evidence/sidebar-standard-20261029.json).
 
