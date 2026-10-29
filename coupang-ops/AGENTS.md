@@ -2,7 +2,8 @@
 
 > 루트 `../CLAUDE.md`(메인 지침)를 함께 읽는다. 한국어 진행 안내·회원 본인 계정/키·비용 사전 승인·경로 지정 커밋 규칙이 그대로 적용된다.
 > 플랜: [`docs/PLAN_20261028_COUPANG_OPS.md`](docs/PLAN_20261028_COUPANG_OPS.md)(API 103개 목록 §10, 고정 IP 비용 §11·§12, 확정 §13·§14, 제한·제재 §15) · 기능 대기 목록: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
-> **📘 최신 인수인계(2026-10-28, 가장 먼저 읽기)**: [`docs/IMPROVEMENT_HANDOFF_20261028.md`](docs/IMPROVEMENT_HANDOFF_20261028.md) — 판매정지로 쿠팡 API가 막혀 멈춘 상태·운영 DB 적용 내용·코드 지도·함정·다음 첫 단계.
+> **📘 최신 인수인계(2026-10-29, 가장 먼저 읽기)**: [`docs/IMPROVEMENT_HANDOFF_20261029.md`](docs/IMPROVEMENT_HANDOFF_20261029.md) — 판매 재개·상품 등록 화면·짧은 이미지 주소·반품비 규칙·남은 일(등록 실행 → 최종 배포).
+> 이전 인수인계(2026-10-28): [`docs/IMPROVEMENT_HANDOFF_20261028.md`](docs/IMPROVEMENT_HANDOFF_20261028.md) — 판매정지로 쿠팡 API가 막혀 멈춘 상태·운영 DB 적용 내용·코드 지도·함정·다음 첫 단계.
 > 담당 역할: `ecommerce-image`(Claude Code 윈도우 `claude-win-sdp`). 마켓 등록기 공통 레퍼런스: [`../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md`](../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md).
 
 ## 1. 사용 목적·대상
