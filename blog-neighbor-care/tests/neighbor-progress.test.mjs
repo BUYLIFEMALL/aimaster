@@ -7,12 +7,12 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 const url='https://admin.blog.naver.com/BuddyListManage.naver?blogId=owner';
-function fixture({focused=true,popup=false,failProgress=false}={}){
+function fixture({focused=true,popup=false,failProgress=false,previousState='capturing'}={}){
  const session={},events=[],calls=[],state={focused,popup,reads:0,visible:false};
  const who={deviceId:'own-device',blogId:'owner'},tab={id:7,windowId:2,url,active:true,status:'complete'};
  const snapshot={format:'naver-visible-neighbors-v1',url,listScope:'all',page:1,totalPages:1,totalCount:1,rows:[{blogId:'private-neighbor',relation:'mutual'}],nextUrl:null};
  const browser={storage:{session:{get:async key=>({[key]:session[key]}),set:async value=>Object.assign(session,value)}},tabs:{query:async()=>[tab]},windows:{get:async()=>({focused:state.focused})},scripting:{executeScript:async({func})=>{if(func===inspectNeighborVisibility)return [{result:{url,visible:state.visible}}];state.reads++;return [{result:{ok:true,snapshot}}];}}};
- const post=async(op)=>{calls.push(op);if(op==='reserve')return {nonce:'a'.repeat(64),validUntil:new Date(100000).toISOString()};if(op==='page')return {id:'own-run',state:'ready',capturedCount:1,totalCount:1,totalPages:1,lastPage:1};return {id:'own-run',state:'capturing',lastPage:0};};
+ const post=async(op)=>{calls.push(op);if(op==='status')return {id:'old-run',state:previousState,capturedCount:1,totalCount:1,totalPages:1,lastPage:1};if(op==='reserve')return {nonce:'a'.repeat(64),validUntil:new Date(100000).toISOString()};if(op==='page')return {id:'own-run',state:'ready',capturedCount:1,totalCount:1,totalPages:1,lastPage:1};return {id:'own-run',state:'capturing',lastPage:0};};
  const report=async value=>{events.push(value);if(failProgress)throw Error('status storage unavailable');};
  const read=createNeighborImporter(browser,post,async()=>who,()=>0,async()=>{},report,async windowId=>windowId===2&&state.popup);
  return {read,state,events,calls,session,tab,browser};
@@ -132,4 +132,29 @@ test('NP20 serialized visibility probe requires a visible non-hidden exact URL a
  for(const [visibilityState,hidden,expected]of [['visible',false,true],['hidden',true,false],['visible',true,false],[undefined,false,false]]){
   const r=vm.runInNewContext(`(${inspectNeighborVisibility.toString()})(${JSON.stringify(url)})`,{location:{href:url},document:{visibilityState,hidden}});assert.equal(r.visible,expected);assert.deepEqual(Object.keys(r).sort(),['url','visible']);
  }
+});
+
+test('NP21 a confirmed import remains a receipt unless a new read is explicitly requested',async()=>{
+ const f=fixture({previousState:'confirmed'});f.session.neighborImport={id:'old-run',deviceId:'own-device'};
+ assert.equal((await f.read({type:'neighbors_read',ownerConfirmed:true})).state,'confirmed');assert.equal(f.state.reads,0);assert.equal(f.calls.includes('start'),false);
+ assert.equal((await f.read({type:'neighbors_read',ownerConfirmed:true,restartConfirmed:true})).state,'ready');
+ assert.equal(f.calls.filter(c=>c==='start').length,1);assert.equal(f.calls.filter(c=>c==='reserve').length,1);assert.equal(f.state.reads,1);assert.notEqual(f.session.neighborImport.id,'old-run');assert.equal(f.calls.includes('confirm'),false);
+});
+
+test('NP22 a stale restart request cannot replace ready, capturing or unknown server state',async()=>{
+ for(const state of ['ready','capturing','expired','cancelled']){
+  const f=fixture({previousState:state});f.session.neighborImport={id:'old-run',deviceId:'own-device'};
+  await assert.rejects(f.read({type:'neighbors_read',ownerConfirmed:true,restartConfirmed:true}),/다시 확인/);assert.equal(f.calls.includes('start'),false);assert.equal(f.calls.includes('reserve'),false);assert.equal(f.state.reads,0);assert.equal(f.session.neighborImport.id,'old-run');
+ }
+ const f=fixture({previousState:'confirmed'});f.session.neighborImport={id:'old-run',deviceId:'own-device'};
+ await assert.rejects(f.read({type:'neighbors_read',ownerConfirmed:false,restartConfirmed:true}),/동의/);assert.equal(f.calls.length,0);
+});
+
+test('NP23 confirmed popup clears old consent and offers an explicit fresh read; ready still stays locked',async()=>{
+ const f=popup();await tick();const consent=f.document.getElementById('neighborConfirm'),button=f.document.getElementById('neighborRead');consent.checked=true;
+ f.render({stage:'confirmed',state:'complete',capturedCount:43,totalCount:43});
+ assert.equal(consent.checked,false);assert.equal(button.disabled,false);assert.match(button.textContent,/다시 읽기/);
+ const messages=[];f.chrome.runtime.sendMessage=async message=>{messages.push(message);return {ok:true,data:{state:'ready',capturedCount:43,totalCount:43,totalPages:1,lastPage:1}};};
+ button.click();await tick();assert.equal(messages.length,0);assert.match(f.document.getElementById('message').textContent,/동의/);
+ consent.checked=true;button.click();await tick();assert.equal(messages.length,1);assert.equal(messages[0].type,'neighbors_read');assert.equal(messages[0].ownerConfirmed,true);assert.equal(messages[0].restartConfirmed,true);assert.equal(button.disabled,true);
 });

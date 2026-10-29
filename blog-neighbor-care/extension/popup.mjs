@@ -4,7 +4,7 @@ const stageTitles={checking:'진행 중 · 계정 확인',starting:'진행 중 �
 function applyButtons(){
   const active=currentProgress?.state==='running';
   document.querySelectorAll('button').forEach(b=>{b.disabled=b.id==='neighborStop'?!active:busy||active;});
-  $('neighborRead').disabled=busy||active||currentProgress?.state==='complete'||!currentDeviceId;
+  $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
 function showStatus(text,state='idle'){
   $('status-heading').textContent=state==='error'?'확인 필요':'지금 상태';$('message').textContent=text;
@@ -13,6 +13,7 @@ function showStatus(text,state='idle'){
 }
 function renderNeighborProgress(p){
   if(!p||!stageTitles[p.stage])return;
+  if(p.stage==='confirmed'&&currentProgress?.stage!=='confirmed')$('neighborConfirm').checked=false;
   currentProgress={...p};$('status-heading').textContent=stageTitles[p.stage];
   document.querySelector('.status-card').dataset.state=p.state;
   $('message').textContent=p.message||(p.stage==='ready'?'목록을 임시 수신했습니다. 아래 버튼으로 확인·저장해 주세요.':p.stage==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':'Edge와 현재 탭을 유지해 주세요.');
@@ -21,7 +22,7 @@ function renderNeighborProgress(p){
   const bar=$('neighborProgressBar');bar.hidden=p.state==='stopped';bar.max=p.totalPages||1;
   if(p.totalPages)bar.value=last;else bar.removeAttribute('value');
   $('neighborFinish').hidden=!['ready','confirmed'].includes(p.stage);$('neighborFinish').textContent=p.stage==='confirmed'?'저장 결과 보기':'받은 목록 확인·저장';
-  $('neighborRead').textContent=p.state==='running'?'이웃 목록 읽는 중…':p.stage==='ready'?'목록 수신 완료':p.stage==='confirmed'?'목록 저장 완료':'전체 이웃 목록 읽기';
+  $('neighborRead').textContent=p.state==='running'?'이웃 목록 읽는 중…':p.stage==='ready'?'목록 수신 완료':p.stage==='confirmed'?'전체 이웃 목록 다시 읽기':'전체 이웃 목록 읽기';
   applyButtons();
 }
 async function run(work,kind='general') {
@@ -75,10 +76,13 @@ $('disconnect').addEventListener('click', () => run(async () => {
   showStatus(r.remoteRevoked ? '이 기기 연결을 해제했습니다.' : '기기의 연결 정보는 지웠습니다. 서버 해제는 프로그램의 기기 목록에서 확인해 주세요.'); await status();
 }));
 function neighborResult(r){renderNeighborProgress({deviceId:currentDeviceId,stage:['ready','confirmed'].includes(r.state)?r.state:'paused',state:['ready','confirmed'].includes(r.state)?'complete':'stopped',capturedCount:r.capturedCount??r.totalCount??0,totalCount:r.totalCount??null,totalPages:r.totalPages??null,lastPage:r.lastPage??(r.state==='ready'?r.totalPages:0),message:r.state==='ready'?`전체 페이지에서 ${r.capturedCount??r.totalCount}명을 임시 수신했습니다. 아직 저장 전입니다.`:r.state==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':`서버 상태: ${r.state}. 받은 범위를 확인해 주세요.`});}
-$('neighborRead').addEventListener('click',()=>run(async()=>{
+$('neighborRead').addEventListener('click',()=>{
+  if(!$('neighborConfirm').checked){$('message').textContent='본인 이웃 목록 읽기·임시 전송 동의를 확인해 주세요.';return;}
+  const restartConfirmed=currentProgress?.stage==='confirmed';
+  return run(async()=>{
   renderNeighborProgress({deviceId:currentDeviceId,stage:'checking',state:'running',capturedCount:0,lastPage:0,message:'읽기를 준비합니다. Edge와 현재 탭을 유지해 주세요.'});
-  neighborResult(await send({type:'neighbors_read',ownerConfirmed:$('neighborConfirm').checked}));
-},'neighbors'));
+  neighborResult(await send({type:'neighbors_read',ownerConfirmed:true,restartConfirmed}));
+},'neighbors');});
 $('neighborReceipt').addEventListener('click',()=>run(async()=>neighborResult(await send({type:'neighbors_status'})),'neighbors'));
 $('neighborStop').addEventListener('click',async()=>{renderNeighborProgress({...currentProgress,stage:'stopping',state:'running',message:'중단을 요청했습니다. 마지막 수신 결과를 확인하고 있습니다.'});try{await send({type:'neighbors_stop'});}catch(e){showStatus(e.message,'error');}});
 chrome.runtime.onMessage?.addListener((message,sender,respond)=>{

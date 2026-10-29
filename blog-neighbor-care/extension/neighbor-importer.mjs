@@ -32,6 +32,7 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
    await emit(['ready','confirmed'].includes(r.state)?r.state:running?'received':'paused',{message:r.state==='ready'?'전체 목록을 임시 수신했습니다. 프로그램에서 확인·반영해 주세요.':r.state==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':r.state==='expired'?'이전 목록의 확인 기한이 지났습니다. 네이버 이웃 관리 탭에서 동의 후 전체 이웃 목록 읽기를 눌러 주세요.':`서버 상태: ${r.state}. 받은 범위를 확인해 주세요.`});return r;
   }
   if(message.type!=='neighbors_read'||message.ownerConfirmed!==true)throw Error('본인 이웃 목록 읽기·임시 전송 동의를 확인해 주세요.');
+  if('restartConfirmed' in message&&typeof message.restartConfirmed!=='boolean')throw Error('이전 목록의 저장 상태를 다시 확인해 주세요.');
   if(running)throw Error('진행 중인 목록 읽기부터 확인해 주세요.');
   running=true;stopped=false;
   progress={deviceId:who.deviceId,capturedCount:0,totalCount:null,totalPages:null,lastPage:0};
@@ -41,7 +42,8 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
    if(!source||source.blogId!==who.blogId||!Number.isInteger(tab.id))throw Error('연결한 본인 블로그의 지원되는 이웃 관리 화면을 열어 주세요.');
    let previousState=null;
    if(previous?.deviceId===who.deviceId){try{previousState=await post('status',{id:previous.id});}catch(e){if(e.status!==404)throw e;}}
-   if(previousState&&['ready','confirmed'].includes(previousState.state)){await emit(previousState.state,receiptFields(previousState));return previousState;}
+   if(message.restartConfirmed===true&&previousState?.state!=='confirmed')throw Error('이전 목록의 저장 상태를 다시 확인해 주세요.');
+   if(previousState&&['ready','confirmed'].includes(previousState.state)&&message.restartConfirmed!==true){await emit(previousState.state,receiptFields(previousState));return previousState;}
    let id;
    if(previousState?.state==='capturing'){
     if(source.kind==='shell')source={...source,page:previousState.lastPage+1};
