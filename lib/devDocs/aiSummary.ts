@@ -10,6 +10,7 @@ export type AiSummaryItem = {
   title: string;
   ask: string;
   source: string;
+  category: string;
   importance: number;
   quickness: number;
   importanceReason: string;
@@ -34,12 +35,13 @@ const SCHEMA = {
           title: { type: "string" },
           ask: { type: "string" },
           source: { type: "string" },
+          category: { type: "string" },
           importance: { type: "integer" },
           quickness: { type: "integer" },
           importanceReason: { type: "string" },
           quicknessReason: { type: "string" },
         },
-        required: ["title", "ask", "source", "importance", "quickness", "importanceReason", "quicknessReason"],
+        required: ["title", "ask", "source", "category", "importance", "quickness", "importanceReason", "quicknessReason"],
         additionalProperties: false,
       },
     },
@@ -71,6 +73,7 @@ const SYSTEM =
   "The dashboard lists work items, requests and status tables written by several AI coding sessions. " +
   "Read the menu text you are given and pick out what the owner should look at or act on. " +
   "For each item: title (short), ask (what the owner needs to do or decide, one sentence), source (session, role or program named in the text), " +
+  "category (the single best-fitting field in Korean, chosen from: 블로그, 인스타, 쓰레드, 이커머스, 유튜브, 영상, 음악, 이미지, 디자인, CRM, 카카오, 네이버, 마케팅, 부동산, 업무자동화, 성격·운세, 데이터수집, AI 프롬프트, 플랫폼·공통; use 기타 only if none fit), " +
   "importance 1-5 (5 = blocks other work, affects members or revenue, or involves cost/security), " +
   "quickness 1-5 (5 = the owner can finish it in a few minutes, e.g. one approval or one click), " +
   "and one or two sentences for each reason, quoting the words in the text that support it. " +
@@ -97,7 +100,7 @@ export async function summarizeMenu(apiKey: string, tabLabel: string, text: stri
   const clamp = (n: unknown) => Math.min(5, Math.max(1, Math.round(Number(n) || 1)));
   return {
     overview: String(parsed.overview ?? ""),
-    items: (parsed.items ?? []).map((i) => ({ ...i, importance: clamp(i.importance), quickness: clamp(i.quickness) })),
+    items: (parsed.items ?? []).map((i) => ({ ...i, category: String(i.category ?? "기타").trim() || "기타", importance: clamp(i.importance), quickness: clamp(i.quickness) })),
     stale: parsed.stale ?? [],
     duplicates: parsed.duplicates ?? [],
   };
