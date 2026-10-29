@@ -1,0 +1,97 @@
+{
+  "checkedAt": "2026-10-29T10:58:38.728Z",
+  "approvedAttempt": {
+    "checkedAt": "2026-10-29T10:50:49.162Z",
+    "originalJob": "e207aead-b540-4ec5-af46-8b371dafc30c",
+    "approvalId": "ae2dc89a-e1bc-4254-a100-c5c39ad783e5",
+    "approved": true,
+    "runRequested": true,
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5",
+    "materialCount": 1,
+    "estimatedInputTokens": 10781,
+    "maximumOutputTokens": 6000,
+    "estimatedMaximumUsd": 0.040781,
+    "usdLimit": 0.05,
+    "originalJobUnchanged": true,
+    "rawBodyOrKeyPrinted": false,
+    "newJobId": "d8520aec-eb4e-4b39-b875-4162b3632fbe",
+    "paidCalls": 1,
+    "state": "unconfirmed",
+    "failure": {
+      "stage": "provider",
+      "reason": "output_json"
+    },
+    "httpStatus": 502,
+    "errorCode": "GENERATION_UNCONFIRMED",
+    "completedAt": "2026-10-29T10:51:01.145Z"
+  },
+  "confirmed": "A successful provider HTTP response reached the text JSON parser, which rejected the model text as output_json. No result was persisted.",
+  "unknown": [
+    "Exact malformed output shape; response text was not retained",
+    "Whether the original 2026-10-28 failure had the same cause",
+    "Actual invoice and token usage",
+    "Real generation/storage success after the fix"
+  ],
+  "omission": "Anthropic production calls supplied JSON instructions but no output_config.format JSON schema.",
+  "fix": {
+    "schema": "Static closed profile/candidates schema, no user/source IDs or content",
+    "anthropicParameter": "output_config.format={type:json_schema,schema}",
+    "validation": "Existing lengths/scores/source identity/exact quotations remain required; no fence stripping or coercion",
+    "automaticRetries": 0
+  },
+  "red": {
+    "command": "node --import tsx --test tests/analysis-structured-output.test.mjs",
+    "failed": [
+      "AS01",
+      "AS02"
+    ],
+    "passed": [
+      "AS03"
+    ]
+  },
+  "green": {
+    "unitTests": 225,
+    "structuredOutputTests": 3,
+    "isolatedAnalysisDatabaseTests": 14,
+    "typecheck": true,
+    "analysisDatabaseEvidence": "analysis-structured-database-20261029.json"
+  },
+  "guard": {
+    "consumedApproval": "ae2dc89a-e1bc-4254-a100-c5c39ad783e5",
+    "rerunAttemptBlockedBeforeProvider": true,
+    "newApprovalPending": "668992b9-4d8d-4f57-96db-e0fdf1fb8c7b",
+    "retestDryRun": {
+      "estimatedInputTokens": 11534,
+      "inputUpperBound": 20000,
+      "outputUpperBound": 6000,
+      "estimatedMaximumUsd": 0.041534,
+      "requestedUsdLimit": 0.05,
+      "operatingWrites": 0,
+      "paidCalls": 0
+    }
+  },
+  "operating": {
+    "version": "v1.03",
+    "deployed": false,
+    "originalJobUnchanged": true,
+    "newJobState": "uncertain",
+    "newJobHasResult": false,
+    "directoryCount": 43,
+    "newImport": false,
+    "liveAllowed": false
+  },
+  "costs": {
+    "providerAttempts": 1,
+    "approvedUsdLimit": 0.05,
+    "actualChargeVerified": false,
+    "additionalLiveRetries": 0,
+    "paidSearchCalls": 0,
+    "vercelBuilds": 0,
+    "deployments": 0
+  },
+  "references": [
+    "https://platform.claude.com/docs/en/build-with-claude/structured-outputs",
+    "https://platform.claude.com/docs/en/about-claude/pricing"
+  ]
+}

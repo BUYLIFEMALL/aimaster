@@ -2,7 +2,7 @@
 // ID and consumes a durable one-attempt marker before contacting the provider.
 import fs from 'node:fs';
 import { generateJson, ProviderFailure } from '../src/lib/analysis/provider.ts';
-import { prompt, validateResult } from '../src/lib/analysis/contracts.ts';
+import { prompt, validateResult, analysisOutputSchema } from '../src/lib/analysis/contracts.ts';
 const originalJob='e207aead-b540-4ec5-af46-8b371dafc30c';
 const root=new URL('../../',import.meta.url);
 let phase='configuration';
@@ -21,7 +21,7 @@ try {
  const bundle={id:originalJob,kind:'profile',input:job.input,profile:null,expiresAt:job.expires_at,posts:materials.map(m=>({id:m.id,blogId:m.blog_id,postId:m.post_id,title:m.title,body:[...m.body].slice(0,4000).join(''),originalCharacterCount:[...m.body].length,bodyTruncated:[...m.body].length>4000,source:'member-initiated-browser-read'}))};
  const messages=prompt(bundle);
  // Byte count is a conservative token estimate with 512 tokens for framing.
- const estimatedInputTokens=Buffer.byteLength(JSON.stringify({model:'claude-haiku-4-5',max_tokens:6000,system:messages.system,messages:[{role:'user',content:messages.user}]}),'utf8')+512;
+ const estimatedInputTokens=Buffer.byteLength(JSON.stringify({model:'claude-haiku-4-5',max_tokens:6000,system:messages.system,messages:[{role:'user',content:messages.user}],output_config:{format:{type:'json_schema',schema:analysisOutputSchema('profile')}}}),'utf8')+512;
  const conservativeUsd=estimatedInputTokens/1e6+6000*5/1e6;
  if(conservativeUsd>0.05)throw Error('budget');
  const args=process.argv.slice(2),run=args.includes('--run');
@@ -29,7 +29,7 @@ try {
  if(!run){console.log(JSON.stringify(readiness));process.exit(0);}
  phase='approval';
  const approval=args[args.indexOf('--approval')+1];
- const unavailableApprovals=['bc3a34c2-007f-484b-823d-5f170a2b2b15','df361204-55e4-4f74-967d-eb99b7967f14']; // consumed / withdrawn
+ const unavailableApprovals=['bc3a34c2-007f-484b-823d-5f170a2b2b15','df361204-55e4-4f74-967d-eb99b7967f14','ae2dc89a-e1bc-4254-a100-c5c39ad783e5']; // consumed / withdrawn
  if(!args.includes('--approval')||!/^[a-f0-9-]{36}$/.test(approval??'')||unavailableApprovals.includes(approval))throw Error('new_approval_required');
  phase='key';
  const keys=await read(`user_api_keys?user_id=eq.${encodeURIComponent(job.user_id)}&provider=eq.anthropic&select=api_key`);
@@ -39,7 +39,7 @@ try {
  const result={...readiness,approval,attempts:1,state:'started',stage:'provider'};
  fs.writeFileSync(marker,JSON.stringify(result,null,2)+'\n',{flag:'wx'});
  try {
-  const output=await generateJson('anthropic','claude-haiku-4-5',key,messages.system,messages.user);
+  const output=await generateJson('anthropic','claude-haiku-4-5',key,messages.system,messages.user,fetch,analysisOutputSchema('profile'));
   result.stage='validation';validateResult(output,bundle);
   result.state='validated';
  }catch(error){result.state='unconfirmed';result.reason=error instanceof ProviderFailure?error.reason:result.stage==='validation'?'result_invalid':'unconfirmed';if(error instanceof ProviderFailure){result.httpStatus=error.httpStatus;result.providerCode=error.providerCode;}}

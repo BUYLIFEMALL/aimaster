@@ -29,14 +29,15 @@ async function rejectionCode(response: Response): Promise<ProviderCode | undefin
   } catch { /* Untrusted error text stays in memory and is never emitted. */ }
   finally { await reader.cancel().catch(()=>{}); }
 }
-export async function generateJson(provider:Provider, model:string, key:string, system:string, user:string, fetcher:typeof fetch=fetch):Promise<unknown> {
+export async function generateJson(provider:Provider, model:string, key:string, system:string, user:string, fetcher:typeof fetch=fetch, schema?:Record<string,unknown>):Promise<unknown> {
   let url:string,headers:Record<string,string>,body:unknown;
   if(provider==='openai') {
     url='https://api.openai.com/v1/chat/completions';headers={authorization:`Bearer ${key}`};
     body={model,messages:[{role:'system',content:system},{role:'user',content:user}],response_format:{type:'json_object'},...openAIGenerationParams(model,{maxTokens:6000,temperature:0.2})};
   } else if(provider==='anthropic') {
     url='https://api.anthropic.com/v1/messages';headers={'x-api-key':key,'anthropic-version':'2023-06-01'};
-    body={model,max_tokens:6000,system,messages:[{role:'user',content:user}]};
+    body={model,max_tokens:6000,system,messages:[{role:'user',content:user}],
+      ...(schema?{output_config:{format:{type:'json_schema',schema}}}:{})};
   } else {
     if(!/^[a-zA-Z0-9._-]+$/.test(model)) throw new Error('Invalid model');
     url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;headers={'x-goog-api-key':key};

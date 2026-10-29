@@ -7,7 +7,7 @@ import type { AnalysisDependencies } from './api';
 export const analysisDependencies:AnalysisDependencies={
   member:authorizeMember,
   key:(userId,provider)=>resolveApiKey(createAdminClient(),userId,provider),
-  generate:generateJson,
+  generate:(provider,model,key,system,user,schema)=>generateJson(provider,model,key,system,user,fetch,schema),
   reportFailure:diagnostic=>{ console.warn('BNC_ANALYSIS_FAILURE',JSON.stringify(diagnostic)); },
   rpc:async(userId,operation,payload)=>{
     const {data,error}=await createAdminClient().rpc('bnc_analysis_dispatch',{p_user_id:userId,p_operation:operation,p_payload:payload});

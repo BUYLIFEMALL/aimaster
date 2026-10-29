@@ -56,6 +56,16 @@ export function generation(kind: string, v: unknown) {
 }
 export type Post = {id:string;blogId:string;postId:string;title:string;body:string;source:string;originalCharacterCount?:number;bodyTruncated?:boolean};
 export type Bundle = {id:string;kind:'profile'|'candidates';input:ObjectValue;posts:Post[];profile:unknown;expiresAt:string};
+/** Static schema only: no member IDs, source text or evidence in schema caches.
+ * Lengths, scores, source ownership and exact quotations remain server checks. */
+export function analysisOutputSchema(kind:'profile'|'candidates'):ObjectValue{
+ const closed=(properties:ObjectValue)=>({type:'object',properties,required:Object.keys(properties),additionalProperties:false});
+ const string={type:'string'},strings={type:'array',items:string};
+ const evidence={type:'array',items:closed({sourceId:string,quote:string})};
+ if(kind==='profile')return closed({profile:closed({topics:strings,interests:strings,audience:string,tone:string,phrases:strings,keywords:strings}),evidence});
+ if(kind==='candidates')return closed({candidates:{type:'array',items:closed({blogId:string,topicScore:{type:'integer'},reasons:strings,evidence})}});
+ return bad();
+}
 const norm = (s:string)=>s.replace(/\s+/g,' ').trim();
 function evidence(v:unknown,posts:Post[]) {
   if(!Array.isArray(v) || v.length<1 || v.length>8) bad();

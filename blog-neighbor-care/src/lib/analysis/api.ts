@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import type { Access } from '../work-api';
-import { AnalysisInputError, bad, generation, hash, object, only, preferences, profileFields, prompt, strings, uuid, validateResult, type Bundle, type ObjectValue } from './contracts';
+import { AnalysisInputError, analysisOutputSchema, bad, generation, hash, object, only, preferences, profileFields, prompt, strings, uuid, validateResult, type Bundle, type ObjectValue } from './contracts';
 import { ProviderFailure, type Provider, type ProviderCode } from './provider';
 
 export type GenerationFailureDiagnostic = {
@@ -13,7 +13,7 @@ export type AnalysisDependencies = {
   member:()=>Promise<Access>;
   rpc:(userId:string,operation:string,payload:ObjectValue)=>Promise<{data:any;error:any}>; // RPC JSON boundary
   key:(userId:string,provider:Provider)=>Promise<string|null>;
-  generate:(provider:Provider,model:string,key:string,system:string,user:string)=>Promise<unknown>;
+  generate:(provider:Provider,model:string,key:string,system:string,user:string,schema:ObjectValue)=>Promise<unknown>;
   reportFailure?:(diagnostic:GenerationFailureDiagnostic)=>Promise<void>|void;
 };
 class RpcError extends Error {constructor(readonly code:string){super(code);}}
@@ -69,7 +69,7 @@ export function createAnalysisHandler(deps:AnalysisDependencies) {
       try {
         const messages=prompt(bundle);attempted=true;
         stage='provider';
-        const output=await deps.generate(prepared.input.provider,prepared.input.model,key,messages.system,messages.user);
+        const output=await deps.generate(prepared.input.provider,prepared.input.model,key,messages.system,messages.user,analysisOutputSchema(bundle.kind));
         stage='validation';
         const result=validateResult(output,bundle);
         stage='persist';
@@ -99,7 +99,7 @@ export function createAnalysisHandler(deps:AnalysisDependencies) {
           request_invalid:'AI 플랫폼이 분석 요청 형식을 거절했습니다. 요청 번호와 함께 관리자에게 알려주세요.',
           provider_unavailable:'AI 플랫폼이 현재 요청을 처리하지 못하고 있습니다.',
         };
-        const hint=diagnostic.providerCode?hints[diagnostic.providerCode]:diagnostic.stage==='validation'?'AI 응답이 필요한 분석 형식·근거 검사를 통과하지 못했습니다.':diagnostic.stage==='persist'||diagnostic.stage==='result_read'?'AI 응답의 저장·조회 결과를 확인하지 못했습니다.':'생성 결과를 확정하지 못했습니다.';
+        const hint=diagnostic.providerCode?hints[diagnostic.providerCode]:diagnostic.reason==='output_json'?'AI가 분석에 필요한 JSON 형식으로 응답하지 않았습니다.':diagnostic.stage==='validation'?'AI 응답이 필요한 분석 형식·근거 검사를 통과하지 못했습니다.':diagnostic.stage==='persist'||diagnostic.stage==='result_read'?'AI 응답의 저장·조회 결과를 확인하지 못했습니다.':'생성 결과를 확정하지 못했습니다.';
         return reply({error:`${hint} 같은 요청을 자동으로 다시 실행하지 않습니다. 호출·과금 여부와 결과 상태부터 확인해 주세요.`,code:'GENERATION_UNCONFIRMED',jobId:prepared.id},502);
       }
     } catch(error) {

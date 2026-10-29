@@ -3,6 +3,7 @@ import {execFileSync,spawn} from 'node:child_process';
 import {randomUUID,createHash} from 'node:crypto';
 import {readFileSync,writeFileSync,readdirSync} from 'node:fs';
 import {createAnalysisHandler} from '../src/lib/analysis/api.ts';
+import {generateJson} from '../src/lib/analysis/provider.ts';
 const container=execFileSync('docker',['run','--pull','never','--rm','-d','--network','none','--label','aimaster.bnc-analysis-test=true','-e','POSTGRES_HOST_AUTH_METHOD=trust','postgres:17-alpine'],{encoding:'utf8',windowsHide:true}).trim();
 assert.match(container,/^[a-f0-9]{64}$/);
 const args=['exec','-i',container,'psql','-X','-q','-A','-t','-v','ON_ERROR_STOP=1','-U','postgres'];
@@ -102,10 +103,16 @@ try {
   let calls=0;
   const handler=createAnalysisHandler({member:async()=>({allowed:true,userId:owner}),key:async()=> 'fixture-not-a-secret',
    rpc:async(user,op,p)=>{try{return {data:rpc(user,op,p),error:null};}catch(e){return {data:null,error:{message:e.stderr?.toString()??e.message}};}},
-   generate:async(provider,model,key,system,user)=>{calls++;assert.equal(key,'fixture-not-a-secret');const input=JSON.parse(user);
-    if(input.profile)return {candidates:[{blogId:'candidate-api',topicScore:81,reasons:['캠핑 주제 일치'],evidence:[{sourceId:input.posts[0].id,quote:'회원 제공 후보 본문'}]}]};
-    return {profile:profileFields,evidence:[{sourceId:input.posts[0].id,quote:'가상 캠핑 본문'}]};}});
-  const id=randomUUID();const payload={id,provider:'openai',model:'gpt-5.6-luna',externalAiConfirmed:true,materialIds:[source],preferences};
+   generate:async(provider,model,key,system,user,schema)=>{calls++;assert.equal(key,'fixture-not-a-secret');const input=JSON.parse(user);
+    const output=input.profile?{candidates:[{blogId:'candidate-api',topicScore:81,reasons:['캠핑 주제 일치'],evidence:[{sourceId:input.posts[0].id,quote:'회원 제공 후보 본문'}]}]}:
+     {profile:profileFields,evidence:[{sourceId:input.posts[0].id,quote:'가상 캠핑 본문'}]};
+    if(provider!=='anthropic')return output;
+    return generateJson(provider,model,key,system,user,async(_url,options)=>{
+     const request=JSON.parse(options.body);assert.equal(request.output_config.format.type,'json_schema');assert.equal(request.output_config.format.schema.additionalProperties,false);
+     return Response.json({stop_reason:'end_turn',content:[{type:'text',text:JSON.stringify(output)}]});
+    },schema);
+   }});
+  const id=randomUUID();const payload={id,provider:'anthropic',model:'claude-haiku-4-5',externalAiConfirmed:true,materialIds:[source],preferences};
   const send=input=>handler(new Request('https://fixture.test/api/analysis',{method:'POST',headers:{origin:'https://fixture.test','content-type':'application/json'},body:JSON.stringify(input)}));
   assert.equal((await send({operation:'profile',payload})).status,200);assert.equal((await send({operation:'profile',payload})).status,200);assert.equal(calls,1);
   assert.equal((await (await send({operation:'get',payload:{id}})).json()).data.state,'succeeded');
@@ -136,5 +143,5 @@ try {
   const running=prepare(owner,[source]);rpc(owner,'claim',{id:running,run_hash:hash('active')});
   assert.throws(()=>rpc(owner,'cancel',{id:running}),/ALREADY_STARTED/);
  });
- writeFileSync(new URL('../docs/evidence/analysis-database-20261027.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),database:version,migration,tests,passed:tests.length,network:'none',hostPorts:0,operatingDatabaseChanged:false,realAiCalls:0},null,2)+'\n');
+ writeFileSync(new URL('../docs/evidence/analysis-structured-database-20261029.json',import.meta.url),JSON.stringify({checkedAt:new Date().toISOString(),database:version,migration,tests,passed:tests.length,network:'none',hostPorts:0,operatingDatabaseChanged:false,realAiCalls:0,anthropicSchemaRequestAndPersistenceVerified:true},null,2)+'\n');
 } finally {execFileSync('docker',['rm','-f',container],{stdio:'ignore',windowsHide:true});}
