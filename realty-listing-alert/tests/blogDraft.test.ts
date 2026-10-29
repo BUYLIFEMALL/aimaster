@@ -74,3 +74,10 @@ test("실거래 신고 없음: 2일째부터 날수, 하루·없음·이상한 �
   assert.equal(noTradeDays(undefined, now), null);
   assert.equal(noTradeDays("x", now), null);
 });
+
+test("쉼표 든 단지 이름은 키워드 하나로(받는 쪽이 쉼표로 나눔)", () => {
+  const one = new URL(buildBlogDraftLink({ ...stat, name: "백송풍림,삼호" }, NOW));
+  assert.equal(one.searchParams.get("keywords")!.split(",")[0], "백송풍림·삼호");
+  const w = new URL(buildWeeklyDraftLink([{ at: "2026-10-26T10:00:00Z", complexes: [{ name: "백송풍림, 삼호", events: ev(1, 0) }] }], "2026-10-25", "2026-10-26", NOW)!);
+  assert.deepEqual(w.searchParams.get("keywords")!.split(","), ["백송풍림·삼호", "2026 아파트 주간 시세"]);
+});

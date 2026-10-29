@@ -14,7 +14,9 @@ export const DRAFT_TARGETS: Record<DraftTarget, { label: string; url: string }> 
 export const isDraftTarget = (v: unknown): v is DraftTarget => v === "blog" || v === "tistory";
 
 function draftLink(draft: { topic: string; keywords: string[] }, target: DraftTarget) {
-  return `${DRAFT_TARGETS[target].url}?${new URLSearchParams({ topic: draft.topic, keywords: draft.keywords.join(",") }).toString()}`;
+  // 받는 쪽이 keywords를 쉼표로 나누므로 「백송풍림,삼호」 같은 단지 이름 안 쉼표는 「·」로 바꿔 한 키워드로 남긴다(2026-10-29 실물 확인)
+  const keywords = draft.keywords.map((k) => k.replace(/\s*,\s*/g, "·")).join(",");
+  return `${DRAFT_TARGETS[target].url}?${new URLSearchParams({ topic: draft.topic, keywords }).toString()}`;
 }
 
 export type DraftStat = {
