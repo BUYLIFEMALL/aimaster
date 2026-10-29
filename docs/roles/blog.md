@@ -1,5 +1,8 @@
 # 블로그
 
+> [역할: blog] **8번 결과 확인 후 반복 대기 복구 로컬 완료 / 미배포** — 2026-10-29 `7b6e4556e`: 서비스 전용 `bnc_schedule_control`과 회원 인증 기반 조회/복구 API, 기존 설정 화면의 진행 상태·결과 확인 체크·대기 복구 버튼, 매뉴얼을 연결했다. paused 기록의 정확한 run/generation/설정·주기 revision과 확인 동의가 맞고, 이전 작업이 서버에서 성공·미실행·중단으로 확인되며 모든 claimed/armed/uncertain 작업이 해결된 경우만 대기 복구한다. 복구는 회원 OFF/전역 게이트를 유지하고 작업·승인·관찰 결과를 바꾸지 않는다. generation 갱신으로 옛 완료 보고를 차단하고 복구 시점부터 다음 주기를 잡는다. 결과 불확정/삭제/미실행 전 ready는 복구 불가. 응답 유실 시 동의·화면 상태를 버리고 재조회만 허용, 자동 재요청 없음. 단위216/격리DB18·219SQL/타입 통과. 새 migration은 기존 미적용 `20261029044735_bnc_schedule_cursor.sql` 한 파일을 보완한 것으로 표1·공개RPC2, 운영 적용 승인 전 실행 금지. 운영v1.03·43명/작업0/liveOFF/새import0 유지, 후속4건 미배포. 실제 주기호출자/브라우저adapter·운영/실네이버 반복 검수는 남음. Edge 새탭 키 입력은 restore 후 window_not_focused로 중단하여 시각 검수 미완료. 초기 정적 화면·컴포넌트·CSS·스펙·검수JSON을 기존 디자인 폴더에 영구 저장(스크린샷 없음). 유료AI/검색/Vercel빌드·배포/푸시0, 신규 요청0. [검수 근거](../../blog-neighbor-care/docs/evidence/schedule-recovery-20261029.json).
+> 확인: [공식 운영](https://blog-neighbor-care.buylife.xyz/settings) · [Vercel 보조](https://blog-neighbor-care.vercel.app/settings) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [정적 초기 화면](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/schedule-recovery-20261029/index.html) · [영구 자산](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/schedule-recovery-20261029). 운영에는 이번 복구 UI가 아직 없습니다. 정적 보존본은 서버 연결·실행 기능이 없습니다.
+
 > [역할: blog] **8번 반복 실행의 지속 기록·중복 차단 로컬 구현 / 미배포** — 2026-10-29 `6a307bbfc`: 신규 `bnc_schedule_cursor` 표/서비스 전용 `bnc_schedule_tick` RPC와 비공개 서버 실행 연결을 구현했다. 회원 설정→주기 설정→cursor→작업 순서로 잠그고, 동일 회원 동시 시작은 1개만 허용한다. KST 시간대·주기·설정 revision·승인된 ready 작업·본인 계정/유효 기기를 확인한다. 완료 시각부터 다음 주기를 계산해 밀린 실행을 몰아 처리하지 않는다. DB 성공 기록만 성공으로 인정하며, 5분 실행 기한 경과/응답 유실/결과 불확정은 paused·회원 OFF로 중단한다. 성공·불확실 작업 재실행과 오래된 완료 보고를 차단한다. 전체 단위 213개·타입 검사 통과, 네트워크 none/호스트 포트 0 격리 PostgreSQL 13검수/149SQL 통과(동시 프로세스 및 서명 host→가상 동작→효과기록→다음 주기 연결 포함). 운영은 v1.03/43명·작업0/live OFF·새 import0 유지. 신규 migration `20261029044735_bnc_schedule_cursor.sql`은 운영 미적용이며 별도 적용 승인 전 실행하지 않는다. 실제 주기 호출자/브라우저 adapter·paused 결과 검토 후 명시적 재개·실네이버 반복은 남아 8번 전체 완료가 아니다. 기존 재가져오기/로그와 합쳐 미배포 3건, 버전/공개 ZIP은 보존. 신규 유료 AI/검색/Vercel 빌드·배포/푸시 0, 관리자 신규 조작 요청 0. [검수 근거](../../blog-neighbor-care/docs/evidence/schedule-cursor-20261029.json).
 
 > [역할: blog] **정리 완료로그 보강/208검수 · 읽기시작기한을테스트기간과일치** — 2026-10-29 후속: 만료된 미사용시작허가908b7a26 철회·기존2주테스트구독만료에맞춘1회허가80ad914d(11/11 17:28:55KST) 발급. 본인회원/계정/기기·1페이지43명·시작후15분/nonce60초 유지,전역읽기/소통OFF·작업0·43명/원래대상ON 보존 재확인. 요청fe166de3는기한/설명만갱신(신규요청0);재수신은아직0. 정리API에완료로그가없어예약상태와실행성공을구분할수없는공백을CL05/06 red로재현→1a62398ea로인증후정리5종성공여부/정상건수만1회기록(bnc_cleanup_completed),본문/키/회원ID/DB오류미기록. 로그실패/변조는정리재실행/응답변경없이격리. 정리6/전체단위208·타입통과. Edge Cron화면진입은restore후에도window_not_focused로중단하여정시실행/실삭제는미검증유지. 새Vercel빌드/배포/유료AI/검색/푸시0,운영v1.03유지. 미배포는재가져오기8ffa45a9f와로그1a62398ea 두건으로다음묶음에반영. 비용은앞으로 Vercel 빌드 비용으로표현하고별도배포횟수요금으로설명하지않음. [검수근거](../../blog-neighbor-care/docs/evidence/cleanup-observability-20261029.json).
@@ -120,7 +123,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-29 · 반복 cursor 6a307bbfc/단위213·격리13/타입 통과·소스3건 미배포/신규SQL1개 미적용, 운영v1.03/43명 유지
+- 마지막 갱신: 2026-10-29 · 복구UI/API 7b6e4556e/단위216·격리18/타입 통과·후속4건 미배포/SQL1개미적용, 운영v1.03/43명 유지
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -128,7 +131,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 지금 하는 일
 
-- 최신: 반복 실행 cursor/비공개 서버 연결 로컬 검수 완료. 실제 호출자/adapter·명시적 재개 구현과 검수를 이어간다. 재가져오기 새 수신이 생기면 우선 확인·반영/대상 보존 검수.
+- 최신: 반복 cursor·비공개 서버 연결·결과 확인 후 대기 복구 UI/API 로컬 검수 완료. 실제 호출자/adapter·운영 및 실반복 검수를 이어간다. 재가져오기 새 수신이 생기면 우선 확인·반영/대상 보존 검수.
 
 - 쉬운대기우선: SQL4개운영반영완료·구형조작요청3건완료정리·ZIP/빌드/HTTP검수완료. 웹/확장묶음배포준비와실재가져오기/AI/후보/실동작검수는남음.
 
@@ -187,7 +190,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 
-- 최신: 재가져오기8ffa45a9f/정리로그1a62398ea/반복cursor6a307bbfc 3건 미배포. 신규cursor SQL1개 운영 미적용(구현·검수 준비, 적용 승인 전 실행 금지). 실제 AI/후보/소통/반복/Cron 미완료. 아래 옛 SQL/배포 대기는 당시 이력.
+- 최신: 재가져오기8ffa45a9f/정리로그1a62398ea/반복cursor6a307bbfc/복구7b6e4556e 4건 미배포. cursor SQL1개(표1/RPC2) 미적용·적용 승인 전 실행 금지. 실제 AI/후보/소통/반복/Cron·Edge복구UI 시각 검수 미완료. 아래 옛 대기는 당시 이력.
 
 **최신:** 이름 수정과 서버 기능은 묶음 배포 대기. 신규 분석SQL/정식UI/실제AI 미완료. 현재 사용자에게 새 요청 없음.
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -202,6 +205,8 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+
+- 2026-10-29 복구 조회/API·상태/동의/버튼·매뉴얼 7b6e4556e, 단위216/격리18·219SQL/타입 통과. OFF유지/미확정차단/옛 완료차단. 운영/실Edge·실반복은 미완료.
 
 - 2026-10-29 반복cursor·동시 시작 방지·응답 유실 시 중단·비공개 실행 연결 6a307bbfc, 단위213/격리13·149SQL/타입 통과. 실제 네이버 반복 성공으로 보고하지 않음.
 
@@ -299,7 +304,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 다음 첫 단계
 
-- 최신: paused 기록을 결과 검토 후 명시적으로 재개하는 계약/검수와 실제 허용된 worker·adapter 준비. 새 import 수신 시 재가져오기 검수 우선. 운영SQL 무단 적용·추가 유료 빌드·소진한 AI 승인 재사용 금지.
+- 최신: paused 결과 확인 후 대기 복구 로컬 구현 완료. 다음은 실제 허용된 주기 호출자/worker·브라우저adapter 준비와 실검수. 새 import 수신 시 재가져오기 검수 우선. 운영SQL 무단 적용·추가 유료 빌드·소진한 AI 승인 재사용 금지.
 
 1. 쉬운작업부터: 이미SQL적용된웹/확장묶음의운영반영조건을정리하고실회원검수준비. SQL4개재실행금지. 실제재가져오기/AI·후보검수와실worker/브라우저·수락/답방/대댓글/반복은별도잔여.
 
