@@ -6,6 +6,7 @@ import {nextSchedulePreview} from '../src/lib/schedule.ts';
 import {runScheduledWork} from '../src/lib/execution/scheduledWork.ts';
 import {runTicketedWork} from '../src/lib/execution/trustedHost.ts';
 import {issueWorkerTicket} from '../src/lib/execution/workerTicket.ts';
+import {createScheduleWorker} from '../src/lib/execution/scheduleWorker.ts';
 const migration='20261029044735_bnc_schedule_cursor.sql';
 const container=execFileSync('docker',['run','--pull','never','--rm','-d','--network','none','--label','aimaster.bnc-schedule-test=true','-e','POSTGRES_HOST_AUTH_METHOD=trust','postgres:17-alpine'],{encoding:'utf8',windowsHide:true}).trim();
 assert.match(container,/^[a-f0-9]{64}$/);
@@ -177,7 +178,28 @@ try{
   assert.equal(sql(`select count(*) from bnc_jobs where user_id=${q(a.user)};`),'0');
   assert.equal(sql(`select count(*) from bnc_schedule_cursor where user_id=${q(a.user)};`),'0');
  });
+ await check('SDB19 bounded worker selects a ready DB job, issues its ticket, settles once and survives host recreation without replay',async()=>{
+  const a=fixture();tick(a,'begin',a.start);due(a);let effects=0;
+  const secret='fixture-polling-worker-secret-32bytes',binding={memberId:a.user,accountId:a.account,deviceId:a.device,actorId:a.actor};
+  const context=()=>({accountId:a.account,actorId:a.actor,neighborId:'fixture-neighbor',postId:'',checkedAt:Date.now()});
+  const store={member:async id=>({allowed:id===a.user,userId:id}),connected:async()=>true,permitted:async()=>true,
+   load:async(user,id)=>JSON.parse(sql(`select to_jsonb(j) from bnc_jobs j where user_id=${q(user)} and id=${q(id)};`,'service_role')),
+   rpc:async(user,op,p)=>dispatch({user},op,p),result:async(user,p)=>JSON.parse(sql(`select bnc_execution_result_dispatch(${q(user)},'result',${payload(p)});`,'service_role'))};
+  const adapter={inspect:async()=>({...context(),restriction:'none',relationship:'none',liked:null,duplicate:false}),assertCurrent:async()=>true,
+   apply:async()=>{effects++;},verify:async()=>({...context(),state:'pending'})};
+  const dependencies={secret:()=>secret,context:async()=>{
+   const settings=dispatch(a,'settings');return {memberId:a.user,allowed:true,connected:true,enabled:settings.enabled,liveAllowed:settings.live_allowed,
+    settingsRevision:settings.revision,preferenceRevision:1,policyKinds:['request']};},
+   jobs:async()=>JSON.parse(sql(`select coalesce(jsonb_agg(to_jsonb(j)),'[]') from bnc_jobs j where user_id=${q(a.user)} and state='ready';`,'service_role')),
+   dispatch:(t,revisions)=>runScheduledWork(t,revisions,{secret:()=>secret,authorize:store.member,tick:async(user,op,p)=>tick({user},op,p),
+    execute:value=>runTicketedWork(value,{secret:()=>secret,store,adapter})}),wait:async()=>{}};
+  const results=await createScheduleWorker(binding,dependencies).run({signal:new AbortController().signal,cycles:2});
+  assert.equal(results[0].status,'succeeded');assert.equal(results[1].reason,'no_approved_work');
+  assert.equal((await createScheduleWorker(binding,dependencies).poll()).reason,'no_approved_work');assert.equal(effects,1);
+  assert.equal(tick(a,'status').state,'idle');assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${q(a.job)};`),'1');
+  assert.equal(sql(`select succeeded from bnc_daily where user_id=${q(a.user)} and kind='request';`),'1');
+ });
  const evidence={date:new Date().toISOString(),migration,tests,passed:tests.length,sqlCalls,isolated:true,network:'none',hostPorts:0,operatingApplied:false,productionCaller:false,externalActions:0};
- writeFileSync(new URL('../docs/evidence/schedule-recovery-20261029.json',import.meta.url),JSON.stringify(evidence,null,2)+'\n');
+ writeFileSync(new URL('../docs/evidence/schedule-worker-20261029.json',import.meta.url),JSON.stringify(evidence,null,2)+'\n');
  console.log(JSON.stringify({passed:tests.length,sqlCalls,operatingApplied:false}));
 }finally{execFileSync('docker',['stop',container],{windowsHide:true,stdio:'pipe'});}
