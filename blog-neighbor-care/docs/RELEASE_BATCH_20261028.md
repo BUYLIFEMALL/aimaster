@@ -1,10 +1,12 @@
 # 분석·기존 이웃 기능 묶음 반영 결과 — v1.02
 
-## 2026-10-29 추가 묶음 대기 — 운영 적용 전
+> 쉬운대기우선후속538c0d414: SQL4개운영반영완료(대기0),원격이력35504/507/510/514의전체버전은 개선대기표 매핑 참조. 웹/ZIP은미배포이며Next로컬빌드/HTTP39/ZIP9검수통과. 이미반영한SQL을다시적용하지않습니다.
+
+## 2026-10-29 추가 묶음 — SQL 운영 반영 완료·웹 배포 대기
 
 - 실제 운영 v1.02는 유지합니다. 현재 로컬 코드/ZIP 대기는 개선원장 맨 위를 따릅니다.
-- 다음 웹 배포 전에 미적용 SQL 네 개를 순서대로 적용·검수합니다: 20261028123000_bnc_work_retention → 20261028124500_bnc_work_cancel → 20261028143000_bnc_schedule_preferences → 20261028233611_bnc_execution_evidence. 이미 적용된 기존 reader/analysis/import/permit SQL을 재실행하지 않습니다.
-- 결과기록 표1/RPC1의 서비스전용 권한·회원RLS·원자적 성공기록·원래 작업 만료기한·정리5종 실패격리를 확인합니다. 로컬 단위201/격리SQL36/정리11·타입 검수 통과. 신규 SQL은 운영 미적용입니다.
+- 운영 SQL 네 개는 2026-10-29 순차 적용·권한/게이트/기존자료유지 검수완료입니다(재실행금지): 20261028123000_bnc_work_retention → 20261028124500_bnc_work_cancel → 20261028143000_bnc_schedule_preferences → 20261028233611_bnc_execution_evidence. 이미 적용된 기존 reader/analysis/import/permit SQL을 재실행하지 않습니다.
+- 결과기록 표1/RPC1의 서비스전용 권한·회원RLS·원자적 성공기록·원래 작업 만료기한·정리5종 실패격리를 확인합니다. 로컬 단위201/격리SQL36/정리11·타입 검수 통과. 네 SQL 모두 운영 적용완료입니다. 로컬파일버전과운영이력버전이달라위작업판/근거JSON의매핑으로중복적용을막습니다.
 - BNC_WORKER_SECRET 및 동작별 BNC_REQUEST_POLICY_REFERENCE/BNC_LIKE_POLICY_REFERENCE/BNC_COMMENT_POLICY_REFERENCE는 이번 작업에서 운영에 설정하지 않았습니다. 허용 근거·실제worker·브라우저adapter 검수 전에 live를 켜거나 읽기 연결 토큰을 쓰기 권한으로 사용하지 않습니다. 공개 작업자 실행/티켓발급 API도 없습니다.
 - 배포 비용·팀 단일 빌드·버전/ZIP/DB 동기화는 기존 절차를 따릅니다. 이번 커밋 e12bb8678은 미배포이며 실제 외부 소통은 실행하지 않았습니다.
 

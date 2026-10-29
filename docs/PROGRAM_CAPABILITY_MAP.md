@@ -659,11 +659,11 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.02 운영 / 실행 인증·결과 기록 로컬 추가, SQL4개·묶음 배포 대기
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.02 운영 / SQL4개 운영 반영 완료, 웹·확장 묶음 배포 대기
 
 - **공식 썸네일 등록(2026-10-29):** 지침(`docs/PLATFORM_PATTERNS.md` §13)에 따라 16:9 실사(포토리얼) 썸네일 생성 및 `scripts/upload-program-thumbnail.mjs`로 Supabase Storage `program-images/catalog/blog-neighbor-care-thumbnail.jpg` 업로드·DB `programs.thumbnail_url` 갱신 완료. 6분할 확대 점검(`thumbnail-zoom-tiles.mjs`) 결과 모니터 화면 가짜 글자·오타·로고 0건 검증 완료. 로컬 복사(`blog-neighbor-care/public/blog-neighbor-care-thumbnail.jpg`).
 
-- **최신 후속:** 실제43명저장·확장완료표시검수완료. e12bb8678: 60초작업자범위인증/공용회원권한·연결기기·승인문장검사/동작허용게이트/효과근거와성공카운터원자적기록/최초기한정리 로컬구현. 단위201·격리SQL36·정리DB11·타입통과. 읽기토큰으로실행불가·공개workerAPI/새운영secret없음,실worker·브라우저adapter·수락/대댓글/답방/반복미구현. 신규결과기록migration포함SQL4/웹ZIP묶음미반영. [근거](../blog-neighbor-care/docs/evidence/worker-auth-evidence-20261029.json).
+- **최신 후속:** 검수된운영SQL4개순차적용·4invoker/2표권한·게이트OFF/43명유지·빈정리0건확인,운영SQL대기0. 이미완료된구형조작요청3건정리. ZIP버전고정오류수정538c0d414·Next로컬빌드/HTTP39/ZIP9원본검수통과. 현재대기7그룹·조건부1보류,웹/ZIP묶음미배포·v1.02유지. 실재가져오기/AI·후보/실worker·브라우저·수락/답방/대댓글/반복·Cron실삭제남음. [근거](../blog-neighbor-care/docs/evidence/operating-easy-wins-20261029.json).
 
 - **2026-10-28 독립 작업:** 8번 작업 조회·중단(API/설정 화면), 9번 소통 문장 30일 정리, 1번 확인 기한·이웃 읽기 우선 배치, 4번 안전한 AI 실패 사유 안내를 구현했습니다. 단위174·격리DB8·타입/로컬 빌드 통과. 신규 SQL2개 미적용·미배포, 실제43명 최종 저장/실행기/예약·반복/운영 Cron 검수는 남음. 기존 확장 최신 수정의 재로드는 Edge 활성화 요청91fa9442 이후 확인합니다.
 
