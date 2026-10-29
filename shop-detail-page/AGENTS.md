@@ -454,3 +454,8 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 목록 카드 「✅ 검토 완료」 배지. 새 상품 화면이 `category` 주소 값을 받음(분석 결과가 있으면 분석 우선). 흐름 띠 사본(`lib/shopFlow.ts`·`components/ShopFlowBar.tsx`) — `?flow=shop`일 때만 보임.
 - 배포 `shop-detail-page-5az2ls9nr` Ready(크롬 확인: 검토 저장·유지·등록 버튼·상품번호·흐름 띠). **버전 숫자를 올리지 않고 배포해 화면은 v1.38 — 다음 배포 때 v1.39 + DB(미배포 대기)**.
 - **v1.39 배포(같은 날)**: 버전 숫자 맞추기 + 넘어온 카테고리보다 분석 카테고리 우선. `shop-detail-page-3h5v9rlyd` Ready, DB v1.39, 크롬 v1.39 표시 확인. 미배포 대기 없음.
+
+## 2026-10-29 미배포 대기 — 옛 12단 자료 가져오기 정리 (Claude Code 윈도우 `claude-win-sdp`, 역할 ecommerce-image)
+- 주인님 「없어 정리하고」「불필요한 과거 연결고리 정리해」: 옛 AI 12단(`detail-page-12p`, 비공개·구독 0건·사용 기록 0건) 자료 이사 통로를 지움 — 상품 목록 「📦 12단 자료 가져오기」 버튼, `/products/import` 화면, `components/products/LegacyImportForm.tsx`, `importLegacyProductAction`(`lib/actions/products.ts`). 함께 쓰던 `uploadImageDirect`·`addCustomSectionImageAction`은 다른 곳에서 계속 사용.
+- 검수: tsc·eslint 통과. 배포: 미배포 대기(작은 소스 수정) — 다음 배포 때 버전 +0.01.
+- 옛 `detail-page-12p` 폴더·Vercel 프로젝트·도메인 삭제는 주인님 승인 뒤 별도(폐지 규칙: 백업 폴더 + git 태그 먼저).

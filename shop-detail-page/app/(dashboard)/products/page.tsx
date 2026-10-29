@@ -69,12 +69,6 @@ export default async function ProductsPage() {
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
-            href="/products/import"
-            className="btn-3d-amber text-xs font-bold"
-          >
-            <span>📦 12단 자료 가져오기</span>
-          </Link>
-          <Link
             href="/products/new"
             className="btn-3d-primary text-xs font-bold shadow-lg"
           >
