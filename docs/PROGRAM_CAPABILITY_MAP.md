@@ -659,7 +659,9 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그 후속2건 미배포
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그·반복cursor 후속3건 미배포
+
+- **반복 후속(10-29):** 6a307bbfc·지속cursor/서버실행연결, 동시시작1개·KST/주기·기기·revision 확인·불확정paused/회원OFF·완료시각기준 다음주기. 단위213/격리DB13·149SQL/타입 통과. 신규표1/RPC1 운영미적용·실제주기호출자/adapter/명시적재개/실반복 미완료. [근거](../blog-neighbor-care/docs/evidence/schedule-cursor-20261029.json).
 
 - **후속(10-29):** 1a62398ea·인증후정리결과최소로그/로그오류격리·208검수/타입통과·미배포. 1회읽기시작허가80ad914d는기존시험구독만료11/11 17:28까지,실행15분/nonce60초/본인43명범위유지. 재수신/실Cron미검증. [근거](../blog-neighbor-care/docs/evidence/cleanup-observability-20261029.json).
 
