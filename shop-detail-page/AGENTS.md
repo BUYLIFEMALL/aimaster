@@ -461,7 +461,7 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 옛 `detail-page-12p` 폴더·Vercel 프로젝트·도메인 삭제는 주인님 승인 뒤 별도(폐지 규칙: 백업 폴더 + git 태그 먼저).
 
 ## 2026-10-29 미배포 대기 — 나노바나나 2.1 표기·비용 정정 (Claude Code 윈도우 `claude-win-sdp`)
-- 주인님 「새로 나노바나나 2.1 모델이 나왔어 … 사용할 수 있도록 반영해줘」: 확인 결과 「Nanobanana2」 선택지는 2026-10-17부터 이미 `gemini-nano-banana-2.1`(공용 `nanoBananaModels.ts` 등급 `nanobanana-2-2k`, 기준 ai-image-studio)로 호출 중 → 화면 이름만 「Nanobanana 2.1(가성비)」로, 장당 비용을 예전 값 /usr/bin/bash.101 → 공식가 /usr/bin/bash.0504(2K)로 정정(`lib/ai/imageModels.ts`, 매뉴얼 `CommerceUsageGuide.tsx` FAQ). 기본값(Pro)은 그대로.
+- 주인님 「새로 나노바나나 2.1 모델이 나왔어 … 사용할 수 있도록 반영해줘」: 확인 결과 「Nanobanana2」 선택지는 2026-10-17부터 이미 `gemini-nano-banana-2.1`(공용 `nanoBananaModels.ts` 등급 `nanobanana-2-2k`, 기준 ai-image-studio)로 호출 중 → 화면 이름만 「Nanobanana 2.1(가성비)」로, 장당 비용을 예전 값 $0.101 → 공식가 $0.0504(2K)로 정정(`lib/ai/imageModels.ts`, 매뉴얼 `CommerceUsageGuide.tsx` FAQ). 기본값(Pro)은 그대로.
 - 검수: tsc. 배포: 미배포 대기 — 위 12단 정리와 함께 다음 배포(v1.40).
 
 ## 2026-10-29 v1.40 배포 — 위 두 미배포 대기분(12단 가져오기 삭제·나노바나나 2.1 표기/비용) 함께 내보냄
