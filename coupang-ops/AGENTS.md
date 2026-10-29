@@ -61,3 +61,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **메타 속성 응답 칸 확인**: `attributeTypeName, dataType, inputType, inputValues, basicUnit, usableUnits, required, groupNumber, exposed` → **고를 수 있는 값 목록(`inputValues`)과 입력 방식(`inputType`)이 온다.** `normalizeMeta`에 아직 두 칸을 담지 않음 → 상품 화면 만들 때 추가.
 - `/defaults`: 출고지·반품지는 골랐으나 **반품배송비(초도·편도) 금액을 주인님이 정해 주셔야 저장**(아직 저장 안 함).
 - 상품 노출은 아직 안 되는 상태(주인님 확인 중) — 실제 등록 시험은 노출이 풀린 뒤.
+- **반품배송비 규칙(2026-10-29 주인님 지시)**: 회원이 직접 정할 수 있고, 비우면 **편도 = 발송비 + 1,000원**(초도·반품 두 칸 모두) → 무료배송 상품 반품 왕복 = (발송비+1,000원)×2. 무료배송이어도 반품비는 받는다(판매자가 택배비를 마진에 넣어 대신 낸 것) → 두 칸이 0이면 저장 막음. `/defaults`에 「발송비(택배 1건 실제 비용)」 칸 추가(`shipCost`, 쿠팡에 보내지 않음), `defaults.ts` `defaultReturnFee`·`checkDefaults`. 시험 23개 통과.

@@ -38,9 +38,14 @@ const bool = (v: unknown) => v === true || v === "on" || v === "true" || v === "
 const pick = <T extends string>(v: unknown, list: { value: T }[], fallback: T): T => (list.some((x) => x.value === v) ? (v as T) : fallback);
 
 /** 화면 폼·DB 어디서 오든 같은 모양으로 정리(모르는 값은 안전한 기본값) */
+/** 반품배송비 기본값 = 발송비 + 1,000원(편도) — 무료배송 상품 반품 왕복은 ×2(2026-10-29 주인님 지시). 회원이 넣은 값이 있으면 그 값 */
+export const RETURN_FEE_EXTRA = 1000;
+export const defaultReturnFee = (shipCost: number) => (shipCost > 0 ? shipCost + RETURN_FEE_EXTRA : 0);
+
 export function normalizeDefaults(raw: Record<string, unknown> | null | undefined): CoupangDefaults {
   const r = raw ?? {};
   const rc = (r.returnCenter ?? {}) as Record<string, unknown>;
+  const shipCost = won(r.shipCost);
   return {
     outboundShippingPlaceCode: text(r.outboundShippingPlaceCode, 30),
     returnCenter: {
@@ -55,9 +60,10 @@ export function normalizeDefaults(raw: Record<string, unknown> | null | undefine
     deliveryCompanyCode: text(r.deliveryCompanyCode, 30).toUpperCase(),
     deliveryChargeType: pick(r.deliveryChargeType, CHARGE_TYPES, "FREE"),
     deliveryCharge: won(r.deliveryCharge),
+    shipCost,
     freeShipOverAmount: won(r.freeShipOverAmount),
-    deliveryChargeOnReturn: won(r.deliveryChargeOnReturn),
-    returnCharge: won(r.returnCharge),
+    deliveryChargeOnReturn: won(r.deliveryChargeOnReturn) || defaultReturnFee(shipCost),
+    returnCharge: won(r.returnCharge) || defaultReturnFee(shipCost),
     remoteAreaDeliverable: bool(r.remoteAreaDeliverable),
     unionDelivery: r.unionDelivery === undefined ? true : bool(r.unionDelivery),
     outboundShippingTimeDay: Math.max(1, Math.min(30, won(r.outboundShippingTimeDay) || 2)),
@@ -75,6 +81,8 @@ export function checkDefaults(d: CoupangDefaults): string[] {
   if (!d.deliveryCompanyCode) p.push("택배사를 골라 주세요.");
   if (d.deliveryChargeType === "CONDITIONAL_FREE" && !(d.freeShipOverAmount > 0)) p.push("조건부 무료배송이면 무료배송 기준 금액을 넣어 주세요.");
   if ((d.deliveryChargeType === "NOT_FREE" || d.deliveryChargeType === "CONDITIONAL_FREE") && !(d.deliveryCharge > 0)) p.push("기본 배송비를 넣어 주세요.");
+  // 무료배송으로 보냈어도 반품비는 받는다(2026-10-29 주인님 「무료배송으로 발송되었어도 반품비는 받아야되」)
+  if (!(d.deliveryChargeOnReturn > 0) || !(d.returnCharge > 0)) p.push("반품배송비(초도·편도)를 넣거나 발송비를 넣어 주세요 — 비우면 발송비+1,000원이 들어갑니다. 무료배송이어도 반품비는 받습니다.");
   if (d.deliveryChargeOnReturn > 0 && (d.returnCharge < d.deliveryChargeOnReturn || d.returnCharge > d.deliveryChargeOnReturn * 1.5)) {
     p.push("반품배송비는 초도 반품배송비의 100~150% 사이여야 합니다(쿠팡 규칙).");
   }

@@ -18,6 +18,8 @@ export interface CoupangDefaults {
   deliveryCompanyCode: string;
   deliveryChargeType: DeliveryChargeType;
   deliveryCharge: number;
+  /** 발송비 — 택배 1건 실제 비용(쿠팡에 보내지 않음, 반품배송비 기본값 계산용) */
+  shipCost: number;
   freeShipOverAmount: number;
   deliveryChargeOnReturn: number;
   returnCharge: number;
