@@ -1,5 +1,4 @@
-# 작업 중 표 (ACTIVE_| `coupang-ops/` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-29 | 쿠팡 판매 재개 → 실키 연결 시험·출고지/반품지·카테고리 확인(로컬, 배포 없음) |
-WORK.md) — 동시 작업 방지
+# 작업 중 표 (ACTIVE_WORK.md) — 동시 작업 방지
 
 > [역할: blog] **후속: 반복 설정 저장·후보 동의 초기화 로컬 완료 / 실제 실행 미완료** (2026-10-28T14:28:35.542Z) — 8번 반복 주기·KST시간대 저장/재조회·예상시각(실제실행아님), 동시수정revision검사·RLS/API입력검증 구현. 5번 후보주소/제목/본문수정시이전권한/AI동의/선택초기화. 단위180·격리DB10(137SQL,네트워크none)·타입/로컬빌드통과. 운영SQL은누적3개미적용·웹/ZIP묶음미배포, 실제예약/반복실행기와6/7번실행기는미완료. 기존Edge21169596 새탭만사용하여최신확장재로드/본인이웃우선배치실확인, /neighbors로그인정상·0명반영/기존43명expired확인. 팝업버튼native대상상실로실제새읽기683b74de만직접요청; 활성요청91fa9442는해결. 새수신/최종저장미완료·AI/검색/원격빌드0·전체읽기/소통OFF유지.
 
@@ -45,13 +44,5 @@ WORK.md) — 동시 작업 방지
 | `shorts-onestop-studio/` | [역할: design] Antigravity(윈도우, 엣지) · 세션 `agy-win-20261025-ext3d` | 2026-10-29 | Group 2 쇼츠 원스톱 영상 자동화 4대 화면 3시안(12뷰) 단일 비교 쇼케이스 제작 중 |
 | `blog-neighbor-care/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` | 2026-10-29 | 기능구현 우선·6번 발신신청 상태620ca322a 로컬 완료(단위234/격리DB20/타입), 실제adapter/실수락 별도. 다음7번 답방·대댓글 구현. 후속7건미배포/SQL1미적용, 운영v1.03·43명/liveOFF. 668992b9승인/fe166de3수신대기·비용0. |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` (이전 codex-win-20261025-blog) | 2026-10-29 | 현황정리: 실제Edge설치/본인블로그연결/네이버로그인확인·7eba5ff7완료. 설치2.21→2.22업데이트·현재Edge/옛8연결식별·해제/실입력미완료, 토큰해제0·발행0. 제품소스수정없음. |
-| playlist-channel-studio/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | YouTube/OpenAI/Gemini/Suno 4대 키발급 2단버튼 & 1080p 렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.32 완료) |
-| music/ | [역할: design] Antigravity(윈도우, 웨일) · 세션 gy-win-20261025-ext3d | 2026-10-25 | Suno/OpenAI/Claude/Gemini 4대 키발급 2단버튼 & 음악생성 3D 엠보싱 실행버튼 업그레이드 (✅ v1.47 완료) |
-| `detail-page-12p/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | Gemini API키 발급 2단 버튼 & 12단/9단 기획·렌더링 3D 엠보싱 실행버튼 업그레이드 (✅ v1.12 완료) |
-| `shots/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | Group 2 유튜브 대표 모델 4대 화면 3시안 제작 및 21. 헐리우드 시네마틱 네온 REC 스타일 확정 적용, WebCodecs GPU 가속 1080p 렌더러 & 3D 엠보싱 버튼 탑재, Whale 검수 및 D:\Antigravity\Design 자산 적재 (✅ v1.44 완료) |
-| `blog-content-maker/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | 4대 핵심 화면 3시안(12뷰) 제작 및 네이버 스마트 그린 저널 스타일 적용, 공식 네이버 그린(#03c75a) 톤 보정, 포스팅 3종 모드 칩셋 & 3D 엠보싱 버튼 탑재, Whale 실세션 검수 및 D:\Antigravity\Design 자산 적재 (✅ v1.13 완료) |
-| `blog-workroom/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | 4대 핵심 화면 3시안(12개 뷰) 주인님 1번 확정 승인 반영, 네이버 스마트 그린 저널 템플릿 확정 적용, 포스팅 3종 모드 칩셋 & 3D 엠보싱 버튼 탑재, Whale 실세션 검수 및 D:\Antigravity\Design 자산 적재 (✅ v1.15 완료) |
-| `naver-blog-seo-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-26 | 4대 핵심 화면 3시안(12개 뷰) 주인님 1번 확정 승인 반영, 네이버 스마트 그린 저널 템플릿 확정 적용, 포스팅 3종 모드 칩셋 & 3D 엠보싱 버튼 탑재, Whale 실세션 검수 및 D:\Antigravity\Design 자산 적재 (✅ v2.21 완료) |
-| `insta_auto_poster/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-20261025-ext3d` | 2026-10-25 | 7대 플랫폼 API키 발급 2단 버튼 & 피드·카드뉴스 3D 엠보싱 실행버튼 업그레이드 (✅ v1.70 완료) |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
 | `realty-listing-alert/` (새 폴더) | [역할: realty] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-realty` | 2026-10-24 | 새 프로그램 「AI 부동산 매물 알림 자동화」 구현 — 인수인계 `docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`. v1.36 운영(2026-10-26 정식 공개). 지금: 남은 실물 확인(10-30 수집 기록·「📝 글로 쓰기」 버튼) · 다음 후보 추가개선 5·6·7 플랜(미착수) — 최신 인수인계 `realty-listing-alert/docs/IMPROVEMENT_HANDOFF_20261029.md` |

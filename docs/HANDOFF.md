@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-29 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 전체 작업 현황 점검·「끝났는데 남은 표시」 정리
+- 주인님 지시: 「전체 작업중인 내용 완료된 내용들 싹 분석해서 개발문서에 현재 상태를 업데이트」「작업완료인데 안되 있는 것」「진행 끝났는데 아직 남아 있는것」.
+- 점검 방법: `dev-requests.mjs list`(대기 0건) → `check-role-status.mjs`(확인 항목 16개) → 작업 중 표 줄마다 폴더 커밋·버전·미커밋 변경 대조 → 디자인 현황판 「🔵 작업 중」(0건) → 역할 파일 「지금 하는 일」.
+- **작업 중 표(`docs/ACTIVE_WORK.md`)에서 지운 끝난 줄 8개**(근거 커밋): `playlist-channel-studio` v1.32(`14167d556`)·`music` v1.47(`1f6e0e13a`)·`insta_auto_poster` v1.70(`59a4c4fea`)·`shots` v1.44(`2e53629fc`)·`blog-content-maker` v1.13(`4b10fc01d`)·`blog-workroom` v1.15(`72ef741af`)·`naver-blog-seo-studio` v2.21(`9a776f22f`) — 모두 Antigravity 디자인 리뉴얼 배포 완료, `detail-page-12p` — 10-29 `shop-detail-page`로 병합·폐지(`0290cbeb7`). 또 표 제목 줄 가운데 잘못 끼어 있던 `coupang-ops` 줄을 표 안으로 옮겼다(내용은 그대로).
+- **역할 파일**: `docs/roles/blog.md` 「지금 하는 일」의 `naver-blog-seo-studio` 디자인 리뉴얼 줄 → 「최근 완료」로 옮김.
+- **지금 실제로 진행 중(작업 중 표 유지 6줄)**: `coupang-ops`(ecommerce-image, 10-29 커밋 계속), `shorts-onestop-studio`(design, 10-29 시작), `blog-neighbor-care`·`naver-blog-agent`(blog Codex, 10-29), `realty-listing-alert`(realty, 오늘 v1.37 커밋 — 줄의 작업 설명은 10-24 그대로라 realty 세션이 갱신 필요), `lyric-video-studio`(music — L-1 v1.11만 끝, L-2~L-5 남음, 10-25 이후 커밋 없음 → **주인님 확인 필요: 계속할지 대기로 돌릴지**).
+- **역할 파일이 오래된 곳(3일 넘게 갱신 없음, 각 담당 세션 몫)**: `docbot-prompt`(10-25)·`music`(10-25)·`mac-mini`(10-26)·`workspace`(10-26, 그 뒤 커밋 있음)·`review`(10-24 초안)·`unassigned`(10-24). `ecommerce-image`는 담당 세션이 역할 파일보다 나중에 커밋함.
+- **그대로 둔 것**: 작업 중 표 맨 위에 블로그 세션의 10-28 진행 메모 5개가 표 밖에 붙어 있음(블로그 세션 내용이라 지우지 않음).
+
 ## 2026-10-29 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — Shots DUP-4 업로드 중복 방지(미배포)
 - 한 일: `shots` 유튜브·인스타 게시 서버 조건부 선점(`src/lib/uploadGuard.ts`), 불확실 결과는 `posting` 유지 → 10분 뒤 「확인 필요」, 이미 올림·확인 필요 재발송은 회원 확인 창 + 서버 `confirmResend` 확인. DB 구조·공용 업로드 코드 변경 없음.
 - 검수: 시험 14개·tsc·eslint·build. 실제 업로드 시험 안 함. 커밋 `7da2cb688`. 배포: 미배포 대기(작은 수정, 다음 Shots 배포 때 v1.45). 비용 없음.
