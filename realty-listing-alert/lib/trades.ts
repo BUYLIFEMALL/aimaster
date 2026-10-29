@@ -24,6 +24,14 @@ export function nameMatches(naverName: string, molitName: string) {
   const b = normalizeAptName(molitName);
   if (a.length < 2 || b.length < 2) return false;
   if (a === b) return true;
+  // 시공사가 여럿인 단지(2026-10-29, 실측): 네이버 「백송선경,코오롱8단지」 ↔ 국토부는 「백송마을(선경)」 「백송마을(코오롱)」 둘로 나눠 신고.
+  // 네이버 이름에 쉼표가 있을 때만, 국토부 「마을이름(시공사)」의 마을이름으로 시작하고 시공사를 품으면 같은 단지(둘 다 2글자 이상)
+  const joint = String(molitName ?? "").match(/^(.+?)\(([^()]+)\)\s*$/);
+  if (String(naverName ?? "").includes(",") && joint) {
+    const head = normalizeAptName(joint[1]);
+    const builder = normalizeAptName(joint[2]);
+    if (head.length >= 2 && builder.length >= 2 && a.startsWith(head) && a.slice(head.length).includes(builder)) return true;
+  }
   const [short, long] = a.length <= b.length ? [a, b] : [b, a];
   return long.includes(short) && short.length / long.length >= 0.6;
 }
