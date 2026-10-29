@@ -4,7 +4,8 @@
 - 담당: [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` — 역할 파일 [`docs/roles/realty.md`](../docs/roles/realty.md)
 - 기준 인수인계(설계·결정의 원본): [`docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../docs/analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) · 0단계 결과 [`PREVALIDATION_20261024.md`](../docs/analysis-naver-realty-collector-20261024/PREVALIDATION_20261024.md)
 - 지금 상태: **v1.36 운영 배포(2026-10-29, 수집 결과 「단지 비교」 표 「📝 글로 쓰기」 — 블로그 포스팅 자동화 연계 I)** · v1.35(2026-10-29, 시공사 여럿인 단지 실거래 이름 맞추기) · v1.34(2026-10-26, 🔁 다시 올린 매물 묶기·실거래 이름 후보·카톡 문장 끝 자르기), **2026-10-26 정식 공개(주인님 「공개해」 — 「준비중」 배지 제거, VIP 145명 전원 권한 확인)** — 버전별 내용은 아래 4) 표. (옛 줄) **v1.14(중개사 번호 채우기) · v1.13(왼쪽 메뉴 수집 결과) · v1.12(대시보드 최근 수집 결과) · v1.11(화면 정리) · v1.10(중개사 사무실·휴대폰 번호) · v1.09(카톡 결과 보기→네이버 매물) · v1.08(카톡·이메일 받기) · v1.07 주소 칸 · v1.06 수집 상한 운영 배포(2026-10-25), 「준비중」 배지, 공개 전.** 시험 계정 `buylifemall@naver.com`에만 개별 권한 30일(2026-10-24). **정식 공개는 테스트에서 정상 동작이 확인된 뒤 주인님이 정한다**(그때 배지 떼기 + VIP 자동 부여).
-- 미배포 대기: 없음(2026-10-29 v1.35에 모두 배포) — [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) 「미배포 대기」 표.
+- 최신 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261029.md`](docs/IMPROVEMENT_HANDOFF_20261029.md)(10-26~10-29 · v1.29~v1.36 · 실거래 v1.20~v1.22 · ego lite 수집 기록 읽는 법)
+- 미배포 대기: 없음(2026-10-29 v1.36까지 모두 배포) — [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) 「미배포 대기」 표.
 
 ## 🚨 절대 원칙 (주인님 결정, 인수인계 §0 — 바꾸지 않는다)
 1. 네이버 부동산 접속·조회·스크롤은 **100% 회원 PC에서 회원 본인 로그인**으로. 텔레그램·이메일·AI 키도 회원 본인 것.
