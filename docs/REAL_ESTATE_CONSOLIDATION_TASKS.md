@@ -41,12 +41,12 @@
 | RE-B1 | 실거래 목록 페이지 나눔(현재 50건) | `src/app/(dashboard)/listings/page.tsx` `.limit(50)`, `IMPROVEMENTS.md` #3 | ✅ 코드 완료(`ae0e35ce5`) · v1.21 배포 완료(2026-10-26) |
 | RE-B2 | 상세 열람 시 「안 본 새 실거래」 줄이기(`new → seen`) | `IMPROVEMENTS.md` #5 | ✅ 코드 완료(DB 변경 없이 new→notified, `ae0e35ce5`) · v1.21 배포 완료(2026-10-26) |
 | RE-B3 | 브이월드 등록 도메인 새 주소로 | `src/lib/publicdata/client.ts` 18행 기본값 `n8n.buylife.xyz`, `IMPROVEMENTS.md` #7 | ✅ v1.22 배포(2026-10-26, 주인님 브이월드 도메인 변경 + 환경변수 교체) · 다음 새 실거래 때 공시가 확인 |
-| RE-B4 | 서울 외 지역(국토부 실거래 API) | `IMPROVEMENTS.md` #6 | 기존 과제 |
-| RE-B5 | 개발용 lint 도구 사슬 보안 경고 정리 | `IMPROVEMENTS.md` #11 | 대기 |
+| RE-B4 | 서울 외 지역(국토부 실거래 API) | `IMPROVEMENTS.md` #6 | 기존 과제 — 플랜·코드 없음(2026-10-29 확인). 참고: 국토부 아파트 매매 실거래 API는 이미 `realty-listing-alert` 확장이 경기(고양 41285) 비교에 쓰고 있음 |
+| RE-B5 | 개발용 lint 도구 사슬 보안 경고 정리 | `IMPROVEMENTS.md` #11 | 2026-10-29 `npm audit` 다시 확인: lint 사슬 경고 5건은 **사라짐**. 대신 **운영 의존성 `zod` high 1건**이 새로 남음 → 수정 플랜 필요(미착수) |
 
 ## 대기 중인 미배포 변경
 
-- 텔레그램 사본 `linkButton`, 좁은 칸 버튼(`f0871e568`), 지역 분위기 정리 기록(`61142a909`), SOLAPI 사본 — 다음 배포 때 버전 +0.01.
+- (없음) ~~텔레그램 사본 `linkButton`, 좁은 칸 버튼(`f0871e568`), 지역 분위기 정리 기록(`61142a909`), SOLAPI 사본~~ — v1.19~v1.22 배포 때 함께 나감(2026-10-29 문서 정리 때 확인).
 
 ## 주인님 결정이 필요한 것
 
