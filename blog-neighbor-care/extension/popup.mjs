@@ -3,7 +3,7 @@ let draft = null, busy = false, currentDeviceId=null, currentProgress=null;
 const stageTitles={checking:'진행 중 · 계정 확인',starting:'진행 중 · 요청 준비',reserving:'진행 중 · 읽기 준비',reading:'진행 중 · 목록 읽기',sending:'진행 중 · 서버 전송',received:'진행 중 · 수신 확인',ready:'수신 완료 · 아직 저장 전',confirmed:'프로그램 저장 완료',failed:'읽기 중단 · 사유 확인',stopping:'읽기 중단 처리 중',paused:'진행 결과 확인 필요'};
 function applyButtons(){
   const active=currentProgress?.state==='running';
-  document.querySelectorAll('button').forEach(b=>{b.disabled=b.id==='neighborStop'?!active:busy||active;});
+  document.querySelectorAll('button').forEach(b=>{b.disabled=b.id==='workStop'?false:b.id==='neighborStop'?!active:busy||active;});
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
 function showStatus(text,state='idle'){
@@ -94,4 +94,7 @@ chrome.runtime.onMessage?.addListener((message,sender,respond)=>{
   if(message?.type==='neighbor_progress'&&currentDeviceId&&message.progress?.deviceId===currentDeviceId)renderNeighborProgress(message.progress);
   return false;
 });
+$('workStart').addEventListener('click',()=>run(async()=>{if(!$('workConfirm').checked)throw Error('현재 탭 실행 동의를 확인해 주세요.');const r=await send({type:'native_start',confirmed:true});$('workMessage').textContent=r.message;$('workConfirm').checked=false;}));
+$('workStatus').addEventListener('click',()=>run(async()=>{$('workMessage').textContent=(await send({type:'native_status'})).message;}));
+$('workStop').addEventListener('click',async()=>{try{$('workMessage').textContent=(await send({type:'native_stop'})).message;}catch{$('workMessage').textContent='중단 응답 미확인 · 작업 기록에서 결과 확인';}});
 run(status);

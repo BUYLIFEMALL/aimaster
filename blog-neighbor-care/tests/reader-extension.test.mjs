@@ -36,7 +36,7 @@ test('프레임결과는같은글하나만선택·다른본문혼합거절', () 
 });
 test('확장패키지는최소권한·알람/자동실행/네이버상시권한없음', () => {
   const manifest = JSON.parse(readFileSync(new globalThis.URL('../extension/manifest.json', import.meta.url)));
-  assert.deepEqual(manifest.permissions.sort(), ['activeTab', 'scripting', 'storage'].sort());
+  assert.deepEqual(manifest.permissions.sort(), ['activeTab', 'nativeMessaging', 'scripting', 'storage'].sort());
   assert.deepEqual(manifest.host_permissions, [`${SITE}/*`]); assert.equal(manifest.manifest_version, 3);
   for (const url of ['http://blog.naver.com/a/1', 'https://blog.naver.com.evil.test/a/1', 'javascript:alert(1)']) assert.equal(parsePost(url), null);
 });

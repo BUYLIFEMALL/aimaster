@@ -1,6 +1,7 @@
 import { parsePost, inspectVisiblePost, chooseSnapshot } from './extractor.mjs';
 import {createNeighborImporter} from './neighbor-importer.mjs';
 import {parseNeighborPage} from './neighbor-extractor.mjs';
+import {createWorkBridge} from './work-bridge.mjs';
 
 export const SITE = 'https://blog-neighbor-care.buylife.xyz';
 export function createReaderController(browser, fetcher = fetch) {
@@ -15,6 +16,10 @@ export function createReaderController(browser, fetcher = fetch) {
     return json;
   };
   let importToken;
+  const work=createWorkBridge(browser,async()=>{
+    const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');
+    return (await post('whoami',{},token)).data;
+  });
   const publishProgress=async progress=>{
     const {token}=await browser.storage.local.get('token');
     if(!token||token!==importToken||!progress.deviceId)return;
@@ -42,13 +47,22 @@ export function createReaderController(browser, fetcher = fetch) {
     try { web = sender.id === browser.runtime.id && new URL(sender.tab?.url).origin === SITE; } catch { /* not the program tab */ }
     if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
     const { token } = await browser.storage.local.get('token');
+    if(['native_start','native_stop','native_status'].includes(message.type)){
+      if(!popup)throw Error('확장 화면에서 실행해 주세요.');
+      if(message.type==='native_stop')return work.stop();
+      if(message.type==='native_status')return work.status();
+      if(!token||message.confirmed!==true||neighbors.isRunning())throw Error('회원 연결·현재 탭 실행 동의를 확인해 주세요.');
+      return work.start();
+    }
     if(typeof message.type==='string'&&message.type.startsWith('neighbors_')){
       if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
       if(message.type==='neighbors_read')importToken=token;
+      if(message.type==='neighbors_read')work.stop();
       if(!importToken)importToken=token;
       return neighbors(message);
     }
     if (message.type === 'connect') {
+      work.stop();
       if (typeof message.code !== 'string' || !/^[a-f0-9]{32}$/.test(message.code)) throw new Error('프로그램에서 발급한 연결 번호를 확인해 주세요.');
       const result = await post('connect', { code: message.code, device_name: '내 브라우저 · 본인 글 읽기', protocol: 1 });
       if (!/^[a-f0-9]{64}$/.test(result.token) || !result.data?.deviceId || !result.data?.blogId) throw new Error('연결 결과를 확인하지 못했습니다. 새 번호로 연결해 주세요.');
@@ -81,6 +95,7 @@ export function createReaderController(browser, fetcher = fetch) {
     }
     if (!token) throw new Error('먼저 프로그램에서 이 회원 계정과 연결해 주세요.');
     if (message.type === 'disconnect') {
+      work.stop();
       let remoteRevoked = false;
       try { await post('disconnect', {}, token); remoteRevoked = true; } catch { /* local removal still succeeds */ }
       await browser.storage.local.remove('token'); await browser.storage.session.remove('pending');
@@ -88,6 +103,7 @@ export function createReaderController(browser, fetcher = fetch) {
       await browser.storage.session.remove('neighborProgress');
       return { connected: false, remoteRevoked };
     }
+    if(message.type==='read')work.stop();
     const identity = await post('whoami', {}, token);
     const { pending } = await browser.storage.session.get('pending');
     if (message.type === 'receipt') {

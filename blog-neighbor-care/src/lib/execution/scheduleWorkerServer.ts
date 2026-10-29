@@ -4,10 +4,11 @@ import {createAdminClient} from '../supabase/admin';
 import {createScheduleWorker,type ScheduleWorkerBinding} from './scheduleWorker';
 import {runServerScheduledWork} from './scheduledServer';
 import type {ExecutionAdapter} from './approvedWork';
+import {jobMatchesBrowserUrl} from './nativeBrowser';
 
 // Trusted long-lived worker hosts only. Not called from any route, member UI,
 // cron or extension yet. No adapter/secret/policy/live gate means no actions.
-export function createServerScheduleWorker(binding:ScheduleWorkerBinding,adapter:ExecutionAdapter){
+export function createServerScheduleWorker(binding:ScheduleWorkerBinding,adapter:ExecutionAdapter,browserUrl?:string){
  return createScheduleWorker(binding,{
   secret:()=>process.env.BNC_WORKER_SECRET,
   context:async b=>{
@@ -29,10 +30,20 @@ export function createServerScheduleWorker(binding:ScheduleWorkerBinding,adapter
     policyKinds:Object.entries(references).filter(([,value])=>!!value?.trim()).map(([kind])=>kind)};
   },
   jobs:async(b,revision,kinds)=>{
-   const r=await createAdminClient().from('bnc_jobs').select('id,user_id,account_id,actor_id,state,approval_revision,approval_hash,kind,body,expires_at,generation')
+   let query=createAdminClient().from('bnc_jobs').select('id,user_id,account_id,actor_id,neighbor_id,post_id,state,approval_revision,approval_hash,kind,body,expires_at,generation')
     .eq('user_id',b.memberId).eq('account_id',b.accountId).eq('actor_id',b.actorId).eq('state','ready').eq('approval_revision',revision)
-    .in('kind',[...kinds]).gt('expires_at',new Date().toISOString()).order('created_at',{ascending:true}).order('id',{ascending:true}).limit(10);
-   if(r.error)throw Error('Worker queue unavailable');return r.data??[];
+    .in('kind',[...kinds]).gt('expires_at',new Date().toISOString());
+   if(browserUrl){
+    const u=new URL(browserUrl),m=/^\/([a-z0-9_-]{1,50})\/(\d{1,30})\/?$/.exec(u.pathname);
+    if(u.pathname==='/BuddyAddForm.naver')query=query.eq('kind','request').eq('neighbor_id',u.searchParams.get('blogId')??'');
+    else{
+     const owner=m?.[1]??u.searchParams.get('blogId'),post=m?.[2]??u.searchParams.get('logNo');
+     if(!owner||!post)throw Error('Worker target unavailable');query=query.eq('post_id',post);
+     query=owner===b.actorId?query.eq('kind','reply'):query.in('kind',['like','comment']).eq('neighbor_id',owner);
+    }
+   }
+   const r=await query.order('created_at',{ascending:true}).order('id',{ascending:true}).limit(10);
+   if(r.error)throw Error('Worker queue unavailable');return (r.data??[]).filter(j=>!browserUrl||jobMatchesBrowserUrl(j,browserUrl));
   },
   dispatch:(ticket,revisions,signal)=>runServerScheduledWork(ticket,revisions,{
    inspect:async job=>{if(signal.aborted)throw Error('Worker stopped');return adapter.inspect(job);},

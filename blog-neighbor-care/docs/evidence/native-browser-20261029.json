@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-29T14:44:39.330717+00:00",
+  "unitTestsPassed": 259,
+  "typecheck": "passed",
+  "nativeProtocolTests": 5,
+  "bridgeAndWorkerTests": 6,
+  "domTests": 7,
+  "testScope": "synthetic DOM, isolated scripting mock, actual framed stdio through PassThrough; not live Edge extension/Naver",
+  "invariants": [
+    "exact member/account/device/current URL",
+    "one visible frame",
+    "persist attempt before input/click",
+    "same generation cannot apply again",
+    "stop on tab/account/window/disconnect",
+    "no automatic registration retry",
+    "bounded UI settlement reads",
+    "reviewed selector profile required; no guessed live profile"
+  ],
+  "nativeHostRegistered": false,
+  "liveSelectorProfileVerified": false,
+  "actualPlatformActions": 0,
+  "operatingSqlApplied": false,
+  "productionDeployed": false,
+  "publishedZipChanged": false,
+  "newPaidCalls": 0
+}
