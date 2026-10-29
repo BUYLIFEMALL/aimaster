@@ -5,6 +5,7 @@ import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { CopyBox } from "@/components/CopyBox";
 import { WingKeyForm } from "@/components/WingKeyForm";
 import { ConnectionTest } from "@/components/ConnectionTest";
+import { CategoryCheck } from "@/components/CategoryCheck";
 import { WING_FIELDS, WING_LABELS } from "@/lib/coupang/keys";
 import { SERVER_IPS } from "@/lib/version";
 
@@ -54,6 +55,12 @@ export default async function ConnectPage() {
         <h2 className="text-base font-extrabold text-slate-900">3. 연결 시험</h2>
         <p className="text-sm text-slate-600">키와 허용 IP가 맞는지 쿠팡에 직접 물어봅니다. 내 출고지·반품지 목록만 읽고, 쿠팡에 아무것도 만들거나 바꾸지 않습니다.</p>
         <ConnectionTest saved={status.saved} />
+      </section>
+
+      <section className="slw-card space-y-2 p-5">
+        <h2 className="text-base font-extrabold text-slate-900">4. 카테고리 확인</h2>
+        <p className="text-sm text-slate-600">상품명을 넣으면 쿠팡이 추천하는 카테고리와 그 카테고리의 필수 속성·고시 상품군을 읽어 옵니다. 쿠팡에 아무것도 만들거나 바꾸지 않습니다.</p>
+        <CategoryCheck saved={status.saved} />
       </section>
     </div>
   );

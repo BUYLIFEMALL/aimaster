@@ -54,3 +54,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 운영 DB에 SQL 3개 적용(프로그램 비공개 등록·키 이름 4개·표 3개), 관리자는 공개 전에도 사용(`programAccess.ts`), 주인님 실제 키 저장·WING 「자체개발」 IP 3개 반영 확인.
 - 쿠팡 응답: 「IP 불허」 → 반영 뒤 「계정 상태 변경으로 API 제한」(판매정지) — 서명·키·IP는 통과. 판매 재개 뒤 이어서.
 - 상세: [`docs/IMPROVEMENT_HANDOFF_20261028.md`](docs/IMPROVEMENT_HANDOFF_20261028.md).
+
+## 2026-10-29 — 판매 재개 확인·실응답 확인(로컬, 미배포)
+- `/connect` 「연결 시험」 성공: 출고지 9곳·반품지 4곳(사용 중: 출고지 「바이라이프 #4181476」, 반품지 「바이라이프 #1000521297 · CJ대한통운」). 판매정지 풀림, 저장된 키 그대로 동작(재발급은 권장).
+- `/connect` 「4. 카테고리 확인」 추가(`checkCategoryAction`·`components/CategoryCheck.tsx`, 읽기만): 「남성 노트북 백팩 15.6인치 방수」 → **남성백팩 #69579**, 단일 상품 불가, 속성 27개(필수: 색상·패션의류/잡화 사이즈 — 구매옵션), 고시 상품군 3개(가방·어린이제품·기타 재화), 구비서류 5·인증 27.
+- **메타 속성 응답 칸 확인**: `attributeTypeName, dataType, inputType, inputValues, basicUnit, usableUnits, required, groupNumber, exposed` → **고를 수 있는 값 목록(`inputValues`)과 입력 방식(`inputType`)이 온다.** `normalizeMeta`에 아직 두 칸을 담지 않음 → 상품 화면 만들 때 추가.
+- `/defaults`: 출고지·반품지는 골랐으나 **반품배송비(초도·편도) 금액을 주인님이 정해 주셔야 저장**(아직 저장 안 함).
+- 상품 노출은 아직 안 되는 상태(주인님 확인 중) — 실제 등록 시험은 노출이 풀린 뒤.
