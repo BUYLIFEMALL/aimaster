@@ -1,5 +1,7 @@
 # 블로그 기능 상세 비교표 (기준 문서)
 
+> [역할: blog] **기능 구현 우선 / 6번 발신 신청 상태 관리 로컬 완료** — `620ca322a`: 대기·수락·해제/5분 만료·7일 취소 검토 안내, 회원 DB조회 API·비공개 관계확인 연결부·UI/매뉴얼. 단위234/격리DB20·타입 통과. 실제 adapter/실신청·수락 검수 남음. 후속7건 미배포/SQL1미적용. 다음7번 답방·대댓글 구현. 비용0.
+
 > [역할: blog] **이웃소통4번 실진단1회·JSON설정보강 로컬완료:** ae2승인소진/d8520aec output_json uncertain·기존job보존. c34015232 정적schema→Anthropic output_config·인용검사유지/재시도없음·단위225/분석DB14/타입통과. 실성공/품질/저장재조회는새668992b9 승인대기. 후속6건미배포/SQL1개미적용·3번새수신0. [근거](../blog-neighbor-care/docs/evidence/profile-json-fix-20261029.json).
 
 > [역할: blog] **이웃소통3~9집중·8번주기호출부 로컬 완료:** 4ebbb2f92·권한/기기/승인ready→서명ticket→cursor·제한형루프/불확정중단·단위222/격리19·242SQL/타입통과. 상주host/실adapter·운영/실반복 미완료. 웹후속5건미배포/SQL1개미적용. 3번fe166de3·4번ae2dc89a 조작/비용승인 대기·실호출0. [근거](../blog-neighbor-care/docs/evidence/schedule-worker-20261029.json).
