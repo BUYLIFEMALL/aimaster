@@ -661,6 +661,8 @@
 
 #### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.02 운영 / SQL4개 운영 반영 완료, 웹·확장 묶음 배포 대기
 
+- **좌측메뉴 표준 보정(10-29, 미배포):** `75c57b1a1` · 240px/4번호흐름/유틸리티/검증이메일·로그아웃/767px ☰·메뉴스크롤. Edge1000/390·낮은430 검수, 단위203/HTTP44/타입·빌드통과. [근거](../blog-neighbor-care/docs/evidence/sidebar-standard-20261029.json). 운영v1.02 유지·이전95파일배포사본갱신필수.
+
 - **공식 썸네일 등록(2026-10-29):** 지침(`docs/PLATFORM_PATTERNS.md` §13)에 따라 16:9 실사(포토리얼) 썸네일 생성 및 `scripts/upload-program-thumbnail.mjs`로 Supabase Storage `program-images/catalog/blog-neighbor-care-thumbnail.jpg` 업로드·DB `programs.thumbnail_url` 갱신 완료. 6분할 확대 점검(`thumbnail-zoom-tiles.mjs`) 결과 모니터 화면 가짜 글자·오타·로고 0건 검증 완료. 로컬 복사(`blog-neighbor-care/public/blog-neighbor-care-thumbnail.jpg`).
 
 - **최신 후속:** 검수된운영SQL4개순차적용·4invoker/2표권한·게이트OFF/43명유지·빈정리0건확인,운영SQL대기0. 이미완료된구형조작요청3건정리. ZIP버전고정오류수정538c0d414·Next로컬빌드/HTTP39/ZIP9원본검수통과. 현재대기7그룹·조건부1보류,웹/ZIP묶음미배포·v1.02유지. 실재가져오기/AI·후보/실worker·브라우저·수락/답방/대댓글/반복·Cron실삭제남음. [근거](../blog-neighbor-care/docs/evidence/operating-easy-wins-20261029.json).

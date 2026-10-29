@@ -1,5 +1,9 @@
 # AI 블로그 이웃 소통 자동화 — 담당 지침
 
+> [역할: blog] **좌측 메뉴 표준 보정 완료 · 미배포** — 2026-10-29 사용자 요청으로 docs/SIDEBAR_LAYOUT_STANDARD.md를 대조해 기존 릴레이 데스크 네이버 그린을 유지하며 좌측메뉴 표준 보정. 240px·이름/버전·다른프로그램/programs·대시보드·내글연결→분석→후보→관계 4번호/원형/연결선·구분선뒤 3D확장ZIP/버전→정확한연동메뉴→매뉴얼→12px계정블록. 서버 getUser 검증이메일만 표시/미확인시로그인, 동일출처 POST 로컬로그아웃/실패안내. 메뉴만스크롤/계정shrink0,767px이하 ☰ 전환·동일메뉴/계정. 실제Edge 기존창 새탭에서 실제컴포넌트/CSS 합성계정 미리보기1000px/390px 열기·닫기/1000×430 낮은화면 계정접근 확인. 단위203(메뉴2신규)·타입·로컬Next빌드·HTTP44·모바일점검후보0·ZIP9일치. 소스75c57b1a1. 웹미배포/운영v1.02유지·원격빌드/AI/검색/운영DB변경0. 기존비용요청e859eb43 유지·신규요청없음. 이전95파일릴리스사본은 이변경을포함하지않으므로 그대로배포금지, 다음배포전최신소스사본/버전/ZIP/DB동기화필수.
+> 결과: [로컬 비교 미리보기](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029/index.html) · [영구 자산 폴더](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029) · [검수 근거](docs/evidence/sidebar-standard-20261029.json).
+
+
 > [역할: blog] **쉬운 대기 우선처리: 운영SQL 4→0 · 구형 조작요청3건 정리 · 출시검수 통과** — 2026-10-29 사용자지시 「쉽게처리되는것부터」 후속. 운영기존객체/적용이력/작업0·목록43·게이트OFF 사전대조후 retention/cancel/schedule/evidence 네migration을순차적용,4invoker함수서비스전용·새2표회원RLS/직접쓰기차단·evidence UPDATE금지·43명관계/대상유지·live/read=false 확인. 운영빈정리2종은0건삭제로호출검수. 원격이력20261028235504/507/510/514(정확매핑은근거JSON),이미적용한4SQL재실행금지. ZIP도구의v1.01고정값실패를재현→APP_VERSION대조로수정하고 npm run verify:extension 정상화(9파일원본일치),Next로컬빌드/HTTP39통과. 로그인/팝업/명칭재로드의이미완료요청03c67cbc/c833c805/4aecc39a를근거e5e35481로종료. 소스538c0d414·웹/ZIP미배포·버전v1.02·푸시/유료AI/검색/원격빌드0. 대기표는현재7개그룹·조건부보류1개로정리하며이동을기능완료로세지않음. 실다중/빈목록/재가져오기·AI/후보·실worker/브라우저/수락/답방/대댓글/반복·웹묶음/Cron실삭제는남음. 근거 blog-neighbor-care/docs/evidence/operating-easy-wins-20261029.json.
 
 

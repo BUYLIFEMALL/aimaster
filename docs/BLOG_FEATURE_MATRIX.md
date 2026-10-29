@@ -1,5 +1,7 @@
 # 블로그 기능 상세 비교표 (기준 문서)
 
+> [역할: blog] **이웃소통 좌측메뉴 표준 보정(미배포)** — 소스75c57b1a1: 240px·번호형4단계·구분선뒤확장/연동/매뉴얼·검증계정/로그아웃·767px ☰·낮은화면스크롤. 실제Edge 합성계정 로컬미리보기/단위203/HTTP44·타입·빌드통과, 운영v1.02 유지. [근거](../blog-neighbor-care/docs/evidence/sidebar-standard-20261029.json). 실제소통/AI/반복 잔여상태는 그대로.
+
 > [역할: blog] **쉬운 대기 우선처리: 운영SQL 4→0 · 구형 조작요청3건 정리 · 출시검수 통과** — 2026-10-29 사용자지시 「쉽게처리되는것부터」 후속. 운영기존객체/적용이력/작업0·목록43·게이트OFF 사전대조후 retention/cancel/schedule/evidence 네migration을순차적용,4invoker함수서비스전용·새2표회원RLS/직접쓰기차단·evidence UPDATE금지·43명관계/대상유지·live/read=false 확인. 운영빈정리2종은0건삭제로호출검수. 원격이력20261028235504/507/510/514(정확매핑은근거JSON),이미적용한4SQL재실행금지. ZIP도구의v1.01고정값실패를재현→APP_VERSION대조로수정하고 npm run verify:extension 정상화(9파일원본일치),Next로컬빌드/HTTP39통과. 로그인/팝업/명칭재로드의이미완료요청03c67cbc/c833c805/4aecc39a를근거e5e35481로종료. 소스538c0d414·웹/ZIP미배포·버전v1.02·푸시/유료AI/검색/원격빌드0. 대기표는현재7개그룹·조건부보류1개로정리하며이동을기능완료로세지않음. 실다중/빈목록/재가져오기·AI/후보·실worker/브라우저/수락/답방/대댓글/반복·웹묶음/Cron실삭제는남음. 근거 blog-neighbor-care/docs/evidence/operating-easy-wins-20261029.json.
 
 

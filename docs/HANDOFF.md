@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+> [역할: blog] **좌측 메뉴 표준 보정 완료 · 미배포** — 2026-10-29 사용자 요청으로 docs/SIDEBAR_LAYOUT_STANDARD.md를 대조해 기존 릴레이 데스크 네이버 그린을 유지하며 좌측메뉴 표준 보정. 240px·이름/버전·다른프로그램/programs·대시보드·내글연결→분석→후보→관계 4번호/원형/연결선·구분선뒤 3D확장ZIP/버전→정확한연동메뉴→매뉴얼→12px계정블록. 서버 getUser 검증이메일만 표시/미확인시로그인, 동일출처 POST 로컬로그아웃/실패안내. 메뉴만스크롤/계정shrink0,767px이하 ☰ 전환·동일메뉴/계정. 실제Edge 기존창 새탭에서 실제컴포넌트/CSS 합성계정 미리보기1000px/390px 열기·닫기/1000×430 낮은화면 계정접근 확인. 단위203(메뉴2신규)·타입·로컬Next빌드·HTTP44·모바일점검후보0·ZIP9일치. 소스75c57b1a1. 웹미배포/운영v1.02유지·원격빌드/AI/검색/운영DB변경0. 기존비용요청e859eb43 유지·신규요청없음. 이전95파일릴리스사본은 이변경을포함하지않으므로 그대로배포금지, 다음배포전최신소스사본/버전/ZIP/DB동기화필수.
+> 결과: [로컬 비교 미리보기](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029/index.html) · [영구 자산 폴더](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029) · [검수 근거](../blog-neighbor-care/docs/evidence/sidebar-standard-20261029.json).
+
+
 ## 2026-10-29 [역할: analysis-planning] 프리미엄 등급 신설(운영 DB 적용 완료 · 체크 관리)
 
 2026-10-29 주인님 지시로 **「프리미엄」 등급 신설** — 프리미엄 배지 프로그램까지 포함한 「모든 프로그램」을 무료로 쓰는 최고 등급. `member_grades`에 추가(순서5·auto_grant·기본 365일·`grants_premium=true`). **골드·VIP처럼 접근 권한 관리 화면의 체크/해제로 관리**하며(주인님 지시), 특정 프로그램 체크를 해제하면 **프리미엄 등급이라도 그 프로그램만 막힌다**(자동 회수). 프리미엄 배지 프로그램도 체크돼 있으면 프리미엄 등급은 가드 예외로 열린다(VIP는 프리미엄 배지 결제 필요). 설계: 기존 일반·실버·골드·VIP 로직 보존, `grants_premium` 플래그로 프리미엄 가드(0031)만 「이 등급 회원 부여는 정지 제외」 분기. 판정 코드(`lib/access/checkProgramAccess.ts`)·각 프로그램 82개 복제 `lib/access.ts`·관리자 화면 **수정 없음**(member_grades 기반 자동 노출, GradeManager 저장은 부분 update라 플래그 보존). 마이그레이션 2개 운영 DB(esgxyikcnnvmlhygjkth) 크롬 SQL 편집기에서 주인님 Run·적용 완료: `0046_premium_grade.sql`(등급·가드 예외, 처음엔 전 프로그램 자동이었음) → `0047_premium_grade_checkbox_managed.sql`(체크 기반 관리로 복원, 새 프로그램 자동 트리거 제거). 등급 5개 검증(프리미엄 순서5·365·grants_premium=true). 별건: 관리자 프로그램 목록 우측 **프리미엄 배지 토글(맨 앞)** 추가 배포(빌드 1회). 이 등급 작업 빌드 0(DB만), AI/검색 0.

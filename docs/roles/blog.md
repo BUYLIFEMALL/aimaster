@@ -1,5 +1,9 @@
 # 블로그
 
+> [역할: blog] **좌측 메뉴 표준 보정 완료 · 미배포** — 2026-10-29 사용자 요청으로 docs/SIDEBAR_LAYOUT_STANDARD.md를 대조해 기존 릴레이 데스크 네이버 그린을 유지하며 좌측메뉴 표준 보정. 240px·이름/버전·다른프로그램/programs·대시보드·내글연결→분석→후보→관계 4번호/원형/연결선·구분선뒤 3D확장ZIP/버전→정확한연동메뉴→매뉴얼→12px계정블록. 서버 getUser 검증이메일만 표시/미확인시로그인, 동일출처 POST 로컬로그아웃/실패안내. 메뉴만스크롤/계정shrink0,767px이하 ☰ 전환·동일메뉴/계정. 실제Edge 기존창 새탭에서 실제컴포넌트/CSS 합성계정 미리보기1000px/390px 열기·닫기/1000×430 낮은화면 계정접근 확인. 단위203(메뉴2신규)·타입·로컬Next빌드·HTTP44·모바일점검후보0·ZIP9일치. 소스75c57b1a1. 웹미배포/운영v1.02유지·원격빌드/AI/검색/운영DB변경0. 기존비용요청e859eb43 유지·신규요청없음. 이전95파일릴리스사본은 이변경을포함하지않으므로 그대로배포금지, 다음배포전최신소스사본/버전/ZIP/DB동기화필수.
+> 결과: [로컬 비교 미리보기](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029/index.html) · [영구 자산 폴더](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/sidebar-standard-20261029) · [검수 근거](../../blog-neighbor-care/docs/evidence/sidebar-standard-20261029.json).
+
+
 > [역할: blog] **중요도 재정렬·선행 묶음배포 준비 완료 / 비용승인 대기** — 2026-10-29 중요도 검토: 선행 묶음배포 준비 → 재가져오기 설정 유지 → 실제 AI 프로필 → 후보 검색/평가/선택 → 신청/수락 → 공감/댓글/답방/대댓글 → 반복/재개 → 최종 배포·Cron 순서. 웹 진단 미배포가 AI 원인확인을 막으므로 9번을 선행 반영과 최종 검수로 나눔(완료 수 축소 없음). Vercel 실제 dry-run 100항목 중 커밋된 일반파일95개를 별도 폴더에 복사·SHA256 기록, 다른 작업의 미커밋 썸네일 제외, Supabase3파일/cleanup/실행/확장 필수경로 확인. 총 배포표에 누락된 미배포 줄 복구로 pending-check의 잘못된 대기없음 표시 수정. 운영v1.02·SQL대기0 유지, 신규 원격빌드/AI/검색/DB업무쓰기0. Basic 빌드1회 예상 USD0.007~0.042 비용승인 e859eb43 대기. 기존 Edge /neighbors 로그인·43명/기존 반영표시 확인, 팝업 조작 효과는 미확인이라 새 허가/재가져오기/대상변경 미실행. 실제 검수7그룹+조건부1은 계속 남음.
 
 
@@ -106,7 +110,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-29 ·SQL4개운영반영/권한·게이트·43명유지검수완료(대기0). 구형조작요청3건정리·ZIP도구538c0d414·로컬빌드/HTTP39/ZIP9통과. 웹묶음미배포.
+- 마지막 갱신: 2026-10-29 · 좌측 메뉴 표준 보정75c57b1a1·Edge 데스크톱/모바일/낮은화면 검수·미배포
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
