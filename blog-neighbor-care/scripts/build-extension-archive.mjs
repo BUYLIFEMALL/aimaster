@@ -16,7 +16,15 @@ const versioned = path.join(downloads, `blog-neighbor-care-extension-${match[1]}
 await new Promise((resolve, reject) => {
   const output = fs.createWriteStream(versioned), archive = archiver('zip', { zlib: { level: 9 } });
   output.on('close', resolve); output.on('error', reject); archive.on('error', reject);
-  archive.pipe(output); archive.directory(path.join(root, 'extension'), false); archive.finalize();
+  archive.pipe(output);
+  // Stable entry metadata keeps the reviewed ZIP identical across local/remote builds.
+  for (const entry of fs.readdirSync(path.join(root, 'extension'), { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name, 'en'))) {
+    if (!entry.isFile()) throw new Error('Extension archive supports flat files only');
+    archive.append(fs.readFileSync(path.join(root, 'extension', entry.name)), {
+      name: entry.name, date: new Date('2000-01-01T00:00:00Z'), mode: 0o644,
+    });
+  }
+  archive.finalize();
 });
 const latest = path.join(downloads, 'blog-neighbor-care-extension-latest.zip'); fs.copyFileSync(versioned, latest);
 console.log(JSON.stringify({ version: match[1], path: path.relative(root, latest), bytes: fs.statSync(latest).size,

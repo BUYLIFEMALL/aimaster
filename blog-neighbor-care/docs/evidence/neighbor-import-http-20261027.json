@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-29T00:49:14.559Z",
+  "checkedAt": "2026-10-29T01:04:00.818Z",
   "command": "npm run test:http",
   "tests": [
     "HTTP01 미로그인실제Next응답401",
