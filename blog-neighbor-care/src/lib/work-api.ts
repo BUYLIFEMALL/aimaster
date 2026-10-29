@@ -14,10 +14,13 @@ const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment
 const operations: Record<string, string[]> = {
   settings: [], list: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
   schedule: [], save_schedule: ['interval_minutes','start_minute','end_minute','expected_revision'],
+  schedule_status: [], resume_schedule: ['run_id','generation','settings_revision','preference_revision','confirmed'],
   create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'], cancel: ['id'],
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
+  if(operation==='resume_schedule')return uuid(p.run_id)&&p.confirmed===true&&
+    [p.generation,p.settings_revision,p.preference_revision].every(n=>Number.isSafeInteger(n)&&Number(n)>0);
   if(operation==='save_schedule')return validSchedule(p as {interval_minutes:number;start_minute:number;end_minute:number})&&Number.isSafeInteger(p.expected_revision)&&Number(p.expected_revision)>0;
   if (operation === 'configure') {
     if (!Object.keys(p).length) return false;
@@ -82,7 +85,8 @@ export function createWorkHandler({ authorize, execute }: Dependencies) {
       const result = await execute(access.userId, operation, payload);
       if (result.error) {
         const message = result.error.message ?? '';
-        if(message==='BNC_SCHEDULE_CHANGED')return response({error:'다른 화면에서 반복 설정이 바뀌었습니다. 현재 설정을 다시 조회한 뒤 저장해 주세요.'},409);
+        if(message==='BNC_SCHEDULE_CHANGED')return response({error:'반복 설정이나 실행 기록이 바뀌었습니다. 현재 상태를 다시 조회한 뒤 진행해 주세요.'},409);
+        if(message==='BNC_RESUME_BLOCKED')return response({error:'이전 작업의 결과 확인과 미해결 작업 처리가 필요합니다. 자동 실행은 꺼진 상태에서 다시 확인해 주세요.'},409);
         if (message === 'BNC_NOT_FOUND') return response({ error: '작업을 찾을 수 없습니다.' }, 404);
         if (/^BNC_(LIVE_DISABLED|ACCOUNT_REQUIRED|STOPPED|UNCERTAIN|APPROVAL_CHANGED|INVALID_STATE|EXPIRED)$/.test(message)) {
           return response({ error: '연결·실행 준비 상태를 확인해 주세요.', reason: message }, 409);

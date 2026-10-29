@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-29T06:01:30.616Z",
+  "migration": "20261029044735_bnc_schedule_cursor.sql",
+  "tests": [
+    "SDB01 first tick schedules future work without claiming/arming or catching up missed intervals",
+    "SDB02 concurrent ticks acquire exactly one durable generation across processes",
+    "SDB03 stale/cross-member settlements fail; caller cannot manufacture success",
+    "SDB04 expired running worker pauses even with runtime off; it never reclaims its job",
+    "SDB05 verified DB success advances from completion time; no backlog or replay",
+    "SDB06 settings/preference revisions, disconnected devices and unsettled jobs block execution",
+    "SDB07 preference changes reschedule from now instead of draining past intervals",
+    "SDB08 KST daytime/overnight/end boundary matches existing preview across year end",
+    "SDB09 RPC/direct writes denied to members; owner can only read own cursor",
+    "SDB10 blocked-without-effect advances once, keeps generation and rejects late settlement",
+    "SDB11 deletion during a running tick is allowed and pauses instead of inventing success",
+    "SDB12 durable tick -> signed host -> claim/arm -> fixture effect -> atomic evidence -> next interval",
+    "SDB13 outside KST window, expired device and disabled gates never acquire a tick",
+    "SDB14 recovery status never promotes uncertain/ready/deleted jobs to a confirmed result",
+    "SDB15 explicit reviewed recovery uses exact CAS, stays disabled, invalidates old finish and schedules from now",
+    "SDB16 another unsettled job or enabled execution prevents recovery; preference changes invalidate consent",
+    "SDB17 members cannot call control RPC directly or forge a result; response contains no body/credentials",
+    "SDB18 first status initializes disabled preferences only, not jobs/cursor or execution"
+  ],
+  "passed": 18,
+  "sqlCalls": 219,
+  "isolated": true,
+  "network": "none",
+  "hostPorts": 0,
+  "operatingApplied": false,
+  "productionCaller": false,
+  "externalActions": 0,
+  "unitTests": 216,
+  "typecheck": "passed",
+  "operatingMetadata": {
+    "directory": 43,
+    "jobs": 0,
+    "liveAllowed": false,
+    "freshImports": 0,
+    "schedulerTableApplied": false
+  },
+  "assets": "D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/schedule-recovery-20261029",
+  "visualBrowserVerified": false,
+  "remaining": [
+    "operating schema approval and application",
+    "trusted recurring caller and platform browser adapter",
+    "real scheduled Naver execution"
+  ],
+  "cost": {
+    "paidAI": 0,
+    "paidSearch": 0,
+    "vercelBuilds": 0,
+    "deployments": 0
+  }
+}

@@ -120,4 +120,51 @@ begin
 end $$;
 revoke all on function public.bnc_schedule_tick(uuid,text,jsonb) from public,anon,authenticated;
 grant execute on function public.bnc_schedule_tick(uuid,text,jsonb) to service_role;
+
+-- Member-facing status and explicit recovery. It cannot settle an external
+-- action, approve a job, switch execution on, or remove an uncertain job guard.
+create function public.bnc_schedule_control(p_user_id uuid,p_operation text,p_payload jsonb default '{}'::jsonb)
+returns jsonb language plpgsql security invoker set search_path='' as $$
+declare s public.bnc_settings%rowtype; p public.bnc_schedule_preferences%rowtype;
+ c public.bnc_schedule_cursor%rowtype; j public.bnc_jobs%rowtype; can_resume boolean; resumed boolean:=false; t timestamptz;
+begin
+ if p_user_id is null or jsonb_typeof(p_payload) is distinct from 'object' then raise exception 'BNC_INVALID_INPUT'; end if;
+ if p_operation is null or p_operation not in ('status','resume') then raise exception 'BNC_INVALID_OPERATION'; end if;
+ if p_operation='status' and p_payload<>'{}'::jsonb then raise exception 'BNC_INVALID_INPUT'; end if;
+ if p_operation='resume' and ((select count(*) from jsonb_object_keys(p_payload))<>5
+  or not(p_payload ?& array['run_id','generation','settings_revision','preference_revision','confirmed'])
+  or p_payload->'confirmed' is distinct from 'true'::jsonb
+  or jsonb_typeof(p_payload->'generation') is distinct from 'number' or (p_payload->>'generation') !~ '^[1-9][0-9]*$'
+  or jsonb_typeof(p_payload->'settings_revision') is distinct from 'number' or (p_payload->>'settings_revision') !~ '^[1-9][0-9]*$'
+  or jsonb_typeof(p_payload->'preference_revision') is distinct from 'number' or (p_payload->>'preference_revision') !~ '^[1-9][0-9]*$')
+ then raise exception 'BNC_INVALID_INPUT'; end if;
+ if p_operation='status' then perform public.bnc_schedule_preferences_dispatch(p_user_id,'get','{}'); end if;
+ select * into s from public.bnc_settings where user_id=p_user_id for update;
+ if not found then raise exception 'BNC_NOT_FOUND'; end if;
+ select * into p from public.bnc_schedule_preferences where user_id=p_user_id for update;
+ if not found then raise exception 'BNC_NOT_FOUND'; end if;
+ select * into c from public.bnc_schedule_cursor where user_id=p_user_id for update;
+ select * into j from public.bnc_jobs where user_id=p_user_id and id=c.job_id for update;
+ can_resume:=coalesce(c.state='paused' and not s.enabled and c.run_id is not null
+  and j.state in ('succeeded','failed_no_effect','skipped') and not exists(
+   select 1 from public.bnc_jobs where user_id=p_user_id and state in ('claimed','armed','uncertain')),false);
+ if p_operation='resume' then
+  if c.run_id is distinct from (p_payload->>'run_id')::uuid or c.generation is distinct from (p_payload->>'generation')::bigint
+   or s.revision<>(p_payload->>'settings_revision')::bigint or p.revision<>(p_payload->>'preference_revision')::bigint
+  then raise exception 'BNC_SCHEDULE_CHANGED'; end if;
+  if not can_resume then raise exception 'BNC_RESUME_BLOCKED'; end if;
+  t:=clock_timestamp();
+  update public.bnc_schedule_cursor set state='idle',generation=generation+1,run_id=null,device_id=null,running_until=null,
+   preference_revision=p.revision,next_due_at=bnc_private.schedule_next(t,p.interval_minutes,p.start_minute,p.end_minute),
+   last_result=case when j.state='succeeded' then 'succeeded' else 'blocked' end,updated_at=t
+   where user_id=p_user_id returning * into c;
+  resumed:=true;can_resume:=false;
+ end if;
+ return jsonb_build_object('state',coalesce(c.state,'uninitialized'),'generation',c.generation,'run_id',c.run_id,
+  'job_id',c.job_id,'job_state',j.state,'next_due_at',c.next_due_at,'running_until',c.running_until,'last_result',c.last_result,
+  'settings_revision',s.revision,'preference_revision',p.revision,'executionEnabled',s.enabled,
+  'resumable',can_resume,'resumed',resumed,'externalActions',0);
+end $$;
+revoke all on function public.bnc_schedule_control(uuid,text,jsonb) from public,anon,authenticated;
+grant execute on function public.bnc_schedule_control(uuid,text,jsonb) to service_role;
 commit;

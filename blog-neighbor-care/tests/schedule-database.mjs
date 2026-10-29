@@ -35,7 +35,7 @@ try{
  sql(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);
   create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
   grant usage on schema auth,public to anon,authenticated,service_role;alter default privileges in schema public grant all on tables to anon,authenticated,service_role;`);
- for(const file of ['../../supabase/migrations/0039_member_integrations.sql','../supabase/migrations/20261026103202_bnc_server_queue.sql','../supabase/migrations/20261026163340_bnc_reader_connection.sql','../supabase/migrations/20261028143000_bnc_schedule_preferences.sql','../supabase/migrations/20261028233611_bnc_execution_evidence.sql',`../supabase/migrations/${migration}`])sql(readFileSync(new URL(file,import.meta.url),'utf8'));
+ for(const file of ['../../supabase/migrations/0039_member_integrations.sql','../supabase/migrations/20261026103202_bnc_server_queue.sql','../supabase/migrations/20261026163340_bnc_reader_connection.sql','../supabase/migrations/20261028124500_bnc_work_cancel.sql','../supabase/migrations/20261028143000_bnc_schedule_preferences.sql','../supabase/migrations/20261028233611_bnc_execution_evidence.sql',`../supabase/migrations/${migration}`])sql(readFileSync(new URL(file,import.meta.url),'utf8'));
  sql("update bnc_runtime set live_allowed=true,policy_reference='isolated-fixture-only';");
  const m=fixture(),other=fixture();
  await check('SDB01 first tick schedules future work without claiming/arming or catching up missed intervals',()=>{
@@ -131,7 +131,53 @@ try{
   sql('update bnc_runtime set live_allowed=false;');assert.equal(tick(a,'begin',a.start).reason,'disabled');sql('update bnc_runtime set live_allowed=true;');
   sql(`update bnc_settings set enabled=false where user_id=${q(a.user)};`);assert.equal(tick(a,'begin',a.start).reason,'disabled');
  });
+ const control=(a,operation='status',p={})=>JSON.parse(sql(`select bnc_schedule_control(${q(a.user)},${q(operation)},${payload(p)});`,'service_role'));
+ const recoveryPayload=c=>({run_id:c.run_id,generation:c.generation,settings_revision:c.settings_revision,preference_revision:c.preference_revision,confirmed:true});
+ function pausedFixture(){const a=fixture();tick(a,'begin',a.start);due(a);a.cursor=tick(a,'begin',a.start);finish(a);return a;}
+ await check('SDB14 recovery status never promotes uncertain/ready/deleted jobs to a confirmed result',()=>{
+  const a=pausedFixture();assert.equal(control(a).resumable,false);
+  assert.throws(()=>control(a,'resume',recoveryPayload(control(a))),/BNC_RESUME_BLOCKED/);
+  sql(`update bnc_jobs set state='uncertain' where id=${q(a.job)};`);assert.equal(control(a).resumable,false);
+  sql(`delete from bnc_jobs where id=${q(a.job)};`);assert.equal(control(a).resumable,false);
+ });
+ await check('SDB15 explicit reviewed recovery uses exact CAS, stays disabled, invalidates old finish and schedules from now',()=>{
+  const a=pausedFixture();sql(`select bnc_work_cancel(${q(a.user)},${q(a.job)});`,'service_role');
+  const before=control(a),p=recoveryPayload(before);assert.equal(before.resumable,true);
+  assert.throws(()=>control(a,'resume',{...p,confirmed:false}),/BNC_INVALID_INPUT/);
+  assert.throws(()=>control(a,'resume',{...p,settings_revision:p.settings_revision+1}),/BNC_SCHEDULE_CHANGED/);
+  assert.throws(()=>control(other,'resume',p),/BNC_SCHEDULE_CHANGED/);
+  sql('update bnc_runtime set live_allowed=false;');const after=control(a,'resume',p);
+  assert.equal(after.resumed,true);assert.equal(after.executionEnabled,false);assert.equal(after.state,'idle');
+  assert.equal(after.generation,before.generation+1);assert.equal(after.run_id,null);assert.ok(Date.parse(after.next_due_at)>Date.now()+29*60000);
+  assert.equal(sql(`select state from bnc_jobs where id=${q(a.job)};`),'skipped');
+  assert.equal(sql('select not live_allowed from bnc_runtime;'),'t');
+  assert.throws(()=>control(a,'resume',p),/BNC_SCHEDULE_CHANGED/);assert.throws(()=>finish(a),/BNC_STALE_RUN/);
+  sql('update bnc_runtime set live_allowed=true;');
+ });
+ await check('SDB16 another unsettled job or enabled execution prevents recovery; preference changes invalidate consent',()=>{
+  const a=pausedFixture();sql(`update bnc_jobs set state='succeeded' where id=${q(a.job)};`);
+  const before=control(a);assert.equal(before.resumable,true);const p=recoveryPayload(before);
+  sql(`update bnc_schedule_preferences set revision=revision+1 where user_id=${q(a.user)};`);
+  assert.throws(()=>control(a,'resume',p),/BNC_SCHEDULE_CHANGED/);
+  const j=dispatch(a,'create',{account_id:a.account,neighbor_id:'another-neighbor',kind:'request',body:'private-fixture'});
+  sql(`update bnc_jobs set state='uncertain' where id=${q(j.id)};`);assert.equal(control(a).resumable,false);
+  sql(`update bnc_jobs set state='skipped' where id=${q(j.id)};update bnc_settings set enabled=true where user_id=${q(a.user)};`);
+  assert.equal(control(a).resumable,false);
+ });
+ await check('SDB17 members cannot call control RPC directly or forge a result; response contains no body/credentials',()=>{
+  for(const role of ['anon','authenticated'])assert.throws(()=>sql(`select bnc_schedule_control(${q(m.user)},'status','{}');`,role),/permission denied/);
+  assert.throws(()=>control(m,'resume',{...recoveryPayload(control(m)),outcome:'success'}),/BNC_INVALID_INPUT/);
+  const r=control(m);for(const key of ['body','user_id','device_id','approval_hash','token_hash','access_token'])assert.equal(Object.hasOwn(r,key),false);
+  assert.equal(sql("select count(*) from pg_proc where proname='bnc_schedule_control' and prosecdef;"),'0');
+ });
+ await check('SDB18 first status initializes disabled preferences only, not jobs/cursor or execution',()=>{
+  const a={user:randomUUID()};sql(`insert into auth.users values(${q(a.user)});`);
+  const r=control(a);assert.equal(r.state,'uninitialized');assert.equal(r.resumable,false);assert.equal(r.executionEnabled,false);
+  assert.equal(r.settings_revision,1);assert.equal(r.preference_revision,1);
+  assert.equal(sql(`select count(*) from bnc_jobs where user_id=${q(a.user)};`),'0');
+  assert.equal(sql(`select count(*) from bnc_schedule_cursor where user_id=${q(a.user)};`),'0');
+ });
  const evidence={date:new Date().toISOString(),migration,tests,passed:tests.length,sqlCalls,isolated:true,network:'none',hostPorts:0,operatingApplied:false,productionCaller:false,externalActions:0};
- writeFileSync(new URL('../docs/evidence/schedule-cursor-20261029.json',import.meta.url),JSON.stringify(evidence,null,2)+'\n');
+ writeFileSync(new URL('../docs/evidence/schedule-recovery-20261029.json',import.meta.url),JSON.stringify(evidence,null,2)+'\n');
  console.log(JSON.stringify({passed:tests.length,sqlCalls,operatingApplied:false}));
 }finally{execFileSync('docker',['stop',container],{windowsHide:true,stdio:'pipe'});}
