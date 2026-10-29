@@ -130,39 +130,41 @@ export default async function FeesPage() {
 
         <div>
           <p className="mb-1 text-xs font-semibold text-mx-text">
-            ① 주문관리(결제) 수수료 — 국세청 신고 매출 등급(영세·중소1~3·일반)에 따라 다릅니다
+            ① 주문관리(Npay) 수수료 — 국세청 신고 매출 등급(영세·중소1~3·일반)에 따라 다릅니다(2025-10-01 결제부터)
           </p>
           <FeeTable
             headers={["매출 등급", "주문관리 수수료(부가세 포함)"]}
             rows={[
-              { category: "영세 — 연매출 3억원 미만", values: ["약 1.98%"] },
-              { category: "중소1~3 — 연매출 3억~30억원", values: ["등급별로 그 사이"] },
-              { category: "일반 — 연매출 30억원 이상", values: ["약 3.63%"] },
+              { category: "영세", values: ["1.947%"] },
+              { category: "중소1", values: ["2.563%"] },
+              { category: "중소2", values: ["2.728%"] },
+              { category: "중소3", values: ["3.003%"] },
+              { category: "일반", values: ["3.630%"] },
             ]}
           />
         </div>
 
         <div>
-          <p className="mb-1 mt-2 text-xs font-semibold text-mx-text">② 판매수수료 — 유입경로 기준(매출 등급 무관, 2025-06 개편, 부가세 별도)</p>
+          <p className="mb-1 mt-2 text-xs font-semibold text-mx-text">② 판매수수료 — 유입경로 기준(매출 등급 무관, 2025-06-02 개편). 정산은 부가세 포함 비율(괄호는 공지 표기·부가세 제외)</p>
           <FeeTable
             headers={["유입경로", "스마트스토어", "브랜드스토어"]}
             rows={[
-              { category: "일반 유입(네이버 검색·쇼핑 등)", values: ["2.73%", "3.64%"] },
-              { category: "마케팅 링크 유입", values: ["0.91%", "1.82%"] },
+              { category: "판매수수료(네이버 검색·쇼핑·플러스스토어 등)", values: ["3% (2.73%)", "4% (3.64%)"] },
+              { category: "판매자 마케팅(마케팅 링크·쇼핑 검색광고 유입)", values: ["1% (0.91%)", "2% (1.82%)"] },
             ]}
           />
         </div>
-        <SourceNote verified={false}>
-          스마트스토어 수수료 안내는 판매자 센터 로그인 화면이라 직접 대조하지 못했습니다. 판매자 안내 자료 다수가 일치하는 값이며, 예전 표의 등급별 값(1.87~3.74%)은 근거가 엇갈려 범위로 바꿨습니다. 내 등급 요율은 스마트스토어센터 「정산관리 › 수수료 안내」 또는 공지에서 확인하세요.
+        <SourceNote verified date="2026-10-29">
+          스마트스토어 판매자 고객센터 공식 도움말(「매출 규모에 따른 Npay 수수료 기준」·「판매수수료의 정산 기준 수수료율」)로 2026-10-29 확인했습니다. Npay 수수료와 판매수수료는 함께 붙고, 쇼핑라이브·렌탈 등 일부 상품은 별도 수수료가 더해집니다. 내 등급은 스마트스토어센터 「정산관리 › 정산 내역(일별/건별) › 나의 수수료 정보」에서 확인하세요.
         </SourceNote>
         <div className="rounded-lg border border-mx-success/30 bg-mx-success/10 p-3 text-xs leading-relaxed text-[#a7f3d0]">
           <p className="font-bold">💡 마케팅 링크를 쓰면 수수료가 더 낮아집니다</p>
           <p className="mt-1">
             판매자센터에서 스토어홈·카테고리·상품상세·쇼핑스토리 페이지별로 &quot;마케팅
-            링크&quot;를 발급받아, 그 링크로 블로그·SNS·검색광고 등 <span className="font-semibold">직접 마케팅</span>을 통해 고객이 들어오면 판매수수료가 2.73% →{" "}
-            <span className="font-semibold">0.91%</span>로 낮아집니다. 예를 들어 &quot;일반&quot;
-            등급(주문관리 수수료 약 3.63%)이라면, 총 부담이 일반 유입 약 6.4% → 마케팅 링크 유입 약 4.5%로
-            줄어듭니다(본인 등급의 주문관리 수수료와 판매수수료를 더하면 됩니다. 판매수수료는 부가세 별도라 실제 부담은 조금 더 큽니다).
+            링크&quot;를 발급받아, 그 링크로 블로그·SNS·검색광고 등 <span className="font-semibold">직접 마케팅</span>을 통해 고객이 들어오면 판매수수료가 3% →{" "}
+            <span className="font-semibold">1%</span>로 낮아집니다(정산 기준, 부가세 포함). 예를 들어 &quot;일반&quot;
+            등급(Npay 수수료 3.63%)이라면, 총 부담이 일반 유입 약 6.63% → 마케팅 링크 유입 약 4.63%로
+            줄어듭니다(본인 등급의 Npay 수수료와 판매수수료를 더하면 됩니다).
             유입 후 스토어를 이탈하지 않고 다른 상품을 구매해도 똑같이 적용되지만,
             네이버플러스스토어·가격비교 등 다른 경로로 이탈하면 적용되지 않습니다.
           </p>

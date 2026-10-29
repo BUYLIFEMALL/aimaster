@@ -29,7 +29,7 @@ export const MARKET_FEES: Record<MarketId, MarketFee> = {
   auction: { ratePct: 13, shippingRatePct: 3.3, verified: true, note: "ESM PLUS 공식 표 — 대부분 카테고리 13%(카테고리별 예외 있음)", checkedAt: "2026-10-25" },
   coupang: { ratePct: 10.8, shippingRatePct: 3.3, verified: false, note: "공식 표는 WING 로그인 뒤에만 보임 — 카테고리별 4~10.8% 중 높은 값(보수적 추정)", checkedAt: "2026-10-25" },
   "11st": { ratePct: 13, shippingRatePct: 3.3, verified: false, note: "공식 표는 셀러오피스 로그인 뒤에만 보임 — 7~13% 중 높은 값(보수적 추정)", checkedAt: "2026-10-25" },
-  smartstore: { ratePct: 6.36, shippingRatePct: 3.63, verified: false, note: "주문관리 수수료(일반 약 3.63%) + 판매수수료 2.73%(네이버 쇼핑 유입 기준) — 등급·유입 경로마다 다름", checkedAt: "2026-10-25" },
+  smartstore: { ratePct: 6.63, shippingRatePct: 3.63, verified: true, note: "Npay(주문관리) 수수료 일반 3.63% + 판매수수료 3%(정산 기준·부가세 포함, 공지 표기 2.73%) — 스마트스토어 판매자 고객센터 공식 도움말. 등급·유입 경로마다 다름", checkedAt: "2026-10-29" },
   other: { ratePct: 10, shippingRatePct: 0, verified: false, note: "마켓을 알 수 없어 10%로 가정 — 설정에서 바꾸세요", checkedAt: "2026-10-25" },
 };
 
@@ -106,8 +106,9 @@ export const CATEGORY_FEES: Partial<Record<MarketId, CategoryTable>> = {
   },
 };
 
-/** 스마트스토어는 수수료가 두 갈래 — 주문관리(등급별, 부가세 포함) + 판매수수료(유입 경로별, 부가세 별도). 대표값 ⚠ */
-export const SMARTSTORE_PARTS = { orderFeePct: 3.63, salesFeePct: 2.73, verified: false };
+/** 스마트스토어는 수수료가 두 갈래 — 주문관리(Npay, 등급별) + 판매수수료(유입 경로별). 둘 다 정산 기준(부가세 포함) 값. 공식 확인 ✅ */
+// 2026-10-29 공식 도움말 대조: 정산은 부가세 포함 비율 — Npay 수수료 일반 3.63%(2025-10-01 결제부터), 판매수수료 3%(공지 표기 2.73%는 부가세 제외).
+export const SMARTSTORE_PARTS = { orderFeePct: 3.63, salesFeePct: 3, verified: true };
 
 /** 월 고정비(서버 이용료) — 공식 확인된 값만. 전월 판매대금 기준을 넘을 때만 붙는다. */
 export const MONTHLY_SERVER_FEE: Partial<Record<MarketId, { krw: number; conditionKrw: number; verified: boolean }>> = {

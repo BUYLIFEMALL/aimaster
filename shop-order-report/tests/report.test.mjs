@@ -158,7 +158,7 @@ test("손익분기·목표 마진 판매가는 다시 넣으면 그 이익률이
 test("카테고리 요율·마켓 비교", () => {
   assert.equal(defaultFeePct("auction", "모니터/프린터"), 7);
   assert.equal(defaultFeePct("gmarket", "모니터/프린터"), 9);
-  assert.equal(defaultFeePct("smartstore"), 6.36);
+  assert.equal(defaultFeePct("smartstore"), 6.63); // 2026-10-29 공식 도움말: Npay 3.63% + 판매수수료 3%(부가세 포함)
   assert.equal(CATEGORY_FEES.gmarket.verified, true);
   assert.equal(CATEGORY_FEES.coupang.verified, false);
   const rows = compareMarkets({ sellingPrice: 30000, shippingMode: "free", courierCost: 3000, unitCost: 10000 });
@@ -177,7 +177,7 @@ test("흐름 표시 붙이기·읽기·이웃 단계", () => {
   assert.equal(isFlowSearch("?flow=shop&z=1"), true);
   assert.equal(isFlowSearch("?flow=other"), false);
   const n = flowNeighbors("orders");
-  assert.equal(n.prev.id, "detail");
+  assert.equal(n.prev.id, "market"); // 2026-10-27 「🛒 마켓 등록」 단계가 상세페이지와 주문 사이에 들어감
   assert.equal(n.next.id, "label");
   assert.equal(flowNeighbors("sourcing").prev, null);
 });
