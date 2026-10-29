@@ -33,6 +33,7 @@ export function ConnectionTest({ saved }: { saved: boolean }) {
                   <li key={p.code} className="rounded-lg bg-white px-2 py-1">
                     <b>{p.name}</b> <span className="font-mono text-slate-500">#{p.code}</span>{!p.usable && <span className="ml-1 text-rose-700">(사용 안 함)</span>}
                     <span className="block text-slate-500">{p.address}</span>
+                    {p.remote.length > 0 ? <span className="block text-[11px] text-slate-500">🏝 제주·도서산간 추가: {p.remote.map((x) => `${x.courier} 제주 ${x.jeju.toLocaleString()}원 · 도서산간 ${x.notJeju.toLocaleString()}원`).join(" / ")}</span> : <span className="block text-[11px] text-slate-400">🏝 제주·도서산간 추가배송비 설정 없음</span>}
                   </li>
                 ))}
                 {!result.places.length && <li className="text-amber-800">출고지가 없습니다. WING에서 먼저 만들어 주세요.</li>}
@@ -51,7 +52,7 @@ export function ConnectionTest({ saved }: { saved: boolean }) {
               </ul>
             </div>
           </div>
-          <p className="text-[11px] text-slate-500">출고지·반품지 중 상품 등록에 쓸 곳은 다음 업데이트의 「배송·반품 기본값」 화면에서 고릅니다.</p>
+          <p className="text-[11px] text-slate-500">상품 등록에 쓸 출고지·반품지는 「배송·반품 기본값」 화면에서 고릅니다. 제주·도서산간 추가배송비는 출고지마다 WING에서 정합니다.</p>
         </div>
       )}
     </div>

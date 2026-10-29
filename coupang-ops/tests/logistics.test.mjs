@@ -14,7 +14,7 @@ test("출고지: 도로명 주소 우선, 코드 없는 줄 제외", () => {
     ],
     pagination: { totalPages: 3 },
   });
-  assert.deepEqual(r.places, [{ code: "123", name: "본사", usable: true, address: "도로명 주소 2층" }]);
+  assert.deepEqual(r.places, [{ code: "123", name: "본사", usable: true, address: "도로명 주소 2층", remote: [] }]);
   assert.equal(r.totalPages, 3);
 });
 

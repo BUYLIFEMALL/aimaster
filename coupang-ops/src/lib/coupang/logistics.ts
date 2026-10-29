@@ -13,6 +13,8 @@ export interface OutboundPlace {
   name: string;
   usable: boolean;
   address: string;
+  /** 택배사별 제주·도서산간 추가배송비(출고지 설정, WING에서 정함) */
+  remote: { courier: string; jeju: number; notJeju: number }[];
 }
 
 export interface ReturnCenter {
@@ -37,12 +39,12 @@ const str = (v: unknown) => (v == null ? "" : String(v)).trim();
 
 export function normalizeOutbound(json: unknown): { places: OutboundPlace[]; totalPages: number } {
   const root = (json ?? {}) as { content?: unknown[]; data?: { content?: unknown[] }; pagination?: { totalPages?: number } };
-  const content = (root.content ?? root.data?.content ?? []) as { outboundShippingPlaceCode?: unknown; shippingPlaceName?: unknown; usable?: unknown; placeAddresses?: Addr[] }[];
+  const content = (root.content ?? root.data?.content ?? []) as { outboundShippingPlaceCode?: unknown; shippingPlaceName?: unknown; usable?: unknown; placeAddresses?: Addr[]; remoteInfos?: { deliveryCode?: unknown; jeju?: unknown; notJeju?: unknown; usable?: unknown }[] }[];
   return {
     places: content
       .map((c) => {
         const a = pickAddress(c.placeAddresses);
-        return { code: str(c.outboundShippingPlaceCode), name: str(c.shippingPlaceName), usable: c.usable !== false, address: [str(a.returnAddress), str(a.returnAddressDetail)].filter(Boolean).join(" ") };
+        return { code: str(c.outboundShippingPlaceCode), name: str(c.shippingPlaceName), usable: c.usable !== false, address: [str(a.returnAddress), str(a.returnAddressDetail)].filter(Boolean).join(" "), remote: (Array.isArray(c.remoteInfos) ? c.remoteInfos : []).filter((x) => x.usable !== false).map((x) => ({ courier: str(x.deliveryCode), jeju: Number(x.jeju) || 0, notJeju: Number(x.notJeju) || 0 })) };
       })
       .filter((p) => p.code),
     totalPages: Number(root.pagination?.totalPages ?? 1) || 1,
