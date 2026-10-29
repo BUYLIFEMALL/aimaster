@@ -1,6 +1,6 @@
 // Trusted, permitted reader intake only. No member route accepts observations.
 export type EngagementScope={memberId:string;accountId:string;deviceId:string;actorId:string};
-export type IncomingComment={accountId:string;actorId:string;neighborId:string;ownPostId:string;commentId:string;returnPostId:string|null;
+export type IncomingComment={accountId:string;actorId:string;neighborId:string;ownPostId:string;commentId:string;returnPostId:string|null;returnPostOwnerId?:string;
  checkedAt:number;restriction:'none'|'login'|'captcha'|'platform';parentIsTopLevel:boolean;alreadyReplied:boolean|null};
 type Dependencies={authorize:(id:string)=>Promise<boolean>;connected:(scope:Readonly<EngagementScope>)=>Promise<boolean>;permitted:()=>Promise<boolean>;
  adapter:{inspect:()=>Promise<IncomingComment>;assertCurrent:(snapshot:Readonly<IncomingComment>)=>Promise<boolean>};
@@ -21,7 +21,8 @@ export async function captureIncomingComment(input:EngagementScope,d:Dependencie
   if(snapshot.accountId!==scope.accountId||snapshot.actorId!==scope.actorId||!blog(snapshot.neighborId)||snapshot.neighborId===scope.actorId||
    !post(snapshot.ownPostId)||!/^[a-zA-Z0-9_-]{1,128}$/.test(snapshot.commentId)||!current())return blocked('source_context_changed');
   if(snapshot.restriction!=='none'){await d.stop(scope.memberId);return blocked('platform_restricted');}
-  if(!snapshot.parentIsTopLevel||snapshot.alreadyReplied!==false||!(snapshot.returnPostId===null||post(snapshot.returnPostId)))return blocked('source_unverified');
+  if(!snapshot.parentIsTopLevel||snapshot.alreadyReplied!==false||!(snapshot.returnPostId===null||
+   (post(snapshot.returnPostId)&&snapshot.returnPostOwnerId===snapshot.neighborId)))return blocked('source_unverified');
   if(!await d.adapter.assertCurrent(snapshot)||!await allowed()||!current())return blocked('source_context_changed');
   await d.save(scope,snapshot);return {status:'captured' as const,externalActions:0 as const};
  }catch{return blocked('capture_unconfirmed');}

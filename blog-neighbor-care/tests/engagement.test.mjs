@@ -5,7 +5,7 @@ import {createWorkHandler} from '../src/lib/work-api.ts';
 const id='11111111-1111-4111-8111-111111111111',scope={memberId:id,accountId:id,deviceId:id,actorId:'own-blog'};
 function fixture(){
  const s={allowed:true,connected:true,permitted:true,inspections:0,saves:0,stops:0,current:true};
- const snapshot={accountId:id,actorId:'own-blog',neighborId:'neighbor',ownPostId:'123',commentId:'comment-1',returnPostId:'456',checkedAt:100000,restriction:'none',parentIsTopLevel:true,alreadyReplied:false};
+ const snapshot={accountId:id,actorId:'own-blog',neighborId:'neighbor',ownPostId:'123',commentId:'comment-1',returnPostId:'456',returnPostOwnerId:'neighbor',checkedAt:100000,restriction:'none',parentIsTopLevel:true,alreadyReplied:false};
  const d={now:()=>100000,authorize:async()=>s.allowed,connected:async()=>s.connected,permitted:async()=>s.permitted,
   adapter:{inspect:async()=>{s.inspections++;return snapshot;},assertCurrent:async()=>s.current},save:async()=>{s.saves++;},stop:async()=>{s.stops++;}};
  return {s,snapshot,d,run:()=>captureIncomingComment(scope,d)};
@@ -15,7 +15,7 @@ test('EN01 trusted intake captures exact own-post incoming comment without any e
 });
 test('EN02 revoked access/connection or absent read permission denies inspection; source/context changes deny storage',async()=>{
  for(const key of ['allowed','connected','permitted']){const f=fixture();f.s[key]=false;assert.equal((await f.run()).status,'blocked');assert.equal(f.s.inspections,0);}
- for(const patch of [{actorId:'other'},{neighborId:'own-blog'},{ownPostId:'url'},{commentId:''},{checkedAt:1},{alreadyReplied:null},{alreadyReplied:true},{parentIsTopLevel:false},{returnPostId:'url'}]){
+ for(const patch of [{actorId:'other'},{neighborId:'own-blog'},{ownPostId:'url'},{commentId:''},{checkedAt:1},{alreadyReplied:null},{alreadyReplied:true},{parentIsTopLevel:false},{returnPostId:'url'},{returnPostOwnerId:'unrelated-blog'}]){
   const f=fixture();Object.assign(f.snapshot,patch);assert.equal((await f.run()).status,'blocked');assert.equal(f.s.saves,0);
  }
  const f=fixture();f.s.current=false;await f.run();assert.equal(f.s.saves,0);
