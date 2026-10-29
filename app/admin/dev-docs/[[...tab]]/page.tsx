@@ -16,6 +16,7 @@ const TABS: Record<string, { tab: DevDocsTab; title: string; desc: string }> = {
   waiting: { tab: "waiting", title: "개발 대기 중", desc: "승인·결정을 기다리는 작업과 외부 분석" },
   planned: { tab: "planned", title: "개발 예정", desc: "역할별 「다음 첫 단계」와 남은 묶음이 있는 분석" },
   analyzed: { tab: "analyzed", title: "분석 완료 · 판단", desc: "외부 프로그램 분석 결과 — 핵심 기능과 병합/독립 판단" },
+  "admin-action": { tab: "admin-action", title: "관리자 실행요청", desc: "주인님이 직접 해 주셔야 다음이 진행되는 일(승인·화면 확인·로그인·DB 실행·설치) — 빨리 처리할수록 막힌 작업이 풀립니다" },
   guidelines: { tab: "guidelines", title: "지침 관리", desc: "메인 지침·분야별 지침·기준 문서를 보고 직접 수정하거나 관리자 지시를 답니다" },
   programs: { tab: "programs", title: "프로그램별 지침", desc: "프로그램 폴더의 AGENTS·README·docs 문서" },
   requests: { tab: "requests", title: "수정 요청함", desc: "화면에서 저장한 수정안·관리자 지시·역할 메모와 반영 상태" },

@@ -9,11 +9,11 @@ import { OWNER_ACTION_CATEGORIES, type DevRequest } from "./types";
 import type { ActiveWorkRow, CategoryMapData, RegistryData, RoleStatus, TableRow } from "@/lib/devDocs/parse";
 import type { DevDocsManifest, ManifestEntry } from "@/lib/devDocs/github";
 
-export type DevDocsTab = "overview" | "in-progress" | "completed" | "waiting" | "planned" | "analyzed" | "guidelines" | "programs" | "requests";
+export type DevDocsTab = "overview" | "in-progress" | "completed" | "waiting" | "planned" | "analyzed" | "admin-action" | "guidelines" | "programs" | "requests";
 
 type ProgramMeta = { slug: string; name: string; version: string | null; app_url: string | null };
 
-const TAB_LABEL: Record<DevDocsTab, string> = { overview: "한눈에 보기", "in-progress": "진행 중", completed: "개발완료", waiting: "대기 중", planned: "예정", analyzed: "분석 완료", guidelines: "지침", programs: "프로그램", requests: "요청함" };
+const TAB_LABEL: Record<DevDocsTab, string> = { overview: "한눈에 보기", "in-progress": "진행 중", completed: "개발완료", waiting: "대기 중", planned: "예정", analyzed: "분석 완료", "admin-action": "관리자 실행요청", guidelines: "지침", programs: "프로그램", requests: "요청함" };
 const REGISTRY = "docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md";
 const STALE_MS = 3 * 86400000;
 const KIND_LABEL: Record<string, string> = { doc_edit: "수정안", doc_comment: "관리자 지시", role_note: "역할 메모", work_result: "작업 결과", owner_action: "해 줄 일" };
@@ -150,6 +150,7 @@ export default function DevDocsBoard(props: {
 
       {tab === "programs" && <Programs manifest={manifest} programs={programs} docActions={docActions} />}
 
+      {tab === "admin-action" && <Requests requests={requests} setRequests={setRequests} setDialog={setDialog} focus="owner" />}
       {tab === "requests" && <Requests requests={requests} setRequests={setRequests} setDialog={setDialog} />}
       </div>
 
@@ -532,7 +533,7 @@ function Programs({ manifest, programs, docActions }: { manifest: DevDocsManifes
   );
 }
 
-function Requests({ requests, setRequests, setDialog }: { requests: DevRequest[]; setRequests: (f: (r: DevRequest[]) => DevRequest[]) => void; setDialog: (d: Dialog) => void }) {
+function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRequest[]; setRequests: (f: (r: DevRequest[]) => DevRequest[]) => void; setDialog: (d: Dialog) => void; focus?: "owner" }) {
   const [busy, setBusy] = useState<string | null>(null);
   const act = async (id: string, action: "cancel" | "done" | "dismiss") => {
     if (busy) return;
@@ -564,9 +565,13 @@ function Requests({ requests, setRequests, setDialog }: { requests: DevRequest[]
 
   return (
     <Sections>
-      <GlassCard className="p-4 text-xs text-white/80">
-        <b className="text-white">🙋 내가 해 줄 일</b>은 각 세션이 주인님께 드린 요청(승인·비용·로그인·DB 실행 등)을 분류별로 모은 것입니다. 처리하셨으면 ✔ 「완료」, 필요 없으면 ✖를 누르세요.{" "}
-        <b className="text-white">📬 작업 결과</b>는 주인님이 맡기신 일을 각 세션이 끝낸 뒤 남긴 결과(커밋·비용·링크)입니다. 세션은 <code className="rounded bg-white/10 px-1">node scripts/dev-requests.mjs ask</code>·<code className="rounded bg-white/10 px-1">report</code>로 올립니다.
+      <GlassCard className="p-4 text-sm text-white/80">
+        {focus === "owner" ? (
+          <><b className="text-white">🙋 관리자 실행요청</b>은 각 세션이 「주인님이 직접 해 주셔야 다음 작업이 진행됩니다」라며 올린 일(승인·결정·화면 확인·로그인·DB 실행·설치 등)을 분류별로 모은 것입니다. 처리하셨으면 ✔ 「완료」, 필요 없으면 ✖를 누르세요 — 막혀 있던 작업이 바로 풀립니다.</>
+        ) : (
+          <><b className="text-white">🙋 내가 해 줄 일</b>은 각 세션이 주인님께 드린 요청(승인·비용·로그인·DB 실행 등)을 분류별로 모은 것입니다. 처리하셨으면 ✔ 「완료」, 필요 없으면 ✖를 누르세요.{" "}
+          <b className="text-white">📬 작업 결과</b>는 주인님이 맡기신 일을 각 세션이 끝낸 뒤 남긴 결과(커밋·비용·링크)입니다. 세션은 <code className="rounded bg-white/10 px-1">node scripts/dev-requests.mjs ask</code>·<code className="rounded bg-white/10 px-1">report</code>로 올립니다.</>
+        )}
       </GlassCard>
 
       <Section title="🙋 내가 해 줄 일" count={todo.length}>
@@ -610,6 +615,7 @@ function Requests({ requests, setRequests, setDialog }: { requests: DevRequest[]
         </Section>
       )}
 
+      {focus !== "owner" && (<>
       <Section title="📬 작업 결과" count={results.length}>
         {results.length === 0 ? <Empty>아직 올라온 작업 결과가 없습니다.</Empty> : results.map((r) => {
           const parent = r.parent_id ? byId[r.parent_id] : undefined;
@@ -644,6 +650,7 @@ function Requests({ requests, setRequests, setDialog }: { requests: DevRequest[]
           </Fold>
         ))}
       </Section>
+      </>)}
     </Sections>
   );
 }
