@@ -8,6 +8,9 @@ export const dynamic = 'force-dynamic';
 export const POST = createWorkHandler({
   authorize: authorizeMember,
   execute: async (userId, operation, payload) => {
+    if(['extension_devices','grant_extension','revoke_extension'].includes(operation)){
+      const {data,error}=await createAdminClient().rpc('bnc_extension_permission_dispatch',{p_user_id:userId,p_operation:operation==='extension_devices'?'list':operation==='grant_extension'?'grant':'revoke',p_payload:payload});return {data,error};
+    }
     if(['engagement_list','engagement_review','draft_reply','draft_return_visit'].includes(operation)){
       const op=operation==='engagement_list'?'list':operation==='engagement_review'?'review':operation==='draft_reply'?'reply':'return_visit';
       const {data,error}=await createAdminClient().rpc('bnc_engagement_dispatch',{p_user_id:userId,p_operation:op,p_payload:payload});

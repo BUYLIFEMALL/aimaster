@@ -1,5 +1,5 @@
 // Serialized by scripting.executeScript in the isolated world. A reviewed DOM
-// profile is supplied by the private host, never by page messages/member forms.
+// profile is supplied by the web server, never by page messages/member forms.
 // There is deliberately no guessed default profile for live Naver markup.
 export async function operateVisibleNaverWork(command) {
  const {operation,job,permit,profile:p}=command||{};
@@ -70,7 +70,8 @@ export async function operateVisibleNaverWork(command) {
   (job.kind==='like'?s.liked===false:s.duplicate===false));
  const freshPermit=()=>permit&&Number.isSafeInteger(permit.generation)&&permit.generation>0&&typeof permit.validUntil==='string'&&
   Date.parse(permit.validUntil)>Date.now()&&Date.parse(permit.validUntil)<=Date.now()+30000&&Date.parse(job.expires_at)>Date.now();
- let s=snapshot();
+ let s;
+ try{s=snapshot();}catch(error){if(operation==='inspect')return {unavailable:true};throw error;}
  if(operation==='inspect')return safe(s);
  if(operation==='assert')return usable(s)&&Date.parse(job.expires_at)>Date.now();
  if(operation==='verify'){

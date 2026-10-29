@@ -92,9 +92,10 @@ chrome.runtime.onMessage?.addListener((message,sender,respond)=>{
     Promise.resolve(chrome.windows?.getCurrent()).then(w=>respond({windowId:w?.id,focused:Number.isInteger(message.windowId)&&w?.id===message.windowId&&document.hasFocus()&&document.visibilityState==='visible'}),()=>respond({focused:false}));return true;
   }
   if(message?.type==='neighbor_progress'&&currentDeviceId&&message.progress?.deviceId===currentDeviceId)renderNeighborProgress(message.progress);
+  if(message?.type==='work_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('workMessage').textContent=message.message;
   return false;
 });
-$('workStart').addEventListener('click',()=>run(async()=>{if(!$('workConfirm').checked)throw Error('현재 탭 실행 동의를 확인해 주세요.');const r=await send({type:'native_start',confirmed:true});$('workMessage').textContent=r.message;$('workConfirm').checked=false;}));
-$('workStatus').addEventListener('click',()=>run(async()=>{$('workMessage').textContent=(await send({type:'native_status'})).message;}));
-$('workStop').addEventListener('click',async()=>{try{$('workMessage').textContent=(await send({type:'native_stop'})).message;}catch{$('workMessage').textContent='중단 응답 미확인 · 작업 기록에서 결과 확인';}});
+$('workStart').addEventListener('click',()=>run(async()=>{if(!$('workConfirm').checked)throw Error('현재 탭 실행 동의를 확인해 주세요.');$('workMessage').textContent='진행 중 · 웹의 실행 허용과 승인 작업을 확인합니다.';const r=await send({type:'work_start',confirmed:true});$('workMessage').textContent=r.message;$('workConfirm').checked=false;}));
+$('workStatus').addEventListener('click',()=>run(async()=>{$('workMessage').textContent=(await send({type:'work_status'})).message;}));
+$('workStop').addEventListener('click',async()=>{try{$('workMessage').textContent=(await send({type:'work_stop'})).message;}catch{$('workMessage').textContent='중단 응답 미확인 · 작업 기록에서 결과 확인';}});
 run(status);

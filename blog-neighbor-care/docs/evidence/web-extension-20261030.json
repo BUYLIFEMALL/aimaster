@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-29T15:19:00.331Z",
+  "migration": "20261030001500_bnc_extension_execution.sql",
+  "tests": [
+    "EXDB01 existing read-only device cannot offer an approved job without separate web consent",
+    "EXDB02 member RPC/direct writes are denied; only the owner can read permission/run metadata",
+    "EXDB03 stale/cross-device/forged observation cannot claim; nonce is consumed once and status cannot recover it",
+    "EXDB04 web API -> server nonce stages -> extension -> SQL evidence/result works without any native host",
+    "EXDB05 a lost registration permission never clicks or automatically reissues the armed job",
+    "EXDB06 lost final response preserves committed success and does not repeat the click",
+    "EXDB07 revoking device execution consent blocks the next stage; stopping unarmed work releases its reservation",
+    "EXDB08 cleanup expires consent/run metadata without deleting approved jobs or enabling execution"
+  ],
+  "passed": 8,
+  "sqlCalls": 115,
+  "isolated": true,
+  "network": "none",
+  "hostPorts": 0,
+  "operatingApplied": false,
+  "actualPlatformActions": 0,
+  "desktopInstaller": false,
+  "nativeMessaging": false,
+  "unitTestsPassed": 259,
+  "typecheck": "passed",
+  "cleanupDatabaseTests": 11,
+  "unitScope": "web API authorization, consent, active tab/popup, stage/nonce/profile ownership, DOM fixtures; actual Naver not tested",
+  "nativeSourceRemoved": true,
+  "profileLiveVerified": false
+}

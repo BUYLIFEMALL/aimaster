@@ -51,3 +51,6 @@ test('WD07 top-level comment is verified by exact author, text and effect id',()
  let clicks=0;document.querySelector('body > .submit').addEventListener('click',()=>{clicks++;const row=document.createElement('div');row.className='comment';row.setAttribute('data-comment-id','comment-2');row.innerHTML='<a class="author" href="https://blog.naver.com/own-blog">나</a><span class="text"></span>';row.querySelector('.text').textContent=document.querySelector('body > textarea:not(.request-text)').value;document.querySelector('.comments').append(row);});
  await call('apply',{profile:p});const effect=await call('verify',{profile:p});assert.equal(effect.state,'commented');assert.equal(effect.effectId,'comment-2');assert.equal(clicks,1);
 }));
+test('WD08 unsupported frames return no evidence so all-frame inspection can select a single valid frame',()=>fixture('like',async({call})=>{
+ globalThis.location=new URL('https://blog.naver.com/neighbor');assert.deepEqual(await call('inspect'),{unavailable:true});await assert.rejects(call('apply'));
+}));

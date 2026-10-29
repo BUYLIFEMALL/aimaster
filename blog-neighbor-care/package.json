@@ -18,7 +18,8 @@
     "test:neighbor-import-database": "node --import tsx tests/neighbor-import-database.mjs",
     "test:cleanup-database": "node --import tsx tests/cleanup-database.mjs",
     "test:schedule-database": "node --import tsx tests/schedule-database.mjs",
-    "test:engagement-database": "node --import tsx tests/engagement-database.mjs"
+    "test:engagement-database": "node --import tsx tests/engagement-database.mjs",
+    "test:extension-execution-database": "node --import tsx tests/extension-execution-database.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",

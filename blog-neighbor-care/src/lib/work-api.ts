@@ -14,12 +14,15 @@ const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment
 const operations: Record<string, string[]> = {
   settings: [], list: [], request_status: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
   engagement_list: [], engagement_review:['id'], draft_reply: ['id','body'], draft_return_visit: ['id','body'],
+  extension_devices:[],grant_extension:['device_id','confirmed','kinds'],revoke_extension:['device_id'],
   schedule: [], save_schedule: ['interval_minutes','start_minute','end_minute','expected_revision'],
   schedule_status: [], resume_schedule: ['run_id','generation','settings_revision','preference_revision','confirmed'],
   create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'], cancel: ['id'],
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
+  if(operation==='grant_extension')return uuid(p.device_id)&&p.confirmed===true&&Array.isArray(p.kinds)&&p.kinds.length>=1&&p.kinds.length<=4&&new Set(p.kinds).size===p.kinds.length&&p.kinds.every(k=>['request','like','comment','reply'].includes(k));
+  if(operation==='revoke_extension')return uuid(p.device_id);
   if(operation==='engagement_review')return uuid(p.id);
   if(operation==='draft_reply'||operation==='draft_return_visit')return uuid(p.id)&&text(p.body)&&!!String(p.body).trim()&&!/https?:\/\/|www\./i.test(String(p.body));
   if(operation==='resume_schedule')return uuid(p.run_id)&&p.confirmed===true&&

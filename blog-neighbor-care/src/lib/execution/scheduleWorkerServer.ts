@@ -4,7 +4,7 @@ import {createAdminClient} from '../supabase/admin';
 import {createScheduleWorker,type ScheduleWorkerBinding} from './scheduleWorker';
 import {runServerScheduledWork} from './scheduledServer';
 import type {ExecutionAdapter} from './approvedWork';
-import {jobMatchesBrowserUrl} from './nativeBrowser';
+import {jobMatchesBrowserUrl} from './browserTarget';
 
 // Trusted long-lived worker hosts only. Not called from any route, member UI,
 // cron or extension yet. No adapter/secret/policy/live gate means no actions.

@@ -36,7 +36,7 @@ test('프레임결과는같은글하나만선택·다른본문혼합거절', () 
 });
 test('확장패키지는최소권한·알람/자동실행/네이버상시권한없음', () => {
   const manifest = JSON.parse(readFileSync(new globalThis.URL('../extension/manifest.json', import.meta.url)));
-  assert.deepEqual(manifest.permissions.sort(), ['activeTab', 'nativeMessaging', 'scripting', 'storage'].sort());
+  assert.deepEqual(manifest.permissions.sort(), ['activeTab', 'scripting', 'storage'].sort());
   assert.deepEqual(manifest.host_permissions, [`${SITE}/*`]); assert.equal(manifest.manifest_version, 3);
   for (const url of ['http://blog.naver.com/a/1', 'https://blog.naver.com.evil.test/a/1', 'javascript:alert(1)']) assert.equal(parsePost(url), null);
 });
@@ -49,6 +49,7 @@ function setup({ tabUrl = URL, failOp, submitLost = false } = {}) {
     tabs: { query: async () => [{ id: 7, url: tabUrl }], get: async () => ({ id: 7, url: tabUrl }) },
     scripting: { executeScript: async args => { executed++; assert.deepEqual(args.target, { tabId: 7, allFrames: true }); return [{ result: { ok: true, snapshot } }]; } } };
   const fetcher = async (url, init) => {
+    if(url===`${SITE}/api/execution/extension`){const v=JSON.parse(init.body);calls.push({operation:v.operation,payload:v.payload});return Response.json({data:{phase:'idle'}});}
     assert.equal(url, `${SITE}/api/reader/extension`); assert.equal(init.credentials, 'omit'); assert.equal(init.redirect, 'error');
     const { operation, payload } = JSON.parse(init.body); calls.push({ operation, payload, token: init.headers.authorization });
     if (operation === failOp) throw new Error('offline');
@@ -83,9 +84,9 @@ test('페이지나사이트메시지로읽기/전송/토큰조회못함', async 
 });
 test('실행 연결은 확장 팝업 동의로만 시작하며 웹 메시지나 연결 상태 조회로 실행하지 않음',async()=>{
  const s=setup(),web={id:s.browser.runtime.id,tab:{url:`${SITE}/reader`}};
- for(const type of ['native_start','native_stop','native_status'])await assert.rejects(s.handle({type,confirmed:true},web));
- await assert.rejects(s.run({type:'native_start'}));assert.equal((await s.run({type:'native_status'})).connected,false);
- assert.equal((await s.run({type:'native_stop'})).connected,false);assert.equal(s.executed(),0);assert.equal(s.calls.length,0);
+ for(const type of ['work_start','work_stop','work_status'])await assert.rejects(s.handle({type,confirmed:true},web));
+ await assert.rejects(s.run({type:'work_start'}));assert.equal((await s.run({type:'work_status'})).connected,false);
+ assert.equal((await s.run({type:'work_stop'})).connected,false);assert.equal(s.executed(),0);assert.deepEqual(s.calls.map(x=>x.operation),['status']);
 });
 test('전송은사용자별도클릭·응답유실후자동재시도없이결과조회', async () => {
   const s = setup({ submitLost: true }), draft = await s.run({ type: 'read', ownerConfirmed: true });

@@ -7,6 +7,7 @@ const steps = [
   { name: 'work', rpc: 'bnc_work_cleanup', count: 'expiredPayloadsRemoved' },
   { name: 'execution', rpc: 'bnc_execution_result_dispatch', count: 'expiredEvidenceRemoved' },
   { name: 'engagement', rpc: 'bnc_engagement_cleanup', count: 'expiredEngagementsRemoved' },
+  { name: 'extension', rpc: 'bnc_extension_execution_cleanup', count: 'expiredExtensionRecordsRemoved' },
 ] as const;
 type CleanupRpc = (name: string, args: { p_user_id: null; p_operation: 'cleanup'; p_payload: Record<string, never> }) =>
   PromiseLike<{ data: unknown; error: unknown }>;
