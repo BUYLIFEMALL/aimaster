@@ -19,7 +19,6 @@ const TABS: Record<string, { tab: DevDocsTab; title: string; desc: string }> = {
   "admin-action": { tab: "admin-action", title: "관리자 실행요청", desc: "주인님이 직접 해 주셔야 다음이 진행되는 일(승인·화면 확인·로그인·DB 실행·설치) — 빨리 처리할수록 막힌 작업이 풀립니다" },
   guidelines: { tab: "guidelines", title: "지침 관리", desc: "메인 지침·분야별 지침·기준 문서를 보고 직접 수정하거나 관리자 지시를 답니다" },
   programs: { tab: "programs", title: "프로그램별 지침", desc: "프로그램 폴더의 AGENTS·README·docs 문서" },
-  requests: { tab: "requests", title: "수정 요청함", desc: "화면에서 저장한 수정안·관리자 지시·역할 메모와 반영 상태" },
 };
 
 const REQ_BASE = "id, kind, target_path, target_role, note, status, handled_by, commit_sha, reject_reason, handled_at, created_at";
@@ -32,6 +31,8 @@ async function loadRequests(service: ReturnType<typeof createServiceClient>) {
 
 export default async function AdminDevDocsPage({ params }: { params: { tab?: string[] } }) {
   const key = params.tab?.[0] ?? "";
+  // 「수정 요청함」은 2026-10-29 「관리자 실행요청」으로 합침(주인님 「기능 중복되」) — 옛 주소는 넘긴다
+  if (key === "requests") redirect("/admin/dev-docs/admin-action");
   const meta = TABS[key];
   if (!meta || (params.tab?.length ?? 0) > 1) notFound();
 

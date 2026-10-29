@@ -267,7 +267,7 @@ function Overview({ roles, activeWork, registry, requests, setDialog, roleNoteCo
         {[["진행 중", inProgress.length], ["대기 중", waiting.length], ["예정", planned.length], ["분석 완료", registry?.rows.length ?? 0], ["반영 대기 요청", openReq]].map(([k, v]) => (
           <GlassCard key={k as string} className="p-4 text-center"><p className="text-2xl font-bold text-gold">{v}</p><p className="text-xs text-subtext">{k}</p></GlassCard>
         ))}
-        <a href="/admin/dev-docs/requests" className="block">
+        <a href="/admin/dev-docs/admin-action" className="block">
           <GlassCard className={`h-full p-4 text-center ${ownerTodo ? "border border-rose-400/40" : ""}`}><p className={`text-2xl font-bold ${ownerTodo ? "text-rose-300" : "text-gold"}`}>{ownerTodo}</p><p className="text-xs text-subtext">🙋 내가 해 줄 일</p></GlassCard>
         </a>
       </div>
@@ -631,6 +631,7 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
           );
         })}
       </Section>
+      </>)}
 
       <Section title="🗂 화면에서 남긴 수정안·지시·메모">
         {groups.map(([title, items]) => (
@@ -652,7 +653,6 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
           </Fold>
         ))}
       </Section>
-      </>)}
     </Sections>
   );
 }

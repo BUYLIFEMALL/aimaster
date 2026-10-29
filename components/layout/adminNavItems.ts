@@ -24,7 +24,6 @@ import {
   ListChecks,
   BookOpen,
   FolderTree,
-  Inbox,
 } from "lucide-react";
 
 export const ADMIN_NAV_ITEMS = [
@@ -58,5 +57,4 @@ export const ADMIN_DEV_NAV_ITEMS = [
   { href: "/admin/dev-docs/admin-action", icon: ListChecks, label: "관리자 실행요청" },
   { href: "/admin/dev-docs/guidelines", icon: BookOpen, label: "지침 관리" },
   { href: "/admin/dev-docs/programs", icon: FolderTree, label: "프로그램별 지침" },
-  { href: "/admin/dev-docs/requests", icon: Inbox, label: "수정 요청함" },
 ];
