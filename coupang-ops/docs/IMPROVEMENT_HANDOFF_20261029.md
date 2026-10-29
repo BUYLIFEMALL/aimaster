@@ -13,7 +13,7 @@
 ## 1. 쿠팡 운영 자동화 `coupang-ops` v1.01 — 로컬 개발 중(미배포)
 
 ### 1-1. 상태
-- **쿠팡 판매정지 풀림(10-29)** → 저장된 WING 키 그대로 동작(재발급 권장: 10-28 캡처에 키가 보였음). 허용 IP 3개(Fixie 2 + 이 PC `210.178.96.91`).
+- **쿠팡 판매정지 풀림(10-29)** → 저장된 WING 키 그대로 동작 — **키 재발급 안 함, 기존 키 계속 사용(2026-10-29 주인님 「기존 키를 그냥 사용해」)**. 허용 IP 3개(Fixie 2 + 이 PC `210.178.96.91`).
 - 주인님 결정: **로컬에서 1단계를 다 만든 뒤 최종 배포 1회**(「로컬에서 작업한후에 최종 배포하도록 하자」).
 - 상품 노출은 아직 안 되는 상태(주인님 확인 중) — 실제 등록은 노출이 풀리고 배포한 뒤.
 
@@ -46,7 +46,6 @@
 1. **C1-13·C1-14 등록 실행·기록**: `ProductForm`에 「저장만 보내기」(requested=false) → 서버 액션에서 `createImageLinks`로 대표·추가·상세 이미지 짧은 주소 만들기 → `buildCreateBody`(product.ts) → `wingRequest POST`(생성 API 경로는 `docs/API_PRODUCT_CREATE_SPEC.md`) → 표 `coupang_ops_jobs`에 기록(보내기 전 `sending` 행 먼저, 생성은 재시도 없음 — 이중 등록 방지) → 결과·상품번호 표시 + 기록 목록. 로컬에서는 코드·검사까지(쿠팡이 localhost 이미지를 못 받음).
 2. 작은 개선: `/defaults` 새로고침 시 출고지가 이름 없이 번호만 보임(이름도 저장). `/connect` 카테고리 확인의 원본 예시(`rawSample`)는 확인용이었으니 정리해도 됨.
 3. **1단계 최종 배포(주인님 승인 필요)**: Vercel 새 프로젝트 `coupang-ops` + 도메인 `coupang-ops.buylife.xyz` + 환경변수(Supabase 4개 · `FIXIE_URL` · 필요하면 `NEXT_PUBLIC_SITE_URL`) + 빌드 1회 → 실제 「저장만」 1건 시험(상품 노출 풀린 뒤) → 버전 v1.01 그대로 첫 배포, DB `programs` 공개 여부는 주인님 결정.
-4. 쿠팡 키 재발급(주인님) → `/connect`에 새 키.
 
 ### 1-7. 함정
 - 개발 서버에서 `/i/[id]`만 500(「Jest worker encountered 2 child process exceptions」) — 메모리 부족으로 컴파일 작업자가 죽는 것, 코드 정상. 확인은 `npm run build` 후 `npx next start -p 3079`로.
