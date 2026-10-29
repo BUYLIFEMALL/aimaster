@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, X, RefreshCw } from "lucide-react";
+import { Sparkles, X, RefreshCw, Copy, Check } from "lucide-react";
 
 type Item = { title: string; ask: string; source: string; category?: string; importance: number; quickness: number; importanceReason: string; quicknessReason: string };
 type Summary = { overview: string; items: Item[]; stale: { title: string; reason: string }[]; duplicates: { titles: string[]; reason: string }[] };
@@ -21,6 +21,12 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
   const [error, setError] = useState("");
   const [data, setData] = useState<Cached | null>(null);
   const [sort, setSort] = useState<"importance" | "quickness" | "category" | "owner">("importance");
+  const [copied, setCopied] = useState<string | null>(null);
+  const copyForCli = (it: Item) => {
+    // CLI 터미널에 바로 붙여넣어도 줄마다 실행되지 않도록 한 줄로 합친다.
+    const text = `[요청] ${it.title} — ${it.ask} (근거: ${it.importanceReason} / 담당: ${it.source}${it.category ? `, 분야: ${it.category}` : ""})`;
+    navigator.clipboard?.writeText(text).then(() => { setCopied(it.title); setTimeout(() => setCopied(null), 1500); }).catch(() => {});
+  };
 
   async function run(force: boolean) {
     const text = (document.getElementById("devdocs-tab-content")?.innerText ?? "").trim();
@@ -63,7 +69,11 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
     return [...m.entries()].sort((a, b) => Math.max(...b[1].map((x) => x.importance)) - Math.max(...a[1].map((x) => x.importance)));
   })();
   const card = (it: Item, idx: number) => (
-    <li key={idx} className="grid gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 md:grid-cols-[1fr_1fr]">
+    <li key={idx} className="relative grid gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 pr-12 md:grid-cols-[1fr_1fr]">
+      <button type="button" onClick={() => copyForCli(it)} title="이 항목을 한 줄로 복사 (CLI 터미널에 바로 붙여넣기)"
+        className="absolute right-2 top-2 z-10 rounded-lg p-1.5 text-subtext transition-colors hover:bg-white/10 hover:text-white">
+        {copied === it.title ? <Check size={15} className="text-emerald-300" /> : <Copy size={15} />}
+      </button>
       <div>
         <p className="text-base font-bold text-white">{idx + 1}. {it.title}</p>
         <p className="mt-1 text-[15px] leading-relaxed text-white/90">{it.ask}</p>
