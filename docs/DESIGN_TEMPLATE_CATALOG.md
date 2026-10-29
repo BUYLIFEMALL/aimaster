@@ -219,6 +219,6 @@ graph TD
 |---|---|---|---|
 | 이웃 편집실 | 편집잡지형·세리프·크림/벽돌색·넓은 근거카드 | 글 근거를 천천히 읽는 작업 | 비선택보존 · `D:/Antigravity/Design/이웃_편집실/blog-neighbor-care` |
 | 커넥트 아틀리에 | 얇은아이콘메뉴·단계바·둥근카드·라벤더/살구 | 초보회원의 단계별 온보딩 | 비선택보존 · `D:/Antigravity/Design/커넥트_아틀리에/blog-neighbor-care` |
-| 릴레이 데스크 — 네이버 그린 변형 | 좌측메뉴·두열작업/결과·비교표·근거접기·그린/화이트·3D버튼 | 후보 비교·회원 확인에 적합, 사용자3번선택/색상지시 | 채택·로컬UI구현·미배포 · `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care` |
+| 릴레이 데스크 — 네이버 그린 변형 | 좌측메뉴·두열작업/결과·비교표·근거접기·그린/화이트·3D버튼 | 후보 비교·회원 확인에 적합, 사용자3번선택/색상지시 | 채택·v1.03 운영·메뉴표준보정/영구자산보존 · `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care` |
 
 각 템플릿에 4화면캡처·전체12뷰HTML·규격을보존. [12뷰제안서](../blog-neighbor-care/docs/blog-neighbor-care_12VIEWS_PROPOSAL.md). 기존운영디자인전환완료는아님.

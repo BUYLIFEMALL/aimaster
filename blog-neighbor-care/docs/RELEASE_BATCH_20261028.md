@@ -1,4 +1,9 @@
-# 분석·기존 이웃 기능 묶음 반영 결과 — v1.02
+# 분석·기존 이웃 기능 묶음 반영 결과 — v1.03
+
+> [역할: blog] **v1.03 묶음 운영 반영 완료 / 재가져오기 후속1건 미배포** — 2026-10-29 사용자 「진행해」로 e859eb43 Basic빌드1회 승인범위 실행. 릴리스소스a93fc9ecd/검수된98파일→dpl_FM3zxNjsfHPYB4GrTe2q7LLRXZBu READY,공식/보조 도메인API200·웹/manifest/package/DB v1.03(1.3.0)·ZIP19764bytes SHA398a10d2d387e2071d1e32bc4b55aab3d7845186a54246f36c071fddedd5a7c6 일치. ZIP을고정메타/정렬로포장해로컬/원격바이트동일검증. 실제Edge 로그인계정/좌측메뉴v1.03·43명재조회,기존확장ID유지/설치출처확인/재로드v1.03. SQL재적용0,읽기/소통OFF·작업0 유지. 9번선행배포완료이나Cron예약은새배포에활성만확인(UTC03:20),정시실행/실만료삭제미검증. 비밀값반환불가로수동CronHTTP호출0,본문/비밀값기록없음. 재가져오기에서저장완료버튼영구잠김발견→NP21/22/23 red→8ffa45a9f로명시적다시읽기+새동의/서버confirmed재확인/새허가필수,ready/미확인/변경상태재시작차단. 단위206/타입통과,이후수정은설치경로동기화·재로드만하고공개ZIP변경/추가배포없음. 대상allbareunm 잠시OFF→원래ON복구/DB확인,미사용허가b1e10b6f철회. 새1페이지43명1회허가908b7a26(12:38:26KST시작만료)·팝업직접읽기1회요청fe166de3 대기;재수신/설정보존실검수는미완료. 비용:원격Basic1회약16.7초·단순환산USD0.001948,실청구미확정。AI/검색/푸시0.
+> [공식 운영](https://blog-neighbor-care.buylife.xyz/neighbors) · [Vercel 보조](https://blog-neighbor-care.vercel.app/neighbors) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [결과 HTML](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/v1.03-release-20261029/index.html) · [영구 자산](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/v1.03-release-20261029)
+> 현재 상태는 이 항목을 기준으로 보며, 아래 이전 미배포/승인대기 표현은 당시 이력입니다.
+
 
 > [역할: blog] 2026-10-29 사용자 「진행해」로 직전 e859eb43 Basic 배포 빌드1회 비용범위 승인. 소스a93fc9ecd/98파일 최신 사본으로 v1.03 반영 진행. 승인에는 유료AI·검색·실제 소통이 포함되지 않음.
 

@@ -659,7 +659,9 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.02 운영 / SQL4개 운영 반영 완료, 웹·확장 묶음 배포 대기
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기 후속8ffa45a9f 미배포
+
+- **v1.03 반영완료(10-29):** a93fc9ecd·98파일·Basic빌드1회/Ready·공식/보조웹·ZIP·DB버전일치/실회원43명검수. 메뉴표준·진단·정리5종·중단/반복설정 반영. 실제소통/반복실행은 미완료. 이후8ffa45a9f는재가져오기명시동의/confirmed확인 보완,206검수/설치경로재로드·공개ZIP미반영·클릭fe166de3대기. [근거](../blog-neighbor-care/docs/evidence/v103-release-20261029.json).
 
 - **좌측메뉴 표준 보정(10-29, 미배포):** `75c57b1a1` · 240px/4번호흐름/유틸리티/검증이메일·로그아웃/767px ☰·메뉴스크롤. Edge1000/390·낮은430 검수, 단위203/HTTP44/타입·빌드통과. [근거](../blog-neighbor-care/docs/evidence/sidebar-standard-20261029.json). 운영v1.02 유지·이전95파일배포사본갱신필수.
 
