@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { checkProductDraftAction, listJobsAction, loadCategoryAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
+import { checkProductDraftAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
 
 const JOB_LABEL: Record<string, string> = { sending: "⏳ 보내는 중", saved: "✅ 쿠팡에 저장됨", requested: "📨 승인 요청", approved: "🟢 승인", rejected: "⛔ 반려", failed: "❌ 실패", unknown: "❓ 확인 필요" };
 import type { CategoryMeta } from "@/lib/coupang/category";
@@ -46,6 +46,19 @@ export function ProductForm(props: {
   const [sent, setSent] = useState<SendResult | null>(null);
   const [jobs, setJobs] = useState<JobRow[]>([]);
   useEffect(() => { listJobsAction(props.productId).then(setJobs).catch(() => {}); }, [props.productId]);
+  const [refreshing, setRefreshing] = useState<string | null>(null);
+  const [refreshError, setRefreshError] = useState("");
+  const refreshJob = async (jobId: string) => {
+    setRefreshing(jobId);
+    setRefreshError("");
+    try {
+      const r = await refreshJobStatusAction(jobId);
+      if (!r.ok) setRefreshError(r.error);
+      setJobs(await listJobsAction(props.productId));
+    } finally {
+      setRefreshing(null);
+    }
+  };
 
   const purchaseAttrs = useMemo(() => cat?.meta.attributes.filter((a) => a.purchase) ?? [], [cat]);
   const searchAttrs = useMemo(() => cat?.meta.attributes.filter((a) => !a.purchase) ?? [], [cat]);
@@ -260,9 +273,20 @@ export function ProductForm(props: {
                 {jobs.map((j) => (
                   <li key={j.id} className="rounded-lg border border-slate-100 px-3 py-1.5">
                     {JOB_LABEL[j.status] ?? j.status} · {new Date(j.created_at).toLocaleString("ko-KR")} · 옵션 {j.item_count}개{j.seller_product_id ? ` · 상품번호 ${j.seller_product_id}` : ""}{j.message ? ` · ${j.message}` : ""}
+                    {j.seller_product_id ? (
+                      <button
+                        type="button"
+                        disabled={refreshing === j.id}
+                        onClick={() => refreshJob(j.id)}
+                        className="ml-2 rounded border border-rose-300 bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-800 hover:bg-rose-100 disabled:opacity-50"
+                      >
+                        {refreshing === j.id ? "확인 중…" : "쿠팡 상태 확인"}
+                      </button>
+                    ) : null}
                   </li>
                 ))}
               </ul>
+              {refreshError && <p className="rounded-lg bg-rose-50 px-3 py-1.5 text-[12px] text-rose-900">❌ {refreshError}</p>}
             </div>
           )}
         </section>

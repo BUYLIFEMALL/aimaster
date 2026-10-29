@@ -8,6 +8,7 @@ import { PREDICT_PATH, fillNotices, metaPath, metaWarnings, normalizeMeta, norma
 import { buildCreateBody, checkDraft, type CoupangOption } from "@/lib/coupang/product";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createImageLinks } from "@/lib/imageLinks";
+import { historyPath, normalizeHistory, productPath, summarizeStatus, type HistoryEntry } from "@/lib/coupang/status";
 
 export type CategoryLoad = { ok: true; code: number; name: string; meta: CategoryMeta } | { ok: false; error: string };
 
@@ -149,4 +150,26 @@ export async function listJobsAction(productId: string): Promise<JobRow[]> {
   const user = await requireProgramAccess();
   const { data } = await createAdminClient().from("coupang_ops_jobs").select("id,status,seller_product_id,message,created_at,item_count").eq("user_id", user.id).eq("product_id", productId).order("created_at", { ascending: false }).limit(10);
   return (data ?? []) as JobRow[];
+}
+
+/** C1-14 등록 현황·승인 상태 확인 — 쿠팡 상품 조회 + 상태변경이력(읽기만)으로 기록 상태와 반려 사유를 갱신한다 */
+export async function refreshJobStatusAction(jobId: string): Promise<{ ok: true; statusName: string; message: string } | { ok: false; error: string }> {
+  const user = await requireProgramAccess();
+  const keys = await getWingKeys(user.id);
+  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  const admin = createAdminClient();
+  const { data: job } = await admin.from("coupang_ops_jobs").select("id,seller_product_id").eq("id", jobId).eq("user_id", user.id).maybeSingle();
+  if (!job?.seller_product_id) return { ok: false, error: "쿠팡 상품번호가 있는 기록만 상태를 확인할 수 있습니다." };
+  const id = Number(job.seller_product_id);
+  try {
+    const [product, history] = await Promise.all([
+      wingRequest(keys, "GET", productPath(id)),
+      wingRequest(keys, "GET", historyPath(id), { query: "maxPerPage=20" }).then((r) => normalizeHistory(r.data)).catch(() => [] as HistoryEntry[]),
+    ]);
+    const s = summarizeStatus(product.data, history);
+    await admin.from("coupang_ops_jobs").update({ ...(s.jobStatus ? { status: s.jobStatus } : {}), message: s.message, updated_at: new Date().toISOString() }).eq("id", job.id).eq("user_id", user.id);
+    return { ok: true, statusName: s.statusName, message: s.message };
+  } catch (e) {
+    return { ok: false, error: `쿠팡 상태를 읽지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
+  }
 }
