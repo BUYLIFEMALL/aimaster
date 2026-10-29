@@ -59,13 +59,13 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
   const card = (it: Item, idx: number) => (
     <li key={idx} className="grid gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 md:grid-cols-[1fr_1fr]">
       <div>
-        <p className="font-bold text-white">{idx + 1}. {it.title}</p>
-        <p className="mt-1 text-white/85">{it.ask}</p>
-        <p className="mt-1 text-[11px] text-subtext">{it.source}{it.category ? ` · ${it.category}` : ""} · 중요도 {it.importance}/5 · 신속 {it.quickness}/5</p>
+        <p className="text-base font-bold text-white">{idx + 1}. {it.title}</p>
+        <p className="mt-1 text-[15px] leading-relaxed text-white/90">{it.ask}</p>
+        <p className="mt-1.5 text-[13px] text-subtext">{it.source}{it.category ? ` · ${it.category}` : ""} · 중요도 {it.importance}/5 · 신속 {it.quickness}/5</p>
       </div>
-      <div className="rounded-lg bg-amber-400/5 p-2 text-xs text-amber-100/90">
-        <p className="mb-0.5 font-bold text-amber-200">💡 이렇게 본 이유</p>
-        <p>{sort === "quickness" ? it.quicknessReason : it.importanceReason}</p>
+      <div className="rounded-lg bg-amber-400/5 p-3 text-sm text-amber-100/90">
+        <p className="mb-1 font-bold text-amber-200">💡 이렇게 본 이유</p>
+        <p className="leading-relaxed">{sort === "quickness" ? it.quicknessReason : it.importanceReason}</p>
       </div>
     </li>
   );
@@ -81,24 +81,24 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setOpen(false)}>
           <div className="flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#12121a] shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between gap-2 border-b border-white/10 px-5 py-3">
-              <h2 className="text-base font-bold text-white">🤖 AI 정리 · {label}</h2>
+              <h2 className="text-lg font-bold text-white">🤖 AI 정리 · {label}</h2>
               <div className="flex items-center gap-1">
                 <button type="button" title="다시 분석" disabled={loading} onClick={() => run(true)} className="rounded-lg p-2 text-subtext hover:bg-white/10 hover:text-white disabled:opacity-40"><RefreshCw size={16} /></button>
                 <button type="button" title="닫기" onClick={() => setOpen(false)} className="rounded-lg p-2 text-subtext hover:bg-white/10 hover:text-white"><X size={16} /></button>
               </div>
             </div>
 
-            <div className="overflow-y-auto px-5 py-4 text-sm">
+            <div className="overflow-y-auto px-5 py-4 text-base">
               {loading && <p className="py-10 text-center text-amber-200">Claude가 이 메뉴를 읽고 정리하고 있습니다… (보통 30초~1분)</p>}
               {error && !loading && <p className="rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-rose-200">{error}</p>}
               {data && !loading && (
                 <>
-                  <p className="mb-3 rounded-lg bg-white/5 p-3 text-white/90">{data.summary.overview}</p>
+                  <p className="mb-3 rounded-lg bg-white/5 p-4 text-[15px] leading-relaxed text-white/90">{data.summary.overview}</p>
                   {data.truncated && <p className="mb-3 text-xs text-amber-300">내용이 길어 앞부분 8만 자까지만 읽었습니다.</p>}
                   <div className="mb-3 flex gap-2">
                     {([["importance", "🔥 중요도순"], ["quickness", "⚡ 신속처리순"], ["category", "🗂 카테고리순"]] as const).map(([k, t]) => (
                       <button key={k} type="button" onClick={() => setSort(k)}
-                        className={`rounded-full px-3 py-1 text-xs font-bold ${sort === k ? "bg-amber-400 text-black" : "bg-white/10 text-white/80 hover:bg-white/20"}`}>{t}</button>
+                        className={`rounded-full px-3.5 py-1.5 text-sm font-bold ${sort === k ? "bg-amber-400 text-black" : "bg-white/10 text-white/80 hover:bg-white/20"}`}>{t}</button>
                     ))}
                     <span className="ml-auto self-center text-[11px] text-subtext">{new Date(data.at).toLocaleTimeString("ko-KR")} 분석 · 30분 동안 같은 내용이면 다시 부르지 않음</span>
                   </div>
@@ -116,14 +116,14 @@ export default function AiSummaryButton({ tab, label }: { tab: string; label: st
                   )}
                   {data.summary.stale.length > 0 && (
                     <div className="mt-4">
-                      <p className="mb-1 font-bold text-white">🧹 이미 끝났거나 필요 없어 보이는 항목</p>
-                      <ul className="space-y-1 text-xs text-white/80">{data.summary.stale.map((s, i) => <li key={i}>· <b>{s.title}</b> — {s.reason}</li>)}</ul>
+                      <p className="mb-1 text-base font-bold text-white">🧹 이미 끝났거나 필요 없어 보이는 항목</p>
+                      <ul className="space-y-1 text-sm text-white/80">{data.summary.stale.map((s, i) => <li key={i}>· <b>{s.title}</b> — {s.reason}</li>)}</ul>
                     </div>
                   )}
                   {data.summary.duplicates.length > 0 && (
                     <div className="mt-4">
-                      <p className="mb-1 font-bold text-white">🔁 겹치는 항목</p>
-                      <ul className="space-y-1 text-xs text-white/80">{data.summary.duplicates.map((d, i) => <li key={i}>· {d.titles.join(" / ")} — {d.reason}</li>)}</ul>
+                      <p className="mb-1 text-base font-bold text-white">🔁 겹치는 항목</p>
+                      <ul className="space-y-1 text-sm text-white/80">{data.summary.duplicates.map((d, i) => <li key={i}>· {d.titles.join(" / ")} — {d.reason}</li>)}</ul>
                     </div>
                   )}
                 </>
