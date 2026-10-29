@@ -661,6 +661,8 @@
 
 #### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그·반복cursor·복구 후속4건 미배포
 
+- **읽기 수단 재확인(10-29) 완료:** 검색요약·작성자허용RSS 피드 범위 공식확인, 본인글/43명 실검수와 반복감시 구분. 포괄자료제공요청3e257d73 철회, 회원제공 권한확인자료 경로 우선. RSS파서/실수신·관계반복감시·외부쓰기 허용/실검수는 미완료. [보고서](analysis-naver-blog-neighbor-20261024/READ_METHOD_RECHECK_20261029.md).
+
 - **복구 후속(10-29):** 7b6e4556e·결과 확인 후 대기 복구 UI/API·매뉴얼, 미해결작업/오래된동의·결과위조 차단/자동OFF유지/응답유실 재시도없음. 단위216/격리18·219SQL/타입 통과. SQL1개(표1/RPC2)미적용. 실제호출자/브라우저·시각·실반복 남음. [근거](../blog-neighbor-care/docs/evidence/schedule-recovery-20261029.json).
 
 - **반복 후속(10-29):** 6a307bbfc·지속cursor/서버실행연결, 동시시작1개·KST/주기·기기·revision 확인·불확정paused/회원OFF·완료시각기준 다음주기. 단위213/격리DB13·149SQL/타입 통과. 신규표1/RPC1 운영미적용·실제주기호출자/adapter/명시적재개/실반복 미완료. [근거](../blog-neighbor-care/docs/evidence/schedule-cursor-20261029.json).
