@@ -768,7 +768,7 @@ export function CommerceUsageGuide() {
               },
               {
                 q: "Q. AI 이미지 생성 비용은 얼마 정도 발생하나요?",
-                a: `회원 본인 Gemini 키로 청구됩니다. Google 요금표(2K 1장) 기준 Nanobanana2는 장당 약 $${IMAGE_MODEL_COST_USD.nanobanana2.toFixed(3)}, Pro는 약 $${IMAGE_MODEL_COST_USD.nanobananaPro.toFixed(3)}입니다. Nanobanana2로 쿠팡 12단 전체를 만들면 약 $${(IMAGE_MODEL_COST_USD.nanobanana2 * 12).toFixed(2)}입니다. 무료 사용량은 계정·모델마다 다르니 Google AI Studio에서 확인해 주세요. 섹션별 [✨ 생성]·[🔄 재생성]으로 필요한 장만 만들면 비용을 줄일 수 있습니다.`,
+                a: `회원 본인 Gemini 키로 청구됩니다. Google 요금표(2K 1장) 기준 Nanobanana 2.1은 장당 약 $${IMAGE_MODEL_COST_USD.nanobanana2.toFixed(3)}, Pro는 약 $${IMAGE_MODEL_COST_USD.nanobananaPro.toFixed(3)}입니다. Nanobanana 2.1로 쿠팡 12단 전체를 만들면 약 $${(IMAGE_MODEL_COST_USD.nanobanana2 * 12).toFixed(2)}입니다. 무료 사용량은 계정·모델마다 다르니 Google AI Studio에서 확인해 주세요. 섹션별 [✨ 생성]·[🔄 재생성]으로 필요한 장만 만들면 비용을 줄일 수 있습니다.`,
               },
             ].map((faq, idx) => {
               const isOpen = openFaq === idx;
