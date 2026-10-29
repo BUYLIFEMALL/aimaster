@@ -54,6 +54,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `shop-detail-page` | v1.40 · 2026-10-29 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-izoi9n7fk`) | 옛 12단 자료 가져오기 삭제(`f4b930e99`) · 나노바나나 2.1 표기·2K 비용 /usr/bin/bash.0504 정정(`e0da4a46a`) |
 | `smartstore-register` | v1.12 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-7blp17f02`) | 대기 항목 없음 (본 작업: 옵션 자동 입력 `2ceefdf8a`) |
 | `smartstore-register` | v1.13 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 주인님 추가 승인 빌드 1회 `smartstore-register-gefdo1s9o`) | 옵션 입력 칸 배치 수정 `74035bc95` |
 | `smartstore-register` | v1.11 · 2026-10-27 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `smartstore-register-m22lvumg4`) | 확장 상태 창 제목 새 이름 (본 작업: 오래된 탭이 만든 작업 막기 `20c37020f`) |
