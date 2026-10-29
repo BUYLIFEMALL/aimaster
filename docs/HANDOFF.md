@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-29 [역할: analysis-planning] 관리자 개발문서 화면 개선 + 백업 카테고리 숨김 + ♥ 배지 이동
+
+2026-10-29 주인님 지시로 메인 사이트·관리자 화면 여러 건 반영(모두 배포 완료).
+- **백업 카테고리 외부 숨김**: `categories.is_public`(마이그레이션 `0048_category_is_public.sql`, 운영 DB 주인님 Run) — 「백업」만 false. 노출 4곳에 `.eq("is_public", true)` 필터(`app/(main)/page.tsx` 홈 바로가기 · `app/(main)/programs/page.tsx` 카탈로그 · `app/(main)/programs/category/[slug]/page.tsx` 목록·단건 접근차단). 관리자 화면·데이터는 유지. **주의: 코드(필터)가 DB 컬럼보다 먼저 배포되면 카테고리가 전멸하니, 이런 변경은 DB Run 먼저**(이번에 순서 역전으로 일시 「전체만」 보였다가 0048 Run으로 복구).
+- **♥ 추천 배지 위치 이동**: `components/programs/ProgramCard.tsx` — 상단 중앙 → 우측 즐겨찾기(★) 왼쪽(`right-12`/관리자 `right-24`), 좌측 배지 겹침 해결.
+- **관리자 요청함 「✅ 승인완료」 독립 섹션 분리**: `components/admin/devdocs/DevDocsBoard.tsx` — owner_action 중 처리분(status≠open)을 「해 줄 일」에서 빼 분류별 독립 섹션으로(✔ 완료 누르면 이동).
+- **「개발완료」 탭 신설**: `DevDocsTab`·TABS·`adminNavItems.ts`(CheckCircle2) + DevDocsBoard 렌더 — 역할(담당=카테고리)별·프로그램별 「최근 완료」(RoleTableSection, done) + 세션 작업 결과(work_result).
+- **AI 정리 「🗂 카테고리순」 탭**: `lib/devDocs/aiSummary.ts`(Item·SCHEMA·SYSTEM에 category 추가) + `AiSummaryButton.tsx`(카테고리 그룹·그룹 내 중요도순). 기존 캐시엔 category 없어 「다시 분석」 필요. **AI 정리 모달 폰트 확대**(가독성).
+- 커밋 다수(92a82f04e~10bbf0462), 메인 사이트 빌드 약 7회(각 「진행해」 승인). 판정 코드·82개 복제 lib/access.ts 수정 없음. AI/외부 0(AI 정리는 관리자 Claude 크레딧 호출).
+
+
 > [역할: blog] **8번 반복 실행의 지속 기록·중복 차단 로컬 구현 / 미배포** — 2026-10-29 `6a307bbfc`: 신규 `bnc_schedule_cursor` 표/서비스 전용 `bnc_schedule_tick` RPC와 비공개 서버 실행 연결을 구현했다. 회원 설정→주기 설정→cursor→작업 순서로 잠그고, 동일 회원 동시 시작은 1개만 허용한다. KST 시간대·주기·설정 revision·승인된 ready 작업·본인 계정/유효 기기를 확인한다. 완료 시각부터 다음 주기를 계산해 밀린 실행을 몰아 처리하지 않는다. DB 성공 기록만 성공으로 인정하며, 5분 실행 기한 경과/응답 유실/결과 불확정은 paused·회원 OFF로 중단한다. 성공·불확실 작업 재실행과 오래된 완료 보고를 차단한다. 전체 단위 213개·타입 검사 통과, 네트워크 none/호스트 포트 0 격리 PostgreSQL 13검수/149SQL 통과(동시 프로세스 및 서명 host→가상 동작→효과기록→다음 주기 연결 포함). 운영은 v1.03/43명·작업0/live OFF·새 import0 유지. 신규 migration `20261029044735_bnc_schedule_cursor.sql`은 운영 미적용이며 별도 적용 승인 전 실행하지 않는다. 실제 주기 호출자/브라우저 adapter·paused 결과 검토 후 명시적 재개·실네이버 반복은 남아 8번 전체 완료가 아니다. 기존 재가져오기/로그와 합쳐 미배포 3건, 버전/공개 ZIP은 보존. 신규 유료 AI/검색/Vercel 빌드·배포/푸시 0, 관리자 신규 조작 요청 0. [검수 근거](../blog-neighbor-care/docs/evidence/schedule-cursor-20261029.json).
 
 > [역할: blog] **정리 완료로그 보강/208검수 · 읽기시작기한을테스트기간과일치** — 2026-10-29 후속: 만료된 미사용시작허가908b7a26 철회·기존2주테스트구독만료에맞춘1회허가80ad914d(11/11 17:28:55KST) 발급. 본인회원/계정/기기·1페이지43명·시작후15분/nonce60초 유지,전역읽기/소통OFF·작업0·43명/원래대상ON 보존 재확인. 요청fe166de3는기한/설명만갱신(신규요청0);재수신은아직0. 정리API에완료로그가없어예약상태와실행성공을구분할수없는공백을CL05/06 red로재현→1a62398ea로인증후정리5종성공여부/정상건수만1회기록(bnc_cleanup_completed),본문/키/회원ID/DB오류미기록. 로그실패/변조는정리재실행/응답변경없이격리. 정리6/전체단위208·타입통과. Edge Cron화면진입은restore후에도window_not_focused로중단하여정시실행/실삭제는미검증유지. 새Vercel빌드/배포/유료AI/검색/푸시0,운영v1.03유지. 미배포는재가져오기8ffa45a9f와로그1a62398ea 두건으로다음묶음에반영. 비용은앞으로 Vercel 빌드 비용으로표현하고별도배포횟수요금으로설명하지않음. [검수근거](../blog-neighbor-care/docs/evidence/cleanup-observability-20261029.json).
