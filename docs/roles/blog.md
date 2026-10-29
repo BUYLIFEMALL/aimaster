@@ -1,5 +1,8 @@
 # 블로그
 
+> [역할: blog] **정리 완료로그 보강/208검수 · 읽기시작기한을테스트기간과일치** — 2026-10-29 후속: 만료된 미사용시작허가908b7a26 철회·기존2주테스트구독만료에맞춘1회허가80ad914d(11/11 17:28:55KST) 발급. 본인회원/계정/기기·1페이지43명·시작후15분/nonce60초 유지,전역읽기/소통OFF·작업0·43명/원래대상ON 보존 재확인. 요청fe166de3는기한/설명만갱신(신규요청0);재수신은아직0. 정리API에완료로그가없어예약상태와실행성공을구분할수없는공백을CL05/06 red로재현→1a62398ea로인증후정리5종성공여부/정상건수만1회기록(bnc_cleanup_completed),본문/키/회원ID/DB오류미기록. 로그실패/변조는정리재실행/응답변경없이격리. 정리6/전체단위208·타입통과. Edge Cron화면진입은restore후에도window_not_focused로중단하여정시실행/실삭제는미검증유지. 새Vercel빌드/배포/유료AI/검색/푸시0,운영v1.03유지. 미배포는재가져오기8ffa45a9f와로그1a62398ea 두건으로다음묶음에반영. 비용은앞으로 Vercel 빌드 비용으로표현하고별도배포횟수요금으로설명하지않음. [검수근거](../../blog-neighbor-care/docs/evidence/cleanup-observability-20261029.json).
+
+
 > [역할: blog] **v1.03 묶음 운영 반영 완료 / 재가져오기 후속1건 미배포** — 2026-10-29 사용자 「진행해」로 e859eb43 Basic빌드1회 승인범위 실행. 릴리스소스a93fc9ecd/검수된98파일→dpl_FM3zxNjsfHPYB4GrTe2q7LLRXZBu READY,공식/보조 도메인API200·웹/manifest/package/DB v1.03(1.3.0)·ZIP19764bytes SHA398a10d2d387e2071d1e32bc4b55aab3d7845186a54246f36c071fddedd5a7c6 일치. ZIP을고정메타/정렬로포장해로컬/원격바이트동일검증. 실제Edge 로그인계정/좌측메뉴v1.03·43명재조회,기존확장ID유지/설치출처확인/재로드v1.03. SQL재적용0,읽기/소통OFF·작업0 유지. 9번선행배포완료이나Cron예약은새배포에활성만확인(UTC03:20),정시실행/실만료삭제미검증. 비밀값반환불가로수동CronHTTP호출0,본문/비밀값기록없음. 재가져오기에서저장완료버튼영구잠김발견→NP21/22/23 red→8ffa45a9f로명시적다시읽기+새동의/서버confirmed재확인/새허가필수,ready/미확인/변경상태재시작차단. 단위206/타입통과,이후수정은설치경로동기화·재로드만하고공개ZIP변경/추가배포없음. 대상allbareunm 잠시OFF→원래ON복구/DB확인,미사용허가b1e10b6f철회. 새1페이지43명1회허가908b7a26(12:38:26KST시작만료)·팝업직접읽기1회요청fe166de3 대기;재수신/설정보존실검수는미완료. 비용:원격Basic1회약16.7초·단순환산USD0.001948,실청구미확정。AI/검색/푸시0.
 > [공식 운영](https://blog-neighbor-care.buylife.xyz/neighbors) · [Vercel 보조](https://blog-neighbor-care.vercel.app/neighbors) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [결과 HTML](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/v1.03-release-20261029/index.html) · [영구 자산](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/v1.03-release-20261029)
 > 현재 상태는 이 항목을 기준으로 보며, 아래 이전 미배포/승인대기 표현은 당시 이력입니다.
@@ -115,7 +118,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-29 · v1.03 Ready/버전·ZIP·DB·회원43명 검수·비용1회완료, 재가져오기8ffa45a9f 미배포/클릭fe166de3대기
+- 마지막 갱신: 2026-10-29 · 정리완료로그1a62398ea/208검수·미배포2건,43명/ON유지·1회읽기시작허가11/11까지·클릭fe166de3대기
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -322,7 +325,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 4. 위 시험을 마친 뒤 다음 병합/연계 단위 또는 보안 업데이트를 결정. 콘텐츠③-2 독립 발행 플랜은 후보 재검토 상태. 관리자 요청함0044는 현재 정상 작동.
 
 ## 주인님께 여쭐 것
-- [화면 확인] fe166de3-d156-45b8-8563-2a4221387157: 기존 본인이웃관리탭에서 확장 동의체크→전체이웃목록다시읽기1회. 허가908b7a26 시작기한2026-10-29 12:38:26KST, 지났으면 재클릭없이 알려주기. 수신후 저장/설정검수는Codex가수행. 대상설정 원래ON복구확인.
+- [화면 확인] fe166de3-d156-45b8-8563-2a4221387157: 기존 본인이웃관리탭에서 확장 동의체크→전체이웃목록다시읽기1회. 새허가80ad914d 시작기한2026-11-11 17:28:55KST(기존12:38제한폐기);수신후저장/설정검수는Codex. 43명/대상원래ON유지.
 
 
 

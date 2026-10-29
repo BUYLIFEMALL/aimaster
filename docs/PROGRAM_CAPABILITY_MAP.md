@@ -659,7 +659,9 @@
 
 ### 블로그
 
-#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기 후속8ffa45a9f 미배포
+#### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그 후속2건 미배포
+
+- **후속(10-29):** 1a62398ea·인증후정리결과최소로그/로그오류격리·208검수/타입통과·미배포. 1회읽기시작허가80ad914d는기존시험구독만료11/11 17:28까지,실행15분/nonce60초/본인43명범위유지. 재수신/실Cron미검증. [근거](../blog-neighbor-care/docs/evidence/cleanup-observability-20261029.json).
 
 - **v1.03 반영완료(10-29):** a93fc9ecd·98파일·Basic빌드1회/Ready·공식/보조웹·ZIP·DB버전일치/실회원43명검수. 메뉴표준·진단·정리5종·중단/반복설정 반영. 실제소통/반복실행은 미완료. 이후8ffa45a9f는재가져오기명시동의/confirmed확인 보완,206검수/설치경로재로드·공개ZIP미반영·클릭fe166de3대기. [근거](../blog-neighbor-care/docs/evidence/v103-release-20261029.json).
 
