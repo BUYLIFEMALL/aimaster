@@ -11,6 +11,7 @@ import { buildOAuthState } from "@/lib/oauthState";
 import { generateInstagramCaption } from "@/lib/ai/posting";
 import { getInstagramAuthorizeUrl, publishInstagramReel } from "@/lib/instagram/client";
 import { findReelCoverUrl } from "@/lib/actions/reelCover";
+import { STALE_MS, claimDecision, isUncertainFailure } from "@/lib/uploadGuard";
 
 export interface ConnectInstagramState {
   error?: string;
@@ -114,6 +115,8 @@ export async function saveInstagramCaptionAction(
 export interface PostInstagramState {
   error?: string;
   success?: boolean;
+  /** DUP-4: 이미 게시했거나 결과가 불확실 — 화면에서 회원 확인을 받은 뒤 다시 보내야 한다 */
+  needsConfirm?: boolean;
 }
 
 /** 렌더링된 영상을 인스타그램 릴스로 게시한다 (피드 공유 없음, 릴스만). */
@@ -131,7 +134,7 @@ export async function postToInstagramAction(
 
   const { data: video } = await supabase
     .from("shorts_videos")
-    .select("id, rendered_video_url, render_status")
+    .select("id, rendered_video_url, render_status, instagram_status, updated_at")
     .eq("user_id", user.id)
     .eq("id", videoId)
     .single();
@@ -140,14 +143,31 @@ export async function postToInstagramAction(
     return { error: "먼저 영상 생성을 완료해주세요." };
   }
 
+  // DUP-4: 서버에서 상태를 먼저 본다(유튜브와 같은 규칙, src/lib/uploadGuard.ts)
+  const decision = claimDecision(video.instagram_status, video.updated_at, Date.now(), formData.get("confirmResend") === "1");
+  if (decision === "busy") return { error: "다른 화면에서 이 영상을 게시하는 중입니다. 잠시 뒤 새로고침해 주세요." };
+  if (decision === "confirm") {
+    return {
+      needsConfirm: true,
+      error: video.instagram_status === "posted"
+        ? "이미 인스타그램에 게시한 영상입니다. 한 번 더 게시하려면 확인해 주세요."
+        : "지난 게시 결과를 확인하지 못했습니다. 인스타그램에 올라갔는지 먼저 확인한 뒤 다시 게시해 주세요.",
+    };
+  }
+
   // v1.21: 공용 연결 계정(Facebook 로그인·게시 권한) → 없으면 instagram_accounts
   const account = await getShotsInstagramAccount(supabase, user.id);
   if (!account) return { error: "인스타그램 계정이 연결되어 있지 않습니다." };
 
-  await supabase
+  const staleCutoff = new Date(Date.now() - STALE_MS).toISOString();
+  const { data: claimed } = await supabase
     .from("shorts_videos")
     .update({ instagram_status: "posting", instagram_caption: caption })
-    .eq("id", videoId);
+    .eq("id", videoId)
+    .eq("user_id", user.id)
+    .or(`instagram_status.is.null,instagram_status.neq.posting,updated_at.lt.${staleCutoff}`)
+    .select("id");
+  if (!claimed?.length) return { error: "다른 화면에서 이 영상을 게시하는 중입니다. 잠시 뒤 새로고침해 주세요." };
 
   try {
     const result = await publishInstagramReel({
@@ -167,8 +187,15 @@ export async function postToInstagramAction(
     revalidatePath(`/scripts/${videoId}`);
     return { success: true };
   } catch (err) {
+    const message = err instanceof Error ? err.message : "인스타그램 게시 중 오류가 발생했습니다.";
+    // DUP-4: 인스타 오류는 응답 번호가 없어 연결이 끊긴 경우(fetch 오류·중단)만 불확실로 보고 `posting`으로 남긴다
+    const networkError = err instanceof TypeError || (err instanceof Error && err.name === "AbortError");
+    if (isUncertainFailure(networkError, message)) {
+      revalidatePath(`/scripts/${videoId}`);
+      return { error: "게시 결과를 확인하지 못했습니다. 인스타그램에 올라갔는지 먼저 확인해 주세요. 다시 게시는 10분 뒤 확인을 거쳐 할 수 있습니다." };
+    }
     await supabase.from("shorts_videos").update({ instagram_status: "failed" }).eq("id", videoId);
     revalidatePath(`/scripts/${videoId}`);
-    return { error: err instanceof Error ? err.message : "인스타그램 게시 중 오류가 발생했습니다." };
+    return { error: message };
   }
 }

@@ -16,6 +16,7 @@ import {
   refreshYoutubeAccessToken,
   uploadYoutubeVideo,
 } from "@/lib/youtube/client";
+import { STALE_MS, claimDecision, isUncertainFailure } from "@/lib/uploadGuard";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 
@@ -224,6 +225,8 @@ export interface PostYoutubeState {
   error?: string;
   reconnectRequired?: boolean;
   success?: boolean;
+  /** DUP-4: 이미 올렸거나 결과가 불확실 — 화면에서 회원 확인을 받은 뒤 다시 보내야 한다 */
+  needsConfirm?: boolean;
 }
 
 /** 렌더링된 영상을 유튜브 쇼츠로 업로드한다. */
@@ -255,13 +258,26 @@ export async function postToYoutubeAction(
 
   const { data: video } = await supabase
     .from("shorts_videos")
-    .select("id, title, rendered_video_url, render_status, youtube_uploads")
+    .select("id, title, rendered_video_url, render_status, youtube_uploads, youtube_status, updated_at")
     .eq("user_id", user.id)
     .eq("id", videoId)
     .single();
   if (!video) return { error: "영상을 찾을 수 없습니다." };
   if (video.render_status !== "ready" || !video.rendered_video_url) {
     return { error: "먼저 영상 생성을 완료해주세요." };
+  }
+
+  // DUP-4: 서버에서 상태를 먼저 본다(화면 버튼 잠금만으로는 두 탭·빠른 두 번 누름을 못 막음)
+  const confirmed = formData.get("confirmResend") === "1";
+  const decision = claimDecision(video.youtube_status, video.updated_at, Date.now(), confirmed);
+  if (decision === "busy") return { error: "다른 화면에서 이 영상을 올리는 중입니다. 잠시 뒤 새로고침해 주세요." };
+  if (decision === "confirm") {
+    return {
+      needsConfirm: true,
+      error: video.youtube_status === "posted"
+        ? "이미 유튜브에 올린 영상입니다. 한 번 더 올리려면 확인해 주세요."
+        : "지난 업로드 결과를 확인하지 못했습니다. 유튜브 스튜디오에 올라갔는지 먼저 확인한 뒤 다시 올려 주세요.",
+    };
   }
 
   // v1.22: 공용 YouTube 계정(업로드 권한·같은 Google 앱) → 없으면 youtube_accounts
@@ -274,11 +290,18 @@ export async function postToYoutubeAction(
     return { error: "설정 페이지에서 Google OAuth Client ID/Secret을 먼저 등록해주세요." };
   }
 
-  await supabase
+  // 조건부 선점: 읽은 뒤 다른 요청이 먼저 `posting`으로 바꿨으면 0행이 바뀌어 거절된다(같은 행은 DB가 차례로 처리).
+  const staleCutoff = new Date(Date.now() - STALE_MS).toISOString();
+  const { data: claimed } = await supabase
     .from("shorts_videos")
     .update({ youtube_status: "posting", youtube_description: description })
-    .eq("id", videoId);
+    .eq("id", videoId)
+    .eq("user_id", user.id)
+    .or(`youtube_status.is.null,youtube_status.neq.posting,updated_at.lt.${staleCutoff}`)
+    .select("id");
+  if (!claimed?.length) return { error: "다른 화면에서 이 영상을 올리는 중입니다. 잠시 뒤 새로고침해 주세요." };
 
+  let sent = false;
   try {
     const accessToken = await getValidYoutubeAccessToken(supabase, user.id, account, clientId, clientSecret);
 
@@ -286,6 +309,7 @@ export async function postToYoutubeAction(
     if (!videoRes.ok) throw new Error("렌더링된 영상 파일을 가져오지 못했습니다.");
     const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
 
+    sent = true;
     const result = await uploadYoutubeVideo({
       accessToken,
       videoBuffer,
@@ -316,6 +340,11 @@ export async function postToYoutubeAction(
     return { success: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : "유튜브 업로드 중 오류가 발생했습니다.";
+    // DUP-4: 보낸 뒤 결과가 불확실하면 `posting`으로 남겨 자동으로 다시 보내지 않는다(10분 뒤 화면에 「확인 필요」)
+    if (isUncertainFailure(sent, message)) {
+      revalidatePath(`/scripts/${videoId}`);
+      return { error: "업로드 결과를 확인하지 못했습니다. 유튜브 스튜디오에 올라갔는지 먼저 확인해 주세요. 다시 올리기는 10분 뒤 확인을 거쳐 할 수 있습니다." };
+    }
     await supabase.from("shorts_videos").update({ youtube_status: "failed" }).eq("id", videoId);
     revalidatePath(`/scripts/${videoId}`);
     if (message === "YOUTUBE_RECONNECT_REQUIRED") {

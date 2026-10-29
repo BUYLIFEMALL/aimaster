@@ -7,6 +7,7 @@ import { YoutubeConnectCard } from "@/components/youtube/YoutubeConnectCard";
 import { Textarea } from "@/components/ui/Textarea";
 import { ReelCoverPicker } from "@/components/candidates/ReelCoverPicker";
 import { clsx } from "@/lib/clsx";
+import { needsCheck } from "@/lib/uploadGuard";
 import { YOUTUBE_CATEGORY_OPTIONS } from "@/lib/youtubeCategories";
 import {
   suggestYoutubeCategoryAction,
@@ -47,7 +48,11 @@ const initialGenerateCaptionState: GenerateCaptionState = {};
 const initialSaveCaptionState: SaveCaptionState = {};
 const initialPostInstagramState: PostInstagramState = {};
 
-function StatusBadge({ status }: { status: string | null }) {
+function StatusBadge({ status, check = false }: { status: string | null; check?: boolean }) {
+  // DUP-4: 결과를 확인하지 못한 채 10분 넘게 「게시 중」이면 「확인 필요」
+  if (check) {
+    return <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">확인 필요</span>;
+  }
   const styles: Record<string, string> = {
     unposted: "bg-green-100 text-green-700",
     posting: "bg-blue-100 text-blue-700",
@@ -87,6 +92,9 @@ export function PostingSection({
   const canPost = video.render_status === "ready" && !!video.rendered_video_url;
   const uploads = (Array.isArray(video.youtube_uploads) ? video.youtube_uploads : []) as unknown as YoutubeUpload[];
   const pathname = usePathname();
+  const [now] = useState(() => Date.now());
+  const youtubeCheck = needsCheck(video.youtube_status, video.updated_at, now);
+  const instagramCheck = needsCheck(video.instagram_status, video.updated_at, now);
 
   const [suggestState, suggestAction, isSuggesting] = useActionState(
     suggestYoutubeCategoryAction,
@@ -135,13 +143,17 @@ export function PostingSection({
     initialSaveCaptionState,
   );
 
+  // 화면 데이터가 늦어도 서버가 「확인 필요」를 돌려주면 다음 누름부터 확인 창을 거친다
+  const youtubeResend = uploads.length > 0 || video.youtube_status === "posted" || youtubeCheck || !!postYoutubeState.needsConfirm;
+  const instagramResend = video.instagram_status === "posted" || instagramCheck || !!postInstagramState.needsConfirm;
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-lg border border-neutral-200 bg-white p-4">
         <div className="mb-3">
           <h2 className="text-lg font-medium text-neutral-900">유튜브 쇼츠 업로드</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <StatusBadge status={video.youtube_status} />
+            <StatusBadge status={video.youtube_status} check={youtubeCheck} />
           </div>
         </div>
 
@@ -243,8 +255,19 @@ export function PostingSection({
             {uploads.length > 0 && (
               <p className="text-xs text-amber-700">⚠️ 이 영상은 이미 {uploads.length}번 올렸습니다. 아래 버튼을 누르면 유튜브에 새 영상으로 하나 더 올라갑니다.</p>
             )}
-              <form action={postYoutubeAction}>
+              <form
+                action={postYoutubeAction}
+                onSubmit={(e) => {
+                  // DUP-4: 이미 올렸거나 결과 불확실이면 회원 확인 창을 거친다(서버도 확인 표시 없으면 거절)
+                  if (!youtubeResend) return;
+                  const msg = youtubeCheck
+                    ? "지난 업로드 결과를 확인하지 못했습니다. 유튜브 스튜디오에서 올라가지 않은 것을 확인하셨나요? 다시 올리면 같은 영상이 두 번 올라갈 수 있습니다."
+                    : "이미 올린 영상입니다. 유튜브에 새 영상으로 한 번 더 올릴까요?";
+                  if (!window.confirm(msg)) e.preventDefault();
+                }}
+              >
                 <input type="hidden" name="videoId" value={video.id} />
+                <input type="hidden" name="confirmResend" value={youtubeResend ? "1" : ""} />
                 <input type="hidden" name="categoryId" value={suggestState.categoryId ?? categoryId} />
                 <input type="hidden" name="description" value={descriptionState.description ?? description} />
                 <input type="hidden" name="privacyStatus" value={privacy} />
@@ -291,7 +314,7 @@ export function PostingSection({
         <div className="mb-3">
           <h2 className="text-lg font-medium text-neutral-900">인스타그램 릴스 업로드</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <StatusBadge status={video.instagram_status} />
+            <StatusBadge status={video.instagram_status} check={instagramCheck} />
             {instagramAccount && (
               <>
                 <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
@@ -382,8 +405,18 @@ export function PostingSection({
                 게시된 릴스 보기
               </a>
             ) : (
-              <form action={postInstagramAction}>
+              <form
+                action={postInstagramAction}
+                onSubmit={(e) => {
+                  if (!instagramResend) return;
+                  const msg = instagramCheck
+                    ? "지난 게시 결과를 확인하지 못했습니다. 인스타그램에 올라가지 않은 것을 확인하셨나요? 다시 게시하면 두 번 올라갈 수 있습니다."
+                    : "이미 게시한 영상입니다. 한 번 더 게시할까요?";
+                  if (!window.confirm(msg)) e.preventDefault();
+                }}
+              >
                 <input type="hidden" name="videoId" value={video.id} />
+                <input type="hidden" name="confirmResend" value={instagramResend ? "1" : ""} />
                 <input type="hidden" name="caption" value={captionState.caption ?? caption} />
                 <Button type="submit" disabled={!canPost || isPostingInstagram || !(captionState.caption ?? caption)}>
                   {isPostingInstagram ? "업로드 중..." : "인스타에 올리기"}
