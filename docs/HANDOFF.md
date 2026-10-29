@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-29 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — `realty-listing-alert` v1.37 추가개선 5·6·7 + 부동산 문서 정리
+- **문서 정리**(주인님 「정리해」): 끝났는데 남아 있던 칸 정리 — 매물 알림 정식 공개·H·I·C·F, 두 계정 RLS 시험(v1.27 완료, 추가 계정 필요 없음), 실거래 #4·#12(v1.13 자동 분석 제거로 완료)·#5·#7, 실거래 「미배포 대기」 제목(v1.19 배포됨), ACTIVE_WORK 부동산 줄, 역할 파일(`652bf4f8c`·`8c8beafa1`). RE-B4는 플랜 없음, RE-B5는 lint 경고가 사라지고 운영 의존성 `zod` high 1건이 새로 남음(`npm audit`).
+- **v1.37**(주인님 「진행해」, 플랜 `realty-listing-alert/docs/PLAN_20261029_DRAFT_TISTORY_NOTRADE.md`): 수집 결과 「📅 지난 주간 리포트」에 「📝 이번 주 동향 글로 쓰기」 · 「📝 글 쓸 곳」(블로그 포스팅 자동화 / 티스토리 포스팅 자동화, 두 프로그램 코드 변경 없음) · 실거래 자료가 2일 넘게 없는 단지 「최근 6개월 매매 신고 없음 (n일째)」(확장 `tradeMissing`, 회원 PC만). 시험 85·tsc·린트·빌드 통과, 배포 Ready, DB `version`·`extension_version` v1.37, `check-extension-release` OK.
+- **크롬 확인**(시험 계정 로그인 상태): v1.37 표시, 글 쓸 곳 칸, 주간 리포트 버튼 → 블로그 글쓰기 화면 주제·키워드 채움, 티스토리 화면 채움. 글 생성은 안 누름.
+- **실물에서 찾아 고친 것(미배포 대기)**: 키워드가 쉼표로 나뉘어 「백송풍림,삼호」가 둘로 쪼개짐 → 「·」로(`1b56317f6`, 시험 86).
+- **남은 일**: 「신고 없음 n일째」는 새 확장 업데이트 뒤 이틀째 수집부터 보임(ego lite 확장 새로고침 필요) · 10-30 수집 기록 확인 · 실거래 RE-B5(`zod`)·RE-B4 플랜.
+- 상세: `realty-listing-alert/docs/IMPROVEMENT_HANDOFF_20261029.md` §7 · https://realty-listing-alert.buylife.xyz/results
+
 ## 2026-10-29 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 전체 작업 현황 점검·「끝났는데 남은 표시」 정리
 - 주인님 지시: 「전체 작업중인 내용 완료된 내용들 싹 분석해서 개발문서에 현재 상태를 업데이트」「작업완료인데 안되 있는 것」「진행 끝났는데 아직 남아 있는것」.
 - 점검 방법: `dev-requests.mjs list`(대기 0건) → `check-role-status.mjs`(확인 항목 16개) → 작업 중 표 줄마다 폴더 커밋·버전·미커밋 변경 대조 → 디자인 현황판 「🔵 작업 중」(0건) → 역할 파일 「지금 하는 일」.

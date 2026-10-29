@@ -17,6 +17,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `realty-listing-alert` | 「📝 글로 쓰기」 키워드에서 쉼표 든 단지 이름(「백송풍림,삼호」)이 둘로 쪼개지던 문제 → 쉼표를 「·」로 | `1b56317f6` | 2026-10-29 · [역할: realty] Claude Code(윈도우) `claude-win-realty-docs` | `realty-listing-alert/docs/IMPROVEMENTS.md` 미배포 대기 | 버전 +0.01 |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
 | `blog-neighbor-care` | 재가져오기·정리로그·반복cursor·복구·주기호출·Anthropic구조화출력·발신신청상태 | `8ffa45a9f` · `1a62398ea` · `6a307bbfc` · `7b6e4556e` · `4ebbb2f92` · `c34015232` · `620ca322a` | 2026-10-29 · [역할: blog] Codex `codex-win-20261026-blog-check` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 최신절 | SQL1개(표1/RPC2)미적용·승인전실행금지. 다음묶음v1.04·manifest/ZIP/DB동기화. 공개v1.03ZIP보존. 실AI성공·상주host/adapter·실검수미완료 |
 | `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
@@ -55,6 +56,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `realty-listing-alert` | v1.37 · 2026-10-29 ([역할: realty], 승인 빌드 1회) | (대기 항목 없음) 추가개선 5·6·7 — 주간 동향 글로 쓰기·블로그/티스토리 고르기·「최근 6개월 매매 신고 없음 (n일째)」 (`f8156bd12`) |
 | `blog-neighbor-care` | v1.03 · 2026-10-29 · Codex `codex-win-20261026-blog-check` · dpl_FM3zxNjsfHPYB4GrTe2q7LLRXZBu | 좌측메뉴표준/모바일계정·진단·정리5종·중단/반복설정·비공개실행인증/최소결과·확장가시성/진행범위(소스a93fc9ecd까지),SQL재적용없음 |
 | `trending-product-finder` | v1.29 · 2026-10-29 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-2arev86dm`) | 흐름 띠 「🛒 마켓 등록」 단계(`48b67dd5c`) (본 작업: 스마트스토어 수수료 6.63% 공식 대조 `6ce752039`) |
 | `shop-order-report` | v1.05 · 2026-10-29 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-order-report-3qdt03vl7`) | 흐름 띠 「🛒 마켓 등록」 단계(`48b67dd5c`) + 사이드바 프로그램명 2열(`187ec0d28`) (본 작업: 스마트스토어 수수료 6.63% `6ce752039`) |
