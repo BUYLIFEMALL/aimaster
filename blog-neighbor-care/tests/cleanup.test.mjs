@@ -8,9 +8,9 @@ const request = (authorization = `Bearer ${token}`, method = 'GET') => new Reque
 const outputs = [
   { expiredRequestsRemoved: 2 }, { expiredJobsRemoved: 3 }, { expiredImportsRemoved: 4 }, { expiredPayloadsRemoved: 5 }, { expiredEvidenceRemoved: 6 },
 ];
-function setup(overrides = {}) {
+function setup(overrides = {}, report) {
   const calls = [];
-  const handler = createCleanupHandler({ secret: () => token, rpc: async (name, args) => {
+  const handler = createCleanupHandler({ secret: () => token, report, rpc: async (name, args) => {
     calls.push({ name, args });
     const behavior = overrides[calls.length - 1];
     if (behavior instanceof Error) throw behavior;
@@ -55,4 +55,21 @@ test('CL04 null/malformed/negative counts cannot report cleanup success', async 
     const response = await handler(request());
     assert.equal(response.status, 503); assert.equal(calls.length, 5);
   }
+});
+
+test('CL05 authorized invocations emit one sanitized result summary; denied requests emit none', async () => {
+  const reports=[];
+  const {handler,calls}=setup({0:{data:{...outputs[0],privateBody:'private-body',memberId:'private-member'},error:null},2:{data:null,error:{message:'private-error'}}},summary=>reports.push(summary));
+  assert.equal((await handler(request(null))).status,401);assert.equal(reports.length,0);assert.equal(calls.length,0);
+  assert.equal((await handler(request())).status,503);assert.equal(reports.length,1);assert.equal(calls.length,5);
+  assert.equal(reports[0].ok,false);assert.deepEqual(Object.keys(reports[0]).sort(),['ok','results']);
+  assert.deepEqual(reports[0].results.reader,{ok:true,data:outputs[0]});assert.deepEqual(reports[0].results.neighbors,{ok:false});
+  assert.doesNotMatch(JSON.stringify(reports),/private|local-cleanup-fixture|authorization|user_id/);
+});
+
+test('CL06 logging failure or mutation cannot repeat cleanup or change its response', async () => {
+  let reports=0;
+  const {handler,calls}=setup({},summary=>{reports++;summary.results.reader.ok=false;throw Error('private-log-failure');});
+  const response=await handler(request()),body=await response.json();
+  assert.equal(response.status,200);assert.equal(body.ok,true);assert.equal(body.results.reader.ok,true);assert.equal(reports,1);assert.equal(calls.length,5);assert.doesNotMatch(JSON.stringify(body),/private/);
 });

@@ -9,7 +9,9 @@ const steps = [
 ] as const;
 type CleanupRpc = (name: string, args: { p_user_id: null; p_operation: 'cleanup'; p_payload: Record<string, never> }) =>
   PromiseLike<{ data: unknown; error: unknown }>;
-type Dependencies = { secret: () => string | undefined; rpc: CleanupRpc };
+type CleanupResult = { ok: boolean; data?: Record<string, number> };
+type CleanupSummary = { ok: boolean; results: Record<string, CleanupResult> };
+type Dependencies = { secret: () => string | undefined; rpc: CleanupRpc; report?: (summary: CleanupSummary) => void | Promise<void> };
 const reply = (value: unknown, status: number) => Response.json(value, {
   status, headers: { 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff' },
 });
@@ -24,7 +26,7 @@ export function createCleanupHandler(deps: Dependencies) {
 
     // Each RPC is a separate transaction. A failure in one dataset must not
     // prevent the other datasets from expiring; retrying cleanup is idempotent.
-    const results: Record<string, { ok: boolean; data?: Record<string, number> }> = {};
+    const results: Record<string, CleanupResult> = {};
     for (const step of steps) {
       try {
         const { data, error } = await deps.rpc(step.rpc, { p_user_id: null, p_operation: 'cleanup', p_payload: {} });
@@ -40,6 +42,9 @@ export function createCleanupHandler(deps: Dependencies) {
       }
     }
     const ok = Object.values(results).every(result => result.ok);
+    // Log only the whitelisted summary after authenticated cleanup. A reporting
+    // failure must not change the outcome or repeat any cleanup transaction.
+    try { await deps.report?.(structuredClone({ ok, results })); } catch { /* No retry. */ }
     return reply({ ok, results, ...(ok ? {} : { error: '일부 자료 정리에 실패했습니다.' }) }, ok ? 200 : 503);
   };
 }
