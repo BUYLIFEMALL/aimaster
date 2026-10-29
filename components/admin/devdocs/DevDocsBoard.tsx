@@ -598,6 +598,7 @@ function Requests({ requests, setRequests, setDialog, focus }: { requests: DevRe
                 <Row key={r.id} no={`#${r.id.slice(0, 4)}`} title={r.title ?? "(제목 없음)"} sub={`${r.from_session ?? "세션 미상"} · ${when(r.created_at)}`}
                   right={
                     <div className="flex shrink-0 gap-1">
+                      <CopyLine text={`[관리자 실행요청] [${catOf(r).label}] ${r.title ?? ""} — ${(r.note ?? "").replace(/\s*\n\s*/g, " ")} (담당 ${r.from_session ?? "미상"} · 요청id ${r.id} · 원본 확인: node scripts/dev-requests.mjs show ${r.id})`} />
                       {linkBtn(r)}
                       <IconBtn title="완료" onClick={() => act(r.id, "done")}><CheckCircle2 size={15} className="text-emerald-300" /></IconBtn>
                       <IconBtn title="필요 없음" onClick={() => act(r.id, "dismiss")}><XCircle size={15} /></IconBtn>
