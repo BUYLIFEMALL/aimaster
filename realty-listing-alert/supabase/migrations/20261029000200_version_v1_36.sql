@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.36: 연계 I — 수집 결과 「단지 비교」 표에 「📝 글로 쓰기」(블로그 포스팅 자동화 글쓰기 화면에 단지 시세 요약 주제·키워드 채우기) (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.36', extension_version = 'v1.36', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;

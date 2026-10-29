@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 import PriceChange, { TradeGap } from "./PriceChange";
 import { findRepeatDrops } from "@/lib/repeatDrops";
+import { buildBlogDraftLink } from "@/lib/blogDraft";
 
 type TradeStat = { n: number; avg: number | null; med: number | null; min: number | null; max: number | null; perM2: number | null; rentAvg?: number | null; tradeGapAvg?: number | null; tradeGapN?: number; bands: { label: string; n: number; avg: number }[] };
 type ComplexSnap = { name: string; total: number; events: { new: number; priceDown: number; priceUp: number; gone: number }; trades: Partial<Record<Trade, TradeStat>> };
@@ -158,7 +159,7 @@ export default function StatsDashboard({ email }: { email: string }) {
           <h3 className="ra-stat-h">🏢 단지 비교 (이번 회차)</h3>
           <div className="ra-result-wrap">
             <table className="ra-result">
-              <thead><tr><th>단지</th><th>매물</th><th>매매 평균</th><th>매매 평당가</th><th>실거래 대비</th><th>전세 평균</th><th>전세가율</th><th>월세 평균</th></tr></thead>
+              <thead><tr><th>단지</th><th>매물</th><th>매매 평균</th><th>매매 평당가</th><th>실거래 대비</th><th>전세 평균</th><th>전세가율</th><th>월세 평균</th><th>블로그</th></tr></thead>
               <tbody>
                 {latest.complexes.map((c) => {
                   const s = c.trades["매매"], j = c.trades["전세"], m = c.trades["월세"];
@@ -173,13 +174,25 @@ export default function StatsDashboard({ email }: { email: string }) {
                       <td>{j ? `${won(j.avg)} (${j.n})` : "—"}</td>
                       <td>{ratio !== null ? `${ratio}%` : "—"}</td>
                       <td>{m ? `${won(m.avg)} / ${won(m.rentAvg)} (${m.n})` : "—"}</td>
+                      <td>
+                        {/* 연계 I(2026-10-29): 이 단지 요약 숫자로 「블로그 포스팅 자동화」 글쓰기 화면을 연다 — 글 생성·발행은 블로그 프로그램이 맡는다 */}
+                        <a
+                          className="ra-nowrap"
+                          href={buildBlogDraftLink({ name: c.name, total: c.total, events: c.events, saleAvg: s?.avg ?? null, saleN: s?.n ?? 0, jeonseAvg: j?.avg ?? null, tradeGapAvg: s?.tradeGapAvg ?? null })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="이 단지 시세 요약을 주제로 블로그 글쓰기 화면을 엽니다(블로그 포스팅 자동화)"
+                        >
+                          📝 글로 쓰기 ↗
+                        </a>
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-          <p className="card-caption">단위: 만 원 · 평당가 = ㎡당 평균 × 3.3058 · 실거래 대비 = 매매 호가를 최근 6개월 국토부 실거래(같은 단지·면적대 ㎡당 중간값)와 비교한 평균(실거래는 계약 후 30일 안에 신고돼 조금 늦게 반영) · 전세가율 = 전세 ㎡당 ÷ 매매 ㎡당 · (괄호)는 매물 수</p>
+          <p className="card-caption">단위: 만 원 · 평당가 = ㎡당 평균 × 3.3058 · 실거래 대비 = 매매 호가를 최근 6개월 국토부 실거래(같은 단지·면적대 ㎡당 중간값)와 비교한 평균(실거래는 계약 후 30일 안에 신고돼 조금 늦게 반영) · 전세가율 = 전세 ㎡당 ÷ 매매 ㎡당 · (괄호)는 매물 수 · 📝 글로 쓰기 = 단지 이름과 위 요약 숫자만 「블로그 포스팅 자동화」 글쓰기 화면에 주제로 채워 엽니다(중개사·전화번호·매물 번호는 넘기지 않아요, 글 생성은 회원 본인 키)</p>
 
           <div className="ra-stat-two">
             <div>
