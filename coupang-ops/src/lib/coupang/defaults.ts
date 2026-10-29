@@ -39,6 +39,7 @@ const pick = <T extends string>(v: unknown, list: { value: T }[], fallback: T): 
 
 /** 화면 폼·DB 어디서 오든 같은 모양으로 정리(모르는 값은 안전한 기본값) */
 /** 반품배송비 기본값 = 발송비 + 1,000원(편도) — 무료배송 상품 반품 왕복은 ×2(2026-10-29 주인님 지시). 회원이 넣은 값이 있으면 그 값 */
+// +1,000원 = 반품 회수 때 드는 박스·포장 비용(2026-10-29 주인님 설명)
 export const RETURN_FEE_EXTRA = 1000;
 export const defaultReturnFee = (shipCost: number) => (shipCost > 0 ? shipCost + RETURN_FEE_EXTRA : 0);
 

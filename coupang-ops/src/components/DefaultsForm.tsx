@@ -124,7 +124,7 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
           <label className="block">
             <span className={label}>발송비(택배 1건 실제 비용, 원)</span>
             <input name="shipCost" inputMode="numeric" value={shipCost || ""} onChange={(e) => setShipCost(Number(e.target.value.replace(/\D/g, "")) || 0)} placeholder="예: 3000" className={input} />
-            <span className="mt-1 block text-[11px] text-slate-500">쿠팡에 보내지 않고 반품배송비 기본값 계산에만 씁니다{shipCost > 0 ? ` — 편도 ${defaultReturnFee(shipCost).toLocaleString()}원(발송비+1,000원), 무료배송 상품 반품 왕복 ${(defaultReturnFee(shipCost) * 2).toLocaleString()}원` : ""}.</span>
+            <span className="mt-1 block text-[11px] text-slate-500">쿠팡에 보내지 않고 반품배송비 기본값 계산에만 씁니다{shipCost > 0 ? ` — 편도 ${defaultReturnFee(shipCost).toLocaleString()}원(발송비 + 박스·포장비 1,000원), 무료배송 상품 반품 왕복 ${(defaultReturnFee(shipCost) * 2).toLocaleString()}원` : ""}.</span>
           </label>
           <label className="block">
             <span className={label}>기준 출고일(일)</span>
@@ -142,12 +142,12 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block">
             <span className={label}>초도 반품배송비(원)</span>
-            <input name="deliveryChargeOnReturn" inputMode="numeric" defaultValue={initial?.deliveryChargeOnReturn || ""} placeholder={shipCost > 0 ? `비우면 ${defaultReturnFee(shipCost).toLocaleString()}원(발송비+1,000원)` : "비우면 발송비+1,000원"} className={input} />
+            <input name="deliveryChargeOnReturn" inputMode="numeric" defaultValue={initial?.deliveryChargeOnReturn || ""} placeholder={shipCost > 0 ? `비우면 ${defaultReturnFee(shipCost).toLocaleString()}원(발송비 + 박스·포장비 1,000원)` : "비우면 발송비+1,000원"} className={input} />
             <span className="mt-0.5 block text-[11px] text-slate-500">무료배송 상품을 반품할 때 처음 보낸 배송비</span>
           </label>
           <label className="block">
             <span className={label}>반품배송비(편도, 원)</span>
-            <input name="returnCharge" inputMode="numeric" defaultValue={initial?.returnCharge || ""} placeholder={shipCost > 0 ? `비우면 ${defaultReturnFee(shipCost).toLocaleString()}원(발송비+1,000원)` : "비우면 발송비+1,000원"} className={input} />
+            <input name="returnCharge" inputMode="numeric" defaultValue={initial?.returnCharge || ""} placeholder={shipCost > 0 ? `비우면 ${defaultReturnFee(shipCost).toLocaleString()}원(발송비 + 박스·포장비 1,000원)` : "비우면 발송비+1,000원"} className={input} />
             <span className="mt-0.5 block text-[11px] text-slate-500">초도 반품배송비의 100~150% 사이(쿠팡 규칙)</span>
           </label>
           <label className="block">
