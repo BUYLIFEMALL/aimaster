@@ -2,6 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { getCoupangDefaults, getWingKeyStatus } from "@/lib/data";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { DefaultsForm } from "@/components/DefaultsForm";
+import { RemoteFeeForm } from "@/components/RemoteFeeForm";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,11 @@ export default async function DefaultsPage() {
         💡 출고지·반품지는 WING에 먼저 만들어 두어야 합니다. 「쿠팡에서 불러오기」를 누르면 내 WING의 목록이 나옵니다(읽기만 하고 아무것도 바꾸지 않음).
       </Notice>
       <DefaultsForm initial={defaults} keysSaved={keys.saved} />
+      <section className="slw-card space-y-2 p-5">
+        <h2 className="text-base font-extrabold text-slate-900">🏝 제주·도서산간 추가배송비</h2>
+        <p className="text-sm text-slate-600">쿠팡은 이 금액을 상품마다가 아니라 출고지마다 정합니다. 여기서 바꾸면 WING의 출고지 설정이 바뀝니다.</p>
+        <RemoteFeeForm placeCode={defaults?.outboundShippingPlaceCode ?? ""} />
+      </section>
     </div>
   );
 }
