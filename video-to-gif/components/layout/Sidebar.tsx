@@ -90,24 +90,24 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       >
         {/* 상단 브랜드 헤더 */}
         <div className="border-b border-[#30363d] p-5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <Link
               href="/dashboard"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-white hover:opacity-90"
+              className="flex min-w-0 items-center gap-2.5 text-lg font-bold tracking-tight text-white hover:opacity-90"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-slate-950 shadow-lg shadow-amber-500/20">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-slate-950 shadow-lg shadow-amber-500/20">
                 <Film className="h-5 w-5" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-extrabold text-white">AI 영상렌더 스튜디오</span>
-                <span className="text-[11px] font-medium text-amber-400">VideoRender Studio</span>
+              <div className="flex min-w-0 flex-col">
+                <span className="whitespace-nowrap text-sm font-extrabold text-white">AI 영상렌더 스튜디오</span>
+                <span className="truncate text-[11px] font-medium text-amber-400">VideoRender Studio</span>
               </div>
             </Link>
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-300">
+            <div className="flex shrink-0 items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300">
                 <Sparkles className="h-2.5 w-2.5" />
-                {APP_VERSION} STUDIO
+                {APP_VERSION}
               </span>
               <button
                 onClick={() => setMobileOpen(false)}
