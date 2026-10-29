@@ -73,3 +73,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `category.ts`: 속성에 `inputType`·`values`(inputValues 글자 목록) — 실응답 `inputType: "SELECT"`, `inputValues: ["가을","겨울","봄",…]` 확인.
 - 실제 시험: 「스위스톤 확장형 여행백팩(ST4D18)」 → 쿠팡 추천 「남녀공용백팩 #69885」(단일 상품 불가, 필수 색상·사이즈) → 블랙/FREE 1줄 → **검사 통과**. 시험 23개 통과.
 - 다음: 짧은 이미지 주소 `/i/<id>`(C1-11) → 등록 실행 「저장만」·기록(C1-13·C1-14) — 실제 보내기는 상품 노출 풀린 뒤 1건.
+- **C1-11 짧은 이미지 주소(2026-10-29)**: `lib/imageLinks.ts` `createImageLinks(userId, paths)`(본인 폴더만, 16바이트 무작위 id, 30일 만료, 표 `coupang_ops_image_links`, 서버 키) · `app/i/[id]/route.ts`(로그인 없이 쿠팡이 받아 감 — 만료·남의 경로·형식 오류는 404, 캐시 1일) · `proxy.ts` matcher에서 `i/` 제외(로그인 리다이렉트 안 받게). 확인: `npm run build` 통과, `next start`에서 `/i/abc`·없는 id 404, `/products` 307. ⚠ 개발 서버(`npm run dev`)에서는 메모리 부족으로 컴파일 작업자가 죽어 `/i/`만 500 — 코드 문제 아님.
+- ⚠ **쿠팡은 공개 주소의 이미지만 받아 간다** → 실제 등록(「저장만」 시험)은 **배포 뒤**에만 가능(로컬 주소는 쿠팡이 못 엶). 그래서 C1-13 등록 실행은 로컬에서 코드·검사까지, 실제 1건은 최종 배포 직후.
