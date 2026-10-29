@@ -41,6 +41,8 @@ const pick = <T extends string>(v: unknown, list: { value: T }[], fallback: T): 
 /** 반품배송비 기본값 = 발송비 + 1,000원(편도) — 무료배송 상품 반품 왕복은 ×2(2026-10-29 주인님 지시). 회원이 넣은 값이 있으면 그 값 */
 // +1,000원 = 반품 회수 때 드는 박스·포장 비용(2026-10-29 주인님 설명)
 export const RETURN_FEE_EXTRA = 1000;
+/** 발송비 기본값(2026-10-29 주인님 「기본 4000원 잡고」) — 회원이 바꿀 수 있음 */
+export const DEFAULT_SHIP_COST = 4000;
 export const defaultReturnFee = (shipCost: number) => (shipCost > 0 ? shipCost + RETURN_FEE_EXTRA : 0);
 
 export function normalizeDefaults(raw: Record<string, unknown> | null | undefined): CoupangDefaults {

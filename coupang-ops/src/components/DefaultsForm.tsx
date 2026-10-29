@@ -3,7 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { saveDefaultsAction } from "@/lib/actions/connection";
 import { testWingConnectionAction } from "@/lib/actions/wing";
-import { CHARGE_TYPES, COMMON_COURIERS, DELIVERY_METHODS, defaultReturnFee } from "@/lib/coupang/defaults";
+import { CHARGE_TYPES, COMMON_COURIERS, DELIVERY_METHODS, defaultReturnFee, DEFAULT_SHIP_COST } from "@/lib/coupang/defaults";
 import type { CoupangDefaults } from "@/lib/coupang/product";
 import type { OutboundPlace, ReturnCenter } from "@/lib/coupang/logistics";
 
@@ -17,7 +17,7 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
   const [centers, setCenters] = useState<ReturnCenter[]>([]);
   const [loadError, setLoadError] = useState("");
   const [rc, setRc] = useState(initial?.returnCenter ?? { code: "", name: "", phone: "", zipCode: "", address: "", addressDetail: "" });
-  const [shipCost, setShipCost] = useState(initial?.shipCost ?? 0);
+  const [shipCost, setShipCost] = useState(initial?.shipCost || DEFAULT_SHIP_COST);
   const [chargeType, setChargeType] = useState(initial?.deliveryChargeType ?? "FREE");
   const known = COMMON_COURIERS.some((c) => c.code === initial?.deliveryCompanyCode);
   const [courier, setCourier] = useState(initial?.deliveryCompanyCode ? (known ? initial.deliveryCompanyCode : "_other") : "CJGLS");
@@ -112,7 +112,7 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
           {chargeType !== "FREE" && (
             <label className="block">
               <span className={label}>기본 배송비(원)</span>
-              <input name="deliveryCharge" inputMode="numeric" defaultValue={initial?.deliveryCharge || ""} className={input} />
+              <input name="deliveryCharge" inputMode="numeric" defaultValue={initial?.deliveryCharge || shipCost || ""} className={input} />
             </label>
           )}
           {chargeType === "CONDITIONAL_FREE" && (
