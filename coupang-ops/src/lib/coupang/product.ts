@@ -13,6 +13,8 @@ export type DeliveryChargeType = "FREE" | "NOT_FREE" | "CHARGE_RECEIVED" | "COND
 /** 회원 스토어 기본값(C1-5 화면에서 한 번 넣음) */
 export interface CoupangDefaults {
   outboundShippingPlaceCode: string;
+  /** 화면 표시용(쿠팡에 보내지 않음) — 새로고침 뒤에도 출고지 이름이 보이게 */
+  outboundShippingPlaceName?: string;
   returnCenter: { code: string; name: string; phone: string; zipCode: string; address: string; addressDetail: string };
   deliveryMethod: DeliveryMethod;
   deliveryCompanyCode: string;

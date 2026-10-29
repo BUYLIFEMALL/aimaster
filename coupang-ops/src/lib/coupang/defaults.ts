@@ -51,6 +51,7 @@ export function normalizeDefaults(raw: Record<string, unknown> | null | undefine
   const shipCost = won(r.shipCost);
   return {
     outboundShippingPlaceCode: text(r.outboundShippingPlaceCode, 30),
+    outboundShippingPlaceName: text(r.outboundShippingPlaceName, 80),
     returnCenter: {
       code: text(r.returnCenterCode ?? rc.code, 30),
       name: text(r.returnCenterName ?? rc.name, 50),

@@ -16,6 +16,7 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
   const [places, setPlaces] = useState<OutboundPlace[]>([]);
   const [centers, setCenters] = useState<ReturnCenter[]>([]);
   const [loadError, setLoadError] = useState("");
+  const [place, setPlace] = useState({ code: initial?.outboundShippingPlaceCode ?? "", name: initial?.outboundShippingPlaceName ?? "" });
   const [rc, setRc] = useState(initial?.returnCenter ?? { code: "", name: "", phone: "", zipCode: "", address: "", addressDetail: "" });
   const [shipCost, setShipCost] = useState(initial?.shipCost || DEFAULT_SHIP_COST);
   const [chargeType, setChargeType] = useState(initial?.deliveryChargeType ?? "FREE");
@@ -46,14 +47,25 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
         <label className="block">
           <span className={label}>출고지</span>
           {places.length ? (
-            <select name="outboundShippingPlaceCode" defaultValue={initial?.outboundShippingPlaceCode ?? ""} className={input}>
+            <select
+              name="outboundShippingPlaceCode"
+              value={place.code}
+              onChange={(e) => setPlace({ code: e.target.value, name: places.find((p) => p.code === e.target.value)?.name ?? "" })}
+              className={input}
+            >
               <option value="">고르세요</option>
               {places.map((p) => <option key={p.code} value={p.code}>{p.name} (#{p.code}) {p.address}</option>)}
             </select>
+          ) : place.name ? (
+            <>
+              <p className="mt-1 text-xs text-slate-600">{place.name} (#{place.code}) · 바꾸려면 「쿠팡에서 불러오기」</p>
+              <input type="hidden" name="outboundShippingPlaceCode" value={place.code} />
+            </>
           ) : (
-            <input name="outboundShippingPlaceCode" defaultValue={initial?.outboundShippingPlaceCode ?? ""} placeholder="「쿠팡에서 불러오기」로 고르거나 출고지 코드 입력" className={input} />
+            <input name="outboundShippingPlaceCode" value={place.code} onChange={(e) => setPlace({ code: e.target.value, name: "" })} placeholder="「쿠팡에서 불러오기」로 고르거나 출고지 코드 입력" className={input} />
           )}
         </label>
+        <input type="hidden" name="outboundShippingPlaceName" value={place.name} />
 
         <label className="block">
           <span className={label}>반품지</span>

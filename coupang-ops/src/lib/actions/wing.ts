@@ -34,7 +34,7 @@ export async function testWingConnectionAction(): Promise<ConnectionResult> {
 }
 
 export type CategoryCheckResult =
-  | { ok: true; predict: PredictResult; meta: CategoryMeta | null; rawAttrKeys: string[]; rawSample: string; metaError: string | null }
+  | { ok: true; predict: PredictResult; meta: CategoryMeta | null; metaError: string | null }
   | { ok: false; error: string };
 
 /** C1-7·C1-8 실제 응답 확인 — 상품명으로 카테고리 추천을 받고 그 카테고리 메타를 읽는다. 쿠팡에 아무것도 만들지 않는다. */
@@ -50,15 +50,12 @@ export async function checkCategoryAction(name: string): Promise<CategoryCheckRe
   } catch (e) {
     return { ok: false, error: `카테고리 추천 실패: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
   }
-  if (!predict.ok) return { ok: true, predict, meta: null, rawAttrKeys: [], rawSample: "", metaError: null };
+  if (!predict.ok) return { ok: true, predict, meta: null, metaError: null };
   try {
     const r = await wingRequest(keys, "GET", metaPath(predict.code));
-    const attrs = ((r.data as { data?: { attributes?: Record<string, unknown>[] } })?.data?.attributes ?? []);
-    // 메타에 고를 수 있는 값 목록(inputValues 등)이 오는지 확인하려고 첫 속성의 칸 이름을 함께 돌려준다
-    const withValues = attrs.find((a) => Array.isArray(a.inputValues) && a.inputValues.length) ?? attrs[0];
-    return { ok: true, predict, meta: normalizeMeta(r.data), rawAttrKeys: attrs[0] ? Object.keys(attrs[0]) : [], rawSample: withValues ? JSON.stringify(withValues).slice(0, 600) : "", metaError: null };
+    return { ok: true, predict, meta: normalizeMeta(r.data), metaError: null };
   } catch (e) {
-    return { ok: true, predict, meta: null, rawAttrKeys: [], rawSample: "", metaError: e instanceof WingApiError ? e.message : "연결 오류" };
+    return { ok: true, predict, meta: null, metaError: e instanceof WingApiError ? e.message : "연결 오류" };
   }
 }
 

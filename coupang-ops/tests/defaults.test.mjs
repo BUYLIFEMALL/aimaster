@@ -6,6 +6,7 @@ import { checkDefaults, normalizeDefaults } from "../src/lib/coupang/defaults.ts
 test("화면 폼 값(글자·체크)을 정리한다", () => {
   const d = normalizeDefaults({
     outboundShippingPlaceCode: " 123 ",
+    outboundShippingPlaceName: "바이라이프",
     returnCenterCode: "R1",
     returnCenterName: "반품지",
     returnPhone: "02-1234-5678",
@@ -20,6 +21,7 @@ test("화면 폼 값(글자·체크)을 정리한다", () => {
     outboundShippingTimeDay: "2",
   });
   assert.equal(d.outboundShippingPlaceCode, "123");
+  assert.equal(d.outboundShippingPlaceName, "바이라이프"); // 새로고침 뒤 표시용 이름도 저장
   assert.equal(d.returnCenter.code, "R1");
   assert.equal(d.deliveryCompanyCode, "CJGLS");
   assert.equal(d.deliveryCharge, 3000);
