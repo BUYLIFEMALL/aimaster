@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Eye, Pencil, MessageSquareWarning, StickyNote, Search, ChevronDown, ChevronRight, XCircle, CheckCircle2, ExternalLink } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import DocDialogs, { type Dialog } from "./DocDialogs";
+import AiSummaryButton from "./AiSummaryButton";
 import { OWNER_ACTION_CATEGORIES, type DevRequest } from "./types";
 import type { ActiveWorkRow, CategoryMapData, RegistryData, RoleStatus, TableRow } from "@/lib/devDocs/parse";
 import type { DevDocsManifest, ManifestEntry } from "@/lib/devDocs/github";
@@ -12,6 +13,7 @@ export type DevDocsTab = "overview" | "in-progress" | "completed" | "waiting" | 
 
 type ProgramMeta = { slug: string; name: string; version: string | null; app_url: string | null };
 
+const TAB_LABEL: Record<DevDocsTab, string> = { overview: "한눈에 보기", "in-progress": "진행 중", completed: "개발완료", waiting: "대기 중", planned: "예정", analyzed: "분석 완료", guidelines: "지침", programs: "프로그램", requests: "요청함" };
 const REGISTRY = "docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md";
 const STALE_MS = 3 * 86400000;
 const KIND_LABEL: Record<string, string> = { doc_edit: "수정안", doc_comment: "관리자 지시", role_note: "역할 메모", work_result: "작업 결과", owner_action: "해 줄 일" };
@@ -76,6 +78,8 @@ export default function DevDocsBoard(props: {
         </GlassCard>
       )}
 
+      <AiSummaryButton tab={tab} label={TAB_LABEL[tab]} />
+      <div id="devdocs-tab-content">
       {tab === "overview" && <Overview roles={roles} activeWork={activeWork} registry={registry} requests={requests} setDialog={setDialog} roleNoteCount={roleNoteCount} />}
 
       {tab === "in-progress" && (
@@ -147,6 +151,7 @@ export default function DevDocsBoard(props: {
       {tab === "programs" && <Programs manifest={manifest} programs={programs} docActions={docActions} />}
 
       {tab === "requests" && <Requests requests={requests} setRequests={setRequests} setDialog={setDialog} />}
+      </div>
 
       <DocDialogs dialog={dialog} setDialog={setDialog} requests={requests} onSaved={onSaved} />
     </div>
