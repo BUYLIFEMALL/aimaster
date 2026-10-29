@@ -7,7 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 import PriceChange, { TradeGap } from "./PriceChange";
 import { findRepeatDrops } from "@/lib/repeatDrops";
-import { buildBlogDraftLink } from "@/lib/blogDraft";
+import { buildBlogDraftLink, buildWeeklyDraftLink, DRAFT_TARGETS, isDraftTarget, noTradeDays, type DraftTarget } from "@/lib/blogDraft";
+
+const DRAFT_TARGET_KEY = "ra-draft-target"; // v1.37: 「📝 글로 쓰기」 갈 곳(이 브라우저에만 기억)
 
 type TradeStat = { n: number; avg: number | null; med: number | null; min: number | null; max: number | null; perM2: number | null; rentAvg?: number | null; tradeGapAvg?: number | null; tradeGapN?: number; bands: { label: string; n: number; avg: number }[] };
 type ComplexSnap = { name: string; total: number; events: { new: number; priceDown: number; priceUp: number; gone: number }; trades: Partial<Record<Trade, TradeStat>> };
@@ -47,11 +49,30 @@ export default function StatsDashboard({ email }: { email: string }) {
   const [evType, setEvType] = useState<EvType | "all">("all");
   const [evPeriod, setEvPeriod] = useState<Period>("last");
   const [range, setRange] = useState<Range>("90"); // 추이 그래프 기간
+  const [tradeMissing, setTradeMissing] = useState<Record<string, string>>({}); // 🏚 v1.37 실거래 자료 없는 단지 → 처음 없던 시각
+  const [draftTarget, setDraftTarget] = useState<DraftTarget>("blog"); // 📝 v1.37 글 쓸 곳
+
+  const chooseTarget = (v: string) => {
+    if (!isDraftTarget(v)) return;
+    setDraftTarget(v);
+    try {
+      window.localStorage.setItem(DRAFT_TARGET_KEY, v);
+    } catch {
+      /* 기억 못 해도 이번 화면에서는 적용 */
+    }
+  };
 
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; history?: Snap[]; events?: EventRow[]; columns?: string[]; aiSummary?: { text: string; at: string } | null; stale?: StaleRow[]; weeklyReport?: { text: string; at: string; from: string; to: string } | null }>("stats", 3000, { email }).then((r) => {
+    void askExtension<{ ok?: boolean; history?: Snap[]; events?: EventRow[]; columns?: string[]; aiSummary?: { text: string; at: string } | null; stale?: StaleRow[]; weeklyReport?: { text: string; at: string; from: string; to: string } | null; tradeMissing?: Record<string, string> }>("stats", 3000, { email }).then((r) => {
       if (!alive) return;
+      try {
+        const v = window.localStorage.getItem(DRAFT_TARGET_KEY); // 지난번 고른 「글 쓸 곳」(통계가 보일 때만 쓰이므로 여기서 함께 읽음)
+        if (isDraftTarget(v)) setDraftTarget(v);
+      } catch {
+        /* 저장소를 못 쓰면 기본값(블로그) */
+      }
+      setTradeMissing(r?.ok && r.tradeMissing && typeof r.tradeMissing === "object" ? r.tradeMissing : {});
       setHistory(r?.ok ? r.history ?? [] : null);
       setEvents(r?.ok ? r.events ?? [] : []);
       setColumns(r?.columns ?? []);
@@ -117,6 +138,18 @@ export default function StatsDashboard({ email }: { email: string }) {
             <details className="ra-ai-summary">
               <summary><strong>📅 지난 주간 리포트</strong> <small>{weekly.from}~{weekly.to} · {when(weekly.at)} 보냄</small></summary>
               <pre style={{ whiteSpace: "pre-wrap", font: "inherit", margin: "8px 0 0" }}>{weekly.text}</pre>
+              {(() => {
+                // 추가개선 5(v1.37): 이 주 기록의 변동 숫자로 「주간 동향」 글쓰기 화면을 연다
+                const href = buildWeeklyDraftLink(history ?? [], weekly.from, weekly.to, new Date(), draftTarget);
+                return href ? (
+                  <p style={{ margin: "8px 0 0" }}>
+                    <a className="ra-nowrap" href={href} target="_blank" rel="noopener noreferrer" title={`이번 주 단지 변동 숫자를 주제로 ${DRAFT_TARGETS[draftTarget].label} 글쓰기 화면을 엽니다`}>
+                      📝 이번 주 동향 글로 쓰기 ↗
+                    </a>{" "}
+                    <small className="card-caption">({DRAFT_TARGETS[draftTarget].label} · 갈 곳은 아래 「🏢 단지 비교」에서 바꿀 수 있어요)</small>
+                  </p>
+                ) : null;
+              })()}
             </details>
           )}
           {ai && <div className="ra-ai-summary"><strong>🤖 AI 한 줄 요약</strong><p>{ai.text}</p><small>{when(ai.at)} 작성 · 통계 숫자만 보고 쓴 참고용이에요(투자 판단 근거가 아니에요)</small></div>}
@@ -157,6 +190,13 @@ export default function StatsDashboard({ email }: { email: string }) {
           </div>
 
           <h3 className="ra-stat-h">🏢 단지 비교 (이번 회차)</h3>
+          <div className="ra-stat-filters">
+            <label>📝 글 쓸 곳
+              <select value={draftTarget} onChange={(e) => chooseTarget(e.target.value)}>
+                {(Object.keys(DRAFT_TARGETS) as DraftTarget[]).map((k) => <option key={k} value={k}>{DRAFT_TARGETS[k].label}</option>)}
+              </select>
+            </label>
+          </div>
           <div className="ra-result-wrap">
             <table className="ra-result">
               <thead><tr><th>단지</th><th>매물</th><th>매매 평균</th><th>매매 평당가</th><th>실거래 대비</th><th>전세 평균</th><th>전세가율</th><th>월세 평균</th><th>블로그</th></tr></thead>
@@ -170,7 +210,11 @@ export default function StatsDashboard({ email }: { email: string }) {
                       <td>{c.total}건</td>
                       <td>{s ? `${won(s.avg)} (${s.n})` : "—"}</td>
                       <td>{s?.perM2 ? won(Math.round(s.perM2 * PYEONG)) : "—"}</td>
-                      <td>{s?.tradeGapAvg != null ? <><TradeGap value={`${s.tradeGapAvg}%`} /> <small className="card-caption">({s.tradeGapN}건)</small></> : <TradeGap value="" />}</td>
+                      <td>{s?.tradeGapAvg != null ? <><TradeGap value={`${s.tradeGapAvg}%`} /> <small className="card-caption">({s.tradeGapN}건)</small></> : (() => {
+                        // 추가개선 7(v1.37): 이틀 넘게 이어서 국토부 자료가 없으면 「—」 대신 이유를 보인다
+                        const days = noTradeDays(tradeMissing[c.name]);
+                        return days ? <small className="card-caption" title="국토부 실거래 자료에서 이 단지 이름으로 최근 6개월 매매 신고를 찾지 못했어요(이름이 다르게 신고됐을 수도 있어요)">최근 6개월 매매 신고 없음 ({days}일째)</small> : <TradeGap value="" />;
+                      })()}</td>
                       <td>{j ? `${won(j.avg)} (${j.n})` : "—"}</td>
                       <td>{ratio !== null ? `${ratio}%` : "—"}</td>
                       <td>{m ? `${won(m.avg)} / ${won(m.rentAvg)} (${m.n})` : "—"}</td>
@@ -178,10 +222,10 @@ export default function StatsDashboard({ email }: { email: string }) {
                         {/* 연계 I(2026-10-29): 이 단지 요약 숫자로 「블로그 포스팅 자동화」 글쓰기 화면을 연다 — 글 생성·발행은 블로그 프로그램이 맡는다 */}
                         <a
                           className="ra-nowrap"
-                          href={buildBlogDraftLink({ name: c.name, total: c.total, events: c.events, saleAvg: s?.avg ?? null, saleN: s?.n ?? 0, jeonseAvg: j?.avg ?? null, tradeGapAvg: s?.tradeGapAvg ?? null })}
+                          href={buildBlogDraftLink({ name: c.name, total: c.total, events: c.events, saleAvg: s?.avg ?? null, saleN: s?.n ?? 0, jeonseAvg: j?.avg ?? null, tradeGapAvg: s?.tradeGapAvg ?? null }, new Date(), draftTarget)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          title="이 단지 시세 요약을 주제로 블로그 글쓰기 화면을 엽니다(블로그 포스팅 자동화)"
+                          title={`이 단지 시세 요약을 주제로 글쓰기 화면을 엽니다(${DRAFT_TARGETS[draftTarget].label})`}
                         >
                           📝 글로 쓰기 ↗
                         </a>
@@ -192,7 +236,7 @@ export default function StatsDashboard({ email }: { email: string }) {
               </tbody>
             </table>
           </div>
-          <p className="card-caption">단위: 만 원 · 평당가 = ㎡당 평균 × 3.3058 · 실거래 대비 = 매매 호가를 최근 6개월 국토부 실거래(같은 단지·면적대 ㎡당 중간값)와 비교한 평균(실거래는 계약 후 30일 안에 신고돼 조금 늦게 반영) · 전세가율 = 전세 ㎡당 ÷ 매매 ㎡당 · (괄호)는 매물 수 · 📝 글로 쓰기 = 단지 이름과 위 요약 숫자만 「블로그 포스팅 자동화」 글쓰기 화면에 주제로 채워 엽니다(중개사·전화번호·매물 번호는 넘기지 않아요, 글 생성은 회원 본인 키)</p>
+          <p className="card-caption">단위: 만 원 · 평당가 = ㎡당 평균 × 3.3058 · 실거래 대비 = 매매 호가를 최근 6개월 국토부 실거래(같은 단지·면적대 ㎡당 중간값)와 비교한 평균(실거래는 계약 후 30일 안에 신고돼 조금 늦게 반영) · 전세가율 = 전세 ㎡당 ÷ 매매 ㎡당 · (괄호)는 매물 수 · 「최근 6개월 매매 신고 없음」 = 이틀 넘게 이어서 국토부 실거래 자료를 못 찾은 단지 · 📝 글로 쓰기 = 단지 이름과 위 요약 숫자만 고른 곳(「{DRAFT_TARGETS[draftTarget].label}」) 글쓰기 화면에 주제로 채워 엽니다(중개사·전화번호·매물 번호는 넘기지 않아요, 글 생성은 회원 본인 키)</p>
 
           <div className="ra-stat-two">
             <div>

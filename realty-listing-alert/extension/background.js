@@ -340,15 +340,18 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   const TRADE_RULE_V = 2;
   const stale = (c) => !c || c.v !== TRADE_RULE_V || now - new Date(c.at).getTime() > (c.bands?.length ? DAY : 3 * 3600 * 1000);
   const need = tradeTargets.filter((t) => stale(tradeCache[t.key]) || tradeCache[t.key].name !== t.name);
+  let lookupOk = true; // v1.37: 키 없음·조회 실패 회차는 「신고 없음 n일째」로 세지 않는다
   if (need.length) {
     try {
       const r = await api("/api/extension/trades", { method: "POST", body: JSON.stringify({ targets: need }) });
+      if (r?.error) lookupOk = false;
       if (r?.error === "no_key") await addLog("실거래 비교: 공공데이터 키가 없어 건너뛰었어요(웹 「API키등록·플랫폼연동」에서 등록할 수 있어요)");
       for (const t of need) if (r?.results?.[t.key]) tradeCache[t.key] = { at: new Date().toISOString(), name: t.name, v: TRADE_RULE_V, ...r.results[t.key] };
       if (r?.errors?.length) await addLog(`실거래 비교 알림: ${r.errors.join(" / ")}`.slice(0, 200));
       lastTradeDiag = Array.isArray(r?.diag) ? r.diag : null;
       lastMissed = Array.isArray(r?.missed) ? r.missed : null;
     } catch (e) {
+      lookupOk = false;
       await addLog(`실거래 비교 실패: ${e.message}`);
     }
   }
@@ -365,6 +368,18 @@ async function attachTradeGaps(fileRows, perTarget, tradeTargets) {
   for (const t of perTarget) for (const e of t.events || []) { const g = gapOf(e.item); if (g) e.item.tradeGap = g; }
   const matched = tradeTargets.filter((t) => tradeCache[t.key]?.bands?.length).length;
   const missed = tradeTargets.filter((t) => !tradeCache[t.key]?.bands?.length).map((t) => t.name || t.key);
+  // v1.37(추가개선 7): 자료 없는 단지 이름 → { since: 처음 없던 시각, seen: 마지막으로 없던 시각 }. 회원 PC에만 두고 웹 통계 화면에만 건넨다.
+  if (lookupOk) {
+    const { tradeMissing = {} } = await get("tradeMissing");
+    const nowIsoT = new Date(now).toISOString();
+    for (const t of tradeTargets) {
+      const nm = t.name || t.key;
+      if (tradeCache[t.key]?.bands?.length) delete tradeMissing[nm];
+      else tradeMissing[nm] = { since: tradeMissing[nm]?.since || nowIsoT, seen: nowIsoT };
+    }
+    for (const [k, v] of Object.entries(tradeMissing)) if (now - new Date(v?.seen).getTime() > 30 * DAY || !v?.since) delete tradeMissing[k];
+    await set({ tradeMissing });
+  }
   await addLog(`실거래 비교: 단지 ${matched}/${tradeTargets.length}곳 자료 있음 · 매매 ${n}건에 「실거래 대비」${missed.length ? ` · 자료 없음: ${missed.join(", ")}` : ""}`.slice(0, 300));
   // 진단(2026-10-26): 못 맞춘 단지가 있으면 국토부 거래 수·단지 이름 예시를 남긴다(다음 보완용)
   if (matched < tradeTargets.length && lastTradeDiag?.length) await addLog(`실거래 진단: ${lastTradeDiag.map((d) => `지역 ${d.lawd} 국토부 거래 ${d.trades}건 · 예: ${(d.names || []).join(", ")}`).join(" / ")}`.slice(0, 300));
@@ -523,7 +538,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       }
       if (msg.type === "stats") {
         // 웹 대시보드용 요약 기록(web-bridge가 같은 계정인지 확인한 뒤에만 부름). 기록이 아직 없으면 마지막 결과로 첫 요약을 만든다.
-        const { history = [], eventLog = [], lastResult, aiSummary, states = {}, settingsCache, weeklyReport } = await get(["history", "eventLog", "lastResult", "aiSummary", "states", "settingsCache", "weeklyReport"]);
+        const { history = [], eventLog = [], lastResult, aiSummary, states = {}, settingsCache, weeklyReport, tradeMissing = {} } = await get(["history", "eventLog", "lastResult", "aiSummary", "states", "settingsCache", "weeklyReport", "tradeMissing"]);
         const names = Object.fromEntries((settingsCache?.targets || []).filter((t) => t.complex_no && !isGenericName(t.complex_name)).map((t) => [String(t.complex_no), t.complex_name]));
         const cols = lastResult?.columns || COLUMNS;
         const hasLast = !!lastResult?.table?.length;
@@ -535,6 +550,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           aiSummary: aiSummary || null, // 🤖 v1.22
           stale: findStale(states, names, { minDays: 30 }), // ⏳ 오래 안 팔린 매물(C-2)
           weeklyReport: weeklyReport || null, // 📅 지난 주간 리포트(D)
+          tradeMissing: Object.fromEntries(Object.entries(tradeMissing).map(([k, v]) => [k, v?.since || ""])), // 🏚 v1.37 실거래 자료 없는 단지 → 처음 없던 시각
         });
       }
       if (msg.type === "isWatched") {

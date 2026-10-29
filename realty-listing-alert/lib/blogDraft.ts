@@ -5,6 +5,18 @@
 export const BLOG_WRITE_URL = "https://ai-auto-blog.buylife.xyz/write/ai-form";
 const TOPIC_MAX = 120;
 
+// v1.37(추가개선 6): 글을 쓸 곳을 회원이 고른다. 두 프로그램 모두 /write/ai-form?topic=&keywords= 입구가 이미 있다(코드 변경 없음).
+export type DraftTarget = "blog" | "tistory";
+export const DRAFT_TARGETS: Record<DraftTarget, { label: string; url: string }> = {
+  blog: { label: "블로그 포스팅 자동화", url: BLOG_WRITE_URL },
+  tistory: { label: "티스토리 포스팅 자동화", url: "https://tistory-auto-blog.buylife.xyz/write/ai-form" },
+};
+export const isDraftTarget = (v: unknown): v is DraftTarget => v === "blog" || v === "tistory";
+
+function draftLink(draft: { topic: string; keywords: string[] }, target: DraftTarget) {
+  return `${DRAFT_TARGETS[target].url}?${new URLSearchParams({ topic: draft.topic, keywords: draft.keywords.join(",") }).toString()}`;
+}
+
 export type DraftStat = {
   name: string;
   total: number;
@@ -45,7 +57,58 @@ export function buildBlogDraft(stat: DraftStat, now = new Date()) {
   return { topic, keywords };
 }
 
-export function buildBlogDraftLink(stat: DraftStat, now = new Date()) {
-  const { topic, keywords } = buildBlogDraft(stat, now);
-  return `${BLOG_WRITE_URL}?${new URLSearchParams({ topic, keywords: keywords.join(",") }).toString()}`;
+export function buildBlogDraftLink(stat: DraftStat, now = new Date(), target: DraftTarget = "blog") {
+  return draftLink(buildBlogDraft(stat, now), target);
+}
+
+// v1.37(추가개선 5): 지난 주간 리포트 기간(from~to, YYYY-MM-DD) 안 수집 기록의 변동을 더해 「주간 동향」 글감을 만든다.
+// 확장이 이미 웹에 건네는 요약 기록(history)만 쓴다 — 매물 줄·중개사·전화번호는 쓰지 않는다.
+export type WeeklySnap = { at: string; complexes: { name: string; events: { new: number; priceDown: number; priceUp: number; gone: number } }[] };
+
+function dayLabel(iso: string) {
+  const [, m, d] = iso.split("-").map(Number);
+  return { m, d };
+}
+
+export function buildWeeklyDraft(history: WeeklySnap[], from: string, to: string, now = new Date()) {
+  const inRange = history.filter((s) => {
+    const day = new Date(s.at).toISOString().slice(0, 10);
+    return day >= from && day <= to;
+  });
+  if (!inRange.length) return null;
+  const sum = { new: 0, priceDown: 0, priceUp: 0, gone: 0 };
+  const names: string[] = [];
+  for (const s of inRange) {
+    for (const c of s.complexes) {
+      sum.new += c.events.new; sum.priceDown += c.events.priceDown; sum.priceUp += c.events.priceUp; sum.gone += c.events.gone;
+      const n = cleanName(c.name);
+      if (n && !names.includes(n)) names.push(n);
+    }
+  }
+  if (!names.length) return null;
+  const a = dayLabel(from), b = dayLabel(to);
+  const period = a.m === b.m ? `${a.m}월 ${a.d}일~${b.d}일` : `${a.m}월 ${a.d}일~${b.m}월 ${b.d}일`;
+  const who = names.length > 2 ? `${names.slice(0, 2).join("·")} 외 ${names.length - 2}곳` : names.join("·");
+  const moves = [sum.new ? `새 매물 ${sum.new}건` : "", sum.priceDown ? `가격 내림 ${sum.priceDown}건` : "", sum.priceUp ? `가격 오름 ${sum.priceUp}건` : "", sum.gone ? `목록에서 내려감 ${sum.gone}건` : ""].filter(Boolean);
+  const year = now.getFullYear();
+  let topic = `${year}년 ${period} ${who} 아파트 매물 주간 동향${moves.length ? ` — ${moves.join(", ")}` : ""}`;
+  if (topic.length > TOPIC_MAX) topic = topic.slice(0, TOPIC_MAX - 1) + "…";
+  const keywords = [...names.slice(0, 3), `${year} 아파트 주간 시세`];
+  return { topic, keywords };
+}
+
+export function buildWeeklyDraftLink(history: WeeklySnap[], from: string, to: string, now = new Date(), target: DraftTarget = "blog") {
+  const draft = buildWeeklyDraft(history, from, to, now);
+  return draft ? draftLink(draft, target) : null;
+}
+
+// v1.37(추가개선 7): 실거래 자료가 이어서 없는 날수. 확장이 회원 PC에 「처음 없던 시각」을 기억한다(tradeMissing).
+// 하루짜리는 이름 맞추기 실패일 수 있어 2일 이상일 때만 화면에 「최근 6개월 매매 신고 없음」을 보인다.
+export const NO_TRADE_MIN_DAYS = 2;
+export function noTradeDays(firstMissingAt: string | undefined, now = new Date()) {
+  if (!firstMissingAt) return null;
+  const t = new Date(firstMissingAt).getTime();
+  if (!Number.isFinite(t)) return null;
+  const days = Math.floor((now.getTime() - t) / (24 * 3600 * 1000)) + 1; // 처음 없던 날을 1일째로 센다
+  return days >= NO_TRADE_MIN_DAYS ? days : null;
 }

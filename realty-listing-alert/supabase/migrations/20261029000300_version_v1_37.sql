@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.37: 추가개선 5·6·7 — 주간 리포트 「📝 이번 주 동향 글로 쓰기」, 글 쓸 곳(블로그/티스토리) 고르기, 실거래 「최근 6개월 매매 신고 없음 (n일째)」 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.37', extension_version = 'v1.37', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
