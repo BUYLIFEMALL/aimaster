@@ -21,7 +21,13 @@ const KEY_STEPS = [
 export default function GuidePage() {
   return (
     <>
-      <Hero eyebrow="GUIDE" title="📖 3분 만에 첫 쇼츠 대본 만들기" desc="처음 오셨나요? 아래 순서대로 따라 하면 본인 AI 키 등록부터 첫 대본 저장까지 끝낼 수 있어요." emoji="🧭" meta={["🔑 키 1개면 시작", "💸 가장 저렴한 모델이 기본값", "🗂️ 대본은 보관함에 저장"]} />
+      <Hero 
+        eyebrow="ALGORITHM PLAYBOOK" 
+        title="📖 유튜브 쇼츠 알고리즘 후킹 10대 공식 & 4단계 제작 매뉴얼" 
+        desc="유튜브 쇼츠 알고리즘이 선택하는 상위 1% 후킹 구조와 1분 완성 초고속 4단계 제작 파이프라인 가이드입니다." 
+        emoji="🧭" 
+        meta={["⚡ 1분 완성 워크플로우", "📈 평균 지속률 80% 달성 공식", "🔑 본인 AI 키 보안 격리"]} 
+      />
       <div className="stack">
         <section className="card stack">
           <h2>🗺️ 전체 흐름</h2>

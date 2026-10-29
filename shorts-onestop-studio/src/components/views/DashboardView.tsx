@@ -25,9 +25,15 @@ export function DashboardView() {
 
   return (
     <>
-      <Hero eyebrow="DASHBOARD" title="오늘은 어떤 쇼츠를 만들어 볼까요? 🎬" desc="주제 하나만 고르면 AI가 인트로·카드·아웃트로 대본을 만들어 드립니다. 이어지는 단계에서 배경·음성·자막을 입혀 세로 쇼츠 MP4로 완성합니다." emoji="🎞️" meta={["⏱ 대본 1편 약 30초", "🔑 본인 AI 키 사용", "📐 1080×1920 세로"]}>
-        <a className="button solid" href="/topic">✨ 새 쇼츠 대본 만들기</a>
-        <a className="button" href="/library">🗂️ 보관함 열기</a>
+      <Hero 
+        eyebrow="YOUTUBE SHORTS STUDIO" 
+        title="원스톱 AI 유튜브 쇼츠 자동 제작 대시보드 🎬" 
+        desc="주제 1줄만 넣으면 AI가 45초 쇼츠 대본과 씬을 즉시 분할하고, 9:16 유튜브 쇼츠 폰 뷰파인더로 실시간 모니터링하며 1080×1920 세로형 MP4 영상으로 완성합니다." 
+        emoji="▶️" 
+        meta={["⏱ 제작시간 약 50초", "🎥 1080×1920 FHD", "🔑 본인 AI 키 보안 격리", "⚡ 원클릭 유튜브 즉시 발행"]}
+      >
+        <a className="button primary btn-3d-yt-red" href="/topic">⚡ 새 쇼츠 만들기</a>
+        <a className="button" href="/library">🗂️ 내 보관함 열기</a>
       </Hero>
       {err && <div className="notice error-box" style={{ marginBottom: 16 }}>{err}</div>}
       <div className="stat-grid">

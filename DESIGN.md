@@ -7,6 +7,14 @@
 
 ---
 
+> **🖼️ 디자인 시안 웹 쇼케이스 및 라이트박스 원본 팝업 제안 규격 (2026-10-29 주인님 절대 지시: 「이제 됬네 http://localhost:3800/showcase.html 앞으로 이방식으로 시안 작업후 제안해 그리고 작업한 결과물은 위에 폴더에 넣어두고 나중에 다시 검토 할수 있도록 지금 작업내용 디자인 시안작업 지침에 추가하고 인수인계 문서로 남겨놔」, 모든 AI 에이전트·모든 CLI 공통 영구 준수)**
+> ① **단일 통합 쇼케이스 웹서버 표준 포트 제공 (`http://localhost:3800/showcase.html` 또는 `http://localhost:3800/`)**: 4대 핵심 화면(메인/상세/매뉴얼/설정) × 3대 시안 = 총 12개 뷰를 3열 그리드로 나란히 배치한 단일 인터랙티브 쇼케이스 HTML을 작성하고, 로컬 웹서버(포트 3800)로 호스팅하여 한글 깨짐 없이 사용자가 브라우저에서 즉시 열어볼 수 있는 순수 영문 URL을 1순위로 제공한다.
+> ② **카드 클릭 시 1440px 고화질 원본 라이트박스 팝업 확대 필수**: 쇼케이스 내 어떤 뷰 카드든 클릭하면 즉시 화면 가득 고해상도(1440px) 원본 캡처가 라이트박스 모달로 쨍하게 팝업되어 작은 폰트나 디테일까지 직관적으로 판별할 수 있어야 한다. (좌우 이전/다음 이동, 100% 원본 뷰 모드, ESC/배경 클릭 닫기 지원)
+> ③ **`D:\Antigravity\Design\<번호_템플릿명>` 폴더별 100% 독립 영구 저장 의무**: 채택안 및 비선택 시안 2종을 포함한 3대 템플릿 각각 독립된 폴더(`D:\Antigravity\Design\<번호_템플릿명>`)를 생성하여 4대 화면 고화질 캡처본(01_main, 02_detail, 03_guide, 04_settings), 컨셉/배색/UI 스펙을 기술한 `README.md`, 독립 뷰어 `showcase_12views.html`을 영구 아카이빙하여 나중에 언제든 다시 검토할 수 있도록 보존한다.
+> ④ **숏폼/영상 도메인 톤앤매너 지침 (2026-10-29 주인님 지시)**: 숏폼 제작 프로그램은 지나치게 침침하거나 어두운 다크 톤을 지양하고, **유튜브 쇼츠(YouTube Shorts) 특유의 아이코닉 레드(`#FF0000`/`#EA3323`)와 밝고 생동감 넘치는 크리에이터 스튜디오 감성**을 살려 제작한다.
+
+---
+
 > **💖 디자인 시안 영구 보존 및 100% 자산화 헌장 (2026-10-25 주인님 절대 지시: 「우선 지금까지 작업한 디자인 시안을 이쪽(`D:\Antigravity\Design`)으로 이동시켜놔. 디자인 템플릿 메인 지침에 이 내용 등록하고 여기에 저장해서 필요할 때 참고할 수 있도록 하자. 너가 디자인한 건 버릴 건 없다. 단지 지금 선택 받지 못하고 다음에 활용할 뿐」, 모든 AI 코딩 에이전트·모든 CLI 공통 영구 준수)**
 > ① **버릴 디자인은 하나도 없다**: 에이전트가 창의적으로 제작한 모든 디자인 시안(4대 화면 각 3종, 총 12개 뷰)은 단 하나도 폐기하지 않는다. 특정 프로그램에서 지금 당장 채택되지 못하더라도, 그것은 단지 지금 선택받지 못한 것일 뿐 후속 프로그램이나 타 도메인에서 최고의 무기로 즉시 활용된다.
 > ② **전용 아카이브 `D:\Antigravity\Design` 즉시 영구 저장 의무**: 어떤 프로그램이든 디자인 시안(4대 화면 3시안) 작업이 끝나면, 채택된 시안과 비선택 시안 전체(스크린샷 4종 + 쇼케이스 HTML + 스펙 설명 마크다운)를 `D:\Antigravity\Design\<번호_템플릿명>` 폴더 밑에 템플릿 고유 명칭으로 폴더를 구성하여 작업 완료 시점에 항상 빠짐없이 저장·동기화한다.
@@ -441,6 +449,9 @@
 | **21. 헐리우드 시네마틱 네온 REC 스타일<br>(Hollywood Cinematic Neon REC Style)** | **YOUTUBE Shots 자동화** (`shots` `v1.44`, 2026-10-26 4대 화면 실세션 검수 완료 및 **Group 2 유튜브/숏폼 영상 대표 템플릿 확정**, 쇼케이스 `scratch/shots_showcase_12views.html`) | 시네마틱 딥 네이비 블랙 (`#0b0d1b`) & 루비 레드 네온 (`#f43f5e`) & 헐리우드 골드 앰버 (`#fbbf24`) | 헐리우드 촬영 현장의 카메라 OSD 뷰파인더, LIVE 🔴 REC 펄스 인디케이터, 3D 엠보싱 셔터 버튼, WebCodecs 하드웨어 가속 1080p 브라우저 렌더러, 5단계 영화 제작 파이프라인 인포그래픽 | **유튜브 쇼츠 및 숏폼 영상 자동화 전체 메인 템플릿**, 인스타그램 릴스/틱톡 크리에이터 스튜디오, 영상 편집/합성 SaaS |
 | **22. 사이버네틱 펄스 타임라인 다크 스타일<br>(Cybernetic Pulse Timeline Dark Style)** | **유튜브 쇼츠 다크 타임라인 시안** (2026-10-26 4대 화면 실세션 검수 완료, 비선택 시안 템플릿 자산화) | 다크 옵시디언 블랙 (`#090d16`) & 사이버 시안 (`#06b6d4`) & 바이올렛 펄스 (`#8b5cf6`) | 전문 NLE 편집기 멀티트랙 타임라인 OSD, 오디오 파형(Waveform) HUD, 키프레임 노드 및 펄스 네온 슬라이더 | AI 음악 작곡(Suno), 오디오 마스터링/더빙, 전문 비디오 트랜스코딩 툴 |
 | **23. 클린 에디토리얼 크리에이터 미니멀 라이트 스타일<br>(Clean Editorial Creator Minimal Light Style)** | **유튜브 쇼츠 에디토리얼 미니멀 시안** (2026-10-26 4대 화면 실세션 검수 완료, 비선택 시안 템플릿 자산화) | 퓨어 화이트 (`#ffffff`) & 소프트 쿨 그레이 (`#f8fafc`) & 로열 인디고 (`#4f46e5`) | 애플 스튜디오 감성의 간결한 여백, 크리에이터 카드 갤러리, 고대비 타이포그래피, 직관적인 퀵 액션 카드 | 1인 미디어 콘텐츠 기획, SNS 바이럴 카피라이팅, 블로그/뉴스레터 에디토리얼 |
+| **24. 쇼츠 팩토리 옐로우 앤 차콜 스타일<br>(Shorts Factory Yellow & Charcoal Style)** | **AI 쇼츠 원스톱 제작 자동화** (`shorts-onestop-studio`, 2026-10-29 4대 화면 실세션 검수 완료, **추천안 확정**, 쇼케이스 `http://localhost:3800/24_쇼츠_팩토리_옐로우_차콜_스타일/shorts-onestop-studio/showcase_12views.html`) | 딥 매트 차콜 (`#0f141c` / `#161f2e`) & 일렉트릭 옐로우 (`#facc15` / `#eab308`) & 하이퍼 크림슨 (`#ef4444`) | 산업용 크리에이터 팩토리 컨셉. 2단 분할 제작대 (좌: AI 대본 스크립터 / 우: 9:16 모바일 폰 뷰파인더 목업), 고채도 옐로우 3D 엠보싱 실행 버튼(`.btn-3d-yellow`), 실시간 씬(Scene)별 프레임 렌더 모니터링 | 유튜브 쇼츠/틱톡 원스톱 자동 제작기, 숏폼 대량 양산 공장, AI 카드뉴스 비디오 생성기 |
+| **25. 헐리우드 다크 사이버 NLE 콘솔 스타일<br>(Hollywood Dark Cyber NLE Console Style)** | **쇼츠 원스톱 다크 NLE 시안** (2026-10-29 4대 화면 실세션 검수 완료, 비선택 시안 100% 템플릿 자산화) | 퓨어 옵시디언 블랙 (`#07080d`) & 시안 네온 (`#06b6d4`) & 일렉트릭 바이올렛 (`#8b5cf6`) | 프로페셔널 헐리우드 방송국 마스터링 랙 메타포, 멀티트랙 타임라인 OSD, 오디오 스펙트럼 HUD, H.264 고성능 WebCodecs 인코더 제어기, 3D 엠보싱 시안 버튼(`.btn-3d-cyan`) | 방송국/전문 영상 프로덕션 SaaS, 헐리우드 스타일 VFX/사운드 마스터링 콘솔 |
+| **26. 크리에이터 페이퍼 에디토리얼 미니멀 스타일<br>(Creator Paper Editorial Minimal Style)** | **쇼츠 원스톱 에디토리얼 미니멀 시안** (2026-10-29 4대 화면 실세션 검수 완료, 비선택 시안 100% 템플릿 자산화) | 스노우 화이트 & 웜 오트밀 (`#ffffff` / `#f8fafc`) & 딥 인디고 (`#1e1b4b` / `#4f46e5`) & 텐저린 (`#f97316`) | 북유럽 매거진 감성의 스토리보드 카드 덱, 우아한 세리프 헤드라인, 잡지형 씬(Scene) 조판 레이아웃, 3D 엠보싱 인디고 버튼(`.btn-3d-indigo`) | 브런치/매거진 감성 숏폼 에세이, 스토리텔링 쇼츠, 감성 북트레일러 자동화 |
 
 ---
 
@@ -470,7 +481,7 @@
 | BNC | AI 블로그 이웃 소통 자동화 | `blog-neighbor-care` | **릴레이 데스크 — 네이버 그린 변형** · 좌측메뉴/작업·결과2열/비교표 · 그린/화이트/3D · 사용자선택·후보비교에적합 | 라이트·그린 | v1.03 운영·좌측메뉴표준/Edge1000·390·낮은430검수 | [12뷰·선택](blog-neighbor-care/docs/blog-neighbor-care_12VIEWS_PROPOSAL.md) |
 | 1 | 마크다운 문서 자동화 | `markdown-studio` | **포커스 스튜디오 스타일** | 라이트(크림) | ✅ 1차 작업완료 (`v1.11`, 포커스 스튜디오 스타일) | [`markdown-studio/docs/DESIGN_HANDOFF.md`](markdown-studio/docs/DESIGN_HANDOFF.md) |
 | 2 | 뮤직 플레이어 자동화 | `music-player` | **사이버 네온 다크 콘솔 스타일** | 다크(딥블랙) | ✅ 1차 작업완료 (`v1.07`, 사이버 네온 다크 콘솔 스타일) | [`music-player/docs/DESIGN_HANDOFF.md`](music-player/docs/DESIGN_HANDOFF.md) |
-| 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **플로우 위저드 스타일** | 다크/라이트 | ✅ 1차 작업완료 (`v1.13`, 플로우 위저드 스타일) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) |
+| 3 | AI 쇼츠 원스톱 제작 자동화 | `shorts-onestop-studio` | **24. 쇼츠 팩토리 옐로우 앤 차콜 스타일** (추천안 제안) | 다크(매트 차콜 `#0f141c` + 일렉트릭 옐로우 `#facc15`) | 🟡 4대 화면 3시안 쇼케이스 완료 및 승인 대기 (`v1.18`, 12개 뷰 단일 비교 쇼케이스 및 고해상도 확대 뷰어 탑재) | [`shorts-onestop-studio/docs/DESIGN_HANDOFF.md`](shorts-onestop-studio/docs/DESIGN_HANDOFF.md) · [`shorts-onestop-studio/docs/SHORTS_ONESTOP_12VIEWS_PROPOSAL.md`](shorts-onestop-studio/docs/SHORTS_ONESTOP_12VIEWS_PROPOSAL.md) |
 | 4 | AI 블로그 작업실 자동화 | `blog-workroom` | **포커스 스튜디오 스타일** | 라이트(크림/화이트) | ✅ 1차 작업완료 (`v1.06`, 포커스 스튜디오 스타일) | [`blog-workroom/docs/DESIGN_HANDOFF.md`](blog-workroom/docs/DESIGN_HANDOFF.md) |
 | 5 | AI 올인원 그래픽 자동화 | `allinone-graphic` | **크리에이티브 아틀리에 스타일** | 다크(미드나잇) | ✅ 1차 작업완료 (`v1.05`, 크리에이티브 아틀리에 스타일) | [`allinone-graphic/docs/DESIGN_HANDOFF.md`](allinone-graphic/docs/DESIGN_HANDOFF.md) |
 | 6 | YOUTUBE 플레이리스트 자동화 (옛 플레이리스트 채널 제작, v1.16 · Youtube Playlist 병합) | playlist-channel-studio | **사이버 네온 & 유튜브 다크 스튜디오 스타일**<br>1) 템플릿: 사이버 네온 & 유튜브 다크 스튜디오 스타일<br>2) 스타일: 퓨어 옵시디언 블랙 + 네온 사이언 & 유튜브 레드 + 3D 엠보싱 버튼<br>3) 선정이유: 방송국 콘솔 감성 제공 및 10종 스펙트럼·1080p 고속 렌더링·YouTube API 직관적 제어 | 다크(딥블랙 #060911 + 유튜브 레드 #ef4444) | ✅ 2차 리뉴얼완료 (1.32, 4대 플랫폼 키발급 2단버튼 & 3D 실행버튼 탑재) | [playlist-channel-studio/docs/DESIGN_HANDOFF.md](playlist-channel-studio/docs/DESIGN_HANDOFF.md) |
