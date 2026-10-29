@@ -1,5 +1,7 @@
 # AI 블로그 이웃 소통 자동화 — 담당 지침
 
+> [역할: blog] 2026-10-29 Edge native 실행 연결96a18514c/a0f4dbd56 로컬 구현·260검수 완료. 다음은host launcher/등록·실DOM profile/수락·원댓글 읽기 연결. [개선 원장](docs/IMPROVEMENTS.md)의 Native Edge 후속 절을 먼저 확인한다. 합성 profile은 운영용이 아니며 실제 Edge 성공 미검증·공개ZIP/운영v1.03 유지.
+
 > [역할: blog] 2026-10-29 답방·대댓글 `ccf22b76c` 로컬 구현/검수 완료. 다음은 실제 reader/등록 adapter·상주host 구현. 작업 전 [현재 작업표](docs/IMPROVEMENT_BACKLOG.md)와 [미배포 목록](docs/IMPROVEMENTS.md)을 확인한다. SQL2개(cursor→engagement)와 웹 후속8건은 미적용/미배포, 실제 네이버 연결은 기본 OFF.
 
 > [역할: blog] 2026-10-29 기능 구현 우선: 발신 신청 상태620ca322a 로컬 완료. 다음 작업 전 [현재 작업표](docs/IMPROVEMENT_BACKLOG.md)의 완료/대기를 확인한다. 실제 관계 읽기 adapter는 미구현이며, 비공개 연결은 기본 OFF. 후속7건 미배포/운영v1.03 유지.
