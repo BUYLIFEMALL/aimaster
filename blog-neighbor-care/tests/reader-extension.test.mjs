@@ -81,6 +81,12 @@ test('페이지나사이트메시지로읽기/전송/토큰조회못함', async 
   await assert.rejects(s.handle({ type: 'status' }, { id: 'other-extension', url: s.browser.runtime.getURL('popup.html') }));
   const status = await s.handle({ type: 'status' }, web); assert.doesNotMatch(JSON.stringify(status), new RegExp(TOKEN));
 });
+test('실행 연결은 확장 팝업 동의로만 시작하며 웹 메시지나 연결 상태 조회로 실행하지 않음',async()=>{
+ const s=setup(),web={id:s.browser.runtime.id,tab:{url:`${SITE}/reader`}};
+ for(const type of ['native_start','native_stop','native_status'])await assert.rejects(s.handle({type,confirmed:true},web));
+ await assert.rejects(s.run({type:'native_start'}));assert.equal((await s.run({type:'native_status'})).connected,false);
+ assert.equal((await s.run({type:'native_stop'})).connected,false);assert.equal(s.executed(),0);assert.equal(s.calls.length,0);
+});
 test('전송은사용자별도클릭·응답유실후자동재시도없이결과조회', async () => {
   const s = setup({ submitLost: true }), draft = await s.run({ type: 'read', ownerConfirmed: true });
   await assert.rejects(s.run({ type: 'submit', ...draft }), /response_lost/);

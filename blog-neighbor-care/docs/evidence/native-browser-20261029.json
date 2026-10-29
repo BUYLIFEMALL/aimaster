@@ -1,6 +1,6 @@
 {
   "date": "2026-10-29T14:44:39.330717+00:00",
-  "unitTestsPassed": 259,
+  "unitTestsPassed": 260,
   "typecheck": "passed",
   "nativeProtocolTests": 5,
   "bridgeAndWorkerTests": 6,
@@ -22,5 +22,6 @@
   "operatingSqlApplied": false,
   "productionDeployed": false,
   "publishedZipChanged": false,
-  "newPaidCalls": 0
+  "newPaidCalls": 0,
+  "extensionAuthorizationTest": "popup consent only; web/native status cannot invoke operations"
 }
